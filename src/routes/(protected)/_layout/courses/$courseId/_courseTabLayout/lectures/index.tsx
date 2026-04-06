@@ -1,8 +1,8 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { LectureCard } from '@/components/LectureCard'
+import { LectureCard } from '@/components/features/courses'
 import { PAGINATION_PAGE_SIZE } from '@/globalSettings'
-import AppPagination from '@/components/Pagination'
-import SkeletonCommon from '@/components/SkeletonCommon'
+import { Pagination as AppPagination } from '@/components/common'
+import { SkeletonCommon } from '@/components/common'
 import {
   getCurrentPage,
   getTotalPages,

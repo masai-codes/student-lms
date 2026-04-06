@@ -1,13 +1,13 @@
 import { Await, createFileRoute } from '@tanstack/react-router'
-import ViewDiscussion from '@/components/ViewDiscussion'
+import { ViewDiscussion } from '@/components/features/discussions'
 import { Card } from '@/components/ui/card'
-import FilterAndSeachBar from '@/components/FilterAndSeachBar'
+import { FilterAndSeachBar } from '@/components/common'
 import { PAGINATION_PAGE_SIZE } from '@/globalSettings'
-import SkeletonCommon from '@/components/SkeletonCommon'
+import { SkeletonCommon } from '@/components/common'
 import { fetchDiscussionById } from '@/server/discussions/fetchDiscussionById'
 import { fetchDiscussionThreads } from '@/server/discussions/fetchDiscussionThreads'
-import {ViewDiscussionThreads} from '@/components/ViewDiscussionThreads'
-import { TextEditor } from '@/components/TextEditor'
+import {ViewDiscussionThreads} from '@/components/features/discussions'
+import { TextEditor } from '@/components/features/discussions'
 
 export const Route = createFileRoute(
   '/(protected)/_layout/courses/$courseId/assignments_/$assignmentId/discussions/$discussionId/',

@@ -1,11 +1,11 @@
 import { X } from "lucide-react"
-import AiChatPanel from "./AiChatPanel"
-import AiSummaryPanel from "./AiSummaryPanel"
+import AiChatPanel from "../ai/AiChatPanel"
+import AiSummaryPanel from "../ai/AiSummaryPanel"
 import NotesPanel from "./NotesPanel"
-import AiTutorPanel from "./AiTutorPanel"
+import AiTutorPanel from "../ai/AiTutorPanel"
 import { CardContent, CardHeader } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { LectureTranscript } from "@/components/LectureTranscript"
+import { LectureTranscript } from "../lectures/LectureTranscript"
 
 type SidePanel = "default" | "transcript" | "description" | "summary" | "chat"
 

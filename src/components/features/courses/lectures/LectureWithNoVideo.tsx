@@ -10,8 +10,7 @@ import {
 import type { LectureType } from "@/server/lectures/fetchAllLectures"
 
 import { Button } from "@/components/ui/button"
-import SidePanel from "@/components/SidePanel"
-import { LectureDetailsHeader } from "@/components/LectureDetailsHeader"
+import { LectureDetailsHeader, SidePanel } from "@/components/features/courses"
 import { fetchLectureTranscript } from "@/server/lectures/LectureDetailsButtons/fetchLectureTranscript"
 import { fetchLectureDescription } from "@/server/lectures/LectureDetailsButtons/fetchLectureDescription"
 import { fetchLectureAISummary } from "@/server/lectures/LectureDetailsButtons/fetchLectureAISummary"

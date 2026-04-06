@@ -1,14 +1,14 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { PAGINATION_PAGE_SIZE } from '@/globalSettings'
-import AppPagination from '@/components/Pagination'
-import SkeletonCommon from '@/components/SkeletonCommon'
+import { Pagination as AppPagination } from '@/components/common'
+import { SkeletonCommon } from '@/components/common'
 
 import {
   getCurrentPage,
   getTotalPages,
 } from '@/utils/pagination'
 import { createPageSetter } from '@/utils/routerPagination'
-import { ResourceCard } from '@/components/ResourcesCard'
+import { ResourceCard } from '@/components/features/courses'
 import { fetchAllResources } from '@/server/resources/fetchAllResources'
 import { fetchAllResourcesCount } from '@/server/resources/fetchAllResourcesCount'
 

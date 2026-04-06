@@ -6,7 +6,7 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet"
-import CourseCard from "@/components/CourseCard"
+import { CourseCard } from "@/components/features/courses"
 import { fetchAllCourses } from "@/server/courses/fetchCourses"
 
 type SwitchCourseProps = {

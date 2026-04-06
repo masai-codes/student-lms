@@ -14,7 +14,7 @@ import {
     Underline,
     Upload,
 } from "lucide-react"
-import { Button } from "./ui/button"
+import { Button } from "@/components/ui/button"
 
 export function TextEditor() {
     const editor = useEditor({

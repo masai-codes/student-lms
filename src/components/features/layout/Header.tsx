@@ -5,7 +5,7 @@ import {
   MessagesSquare,
 } from "lucide-react"
 import { Link } from "@tanstack/react-router"
-import { DropdownMenuProfile } from "@/components/DropdownMenuProfile"
+import { DropdownMenuProfile } from "@/components/features/profile"
 import { Button } from "@/components/ui/button"
 import {
   Sheet,

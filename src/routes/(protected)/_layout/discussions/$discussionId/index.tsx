@@ -1,9 +1,9 @@
 import { Await, createFileRoute } from '@tanstack/react-router'
-import ViewDiscussion from '@/components/ViewDiscussion'
+import { ViewDiscussion } from '@/components/features/discussions'
 import { fetchDiscussionById } from '@/server/discussions/fetchDiscussionById'
 import { fetchDiscussionThreads } from '@/server/discussions/fetchDiscussionThreads'
-import { ViewDiscussionThreads, ZeroDiscussionThreads } from '@/components/ViewDiscussionThreads'
-import { TextEditor } from '@/components/TextEditor'
+import { ViewDiscussionThreads, ZeroDiscussionThreads } from '@/components/features/discussions'
+import { TextEditor } from '@/components/features/discussions'
 import { Skeleton } from '@/components/ui/skeleton'
 
 export const Route = createFileRoute(

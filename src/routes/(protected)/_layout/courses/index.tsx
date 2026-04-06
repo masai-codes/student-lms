@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router"
-import CourseCard from "@/components/CourseCard"
-import CourseCardSkeleton from "@/components/CourseSkeletonCard"
+import { CourseCard } from "@/components/features/courses"
+import { CourseSkeletonCard as CourseCardSkeleton } from "@/components/features/courses"
 import { fetchAllCourses } from "@/server/courses/fetchCourses"
 
 

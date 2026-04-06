@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react"
 import { NotebookText } from "lucide-react"
-import { Button } from "./ui/button"
+import { Button } from "@/components/ui/button"
 import type { CarouselApi } from "@/components/ui/carousel"
 import type { WeeklyScheduleResponse } from "@/server/dashboard/fetchWeeklySchedule"
 import type { PendingTaskRow } from "@/server/dashboard/fetchPendingTasks"
 import type { AnnouncementsType } from "@/server/announcements/fetchAllAnnouncement"
-import DashboardPanels from "@/components/DashboardPanels"
+import { DashboardPanels } from "@/components/features/dashboard"
 import { CardContent } from "@/components/ui/card"
 import {
     Carousel,

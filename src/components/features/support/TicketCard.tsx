@@ -1,6 +1,6 @@
 import { FileText } from 'lucide-react'
 import { useNavigate } from '@tanstack/react-router'
-import { TagChip } from './TagChip'
+import { TagChip } from '@/components/common'
 import type { TicketType } from '@/server/tickets/fetchAllTickets'
 import { Card } from '@/components/ui/card'
 

@@ -1,5 +1,5 @@
 import type { LectureType } from "@/server/lectures/fetchAllLectures";
-import { LectureDetailsHeader } from "@/components/LectureDetailsHeader";
+import { LectureDetailsHeader } from "@/components/features/courses";
 import { Button } from "@/components/ui/button";
 
 type LectureWithJoinCTAProps = {

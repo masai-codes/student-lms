@@ -1,7 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { PAGINATION_PAGE_SIZE } from '@/globalSettings'
-import AppPagination from '@/components/Pagination'
-import SkeletonCommon from '@/components/SkeletonCommon'
+import { Pagination as AppPagination } from '@/components/common'
+import { SkeletonCommon } from '@/components/common'
 
 import {
   getCurrentPage,
@@ -9,7 +9,7 @@ import {
 } from '@/utils/pagination'
 import { createPageSetter } from '@/utils/routerPagination'
 import { fetchAllAssignments } from '@/server/assignments/fetchAllAssignments'
-import { AssignmentCard } from '@/components/AssignmentCard'
+import { AssignmentCard } from '@/components/features/courses'
 import { fetchAllAssignmentsCount } from '@/server/assignments/fetchAllAssignmentsCount'
 
 export const Route = createFileRoute(

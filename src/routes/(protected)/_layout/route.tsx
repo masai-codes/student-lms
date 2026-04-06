@@ -1,5 +1,5 @@
 import { Outlet, createFileRoute, redirect } from "@tanstack/react-router"
-import Header from "@/components/Header"
+import { Header } from "@/components/features/layout"
 import { fetchCurrentUser } from "@/server/auth/fetchCurrentUser"
 
 export const Route = createFileRoute("/(protected)/_layout")({

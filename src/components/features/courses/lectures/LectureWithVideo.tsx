@@ -17,8 +17,7 @@ import {
   VideoPlayerVolumeRange,
 } from "@/components/ui/video-player"
 import { Button } from "@/components/ui/button"
-import SidePanel from "@/components/SidePanel"
-import { LectureDetailsHeader } from "@/components/LectureDetailsHeader"
+import { LectureDetailsHeader, SidePanel } from "@/components/features/courses"
 import { fetchLectureTranscript } from "@/server/lectures/LectureDetailsButtons/fetchLectureTranscript"
 
 type SidePanelType = "default" | "transcript" | "description" | "summary" | "chat"
