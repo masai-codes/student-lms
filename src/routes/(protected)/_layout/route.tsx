@@ -22,7 +22,7 @@ function RouteComponent() {
   return (
     <div className="min-h-screen bg-[#FAF9F9]">
       <Header />
-      <main className="">
+      <main className="mx-auto w-full max-w-[1280px]">
         <Outlet />
       </main>
     </div>
