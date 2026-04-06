@@ -18,10 +18,18 @@ export const Route = createRootRouteWithContext<RouterContext>()({
         content: 'width=device-width, initial-scale=1',
       },
       {
-        title: 'Masai Experience',
+        title: 'Masai LMS',
       },
     ],
     links: [
+      {
+        rel: 'icon',
+        href: 'https://d27028dliefpk3.cloudfront.net/assets/favicon/favicon.ico',
+      },
+      {
+        rel: 'apple-touch-icon',
+        href: 'https://d27028dliefpk3.cloudfront.net/assets/favicon/favicon.ico',
+      },
       {
         rel: 'stylesheet',
         href: appCss,

@@ -101,6 +101,18 @@ export default function Header() {
           >
             Refer &amp; Earn
           </Link>
+
+          <Link
+            to="/masaiverse"
+            activeOptions={{ exact: false }}
+            activeProps={{
+              className:
+                "text-[#6962AC] underline underline-offset-8 decoration-2 decoration-[#6962AC]",
+            }}
+            className="text-[#6C7280] font-medium transition hover:text-[#6962AC]"
+          >
+            MasaiVerse
+          </Link>
         </nav>
 
         {/* Right Actions */}
@@ -196,6 +208,18 @@ export default function Header() {
                   className="text-sm font-medium text-muted-foreground hover:text-[#6962AC]"
                 >
                   Support
+                </Link>
+
+                <Link
+                  to="/masaiverse"
+                  activeOptions={{ exact: false }}
+                  activeProps={{
+                    className:
+                      "text-[#6962AC] underline underline-offset-6 decoration-[#6962AC]",
+                  }}
+                  className="text-sm font-medium text-muted-foreground hover:text-[#6962AC]"
+                >
+                  MasaiVerse
                 </Link>
               </nav>
             </SheetContent>

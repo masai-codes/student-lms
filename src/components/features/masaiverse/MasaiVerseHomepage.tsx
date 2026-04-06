@@ -1,0 +1,7 @@
+export function MasaiVerseHomepage() {
+  return (
+    <div className="p-6">
+      <h2 className="text-2xl font-semibold">MasaiVerse Homepage</h2>
+    </div>
+  )
+}
