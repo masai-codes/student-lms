@@ -5,8 +5,7 @@ export const getRouter = () => {
   const router = createRouter({
     routeTree,
     context: {
-      user: { id: 34473, name: 'S' },
-      // user: null,
+      user: null,
       login: () => { },
       logout: () => { },
     },

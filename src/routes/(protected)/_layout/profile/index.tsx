@@ -6,7 +6,8 @@ export const Route = createFileRoute('/(protected)/_layout/profile/')({
 })
 
 function RouteComponent() {
+  const { user } = Route.useRouteContext()
   return (
-    <ProfilePage />
+    <ProfilePage user={user} />
   )
 }

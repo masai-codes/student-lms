@@ -3,6 +3,7 @@
 export interface User {
   id: number
   name: string
+  email?: string | null
 }
 
 export interface RouterContext {

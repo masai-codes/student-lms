@@ -1,14 +1,15 @@
 import { Outlet, createFileRoute, redirect } from "@tanstack/react-router"
 import Header from "@/components/Header"
+import { fetchCurrentUser } from "@/server/auth/fetchCurrentUser"
 
 export const Route = createFileRoute("/(protected)/_layout")({
-  beforeLoad: ({ context }) => {
-    if (!context.user) {
-      console.log("No user found, redirecting to login", context.user)
+  beforeLoad: async () => {
+    const user = await fetchCurrentUser()
+    if (!user) {
       throw redirect({ to: "/login" })
     }
     return {
-      user: context.user,
+      user,
     }
 
   },

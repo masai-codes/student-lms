@@ -1,9 +1,14 @@
 import { useState } from "react"
 import { Mail, Phone } from "lucide-react"
+import type { User } from "@/types"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 
-export default function ProfilePage() {
+type ProfilePageProps = {
+  user: User
+}
+
+export default function ProfilePage({ user }: ProfilePageProps) {
 
   const [activeTab, setActiveTab] = useState("profile")
 
@@ -31,11 +36,11 @@ export default function ProfilePage() {
         </div>
 
         <div className="flex flex-col gap-1">
-          <h3 className="text-xl font-semibold">Hurmit Grover</h3>
+          <h3 className="text-xl font-semibold">{user.name}</h3>
 
           <div className="flex items-center">
             <Mail color="#6C7280" size={18} />
-            <p className="text-[#626A77] ml-2">hurmit.grover@gmail.com</p>
+            <p className="text-[#626A77] ml-2">{user.email ?? "-"}</p>
           </div>
 
           <div className="flex items-center">
@@ -64,7 +69,7 @@ export default function ProfilePage() {
           ))}
         </div>
         <div className="">
-          {activeTab === "profile" && <ProfileDetailsTab />}
+          {activeTab === "profile" && <ProfileDetailsTab userName={user.name} />}
           {activeTab === "integration" && <IntegrationTab />}
           {activeTab === "ack" && <AcknowledgementTab />}
           {activeTab === "activity" && <ActivityTab />}
@@ -75,10 +80,10 @@ export default function ProfilePage() {
   )
 }
 
-function ProfileDetailsTab() {
+function ProfileDetailsTab({ userName }: { userName: string }) {
   return (
     <div className="bg-white border rounded-b-xl rounded-tr-xl p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
-      <InfoCard title="Name" value="Abhishek Ravindran" />
+      <InfoCard title="Name" value={userName} />
       <InfoCard title="Mobile Number" value="+91 9742658112" />
       <InfoCard title="Password" value="••••••••••••" />
     </div>

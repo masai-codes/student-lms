@@ -1,4 +1,4 @@
-import { Link, useRouter } from "@tanstack/react-router"
+import { Link } from "@tanstack/react-router"
 import {
   BadgeCheckIcon,
   Book,
@@ -20,16 +20,10 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { getLegacyStudentUiUrl, redirectToLegacyStudentUi } from "@/utils/authRedirect"
 
 export function DropdownMenuProfile() {
-
-  // const router = useRouter()
-  // const { logout } = router.options.context
-
-  // const handleLogout = () => {
-  //   logout()
-  //   router.navigate({ to: '/' }) 
-  // }
+  const legacyStudentUiUrl = getLegacyStudentUiUrl()
 
 
   return (
@@ -87,7 +81,7 @@ export function DropdownMenuProfile() {
             </DropdownMenuItem>
           </a>
 
-          <a href='https://demo-students-beta.masaischool.com/'>
+          <a href={legacyStudentUiUrl ?? "#"}>
             <DropdownMenuItem>
               <ToggleLeft />
               Switch to Old LMS
@@ -98,7 +92,7 @@ export function DropdownMenuProfile() {
         <DropdownMenuSeparator />
 
         {/* <DropdownMenuItem onClick={handleLogout}> */}
-        <DropdownMenuItem>
+        <DropdownMenuItem onClick={redirectToLegacyStudentUi}>
           <LogOutIcon />
           Sign Out
         </DropdownMenuItem>

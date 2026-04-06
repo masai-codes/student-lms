@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Eye, EyeOff } from "lucide-react"
 import { createFileRoute, redirect } from '@tanstack/react-router'
 import {
@@ -14,14 +14,16 @@ import { Button } from "@/components/ui/button"
 // import { Field, FieldDescription, FieldLabel } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { fetchCurrentUser } from "@/server/auth/fetchCurrentUser"
+import { redirectToLegacyStudentUi } from "@/utils/authRedirect"
 
 export const Route = createFileRoute('/(auth)/login/')({
-  beforeLoad: ({ context }) => {
-      if (context.user) {
-        console.log("User found, redirecting to homepage", context.user)
-        throw redirect({ to: "/" })
-      }
-    },
+  beforeLoad: async () => {
+    const user = await fetchCurrentUser()
+    if (user) {
+      throw redirect({ to: "/" })
+    }
+  },
   component: RouteComponent,
 })
 
@@ -30,6 +32,9 @@ export const Route = createFileRoute('/(auth)/login/')({
 function RouteComponent() {
 
   const [showPassword, setShowPassword] = useState(false)
+  useEffect(() => {
+    redirectToLegacyStudentUi()
+  }, [])
 
   return (
     <div className="min-h-screen flex items-center justify-center">
@@ -88,11 +93,9 @@ function RouteComponent() {
           <Button
             type="button"
             className="w-full"
-            onClick={() => {
-              console.log('Login clicked')
-            }}
+            onClick={redirectToLegacyStudentUi}
           >
-            Login
+            Go to Old LMS Login
           </Button>
         </CardFooter>
       </Card>
