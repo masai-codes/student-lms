@@ -3126,6 +3126,19 @@ export const clubs = mysqlTable("clubs", {
 	primaryKey({ columns: [table.id], name: "clubs_id"}),
 ]);
 
+export const clubMembers = mysqlTable("club_members", {
+	id: char({ length: 36 }).notNull(),
+	userId: bigint("user_id", { mode: "number", unsigned: true }).notNull().references(() => users.id),
+	clubId: char("club_id", { length: 36 }).notNull().references(() => clubs.id, { onDelete: "cascade" }),
+	role: varchar({ length: 50 }).default("member").notNull(),
+	joinedAt: timestamp("joined_at", { mode: "string" }).defaultNow().notNull(),
+},
+(table) => [
+	unique("club_members_user_id_club_id_unique").on(table.userId, table.clubId),
+	index("club_members_club_id_index").on(table.clubId),
+	primaryKey({ columns: [table.id], name: "club_members_id"}),
+]);
+
 export const events = mysqlTable("events", {
 	id: char({ length: 36 }).notNull(),
 	clubId: char("club_id", { length: 36 }).references(() => clubs.id, { onDelete: "cascade" }),
@@ -3136,6 +3149,7 @@ export const events = mysqlTable("events", {
 	locationTitle: varchar("location_title", { length: 255 }),
 	locationMapLink: text("location_map_link"),
 	eventLink: text("event_link"),
+	imageLink: text("image_link"),
 	platform: varchar({ length: 50 }),
 	startTime: timestamp("start_time", { mode: "string" }),
 	endTime: timestamp("end_time", { mode: "string" }),

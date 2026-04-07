@@ -39,7 +39,6 @@ export function EventCard({
   const resolvedDirection = useResolvedDirection(drawerDirection)
 
   const handleCtaClick = () => {
-    onCtaClick?.()
     setOpen(true)
   }
 
