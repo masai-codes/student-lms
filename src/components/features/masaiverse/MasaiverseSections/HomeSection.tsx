@@ -5,10 +5,13 @@ import { Navigation } from "swiper/modules"
 import { Swiper, SwiperSlide } from "swiper/react"
 import type { ClubType } from "@/server/masaiverse/fetchClubs"
 import type { EventType } from "@/server/masaiverse/fetchEvents"
-import type { JoinableItem } from "@/components/features/masaiverse/MasaiverseSections/JoinDetailsSheet"
+import { ClubCard } from "@/components/club-card"
+import { EventCard } from "@/components/event-card"
 import { Button } from "@/components/ui/button"
-import EventCard from "@/components/features/masaiverse/MasaiverseSections/EventCard"
-import JoinDetailsSheet from "@/components/features/masaiverse/MasaiverseSections/JoinDetailsSheet"
+import {
+  mapClubToCardProps,
+  mapEventToCardProps,
+} from "@/components/features/masaiverse/MasaiverseSections/cardDataMappers"
 import { fetchAllClubs } from "@/server/masaiverse/fetchClubs"
 import { fetchAllEvents } from "@/server/masaiverse/fetchEvents"
 import "swiper/css"
@@ -19,7 +22,6 @@ export default function HomeSection() {
   const [clubsList, setClubsList] = useState<Array<ClubType>>([])
   const [eventsList, setEventsList] = useState<Array<EventType>>([])
   const [isLoading, setIsLoading] = useState(true)
-  const [selectedItem, setSelectedItem] = useState<JoinableItem>(null)
 
   useEffect(() => {
     let isMounted = true
@@ -72,24 +74,8 @@ export default function HomeSection() {
               className="w-full px-2"
             >
               {clubsList.map((club) => (
-                <SwiperSlide key={club.id} className="!w-[246px]">
-                  <article className="h-full w-full rounded-xl border border-[#E5E7EB] bg-white p-4">
-                    <img
-                      src={club.image || "/Masaiverse.svg"}
-                      alt={club.name}
-                      className="h-36 w-full rounded-lg object-cover"
-                    />
-
-                    <p className="mt-3 text-lg font-semibold text-[#111827]">{club.name}</p>
-                    <p className="mt-1 text-sm font-medium text-[#4B5563]">{club.domain || "General"}</p>
-                    <p className="mt-2 min-h-10 text-sm leading-5 text-[#6B7280]">
-                      {club.meta?.mini_description || "No description available."}
-                    </p>
-
-                    <Button className="mt-4 w-full" onClick={() => setSelectedItem({ type: "club", data: club })}>
-                      Join
-                    </Button>
-                  </article>
+                <SwiperSlide key={club.id} className="!w-[300px]">
+                  <ClubCard {...mapClubToCardProps(club)} />
                 </SwiperSlide>
               ))}
             </Swiper>
@@ -144,17 +130,11 @@ export default function HomeSection() {
             {eventsList
               .slice(0, 3)
               .map((event) => (
-                <EventCard
-                  key={event.id}
-                  event={event}
-                  onJoin={(eventData) => setSelectedItem({ type: "event", data: eventData })}
-                />
+                <EventCard key={event.id} {...mapEventToCardProps(event)} />
               ))}
           </div>
         )}
       </div>
-
-      <JoinDetailsSheet selectedItem={selectedItem} onClose={() => setSelectedItem(null)} />
     </section>
   )
 }

@@ -1363,6 +1363,7 @@ export const events = mysqlTable("events", {
 	createdBy: bigint("created_by", { mode: "number", unsigned: true }).references(() => users.id),
 	createdAt: timestamp("created_at", { mode: 'string' }).defaultNow().notNull(),
 	updatedAt: timestamp("updated_at", { mode: 'string' }).notNull(),
+	imageLink: text("image_link"),
 },
 (table) => [
 	index("events_club_id_index").on(table.clubId),
