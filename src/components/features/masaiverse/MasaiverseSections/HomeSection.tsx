@@ -1,22 +1,25 @@
 import { useEffect, useState } from "react"
 import { useNavigate } from "@tanstack/react-router"
 import { ChevronLeft, ChevronRight } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { fetchAllClubs } from "@/server/masaiverse/fetchClubs"
-import type { ClubType } from "@/server/masaiverse/fetchClubs"
-import { fetchAllEvents } from "@/server/masaiverse/fetchEvents"
-import type { EventType } from "@/server/masaiverse/fetchEvents"
-import EventCard from "@/components/features/masaiverse/MasaiverseSections/EventCard"
 import { Navigation } from "swiper/modules"
 import { Swiper, SwiperSlide } from "swiper/react"
+import type { ClubType } from "@/server/masaiverse/fetchClubs"
+import type { EventType } from "@/server/masaiverse/fetchEvents"
+import type { JoinableItem } from "@/components/features/masaiverse/MasaiverseSections/JoinDetailsSheet"
+import { Button } from "@/components/ui/button"
+import EventCard from "@/components/features/masaiverse/MasaiverseSections/EventCard"
+import JoinDetailsSheet from "@/components/features/masaiverse/MasaiverseSections/JoinDetailsSheet"
+import { fetchAllClubs } from "@/server/masaiverse/fetchClubs"
+import { fetchAllEvents } from "@/server/masaiverse/fetchEvents"
 import "swiper/css"
 import "swiper/css/navigation"
 
 export default function HomeSection() {
   const navigate = useNavigate()
-  const [clubsList, setClubsList] = useState<ClubType[]>([])
-  const [eventsList, setEventsList] = useState<EventType[]>([])
+  const [clubsList, setClubsList] = useState<Array<ClubType>>([])
+  const [eventsList, setEventsList] = useState<Array<EventType>>([])
   const [isLoading, setIsLoading] = useState(true)
+  const [selectedItem, setSelectedItem] = useState<JoinableItem>(null)
 
   useEffect(() => {
     let isMounted = true
@@ -83,7 +86,9 @@ export default function HomeSection() {
                       {club.meta?.mini_description || "No description available."}
                     </p>
 
-                    <Button className="mt-4 w-full">Join</Button>
+                    <Button className="mt-4 w-full" onClick={() => setSelectedItem({ type: "club", data: club })}>
+                      Join
+                    </Button>
                   </article>
                 </SwiperSlide>
               ))}
@@ -136,10 +141,20 @@ export default function HomeSection() {
           <p className="mt-3 text-sm text-[#6B7280]">No events available right now.</p>
         ) : (
           <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {eventsList.slice(0, 3).map((event) => <EventCard key={event.id} event={event} />)}
+            {eventsList
+              .slice(0, 3)
+              .map((event) => (
+                <EventCard
+                  key={event.id}
+                  event={event}
+                  onJoin={(eventData) => setSelectedItem({ type: "event", data: eventData })}
+                />
+              ))}
           </div>
         )}
       </div>
+
+      <JoinDetailsSheet selectedItem={selectedItem} onClose={() => setSelectedItem(null)} />
     </section>
   )
 }
