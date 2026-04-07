@@ -1,5 +1,7 @@
-import SidebarItem from "./SidebarItem"
 import { useRouterState } from "@tanstack/react-router"
+import { Folder, Calendar, House, Trophy } from "@phosphor-icons/react"
+import SidebarItem from "./SidebarItem"
+import type { Icon } from "@phosphor-icons/react"
 import type { MasaiverseTab } from "./SidebarItem"
 
 const SidebarList = () => {
@@ -18,29 +20,29 @@ const SidebarList = () => {
     },
   })
 
-  const menuItems = [
+  const menuItems: Array<{ id: number; name: string; icon: Icon; tab: MasaiverseTab }> = [
     {
       id: 1,
       name: "Home",
-      icon: "https://masai-drive-uploads-prod.s3.ap-south-1.amazonaws.com/drive/69c5405a1048890fc9f0c63c/1775486319057-0869df190ba1c691.png",
+      icon: House,
       tab: "home",
     },
     {
       id: 2,
       name: "Events",
-      icon: "https://masai-drive-uploads-prod.s3.ap-south-1.amazonaws.com/drive/69c5405a1048890fc9f0c63c/1775486309019-0ceab3de60fe6ae9.png",
+      icon: Calendar,
       tab: "events",
     },
     {
       id: 3,
       name: "Leaderboard",
-      icon: "https://masai-drive-uploads-prod.s3.ap-south-1.amazonaws.com/drive/69c5405a1048890fc9f0c63c/1775486339356-bd691808ec240d0d.png",
+      icon: Trophy,
       tab: "leaderboard",
     },
     {
       id: 4,
       name: "Resources",
-      icon: "https://masai-drive-uploads-prod.s3.ap-south-1.amazonaws.com/drive/69c5405a1048890fc9f0c63c/1775486313269-608e08dd285c7128.png",
+      icon: Folder,
       tab: "resources",
     }
   ]

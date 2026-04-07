@@ -1,15 +1,18 @@
 import { Link } from "@tanstack/react-router"
+import type { Icon } from "@phosphor-icons/react"
 
 export type MasaiverseTab = "home" | "events" | "leaderboard" | "resources"
 
 type SidebarItemProps = {
   name: string
-  icon: string
+  icon: Icon
   tab: MasaiverseTab
   isActive: boolean
 }
 
 const SidebarItem = ({ name, icon, tab, isActive }: SidebarItemProps) => {
+  const IconComponent = icon
+
   return (
     <Link
       to="/masaiverse"
@@ -24,8 +27,18 @@ const SidebarItem = ({ name, icon, tab, isActive }: SidebarItemProps) => {
           isActive ? "bg-[#EF8833]" : "bg-[#FBF9F9]"
         }`}
       >
-        <img src={icon} alt={name} className="h-5 w-5" />
-        <span className="text-[14px] font-medium leading-5 text-[#4B5563]">{name}</span>
+        <IconComponent
+          size={20}
+          weight="regular"
+          color={isActive ? "#FFFFFF" : "#000000"}
+        />
+        <span
+          className={`text-[14px] font-medium leading-5 ${
+            isActive ? "text-white" : "text-black"
+          }`}
+        >
+          {name}
+        </span>
       </div>
     </Link>
   )

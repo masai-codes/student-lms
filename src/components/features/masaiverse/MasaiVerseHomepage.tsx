@@ -7,9 +7,9 @@ type MasaiverseHomepageProps = {
 
 const MasaiverseHomepage = ({ children }: MasaiverseHomepageProps) => {
   return (
-    <div className="m-[24px] flex gap-[24px]">
+    <div className="m-[24px] flex w-[calc(100%-48px)] gap-[24px] overflow-x-hidden">
       <MasaiverseSidebar />
-      {children}
+      <div className="min-w-0 flex-1">{children}</div>
     </div>
   )
 }

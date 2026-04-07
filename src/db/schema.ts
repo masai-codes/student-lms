@@ -3110,3 +3110,42 @@ export const whatsnew = mysqlTable("whatsnew", {
 (table) => [
 	primaryKey({ columns: [table.id], name: "whatsnew_id"}),
 ]);
+
+export const clubs = mysqlTable("clubs", {
+	id: char({ length: 36 }).notNull(),
+	name: varchar({ length: 255 }).notNull(),
+	domain: varchar({ length: 255 }),
+	image: text(),
+	meta: json().$type<Record<string, any>>(),
+	createdBy: bigint("created_by", { mode: "number", unsigned: true }).references(() => users.id),
+	createdAt: timestamp("created_at", { mode: "string" }).defaultNow().notNull(),
+	updatedAt: timestamp("updated_at", { mode: "string" }).notNull(),
+},
+(table) => [
+	index("clubs_created_by_index").on(table.createdBy),
+	primaryKey({ columns: [table.id], name: "clubs_id"}),
+]);
+
+export const events = mysqlTable("events", {
+	id: char({ length: 36 }).notNull(),
+	clubId: char("club_id", { length: 36 }).references(() => clubs.id, { onDelete: "cascade" }),
+	title: varchar({ length: 255 }).notNull(),
+	description: text(),
+	category: mysqlEnum(["hackathon", "meetup", "webinar"]),
+	mode: mysqlEnum(["online", "offline"]),
+	locationTitle: varchar("location_title", { length: 255 }),
+	locationMapLink: text("location_map_link"),
+	eventLink: text("event_link"),
+	platform: varchar({ length: 50 }),
+	startTime: timestamp("start_time", { mode: "string" }),
+	endTime: timestamp("end_time", { mode: "string" }),
+	meta: json().$type<Record<string, any>>(),
+	createdBy: bigint("created_by", { mode: "number", unsigned: true }).references(() => users.id),
+	createdAt: timestamp("created_at", { mode: "string" }).defaultNow().notNull(),
+	updatedAt: timestamp("updated_at", { mode: "string" }).notNull(),
+},
+(table) => [
+	index("events_club_id_index").on(table.clubId),
+	index("events_created_by_index").on(table.createdBy),
+	primaryKey({ columns: [table.id], name: "events_id"}),
+]);
