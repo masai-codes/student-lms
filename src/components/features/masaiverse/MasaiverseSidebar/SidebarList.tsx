@@ -1,50 +1,55 @@
-import { useRouterState } from "@tanstack/react-router"
-import { Folder, Calendar, House, Trophy } from "@phosphor-icons/react"
-import SidebarItem from "./SidebarItem"
-import type { Icon } from "@phosphor-icons/react"
-import type { MasaiverseTab } from "./SidebarItem"
+import { useRouterState } from '@tanstack/react-router'
+import { Folder, Calendar, House, Trophy } from '@phosphor-icons/react'
+import SidebarItem from './SidebarItem'
+import type { Icon } from '@phosphor-icons/react'
+import type { MasaiverseTab } from './SidebarItem'
 
 const SidebarList = () => {
   const activeTab = useRouterState({
     select: (state): MasaiverseTab => {
       const tab = state.location.search.tab
       if (
-        tab === "home" ||
-        tab === "events" ||
-        tab === "leaderboard" ||
-        tab === "resources"
+        tab === 'home' ||
+        tab === 'events' ||
+        tab === 'leaderboard' ||
+        tab === 'resources'
       ) {
         return tab
       }
-      return "home"
+      return 'home'
     },
   })
 
-  const menuItems: Array<{ id: number; name: string; icon: Icon; tab: MasaiverseTab }> = [
+  const menuItems: Array<{
+    id: number
+    name: string
+    icon: Icon
+    tab: MasaiverseTab
+  }> = [
     {
       id: 1,
-      name: "Home",
+      name: 'Home',
       icon: House,
-      tab: "home",
+      tab: 'home',
     },
     {
       id: 2,
-      name: "Events",
+      name: 'Events',
       icon: Calendar,
-      tab: "events",
+      tab: 'events',
     },
-    {
-      id: 3,
-      name: "Leaderboard",
-      icon: Trophy,
-      tab: "leaderboard",
-    },
-    {
-      id: 4,
-      name: "Resources",
-      icon: Folder,
-      tab: "resources",
-    }
+    // {
+    //   id: 3,
+    //   name: "Leaderboard",
+    //   icon: Trophy,
+    //   tab: "leaderboard",
+    // },
+    // {
+    //   id: 4,
+    //   name: "Resources",
+    //   icon: Folder,
+    //   tab: "resources",
+    // }
   ]
 
   return (
