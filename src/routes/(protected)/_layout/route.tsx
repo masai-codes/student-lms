@@ -20,9 +20,9 @@ export const Route = createFileRoute("/(protected)/_layout")({
 
 function RouteComponent() {
   return (
-    <div className="min-h-screen bg-[#FAF9F9]">
+    <div className="min-h-dvh bg-[#FAF9F9] flex flex-col">
       <Header />
-      <main className="mx-auto w-full max-w-[1280px]">
+      <main className="mx-auto w-full max-w-[1280px] flex-1 min-h-0">
         <Outlet />
       </main>
     </div>

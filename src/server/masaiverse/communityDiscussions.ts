@@ -12,6 +12,7 @@ export type DiscussionReply = {
   content: string
   createdAt: string | null
   authorName: string
+  authorProfileImage: string | null
   upvotes: number
   downvotes: number
   myVote: VoteValue | null
@@ -22,6 +23,7 @@ export type DiscussionPost = {
   content: string
   createdAt: string | null
   authorName: string
+  authorProfileImage: string | null
   upvotes: number
   downvotes: number
   myVote: VoteValue | null
@@ -63,10 +65,25 @@ export const fetchCommunityDiscussions = createServerFn({ method: 'GET' }).handl
     throw new Error('UNAUTHORIZED')
   }
 
+  const currentUserRows = normalizeRows<{
+    name: string | null
+    profileImage: string | null
+  }>(await db.execute(sql`
+    SELECT
+      u.name,
+      JSON_UNQUOTE(JSON_EXTRACT(u.meta, '$.profile_pic')) AS profileImage
+    FROM users u
+    WHERE u.id = ${userId}
+    LIMIT 1
+  `))
+  const currentUser = currentUserRows[0] ?? { name: null, profileImage: null }
+
   const joinedClubId = await getJoinedClubId(userId)
   if (!joinedClubId) {
     return {
       joinedClubId: null as string | null,
+      currentUserName: currentUser.name,
+      currentUserProfileImage: currentUser.profileImage,
       posts: [] as Array<DiscussionPost>,
     }
   }
@@ -76,12 +93,14 @@ export const fetchCommunityDiscussions = createServerFn({ method: 'GET' }).handl
     content: string | null
     createdAt: string | null
     authorName: string
+    authorProfileImage: string | null
   }>(await db.execute(sql`
     SELECT
       p.id,
       p.content,
       p.created_at AS createdAt,
-      u.name AS authorName
+      u.name AS authorName,
+      JSON_UNQUOTE(JSON_EXTRACT(u.meta, '$.profile_pic')) AS authorProfileImage
     FROM posts p
     INNER JOIN users u ON u.id = p.user_id
     WHERE p.club_id = ${joinedClubId}
@@ -94,13 +113,15 @@ export const fetchCommunityDiscussions = createServerFn({ method: 'GET' }).handl
     content: string | null
     createdAt: string | null
     authorName: string
+    authorProfileImage: string | null
   }>(await db.execute(sql`
     SELECT
       r.id,
       r.post_id AS postId,
       r.content,
       r.created_at AS createdAt,
-      u.name AS authorName
+      u.name AS authorName,
+      JSON_UNQUOTE(JSON_EXTRACT(u.meta, '$.profile_pic')) AS authorProfileImage
     FROM replies r
     INNER JOIN posts p ON p.id = r.post_id
     INNER JOIN users u ON u.id = r.user_id
@@ -184,6 +205,7 @@ export const fetchCommunityDiscussions = createServerFn({ method: 'GET' }).handl
       content: replyRow.content ?? '',
       createdAt: replyRow.createdAt ?? null,
       authorName: replyRow.authorName,
+      authorProfileImage: replyRow.authorProfileImage ?? null,
       upvotes: voteStats.upvotes,
       downvotes: voteStats.downvotes,
       myVote: voteStats.myVote,
@@ -207,6 +229,7 @@ export const fetchCommunityDiscussions = createServerFn({ method: 'GET' }).handl
       content: postRow.content ?? '',
       createdAt: postRow.createdAt ?? null,
       authorName: postRow.authorName,
+      authorProfileImage: postRow.authorProfileImage ?? null,
       upvotes: voteStats.upvotes,
       downvotes: voteStats.downvotes,
       myVote: voteStats.myVote,
@@ -217,6 +240,8 @@ export const fetchCommunityDiscussions = createServerFn({ method: 'GET' }).handl
 
   return {
     joinedClubId,
+    currentUserName: currentUser.name,
+    currentUserProfileImage: currentUser.profileImage,
     posts: result,
   }
 })
@@ -439,8 +464,8 @@ export const toggleCommunityPostBookmark = createServerFn({ method: 'POST' })
 
     if (existingBookmark.length === 0) {
       await db.execute(sql`
-        INSERT INTO club_post_bookmarks (user_id, post_id, created_at)
-        VALUES (${userId}, ${data.postId}, NOW())
+        INSERT INTO club_post_bookmarks (id, user_id, post_id, created_at)
+        VALUES (UUID(), ${userId}, ${data.postId}, NOW())
       `)
       return { success: true, isBookmarked: true }
     }

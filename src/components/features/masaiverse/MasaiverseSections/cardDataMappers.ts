@@ -6,7 +6,7 @@ import type { EventType } from "@/server/masaiverse/fetchEvents"
 type ClubMeta = {
   mini_description?: string
   detail_description?: string
-  detail_points?: string[]
+  detail_points?: Array<string>
   total_members?: number | string
   cta_theme?: "yellow" | "red"
   cta_text?: string
@@ -82,7 +82,7 @@ export const mapEventToCardProps = (event: EventType): EventCardProps => {
   return {
     title: event.title,
     miniDescription: meta.mini_description || event.description || "No description available.",
-    ctaText: meta.cta_text || "Join",
+    ctaText: "Enroll",
     isActive: meta.is_active ?? Boolean(event.startTime),
     category: event.category || "event",
     image: eventImageLink || meta.image || "/Masaiverse.svg",

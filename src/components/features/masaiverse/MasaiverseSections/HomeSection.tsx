@@ -14,7 +14,9 @@ import {
 } from '@/components/features/masaiverse/MasaiverseSections/cardDataMappers'
 import CommunityDiscussions from '@/components/features/masaiverse/MasaiverseSections/CommunityDiscussions'
 import { fetchMyClubMembership } from '@/server/masaiverse/fetchMyClubMembership'
+import { fetchMyEventEnrollments } from '@/server/masaiverse/fetchMyEventEnrollments'
 import { joinClub } from '@/server/masaiverse/joinClub'
+import { joinEvent } from '@/server/masaiverse/joinEvent'
 import { fetchAllClubs } from '@/server/masaiverse/fetchClubs'
 import { fetchAllEvents } from '@/server/masaiverse/fetchEvents'
 import 'swiper/css'
@@ -27,21 +29,25 @@ export default function HomeSection() {
   const [isLoading, setIsLoading] = useState(true)
   const [joinedClubId, setJoinedClubId] = useState<string | null>(null)
   const [joiningClubId, setJoiningClubId] = useState<string | null>(null)
+  const [enrolledEventIds, setEnrolledEventIds] = useState<Array<string>>([])
+  const [joiningEventId, setJoiningEventId] = useState<string | null>(null)
 
   useEffect(() => {
     let isMounted = true
 
     const getHomeData = async () => {
       try {
-        const [clubs, events, membership] = await Promise.all([
+        const [clubs, events, membership, eventEnrollments] = await Promise.all([
           fetchAllClubs(),
           fetchAllEvents(),
           fetchMyClubMembership(),
+          fetchMyEventEnrollments(),
         ])
         if (isMounted) {
           setClubsList(clubs)
           setEventsList(events)
           setJoinedClubId(membership?.joinedClubId ?? null)
+          setEnrolledEventIds(eventEnrollments)
         }
       } finally {
         if (isMounted) {
@@ -71,6 +77,20 @@ export default function HomeSection() {
       }
     } finally {
       setJoiningClubId(null)
+    }
+  }
+
+  const handleEventEnroll = async (eventId: string) => {
+    if (joiningEventId || enrolledEventIds.includes(eventId)) {
+      return
+    }
+
+    setJoiningEventId(eventId)
+    try {
+      await joinEvent({ data: { eventId } })
+      setEnrolledEventIds((prev) => (prev.includes(eventId) ? prev : [...prev, eventId]))
+    } finally {
+      setJoiningEventId(null)
     }
   }
 
@@ -179,9 +199,23 @@ export default function HomeSection() {
           </p>
         ) : (
           <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {eventsList.slice(0, 3).map((event) => (
-              <EventCard key={event.id} {...mapEventToCardProps(event)} />
-            ))}
+            {eventsList.slice(0, 3).map((event) => {
+              const isEnrolled = enrolledEventIds.includes(event.id)
+              return (
+                <EventCard
+                  key={event.id}
+                  {...mapEventToCardProps(event)}
+                  ctaText={isEnrolled ? 'Enrolled' : 'Enroll'}
+                  onCtaClick={
+                    isEnrolled || joiningEventId
+                      ? undefined
+                      : () => {
+                          void handleEventEnroll(event.id)
+                        }
+                  }
+                />
+              )
+            })}
           </div>
         )}
       </div>

@@ -3163,3 +3163,15 @@ export const events = mysqlTable("events", {
 	index("events_created_by_index").on(table.createdBy),
 	primaryKey({ columns: [table.id], name: "events_id"}),
 ]);
+
+export const eventEnrollments = mysqlTable("event_enrollments", {
+	id: char({ length: 36 }).notNull(),
+	userId: bigint("user_id", { mode: "number", unsigned: true }).notNull().references(() => users.id, { onDelete: "cascade" }),
+	eventId: char("event_id", { length: 36 }).notNull().references(() => events.id, { onDelete: "cascade" }),
+	enrolledAt: timestamp("enrolled_at", { mode: "string" }).defaultNow().notNull(),
+},
+(table) => [
+	unique("event_enrollments_user_id_event_id_unique").on(table.userId, table.eventId),
+	index("event_enrollments_event_id_index").on(table.eventId),
+	primaryKey({ columns: [table.id], name: "event_enrollments_id"}),
+]);

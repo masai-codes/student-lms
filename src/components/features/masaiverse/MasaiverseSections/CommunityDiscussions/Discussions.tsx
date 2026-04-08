@@ -13,6 +13,8 @@ import {
 
 const Disucssions = () => {
   const [posts, setPosts] = useState<Array<DiscussionPost>>([])
+  const [currentUserName, setCurrentUserName] = useState('')
+  const [currentUserProfileImage, setCurrentUserProfileImage] = useState<string | null>(null)
   const [isInitialLoading, setIsInitialLoading] = useState(true)
   const [isPosting, setIsPosting] = useState(false)
 
@@ -23,6 +25,8 @@ const Disucssions = () => {
     try {
       const response = await fetchCommunityDiscussions()
       setPosts(response.posts)
+      setCurrentUserName(response.currentUserName ?? '')
+      setCurrentUserProfileImage(response.currentUserProfileImage ?? null)
     } finally {
       if (showInitialLoader) {
         setIsInitialLoading(false)
@@ -86,7 +90,12 @@ const Disucssions = () => {
         />
       )}
       <div className="sticky bottom-0 z-10 bg-white/95 pt-2 backdrop-blur">
-        <CreateDiscussion onCreate={handleCreatePost} isSubmitting={isPosting} />
+        <CreateDiscussion
+          onCreate={handleCreatePost}
+          isSubmitting={isPosting}
+          currentUserName={currentUserName}
+          currentUserProfileImage={currentUserProfileImage}
+        />
       </div>
     </div>
   )

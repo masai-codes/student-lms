@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
-import { DiscussionPostCardDrawer } from '@/components/discussion-post-card/discussion-post-card-drawer'
 import { DiscussionPostCardPreview } from '@/components/discussion-post-card/discussion-post-card-preview'
 import type { DiscussionReply as DiscussionPostCardReply } from '@/components/discussion-post-card'
+import MasaiverseDiscussionPostDrawer from './MasaiverseDiscussionPostDrawer'
 
 type MasaiverseDiscussionPostCardProps = {
   profileImage: string
@@ -18,6 +18,7 @@ type MasaiverseDiscussionPostCardProps = {
   replyText: string
   onReplyTextChange: (value: string) => void
   onReplySubmit?: () => void
+  onVoteReply: (replyId: string, vote: 'upvote' | 'downvote') => Promise<void>
 }
 
 const getDrawerDirection = () => {
@@ -42,6 +43,7 @@ export default function MasaiverseDiscussionPostCard({
   replyText,
   onReplyTextChange,
   onReplySubmit,
+  onVoteReply,
 }: MasaiverseDiscussionPostCardProps) {
   const [open, setOpen] = useState(false)
   const [isBookmarked, setIsBookmarked] = useState(initialBookmarked)
@@ -82,7 +84,7 @@ export default function MasaiverseDiscussionPostCard({
         onReplyClick={() => setOpen(true)}
         replyCount={replies.length}
       />
-      <DiscussionPostCardDrawer
+      <MasaiverseDiscussionPostDrawer
         profileImage={profileImage}
         name={name}
         createdAt={createdAt}
@@ -92,6 +94,7 @@ export default function MasaiverseDiscussionPostCard({
         onUpvoteClick={onUpvoteClick}
         onDownvoteClick={onDownvoteClick}
         replies={replies}
+        onVoteReply={onVoteReply}
         replyText={replyText}
         onReplyTextChange={onReplyTextChange}
         onReplySubmit={onReplySubmit}
