@@ -12,6 +12,7 @@ import {
   mapClubToCardProps,
   mapEventToCardProps,
 } from '@/components/features/masaiverse/MasaiverseSections/cardDataMappers'
+import CommunityDiscussions from '@/components/features/masaiverse/MasaiverseSections/CommunityDiscussions'
 import { fetchMyClubMembership } from '@/server/masaiverse/fetchMyClubMembership'
 import { joinClub } from '@/server/masaiverse/joinClub'
 import { fetchAllClubs } from '@/server/masaiverse/fetchClubs'
@@ -184,6 +185,8 @@ export default function HomeSection() {
           </div>
         )}
       </div>
+
+      <CommunityDiscussions hasJoinedClub={Boolean(joinedClubId)} />
     </section>
   )
 }
