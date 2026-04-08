@@ -25,6 +25,7 @@ export type DiscussionPost = {
   upvotes: number
   downvotes: number
   myVote: VoteValue | null
+  isBookmarked: boolean
   replies: Array<DiscussionReply>
 }
 
@@ -136,6 +137,17 @@ export const fetchCommunityDiscussions = createServerFn({ method: 'GET' }).handl
     WHERE p.club_id = ${joinedClubId}
   `))
 
+  const bookmarkRows = normalizeRows<{
+    postId: string | number
+  }>(await db.execute(sql`
+    SELECT
+      b.post_id AS postId
+    FROM club_post_bookmarks b
+    INNER JOIN posts p ON p.id = b.post_id
+    WHERE p.club_id = ${joinedClubId}
+      AND b.user_id = ${userId}
+  `))
+
   const postVoteMap = new Map<string, { upvotes: number; downvotes: number; myVote: VoteValue | null }>()
   for (const voteRow of postVotes) {
     const postId = voteRow.postId
@@ -179,6 +191,11 @@ export const fetchCommunityDiscussions = createServerFn({ method: 'GET' }).handl
     replyByPostId.set(replyRow.postId, existing)
   }
 
+  const postBookmarkMap = new Map<string, boolean>()
+  for (const bookmarkRow of bookmarkRows) {
+    postBookmarkMap.set(String(bookmarkRow.postId), true)
+  }
+
   const result: Array<DiscussionPost> = postRows.map((postRow) => {
     const voteStats = postVoteMap.get(postRow.id) ?? {
       upvotes: 0,
@@ -193,6 +210,7 @@ export const fetchCommunityDiscussions = createServerFn({ method: 'GET' }).handl
       upvotes: voteStats.upvotes,
       downvotes: voteStats.downvotes,
       myVote: voteStats.myVote,
+      isBookmarked: postBookmarkMap.get(String(postRow.id)) ?? false,
       replies: replyByPostId.get(postRow.id) ?? [],
     }
   })
@@ -254,8 +272,7 @@ export const createCommunityReply = createServerFn({ method: 'POST' })
       LIMIT 1
     `))
 
-    const targetPost = postRows[0] ?? null
-    if (!targetPost || targetPost.clubId !== joinedClubId) {
+    if (postRows.length === 0 || postRows[0].clubId !== joinedClubId) {
       throw new Error('POST_NOT_FOUND_IN_JOINED_CLUB')
     }
 
@@ -280,8 +297,7 @@ async function applyPostVote(userId: number, postId: string, voteValue: VoteValu
     LIMIT 1
   `))
 
-  const targetPost = postRows[0] ?? null
-  if (!targetPost || targetPost.clubId !== joinedClubId) {
+  if (postRows.length === 0 || postRows[0].clubId !== joinedClubId) {
     throw new Error('POST_NOT_FOUND_IN_JOINED_CLUB')
   }
 
@@ -292,14 +308,14 @@ async function applyPostVote(userId: number, postId: string, voteValue: VoteValu
     LIMIT 1
   `))
 
-  const existingVote = existing[0] ?? null
-  if (!existingVote) {
+  if (existing.length === 0) {
     await db.execute(sql`
       INSERT INTO votes (user_id, post_id, vote, created_at)
       VALUES (${userId}, ${postId}, ${voteValue}, NOW())
     `)
     return
   }
+  const existingVote = existing[0]
 
   if (existingVote.vote === voteValue) {
     await db.execute(sql`
@@ -330,8 +346,7 @@ async function applyReplyVote(userId: number, replyId: string, voteValue: VoteVa
     LIMIT 1
   `))
 
-  const targetReply = replyRows[0] ?? null
-  if (!targetReply || targetReply.clubId !== joinedClubId) {
+  if (replyRows.length === 0 || replyRows[0].clubId !== joinedClubId) {
     throw new Error('REPLY_NOT_FOUND_IN_JOINED_CLUB')
   }
 
@@ -342,14 +357,14 @@ async function applyReplyVote(userId: number, replyId: string, voteValue: VoteVa
     LIMIT 1
   `))
 
-  const existingVote = existing[0] ?? null
-  if (!existingVote) {
+  if (existing.length === 0) {
     await db.execute(sql`
       INSERT INTO votes (user_id, reply_id, vote, created_at)
       VALUES (${userId}, ${replyId}, ${voteValue}, NOW())
     `)
     return
   }
+  const existingVote = existing[0]
 
   if (existingVote.vote === voteValue) {
     await db.execute(sql`
@@ -388,4 +403,53 @@ export const voteCommunityReply = createServerFn({ method: 'POST' })
 
     await applyReplyVote(userId, data.replyId, data.vote)
     return { success: true }
+  })
+
+export const toggleCommunityPostBookmark = createServerFn({ method: 'POST' })
+  .inputValidator((data: { postId: string }) => data)
+  .handler(async ({ data }) => {
+    const userId = await getCurrentSessionUserId()
+    if (!userId) {
+      throw new Error('UNAUTHORIZED')
+    }
+
+    const joinedClubId = await getJoinedClubId(userId)
+    if (!joinedClubId) {
+      throw new Error('CLUB_ID_REQUIRED')
+    }
+
+    const postRows = normalizeRows<{ id: string; clubId: string }>(await db.execute(sql`
+      SELECT id, club_id AS clubId
+      FROM posts
+      WHERE id = ${data.postId}
+      LIMIT 1
+    `))
+
+    if (postRows.length === 0 || postRows[0].clubId !== joinedClubId) {
+      throw new Error('POST_NOT_FOUND_IN_JOINED_CLUB')
+    }
+
+    const existingBookmark = normalizeRows<{ id: string }>(await db.execute(sql`
+      SELECT id
+      FROM club_post_bookmarks
+      WHERE user_id = ${userId}
+        AND post_id = ${data.postId}
+      LIMIT 1
+    `))
+
+    if (existingBookmark.length === 0) {
+      await db.execute(sql`
+        INSERT INTO club_post_bookmarks (user_id, post_id, created_at)
+        VALUES (${userId}, ${data.postId}, NOW())
+      `)
+      return { success: true, isBookmarked: true }
+    }
+    const currentBookmark = existingBookmark[0]
+
+    await db.execute(sql`
+      DELETE FROM club_post_bookmarks
+      WHERE id = ${currentBookmark.id}
+    `)
+
+    return { success: true, isBookmarked: false }
   })

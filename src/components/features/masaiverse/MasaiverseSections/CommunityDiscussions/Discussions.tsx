@@ -6,6 +6,7 @@ import {
   createCommunityPost,
   createCommunityReply,
   fetchCommunityDiscussions,
+  toggleCommunityPostBookmark,
   voteCommunityPost,
   voteCommunityReply,
 } from '@/server/masaiverse/communityDiscussions'
@@ -64,9 +65,13 @@ const Disucssions = () => {
     await refreshDiscussions()
   }
 
+  const handleToggleBookmark = async (postId: string) => {
+    await toggleCommunityPostBookmark({ data: { postId } })
+    await refreshDiscussions()
+  }
+
   return (
     <div className="space-y-4">
-      <CreateDiscussion onCreate={handleCreatePost} isSubmitting={isPosting} />
       {isInitialLoading ? (
         <div className="rounded-lg border border-[#E5E7EB] bg-white p-4 text-sm text-[#6B7280]">
           Loading discussions...
@@ -77,8 +82,12 @@ const Disucssions = () => {
           onVotePost={handleVotePost}
           onVoteReply={handleVoteReply}
           onReply={handleReply}
+          onToggleBookmark={handleToggleBookmark}
         />
       )}
+      <div className="sticky bottom-0 z-10 bg-white/95 pt-2 backdrop-blur">
+        <CreateDiscussion onCreate={handleCreatePost} isSubmitting={isPosting} />
+      </div>
     </div>
   )
 }
