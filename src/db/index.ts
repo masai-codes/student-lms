@@ -4,7 +4,10 @@ import { useRuntimeConfig } from 'nitro/runtime-config'
 const config = useRuntimeConfig()
 
 if (!config.databaseUrl) {
-  throw new Error('DATABASE_URL is not defined in environment variables')
+  console.log(config)
+  throw new Error(
+    `DATABASE_URL is not defined in environment variables. ${JSON.stringify(config)}. ${JSON.stringify(process.env)}`,
+  )
 }
 
 export const db = drizzle(config.databaseUrl)
