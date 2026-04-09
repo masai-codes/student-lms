@@ -6,4 +6,5 @@ export default defineNitroConfig({
     jwtSecretKey: '',
     cookieName: '',
   },
+  plugins: ['./src/server/plugins/env.ts'],
 })

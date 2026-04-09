@@ -1,0 +1,18 @@
+version: 1
+frontend:
+  phases:
+    preBuild:
+      commands:
+        - npm ci
+    build:
+      commands:
+        - env | grep -e NITRO_DATABASE_URL -e NITRO_JWT_SECRET_KEY -e NITRO_COOKIE_NAME >> .env.production
+        - NODE_OPTIONS="--max-old-space-size=4096" npm run build
+        - cp .env.production .amplify-hosting/compute/default/.env
+  artifacts:
+    baseDirectory: .amplify-hosting
+    files:
+      - '**/*'
+  cache:
+    paths:
+      - node_modules/**/*
