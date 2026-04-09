@@ -1,5 +1,4 @@
 import { GetParametersCommand, SSMClient } from '@aws-sdk/client-ssm'
-import { useRuntimeConfig } from 'nitro/runtime-config'
 
 // SSM parameter names must match what you create in AWS Parameter Store.
 // Convention: /amplify/<app-id>/<branch-name>/<secret-name>
@@ -50,11 +49,8 @@ async function loadSecretsFromSSM() {
       process.env[envKey] = param.Value
     }
   }
-
-  // Bust the Nitro runtimeConfig cache so the next call to useRuntimeConfig()
-  // re-reads from process.env and picks up the values we just injected.
-  ;(useRuntimeConfig as any)._cached = undefined
 }
 
-// Load secrets before the server handles any requests.
+// Nitro requires a default export for server plugins.
+// The plugin runs once at cold start before any requests are handled.
 await loadSecretsFromSSM()
