@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import type { EventType } from '@/server/masaiverse/fetchEvents'
 import { EventCard } from '@/components/event-card'
-import { Button } from '@/components/ui/button'
+import { MasaiTabs } from '@/components/masai-tabs'
 import { fetchAllEvents } from '@/server/masaiverse/fetchEvents'
 import { fetchMyEventEnrollments } from '@/server/masaiverse/fetchMyEventEnrollments'
 import { joinEvent } from '@/server/masaiverse/joinEvent'
@@ -80,19 +80,16 @@ const EventsSection = () => {
         tailored for your learning journey.
       </p>
 
-      <div className="mt-6 flex flex-wrap gap-2">
-        {categoryTabs.map((category) => (
-          <Button
-            key={category}
-            type="button"
-            variant={activeCategory === category ? 'default' : 'outline'}
-            className="capitalize"
-            onClick={() => setActiveCategory(category)}
-          >
-            {category}
-          </Button>
-        ))}
-      </div>
+      <MasaiTabs
+        className="mt-6"
+        ariaLabel="Event categories"
+        items={categoryTabs.map((category) => ({
+          value: category,
+          label: category === 'all' ? 'All' : category,
+        }))}
+        value={activeCategory}
+        onValueChange={(value) => setActiveCategory(value as EventCategoryTab)}
+      />
 
       {isLoading ? (
         <p className="mt-4 text-sm text-[#6B7280]">Loading events...</p>
