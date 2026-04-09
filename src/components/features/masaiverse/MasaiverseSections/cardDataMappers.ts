@@ -56,7 +56,7 @@ export const mapClubToCardProps = (club: ClubType): ClubCardProps => {
     domain: club.domain || "General",
     name: club.name,
     imageUrl: club.image || "/Masaiverse.svg",
-    miniDescription: meta.mini_description || "No description available.",
+    miniDescription: meta.mini_description || "",
     ctaText: meta.cta_text || "Join",
     totalMembers: meta.total_members || "N/A",
     detailPoints:
@@ -81,7 +81,7 @@ export const mapEventToCardProps = (event: EventType): EventCardProps => {
 
   return {
     title: event.title,
-    miniDescription: meta.mini_description || event.description || "No description available.",
+    miniDescription: meta.mini_description || event.description || "",
     ctaText: "Enroll",
     isActive: meta.is_active ?? Boolean(event.startTime),
     category: event.category || "event",

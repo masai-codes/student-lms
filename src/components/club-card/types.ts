@@ -6,6 +6,8 @@ export type ClubCardProps = {
   name: string
   imageUrl: string
   miniDescription: string
+  shouldCompress?: boolean
+  showSuccessIcon?: boolean
   ctaText: string
   onCtaClick?: () => void
   totalMembers: number | string

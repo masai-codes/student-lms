@@ -64,7 +64,9 @@ const EventsSection = () => {
     setJoiningEventId(eventId)
     try {
       await joinEvent({ data: { eventId } })
-      setEnrolledEventIds((prev) => (prev.includes(eventId) ? prev : [...prev, eventId]))
+      setEnrolledEventIds((prev) =>
+        prev.includes(eventId) ? prev : [...prev, eventId],
+      )
     } finally {
       setJoiningEventId(null)
     }

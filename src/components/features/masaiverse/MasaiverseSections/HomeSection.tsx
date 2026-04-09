@@ -121,17 +121,21 @@ export default function HomeSection() {
               }}
               spaceBetween={16}
               slidesPerView="auto"
-              className="w-full px-2"
+              className="w-full px-2 [&_.swiper-wrapper]:items-stretch [&_.swiper-slide]:!h-auto"
             >
               {clubsList.map((club) => (
-                <SwiperSlide key={club.id} className="!w-[300px]">
+                <SwiperSlide key={club.id} className="!flex !h-auto !w-[300px]">
                   {(() => {
                     const clubCardProps = mapClubToCardProps(club)
                     const isJoinedClub = joinedClubId === club.id
                     const hasJoinedAnotherClub = Boolean(joinedClubId && !isJoinedClub)
 
                     return (
-                      <div className={isJoinedClub || hasJoinedAnotherClub ? '[&_button]:pointer-events-none' : ''}>
+                      <div
+                        className={`flex w-full ${
+                          isJoinedClub || hasJoinedAnotherClub ? '[&_button]:pointer-events-none' : ''
+                        } [&>div]:flex [&>div]:h-full [&>div]:w-full [&>div]:max-w-none [&>div]:flex-col`}
+                      >
                         <ClubCard
                           {...clubCardProps}
                           ctaText={isJoinedClub ? 'Joined' : clubCardProps.ctaText}

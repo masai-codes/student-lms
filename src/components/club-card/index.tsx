@@ -22,6 +22,8 @@ export function ClubCard({
   name,
   imageUrl,
   miniDescription,
+  shouldCompress = false,
+  showSuccessIcon = false,
   ctaText,
   onCtaClick,
   totalMembers,
@@ -44,6 +46,8 @@ export function ClubCard({
         name={name}
         imageUrl={imageUrl}
         miniDescription={miniDescription}
+        shouldCompress={shouldCompress}
+        showSuccessIcon={showSuccessIcon}
         ctaText={ctaText}
         ctaTheme={ctaTheme}
         onCtaClick={handleCtaClick}
