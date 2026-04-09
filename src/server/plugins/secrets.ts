@@ -1,4 +1,5 @@
 import { GetParametersCommand, SSMClient } from '@aws-sdk/client-ssm'
+import { definePlugin } from 'nitro'
 
 // SSM parameter names must match what you create in AWS Parameter Store.
 // Convention: /amplify/<app-id>/<branch-name>/<secret-name>
@@ -53,4 +54,6 @@ async function loadSecretsFromSSM() {
 
 // Nitro requires a default export for server plugins.
 // The plugin runs once at cold start before any requests are handled.
-await loadSecretsFromSSM()
+export default definePlugin(async () => {
+  await loadSecretsFromSSM()
+})
