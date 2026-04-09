@@ -24,5 +24,6 @@ export type DiscussionPostCardProps = {
   replyText: string
   onReplyTextChange: (value: string) => void
   onReplySubmit?: () => void
+  replyPlaceholder?: string
   drawerDirection?: DrawerDirection
 }

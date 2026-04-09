@@ -1,12 +1,12 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import * as Dialog from "@radix-ui/react-dialog"
-import { X } from "lucide-react"
+import * as React from "react";
+import * as Dialog from "@radix-ui/react-dialog";
+import { X } from "lucide-react";
 
-import { DiscussionPostCardPreview } from "./discussion-post-card-preview"
-import { DiscussionPostCardComposer } from "./discussion-post-card-composer"
-import type { DiscussionPostCardProps, DrawerDirection } from "./types"
+import { DiscussionPostCardPreview } from "./discussion-post-card-preview";
+import { DiscussionPostCardComposer } from "./discussion-post-card-composer";
+import type { DiscussionPostCardProps, DrawerDirection } from "./types";
 
 type DiscussionPostCardDrawerProps = Pick<
   DiscussionPostCardProps,
@@ -22,13 +22,14 @@ type DiscussionPostCardDrawerProps = Pick<
   | "replyText"
   | "onReplyTextChange"
   | "onReplySubmit"
+  | "replyPlaceholder"
 > & {
-  isBookmarked: boolean
-  onBookmarkClick: () => void
-  open: boolean
-  onOpenChange: (open: boolean) => void
-  resolvedDirection: Exclude<DrawerDirection, "auto">
-}
+  isBookmarked: boolean;
+  onBookmarkClick: () => void;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  resolvedDirection: Exclude<DrawerDirection, "auto">;
+};
 
 export function DiscussionPostCardDrawer({
   profileImage,
@@ -43,6 +44,7 @@ export function DiscussionPostCardDrawer({
   replyText,
   onReplyTextChange,
   onReplySubmit,
+  replyPlaceholder,
   isBookmarked,
   onBookmarkClick,
   open,
@@ -51,19 +53,22 @@ export function DiscussionPostCardDrawer({
 }: DiscussionPostCardDrawerProps) {
   const [replyVotes, setReplyVotes] = React.useState<
     Record<string, { upvotes: number; downvotes: number }>
-  >({})
+  >({});
 
   React.useEffect(() => {
     setReplyVotes(
-      replies.reduce<Record<string, { upvotes: number; downvotes: number }>>((accumulator, reply) => {
-        accumulator[reply.id] = {
-          upvotes: reply.currentUpvoteCount ?? 0,
-          downvotes: reply.currentDownvoteCount ?? 0,
-        }
-        return accumulator
-      }, {})
-    )
-  }, [replies])
+      replies.reduce<Record<string, { upvotes: number; downvotes: number }>>(
+        (accumulator, reply) => {
+          accumulator[reply.id] = {
+            upvotes: reply.currentUpvoteCount ?? 0,
+            downvotes: reply.currentDownvoteCount ?? 0,
+          };
+          return accumulator;
+        },
+        {},
+      ),
+    );
+  }, [replies]);
 
   return (
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
@@ -77,7 +82,9 @@ export function DiscussionPostCardDrawer({
           }`}
         >
           <div className="flex items-start justify-between border-b p-4">
-            <Dialog.Title className="text-lg font-semibold text-[#111928]">Discussion</Dialog.Title>
+            <Dialog.Title className="text-lg font-semibold text-[#111928]">
+              Discussion Thread
+            </Dialog.Title>
             <Dialog.Close className="inline-flex size-8 items-center justify-center rounded-md border text-[#6B7280] hover:bg-[#F9FAFB] hover:text-[#111928]">
               <X size={16} />
               <span className="sr-only">Close</span>
@@ -101,7 +108,9 @@ export function DiscussionPostCardDrawer({
             />
 
             <div className="mt-4">
-              <p className="text-[14px] font-[600] leading-[20px] text-[#111928]">Replies</p>
+              <p className="text-[14px] font-[600] leading-[20px] text-[#111928]">
+                Responses
+              </p>
               {replies.length ? (
                 <div className="mt-3 space-y-3">
                   {replies.map((reply) => (
@@ -115,7 +124,9 @@ export function DiscussionPostCardDrawer({
                       createdAt={reply.createdAt}
                       content={reply.content}
                       currentUpvoteCount={replyVotes[reply.id]?.upvotes ?? 0}
-                      currentDownvoteCount={replyVotes[reply.id]?.downvotes ?? 0}
+                      currentDownvoteCount={
+                        replyVotes[reply.id]?.downvotes ?? 0
+                      }
                       onUpvoteClick={() =>
                         setReplyVotes((current) => ({
                           ...current,
@@ -149,16 +160,17 @@ export function DiscussionPostCardDrawer({
             </div>
           </div>
 
-          <div className="border-t p-4">
+          <div className="">
             <DiscussionPostCardComposer
               profileImage={profileImage}
               replyText={replyText}
               onReplyTextChange={onReplyTextChange}
               onReplySubmit={onReplySubmit}
+              placeholder={replyPlaceholder}
             />
           </div>
         </Dialog.Content>
       </Dialog.Portal>
     </Dialog.Root>
-  )
+  );
 }

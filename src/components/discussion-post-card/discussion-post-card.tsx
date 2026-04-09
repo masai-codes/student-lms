@@ -32,6 +32,7 @@ export function DiscussionPostCard({
   replyText,
   onReplyTextChange,
   onReplySubmit,
+  replyPlaceholder,
   drawerDirection = "auto",
 }: DiscussionPostCardProps) {
   const [open, setOpen] = React.useState(false)
@@ -68,6 +69,7 @@ export function DiscussionPostCard({
         replyText={replyText}
         onReplyTextChange={onReplyTextChange}
         onReplySubmit={onReplySubmit}
+        replyPlaceholder={replyPlaceholder}
         isBookmarked={isBookmarked}
         onBookmarkClick={() => setIsBookmarked((current) => !current)}
         open={open}

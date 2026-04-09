@@ -1,5 +1,3 @@
-"use client"
-
 import * as React from "react"
 import StarterKit from "@tiptap/starter-kit"
 import { EditorContent, useEditor, useEditorState } from "@tiptap/react"
@@ -28,8 +26,8 @@ export function RichTextEditor({
   showToolbar = true,
 }: RichTextEditorProps) {
   const contentBorderClass = showToolbar
-    ? "rounded-b-lg border border-t-0 border-[#D1D5DB]"
-    : "rounded-lg border border-[#D1D5DB]"
+    ? "rounded-b-lg border border-t-0 border-[#E5E7EB]"
+    : "rounded-lg border border-[#E5E7EB]"
 
   const [isMounted, setIsMounted] = React.useState(false)
 
@@ -84,7 +82,7 @@ export function RichTextEditor({
         value={value}
         onChange={(event) => onChange(event.target.value)}
         placeholder={placeholder}
-        className={`min-h-24 w-full resize-y rounded-lg border border-[#D1D5DB] px-3 py-2 text-[14px] leading-[22px] text-[#111928] outline-none placeholder:text-[#9CA3AF] ${className}`}
+        className={`min-h-24 w-full resize-y rounded-lg border border-[#E5E7EB] px-3 py-2 text-[14px] leading-[22px] text-[#111928] outline-none placeholder:text-[#9CA3AF] ${className}`}
       />
     )
   }
@@ -92,7 +90,7 @@ export function RichTextEditor({
   return (
     <div className={`discussion-rich-editor relative ${className}`}>
       {showToolbar ? (
-        <div className="flex flex-wrap items-center gap-2 rounded-t-lg border border-[#D1D5DB] p-2">
+        <div className="flex flex-wrap items-center gap-2 rounded-t-lg border border-[#E5E7EB] p-2">
         <button
           type="button"
           onMouseDown={(event) => event.preventDefault()}
@@ -130,8 +128,8 @@ export function RichTextEditor({
       <EditorContent editor={editor} />
       {editorState?.isEmpty ? (
         <p
-          className={`pointer-events-none absolute left-5 text-[14px] leading-[22px] text-[#9CA3AF] ${
-            showToolbar ? "top-[56px]" : "top-4"
+          className={`pointer-events-none absolute left-3 right-3 text-[14px] leading-[22px] text-[#9CA3AF] ${
+            showToolbar ? "top-[52px]" : "top-[10px]"
           }`}
         >
           {placeholder}
