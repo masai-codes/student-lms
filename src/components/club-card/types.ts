@@ -9,6 +9,8 @@ export type ClubCardProps = {
   shouldCompress?: boolean
   showSuccessIcon?: boolean
   ctaText: string
+  cardCtaText?: string
+  drawerCtaText?: string
   onCtaClick?: () => void
   totalMembers: number | string
   detailPoints: string[]

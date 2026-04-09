@@ -110,9 +110,7 @@ export function EventCardDrawer({
   const resolvedCtaText = toCapitalizedWords(ctaText);
   const mapTagValue =
     showLocationTextInMapsTag && eventLocationText?.trim()
-      ? eventLocationLink
-        ? `${eventLocationText.trim()} - View On Maps`
-        : eventLocationText.trim()
+      ? `${eventLocationText.trim()} - View On Maps`
       : "View On Maps";
 
   return (

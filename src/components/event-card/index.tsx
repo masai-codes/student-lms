@@ -22,6 +22,8 @@ export function EventCard({
   title,
   miniDescription,
   ctaText,
+  cardCtaText,
+  drawerCtaText,
   hideCardCta = false,
   hideDrawerCta = false,
   isActive,
@@ -41,6 +43,8 @@ export function EventCard({
 }: EventCardProps) {
   const [open, setOpen] = React.useState(false)
   const resolvedDirection = useResolvedDirection(drawerDirection)
+  const resolvedCardCtaText = cardCtaText ?? ctaText
+  const resolvedDrawerCtaText = drawerCtaText ?? ctaText
 
   const handleCtaClick = () => {
     setOpen(true)
@@ -51,7 +55,7 @@ export function EventCard({
       <EventCardPreview
         title={title}
         miniDescription={miniDescription}
-        ctaText={ctaText}
+        ctaText={resolvedCardCtaText}
         hideCardCta={hideCardCta}
         isActive={isActive}
         category={category}
@@ -60,7 +64,7 @@ export function EventCard({
       />
       <EventCardDrawer
         title={title}
-        ctaText={ctaText}
+        ctaText={resolvedDrawerCtaText}
         hideDrawerCta={hideDrawerCta}
         isActive={isActive}
         category={category}

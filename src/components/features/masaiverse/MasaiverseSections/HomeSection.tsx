@@ -150,6 +150,8 @@ export default function HomeSection() {
                           shouldCompress={hasJoinedAtLeastOneClub}
                           showSuccessIcon={isJoinedClub}
                           ctaText={isJoinedClub ? 'Joined' : clubCardProps.ctaText}
+                          cardCtaText={isJoinedClub ? 'Joined' : clubCardProps.ctaText}
+                          drawerCtaText={isJoinedClub ? 'Joined' : clubCardProps.ctaText}
                           onCtaClick={
                             isJoinedClub || hasJoinedAnotherClub
                               ? undefined
@@ -219,19 +221,39 @@ export default function HomeSection() {
               const eventCardProps = mapEventToCardProps(event)
               const eventEndTime = event.endTime ? new Date(event.endTime).getTime() : Number.POSITIVE_INFINITY
               const isPastEvent = Number.isFinite(eventEndTime) && eventEndTime < Date.now()
+              const isOfflineEvent = event.mode === 'offline'
+              const enrolledRedirectLink = isOfflineEvent ? event.locationMapLink : event.eventLink
+              const enrolledCtaText = isOfflineEvent ? 'View Location' : 'Open Link'
               return (
                 <EventCard
                   key={event.id}
                   {...eventCardProps}
                   isActive={!isPastEvent && eventCardProps.isActive}
-                  ctaText={isPastEvent ? 'View Details' : isEnrolled ? 'Enrolled' : 'Enroll'}
+                  cardCtaText="View Details"
+                  drawerCtaText={
+                    isPastEvent
+                      ? 'View Details'
+                      : isEnrolled
+                        ? enrolledRedirectLink
+                          ? enrolledCtaText
+                          : 'Enrolled'
+                        : 'Enroll'
+                  }
                   hideDrawerCta={isPastEvent}
                   onCtaClick={
-                    isEnrolled || joiningEventId
+                    isPastEvent
                       ? undefined
-                      : () => {
-                          void handleEventEnroll(event.id)
-                        }
+                      : isEnrolled
+                        ? enrolledRedirectLink
+                          ? () => {
+                              window.open(enrolledRedirectLink, '_blank', 'noopener,noreferrer')
+                            }
+                          : undefined
+                        : joiningEventId
+                          ? undefined
+                          : () => {
+                              void handleEventEnroll(event.id)
+                            }
                   }
                 />
               )
