@@ -1,4 +1,5 @@
 import Disucssions from './CommunityDiscussions/Discussions'
+import CommunityDiscussionsEmptyState from './CommunityDiscussionsEmptyState.tsx'
 
 type CommunityDiscussionsProps = {
   hasJoinedClub: boolean
@@ -13,13 +14,7 @@ export default function CommunityDiscussions({
         Community Discussions
       </h2>
       <div className="mt-[12px]">
-        {hasJoinedClub ? (
-          <Disucssions />
-        ) : (
-          <p className="mt-2 text-sm text-[#6B7280]">
-            Join a club to start discussion.
-          </p>
-        )}
+        {hasJoinedClub ? <Disucssions /> : <CommunityDiscussionsEmptyState />}
       </div>
     </div>
   )
