@@ -3,12 +3,15 @@ frontend:
   phases:
     preBuild:
       commands:
-        - npm ci
+        - npm i
     build:
       commands:
-        - env | grep -e NITRO_DATABASE_URL -e NITRO_JWT_SECRET_KEY -e NITRO_COOKIE_NAME >> .env.production
+        # APP_SSM_PATH is a plain (non-secret) environment variable set in the
+        # Amplify console, e.g. "/amplify/<app-id>/main"
+        # Actual secrets (DATABASE_URL, JWT_SECRET_KEY, COOKIE_NAME) are stored
+        # as SecureString parameters in AWS SSM Parameter Store and fetched at
+        # runtime by the server via the IAM SSR Compute role.
         - NODE_OPTIONS="--max-old-space-size=4096" npm run build
-        - cp .env.production .amplify-hosting/compute/default/.env
   artifacts:
     baseDirectory: .amplify-hosting
     files:
