@@ -6,6 +6,6 @@ export default defineConfig({
   schema: './src/db/schema.ts',
   dialect: 'mysql',
   dbCredentials: {
-    url: process.env.databaseUrl!,
+    url: process.env.NITRO_DATABASE_URL!,
   },
 })
