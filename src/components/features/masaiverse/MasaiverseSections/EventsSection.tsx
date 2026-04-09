@@ -9,6 +9,9 @@ import { mapEventToCardProps } from '@/components/features/masaiverse/Masaiverse
 
 type EventCategoryTab = 'all' | NonNullable<EventType['category']>
 
+const formatCategoryLabel = (category: EventCategoryTab) =>
+  category.charAt(0).toUpperCase() + category.slice(1).toLowerCase()
+
 const EventsSection = () => {
   const [eventsList, setEventsList] = useState<Array<EventType>>([])
   const [isLoading, setIsLoading] = useState(true)
@@ -80,16 +83,17 @@ const EventsSection = () => {
         tailored for your learning journey.
       </p>
 
-      <MasaiTabs
-        className="mt-6"
-        ariaLabel="Event categories"
-        items={categoryTabs.map((category) => ({
-          value: category,
-          label: category === 'all' ? 'All' : category,
-        }))}
-        value={activeCategory}
-        onValueChange={(value) => setActiveCategory(value as EventCategoryTab)}
-      />
+      <div className="mt-6 flex justify-center">
+        <MasaiTabs
+          ariaLabel="Event categories"
+          items={categoryTabs.map((category) => ({
+            value: category,
+            label: formatCategoryLabel(category),
+          }))}
+          value={activeCategory}
+          onValueChange={(value) => setActiveCategory(value as EventCategoryTab)}
+        />
+      </div>
 
       {isLoading ? (
         <p className="mt-4 text-sm text-[#6B7280]">Loading events...</p>

@@ -71,8 +71,21 @@ export const fetchCommunityDiscussions = createServerFn({ method: 'GET' }).handl
   }>(await db.execute(sql`
     SELECT
       u.name,
-      JSON_UNQUOTE(JSON_EXTRACT(u.meta, '$.profile_pic')) AS profileImage
+      COALESCE(
+        JSON_UNQUOTE(JSON_EXTRACT(pr.meta, '$.profile_pic')),
+        JSON_UNQUOTE(JSON_EXTRACT(u.meta, '$.profile_pic'))
+      ) AS profileImage
     FROM users u
+    LEFT JOIN (
+      SELECT p.user_id AS userId, p.meta
+      FROM profiles p
+      INNER JOIN (
+        SELECT user_id, MAX(id) AS latestProfileId
+        FROM profiles
+        WHERE deleted_at IS NULL
+        GROUP BY user_id
+      ) latestProfile ON latestProfile.latestProfileId = p.id
+    ) pr ON pr.userId = u.id
     WHERE u.id = ${userId}
     LIMIT 1
   `))
@@ -100,9 +113,22 @@ export const fetchCommunityDiscussions = createServerFn({ method: 'GET' }).handl
       p.content,
       p.created_at AS createdAt,
       u.name AS authorName,
-      JSON_UNQUOTE(JSON_EXTRACT(u.meta, '$.profile_pic')) AS authorProfileImage
+      COALESCE(
+        JSON_UNQUOTE(JSON_EXTRACT(pr.meta, '$.profile_pic')),
+        JSON_UNQUOTE(JSON_EXTRACT(u.meta, '$.profile_pic'))
+      ) AS authorProfileImage
     FROM posts p
     INNER JOIN users u ON u.id = p.user_id
+    LEFT JOIN (
+      SELECT p1.user_id AS userId, p1.meta
+      FROM profiles p1
+      INNER JOIN (
+        SELECT user_id, MAX(id) AS latestProfileId
+        FROM profiles
+        WHERE deleted_at IS NULL
+        GROUP BY user_id
+      ) latestProfile ON latestProfile.latestProfileId = p1.id
+    ) pr ON pr.userId = u.id
     WHERE p.club_id = ${joinedClubId}
     ORDER BY p.created_at DESC
   `))
@@ -121,10 +147,23 @@ export const fetchCommunityDiscussions = createServerFn({ method: 'GET' }).handl
       r.content,
       r.created_at AS createdAt,
       u.name AS authorName,
-      JSON_UNQUOTE(JSON_EXTRACT(u.meta, '$.profile_pic')) AS authorProfileImage
+      COALESCE(
+        JSON_UNQUOTE(JSON_EXTRACT(pr.meta, '$.profile_pic')),
+        JSON_UNQUOTE(JSON_EXTRACT(u.meta, '$.profile_pic'))
+      ) AS authorProfileImage
     FROM replies r
     INNER JOIN posts p ON p.id = r.post_id
     INNER JOIN users u ON u.id = r.user_id
+    LEFT JOIN (
+      SELECT p1.user_id AS userId, p1.meta
+      FROM profiles p1
+      INNER JOIN (
+        SELECT user_id, MAX(id) AS latestProfileId
+        FROM profiles
+        WHERE deleted_at IS NULL
+        GROUP BY user_id
+      ) latestProfile ON latestProfile.latestProfileId = p1.id
+    ) pr ON pr.userId = u.id
     WHERE p.club_id = ${joinedClubId}
     ORDER BY r.created_at ASC
   `))

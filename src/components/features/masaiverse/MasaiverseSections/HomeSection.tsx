@@ -111,6 +111,77 @@ export default function HomeSection() {
       </p>
 
       <div className="mt-6">
+        <div className="flex items-center justify-between">
+          <h2 className="text-[18px] font-semibold text-[#111827]">Events</h2>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() =>
+              navigate({
+                to: '/masaiverse',
+                search: { tab: 'events' },
+              })
+            }
+          >
+            View all
+          </Button>
+        </div>
+
+        {isLoading ? (
+          <p className="mt-3 text-sm text-[#6B7280]">Loading events...</p>
+        ) : eventsList.length === 0 ? (
+          <p className="mt-3 text-sm text-[#6B7280]">
+            No events available right now.
+          </p>
+        ) : (
+          <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+            {eventsList.slice(0, 3).map((event) => {
+              const isEnrolled = enrolledEventIds.includes(event.id)
+              const eventCardProps = mapEventToCardProps(event)
+              const eventEndTime = event.endTime ? new Date(event.endTime).getTime() : Number.POSITIVE_INFINITY
+              const isPastEvent = Number.isFinite(eventEndTime) && eventEndTime < Date.now()
+              const isOfflineEvent = event.mode === 'offline'
+              const enrolledRedirectLink = isOfflineEvent ? event.locationMapLink : event.eventLink
+              const enrolledCtaText = isOfflineEvent ? 'View Location' : 'Open Link'
+              return (
+                <EventCard
+                  key={event.id}
+                  {...eventCardProps}
+                  isActive={!isPastEvent && eventCardProps.isActive}
+                  cardCtaText="View Details"
+                  drawerCtaText={
+                    isPastEvent
+                      ? 'View Details'
+                      : isEnrolled
+                        ? enrolledRedirectLink
+                          ? enrolledCtaText
+                          : 'Enrolled'
+                        : 'Enroll'
+                  }
+                  hideDrawerCta={isPastEvent}
+                  onCtaClick={
+                    isPastEvent
+                      ? undefined
+                      : isEnrolled
+                        ? enrolledRedirectLink
+                          ? () => {
+                              window.open(enrolledRedirectLink, '_blank', 'noopener,noreferrer')
+                            }
+                          : undefined
+                        : joiningEventId
+                          ? undefined
+                          : () => {
+                              void handleEventEnroll(event.id)
+                            }
+                  }
+                />
+              )
+            })}
+          </div>
+        )}
+      </div>
+
+      <div className="mt-8">
         <h2 className="text-[18px] font-semibold text-[#111827]">Clubs</h2>
 
         {isLoading ? (
@@ -187,77 +258,6 @@ export default function HomeSection() {
                 <ChevronRight className="h-4 w-4" />
               </Button>
             </div>
-          </div>
-        )}
-      </div>
-
-      <div className="mt-8">
-        <div className="flex items-center justify-between">
-          <h2 className="text-[18px] font-semibold text-[#111827]">Events</h2>
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() =>
-              navigate({
-                to: '/masaiverse',
-                search: { tab: 'events' },
-              })
-            }
-          >
-            View all
-          </Button>
-        </div>
-
-        {isLoading ? (
-          <p className="mt-3 text-sm text-[#6B7280]">Loading events...</p>
-        ) : eventsList.length === 0 ? (
-          <p className="mt-3 text-sm text-[#6B7280]">
-            No events available right now.
-          </p>
-        ) : (
-          <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {eventsList.slice(0, 3).map((event) => {
-              const isEnrolled = enrolledEventIds.includes(event.id)
-              const eventCardProps = mapEventToCardProps(event)
-              const eventEndTime = event.endTime ? new Date(event.endTime).getTime() : Number.POSITIVE_INFINITY
-              const isPastEvent = Number.isFinite(eventEndTime) && eventEndTime < Date.now()
-              const isOfflineEvent = event.mode === 'offline'
-              const enrolledRedirectLink = isOfflineEvent ? event.locationMapLink : event.eventLink
-              const enrolledCtaText = isOfflineEvent ? 'View Location' : 'Open Link'
-              return (
-                <EventCard
-                  key={event.id}
-                  {...eventCardProps}
-                  isActive={!isPastEvent && eventCardProps.isActive}
-                  cardCtaText="View Details"
-                  drawerCtaText={
-                    isPastEvent
-                      ? 'View Details'
-                      : isEnrolled
-                        ? enrolledRedirectLink
-                          ? enrolledCtaText
-                          : 'Enrolled'
-                        : 'Enroll'
-                  }
-                  hideDrawerCta={isPastEvent}
-                  onCtaClick={
-                    isPastEvent
-                      ? undefined
-                      : isEnrolled
-                        ? enrolledRedirectLink
-                          ? () => {
-                              window.open(enrolledRedirectLink, '_blank', 'noopener,noreferrer')
-                            }
-                          : undefined
-                        : joiningEventId
-                          ? undefined
-                          : () => {
-                              void handleEventEnroll(event.id)
-                            }
-                  }
-                />
-              )
-            })}
           </div>
         )}
       </div>
