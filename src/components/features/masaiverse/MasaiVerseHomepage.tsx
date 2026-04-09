@@ -5,7 +5,7 @@ type MasaiverseHomepageProps = {
   children: ReactNode
 }
 
-export const MasaiverseHomepage = ({ children }: MasaiverseHomepageProps) => {
+const MasaiverseHomepage = ({ children }: MasaiverseHomepageProps) => {
   return (
     <div className="w-full p-[24px]">
       <div className="flex w-full items-stretch gap-[24px]">
@@ -17,3 +17,5 @@ export const MasaiverseHomepage = ({ children }: MasaiverseHomepageProps) => {
     </div>
   )
 }
+
+export default MasaiverseHomepage
