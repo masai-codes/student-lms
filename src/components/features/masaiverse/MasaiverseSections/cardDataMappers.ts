@@ -90,6 +90,7 @@ export const mapEventToCardProps = (event: EventType): EventCardProps => {
     time,
     isOnline,
     eventLocationLink: locationLink,
+    eventLocationText: event.locationTitle || undefined,
     eventMode: event.platform || event.locationTitle || modeLabel,
     eventDetailDescription: meta.detail_description || event.description || "No details available yet.",
     eventTimeline:

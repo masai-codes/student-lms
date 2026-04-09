@@ -2,6 +2,10 @@ import type { ClubCardProps } from "./types";
 import { CardCtaButton } from "../shared/card-cta-button";
 import { CheckCircle } from "@phosphor-icons/react";
 
+function toCapitalizedWords(value: string) {
+  return value.replace(/\b\w/g, (char) => char.toUpperCase());
+}
+
 type ClubCardPreviewProps = Pick<
   ClubCardProps,
   | "domain"
@@ -27,12 +31,17 @@ export function ClubCardPreview({
   ctaTheme,
   onCtaClick,
 }: ClubCardPreviewProps) {
+  const resolvedName = toCapitalizedWords(name);
+  const resolvedDomain = toCapitalizedWords(domain);
+  const resolvedMiniDescription = toCapitalizedWords(miniDescription);
+  const resolvedCtaText = toCapitalizedWords(ctaText);
+
   const iconBlock = (
     <div className="relative">
       <div className="bg-[#EBF5FF] rounded-[50%] p-[12px]">
         <img
           src={imageUrl}
-          alt={name}
+          alt={resolvedName}
           className="w-[24px] h-[24px] object-cover rounded-[8px]"
         />
       </div>
@@ -51,10 +60,10 @@ export function ClubCardPreview({
           {iconBlock}
           <div className="min-w-0">
             <h3 className="text-[16px] font-[600] leading-[24px] font-poppins">
-              {name}
+              {resolvedName}
             </h3>
             <p className="mt-[4px] w-fit px-[8px] py-[4px] text-[12px] font-[500] leading-[16px] rounded-[32px] border border-[#E5E7EB] text-center">
-              {domain}
+              {resolvedDomain}
             </p>
           </div>
         </div>
@@ -67,20 +76,20 @@ export function ClubCardPreview({
       <div className="flex items-start justify-between">
         {iconBlock}
         <p className="px-[8px] text-[12px] font-[500] leading-[16px] font-poppins rounded py-[4px] border border-[#E5E7EB] rounded-[32px] text-center">
-          {domain}
+          {resolvedDomain}
         </p>
       </div>
       <div className="mt-[12px]">
         <h3 className="text-[16px] font-[600] leading-[24px] font-poppins">
-          {name}
+          {resolvedName}
         </h3>
         <p className="mt-[4px] text-[14px] font-[400] leading-[20px] font-poppins text-[#6B7280]">
-          {miniDescription}
+          {resolvedMiniDescription}
         </p>
       </div>
       <div className="mt-auto flex justify-end pt-[20px]">
         <CardCtaButton
-          text={ctaText}
+          text={resolvedCtaText}
           onClick={onCtaClick}
           theme={ctaTheme}
           className="leading-[12px]"

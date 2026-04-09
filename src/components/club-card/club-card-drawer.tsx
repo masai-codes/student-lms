@@ -6,6 +6,10 @@ import { X } from "lucide-react";
 import { CardCtaButton } from "../shared/card-cta-button";
 import type { ClubCardProps, DrawerDirection } from "./types";
 
+function toCapitalizedWords(value: string) {
+  return value.replace(/\b\w/g, (char) => char.toUpperCase());
+}
+
 type ClubCardDrawerProps = Pick<
   ClubCardProps,
   | "domain"
@@ -37,6 +41,11 @@ export function ClubCardDrawer({
   onOpenChange,
   resolvedDirection,
 }: ClubCardDrawerProps) {
+  const resolvedDomain = toCapitalizedWords(domain);
+  const resolvedName = toCapitalizedWords(name);
+  const resolvedDetailDescription = toCapitalizedWords(detailDescription);
+  const resolvedCtaText = toCapitalizedWords(ctaText);
+
   return (
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
       <Dialog.Portal>
@@ -51,7 +60,7 @@ export function ClubCardDrawer({
           <div className="flex items-start justify-between border-b p-4">
             <div>
               <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
-                {domain}
+                {resolvedDomain}
               </p>
               <Dialog.Title className="mt-1 text-lg font-semibold text-slate-900">
                 About the Club
@@ -67,16 +76,16 @@ export function ClubCardDrawer({
             <div className="bg-[#EBF5FF] flex py-[32px] rounded-[8px]">
               <img
                 src={imageUrl}
-                alt={name}
+                alt={resolvedName}
                 className="h-[56px] w-[56px] m-auto"
               />
             </div>
             <div className="mt-[16px] min-h-0 flex-1 overflow-y-auto pr-1">
               <p className="text-[18px] font-[600] leading-[28px] font-poppins text-[#111928]">
-                {name}
+                {resolvedName}
               </p>
               <p className="mt-[8px] text-[14px] font-[400] leading-[20px] font-poppins text-[#374151]">
-                {detailDescription}
+                {resolvedDetailDescription}
               </p>
               <div className="w-fit mt-[12px] flex items-center gap-[6px] text-[#111928] border border-[#E5E7EB] rounded-[32px] px-[12px] py-[4px]">
                 <Users size={20} aria-hidden="true" color="#374151" />
@@ -91,14 +100,14 @@ export function ClubCardDrawer({
                 </h4>
                 <ul className="mt-[12px] list-disc gap-[4px] pl-5 text-[14px] font-[400] leading-[24px] font-poppins text-[#374151]">
                   {detailPoints.map((point, index) => (
-                    <li key={`${point}-${index}`}>{point}</li>
+                    <li key={`${point}-${index}`}>{toCapitalizedWords(point)}</li>
                   ))}
                 </ul>
               </div>
             </div>
           </div>
           <div className="border-t p-4">
-            <CardCtaButton text={ctaText} onClick={onCtaClick} theme={ctaTheme} fullWidth />
+            <CardCtaButton text={resolvedCtaText} onClick={onCtaClick} theme={ctaTheme} fullWidth />
           </div>
         </Dialog.Content>
       </Dialog.Portal>

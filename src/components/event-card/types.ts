@@ -18,6 +18,8 @@ export type EventCardProps = {
   time: string
   isOnline: boolean
   eventLocationLink?: string
+  showLocationTextInMapsTag?: boolean
+  eventLocationText?: string
   eventMode: string
   eventDetailDescription: string
   eventTimeline: EventTimelineItem[]

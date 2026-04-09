@@ -31,6 +31,8 @@ export function EventCard({
   time,
   isOnline,
   eventLocationLink,
+  showLocationTextInMapsTag = true,
+  eventLocationText,
   eventMode,
   eventDetailDescription,
   eventTimeline,
@@ -67,6 +69,8 @@ export function EventCard({
         time={time}
         isOnline={isOnline}
         eventLocationLink={eventLocationLink}
+        showLocationTextInMapsTag={showLocationTextInMapsTag}
+        eventLocationText={eventLocationText}
         eventMode={eventMode}
         eventDetailDescription={eventDetailDescription}
         eventTimeline={eventTimeline}

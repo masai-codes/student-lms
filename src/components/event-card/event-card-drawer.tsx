@@ -20,29 +20,39 @@ type EventMetaTagProps = {
   className?: string;
 };
 
+function toCapitalizedWords(value: string) {
+  return value.replace(/\b\w/g, (char) => char.toUpperCase());
+}
+
 function EventMetaTag({
   icon,
   value,
   href,
   className = "",
 }: EventMetaTagProps) {
+  const resolvedValue = toCapitalizedWords(value);
+  const sharedClassName = `flex min-w-0 flex-1 items-center gap-2 rounded-[8px] border border-[#E5E7EB] bg-[#FFF4ED] px-2 py-2 text-[12px] text-[#374151] ${className}`;
+
+  if (href) {
+    return (
+      <a
+        href={href}
+        target="_blank"
+        rel="noreferrer noopener"
+        className={`${sharedClassName} hover:opacity-90`}
+      >
+        {icon}
+        <span className="truncate text-[#374151] underline underline-offset-2">
+          {resolvedValue}
+        </span>
+      </a>
+    );
+  }
+
   return (
-    <div
-      className={`flex min-w-0 flex-1 items-center gap-2 rounded-[8px] border border-[#E5E7EB] bg-[#FFF4ED] px-2 py-2 text-[12px] text-[#374151] ${className}`}
-    >
+    <div className={sharedClassName}>
       {icon}
-      {href ? (
-        <a
-          href={href}
-          target="_blank"
-          rel="noreferrer noopener"
-          className="truncate text-[#374151] underline underline-offset-2"
-        >
-          {value}
-        </a>
-      ) : (
-        <span className="truncate">{value}</span>
-      )}
+      <span className="truncate">{resolvedValue}</span>
     </div>
   );
 }
@@ -59,6 +69,8 @@ type EventCardDrawerProps = Pick<
   | "time"
   | "isOnline"
   | "eventLocationLink"
+  | "showLocationTextInMapsTag"
+  | "eventLocationText"
   | "eventMode"
   | "eventDetailDescription"
   | "eventTimeline"
@@ -80,6 +92,8 @@ export function EventCardDrawer({
   time,
   isOnline,
   eventLocationLink,
+  showLocationTextInMapsTag,
+  eventLocationText,
   eventMode,
   eventDetailDescription,
   eventTimeline,
@@ -88,6 +102,19 @@ export function EventCardDrawer({
   onOpenChange,
   resolvedDirection,
 }: EventCardDrawerProps) {
+  const resolvedTitle = toCapitalizedWords(title);
+  const resolvedCategory = toCapitalizedWords(category);
+  const resolvedEventDetailDescription = toCapitalizedWords(
+    eventDetailDescription,
+  );
+  const resolvedCtaText = toCapitalizedWords(ctaText);
+  const mapTagValue =
+    showLocationTextInMapsTag && eventLocationText?.trim()
+      ? eventLocationLink
+        ? `${eventLocationText.trim()} - View On Maps`
+        : eventLocationText.trim()
+      : "View On Maps";
+
   return (
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
       <Dialog.Portal>
@@ -112,13 +139,13 @@ export function EventCardDrawer({
           <div className="min-h-0 flex-1 overflow-y-auto p-4">
             <img
               src={image}
-              alt={title}
+              alt={resolvedTitle}
               className="block max-h-[350px] w-full rounded-[10px] border border-[#E5E7EB] object-fill"
             />
 
             <div className="mt-3 flex items-center gap-2">
               <span className="rounded-[32px] border border-[#E5E7EB] px-2 py-1 text-[12px] font-[500] leading-[16px] text-[#374151]">
-                {category}
+                {resolvedCategory}
               </span>
               <span
                 className={`rounded-[32px] px-2 py-1 text-[12px] font-[500] leading-[16px] ${
@@ -132,7 +159,7 @@ export function EventCardDrawer({
             </div>
 
             <h3 className="mt-4 text-[20px] font-[600] leading-[30px] text-[#111928]">
-              {title}
+              {resolvedTitle}
             </h3>
 
             {isOnline ? (
@@ -164,7 +191,7 @@ export function EventCardDrawer({
                 </div>
                 <EventMetaTag
                   icon={<MapPin size={14} color="#EF8833" />}
-                  value="View On Maps"
+                  value={mapTagValue}
                   href={eventLocationLink}
                   className="w-full flex-none"
                 />
@@ -172,7 +199,7 @@ export function EventCardDrawer({
             )}
 
             <p className="mt-4 text-[14px] leading-[22px] text-[#374151]">
-              {eventDetailDescription}
+              {resolvedEventDetailDescription}
             </p>
 
             <div className="mt-6">
@@ -187,10 +214,10 @@ export function EventCardDrawer({
                     ) : null}
                     <span className="absolute left-1 top-1.5 size-[8px] rounded-full bg-[#EF8833]" />
                     <p className="text-[12px] font-[600] leading-[16px] text-[#111928]">
-                      {item.time}
+                      {toCapitalizedWords(item.time)}
                     </p>
                     <p className="mt-1 text-[14px] leading-[20px] text-[#374151]">
-                      {item.text}
+                      {toCapitalizedWords(item.text)}
                     </p>
                   </div>
                 ))}
@@ -200,7 +227,11 @@ export function EventCardDrawer({
 
           {!hideDrawerCta ? (
             <div className="border-t p-4">
-              <CardCtaButton text={ctaText} onClick={onCtaClick} fullWidth />
+              <CardCtaButton
+                text={resolvedCtaText}
+                onClick={onCtaClick}
+                fullWidth
+              />
             </div>
           ) : null}
         </Dialog.Content>
