@@ -1,8 +1,10 @@
-import 'dotenv/config'
 import { drizzle } from 'drizzle-orm/mysql2'
+import { useRuntimeConfig } from 'nitro/runtime-config'
 
-if (!process.env.NITRO_DATABASE_URL) {
+const config = useRuntimeConfig()
+
+if (!config.databaseUrl) {
   throw new Error('DATABASE_URL is not defined in environment variables')
 }
 
-export const db = drizzle(process.env.NITRO_DATABASE_URL)
+export const db = drizzle(config.databaseUrl)

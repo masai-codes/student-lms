@@ -1,6 +1,7 @@
 import { eq } from 'drizzle-orm'
 import jwt from 'jsonwebtoken'
 import { getRequest } from '@tanstack/react-start/server'
+import { useRuntimeConfig } from 'nitro/runtime-config'
 import { db } from '@/db'
 import { sessions } from '@/db/schema'
 
@@ -30,8 +31,9 @@ function parseCookieHeader(cookieHeader: string | null) {
 
 function getSessionIdFromCookieValue(cookieValue: string | undefined) {
   if (!cookieValue) return null
+  const config = useRuntimeConfig()
 
-  const jwtSecret = process.env.JWT_SECRET_KEY
+  const jwtSecret = config.jwtSecretKey
   if (!jwtSecret) return null
 
   try {
@@ -43,8 +45,9 @@ function getSessionIdFromCookieValue(cookieValue: string | undefined) {
 }
 
 export async function getCurrentSessionUserId() {
+  const config = useRuntimeConfig()
   const request = getRequest()
-  const cookieName = process.env.COOKIE_NAME || DEFAULT_COOKIE_NAME
+  const cookieName = config.cookieName || DEFAULT_COOKIE_NAME
   const cookies = parseCookieHeader(request.headers.get('cookie'))
   const sessionId = getSessionIdFromCookieValue(cookies[cookieName])
   if (!sessionId) return null
