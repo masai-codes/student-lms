@@ -94,6 +94,14 @@ export default function HomeSection() {
     }
   }
 
+  const orderedClubsList = joinedClubId
+    ? [...clubsList].sort((a, b) => {
+        if (a.id === joinedClubId) return -1
+        if (b.id === joinedClubId) return 1
+        return 0
+      })
+    : clubsList
+
   return (
     <section className="min-h-[400px] min-w-0 flex-1 overflow-x-hidden rounded-[16px] border border-[#E5E7EB] bg-[#fff] px-6 py-8">
       <h1 className="text-[24px] font-semibold text-[#111827]">Home</h1>
@@ -123,12 +131,13 @@ export default function HomeSection() {
               slidesPerView="auto"
               className="w-full px-2 [&_.swiper-wrapper]:items-stretch [&_.swiper-slide]:!h-auto"
             >
-              {clubsList.map((club) => (
+              {orderedClubsList.map((club) => (
                 <SwiperSlide key={club.id} className="!flex !h-auto !w-[300px]">
                   {(() => {
                     const clubCardProps = mapClubToCardProps(club)
                     const isJoinedClub = joinedClubId === club.id
                     const hasJoinedAnotherClub = Boolean(joinedClubId && !isJoinedClub)
+                    const hasJoinedAtLeastOneClub = Boolean(joinedClubId)
 
                     return (
                       <div
@@ -138,6 +147,8 @@ export default function HomeSection() {
                       >
                         <ClubCard
                           {...clubCardProps}
+                          shouldCompress={hasJoinedAtLeastOneClub}
+                          showSuccessIcon={isJoinedClub}
                           ctaText={isJoinedClub ? 'Joined' : clubCardProps.ctaText}
                           onCtaClick={
                             isJoinedClub || hasJoinedAnotherClub
@@ -205,11 +216,16 @@ export default function HomeSection() {
           <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
             {eventsList.slice(0, 3).map((event) => {
               const isEnrolled = enrolledEventIds.includes(event.id)
+              const eventCardProps = mapEventToCardProps(event)
+              const eventEndTime = event.endTime ? new Date(event.endTime).getTime() : Number.POSITIVE_INFINITY
+              const isPastEvent = Number.isFinite(eventEndTime) && eventEndTime < Date.now()
               return (
                 <EventCard
                   key={event.id}
-                  {...mapEventToCardProps(event)}
-                  ctaText={isEnrolled ? 'Enrolled' : 'Enroll'}
+                  {...eventCardProps}
+                  isActive={!isPastEvent && eventCardProps.isActive}
+                  ctaText={isPastEvent ? 'View Details' : isEnrolled ? 'Enrolled' : 'Enroll'}
+                  hideDrawerCta={isPastEvent}
                   onCtaClick={
                     isEnrolled || joiningEventId
                       ? undefined

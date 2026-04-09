@@ -3,7 +3,13 @@ import { CardCtaButton } from "../shared/card-cta-button";
 
 type EventCardPreviewProps = Pick<
   EventCardProps,
-  "title" | "miniDescription" | "ctaText" | "isActive" | "category" | "image"
+  | "title"
+  | "miniDescription"
+  | "ctaText"
+  | "hideCardCta"
+  | "isActive"
+  | "category"
+  | "image"
 > & {
   onCtaClick: () => void;
 };
@@ -12,6 +18,7 @@ export function EventCardPreview({
   title,
   miniDescription,
   ctaText,
+  hideCardCta,
   isActive,
   category,
   image,
@@ -47,9 +54,11 @@ export function EventCardPreview({
           {miniDescription}
         </p>
 
-        <div className="mt-auto flex justify-end pt-4">
-          <CardCtaButton text={ctaText} onClick={onCtaClick} />
-        </div>
+        {!hideCardCta ? (
+          <div className="mt-auto flex justify-end pt-4">
+            <CardCtaButton text={ctaText} onClick={onCtaClick} />
+          </div>
+        ) : null}
       </div>
     </div>
   );

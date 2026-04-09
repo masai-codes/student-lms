@@ -22,6 +22,8 @@ export function EventCard({
   title,
   miniDescription,
   ctaText,
+  hideCardCta = false,
+  hideDrawerCta = false,
   isActive,
   category,
   image,
@@ -48,6 +50,7 @@ export function EventCard({
         title={title}
         miniDescription={miniDescription}
         ctaText={ctaText}
+        hideCardCta={hideCardCta}
         isActive={isActive}
         category={category}
         image={image}
@@ -56,6 +59,7 @@ export function EventCard({
       <EventCardDrawer
         title={title}
         ctaText={ctaText}
+        hideDrawerCta={hideDrawerCta}
         isActive={isActive}
         category={category}
         image={image}

@@ -104,11 +104,16 @@ const EventsSection = () => {
         <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
           {filteredEvents.map((event) => {
             const isEnrolled = enrolledEventIds.includes(event.id)
+            const eventCardProps = mapEventToCardProps(event)
+            const eventEndTime = event.endTime ? new Date(event.endTime).getTime() : Number.POSITIVE_INFINITY
+            const isPastEvent = Number.isFinite(eventEndTime) && eventEndTime < Date.now()
             return (
               <EventCard
                 key={event.id}
-                {...mapEventToCardProps(event)}
-                ctaText={isEnrolled ? 'Enrolled' : 'Enroll'}
+                {...eventCardProps}
+                isActive={!isPastEvent && eventCardProps.isActive}
+                ctaText={isPastEvent ? 'View Details' : isEnrolled ? 'Enrolled' : 'Enroll'}
+                hideDrawerCta={isPastEvent}
                 onCtaClick={
                   isEnrolled || joiningEventId
                     ? undefined

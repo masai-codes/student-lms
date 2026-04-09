@@ -9,6 +9,8 @@ export type EventCardProps = {
   title: string
   miniDescription: string
   ctaText: string
+  hideCardCta?: boolean
+  hideDrawerCta?: boolean
   isActive: boolean
   category: string
   image: string

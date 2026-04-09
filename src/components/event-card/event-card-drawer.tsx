@@ -51,6 +51,7 @@ type EventCardDrawerProps = Pick<
   EventCardProps,
   | "title"
   | "ctaText"
+  | "hideDrawerCta"
   | "isActive"
   | "category"
   | "image"
@@ -71,6 +72,7 @@ type EventCardDrawerProps = Pick<
 export function EventCardDrawer({
   title,
   ctaText,
+  hideDrawerCta,
   isActive,
   category,
   image,
@@ -196,9 +198,11 @@ export function EventCardDrawer({
             </div>
           </div>
 
-          <div className="border-t p-4">
-            <CardCtaButton text={ctaText} onClick={onCtaClick} fullWidth />
-          </div>
+          {!hideDrawerCta ? (
+            <div className="border-t p-4">
+              <CardCtaButton text={ctaText} onClick={onCtaClick} fullWidth />
+            </div>
+          ) : null}
         </Dialog.Content>
       </Dialog.Portal>
     </Dialog.Root>
