@@ -926,7 +926,7 @@ export const clubMembers = mysqlTable("club_members", {
 ]);
 
 export const clubPostBookmarks = mysqlTable("club_post_bookmarks", {
-	id: char({ length: 36 }).notNull(),
+	id: bigint({ mode: "number", unsigned: true }).autoincrement().notNull(),
 	userId: bigint("user_id", { mode: "number", unsigned: true }).notNull().references(() => users.id, { onDelete: "cascade" } ),
 	postId: bigint("post_id", { mode: "number", unsigned: true }).notNull().references(() => posts.id, { onDelete: "cascade" } ),
 	createdAt: timestamp("created_at", { mode: 'string' }).defaultNow().notNull(),

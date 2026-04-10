@@ -11,6 +11,7 @@ import {
   voteCommunityReply,
 } from '@/server/masaiverse/communityDiscussions'
 import type { DiscussionSortMode } from '@/server/masaiverse/communityDiscussions'
+import type { DiscussionEntityId } from '@/server/masaiverse/communityDiscussions'
 
 const discussionSortOptions: Array<{ key: DiscussionSortMode; label: string }> =
   [
@@ -65,13 +66,13 @@ const Disucssions = () => {
     }
   }
 
-  const handleReply = async (postId: string, content: string) => {
+  const handleReply = async (postId: DiscussionEntityId, content: string) => {
     await createCommunityReply({ data: { postId, content } })
     await refreshDiscussions()
   }
 
   const handleVotePost = async (
-    postId: string,
+    postId: DiscussionEntityId,
     vote: 'upvote' | 'downvote',
   ) => {
     await voteCommunityPost({ data: { postId, vote } })
@@ -86,7 +87,7 @@ const Disucssions = () => {
     await refreshDiscussions()
   }
 
-  const handleToggleBookmark = async (postId: string) => {
+  const handleToggleBookmark = async (postId: DiscussionEntityId) => {
     await toggleCommunityPostBookmark({ data: { postId } })
     await refreshDiscussions()
   }

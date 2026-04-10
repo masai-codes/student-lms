@@ -6,10 +6,11 @@ import { clubMembers } from '@/db/schema'
 
 type VoteValue = 'upvote' | 'downvote'
 export type DiscussionSortMode = 'hot' | 'top' | 'new'
+export type DiscussionEntityId = string | number
 
 export type DiscussionReply = {
-  id: string
-  postId: string
+  id: DiscussionEntityId
+  postId: DiscussionEntityId
   content: string
   createdAt: string | null
   authorName: string
@@ -20,7 +21,7 @@ export type DiscussionReply = {
 }
 
 export type DiscussionPost = {
-  id: string
+  id: DiscussionEntityId
   content: string
   createdAt: string | null
   authorName: string
@@ -74,11 +75,18 @@ async function getJoinedClubId(userId: number) {
   return membership[0]?.clubId ?? null
 }
 
+function normalizePostId(postId: DiscussionEntityId): number {
+  const normalized = typeof postId === 'number' ? postId : Number(postId)
+  if (!Number.isFinite(normalized) || normalized <= 0) {
+    throw new Error('INVALID_POST_ID')
+  }
+  return normalized
+}
+
 export const fetchCommunityDiscussions = createServerFn({ method: 'GET' })
   .inputValidator((data?: { sortBy?: DiscussionSortMode }) => data ?? {})
   .handler(async ({ data }) => {
-  const sortInput = data.sortBy ?? 'new'
-  const sortBy: DiscussionSortMode = sortInput === 'hot' || sortInput === 'top' || sortInput === 'new' ? sortInput : 'new'
+  const sortBy: DiscussionSortMode = data.sortBy ?? 'new'
   const userId = await getCurrentSessionUserId()
   if (!userId) {
     throw new Error('UNAUTHORIZED')
@@ -121,7 +129,7 @@ export const fetchCommunityDiscussions = createServerFn({ method: 'GET' })
   }
 
   const postRows = normalizeRows<{
-    id: string
+    id: DiscussionEntityId
     content: string | null
     createdAt: string | null
     authorName: string
@@ -153,8 +161,8 @@ export const fetchCommunityDiscussions = createServerFn({ method: 'GET' })
   `))
 
   const replyRows = normalizeRows<{
-    id: string
-    postId: string
+    id: DiscussionEntityId
+    postId: DiscussionEntityId
     content: string | null
     createdAt: string | null
     authorName: string
@@ -188,7 +196,7 @@ export const fetchCommunityDiscussions = createServerFn({ method: 'GET' })
   `))
 
   const postVotes = normalizeRows<{
-    postId: string | null
+    postId: DiscussionEntityId | null
     vote: VoteValue
     userId: number
     createdAt: string | null
@@ -204,7 +212,7 @@ export const fetchCommunityDiscussions = createServerFn({ method: 'GET' })
   `))
 
   const replyVotes = normalizeRows<{
-    replyId: string | null
+    replyId: DiscussionEntityId | null
     vote: VoteValue
     userId: number
   }>(await db.execute(sql`
@@ -233,32 +241,34 @@ export const fetchCommunityDiscussions = createServerFn({ method: 'GET' })
   for (const voteRow of postVotes) {
     const postId = voteRow.postId
     if (!postId) continue
-    const current = postVoteMap.get(postId) ?? { upvotes: 0, downvotes: 0, myVote: null }
+    const postIdKey = String(postId)
+    const current = postVoteMap.get(postIdKey) ?? { upvotes: 0, downvotes: 0, myVote: null }
     if (voteRow.vote === 'upvote') current.upvotes += 1
     if (voteRow.vote === 'downvote') current.downvotes += 1
     if (voteRow.userId === userId) current.myVote = voteRow.vote
-    postVoteMap.set(postId, current)
+    postVoteMap.set(postIdKey, current)
   }
 
   const replyVoteMap = new Map<string, { upvotes: number; downvotes: number; myVote: VoteValue | null }>()
   for (const voteRow of replyVotes) {
     const replyId = voteRow.replyId
     if (!replyId) continue
-    const current = replyVoteMap.get(replyId) ?? { upvotes: 0, downvotes: 0, myVote: null }
+    const replyIdKey = String(replyId)
+    const current = replyVoteMap.get(replyIdKey) ?? { upvotes: 0, downvotes: 0, myVote: null }
     if (voteRow.vote === 'upvote') current.upvotes += 1
     if (voteRow.vote === 'downvote') current.downvotes += 1
     if (voteRow.userId === userId) current.myVote = voteRow.vote
-    replyVoteMap.set(replyId, current)
+    replyVoteMap.set(replyIdKey, current)
   }
 
   const replyByPostId = new Map<string, Array<DiscussionReply>>()
   for (const replyRow of replyRows) {
-    const voteStats = replyVoteMap.get(replyRow.id) ?? {
+    const voteStats = replyVoteMap.get(String(replyRow.id)) ?? {
       upvotes: 0,
       downvotes: 0,
       myVote: null,
     }
-    const existing = replyByPostId.get(replyRow.postId) ?? []
+    const existing = replyByPostId.get(String(replyRow.postId)) ?? []
     existing.push({
       id: replyRow.id,
       postId: replyRow.postId,
@@ -270,7 +280,7 @@ export const fetchCommunityDiscussions = createServerFn({ method: 'GET' })
       downvotes: voteStats.downvotes,
       myVote: voteStats.myVote,
     })
-    replyByPostId.set(replyRow.postId, existing)
+    replyByPostId.set(String(replyRow.postId), existing)
   }
 
   const postBookmarkMap = new Map<string, boolean>()
@@ -279,12 +289,12 @@ export const fetchCommunityDiscussions = createServerFn({ method: 'GET' })
   }
 
   const sortedPosts: Array<SortablePost> = postRows.map((postRow) => {
-    const voteStats = postVoteMap.get(postRow.id) ?? {
+    const voteStats = postVoteMap.get(String(postRow.id)) ?? {
       upvotes: 0,
       downvotes: 0,
       myVote: null,
     }
-    const replies = replyByPostId.get(postRow.id) ?? []
+    const replies = replyByPostId.get(String(postRow.id)) ?? []
     const now = Date.now()
     const postCreatedAtMs = postRow.createdAt ? new Date(postRow.createdAt).getTime() : now
     const postAgeHours = Math.max(
@@ -403,7 +413,7 @@ export const createCommunityPost = createServerFn({ method: 'POST' })
   })
 
 export const createCommunityReply = createServerFn({ method: 'POST' })
-  .inputValidator((data: { postId: string; content: string }) => data)
+  .inputValidator((data: { postId: DiscussionEntityId; content: string }) => data)
   .handler(async ({ data }) => {
     const userId = await getCurrentSessionUserId()
     if (!userId) {
@@ -420,10 +430,12 @@ export const createCommunityReply = createServerFn({ method: 'POST' })
       throw new Error('CLUB_ID_REQUIRED')
     }
 
+    const normalizedPostId = normalizePostId(data.postId)
+
     const postRows = normalizeRows<{ id: string; clubId: string }>(await db.execute(sql`
       SELECT id, club_id AS clubId
       FROM posts
-      WHERE id = ${data.postId}
+      WHERE id = ${normalizedPostId}
       LIMIT 1
     `))
 
@@ -433,22 +445,24 @@ export const createCommunityReply = createServerFn({ method: 'POST' })
 
     await db.execute(sql`
       INSERT INTO replies (post_id, user_id, content, created_at, updated_at)
-      VALUES (${data.postId}, ${userId}, ${content}, NOW(), NOW())
+      VALUES (${normalizedPostId}, ${userId}, ${content}, NOW(), NOW())
     `)
 
     return { success: true }
   })
 
-async function applyPostVote(userId: number, postId: string, voteValue: VoteValue) {
+async function applyPostVote(userId: number, postId: DiscussionEntityId, voteValue: VoteValue) {
   const joinedClubId = await getJoinedClubId(userId)
   if (!joinedClubId) {
     throw new Error('CLUB_ID_REQUIRED')
   }
 
+  const normalizedPostId = normalizePostId(postId)
+
   const postRows = normalizeRows<{ id: string; clubId: string }>(await db.execute(sql`
     SELECT id, club_id AS clubId
     FROM posts
-    WHERE id = ${postId}
+    WHERE id = ${normalizedPostId}
     LIMIT 1
   `))
 
@@ -459,14 +473,14 @@ async function applyPostVote(userId: number, postId: string, voteValue: VoteValu
   const existing = normalizeRows<{ id: string; vote: VoteValue }>(await db.execute(sql`
     SELECT id, vote
     FROM votes
-    WHERE user_id = ${userId} AND post_id = ${postId}
+    WHERE user_id = ${userId} AND post_id = ${normalizedPostId}
     LIMIT 1
   `))
 
   if (existing.length === 0) {
     await db.execute(sql`
       INSERT INTO votes (user_id, post_id, vote, created_at)
-      VALUES (${userId}, ${postId}, ${voteValue}, NOW())
+      VALUES (${userId}, ${normalizedPostId}, ${voteValue}, NOW())
     `)
     return
   }
@@ -537,7 +551,7 @@ async function applyReplyVote(userId: number, replyId: string, voteValue: VoteVa
 }
 
 export const voteCommunityPost = createServerFn({ method: 'POST' })
-  .inputValidator((data: { postId: string; vote: VoteValue }) => data)
+  .inputValidator((data: { postId: DiscussionEntityId; vote: VoteValue }) => data)
   .handler(async ({ data }) => {
     const userId = await getCurrentSessionUserId()
     if (!userId) {
@@ -561,7 +575,7 @@ export const voteCommunityReply = createServerFn({ method: 'POST' })
   })
 
 export const toggleCommunityPostBookmark = createServerFn({ method: 'POST' })
-  .inputValidator((data: { postId: string }) => data)
+  .inputValidator((data: { postId: DiscussionEntityId }) => data)
   .handler(async ({ data }) => {
     const userId = await getCurrentSessionUserId()
     if (!userId) {
@@ -573,10 +587,12 @@ export const toggleCommunityPostBookmark = createServerFn({ method: 'POST' })
       throw new Error('CLUB_ID_REQUIRED')
     }
 
+    const normalizedPostId = normalizePostId(data.postId)
+
     const postRows = normalizeRows<{ id: string; clubId: string }>(await db.execute(sql`
       SELECT id, club_id AS clubId
       FROM posts
-      WHERE id = ${data.postId}
+      WHERE id = ${normalizedPostId}
       LIMIT 1
     `))
 
@@ -588,14 +604,14 @@ export const toggleCommunityPostBookmark = createServerFn({ method: 'POST' })
       SELECT id
       FROM club_post_bookmarks
       WHERE user_id = ${userId}
-        AND post_id = ${data.postId}
+        AND post_id = ${normalizedPostId}
       LIMIT 1
     `))
 
     if (existingBookmark.length === 0) {
       await db.execute(sql`
-        INSERT INTO club_post_bookmarks (id, user_id, post_id, created_at)
-        VALUES (UUID(), ${userId}, ${data.postId}, NOW())
+        INSERT INTO club_post_bookmarks (user_id, post_id, created_at)
+        VALUES (${userId}, ${normalizedPostId}, NOW())
       `)
       return { success: true, isBookmarked: true }
     }
