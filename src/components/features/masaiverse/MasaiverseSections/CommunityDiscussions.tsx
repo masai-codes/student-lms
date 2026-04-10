@@ -9,7 +9,7 @@ export default function CommunityDiscussions({
   hasJoinedClub,
 }: CommunityDiscussionsProps) {
   return (
-    <div className="mt-8">
+    <div className="mt-[48px]">
       <h2 className="text-[18px] font-semibold text-[#111827]">
         Community Discussions
       </h2>

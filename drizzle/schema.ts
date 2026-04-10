@@ -1981,6 +1981,26 @@ export const lecturesCourse = mysqlTable("lectures_course", {
 	primaryKey({ columns: [table.id], name: "lectures_course_id"}),
 ]);
 
+export const masaiverseBanners = mysqlTable("masaiverse_banners", {
+	id: char({ length: 36 }).notNull(),
+	title: varchar({ length: 255 }).notNull(),
+	description: text(),
+	ctaText: varchar("cta_text", { length: 255 }),
+	ctaUrl: text("cta_url"),
+	startDate: timestamp("start_date", { mode: 'string' }),
+	endDate: timestamp("end_date", { mode: 'string' }),
+	meta: json(),
+	createdBy: bigint("created_by", { mode: "number", unsigned: true }).references(() => users.id),
+	lastEditedBy: bigint("last_edited_by", { mode: "number", unsigned: true }).references(() => users.id),
+	createdAt: timestamp("created_at", { mode: 'string' }).defaultNow().notNull(),
+	updatedAt: timestamp("updated_at", { mode: 'string' }).notNull(),
+},
+(table) => [
+	index("masaiverse_banners_created_by_index").on(table.createdBy),
+	index("masaiverse_banners_last_edited_by_index").on(table.lastEditedBy),
+	primaryKey({ columns: [table.id], name: "masaiverse_banners_id"}),
+]);
+
 export const media = mysqlTable("media", {
 	id: int({ unsigned: true }).autoincrement().notNull(),
 	location: varchar({ length: 255 }),

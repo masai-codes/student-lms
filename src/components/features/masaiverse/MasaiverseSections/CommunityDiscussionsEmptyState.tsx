@@ -1,6 +1,6 @@
 export default function CommunityDiscussionsEmptyState() {
   return (
-    <section className="relative rounded-[16px] w-fit">
+    <section className="relative rounded-[16px]">
       <img
         src=" https://masai-drive-uploads-prod.s3.ap-south-1.amazonaws.com/drive/69c5405a1048890fc9f0c63c/1775755878407-f6f422f682596cc1.png"
         alt="Community discussions background"

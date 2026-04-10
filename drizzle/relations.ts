@@ -1,5 +1,5 @@
 import { relations } from "drizzle-orm/relations";
-import { users, accessLogs, adhocSessions, adhocSessionApprovers, adhocSessionBatches, batches, adhocSessionBlocks, blocks, adhocSessionSections, sections, adhocSessionUsers, adhocSessionBlueprints, lectures, aiChatPracticeQuestions, aiFeedback, aiPracticeQuestions, aiTutorSessions, announcements, attempts, answers, questions, applications, applicationComments, applicationHistories, positions, assignments, assignmentBlueprints, blueprints, assignmentBlueprintsProblems, problems, assignmentProblem, quizzes, attendances, badges, badgeConfigs, batchInfo, batchInfoStages, batchInfoApprovers, batchInfoHistory, batchInfoTemplates, batchInfoTemplateItems, meetings, batchParticipants, batchUser, blockDraftUnitMovements, draftUnitMovements, blockUnitMovementEmails, bookmarks, certificates, clubs, clubMembers, posts, clubPostBookmarks, tickets, comments, disbursalStatuses, discussions, unitMovementRules, payoutCycles, eeCycleRecords, externalEmployees, eeEngagementCosts, eeLeaveRequests, eeOnboardingForm, eePayoutHistories, eeSectionMapping, electives, electiveEntity, electiveProgress, electiveUser, electiveSection, emailNotificationLogs, events, eventEnrollments, companies, externalOffers, leads, feedbackBlueprints, feedback, feedbackQuestionBlueprints, feedbackQuestions, feedbackResponses, flags, flagQuery, queries, githubs, guardian, helpFaqs, instituteBatches, institutes, interactions, interactionMessages, interviews, topicObjectives, learningObjectives, lectureAiGeneratedContent, lectureBlueprints, sectionFeedbackBlueprints, lectureFeedback, lectureInteractions, lectureParticipants, lecturesAi, messages, notes, notificationLogs, npsForms, npsQuestions, npsQuestionResponses, npsSubmissions, optInChoices, participantMetrics, participants, placementStatuses, placementTags, portfolioSubmissions, portfolioFeedback, portfolioStudentIas, positionParams, eligibilities, positionsHistories, practiceInterviews, practiceQuizResponses, practiceTestSubTopics, practiceTestQuestions, practiceTestQuestionsUsersAttempted, practiceTestTopics, problemLinks, profileVerifies, profiles, queryComments, questionQuiz, quizBlueprints, quizBlueprintsQuestions, rbacPermissions, rbacRolePermissions, rbacRoles, rbacUserRoles, replies, scenes, sectionUser, segments, solutions, submissions, studentAttendances, studentTagCategories, studentTagRelation, studentTagNames, studentTagTypes, tasks, teams, teamInvitations, threads, ticketTemplates, menus, unitMovementUserDetails, userBadges, userBatchAdmissionData, userBlockEmails, userCallbackTickets, userCertificates, userDeviceTokens, userDocuments, userGuardian, userRelation, userRelationHistory, userScenes, userSegments, videoAttendances, votes } from "./schema";
+import { users, accessLogs, adhocSessions, adhocSessionApprovers, adhocSessionBatches, batches, adhocSessionBlocks, blocks, adhocSessionSections, sections, adhocSessionUsers, adhocSessionBlueprints, lectures, aiChatPracticeQuestions, aiFeedback, aiPracticeQuestions, aiTutorSessions, announcements, attempts, answers, questions, applications, applicationComments, applicationHistories, positions, assignments, assignmentBlueprints, blueprints, assignmentBlueprintsProblems, problems, assignmentProblem, quizzes, attendances, badges, badgeConfigs, batchInfo, batchInfoStages, batchInfoApprovers, batchInfoHistory, batchInfoTemplates, batchInfoTemplateItems, meetings, batchParticipants, batchUser, blockDraftUnitMovements, draftUnitMovements, blockUnitMovementEmails, bookmarks, certificates, clubs, clubMembers, posts, clubPostBookmarks, tickets, comments, disbursalStatuses, discussions, unitMovementRules, payoutCycles, eeCycleRecords, externalEmployees, eeEngagementCosts, eeLeaveRequests, eeOnboardingForm, eePayoutHistories, eeSectionMapping, electives, electiveEntity, electiveProgress, electiveUser, electiveSection, emailNotificationLogs, events, eventEnrollments, companies, externalOffers, leads, feedbackBlueprints, feedback, feedbackQuestionBlueprints, feedbackQuestions, feedbackResponses, flags, flagQuery, queries, githubs, guardian, helpFaqs, instituteBatches, institutes, interactions, interactionMessages, interviews, topicObjectives, learningObjectives, lectureAiGeneratedContent, lectureBlueprints, sectionFeedbackBlueprints, lectureFeedback, lectureInteractions, lectureParticipants, lecturesAi, masaiverseBanners, messages, notes, notificationLogs, npsForms, npsQuestions, npsQuestionResponses, npsSubmissions, optInChoices, participantMetrics, participants, placementStatuses, placementTags, portfolioSubmissions, portfolioFeedback, portfolioStudentIas, positionParams, eligibilities, positionsHistories, practiceInterviews, practiceQuizResponses, practiceTestSubTopics, practiceTestQuestions, practiceTestQuestionsUsersAttempted, practiceTestTopics, problemLinks, profileVerifies, profiles, queryComments, questionQuiz, quizBlueprints, quizBlueprintsQuestions, rbacPermissions, rbacRolePermissions, rbacRoles, rbacUserRoles, replies, scenes, sectionUser, segments, solutions, submissions, studentAttendances, studentTagCategories, studentTagRelation, studentTagNames, studentTagTypes, tasks, teams, teamInvitations, threads, ticketTemplates, menus, unitMovementUserDetails, userBadges, userBatchAdmissionData, userBlockEmails, userCallbackTickets, userCertificates, userDeviceTokens, userDocuments, userGuardian, userRelation, userRelationHistory, userScenes, userSegments, videoAttendances, votes } from "./schema";
 
 export const accessLogsRelations = relations(accessLogs, ({one}) => ({
 	user: one(users, {
@@ -89,6 +89,12 @@ export const usersRelations = relations(users, ({many}) => ({
 	}),
 	lectures_userId: many(lectures, {
 		relationName: "lectures_userId_users_id"
+	}),
+	masaiverseBanners_createdBy: many(masaiverseBanners, {
+		relationName: "masaiverseBanners_createdBy_users_id"
+	}),
+	masaiverseBanners_lastEditedBy: many(masaiverseBanners, {
+		relationName: "masaiverseBanners_lastEditedBy_users_id"
 	}),
 	messages_authorId: many(messages, {
 		relationName: "messages_authorId_users_id"
@@ -1474,6 +1480,19 @@ export const lecturesAiRelations = relations(lecturesAi, ({one}) => ({
 	lecture: one(lectures, {
 		fields: [lecturesAi.lectureId],
 		references: [lectures.id]
+	}),
+}));
+
+export const masaiverseBannersRelations = relations(masaiverseBanners, ({one}) => ({
+	user_createdBy: one(users, {
+		fields: [masaiverseBanners.createdBy],
+		references: [users.id],
+		relationName: "masaiverseBanners_createdBy_users_id"
+	}),
+	user_lastEditedBy: one(users, {
+		fields: [masaiverseBanners.lastEditedBy],
+		references: [users.id],
+		relationName: "masaiverseBanners_lastEditedBy_users_id"
 	}),
 }));
 
