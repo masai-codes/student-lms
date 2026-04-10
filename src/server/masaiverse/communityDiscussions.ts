@@ -5,6 +5,7 @@ import { getCurrentSessionUserId } from '@/server/auth/getCurrentSessionUserId'
 import { clubMembers } from '@/db/schema'
 
 type VoteValue = 'upvote' | 'downvote'
+export type DiscussionSortMode = 'hot' | 'top' | 'new'
 
 export type DiscussionReply = {
   id: string
@@ -29,6 +30,20 @@ export type DiscussionPost = {
   myVote: VoteValue | null
   isBookmarked: boolean
   replies: Array<DiscussionReply>
+}
+
+type SortablePost = DiscussionPost & {
+  rankingMeta: {
+    upvotes: number
+    downvotes: number
+    netVotes: number
+    replyCount: number
+    totalInteractions: number
+    ageHours: number
+    hoursSinceLastActivity: number
+    hotScore: number
+    topScore: number
+  }
 }
 
 function normalizeRows<T>(result: unknown): Array<T> {
@@ -59,7 +74,11 @@ async function getJoinedClubId(userId: number) {
   return membership[0]?.clubId ?? null
 }
 
-export const fetchCommunityDiscussions = createServerFn({ method: 'GET' }).handler(async () => {
+export const fetchCommunityDiscussions = createServerFn({ method: 'GET' })
+  .inputValidator((data?: { sortBy?: DiscussionSortMode }) => data ?? {})
+  .handler(async ({ data }) => {
+  const sortInput = data.sortBy ?? 'new'
+  const sortBy: DiscussionSortMode = sortInput === 'hot' || sortInput === 'top' || sortInput === 'new' ? sortInput : 'new'
   const userId = await getCurrentSessionUserId()
   if (!userId) {
     throw new Error('UNAUTHORIZED')
@@ -172,11 +191,13 @@ export const fetchCommunityDiscussions = createServerFn({ method: 'GET' }).handl
     postId: string | null
     vote: VoteValue
     userId: number
+    createdAt: string | null
   }>(await db.execute(sql`
     SELECT
       v.post_id AS postId,
       v.vote,
-      v.user_id AS userId
+      v.user_id AS userId,
+      v.created_at AS createdAt
     FROM votes v
     INNER JOIN posts p ON p.id = v.post_id
     WHERE p.club_id = ${joinedClubId}
@@ -257,12 +278,50 @@ export const fetchCommunityDiscussions = createServerFn({ method: 'GET' }).handl
     postBookmarkMap.set(String(bookmarkRow.postId), true)
   }
 
-  const result: Array<DiscussionPost> = postRows.map((postRow) => {
+  const sortedPosts: Array<SortablePost> = postRows.map((postRow) => {
     const voteStats = postVoteMap.get(postRow.id) ?? {
       upvotes: 0,
       downvotes: 0,
       myVote: null,
     }
+    const replies = replyByPostId.get(postRow.id) ?? []
+    const now = Date.now()
+    const postCreatedAtMs = postRow.createdAt ? new Date(postRow.createdAt).getTime() : now
+    const postAgeHours = Math.max(
+      0,
+      Number.isFinite(postCreatedAtMs) ? (now - postCreatedAtMs) / (1000 * 60 * 60) : 0,
+    )
+    const latestReplyMs = replies.reduce((latest, reply) => {
+      if (!reply.createdAt) return latest
+      const parsed = new Date(reply.createdAt).getTime()
+      return Number.isFinite(parsed) ? Math.max(latest, parsed) : latest
+    }, Number.isFinite(postCreatedAtMs) ? postCreatedAtMs : now)
+    const latestVoteMs = postVotes.reduce((latest, vote) => {
+      if (String(vote.postId) !== String(postRow.id) || !vote.createdAt) return latest
+      const parsed = new Date(vote.createdAt).getTime()
+      return Number.isFinite(parsed) ? Math.max(latest, parsed) : latest
+    }, Number.isFinite(postCreatedAtMs) ? postCreatedAtMs : now)
+    const lastActivityMs = Math.max(
+      Number.isFinite(postCreatedAtMs) ? postCreatedAtMs : now,
+      latestReplyMs,
+      latestVoteMs,
+    )
+    const hoursSinceLastActivity = Math.max(0, (now - lastActivityMs) / (1000 * 60 * 60))
+    const netVotes = voteStats.upvotes - voteStats.downvotes
+    const replyCount = replies.length
+    const totalInteractions = voteStats.upvotes + voteStats.downvotes + replyCount
+
+    // Hot score favors high engagement while decaying with age and stale activity.
+    const hotScore =
+      netVotes * 3.5 +
+      replyCount * 2.5 +
+      Math.log10(totalInteractions + 1) * 4 -
+      postAgeHours * 0.15 -
+      hoursSinceLastActivity * 0.35
+
+    // Top score emphasizes net quality, with a small reliability boost for interaction volume.
+    const topScore = netVotes + Math.log10(totalInteractions + 1)
+
     return {
       id: postRow.id,
       content: postRow.content ?? '',
@@ -273,14 +332,46 @@ export const fetchCommunityDiscussions = createServerFn({ method: 'GET' }).handl
       downvotes: voteStats.downvotes,
       myVote: voteStats.myVote,
       isBookmarked: postBookmarkMap.get(String(postRow.id)) ?? false,
-      replies: replyByPostId.get(postRow.id) ?? [],
+      replies,
+      rankingMeta: {
+        upvotes: voteStats.upvotes,
+        downvotes: voteStats.downvotes,
+        netVotes,
+        replyCount,
+        totalInteractions,
+        ageHours: postAgeHours,
+        hoursSinceLastActivity,
+        hotScore,
+        topScore,
+      },
     }
   })
+
+  sortedPosts.sort((a, b) => {
+    if (sortBy === 'new') {
+      const aMs = a.createdAt ? new Date(a.createdAt).getTime() : 0
+      const bMs = b.createdAt ? new Date(b.createdAt).getTime() : 0
+      return bMs - aMs
+    }
+    if (sortBy === 'top') {
+      if (b.rankingMeta.topScore !== a.rankingMeta.topScore) {
+        return b.rankingMeta.topScore - a.rankingMeta.topScore
+      }
+      return b.rankingMeta.netVotes - a.rankingMeta.netVotes
+    }
+    if (b.rankingMeta.hotScore !== a.rankingMeta.hotScore) {
+      return b.rankingMeta.hotScore - a.rankingMeta.hotScore
+    }
+    return b.rankingMeta.netVotes - a.rankingMeta.netVotes
+  })
+
+  const result: Array<DiscussionPost> = sortedPosts.map(({ rankingMeta: _rankingMeta, ...post }) => post)
 
   return {
     joinedClubId,
     currentUserName: currentUser.name,
     currentUserProfileImage: currentUser.profileImage,
+    sortBy,
     posts: result,
   }
 })
