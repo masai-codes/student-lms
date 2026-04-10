@@ -11,6 +11,7 @@ type MasaiverseDiscussionPostDrawerProps = {
   content: string
   currentUpvoteCount: number
   currentDownvoteCount: number
+  voteDirection?: 'up' | 'down' | null
   onUpvoteClick: () => void
   onDownvoteClick: () => void
   replies: Array<DiscussionPostCardReply>
@@ -32,6 +33,7 @@ export default function MasaiverseDiscussionPostDrawer({
   content,
   currentUpvoteCount,
   currentDownvoteCount,
+  voteDirection = null,
   onUpvoteClick,
   onDownvoteClick,
   replies,
@@ -84,6 +86,8 @@ export default function MasaiverseDiscussionPostDrawer({
               content={content}
               currentUpvoteCount={currentUpvoteCount}
               currentDownvoteCount={currentDownvoteCount}
+              voteDirection={voteDirection}
+              hideDownvoteCount={true}
               isBookmarked={isBookmarked}
               onBookmarkClick={onBookmarkClick}
               onUpvoteClick={onUpvoteClick}
@@ -108,6 +112,8 @@ export default function MasaiverseDiscussionPostDrawer({
                       content={reply.content}
                       currentUpvoteCount={reply.currentUpvoteCount ?? 0}
                       currentDownvoteCount={reply.currentDownvoteCount ?? 0}
+                      voteDirection={reply.voteDirection ?? null}
+                      hideDownvoteCount={true}
                       onUpvoteClick={() => {
                         void onVoteReply(reply.id, 'upvote')
                       }}

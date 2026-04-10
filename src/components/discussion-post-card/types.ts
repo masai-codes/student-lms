@@ -1,4 +1,5 @@
 export type DrawerDirection = "right" | "bottom" | "auto"
+export type VoteDirection = "up" | "down" | null
 
 export type DiscussionReply = {
   id: string
@@ -8,6 +9,7 @@ export type DiscussionReply = {
   content: string
   currentUpvoteCount?: number
   currentDownvoteCount?: number
+  voteDirection?: VoteDirection
 }
 
 export type DiscussionPostCardProps = {
@@ -17,6 +19,8 @@ export type DiscussionPostCardProps = {
   content: string
   currentUpvoteCount: number
   currentDownvoteCount: number
+  voteDirection?: VoteDirection
+  hideDownvoteCount?: boolean
   onUpvoteClick: () => void
   onDownvoteClick: () => void
   initialBookmarked?: boolean

@@ -6,7 +6,11 @@ import { X } from "lucide-react";
 
 import { DiscussionPostCardPreview } from "./discussion-post-card-preview";
 import { DiscussionPostCardComposer } from "./discussion-post-card-composer";
-import type { DiscussionPostCardProps, DrawerDirection } from "./types";
+import type {
+  DiscussionPostCardProps,
+  DrawerDirection,
+  VoteDirection,
+} from "./types";
 
 type DiscussionPostCardDrawerProps = Pick<
   DiscussionPostCardProps,
@@ -16,6 +20,8 @@ type DiscussionPostCardDrawerProps = Pick<
   | "content"
   | "currentUpvoteCount"
   | "currentDownvoteCount"
+  | "voteDirection"
+  | "hideDownvoteCount"
   | "onUpvoteClick"
   | "onDownvoteClick"
   | "replies"
@@ -38,6 +44,8 @@ export function DiscussionPostCardDrawer({
   content,
   currentUpvoteCount,
   currentDownvoteCount,
+  voteDirection = null,
+  hideDownvoteCount = false,
   onUpvoteClick,
   onDownvoteClick,
   replies = [],
@@ -52,16 +60,19 @@ export function DiscussionPostCardDrawer({
   resolvedDirection,
 }: DiscussionPostCardDrawerProps) {
   const [replyVotes, setReplyVotes] = React.useState<
-    Record<string, { upvotes: number; downvotes: number }>
+    Record<string, { upvotes: number; downvotes: number; direction: VoteDirection }>
   >({});
 
   React.useEffect(() => {
     setReplyVotes(
-      replies.reduce<Record<string, { upvotes: number; downvotes: number }>>(
+      replies.reduce<
+        Record<string, { upvotes: number; downvotes: number; direction: VoteDirection }>
+      >(
         (accumulator, reply) => {
           accumulator[reply.id] = {
             upvotes: reply.currentUpvoteCount ?? 0,
             downvotes: reply.currentDownvoteCount ?? 0,
+            direction: reply.voteDirection ?? null,
           };
           return accumulator;
         },
@@ -99,6 +110,8 @@ export function DiscussionPostCardDrawer({
               content={content}
               currentUpvoteCount={currentUpvoteCount}
               currentDownvoteCount={currentDownvoteCount}
+              voteDirection={voteDirection}
+              hideDownvoteCount={hideDownvoteCount}
               isBookmarked={isBookmarked}
               onBookmarkClick={onBookmarkClick}
               onUpvoteClick={onUpvoteClick}
@@ -127,24 +140,88 @@ export function DiscussionPostCardDrawer({
                       currentDownvoteCount={
                         replyVotes[reply.id]?.downvotes ?? 0
                       }
-                      onUpvoteClick={() =>
-                        setReplyVotes((current) => ({
-                          ...current,
-                          [reply.id]: {
-                            upvotes: (current[reply.id]?.upvotes ?? 0) + 1,
-                            downvotes: current[reply.id]?.downvotes ?? 0,
-                          },
-                        }))
-                      }
-                      onDownvoteClick={() =>
-                        setReplyVotes((current) => ({
-                          ...current,
-                          [reply.id]: {
-                            upvotes: current[reply.id]?.upvotes ?? 0,
-                            downvotes: (current[reply.id]?.downvotes ?? 0) + 1,
-                          },
-                        }))
-                      }
+                      voteDirection={replyVotes[reply.id]?.direction ?? null}
+                      hideDownvoteCount={hideDownvoteCount}
+                      onUpvoteClick={() => {
+                        setReplyVotes((current) => {
+                          const currentState = current[reply.id] ?? {
+                            upvotes: 0,
+                            downvotes: 0,
+                            direction: null,
+                          };
+
+                          if (currentState.direction === "up") {
+                            return {
+                              ...current,
+                              [reply.id]: {
+                                ...currentState,
+                                upvotes: Math.max(currentState.upvotes - 1, 0),
+                                direction: null,
+                              },
+                            };
+                          }
+
+                          if (currentState.direction === "down") {
+                            return {
+                              ...current,
+                              [reply.id]: {
+                                upvotes: currentState.upvotes + 1,
+                                downvotes: Math.max(currentState.downvotes - 1, 0),
+                                direction: "up",
+                              },
+                            };
+                          }
+
+                          return {
+                            ...current,
+                            [reply.id]: {
+                              ...currentState,
+                              upvotes: currentState.upvotes + 1,
+                              direction: "up",
+                            },
+                          };
+                        });
+                      }}
+                      onDownvoteClick={() => {
+                        setReplyVotes((current) => {
+                          const currentState = current[reply.id] ?? {
+                            upvotes: 0,
+                            downvotes: 0,
+                            direction: null,
+                          };
+
+                          if (currentState.direction === "down") {
+                            return {
+                              ...current,
+                              [reply.id]: {
+                                ...currentState,
+                                downvotes: Math.max(currentState.downvotes - 1, 0),
+                                direction: null,
+                              },
+                            };
+                          }
+
+                          if (currentState.direction === "up") {
+                            return {
+                              ...current,
+                              [reply.id]: {
+                                upvotes: Math.max(currentState.upvotes - 1, 0),
+                                downvotes: currentState.downvotes + 1,
+                                direction: "down",
+                              },
+                            };
+                          }
+
+                          return {
+                            ...current,
+                            [reply.id]: {
+                              ...currentState,
+                              downvotes: currentState.downvotes + 1,
+                              direction: "down",
+                            },
+                          };
+                        });
+                      }}
                       replyCount={0}
                       showReplyAction={false}
                       showBookmarkAction={false}

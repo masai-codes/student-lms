@@ -10,6 +10,7 @@ type MasaiverseDiscussionPostCardProps = {
   content: string
   currentUpvoteCount: number
   currentDownvoteCount: number
+  voteDirection?: 'up' | 'down' | null
   onUpvoteClick: () => void
   onDownvoteClick: () => void
   initialBookmarked?: boolean
@@ -35,6 +36,7 @@ export default function MasaiverseDiscussionPostCard({
   content,
   currentUpvoteCount,
   currentDownvoteCount,
+  voteDirection = null,
   onUpvoteClick,
   onDownvoteClick,
   initialBookmarked = false,
@@ -77,6 +79,8 @@ export default function MasaiverseDiscussionPostCard({
         content={content}
         currentUpvoteCount={currentUpvoteCount}
         currentDownvoteCount={currentDownvoteCount}
+        voteDirection={voteDirection}
+        hideDownvoteCount={true}
         isBookmarked={isBookmarked}
         onBookmarkClick={handleBookmarkClick}
         onUpvoteClick={onUpvoteClick}
@@ -91,6 +95,7 @@ export default function MasaiverseDiscussionPostCard({
         content={content}
         currentUpvoteCount={currentUpvoteCount}
         currentDownvoteCount={currentDownvoteCount}
+        voteDirection={voteDirection}
         onUpvoteClick={onUpvoteClick}
         onDownvoteClick={onDownvoteClick}
         replies={replies}

@@ -2,7 +2,11 @@ import * as React from "react"
 
 import { DiscussionPostCardDrawer } from "./discussion-post-card-drawer"
 import { DiscussionPostCardPreview } from "./discussion-post-card-preview"
-import type { DiscussionPostCardProps, DrawerDirection } from "./types"
+import type {
+  DiscussionPostCardProps,
+  DrawerDirection,
+  VoteDirection,
+} from "./types"
 
 function useResolvedDirection(direction: DrawerDirection) {
   const [isDesktop, setIsDesktop] = React.useState(false)
@@ -25,6 +29,7 @@ export function DiscussionPostCard({
   content,
   currentUpvoteCount,
   currentDownvoteCount,
+  hideDownvoteCount = false,
   onUpvoteClick,
   onDownvoteClick,
   initialBookmarked = false,
@@ -37,7 +42,73 @@ export function DiscussionPostCard({
 }: DiscussionPostCardProps) {
   const [open, setOpen] = React.useState(false)
   const [isBookmarked, setIsBookmarked] = React.useState(initialBookmarked)
+  const [voteDirection, setVoteDirection] = React.useState<VoteDirection>(null)
+  const [voteCounts, setVoteCounts] = React.useState({
+    upvotes: currentUpvoteCount,
+    downvotes: currentDownvoteCount,
+  })
   const resolvedDirection = useResolvedDirection(drawerDirection)
+
+  React.useEffect(() => {
+    setVoteCounts({
+      upvotes: currentUpvoteCount,
+      downvotes: currentDownvoteCount,
+    })
+  }, [currentUpvoteCount, currentDownvoteCount])
+
+  const handleUpvoteClick = () => {
+    setVoteCounts((current) => {
+      if (voteDirection === "up") {
+        setVoteDirection(null)
+        return {
+          upvotes: Math.max(current.upvotes - 1, 0),
+          downvotes: current.downvotes,
+        }
+      }
+
+      if (voteDirection === "down") {
+        setVoteDirection("up")
+        return {
+          upvotes: current.upvotes + 1,
+          downvotes: Math.max(current.downvotes - 1, 0),
+        }
+      }
+
+      setVoteDirection("up")
+      return {
+        upvotes: current.upvotes + 1,
+        downvotes: current.downvotes,
+      }
+    })
+    onUpvoteClick()
+  }
+
+  const handleDownvoteClick = () => {
+    setVoteCounts((current) => {
+      if (voteDirection === "down") {
+        setVoteDirection(null)
+        return {
+          upvotes: current.upvotes,
+          downvotes: Math.max(current.downvotes - 1, 0),
+        }
+      }
+
+      if (voteDirection === "up") {
+        setVoteDirection("down")
+        return {
+          upvotes: Math.max(current.upvotes - 1, 0),
+          downvotes: current.downvotes + 1,
+        }
+      }
+
+      setVoteDirection("down")
+      return {
+        upvotes: current.upvotes,
+        downvotes: current.downvotes + 1,
+      }
+    })
+    onDownvoteClick()
+  }
 
   return (
     <>
@@ -46,12 +117,14 @@ export function DiscussionPostCard({
         name={name}
         createdAt={createdAt}
         content={content}
-        currentUpvoteCount={currentUpvoteCount}
-        currentDownvoteCount={currentDownvoteCount}
+        currentUpvoteCount={voteCounts.upvotes}
+        currentDownvoteCount={voteCounts.downvotes}
+        hideDownvoteCount={hideDownvoteCount}
+        voteDirection={voteDirection}
         isBookmarked={isBookmarked}
         onBookmarkClick={() => setIsBookmarked((current) => !current)}
-        onUpvoteClick={onUpvoteClick}
-        onDownvoteClick={onDownvoteClick}
+        onUpvoteClick={handleUpvoteClick}
+        onDownvoteClick={handleDownvoteClick}
         onReplyClick={() => setOpen(true)}
         replyCount={replies.length}
       />
@@ -61,10 +134,12 @@ export function DiscussionPostCard({
         name={name}
         createdAt={createdAt}
         content={content}
-        currentUpvoteCount={currentUpvoteCount}
-        currentDownvoteCount={currentDownvoteCount}
-        onUpvoteClick={onUpvoteClick}
-        onDownvoteClick={onDownvoteClick}
+        currentUpvoteCount={voteCounts.upvotes}
+        currentDownvoteCount={voteCounts.downvotes}
+        hideDownvoteCount={hideDownvoteCount}
+        voteDirection={voteDirection}
+        onUpvoteClick={handleUpvoteClick}
+        onDownvoteClick={handleDownvoteClick}
         replies={replies}
         replyText={replyText}
         onReplyTextChange={onReplyTextChange}

@@ -54,6 +54,12 @@ const DiscussionsList = ({
       content: reply.content,
       currentUpvoteCount: reply.upvotes,
       currentDownvoteCount: reply.downvotes,
+      voteDirection:
+        reply.myVote === 'upvote'
+          ? 'up'
+          : reply.myVote === 'downvote'
+            ? 'down'
+            : null,
     }))
 
   if (posts.length === 0) {
@@ -75,6 +81,13 @@ const DiscussionsList = ({
           content={post.content}
           currentUpvoteCount={post.upvotes}
           currentDownvoteCount={post.downvotes}
+          voteDirection={
+            post.myVote === 'upvote'
+              ? 'up'
+              : post.myVote === 'downvote'
+                ? 'down'
+                : null
+          }
           onUpvoteClick={() => {
             void onVotePost(post.id, 'upvote')
           }}

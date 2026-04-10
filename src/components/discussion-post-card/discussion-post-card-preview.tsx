@@ -7,11 +7,11 @@ import {
 import type { ReactNode } from "react";
 
 import { RichTextContent } from "./rich-text-content";
-import type { DiscussionPostCardProps } from "./types";
+import type { DiscussionPostCardProps, VoteDirection } from "./types";
 
 type DiscussionPostCardPreviewProps = Pick<
   DiscussionPostCardProps,
-  "profileImage" | "name" | "createdAt" | "content"
+  "profileImage" | "name" | "createdAt" | "content" | "hideDownvoteCount"
 > & {
   currentUpvoteCount: number;
   currentDownvoteCount: number;
@@ -24,6 +24,7 @@ type DiscussionPostCardPreviewProps = Pick<
   showReplyAction?: boolean;
   showBookmarkAction?: boolean;
   showDivider?: boolean;
+  voteDirection?: VoteDirection;
 };
 
 type CountActionButtonProps = {
@@ -31,6 +32,8 @@ type CountActionButtonProps = {
   value: number;
   onClick: () => void;
   srLabel: string;
+  hideValue?: boolean;
+  isActive?: boolean;
 };
 
 function CountActionButton({
@@ -38,17 +41,25 @@ function CountActionButton({
   value,
   onClick,
   srLabel,
+  hideValue = false,
+  isActive = false,
 }: CountActionButtonProps) {
   return (
     <button
       type="button"
       onClick={onClick}
-      className="cursor-pointer inline-flex items-center gap-[4px] rounded-[16px] bg-[#F3F4F6] px-[8px] py-[4px] text-[#3B3435] transition-colors hover:bg-[#E5E7EB] hover:text-[#111928]"
+      className={`cursor-pointer inline-flex items-center gap-[4px] rounded-[16px] px-[8px] py-[4px] text-[#3B3435] transition-colors hover:text-[#111928] ${
+        isActive
+          ? "bg-[#E5E7EB] text-[#111928]"
+          : "bg-[#F3F4F6] hover:bg-[#E5E7EB]"
+      }`}
     >
       {icon}
-      <span className="text-[12px] font-[400] leading-[16px] text-[#111928]">
-        {value}
-      </span>
+      {!hideValue ? (
+        <span className="text-[12px] font-[400] leading-[16px] text-[#111928]">
+          {value}
+        </span>
+      ) : null}
       <span className="sr-only">{srLabel}</span>
     </button>
   );
@@ -61,6 +72,7 @@ export function DiscussionPostCardPreview({
   content,
   currentUpvoteCount,
   currentDownvoteCount,
+  hideDownvoteCount = false,
   isBookmarked = false,
   onBookmarkClick,
   onUpvoteClick,
@@ -70,6 +82,7 @@ export function DiscussionPostCardPreview({
   showReplyAction = true,
   showBookmarkAction = true,
   showDivider = true,
+  voteDirection = null,
 }: DiscussionPostCardPreviewProps) {
   return (
     <article className="font-poppins w-full w-[100%] rounded-[12px] border border-[#E5E7EB] bg-white p-[12px]">
@@ -115,16 +128,31 @@ export function DiscussionPostCardPreview({
       <div className={showDivider ? "" : "mt-[16px]"}>
         <div className="flex flex-wrap items-center gap-[16px]">
           <CountActionButton
-            icon={<ArrowBigUp size={16} color="#374151" />}
+            icon={
+              <ArrowBigUp
+                size={16}
+                color="#374151"
+                className={voteDirection === "up" ? "fill-current" : ""}
+              />
+            }
             value={currentUpvoteCount}
             onClick={onUpvoteClick}
             srLabel="Upvote discussion"
+            isActive={voteDirection === "up"}
           />
           <CountActionButton
-            icon={<ArrowBigDown size={16} color="#374151" />}
+            icon={
+              <ArrowBigDown
+                size={16}
+                color="#374151"
+                className={voteDirection === "down" ? "fill-current" : ""}
+              />
+            }
             value={currentDownvoteCount}
             onClick={onDownvoteClick}
             srLabel="Downvote discussion"
+            hideValue={hideDownvoteCount}
+            isActive={voteDirection === "down"}
           />
           {showReplyAction ? (
             <CountActionButton
