@@ -83,7 +83,12 @@ export default function HomeSection() {
     try {
       const result = await joinClub({ data: { clubId } })
       if (result.success) {
-        setJoinedClubId(result.joinedClubId)
+        const [membership, events] = await Promise.all([
+          fetchMyClubMembership(),
+          fetchAllEvents(),
+        ])
+        setJoinedClubId(membership?.joinedClubId ?? result.joinedClubId)
+        setEventsList(events)
       }
     } finally {
       setJoiningClubId(null)

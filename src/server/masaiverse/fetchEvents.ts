@@ -1,5 +1,5 @@
 import { createServerFn } from "@tanstack/react-start"
-import { asc, eq } from "drizzle-orm"
+import { asc, eq, inArray, isNull, or } from "drizzle-orm"
 import type { InferSelectModel } from "drizzle-orm"
 import { db } from "@/db"
 import { clubMembers, events } from "@/db/schema"
@@ -18,10 +18,20 @@ export const fetchAllEvents = createServerFn({ method: "GET" }).handler(async ()
       : []
     const joinedClubIds = new Set(memberships.map((membership) => membership.clubId))
 
-    const fetchedEvents = await db
-      .select()
-      .from(events)
-      .orderBy(asc(events.startTime), asc(events.createdAt))
+    const joinedClubIdsArray = Array.from(joinedClubIds)
+
+    const fetchedEvents =
+      joinedClubIdsArray.length > 0
+        ? await db
+            .select()
+            .from(events)
+            .where(or(isNull(events.clubId), inArray(events.clubId, joinedClubIdsArray)))
+            .orderBy(asc(events.startTime), asc(events.createdAt))
+        : await db
+            .select()
+            .from(events)
+            .where(isNull(events.clubId))
+            .orderBy(asc(events.startTime), asc(events.createdAt))
 
     const now = Date.now()
     return [...fetchedEvents].sort((a, b) => {

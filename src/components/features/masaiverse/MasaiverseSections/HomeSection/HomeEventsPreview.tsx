@@ -24,9 +24,11 @@ const HomeEventsPreview = ({
     <div className="mt-6">
       <div className="flex items-center justify-between">
         <h2 className="text-[18px] font-semibold text-[#111827]">Events</h2>
-        <Button type="button" variant="outline" onClick={onViewAll}>
-          View all
-        </Button>
+        {eventsList.length > 1 ? (
+          <Button type="button" variant="outline" onClick={onViewAll}>
+            View all
+          </Button>
+        ) : null}
       </div>
 
       {isLoading ? (
