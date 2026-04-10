@@ -1,5 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router'
-import WhatsNew from '@/components/WhatsNew'
+import { WhatsNew } from '@/components/features/whats-new'
 import { fetchWhatsNew } from '@/server/whats-new/fetchWhatsNew'
 
 export const Route = createFileRoute('/(protected)/_layout/whats-new/')({

@@ -1,9 +1,9 @@
 import { createFileRoute, getRouteApi } from "@tanstack/react-router"
 import { fetchLecturesById } from "@/server/lectures/fetchLecturesById"
-import { LectureWithJoinCTA } from "@/components/LectureWithJoinCTA"
-import { LectureYetToStart } from "@/components/LectureYetToStart"
-import { LectureWithVideo } from "@/components/LectureWithVideo"
-import { LectureWithNoVideo } from "@/components/LectureWithNoVideo"
+import { LectureWithJoinCTA } from "@/components/features/courses"
+import { LectureYetToStart } from "@/components/features/courses"
+import { LectureWithVideo } from "@/components/features/courses"
+import { LectureWithNoVideo } from "@/components/features/courses"
 import { getCurrentTime } from "@/utils/generics"
 
 type SidePanel = "default" | "transcript" | "description" | "summary" | "chat"

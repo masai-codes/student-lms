@@ -1,8 +1,8 @@
 import { createFileRoute } from '@tanstack/react-router'
-import FilterAndSeachBar from '@/components/FilterAndSeachBar'
+import { FilterAndSeachBar } from '@/components/common'
 import { PAGINATION_PAGE_SIZE } from '@/globalSettings'
-import AppPagination from '@/components/Pagination'
-import SkeletonCommon from '@/components/SkeletonCommon'
+import { Pagination as AppPagination } from '@/components/common'
+import { SkeletonCommon } from '@/components/common'
 
 import {
   getCurrentPage,
@@ -11,7 +11,7 @@ import {
 import { createPageSetter } from '@/utils/routerPagination'
 import { fetchAllTickets } from '@/server/tickets/fetchAllTickets'
 import { fetchAllTicketsCount } from '@/server/tickets/fetchAllTicketsCount'
-import { TicketCard } from '@/components/TicketCard'
+import { TicketCard } from '@/components/features/support'
 
 export const Route = createFileRoute(
   '/(protected)/_layout/support/',

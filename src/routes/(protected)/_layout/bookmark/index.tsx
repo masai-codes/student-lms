@@ -1,19 +1,19 @@
 import { createFileRoute } from '@tanstack/react-router'
-import type { BookmarkType } from '@/components/BookmarkTabFilters'
-import FilterAndSeachBar from '@/components/FilterAndSeachBar'
+import type { BookmarkType } from '@/components/features/discussions'
+import { FilterAndSeachBar } from '@/components/common'
 import { PAGINATION_PAGE_SIZE } from '@/globalSettings'
-import AppPagination from '@/components/Pagination'
+import { Pagination as AppPagination } from '@/components/common'
 
 import {
   getCurrentPage,
   getTotalPages,
 } from '@/utils/pagination'
 import { createPageSetter } from '@/utils/routerPagination'
-import { DiscussionCard } from '@/components/DiscussionCard'
+import { DiscussionCard } from '@/components/features/discussions'
 import { fetchAllDiscussions } from '@/server/discussions/fetchAllDiscussions'
 import { fetchAllDiscussionsCount } from '@/server/discussions/fetchAllDiscussionsCount'
 import { Skeleton } from '@/components/ui/skeleton'
-import BookmarkTabFilters from '@/components/BookmarkTabFilters'
+import { BookmarkTabFilters } from '@/components/features/discussions'
 
 /** URL-driven discussion filter */
 export type DiscussionType = 'lecture' | 'assignment' | 'resources' | 'announcement' | 'discussion'

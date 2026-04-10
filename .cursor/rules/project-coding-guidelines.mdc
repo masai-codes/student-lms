@@ -1,0 +1,31 @@
+---
+description: Core coding and testing standards for this project
+alwaysApply: true
+---
+
+# Student LMS Coding Guidelines
+
+## Core Standards
+- Use TypeScript strict mode patterns; avoid `any` unless absolutely necessary.
+- Reuse existing components, utilities.
+- Prefer `shadcn/ui` and Radix UI primitives wherever possible before building custom UI from scratch.
+- Prefer icons from a maintained icon library (for example, `@phosphor-icons/react`) over image URLs or custom icon assets wherever possible.
+- Keep components focused and readable; extract reusable logic when duplication appears.
+- Keep file size minimal; max file length is 200 lines. Split into smaller components/hooks/utils when approaching this limit.
+- Handle edge cases explicitly (empty states, invalid inputs, null/undefined values).
+
+## Testing Requirements
+- Add or update tests for every non-trivial behavior change.
+- Prefer behavior-driven tests with Testing Library over implementation details.
+- Cover positive path, fallback/edge case, and critical UI state transitions.
+- Keep tests deterministic; avoid timing-sensitive assertions where possible.
+
+## Styling and UX
+- Follow existing Tailwind and component style conventions in the same feature area.
+- Avoid hardcoded magic values when a project token or shared constant exists.
+- Preserve accessibility basics (semantic elements, interactive affordances, readable text).
+
+## PR Quality Bar
+- Ensure `npm run test` and `npm run lint` pass for touched code.
+- Keep changes scoped to the request; do not refactor unrelated areas.
+- Add concise code comments only where logic is non-obvious.

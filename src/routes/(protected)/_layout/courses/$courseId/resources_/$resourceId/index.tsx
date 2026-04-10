@@ -1,5 +1,5 @@
 import { createFileRoute, getRouteApi } from '@tanstack/react-router'
-import ResourceDetails from '@/components/ResourceDetails'
+import { ResourceDetails } from '@/components/features/courses'
 
 const parentRoute = getRouteApi(
   '/(protected)/_layout/courses/$courseId/resources_/$resourceId'

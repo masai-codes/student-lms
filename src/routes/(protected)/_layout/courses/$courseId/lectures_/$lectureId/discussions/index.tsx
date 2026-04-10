@@ -1,9 +1,9 @@
 import { Link, createFileRoute } from '@tanstack/react-router'
 import { Card } from '@/components/ui/card'
-import FilterAndSeachBar from '@/components/FilterAndSeachBar'
+import { FilterAndSeachBar } from '@/components/common'
 import { PAGINATION_PAGE_SIZE } from '@/globalSettings'
-import AppPagination from '@/components/Pagination'
-import SkeletonCommon from '@/components/SkeletonCommon'
+import { Pagination as AppPagination } from '@/components/common'
+import { SkeletonCommon } from '@/components/common'
 
 import {
     getCurrentPage,
@@ -11,7 +11,7 @@ import {
 } from '@/utils/pagination'
 import { createPageSetter } from '@/utils/routerPagination'
 import { Button } from '@/components/ui/button'
-import { DiscussionCard } from '@/components/DiscussionCard'
+import { DiscussionCard } from '@/components/features/discussions'
 import { fetchAllDiscussionsByEntityId } from '@/server/discussions/fetchAllDiscussionsByEntityId'
 import { fetchAllDiscussionsCountByEntityId } from '@/server/discussions/fetchAllDiscussionsCountByEntityId'
 

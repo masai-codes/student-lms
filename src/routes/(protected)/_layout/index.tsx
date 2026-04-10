@@ -1,6 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
-// import Dashboard from '@/components/Dashboard'
-import Dashboard from '@/components/Dashboard'
+// import { Dashboard } from '@/components/features/dashboard'
+import { Dashboard } from '@/components/features/dashboard'
 import { fetchWeeklySchedule } from '@/server/dashboard/fetchWeeklySchedule'
 import { fetchPendingTasks } from '@/server/dashboard/fetchPendingTasks'
 import { fetchAnnouncements } from '@/server/dashboard/fetchAnnouncements'

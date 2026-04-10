@@ -3,7 +3,7 @@ import type { AnnouncementsType } from '@/server/announcements/fetchAllAnnouncem
 import { Badge } from "@/components/ui/badge"
 import { formatSqlDate } from '@/utils/generics'
 import { fetchAnnouncementById } from '@/server/announcements/fetchAnnouncementById'
-import AnnouncementDetail from '@/components/AnnouncementDetails'
+import { AnnouncementDetails as AnnouncementDetail } from '@/components/features/courses'
 
 export const Route = createFileRoute(
   '/(protected)/_layout/courses/$courseId/announcements_/$announcementId/',

@@ -1,7 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router'
-import FilterAndSeachBar from '@/components/FilterAndSeachBar'
+import { FilterAndSeachBar } from '@/components/common'
 import { PAGINATION_PAGE_SIZE } from '@/globalSettings'
-import AppPagination from '@/components/Pagination'
+import { Pagination as AppPagination } from '@/components/common'
 
 import {
   getCurrentPage,
@@ -10,7 +10,7 @@ import {
 import { createPageSetter } from '@/utils/routerPagination'
 import { fetchAllAnnouncements } from '@/server/announcements/fetchAllAnnouncement'
 import { fetchAllAnnouncementCount } from '@/server/announcements/fetchAllAnnouncementCount'
-import { AnnouncementCard } from '@/components/AnnouncementCard'
+import { AnnouncementCard } from '@/components/features/courses'
 import { Skeleton } from '@/components/ui/skeleton'
 
 export const Route = createFileRoute(

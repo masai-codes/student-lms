@@ -1,8 +1,8 @@
 import { Outlet, createFileRoute } from '@tanstack/react-router'
 import { useState } from "react"
 import { ChevronDown, ChevronRight, ChevronUp } from "lucide-react"
-import TabGroup from '@/components/TabGroup'
-import FilterAndSearchBar from '@/components/FilterAndSeachBar'
+import { TabGroup } from '@/components/common'
+import { FilterAndSeachBar as FilterAndSearchBar } from '@/components/common'
 import SwitchCourse from '@/components/modals/SwitchCourse'
 
 

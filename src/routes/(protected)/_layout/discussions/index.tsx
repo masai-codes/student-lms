@@ -1,16 +1,16 @@
 import { createFileRoute } from '@tanstack/react-router'
-import FilterAndSeachBar from '@/components/FilterAndSeachBar'
+import { FilterAndSeachBar } from '@/components/common'
 import { PAGINATION_PAGE_SIZE } from '@/globalSettings'
-import AppPagination from '@/components/Pagination'
+import { Pagination as AppPagination } from '@/components/common'
 
 import {
   getCurrentPage,
   getTotalPages,
 } from '@/utils/pagination'
 import { createPageSetter } from '@/utils/routerPagination'
-import { DiscussionCard } from '@/components/DiscussionCard'
+import { DiscussionCard } from '@/components/features/discussions'
 import { fetchAllDiscussions } from '@/server/discussions/fetchAllDiscussions'
-import DiscussionTabFilters from '@/components/DiscussionTabFilters'
+import { DiscussionTabFilters } from '@/components/features/discussions'
 import { fetchAllDiscussionsCount } from '@/server/discussions/fetchAllDiscussionsCount'
 import { Skeleton } from '@/components/ui/skeleton'
 

@@ -13,6 +13,7 @@ import { Route as protectedLayoutRouteRouteImport } from './routes/(protected)/_
 import { Route as protectedZoomIndexRouteImport } from './routes/(protected)/zoom/index'
 import { Route as protectedLayoutIndexRouteImport } from './routes/(protected)/_layout/index'
 import { Route as authLoginIndexRouteImport } from './routes/(auth)/login/index'
+import { Route as protectedLayoutMasaiverseRouteRouteImport } from './routes/(protected)/_layout/masaiverse/route'
 import { Route as protectedLayoutWhatsNewIndexRouteImport } from './routes/(protected)/_layout/whats-new/index'
 import { Route as protectedLayoutSupportIndexRouteImport } from './routes/(protected)/_layout/support/index'
 import { Route as protectedLayoutReferAndEarnIndexRouteImport } from './routes/(protected)/_layout/refer-and-earn/index'
@@ -67,6 +68,12 @@ const authLoginIndexRoute = authLoginIndexRouteImport.update({
   path: '/login/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const protectedLayoutMasaiverseRouteRoute =
+  protectedLayoutMasaiverseRouteRouteImport.update({
+    id: '/masaiverse',
+    path: '/masaiverse',
+    getParentRoute: () => protectedLayoutRouteRoute,
+  } as any)
 const protectedLayoutWhatsNewIndexRoute =
   protectedLayoutWhatsNewIndexRouteImport.update({
     id: '/whats-new/',
@@ -99,9 +106,9 @@ const protectedLayoutPracticeInterviewIndexRoute =
   } as any)
 const protectedLayoutMasaiverseIndexRoute =
   protectedLayoutMasaiverseIndexRouteImport.update({
-    id: '/masaiverse/',
-    path: '/masaiverse/',
-    getParentRoute: () => protectedLayoutRouteRoute,
+    id: '/',
+    path: '/',
+    getParentRoute: () => protectedLayoutMasaiverseRouteRoute,
   } as any)
 const protectedLayoutDiscussionsIndexRoute =
   protectedLayoutDiscussionsIndexRouteImport.update({
@@ -312,6 +319,7 @@ const protectedLayoutCoursesCourseIdAssignmentsAssignmentIdDiscussionsDiscussion
   )
 
 export interface FileRoutesByFullPath {
+  '/masaiverse': typeof protectedLayoutMasaiverseRouteRouteWithChildren
   '/login/': typeof authLoginIndexRoute
   '/': typeof protectedLayoutIndexRoute
   '/zoom/': typeof protectedZoomIndexRoute
@@ -389,6 +397,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/(protected)/_layout': typeof protectedLayoutRouteRouteWithChildren
+  '/(protected)/_layout/masaiverse': typeof protectedLayoutMasaiverseRouteRouteWithChildren
   '/(auth)/login/': typeof authLoginIndexRoute
   '/(protected)/_layout/': typeof protectedLayoutIndexRoute
   '/(protected)/zoom/': typeof protectedZoomIndexRoute
@@ -430,6 +439,7 @@ export interface FileRoutesById {
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
+    | '/masaiverse'
     | '/login/'
     | '/'
     | '/zoom/'
@@ -506,6 +516,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/(protected)/_layout'
+    | '/(protected)/_layout/masaiverse'
     | '/(auth)/login/'
     | '/(protected)/_layout/'
     | '/(protected)/zoom/'
@@ -581,6 +592,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof authLoginIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/(protected)/_layout/masaiverse': {
+      id: '/(protected)/_layout/masaiverse'
+      path: '/masaiverse'
+      fullPath: '/masaiverse'
+      preLoaderRoute: typeof protectedLayoutMasaiverseRouteRouteImport
+      parentRoute: typeof protectedLayoutRouteRoute
+    }
     '/(protected)/_layout/whats-new/': {
       id: '/(protected)/_layout/whats-new/'
       path: '/whats-new'
@@ -618,10 +636,10 @@ declare module '@tanstack/react-router' {
     }
     '/(protected)/_layout/masaiverse/': {
       id: '/(protected)/_layout/masaiverse/'
-      path: '/masaiverse'
+      path: '/'
       fullPath: '/masaiverse/'
       preLoaderRoute: typeof protectedLayoutMasaiverseIndexRouteImport
-      parentRoute: typeof protectedLayoutRouteRoute
+      parentRoute: typeof protectedLayoutMasaiverseRouteRoute
     }
     '/(protected)/_layout/discussions/': {
       id: '/(protected)/_layout/discussions/'
@@ -822,6 +840,20 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface protectedLayoutMasaiverseRouteRouteChildren {
+  protectedLayoutMasaiverseIndexRoute: typeof protectedLayoutMasaiverseIndexRoute
+}
+
+const protectedLayoutMasaiverseRouteRouteChildren: protectedLayoutMasaiverseRouteRouteChildren =
+  {
+    protectedLayoutMasaiverseIndexRoute: protectedLayoutMasaiverseIndexRoute,
+  }
+
+const protectedLayoutMasaiverseRouteRouteWithChildren =
+  protectedLayoutMasaiverseRouteRoute._addFileChildren(
+    protectedLayoutMasaiverseRouteRouteChildren,
+  )
+
 interface protectedLayoutCoursesCourseIdCourseTabLayoutRouteRouteChildren {
   protectedLayoutCoursesCourseIdCourseTabLayoutIndexRoute: typeof protectedLayoutCoursesCourseIdCourseTabLayoutIndexRoute
   protectedLayoutCoursesCourseIdCourseTabLayoutAssignmentsIndexRoute: typeof protectedLayoutCoursesCourseIdCourseTabLayoutAssignmentsIndexRoute
@@ -916,13 +948,13 @@ const protectedLayoutCoursesCourseIdResourcesResourceIdRouteRouteWithChildren =
   )
 
 interface protectedLayoutRouteRouteChildren {
+  protectedLayoutMasaiverseRouteRoute: typeof protectedLayoutMasaiverseRouteRouteWithChildren
   protectedLayoutIndexRoute: typeof protectedLayoutIndexRoute
   protectedLayoutAnnouncementsIndexRoute: typeof protectedLayoutAnnouncementsIndexRoute
   protectedLayoutBookmarkIndexRoute: typeof protectedLayoutBookmarkIndexRoute
   protectedLayoutChatIndexRoute: typeof protectedLayoutChatIndexRoute
   protectedLayoutCoursesIndexRoute: typeof protectedLayoutCoursesIndexRoute
   protectedLayoutDiscussionsIndexRoute: typeof protectedLayoutDiscussionsIndexRoute
-  protectedLayoutMasaiverseIndexRoute: typeof protectedLayoutMasaiverseIndexRoute
   protectedLayoutPracticeInterviewIndexRoute: typeof protectedLayoutPracticeInterviewIndexRoute
   protectedLayoutProfileIndexRoute: typeof protectedLayoutProfileIndexRoute
   protectedLayoutReferAndEarnIndexRoute: typeof protectedLayoutReferAndEarnIndexRoute
@@ -939,6 +971,8 @@ interface protectedLayoutRouteRouteChildren {
 }
 
 const protectedLayoutRouteRouteChildren: protectedLayoutRouteRouteChildren = {
+  protectedLayoutMasaiverseRouteRoute:
+    protectedLayoutMasaiverseRouteRouteWithChildren,
   protectedLayoutIndexRoute: protectedLayoutIndexRoute,
   protectedLayoutAnnouncementsIndexRoute:
     protectedLayoutAnnouncementsIndexRoute,
@@ -946,7 +980,6 @@ const protectedLayoutRouteRouteChildren: protectedLayoutRouteRouteChildren = {
   protectedLayoutChatIndexRoute: protectedLayoutChatIndexRoute,
   protectedLayoutCoursesIndexRoute: protectedLayoutCoursesIndexRoute,
   protectedLayoutDiscussionsIndexRoute: protectedLayoutDiscussionsIndexRoute,
-  protectedLayoutMasaiverseIndexRoute: protectedLayoutMasaiverseIndexRoute,
   protectedLayoutPracticeInterviewIndexRoute:
     protectedLayoutPracticeInterviewIndexRoute,
   protectedLayoutProfileIndexRoute: protectedLayoutProfileIndexRoute,
