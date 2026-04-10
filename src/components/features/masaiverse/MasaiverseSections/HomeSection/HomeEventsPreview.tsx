@@ -1,6 +1,7 @@
 import type { EventType } from '@/server/masaiverse/fetchEvents'
 import { EventCard } from '@/components/event-card'
 import { Button } from '@/components/ui/button'
+import { ChevronRight } from 'lucide-react'
 import { mapEventToCardProps } from '@/components/features/masaiverse/MasaiverseSections/cardDataMappers'
 
 type HomeEventsPreviewProps = {
@@ -25,8 +26,14 @@ const HomeEventsPreview = ({
       <div className="flex items-center justify-between">
         <h2 className="text-[18px] font-semibold text-[#111827]">Events</h2>
         {eventsList.length > 1 ? (
-          <Button type="button" variant="outline" onClick={onViewAll}>
+          <Button
+            type="button"
+            variant="link"
+            className="h-auto p-0 text-[#EF8833] hover:text-[#EF8833] hover:no-underline"
+            onClick={onViewAll}
+          >
             View all
+            <ChevronRight size={14} color="#EF8833" />
           </Button>
         ) : null}
       </div>

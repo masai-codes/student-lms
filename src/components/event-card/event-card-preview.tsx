@@ -5,6 +5,27 @@ function toCapitalizedWords(value: string) {
   return value.replace(/\b\w/g, (char) => char.toUpperCase());
 }
 
+function getDateParts(value: string) {
+  const parsed = new Date(value);
+  if (!Number.isNaN(parsed.getTime())) {
+    return {
+      day: String(parsed.getDate()).padStart(2, "0"),
+      month: parsed.toLocaleString("en-US", { month: "short" }).toUpperCase(),
+    };
+  }
+
+  const tokens = value.trim().split(/\s+/);
+  const monthToken = tokens.find((token) => /[A-Za-z]/.test(token)) ?? "";
+  const dayToken =
+    tokens.find((token) => /^\d{1,2}$/.test(token)) ??
+    (tokens[0]?.replace(/\D/g, "") || "");
+
+  return {
+    day: dayToken.padStart(2, "0").slice(-2) || "--",
+    month: monthToken.slice(0, 3).toUpperCase() || "---",
+  };
+}
+
 type EventCardPreviewProps = Pick<
   EventCardProps,
   | "title"
@@ -14,6 +35,7 @@ type EventCardPreviewProps = Pick<
   | "isActive"
   | "category"
   | "image"
+  | "date"
 > & {
   onCtaClick: () => void;
 };
@@ -26,20 +48,28 @@ export function EventCardPreview({
   isActive,
   category,
   image,
+  date,
   onCtaClick,
 }: EventCardPreviewProps) {
   const resolvedTitle = toCapitalizedWords(title);
   const resolvedMiniDescription = toCapitalizedWords(miniDescription);
   const resolvedCategory = toCapitalizedWords(category);
   const resolvedCtaText = toCapitalizedWords(ctaText);
+  const { day, month } = getDateParts(date);
 
   return (
     <div className="font-poppins flex h-full w-full max-w-[300px] flex-col overflow-hidden rounded-[12px] border border-[#E5E7EB] bg-white">
-      <img
-        src={image}
-        alt={resolvedTitle}
-        className="h-[84px] w-full rounded-t-[12px] object-cover"
-      />
+      <div className="relative">
+        <img
+          src={image}
+          alt={resolvedTitle}
+          className="h-[84px] w-full rounded-t-[12px] object-cover"
+        />
+        <div className="absolute right-2 top-2 flex min-w-[38px] flex-col items-center rounded-[6px] border border-[#E5E7EB] bg-white px-2 py-1 text-[#111928] shadow-[0_1px_2px_rgba(17,24,39,0.08)]">
+          <span className="text-[18px] font-[600] leading-[24px]">{day}</span>
+          <span className="text-[12px] font-[500] leading-[16px]">{month}</span>
+        </div>
+      </div>
 
       <div className="flex flex-1 flex-col p-4">
         <div className="mb-3 flex items-center gap-2">

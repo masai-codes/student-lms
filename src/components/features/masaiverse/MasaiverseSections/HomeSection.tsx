@@ -120,7 +120,7 @@ export default function HomeSection() {
     : clubsList
 
   return (
-    <section className="min-h-[400px] min-w-0 flex-1 overflow-x-hidden rounded-[16px] border border-[#E5E7EB] bg-[#fff] px-6 py-8">
+    <section className="min-h-[max(400px,calc(100dvh-11rem))] min-w-0 flex-1 overflow-x-hidden rounded-[16px] border border-[#E5E7EB] bg-[#fff] px-6 py-8">
       <HomeIntro />
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-10">

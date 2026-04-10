@@ -60,6 +60,7 @@ export function EventCard({
         isActive={isActive}
         category={category}
         image={image}
+        date={date}
         onCtaClick={handleCtaClick}
       />
       <EventCardDrawer

@@ -75,11 +75,16 @@ const HomeClubsCarousel = ({
               nextEl: '.clubs-next',
             }}
             spaceBetween={16}
-            slidesPerView="auto"
+            slidesPerView={1}
+            breakpoints={{
+              768: {
+                slidesPerView: 2,
+              },
+            }}
             className="w-full px-2 [&_.swiper-wrapper]:items-stretch [&_.swiper-slide]:!h-auto"
           >
-            {orderedClubsList.slice(0, 2).map((club) => (
-              <SwiperSlide key={club.id} className="!flex !h-auto !w-[300px]">
+            {orderedClubsList.map((club) => (
+              <SwiperSlide key={club.id} className="!flex !h-auto">
                 <ClubSlide
                   club={club}
                   joinedClubId={joinedClubId}
@@ -97,7 +102,7 @@ const HomeClubsCarousel = ({
               className="clubs-prev rounded-full bg-white"
               aria-label="Previous clubs"
             >
-              <ChevronLeft className="h-4 w-4" />
+              <ChevronLeft className="h-4 w-4 text-[#EF8833]" />
             </Button>
             <Button
               type="button"
@@ -106,7 +111,7 @@ const HomeClubsCarousel = ({
               className="clubs-next rounded-full bg-white"
               aria-label="Next clubs"
             >
-              <ChevronRight className="h-4 w-4" />
+              <ChevronRight className="h-4 w-4 text-[#EF8833]" />
             </Button>
           </div>
         </div>
