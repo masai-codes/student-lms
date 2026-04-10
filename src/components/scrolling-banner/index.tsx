@@ -80,14 +80,7 @@ export function ScrollingBanner({
   }, [safeItems.length, itemDurationSeconds, pauseOnHover]);
 
   if (!safeItems.length) {
-    return (
-      <div
-        className={`font-poppins flex h-full w-full items-center justify-center rounded-[12px] border border-dashed border-[#D1D5DB] bg-[#F9FAFB] p-4 text-center text-[13px] text-[#6B7280] ${className}`.trim()}
-        style={containerStyle}
-      >
-        No latest updates available.
-      </div>
-    );
+    return null;
   }
 
   return (

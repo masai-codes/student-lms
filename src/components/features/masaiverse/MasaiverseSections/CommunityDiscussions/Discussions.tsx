@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useNavigate } from '@tanstack/react-router'
 import DiscussionsList from './DiscussionsList'
 import CreateDiscussion from './CreateDiscussion'
 import type { DiscussionPost } from '@/server/masaiverse/communityDiscussions'
@@ -20,22 +21,34 @@ const discussionSortOptions: Array<{ key: DiscussionSortMode; label: string }> =
     { key: 'top', label: 'Top' },
   ]
 
-const Disucssions = () => {
+type DiscussionsProps = {
+  initialPostIdFromSearch?: string
+}
+
+const Disucssions = ({ initialPostIdFromSearch }: DiscussionsProps) => {
+  const navigate = useNavigate()
   const [posts, setPosts] = useState<Array<DiscussionPost>>([])
   const [currentUserName, setCurrentUserName] = useState('')
   const [currentUserProfileImage, setCurrentUserProfileImage] = useState<
     string | null
   >(null)
-  const [isInitialLoading, setIsInitialLoading] = useState(true)
+  const [isLoadingDiscussions, setIsLoadingDiscussions] = useState(true)
   const [isPosting, setIsPosting] = useState(false)
   const [sortBy, setSortBy] = useState<DiscussionSortMode>('new')
+  const [openPostId, setOpenPostId] = useState<string | null>(
+    initialPostIdFromSearch ?? null,
+  )
+
+  useEffect(() => {
+    setOpenPostId(initialPostIdFromSearch ?? null)
+  }, [initialPostIdFromSearch])
 
   const refreshDiscussions = async (
     showInitialLoader = false,
     selectedSort: DiscussionSortMode = sortBy,
   ) => {
-    if (showInitialLoader) {
-      setIsInitialLoading(true)
+    if (showInitialLoader || posts.length === 0) {
+      setIsLoadingDiscussions(true)
     }
     try {
       const response = await fetchCommunityDiscussions({
@@ -46,9 +59,7 @@ const Disucssions = () => {
       setCurrentUserProfileImage(response.currentUserProfileImage ?? null)
       setSortBy(response.sortBy ?? selectedSort)
     } finally {
-      if (showInitialLoader) {
-        setIsInitialLoading(false)
-      }
+      setIsLoadingDiscussions(false)
     }
   }
 
@@ -92,6 +103,24 @@ const Disucssions = () => {
     await refreshDiscussions()
   }
 
+  const removePostIdSearchParam = () => {
+    navigate({
+      to: '/masaiverse',
+      replace: true,
+      search: {
+        tab: 'home',
+        postId: undefined,
+      },
+    })
+  }
+
+  const handlePostDrawerOpenChange = (postId: string, open: boolean) => {
+    setOpenPostId(open ? postId : null)
+    if (!open) {
+      removePostIdSearchParam()
+    }
+  }
+
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center gap-2">
@@ -117,7 +146,7 @@ const Disucssions = () => {
           )
         })}
       </div>
-      {isInitialLoading ? (
+      {isLoadingDiscussions ? (
         <div className="rounded-lg border border-[#E5E7EB] bg-white p-4 text-sm text-[#6B7280]">
           Loading discussions...
         </div>
@@ -128,6 +157,8 @@ const Disucssions = () => {
           onVoteReply={handleVoteReply}
           onReply={handleReply}
           onToggleBookmark={handleToggleBookmark}
+          openPostId={openPostId}
+          onPostDrawerOpenChange={handlePostDrawerOpenChange}
         />
       )}
       <div className="sticky bottom-0 z-10 bg-white/95 pt-2 backdrop-blur">

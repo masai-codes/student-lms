@@ -12,6 +12,8 @@ type DiscussionsListProps = {
   onVoteReply: (replyId: string, vote: 'upvote' | 'downvote') => Promise<void>
   onReply: (postId: DiscussionEntityId, content: string) => Promise<void>
   onToggleBookmark: (postId: DiscussionEntityId) => Promise<void>
+  openPostId: string | null
+  onPostDrawerOpenChange: (postId: string, open: boolean) => void
 }
 
 const DiscussionsList = ({
@@ -20,6 +22,8 @@ const DiscussionsList = ({
   onVoteReply,
   onReply,
   onToggleBookmark,
+  openPostId,
+  onPostDrawerOpenChange,
 }: DiscussionsListProps) => {
   const [replyDrafts, setReplyDrafts] = useState<Partial<Record<string, string>>>({})
 
@@ -122,6 +126,8 @@ const DiscussionsList = ({
               }))
             })
           }}
+          open={openPostId === postId}
+          onOpenChange={(open) => onPostDrawerOpenChange(postId, open)}
         />
         )
       })}

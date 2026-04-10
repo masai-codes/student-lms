@@ -18,7 +18,11 @@ import { fetchAllEvents } from '@/server/masaiverse/fetchEvents'
 import 'swiper/css'
 import 'swiper/css/navigation'
 
-export default function HomeSection() {
+type HomeSectionProps = {
+  postId?: string
+}
+
+export default function HomeSection({ postId }: HomeSectionProps) {
   const navigate = useNavigate()
   const [clubsList, setClubsList] = useState<Array<ClubType>>([])
   const [eventsList, setEventsList] = useState<Array<EventType>>([])
@@ -150,7 +154,10 @@ export default function HomeSection() {
             }}
           />
 
-          <CommunityDiscussions hasJoinedClub={Boolean(joinedClubId)} />
+          <CommunityDiscussions
+            hasJoinedClub={Boolean(joinedClubId)}
+            initialPostIdFromSearch={postId}
+          />
         </div>
 
         <aside className="lg:col-span-3">

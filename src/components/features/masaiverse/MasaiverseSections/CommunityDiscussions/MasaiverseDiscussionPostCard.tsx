@@ -20,6 +20,8 @@ type MasaiverseDiscussionPostCardProps = {
   onReplyTextChange: (value: string) => void
   onReplySubmit?: () => void
   onVoteReply: (replyId: string, vote: 'upvote' | 'downvote') => Promise<void>
+  open?: boolean
+  onOpenChange?: (open: boolean) => void
 }
 
 const getDrawerDirection = () => {
@@ -46,10 +48,21 @@ export default function MasaiverseDiscussionPostCard({
   onReplyTextChange,
   onReplySubmit,
   onVoteReply,
+  open,
+  onOpenChange,
 }: MasaiverseDiscussionPostCardProps) {
-  const [open, setOpen] = useState(false)
+  const [internalOpen, setInternalOpen] = useState(false)
   const [isBookmarked, setIsBookmarked] = useState(initialBookmarked)
   const [drawerDirection, setDrawerDirection] = useState<'right' | 'bottom'>(getDrawerDirection)
+  const isControlled = typeof open === 'boolean'
+  const resolvedOpen = isControlled ? open : internalOpen
+
+  const setResolvedOpen = (nextOpen: boolean) => {
+    if (!isControlled) {
+      setInternalOpen(nextOpen)
+    }
+    onOpenChange?.(nextOpen)
+  }
 
   useEffect(() => {
     setIsBookmarked(initialBookmarked)
@@ -85,7 +98,7 @@ export default function MasaiverseDiscussionPostCard({
         onBookmarkClick={handleBookmarkClick}
         onUpvoteClick={onUpvoteClick}
         onDownvoteClick={onDownvoteClick}
-        onReplyClick={() => setOpen(true)}
+        onReplyClick={() => setResolvedOpen(true)}
         replyCount={replies.length}
       />
       <MasaiverseDiscussionPostDrawer
@@ -105,8 +118,8 @@ export default function MasaiverseDiscussionPostCard({
         onReplySubmit={onReplySubmit}
         isBookmarked={isBookmarked}
         onBookmarkClick={handleBookmarkClick}
-        open={open}
-        onOpenChange={setOpen}
+        open={resolvedOpen}
+        onOpenChange={setResolvedOpen}
         resolvedDirection={drawerDirection}
       />
     </>

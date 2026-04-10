@@ -3,6 +3,7 @@ import { createServerFn } from '@tanstack/react-start'
 import { db } from '@/db'
 import { getCurrentSessionUserId } from '@/server/auth/getCurrentSessionUserId'
 import { clubMembers } from '@/db/schema'
+import { pushNotificationService } from '@/server/pushNotifications/pushNotification.service'
 
 type VoteValue = 'upvote' | 'downvote'
 export type DiscussionSortMode = 'hot' | 'top' | 'new'
@@ -81,6 +82,28 @@ function normalizePostId(postId: DiscussionEntityId): number {
     throw new Error('INVALID_POST_ID')
   }
   return normalized
+}
+
+function truncateNotificationText(text: string, maxLength = 90): string {
+  if (text.length <= maxLength) return text
+  return `${text.slice(0, maxLength - 3)}...`
+}
+
+function decodeBasicHtmlEntities(text: string): string {
+  return text
+    .replace(/&nbsp;/gi, ' ')
+    .replace(/&amp;/gi, '&')
+    .replace(/&lt;/gi, '<')
+    .replace(/&gt;/gi, '>')
+    .replace(/&quot;/gi, '"')
+    .replace(/&#39;/gi, "'")
+}
+
+function getPlainTextFromHtml(content: string): string {
+  const withoutBreakTags = content.replace(/<\s*br\s*\/?>/gi, ' ')
+  const withoutTags = withoutBreakTags.replace(/<[^>]*>/g, ' ')
+  const decoded = decodeBasicHtmlEntities(withoutTags)
+  return decoded.replace(/\s+/g, ' ').trim()
 }
 
 export const fetchCommunityDiscussions = createServerFn({ method: 'GET' })
@@ -432,8 +455,8 @@ export const createCommunityReply = createServerFn({ method: 'POST' })
 
     const normalizedPostId = normalizePostId(data.postId)
 
-    const postRows = normalizeRows<{ id: string; clubId: string }>(await db.execute(sql`
-      SELECT id, club_id AS clubId
+    const postRows = normalizeRows<{ id: string; clubId: string; authorId: number }>(await db.execute(sql`
+      SELECT id, club_id AS clubId, user_id AS authorId
       FROM posts
       WHERE id = ${normalizedPostId}
       LIMIT 1
@@ -448,10 +471,40 @@ export const createCommunityReply = createServerFn({ method: 'POST' })
       VALUES (${normalizedPostId}, ${userId}, ${content}, NOW(), NOW())
     `)
 
+    const post = postRows[0]
+    if (post.authorId !== userId) {
+      try {
+        const actorRows = normalizeRows<{ name: string | null }>(await db.execute(sql`
+          SELECT name
+          FROM users
+          WHERE id = ${userId}
+          LIMIT 1
+        `))
+        const actorName = actorRows[0]?.name?.trim() || 'Someone'
+        const replyTextForNotification = getPlainTextFromHtml(content)
+        await pushNotificationService.sendNotificationToUser({
+          userId: post.authorId,
+          title: 'New reply on your post',
+          body: `${actorName}: ${truncateNotificationText(replyTextForNotification)}`,
+          data: {
+            type: 'community_post_reply',
+            postId: String(normalizedPostId),
+            actorUserId: String(userId),
+          },
+        })
+      } catch {
+        // Notification failures should not block reply creation.
+      }
+    }
+
     return { success: true }
   })
 
-async function applyPostVote(userId: number, postId: DiscussionEntityId, voteValue: VoteValue) {
+async function applyPostVote(
+  userId: number,
+  postId: DiscussionEntityId,
+  voteValue: VoteValue,
+): Promise<{ postAuthorId: number; shouldNotify: boolean }> {
   const joinedClubId = await getJoinedClubId(userId)
   if (!joinedClubId) {
     throw new Error('CLUB_ID_REQUIRED')
@@ -459,8 +512,8 @@ async function applyPostVote(userId: number, postId: DiscussionEntityId, voteVal
 
   const normalizedPostId = normalizePostId(postId)
 
-  const postRows = normalizeRows<{ id: string; clubId: string }>(await db.execute(sql`
-    SELECT id, club_id AS clubId
+  const postRows = normalizeRows<{ id: string; clubId: string; authorId: number }>(await db.execute(sql`
+    SELECT id, club_id AS clubId, user_id AS authorId
     FROM posts
     WHERE id = ${normalizedPostId}
     LIMIT 1
@@ -469,6 +522,7 @@ async function applyPostVote(userId: number, postId: DiscussionEntityId, voteVal
   if (postRows.length === 0 || postRows[0].clubId !== joinedClubId) {
     throw new Error('POST_NOT_FOUND_IN_JOINED_CLUB')
   }
+  const post = postRows[0]
 
   const existing = normalizeRows<{ id: string; vote: VoteValue }>(await db.execute(sql`
     SELECT id, vote
@@ -482,7 +536,7 @@ async function applyPostVote(userId: number, postId: DiscussionEntityId, voteVal
       INSERT INTO votes (user_id, post_id, vote, created_at)
       VALUES (${userId}, ${normalizedPostId}, ${voteValue}, NOW())
     `)
-    return
+    return { postAuthorId: post.authorId, shouldNotify: true }
   }
   const existingVote = existing[0]
 
@@ -491,7 +545,7 @@ async function applyPostVote(userId: number, postId: DiscussionEntityId, voteVal
       DELETE FROM votes
       WHERE id = ${existingVote.id}
     `)
-    return
+    return { postAuthorId: post.authorId, shouldNotify: false }
   }
 
   await db.execute(sql`
@@ -499,6 +553,7 @@ async function applyPostVote(userId: number, postId: DiscussionEntityId, voteVal
     SET vote = ${voteValue}
     WHERE id = ${existingVote.id}
   `)
+  return { postAuthorId: post.authorId, shouldNotify: true }
 }
 
 async function applyReplyVote(userId: number, replyId: string, voteValue: VoteValue) {
@@ -558,7 +613,34 @@ export const voteCommunityPost = createServerFn({ method: 'POST' })
       throw new Error('UNAUTHORIZED')
     }
 
-    await applyPostVote(userId, data.postId, data.vote)
+    const voteResult = await applyPostVote(userId, data.postId, data.vote)
+
+    if (voteResult.shouldNotify && voteResult.postAuthorId !== userId && data.vote === 'upvote') {
+      try {
+        const actorRows = normalizeRows<{ name: string | null }>(await db.execute(sql`
+          SELECT name
+          FROM users
+          WHERE id = ${userId}
+          LIMIT 1
+        `))
+        const actorName = actorRows[0]?.name?.trim() || 'Someone'
+
+        await pushNotificationService.sendNotificationToUser({
+          userId: voteResult.postAuthorId,
+          title: 'Your post got an upvote',
+          body: `${actorName} upvoted your post`,
+          data: {
+            type: 'community_post_upvote',
+            postId: String(data.postId),
+            actorUserId: String(userId),
+            vote: data.vote,
+          },
+        })
+      } catch {
+        // Notification failures should not block vote actions.
+      }
+    }
+
     return { success: true }
   })
 
