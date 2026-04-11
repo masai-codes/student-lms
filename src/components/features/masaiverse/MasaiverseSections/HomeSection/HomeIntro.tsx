@@ -1,11 +1,14 @@
 const HomeIntro = () => {
   return (
     <>
-      <h1 className="text-[24px] font-semibold text-[#111827]">Home</h1>
-      <p className="mt-2 text-[14px] leading-6 text-[#6B7280]">
-        Welcome to Masaiverse home. Explore clubs and join communities that
-        match your interests.
-      </p>
+      <div className="">
+        <p className="text-[16px] font-[400] leading-[32px] text-[#544D4F]">
+          Welcome to
+        </p>
+        <h1 className="text-[24px] font-[600] leading-[32px] text-[#111827]">
+          Masaiverse Community
+        </h1>
+      </div>
     </>
   )
 }

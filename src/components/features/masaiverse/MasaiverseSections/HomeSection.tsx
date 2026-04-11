@@ -127,6 +127,7 @@ export default function HomeSection({ postId }: HomeSectionProps) {
     <section className="min-h-[max(400px,calc(100dvh-11rem))] min-w-0 flex-1 overflow-x-hidden rounded-[16px] border border-[#E5E7EB] bg-[#fff] px-6 py-8">
       <HomeIntro />
 
+      <div className="h-[1px] bg-[#E5E7EB] mt-[16px]"></div>
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-10">
         <div className="lg:col-span-7">
           <HomeEventsPreview

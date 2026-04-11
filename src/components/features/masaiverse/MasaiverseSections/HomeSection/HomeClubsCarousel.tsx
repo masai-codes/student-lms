@@ -29,7 +29,9 @@ const ClubSlide = ({ club, joinedClubId, onClubJoin }: ClubSlideProps) => {
   return (
     <div
       className={`flex w-full ${
-        isJoinedClub || hasJoinedAnotherClub ? '[&_button]:pointer-events-none' : ''
+        isJoinedClub || hasJoinedAnotherClub
+          ? '[&_button]:pointer-events-none'
+          : ''
       } [&>div]:flex [&>div]:h-full [&>div]:w-full [&>div]:max-w-none [&>div]:flex-col`}
     >
       <ClubCard
@@ -60,12 +62,16 @@ const HomeClubsCarousel = ({
 }: HomeClubsCarouselProps) => {
   return (
     <div className="mt-8">
-      <h2 className="text-[18px] font-semibold text-[#111827]">Clubs</h2>
+      <h2 className="text-[18px] font-semibold text-[#111827]">
+        Student Clubs
+      </h2>
 
       {isLoading ? (
         <p className="mt-3 text-sm text-[#6B7280]">Loading clubs...</p>
       ) : clubsList.length === 0 ? (
-        <p className="mt-3 text-sm text-[#6B7280]">No clubs available right now.</p>
+        <p className="mt-3 text-sm text-[#6B7280]">
+          No clubs available right now.
+        </p>
       ) : (
         <div className="relative mt-4 overflow-hidden">
           <Swiper

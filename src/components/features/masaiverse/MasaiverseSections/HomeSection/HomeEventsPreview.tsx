@@ -24,7 +24,9 @@ const HomeEventsPreview = ({
   return (
     <div className="mt-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-[18px] font-semibold text-[#111827]">Events</h2>
+        <h2 className="text-[18px] font-semibold text-[#111827]">
+          This Week on MasaiVerse
+        </h2>
         {eventsList.length > 1 ? (
           <Button
             type="button"
@@ -58,7 +60,9 @@ const HomeEventsPreview = ({
             const enrolledRedirectLink = isOfflineEvent
               ? event.locationMapLink
               : event.eventLink
-            const enrolledCtaText = isOfflineEvent ? 'View Location' : 'Open Link'
+            const enrolledCtaText = isOfflineEvent
+              ? 'View Location'
+              : 'Open Link'
 
             return (
               <EventCard

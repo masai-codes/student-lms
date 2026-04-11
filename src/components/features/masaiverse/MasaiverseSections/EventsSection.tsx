@@ -111,6 +111,8 @@ const EventsSection = () => {
         </div>
       </div>
 
+      <div className="mt-6 h-[1px] bg-[#E5E7EB]" aria-hidden />
+
       <div className="mt-6 flex justify-center">
         <MasaiTabs
           ariaLabel="Event categories"
@@ -124,6 +126,8 @@ const EventsSection = () => {
           }
         />
       </div>
+
+      <div className="mt-6 h-[1px] bg-[#E5E7EB]" aria-hidden />
 
       {isLoading ? (
         <p className="mt-4 text-sm text-[#6B7280]">Loading events...</p>
