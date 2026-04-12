@@ -3,7 +3,7 @@
  */
 export const LAYOUT_MAX_WIDTH_CLASS = "max-w-[1440px]"
 
-export const LAYOUT_MAIN_PADDING_X = "px-4 md:px-6"
+export const LAYOUT_MAIN_PADDING_X = "px-1 md:px-1"
 
 export const LAYOUT_MAIN_PADDING_Y = "py-6 md:pt-[24px]"
 

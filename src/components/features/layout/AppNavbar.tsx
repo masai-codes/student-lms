@@ -45,6 +45,8 @@ const MASAI_LOGO =
  * Legacy student app (`experience-ui/apps/student-experience`) routes — keep in sync with
  * `src/utils/route.utils.ts` and top nav `src/components/NewLayout/DesktopNavbar.tsx`.
  *
+ * MasaiVerse lives in this app at `/masaiverse` (profile menu); it is not an old-UI path.
+ *
  * Refer & Earn: navbar uses `Routes.changemakersCircle.main()` (`/changemakers-circle`).
  * `/alumniReferal` is a different flow (alumni hiring / refer-hiring), not the main CTA.
  */
@@ -60,7 +62,6 @@ const OLD_UI_PATHS = {
   profile: '/profile',
   myCourses: '/my-lectures',
   bookmarks: '/bookmarks?tab=Lecture',
-  masaiverse: '/discord',
   practiceInterview: '/practice-interview',
 } as const
 
@@ -173,7 +174,8 @@ export default function AppNavbar() {
         id: 'masaiverse-menu',
         label: 'MasaiVerse',
         icon: <Users className="size-4" />,
-        ...oldStudentUiLink(OLD_UI_PATHS.masaiverse),
+        href: '/masaiverse',
+        openInNewTab: false,
       },
       {
         id: 'practice-interview',

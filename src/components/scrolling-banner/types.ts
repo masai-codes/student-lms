@@ -16,5 +16,6 @@ export type ScrollingBannerProps = {
   itemDurationSeconds?: number;
   pauseOnHover?: boolean;
   allowManualScroll?: boolean;
+  autoScroll?: boolean;
   ariaLabel?: string;
 };

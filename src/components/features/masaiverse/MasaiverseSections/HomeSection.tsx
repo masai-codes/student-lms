@@ -166,6 +166,7 @@ export default function HomeSection({ postId }: HomeSectionProps) {
             items={bannerItems}
             maxHeight={300}
             itemDurationSeconds={3.5}
+            autoScroll={false}
             ariaLabel="Masaiverse banners"
             bannerHeading="Last week on Masaiverse"
           />
