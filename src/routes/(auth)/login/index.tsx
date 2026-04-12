@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react"
-import { Eye, EyeOff } from "lucide-react"
+import { useEffect, useState } from 'react'
+import { Eye, EyeOff } from 'lucide-react'
 import { createFileRoute, redirect } from '@tanstack/react-router'
 import {
   Card,
@@ -9,31 +9,28 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
+} from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
 // import { Field, FieldDescription, FieldLabel } from "@/components/ui/field"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { fetchCurrentUser } from "@/server/auth/fetchCurrentUser"
-import { redirectToLegacyStudentUi } from "@/utils/authRedirect"
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { fetchCurrentUser } from '@/server/auth/fetchCurrentUser'
+import { redirectToOldStudentUi } from '@/utils/authRedirect'
 
 export const Route = createFileRoute('/(auth)/login/')({
   beforeLoad: async () => {
     const user = await fetchCurrentUser()
     if (user) {
-      throw redirect({ to: "/" })
+      throw redirect({ to: '/' })
     }
   },
   component: RouteComponent,
 })
 
-
-
 function RouteComponent() {
-
   const [showPassword, setShowPassword] = useState(false)
   useEffect(() => {
-    redirectToLegacyStudentUi()
+    redirectToOldStudentUi()
   }, [])
 
   return (
@@ -67,7 +64,7 @@ function RouteComponent() {
                 <div className="relative">
                   <Input
                     id="password"
-                    type={showPassword ? "text" : "password"}
+                    type={showPassword ? 'text' : 'password'}
                     required
                     className="pr-10"
                   />
@@ -93,7 +90,7 @@ function RouteComponent() {
           <Button
             type="button"
             className="w-full"
-            onClick={redirectToLegacyStudentUi}
+            onClick={redirectToOldStudentUi}
           >
             Go to Old LMS Login
           </Button>
@@ -102,7 +99,3 @@ function RouteComponent() {
     </div>
   )
 }
-
-
-
-

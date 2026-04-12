@@ -1,6 +1,6 @@
-"use client"
+'use client'
 
-import { useNavigate } from "@tanstack/react-router"
+import { useState } from 'react'
 import {
   Book,
   Bookmark,
@@ -13,226 +13,204 @@ import {
   ToggleLeft,
   User,
   Users,
-} from "lucide-react"
+} from 'lucide-react'
+import type { MouseEventHandler } from 'react'
+
+import type {
+  NavbarActionItem,
+  NavbarLinkItem,
+  NavbarProfile,
+} from '@/components/navbar'
+import { Navbar } from '@/components/navbar'
+import { DownloadAppModal } from '@/components/features/layout/DownloadAppModal'
 import {
-  Navbar,
-  type NavbarActionItem,
-  type NavbarLinkItem,
-  type NavbarProfile,
-} from "@/components/navbar"
-import { getLegacyStudentUiUrl, redirectToLegacyStudentUi } from "@/utils/authRedirect"
+  getOldStudentUiUrlForPath,
+  redirectToOldStudentUi,
+} from '@/utils/authRedirect'
 
 const MASAI_LOGO =
-  "https://students.masaischool.com/static/media/masai-logo.e5c8801d4f26d2da036ec9e4b93cb202.svg"
+  'https://students.masaischool.com/static/media/masai-logo.e5c8801d4f26d2da036ec9e4b93cb202.svg'
 
-const STATIC_COURSE_ID = "4294967295"
+/**
+ * Legacy student app (`experience-ui/apps/student-experience`) routes — keep in sync with
+ * `src/utils/route.utils.ts` and top nav `src/components/NewLayout/DesktopNavbar.tsx`.
+ *
+ * Refer & Earn: navbar uses `Routes.changemakersCircle.main()` (`/changemakers-circle`).
+ * `/alumniReferal` is a different flow (alumni hiring / refer-hiring), not the main CTA.
+ */
+const OLD_UI_PATHS = {
+  home: '/',
+  learn: '/learn',
+  support: '/support?tab=unresolved',
+  discussions: '/discussions',
+  referAndEarn: '/changemakers-circle',
+  calendar: '/my-calendar',
+  chat: '/chat',
+  announcements: '/announcements',
+  profile: '/profile',
+  myCourses: '/my-lectures',
+  bookmarks: '/bookmarks?tab=Lecture',
+  masaiverse: '/discord',
+  practiceInterview: '/practice-interview',
+} as const
+
+function oldStudentUiLink(
+  path: string,
+): Pick<NavbarLinkItem, 'href' | 'openInNewTab' | 'onClick'> {
+  const href = getOldStudentUiUrlForPath(path) ?? '#'
+  const onClick: MouseEventHandler<HTMLAnchorElement> | undefined =
+    href === '#' ? (e) => e.preventDefault() : undefined
+  return { href, openInNewTab: false, onClick }
+}
 
 export default function AppNavbar() {
-  const navigate = useNavigate()
-  const legacyStudentUiUrl = getLegacyStudentUiUrl()
+  const [downloadAppOpen, setDownloadAppOpen] = useState(false)
+  const oldStudentUiRoot = getOldStudentUiUrlForPath('/') ?? '#'
 
   const navItems: Array<NavbarLinkItem> = [
     {
-      id: "home",
-      label: "Home",
-      href: "/",
-      onClick: (e) => {
-        e.preventDefault()
-        navigate({ to: "/", search: {} })
-      },
+      id: 'home',
+      label: 'Home',
+      ...oldStudentUiLink(OLD_UI_PATHS.home),
     },
     {
-      id: "learn",
-      label: "Learn",
-      href: `/courses/${STATIC_COURSE_ID}/lectures`,
-      onClick: (e) => {
-        e.preventDefault()
-        navigate({
-          to: "/courses/$courseId/lectures",
-          params: { courseId: STATIC_COURSE_ID },
-          search: { page: undefined },
-        })
-      },
+      id: 'learn',
+      label: 'Learn',
+      ...oldStudentUiLink(OLD_UI_PATHS.learn),
     },
     {
-      id: "support",
-      label: "Support",
-      href: "/support",
-      onClick: (e) => {
-        e.preventDefault()
-        navigate({ to: "/support", search: { page: undefined } })
-      },
+      id: 'support',
+      label: 'Support',
+      ...oldStudentUiLink(OLD_UI_PATHS.support),
     },
     {
-      id: "discussions",
-      label: "Discussions",
-      href: "/discussions",
-      onClick: (e) => {
-        e.preventDefault()
-        navigate({
-          to: "/discussions",
-          search: { page: undefined, type: undefined },
-        })
-      },
+      id: 'discussions',
+      label: 'Discussions',
+      ...oldStudentUiLink(OLD_UI_PATHS.discussions),
     },
     {
-      id: "refer",
-      label: "Refer & Earn",
-      href: "/refer-and-earn",
-      onClick: (e) => {
-        e.preventDefault()
-        navigate({ to: "/refer-and-earn" })
-      },
-    },
-    {
-      id: "masaiverse",
-      label: "MasaiVerse",
-      href: "/masaiverse",
-      onClick: (e) => {
-        e.preventDefault()
-        navigate({ to: "/masaiverse" })
-      },
+      id: 'refer',
+      label: 'Refer & Earn',
+      ...oldStudentUiLink(OLD_UI_PATHS.referAndEarn),
     },
   ]
 
   const trailingActions: Array<NavbarActionItem> = [
     {
-      id: "calendar",
-      type: "icon",
+      id: 'download-app',
+      type: 'image',
+      src: 'https://students.masaischool.com/static/media/download-app.394dce64e9e436e88052.png',
+      alt: 'Download app',
+      tooltip: 'Download App',
+      href: '#',
+      imageClassName: 'h-[40px]',
+      onClick: (e) => {
+        e.preventDefault()
+        setDownloadAppOpen(true)
+      },
+    },
+    {
+      id: 'calendar',
+      type: 'icon',
       icon: <CalendarDays className="size-5" />,
-      ariaLabel: "Calendar",
-      href: "#",
-      onClick: (e) => e.preventDefault(),
+      ariaLabel: 'Calendar',
+      ...oldStudentUiLink(OLD_UI_PATHS.calendar),
     },
     {
-      id: "chat",
-      type: "icon",
+      id: 'chat',
+      type: 'icon',
       icon: <MessagesSquare className="size-5" />,
-      ariaLabel: "Chat",
-      href: "/chat",
-      onClick: (e) => {
-        e.preventDefault()
-        navigate({ to: "/chat" })
-      },
+      ariaLabel: 'Chat',
+      ...oldStudentUiLink(OLD_UI_PATHS.chat),
     },
     {
-      id: "announcements",
-      type: "icon",
+      id: 'announcements',
+      type: 'icon',
       icon: <Megaphone className="size-5" />,
-      ariaLabel: "Announcements",
-      href: "/announcements",
-      onClick: (e) => {
-        e.preventDefault()
-        navigate({ to: "/announcements", search: { page: undefined } })
-      },
+      ariaLabel: 'Announcements',
+      ...oldStudentUiLink(OLD_UI_PATHS.announcements),
     },
   ]
 
   const profile: NavbarProfile = {
-    avatarSrc: "https://github.com/shadcn.png",
-    avatarAlt: "Profile",
-    fallbackText: "LR",
-    menuTriggerLabel: "Open account menu",
+    avatarSrc: 'https://github.com/shadcn.png',
+    avatarAlt: 'Profile',
+    fallbackText: 'LR',
+    menuTriggerLabel: 'Open account menu',
     menuItems: [
       {
-        id: "profile",
-        label: "Profile",
-        href: "/profile",
+        id: 'profile',
+        label: 'Profile',
         icon: <User className="size-4" />,
-        onClick: (e) => {
-          e.preventDefault()
-          navigate({ to: "/profile" })
-        },
+        ...oldStudentUiLink(OLD_UI_PATHS.profile),
       },
       {
-        id: "courses",
-        label: "My Courses",
-        href: "/courses",
+        id: 'courses',
+        label: 'My Courses',
         icon: <Book className="size-4" />,
-        onClick: (e) => {
-          e.preventDefault()
-          navigate({ to: "/courses" })
-        },
+        ...oldStudentUiLink(OLD_UI_PATHS.myCourses),
       },
       {
-        id: "bookmarks",
-        label: "Bookmarks",
-        href: "/bookmark",
+        id: 'bookmarks',
+        label: 'Bookmarks',
         icon: <Bookmark className="size-4" />,
-        onClick: (e) => {
-          e.preventDefault()
-          navigate({
-            to: "/bookmark",
-            search: { page: undefined, type: undefined },
-          })
-        },
+        ...oldStudentUiLink(OLD_UI_PATHS.bookmarks),
       },
       {
-        id: "masaiverse-menu",
-        label: "MasaiVerse",
-        href: "/masaiverse",
+        id: 'masaiverse-menu',
+        label: 'MasaiVerse',
         icon: <Users className="size-4" />,
-        onClick: (e) => {
-          e.preventDefault()
-          navigate({ to: "/masaiverse" })
-        },
+        ...oldStudentUiLink(OLD_UI_PATHS.masaiverse),
       },
       {
-        id: "practice-interview",
-        label: "Practice Interview",
-        href: "/practice-interview",
+        id: 'practice-interview',
+        label: 'Practice Interview',
         icon: <BriefcaseBusiness className="size-4" />,
-        onClick: (e) => {
-          e.preventDefault()
-          navigate({ to: "/practice-interview" })
-        },
+        ...oldStudentUiLink(OLD_UI_PATHS.practiceInterview),
       },
       {
-        id: "report-bug",
-        label: "Report a Bug",
-        href: "https://forms.gle/ZMRLA8rQ85CtSkWf8",
+        id: 'report-bug',
+        label: 'Report a Bug',
+        href: 'https://forms.gle/ZMRLA8rQ85CtSkWf8',
         openInNewTab: true,
         icon: <Bug className="size-4" />,
       },
       {
-        id: "old-lms",
-        label: "Switch to Old LMS",
-        href: legacyStudentUiUrl ?? "#",
+        id: 'old-lms',
+        label: 'Switch to Old LMS',
+        href: oldStudentUiRoot,
+        openInNewTab: false,
         icon: <ToggleLeft className="size-4" />,
-        onClick: (e) => {
-          if (!legacyStudentUiUrl) {
-            e.preventDefault()
-          }
-        },
+        onClick:
+          oldStudentUiRoot === '#' ? (e) => e.preventDefault() : undefined,
       },
       {
-        id: "sign-out",
-        label: "Sign Out",
-        href: "#",
+        id: 'sign-out',
+        label: 'Sign Out',
+        href: '#',
         icon: <LogOutIcon className="size-4" />,
         onClick: (e) => {
           e.preventDefault()
-          redirectToLegacyStudentUi()
+          redirectToOldStudentUi()
         },
       },
     ],
   }
 
   return (
-    <Navbar
-      className="sticky top-0 z-50 border-b border-border"
-      logo={{
-        src: MASAI_LOGO,
-        alt: "Masai Logo",
-        href: "/",
-        onClick: (e) => {
-          e.preventDefault()
-          navigate({ to: "/", search: {} })
-        },
-      }}
-      navItems={navItems}
-      trailingActions={trailingActions}
-      profile={profile}
-    />
+    <>
+      <Navbar
+        className="sticky top-0 z-50 border-b border-border"
+        logo={{
+          src: MASAI_LOGO,
+          alt: 'Masai Logo',
+          ...oldStudentUiLink(OLD_UI_PATHS.home),
+        }}
+        navItems={navItems}
+        trailingActions={trailingActions}
+        profile={profile}
+      />
+      <DownloadAppModal open={downloadAppOpen} onOpenChange={setDownloadAppOpen} />
+    </>
   )
 }

@@ -1,4 +1,4 @@
-import { Link } from "@tanstack/react-router"
+import { Link } from '@tanstack/react-router'
 import {
   BadgeCheckIcon,
   Book,
@@ -9,9 +9,9 @@ import {
   ToggleLeft,
   User,
   Users,
-} from "lucide-react"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Button } from "@/components/ui/button"
+} from 'lucide-react'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -19,12 +19,14 @@ import {
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { getLegacyStudentUiUrl, redirectToLegacyStudentUi } from "@/utils/authRedirect"
+} from '@/components/ui/dropdown-menu'
+import {
+  getOldStudentUiUrl,
+  redirectToOldStudentUi,
+} from '@/utils/authRedirect'
 
 export function DropdownMenuProfile() {
-  const legacyStudentUiUrl = getLegacyStudentUiUrl()
-
+  const oldStudentUiUrl = getOldStudentUiUrl()
 
   return (
     <DropdownMenu>
@@ -38,7 +40,6 @@ export function DropdownMenuProfile() {
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
         <DropdownMenuGroup>
-
           <Link to="/profile">
             <DropdownMenuItem>
               <User />
@@ -46,42 +47,42 @@ export function DropdownMenuProfile() {
             </DropdownMenuItem>
           </Link>
 
-          <Link to='/courses'>
+          <Link to="/courses">
             <DropdownMenuItem>
               <Book />
               My Courses
             </DropdownMenuItem>
           </Link>
 
-          <Link to='/bookmark' search={{page: undefined, type: undefined}}>
+          <Link to="/bookmark" search={{ page: undefined, type: undefined }}>
             <DropdownMenuItem>
               <Bookmark />
               Bookmarks
             </DropdownMenuItem>
           </Link>
 
-          <Link to='/masaiverse'>
+          <Link to="/masaiverse">
             <DropdownMenuItem>
               <Users />
               MasaiVerse
             </DropdownMenuItem>
           </Link>
 
-          <Link to='/practice-interview'>
+          <Link to="/practice-interview">
             <DropdownMenuItem>
               <BriefcaseBusiness />
               Practice Interview
             </DropdownMenuItem>
           </Link>
 
-          <a href='https://forms.gle/ZMRLA8rQ85CtSkWf8' target="_blank">
+          <a href="https://forms.gle/ZMRLA8rQ85CtSkWf8" target="_blank">
             <DropdownMenuItem>
               <Bug />
               Report a Bug
             </DropdownMenuItem>
           </a>
 
-          <a href={legacyStudentUiUrl ?? "#"}>
+          <a href={oldStudentUiUrl ?? '#'}>
             <DropdownMenuItem>
               <ToggleLeft />
               Switch to Old LMS
@@ -92,11 +93,10 @@ export function DropdownMenuProfile() {
         <DropdownMenuSeparator />
 
         {/* <DropdownMenuItem onClick={handleLogout}> */}
-        <DropdownMenuItem onClick={redirectToLegacyStudentUi}>
+        <DropdownMenuItem onClick={redirectToOldStudentUi}>
           <LogOutIcon />
           Sign Out
         </DropdownMenuItem>
-
       </DropdownMenuContent>
     </DropdownMenu>
   )
