@@ -1,12 +1,12 @@
 import * as React from "react"
 
-import { cn } from "@/lib/utils"
-
 import { NavbarAnchor } from "./navbar-anchor"
 import type { NavbarLinkItem } from "./types"
 
+import { cn } from "@/lib/utils"
+
 type NavbarNavItemsProps = {
-  items: NavbarLinkItem[]
+  items: Array<NavbarLinkItem>
   className?: string
 }
 
@@ -20,7 +20,7 @@ export function NavbarNavItems({ items, className }: NavbarNavItemsProps) {
       aria-label="Primary"
       className={`flex min-w-0 flex-1 flex-wrap items-center gap-1 sm:gap-2 ${className ?? ""}`.trim()}
     >
-      <ul className="flex flex-wrap items-center gap-[16px] sm:gap-3">
+      <ul className="flex flex-wrap items-center gap-6">
         {items.map((item, index) => (
           <li key={item.id ?? `${item.href}-${item.label}-${index}`}>
             <NavbarAnchor
@@ -29,10 +29,11 @@ export function NavbarNavItems({ items, className }: NavbarNavItemsProps) {
               onClick={item.onClick}
               aria-current={item.isActive ? "page" : undefined}
               className={cn(
-                "cursor-pointer rounded-md px-2 py-1.5 font-poppins text-[16px] font-[500] leading-[24px] shadow-none transition-colors hover:shadow-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-0",
-                "text-muted-foreground hover:text-[#6962AC]",
+                /* Legacy LMS DesktopNavbar: 16/24 Poppins medium, gray-500 #6B7280, accent #6962AC; subpixel-antialiased avoids “thin” look vs body antialiased. */
+                "cursor-pointer border border-transparent pb-1 font-poppins text-[16px] leading-[24px] !font-[500] subpixel-antialiased transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-0",
+                "text-[#6B7280] hover:text-[#6962AC]",
                 item.isActive &&
-                  "font-medium text-[#6962AC] underline decoration-2 underline-offset-[6px]",
+                  "border-b-2 border-[#6962AC] pb-1 text-[#6962AC]",
               )}
             >
               {item.label}

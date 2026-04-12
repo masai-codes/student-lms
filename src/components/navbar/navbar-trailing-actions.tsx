@@ -32,7 +32,7 @@ export function NavbarTrailingActions({
               href={item.href}
               openInNewTab={item.openInNewTab}
               onClick={item.onClick}
-              className="cursor-pointer rounded-md px-2 py-1.5 text-sm font-medium text-muted-foreground shadow-none transition-colors hover:text-[#6962AC] hover:shadow-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-0"
+              className="cursor-pointer rounded-md px-2 py-1.5 font-poppins text-sm font-medium subpixel-antialiased text-[#6B7280] shadow-none transition-colors hover:text-[#6962AC] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-0"
             >
               {item.label}
             </NavbarAnchor>
@@ -51,7 +51,7 @@ export function NavbarTrailingActions({
               openInNewTab={item.openInNewTab}
               onClick={item.onClick}
               title={item.tooltip}
-              className="inline-flex cursor-pointer items-center justify-center rounded-md p-1 text-muted-foreground shadow-none transition-opacity hover:opacity-90 hover:shadow-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-0"
+              className="inline-flex cursor-pointer items-center justify-center rounded-md p-1 text-gray-600 shadow-none transition-colors hover:text-[#6962AC] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-0"
             >
               <img
                 src={item.src}
@@ -73,7 +73,7 @@ export function NavbarTrailingActions({
             onClick={item.onClick}
             aria-label={item.ariaLabel}
             title={item.tooltip}
-            className="inline-flex size-9 cursor-pointer items-center justify-center rounded-full text-muted-foreground shadow-none transition-colors hover:text-[#6962AC] hover:shadow-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-0"
+            className="inline-flex size-9 cursor-pointer items-center justify-center rounded-full text-gray-600 shadow-none transition-colors hover:text-[#6962AC] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-0"
           >
             {item.icon}
           </NavbarAnchor>
