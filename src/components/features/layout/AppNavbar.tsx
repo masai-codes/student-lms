@@ -28,6 +28,7 @@ import { Navbar } from '@/components/navbar'
 import { LevelUpIcon } from '@/components/common/LevelUpIcon'
 import { DownloadAppModal } from '@/components/features/layout/DownloadAppModal'
 import { LEGACY_STUDENT_LMS_URL } from '@/constants/legacyStudentUi'
+import { OLD_STUDENT_UI_NAV_PATHS } from '@/constants/oldStudentUiNavPaths'
 import { getBugReportFormUrl } from '@/utils/bugReportFormUrl'
 import { logout } from '@/server/auth/logout'
 import {
@@ -64,17 +65,6 @@ const MASAI_LOGO =
  * Refer & Earn: navbar uses `Routes.changemakersCircle.main()` (`/changemakers-circle`).
  * `/alumniReferal` is a different flow (alumni hiring / refer-hiring), not the main CTA.
  */
-const OLD_UI_PATHS = {
-  home: '/',
-  learn: '/learn',
-  support: '/support?tab=unresolved',
-  discussions: '/discussions',
-  referAndEarn: '/changemakers-circle',
-  calendar: '/my-calendar',
-  chat: '/chat',
-  announcements: '/announcements',
-} as const
-
 function oldStudentUiLink(
   path: string,
 ): Pick<NavbarLinkItem, 'href' | 'openInNewTab' | 'onClick'> {
@@ -131,27 +121,27 @@ export default function AppNavbar() {
     {
       id: 'home',
       label: 'Home',
-      ...oldStudentUiLink(OLD_UI_PATHS.home),
+      ...oldStudentUiLink(OLD_STUDENT_UI_NAV_PATHS.home),
     },
     {
       id: 'learn',
       label: 'Learn',
-      ...oldStudentUiLink(OLD_UI_PATHS.learn),
+      ...oldStudentUiLink(OLD_STUDENT_UI_NAV_PATHS.learn),
     },
     {
       id: 'support',
       label: 'Support',
-      ...oldStudentUiLink(OLD_UI_PATHS.support),
+      ...oldStudentUiLink(OLD_STUDENT_UI_NAV_PATHS.support),
     },
     {
       id: 'discussions',
       label: 'Discussions',
-      ...oldStudentUiLink(OLD_UI_PATHS.discussions),
+      ...oldStudentUiLink(OLD_STUDENT_UI_NAV_PATHS.discussions),
     },
     {
       id: 'refer',
       label: 'Refer & Earn',
-      ...oldStudentUiLink(OLD_UI_PATHS.referAndEarn),
+      ...oldStudentUiLink(OLD_STUDENT_UI_NAV_PATHS.referAndEarn),
     },
   ]
 
@@ -175,7 +165,7 @@ export default function AppNavbar() {
         type: 'icon',
         icon: <CalendarDays className="size-5" />,
         ariaLabel: 'Calendar',
-        ...oldStudentUiLink(OLD_UI_PATHS.calendar),
+        ...oldStudentUiLink(OLD_STUDENT_UI_NAV_PATHS.calendar),
       },
       {
         id: 'chat',
@@ -183,7 +173,7 @@ export default function AppNavbar() {
         icon: <MessagesSquare className="size-5" />,
         ariaLabel: 'Chat',
         notificationCount: badgeCounts?.chatUnread,
-        ...oldStudentUiLink(OLD_UI_PATHS.chat),
+        ...oldStudentUiLink(OLD_STUDENT_UI_NAV_PATHS.chat),
       },
       {
         id: 'announcements',
@@ -191,7 +181,7 @@ export default function AppNavbar() {
         icon: <Megaphone className="size-5" />,
         ariaLabel: 'Announcements',
         notificationCount: badgeCounts?.announcementsUnread,
-        ...oldStudentUiLink(OLD_UI_PATHS.announcements),
+        ...oldStudentUiLink(OLD_STUDENT_UI_NAV_PATHS.announcements),
       },
     ],
     [badgeCounts?.announcementsUnread, badgeCounts?.chatUnread],
@@ -290,11 +280,11 @@ export default function AppNavbar() {
   return (
     <>
       <Navbar
-        className="z-[210]"
+        className="z-[210] max-md:hidden"
         logo={{
           src: MASAI_LOGO,
           alt: 'Masai Logo',
-          ...oldStudentUiLink(OLD_UI_PATHS.home),
+          ...oldStudentUiLink(OLD_STUDENT_UI_NAV_PATHS.home),
         }}
         navItems={navItems}
         trailingActions={trailingActions}

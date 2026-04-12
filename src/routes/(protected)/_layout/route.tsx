@@ -1,5 +1,5 @@
 import { Outlet, createFileRoute, redirect } from "@tanstack/react-router"
-import { AppNavbar } from "@/components/features/layout"
+import { AppMobileTabBar, AppNavbar } from "@/components/features/layout"
 import { layoutMainClasses } from "@/lib/layout"
 import { fetchCurrentUser } from "@/server/auth/fetchCurrentUser"
 
@@ -23,9 +23,12 @@ function RouteComponent() {
   return (
     <div className="min-h-dvh bg-[#FAF9F9] flex flex-col">
       <AppNavbar />
-      <main className={layoutMainClasses}>
+      <main
+        className={`${layoutMainClasses} pb-[calc(4.5rem+env(safe-area-inset-bottom))] md:pb-0`}
+      >
         <Outlet />
       </main>
+      <AppMobileTabBar />
     </div>
   )
 }
