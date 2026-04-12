@@ -9,10 +9,10 @@ const MasaiverseHomepage = ({ children }: MasaiverseHomepageProps) => {
   return (
     <div className="w-full">
       <div className="flex w-full items-stretch gap-6">
-        <div className="w-[20%] shrink-0">
+        <div className="hidden w-[20%] shrink-0 md:block">
           <MasaiverseSidebar />
         </div>
-        <div className="min-w-0 w-[80%]">{children}</div>
+        <div className="min-w-0 w-full md:w-[80%]">{children}</div>
       </div>
     </div>
   )
