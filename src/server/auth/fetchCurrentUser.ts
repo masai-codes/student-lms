@@ -70,8 +70,8 @@ export const fetchCurrentUser = createServerFn({ method: "GET" }).handler(async 
     `),
   );
 
-  const row = rows[0];
-  if (!row) return null;
+  const row = rows.at(0);
+  if (row === undefined) return null;
 
   const membershipRows = await db
     .select({ clubId: clubMembers.clubId })
