@@ -40,6 +40,10 @@ export function EventCard({
   eventTimeline,
   onCtaClick,
   drawerDirection = "auto",
+  drawerBottomInsetClassName,
+  drawerBodyClassName,
+  drawerPinFooter = true,
+  drawerFooterClassName,
   className,
 }: EventCardProps) {
   const [open, setOpen] = React.useState(false)
@@ -85,6 +89,10 @@ export function EventCard({
         open={open}
         onOpenChange={setOpen}
         resolvedDirection={resolvedDirection}
+        drawerBottomInsetClassName={drawerBottomInsetClassName}
+        drawerBodyClassName={drawerBodyClassName}
+        drawerPinFooter={drawerPinFooter}
+        drawerFooterClassName={drawerFooterClassName}
       />
     </>
   )

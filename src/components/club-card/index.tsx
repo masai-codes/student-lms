@@ -33,6 +33,10 @@ export function ClubCard({
   detailDescription,
   drawerDirection = "auto",
   ctaTheme,
+  drawerBottomInsetClassName,
+  drawerBodyClassName,
+  drawerPinFooter = true,
+  drawerFooterClassName,
   className,
 }: ClubCardProps) {
   const [open, setOpen] = React.useState(false)
@@ -71,6 +75,10 @@ export function ClubCard({
         open={open}
         onOpenChange={setOpen}
         resolvedDirection={resolvedDirection}
+        drawerBottomInsetClassName={drawerBottomInsetClassName}
+        drawerBodyClassName={drawerBodyClassName}
+        drawerPinFooter={drawerPinFooter}
+        drawerFooterClassName={drawerFooterClassName}
       />
     </>
   )

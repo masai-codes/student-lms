@@ -12,6 +12,8 @@ import type {
   VoteDirection,
 } from "./types";
 
+import { cn } from "@/lib/utils";
+
 type DiscussionPostCardDrawerProps = Pick<
   DiscussionPostCardProps,
   | "profileImage"
@@ -29,6 +31,10 @@ type DiscussionPostCardDrawerProps = Pick<
   | "onReplyTextChange"
   | "onReplySubmit"
   | "replyPlaceholder"
+  | "drawerBottomInsetClassName"
+  | "drawerBodyClassName"
+  | "drawerPinFooter"
+  | "drawerFooterClassName"
 > & {
   isBookmarked: boolean;
   onBookmarkClick: () => void;
@@ -58,6 +64,10 @@ export function DiscussionPostCardDrawer({
   open,
   onOpenChange,
   resolvedDirection,
+  drawerBottomInsetClassName,
+  drawerBodyClassName,
+  drawerPinFooter = true,
+  drawerFooterClassName,
 }: DiscussionPostCardDrawerProps) {
   const [replyVotes, setReplyVotes] = React.useState<
     Record<string, { upvotes: number; downvotes: number; direction: VoteDirection }>
@@ -81,16 +91,40 @@ export function DiscussionPostCardDrawer({
     );
   }, [replies]);
 
+  const composerFooter = (
+    <div
+      className={cn(
+        "bg-white",
+        drawerPinFooter && "shrink-0 border-t p-4",
+        drawerPinFooter &&
+          resolvedDirection === "bottom" &&
+          "shadow-[0_-4px_16px_rgba(0,0,0,0.06)]",
+        !drawerPinFooter && "mt-4 border-t border-[#E5E7EB] pt-4",
+        drawerFooterClassName,
+      )}
+    >
+      <DiscussionPostCardComposer
+        profileImage={profileImage}
+        replyText={replyText}
+        onReplyTextChange={onReplyTextChange}
+        onReplySubmit={onReplySubmit}
+        placeholder={replyPlaceholder}
+      />
+    </div>
+  );
+
   return (
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 z-50 bg-black/50 transition-opacity duration-300 ease-out data-[state=closed]:opacity-0 data-[state=open]:opacity-100" />
         <Dialog.Content
-          className={`fixed z-50 border bg-white font-poppins shadow-xl outline-none ${
+          className={cn(
+            "fixed z-50 border bg-white font-poppins shadow-xl outline-none",
             resolvedDirection === "right"
               ? "right-0 top-0 flex h-svh w-full max-w-[460px] flex-col border-l transition-transform duration-300 ease-out will-change-transform data-[state=closed]:translate-x-full data-[state=open]:translate-x-0"
-              : "bottom-0 left-0 flex max-h-[88svh] w-full flex-col rounded-t-2xl border-t transition-transform duration-300 ease-out will-change-transform data-[state=closed]:translate-y-full data-[state=open]:translate-y-0"
-          }`}
+              : "bottom-0 left-0 flex max-h-[88svh] w-full flex-col rounded-t-2xl border-t transition-transform duration-300 ease-out will-change-transform data-[state=closed]:translate-y-full data-[state=open]:translate-y-0",
+            drawerBottomInsetClassName,
+          )}
         >
           <div className="flex items-start justify-between border-b p-4">
             <Dialog.Title className="text-lg font-semibold text-[#111928]">
@@ -102,7 +136,12 @@ export function DiscussionPostCardDrawer({
             </Dialog.Close>
           </div>
 
-          <div className="min-h-0 flex-1 overflow-y-auto p-4">
+          <div
+            className={cn(
+              "min-h-0 flex-1 overflow-y-auto p-4",
+              drawerBodyClassName,
+            )}
+          >
             <DiscussionPostCardPreview
               profileImage={profileImage}
               name={name}
@@ -235,17 +274,11 @@ export function DiscussionPostCardDrawer({
                 </div>
               )}
             </div>
+
+            {!drawerPinFooter ? composerFooter : null}
           </div>
 
-          <div className="">
-            <DiscussionPostCardComposer
-              profileImage={profileImage}
-              replyText={replyText}
-              onReplyTextChange={onReplyTextChange}
-              onReplySubmit={onReplySubmit}
-              placeholder={replyPlaceholder}
-            />
-          </div>
+          {drawerPinFooter ? composerFooter : null}
         </Dialog.Content>
       </Dialog.Portal>
     </Dialog.Root>

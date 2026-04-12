@@ -39,6 +39,10 @@ export function DiscussionPostCard({
   onReplySubmit,
   replyPlaceholder,
   drawerDirection = "auto",
+  drawerBottomInsetClassName,
+  drawerBodyClassName,
+  drawerPinFooter = true,
+  drawerFooterClassName,
 }: DiscussionPostCardProps) {
   const [open, setOpen] = React.useState(false)
   const [isBookmarked, setIsBookmarked] = React.useState(initialBookmarked)
@@ -150,6 +154,10 @@ export function DiscussionPostCard({
         open={open}
         onOpenChange={setOpen}
         resolvedDirection={resolvedDirection}
+        drawerBottomInsetClassName={drawerBottomInsetClassName}
+        drawerBodyClassName={drawerBodyClassName}
+        drawerPinFooter={drawerPinFooter}
+        drawerFooterClassName={drawerFooterClassName}
       />
     </>
   )

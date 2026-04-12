@@ -13,6 +13,8 @@ import { CardCtaButton } from "../shared/card-cta-button";
 import type { DrawerDirection, EventCardProps } from "./types";
 import type { ReactNode } from "react";
 
+import { cn } from "@/lib/utils";
+
 type EventMetaTagProps = {
   icon: ReactNode;
   value: string;
@@ -75,6 +77,10 @@ type EventCardDrawerProps = Pick<
   | "eventDetailDescription"
   | "eventTimeline"
   | "onCtaClick"
+  | "drawerBottomInsetClassName"
+  | "drawerBodyClassName"
+  | "drawerPinFooter"
+  | "drawerFooterClassName"
 > & {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -98,6 +104,10 @@ export function EventCardDrawer({
   eventDetailDescription,
   eventTimeline,
   onCtaClick,
+  drawerBottomInsetClassName,
+  drawerBodyClassName,
+  drawerPinFooter = true,
+  drawerFooterClassName,
   open,
   onOpenChange,
   resolvedDirection,
@@ -113,16 +123,39 @@ export function EventCardDrawer({
       ? `${eventLocationText.trim()} - View On Maps`
       : "View On Maps";
 
+  const footerCta =
+    !hideDrawerCta ? (
+      <div
+        className={cn(
+          "border-t bg-white p-4",
+          drawerPinFooter && "shrink-0",
+          drawerPinFooter &&
+            resolvedDirection === "bottom" &&
+            "shadow-[0_-4px_16px_rgba(0,0,0,0.06)]",
+          !drawerPinFooter && "mt-6",
+          drawerFooterClassName,
+        )}
+      >
+        <CardCtaButton
+          text={resolvedCtaText}
+          onClick={onCtaClick}
+          fullWidth
+        />
+      </div>
+    ) : null;
+
   return (
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 z-50 bg-black/50 transition-opacity duration-300 ease-out data-[state=closed]:opacity-0 data-[state=open]:opacity-100" />
         <Dialog.Content
-          className={`fixed z-50 border bg-white font-poppins shadow-xl outline-none ${
+          className={cn(
+            "fixed z-50 border bg-white font-poppins shadow-xl outline-none",
             resolvedDirection === "right"
               ? "right-0 top-0 flex h-svh w-full max-w-[420px] flex-col border-l transition-transform duration-300 ease-out will-change-transform data-[state=closed]:translate-x-full data-[state=open]:translate-x-0"
-              : "bottom-0 left-0 flex w-full max-h-[88svh] flex-col rounded-t-2xl border-t transition-transform duration-300 ease-out will-change-transform data-[state=closed]:translate-y-full data-[state=open]:translate-y-0"
-          }`}
+              : "bottom-0 left-0 flex w-full max-h-[88svh] flex-col rounded-t-2xl border-t transition-transform duration-300 ease-out will-change-transform data-[state=closed]:translate-y-full data-[state=open]:translate-y-0",
+            drawerBottomInsetClassName,
+          )}
         >
           <div className="flex items-start justify-between border-b p-4">
             <Dialog.Title className="text-lg font-semibold text-slate-900">
@@ -134,7 +167,12 @@ export function EventCardDrawer({
             </Dialog.Close>
           </div>
 
-          <div className="min-h-0 flex-1 overflow-y-auto p-4">
+          <div
+            className={cn(
+              "min-h-0 flex-1 overflow-y-auto p-4",
+              drawerBodyClassName,
+            )}
+          >
             <img
               src={image}
               alt={resolvedTitle}
@@ -221,17 +259,11 @@ export function EventCardDrawer({
                 ))}
               </div>
             </div>
+
+            {!drawerPinFooter ? footerCta : null}
           </div>
 
-          {!hideDrawerCta ? (
-            <div className="border-t p-4">
-              <CardCtaButton
-                text={resolvedCtaText}
-                onClick={onCtaClick}
-                fullWidth
-              />
-            </div>
-          ) : null}
+          {drawerPinFooter ? footerCta : null}
         </Dialog.Content>
       </Dialog.Portal>
     </Dialog.Root>
