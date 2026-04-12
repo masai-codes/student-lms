@@ -1,6 +1,7 @@
 'use client'
 
 import { useCallback, useMemo, useRef, useState } from 'react'
+import { useQuery } from '@tanstack/react-query'
 import { getRouteApi } from '@tanstack/react-router'
 import {
   Book,
@@ -17,14 +18,14 @@ import {
 } from 'lucide-react'
 import type { MouseEventHandler } from 'react'
 
-import { LevelUpIcon } from '@/components/common/LevelUpIcon'
-import { Navbar } from '@/components/navbar'
 import type {
   NavbarActionItem,
   NavbarLinkItem,
   NavbarProfile,
   NavbarProfileMenuItem,
 } from '@/components/navbar'
+import { Navbar } from '@/components/navbar'
+import { LevelUpIcon } from '@/components/common/LevelUpIcon'
 import { DownloadAppModal } from '@/components/features/layout/DownloadAppModal'
 import { LEGACY_STUDENT_LMS_URL } from '@/constants/legacyStudentUi'
 import { getBugReportFormUrl } from '@/utils/bugReportFormUrl'
@@ -34,8 +35,12 @@ import {
   getPostLogoutRedirectUrl,
 } from '@/utils/authRedirect'
 import { fetchLevelupSso } from '@/utils/levelupSso'
+import { fetchNavbarBadgeCounts } from '@/server/navbar/fetchNavbarBadgeCounts'
 
 const layoutRouteApi = getRouteApi('/(protected)/_layout')
+
+/** Same cadence as legacy `REFETCH_INTERVAL` in `experience-ui` (`2 * 60 * 1000`). */
+const NAVBAR_BADGE_REFETCH_MS = 2 * 60 * 1000
 
 function profileInitials(name: string) {
   const parts = name.trim().split(/\s+/).filter(Boolean)
@@ -84,6 +89,13 @@ export default function AppNavbar() {
   const [downloadAppOpen, setDownloadAppOpen] = useState(false)
   const [isLevelupLoading, setIsLevelupLoading] = useState(false)
   const levelupLoadingRef = useRef(false)
+
+  const { data: badgeCounts } = useQuery({
+    queryKey: ['navbarBadgeCounts'],
+    queryFn: () => fetchNavbarBadgeCounts(),
+    refetchInterval: import.meta.env.DEV ? false : NAVBAR_BADGE_REFETCH_MS,
+    refetchIntervalInBackground: false,
+  })
 
   const handleLevelupClick = useCallback(async (e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault()
@@ -143,44 +155,49 @@ export default function AppNavbar() {
     },
   ]
 
-  const trailingActions: Array<NavbarActionItem> = [
-    {
-      id: 'download-app',
-      type: 'image',
-      src: 'https://students.masaischool.com/static/media/download-app.394dce64e9e436e88052.png',
-      alt: 'Download app',
-      tooltip: 'Download App',
-      href: '#',
-      imageClassName: 'h-[40px]',
-      onClick: (e) => {
-        e.preventDefault()
-        setDownloadAppOpen(true)
+  const trailingActions: Array<NavbarActionItem> = useMemo(
+    () => [
+      {
+        id: 'download-app',
+        type: 'image',
+        src: 'https://students.masaischool.com/static/media/download-app.394dce64e9e436e88052.png',
+        alt: 'Download app',
+        tooltip: 'Download App',
+        href: '#',
+        imageClassName: 'h-[40px]',
+        onClick: (e) => {
+          e.preventDefault()
+          setDownloadAppOpen(true)
+        },
       },
-    },
-    {
-      id: 'calendar',
-      type: 'icon',
-      icon: <CalendarDays className="size-5" />,
-      ariaLabel: 'Calendar',
-      ...oldStudentUiLink(OLD_UI_PATHS.calendar),
-    },
-    {
-      id: 'chat',
-      type: 'icon',
-      icon: <MessagesSquare className="size-5" />,
-      ariaLabel: 'Chat',
-      ...oldStudentUiLink(OLD_UI_PATHS.chat),
-    },
-    {
-      id: 'announcements',
-      type: 'icon',
-      icon: <Megaphone className="size-5" />,
-      ariaLabel: 'Announcements',
-      ...oldStudentUiLink(OLD_UI_PATHS.announcements),
-    },
-  ]
+      {
+        id: 'calendar',
+        type: 'icon',
+        icon: <CalendarDays className="size-5" />,
+        ariaLabel: 'Calendar',
+        ...oldStudentUiLink(OLD_UI_PATHS.calendar),
+      },
+      {
+        id: 'chat',
+        type: 'icon',
+        icon: <MessagesSquare className="size-5" />,
+        ariaLabel: 'Chat',
+        notificationCount: badgeCounts?.chatUnread,
+        ...oldStudentUiLink(OLD_UI_PATHS.chat),
+      },
+      {
+        id: 'announcements',
+        type: 'icon',
+        icon: <Megaphone className="size-5" />,
+        ariaLabel: 'Announcements',
+        notificationCount: badgeCounts?.announcementsUnread,
+        ...oldStudentUiLink(OLD_UI_PATHS.announcements),
+      },
+    ],
+    [badgeCounts?.announcementsUnread, badgeCounts?.chatUnread],
+  )
 
-  const profileMenuItems: NavbarProfileMenuItem[] = useMemo(
+  const profileMenuItems: Array<NavbarProfileMenuItem> = useMemo(
     () => [
       {
         id: 'profile',

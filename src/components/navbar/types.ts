@@ -11,10 +11,6 @@ export type NavbarLinkItem = {
   href: NavbarHref
   /** When omitted, `http(s)://` URLs open in a new tab; app paths stay in the same tab. */
   openInNewTab?: boolean
-  /** Non-interactive row (e.g. Level up while opening). */
-  disabled?: boolean
-  /** Native tooltip on the anchor. */
-  title?: string
   /**
    * Fires on the anchor click before navigation. Call `event.preventDefault()` to handle
    * routing or actions yourself (e.g. Next.js `router.push`).
@@ -70,6 +66,11 @@ export type NavbarIconAction = {
   onClick?: MouseEventHandler<HTMLAnchorElement>
   /** Shown as the native browser tooltip on hover (e.g. "Calendar"). */
   tooltip?: string
+  /**
+   * Optional unread / notification count. When greater than zero, a red pill is shown on the icon
+   * (values above 9 display as `9+`).
+   */
+  notificationCount?: number
 }
 
 export type NavbarImageAction = {
