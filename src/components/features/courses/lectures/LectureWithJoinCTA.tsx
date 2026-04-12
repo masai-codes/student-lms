@@ -8,7 +8,7 @@ type LectureWithJoinCTAProps = {
 
 export function LectureWithJoinCTA({lecture}:LectureWithJoinCTAProps) {
     return (
-        <div className="min-h-screen flex flex-col space-y-6 py-6 mx-[clamp(16px,6.25vw,80px)]">
+        <div className="flex min-h-screen w-full flex-col space-y-6 py-6">
             <LectureDetailsHeader data={lecture} />
             <div className="flex items-center justify-between border bg-white p-4 rounded-xl">
                 <div className="flex items-center gap-4">

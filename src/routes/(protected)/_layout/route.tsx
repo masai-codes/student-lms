@@ -1,5 +1,6 @@
 import { Outlet, createFileRoute, redirect } from "@tanstack/react-router"
 import { AppNavbar } from "@/components/features/layout"
+import { layoutMainClasses } from "@/lib/layout"
 import { fetchCurrentUser } from "@/server/auth/fetchCurrentUser"
 
 export const Route = createFileRoute("/(protected)/_layout")({
@@ -22,12 +23,9 @@ function RouteComponent() {
   return (
     <div className="min-h-dvh bg-[#FAF9F9] flex flex-col">
       <AppNavbar />
-      <main className="mx-auto w-full max-w-[1280px] flex-1 min-h-0">
+      <main className={layoutMainClasses}>
         <Outlet />
       </main>
     </div>
   )
 }
-
-
-// px-[clamp(16px,6.25vw,80px)] py-6

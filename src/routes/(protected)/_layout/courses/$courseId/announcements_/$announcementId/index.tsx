@@ -28,7 +28,7 @@ function RouteComponent() {
 
 
   return (
-    <div className='py-6 px-[clamp(16px,6.25vw,80px)]'>
+    <div className='w-full py-6'>
 
       <AnnouncementDetailHeader
         data={announcementData[0]}

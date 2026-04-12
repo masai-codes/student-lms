@@ -200,7 +200,7 @@ export default function AppNavbar() {
   return (
     <>
       <Navbar
-        className="sticky top-0 z-50 border-b border-border"
+        className="z-[210]"
         logo={{
           src: MASAI_LOGO,
           alt: 'Masai Logo',

@@ -20,7 +20,7 @@ export default function ProfilePage({ user }: ProfilePageProps) {
   ]
 
   return (
-    <div className="space-y-4 mx-[clamp(16px,6.25vw,80px)]">
+    <div className="w-full space-y-4">
       <h2 className="text-2xl font-semibold py-6">My Profile</h2>
       <div className="flex items-center gap-4">
         <div className="relative">

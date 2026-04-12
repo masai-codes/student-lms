@@ -103,7 +103,7 @@ function RouteComponent() {
       : undefined
 
   return (
-    <div className="space-y-6 mx-[clamp(16px,6.25vw,80px)] py-6">
+    <div className="w-full space-y-6 py-6">
       <h2 className="text-2xl font-bold">Bookmarks</h2>
 
       <div className="flex justify-between items-center">
@@ -140,7 +140,7 @@ function RouteComponent() {
 
 function SkeletonDiscussion(){
   return(
-    <div className="space-y-6 mx-[clamp(16px,6.25vw,80px)]">
+    <div className="w-full space-y-6">
       {/* Page title */}
       <Skeleton className="h-8 w-48" />
 

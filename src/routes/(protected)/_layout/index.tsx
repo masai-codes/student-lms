@@ -31,7 +31,7 @@ function App() {
   const { yourSchedule, pendingTasks, announcements } = Route.useLoaderData()
 
   return (
-    <div className="min-h-screen px-[clamp(16px,6.25vw,80px)]">
+    <div className="w-full">
         <Dashboard schedule={yourSchedule} pendingTasks={pendingTasks} announcements={announcements}  />
     </div>
   )

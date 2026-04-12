@@ -29,7 +29,7 @@ export const Route = createFileRoute(
   component: RouteComponent,
   pendingComponent: () => {
     return (
-      <div className="p-6 space-y-6">
+      <div className="w-full space-y-6">
         {/** TODO: Drop this H2 and FilterAndSeach component in a _layout */}
         <h2 className="text-2xl font-semibold">Support</h2>
         <FilterAndSeachBar referer='support_o'/>
@@ -71,7 +71,7 @@ function RouteComponent() {
 
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="w-full space-y-6">
       <h2 className="text-2xl font-semibold">Support</h2>
 
       <FilterAndSeachBar referer='support_o'/>

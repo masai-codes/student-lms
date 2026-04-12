@@ -31,7 +31,7 @@ function CourseLayout() {
   return (
     <div className="space-y-6">
 
-      <div className='bg-white space-y-6 py-6 rounded-b-2xl border-b px-[clamp(16px,6.25vw,80px)]'>
+      <div className='w-full space-y-6 rounded-b-2xl border-b bg-white py-6'>
 
         <div className='flex gap-4 items-center justify-between'>
           <div className='flex gap-4 items-center'>
@@ -58,7 +58,7 @@ function CourseLayout() {
 
       {open && <SwitchCourse userId={user.id}/>}
 
-      <div className="grid gap-6 px-[clamp(16px,6.25vw,80px)] mb-8">
+      <div className="mb-8 grid w-full gap-6">
         <Outlet />
       </div>
     </div>

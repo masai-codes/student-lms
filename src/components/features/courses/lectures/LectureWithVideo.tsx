@@ -58,7 +58,7 @@ export function LectureWithVideo({
 
 
   return (
-    <div className="py-6 mx-[clamp(16px,6.25vw,80px)] space-y-6">
+    <div className="w-full space-y-6 py-6">
       {/* Header */}
       <LectureDetailsHeader data={lecture} />
 

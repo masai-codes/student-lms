@@ -6,7 +6,7 @@ import { Separator } from "@/components/ui/separator"
 
 export default function WhatsNew({ whatsnew }: { whatsnew: WhatsNewType}) {
   return (
-    <div className="p-6 mx-auto space-y-6">
+    <div className="w-full space-y-6">
 
       {/* Card */}
       <Card className="w-full">

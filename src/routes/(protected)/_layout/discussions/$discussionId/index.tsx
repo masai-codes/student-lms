@@ -37,7 +37,7 @@ function RouteComponent() {
   const { threadsPromise, discussionData } = data;
 
   return (
-    <div className='py-6 px-[clamp(16px,6.25vw,80px)]'>
+    <div className='w-full py-6'>
       <ViewDiscussion discussion={discussionData[0]} />
 
       <Await promise={threadsPromise} fallback={<ResponsesSkeleton />}>
@@ -74,7 +74,7 @@ function RouteComponent() {
 
 function DiscussionDetailSkeleton() {
   return (
-    <div className="py-6 px-[clamp(16px,6.25vw,80px)] space-y-4">
+    <div className="w-full py-6 space-y-4">
       {/* Main discussion */}
       <div className="p-6 space-y-4 bg-white rounded-xl border">
         <Skeleton className="h-6 w-3/4 bg-muted/60" />

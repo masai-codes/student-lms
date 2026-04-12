@@ -29,7 +29,7 @@ export const Route = createFileRoute(
   component: RouteComponent,
   pendingComponent: () => {
     return (
-      <div className="py-6 space-y-6 mx-[clamp(16px,6.25vw,80px)]">
+      <div className="w-full space-y-6 py-6">
         {Array.from({ length: PAGINATION_PAGE_SIZE }).map((_, i) => (
           <AnnouncementSkeleton key={i} />
         ))}
@@ -70,7 +70,7 @@ function RouteComponent() {
   )
 
   return (
-    <div className="py-6 space-y-6 mx-[clamp(16px,6.25vw,80px)]">
+    <div className="w-full space-y-6 py-6">
 
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-semibold">Announcements</h2>
