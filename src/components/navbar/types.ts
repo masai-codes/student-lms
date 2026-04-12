@@ -11,6 +11,10 @@ export type NavbarLinkItem = {
   href: NavbarHref
   /** When omitted, `http(s)://` URLs open in a new tab; app paths stay in the same tab. */
   openInNewTab?: boolean
+  /** Non-interactive row (e.g. Level up while opening). */
+  disabled?: boolean
+  /** Native tooltip on the anchor. */
+  title?: string
   /**
    * Fires on the anchor click before navigation. Call `event.preventDefault()` to handle
    * routing or actions yourself (e.g. Next.js `router.push`).

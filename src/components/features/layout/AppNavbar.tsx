@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useCallback, useMemo, useRef, useState } from 'react'
 import { getRouteApi } from '@tanstack/react-router'
 import {
   Book,
@@ -12,22 +12,28 @@ import {
   Megaphone,
   MessagesSquare,
   ToggleLeft,
-  User,
+  UserCircle,
   Users,
 } from 'lucide-react'
 import type { MouseEventHandler } from 'react'
 
+import { LevelUpIcon } from '@/components/common/LevelUpIcon'
+import { Navbar } from '@/components/navbar'
 import type {
   NavbarActionItem,
   NavbarLinkItem,
   NavbarProfile,
+  NavbarProfileMenuItem,
 } from '@/components/navbar'
-import { Navbar } from '@/components/navbar'
 import { DownloadAppModal } from '@/components/features/layout/DownloadAppModal'
+import { LEGACY_STUDENT_LMS_URL } from '@/constants/legacyStudentUi'
+import { getBugReportFormUrl } from '@/utils/bugReportFormUrl'
+import { logout } from '@/server/auth/logout'
 import {
   getOldStudentUiUrlForPath,
-  redirectToOldStudentUi,
+  getPostLogoutRedirectUrl,
 } from '@/utils/authRedirect'
+import { fetchLevelupSso } from '@/utils/levelupSso'
 
 const layoutRouteApi = getRouteApi('/(protected)/_layout')
 
@@ -45,7 +51,10 @@ const MASAI_LOGO =
  * Legacy student app (`experience-ui/apps/student-experience`) routes — keep in sync with
  * `src/utils/route.utils.ts` and top nav `src/components/NewLayout/DesktopNavbar.tsx`.
  *
- * MasaiVerse lives in this app at `/masaiverse` (profile menu); it is not an old-UI path.
+ * Profile dropdown labels/order match `profileMenuOptions.ts` + `DesktopNavbar` extras
+ * (Report a Bug, Level up, Switch to OLD LMS, Sign out). In-app links use this app’s routes.
+ *
+ * MasaiVerse lives at `/masaiverse` here (not the legacy Discord route).
  *
  * Refer & Earn: navbar uses `Routes.changemakersCircle.main()` (`/changemakers-circle`).
  * `/alumniReferal` is a different flow (alumni hiring / refer-hiring), not the main CTA.
@@ -59,10 +68,6 @@ const OLD_UI_PATHS = {
   calendar: '/my-calendar',
   chat: '/chat',
   announcements: '/announcements',
-  profile: '/profile',
-  myCourses: '/my-lectures',
-  bookmarks: '/bookmarks?tab=Lecture',
-  practiceInterview: '/practice-interview',
 } as const
 
 function oldStudentUiLink(
@@ -77,7 +82,38 @@ function oldStudentUiLink(
 export default function AppNavbar() {
   const { user } = layoutRouteApi.useRouteContext()
   const [downloadAppOpen, setDownloadAppOpen] = useState(false)
-  const oldStudentUiRoot = getOldStudentUiUrlForPath('/') ?? '#'
+  const [isLevelupLoading, setIsLevelupLoading] = useState(false)
+  const levelupLoadingRef = useRef(false)
+
+  const handleLevelupClick = useCallback(async (e: React.MouseEvent<HTMLAnchorElement>) => {
+    e.preventDefault()
+    if (levelupLoadingRef.current) return
+    levelupLoadingRef.current = true
+    setIsLevelupLoading(true)
+    try {
+      const { url } = await fetchLevelupSso()
+      window.open(url, '_blank', 'noopener,noreferrer')
+    } catch (err) {
+      const message =
+        err instanceof Error ? err.message : 'Something went wrong while redirecting to Levelup'
+      window.alert(message)
+    } finally {
+      levelupLoadingRef.current = false
+      setIsLevelupLoading(false)
+    }
+  }, [])
+
+  const handleSignOut = useCallback(async (e: React.MouseEvent<HTMLAnchorElement>) => {
+    e.preventDefault()
+    try {
+      await logout()
+    } catch (err) {
+      console.error('Logout failed', err)
+      window.alert(err instanceof Error ? err.message : 'Sign out failed. Please try again.')
+      return
+    }
+    window.location.assign(getPostLogoutRedirectUrl())
+  }, [])
 
   const navItems: Array<NavbarLinkItem> = [
     {
@@ -144,73 +180,95 @@ export default function AppNavbar() {
     },
   ]
 
-  const profile: NavbarProfile = {
-    ...(user.profileImageUrl
-      ? { avatarSrc: user.profileImageUrl }
-      : {}),
-    avatarAlt: user.name,
-    fallbackText: profileInitials(user.name),
-    menuTriggerLabel: 'Open account menu',
-    menuItems: [
+  const profileMenuItems: NavbarProfileMenuItem[] = useMemo(
+    () => [
       {
         id: 'profile',
-        label: 'Profile',
-        icon: <User className="size-4" />,
-        ...oldStudentUiLink(OLD_UI_PATHS.profile),
+        label: 'My Profile',
+        icon: <UserCircle className="size-4" />,
+        href: '/profile',
+        openInNewTab: false,
       },
       {
         id: 'courses',
         label: 'My Courses',
         icon: <Book className="size-4" />,
-        ...oldStudentUiLink(OLD_UI_PATHS.myCourses),
+        href: '/courses',
+        openInNewTab: false,
       },
       {
-        id: 'bookmarks',
-        label: 'Bookmarks',
+        id: 'bookmark',
+        label: 'Bookmark',
         icon: <Bookmark className="size-4" />,
-        ...oldStudentUiLink(OLD_UI_PATHS.bookmarks),
+        href: '/bookmark',
+        openInNewTab: false,
       },
       {
         id: 'masaiverse-menu',
-        label: 'MasaiVerse',
+        label: 'MasaiVerse Community',
         icon: <Users className="size-4" />,
         href: '/masaiverse',
         openInNewTab: false,
       },
       {
         id: 'practice-interview',
-        label: 'Practice Interview',
+        label: 'Practice Interviews',
         icon: <BriefcaseBusiness className="size-4" />,
-        ...oldStudentUiLink(OLD_UI_PATHS.practiceInterview),
+        href: '/practice-interview',
+        openInNewTab: false,
       },
       {
         id: 'report-bug',
         label: 'Report a Bug',
-        href: 'https://forms.gle/ZMRLA8rQ85CtSkWf8',
+        href: getBugReportFormUrl(),
         openInNewTab: true,
         icon: <Bug className="size-4" />,
       },
       {
-        id: 'old-lms',
-        label: 'Switch to Old LMS',
-        href: oldStudentUiRoot,
+        id: 'levelup',
+        label: isLevelupLoading ? 'Opening Level up...' : 'Level up',
+        icon: (
+          <span className="flex size-4 shrink-0 items-center justify-center text-[#6B7280]">
+            <LevelUpIcon width={18} height={14} color="currentColor" />
+          </span>
+        ),
+        href: '#',
         openInNewTab: false,
+        title:
+          'LevelUp - Is our placement platform. You can only access this if you are onboarded in Masai Placement Process',
+        onClick: handleLevelupClick,
+        disabled: isLevelupLoading,
+      },
+      {
+        id: 'old-lms',
+        label: 'Switch to OLD LMS',
+        href: LEGACY_STUDENT_LMS_URL,
+        openInNewTab: true,
         icon: <ToggleLeft className="size-4" />,
-        onClick:
-          oldStudentUiRoot === '#' ? (e) => e.preventDefault() : undefined,
       },
       {
         id: 'sign-out',
-        label: 'Sign Out',
+        label: 'Sign out',
         href: '#',
         icon: <LogOutIcon className="size-4" />,
         onClick: (e) => {
-          e.preventDefault()
-          redirectToOldStudentUi()
+          void handleSignOut(e)
         },
       },
     ],
-  }
+    [handleLevelupClick, handleSignOut, isLevelupLoading],
+  )
+
+  const profile: NavbarProfile = useMemo(
+    () => ({
+      ...(user.profileImageUrl ? { avatarSrc: user.profileImageUrl } : {}),
+      avatarAlt: user.name,
+      fallbackText: profileInitials(user.name),
+      menuTriggerLabel: 'Open account menu',
+      menuItems: profileMenuItems,
+    }),
+    [profileMenuItems, user.name, user.profileImageUrl],
+  )
 
   return (
     <>

@@ -42,11 +42,21 @@ function getSessionIdFromCookieValue(cookieValue: string | undefined) {
   }
 }
 
-export async function getCurrentSessionUserId() {
-  const request = getRequest()
+/** Session id from raw `Cookie` header (for Nitro routes, tests, etc.). */
+export function readSessionIdFromCookieHeader(cookieHeader: string | null): string | null {
   const cookieName = process.env.COOKIE_NAME || DEFAULT_COOKIE_NAME
-  const cookies = parseCookieHeader(request.headers.get('cookie'))
-  const sessionId = getSessionIdFromCookieValue(cookies[cookieName])
+  const cookies = parseCookieHeader(cookieHeader)
+  return getSessionIdFromCookieValue(cookies[cookieName])
+}
+
+/** Session id embedded in the JWT cookie (matches `sessions.id`). */
+export function readSessionIdFromCookie(): string | null {
+  const request = getRequest()
+  return readSessionIdFromCookieHeader(request.headers.get('cookie'))
+}
+
+export async function getUserIdFromCookieHeader(cookieHeader: string | null): Promise<number | null> {
+  const sessionId = readSessionIdFromCookieHeader(cookieHeader)
   if (!sessionId) return null
 
   const sessionRecord = await db
@@ -56,4 +66,9 @@ export async function getCurrentSessionUserId() {
     .limit(1)
 
   return sessionRecord[0]?.userId ?? null
+}
+
+export async function getCurrentSessionUserId() {
+  const request = getRequest()
+  return getUserIdFromCookieHeader(request.headers.get('cookie'))
 }
