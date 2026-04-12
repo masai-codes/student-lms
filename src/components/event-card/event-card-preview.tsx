@@ -64,7 +64,7 @@ export function EventCardPreview({
   return (
     <div
       className={cn(
-        "font-poppins flex w-full max-w-[300px] flex-col self-start overflow-hidden rounded-[12px] border border-[#E5E7EB] bg-white",
+        "font-poppins flex h-full w-full max-w-[300px] flex-col overflow-hidden rounded-[12px] border border-[#E5E7EB] bg-white",
         className,
       )}
     >
