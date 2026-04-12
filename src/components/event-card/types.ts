@@ -27,4 +27,6 @@ export type EventCardProps = {
   eventTimeline: EventTimelineItem[]
   onCtaClick?: () => void
   drawerDirection?: DrawerDirection
+  /** Merged onto the visible card root; override e.g. max-w, h-full, min-h. */
+  className?: string
 }

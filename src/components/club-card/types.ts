@@ -17,4 +17,6 @@ export type ClubCardProps = {
   detailDescription: string
   drawerDirection?: DrawerDirection
   ctaTheme: CtaTheme
+  /** Merged onto the visible card root; override e.g. max-w, h-full, min-h. */
+  className?: string
 }

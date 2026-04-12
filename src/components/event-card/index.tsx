@@ -40,6 +40,7 @@ export function EventCard({
   eventTimeline,
   onCtaClick,
   drawerDirection = "auto",
+  className,
 }: EventCardProps) {
   const [open, setOpen] = React.useState(false)
   const resolvedDirection = useResolvedDirection(drawerDirection)
@@ -62,6 +63,7 @@ export function EventCard({
         image={image}
         date={date}
         onCtaClick={handleCtaClick}
+        className={className}
       />
       <EventCardDrawer
         title={title}

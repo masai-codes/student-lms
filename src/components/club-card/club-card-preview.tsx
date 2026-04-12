@@ -1,3 +1,5 @@
+import { cn } from "@/lib/utils";
+
 import type { ClubCardProps } from "./types";
 import { CardCtaButton } from "../shared/card-cta-button";
 import { CheckCircle } from "@phosphor-icons/react";
@@ -16,6 +18,7 @@ type ClubCardPreviewProps = Pick<
   | "showSuccessIcon"
   | "ctaText"
   | "ctaTheme"
+  | "className"
 > & {
   onCtaClick: () => void;
 };
@@ -30,6 +33,7 @@ export function ClubCardPreview({
   ctaText,
   ctaTheme,
   onCtaClick,
+  className,
 }: ClubCardPreviewProps) {
   const resolvedName = toCapitalizedWords(name);
   const resolvedDomain = toCapitalizedWords(domain);
@@ -55,7 +59,12 @@ export function ClubCardPreview({
 
   if (shouldCompress) {
     return (
-      <div className="font-poppins flex h-full w-full max-w-[300px] rounded-[12px] border border-[#E5E7EB] bg-white p-4">
+      <div
+        className={cn(
+          "font-poppins flex h-full w-full max-w-[300px] rounded-[12px] border border-[#E5E7EB] bg-white p-4",
+          className,
+        )}
+      >
         <div className="flex items-start gap-3">
           {iconBlock}
           <div className="min-w-0">
@@ -72,7 +81,12 @@ export function ClubCardPreview({
   }
 
   return (
-    <div className="font-poppins flex h-full w-full max-w-[300px] flex-col rounded-[12px] border border-[#E5E7EB] bg-white p-4">
+    <div
+      className={cn(
+        "font-poppins flex h-full w-full max-w-[300px] flex-col rounded-[12px] border border-[#E5E7EB] bg-white p-4",
+        className,
+      )}
+    >
       <div className="flex items-start justify-between">
         {iconBlock}
         <p className="px-[8px] text-[12px] font-[500] leading-[16px] font-poppins rounded py-[4px] border border-[#E5E7EB] rounded-[32px] text-center">

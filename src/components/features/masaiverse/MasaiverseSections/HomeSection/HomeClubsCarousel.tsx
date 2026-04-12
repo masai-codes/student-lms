@@ -28,11 +28,11 @@ const ClubSlide = ({ club, joinedClubId, onClubJoin }: ClubSlideProps) => {
 
   return (
     <div
-      className={`flex w-full ${
+      className={`flex w-full min-w-0 [&>div]:!max-w-none ${
         isJoinedClub || hasJoinedAnotherClub
           ? '[&_button]:pointer-events-none'
           : ''
-      } [&>div]:flex [&>div]:h-full [&>div]:w-full [&>div]:max-w-none [&>div]:flex-col`}
+      } [&>div]:flex [&>div]:h-full [&>div]:w-full [&>div]:flex-col`}
     >
       <ClubCard
         {...clubCardProps}

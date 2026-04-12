@@ -1,3 +1,5 @@
+import { cn } from "@/lib/utils";
+
 import type { EventCardProps } from "./types";
 import { CardCtaButton } from "../shared/card-cta-button";
 
@@ -36,6 +38,7 @@ type EventCardPreviewProps = Pick<
   | "category"
   | "image"
   | "date"
+  | "className"
 > & {
   onCtaClick: () => void;
 };
@@ -50,6 +53,7 @@ export function EventCardPreview({
   image,
   date,
   onCtaClick,
+  className,
 }: EventCardPreviewProps) {
   const resolvedTitle = toCapitalizedWords(title);
   const resolvedMiniDescription = toCapitalizedWords(miniDescription);
@@ -58,7 +62,12 @@ export function EventCardPreview({
   const { day, month } = getDateParts(date);
 
   return (
-    <div className="font-poppins flex h-full w-full max-w-[300px] flex-col overflow-hidden rounded-[12px] border border-[#E5E7EB] bg-white">
+    <div
+      className={cn(
+        "font-poppins flex h-full w-full max-w-[300px] flex-col overflow-hidden rounded-[12px] border border-[#E5E7EB] bg-white",
+        className,
+      )}
+    >
       <div className="relative">
         <img
           src={image}

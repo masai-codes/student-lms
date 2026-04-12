@@ -155,8 +155,11 @@ const EventsSection = () => {
               ? 'View Location'
               : 'Open Link'
             return (
-              <EventCard
+              <div
                 key={event.id}
+                className="min-w-0 w-full [&>div]:!max-w-none"
+              >
+                <EventCard
                 {...eventCardProps}
                 isActive={!isPastEvent && eventCardProps.isActive}
                 cardCtaText="View Details"
@@ -190,6 +193,7 @@ const EventsSection = () => {
                           }
                 }
               />
+              </div>
             )
           })}
         </div>
