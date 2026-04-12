@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import type { DiscussionReply as DiscussionPostCardReply } from '@/components/discussion-post-card'
+import { formatSocialPostTime } from '@/lib/socialRelativeTime'
 import type {
   DiscussionEntityId,
   DiscussionPost,
@@ -39,23 +40,12 @@ const DiscussionsList = ({
     return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`
   }
 
-  const formatTimestamp = (value: string | null) => {
-    if (!value) {
-      return 'Just now'
-    }
-    const parsed = new Date(value)
-    if (Number.isNaN(parsed.getTime())) {
-      return 'Just now'
-    }
-    return parsed.toLocaleString()
-  }
-
   const mapReplies = (post: DiscussionPost): Array<DiscussionPostCardReply> =>
     post.replies.map((reply) => ({
       id: String(reply.id),
       profileImage: reply.authorProfileImage ?? getFallbackAvatar(reply.authorName),
       author: reply.authorName,
-      createdAt: formatTimestamp(reply.createdAt),
+      createdAt: formatSocialPostTime(reply.createdAt),
       content: reply.content,
       currentUpvoteCount: reply.upvotes,
       currentDownvoteCount: reply.downvotes,
@@ -84,7 +74,7 @@ const DiscussionsList = ({
           key={post.id}
           profileImage={post.authorProfileImage ?? getFallbackAvatar(post.authorName)}
           name={post.authorName}
-          createdAt={formatTimestamp(post.createdAt)}
+          createdAt={formatSocialPostTime(post.createdAt)}
           content={post.content}
           currentUpvoteCount={post.upvotes}
           currentDownvoteCount={post.downvotes}

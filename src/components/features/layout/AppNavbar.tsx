@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { getRouteApi } from '@tanstack/react-router'
 import {
   Book,
   Bookmark,
@@ -27,6 +28,15 @@ import {
   getOldStudentUiUrlForPath,
   redirectToOldStudentUi,
 } from '@/utils/authRedirect'
+
+const layoutRouteApi = getRouteApi('/(protected)/_layout')
+
+function profileInitials(name: string) {
+  const parts = name.trim().split(/\s+/).filter(Boolean)
+  if (!parts.length) return '?'
+  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase()
+  return `${parts[0][0] ?? ''}${parts[parts.length - 1][0] ?? ''}`.toUpperCase()
+}
 
 const MASAI_LOGO =
   'https://students.masaischool.com/static/media/masai-logo.e5c8801d4f26d2da036ec9e4b93cb202.svg'
@@ -64,6 +74,7 @@ function oldStudentUiLink(
 }
 
 export default function AppNavbar() {
+  const { user } = layoutRouteApi.useRouteContext()
   const [downloadAppOpen, setDownloadAppOpen] = useState(false)
   const oldStudentUiRoot = getOldStudentUiUrlForPath('/') ?? '#'
 
@@ -133,9 +144,11 @@ export default function AppNavbar() {
   ]
 
   const profile: NavbarProfile = {
-    avatarSrc: 'https://github.com/shadcn.png',
-    avatarAlt: 'Profile',
-    fallbackText: 'LR',
+    ...(user.profileImageUrl
+      ? { avatarSrc: user.profileImageUrl }
+      : {}),
+    avatarAlt: user.name,
+    fallbackText: profileInitials(user.name),
     menuTriggerLabel: 'Open account menu',
     menuItems: [
       {

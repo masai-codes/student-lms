@@ -25,8 +25,21 @@ export default function ProfilePage({ user }: ProfilePageProps) {
       <div className="flex items-center gap-4">
         <div className="relative">
           <Avatar className="h-24 w-24">
-            <AvatarImage src="https://github.com/shadcn.png" />
-            <AvatarFallback className="text-3xl text-white bg-gray-400">CN</AvatarFallback>
+            <AvatarImage
+              src={user.profileImageUrl ?? undefined}
+              alt={user.name}
+            />
+            <AvatarFallback className="bg-gray-400 text-3xl text-white">
+              {user.name
+                .trim()
+                .split(/\s+/)
+                .filter(Boolean)
+                .slice(0, 2)
+                .map((w) => w[0])
+                .join('')
+                .toUpperCase()
+                .slice(0, 2) || '?'}
+            </AvatarFallback>
           </Avatar>
 
           {/* Plus badge */}
@@ -45,7 +58,7 @@ export default function ProfilePage({ user }: ProfilePageProps) {
 
           <div className="flex items-center">
             <Phone color="#6C7280" size={18} />
-            <p className="text-[#626A77] ml-2">9616575120</p>
+            <p className="text-[#626A77] ml-2">{user.mobile?.trim() || '-'}</p>
           </div>
         </div>
 
