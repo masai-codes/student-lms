@@ -11,7 +11,7 @@ export default function CommunityDiscussions({
   initialPostIdFromSearch,
 }: CommunityDiscussionsProps) {
   return (
-    <div className="mt-[48px]">
+    <div className="mt-[24px] md:mt-[48px]">
       <h2 className="text-[18px] font-semibold text-[#111827]">
         Community Discussions
       </h2>

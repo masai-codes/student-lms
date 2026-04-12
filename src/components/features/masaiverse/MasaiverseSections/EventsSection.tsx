@@ -6,6 +6,11 @@ import { fetchAllEvents } from '@/server/masaiverse/fetchEvents'
 import { fetchMyEventEnrollments } from '@/server/masaiverse/fetchMyEventEnrollments'
 import { joinEvent } from '@/server/masaiverse/joinEvent'
 import { mapEventToCardProps } from '@/components/features/masaiverse/MasaiverseSections/cardDataMappers'
+import {
+  MASAIVERSE_DRAWER_SCROLL_BODY_PADDING,
+  MASAIVERSE_MOBILE_TAB_DRAWER_CONTENT_INSET,
+  MASAIVERSE_MOBILE_TAB_DRAWER_FOOTER_INSET,
+} from '@/constants/masaiverseDrawerUi'
 import { Input } from '@/components/ui/input'
 import { Search } from 'lucide-react'
 
@@ -162,6 +167,10 @@ const EventsSection = () => {
                 <EventCard
                 {...eventCardProps}
                 isActive={!isPastEvent && eventCardProps.isActive}
+                drawerBottomInsetClassName={MASAIVERSE_MOBILE_TAB_DRAWER_CONTENT_INSET}
+                drawerBodyClassName={MASAIVERSE_DRAWER_SCROLL_BODY_PADDING}
+                drawerPinFooter
+                drawerFooterClassName={MASAIVERSE_MOBILE_TAB_DRAWER_FOOTER_INSET}
                 cardCtaText="View Details"
                 drawerCtaText={
                   isPastEvent

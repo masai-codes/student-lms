@@ -124,7 +124,7 @@ export default function HomeSection({ postId }: HomeSectionProps) {
     : clubsList
 
   return (
-    <section className="min-h-[max(400px,calc(100dvh-11rem))] min-w-0 flex-1 overflow-x-hidden rounded-[16px] md:border border-[#E5E7EB] bg-[#fff] px-3 md:px-6 md:py-8 my-[24px]">
+    <section className="min-h-[max(400px,calc(100dvh-11rem))] min-w-0 flex-1 overflow-x-hidden rounded-[16px] md:border border-[#E5E7EB] md:bg-[#fff] px-3 md:px-6 md:py-8 mb-[24px]">
       <HomeIntro />
 
       <div className="h-[1px] bg-[#E5E7EB] my-[8px] md:my-[16px]"></div>

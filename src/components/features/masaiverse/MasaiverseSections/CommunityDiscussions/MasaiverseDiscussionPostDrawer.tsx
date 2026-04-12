@@ -3,6 +3,12 @@ import { X } from 'lucide-react'
 import { DiscussionPostCardComposer } from '@/components/discussion-post-card'
 import { DiscussionPostCardPreview } from '@/components/discussion-post-card/discussion-post-card-preview'
 import type { DiscussionReply as DiscussionPostCardReply } from '@/components/discussion-post-card'
+import {
+  MASAIVERSE_DRAWER_SCROLL_BODY_PADDING,
+  MASAIVERSE_MOBILE_TAB_DRAWER_CONTENT_INSET,
+  MASAIVERSE_MOBILE_TAB_DRAWER_FOOTER_INSET,
+} from '@/constants/masaiverseDrawerUi'
+import { cn } from '@/lib/utils'
 
 type MasaiverseDiscussionPostDrawerProps = {
   profileImage: string
@@ -62,13 +68,15 @@ export default function MasaiverseDiscussionPostDrawer({
   return (
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
       <Dialog.Portal>
-        <Dialog.Overlay className="fixed inset-0 z-50 bg-black/50 transition-opacity duration-300 ease-out data-[state=closed]:opacity-0 data-[state=open]:opacity-100" />
+        <Dialog.Overlay className="fixed inset-0 z-[230] bg-black/50 transition-opacity duration-300 ease-out data-[state=closed]:opacity-0 data-[state=open]:opacity-100" />
         <Dialog.Content
-          className={`fixed z-50 border bg-white font-poppins shadow-xl outline-none ${
+          className={cn(
+            'fixed z-[230] border bg-white font-poppins shadow-xl outline-none',
             resolvedDirection === 'right'
               ? 'right-0 top-0 flex h-svh w-full max-w-[460px] flex-col border-l transition-transform duration-300 ease-out will-change-transform data-[state=closed]:translate-x-full data-[state=open]:translate-x-0'
-              : 'bottom-0 left-0 flex max-h-[88svh] w-full flex-col rounded-t-2xl border-t transition-transform duration-300 ease-out will-change-transform data-[state=closed]:translate-y-full data-[state=open]:translate-y-0'
-          }`}
+              : 'bottom-0 left-0 flex max-h-[88svh] w-full flex-col rounded-t-2xl border-t transition-transform duration-300 ease-out will-change-transform data-[state=closed]:translate-y-full data-[state=open]:translate-y-0',
+            MASAIVERSE_MOBILE_TAB_DRAWER_CONTENT_INSET,
+          )}
         >
           <div className="flex items-start justify-between border-b p-4">
             <Dialog.Title className="text-lg font-semibold text-[#111928]">Discussion</Dialog.Title>
@@ -78,7 +86,12 @@ export default function MasaiverseDiscussionPostDrawer({
             </Dialog.Close>
           </div>
 
-          <div className="min-h-0 flex-1 overflow-y-auto p-4">
+          <div
+            className={cn(
+              'min-h-0 flex-1 overflow-y-auto p-4',
+              MASAIVERSE_DRAWER_SCROLL_BODY_PADDING,
+            )}
+          >
             <DiscussionPostCardPreview
               profileImage={profileImage}
               name={name}
@@ -135,7 +148,14 @@ export default function MasaiverseDiscussionPostDrawer({
             </div>
           </div>
 
-          <div className="border-t p-4">
+          <div
+            className={cn(
+              'shrink-0 border-t bg-white p-4',
+              resolvedDirection === 'bottom' &&
+                'shadow-[0_-4px_16px_rgba(0,0,0,0.06)]',
+              MASAIVERSE_MOBILE_TAB_DRAWER_FOOTER_INSET,
+            )}
+          >
             <DiscussionPostCardComposer
               profileImage={profileImage}
               replyText={replyText}

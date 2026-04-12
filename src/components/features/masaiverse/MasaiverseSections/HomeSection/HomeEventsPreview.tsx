@@ -1,6 +1,11 @@
 import type { EventType } from '@/server/masaiverse/fetchEvents'
 import { EventCard } from '@/components/event-card'
 import { Button } from '@/components/ui/button'
+import {
+  MASAIVERSE_DRAWER_SCROLL_BODY_PADDING,
+  MASAIVERSE_MOBILE_TAB_DRAWER_CONTENT_INSET,
+  MASAIVERSE_MOBILE_TAB_DRAWER_FOOTER_INSET,
+} from '@/constants/masaiverseDrawerUi'
 import { ChevronRight } from 'lucide-react'
 import { mapEventToCardProps } from '@/components/features/masaiverse/MasaiverseSections/cardDataMappers'
 
@@ -72,6 +77,10 @@ const HomeEventsPreview = ({
                 <EventCard
                 {...eventCardProps}
                 isActive={!isPastEvent && eventCardProps.isActive}
+                drawerBottomInsetClassName={MASAIVERSE_MOBILE_TAB_DRAWER_CONTENT_INSET}
+                drawerBodyClassName={MASAIVERSE_DRAWER_SCROLL_BODY_PADDING}
+                drawerPinFooter
+                drawerFooterClassName={MASAIVERSE_MOBILE_TAB_DRAWER_FOOTER_INSET}
                 cardCtaText="View Details"
                 drawerCtaText={
                   isPastEvent

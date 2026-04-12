@@ -5,6 +5,11 @@ import type { ClubType } from '@/server/masaiverse/fetchClubs'
 import { ClubCard } from '@/components/club-card'
 import { Button } from '@/components/ui/button'
 import { mapClubToCardProps } from '@/components/features/masaiverse/MasaiverseSections/cardDataMappers'
+import {
+  MASAIVERSE_DRAWER_SCROLL_BODY_PADDING,
+  MASAIVERSE_MOBILE_TAB_DRAWER_CONTENT_INSET,
+  MASAIVERSE_MOBILE_TAB_DRAWER_FOOTER_INSET,
+} from '@/constants/masaiverseDrawerUi'
 
 type HomeClubsCarouselProps = {
   isLoading: boolean
@@ -36,6 +41,10 @@ const ClubSlide = ({ club, joinedClubId, onClubJoin }: ClubSlideProps) => {
     >
       <ClubCard
         {...clubCardProps}
+        drawerBottomInsetClassName={MASAIVERSE_MOBILE_TAB_DRAWER_CONTENT_INSET}
+        drawerBodyClassName={MASAIVERSE_DRAWER_SCROLL_BODY_PADDING}
+        drawerPinFooter
+        drawerFooterClassName={MASAIVERSE_MOBILE_TAB_DRAWER_FOOTER_INSET}
         shouldCompress={hasJoinedAtLeastOneClub}
         showSuccessIcon={isJoinedClub}
         ctaText={isJoinedClub ? 'Joined' : clubCardProps.ctaText}
