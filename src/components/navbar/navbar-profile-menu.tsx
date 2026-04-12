@@ -27,7 +27,7 @@ function initials(value: string) {
 }
 
 const menuItemClassName =
-  "flex cursor-pointer select-none items-center gap-2 rounded-sm px-3 py-2 text-sm outline-none data-[highlighted]:bg-accent data-[highlighted]:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50";
+  "flex cursor-pointer select-none items-center gap-2 rounded-sm px-3 py-2 text-sm shadow-none outline-none transition-colors text-[#6B7280] hover:text-[#6962AC] data-[highlighted]:text-[#6962AC] data-[highlighted]:shadow-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50"
 
 const menuContentClassName =
   "z-50 min-w-[200px] overflow-hidden rounded-md border border-border bg-popover p-1 text-popover-foreground shadow-md";
@@ -48,7 +48,7 @@ export function NavbarProfileMenu({
         <DropdownMenu.Trigger asChild>
           <button
             type="button"
-            className="inline-flex size-10 items-center justify-center rounded-full border border-border bg-background text-sm font-semibold text-foreground outline-none ring-offset-background transition-colors hover:bg-accent focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 data-[state=open]:ring-2 data-[state=open]:ring-ring data-[state=open]:ring-offset-2"
+            className="inline-flex size-10 cursor-pointer items-center justify-center rounded-full border border-border bg-background text-sm font-semibold text-foreground shadow-none outline-none ring-offset-background transition-colors hover:bg-accent hover:shadow-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-0 data-[state=open]:ring-2 data-[state=open]:ring-ring data-[state=open]:ring-offset-0"
             aria-label={label}
             suppressHydrationWarning
           >
@@ -90,17 +90,29 @@ export function NavbarProfileMenu({
                     href={item.href}
                     openInNewTab={item.openInNewTab}
                     onClick={item.onClick}
-                    className={menuItemClassName}
+                    aria-current={item.isActive ? "page" : undefined}
+                    className={cn(
+                      menuItemClassName,
+                      item.isActive &&
+                        "font-medium text-[#6962AC] data-[highlighted]:text-[#6962AC]",
+                    )}
                   >
                     {item.icon ? (
                       <span
-                        className="flex size-4 shrink-0 items-center justify-center text-muted-foreground [&_svg]:size-4"
+                        className="flex size-4 shrink-0 items-center justify-center text-inherit [&_svg]:size-4"
                         aria-hidden
                       >
                         {item.icon}
                       </span>
                     ) : null}
-                    <span className="min-w-0 flex-1 text-[16px] font-[500] leading-[24px] text-[#6B7280]">
+                    <span
+                      className={cn(
+                        "min-w-0 flex-1 text-[16px] font-[500] leading-[24px]",
+                        item.isActive &&
+                          "underline decoration-2 underline-offset-4 text-[#6962AC]",
+                        !item.isActive && "text-inherit",
+                      )}
+                    >
                       {item.label}
                     </span>
                   </NavbarAnchor>

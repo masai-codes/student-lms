@@ -1,5 +1,5 @@
 import { Outlet, createFileRoute, redirect } from "@tanstack/react-router"
-import { Header } from "@/components/features/layout"
+import { AppNavbar } from "@/components/features/layout"
 import { fetchCurrentUser } from "@/server/auth/fetchCurrentUser"
 
 export const Route = createFileRoute("/(protected)/_layout")({
@@ -21,7 +21,7 @@ export const Route = createFileRoute("/(protected)/_layout")({
 function RouteComponent() {
   return (
     <div className="min-h-dvh bg-[#FAF9F9] flex flex-col">
-      <Header />
+      <AppNavbar />
       <main className="mx-auto w-full max-w-[1280px] flex-1 min-h-0">
         <Outlet />
       </main>

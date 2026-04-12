@@ -1,18 +1,18 @@
-"use client";
+import * as React from "react"
 
-import * as React from "react";
+import { cn } from "@/lib/utils"
 
-import { NavbarAnchor } from "./navbar-anchor";
-import type { NavbarLinkItem } from "./types";
+import { NavbarAnchor } from "./navbar-anchor"
+import type { NavbarLinkItem } from "./types"
 
 type NavbarNavItemsProps = {
-  items: NavbarLinkItem[];
-  className?: string;
-};
+  items: NavbarLinkItem[]
+  className?: string
+}
 
 export function NavbarNavItems({ items, className }: NavbarNavItemsProps) {
   if (!items.length) {
-    return null;
+    return null
   }
 
   return (
@@ -27,7 +27,13 @@ export function NavbarNavItems({ items, className }: NavbarNavItemsProps) {
               href={item.href}
               openInNewTab={item.openInNewTab}
               onClick={item.onClick}
-              className="font-poppins rounded-md px-2 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 text-[16px] font-[500] leading-[24px]"
+              aria-current={item.isActive ? "page" : undefined}
+              className={cn(
+                "cursor-pointer rounded-md px-2 py-1.5 font-poppins text-[16px] font-[500] leading-[24px] shadow-none transition-colors hover:shadow-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-0",
+                "text-muted-foreground hover:text-[#6962AC]",
+                item.isActive &&
+                  "font-medium text-[#6962AC] underline decoration-2 underline-offset-[6px]",
+              )}
             >
               {item.label}
             </NavbarAnchor>
@@ -35,5 +41,5 @@ export function NavbarNavItems({ items, className }: NavbarNavItemsProps) {
         ))}
       </ul>
     </nav>
-  );
+  )
 }

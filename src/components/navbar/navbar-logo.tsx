@@ -15,7 +15,8 @@ export function NavbarLogo({ logo, className }: NavbarLogoProps) {
     <NavbarAnchor
       href={logo.href}
       openInNewTab={logo.openInNewTab}
-      className={`inline-flex shrink-0 items-center rounded-md outline-none ring-offset-background transition-opacity hover:opacity-90 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ${className ?? ""}`.trim()}
+      onClick={logo.onClick}
+      className={`inline-flex shrink-0 cursor-pointer items-center rounded-md shadow-none outline-none ring-offset-background transition-opacity hover:opacity-90 hover:shadow-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-0 ${className ?? ""}`.trim()}
     >
       <img
         src={logo.src}
