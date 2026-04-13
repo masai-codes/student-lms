@@ -266,7 +266,7 @@ export default function AppNavbar() {
   return (
     <>
       <Navbar
-        className="z-[210] max-md:hidden"
+        className="z-40 max-md:hidden"
         logo={{
           src: MASAI_LOGO,
           alt: 'Masai Logo',

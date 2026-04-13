@@ -1,7 +1,5 @@
 "use client";
 
-import * as React from "react";
-
 import { NavbarLogo } from "./navbar-logo";
 import { NavbarNavItems } from "./navbar-nav-items";
 import { NavbarProfileMenu } from "./navbar-profile-menu";
@@ -25,7 +23,7 @@ export function Navbar({
     <header
       className={cn(
         LAYOUT_NAVBAR_OUTER_CLASSES,
-        "sticky top-0 z-50 flex flex-col bg-white shadow-sm rounded-b-[32px]",
+        "sticky top-0 z-40 flex flex-col bg-white shadow-sm rounded-b-[32px]",
         className,
       )}
     >
