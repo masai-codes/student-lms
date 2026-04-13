@@ -1,7 +1,6 @@
 'use client'
 
 import { useCallback, useMemo, useRef, useState } from 'react'
-import { useQuery } from '@tanstack/react-query'
 import { getRouteApi } from '@tanstack/react-router'
 import {
   Book,
@@ -36,12 +35,8 @@ import {
   getPostLogoutRedirectUrl,
 } from '@/utils/authRedirect'
 import { fetchLevelupSso } from '@/utils/levelupSso'
-import { fetchNavbarBadgeCounts } from '@/server/navbar/fetchNavbarBadgeCounts'
 
 const layoutRouteApi = getRouteApi('/(protected)/_layout')
-
-/** Same cadence as legacy `REFETCH_INTERVAL` in `experience-ui` (`2 * 60 * 1000`). */
-const NAVBAR_BADGE_REFETCH_MS = 2 * 60 * 1000
 
 function profileInitials(name: string) {
   const parts = name.trim().split(/\s+/).filter(Boolean)
@@ -79,13 +74,6 @@ export default function AppNavbar() {
   const [downloadAppOpen, setDownloadAppOpen] = useState(false)
   const [isLevelupLoading, setIsLevelupLoading] = useState(false)
   const levelupLoadingRef = useRef(false)
-
-  const { data: badgeCounts } = useQuery({
-    queryKey: ['navbarBadgeCounts'],
-    queryFn: () => fetchNavbarBadgeCounts(),
-    refetchInterval: import.meta.env.DEV ? false : NAVBAR_BADGE_REFETCH_MS,
-    refetchIntervalInBackground: false,
-  })
 
   const handleLevelupClick = useCallback(async (e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault()
@@ -172,7 +160,6 @@ export default function AppNavbar() {
         type: 'icon',
         icon: <MessagesSquare className="size-5" />,
         ariaLabel: 'Chat',
-        notificationCount: badgeCounts?.chatUnread,
         ...oldStudentUiLink(OLD_STUDENT_UI_NAV_PATHS.chat),
       },
       {
@@ -180,11 +167,10 @@ export default function AppNavbar() {
         type: 'icon',
         icon: <Megaphone className="size-5" />,
         ariaLabel: 'Announcements',
-        notificationCount: badgeCounts?.announcementsUnread,
         ...oldStudentUiLink(OLD_STUDENT_UI_NAV_PATHS.announcements),
       },
     ],
-    [badgeCounts?.announcementsUnread, badgeCounts?.chatUnread],
+    [],
   )
 
   const profileMenuItems: Array<NavbarProfileMenuItem> = useMemo(

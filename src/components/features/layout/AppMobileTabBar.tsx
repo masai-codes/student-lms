@@ -1,17 +1,12 @@
 'use client'
 
 import { useMemo } from 'react'
-import { useQuery } from '@tanstack/react-query'
 import { useRouterState } from '@tanstack/react-router'
 import { Headphones, Home, LayoutGrid, MonitorPlay, MessagesSquare } from 'lucide-react'
 
 import { TabNavbar } from '@/components/tab-navbar'
 import { OLD_STUDENT_UI_NAV_PATHS } from '@/constants/oldStudentUiNavPaths'
 import { getOldStudentUiUrlForPath } from '@/utils/authRedirect'
-import { fetchNavbarBadgeCounts } from '@/server/navbar/fetchNavbarBadgeCounts'
-
-/** Same cadence as `AppNavbar` / legacy `REFETCH_INTERVAL`. */
-const BADGE_REFETCH_MS = 2 * 60 * 1000
 
 function navigateToOldStudentPath(path: string) {
   const url = getOldStudentUiUrlForPath(path)
@@ -34,20 +29,10 @@ function activeTabIdForPathname(pathname: string): string | undefined {
   return undefined
 }
 
-function ChatTabIcon({ chatUnread }: { chatUnread: number }) {
-  const count = chatUnread > 0 ? chatUnread : 0
-  const display = count > 9 ? '9+' : String(count)
-  const badge =
-    count > 0 ? (
-      <span className="pointer-events-none absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-0.5 font-poppins text-[10px] leading-none font-medium text-white">
-        {display}
-      </span>
-    ) : null
-
+function ChatTabIcon() {
   return (
     <span className="relative inline-flex items-center justify-center text-current">
       <MessagesSquare strokeWidth={1.75} className="size-6 shrink-0 text-current" />
-      {badge}
     </span>
   )
 }
@@ -55,15 +40,6 @@ function ChatTabIcon({ chatUnread }: { chatUnread: number }) {
 export default function AppMobileTabBar() {
   const pathname = useRouterState({ select: (s) => s.location.pathname })
   const activeId = activeTabIdForPathname(pathname)
-
-  const { data: badgeCounts } = useQuery({
-    queryKey: ['navbarBadgeCounts'],
-    queryFn: () => fetchNavbarBadgeCounts(),
-    refetchInterval: import.meta.env.DEV ? false : BADGE_REFETCH_MS,
-    refetchIntervalInBackground: false,
-  })
-
-  const chatUnread = badgeCounts?.chatUnread ?? 0
 
   const items = useMemo(
     () => [
@@ -91,7 +67,7 @@ export default function AppMobileTabBar() {
       {
         id: 'chat',
         label: 'Chat',
-        icon: <ChatTabIcon chatUnread={chatUnread} />,
+        icon: <ChatTabIcon />,
         isActive: activeId === 'chat',
         onClick: () => navigateToOldStudentPath(OLD_STUDENT_UI_NAV_PATHS.chat),
       },
@@ -103,7 +79,7 @@ export default function AppMobileTabBar() {
         onClick: () => navigateToOldStudentPath(OLD_STUDENT_UI_NAV_PATHS.profileSettings),
       },
     ],
-    [activeId, chatUnread],
+    [activeId],
   )
 
   return (
