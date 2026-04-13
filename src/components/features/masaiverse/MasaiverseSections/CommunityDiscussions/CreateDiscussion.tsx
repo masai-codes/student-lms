@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { DiscussionPostCardComposer } from '@/components/discussion-post-card'
 
 type CreateDiscussionProps = {
@@ -15,6 +15,7 @@ const CreateDiscussion = ({
   currentUserProfileImage,
 }: CreateDiscussionProps) => {
   const [content, setContent] = useState('')
+  const [isDesktop, setIsDesktop] = useState(false)
 
   const getFallbackAvatar = (name: string) => {
     const initials = name
@@ -35,6 +36,14 @@ const CreateDiscussion = ({
     setContent('')
   }
 
+  useEffect(() => {
+    const mediaQuery = window.matchMedia('(min-width: 768px)')
+    const sync = () => setIsDesktop(mediaQuery.matches)
+    sync()
+    mediaQuery.addEventListener('change', sync)
+    return () => mediaQuery.removeEventListener('change', sync)
+  }, [])
+
   return (
     <DiscussionPostCardComposer
       profileImage={currentUserProfileImage ?? getFallbackAvatar(currentUserName)}
@@ -43,6 +52,11 @@ const CreateDiscussion = ({
       onReplySubmit={() => {
         void handleSubmit()
       }}
+      placeholder={
+        isDesktop
+          ? 'Share your thoughts with the community'
+          : 'Share your thoughts'
+      }
     />
   )
 }

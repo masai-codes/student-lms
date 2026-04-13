@@ -161,6 +161,7 @@ export default function MasaiverseDiscussionPostDrawer({
               replyText={replyText}
               onReplyTextChange={onReplyTextChange}
               onReplySubmit={onReplySubmit}
+              placeholder="Type your response here"
             />
           </div>
         </Dialog.Content>
