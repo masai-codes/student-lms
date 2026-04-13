@@ -12,6 +12,7 @@ export function getOldStudentUiUrlForPath(path: string): string | undefined {
   const normalizedPath = path.startsWith("/") ? path : `/${path}`;
   return `${normalizedBase}${normalizedPath}`;
 }
+
 export function redirectToOldStudentUi() {
   const studentUiUrl = getOldStudentUiUrl();
 
