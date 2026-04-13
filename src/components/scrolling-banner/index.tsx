@@ -1,6 +1,8 @@
 "use client";
 
 import * as React from "react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 import type { ScrollingBannerProps } from "./types";
 
@@ -10,6 +12,23 @@ function toCssSize(value: number | string | undefined) {
   }
 
   return value;
+}
+
+function getCollapsedPreview(markdown: string, limit: number): string {
+  const withoutMarkdownSyntax = markdown
+    .replace(/```[\s\S]*?```/g, " ")
+    .replace(/`([^`]+)`/g, "$1")
+    .replace(/!\[([^\]]*)\]\(([^)]+)\)/g, "$1")
+    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, "$1")
+    .replace(/[*_>#-]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+
+  if (withoutMarkdownSyntax.length <= limit) {
+    return withoutMarkdownSyntax;
+  }
+
+  return `${withoutMarkdownSyntax.slice(0, limit).trimEnd()}...`;
 }
 
 export function ScrollingBanner({
@@ -125,7 +144,7 @@ export function ScrollingBanner({
               const isExpanded = Boolean(expandedItems[itemKey]);
               const visibleContent =
                 hasLongContent && !isExpanded
-                  ? `${contentText.slice(0, CONTENT_TRUNCATE_LIMIT).trimEnd()}...`
+                  ? getCollapsedPreview(contentText, CONTENT_TRUNCATE_LIMIT)
                   : contentText;
               const hasCtaText = (item.ctaText ?? "").trim().length > 0;
               const hasCtaLink = (item.ctaLink ?? "").trim().length > 0;
@@ -142,9 +161,15 @@ export function ScrollingBanner({
                 <h3 className="text-[15px] font-[600] leading-[22px] text-[#111928]">
                   {item.heading}
                 </h3>
-                <p className="text-[13px] font-[400] leading-[20px] text-[#4B5563]">
-                  {visibleContent}
-                </p>
+                <div className="banner-markdown text-[13px] font-[400] leading-[20px] text-[#4B5563]">
+                  {hasLongContent && !isExpanded ? (
+                    <p>{visibleContent}</p>
+                  ) : (
+                    <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                      {visibleContent}
+                    </ReactMarkdown>
+                  )}
+                </div>
                 {hasLongContent ? (
                   <button
                     type="button"
@@ -187,6 +212,24 @@ export function ScrollingBanner({
           width: 0;
           height: 0;
           display: none;
+        }
+
+        .banner-markdown :global(p) {
+          margin: 0;
+        }
+
+        .banner-markdown :global(ul),
+        .banner-markdown :global(ol) {
+          margin: 0.25rem 0;
+          padding-left: 1rem;
+        }
+
+        .banner-markdown :global(ul) {
+          list-style: disc;
+        }
+
+        .banner-markdown :global(ol) {
+          list-style: decimal;
         }
       `}</style>
     </section>
