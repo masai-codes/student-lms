@@ -1,24 +1,36 @@
 /**
- * Formats post/reply timestamps in a social-feed style using the user's local timezone.
+ * Formats post/reply timestamps in a social-feed style using IST.
  * See docs/masaiverse-discussion-relative-time.md for the full rules.
  */
 
-function isSameLocalCalendarDay(a: Date, b: Date): boolean {
-  return (
-    a.getFullYear() === b.getFullYear() &&
-    a.getMonth() === b.getMonth() &&
-    a.getDate() === b.getDate()
-  )
+const IST_TIME_ZONE = 'Asia/Kolkata'
+
+function getIstDayId(date: Date): string {
+  return new Intl.DateTimeFormat('en-CA', {
+    timeZone: IST_TIME_ZONE,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).format(date)
 }
 
-function isLocalCalendarYesterday(post: Date, now: Date): boolean {
-  const postDay = new Date(post.getFullYear(), post.getMonth(), post.getDate()).getTime()
-  const nowDay = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime()
-  return nowDay - postDay === 86400000
+function isSameIstCalendarDay(a: Date, b: Date): boolean {
+  return getIstDayId(a) === getIstDayId(b)
+}
+
+function getUtcMidnightFromIstDayId(dayId: string): number {
+  return new Date(`${dayId}T00:00:00.000Z`).getTime()
+}
+
+function isIstCalendarYesterday(post: Date, now: Date): boolean {
+  const postDayUtcMidnight = getUtcMidnightFromIstDayId(getIstDayId(post))
+  const nowDayUtcMidnight = getUtcMidnightFromIstDayId(getIstDayId(now))
+  return nowDayUtcMidnight - postDayUtcMidnight === 86400000
 }
 
 function formatClock12h(d: Date): string {
-  return d.toLocaleTimeString(undefined, {
+  return d.toLocaleTimeString('en-IN', {
+    timeZone: IST_TIME_ZONE,
     hour: '2-digit',
     minute: '2-digit',
     hour12: true,
@@ -57,7 +69,7 @@ export function formatSocialPostTime(value: string | null, now: Date = new Date(
     return minutes === 1 ? '1 minute ago' : `${minutes} minutes ago`
   }
 
-  const sameDay = isSameLocalCalendarDay(post, now)
+  const sameDay = isSameIstCalendarDay(post, now)
 
   if (sameDay) {
     const hours = Math.floor(diffSec / 3600)
@@ -67,7 +79,7 @@ export function formatSocialPostTime(value: string | null, now: Date = new Date(
     return `Today at ${formatClock12h(post)}`
   }
 
-  if (isLocalCalendarYesterday(post, now)) {
+  if (isIstCalendarYesterday(post, now)) {
     return `Yesterday at ${formatClock12h(post)}`
   }
 
@@ -82,5 +94,5 @@ export function formatSocialPostTime(value: string | null, now: Date = new Date(
   if (includeYear) {
     opts.year = 'numeric'
   }
-  return post.toLocaleString(undefined, opts)
+  return post.toLocaleString('en-IN', { ...opts, timeZone: IST_TIME_ZONE })
 }
