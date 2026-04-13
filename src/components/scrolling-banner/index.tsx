@@ -15,23 +15,6 @@ function toCssSize(value: number | string | undefined) {
   return value;
 }
 
-function getCollapsedPreview(markdown: string, limit: number): string {
-  const withoutMarkdownSyntax = markdown
-    .replace(/```[\s\S]*?```/g, " ")
-    .replace(/`([^`]+)`/g, "$1")
-    .replace(/!\[([^\]]*)\]\(([^)]+)\)/g, "$1")
-    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, "$1")
-    .replace(/[*_>#-]/g, " ")
-    .replace(/\s+/g, " ")
-    .trim();
-
-  if (withoutMarkdownSyntax.length <= limit) {
-    return withoutMarkdownSyntax;
-  }
-
-  return `${withoutMarkdownSyntax.slice(0, limit).trimEnd()}...`;
-}
-
 const markdownComponents: Components = {
   p: ({ children }) => <p className="m-0 whitespace-pre-wrap">{children}</p>,
   ul: ({ children }) => (
@@ -60,7 +43,10 @@ export function ScrollingBanner({
   const scrollContainerRef = React.useRef<HTMLDivElement | null>(null);
   const isHoveredRef = React.useRef(false);
   const safeItems = React.useMemo(() => items.filter(Boolean), [items]);
-  const [expandedItems, setExpandedItems] = React.useState<Record<string, boolean>>({});
+  const [activeModalItem, setActiveModalItem] = React.useState<{
+    heading: string;
+    content: string;
+  } | null>(null);
 
   const containerStyle: React.CSSProperties = {
     maxHeight: toCssSize(maxHeight),
@@ -152,14 +138,9 @@ export function ScrollingBanner({
           <span className="pointer-events-none absolute inset-y-0 left-8 w-[2px] -translate-x-1/2 bg-[#D1D5DB]" />
           {safeItems.map((item, index) => (
             (() => {
-              const itemKey = `${item.id ?? item.heading}-${index}`;
+              const itemKey = `${item.id ?? item.heading ?? `item-${index}`}-${index}`;
               const contentText = item.content ?? "";
               const hasLongContent = contentText.length > CONTENT_TRUNCATE_LIMIT;
-              const isExpanded = Boolean(expandedItems[itemKey]);
-              const visibleContent =
-                hasLongContent && !isExpanded
-                  ? getCollapsedPreview(contentText, CONTENT_TRUNCATE_LIMIT)
-                  : contentText;
               const hasCtaText = (item.ctaText ?? "").trim().length > 0;
               const hasCtaLink = (item.ctaLink ?? "").trim().length > 0;
 
@@ -175,30 +156,30 @@ export function ScrollingBanner({
                 <h3 className="text-[15px] font-[600] leading-[22px] text-[#111928]">
                   {item.heading}
                 </h3>
-                <div className="banner-markdown text-[13px] font-[400] leading-[20px] text-[#4B5563]">
-                  {hasLongContent && !isExpanded ? (
-                    <p>{visibleContent}</p>
-                  ) : (
-                    <ReactMarkdown
-                      remarkPlugins={[remarkGfm]}
-                      components={markdownComponents}
-                    >
-                      {visibleContent}
-                    </ReactMarkdown>
-                  )}
+                <div
+                  className={`banner-markdown text-[13px] font-[400] leading-[20px] text-[#4B5563] ${
+                    hasLongContent ? "max-h-[88px] overflow-hidden" : ""
+                  }`}
+                >
+                  <ReactMarkdown
+                    remarkPlugins={[remarkGfm]}
+                    components={markdownComponents}
+                  >
+                    {contentText}
+                  </ReactMarkdown>
                 </div>
                 {hasLongContent ? (
                   <button
                     type="button"
                     className="inline-flex w-fit text-[12px] font-[500] leading-[18px] text-[#EF8833] hover:text-[#DC7A2D]"
                     onClick={() => {
-                      setExpandedItems((prev) => ({
-                        ...prev,
-                        [itemKey]: !Boolean(prev[itemKey]),
-                      }));
+                      setActiveModalItem({
+                        heading: item.heading,
+                        content: contentText,
+                      });
                     }}
                   >
-                    {isExpanded ? "View less" : "View more"}
+                    View more
                   </button>
                 ) : null}
                 {hasCtaText && hasCtaLink ? (
@@ -219,6 +200,44 @@ export function ScrollingBanner({
           ))}
         </div>
       </div>
+      {activeModalItem ? (
+        <div
+          className="fixed inset-0 z-[1000] flex items-center justify-center bg-black/50 px-4"
+          onClick={() => {
+            setActiveModalItem(null);
+          }}
+        >
+          <div
+            className="w-full max-w-[640px] max-h-[80vh] overflow-y-auto rounded-[12px] bg-white p-5 shadow-xl"
+            onClick={(event) => {
+              event.stopPropagation();
+            }}
+          >
+            <div className="mb-3 flex items-start justify-between gap-4">
+              <h3 className="text-[16px] font-[600] leading-[24px] text-[#111928]">
+                {activeModalItem.heading}
+              </h3>
+              <button
+                type="button"
+                className="rounded-md px-2 py-1 text-[13px] font-[500] text-[#6B7280] hover:bg-[#F3F4F6] hover:text-[#111928]"
+                onClick={() => {
+                  setActiveModalItem(null);
+                }}
+              >
+                Close
+              </button>
+            </div>
+            <div className="banner-markdown text-[14px] font-[400] leading-[22px] text-[#374151]">
+              <ReactMarkdown
+                remarkPlugins={[remarkGfm]}
+                components={markdownComponents}
+              >
+                {activeModalItem.content}
+              </ReactMarkdown>
+            </div>
+          </div>
+        </div>
+      ) : null}
       <style jsx>{`
         .no-scrollbar {
           -ms-overflow-style: none;
