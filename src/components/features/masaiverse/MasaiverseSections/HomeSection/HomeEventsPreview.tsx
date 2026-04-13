@@ -8,6 +8,7 @@ import {
 } from '@/constants/masaiverseDrawerUi'
 import { ChevronRight } from 'lucide-react'
 import { mapEventToCardProps } from '@/components/features/masaiverse/MasaiverseSections/cardDataMappers'
+import { Swiper, SwiperSlide } from 'swiper/react'
 
 type HomeEventsPreviewProps = {
   isLoading: boolean
@@ -52,69 +53,79 @@ const HomeEventsPreview = ({
           No events available right now.
         </p>
       ) : (
-        <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-2">
-          {eventsList.slice(0, 2).map((event) => {
-            const isEnrolled = enrolledEventIds.includes(event.id)
-            const eventCardProps = mapEventToCardProps(event)
-            const eventEndTime = event.endTime
-              ? new Date(event.endTime).getTime()
-              : Number.POSITIVE_INFINITY
-            const isPastEvent =
-              Number.isFinite(eventEndTime) && eventEndTime < Date.now()
-            const isOfflineEvent = event.mode === 'offline'
-            const enrolledRedirectLink = isOfflineEvent
-              ? event.locationMapLink
-              : event.eventLink
-            const enrolledCtaText = isOfflineEvent
-              ? 'View Location'
-              : 'Open Link'
+        <div className="relative mt-4 overflow-hidden">
+          <Swiper
+            spaceBetween={16}
+            slidesPerView={1.5}
+            breakpoints={{
+              768: {
+                slidesPerView: 2,
+              },
+            }}
+            className="w-full px-2 [&_.swiper-wrapper]:items-stretch [&_.swiper-slide]:!h-auto"
+          >
+            {eventsList.slice(0, 2).map((event) => {
+              const isEnrolled = enrolledEventIds.includes(event.id)
+              const eventCardProps = mapEventToCardProps(event)
+              const eventEndTime = event.endTime
+                ? new Date(event.endTime).getTime()
+                : Number.POSITIVE_INFINITY
+              const isPastEvent =
+                Number.isFinite(eventEndTime) && eventEndTime < Date.now()
+              const isOfflineEvent = event.mode === 'offline'
+              const enrolledRedirectLink = isOfflineEvent
+                ? event.locationMapLink
+                : event.eventLink
+              const enrolledCtaText = isOfflineEvent
+                ? 'View Location'
+                : 'Open Link'
 
-            return (
-              <div
-                key={event.id}
-                className="min-w-0 w-full [&>div]:!max-w-none"
-              >
-                <EventCard
-                {...eventCardProps}
-                isActive={!isPastEvent && eventCardProps.isActive}
-                drawerBottomInsetClassName={MASAIVERSE_MOBILE_TAB_DRAWER_CONTENT_INSET}
-                drawerBodyClassName={MASAIVERSE_DRAWER_SCROLL_BODY_PADDING}
-                drawerPinFooter
-                drawerFooterClassName={MASAIVERSE_MOBILE_TAB_DRAWER_FOOTER_INSET}
-                cardCtaText="View Details"
-                drawerCtaText={
-                  isPastEvent
-                    ? 'View Details'
-                    : isEnrolled
-                      ? enrolledRedirectLink
-                        ? enrolledCtaText
-                        : 'Enrolled'
-                      : 'Enroll'
-                }
-                hideDrawerCta={isPastEvent}
-                onCtaClick={
-                  isPastEvent
-                    ? undefined
-                    : isEnrolled
-                      ? enrolledRedirectLink
-                        ? () => {
-                            window.open(
-                              enrolledRedirectLink,
-                              '_blank',
-                              'noopener,noreferrer',
-                            )
-                          }
-                        : undefined
-                      : joiningEventId
-                        ? undefined
-                        : () => {
-                            onEventEnroll(event.id)
-                          }
-                }
-              />
-              </div>
-            )
-          })}
+              return (
+                <SwiperSlide key={event.id} className="!flex !h-auto">
+                  <div className="min-w-0 w-full [&>div]:!max-w-none">
+                    <EventCard
+                      {...eventCardProps}
+                      isActive={!isPastEvent && eventCardProps.isActive}
+                      drawerBottomInsetClassName={MASAIVERSE_MOBILE_TAB_DRAWER_CONTENT_INSET}
+                      drawerBodyClassName={MASAIVERSE_DRAWER_SCROLL_BODY_PADDING}
+                      drawerPinFooter
+                      drawerFooterClassName={MASAIVERSE_MOBILE_TAB_DRAWER_FOOTER_INSET}
+                      cardCtaText="View Details"
+                      drawerCtaText={
+                        isPastEvent
+                          ? 'View Details'
+                          : isEnrolled
+                            ? enrolledRedirectLink
+                              ? enrolledCtaText
+                              : 'Enrolled'
+                            : 'Enroll'
+                      }
+                      hideDrawerCta={isPastEvent}
+                      onCtaClick={
+                        isPastEvent
+                          ? undefined
+                          : isEnrolled
+                            ? enrolledRedirectLink
+                              ? () => {
+                                  window.open(
+                                    enrolledRedirectLink,
+                                    '_blank',
+                                    'noopener,noreferrer',
+                                  )
+                                }
+                              : undefined
+                            : joiningEventId
+                              ? undefined
+                              : () => {
+                                  onEventEnroll(event.id)
+                                }
+                      }
+                    />
+                  </div>
+                </SwiperSlide>
+              )
+            })}
+          </Swiper>
         </div>
       )}
     </div>
