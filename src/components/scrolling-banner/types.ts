@@ -13,6 +13,7 @@ export type ScrollingBannerProps = {
   className?: string;
   maxHeight?: number | string;
   maxWidth?: number | string;
+  autoScroll?: boolean;
   itemDurationSeconds?: number;
   pauseOnHover?: boolean;
   allowManualScroll?: boolean;

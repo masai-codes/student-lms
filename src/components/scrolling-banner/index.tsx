@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import ReactMarkdown from "react-markdown";
+import type { Components } from "react-markdown";
 import remarkGfm from "remark-gfm";
 
 import type { ScrollingBannerProps } from "./types";
@@ -31,12 +32,25 @@ function getCollapsedPreview(markdown: string, limit: number): string {
   return `${withoutMarkdownSyntax.slice(0, limit).trimEnd()}...`;
 }
 
+const markdownComponents: Components = {
+  p: ({ children }) => <p className="m-0 whitespace-pre-wrap">{children}</p>,
+  ul: ({ children }) => (
+    <ul className="my-1 list-outside list-disc space-y-1 pl-5">{children}</ul>
+  ),
+  ol: ({ children }) => (
+    <ol className="my-1 list-outside list-decimal space-y-1 pl-5">{children}</ol>
+  ),
+  li: ({ children }) => <li className="marker:text-[#4B5563]">{children}</li>,
+  strong: ({ children }) => <strong className="font-semibold text-[#111928]">{children}</strong>,
+};
+
 export function ScrollingBanner({
   items,
   bannerHeading,
   className = "",
   maxHeight,
   maxWidth,
+  autoScroll = true,
   itemDurationSeconds = 3,
   pauseOnHover = true,
   allowManualScroll = true,
@@ -55,7 +69,7 @@ export function ScrollingBanner({
 
   React.useEffect(() => {
     const container = scrollContainerRef.current;
-    if (!container || safeItems.length === 0) {
+    if (!autoScroll || !container || safeItems.length === 0) {
       return;
     }
 
@@ -98,7 +112,7 @@ export function ScrollingBanner({
     return () => {
       window.cancelAnimationFrame(frameId);
     };
-  }, [safeItems.length, itemDurationSeconds, pauseOnHover]);
+  }, [autoScroll, safeItems.length, itemDurationSeconds, pauseOnHover]);
 
   if (!safeItems.length) {
     return (
@@ -165,7 +179,10 @@ export function ScrollingBanner({
                   {hasLongContent && !isExpanded ? (
                     <p>{visibleContent}</p>
                   ) : (
-                    <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                    <ReactMarkdown
+                      remarkPlugins={[remarkGfm]}
+                      components={markdownComponents}
+                    >
                       {visibleContent}
                     </ReactMarkdown>
                   )}
@@ -214,23 +231,6 @@ export function ScrollingBanner({
           display: none;
         }
 
-        .banner-markdown :global(p) {
-          margin: 0;
-        }
-
-        .banner-markdown :global(ul),
-        .banner-markdown :global(ol) {
-          margin: 0.25rem 0;
-          padding-left: 1rem;
-        }
-
-        .banner-markdown :global(ul) {
-          list-style: disc;
-        }
-
-        .banner-markdown :global(ol) {
-          list-style: decimal;
-        }
       `}</style>
     </section>
   );
