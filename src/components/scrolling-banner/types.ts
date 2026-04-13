@@ -2,8 +2,8 @@ export type ScrollingBannerItem = {
   id?: string;
   heading: string;
   content: string;
-  ctaText: string;
-  ctaLink: string;
+  ctaText?: string;
+  ctaLink?: string;
   openInNewTab?: boolean;
 };
 
@@ -16,6 +16,5 @@ export type ScrollingBannerProps = {
   itemDurationSeconds?: number;
   pauseOnHover?: boolean;
   allowManualScroll?: boolean;
-  autoScroll?: boolean;
   ariaLabel?: string;
 };

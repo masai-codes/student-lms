@@ -34,8 +34,8 @@ export type MasaiverseBannerType = {
   id: string
   title: string
   description: string
-  ctaText: string
-  ctaUrl: string
+  ctaText?: string
+  ctaUrl?: string
 }
 
 export const fetchMasaiverseBanners = createServerFn({ method: 'GET' }).handler(async () => {
@@ -59,8 +59,8 @@ export const fetchMasaiverseBanners = createServerFn({ method: 'GET' }).handler(
       id: row.id,
       title: row.title,
       description: row.description ?? '',
-      ctaText: row.ctaText?.trim() || 'Know more',
-      ctaUrl: row.ctaUrl?.trim() || '#',
+      ctaText: row.ctaText?.trim() || undefined,
+      ctaUrl: row.ctaUrl?.trim() || undefined,
     }))
   } catch (err) {
     console.error('🔥 Server/DB error', err)
