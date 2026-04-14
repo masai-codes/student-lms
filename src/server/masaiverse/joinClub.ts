@@ -6,55 +6,57 @@ import { getCurrentSessionUserId } from '@/server/auth/getCurrentSessionUserId'
 
 export const joinClub = createServerFn({ method: 'POST' })
   .inputValidator((data: { clubId: string }) => data)
-  .handler(async ({ data }) => {
-    const userId = await getCurrentSessionUserId()
-    if (!userId) {
-      throw new Error('UNAUTHORIZED')
-    }
+  .handler(joinClubHandler)
 
-    const clubId = data.clubId.trim()
-    if (!clubId) {
-      throw new Error('INVALID_CLUB_ID')
-    }
+export async function joinClubHandler({ data }: { data: { clubId: string } }) {
+  const userId = await getCurrentSessionUserId()
+  if (!userId) {
+    throw new Error('UNAUTHORIZED')
+  }
 
-    const club = await db
-      .select({ id: clubs.id })
-      .from(clubs)
-      .where(eq(clubs.id, clubId))
-      .limit(1)
+  const clubId = data.clubId.trim()
+  if (!clubId) {
+    throw new Error('INVALID_CLUB_ID')
+  }
 
-    if (!club[0]) {
-      throw new Error('CLUB_NOT_FOUND')
-    }
+  const club = await db
+    .select({ id: clubs.id })
+    .from(clubs)
+    .where(eq(clubs.id, clubId))
+    .limit(1)
 
-    const existingMembership = await db
-      .select({ clubId: clubMembers.clubId })
-      .from(clubMembers)
-      .where(eq(clubMembers.userId, userId))
-      .limit(1)
+  if (!club[0]) {
+    throw new Error('CLUB_NOT_FOUND')
+  }
 
-    const joinedClubId = existingMembership[0]?.clubId ?? null
+  const existingMembership = await db
+    .select({ clubId: clubMembers.clubId })
+    .from(clubMembers)
+    .where(eq(clubMembers.userId, userId))
+    .limit(1)
 
-    if (joinedClubId) {
-      return {
-        success: joinedClubId === clubId,
-        joinedClubId,
-        reason: 'ALREADY_JOINED_A_CLUB',
-      }
-    }
+  const joinedClubId = existingMembership[0]?.clubId ?? null
 
-    await db
-      .insert(clubMembers)
-      .values({
-        id: sql`UUID()` as unknown as string,
-        userId,
-        clubId,
-        role: 'member',
-      })
-
+  if (joinedClubId) {
     return {
-      success: true,
-      joinedClubId: clubId,
-      reason: 'JOINED',
+      success: joinedClubId === clubId,
+      joinedClubId,
+      reason: 'ALREADY_JOINED_A_CLUB',
     }
-  })
+  }
+
+  await db
+    .insert(clubMembers)
+    .values({
+      id: sql`UUID()` as unknown as string,
+      userId,
+      clubId,
+      role: 'member',
+    })
+
+  return {
+    success: true,
+    joinedClubId: clubId,
+    reason: 'JOINED',
+  }
+}

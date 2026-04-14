@@ -4,7 +4,11 @@ import { db } from '@/db'
 import { eventEnrollments } from '@/db/schema'
 import { getCurrentSessionUserId } from '@/server/auth/getCurrentSessionUserId'
 
-export const fetchMyEventEnrollments = createServerFn({ method: 'GET' }).handler(async () => {
+export const fetchMyEventEnrollments = createServerFn({ method: 'GET' }).handler(
+  fetchMyEventEnrollmentsHandler,
+)
+
+export async function fetchMyEventEnrollmentsHandler() {
   const userId = await getCurrentSessionUserId()
   if (!userId) return []
 
@@ -14,4 +18,4 @@ export const fetchMyEventEnrollments = createServerFn({ method: 'GET' }).handler
     .where(eq(eventEnrollments.userId, userId))
 
   return rows.map((row) => row.eventId)
-})
+}

@@ -22,19 +22,21 @@ function normalizeMeta(meta: unknown): BatchMeta {
 
 export const showMasaiversePage = createServerFn({ method: "GET" })
   .inputValidator((data: { userId: number }) => data)
-  .handler(async ({ data }) => {
-    const userBatchRows = await db
-      .select({ batchId: batchUser.batchId })
-      .from(batchUser)
-      .where(eq(batchUser.userId, data.userId));
+  .handler(showMasaiversePageHandler);
 
-    if (!userBatchRows.length) return false;
+export async function showMasaiversePageHandler({ data }: { data: { userId: number } }) {
+  const userBatchRows = await db
+    .select({ batchId: batchUser.batchId })
+    .from(batchUser)
+    .where(eq(batchUser.userId, data.userId));
 
-    const batchIds = userBatchRows.map((row) => row.batchId);
-    const batchMetaRows = await db
-      .select({ meta: batches.meta })
-      .from(batches)
-      .where(inArray(batches.id, batchIds));
+  if (!userBatchRows.length) return false;
 
-    return batchMetaRows.some((row) => normalizeMeta(row.meta).show_masaiverse === true);
-  });
+  const batchIds = userBatchRows.map((row) => row.batchId);
+  const batchMetaRows = await db
+    .select({ meta: batches.meta })
+    .from(batches)
+    .where(inArray(batches.id, batchIds));
+
+  return batchMetaRows.some((row) => normalizeMeta(row.meta).show_masaiverse === true);
+}

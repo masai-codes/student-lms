@@ -13,7 +13,9 @@ export type ClubType = Omit<ClubRow, "meta"> & {
   meta: ClubMeta | null
 }
 
-export const fetchAllClubs = createServerFn({ method: "GET" }).handler(async () => {
+export const fetchAllClubs = createServerFn({ method: "GET" }).handler(fetchAllClubsHandler)
+
+export async function fetchAllClubsHandler() {
   try {
     const clubsData = await db.select().from(clubs).orderBy(desc(clubs.createdAt))
 
@@ -25,4 +27,4 @@ export const fetchAllClubs = createServerFn({ method: "GET" }).handler(async () 
     console.error("🔥 Server/DB error", err)
     throw new Error("SERVER_ERROR_FETCHING_CLUBS")
   }
-})
+}
