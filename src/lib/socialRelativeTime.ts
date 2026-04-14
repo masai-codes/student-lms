@@ -1,3 +1,5 @@
+import { parseServerTimestamp } from './parseServerTimestamp'
+
 /**
  * Formats post/reply timestamps in a social-feed style using IST.
  * See docs/masaiverse-discussion-relative-time.md for the full rules.
@@ -48,8 +50,8 @@ export function formatSocialPostTime(value: string | null, now: Date = new Date(
     return 'Just now'
   }
 
-  const post = new Date(value)
-  if (Number.isNaN(post.getTime())) {
+  const post = parseServerTimestamp(value, { nowMs: now.getTime() })
+  if (!post) {
     return 'Just now'
   }
 

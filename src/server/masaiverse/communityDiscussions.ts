@@ -4,10 +4,17 @@ import { db } from '@/db'
 import { getCurrentSessionUserId } from '@/server/auth/getCurrentSessionUserId'
 import { clubMembers } from '@/db/schema'
 import { pushNotificationService } from '@/server/pushNotifications/pushNotification.service'
+import { parseServerTimestamp } from '@/lib/parseServerTimestamp'
 
 type VoteValue = 'upvote' | 'downvote'
 export type DiscussionSortMode = 'hot' | 'top' | 'new'
 export type DiscussionEntityId = string | number
+const UTC_SQL_NOW = sql`UTC_TIMESTAMP()`
+
+function normalizeTimestampForClient(value: string | null): string | null {
+  const parsed = parseServerTimestamp(value)
+  return parsed ? parsed.toISOString() : null
+}
 
 export type DiscussionReply = {
   id: DiscussionEntityId
@@ -296,7 +303,7 @@ export const fetchCommunityDiscussions = createServerFn({ method: 'GET' })
       id: replyRow.id,
       postId: replyRow.postId,
       content: replyRow.content ?? '',
-      createdAt: replyRow.createdAt ?? null,
+      createdAt: normalizeTimestampForClient(replyRow.createdAt ?? null),
       authorName: replyRow.authorName,
       authorProfileImage: replyRow.authorProfileImage ?? null,
       upvotes: voteStats.upvotes,
@@ -319,19 +326,19 @@ export const fetchCommunityDiscussions = createServerFn({ method: 'GET' })
     }
     const replies = replyByPostId.get(String(postRow.id)) ?? []
     const now = Date.now()
-    const postCreatedAtMs = postRow.createdAt ? new Date(postRow.createdAt).getTime() : now
+    const postCreatedAtMs = parseServerTimestamp(postRow.createdAt)?.getTime() ?? now
     const postAgeHours = Math.max(
       0,
       Number.isFinite(postCreatedAtMs) ? (now - postCreatedAtMs) / (1000 * 60 * 60) : 0,
     )
     const latestReplyMs = replies.reduce((latest, reply) => {
       if (!reply.createdAt) return latest
-      const parsed = new Date(reply.createdAt).getTime()
+      const parsed = parseServerTimestamp(reply.createdAt)?.getTime() ?? Number.NaN
       return Number.isFinite(parsed) ? Math.max(latest, parsed) : latest
     }, Number.isFinite(postCreatedAtMs) ? postCreatedAtMs : now)
     const latestVoteMs = postVotes.reduce((latest, vote) => {
       if (String(vote.postId) !== String(postRow.id) || !vote.createdAt) return latest
-      const parsed = new Date(vote.createdAt).getTime()
+      const parsed = parseServerTimestamp(vote.createdAt)?.getTime() ?? Number.NaN
       return Number.isFinite(parsed) ? Math.max(latest, parsed) : latest
     }, Number.isFinite(postCreatedAtMs) ? postCreatedAtMs : now)
     const lastActivityMs = Math.max(
@@ -358,7 +365,7 @@ export const fetchCommunityDiscussions = createServerFn({ method: 'GET' })
     return {
       id: postRow.id,
       content: postRow.content ?? '',
-      createdAt: postRow.createdAt ?? null,
+      createdAt: normalizeTimestampForClient(postRow.createdAt ?? null),
       authorName: postRow.authorName,
       authorProfileImage: postRow.authorProfileImage ?? null,
       upvotes: voteStats.upvotes,
@@ -382,8 +389,8 @@ export const fetchCommunityDiscussions = createServerFn({ method: 'GET' })
 
   sortedPosts.sort((a, b) => {
     if (sortBy === 'new') {
-      const aMs = a.createdAt ? new Date(a.createdAt).getTime() : 0
-      const bMs = b.createdAt ? new Date(b.createdAt).getTime() : 0
+      const aMs = parseServerTimestamp(a.createdAt)?.getTime() ?? 0
+      const bMs = parseServerTimestamp(b.createdAt)?.getTime() ?? 0
       return bMs - aMs
     }
     if (sortBy === 'top') {
@@ -429,7 +436,7 @@ export const createCommunityPost = createServerFn({ method: 'POST' })
 
     await db.execute(sql`
       INSERT INTO posts (club_id, user_id, content, created_at, updated_at)
-      VALUES (${joinedClubId}, ${userId}, ${content}, NOW(), NOW())
+      VALUES (${joinedClubId}, ${userId}, ${content}, ${UTC_SQL_NOW}, ${UTC_SQL_NOW})
     `)
 
     return { success: true }
@@ -468,7 +475,7 @@ export const createCommunityReply = createServerFn({ method: 'POST' })
 
     await db.execute(sql`
       INSERT INTO replies (post_id, user_id, content, created_at, updated_at)
-      VALUES (${normalizedPostId}, ${userId}, ${content}, NOW(), NOW())
+      VALUES (${normalizedPostId}, ${userId}, ${content}, ${UTC_SQL_NOW}, ${UTC_SQL_NOW})
     `)
 
     const post = postRows[0]
@@ -534,7 +541,7 @@ async function applyPostVote(
   if (existing.length === 0) {
     await db.execute(sql`
       INSERT INTO votes (user_id, post_id, vote, created_at)
-      VALUES (${userId}, ${normalizedPostId}, ${voteValue}, NOW())
+      VALUES (${userId}, ${normalizedPostId}, ${voteValue}, ${UTC_SQL_NOW})
     `)
     return { postAuthorId: post.authorId, shouldNotify: true }
   }
@@ -584,7 +591,7 @@ async function applyReplyVote(userId: number, replyId: string, voteValue: VoteVa
   if (existing.length === 0) {
     await db.execute(sql`
       INSERT INTO votes (user_id, reply_id, vote, created_at)
-      VALUES (${userId}, ${replyId}, ${voteValue}, NOW())
+      VALUES (${userId}, ${replyId}, ${voteValue}, ${UTC_SQL_NOW})
     `)
     return
   }
@@ -693,7 +700,7 @@ export const toggleCommunityPostBookmark = createServerFn({ method: 'POST' })
     if (existingBookmark.length === 0) {
       await db.execute(sql`
         INSERT INTO club_post_bookmarks (user_id, post_id, created_at)
-        VALUES (${userId}, ${normalizedPostId}, NOW())
+        VALUES (${userId}, ${normalizedPostId}, ${UTC_SQL_NOW})
       `)
       return { success: true, isBookmarked: true }
     }
