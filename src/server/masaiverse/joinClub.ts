@@ -1,4 +1,4 @@
-import { eq, sql } from 'drizzle-orm'
+import { eq } from 'drizzle-orm'
 import { createServerFn } from '@tanstack/react-start'
 import { db } from '@/db'
 import { clubMembers, clubs } from '@/db/schema'
@@ -14,7 +14,7 @@ export async function joinClubHandler({ data }: { data: { clubId: string } }) {
     throw new Error('UNAUTHORIZED')
   }
 
-  const clubId = data.clubId.trim()
+  const clubId = String(data.clubId).trim()
   if (!clubId) {
     throw new Error('INVALID_CLUB_ID')
   }
@@ -35,7 +35,7 @@ export async function joinClubHandler({ data }: { data: { clubId: string } }) {
     .where(eq(clubMembers.userId, userId))
     .limit(1)
 
-  const joinedClubId = existingMembership[0]?.clubId ?? null
+  const joinedClubId = existingMembership[0]?.clubId ? String(existingMembership[0].clubId) : null
 
   if (joinedClubId) {
     return {
@@ -47,12 +47,8 @@ export async function joinClubHandler({ data }: { data: { clubId: string } }) {
 
   await db
     .insert(clubMembers)
-    .values({
-      id: sql`UUID()` as unknown as string,
-      userId,
-      clubId,
-      role: 'member',
-    })
+    // DB now auto-generates club_members.id (BIGINT AUTO_INCREMENT).
+    .values({ userId, clubId, role: 'member' } as typeof clubMembers.$inferInsert)
 
   return {
     success: true,

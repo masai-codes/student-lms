@@ -1,4 +1,4 @@
-import { and, eq, sql } from 'drizzle-orm'
+import { and, eq } from 'drizzle-orm'
 import { createServerFn } from '@tanstack/react-start'
 import { db } from '@/db'
 import { eventEnrollments, events } from '@/db/schema'
@@ -14,7 +14,7 @@ export async function joinEventHandler({ data }: { data: { eventId: string } }) 
     throw new Error('UNAUTHORIZED')
   }
 
-  const eventId = data.eventId.trim()
+  const eventId = String(data.eventId ?? '').trim()
   if (!eventId) {
     throw new Error('INVALID_EVENT_ID')
   }
@@ -44,10 +44,9 @@ export async function joinEventHandler({ data }: { data: { eventId: string } }) 
   }
 
   await db.insert(eventEnrollments).values({
-    id: sql`UUID()` as unknown as string,
     userId,
     eventId,
-  })
+  } as typeof eventEnrollments.$inferInsert)
 
   return {
     success: true,

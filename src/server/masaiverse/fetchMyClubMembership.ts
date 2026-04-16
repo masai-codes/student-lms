@@ -25,7 +25,7 @@ export async function fetchMyClubMembershipHandler() {
   const normalizedRole = role?.toLowerCase().replace(/[_\s-]+/g, '')
 
   return {
-    joinedClubId: membership[0]?.clubId ?? null,
+    joinedClubId: membership[0]?.clubId != null ? String(membership[0].clubId) : null,
     role,
     isAltLead: normalizedRole === 'altlead',
   }

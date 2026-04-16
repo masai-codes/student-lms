@@ -17,5 +17,8 @@ export async function fetchMyEventEnrollmentsHandler() {
     .from(eventEnrollments)
     .where(eq(eventEnrollments.userId, userId))
 
-  return rows.map((row) => row.eventId)
+  return rows
+    .map((row) => row.eventId)
+    .filter((eventId): eventId is NonNullable<typeof eventId> => eventId != null)
+    .map((eventId) => String(eventId))
 }

@@ -1,4 +1,4 @@
-import { mysqlTable, mysqlSchema, AnyMySqlColumn, primaryKey, varchar, datetime, text, int, index, foreignKey, bigint, longtext, timestamp, date, json, tinyint, unique, mysqlEnum, time, smallint, double, char, decimal, mediumint } from "drizzle-orm/mysql-core"
+import { mysqlTable, mysqlSchema, AnyMySqlColumn, primaryKey, varchar, datetime, text, int, index, foreignKey, bigint, longtext, timestamp, date, json, tinyint, unique, mysqlEnum, time, smallint, double, decimal, char, mediumint } from "drizzle-orm/mysql-core"
 import { sql } from "drizzle-orm"
 
 export const prismaMigrations = mysqlTable("_prisma_migrations", {
@@ -198,10 +198,10 @@ export const aiTutorSessions = mysqlTable("ai_tutor_sessions", {
 	updatedAt: timestamp("updated_at", { mode: 'string' }),
 },
 (table) => [
-	index("ai_tutor_sessions_created_at_index").on(table.createdAt),
-	index("ai_tutor_sessions_lecture_id_index").on(table.lectureId),
-	index("ai_tutor_sessions_unique_id_index").on(table.uniqueId),
 	index("ai_tutor_sessions_user_id_index").on(table.userId),
+	index("ai_tutor_sessions_lecture_id_index").on(table.lectureId),
+	index("ai_tutor_sessions_created_at_index").on(table.createdAt),
+	index("ai_tutor_sessions_unique_id_index").on(table.uniqueId),
 	primaryKey({ columns: [table.id], name: "ai_tutor_sessions_id"}),
 ]);
 
@@ -272,8 +272,8 @@ export const appConfigs = mysqlTable("app_configs", {
 },
 (table) => [
 	index("app_configs_appName_index").on(table.appName),
-	index("app_configs_isActive_index").on(table.isActive),
 	index("app_configs_platform_index").on(table.platform),
+	index("app_configs_isActive_index").on(table.isActive),
 	primaryKey({ columns: [table.id], name: "app_configs_id"}),
 	unique("app_configs_appName_platform_unique").on(table.appName, table.platform),
 ]);
@@ -471,10 +471,10 @@ export const attendances = mysqlTable("attendances", {
 	updatedAt: timestamp("updated_at", { mode: 'string' }),
 },
 (table) => [
-	index("attendances_batch_id_index").on(table.batchId),
 	index("attendances_lecture_id_index").on(table.lectureId),
-	index("attendances_section_id_index").on(table.sectionId),
 	index("attendances_user_id_index").on(table.userId),
+	index("attendances_section_id_index").on(table.sectionId),
+	index("attendances_batch_id_index").on(table.batchId),
 	primaryKey({ columns: [table.id], name: "attendances_id"}),
 	unique("attendances_lecture_id_user_id_key").on(table.lectureId, table.userId),
 ]);
@@ -533,10 +533,10 @@ export const banners = mysqlTable("banners", {
 	updatedAt: timestamp("updated_at", { mode: 'string' }),
 },
 (table) => [
-	index("idx_banners_group_name").on(table.groupName),
-	index("idx_banners_is_active").on(table.isActive),
 	index("idx_banners_type").on(table.type),
 	index("idx_banners_variant").on(table.variant),
+	index("idx_banners_group_name").on(table.groupName),
+	index("idx_banners_is_active").on(table.isActive),
 	primaryKey({ columns: [table.id], name: "banners_id"}),
 	unique("banners_group_name_key").on(table.groupName),
 ]);
@@ -560,11 +560,11 @@ export const batchInfo = mysqlTable("batch_info", {
 },
 (table) => [
 	index("batch_info_batch_id_idx").on(table.batchId),
-	index("batch_info_checker_id_idx").on(table.checkerId),
-	index("batch_info_maker_id_idx").on(table.makerId),
-	index("batch_info_stage_id_idx").on(table.stageId),
-	index("batch_info_status_idx").on(table.status),
 	index("batch_info_type_idx").on(table.type),
+	index("batch_info_maker_id_idx").on(table.makerId),
+	index("batch_info_checker_id_idx").on(table.checkerId),
+	index("batch_info_status_idx").on(table.status),
+	index("batch_info_stage_id_idx").on(table.stageId),
 	primaryKey({ columns: [table.id], name: "batch_info_id"}),
 ]);
 
@@ -578,8 +578,8 @@ export const batchInfoApprovers = mysqlTable("batch_info_approvers", {
 },
 (table) => [
 	index("batch_info_approvers_stage_id_idx").on(table.stageId),
-	index("batch_info_approvers_status_idx").on(table.status),
 	index("batch_info_approvers_user_id_idx").on(table.userId),
+	index("batch_info_approvers_status_idx").on(table.status),
 	primaryKey({ columns: [table.id], name: "batch_info_approvers_id"}),
 	unique("batch_info_approvers_stage_user_unique").on(table.stageId, table.userId),
 ]);
@@ -596,12 +596,12 @@ export const batchInfoHistory = mysqlTable("batch_info_history", {
 	createdAt: timestamp("created_at", { mode: 'string' }).defaultNow().notNull(),
 },
 (table) => [
-	index("batch_info_history_batch_id_entity_id_idx").on(table.batchId, table.entityId),
 	index("batch_info_history_batch_id_idx").on(table.batchId),
-	index("batch_info_history_created_at_idx").on(table.createdAt),
 	index("batch_info_history_entity_id_idx").on(table.entityId),
-	index("batch_info_history_event_name_idx").on(table.eventName),
 	index("batch_info_history_user_id_idx").on(table.userId),
+	index("batch_info_history_event_name_idx").on(table.eventName),
+	index("batch_info_history_created_at_idx").on(table.createdAt),
+	index("batch_info_history_batch_id_entity_id_idx").on(table.batchId, table.entityId),
 	primaryKey({ columns: [table.id], name: "batch_info_history_id"}),
 ]);
 
@@ -618,8 +618,8 @@ export const batchInfoStages = mysqlTable("batch_info_stages", {
 },
 (table) => [
 	index("batch_info_stages_batch_id_idx").on(table.batchId),
-	index("batch_info_stages_status_idx").on(table.status),
 	index("batch_info_stages_title_idx").on(table.title),
+	index("batch_info_stages_status_idx").on(table.status),
 	primaryKey({ columns: [table.id], name: "batch_info_stages_id"}),
 ]);
 
@@ -650,9 +650,9 @@ export const batchInfoTemplates = mysqlTable("batch_info_templates", {
 	status: varchar({ length: 50 }).default('Draft').notNull(),
 },
 (table) => [
-	index("batch_info_templates_stage_id_idx").on(table.stageId),
-	index("batch_info_templates_status_idx").on(table.status),
 	index("batch_info_templates_title_idx").on(table.title),
+	index("batch_info_templates_status_idx").on(table.status),
+	index("batch_info_templates_stage_id_idx").on(table.stageId),
 	primaryKey({ columns: [table.id], name: "batch_info_templates_id"}),
 ]);
 
@@ -763,13 +763,13 @@ export const batches = mysqlTable("batches", {
 	programType: varchar("program_type", { length: 255 }),
 },
 (table) => [
-	index("idx_active").on(table.active),
-	index("idx_active_starting").on(table.active, table.starting),
-	index("idx_duration").on(table.duration),
 	index("idx_name").on(table.name),
-	index("idx_program").on(table.program),
 	index("idx_starting").on(table.starting),
+	index("idx_duration").on(table.duration),
+	index("idx_program").on(table.program),
+	index("idx_active").on(table.active),
 	index("idx_starting_active").on(table.starting, table.active),
+	index("idx_active_starting").on(table.active, table.starting),
 	primaryKey({ columns: [table.id], name: "batches_id"}),
 ]);
 
@@ -913,9 +913,9 @@ export const certificates = mysqlTable("certificates", {
 ]);
 
 export const clubMembers = mysqlTable("club_members", {
-	id: char({ length: 36 }).notNull(),
+	id: bigint({ mode: "number", unsigned: true }).autoincrement().notNull(),
 	userId: bigint("user_id", { mode: "number", unsigned: true }).notNull().references(() => users.id, { onDelete: "cascade" } ),
-	clubId: char("club_id", { length: 36 }).notNull().references(() => clubs.id, { onDelete: "cascade" } ),
+	clubId: bigint("club_id", { mode: "number", unsigned: true }).notNull().references(() => clubs.id, { onDelete: "cascade" } ),
 	role: varchar({ length: 50 }).default('member').notNull(),
 	joinedAt: timestamp("joined_at", { mode: 'string' }).defaultNow().notNull(),
 },
@@ -938,7 +938,7 @@ export const clubPostBookmarks = mysqlTable("club_post_bookmarks", {
 ]);
 
 export const clubs = mysqlTable("clubs", {
-	id: char({ length: 36 }).notNull(),
+	id: bigint({ mode: "number", unsigned: true }).autoincrement().notNull(),
 	name: varchar({ length: 255 }).notNull(),
 	domain: varchar({ length: 255 }),
 	image: text(),
@@ -1123,9 +1123,9 @@ export const eeLeaveRequests = mysqlTable("ee_leave_requests", {
 	updatedAt: timestamp("updated_at", { mode: 'string' }).notNull(),
 },
 (table) => [
-	index("ee_leave_requests_date_range_index").on(table.startDate, table.endDate),
 	index("ee_leave_requests_ee_id_index").on(table.eeId),
 	index("ee_leave_requests_status_index").on(table.status),
+	index("ee_leave_requests_date_range_index").on(table.startDate, table.endDate),
 	primaryKey({ columns: [table.id], name: "ee_leave_requests_id"}),
 ]);
 
@@ -1162,9 +1162,9 @@ export const eeOnboardingForm = mysqlTable("ee_onboarding_form", {
 	updatedAt: timestamp("updated_at", { mode: 'string' }).notNull(),
 },
 (table) => [
+	index("ee_onboarding_form_user_id_index").on(table.userId),
 	index("ee_onboarding_form_ee_id_index").on(table.eeId),
 	index("ee_onboarding_form_status_index").on(table.status),
-	index("ee_onboarding_form_user_id_index").on(table.userId),
 	primaryKey({ columns: [table.id], name: "ee_onboarding_form_id"}),
 ]);
 
@@ -1183,9 +1183,9 @@ export const eePayoutHistories = mysqlTable("ee_payout_histories", {
 	updatedAt: timestamp("updated_at", { mode: 'string' }).notNull(),
 },
 (table) => [
+	index("payout_history_user_id_index").on(table.userId),
 	index("payout_history_lecture_id_index").on(table.lectureId),
 	index("payout_history_status_index").on(table.status),
-	index("payout_history_user_id_index").on(table.userId),
 	primaryKey({ columns: [table.id], name: "ee_payout_histories_id"}),
 	unique("payout_history_unique_lecture_user_ee_type").on(table.lectureId, table.userId, table.eeId, table.type),
 ]);
@@ -1206,9 +1206,9 @@ export const eeSectionMapping = mysqlTable("ee_section_mapping", {
 	updatedAt: timestamp("updated_at", { mode: 'string' }).notNull(),
 },
 (table) => [
+	index("ee_section_mapping_section_id_index").on(table.sectionId),
 	index("ee_section_mapping_batch_id_index").on(table.batchId),
 	index("ee_section_mapping_is_active_index").on(table.isActive),
-	index("ee_section_mapping_section_id_index").on(table.sectionId),
 	primaryKey({ columns: [table.id], name: "ee_section_mapping_id"}),
 	unique("ee_section_mapping_ee_id_section_id_unique").on(table.eeId, table.sectionId),
 ]);
@@ -1326,18 +1326,18 @@ export const emailNotificationLogs = mysqlTable("email_notification_logs", {
 	updatedAt: timestamp("updated_at", { mode: 'string' }).notNull(),
 },
 (table) => [
-	index("email_notification_logs_created_at_index").on(table.createdAt),
-	index("email_notification_logs_entity_index").on(table.entityId, table.notificationType),
-	index("email_notification_logs_status_index").on(table.status),
 	index("email_notification_logs_user_id_index").on(table.userId),
+	index("email_notification_logs_entity_index").on(table.entityId, table.notificationType),
+	index("email_notification_logs_created_at_index").on(table.createdAt),
+	index("email_notification_logs_status_index").on(table.status),
 	primaryKey({ columns: [table.id], name: "email_notification_logs_id"}),
 	unique("email_notification_logs_unique").on(table.userId, table.entityId, table.notificationType),
 ]);
 
 export const eventEnrollments = mysqlTable("event_enrollments", {
-	id: char({ length: 36 }).notNull(),
+	id: bigint({ mode: "number", unsigned: true }).autoincrement().notNull(),
 	userId: bigint("user_id", { mode: "number", unsigned: true }).notNull().references(() => users.id, { onDelete: "cascade" } ),
-	eventId: char("event_id", { length: 36 }).notNull().references(() => events.id, { onDelete: "cascade" } ),
+	eventId: bigint("event_id", { mode: "number", unsigned: true }).notNull().references(() => events.id, { onDelete: "cascade" } ),
 	enrolledAt: timestamp("enrolled_at", { mode: 'string' }).defaultNow().notNull(),
 },
 (table) => [
@@ -1347,8 +1347,8 @@ export const eventEnrollments = mysqlTable("event_enrollments", {
 ]);
 
 export const events = mysqlTable("events", {
-	id: char({ length: 36 }).notNull(),
-	clubId: char("club_id", { length: 36 }).references(() => clubs.id, { onDelete: "cascade" } ),
+	id: bigint({ mode: "number", unsigned: true }).autoincrement().notNull(),
+	clubId: bigint("club_id", { mode: "number", unsigned: true }).references(() => clubs.id, { onDelete: "cascade" } ),
 	title: varchar({ length: 255 }).notNull(),
 	description: text(),
 	category: mysqlEnum(['hackathon','meetup','webinar']),
@@ -1404,12 +1404,12 @@ export const externalEmployees = mysqlTable("external_employees", {
 	deletedAt: timestamp("deleted_at", { mode: 'string' }),
 },
 (table) => [
-	index("external_employees_contract_end_date_index").on(table.contractEndDate),
-	index("external_employees_role_index").on(table.role),
 	index("external_employees_status_index").on(table.status),
+	index("external_employees_role_index").on(table.role),
+	index("external_employees_contract_end_date_index").on(table.contractEndDate),
 	primaryKey({ columns: [table.id], name: "external_employees_id"}),
-	unique("external_employees_emp_id_key").on(table.empId),
 	unique("external_employees_user_id_key").on(table.userId),
+	unique("external_employees_emp_id_key").on(table.empId),
 ]);
 
 export const externalOffers = mysqlTable("external_offers", {
@@ -1598,10 +1598,10 @@ export const githubs = mysqlTable("githubs", {
 },
 (table) => [
 	primaryKey({ columns: [table.id], name: "githubs_id"}),
-	unique("githubs_github_user_id_unique").on(table.githubUserId),
-	unique("githubs_repo_name_unique").on(table.repoName),
 	unique("githubs_token_unique").on(table.token),
+	unique("githubs_github_user_id_unique").on(table.githubUserId),
 	unique("githubs_username_unique").on(table.username),
+	unique("githubs_repo_name_unique").on(table.repoName),
 ]);
 
 export const guardian = mysqlTable("guardian", {
@@ -1651,9 +1651,9 @@ export const helpFaqs = mysqlTable("help_faqs", {
 },
 (table) => [
 	index("help_faqs_category_index").on(table.category),
-	index("help_faqs_category_sub_category_index").on(table.category, table.subCategory),
-	index("help_faqs_is_hidden_index").on(table.isHidden),
 	index("help_faqs_sub_category_index").on(table.subCategory),
+	index("help_faqs_is_hidden_index").on(table.isHidden),
+	index("help_faqs_category_sub_category_index").on(table.category, table.subCategory),
 	primaryKey({ columns: [table.id], name: "help_faqs_id"}),
 ]);
 
@@ -1666,8 +1666,8 @@ export const instituteBatches = mysqlTable("institute_batches", {
 	updatedAt: timestamp("updated_at", { mode: 'string' }),
 },
 (table) => [
-	index("institute_batches_batch_id_index").on(table.batchId),
 	index("institute_batches_institute_id_index").on(table.instituteId),
+	index("institute_batches_batch_id_index").on(table.batchId),
 	primaryKey({ columns: [table.id], name: "institute_batches_id"}),
 	unique("institute_batches_institute_batch_unique").on(table.instituteId, table.batchId),
 ]);
@@ -1685,8 +1685,8 @@ export const institutes = mysqlTable("institutes", {
 	updatedAt: timestamp("updated_at", { mode: 'string' }),
 },
 (table) => [
-	index("institutes_active_index").on(table.active),
 	index("institutes_name_index").on(table.name),
+	index("institutes_active_index").on(table.active),
 	primaryKey({ columns: [table.id], name: "institutes_id"}),
 ]);
 
@@ -1854,9 +1854,9 @@ export const lectureInteractions = mysqlTable("lecture_interactions", {
 	updatedAt: timestamp("updated_at", { mode: 'string' }).notNull(),
 },
 (table) => [
-	index("lecture_interactions_first_opened_at_index").on(table.firstOpenedAt),
-	index("lecture_interactions_lecture_id_index").on(table.lectureId),
 	index("lecture_interactions_user_id_index").on(table.userId),
+	index("lecture_interactions_lecture_id_index").on(table.lectureId),
+	index("lecture_interactions_first_opened_at_index").on(table.firstOpenedAt),
 	primaryKey({ columns: [table.id], name: "lecture_interactions_id"}),
 	unique("lecture_interactions_lecture_user_unique").on(table.lectureId, table.userId),
 ]);
@@ -1921,10 +1921,10 @@ export const lectures = mysqlTable("lectures", {
 },
 (table) => [
 	index("idx_category").on(table.category),
-	index("idx_concludes").on(table.concludes),
 	index("idx_schedule").on(table.schedule),
 	index("idx_title").on(table.title),
 	index("idx_type").on(table.type),
+	index("idx_concludes").on(table.concludes),
 	index("idx_updated_at").on(table.updatedAt),
 	primaryKey({ columns: [table.id], name: "lectures_id"}),
 ]);
@@ -1982,7 +1982,7 @@ export const lecturesCourse = mysqlTable("lectures_course", {
 ]);
 
 export const masaiverseBanners = mysqlTable("masaiverse_banners", {
-	id: char({ length: 36 }).notNull(),
+	id: bigint({ mode: "number", unsigned: true }).autoincrement().notNull(),
 	title: varchar({ length: 255 }).notNull(),
 	description: text(),
 	ctaText: varchar("cta_text", { length: 255 }),
@@ -2126,11 +2126,11 @@ export const notificationLogs = mysqlTable("notification_logs", {
 	updatedAt: timestamp("updated_at", { mode: 'string' }).notNull(),
 },
 (table) => [
-	index("notification_logs_entity_index").on(table.entityType, table.entityId),
-	index("notification_logs_sent_at_index").on(table.sentAt),
-	index("notification_logs_status_index").on(table.status),
-	index("notification_logs_type_index").on(table.notificationType),
 	index("notification_logs_user_id_index").on(table.userId),
+	index("notification_logs_entity_index").on(table.entityType, table.entityId),
+	index("notification_logs_type_index").on(table.notificationType),
+	index("notification_logs_status_index").on(table.status),
+	index("notification_logs_sent_at_index").on(table.sentAt),
 	primaryKey({ columns: [table.id], name: "notification_logs_id"}),
 	unique("notification_logs_unique_notification").on(table.userId, table.notificationType, table.entityId),
 ]);
@@ -2249,12 +2249,12 @@ export const onboardingCallSummaries = mysqlTable("onboarding_call_summaries", {
 },
 (table) => [
 	index("onboarding_call_summaries_call_id_index").on(table.callId),
-	index("onboarding_call_summaries_call_outcome_index").on(table.callOutcome),
 	index("onboarding_call_summaries_conversation_id_index").on(table.conversationId),
-	index("onboarding_call_summaries_course_name_index").on(table.courseName),
-	index("onboarding_call_summaries_created_at_index").on(table.createdAt),
 	index("onboarding_call_summaries_phone_number_index").on(table.phoneNumber),
+	index("onboarding_call_summaries_course_name_index").on(table.courseName),
+	index("onboarding_call_summaries_call_outcome_index").on(table.callOutcome),
 	index("onboarding_call_summaries_received_at_index").on(table.receivedAt),
+	index("onboarding_call_summaries_created_at_index").on(table.createdAt),
 	primaryKey({ columns: [table.id], name: "onboarding_call_summaries_id"}),
 	unique("onboarding_call_summaries_call_id_key").on(table.callId),
 ]);
@@ -2383,8 +2383,8 @@ export const payoutCycles = mysqlTable("payout_cycles", {
 	updatedAt: timestamp("updated_at", { mode: 'string' }).notNull(),
 },
 (table) => [
-	index("payout_cycles_date_range_index").on(table.startDate, table.endDate),
 	index("payout_cycles_status_index").on(table.status),
+	index("payout_cycles_date_range_index").on(table.startDate, table.endDate),
 	primaryKey({ columns: [table.id], name: "payout_cycles_id"}),
 ]);
 
@@ -2553,7 +2553,7 @@ export const positionsHistories = mysqlTable("positions_histories", {
 
 export const posts = mysqlTable("posts", {
 	id: bigint({ mode: "number", unsigned: true }).autoincrement().notNull(),
-	clubId: char("club_id", { length: 36 }).notNull().references(() => clubs.id, { onDelete: "cascade" } ),
+	clubId: bigint("club_id", { mode: "number", unsigned: true }).notNull().references(() => clubs.id, { onDelete: "cascade" } ),
 	userId: bigint("user_id", { mode: "number", unsigned: true }).notNull().references(() => users.id),
 	title: varchar({ length: 255 }),
 	content: text(),
@@ -2579,9 +2579,9 @@ export const practiceInterviews = mysqlTable("practice_interviews", {
 	updatedAt: timestamp("updated_at", { mode: 'string' }),
 },
 (table) => [
+	index("practice_interviews_user_id_index").on(table.userId),
 	index("practice_interviews_created_at_index").on(table.createdAt),
 	index("practice_interviews_unique_id_index").on(table.uniqueId),
-	index("practice_interviews_user_id_index").on(table.userId),
 	primaryKey({ columns: [table.id], name: "practice_interviews_id"}),
 ]);
 
@@ -2769,9 +2769,9 @@ export const programs = mysqlTable("programs", {
 	updatedAt: timestamp("updated_at", { mode: 'string' }),
 },
 (table) => [
-	index("programs_acronym_index").on(table.acronym),
-	index("programs_active_index").on(table.active),
 	index("programs_name_index").on(table.name),
+	index("programs_active_index").on(table.active),
+	index("programs_acronym_index").on(table.acronym),
 	primaryKey({ columns: [table.id], name: "programs_id"}),
 ]);
 
@@ -2930,8 +2930,8 @@ export const rbacPermissions = mysqlTable("rbac_permissions", {
 	updatedAt: timestamp("updated_at", { mode: 'string' }).defaultNow().notNull(),
 },
 (table) => [
-	index("rbac_permissions_action_idx").on(table.action),
 	index("rbac_permissions_resource_idx").on(table.resource),
+	index("rbac_permissions_action_idx").on(table.action),
 	primaryKey({ columns: [table.id], name: "rbac_permissions_id"}),
 	unique("rbac_permissions_resource_action_key").on(table.resource, table.action),
 ]);
@@ -2944,8 +2944,8 @@ export const rbacRolePermissions = mysqlTable("rbac_role_permissions", {
 	updatedAt: timestamp("updated_at", { mode: 'string' }).defaultNow().notNull(),
 },
 (table) => [
-	index("rbac_role_permissions_permission_id_idx").on(table.permissionId),
 	index("rbac_role_permissions_role_id_idx").on(table.roleId),
+	index("rbac_role_permissions_permission_id_idx").on(table.permissionId),
 	primaryKey({ columns: [table.id], name: "rbac_role_permissions_id"}),
 	unique("rbac_role_permissions_role_id_permission_id_key").on(table.roleId, table.permissionId),
 ]);
@@ -2960,8 +2960,8 @@ export const rbacRoles = mysqlTable("rbac_roles", {
 	deletedAt: timestamp("deleted_at", { mode: 'string' }),
 },
 (table) => [
-	index("rbac_roles_deleted_at_idx").on(table.deletedAt),
 	index("rbac_roles_name_idx").on(table.name),
+	index("rbac_roles_deleted_at_idx").on(table.deletedAt),
 	primaryKey({ columns: [table.id], name: "rbac_roles_id"}),
 	unique("rbac_roles_name_key").on(table.name),
 ]);
@@ -2978,11 +2978,11 @@ export const rbacUserRoles = mysqlTable("rbac_user_roles", {
 	updatedAt: timestamp("updated_at", { mode: 'string' }).defaultNow().notNull(),
 },
 (table) => [
-	index("rbac_user_roles_batch_id_idx").on(table.batchId),
+	index("rbac_user_roles_user_id_idx").on(table.userId),
 	index("rbac_user_roles_role_id_idx").on(table.roleId),
 	index("rbac_user_roles_scope_type_idx").on(table.scopeType),
+	index("rbac_user_roles_batch_id_idx").on(table.batchId),
 	index("rbac_user_roles_section_id_idx").on(table.sectionId),
-	index("rbac_user_roles_user_id_idx").on(table.userId),
 	primaryKey({ columns: [table.id], name: "rbac_user_roles_id"}),
 	unique("rbac_user_roles_user_id_role_id_scope_type_batch_id_section__key").on(table.userId, table.roleId, table.scopeType, table.batchId, table.sectionId),
 ]);
@@ -3175,12 +3175,12 @@ export const studentAttendances = mysqlTable("student_attendances", {
 	updatedAt: timestamp("updated_at", { mode: 'string' }).notNull(),
 },
 (table) => [
-	index("student_attendances_batch_id_index").on(table.batchId),
-	index("student_attendances_lecture_id_index").on(table.lectureId),
-	index("student_attendances_schedule_index").on(table.schedule),
-	index("student_attendances_section_id_schedule_index").on(table.sectionId, table.schedule),
-	index("student_attendances_status_index").on(table.status),
 	index("student_attendances_user_id_schedule_index").on(table.userId, table.schedule),
+	index("student_attendances_lecture_id_index").on(table.lectureId),
+	index("student_attendances_section_id_schedule_index").on(table.sectionId, table.schedule),
+	index("student_attendances_batch_id_index").on(table.batchId),
+	index("student_attendances_schedule_index").on(table.schedule),
+	index("student_attendances_status_index").on(table.status),
 	primaryKey({ columns: [table.id], name: "student_attendances_id"}),
 	unique("student_attendances_lecture_id_user_id_unique").on(table.lectureId, table.userId),
 ]);
@@ -3357,8 +3357,8 @@ export const ticketTemplates = mysqlTable("ticket_templates", {
 },
 (table) => [
 	index("ticket_templates_created_by_index").on(table.createdBy),
-	index("ticket_templates_title_index").on(table.title),
 	index("ticket_templates_updated_by_index").on(table.updatedBy),
+	index("ticket_templates_title_index").on(table.title),
 	primaryKey({ columns: [table.id], name: "ticket_templates_id"}),
 ]);
 
@@ -3385,8 +3385,8 @@ export const tickets = mysqlTable("tickets", {
 	logstamps: json(),
 },
 (table) => [
-	index("tickets_closed_at_index").on(table.closedAt),
 	index("tickets_created_at_index").on(table.createdAt),
+	index("tickets_closed_at_index").on(table.closedAt),
 	index("tickets_updated_at_index").on(table.updatedAt),
 	primaryKey({ columns: [table.id], name: "tickets_id"}),
 ]);
@@ -3500,8 +3500,8 @@ export const userBatchAdmissionData = mysqlTable("user_batch_admission_data", {
 	meta: json(),
 },
 (table) => [
-	index("user_batch_admission_data_batch_id_index").on(table.batchId),
 	index("user_batch_admission_data_user_id_index").on(table.userId),
+	index("user_batch_admission_data_batch_id_index").on(table.batchId),
 	primaryKey({ columns: [table.id], name: "user_batch_admission_data_id"}),
 	unique("user_batch_admission_data_user_id_batch_id_unique").on(table.userId, table.batchId),
 ]);
@@ -3551,9 +3551,9 @@ export const userCertificates = mysqlTable("user_certificates", {
 	updatedAt: timestamp("updated_at", { mode: 'string' }).notNull(),
 },
 (table) => [
+	index("idx_user_id").on(table.userId),
 	index("idx_batch_id").on(table.batchId),
 	index("idx_certificate_code").on(table.certificateCode),
-	index("idx_user_id").on(table.userId),
 	primaryKey({ columns: [table.id], name: "user_certificates_id"}),
 	unique("unique_user_batch_type").on(table.userId, table.batchId, table.certificateType),
 ]);
@@ -3570,9 +3570,9 @@ export const userDeviceTokens = mysqlTable("user_device_tokens", {
 	updatedAt: timestamp("updated_at", { mode: 'string' }).notNull(),
 },
 (table) => [
-	index("user_device_tokens_active_index").on(table.active),
-	index("user_device_tokens_token_index").on(table.token),
 	index("user_device_tokens_user_id_index").on(table.userId),
+	index("user_device_tokens_token_index").on(table.token),
+	index("user_device_tokens_active_index").on(table.active),
 	primaryKey({ columns: [table.id], name: "user_device_tokens_id"}),
 	unique("user_device_tokens_user_id_token_unique").on(table.userId, table.token),
 ]);
