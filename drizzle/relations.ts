@@ -119,7 +119,12 @@ export const usersRelations = relations(users, ({many}) => ({
 	portfolioSubmissions: many(portfolioSubmissions),
 	positions: many(positions),
 	positionsHistories: many(positionsHistories),
-	posts: many(posts),
+	posts_bannedBy: many(posts, {
+		relationName: "posts_bannedBy_users_id"
+	}),
+	posts_userId: many(posts, {
+		relationName: "posts_userId_users_id"
+	}),
 	practiceInterviews: many(practiceInterviews),
 	practiceQuizResponses: many(practiceQuizResponses),
 	practiceTestQuestionsUsersAttempteds: many(practiceTestQuestionsUsersAttempted),
@@ -905,13 +910,19 @@ export const clubPostBookmarksRelations = relations(clubPostBookmarks, ({one}) =
 
 export const postsRelations = relations(posts, ({one, many}) => ({
 	clubPostBookmarks: many(clubPostBookmarks),
+	user_bannedBy: one(users, {
+		fields: [posts.bannedBy],
+		references: [users.id],
+		relationName: "posts_bannedBy_users_id"
+	}),
 	club: one(clubs, {
 		fields: [posts.clubId],
 		references: [clubs.id]
 	}),
-	user: one(users, {
+	user_userId: one(users, {
 		fields: [posts.userId],
-		references: [users.id]
+		references: [users.id],
+		relationName: "posts_userId_users_id"
 	}),
 	replies: many(replies),
 	votes: many(votes),

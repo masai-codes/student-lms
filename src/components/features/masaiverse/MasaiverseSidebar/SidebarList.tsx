@@ -1,4 +1,5 @@
 import { useRouterState } from '@tanstack/react-router'
+import { Link } from '@tanstack/react-router'
 import { Folder, Calendar, House, Trophy } from '@phosphor-icons/react'
 import SidebarItem from './SidebarItem'
 import type { Icon } from '@phosphor-icons/react'
@@ -63,6 +64,19 @@ const SidebarList = () => {
           isActive={activeTab === item.tab}
         />
       ))}
+      <Link
+        to="/masaiverse"
+        search={(prev) => ({
+          ...prev,
+          tab: 'home',
+          createDiscussion: true,
+        })}
+        className="mt-2 block"
+      >
+        <div className="cursor-pointer rounded-[10px] border border-[#EF8833] bg-[#FFF7ED] px-4 py-[10px] text-center text-[14px] font-semibold leading-5 text-[#C96B1E] hover:bg-[#FBE7D6]">
+          Create Discussion
+        </div>
+      </Link>
     </div>
   )
 }

@@ -15,6 +15,7 @@ type DiscussionsListProps = {
   onToggleBookmark: (postId: DiscussionEntityId) => Promise<void>
   openPostId: string | null
   onPostDrawerOpenChange: (postId: string, open: boolean) => void
+  onCreateDiscussionClick: () => void
 }
 
 const DiscussionsList = ({
@@ -25,8 +26,16 @@ const DiscussionsList = ({
   onToggleBookmark,
   openPostId,
   onPostDrawerOpenChange,
+  onCreateDiscussionClick,
 }: DiscussionsListProps) => {
   const [replyDrafts, setReplyDrafts] = useState<Partial<Record<string, string>>>({})
+
+  const getPostContentHtml = (title: string, content: string) => {
+    if (title && content) {
+      return `${title}<p><br /></p>${content}`
+    }
+    return title || content
+  }
 
   const getFallbackAvatar = (name: string) => {
     const initials = name
@@ -59,8 +68,19 @@ const DiscussionsList = ({
 
   if (posts.length === 0) {
     return (
-      <div className="rounded-lg border border-[#E5E7EB] bg-white p-4 text-sm text-[#6B7280]">
-        No posts yet. Be the first to start a discussion.
+      <div className="rounded-lg border border-[#E5E7EB] bg-white p-4">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <p className="text-sm text-[#6B7280]">
+            No posts yet. Be the first to start a discussion.
+          </p>
+        <button
+          type="button"
+          onClick={onCreateDiscussionClick}
+          className="shrink-0 rounded-md border border-[#EF8833] bg-[#FFF7ED] px-3 py-2 text-sm font-semibold text-[#C96B1E] hover:bg-[#FBE7D6]"
+        >
+          Create Discussion
+        </button>
+        </div>
       </div>
     )
   }
@@ -75,7 +95,7 @@ const DiscussionsList = ({
           profileImage={post.authorProfileImage ?? getFallbackAvatar(post.authorName)}
           name={post.authorName}
           createdAt={formatSocialPostTime(post.createdAt)}
-          content={post.content}
+          content={getPostContentHtml(post.title, post.content)}
           currentUpvoteCount={post.upvotes}
           currentDownvoteCount={post.downvotes}
           voteDirection={

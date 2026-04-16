@@ -30,6 +30,7 @@ export type DiscussionReply = {
 
 export type DiscussionPost = {
   id: DiscussionEntityId
+  title: string
   content: string
   createdAt: string | null
   authorName: string
@@ -113,6 +114,15 @@ function getPlainTextFromHtml(content: string): string {
   return decoded.replace(/\s+/g, ' ').trim()
 }
 
+function escapeHtml(value: string): string {
+  return value
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;')
+}
+
 export const fetchCommunityDiscussions = createServerFn({ method: 'GET' })
   .inputValidator((data?: { sortBy?: DiscussionSortMode }) => data ?? {})
   .handler(fetchCommunityDiscussionsHandler)
@@ -162,6 +172,7 @@ export async function fetchCommunityDiscussionsHandler({ data }: { data: { sortB
 
   const postRows = normalizeRows<{
     id: DiscussionEntityId
+    title: string | null
     content: string | null
     createdAt: string | null
     authorName: string
@@ -169,6 +180,7 @@ export async function fetchCommunityDiscussionsHandler({ data }: { data: { sortB
   }>(await db.execute(sql`
     SELECT
       p.id,
+      p.title,
       p.content,
       p.created_at AS createdAt,
       u.name AS authorName,
@@ -366,6 +378,7 @@ export async function fetchCommunityDiscussionsHandler({ data }: { data: { sortB
 
     return {
       id: postRow.id,
+      title: postRow.title ?? '',
       content: postRow.content ?? '',
       createdAt: normalizeTimestampForClient(postRow.createdAt ?? null),
       authorName: postRow.authorName,
@@ -419,19 +432,32 @@ export async function fetchCommunityDiscussionsHandler({ data }: { data: { sortB
 }
 
 export const createCommunityPost = createServerFn({ method: 'POST' })
-  .inputValidator((data: { content: string }) => data)
+  .inputValidator((data: { title: string; content: string }) => data)
   .handler(createCommunityPostHandler)
 
-export async function createCommunityPostHandler({ data }: { data: { content: string } }) {
+export async function createCommunityPostHandler({ data }: { data: { title: string; content: string } }) {
     const userId = await getCurrentSessionUserId()
     if (!userId) {
       throw new Error('UNAUTHORIZED')
     }
 
+    const title = data.title.trim()
     const content = data.content.trim()
+    const plainContentLength = getPlainTextFromHtml(content).length
+    if (!title) {
+      throw new Error('POST_TITLE_REQUIRED')
+    }
+    if (title.length > 500) {
+      throw new Error('POST_TITLE_TOO_LONG')
+    }
     if (!content) {
       throw new Error('POST_CONTENT_REQUIRED')
     }
+    if (plainContentLength > 5000) {
+      throw new Error('POST_CONTENT_TOO_LONG')
+    }
+
+    const boldTitleHtml = `<strong>${escapeHtml(title)}</strong>`
 
     const joinedClubId = await getJoinedClubId(userId)
     if (!joinedClubId) {
@@ -439,8 +465,8 @@ export async function createCommunityPostHandler({ data }: { data: { content: st
     }
 
     await db.execute(sql`
-      INSERT INTO posts (club_id, user_id, content, created_at, updated_at)
-      VALUES (${joinedClubId}, ${userId}, ${content}, ${UTC_SQL_NOW}, ${UTC_SQL_NOW})
+      INSERT INTO posts (club_id, user_id, title, content, created_at, updated_at)
+      VALUES (${joinedClubId}, ${userId}, ${boldTitleHtml}, ${content}, ${UTC_SQL_NOW}, ${UTC_SQL_NOW})
     `)
 
     return { success: true }

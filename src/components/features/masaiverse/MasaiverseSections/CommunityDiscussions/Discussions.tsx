@@ -1,7 +1,15 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from '@tanstack/react-router'
 import DiscussionsList from './DiscussionsList'
-import CreateDiscussion from './CreateDiscussion'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import {
+  Modal,
+  ModalContent,
+  ModalDescription,
+  ModalTitle,
+} from '@/components/ui/modal'
+import { RichTextEditor } from '@/components/discussion-post-card'
 import type { DiscussionPost } from '@/server/masaiverse/communityDiscussions'
 import {
   createCommunityPost,
@@ -23,17 +31,23 @@ const discussionSortOptions: Array<{ key: DiscussionSortMode; label: string }> =
 
 type DiscussionsProps = {
   initialPostIdFromSearch?: string
+  initialCreateDiscussionOpen?: boolean
 }
 
-const Disucssions = ({ initialPostIdFromSearch }: DiscussionsProps) => {
+const TITLE_MAX_LENGTH = 500
+const DESCRIPTION_MAX_LENGTH = 5000
+
+const Disucssions = ({
+  initialPostIdFromSearch,
+  initialCreateDiscussionOpen = false,
+}: DiscussionsProps) => {
   const navigate = useNavigate()
   const [posts, setPosts] = useState<Array<DiscussionPost>>([])
-  const [currentUserName, setCurrentUserName] = useState('')
-  const [currentUserProfileImage, setCurrentUserProfileImage] = useState<
-    string | null
-  >(null)
   const [isLoadingDiscussions, setIsLoadingDiscussions] = useState(true)
   const [isPosting, setIsPosting] = useState(false)
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(initialCreateDiscussionOpen)
+  const [title, setTitle] = useState('')
+  const [description, setDescription] = useState('')
   const [sortBy, setSortBy] = useState<DiscussionSortMode>('new')
   const [openPostId, setOpenPostId] = useState<string | null>(
     initialPostIdFromSearch ?? null,
@@ -42,6 +56,12 @@ const Disucssions = ({ initialPostIdFromSearch }: DiscussionsProps) => {
   useEffect(() => {
     setOpenPostId(initialPostIdFromSearch ?? null)
   }, [initialPostIdFromSearch])
+
+  useEffect(() => {
+    if (initialCreateDiscussionOpen) {
+      setIsCreateModalOpen(true)
+    }
+  }, [initialCreateDiscussionOpen])
 
   const refreshDiscussions = async (
     showInitialLoader = false,
@@ -55,8 +75,6 @@ const Disucssions = ({ initialPostIdFromSearch }: DiscussionsProps) => {
         data: { sortBy: selectedSort },
       })
       setPosts(response.posts)
-      setCurrentUserName(response.currentUserName ?? '')
-      setCurrentUserProfileImage(response.currentUserProfileImage ?? null)
       setSortBy(response.sortBy ?? selectedSort)
     } finally {
       setIsLoadingDiscussions(false)
@@ -67,11 +85,32 @@ const Disucssions = ({ initialPostIdFromSearch }: DiscussionsProps) => {
     void refreshDiscussions(true)
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
-  const handleCreatePost = async (content: string) => {
+  const getDescriptionPlainText = (html: string) =>
+    html.replace(/<\s*br\s*\/?>/gi, ' ').replace(/<[^>]*>/g, ' ').trim()
+
+  const descriptionLength = getDescriptionPlainText(description).length
+
+  const canSubmit = useMemo(() => {
+    return (
+      Boolean(title.trim()) &&
+      Boolean(getDescriptionPlainText(description)) &&
+      descriptionLength <= DESCRIPTION_MAX_LENGTH
+    )
+  }, [description, descriptionLength, title])
+
+  const handleCreatePost = async () => {
     setIsPosting(true)
     try {
-      await createCommunityPost({ data: { content } })
+      await createCommunityPost({
+        data: {
+          title: title.trim(),
+          content: description,
+        },
+      })
       await refreshDiscussions()
+      setIsCreateModalOpen(false)
+      setTitle('')
+      setDescription('')
     } finally {
       setIsPosting(false)
     }
@@ -110,8 +149,23 @@ const Disucssions = ({ initialPostIdFromSearch }: DiscussionsProps) => {
       search: {
         tab: 'home',
         postId: undefined,
+        createDiscussion: undefined,
       },
     })
+  }
+
+  const handleCreateModalOpenChange = (open: boolean) => {
+    setIsCreateModalOpen(open)
+    if (!open) {
+      navigate({
+        to: '/masaiverse',
+        replace: true,
+        search: (prev) => ({
+          ...prev,
+          createDiscussion: undefined,
+        }),
+      })
+    }
   }
 
   const handlePostDrawerOpenChange = (postId: string, open: boolean) => {
@@ -159,16 +213,79 @@ const Disucssions = ({ initialPostIdFromSearch }: DiscussionsProps) => {
           onToggleBookmark={handleToggleBookmark}
           openPostId={openPostId}
           onPostDrawerOpenChange={handlePostDrawerOpenChange}
+          onCreateDiscussionClick={() => setIsCreateModalOpen(true)}
         />
       )}
-      <div className="sticky bottom-0 z-10 bg-white/95 pt-2 backdrop-blur">
-        <CreateDiscussion
-          onCreate={handleCreatePost}
-          isSubmitting={isPosting}
-          currentUserName={currentUserName}
-          currentUserProfileImage={currentUserProfileImage}
-        />
-      </div>
+      <Modal open={isCreateModalOpen} onOpenChange={handleCreateModalOpenChange}>
+        <ModalContent className="max-w-2xl space-y-4">
+          <div>
+            <ModalTitle>Create Discussion</ModalTitle>
+            <ModalDescription className="mt-1">
+              Add a title and description to start a community discussion.
+            </ModalDescription>
+          </div>
+
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <label htmlFor="discussion-title" className="text-sm font-medium text-[#111827]">
+                Title
+              </label>
+              <span className="text-xs text-[#6B7280]">
+                {title.length}/{TITLE_MAX_LENGTH}
+              </span>
+            </div>
+            <Input
+              id="discussion-title"
+              value={title}
+              maxLength={TITLE_MAX_LENGTH}
+              onChange={(event) => setTitle(event.target.value)}
+              placeholder="Write a title"
+            />
+            <p className="text-xs text-[#6B7280]">
+              Title is saved in bold format.
+            </p>
+          </div>
+
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <label className="text-sm font-medium text-[#111827]">
+                Description
+              </label>
+              <span className="text-xs text-[#6B7280]">
+                {descriptionLength}/{DESCRIPTION_MAX_LENGTH}
+              </span>
+            </div>
+            <RichTextEditor
+              value={description}
+              onChange={setDescription}
+              placeholder="Write your discussion description..."
+            />
+            <p className="text-xs text-[#6B7280]">
+              Description supports up to {DESCRIPTION_MAX_LENGTH} characters.
+            </p>
+          </div>
+
+          <div className="flex justify-end gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => handleCreateModalOpenChange(false)}
+              disabled={isPosting}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="button"
+              onClick={() => {
+                void handleCreatePost()
+              }}
+              disabled={!canSubmit || isPosting}
+            >
+              {isPosting ? 'Creating...' : 'Create Discussion'}
+            </Button>
+          </div>
+        </ModalContent>
+      </Modal>
     </div>
   )
 }

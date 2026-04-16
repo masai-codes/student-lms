@@ -18,12 +18,13 @@ const CreateDiscussion = ({
   const [isDesktop, setIsDesktop] = useState(false)
 
   const getFallbackAvatar = (name: string) => {
-    const initials = name
-      .trim()
-      .split(/\s+/)
-      .slice(0, 2)
-      .map((part) => part.charAt(0).toUpperCase())
-      .join('') || 'U'
+    const initials =
+      name
+        .trim()
+        .split(/\s+/)
+        .slice(0, 2)
+        .map((part) => part.charAt(0).toUpperCase())
+        .join('') || 'U'
 
     const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="72" height="72"><rect width="100%" height="100%" fill="#F3F4F6"/><text x="50%" y="50%" dy=".35em" text-anchor="middle" fill="#374151" font-family="Arial, sans-serif" font-size="28" font-weight="600">${initials}</text></svg>`
     return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`
@@ -46,7 +47,9 @@ const CreateDiscussion = ({
 
   return (
     <DiscussionPostCardComposer
-      profileImage={currentUserProfileImage ?? getFallbackAvatar(currentUserName)}
+      profileImage={
+        currentUserProfileImage ?? getFallbackAvatar(currentUserName)
+      }
       replyText={content}
       onReplyTextChange={setContent}
       onReplySubmit={() => {

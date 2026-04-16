@@ -4,11 +4,13 @@ import CommunityDiscussionsEmptyState from './CommunityDiscussionsEmptyState.tsx
 type CommunityDiscussionsProps = {
   hasJoinedClub: boolean
   initialPostIdFromSearch?: string
+  initialCreateDiscussionOpen?: boolean
 }
 
 export default function CommunityDiscussions({
   hasJoinedClub,
   initialPostIdFromSearch,
+  initialCreateDiscussionOpen,
 }: CommunityDiscussionsProps) {
   return (
     <div className="mt-[24px] md:mt-[48px]">
@@ -17,7 +19,10 @@ export default function CommunityDiscussions({
       </h2>
       <div className="mt-[12px]">
         {hasJoinedClub ? (
-          <Disucssions initialPostIdFromSearch={initialPostIdFromSearch} />
+          <Disucssions
+            initialPostIdFromSearch={initialPostIdFromSearch}
+            initialCreateDiscussionOpen={initialCreateDiscussionOpen}
+          />
         ) : (
           <CommunityDiscussionsEmptyState />
         )}

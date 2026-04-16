@@ -20,9 +20,13 @@ import 'swiper/css/navigation'
 
 type HomeSectionProps = {
   postId?: string
+  shouldOpenCreateDiscussion?: boolean
 }
 
-export default function HomeSection({ postId }: HomeSectionProps) {
+export default function HomeSection({
+  postId,
+  shouldOpenCreateDiscussion = false,
+}: HomeSectionProps) {
   const navigate = useNavigate()
   const [clubsList, setClubsList] = useState<Array<ClubType>>([])
   const [eventsList, setEventsList] = useState<Array<EventType>>([])
@@ -158,6 +162,7 @@ export default function HomeSection({ postId }: HomeSectionProps) {
           <CommunityDiscussions
             hasJoinedClub={Boolean(joinedClubId)}
             initialPostIdFromSearch={postId}
+            initialCreateDiscussionOpen={shouldOpenCreateDiscussion}
           />
         </div>
 
