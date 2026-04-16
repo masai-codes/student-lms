@@ -2,7 +2,7 @@ import { eq, sql } from 'drizzle-orm'
 import { createServerFn } from '@tanstack/react-start'
 import { db } from '@/db'
 import { getCurrentSessionUserId } from '@/server/auth/getCurrentSessionUserId'
-import { clubMembers } from '@/db/schema'
+import { clubMembers, users } from '@/db/schema'
 import { pushNotificationService } from '@/server/pushNotifications/pushNotification.service'
 import { parseServerTimestamp } from '@/lib/parseServerTimestamp'
 
@@ -81,7 +81,23 @@ async function getJoinedClubId(userId: number) {
     .where(eq(clubMembers.userId, userId))
     .limit(1)
 
-  return membership[0]?.clubId != null ? String(membership[0].clubId) : null
+  return membership.length > 0 ? String(membership[0].clubId) : null
+}
+
+async function getUserRole(userId: number) {
+  const userRows = await db
+    .select({ role: users.role })
+    .from(users)
+    .where(eq(users.id, userId))
+    .limit(1)
+
+  return String(userRows[0]?.role ?? '')
+    .trim()
+    .toLowerCase()
+}
+
+async function isAdminUser(userId: number) {
+  return (await getUserRole(userId)) === 'admin'
 }
 
 function isSameClubId(left: string | number | null | undefined, right: string | number | null | undefined) {
@@ -129,10 +145,14 @@ function escapeHtml(value: string): string {
 }
 
 export const fetchCommunityDiscussions = createServerFn({ method: 'GET' })
-  .inputValidator((data?: { sortBy?: DiscussionSortMode }) => data ?? {})
+  .inputValidator((data?: { sortBy?: DiscussionSortMode; clubId?: string }) => data ?? {})
   .handler(fetchCommunityDiscussionsHandler)
 
-export async function fetchCommunityDiscussionsHandler({ data }: { data: { sortBy?: DiscussionSortMode } }) {
+export async function fetchCommunityDiscussionsHandler({
+  data,
+}: {
+  data: { sortBy?: DiscussionSortMode; clubId?: string }
+}) {
   const sortBy: DiscussionSortMode = data.sortBy ?? 'new'
   const userId = await getCurrentSessionUserId()
   if (!userId) {
@@ -142,9 +162,11 @@ export async function fetchCommunityDiscussionsHandler({ data }: { data: { sortB
   const currentUserRows = normalizeRows<{
     name: string | null
     profileImage: string | null
+    role: string | null
   }>(await db.execute(sql`
     SELECT
       u.name,
+      u.role,
       COALESCE(
         JSON_UNQUOTE(JSON_EXTRACT(pr.meta, '$.profile_pic')),
         JSON_UNQUOTE(JSON_EXTRACT(u.meta, '$.profile_pic'))
@@ -163,12 +185,20 @@ export async function fetchCommunityDiscussionsHandler({ data }: { data: { sortB
     WHERE u.id = ${userId}
     LIMIT 1
   `))
-  const currentUser = currentUserRows[0] ?? { name: null, profileImage: null }
+  const currentUser = currentUserRows[0] ?? { name: null, profileImage: null, role: null }
+  const isAdmin = String(currentUser.role ?? '')
+    .trim()
+    .toLowerCase() === 'admin'
 
   const joinedClubId = await getJoinedClubId(userId)
-  if (!joinedClubId) {
+  const requestedClubId = String(data.clubId ?? '').trim()
+  const selectedClubId = isAdmin
+    ? (requestedClubId || joinedClubId)
+    : joinedClubId
+  if (!selectedClubId) {
     return {
       joinedClubId: null as string | null,
+      selectedClubId: null as string | null,
       currentUserName: currentUser.name,
       currentUserProfileImage: currentUser.profileImage,
       posts: [] as Array<DiscussionPost>,
@@ -205,7 +235,7 @@ export async function fetchCommunityDiscussionsHandler({ data }: { data: { sortB
         GROUP BY user_id
       ) latestProfile ON latestProfile.latestProfileId = p1.id
     ) pr ON pr.userId = u.id
-    WHERE p.club_id = ${joinedClubId}
+    WHERE p.club_id = ${selectedClubId}
     ORDER BY p.created_at DESC
   `))
 
@@ -240,7 +270,7 @@ export async function fetchCommunityDiscussionsHandler({ data }: { data: { sortB
         GROUP BY user_id
       ) latestProfile ON latestProfile.latestProfileId = p1.id
     ) pr ON pr.userId = u.id
-    WHERE p.club_id = ${joinedClubId}
+    WHERE p.club_id = ${selectedClubId}
     ORDER BY r.created_at ASC
   `))
 
@@ -257,7 +287,7 @@ export async function fetchCommunityDiscussionsHandler({ data }: { data: { sortB
       v.created_at AS createdAt
     FROM votes v
     INNER JOIN posts p ON p.id = v.post_id
-    WHERE p.club_id = ${joinedClubId}
+    WHERE p.club_id = ${selectedClubId}
   `))
 
   const replyVotes = normalizeRows<{
@@ -272,7 +302,7 @@ export async function fetchCommunityDiscussionsHandler({ data }: { data: { sortB
     FROM votes v
     INNER JOIN replies r ON r.id = v.reply_id
     INNER JOIN posts p ON p.id = r.post_id
-    WHERE p.club_id = ${joinedClubId}
+    WHERE p.club_id = ${selectedClubId}
   `))
 
   const bookmarkRows = normalizeRows<{
@@ -282,7 +312,7 @@ export async function fetchCommunityDiscussionsHandler({ data }: { data: { sortB
       b.post_id AS postId
     FROM club_post_bookmarks b
     INNER JOIN posts p ON p.id = b.post_id
-    WHERE p.club_id = ${joinedClubId}
+    WHERE p.club_id = ${selectedClubId}
       AND b.user_id = ${userId}
   `))
 
@@ -429,6 +459,8 @@ export async function fetchCommunityDiscussionsHandler({ data }: { data: { sortB
 
   return {
     joinedClubId,
+    selectedClubId,
+    isAdmin,
     currentUserName: currentUser.name,
     currentUserProfileImage: currentUser.profileImage,
     sortBy,
@@ -437,10 +469,14 @@ export async function fetchCommunityDiscussionsHandler({ data }: { data: { sortB
 }
 
 export const createCommunityPost = createServerFn({ method: 'POST' })
-  .inputValidator((data: { title: string; content: string }) => data)
+  .inputValidator((data: { title: string; content: string; clubId?: string }) => data)
   .handler(createCommunityPostHandler)
 
-export async function createCommunityPostHandler({ data }: { data: { title: string; content: string } }) {
+export async function createCommunityPostHandler({
+  data,
+}: {
+  data: { title: string; content: string; clubId?: string }
+}) {
     const userId = await getCurrentSessionUserId()
     if (!userId) {
       throw new Error('UNAUTHORIZED')
@@ -465,13 +501,16 @@ export async function createCommunityPostHandler({ data }: { data: { title: stri
     const boldTitleHtml = `<strong>${escapeHtml(title)}</strong>`
 
     const joinedClubId = await getJoinedClubId(userId)
-    if (!joinedClubId) {
+    const isAdmin = await isAdminUser(userId)
+    const requestedClubId = String(data.clubId ?? '').trim()
+    const targetClubId = isAdmin ? (requestedClubId || joinedClubId) : joinedClubId
+    if (!targetClubId) {
       throw new Error('CLUB_ID_REQUIRED')
     }
 
     await db.execute(sql`
       INSERT INTO posts (club_id, user_id, title, content, created_at, updated_at)
-      VALUES (${joinedClubId}, ${userId}, ${boldTitleHtml}, ${content}, ${UTC_SQL_NOW}, ${UTC_SQL_NOW})
+      VALUES (${targetClubId}, ${userId}, ${boldTitleHtml}, ${content}, ${UTC_SQL_NOW}, ${UTC_SQL_NOW})
     `)
 
     return { success: true }
@@ -492,11 +531,6 @@ export async function createCommunityReplyHandler({ data }: { data: { postId: Di
       throw new Error('REPLY_CONTENT_REQUIRED')
     }
 
-    const joinedClubId = await getJoinedClubId(userId)
-    if (!joinedClubId) {
-      throw new Error('CLUB_ID_REQUIRED')
-    }
-
     const normalizedPostId = normalizePostId(data.postId)
 
     const postRows = normalizeRows<{ id: string; clubId: string; authorId: number }>(await db.execute(sql`
@@ -506,8 +540,19 @@ export async function createCommunityReplyHandler({ data }: { data: { postId: Di
       LIMIT 1
     `))
 
-    if (postRows.length === 0 || !isSameClubId(postRows[0].clubId, joinedClubId)) {
+    if (postRows.length === 0) {
       throw new Error('POST_NOT_FOUND_IN_JOINED_CLUB')
+    }
+    const post = postRows[0]
+    const isAdmin = await isAdminUser(userId)
+    if (!isAdmin) {
+      const joinedClubId = await getJoinedClubId(userId)
+      if (!joinedClubId) {
+        throw new Error('CLUB_ID_REQUIRED')
+      }
+      if (!isSameClubId(post.clubId, joinedClubId)) {
+        throw new Error('POST_NOT_FOUND_IN_JOINED_CLUB')
+      }
     }
 
     await db.execute(sql`
@@ -515,7 +560,6 @@ export async function createCommunityReplyHandler({ data }: { data: { postId: Di
       VALUES (${normalizedPostId}, ${userId}, ${content}, ${UTC_SQL_NOW}, ${UTC_SQL_NOW})
     `)
 
-    const post = postRows[0]
     if (post.authorId !== userId) {
       try {
         const actorRows = normalizeRows<{ name: string | null }>(await db.execute(sql`
@@ -549,11 +593,6 @@ async function applyPostVote(
   postId: DiscussionEntityId,
   voteValue: VoteValue,
 ): Promise<{ postAuthorId: number; shouldNotify: boolean }> {
-  const joinedClubId = await getJoinedClubId(userId)
-  if (!joinedClubId) {
-    throw new Error('CLUB_ID_REQUIRED')
-  }
-
   const normalizedPostId = normalizePostId(postId)
 
   const postRows = normalizeRows<{ id: string; clubId: string; authorId: number }>(await db.execute(sql`
@@ -563,10 +602,20 @@ async function applyPostVote(
     LIMIT 1
   `))
 
-  if (postRows.length === 0 || !isSameClubId(postRows[0].clubId, joinedClubId)) {
+  if (postRows.length === 0) {
     throw new Error('POST_NOT_FOUND_IN_JOINED_CLUB')
   }
   const post = postRows[0]
+  const isAdmin = await isAdminUser(userId)
+  if (!isAdmin) {
+    const joinedClubId = await getJoinedClubId(userId)
+    if (!joinedClubId) {
+      throw new Error('CLUB_ID_REQUIRED')
+    }
+    if (!isSameClubId(post.clubId, joinedClubId)) {
+      throw new Error('POST_NOT_FOUND_IN_JOINED_CLUB')
+    }
+  }
 
   const existing = normalizeRows<{ id: string; vote: VoteValue }>(await db.execute(sql`
     SELECT id, vote
@@ -601,11 +650,6 @@ async function applyPostVote(
 }
 
 async function applyReplyVote(userId: number, replyId: string, voteValue: VoteValue) {
-  const joinedClubId = await getJoinedClubId(userId)
-  if (!joinedClubId) {
-    throw new Error('CLUB_ID_REQUIRED')
-  }
-
   const replyRows = normalizeRows<{ id: string; postId: string; clubId: string }>(await db.execute(sql`
     SELECT r.id, r.post_id AS postId, p.club_id AS clubId
     FROM replies r
@@ -614,8 +658,19 @@ async function applyReplyVote(userId: number, replyId: string, voteValue: VoteVa
     LIMIT 1
   `))
 
-  if (replyRows.length === 0 || !isSameClubId(replyRows[0].clubId, joinedClubId)) {
+  if (replyRows.length === 0) {
     throw new Error('REPLY_NOT_FOUND_IN_JOINED_CLUB')
+  }
+  const reply = replyRows[0]
+  const isAdmin = await isAdminUser(userId)
+  if (!isAdmin) {
+    const joinedClubId = await getJoinedClubId(userId)
+    if (!joinedClubId) {
+      throw new Error('CLUB_ID_REQUIRED')
+    }
+    if (!isSameClubId(reply.clubId, joinedClubId)) {
+      throw new Error('REPLY_NOT_FOUND_IN_JOINED_CLUB')
+    }
   }
 
   const existing = normalizeRows<{ id: string; vote: VoteValue }>(await db.execute(sql`
@@ -714,11 +769,6 @@ export async function toggleCommunityPostBookmarkHandler({ data }: { data: { pos
       throw new Error('UNAUTHORIZED')
     }
 
-    const joinedClubId = await getJoinedClubId(userId)
-    if (!joinedClubId) {
-      throw new Error('CLUB_ID_REQUIRED')
-    }
-
     const normalizedPostId = normalizePostId(data.postId)
 
     const postRows = normalizeRows<{ id: string; clubId: string }>(await db.execute(sql`
@@ -728,8 +778,19 @@ export async function toggleCommunityPostBookmarkHandler({ data }: { data: { pos
       LIMIT 1
     `))
 
-    if (postRows.length === 0 || !isSameClubId(postRows[0].clubId, joinedClubId)) {
+    if (postRows.length === 0) {
       throw new Error('POST_NOT_FOUND_IN_JOINED_CLUB')
+    }
+    const post = postRows[0]
+    const isAdmin = await isAdminUser(userId)
+    if (!isAdmin) {
+      const joinedClubId = await getJoinedClubId(userId)
+      if (!joinedClubId) {
+        throw new Error('CLUB_ID_REQUIRED')
+      }
+      if (!isSameClubId(post.clubId, joinedClubId)) {
+        throw new Error('POST_NOT_FOUND_IN_JOINED_CLUB')
+      }
     }
 
     const existingBookmark = normalizeRows<{ id: string }>(await db.execute(sql`

@@ -8,6 +8,7 @@ import CommunityDiscussions from '@/components/features/masaiverse/MasaiverseSec
 import HomeClubsCarousel from '@/components/features/masaiverse/MasaiverseSections/HomeSection/HomeClubsCarousel'
 import HomeEventsPreview from '@/components/features/masaiverse/MasaiverseSections/HomeSection/HomeEventsPreview'
 import HomeIntro from '@/components/features/masaiverse/MasaiverseSections/HomeSection/HomeIntro'
+import { Route as ProtectedLayoutRoute } from '@/routes/(protected)/_layout/route'
 import { fetchMyClubMembership } from '@/server/masaiverse/fetchMyClubMembership'
 import { fetchMyEventEnrollments } from '@/server/masaiverse/fetchMyEventEnrollments'
 import { fetchMasaiverseBanners } from '@/server/masaiverse/fetchMasaiverseBanners'
@@ -27,6 +28,10 @@ export default function HomeSection({
   postId,
   shouldOpenCreateDiscussion = false,
 }: HomeSectionProps) {
+  const { user } = ProtectedLayoutRoute.useRouteContext()
+  const isAdmin = String(user.role ?? '')
+    .trim()
+    .toLowerCase() === 'admin'
   const navigate = useNavigate()
   const [clubsList, setClubsList] = useState<Array<ClubType>>([])
   const [eventsList, setEventsList] = useState<Array<EventType>>([])
@@ -178,6 +183,9 @@ export default function HomeSection({
           )}
           <CommunityDiscussions
             hasJoinedClub={hasJoinedClub}
+            isAdmin={isAdmin}
+            clubs={clubsList}
+            joinedClubId={joinedClubId}
             initialPostIdFromSearch={postId}
             initialCreateDiscussionOpen={shouldOpenCreateDiscussion}
           />
