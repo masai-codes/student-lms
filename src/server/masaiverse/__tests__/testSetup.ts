@@ -43,6 +43,10 @@ vi.mock('@/db/schema', () => ({
     clubId: 'club_members.club_id',
     role: 'club_members.role',
   },
+  users: {
+    id: 'users.id',
+    role: 'users.role',
+  },
   events: {
     id: 'events.id',
     title: 'events.title',

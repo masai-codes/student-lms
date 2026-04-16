@@ -1,7 +1,7 @@
 import { eq } from 'drizzle-orm'
 import { createServerFn } from '@tanstack/react-start'
 import { db } from '@/db'
-import { clubMembers, clubs } from '@/db/schema'
+import { clubMembers, clubs, users } from '@/db/schema'
 import { getCurrentSessionUserId } from '@/server/auth/getCurrentSessionUserId'
 
 export const joinClub = createServerFn({ method: 'POST' })
@@ -12,6 +12,19 @@ export async function joinClubHandler({ data }: { data: { clubId: string } }) {
   const userId = await getCurrentSessionUserId()
   if (!userId) {
     throw new Error('UNAUTHORIZED')
+  }
+
+  const currentUser = await db
+    .select({ role: users.role })
+    .from(users)
+    .where(eq(users.id, userId))
+    .limit(1)
+
+  const userRole = String(currentUser[0]?.role ?? '')
+    .trim()
+    .toLowerCase()
+  if (userRole === 'admin') {
+    throw new Error('ADMIN_CANNOT_JOIN_CLUB')
   }
 
   const clubId = String(data.clubId).trim()

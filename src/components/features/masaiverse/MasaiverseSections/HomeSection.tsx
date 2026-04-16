@@ -33,6 +33,7 @@ export default function HomeSection({
   const [isLoading, setIsLoading] = useState(true)
   const [joinedClubId, setJoinedClubId] = useState<string | null>(null)
   const [joiningClubId, setJoiningClubId] = useState<string | null>(null)
+  const [clubJoinError, setClubJoinError] = useState<string | null>(null)
   const [enrolledEventIds, setEnrolledEventIds] = useState<Array<string>>([])
   const [joiningEventId, setJoiningEventId] = useState<string | null>(null)
   const [bannerItems, setBannerItems] = useState<Array<ScrollingBannerItem>>([])
@@ -87,6 +88,7 @@ export default function HomeSection({
       return
     }
 
+    setClubJoinError(null)
     setJoiningClubId(clubId)
     try {
       const result = await joinClub({ data: { clubId } })
@@ -98,6 +100,14 @@ export default function HomeSection({
         setJoinedClubId(membership?.joinedClubId ?? result.joinedClubId)
         setEventsList(events)
       }
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : ''
+      if (errorMessage.includes('ADMIN_CANNOT_JOIN_CLUB')) {
+        setClubJoinError('Admins cannot join a club from Masaiverse.')
+        return
+      }
+
+      setClubJoinError('Unable to join club right now. Please try again.')
     } finally {
       setJoiningClubId(null)
     }
@@ -126,6 +136,7 @@ export default function HomeSection({
         return 0
       })
     : clubsList
+  const hasJoinedClub = Boolean(joinedClubId)
 
   return (
     <section className="min-h-[max(400px,calc(100dvh-11rem))] min-w-0 flex-1 overflow-x-hidden rounded-[16px] md:border border-[#E5E7EB] md:bg-[#fff] px-3 md:px-6 md:py-8 mb-[24px]">
@@ -149,8 +160,24 @@ export default function HomeSection({
               void handleEventEnroll(eventId)
             }}
           />
+          {!hasJoinedClub && (
+            <>
+              <HomeClubsCarousel
+                isLoading={isLoading}
+                clubsList={clubsList}
+                orderedClubsList={orderedClubsList}
+                joinedClubId={joinedClubId}
+                onClubJoin={(clubId) => {
+                  void handleClubJoin(clubId)
+                }}
+              />
+              {clubJoinError && (
+                <p className="mt-2 text-sm text-[#DC2626]">{clubJoinError}</p>
+              )}
+            </>
+          )}
           <CommunityDiscussions
-            hasJoinedClub={Boolean(joinedClubId)}
+            hasJoinedClub={hasJoinedClub}
             initialPostIdFromSearch={postId}
             initialCreateDiscussionOpen={shouldOpenCreateDiscussion}
           />
@@ -165,18 +192,25 @@ export default function HomeSection({
             ariaLabel="Masaiverse banners"
             bannerHeading="Last week on Masaiverse"
           />
-          {Boolean(joinedClubId) && (
-            <HomeClubsCarousel
-              isLoading={isLoading}
-              clubsList={clubsList}
-              orderedClubsList={orderedClubsList}
-              joinedClubId={joinedClubId}
-              onClubJoin={(clubId) => {
-                void handleClubJoin(clubId)
-              }}
-              className="mt-6"
-              singleSlideOnly
-            />
+          {hasJoinedClub && (
+            <>
+              <HomeClubsCarousel
+                isLoading={isLoading}
+                clubsList={clubsList}
+                orderedClubsList={orderedClubsList}
+                joinedClubId={joinedClubId}
+                onClubJoin={(clubId) => {
+                  void handleClubJoin(clubId)
+                }}
+                className="mt-6"
+                singleSlideOnly
+              />
+              {clubJoinError && (
+                <p className="mt-2 text-sm text-[#DC2626]">
+                  {clubJoinError}
+                </p>
+              )}
+            </>
           )}
         </aside>
       </div>

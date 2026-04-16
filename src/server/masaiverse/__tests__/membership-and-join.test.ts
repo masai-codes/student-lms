@@ -50,6 +50,7 @@ describe('masaiverse membership and joins', () => {
     const { joinClubHandler } = await import('../joinClub')
     mocks.getCurrentSessionUserId.mockResolvedValueOnce(10)
     mocks.dbSelect
+      .mockReturnValueOnce(mockSelectChain([{ role: 'student' }]))
       .mockReturnValueOnce(mockSelectChain([{ id: 'club-1' }]))
       .mockReturnValueOnce(mockSelectChain([{ clubId: 'club-2' }]))
 
@@ -62,6 +63,16 @@ describe('masaiverse membership and joins', () => {
       reason: 'ALREADY_JOINED_A_CLUB',
     })
     expect(insertValues).not.toHaveBeenCalled()
+  })
+
+  it('joinClub rejects admin users', async () => {
+    const { joinClubHandler } = await import('../joinClub')
+    mocks.getCurrentSessionUserId.mockResolvedValueOnce(10)
+    mocks.dbSelect.mockReturnValueOnce(mockSelectChain([{ role: 'admin' }]))
+
+    await expect(joinClubHandler({ data: { clubId: 'club-1' } })).rejects.toThrow(
+      'ADMIN_CANNOT_JOIN_CLUB',
+    )
   })
 
   it('joinEvent enrolls when event exists and user is not enrolled', async () => {
