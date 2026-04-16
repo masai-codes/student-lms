@@ -81,7 +81,12 @@ async function getJoinedClubId(userId: number) {
     .where(eq(clubMembers.userId, userId))
     .limit(1)
 
-  return membership[0]?.clubId ?? null
+  return membership[0]?.clubId != null ? String(membership[0].clubId) : null
+}
+
+function isSameClubId(left: string | number | null | undefined, right: string | number | null | undefined) {
+  if (left == null || right == null) return false
+  return String(left) === String(right)
 }
 
 function normalizePostId(postId: DiscussionEntityId): number {
@@ -501,7 +506,7 @@ export async function createCommunityReplyHandler({ data }: { data: { postId: Di
       LIMIT 1
     `))
 
-    if (postRows.length === 0 || postRows[0].clubId !== joinedClubId) {
+    if (postRows.length === 0 || !isSameClubId(postRows[0].clubId, joinedClubId)) {
       throw new Error('POST_NOT_FOUND_IN_JOINED_CLUB')
     }
 
@@ -558,7 +563,7 @@ async function applyPostVote(
     LIMIT 1
   `))
 
-  if (postRows.length === 0 || postRows[0].clubId !== joinedClubId) {
+  if (postRows.length === 0 || !isSameClubId(postRows[0].clubId, joinedClubId)) {
     throw new Error('POST_NOT_FOUND_IN_JOINED_CLUB')
   }
   const post = postRows[0]
@@ -609,7 +614,7 @@ async function applyReplyVote(userId: number, replyId: string, voteValue: VoteVa
     LIMIT 1
   `))
 
-  if (replyRows.length === 0 || replyRows[0].clubId !== joinedClubId) {
+  if (replyRows.length === 0 || !isSameClubId(replyRows[0].clubId, joinedClubId)) {
     throw new Error('REPLY_NOT_FOUND_IN_JOINED_CLUB')
   }
 
@@ -723,7 +728,7 @@ export async function toggleCommunityPostBookmarkHandler({ data }: { data: { pos
       LIMIT 1
     `))
 
-    if (postRows.length === 0 || postRows[0].clubId !== joinedClubId) {
+    if (postRows.length === 0 || !isSameClubId(postRows[0].clubId, joinedClubId)) {
       throw new Error('POST_NOT_FOUND_IN_JOINED_CLUB')
     }
 

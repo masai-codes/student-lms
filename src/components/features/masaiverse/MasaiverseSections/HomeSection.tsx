@@ -121,8 +121,8 @@ export default function HomeSection({
 
   const orderedClubsList = joinedClubId
     ? [...clubsList].sort((a, b) => {
-        if (a.id === joinedClubId) return -1
-        if (b.id === joinedClubId) return 1
+        if (String(a.id) === joinedClubId) return -1
+        if (String(b.id) === joinedClubId) return 1
         return 0
       })
     : clubsList

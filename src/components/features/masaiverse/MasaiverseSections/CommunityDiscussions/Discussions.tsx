@@ -160,8 +160,9 @@ const Disucssions = ({
       navigate({
         to: '/masaiverse',
         replace: true,
-        search: (prev) => ({
-          ...prev,
+        search: () => ({
+          tab: 'home' as const,
+          postId: undefined,
           createDiscussion: undefined,
         }),
       })
@@ -177,6 +178,22 @@ const Disucssions = ({
 
   return (
     <div className="space-y-4">
+      {posts.length > 0 ? (
+        <div className="rounded-lg border border-[#E5E7EB] bg-white p-4">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <p className="text-sm text-[#6B7280]">
+              Keep the conversation going. Share your thoughts or ask a question.
+            </p>
+            <button
+              type="button"
+              onClick={() => setIsCreateModalOpen(true)}
+              className="shrink-0 rounded-md border border-[#EF8833] bg-[#FFF7ED] px-3 py-2 text-sm font-semibold text-[#C96B1E] hover:bg-[#FBE7D6]"
+            >
+              Create Discussion
+            </button>
+          </div>
+        </div>
+      ) : null}
       <div className="flex flex-wrap items-center gap-2">
         {discussionSortOptions.map((option) => {
           const isActive = sortBy === option.key

@@ -27,7 +27,8 @@ type ClubSlideProps = {
 
 const ClubSlide = ({ club, joinedClubId, onClubJoin }: ClubSlideProps) => {
   const clubCardProps = mapClubToCardProps(club)
-  const isJoinedClub = joinedClubId === club.id
+  const clubId = String(club.id)
+  const isJoinedClub = joinedClubId === clubId
   const hasJoinedAnotherClub = Boolean(joinedClubId && !isJoinedClub)
   const hasJoinedAtLeastOneClub = Boolean(joinedClubId)
 
@@ -54,7 +55,7 @@ const ClubSlide = ({ club, joinedClubId, onClubJoin }: ClubSlideProps) => {
           isJoinedClub || hasJoinedAnotherClub
             ? undefined
             : () => {
-                onClubJoin(club.id)
+                onClubJoin(clubId)
               }
         }
       />
