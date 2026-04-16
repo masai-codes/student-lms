@@ -30,6 +30,7 @@ type ClubCardDrawerProps = Pick<
   | "domain"
   | "name"
   | "imageUrl"
+  | "shouldCompress"
   | "totalMembers"
   | "detailPoints"
   | "detailDescription"
@@ -50,6 +51,7 @@ export function ClubCardDrawer({
   domain,
   name,
   imageUrl,
+  shouldCompress = false,
   totalMembers,
   detailPoints,
   detailDescription,
@@ -160,10 +162,10 @@ export function ClubCardDrawer({
                 </ul>
               </div>
 
-              {!drawerPinFooter ? footerCta : null}
+              {!drawerPinFooter && !shouldCompress ? footerCta : null}
             </div>
           </div>
-          {drawerPinFooter ? footerCta : null}
+          {drawerPinFooter && !shouldCompress ? footerCta : null}
         </Dialog.Content>
       </Dialog.Portal>
     </Dialog.Root>

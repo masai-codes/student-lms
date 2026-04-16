@@ -60,8 +60,9 @@ export function ClubCardPreview({
   if (shouldCompress) {
     return (
       <div
+        onClick={onCtaClick}
         className={cn(
-          "font-poppins flex h-full w-full max-w-[300px] rounded-[12px] border border-[#E5E7EB] bg-white p-4",
+          "font-poppins flex h-full w-full max-w-[300px] cursor-pointer rounded-[12px] border border-[#E5E7EB] bg-white p-4",
           className,
         )}
       >
@@ -82,8 +83,9 @@ export function ClubCardPreview({
 
   return (
     <div
+      onClick={onCtaClick}
       className={cn(
-        "font-poppins flex h-full w-full max-w-[300px] flex-col rounded-[12px] border border-[#E5E7EB] bg-white p-4",
+        "font-poppins flex h-full w-full max-w-[300px] cursor-pointer flex-col rounded-[12px] border border-[#E5E7EB] bg-white p-4",
         className,
       )}
     >
