@@ -6,6 +6,10 @@ import { redirectToOldStudentUi } from '@/utils/authRedirect'
 
 export const Route = createFileRoute('/(protected)/_layout/masaiverse')({
   loader: async ({ context }) => {
+    if (context.user.role === 'admin') {
+      return { canShowMasaiverse: true }
+    }
+
     const canShowMasaiverse = await showMasaiversePage({
       data: { userId: context.user.id },
     })

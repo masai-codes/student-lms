@@ -41,6 +41,7 @@ export const fetchCurrentUser = createServerFn({ method: "GET" }).handler(async 
     name: string;
     email: string;
     mobile: string | null;
+    role: string | null;
     profileImage: string | null;
   }>(
     await db.execute(sql`
@@ -49,6 +50,7 @@ export const fetchCurrentUser = createServerFn({ method: "GET" }).handler(async 
         u.name,
         u.email,
         u.mobile,
+        u.role,
         COALESCE(
           JSON_UNQUOTE(JSON_EXTRACT(pr.meta, '$.profile_pic')),
           JSON_UNQUOTE(JSON_EXTRACT(u.meta, '$.profile_pic')),
@@ -84,6 +86,7 @@ export const fetchCurrentUser = createServerFn({ method: "GET" }).handler(async 
     name: row.name,
     email: row.email,
     mobile: row.mobile,
+    role: row.role,
     profileImageUrl: pickProfileImageUrl(row.profileImage),
     joinedClubId: membershipRows[0]?.clubId ?? null,
   };
