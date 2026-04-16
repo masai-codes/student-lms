@@ -12,6 +12,7 @@ import {
 import { CardCtaButton } from "../shared/card-cta-button";
 import type { DrawerDirection, EventCardProps } from "./types";
 import type { ReactNode } from "react";
+import { RichContent } from "./rich-content";
 
 import { cn } from "@/lib/utils";
 
@@ -114,9 +115,6 @@ export function EventCardDrawer({
 }: EventCardDrawerProps) {
   const resolvedTitle = toCapitalizedWords(title);
   const resolvedCategory = toCapitalizedWords(category);
-  const resolvedEventDetailDescription = toCapitalizedWords(
-    eventDetailDescription,
-  );
   const resolvedCtaText = toCapitalizedWords(ctaText);
   const mapTagValue =
     showLocationTextInMapsTag && eventLocationText?.trim()
@@ -234,9 +232,10 @@ export function EventCardDrawer({
               </div>
             )}
 
-            <p className="mt-4 text-[14px] leading-[22px] text-[#374151]">
-              {resolvedEventDetailDescription}
-            </p>
+            <RichContent
+              value={eventDetailDescription}
+              className="mt-4 text-[14px] leading-[22px] text-[#374151] [&_a]:underline [&_ol]:list-decimal [&_ol]:pl-5 [&_p]:mb-3 [&_p:last-child]:mb-0 [&_ul]:list-disc [&_ul]:pl-5"
+            />
 
             <div className="mt-6">
               <h4 className="text-[14px] font-[600] leading-[20px] text-[#111928]">

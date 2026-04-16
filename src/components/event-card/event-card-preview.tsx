@@ -2,6 +2,7 @@ import { cn } from "@/lib/utils";
 
 import type { EventCardProps } from "./types";
 import { CardCtaButton } from "../shared/card-cta-button";
+import { toRichPreviewText } from "./rich-content";
 
 function toCapitalizedWords(value: string) {
   return value.replace(/\b\w/g, (char) => char.toUpperCase());
@@ -56,7 +57,7 @@ export function EventCardPreview({
   className,
 }: EventCardPreviewProps) {
   const resolvedTitle = toCapitalizedWords(title);
-  const resolvedMiniDescription = toCapitalizedWords(miniDescription);
+  const resolvedMiniDescription = toRichPreviewText(miniDescription);
   const resolvedCategory = toCapitalizedWords(category);
   const resolvedCtaText = toCapitalizedWords(ctaText);
   const { day, month } = getDateParts(date);

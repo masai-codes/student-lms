@@ -5,6 +5,7 @@ import { Users } from "@phosphor-icons/react";
 import { X } from "lucide-react";
 import { CardCtaButton } from "../shared/card-cta-button";
 import type { ClubCardProps, DrawerDirection } from "./types";
+import { RichContent } from "./rich-content";
 
 import { cn } from "@/lib/utils";
 
@@ -68,7 +69,6 @@ export function ClubCardDrawer({
 }: ClubCardDrawerProps) {
   const resolvedDomain = toCapitalizedWords(domain);
   const resolvedName = toCapitalizedWords(name);
-  const resolvedDetailDescription = toCapitalizedWords(detailDescription);
   const resolvedCtaText = toCapitalizedWords(ctaText);
   const memberCount = parsePositiveMemberCount(totalMembers);
 
@@ -138,9 +138,10 @@ export function ClubCardDrawer({
               <p className="text-[18px] font-[600] leading-[28px] font-poppins text-[#111928]">
                 {resolvedName}
               </p>
-              <p className="mt-[8px] text-[14px] font-[400] leading-[20px] font-poppins text-[#374151]">
-                {resolvedDetailDescription}
-              </p>
+              <RichContent
+                value={detailDescription}
+                className="mt-[8px] text-[14px] font-[400] leading-[20px] font-poppins text-[#374151] [&_a]:underline [&_ol]:list-decimal [&_ol]:pl-5 [&_p]:mb-3 [&_p:last-child]:mb-0 [&_ul]:list-disc [&_ul]:pl-5"
+              />
               {memberCount !== null ? (
                 <div className="mt-[12px] flex w-fit items-center gap-[6px] rounded-[32px] border border-[#E5E7EB] px-[12px] py-[4px] text-[#111928]">
                   <Users size={20} aria-hidden="true" color="#374151" />

@@ -3,6 +3,7 @@ import { cn } from "@/lib/utils";
 import type { ClubCardProps } from "./types";
 import { CardCtaButton } from "../shared/card-cta-button";
 import { CheckCircle } from "@phosphor-icons/react";
+import { toRichPreviewText } from "./rich-content";
 
 function toCapitalizedWords(value: string) {
   return value.replace(/\b\w/g, (char) => char.toUpperCase());
@@ -37,7 +38,7 @@ export function ClubCardPreview({
 }: ClubCardPreviewProps) {
   const resolvedName = toCapitalizedWords(name);
   const resolvedDomain = toCapitalizedWords(domain);
-  const resolvedMiniDescription = toCapitalizedWords(miniDescription);
+  const resolvedMiniDescription = toRichPreviewText(miniDescription);
   const resolvedCtaText = toCapitalizedWords(ctaText);
 
   const iconBlock = (
