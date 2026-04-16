@@ -1,6 +1,7 @@
 'use client'
 
 import { useCallback, useMemo, useRef, useState } from 'react'
+import { useQuery } from '@tanstack/react-query'
 import { getRouteApi } from '@tanstack/react-router'
 import {
   Book,
@@ -35,6 +36,7 @@ import {
   getPostLogoutRedirectUrl,
 } from '@/utils/authRedirect'
 import { fetchLevelupSso } from '@/utils/levelupSso'
+import { fetchReferralLmsLoginRedirectUrl } from '@/utils/referralLmsLogin'
 
 const layoutRouteApi = getRouteApi('/(protected)/_layout')
 
@@ -74,6 +76,16 @@ export default function AppNavbar() {
   const [downloadAppOpen, setDownloadAppOpen] = useState(false)
   const [isLevelupLoading, setIsLevelupLoading] = useState(false)
   const levelupLoadingRef = useRef(false)
+  const REFERRAL_URL_REFETCH_INTERVAL = 5 * 60 * 1000
+
+  const { data: referralUrl, isFetching: isReferralUrlLoading } = useQuery({
+    queryKey: ['referral-lms-login-url'],
+    queryFn: fetchReferralLmsLoginRedirectUrl,
+    staleTime: REFERRAL_URL_REFETCH_INTERVAL,
+    refetchInterval: REFERRAL_URL_REFETCH_INTERVAL,
+    refetchIntervalInBackground: false,
+    retry: 1,
+  })
 
   const handleLevelupClick = useCallback(async (e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault()
@@ -105,6 +117,26 @@ export default function AppNavbar() {
     window.location.assign(getPostLogoutRedirectUrl())
   }, [])
 
+  const handleReferAndEarnClick = useCallback(
+    (e: React.MouseEvent<HTMLAnchorElement>) => {
+      e.preventDefault()
+      if (referralUrl) {
+        window.open(referralUrl, '_blank', 'noopener,noreferrer')
+        return
+      }
+
+      if (isReferralUrlLoading) {
+        window.alert('Loading referral link...')
+        return
+      }
+
+      const fallbackHref =
+        getOldStudentUiUrlForPath(OLD_STUDENT_UI_NAV_PATHS.referAndEarn) ?? '/refer-and-earn'
+      window.location.assign(fallbackHref)
+    },
+    [isReferralUrlLoading, referralUrl],
+  )
+
   const navItems: Array<NavbarLinkItem> = [
     {
       id: 'home',
@@ -129,7 +161,9 @@ export default function AppNavbar() {
     {
       id: 'refer',
       label: 'Refer & Earn',
-      ...oldStudentUiLink(OLD_STUDENT_UI_NAV_PATHS.referAndEarn),
+      href: '#',
+      openInNewTab: false,
+      onClick: handleReferAndEarnClick,
     },
   ]
 
