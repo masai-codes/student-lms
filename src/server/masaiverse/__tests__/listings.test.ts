@@ -1,0 +1,76 @@
+import { describe, expect, it } from 'vitest'
+import {
+  getMocks,
+  mockSelectOrderByChain,
+  mockSelectWhereChain,
+  registerCommonBeforeEach,
+} from './testSetup'
+
+registerCommonBeforeEach()
+const mocks = getMocks()
+
+describe('masaiverse listings', () => {
+  it('fetchAllClubs maps null meta and returns rows', async () => {
+    const { fetchAllClubsHandler } = await import('../fetchClubs')
+    mocks.dbSelect.mockReturnValueOnce(
+      mockSelectOrderByChain([
+        { id: 'club-1', name: 'A', meta: null },
+        { id: 'club-2', name: 'B', meta: { mini_description: 'x' } },
+      ]),
+    )
+
+    await expect(fetchAllClubsHandler()).resolves.toEqual([
+      { id: 'club-1', name: 'A', meta: null },
+      { id: 'club-2', name: 'B', meta: { mini_description: 'x' } },
+    ])
+  })
+
+  it('fetchAllClubs throws stable error when db fails', async () => {
+    const { fetchAllClubsHandler } = await import('../fetchClubs')
+    mocks.dbSelect.mockImplementationOnce(() => {
+      throw new Error('db fail')
+    })
+
+    await expect(fetchAllClubsHandler()).rejects.toThrow('SERVER_ERROR_FETCHING_CLUBS')
+  })
+
+  it('fetchAllEvents returns events and prioritizes joined active events', async () => {
+    const { fetchAllEventsHandler } = await import('../fetchEvents')
+    mocks.getCurrentSessionUserId.mockResolvedValueOnce(99)
+    mocks.dbSelect
+      .mockReturnValueOnce(mockSelectWhereChain([{ clubId: 'club-joined' }]))
+      .mockReturnValueOnce(
+        mockSelectOrderByChain([
+          {
+            id: 'e-other',
+            clubId: null,
+            startTime: '2030-01-01T11:00:00.000Z',
+            endTime: '2030-01-01T12:00:00.000Z',
+            createdAt: '2030-01-01T10:00:00.000Z',
+            title: 'Other',
+          },
+          {
+            id: 'e-joined',
+            clubId: 'club-joined',
+            startTime: '2030-01-01T13:00:00.000Z',
+            endTime: '2030-01-01T14:00:00.000Z',
+            createdAt: '2030-01-01T09:00:00.000Z',
+            title: 'Joined',
+          },
+        ]),
+      )
+
+    const result = await fetchAllEventsHandler({ data: { searchQuery: '  any  ' } })
+    expect(result.map((event) => event.id)).toEqual(['e-joined', 'e-other'])
+  })
+
+  it('fetchAllEvents throws stable error when query fails', async () => {
+    const { fetchAllEventsHandler } = await import('../fetchEvents')
+    mocks.getCurrentSessionUserId.mockResolvedValueOnce(null)
+    mocks.dbSelect.mockImplementationOnce(() => {
+      throw new Error('events db error')
+    })
+
+    await expect(fetchAllEventsHandler({ data: {} })).rejects.toThrow('SERVER_ERROR_FETCHING_EVENTS')
+  })
+})

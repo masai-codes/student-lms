@@ -9,7 +9,9 @@ export type EventType = InferSelectModel<typeof events>
 
 export const fetchAllEvents = createServerFn({ method: "GET" })
   .inputValidator((data: { searchQuery?: string } = {}) => data)
-  .handler(async ({ data }) => {
+  .handler(fetchAllEventsHandler)
+
+export async function fetchAllEventsHandler({ data }: { data: { searchQuery?: string } }) {
     try {
       const userId = await getCurrentSessionUserId()
       const memberships = userId
@@ -79,4 +81,4 @@ export const fetchAllEvents = createServerFn({ method: "GET" })
       console.error("🔥 Server/DB error", err)
       throw new Error("SERVER_ERROR_FETCHING_EVENTS")
     }
-  })
+  }

@@ -19,6 +19,15 @@ alwaysApply: true
 - Prefer behavior-driven tests with Testing Library over implementation details.
 - Cover positive path, fallback/edge case, and critical UI state transitions.
 - Keep tests deterministic; avoid timing-sensitive assertions where possible.
+- Write tests side by side with implementation in the same PR; do not defer tests to follow-up work.
+- Use `vitest` for unit tests and keep test files colocated or clearly paired with source files (for example, `foo.ts` + `foo.test.ts`).
+- Coverage target for this repo is 100%; at minimum, any touched module must stay at 100% statement/branch/function/line coverage.
+
+## Testing Documentation
+- Keep `docs/testing/feature-test-matrix.md` updated for every touched feature.
+- Add or update `docs/testing/features/<feature>.md` when tests are added/changed/removed.
+- Complete `docs/testing/pr-checklist.md` in every PR that changes feature behavior or test setup.
+- Ensure documented test commands are valid and runnable.
 
 ## Styling and UX
 - Follow existing Tailwind and component style conventions in the same feature area.

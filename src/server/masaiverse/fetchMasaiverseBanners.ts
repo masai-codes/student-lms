@@ -38,7 +38,11 @@ export type MasaiverseBannerType = {
   ctaUrl?: string
 }
 
-export const fetchMasaiverseBanners = createServerFn({ method: 'GET' }).handler(async () => {
+export const fetchMasaiverseBanners = createServerFn({ method: 'GET' }).handler(
+  fetchMasaiverseBannersHandler,
+)
+
+export async function fetchMasaiverseBannersHandler() {
   try {
     const rows = normalizeRows<BannerRow>(
       await db.execute(sql`
@@ -66,4 +70,4 @@ export const fetchMasaiverseBanners = createServerFn({ method: 'GET' }).handler(
     console.error('🔥 Server/DB error', err)
     throw new Error('SERVER_ERROR_FETCHING_MASAIVERSE_BANNERS')
   }
-})
+}

@@ -115,7 +115,9 @@ function getPlainTextFromHtml(content: string): string {
 
 export const fetchCommunityDiscussions = createServerFn({ method: 'GET' })
   .inputValidator((data?: { sortBy?: DiscussionSortMode }) => data ?? {})
-  .handler(async ({ data }) => {
+  .handler(fetchCommunityDiscussionsHandler)
+
+export async function fetchCommunityDiscussionsHandler({ data }: { data: { sortBy?: DiscussionSortMode } }) {
   const sortBy: DiscussionSortMode = data.sortBy ?? 'new'
   const userId = await getCurrentSessionUserId()
   if (!userId) {
@@ -414,11 +416,13 @@ export const fetchCommunityDiscussions = createServerFn({ method: 'GET' })
     sortBy,
     posts: result,
   }
-})
+}
 
 export const createCommunityPost = createServerFn({ method: 'POST' })
   .inputValidator((data: { content: string }) => data)
-  .handler(async ({ data }) => {
+  .handler(createCommunityPostHandler)
+
+export async function createCommunityPostHandler({ data }: { data: { content: string } }) {
     const userId = await getCurrentSessionUserId()
     if (!userId) {
       throw new Error('UNAUTHORIZED')
@@ -440,11 +444,13 @@ export const createCommunityPost = createServerFn({ method: 'POST' })
     `)
 
     return { success: true }
-  })
+  }
 
 export const createCommunityReply = createServerFn({ method: 'POST' })
   .inputValidator((data: { postId: DiscussionEntityId; content: string }) => data)
-  .handler(async ({ data }) => {
+  .handler(createCommunityReplyHandler)
+
+export async function createCommunityReplyHandler({ data }: { data: { postId: DiscussionEntityId; content: string } }) {
     const userId = await getCurrentSessionUserId()
     if (!userId) {
       throw new Error('UNAUTHORIZED')
@@ -505,7 +511,7 @@ export const createCommunityReply = createServerFn({ method: 'POST' })
     }
 
     return { success: true }
-  })
+  }
 
 async function applyPostVote(
   userId: number,
@@ -614,7 +620,9 @@ async function applyReplyVote(userId: number, replyId: string, voteValue: VoteVa
 
 export const voteCommunityPost = createServerFn({ method: 'POST' })
   .inputValidator((data: { postId: DiscussionEntityId; vote: VoteValue }) => data)
-  .handler(async ({ data }) => {
+  .handler(voteCommunityPostHandler)
+
+export async function voteCommunityPostHandler({ data }: { data: { postId: DiscussionEntityId; vote: VoteValue } }) {
     const userId = await getCurrentSessionUserId()
     if (!userId) {
       throw new Error('UNAUTHORIZED')
@@ -649,11 +657,13 @@ export const voteCommunityPost = createServerFn({ method: 'POST' })
     }
 
     return { success: true }
-  })
+  }
 
 export const voteCommunityReply = createServerFn({ method: 'POST' })
   .inputValidator((data: { replyId: string; vote: VoteValue }) => data)
-  .handler(async ({ data }) => {
+  .handler(voteCommunityReplyHandler)
+
+export async function voteCommunityReplyHandler({ data }: { data: { replyId: string; vote: VoteValue } }) {
     const userId = await getCurrentSessionUserId()
     if (!userId) {
       throw new Error('UNAUTHORIZED')
@@ -661,11 +671,13 @@ export const voteCommunityReply = createServerFn({ method: 'POST' })
 
     await applyReplyVote(userId, data.replyId, data.vote)
     return { success: true }
-  })
+  }
 
 export const toggleCommunityPostBookmark = createServerFn({ method: 'POST' })
   .inputValidator((data: { postId: DiscussionEntityId }) => data)
-  .handler(async ({ data }) => {
+  .handler(toggleCommunityPostBookmarkHandler)
+
+export async function toggleCommunityPostBookmarkHandler({ data }: { data: { postId: DiscussionEntityId } }) {
     const userId = await getCurrentSessionUserId()
     if (!userId) {
       throw new Error('UNAUTHORIZED')
@@ -712,4 +724,4 @@ export const toggleCommunityPostBookmark = createServerFn({ method: 'POST' })
     `)
 
     return { success: true, isBookmarked: false }
-  })
+  }

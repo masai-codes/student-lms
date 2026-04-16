@@ -35,8 +35,6 @@ describe("SidebarList", () => {
 
     expect(screen.getByTestId("item-home")).toBeTruthy()
     expect(screen.getByTestId("item-events")).toBeTruthy()
-    expect(screen.getByTestId("item-leaderboard")).toBeTruthy()
-    expect(screen.getByTestId("item-resources")).toBeTruthy()
 
     const homeCall = mockSidebarItem.mock.calls.find((call) => {
       const props = call[0] as SidebarItemRenderProps

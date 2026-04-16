@@ -6,50 +6,52 @@ import { getCurrentSessionUserId } from '@/server/auth/getCurrentSessionUserId'
 
 export const joinEvent = createServerFn({ method: 'POST' })
   .inputValidator((data: { eventId: string }) => data)
-  .handler(async ({ data }) => {
-    const userId = await getCurrentSessionUserId()
-    if (!userId) {
-      throw new Error('UNAUTHORIZED')
-    }
+  .handler(joinEventHandler)
 
-    const eventId = data.eventId.trim()
-    if (!eventId) {
-      throw new Error('INVALID_EVENT_ID')
-    }
+export async function joinEventHandler({ data }: { data: { eventId: string } }) {
+  const userId = await getCurrentSessionUserId()
+  if (!userId) {
+    throw new Error('UNAUTHORIZED')
+  }
 
-    const event = await db
-      .select({ id: events.id })
-      .from(events)
-      .where(eq(events.id, eventId))
-      .limit(1)
+  const eventId = data.eventId.trim()
+  if (!eventId) {
+    throw new Error('INVALID_EVENT_ID')
+  }
 
-    if (!event[0]) {
-      throw new Error('EVENT_NOT_FOUND')
-    }
+  const event = await db
+    .select({ id: events.id })
+    .from(events)
+    .where(eq(events.id, eventId))
+    .limit(1)
 
-    const existingEnrollment = await db
-      .select({ id: eventEnrollments.id })
-      .from(eventEnrollments)
-      .where(and(eq(eventEnrollments.userId, userId), eq(eventEnrollments.eventId, eventId)))
-      .limit(1)
+  if (!event[0]) {
+    throw new Error('EVENT_NOT_FOUND')
+  }
 
-    if (existingEnrollment[0]) {
-      return {
-        success: true,
-        enrolledEventId: eventId,
-        reason: 'ALREADY_ENROLLED',
-      }
-    }
+  const existingEnrollment = await db
+    .select({ id: eventEnrollments.id })
+    .from(eventEnrollments)
+    .where(and(eq(eventEnrollments.userId, userId), eq(eventEnrollments.eventId, eventId)))
+    .limit(1)
 
-    await db.insert(eventEnrollments).values({
-      id: sql`UUID()` as unknown as string,
-      userId,
-      eventId,
-    })
-
+  if (existingEnrollment[0]) {
     return {
       success: true,
       enrolledEventId: eventId,
-      reason: 'ENROLLED',
+      reason: 'ALREADY_ENROLLED',
     }
+  }
+
+  await db.insert(eventEnrollments).values({
+    id: sql`UUID()` as unknown as string,
+    userId,
+    eventId,
   })
+
+  return {
+    success: true,
+    enrolledEventId: eventId,
+    reason: 'ENROLLED',
+  }
+}

@@ -4,7 +4,11 @@ import { db } from '@/db'
 import { clubMembers } from '@/db/schema'
 import { getCurrentSessionUserId } from '@/server/auth/getCurrentSessionUserId'
 
-export const fetchMyClubMembership = createServerFn({ method: 'GET' }).handler(async () => {
+export const fetchMyClubMembership = createServerFn({ method: 'GET' }).handler(
+  fetchMyClubMembershipHandler,
+)
+
+export async function fetchMyClubMembershipHandler() {
   const userId = await getCurrentSessionUserId()
   if (!userId) return null
 
@@ -25,4 +29,4 @@ export const fetchMyClubMembership = createServerFn({ method: 'GET' }).handler(a
     role,
     isAltLead: normalizedRole === 'altlead',
   }
-})
+}
