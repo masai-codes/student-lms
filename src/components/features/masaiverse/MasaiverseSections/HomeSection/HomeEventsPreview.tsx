@@ -27,6 +27,9 @@ const HomeEventsPreview = ({
   onViewAll,
   onEventEnroll,
 }: HomeEventsPreviewProps) => {
+  const previewEvents = eventsList.slice(0, 2)
+  const isSinglePreviewEvent = previewEvents.length === 1
+
   return (
     <div className="mt-6">
       <div className="flex items-center justify-between">
@@ -56,7 +59,7 @@ const HomeEventsPreview = ({
         <div className="relative mt-4 overflow-hidden">
           <Swiper
             spaceBetween={16}
-            slidesPerView={1.5}
+            slidesPerView={isSinglePreviewEvent ? 1 : 1.5}
             breakpoints={{
               768: {
                 slidesPerView: 2,
@@ -64,7 +67,7 @@ const HomeEventsPreview = ({
             }}
             className="w-full px-2 [&_.swiper-wrapper]:items-stretch [&_.swiper-slide]:!h-auto"
           >
-            {eventsList.slice(0, 2).map((event) => {
+            {previewEvents.map((event) => {
               const isEnrolled = enrolledEventIds.includes(event.id)
               const eventCardProps = mapEventToCardProps(event)
               const eventEndTime = event.endTime

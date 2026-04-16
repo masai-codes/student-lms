@@ -17,6 +17,8 @@ type HomeClubsCarouselProps = {
   orderedClubsList: Array<ClubType>
   joinedClubId: string | null
   onClubJoin: (clubId: string) => void
+  className?: string
+  singleSlideOnly?: boolean
 }
 
 type ClubSlideProps = {
@@ -69,9 +71,11 @@ const HomeClubsCarousel = ({
   orderedClubsList,
   joinedClubId,
   onClubJoin,
+  className = 'mt-8',
+  singleSlideOnly = false,
 }: HomeClubsCarouselProps) => {
   return (
-    <div className="mt-8">
+    <div className={className}>
       <h2 className="text-[18px] font-semibold text-[#111827]">
         Student Clubs
       </h2>
@@ -92,11 +96,15 @@ const HomeClubsCarousel = ({
             }}
             spaceBetween={16}
             slidesPerView={1}
-            breakpoints={{
-              768: {
-                slidesPerView: 2,
-              },
-            }}
+            breakpoints={
+              singleSlideOnly
+                ? undefined
+                : {
+                    768: {
+                      slidesPerView: 2,
+                    },
+                  }
+            }
             className="w-full px-2 [&_.swiper-wrapper]:items-stretch [&_.swiper-slide]:!h-auto"
           >
             {orderedClubsList.map((club) => (

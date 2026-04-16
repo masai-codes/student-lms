@@ -149,16 +149,6 @@ export default function HomeSection({
               void handleEventEnroll(eventId)
             }}
           />
-          <HomeClubsCarousel
-            isLoading={isLoading}
-            clubsList={clubsList}
-            orderedClubsList={orderedClubsList}
-            joinedClubId={joinedClubId}
-            onClubJoin={(clubId) => {
-              void handleClubJoin(clubId)
-            }}
-          />
-
           <CommunityDiscussions
             hasJoinedClub={Boolean(joinedClubId)}
             initialPostIdFromSearch={postId}
@@ -175,6 +165,19 @@ export default function HomeSection({
             ariaLabel="Masaiverse banners"
             bannerHeading="Last week on Masaiverse"
           />
+          {Boolean(joinedClubId) && (
+            <HomeClubsCarousel
+              isLoading={isLoading}
+              clubsList={clubsList}
+              orderedClubsList={orderedClubsList}
+              joinedClubId={joinedClubId}
+              onClubJoin={(clubId) => {
+                void handleClubJoin(clubId)
+              }}
+              className="mt-6"
+              singleSlideOnly
+            />
+          )}
         </aside>
       </div>
     </section>
