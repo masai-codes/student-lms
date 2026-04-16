@@ -82,4 +82,19 @@ describe('community discussions admin flexibility', () => {
       }),
     ).resolves.toEqual({ success: true, isBookmarked: true })
   })
+
+  it('toggleCommunityPostBan allows admin', async () => {
+    const { toggleCommunityPostBanHandler } = await import('../communityDiscussions')
+    mocks.getCurrentSessionUserId.mockResolvedValueOnce(101)
+    mocks.dbSelect.mockReturnValueOnce(mockSelectChain([{ role: 'admin' }]))
+    mocks.dbExecute
+      .mockResolvedValueOnce([{ id: '1' }])
+      .mockResolvedValueOnce(undefined)
+
+    await expect(
+      toggleCommunityPostBanHandler({
+        data: { postId: 1, shouldBan: true },
+      }),
+    ).resolves.toEqual({ success: true, isBanned: true })
+  })
 })

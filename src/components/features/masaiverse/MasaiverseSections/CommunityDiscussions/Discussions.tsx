@@ -23,6 +23,7 @@ import {
   createCommunityReply,
   fetchCommunityDiscussions,
   toggleCommunityPostBookmark,
+  toggleCommunityPostBan,
   voteCommunityPost,
   voteCommunityReply,
 } from '@/server/masaiverse/communityDiscussions'
@@ -191,6 +192,14 @@ const Disucssions = ({
     await refreshDiscussions()
   }
 
+  const handleTogglePostBan = async (
+    postId: DiscussionEntityId,
+    shouldBan: boolean,
+  ) => {
+    await toggleCommunityPostBan({ data: { postId, shouldBan } })
+    await refreshDiscussions()
+  }
+
   const removePostIdSearchParam = () => {
     navigate({
       to: '/masaiverse',
@@ -295,11 +304,13 @@ const Disucssions = ({
         </div>
       ) : (
         <DiscussionsList
+          isAdmin={isAdmin}
           posts={posts}
           onVotePost={handleVotePost}
           onVoteReply={handleVoteReply}
           onReply={handleReply}
           onToggleBookmark={handleToggleBookmark}
+          onTogglePostBan={handleTogglePostBan}
           openPostId={openPostId}
           onPostDrawerOpenChange={handlePostDrawerOpenChange}
           onCreateDiscussionClick={() => setIsCreateModalOpen(true)}

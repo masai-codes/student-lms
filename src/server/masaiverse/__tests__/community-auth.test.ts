@@ -16,7 +16,9 @@ describe('community discussions auth guards', () => {
     const { createCommunityPostHandler } = await import('../communityDiscussions')
     mocks.getCurrentSessionUserId.mockResolvedValueOnce(null)
 
-    await expect(createCommunityPostHandler({ data: { content: 'Hello' } })).rejects.toThrow('UNAUTHORIZED')
+    await expect(
+      createCommunityPostHandler({ data: { title: 'Hi', content: 'Hello' } }),
+    ).rejects.toThrow('UNAUTHORIZED')
   })
 
   it('createCommunityReply rejects unauthorized user', async () => {
@@ -53,5 +55,14 @@ describe('community discussions auth guards', () => {
     await expect(toggleCommunityPostBookmarkHandler({ data: { postId: 1 } })).rejects.toThrow(
       'UNAUTHORIZED',
     )
+  })
+
+  it('toggleCommunityPostBan rejects unauthorized user', async () => {
+    const { toggleCommunityPostBanHandler } = await import('../communityDiscussions')
+    mocks.getCurrentSessionUserId.mockResolvedValueOnce(null)
+
+    await expect(
+      toggleCommunityPostBanHandler({ data: { postId: 1, shouldBan: true } }),
+    ).rejects.toThrow('UNAUTHORIZED')
   })
 })

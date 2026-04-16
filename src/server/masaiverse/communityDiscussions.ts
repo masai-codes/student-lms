@@ -32,6 +32,7 @@ export type DiscussionPost = {
   id: DiscussionEntityId
   title: string
   content: string
+  isBanned: boolean
   createdAt: string | null
   authorName: string
   authorProfileImage: string | null
@@ -209,6 +210,7 @@ export async function fetchCommunityDiscussionsHandler({
     id: DiscussionEntityId
     title: string | null
     content: string | null
+    isBanned: boolean | number | null
     createdAt: string | null
     authorName: string
     authorProfileImage: string | null
@@ -217,6 +219,7 @@ export async function fetchCommunityDiscussionsHandler({
       p.id,
       p.title,
       p.content,
+      p.is_banned AS isBanned,
       p.created_at AS createdAt,
       u.name AS authorName,
       COALESCE(
@@ -236,6 +239,7 @@ export async function fetchCommunityDiscussionsHandler({
       ) latestProfile ON latestProfile.latestProfileId = p1.id
     ) pr ON pr.userId = u.id
     WHERE p.club_id = ${selectedClubId}
+      AND (${isAdmin ? 1 : 0} = 1 OR p.is_banned = 0)
     ORDER BY p.created_at DESC
   `))
 
@@ -415,6 +419,7 @@ export async function fetchCommunityDiscussionsHandler({
       id: postRow.id,
       title: postRow.title ?? '',
       content: postRow.content ?? '',
+      isBanned: Boolean(postRow.isBanned),
       createdAt: normalizeTimestampForClient(postRow.createdAt ?? null),
       authorName: postRow.authorName,
       authorProfileImage: postRow.authorProfileImage ?? null,
@@ -817,3 +822,56 @@ export async function toggleCommunityPostBookmarkHandler({ data }: { data: { pos
 
     return { success: true, isBookmarked: false }
   }
+
+export const toggleCommunityPostBan = createServerFn({ method: 'POST' })
+  .inputValidator((data: { postId: DiscussionEntityId; shouldBan: boolean }) => data)
+  .handler(toggleCommunityPostBanHandler)
+
+export async function toggleCommunityPostBanHandler({
+  data,
+}: {
+  data: { postId: DiscussionEntityId; shouldBan: boolean }
+}) {
+  const userId = await getCurrentSessionUserId()
+  if (!userId) {
+    throw new Error('UNAUTHORIZED')
+  }
+
+  const isAdmin = await isAdminUser(userId)
+  if (!isAdmin) {
+    throw new Error('FORBIDDEN')
+  }
+
+  const normalizedPostId = normalizePostId(data.postId)
+  const shouldBan = Boolean(data.shouldBan)
+
+  const postRows = normalizeRows<{ id: string | number }>(await db.execute(sql`
+    SELECT id
+    FROM posts
+    WHERE id = ${normalizedPostId}
+    LIMIT 1
+  `))
+  if (postRows.length === 0) {
+    throw new Error('POST_NOT_FOUND')
+  }
+
+  if (shouldBan) {
+    await db.execute(sql`
+      UPDATE posts
+      SET is_banned = 1,
+          banned_by = ${userId},
+          banned_date = ${UTC_SQL_NOW}
+      WHERE id = ${normalizedPostId}
+    `)
+  } else {
+    await db.execute(sql`
+      UPDATE posts
+      SET is_banned = 0,
+          banned_by = NULL,
+          banned_date = NULL
+      WHERE id = ${normalizedPostId}
+    `)
+  }
+
+  return { success: true, isBanned: shouldBan }
+}

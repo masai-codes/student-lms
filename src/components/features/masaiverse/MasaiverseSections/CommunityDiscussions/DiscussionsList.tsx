@@ -8,22 +8,26 @@ import type {
 import MasaiverseDiscussionPostCard from './MasaiverseDiscussionPostCard'
 
 type DiscussionsListProps = {
+  isAdmin: boolean
   posts: Array<DiscussionPost>
   onVotePost: (postId: DiscussionEntityId, vote: 'upvote' | 'downvote') => Promise<void>
   onVoteReply: (replyId: string, vote: 'upvote' | 'downvote') => Promise<void>
   onReply: (postId: DiscussionEntityId, content: string) => Promise<void>
   onToggleBookmark: (postId: DiscussionEntityId) => Promise<void>
+  onTogglePostBan: (postId: DiscussionEntityId, shouldBan: boolean) => Promise<void>
   openPostId: string | null
   onPostDrawerOpenChange: (postId: string, open: boolean) => void
   onCreateDiscussionClick: () => void
 }
 
 const DiscussionsList = ({
+  isAdmin,
   posts,
   onVotePost,
   onVoteReply,
   onReply,
   onToggleBookmark,
+  onTogglePostBan,
   openPostId,
   onPostDrawerOpenChange,
   onCreateDiscussionClick,
@@ -90,55 +94,78 @@ const DiscussionsList = ({
       {posts.map((post) => {
         const postId = String(post.id)
         return (
-          <MasaiverseDiscussionPostCard
-          key={post.id}
-          profileImage={post.authorProfileImage ?? getFallbackAvatar(post.authorName)}
-          name={post.authorName}
-          createdAt={formatSocialPostTime(post.createdAt)}
-          content={getPostContentHtml(post.title, post.content)}
-          currentUpvoteCount={post.upvotes}
-          currentDownvoteCount={post.downvotes}
-          voteDirection={
-            post.myVote === 'upvote'
-              ? 'up'
-              : post.myVote === 'downvote'
-                ? 'down'
-                : null
-          }
-          onUpvoteClick={() => {
-            void onVotePost(post.id, 'upvote')
-          }}
-          onDownvoteClick={() => {
-            void onVotePost(post.id, 'downvote')
-          }}
-          onVoteReply={onVoteReply}
-          initialBookmarked={post.isBookmarked}
-          onBookmarkToggle={async () => {
-            await onToggleBookmark(post.id)
-          }}
-          replies={mapReplies(post)}
-          replyText={replyDrafts[postId] ?? ''}
-          onReplyTextChange={(value) =>
-            setReplyDrafts((prev) => ({
-              ...prev,
-              [postId]: value,
-            }))
-          }
-          onReplySubmit={() => {
-            const content = (replyDrafts[postId] ?? '').trim()
-            if (!content) {
-              return
-            }
-            void onReply(post.id, content).then(() => {
-              setReplyDrafts((prev) => ({
-                ...prev,
-                [postId]: '',
-              }))
-            })
-          }}
-          open={openPostId === postId}
-          onOpenChange={(open) => onPostDrawerOpenChange(postId, open)}
-        />
+          <div key={post.id} className="space-y-2">
+            {isAdmin ? (
+              <div className="flex justify-end gap-2">
+                {post.isBanned ? (
+                  <span className="rounded-md bg-[#FEE2E2] px-2 py-1 text-xs font-medium text-[#B91C1C]">
+                    Banned
+                  </span>
+                ) : null}
+                <button
+                  type="button"
+                  className={`rounded-md border px-2 py-1 text-xs font-medium ${
+                    post.isBanned
+                      ? 'border-[#16A34A] bg-[#ECFDF3] text-[#15803D] hover:bg-[#DCFCE7]'
+                      : 'border-[#DC2626] bg-[#FEF2F2] text-[#B91C1C] hover:bg-[#FEE2E2]'
+                  }`}
+                  onClick={() => {
+                    void onTogglePostBan(post.id, !post.isBanned)
+                  }}
+                >
+                  {post.isBanned ? 'Remove Ban' : 'Ban Post'}
+                </button>
+              </div>
+            ) : null}
+            <MasaiverseDiscussionPostCard
+              profileImage={post.authorProfileImage ?? getFallbackAvatar(post.authorName)}
+              name={post.authorName}
+              createdAt={formatSocialPostTime(post.createdAt)}
+              content={getPostContentHtml(post.title, post.content)}
+              currentUpvoteCount={post.upvotes}
+              currentDownvoteCount={post.downvotes}
+              voteDirection={
+                post.myVote === 'upvote'
+                  ? 'up'
+                  : post.myVote === 'downvote'
+                    ? 'down'
+                    : null
+              }
+              onUpvoteClick={() => {
+                void onVotePost(post.id, 'upvote')
+              }}
+              onDownvoteClick={() => {
+                void onVotePost(post.id, 'downvote')
+              }}
+              onVoteReply={onVoteReply}
+              initialBookmarked={post.isBookmarked}
+              onBookmarkToggle={async () => {
+                await onToggleBookmark(post.id)
+              }}
+              replies={mapReplies(post)}
+              replyText={replyDrafts[postId] ?? ''}
+              onReplyTextChange={(value) =>
+                setReplyDrafts((prev) => ({
+                  ...prev,
+                  [postId]: value,
+                }))
+              }
+              onReplySubmit={() => {
+                const content = (replyDrafts[postId] ?? '').trim()
+                if (!content) {
+                  return
+                }
+                void onReply(post.id, content).then(() => {
+                  setReplyDrafts((prev) => ({
+                    ...prev,
+                    [postId]: '',
+                  }))
+                })
+              }}
+              open={openPostId === postId}
+              onOpenChange={(open) => onPostDrawerOpenChange(postId, open)}
+            />
+          </div>
         )
       })}
     </div>
