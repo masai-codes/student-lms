@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from '@tanstack/react-router'
 import DiscussionsList from './DiscussionsList'
 import { Button } from '@/components/ui/button'
@@ -68,6 +68,7 @@ const Disucssions = ({
   const [openPostId, setOpenPostId] = useState<string | null>(
     initialPostIdFromSearch ?? null,
   )
+  const latestRefreshRequestIdRef = useRef(0)
 
   const normalizedClubOptions = useMemo(
     () =>
@@ -110,6 +111,8 @@ const Disucssions = ({
     selectedSort: DiscussionSortMode = sortBy,
     selectedClub: string | null = selectedClubId,
   ) => {
+    const requestId = latestRefreshRequestIdRef.current + 1
+    latestRefreshRequestIdRef.current = requestId
     if (showInitialLoader || posts.length === 0) {
       setIsLoadingDiscussions(true)
     }
@@ -120,13 +123,21 @@ const Disucssions = ({
           clubId: isAdmin ? (selectedClub ?? undefined) : undefined,
         },
       })
+      if (requestId !== latestRefreshRequestIdRef.current) {
+        return
+      }
       setPosts(response.posts)
       setSortBy(response.sortBy ?? selectedSort)
       if (isAdmin) {
-        setSelectedClubId(response.selectedClubId ?? selectedClub ?? null)
+        const resolvedClubId = response.selectedClubId ?? selectedClub ?? null
+        setSelectedClubId((prevSelectedClubId) =>
+          prevSelectedClubId === resolvedClubId ? prevSelectedClubId : resolvedClubId,
+        )
       }
     } finally {
-      setIsLoadingDiscussions(false)
+      if (requestId === latestRefreshRequestIdRef.current) {
+        setIsLoadingDiscussions(false)
+      }
     }
   }
 
@@ -282,7 +293,6 @@ const Disucssions = ({
             onValueChange={(value) => {
               const clubId = String(value)
               setSelectedClubId(clubId)
-              void refreshDiscussions(false, sortBy, clubId)
             }}
           >
             <SelectTrigger className="w-[220px] bg-white text-xs md:text-sm">
