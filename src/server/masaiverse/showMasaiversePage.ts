@@ -1,7 +1,8 @@
 import { createServerFn } from "@tanstack/react-start";
-import { eq, inArray } from "drizzle-orm";
+import { inArray } from "drizzle-orm";
 import { db } from "@/db";
-import { batchUser, batches } from "@/db/schema";
+import { batches } from "@/db/schema";
+import { getBatchIdsForEnrolledUser } from "@/server/batches/getBatchIdsForEnrolledUser";
 
 type BatchMeta = {
   show_masaiverse?: boolean;
@@ -25,14 +26,9 @@ export const showMasaiversePage = createServerFn({ method: "GET" })
   .handler(showMasaiversePageHandler);
 
 export async function showMasaiversePageHandler({ data }: { data: { userId: number } }) {
-  const userBatchRows = await db
-    .select({ batchId: batchUser.batchId })
-    .from(batchUser)
-    .where(eq(batchUser.userId, data.userId));
+  const batchIds = await getBatchIdsForEnrolledUser(data.userId);
 
-  if (!userBatchRows.length) return false;
-
-  const batchIds = userBatchRows.map((row) => row.batchId);
+  if (!batchIds.length) return false;
   const batchMetaRows = await db
     .select({ meta: batches.meta })
     .from(batches)

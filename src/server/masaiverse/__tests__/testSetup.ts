@@ -34,7 +34,16 @@ vi.mock('@/lib/parseServerTimestamp', () => ({
 }))
 
 vi.mock('@/db/schema', () => ({
-  batchUser: { batchId: 'batch_user.batch_id', userId: 'batch_user.user_id' },
+  sectionUser: {
+    sectionId: 'section_user.section_id',
+    userId: 'section_user.user_id',
+    deletedAt: 'section_user.deleted_at',
+  },
+  sections: {
+    id: 'sections.id',
+    batchId: 'sections.batch_id',
+    deletedAt: 'sections.deleted_at',
+  },
   batches: { id: 'batches.id', meta: 'batches.meta' },
   clubs: { id: 'clubs.id', createdAt: 'clubs.created_at' },
   clubMembers: {
@@ -77,6 +86,17 @@ export function mockSelectWhereChain(result: unknown) {
   return {
     from: () => ({
       where: () => Promise.resolve(result),
+    }),
+  }
+}
+
+/** For queries using `.from(x).innerJoin(y, ...).where(...)` */
+export function mockSelectInnerJoinWhereChain(result: unknown) {
+  return {
+    from: () => ({
+      innerJoin: () => ({
+        where: () => Promise.resolve(result),
+      }),
     }),
   }
 }

@@ -1,7 +1,8 @@
 import { createServerFn } from '@tanstack/react-start'
-import { and, eq, gt, inArray, lt, sql } from 'drizzle-orm'
+import { and, gt, inArray, lt, sql } from 'drizzle-orm'
 import { db } from '@/db'
-import { announcements, batchUser } from '@/db/schema'
+import { announcements } from '@/db/schema'
+import { getBatchIdsForEnrolledUser } from '@/server/batches/getBatchIdsForEnrolledUser'
 
 const istNow = sql`
   DATE_ADD(NOW(), INTERVAL 330 MINUTE)
@@ -12,13 +13,8 @@ export const fetchAnnouncements = createServerFn({ method: 'GET' })
     .handler(async ({ data }) => {
         try {
 
-            /* 1️⃣ Get all batch IDs for the user */
-            const batchs = await db
-                .select({ batchId: batchUser.batchId })
-                .from(batchUser)
-                .where(eq(batchUser.userId, data.userId))
-
-            const batchIds = batchs.map(s => s.batchId)
+            /* 1️⃣ Get all batch IDs for the user (section enrollments) */
+            const batchIds = await getBatchIdsForEnrolledUser(data.userId)
 
             if (!batchIds.length) return []
 

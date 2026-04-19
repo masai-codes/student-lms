@@ -1,8 +1,9 @@
 import { createServerFn } from '@tanstack/react-start';
-import { desc, eq, inArray } from 'drizzle-orm';
+import { desc, inArray } from 'drizzle-orm';
 import type { InferSelectModel } from 'drizzle-orm'
 import { db } from '@/db';
-import { batchUser, batches } from '@/db/schema';
+import { batches } from '@/db/schema';
+import { getBatchIdsForEnrolledUser } from '@/server/batches/getBatchIdsForEnrolledUser';
 
 export type CourseType = InferSelectModel<typeof batches>
 
@@ -14,15 +15,9 @@ export const fetchAllCourses = createServerFn({ method: "GET" })
 
     try {
 
-      const userBatches = await db
-        .select()
-        .from(batchUser)
-        .where(eq(batchUser.userId, data.userId))
+      const batchIds = await getBatchIdsForEnrolledUser(data.userId)
 
-
-      if (userBatches.length === 0) return [];
-
-      const batchIds = userBatches.map((row) => row.batchId);
+      if (batchIds.length === 0) return [];
 
       const batchesData = await db
         .select()

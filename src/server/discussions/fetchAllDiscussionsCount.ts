@@ -3,10 +3,10 @@ import { and, eq, inArray, or, sql } from "drizzle-orm"
 import { db } from "@/db"
 import {
   assignments,
-  batchUser,
   discussions,
   lectures,
 } from "@/db/schema"
+import { getBatchIdsForEnrolledUser } from "@/server/batches/getBatchIdsForEnrolledUser"
 
 function capitalizeFirst(str?: string) {
   if (!str) return undefined
@@ -30,15 +30,10 @@ export const fetchAllDiscussionsCount = createServerFn({ method: "GET" })
         | "Resources"
         | undefined
 
-      // 1️⃣ Get batch IDs
-      const userBatches = await db
-        .select({ batchId: batchUser.batchId })
-        .from(batchUser)
-        .where(eq(batchUser.userId, data.userId))
+      // 1️⃣ Get batch IDs (section enrollments)
+      const batchIds = await getBatchIdsForEnrolledUser(data.userId)
 
-      if (!userBatches.length) return 0
-
-      const batchIds = userBatches.map(b => b.batchId)
+      if (!batchIds.length) return 0
 
       let lectureIds: Array<number> = []
       let assignmentIds: Array<number> = []

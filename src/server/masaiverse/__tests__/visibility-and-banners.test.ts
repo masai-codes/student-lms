@@ -1,5 +1,10 @@
 import { describe, expect, it } from 'vitest'
-import { getMocks, mockSelectWhereChain, registerCommonBeforeEach } from './testSetup'
+import {
+  getMocks,
+  mockSelectInnerJoinWhereChain,
+  mockSelectWhereChain,
+  registerCommonBeforeEach,
+} from './testSetup'
 
 registerCommonBeforeEach()
 const mocks = getMocks()
@@ -7,7 +12,7 @@ const mocks = getMocks()
 describe('masaiverse visibility and banners', () => {
   it('showMasaiversePage returns false when user has no batches', async () => {
     const { showMasaiversePageHandler } = await import('../showMasaiversePage')
-    mocks.dbSelect.mockReturnValueOnce(mockSelectWhereChain([]))
+    mocks.dbSelect.mockReturnValueOnce(mockSelectInnerJoinWhereChain([]))
 
     await expect(showMasaiversePageHandler({ data: { userId: 11 } })).resolves.toBe(false)
   })
@@ -15,7 +20,7 @@ describe('masaiverse visibility and banners', () => {
   it('showMasaiversePage parses meta and returns true when enabled', async () => {
     const { showMasaiversePageHandler } = await import('../showMasaiversePage')
     mocks.dbSelect
-      .mockReturnValueOnce(mockSelectWhereChain([{ batchId: 'batch-1' }]))
+      .mockReturnValueOnce(mockSelectInnerJoinWhereChain([{ batchId: 'batch-1' }]))
       .mockReturnValueOnce(
         mockSelectWhereChain([
           { meta: '{"show_masaiverse":false}' },

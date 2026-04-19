@@ -2,7 +2,8 @@ import { createServerFn } from '@tanstack/react-start'
 import { and, eq, gt, inArray, isNull, lt, ne, or, sql } from 'drizzle-orm'
 import type { InferSelectModel } from "drizzle-orm";
 import { db } from '@/db'
-import { assignments, batchUser, submissions } from '@/db/schema'
+import { assignments, submissions } from '@/db/schema'
+import { getBatchIdsForEnrolledUser } from '@/server/batches/getBatchIdsForEnrolledUser'
 
 const istNow = sql`
   DATE_ADD(NOW(), INTERVAL 330 MINUTE)
@@ -20,13 +21,8 @@ export const fetchPendingTasks = createServerFn({ method: 'GET' })
 
             // await new Promise((r) => setTimeout(r, 10000));
 
-            /* 1️⃣ Get all batch IDs for the user */
-            const batchs = await db
-                .select({ batchId: batchUser.batchId })
-                .from(batchUser)
-                .where(eq(batchUser.userId, data.userId))
-
-            const batchIds = batchs.map(s => s.batchId)
+            /* 1️⃣ Get all batch IDs for the user (section enrollments) */
+            const batchIds = await getBatchIdsForEnrolledUser(data.userId)
 
             if (!batchIds.length) return []
 

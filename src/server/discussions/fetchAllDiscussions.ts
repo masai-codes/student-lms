@@ -4,10 +4,10 @@ import type { InferSelectModel } from "drizzle-orm"
 import { db } from "@/db"
 import {
   assignments,
-  batchUser,
   discussions,
   lectures,
 } from "@/db/schema"
+import { getBatchIdsForEnrolledUser } from "@/server/batches/getBatchIdsForEnrolledUser"
 import { PAGINATION_PAGE_SIZE } from "@/globalSettings"
 
 export type DiscussionType = InferSelectModel<typeof discussions>
@@ -38,15 +38,10 @@ export const fetchAllDiscussions = createServerFn({ method: "GET" })
         | "Resources"
         | undefined
 
-      // 1️⃣ Get batch IDs for user
-      const userBatches = await db
-        .select({ batchId: batchUser.batchId })
-        .from(batchUser)
-        .where(eq(batchUser.userId, data.userId))
+      // 1️⃣ Get batch IDs for user (section enrollments)
+      const batchIds = await getBatchIdsForEnrolledUser(data.userId)
 
-      if (!userBatches.length) return []
-
-      const batchIds = userBatches.map(b => b.batchId)
+      if (!batchIds.length) return []
 
       let lectureIds: Array<number> = []
       let assignmentIds: Array<number> = []

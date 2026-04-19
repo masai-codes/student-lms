@@ -1,8 +1,9 @@
 import { createServerFn } from "@tanstack/react-start";
-import { and, between, eq, inArray, or } from "drizzle-orm";
+import { and, between, inArray, or } from "drizzle-orm";
 import type { InferSelectModel } from "drizzle-orm";
 import { db } from "@/db";
-import { assignments, batchUser, lectures } from "@/db/schema";
+import { assignments, lectures } from "@/db/schema";
+import { getBatchIdsForEnrolledUser } from "@/server/batches/getBatchIdsForEnrolledUser";
 
 /* ---------------- types ---------------- */
 
@@ -50,13 +51,8 @@ export const fetchWeeklySchedule = createServerFn({ method: "GET" })
   .inputValidator((data: { userId: number }) => data)
   .handler(async ({ data }): Promise<WeeklyScheduleResponse> => {
     try {
-      /* 1. get user batchs */
-      const userbatchs = await db
-        .select({ batchId: batchUser.batchId })
-        .from(batchUser)
-        .where(eq(batchUser.userId, data.userId));
-
-      const batchIds = userbatchs.map((s) => s.batchId);
+      /* 1. get user batches (section enrollments) */
+      const batchIds = await getBatchIdsForEnrolledUser(data.userId);
       if (!batchIds.length) return {};
 
       /* 2. date range */
