@@ -48,6 +48,13 @@ const getDateTimeLabel = (value?: string | null) => {
   }
 }
 
+function normalizeDetailPoints(points: unknown): Array<string> {
+  if (!Array.isArray(points)) return []
+  return points
+    .map((p) => String(p).trim())
+    .filter(Boolean)
+}
+
 export const mapClubToCardProps = (club: ClubType): ClubCardProps => {
   const meta = (club.meta ?? {}) as ClubMeta
 
@@ -58,10 +65,7 @@ export const mapClubToCardProps = (club: ClubType): ClubCardProps => {
     miniDescription: meta.mini_description || "",
     ctaText: meta.cta_text || "Join",
     totalMembers: club.joinedMemberCount,
-    detailPoints:
-      meta.detail_points?.length
-        ? meta.detail_points
-        : ["Meet peers in your domain", "Join weekly activities", "Build together"],
+    detailPoints: normalizeDetailPoints(meta.detail_points),
     detailDescription:
       meta.detail_description || meta.mini_description || "No details available yet.",
     ctaTheme: meta.cta_theme || "yellow",

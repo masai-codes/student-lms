@@ -152,18 +152,20 @@ export function ClubCardDrawer({
                 </div>
               ) : null}
 
-              <div className="mt-[32px]">
-                <h4 className="text-[14px] font-[600] leading-[20px] font-poppins text-[#111928]">
-                  What you’ll do here
-                </h4>
-                <ul className="mt-[12px] list-disc gap-[4px] pl-5 text-[14px] font-[400] leading-[24px] font-poppins text-[#374151]">
-                  {detailPoints.map((point, index) => (
-                    <li key={`${point}-${index}`} className="break-words">
-                      {toCapitalizedWords(point)}
-                    </li>
-                  ))}
-                </ul>
-              </div>
+              {detailPoints.length > 0 ? (
+                <div className="mt-[32px]">
+                  <h4 className="text-[14px] font-[600] leading-[20px] font-poppins text-[#111928]">
+                    What you’ll do here
+                  </h4>
+                  <ul className="mt-[12px] list-disc gap-[4px] pl-5 text-[14px] font-[400] leading-[24px] font-poppins text-[#374151]">
+                    {detailPoints.map((point, index) => (
+                      <li key={`${point}-${index}`} className="break-words">
+                        {toCapitalizedWords(point)}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ) : null}
 
               {!drawerPinFooter && !shouldCompress ? footerCta : null}
             </div>
