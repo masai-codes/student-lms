@@ -92,13 +92,6 @@ export const mapEventToCardProps = (event: EventType): EventCardProps => {
     eventLocationText: event.locationTitle || undefined,
     eventMode: event.platform || event.locationTitle || modeLabel,
     eventDetailDescription: meta.detail_description || event.description || "No details available yet.",
-    eventTimeline:
-      meta.timeline?.length
-        ? meta.timeline
-        : [
-          { time, text: "Session starts" },
-          { time: "TBD", text: "Main activities" },
-          { time: "TBD", text: "Wrap up" },
-        ],
+    eventTimeline: meta.timeline?.length ? meta.timeline : [],
   }
 }

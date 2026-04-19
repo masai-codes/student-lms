@@ -237,27 +237,29 @@ export function EventCardDrawer({
               className="mt-4 text-[14px] leading-[22px] text-[#374151] [&_a]:underline [&_ol]:list-decimal [&_ol]:pl-5 [&_p]:mb-3 [&_p:last-child]:mb-0 [&_ul]:list-disc [&_ul]:pl-5"
             />
 
-            <div className="mt-6">
-              <h4 className="text-[14px] font-[600] leading-[20px] text-[#111928]">
-                Event timeline
-              </h4>
-              <div className="mt-3 space-y-4">
-                {eventTimeline.map((item, index) => (
-                  <div key={`${item.time}-${index}`} className="relative pl-6">
-                    {index < eventTimeline.length - 1 ? (
-                      <span className="absolute left-[7px] top-4 h-[calc(100%+12px)] w-px bg-[#D1D5DB]" />
-                    ) : null}
-                    <span className="absolute left-1 top-1.5 size-[8px] rounded-full bg-[#EF8833]" />
-                    <p className="text-[12px] font-[600] leading-[16px] text-[#111928]">
-                      {toCapitalizedWords(item.time)}
-                    </p>
-                    <p className="mt-1 text-[14px] leading-[20px] text-[#374151]">
-                      {toCapitalizedWords(item.text)}
-                    </p>
-                  </div>
-                ))}
+            {eventTimeline.length > 0 ? (
+              <div className="mt-6">
+                <h4 className="text-[14px] font-[600] leading-[20px] text-[#111928]">
+                  Event timeline
+                </h4>
+                <div className="mt-3 space-y-4">
+                  {eventTimeline.map((item, index) => (
+                    <div key={`${item.time}-${index}`} className="relative pl-6">
+                      {index < eventTimeline.length - 1 ? (
+                        <span className="absolute left-[7px] top-4 h-[calc(100%+12px)] w-px bg-[#D1D5DB]" />
+                      ) : null}
+                      <span className="absolute left-1 top-1.5 size-[8px] rounded-full bg-[#EF8833]" />
+                      <p className="text-[12px] font-[600] leading-[16px] text-[#111928]">
+                        {toCapitalizedWords(item.time)}
+                      </p>
+                      <p className="mt-1 text-[14px] leading-[20px] text-[#374151]">
+                        {toCapitalizedWords(item.text)}
+                      </p>
+                    </div>
+                  ))}
+                </div>
               </div>
-            </div>
+            ) : null}
 
             {!drawerPinFooter ? footerCta : null}
           </div>
