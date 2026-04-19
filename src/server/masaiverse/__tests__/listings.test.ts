@@ -12,16 +12,26 @@ const mocks = getMocks()
 describe('masaiverse listings', () => {
   it('fetchAllClubs maps null meta and returns rows', async () => {
     const { fetchAllClubsHandler } = await import('../fetchClubs')
-    mocks.dbSelect.mockReturnValueOnce(
-      mockSelectOrderByChain([
-        { id: 'club-1', name: 'A', meta: null },
-        { id: 'club-2', name: 'B', meta: { mini_description: 'x' } },
-      ]),
-    )
+    mocks.dbSelect
+      .mockReturnValueOnce(
+        mockSelectOrderByChain([
+          { id: 'club-1', name: 'A', meta: null },
+          { id: 'club-2', name: 'B', meta: { mini_description: 'x' } },
+        ]),
+      )
+      .mockReturnValueOnce({
+        from: () => ({
+          groupBy: () =>
+            Promise.resolve([
+              { clubId: 'club-1', memberCount: 2 },
+              { clubId: 'club-2', memberCount: 4 },
+            ]),
+        }),
+      })
 
     await expect(fetchAllClubsHandler()).resolves.toEqual([
-      { id: 'club-1', name: 'A', meta: null },
-      { id: 'club-2', name: 'B', meta: { mini_description: 'x' } },
+      { id: 'club-1', name: 'A', meta: null, joinedMemberCount: 2 },
+      { id: 'club-2', name: 'B', meta: { mini_description: 'x' }, joinedMemberCount: 4 },
     ])
   })
 

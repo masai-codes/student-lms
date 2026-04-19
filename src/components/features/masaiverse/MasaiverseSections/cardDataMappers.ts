@@ -7,7 +7,6 @@ type ClubMeta = {
   mini_description?: string
   detail_description?: string
   detail_points?: Array<string>
-  total_members?: number | string
   cta_theme?: "yellow" | "red"
   cta_text?: string
 }
@@ -58,7 +57,7 @@ export const mapClubToCardProps = (club: ClubType): ClubCardProps => {
     imageUrl: club.image || "/Masaiverse.svg",
     miniDescription: meta.mini_description || "",
     ctaText: meta.cta_text || "Join",
-    totalMembers: meta.total_members || "N/A",
+    totalMembers: club.joinedMemberCount,
     detailPoints:
       meta.detail_points?.length
         ? meta.detail_points
@@ -97,9 +96,9 @@ export const mapEventToCardProps = (event: EventType): EventCardProps => {
       meta.timeline?.length
         ? meta.timeline
         : [
-            { time, text: "Session starts" },
-            { time: "TBD", text: "Main activities" },
-            { time: "TBD", text: "Wrap up" },
-          ],
+          { time, text: "Session starts" },
+          { time: "TBD", text: "Main activities" },
+          { time: "TBD", text: "Wrap up" },
+        ],
   }
 }
