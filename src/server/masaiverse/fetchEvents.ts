@@ -4,6 +4,7 @@ import type { InferSelectModel } from "drizzle-orm"
 import { db } from "@/db"
 import { clubMembers, events } from "@/db/schema"
 import { getCurrentSessionUserId } from "@/server/auth/getCurrentSessionUserId"
+import { eventDbTimestampToMs } from "@/lib/eventTimestamps"
 
 export type EventType = InferSelectModel<typeof events>
 
@@ -48,8 +49,8 @@ export async function fetchAllEventsHandler({ data }: { data: { searchQuery?: st
 
       const now = Date.now()
       return [...fetchedEvents].sort((a, b) => {
-        const aEnd = a.endTime ? new Date(a.endTime).getTime() : Number.POSITIVE_INFINITY
-        const bEnd = b.endTime ? new Date(b.endTime).getTime() : Number.POSITIVE_INFINITY
+        const aEnd = eventDbTimestampToMs(a.endTime) ?? Number.POSITIVE_INFINITY
+        const bEnd = eventDbTimestampToMs(b.endTime) ?? Number.POSITIVE_INFINITY
         const aEnded = Number.isFinite(aEnd) && aEnd < now
         const bEnded = Number.isFinite(bEnd) && bEnd < now
 
@@ -66,15 +67,15 @@ export async function fetchAllEventsHandler({ data }: { data: { searchQuery?: st
           return aRank - bRank
         }
 
-        const aStart = a.startTime ? new Date(a.startTime).getTime() : Number.POSITIVE_INFINITY
-        const bStart = b.startTime ? new Date(b.startTime).getTime() : Number.POSITIVE_INFINITY
+        const aStart = eventDbTimestampToMs(a.startTime) ?? Number.POSITIVE_INFINITY
+        const bStart = eventDbTimestampToMs(b.startTime) ?? Number.POSITIVE_INFINITY
 
         if (aStart !== bStart) {
           return aStart - bStart
         }
 
-        const aCreated = a.createdAt ? new Date(a.createdAt).getTime() : Number.POSITIVE_INFINITY
-        const bCreated = b.createdAt ? new Date(b.createdAt).getTime() : Number.POSITIVE_INFINITY
+        const aCreated = eventDbTimestampToMs(a.createdAt) ?? Number.POSITIVE_INFINITY
+        const bCreated = eventDbTimestampToMs(b.createdAt) ?? Number.POSITIVE_INFINITY
         return aCreated - bCreated
       })
     } catch (err) {

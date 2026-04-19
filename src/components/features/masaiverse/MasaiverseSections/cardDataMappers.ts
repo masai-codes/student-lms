@@ -2,6 +2,7 @@ import type { ClubCardProps } from "@/components/club-card"
 import type { EventCardProps } from "@/components/event-card"
 import type { ClubType } from "@/server/masaiverse/fetchClubs"
 import type { EventType } from "@/server/masaiverse/fetchEvents"
+import { parseServerTimestamp } from "@/lib/parseServerTimestamp"
 
 type ClubMeta = {
   mini_description?: string
@@ -20,13 +21,17 @@ type EventMeta = {
   cta_text?: string
 }
 
+const EVENT_DISPLAY_TZ = "Asia/Kolkata"
+
 const DATE_FORMATTER = new Intl.DateTimeFormat("en-IN", {
+  timeZone: EVENT_DISPLAY_TZ,
   day: "2-digit",
   month: "short",
   year: "numeric",
 })
 
 const TIME_FORMATTER = new Intl.DateTimeFormat("en-IN", {
+  timeZone: EVENT_DISPLAY_TZ,
   hour: "2-digit",
   minute: "2-digit",
   hour12: true,
@@ -37,8 +42,8 @@ const getDateTimeLabel = (value?: string | null) => {
     return { date: "TBD", time: "TBD" }
   }
 
-  const parsed = new Date(value)
-  if (Number.isNaN(parsed.getTime())) {
+  const parsed = parseServerTimestamp(value)
+  if (!parsed || Number.isNaN(parsed.getTime())) {
     return { date: "TBD", time: "TBD" }
   }
 

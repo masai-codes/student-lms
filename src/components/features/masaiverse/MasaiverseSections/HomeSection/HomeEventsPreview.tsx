@@ -1,4 +1,5 @@
 import type { EventType } from '@/server/masaiverse/fetchEvents'
+import { eventDbTimestampToMs } from '@/lib/eventTimestamps'
 import { EventCard } from '@/components/event-card'
 import { Button } from '@/components/ui/button'
 import {
@@ -70,9 +71,7 @@ const HomeEventsPreview = ({
             {previewEvents.map((event) => {
               const isEnrolled = enrolledEventIds.includes(event.id)
               const eventCardProps = mapEventToCardProps(event)
-              const eventEndTime = event.endTime
-                ? new Date(event.endTime).getTime()
-                : Number.POSITIVE_INFINITY
+              const eventEndTime = eventDbTimestampToMs(event.endTime) ?? Number.POSITIVE_INFINITY
               const isPastEvent =
                 Number.isFinite(eventEndTime) && eventEndTime < Date.now()
               const isOfflineEvent = event.mode === 'offline'

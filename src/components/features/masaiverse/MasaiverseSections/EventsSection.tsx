@@ -6,6 +6,7 @@ import { fetchAllEvents } from '@/server/masaiverse/fetchEvents'
 import { fetchMyEventEnrollments } from '@/server/masaiverse/fetchMyEventEnrollments'
 import { joinEvent } from '@/server/masaiverse/joinEvent'
 import { mapEventToCardProps } from '@/components/features/masaiverse/MasaiverseSections/cardDataMappers'
+import { eventDbTimestampToMs } from '@/lib/eventTimestamps'
 import {
   MASAIVERSE_DRAWER_SCROLL_BODY_PADDING,
   MASAIVERSE_MOBILE_TAB_DRAWER_CONTENT_INSET,
@@ -147,9 +148,7 @@ const EventsSection = () => {
           {filteredEvents.map((event) => {
             const isEnrolled = enrolledEventIds.includes(event.id)
             const eventCardProps = mapEventToCardProps(event)
-            const eventEndTime = event.endTime
-              ? new Date(event.endTime).getTime()
-              : Number.POSITIVE_INFINITY
+            const eventEndTime = eventDbTimestampToMs(event.endTime) ?? Number.POSITIVE_INFINITY
             const isPastEvent =
               Number.isFinite(eventEndTime) && eventEndTime < Date.now()
             const isOfflineEvent = event.mode === 'offline'
