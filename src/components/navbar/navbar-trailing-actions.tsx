@@ -1,7 +1,5 @@
 "use client";
 
-import * as React from "react";
-
 import { NavbarAnchor } from "./navbar-anchor";
 import type { NavbarActionItem } from "./types";
 
@@ -32,7 +30,7 @@ export function NavbarTrailingActions({
               href={item.href}
               openInNewTab={item.openInNewTab}
               onClick={item.onClick}
-              className="cursor-pointer rounded-md px-2 py-1.5 font-poppins text-sm font-medium subpixel-antialiased text-[#6B7280] shadow-none transition-colors hover:text-[#6962AC] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-0"
+              className="cursor-pointer rounded-md px-2 py-1.5 font-poppins text-sm font-medium text-[#6B7280] shadow-none transition-colors hover:text-[#6962AC] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-0"
             >
               {item.label}
             </NavbarAnchor>

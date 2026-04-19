@@ -20,6 +20,10 @@ export const Route = createRootRouteWithContext<RouterContext>()({
     ],
     links: [
       {
+        rel: 'stylesheet',
+        href: 'https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&display=swap',
+      },
+      {
         rel: 'icon',
         href: 'https://d27028dliefpk3.cloudfront.net/assets/favicon/favicon.ico',
       },
