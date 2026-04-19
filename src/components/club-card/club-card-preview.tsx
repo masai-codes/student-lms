@@ -42,16 +42,16 @@ export function ClubCardPreview({
   const resolvedCtaText = toCapitalizedWords(ctaText);
 
   const iconBlock = (
-    <div className="relative">
-      <div className="bg-[#EBF5FF] rounded-[50%] p-[12px]">
+    <div className="relative shrink-0 self-start">
+      <div className="flex size-12 shrink-0 items-center justify-center rounded-full bg-[#EBF5FF]">
         <img
           src={imageUrl}
           alt={resolvedName}
-          className="w-[24px] h-[24px] object-cover rounded-[8px]"
+          className="size-6 shrink-0 rounded-lg object-cover"
         />
       </div>
       {showSuccessIcon ? (
-        <span className="absolute left-1/2 top-full -translate-x-1/2 -translate-y-1/2 rounded-full bg-white">
+        <span className="absolute left-1/2 top-full -translate-x-1/2 -translate-y-1/2 shrink-0 rounded-full bg-white">
           <CheckCircle size={16} weight="fill" color="#00B178" />
         </span>
       ) : null}
@@ -63,17 +63,17 @@ export function ClubCardPreview({
       <div
         onClick={onCtaClick}
         className={cn(
-          "font-poppins flex h-full w-full max-w-[300px] cursor-pointer rounded-[12px] border border-[#E5E7EB] bg-white p-4",
+          "font-poppins flex h-full w-full min-w-0 max-w-[300px] flex-col cursor-pointer rounded-[12px] border border-[#E5E7EB] bg-white p-4",
           className,
         )}
       >
-        <div className="flex items-start gap-3">
+        <div className="flex min-w-0 items-start gap-3">
           {iconBlock}
-          <div className="min-w-0">
-            <h3 className="text-[16px] font-[600] leading-[24px] font-poppins">
+          <div className="min-w-0 flex-1">
+            <h3 className="break-words text-[16px] font-[600] leading-[24px] font-poppins">
               {resolvedName}
             </h3>
-            <p className="mt-[4px] w-fit px-[8px] py-[4px] text-[12px] font-[500] leading-[16px] rounded-[32px] border border-[#E5E7EB] text-center">
+            <p className="mt-[4px] inline-block max-w-full break-words px-[8px] py-[4px] text-center text-[12px] font-[500] leading-[16px] rounded-[32px] border border-[#E5E7EB]">
               {resolvedDomain}
             </p>
           </div>
@@ -86,21 +86,21 @@ export function ClubCardPreview({
     <div
       onClick={onCtaClick}
       className={cn(
-        "font-poppins flex h-full w-full max-w-[300px] cursor-pointer flex-col rounded-[12px] border border-[#E5E7EB] bg-white p-4",
+        "font-poppins flex h-full w-full min-w-0 max-w-[300px] cursor-pointer flex-col rounded-[12px] border border-[#E5E7EB] bg-white p-4",
         className,
       )}
     >
-      <div className="flex items-start justify-between">
-        {iconBlock}
-        <p className="px-[8px] text-[12px] font-[500] leading-[16px] font-poppins rounded py-[4px] border border-[#E5E7EB] rounded-[32px] text-center">
+      <div className="flex min-w-0 items-start justify-between gap-2">
+        <div className="shrink-0 self-start">{iconBlock}</div>
+        <p className="min-w-0 flex-1 break-words px-[8px] text-right text-[12px] font-[500] leading-[16px] font-poppins rounded-[32px] border border-[#E5E7EB] py-[4px]">
           {resolvedDomain}
         </p>
       </div>
-      <div className="mt-[12px]">
-        <h3 className="text-[16px] font-[600] leading-[24px] font-poppins">
+      <div className="mt-[12px] min-w-0">
+        <h3 className="break-words text-[16px] font-[600] leading-[24px] font-poppins">
           {resolvedName}
         </h3>
-        <p className="mt-[4px] text-[14px] font-[400] leading-[20px] font-poppins text-[#6B7280]">
+        <p className="mt-[4px] break-words text-[14px] font-[400] leading-[20px] font-poppins text-[#6B7280]">
           {resolvedMiniDescription}
         </p>
       </div>

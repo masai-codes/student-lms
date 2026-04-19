@@ -106,12 +106,12 @@ export function ClubCardDrawer({
             drawerBottomInsetClassName,
           )}
         >
-          <div className="flex items-start justify-between border-b p-4">
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+          <div className="flex items-start justify-between gap-3 border-b p-4">
+            <div className="min-w-0 flex-1">
+              <p className="break-words text-xs font-semibold uppercase tracking-wide text-slate-500">
                 {resolvedDomain}
               </p>
-              <Dialog.Title className="mt-1 text-lg font-semibold text-slate-900">
+              <Dialog.Title className="mt-1 break-words text-lg font-semibold text-slate-900">
                 About the Club
               </Dialog.Title>
             </div>
@@ -131,11 +131,11 @@ export function ClubCardDrawer({
             </div>
             <div
               className={cn(
-                "mt-[16px] min-h-0 flex-1 overflow-y-auto pr-1",
+                "mt-[16px] min-h-0 min-w-0 flex-1 overflow-y-auto overflow-x-hidden pr-1",
                 drawerBodyClassName,
               )}
             >
-              <p className="text-[18px] font-[600] leading-[28px] font-poppins text-[#111928]">
+              <p className="break-words text-[18px] font-[600] leading-[28px] font-poppins text-[#111928]">
                 {resolvedName}
               </p>
               <RichContent
@@ -158,7 +158,9 @@ export function ClubCardDrawer({
                 </h4>
                 <ul className="mt-[12px] list-disc gap-[4px] pl-5 text-[14px] font-[400] leading-[24px] font-poppins text-[#374151]">
                   {detailPoints.map((point, index) => (
-                    <li key={`${point}-${index}`}>{toCapitalizedWords(point)}</li>
+                    <li key={`${point}-${index}`} className="break-words">
+                      {toCapitalizedWords(point)}
+                    </li>
                   ))}
                 </ul>
               </div>

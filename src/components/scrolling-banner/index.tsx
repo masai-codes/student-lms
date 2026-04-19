@@ -16,15 +16,21 @@ function toCssSize(value: number | string | undefined) {
 }
 
 const markdownComponents: Components = {
-  p: ({ children }) => <p className="m-0 whitespace-pre-wrap">{children}</p>,
+  p: ({ children }) => (
+    <p className="m-0 min-w-0 max-w-full break-words whitespace-pre-wrap">{children}</p>
+  ),
   ul: ({ children }) => (
-    <ul className="my-1 list-outside list-disc space-y-1 pl-5">{children}</ul>
+    <ul className="my-1 min-w-0 max-w-full list-outside list-disc space-y-1 break-words pl-5">{children}</ul>
   ),
   ol: ({ children }) => (
-    <ol className="my-1 list-outside list-decimal space-y-1 pl-5">{children}</ol>
+    <ol className="my-1 min-w-0 max-w-full list-outside list-decimal space-y-1 break-words pl-5">{children}</ol>
   ),
-  li: ({ children }) => <li className="marker:text-[#4B5563]">{children}</li>,
-  strong: ({ children }) => <strong className="font-semibold text-[#111928]">{children}</strong>,
+  li: ({ children }) => (
+    <li className="min-w-0 break-words marker:text-[#4B5563]">{children}</li>
+  ),
+  strong: ({ children }) => (
+    <strong className="min-w-0 break-words font-semibold text-[#111928]">{children}</strong>
+  ),
 };
 
 export function ScrollingBanner({
@@ -119,7 +125,7 @@ export function ScrollingBanner({
     >
       {bannerHeading && bannerHeading.length > 0 ? (
         <div className="border-b border-[#E5E7EB] px-4 py-3">
-          <h2 className="text-[14px] font-[600] leading-[20px] text-[#111928]">
+          <h2 className="break-words text-[14px] font-[600] leading-[20px] text-[#111928]">
             {bannerHeading}
           </h2>
         </div>
@@ -152,12 +158,12 @@ export function ScrollingBanner({
               <div className="relative flex w-8 shrink-0 justify-center">
                 <span className="relative z-10 mt-1 size-4 rounded-full border-[2px] border-[#EF8833] bg-white" />
               </div>
-              <div className="flex min-w-0 flex-1 flex-col gap-2 bg-[#EF88331A] p-2 rounded-[8px]">
-                <h3 className="text-[15px] font-[600] leading-[22px] text-[#111928]">
+              <div className="flex min-w-0 flex-1 flex-col gap-2 rounded-[8px] bg-[#EF88331A] p-2">
+                <h3 className="min-w-0 break-words text-[15px] font-[600] leading-[22px] text-[#111928]">
                   {item.heading}
                 </h3>
                 <div
-                  className={`banner-markdown text-[13px] font-[400] leading-[20px] text-[#4B5563] ${
+                  className={`banner-markdown min-w-0 max-w-full break-words text-[13px] font-[400] leading-[20px] text-[#4B5563] ${
                     hasLongContent ? "max-h-[88px] overflow-hidden" : ""
                   }`}
                 >
@@ -188,7 +194,7 @@ export function ScrollingBanner({
                     target={item.openInNewTab ? "_blank" : "_self"}
                     rel={item.openInNewTab ? "noreferrer noopener" : undefined}
                     suppressHydrationWarning
-                    className="inline-flex w-fit items-center rounded-[8px] bg-[#EF8833] px-3 py-[6px] text-[12px] font-[500] leading-[18px] text-white transition-colors hover:bg-[#DC7A2D]"
+                    className="inline-flex max-w-full min-w-0 items-center break-words rounded-[8px] bg-[#EF8833] px-3 py-[6px] text-center text-[12px] font-[500] leading-[18px] text-white transition-colors hover:bg-[#DC7A2D]"
                   >
                     {item.ctaText}
                   </a>
@@ -213,8 +219,8 @@ export function ScrollingBanner({
               event.stopPropagation();
             }}
           >
-            <div className="mb-3 flex items-start justify-between gap-4">
-              <h3 className="text-[16px] font-[600] leading-[24px] text-[#111928]">
+            <div className="mb-3 flex min-w-0 items-start justify-between gap-4">
+              <h3 className="min-w-0 flex-1 break-words text-[16px] font-[600] leading-[24px] text-[#111928]">
                 {activeModalItem.heading}
               </h3>
               <button
@@ -227,7 +233,7 @@ export function ScrollingBanner({
                 Close
               </button>
             </div>
-            <div className="banner-markdown text-[14px] font-[400] leading-[22px] text-[#374151]">
+            <div className="banner-markdown min-w-0 max-w-full break-words text-[14px] font-[400] leading-[22px] text-[#374151]">
               <ReactMarkdown
                 remarkPlugins={[remarkGfm]}
                 components={markdownComponents}
@@ -238,7 +244,7 @@ export function ScrollingBanner({
           </div>
         </div>
       ) : null}
-      <style>{`
+      <style jsx>{`
         .no-scrollbar {
           -ms-overflow-style: none;
           scrollbar-width: none;

@@ -65,7 +65,7 @@ export function EventCardPreview({
   return (
     <div
       className={cn(
-        "font-poppins flex h-full w-full max-w-[300px] flex-col overflow-hidden rounded-[12px] border border-[#E5E7EB] bg-white",
+        "font-poppins flex h-full w-full min-w-0 max-w-[300px] flex-col overflow-hidden rounded-[12px] border border-[#E5E7EB] bg-white",
         className,
       )}
     >
@@ -81,13 +81,13 @@ export function EventCardPreview({
         </div>
       </div>
 
-      <div className="flex flex-1 flex-col p-4">
-        <div className="mb-3 flex items-center gap-2">
-          <span className="rounded-[32px] border border-[#E5E7EB] bg-[#E5E7EB] px-2 py-[2px] text-[12px] font-[500] leading-[16px] text-[#374151]">
+      <div className="flex min-w-0 flex-1 flex-col p-4">
+        <div className="mb-3 flex min-w-0 flex-wrap items-center gap-2">
+          <span className="max-w-full break-words rounded-[32px] border border-[#E5E7EB] bg-[#E5E7EB] px-2 py-[2px] text-[12px] font-[500] leading-[16px] text-[#374151]">
             {resolvedCategory}
           </span>
           <span
-            className={`rounded-[32px] px-2 py-[2px] text-[12px] font-[500] leading-[16px] ${
+            className={`max-w-full break-words rounded-[32px] px-2 py-[2px] text-[12px] font-[500] leading-[16px] ${
               isActive
                 ? "bg-[#00B178] text-[#fff]"
                 : "bg-[#F3F4F6] text-[#6B7280]"
@@ -96,10 +96,10 @@ export function EventCardPreview({
             {isActive ? "Active" : "Inactive"}
           </span>
         </div>
-        <h3 className="text-[14px] font-[600] leading-[20px] text-[#111928]">
+        <h3 className="min-w-0 break-words text-[14px] font-[600] leading-[20px] text-[#111928]">
           {resolvedTitle}
         </h3>
-        <p className="mt-[8px] line-clamp-2 text-[12px] font-[400] leading-[16px] text-[#4B5563]">
+        <p className="mt-[8px] line-clamp-2 min-w-0 break-words text-[12px] font-[400] leading-[16px] text-[#4B5563]">
           {resolvedMiniDescription}
         </p>
 

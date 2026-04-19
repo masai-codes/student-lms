@@ -45,7 +45,7 @@ function EventMetaTag({
         className={`${sharedClassName} hover:opacity-90`}
       >
         {icon}
-        <span className="truncate text-[#374151] underline underline-offset-2">
+        <span className="min-w-0 flex-1 break-words text-[#374151] underline underline-offset-2">
           {resolvedValue}
         </span>
       </a>
@@ -55,7 +55,7 @@ function EventMetaTag({
   return (
     <div className={sharedClassName}>
       {icon}
-      <span className="truncate">{resolvedValue}</span>
+      <span className="min-w-0 flex-1 break-words">{resolvedValue}</span>
     </div>
   );
 }
@@ -167,22 +167,22 @@ export function EventCardDrawer({
 
           <div
             className={cn(
-              "min-h-0 flex-1 overflow-y-auto p-4",
+              "min-h-0 min-w-0 flex-1 overflow-y-auto overflow-x-hidden p-4",
               drawerBodyClassName,
             )}
           >
             <img
               src={image}
               alt={resolvedTitle}
-              className="block max-h-[350px] w-full rounded-[10px] border border-[#E5E7EB] object-fill"
+              className="block max-h-[350px] w-full max-w-full rounded-[10px] border border-[#E5E7EB] object-fill"
             />
 
-            <div className="mt-3 flex items-center gap-2">
-              <span className="rounded-[32px] border border-[#E5E7EB] px-2 py-1 text-[12px] font-[500] leading-[16px] text-[#374151]">
+            <div className="mt-3 flex min-w-0 flex-wrap items-center gap-2">
+              <span className="max-w-full break-words rounded-[32px] border border-[#E5E7EB] px-2 py-1 text-[12px] font-[500] leading-[16px] text-[#374151]">
                 {resolvedCategory}
               </span>
               <span
-                className={`rounded-[32px] px-2 py-1 text-[12px] font-[500] leading-[16px] ${
+                className={`max-w-full break-words rounded-[32px] px-2 py-1 text-[12px] font-[500] leading-[16px] ${
                   isActive
                     ? "bg-[#ECFDF3] text-[#027A48]"
                     : "bg-[#F3F4F6] text-[#6B7280]"
@@ -192,12 +192,12 @@ export function EventCardDrawer({
               </span>
             </div>
 
-            <h3 className="mt-4 text-[20px] font-[600] leading-[30px] text-[#111928]">
+            <h3 className="mt-4 min-w-0 break-words text-[20px] font-[600] leading-[30px] text-[#111928]">
               {resolvedTitle}
             </h3>
 
             {isOnline ? (
-              <div className="mt-4 flex items-stretch justify-between gap-2">
+              <div className="mt-4 flex min-w-0 items-stretch justify-between gap-2">
                 <EventMetaTag
                   icon={<CalendarDots size={14} color="#EF8833" />}
                   value={date}
@@ -212,8 +212,8 @@ export function EventCardDrawer({
                 />
               </div>
             ) : (
-              <div className="mt-4 space-y-2">
-                <div className="flex items-stretch justify-between gap-2">
+              <div className="mt-4 min-w-0 space-y-2">
+                <div className="flex min-w-0 items-stretch justify-between gap-2">
                   <EventMetaTag
                     icon={<CalendarDots size={14} color="#EF8833" />}
                     value={date}
@@ -249,10 +249,10 @@ export function EventCardDrawer({
                         <span className="absolute left-[7px] top-4 h-[calc(100%+12px)] w-px bg-[#D1D5DB]" />
                       ) : null}
                       <span className="absolute left-1 top-1.5 size-[8px] rounded-full bg-[#EF8833]" />
-                      <p className="text-[12px] font-[600] leading-[16px] text-[#111928]">
+                      <p className="min-w-0 break-words text-[12px] font-[600] leading-[16px] text-[#111928]">
                         {toCapitalizedWords(item.time)}
                       </p>
-                      <p className="mt-1 text-[14px] leading-[20px] text-[#374151]">
+                      <p className="mt-1 min-w-0 break-words text-[14px] leading-[20px] text-[#374151]">
                         {toCapitalizedWords(item.text)}
                       </p>
                     </div>

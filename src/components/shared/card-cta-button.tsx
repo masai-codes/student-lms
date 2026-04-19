@@ -22,9 +22,9 @@ export function CardCtaButton({
     <button
       type="button"
       onClick={onClick}
-      className={`inline-flex items-center justify-center rounded-[8px] px-[16px] py-[8px] text-[14px] font-[500] leading-[20px] font-poppins transition-colors ${fullWidth ? "w-full" : ""} ${THEME_CLASSES[theme]} ${className}`.trim()}
+      className={`inline-flex min-w-0 max-w-full items-center justify-center rounded-[8px] px-[16px] py-[8px] text-[14px] font-[500] leading-[20px] font-poppins transition-colors ${fullWidth ? "w-full" : ""} ${THEME_CLASSES[theme]} ${className}`.trim()}
     >
-      {text}
+      <span className="min-w-0 max-w-full whitespace-normal break-words text-center">{text}</span>
     </button>
   );
 }

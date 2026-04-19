@@ -1,3 +1,4 @@
+import { cn } from "@/lib/utils"
 import ReactMarkdown from "react-markdown"
 import rehypeRaw from "rehype-raw"
 import rehypeSanitize, { defaultSchema } from "rehype-sanitize"
@@ -75,7 +76,12 @@ export function RichContent({ value, className }: RichContentProps) {
   if (!value.trim()) return null
 
   return (
-    <div className={className}>
+    <div
+      className={cn(
+        "min-w-0 max-w-full break-words [&_a]:break-all [&_code]:break-all [&_li]:min-w-0 [&_ol]:min-w-0 [&_p]:min-w-0 [&_ul]:min-w-0",
+        className,
+      )}
+    >
       <ReactMarkdown
         remarkPlugins={[remarkGfm]}
         rehypePlugins={[rehypeRaw, [rehypeSanitize, sanitizeSchema]]}
