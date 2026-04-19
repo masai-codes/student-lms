@@ -2,7 +2,7 @@ import type { ClubCardProps } from "@/components/club-card"
 import type { EventCardProps } from "@/components/event-card"
 import type { ClubType } from "@/server/masaiverse/fetchClubs"
 import type { EventType } from "@/server/masaiverse/fetchEvents"
-import { parseServerTimestamp } from "@/lib/parseServerTimestamp"
+import { parseMasaiverseEventDbTimestamp } from "@/lib/eventTimestamps"
 
 type ClubMeta = {
   mini_description?: string
@@ -42,7 +42,7 @@ const getDateTimeLabel = (value?: string | null) => {
     return { date: "TBD", time: "TBD" }
   }
 
-  const parsed = parseServerTimestamp(value)
+  const parsed = parseMasaiverseEventDbTimestamp(value)
   if (!parsed || Number.isNaN(parsed.getTime())) {
     return { date: "TBD", time: "TBD" }
   }
