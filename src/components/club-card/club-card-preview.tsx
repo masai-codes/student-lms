@@ -92,7 +92,7 @@ export function ClubCardPreview({
     >
       <div className="flex min-w-0 items-start justify-between gap-2">
         <div className="shrink-0 self-start">{iconBlock}</div>
-        <p className="min-w-0 flex-1 break-words px-[8px] text-right text-[12px] font-[500] leading-[16px] font-poppins rounded-[32px] border border-[#E5E7EB] py-[4px]">
+        <p className="w-fit max-w-full shrink-0 break-words px-[8px] text-right text-[12px] font-[500] leading-[16px] font-poppins rounded-[32px] border border-[#E5E7EB] py-[4px]">
           {resolvedDomain}
         </p>
       </div>
