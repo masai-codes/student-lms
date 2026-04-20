@@ -100,7 +100,7 @@ export function ClubCardPreview({
         <h3 className="break-words text-[16px] font-[600] leading-[24px] font-poppins">
           {resolvedName}
         </h3>
-        <p className="mt-[4px] break-words text-[14px] font-[400] leading-[20px] font-poppins text-[#6B7280]">
+        <p className="mt-[4px] break-words whitespace-pre-line text-[14px] font-[400] leading-[20px] font-poppins text-[#6B7280]">
           {resolvedMiniDescription}
         </p>
       </div>

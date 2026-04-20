@@ -69,13 +69,14 @@ export function toRichPreviewText(value: string) {
   const decoded = decodeHtmlEntities(decodeMarkdownPayload(value || ""))
 
   return decoded
-    .replace(/<br\s*\/?>/gi, " ")
-    .replace(/<\/(p|div|li|h[1-6]|blockquote)>/gi, " ")
+    .replace(/<br\s*\/?>/gi, "\n")
+    .replace(/<\/(p|div|li|h[1-6]|blockquote)>/gi, "\n")
     .replace(/<[^>]+>/g, " ")
     .replace(/!\[.*?\]\((.*?)\)/g, "$1")
     .replace(/\[(.*?)\]\((.*?)\)/g, "$1")
     .replace(/[#>*_`~-]/g, "")
-    .replace(/\s+/g, " ")
+    .replace(/[^\S\n]+/g, " ")
+    .replace(/\n{3,}/g, "\n\n")
     .trim()
 }
 
@@ -85,7 +86,7 @@ export function RichContent({ value, className }: RichContentProps) {
   return (
     <div
       className={cn(
-        "min-w-0 max-w-full break-words [&_a]:break-all [&_code]:break-all [&_li]:min-w-0 [&_ol]:min-w-0 [&_p]:min-w-0 [&_ul]:min-w-0",
+        "min-w-0 max-w-full break-words [&_a]:break-all [&_code]:break-all [&_li]:min-w-0 [&_li]:whitespace-pre-wrap [&_ol]:min-w-0 [&_p]:min-w-0 [&_p]:whitespace-pre-wrap [&_ul]:min-w-0",
         className,
       )}
     >

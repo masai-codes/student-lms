@@ -1,8 +1,8 @@
-import { cn } from "@/lib/utils";
-
-import type { EventCardProps } from "./types";
 import { CardCtaButton } from "../shared/card-cta-button";
 import { toRichPreviewText } from "./rich-content";
+import type { EventCardProps } from "./types";
+
+import { cn } from "@/lib/utils";
 
 function toCapitalizedWords(value: string) {
   return value.replace(/\b\w/g, (char) => char.toUpperCase());
@@ -99,7 +99,7 @@ export function EventCardPreview({
         <h3 className="min-w-0 break-words text-[14px] font-[600] leading-[20px] text-[#111928]">
           {resolvedTitle}
         </h3>
-        <p className="mt-[8px] line-clamp-2 min-w-0 break-words text-[12px] font-[400] leading-[16px] text-[#4B5563]">
+        <p className="mt-[8px] line-clamp-2 min-w-0 break-words whitespace-pre-line text-[12px] font-[400] leading-[16px] text-[#4B5563]">
           {resolvedMiniDescription}
         </p>
 
