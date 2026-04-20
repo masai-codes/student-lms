@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react'
-import { DiscussionPostCardPreview } from '@/components/discussion-post-card/discussion-post-card-preview'
-import type { DiscussionReply as DiscussionPostCardReply } from '@/components/discussion-post-card'
 import MasaiverseDiscussionPostDrawer from './MasaiverseDiscussionPostDrawer'
+import type { DiscussionReply as DiscussionPostCardReply } from '@/components/discussion-post-card'
+import { DiscussionPostCardPreview } from '@/components/discussion-post-card/discussion-post-card-preview'
 
 type MasaiverseDiscussionPostCardProps = {
   profileImage: string
+  composerProfileImage?: string
   name: string
   createdAt: string
   content: string
@@ -33,6 +34,7 @@ const getDrawerDirection = () => {
 
 export default function MasaiverseDiscussionPostCard({
   profileImage,
+  composerProfileImage,
   name,
   createdAt,
   content,
@@ -103,6 +105,7 @@ export default function MasaiverseDiscussionPostCard({
       />
       <MasaiverseDiscussionPostDrawer
         profileImage={profileImage}
+        composerProfileImage={composerProfileImage}
         name={name}
         createdAt={createdAt}
         content={content}

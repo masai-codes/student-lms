@@ -1,15 +1,17 @@
 import { useState } from 'react'
+import MasaiverseDiscussionPostCard from './MasaiverseDiscussionPostCard'
 import type { DiscussionReply as DiscussionPostCardReply } from '@/components/discussion-post-card'
-import { formatSocialPostTime } from '@/lib/socialRelativeTime'
 import type {
   DiscussionEntityId,
   DiscussionPost,
 } from '@/server/masaiverse/communityDiscussions'
-import MasaiverseDiscussionPostCard from './MasaiverseDiscussionPostCard'
+import { formatSocialPostTime } from '@/lib/socialRelativeTime'
 
 type DiscussionsListProps = {
   isAdmin: boolean
   posts: Array<DiscussionPost>
+  currentUserName: string
+  currentUserProfileImage: string | null
   onVotePost: (
     postId: DiscussionEntityId,
     vote: 'upvote' | 'downvote',
@@ -29,6 +31,8 @@ type DiscussionsListProps = {
 const DiscussionsList = ({
   isAdmin,
   posts,
+  currentUserName,
+  currentUserProfileImage,
   onVotePost,
   onVoteReply,
   onReply,
@@ -130,6 +134,9 @@ const DiscussionsList = ({
             <MasaiverseDiscussionPostCard
               profileImage={
                 post.authorProfileImage ?? getFallbackAvatar(post.authorName)
+              }
+              composerProfileImage={
+                currentUserProfileImage ?? getFallbackAvatar(currentUserName)
               }
               name={post.authorName}
               createdAt={formatSocialPostTime(post.createdAt)}

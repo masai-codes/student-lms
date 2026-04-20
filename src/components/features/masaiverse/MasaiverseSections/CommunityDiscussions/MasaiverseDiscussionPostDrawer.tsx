@@ -1,8 +1,8 @@
 import * as Dialog from '@radix-ui/react-dialog'
 import { X } from 'lucide-react'
+import type { DiscussionReply as DiscussionPostCardReply } from '@/components/discussion-post-card'
 import { DiscussionPostCardComposer } from '@/components/discussion-post-card'
 import { DiscussionPostCardPreview } from '@/components/discussion-post-card/discussion-post-card-preview'
-import type { DiscussionReply as DiscussionPostCardReply } from '@/components/discussion-post-card'
 import {
   MASAIVERSE_DRAWER_SCROLL_BODY_PADDING,
   MASAIVERSE_MOBILE_TAB_DRAWER_CONTENT_INSET,
@@ -12,6 +12,7 @@ import { cn } from '@/lib/utils'
 
 type MasaiverseDiscussionPostDrawerProps = {
   profileImage: string
+  composerProfileImage?: string
   name: string
   createdAt: string
   content: string
@@ -34,6 +35,7 @@ type MasaiverseDiscussionPostDrawerProps = {
 
 export default function MasaiverseDiscussionPostDrawer({
   profileImage,
+  composerProfileImage,
   name,
   createdAt,
   content,
@@ -53,12 +55,12 @@ export default function MasaiverseDiscussionPostDrawer({
   onOpenChange,
   resolvedDirection,
 }: MasaiverseDiscussionPostDrawerProps) {
-  const getFallbackAvatar = (name: string) => {
-    const initials = name
+  const getFallbackAvatar = (displayName: string) => {
+    const initials = displayName
       .trim()
       .split(/\s+/)
       .slice(0, 2)
-      .map((part) => part[0]?.toUpperCase() ?? '')
+      .map((part) => part[0].toUpperCase())
       .join('') || 'U'
 
     const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="72" height="72"><rect width="100%" height="100%" fill="#F3F4F6"/><text x="50%" y="50%" dy=".35em" text-anchor="middle" fill="#374151" font-family="Arial, sans-serif" font-size="28" font-weight="600">${initials}</text></svg>`
@@ -157,7 +159,7 @@ export default function MasaiverseDiscussionPostDrawer({
             )}
           >
             <DiscussionPostCardComposer
-              profileImage={profileImage}
+              profileImage={composerProfileImage ?? profileImage}
               replyText={replyText}
               onReplyTextChange={onReplyTextChange}
               onReplySubmit={onReplySubmit}

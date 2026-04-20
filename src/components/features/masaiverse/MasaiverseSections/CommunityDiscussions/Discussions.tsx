@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from '@tanstack/react-router'
+import { Search } from 'lucide-react'
 import DiscussionsList from './DiscussionsList'
 import type { ClubType } from '@/server/masaiverse/fetchClubs'
 import type {
@@ -20,7 +21,6 @@ import { Pagination as AppPagination } from '@/components/common'
 import { RichTextEditor } from '@/components/discussion-post-card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Search } from 'lucide-react'
 import {
   Modal,
   ModalContent,
@@ -66,6 +66,8 @@ const Disucssions = ({
 }: DiscussionsProps) => {
   const navigate = useNavigate()
   const [posts, setPosts] = useState<Array<DiscussionPost>>([])
+  const [currentUserName, setCurrentUserName] = useState<string>('You')
+  const [currentUserProfileImage, setCurrentUserProfileImage] = useState<string | null>(null)
   const [totalPages, setTotalPages] = useState(0)
   const [currentPage, setCurrentPage] = useState(
     initialDiscussionPage && initialDiscussionPage > 0 ? initialDiscussionPage : 1,
@@ -171,6 +173,8 @@ const Disucssions = ({
         return
       }
       setPosts(response.posts)
+      setCurrentUserName(response.currentUserName ?? 'You')
+      setCurrentUserProfileImage(response.currentUserProfileImage ?? null)
       setCurrentPage(response.page)
       setTotalPages(response.totalPages)
       setSortBy(response.sortBy)
@@ -392,6 +396,8 @@ const Disucssions = ({
         <DiscussionsList
           isAdmin={isAdmin}
           posts={posts}
+          currentUserName={currentUserName}
+          currentUserProfileImage={currentUserProfileImage}
           onVotePost={handleVotePost}
           onVoteReply={handleVoteReply}
           onReply={handleReply}
