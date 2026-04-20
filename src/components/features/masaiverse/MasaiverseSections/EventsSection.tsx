@@ -101,7 +101,7 @@ const EventsSection = () => {
   }
 
   return (
-    <section className="min-h-[max(400px,calc(100dvh-11rem))] min-w-0 flex-1 rounded-[16px] border border-[#E5E7EB] bg-[#fff] px-6 py-8">
+    <section className="min-h-[max(400px,calc(100dvh-11rem))] min-w-0 flex-1 md:rounded-[16px] md:border md:border-[#E5E7EB] bg-[#fff] px-2 py-8">
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <h1 className="text-[24px] font-semibold text-[#111827]">Events</h1>
         <div className="relative h-10 w-full md:w-[282px]">
@@ -148,7 +148,8 @@ const EventsSection = () => {
           {filteredEvents.map((event) => {
             const isEnrolled = enrolledEventIds.includes(event.id)
             const eventCardProps = mapEventToCardProps(event)
-            const eventEndTime = eventDbTimestampToMs(event.endTime) ?? Number.POSITIVE_INFINITY
+            const eventEndTime =
+              eventDbTimestampToMs(event.endTime) ?? Number.POSITIVE_INFINITY
             const isPastEvent =
               Number.isFinite(eventEndTime) && eventEndTime < Date.now()
             const isOfflineEvent = event.mode === 'offline'
@@ -164,43 +165,47 @@ const EventsSection = () => {
                 className="min-w-0 w-full [&>div]:!max-w-none"
               >
                 <EventCard
-                {...eventCardProps}
-                isActive={!isPastEvent && eventCardProps.isActive}
-                drawerBottomInsetClassName={MASAIVERSE_MOBILE_TAB_DRAWER_CONTENT_INSET}
-                drawerBodyClassName={MASAIVERSE_DRAWER_SCROLL_BODY_PADDING}
-                drawerPinFooter
-                drawerFooterClassName={MASAIVERSE_MOBILE_TAB_DRAWER_FOOTER_INSET}
-                cardCtaText="View Details"
-                drawerCtaText={
-                  isPastEvent
-                    ? 'View Details'
-                    : isEnrolled
-                      ? enrolledRedirectLink
-                        ? enrolledCtaText
-                        : 'Enrolled'
-                      : 'Enroll'
-                }
-                hideDrawerCta={isPastEvent}
-                onCtaClick={
-                  isPastEvent
-                    ? undefined
-                    : isEnrolled
-                      ? enrolledRedirectLink
-                        ? () => {
-                            window.open(
-                              enrolledRedirectLink,
-                              '_blank',
-                              'noopener,noreferrer',
-                            )
-                          }
-                        : undefined
-                      : joiningEventId
-                        ? undefined
-                        : () => {
-                            void handleEventEnroll(event.id)
-                          }
-                }
-              />
+                  {...eventCardProps}
+                  isActive={!isPastEvent && eventCardProps.isActive}
+                  drawerBottomInsetClassName={
+                    MASAIVERSE_MOBILE_TAB_DRAWER_CONTENT_INSET
+                  }
+                  drawerBodyClassName={MASAIVERSE_DRAWER_SCROLL_BODY_PADDING}
+                  drawerPinFooter
+                  drawerFooterClassName={
+                    MASAIVERSE_MOBILE_TAB_DRAWER_FOOTER_INSET
+                  }
+                  cardCtaText="View Details"
+                  drawerCtaText={
+                    isPastEvent
+                      ? 'View Details'
+                      : isEnrolled
+                        ? enrolledRedirectLink
+                          ? enrolledCtaText
+                          : 'Enrolled'
+                        : 'Enroll'
+                  }
+                  hideDrawerCta={isPastEvent}
+                  onCtaClick={
+                    isPastEvent
+                      ? undefined
+                      : isEnrolled
+                        ? enrolledRedirectLink
+                          ? () => {
+                              window.open(
+                                enrolledRedirectLink,
+                                '_blank',
+                                'noopener,noreferrer',
+                              )
+                            }
+                          : undefined
+                        : joiningEventId
+                          ? undefined
+                          : () => {
+                              void handleEventEnroll(event.id)
+                            }
+                  }
+                />
               </div>
             )
           })}
