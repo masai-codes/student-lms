@@ -87,35 +87,47 @@ export default function AppNavbar() {
     retry: 1,
   })
 
-  const handleLevelupClick = useCallback(async (e: React.MouseEvent<HTMLAnchorElement>) => {
-    e.preventDefault()
-    if (levelupLoadingRef.current) return
-    levelupLoadingRef.current = true
-    setIsLevelupLoading(true)
-    try {
-      const { url } = await fetchLevelupSso()
-      window.open(url, '_blank', 'noopener,noreferrer')
-    } catch (err) {
-      const message =
-        err instanceof Error ? err.message : 'Something went wrong while redirecting to Levelup'
-      window.alert(message)
-    } finally {
-      levelupLoadingRef.current = false
-      setIsLevelupLoading(false)
-    }
-  }, [])
+  const handleLevelupClick = useCallback(
+    async (e: React.MouseEvent<HTMLAnchorElement>) => {
+      e.preventDefault()
+      if (levelupLoadingRef.current) return
+      levelupLoadingRef.current = true
+      setIsLevelupLoading(true)
+      try {
+        const { url } = await fetchLevelupSso()
+        window.open(url, '_blank', 'noopener,noreferrer')
+      } catch (err) {
+        const message =
+          err instanceof Error
+            ? err.message
+            : 'Something went wrong while redirecting to Levelup'
+        window.alert(message)
+      } finally {
+        levelupLoadingRef.current = false
+        setIsLevelupLoading(false)
+      }
+    },
+    [],
+  )
 
-  const handleSignOut = useCallback(async (e: React.MouseEvent<HTMLAnchorElement>) => {
-    e.preventDefault()
-    try {
-      await logout()
-    } catch (err) {
-      console.error('Logout failed', err)
-      window.alert(err instanceof Error ? err.message : 'Sign out failed. Please try again.')
-      return
-    }
-    window.location.assign(getPostLogoutRedirectUrl())
-  }, [])
+  const handleSignOut = useCallback(
+    async (e: React.MouseEvent<HTMLAnchorElement>) => {
+      e.preventDefault()
+      try {
+        await logout()
+      } catch (err) {
+        console.error('Logout failed', err)
+        window.alert(
+          err instanceof Error
+            ? err.message
+            : 'Sign out failed. Please try again.',
+        )
+        return
+      }
+      window.location.assign(getPostLogoutRedirectUrl())
+    },
+    [],
+  )
 
   const handleReferAndEarnClick = useCallback(
     (e: React.MouseEvent<HTMLAnchorElement>) => {
@@ -131,7 +143,8 @@ export default function AppNavbar() {
       }
 
       const fallbackHref =
-        getOldStudentUiUrlForPath(OLD_STUDENT_UI_NAV_PATHS.referAndEarn) ?? '/refer-and-earn'
+        getOldStudentUiUrlForPath(OLD_STUDENT_UI_NAV_PATHS.referAndEarn) ??
+        '/refer-and-earn'
       window.location.assign(fallbackHref)
     },
     [isReferralUrlLoading, referralUrl],
@@ -227,8 +240,7 @@ export default function AppNavbar() {
         id: 'bookmark',
         label: 'Bookmark',
         icon: <Bookmark className="size-4" />,
-        href: '/bookmark',
-        openInNewTab: false,
+        ...oldStudentUiLink(OLD_STUDENT_UI_NAV_PATHS.bookmarks),
       },
       {
         id: 'masaiverse-menu',
@@ -310,7 +322,10 @@ export default function AppNavbar() {
         trailingActions={trailingActions}
         profile={profile}
       />
-      <DownloadAppModal open={downloadAppOpen} onOpenChange={setDownloadAppOpen} />
+      <DownloadAppModal
+        open={downloadAppOpen}
+        onOpenChange={setDownloadAppOpen}
+      />
     </>
   )
 }

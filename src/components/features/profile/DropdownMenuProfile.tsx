@@ -21,9 +21,10 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { LevelUpIcon } from '@/components/common/LevelUpIcon'
 import { LEGACY_STUDENT_LMS_URL } from '@/constants/legacyStudentUi'
+import { OLD_STUDENT_UI_NAV_PATHS } from '@/constants/oldStudentUiNavPaths'
 import { getBugReportFormUrl } from '@/utils/bugReportFormUrl'
 import { logout } from '@/server/auth/logout'
-import { getPostLogoutRedirectUrl } from '@/utils/authRedirect'
+import { getOldStudentUiUrlForPath, getPostLogoutRedirectUrl } from '@/utils/authRedirect'
 import { fetchLevelupSso } from '@/utils/levelupSso'
 
 const menuItemClass =
@@ -32,6 +33,7 @@ const menuItemClass =
 export function DropdownMenuProfile() {
   const [isLevelupLoading, setIsLevelupLoading] = useState(false)
   const levelupLoadingRef = useRef(false)
+  const bookmarkHref = getOldStudentUiUrlForPath(OLD_STUDENT_UI_NAV_PATHS.bookmarks) ?? '#'
 
   const handleLevelupClick = useCallback(async () => {
     if (levelupLoadingRef.current) return
@@ -77,14 +79,19 @@ export function DropdownMenuProfile() {
           </DropdownMenuItem>
 
           <DropdownMenuItem asChild className={menuItemClass}>
-            <Link to="/bookmark" search={{ page: undefined, type: undefined }}>
+            <a
+              href={bookmarkHref}
+              onClick={(e) => {
+                if (bookmarkHref === '#') e.preventDefault()
+              }}
+            >
               <Bookmark />
               Bookmark
-            </Link>
+            </a>
           </DropdownMenuItem>
 
           <DropdownMenuItem asChild className={menuItemClass}>
-            <Link to="/masaiverse">
+            <Link to="/masaiverse" search={{ tab: 'home' }}>
               <Users />
               MasaiVerse Community
             </Link>

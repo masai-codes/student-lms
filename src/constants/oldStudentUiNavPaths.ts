@@ -7,6 +7,7 @@ export const OLD_STUDENT_UI_NAV_PATHS = {
   learn: '/learn',
   support: '/support?tab=unresolved',
   discussions: '/discussions',
+  bookmarks: '/bookmarks?tab=Lecture',
   referAndEarn: '/changemakers-circle',
   calendar: '/my-calendar',
   chat: '/chat',
