@@ -1,6 +1,6 @@
-import type { ClubType } from '@/server/masaiverse/fetchClubs'
 import Disucssions from './CommunityDiscussions/Discussions'
 import CommunityDiscussionsEmptyState from './CommunityDiscussionsEmptyState.tsx'
+import type { ClubType } from '@/server/masaiverse/fetchClubs'
 
 type CommunityDiscussionsProps = {
   hasJoinedClub: boolean
@@ -9,6 +9,8 @@ type CommunityDiscussionsProps = {
   joinedClubId: string | null
   initialPostIdFromSearch?: string
   initialCreateDiscussionOpen?: boolean
+  initialDiscussionSearch?: string
+  initialDiscussionPage?: number
 }
 
 export default function CommunityDiscussions({
@@ -18,6 +20,8 @@ export default function CommunityDiscussions({
   joinedClubId,
   initialPostIdFromSearch,
   initialCreateDiscussionOpen,
+  initialDiscussionSearch,
+  initialDiscussionPage,
 }: CommunityDiscussionsProps) {
   const canViewDiscussions = hasJoinedClub || isAdmin
 
@@ -34,6 +38,8 @@ export default function CommunityDiscussions({
             joinedClubId={joinedClubId}
             initialPostIdFromSearch={initialPostIdFromSearch}
             initialCreateDiscussionOpen={initialCreateDiscussionOpen}
+            initialDiscussionSearch={initialDiscussionSearch}
+            initialDiscussionPage={initialDiscussionPage}
           />
         ) : (
           <CommunityDiscussionsEmptyState />

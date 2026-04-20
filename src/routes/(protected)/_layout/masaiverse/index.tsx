@@ -9,6 +9,8 @@ type MasaiverseSearch = {
   tab: MasaiverseTab
   postId?: string
   createDiscussion?: boolean
+  discussionSearch?: string
+  discussionPage?: number
 }
 
 export const Route = createFileRoute("/(protected)/_layout/masaiverse/")({
@@ -23,6 +25,17 @@ export const Route = createFileRoute("/(protected)/_layout/masaiverse/")({
       search.createDiscussion === 'true' ||
       search.createDiscussion === 1 ||
       search.createDiscussion === '1'
+    const normalizedDiscussionSearch = typeof search.discussionSearch === 'string'
+      ? search.discussionSearch.trim() || undefined
+      : undefined
+    const normalizedDiscussionPageRaw =
+      typeof search.discussionPage === 'number'
+        ? search.discussionPage
+        : Number(search.discussionPage)
+    const normalizedDiscussionPage = Number.isFinite(normalizedDiscussionPageRaw)
+      && normalizedDiscussionPageRaw > 0
+      ? Math.floor(normalizedDiscussionPageRaw)
+      : undefined
     if (
       tab === "home" ||
       tab === "events" ||
@@ -33,19 +46,23 @@ export const Route = createFileRoute("/(protected)/_layout/masaiverse/")({
         tab,
         postId: normalizedPostId,
         createDiscussion: normalizedCreateDiscussion || undefined,
+        discussionSearch: normalizedDiscussionSearch,
+        discussionPage: normalizedDiscussionPage,
       }
     }
     return {
       tab: "home",
       postId: normalizedPostId,
       createDiscussion: normalizedCreateDiscussion || undefined,
+      discussionSearch: normalizedDiscussionSearch,
+      discussionPage: normalizedDiscussionPage,
     }
   },
   component: RouteComponent,
 })
 
 function RouteComponent() {
-  const { tab, postId, createDiscussion } = Route.useSearch()
+  const { tab, postId, createDiscussion, discussionSearch, discussionPage } = Route.useSearch()
 
   switch (tab) {
     case "events":
@@ -59,6 +76,8 @@ function RouteComponent() {
         <HomeSection
           postId={postId}
           shouldOpenCreateDiscussion={Boolean(createDiscussion)}
+          initialDiscussionSearch={discussionSearch}
+          initialDiscussionPage={discussionPage}
         />
       )
   }

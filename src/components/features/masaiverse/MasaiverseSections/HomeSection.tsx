@@ -22,11 +22,15 @@ import 'swiper/css/navigation'
 type HomeSectionProps = {
   postId?: string
   shouldOpenCreateDiscussion?: boolean
+  initialDiscussionSearch?: string
+  initialDiscussionPage?: number
 }
 
 export default function HomeSection({
   postId,
   shouldOpenCreateDiscussion = false,
+  initialDiscussionSearch,
+  initialDiscussionPage,
 }: HomeSectionProps) {
   const { user } = ProtectedLayoutRoute.useRouteContext()
   const isAdmin = String(user.role ?? '')
@@ -188,6 +192,8 @@ export default function HomeSection({
             joinedClubId={joinedClubId}
             initialPostIdFromSearch={postId}
             initialCreateDiscussionOpen={shouldOpenCreateDiscussion}
+            initialDiscussionSearch={initialDiscussionSearch}
+            initialDiscussionPage={initialDiscussionPage}
           />
         </div>
 

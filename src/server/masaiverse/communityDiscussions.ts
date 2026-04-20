@@ -5,6 +5,7 @@ import { getCurrentSessionUserId } from '@/server/auth/getCurrentSessionUserId'
 import { clubMembers, users } from '@/db/schema'
 import { pushNotificationService } from '@/server/pushNotifications/pushNotification.service'
 import { parseServerTimestamp } from '@/lib/parseServerTimestamp'
+import { PAGINATION_PAGE_SIZE } from '@/globalSettings'
 
 type VoteValue = 'upvote' | 'downvote'
 export type DiscussionSortMode = 'hot' | 'top' | 'new'
@@ -146,15 +147,35 @@ function escapeHtml(value: string): string {
 }
 
 export const fetchCommunityDiscussions = createServerFn({ method: 'GET' })
-  .inputValidator((data?: { sortBy?: DiscussionSortMode; clubId?: string }) => data ?? {})
+  .inputValidator((data?: {
+    sortBy?: DiscussionSortMode
+    clubId?: string
+    search?: string
+    page?: number
+    limit?: number
+  }) => data ?? {})
   .handler(fetchCommunityDiscussionsHandler)
 
 export async function fetchCommunityDiscussionsHandler({
   data,
 }: {
-  data: { sortBy?: DiscussionSortMode; clubId?: string }
+  data: {
+    sortBy?: DiscussionSortMode
+    clubId?: string
+    search?: string
+    page?: number
+    limit?: number
+  }
 }) {
   const sortBy: DiscussionSortMode = data.sortBy ?? 'new'
+  const normalizedSearch = String(data.search ?? '').trim()
+  const hasSearch = normalizedSearch.length > 0
+  const normalizedPage = Number.isFinite(data.page) && Number(data.page) > 0
+    ? Math.floor(Number(data.page))
+    : 1
+  const normalizedLimit = Number.isFinite(data.limit) && Number(data.limit) > 0
+    ? Math.floor(Number(data.limit))
+    : PAGINATION_PAGE_SIZE
   const userId = await getCurrentSessionUserId()
   if (!userId) {
     throw new Error('UNAUTHORIZED')
@@ -203,6 +224,12 @@ export async function fetchCommunityDiscussionsHandler({
       currentUserName: currentUser.name,
       currentUserProfileImage: currentUser.profileImage,
       posts: [] as Array<DiscussionPost>,
+      sortBy,
+      search: normalizedSearch,
+      page: normalizedPage,
+      limit: normalizedLimit,
+      totalPosts: 0,
+      totalPages: 0,
     }
   }
 
@@ -240,6 +267,10 @@ export async function fetchCommunityDiscussionsHandler({
     ) pr ON pr.userId = u.id
     WHERE p.club_id = ${selectedClubId}
       AND (${isAdmin ? 1 : 0} = 1 OR p.is_banned = 0)
+      AND (
+        ${hasSearch ? 1 : 0} = 0
+        OR p.content LIKE CONCAT('%', ${normalizedSearch}, '%')
+      )
     ORDER BY p.created_at DESC
   `))
 
@@ -460,7 +491,14 @@ export async function fetchCommunityDiscussionsHandler({
     return b.rankingMeta.netVotes - a.rankingMeta.netVotes
   })
 
-  const result: Array<DiscussionPost> = sortedPosts.map(({ rankingMeta: _rankingMeta, ...post }) => post)
+  const allPosts: Array<DiscussionPost> = sortedPosts.map(({ rankingMeta: _rankingMeta, ...post }) => post)
+  const totalPosts = allPosts.length
+  const totalPages = totalPosts > 0 ? Math.ceil(totalPosts / normalizedLimit) : 0
+  const safePage = totalPages > 0
+    ? Math.min(normalizedPage, totalPages)
+    : 1
+  const startIndex = (safePage - 1) * normalizedLimit
+  const result = allPosts.slice(startIndex, startIndex + normalizedLimit)
 
   return {
     joinedClubId,
@@ -469,6 +507,11 @@ export async function fetchCommunityDiscussionsHandler({
     currentUserName: currentUser.name,
     currentUserProfileImage: currentUser.profileImage,
     sortBy,
+    search: normalizedSearch,
+    page: safePage,
+    limit: normalizedLimit,
+    totalPosts,
+    totalPages,
     posts: result,
   }
 }

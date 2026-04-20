@@ -1,8 +1,32 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from '@tanstack/react-router'
 import DiscussionsList from './DiscussionsList'
+import type { ClubType } from '@/server/masaiverse/fetchClubs'
+import type {
+  DiscussionEntityId,
+  DiscussionPost,
+  DiscussionSortMode,
+} from '@/server/masaiverse/communityDiscussions'
+import {
+  createCommunityPost,
+  createCommunityReply,
+  fetchCommunityDiscussions,
+  toggleCommunityPostBan,
+  toggleCommunityPostBookmark,
+  voteCommunityPost,
+  voteCommunityReply,
+} from '@/server/masaiverse/communityDiscussions'
+import { Pagination as AppPagination } from '@/components/common'
+import { RichTextEditor } from '@/components/discussion-post-card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { Search } from 'lucide-react'
+import {
+  Modal,
+  ModalContent,
+  ModalDescription,
+  ModalTitle,
+} from '@/components/ui/modal'
 import {
   Select,
   SelectContent,
@@ -10,26 +34,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import {
-  Modal,
-  ModalContent,
-  ModalDescription,
-  ModalTitle,
-} from '@/components/ui/modal'
-import { RichTextEditor } from '@/components/discussion-post-card'
-import type { DiscussionPost } from '@/server/masaiverse/communityDiscussions'
-import {
-  createCommunityPost,
-  createCommunityReply,
-  fetchCommunityDiscussions,
-  toggleCommunityPostBookmark,
-  toggleCommunityPostBan,
-  voteCommunityPost,
-  voteCommunityReply,
-} from '@/server/masaiverse/communityDiscussions'
-import type { DiscussionSortMode } from '@/server/masaiverse/communityDiscussions'
-import type { DiscussionEntityId } from '@/server/masaiverse/communityDiscussions'
-import type { ClubType } from '@/server/masaiverse/fetchClubs'
 
 const discussionSortOptions: Array<{ key: DiscussionSortMode; label: string }> =
   [
@@ -44,6 +48,8 @@ type DiscussionsProps = {
   joinedClubId: string | null
   initialPostIdFromSearch?: string
   initialCreateDiscussionOpen?: boolean
+  initialDiscussionSearch?: string
+  initialDiscussionPage?: number
 }
 
 const TITLE_MAX_LENGTH = 500
@@ -55,9 +61,17 @@ const Disucssions = ({
   joinedClubId,
   initialPostIdFromSearch,
   initialCreateDiscussionOpen = false,
+  initialDiscussionSearch,
+  initialDiscussionPage,
 }: DiscussionsProps) => {
   const navigate = useNavigate()
   const [posts, setPosts] = useState<Array<DiscussionPost>>([])
+  const [totalPages, setTotalPages] = useState(0)
+  const [currentPage, setCurrentPage] = useState(
+    initialDiscussionPage && initialDiscussionPage > 0 ? initialDiscussionPage : 1,
+  )
+  const [searchInput, setSearchInput] = useState(initialDiscussionSearch ?? '')
+  const [searchTerm, setSearchTerm] = useState(initialDiscussionSearch ?? '')
   const [isLoadingDiscussions, setIsLoadingDiscussions] = useState(true)
   const [isPosting, setIsPosting] = useState(false)
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(initialCreateDiscussionOpen)
@@ -101,6 +115,31 @@ const Disucssions = ({
   }, [initialPostIdFromSearch])
 
   useEffect(() => {
+    setSearchInput(initialDiscussionSearch ?? '')
+    setSearchTerm(initialDiscussionSearch ?? '')
+  }, [initialDiscussionSearch])
+
+  useEffect(() => {
+    setCurrentPage(
+      initialDiscussionPage && initialDiscussionPage > 0 ? initialDiscussionPage : 1,
+    )
+  }, [initialDiscussionPage])
+
+  useEffect(() => {
+    const timeoutId = window.setTimeout(() => {
+      if (searchInput === searchTerm) {
+        return
+      }
+      setSearchTerm(searchInput)
+      setCurrentPage(1)
+    }, 300)
+
+    return () => {
+      window.clearTimeout(timeoutId)
+    }
+  }, [searchInput, searchTerm])
+
+  useEffect(() => {
     if (initialCreateDiscussionOpen) {
       setIsCreateModalOpen(true)
     }
@@ -110,6 +149,8 @@ const Disucssions = ({
     showInitialLoader = false,
     selectedSort: DiscussionSortMode = sortBy,
     selectedClub: string | null = selectedClubId,
+    selectedSearch: string = searchTerm,
+    selectedPage: number = currentPage,
   ) => {
     const requestId = latestRefreshRequestIdRef.current + 1
     latestRefreshRequestIdRef.current = requestId
@@ -121,13 +162,18 @@ const Disucssions = ({
         data: {
           sortBy: selectedSort,
           clubId: isAdmin ? (selectedClub ?? undefined) : undefined,
+          search: selectedSearch.trim() || undefined,
+          page: selectedPage,
+          limit: 10,
         },
       })
       if (requestId !== latestRefreshRequestIdRef.current) {
         return
       }
       setPosts(response.posts)
-      setSortBy(response.sortBy ?? selectedSort)
+      setCurrentPage(response.page)
+      setTotalPages(response.totalPages)
+      setSortBy(response.sortBy)
       if (isAdmin) {
         const resolvedClubId = response.selectedClubId ?? selectedClub ?? null
         setSelectedClubId((prevSelectedClubId) =>
@@ -142,8 +188,21 @@ const Disucssions = ({
   }
 
   useEffect(() => {
-    void refreshDiscussions(true, sortBy, selectedClubId)
-  }, [isAdmin, selectedClubId]) // eslint-disable-line react-hooks/exhaustive-deps
+    void refreshDiscussions(true, sortBy, selectedClubId, searchTerm, currentPage)
+  }, [isAdmin, selectedClubId, searchTerm, currentPage])
+
+  useEffect(() => {
+    navigate({
+      to: '/masaiverse',
+      replace: true,
+      search: (prev) => ({
+        ...prev,
+        tab: 'home' as const,
+        discussionSearch: searchTerm.trim() || undefined,
+        discussionPage: currentPage > 1 ? currentPage : undefined,
+      }),
+    })
+  }, [currentPage, navigate, searchTerm])
 
   const getDescriptionPlainText = (html: string) =>
     html.replace(/<\s*br\s*\/?>/gi, ' ').replace(/<[^>]*>/g, ' ').trim()
@@ -215,11 +274,12 @@ const Disucssions = ({
     navigate({
       to: '/masaiverse',
       replace: true,
-      search: {
+      search: (prev) => ({
+        ...prev,
         tab: 'home',
         postId: undefined,
         createDiscussion: undefined,
-      },
+      }),
     })
   }
 
@@ -229,7 +289,8 @@ const Disucssions = ({
       navigate({
         to: '/masaiverse',
         replace: true,
-        search: () => ({
+        search: (prev) => ({
+          ...prev,
           tab: 'home' as const,
           postId: undefined,
           createDiscussion: undefined,
@@ -264,6 +325,20 @@ const Disucssions = ({
         </div>
       ) : null}
       <div className="flex flex-wrap items-center justify-between gap-2">
+        <div className="relative w-full">
+          <Search
+            className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#9CA3AF]"
+            aria-hidden="true"
+          />
+          <Input
+            value={searchInput}
+            onChange={(event) => setSearchInput(event.target.value)}
+            placeholder="Search discussions"
+            className="h-11 w-full bg-white pl-10"
+          />
+        </div>
+      </div>
+      <div className="flex flex-wrap items-center justify-between gap-2">
         <div className="flex flex-wrap items-center gap-2">
           {discussionSortOptions.map((option) => {
             const isActive = sortBy === option.key
@@ -279,7 +354,8 @@ const Disucssions = ({
                 onClick={() => {
                   if (sortBy === option.key) return
                   setSortBy(option.key)
-                  void refreshDiscussions(false, option.key)
+                  setCurrentPage(1)
+                  void refreshDiscussions(false, option.key, selectedClubId, searchTerm, 1)
                 }}
               >
                 {option.label}
@@ -326,6 +402,11 @@ const Disucssions = ({
           onCreateDiscussionClick={() => setIsCreateModalOpen(true)}
         />
       )}
+      <AppPagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChange={(page) => setCurrentPage(page)}
+      />
       <Modal open={isCreateModalOpen} onOpenChange={handleCreateModalOpenChange}>
         <ModalContent className="max-w-2xl space-y-4">
           <div>
