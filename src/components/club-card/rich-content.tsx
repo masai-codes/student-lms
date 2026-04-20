@@ -49,13 +49,20 @@ function decodeHtmlEntities(value: string) {
 function decodeMarkdownPayload(content: string): string {
   if (!content) return ""
 
-  if (content.includes("&lt;") || content.includes("&gt;")) {
+  const normalizedContent = content
+    .replace(/\\r\\n/g, "\n")
+    .replace(/\\n/g, "\n")
+    .replace(/\\t/g, "\t")
+
+  if (normalizedContent.includes("&lt;") || normalizedContent.includes("&gt;")) {
     const parser = new DOMParser()
-    const decoded = parser.parseFromString(content, "text/html").documentElement.textContent
-    return decoded ?? content
+    const decoded = parser
+      .parseFromString(normalizedContent, "text/html")
+      .documentElement.textContent
+    return decoded ?? normalizedContent
   }
 
-  return content
+  return normalizedContent
 }
 
 export function toRichPreviewText(value: string) {

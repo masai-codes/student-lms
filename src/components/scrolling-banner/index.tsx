@@ -15,6 +15,15 @@ function toCssSize(value: number | string | undefined) {
   return value;
 }
 
+function normalizeMarkdownContent(value: string) {
+  if (!value) return "";
+
+  return value
+    .replace(/\\r\\n/g, "\n")
+    .replace(/\\n/g, "\n")
+    .replace(/\\t/g, "\t");
+}
+
 const markdownComponents: Components = {
   p: ({ children }) => (
     <p className="m-0 min-w-0 max-w-full break-words whitespace-pre-wrap">{children}</p>
@@ -145,7 +154,7 @@ export function ScrollingBanner({
           {safeItems.map((item, index) => (
             (() => {
               const itemKey = `${item.id ?? item.heading ?? `item-${index}`}-${index}`;
-              const contentText = item.content ?? "";
+              const contentText = normalizeMarkdownContent(item.content ?? "");
               const hasLongContent = contentText.length > CONTENT_TRUNCATE_LIMIT;
               const hasCtaText = (item.ctaText ?? "").trim().length > 0;
               const hasCtaLink = (item.ctaLink ?? "").trim().length > 0;
