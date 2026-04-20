@@ -233,8 +233,7 @@ export default function AppNavbar() {
         id: 'courses',
         label: 'My Courses',
         icon: <Book className="size-4" />,
-        href: '/courses',
-        openInNewTab: false,
+        ...oldStudentUiLink(OLD_STUDENT_UI_NAV_PATHS.myLectures),
       },
       {
         id: 'bookmark',

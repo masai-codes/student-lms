@@ -34,6 +34,7 @@ export function DropdownMenuProfile() {
   const [isLevelupLoading, setIsLevelupLoading] = useState(false)
   const levelupLoadingRef = useRef(false)
   const bookmarkHref = getOldStudentUiUrlForPath(OLD_STUDENT_UI_NAV_PATHS.bookmarks) ?? '#'
+  const myCoursesHref = getOldStudentUiUrlForPath(OLD_STUDENT_UI_NAV_PATHS.myLectures) ?? '#'
 
   const handleLevelupClick = useCallback(async () => {
     if (levelupLoadingRef.current) return
@@ -72,10 +73,15 @@ export function DropdownMenuProfile() {
           </DropdownMenuItem>
 
           <DropdownMenuItem asChild className={menuItemClass}>
-            <Link to="/courses">
+            <a
+              href={myCoursesHref}
+              onClick={(e) => {
+                if (myCoursesHref === '#') e.preventDefault()
+              }}
+            >
               <Book />
               My Courses
-            </Link>
+            </a>
           </DropdownMenuItem>
 
           <DropdownMenuItem asChild className={menuItemClass}>

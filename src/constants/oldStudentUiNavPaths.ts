@@ -4,6 +4,7 @@
  */
 export const OLD_STUDENT_UI_NAV_PATHS = {
   home: '/',
+  myLectures: '/my-lectures',
   learn: '/learn',
   support: '/support?tab=unresolved',
   discussions: '/discussions',
