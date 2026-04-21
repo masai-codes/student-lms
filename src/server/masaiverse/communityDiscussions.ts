@@ -269,6 +269,7 @@ export async function fetchCommunityDiscussionsHandler({
       AND (${isAdmin ? 1 : 0} = 1 OR p.is_banned = 0)
       AND (
         ${hasSearch ? 1 : 0} = 0
+        OR p.title LIKE CONCAT('%', ${normalizedSearch}, '%')
         OR p.content LIKE CONCAT('%', ${normalizedSearch}, '%')
       )
     ORDER BY p.created_at DESC
