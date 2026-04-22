@@ -3,6 +3,7 @@ import jwt from 'jsonwebtoken'
 import { getRequest } from '@tanstack/react-start/server'
 import { db } from '@/db'
 import { sessions } from '@/db/schema'
+import { ensureSecrets } from '@/secrets'
 
 type SessionTokenPayload = {
   sessionId?: string
@@ -28,9 +29,10 @@ function parseCookieHeader(cookieHeader: string | null) {
     }, {})
 }
 
-function getSessionIdFromCookieValue(cookieValue: string | undefined) {
+async function getSessionIdFromCookieValue(cookieValue: string | undefined) {
   if (!cookieValue) return null
 
+  await ensureSecrets()
   const jwtSecret = process.env.JWT_SECRET_KEY
   if (!jwtSecret) return null
 
@@ -43,20 +45,21 @@ function getSessionIdFromCookieValue(cookieValue: string | undefined) {
 }
 
 /** Session id from raw `Cookie` header (for Nitro routes, tests, etc.). */
-export function readSessionIdFromCookieHeader(cookieHeader: string | null): string | null {
+export async function readSessionIdFromCookieHeader(cookieHeader: string | null): Promise<string | null> {
+  await ensureSecrets()
   const cookieName = process.env.COOKIE_NAME || DEFAULT_COOKIE_NAME
   const cookies = parseCookieHeader(cookieHeader)
   return getSessionIdFromCookieValue(cookies[cookieName])
 }
 
 /** Session id embedded in the JWT cookie (matches `sessions.id`). */
-export function readSessionIdFromCookie(): string | null {
+export async function readSessionIdFromCookie(): Promise<string | null> {
   const request = getRequest()
   return readSessionIdFromCookieHeader(request.headers.get('cookie'))
 }
 
 export async function getUserIdFromCookieHeader(cookieHeader: string | null): Promise<number | null> {
-  const sessionId = readSessionIdFromCookieHeader(cookieHeader)
+  const sessionId = await readSessionIdFromCookieHeader(cookieHeader)
   if (!sessionId) return null
 
   const sessionRecord = await db

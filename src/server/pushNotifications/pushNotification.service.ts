@@ -13,11 +13,21 @@ import type {
 } from './types'
 import { db } from '@/db'
 import { notificationLogs, userDeviceTokens } from '@/db/schema'
+import { ensureSecrets } from '@/secrets'
 
-const expo = new Expo({
-  accessToken: process.env.EXPO_ACCESS_TOKEN,
-})
+let expoClient: Expo | null = null
 const TEST_EXPO_PUSH_TOKEN = 'ExponentPushToken[q3G1K-EhoFVLg7ueCm4y0E]'
+
+async function getExpoClient(): Promise<Expo> {
+  if (expoClient) return expoClient
+
+  await ensureSecrets()
+  expoClient = new Expo({
+    accessToken: process.env.EXPO_ACCESS_TOKEN,
+  })
+
+  return expoClient
+}
 
 function mapDeviceTokenRowToDto(row: typeof userDeviceTokens.$inferSelect): UserDeviceTokenDto {
   return {
@@ -288,6 +298,7 @@ export class PushNotificationService {
         data: data || {},
       }))
 
+      const expo = await getExpoClient()
       const chunks = expo.chunkPushNotifications(messages)
       const results: Array<ExpoPushTicket> = []
       let hasSuccess = false
@@ -380,6 +391,7 @@ export class PushNotificationService {
         data: data || {},
       }))
 
+      const expo = await getExpoClient()
       const chunks = expo.chunkPushNotifications(messages)
       const results: Array<ExpoPushTicket> = []
 
