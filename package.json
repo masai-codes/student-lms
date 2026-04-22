@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "dev": "CHOKIDAR_USEPOLLING=1 CHOKIDAR_INTERVAL=200 vite dev --port 3002",
-    "build": "vite build",
+    "build": "NODE_OPTIONS=--max_old_space_size=6144 vite build",
     "start": "node .output/server/index.mjs",
     "preview": "vite preview",
     "test": "vitest run",
