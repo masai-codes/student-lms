@@ -39,7 +39,7 @@ async function loadSecrets() {
     loadLocalSecrets()
   }
 
-  const paramName = process.env.SSM_AWS_SECRET_NAME ?? '/amplify/demo-students-v2/SSM_AWS_SECRETS_DEMO'
+  const paramName = import.meta.env.VITE_SSM_AWS_SECRET_NAME
 
   if (!paramName) {
     throw new Error('SSM_AWS_SECRET_NAME env var is not set')
