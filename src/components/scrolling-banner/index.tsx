@@ -203,7 +203,7 @@ export function ScrollingBanner({
                     target={item.openInNewTab ? "_blank" : "_self"}
                     rel={item.openInNewTab ? "noreferrer noopener" : undefined}
                     suppressHydrationWarning
-                    className="inline-flex max-w-full min-w-0 items-center break-words rounded-[8px] bg-[#EF8833] px-3 py-[6px] text-center text-[12px] font-[500] leading-[18px] text-white transition-colors hover:bg-[#DC7A2D]"
+                    className="inline-flex w-full min-w-0 max-w-full items-center justify-center break-words rounded-[8px] bg-[#EF8833] px-3 py-[6px] text-center text-[12px] font-[500] leading-[18px] text-white transition-colors hover:bg-[#DC7A2D]"
                   >
                     {item.ctaText}
                   </a>

@@ -628,6 +628,7 @@ const Disucssions = ({
               value={description}
               onChange={setDescription}
               placeholder="Write your discussion description..."
+              contentClassName="[&_p]:my-0 [&_p+p]:mt-2"
             />
             <p className="text-xs text-[#6B7280]">
               Description supports up to {DESCRIPTION_MAX_LENGTH} characters.

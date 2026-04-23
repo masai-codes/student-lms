@@ -3112,7 +3112,7 @@ export const whatsnew = mysqlTable("whatsnew", {
 ]);
 
 export const clubs = mysqlTable("clubs", {
-	id: char({ length: 36 }).notNull(),
+	id: bigint({ mode: "number", unsigned: true }).autoincrement().notNull(),
 	name: varchar({ length: 255 }).notNull(),
 	domain: varchar({ length: 255 }),
 	image: text(),
@@ -3127,9 +3127,9 @@ export const clubs = mysqlTable("clubs", {
 ]);
 
 export const clubMembers = mysqlTable("club_members", {
-	id: char({ length: 36 }).notNull(),
+	id: bigint({ mode: "number", unsigned: true }).autoincrement().notNull(),
 	userId: bigint("user_id", { mode: "number", unsigned: true }).notNull().references(() => users.id),
-	clubId: char("club_id", { length: 36 }).notNull().references(() => clubs.id, { onDelete: "cascade" }),
+	clubId: bigint("club_id", { mode: "number", unsigned: true }).notNull().references(() => clubs.id, { onDelete: "cascade" }),
 	role: varchar({ length: 50 }).default("member").notNull(),
 	joinedAt: timestamp("joined_at", { mode: "string" }).defaultNow().notNull(),
 },
@@ -3140,8 +3140,8 @@ export const clubMembers = mysqlTable("club_members", {
 ]);
 
 export const events = mysqlTable("events", {
-	id: char({ length: 36 }).notNull(),
-	clubId: char("club_id", { length: 36 }).references(() => clubs.id, { onDelete: "cascade" }),
+	id: bigint({ mode: "number", unsigned: true }).autoincrement().notNull(),
+	clubId: bigint("club_id", { mode: "number", unsigned: true }).references(() => clubs.id, { onDelete: "cascade" }),
 	title: varchar({ length: 255 }).notNull(),
 	description: text(),
 	category: mysqlEnum(["hackathon", "meetup", "webinar"]),
@@ -3165,9 +3165,9 @@ export const events = mysqlTable("events", {
 ]);
 
 export const eventEnrollments = mysqlTable("event_enrollments", {
-	id: char({ length: 36 }).notNull(),
+	id: bigint({ mode: "number", unsigned: true }).autoincrement().notNull(),
 	userId: bigint("user_id", { mode: "number", unsigned: true }).notNull().references(() => users.id, { onDelete: "cascade" }),
-	eventId: char("event_id", { length: 36 }).notNull().references(() => events.id, { onDelete: "cascade" }),
+	eventId: bigint("event_id", { mode: "number", unsigned: true }).notNull().references(() => events.id, { onDelete: "cascade" }),
 	enrolledAt: timestamp("enrolled_at", { mode: "string" }).defaultNow().notNull(),
 },
 (table) => [

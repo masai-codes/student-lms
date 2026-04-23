@@ -41,7 +41,7 @@ export function RichTextEditor({
     editorProps: {
       attributes: {
         class:
-          `min-h-24 ${contentBorderClass} px-3 py-2 text-[14px] leading-[22px] text-[#111928] outline-none [&_h1]:my-2 [&_h1]:text-[28px] [&_h1]:font-[700] [&_h1]:leading-[36px] [&_h2]:my-2 [&_h2]:text-[22px] [&_h2]:font-[600] [&_h2]:leading-[30px] [&_h3]:my-2 [&_h3]:text-[18px] [&_h3]:font-[600] [&_h3]:leading-[26px] [&_p]:my-2 [&_ul]:my-2 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:my-2 [&_ol]:list-decimal [&_ol]:pl-5 [&_li]:my-1 [&_blockquote]:border-l-2 [&_blockquote]:border-[#E5E7EB] [&_blockquote]:pl-3 ${contentClassName}`,
+          `min-h-24 ${contentBorderClass} px-3 py-2 text-[14px] leading-[22px] text-[#111928] outline-none [&_h1]:my-2 [&_h1]:text-[28px] [&_h1]:font-[700] [&_h1]:leading-[36px] [&_h2]:my-2 [&_h2]:text-[22px] [&_h2]:font-[600] [&_h2]:leading-[30px] [&_h3]:my-2 [&_h3]:text-[18px] [&_h3]:font-[600] [&_h3]:leading-[26px] [&_p]:my-0 [&_p+p]:mt-2 [&_ul]:my-2 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:my-2 [&_ol]:list-decimal [&_ol]:pl-5 [&_li]:my-1 [&_blockquote]:border-l-2 [&_blockquote]:border-[#E5E7EB] [&_blockquote]:pl-3 ${contentClassName}`,
       },
     },
     onUpdate: ({ editor: tiptapEditor }) => {
@@ -129,7 +129,7 @@ export function RichTextEditor({
       {editorState?.isEmpty ? (
         <p
           className={`pointer-events-none absolute left-3 right-3 text-[14px] leading-[22px] text-[#9CA3AF] ${
-            showToolbar ? "top-[52px]" : "top-[10px]"
+            showToolbar ? "top-[56px]" : "top-[8px]"
           }`}
         >
           {placeholder}
