@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as TestRouteImport } from './routes/test'
 import { Route as protectedLayoutRouteRouteImport } from './routes/(protected)/_layout/route'
 import { Route as protectedZoomIndexRouteImport } from './routes/(protected)/zoom/index'
 import { Route as protectedLayoutIndexRouteImport } from './routes/(protected)/_layout/index'
@@ -49,6 +50,11 @@ import { Route as protectedLayoutCoursesCourseIdLecturesLectureIdDiscussionsDisc
 import { Route as protectedLayoutCoursesCourseIdAssignmentsAssignmentIdDiscussionsCreateIndexRouteImport } from './routes/(protected)/_layout/courses/$courseId/assignments_/$assignmentId/discussions/create/index'
 import { Route as protectedLayoutCoursesCourseIdAssignmentsAssignmentIdDiscussionsDiscussionIdIndexRouteImport } from './routes/(protected)/_layout/courses/$courseId/assignments_/$assignmentId/discussions/$discussionId/index'
 
+const TestRoute = TestRouteImport.update({
+  id: '/test',
+  path: '/test',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const protectedLayoutRouteRoute = protectedLayoutRouteRouteImport.update({
   id: '/(protected)/_layout',
   getParentRoute: () => rootRouteImport,
@@ -319,6 +325,7 @@ const protectedLayoutCoursesCourseIdAssignmentsAssignmentIdDiscussionsDiscussion
   )
 
 export interface FileRoutesByFullPath {
+  '/test': typeof TestRoute
   '/masaiverse': typeof protectedLayoutMasaiverseRouteRouteWithChildren
   '/login/': typeof authLoginIndexRoute
   '/': typeof protectedLayoutIndexRoute
@@ -359,6 +366,7 @@ export interface FileRoutesByFullPath {
   '/courses/$courseId/resources/$resourceId/discussions/create/': typeof protectedLayoutCoursesCourseIdResourcesResourceIdDiscussionsCreateIndexRoute
 }
 export interface FileRoutesByTo {
+  '/test': typeof TestRoute
   '/login': typeof authLoginIndexRoute
   '/': typeof protectedLayoutIndexRoute
   '/zoom': typeof protectedZoomIndexRoute
@@ -396,6 +404,7 @@ export interface FileRoutesByTo {
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
+  '/test': typeof TestRoute
   '/(protected)/_layout': typeof protectedLayoutRouteRouteWithChildren
   '/(protected)/_layout/masaiverse': typeof protectedLayoutMasaiverseRouteRouteWithChildren
   '/(auth)/login/': typeof authLoginIndexRoute
@@ -439,6 +448,7 @@ export interface FileRoutesById {
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
+    | '/test'
     | '/masaiverse'
     | '/login/'
     | '/'
@@ -479,6 +489,7 @@ export interface FileRouteTypes {
     | '/courses/$courseId/resources/$resourceId/discussions/create/'
   fileRoutesByTo: FileRoutesByTo
   to:
+    | '/test'
     | '/login'
     | '/'
     | '/zoom'
@@ -515,6 +526,7 @@ export interface FileRouteTypes {
     | '/courses/$courseId/resources/$resourceId/discussions/create'
   id:
     | '__root__'
+    | '/test'
     | '/(protected)/_layout'
     | '/(protected)/_layout/masaiverse'
     | '/(auth)/login/'
@@ -557,6 +569,7 @@ export interface FileRouteTypes {
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
+  TestRoute: typeof TestRoute
   protectedLayoutRouteRoute: typeof protectedLayoutRouteRouteWithChildren
   authLoginIndexRoute: typeof authLoginIndexRoute
   protectedZoomIndexRoute: typeof protectedZoomIndexRoute
@@ -564,6 +577,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/test': {
+      id: '/test'
+      path: '/test'
+      fullPath: '/test'
+      preLoaderRoute: typeof TestRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/(protected)/_layout': {
       id: '/(protected)/_layout'
       path: ''
@@ -1008,6 +1028,7 @@ const protectedLayoutRouteRouteWithChildren =
   protectedLayoutRouteRoute._addFileChildren(protectedLayoutRouteRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
+  TestRoute: TestRoute,
   protectedLayoutRouteRoute: protectedLayoutRouteRouteWithChildren,
   authLoginIndexRoute: authLoginIndexRoute,
   protectedZoomIndexRoute: protectedZoomIndexRoute,

@@ -41,8 +41,9 @@ async function loadSecrets() {
 
   const paramName = import.meta.env.VITE_SSM_AWS_SECRET_NAME
 
+  // In local/dev, allow running with only .env values (no SSM required).
   if (!paramName) {
-    throw new Error('SSM_AWS_SECRET_NAME env var is not set')
+    return
   }
 
   const command = new GetParameterCommand({
