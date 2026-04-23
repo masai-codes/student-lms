@@ -526,14 +526,24 @@ export async function createCommunityPostHandler({
 }: {
   data: { title: string; content: string; clubId?: string }
 }) {
+  try {
     const userId = await getCurrentSessionUserId()
     if (!userId) {
+      console.warn('[communityDiscussions.createPost] unauthorized request')
       throw new Error('UNAUTHORIZED')
     }
 
     const title = data.title.trim()
     const content = data.content.trim()
     const plainContentLength = getPlainTextFromHtml(content).length
+    const requestedClubId = String(data.clubId ?? '').trim()
+    console.info('[communityDiscussions.createPost] validating payload', {
+      userId,
+      requestedClubId: requestedClubId || null,
+      titleLength: title.length,
+      contentLength: content.length,
+      plainContentLength,
+    })
     if (!title) {
       throw new Error('POST_TITLE_REQUIRED')
     }
@@ -551,8 +561,14 @@ export async function createCommunityPostHandler({
 
     const joinedClubId = await getJoinedClubId(userId)
     const isAdmin = await isAdminUser(userId)
-    const requestedClubId = String(data.clubId ?? '').trim()
     const targetClubId = isAdmin ? (requestedClubId || joinedClubId) : joinedClubId
+    console.info('[communityDiscussions.createPost] resolved target club', {
+      userId,
+      isAdmin,
+      joinedClubId,
+      requestedClubId: requestedClubId || null,
+      targetClubId,
+    })
     if (!targetClubId) {
       throw new Error('CLUB_ID_REQUIRED')
     }
@@ -561,9 +577,30 @@ export async function createCommunityPostHandler({
       INSERT INTO posts (club_id, user_id, title, content, created_at, updated_at)
       VALUES (${targetClubId}, ${userId}, ${boldTitleHtml}, ${content}, ${UTC_SQL_NOW}, ${UTC_SQL_NOW})
     `)
+    console.info('[communityDiscussions.createPost] post created successfully', {
+      userId,
+      targetClubId,
+    })
 
     return { success: true }
+  } catch (error) {
+    const err = error as {
+      message?: string
+      code?: string
+      errno?: number
+      sqlState?: string
+      sqlMessage?: string
+    }
+    console.error('[communityDiscussions.createPost] failed', {
+      errorMessage: err.message ?? 'UNKNOWN_ERROR',
+      code: err.code,
+      errno: err.errno,
+      sqlState: err.sqlState,
+      sqlMessage: err.sqlMessage,
+    })
+    throw error
   }
+}
 
 export const createCommunityReply = createServerFn({ method: 'POST' })
   .inputValidator((data: { postId: DiscussionEntityId; content: string }) => data)
