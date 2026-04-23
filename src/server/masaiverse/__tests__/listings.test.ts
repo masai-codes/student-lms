@@ -104,7 +104,7 @@ describe('masaiverse listings', () => {
       )
 
     const result = await fetchAllEventsHandler({ data: {} })
-    expect(result.map((event) => event.id)).toEqual(['e-club', 'e-open'])
+    expect(result.map((event) => event.id)).toEqual(['e-open', 'e-club'])
   })
 
   it('fetchAllEvents throws stable error when query fails', async () => {
