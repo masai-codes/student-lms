@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import {
   getMocks,
+  mockSelectChain,
   mockSelectOrderByChain,
   mockSelectWhereChain,
   registerCommonBeforeEach,
@@ -48,6 +49,7 @@ describe('masaiverse listings', () => {
     const { fetchAllEventsHandler } = await import('../fetchEvents')
     mocks.getCurrentSessionUserId.mockResolvedValueOnce(99)
     mocks.dbSelect
+      .mockReturnValueOnce(mockSelectChain([{ role: 'student' }]))
       .mockReturnValueOnce(mockSelectWhereChain([{ clubId: 'club-joined' }]))
       .mockReturnValueOnce(
         mockSelectOrderByChain([
@@ -72,6 +74,36 @@ describe('masaiverse listings', () => {
 
     const result = await fetchAllEventsHandler({ data: { searchQuery: '  any  ' } })
     expect(result.map((event) => event.id)).toEqual(['e-joined', 'e-other'])
+  })
+
+  it('fetchAllEvents returns all events for admin users', async () => {
+    const { fetchAllEventsHandler } = await import('../fetchEvents')
+    mocks.getCurrentSessionUserId.mockResolvedValueOnce(99)
+    mocks.dbSelect
+      .mockReturnValueOnce(mockSelectChain([{ role: 'admin' }]))
+      .mockReturnValueOnce(
+        mockSelectOrderByChain([
+          {
+            id: 'e-club',
+            clubId: 'club-1',
+            startTime: '2030-01-01T13:00:00.000Z',
+            endTime: '2030-01-01T14:00:00.000Z',
+            createdAt: '2030-01-01T09:00:00.000Z',
+            title: 'Club Event',
+          },
+          {
+            id: 'e-open',
+            clubId: null,
+            startTime: '2030-01-01T11:00:00.000Z',
+            endTime: '2030-01-01T12:00:00.000Z',
+            createdAt: '2030-01-01T10:00:00.000Z',
+            title: 'Open Event',
+          },
+        ]),
+      )
+
+    const result = await fetchAllEventsHandler({ data: {} })
+    expect(result.map((event) => event.id)).toEqual(['e-club', 'e-open'])
   })
 
   it('fetchAllEvents throws stable error when query fails', async () => {
