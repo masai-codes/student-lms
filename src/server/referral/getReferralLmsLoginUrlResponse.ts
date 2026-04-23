@@ -42,7 +42,7 @@ export async function getReferralLmsLoginUrlResult(
 
     const user = rows[0]
 
-    const { url } = buildReferralLmsLoginRedirectUrl({
+    const { url } = await buildReferralLmsLoginRedirectUrl({
       email: user.email,
       username: user.username ?? '',
     })

@@ -1,10 +1,9 @@
 import { eq } from 'drizzle-orm'
+import { buildLevelupSsoRedirectUrl } from './buildLevelupSsoRedirectUrl'
 
 import { db } from '@/db'
 import { users } from '@/db/schema'
 import { getUserIdFromCookieHeader } from '@/server/auth/getCurrentSessionUserId'
-
-import { buildLevelupSsoRedirectUrl } from './buildLevelupSsoRedirectUrl'
 
 /** Same JSON shape as `experience-api` `GET /levelup-sso`. */
 export type LevelupSsoSuccessBody = {
@@ -41,12 +40,12 @@ export async function getLevelupSsoResult(cookieHeader: string | null): Promise<
       .where(eq(users.id, userId))
       .limit(1)
 
-    const user = rows[0]
-    if (!user) {
+    if (rows.length === 0) {
       return { status: 401, body: { error: 'Unauthorized' } }
     }
+    const user = rows[0]
 
-    const { url, token } = buildLevelupSsoRedirectUrl({
+    const { url, token } = await buildLevelupSsoRedirectUrl({
       userId: String(userId),
       email: user.email,
       name: user.name,

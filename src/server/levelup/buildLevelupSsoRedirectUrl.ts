@@ -1,14 +1,16 @@
 import jwt from 'jsonwebtoken'
+import { ensureSecrets } from '@/secrets'
 
 /**
  * Mirrors `getLevelupSsoRedirectUrl` in `experience-api/src/features/profile/profileController.ts`.
  * JWT must match Levelup's `LMS_JWT_SECRET_KEY` (same value as `SSO_JWT_SECRET` here).
  */
-export function buildLevelupSsoRedirectUrl(input: {
+export async function buildLevelupSsoRedirectUrl(input: {
   userId: string
   email: string | undefined
   name: string | undefined
-}): { url: string; token: string } {
+}): Promise<{ url: string; token: string }> {
+  await ensureSecrets()
   const secretKey = process.env.SSO_JWT_SECRET?.trim()
   if (!secretKey) {
     throw new Error('SSO_JWT_SECRET is missing in environment')

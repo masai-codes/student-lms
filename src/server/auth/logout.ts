@@ -4,6 +4,7 @@ import { eq } from 'drizzle-orm'
 
 import { db } from '@/db'
 import { sessions } from '@/db/schema'
+import { ensureSecrets } from '@/secrets'
 
 import { readSessionIdFromCookie } from '@/server/auth/getCurrentSessionUserId'
 
@@ -14,8 +15,9 @@ const DEFAULT_COOKIE_NAME = 'masai_school_course_session_v3_dev'
  * Client should then redirect (e.g. to legacy student UI).
  */
 export const logout = createServerFn({ method: 'POST' }).handler(async () => {
+  await ensureSecrets()
   const cookieName = process.env.COOKIE_NAME || DEFAULT_COOKIE_NAME
-  const sessionId = readSessionIdFromCookie()
+  const sessionId = await readSessionIdFromCookie()
 
   if (sessionId) {
     await db.delete(sessions).where(eq(sessions.id, sessionId))
