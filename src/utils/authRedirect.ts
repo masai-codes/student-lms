@@ -45,7 +45,7 @@ export function redirectToOldStudentUi(context?: RedirectDebugContext) {
     return;
   }
 
-  // window.location.assign(studentUiUrl);
+  window.location.assign(studentUiUrl);
 }
 
 /** After server logout: send the user to legacy student app, or `/login` here if unset. */

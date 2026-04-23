@@ -3,7 +3,7 @@ import jwt from 'jsonwebtoken'
 import { getRequest } from '@tanstack/react-start/server'
 import { db } from '@/db'
 import { sessions } from '@/db/schema'
-import { ensureSecrets } from '@/secrets'
+
 
 type SessionTokenPayload = {
   sessionId?: string
@@ -32,7 +32,7 @@ function parseCookieHeader(cookieHeader: string | null) {
 async function getSessionIdFromCookieValue(cookieValue: string | undefined) {
   if (!cookieValue) return null
 
-  await ensureSecrets()
+  
   const jwtSecret = process.env.JWT_SECRET_KEY
   if (!jwtSecret) return null
 
@@ -46,7 +46,7 @@ async function getSessionIdFromCookieValue(cookieValue: string | undefined) {
 
 /** Session id from raw `Cookie` header (for Nitro routes, tests, etc.). */
 export async function readSessionIdFromCookieHeader(cookieHeader: string | null): Promise<string | null> {
-  await ensureSecrets()
+  
   const cookieName = process.env.COOKIE_NAME || DEFAULT_COOKIE_NAME
   const cookies = parseCookieHeader(cookieHeader)
   return getSessionIdFromCookieValue(cookies[cookieName])

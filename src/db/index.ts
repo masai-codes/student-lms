@@ -1,7 +1,7 @@
 import { drizzle } from 'drizzle-orm/mysql2'
-import { ensureSecrets } from '@/secrets'
 
-await ensureSecrets()
+
+
 
 const databaseUrl = process.env.DATABASE_URL
 

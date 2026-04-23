@@ -1,5 +1,5 @@
 import jwt from 'jsonwebtoken'
-import { ensureSecrets } from '@/secrets'
+
 
 /**
  * Mirrors `getLevelupSsoRedirectUrl` in `experience-api/src/features/profile/profileController.ts`.
@@ -10,7 +10,7 @@ export async function buildLevelupSsoRedirectUrl(input: {
   email: string | undefined
   name: string | undefined
 }): Promise<{ url: string; token: string }> {
-  await ensureSecrets()
+  
   const secretKey = process.env.SSO_JWT_SECRET?.trim()
   if (!secretKey) {
     throw new Error('SSO_JWT_SECRET is missing in environment')

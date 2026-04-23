@@ -14,7 +14,9 @@ const config = defineConfig({
     },
   },
   plugins: [
-    nitro(),
+    nitro({
+      plugins: ['src/server/plugins/ensureSecrets.ts'],
+    }),
     // this is the plugin that enables path aliases
     viteTsConfigPaths({
       projects: ['./tsconfig.json'],

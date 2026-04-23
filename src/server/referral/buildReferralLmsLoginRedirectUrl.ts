@@ -1,5 +1,5 @@
 import crypto from 'node:crypto'
-import { ensureSecrets } from '@/secrets'
+
 
 type BuildReferralLmsLoginRedirectUrlInput = {
   email: string
@@ -44,7 +44,7 @@ export async function buildReferralLmsLoginRedirectUrl({
   email,
   username,
 }: BuildReferralLmsLoginRedirectUrlInput): Promise<{ url: string }> {
-  await ensureSecrets()
+  
   const secret = process.env.ADMISSIONS_SSO_SECRET
   if (!secret) {
     throw new Error('ADMISSIONS_SSO_SECRET is not configured')
