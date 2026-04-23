@@ -2,7 +2,7 @@ import { createServerFn } from "@tanstack/react-start"
 import { and, asc, eq, inArray, isNull, like, or } from "drizzle-orm"
 import type { InferSelectModel } from "drizzle-orm"
 import { db } from "@/db"
-import { clubMembers, events } from "@/db/schema"
+import { clubMembers, events, users } from "@/db/schema"
 import { getCurrentSessionUserId } from "@/server/auth/getCurrentSessionUserId"
 import { eventDbTimestampToMs } from "@/lib/eventTimestamps"
 
@@ -15,6 +15,17 @@ export const fetchAllEvents = createServerFn({ method: "GET" })
 export async function fetchAllEventsHandler({ data }: { data: { searchQuery?: string } }) {
     try {
       const userId = await getCurrentSessionUserId()
+      const currentUser = userId
+        ? await db
+            .select({ role: users.role })
+            .from(users)
+            .where(eq(users.id, userId))
+            .limit(1)
+        : []
+      const isAdminUser =
+        String(currentUser[0]?.role ?? "")
+          .trim()
+          .toLowerCase() === "admin"
       const memberships = userId
         ? await db
             .select({ clubId: clubMembers.clubId })
@@ -30,7 +41,13 @@ export async function fetchAllEventsHandler({ data }: { data: { searchQuery?: st
         : undefined
 
       const fetchedEvents =
-        joinedClubIdsArray.length > 0
+        isAdminUser
+          ? await db
+              .select()
+              .from(events)
+              .where(searchCondition)
+              .orderBy(asc(events.startTime), asc(events.createdAt))
+          : joinedClubIdsArray.length > 0
           ? await db
               .select()
               .from(events)
