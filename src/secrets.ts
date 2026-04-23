@@ -54,7 +54,6 @@ async function loadSecrets() {
   const response = await ssmClient.send(command)
 
   const secrets = JSON.parse(response.Parameter?.Value || '{}')
-  console.log('[SSM] Loaded secrets:', secrets)
 
   for (const key in secrets) {
     process.env[key] = secrets[key]
