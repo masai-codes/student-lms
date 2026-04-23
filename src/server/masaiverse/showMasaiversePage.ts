@@ -25,10 +25,6 @@ export const showMasaiversePage = createServerFn({ method: "GET" })
   .inputValidator((data: { userId: number }) => data)
   .handler(showMasaiversePageHandler);
 
-export const getMasaiverseAccessDebugServer = createServerFn({ method: "GET" })
-  .inputValidator((data: { userId: number }) => data)
-  .handler(async ({ data }) => getMasaiverseAccessDebug(data.userId));
-
 export type MasaiverseAccessDebug = {
   canShowMasaiverse: boolean;
   reason:

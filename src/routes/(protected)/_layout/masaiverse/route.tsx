@@ -7,7 +7,7 @@ import {
 } from '@tanstack/react-router'
 import { ChevronLeft } from 'lucide-react'
 import MasaiverseHomepage from '@/components/features/masaiverse/MasaiverseHomepage'
-import { getMasaiverseAccessDebugServer } from '@/server/masaiverse/showMasaiversePage'
+import { getMasaiverseAccessDebugServer } from '@/server/masaiverse/getMasaiverseAccessDebugServer'
 import { redirectToOldStudentUi } from '@/utils/authRedirect'
 
 export const Route = createFileRoute('/(protected)/_layout/masaiverse')({
