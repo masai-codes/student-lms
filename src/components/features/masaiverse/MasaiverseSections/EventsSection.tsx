@@ -146,19 +146,20 @@ const EventsSection = () => {
       ) : (
         <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
           {filteredEvents.map((event) => {
-            const isEnrolled = enrolledEventIds.includes(event.id)
+            const eventId = String(event.id)
+            const isEnrolled = enrolledEventIds.includes(eventId)
             const eventCardProps = mapEventToCardProps(event)
             const eventEndTime =
               eventDbTimestampToMs(event.endTime) ?? Number.POSITIVE_INFINITY
             const isPastEvent =
               Number.isFinite(eventEndTime) && eventEndTime < Date.now()
+            const isEventActive = !isPastEvent && eventCardProps.isActive
             const isOfflineEvent = event.mode === 'offline'
-            const enrolledRedirectLink = isOfflineEvent
-              ? event.locationMapLink
-              : event.eventLink
-            const enrolledCtaText = isOfflineEvent
-              ? 'View Location'
-              : 'Open Link'
+            const eventLink = event.eventLink
+            const shouldShowEnrollCta = isEventActive && !isOfflineEvent && !isEnrolled
+            const shouldShowOpenLinkCta =
+              isEventActive && !isOfflineEvent && isEnrolled && Boolean(eventLink)
+            const shouldHideDrawerCta = !(shouldShowEnrollCta || shouldShowOpenLinkCta)
             return (
               <div
                 key={event.id}
@@ -166,7 +167,7 @@ const EventsSection = () => {
               >
                 <EventCard
                   {...eventCardProps}
-                  isActive={!isPastEvent && eventCardProps.isActive}
+                  isActive={isEventActive}
                   drawerBottomInsetClassName={
                     MASAIVERSE_MOBILE_TAB_DRAWER_CONTENT_INSET
                   }
@@ -176,34 +177,22 @@ const EventsSection = () => {
                     MASAIVERSE_MOBILE_TAB_DRAWER_FOOTER_INSET
                   }
                   cardCtaText="View Details"
-                  drawerCtaText={
-                    isPastEvent
-                      ? 'View Details'
-                      : isEnrolled
-                        ? enrolledRedirectLink
-                          ? enrolledCtaText
-                          : 'Enrolled'
-                        : 'Enroll'
-                  }
-                  hideDrawerCta={isPastEvent}
+                  drawerCtaText={shouldShowOpenLinkCta ? 'Open Link' : 'Enroll'}
+                  hideDrawerCta={shouldHideDrawerCta}
                   onCtaClick={
-                    isPastEvent
-                      ? undefined
-                      : isEnrolled
-                        ? enrolledRedirectLink
-                          ? () => {
-                              window.open(
-                                enrolledRedirectLink,
-                                '_blank',
-                                'noopener,noreferrer',
-                              )
-                            }
-                          : undefined
-                        : joiningEventId
-                          ? undefined
-                          : () => {
-                              void handleEventEnroll(event.id)
-                            }
+                    shouldShowOpenLinkCta
+                      ? () => {
+                          window.open(
+                            eventLink,
+                            '_blank',
+                            'noopener,noreferrer',
+                          )
+                        }
+                      : shouldShowEnrollCta && !joiningEventId
+                        ? () => {
+                            void handleEventEnroll(eventId)
+                          }
+                        : undefined
                   }
                 />
               </div>

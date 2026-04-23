@@ -69,58 +69,47 @@ const HomeEventsPreview = ({
             className="w-full px-2 [&_.swiper-wrapper]:items-stretch [&_.swiper-slide]:!h-auto"
           >
             {previewEvents.map((event) => {
-              const isEnrolled = enrolledEventIds.includes(event.id)
+              const eventId = String(event.id)
+              const isEnrolled = enrolledEventIds.includes(eventId)
               const eventCardProps = mapEventToCardProps(event)
               const eventEndTime = eventDbTimestampToMs(event.endTime) ?? Number.POSITIVE_INFINITY
               const isPastEvent =
                 Number.isFinite(eventEndTime) && eventEndTime < Date.now()
+              const isEventActive = !isPastEvent && eventCardProps.isActive
               const isOfflineEvent = event.mode === 'offline'
-              const enrolledRedirectLink = isOfflineEvent
-                ? event.locationMapLink
-                : event.eventLink
-              const enrolledCtaText = isOfflineEvent
-                ? 'View Location'
-                : 'Open Link'
+              const eventLink = event.eventLink
+              const shouldShowEnrollCta = isEventActive && !isOfflineEvent && !isEnrolled
+              const shouldShowOpenLinkCta =
+                isEventActive && !isOfflineEvent && isEnrolled && Boolean(eventLink)
+              const shouldHideDrawerCta = !(shouldShowEnrollCta || shouldShowOpenLinkCta)
 
               return (
                 <SwiperSlide key={event.id} className="!flex !h-auto">
                   <div className="min-w-0 w-full [&>div]:!max-w-none">
                     <EventCard
                       {...eventCardProps}
-                      isActive={!isPastEvent && eventCardProps.isActive}
+                      isActive={isEventActive}
                       drawerBottomInsetClassName={MASAIVERSE_MOBILE_TAB_DRAWER_CONTENT_INSET}
                       drawerBodyClassName={MASAIVERSE_DRAWER_SCROLL_BODY_PADDING}
                       drawerPinFooter
                       drawerFooterClassName={MASAIVERSE_MOBILE_TAB_DRAWER_FOOTER_INSET}
                       cardCtaText="View Details"
-                      drawerCtaText={
-                        isPastEvent
-                          ? 'View Details'
-                          : isEnrolled
-                            ? enrolledRedirectLink
-                              ? enrolledCtaText
-                              : 'Enrolled'
-                            : 'Enroll'
-                      }
-                      hideDrawerCta={isPastEvent}
+                      drawerCtaText={shouldShowOpenLinkCta ? 'Open Link' : 'Enroll'}
+                      hideDrawerCta={shouldHideDrawerCta}
                       onCtaClick={
-                        isPastEvent
-                          ? undefined
-                          : isEnrolled
-                            ? enrolledRedirectLink
-                              ? () => {
-                                  window.open(
-                                    enrolledRedirectLink,
-                                    '_blank',
-                                    'noopener,noreferrer',
-                                  )
-                                }
-                              : undefined
-                            : joiningEventId
-                              ? undefined
-                              : () => {
-                                  onEventEnroll(event.id)
-                                }
+                        shouldShowOpenLinkCta
+                          ? () => {
+                              window.open(
+                                eventLink,
+                                '_blank',
+                                'noopener,noreferrer',
+                              )
+                            }
+                          : shouldShowEnrollCta && !joiningEventId
+                            ? () => {
+                                onEventEnroll(eventId)
+                              }
+                            : undefined
                       }
                     />
                   </div>
