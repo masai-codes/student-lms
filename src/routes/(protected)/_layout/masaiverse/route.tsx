@@ -7,25 +7,37 @@ import {
 } from '@tanstack/react-router'
 import { ChevronLeft } from 'lucide-react'
 import MasaiverseHomepage from '@/components/features/masaiverse/MasaiverseHomepage'
-import { showMasaiversePage } from '@/server/masaiverse/showMasaiversePage'
+import { getMasaiverseAccessDebug } from '@/server/masaiverse/showMasaiversePage'
 import { redirectToOldStudentUi } from '@/utils/authRedirect'
 
 export const Route = createFileRoute('/(protected)/_layout/masaiverse')({
   loader: async ({ context }) => {
     if (context.user.role === 'admin') {
-      return { canShowMasaiverse: true }
+      return {
+        canShowMasaiverse: true,
+        redirectReason: 'admin-user',
+        masaiverseAccessDebug: {
+          canShowMasaiverse: true,
+          reason: 'admin-user',
+          userId: context.user.id,
+          enrolledBatchIds: [],
+          matchingBatchIds: [],
+        },
+      }
     }
 
-    const canShowMasaiverse = await showMasaiversePage({
-      data: { userId: context.user.id },
-    })
-    return { canShowMasaiverse }
+    const masaiverseAccessDebug = await getMasaiverseAccessDebug(context.user.id)
+    return {
+      canShowMasaiverse: masaiverseAccessDebug.canShowMasaiverse,
+      redirectReason: masaiverseAccessDebug.reason,
+      masaiverseAccessDebug,
+    }
   },
   component: RouteComponent,
 })
 
 function RouteComponent() {
-  const { canShowMasaiverse } = Route.useLoaderData()
+  const { canShowMasaiverse, redirectReason, masaiverseAccessDebug } = Route.useLoaderData()
   const router = useRouter()
   const { pathname, searchStr } = useRouterState({
     select: (state) => ({
@@ -39,9 +51,28 @@ function RouteComponent() {
 
   useEffect(() => {
     if (!canShowMasaiverse) {
-      redirectToOldStudentUi()
+      redirectToOldStudentUi({
+        source: '(protected)/_layout/masaiverse RouteComponent useEffect',
+        reason: 'Masaiverse is unavailable for this user and should open in legacy UI',
+        extra: {
+          trigger: 'feature-gate-check',
+          canShowMasaiverse,
+          redirectReason,
+          pathname,
+          searchStr,
+          isMasaiverseEventsPage,
+          masaiverseAccessDebug,
+        },
+      })
     }
-  }, [canShowMasaiverse])
+  }, [
+    canShowMasaiverse,
+    isMasaiverseEventsPage,
+    masaiverseAccessDebug,
+    pathname,
+    redirectReason,
+    searchStr,
+  ])
 
   if (!canShowMasaiverse) return null
 

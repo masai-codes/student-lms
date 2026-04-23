@@ -25,14 +25,62 @@ export const showMasaiversePage = createServerFn({ method: "GET" })
   .inputValidator((data: { userId: number }) => data)
   .handler(showMasaiversePageHandler);
 
-export async function showMasaiversePageHandler({ data }: { data: { userId: number } }) {
-  const batchIds = await getBatchIdsForEnrolledUser(data.userId);
+export type MasaiverseAccessDebug = {
+  canShowMasaiverse: boolean;
+  reason:
+    | "admin-user"
+    | "no-enrolled-batches"
+    | "enabled-in-batch-meta"
+    | "disabled-in-batch-meta";
+  userId: number;
+  enrolledBatchIds: Array<number>;
+  matchingBatchIds: Array<number>;
+};
 
-  if (!batchIds.length) return false;
+export async function getMasaiverseAccessDebug(
+  userId: number,
+): Promise<MasaiverseAccessDebug> {
+  const batchIds = await getBatchIdsForEnrolledUser(userId);
+
+  if (!batchIds.length) {
+    return {
+      canShowMasaiverse: false,
+      reason: "no-enrolled-batches",
+      userId,
+      enrolledBatchIds: [],
+      matchingBatchIds: [],
+    };
+  }
+
   const batchMetaRows = await db
-    .select({ meta: batches.meta })
+    .select({ id: batches.id, meta: batches.meta })
     .from(batches)
     .where(inArray(batches.id, batchIds));
 
-  return batchMetaRows.some((row) => normalizeMeta(row.meta).show_masaiverse === true);
+  const matchingBatchIds = batchMetaRows
+    .filter((row) => normalizeMeta(row.meta).show_masaiverse === true)
+    .map((row) => row.id);
+
+  if (matchingBatchIds.length) {
+    return {
+      canShowMasaiverse: true,
+      reason: "enabled-in-batch-meta",
+      userId,
+      enrolledBatchIds: batchIds,
+      matchingBatchIds,
+    };
+  }
+
+  return {
+    canShowMasaiverse: false,
+    reason: "disabled-in-batch-meta",
+    userId,
+    enrolledBatchIds: batchIds,
+    matchingBatchIds: [],
+  };
+}
+
+export async function showMasaiversePageHandler({ data }: { data: { userId: number } }) {
+  const accessDebug = await getMasaiverseAccessDebug(data.userId);
+  return accessDebug.canShowMasaiverse;
 }

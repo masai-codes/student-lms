@@ -30,7 +30,13 @@ export const Route = createFileRoute('/(auth)/login/')({
 function RouteComponent() {
   const [showPassword, setShowPassword] = useState(false)
   useEffect(() => {
-    redirectToOldStudentUi()
+    redirectToOldStudentUi({
+      source: '(auth)/login RouteComponent useEffect',
+      reason: 'Login route should hand off auth to legacy student UI',
+      extra: {
+        trigger: 'component-mount',
+      },
+    })
   }, [])
 
   return (
@@ -90,7 +96,16 @@ function RouteComponent() {
           <Button
             type="button"
             className="w-full"
-            onClick={redirectToOldStudentUi}
+            onClick={() =>
+              redirectToOldStudentUi({
+                source: '(auth)/login RouteComponent button',
+                reason: 'User clicked Go to Old LMS Login CTA',
+                extra: {
+                  trigger: 'button-click',
+                  ctaLabel: 'Go to Old LMS Login',
+                },
+              })
+            }
           >
             Go to Old LMS Login
           </Button>
