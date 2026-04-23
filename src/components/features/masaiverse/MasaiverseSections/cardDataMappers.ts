@@ -15,7 +15,10 @@ type ClubMeta = {
 type EventMeta = {
   mini_description?: string
   detail_description?: string
+  event_detail_description?: string
   timeline?: EventCardProps["eventTimeline"]
+  event_timeline?: EventCardProps["eventTimeline"]
+  eventTimeline?: EventCardProps["eventTimeline"]
   image?: string
   is_active?: boolean
   cta_text?: string
@@ -32,6 +35,16 @@ const DATE_FORMATTER = new Intl.DateTimeFormat("en-IN", {
 
 const TIME_FORMATTER = new Intl.DateTimeFormat("en-IN", {
   timeZone: EVENT_DISPLAY_TZ,
+  hour: "2-digit",
+  minute: "2-digit",
+  hour12: true,
+})
+
+const TIMELINE_DATE_TIME_FORMATTER = new Intl.DateTimeFormat("en-IN", {
+  timeZone: EVENT_DISPLAY_TZ,
+  day: "2-digit",
+  month: "short",
+  year: "numeric",
   hour: "2-digit",
   minute: "2-digit",
   hour12: true,
@@ -60,6 +73,38 @@ function normalizeDetailPoints(points: unknown): Array<string> {
     .filter(Boolean)
 }
 
+function normalizeEventTimeline(
+  timeline: unknown,
+): EventCardProps["eventTimeline"] {
+  if (!Array.isArray(timeline)) return []
+
+  return timeline
+    .map((item) => {
+      if (!item || typeof item !== "object") return null
+      const record = item as Record<string, unknown>
+      const datetimeRaw = record.datetime
+      const datetimeLabel =
+        typeof datetimeRaw === "string" && datetimeRaw.trim()
+          ? (() => {
+              const parsedDate = new Date(datetimeRaw)
+              return Number.isNaN(parsedDate.getTime())
+                ? datetimeRaw.trim()
+                : TIMELINE_DATE_TIME_FORMATTER.format(parsedDate)
+            })()
+          : ""
+      const time = String(
+        record.time ?? record.label ?? record.title ?? datetimeLabel ?? "",
+      ).trim()
+      const text = String(
+        record.text ?? record.description ?? record.value ?? "",
+      ).trim()
+
+      if (!time || !text) return null
+      return { time, text }
+    })
+    .filter((item): item is { time: string; text: string } => item !== null)
+}
+
 export const mapClubToCardProps = (club: ClubType): ClubCardProps => {
   const meta = (club.meta ?? {}) as ClubMeta
 
@@ -78,7 +123,18 @@ export const mapClubToCardProps = (club: ClubType): ClubCardProps => {
 }
 
 export const mapEventToCardProps = (event: EventType): EventCardProps => {
-  const meta = (event.meta ?? {}) as EventMeta
+  const rawMeta = event.meta
+  const parsedMeta =
+    typeof rawMeta === "string"
+      ? (() => {
+          try {
+            return JSON.parse(rawMeta) as EventMeta
+          } catch {
+            return {}
+          }
+        })()
+      : ((rawMeta ?? {}) as EventMeta)
+  const meta = parsedMeta
   const eventImageLink =
     (event as EventType & { imageLink?: string | null; image_link?: string | null }).imageLink ||
     (event as EventType & { imageLink?: string | null; image_link?: string | null }).image_link
@@ -86,6 +142,9 @@ export const mapEventToCardProps = (event: EventType): EventCardProps => {
   const isOnline = event.mode !== "offline"
   const locationLink = event.locationMapLink || event.eventLink || undefined
   const modeLabel = event.mode ? event.mode[0].toUpperCase() + event.mode.slice(1) : "TBD"
+  const normalizedTimeline = normalizeEventTimeline(
+    meta.timeline ?? meta.event_timeline ?? meta.eventTimeline,
+  )
 
   return {
     title: event.title,
@@ -100,7 +159,11 @@ export const mapEventToCardProps = (event: EventType): EventCardProps => {
     eventLocationLink: locationLink,
     eventLocationText: event.locationTitle || undefined,
     eventMode: event.platform || event.locationTitle || modeLabel,
-    eventDetailDescription: meta.detail_description || event.description || "No details available yet.",
-    eventTimeline: meta.timeline?.length ? meta.timeline : [],
+    eventDetailDescription:
+      meta.detail_description ||
+      meta.event_detail_description ||
+      event.description ||
+      "No details available yet.",
+    eventTimeline: normalizedTimeline,
   }
 }
