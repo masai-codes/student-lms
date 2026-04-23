@@ -81,6 +81,7 @@ describe('masaiverse listings', () => {
     mocks.getCurrentSessionUserId.mockResolvedValueOnce(99)
     mocks.dbSelect
       .mockReturnValueOnce(mockSelectChain([{ role: 'admin' }]))
+      .mockReturnValueOnce(mockSelectWhereChain([]))
       .mockReturnValueOnce(
         mockSelectOrderByChain([
           {
