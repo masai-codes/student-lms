@@ -55,6 +55,93 @@ type DiscussionsProps = {
 const TITLE_MAX_LENGTH = 500
 const DESCRIPTION_MAX_LENGTH = 5000
 
+type ClientErrorDetails = {
+  message: string
+  type: string | null
+  code: string | null
+  status: number | null
+  sqlState: string | null
+  sqlMessage: string | null
+  raw: unknown
+}
+
+const toErrorRecord = (value: unknown): Record<string, unknown> | null => {
+  if (!value || typeof value !== 'object') return null
+  return value as Record<string, unknown>
+}
+
+const asStringOrNull = (value: unknown): string | null => {
+  return typeof value === 'string' && value.trim() ? value : null
+}
+
+const asNumberOrNull = (value: unknown): number | null => {
+  return typeof value === 'number' && Number.isFinite(value) ? value : null
+}
+
+const extractClientErrorDetails = (error: unknown): ClientErrorDetails => {
+  const errorRecord = toErrorRecord(error)
+  const causeRecord = toErrorRecord(errorRecord?.cause)
+  const dataRecord = toErrorRecord(errorRecord?.data)
+  const nestedErrorRecord = toErrorRecord(dataRecord?.error)
+  const nestedDataRecord = toErrorRecord(dataRecord?.data)
+
+  const message = [
+    asStringOrNull(errorRecord?.message),
+    asStringOrNull(causeRecord?.message),
+    asStringOrNull(dataRecord?.message),
+    asStringOrNull(nestedErrorRecord?.message),
+    asStringOrNull(nestedDataRecord?.message),
+  ].find(Boolean) ?? 'UNKNOWN_ERROR'
+
+  const type = [
+    asStringOrNull(errorRecord?.name),
+    asStringOrNull(causeRecord?.name),
+    asStringOrNull(dataRecord?.type),
+    asStringOrNull(nestedErrorRecord?.name),
+  ].find(Boolean) ?? null
+
+  const code = [
+    asStringOrNull(errorRecord?.code),
+    asStringOrNull(causeRecord?.code),
+    asStringOrNull(dataRecord?.code),
+    asStringOrNull(nestedErrorRecord?.code),
+    asStringOrNull(nestedDataRecord?.code),
+  ].find(Boolean) ?? null
+
+  const status = [
+    asNumberOrNull(errorRecord?.status),
+    asNumberOrNull(causeRecord?.status),
+    asNumberOrNull(dataRecord?.status),
+    asNumberOrNull(nestedErrorRecord?.status),
+  ].find((value) => value !== null) ?? null
+
+  const sqlState = [
+    asStringOrNull(errorRecord?.sqlState),
+    asStringOrNull(causeRecord?.sqlState),
+    asStringOrNull(dataRecord?.sqlState),
+    asStringOrNull(nestedErrorRecord?.sqlState),
+    asStringOrNull(nestedDataRecord?.sqlState),
+  ].find(Boolean) ?? null
+
+  const sqlMessage = [
+    asStringOrNull(errorRecord?.sqlMessage),
+    asStringOrNull(causeRecord?.sqlMessage),
+    asStringOrNull(dataRecord?.sqlMessage),
+    asStringOrNull(nestedErrorRecord?.sqlMessage),
+    asStringOrNull(nestedDataRecord?.sqlMessage),
+  ].find(Boolean) ?? null
+
+  return {
+    message,
+    type,
+    code,
+    status,
+    sqlState,
+    sqlMessage,
+    raw: error,
+  }
+}
+
 const Disucssions = ({
   isAdmin,
   clubs,
@@ -75,6 +162,7 @@ const Disucssions = ({
   const [searchInput, setSearchInput] = useState(initialDiscussionSearch ?? '')
   const [searchTerm, setSearchTerm] = useState(initialDiscussionSearch ?? '')
   const [isLoadingDiscussions, setIsLoadingDiscussions] = useState(true)
+  const [discussionsError, setDiscussionsError] = useState<string | null>(null)
   const [isPosting, setIsPosting] = useState(false)
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(initialCreateDiscussionOpen)
   const [title, setTitle] = useState('')
@@ -159,6 +247,7 @@ const Disucssions = ({
     if (showInitialLoader || posts.length === 0) {
       setIsLoadingDiscussions(true)
     }
+    setDiscussionsError(null)
     try {
       const response = await fetchCommunityDiscussions({
         data: {
@@ -169,6 +258,11 @@ const Disucssions = ({
           limit: 10,
         },
       })
+      const responseForValidation = response as unknown
+      const responseRecord = toErrorRecord(responseForValidation)
+      if (!responseRecord || !Array.isArray(responseRecord.posts)) {
+        throw new Error('INVALID_DISCUSSIONS_RESPONSE')
+      }
       if (requestId !== latestRefreshRequestIdRef.current) {
         return
       }
@@ -184,6 +278,13 @@ const Disucssions = ({
           prevSelectedClubId === resolvedClubId ? prevSelectedClubId : resolvedClubId,
         )
       }
+    } catch (error) {
+      if (requestId !== latestRefreshRequestIdRef.current) {
+        return
+      }
+      const message = error instanceof Error ? error.message : 'UNKNOWN_ERROR'
+      console.error('[communityDiscussions.refresh] failed', { message, error })
+      setDiscussionsError('Unable to load discussions right now. Please try again.')
     } finally {
       if (requestId === latestRefreshRequestIdRef.current) {
         setIsLoadingDiscussions(false)
@@ -223,6 +324,7 @@ const Disucssions = ({
 
   const handleCreatePost = async () => {
     setIsPosting(true)
+    setDiscussionsError(null)
     try {
       await createCommunityPost({
         data: {
@@ -235,6 +337,27 @@ const Disucssions = ({
       setIsCreateModalOpen(false)
       setTitle('')
       setDescription('')
+    } catch (error) {
+      const details = extractClientErrorDetails(error)
+      console.error('[communityDiscussions.createPost] failed on client', {
+        message: details.message,
+        type: details.type,
+        code: details.code,
+        status: details.status,
+        sqlState: details.sqlState,
+        sqlMessage: details.sqlMessage,
+        error: details.raw,
+      })
+      const debugParts = [
+        details.message,
+        details.code,
+        details.sqlState,
+      ].filter(Boolean)
+      setDiscussionsError(
+        debugParts.length > 0
+          ? `Create post failed: ${debugParts.join(' | ')}`
+          : 'Unable to create discussion right now. Please try again.',
+      )
     } finally {
       setIsPosting(false)
     }
@@ -388,6 +511,11 @@ const Disucssions = ({
           </Select>
         ) : null}
       </div>
+      {discussionsError ? (
+        <div className="rounded-lg border border-[#FECACA] bg-[#FEF2F2] p-3 text-sm text-[#B91C1C]">
+          {discussionsError}
+        </div>
+      ) : null}
       {isLoadingDiscussions ? (
         <div className="rounded-lg border border-[#E5E7EB] bg-white p-4 text-sm text-[#6B7280]">
           Loading discussions...
