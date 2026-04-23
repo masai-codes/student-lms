@@ -244,24 +244,35 @@ const Disucssions = ({
   ) => {
     const requestId = latestRefreshRequestIdRef.current + 1
     latestRefreshRequestIdRef.current = requestId
+    const requestPayload = {
+      sortBy: selectedSort,
+      clubId: isAdmin ? (selectedClub ?? undefined) : undefined,
+      search: selectedSearch.trim() || undefined,
+      page: selectedPage,
+      limit: 10,
+      isAdmin,
+      selectedClubId: selectedClub,
+    }
     if (showInitialLoader || posts.length === 0) {
       setIsLoadingDiscussions(true)
     }
     setDiscussionsError(null)
     try {
       const response = await fetchCommunityDiscussions({
-        data: {
-          sortBy: selectedSort,
-          clubId: isAdmin ? (selectedClub ?? undefined) : undefined,
-          search: selectedSearch.trim() || undefined,
-          page: selectedPage,
-          limit: 10,
-        },
+        data: requestPayload,
       })
       const responseForValidation = response as unknown
       const responseRecord = toErrorRecord(responseForValidation)
       if (!responseRecord || !Array.isArray(responseRecord.posts)) {
-        throw new Error('INVALID_DISCUSSIONS_RESPONSE')
+        const invalidResponseError = new Error(
+          'INVALID_DISCUSSIONS_RESPONSE: expected payload with posts[]',
+        ) as Error & {
+          response?: unknown
+          requestPayload?: unknown
+        }
+        invalidResponseError.response = responseForValidation
+        invalidResponseError.requestPayload = requestPayload
+        throw invalidResponseError
       }
       if (requestId !== latestRefreshRequestIdRef.current) {
         return
@@ -282,8 +293,30 @@ const Disucssions = ({
       if (requestId !== latestRefreshRequestIdRef.current) {
         return
       }
-      const message = error instanceof Error ? error.message : 'UNKNOWN_ERROR'
-      console.error('[communityDiscussions.refresh] failed', { message, error })
+      const details = extractClientErrorDetails(error)
+      const errorRecord = toErrorRecord(error)
+      const invalidResponse =
+        errorRecord?.response ?? errorRecord?.data ?? null
+
+      console.groupCollapsed(
+        '[communityDiscussions.refresh] failed - detailed diagnostics',
+      )
+      console.error('Request payload', requestPayload)
+      console.error('Resolved error details', {
+        message: details.message,
+        type: details.type,
+        code: details.code,
+        status: details.status,
+        sqlState: details.sqlState,
+        sqlMessage: details.sqlMessage,
+      })
+      console.error('Invalid/raw response payload', invalidResponse)
+      console.error('Raw error object', details.raw)
+      if (error instanceof Error && error.stack) {
+        console.error('Stack trace', error.stack)
+      }
+      console.groupEnd()
+
       setDiscussionsError('Unable to load discussions right now. Please try again.')
     } finally {
       if (requestId === latestRefreshRequestIdRef.current) {
@@ -325,13 +358,16 @@ const Disucssions = ({
   const handleCreatePost = async () => {
     setIsPosting(true)
     setDiscussionsError(null)
+    const createPayload = {
+      title: title.trim(),
+      content: description,
+      clubId: isAdmin ? (selectedClubId ?? undefined) : undefined,
+      isAdmin,
+      selectedClubId,
+    }
     try {
       await createCommunityPost({
-        data: {
-          title: title.trim(),
-          content: description,
-          clubId: isAdmin ? (selectedClubId ?? undefined) : undefined,
-        },
+        data: createPayload,
       })
       await refreshDiscussions()
       setIsCreateModalOpen(false)
@@ -339,15 +375,23 @@ const Disucssions = ({
       setDescription('')
     } catch (error) {
       const details = extractClientErrorDetails(error)
-      console.error('[communityDiscussions.createPost] failed on client', {
+      console.groupCollapsed(
+        '[communityDiscussions.createPost] failed - detailed diagnostics',
+      )
+      console.error('Request payload', createPayload)
+      console.error('Resolved error details', {
         message: details.message,
         type: details.type,
         code: details.code,
         status: details.status,
         sqlState: details.sqlState,
         sqlMessage: details.sqlMessage,
-        error: details.raw,
       })
+      console.error('Raw error object', details.raw)
+      if (error instanceof Error && error.stack) {
+        console.error('Stack trace', error.stack)
+      }
+      console.groupEnd()
       const debugParts = [
         details.message,
         details.code,
