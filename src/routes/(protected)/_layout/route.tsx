@@ -7,6 +7,25 @@ import { getOldStudentUiUrlForPath } from "@/utils/authRedirect"
 export const Route = createFileRoute("/(protected)/_layout")({
   beforeLoad: async ({ location }) => {
     const isMasaiverseRoute = location.pathname.startsWith('/masaiverse')
+    const requestUrl = new URL(location.href, 'http://localhost')
+    const token = requestUrl.searchParams.get('token')
+
+    if (isMasaiverseRoute && token) {
+      const newStudentUiBase = import.meta.env.VITE_NEW_STUDENT_UI_URL?.trim().replace(/\/$/, '')
+      const oldStudentUiBase = import.meta.env.VITE_OLD_STUDENT_UI_URL?.trim().replace(/\/$/, '')
+      const redirectTarget = newStudentUiBase ? `${newStudentUiBase}/masaiverse?isApp=true` : null
+
+      const user = await fetchCurrentUser()
+      if (user && redirectTarget) {
+        throw redirect({ href: redirectTarget })
+      }
+
+      if (!user && oldStudentUiBase && redirectTarget) {
+        const appRedirectUrl = `${oldStudentUiBase}/app-redirect-app?token=${encodeURIComponent(token)}&redirect=${encodeURIComponent(redirectTarget)}`
+        throw redirect({ href: appRedirectUrl })
+      }
+    }
+
     if (!isMasaiverseRoute) {
       const oldUiUrl = getOldStudentUiUrlForPath(location.href)
       if (oldUiUrl) {
