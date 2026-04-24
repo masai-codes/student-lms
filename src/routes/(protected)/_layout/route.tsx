@@ -1,4 +1,4 @@
-import { Outlet, createFileRoute, redirect } from "@tanstack/react-router"
+import { Outlet, createFileRoute, redirect, useRouterState } from "@tanstack/react-router"
 import { AppMobileTabBar, AppNavbar } from "@/components/features/layout"
 import { layoutMainClasses } from "@/lib/layout"
 import { fetchCurrentUser } from "@/server/auth/fetchCurrentUser"
@@ -48,15 +48,25 @@ export const Route = createFileRoute("/(protected)/_layout")({
 
 
 function RouteComponent() {
+  const { pathname, searchStr } = useRouterState({
+    select: (state) => ({
+      pathname: state.location.pathname,
+      searchStr: state.location.searchStr,
+    }),
+  })
+  const shouldHideBottomTabBar =
+    pathname.startsWith('/masaiverse') &&
+    new URLSearchParams(searchStr).get('isApp') === 'true'
+
   return (
     <div className="min-h-dvh bg-[#FAF9F9] flex flex-col">
       <AppNavbar />
       <main
-        className={`${layoutMainClasses} pb-[calc(4.5rem+env(safe-area-inset-bottom))] md:pb-0`}
+        className={`${layoutMainClasses} ${shouldHideBottomTabBar ? 'pb-0' : 'pb-[calc(4.5rem+env(safe-area-inset-bottom))]'} md:pb-0`}
       >
         <Outlet />
       </main>
-      <AppMobileTabBar />
+      {shouldHideBottomTabBar ? null : <AppMobileTabBar />}
     </div>
   )
 }
