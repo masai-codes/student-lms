@@ -7,6 +7,7 @@ import ResourcesSection from "@/components/features/masaiverse/MasaiverseSection
 type MasaiverseTab = "home" | "events" | "leaderboard" | "resources"
 type MasaiverseSearch = {
   tab: MasaiverseTab
+  isApp?: boolean
   postId?: string
   createDiscussion?: boolean
   discussionSearch?: string
@@ -20,6 +21,11 @@ export const Route = createFileRoute("/(protected)/_layout/masaiverse/")({
       typeof search.postId === "string" || typeof search.postId === "number"
         ? String(search.postId)
         : undefined
+    const normalizedIsApp =
+      search.isApp === true ||
+      search.isApp === 'true' ||
+      search.isApp === 1 ||
+      search.isApp === '1'
     const normalizedCreateDiscussion =
       search.createDiscussion === true ||
       search.createDiscussion === 'true' ||
@@ -44,6 +50,7 @@ export const Route = createFileRoute("/(protected)/_layout/masaiverse/")({
     ) {
       return {
         tab,
+        isApp: normalizedIsApp || undefined,
         postId: normalizedPostId,
         createDiscussion: normalizedCreateDiscussion || undefined,
         discussionSearch: normalizedDiscussionSearch,
@@ -52,6 +59,7 @@ export const Route = createFileRoute("/(protected)/_layout/masaiverse/")({
     }
     return {
       tab: "home",
+      isApp: normalizedIsApp || undefined,
       postId: normalizedPostId,
       createDiscussion: normalizedCreateDiscussion || undefined,
       discussionSearch: normalizedDiscussionSearch,
