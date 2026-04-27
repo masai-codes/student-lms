@@ -9,6 +9,7 @@ import {
   MASAIVERSE_DRAWER_SCROLL_BODY_PADDING,
   MASAIVERSE_MOBILE_TAB_DRAWER_CONTENT_INSET,
   MASAIVERSE_MOBILE_TAB_DRAWER_FOOTER_INSET,
+  isMasaiverseApp,
 } from '@/constants/masaiverseDrawerUi'
 
 type HomeClubsCarouselProps = {
@@ -23,11 +24,12 @@ type HomeClubsCarouselProps = {
 
 type ClubSlideProps = {
   club: ClubType
+  isApp: boolean
   joinedClubId: string | null
   onClubJoin: (clubId: string) => void
 }
 
-const ClubSlide = ({ club, joinedClubId, onClubJoin }: ClubSlideProps) => {
+const ClubSlide = ({ club, isApp, joinedClubId, onClubJoin }: ClubSlideProps) => {
   const clubCardProps = mapClubToCardProps(club)
   const clubId = String(club.id)
   const isJoinedClub = joinedClubId === clubId
@@ -47,7 +49,9 @@ const ClubSlide = ({ club, joinedClubId, onClubJoin }: ClubSlideProps) => {
         drawerBottomInsetClassName={MASAIVERSE_MOBILE_TAB_DRAWER_CONTENT_INSET}
         drawerBodyClassName={MASAIVERSE_DRAWER_SCROLL_BODY_PADDING}
         drawerPinFooter
-        drawerFooterClassName={MASAIVERSE_MOBILE_TAB_DRAWER_FOOTER_INSET}
+        drawerFooterClassName={
+          isApp ? undefined : MASAIVERSE_MOBILE_TAB_DRAWER_FOOTER_INSET
+        }
         shouldCompress={hasJoinedAtLeastOneClub}
         showSuccessIcon={isJoinedClub}
         ctaText={isJoinedClub ? 'Joined' : clubCardProps.ctaText}
@@ -74,6 +78,7 @@ const HomeClubsCarousel = ({
   className = 'mt-8',
   singleSlideOnly = false,
 }: HomeClubsCarouselProps) => {
+  const isApp = isMasaiverseApp()
   return (
     <div className={className}>
       <h2 className="text-[18px] font-semibold text-[#111827]">
@@ -111,6 +116,7 @@ const HomeClubsCarousel = ({
               <SwiperSlide key={club.id} className="!flex !h-auto">
                 <ClubSlide
                   club={club}
+                  isApp={isApp}
                   joinedClubId={joinedClubId}
                   onClubJoin={onClubJoin}
                 />
