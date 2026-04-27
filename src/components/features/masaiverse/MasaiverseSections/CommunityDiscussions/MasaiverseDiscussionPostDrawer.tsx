@@ -7,6 +7,7 @@ import {
   MASAIVERSE_DRAWER_SCROLL_BODY_PADDING,
   MASAIVERSE_MOBILE_TAB_DRAWER_CONTENT_INSET,
   MASAIVERSE_MOBILE_TAB_DRAWER_FOOTER_INSET,
+  isMasaiverseApp,
 } from '@/constants/masaiverseDrawerUi'
 import { cn } from '@/lib/utils'
 
@@ -55,6 +56,7 @@ export default function MasaiverseDiscussionPostDrawer({
   onOpenChange,
   resolvedDirection,
 }: MasaiverseDiscussionPostDrawerProps) {
+  const isApp = isMasaiverseApp()
   const getFallbackAvatar = (displayName: string) => {
     const initials = displayName
       .trim()
@@ -155,7 +157,7 @@ export default function MasaiverseDiscussionPostDrawer({
               'shrink-0 border-t bg-white p-4',
               resolvedDirection === 'bottom' &&
                 'shadow-[0_-4px_16px_rgba(0,0,0,0.06)]',
-              MASAIVERSE_MOBILE_TAB_DRAWER_FOOTER_INSET,
+              !isApp && MASAIVERSE_MOBILE_TAB_DRAWER_FOOTER_INSET,
             )}
           >
             <DiscussionPostCardComposer

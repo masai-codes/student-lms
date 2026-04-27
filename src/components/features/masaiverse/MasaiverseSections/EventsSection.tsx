@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import { Search } from 'lucide-react'
 import type { EventType } from '@/server/masaiverse/fetchEvents'
 import { EventCard } from '@/components/event-card'
 import { MasaiTabs } from '@/components/masai-tabs'
@@ -11,9 +12,9 @@ import {
   MASAIVERSE_DRAWER_SCROLL_BODY_PADDING,
   MASAIVERSE_MOBILE_TAB_DRAWER_CONTENT_INSET,
   MASAIVERSE_MOBILE_TAB_DRAWER_FOOTER_INSET,
+  isMasaiverseApp,
 } from '@/constants/masaiverseDrawerUi'
 import { Input } from '@/components/ui/input'
-import { Search } from 'lucide-react'
 
 type EventCategoryTab = 'all' | NonNullable<EventType['category']>
 
@@ -21,6 +22,7 @@ const formatCategoryLabel = (category: EventCategoryTab) =>
   category.charAt(0).toUpperCase() + category.slice(1).toLowerCase()
 
 const EventsSection = () => {
+  const isApp = isMasaiverseApp()
   const [eventsList, setEventsList] = useState<Array<EventType>>([])
   const [isLoading, setIsLoading] = useState(true)
   const [activeCategory, setActiveCategory] = useState<EventCategoryTab>('all')
@@ -155,10 +157,10 @@ const EventsSection = () => {
               Number.isFinite(eventEndTime) && eventEndTime < Date.now()
             const isEventActive = !isPastEvent && eventCardProps.isActive
             const isOfflineEvent = event.mode === 'offline'
-            const eventLink = event.eventLink
-            const shouldShowEnrollCta = isEventActive && !isOfflineEvent && !isEnrolled
+            const ctaLink = isOfflineEvent ? event.locationMapLink : event.eventLink
+            const shouldShowEnrollCta = isEventActive && !isEnrolled
             const shouldShowOpenLinkCta =
-              isEventActive && !isOfflineEvent && isEnrolled && Boolean(eventLink)
+              isEventActive && isEnrolled && Boolean(ctaLink)
             const shouldHideDrawerCta = !(shouldShowEnrollCta || shouldShowOpenLinkCta)
             return (
               <div
@@ -174,7 +176,7 @@ const EventsSection = () => {
                   drawerBodyClassName={MASAIVERSE_DRAWER_SCROLL_BODY_PADDING}
                   drawerPinFooter
                   drawerFooterClassName={
-                    MASAIVERSE_MOBILE_TAB_DRAWER_FOOTER_INSET
+                    isApp ? undefined : MASAIVERSE_MOBILE_TAB_DRAWER_FOOTER_INSET
                   }
                   cardCtaText="View Details"
                   drawerCtaText={shouldShowOpenLinkCta ? 'Open Link' : 'Enroll'}
@@ -182,8 +184,9 @@ const EventsSection = () => {
                   onCtaClick={
                     shouldShowOpenLinkCta
                       ? () => {
+                          if (!ctaLink) return
                           window.open(
-                            eventLink,
+                            ctaLink,
                             '_blank',
                             'noopener,noreferrer',
                           )

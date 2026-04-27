@@ -6,6 +6,7 @@ import {
   MASAIVERSE_DRAWER_SCROLL_BODY_PADDING,
   MASAIVERSE_MOBILE_TAB_DRAWER_CONTENT_INSET,
   MASAIVERSE_MOBILE_TAB_DRAWER_FOOTER_INSET,
+  isMasaiverseApp,
 } from '@/constants/masaiverseDrawerUi'
 import { ChevronRight } from 'lucide-react'
 import { mapEventToCardProps } from '@/components/features/masaiverse/MasaiverseSections/cardDataMappers'
@@ -28,6 +29,7 @@ const HomeEventsPreview = ({
   onViewAll,
   onEventEnroll,
 }: HomeEventsPreviewProps) => {
+  const isApp = isMasaiverseApp()
   const previewEvents = eventsList.slice(0, 2)
   const isSinglePreviewEvent = previewEvents.length === 1
 
@@ -77,10 +79,10 @@ const HomeEventsPreview = ({
                 Number.isFinite(eventEndTime) && eventEndTime < Date.now()
               const isEventActive = !isPastEvent && eventCardProps.isActive
               const isOfflineEvent = event.mode === 'offline'
-              const eventLink = event.eventLink
-              const shouldShowEnrollCta = isEventActive && !isOfflineEvent && !isEnrolled
+              const ctaLink = isOfflineEvent ? event.locationMapLink : event.eventLink
+              const shouldShowEnrollCta = isEventActive && !isEnrolled
               const shouldShowOpenLinkCta =
-                isEventActive && !isOfflineEvent && isEnrolled && Boolean(eventLink)
+                isEventActive && isEnrolled && Boolean(ctaLink)
               const shouldHideDrawerCta = !(shouldShowEnrollCta || shouldShowOpenLinkCta)
 
               return (
@@ -92,15 +94,18 @@ const HomeEventsPreview = ({
                       drawerBottomInsetClassName={MASAIVERSE_MOBILE_TAB_DRAWER_CONTENT_INSET}
                       drawerBodyClassName={MASAIVERSE_DRAWER_SCROLL_BODY_PADDING}
                       drawerPinFooter
-                      drawerFooterClassName={MASAIVERSE_MOBILE_TAB_DRAWER_FOOTER_INSET}
+                      drawerFooterClassName={
+                        isApp ? undefined : MASAIVERSE_MOBILE_TAB_DRAWER_FOOTER_INSET
+                      }
                       cardCtaText="View Details"
                       drawerCtaText={shouldShowOpenLinkCta ? 'Open Link' : 'Enroll'}
                       hideDrawerCta={shouldHideDrawerCta}
                       onCtaClick={
                         shouldShowOpenLinkCta
                           ? () => {
+                              if (!ctaLink) return
                               window.open(
-                                eventLink,
+                                ctaLink,
                                 '_blank',
                                 'noopener,noreferrer',
                               )

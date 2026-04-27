@@ -28,6 +28,18 @@ const markdownComponents: Components = {
   p: ({ children }) => (
     <p className="m-0 min-w-0 max-w-full break-words whitespace-pre-wrap">{children}</p>
   ),
+  h1: ({ children }) => (
+    <h1 className="my-2 min-w-0 max-w-full break-words text-[22px] font-[600] leading-[30px] text-[#111928]">{children}</h1>
+  ),
+  h2: ({ children }) => (
+    <h2 className="my-2 min-w-0 max-w-full break-words text-[20px] font-[600] leading-[28px] text-[#111928]">{children}</h2>
+  ),
+  h3: ({ children }) => (
+    <h3 className="my-2 min-w-0 max-w-full break-words text-[18px] font-[600] leading-[26px] text-[#111928]">{children}</h3>
+  ),
+  h4: ({ children }) => (
+    <h4 className="my-2 min-w-0 max-w-full break-words text-[16px] font-[600] leading-[24px] text-[#111928]">{children}</h4>
+  ),
   ul: ({ children }) => (
     <ul className="my-1 min-w-0 max-w-full list-outside list-disc space-y-1 break-words pl-5">{children}</ul>
   ),
@@ -40,6 +52,7 @@ const markdownComponents: Components = {
   strong: ({ children }) => (
     <strong className="min-w-0 break-words font-semibold text-[#111928]">{children}</strong>
   ),
+  hr: () => <hr className="my-3 border-0 border-t border-[#D1D5DB]" />,
 };
 
 export function ScrollingBanner({
