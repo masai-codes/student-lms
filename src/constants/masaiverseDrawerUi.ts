@@ -12,6 +12,19 @@ export const MASAIVERSE_MOBILE_TAB_DRAWER_FOOTER_INSET =
 /** Scrollable drawer body: breathing room above the pinned CTA / composer. */
 export const MASAIVERSE_DRAWER_SCROLL_BODY_PADDING = 'pb-2' as const
 
-export const isMasaiverseApp = () =>
-  typeof window !== 'undefined' &&
-  Boolean((window as Window & { isApp?: boolean }).isApp)
+export const isMasaiverseApp = (search?: string) => {
+  const isWindowApp =
+    typeof window !== 'undefined' &&
+    Boolean((window as Window & { isApp?: boolean }).isApp)
+
+  if (isWindowApp) return true
+
+  const queryString =
+    search ??
+    (typeof window !== 'undefined' ? window.location.search : undefined)
+
+  if (!queryString) return false
+
+  const isAppParam = new URLSearchParams(queryString).get('isApp')
+  return isAppParam?.toLowerCase() === 'true'
+}

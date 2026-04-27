@@ -4,10 +4,33 @@ import rehypeRaw from "rehype-raw"
 import rehypeSanitize, { defaultSchema } from "rehype-sanitize"
 import remarkGfm from "remark-gfm"
 import type { Options as SanitizeOptions } from "rehype-sanitize"
+import type { Components } from "react-markdown"
 
 type RichContentProps = {
   value: string
   className?: string
+}
+
+const markdownComponents: Components = {
+  h1: ({ node, ...props }) => (
+    <h1 className="mt-6 mb-3 text-[28px] leading-[34px] font-semibold text-[#111928]" {...props} />
+  ),
+  h2: ({ node, ...props }) => (
+    <h2 className="mt-6 mb-3 text-[24px] leading-[30px] font-semibold text-[#111928]" {...props} />
+  ),
+  h3: ({ node, ...props }) => (
+    <h3 className="mt-5 mb-2 text-[38px] leading-[46px] font-semibold text-[#111928]" {...props} />
+  ),
+  h4: ({ node, ...props }) => (
+    <h4 className="mt-4 mb-2 text-[18px] leading-[24px] font-semibold text-[#111928]" {...props} />
+  ),
+  h5: ({ node, ...props }) => (
+    <h5 className="mt-4 mb-2 text-[16px] leading-[22px] font-semibold text-[#111928]" {...props} />
+  ),
+  h6: ({ node, ...props }) => (
+    <h6 className="mt-3 mb-2 text-[14px] leading-[20px] font-semibold text-[#111928]" {...props} />
+  ),
+  hr: ({ node, ...props }) => <hr className="my-4 border-0 border-t border-[#D1D5DB]" {...props} />,
 }
 
 const sanitizeSchema: SanitizeOptions = {
@@ -93,6 +116,7 @@ export function RichContent({ value, className }: RichContentProps) {
       <ReactMarkdown
         remarkPlugins={[remarkGfm]}
         rehypePlugins={[rehypeRaw, [rehypeSanitize, sanitizeSchema]]}
+        components={markdownComponents}
       >
         {decodeMarkdownPayload(value)}
       </ReactMarkdown>
