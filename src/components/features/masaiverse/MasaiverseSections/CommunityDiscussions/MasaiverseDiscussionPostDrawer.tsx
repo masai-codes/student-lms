@@ -79,7 +79,7 @@ export default function MasaiverseDiscussionPostDrawer({
             resolvedDirection === 'right'
               ? 'right-0 top-0 flex h-svh w-full max-w-[460px] flex-col border-l transition-transform duration-300 ease-out will-change-transform data-[state=closed]:translate-x-full data-[state=open]:translate-x-0'
               : 'bottom-0 left-0 flex max-h-[88svh] w-full flex-col rounded-t-2xl border-t transition-transform duration-300 ease-out will-change-transform data-[state=closed]:translate-y-full data-[state=open]:translate-y-0',
-            MASAIVERSE_MOBILE_TAB_DRAWER_CONTENT_INSET,
+            !isApp && MASAIVERSE_MOBILE_TAB_DRAWER_CONTENT_INSET,
           )}
         >
           <div className="flex items-start justify-between border-b p-4">
