@@ -157,10 +157,10 @@ const EventsSection = () => {
               Number.isFinite(eventEndTime) && eventEndTime < Date.now()
             const isEventActive = !isPastEvent && eventCardProps.isActive
             const isOfflineEvent = event.mode === 'offline'
-            const eventLink = event.eventLink
-            const shouldShowEnrollCta = isEventActive && !isOfflineEvent && !isEnrolled
+            const ctaLink = isOfflineEvent ? event.locationMapLink : event.eventLink
+            const shouldShowEnrollCta = isEventActive && !isEnrolled
             const shouldShowOpenLinkCta =
-              isEventActive && !isOfflineEvent && isEnrolled && Boolean(eventLink)
+              isEventActive && isEnrolled && Boolean(ctaLink)
             const shouldHideDrawerCta = !(shouldShowEnrollCta || shouldShowOpenLinkCta)
             return (
               <div
@@ -184,9 +184,9 @@ const EventsSection = () => {
                   onCtaClick={
                     shouldShowOpenLinkCta
                       ? () => {
-                          if (!eventLink) return
+                          if (!ctaLink) return
                           window.open(
-                            eventLink,
+                            ctaLink,
                             '_blank',
                             'noopener,noreferrer',
                           )
