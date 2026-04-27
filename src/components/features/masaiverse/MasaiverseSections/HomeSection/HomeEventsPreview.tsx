@@ -91,7 +91,9 @@ const HomeEventsPreview = ({
                     <EventCard
                       {...eventCardProps}
                       isActive={isEventActive}
-                      drawerBottomInsetClassName={MASAIVERSE_MOBILE_TAB_DRAWER_CONTENT_INSET}
+                      drawerBottomInsetClassName={
+                        isApp ? undefined : MASAIVERSE_MOBILE_TAB_DRAWER_CONTENT_INSET
+                      }
                       drawerBodyClassName={MASAIVERSE_DRAWER_SCROLL_BODY_PADDING}
                       drawerPinFooter
                       drawerFooterClassName={
