@@ -213,8 +213,8 @@ export function ScrollingBanner({
                 {hasCtaText && hasCtaLink ? (
                   <a
                     href={item.ctaLink}
-                    target={item.openInNewTab ? "_blank" : "_self"}
-                    rel={item.openInNewTab ? "noreferrer noopener" : undefined}
+                    target="_blank"
+                    rel="noreferrer noopener"
                     suppressHydrationWarning
                     className="inline-flex w-full min-w-0 max-w-full items-center justify-center break-words rounded-[8px] bg-[#EF8833] px-3 py-[6px] text-center text-[12px] font-[500] leading-[18px] text-white transition-colors hover:bg-[#DC7A2D]"
                   >
