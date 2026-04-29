@@ -33,9 +33,10 @@ export default function HomeSection({
   initialDiscussionPage,
 }: HomeSectionProps) {
   const { user } = ProtectedLayoutRoute.useRouteContext()
-  const isAdmin = String(user.role ?? '')
-    .trim()
-    .toLowerCase() === 'admin'
+  const isAdmin =
+    String(user.role ?? '')
+      .trim()
+      .toLowerCase() === 'admin'
   const navigate = useNavigate()
   const [clubsList, setClubsList] = useState<Array<ClubType>>([])
   const [eventsList, setEventsList] = useState<Array<EventType>>([])
@@ -148,7 +149,7 @@ export default function HomeSection({
   const hasJoinedClub = Boolean(joinedClubId)
 
   return (
-    <section className="min-h-[max(400px,calc(100dvh-11rem))] min-w-0 flex-1 overflow-x-hidden rounded-[16px] md:border border-[#E5E7EB] md:bg-[#fff] px-3 md:px-6 md:py-8 mb-[24px]">
+    <section className="min-w-0 flex-1 rounded-[16px] md:border border-[#E5E7EB] md:bg-[#fff] px-3 md:px-6 md:py-8 mb-[24px]">
       <HomeIntro />
 
       <div className="h-[1px] bg-[#E5E7EB] my-[8px] md:my-[16px]"></div>
@@ -223,9 +224,7 @@ export default function HomeSection({
                 singleSlideOnly
               />
               {clubJoinError && (
-                <p className="mt-2 text-sm text-[#DC2626]">
-                  {clubJoinError}
-                </p>
+                <p className="mt-2 text-sm text-[#DC2626]">{clubJoinError}</p>
               )}
             </>
           )}
