@@ -163,10 +163,7 @@ export default function HomeSection({
             onViewAll={() =>
               navigate({
                 to: '/masaiverse',
-                search: (prev) => ({
-                  ...prev,
-                  tab: 'events',
-                }),
+                search: { tab: 'events' },
               })
             }
             onEventEnroll={(eventId) => {

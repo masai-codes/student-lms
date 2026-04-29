@@ -16,9 +16,6 @@ const config = defineConfig({
   plugins: [
     nitro({
       plugins: ['src/server/plugins/ensureSecrets.ts'],
-      awsAmplify:{
-        runtime: 'nodejs22.x',
-      }
     }),
     // this is the plugin that enables path aliases
     viteTsConfigPaths({
