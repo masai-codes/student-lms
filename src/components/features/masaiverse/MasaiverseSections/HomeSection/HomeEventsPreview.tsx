@@ -17,6 +17,7 @@ type HomeEventsPreviewProps = {
   eventsList: Array<EventType>
   enrolledEventIds: Array<string>
   joiningEventId: string | null
+  userId?: string | null
   onViewAll: () => void
   onEventEnroll: (eventId: string) => void
 }
@@ -26,6 +27,7 @@ const HomeEventsPreview = ({
   eventsList,
   enrolledEventIds,
   joiningEventId,
+  userId,
   onViewAll,
   onEventEnroll,
 }: HomeEventsPreviewProps) => {
@@ -38,6 +40,12 @@ const HomeEventsPreview = ({
       <div className="flex items-center justify-between">
         <h2 className="text-[18px] font-semibold text-[#111827]">
           This Week on MasaiVerse
+          {userId ? (
+            <span className="text-[#fff] select:text-[#111827]">
+              {' '}
+              ({userId})
+            </span>
+          ) : null}
         </h2>
         {eventsList.length > 1 ? (
           <Button

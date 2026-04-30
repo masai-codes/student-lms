@@ -160,6 +160,7 @@ export default function HomeSection({
             eventsList={eventsList}
             enrolledEventIds={enrolledEventIds}
             joiningEventId={joiningEventId}
+            userId={user?.id ? String(user.id) : null}
             onViewAll={() =>
               navigate({
                 to: '/masaiverse',
