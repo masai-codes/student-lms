@@ -4,6 +4,10 @@ import { db } from '@/db'
 import { getCurrentSessionUserId } from '@/server/auth/getCurrentSessionUserId'
 import { clubMembers, users } from '@/db/schema'
 // import { pushNotificationService } from '@/server/pushNotifications/pushNotification.service'
+import {
+  notifyCommunityPostReplyViaExperienceApi,
+  notifyCommunityPostUpvoteViaExperienceApi,
+} from '@/server/masaiverse/triggerExperienceApiCommunityNotify'
 import { parseServerTimestamp } from '@/lib/parseServerTimestamp'
 import { PAGINATION_PAGE_SIZE } from '@/globalSettings'
 
@@ -656,16 +660,13 @@ export async function createCommunityReplyHandler({ data }: { data: { postId: Di
         `))
         const actorName = actorRows[0]?.name?.trim() || 'Someone'
         const replyTextForNotification = getPlainTextFromHtml(content)
-        // await pushNotificationService.sendNotificationToUser({
-        //   userId: post.authorId,
-        //   title: 'New reply on your post',
-        //   body: `${actorName}: ${truncateNotificationText(replyTextForNotification)}`,
-        //   data: {
-        //     type: 'community_post_reply',
-        //     postId: String(normalizedPostId),
-        //     actorUserId: String(userId),
-        //   },
-        // })
+        await notifyCommunityPostReplyViaExperienceApi({
+          postId: normalizedPostId,
+          recipientUserId: post.authorId,
+          actorUserId: userId,
+          actorName,
+          replyPreview: truncateNotificationText(replyTextForNotification),
+        })
       } catch {
         // Notification failures should not block reply creation.
       }
@@ -812,17 +813,12 @@ export async function voteCommunityPostHandler({ data }: { data: { postId: Discu
         `))
         const actorName = actorRows[0]?.name?.trim() || 'Someone'
 
-        // await pushNotificationService.sendNotificationToUser({
-        //   userId: voteResult.postAuthorId,
-        //   title: 'Your post got an upvote',
-        //   body: `${actorName} upvoted your post`,
-        //   data: {
-        //     type: 'community_post_upvote',
-        //     postId: String(data.postId),
-        //     actorUserId: String(userId),
-        //     vote: data.vote,
-        //   },
-        // })
+        await notifyCommunityPostUpvoteViaExperienceApi({
+          postId: data.postId,
+          recipientUserId: voteResult.postAuthorId,
+          actorUserId: userId,
+          actorName,
+        })
       } catch {
         // Notification failures should not block vote actions.
       }
