@@ -31,6 +31,9 @@ const markdownComponents: Components = {
     <h6 className="mt-3 mb-2 text-[14px] leading-[20px] font-semibold text-[#111928]" {...props} />
   ),
   hr: ({ node, ...props }) => <hr className="my-4 border-0 border-t border-[#D1D5DB]" {...props} />,
+  a: ({ node, ...props }) => (
+    <a {...props} target="_blank" rel="noopener noreferrer" />
+  ),
 }
 
 const sanitizeSchema: SanitizeOptions = {

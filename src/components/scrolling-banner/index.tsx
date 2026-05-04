@@ -53,6 +53,11 @@ const markdownComponents: Components = {
     <strong className="min-w-0 break-words font-semibold text-[#111928]">{children}</strong>
   ),
   hr: () => <hr className="my-3 border-0 border-t border-[#D1D5DB]" />,
+  a: ({ children, ...props }) => (
+    <a {...props} target="_blank" rel="noopener noreferrer">
+      {children}
+    </a>
+  ),
 };
 
 export function ScrollingBanner({
