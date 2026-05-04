@@ -21,8 +21,12 @@ export const Route = createFileRoute('/(protected)/_layout')({
         import.meta.env.VITE_NEW_STUDENT_UI_URL?.trim().replace(/\/$/, '')
       const oldStudentUiBase =
         import.meta.env.VITE_OLD_STUDENT_UI_URL?.trim().replace(/\/$/, '')
+      const redirectSearchParams = new URLSearchParams(requestUrl.searchParams)
+      // Token is only needed for legacy app redirect auth flow.
+      redirectSearchParams.delete('token')
+      redirectSearchParams.set('isApp', 'true')
       const redirectTarget = newStudentUiBase
-        ? `${newStudentUiBase}/masaiverse?isApp=true`
+        ? `${newStudentUiBase}${location.pathname}?${redirectSearchParams.toString()}`
         : null
 
       const user = await fetchCurrentUser()
