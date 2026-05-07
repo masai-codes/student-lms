@@ -26,6 +26,8 @@ export type EventCardProps = {
   eventDetailDescription: string
   eventTimeline: EventTimelineItem[]
   onCtaClick?: () => void
+  onDrawerOpen?: () => void
+  onDrawerCtaClick?: () => void
   drawerDirection?: DrawerDirection
   /**
    * Merged onto `Dialog.Content` — use on bottom sheets to clear a fixed bottom tab bar, e.g.
