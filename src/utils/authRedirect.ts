@@ -4,6 +4,17 @@ export function getOldStudentUiUrl() {
   );
 }
 
+/**
+ * Enables legacy student UI redirects when set to a truthy value
+ * (true/1/yes/on). Defaults to false when unset.
+ */
+export function isLegacyStudentRedirectEnabled(): boolean {
+  const value = (
+    import.meta.env.VITE_ENABLE_LEGACY_STUDENT_REDIRECT as string | undefined
+  )?.trim().toLowerCase()
+  return value === 'true' || value === '1' || value === 'yes' || value === 'on'
+}
+
 type RedirectDebugContext = {
   source: string;
   reason: string;

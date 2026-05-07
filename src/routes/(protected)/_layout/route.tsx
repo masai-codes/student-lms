@@ -9,16 +9,20 @@ import { AppMobileTabBar, AppNavbar } from '@/components/features/layout'
 import { isMasaiverseApp } from '@/constants/masaiverseDrawerUi'
 import { layoutMainClasses } from '@/lib/layout'
 import { fetchCurrentUser } from '@/server/auth/fetchCurrentUser'
+import {
+  getOldStudentUiUrlForPath,
+  isLegacyStudentRedirectEnabled,
+} from '@/utils/authRedirect'
 import { initClarity, setCurrentUserForTracking } from '@/utils/tracking'
-import { getOldStudentUiUrlForPath } from '@/utils/authRedirect'
 
 export const Route = createFileRoute('/(protected)/_layout')({
   beforeLoad: async ({ location }) => {
+    const shouldRedirectToLegacy = isLegacyStudentRedirectEnabled()
     const isMasaiverseRoute = location.pathname.startsWith('/masaiverse')
     const requestUrl = new URL(location.href, 'http://localhost')
     const token = requestUrl.searchParams.get('token')
 
-    if (isMasaiverseRoute && token) {
+    if (shouldRedirectToLegacy && isMasaiverseRoute && token) {
       const newStudentUiBase =
         import.meta.env.VITE_NEW_STUDENT_UI_URL?.trim().replace(/\/$/, '')
       const oldStudentUiBase =
@@ -42,7 +46,7 @@ export const Route = createFileRoute('/(protected)/_layout')({
       }
     }
 
-    if (!isMasaiverseRoute) {
+    if (shouldRedirectToLegacy && !isMasaiverseRoute) {
       const oldUiUrl = getOldStudentUiUrlForPath(location.href)
       if (oldUiUrl) {
         throw redirect({ href: oldUiUrl })
