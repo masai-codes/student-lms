@@ -12,6 +12,8 @@ export type ClubCardProps = {
   cardCtaText?: string
   drawerCtaText?: string
   onCtaClick?: () => void
+  onDrawerOpen?: () => void
+  onDrawerCtaClick?: () => void
   totalMembers: number | string
   detailPoints: string[]
   detailDescription: string

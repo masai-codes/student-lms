@@ -15,6 +15,7 @@ import {
   isMasaiverseApp,
 } from '@/constants/masaiverseDrawerUi'
 import { Input } from '@/components/ui/input'
+import { sendTrackingEvent } from '@/utils/tracking'
 
 type EventCategoryTab = 'all' | NonNullable<EventType['category']>
 
@@ -170,6 +171,13 @@ const EventsSection = () => {
                 <EventCard
                   {...eventCardProps}
                   isActive={isEventActive}
+                  onDrawerOpen={() => {
+                    sendTrackingEvent({
+                      event: 'masaiverse_events_view_details_click',
+                      source: 'events_section',
+                      event_id: eventId,
+                    })
+                  }}
                   drawerBottomInsetClassName={
                     isApp ? undefined : MASAIVERSE_MOBILE_TAB_DRAWER_CONTENT_INSET
                   }
@@ -184,6 +192,12 @@ const EventsSection = () => {
                   onCtaClick={
                     shouldShowOpenLinkCta
                       ? () => {
+                          sendTrackingEvent({
+                            event: 'masaiverse_events_drawer_cta_click',
+                            source: 'events_section',
+                            cta_type: 'open_link',
+                            event_id: eventId,
+                          })
                           if (!ctaLink) return
                           window.open(
                             ctaLink,
@@ -193,6 +207,12 @@ const EventsSection = () => {
                         }
                       : shouldShowEnrollCta && !joiningEventId
                         ? () => {
+                            sendTrackingEvent({
+                              event: 'masaiverse_events_drawer_cta_click',
+                              source: 'events_section',
+                              cta_type: 'enroll',
+                              event_id: eventId,
+                            })
                             void handleEventEnroll(eventId)
                           }
                         : undefined

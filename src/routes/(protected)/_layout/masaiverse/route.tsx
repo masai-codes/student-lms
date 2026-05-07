@@ -9,6 +9,7 @@ import { ChevronLeft } from 'lucide-react'
 import MasaiverseHomepage from '@/components/features/masaiverse/MasaiverseHomepage'
 import { getMasaiverseAccessDebugServer } from '@/server/masaiverse/getMasaiverseAccessDebugServer'
 import { redirectToOldStudentUi } from '@/utils/authRedirect'
+import { sendTrackingEvent } from '@/utils/tracking'
 
 export const Route = createFileRoute('/(protected)/_layout/masaiverse')({
   loader: async ({ context }) => {
@@ -75,6 +76,17 @@ function RouteComponent() {
     redirectReason,
     searchStr,
   ])
+
+  useEffect(() => {
+    if (!canShowMasaiverse) return
+
+    sendTrackingEvent({
+      event: 'page_view',
+      page_path: `${pathname}${searchStr}`,
+      page_location: window.location.href,
+      page_title: document.title,
+    })
+  }, [canShowMasaiverse, pathname, searchStr])
 
   if (!canShowMasaiverse) return null
 

@@ -9,6 +9,8 @@ export type ScrollingBannerItem = {
 
 export type ScrollingBannerProps = {
   items: ScrollingBannerItem[];
+  onShowMoreClick?: (item: ScrollingBannerItem) => void;
+  onCtaClick?: (item: ScrollingBannerItem) => void;
   bannerHeading?: string;
   className?: string;
   maxHeight?: number | string;

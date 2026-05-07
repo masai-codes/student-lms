@@ -62,6 +62,8 @@ const markdownComponents: Components = {
 
 export function ScrollingBanner({
   items,
+  onShowMoreClick,
+  onCtaClick,
   bannerHeading,
   className = "",
   maxHeight,
@@ -206,6 +208,7 @@ export function ScrollingBanner({
                     type="button"
                     className="inline-flex w-fit text-[12px] font-[500] leading-[18px] text-[#EF8833] hover:text-[#DC7A2D]"
                     onClick={() => {
+                      onShowMoreClick?.(item);
                       setActiveModalItem({
                         heading: item.heading,
                         content: contentText,
@@ -221,6 +224,9 @@ export function ScrollingBanner({
                     target="_blank"
                     rel="noreferrer noopener"
                     suppressHydrationWarning
+                    onClick={() => {
+                      onCtaClick?.(item);
+                    }}
                     className="inline-flex w-full min-w-0 max-w-full items-center justify-center break-words rounded-[8px] bg-[#EF8833] px-3 py-[6px] text-center text-[12px] font-[500] leading-[18px] text-white transition-colors hover:bg-[#DC7A2D]"
                   >
                     {item.ctaText}

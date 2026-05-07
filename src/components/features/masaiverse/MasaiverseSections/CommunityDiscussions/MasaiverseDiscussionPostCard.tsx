@@ -21,6 +21,7 @@ type MasaiverseDiscussionPostCardProps = {
   onReplyTextChange: (value: string) => void
   onReplySubmit?: () => void
   onVoteReply: (replyId: string, vote: 'upvote' | 'downvote') => Promise<void>
+  onReplyClick?: () => void
   open?: boolean
   onOpenChange?: (open: boolean) => void
 }
@@ -50,6 +51,7 @@ export default function MasaiverseDiscussionPostCard({
   onReplyTextChange,
   onReplySubmit,
   onVoteReply,
+  onReplyClick,
   open,
   onOpenChange,
 }: MasaiverseDiscussionPostCardProps) {
@@ -100,7 +102,10 @@ export default function MasaiverseDiscussionPostCard({
         onBookmarkClick={handleBookmarkClick}
         onUpvoteClick={onUpvoteClick}
         onDownvoteClick={onDownvoteClick}
-        onReplyClick={() => setResolvedOpen(true)}
+              onReplyClick={() => {
+                onReplyClick?.()
+                setResolvedOpen(true)
+              }}
         replyCount={replies.length}
       />
       <MasaiverseDiscussionPostDrawer

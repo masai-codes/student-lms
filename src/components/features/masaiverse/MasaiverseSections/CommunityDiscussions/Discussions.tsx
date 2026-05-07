@@ -34,6 +34,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { sendTrackingEvent } from '@/utils/tracking'
 
 const discussionSortOptions: Array<{ key: DiscussionSortMode; label: string }> =
   [
@@ -173,6 +174,7 @@ const Disucssions = ({
     initialPostIdFromSearch ?? null,
   )
   const latestRefreshRequestIdRef = useRef(0)
+  const skipCreateCancelTrackingRef = useRef(false)
 
   const normalizedClubOptions = useMemo(
     () =>
@@ -356,6 +358,9 @@ const Disucssions = ({
   }, [description, descriptionLength, title])
 
   const handleCreatePost = async () => {
+    sendTrackingEvent({
+      event: 'masaiverse_discussion_create_submit_click',
+    })
     setIsPosting(true)
     setDiscussionsError(null)
     const createPayload = {
@@ -370,6 +375,7 @@ const Disucssions = ({
         data: createPayload,
       })
       await refreshDiscussions()
+      skipCreateCancelTrackingRef.current = true
       setIsCreateModalOpen(false)
       setTitle('')
       setDescription('')
@@ -408,6 +414,10 @@ const Disucssions = ({
   }
 
   const handleReply = async (postId: DiscussionEntityId, content: string) => {
+    sendTrackingEvent({
+      event: 'masaiverse_discussion_reply_submit_click',
+      post_id: String(postId),
+    })
     await createCommunityReply({ data: { postId, content } })
     await refreshDiscussions()
   }
@@ -416,6 +426,10 @@ const Disucssions = ({
     postId: DiscussionEntityId,
     vote: 'upvote' | 'downvote',
   ) => {
+    sendTrackingEvent({
+      event: `masaiverse_discussion_post_${vote}_click`,
+      post_id: String(postId),
+    })
     await voteCommunityPost({ data: { postId, vote } })
     await refreshDiscussions()
   }
@@ -424,6 +438,10 @@ const Disucssions = ({
     replyId: string,
     vote: 'upvote' | 'downvote',
   ) => {
+    sendTrackingEvent({
+      event: `masaiverse_discussion_reply_${vote}_click`,
+      reply_id: String(replyId),
+    })
     await voteCommunityReply({ data: { replyId, vote } })
     await refreshDiscussions()
   }
@@ -455,6 +473,15 @@ const Disucssions = ({
   }
 
   const handleCreateModalOpenChange = (open: boolean) => {
+    if (!open && isCreateModalOpen) {
+      if (skipCreateCancelTrackingRef.current) {
+        skipCreateCancelTrackingRef.current = false
+      } else {
+        sendTrackingEvent({
+          event: 'masaiverse_discussion_create_cancel_click',
+        })
+      }
+    }
     setIsCreateModalOpen(open)
     if (!open) {
       navigate({
@@ -487,7 +514,13 @@ const Disucssions = ({
             </p>
             <button
               type="button"
-              onClick={() => setIsCreateModalOpen(true)}
+              onClick={() => {
+                sendTrackingEvent({
+                  event: 'masaiverse_discussion_create_open_click',
+                  source: 'discussion_header',
+                })
+                setIsCreateModalOpen(true)
+              }}
               className="shrink-0 rounded-md border border-[#EF8833] bg-[#FFF7ED] px-3 py-2 text-sm font-semibold text-[#C96B1E] hover:bg-[#FBE7D6]"
             >
               Create Discussion
@@ -577,7 +610,19 @@ const Disucssions = ({
           onTogglePostBan={handleTogglePostBan}
           openPostId={openPostId}
           onPostDrawerOpenChange={handlePostDrawerOpenChange}
-          onCreateDiscussionClick={() => setIsCreateModalOpen(true)}
+          onReplyDrawerOpen={(postId) => {
+            sendTrackingEvent({
+              event: 'masaiverse_discussion_reply_open_click',
+              post_id: postId,
+            })
+          }}
+          onCreateDiscussionClick={() => {
+            sendTrackingEvent({
+              event: 'masaiverse_discussion_create_open_click',
+              source: posts.length > 0 ? 'discussion_list' : 'discussion_empty_state',
+            })
+            setIsCreateModalOpen(true)
+          }}
         />
       )}
       <AppPagination
@@ -639,7 +684,14 @@ const Disucssions = ({
             <Button
               type="button"
               variant="outline"
-              onClick={() => handleCreateModalOpenChange(false)}
+              onClick={() => {
+                sendTrackingEvent({
+                  event: 'masaiverse_discussion_create_cancel_click',
+                  source: 'modal_footer',
+                })
+                skipCreateCancelTrackingRef.current = true
+                handleCreateModalOpenChange(false)
+              }}
               disabled={isPosting}
             >
               Cancel

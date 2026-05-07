@@ -4,10 +4,12 @@ import {
   redirect,
   useRouterState,
 } from '@tanstack/react-router'
+import { useEffect } from 'react'
 import { AppMobileTabBar, AppNavbar } from '@/components/features/layout'
 import { isMasaiverseApp } from '@/constants/masaiverseDrawerUi'
 import { layoutMainClasses } from '@/lib/layout'
 import { fetchCurrentUser } from '@/server/auth/fetchCurrentUser'
+import { initClarity, setCurrentUserForTracking } from '@/utils/tracking'
 import { getOldStudentUiUrlForPath } from '@/utils/authRedirect'
 
 export const Route = createFileRoute('/(protected)/_layout')({
@@ -60,8 +62,17 @@ export const Route = createFileRoute('/(protected)/_layout')({
 })
 
 function RouteComponent() {
-  const search = useRouterState({ select: (state) => state.location.search })
-  const isApp = isMasaiverseApp(search)
+  const searchStr = useRouterState({ select: (state) => state.location.searchStr })
+  const { user } = Route.useRouteContext()
+  const isApp = isMasaiverseApp(searchStr)
+
+  useEffect(() => {
+    initClarity()
+  }, [])
+
+  useEffect(() => {
+    setCurrentUserForTracking(user)
+  }, [user])
 
   return (
     <div className="min-h-dvh bg-[#FAF9F9] flex flex-col">

@@ -18,6 +18,8 @@ type HomeClubsCarouselProps = {
   orderedClubsList: Array<ClubType>
   joinedClubId: string | null
   onClubJoin: (clubId: string) => void
+  onClubViewDetails?: (clubId: string) => void
+  onClubDrawerCtaClick?: (clubId: string) => void
   className?: string
   singleSlideOnly?: boolean
 }
@@ -27,9 +29,18 @@ type ClubSlideProps = {
   isApp: boolean
   joinedClubId: string | null
   onClubJoin: (clubId: string) => void
+  onClubViewDetails?: (clubId: string) => void
+  onClubDrawerCtaClick?: (clubId: string) => void
 }
 
-const ClubSlide = ({ club, isApp, joinedClubId, onClubJoin }: ClubSlideProps) => {
+const ClubSlide = ({
+  club,
+  isApp,
+  joinedClubId,
+  onClubJoin,
+  onClubViewDetails,
+  onClubDrawerCtaClick,
+}: ClubSlideProps) => {
   const clubCardProps = mapClubToCardProps(club)
   const clubId = String(club.id)
   const isJoinedClub = joinedClubId === clubId
@@ -46,6 +57,8 @@ const ClubSlide = ({ club, isApp, joinedClubId, onClubJoin }: ClubSlideProps) =>
     >
       <ClubCard
         {...clubCardProps}
+        onDrawerOpen={() => onClubViewDetails?.(clubId)}
+        onDrawerCtaClick={() => onClubDrawerCtaClick?.(clubId)}
         drawerBottomInsetClassName={
           isApp ? undefined : MASAIVERSE_MOBILE_TAB_DRAWER_CONTENT_INSET
         }
@@ -77,6 +90,8 @@ const HomeClubsCarousel = ({
   orderedClubsList,
   joinedClubId,
   onClubJoin,
+  onClubViewDetails,
+  onClubDrawerCtaClick,
   className = 'mt-8',
   singleSlideOnly = false,
 }: HomeClubsCarouselProps) => {
@@ -121,6 +136,8 @@ const HomeClubsCarousel = ({
                   isApp={isApp}
                   joinedClubId={joinedClubId}
                   onClubJoin={onClubJoin}
+                  onClubViewDetails={onClubViewDetails}
+                  onClubDrawerCtaClick={onClubDrawerCtaClick}
                 />
               </SwiperSlide>
             ))}
