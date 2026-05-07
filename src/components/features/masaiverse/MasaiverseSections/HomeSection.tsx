@@ -16,6 +16,7 @@ import { joinClub } from '@/server/masaiverse/joinClub'
 import { joinEvent } from '@/server/masaiverse/joinEvent'
 import { fetchAllClubs } from '@/server/masaiverse/fetchClubs'
 import { fetchAllEvents } from '@/server/masaiverse/fetchEvents'
+import { sendTrackingEvent } from '@/utils/tracking'
 import 'swiper/css'
 import 'swiper/css/navigation'
 
@@ -161,7 +162,11 @@ export default function HomeSection({
             enrolledEventIds={enrolledEventIds}
             joiningEventId={joiningEventId}
             userId={user?.id ? String(user.id) : null}
-            onViewAll={() =>
+            onViewAll={() => {
+              sendTrackingEvent({
+                event: 'masaiverse_events_view_all_click',
+                source: 'home_events_preview',
+              })
               navigate({
                 to: '/masaiverse',
                 search: (prev) => ({
@@ -169,9 +174,24 @@ export default function HomeSection({
                   tab: 'events',
                 }),
               })
-            }
+            }}
             onEventEnroll={(eventId) => {
               void handleEventEnroll(eventId)
+            }}
+            onEventViewDetails={(eventId) => {
+              sendTrackingEvent({
+                event: 'masaiverse_events_view_details_click',
+                source: 'home_events_preview',
+                event_id: eventId,
+              })
+            }}
+            onEventDrawerCtaClick={(eventId, action) => {
+              sendTrackingEvent({
+                event: 'masaiverse_events_drawer_cta_click',
+                source: 'home_events_preview',
+                cta_type: action,
+                event_id: eventId,
+              })
             }}
           />
           {!hasJoinedClub && (
@@ -183,6 +203,22 @@ export default function HomeSection({
                 joinedClubId={joinedClubId}
                 onClubJoin={(clubId) => {
                   void handleClubJoin(clubId)
+                }}
+                onClubViewDetails={(clubId) => {
+                  sendTrackingEvent({
+                    event: 'masaiverse_clubs_view_details_click',
+                    source: 'home_clubs_carousel',
+                    club_id: clubId,
+                    membership_state: joinedClubId === clubId ? 'joined' : 'not_joined',
+                  })
+                }}
+                onClubDrawerCtaClick={(clubId) => {
+                  sendTrackingEvent({
+                    event: 'masaiverse_clubs_drawer_cta_click',
+                    source: 'home_clubs_carousel',
+                    cta_type: 'join',
+                    club_id: clubId,
+                  })
                 }}
               />
               {clubJoinError && (
@@ -205,6 +241,21 @@ export default function HomeSection({
         <aside className="lg:col-span-3">
           <ScrollingBanner
             items={bannerItems}
+            onShowMoreClick={(item) => {
+              sendTrackingEvent({
+                event: 'masaiverse_banner_show_more_click',
+                banner_id: String(item.id ?? ''),
+                banner_heading: item.heading ?? '',
+              })
+            }}
+            onCtaClick={(item) => {
+              sendTrackingEvent({
+                event: 'masaiverse_banner_cta_click',
+                banner_id: String(item.id ?? ''),
+                banner_heading: item.heading ?? '',
+                cta_text: item.ctaText ?? '',
+              })
+            }}
             maxHeight={300}
             itemDurationSeconds={3.5}
             autoScroll={false}
@@ -220,6 +271,22 @@ export default function HomeSection({
                 joinedClubId={joinedClubId}
                 onClubJoin={(clubId) => {
                   void handleClubJoin(clubId)
+                }}
+                onClubViewDetails={(clubId) => {
+                  sendTrackingEvent({
+                    event: 'masaiverse_clubs_view_details_click',
+                    source: 'joined_club_panel',
+                    club_id: clubId,
+                    membership_state: joinedClubId === clubId ? 'joined' : 'not_joined',
+                  })
+                }}
+                onClubDrawerCtaClick={(clubId) => {
+                  sendTrackingEvent({
+                    event: 'masaiverse_clubs_drawer_cta_click',
+                    source: 'joined_club_panel',
+                    cta_type: 'join',
+                    club_id: clubId,
+                  })
                 }}
                 className="mt-6"
                 singleSlideOnly

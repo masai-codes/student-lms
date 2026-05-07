@@ -20,6 +20,11 @@ type HomeEventsPreviewProps = {
   userId?: string | null
   onViewAll: () => void
   onEventEnroll: (eventId: string) => void
+  onEventViewDetails?: (eventId: string) => void
+  onEventDrawerCtaClick?: (
+    eventId: string,
+    action: 'enroll' | 'open_link',
+  ) => void
 }
 
 const HomeEventsPreview = ({
@@ -30,6 +35,8 @@ const HomeEventsPreview = ({
   userId,
   onViewAll,
   onEventEnroll,
+  onEventViewDetails,
+  onEventDrawerCtaClick,
 }: HomeEventsPreviewProps) => {
   const isApp = isMasaiverseApp()
   const previewEvents = eventsList.slice(0, 2)
@@ -99,6 +106,7 @@ const HomeEventsPreview = ({
                     <EventCard
                       {...eventCardProps}
                       isActive={isEventActive}
+                      onDrawerOpen={() => onEventViewDetails?.(eventId)}
                       drawerBottomInsetClassName={
                         isApp ? undefined : MASAIVERSE_MOBILE_TAB_DRAWER_CONTENT_INSET
                       }
@@ -113,6 +121,7 @@ const HomeEventsPreview = ({
                       onCtaClick={
                         shouldShowOpenLinkCta
                           ? () => {
+                              onEventDrawerCtaClick?.(eventId, 'open_link')
                               if (!ctaLink) return
                               window.open(
                                 ctaLink,
@@ -122,6 +131,7 @@ const HomeEventsPreview = ({
                             }
                           : shouldShowEnrollCta && !joiningEventId
                             ? () => {
+                                onEventDrawerCtaClick?.(eventId, 'enroll')
                                 onEventEnroll(eventId)
                               }
                             : undefined

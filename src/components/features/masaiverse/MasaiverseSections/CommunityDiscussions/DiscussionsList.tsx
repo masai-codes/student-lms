@@ -26,6 +26,7 @@ type DiscussionsListProps = {
   openPostId: string | null
   onPostDrawerOpenChange: (postId: string, open: boolean) => void
   onCreateDiscussionClick: () => void
+  onReplyDrawerOpen?: (postId: string) => void
 }
 
 const DiscussionsList = ({
@@ -41,6 +42,7 @@ const DiscussionsList = ({
   openPostId,
   onPostDrawerOpenChange,
   onCreateDiscussionClick,
+  onReplyDrawerOpen,
 }: DiscussionsListProps) => {
   const [replyDrafts, setReplyDrafts] = useState<
     Partial<Record<string, string>>
@@ -180,6 +182,9 @@ const DiscussionsList = ({
                     [postId]: '',
                   }))
                 })
+              }}
+              onReplyClick={() => {
+                onReplyDrawerOpen?.(postId)
               }}
               open={openPostId === postId}
               onOpenChange={(open) => onPostDrawerOpenChange(postId, open)}

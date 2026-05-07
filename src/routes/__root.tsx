@@ -3,6 +3,8 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import appCss from '../styles.css?url'
 import type { RouterContext } from '@/types'
 
+const GA_MEASUREMENT_ID = 'G-R3MQZK6LM6'
+
 
 export const Route = createRootRouteWithContext<RouterContext>()({
   head: () => ({
@@ -48,6 +50,16 @@ function RootDocument({ children }: { children: React.ReactNode }) {
     <html lang="en">
       <head>
         <HeadContent />
+        <script async src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`} />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+window.gtag = gtag;
+gtag('js', new Date());
+gtag('config', '${GA_MEASUREMENT_ID}');`,
+          }}
+        />
       </head>
       <body>
         <QueryClientProvider client={queryClient}>
