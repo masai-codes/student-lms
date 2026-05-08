@@ -11,7 +11,7 @@ import { getBatchLearningData } from '@/server/learn/getBatchLearningData'
 
 interface EnrolledBatchOption {
   batchId: number
-  title: string
+  courseTitle: string
 }
 
 interface LearnLayoutProps {
@@ -110,7 +110,7 @@ export function LearnLayout({
         selectedBatch={(resolvedBatchId ?? '').toString()}
         batches={enrolledBatches.map((batch) => ({
           value: batch.batchId.toString(),
-          label: batch.title,
+          label: batch.courseTitle,
         }))}
         onBatchChange={(value) => {
           onBatchChange(Number(value))

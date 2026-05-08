@@ -1,4 +1,4 @@
-import { and, desc, inArray, isNull } from 'drizzle-orm'
+import { and, inArray, isNull } from 'drizzle-orm'
 import type { EnrolledBatch, EnrolledBatchRow } from '@/server/learn/types'
 import { db } from '@/db'
 import { batches } from '@/db/schema'
@@ -16,10 +16,19 @@ export async function getEnrolledBatchesForUser(userId: number): Promise<Array<E
     .select({
       id: batches.id,
       name: batches.name,
+      meta: batches.meta,
     })
     .from(batches)
     .where(and(inArray(batches.id, batchIds), isNull(batches.deletedAt)))
-    .orderBy(desc(batches.createdAt))
 
-  return rows.map(mapEnrolledBatchRow)
+  const mappedRowsByBatchId = new Map(
+    rows.map((row) => {
+      const mapped = mapEnrolledBatchRow(row)
+      return [mapped.batchId, mapped] as const
+    })
+  )
+
+  return batchIds
+    .map((batchId) => mappedRowsByBatchId.get(batchId))
+    .filter((batch): batch is EnrolledBatch => batch !== undefined)
 }

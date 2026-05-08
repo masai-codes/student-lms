@@ -1,4 +1,4 @@
-import { and, eq, isNull } from "drizzle-orm";
+import { and, asc, eq, isNull } from "drizzle-orm";
 import { db } from "@/db";
 import { sectionUser, sections } from "@/db/schema";
 
@@ -19,7 +19,8 @@ export async function getBatchIdsForEnrolledUser(
         isNull(sectionUser.deletedAt),
         isNull(sections.deletedAt),
       ),
-    );
+    )
+    .orderBy(asc(sectionUser.createdAt));
 
   return [...new Set(rows.map((r) => r.batchId))];
 }

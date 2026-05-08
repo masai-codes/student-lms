@@ -3,9 +3,9 @@ import { Badge } from '@/components/ui/badge'
 import { Card } from '@/components/ui/card'
 import type { LearnContentItem } from '../../shared/types'
 
-const priorityClassName: Record<LearnContentItem['priority'], string> = {
-  recommended: 'bg-emerald-100 text-emerald-700',
-  mandatory: 'bg-amber-100 text-amber-700',
+const dummyAttendanceClassName: Record<'Present' | 'Absent', string> = {
+  Present: 'bg-emerald-100 text-emerald-700',
+  Absent: 'bg-rose-100 text-rose-700',
 }
 
 function LearnTypeIcon({ type }: Pick<LearnContentItem, 'type'>) {
@@ -19,6 +19,9 @@ function LearnTypeIcon({ type }: Pick<LearnContentItem, 'type'>) {
 }
 
 export function LearnContentCard({ item }: { item: LearnContentItem }) {
+  const dummyAttendance: 'Present' | 'Absent' =
+    item.title.length % 2 === 0 ? 'Present' : 'Absent'
+
   return (
     <Card className="p-4">
       <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
@@ -37,12 +40,13 @@ export function LearnContentCard({ item }: { item: LearnContentItem }) {
                   {tag}
                 </Badge>
               ))}
+              <Badge variant="outline">{item.priority}</Badge>
             </div>
           </div>
         </div>
 
-        <Badge className={priorityClassName[item.priority]}>
-          {item.priority}
+        <Badge className={dummyAttendanceClassName[dummyAttendance]}>
+          {dummyAttendance}
         </Badge>
       </div>
     </Card>

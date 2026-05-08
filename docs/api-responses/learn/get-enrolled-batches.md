@@ -30,11 +30,11 @@ None
 [
   {
     "batchId": "batch_123",
-    "title": "Cohort Alpha - Full Stack"
+    "courseTitle": "Cohort Alpha - Full Stack"
   },
   {
     "batchId": "batch_456",
-    "title": "Cohort Beta - Data Science"
+    "courseTitle": "Cohort Beta - Data Science"
   }
 ]
 ```
@@ -50,7 +50,7 @@ None
 ## Notes
 - Source logic:
   - Use `section_user` table to find all unique batches mapped to the current user (`userId`).
-  - Join with `batch` table to fetch batch `title`.
+  - Read `courseTitle` from `batches.meta.courseTitle`; if missing/empty, fallback to `batches.name`.
 - Response should include only 2 fields per batch:
   - `batchId`
-  - `title`
+  - `courseTitle`

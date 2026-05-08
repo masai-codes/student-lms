@@ -1,11 +1,12 @@
 export interface EnrolledBatch {
   batchId: number
-  title: string
+  courseTitle: string
 }
 
 export interface EnrolledBatchRow {
   id: number
   name: string
+  meta: unknown
 }
 
 export type LearningType = 'lecture' | 'assignment' | 'resource'

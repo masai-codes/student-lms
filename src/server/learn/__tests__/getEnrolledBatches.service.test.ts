@@ -28,24 +28,22 @@ describe('getEnrolledBatchesForUser service', () => {
     expect(hoisted.dbSelect).not.toHaveBeenCalled()
   })
 
-  it('maps db rows to {batchId, title}', async () => {
+  it('maps db rows to {batchId, courseTitle} and preserves enrollment order', async () => {
     const { getEnrolledBatchesForUser } = await import('../services/getEnrolledBatches.service')
     hoisted.getBatchIdsForEnrolledUser.mockResolvedValueOnce([1, 2])
     hoisted.dbSelect.mockReturnValueOnce({
       from: () => ({
-        where: () => ({
-          orderBy: () =>
-            Promise.resolve([
-              { id: 2, name: 'Cohort B' },
-              { id: 1, name: 'Cohort A' },
-            ]),
-        }),
+        where: () =>
+          Promise.resolve([
+            { id: 2, name: 'Cohort B', meta: { courseTitle: 'DS Cohort B' } },
+            { id: 1, name: 'Cohort A', meta: {} },
+          ]),
       }),
     })
 
     await expect(getEnrolledBatchesForUser(77)).resolves.toEqual([
-      { batchId: 2, title: 'Cohort B' },
-      { batchId: 1, title: 'Cohort A' },
+      { batchId: 1, courseTitle: 'Cohort A' },
+      { batchId: 2, courseTitle: 'DS Cohort B' },
     ])
   })
 })
