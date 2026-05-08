@@ -8,7 +8,7 @@ import { sectionUser, sections } from "@/db/schema";
  */
 export async function getBatchIdsForEnrolledUser(
   userId: number,
-): Promise<number[]> {
+): Promise<Array<number>> {
   const rows = await db
     .select({ batchId: sections.batchId })
     .from(sectionUser)

@@ -41,6 +41,7 @@ alwaysApply: true
 - Move small reusable helpers (mapping, parsing, validation, formatting) into dedicated util files.
 - Organize by feature domain (for example, `learn/services/*` and `learn/utils/*`) instead of large mixed files.
 - Design service/util layers so the same logic can be reused if server functions are later migrated to REST APIs.
+- Do not write raw SQL queries in application code. Prefer typed ORM query builders (Drizzle) for safety, consistency, and maintainability.
 
 ## PR Quality Bar
 - Ensure `npm run test` and `npm run lint` pass for touched code.
