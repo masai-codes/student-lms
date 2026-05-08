@@ -7,6 +7,7 @@ alwaysApply: true
 
 ## Core Standards
 - Use TypeScript strict mode patterns; avoid `any` unless absolutely necessary.
+- Write type-safe code in both frontend and backend; prefer explicit domain types, validated inputs, and safe narrowing over type assertions.
 - Reuse existing components, utilities.
 - Prefer `shadcn/ui` and Radix UI primitives wherever possible before building custom UI from scratch.
 - Prefer icons from a maintained icon library (for example, `@phosphor-icons/react`) over image URLs or custom icon assets wherever possible.
@@ -34,7 +35,15 @@ alwaysApply: true
 - Avoid hardcoded magic values when a project token or shared constant exists.
 - Preserve accessibility basics (semantic elements, interactive affordances, readable text).
 
+## Backend and API Structure
+- Keep API/server entrypoints thin (route handlers, server functions, controller-like files).
+- Move main business logic into separate feature-level service files.
+- Move small reusable helpers (mapping, parsing, validation, formatting) into dedicated util files.
+- Organize by feature domain (for example, `learn/services/*` and `learn/utils/*`) instead of large mixed files.
+- Design service/util layers so the same logic can be reused if server functions are later migrated to REST APIs.
+
 ## PR Quality Bar
 - Ensure `npm run test` and `npm run lint` pass for touched code.
+- Ensure TypeScript has zero errors for changed code paths; target 0 TypeScript errors in the project.
 - Keep changes scoped to the request; do not refactor unrelated areas.
 - Add concise code comments only where logic is non-obvious.

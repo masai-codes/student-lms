@@ -5,6 +5,7 @@ import {
   useRouterState,
 } from '@tanstack/react-router'
 import { useEffect } from 'react'
+import { AppLoading } from '@/components/common'
 import { AppMobileTabBar, AppNavbar } from '@/components/features/layout'
 import { isMasaiverseApp } from '@/constants/masaiverseDrawerUi'
 import { layoutMainClasses } from '@/lib/layout'
@@ -62,7 +63,7 @@ export const Route = createFileRoute('/(protected)/_layout')({
     }
   },
   component: RouteComponent,
-  pendingComponent: () => <div>Loading...</div>,
+  pendingComponent: () => <AppLoading fullPage label="Loading workspace..." />,
 })
 
 function RouteComponent() {

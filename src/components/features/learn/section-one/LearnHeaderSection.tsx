@@ -6,9 +6,14 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 
+interface LearnBatchOption {
+  value: string
+  label: string
+}
+
 interface LearnHeaderSectionProps {
   selectedBatch: string
-  batches: string[]
+  batches: Array<LearnBatchOption>
   onBatchChange: (batch: string) => void
 }
 
@@ -25,8 +30,8 @@ export function LearnHeaderSection({
         </SelectTrigger>
         <SelectContent>
           {batches.map((batch) => (
-            <SelectItem key={batch} value={batch}>
-              {batch}
+            <SelectItem key={batch.value} value={batch.value}>
+              {batch.label}
             </SelectItem>
           ))}
         </SelectContent>

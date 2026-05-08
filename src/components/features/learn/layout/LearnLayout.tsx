@@ -7,15 +7,25 @@ import { LearnPaginationSection } from '../section-four/LearnPaginationSection'
 import {
   dummyContentByTab,
   dummyFilterOptions,
-  enrolledBatches,
   moduleFilters,
 } from '../shared/learnDummyData'
 import type { LearnTab } from '../shared/types'
 
 const ITEMS_PER_PAGE = 10
 
-export function LearnLayout() {
-  const [selectedBatch, setSelectedBatch] = useState(enrolledBatches[0])
+interface EnrolledBatchOption {
+  batchId: number
+  title: string
+}
+
+interface LearnLayoutProps {
+  enrolledBatches: Array<EnrolledBatchOption>
+}
+
+export function LearnLayout({ enrolledBatches }: LearnLayoutProps) {
+  const [selectedBatch, setSelectedBatch] = useState(
+    enrolledBatches[0]?.batchId.toString() ?? '',
+  )
   const [activeTab, setActiveTab] = useState<LearnTab>('lectures')
   const [searchValue, setSearchValue] = useState('')
   const [selectedModule, setSelectedModule] = useState(moduleFilters[0])
@@ -51,7 +61,10 @@ export function LearnLayout() {
     <div className="w-full space-y-4">
       <LearnHeaderSection
         selectedBatch={selectedBatch}
-        batches={enrolledBatches}
+        batches={enrolledBatches.map((batch) => ({
+          value: batch.batchId.toString(),
+          label: batch.title,
+        }))}
         onBatchChange={setSelectedBatch}
       />
 

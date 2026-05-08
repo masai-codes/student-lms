@@ -1,7 +1,7 @@
 import { Await, createFileRoute } from '@tanstack/react-router'
 import { ViewDiscussion } from '@/components/features/discussions'
 import { Card } from '@/components/ui/card'
-import { FilterAndSeachBar } from '@/components/common'
+import { AppLoading, FilterAndSeachBar } from '@/components/common'
 import { PAGINATION_PAGE_SIZE } from '@/globalSettings'
 import { SkeletonCommon } from '@/components/common'
 import { fetchDiscussionById } from '@/server/discussions/fetchDiscussionById'
@@ -63,7 +63,7 @@ function RouteComponent() {
     <>
       <ViewDiscussion discussion={discussionData[0]} />
 
-      <Await promise={threadsPromise} fallback={<div>Loading...123</div>}>
+      <Await promise={threadsPromise} fallback={<AppLoading label="Loading responses..." />}>
         {(threads) => (
           <div className="bg-white border p-4 rounded-xl">
             <h2 className="text-xl font-bold mb-4">Responses</h2>

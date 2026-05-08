@@ -1,5 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
 // import { Dashboard } from '@/components/features/dashboard'
+import { AppLoading } from '@/components/common'
 import { Dashboard } from '@/components/features/dashboard'
 import { fetchWeeklySchedule } from '@/server/dashboard/fetchWeeklySchedule'
 import { fetchPendingTasks } from '@/server/dashboard/fetchPendingTasks'
@@ -7,13 +8,7 @@ import { fetchAnnouncements } from '@/server/dashboard/fetchAnnouncements'
 
 export const Route = createFileRoute('/(protected)/_layout/')({ 
   component: App,
-  pendingComponent: () => {
-      return (
-        <div className="p-6 space-y-6">
-          <h2 className="text-2xl font-semibold">LOading...</h2>
-        </div>
-      )
-    },
+  pendingComponent: () => <AppLoading fullPage label="Loading dashboard..." />,
   
     loader: ({ context }) => {
         const { user } = context

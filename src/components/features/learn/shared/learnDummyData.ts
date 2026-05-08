@@ -17,7 +17,7 @@ const hostNames = [
   'Arjun Rao',
 ]
 
-const attendanceStatuses: LearnContentItem['attendanceStatus'][] = [
+const attendanceStatuses: Array<LearnContentItem['attendanceStatus']> = [
   'Present',
   'Absent',
   'Pending',
@@ -26,7 +26,7 @@ const attendanceStatuses: LearnContentItem['attendanceStatus'][] = [
 function createDummyItems(
   kind: LearnContentItem['type'],
   titlePrefix: string
-): LearnContentItem[] {
+): Array<LearnContentItem> {
   return Array.from({ length: 20 }, (_, index) => {
     const itemNumber = index + 1
     const moduleName = `Module ${((index % 3) + 1).toString()}`

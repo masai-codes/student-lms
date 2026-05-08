@@ -1,16 +1,11 @@
 import { createFileRoute } from '@tanstack/react-router'
+import { AppLoading } from '@/components/common'
 import { WhatsNew } from '@/components/features/whats-new'
 import { fetchWhatsNew } from '@/server/whats-new/fetchWhatsNew'
 
 export const Route = createFileRoute('/(protected)/_layout/whats-new/')({
   component: RouteComponent,
-  pendingComponent: () => {
-      return (
-        <div className="p-6 space-y-6">
-          Loding890.....xcgtdo
-        </div>
-      )
-    },
+  pendingComponent: () => <AppLoading fullPage label="Loading updates..." />,
   
     loader: async () => {
         const whatsnewData = await fetchWhatsNew()

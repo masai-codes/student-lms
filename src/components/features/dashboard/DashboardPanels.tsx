@@ -9,6 +9,7 @@ import type { PendingTaskRow } from '@/server/dashboard/fetchPendingTasks'
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { capitalize, formatTimeInHHMM, getWeeklyRange } from "@/utils/generics"
 import { Separator } from '@/components/ui/separator'
+import { AppLoading } from '@/components/common'
 
 
 type DashboardProps = {
@@ -45,7 +46,7 @@ export default function DashboardPanels({ schedule, pendingTasks, announcements 
                         </div>
                     </CardHeader>
                     <CardContent className="flex flex-col gap-4 max-h-80 overflow-y-auto">
-                        <Await promise={schedule} fallback={<div>Loading...123</div>}>
+                        <Await promise={schedule} fallback={<AppLoading label="Loading schedule..." />}>
                             {(resolvedSchedule) =>
                                 Object.entries(resolvedSchedule).map(
                                     ([dateKey, dayData], index) => (
@@ -89,7 +90,7 @@ export default function DashboardPanels({ schedule, pendingTasks, announcements 
 
                     <CardContent className="flex flex-col gap-4 max-h-60 overflow-y-auto">
                         <div className="space-y-3">
-                            <Await promise={pendingTasks} fallback={<div>Loading...</div>}>
+                            <Await promise={pendingTasks} fallback={<AppLoading label="Loading tasks..." />}>
                                 {(resolvedPendingTasks) =>
                                     resolvedPendingTasks.length === 0 ? (
                                         <NoPendingTasksPlaceholder />
@@ -121,7 +122,7 @@ export default function DashboardPanels({ schedule, pendingTasks, announcements 
                         </Link>
                     </CardHeader>
                     <CardContent className="flex flex-col gap-4 max-h-50 overflow-y-auto">
-                        <Await promise={announcements} fallback={<div>Loading...123</div>}>
+                        <Await promise={announcements} fallback={<AppLoading label="Loading announcements..." />}>
                             {(announcementsResolved) =>
                                 announcementsResolved.length === 0 ? (
                                     <NoAnnouncementPlaceholder />
