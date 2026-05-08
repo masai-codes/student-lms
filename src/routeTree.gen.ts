@@ -21,6 +21,7 @@ import { Route as protectedLayoutReferAndEarnIndexRouteImport } from './routes/(
 import { Route as protectedLayoutProfileIndexRouteImport } from './routes/(protected)/_layout/profile/index'
 import { Route as protectedLayoutPracticeInterviewIndexRouteImport } from './routes/(protected)/_layout/practice-interview/index'
 import { Route as protectedLayoutMasaiverseIndexRouteImport } from './routes/(protected)/_layout/masaiverse/index'
+import { Route as protectedLayoutLearnIndexRouteImport } from './routes/(protected)/_layout/learn/index'
 import { Route as protectedLayoutDiscussionsIndexRouteImport } from './routes/(protected)/_layout/discussions/index'
 import { Route as protectedLayoutCoursesIndexRouteImport } from './routes/(protected)/_layout/courses/index'
 import { Route as protectedLayoutChatIndexRouteImport } from './routes/(protected)/_layout/chat/index'
@@ -115,6 +116,12 @@ const protectedLayoutMasaiverseIndexRoute =
     id: '/',
     path: '/',
     getParentRoute: () => protectedLayoutMasaiverseRouteRoute,
+  } as any)
+const protectedLayoutLearnIndexRoute =
+  protectedLayoutLearnIndexRouteImport.update({
+    id: '/learn/',
+    path: '/learn/',
+    getParentRoute: () => protectedLayoutRouteRoute,
   } as any)
 const protectedLayoutDiscussionsIndexRoute =
   protectedLayoutDiscussionsIndexRouteImport.update({
@@ -335,6 +342,7 @@ export interface FileRoutesByFullPath {
   '/chat/': typeof protectedLayoutChatIndexRoute
   '/courses/': typeof protectedLayoutCoursesIndexRoute
   '/discussions/': typeof protectedLayoutDiscussionsIndexRoute
+  '/learn/': typeof protectedLayoutLearnIndexRoute
   '/masaiverse/': typeof protectedLayoutMasaiverseIndexRoute
   '/practice-interview/': typeof protectedLayoutPracticeInterviewIndexRoute
   '/profile/': typeof protectedLayoutProfileIndexRoute
@@ -375,6 +383,7 @@ export interface FileRoutesByTo {
   '/chat': typeof protectedLayoutChatIndexRoute
   '/courses': typeof protectedLayoutCoursesIndexRoute
   '/discussions': typeof protectedLayoutDiscussionsIndexRoute
+  '/learn': typeof protectedLayoutLearnIndexRoute
   '/masaiverse': typeof protectedLayoutMasaiverseIndexRoute
   '/practice-interview': typeof protectedLayoutPracticeInterviewIndexRoute
   '/profile': typeof protectedLayoutProfileIndexRoute
@@ -415,6 +424,7 @@ export interface FileRoutesById {
   '/(protected)/_layout/chat/': typeof protectedLayoutChatIndexRoute
   '/(protected)/_layout/courses/': typeof protectedLayoutCoursesIndexRoute
   '/(protected)/_layout/discussions/': typeof protectedLayoutDiscussionsIndexRoute
+  '/(protected)/_layout/learn/': typeof protectedLayoutLearnIndexRoute
   '/(protected)/_layout/masaiverse/': typeof protectedLayoutMasaiverseIndexRoute
   '/(protected)/_layout/practice-interview/': typeof protectedLayoutPracticeInterviewIndexRoute
   '/(protected)/_layout/profile/': typeof protectedLayoutProfileIndexRoute
@@ -458,6 +468,7 @@ export interface FileRouteTypes {
     | '/chat/'
     | '/courses/'
     | '/discussions/'
+    | '/learn/'
     | '/masaiverse/'
     | '/practice-interview/'
     | '/profile/'
@@ -498,6 +509,7 @@ export interface FileRouteTypes {
     | '/chat'
     | '/courses'
     | '/discussions'
+    | '/learn'
     | '/masaiverse'
     | '/practice-interview'
     | '/profile'
@@ -537,6 +549,7 @@ export interface FileRouteTypes {
     | '/(protected)/_layout/chat/'
     | '/(protected)/_layout/courses/'
     | '/(protected)/_layout/discussions/'
+    | '/(protected)/_layout/learn/'
     | '/(protected)/_layout/masaiverse/'
     | '/(protected)/_layout/practice-interview/'
     | '/(protected)/_layout/profile/'
@@ -660,6 +673,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/masaiverse/'
       preLoaderRoute: typeof protectedLayoutMasaiverseIndexRouteImport
       parentRoute: typeof protectedLayoutMasaiverseRouteRoute
+    }
+    '/(protected)/_layout/learn/': {
+      id: '/(protected)/_layout/learn/'
+      path: '/learn'
+      fullPath: '/learn/'
+      preLoaderRoute: typeof protectedLayoutLearnIndexRouteImport
+      parentRoute: typeof protectedLayoutRouteRoute
     }
     '/(protected)/_layout/discussions/': {
       id: '/(protected)/_layout/discussions/'
@@ -975,6 +995,7 @@ interface protectedLayoutRouteRouteChildren {
   protectedLayoutChatIndexRoute: typeof protectedLayoutChatIndexRoute
   protectedLayoutCoursesIndexRoute: typeof protectedLayoutCoursesIndexRoute
   protectedLayoutDiscussionsIndexRoute: typeof protectedLayoutDiscussionsIndexRoute
+  protectedLayoutLearnIndexRoute: typeof protectedLayoutLearnIndexRoute
   protectedLayoutPracticeInterviewIndexRoute: typeof protectedLayoutPracticeInterviewIndexRoute
   protectedLayoutProfileIndexRoute: typeof protectedLayoutProfileIndexRoute
   protectedLayoutReferAndEarnIndexRoute: typeof protectedLayoutReferAndEarnIndexRoute
@@ -1000,6 +1021,7 @@ const protectedLayoutRouteRouteChildren: protectedLayoutRouteRouteChildren = {
   protectedLayoutChatIndexRoute: protectedLayoutChatIndexRoute,
   protectedLayoutCoursesIndexRoute: protectedLayoutCoursesIndexRoute,
   protectedLayoutDiscussionsIndexRoute: protectedLayoutDiscussionsIndexRoute,
+  protectedLayoutLearnIndexRoute: protectedLayoutLearnIndexRoute,
   protectedLayoutPracticeInterviewIndexRoute:
     protectedLayoutPracticeInterviewIndexRoute,
   protectedLayoutProfileIndexRoute: protectedLayoutProfileIndexRoute,
