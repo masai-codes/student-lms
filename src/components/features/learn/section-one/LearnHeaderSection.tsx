@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useState } from 'react'
 import { ChevronDown } from 'lucide-react'
-import { MasaiDrawer, type DrawerDirection } from '@/components/ui/masai-drawer'
+import type { DrawerDirection } from '@/components/ui/masai-drawer'
+import { MasaiButton } from '@/components/masai-button'
+import { MasaiDrawer } from '@/components/ui/masai-drawer'
 
 interface LearnBatchOption {
   value: string
@@ -30,7 +32,9 @@ export function LearnHeaderSection({
   }, [])
 
   const selectedBatchLabel = useMemo(
-    () => batches.find((batch) => batch.value === selectedBatch)?.label ?? 'Select batch',
+    () =>
+      batches.find((batch) => batch.value === selectedBatch)?.label ??
+      'Select batch',
     [batches, selectedBatch],
   )
 
@@ -38,14 +42,20 @@ export function LearnHeaderSection({
 
   return (
     <section className="flex flex-col gap-4 rounded-lg border bg-card p-4 md:flex-row md:items-center md:justify-between">
-      <button
-        type="button"
+      <div
+        className="flex items-center justify-between gap-3 cursor-pointer"
         onClick={() => setIsBatchDrawerOpen(true)}
-        className="flex w-full items-center justify-between gap-2 rounded-md border border-input bg-background px-3 py-2 text-left text-sm shadow-sm transition-colors hover:bg-accent hover:text-accent-foreground md:w-[300px]"
       >
-        <span className="truncate">{selectedBatchLabel}</span>
-        <ChevronDown className="size-4 shrink-0 text-muted-foreground" />
-      </button>
+        <h4 className="type-h4">{selectedBatchLabel}</h4>
+        <MasaiButton
+          type="tertiary"
+          size="sm"
+          iconOnly
+          icon={<ChevronDown size={16} className="text-muted-foreground" />}
+          aria-label="Open batch selection drawer"
+          className="!h-8 !w-8 !rounded-md"
+        />
+      </div>
 
       <MasaiDrawer
         isOpen={isBatchDrawerOpen}

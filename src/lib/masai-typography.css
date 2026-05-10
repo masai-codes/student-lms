@@ -1,0 +1,193 @@
+/*
+ * Masai LMS V11 Typography
+ * Source: https://www.figma.com/design/UB4I8OnC8dYNhcl1ztFP61/LMS-V11---2026?node-id=7469-9647
+ *
+ * Usage examples:
+ * <p className="type-b1-md">...</p>
+ * <button className="type-h6">...</button>
+ * <div data-type="s2">...</div>
+ */
+
+:root {
+  --masai-text-color: #111928;
+}
+
+.type-h1,
+[data-type="h1"] {
+  color: var(--masai-text-color);
+  font-family: Poppins, sans-serif;
+  font-size: 32px;
+  font-style: normal;
+  font-weight: 600;
+  line-height: 48px;
+}
+
+.type-h2,
+[data-type="h2"] {
+  color: var(--masai-text-color);
+  font-family: Poppins, sans-serif;
+  font-size: 28px;
+  font-style: normal;
+  font-weight: 600;
+  line-height: 36px;
+}
+
+.type-h3,
+[data-type="h3"] {
+  color: var(--masai-text-color);
+  font-family: Poppins, sans-serif;
+  font-size: 24px;
+  font-style: normal;
+  font-weight: 600;
+  line-height: 32px;
+}
+
+.type-h4,
+[data-type="h4"] {
+  color: var(--masai-text-color);
+  font-family: Poppins, sans-serif;
+  font-size: 20px;
+  font-style: normal;
+  font-weight: 600;
+  line-height: 28px;
+}
+
+.type-h5,
+[data-type="h5"] {
+  color: var(--masai-text-color);
+  font-family: Poppins, sans-serif;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 600;
+  line-height: 24px;
+}
+
+.type-h6,
+[data-type="h6"] {
+  color: var(--masai-text-color);
+  font-family: Poppins, sans-serif;
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 600;
+  line-height: 20px;
+}
+
+.type-s1,
+[data-type="s1"] {
+  color: var(--masai-text-color);
+  font-family: Poppins, sans-serif;
+  font-size: 24px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 32px;
+}
+
+.type-s2,
+[data-type="s2"] {
+  color: var(--masai-text-color);
+  font-family: Poppins, sans-serif;
+  font-size: 20px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 28px;
+}
+
+.type-s3,
+[data-type="s3"] {
+  color: var(--masai-text-color);
+  font-family: Poppins, sans-serif;
+  font-size: 18px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 26px;
+}
+
+.type-b1-md,
+[data-type="b1-md"] {
+  color: var(--masai-text-color);
+  font-family: Poppins, sans-serif;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 24px;
+}
+
+.type-b1-regular,
+[data-type="b1-regular"] {
+  color: var(--masai-text-color);
+  font-family: Poppins, sans-serif;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 24px;
+}
+
+.type-b2-md,
+[data-type="b2-md"] {
+  color: var(--masai-text-color);
+  font-family: Poppins, sans-serif;
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 20px;
+}
+
+.type-b2-regular,
+[data-type="b2-regular"] {
+  color: var(--masai-text-color);
+  font-family: Poppins, sans-serif;
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 20px;
+}
+
+.type-b3-md,
+[data-type="b3-md"] {
+  color: var(--masai-text-color);
+  font-family: Poppins, sans-serif;
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 16px;
+}
+
+.type-b3-regular,
+[data-type="b3-regular"] {
+  color: var(--masai-text-color);
+  font-family: Poppins, sans-serif;
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 14px;
+}
+
+.type-caption,
+[data-type="caption"] {
+  color: var(--masai-text-color);
+  font-family: Poppins, sans-serif;
+  font-size: 10px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 14px;
+}
+
+.type-t1,
+[data-type="t1"] {
+  color: var(--masai-text-color);
+  font-family: Inter, sans-serif;
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 20px;
+}
+
+.type-t2,
+[data-type="t2"] {
+  color: var(--masai-text-color);
+  font-family: Inter, sans-serif;
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 16px;
+}

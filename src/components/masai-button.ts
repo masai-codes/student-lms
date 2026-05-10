@@ -1,2 +1,2 @@
-export { Button } from '@/components/ui/masai-button'
-export type { ButtonProps } from '@/components/ui/masai-button'
+export { Button, MasaiButton } from '@/components/ui/masai-button'
+export type { ButtonProps, MasaiButtonProps } from '@/components/ui/masai-button'

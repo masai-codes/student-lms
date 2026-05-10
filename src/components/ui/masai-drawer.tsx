@@ -4,7 +4,7 @@ import * as React from "react";
 import { Drawer } from "vaul";
 import { X } from "lucide-react";
 
-import { Button } from "@/components/masai-button";
+import { MasaiButton } from "@/components/masai-button";
 import { cn } from "@/lib/utils";
 
 type DrawerDirection = "bottom" | "right" | "left";
@@ -96,12 +96,19 @@ export function MasaiDrawer({
     >
       <Drawer.Portal>
         <Drawer.Overlay
+          onClick={() => onOpenChange(false)}
           className={cn(
             "fixed inset-0 z-50 bg-black/50 transition-opacity duration-300 ease-out data-[state=closed]:opacity-0 data-[state=open]:opacity-100",
             overlayClassName,
           )}
         />
-        <Drawer.Content className="fixed inset-0 z-50 pointer-events-none bg-transparent outline-none">
+        <Drawer.Content className="fixed inset-0 z-50 bg-transparent outline-none">
+          <button
+            type="button"
+            aria-label="Close drawer backdrop"
+            className="absolute inset-0 pointer-events-auto"
+            onClick={() => onOpenChange(false)}
+          />
           <div
             style={floatingPanelStyle}
             className={cn(
@@ -122,17 +129,16 @@ export function MasaiDrawer({
                   {title ?? "Drawer"}
                 </Drawer.Title>
                 {showCloseButton ? (
-                  <Drawer.Close asChild>
-                    <Button
-                      type="tertiary"
-                      size="sm"
-                      iconOnly
-                      icon={<X size={16} />}
-                      htmlType="button"
-                      aria-label="Close drawer"
-                      className="!h-8 !w-8 !rounded-md !border !border-slate-200 !text-slate-500 hover:!bg-slate-50 hover:!text-slate-800"
-                    />
-                  </Drawer.Close>
+                  <MasaiButton
+                    type="tertiary"
+                    size="sm"
+                    iconOnly
+                    icon={<X size={16} />}
+                    htmlType="button"
+                    onClick={() => onOpenChange(false)}
+                    aria-label="Close drawer"
+                    className="!h-8 !w-8 !rounded-md !border !border-slate-200 !text-slate-500 hover:!bg-slate-50 hover:!text-slate-800"
+                  />
                 ) : null}
               </div>
             ) : null}

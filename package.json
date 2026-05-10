@@ -13,7 +13,8 @@
     "test": "vitest run",
     "lint": "eslint",
     "format": "prettier",
-    "check": "prettier --write . && eslint --fix"
+    "check": "prettier --write . && eslint --fix",
+    "sync:masai-styles": "node ./scripts/sync-masai-styles.mjs"
   },
   "dependencies": {
     "@aws-sdk/client-ssm": "^3.1034.0",
