@@ -90,12 +90,14 @@ export function mockSelectWhereChain(result: unknown) {
   }
 }
 
-/** For queries using `.from(x).innerJoin(y, ...).where(...)` */
+/** For queries using `.from(x).innerJoin(y, ...).where(...).orderBy(...)` */
 export function mockSelectInnerJoinWhereChain(result: unknown) {
   return {
     from: () => ({
       innerJoin: () => ({
-        where: () => Promise.resolve(result),
+        where: () => ({
+          orderBy: () => Promise.resolve(result),
+        }),
       }),
     }),
   }
