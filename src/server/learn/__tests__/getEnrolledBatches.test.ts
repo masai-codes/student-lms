@@ -22,11 +22,11 @@ describe('getEnrolledBatches api', () => {
     const { getEnrolledBatchesHandler } = await import('../getEnrolledBatches')
     hoisted.getCurrentSessionUserId.mockResolvedValueOnce(101)
     hoisted.getEnrolledBatchesForUser.mockResolvedValueOnce([
-      { batchId: 11, courseTitle: 'Cohort A' },
+      { batchId: 11, courseTitle: 'Cohort A', courseLogo: null },
     ])
 
     await expect(getEnrolledBatchesHandler()).resolves.toEqual([
-      { batchId: 11, courseTitle: 'Cohort A' },
+      { batchId: 11, courseTitle: 'Cohort A', courseLogo: null },
     ])
     expect(hoisted.getEnrolledBatchesForUser).toHaveBeenCalledWith(101)
   })

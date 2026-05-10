@@ -13,6 +13,7 @@ import { LAYOUT_MAIN_PADDING_X, LAYOUT_MAX_WIDTH_CLASS } from '@/lib/layout'
 interface EnrolledBatchOption {
   batchId: number
   courseTitle: string
+  courseLogo: string | null
 }
 
 interface LearnLayoutProps {
@@ -112,6 +113,7 @@ export function LearnLayout({
             batches={enrolledBatches.map((batch) => ({
               value: batch.batchId.toString(),
               label: batch.courseTitle,
+              courseLogo: batch.courseLogo,
             }))}
             onBatchChange={(value) => {
               onBatchChange(Number(value))
@@ -128,6 +130,10 @@ export function LearnLayout({
             searchValue={searchValue}
             onSearchChange={(value) => {
               setSearchValue(value)
+              setCurrentPage(1)
+            }}
+            onModulesChange={(modules) => {
+              setModalFilters((prev) => ({ ...prev, modules }))
               setCurrentPage(1)
             }}
             moduleFilterOptions={moduleFilterNames}

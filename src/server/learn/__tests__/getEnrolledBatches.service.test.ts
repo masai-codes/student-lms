@@ -42,8 +42,32 @@ describe('getEnrolledBatchesForUser service', () => {
     })
 
     await expect(getEnrolledBatchesForUser(77)).resolves.toEqual([
-      { batchId: 1, courseTitle: 'Cohort A' },
-      { batchId: 2, courseTitle: 'DS Cohort B' },
+      { batchId: 1, courseTitle: 'Cohort A', courseLogo: null },
+      { batchId: 2, courseTitle: 'DS Cohort B', courseLogo: null },
+    ])
+  })
+
+  it('reads courseLogo from batch meta when present', async () => {
+    const { getEnrolledBatchesForUser } = await import('../services/getEnrolledBatches.service')
+    hoisted.getBatchIdsForEnrolledUser.mockResolvedValueOnce([9])
+    hoisted.dbSelect.mockReturnValueOnce({
+      from: () => ({
+        where: () =>
+          Promise.resolve([
+            {
+              id: 9,
+              name: 'Cohort Z',
+              meta: {
+                courseTitle: 'PM with AI',
+                courseLogo: 'https://cdn.example/logo.png ',
+              },
+            },
+          ]),
+      }),
+    })
+
+    await expect(getEnrolledBatchesForUser(77)).resolves.toEqual([
+      { batchId: 9, courseTitle: 'PM with AI', courseLogo: 'https://cdn.example/logo.png' },
     ])
   })
 })

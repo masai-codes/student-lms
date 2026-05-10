@@ -81,7 +81,7 @@ export function MasaiDropdownCheckboxFilter({
             <button
               type="button"
               className={cn(
-                "inline-flex h-10 min-w-[140px] max-w-full shrink-0 items-center justify-between gap-2 rounded-lg border border-gray-200 bg-white px-3 type-b2-md text-gray-900 outline-none transition-colors",
+                "inline-flex min-h-[44px] min-w-[140px] max-w-full shrink-0 items-center justify-between gap-2 rounded-[8px] border border-gray-200 bg-white px-[12px] py-[10px] type-b2-md text-gray-900 outline-none transition-colors",
                 "hover:border-gray-300 hover:bg-gray-50",
                 "focus-visible:ring-2 focus-visible:ring-primary-400 focus-visible:ring-offset-2 focus-visible:ring-offset-background",
                 "data-disabled:pointer-events-none data-disabled:opacity-50 data-[state=open]:border-primary-500 data-[state=open]:ring-2 data-[state=open]:ring-primary-400 data-[state=open]:ring-offset-2 data-[state=open]:ring-offset-background",

@@ -12,7 +12,7 @@ const rootVariants = cva(
       size: {
         regular:
           // "h-10 gap-2 px-3 type-b2-md [&_.masai-input__icon-slot_svg]:size-[18px]",
-          "py-[10px] px-[12px] rounded-[8px] border border-gray-200 bg-white text-gray-900 outline-none transition-[color,border-color,box-shadow] focus-within:border-primary-500 focus-within:ring-2 focus-within:ring-primary-400 focus-within:ring-offset-2 focus-within:ring-offset-background",
+          "min-h-[44px] py-[10px] px-[12px] rounded-[8px] border border-gray-200 bg-white text-gray-900 outline-none transition-[color,border-color,box-shadow] focus-within:border-primary-500 focus-within:ring-2 focus-within:ring-primary-400 focus-within:ring-offset-2 focus-within:ring-offset-background",
       },
       // Future: small, large, etc.
     },

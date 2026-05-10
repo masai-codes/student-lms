@@ -2,10 +2,12 @@ import type { EnrolledBatch, EnrolledBatchRow } from '@/server/learn/types'
 
 export function mapEnrolledBatchRow(row: EnrolledBatchRow): EnrolledBatch {
   const courseTitle = extractCourseTitle(row.meta) ?? row.name
+  const courseLogo = extractCourseLogo(row.meta)
 
   return {
     batchId: row.id,
     courseTitle,
+    courseLogo,
   }
 }
 
@@ -20,5 +22,19 @@ function extractCourseTitle(meta: unknown): string | null {
   }
 
   const trimmed = maybeCourseTitle.trim()
+  return trimmed.length > 0 ? trimmed : null
+}
+
+function extractCourseLogo(meta: unknown): string | null {
+  if (meta == null || typeof meta !== 'object') {
+    return null
+  }
+
+  const maybeLogo = (meta as Record<string, unknown>).courseLogo
+  if (typeof maybeLogo !== 'string') {
+    return null
+  }
+
+  const trimmed = maybeLogo.trim()
   return trimmed.length > 0 ? trimmed : null
 }

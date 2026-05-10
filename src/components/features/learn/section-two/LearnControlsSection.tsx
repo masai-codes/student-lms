@@ -1,13 +1,15 @@
-"use client";
+'use client'
 
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 
 import { Filter, Search } from 'lucide-react'
 
 import { LearnFiltersPanel } from './filters-modal/LearnFiltersPanel'
 import type { LearnModalFiltersState, LearnTab } from '../shared/types'
 
-import { Button } from '@/components/ui/button'
+import type { MasaiDropdownCheckboxFilterOption } from '@/components/ui/masai-dropdown-checkbox-filter'
+import { MasaiDropdownCheckboxFilter } from '@/components/ui/masai-dropdown-checkbox-filter'
+import { MasaiButton } from '@/components/masai-button'
 import { MasaiDrawer } from '@/components/ui/masai-drawer'
 import { MasaiInput } from '@/components/ui/masai-input'
 import { MasaiTab } from '@/components/ui/masai-tab'
@@ -37,6 +39,7 @@ interface LearnControlsSectionProps {
   typeFilterOptions: Array<string>
   instructorFilterOptions: Array<string>
   modalFilters: LearnModalFiltersState
+  onModulesChange: (modules: Array<string>) => void
   onApplyModalFilters: (next: LearnModalFiltersState) => void
 }
 
@@ -50,9 +53,21 @@ export function LearnControlsSection({
   typeFilterOptions,
   instructorFilterOptions,
   modalFilters,
+  onModulesChange,
   onApplyModalFilters,
 }: LearnControlsSectionProps) {
   const [filtersOpen, setFiltersOpen] = useState(false)
+
+  const moduleDropdownOptions: Array<MasaiDropdownCheckboxFilterOption> =
+    useMemo(
+      () =>
+        moduleFilterOptions.map((name) => ({
+          value: name,
+          label: name,
+        })),
+      [moduleFilterOptions],
+    )
+  const hasModuleChoices = moduleDropdownOptions.length > 0
 
   return (
     <section className="py-5 flex flex-row items-start justify-between gap-4 md:items-center">
@@ -90,14 +105,26 @@ export function LearnControlsSection({
           className="w-[300px]"
         />
 
-        <Button
-          variant="outline"
-          size="icon"
+        <MasaiDropdownCheckboxFilter
+          triggerLabel="Module"
+          options={moduleDropdownOptions}
+          value={modalFilters.modules}
+          onValueChange={onModulesChange}
+          disabled={!hasModuleChoices}
+          className="w-[170px]"
+          triggerClassName="min-w-0 w-full"
+        />
+
+        <MasaiButton
+          type="tertiary"
+          size="md"
+          iconOnly
+          icon={<Filter className="size-6" strokeWidth={2} />}
+          htmlType="button"
           onClick={() => setFiltersOpen(true)}
           aria-label="Open filters"
-        >
-          <Filter className="size-4" />
-        </Button>
+          className="!border !border-slate-200 !text-slate-700 hover:!bg-slate-50"
+        />
       </div>
 
       <MasaiDrawer

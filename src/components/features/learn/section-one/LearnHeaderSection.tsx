@@ -1,13 +1,15 @@
 import { useEffect, useMemo, useState } from 'react'
-import { ChevronDown } from 'lucide-react'
+
+import { ChevronDown, ChevronRight } from 'lucide-react'
+
 import type { DrawerDirection } from '@/components/ui/masai-drawer'
 import { MasaiChips } from '@/components/ui/masai-chips'
 import { MasaiDrawer } from '@/components/ui/masai-drawer'
-import { Separator } from '@/components/ui/separator'
 
 interface LearnBatchOption {
   value: string
   label: string
+  courseLogo: string | null
 }
 
 interface LearnHeaderSectionProps {
@@ -48,7 +50,7 @@ export function LearnHeaderSection({
   return (
     <section className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
       <div
-        className="flex items-center justify-between gap-3 cursor-pointer"
+        className="flex cursor-pointer items-center justify-between gap-3"
         onClick={() => setIsBatchDrawerOpen(true)}
       >
         <h4 className="type-h4">{selectedBatchLabel}</h4>
@@ -65,9 +67,9 @@ export function LearnHeaderSection({
         onOpenChange={setIsBatchDrawerOpen}
         direction={drawerDirection}
         sideMarginInPx={isDesktop ? 16 : undefined}
-        title="Select course"
+        title="Select a course"
         content={
-          <div className="space-y-2">
+          <div className="flex flex-col gap-3 pb-2">
             {batches.map((batch) => {
               const isSelected = batch.value === selectedBatch
               return (
@@ -78,13 +80,27 @@ export function LearnHeaderSection({
                     onBatchChange(batch.value)
                     setIsBatchDrawerOpen(false)
                   }}
-                  className={`w-full rounded-md border px-4 py-3 text-left text-sm transition-colors ${
+                  className={`flex w-full items-center gap-4 rounded-xl border px-4 py-4 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400 focus-visible:ring-offset-2 ${
                     isSelected
-                      ? 'border-primary bg-primary/10 text-primary'
-                      : 'border-border hover:bg-accent'
+                      ? 'border-primary-500 bg-primary-50 ring-1 ring-primary-400/40'
+                      : 'border-gray-200 bg-white hover:bg-gray-50'
                   }`}
                 >
-                  {batch.label}
+                  <div className="flex min-w-0 flex-1 flex-col gap-2">
+                    {batch.courseLogo ? (
+                      <img
+                        src={batch.courseLogo}
+                        alt=""
+                        className="h-10 w-auto max-w-[140px] object-contain object-left"
+                      />
+                    ) : null}
+                    <span className="type-b1-md font-semibold text-slate-900">{batch.label}</span>
+                  </div>
+                  <ChevronRight
+                    className="size-5 shrink-0 text-gray-500"
+                    strokeWidth={2}
+                    aria-hidden
+                  />
                 </button>
               )
             })}

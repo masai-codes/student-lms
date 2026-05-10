@@ -1,6 +1,8 @@
 export interface EnrolledBatch {
   batchId: number
   courseTitle: string
+  /** From `batches.meta.courseLogo` when present (image URL). */
+  courseLogo: string | null
 }
 
 export interface EnrolledBatchRow {
