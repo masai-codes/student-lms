@@ -1,16 +1,19 @@
 import { and, desc, eq, isNull, like, ne } from 'drizzle-orm'
-import { db } from '@/db'
-import { assignments, lectures, users } from '@/db/schema'
+
 import type {
   GetBatchLearningDataInput,
   GetBatchLearningDataResponse,
   LearningItem,
 } from '@/server/learn/types'
-import { buildLearningFilterValues } from '@/server/learn/utils/buildLearningFilterValues'
+import type { LearningEntityRow } from '@/server/learn/utils/learningDataMappers'
+
+import { db } from '@/db'
+import { assignments, lectures, users } from '@/db/schema'
 import {
-  mapLearningEntityRow,
-  type LearningEntityRow,
-} from '@/server/learn/utils/learningDataMappers'
+  buildLearningFilterValues,
+  buildModuleFilterValuesFromModuleWeekRows,
+} from '@/server/learn/utils/buildLearningFilterValues'
+import { mapLearningEntityRow } from '@/server/learn/utils/learningDataMappers'
 import { LECTURE_RESOURCE_TYPE } from '@/server/learn/utils/resolveLectureLearningType'
 
 const DEFAULT_PAGE = 1
@@ -89,12 +92,41 @@ async function fetchLectureLikeItems(
       optional: lectures.optional,
       schedule: lectures.schedule,
       week: lectures.week,
+      module: lectures.module,
       hostName: users.name,
     })
     .from(lectures)
     .leftJoin(users, eq(lectures.hostId, users.id))
     .where(and(...conditions))
     .orderBy(desc(lectures.schedule), desc(lectures.createdAt))
+}
+
+/** All module/week pairs for this batch tab — no title search (facets stay complete). */
+async function fetchModuleWeekFacetRows(
+  input: GetBatchLearningDataInput,
+): Promise<Array<{ module: string | null; week: number }>> {
+  if (input.learningType === 'assignment') {
+    return db
+      .select({ module: assignments.module, week: assignments.week })
+      .from(assignments)
+      .where(and(eq(assignments.batchId, input.batchId), isNull(assignments.deletedAt)))
+  }
+
+  const lectureTypeCondition =
+    input.learningType === 'resource'
+      ? eq(lectures.type, LECTURE_RESOURCE_TYPE)
+      : ne(lectures.type, LECTURE_RESOURCE_TYPE)
+
+  return db
+    .select({ module: lectures.module, week: lectures.week })
+    .from(lectures)
+    .where(
+      and(
+        eq(lectures.batchId, input.batchId),
+        lectureTypeCondition,
+        isNull(lectures.deletedAt),
+      ),
+    )
 }
 
 async function fetchAssignmentItems(
@@ -117,6 +149,7 @@ async function fetchAssignmentItems(
       optional: assignments.optional,
       schedule: assignments.schedule,
       week: assignments.week,
+      module: assignments.module,
       hostName: users.name,
     })
     .from(assignments)
@@ -129,10 +162,14 @@ export async function getBatchLearningData(
   input: GetBatchLearningDataInput
 ): Promise<GetBatchLearningDataResponse> {
   const { page, pageSize } = normalizePagination(input.page, input.pageSize)
-  const sourceRows =
+  const [moduleWeekFacetRows, sourceRows] = await Promise.all([
+    fetchModuleWeekFacetRows(input),
     input.learningType === 'assignment'
-      ? await fetchAssignmentItems(input)
-      : await fetchLectureLikeItems(input)
+      ? fetchAssignmentItems(input)
+      : fetchLectureLikeItems(input),
+  ])
+
+  const moduleFilterValuesAll = buildModuleFilterValuesFromModuleWeekRows(moduleWeekFacetRows)
 
   const mappedItems = sourceRows.map((row) => mapLearningEntityRow(row, input.learningType))
   const filteredItems = applyInMemoryFilters(mappedItems, input.filters)
@@ -144,7 +181,10 @@ export async function getBatchLearningData(
   const learningItems = filteredItems.slice(offset, offset + pageSize)
 
   return {
-    filterValues: buildLearningFilterValues(filteredItems),
+    filterValues: {
+      ...buildLearningFilterValues(filteredItems),
+      moduleFilterValues: moduleFilterValuesAll,
+    },
     learningItems,
     pagination: {
       page: safePage,

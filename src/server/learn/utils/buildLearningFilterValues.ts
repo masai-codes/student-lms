@@ -1,4 +1,12 @@
 import type { LearningFilterValues, LearningItem } from '@/server/learn/types'
+import { resolveModuleName } from '@/server/learn/utils/learningDataMappers'
+
+/** Unique resolved module labels for facet rows (no search/filters applied). */
+export function buildModuleFilterValuesFromModuleWeekRows(
+  rows: Array<{ module: string | null; week: number }>,
+): Array<string> {
+  return Array.from(new Set(rows.map((r) => resolveModuleName(r.module, r.week)))).sort()
+}
 
 export function buildLearningFilterValues(items: Array<LearningItem>): LearningFilterValues {
   const moduleFilterValues = Array.from(new Set(items.map((item) => item.moduleName))).sort()

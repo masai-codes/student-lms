@@ -446,6 +446,7 @@ export const assignments = mysqlTable("assignments", {
 	getsRemainingTime: tinyint("gets_remaining_time").default(0).notNull(),
 	allowPractice: tinyint("allow_practice").default(0).notNull(),
 	learningObjectives: json('learning_objectives').$type<Record<string, any>>(),
+	module: varchar("module", { length: 255 }),
 },
 (table) => [
 	primaryKey({ columns: [table.id], name: "assignments_id"}),
@@ -1494,6 +1495,7 @@ export const lectures = mysqlTable("lectures", {
 	hostId: bigint("host_id", { mode: "number", unsigned: true }).references(() => users.id),
 	feedbackResponseTrousers: json('feedback_response_trousers').$type<Record<string, any>>(),
 	learningObjectives: json('learning_objectives').$type<Record<string, any>>(),
+	module: varchar("module", { length: 255 }),
 },
 (table) => [
 	index("idx_category").on(table.category),

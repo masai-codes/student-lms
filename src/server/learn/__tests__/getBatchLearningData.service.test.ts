@@ -31,37 +31,49 @@ describe('getBatchLearningData service', () => {
       },
     }
 
-    hoisted.dbSelect.mockReturnValueOnce({
-      from: () => ({
-        leftJoin: () => ({
-          where: () => ({
-            orderBy: () =>
-              Promise.resolve([
-                {
-                  id: 1,
-                  title: 'React Intro',
-                  category: 'coding',
-                  type: 'live',
-                  optional: 1,
-                  schedule: '2026-05-10 10:00:00',
-                  week: 1,
-                  hostName: 'Ananya Singh',
-                },
-                {
-                  id: 2,
-                  title: 'React DS',
-                  category: 'coding',
-                  type: 'live',
-                  optional: 0,
-                  schedule: '2026-05-09 10:00:00',
-                  week: 1,
-                  hostName: 'Rohit Verma',
-                },
-              ]),
+    hoisted.dbSelect
+      .mockReturnValueOnce({
+        from: () => ({
+          where: () =>
+            Promise.resolve([
+              { module: null, week: 1 },
+              { module: 'Advanced', week: 2 },
+            ]),
+        }),
+      })
+      .mockReturnValueOnce({
+        from: () => ({
+          leftJoin: () => ({
+            where: () => ({
+              orderBy: () =>
+                Promise.resolve([
+                  {
+                    id: 1,
+                    title: 'React Intro',
+                    category: 'coding',
+                    type: 'live',
+                    optional: 1,
+                    schedule: '2026-05-10 10:00:00',
+                    week: 1,
+                    module: null,
+                    hostName: 'Ananya Singh',
+                  },
+                  {
+                    id: 2,
+                    title: 'React DS',
+                    category: 'coding',
+                    type: 'live',
+                    optional: 0,
+                    schedule: '2026-05-09 10:00:00',
+                    week: 1,
+                    module: null,
+                    hostName: 'Rohit Verma',
+                  },
+                ]),
+            }),
           }),
         }),
-      }),
-    })
+      })
 
     const result = await getBatchLearningData(input)
 
@@ -79,7 +91,7 @@ describe('getBatchLearningData service', () => {
       },
     ])
     expect(result.filterValues).toEqual({
-      moduleFilterValues: ['Module 1'],
+      moduleFilterValues: ['Advanced', 'Module 1'],
       categoryFilterValues: ['coding'],
       typeFilterValues: ['live'],
       priorityFilterValues: ['recommended'],

@@ -13,6 +13,8 @@ export interface LearningEntityRow {
   optional: number | null
   schedule: string | null
   week: number
+  /** DB `module` column; when empty, UI falls back to `Module {week}`. */
+  module: string | null
   hostName: string | null
 }
 
@@ -22,6 +24,15 @@ export function toLearningPriority(optional: number | null): LearningPriority {
 
 export function toModuleName(week: number): string {
   return `Module ${week}`
+}
+
+/** Prefer stored `module` label; otherwise legacy `Module {week}` from week index. */
+export function resolveModuleName(module: string | null | undefined, week: number): string {
+  const label = module?.trim()
+  if (label) {
+    return label
+  }
+  return toModuleName(week)
 }
 
 export function mapLearningEntityRow(
@@ -40,6 +51,6 @@ export function mapLearningEntityRow(
     type: row.type,
     category: row.category,
     isOptional: toLearningPriority(row.optional),
-    moduleName: toModuleName(row.week),
+    moduleName: resolveModuleName(row.module, row.week),
   }
 }
