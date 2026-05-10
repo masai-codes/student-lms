@@ -1,9 +1,15 @@
+"use client";
+
+import { useState } from 'react'
+
 import { Filter, Search } from 'lucide-react'
 
-import type { LearnTab } from '../shared/types'
+import { LearnFiltersPanel } from './filters-modal/LearnFiltersPanel'
+import type { LearnModalFiltersState, LearnTab } from '../shared/types'
 
 import type { MasaiDropdownCheckboxFilterOption } from '@/components/ui/masai-dropdown-checkbox-filter'
 import { Button } from '@/components/ui/button'
+import { MasaiDrawer } from '@/components/ui/masai-drawer'
 import { MasaiDropdownCheckboxFilter } from '@/components/ui/masai-dropdown-checkbox-filter'
 import { MasaiInput } from '@/components/ui/masai-input'
 import { MasaiTab } from '@/components/ui/masai-tab'
@@ -31,7 +37,11 @@ interface LearnControlsSectionProps {
   selectedModules: Array<string>
   moduleOptions: Array<MasaiDropdownCheckboxFilterOption>
   onModulesChange: (modules: Array<string>) => void
-  onOpenFilters: () => void
+  categoryFilterOptions: Array<string>
+  typeFilterOptions: Array<string>
+  instructorFilterOptions: Array<string>
+  modalFilters: LearnModalFiltersState
+  onApplyModalFilters: (next: LearnModalFiltersState) => void
 }
 
 export function LearnControlsSection({
@@ -42,9 +52,14 @@ export function LearnControlsSection({
   selectedModules,
   moduleOptions,
   onModulesChange,
-  onOpenFilters,
+  categoryFilterOptions,
+  typeFilterOptions,
+  instructorFilterOptions,
+  modalFilters,
+  onApplyModalFilters,
 }: LearnControlsSectionProps) {
   const hasModuleChoices = moduleOptions.length > 0
+  const [filtersOpen, setFiltersOpen] = useState(false)
 
   return (
     <section className="py-5 flex flex-row items-start justify-between gap-4 md:items-center">
@@ -95,12 +110,30 @@ export function LearnControlsSection({
         <Button
           variant="outline"
           size="icon"
-          onClick={onOpenFilters}
+          onClick={() => setFiltersOpen(true)}
           aria-label="Open filters"
         >
           <Filter className="size-4" />
         </Button>
       </div>
+
+      <MasaiDrawer
+        isOpen={filtersOpen}
+        onOpenChange={setFiltersOpen}
+        direction="right"
+        sideMarginInPx={16}
+        title="Filters"
+        content={
+          <LearnFiltersPanel
+            categoryOptions={categoryFilterOptions}
+            typeOptions={typeFilterOptions}
+            instructorOptions={instructorFilterOptions}
+            selectedFilters={modalFilters}
+            onApply={onApplyModalFilters}
+            onRequestClose={() => setFiltersOpen(false)}
+          />
+        }
+      />
     </section>
   )
 }

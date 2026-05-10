@@ -3,7 +3,6 @@ import { useQuery } from '@tanstack/react-query'
 import { AppLoading } from '@/components/common'
 import { LearnHeaderSection } from '../section-one/LearnHeaderSection'
 import { LearnControlsSection } from '../section-two/LearnControlsSection'
-import { LearnFiltersModal } from '../section-two/filters-modal/LearnFiltersModal'
 import { LearnContentListSection } from '../section-three/LearnContentListSection'
 import { LearnPaginationSection } from '../section-four/LearnPaginationSection'
 import type {
@@ -33,7 +32,6 @@ export function LearnLayout({
   const [activeTab, setActiveTab] = useState<LearnTab>('lectures')
   const [searchValue, setSearchValue] = useState('')
   const [selectedModules, setSelectedModules] = useState<Array<string>>([])
-  const [isFiltersOpen, setIsFiltersOpen] = useState(false)
   const [currentPage, setCurrentPage] = useState(1)
   const [modalFilters, setModalFilters] = useState<LearnModalFiltersState>({
     categories: [],
@@ -148,7 +146,18 @@ export function LearnLayout({
               setSelectedModules(modules)
               setCurrentPage(1)
             }}
-            onOpenFilters={() => setIsFiltersOpen(true)}
+            categoryFilterOptions={
+              data?.filterValues.categoryFilterValues ?? []
+            }
+            typeFilterOptions={data?.filterValues.typeFilterValues ?? []}
+            instructorFilterOptions={
+              data?.filterValues.instructorFilterValues ?? []
+            }
+            modalFilters={modalFilters}
+            onApplyModalFilters={(next) => {
+              setModalFilters(next)
+              setCurrentPage(1)
+            }}
           />
         </div>
       </div>
@@ -162,18 +171,6 @@ export function LearnLayout({
         onPageChange={setCurrentPage}
       />
 
-      <LearnFiltersModal
-        isOpen={isFiltersOpen}
-        onOpenChange={setIsFiltersOpen}
-        categoryOptions={data?.filterValues.categoryFilterValues ?? []}
-        typeOptions={data?.filterValues.typeFilterValues ?? []}
-        instructorOptions={data?.filterValues.instructorFilterValues ?? []}
-        selectedFilters={modalFilters}
-        onApply={(nextFilters) => {
-          setModalFilters(nextFilters)
-          setCurrentPage(1)
-        }}
-      />
       {isFetching && !isLoading ? <AppLoading label="Refreshing..." /> : null}
     </div>
   )
