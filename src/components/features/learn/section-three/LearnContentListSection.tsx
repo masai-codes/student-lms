@@ -5,7 +5,9 @@ interface LearnContentListSectionProps {
   items: LearnContentItem[]
 }
 
-export function LearnContentListSection({ items }: LearnContentListSectionProps) {
+export function LearnContentListSection({
+  items,
+}: LearnContentListSectionProps) {
   if (!items.length) {
     return (
       <section className="rounded-lg border border-dashed p-6 text-center text-sm text-muted-foreground">
@@ -15,7 +17,7 @@ export function LearnContentListSection({ items }: LearnContentListSectionProps)
   }
 
   return (
-    <section className="space-y-3">
+    <section className="mt-[16px] space-y-3">
       {items.map((item) => (
         <LearnContentCard key={item.id} item={item} />
       ))}

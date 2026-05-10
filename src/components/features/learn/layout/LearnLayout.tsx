@@ -109,7 +109,7 @@ export function LearnLayout({
   const totalPages = data?.pagination.totalPages ?? 1
 
   return (
-    <div className="w-full space-y-4">
+    <div className="w-full">
       <LearnHeaderSection
         selectedBatch={resolvedBatchId.toString()}
         batches={enrolledBatches.map((batch) => ({

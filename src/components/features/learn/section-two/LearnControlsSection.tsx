@@ -1,6 +1,7 @@
 import { Filter, Search } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { MasaiTab } from '@/components/ui/masai-tab'
 import {
   Select,
   SelectContent,
@@ -8,8 +9,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import type { LearnTab } from '../shared/types'
+
+const LEARN_TAB_ITEMS: ReadonlyArray<{ value: LearnTab; label: string }> = [
+  { value: 'lectures', label: 'Lectures' },
+  { value: 'assignments', label: 'Assignments' },
+  { value: 'resources', label: 'Resources' },
+]
 
 interface LearnControlsSectionProps {
   activeTab: LearnTab
@@ -33,14 +39,21 @@ export function LearnControlsSection({
   onOpenFilters,
 }: LearnControlsSectionProps) {
   return (
-    <section className="flex flex-row items-start justify-between gap-4 rounded-lg border bg-card p-4 md:items-center">
-      <Tabs value={activeTab} onValueChange={(value) => onTabChange(value as LearnTab)}>
-        <TabsList variant="line">
-          <TabsTrigger value="lectures">Lectures</TabsTrigger>
-          <TabsTrigger value="assignments">Assignments</TabsTrigger>
-          <TabsTrigger value="resources">Resources</TabsTrigger>
-        </TabsList>
-      </Tabs>
+    <section className="py-5 flex flex-row items-start justify-between gap-4 md:items-center">
+      <div
+        role="tablist"
+        aria-label="Learning content type"
+        className="flex flex-wrap items-center gap-4"
+      >
+        {LEARN_TAB_ITEMS.map((tab) => (
+          <MasaiTab
+            key={tab.value}
+            label={tab.label}
+            selected={activeTab === tab.value}
+            onClick={() => onTabChange(tab.value)}
+          />
+        ))}
+      </div>
 
       <div className="ml-auto flex flex-wrap items-center justify-end gap-3">
         <div className="relative w-[220px]">
@@ -66,7 +79,12 @@ export function LearnControlsSection({
           </SelectContent>
         </Select>
 
-        <Button variant="outline" size="icon" onClick={onOpenFilters} aria-label="Open filters">
+        <Button
+          variant="outline"
+          size="icon"
+          onClick={onOpenFilters}
+          aria-label="Open filters"
+        >
           <Filter className="size-4" />
         </Button>
       </div>

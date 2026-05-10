@@ -46,7 +46,7 @@ export function LearnHeaderSection({
   const drawerDirection: DrawerDirection = isDesktop ? 'right' : 'bottom'
 
   return (
-    <section className="flex flex-col gap-4 p-4 md:flex-row md:items-center md:justify-between">
+    <section className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
       <div
         className="flex items-center justify-between gap-3 cursor-pointer"
         onClick={() => setIsBatchDrawerOpen(true)}
