@@ -14,7 +14,7 @@ export function LearnPaginationSection({
   if (totalPages <= 1) return null
 
   return (
-    <section className="mb-8 flex w-full justify-center">
+    <section className="my-8 flex w-full justify-center">
       <MasaiPagination
         currentPage={currentPage}
         totalPages={totalPages}

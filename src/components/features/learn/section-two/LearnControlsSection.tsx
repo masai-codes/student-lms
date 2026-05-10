@@ -1,15 +1,15 @@
 import { Filter, Search } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { MasaiTab } from '@/components/ui/masai-tab'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
+
 import type { LearnTab } from '../shared/types'
+
+import type { MasaiDropdownCheckboxFilterOption } from '@/components/ui/masai-dropdown-checkbox-filter'
+import { Button } from '@/components/ui/button'
+import { MasaiDropdownCheckboxFilter } from '@/components/ui/masai-dropdown-checkbox-filter'
+import { MasaiInput } from '@/components/ui/masai-input'
+import { MasaiTab } from '@/components/ui/masai-tab'
+
+const LEARN_TAB_ICON_URL =
+  'https://s3.ap-south-1.amazonaws.com/static.masaischool.com/tab-icon.svg'
 
 const LEARN_TAB_ITEMS: ReadonlyArray<{ value: LearnTab; label: string }> = [
   { value: 'lectures', label: 'Lectures' },
@@ -17,14 +17,20 @@ const LEARN_TAB_ITEMS: ReadonlyArray<{ value: LearnTab; label: string }> = [
   { value: 'resources', label: 'Resources' },
 ]
 
+const SEARCH_PLACEHOLDER_BY_TAB: Record<LearnTab, string> = {
+  lectures: 'Search lectures',
+  assignments: 'Search assignments',
+  resources: 'Search resources',
+}
+
 interface LearnControlsSectionProps {
   activeTab: LearnTab
   onTabChange: (tab: LearnTab) => void
   searchValue: string
   onSearchChange: (value: string) => void
-  selectedModule: string
-  modules: string[]
-  onModuleChange: (module: string) => void
+  selectedModules: Array<string>
+  moduleOptions: Array<MasaiDropdownCheckboxFilterOption>
+  onModulesChange: (modules: Array<string>) => void
   onOpenFilters: () => void
 }
 
@@ -33,11 +39,13 @@ export function LearnControlsSection({
   onTabChange,
   searchValue,
   onSearchChange,
-  selectedModule,
-  modules,
-  onModuleChange,
+  selectedModules,
+  moduleOptions,
+  onModulesChange,
   onOpenFilters,
 }: LearnControlsSectionProps) {
+  const hasModuleChoices = moduleOptions.length > 0
+
   return (
     <section className="py-5 flex flex-row items-start justify-between gap-4 md:items-center">
       <div
@@ -51,33 +59,38 @@ export function LearnControlsSection({
             label={tab.label}
             selected={activeTab === tab.value}
             onClick={() => onTabChange(tab.value)}
+            iconLeft={
+              <img
+                src={LEARN_TAB_ICON_URL}
+                alt=""
+                width={24}
+                height={24}
+                className="size-6 shrink-0 object-contain"
+              />
+            }
           />
         ))}
       </div>
 
       <div className="ml-auto flex flex-wrap items-center justify-end gap-3">
-        <div className="relative w-[220px]">
-          <Search className="text-muted-foreground absolute left-3 top-1/2 size-4 -translate-y-1/2" />
-          <Input
-            value={searchValue}
-            onChange={(event) => onSearchChange(event.target.value)}
-            placeholder="Search"
-            className="pl-9"
-          />
-        </div>
+        <MasaiInput
+          type="search"
+          value={searchValue}
+          onChange={(event) => onSearchChange(event.target.value)}
+          placeholder={SEARCH_PLACEHOLDER_BY_TAB[activeTab]}
+          iconLeft={<Search className="size-4 shrink-0" strokeWidth={2} />}
+          className="w-[300px]"
+        />
 
-        <Select value={selectedModule} onValueChange={onModuleChange}>
-          <SelectTrigger className="w-[170px]">
-            <SelectValue placeholder="Select module" />
-          </SelectTrigger>
-          <SelectContent>
-            {modules.map((module) => (
-              <SelectItem key={module} value={module}>
-                {module}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        <MasaiDropdownCheckboxFilter
+          triggerLabel="Module"
+          options={moduleOptions}
+          value={selectedModules}
+          onValueChange={onModulesChange}
+          disabled={!hasModuleChoices}
+          className="w-[170px]"
+          triggerClassName="min-w-0 w-full"
+        />
 
         <Button
           variant="outline"

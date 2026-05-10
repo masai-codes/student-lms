@@ -12,6 +12,7 @@ import type {
   LearnTab,
 } from '../shared/types'
 import { getBatchLearningData } from '@/server/learn/getBatchLearningData'
+import { LAYOUT_MAIN_PADDING_X, LAYOUT_MAX_WIDTH_CLASS } from '@/lib/layout'
 
 interface EnrolledBatchOption {
   batchId: number
@@ -31,7 +32,7 @@ export function LearnLayout({
 }: LearnLayoutProps) {
   const [activeTab, setActiveTab] = useState<LearnTab>('lectures')
   const [searchValue, setSearchValue] = useState('')
-  const [selectedModule, setSelectedModule] = useState('All Modules')
+  const [selectedModules, setSelectedModules] = useState<Array<string>>([])
   const [isFiltersOpen, setIsFiltersOpen] = useState(false)
   const [currentPage, setCurrentPage] = useState(1)
   const [modalFilters, setModalFilters] = useState<LearnModalFiltersState>({
@@ -62,7 +63,7 @@ export function LearnLayout({
       learningType,
       searchValue,
       currentPage,
-      selectedModule,
+      selectedModules,
       modalFilters,
     ],
     enabled: resolvedBatchId != null,
@@ -75,7 +76,7 @@ export function LearnLayout({
           page: currentPage,
           pageSize: 10,
           filters: {
-            modules: selectedModule === 'All Modules' ? [] : [selectedModule],
+            modules: selectedModules,
             categories: modalFilters.categories,
             types: modalFilters.types,
             priorities: modalFilters.priorities,
@@ -101,46 +102,56 @@ export function LearnLayout({
     [data?.learningItems],
   )
 
-  const moduleOptions = useMemo(
-    () => ['All Modules', ...(data?.filterValues.moduleFilterValues ?? [])],
+  const moduleFilterOptions = useMemo(
+    () =>
+      (data?.filterValues.moduleFilterValues ?? []).map((name) => ({
+        value: name,
+        label: name,
+      })),
     [data?.filterValues.moduleFilterValues],
   )
 
   const totalPages = data?.pagination.totalPages ?? 1
 
   return (
-    <div className="w-full">
-      <LearnHeaderSection
-        selectedBatch={resolvedBatchId.toString()}
-        batches={enrolledBatches.map((batch) => ({
-          value: batch.batchId.toString(),
-          label: batch.courseTitle,
-        }))}
-        onBatchChange={(value) => {
-          onBatchChange(Number(value))
-          setCurrentPage(1)
-        }}
-      />
+    <div className="w-full mt-[-24px]">
+      <div className="ml-[calc(50%-50vw)] w-screen max-w-[100vw] overflow-x-clip bg-white rounded-b-[32px]">
+        <div
+          className={`pt-[20px]  mx-auto w-full ${LAYOUT_MAX_WIDTH_CLASS} ${LAYOUT_MAIN_PADDING_X}`}
+        >
+          <LearnHeaderSection
+            selectedBatch={resolvedBatchId.toString()}
+            batches={enrolledBatches.map((batch) => ({
+              value: batch.batchId.toString(),
+              label: batch.courseTitle,
+            }))}
+            onBatchChange={(value) => {
+              onBatchChange(Number(value))
+              setCurrentPage(1)
+            }}
+          />
 
-      <LearnControlsSection
-        activeTab={activeTab}
-        onTabChange={(tab) => {
-          setActiveTab(tab)
-          setCurrentPage(1)
-        }}
-        searchValue={searchValue}
-        onSearchChange={(value) => {
-          setSearchValue(value)
-          setCurrentPage(1)
-        }}
-        selectedModule={selectedModule}
-        modules={moduleOptions}
-        onModuleChange={(module) => {
-          setSelectedModule(module)
-          setCurrentPage(1)
-        }}
-        onOpenFilters={() => setIsFiltersOpen(true)}
-      />
+          <LearnControlsSection
+            activeTab={activeTab}
+            onTabChange={(tab) => {
+              setActiveTab(tab)
+              setCurrentPage(1)
+            }}
+            searchValue={searchValue}
+            onSearchChange={(value) => {
+              setSearchValue(value)
+              setCurrentPage(1)
+            }}
+            selectedModules={selectedModules}
+            moduleOptions={moduleFilterOptions}
+            onModulesChange={(modules) => {
+              setSelectedModules(modules)
+              setCurrentPage(1)
+            }}
+            onOpenFilters={() => setIsFiltersOpen(true)}
+          />
+        </div>
+      </div>
 
       {isLoading ? <AppLoading label="Loading learning items..." /> : null}
       {!isLoading ? <LearnContentListSection items={learningItems} /> : null}
