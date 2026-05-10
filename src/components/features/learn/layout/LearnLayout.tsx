@@ -6,7 +6,11 @@ import { LearnControlsSection } from '../section-two/LearnControlsSection'
 import { LearnFiltersModal } from '../section-two/filters-modal/LearnFiltersModal'
 import { LearnContentListSection } from '../section-three/LearnContentListSection'
 import { LearnPaginationSection } from '../section-four/LearnPaginationSection'
-import type { LearnContentItem, LearnModalFiltersState, LearnTab } from '../shared/types'
+import type {
+  LearnContentItem,
+  LearnModalFiltersState,
+  LearnTab,
+} from '../shared/types'
 import { getBatchLearningData } from '@/server/learn/getBatchLearningData'
 
 interface EnrolledBatchOption {
@@ -94,12 +98,12 @@ export function LearnLayout({
         priority: item.isOptional,
         tags: [item.type, item.category, item.moduleName],
       })),
-    [data?.learningItems]
+    [data?.learningItems],
   )
 
   const moduleOptions = useMemo(
     () => ['All Modules', ...(data?.filterValues.moduleFilterValues ?? [])],
-    [data?.filterValues.moduleFilterValues]
+    [data?.filterValues.moduleFilterValues],
   )
 
   const totalPages = data?.pagination.totalPages ?? 1
@@ -107,7 +111,7 @@ export function LearnLayout({
   return (
     <div className="w-full space-y-4">
       <LearnHeaderSection
-        selectedBatch={(resolvedBatchId ?? '').toString()}
+        selectedBatch={resolvedBatchId.toString()}
         batches={enrolledBatches.map((batch) => ({
           value: batch.batchId.toString(),
           label: batch.courseTitle,

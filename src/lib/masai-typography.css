@@ -12,6 +12,11 @@
   --masai-text-color: #111928;
 }
 
+/*
+ * Typographic scale lives in @layer components so Tailwind utilities (e.g.
+ * text-primary-500) can override the default Masai text color without !important.
+ */
+@layer components {
 .type-h1,
 [data-type="h1"] {
   color: var(--masai-text-color);
@@ -190,4 +195,6 @@
   font-style: normal;
   font-weight: 400;
   line-height: 16px;
+}
+
 }

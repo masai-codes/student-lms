@@ -1,21 +1,44 @@
-import { BookOpen, ClipboardList, FileText } from 'lucide-react'
+import type { LearnContentItem, LearnContentType } from '../../shared/types'
 import { Badge } from '@/components/ui/badge'
-import { Card } from '@/components/ui/card'
-import type { LearnContentItem } from '../../shared/types'
+import { MasaiChips } from '@/components/ui/masai-chips'
+
+const LEARN_TYPE_ICON_SRC: Record<LearnContentType, string> = {
+  lecture:
+    'https://s3.ap-south-1.amazonaws.com/static.masaischool.com/lecture.svg',
+  assignment:
+    'https://s3.ap-south-1.amazonaws.com/static.masaischool.com/assignment.svg',
+  resource:
+    'https://s3.ap-south-1.amazonaws.com/static.masaischool.com/resource.svg',
+}
+
+const LEARN_TYPE_ICON_ALT: Record<LearnContentType, string> = {
+  lecture: 'Lecture',
+  assignment: 'Assignment',
+  resource: 'Resource',
+}
 
 const dummyAttendanceClassName: Record<'Present' | 'Absent', string> = {
   Present: 'bg-emerald-100 text-emerald-700',
   Absent: 'bg-rose-100 text-rose-700',
 }
 
+const learnContentTagChipPalette = {
+  backgroundClassName: 'bg-gray-50',
+  textClassName: '!text-gray-500',
+}
+
 function LearnTypeIcon({ type }: Pick<LearnContentItem, 'type'>) {
-  if (type === 'lecture') {
-    return <BookOpen className="size-5 text-primary" />
-  }
-  if (type === 'assignment') {
-    return <ClipboardList className="size-5 text-primary" />
-  }
-  return <FileText className="size-5 text-primary" />
+  return (
+    <img
+      src={LEARN_TYPE_ICON_SRC[type]}
+      alt={LEARN_TYPE_ICON_ALT[type]}
+      width={40}
+      height={40}
+      className="size-10 shrink-0 object-contain"
+      loading="lazy"
+      decoding="async"
+    />
+  )
 }
 
 export function LearnContentCard({ item }: { item: LearnContentItem }) {
@@ -23,24 +46,42 @@ export function LearnContentCard({ item }: { item: LearnContentItem }) {
     item.title.length % 2 === 0 ? 'Present' : 'Absent'
 
   return (
-    <Card className="p-4">
+    <div className="bg-white rounded-[8px] border border-gray-200 p-3">
       <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
         <div className="flex items-start gap-3">
-          <div className="mt-1">
+          <div className="">
             <LearnTypeIcon type={item.type} />
           </div>
-          <div className="space-y-2">
-            <p className="font-semibold">{item.title}</p>
-            <p className="text-sm text-muted-foreground">
-              {item.hostName} | {item.date ?? 'No schedule'}
+          <div className="">
+            <p className="type-b1-md">{item.title}</p>
+            <p className="mt-[4px] type-t1 flex flex-wrap items-center gap-x-2 gap-y-1">
+              <span className="min-w-0">{item.hostName}</span>
+              <span
+                className="size-1 shrink-0 rounded-full bg-gray-600"
+                aria-hidden
+              />
+              <span>{item.date ?? 'No schedule'}</span>
             </p>
-            <div className="flex flex-wrap gap-2">
-              {item.tags.map((tag) => (
-                <Badge key={tag} variant="outline">
-                  {tag}
-                </Badge>
+            <div className="flex flex-wrap gap-2 mt-[8px]">
+              {item.tags.map((tag, index) => (
+                <MasaiChips
+                  key={`${tag}-${index}`}
+                  type="default"
+                  size="regular"
+                  label={tag}
+                  tabIndex={-1}
+                  className="cursor-default"
+                  {...learnContentTagChipPalette}
+                />
               ))}
-              <Badge variant="outline">{item.priority}</Badge>
+              <MasaiChips
+                type="default"
+                size="regular"
+                label={item.priority}
+                tabIndex={-1}
+                className="cursor-default"
+                {...learnContentTagChipPalette}
+              />
             </div>
           </div>
         </div>
@@ -49,6 +90,6 @@ export function LearnContentCard({ item }: { item: LearnContentItem }) {
           {dummyAttendance}
         </Badge>
       </div>
-    </Card>
+    </div>
   )
 }

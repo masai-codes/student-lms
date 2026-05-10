@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useState } from 'react'
 import { ChevronDown } from 'lucide-react'
 import type { DrawerDirection } from '@/components/ui/masai-drawer'
-import { MasaiButton } from '@/components/masai-button'
+import { MasaiChips } from '@/components/ui/masai-chips'
 import { MasaiDrawer } from '@/components/ui/masai-drawer'
+import { Separator } from '@/components/ui/separator'
 
 interface LearnBatchOption {
   value: string
@@ -13,12 +14,16 @@ interface LearnHeaderSectionProps {
   selectedBatch: string
   batches: Array<LearnBatchOption>
   onBatchChange: (batch: string) => void
+  attendanceReportHref?: string
+  courseDetailsHref?: string
 }
 
 export function LearnHeaderSection({
   selectedBatch,
   batches,
   onBatchChange,
+  attendanceReportHref = '#',
+  courseDetailsHref = '#',
 }: LearnHeaderSectionProps) {
   const [isBatchDrawerOpen, setIsBatchDrawerOpen] = useState(false)
   const [isDesktop, setIsDesktop] = useState(false)
@@ -41,19 +46,17 @@ export function LearnHeaderSection({
   const drawerDirection: DrawerDirection = isDesktop ? 'right' : 'bottom'
 
   return (
-    <section className="flex flex-col gap-4 rounded-lg border bg-card p-4 md:flex-row md:items-center md:justify-between">
+    <section className="flex flex-col gap-4 p-4 md:flex-row md:items-center md:justify-between">
       <div
         className="flex items-center justify-between gap-3 cursor-pointer"
         onClick={() => setIsBatchDrawerOpen(true)}
       >
         <h4 className="type-h4">{selectedBatchLabel}</h4>
-        <MasaiButton
-          type="tertiary"
-          size="sm"
-          iconOnly
-          icon={<ChevronDown size={16} className="text-muted-foreground" />}
+        <MasaiChips
+          type="icon-only"
+          size="large"
+          icon={<ChevronDown size={20} />}
           aria-label="Open batch selection drawer"
-          className="!h-8 !w-8 !rounded-md"
         />
       </div>
 
@@ -89,13 +92,20 @@ export function LearnHeaderSection({
         }
       />
 
-      <div className="flex items-center gap-4 text-sm font-medium">
-        <button type="button" className="text-primary hover:underline">
+      <div className="flex items-center gap-4">
+        <a
+          href={attendanceReportHref}
+          className="type-b1-md text-primary-500 hover:underline"
+        >
           Attendance Report
-        </button>
-        <button type="button" className="text-primary hover:underline">
+        </a>
+        <div className="h-4 w-[1px] bg-gray-300" />
+        <a
+          href={courseDetailsHref}
+          className="type-b1-md text-primary-500 hover:underline"
+        >
           Course Details
-        </button>
+        </a>
       </div>
     </section>
   )
