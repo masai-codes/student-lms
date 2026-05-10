@@ -6,7 +6,7 @@ import * as React from "react";
 
 import { cn } from "@/lib/utils";
 
-/** Matches Masai checkbox regular size (18px root, h-3 check). */
+/** Matches `MasaiCheckbox` / `masai-checkbox.tsx` regular size (18px root, h-3 check). */
 const CHECKBOX_VISUAL_CLASSES = {
   root: "h-[18px] w-[18px] rounded-[2px]",
   icon: "h-3 w-3",
