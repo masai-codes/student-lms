@@ -5,7 +5,8 @@ import { LearnDetailTitleRow } from './LearnDetailTitleRow'
 import type { LearnDetailOverviewProps } from './types'
 
 /**
- * Shared heading + actions row and meta/chip card for all learn detail entity pages.
+ * Row 1: title + Raise ticket / bookmark (original layout).
+ * Row 2: single flex row — host, date, and chips (no border/card).
  */
 export function LearnDetailOverview({
   title,
@@ -16,7 +17,7 @@ export function LearnDetailOverview({
   actions,
 }: LearnDetailOverviewProps) {
   return (
-    <div className="w-full space-y-6">
+    <div className="w-full">
       <LearnDetailTitleRow title={title} actions={actions} />
       <LearnDetailMetaCard
         hostName={hostName}

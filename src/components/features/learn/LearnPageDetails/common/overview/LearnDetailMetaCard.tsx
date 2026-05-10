@@ -4,6 +4,7 @@ import { learnDetailChipPalette } from './learnDetailChipPalette'
 import type { LearningPriority } from '@/server/learn/types'
 
 import { MasaiChips } from '@/components/ui/masai-chips'
+import { cn } from '@/lib/utils'
 
 
 type LearnDetailMetaCardProps = {
@@ -11,17 +12,25 @@ type LearnDetailMetaCardProps = {
   displayDate: string
   priority: LearningPriority
   tags: Array<string>
+  className?: string
 }
 
+/** Single row (wraps): host • date alongside tag chips — no border/card. */
 export function LearnDetailMetaCard({
   hostName,
   displayDate,
   priority,
   tags,
+  className,
 }: LearnDetailMetaCardProps) {
   return (
-    <section className="rounded-lg border border-gray-200 bg-white p-4">
-      <p className="type-t1 text-gray-600">
+    <div
+      className={cn(
+        'flex w-full min-w-0 flex-wrap items-center gap-x-3 gap-y-2',
+        className,
+      )}
+    >
+      <p className="type-t1 shrink-0 text-gray-600">
         <span className="text-gray-900">{hostName}</span>
         <span
           className="mx-2 inline-block size-1 rounded-full bg-gray-600 align-middle"
@@ -29,27 +38,25 @@ export function LearnDetailMetaCard({
         />
         <span>{displayDate}</span>
       </p>
-      <div className="mt-3 flex flex-wrap gap-2">
-        {tags.map((tag, index) => (
-          <MasaiChips
-            key={`${tag}-${index}`}
-            type="default"
-            size="regular"
-            label={tag}
-            tabIndex={-1}
-            className="cursor-default"
-            {...learnDetailChipPalette}
-          />
-        ))}
+      {tags.map((tag, index) => (
         <MasaiChips
+          key={`${tag}-${index}`}
           type="default"
           size="regular"
-          label={priority}
+          label={tag}
           tabIndex={-1}
           className="cursor-default"
           {...learnDetailChipPalette}
         />
-      </div>
-    </section>
+      ))}
+      <MasaiChips
+        type="default"
+        size="regular"
+        label={priority}
+        tabIndex={-1}
+        className="cursor-default"
+        {...learnDetailChipPalette}
+      />
+    </div>
   )
 }
