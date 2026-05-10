@@ -1,11 +1,8 @@
+import { Link } from '@tanstack/react-router'
 import type { ReactNode } from 'react'
 
-import { Link } from '@tanstack/react-router'
-
-import {
-  MasaiBreadcrumb,
-  type MasaiBreadcrumbRenderLinkProps,
-} from '@/components/ui/masai-breadcrumb'
+import type { MasaiBreadcrumbRenderLinkProps } from '@/components/ui/masai-breadcrumb'
+import { MasaiBreadcrumb } from '@/components/ui/masai-breadcrumb'
 
 function renderSpaLink({ href, className, children }: MasaiBreadcrumbRenderLinkProps) {
   return (
@@ -16,8 +13,8 @@ function renderSpaLink({ href, className, children }: MasaiBreadcrumbRenderLinkP
 }
 
 type LearningDetailMasaiBreadcrumbProps = {
-  currentLabel: ReactNode;
-};
+  currentLabel: ReactNode
+}
 
 export function LearningDetailMasaiBreadcrumb({
   currentLabel,
@@ -32,5 +29,5 @@ export function LearningDetailMasaiBreadcrumb({
         { label: currentLabel },
       ]}
     />
-  );
+  )
 }

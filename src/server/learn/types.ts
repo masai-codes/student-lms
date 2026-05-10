@@ -68,3 +68,17 @@ export interface GetBatchLearningDataResponse {
   learningItems: Array<LearningItem>
   pagination: LearningPagination
 }
+
+/**
+ * Presentation payload for /lectures/:id, /assignments/:id, /resources/:id.
+ * Mirrors listing card fields — all strings/arrays are finalized on the server.
+ */
+export interface LearnHubDetailPayload {
+  id: number
+  title: string
+  hostName: string
+  displayDate: string
+  priority: LearningPriority
+  /** Same chip labels as the learn listing card (`type`, `category`, `moduleName`). */
+  tags: Array<string>
+}

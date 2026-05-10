@@ -1,20 +1,32 @@
 import { createFileRoute } from '@tanstack/react-router'
 
-import { LearningDetailMasaiBreadcrumb } from '@/components/features/learn/layout/LearningDetailMasaiBreadcrumb'
+import {
+  LearnPageDetailError,
+  LearningDetailMasaiBreadcrumb,
+  LectureDetailPage,
+} from '@/components/features/learn/LearnPageDetails'
+import { layoutMainClasses } from '@/lib/layout'
+import { getLectureLearningDetail } from '@/server/learn/getLectureLearningDetail'
 
-export const Route = createFileRoute(
-  '/(protected)/_layout/lectures_/$lectureId',
-)({
+export const Route = createFileRoute('/(protected)/_layout/lectures_/$lectureId')({
   component: RouteComponent,
+  errorComponent: LearnPageDetailError,
+  loader: async ({ params }) => {
+    const lectureId = Number(params.lectureId)
+    if (!Number.isFinite(lectureId) || lectureId <= 0) {
+      throw new Error('LEARN_DETAIL_NOT_FOUND')
+    }
+    return getLectureLearningDetail({ data: { lectureId } })
+  },
 })
 
 function RouteComponent() {
-  const { lectureId } = Route.useParams()
+  const detail = Route.useLoaderData()
 
   return (
-    <div className="p-6">
-      <LearningDetailMasaiBreadcrumb currentLabel="Lecture" />
-      <p className="type-b1-md">Lecture ID: {lectureId}</p>
+    <div className={layoutMainClasses}>
+      <LearningDetailMasaiBreadcrumb currentLabel={detail.title} />
+      <LectureDetailPage detail={detail} />
     </div>
   )
 }
