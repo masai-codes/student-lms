@@ -20,6 +20,42 @@ const DEFAULT_PAGE = 1
 const DEFAULT_PAGE_SIZE = 10
 const MAX_PAGE_SIZE = 50
 
+/** Local calendar midnight for `yyyy-mm-dd`. */
+function startOfDayFromYmd(ymd: string): number {
+  const parts = ymd.split('-').map(Number)
+  const y = parts[0] ?? 1970
+  const m = parts[1] ?? 1
+  const d = parts[2] ?? 1
+  return new Date(y, m - 1, d).setHours(0, 0, 0, 0)
+}
+
+/** Local calendar midnight for ISO schedule string from DB (if parseable). */
+function startOfDayFromSchedule(scheduleISO: string | null): number | null {
+  if (scheduleISO == null || scheduleISO.trim() === '') return null
+  const t = Date.parse(scheduleISO)
+  if (Number.isNaN(t)) return null
+  const dt = new Date(t)
+  return new Date(dt.getFullYear(), dt.getMonth(), dt.getDate()).getTime()
+}
+
+function matchesScheduleBounds(
+  scheduleDate: string | null,
+  startYmd?: string,
+  endYmd?: string
+): boolean {
+  const hasLower = startYmd != null && startYmd.trim() !== ''
+  const hasUpper = endYmd != null && endYmd.trim() !== ''
+  if (!hasLower && !hasUpper) return true
+
+  const itemDay = startOfDayFromSchedule(scheduleDate)
+  if (itemDay == null) return false
+
+  if (hasLower && itemDay < startOfDayFromYmd(startYmd!)) return false
+  if (hasUpper && itemDay > startOfDayFromYmd(endYmd!)) return false
+
+  return true
+}
+
 function normalizePagination(page?: number, pageSize?: number) {
   const safePage = Number.isFinite(page) && page != null && page > 0 ? page : DEFAULT_PAGE
   const resolvedPageSize =
@@ -62,7 +98,20 @@ function applyInMemoryFilters(
       filters.instructors.length === 0 ||
       filters.instructors.includes(item.hostName)
 
-    return moduleMatch && categoryMatch && typeMatch && priorityMatch && instructorMatch
+    const scheduleMatch = matchesScheduleBounds(
+      item.scheduleDate,
+      filters.scheduleStartDate,
+      filters.scheduleEndDate
+    )
+
+    return (
+      moduleMatch &&
+      categoryMatch &&
+      typeMatch &&
+      priorityMatch &&
+      instructorMatch &&
+      scheduleMatch
+    )
   })
 }
 

@@ -18,6 +18,9 @@ export interface BatchLearningFiltersInput {
   types?: Array<string>
   priorities?: Array<LearningPriority>
   instructors?: Array<string>
+  /** Inclusive; `yyyy-mm-dd` against schedule timestamps. */
+  scheduleStartDate?: string
+  scheduleEndDate?: string
 }
 
 export interface GetBatchLearningDataInput {

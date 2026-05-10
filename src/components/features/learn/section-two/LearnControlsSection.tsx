@@ -7,10 +7,8 @@ import { Filter, Search } from 'lucide-react'
 import { LearnFiltersPanel } from './filters-modal/LearnFiltersPanel'
 import type { LearnModalFiltersState, LearnTab } from '../shared/types'
 
-import type { MasaiDropdownCheckboxFilterOption } from '@/components/ui/masai-dropdown-checkbox-filter'
 import { Button } from '@/components/ui/button'
 import { MasaiDrawer } from '@/components/ui/masai-drawer'
-import { MasaiDropdownCheckboxFilter } from '@/components/ui/masai-dropdown-checkbox-filter'
 import { MasaiInput } from '@/components/ui/masai-input'
 import { MasaiTab } from '@/components/ui/masai-tab'
 
@@ -34,9 +32,7 @@ interface LearnControlsSectionProps {
   onTabChange: (tab: LearnTab) => void
   searchValue: string
   onSearchChange: (value: string) => void
-  selectedModules: Array<string>
-  moduleOptions: Array<MasaiDropdownCheckboxFilterOption>
-  onModulesChange: (modules: Array<string>) => void
+  moduleFilterOptions: Array<string>
   categoryFilterOptions: Array<string>
   typeFilterOptions: Array<string>
   instructorFilterOptions: Array<string>
@@ -49,16 +45,13 @@ export function LearnControlsSection({
   onTabChange,
   searchValue,
   onSearchChange,
-  selectedModules,
-  moduleOptions,
-  onModulesChange,
+  moduleFilterOptions,
   categoryFilterOptions,
   typeFilterOptions,
   instructorFilterOptions,
   modalFilters,
   onApplyModalFilters,
 }: LearnControlsSectionProps) {
-  const hasModuleChoices = moduleOptions.length > 0
   const [filtersOpen, setFiltersOpen] = useState(false)
 
   return (
@@ -97,16 +90,6 @@ export function LearnControlsSection({
           className="w-[300px]"
         />
 
-        <MasaiDropdownCheckboxFilter
-          triggerLabel="Module"
-          options={moduleOptions}
-          value={selectedModules}
-          onValueChange={onModulesChange}
-          disabled={!hasModuleChoices}
-          className="w-[170px]"
-          triggerClassName="min-w-0 w-full"
-        />
-
         <Button
           variant="outline"
           size="icon"
@@ -125,6 +108,8 @@ export function LearnControlsSection({
         title="Filters"
         content={
           <LearnFiltersPanel
+            filtersOpen={filtersOpen}
+            moduleOptions={moduleFilterOptions}
             categoryOptions={categoryFilterOptions}
             typeOptions={typeFilterOptions}
             instructorOptions={instructorFilterOptions}

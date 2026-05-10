@@ -1,15 +1,12 @@
 import { useMemo, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
-import { AppLoading } from '@/components/common'
 import { LearnHeaderSection } from '../section-one/LearnHeaderSection'
 import { LearnControlsSection } from '../section-two/LearnControlsSection'
 import { LearnContentListSection } from '../section-three/LearnContentListSection'
 import { LearnPaginationSection } from '../section-four/LearnPaginationSection'
-import type {
-  LearnContentItem,
-  LearnModalFiltersState,
-  LearnTab,
-} from '../shared/types'
+import { createEmptyLearnModalFilters } from '../shared/types'
+import type { LearnContentItem, LearnTab } from '../shared/types'
+import { AppLoading } from '@/components/common'
 import { getBatchLearningData } from '@/server/learn/getBatchLearningData'
 import { LAYOUT_MAIN_PADDING_X, LAYOUT_MAX_WIDTH_CLASS } from '@/lib/layout'
 
@@ -31,14 +28,8 @@ export function LearnLayout({
 }: LearnLayoutProps) {
   const [activeTab, setActiveTab] = useState<LearnTab>('lectures')
   const [searchValue, setSearchValue] = useState('')
-  const [selectedModules, setSelectedModules] = useState<Array<string>>([])
   const [currentPage, setCurrentPage] = useState(1)
-  const [modalFilters, setModalFilters] = useState<LearnModalFiltersState>({
-    categories: [],
-    types: [],
-    priorities: [],
-    instructors: [],
-  })
+  const [modalFilters, setModalFilters] = useState(createEmptyLearnModalFilters)
 
   const resolvedBatchId = useMemo(() => {
     if (selectedBatchId != null) {
@@ -61,27 +52,33 @@ export function LearnLayout({
       learningType,
       searchValue,
       currentPage,
-      selectedModules,
       modalFilters,
     ],
-    enabled: resolvedBatchId != null,
-    queryFn: async () =>
-      getBatchLearningData({
+    enabled: typeof resolvedBatchId === 'number',
+    queryFn: async () => {
+      const batchId = resolvedBatchId
+      if (typeof batchId !== 'number') {
+        throw new Error('MISSING_BATCH_ID_FOR_LEARN_QUERY')
+      }
+      return getBatchLearningData({
         data: {
-          batchId: resolvedBatchId as number,
+          batchId,
           learningType,
           search: searchValue.trim() || undefined,
           page: currentPage,
           pageSize: 10,
           filters: {
-            modules: selectedModules,
+            modules: modalFilters.modules,
             categories: modalFilters.categories,
             types: modalFilters.types,
             priorities: modalFilters.priorities,
             instructors: modalFilters.instructors,
+            scheduleStartDate: modalFilters.scheduleStartDate ?? undefined,
+            scheduleEndDate: modalFilters.scheduleEndDate ?? undefined,
           },
         },
-      }),
+      })
+    },
   })
 
   const learningItems: Array<LearnContentItem> = useMemo(
@@ -100,14 +97,7 @@ export function LearnLayout({
     [data?.learningItems],
   )
 
-  const moduleFilterOptions = useMemo(
-    () =>
-      (data?.filterValues.moduleFilterValues ?? []).map((name) => ({
-        value: name,
-        label: name,
-      })),
-    [data?.filterValues.moduleFilterValues],
-  )
+  const moduleFilterNames = data?.filterValues.moduleFilterValues ?? []
 
   const totalPages = data?.pagination.totalPages ?? 1
 
@@ -140,12 +130,7 @@ export function LearnLayout({
               setSearchValue(value)
               setCurrentPage(1)
             }}
-            selectedModules={selectedModules}
-            moduleOptions={moduleFilterOptions}
-            onModulesChange={(modules) => {
-              setSelectedModules(modules)
-              setCurrentPage(1)
-            }}
+            moduleFilterOptions={moduleFilterNames}
             categoryFilterOptions={
               data?.filterValues.categoryFilterValues ?? []
             }

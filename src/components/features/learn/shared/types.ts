@@ -24,8 +24,25 @@ export interface LearnFilterValues {
 }
 
 export interface LearnModalFiltersState {
+  modules: Array<string>
   categories: Array<string>
   types: Array<string>
   priorities: Array<LearnPriority>
   instructors: Array<string>
+  /** Inclusive schedule lower bound (`yyyy-mm-dd`). Filters by item `scheduleDate`. */
+  scheduleStartDate: string | null
+  /** Inclusive schedule upper bound (`yyyy-mm-dd`). */
+  scheduleEndDate: string | null
+}
+
+export function createEmptyLearnModalFilters(): LearnModalFiltersState {
+  return {
+    modules: [],
+    categories: [],
+    types: [],
+    priorities: [],
+    instructors: [],
+    scheduleStartDate: null,
+    scheduleEndDate: null,
+  }
 }

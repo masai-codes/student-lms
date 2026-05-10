@@ -19,7 +19,7 @@ export type MasaiRadioGroupProps = {
   size?: MasaiRadioGroupSize;
   value: string;
   onValueChange: (value: string) => void;
-  options: MasaiRyadioOption[];
+  options: Array<MasaiRadioOption>;
   /** Default stacking; use `className` for grids (e.g. `grid grid-cols-2 gap-4`). */
   orientation?: MasaiRadioGroupOrientation;
 } & Omit<
