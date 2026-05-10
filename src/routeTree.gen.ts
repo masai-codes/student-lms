@@ -27,6 +27,9 @@ import { Route as protectedLayoutCoursesIndexRouteImport } from './routes/(prote
 import { Route as protectedLayoutChatIndexRouteImport } from './routes/(protected)/_layout/chat/index'
 import { Route as protectedLayoutBookmarkIndexRouteImport } from './routes/(protected)/_layout/bookmark/index'
 import { Route as protectedLayoutAnnouncementsIndexRouteImport } from './routes/(protected)/_layout/announcements/index'
+import { Route as protectedLayoutResourcesResourceIdRouteRouteImport } from './routes/(protected)/_layout/resources_/$resourceId/route'
+import { Route as protectedLayoutLecturesLectureIdRouteRouteImport } from './routes/(protected)/_layout/lectures_/$lectureId/route'
+import { Route as protectedLayoutAssignmentsAssignmentIdRouteRouteImport } from './routes/(protected)/_layout/assignments_/$assignmentId/route'
 import { Route as protectedLayoutSupportSupportIdIndexRouteImport } from './routes/(protected)/_layout/support/$supportId/index'
 import { Route as protectedLayoutDiscussionsCreateIndexRouteImport } from './routes/(protected)/_layout/discussions/create/index'
 import { Route as protectedLayoutDiscussionsDiscussionIdIndexRouteImport } from './routes/(protected)/_layout/discussions/$discussionId/index'
@@ -151,6 +154,24 @@ const protectedLayoutAnnouncementsIndexRoute =
   protectedLayoutAnnouncementsIndexRouteImport.update({
     id: '/announcements/',
     path: '/announcements/',
+    getParentRoute: () => protectedLayoutRouteRoute,
+  } as any)
+const protectedLayoutResourcesResourceIdRouteRoute =
+  protectedLayoutResourcesResourceIdRouteRouteImport.update({
+    id: '/resources_/$resourceId',
+    path: '/resources/$resourceId',
+    getParentRoute: () => protectedLayoutRouteRoute,
+  } as any)
+const protectedLayoutLecturesLectureIdRouteRoute =
+  protectedLayoutLecturesLectureIdRouteRouteImport.update({
+    id: '/lectures_/$lectureId',
+    path: '/lectures/$lectureId',
+    getParentRoute: () => protectedLayoutRouteRoute,
+  } as any)
+const protectedLayoutAssignmentsAssignmentIdRouteRoute =
+  protectedLayoutAssignmentsAssignmentIdRouteRouteImport.update({
+    id: '/assignments_/$assignmentId',
+    path: '/assignments/$assignmentId',
     getParentRoute: () => protectedLayoutRouteRoute,
   } as any)
 const protectedLayoutSupportSupportIdIndexRoute =
@@ -337,6 +358,9 @@ export interface FileRoutesByFullPath {
   '/login/': typeof authLoginIndexRoute
   '/': typeof protectedLayoutIndexRoute
   '/zoom/': typeof protectedZoomIndexRoute
+  '/assignments/$assignmentId': typeof protectedLayoutAssignmentsAssignmentIdRouteRoute
+  '/lectures/$lectureId': typeof protectedLayoutLecturesLectureIdRouteRoute
+  '/resources/$resourceId': typeof protectedLayoutResourcesResourceIdRouteRoute
   '/announcements/': typeof protectedLayoutAnnouncementsIndexRoute
   '/bookmark/': typeof protectedLayoutBookmarkIndexRoute
   '/chat/': typeof protectedLayoutChatIndexRoute
@@ -378,6 +402,9 @@ export interface FileRoutesByTo {
   '/login': typeof authLoginIndexRoute
   '/': typeof protectedLayoutIndexRoute
   '/zoom': typeof protectedZoomIndexRoute
+  '/assignments/$assignmentId': typeof protectedLayoutAssignmentsAssignmentIdRouteRoute
+  '/lectures/$lectureId': typeof protectedLayoutLecturesLectureIdRouteRoute
+  '/resources/$resourceId': typeof protectedLayoutResourcesResourceIdRouteRoute
   '/announcements': typeof protectedLayoutAnnouncementsIndexRoute
   '/bookmark': typeof protectedLayoutBookmarkIndexRoute
   '/chat': typeof protectedLayoutChatIndexRoute
@@ -419,6 +446,9 @@ export interface FileRoutesById {
   '/(auth)/login/': typeof authLoginIndexRoute
   '/(protected)/_layout/': typeof protectedLayoutIndexRoute
   '/(protected)/zoom/': typeof protectedZoomIndexRoute
+  '/(protected)/_layout/assignments_/$assignmentId': typeof protectedLayoutAssignmentsAssignmentIdRouteRoute
+  '/(protected)/_layout/lectures_/$lectureId': typeof protectedLayoutLecturesLectureIdRouteRoute
+  '/(protected)/_layout/resources_/$resourceId': typeof protectedLayoutResourcesResourceIdRouteRoute
   '/(protected)/_layout/announcements/': typeof protectedLayoutAnnouncementsIndexRoute
   '/(protected)/_layout/bookmark/': typeof protectedLayoutBookmarkIndexRoute
   '/(protected)/_layout/chat/': typeof protectedLayoutChatIndexRoute
@@ -463,6 +493,9 @@ export interface FileRouteTypes {
     | '/login/'
     | '/'
     | '/zoom/'
+    | '/assignments/$assignmentId'
+    | '/lectures/$lectureId'
+    | '/resources/$resourceId'
     | '/announcements/'
     | '/bookmark/'
     | '/chat/'
@@ -504,6 +537,9 @@ export interface FileRouteTypes {
     | '/login'
     | '/'
     | '/zoom'
+    | '/assignments/$assignmentId'
+    | '/lectures/$lectureId'
+    | '/resources/$resourceId'
     | '/announcements'
     | '/bookmark'
     | '/chat'
@@ -544,6 +580,9 @@ export interface FileRouteTypes {
     | '/(auth)/login/'
     | '/(protected)/_layout/'
     | '/(protected)/zoom/'
+    | '/(protected)/_layout/assignments_/$assignmentId'
+    | '/(protected)/_layout/lectures_/$lectureId'
+    | '/(protected)/_layout/resources_/$resourceId'
     | '/(protected)/_layout/announcements/'
     | '/(protected)/_layout/bookmark/'
     | '/(protected)/_layout/chat/'
@@ -714,6 +753,27 @@ declare module '@tanstack/react-router' {
       path: '/announcements'
       fullPath: '/announcements/'
       preLoaderRoute: typeof protectedLayoutAnnouncementsIndexRouteImport
+      parentRoute: typeof protectedLayoutRouteRoute
+    }
+    '/(protected)/_layout/resources_/$resourceId': {
+      id: '/(protected)/_layout/resources_/$resourceId'
+      path: '/resources/$resourceId'
+      fullPath: '/resources/$resourceId'
+      preLoaderRoute: typeof protectedLayoutResourcesResourceIdRouteRouteImport
+      parentRoute: typeof protectedLayoutRouteRoute
+    }
+    '/(protected)/_layout/lectures_/$lectureId': {
+      id: '/(protected)/_layout/lectures_/$lectureId'
+      path: '/lectures/$lectureId'
+      fullPath: '/lectures/$lectureId'
+      preLoaderRoute: typeof protectedLayoutLecturesLectureIdRouteRouteImport
+      parentRoute: typeof protectedLayoutRouteRoute
+    }
+    '/(protected)/_layout/assignments_/$assignmentId': {
+      id: '/(protected)/_layout/assignments_/$assignmentId'
+      path: '/assignments/$assignmentId'
+      fullPath: '/assignments/$assignmentId'
+      preLoaderRoute: typeof protectedLayoutAssignmentsAssignmentIdRouteRouteImport
       parentRoute: typeof protectedLayoutRouteRoute
     }
     '/(protected)/_layout/support/$supportId/': {
@@ -990,6 +1050,9 @@ const protectedLayoutCoursesCourseIdResourcesResourceIdRouteRouteWithChildren =
 interface protectedLayoutRouteRouteChildren {
   protectedLayoutMasaiverseRouteRoute: typeof protectedLayoutMasaiverseRouteRouteWithChildren
   protectedLayoutIndexRoute: typeof protectedLayoutIndexRoute
+  protectedLayoutAssignmentsAssignmentIdRouteRoute: typeof protectedLayoutAssignmentsAssignmentIdRouteRoute
+  protectedLayoutLecturesLectureIdRouteRoute: typeof protectedLayoutLecturesLectureIdRouteRoute
+  protectedLayoutResourcesResourceIdRouteRoute: typeof protectedLayoutResourcesResourceIdRouteRoute
   protectedLayoutAnnouncementsIndexRoute: typeof protectedLayoutAnnouncementsIndexRoute
   protectedLayoutBookmarkIndexRoute: typeof protectedLayoutBookmarkIndexRoute
   protectedLayoutChatIndexRoute: typeof protectedLayoutChatIndexRoute
@@ -1015,6 +1078,12 @@ const protectedLayoutRouteRouteChildren: protectedLayoutRouteRouteChildren = {
   protectedLayoutMasaiverseRouteRoute:
     protectedLayoutMasaiverseRouteRouteWithChildren,
   protectedLayoutIndexRoute: protectedLayoutIndexRoute,
+  protectedLayoutAssignmentsAssignmentIdRouteRoute:
+    protectedLayoutAssignmentsAssignmentIdRouteRoute,
+  protectedLayoutLecturesLectureIdRouteRoute:
+    protectedLayoutLecturesLectureIdRouteRoute,
+  protectedLayoutResourcesResourceIdRouteRoute:
+    protectedLayoutResourcesResourceIdRouteRoute,
   protectedLayoutAnnouncementsIndexRoute:
     protectedLayoutAnnouncementsIndexRoute,
   protectedLayoutBookmarkIndexRoute: protectedLayoutBookmarkIndexRoute,

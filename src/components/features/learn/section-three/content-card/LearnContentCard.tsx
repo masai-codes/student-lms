@@ -1,3 +1,4 @@
+import { Link } from '@tanstack/react-router'
 import type { LearnContentItem, LearnContentType } from '../../shared/types'
 import { Badge } from '@/components/ui/badge'
 import { MasaiChips } from '@/components/ui/masai-chips'
@@ -45,8 +46,22 @@ export function LearnContentCard({ item }: { item: LearnContentItem }) {
   const dummyAttendance: 'Present' | 'Absent' =
     item.title.length % 2 === 0 ? 'Present' : 'Absent'
 
+  const id = String(item.id)
+  const linkProps =
+    item.type === 'lecture'
+      ? ({ to: '/lectures/$lectureId', params: { lectureId: id } } as const)
+      : item.type === 'assignment'
+        ? ({
+            to: '/assignments/$assignmentId',
+            params: { assignmentId: id },
+          } as const)
+        : ({ to: '/resources/$resourceId', params: { resourceId: id } } as const)
+
   return (
-    <div className="bg-white rounded-[8px] border border-gray-200 p-3">
+    <Link
+      {...linkProps}
+      className="bg-white rounded-[8px] border border-gray-200 p-3 block transition-colors hover:bg-gray-50/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+    >
       <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
         <div className="flex items-start gap-3">
           <div className="">
@@ -90,6 +105,6 @@ export function LearnContentCard({ item }: { item: LearnContentItem }) {
           {dummyAttendance}
         </Badge>
       </div>
-    </div>
+    </Link>
   )
 }
