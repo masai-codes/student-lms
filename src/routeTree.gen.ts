@@ -13,7 +13,7 @@ import { Route as TestRouteImport } from './routes/test'
 import { Route as protectedLayoutRouteRouteImport } from './routes/(protected)/_layout/route'
 import { Route as protectedZoomIndexRouteImport } from './routes/(protected)/zoom/index'
 import { Route as protectedLayoutIndexRouteImport } from './routes/(protected)/_layout/index'
-import { Route as authLoginIndexRouteImport } from './routes/(auth)/login/index'
+import { Route as authSigninIndexRouteImport } from './routes/(auth)/signin/index'
 import { Route as protectedLayoutMasaiverseRouteRouteImport } from './routes/(protected)/_layout/masaiverse/route'
 import { Route as protectedLayoutWhatsNewIndexRouteImport } from './routes/(protected)/_layout/whats-new/index'
 import { Route as protectedLayoutSupportIndexRouteImport } from './routes/(protected)/_layout/support/index'
@@ -69,9 +69,9 @@ const protectedLayoutIndexRoute = protectedLayoutIndexRouteImport.update({
   path: '/',
   getParentRoute: () => protectedLayoutRouteRoute,
 } as any)
-const authLoginIndexRoute = authLoginIndexRouteImport.update({
-  id: '/(auth)/login/',
-  path: '/login/',
+const authSigninIndexRoute = authSigninIndexRouteImport.update({
+  id: '/(auth)/signin/',
+  path: '/signin/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const protectedLayoutMasaiverseRouteRoute =
@@ -327,7 +327,7 @@ const protectedLayoutCoursesCourseIdAssignmentsAssignmentIdDiscussionsDiscussion
 export interface FileRoutesByFullPath {
   '/test': typeof TestRoute
   '/masaiverse': typeof protectedLayoutMasaiverseRouteRouteWithChildren
-  '/login/': typeof authLoginIndexRoute
+  '/signin/': typeof authSigninIndexRoute
   '/': typeof protectedLayoutIndexRoute
   '/zoom/': typeof protectedZoomIndexRoute
   '/announcements/': typeof protectedLayoutAnnouncementsIndexRoute
@@ -367,7 +367,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/test': typeof TestRoute
-  '/login': typeof authLoginIndexRoute
+  '/signin': typeof authSigninIndexRoute
   '/': typeof protectedLayoutIndexRoute
   '/zoom': typeof protectedZoomIndexRoute
   '/announcements': typeof protectedLayoutAnnouncementsIndexRoute
@@ -407,7 +407,7 @@ export interface FileRoutesById {
   '/test': typeof TestRoute
   '/(protected)/_layout': typeof protectedLayoutRouteRouteWithChildren
   '/(protected)/_layout/masaiverse': typeof protectedLayoutMasaiverseRouteRouteWithChildren
-  '/(auth)/login/': typeof authLoginIndexRoute
+  '/(auth)/signin/': typeof authSigninIndexRoute
   '/(protected)/_layout/': typeof protectedLayoutIndexRoute
   '/(protected)/zoom/': typeof protectedZoomIndexRoute
   '/(protected)/_layout/announcements/': typeof protectedLayoutAnnouncementsIndexRoute
@@ -450,7 +450,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/test'
     | '/masaiverse'
-    | '/login/'
+    | '/signin/'
     | '/'
     | '/zoom/'
     | '/announcements/'
@@ -490,7 +490,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/test'
-    | '/login'
+    | '/signin'
     | '/'
     | '/zoom'
     | '/announcements'
@@ -529,7 +529,7 @@ export interface FileRouteTypes {
     | '/test'
     | '/(protected)/_layout'
     | '/(protected)/_layout/masaiverse'
-    | '/(auth)/login/'
+    | '/(auth)/signin/'
     | '/(protected)/_layout/'
     | '/(protected)/zoom/'
     | '/(protected)/_layout/announcements/'
@@ -571,7 +571,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   TestRoute: typeof TestRoute
   protectedLayoutRouteRoute: typeof protectedLayoutRouteRouteWithChildren
-  authLoginIndexRoute: typeof authLoginIndexRoute
+  authSigninIndexRoute: typeof authSigninIndexRoute
   protectedZoomIndexRoute: typeof protectedZoomIndexRoute
 }
 
@@ -605,11 +605,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof protectedLayoutIndexRouteImport
       parentRoute: typeof protectedLayoutRouteRoute
     }
-    '/(auth)/login/': {
-      id: '/(auth)/login/'
-      path: '/login'
-      fullPath: '/login/'
-      preLoaderRoute: typeof authLoginIndexRouteImport
+    '/(auth)/signin/': {
+      id: '/(auth)/signin/'
+      path: '/signin'
+      fullPath: '/signin/'
+      preLoaderRoute: typeof authSigninIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/(protected)/_layout/masaiverse': {
@@ -1030,7 +1030,7 @@ const protectedLayoutRouteRouteWithChildren =
 const rootRouteChildren: RootRouteChildren = {
   TestRoute: TestRoute,
   protectedLayoutRouteRoute: protectedLayoutRouteRouteWithChildren,
-  authLoginIndexRoute: authLoginIndexRoute,
+  authSigninIndexRoute: authSigninIndexRoute,
   protectedZoomIndexRoute: protectedZoomIndexRoute,
 }
 export const routeTree = rootRouteImport

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { Eye, EyeOff } from 'lucide-react'
 import { createFileRoute, redirect } from '@tanstack/react-router'
 import {
@@ -17,7 +17,7 @@ import { Label } from '@/components/ui/label'
 import { fetchCurrentUser } from '@/server/auth/fetchCurrentUser'
 import { redirectToOldStudentUi } from '@/utils/authRedirect'
 
-export const Route = createFileRoute('/(auth)/login/')({
+export const Route = createFileRoute('/(auth)/signin/')({
   beforeLoad: async () => {
     const user = await fetchCurrentUser()
     if (user) {
@@ -29,23 +29,14 @@ export const Route = createFileRoute('/(auth)/login/')({
 
 function RouteComponent() {
   const [showPassword, setShowPassword] = useState(false)
-  useEffect(() => {
-    redirectToOldStudentUi({
-      source: '(auth)/login RouteComponent useEffect',
-      reason: 'Login route should hand off auth to legacy student UI',
-      extra: {
-        trigger: 'component-mount',
-      },
-    })
-  }, [])
 
   return (
     <div className="min-h-screen flex items-center justify-center">
       <Card className="w-full max-w-sm">
         <CardHeader>
-          <CardTitle>Login to your account</CardTitle>
+          <CardTitle>Sign in to your account</CardTitle>
           <CardDescription>
-            Enter your email below to login to your account
+            Enter your email below to sign in to your account
           </CardDescription>
         </CardHeader>
 
@@ -98,7 +89,7 @@ function RouteComponent() {
             className="w-full"
             onClick={() =>
               redirectToOldStudentUi({
-                source: '(auth)/login RouteComponent button',
+                source: '(auth)/signin RouteComponent button',
                 reason: 'User clicked Go to Old LMS Login CTA',
                 extra: {
                   trigger: 'button-click',
