@@ -1,5 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { createSessionAndCookieHeader } from '@/server/auth/v2/createSession'
+import { createSession } from '@/server/auth/v2/createSession'
 import {
   BadRequestError,
   errorResponse,
@@ -42,15 +42,15 @@ async function handleVerifyOtp(request: Request): Promise<Response> {
 
   try {
     const user = await verifyOtp({ identifier, otp })
-    const setCookie = await createSessionAndCookieHeader({
+    const { token, setCookieHeader } = await createSession({
       userId: user.id,
       request,
       rememberMe,
       source: 'v2-login-otp',
     })
     return jsonResponse(
-      { user },
-      { status: 200, headers: { 'Set-Cookie': setCookie } },
+      { user, token },
+      { status: 200, headers: { 'Set-Cookie': setCookieHeader } },
     )
   } catch (err) {
     if (err instanceof VerifyOtpError) {

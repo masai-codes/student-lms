@@ -53,12 +53,17 @@ function buildSetCookieHeader(
   return parts.join('; ')
 }
 
-export async function createSessionAndCookieHeader({
+export type CreateSessionResult = {
+  token: string
+  setCookieHeader: string
+}
+
+export async function createSession({
   userId,
   request,
   rememberMe,
   source,
-}: CreateSessionInput): Promise<string> {
+}: CreateSessionInput): Promise<CreateSessionResult> {
   const sessionId = randomUUID()
 
   const sanitizedPayload = {
@@ -82,8 +87,10 @@ export async function createSessionAndCookieHeader({
   const ttlHours = rememberMe ? REMEMBER_ME_TTL_HOURS : DEFAULT_TTL_HOURS
   const expires = new Date(Date.now() + ttlHours * 60 * 60 * 1000)
 
-  return buildSetCookieHeader(getCookieName(), token, {
+  const setCookieHeader = buildSetCookieHeader(getCookieName(), token, {
     domain: getCookieDomain(request),
     expires,
   })
+
+  return { token, setCookieHeader }
 }

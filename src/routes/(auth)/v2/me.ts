@@ -2,11 +2,11 @@ import { eq } from 'drizzle-orm'
 import { createFileRoute } from '@tanstack/react-router'
 import { db } from '@/db'
 import { users } from '@/db/schema'
-import { getUserIdFromCookieHeader } from '@/server/auth/getCurrentSessionUserId'
+import { getUserIdFromRequest } from '@/server/auth/getCurrentSessionUserId'
 import { errorResponse, jsonResponse } from '@/server/auth/v2/httpHelpers'
 
 async function handleMe(request: Request): Promise<Response> {
-  const userId = await getUserIdFromCookieHeader(request.headers.get('cookie'))
+  const userId = await getUserIdFromRequest(request)
   if (!userId) {
     return errorResponse(401, 'UNAUTHENTICATED', 'Not signed in')
   }

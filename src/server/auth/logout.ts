@@ -17,7 +17,7 @@ const DEFAULT_COOKIE_NAME = 'masai_school_course_session_v3_dev'
 export const logout = createServerFn({ method: 'POST' }).handler(async () => {
   
   const cookieName = process.env.COOKIE_NAME || DEFAULT_COOKIE_NAME
-  const sessionId = await readSessionIdFromCookie()
+  const sessionId = readSessionIdFromCookie()
 
   if (sessionId) {
     await db.delete(sessions).where(eq(sessions.id, sessionId))
