@@ -26,14 +26,12 @@ type Props = {
   lecture: LectureType
   panel: SidePanelType
   setPanel: (panel: SidePanelType) => void
-  courseId: string
 }
 
 export function LectureWithVideo({
   lecture,
   panel,
   setPanel,
-  courseId,
 }: Props) {
 
   const lectureId = JSON.stringify(lecture.id)
@@ -106,11 +104,7 @@ export function LectureWithVideo({
           AI Chat
         </Button>
 
-        <Link
-          to="/courses/$courseId/lectures/$lectureId/discussions"
-          params={{ courseId, lectureId }}
-          search={{page: undefined, panel: undefined}}
-        >
+        <Link to="/lectures/$lectureId" params={{ lectureId }}>
           <Button variant="outline">
             <Users className="h-4 w-4 mr-2" />
             Discussions

@@ -4,6 +4,8 @@ import type { LearnHubDetailPayload } from '@/server/learn/types'
 
 import { db } from '@/db'
 import { assignments, users } from '@/db/schema'
+import { DISCUSSION_ENTITY_ASSIGNMENT } from '@/server/new-discussions/discussionEntityTypes'
+import { listDiscussionsForLearnEntity } from '@/server/new-discussions/services/listDiscussionsForLearnEntity'
 import { buildLearnDetailPresentation } from '@/server/learn/utils/buildLearnDetailPresentation'
 import { ensureUserCanAccessLearnHubEntity } from '@/server/learn/utils/ensureLearnEntityAccess'
 
@@ -42,5 +44,11 @@ export async function getAssignmentLearningDetailForUser(
     throw new Error('LEARN_DETAIL_NOT_FOUND')
   }
 
-  return buildLearnDetailPresentation(row)
+  const core = buildLearnDetailPresentation(row)
+  const discussions = await listDiscussionsForLearnEntity(
+    userId,
+    DISCUSSION_ENTITY_ASSIGNMENT,
+    assignmentId
+  )
+  return { ...core, discussions }
 }

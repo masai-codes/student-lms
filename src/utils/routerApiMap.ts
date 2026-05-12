@@ -26,15 +26,7 @@ export const routeApiMap = {
     "/(protected)/_layout/announcements/"
   ),
   support_o: getRouteApi(
-    "/(protected)/_layout/support/"
+    '/(protected)/_layout/support/'
   ),
-  discussions_a_i: getRouteApi(
-    "/(protected)/_layout/courses/$courseId/assignments_/$assignmentId/discussions/"
-  ),
-  discussions_l_i: getRouteApi(
-    "/(protected)/_layout/courses/$courseId/lectures_/$lectureId/discussions/"
-  ),
-  discussions: getRouteApi(
-    "/(protected)/_layout/discussions/"
-  )
+  bookmark: getRouteApi('/(protected)/_layout/bookmark/'),
 } as const

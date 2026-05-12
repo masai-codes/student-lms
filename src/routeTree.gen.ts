@@ -22,7 +22,6 @@ import { Route as protectedLayoutProfileIndexRouteImport } from './routes/(prote
 import { Route as protectedLayoutPracticeInterviewIndexRouteImport } from './routes/(protected)/_layout/practice-interview/index'
 import { Route as protectedLayoutMasaiverseIndexRouteImport } from './routes/(protected)/_layout/masaiverse/index'
 import { Route as protectedLayoutLearnIndexRouteImport } from './routes/(protected)/_layout/learn/index'
-import { Route as protectedLayoutDiscussionsIndexRouteImport } from './routes/(protected)/_layout/discussions/index'
 import { Route as protectedLayoutCoursesIndexRouteImport } from './routes/(protected)/_layout/courses/index'
 import { Route as protectedLayoutChatIndexRouteImport } from './routes/(protected)/_layout/chat/index'
 import { Route as protectedLayoutBookmarkIndexRouteImport } from './routes/(protected)/_layout/bookmark/index'
@@ -31,8 +30,6 @@ import { Route as protectedLayoutResourcesResourceIdRouteRouteImport } from './r
 import { Route as protectedLayoutLecturesLectureIdRouteRouteImport } from './routes/(protected)/_layout/lectures_/$lectureId/route'
 import { Route as protectedLayoutAssignmentsAssignmentIdRouteRouteImport } from './routes/(protected)/_layout/assignments_/$assignmentId/route'
 import { Route as protectedLayoutSupportSupportIdIndexRouteImport } from './routes/(protected)/_layout/support/$supportId/index'
-import { Route as protectedLayoutDiscussionsCreateIndexRouteImport } from './routes/(protected)/_layout/discussions/create/index'
-import { Route as protectedLayoutDiscussionsDiscussionIdIndexRouteImport } from './routes/(protected)/_layout/discussions/$discussionId/index'
 import { Route as protectedLayoutCoursesCourseIdCourseTabLayoutRouteRouteImport } from './routes/(protected)/_layout/courses/$courseId/_courseTabLayout/route'
 import { Route as protectedLayoutCoursesCourseIdCourseTabLayoutIndexRouteImport } from './routes/(protected)/_layout/courses/$courseId/_courseTabLayout/index'
 import { Route as protectedLayoutCoursesCourseIdResourcesResourceIdRouteRouteImport } from './routes/(protected)/_layout/courses/$courseId/resources_/$resourceId/route'
@@ -44,15 +41,6 @@ import { Route as protectedLayoutCoursesCourseIdAnnouncementsAnnouncementIdIndex
 import { Route as protectedLayoutCoursesCourseIdCourseTabLayoutResourcesIndexRouteImport } from './routes/(protected)/_layout/courses/$courseId/_courseTabLayout/resources/index'
 import { Route as protectedLayoutCoursesCourseIdCourseTabLayoutLecturesIndexRouteImport } from './routes/(protected)/_layout/courses/$courseId/_courseTabLayout/lectures/index'
 import { Route as protectedLayoutCoursesCourseIdCourseTabLayoutAssignmentsIndexRouteImport } from './routes/(protected)/_layout/courses/$courseId/_courseTabLayout/assignments/index'
-import { Route as protectedLayoutCoursesCourseIdResourcesResourceIdDiscussionsIndexRouteImport } from './routes/(protected)/_layout/courses/$courseId/resources_/$resourceId/discussions/index'
-import { Route as protectedLayoutCoursesCourseIdLecturesLectureIdDiscussionsIndexRouteImport } from './routes/(protected)/_layout/courses/$courseId/lectures_/$lectureId/discussions/index'
-import { Route as protectedLayoutCoursesCourseIdAssignmentsAssignmentIdDiscussionsIndexRouteImport } from './routes/(protected)/_layout/courses/$courseId/assignments_/$assignmentId/discussions/index'
-import { Route as protectedLayoutCoursesCourseIdResourcesResourceIdDiscussionsCreateIndexRouteImport } from './routes/(protected)/_layout/courses/$courseId/resources_/$resourceId/discussions/create/index'
-import { Route as protectedLayoutCoursesCourseIdResourcesResourceIdDiscussionsDiscussionIdIndexRouteImport } from './routes/(protected)/_layout/courses/$courseId/resources_/$resourceId/discussions/$discussionId/index'
-import { Route as protectedLayoutCoursesCourseIdLecturesLectureIdDiscussionsCreateIndexRouteImport } from './routes/(protected)/_layout/courses/$courseId/lectures_/$lectureId/discussions/create/index'
-import { Route as protectedLayoutCoursesCourseIdLecturesLectureIdDiscussionsDiscussionIdIndexRouteImport } from './routes/(protected)/_layout/courses/$courseId/lectures_/$lectureId/discussions/$discussionId/index'
-import { Route as protectedLayoutCoursesCourseIdAssignmentsAssignmentIdDiscussionsCreateIndexRouteImport } from './routes/(protected)/_layout/courses/$courseId/assignments_/$assignmentId/discussions/create/index'
-import { Route as protectedLayoutCoursesCourseIdAssignmentsAssignmentIdDiscussionsDiscussionIdIndexRouteImport } from './routes/(protected)/_layout/courses/$courseId/assignments_/$assignmentId/discussions/$discussionId/index'
 
 const TestRoute = TestRouteImport.update({
   id: '/test',
@@ -126,12 +114,6 @@ const protectedLayoutLearnIndexRoute =
     path: '/learn/',
     getParentRoute: () => protectedLayoutRouteRoute,
   } as any)
-const protectedLayoutDiscussionsIndexRoute =
-  protectedLayoutDiscussionsIndexRouteImport.update({
-    id: '/discussions/',
-    path: '/discussions/',
-    getParentRoute: () => protectedLayoutRouteRoute,
-  } as any)
 const protectedLayoutCoursesIndexRoute =
   protectedLayoutCoursesIndexRouteImport.update({
     id: '/courses/',
@@ -178,18 +160,6 @@ const protectedLayoutSupportSupportIdIndexRoute =
   protectedLayoutSupportSupportIdIndexRouteImport.update({
     id: '/support/$supportId/',
     path: '/support/$supportId/',
-    getParentRoute: () => protectedLayoutRouteRoute,
-  } as any)
-const protectedLayoutDiscussionsCreateIndexRoute =
-  protectedLayoutDiscussionsCreateIndexRouteImport.update({
-    id: '/discussions/create/',
-    path: '/discussions/create/',
-    getParentRoute: () => protectedLayoutRouteRoute,
-  } as any)
-const protectedLayoutDiscussionsDiscussionIdIndexRoute =
-  protectedLayoutDiscussionsDiscussionIdIndexRouteImport.update({
-    id: '/discussions/$discussionId/',
-    path: '/discussions/$discussionId/',
     getParentRoute: () => protectedLayoutRouteRoute,
   } as any)
 const protectedLayoutCoursesCourseIdCourseTabLayoutRouteRoute =
@@ -270,87 +240,6 @@ const protectedLayoutCoursesCourseIdCourseTabLayoutAssignmentsIndexRoute =
         protectedLayoutCoursesCourseIdCourseTabLayoutRouteRoute,
     } as any,
   )
-const protectedLayoutCoursesCourseIdResourcesResourceIdDiscussionsIndexRoute =
-  protectedLayoutCoursesCourseIdResourcesResourceIdDiscussionsIndexRouteImport.update(
-    {
-      id: '/discussions/',
-      path: '/discussions/',
-      getParentRoute: () =>
-        protectedLayoutCoursesCourseIdResourcesResourceIdRouteRoute,
-    } as any,
-  )
-const protectedLayoutCoursesCourseIdLecturesLectureIdDiscussionsIndexRoute =
-  protectedLayoutCoursesCourseIdLecturesLectureIdDiscussionsIndexRouteImport.update(
-    {
-      id: '/discussions/',
-      path: '/discussions/',
-      getParentRoute: () =>
-        protectedLayoutCoursesCourseIdLecturesLectureIdRouteRoute,
-    } as any,
-  )
-const protectedLayoutCoursesCourseIdAssignmentsAssignmentIdDiscussionsIndexRoute =
-  protectedLayoutCoursesCourseIdAssignmentsAssignmentIdDiscussionsIndexRouteImport.update(
-    {
-      id: '/discussions/',
-      path: '/discussions/',
-      getParentRoute: () =>
-        protectedLayoutCoursesCourseIdAssignmentsAssignmentIdRouteRoute,
-    } as any,
-  )
-const protectedLayoutCoursesCourseIdResourcesResourceIdDiscussionsCreateIndexRoute =
-  protectedLayoutCoursesCourseIdResourcesResourceIdDiscussionsCreateIndexRouteImport.update(
-    {
-      id: '/discussions/create/',
-      path: '/discussions/create/',
-      getParentRoute: () =>
-        protectedLayoutCoursesCourseIdResourcesResourceIdRouteRoute,
-    } as any,
-  )
-const protectedLayoutCoursesCourseIdResourcesResourceIdDiscussionsDiscussionIdIndexRoute =
-  protectedLayoutCoursesCourseIdResourcesResourceIdDiscussionsDiscussionIdIndexRouteImport.update(
-    {
-      id: '/discussions/$discussionId/',
-      path: '/discussions/$discussionId/',
-      getParentRoute: () =>
-        protectedLayoutCoursesCourseIdResourcesResourceIdRouteRoute,
-    } as any,
-  )
-const protectedLayoutCoursesCourseIdLecturesLectureIdDiscussionsCreateIndexRoute =
-  protectedLayoutCoursesCourseIdLecturesLectureIdDiscussionsCreateIndexRouteImport.update(
-    {
-      id: '/discussions/create/',
-      path: '/discussions/create/',
-      getParentRoute: () =>
-        protectedLayoutCoursesCourseIdLecturesLectureIdRouteRoute,
-    } as any,
-  )
-const protectedLayoutCoursesCourseIdLecturesLectureIdDiscussionsDiscussionIdIndexRoute =
-  protectedLayoutCoursesCourseIdLecturesLectureIdDiscussionsDiscussionIdIndexRouteImport.update(
-    {
-      id: '/discussions/$discussionId/',
-      path: '/discussions/$discussionId/',
-      getParentRoute: () =>
-        protectedLayoutCoursesCourseIdLecturesLectureIdRouteRoute,
-    } as any,
-  )
-const protectedLayoutCoursesCourseIdAssignmentsAssignmentIdDiscussionsCreateIndexRoute =
-  protectedLayoutCoursesCourseIdAssignmentsAssignmentIdDiscussionsCreateIndexRouteImport.update(
-    {
-      id: '/discussions/create/',
-      path: '/discussions/create/',
-      getParentRoute: () =>
-        protectedLayoutCoursesCourseIdAssignmentsAssignmentIdRouteRoute,
-    } as any,
-  )
-const protectedLayoutCoursesCourseIdAssignmentsAssignmentIdDiscussionsDiscussionIdIndexRoute =
-  protectedLayoutCoursesCourseIdAssignmentsAssignmentIdDiscussionsDiscussionIdIndexRouteImport.update(
-    {
-      id: '/discussions/$discussionId/',
-      path: '/discussions/$discussionId/',
-      getParentRoute: () =>
-        protectedLayoutCoursesCourseIdAssignmentsAssignmentIdRouteRoute,
-    } as any,
-  )
 
 export interface FileRoutesByFullPath {
   '/test': typeof TestRoute
@@ -365,7 +254,6 @@ export interface FileRoutesByFullPath {
   '/bookmark/': typeof protectedLayoutBookmarkIndexRoute
   '/chat/': typeof protectedLayoutChatIndexRoute
   '/courses/': typeof protectedLayoutCoursesIndexRoute
-  '/discussions/': typeof protectedLayoutDiscussionsIndexRoute
   '/learn/': typeof protectedLayoutLearnIndexRoute
   '/masaiverse/': typeof protectedLayoutMasaiverseIndexRoute
   '/practice-interview/': typeof protectedLayoutPracticeInterviewIndexRoute
@@ -374,11 +262,9 @@ export interface FileRoutesByFullPath {
   '/support/': typeof protectedLayoutSupportIndexRoute
   '/whats-new/': typeof protectedLayoutWhatsNewIndexRoute
   '/courses/$courseId': typeof protectedLayoutCoursesCourseIdCourseTabLayoutRouteRouteWithChildren
-  '/discussions/$discussionId/': typeof protectedLayoutDiscussionsDiscussionIdIndexRoute
-  '/discussions/create/': typeof protectedLayoutDiscussionsCreateIndexRoute
   '/support/$supportId/': typeof protectedLayoutSupportSupportIdIndexRoute
   '/courses/$courseId/assignments/$assignmentId': typeof protectedLayoutCoursesCourseIdAssignmentsAssignmentIdRouteRouteWithChildren
-  '/courses/$courseId/lectures/$lectureId': typeof protectedLayoutCoursesCourseIdLecturesLectureIdRouteRouteWithChildren
+  '/courses/$courseId/lectures/$lectureId': typeof protectedLayoutCoursesCourseIdLecturesLectureIdRouteRoute
   '/courses/$courseId/resources/$resourceId': typeof protectedLayoutCoursesCourseIdResourcesResourceIdRouteRouteWithChildren
   '/courses/$courseId/': typeof protectedLayoutCoursesCourseIdCourseTabLayoutIndexRoute
   '/courses/$courseId/assignments/': typeof protectedLayoutCoursesCourseIdCourseTabLayoutAssignmentsIndexRoute
@@ -387,15 +273,6 @@ export interface FileRoutesByFullPath {
   '/courses/$courseId/announcements/$announcementId/': typeof protectedLayoutCoursesCourseIdAnnouncementsAnnouncementIdIndexRoute
   '/courses/$courseId/assignments/$assignmentId/': typeof protectedLayoutCoursesCourseIdAssignmentsAssignmentIdIndexRoute
   '/courses/$courseId/resources/$resourceId/': typeof protectedLayoutCoursesCourseIdResourcesResourceIdIndexRoute
-  '/courses/$courseId/assignments/$assignmentId/discussions/': typeof protectedLayoutCoursesCourseIdAssignmentsAssignmentIdDiscussionsIndexRoute
-  '/courses/$courseId/lectures/$lectureId/discussions/': typeof protectedLayoutCoursesCourseIdLecturesLectureIdDiscussionsIndexRoute
-  '/courses/$courseId/resources/$resourceId/discussions/': typeof protectedLayoutCoursesCourseIdResourcesResourceIdDiscussionsIndexRoute
-  '/courses/$courseId/assignments/$assignmentId/discussions/$discussionId/': typeof protectedLayoutCoursesCourseIdAssignmentsAssignmentIdDiscussionsDiscussionIdIndexRoute
-  '/courses/$courseId/assignments/$assignmentId/discussions/create/': typeof protectedLayoutCoursesCourseIdAssignmentsAssignmentIdDiscussionsCreateIndexRoute
-  '/courses/$courseId/lectures/$lectureId/discussions/$discussionId/': typeof protectedLayoutCoursesCourseIdLecturesLectureIdDiscussionsDiscussionIdIndexRoute
-  '/courses/$courseId/lectures/$lectureId/discussions/create/': typeof protectedLayoutCoursesCourseIdLecturesLectureIdDiscussionsCreateIndexRoute
-  '/courses/$courseId/resources/$resourceId/discussions/$discussionId/': typeof protectedLayoutCoursesCourseIdResourcesResourceIdDiscussionsDiscussionIdIndexRoute
-  '/courses/$courseId/resources/$resourceId/discussions/create/': typeof protectedLayoutCoursesCourseIdResourcesResourceIdDiscussionsCreateIndexRoute
 }
 export interface FileRoutesByTo {
   '/test': typeof TestRoute
@@ -409,7 +286,6 @@ export interface FileRoutesByTo {
   '/bookmark': typeof protectedLayoutBookmarkIndexRoute
   '/chat': typeof protectedLayoutChatIndexRoute
   '/courses': typeof protectedLayoutCoursesIndexRoute
-  '/discussions': typeof protectedLayoutDiscussionsIndexRoute
   '/learn': typeof protectedLayoutLearnIndexRoute
   '/masaiverse': typeof protectedLayoutMasaiverseIndexRoute
   '/practice-interview': typeof protectedLayoutPracticeInterviewIndexRoute
@@ -417,10 +293,8 @@ export interface FileRoutesByTo {
   '/refer-and-earn': typeof protectedLayoutReferAndEarnIndexRoute
   '/support': typeof protectedLayoutSupportIndexRoute
   '/whats-new': typeof protectedLayoutWhatsNewIndexRoute
-  '/discussions/$discussionId': typeof protectedLayoutDiscussionsDiscussionIdIndexRoute
-  '/discussions/create': typeof protectedLayoutDiscussionsCreateIndexRoute
   '/support/$supportId': typeof protectedLayoutSupportSupportIdIndexRoute
-  '/courses/$courseId/lectures/$lectureId': typeof protectedLayoutCoursesCourseIdLecturesLectureIdRouteRouteWithChildren
+  '/courses/$courseId/lectures/$lectureId': typeof protectedLayoutCoursesCourseIdLecturesLectureIdRouteRoute
   '/courses/$courseId': typeof protectedLayoutCoursesCourseIdCourseTabLayoutIndexRoute
   '/courses/$courseId/assignments': typeof protectedLayoutCoursesCourseIdCourseTabLayoutAssignmentsIndexRoute
   '/courses/$courseId/lectures': typeof protectedLayoutCoursesCourseIdCourseTabLayoutLecturesIndexRoute
@@ -428,15 +302,6 @@ export interface FileRoutesByTo {
   '/courses/$courseId/announcements/$announcementId': typeof protectedLayoutCoursesCourseIdAnnouncementsAnnouncementIdIndexRoute
   '/courses/$courseId/assignments/$assignmentId': typeof protectedLayoutCoursesCourseIdAssignmentsAssignmentIdIndexRoute
   '/courses/$courseId/resources/$resourceId': typeof protectedLayoutCoursesCourseIdResourcesResourceIdIndexRoute
-  '/courses/$courseId/assignments/$assignmentId/discussions': typeof protectedLayoutCoursesCourseIdAssignmentsAssignmentIdDiscussionsIndexRoute
-  '/courses/$courseId/lectures/$lectureId/discussions': typeof protectedLayoutCoursesCourseIdLecturesLectureIdDiscussionsIndexRoute
-  '/courses/$courseId/resources/$resourceId/discussions': typeof protectedLayoutCoursesCourseIdResourcesResourceIdDiscussionsIndexRoute
-  '/courses/$courseId/assignments/$assignmentId/discussions/$discussionId': typeof protectedLayoutCoursesCourseIdAssignmentsAssignmentIdDiscussionsDiscussionIdIndexRoute
-  '/courses/$courseId/assignments/$assignmentId/discussions/create': typeof protectedLayoutCoursesCourseIdAssignmentsAssignmentIdDiscussionsCreateIndexRoute
-  '/courses/$courseId/lectures/$lectureId/discussions/$discussionId': typeof protectedLayoutCoursesCourseIdLecturesLectureIdDiscussionsDiscussionIdIndexRoute
-  '/courses/$courseId/lectures/$lectureId/discussions/create': typeof protectedLayoutCoursesCourseIdLecturesLectureIdDiscussionsCreateIndexRoute
-  '/courses/$courseId/resources/$resourceId/discussions/$discussionId': typeof protectedLayoutCoursesCourseIdResourcesResourceIdDiscussionsDiscussionIdIndexRoute
-  '/courses/$courseId/resources/$resourceId/discussions/create': typeof protectedLayoutCoursesCourseIdResourcesResourceIdDiscussionsCreateIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -453,7 +318,6 @@ export interface FileRoutesById {
   '/(protected)/_layout/bookmark/': typeof protectedLayoutBookmarkIndexRoute
   '/(protected)/_layout/chat/': typeof protectedLayoutChatIndexRoute
   '/(protected)/_layout/courses/': typeof protectedLayoutCoursesIndexRoute
-  '/(protected)/_layout/discussions/': typeof protectedLayoutDiscussionsIndexRoute
   '/(protected)/_layout/learn/': typeof protectedLayoutLearnIndexRoute
   '/(protected)/_layout/masaiverse/': typeof protectedLayoutMasaiverseIndexRoute
   '/(protected)/_layout/practice-interview/': typeof protectedLayoutPracticeInterviewIndexRoute
@@ -462,11 +326,9 @@ export interface FileRoutesById {
   '/(protected)/_layout/support/': typeof protectedLayoutSupportIndexRoute
   '/(protected)/_layout/whats-new/': typeof protectedLayoutWhatsNewIndexRoute
   '/(protected)/_layout/courses/$courseId/_courseTabLayout': typeof protectedLayoutCoursesCourseIdCourseTabLayoutRouteRouteWithChildren
-  '/(protected)/_layout/discussions/$discussionId/': typeof protectedLayoutDiscussionsDiscussionIdIndexRoute
-  '/(protected)/_layout/discussions/create/': typeof protectedLayoutDiscussionsCreateIndexRoute
   '/(protected)/_layout/support/$supportId/': typeof protectedLayoutSupportSupportIdIndexRoute
   '/(protected)/_layout/courses/$courseId/assignments_/$assignmentId': typeof protectedLayoutCoursesCourseIdAssignmentsAssignmentIdRouteRouteWithChildren
-  '/(protected)/_layout/courses/$courseId/lectures_/$lectureId': typeof protectedLayoutCoursesCourseIdLecturesLectureIdRouteRouteWithChildren
+  '/(protected)/_layout/courses/$courseId/lectures_/$lectureId': typeof protectedLayoutCoursesCourseIdLecturesLectureIdRouteRoute
   '/(protected)/_layout/courses/$courseId/resources_/$resourceId': typeof protectedLayoutCoursesCourseIdResourcesResourceIdRouteRouteWithChildren
   '/(protected)/_layout/courses/$courseId/_courseTabLayout/': typeof protectedLayoutCoursesCourseIdCourseTabLayoutIndexRoute
   '/(protected)/_layout/courses/$courseId/_courseTabLayout/assignments/': typeof protectedLayoutCoursesCourseIdCourseTabLayoutAssignmentsIndexRoute
@@ -475,15 +337,6 @@ export interface FileRoutesById {
   '/(protected)/_layout/courses/$courseId/announcements_/$announcementId/': typeof protectedLayoutCoursesCourseIdAnnouncementsAnnouncementIdIndexRoute
   '/(protected)/_layout/courses/$courseId/assignments_/$assignmentId/': typeof protectedLayoutCoursesCourseIdAssignmentsAssignmentIdIndexRoute
   '/(protected)/_layout/courses/$courseId/resources_/$resourceId/': typeof protectedLayoutCoursesCourseIdResourcesResourceIdIndexRoute
-  '/(protected)/_layout/courses/$courseId/assignments_/$assignmentId/discussions/': typeof protectedLayoutCoursesCourseIdAssignmentsAssignmentIdDiscussionsIndexRoute
-  '/(protected)/_layout/courses/$courseId/lectures_/$lectureId/discussions/': typeof protectedLayoutCoursesCourseIdLecturesLectureIdDiscussionsIndexRoute
-  '/(protected)/_layout/courses/$courseId/resources_/$resourceId/discussions/': typeof protectedLayoutCoursesCourseIdResourcesResourceIdDiscussionsIndexRoute
-  '/(protected)/_layout/courses/$courseId/assignments_/$assignmentId/discussions/$discussionId/': typeof protectedLayoutCoursesCourseIdAssignmentsAssignmentIdDiscussionsDiscussionIdIndexRoute
-  '/(protected)/_layout/courses/$courseId/assignments_/$assignmentId/discussions/create/': typeof protectedLayoutCoursesCourseIdAssignmentsAssignmentIdDiscussionsCreateIndexRoute
-  '/(protected)/_layout/courses/$courseId/lectures_/$lectureId/discussions/$discussionId/': typeof protectedLayoutCoursesCourseIdLecturesLectureIdDiscussionsDiscussionIdIndexRoute
-  '/(protected)/_layout/courses/$courseId/lectures_/$lectureId/discussions/create/': typeof protectedLayoutCoursesCourseIdLecturesLectureIdDiscussionsCreateIndexRoute
-  '/(protected)/_layout/courses/$courseId/resources_/$resourceId/discussions/$discussionId/': typeof protectedLayoutCoursesCourseIdResourcesResourceIdDiscussionsDiscussionIdIndexRoute
-  '/(protected)/_layout/courses/$courseId/resources_/$resourceId/discussions/create/': typeof protectedLayoutCoursesCourseIdResourcesResourceIdDiscussionsCreateIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -500,7 +353,6 @@ export interface FileRouteTypes {
     | '/bookmark/'
     | '/chat/'
     | '/courses/'
-    | '/discussions/'
     | '/learn/'
     | '/masaiverse/'
     | '/practice-interview/'
@@ -509,8 +361,6 @@ export interface FileRouteTypes {
     | '/support/'
     | '/whats-new/'
     | '/courses/$courseId'
-    | '/discussions/$discussionId/'
-    | '/discussions/create/'
     | '/support/$supportId/'
     | '/courses/$courseId/assignments/$assignmentId'
     | '/courses/$courseId/lectures/$lectureId'
@@ -522,15 +372,6 @@ export interface FileRouteTypes {
     | '/courses/$courseId/announcements/$announcementId/'
     | '/courses/$courseId/assignments/$assignmentId/'
     | '/courses/$courseId/resources/$resourceId/'
-    | '/courses/$courseId/assignments/$assignmentId/discussions/'
-    | '/courses/$courseId/lectures/$lectureId/discussions/'
-    | '/courses/$courseId/resources/$resourceId/discussions/'
-    | '/courses/$courseId/assignments/$assignmentId/discussions/$discussionId/'
-    | '/courses/$courseId/assignments/$assignmentId/discussions/create/'
-    | '/courses/$courseId/lectures/$lectureId/discussions/$discussionId/'
-    | '/courses/$courseId/lectures/$lectureId/discussions/create/'
-    | '/courses/$courseId/resources/$resourceId/discussions/$discussionId/'
-    | '/courses/$courseId/resources/$resourceId/discussions/create/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/test'
@@ -544,7 +385,6 @@ export interface FileRouteTypes {
     | '/bookmark'
     | '/chat'
     | '/courses'
-    | '/discussions'
     | '/learn'
     | '/masaiverse'
     | '/practice-interview'
@@ -552,8 +392,6 @@ export interface FileRouteTypes {
     | '/refer-and-earn'
     | '/support'
     | '/whats-new'
-    | '/discussions/$discussionId'
-    | '/discussions/create'
     | '/support/$supportId'
     | '/courses/$courseId/lectures/$lectureId'
     | '/courses/$courseId'
@@ -563,15 +401,6 @@ export interface FileRouteTypes {
     | '/courses/$courseId/announcements/$announcementId'
     | '/courses/$courseId/assignments/$assignmentId'
     | '/courses/$courseId/resources/$resourceId'
-    | '/courses/$courseId/assignments/$assignmentId/discussions'
-    | '/courses/$courseId/lectures/$lectureId/discussions'
-    | '/courses/$courseId/resources/$resourceId/discussions'
-    | '/courses/$courseId/assignments/$assignmentId/discussions/$discussionId'
-    | '/courses/$courseId/assignments/$assignmentId/discussions/create'
-    | '/courses/$courseId/lectures/$lectureId/discussions/$discussionId'
-    | '/courses/$courseId/lectures/$lectureId/discussions/create'
-    | '/courses/$courseId/resources/$resourceId/discussions/$discussionId'
-    | '/courses/$courseId/resources/$resourceId/discussions/create'
   id:
     | '__root__'
     | '/test'
@@ -587,7 +416,6 @@ export interface FileRouteTypes {
     | '/(protected)/_layout/bookmark/'
     | '/(protected)/_layout/chat/'
     | '/(protected)/_layout/courses/'
-    | '/(protected)/_layout/discussions/'
     | '/(protected)/_layout/learn/'
     | '/(protected)/_layout/masaiverse/'
     | '/(protected)/_layout/practice-interview/'
@@ -596,8 +424,6 @@ export interface FileRouteTypes {
     | '/(protected)/_layout/support/'
     | '/(protected)/_layout/whats-new/'
     | '/(protected)/_layout/courses/$courseId/_courseTabLayout'
-    | '/(protected)/_layout/discussions/$discussionId/'
-    | '/(protected)/_layout/discussions/create/'
     | '/(protected)/_layout/support/$supportId/'
     | '/(protected)/_layout/courses/$courseId/assignments_/$assignmentId'
     | '/(protected)/_layout/courses/$courseId/lectures_/$lectureId'
@@ -609,15 +435,6 @@ export interface FileRouteTypes {
     | '/(protected)/_layout/courses/$courseId/announcements_/$announcementId/'
     | '/(protected)/_layout/courses/$courseId/assignments_/$assignmentId/'
     | '/(protected)/_layout/courses/$courseId/resources_/$resourceId/'
-    | '/(protected)/_layout/courses/$courseId/assignments_/$assignmentId/discussions/'
-    | '/(protected)/_layout/courses/$courseId/lectures_/$lectureId/discussions/'
-    | '/(protected)/_layout/courses/$courseId/resources_/$resourceId/discussions/'
-    | '/(protected)/_layout/courses/$courseId/assignments_/$assignmentId/discussions/$discussionId/'
-    | '/(protected)/_layout/courses/$courseId/assignments_/$assignmentId/discussions/create/'
-    | '/(protected)/_layout/courses/$courseId/lectures_/$lectureId/discussions/$discussionId/'
-    | '/(protected)/_layout/courses/$courseId/lectures_/$lectureId/discussions/create/'
-    | '/(protected)/_layout/courses/$courseId/resources_/$resourceId/discussions/$discussionId/'
-    | '/(protected)/_layout/courses/$courseId/resources_/$resourceId/discussions/create/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -720,13 +537,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof protectedLayoutLearnIndexRouteImport
       parentRoute: typeof protectedLayoutRouteRoute
     }
-    '/(protected)/_layout/discussions/': {
-      id: '/(protected)/_layout/discussions/'
-      path: '/discussions'
-      fullPath: '/discussions/'
-      preLoaderRoute: typeof protectedLayoutDiscussionsIndexRouteImport
-      parentRoute: typeof protectedLayoutRouteRoute
-    }
     '/(protected)/_layout/courses/': {
       id: '/(protected)/_layout/courses/'
       path: '/courses'
@@ -781,20 +591,6 @@ declare module '@tanstack/react-router' {
       path: '/support/$supportId'
       fullPath: '/support/$supportId/'
       preLoaderRoute: typeof protectedLayoutSupportSupportIdIndexRouteImport
-      parentRoute: typeof protectedLayoutRouteRoute
-    }
-    '/(protected)/_layout/discussions/create/': {
-      id: '/(protected)/_layout/discussions/create/'
-      path: '/discussions/create'
-      fullPath: '/discussions/create/'
-      preLoaderRoute: typeof protectedLayoutDiscussionsCreateIndexRouteImport
-      parentRoute: typeof protectedLayoutRouteRoute
-    }
-    '/(protected)/_layout/discussions/$discussionId/': {
-      id: '/(protected)/_layout/discussions/$discussionId/'
-      path: '/discussions/$discussionId'
-      fullPath: '/discussions/$discussionId/'
-      preLoaderRoute: typeof protectedLayoutDiscussionsDiscussionIdIndexRouteImport
       parentRoute: typeof protectedLayoutRouteRoute
     }
     '/(protected)/_layout/courses/$courseId/_courseTabLayout': {
@@ -874,69 +670,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof protectedLayoutCoursesCourseIdCourseTabLayoutAssignmentsIndexRouteImport
       parentRoute: typeof protectedLayoutCoursesCourseIdCourseTabLayoutRouteRoute
     }
-    '/(protected)/_layout/courses/$courseId/resources_/$resourceId/discussions/': {
-      id: '/(protected)/_layout/courses/$courseId/resources_/$resourceId/discussions/'
-      path: '/discussions'
-      fullPath: '/courses/$courseId/resources/$resourceId/discussions/'
-      preLoaderRoute: typeof protectedLayoutCoursesCourseIdResourcesResourceIdDiscussionsIndexRouteImport
-      parentRoute: typeof protectedLayoutCoursesCourseIdResourcesResourceIdRouteRoute
-    }
-    '/(protected)/_layout/courses/$courseId/lectures_/$lectureId/discussions/': {
-      id: '/(protected)/_layout/courses/$courseId/lectures_/$lectureId/discussions/'
-      path: '/discussions'
-      fullPath: '/courses/$courseId/lectures/$lectureId/discussions/'
-      preLoaderRoute: typeof protectedLayoutCoursesCourseIdLecturesLectureIdDiscussionsIndexRouteImport
-      parentRoute: typeof protectedLayoutCoursesCourseIdLecturesLectureIdRouteRoute
-    }
-    '/(protected)/_layout/courses/$courseId/assignments_/$assignmentId/discussions/': {
-      id: '/(protected)/_layout/courses/$courseId/assignments_/$assignmentId/discussions/'
-      path: '/discussions'
-      fullPath: '/courses/$courseId/assignments/$assignmentId/discussions/'
-      preLoaderRoute: typeof protectedLayoutCoursesCourseIdAssignmentsAssignmentIdDiscussionsIndexRouteImport
-      parentRoute: typeof protectedLayoutCoursesCourseIdAssignmentsAssignmentIdRouteRoute
-    }
-    '/(protected)/_layout/courses/$courseId/resources_/$resourceId/discussions/create/': {
-      id: '/(protected)/_layout/courses/$courseId/resources_/$resourceId/discussions/create/'
-      path: '/discussions/create'
-      fullPath: '/courses/$courseId/resources/$resourceId/discussions/create/'
-      preLoaderRoute: typeof protectedLayoutCoursesCourseIdResourcesResourceIdDiscussionsCreateIndexRouteImport
-      parentRoute: typeof protectedLayoutCoursesCourseIdResourcesResourceIdRouteRoute
-    }
-    '/(protected)/_layout/courses/$courseId/resources_/$resourceId/discussions/$discussionId/': {
-      id: '/(protected)/_layout/courses/$courseId/resources_/$resourceId/discussions/$discussionId/'
-      path: '/discussions/$discussionId'
-      fullPath: '/courses/$courseId/resources/$resourceId/discussions/$discussionId/'
-      preLoaderRoute: typeof protectedLayoutCoursesCourseIdResourcesResourceIdDiscussionsDiscussionIdIndexRouteImport
-      parentRoute: typeof protectedLayoutCoursesCourseIdResourcesResourceIdRouteRoute
-    }
-    '/(protected)/_layout/courses/$courseId/lectures_/$lectureId/discussions/create/': {
-      id: '/(protected)/_layout/courses/$courseId/lectures_/$lectureId/discussions/create/'
-      path: '/discussions/create'
-      fullPath: '/courses/$courseId/lectures/$lectureId/discussions/create/'
-      preLoaderRoute: typeof protectedLayoutCoursesCourseIdLecturesLectureIdDiscussionsCreateIndexRouteImport
-      parentRoute: typeof protectedLayoutCoursesCourseIdLecturesLectureIdRouteRoute
-    }
-    '/(protected)/_layout/courses/$courseId/lectures_/$lectureId/discussions/$discussionId/': {
-      id: '/(protected)/_layout/courses/$courseId/lectures_/$lectureId/discussions/$discussionId/'
-      path: '/discussions/$discussionId'
-      fullPath: '/courses/$courseId/lectures/$lectureId/discussions/$discussionId/'
-      preLoaderRoute: typeof protectedLayoutCoursesCourseIdLecturesLectureIdDiscussionsDiscussionIdIndexRouteImport
-      parentRoute: typeof protectedLayoutCoursesCourseIdLecturesLectureIdRouteRoute
-    }
-    '/(protected)/_layout/courses/$courseId/assignments_/$assignmentId/discussions/create/': {
-      id: '/(protected)/_layout/courses/$courseId/assignments_/$assignmentId/discussions/create/'
-      path: '/discussions/create'
-      fullPath: '/courses/$courseId/assignments/$assignmentId/discussions/create/'
-      preLoaderRoute: typeof protectedLayoutCoursesCourseIdAssignmentsAssignmentIdDiscussionsCreateIndexRouteImport
-      parentRoute: typeof protectedLayoutCoursesCourseIdAssignmentsAssignmentIdRouteRoute
-    }
-    '/(protected)/_layout/courses/$courseId/assignments_/$assignmentId/discussions/$discussionId/': {
-      id: '/(protected)/_layout/courses/$courseId/assignments_/$assignmentId/discussions/$discussionId/'
-      path: '/discussions/$discussionId'
-      fullPath: '/courses/$courseId/assignments/$assignmentId/discussions/$discussionId/'
-      preLoaderRoute: typeof protectedLayoutCoursesCourseIdAssignmentsAssignmentIdDiscussionsDiscussionIdIndexRouteImport
-      parentRoute: typeof protectedLayoutCoursesCourseIdAssignmentsAssignmentIdRouteRoute
-    }
   }
 }
 
@@ -980,21 +713,12 @@ const protectedLayoutCoursesCourseIdCourseTabLayoutRouteRouteWithChildren =
 
 interface protectedLayoutCoursesCourseIdAssignmentsAssignmentIdRouteRouteChildren {
   protectedLayoutCoursesCourseIdAssignmentsAssignmentIdIndexRoute: typeof protectedLayoutCoursesCourseIdAssignmentsAssignmentIdIndexRoute
-  protectedLayoutCoursesCourseIdAssignmentsAssignmentIdDiscussionsIndexRoute: typeof protectedLayoutCoursesCourseIdAssignmentsAssignmentIdDiscussionsIndexRoute
-  protectedLayoutCoursesCourseIdAssignmentsAssignmentIdDiscussionsDiscussionIdIndexRoute: typeof protectedLayoutCoursesCourseIdAssignmentsAssignmentIdDiscussionsDiscussionIdIndexRoute
-  protectedLayoutCoursesCourseIdAssignmentsAssignmentIdDiscussionsCreateIndexRoute: typeof protectedLayoutCoursesCourseIdAssignmentsAssignmentIdDiscussionsCreateIndexRoute
 }
 
 const protectedLayoutCoursesCourseIdAssignmentsAssignmentIdRouteRouteChildren: protectedLayoutCoursesCourseIdAssignmentsAssignmentIdRouteRouteChildren =
   {
     protectedLayoutCoursesCourseIdAssignmentsAssignmentIdIndexRoute:
       protectedLayoutCoursesCourseIdAssignmentsAssignmentIdIndexRoute,
-    protectedLayoutCoursesCourseIdAssignmentsAssignmentIdDiscussionsIndexRoute:
-      protectedLayoutCoursesCourseIdAssignmentsAssignmentIdDiscussionsIndexRoute,
-    protectedLayoutCoursesCourseIdAssignmentsAssignmentIdDiscussionsDiscussionIdIndexRoute:
-      protectedLayoutCoursesCourseIdAssignmentsAssignmentIdDiscussionsDiscussionIdIndexRoute,
-    protectedLayoutCoursesCourseIdAssignmentsAssignmentIdDiscussionsCreateIndexRoute:
-      protectedLayoutCoursesCourseIdAssignmentsAssignmentIdDiscussionsCreateIndexRoute,
   }
 
 const protectedLayoutCoursesCourseIdAssignmentsAssignmentIdRouteRouteWithChildren =
@@ -1002,44 +726,14 @@ const protectedLayoutCoursesCourseIdAssignmentsAssignmentIdRouteRouteWithChildre
     protectedLayoutCoursesCourseIdAssignmentsAssignmentIdRouteRouteChildren,
   )
 
-interface protectedLayoutCoursesCourseIdLecturesLectureIdRouteRouteChildren {
-  protectedLayoutCoursesCourseIdLecturesLectureIdDiscussionsIndexRoute: typeof protectedLayoutCoursesCourseIdLecturesLectureIdDiscussionsIndexRoute
-  protectedLayoutCoursesCourseIdLecturesLectureIdDiscussionsDiscussionIdIndexRoute: typeof protectedLayoutCoursesCourseIdLecturesLectureIdDiscussionsDiscussionIdIndexRoute
-  protectedLayoutCoursesCourseIdLecturesLectureIdDiscussionsCreateIndexRoute: typeof protectedLayoutCoursesCourseIdLecturesLectureIdDiscussionsCreateIndexRoute
-}
-
-const protectedLayoutCoursesCourseIdLecturesLectureIdRouteRouteChildren: protectedLayoutCoursesCourseIdLecturesLectureIdRouteRouteChildren =
-  {
-    protectedLayoutCoursesCourseIdLecturesLectureIdDiscussionsIndexRoute:
-      protectedLayoutCoursesCourseIdLecturesLectureIdDiscussionsIndexRoute,
-    protectedLayoutCoursesCourseIdLecturesLectureIdDiscussionsDiscussionIdIndexRoute:
-      protectedLayoutCoursesCourseIdLecturesLectureIdDiscussionsDiscussionIdIndexRoute,
-    protectedLayoutCoursesCourseIdLecturesLectureIdDiscussionsCreateIndexRoute:
-      protectedLayoutCoursesCourseIdLecturesLectureIdDiscussionsCreateIndexRoute,
-  }
-
-const protectedLayoutCoursesCourseIdLecturesLectureIdRouteRouteWithChildren =
-  protectedLayoutCoursesCourseIdLecturesLectureIdRouteRoute._addFileChildren(
-    protectedLayoutCoursesCourseIdLecturesLectureIdRouteRouteChildren,
-  )
-
 interface protectedLayoutCoursesCourseIdResourcesResourceIdRouteRouteChildren {
   protectedLayoutCoursesCourseIdResourcesResourceIdIndexRoute: typeof protectedLayoutCoursesCourseIdResourcesResourceIdIndexRoute
-  protectedLayoutCoursesCourseIdResourcesResourceIdDiscussionsIndexRoute: typeof protectedLayoutCoursesCourseIdResourcesResourceIdDiscussionsIndexRoute
-  protectedLayoutCoursesCourseIdResourcesResourceIdDiscussionsDiscussionIdIndexRoute: typeof protectedLayoutCoursesCourseIdResourcesResourceIdDiscussionsDiscussionIdIndexRoute
-  protectedLayoutCoursesCourseIdResourcesResourceIdDiscussionsCreateIndexRoute: typeof protectedLayoutCoursesCourseIdResourcesResourceIdDiscussionsCreateIndexRoute
 }
 
 const protectedLayoutCoursesCourseIdResourcesResourceIdRouteRouteChildren: protectedLayoutCoursesCourseIdResourcesResourceIdRouteRouteChildren =
   {
     protectedLayoutCoursesCourseIdResourcesResourceIdIndexRoute:
       protectedLayoutCoursesCourseIdResourcesResourceIdIndexRoute,
-    protectedLayoutCoursesCourseIdResourcesResourceIdDiscussionsIndexRoute:
-      protectedLayoutCoursesCourseIdResourcesResourceIdDiscussionsIndexRoute,
-    protectedLayoutCoursesCourseIdResourcesResourceIdDiscussionsDiscussionIdIndexRoute:
-      protectedLayoutCoursesCourseIdResourcesResourceIdDiscussionsDiscussionIdIndexRoute,
-    protectedLayoutCoursesCourseIdResourcesResourceIdDiscussionsCreateIndexRoute:
-      protectedLayoutCoursesCourseIdResourcesResourceIdDiscussionsCreateIndexRoute,
   }
 
 const protectedLayoutCoursesCourseIdResourcesResourceIdRouteRouteWithChildren =
@@ -1057,7 +751,6 @@ interface protectedLayoutRouteRouteChildren {
   protectedLayoutBookmarkIndexRoute: typeof protectedLayoutBookmarkIndexRoute
   protectedLayoutChatIndexRoute: typeof protectedLayoutChatIndexRoute
   protectedLayoutCoursesIndexRoute: typeof protectedLayoutCoursesIndexRoute
-  protectedLayoutDiscussionsIndexRoute: typeof protectedLayoutDiscussionsIndexRoute
   protectedLayoutLearnIndexRoute: typeof protectedLayoutLearnIndexRoute
   protectedLayoutPracticeInterviewIndexRoute: typeof protectedLayoutPracticeInterviewIndexRoute
   protectedLayoutProfileIndexRoute: typeof protectedLayoutProfileIndexRoute
@@ -1065,11 +758,9 @@ interface protectedLayoutRouteRouteChildren {
   protectedLayoutSupportIndexRoute: typeof protectedLayoutSupportIndexRoute
   protectedLayoutWhatsNewIndexRoute: typeof protectedLayoutWhatsNewIndexRoute
   protectedLayoutCoursesCourseIdCourseTabLayoutRouteRoute: typeof protectedLayoutCoursesCourseIdCourseTabLayoutRouteRouteWithChildren
-  protectedLayoutDiscussionsDiscussionIdIndexRoute: typeof protectedLayoutDiscussionsDiscussionIdIndexRoute
-  protectedLayoutDiscussionsCreateIndexRoute: typeof protectedLayoutDiscussionsCreateIndexRoute
   protectedLayoutSupportSupportIdIndexRoute: typeof protectedLayoutSupportSupportIdIndexRoute
   protectedLayoutCoursesCourseIdAssignmentsAssignmentIdRouteRoute: typeof protectedLayoutCoursesCourseIdAssignmentsAssignmentIdRouteRouteWithChildren
-  protectedLayoutCoursesCourseIdLecturesLectureIdRouteRoute: typeof protectedLayoutCoursesCourseIdLecturesLectureIdRouteRouteWithChildren
+  protectedLayoutCoursesCourseIdLecturesLectureIdRouteRoute: typeof protectedLayoutCoursesCourseIdLecturesLectureIdRouteRoute
   protectedLayoutCoursesCourseIdResourcesResourceIdRouteRoute: typeof protectedLayoutCoursesCourseIdResourcesResourceIdRouteRouteWithChildren
   protectedLayoutCoursesCourseIdAnnouncementsAnnouncementIdIndexRoute: typeof protectedLayoutCoursesCourseIdAnnouncementsAnnouncementIdIndexRoute
 }
@@ -1089,7 +780,6 @@ const protectedLayoutRouteRouteChildren: protectedLayoutRouteRouteChildren = {
   protectedLayoutBookmarkIndexRoute: protectedLayoutBookmarkIndexRoute,
   protectedLayoutChatIndexRoute: protectedLayoutChatIndexRoute,
   protectedLayoutCoursesIndexRoute: protectedLayoutCoursesIndexRoute,
-  protectedLayoutDiscussionsIndexRoute: protectedLayoutDiscussionsIndexRoute,
   protectedLayoutLearnIndexRoute: protectedLayoutLearnIndexRoute,
   protectedLayoutPracticeInterviewIndexRoute:
     protectedLayoutPracticeInterviewIndexRoute,
@@ -1099,16 +789,12 @@ const protectedLayoutRouteRouteChildren: protectedLayoutRouteRouteChildren = {
   protectedLayoutWhatsNewIndexRoute: protectedLayoutWhatsNewIndexRoute,
   protectedLayoutCoursesCourseIdCourseTabLayoutRouteRoute:
     protectedLayoutCoursesCourseIdCourseTabLayoutRouteRouteWithChildren,
-  protectedLayoutDiscussionsDiscussionIdIndexRoute:
-    protectedLayoutDiscussionsDiscussionIdIndexRoute,
-  protectedLayoutDiscussionsCreateIndexRoute:
-    protectedLayoutDiscussionsCreateIndexRoute,
   protectedLayoutSupportSupportIdIndexRoute:
     protectedLayoutSupportSupportIdIndexRoute,
   protectedLayoutCoursesCourseIdAssignmentsAssignmentIdRouteRoute:
     protectedLayoutCoursesCourseIdAssignmentsAssignmentIdRouteRouteWithChildren,
   protectedLayoutCoursesCourseIdLecturesLectureIdRouteRoute:
-    protectedLayoutCoursesCourseIdLecturesLectureIdRouteRouteWithChildren,
+    protectedLayoutCoursesCourseIdLecturesLectureIdRouteRoute,
   protectedLayoutCoursesCourseIdResourcesResourceIdRouteRoute:
     protectedLayoutCoursesCourseIdResourcesResourceIdRouteRouteWithChildren,
   protectedLayoutCoursesCourseIdAnnouncementsAnnouncementIdIndexRoute:

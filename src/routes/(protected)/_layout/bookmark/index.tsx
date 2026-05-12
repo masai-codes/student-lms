@@ -1,33 +1,17 @@
 import { createFileRoute } from '@tanstack/react-router'
-import type { BookmarkType } from '@/components/features/discussions'
+
+import type {BookmarkType} from '@/components/features/bookmark/BookmarkTabFilters';
 import { FilterAndSeachBar } from '@/components/common'
-import { PAGINATION_PAGE_SIZE } from '@/globalSettings'
-import { Pagination as AppPagination } from '@/components/common'
+import { BookmarkTabFilters  } from '@/components/features/bookmark/BookmarkTabFilters'
 
-import {
-  getCurrentPage,
-  getTotalPages,
-} from '@/utils/pagination'
-import { createPageSetter } from '@/utils/routerPagination'
-import { DiscussionCard } from '@/components/features/discussions'
-import { fetchAllDiscussions } from '@/server/discussions/fetchAllDiscussions'
-import { fetchAllDiscussionsCount } from '@/server/discussions/fetchAllDiscussionsCount'
-import { Skeleton } from '@/components/ui/skeleton'
-import { BookmarkTabFilters } from '@/components/features/discussions'
+export type DiscussionType = BookmarkType
 
-/** URL-driven discussion filter */
-export type DiscussionType = 'lecture' | 'assignment' | 'resources' | 'announcement' | 'discussion'
-
-export const Route = createFileRoute(
-  '/(protected)/_layout/bookmark/',
-)({
-  validateSearch: (search) => {
+export const Route = createFileRoute('/(protected)/_layout/bookmark/')({
+  validateSearch: search => {
     const page =
-      typeof search.page === 'number'
-        ? search.page
-        : Number(search.page)
+      typeof search.page === 'number' ? search.page : Number(search.page)
 
-    const type: DiscussionType | undefined =
+    const type: BookmarkType | undefined =
       search.type === 'lecture' ||
       search.type === 'assignment' ||
       search.type === 'resources' ||
@@ -43,62 +27,17 @@ export const Route = createFileRoute(
   },
 
   component: RouteComponent,
-
-  pendingComponent: () => {
-    return (
-      <SkeletonDiscussion />
-    )
-  },
-
-  loaderDeps: ({ search: { page, type } }) => ({
-    page,
-    type,
-  }),
-
-  loader: async ({ deps, context }) => {
-    const { page, type } = deps
-    const { user } = context
-
-    const discussionList = await fetchAllDiscussions({
-      data: {
-        userId: user.id,
-        page,
-        // type,
-      },
-    })
-
-    const rowsCount = await fetchAllDiscussionsCount({
-      data: {
-        userId: user.id,
-        // type,
-      },
-    })
-
-    return { rowsCount, discussionList }
-  },
 })
 
 function RouteComponent() {
-  const { page, type } = Route.useSearch()
-  const navigate = Route.useNavigate()
+  const { type } = Route.useSearch()
 
-  const currentPage = getCurrentPage(page)
-  const setPage = createPageSetter(navigate)
-
-  const { rowsCount, discussionList } = Route.useLoaderData()
-
-  const totalPages = getTotalPages(
-    rowsCount,
-    PAGINATION_PAGE_SIZE,
-  )
-
-  /** TS-safe narrowing for tabs */
   const activeType: BookmarkType | undefined =
     type === 'lecture' ||
     type === 'assignment' ||
     type === 'resources' ||
     type === 'announcement' ||
-    type === 'discussion' 
+    type === 'discussion'
       ? type
       : undefined
 
@@ -108,74 +47,14 @@ function RouteComponent() {
 
       <div className="flex justify-between items-center">
         <BookmarkTabFilters activeType={activeType} />
-        <FilterAndSeachBar referer="discussions" />
+        <FilterAndSeachBar referer="bookmark" />
       </div>
 
-      <div className="bg-white rounded-xl border p-6">
-        <div className="space-y-4">
-          {discussionList.map((discussion) => (
-            <DiscussionCard
-              key={discussion.id}
-              discussion={discussion}
-            />
-          ))}
-        </div>
-      </div>
-
-      <AppPagination
-        currentPage={currentPage}
-        totalPages={totalPages}
-        onPageChange={setPage}
-      />
-    </div>
-  )
-}
-
-
-
-
-
-
-
-
-function SkeletonDiscussion(){
-  return(
-    <div className="w-full space-y-6">
-      {/* Page title */}
-      <Skeleton className="h-8 w-48" />
-
-      {/* Filters row */}
-      <div className="flex justify-between items-center">
-        <Skeleton className="h-10 w-56 rounded-md" />
-        <Skeleton className="h-10 w-64 rounded-md" />
-      </div>
-
-      {/* Discussions list */}
-      <div className="p-6 bg-white border rounded-xl">
-        <div className="space-y-4">
-          {Array.from({ length: 5 }).map((_, i) => (
-            <div
-              key={i}
-              className="flex flex-col gap-2 rounded-lg border p-4"
-            >
-              <Skeleton className="h-5 w-3/4" />
-              <Skeleton className="h-4 w-full" />
-              <Skeleton className="h-4 w-5/6" />
-
-              <div className="mt-2 flex items-center gap-4">
-                <Skeleton className="h-4 w-20" />
-                <Skeleton className="h-4 w-16" />
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Pagination */}
-      <div className="flex justify-center gap-2">
-        <Skeleton className="h-9 w-9 rounded-md" />
-        <Skeleton className="h-9 w-9 rounded-md" />
-        <Skeleton className="h-9 w-9 rounded-md" />
+      <div className="rounded-xl border bg-white p-8 text-center text-muted-foreground">
+        <p className="text-base">
+          Bookmarked items for this filter are not available here yet. Discussion bookmarks will return when
+          the new discussions experience is wired to this page.
+        </p>
       </div>
     </div>
   )

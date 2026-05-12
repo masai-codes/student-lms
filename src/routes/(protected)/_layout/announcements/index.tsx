@@ -74,7 +74,7 @@ function RouteComponent() {
 
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-semibold">Announcements</h2>
-        <FilterAndSeachBar referer="discussions" />
+        <FilterAndSeachBar referer="announcements_o" />
       </div>
 
 

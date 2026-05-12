@@ -1,4 +1,4 @@
-import { createFileRoute, getRouteApi } from "@tanstack/react-router"
+import { createFileRoute } from "@tanstack/react-router"
 import { fetchLecturesById } from "@/server/lectures/fetchLecturesById"
 import { LectureWithJoinCTA } from "@/components/features/courses"
 import { LectureYetToStart } from "@/components/features/courses"
@@ -40,10 +40,6 @@ function RouteComponent() {
 
   const { panel: searchPanel } = Route.useSearch()
   const navigate = Route.useNavigate()
-
-  const { useParams } = getRouteApi('/(protected)/_layout/courses/$courseId/lectures_/$lectureId')
-
-  const { courseId, lectureId } = useParams()
 
   const panel = (searchPanel ?? 'default')
 
@@ -89,7 +85,6 @@ function RouteComponent() {
           lecture={lectureData[0]}
           panel={panel}
           setPanel={setPanel}
-          courseId={courseId}
         />
       )
     }
@@ -99,7 +94,6 @@ function RouteComponent() {
         lecture={lectureData[0]}
         panel={panel}
         setPanel={setPanel}
-        courseId={courseId}
       />
     )
   }

@@ -6,6 +6,7 @@ import {
   LearnDetailOverview,
 } from '../common'
 import type { LearnHubDetailPayload } from '@/server/learn/types'
+import { EntityDiscussionsPanel } from '@/components/features/new-discussions'
 
 
 type ResourceDetailPageProps = {
@@ -25,7 +26,14 @@ export function ResourceDetailPage({ detail }: ResourceDetailPageProps) {
       />
       <LearnDetailBodyGrid
         mainPlaceholder="Resource — main content area"
-        asidePlaceholder="Resource — sidebar area"
+        aside={
+          <EntityDiscussionsPanel
+            entityKind="lecture"
+            entityId={detail.id}
+            discussions={detail.discussions}
+            emptyStateContext="resource"
+          />
+        }
       />
     </div>
   )

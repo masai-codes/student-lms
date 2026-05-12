@@ -24,8 +24,10 @@ function formatScheduleDisplay(schedule: string | null): string {
   return formatSqlDate(schedule)
 }
 
+type LearnDetailCore = Omit<LearnHubDetailPayload, 'discussions'>
+
 /** Final values for the detail page (tags / date / host / priority computed here, not in the client). */
-export function buildLearnDetailPresentation(row: LearnLikeRow): LearnHubDetailPayload {
+export function buildLearnDetailPresentation(row: LearnLikeRow): LearnDetailCore {
   const hostName =
     row.hostName != null && row.hostName.trim() !== ''
       ? row.hostName.trim()

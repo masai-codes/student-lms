@@ -69,6 +69,24 @@ export interface GetBatchLearningDataResponse {
   pagination: LearningPagination
 }
 
+export interface DiscussionAuthorPreview {
+  id: number
+  name: string | null
+}
+
+/** Discussion rows scoped to the learn entity (assignment or lecture/resource); visibility enforced server-side. */
+export interface DiscussionListItem {
+  id: number
+  title: string
+  messagePreview: string
+  isClosed: boolean
+  isPublic: boolean
+  createdAt: string | null
+  updatedAt: string | null
+  threadCount: number
+  author: DiscussionAuthorPreview | null
+}
+
 /**
  * Presentation payload for /lectures/:id, /assignments/:id, /resources/:id.
  * Mirrors listing card fields — all strings/arrays are finalized on the server.
@@ -81,4 +99,6 @@ export interface LearnHubDetailPayload {
   priority: LearningPriority
   /** Same chip labels as the learn listing card (`type`, `category`, `moduleName`). */
   tags: Array<string>
+  /** Loaded with the detail response (student-visible discussions only). */
+  discussions: Array<DiscussionListItem>
 }

@@ -38,7 +38,6 @@ function RouteComponent() {
 
   const tabButtons = [
     { key: "resource", label: "Description", to: '/courses/$courseId/resources/$resourceId' },
-    { key: "discussion", label: "Discussions", to: '/courses/$courseId/resources/$resourceId/discussions' },
   ]
 
   const data = Route.useLoaderData();

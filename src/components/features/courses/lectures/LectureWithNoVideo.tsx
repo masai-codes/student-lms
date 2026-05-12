@@ -21,14 +21,12 @@ type LectureWithNoVideoProps = {
   lecture: LectureType
   panel: SidePanelType
   setPanel: (panel: SidePanelType) => void
-  courseId: string
 }
 
 export function LectureWithNoVideo({
   lecture,
   panel,
   setPanel,
-  courseId,
 }: LectureWithNoVideoProps) {
 
   const lectureId = JSON.stringify(lecture.id)
@@ -153,11 +151,7 @@ export function LectureWithNoVideo({
           AI Chat
         </Button>
 
-        <Link
-          to="/courses/$courseId/lectures/$lectureId/discussions"
-          params={{ courseId, lectureId }}
-          search={{ page: undefined, panel }}
-        >
+        <Link to="/lectures/$lectureId" params={{ lectureId }}>
           <Button variant="outline" className="border border-[#A4CAFE]">
             <Users className="h-4 w-4" />
             Discussions

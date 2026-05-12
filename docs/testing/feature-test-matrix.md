@@ -1,6 +1,12 @@
 # Feature Test Matrix
 
-Last updated: 2026-04-14
+Last updated: 2026-05-12
+
+## Learn hub (new-discussions)
+- Area: Server + learn detail integration for entity-scoped discussions (non-admin)
+- Status: Partial (unit coverage for helpers; integration tests for Drizzle list/create/reply not added yet)
+- Test files: `src/server/new-discussions/**/__tests__/*.test.ts`
+- Notes: UI lives under `src/components/features/new-discussions/`. Legacy `discussions` module and course discussion routes removed.
 
 ## Masaiverse
 - Area: Server APIs (all endpoints)
