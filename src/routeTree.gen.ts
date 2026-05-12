@@ -14,7 +14,9 @@ import { Route as protectedLayoutRouteRouteImport } from './routes/(protected)/_
 import { Route as protectedZoomIndexRouteImport } from './routes/(protected)/zoom/index'
 import { Route as protectedLayoutIndexRouteImport } from './routes/(protected)/_layout/index'
 import { Route as authLoginIndexRouteImport } from './routes/(auth)/login/index'
+import { Route as authV2ResetPasswordRouteImport } from './routes/(auth)/v2/reset-password'
 import { Route as authV2MeRouteImport } from './routes/(auth)/v2/me'
+import { Route as authV2ForgotPasswordRouteImport } from './routes/(auth)/v2/forgot-password'
 import { Route as protectedLayoutMasaiverseRouteRouteImport } from './routes/(protected)/_layout/masaiverse/route'
 import { Route as protectedLayoutWhatsNewIndexRouteImport } from './routes/(protected)/_layout/whats-new/index'
 import { Route as protectedLayoutSupportIndexRouteImport } from './routes/(protected)/_layout/support/index'
@@ -78,9 +80,19 @@ const authLoginIndexRoute = authLoginIndexRouteImport.update({
   path: '/login/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const authV2ResetPasswordRoute = authV2ResetPasswordRouteImport.update({
+  id: '/(auth)/v2/reset-password',
+  path: '/v2/reset-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const authV2MeRoute = authV2MeRouteImport.update({
   id: '/(auth)/v2/me',
   path: '/v2/me',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const authV2ForgotPasswordRoute = authV2ForgotPasswordRouteImport.update({
+  id: '/(auth)/v2/forgot-password',
+  path: '/v2/forgot-password',
   getParentRoute: () => rootRouteImport,
 } as any)
 const protectedLayoutMasaiverseRouteRoute =
@@ -351,7 +363,9 @@ const protectedLayoutCoursesCourseIdAssignmentsAssignmentIdDiscussionsDiscussion
 export interface FileRoutesByFullPath {
   '/test': typeof TestRoute
   '/masaiverse': typeof protectedLayoutMasaiverseRouteRouteWithChildren
+  '/v2/forgot-password': typeof authV2ForgotPasswordRoute
   '/v2/me': typeof authV2MeRoute
+  '/v2/reset-password': typeof authV2ResetPasswordRoute
   '/login/': typeof authLoginIndexRoute
   '/': typeof protectedLayoutIndexRoute
   '/zoom/': typeof protectedZoomIndexRoute
@@ -395,7 +409,9 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/test': typeof TestRoute
+  '/v2/forgot-password': typeof authV2ForgotPasswordRoute
   '/v2/me': typeof authV2MeRoute
+  '/v2/reset-password': typeof authV2ResetPasswordRoute
   '/login': typeof authLoginIndexRoute
   '/': typeof protectedLayoutIndexRoute
   '/zoom': typeof protectedZoomIndexRoute
@@ -439,7 +455,9 @@ export interface FileRoutesById {
   '/test': typeof TestRoute
   '/(protected)/_layout': typeof protectedLayoutRouteRouteWithChildren
   '/(protected)/_layout/masaiverse': typeof protectedLayoutMasaiverseRouteRouteWithChildren
+  '/(auth)/v2/forgot-password': typeof authV2ForgotPasswordRoute
   '/(auth)/v2/me': typeof authV2MeRoute
+  '/(auth)/v2/reset-password': typeof authV2ResetPasswordRoute
   '/(auth)/login/': typeof authLoginIndexRoute
   '/(protected)/_layout/': typeof protectedLayoutIndexRoute
   '/(protected)/zoom/': typeof protectedZoomIndexRoute
@@ -486,7 +504,9 @@ export interface FileRouteTypes {
   fullPaths:
     | '/test'
     | '/masaiverse'
+    | '/v2/forgot-password'
     | '/v2/me'
+    | '/v2/reset-password'
     | '/login/'
     | '/'
     | '/zoom/'
@@ -530,7 +550,9 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/test'
+    | '/v2/forgot-password'
     | '/v2/me'
+    | '/v2/reset-password'
     | '/login'
     | '/'
     | '/zoom'
@@ -573,7 +595,9 @@ export interface FileRouteTypes {
     | '/test'
     | '/(protected)/_layout'
     | '/(protected)/_layout/masaiverse'
+    | '/(auth)/v2/forgot-password'
     | '/(auth)/v2/me'
+    | '/(auth)/v2/reset-password'
     | '/(auth)/login/'
     | '/(protected)/_layout/'
     | '/(protected)/zoom/'
@@ -619,7 +643,9 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   TestRoute: typeof TestRoute
   protectedLayoutRouteRoute: typeof protectedLayoutRouteRouteWithChildren
+  authV2ForgotPasswordRoute: typeof authV2ForgotPasswordRoute
   authV2MeRoute: typeof authV2MeRoute
+  authV2ResetPasswordRoute: typeof authV2ResetPasswordRoute
   authLoginIndexRoute: typeof authLoginIndexRoute
   protectedZoomIndexRoute: typeof protectedZoomIndexRoute
   authV2LoginRequestOtpRoute: typeof authV2LoginRequestOtpRoute
@@ -664,11 +690,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof authLoginIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/(auth)/v2/reset-password': {
+      id: '/(auth)/v2/reset-password'
+      path: '/v2/reset-password'
+      fullPath: '/v2/reset-password'
+      preLoaderRoute: typeof authV2ResetPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/(auth)/v2/me': {
       id: '/(auth)/v2/me'
       path: '/v2/me'
       fullPath: '/v2/me'
       preLoaderRoute: typeof authV2MeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/(auth)/v2/forgot-password': {
+      id: '/(auth)/v2/forgot-password'
+      path: '/v2/forgot-password'
+      fullPath: '/v2/forgot-password'
+      preLoaderRoute: typeof authV2ForgotPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/(protected)/_layout/masaiverse': {
@@ -1110,7 +1150,9 @@ const protectedLayoutRouteRouteWithChildren =
 const rootRouteChildren: RootRouteChildren = {
   TestRoute: TestRoute,
   protectedLayoutRouteRoute: protectedLayoutRouteRouteWithChildren,
+  authV2ForgotPasswordRoute: authV2ForgotPasswordRoute,
   authV2MeRoute: authV2MeRoute,
+  authV2ResetPasswordRoute: authV2ResetPasswordRoute,
   authLoginIndexRoute: authLoginIndexRoute,
   protectedZoomIndexRoute: protectedZoomIndexRoute,
   authV2LoginRequestOtpRoute: authV2LoginRequestOtpRoute,
