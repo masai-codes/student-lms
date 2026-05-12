@@ -9,6 +9,7 @@ import { SendOtpError, sendOtp } from '@/server/auth/v2/sendOtp'
 
 type RequestOtpBody = {
   identifier?: unknown
+  isResend?: unknown
 }
 
 function statusForSendOtpError(code: SendOtpError['code']): number {
@@ -30,12 +31,13 @@ async function handleRequestOtp(request: Request): Promise<Response> {
   }
 
   const identifier = typeof body.identifier === 'string' ? body.identifier : ''
+  const isResend = body.isResend === true
   if (!identifier) {
     return errorResponse(400, 'MISSING_FIELDS', 'identifier is required')
   }
 
   try {
-    const result = await sendOtp({ identifier })
+    const result = await sendOtp({ identifier, isResend, request })
     return jsonResponse({ channel: result.channel })
   } catch (err) {
     if (err instanceof SendOtpError) {
