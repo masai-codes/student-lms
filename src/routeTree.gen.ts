@@ -9,51 +9,18 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as TestRouteImport } from './routes/test'
 import { Route as protectedLayoutRouteRouteImport } from './routes/(protected)/_layout/route'
-import { Route as protectedZoomIndexRouteImport } from './routes/(protected)/zoom/index'
 import { Route as protectedLayoutIndexRouteImport } from './routes/(protected)/_layout/index'
 import { Route as authLoginIndexRouteImport } from './routes/(auth)/login/index'
 import { Route as protectedLayoutMasaiverseRouteRouteImport } from './routes/(protected)/_layout/masaiverse/route'
-import { Route as protectedLayoutWhatsNewIndexRouteImport } from './routes/(protected)/_layout/whats-new/index'
-import { Route as protectedLayoutSupportIndexRouteImport } from './routes/(protected)/_layout/support/index'
-import { Route as protectedLayoutReferAndEarnIndexRouteImport } from './routes/(protected)/_layout/refer-and-earn/index'
-import { Route as protectedLayoutProfileIndexRouteImport } from './routes/(protected)/_layout/profile/index'
-import { Route as protectedLayoutPracticeInterviewIndexRouteImport } from './routes/(protected)/_layout/practice-interview/index'
 import { Route as protectedLayoutMasaiverseIndexRouteImport } from './routes/(protected)/_layout/masaiverse/index'
 import { Route as protectedLayoutLearnIndexRouteImport } from './routes/(protected)/_layout/learn/index'
-import { Route as protectedLayoutCoursesIndexRouteImport } from './routes/(protected)/_layout/courses/index'
-import { Route as protectedLayoutChatIndexRouteImport } from './routes/(protected)/_layout/chat/index'
-import { Route as protectedLayoutBookmarkIndexRouteImport } from './routes/(protected)/_layout/bookmark/index'
-import { Route as protectedLayoutAnnouncementsIndexRouteImport } from './routes/(protected)/_layout/announcements/index'
 import { Route as protectedLayoutResourcesResourceIdRouteRouteImport } from './routes/(protected)/_layout/resources_/$resourceId/route'
 import { Route as protectedLayoutLecturesLectureIdRouteRouteImport } from './routes/(protected)/_layout/lectures_/$lectureId/route'
 import { Route as protectedLayoutAssignmentsAssignmentIdRouteRouteImport } from './routes/(protected)/_layout/assignments_/$assignmentId/route'
-import { Route as protectedLayoutSupportSupportIdIndexRouteImport } from './routes/(protected)/_layout/support/$supportId/index'
-import { Route as protectedLayoutCoursesCourseIdCourseTabLayoutRouteRouteImport } from './routes/(protected)/_layout/courses/$courseId/_courseTabLayout/route'
-import { Route as protectedLayoutCoursesCourseIdCourseTabLayoutIndexRouteImport } from './routes/(protected)/_layout/courses/$courseId/_courseTabLayout/index'
-import { Route as protectedLayoutCoursesCourseIdResourcesResourceIdRouteRouteImport } from './routes/(protected)/_layout/courses/$courseId/resources_/$resourceId/route'
-import { Route as protectedLayoutCoursesCourseIdLecturesLectureIdRouteRouteImport } from './routes/(protected)/_layout/courses/$courseId/lectures_/$lectureId/route'
-import { Route as protectedLayoutCoursesCourseIdAssignmentsAssignmentIdRouteRouteImport } from './routes/(protected)/_layout/courses/$courseId/assignments_/$assignmentId/route'
-import { Route as protectedLayoutCoursesCourseIdResourcesResourceIdIndexRouteImport } from './routes/(protected)/_layout/courses/$courseId/resources_/$resourceId/index'
-import { Route as protectedLayoutCoursesCourseIdAssignmentsAssignmentIdIndexRouteImport } from './routes/(protected)/_layout/courses/$courseId/assignments_/$assignmentId/index'
-import { Route as protectedLayoutCoursesCourseIdAnnouncementsAnnouncementIdIndexRouteImport } from './routes/(protected)/_layout/courses/$courseId/announcements_/$announcementId/index'
-import { Route as protectedLayoutCoursesCourseIdCourseTabLayoutResourcesIndexRouteImport } from './routes/(protected)/_layout/courses/$courseId/_courseTabLayout/resources/index'
-import { Route as protectedLayoutCoursesCourseIdCourseTabLayoutLecturesIndexRouteImport } from './routes/(protected)/_layout/courses/$courseId/_courseTabLayout/lectures/index'
-import { Route as protectedLayoutCoursesCourseIdCourseTabLayoutAssignmentsIndexRouteImport } from './routes/(protected)/_layout/courses/$courseId/_courseTabLayout/assignments/index'
 
-const TestRoute = TestRouteImport.update({
-  id: '/test',
-  path: '/test',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const protectedLayoutRouteRoute = protectedLayoutRouteRouteImport.update({
   id: '/(protected)/_layout',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const protectedZoomIndexRoute = protectedZoomIndexRouteImport.update({
-  id: '/(protected)/zoom/',
-  path: '/zoom/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const protectedLayoutIndexRoute = protectedLayoutIndexRouteImport.update({
@@ -72,36 +39,6 @@ const protectedLayoutMasaiverseRouteRoute =
     path: '/masaiverse',
     getParentRoute: () => protectedLayoutRouteRoute,
   } as any)
-const protectedLayoutWhatsNewIndexRoute =
-  protectedLayoutWhatsNewIndexRouteImport.update({
-    id: '/whats-new/',
-    path: '/whats-new/',
-    getParentRoute: () => protectedLayoutRouteRoute,
-  } as any)
-const protectedLayoutSupportIndexRoute =
-  protectedLayoutSupportIndexRouteImport.update({
-    id: '/support/',
-    path: '/support/',
-    getParentRoute: () => protectedLayoutRouteRoute,
-  } as any)
-const protectedLayoutReferAndEarnIndexRoute =
-  protectedLayoutReferAndEarnIndexRouteImport.update({
-    id: '/refer-and-earn/',
-    path: '/refer-and-earn/',
-    getParentRoute: () => protectedLayoutRouteRoute,
-  } as any)
-const protectedLayoutProfileIndexRoute =
-  protectedLayoutProfileIndexRouteImport.update({
-    id: '/profile/',
-    path: '/profile/',
-    getParentRoute: () => protectedLayoutRouteRoute,
-  } as any)
-const protectedLayoutPracticeInterviewIndexRoute =
-  protectedLayoutPracticeInterviewIndexRouteImport.update({
-    id: '/practice-interview/',
-    path: '/practice-interview/',
-    getParentRoute: () => protectedLayoutRouteRoute,
-  } as any)
 const protectedLayoutMasaiverseIndexRoute =
   protectedLayoutMasaiverseIndexRouteImport.update({
     id: '/',
@@ -112,30 +49,6 @@ const protectedLayoutLearnIndexRoute =
   protectedLayoutLearnIndexRouteImport.update({
     id: '/learn/',
     path: '/learn/',
-    getParentRoute: () => protectedLayoutRouteRoute,
-  } as any)
-const protectedLayoutCoursesIndexRoute =
-  protectedLayoutCoursesIndexRouteImport.update({
-    id: '/courses/',
-    path: '/courses/',
-    getParentRoute: () => protectedLayoutRouteRoute,
-  } as any)
-const protectedLayoutChatIndexRoute =
-  protectedLayoutChatIndexRouteImport.update({
-    id: '/chat/',
-    path: '/chat/',
-    getParentRoute: () => protectedLayoutRouteRoute,
-  } as any)
-const protectedLayoutBookmarkIndexRoute =
-  protectedLayoutBookmarkIndexRouteImport.update({
-    id: '/bookmark/',
-    path: '/bookmark/',
-    getParentRoute: () => protectedLayoutRouteRoute,
-  } as any)
-const protectedLayoutAnnouncementsIndexRoute =
-  protectedLayoutAnnouncementsIndexRouteImport.update({
-    id: '/announcements/',
-    path: '/announcements/',
     getParentRoute: () => protectedLayoutRouteRoute,
   } as any)
 const protectedLayoutResourcesResourceIdRouteRoute =
@@ -156,315 +69,83 @@ const protectedLayoutAssignmentsAssignmentIdRouteRoute =
     path: '/assignments/$assignmentId',
     getParentRoute: () => protectedLayoutRouteRoute,
   } as any)
-const protectedLayoutSupportSupportIdIndexRoute =
-  protectedLayoutSupportSupportIdIndexRouteImport.update({
-    id: '/support/$supportId/',
-    path: '/support/$supportId/',
-    getParentRoute: () => protectedLayoutRouteRoute,
-  } as any)
-const protectedLayoutCoursesCourseIdCourseTabLayoutRouteRoute =
-  protectedLayoutCoursesCourseIdCourseTabLayoutRouteRouteImport.update({
-    id: '/courses/$courseId/_courseTabLayout',
-    path: '/courses/$courseId',
-    getParentRoute: () => protectedLayoutRouteRoute,
-  } as any)
-const protectedLayoutCoursesCourseIdCourseTabLayoutIndexRoute =
-  protectedLayoutCoursesCourseIdCourseTabLayoutIndexRouteImport.update({
-    id: '/',
-    path: '/',
-    getParentRoute: () =>
-      protectedLayoutCoursesCourseIdCourseTabLayoutRouteRoute,
-  } as any)
-const protectedLayoutCoursesCourseIdResourcesResourceIdRouteRoute =
-  protectedLayoutCoursesCourseIdResourcesResourceIdRouteRouteImport.update({
-    id: '/courses/$courseId/resources_/$resourceId',
-    path: '/courses/$courseId/resources/$resourceId',
-    getParentRoute: () => protectedLayoutRouteRoute,
-  } as any)
-const protectedLayoutCoursesCourseIdLecturesLectureIdRouteRoute =
-  protectedLayoutCoursesCourseIdLecturesLectureIdRouteRouteImport.update({
-    id: '/courses/$courseId/lectures_/$lectureId',
-    path: '/courses/$courseId/lectures/$lectureId',
-    getParentRoute: () => protectedLayoutRouteRoute,
-  } as any)
-const protectedLayoutCoursesCourseIdAssignmentsAssignmentIdRouteRoute =
-  protectedLayoutCoursesCourseIdAssignmentsAssignmentIdRouteRouteImport.update({
-    id: '/courses/$courseId/assignments_/$assignmentId',
-    path: '/courses/$courseId/assignments/$assignmentId',
-    getParentRoute: () => protectedLayoutRouteRoute,
-  } as any)
-const protectedLayoutCoursesCourseIdResourcesResourceIdIndexRoute =
-  protectedLayoutCoursesCourseIdResourcesResourceIdIndexRouteImport.update({
-    id: '/',
-    path: '/',
-    getParentRoute: () =>
-      protectedLayoutCoursesCourseIdResourcesResourceIdRouteRoute,
-  } as any)
-const protectedLayoutCoursesCourseIdAssignmentsAssignmentIdIndexRoute =
-  protectedLayoutCoursesCourseIdAssignmentsAssignmentIdIndexRouteImport.update({
-    id: '/',
-    path: '/',
-    getParentRoute: () =>
-      protectedLayoutCoursesCourseIdAssignmentsAssignmentIdRouteRoute,
-  } as any)
-const protectedLayoutCoursesCourseIdAnnouncementsAnnouncementIdIndexRoute =
-  protectedLayoutCoursesCourseIdAnnouncementsAnnouncementIdIndexRouteImport.update(
-    {
-      id: '/courses/$courseId/announcements_/$announcementId/',
-      path: '/courses/$courseId/announcements/$announcementId/',
-      getParentRoute: () => protectedLayoutRouteRoute,
-    } as any,
-  )
-const protectedLayoutCoursesCourseIdCourseTabLayoutResourcesIndexRoute =
-  protectedLayoutCoursesCourseIdCourseTabLayoutResourcesIndexRouteImport.update(
-    {
-      id: '/resources/',
-      path: '/resources/',
-      getParentRoute: () =>
-        protectedLayoutCoursesCourseIdCourseTabLayoutRouteRoute,
-    } as any,
-  )
-const protectedLayoutCoursesCourseIdCourseTabLayoutLecturesIndexRoute =
-  protectedLayoutCoursesCourseIdCourseTabLayoutLecturesIndexRouteImport.update({
-    id: '/lectures/',
-    path: '/lectures/',
-    getParentRoute: () =>
-      protectedLayoutCoursesCourseIdCourseTabLayoutRouteRoute,
-  } as any)
-const protectedLayoutCoursesCourseIdCourseTabLayoutAssignmentsIndexRoute =
-  protectedLayoutCoursesCourseIdCourseTabLayoutAssignmentsIndexRouteImport.update(
-    {
-      id: '/assignments/',
-      path: '/assignments/',
-      getParentRoute: () =>
-        protectedLayoutCoursesCourseIdCourseTabLayoutRouteRoute,
-    } as any,
-  )
 
 export interface FileRoutesByFullPath {
-  '/test': typeof TestRoute
   '/masaiverse': typeof protectedLayoutMasaiverseRouteRouteWithChildren
   '/login/': typeof authLoginIndexRoute
   '/': typeof protectedLayoutIndexRoute
-  '/zoom/': typeof protectedZoomIndexRoute
   '/assignments/$assignmentId': typeof protectedLayoutAssignmentsAssignmentIdRouteRoute
   '/lectures/$lectureId': typeof protectedLayoutLecturesLectureIdRouteRoute
   '/resources/$resourceId': typeof protectedLayoutResourcesResourceIdRouteRoute
-  '/announcements/': typeof protectedLayoutAnnouncementsIndexRoute
-  '/bookmark/': typeof protectedLayoutBookmarkIndexRoute
-  '/chat/': typeof protectedLayoutChatIndexRoute
-  '/courses/': typeof protectedLayoutCoursesIndexRoute
   '/learn/': typeof protectedLayoutLearnIndexRoute
   '/masaiverse/': typeof protectedLayoutMasaiverseIndexRoute
-  '/practice-interview/': typeof protectedLayoutPracticeInterviewIndexRoute
-  '/profile/': typeof protectedLayoutProfileIndexRoute
-  '/refer-and-earn/': typeof protectedLayoutReferAndEarnIndexRoute
-  '/support/': typeof protectedLayoutSupportIndexRoute
-  '/whats-new/': typeof protectedLayoutWhatsNewIndexRoute
-  '/courses/$courseId': typeof protectedLayoutCoursesCourseIdCourseTabLayoutRouteRouteWithChildren
-  '/support/$supportId/': typeof protectedLayoutSupportSupportIdIndexRoute
-  '/courses/$courseId/assignments/$assignmentId': typeof protectedLayoutCoursesCourseIdAssignmentsAssignmentIdRouteRouteWithChildren
-  '/courses/$courseId/lectures/$lectureId': typeof protectedLayoutCoursesCourseIdLecturesLectureIdRouteRoute
-  '/courses/$courseId/resources/$resourceId': typeof protectedLayoutCoursesCourseIdResourcesResourceIdRouteRouteWithChildren
-  '/courses/$courseId/': typeof protectedLayoutCoursesCourseIdCourseTabLayoutIndexRoute
-  '/courses/$courseId/assignments/': typeof protectedLayoutCoursesCourseIdCourseTabLayoutAssignmentsIndexRoute
-  '/courses/$courseId/lectures/': typeof protectedLayoutCoursesCourseIdCourseTabLayoutLecturesIndexRoute
-  '/courses/$courseId/resources/': typeof protectedLayoutCoursesCourseIdCourseTabLayoutResourcesIndexRoute
-  '/courses/$courseId/announcements/$announcementId/': typeof protectedLayoutCoursesCourseIdAnnouncementsAnnouncementIdIndexRoute
-  '/courses/$courseId/assignments/$assignmentId/': typeof protectedLayoutCoursesCourseIdAssignmentsAssignmentIdIndexRoute
-  '/courses/$courseId/resources/$resourceId/': typeof protectedLayoutCoursesCourseIdResourcesResourceIdIndexRoute
 }
 export interface FileRoutesByTo {
-  '/test': typeof TestRoute
   '/login': typeof authLoginIndexRoute
   '/': typeof protectedLayoutIndexRoute
-  '/zoom': typeof protectedZoomIndexRoute
   '/assignments/$assignmentId': typeof protectedLayoutAssignmentsAssignmentIdRouteRoute
   '/lectures/$lectureId': typeof protectedLayoutLecturesLectureIdRouteRoute
   '/resources/$resourceId': typeof protectedLayoutResourcesResourceIdRouteRoute
-  '/announcements': typeof protectedLayoutAnnouncementsIndexRoute
-  '/bookmark': typeof protectedLayoutBookmarkIndexRoute
-  '/chat': typeof protectedLayoutChatIndexRoute
-  '/courses': typeof protectedLayoutCoursesIndexRoute
   '/learn': typeof protectedLayoutLearnIndexRoute
   '/masaiverse': typeof protectedLayoutMasaiverseIndexRoute
-  '/practice-interview': typeof protectedLayoutPracticeInterviewIndexRoute
-  '/profile': typeof protectedLayoutProfileIndexRoute
-  '/refer-and-earn': typeof protectedLayoutReferAndEarnIndexRoute
-  '/support': typeof protectedLayoutSupportIndexRoute
-  '/whats-new': typeof protectedLayoutWhatsNewIndexRoute
-  '/support/$supportId': typeof protectedLayoutSupportSupportIdIndexRoute
-  '/courses/$courseId/lectures/$lectureId': typeof protectedLayoutCoursesCourseIdLecturesLectureIdRouteRoute
-  '/courses/$courseId': typeof protectedLayoutCoursesCourseIdCourseTabLayoutIndexRoute
-  '/courses/$courseId/assignments': typeof protectedLayoutCoursesCourseIdCourseTabLayoutAssignmentsIndexRoute
-  '/courses/$courseId/lectures': typeof protectedLayoutCoursesCourseIdCourseTabLayoutLecturesIndexRoute
-  '/courses/$courseId/resources': typeof protectedLayoutCoursesCourseIdCourseTabLayoutResourcesIndexRoute
-  '/courses/$courseId/announcements/$announcementId': typeof protectedLayoutCoursesCourseIdAnnouncementsAnnouncementIdIndexRoute
-  '/courses/$courseId/assignments/$assignmentId': typeof protectedLayoutCoursesCourseIdAssignmentsAssignmentIdIndexRoute
-  '/courses/$courseId/resources/$resourceId': typeof protectedLayoutCoursesCourseIdResourcesResourceIdIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
-  '/test': typeof TestRoute
   '/(protected)/_layout': typeof protectedLayoutRouteRouteWithChildren
   '/(protected)/_layout/masaiverse': typeof protectedLayoutMasaiverseRouteRouteWithChildren
   '/(auth)/login/': typeof authLoginIndexRoute
   '/(protected)/_layout/': typeof protectedLayoutIndexRoute
-  '/(protected)/zoom/': typeof protectedZoomIndexRoute
   '/(protected)/_layout/assignments_/$assignmentId': typeof protectedLayoutAssignmentsAssignmentIdRouteRoute
   '/(protected)/_layout/lectures_/$lectureId': typeof protectedLayoutLecturesLectureIdRouteRoute
   '/(protected)/_layout/resources_/$resourceId': typeof protectedLayoutResourcesResourceIdRouteRoute
-  '/(protected)/_layout/announcements/': typeof protectedLayoutAnnouncementsIndexRoute
-  '/(protected)/_layout/bookmark/': typeof protectedLayoutBookmarkIndexRoute
-  '/(protected)/_layout/chat/': typeof protectedLayoutChatIndexRoute
-  '/(protected)/_layout/courses/': typeof protectedLayoutCoursesIndexRoute
   '/(protected)/_layout/learn/': typeof protectedLayoutLearnIndexRoute
   '/(protected)/_layout/masaiverse/': typeof protectedLayoutMasaiverseIndexRoute
-  '/(protected)/_layout/practice-interview/': typeof protectedLayoutPracticeInterviewIndexRoute
-  '/(protected)/_layout/profile/': typeof protectedLayoutProfileIndexRoute
-  '/(protected)/_layout/refer-and-earn/': typeof protectedLayoutReferAndEarnIndexRoute
-  '/(protected)/_layout/support/': typeof protectedLayoutSupportIndexRoute
-  '/(protected)/_layout/whats-new/': typeof protectedLayoutWhatsNewIndexRoute
-  '/(protected)/_layout/courses/$courseId/_courseTabLayout': typeof protectedLayoutCoursesCourseIdCourseTabLayoutRouteRouteWithChildren
-  '/(protected)/_layout/support/$supportId/': typeof protectedLayoutSupportSupportIdIndexRoute
-  '/(protected)/_layout/courses/$courseId/assignments_/$assignmentId': typeof protectedLayoutCoursesCourseIdAssignmentsAssignmentIdRouteRouteWithChildren
-  '/(protected)/_layout/courses/$courseId/lectures_/$lectureId': typeof protectedLayoutCoursesCourseIdLecturesLectureIdRouteRoute
-  '/(protected)/_layout/courses/$courseId/resources_/$resourceId': typeof protectedLayoutCoursesCourseIdResourcesResourceIdRouteRouteWithChildren
-  '/(protected)/_layout/courses/$courseId/_courseTabLayout/': typeof protectedLayoutCoursesCourseIdCourseTabLayoutIndexRoute
-  '/(protected)/_layout/courses/$courseId/_courseTabLayout/assignments/': typeof protectedLayoutCoursesCourseIdCourseTabLayoutAssignmentsIndexRoute
-  '/(protected)/_layout/courses/$courseId/_courseTabLayout/lectures/': typeof protectedLayoutCoursesCourseIdCourseTabLayoutLecturesIndexRoute
-  '/(protected)/_layout/courses/$courseId/_courseTabLayout/resources/': typeof protectedLayoutCoursesCourseIdCourseTabLayoutResourcesIndexRoute
-  '/(protected)/_layout/courses/$courseId/announcements_/$announcementId/': typeof protectedLayoutCoursesCourseIdAnnouncementsAnnouncementIdIndexRoute
-  '/(protected)/_layout/courses/$courseId/assignments_/$assignmentId/': typeof protectedLayoutCoursesCourseIdAssignmentsAssignmentIdIndexRoute
-  '/(protected)/_layout/courses/$courseId/resources_/$resourceId/': typeof protectedLayoutCoursesCourseIdResourcesResourceIdIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    | '/test'
     | '/masaiverse'
     | '/login/'
     | '/'
-    | '/zoom/'
     | '/assignments/$assignmentId'
     | '/lectures/$lectureId'
     | '/resources/$resourceId'
-    | '/announcements/'
-    | '/bookmark/'
-    | '/chat/'
-    | '/courses/'
     | '/learn/'
     | '/masaiverse/'
-    | '/practice-interview/'
-    | '/profile/'
-    | '/refer-and-earn/'
-    | '/support/'
-    | '/whats-new/'
-    | '/courses/$courseId'
-    | '/support/$supportId/'
-    | '/courses/$courseId/assignments/$assignmentId'
-    | '/courses/$courseId/lectures/$lectureId'
-    | '/courses/$courseId/resources/$resourceId'
-    | '/courses/$courseId/'
-    | '/courses/$courseId/assignments/'
-    | '/courses/$courseId/lectures/'
-    | '/courses/$courseId/resources/'
-    | '/courses/$courseId/announcements/$announcementId/'
-    | '/courses/$courseId/assignments/$assignmentId/'
-    | '/courses/$courseId/resources/$resourceId/'
   fileRoutesByTo: FileRoutesByTo
   to:
-    | '/test'
     | '/login'
     | '/'
-    | '/zoom'
     | '/assignments/$assignmentId'
     | '/lectures/$lectureId'
     | '/resources/$resourceId'
-    | '/announcements'
-    | '/bookmark'
-    | '/chat'
-    | '/courses'
     | '/learn'
     | '/masaiverse'
-    | '/practice-interview'
-    | '/profile'
-    | '/refer-and-earn'
-    | '/support'
-    | '/whats-new'
-    | '/support/$supportId'
-    | '/courses/$courseId/lectures/$lectureId'
-    | '/courses/$courseId'
-    | '/courses/$courseId/assignments'
-    | '/courses/$courseId/lectures'
-    | '/courses/$courseId/resources'
-    | '/courses/$courseId/announcements/$announcementId'
-    | '/courses/$courseId/assignments/$assignmentId'
-    | '/courses/$courseId/resources/$resourceId'
   id:
     | '__root__'
-    | '/test'
     | '/(protected)/_layout'
     | '/(protected)/_layout/masaiverse'
     | '/(auth)/login/'
     | '/(protected)/_layout/'
-    | '/(protected)/zoom/'
     | '/(protected)/_layout/assignments_/$assignmentId'
     | '/(protected)/_layout/lectures_/$lectureId'
     | '/(protected)/_layout/resources_/$resourceId'
-    | '/(protected)/_layout/announcements/'
-    | '/(protected)/_layout/bookmark/'
-    | '/(protected)/_layout/chat/'
-    | '/(protected)/_layout/courses/'
     | '/(protected)/_layout/learn/'
     | '/(protected)/_layout/masaiverse/'
-    | '/(protected)/_layout/practice-interview/'
-    | '/(protected)/_layout/profile/'
-    | '/(protected)/_layout/refer-and-earn/'
-    | '/(protected)/_layout/support/'
-    | '/(protected)/_layout/whats-new/'
-    | '/(protected)/_layout/courses/$courseId/_courseTabLayout'
-    | '/(protected)/_layout/support/$supportId/'
-    | '/(protected)/_layout/courses/$courseId/assignments_/$assignmentId'
-    | '/(protected)/_layout/courses/$courseId/lectures_/$lectureId'
-    | '/(protected)/_layout/courses/$courseId/resources_/$resourceId'
-    | '/(protected)/_layout/courses/$courseId/_courseTabLayout/'
-    | '/(protected)/_layout/courses/$courseId/_courseTabLayout/assignments/'
-    | '/(protected)/_layout/courses/$courseId/_courseTabLayout/lectures/'
-    | '/(protected)/_layout/courses/$courseId/_courseTabLayout/resources/'
-    | '/(protected)/_layout/courses/$courseId/announcements_/$announcementId/'
-    | '/(protected)/_layout/courses/$courseId/assignments_/$assignmentId/'
-    | '/(protected)/_layout/courses/$courseId/resources_/$resourceId/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  TestRoute: typeof TestRoute
   protectedLayoutRouteRoute: typeof protectedLayoutRouteRouteWithChildren
   authLoginIndexRoute: typeof authLoginIndexRoute
-  protectedZoomIndexRoute: typeof protectedZoomIndexRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/test': {
-      id: '/test'
-      path: '/test'
-      fullPath: '/test'
-      preLoaderRoute: typeof TestRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/(protected)/_layout': {
       id: '/(protected)/_layout'
       path: ''
       fullPath: ''
       preLoaderRoute: typeof protectedLayoutRouteRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/(protected)/zoom/': {
-      id: '/(protected)/zoom/'
-      path: '/zoom'
-      fullPath: '/zoom/'
-      preLoaderRoute: typeof protectedZoomIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/(protected)/_layout/': {
@@ -488,41 +169,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof protectedLayoutMasaiverseRouteRouteImport
       parentRoute: typeof protectedLayoutRouteRoute
     }
-    '/(protected)/_layout/whats-new/': {
-      id: '/(protected)/_layout/whats-new/'
-      path: '/whats-new'
-      fullPath: '/whats-new/'
-      preLoaderRoute: typeof protectedLayoutWhatsNewIndexRouteImport
-      parentRoute: typeof protectedLayoutRouteRoute
-    }
-    '/(protected)/_layout/support/': {
-      id: '/(protected)/_layout/support/'
-      path: '/support'
-      fullPath: '/support/'
-      preLoaderRoute: typeof protectedLayoutSupportIndexRouteImport
-      parentRoute: typeof protectedLayoutRouteRoute
-    }
-    '/(protected)/_layout/refer-and-earn/': {
-      id: '/(protected)/_layout/refer-and-earn/'
-      path: '/refer-and-earn'
-      fullPath: '/refer-and-earn/'
-      preLoaderRoute: typeof protectedLayoutReferAndEarnIndexRouteImport
-      parentRoute: typeof protectedLayoutRouteRoute
-    }
-    '/(protected)/_layout/profile/': {
-      id: '/(protected)/_layout/profile/'
-      path: '/profile'
-      fullPath: '/profile/'
-      preLoaderRoute: typeof protectedLayoutProfileIndexRouteImport
-      parentRoute: typeof protectedLayoutRouteRoute
-    }
-    '/(protected)/_layout/practice-interview/': {
-      id: '/(protected)/_layout/practice-interview/'
-      path: '/practice-interview'
-      fullPath: '/practice-interview/'
-      preLoaderRoute: typeof protectedLayoutPracticeInterviewIndexRouteImport
-      parentRoute: typeof protectedLayoutRouteRoute
-    }
     '/(protected)/_layout/masaiverse/': {
       id: '/(protected)/_layout/masaiverse/'
       path: '/'
@@ -535,34 +181,6 @@ declare module '@tanstack/react-router' {
       path: '/learn'
       fullPath: '/learn/'
       preLoaderRoute: typeof protectedLayoutLearnIndexRouteImport
-      parentRoute: typeof protectedLayoutRouteRoute
-    }
-    '/(protected)/_layout/courses/': {
-      id: '/(protected)/_layout/courses/'
-      path: '/courses'
-      fullPath: '/courses/'
-      preLoaderRoute: typeof protectedLayoutCoursesIndexRouteImport
-      parentRoute: typeof protectedLayoutRouteRoute
-    }
-    '/(protected)/_layout/chat/': {
-      id: '/(protected)/_layout/chat/'
-      path: '/chat'
-      fullPath: '/chat/'
-      preLoaderRoute: typeof protectedLayoutChatIndexRouteImport
-      parentRoute: typeof protectedLayoutRouteRoute
-    }
-    '/(protected)/_layout/bookmark/': {
-      id: '/(protected)/_layout/bookmark/'
-      path: '/bookmark'
-      fullPath: '/bookmark/'
-      preLoaderRoute: typeof protectedLayoutBookmarkIndexRouteImport
-      parentRoute: typeof protectedLayoutRouteRoute
-    }
-    '/(protected)/_layout/announcements/': {
-      id: '/(protected)/_layout/announcements/'
-      path: '/announcements'
-      fullPath: '/announcements/'
-      preLoaderRoute: typeof protectedLayoutAnnouncementsIndexRouteImport
       parentRoute: typeof protectedLayoutRouteRoute
     }
     '/(protected)/_layout/resources_/$resourceId': {
@@ -586,90 +204,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof protectedLayoutAssignmentsAssignmentIdRouteRouteImport
       parentRoute: typeof protectedLayoutRouteRoute
     }
-    '/(protected)/_layout/support/$supportId/': {
-      id: '/(protected)/_layout/support/$supportId/'
-      path: '/support/$supportId'
-      fullPath: '/support/$supportId/'
-      preLoaderRoute: typeof protectedLayoutSupportSupportIdIndexRouteImport
-      parentRoute: typeof protectedLayoutRouteRoute
-    }
-    '/(protected)/_layout/courses/$courseId/_courseTabLayout': {
-      id: '/(protected)/_layout/courses/$courseId/_courseTabLayout'
-      path: '/courses/$courseId'
-      fullPath: '/courses/$courseId'
-      preLoaderRoute: typeof protectedLayoutCoursesCourseIdCourseTabLayoutRouteRouteImport
-      parentRoute: typeof protectedLayoutRouteRoute
-    }
-    '/(protected)/_layout/courses/$courseId/_courseTabLayout/': {
-      id: '/(protected)/_layout/courses/$courseId/_courseTabLayout/'
-      path: '/'
-      fullPath: '/courses/$courseId/'
-      preLoaderRoute: typeof protectedLayoutCoursesCourseIdCourseTabLayoutIndexRouteImport
-      parentRoute: typeof protectedLayoutCoursesCourseIdCourseTabLayoutRouteRoute
-    }
-    '/(protected)/_layout/courses/$courseId/resources_/$resourceId': {
-      id: '/(protected)/_layout/courses/$courseId/resources_/$resourceId'
-      path: '/courses/$courseId/resources/$resourceId'
-      fullPath: '/courses/$courseId/resources/$resourceId'
-      preLoaderRoute: typeof protectedLayoutCoursesCourseIdResourcesResourceIdRouteRouteImport
-      parentRoute: typeof protectedLayoutRouteRoute
-    }
-    '/(protected)/_layout/courses/$courseId/lectures_/$lectureId': {
-      id: '/(protected)/_layout/courses/$courseId/lectures_/$lectureId'
-      path: '/courses/$courseId/lectures/$lectureId'
-      fullPath: '/courses/$courseId/lectures/$lectureId'
-      preLoaderRoute: typeof protectedLayoutCoursesCourseIdLecturesLectureIdRouteRouteImport
-      parentRoute: typeof protectedLayoutRouteRoute
-    }
-    '/(protected)/_layout/courses/$courseId/assignments_/$assignmentId': {
-      id: '/(protected)/_layout/courses/$courseId/assignments_/$assignmentId'
-      path: '/courses/$courseId/assignments/$assignmentId'
-      fullPath: '/courses/$courseId/assignments/$assignmentId'
-      preLoaderRoute: typeof protectedLayoutCoursesCourseIdAssignmentsAssignmentIdRouteRouteImport
-      parentRoute: typeof protectedLayoutRouteRoute
-    }
-    '/(protected)/_layout/courses/$courseId/resources_/$resourceId/': {
-      id: '/(protected)/_layout/courses/$courseId/resources_/$resourceId/'
-      path: '/'
-      fullPath: '/courses/$courseId/resources/$resourceId/'
-      preLoaderRoute: typeof protectedLayoutCoursesCourseIdResourcesResourceIdIndexRouteImport
-      parentRoute: typeof protectedLayoutCoursesCourseIdResourcesResourceIdRouteRoute
-    }
-    '/(protected)/_layout/courses/$courseId/assignments_/$assignmentId/': {
-      id: '/(protected)/_layout/courses/$courseId/assignments_/$assignmentId/'
-      path: '/'
-      fullPath: '/courses/$courseId/assignments/$assignmentId/'
-      preLoaderRoute: typeof protectedLayoutCoursesCourseIdAssignmentsAssignmentIdIndexRouteImport
-      parentRoute: typeof protectedLayoutCoursesCourseIdAssignmentsAssignmentIdRouteRoute
-    }
-    '/(protected)/_layout/courses/$courseId/announcements_/$announcementId/': {
-      id: '/(protected)/_layout/courses/$courseId/announcements_/$announcementId/'
-      path: '/courses/$courseId/announcements/$announcementId'
-      fullPath: '/courses/$courseId/announcements/$announcementId/'
-      preLoaderRoute: typeof protectedLayoutCoursesCourseIdAnnouncementsAnnouncementIdIndexRouteImport
-      parentRoute: typeof protectedLayoutRouteRoute
-    }
-    '/(protected)/_layout/courses/$courseId/_courseTabLayout/resources/': {
-      id: '/(protected)/_layout/courses/$courseId/_courseTabLayout/resources/'
-      path: '/resources'
-      fullPath: '/courses/$courseId/resources/'
-      preLoaderRoute: typeof protectedLayoutCoursesCourseIdCourseTabLayoutResourcesIndexRouteImport
-      parentRoute: typeof protectedLayoutCoursesCourseIdCourseTabLayoutRouteRoute
-    }
-    '/(protected)/_layout/courses/$courseId/_courseTabLayout/lectures/': {
-      id: '/(protected)/_layout/courses/$courseId/_courseTabLayout/lectures/'
-      path: '/lectures'
-      fullPath: '/courses/$courseId/lectures/'
-      preLoaderRoute: typeof protectedLayoutCoursesCourseIdCourseTabLayoutLecturesIndexRouteImport
-      parentRoute: typeof protectedLayoutCoursesCourseIdCourseTabLayoutRouteRoute
-    }
-    '/(protected)/_layout/courses/$courseId/_courseTabLayout/assignments/': {
-      id: '/(protected)/_layout/courses/$courseId/_courseTabLayout/assignments/'
-      path: '/assignments'
-      fullPath: '/courses/$courseId/assignments/'
-      preLoaderRoute: typeof protectedLayoutCoursesCourseIdCourseTabLayoutAssignmentsIndexRouteImport
-      parentRoute: typeof protectedLayoutCoursesCourseIdCourseTabLayoutRouteRoute
-    }
   }
 }
 
@@ -687,82 +221,13 @@ const protectedLayoutMasaiverseRouteRouteWithChildren =
     protectedLayoutMasaiverseRouteRouteChildren,
   )
 
-interface protectedLayoutCoursesCourseIdCourseTabLayoutRouteRouteChildren {
-  protectedLayoutCoursesCourseIdCourseTabLayoutIndexRoute: typeof protectedLayoutCoursesCourseIdCourseTabLayoutIndexRoute
-  protectedLayoutCoursesCourseIdCourseTabLayoutAssignmentsIndexRoute: typeof protectedLayoutCoursesCourseIdCourseTabLayoutAssignmentsIndexRoute
-  protectedLayoutCoursesCourseIdCourseTabLayoutLecturesIndexRoute: typeof protectedLayoutCoursesCourseIdCourseTabLayoutLecturesIndexRoute
-  protectedLayoutCoursesCourseIdCourseTabLayoutResourcesIndexRoute: typeof protectedLayoutCoursesCourseIdCourseTabLayoutResourcesIndexRoute
-}
-
-const protectedLayoutCoursesCourseIdCourseTabLayoutRouteRouteChildren: protectedLayoutCoursesCourseIdCourseTabLayoutRouteRouteChildren =
-  {
-    protectedLayoutCoursesCourseIdCourseTabLayoutIndexRoute:
-      protectedLayoutCoursesCourseIdCourseTabLayoutIndexRoute,
-    protectedLayoutCoursesCourseIdCourseTabLayoutAssignmentsIndexRoute:
-      protectedLayoutCoursesCourseIdCourseTabLayoutAssignmentsIndexRoute,
-    protectedLayoutCoursesCourseIdCourseTabLayoutLecturesIndexRoute:
-      protectedLayoutCoursesCourseIdCourseTabLayoutLecturesIndexRoute,
-    protectedLayoutCoursesCourseIdCourseTabLayoutResourcesIndexRoute:
-      protectedLayoutCoursesCourseIdCourseTabLayoutResourcesIndexRoute,
-  }
-
-const protectedLayoutCoursesCourseIdCourseTabLayoutRouteRouteWithChildren =
-  protectedLayoutCoursesCourseIdCourseTabLayoutRouteRoute._addFileChildren(
-    protectedLayoutCoursesCourseIdCourseTabLayoutRouteRouteChildren,
-  )
-
-interface protectedLayoutCoursesCourseIdAssignmentsAssignmentIdRouteRouteChildren {
-  protectedLayoutCoursesCourseIdAssignmentsAssignmentIdIndexRoute: typeof protectedLayoutCoursesCourseIdAssignmentsAssignmentIdIndexRoute
-}
-
-const protectedLayoutCoursesCourseIdAssignmentsAssignmentIdRouteRouteChildren: protectedLayoutCoursesCourseIdAssignmentsAssignmentIdRouteRouteChildren =
-  {
-    protectedLayoutCoursesCourseIdAssignmentsAssignmentIdIndexRoute:
-      protectedLayoutCoursesCourseIdAssignmentsAssignmentIdIndexRoute,
-  }
-
-const protectedLayoutCoursesCourseIdAssignmentsAssignmentIdRouteRouteWithChildren =
-  protectedLayoutCoursesCourseIdAssignmentsAssignmentIdRouteRoute._addFileChildren(
-    protectedLayoutCoursesCourseIdAssignmentsAssignmentIdRouteRouteChildren,
-  )
-
-interface protectedLayoutCoursesCourseIdResourcesResourceIdRouteRouteChildren {
-  protectedLayoutCoursesCourseIdResourcesResourceIdIndexRoute: typeof protectedLayoutCoursesCourseIdResourcesResourceIdIndexRoute
-}
-
-const protectedLayoutCoursesCourseIdResourcesResourceIdRouteRouteChildren: protectedLayoutCoursesCourseIdResourcesResourceIdRouteRouteChildren =
-  {
-    protectedLayoutCoursesCourseIdResourcesResourceIdIndexRoute:
-      protectedLayoutCoursesCourseIdResourcesResourceIdIndexRoute,
-  }
-
-const protectedLayoutCoursesCourseIdResourcesResourceIdRouteRouteWithChildren =
-  protectedLayoutCoursesCourseIdResourcesResourceIdRouteRoute._addFileChildren(
-    protectedLayoutCoursesCourseIdResourcesResourceIdRouteRouteChildren,
-  )
-
 interface protectedLayoutRouteRouteChildren {
   protectedLayoutMasaiverseRouteRoute: typeof protectedLayoutMasaiverseRouteRouteWithChildren
   protectedLayoutIndexRoute: typeof protectedLayoutIndexRoute
   protectedLayoutAssignmentsAssignmentIdRouteRoute: typeof protectedLayoutAssignmentsAssignmentIdRouteRoute
   protectedLayoutLecturesLectureIdRouteRoute: typeof protectedLayoutLecturesLectureIdRouteRoute
   protectedLayoutResourcesResourceIdRouteRoute: typeof protectedLayoutResourcesResourceIdRouteRoute
-  protectedLayoutAnnouncementsIndexRoute: typeof protectedLayoutAnnouncementsIndexRoute
-  protectedLayoutBookmarkIndexRoute: typeof protectedLayoutBookmarkIndexRoute
-  protectedLayoutChatIndexRoute: typeof protectedLayoutChatIndexRoute
-  protectedLayoutCoursesIndexRoute: typeof protectedLayoutCoursesIndexRoute
   protectedLayoutLearnIndexRoute: typeof protectedLayoutLearnIndexRoute
-  protectedLayoutPracticeInterviewIndexRoute: typeof protectedLayoutPracticeInterviewIndexRoute
-  protectedLayoutProfileIndexRoute: typeof protectedLayoutProfileIndexRoute
-  protectedLayoutReferAndEarnIndexRoute: typeof protectedLayoutReferAndEarnIndexRoute
-  protectedLayoutSupportIndexRoute: typeof protectedLayoutSupportIndexRoute
-  protectedLayoutWhatsNewIndexRoute: typeof protectedLayoutWhatsNewIndexRoute
-  protectedLayoutCoursesCourseIdCourseTabLayoutRouteRoute: typeof protectedLayoutCoursesCourseIdCourseTabLayoutRouteRouteWithChildren
-  protectedLayoutSupportSupportIdIndexRoute: typeof protectedLayoutSupportSupportIdIndexRoute
-  protectedLayoutCoursesCourseIdAssignmentsAssignmentIdRouteRoute: typeof protectedLayoutCoursesCourseIdAssignmentsAssignmentIdRouteRouteWithChildren
-  protectedLayoutCoursesCourseIdLecturesLectureIdRouteRoute: typeof protectedLayoutCoursesCourseIdLecturesLectureIdRouteRoute
-  protectedLayoutCoursesCourseIdResourcesResourceIdRouteRoute: typeof protectedLayoutCoursesCourseIdResourcesResourceIdRouteRouteWithChildren
-  protectedLayoutCoursesCourseIdAnnouncementsAnnouncementIdIndexRoute: typeof protectedLayoutCoursesCourseIdAnnouncementsAnnouncementIdIndexRoute
 }
 
 const protectedLayoutRouteRouteChildren: protectedLayoutRouteRouteChildren = {
@@ -775,40 +240,15 @@ const protectedLayoutRouteRouteChildren: protectedLayoutRouteRouteChildren = {
     protectedLayoutLecturesLectureIdRouteRoute,
   protectedLayoutResourcesResourceIdRouteRoute:
     protectedLayoutResourcesResourceIdRouteRoute,
-  protectedLayoutAnnouncementsIndexRoute:
-    protectedLayoutAnnouncementsIndexRoute,
-  protectedLayoutBookmarkIndexRoute: protectedLayoutBookmarkIndexRoute,
-  protectedLayoutChatIndexRoute: protectedLayoutChatIndexRoute,
-  protectedLayoutCoursesIndexRoute: protectedLayoutCoursesIndexRoute,
   protectedLayoutLearnIndexRoute: protectedLayoutLearnIndexRoute,
-  protectedLayoutPracticeInterviewIndexRoute:
-    protectedLayoutPracticeInterviewIndexRoute,
-  protectedLayoutProfileIndexRoute: protectedLayoutProfileIndexRoute,
-  protectedLayoutReferAndEarnIndexRoute: protectedLayoutReferAndEarnIndexRoute,
-  protectedLayoutSupportIndexRoute: protectedLayoutSupportIndexRoute,
-  protectedLayoutWhatsNewIndexRoute: protectedLayoutWhatsNewIndexRoute,
-  protectedLayoutCoursesCourseIdCourseTabLayoutRouteRoute:
-    protectedLayoutCoursesCourseIdCourseTabLayoutRouteRouteWithChildren,
-  protectedLayoutSupportSupportIdIndexRoute:
-    protectedLayoutSupportSupportIdIndexRoute,
-  protectedLayoutCoursesCourseIdAssignmentsAssignmentIdRouteRoute:
-    protectedLayoutCoursesCourseIdAssignmentsAssignmentIdRouteRouteWithChildren,
-  protectedLayoutCoursesCourseIdLecturesLectureIdRouteRoute:
-    protectedLayoutCoursesCourseIdLecturesLectureIdRouteRoute,
-  protectedLayoutCoursesCourseIdResourcesResourceIdRouteRoute:
-    protectedLayoutCoursesCourseIdResourcesResourceIdRouteRouteWithChildren,
-  protectedLayoutCoursesCourseIdAnnouncementsAnnouncementIdIndexRoute:
-    protectedLayoutCoursesCourseIdAnnouncementsAnnouncementIdIndexRoute,
 }
 
 const protectedLayoutRouteRouteWithChildren =
   protectedLayoutRouteRoute._addFileChildren(protectedLayoutRouteRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
-  TestRoute: TestRoute,
   protectedLayoutRouteRoute: protectedLayoutRouteRouteWithChildren,
   authLoginIndexRoute: authLoginIndexRoute,
-  protectedZoomIndexRoute: protectedZoomIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

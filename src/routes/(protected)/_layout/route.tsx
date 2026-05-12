@@ -16,6 +16,17 @@ import {
 } from '@/utils/authRedirect'
 import { initClarity, setCurrentUserForTracking } from '@/utils/tracking'
 
+/** Paths served by this app when legacy redirect is enabled (everything else → old LMS). */
+function isNewStudentExperienceRoute(pathname: string): boolean {
+  if (pathname === '/' || pathname === '') return true
+  if (pathname.startsWith('/masaiverse')) return true
+  if (pathname.startsWith('/learn')) return true
+  if (pathname.startsWith('/assignments')) return true
+  if (pathname.startsWith('/lectures')) return true
+  if (pathname.startsWith('/resources')) return true
+  return false
+}
+
 export const Route = createFileRoute('/(protected)/_layout')({
   beforeLoad: async ({ location }) => {
     const shouldRedirectToLegacy = isLegacyStudentRedirectEnabled()
@@ -47,8 +58,13 @@ export const Route = createFileRoute('/(protected)/_layout')({
       }
     }
 
-    if (shouldRedirectToLegacy && !isMasaiverseRoute) {
-      const oldUiUrl = getOldStudentUiUrlForPath(location.href)
+    if (
+      shouldRedirectToLegacy &&
+      !isNewStudentExperienceRoute(location.pathname)
+    ) {
+      const url = new URL(location.href, 'http://localhost')
+      const pathForLegacy = `${url.pathname}${url.search}`
+      const oldUiUrl = getOldStudentUiUrlForPath(pathForLegacy)
       if (oldUiUrl) {
         throw redirect({ href: oldUiUrl })
       }

@@ -226,8 +226,7 @@ export default function AppNavbar() {
         id: 'profile',
         label: 'My Profile',
         icon: <UserCircle className="size-4" />,
-        href: '/profile',
-        openInNewTab: false,
+        ...oldStudentUiLink('/profile'),
       },
       {
         id: 'courses',
@@ -252,8 +251,7 @@ export default function AppNavbar() {
         id: 'practice-interview',
         label: 'Practice Interviews',
         icon: <BriefcaseBusiness className="size-4" />,
-        href: '/practice-interview',
-        openInNewTab: false,
+        ...oldStudentUiLink('/practice-interview'),
       },
       {
         id: 'report-bug',
