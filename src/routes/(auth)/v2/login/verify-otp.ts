@@ -1,0 +1,69 @@
+import { createFileRoute } from '@tanstack/react-router'
+import { createSessionAndCookieHeader } from '@/server/auth/v2/createSession'
+import {
+  BadRequestError,
+  errorResponse,
+  jsonResponse,
+  readJsonBody,
+} from '@/server/auth/v2/httpHelpers'
+import { VerifyOtpError, verifyOtp } from '@/server/auth/v2/verifyOtp'
+
+type VerifyOtpBody = {
+  identifier?: unknown
+  otp?: unknown
+  rememberMe?: unknown
+}
+
+function statusForVerifyOtpError(code: VerifyOtpError['code']): number {
+  switch (code) {
+    case 'USER_NOT_FOUND':
+      return 404
+    case 'INVALID_OTP':
+      return 401
+  }
+}
+
+async function handleVerifyOtp(request: Request): Promise<Response> {
+  let body: VerifyOtpBody
+  try {
+    body = await readJsonBody<VerifyOtpBody>(request)
+  } catch (err) {
+    if (err instanceof BadRequestError) return errorResponse(400, err.code, err.message)
+    throw err
+  }
+
+  const identifier = typeof body.identifier === 'string' ? body.identifier : ''
+  const otp = typeof body.otp === 'string' ? body.otp : ''
+  const rememberMe = body.rememberMe === true
+
+  if (!identifier || !otp) {
+    return errorResponse(400, 'MISSING_FIELDS', 'identifier and otp are required')
+  }
+
+  try {
+    const user = await verifyOtp({ identifier, otp })
+    const setCookie = await createSessionAndCookieHeader({
+      userId: user.id,
+      request,
+      rememberMe,
+      source: 'v2-login-otp',
+    })
+    return jsonResponse(
+      { user },
+      { status: 200, headers: { 'Set-Cookie': setCookie } },
+    )
+  } catch (err) {
+    if (err instanceof VerifyOtpError) {
+      return errorResponse(statusForVerifyOtpError(err.code), err.code, err.message)
+    }
+    throw err
+  }
+}
+
+export const Route = createFileRoute('/(auth)/v2/login/verify-otp')({
+  server: {
+    handlers: {
+      POST: async ({ request }) => handleVerifyOtp(request),
+    },
+  },
+})

@@ -14,6 +14,7 @@ import { Route as protectedLayoutRouteRouteImport } from './routes/(protected)/_
 import { Route as protectedZoomIndexRouteImport } from './routes/(protected)/zoom/index'
 import { Route as protectedLayoutIndexRouteImport } from './routes/(protected)/_layout/index'
 import { Route as authLoginIndexRouteImport } from './routes/(auth)/login/index'
+import { Route as authV2MeRouteImport } from './routes/(auth)/v2/me'
 import { Route as protectedLayoutMasaiverseRouteRouteImport } from './routes/(protected)/_layout/masaiverse/route'
 import { Route as protectedLayoutWhatsNewIndexRouteImport } from './routes/(protected)/_layout/whats-new/index'
 import { Route as protectedLayoutSupportIndexRouteImport } from './routes/(protected)/_layout/support/index'
@@ -26,6 +27,9 @@ import { Route as protectedLayoutCoursesIndexRouteImport } from './routes/(prote
 import { Route as protectedLayoutChatIndexRouteImport } from './routes/(protected)/_layout/chat/index'
 import { Route as protectedLayoutBookmarkIndexRouteImport } from './routes/(protected)/_layout/bookmark/index'
 import { Route as protectedLayoutAnnouncementsIndexRouteImport } from './routes/(protected)/_layout/announcements/index'
+import { Route as authV2LoginIndexRouteImport } from './routes/(auth)/v2/login/index'
+import { Route as authV2LoginVerifyOtpRouteImport } from './routes/(auth)/v2/login/verify-otp'
+import { Route as authV2LoginRequestOtpRouteImport } from './routes/(auth)/v2/login/request-otp'
 import { Route as protectedLayoutSupportSupportIdIndexRouteImport } from './routes/(protected)/_layout/support/$supportId/index'
 import { Route as protectedLayoutDiscussionsCreateIndexRouteImport } from './routes/(protected)/_layout/discussions/create/index'
 import { Route as protectedLayoutDiscussionsDiscussionIdIndexRouteImport } from './routes/(protected)/_layout/discussions/$discussionId/index'
@@ -72,6 +76,11 @@ const protectedLayoutIndexRoute = protectedLayoutIndexRouteImport.update({
 const authLoginIndexRoute = authLoginIndexRouteImport.update({
   id: '/(auth)/login/',
   path: '/login/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const authV2MeRoute = authV2MeRouteImport.update({
+  id: '/(auth)/v2/me',
+  path: '/v2/me',
   getParentRoute: () => rootRouteImport,
 } as any)
 const protectedLayoutMasaiverseRouteRoute =
@@ -146,6 +155,21 @@ const protectedLayoutAnnouncementsIndexRoute =
     path: '/announcements/',
     getParentRoute: () => protectedLayoutRouteRoute,
   } as any)
+const authV2LoginIndexRoute = authV2LoginIndexRouteImport.update({
+  id: '/(auth)/v2/login/',
+  path: '/v2/login/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const authV2LoginVerifyOtpRoute = authV2LoginVerifyOtpRouteImport.update({
+  id: '/(auth)/v2/login/verify-otp',
+  path: '/v2/login/verify-otp',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const authV2LoginRequestOtpRoute = authV2LoginRequestOtpRouteImport.update({
+  id: '/(auth)/v2/login/request-otp',
+  path: '/v2/login/request-otp',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const protectedLayoutSupportSupportIdIndexRoute =
   protectedLayoutSupportSupportIdIndexRouteImport.update({
     id: '/support/$supportId/',
@@ -327,9 +351,13 @@ const protectedLayoutCoursesCourseIdAssignmentsAssignmentIdDiscussionsDiscussion
 export interface FileRoutesByFullPath {
   '/test': typeof TestRoute
   '/masaiverse': typeof protectedLayoutMasaiverseRouteRouteWithChildren
+  '/v2/me': typeof authV2MeRoute
   '/login/': typeof authLoginIndexRoute
   '/': typeof protectedLayoutIndexRoute
   '/zoom/': typeof protectedZoomIndexRoute
+  '/v2/login/request-otp': typeof authV2LoginRequestOtpRoute
+  '/v2/login/verify-otp': typeof authV2LoginVerifyOtpRoute
+  '/v2/login/': typeof authV2LoginIndexRoute
   '/announcements/': typeof protectedLayoutAnnouncementsIndexRoute
   '/bookmark/': typeof protectedLayoutBookmarkIndexRoute
   '/chat/': typeof protectedLayoutChatIndexRoute
@@ -367,9 +395,13 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/test': typeof TestRoute
+  '/v2/me': typeof authV2MeRoute
   '/login': typeof authLoginIndexRoute
   '/': typeof protectedLayoutIndexRoute
   '/zoom': typeof protectedZoomIndexRoute
+  '/v2/login/request-otp': typeof authV2LoginRequestOtpRoute
+  '/v2/login/verify-otp': typeof authV2LoginVerifyOtpRoute
+  '/v2/login': typeof authV2LoginIndexRoute
   '/announcements': typeof protectedLayoutAnnouncementsIndexRoute
   '/bookmark': typeof protectedLayoutBookmarkIndexRoute
   '/chat': typeof protectedLayoutChatIndexRoute
@@ -407,9 +439,13 @@ export interface FileRoutesById {
   '/test': typeof TestRoute
   '/(protected)/_layout': typeof protectedLayoutRouteRouteWithChildren
   '/(protected)/_layout/masaiverse': typeof protectedLayoutMasaiverseRouteRouteWithChildren
+  '/(auth)/v2/me': typeof authV2MeRoute
   '/(auth)/login/': typeof authLoginIndexRoute
   '/(protected)/_layout/': typeof protectedLayoutIndexRoute
   '/(protected)/zoom/': typeof protectedZoomIndexRoute
+  '/(auth)/v2/login/request-otp': typeof authV2LoginRequestOtpRoute
+  '/(auth)/v2/login/verify-otp': typeof authV2LoginVerifyOtpRoute
+  '/(auth)/v2/login/': typeof authV2LoginIndexRoute
   '/(protected)/_layout/announcements/': typeof protectedLayoutAnnouncementsIndexRoute
   '/(protected)/_layout/bookmark/': typeof protectedLayoutBookmarkIndexRoute
   '/(protected)/_layout/chat/': typeof protectedLayoutChatIndexRoute
@@ -450,9 +486,13 @@ export interface FileRouteTypes {
   fullPaths:
     | '/test'
     | '/masaiverse'
+    | '/v2/me'
     | '/login/'
     | '/'
     | '/zoom/'
+    | '/v2/login/request-otp'
+    | '/v2/login/verify-otp'
+    | '/v2/login/'
     | '/announcements/'
     | '/bookmark/'
     | '/chat/'
@@ -490,9 +530,13 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/test'
+    | '/v2/me'
     | '/login'
     | '/'
     | '/zoom'
+    | '/v2/login/request-otp'
+    | '/v2/login/verify-otp'
+    | '/v2/login'
     | '/announcements'
     | '/bookmark'
     | '/chat'
@@ -529,9 +573,13 @@ export interface FileRouteTypes {
     | '/test'
     | '/(protected)/_layout'
     | '/(protected)/_layout/masaiverse'
+    | '/(auth)/v2/me'
     | '/(auth)/login/'
     | '/(protected)/_layout/'
     | '/(protected)/zoom/'
+    | '/(auth)/v2/login/request-otp'
+    | '/(auth)/v2/login/verify-otp'
+    | '/(auth)/v2/login/'
     | '/(protected)/_layout/announcements/'
     | '/(protected)/_layout/bookmark/'
     | '/(protected)/_layout/chat/'
@@ -571,8 +619,12 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   TestRoute: typeof TestRoute
   protectedLayoutRouteRoute: typeof protectedLayoutRouteRouteWithChildren
+  authV2MeRoute: typeof authV2MeRoute
   authLoginIndexRoute: typeof authLoginIndexRoute
   protectedZoomIndexRoute: typeof protectedZoomIndexRoute
+  authV2LoginRequestOtpRoute: typeof authV2LoginRequestOtpRoute
+  authV2LoginVerifyOtpRoute: typeof authV2LoginVerifyOtpRoute
+  authV2LoginIndexRoute: typeof authV2LoginIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -610,6 +662,13 @@ declare module '@tanstack/react-router' {
       path: '/login'
       fullPath: '/login/'
       preLoaderRoute: typeof authLoginIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/(auth)/v2/me': {
+      id: '/(auth)/v2/me'
+      path: '/v2/me'
+      fullPath: '/v2/me'
+      preLoaderRoute: typeof authV2MeRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/(protected)/_layout/masaiverse': {
@@ -695,6 +754,27 @@ declare module '@tanstack/react-router' {
       fullPath: '/announcements/'
       preLoaderRoute: typeof protectedLayoutAnnouncementsIndexRouteImport
       parentRoute: typeof protectedLayoutRouteRoute
+    }
+    '/(auth)/v2/login/': {
+      id: '/(auth)/v2/login/'
+      path: '/v2/login'
+      fullPath: '/v2/login/'
+      preLoaderRoute: typeof authV2LoginIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/(auth)/v2/login/verify-otp': {
+      id: '/(auth)/v2/login/verify-otp'
+      path: '/v2/login/verify-otp'
+      fullPath: '/v2/login/verify-otp'
+      preLoaderRoute: typeof authV2LoginVerifyOtpRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/(auth)/v2/login/request-otp': {
+      id: '/(auth)/v2/login/request-otp'
+      path: '/v2/login/request-otp'
+      fullPath: '/v2/login/request-otp'
+      preLoaderRoute: typeof authV2LoginRequestOtpRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/(protected)/_layout/support/$supportId/': {
       id: '/(protected)/_layout/support/$supportId/'
@@ -1030,8 +1110,12 @@ const protectedLayoutRouteRouteWithChildren =
 const rootRouteChildren: RootRouteChildren = {
   TestRoute: TestRoute,
   protectedLayoutRouteRoute: protectedLayoutRouteRouteWithChildren,
+  authV2MeRoute: authV2MeRoute,
   authLoginIndexRoute: authLoginIndexRoute,
   protectedZoomIndexRoute: protectedZoomIndexRoute,
+  authV2LoginRequestOtpRoute: authV2LoginRequestOtpRoute,
+  authV2LoginVerifyOtpRoute: authV2LoginVerifyOtpRoute,
+  authV2LoginIndexRoute: authV2LoginIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
