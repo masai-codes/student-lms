@@ -3,8 +3,9 @@ import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/re
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { SignInFlow } from '@/components/features/sign-in/SignInFlow'
 
-const { navigateMock } = vi.hoisted(() => ({
+const { navigateMock, redirectToOldStudentUiMock } = vi.hoisted(() => ({
   navigateMock: vi.fn(),
+  redirectToOldStudentUiMock: vi.fn(),
 }))
 
 vi.mock('@tanstack/react-router', async (importOriginal) => {
@@ -14,6 +15,10 @@ vi.mock('@tanstack/react-router', async (importOriginal) => {
     useNavigate: () => navigateMock,
   }
 })
+
+vi.mock('@/utils/authRedirect', () => ({
+  redirectToOldStudentUi: redirectToOldStudentUiMock,
+}))
 
 function stubFetchJson(handler: (url: string, init?: RequestInit) => Promise<Response>) {
   globalThis.fetch = vi.fn((input: RequestInfo | URL, init?: RequestInit) => {
@@ -27,6 +32,7 @@ describe('SignInFlow', () => {
     cleanup()
     vi.restoreAllMocks()
     navigateMock.mockReset()
+    redirectToOldStudentUiMock.mockReset()
     delete (window as Window & { dataLayer?: Array<Record<string, unknown>> }).dataLayer
   })
 
@@ -52,6 +58,29 @@ describe('SignInFlow', () => {
           JSON.stringify({
             user: { id: 1, name: 'Test', email: 'swap@example.com', mobile: null, role: 'student' },
             token: 'jwt',
+          }),
+          { status: 200, headers: { 'Content-Type': 'application/json' } },
+        )
+      }
+      if (url.includes('/v2/auth/linked-accounts')) {
+        return new Response(
+          JSON.stringify({
+            accounts: [
+              {
+                user: { id: 1, name: 'Test', email: 'swap@example.com', mobile: null, role: 'student' },
+                sessionId: 'session-1',
+                isActive: true,
+              },
+            ],
+          }),
+          { status: 200, headers: { 'Content-Type': 'application/json' } },
+        )
+      }
+      if (url.includes('/v2/auth/use-account')) {
+        return new Response(
+          JSON.stringify({
+            user: { id: 2, name: 'Other', email: 'other@example.com', mobile: null, role: 'student' },
+            token: 'jwt-switched',
           }),
           { status: 200, headers: { 'Content-Type': 'application/json' } },
         )
@@ -180,5 +209,101 @@ describe('SignInFlow', () => {
       expect(screen.getByLabelText(/sign-in code/i)).toBeTruthy()
     })
     expect(screen.getByText('9000000000')).toBeTruthy()
+  })
+
+  it('shows linked accounts after phone OTP and switches account before old-lms redirect', async () => {
+    const dispatchSpy = vi.spyOn(window, 'dispatchEvent')
+    ;(window as Window & { dataLayer?: Array<Record<string, unknown>> }).dataLayer = []
+
+    stubFetchJson(async (url) => {
+      if (url.includes('/v2/login/request-otp')) {
+        return new Response(JSON.stringify({ channel: 'sms' }), {
+          status: 200,
+          headers: { 'Content-Type': 'application/json' },
+        })
+      }
+      if (url.includes('/v2/login/verify-otp')) {
+        return new Response(
+          JSON.stringify({
+            user: { id: 1, name: 'Primary User', email: 'primary@example.com', mobile: '9000000000', role: 'student' },
+            token: 'jwt-primary',
+          }),
+          { status: 200, headers: { 'Content-Type': 'application/json' } },
+        )
+      }
+      if (url.includes('/v2/auth/linked-accounts')) {
+        return new Response(
+          JSON.stringify({
+            accounts: [
+              {
+                user: { id: 1, name: 'Primary User', email: 'primary@example.com', mobile: '9000000000', role: 'student' },
+                sessionId: 'session-primary',
+                isActive: true,
+              },
+              {
+                user: { id: 2, name: 'Secondary User', email: 'secondary@example.com', mobile: '9000000000', role: 'student' },
+                sessionId: 'session-secondary',
+                isActive: false,
+              },
+            ],
+          }),
+          { status: 200, headers: { 'Content-Type': 'application/json' } },
+        )
+      }
+      if (url.includes('/v2/auth/use-account')) {
+        return new Response(
+          JSON.stringify({
+            user: { id: 2, name: 'Secondary User', email: 'secondary@example.com', mobile: '9000000000', role: 'student' },
+            token: 'jwt-secondary',
+          }),
+          { status: 200, headers: { 'Content-Type': 'application/json' } },
+        )
+      }
+      return new Response('not found', { status: 404 })
+    })
+
+    render(<SignInFlow />)
+
+    fireEvent.change(screen.getByLabelText(/email or mobile/i), {
+      target: { value: '9000000000' },
+    })
+    fireEvent.click(screen.getByRole('button', { name: /next/i }))
+
+    await waitFor(() => {
+      expect(screen.getByLabelText(/sign-in code/i)).toBeTruthy()
+    })
+
+    fireEvent.change(screen.getByLabelText(/sign-in code/i), {
+      target: { value: '1234' },
+    })
+    fireEvent.click(screen.getByRole('button', { name: /^sign in$/i }))
+
+    await waitFor(() => {
+      expect(screen.getByText(/choose an account/i)).toBeTruthy()
+    })
+
+    fireEvent.click(screen.getByRole('button', { name: /secondary user secondary@example\.com/i }))
+
+    await waitFor(() => {
+      expect(redirectToOldStudentUiMock).toHaveBeenCalled()
+    })
+    expect(navigateMock).not.toHaveBeenCalled()
+    expect(dispatchSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        type: 'sso-v2-success',
+      }),
+    )
+    expect(
+      (window as Window & { dataLayer?: Array<Record<string, unknown>> }).dataLayer,
+    ).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          event: 'sso_v2_success',
+          source: 'sso-v2',
+          method: 'phone-use-account',
+          token: 'jwt-secondary',
+        }),
+      ]),
+    )
   })
 })

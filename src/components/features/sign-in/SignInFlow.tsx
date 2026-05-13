@@ -1,8 +1,10 @@
 import { useCallback, useReducer, useState } from 'react'
 import { useNavigate } from '@tanstack/react-router'
+import type { LinkedAccount, VerifyOtpResult } from '@/components/features/sign-in/v2AuthClient'
 import { EmailAuthStepView } from '@/components/features/sign-in/EmailAuthStepView'
 import { ForgotPasswordStepView } from '@/components/features/sign-in/ForgotPasswordStepView'
 import { IdentifierStepView } from '@/components/features/sign-in/IdentifierStepView'
+import { LinkedAccountsStepView } from '@/components/features/sign-in/LinkedAccountsStepView'
 import { PhoneOtpStepView } from '@/components/features/sign-in/PhoneOtpStepView'
 import { parseIdentifier } from '@/components/features/sign-in/detectIdentifier'
 import {
@@ -20,14 +22,22 @@ import { emailOtpSentBody, phoneOtpResentBody } from '@/components/features/sign
 import { getSignInSubmitError } from '@/components/features/sign-in/signInSubmit'
 import {
   V2AuthRequestError,
+  v2FetchLinkedAccounts,
   v2ForgotPassword,
   v2LoginWithPassword,
   v2RequestOtp,
+  v2UseAccount,
   v2VerifyOtp,
 } from '@/components/features/sign-in/v2AuthClient'
+import { redirectToOldStudentUi } from '@/utils/authRedirect'
 
 const FORGOT_GENERIC_OK =
   'If an account exists for that email, we have sent a reset link. Check your inbox and spam folder.'
+
+type PendingPhoneAccountSelection = {
+  verifyResponse: VerifyOtpResult
+  accounts: Array<LinkedAccount>
+}
 
 function formatAuthError(err: unknown): string {
   if (err instanceof V2AuthRequestError) {
@@ -47,10 +57,26 @@ export function SignInFlow() {
   const [submitBusy, setSubmitBusy] = useState(false)
   const [phoneResendBusy, setPhoneResendBusy] = useState(false)
   const [forgotBusy, setForgotBusy] = useState(false)
+  const [pendingPhoneAccountSelection, setPendingPhoneAccountSelection] =
+    useState<PendingPhoneAccountSelection | null>(null)
+  const [accountSelectionBusy, setAccountSelectionBusy] = useState(false)
+  const [accountSelectionError, setAccountSelectionError] = useState<string | undefined>()
 
   const goHomeAfterSignIn = useCallback(() => {
     void navigate({ to: '/' })
   }, [navigate])
+
+  const completePhoneRedirect = useCallback(
+    (method: 'phone-otp' | 'phone-use-account', response: VerifyOtpResult) => {
+      dispatchSignInSuccessEvent('sso-v2', method, response)
+      redirectToOldStudentUi({
+        source: 'SignInFlow',
+        reason: 'Phone sign-in completed',
+        extra: { method, userId: response.user.id },
+      })
+    },
+    [],
+  )
 
   const onIdentifierSubmit = useCallback(async () => {
     if (state.step !== 'identifier') return
@@ -161,8 +187,16 @@ export function SignInFlow() {
           identifier: state.digits,
           otp: state.otp.trim(),
         })
-        dispatchSignInSuccessEvent('sso-v2', 'phone-otp', response)
-        goHomeAfterSignIn()
+        const linkedAccountsResult = await v2FetchLinkedAccounts()
+        if (linkedAccountsResult.accounts.length >= 2) {
+          setPendingPhoneAccountSelection({
+            verifyResponse: response,
+            accounts: linkedAccountsResult.accounts,
+          })
+          setAccountSelectionError(undefined)
+          return
+        }
+        completePhoneRedirect('phone-otp', response)
       } catch (e) {
         dispatchSignInFailureEvent('sso-v2', 'phone-otp', e)
         dispatch({ type: 'phone_set_error', message: formatAuthError(e) })
@@ -170,7 +204,7 @@ export function SignInFlow() {
         setSubmitBusy(false)
       }
     }
-  }, [state, goHomeAfterSignIn])
+  }, [completePhoneRedirect, state])
 
   const onForgotSubmit = useCallback(async () => {
     if (state.step !== 'forgot') return
@@ -191,6 +225,41 @@ export function SignInFlow() {
       setForgotBusy(false)
     }
   }, [state])
+
+  const onSelectLinkedPhoneAccount = useCallback(
+    async (account: LinkedAccount) => {
+      if (!pendingPhoneAccountSelection) return
+
+      setAccountSelectionBusy(true)
+      setAccountSelectionError(undefined)
+
+      try {
+        if (account.isActive) {
+          completePhoneRedirect('phone-otp', pendingPhoneAccountSelection.verifyResponse)
+          return
+        }
+
+        const response = await v2UseAccount({ sessionId: account.sessionId })
+        dispatchSignInSuccessEvent('sso-v2', 'phone-use-account', response)
+        redirectToOldStudentUi({
+          source: 'SignInFlow',
+          reason: 'Linked account switched after phone sign-in',
+          extra: { method: 'phone-use-account', userId: response.user.id },
+        })
+      } catch (err) {
+        dispatchSignInFailureEvent('sso-v2', 'phone-use-account', err)
+        setAccountSelectionError(formatAuthError(err))
+      } finally {
+        setAccountSelectionBusy(false)
+      }
+    },
+    [completePhoneRedirect, pendingPhoneAccountSelection],
+  )
+
+  const onBackFromLinkedPhoneAccounts = useCallback(() => {
+    setPendingPhoneAccountSelection(null)
+    setAccountSelectionError(undefined)
+  }, [])
 
   const openForgotFromIdentifier = useCallback(() => {
     if (state.step !== 'identifier') return
@@ -245,7 +314,17 @@ export function SignInFlow() {
         />
       ) : null}
 
-      {state.step === 'phone' ? (
+      {state.step === 'phone' && pendingPhoneAccountSelection ? (
+        <LinkedAccountsStepView
+          accounts={pendingPhoneAccountSelection.accounts}
+          error={accountSelectionError}
+          busy={accountSelectionBusy}
+          onBack={onBackFromLinkedPhoneAccounts}
+          onSelectAccount={(account) => void onSelectLinkedPhoneAccount(account)}
+        />
+      ) : null}
+
+      {state.step === 'phone' && !pendingPhoneAccountSelection ? (
         <PhoneOtpStepView
           displayPhone={state.displayPhone}
           delivery={state.delivery}
@@ -274,7 +353,7 @@ export function SignInFlow() {
         />
       ) : null}
 
-      {(state.step === 'email' || state.step === 'phone') && submitBusy ? (
+      {(state.step === 'email' || (state.step === 'phone' && !pendingPhoneAccountSelection)) && submitBusy ? (
         <p className="text-center text-sm text-muted-foreground" aria-live="polite">
           Signing you in…
         </p>

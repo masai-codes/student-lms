@@ -1,7 +1,7 @@
 import type { PasswordLoginResult, VerifyOtpResult } from '@/components/features/sign-in/v2AuthClient'
 
 type SignInEventSource = 'sso-v2'
-type SignInMethod = 'email-password' | 'email-otp' | 'phone-otp'
+type SignInMethod = 'email-password' | 'email-otp' | 'phone-otp' | 'phone-use-account'
 
 type SignInSuccessDetail = {
   source: SignInEventSource

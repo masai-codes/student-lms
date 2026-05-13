@@ -33,31 +33,24 @@ async function readJson(res: Response): Promise<unknown> {
 }
 
 function getErrorMessage(body: unknown): string | null {
-  if (
-    body &&
-    typeof body === 'object' &&
-    'error' in body &&
-    body.error &&
-    typeof body.error === 'object' &&
-    'message' in body.error &&
-    typeof (body.error as { message: unknown }).message === 'string'
-  ) {
-    return (body.error as { message: string }).message
-  }
-  return null
+  const error = getErrorObject(body)
+  return typeof error?.message === 'string' ? error.message : null
 }
 
 function getErrorCode(body: unknown): string | null {
+  const error = getErrorObject(body)
+  return typeof error?.code === 'string' ? error.code : null
+}
+
+function getErrorObject(body: unknown): Record<string, unknown> | null {
   if (
     body &&
     typeof body === 'object' &&
     'error' in body &&
     body.error &&
-    typeof body.error === 'object' &&
-    'code' in body.error &&
-    typeof (body.error as { code: unknown }).code === 'string'
+    typeof body.error === 'object'
   ) {
-    return (body.error as { code: string }).code
+    return body.error as Record<string, unknown>
   }
   return null
 }
@@ -68,6 +61,20 @@ async function postJson<T>(path: string, body: unknown): Promise<T> {
     credentials: 'include',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body),
+  })
+  const parsed = await readJson(res)
+  if (!res.ok) {
+    const code = getErrorCode(parsed) ?? 'REQUEST_FAILED'
+    const message = getErrorMessage(parsed) ?? (res.statusText || 'Request failed')
+    throw new V2AuthRequestError(res.status, code, message)
+  }
+  return parsed as T
+}
+
+async function getJson<T>(path: string): Promise<T> {
+  const res = await fetch(path, {
+    method: 'GET',
+    credentials: 'include',
   })
   const parsed = await readJson(res)
   if (!res.ok) {
@@ -114,6 +121,12 @@ export type VerifyOtpResult = {
   token: string
 }
 
+export type LinkedAccount = {
+  user: AuthenticatedUser
+  sessionId: string
+  isActive: boolean
+}
+
 export async function v2VerifyOtp(input: {
   identifier: string
   otp: string
@@ -122,6 +135,25 @@ export async function v2VerifyOtp(input: {
   return postJson<VerifyOtpResult>('/v2/login/verify-otp', {
     identifier: input.identifier,
     otp: input.otp,
+    rememberMe: input.rememberMe === true,
+  })
+}
+
+export async function v2FetchLinkedAccounts(): Promise<{ accounts: Array<LinkedAccount> }> {
+  return getJson<{ accounts: Array<LinkedAccount> }>('/v2/auth/linked-accounts')
+}
+
+export type UseAccountResult = {
+  user: AuthenticatedUser
+  token: string
+}
+
+export async function v2UseAccount(input: {
+  sessionId: string
+  rememberMe?: boolean
+}): Promise<UseAccountResult> {
+  return postJson<UseAccountResult>('/v2/auth/use-account', {
+    sessionId: input.sessionId,
     rememberMe: input.rememberMe === true,
   })
 }
