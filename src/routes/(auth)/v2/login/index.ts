@@ -1,5 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { createSession } from '@/server/auth/v2/createSession'
+import { createSessions } from '@/server/auth/v2/createSession'
 import {
   BadRequestError,
   errorResponse,
@@ -47,14 +47,14 @@ async function handlePasswordLogin(request: Request): Promise<Response> {
 
   try {
     const user = await loginWithPassword({ email, password })
-    const { token, setCookieHeader } = await createSession({
-      userId: user.id,
+    const { activeToken, setCookieHeader } = await createSessions({
+      userIds: [user.id],
       request,
       rememberMe,
       source: 'v2-login-password',
     })
     return jsonResponse(
-      { user, token },
+      { user, token: activeToken },
       { status: 200, headers: { 'Set-Cookie': setCookieHeader } },
     )
   } catch (err) {

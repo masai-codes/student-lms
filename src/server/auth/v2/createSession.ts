@@ -8,11 +8,24 @@ const JWT_ALGORITHM = 'HS256'
 const DEFAULT_TTL_HOURS = 72
 const REMEMBER_ME_TTL_HOURS = 720
 
-type CreateSessionInput = {
-  userId: number
+type CreateSessionsInput = {
+  userIds: number[]
   request: Request
   rememberMe?: boolean
   source: string
+}
+
+export type CreatedSessionRecord = {
+  userId: number
+  sessionId: string
+}
+
+export type CreateSessionsResult = {
+  sessions: CreatedSessionRecord[]
+  activeUserId: number
+  activeSessionId: string
+  activeToken: string
+  setCookieHeader: string
 }
 
 function getCookieName(): string {
@@ -53,44 +66,85 @@ function buildSetCookieHeader(
   return parts.join('; ')
 }
 
-export type CreateSessionResult = {
-  token: string
-  setCookieHeader: string
+export function signSessionToken(sessionId: string): string {
+  return jwt.sign({ sessionId }, getJwtSecret(), { algorithm: JWT_ALGORITHM })
 }
 
-export async function createSession({
-  userId,
+export function buildActiveCookieHeader({
+  token,
   request,
   rememberMe,
-  source,
-}: CreateSessionInput): Promise<CreateSessionResult> {
-  const sessionId = randomUUID()
-
-  const sanitizedPayload = {
-    source,
-    rememberMe: rememberMe ?? false,
-    timestamp: new Date().toISOString(),
-    created_at: new Date().toISOString(),
-  }
-
-  await db.insert(sessions).values({
-    id: sessionId,
-    userId,
-    ipAddress: extractClientIp(request),
-    userAgent: request.headers.get('user-agent') ?? '',
-    lastActivity: Math.floor(Date.now() / 1000),
-    payload: Buffer.from(JSON.stringify(sanitizedPayload)).toString('base64'),
-  })
-
-  const token = jwt.sign({ sessionId }, getJwtSecret(), { algorithm: JWT_ALGORITHM })
-
+}: {
+  token: string
+  request: Request
+  rememberMe?: boolean
+}): string {
   const ttlHours = rememberMe ? REMEMBER_ME_TTL_HOURS : DEFAULT_TTL_HOURS
   const expires = new Date(Date.now() + ttlHours * 60 * 60 * 1000)
-
-  const setCookieHeader = buildSetCookieHeader(getCookieName(), token, {
+  return buildSetCookieHeader(getCookieName(), token, {
     domain: getCookieDomain(request),
     expires,
   })
+}
 
-  return { token, setCookieHeader }
+export async function createSessions({
+  userIds,
+  request,
+  rememberMe,
+  source,
+}: CreateSessionsInput): Promise<CreateSessionsResult> {
+  if (userIds.length === 0) {
+    throw new Error('createSessions: userIds must be non-empty')
+  }
+
+  const sessionRecords: CreatedSessionRecord[] = userIds.map((userId) => ({
+    userId,
+    sessionId: randomUUID(),
+  }))
+
+  const linkedSessionIds =
+    sessionRecords.length > 1 ? sessionRecords.map((s) => s.sessionId) : undefined
+
+  const now = new Date().toISOString()
+  const ipAddress = extractClientIp(request)
+  const userAgent = request.headers.get('user-agent') ?? ''
+  const lastActivity = Math.floor(Date.now() / 1000)
+
+  const rows = sessionRecords.map(({ userId, sessionId }) => {
+    const payload: Record<string, unknown> = {
+      source,
+      rememberMe: rememberMe ?? false,
+      timestamp: now,
+      created_at: now,
+    }
+    if (linkedSessionIds) {
+      payload.linkedSessionIds = linkedSessionIds
+    }
+    return {
+      id: sessionId,
+      userId,
+      ipAddress,
+      userAgent,
+      lastActivity,
+      payload: Buffer.from(JSON.stringify(payload)).toString('base64'),
+    }
+  })
+
+  await db.insert(sessions).values(rows)
+
+  const active = sessionRecords[0]
+  const activeToken = signSessionToken(active.sessionId)
+  const setCookieHeader = buildActiveCookieHeader({
+    token: activeToken,
+    request,
+    rememberMe,
+  })
+
+  return {
+    sessions: sessionRecords,
+    activeUserId: active.userId,
+    activeSessionId: active.sessionId,
+    activeToken,
+    setCookieHeader,
+  }
 }
