@@ -1,4 +1,4 @@
-import { eq, or } from 'drizzle-orm'
+import { eq } from 'drizzle-orm'
 import { db } from '@/db'
 import { users } from '@/db/schema'
 import type { AuthenticatedUser } from '@/server/auth/v2/loginWithPassword'
@@ -20,12 +20,13 @@ export class VerifyOtpError extends Error {
 
 const VALID_OTPS = new Set(Object.values(HARDCODED_OTPS))
 
-export async function verifyOtp({ identifier, otp }: VerifyOtpInput): Promise<AuthenticatedUser> {
+export async function verifyOtp({ identifier, otp }: VerifyOtpInput): Promise<AuthenticatedUser[]> {
   if (!VALID_OTPS.has(otp.trim())) {
     throw new VerifyOtpError('INVALID_OTP', 'Invalid OTP')
   }
 
   const normalized = identifier.trim().toLowerCase()
+  const isEmail = normalized.includes('@')
 
   const rows = await db
     .select({
@@ -36,13 +37,11 @@ export async function verifyOtp({ identifier, otp }: VerifyOtpInput): Promise<Au
       role: users.role,
     })
     .from(users)
-    .where(or(eq(users.email, normalized), eq(users.mobile, normalized)))
-    .limit(1)
+    .where(eq(isEmail ? users.email : users.mobile, normalized))
 
-  const user = rows[0]
-  if (!user) {
+  if (rows.length === 0) {
     throw new VerifyOtpError('USER_NOT_FOUND', 'User not found')
   }
 
-  return user
+  return rows
 }
