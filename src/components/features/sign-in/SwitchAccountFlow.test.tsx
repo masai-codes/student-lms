@@ -95,8 +95,7 @@ describe('SwitchAccountFlow', () => {
 
     expect(screen.getByText(/primary user/i)).toBeTruthy()
     expect(screen.getByText(/secondary user/i)).toBeTruthy()
-    expect(screen.getByRole('button', { name: /continue with this account/i })).toBeTruthy()
-    expect(screen.getByRole('button', { name: /switch to this account/i })).toBeTruthy()
+    expect(screen.getAllByRole('button', { name: /login with this account/i })).toHaveLength(2)
   })
 
   it('continues with active account and dispatches pending phone-otp success', async () => {
@@ -113,10 +112,10 @@ describe('SwitchAccountFlow', () => {
     render(<SwitchAccountFlow />)
 
     await waitFor(() => {
-      expect(screen.getByRole('button', { name: /continue with this account/i })).toBeTruthy()
+      expect(screen.getAllByRole('button', { name: /login with this account/i })).toHaveLength(2)
     })
 
-    fireEvent.click(screen.getByRole('button', { name: /continue with this account/i }))
+    fireEvent.click(screen.getAllByRole('button', { name: /login with this account/i })[0])
 
     await waitFor(() => {
       expect(redirectToOldStudentUiMock).toHaveBeenCalled()
@@ -148,10 +147,10 @@ describe('SwitchAccountFlow', () => {
     render(<SwitchAccountFlow />)
 
     await waitFor(() => {
-      expect(screen.getByRole('button', { name: /switch to this account/i })).toBeTruthy()
+      expect(screen.getAllByRole('button', { name: /login with this account/i })).toHaveLength(2)
     })
 
-    fireEvent.click(screen.getByRole('button', { name: /switch to this account/i }))
+    fireEvent.click(screen.getAllByRole('button', { name: /login with this account/i })[1])
 
     await waitFor(() => {
       expect(redirectToOldStudentUiMock).toHaveBeenCalled()
@@ -182,14 +181,37 @@ describe('SwitchAccountFlow', () => {
     render(<SwitchAccountFlow />)
 
     await waitFor(() => {
-      expect(screen.getByRole('button', { name: /switch to this account/i })).toBeTruthy()
+      expect(screen.getAllByRole('button', { name: /login with this account/i })).toHaveLength(2)
     })
 
-    fireEvent.click(screen.getByRole('button', { name: /switch to this account/i }))
+    fireEvent.click(screen.getAllByRole('button', { name: /login with this account/i })[1])
 
     await waitFor(() => {
       expect(redirectToResolvedUrlMock).toHaveBeenCalledWith('https://example.com/final-target')
     })
     expect(redirectToOldStudentUiMock).not.toHaveBeenCalled()
+  })
+
+  it('redirects to signin when linked-accounts returns 401', async () => {
+    stubFetchJson(async (url) => {
+      if (url.includes('/v2/auth/linked-accounts')) {
+        return new Response(
+          JSON.stringify({
+            error: {
+              code: 'UNAUTHENTICATED',
+              message: 'Not signed in',
+            },
+          }),
+          { status: 401, headers: { 'Content-Type': 'application/json' } },
+        )
+      }
+      return new Response('not found', { status: 404 })
+    })
+
+    render(<SwitchAccountFlow />)
+
+    await waitFor(() => {
+      expect(navigateMock).toHaveBeenCalledWith({ to: '/signin' })
+    })
   })
 })

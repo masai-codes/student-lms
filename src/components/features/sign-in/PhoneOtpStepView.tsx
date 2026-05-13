@@ -54,7 +54,7 @@ export function PhoneOtpStepView({
         type="button"
         variant="ghost"
         size="sm"
-        className="h-auto gap-1.5 px-0 font-poppins text-muted-foreground hover:bg-transparent hover:text-foreground"
+        className="h-9 rounded-full border border-primary/20 bg-primary/5 px-3 font-poppins text-primary shadow-sm hover:bg-primary/10 hover:text-primary"
         onClick={onBack}
       >
         <ArrowLeft className="size-4 shrink-0" aria-hidden />

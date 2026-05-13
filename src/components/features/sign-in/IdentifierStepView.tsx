@@ -21,12 +21,20 @@ export function IdentifierStepView({
   onForgotPassword,
 }: Props) {
   return (
-    <div className="space-y-4">
-      <div className="space-y-2">
-        <Label htmlFor="signin-identifier" className="text-foreground">
+    <div className="space-y-6">
+      <div className="space-y-2 text-left">
+        <h1 className="font-poppins text-[28px] font-medium tracking-tight text-foreground md:text-[32px]">
+          Sign in
+        </h1>
+        <p className="text-sm text-muted-foreground">
+          Use your email or phone number.
+        </p>
+      </div>
+
+      <div className="space-y-3">
+        <Label htmlFor="signin-identifier" className="sr-only">
           Email or mobile number
         </Label>
-        <p className="text-xs text-muted-foreground">Indian mobile numbers only: 10 digits, no country code.</p>
         <Input
           id="signin-identifier"
           name="identifier"
@@ -36,8 +44,9 @@ export function IdentifierStepView({
           autoCapitalize="none"
           autoCorrect="off"
           spellCheck={false}
-          placeholder="you@example.com or 9876543210"
+          placeholder="Email or mobile number"
           value={draft}
+          className="h-12 rounded-xl border-slate-300 bg-white px-4 text-base shadow-none md:h-13"
           onChange={(e) => onDraftChange(e.target.value)}
           onKeyDown={(e) => {
             if (e.key === 'Enter') {
@@ -51,33 +60,37 @@ export function IdentifierStepView({
         {error ? (
           <p
             id="signin-identifier-error"
-            className="rounded-md border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive"
+            className="rounded-lg border border-destructive/20 bg-destructive/5 px-3 py-2 text-sm text-destructive"
             role="alert"
           >
             {error}
           </p>
         ) : null}
       </div>
-      <Button
-        type="button"
-        className="w-full font-poppins shadow-sm"
-        disabled={nextDisabled}
-        onClick={onSubmit}
-      >
-        {nextDisabled ? 'Please wait…' : 'Next'}
-        <ArrowRight className="size-4" weight="bold" aria-hidden />
-      </Button>
-      {onForgotPassword ? (
-        <div className="flex justify-start">
+
+      <div className="flex items-center justify-between gap-3 pt-2">
+        {onForgotPassword ? (
           <button
             type="button"
-            className="text-sm font-medium text-foreground underline-offset-4 hover:underline"
+            className="text-sm font-medium text-primary underline-offset-4 hover:underline"
             onClick={onForgotPassword}
           >
             Forgot password?
           </button>
-        </div>
-      ) : null}
+        ) : (
+          <span />
+        )}
+
+        <Button
+          type="button"
+          className="min-w-28 rounded-full px-6 font-poppins shadow-sm"
+          disabled={nextDisabled}
+          onClick={onSubmit}
+        >
+          {nextDisabled ? 'Please wait…' : 'Next'}
+          <ArrowRight className="size-4" weight="bold" aria-hidden />
+        </Button>
+      </div>
     </div>
   )
 }

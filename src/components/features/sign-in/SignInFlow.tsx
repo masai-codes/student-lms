@@ -241,12 +241,14 @@ export function SignInFlow() {
 
   return (
     <div className="space-y-6">
-      <div className="text-center">
-        <h1 className="font-poppins text-2xl font-bold tracking-tight text-foreground md:text-3xl">Sign in</h1>
-        <p className="mt-2 text-sm text-muted-foreground">
-          Use the email or 10-digit mobile number linked to your Masai account.
-        </p>
-      </div>
+      {state.step !== 'identifier' ? (
+        <div className="text-center">
+          <h1 className="font-poppins text-2xl font-bold tracking-tight text-foreground md:text-3xl">Sign in</h1>
+          <p className="mt-2 text-sm text-muted-foreground">
+            Continue with your Masai account.
+          </p>
+        </div>
+      ) : null}
 
       {state.step === 'identifier' ? (
         <IdentifierStepView
@@ -257,12 +259,6 @@ export function SignInFlow() {
           onSubmit={onIdentifierSubmit}
           onForgotPassword={openForgotFromIdentifier}
         />
-      ) : null}
-
-      {state.step === 'identifier' && identifierBusy ? (
-        <p className="text-center text-sm text-muted-foreground" aria-live="polite">
-          Sending sign-in code…
-        </p>
       ) : null}
 
       {state.step === 'email' ? (

@@ -15,7 +15,7 @@ export const Route = createFileRoute('/(auth)/switch-account/')({
 
 function RouteComponent() {
   return (
-    <SignInShell>
+    <SignInShell widthClassName="sm:max-w-2xl md:max-w-5xl">
       <SwitchAccountFlow />
     </SignInShell>
   )
