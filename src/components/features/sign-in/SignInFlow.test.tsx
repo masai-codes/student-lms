@@ -3,9 +3,18 @@ import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/re
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { SignInFlow } from '@/components/features/sign-in/SignInFlow'
 
-const { navigateMock, redirectToOldStudentUiMock } = vi.hoisted(() => ({
+const {
+  navigateMock,
+  redirectToOldStudentUiMock,
+  getRedirectToSearchParamMock,
+  redirectToResolvedUrlMock,
+  redirectToSwitchAccountPageMock,
+} = vi.hoisted(() => ({
   navigateMock: vi.fn(),
   redirectToOldStudentUiMock: vi.fn(),
+  getRedirectToSearchParamMock: vi.fn(),
+  redirectToResolvedUrlMock: vi.fn(),
+  redirectToSwitchAccountPageMock: vi.fn(),
 }))
 
 vi.mock('@tanstack/react-router', async (importOriginal) => {
@@ -18,6 +27,12 @@ vi.mock('@tanstack/react-router', async (importOriginal) => {
 
 vi.mock('@/utils/authRedirect', () => ({
   redirectToOldStudentUi: redirectToOldStudentUiMock,
+}))
+
+vi.mock('@/components/features/sign-in/signInRouting', () => ({
+  getRedirectToSearchParam: getRedirectToSearchParamMock,
+  redirectToResolvedUrl: redirectToResolvedUrlMock,
+  redirectToSwitchAccountPage: redirectToSwitchAccountPageMock,
 }))
 
 function stubFetchJson(handler: (url: string, init?: RequestInit) => Promise<Response>) {
@@ -33,10 +48,15 @@ describe('SignInFlow', () => {
     vi.restoreAllMocks()
     navigateMock.mockReset()
     redirectToOldStudentUiMock.mockReset()
+    getRedirectToSearchParamMock.mockReset()
+    redirectToResolvedUrlMock.mockReset()
+    redirectToSwitchAccountPageMock.mockReset()
     delete (window as Window & { dataLayer?: Array<Record<string, unknown>> }).dataLayer
+    window.sessionStorage.clear()
   })
 
   beforeEach(() => {
+    getRedirectToSearchParamMock.mockReturnValue(null)
     stubFetchJson(async (url) => {
       if (url.includes('/v2/login/request-otp')) {
         return new Response(JSON.stringify({ channel: 'sms' }), {
@@ -129,6 +149,26 @@ describe('SignInFlow', () => {
     )
   })
 
+  it('redirects to redirectTo after email password success when present', async () => {
+    getRedirectToSearchParamMock.mockReturnValue('https://example.com/after-login')
+
+    render(<SignInFlow />)
+
+    fireEvent.change(screen.getByLabelText(/email or mobile/i), {
+      target: { value: 'demo@example.com' },
+    })
+    fireEvent.click(screen.getByRole('button', { name: /next/i }))
+    fireEvent.change(screen.getByLabelText(/^password$/i), {
+      target: { value: 'hunter2' },
+    })
+    fireEvent.click(screen.getByRole('button', { name: /^sign in$/i }))
+
+    await waitFor(() => {
+      expect(redirectToResolvedUrlMock).toHaveBeenCalledWith('https://example.com/after-login')
+    })
+    expect(navigateMock).not.toHaveBeenCalled()
+  })
+
   it('dispatches failure event for password login failure', async () => {
     const dispatchSpy = vi.spyOn(window, 'dispatchEvent')
     ;(window as Window & { dataLayer?: Array<Record<string, unknown>> }).dataLayer = []
@@ -211,9 +251,8 @@ describe('SignInFlow', () => {
     expect(screen.getByText('9000000000')).toBeTruthy()
   })
 
-  it('shows linked accounts after phone OTP and switches account before old-lms redirect', async () => {
-    const dispatchSpy = vi.spyOn(window, 'dispatchEvent')
-    ;(window as Window & { dataLayer?: Array<Record<string, unknown>> }).dataLayer = []
+  it('redirects phone login with multiple linked accounts to switch-account page', async () => {
+    getRedirectToSearchParamMock.mockReturnValue('https://example.com/phone-target')
 
     stubFetchJson(async (url) => {
       if (url.includes('/v2/login/request-otp')) {
@@ -279,31 +318,10 @@ describe('SignInFlow', () => {
     fireEvent.click(screen.getByRole('button', { name: /^sign in$/i }))
 
     await waitFor(() => {
-      expect(screen.getByText(/choose an account/i)).toBeTruthy()
-    })
-
-    fireEvent.click(screen.getByRole('button', { name: /switch to this account/i }))
-
-    await waitFor(() => {
-      expect(redirectToOldStudentUiMock).toHaveBeenCalled()
+      expect(redirectToSwitchAccountPageMock).toHaveBeenCalledWith('https://example.com/phone-target')
     })
     expect(navigateMock).not.toHaveBeenCalled()
-    expect(dispatchSpy).toHaveBeenCalledWith(
-      expect.objectContaining({
-        type: 'sso-v2-success',
-      }),
-    )
-    expect(
-      (window as Window & { dataLayer?: Array<Record<string, unknown>> }).dataLayer,
-    ).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({
-          event: 'sso_v2_success',
-          source: 'sso-v2',
-          method: 'phone-use-account',
-          token: 'jwt-secondary',
-        }),
-      ]),
-    )
+    expect(redirectToOldStudentUiMock).not.toHaveBeenCalled()
+    expect(window.sessionStorage.getItem('student-lms.pending-phone-otp-sign-in')).toBeTruthy()
   })
 })

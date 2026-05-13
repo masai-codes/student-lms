@@ -13,6 +13,7 @@ import { Route as TestRouteImport } from './routes/test'
 import { Route as protectedLayoutRouteRouteImport } from './routes/(protected)/_layout/route'
 import { Route as protectedZoomIndexRouteImport } from './routes/(protected)/zoom/index'
 import { Route as protectedLayoutIndexRouteImport } from './routes/(protected)/_layout/index'
+import { Route as authSwitchAccountIndexRouteImport } from './routes/(auth)/switch-account/index'
 import { Route as authSigninIndexRouteImport } from './routes/(auth)/signin/index'
 import { Route as authLoginIndexRouteImport } from './routes/(auth)/login/index'
 import { Route as authV2ResetPasswordRouteImport } from './routes/(auth)/v2/reset-password'
@@ -78,6 +79,11 @@ const protectedLayoutIndexRoute = protectedLayoutIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => protectedLayoutRouteRoute,
+} as any)
+const authSwitchAccountIndexRoute = authSwitchAccountIndexRouteImport.update({
+  id: '/(auth)/switch-account/',
+  path: '/switch-account/',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const authSigninIndexRoute = authSigninIndexRouteImport.update({
   id: '/(auth)/signin/',
@@ -394,6 +400,7 @@ export interface FileRoutesByFullPath {
   '/v2/reset-password': typeof authV2ResetPasswordRoute
   '/login/': typeof authLoginIndexRoute
   '/signin/': typeof authSigninIndexRoute
+  '/switch-account/': typeof authSwitchAccountIndexRoute
   '/': typeof protectedLayoutIndexRoute
   '/zoom/': typeof protectedZoomIndexRoute
   '/v2/auth/linked-accounts': typeof authV2AuthLinkedAccountsRoute
@@ -444,6 +451,7 @@ export interface FileRoutesByTo {
   '/v2/reset-password': typeof authV2ResetPasswordRoute
   '/login': typeof authLoginIndexRoute
   '/signin': typeof authSigninIndexRoute
+  '/switch-account': typeof authSwitchAccountIndexRoute
   '/': typeof protectedLayoutIndexRoute
   '/zoom': typeof protectedZoomIndexRoute
   '/v2/auth/linked-accounts': typeof authV2AuthLinkedAccountsRoute
@@ -494,6 +502,7 @@ export interface FileRoutesById {
   '/(auth)/v2/reset-password': typeof authV2ResetPasswordRoute
   '/(auth)/login/': typeof authLoginIndexRoute
   '/(auth)/signin/': typeof authSigninIndexRoute
+  '/(auth)/switch-account/': typeof authSwitchAccountIndexRoute
   '/(protected)/_layout/': typeof protectedLayoutIndexRoute
   '/(protected)/zoom/': typeof protectedZoomIndexRoute
   '/(auth)/v2/auth/linked-accounts': typeof authV2AuthLinkedAccountsRoute
@@ -547,6 +556,7 @@ export interface FileRouteTypes {
     | '/v2/reset-password'
     | '/login/'
     | '/signin/'
+    | '/switch-account/'
     | '/'
     | '/zoom/'
     | '/v2/auth/linked-accounts'
@@ -597,6 +607,7 @@ export interface FileRouteTypes {
     | '/v2/reset-password'
     | '/login'
     | '/signin'
+    | '/switch-account'
     | '/'
     | '/zoom'
     | '/v2/auth/linked-accounts'
@@ -646,6 +657,7 @@ export interface FileRouteTypes {
     | '/(auth)/v2/reset-password'
     | '/(auth)/login/'
     | '/(auth)/signin/'
+    | '/(auth)/switch-account/'
     | '/(protected)/_layout/'
     | '/(protected)/zoom/'
     | '/(auth)/v2/auth/linked-accounts'
@@ -698,6 +710,7 @@ export interface RootRouteChildren {
   authV2ResetPasswordRoute: typeof authV2ResetPasswordRoute
   authLoginIndexRoute: typeof authLoginIndexRoute
   authSigninIndexRoute: typeof authSigninIndexRoute
+  authSwitchAccountIndexRoute: typeof authSwitchAccountIndexRoute
   protectedZoomIndexRoute: typeof protectedZoomIndexRoute
   authV2AuthLinkedAccountsRoute: typeof authV2AuthLinkedAccountsRoute
   authV2AuthUseAccountRoute: typeof authV2AuthUseAccountRoute
@@ -736,6 +749,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/'
       preLoaderRoute: typeof protectedLayoutIndexRouteImport
       parentRoute: typeof protectedLayoutRouteRoute
+    }
+    '/(auth)/switch-account/': {
+      id: '/(auth)/switch-account/'
+      path: '/switch-account'
+      fullPath: '/switch-account/'
+      preLoaderRoute: typeof authSwitchAccountIndexRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/(auth)/signin/': {
       id: '/(auth)/signin/'
@@ -1237,6 +1257,7 @@ const rootRouteChildren: RootRouteChildren = {
   authV2ResetPasswordRoute: authV2ResetPasswordRoute,
   authLoginIndexRoute: authLoginIndexRoute,
   authSigninIndexRoute: authSigninIndexRoute,
+  authSwitchAccountIndexRoute: authSwitchAccountIndexRoute,
   protectedZoomIndexRoute: protectedZoomIndexRoute,
   authV2AuthLinkedAccountsRoute: authV2AuthLinkedAccountsRoute,
   authV2AuthUseAccountRoute: authV2AuthUseAccountRoute,

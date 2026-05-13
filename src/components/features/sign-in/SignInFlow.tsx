@@ -1,11 +1,16 @@
 import { useCallback, useReducer, useState } from 'react'
 import { useNavigate } from '@tanstack/react-router'
-import type { LinkedAccount, VerifyOtpResult } from '@/components/features/sign-in/v2AuthClient'
+import type { VerifyOtpResult } from '@/components/features/sign-in/v2AuthClient'
 import { EmailAuthStepView } from '@/components/features/sign-in/EmailAuthStepView'
 import { ForgotPasswordStepView } from '@/components/features/sign-in/ForgotPasswordStepView'
 import { IdentifierStepView } from '@/components/features/sign-in/IdentifierStepView'
-import { LinkedAccountsStepView } from '@/components/features/sign-in/LinkedAccountsStepView'
 import { PhoneOtpStepView } from '@/components/features/sign-in/PhoneOtpStepView'
+import { savePendingPhoneOtpSignIn } from '@/components/features/sign-in/pendingPhoneOtpSignIn'
+import {
+  getRedirectToSearchParam,
+  redirectToResolvedUrl,
+  redirectToSwitchAccountPage,
+} from '@/components/features/sign-in/signInRouting'
 import { parseIdentifier } from '@/components/features/sign-in/detectIdentifier'
 import {
   dispatchSignInFailureEvent,
@@ -26,18 +31,12 @@ import {
   v2ForgotPassword,
   v2LoginWithPassword,
   v2RequestOtp,
-  v2UseAccount,
   v2VerifyOtp,
 } from '@/components/features/sign-in/v2AuthClient'
 import { redirectToOldStudentUi } from '@/utils/authRedirect'
 
 const FORGOT_GENERIC_OK =
   'If an account exists for that email, we have sent a reset link. Check your inbox and spam folder.'
-
-type PendingPhoneAccountSelection = {
-  verifyResponse: VerifyOtpResult
-  accounts: Array<LinkedAccount>
-}
 
 function formatAuthError(err: unknown): string {
   if (err instanceof V2AuthRequestError) {
@@ -57,19 +56,28 @@ export function SignInFlow() {
   const [submitBusy, setSubmitBusy] = useState(false)
   const [phoneResendBusy, setPhoneResendBusy] = useState(false)
   const [forgotBusy, setForgotBusy] = useState(false)
-  const [pendingPhoneAccountSelection, setPendingPhoneAccountSelection] =
-    useState<PendingPhoneAccountSelection | null>(null)
-  const [accountSelectionBusy, setAccountSelectionBusy] = useState(false)
-  const [accountSelectionError, setAccountSelectionError] = useState<string | undefined>()
-  const isLinkedAccountStepVisible = state.step === 'phone' && pendingPhoneAccountSelection !== null
 
   const goHomeAfterSignIn = useCallback(() => {
     void navigate({ to: '/' })
   }, [navigate])
 
+  const completePrimarySignIn = useCallback(() => {
+    const redirectTo = getRedirectToSearchParam()
+    if (redirectTo) {
+      redirectToResolvedUrl(redirectTo)
+      return
+    }
+    goHomeAfterSignIn()
+  }, [goHomeAfterSignIn])
+
   const completePhoneRedirect = useCallback(
     (method: 'phone-otp' | 'phone-use-account', response: VerifyOtpResult) => {
       dispatchSignInSuccessEvent('sso-v2', method, response)
+      const redirectTo = getRedirectToSearchParam()
+      if (redirectTo) {
+        redirectToResolvedUrl(redirectTo)
+        return
+      }
       redirectToOldStudentUi({
         source: 'SignInFlow',
         reason: 'Phone sign-in completed',
@@ -163,7 +171,7 @@ export function SignInFlow() {
           })
           dispatchSignInSuccessEvent('sso-v2', 'email-otp', response)
         }
-        goHomeAfterSignIn()
+        completePrimarySignIn()
       } catch (e) {
         dispatchSignInFailureEvent(
           'sso-v2',
@@ -190,11 +198,8 @@ export function SignInFlow() {
         })
         const linkedAccountsResult = await v2FetchLinkedAccounts()
         if (linkedAccountsResult.accounts.length >= 2) {
-          setPendingPhoneAccountSelection({
-            verifyResponse: response,
-            accounts: linkedAccountsResult.accounts,
-          })
-          setAccountSelectionError(undefined)
+          savePendingPhoneOtpSignIn(response)
+          redirectToSwitchAccountPage(getRedirectToSearchParam())
           return
         }
         completePhoneRedirect('phone-otp', response)
@@ -205,7 +210,7 @@ export function SignInFlow() {
         setSubmitBusy(false)
       }
     }
-  }, [completePhoneRedirect, state])
+  }, [completePhoneRedirect, completePrimarySignIn, state])
 
   const onForgotSubmit = useCallback(async () => {
     if (state.step !== 'forgot') return
@@ -227,41 +232,6 @@ export function SignInFlow() {
     }
   }, [state])
 
-  const onSelectLinkedPhoneAccount = useCallback(
-    async (account: LinkedAccount) => {
-      if (!pendingPhoneAccountSelection) return
-
-      setAccountSelectionBusy(true)
-      setAccountSelectionError(undefined)
-
-      try {
-        if (account.isActive) {
-          completePhoneRedirect('phone-otp', pendingPhoneAccountSelection.verifyResponse)
-          return
-        }
-
-        const response = await v2UseAccount({ sessionId: account.sessionId })
-        dispatchSignInSuccessEvent('sso-v2', 'phone-use-account', response)
-        redirectToOldStudentUi({
-          source: 'SignInFlow',
-          reason: 'Linked account switched after phone sign-in',
-          extra: { method: 'phone-use-account', userId: response.user.id },
-        })
-      } catch (err) {
-        dispatchSignInFailureEvent('sso-v2', 'phone-use-account', err)
-        setAccountSelectionError(formatAuthError(err))
-      } finally {
-        setAccountSelectionBusy(false)
-      }
-    },
-    [completePhoneRedirect, pendingPhoneAccountSelection],
-  )
-
-  const onBackFromLinkedPhoneAccounts = useCallback(() => {
-    setPendingPhoneAccountSelection(null)
-    setAccountSelectionError(undefined)
-  }, [])
-
   const openForgotFromIdentifier = useCallback(() => {
     if (state.step !== 'identifier') return
     const parsed = parseIdentifier(state.draft)
@@ -271,14 +241,12 @@ export function SignInFlow() {
 
   return (
     <div className="space-y-6">
-      {!isLinkedAccountStepVisible ? (
-        <div className="text-center">
-          <h1 className="font-poppins text-2xl font-bold tracking-tight text-foreground md:text-3xl">Sign in</h1>
-          <p className="mt-2 text-sm text-muted-foreground">
-            Use the email or 10-digit mobile number linked to your Masai account.
-          </p>
-        </div>
-      ) : null}
+      <div className="text-center">
+        <h1 className="font-poppins text-2xl font-bold tracking-tight text-foreground md:text-3xl">Sign in</h1>
+        <p className="mt-2 text-sm text-muted-foreground">
+          Use the email or 10-digit mobile number linked to your Masai account.
+        </p>
+      </div>
 
       {state.step === 'identifier' ? (
         <IdentifierStepView
@@ -317,17 +285,7 @@ export function SignInFlow() {
         />
       ) : null}
 
-      {isLinkedAccountStepVisible ? (
-        <LinkedAccountsStepView
-          accounts={pendingPhoneAccountSelection.accounts}
-          error={accountSelectionError}
-          busy={accountSelectionBusy}
-          onBack={onBackFromLinkedPhoneAccounts}
-          onSelectAccount={(account) => void onSelectLinkedPhoneAccount(account)}
-        />
-      ) : null}
-
-      {state.step === 'phone' && !pendingPhoneAccountSelection ? (
+      {state.step === 'phone' ? (
         <PhoneOtpStepView
           displayPhone={state.displayPhone}
           delivery={state.delivery}
@@ -356,7 +314,7 @@ export function SignInFlow() {
         />
       ) : null}
 
-      {(state.step === 'email' || (state.step === 'phone' && !pendingPhoneAccountSelection)) && submitBusy ? (
+      {(state.step === 'email' || state.step === 'phone') && submitBusy ? (
         <p className="text-center text-sm text-muted-foreground" aria-live="polite">
           Signing you in…
         </p>
