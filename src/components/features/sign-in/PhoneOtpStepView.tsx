@@ -18,10 +18,9 @@ type Props = {
   onOtpChange: (value: string) => void
   onResend: () => void
   onSubmit: () => void
+  resendBusy?: boolean
+  submitDisabled?: boolean
 }
-
-const otpInputClass =
-  'text-center text-lg font-semibold tracking-[0.25em] tabular-nums md:text-xl md:tracking-[0.35em]'
 
 export function PhoneOtpStepView({
   displayPhone,
@@ -34,6 +33,8 @@ export function PhoneOtpStepView({
   onOtpChange,
   onResend,
   onSubmit,
+  resendBusy = false,
+  submitDisabled = false,
 }: Props) {
   const [resendSecondsLeft, setResendSecondsLeft] = useState(RESEND_OTP_COOLDOWN_SEC)
 
@@ -45,7 +46,7 @@ export function PhoneOtpStepView({
     return () => window.clearInterval(id)
   }, [resendCount])
 
-  const canResend = resendSecondsLeft === 0
+  const canResend = resendSecondsLeft === 0 && !resendBusy
 
   return (
     <div className="space-y-5">
@@ -73,21 +74,17 @@ export function PhoneOtpStepView({
 
       <div className="space-y-2">
         <Label htmlFor="signin-phone-otp" className="text-foreground">
-          Enter 6-digit code
+          Sign-in code
         </Label>
         <Input
           id="signin-phone-otp"
           name="one-time-code"
           type="text"
-          inputMode="numeric"
           autoComplete="one-time-code"
-          pattern="[0-9]*"
-          maxLength={6}
           enterKeyHint="done"
-          placeholder="••••••"
+          placeholder="Paste or type your code"
           value={otp}
-          className={otpInputClass}
-          onChange={(e) => onOtpChange(e.target.value.replace(/\D/g, '').slice(0, 6))}
+          onChange={(e) => onOtpChange(e.target.value)}
           aria-invalid={Boolean(error)}
         />
       </div>
@@ -107,10 +104,19 @@ export function PhoneOtpStepView({
           onClick={onResend}
           aria-disabled={!canResend}
         >
-          {canResend ? 'Resend OTP' : `Resend OTP (${resendSecondsLeft}s)`}
+          {resendBusy
+            ? 'Sending…'
+            : resendSecondsLeft === 0
+              ? 'Resend OTP'
+              : `Resend OTP (${resendSecondsLeft}s)`}
         </Button>
-        <Button type="button" className="flex-1 font-poppins shadow-sm" onClick={onSubmit}>
-          Sign in
+        <Button
+          type="button"
+          className="flex-1 font-poppins shadow-sm"
+          disabled={submitDisabled}
+          onClick={onSubmit}
+        >
+          {submitDisabled ? 'Signing in…' : 'Sign in'}
         </Button>
       </div>
     </div>

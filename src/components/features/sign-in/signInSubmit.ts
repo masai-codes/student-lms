@@ -9,13 +9,16 @@ export function getSignInSubmitError(state: SignInState): string | null {
     if (state.authMode === 'password' && state.password.trim().length === 0) {
       return 'Enter your password.'
     }
-    if (state.authMode === 'otp' && !/^\d{6}$/.test(state.otp.trim())) {
-      return 'Enter the 6-digit code.'
+    if (state.authMode === 'otp' && state.otp.trim().length === 0) {
+      return 'Enter the code from your email.'
     }
     return null
   }
-  if (!/^\d{6}$/.test(state.otp.trim())) {
-    return 'Enter the 6-digit code sent to your phone.'
+  if (state.step === 'phone') {
+    if (state.otp.trim().length === 0) {
+      return 'Enter the code sent to your phone.'
+    }
+    return null
   }
   return null
 }

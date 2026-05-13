@@ -6,15 +6,19 @@ import { Label } from '@/components/ui/label'
 type Props = {
   draft: string
   error?: string
+  nextDisabled?: boolean
   onDraftChange: (value: string) => void
   onSubmit: () => void
+  onForgotPassword?: () => void
 }
 
 export function IdentifierStepView({
   draft,
   error,
+  nextDisabled,
   onDraftChange,
   onSubmit,
+  onForgotPassword,
 }: Props) {
   return (
     <div className="space-y-4">
@@ -54,10 +58,26 @@ export function IdentifierStepView({
           </p>
         ) : null}
       </div>
-      <Button type="button" className="w-full font-poppins shadow-sm" onClick={onSubmit}>
-        Next
+      <Button
+        type="button"
+        className="w-full font-poppins shadow-sm"
+        disabled={nextDisabled}
+        onClick={onSubmit}
+      >
+        {nextDisabled ? 'Please wait…' : 'Next'}
         <ArrowRight className="size-4" weight="bold" aria-hidden />
       </Button>
+      {onForgotPassword ? (
+        <div className="flex justify-start">
+          <button
+            type="button"
+            className="text-sm font-medium text-foreground underline-offset-4 hover:underline"
+            onClick={onForgotPassword}
+          >
+            Forgot password?
+          </button>
+        </div>
+      ) : null}
     </div>
   )
 }

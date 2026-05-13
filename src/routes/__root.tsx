@@ -2,8 +2,11 @@ import { HeadContent, Scripts, createRootRouteWithContext } from '@tanstack/reac
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import appCss from '../styles.css?url'
 import type { RouterContext } from '@/types'
+import { installAppOriginFetchHeader } from '@/utils/appOrigin'
 
 const GA_MEASUREMENT_ID = 'G-R3MQZK6LM6'
+
+installAppOriginFetchHeader()
 
 
 export const Route = createRootRouteWithContext<RouterContext>()({

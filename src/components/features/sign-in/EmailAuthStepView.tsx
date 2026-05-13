@@ -16,11 +16,11 @@ type Props = {
   onOtpChange: (value: string) => void
   onUseOtp: () => void
   onUsePassword: () => void
+  onForgotPassword: () => void
   onSubmit: () => void
+  submitDisabled?: boolean
+  sendOtpDisabled?: boolean
 }
-
-const otpInputClass =
-  'text-center text-lg font-semibold tracking-[0.25em] tabular-nums md:text-xl md:tracking-[0.35em]'
 
 export function EmailAuthStepView({
   email,
@@ -34,7 +34,10 @@ export function EmailAuthStepView({
   onOtpChange,
   onUseOtp,
   onUsePassword,
+  onForgotPassword,
   onSubmit,
+  submitDisabled,
+  sendOtpDisabled,
 }: Props) {
   return (
     <div className="space-y-5">
@@ -59,7 +62,7 @@ export function EmailAuthStepView({
         <p className="mt-1 text-xs text-muted-foreground">
           {authMode === 'password'
             ? 'Enter the password for this account.'
-            : 'Enter the code we sent to this address.'}
+            : 'Enter the sign-in code we sent to this address.'}
         </p>
       </div>
 
@@ -71,19 +74,22 @@ export function EmailAuthStepView({
 
       {authMode === 'password' ? (
         <div className="space-y-2">
-          <div className="flex items-end justify-between gap-2">
+          <div className="flex flex-wrap items-end justify-between gap-x-2 gap-y-1">
             <Label htmlFor="signin-email-password" className="text-foreground">
               Password
             </Label>
-            <Button
-              type="button"
-              variant="link"
-              size="sm"
-              className="h-auto shrink-0 px-0 py-0 text-sm font-medium"
-              onClick={onUseOtp}
-            >
-              Send OTP on email
-            </Button>
+            <div className="flex flex-wrap items-center justify-end gap-x-3 gap-y-1">
+              <Button
+                type="button"
+                variant="link"
+                size="sm"
+                className="h-auto shrink-0 px-0 py-0 text-sm font-medium"
+                disabled={sendOtpDisabled}
+                onClick={onUseOtp}
+              >
+                Send OTP on email
+              </Button>
+            </div>
           </div>
           <Input
             id="signin-email-password"
@@ -99,7 +105,7 @@ export function EmailAuthStepView({
         <div className="space-y-2">
           <div className="flex items-end justify-between gap-2">
             <Label htmlFor="signin-email-otp" className="text-foreground">
-              One-time code
+              Sign-in code
             </Label>
             <Button
               type="button"
@@ -115,17 +121,11 @@ export function EmailAuthStepView({
             id="signin-email-otp"
             name="one-time-code"
             type="text"
-            inputMode="numeric"
             autoComplete="one-time-code"
-            pattern="[0-9]*"
-            maxLength={6}
             enterKeyHint="done"
-            placeholder="••••••"
+            placeholder="Paste or type your code"
             value={otp}
-            className={otpInputClass}
-            onChange={(e) =>
-              onOtpChange(e.target.value.replace(/\D/g, '').slice(0, 6))
-            }
+            onChange={(e) => onOtpChange(e.target.value)}
             aria-invalid={Boolean(error)}
           />
         </div>
@@ -143,10 +143,24 @@ export function EmailAuthStepView({
       <Button
         type="button"
         className="w-full font-poppins shadow-sm"
+        disabled={submitDisabled}
         onClick={onSubmit}
       >
-        Sign in
+        {submitDisabled ? 'Signing in…' : 'Sign in'}
       </Button>
+
+      <div className="flex justify-start">
+        <Button
+          type="button"
+          variant="link"
+          size="sm"
+          className="h-auto px-0 py-0 text-sm font-medium"
+          disabled={sendOtpDisabled}
+          onClick={onForgotPassword}
+        >
+          Forgot password?
+        </Button>
+      </div>
     </div>
   )
 }

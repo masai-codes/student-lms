@@ -8,7 +8,7 @@ import {
 describe('signInMessages', () => {
   it('emailOtpSentBody includes the address', () => {
     expect(emailOtpSentBody('a@b.com')).toContain('a@b.com')
-    expect(emailOtpSentBody('a@b.com')).toMatch(/6-digit|inbox/i)
+    expect(emailOtpSentBody('a@b.com')).toMatch(/sign-in code|inbox/i)
   })
 
   it('phoneOtpFirstSendBody references display (SMS)', () => {

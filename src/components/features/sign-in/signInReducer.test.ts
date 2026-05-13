@@ -1,15 +1,10 @@
-import { afterEach, describe, expect, it, vi } from 'vitest'
-import * as phoneOtpDelivery from '@/components/features/sign-in/phoneOtpDelivery'
+import { describe, expect, it } from 'vitest'
 import {
   initialSignInState,
   signInReducer,
 } from '@/components/features/sign-in/signInReducer'
 
 describe('signInReducer', () => {
-  afterEach(() => {
-    vi.restoreAllMocks()
-  })
-
   it('updates identifier draft and clears error', () => {
     let s = signInReducer(
       { step: 'identifier', draft: '', error: 'x' },
@@ -47,9 +42,19 @@ describe('signInReducer', () => {
     })
   })
 
-  it('identifier_submit transitions to phone with SMS delivery when mock picks SMS', () => {
-    vi.spyOn(phoneOtpDelivery, 'randomPhoneDelivery').mockReturnValue('sms')
+  it('identifier_submit does not transition to phone (OTP is requested separately)', () => {
     const s = signInReducer({ step: 'identifier', draft: '9988776655' }, { type: 'identifier_submit' })
+    expect(s).toEqual({ step: 'identifier', draft: '9988776655', error: undefined })
+  })
+
+  it('phone_enter sets phone step', () => {
+    const s = signInReducer(initialSignInState, {
+      type: 'phone_enter',
+      displayPhone: '9988776655',
+      digits: '9988776655',
+      delivery: 'sms',
+      info: 'We sent a code.',
+    })
     expect(s).toMatchObject({
       step: 'phone',
       displayPhone: '9988776655',
@@ -57,17 +62,7 @@ describe('signInReducer', () => {
       delivery: 'sms',
       otp: '',
       resendCount: 0,
-      info: expect.stringMatching(/6-digit|text message|9988776655/i),
-    })
-  })
-
-  it('identifier_submit transitions to phone with WhatsApp when mock picks WhatsApp', () => {
-    vi.spyOn(phoneOtpDelivery, 'randomPhoneDelivery').mockReturnValue('whatsapp')
-    const s = signInReducer({ step: 'identifier', draft: '9988776655' }, { type: 'identifier_submit' })
-    expect(s).toMatchObject({
-      step: 'phone',
-      delivery: 'whatsapp',
-      info: expect.stringMatching(/WhatsApp|6-digit/i),
+      info: 'We sent a code.',
     })
   })
 
@@ -80,8 +75,13 @@ describe('signInReducer', () => {
       step: 'identifier',
       draft: 'a@b.co',
     })
-    vi.spyOn(phoneOtpDelivery, 'randomPhoneDelivery').mockReturnValue('sms')
-    const phone = signInReducer({ step: 'identifier', draft: '9000000000' }, { type: 'identifier_submit' })
+    const phone = signInReducer(initialSignInState, {
+      type: 'phone_enter',
+      displayPhone: '9000000000',
+      digits: '9000000000',
+      delivery: 'whatsapp',
+      info: 'sent',
+    })
     if (phone.step !== 'phone') throw new Error('expected phone')
     expect(signInReducer(phone, { type: 'back_to_identifier' })).toEqual({
       step: 'identifier',
@@ -89,32 +89,35 @@ describe('signInReducer', () => {
     })
   })
 
-  it('toggles email auth mode mock actions', () => {
+  it('toggles email auth mode and email OTP requested', () => {
     let s = signInReducer(
       { step: 'identifier', draft: 'user@example.com' },
       { type: 'identifier_submit' },
     )
     if (s.step !== 'email') throw new Error('expected email')
-    s = signInReducer(s, { type: 'email_use_otp_mock' })
+    s = signInReducer(s, { type: 'email_otp_requested', info: 'Code sent to user@example.com' })
     expect(s.authMode).toBe('otp')
-    expect(s.info).toMatch(/inbox|sent|6-digit|user@example\.com/i)
+    expect(s.info).toBe('Code sent to user@example.com')
     s = signInReducer(s, { type: 'email_use_password_mock' })
     expect(s.authMode).toBe('password')
     expect(s.info).toBeUndefined()
   })
 
-  it('updates phone otp and resend mock keeps server-chosen delivery', () => {
-    vi.spyOn(phoneOtpDelivery, 'randomPhoneDelivery').mockReturnValue('whatsapp')
-    let s = signInReducer({ step: 'identifier', draft: '9000000000' }, { type: 'identifier_submit' })
+  it('updates phone otp and resend increments count', () => {
+    let s = signInReducer(initialSignInState, {
+      type: 'phone_enter',
+      displayPhone: '9000000000',
+      digits: '9000000000',
+      delivery: 'whatsapp',
+      info: 'first',
+    })
     if (s.step !== 'phone') throw new Error('expected phone')
-    expect(s.delivery).toBe('whatsapp')
-    expect(s.info).toMatch(/WhatsApp/)
-    s = signInReducer(s, { type: 'phone_otp', value: '123456' })
-    expect(s.otp).toBe('123456')
-    s = signInReducer(s, { type: 'phone_resend_mock' })
+    s = signInReducer(s, { type: 'phone_otp', value: 'abcd' })
+    expect(s.otp).toBe('abcd')
+    s = signInReducer(s, { type: 'phone_resend_ok', info: 'resent' })
     expect(s.resendCount).toBe(1)
     expect(s.delivery).toBe('whatsapp')
-    expect(s.info).toMatch(/WhatsApp|Another/i)
+    expect(s.info).toBe('resent')
   })
 
   it('email_set_error and phone_set_error only apply on matching step', () => {
@@ -126,5 +129,17 @@ describe('signInReducer', () => {
     )
     const withErr = signInReducer(email, { type: 'email_set_error', message: 'bad' })
     expect(withErr).toMatchObject({ step: 'email', error: 'bad' })
+  })
+
+  it('forgot from email and back restores email step', () => {
+    let s = signInReducer(
+      { step: 'identifier', draft: 'a@b.c' },
+      { type: 'identifier_submit' },
+    )
+    if (s.step !== 'email') throw new Error('expected email')
+    s = signInReducer(s, { type: 'email_go_forgot' })
+    expect(s).toMatchObject({ step: 'forgot', email: 'a@b.c', fromEmailSignIn: true })
+    s = signInReducer(s, { type: 'forgot_back' })
+    expect(s).toMatchObject({ step: 'email', email: 'a@b.c' })
   })
 })

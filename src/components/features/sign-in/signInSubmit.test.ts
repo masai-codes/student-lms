@@ -19,15 +19,15 @@ describe('getSignInSubmitError', () => {
     expect(getSignInSubmitError(s)).toMatch(/password/i)
   })
 
-  it('requires six-digit otp in email otp mode', () => {
+  it('requires non-empty otp in email otp mode', () => {
     const s: SignInState = {
       step: 'email',
       email: 'a@b.c',
       authMode: 'otp',
       password: '',
-      otp: '12345',
+      otp: '   ',
     }
-    expect(getSignInSubmitError(s)).toMatch(/6/)
+    expect(getSignInSubmitError(s)).toMatch(/code/i)
   })
 
   it('accepts valid email password', () => {
@@ -47,21 +47,21 @@ describe('getSignInSubmitError', () => {
       email: 'a@b.c',
       authMode: 'otp',
       password: '',
-      otp: '000000',
+      otp: '9999',
     }
     expect(getSignInSubmitError(s)).toBeNull()
   })
 
-  it('requires six-digit otp for phone', () => {
+  it('requires non-empty otp for phone', () => {
     const s: SignInState = {
       step: 'phone',
       displayPhone: '9',
       digits: '9000000000',
       delivery: 'sms',
-      otp: '12',
+      otp: '  ',
       resendCount: 0,
     }
-    expect(getSignInSubmitError(s)).toMatch(/6/)
+    expect(getSignInSubmitError(s)).toMatch(/code/i)
   })
 
   it('accepts valid phone otp', () => {
@@ -70,7 +70,7 @@ describe('getSignInSubmitError', () => {
       displayPhone: '9',
       digits: '9000000000',
       delivery: 'whatsapp',
-      otp: '654321',
+      otp: '1234',
       resendCount: 0,
     }
     expect(getSignInSubmitError(s)).toBeNull()
