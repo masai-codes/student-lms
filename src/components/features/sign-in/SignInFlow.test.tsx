@@ -282,7 +282,7 @@ describe('SignInFlow', () => {
       expect(screen.getByText(/choose an account/i)).toBeTruthy()
     })
 
-    fireEvent.click(screen.getByRole('button', { name: /secondary user secondary@example\.com/i }))
+    fireEvent.click(screen.getByRole('button', { name: /switch to this account/i }))
 
     await waitFor(() => {
       expect(redirectToOldStudentUiMock).toHaveBeenCalled()

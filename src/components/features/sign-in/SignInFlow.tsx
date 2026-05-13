@@ -61,6 +61,7 @@ export function SignInFlow() {
     useState<PendingPhoneAccountSelection | null>(null)
   const [accountSelectionBusy, setAccountSelectionBusy] = useState(false)
   const [accountSelectionError, setAccountSelectionError] = useState<string | undefined>()
+  const isLinkedAccountStepVisible = state.step === 'phone' && pendingPhoneAccountSelection !== null
 
   const goHomeAfterSignIn = useCallback(() => {
     void navigate({ to: '/' })
@@ -270,12 +271,14 @@ export function SignInFlow() {
 
   return (
     <div className="space-y-6">
-      <div className="text-center">
-        <h1 className="font-poppins text-2xl font-bold tracking-tight text-foreground md:text-3xl">Sign in</h1>
-        <p className="mt-2 text-sm text-muted-foreground">
-          Use the email or 10-digit mobile number linked to your Masai account.
-        </p>
-      </div>
+      {!isLinkedAccountStepVisible ? (
+        <div className="text-center">
+          <h1 className="font-poppins text-2xl font-bold tracking-tight text-foreground md:text-3xl">Sign in</h1>
+          <p className="mt-2 text-sm text-muted-foreground">
+            Use the email or 10-digit mobile number linked to your Masai account.
+          </p>
+        </div>
+      ) : null}
 
       {state.step === 'identifier' ? (
         <IdentifierStepView
@@ -314,7 +317,7 @@ export function SignInFlow() {
         />
       ) : null}
 
-      {state.step === 'phone' && pendingPhoneAccountSelection ? (
+      {isLinkedAccountStepVisible ? (
         <LinkedAccountsStepView
           accounts={pendingPhoneAccountSelection.accounts}
           error={accountSelectionError}
