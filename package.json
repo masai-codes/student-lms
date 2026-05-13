@@ -16,6 +16,7 @@
     "check": "prettier --write . && eslint --fix"
   },
   "dependencies": {
+    "@aws-sdk/client-sesv2": "^3.1045.0",
     "@aws-sdk/client-ssm": "^3.1034.0",
     "@aws-sdk/credential-providers": "^3.1034.0",
     "@phosphor-icons/react": "^2.1.10",
@@ -38,7 +39,9 @@
     "@tanstack/router-plugin": "^1.132.0",
     "@tiptap/react": "^3.22.4",
     "@tiptap/starter-kit": "^3.22.4",
+    "@types/bcryptjs": "^2.4.6",
     "@zoom/meetingsdk": "^5.1.0",
+    "bcryptjs": "^3.0.3",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "dompurify": "^3.4.0",
