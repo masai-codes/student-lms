@@ -6,6 +6,10 @@ import { IdentifierStepView } from '@/components/features/sign-in/IdentifierStep
 import { PhoneOtpStepView } from '@/components/features/sign-in/PhoneOtpStepView'
 import { parseIdentifier } from '@/components/features/sign-in/detectIdentifier'
 import {
+  dispatchSignInFailureEvent,
+  dispatchSignInSuccessEvent,
+} from '@/components/features/sign-in/signInAuthEvents'
+import {
   channelToDelivery,
   computeIdentifierSubmit,
   initialSignInState,
@@ -120,18 +124,25 @@ export function SignInFlow() {
       dispatch({ type: 'email_clear_error' })
       try {
         if (state.authMode === 'password') {
-          await v2LoginWithPassword({
+          const response = await v2LoginWithPassword({
             email: state.email,
             password: state.password,
           })
+          dispatchSignInSuccessEvent('sso-v2', 'email-password', response)
         } else {
-          await v2VerifyOtp({
+          const response = await v2VerifyOtp({
             identifier: state.email,
             otp: state.otp.trim(),
           })
+          dispatchSignInSuccessEvent('sso-v2', 'email-otp', response)
         }
         goHomeAfterSignIn()
       } catch (e) {
+        dispatchSignInFailureEvent(
+          'sso-v2',
+          state.authMode === 'password' ? 'email-password' : 'email-otp',
+          e,
+        )
         dispatch({ type: 'email_set_error', message: formatAuthError(e) })
       } finally {
         setSubmitBusy(false)
@@ -146,12 +157,14 @@ export function SignInFlow() {
       setSubmitBusy(true)
       dispatch({ type: 'phone_clear_error' })
       try {
-        await v2VerifyOtp({
+        const response = await v2VerifyOtp({
           identifier: state.digits,
           otp: state.otp.trim(),
         })
+        dispatchSignInSuccessEvent('sso-v2', 'phone-otp', response)
         goHomeAfterSignIn()
       } catch (e) {
+        dispatchSignInFailureEvent('sso-v2', 'phone-otp', e)
         dispatch({ type: 'phone_set_error', message: formatAuthError(e) })
       } finally {
         setSubmitBusy(false)

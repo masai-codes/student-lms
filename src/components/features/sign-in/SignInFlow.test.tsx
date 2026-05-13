@@ -27,6 +27,7 @@ describe('SignInFlow', () => {
     cleanup()
     vi.restoreAllMocks()
     navigateMock.mockReset()
+    delete (window as Window & { dataLayer?: Array<Record<string, unknown>> }).dataLayer
   })
 
   beforeEach(() => {
@@ -60,6 +61,9 @@ describe('SignInFlow', () => {
   })
 
   it('walks through email password path and navigates home', async () => {
+    const dispatchSpy = vi.spyOn(window, 'dispatchEvent')
+    ;(window as Window & { dataLayer?: Array<Record<string, unknown>> }).dataLayer = []
+
     render(<SignInFlow />)
 
     fireEvent.change(screen.getByLabelText(/email or mobile/i), {
@@ -77,6 +81,76 @@ describe('SignInFlow', () => {
     await waitFor(() => {
       expect(navigateMock).toHaveBeenCalledWith({ to: '/' })
     })
+    expect(dispatchSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        type: 'sso-v2-success',
+      }),
+    )
+    expect(
+      (window as Window & { dataLayer?: Array<Record<string, unknown>> }).dataLayer,
+    ).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          event: 'sso_v2_success',
+          source: 'sso-v2',
+          method: 'email-password',
+          token: 'jwt',
+        }),
+      ]),
+    )
+  })
+
+  it('dispatches failure event for password login failure', async () => {
+    const dispatchSpy = vi.spyOn(window, 'dispatchEvent')
+    ;(window as Window & { dataLayer?: Array<Record<string, unknown>> }).dataLayer = []
+
+    stubFetchJson(async (url) => {
+      if (url.includes('/v2/login/') && !url.includes('request-otp') && !url.includes('verify-otp')) {
+        return new Response(
+          JSON.stringify({
+            error: {
+              code: 'INCORRECT_CREDENTIALS',
+              message: 'Incorrect credentials',
+            },
+          }),
+          { status: 401, headers: { 'Content-Type': 'application/json' } },
+        )
+      }
+      return new Response('not found', { status: 404 })
+    })
+
+    render(<SignInFlow />)
+
+    fireEvent.change(screen.getByLabelText(/email or mobile/i), {
+      target: { value: 'demo@example.com' },
+    })
+    fireEvent.click(screen.getByRole('button', { name: /next/i }))
+    fireEvent.change(screen.getByLabelText(/^password$/i), {
+      target: { value: 'wrong-password' },
+    })
+    fireEvent.click(screen.getByRole('button', { name: /^sign in$/i }))
+
+    await waitFor(() => {
+      expect(screen.getByText(/incorrect credentials/i)).toBeTruthy()
+    })
+    expect(navigateMock).not.toHaveBeenCalled()
+    expect(dispatchSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        type: 'sso-v2-failure',
+      }),
+    )
+    expect(
+      (window as Window & { dataLayer?: Array<Record<string, unknown>> }).dataLayer,
+    ).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          event: 'sso_v2_failure',
+          source: 'sso-v2',
+          method: 'email-password',
+          error: 'Incorrect credentials',
+        }),
+      ]),
+    )
   })
 
   it('switches email flow between password and OTP', async () => {
