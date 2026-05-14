@@ -1,3 +1,4 @@
+// import { SESv2Client, SendEmailCommand } from '@aws-sdk/client-sesv2'
 import type { EmailPortal } from '@/server/auth/v2/isRequestFromIHub'
 
 const MASAI_SOURCE = 'operations@masaischool.com'
@@ -54,21 +55,28 @@ export async function sendResetPasswordEmail({
   resetLink,
   portal,
 }: SendResetPasswordEmailArgs): Promise<void> {
-  const { SESv2Client, SendEmailCommand } = await import('@aws-sdk/client-sesv2')
-  const client = new SESv2Client({ region: getAwsRegion() })
+  // Temporary isolation for the preview crash:
+  // if `npm run build && npm run preview` starts working with this commented,
+  // the AWS SES import/bundle path is the regression source.
+  void toEmail
+  void getAwsRegion()
+  void resolveSourceEmail(portal)
+  void buildHtml(toName, resetLink, portal)
 
-  await client.send(
-    new SendEmailCommand({
-      FromEmailAddress: resolveSourceEmail(portal),
-      Destination: { ToAddresses: [toEmail] },
-      Content: {
-        Simple: {
-          Subject: { Charset: 'UTF-8', Data: 'Request for Password Reset' },
-          Body: {
-            Html: { Charset: 'UTF-8', Data: buildHtml(toName, resetLink, portal) },
-          },
-        },
-      },
-    }),
-  )
+  // const client = new SESv2Client({ region: getAwsRegion() })
+  //
+  // await client.send(
+  //   new SendEmailCommand({
+  //     FromEmailAddress: resolveSourceEmail(portal),
+  //     Destination: { ToAddresses: [toEmail] },
+  //     Content: {
+  //       Simple: {
+  //         Subject: { Charset: 'UTF-8', Data: 'Request for Password Reset' },
+  //         Body: {
+  //           Html: { Charset: 'UTF-8', Data: buildHtml(toName, resetLink, portal) },
+  //         },
+  //       },
+  //     },
+  //   }),
+  // )
 }
