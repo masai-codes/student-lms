@@ -1,7 +1,10 @@
-import { compare } from 'bcryptjs'
 import { eq } from 'drizzle-orm'
 import { db } from '@/db'
 import { users } from '@/db/schema'
+import {
+  isLegacyBcryptHash,
+  verifyPassword,
+} from '@/server/auth/v2/passwordHash'
 
 export type LoginWithPasswordInput = {
   email: string
@@ -49,14 +52,22 @@ export async function loginWithPassword({
     throw new LoginError('USER_NOT_FOUND', 'User not found')
   }
 
-  if (!user.password || user.password.trim() === '') {
+  const storedPassword = user.password.trim()
+  if (storedPassword === '') {
     throw new LoginError(
       'PASSWORD_RESET_REQUIRED',
       `It's been a while since you changed your password, please reset your password by clicking on "Forgot password"`,
     )
   }
 
-  const match = await compare(password, user.password.trim())
+  if (isLegacyBcryptHash(storedPassword)) {
+    throw new LoginError(
+      'PASSWORD_RESET_REQUIRED',
+      'Please reset your password to continue signing in.',
+    )
+  }
+
+  const match = await verifyPassword(password, storedPassword)
   if (!match) {
     throw new LoginError('INCORRECT_CREDENTIALS', 'Incorrect credentials')
   }

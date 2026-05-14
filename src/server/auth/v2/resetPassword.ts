@@ -1,11 +1,10 @@
-import { hash } from 'bcryptjs'
 import { eq } from 'drizzle-orm'
 import jwt from 'jsonwebtoken'
 import { db } from '@/db'
 import { users } from '@/db/schema'
+import { hashPassword } from '@/server/auth/v2/passwordHash'
 
 const JWT_ALGORITHM = 'HS256'
-const BCRYPT_COST = 10
 
 export type ResetPasswordInput = {
   token: string
@@ -54,7 +53,7 @@ export async function resetPassword({ token, password }: ResetPasswordInput): Pr
     throw new ResetPasswordError('USER_NOT_FOUND', 'User not found')
   }
 
-  const hashedPassword = await hash(password, BCRYPT_COST)
+  const hashedPassword = await hashPassword(password)
 
   await db
     .update(users)
