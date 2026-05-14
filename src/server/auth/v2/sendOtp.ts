@@ -6,11 +6,9 @@ import { otpCodes, users } from '@/db/schema'
 import { getEmailPortal, type EmailPortal } from '@/server/auth/v2/isRequestFromIHub'
 import { sendOtpEmail } from '@/server/auth/v2/otpEmail'
 import { sendOtpSms } from '@/server/auth/v2/otpSms'
+import { sendOtpWhatsapp } from '@/server/auth/v2/otpWhatsapp'
 
 export type OtpChannel = 'email' | 'sms' | 'whatsapp'
-
-/** WhatsApp doesn't have a real provider yet — value is the hardcoded OTP. */
-const HARDCODED_WHATSAPP_OTP = '0000'
 
 const OTP_TTL_MINUTES = 10
 const BCRYPT_COST = 10
@@ -113,24 +111,62 @@ export async function sendOtp({
   }
 
   const portal = getEmailPortal(request)
-  const channel = pickPhoneChannel(portal, isResend === true)
+  const preferredChannel = pickPhoneChannel(portal, isResend === true)
+  const fallbackChannel: 'sms' | 'whatsapp' = preferredChannel === 'sms' ? 'whatsapp' : 'sms'
+  const targetMobile = user.mobile ?? normalized
 
-  if (channel === 'sms') {
-    const otp = generateOtp()
-    const otpSessionId = await persistOtp({
-      identifier: normalized,
-      channel: 'sms',
-      otp,
-    })
-    await sendOtpSms({ mobile: user.mobile ?? normalized, otp })
-    return { channel: 'sms', otpSessionId }
-  }
+  const otp = generateOtp()
+  const deliveredChannel = await deliverPhoneOtp({
+    mobile: targetMobile,
+    otp,
+    preferredChannel,
+    fallbackChannel,
+  })
 
-  const otp = HARDCODED_WHATSAPP_OTP
   const otpSessionId = await persistOtp({
     identifier: normalized,
-    channel: 'whatsapp',
+    channel: deliveredChannel,
     otp,
   })
-  return { channel: 'whatsapp', otpSessionId }
+
+  return { channel: deliveredChannel, otpSessionId }
+}
+
+async function deliverPhoneOtp({
+  mobile,
+  otp,
+  preferredChannel,
+  fallbackChannel,
+}: {
+  mobile: string
+  otp: string
+  preferredChannel: 'sms' | 'whatsapp'
+  fallbackChannel: 'sms' | 'whatsapp'
+}): Promise<'sms' | 'whatsapp'> {
+  const dispatch = (channel: 'sms' | 'whatsapp') =>
+    channel === 'sms'
+      ? sendOtpSms({ mobile, otp })
+      : sendOtpWhatsapp({ mobile, otp })
+
+  try {
+    await dispatch(preferredChannel)
+    return preferredChannel
+  } catch (primaryErr) {
+    console.warn(
+      `[sendOtp] primary channel "${preferredChannel}" failed; falling back to "${fallbackChannel}":`,
+      primaryErr instanceof Error ? primaryErr.message : primaryErr,
+    )
+    try {
+      await dispatch(fallbackChannel)
+      return fallbackChannel
+    } catch (fallbackErr) {
+      console.error(
+        `[sendOtp] both channels failed. primary "${preferredChannel}":`,
+        primaryErr instanceof Error ? primaryErr.message : primaryErr,
+        `; fallback "${fallbackChannel}":`,
+        fallbackErr instanceof Error ? fallbackErr.message : fallbackErr,
+      )
+      throw fallbackErr
+    }
+  }
 }
