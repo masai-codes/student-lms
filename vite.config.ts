@@ -7,6 +7,12 @@ import viteTsConfigPaths from 'vite-tsconfig-paths'
 import tailwindcss from '@tailwindcss/vite'
 import { nitro } from 'nitro/vite'
 
+const awsServerPackages = [
+  '@aws-sdk/client-sesv2',
+  '@aws-sdk/client-ssm',
+  '@aws-sdk/credential-providers',
+]
+
 const config = defineConfig({
   resolve: {
     alias: {
@@ -14,18 +20,21 @@ const config = defineConfig({
     },
   },
   ssr: {
-    external: [
-      '@aws-sdk/client-sesv2',
-      '@aws-sdk/client-ssm',
-      '@aws-sdk/credential-providers',
-    ],
+    external: awsServerPackages,
   },
   plugins: [
     nitro({
       plugins: ['src/server/plugins/ensureSecrets.ts'],
-      awsAmplify:{
+      traceDeps: awsServerPackages.map((pkg) => `${pkg}*`),
+      rollupConfig: {
+        external: awsServerPackages,
+      },
+      rolldownConfig: {
+        external: awsServerPackages,
+      },
+      awsAmplify: {
         runtime: 'nodejs22.x',
-      }
+      },
     }),
     // this is the plugin that enables path aliases
     viteTsConfigPaths({

@@ -2,6 +2,8 @@ import { definePlugin } from 'nitro'
 import { ensureSecrets } from '../../secrets'
 import type { HTTPEvent } from 'nitro/h3'
 
+await ensureSecrets()
+
 export default definePlugin((nitroApp) => {
   nitroApp.hooks.hook('request', async (event:HTTPEvent) => {
     // const data = await event.req.formData()

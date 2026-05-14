@@ -10,6 +10,14 @@ function getAwsRegion() {
   return process.env.AWS_REGION?.trim() || 'ap-south-1'
 }
 
+function getSsmParameterName() {
+  return (
+    process.env.VITE_SSM_AWS_SECRET_NAME?.trim() ||
+    import.meta.env.VITE_SSM_AWS_SECRET_NAME?.trim() ||
+    ''
+  )
+}
+
 async function createSsmClient() {
   const { SSMClient } = await import('@aws-sdk/client-ssm')
   const region = getAwsRegion()
@@ -39,7 +47,7 @@ async function loadSecrets() {
     loadLocalSecrets()
   }
 
-  const paramName = import.meta.env.VITE_SSM_AWS_SECRET_NAME
+  const paramName = getSsmParameterName()
 
   // In local/dev, allow running with only .env values (no SSM required).
   if (!paramName) {
