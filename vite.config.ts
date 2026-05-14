@@ -15,7 +15,7 @@ const config = defineConfig({
   },
   plugins: [
     nitro({
-      // plugins: ['src/server/plugins/ensureSecrets.ts'],
+      plugins: ['src/server/plugins/ensureSecrets.ts'],
       awsAmplify:{
         runtime: 'nodejs22.x',
       }
