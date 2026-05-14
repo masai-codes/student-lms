@@ -12,3 +12,6 @@ count.txt
 .vinxi
 todos.json
 .amplify-hosting
+
+# Reference files temporarily copied for inspection
+otp.ts

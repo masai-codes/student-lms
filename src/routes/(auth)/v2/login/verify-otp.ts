@@ -9,15 +9,23 @@ import {
 import { VerifyOtpError, verifyOtp } from '@/server/auth/v2/verifyOtp'
 
 type VerifyOtpBody = {
-  identifier?: unknown
+  otpSessionId?: unknown
   otp?: unknown
   rememberMe?: unknown
 }
 
 function statusForVerifyOtpError(code: VerifyOtpError['code']): number {
   switch (code) {
+    case 'OTP_NOT_FOUND':
+      return 404
     case 'USER_NOT_FOUND':
       return 404
+    case 'OTP_ALREADY_USED':
+      return 409
+    case 'OTP_EXPIRED':
+      return 410
+    case 'TOO_MANY_ATTEMPTS':
+      return 429
     case 'INVALID_OTP':
       return 401
   }
@@ -32,16 +40,16 @@ async function handleVerifyOtp(request: Request): Promise<Response> {
     throw err
   }
 
-  const identifier = typeof body.identifier === 'string' ? body.identifier : ''
+  const otpSessionId = typeof body.otpSessionId === 'string' ? body.otpSessionId : ''
   const otp = typeof body.otp === 'string' ? body.otp : ''
   const rememberMe = body.rememberMe === true
 
-  if (!identifier || !otp) {
-    return errorResponse(400, 'MISSING_FIELDS', 'identifier and otp are required')
+  if (!otpSessionId || !otp) {
+    return errorResponse(400, 'MISSING_FIELDS', 'otpSessionId and otp are required')
   }
 
   try {
-    const matchedUsers = await verifyOtp({ identifier, otp })
+    const matchedUsers = await verifyOtp({ otpSessionId, otp })
     const {
       sessions: sessionRecords,
       activeUserId,
