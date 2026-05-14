@@ -1,5 +1,3 @@
-import { GetParameterCommand, SSMClient } from '@aws-sdk/client-ssm'
-import { fromIni } from '@aws-sdk/credential-providers'
 import dotenv from 'dotenv'
 
 let secretsPromise: Promise<void> | null = null
@@ -12,11 +10,13 @@ function getAwsRegion() {
   return process.env.AWS_REGION?.trim() || 'ap-south-1'
 }
 
-function createSsmClient() {
+async function createSsmClient() {
+  const { SSMClient } = await import('@aws-sdk/client-ssm')
   const region = getAwsRegion()
   const profile = process.env.AWS_PROFILE?.trim()
 
   if (isLocalEnvironment() && profile) {
+    const { fromIni } = await import('@aws-sdk/credential-providers')
     return new SSMClient({
       region,
       credentials: fromIni({ profile }),
@@ -46,12 +46,14 @@ async function loadSecrets() {
     return
   }
 
+  // Load AWS SDK only when SSM is actually needed.
+  const { GetParameterCommand } = await import('@aws-sdk/client-ssm')
   const command = new GetParameterCommand({
     Name: paramName,
     WithDecryption: true,
   })
 
-  const ssmClient = createSsmClient()
+  const ssmClient = await createSsmClient()
   const response = await ssmClient.send(command)
 
   const secrets = JSON.parse(response.Parameter?.Value || '{}')

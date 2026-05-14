@@ -1,4 +1,3 @@
-import { SESv2Client, SendEmailCommand } from '@aws-sdk/client-sesv2'
 import type { EmailPortal } from '@/server/auth/v2/isRequestFromIHub'
 
 const MASAI_SOURCE = 'operations@masaischool.com'
@@ -55,6 +54,7 @@ export async function sendResetPasswordEmail({
   resetLink,
   portal,
 }: SendResetPasswordEmailArgs): Promise<void> {
+  const { SESv2Client, SendEmailCommand } = await import('@aws-sdk/client-sesv2')
   const client = new SESv2Client({ region: getAwsRegion() })
 
   await client.send(

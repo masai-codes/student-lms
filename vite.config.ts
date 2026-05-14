@@ -13,6 +13,13 @@ const config = defineConfig({
       '@': fileURLToPath(new URL('./src', import.meta.url)),
     },
   },
+  ssr: {
+    external: [
+      '@aws-sdk/client-sesv2',
+      '@aws-sdk/client-ssm',
+      '@aws-sdk/credential-providers',
+    ],
+  },
   plugins: [
     nitro({
       plugins: ['src/server/plugins/ensureSecrets.ts'],
