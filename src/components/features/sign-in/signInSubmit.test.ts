@@ -19,12 +19,24 @@ describe('getSignInSubmitError', () => {
     expect(getSignInSubmitError(s)).toMatch(/password/i)
   })
 
+  it('requires otp session in email otp mode', () => {
+    const s: SignInState = {
+      step: 'email',
+      email: 'a@b.c',
+      authMode: 'otp',
+      password: '',
+      otp: '',
+    }
+    expect(getSignInSubmitError(s)).toMatch(/request a sign-in code/i)
+  })
+
   it('requires non-empty otp in email otp mode', () => {
     const s: SignInState = {
       step: 'email',
       email: 'a@b.c',
       authMode: 'otp',
       password: '',
+      otpSessionId: 'otp-session-1',
       otp: '   ',
     }
     expect(getSignInSubmitError(s)).toMatch(/code/i)
@@ -47,6 +59,7 @@ describe('getSignInSubmitError', () => {
       email: 'a@b.c',
       authMode: 'otp',
       password: '',
+      otpSessionId: 'otp-session-1',
       otp: '9999',
     }
     expect(getSignInSubmitError(s)).toBeNull()
@@ -58,6 +71,7 @@ describe('getSignInSubmitError', () => {
       displayPhone: '9',
       digits: '9000000000',
       delivery: 'sms',
+      otpSessionId: 'otp-session-1',
       otp: '  ',
       resendCount: 0,
     }
@@ -70,6 +84,7 @@ describe('getSignInSubmitError', () => {
       displayPhone: '9',
       digits: '9000000000',
       delivery: 'whatsapp',
+      otpSessionId: 'otp-session-1',
       otp: '1234',
       resendCount: 0,
     }
