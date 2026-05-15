@@ -48,10 +48,10 @@ export function redirectToOldStudentUi(context?: RedirectDebugContext) {
    window.location.assign(studentUiUrl);
 }
 
-/** After server logout: send the user to legacy student app, or `/login` here if unset. */
+/** After server logout: send the user to legacy student app, or `/signin` here if unset. */
 export function getPostLogoutRedirectUrl(): string {
   const base = getOldStudentUiUrl()?.trim().replace(/\/$/, '')
   if (base) return `${base}/`
-  return '/login'
+  return '/signin'
 }
 

@@ -13,6 +13,8 @@ import { Route as TestRouteImport } from './routes/test'
 import { Route as protectedLayoutRouteRouteImport } from './routes/(protected)/_layout/route'
 import { Route as protectedZoomIndexRouteImport } from './routes/(protected)/zoom/index'
 import { Route as protectedLayoutIndexRouteImport } from './routes/(protected)/_layout/index'
+import { Route as authSwitchAccountIndexRouteImport } from './routes/(auth)/switch-account/index'
+import { Route as authSigninIndexRouteImport } from './routes/(auth)/signin/index'
 import { Route as authLoginIndexRouteImport } from './routes/(auth)/login/index'
 import { Route as authV2ResetPasswordRouteImport } from './routes/(auth)/v2/reset-password'
 import { Route as authV2MeRouteImport } from './routes/(auth)/v2/me'
@@ -30,6 +32,7 @@ import { Route as protectedLayoutChatIndexRouteImport } from './routes/(protecte
 import { Route as protectedLayoutBookmarkIndexRouteImport } from './routes/(protected)/_layout/bookmark/index'
 import { Route as protectedLayoutAnnouncementsIndexRouteImport } from './routes/(protected)/_layout/announcements/index'
 import { Route as authV2LoginIndexRouteImport } from './routes/(auth)/v2/login/index'
+import { Route as authResetPasswordTokenIndexRouteImport } from './routes/(auth)/reset-password.$token/index'
 import { Route as authV2LoginVerifyOtpRouteImport } from './routes/(auth)/v2/login/verify-otp'
 import { Route as authV2LoginRequestOtpRouteImport } from './routes/(auth)/v2/login/request-otp'
 import { Route as authV2AuthUseAccountRouteImport } from './routes/(auth)/v2/auth/use-account'
@@ -76,6 +79,16 @@ const protectedLayoutIndexRoute = protectedLayoutIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => protectedLayoutRouteRoute,
+} as any)
+const authSwitchAccountIndexRoute = authSwitchAccountIndexRouteImport.update({
+  id: '/(auth)/switch-account/',
+  path: '/switch-account/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const authSigninIndexRoute = authSigninIndexRouteImport.update({
+  id: '/(auth)/signin/',
+  path: '/signin/',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const authLoginIndexRoute = authLoginIndexRouteImport.update({
   id: '/(auth)/login/',
@@ -174,6 +187,12 @@ const authV2LoginIndexRoute = authV2LoginIndexRouteImport.update({
   path: '/v2/login/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const authResetPasswordTokenIndexRoute =
+  authResetPasswordTokenIndexRouteImport.update({
+    id: '/(auth)/reset-password/$token/',
+    path: '/reset-password/$token/',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const authV2LoginVerifyOtpRoute = authV2LoginVerifyOtpRouteImport.update({
   id: '/(auth)/v2/login/verify-otp',
   path: '/v2/login/verify-otp',
@@ -380,12 +399,15 @@ export interface FileRoutesByFullPath {
   '/v2/me': typeof authV2MeRoute
   '/v2/reset-password': typeof authV2ResetPasswordRoute
   '/login/': typeof authLoginIndexRoute
+  '/signin/': typeof authSigninIndexRoute
+  '/switch-account/': typeof authSwitchAccountIndexRoute
   '/': typeof protectedLayoutIndexRoute
   '/zoom/': typeof protectedZoomIndexRoute
   '/v2/auth/linked-accounts': typeof authV2AuthLinkedAccountsRoute
   '/v2/auth/use-account': typeof authV2AuthUseAccountRoute
   '/v2/login/request-otp': typeof authV2LoginRequestOtpRoute
   '/v2/login/verify-otp': typeof authV2LoginVerifyOtpRoute
+  '/reset-password/$token/': typeof authResetPasswordTokenIndexRoute
   '/v2/login/': typeof authV2LoginIndexRoute
   '/announcements/': typeof protectedLayoutAnnouncementsIndexRoute
   '/bookmark/': typeof protectedLayoutBookmarkIndexRoute
@@ -428,12 +450,15 @@ export interface FileRoutesByTo {
   '/v2/me': typeof authV2MeRoute
   '/v2/reset-password': typeof authV2ResetPasswordRoute
   '/login': typeof authLoginIndexRoute
+  '/signin': typeof authSigninIndexRoute
+  '/switch-account': typeof authSwitchAccountIndexRoute
   '/': typeof protectedLayoutIndexRoute
   '/zoom': typeof protectedZoomIndexRoute
   '/v2/auth/linked-accounts': typeof authV2AuthLinkedAccountsRoute
   '/v2/auth/use-account': typeof authV2AuthUseAccountRoute
   '/v2/login/request-otp': typeof authV2LoginRequestOtpRoute
   '/v2/login/verify-otp': typeof authV2LoginVerifyOtpRoute
+  '/reset-password/$token': typeof authResetPasswordTokenIndexRoute
   '/v2/login': typeof authV2LoginIndexRoute
   '/announcements': typeof protectedLayoutAnnouncementsIndexRoute
   '/bookmark': typeof protectedLayoutBookmarkIndexRoute
@@ -476,12 +501,15 @@ export interface FileRoutesById {
   '/(auth)/v2/me': typeof authV2MeRoute
   '/(auth)/v2/reset-password': typeof authV2ResetPasswordRoute
   '/(auth)/login/': typeof authLoginIndexRoute
+  '/(auth)/signin/': typeof authSigninIndexRoute
+  '/(auth)/switch-account/': typeof authSwitchAccountIndexRoute
   '/(protected)/_layout/': typeof protectedLayoutIndexRoute
   '/(protected)/zoom/': typeof protectedZoomIndexRoute
   '/(auth)/v2/auth/linked-accounts': typeof authV2AuthLinkedAccountsRoute
   '/(auth)/v2/auth/use-account': typeof authV2AuthUseAccountRoute
   '/(auth)/v2/login/request-otp': typeof authV2LoginRequestOtpRoute
   '/(auth)/v2/login/verify-otp': typeof authV2LoginVerifyOtpRoute
+  '/(auth)/reset-password/$token/': typeof authResetPasswordTokenIndexRoute
   '/(auth)/v2/login/': typeof authV2LoginIndexRoute
   '/(protected)/_layout/announcements/': typeof protectedLayoutAnnouncementsIndexRoute
   '/(protected)/_layout/bookmark/': typeof protectedLayoutBookmarkIndexRoute
@@ -527,12 +555,15 @@ export interface FileRouteTypes {
     | '/v2/me'
     | '/v2/reset-password'
     | '/login/'
+    | '/signin/'
+    | '/switch-account/'
     | '/'
     | '/zoom/'
     | '/v2/auth/linked-accounts'
     | '/v2/auth/use-account'
     | '/v2/login/request-otp'
     | '/v2/login/verify-otp'
+    | '/reset-password/$token/'
     | '/v2/login/'
     | '/announcements/'
     | '/bookmark/'
@@ -575,12 +606,15 @@ export interface FileRouteTypes {
     | '/v2/me'
     | '/v2/reset-password'
     | '/login'
+    | '/signin'
+    | '/switch-account'
     | '/'
     | '/zoom'
     | '/v2/auth/linked-accounts'
     | '/v2/auth/use-account'
     | '/v2/login/request-otp'
     | '/v2/login/verify-otp'
+    | '/reset-password/$token'
     | '/v2/login'
     | '/announcements'
     | '/bookmark'
@@ -622,12 +656,15 @@ export interface FileRouteTypes {
     | '/(auth)/v2/me'
     | '/(auth)/v2/reset-password'
     | '/(auth)/login/'
+    | '/(auth)/signin/'
+    | '/(auth)/switch-account/'
     | '/(protected)/_layout/'
     | '/(protected)/zoom/'
     | '/(auth)/v2/auth/linked-accounts'
     | '/(auth)/v2/auth/use-account'
     | '/(auth)/v2/login/request-otp'
     | '/(auth)/v2/login/verify-otp'
+    | '/(auth)/reset-password/$token/'
     | '/(auth)/v2/login/'
     | '/(protected)/_layout/announcements/'
     | '/(protected)/_layout/bookmark/'
@@ -672,11 +709,14 @@ export interface RootRouteChildren {
   authV2MeRoute: typeof authV2MeRoute
   authV2ResetPasswordRoute: typeof authV2ResetPasswordRoute
   authLoginIndexRoute: typeof authLoginIndexRoute
+  authSigninIndexRoute: typeof authSigninIndexRoute
+  authSwitchAccountIndexRoute: typeof authSwitchAccountIndexRoute
   protectedZoomIndexRoute: typeof protectedZoomIndexRoute
   authV2AuthLinkedAccountsRoute: typeof authV2AuthLinkedAccountsRoute
   authV2AuthUseAccountRoute: typeof authV2AuthUseAccountRoute
   authV2LoginRequestOtpRoute: typeof authV2LoginRequestOtpRoute
   authV2LoginVerifyOtpRoute: typeof authV2LoginVerifyOtpRoute
+  authResetPasswordTokenIndexRoute: typeof authResetPasswordTokenIndexRoute
   authV2LoginIndexRoute: typeof authV2LoginIndexRoute
 }
 
@@ -709,6 +749,20 @@ declare module '@tanstack/react-router' {
       fullPath: '/'
       preLoaderRoute: typeof protectedLayoutIndexRouteImport
       parentRoute: typeof protectedLayoutRouteRoute
+    }
+    '/(auth)/switch-account/': {
+      id: '/(auth)/switch-account/'
+      path: '/switch-account'
+      fullPath: '/switch-account/'
+      preLoaderRoute: typeof authSwitchAccountIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/(auth)/signin/': {
+      id: '/(auth)/signin/'
+      path: '/signin'
+      fullPath: '/signin/'
+      preLoaderRoute: typeof authSigninIndexRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/(auth)/login/': {
       id: '/(auth)/login/'
@@ -827,6 +881,13 @@ declare module '@tanstack/react-router' {
       path: '/v2/login'
       fullPath: '/v2/login/'
       preLoaderRoute: typeof authV2LoginIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/(auth)/reset-password/$token/': {
+      id: '/(auth)/reset-password/$token/'
+      path: '/reset-password/$token'
+      fullPath: '/reset-password/$token/'
+      preLoaderRoute: typeof authResetPasswordTokenIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/(auth)/v2/login/verify-otp': {
@@ -1195,11 +1256,14 @@ const rootRouteChildren: RootRouteChildren = {
   authV2MeRoute: authV2MeRoute,
   authV2ResetPasswordRoute: authV2ResetPasswordRoute,
   authLoginIndexRoute: authLoginIndexRoute,
+  authSigninIndexRoute: authSigninIndexRoute,
+  authSwitchAccountIndexRoute: authSwitchAccountIndexRoute,
   protectedZoomIndexRoute: protectedZoomIndexRoute,
   authV2AuthLinkedAccountsRoute: authV2AuthLinkedAccountsRoute,
   authV2AuthUseAccountRoute: authV2AuthUseAccountRoute,
   authV2LoginRequestOtpRoute: authV2LoginRequestOtpRoute,
   authV2LoginVerifyOtpRoute: authV2LoginVerifyOtpRoute,
+  authResetPasswordTokenIndexRoute: authResetPasswordTokenIndexRoute,
   authV2LoginIndexRoute: authV2LoginIndexRoute,
 }
 export const routeTree = rootRouteImport

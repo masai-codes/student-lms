@@ -1,6 +1,13 @@
 # Feature Test Matrix
 
-Last updated: 2026-04-14
+Last updated: 2026-05-11
+
+## Sign-in (student UI)
+
+- Area: Client sign-in flow (`src/components/features/sign-in/**`)
+- Status: Covered (mock-only; no backend)
+- Test files: `src/components/features/sign-in/*.test.ts`, `SignInFlow.test.tsx`
+- Notes: Identifier parsing, reducer transitions, submit validation, and primary UI paths.
 
 ## Masaiverse
 - Area: Server APIs (all endpoints)
