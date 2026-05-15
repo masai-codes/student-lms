@@ -1,4 +1,5 @@
 import { fileURLToPath } from 'node:url'
+import dotenv from 'dotenv'
 import { defineConfig } from 'vite'
 import { tanstackStart } from '@tanstack/react-start/plugin/vite'
 import viteReact from '@vitejs/plugin-react'
@@ -7,6 +8,8 @@ import viteTsConfigPaths from 'vite-tsconfig-paths'
 import tailwindcss from '@tailwindcss/vite'
 import { nitro } from 'nitro/vite'
 
+dotenv.config()
+
 const config = defineConfig({
   resolve: {
     alias: {
@@ -14,12 +17,7 @@ const config = defineConfig({
     },
   },
   plugins: [
-    nitro({
-      plugins: ['src/server/plugins/ensureSecrets.ts'],
-      awsAmplify:{
-        runtime: 'nodejs22.x',
-      }
-    }),
+    nitro(),
     // this is the plugin that enables path aliases
     viteTsConfigPaths({
       projects: ['./tsconfig.json'],
