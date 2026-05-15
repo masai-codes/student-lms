@@ -1,34 +1,88 @@
-import { eq } from 'drizzle-orm'
+import { compare } from 'bcryptjs'
+import { and, eq, isNull } from 'drizzle-orm'
 import { db } from '@/db'
-import { users } from '@/db/schema'
+import { otpCodes, users } from '@/db/schema'
 import type { AuthenticatedUser } from '@/server/auth/v2/loginWithPassword'
-import { HARDCODED_OTPS } from '@/server/auth/v2/sendOtp'
+
+const MAX_ATTEMPTS = 5
 
 export type VerifyOtpInput = {
-  identifier: string
+  otpSessionId: string
   otp: string
 }
 
 export class VerifyOtpError extends Error {
   constructor(
-    public code: 'USER_NOT_FOUND' | 'INVALID_OTP',
+    public code:
+      | 'OTP_NOT_FOUND'
+      | 'OTP_ALREADY_USED'
+      | 'OTP_EXPIRED'
+      | 'TOO_MANY_ATTEMPTS'
+      | 'INVALID_OTP'
+      | 'USER_NOT_FOUND',
     message: string,
   ) {
     super(message)
   }
 }
 
-const VALID_OTPS = new Set(Object.values(HARDCODED_OTPS))
+function toMysqlDatetime(date: Date): string {
+  return date.toISOString().slice(0, 19).replace('T', ' ')
+}
 
-export async function verifyOtp({ identifier, otp }: VerifyOtpInput): Promise<AuthenticatedUser[]> {
-  if (!VALID_OTPS.has(otp.trim())) {
+function isExpired(expiresAt: string): boolean {
+  return new Date(expiresAt.replace(' ', 'T') + 'Z').getTime() < Date.now()
+}
+
+export async function verifyOtp({ otpSessionId, otp }: VerifyOtpInput): Promise<AuthenticatedUser[]> {
+  const otpRows = await db
+    .select({
+      id: otpCodes.id,
+      identifier: otpCodes.identifier,
+      channel: otpCodes.channel,
+      otpHash: otpCodes.otpHash,
+      expiresAt: otpCodes.expiresAt,
+      attempts: otpCodes.attempts,
+      usedAt: otpCodes.usedAt,
+    })
+    .from(otpCodes)
+    .where(eq(otpCodes.sessionId, otpSessionId))
+    .limit(1)
+
+  const record = otpRows[0]
+  if (!record) {
+    throw new VerifyOtpError('OTP_NOT_FOUND', 'OTP session not found')
+  }
+
+  if (record.usedAt) {
+    throw new VerifyOtpError('OTP_ALREADY_USED', 'OTP has already been used')
+  }
+
+  if (isExpired(record.expiresAt)) {
+    throw new VerifyOtpError('OTP_EXPIRED', 'OTP has expired')
+  }
+
+  if (record.attempts >= MAX_ATTEMPTS) {
+    throw new VerifyOtpError('TOO_MANY_ATTEMPTS', 'Too many failed attempts')
+  }
+
+  const match = await compare(otp.trim(), record.otpHash)
+  if (!match) {
+    await db
+      .update(otpCodes)
+      .set({ attempts: record.attempts + 1 })
+      .where(eq(otpCodes.id, record.id))
     throw new VerifyOtpError('INVALID_OTP', 'Invalid OTP')
   }
 
-  const normalized = identifier.trim().toLowerCase()
-  const isEmail = normalized.includes('@')
+  await db
+    .update(otpCodes)
+    .set({ usedAt: toMysqlDatetime(new Date()) })
+    .where(and(eq(otpCodes.id, record.id), isNull(otpCodes.usedAt)))
 
-  const rows = await db
+  const isEmailChannel = record.channel === 'email'
+
+  const userRows = await db
     .select({
       id: users.id,
       name: users.name,
@@ -37,11 +91,11 @@ export async function verifyOtp({ identifier, otp }: VerifyOtpInput): Promise<Au
       role: users.role,
     })
     .from(users)
-    .where(eq(isEmail ? users.email : users.mobile, normalized))
+    .where(eq(isEmailChannel ? users.email : users.mobile, record.identifier))
 
-  if (rows.length === 0) {
+  if (userRows.length === 0) {
     throw new VerifyOtpError('USER_NOT_FOUND', 'User not found')
   }
 
-  return rows
+  return userRows
 }
