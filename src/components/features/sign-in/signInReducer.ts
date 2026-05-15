@@ -10,6 +10,7 @@ export type SignInState =
       authMode: 'password' | 'otp'
       password: string
       otp: string
+      otpSessionId?: string
       error?: string
       info?: string
     }
@@ -19,6 +20,7 @@ export type SignInState =
       digits: string
       delivery: 'sms' | 'whatsapp'
       otp: string
+      otpSessionId: string
       error?: string
       info?: string
       resendCount: number
@@ -60,12 +62,19 @@ export type SignInAction =
   | { type: 'email_clear_error' }
   | { type: 'email_set_error'; message: string }
   | { type: 'email_info'; message: string | undefined }
-  | { type: 'email_otp_requested'; info: string }
+  | { type: 'email_otp_requested'; otpSessionId: string; info: string }
   | { type: 'email_use_password_mock' }
   | { type: 'email_go_forgot' }
-  | { type: 'phone_enter'; displayPhone: string; digits: string; delivery: 'sms' | 'whatsapp'; info: string }
+  | {
+      type: 'phone_enter'
+      displayPhone: string
+      digits: string
+      delivery: 'sms' | 'whatsapp'
+      otpSessionId: string
+      info: string
+    }
   | { type: 'phone_otp'; value: string }
-  | { type: 'phone_resend_ok'; info: string }
+  | { type: 'phone_resend_ok'; otpSessionId: string; info: string }
   | { type: 'phone_clear_error' }
   | { type: 'phone_set_error'; message: string }
   | { type: 'phone_info'; message: string | undefined }
@@ -148,6 +157,7 @@ export function signInReducer(state: SignInState, action: SignInAction): SignInS
         ? {
             ...state,
             authMode: 'otp',
+            otpSessionId: action.otpSessionId,
             error: undefined,
             info: action.info,
           }
@@ -172,6 +182,7 @@ export function signInReducer(state: SignInState, action: SignInAction): SignInS
         displayPhone: action.displayPhone,
         digits: action.digits,
         delivery: action.delivery,
+        otpSessionId: action.otpSessionId,
         otp: '',
         resendCount: 0,
         info: action.info,
@@ -182,6 +193,7 @@ export function signInReducer(state: SignInState, action: SignInAction): SignInS
       return state.step === 'phone'
         ? {
             ...state,
+            otpSessionId: action.otpSessionId,
             resendCount: state.resendCount + 1,
             info: action.info,
           }

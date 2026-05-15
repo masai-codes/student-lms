@@ -101,13 +101,14 @@ export function SignInFlow() {
     setIdentifierBusy(true)
     dispatch({ type: 'identifier_clear_error' })
     try {
-      const { channel } = await v2RequestOtp({ identifier: r.digits, isResend: false })
+      const { channel, otpSessionId } = await v2RequestOtp({ identifier: r.digits, isResend: false })
       const delivery = channelToDelivery(channel)
       dispatch({
         type: 'phone_enter',
         displayPhone: r.displayPhone,
         digits: r.digits,
         delivery,
+        otpSessionId,
         info: phoneOtpInfoForChannel(channel, r.displayPhone),
       })
     } catch (err) {
@@ -122,8 +123,12 @@ export function SignInFlow() {
     setEmailOtpBusy(true)
     dispatch({ type: 'email_clear_error' })
     try {
-      await v2RequestOtp({ identifier: state.email, isResend: false })
-      dispatch({ type: 'email_otp_requested', info: emailOtpSentBody(state.email) })
+      const { otpSessionId } = await v2RequestOtp({ identifier: state.email, isResend: false })
+      dispatch({
+        type: 'email_otp_requested',
+        otpSessionId,
+        info: emailOtpSentBody(state.email),
+      })
     } catch (err) {
       dispatch({ type: 'email_set_error', message: formatAuthError(err) })
     } finally {
@@ -136,9 +141,10 @@ export function SignInFlow() {
     setPhoneResendBusy(true)
     dispatch({ type: 'phone_clear_error' })
     try {
-      await v2RequestOtp({ identifier: state.digits, isResend: true })
+      const { otpSessionId } = await v2RequestOtp({ identifier: state.digits, isResend: true })
       dispatch({
         type: 'phone_resend_ok',
+        otpSessionId,
         info: phoneOtpResentBody(state.delivery, state.displayPhone),
       })
     } catch (err) {
@@ -166,7 +172,7 @@ export function SignInFlow() {
           dispatchSignInSuccessEvent('sso-v2', 'email-password', response)
         } else {
           const response = await v2VerifyOtp({
-            identifier: state.email,
+            otpSessionId: state.otpSessionId!,
             otp: state.otp.trim(),
           })
           dispatchSignInSuccessEvent('sso-v2', 'email-otp', response)
@@ -193,7 +199,7 @@ export function SignInFlow() {
       dispatch({ type: 'phone_clear_error' })
       try {
         const response = await v2VerifyOtp({
-          identifier: state.digits,
+          otpSessionId: state.otpSessionId,
           otp: state.otp.trim(),
         })
         const linkedAccountsResult = await v2FetchLinkedAccounts()
