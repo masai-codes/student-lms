@@ -9,6 +9,7 @@ count.txt
 .tanstack
 .wrangler
 .output
+logs
 .vinxi
 todos.json
 .amplify-hosting
