@@ -123,10 +123,15 @@ describe('signInReducer', () => {
     if (s.step !== 'phone') throw new Error('expected phone')
     s = signInReducer(s, { type: 'phone_otp', value: 'abcd' })
     expect(s.otp).toBe('abcd')
-    s = signInReducer(s, { type: 'phone_resend_ok', otpSessionId: 'otp-session-2', info: 'resent' })
+    s = signInReducer(s, {
+      type: 'phone_resend_ok',
+      otpSessionId: 'otp-session-2',
+      delivery: 'sms',
+      info: 'resent',
+    })
     expect(s.otpSessionId).toBe('otp-session-2')
     expect(s.resendCount).toBe(1)
-    expect(s.delivery).toBe('whatsapp')
+    expect(s.delivery).toBe('sms')
     expect(s.info).toBe('resent')
   })
 

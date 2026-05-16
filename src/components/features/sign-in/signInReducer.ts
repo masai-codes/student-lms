@@ -74,7 +74,7 @@ export type SignInAction =
       info: string
     }
   | { type: 'phone_otp'; value: string }
-  | { type: 'phone_resend_ok'; otpSessionId: string; info: string }
+  | { type: 'phone_resend_ok'; otpSessionId: string; delivery: 'sms' | 'whatsapp'; info: string }
   | { type: 'phone_clear_error' }
   | { type: 'phone_set_error'; message: string }
   | { type: 'phone_info'; message: string | undefined }
@@ -193,6 +193,7 @@ export function signInReducer(state: SignInState, action: SignInAction): SignInS
       return state.step === 'phone'
         ? {
             ...state,
+            delivery: action.delivery,
             otpSessionId: action.otpSessionId,
             resendCount: state.resendCount + 1,
             info: action.info,
@@ -243,4 +244,12 @@ export function phoneOtpInfoForChannel(
 ): string {
   const delivery = channelToDelivery(channel)
   return phoneOtpFirstSendBody(delivery, displayPhone)
+}
+
+export function phoneOtpResentInfoForChannel(
+  channel: 'email' | 'sms' | 'whatsapp',
+  displayPhone: string,
+): string {
+  const delivery = channelToDelivery(channel)
+  return phoneOtpResentBody(delivery, displayPhone)
 }

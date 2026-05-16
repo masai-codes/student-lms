@@ -21,9 +21,10 @@ import {
   computeIdentifierSubmit,
   initialSignInState,
   phoneOtpInfoForChannel,
+  phoneOtpResentInfoForChannel,
   signInReducer,
 } from '@/components/features/sign-in/signInReducer'
-import { emailOtpSentBody, phoneOtpResentBody } from '@/components/features/sign-in/signInMessages'
+import { emailOtpSentBody } from '@/components/features/sign-in/signInMessages'
 import { getSignInSubmitError } from '@/components/features/sign-in/signInSubmit'
 import {
   V2AuthRequestError,
@@ -141,11 +142,13 @@ export function SignInFlow() {
     setPhoneResendBusy(true)
     dispatch({ type: 'phone_clear_error' })
     try {
-      const { otpSessionId } = await v2RequestOtp({ identifier: state.digits, isResend: true })
+      const { channel, otpSessionId } = await v2RequestOtp({ identifier: state.digits, isResend: true })
+      const delivery = channelToDelivery(channel)
       dispatch({
         type: 'phone_resend_ok',
         otpSessionId,
-        info: phoneOtpResentBody(state.delivery, state.displayPhone),
+        delivery,
+        info: phoneOtpResentInfoForChannel(channel, state.displayPhone),
       })
     } catch (err) {
       dispatch({ type: 'phone_set_error', message: formatAuthError(err) })
