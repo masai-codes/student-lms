@@ -1,7 +1,9 @@
 export function getOldStudentUiUrl() {
-  return (
-    (import.meta.env.VITE_OLD_STUDENT_UI_URL as string | undefined)
-  );
+  return import.meta.env.VITE_OLD_STUDENT_UI_URL as string | undefined
+}
+
+export function getNewStudentUiUrl() {
+  return import.meta.env.VITE_NEW_STUDENT_UI_URL as string | undefined
 }
 
 type RedirectDebugContext = {
@@ -48,10 +50,10 @@ export function redirectToOldStudentUi(context?: RedirectDebugContext) {
    window.location.assign(studentUiUrl);
 }
 
-/** After server logout: send the user to legacy student app, or `/signin` here if unset. */
+/** After server logout: new student app sign-in (`VITE_NEW_STUDENT_UI_URL/signin`), or `/signin` here if unset. */
 export function getPostLogoutRedirectUrl(): string {
-  const base = getOldStudentUiUrl()?.trim().replace(/\/$/, '')
-  if (base) return `${base}/`
+  const base = getNewStudentUiUrl()?.trim().replace(/\/$/, '')
+  if (base) return `${base}/signin`
   return '/signin'
 }
 
