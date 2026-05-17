@@ -1,0 +1,32 @@
+/* Flex-fill stage: one native control bar, no absolute clip. */
+.lecture-react-player {
+  min-height: 0;
+}
+
+.lecture-react-player__stage {
+  position: relative;
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  min-height: 0;
+  width: 100%;
+  overflow: visible;
+}
+
+.lecture-react-player__stage > div {
+  display: flex !important;
+  flex: 1 1 auto;
+  flex-direction: column;
+  width: 100% !important;
+  height: 100% !important;
+  min-height: 0;
+  padding-top: 0 !important;
+}
+
+.lecture-react-player__stage video {
+  flex: 1 1 auto;
+  width: 100%;
+  min-height: 0;
+  object-fit: contain;
+  background: #000;
+}

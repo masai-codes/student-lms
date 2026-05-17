@@ -5,7 +5,7 @@ import {
   LearningDetailMasaiBreadcrumb,
   LectureDetailPage,
 } from '@/components/features/learn/LearnPageDetails'
-import { layoutMainClasses } from '@/lib/layout'
+import { lectureDetailRouteClasses } from '@/lib/layout'
 import { getLectureLearningDetail } from '@/server/learn/getLectureLearningDetail'
 
 export const Route = createFileRoute('/(protected)/_layout/lectures_/$lectureId')({
@@ -24,7 +24,7 @@ function RouteComponent() {
   const detail = Route.useLoaderData()
 
   return (
-    <div className={layoutMainClasses}>
+    <div className={lectureDetailRouteClasses}>
       <LectureDetailPage detail={detail} />
     </div>
   )

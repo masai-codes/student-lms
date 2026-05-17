@@ -59,7 +59,10 @@ export default function AppMobileTabBar() {
   )
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-[200] md:hidden">
+    <div
+      className="fixed bottom-0 left-0 right-0 z-[200] md:hidden"
+      data-app-mobile-tab-bar
+    >
       <TabNavbar
         items={items}
         ariaLabel="Primary navigation"
