@@ -25,7 +25,6 @@ function RouteComponent() {
 
   return (
     <div className={layoutMainClasses}>
-      <LearningDetailMasaiBreadcrumb currentLabel={detail.title} />
       <LectureDetailPage detail={detail} />
     </div>
   )
