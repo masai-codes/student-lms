@@ -1,11 +1,11 @@
 /** Set to `false` to skip the opening gif and show messages immediately. */
-export const LECTURE_CHAT_OPENING_LOADER_ENABLED = true
+export const LECTURE_CHAT_OPENING_LOADER_ENABLED = false
 
 /** Gif file name in `/public` (e.g. `dance-dancing.gif` → `/dance-dancing.gif`). */
 export const LECTURE_CHAT_OPENING_LOADER_GIF = 'pengu-pudgy.gif'
 
 /** How long the opening gif sweeps left → right before messages show (milliseconds). */
-export const LECTURE_CHAT_OPENING_LOADER_SWEEP_MS = 3000
+export const LECTURE_CHAT_OPENING_LOADER_SWEEP_MS = 4000
 
 /** Height of the opening gif while it sweeps (pixels; width stays proportional). */
 export const LECTURE_CHAT_OPENING_LOADER_SIZE_PX = 200

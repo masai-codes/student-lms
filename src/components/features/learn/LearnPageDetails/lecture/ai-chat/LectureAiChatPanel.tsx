@@ -29,7 +29,7 @@ type LectureAiChatPanelProps = {
   onClose: () => void
   chatBarRef: RefObject<HTMLElement | null>
   variant?: LectureAiChatPanelVariant
-  /** Left → right gif sweep duration before the message list appears (ms). */
+  /** Left → right gif sweep overlay duration on open (ms); messages render immediately. */
   openingLoaderSweepMs?: number
   /** Opening gif height in pixels. */
   openingLoaderSizePx?: number
@@ -67,7 +67,6 @@ export function LectureAiChatPanel({
     chatBarRef,
     messagesLength: messages.length,
     isSending,
-    isContentReady: !showOpeningLoader,
   })
 
   if (!isPresent) return null
@@ -105,25 +104,26 @@ export function LectureAiChatPanel({
         </div>
 
         <div className="relative flex min-h-0 flex-1 flex-col">
+          <div
+            ref={listRef}
+            className="min-h-0 flex-1 space-y-3 overflow-y-auto overscroll-contain px-4 py-4"
+          >
+            {messages.map(message => (
+              <LectureAiChatMessage key={message.id} message={message} />
+            ))}
+            {isSending ? (
+              <p className="type-caption-regular !text-gray-400">Thinking…</p>
+            ) : null}
+          </div>
+
           {showOpeningLoader ? (
             <LectureAiChatPanelLoader
               sweepDurationMs={openingLoaderSweepMs}
               sizePx={openingLoaderSizePx}
               gif={openingLoaderGif}
+              className="pointer-events-none absolute inset-0 z-10"
             />
-          ) : (
-            <div
-              ref={listRef}
-              className="min-h-0 flex-1 space-y-3 overflow-y-auto overscroll-contain px-4 py-4"
-            >
-              {messages.map(message => (
-                <LectureAiChatMessage key={message.id} message={message} />
-              ))}
-              {isSending ? (
-                <p className="type-caption-regular !text-gray-400">Thinking…</p>
-              ) : null}
-            </div>
-          )}
+          ) : null}
         </div>
       </div>
     </div>

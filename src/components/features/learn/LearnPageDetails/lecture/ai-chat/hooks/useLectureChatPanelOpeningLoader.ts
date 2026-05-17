@@ -3,36 +3,30 @@
 import { useEffect, useState } from 'react'
 
 /**
- * Shows the opening sweep loader until `sweepDurationMs` elapses after each open.
+ * Brief overlay sweep on open; does not block message list rendering underneath.
  */
 export function useLectureChatPanelOpeningLoader(
   isOpen: boolean,
   sweepDurationMs: number,
   showOpeningLoader: boolean,
 ) {
-  const [isContentReady, setIsContentReady] = useState(!showOpeningLoader)
+  const [showSweepOverlay, setShowSweepOverlay] = useState(false)
 
   useEffect(() => {
-    if (!isOpen) {
-      setIsContentReady(false)
+    if (!isOpen || !showOpeningLoader) {
+      setShowSweepOverlay(false)
       return
     }
 
-    if (!showOpeningLoader) {
-      setIsContentReady(true)
-      return
-    }
-
-    setIsContentReady(false)
+    setShowSweepOverlay(true)
     const timer = window.setTimeout(() => {
-      setIsContentReady(true)
+      setShowSweepOverlay(false)
     }, sweepDurationMs)
 
     return () => window.clearTimeout(timer)
   }, [isOpen, sweepDurationMs, showOpeningLoader])
 
   return {
-    showOpeningLoader: showOpeningLoader && isOpen && !isContentReady,
-    isContentReady,
+    showOpeningLoader: showSweepOverlay,
   }
 }

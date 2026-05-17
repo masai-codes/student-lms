@@ -48,7 +48,6 @@ type UseLectureChatPanelLayoutOptions = {
   chatBarRef: RefObject<HTMLElement | null>
   messagesLength: number
   isSending: boolean
-  isContentReady?: boolean
 }
 
 export function useLectureChatPanelLayout({
@@ -56,7 +55,6 @@ export function useLectureChatPanelLayout({
   chatBarRef,
   messagesLength,
   isSending,
-  isContentReady = true,
 }: UseLectureChatPanelLayoutOptions) {
   const listRef = useRef<HTMLDivElement>(null)
   const [panelHeightPx, setPanelHeightPx] = useState(MIN_PANEL_HEIGHT_PX)
@@ -93,11 +91,9 @@ export function useLectureChatPanelLayout({
   }, [isOpen, chatBarRef])
 
   useEffect(() => {
-    if (!isOpen || !isContentReady) {
-      if (!isOpen) {
-        stickToBottomRef.current = true
-        prevMessagesLengthRef.current = messagesLength
-      }
+    if (!isOpen) {
+      stickToBottomRef.current = true
+      prevMessagesLengthRef.current = messagesLength
       return
     }
 
@@ -113,11 +109,11 @@ export function useLectureChatPanelLayout({
         stickToBottomRef.current = true
       }
     }
-  }, [isOpen, isContentReady, messagesLength, isSending, panelHeightPx])
+  }, [isOpen, messagesLength, isSending, panelHeightPx])
 
   useEffect(() => {
     const list = listRef.current
-    if (!list || !isOpen || !isContentReady) return
+    if (!list || !isOpen) return
 
     const onListScroll = () => {
       stickToBottomRef.current = isNearBottom(list)
@@ -125,7 +121,7 @@ export function useLectureChatPanelLayout({
 
     list.addEventListener('scroll', onListScroll, { passive: true })
     return () => list.removeEventListener('scroll', onListScroll)
-  }, [isOpen, isContentReady])
+  }, [isOpen])
 
   return { listRef, panelHeightPx }
 }
