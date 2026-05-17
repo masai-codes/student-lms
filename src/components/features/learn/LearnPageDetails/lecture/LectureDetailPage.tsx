@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 
+import { LectureAiChatDock } from './ai-chat'
 import { STATIC_LECTURE_DETAIL } from './constants/staticLectureDetail'
 import { LectureDiscussionsSection } from './discussions'
 import { useLectureHeroViewportHeight } from './hooks/useLectureHeroViewportHeight'
@@ -11,8 +12,8 @@ import {
   LectureTabBar,
   LectureTabContentSection,
 } from './tabs'
-import { LectureVideoSection } from './video'
 import type { LectureDetailTabId } from './tabs'
+import { LectureVideoSection } from './video'
 
 import type { LearnHubDetailPayload } from '@/server/learn/types'
 import { lectureDetailContentClasses } from '@/lib/layout'
@@ -31,9 +32,16 @@ export function LectureDetailPage({ detail: _detail }: LectureDetailPageProps) {
   const { rootRef, heightPx } = useLectureHeroViewportHeight()
   const [activeTabId, setActiveTabId] =
     useState<LectureDetailTabId>(DEFAULT_LECTURE_TAB_ID)
+  const [isChatDocked, setIsChatDocked] = useState(false)
 
   return (
-    <div className="w-full pb-12">
+    <div
+      className={cn(
+        'w-full pb-12',
+        isChatDocked &&
+          'pb-28 max-md:pb-[calc(7rem+env(safe-area-inset-bottom))]',
+      )}
+    >
       <section
         ref={rootRef}
         className="flex w-full shrink-0 flex-col bg-white"
@@ -55,6 +63,7 @@ export function LectureDetailPage({ detail: _detail }: LectureDetailPageProps) {
             dateRange={dateRange}
             className="border-b-0"
           />
+          <LectureAiChatDock onDockedChange={setIsChatDocked} />
           <LectureTabBar
             activeTabId={activeTabId}
             onTabChange={setActiveTabId}
@@ -63,7 +72,7 @@ export function LectureDetailPage({ detail: _detail }: LectureDetailPageProps) {
         </div>
       </section>
 
-      <div className={`${lectureDetailContentClasses} bg-white`}>
+      <div className={cn(lectureDetailContentClasses, 'bg-white')}>
         <LectureTabContentSection tabId={activeTabId} className="px-0 py-5" />
         <LectureDiscussionsSection />
       </div>

@@ -52,7 +52,6 @@ export function LectureDiscussionComposer({
         >
           Description
         </label>
-        <p className="type-caption-regular text-gray-500">Supports Markdown</p>
         <Textarea
           id="lecture-discussion-description"
           placeholder="Share your question or thoughts…"
