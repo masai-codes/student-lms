@@ -21,7 +21,7 @@ export function LectureTabPanel({ tabId }: LectureTabPanelProps) {
       role="tabpanel"
       id={`lecture-tab-panel-${tabId}`}
       aria-labelledby={`lecture-tab-${tabId}`}
-      className="pt-4"
+      className="pt-0"
     >
       <div
         className={cn(

@@ -27,7 +27,7 @@ export function LectureHostRow({
   return (
     <section
       className={cn(
-        'flex items-start gap-3 border-b border-border bg-background px-4 py-4 md:px-6',
+        'flex items-start gap-3 border-b border-border bg-background  py-4 ',
         className,
       )}
     >

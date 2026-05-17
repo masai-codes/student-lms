@@ -12,7 +12,7 @@ export function LectureTitleStrip({ title, className }: LectureTitleStripProps) 
   return (
     <section
       className={cn(
-        'border-b border-border bg-background px-4 py-3 md:px-6',
+        'border-b border-border bg-background py-3 ',
         className,
       )}
     >
