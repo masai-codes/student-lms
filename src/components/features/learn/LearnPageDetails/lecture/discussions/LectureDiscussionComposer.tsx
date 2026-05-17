@@ -2,9 +2,8 @@
 
 import { useState } from 'react'
 
+import { RichTextEditor } from '@/components/discussion-post-card/rich-text-editor'
 import { MasaiButton } from '@/components/ui/masai-button'
-import { MasaiInput } from '@/components/ui/masai-input'
-import { Textarea } from '@/components/ui/textarea'
 import { cn } from '@/lib/utils'
 
 type LectureDiscussionComposerProps = {
@@ -12,58 +11,67 @@ type LectureDiscussionComposerProps = {
   onSubmit?: (payload: { title: string; descriptionMarkdown: string }) => void
 }
 
+function plainTextFromHtml(html: string): string {
+  return html
+    .replace(/<[^>]*>/g, '')
+    .replace(/&nbsp;/g, ' ')
+    .trim()
+}
+
 export function LectureDiscussionComposer({
   className,
   onSubmit,
 }: LectureDiscussionComposerProps) {
   const [title, setTitle] = useState('')
-  const [description, setDescription] = useState('')
+  const [descriptionHtml, setDescriptionHtml] = useState('')
 
-  const canSubmit = title.trim().length > 0 && description.trim().length > 0
+  const canSubmit =
+    title.trim().length > 0 && plainTextFromHtml(descriptionHtml).length > 0
 
   const handleSubmit = () => {
     if (!canSubmit) return
     onSubmit?.({
       title: title.trim(),
-      descriptionMarkdown: description.trim(),
+      descriptionMarkdown: descriptionHtml.trim(),
     })
     setTitle('')
-    setDescription('')
+    setDescriptionHtml('')
   }
 
   return (
-    <div className={cn('space-y-3', className)}>
-      <div className="space-y-1.5">
-        <label htmlFor="lecture-discussion-title" className="type-b2-md text-gray-900">
-          Title
+    <div
+      className={cn(
+        'overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm',
+        className,
+      )}
+    >
+      <div className="border-b border-gray-100 px-3 py-2">
+        <label htmlFor="lecture-discussion-title" className="sr-only">
+          Discussion title
         </label>
-        <MasaiInput
+        <input
           id="lecture-discussion-title"
-          placeholder="Add a discussion title"
+          type="text"
+          placeholder="Title"
           value={title}
           onChange={event => setTitle(event.target.value)}
-          className="w-full"
+          className="type-b2-regular w-full bg-transparent text-gray-900 outline-none placeholder:text-gray-400"
         />
       </div>
-      <div className="space-y-1.5">
-        <label
-          htmlFor="lecture-discussion-description"
-          className="type-b2-md text-gray-900"
-        >
-          Description
-        </label>
-        <Textarea
-          id="lecture-discussion-description"
-          placeholder="Share your question or thoughts…"
-          value={description}
-          onChange={event => setDescription(event.target.value)}
-          className="min-h-[120px] resize-y rounded-lg border-gray-200 bg-white type-b2-regular"
-        />
-      </div>
-      <div className="flex justify-end">
+
+      <RichTextEditor
+        embedded
+        value={descriptionHtml}
+        onChange={setDescriptionHtml}
+        placeholder="Write your message…"
+        contentClassName="!min-h-[4.5rem] !max-h-[7.5rem] !overflow-y-auto !rounded-none !border-0 !px-3 !py-2 [&_p]:!my-0 [&_p+p]:!mt-1.5"
+      />
+
+      <div className="flex items-center justify-end gap-2 border-t border-gray-100 bg-[#FAF9F9] px-3 py-2">
         <MasaiButton
           kind="primary"
-          size="md"
+          size="sm"
+          type="button"
           disabled={!canSubmit}
           onClick={handleSubmit}
         >

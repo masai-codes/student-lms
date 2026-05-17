@@ -50,14 +50,14 @@ export function LectureDiscussionsSection({
         className,
       )}
     >
-      <h2 className="type-h6 mb-4 text-gray-900">
+      <h2 className="type-h6 mb-3 text-gray-900">
         Discussions
         <span className="type-b2-regular ml-2 font-normal text-gray-500">
           ({discussions.length})
         </span>
       </h2>
 
-      <LectureDiscussionComposer className="mb-6" onSubmit={handlePost} />
+      <LectureDiscussionComposer className="mb-4" onSubmit={handlePost} />
 
       <div className="divide-y divide-gray-100">
         {discussions.map(discussion => (

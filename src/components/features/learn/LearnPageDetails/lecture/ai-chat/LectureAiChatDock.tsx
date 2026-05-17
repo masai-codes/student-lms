@@ -48,6 +48,7 @@ export function LectureAiChatDock({
         onChange={onInputChange}
         onFocus={onOpen}
         onSend={onSend}
+        isSending={isSending}
       />
     </div>
   )
