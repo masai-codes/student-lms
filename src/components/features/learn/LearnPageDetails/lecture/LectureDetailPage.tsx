@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 
-import { LectureAiChatDock } from './ai-chat'
+import { LectureAiChatDock, useLectureAiChat } from './ai-chat'
 import { STATIC_LECTURE_DETAIL } from './constants/staticLectureDetail'
 import { LectureDiscussionsSection } from './discussions'
 import { useLectureHeroViewportHeight } from './hooks/useLectureHeroViewportHeight'
@@ -33,18 +33,21 @@ export function LectureDetailPage({ detail: _detail }: LectureDetailPageProps) {
   const [activeTabId, setActiveTabId] =
     useState<LectureDetailTabId>(DEFAULT_LECTURE_TAB_ID)
   const [isChatDocked, setIsChatDocked] = useState(false)
+  const chat = useLectureAiChat()
 
   return (
     <div
       className={cn(
         'w-full pb-12',
         isChatDocked &&
-          'pb-28 max-md:pb-[calc(7rem+env(safe-area-inset-bottom))]',
+          (chat.isExpanded
+            ? 'pb-[calc(7rem+18rem+env(safe-area-inset-bottom))] max-md:pb-[calc(11.5rem+18rem+env(safe-area-inset-bottom))]'
+            : 'pb-28 max-md:pb-[calc(7rem+env(safe-area-inset-bottom))]'),
       )}
     >
       <section
         ref={rootRef}
-        className="flex w-full shrink-0 flex-col bg-white"
+        className="flex w-full shrink-0 flex-col overflow-visible bg-white"
         style={
           heightPx != null
             ? { height: heightPx, minHeight: heightPx, maxHeight: heightPx }
@@ -55,7 +58,7 @@ export function LectureDetailPage({ detail: _detail }: LectureDetailPageProps) {
           videoUrl={lecture.videoUrl}
           className="min-h-0 flex-1"
         />
-        <div className={cn(lectureDetailContentClasses, 'shrink-0')}>
+        <div className={cn(lectureDetailContentClasses, 'relative z-20 shrink-0')}>
           <LectureTitleStrip title={lecture.title} />
           <LectureHostRow
             hostName={lecture.host.name}
@@ -63,7 +66,17 @@ export function LectureDetailPage({ detail: _detail }: LectureDetailPageProps) {
             dateRange={dateRange}
             className="border-b-0"
           />
-          <LectureAiChatDock onDockedChange={setIsChatDocked} />
+          <LectureAiChatDock
+            onDockedChange={setIsChatDocked}
+            isExpanded={chat.isExpanded}
+            isSending={chat.isSending}
+            messages={chat.messages}
+            inputValue={chat.inputValue}
+            onInputChange={chat.setInputValue}
+            onOpen={chat.open}
+            onClose={chat.close}
+            onSend={chat.sendMessage}
+          />
           <LectureTabBar
             activeTabId={activeTabId}
             onTabChange={setActiveTabId}

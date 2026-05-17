@@ -1,19 +1,29 @@
 'use client'
 
+import { type RefObject } from 'react'
 import { Microphone, Plus, Waveform } from '@phosphor-icons/react'
 
 import { cn } from '@/lib/utils'
 
 type LectureAiChatBarProps = {
   className?: string
+  value: string
+  onChange: (value: string) => void
+  onFocus?: () => void
+  onSend?: () => void
+  inputRef?: RefObject<HTMLInputElement | null>
 }
 
-/** Static ChatGPT-style input shell; wiring comes later. */
-export function LectureAiChatBar({ className }: LectureAiChatBarProps) {
+export function LectureAiChatBar({
+  className,
+  value,
+  onChange,
+  onFocus,
+  onSend,
+  inputRef,
+}: LectureAiChatBarProps) {
   return (
     <div
-      role="search"
-      aria-label="AI lecture assistant"
       className={cn(
         'flex h-12 w-full items-center gap-2 rounded-full bg-[#2f2f2f] px-3 shadow-[0_2px_12px_rgba(0,0,0,0.18)]',
         'ring-1 ring-white/10',
@@ -28,9 +38,22 @@ export function LectureAiChatBar({ className }: LectureAiChatBarProps) {
         <Plus className="size-5" weight="bold" />
       </button>
 
-      <p className="type-b2-regular min-w-0 flex-1 truncate text-left text-gray-400">
-        Ask anything
-      </p>
+      <input
+        ref={inputRef}
+        type="text"
+        value={value}
+        onChange={event => onChange(event.target.value)}
+        onFocus={onFocus}
+        onKeyDown={event => {
+          if (event.key === 'Enter' && !event.shiftKey) {
+            event.preventDefault()
+            onSend?.()
+          }
+        }}
+        placeholder="Ask anything about the lecture"
+        aria-label="Ask the AI tutor"
+        className="type-b2-regular min-w-0 flex-1 bg-transparent text-white outline-none placeholder:text-gray-400"
+      />
 
       <button
         type="button"
