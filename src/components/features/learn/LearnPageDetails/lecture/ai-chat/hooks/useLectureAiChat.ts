@@ -8,8 +8,14 @@ import {
   type LectureChatMessage,
 } from '../constants/mockLectureChatMessages'
 
-export function useLectureAiChat() {
-  const [isExpanded, setIsExpanded] = useState(false)
+type UseLectureAiChatOptions = {
+  defaultExpanded?: boolean
+}
+
+export function useLectureAiChat({
+  defaultExpanded = false,
+}: UseLectureAiChatOptions = {}) {
+  const [isExpanded, setIsExpanded] = useState(() => defaultExpanded)
   const [inputValue, setInputValue] = useState('')
   const [messages, setMessages] = useState(MOCK_LECTURE_CHAT_HISTORY)
   const [isSending, setIsSending] = useState(false)

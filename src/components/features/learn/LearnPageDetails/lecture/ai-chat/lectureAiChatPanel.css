@@ -50,6 +50,19 @@
   transform: translateY(4px);
 }
 
+/* Split-layout sidebar: no roll-up animation, always visible when mounted. */
+.lecture-chat-panel--sidebar {
+  transform: none;
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.lecture-chat-panel--sidebar .lecture-chat-panel__inner {
+  opacity: 1;
+  transform: none;
+  transition: none;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .lecture-chat-panel {
     transform: none;

@@ -1,4 +1,5 @@
 export { LectureAiChatBar } from './LectureAiChatBar'
 export { LectureAiChatDock } from './LectureAiChatDock'
+export { LectureAiChatTheaterSidebar } from './LectureAiChatTheaterSidebar'
 export { LectureAiChatPanel } from './LectureAiChatPanel'
 export { useLectureAiChat } from './hooks/useLectureAiChat'

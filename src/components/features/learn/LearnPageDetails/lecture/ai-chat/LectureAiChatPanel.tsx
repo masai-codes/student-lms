@@ -20,7 +20,7 @@ import { cn } from '@/lib/utils'
 
 import './lectureAiChatPanel.css'
 
-type LectureAiChatPanelVariant = 'anchor' | 'raised'
+type LectureAiChatPanelVariant = 'anchor' | 'raised' | 'sidebar'
 
 type LectureAiChatPanelProps = {
   isOpen: boolean
@@ -53,6 +53,8 @@ export function LectureAiChatPanel({
   openingLoaderGif = LECTURE_CHAT_OPENING_LOADER_GIF,
   className,
 }: LectureAiChatPanelProps) {
+  const isSidebar = variant === 'sidebar'
+
   const { isPresent, isExpanded, isClosing, isActive } =
     useLectureChatPanelAnimation(isOpen)
 
@@ -63,44 +65,60 @@ export function LectureAiChatPanel({
   )
 
   const { listRef, panelHeightPx } = useLectureChatPanelLayout({
-    isOpen: isActive,
+    isOpen: isActive && !isSidebar,
     chatBarRef,
     messagesLength: messages.length,
     isSending,
   })
 
-  if (!isPresent) return null
+  if (!isSidebar && !isPresent) return null
+  if (isSidebar && !isOpen) return null
 
   return (
     <div
       role="dialog"
       aria-modal="false"
       aria-label="AI Tutor chat"
-      aria-hidden={!isExpanded}
+      aria-hidden={isSidebar ? !isOpen : !isExpanded}
       className={cn(
         'lecture-chat-panel flex w-full max-w-full flex-col overflow-hidden',
-        'rounded-2xl border border-white/15 bg-[#1c1c1c]',
-        'shadow-[0_-8px_32px_rgba(0,0,0,0.4)]',
-        isExpanded && 'lecture-chat-panel--open',
-        isClosing && 'lecture-chat-panel--closing',
-        variant === 'anchor' &&
-          'absolute bottom-full left-0 right-0 z-50 mb-2',
-        variant === 'raised' && 'shrink-0 rounded-b-none',
+        isSidebar
+          ? 'lecture-chat-panel--sidebar min-h-0 flex-1 rounded-none border-0 bg-[#1c1c1c] shadow-none'
+          : cn(
+              'rounded-2xl border border-white/15 bg-[#1c1c1c]',
+              'shadow-[0_-8px_32px_rgba(0,0,0,0.4)]',
+              isExpanded && 'lecture-chat-panel--open',
+              isClosing && 'lecture-chat-panel--closing',
+              variant === 'anchor' &&
+                'absolute bottom-full left-0 right-0 z-50 mb-2',
+              variant === 'raised' && 'shrink-0 rounded-b-none',
+            ),
         className,
       )}
-      style={{ height: panelHeightPx, maxHeight: panelHeightPx }}
+      style={
+        isSidebar
+          ? undefined
+          : { height: panelHeightPx, maxHeight: panelHeightPx }
+      }
     >
       <div className="lecture-chat-panel__inner flex min-h-0 flex-1 flex-col">
-        <div className="flex shrink-0 items-center justify-between border-b border-white/10 px-4 py-3">
+        <div
+          className={cn(
+            'flex shrink-0 border-b border-white/10 px-4 py-3',
+            isSidebar ? 'items-center' : 'items-center justify-between',
+          )}
+        >
           <p className="type-b1-md !text-white">AI Tutor</p>
-          <button
-            type="button"
-            onClick={onClose}
-            aria-label="Close chat"
-            className="flex size-8 items-center justify-center rounded-full text-gray-300 transition-colors hover:bg-white/10 hover:text-white"
-          >
-            <X className="size-5" weight="bold" />
-          </button>
+          {!isSidebar ? (
+            <button
+              type="button"
+              onClick={onClose}
+              aria-label="Close chat"
+              className="flex size-8 items-center justify-center rounded-full text-gray-300 transition-colors hover:bg-white/10 hover:text-white"
+            >
+              <X className="size-5" weight="bold" />
+            </button>
+          ) : null}
         </div>
 
         <div className="relative flex min-h-0 flex-1 flex-col">

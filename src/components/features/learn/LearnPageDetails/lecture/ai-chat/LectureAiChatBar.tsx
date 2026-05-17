@@ -114,7 +114,7 @@ export function LectureAiChatBar({
             event.preventDefault()
             if (canSend) onSend?.()
           }}
-          placeholder="Ask anything about the lecture"
+          placeholder="Ask anything..."
           aria-label="Ask the AI tutor"
           className="type-b2-regular max-h-[7.5rem] min-h-6 min-w-0 flex-1 resize-none overflow-y-auto bg-transparent py-1.5 text-white outline-none placeholder:text-gray-400"
         />
