@@ -1,6 +1,6 @@
 'use client'
 
-import { Rectangle } from '@phosphor-icons/react'
+import { LectureTheaterModeIcon } from './LectureTheaterModeIcon'
 
 import { cn } from '@/lib/utils'
 
@@ -10,6 +10,7 @@ type LectureTheaterModeToggleProps = {
   className?: string
 }
 
+/** YouTube-style theater control: icon-only, highlighted when theater mode is on. */
 export function LectureTheaterModeToggle({
   isTheaterMode,
   onToggle,
@@ -23,7 +24,7 @@ export function LectureTheaterModeToggle({
       aria-label={
         isTheaterMode
           ? 'Theater mode on — switch to split view with chat'
-          : 'Switch to theater mode (full-width video)'
+          : 'Theater mode'
       }
       title={
         isTheaterMode
@@ -31,15 +32,16 @@ export function LectureTheaterModeToggle({
           : 'Theater mode'
       }
       className={cn(
-        'inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5',
-        'bg-black/60 text-xs font-medium text-white backdrop-blur-sm',
-        'transition-colors hover:bg-black/80',
-        isTheaterMode && 'bg-white/20 ring-1 ring-white/50',
+        'lecture-theater-mode-toggle',
+        'flex size-9 shrink-0 items-center justify-center rounded-full',
+        'text-white transition-colors',
+        'hover:bg-white/20',
+        'focus-visible:outline focus-visible:outline-2 focus-visible:outline-white/80',
+        isTheaterMode && 'lecture-theater-mode-toggle--active',
         className,
       )}
     >
-      <Rectangle className="size-4" weight="bold" />
-      <span className="hidden sm:inline">Theater</span>
+      <LectureTheaterModeIcon isTheaterMode={isTheaterMode} />
     </button>
   )
 }
