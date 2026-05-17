@@ -21,6 +21,10 @@ type LectureAiChatDockProps = {
   onOpen: () => void
   onClose: () => void
   onSend: () => void
+  openingLoaderSweepMs?: number
+  openingLoaderSizePx?: number
+  showOpeningLoader?: boolean
+  openingLoaderGif?: string
 }
 
 /**
@@ -37,6 +41,10 @@ export function LectureAiChatDock({
   onOpen,
   onClose,
   onSend,
+  openingLoaderSweepMs,
+  openingLoaderSizePx,
+  showOpeningLoader,
+  openingLoaderGif,
 }: LectureAiChatDockProps) {
   const { anchorRef, isDocked, chatBarBlockPx } = useLectureChatDock(onDockedChange)
   const chatBarRef = useRef<HTMLDivElement>(null)
@@ -69,6 +77,10 @@ export function LectureAiChatDock({
               messages={messages}
               isSending={isSending}
               onClose={onClose}
+              openingLoaderSweepMs={openingLoaderSweepMs}
+              openingLoaderSizePx={openingLoaderSizePx}
+              showOpeningLoader={showOpeningLoader}
+              openingLoaderGif={openingLoaderGif}
             />
             {bar}
           </>
@@ -93,6 +105,10 @@ export function LectureAiChatDock({
               messages={messages}
               isSending={isSending}
               onClose={onClose}
+              openingLoaderSweepMs={openingLoaderSweepMs}
+              openingLoaderSizePx={openingLoaderSizePx}
+              showOpeningLoader={showOpeningLoader}
+              openingLoaderGif={openingLoaderGif}
             />
             <div className="py-3">{bar}</div>
           </div>

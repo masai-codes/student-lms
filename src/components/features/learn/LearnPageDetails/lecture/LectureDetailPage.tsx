@@ -3,6 +3,12 @@
 import { useState } from 'react'
 
 import { LectureAiChatDock, useLectureAiChat } from './ai-chat'
+import {
+  LECTURE_CHAT_OPENING_LOADER_ENABLED,
+  LECTURE_CHAT_OPENING_LOADER_GIF,
+  LECTURE_CHAT_OPENING_LOADER_SIZE_PX,
+  LECTURE_CHAT_OPENING_LOADER_SWEEP_MS,
+} from './ai-chat/constants/lectureAiChatUi'
 import { STATIC_LECTURE_DETAIL } from './constants/staticLectureDetail'
 import { LectureDiscussionsSection } from './discussions'
 import { useLectureHeroViewportHeight } from './hooks/useLectureHeroViewportHeight'
@@ -67,6 +73,10 @@ export function LectureDetailPage({ detail: _detail }: LectureDetailPageProps) {
             className="border-b-0"
           />
           <LectureAiChatDock
+            openingLoaderSweepMs={LECTURE_CHAT_OPENING_LOADER_SWEEP_MS}
+            openingLoaderSizePx={LECTURE_CHAT_OPENING_LOADER_SIZE_PX}
+            showOpeningLoader={LECTURE_CHAT_OPENING_LOADER_ENABLED}
+            openingLoaderGif={LECTURE_CHAT_OPENING_LOADER_GIF}
             onDockedChange={setIsChatDocked}
             isExpanded={chat.isExpanded}
             isSending={chat.isSending}

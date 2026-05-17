@@ -5,7 +5,15 @@ import { X } from '@phosphor-icons/react'
 
 import { useLectureChatPanelAnimation } from './hooks/useLectureChatPanelAnimation'
 import { useLectureChatPanelLayout } from './hooks/useLectureChatPanelLayout'
+import { useLectureChatPanelOpeningLoader } from './hooks/useLectureChatPanelOpeningLoader'
 import { LectureAiChatMessage } from './LectureAiChatMessage'
+import { LectureAiChatPanelLoader } from './LectureAiChatPanelLoader'
+import {
+  LECTURE_CHAT_OPENING_LOADER_ENABLED,
+  LECTURE_CHAT_OPENING_LOADER_GIF,
+  LECTURE_CHAT_OPENING_LOADER_SIZE_PX,
+  LECTURE_CHAT_OPENING_LOADER_SWEEP_MS,
+} from './constants/lectureAiChatUi'
 import type { LectureChatMessage } from './constants/mockLectureChatMessages'
 
 import { cn } from '@/lib/utils'
@@ -21,6 +29,14 @@ type LectureAiChatPanelProps = {
   onClose: () => void
   chatBarRef: RefObject<HTMLElement | null>
   variant?: LectureAiChatPanelVariant
+  /** Left → right gif sweep duration before the message list appears (ms). */
+  openingLoaderSweepMs?: number
+  /** Opening gif height in pixels. */
+  openingLoaderSizePx?: number
+  /** When false, messages show immediately (no sweep gif). */
+  showOpeningLoader?: boolean
+  /** Gif file in `/public` or full URL/path. */
+  openingLoaderGif?: string
   className?: string
 }
 
@@ -31,16 +47,27 @@ export function LectureAiChatPanel({
   onClose,
   chatBarRef,
   variant = 'anchor',
+  openingLoaderSweepMs = LECTURE_CHAT_OPENING_LOADER_SWEEP_MS,
+  openingLoaderSizePx = LECTURE_CHAT_OPENING_LOADER_SIZE_PX,
+  showOpeningLoader: showOpeningLoaderEnabled = LECTURE_CHAT_OPENING_LOADER_ENABLED,
+  openingLoaderGif = LECTURE_CHAT_OPENING_LOADER_GIF,
   className,
 }: LectureAiChatPanelProps) {
   const { isPresent, isExpanded, isClosing, isActive } =
     useLectureChatPanelAnimation(isOpen)
+
+  const { showOpeningLoader } = useLectureChatPanelOpeningLoader(
+    isOpen,
+    openingLoaderSweepMs,
+    showOpeningLoaderEnabled,
+  )
 
   const { listRef, panelHeightPx } = useLectureChatPanelLayout({
     isOpen: isActive,
     chatBarRef,
     messagesLength: messages.length,
     isSending,
+    isContentReady: !showOpeningLoader,
   })
 
   if (!isPresent) return null
@@ -77,16 +104,26 @@ export function LectureAiChatPanel({
           </button>
         </div>
 
-        <div
-          ref={listRef}
-          className="min-h-0 flex-1 space-y-3 overflow-y-auto overscroll-contain px-4 py-4"
-        >
-          {messages.map(message => (
-            <LectureAiChatMessage key={message.id} message={message} />
-          ))}
-          {isSending ? (
-            <p className="type-caption-regular !text-gray-400">Thinking…</p>
-          ) : null}
+        <div className="relative flex min-h-0 flex-1 flex-col">
+          {showOpeningLoader ? (
+            <LectureAiChatPanelLoader
+              sweepDurationMs={openingLoaderSweepMs}
+              sizePx={openingLoaderSizePx}
+              gif={openingLoaderGif}
+            />
+          ) : (
+            <div
+              ref={listRef}
+              className="min-h-0 flex-1 space-y-3 overflow-y-auto overscroll-contain px-4 py-4"
+            >
+              {messages.map(message => (
+                <LectureAiChatMessage key={message.id} message={message} />
+              ))}
+              {isSending ? (
+                <p className="type-caption-regular !text-gray-400">Thinking…</p>
+              ) : null}
+            </div>
+          )}
         </div>
       </div>
     </div>
