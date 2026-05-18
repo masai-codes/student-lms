@@ -48,6 +48,9 @@ export async function sendForgotPasswordEmail({
 
   const user = rows[0]
   if (!user) {
+    console.warn(
+      `[forgot-password] no user for email "${normalizedEmail}" — returning generic success without sending`,
+    )
     return
   }
 
@@ -60,6 +63,12 @@ export async function sendForgotPasswordEmail({
   const resetLink = buildResetLink(user.role, token, portal)
 
   if (!resetLink) {
+    console.warn(
+      `[forgot-password] could not build reset link for "${normalizedEmail}" ` +
+        `(role="${user.role}", portal="${portal}"). ` +
+        `Check role is admin/student and the matching base URL env var is set ` +
+        `(ADMIN_FRONTEND_URL / FRONTEND_URL / IHUB_STUDENT_FRONTEND_URL).`,
+    )
     return
   }
 

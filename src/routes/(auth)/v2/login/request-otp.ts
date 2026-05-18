@@ -16,8 +16,8 @@ function statusForSendOtpError(code: SendOtpError['code']): number {
   switch (code) {
     case 'USER_NOT_FOUND':
       return 404
-    case 'NO_MOBILE_ON_RECORD':
-      return 422
+    case 'RATE_LIMITED':
+      return 429
   }
 }
 
