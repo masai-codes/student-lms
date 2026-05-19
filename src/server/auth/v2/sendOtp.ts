@@ -1,6 +1,6 @@
 import { randomInt, randomUUID } from 'node:crypto'
 import { hash } from 'bcryptjs'
-import { eq } from 'drizzle-orm'
+import { and, eq, gte } from 'drizzle-orm'
 import { db } from '@/db'
 import { otpCodes, users } from '@/db/schema'
 import { getEmailPortal, type EmailPortal } from '@/server/auth/v2/isRequestFromIHub'
@@ -12,6 +12,11 @@ export type OtpChannel = 'email' | 'sms' | 'whatsapp'
 
 const OTP_TTL_MINUTES = 10
 const BCRYPT_COST = 10
+
+const PER_MINUTE_CAP = 4
+const MINUTE_WINDOW_SECONDS = 60
+const HOURLY_CAP = 10
+const HOURLY_WINDOW_SECONDS = 3600
 
 export type SendOtpInput = {
   identifier: string
@@ -26,7 +31,7 @@ export type SendOtpResult = {
 
 export class SendOtpError extends Error {
   constructor(
-    public code: 'USER_NOT_FOUND',
+    public code: 'USER_NOT_FOUND' | 'RATE_LIMITED',
     message: string,
   ) {
     super(message)
@@ -50,6 +55,41 @@ function generateOtp(): string {
 
 function toMysqlDatetime(date: Date): string {
   return date.toISOString().slice(0, 19).replace('T', ' ')
+}
+
+// Window checks key off expires_at, not created_at: we write expires_at in UTC
+// via toMysqlDatetime, whereas created_at is set by the DB clock (unknown server
+// timezone) and would skew the comparison. expires_at == sendTime + OTP TTL, so
+// "sent within X seconds" == "expires_at >= now + TTL - X".
+async function assertSendAllowed(identifier: string): Promise<void> {
+  const ttlMs = OTP_TTL_MINUTES * 60 * 1000
+  const now = Date.now()
+  const hourWindowCutoff = toMysqlDatetime(
+    new Date(now + ttlMs - HOURLY_WINDOW_SECONDS * 1000),
+  )
+  const minuteWindowCutoff = toMysqlDatetime(
+    new Date(now + ttlMs - MINUTE_WINDOW_SECONDS * 1000),
+  )
+
+  const recent = await db
+    .select({ expiresAt: otpCodes.expiresAt })
+    .from(otpCodes)
+    .where(and(eq(otpCodes.identifier, identifier), gte(otpCodes.expiresAt, hourWindowCutoff)))
+
+  if (recent.length >= HOURLY_CAP) {
+    throw new SendOtpError(
+      'RATE_LIMITED',
+      'Too many OTP requests. Please try again in an hour.',
+    )
+  }
+
+  const lastMinuteCount = recent.filter((r) => r.expiresAt >= minuteWindowCutoff).length
+  if (lastMinuteCount >= PER_MINUTE_CAP) {
+    throw new SendOtpError(
+      'RATE_LIMITED',
+      'Too many OTP requests. Please wait a minute and try again.',
+    )
+  }
 }
 
 async function persistOtp({
@@ -84,6 +124,8 @@ export async function sendOtp({
 }: SendOtpInput): Promise<SendOtpResult> {
   const normalized = identifier.trim().toLowerCase()
   const isEmail = isEmailIdentifier(normalized)
+
+  await assertSendAllowed(normalized)
 
   const userRows = await db
     .select({ id: users.id, email: users.email, mobile: users.mobile })
