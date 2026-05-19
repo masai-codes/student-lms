@@ -10,7 +10,8 @@ import { isMasaiverseApp } from '@/constants/masaiverseDrawerUi'
 import { layoutMainClasses } from '@/lib/layout'
 import { fetchCurrentUser } from '@/server/auth/fetchCurrentUser'
 import { initClarity, setCurrentUserForTracking } from '@/utils/tracking'
-import { getOldStudentUiUrlForPath } from '@/utils/authRedirect'
+import { getLegacyProtectedRouteRedirectUrl } from '@/utils/authRedirect'
+import { getNewStudentUiUrl } from '@/utils/viteEnv'
 
 export const Route = createFileRoute('/(protected)/_layout')({
   beforeLoad: async ({ location }) => {
@@ -21,8 +22,7 @@ export const Route = createFileRoute('/(protected)/_layout')({
     const user = await fetchCurrentUser()
 
     if (isMasaiverseRoute && token) {
-      const newStudentUiBase =
-        import.meta.env.VITE_NEW_STUDENT_UI_URL?.trim().replace(/\/$/, '')
+      const newStudentUiBase = getNewStudentUiUrl()?.replace(/\/$/, '')
       const redirectSearchParams = new URLSearchParams(requestUrl.searchParams)
       // Token is only needed for legacy app redirect auth flow.
       redirectSearchParams.delete('token')
@@ -45,7 +45,7 @@ export const Route = createFileRoute('/(protected)/_layout')({
     }
 
     if (!isMasaiverseRoute) {
-      const oldUiUrl = getOldStudentUiUrlForPath(location.href)
+      const oldUiUrl = getLegacyProtectedRouteRedirectUrl(location.href)
       if (oldUiUrl) {
         throw redirect({ href: oldUiUrl })
       }

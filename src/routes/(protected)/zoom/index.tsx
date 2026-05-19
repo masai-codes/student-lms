@@ -1,7 +1,7 @@
 import { createFileRoute, redirect } from '@tanstack/react-router'
 import { ZoomMeeting } from '@/components/features/zoom'
 import { fetchCurrentUser } from '@/server/auth/fetchCurrentUser'
-import { getOldStudentUiUrlForPath } from '@/utils/authRedirect'
+import { getLegacyProtectedRouteRedirectUrl } from '@/utils/authRedirect'
 
 export const Route = createFileRoute('/(protected)/zoom/')({
   beforeLoad: async ({ location }) => {
@@ -9,7 +9,7 @@ export const Route = createFileRoute('/(protected)/zoom/')({
     if (!user) {
       throw redirect({ to: '/signin' })
     }
-    const oldUiUrl = getOldStudentUiUrlForPath(location.href)
+    const oldUiUrl = getLegacyProtectedRouteRedirectUrl(location.href)
     if (oldUiUrl) {
       throw redirect({ href: oldUiUrl })
     }

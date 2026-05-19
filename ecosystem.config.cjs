@@ -8,9 +8,15 @@ const { parsed: dotEnv = {} } = dotenv.config({
 const sharedEnv = {
   ...dotEnv,
   NODE_ENV: 'production',
+  /** Keep v2 as the main app; set `true` only to send all protected routes to legacy LMS. */
+  VITE_ENABLE_LEGACY_STUDENT_REDIRECT: 'false',
 }
 
-/** iHub PM2 runtime env (server-only; VITE_* are set at build time in `build:ihub`) */
+/** Per-origin URLs (PM2 runtime; used by server + optional client via SSR). */
+const ihubEnv = {
+  VITE_OLD_STUDENT_UI_URL: 'https://ihubiitrcourses.iasam.dev',
+  VITE_NEW_STUDENT_UI_URL: 'https://students-demo-v2.ihubiitrcourses.org',
+}
 
 module.exports = {
   apps: [
@@ -32,8 +38,7 @@ module.exports = {
         ...sharedEnv,
         PORT: 7091,
         VITE_APP_ORIGIN: 'ihub',
-        VITE_OLD_STUDENT_UI_URL: 'https://ihubiitrcourses.iasam.dev',
-        VITE_NEW_STUDENT_UI_URL: 'https://students-demo-v2.ihubiitrcourses.org',
+        ...ihubEnv,
       },
     },
   ],
