@@ -8,8 +8,6 @@ const { parsed: dotEnv = {} } = dotenv.config({
 const sharedEnv = {
   ...dotEnv,
   NODE_ENV: 'production',
-  /** Keep v2 as the main app; set `true` only to send all protected routes to legacy LMS. */
-  VITE_ENABLE_LEGACY_STUDENT_REDIRECT: 'false',
 }
 
 /** Per-origin URLs (PM2 runtime; used by server + optional client via SSR). */
