@@ -1,5 +1,6 @@
 import { SESv2Client, SendEmailCommand } from '@aws-sdk/client-sesv2'
 import type { EmailPortal } from '@/server/auth/v2/isRequestFromIHub'
+import { getNewStudentUiUrl } from '@/utils/viteEnv'
 
 const MASAI_SOURCE = 'operations@masaischool.com'
 const IHUB_SOURCE = 'notify-lms@ihubiitrcourses.org'
@@ -13,10 +14,7 @@ function resolveSourceEmail(portal: EmailPortal): string {
 }
 
 function getConfiguredStudentUiUrl(): string {
-  const value =
-    process.env.VITE_NEW_STUDENT_UI_URL ??
-    (import.meta.env.VITE_NEW_STUDENT_UI_URL as string | undefined)
-  return (value ?? '').trim().replace(/\/$/, '')
+  return (getNewStudentUiUrl() ?? '').trim().replace(/\/$/, '')
 }
 
 export function getStudentPasswordResetBaseUrl(portal: EmailPortal): string {
