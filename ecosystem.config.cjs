@@ -1,5 +1,6 @@
 const path = require('path')
 const dotenv = require('dotenv')
+const origins = require('./origins.config.cjs')
 
 const { parsed: dotEnv = {} } = dotenv.config({
   path: path.join(__dirname, '.env'),
@@ -8,12 +9,6 @@ const { parsed: dotEnv = {} } = dotenv.config({
 const sharedEnv = {
   ...dotEnv,
   NODE_ENV: 'production',
-}
-
-/** Per-origin URLs (PM2 runtime; used by server + optional client via SSR). */
-const ihubEnv = {
-  VITE_OLD_STUDENT_UI_URL: 'https://ihubiitrcourses.iasam.dev',
-  VITE_NEW_STUDENT_UI_URL: 'https://students-demo-v2.ihubiitrcourses.org',
 }
 
 module.exports = {
@@ -25,7 +20,7 @@ module.exports = {
       env: {
         ...sharedEnv,
         PORT: 7090,
-        VITE_APP_ORIGIN: 'masai',
+        ...origins.masai,
       },
     },
     {
@@ -35,8 +30,7 @@ module.exports = {
       env: {
         ...sharedEnv,
         PORT: 7091,
-        VITE_APP_ORIGIN: 'ihub',
-        ...ihubEnv,
+        ...origins.ihub,
       },
     },
   ],
