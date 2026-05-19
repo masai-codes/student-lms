@@ -16,6 +16,7 @@ import { getNewStudentUiUrl } from '@/utils/viteEnv'
 export const Route = createFileRoute('/(protected)/_layout')({
   beforeLoad: async ({ location }) => {
     const isMasaiverseRoute = location.pathname.startsWith('/masaiverse')
+    const isSigninRoute = location.pathname === '/signin'
     const requestUrl = new URL(location.href, 'http://localhost')
     const token = requestUrl.searchParams.get('token')
 
@@ -43,8 +44,8 @@ export const Route = createFileRoute('/(protected)/_layout')({
     if (!user) {
       throw redirect({ to: '/signin' })
     }
-
-    if (!isMasaiverseRoute) {
+// also for homepage we dont want to do legacy redirect and  for /sign also
+    if (!isMasaiverseRoute && !isSigninRoute) {
       const oldUiUrl = getLegacyProtectedRouteRedirectUrl(location.href)
       if (oldUiUrl) {
         throw redirect({ href: oldUiUrl })
