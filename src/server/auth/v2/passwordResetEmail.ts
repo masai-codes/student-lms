@@ -12,10 +12,17 @@ function resolveSourceEmail(portal: EmailPortal): string {
   return portal === 'ihub' ? IHUB_SOURCE : MASAI_SOURCE
 }
 
+function getConfiguredStudentUiUrl(): string {
+  const value =
+    process.env.VITE_NEW_STUDENT_UI_URL ??
+    (import.meta.env.VITE_NEW_STUDENT_UI_URL as string | undefined)
+  return (value ?? '').trim().replace(/\/$/, '')
+}
+
 export function getStudentPasswordResetBaseUrl(portal: EmailPortal): string {
-  const fromEnv = (process.env.FRONTEND_URL || '').replace(/\/$/, '')
+  const fromEnv = getConfiguredStudentUiUrl()
   if (fromEnv) return fromEnv
-  // Fallback when FRONTEND_URL is unset (each PM2 app should set it per deploy).
+  // Fallback when VITE_NEW_STUDENT_UI_URL is unset (each PM2 app should set it per deploy).
   return portal === 'ihub' ? 'https://courses.ihubiitrcourses.org' : ''
 }
 

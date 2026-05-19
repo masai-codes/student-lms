@@ -60,7 +60,7 @@ export async function sendForgotPasswordEmail({
     console.warn(
       `[forgot-password] could not build reset link for "${normalizedEmail}" ` +
         `(role="${user.role}", portal="${portal}"). ` +
-        `Check role is student/admin and FRONTEND_URL is set on this deploy.`,
+        `Check role is student/admin and VITE_NEW_STUDENT_UI_URL is set on this deploy.`,
     )
     return
   }
