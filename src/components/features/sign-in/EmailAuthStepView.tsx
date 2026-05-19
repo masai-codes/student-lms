@@ -2,6 +2,7 @@ import { ArrowLeft } from '@phosphor-icons/react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { RememberMeField } from '@/components/features/sign-in/RememberMeField'
 import { SignInNotice } from '@/components/features/sign-in/SignInNotice'
 
 type Props = {
@@ -9,11 +10,13 @@ type Props = {
   authMode: 'password' | 'otp'
   password: string
   otp: string
+  rememberMe: boolean
   error?: string
   info?: string
   onBack: () => void
   onPasswordChange: (value: string) => void
   onOtpChange: (value: string) => void
+  onRememberMeChange: (checked: boolean) => void
   onUseOtp: () => void
   onUsePassword: () => void
   onForgotPassword: () => void
@@ -27,11 +30,13 @@ export function EmailAuthStepView({
   authMode,
   password,
   otp,
+  rememberMe,
   error,
   info,
   onBack,
   onPasswordChange,
   onOtpChange,
+  onRememberMeChange,
   onUseOtp,
   onUsePassword,
   onForgotPassword,
@@ -130,6 +135,12 @@ export function EmailAuthStepView({
           />
         </div>
       )}
+
+      <RememberMeField
+        id="signin-email-remember-me"
+        checked={rememberMe}
+        onCheckedChange={onRememberMeChange}
+      />
 
       {error ? (
         <p

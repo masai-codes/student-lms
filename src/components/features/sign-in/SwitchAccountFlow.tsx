@@ -12,7 +12,6 @@ import {
 } from '@/components/features/sign-in/signInAuthEvents'
 import {
   type LinkedAccount,
-  type VerifyOtpResult,
   V2AuthRequestError,
   v2FetchLinkedAccounts,
   v2UseAccount,
@@ -35,7 +34,7 @@ export function SwitchAccountFlow() {
   const [loading, setLoading] = useState(true)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | undefined>()
-  const [pendingPhoneOtpResult] = useState<VerifyOtpResult | null>(() => takePendingPhoneOtpSignIn())
+  const [pendingPhoneOtpSignIn] = useState(() => takePendingPhoneOtpSignIn())
 
   const redirectAfterAccountSelection = useCallback(
     (context: { reason: string; extra: Record<string, unknown> }) => {
@@ -101,20 +100,23 @@ export function SwitchAccountFlow() {
 
       try {
         if (account.isActive) {
-          if (pendingPhoneOtpResult) {
-            dispatchSignInSuccessEvent('sso-v2', 'phone-otp', pendingPhoneOtpResult)
+          if (pendingPhoneOtpSignIn) {
+            dispatchSignInSuccessEvent('sso-v2', 'phone-otp', pendingPhoneOtpSignIn.response)
           }
           redirectAfterAccountSelection({
             reason: 'Continue with currently active account',
             extra: {
-              method: pendingPhoneOtpResult ? 'phone-otp' : 'switch-account-existing-session',
+              method: pendingPhoneOtpSignIn ? 'phone-otp' : 'switch-account-existing-session',
               userId: account.user.id,
             },
           })
           return
         }
 
-        const response = await v2UseAccount({ sessionId: account.sessionId })
+        const response = await v2UseAccount({
+          sessionId: account.sessionId,
+          rememberMe: pendingPhoneOtpSignIn?.rememberMe === true,
+        })
         dispatchSignInSuccessEvent('sso-v2', 'phone-use-account', response)
         redirectAfterAccountSelection({
           reason: 'Linked account selected from switch-account page',
@@ -127,7 +129,7 @@ export function SwitchAccountFlow() {
         setBusy(false)
       }
     },
-    [pendingPhoneOtpResult, redirectAfterAccountSelection],
+    [pendingPhoneOtpSignIn, redirectAfterAccountSelection],
   )
 
   if (loading) {

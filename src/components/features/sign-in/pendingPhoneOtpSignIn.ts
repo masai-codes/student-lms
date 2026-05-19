@@ -2,19 +2,28 @@ import type { VerifyOtpResult } from '@/components/features/sign-in/v2AuthClient
 
 const STORAGE_KEY = 'student-lms.pending-phone-otp-sign-in'
 
-export function savePendingPhoneOtpSignIn(response: VerifyOtpResult): void {
+type PendingPhoneOtpSignIn = {
+  response: VerifyOtpResult
+  rememberMe: boolean
+}
+
+export function savePendingPhoneOtpSignIn(
+  response: VerifyOtpResult,
+  rememberMe = false,
+): void {
   if (typeof window === 'undefined') {
     return
   }
 
   try {
-    window.sessionStorage.setItem(STORAGE_KEY, JSON.stringify(response))
+    const payload: PendingPhoneOtpSignIn = { response, rememberMe }
+    window.sessionStorage.setItem(STORAGE_KEY, JSON.stringify(payload))
   } catch {
     // Ignore storage issues; redirect flow can still continue without this context.
   }
 }
 
-export function takePendingPhoneOtpSignIn(): VerifyOtpResult | null {
+export function takePendingPhoneOtpSignIn(): PendingPhoneOtpSignIn | null {
   if (typeof window === 'undefined') {
     return null
   }
@@ -25,7 +34,14 @@ export function takePendingPhoneOtpSignIn(): VerifyOtpResult | null {
     if (!raw) {
       return null
     }
-    return JSON.parse(raw) as VerifyOtpResult
+    const parsed = JSON.parse(raw) as PendingPhoneOtpSignIn | VerifyOtpResult
+    if (parsed && typeof parsed === 'object' && 'response' in parsed) {
+      return {
+        response: parsed.response,
+        rememberMe: parsed.rememberMe === true,
+      }
+    }
+    return { response: parsed as VerifyOtpResult, rememberMe: false }
   } catch {
     return null
   }

@@ -3,6 +3,7 @@ import { ArrowLeft } from '@phosphor-icons/react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { RememberMeField } from '@/components/features/sign-in/RememberMeField'
 import { SignInNotice } from '@/components/features/sign-in/SignInNotice'
 
 const RESEND_OTP_COOLDOWN_SEC = 30
@@ -12,10 +13,12 @@ type Props = {
   delivery: 'sms' | 'whatsapp'
   resendCount: number
   otp: string
+  rememberMe: boolean
   error?: string
   info?: string
   onBack: () => void
   onOtpChange: (value: string) => void
+  onRememberMeChange: (checked: boolean) => void
   onResend: () => void
   onSubmit: () => void
   resendBusy?: boolean
@@ -27,10 +30,12 @@ export function PhoneOtpStepView({
   delivery,
   resendCount,
   otp,
+  rememberMe,
   error,
   info,
   onBack,
   onOtpChange,
+  onRememberMeChange,
   onResend,
   onSubmit,
   resendBusy = false,
@@ -88,6 +93,12 @@ export function PhoneOtpStepView({
           aria-invalid={Boolean(error)}
         />
       </div>
+
+      <RememberMeField
+        id="signin-phone-remember-me"
+        checked={rememberMe}
+        onCheckedChange={onRememberMeChange}
+      />
 
       {error ? (
         <p className="rounded-md border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive" role="alert">

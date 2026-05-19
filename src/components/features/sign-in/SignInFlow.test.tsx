@@ -109,6 +109,39 @@ describe('SignInFlow', () => {
     })
   })
 
+  it('sends rememberMe on email password sign-in when checked', async () => {
+    const fetchMock = globalThis.fetch as ReturnType<typeof vi.fn>
+
+    render(<SignInFlow />)
+
+    fireEvent.change(screen.getByLabelText(/email or mobile/i), {
+      target: { value: 'demo@example.com' },
+    })
+    fireEvent.click(screen.getByRole('button', { name: /next/i }))
+    expect(await screen.findByText('demo@example.com')).toBeTruthy()
+
+    fireEvent.click(screen.getByLabelText(/remember me/i))
+    fireEvent.change(screen.getByLabelText(/^password$/i), {
+      target: { value: 'hunter2' },
+    })
+    fireEvent.click(screen.getByRole('button', { name: /^sign in$/i }))
+
+    await waitFor(() => {
+      expect(navigateMock).toHaveBeenCalledWith({ to: '/' })
+    })
+
+    const loginCall = fetchMock.mock.calls.find(([input]) => {
+      const url = typeof input === 'string' ? input : input instanceof URL ? input.href : input.url
+      return url.includes('/v2/login/') && !url.includes('request-otp') && !url.includes('verify-otp')
+    })
+    expect(loginCall).toBeTruthy()
+    expect(JSON.parse(String(loginCall?.[1]?.body))).toMatchObject({
+      email: 'demo@example.com',
+      password: 'hunter2',
+      rememberMe: true,
+    })
+  })
+
   it('walks through email password path and navigates home', async () => {
     const dispatchSpy = vi.spyOn(window, 'dispatchEvent')
     ;(window as Window & { dataLayer?: Array<Record<string, unknown>> }).dataLayer = []

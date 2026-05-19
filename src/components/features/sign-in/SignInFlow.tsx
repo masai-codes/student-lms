@@ -56,6 +56,7 @@ export function SignInFlow() {
   const [submitBusy, setSubmitBusy] = useState(false)
   const [phoneResendBusy, setPhoneResendBusy] = useState(false)
   const [forgotBusy, setForgotBusy] = useState(false)
+  const [rememberMe, setRememberMe] = useState(false)
 
   const goHomeAfterSignIn = useCallback(() => {
     void navigate({ to: '/' })
@@ -162,12 +163,14 @@ export function SignInFlow() {
           const response = await v2LoginWithPassword({
             email: state.email,
             password: state.password,
+            rememberMe,
           })
           dispatchSignInSuccessEvent('sso-v2', 'email-password', response)
         } else {
           const response = await v2VerifyOtp({
             identifier: state.email,
             otp: state.otp.trim(),
+            rememberMe,
           })
           dispatchSignInSuccessEvent('sso-v2', 'email-otp', response)
         }
@@ -195,10 +198,11 @@ export function SignInFlow() {
         const response = await v2VerifyOtp({
           identifier: state.digits,
           otp: state.otp.trim(),
+          rememberMe,
         })
         const linkedAccountsResult = await v2FetchLinkedAccounts()
         if (linkedAccountsResult.accounts.length >= 2) {
-          savePendingPhoneOtpSignIn(response)
+          savePendingPhoneOtpSignIn(response, rememberMe)
           redirectToSwitchAccountPage(getRedirectToSearchParam())
           return
         }
@@ -210,7 +214,7 @@ export function SignInFlow() {
         setSubmitBusy(false)
       }
     }
-  }, [completePhoneRedirect, completePrimarySignIn, state])
+  }, [completePhoneRedirect, completePrimarySignIn, rememberMe, state])
 
   const onForgotSubmit = useCallback(async () => {
     if (state.step !== 'forgot') return
@@ -267,11 +271,13 @@ export function SignInFlow() {
           authMode={state.authMode}
           password={state.password}
           otp={state.otp}
+          rememberMe={rememberMe}
           error={state.error}
           info={state.info}
           onBack={() => dispatch({ type: 'back_to_identifier' })}
           onPasswordChange={(value) => dispatch({ type: 'email_password', value })}
           onOtpChange={(value) => dispatch({ type: 'email_otp', value })}
+          onRememberMeChange={setRememberMe}
           onUseOtp={onEmailRequestOtp}
           onUsePassword={() => dispatch({ type: 'email_use_password_mock' })}
           onForgotPassword={() => dispatch({ type: 'email_go_forgot' })}
@@ -287,10 +293,12 @@ export function SignInFlow() {
           delivery={state.delivery}
           resendCount={state.resendCount}
           otp={state.otp}
+          rememberMe={rememberMe}
           error={state.error}
           info={state.info}
           onBack={() => dispatch({ type: 'back_to_identifier' })}
           onOtpChange={(value) => dispatch({ type: 'phone_otp', value })}
+          onRememberMeChange={setRememberMe}
           onResend={onPhoneResend}
           onSubmit={onSubmitFinal}
           resendBusy={phoneResendBusy}
