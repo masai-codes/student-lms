@@ -104,6 +104,7 @@ export async function v2LoginWithPassword(input: {
 
 export type RequestOtpResult = {
   channel: 'email' | 'sms' | 'whatsapp'
+  otpSessionId: string
 }
 
 export async function v2RequestOtp(input: {
@@ -128,12 +129,12 @@ export type LinkedAccount = {
 }
 
 export async function v2VerifyOtp(input: {
-  identifier: string
+  otpSessionId: string
   otp: string
   rememberMe?: boolean
 }): Promise<VerifyOtpResult> {
   return postJson<VerifyOtpResult>('/v2/login/verify-otp', {
-    identifier: input.identifier,
+    otpSessionId: input.otpSessionId,
     otp: input.otp,
     rememberMe: input.rememberMe === true,
   })

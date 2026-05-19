@@ -59,7 +59,7 @@ describe('SignInFlow', () => {
     getRedirectToSearchParamMock.mockReturnValue(null)
     stubFetchJson(async (url) => {
       if (url.includes('/v2/login/request-otp')) {
-        return new Response(JSON.stringify({ channel: 'sms' }), {
+        return new Response(JSON.stringify({ channel: 'sms', otpSessionId: 'otp-session-1' }), {
           status: 200,
           headers: { 'Content-Type': 'application/json' },
         })
@@ -305,7 +305,7 @@ describe('SignInFlow', () => {
 
     stubFetchJson(async (url) => {
       if (url.includes('/v2/login/request-otp')) {
-        return new Response(JSON.stringify({ channel: 'sms' }), {
+        return new Response(JSON.stringify({ channel: 'sms', otpSessionId: 'otp-session-1' }), {
           status: 200,
           headers: { 'Content-Type': 'application/json' },
         })
