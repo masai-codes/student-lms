@@ -9,6 +9,9 @@ export function getSignInSubmitError(state: SignInState): string | null {
     if (state.authMode === 'password' && state.password.trim().length === 0) {
       return 'Enter your password.'
     }
+    if (state.authMode === 'otp' && !state.otpSessionId) {
+      return 'Request a sign-in code first.'
+    }
     if (state.authMode === 'otp' && state.otp.trim().length === 0) {
       return 'Enter the code from your email.'
     }

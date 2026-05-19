@@ -54,6 +54,7 @@ describe('signInReducer', () => {
       displayPhone: '9988776655',
       digits: '9988776655',
       delivery: 'sms',
+      otpSessionId: 'otp-session-1',
       info: 'We sent a code.',
     })
     expect(s).toMatchObject({
@@ -61,6 +62,7 @@ describe('signInReducer', () => {
       displayPhone: '9988776655',
       digits: '9988776655',
       delivery: 'sms',
+      otpSessionId: 'otp-session-1',
       otp: '',
       resendCount: 0,
       info: 'We sent a code.',
@@ -81,6 +83,7 @@ describe('signInReducer', () => {
       displayPhone: '9000000000',
       digits: '9000000000',
       delivery: 'whatsapp',
+      otpSessionId: 'otp-session-1',
       info: 'sent',
     })
     if (phone.step !== 'phone') throw new Error('expected phone')
@@ -96,15 +99,29 @@ describe('signInReducer', () => {
       { type: 'identifier_submit' },
     )
     if (s.step !== 'email') throw new Error('expected email')
-    s = signInReducer(s, { type: 'email_otp_requested', info: 'Code sent to user@example.com' })
+    s = signInReducer(s, {
+      type: 'email_otp_requested',
+      otpSessionId: 'otp-session-email',
+      info: 'Code sent to user@example.com',
+    })
     expect(s.authMode).toBe('otp')
+    expect(s.otpSessionId).toBe('otp-session-email')
     expect(s.info).toBe('Code sent to user@example.com')
     s = signInReducer(s, { type: 'email_use_password_mock' })
     expect(s.authMode).toBe('password')
     expect(s.info).toBeUndefined()
-    s = signInReducer(s, { type: 'email_otp_requested', info: 'Code sent again' })
-    s = signInReducer(s, { type: 'email_resend_ok', info: 'resent' })
+    s = signInReducer(s, {
+      type: 'email_otp_requested',
+      otpSessionId: 'otp-session-email-2',
+      info: 'Code sent again',
+    })
+    s = signInReducer(s, {
+      type: 'email_resend_ok',
+      otpSessionId: 'otp-session-email-3',
+      info: 'resent',
+    })
     if (s.step !== 'email') throw new Error('expected email')
+    expect(s.otpSessionId).toBe('otp-session-email-3')
     expect(s.resendCount).toBe(1)
     expect(s.info).toBe('resent')
   })
@@ -115,14 +132,21 @@ describe('signInReducer', () => {
       displayPhone: '9000000000',
       digits: '9000000000',
       delivery: 'whatsapp',
+      otpSessionId: 'otp-session-1',
       info: 'first',
     })
     if (s.step !== 'phone') throw new Error('expected phone')
     s = signInReducer(s, { type: 'phone_otp', value: 'abcd' })
     expect(s.otp).toBe('abcd')
-    s = signInReducer(s, { type: 'phone_resend_ok', info: 'resent' })
+    s = signInReducer(s, {
+      type: 'phone_resend_ok',
+      otpSessionId: 'otp-session-2',
+      delivery: 'sms',
+      info: 'resent',
+    })
+    expect(s.otpSessionId).toBe('otp-session-2')
     expect(s.resendCount).toBe(1)
-    expect(s.delivery).toBe('whatsapp')
+    expect(s.delivery).toBe('sms')
     expect(s.info).toBe('resent')
   })
 
