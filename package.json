@@ -9,7 +9,7 @@
     "dev": "CHOKIDAR_USEPOLLING=1 CHOKIDAR_INTERVAL=200 vite dev --port 3002",
     "build": "NODE_OPTIONS=--max_old_space_size=6144 vite build",
     "build:masai": "VITE_APP_ORIGIN=masai npm run build && rm -rf .output-masai && cp -R .output .output-masai",
-    "build:ihub": "VITE_APP_ORIGIN=ihub npm run build && rm -rf .output-ihub && cp -R .output .output-ihub",
+    "build:ihub": "VITE_APP_ORIGIN=ihub VITE_OLD_STUDENT_UI_URL=https://ihubiitrcourses.iasam.dev VITE_NEW_STUDENT_UI_URL=https://students-demo-v2.ihubiitrcourses.org npm run build && rm -rf .output-ihub && cp -R .output .output-ihub",
     "build:origins": "npm run build:masai && npm run build:ihub",
     "start": "node .output/server/index.mjs",
     "pm2:start": "pm2 startOrRestart ecosystem.config.cjs",

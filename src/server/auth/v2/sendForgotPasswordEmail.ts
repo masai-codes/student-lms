@@ -18,15 +18,9 @@ function getJwtSecret(): string {
 }
 
 function buildResetLink(role: string | null, token: string, portal: 'masai' | 'ihub'): string | undefined {
-  if (role === 'admin') {
-    const base = (process.env.ADMIN_FRONTEND_URL ?? '').replace(/\/$/, '')
-    return base ? `${base}/reset-password/?token=${token}` : undefined
-  }
-  if (role === 'student') {
-    const base = getStudentPasswordResetBaseUrl(portal)
-    return base ? `${base}/reset-password/${token}` : undefined
-  }
-  return undefined
+  if (role !== 'student' && role !== 'admin') return undefined
+  const base = getStudentPasswordResetBaseUrl(portal)
+  return base ? `${base}/reset-password/${token}` : undefined
 }
 
 export type SendForgotPasswordEmailInput = {
@@ -66,8 +60,7 @@ export async function sendForgotPasswordEmail({
     console.warn(
       `[forgot-password] could not build reset link for "${normalizedEmail}" ` +
         `(role="${user.role}", portal="${portal}"). ` +
-        `Check role is admin/student and the matching base URL env var is set ` +
-        `(ADMIN_FRONTEND_URL / FRONTEND_URL / IHUB_STUDENT_FRONTEND_URL).`,
+        `Check role is student/admin and FRONTEND_URL is set on this deploy.`,
     )
     return
   }

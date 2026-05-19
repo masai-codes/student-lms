@@ -13,10 +13,10 @@ function resolveSourceEmail(portal: EmailPortal): string {
 }
 
 export function getStudentPasswordResetBaseUrl(portal: EmailPortal): string {
-  if (portal === 'ihub') {
-    return (process.env.IHUB_STUDENT_FRONTEND_URL || 'https://courses.ihubiitrcourses.org').replace(/\/$/, '')
-  }
-  return (process.env.FRONTEND_URL || '').replace(/\/$/, '')
+  const fromEnv = (process.env.FRONTEND_URL || '').replace(/\/$/, '')
+  if (fromEnv) return fromEnv
+  // Fallback when FRONTEND_URL is unset (each PM2 app should set it per deploy).
+  return portal === 'ihub' ? 'https://courses.ihubiitrcourses.org' : ''
 }
 
 function buildHtml(name: string, link: string, portal: EmailPortal): string {
