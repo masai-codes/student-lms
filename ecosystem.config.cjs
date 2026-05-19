@@ -10,6 +10,11 @@ const sharedEnv = {
   NODE_ENV: 'production',
 }
 
+/** iHub PM2 runtime env (server-only; VITE_* are set at build time in `build:ihub`) */
+const ihubRuntimeEnv = {
+  FRONTEND_URL: 'https://students-demo-v2.ihubiitrcourses.org',
+}
+
 module.exports = {
   apps: [
     {
@@ -30,6 +35,7 @@ module.exports = {
         ...sharedEnv,
         PORT: 7091,
         VITE_APP_ORIGIN: 'ihub',
+        ...ihubRuntimeEnv,
       },
     },
   ],
