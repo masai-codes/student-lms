@@ -23,7 +23,7 @@ import {
   phoneOtpInfoForChannel,
   signInReducer,
 } from '@/components/features/sign-in/signInReducer'
-import { emailOtpSentBody, phoneOtpResentBody } from '@/components/features/sign-in/signInMessages'
+import { emailOtpResentBody, emailOtpSentBody, phoneOtpResentBody } from '@/components/features/sign-in/signInMessages'
 import { getSignInSubmitError } from '@/components/features/sign-in/signInSubmit'
 import {
   V2AuthRequestError,
@@ -125,6 +125,20 @@ export function SignInFlow() {
     try {
       await v2RequestOtp({ identifier: state.email, isResend: false })
       dispatch({ type: 'email_otp_requested', info: emailOtpSentBody(state.email) })
+    } catch (err) {
+      dispatch({ type: 'email_set_error', message: formatAuthError(err) })
+    } finally {
+      setEmailOtpBusy(false)
+    }
+  }, [state])
+
+  const onEmailResend = useCallback(async () => {
+    if (state.step !== 'email' || state.authMode !== 'otp') return
+    setEmailOtpBusy(true)
+    dispatch({ type: 'email_clear_error' })
+    try {
+      await v2RequestOtp({ identifier: state.email, isResend: true })
+      dispatch({ type: 'email_resend_ok', info: emailOtpResentBody(state.email) })
     } catch (err) {
       dispatch({ type: 'email_set_error', message: formatAuthError(err) })
     } finally {
@@ -271,6 +285,7 @@ export function SignInFlow() {
           authMode={state.authMode}
           password={state.password}
           otp={state.otp}
+          resendCount={state.resendCount}
           rememberMe={rememberMe}
           error={state.error}
           info={state.info}
@@ -279,11 +294,13 @@ export function SignInFlow() {
           onOtpChange={(value) => dispatch({ type: 'email_otp', value })}
           onRememberMeChange={setRememberMe}
           onUseOtp={onEmailRequestOtp}
+          onResend={onEmailResend}
           onUsePassword={() => dispatch({ type: 'email_use_password_mock' })}
           onForgotPassword={() => dispatch({ type: 'email_go_forgot' })}
           onSubmit={onSubmitFinal}
           submitDisabled={submitBusy}
           sendOtpDisabled={emailOtpBusy}
+          resendBusy={emailOtpBusy}
         />
       ) : null}
 

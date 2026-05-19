@@ -10,6 +10,7 @@ export type SignInState =
       authMode: 'password' | 'otp'
       password: string
       otp: string
+      resendCount: number
       error?: string
       info?: string
     }
@@ -61,6 +62,7 @@ export type SignInAction =
   | { type: 'email_set_error'; message: string }
   | { type: 'email_info'; message: string | undefined }
   | { type: 'email_otp_requested'; info: string }
+  | { type: 'email_resend_ok'; info: string }
   | { type: 'email_use_password_mock' }
   | { type: 'email_go_forgot' }
   | { type: 'phone_enter'; displayPhone: string; digits: string; delivery: 'sms' | 'whatsapp'; info: string }
@@ -83,6 +85,7 @@ function initialEmailState(email: string) {
     authMode: 'password' as const,
     password: '',
     otp: '',
+    resendCount: 0,
   }
 }
 
@@ -148,6 +151,16 @@ export function signInReducer(state: SignInState, action: SignInAction): SignInS
         ? {
             ...state,
             authMode: 'otp',
+            resendCount: 0,
+            error: undefined,
+            info: action.info,
+          }
+        : state
+    case 'email_resend_ok':
+      return state.step === 'email'
+        ? {
+            ...state,
+            resendCount: state.resendCount + 1,
             error: undefined,
             info: action.info,
           }

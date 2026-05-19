@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import {
+  emailOtpResentBody,
   emailOtpSentBody,
   phoneOtpFirstSendBody,
   phoneOtpResentBody,
@@ -9,6 +10,12 @@ describe('signInMessages', () => {
   it('emailOtpSentBody includes the address', () => {
     expect(emailOtpSentBody('a@b.com')).toContain('a@b.com')
     expect(emailOtpSentBody('a@b.com')).toMatch(/sign-in code|inbox/i)
+    expect(emailOtpSentBody('a@b.com')).toMatch(/resend otp/i)
+  })
+
+  it('emailOtpResentBody includes the address', () => {
+    expect(emailOtpResentBody('a@b.com')).toContain('a@b.com')
+    expect(emailOtpResentBody('a@b.com')).toMatch(/newest code/i)
   })
 
   it('phoneOtpFirstSendBody references display (SMS)', () => {

@@ -39,6 +39,7 @@ describe('signInReducer', () => {
       authMode: 'password',
       password: '',
       otp: '',
+      resendCount: 0,
     })
   })
 
@@ -101,6 +102,11 @@ describe('signInReducer', () => {
     s = signInReducer(s, { type: 'email_use_password_mock' })
     expect(s.authMode).toBe('password')
     expect(s.info).toBeUndefined()
+    s = signInReducer(s, { type: 'email_otp_requested', info: 'Code sent again' })
+    s = signInReducer(s, { type: 'email_resend_ok', info: 'resent' })
+    if (s.step !== 'email') throw new Error('expected email')
+    expect(s.resendCount).toBe(1)
+    expect(s.info).toBe('resent')
   })
 
   it('updates phone otp and resend increments count', () => {

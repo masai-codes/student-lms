@@ -15,6 +15,7 @@ describe('getSignInSubmitError', () => {
       authMode: 'password',
       password: '   ',
       otp: '',
+      resendCount: 0,
     }
     expect(getSignInSubmitError(s)).toMatch(/password/i)
   })
@@ -26,6 +27,7 @@ describe('getSignInSubmitError', () => {
       authMode: 'otp',
       password: '',
       otp: '   ',
+      resendCount: 0,
     }
     expect(getSignInSubmitError(s)).toMatch(/code/i)
   })
@@ -37,6 +39,7 @@ describe('getSignInSubmitError', () => {
       authMode: 'password',
       password: 'secret',
       otp: '',
+      resendCount: 0,
     }
     expect(getSignInSubmitError(s)).toBeNull()
   })
@@ -48,6 +51,7 @@ describe('getSignInSubmitError', () => {
       authMode: 'otp',
       password: '',
       otp: '9999',
+      resendCount: 0,
     }
     expect(getSignInSubmitError(s)).toBeNull()
   })

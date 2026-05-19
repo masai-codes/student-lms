@@ -266,9 +266,25 @@ describe('SignInFlow', () => {
     await waitFor(() => {
       expect(screen.getByLabelText(/sign-in code/i)).toBeTruthy()
     })
+    expect(screen.getByRole('button', { name: /resend otp/i })).toBeTruthy()
 
     fireEvent.click(screen.getByRole('button', { name: /login with password/i }))
     expect(screen.getByLabelText(/^password$/i)).toBeTruthy()
+  })
+
+  it('shows disabled resend OTP with cooldown after email OTP is sent', async () => {
+    render(<SignInFlow />)
+    fireEvent.change(screen.getByLabelText(/email or mobile/i), {
+      target: { value: 'swap@example.com' },
+    })
+    fireEvent.click(screen.getByRole('button', { name: /next/i }))
+    fireEvent.click(screen.getByRole('button', { name: /send otp on email/i }))
+
+    await waitFor(() => {
+      const resendButton = screen.getByRole('button', { name: /resend otp/i }) as HTMLButtonElement
+      expect(resendButton.disabled).toBe(true)
+      expect(resendButton.textContent).toMatch(/resend otp \(\d+s\)/i)
+    })
   })
 
   it('enters phone OTP path after valid phone and request-otp succeeds', async () => {

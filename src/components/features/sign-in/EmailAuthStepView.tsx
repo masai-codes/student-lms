@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react'
 import { ArrowLeft } from '@phosphor-icons/react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -5,11 +6,14 @@ import { Label } from '@/components/ui/label'
 import { RememberMeField } from '@/components/features/sign-in/RememberMeField'
 import { SignInNotice } from '@/components/features/sign-in/SignInNotice'
 
+const RESEND_OTP_COOLDOWN_SEC = 30
+
 type Props = {
   email: string
   authMode: 'password' | 'otp'
   password: string
   otp: string
+  resendCount: number
   rememberMe: boolean
   error?: string
   info?: string
@@ -18,11 +22,13 @@ type Props = {
   onOtpChange: (value: string) => void
   onRememberMeChange: (checked: boolean) => void
   onUseOtp: () => void
+  onResend: () => void
   onUsePassword: () => void
   onForgotPassword: () => void
   onSubmit: () => void
   submitDisabled?: boolean
   sendOtpDisabled?: boolean
+  resendBusy?: boolean
 }
 
 export function EmailAuthStepView({
@@ -30,6 +36,7 @@ export function EmailAuthStepView({
   authMode,
   password,
   otp,
+  resendCount,
   rememberMe,
   error,
   info,
@@ -38,12 +45,27 @@ export function EmailAuthStepView({
   onOtpChange,
   onRememberMeChange,
   onUseOtp,
+  onResend,
   onUsePassword,
   onForgotPassword,
   onSubmit,
   submitDisabled,
   sendOtpDisabled,
+  resendBusy = false,
 }: Props) {
+  const [resendSecondsLeft, setResendSecondsLeft] = useState(RESEND_OTP_COOLDOWN_SEC)
+
+  useEffect(() => {
+    if (authMode !== 'otp') return
+    setResendSecondsLeft(RESEND_OTP_COOLDOWN_SEC)
+    const id = window.setInterval(() => {
+      setResendSecondsLeft((s) => (s <= 1 ? 0 : s - 1))
+    }, 1000)
+    return () => window.clearInterval(id)
+  }, [authMode, resendCount])
+
+  const canResend = authMode === 'otp' && resendSecondsLeft === 0 && !resendBusy
+
   return (
     <div className="space-y-5">
       <Button
@@ -151,14 +173,41 @@ export function EmailAuthStepView({
         </p>
       ) : null}
 
-      <Button
-        type="button"
-        className="w-full font-poppins shadow-sm"
-        disabled={submitDisabled}
-        onClick={onSubmit}
-      >
-        {submitDisabled ? 'Signing in…' : 'Sign in'}
-      </Button>
+      {authMode === 'otp' ? (
+        <div className="flex flex-col gap-2 sm:flex-row">
+          <Button
+            type="button"
+            variant="outline"
+            className="flex-1 font-poppins shadow-sm"
+            disabled={!canResend}
+            onClick={onResend}
+            aria-disabled={!canResend}
+          >
+            {resendBusy
+              ? 'Sending…'
+              : resendSecondsLeft === 0
+                ? 'Resend OTP'
+                : `Resend OTP (${resendSecondsLeft}s)`}
+          </Button>
+          <Button
+            type="button"
+            className="flex-1 font-poppins shadow-sm"
+            disabled={submitDisabled}
+            onClick={onSubmit}
+          >
+            {submitDisabled ? 'Signing in…' : 'Sign in'}
+          </Button>
+        </div>
+      ) : (
+        <Button
+          type="button"
+          className="w-full font-poppins shadow-sm"
+          disabled={submitDisabled}
+          onClick={onSubmit}
+        >
+          {submitDisabled ? 'Signing in…' : 'Sign in'}
+        </Button>
+      )}
 
       <div className="flex justify-start">
         <Button
