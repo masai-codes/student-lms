@@ -2,6 +2,7 @@ import { ArrowRight } from '@phosphor-icons/react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { getAuthBranding } from '@/utils/authBranding'
 
 type Props = {
   draft: string
@@ -24,7 +25,7 @@ export function IdentifierStepView({
     <div className="space-y-6">
       <div className="space-y-2 text-left">
         <h1 className="font-poppins text-[28px] font-medium tracking-tight text-foreground md:text-[32px]">
-          Sign in
+          {getAuthBranding().signInHeading}
         </h1>
         <p className="text-sm text-muted-foreground">
           Use your email or phone number.

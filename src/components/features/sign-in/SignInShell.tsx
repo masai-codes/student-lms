@@ -40,26 +40,28 @@ export function SignInShell({ children, widthClassName = 'sm:max-w-lg' }: Props)
 
       <footer className="relative z-50 mt-10 bg-transparent">
         <div className="w-full text-center">
-          <div className="mb-4 flex w-full items-center justify-center">
-            <nav className="flex flex-wrap justify-center gap-4 text-xs text-muted-foreground md:text-sm">
-              <a
-                href="https://www.masaischool.com/privacy-policy"
-                className="underline-offset-4 transition-colors hover:text-foreground hover:underline"
-                target="_blank"
-                rel="noreferrer noopener"
-              >
-                Privacy Policy
-              </a>
-              <a
-                href="https://www.masaischool.com/terms/"
-                className="underline-offset-4 transition-colors hover:text-foreground hover:underline"
-                target="_blank"
-                rel="noreferrer noopener"
-              >
-                Terms and Conditions
-              </a>
-            </nav>
-          </div>
+          {branding.showLegalLinks ? (
+            <div className="mb-4 flex w-full items-center justify-center">
+              <nav className="flex flex-wrap justify-center gap-4 text-xs text-muted-foreground md:text-sm">
+                <a
+                  href="https://www.masaischool.com/privacy-policy"
+                  className="underline-offset-4 transition-colors hover:text-foreground hover:underline"
+                  target="_blank"
+                  rel="noreferrer noopener"
+                >
+                  Privacy Policy
+                </a>
+                <a
+                  href="https://www.masaischool.com/terms/"
+                  className="underline-offset-4 transition-colors hover:text-foreground hover:underline"
+                  target="_blank"
+                  rel="noreferrer noopener"
+                >
+                  Terms and Conditions
+                </a>
+              </nav>
+            </div>
+          ) : null}
           <p className="text-xs text-muted-foreground md:text-sm">
             © 2026 by{' '}
             <a

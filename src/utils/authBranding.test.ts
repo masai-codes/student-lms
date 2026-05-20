@@ -15,6 +15,9 @@ describe('getAuthBranding', () => {
     expect(getAuthBranding()).toMatchObject({
       logoSrc: '/ihub-logo.png',
       logoAlt: 'i-HUB Divyasampark',
+      pageTitle: 'iHub DivyaSampark',
+      signInHeading: 'iHub DivyaSampark',
+      showLegalLinks: false,
     })
   })
 })

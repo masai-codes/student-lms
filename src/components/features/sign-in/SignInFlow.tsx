@@ -275,7 +275,9 @@ export function SignInFlow() {
     <div className="space-y-6">
       {state.step !== 'identifier' ? (
         <div className="text-center">
-          <h1 className="font-poppins text-2xl font-bold tracking-tight text-foreground md:text-3xl">Sign in</h1>
+          <h1 className="font-poppins text-2xl font-bold tracking-tight text-foreground md:text-3xl">
+            {getAuthBranding().signInHeading}
+          </h1>
           <p className="mt-2 text-sm text-muted-foreground">
             {getAuthBranding().accountPrompt}
           </p>
