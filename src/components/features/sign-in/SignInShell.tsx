@@ -1,6 +1,7 @@
 import { Link } from '@tanstack/react-router'
 import type { ReactNode } from 'react'
 import { cn } from '@/lib/utils'
+import { getAuthBranding } from '@/utils/authBranding'
 
 type Props = {
   children: ReactNode
@@ -8,6 +9,8 @@ type Props = {
 }
 
 export function SignInShell({ children, widthClassName = 'sm:max-w-lg' }: Props) {
+  const branding = getAuthBranding()
+
   return (
     <div className="relative flex min-h-dvh flex-col justify-center overflow-hidden bg-[#f8fafc] px-4 py-8 md:min-h-screen md:px-6 md:py-12">
       <div
@@ -18,9 +21,9 @@ export function SignInShell({ children, widthClassName = 'sm:max-w-lg' }: Props)
         <div className={cn('sm:mx-auto sm:w-full', widthClassName)}>
           <Link to="/signin" className="mx-auto block w-fit rounded-md ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
             <img
-              className="mx-auto h-10 w-auto cursor-pointer md:h-11"
-              src="/masai-logo.svg"
-              alt="Masai School"
+              className={branding.logoClassName}
+              src={branding.logoSrc}
+              alt={branding.logoAlt}
             />
           </Link>
         </div>
@@ -60,12 +63,12 @@ export function SignInShell({ children, widthClassName = 'sm:max-w-lg' }: Props)
           <p className="text-xs text-muted-foreground md:text-sm">
             © 2026 by{' '}
             <a
-              href="https://masaischool.com/"
+              href={branding.footerHref}
               className="underline-offset-4 transition-colors hover:text-foreground hover:underline"
               target="_blank"
               rel="noreferrer noopener"
             >
-              Masai School
+              {branding.footerLabel}
             </a>
           </p>
         </div>
