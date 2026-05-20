@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { ArrowLeft } from '@phosphor-icons/react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { PasswordInput } from '@/components/ui/password-input'
 import { Label } from '@/components/ui/label'
 import { RememberMeField } from '@/components/features/sign-in/RememberMeField'
 import { SignInNotice } from '@/components/features/sign-in/SignInNotice'
@@ -118,10 +119,9 @@ export function EmailAuthStepView({
               </Button>
             </div>
           </div>
-          <Input
+          <PasswordInput
             id="signin-email-password"
             name="password"
-            type="password"
             autoComplete="current-password"
             value={password}
             onChange={(e) => onPasswordChange(e.target.value)}

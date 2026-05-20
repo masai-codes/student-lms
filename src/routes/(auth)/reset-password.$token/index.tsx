@@ -3,6 +3,7 @@ import { Link, createFileRoute, useNavigate } from '@tanstack/react-router'
 import { ArrowLeft } from '@phosphor-icons/react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { PasswordInput } from '@/components/ui/password-input'
 import { Label } from '@/components/ui/label'
 import { SignInShell } from '@/components/features/sign-in/SignInShell'
 import { V2AuthRequestError, v2ResetPassword } from '@/components/features/sign-in/v2AuthClient'
@@ -81,10 +82,9 @@ function ResetPasswordPage() {
           <div className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="reset-password-1">New password</Label>
-              <Input
+              <PasswordInput
                 id="reset-password-1"
                 name="new-password"
-                type="password"
                 autoComplete="new-password"
                 value={password}
                 disabled={busy}
@@ -93,10 +93,9 @@ function ResetPasswordPage() {
             </div>
             <div className="space-y-2">
               <Label htmlFor="reset-password-2">Confirm new password</Label>
-              <Input
+              <PasswordInput
                 id="reset-password-2"
                 name="new-password-confirm"
-                type="password"
                 autoComplete="new-password"
                 value={confirm}
                 disabled={busy}

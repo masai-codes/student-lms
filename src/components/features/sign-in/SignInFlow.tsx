@@ -12,6 +12,7 @@ import {
   redirectToSwitchAccountPage,
 } from '@/components/features/sign-in/signInRouting'
 import { parseIdentifier } from '@/components/features/sign-in/detectIdentifier'
+import { getAuthBranding } from '@/utils/authBranding'
 import {
   dispatchSignInFailureEvent,
   dispatchSignInSuccessEvent,
@@ -276,7 +277,7 @@ export function SignInFlow() {
         <div className="text-center">
           <h1 className="font-poppins text-2xl font-bold tracking-tight text-foreground md:text-3xl">Sign in</h1>
           <p className="mt-2 text-sm text-muted-foreground">
-            Continue with your Masai account.
+            {getAuthBranding().accountPrompt}
           </p>
         </div>
       ) : null}
