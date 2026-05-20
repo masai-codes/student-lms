@@ -3,6 +3,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import appCss from '../styles.css?url'
 import type { RouterContext } from '@/types'
 import { installAppOriginFetchHeader } from '@/utils/appOrigin'
+import { getAuthBranding } from '@/utils/authBranding'
 
 const GA_MEASUREMENT_ID = 'G-R3MQZK6LM6'
 
@@ -20,7 +21,7 @@ export const Route = createRootRouteWithContext<RouterContext>()({
         content: 'width=device-width, initial-scale=1',
       },
       {
-        title: 'Masai LMS',
+        title: getAuthBranding().pageTitle,
       },
     ],
     links: [
