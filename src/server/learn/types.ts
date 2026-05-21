@@ -91,7 +91,13 @@ export interface DiscussionListItem {
  * Presentation payload for /lectures/:id, /assignments/:id, /resources/:id.
  * Mirrors listing card fields — all strings/arrays are finalized on the server.
  */
-export type { LectureDetailPayload, LectureKind, LiveLecturePhase, VideoLecturePhase } from '@/server/learn/lectureDetailTypes'
+export type {
+  LectureDetailPayload,
+  LectureDetailTabContent,
+  LectureKind,
+  LiveLecturePhase,
+  VideoLecturePhase,
+} from '@/server/learn/lectureDetailTypes'
 
 export interface LearnHubDetailPayload {
   id: number

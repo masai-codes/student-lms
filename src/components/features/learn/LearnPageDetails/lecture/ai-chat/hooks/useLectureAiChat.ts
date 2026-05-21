@@ -2,11 +2,10 @@
 
 import { useCallback, useEffect, useState } from 'react'
 
-import {
-  MOCK_ASSISTANT_REPLY,
-  MOCK_LECTURE_CHAT_HISTORY,
-  type LectureChatMessage,
-} from '../constants/mockLectureChatMessages'
+import type { LectureChatMessage } from '../constants/mockLectureChatMessages'
+
+const AI_TUTOR_UNAVAILABLE_MESSAGE =
+  'AI tutor is not connected for this lecture yet. Chat history will appear here once it is enabled.'
 
 type UseLectureAiChatOptions = {
   defaultExpanded?: boolean
@@ -17,7 +16,7 @@ export function useLectureAiChat({
 }: UseLectureAiChatOptions = {}) {
   const [isExpanded, setIsExpanded] = useState(() => defaultExpanded)
   const [inputValue, setInputValue] = useState('')
-  const [messages, setMessages] = useState(MOCK_LECTURE_CHAT_HISTORY)
+  const [messages, setMessages] = useState<Array<LectureChatMessage>>([])
   const [isSending, setIsSending] = useState(false)
 
   const open = useCallback(() => setIsExpanded(true), [])
@@ -44,12 +43,12 @@ export function useLectureAiChat({
         {
           id: `assistant-${Date.now()}`,
           role: 'assistant',
-          content: MOCK_ASSISTANT_REPLY,
+          content: AI_TUTOR_UNAVAILABLE_MESSAGE,
           createdAtLabel: 'Just now',
         },
       ])
       setIsSending(false)
-    }, 700)
+    }, 400)
   }, [inputValue, isSending])
 
   useEffect(() => {

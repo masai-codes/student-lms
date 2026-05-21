@@ -3,18 +3,19 @@
 import { LectureTabPanel } from './LectureTabPanel'
 import type { LectureDetailTabId } from './constants/staticLectureTabContent'
 
+import type { LectureDetailTabContent } from '@/server/learn/lectureDetailTypes'
 import { cn } from '@/lib/utils'
 
 type LectureTabContentSectionProps = {
   tabId: LectureDetailTabId
-  notes: string | null
+  tabs: LectureDetailTabContent
   className?: string
 }
 
 /** Tab panel body (scrolls below the viewport-locked hero + tab row). */
 export function LectureTabContentSection({
   tabId,
-  notes,
+  tabs,
   className,
 }: LectureTabContentSectionProps) {
   return (
@@ -24,7 +25,7 @@ export function LectureTabContentSection({
         className,
       )}
     >
-      <LectureTabPanel key={tabId} tabId={tabId} notes={notes} />
+      <LectureTabPanel key={tabId} tabId={tabId} tabs={tabs} />
     </section>
   )
 }

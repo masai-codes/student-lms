@@ -3,7 +3,7 @@ import { and, eq, isNull, ne } from 'drizzle-orm'
 import type { LectureDetailPayload } from '@/server/learn/lectureDetailTypes'
 
 import { db } from '@/db'
-import { lectures, users } from '@/db/schema'
+import { lectures, lecturesAi, users } from '@/db/schema'
 import { DISCUSSION_ENTITY_LECTURE } from '@/server/new-discussions/discussionEntityTypes'
 import { listDiscussionsForLearnEntity } from '@/server/new-discussions/services/listDiscussionsForLearnEntity'
 import {
@@ -11,8 +11,12 @@ import {
   isSupportedLectureDetailType,
 } from '@/server/learn/utils/buildLectureDetailPayload'
 import { buildLearnDetailPresentation } from '@/server/learn/utils/buildLearnDetailPresentation'
+import { buildLectureTabContent } from '@/server/learn/utils/buildLectureTabContent'
 import { ensureUserCanAccessLearnHubEntity } from '@/server/learn/utils/ensureLearnEntityAccess'
 import { LECTURE_RESOURCE_TYPE } from '@/server/learn/utils/resolveLectureLearningType'
+import {
+  getLectureAssociatedContent,
+} from '@/server/learn/services/getLectureAssociatedContent.service'
 
 export async function getLectureLearningDetailForUser(
   userId: number,
@@ -39,6 +43,8 @@ export async function getLectureLearningDetailForUser(
       vimeoPlayerEmbedUrl: lectures.vimeoPlayerEmbedUrl,
       settings: lectures.settings,
       notes: lectures.notes,
+      description: lectures.description,
+      data: lectures.data,
     })
     .from(lectures)
     .leftJoin(users, eq(lectures.hostId, users.id))
@@ -71,12 +77,32 @@ export async function getLectureLearningDetailForUser(
     throw new Error('LEARN_DETAIL_NOT_FOUND')
   }
 
-  const core = buildLearnDetailPresentation(row)
-  const discussions = await listDiscussionsForLearnEntity(
-    userId,
-    DISCUSSION_ENTITY_LECTURE,
-    lectureId,
-  )
+  const [core, discussions, aiRows, associatedItems] = await Promise.all([
+    Promise.resolve(buildLearnDetailPresentation(row)),
+    listDiscussionsForLearnEntity(userId, DISCUSSION_ENTITY_LECTURE, lectureId),
+    db
+      .select({
+        summary: lecturesAi.summary,
+        transcript: lecturesAi.transcript,
+        transcriptSegments: lecturesAi.transcriptSegments,
+        isSummaryPublished: lecturesAi.isSummaryPublished,
+      })
+      .from(lecturesAi)
+      .where(eq(lecturesAi.lectureId, lectureId))
+      .limit(1),
+    getLectureAssociatedContent({
+      lectureId,
+      sectionId: row.sectionId,
+      lectureData: row.data,
+    }),
+  ])
+
+  const tabs = buildLectureTabContent({
+    description: row.description,
+    notes: row.notes,
+    lecturesAi: aiRows[0] ?? null,
+    associatedItems,
+  })
 
   return buildLectureDetailPayload(
     { ...core, discussions },
@@ -93,5 +119,6 @@ export async function getLectureLearningDetailForUser(
       notes: row.notes,
     },
     Date.now(),
+    tabs,
   )
 }

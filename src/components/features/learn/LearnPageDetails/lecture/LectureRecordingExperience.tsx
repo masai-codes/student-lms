@@ -24,6 +24,7 @@ import { LectureDetailFooter } from './shared/LectureDetailFooter'
 import { LectureDetailChrome } from './shared/LectureDetailChrome'
 import { LectureVideoSection } from './video'
 import type { DiscussionListItem, LearningPriority } from '@/server/learn/types'
+import type { LectureDetailTabContent } from '@/server/learn/lectureDetailTypes'
 import { cn } from '@/lib/utils'
 
 type LectureRecordingExperienceProps = {
@@ -36,8 +37,8 @@ type LectureRecordingExperienceProps = {
   scheduleDisplayRange: string
   entityId: number
   discussions: Array<DiscussionListItem>
-  notes: string | null
   hideNotes: boolean
+  tabs: LectureDetailTabContent
 }
 
 const chatLoaderProps = {
@@ -57,8 +58,8 @@ export function LectureRecordingExperience({
   scheduleDisplayRange,
   entityId,
   discussions,
-  notes,
   hideNotes,
+  tabs,
 }: LectureRecordingExperienceProps) {
   const { rootRef, heightPx } = useLectureHeroViewportHeight()
   const { isTheaterMode, toggleTheaterMode } = useLectureTheaterMode()
@@ -167,8 +168,8 @@ export function LectureRecordingExperience({
         <LectureDetailFooter
           entityId={entityId}
           discussions={discussions}
-          notes={notes}
           hideNotes={hideNotes}
+          tabs={tabs}
         />
       }
     />

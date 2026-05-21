@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
 import { buildLectureDetailPayload } from '../buildLectureDetailPayload'
+import type { LectureDetailTabContent } from '@/server/learn/lectureDetailTypes'
 import type { LearnHubDetailPayload } from '@/server/learn/types'
 
 const core: LearnHubDetailPayload = {
@@ -15,6 +16,14 @@ const core: LearnHubDetailPayload = {
 
 const schedule = '2026-05-20T10:00:00.000Z'
 const concludes = '2026-05-20T12:00:00.000Z'
+
+const emptyTabs: LectureDetailTabContent = {
+  description: null,
+  notes: null,
+  aiSummary: null,
+  transcript: null,
+  associated: null,
+}
 
 describe('buildLectureDetailPayload', () => {
   it('builds live lecture payload with recording after end', () => {
@@ -34,10 +43,12 @@ describe('buildLectureDetailPayload', () => {
         notes: '  Lecture notes  ',
       },
       concludesMs + 60_000,
+      { ...emptyTabs, notes: 'Lecture notes' },
     )
 
     expect(payload.lectureKind).toBe('live')
     expect(payload.notes).toBe('Lecture notes')
+    expect(payload.tabs.notes).toBe('Lecture notes')
     expect(payload.hideNotes).toBe(false)
     expect(payload.livePhase).toBe('after')
     expect(payload.hasRecording).toBe(true)
@@ -62,6 +73,7 @@ describe('buildLectureDetailPayload', () => {
         notes: null,
       },
       scheduleMs,
+      emptyTabs,
     )
 
     expect(payload.lectureKind).toBe('video')
@@ -90,6 +102,7 @@ describe('buildLectureDetailPayload', () => {
           notes: null,
         },
         Date.now(),
+        emptyTabs,
       ),
     ).toThrow('LECTURE_DETAIL_UNSUPPORTED_TYPE')
   })

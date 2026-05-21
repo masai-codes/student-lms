@@ -6,17 +6,18 @@ import { LectureTabBar } from './LectureTabBar'
 import { LectureTabPanel } from './LectureTabPanel'
 import { DEFAULT_LECTURE_TAB_ID, type LectureDetailTabId } from './constants/staticLectureTabContent'
 
+import type { LectureDetailTabContent } from '@/server/learn/lectureDetailTypes'
 import { cn } from '@/lib/utils'
 
 type LectureDetailTabsSectionProps = {
   className?: string
-  notes?: string | null
+  tabs: LectureDetailTabContent
   hideNotes?: boolean
 }
 
 export function LectureDetailTabsSection({
   className,
-  notes = null,
+  tabs,
   hideNotes = false,
 }: LectureDetailTabsSectionProps) {
   const [activeTabId, setActiveTabId] =
@@ -34,7 +35,7 @@ export function LectureDetailTabsSection({
         onTabChange={setActiveTabId}
         hideNotes={hideNotes}
       />
-      <LectureTabPanel key={activeTabId} tabId={activeTabId} notes={notes} />
+      <LectureTabPanel key={activeTabId} tabId={activeTabId} tabs={tabs} />
     </section>
   )
 }

@@ -2,6 +2,7 @@
 
 import { LectureRecordingExperience } from '../LectureRecordingExperience'
 import type { DiscussionListItem, LearningPriority } from '@/server/learn/types'
+import type { LectureDetailTabContent } from '@/server/learn/lectureDetailTypes'
 
 type DuringAfterVideoLectureWithRecordingProps = {
   videoUrl: string
@@ -13,8 +14,8 @@ type DuringAfterVideoLectureWithRecordingProps = {
   scheduleDisplayRange: string
   entityId: number
   discussions: Array<DiscussionListItem>
-  notes: string | null
   hideNotes: boolean
+  tabs: LectureDetailTabContent
 }
 
 export function DuringAfterVideoLectureWithRecording(

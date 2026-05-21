@@ -6,6 +6,14 @@ export type LiveLecturePhase = 'before' | 'during' | 'after'
 
 export type VideoLecturePhase = 'before' | 'during_after'
 
+export type LectureDetailTabContent = {
+  description: string | null
+  notes: string | null
+  aiSummary: string | null
+  transcript: string | null
+  associated: string | null
+}
+
 export type LectureDetailPayload = LearnHubDetailPayload & {
   lectureKind: LectureKind
   schedule: string | null
@@ -15,6 +23,7 @@ export type LectureDetailPayload = LearnHubDetailPayload & {
   hideVideo: boolean
   hideNotes: boolean
   notes: string | null
+  tabs: LectureDetailTabContent
   videoUrl: string | null
   zoomLink: string | null
   livePhase: LiveLecturePhase | null

@@ -4,7 +4,7 @@
 - Route: `/lectures/$lectureId`
 - Live lecture phases: before start, during live, after live (with / without recording)
 - Video lecture phases: `before`, `during_after` (with / without recording)
-- Server payload: `getLectureLearningDetail` → `LectureDetailPayload`
+- Server payload: `getLectureLearningDetail` → `LectureDetailPayload` (all tab bodies from DB; no static lecture copy)
 
 ## Test files
 - `src/server/learn/utils/__tests__/parseLectureSettings.test.ts`

@@ -49,8 +49,8 @@ export function LiveLectureContent({ detail }: LiveLectureContentProps) {
         <LectureDetailFooter
           entityId={detail.id}
           discussions={detail.discussions}
-          notes={detail.notes}
           hideNotes={detail.hideNotes}
+          tabs={detail.tabs}
         />
       }
     />

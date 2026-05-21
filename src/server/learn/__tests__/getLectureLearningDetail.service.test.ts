@@ -4,6 +4,7 @@ const hoisted = vi.hoisted(() => ({
   dbSelect: vi.fn(),
   ensureAccess: vi.fn(),
   listDiscussions: vi.fn(),
+  associatedContent: vi.fn(),
 }))
 
 vi.mock('@/db', () => ({
@@ -18,11 +19,16 @@ vi.mock('@/server/new-discussions/services/listDiscussionsForLearnEntity', () =>
   listDiscussionsForLearnEntity: hoisted.listDiscussions,
 }))
 
+vi.mock('@/server/learn/services/getLectureAssociatedContent.service', () => ({
+  getLectureAssociatedContent: hoisted.associatedContent,
+}))
+
 describe('getLectureLearningDetailForUser', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     hoisted.ensureAccess.mockResolvedValue(true)
     hoisted.listDiscussions.mockResolvedValue([])
+    hoisted.associatedContent.mockResolvedValue([])
   })
 
   it('returns lecture detail payload for supported live lectures', async () => {
@@ -30,43 +36,54 @@ describe('getLectureLearningDetailForUser', () => {
       '../services/getLectureLearningDetail.service'
     )
 
-    hoisted.dbSelect.mockReturnValue({
-      from: () => ({
-        leftJoin: () => ({
-          where: () => ({
-            limit: () =>
-              Promise.resolve([
-                {
-                  id: 227,
-                  title: 'Live DSA',
-                  category: 'coding',
-                  type: 'live',
-                  optional: 0,
-                  schedule: '2020-01-01 10:00:00',
-                  concludes: '2020-01-01 12:00:00',
-                  week: 1,
-                  module: null,
-                  batchId: 1,
-                  sectionId: 2,
-                  hostName: 'Ravi',
-                  hostAvatarUrl: null,
-                  zoomLink: null,
-                  videos: null,
-                  vimeoDownloadLinks: null,
-                  vimeoPlayerEmbedUrl: null,
-                  settings: { hide_notes: 0 },
-                  notes: '# Session notes',
-                },
-              ]),
+    hoisted.dbSelect
+      .mockReturnValueOnce({
+        from: () => ({
+          leftJoin: () => ({
+            where: () => ({
+              limit: () =>
+                Promise.resolve([
+                  {
+                    id: 227,
+                    title: 'Live DSA',
+                    category: 'coding',
+                    type: 'live',
+                    optional: 0,
+                    schedule: '2020-01-01 10:00:00',
+                    concludes: '2020-01-01 12:00:00',
+                    week: 1,
+                    module: null,
+                    batchId: 1,
+                    sectionId: 2,
+                    hostName: 'Ravi',
+                    hostAvatarUrl: null,
+                    zoomLink: null,
+                    videos: null,
+                    vimeoDownloadLinks: null,
+                    vimeoPlayerEmbedUrl: null,
+                    settings: { hide_notes: 0 },
+                    notes: '# Session notes',
+                    description: 'DB description',
+                    data: null,
+                  },
+                ]),
+            }),
           }),
         }),
-      }),
-    })
+      })
+      .mockReturnValueOnce({
+        from: () => ({
+          where: () => ({
+            limit: () => Promise.resolve([]),
+          }),
+        }),
+      })
 
     const result = await getLectureLearningDetailForUser(9, 227)
 
     expect(result.id).toBe(227)
     expect(result.notes).toBe('# Session notes')
+    expect(result.tabs.description).toBe('DB description')
     expect(result.hideNotes).toBe(false)
     expect(result.lectureKind).toBe('live')
     expect(result.livePhase).toBe('after')
@@ -103,6 +120,9 @@ describe('getLectureLearningDetailForUser', () => {
                   vimeoDownloadLinks: null,
                   vimeoPlayerEmbedUrl: null,
                   settings: null,
+                  notes: null,
+                  description: null,
+                  data: null,
                 },
               ]),
           }),

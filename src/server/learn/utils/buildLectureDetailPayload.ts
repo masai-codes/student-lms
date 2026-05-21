@@ -1,4 +1,8 @@
-import type { LectureDetailPayload, LectureKind } from '@/server/learn/lectureDetailTypes'
+import type {
+  LectureDetailPayload,
+  LectureDetailTabContent,
+  LectureKind,
+} from '@/server/learn/lectureDetailTypes'
 import type { LearnHubDetailPayload } from '@/server/learn/types'
 import { formatLectureScheduleRange } from '@/server/learn/utils/formatLectureScheduleRange'
 import { parseLectureSettings } from '@/server/learn/utils/parseLectureSettings'
@@ -34,6 +38,7 @@ export function buildLectureDetailPayload(
   core: LearnHubDetailPayload,
   row: LectureDetailRow,
   nowMs: number,
+  tabs: LectureDetailTabContent,
 ): LectureDetailPayload {
   const lectureKind = normalizeLectureKind(row.type)
   if (lectureKind == null) {
@@ -73,8 +78,6 @@ export function buildLectureDetailPayload(
         })
       : null
 
-  const trimmedNotes = row.notes?.trim() ?? ''
-
   return {
     ...core,
     lectureKind,
@@ -84,7 +87,8 @@ export function buildLectureDetailPayload(
     hostAvatarUrl: row.hostAvatarUrl,
     hideVideo: settings.hideVideo,
     hideNotes: settings.hideNotes,
-    notes: trimmedNotes.length > 0 ? trimmedNotes : null,
+    notes: tabs.notes,
+    tabs,
     videoUrl,
     zoomLink,
     livePhase,

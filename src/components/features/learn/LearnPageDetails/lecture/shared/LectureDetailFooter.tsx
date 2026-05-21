@@ -11,19 +11,20 @@ import {
 import type { LectureDetailTabId } from '../tabs'
 
 import type { DiscussionListItem } from '@/server/learn/types'
+import type { LectureDetailTabContent } from '@/server/learn/lectureDetailTypes'
 
 type LectureDetailFooterProps = {
   entityId: number
   discussions: Array<DiscussionListItem>
-  notes: string | null
   hideNotes: boolean
+  tabs: LectureDetailTabContent
 }
 
 export function LectureDetailFooter({
   entityId,
   discussions,
-  notes,
   hideNotes,
+  tabs,
 }: LectureDetailFooterProps) {
   const [activeTabId, setActiveTabId] =
     useState<LectureDetailTabId>(DEFAULT_LECTURE_TAB_ID)
@@ -44,7 +45,7 @@ export function LectureDetailFooter({
       />
       <LectureTabContentSection
         tabId={activeTabId}
-        notes={notes}
+        tabs={tabs}
         className="px-0 py-5"
       />
       <LectureDiscussionsSection

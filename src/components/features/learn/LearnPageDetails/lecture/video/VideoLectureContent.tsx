@@ -44,8 +44,8 @@ export function VideoLectureContent({ detail }: VideoLectureContentProps) {
         <LectureDetailFooter
           entityId={detail.id}
           discussions={detail.discussions}
-          notes={detail.notes}
           hideNotes={detail.hideNotes}
+          tabs={detail.tabs}
         />
       }
     />
