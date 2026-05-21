@@ -48,7 +48,7 @@ export function LectureDiscussionsSection({
 
   return (
     <section className={cn('border-t border-border bg-background py-6', className)}>
-      <h2 className="type-h6 mb-1 text-gray-900">Discussions</h2>
+      <h2 className="type-h4 mb-2 text-gray-900">Discussions</h2>
       <p className="type-b3-regular mb-4 text-gray-500">
         Share course-related discussions with your peers.
       </p>
