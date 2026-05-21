@@ -109,7 +109,7 @@ describe('SignInFlow', () => {
     })
   })
 
-  it('sends rememberMe on email password sign-in when checked', async () => {
+  it('sends rememberMe on email password sign-in by default', async () => {
     const fetchMock = globalThis.fetch as ReturnType<typeof vi.fn>
 
     render(<SignInFlow />)
@@ -120,7 +120,6 @@ describe('SignInFlow', () => {
     fireEvent.click(screen.getByRole('button', { name: /next/i }))
     expect(await screen.findByText('demo@example.com')).toBeTruthy()
 
-    fireEvent.click(screen.getByLabelText(/remember me/i))
     fireEvent.change(screen.getByLabelText(/^password$/i), {
       target: { value: 'hunter2' },
     })
