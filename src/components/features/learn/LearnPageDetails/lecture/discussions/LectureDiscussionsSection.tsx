@@ -1,46 +1,62 @@
 'use client'
 
-import { useState } from 'react'
+import { useRouteContext, useRouter } from '@tanstack/react-router'
+import { useMemo, useState } from 'react'
 
 import { LectureDiscussionCard } from './LectureDiscussionCard'
 import { LectureDiscussionComposer } from './LectureDiscussionComposer'
-import {
-  STATIC_LECTURE_DISCUSSIONS,
-  type StaticLectureDiscussion,
-} from './constants/staticLectureDiscussions'
+import { deriveDiscussionTitleFromMessage } from './utils/deriveDiscussionTitleFromMessage'
+import { mapDiscussionToLectureView } from './utils/mapDiscussionToLectureView'
 
+import type { DiscussionListItem } from '@/server/learn/types'
+import { createLearnDiscussion } from '@/server/new-discussions/createLearnDiscussion'
 import { cn } from '@/lib/utils'
 
 type LectureDiscussionsSectionProps = {
+  entityId: number
+  discussions: Array<DiscussionListItem>
   className?: string
 }
 
-function initialsFromName(name: string): string {
-  const parts = name.trim().split(/\s+/).filter(Boolean)
-  if (parts.length === 0) return 'ME'
-  if (parts.length === 1) return parts[0]!.slice(0, 2).toUpperCase()
-  return `${parts[0]![0] ?? ''}${parts[parts.length - 1]![0] ?? ''}`.toUpperCase()
-}
-
 export function LectureDiscussionsSection({
+  entityId,
+  discussions,
   className,
 }: LectureDiscussionsSectionProps) {
-  const [discussions, setDiscussions] = useState(STATIC_LECTURE_DISCUSSIONS)
+  const router = useRouter()
+  const { user } = useRouteContext({ from: '/(protected)/_layout' })
+  const [pending, setPending] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
-  const handlePost = (payload: {
-    title: string
-    descriptionMarkdown: string
-  }) => {
-    const next: StaticLectureDiscussion = {
-      id: Date.now(),
-      title: payload.title,
-      bodyMarkdown: payload.descriptionMarkdown,
-      authorName: 'You',
-      authorInitials: initialsFromName('You'),
-      postedAtLabel: 'Just now',
-      replyCount: 0,
+  const commentViews = useMemo(
+    () => discussions.map(d => mapDiscussionToLectureView(d)),
+    [discussions],
+  )
+
+  const handlePost = async (payload: { descriptionMarkdown: string }) => {
+    const title = deriveDiscussionTitleFromMessage(payload.descriptionMarkdown)
+    if (!title) {
+      setError('Write a comment before posting.')
+      return
     }
-    setDiscussions(current => [next, ...current])
+
+    setError(null)
+    setPending(true)
+    try {
+      await createLearnDiscussion({
+        data: {
+          kind: 'lecture',
+          entityId,
+          title,
+          message: payload.descriptionMarkdown,
+        },
+      })
+      await router.invalidate()
+    } catch {
+      setError('Could not post your comment. Try again.')
+    } finally {
+      setPending(false)
+    }
   }
 
   return (
@@ -50,20 +66,36 @@ export function LectureDiscussionsSection({
         className,
       )}
     >
-      <h2 className="type-h6 mb-3 text-gray-900">
-        Discussions
-        <span className="type-b2-regular ml-2 font-normal text-gray-500">
-          ({discussions.length})
-        </span>
+      <h2 className="type-h6 mb-4 text-gray-900">
+        {commentViews.length}{' '}
+        {commentViews.length === 1 ? 'Comment' : 'Comments'}
       </h2>
 
-      <LectureDiscussionComposer className="mb-4" onSubmit={handlePost} />
+      <LectureDiscussionComposer
+        className="mb-6"
+        userName={user.name.trim() || 'You'}
+        userAvatarUrl={user.profileImageUrl}
+        disabled={pending}
+        onSubmit={handlePost}
+      />
 
-      <div className="divide-y divide-gray-100">
-        {discussions.map(discussion => (
-          <LectureDiscussionCard key={discussion.id} discussion={discussion} />
-        ))}
-      </div>
+      {error ? (
+        <p className="type-b3-regular mb-4 text-destructive" role="alert">
+          {error}
+        </p>
+      ) : null}
+
+      {commentViews.length === 0 ? (
+        <p className="type-b2-regular py-6 text-center text-gray-500">
+          No comments yet. Be the first to share your thoughts.
+        </p>
+      ) : (
+        <div className="divide-y divide-gray-100">
+          {commentViews.map(discussion => (
+            <LectureDiscussionCard key={discussion.id} discussion={discussion} />
+          ))}
+        </div>
+      )}
     </section>
   )
 }

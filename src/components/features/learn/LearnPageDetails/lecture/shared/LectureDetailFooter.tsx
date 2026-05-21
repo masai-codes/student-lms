@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 
+import { LectureDiscussionsSection } from '../discussions'
 import {
   DEFAULT_LECTURE_TAB_ID,
   LectureTabBar,
@@ -10,7 +11,6 @@ import {
 import type { LectureDetailTabId } from '../tabs'
 
 import type { DiscussionListItem } from '@/server/learn/types'
-import { EntityDiscussionsPanel } from '@/components/features/new-discussions'
 
 type LectureDetailFooterProps = {
   entityId: number
@@ -32,14 +32,11 @@ export function LectureDetailFooter({
         className="shrink-0 border-b border-border pb-3 pt-3"
       />
       <LectureTabContentSection tabId={activeTabId} className="px-0 py-5" />
-      <section className="border-t border-border px-0 py-6">
-        <EntityDiscussionsPanel
-          entityKind="lecture"
-          entityId={entityId}
-          discussions={discussions}
-          emptyStateContext="lecture"
-        />
-      </section>
+      <LectureDiscussionsSection
+        entityId={entityId}
+        discussions={discussions}
+        className="border-t border-border px-0"
+      />
     </>
   )
 }

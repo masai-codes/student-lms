@@ -16,6 +16,10 @@
 - `src/server/learn/__tests__/getLectureLearningDetail.service.test.ts`
 - `src/components/features/learn/LearnPageDetails/lecture/live/utils/__tests__/resolveJoinLiveButtonState.test.ts`
 
+## Lecture discussions UI
+- `LectureDiscussionsSection` — YouTube-style inline comments (avatar composer + thread list)
+- `src/components/features/learn/LearnPageDetails/lecture/discussions/utils/__tests__/*`
+
 ## Commands
 - `npm run test -- src/server/learn`
 - `npm run test -- src/components/features/learn/LearnPageDetails/lecture/live/utils`

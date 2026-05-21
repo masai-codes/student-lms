@@ -2,81 +2,95 @@
 
 import { useState } from 'react'
 
+import { initialsFromName } from './utils/initialsFromName'
+
 import { RichTextEditor } from '@/components/discussion-post-card/rich-text-editor'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { MasaiButton } from '@/components/ui/masai-button'
+import { plainTextFromHtml } from '@/lib/plainTextFromHtml'
 import { cn } from '@/lib/utils'
 
 type LectureDiscussionComposerProps = {
   className?: string
-  onSubmit?: (payload: { title: string; descriptionMarkdown: string }) => void
-}
-
-function plainTextFromHtml(html: string): string {
-  return html
-    .replace(/<[^>]*>/g, '')
-    .replace(/&nbsp;/g, ' ')
-    .trim()
+  userName: string
+  userAvatarUrl?: string | null
+  disabled?: boolean
+  onSubmit?: (payload: { descriptionMarkdown: string }) => void | Promise<void>
 }
 
 export function LectureDiscussionComposer({
   className,
+  userName,
+  userAvatarUrl = null,
+  disabled = false,
   onSubmit,
 }: LectureDiscussionComposerProps) {
-  const [title, setTitle] = useState('')
   const [descriptionHtml, setDescriptionHtml] = useState('')
 
-  const canSubmit =
-    title.trim().length > 0 && plainTextFromHtml(descriptionHtml).length > 0
+  const canSubmit = plainTextFromHtml(descriptionHtml).length > 0 && !disabled
+  const hasDraft = plainTextFromHtml(descriptionHtml).length > 0
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!canSubmit) return
-    onSubmit?.({
-      title: title.trim(),
-      descriptionMarkdown: descriptionHtml.trim(),
-    })
-    setTitle('')
+    await onSubmit?.({ descriptionMarkdown: descriptionHtml.trim() })
     setDescriptionHtml('')
   }
 
+  const showActions = hasDraft
+
   return (
-    <div
-      className={cn(
-        'overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm',
-        className,
-      )}
-    >
-      <div className="border-b border-gray-100 px-3 py-2">
-        <label htmlFor="lecture-discussion-title" className="sr-only">
-          Discussion title
-        </label>
-        <input
-          id="lecture-discussion-title"
-          type="text"
-          placeholder="Title"
-          value={title}
-          onChange={event => setTitle(event.target.value)}
-          className="type-b2-regular w-full bg-transparent text-gray-900 outline-none placeholder:text-gray-400"
-        />
-      </div>
+    <div className={cn('flex gap-3', className)}>
+      <Avatar size="lg" className="size-10 shrink-0">
+        {userAvatarUrl ? (
+          <AvatarImage src={userAvatarUrl} alt={userName} />
+        ) : null}
+        <AvatarFallback className="type-b3-md bg-gray-100 text-gray-700">
+          {initialsFromName(userName)}
+        </AvatarFallback>
+      </Avatar>
 
-      <RichTextEditor
-        embedded
-        value={descriptionHtml}
-        onChange={setDescriptionHtml}
-        placeholder="Write your message…"
-        contentClassName="!min-h-[4.5rem] !max-h-[7.5rem] !overflow-y-auto !rounded-none !border-0 !px-3 !py-2 [&_p]:!my-0 [&_p+p]:!mt-1.5"
-      />
-
-      <div className="flex items-center justify-end gap-2 border-t border-gray-100 bg-[#FAF9F9] px-3 py-2">
-        <MasaiButton
-          kind="primary"
-          size="sm"
-          type="button"
-          disabled={!canSubmit}
-          onClick={handleSubmit}
+      <div className="min-w-0 flex-1">
+        <div
+          className={cn(
+            'rounded-2xl border bg-white transition-colors',
+            hasDraft ? 'border-gray-300 shadow-sm' : 'border-gray-200',
+          )}
         >
-          Post
-        </MasaiButton>
+          <RichTextEditor
+            embedded
+            showToolbar={false}
+            value={descriptionHtml}
+            onChange={setDescriptionHtml}
+            placeholder="Add a comment…"
+            contentClassName={cn(
+              '!min-h-[2.5rem] !max-h-[7.5rem] !overflow-y-auto !rounded-2xl !border-0 !px-3 !py-2.5',
+              '[&_p]:!my-0 [&_p+p]:!mt-1.5',
+            )}
+          />
+        </div>
+
+        {showActions ? (
+          <div className="mt-2 flex items-center justify-end gap-2">
+            <MasaiButton
+              kind="secondary"
+              size="sm"
+              type="button"
+              disabled={disabled}
+              onClick={() => setDescriptionHtml('')}
+            >
+              Cancel
+            </MasaiButton>
+            <MasaiButton
+              kind="primary"
+              size="sm"
+              type="button"
+              disabled={!canSubmit}
+              onClick={() => void handleSubmit()}
+            >
+              Comment
+            </MasaiButton>
+          </div>
+        ) : null}
       </div>
     </div>
   )
