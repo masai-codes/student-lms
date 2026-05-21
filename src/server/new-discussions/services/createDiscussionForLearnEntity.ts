@@ -6,10 +6,16 @@ import {
   DISCUSSION_ENTITY_ASSIGNMENT,
   DISCUSSION_ENTITY_LECTURE,
 } from '@/server/new-discussions/discussionEntityTypes'
+import { checkIfValidQuery } from '@/server/new-discussions/services/checkIfValidQuery'
 import { resolveAssigneeFromSection } from '@/server/new-discussions/services/resolveAssigneeFromSection'
 import { ensureUserCanAccessLearnHubEntity } from '@/server/learn/utils/ensureLearnEntityAccess'
 
 export type CreateLearnDiscussionKind = 'assignment' | 'lecture'
+
+async function resolveDiscussionVisibility(title: string, message: string): Promise<number> {
+  const isPublic = await checkIfValidQuery(`${title}\n\n${message}`)
+  return isPublic ? 1 : 0
+}
 
 export async function createDiscussionForLearnEntity(options: {
   authorUserId: number
@@ -47,13 +53,15 @@ export async function createDiscussionForLearnEntity(options: {
       a.instructorId
     )
 
+    const isPublic = await resolveDiscussionVisibility(title, message)
+
     await db.insert(discussions).values({
       entityType: DISCUSSION_ENTITY_ASSIGNMENT,
       entityId,
       userId: authorUserId,
       title,
       message,
-      public: 1,
+      public: isPublic,
       isClosed: 0,
       assigneeId,
       createdAt: sql`CURRENT_TIMESTAMP`,
@@ -102,13 +110,15 @@ export async function createDiscussionForLearnEntity(options: {
     fallbackHost
   )
 
+  const isPublic = await resolveDiscussionVisibility(title, message)
+
   await db.insert(discussions).values({
     entityType: DISCUSSION_ENTITY_LECTURE,
     entityId,
     userId: authorUserId,
     title,
     message,
-    public: 1,
+    public: isPublic,
     isClosed: 0,
     assigneeId,
     createdAt: sql`CURRENT_TIMESTAMP`,

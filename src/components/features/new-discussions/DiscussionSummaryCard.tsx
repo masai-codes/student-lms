@@ -2,16 +2,26 @@
 
 import { ChatsCircle } from '@phosphor-icons/react'
 
+import { DiscussionIstTimestamp } from '@/components/features/new-discussions/DiscussionIstTimestamp'
 import type { DiscussionListItem } from '@/server/learn/types'
 
 export type DiscussionSummaryCardProps = {
   discussion: DiscussionListItem
+  /** No outer chrome when nested inside another discussion container. */
+  embedded?: boolean
 }
 
-export function DiscussionSummaryCard({ discussion }: DiscussionSummaryCardProps) {
+export function DiscussionSummaryCard({
+  discussion,
+  embedded = false,
+}: DiscussionSummaryCardProps) {
   return (
     <article
-      className="rounded-lg border border-gray-200 bg-white p-3 shadow-sm transition-shadow hover:shadow-md"
+      className={
+        embedded
+          ? 'bg-transparent p-0'
+          : 'rounded-lg border border-gray-200 bg-white p-3 shadow-sm transition-shadow hover:shadow-md'
+      }
       aria-labelledby={`discussion-title-${discussion.id}`}
     >
       <div className="flex items-start justify-between gap-2">
@@ -28,6 +38,7 @@ export function DiscussionSummaryCard({ discussion }: DiscussionSummaryCardProps
         ) : null}
       </div>
       <p className="type-caption-regular mt-1 line-clamp-3 text-muted-foreground">{discussion.messagePreview}</p>
+      <DiscussionIstTimestamp value={discussion.createdAt} className="mt-2" />
       <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-gray-500">
         <span className="truncate">{discussion.author?.name ?? 'Student'}</span>
         <span className="inline-flex items-center gap-1">

@@ -13,6 +13,20 @@ export async function addReplyToLearnDiscussion(options: {
   const message = parseReplyMessage(options.rawMessage)
   await assertStudentMayInteractWithDiscussion(options.authorUserId, options.discussionId)
 
+  const discussionRows = await db
+    .select({ isClosed: discussions.isClosed })
+    .from(discussions)
+    .where(eq(discussions.id, options.discussionId))
+    .limit(1)
+
+  const discussion = discussionRows.at(0)
+  if (discussion === undefined) {
+    throw new Error('DISCUSSION_NOT_FOUND')
+  }
+  if (Number(discussion.isClosed) === 1) {
+    throw new Error('DISCUSSION_CLOSED')
+  }
+
   await db.transaction(async tx => {
     await tx.insert(threads).values({
       discussionId: options.discussionId,

@@ -64,7 +64,7 @@ export function DiscussionCreateModalBody({
           className="rounded-lg border border-[#E5E7EB]"
         />
         <div className="flex justify-end text-xs text-muted-foreground">
-          {plainLen}/{DISCUSSION_MODAL_MAX_BODY_PLAIN} characters
+          {plainLen}/{DISCUSSION_MODAL_MAX_BODY_PLAIN}
         </div>
       </div>
 

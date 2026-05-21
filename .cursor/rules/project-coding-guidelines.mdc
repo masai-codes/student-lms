@@ -31,6 +31,11 @@ alwaysApply: true
 - Ensure documented test commands are valid and runnable.
 
 ## Styling and UX
+- Use the shared Masai design system for UI primitives instead of one-off styles:
+  - **Buttons and CTAs**: `MasaiButton` (`src/components/ui/masai-button.tsx`) for primary actions; `CardCtaButton` (`src/components/shared/card-cta-button.tsx`) for card-level CTAs. Do not build custom button/CTA markup with ad-hoc colors or padding.
+  - **Other controls**: Prefer existing `masai-*` components in `src/components/ui/` (inputs, chips, tabs, drawers, pagination, etc.) before creating new variants.
+  - **Colors**: Use Masai color tokens from `src/lib/masai-colors.css` (e.g. `primary-*`, `gray-*`) via Tailwind classes. Avoid hardcoded hex/rgb values when a token exists.
+  - **Typography**: Use Masai typography classes from `src/lib/masai-typography.css` (e.g. `type-h*`, `type-b*`, `type-s*`). Do not invent custom font sizes/weights for standard UI text.
 - Follow existing Tailwind and component style conventions in the same feature area.
 - Avoid hardcoded magic values when a project token or shared constant exists.
 - Preserve accessibility basics (semantic elements, interactive affordances, readable text).

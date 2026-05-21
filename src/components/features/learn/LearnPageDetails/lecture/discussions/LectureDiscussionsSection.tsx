@@ -1,14 +1,13 @@
 'use client'
 
-import { useRouteContext, useRouter } from '@tanstack/react-router'
-import { useMemo, useState } from 'react'
+import { UsersThree } from '@phosphor-icons/react'
+import { useRouter } from '@tanstack/react-router'
+import { useState } from 'react'
 
-import { LectureDiscussionCard } from './LectureDiscussionCard'
-import { LectureDiscussionComposer } from './LectureDiscussionComposer'
-import { deriveDiscussionTitleFromMessage } from './utils/deriveDiscussionTitleFromMessage'
-import { mapDiscussionToLectureView } from './utils/mapDiscussionToLectureView'
+import { LectureDiscussionCreateForm } from './LectureDiscussionCreateForm'
 
 import type { DiscussionListItem } from '@/server/learn/types'
+import { LectureDiscussionListItem } from './LectureDiscussionListItem'
 import { createLearnDiscussion } from '@/server/new-discussions/createLearnDiscussion'
 import { cn } from '@/lib/utils'
 
@@ -24,22 +23,10 @@ export function LectureDiscussionsSection({
   className,
 }: LectureDiscussionsSectionProps) {
   const router = useRouter()
-  const { user } = useRouteContext({ from: '/(protected)/_layout' })
   const [pending, setPending] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  const commentViews = useMemo(
-    () => discussions.map(d => mapDiscussionToLectureView(d)),
-    [discussions],
-  )
-
-  const handlePost = async (payload: { descriptionMarkdown: string }) => {
-    const title = deriveDiscussionTitleFromMessage(payload.descriptionMarkdown)
-    if (!title) {
-      setError('Write a comment before posting.')
-      return
-    }
-
+  const handlePost = async (payload: { title: string; descriptionMarkdown: string }) => {
     setError(null)
     setPending(true)
     try {
@@ -47,34 +34,27 @@ export function LectureDiscussionsSection({
         data: {
           kind: 'lecture',
           entityId,
-          title,
+          title: payload.title,
           message: payload.descriptionMarkdown,
         },
       })
       await router.invalidate()
     } catch {
-      setError('Could not post your comment. Try again.')
+      setError('Could not post your discussion. Try again.')
     } finally {
       setPending(false)
     }
   }
 
   return (
-    <section
-      className={cn(
-        'border-t border-border bg-background px-4 py-6 md:px-6',
-        className,
-      )}
-    >
-      <h2 className="type-h6 mb-4 text-gray-900">
-        {commentViews.length}{' '}
-        {commentViews.length === 1 ? 'Comment' : 'Comments'}
-      </h2>
+    <section className={cn('border-t border-border bg-background py-6', className)}>
+      <h2 className="type-h6 mb-1 text-gray-900">Discussions</h2>
+      <p className="type-b3-regular mb-4 text-gray-500">
+        Share course-related discussions with your peers.
+      </p>
 
-      <LectureDiscussionComposer
+      <LectureDiscussionCreateForm
         className="mb-6"
-        userName={user.name.trim() || 'You'}
-        userAvatarUrl={user.profileImageUrl}
         disabled={pending}
         onSubmit={handlePost}
       />
@@ -85,14 +65,21 @@ export function LectureDiscussionsSection({
         </p>
       ) : null}
 
-      {commentViews.length === 0 ? (
-        <p className="type-b2-regular py-6 text-center text-gray-500">
-          No comments yet. Be the first to share your thoughts.
-        </p>
+      {discussions.length === 0 ? (
+        <div className="flex flex-col items-center gap-2 py-8 text-center">
+          <UsersThree className="h-16 w-16 text-gray-400" weight="bold" aria-hidden />
+          <h3 className="type-b2-md text-gray-900">No discussions yet</h3>
+          <p className="type-b3-regular max-w-sm text-gray-500">
+            Be the first to start a discussion about this lecture.
+          </p>
+        </div>
       ) : (
-        <div className="divide-y divide-gray-100">
-          {commentViews.map(discussion => (
-            <LectureDiscussionCard key={discussion.id} discussion={discussion} />
+        <div className="space-y-3">
+          <p className="type-b3-regular text-gray-600">
+            Check what your peers are discussing
+          </p>
+          {discussions.map(discussion => (
+            <LectureDiscussionListItem key={discussion.id} discussion={discussion} />
           ))}
         </div>
       )}

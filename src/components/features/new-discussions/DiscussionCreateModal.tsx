@@ -44,7 +44,7 @@ export function DiscussionCreateModal({
   const [pending, setPending] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  const plainLen = plainTextFromHtml(messageHtml)
+  const plainLen = plainTextFromHtml(messageHtml).length
 
   function addFiles(next: Array<File>) {
     const merged: Array<File> = [...files]

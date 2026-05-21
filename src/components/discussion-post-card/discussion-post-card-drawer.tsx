@@ -36,6 +36,7 @@ type DiscussionPostCardDrawerProps = Pick<
   | "drawerPinFooter"
   | "drawerFooterClassName"
 > & {
+  composerError?: string | null
   isBookmarked: boolean;
   onBookmarkClick: () => void;
   open: boolean;
@@ -68,6 +69,7 @@ export function DiscussionPostCardDrawer({
   drawerBodyClassName,
   drawerPinFooter = true,
   drawerFooterClassName,
+  composerError = null,
 }: DiscussionPostCardDrawerProps) {
   const [replyVotes, setReplyVotes] = React.useState<
     Record<string, { upvotes: number; downvotes: number; direction: VoteDirection }>
@@ -91,6 +93,8 @@ export function DiscussionPostCardDrawer({
     );
   }, [replies]);
 
+  const showReplyComposer = onReplySubmit != null
+
   const composerFooter = (
     <div
       className={cn(
@@ -103,6 +107,11 @@ export function DiscussionPostCardDrawer({
         drawerFooterClassName,
       )}
     >
+      {composerError ? (
+        <p className="mb-2 text-sm text-red-600" role="alert">
+          {composerError}
+        </p>
+      ) : null}
       <DiscussionPostCardComposer
         profileImage={profileImage}
         replyText={replyText}
@@ -275,10 +284,10 @@ export function DiscussionPostCardDrawer({
               )}
             </div>
 
-            {!drawerPinFooter ? composerFooter : null}
+            {!drawerPinFooter && showReplyComposer ? composerFooter : null}
           </div>
 
-          {drawerPinFooter ? composerFooter : null}
+          {drawerPinFooter && showReplyComposer ? composerFooter : null}
         </Dialog.Content>
       </Dialog.Portal>
     </Dialog.Root>

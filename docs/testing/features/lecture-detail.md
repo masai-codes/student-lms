@@ -17,8 +17,11 @@
 - `src/components/features/learn/LearnPageDetails/lecture/live/utils/__tests__/resolveJoinLiveButtonState.test.ts`
 
 ## Lecture discussions UI
-- `LectureDiscussionsSection` — YouTube-style inline comments (avatar composer + thread list)
-- `src/components/features/learn/LearnPageDetails/lecture/discussions/utils/__tests__/*`
+- `LectureDiscussionsSection` — title + description composer, inline discussion list with expand/collapse replies
+- `LectureDiscussionCreateForm`, `LectureDiscussionListItem`, `LectureDiscussionReplyForm`
+- `src/server/new-discussions/services/checkIfValidQuery.ts` — LLM public/private on create
+- `src/server/new-discussions/services/__tests__/checkIfValidQuery.test.ts`
+- `src/server/new-discussions/services/__tests__/createDiscussionForLearnEntity.test.ts`
 
 ## Commands
 - `npm run test -- src/server/learn`
