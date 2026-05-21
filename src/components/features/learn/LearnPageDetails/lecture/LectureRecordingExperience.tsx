@@ -36,6 +36,8 @@ type LectureRecordingExperienceProps = {
   scheduleDisplayRange: string
   entityId: number
   discussions: Array<DiscussionListItem>
+  notes: string | null
+  hideNotes: boolean
 }
 
 const chatLoaderProps = {
@@ -55,6 +57,8 @@ export function LectureRecordingExperience({
   scheduleDisplayRange,
   entityId,
   discussions,
+  notes,
+  hideNotes,
 }: LectureRecordingExperienceProps) {
   const { rootRef, heightPx } = useLectureHeroViewportHeight()
   const { isTheaterMode, toggleTheaterMode } = useLectureTheaterMode()
@@ -160,7 +164,12 @@ export function LectureRecordingExperience({
       hero={hero}
       belowHero={belowHero}
       footer={
-        <LectureDetailFooter entityId={entityId} discussions={discussions} />
+        <LectureDetailFooter
+          entityId={entityId}
+          discussions={discussions}
+          notes={notes}
+          hideNotes={hideNotes}
+        />
       }
     />
   )

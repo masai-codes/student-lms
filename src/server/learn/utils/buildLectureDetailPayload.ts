@@ -17,6 +17,7 @@ type LectureDetailRow = {
   vimeoPlayerEmbedUrl: string | null
   settings: unknown
   hostAvatarUrl: string | null
+  notes: string | null
 }
 
 const SUPPORTED_LECTURE_KINDS = new Set<LectureKind>(['live', 'video'])
@@ -72,6 +73,8 @@ export function buildLectureDetailPayload(
         })
       : null
 
+  const trimmedNotes = row.notes?.trim() ?? ''
+
   return {
     ...core,
     lectureKind,
@@ -80,6 +83,8 @@ export function buildLectureDetailPayload(
     scheduleDisplayRange: formatLectureScheduleRange(row.schedule, row.concludes),
     hostAvatarUrl: row.hostAvatarUrl,
     hideVideo: settings.hideVideo,
+    hideNotes: settings.hideNotes,
+    notes: trimmedNotes.length > 0 ? trimmedNotes : null,
     videoUrl,
     zoomLink,
     livePhase,

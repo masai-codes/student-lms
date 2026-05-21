@@ -4,21 +4,25 @@ import { MasaiTab } from '@/components/ui/masai-tab'
 import { cn } from '@/lib/utils'
 
 import {
-  LECTURE_DETAIL_TABS,
+  resolveVisibleLectureDetailTabs,
   type LectureDetailTabId,
 } from './constants/staticLectureTabContent'
 
 type LectureTabBarProps = {
   activeTabId: LectureDetailTabId
   onTabChange: (tabId: LectureDetailTabId) => void
+  hideNotes: boolean
   className?: string
 }
 
 export function LectureTabBar({
   activeTabId,
   onTabChange,
+  hideNotes,
   className,
 }: LectureTabBarProps) {
+  const tabs = resolveVisibleLectureDetailTabs(hideNotes)
+
   return (
     <div
       role="tablist"
@@ -28,7 +32,7 @@ export function LectureTabBar({
         className,
       )}
     >
-      {LECTURE_DETAIL_TABS.map(tab => (
+      {tabs.map(tab => (
         <MasaiTab
           key={tab.id}
           label={tab.label}

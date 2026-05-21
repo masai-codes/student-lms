@@ -13,6 +13,8 @@ type DuringAfterVideoLectureWithRecordingProps = {
   scheduleDisplayRange: string
   entityId: number
   discussions: Array<DiscussionListItem>
+  notes: string | null
+  hideNotes: boolean
 }
 
 export function DuringAfterVideoLectureWithRecording(

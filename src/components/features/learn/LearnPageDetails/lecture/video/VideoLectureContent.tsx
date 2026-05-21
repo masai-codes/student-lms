@@ -41,7 +41,12 @@ export function VideoLectureContent({ detail }: VideoLectureContentProps) {
       scheduleDisplayRange={detail.scheduleDisplayRange}
       hero={renderVideoHero(detail)}
       footer={
-        <LectureDetailFooter entityId={detail.id} discussions={detail.discussions} />
+        <LectureDetailFooter
+          entityId={detail.id}
+          discussions={detail.discussions}
+          notes={detail.notes}
+          hideNotes={detail.hideNotes}
+        />
       }
     />
   )

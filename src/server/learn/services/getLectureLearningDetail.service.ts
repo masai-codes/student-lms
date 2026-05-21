@@ -38,6 +38,7 @@ export async function getLectureLearningDetailForUser(
       vimeoDownloadLinks: lectures.vimeoDownloadLinks,
       vimeoPlayerEmbedUrl: lectures.vimeoPlayerEmbedUrl,
       settings: lectures.settings,
+      notes: lectures.notes,
     })
     .from(lectures)
     .leftJoin(users, eq(lectures.hostId, users.id))
@@ -89,6 +90,7 @@ export async function getLectureLearningDetailForUser(
       vimeoPlayerEmbedUrl: row.vimeoPlayerEmbedUrl,
       settings: row.settings,
       hostAvatarUrl: row.hostAvatarUrl,
+      notes: row.notes,
     },
     Date.now(),
   )

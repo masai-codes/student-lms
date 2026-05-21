@@ -13,6 +13,8 @@ export type LectureDetailPayload = LearnHubDetailPayload & {
   scheduleDisplayRange: string
   hostAvatarUrl: string | null
   hideVideo: boolean
+  hideNotes: boolean
+  notes: string | null
   videoUrl: string | null
   zoomLink: string | null
   livePhase: LiveLecturePhase | null

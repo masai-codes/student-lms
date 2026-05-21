@@ -1,6 +1,7 @@
 'use client'
 
 import { ExpandableTabContent } from './ExpandableTabContent'
+import { LectureNotesTabContent } from './LectureNotesTabContent'
 import { LectureTabMarkdown } from './LectureTabMarkdown'
 import {
   STATIC_LECTURE_TAB_CONTENT,
@@ -11,10 +12,11 @@ import { cn } from '@/lib/utils'
 
 type LectureTabPanelProps = {
   tabId: LectureDetailTabId
+  notes: string | null
 }
 
-export function LectureTabPanel({ tabId }: LectureTabPanelProps) {
-  const content = STATIC_LECTURE_TAB_CONTENT[tabId]
+export function LectureTabPanel({ tabId, notes }: LectureTabPanelProps) {
+  const isNotesTab = tabId === 'notes'
 
   return (
     <div
@@ -29,9 +31,13 @@ export function LectureTabPanel({ tabId }: LectureTabPanelProps) {
           'ring-1 ring-gray-200/80',
         )}
       >
-        <ExpandableTabContent>
-          <LectureTabMarkdown content={content} />
-        </ExpandableTabContent>
+        {isNotesTab ? (
+          <LectureNotesTabContent notes={notes} />
+        ) : (
+          <ExpandableTabContent>
+            <LectureTabMarkdown content={STATIC_LECTURE_TAB_CONTENT[tabId]} />
+          </ExpandableTabContent>
+        )}
       </div>
     </div>
   )

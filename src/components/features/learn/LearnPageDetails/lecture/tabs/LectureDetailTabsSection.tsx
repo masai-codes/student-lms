@@ -10,10 +10,14 @@ import { cn } from '@/lib/utils'
 
 type LectureDetailTabsSectionProps = {
   className?: string
+  notes?: string | null
+  hideNotes?: boolean
 }
 
 export function LectureDetailTabsSection({
   className,
+  notes = null,
+  hideNotes = false,
 }: LectureDetailTabsSectionProps) {
   const [activeTabId, setActiveTabId] =
     useState<LectureDetailTabId>(DEFAULT_LECTURE_TAB_ID)
@@ -25,8 +29,12 @@ export function LectureDetailTabsSection({
         className,
       )}
     >
-      <LectureTabBar activeTabId={activeTabId} onTabChange={setActiveTabId} />
-      <LectureTabPanel key={activeTabId} tabId={activeTabId} />
+      <LectureTabBar
+        activeTabId={activeTabId}
+        onTabChange={setActiveTabId}
+        hideNotes={hideNotes}
+      />
+      <LectureTabPanel key={activeTabId} tabId={activeTabId} notes={notes} />
     </section>
   )
 }

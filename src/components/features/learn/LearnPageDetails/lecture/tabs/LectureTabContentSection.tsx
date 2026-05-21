@@ -7,12 +7,14 @@ import { cn } from '@/lib/utils'
 
 type LectureTabContentSectionProps = {
   tabId: LectureDetailTabId
+  notes: string | null
   className?: string
 }
 
 /** Tab panel body (scrolls below the viewport-locked hero + tab row). */
 export function LectureTabContentSection({
   tabId,
+  notes,
   className,
 }: LectureTabContentSectionProps) {
   return (
@@ -22,7 +24,7 @@ export function LectureTabContentSection({
         className,
       )}
     >
-      <LectureTabPanel key={tabId} tabId={tabId} />
+      <LectureTabPanel key={tabId} tabId={tabId} notes={notes} />
     </section>
   )
 }

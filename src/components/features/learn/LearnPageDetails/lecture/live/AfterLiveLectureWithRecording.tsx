@@ -13,6 +13,8 @@ type AfterLiveLectureWithRecordingProps = {
   scheduleDisplayRange: string
   entityId: number
   discussions: Array<DiscussionListItem>
+  notes: string | null
+  hideNotes: boolean
 }
 
 export function AfterLiveLectureWithRecording(props: AfterLiveLectureWithRecordingProps) {

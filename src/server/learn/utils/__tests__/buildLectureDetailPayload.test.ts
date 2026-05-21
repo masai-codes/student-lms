@@ -31,11 +31,14 @@ describe('buildLectureDetailPayload', () => {
         vimeoPlayerEmbedUrl: null,
         settings: null,
         hostAvatarUrl: null,
+        notes: '  Lecture notes  ',
       },
       concludesMs + 60_000,
     )
 
     expect(payload.lectureKind).toBe('live')
+    expect(payload.notes).toBe('Lecture notes')
+    expect(payload.hideNotes).toBe(false)
     expect(payload.livePhase).toBe('after')
     expect(payload.hasRecording).toBe(true)
     expect(payload.videoUrl).toBe('https://cdn.example/hls.m3u8')
@@ -54,14 +57,17 @@ describe('buildLectureDetailPayload', () => {
         videos: ['https://example.com/a.mp4'],
         vimeoDownloadLinks: null,
         vimeoPlayerEmbedUrl: null,
-        settings: { hide_video: true },
+        settings: { hide_video: true, hide_notes: 1 },
         hostAvatarUrl: '/avatar.png',
+        notes: null,
       },
       scheduleMs,
     )
 
     expect(payload.lectureKind).toBe('video')
     expect(payload.hideVideo).toBe(true)
+    expect(payload.hideNotes).toBe(true)
+    expect(payload.notes).toBeNull()
     expect(payload.videoUrl).toBeNull()
     expect(payload.hasRecording).toBe(false)
     expect(payload.hostAvatarUrl).toBe('/avatar.png')
@@ -81,6 +87,7 @@ describe('buildLectureDetailPayload', () => {
           vimeoPlayerEmbedUrl: null,
           settings: null,
           hostAvatarUrl: null,
+          notes: null,
         },
         Date.now(),
       ),

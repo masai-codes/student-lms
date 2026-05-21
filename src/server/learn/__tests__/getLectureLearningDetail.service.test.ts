@@ -54,7 +54,8 @@ describe('getLectureLearningDetailForUser', () => {
                   videos: null,
                   vimeoDownloadLinks: null,
                   vimeoPlayerEmbedUrl: null,
-                  settings: null,
+                  settings: { hide_notes: 0 },
+                  notes: '# Session notes',
                 },
               ]),
           }),
@@ -65,6 +66,8 @@ describe('getLectureLearningDetailForUser', () => {
     const result = await getLectureLearningDetailForUser(9, 227)
 
     expect(result.id).toBe(227)
+    expect(result.notes).toBe('# Session notes')
+    expect(result.hideNotes).toBe(false)
     expect(result.lectureKind).toBe('live')
     expect(result.livePhase).toBe('after')
     expect(result.discussions).toEqual([])

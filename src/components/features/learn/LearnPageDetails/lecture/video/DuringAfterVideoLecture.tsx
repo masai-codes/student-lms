@@ -22,6 +22,8 @@ export function DuringAfterVideoLecture({ detail }: DuringAfterVideoLectureProps
         scheduleDisplayRange={detail.scheduleDisplayRange}
         entityId={detail.id}
         discussions={detail.discussions}
+        notes={detail.notes}
+        hideNotes={detail.hideNotes}
       />
     )
   }

@@ -46,7 +46,12 @@ export function LiveLectureContent({ detail }: LiveLectureContentProps) {
       scheduleDisplayRange={detail.scheduleDisplayRange}
       hero={renderLiveHero(detail)}
       footer={
-        <LectureDetailFooter entityId={detail.id} discussions={detail.discussions} />
+        <LectureDetailFooter
+          entityId={detail.id}
+          discussions={detail.discussions}
+          notes={detail.notes}
+          hideNotes={detail.hideNotes}
+        />
       }
     />
   )
