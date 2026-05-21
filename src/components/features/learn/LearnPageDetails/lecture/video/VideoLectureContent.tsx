@@ -34,6 +34,8 @@ export function VideoLectureContent({ detail }: VideoLectureContentProps) {
   return (
     <LectureDetailChrome
       title={detail.title}
+      tags={detail.tags}
+      priority={detail.priority}
       hostName={detail.hostName}
       hostAvatarUrl={detail.hostAvatarUrl}
       scheduleDisplayRange={detail.scheduleDisplayRange}

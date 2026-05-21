@@ -1,12 +1,16 @@
 'use client'
 
-import { LectureHostRow, LectureTitleStrip } from '../meta'
+import { LectureDetailOverviewHeader } from '../meta'
 import type { ReactNode } from 'react'
+
+import type { LearningPriority } from '@/server/learn/types'
 import { lectureDetailContentClasses } from '@/lib/layout'
 import { cn } from '@/lib/utils'
 
 type LectureDetailChromeProps = {
   title: string
+  tags: Array<string>
+  priority: LearningPriority
   hostName: string
   hostAvatarUrl: string | null
   scheduleDisplayRange: string
@@ -17,6 +21,8 @@ type LectureDetailChromeProps = {
 
 export function LectureDetailChrome({
   title,
+  tags,
+  priority,
   hostName,
   hostAvatarUrl,
   scheduleDisplayRange,
@@ -29,12 +35,13 @@ export function LectureDetailChrome({
       <section className="flex w-full shrink-0 flex-col overflow-visible bg-white">
         {hero}
         <div className={cn(lectureDetailContentClasses, 'relative z-20 shrink-0')}>
-          <LectureTitleStrip title={title} />
-          <LectureHostRow
+          <LectureDetailOverviewHeader
+            title={title}
+            tags={tags}
+            priority={priority}
             hostName={hostName}
             avatarUrl={hostAvatarUrl}
             dateRange={scheduleDisplayRange}
-            className="border-b-0"
           />
           {belowHero}
         </div>

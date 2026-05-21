@@ -15,10 +15,10 @@ export function BeforeVideoLecture({ schedule }: BeforeVideoLectureProps) {
 
   return (
     <LectureStatePanel
-      title="Video lecture hasn't started yet"
+      title="Lecture hasn’t started yet"
       description={
         <>
-          The video will unlock at{' '}
+         Lecture will be unlocked and available at{' '}
           <span className="type-b2-md text-gray-900">{unlockLabel}</span>.
         </>
       }

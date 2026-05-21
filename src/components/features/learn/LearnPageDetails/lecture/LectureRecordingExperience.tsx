@@ -23,12 +23,14 @@ import { useLectureTheaterMode } from './hooks/useLectureTheaterMode'
 import { LectureDetailFooter } from './shared/LectureDetailFooter'
 import { LectureDetailChrome } from './shared/LectureDetailChrome'
 import { LectureVideoSection } from './video'
-import type { DiscussionListItem } from '@/server/learn/types'
+import type { DiscussionListItem, LearningPriority } from '@/server/learn/types'
 import { cn } from '@/lib/utils'
 
 type LectureRecordingExperienceProps = {
   videoUrl: string
   title: string
+  tags: Array<string>
+  priority: LearningPriority
   hostName: string
   hostAvatarUrl: string | null
   scheduleDisplayRange: string
@@ -46,6 +48,8 @@ const chatLoaderProps = {
 export function LectureRecordingExperience({
   videoUrl,
   title,
+  tags,
+  priority,
   hostName,
   hostAvatarUrl,
   scheduleDisplayRange,
@@ -148,6 +152,8 @@ export function LectureRecordingExperience({
   return (
     <LectureDetailChrome
       title={title}
+      tags={tags}
+      priority={priority}
       hostName={hostName}
       hostAvatarUrl={hostAvatarUrl}
       scheduleDisplayRange={scheduleDisplayRange}
