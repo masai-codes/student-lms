@@ -48,6 +48,7 @@
     "drizzle-orm": "^0.45.1",
     "embla-carousel-react": "^8.6.0",
     "expo-server-sdk": "^6.1.0",
+    "hls.js": "^1.6.16",
     "jsonwebtoken": "^9.0.3",
     "lucide-react": "^0.561.0",
     "media-chrome": "^4.17.2",

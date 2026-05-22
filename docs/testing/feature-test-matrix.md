@@ -3,10 +3,10 @@
 Last updated: 2026-05-20
 
 ## Lecture detail (`/lectures/:id`)
-- Area: Live/video phase resolution, recording URL resolution, lecture detail UI states
-- Status: Covered (server utils + service; join button client util)
-- Test files: `src/server/learn/**/__tests__/*lecture*`, `src/components/features/learn/LearnPageDetails/lecture/live/utils/__tests__/*`
-- Notes: See `docs/testing/features/lecture-detail.md`
+- Area: Live/video phase resolution, recording URL resolution, lecture detail UI states, video player + attendance
+- Status: Covered (server utils + service; join button client util; video attendance utils + API proxy)
+- Test files: `src/server/learn/**/__tests__/*lecture*`, `src/components/features/learn/LearnPageDetails/lecture/live/utils/__tests__/*`, `src/lib/video-attendance/__tests__/*`, `src/server/video-attendance/**/__tests__/*`, `src/components/features/learn/LearnPageDetails/lecture/video/hooks/__tests__/*`
+- Notes: See `docs/testing/features/lecture-detail.md`, `docs/testing/features/lecture-video-player.md`
 
 ## Learn hub (new-discussions)
 - Area: Server + learn detail integration for entity-scoped discussions (non-admin)

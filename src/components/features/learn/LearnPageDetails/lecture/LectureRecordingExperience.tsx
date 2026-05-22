@@ -117,6 +117,7 @@ export function LectureRecordingExperience({
     >
       {isTheaterMode ? (
         <LectureVideoSection
+          lectureId={entityId}
           videoUrl={videoUrl}
           className="min-h-0 flex-1"
           isTheaterMode={isTheaterMode}
@@ -132,6 +133,7 @@ export function LectureRecordingExperience({
             style={{ width: `${LECTURE_SPLIT_VIDEO_WIDTH_PERCENT}%` }}
           >
             <LectureVideoSection
+              lectureId={entityId}
               videoUrl={videoUrl}
               className="min-h-0 flex-1"
               fullBleed={false}

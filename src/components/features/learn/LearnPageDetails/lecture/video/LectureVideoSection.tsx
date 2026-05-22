@@ -6,6 +6,7 @@ import { LectureVideoFullBleed } from './LectureVideoFullBleed'
 import { cn } from '@/lib/utils'
 
 type LectureVideoSectionProps = {
+  lectureId: number
   videoUrl: string
   className?: string
   /** When false, video stays in its column (theater layout). */
@@ -15,6 +16,7 @@ type LectureVideoSectionProps = {
 }
 
 export function LectureVideoSection({
+  lectureId,
   videoUrl,
   className,
   fullBleed = true,
@@ -23,6 +25,7 @@ export function LectureVideoSection({
 }: LectureVideoSectionProps) {
   const player = (
     <LectureReactPlayer
+      lectureId={lectureId}
       src={videoUrl}
       isTheaterMode={isTheaterMode}
       onTheaterModeToggle={onTheaterModeToggle}
