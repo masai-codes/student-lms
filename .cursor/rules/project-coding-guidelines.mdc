@@ -15,6 +15,13 @@ alwaysApply: true
 - Keep file size minimal; max file length is 200 lines. Split into smaller components/hooks/utils when approaching this limit.
 - Handle edge cases explicitly (empty states, invalid inputs, null/undefined values).
 
+## AI-Assisted Development
+- When generating or editing code with AI (Cursor or otherwise), always treat type safety as a hard requirement—not an optional cleanup step.
+- Do not accept AI output that introduces `any`, unchecked casts (`as`), or `@ts-ignore` / `@ts-expect-error` without a documented, reviewed reason.
+- After AI changes, run `npm run typecheck` and fix every TypeScript error in touched files before committing or pushing.
+- Prefer AI suggestions that reuse existing typed APIs, domain types, and router/search param types over inventing new loosely typed shapes.
+- If AI-generated code does not compile under strict TypeScript, revise the prompt or hand-fix types until `typecheck` passes; do not merge “fix types later” work.
+
 ## Testing Requirements
 - Add or update tests for every non-trivial behavior change.
 - Prefer behavior-driven tests with Testing Library over implementation details.
