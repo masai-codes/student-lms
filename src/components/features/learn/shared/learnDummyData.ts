@@ -17,11 +17,7 @@ const hostNames = [
   'Arjun Rao',
 ]
 
-const attendanceStatuses: Array<LearnContentItem['attendanceStatus']> = [
-  'Present',
-  'Absent',
-  'Pending',
-]
+const priorities: Array<LearnContentItem['priority']> = ['recommended', 'mandatory']
 
 function createDummyItems(
   kind: LearnContentItem['type'],
@@ -30,16 +26,17 @@ function createDummyItems(
   return Array.from({ length: 20 }, (_, index) => {
     const itemNumber = index + 1
     const moduleName = `Module ${((index % 3) + 1).toString()}`
-    const day = ((index % 28) + 1).toString().padStart(2, '0')
 
     return {
-      id: `${kind}-${itemNumber}`,
+      id: itemNumber,
       type: kind,
       title: `${titlePrefix} ${itemNumber}`,
       hostName: hostNames[index % hostNames.length],
-      date: `${day} May 2026`,
+      date: `${((index % 28) + 1).toString().padStart(2, '0')} May 2026`,
+      category: moduleName,
+      learningSubType: index % 2 === 0 ? 'Live' : 'Faculty',
+      priority: priorities[index % priorities.length],
       tags: ['Live', 'Faculty', 'Recommended', moduleName],
-      attendanceStatus: attendanceStatuses[index % attendanceStatuses.length],
     }
   })
 }

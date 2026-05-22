@@ -13,7 +13,7 @@ export default function BreadCrumb() {
         <BreadcrumbList>
           <BreadcrumbItem>
             <BreadcrumbLink asChild>
-              <Link to="/courses">Learn</Link>
+              <Link to="/learn" search={{ batchId: undefined }}>Learn</Link>
             </BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbSeparator />

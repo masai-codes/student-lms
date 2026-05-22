@@ -287,7 +287,7 @@ export function useLectureVideoAttendance({
       : undefined
     const useHlsJs = Boolean(isHls && videoEl && src && Hls.isSupported())
 
-    if (useHlsJs) {
+    if (useHlsJs && videoEl) {
       if (!hlsRef.current) {
         const hls = new Hls()
         hlsRef.current = hls

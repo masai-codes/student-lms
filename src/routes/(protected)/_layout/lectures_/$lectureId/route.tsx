@@ -2,7 +2,6 @@ import { createFileRoute } from '@tanstack/react-router'
 
 import {
   LearnPageDetailError,
-  LearningDetailMasaiBreadcrumb,
   LectureDetailPage,
 } from '@/components/features/learn/LearnPageDetails'
 import { lectureDetailRouteClasses } from '@/lib/layout'

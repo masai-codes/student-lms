@@ -12,7 +12,6 @@ import { tinyintToBool } from '@/server/new-discussions/utils/discussionPresenta
 function authorFromRow(
   authorId: number,
   authorName: string | null,
-  profilePhotoPath: string | null
 ): LearnDiscussionDetail['author'] {
   return {
     id: authorId,
@@ -70,7 +69,7 @@ export async function getLearnDiscussionById(
     id: row.id,
     message: row.message,
     createdAt: row.createdAt,
-    author: authorFromRow(row.authorId, row.authorName, row.authorProfilePhotoPath),
+    author: authorFromRow(row.authorId, row.authorName),
     authorProfileImageUrl: profileImageUrl(row.authorProfilePhotoPath),
   }))
 
@@ -80,11 +79,7 @@ export async function getLearnDiscussionById(
     message: discussion.message,
     isClosed: tinyintToBool(discussion.isClosed),
     createdAt: discussion.createdAt,
-    author: authorFromRow(
-      discussion.authorId,
-      discussion.authorName,
-      discussion.authorProfilePhotoPath
-    ),
+    author: authorFromRow(discussion.authorId, discussion.authorName),
     authorProfileImageUrl: profileImageUrl(discussion.authorProfilePhotoPath),
     threads: mappedThreads,
   }

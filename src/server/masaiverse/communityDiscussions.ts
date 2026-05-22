@@ -115,11 +115,6 @@ function normalizePostId(postId: DiscussionEntityId): number {
   return normalized
 }
 
-function truncateNotificationText(text: string, maxLength = 90): string {
-  if (text.length <= maxLength) return text
-  return `${text.slice(0, maxLength - 3)}...`
-}
-
 function decodeBasicHtmlEntities(text: string): string {
   return text
     .replace(/&nbsp;/gi, ' ')
@@ -646,30 +641,7 @@ export async function createCommunityReplyHandler({ data }: { data: { postId: Di
       VALUES (${normalizedPostId}, ${userId}, ${content}, ${UTC_SQL_NOW}, ${UTC_SQL_NOW})
     `)
 
-    if (post.authorId !== userId) {
-      try {
-        const actorRows = normalizeRows<{ name: string | null }>(await db.execute(sql`
-          SELECT name
-          FROM users
-          WHERE id = ${userId}
-          LIMIT 1
-        `))
-        const actorName = actorRows[0]?.name?.trim() || 'Someone'
-        const replyTextForNotification = getPlainTextFromHtml(content)
-        // await pushNotificationService.sendNotificationToUser({
-        //   userId: post.authorId,
-        //   title: 'New reply on your post',
-        //   body: `${actorName}: ${truncateNotificationText(replyTextForNotification)}`,
-        //   data: {
-        //     type: 'community_post_reply',
-        //     postId: String(normalizedPostId),
-        //     actorUserId: String(userId),
-        //   },
-        // })
-      } catch {
-        // Notification failures should not block reply creation.
-      }
-    }
+    // Post-author notifications are disabled until push delivery is re-enabled.
 
     return { success: true }
   }
@@ -800,33 +772,9 @@ export async function voteCommunityPostHandler({ data }: { data: { postId: Discu
       throw new Error('UNAUTHORIZED')
     }
 
-    const voteResult = await applyPostVote(userId, data.postId, data.vote)
+    await applyPostVote(userId, data.postId, data.vote)
 
-    if (voteResult.shouldNotify && voteResult.postAuthorId !== userId && data.vote === 'upvote') {
-      try {
-        const actorRows = normalizeRows<{ name: string | null }>(await db.execute(sql`
-          SELECT name
-          FROM users
-          WHERE id = ${userId}
-          LIMIT 1
-        `))
-        const actorName = actorRows[0]?.name?.trim() || 'Someone'
-
-        // await pushNotificationService.sendNotificationToUser({
-        //   userId: voteResult.postAuthorId,
-        //   title: 'Your post got an upvote',
-        //   body: `${actorName} upvoted your post`,
-        //   data: {
-        //     type: 'community_post_upvote',
-        //     postId: String(data.postId),
-        //     actorUserId: String(userId),
-        //     vote: data.vote,
-        //   },
-        // })
-      } catch {
-        // Notification failures should not block vote actions.
-      }
-    }
+    // Upvote notifications are disabled until push delivery is re-enabled.
 
     return { success: true }
   }

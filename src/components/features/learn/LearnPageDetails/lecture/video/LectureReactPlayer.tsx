@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, type MouseEvent } from 'react'
 import ReactPlayer from 'react-player/lazy'
 
 import { VideoAttendanceCustomControls } from './controls/VideoAttendanceCustomControls'
@@ -106,7 +106,7 @@ export function LectureReactPlayer({
             onPlaybackRateChange={attendance.handlePlayBackRateChange}
             onEnded={attendance.handleVideoEnded}
             onSeek={attendance.handleSeek}
-            onContextMenu={event => event.preventDefault()}
+            onContextMenu={(event: MouseEvent) => event.preventDefault()}
             config={{
               file: {
                 forceHLS: isHlsUrl(src),

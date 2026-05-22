@@ -2,7 +2,6 @@
 
 import {  useEffect, useRef, useState } from 'react'
 import {
-  ClosedCaptioning,
   CornersIn,
   CornersOut,
   DotsThreeOutlineVertical,
@@ -25,7 +24,6 @@ import {
   getVimeoLikeInternal,
   playbackRateLabel
 } from './lectureVideoChrome.utils'
-import type {CSSProperties} from 'react';
 import type {LectureChromePlayerRef} from './lectureVideoChrome.utils';
 
 type LectureVideoControlsToolbarProps = {

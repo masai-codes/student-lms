@@ -33,7 +33,7 @@ export default function AppMobileTabBar() {
         icon: <Home strokeWidth={1.75} className="size-6 shrink-0 text-current" />,
         isActive: activeId === 'home',
         onClick: () => {
-          void navigate({ to: '/learn' })
+          void navigate({ to: '/learn', search: { batchId: undefined } })
         },
       },
       {
@@ -42,7 +42,7 @@ export default function AppMobileTabBar() {
         icon: <LayoutGrid strokeWidth={1.75} className="size-6 shrink-0 text-current" />,
         isActive: activeId === 'learn',
         onClick: () => {
-          void navigate({ to: '/learn' })
+          void navigate({ to: '/learn', search: { batchId: undefined } })
         },
       },
       {
@@ -51,7 +51,7 @@ export default function AppMobileTabBar() {
         icon: <Users strokeWidth={1.75} className="size-6 shrink-0 text-current" />,
         isActive: activeId === 'masaiverse',
         onClick: () => {
-          void navigate({ to: '/masaiverse' })
+          void navigate({ to: '/masaiverse', search: { tab: 'home' } })
         },
       },
     ],
