@@ -49,7 +49,7 @@ alwaysApply: true
 - Do not write raw SQL queries in application code. Prefer typed ORM query builders (Drizzle) for safety, consistency, and maintainability.
 
 ## PR Quality Bar
-- Ensure `npm run test` and `npm run lint` pass for touched code.
+- Ensure `npm run test`, `npm run lint`, and `npm run typecheck` pass for touched code.
 - Ensure TypeScript has zero errors for changed code paths; target 0 TypeScript errors in the project.
 - Keep changes scoped to the request; do not refactor unrelated areas.
 - Add concise code comments only where logic is non-obvious.
