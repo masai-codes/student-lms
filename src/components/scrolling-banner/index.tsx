@@ -277,7 +277,7 @@ export function ScrollingBanner({
           </div>
         </div>
       ) : null}
-      <style jsx>{`
+      <style>{`
         .no-scrollbar {
           -ms-overflow-style: none;
           scrollbar-width: none;

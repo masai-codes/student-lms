@@ -74,7 +74,7 @@ export function LectureDiscussionComposer({
             <MasaiButton
               kind="secondary"
               size="sm"
-              type="button"
+              htmlType="button"
               disabled={disabled}
               onClick={() => setDescriptionHtml('')}
             >
@@ -83,7 +83,7 @@ export function LectureDiscussionComposer({
             <MasaiButton
               kind="primary"
               size="sm"
-              type="button"
+              htmlType="button"
               disabled={!canSubmit}
               onClick={() => void handleSubmit()}
             >

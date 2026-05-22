@@ -119,11 +119,6 @@ function normalizePostId(postId: DiscussionEntityId): number {
   return normalized
 }
 
-function truncateNotificationText(text: string, maxLength = 90): string {
-  if (text.length <= maxLength) return text
-  return `${text.slice(0, maxLength - 3)}...`
-}
-
 function decodeBasicHtmlEntities(text: string): string {
   return text
     .replace(/&nbsp;/gi, ' ')
@@ -671,6 +666,7 @@ export async function createCommunityReplyHandler({ data }: { data: { postId: Di
         // Notification failures should not block reply creation.
       }
     }
+    // Post-author notifications are disabled until push delivery is re-enabled.
 
     return { success: true }
   }
@@ -801,7 +797,7 @@ export async function voteCommunityPostHandler({ data }: { data: { postId: Discu
       throw new Error('UNAUTHORIZED')
     }
 
-    const voteResult = await applyPostVote(userId, data.postId, data.vote)
+    await applyPostVote(userId, data.postId, data.vote)
 
     if (voteResult.shouldNotify && voteResult.postAuthorId !== userId && data.vote === 'upvote') {
       try {
@@ -823,6 +819,7 @@ export async function voteCommunityPostHandler({ data }: { data: { postId: Discu
         // Notification failures should not block vote actions.
       }
     }
+    // Upvote notifications are disabled until push delivery is re-enabled.
 
     return { success: true }
   }

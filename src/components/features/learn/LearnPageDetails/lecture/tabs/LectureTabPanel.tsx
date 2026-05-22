@@ -8,6 +8,16 @@ import type { LectureDetailTabId } from './constants/staticLectureTabContent'
 
 import type { LectureDetailTabContent } from '@/server/learn/lectureDetailTypes'
 
+const LECTURE_TAB_CONTENT_KEY: Record<
+  Exclude<LectureDetailTabId, 'notes'>,
+  keyof LectureDetailTabContent
+> = {
+  description: 'description',
+  'ai-summary': 'aiSummary',
+  transcript: 'transcript',
+  associated: 'associated',
+}
+
 const TAB_EMPTY_COPY: Record<
   Exclude<LectureDetailTabId, 'notes'>,
   { title: string; description: string }
@@ -68,7 +78,7 @@ export function LectureTabPanel({ tabId, tabs }: LectureTabPanelProps) {
         {tabId === 'notes' ? (
           <LectureNotesTabContent notes={tabs.notes} />
         ) : (
-          renderMarkdownTab(tabId, tabs[tabId])
+          renderMarkdownTab(tabId, tabs[LECTURE_TAB_CONTENT_KEY[tabId]])
         )}
       </div>
     </div>
