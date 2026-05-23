@@ -1,13 +1,13 @@
 import { createServerFn } from '@tanstack/react-start'
 
-import type { LearnHubDetailPayload } from '@/server/learn/types'
+import type { AssignmentDetailPayload } from '@/server/learn/assignmentDetailTypes'
 
 import { getCurrentSessionUserId } from '@/server/auth/getCurrentSessionUserId'
 import { getAssignmentLearningDetailForUser } from '@/server/learn/services/getAssignmentLearningDetail.service'
 
 export const getAssignmentLearningDetail = createServerFn({ method: 'GET' })
   .inputValidator((data: { assignmentId: number }) => data)
-  .handler(async ({ data }): Promise<LearnHubDetailPayload> => {
+  .handler(async ({ data }): Promise<AssignmentDetailPayload> => {
     const userId = await getCurrentSessionUserId()
     if (!userId) {
       throw new Error('UNAUTHORIZED')

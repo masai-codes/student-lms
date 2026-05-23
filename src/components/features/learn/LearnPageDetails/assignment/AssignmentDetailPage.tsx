@@ -1,40 +1,22 @@
 'use client'
 
-import {
-  LearnDetailBodyGrid,
-  LearnDetailDefaultActions,
-  LearnDetailOverview,
-} from '../common'
-import type { LearnHubDetailPayload } from '@/server/learn/types'
-import { EntityDiscussionsPanel } from '@/components/features/new-discussions'
+import { EvaluationAssignmentContent } from './evaluation/EvaluationAssignmentContent'
+import { PracticeAssignmentContent } from './practice/PracticeAssignmentContent'
+import { RegularAssignmentContent } from './regular/RegularAssignmentContent'
 
+import type { AssignmentDetailPayload } from '@/server/learn/assignmentDetailTypes'
 
 type AssignmentDetailPageProps = {
-  detail: LearnHubDetailPayload
+  detail: AssignmentDetailPayload
 }
 
 export function AssignmentDetailPage({ detail }: AssignmentDetailPageProps) {
-  return (
-    <div className="w-full space-y-6 pb-12">
-      <LearnDetailOverview
-        title={detail.title}
-        hostName={detail.hostName}
-        displayDate={detail.displayDate}
-        priority={detail.priority}
-        tags={detail.tags}
-        actions={<LearnDetailDefaultActions />}
-      />
-      <LearnDetailBodyGrid
-        mainPlaceholder="Assignment — main content area"
-        aside={
-          <EntityDiscussionsPanel
-            entityKind="assignment"
-            entityId={detail.id}
-            discussions={detail.discussions}
-            emptyStateContext="assignment"
-          />
-        }
-      />
-    </div>
-  )
+  switch (detail.assignmentKind) {
+    case 'practice':
+      return <PracticeAssignmentContent detail={detail} />
+    case 'assignment':
+      return <RegularAssignmentContent detail={detail} />
+    case 'evaluation':
+      return <EvaluationAssignmentContent detail={detail} />
+  }
 }

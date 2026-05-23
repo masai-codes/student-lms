@@ -1,6 +1,12 @@
 # Feature Test Matrix
 
-Last updated: 2026-05-20
+Last updated: 2026-05-23
+
+## Assignment detail (`/assignments/:id`)
+- Area: Assignment kind + phase resolution, detail payload, type/phase UI routing (practice, assignment, evaluation × before, during, after)
+- Status: Covered (server utils + phase copy; problems/submissions UI not in scope yet)
+- Test files: `src/server/learn/utils/__tests__/resolveAssignmentPhase.test.ts`, `src/server/learn/utils/__tests__/buildAssignmentDetailPayload.test.ts`, `src/components/features/learn/LearnPageDetails/assignment/shared/__tests__/assignmentPhaseCopy.test.ts`
+- Notes: See `docs/testing/features/assignment-detail.md`
 
 ## Lecture detail (`/lectures/:id`)
 - Area: Live/video phase resolution, recording URL resolution, lecture detail UI states, video player + attendance

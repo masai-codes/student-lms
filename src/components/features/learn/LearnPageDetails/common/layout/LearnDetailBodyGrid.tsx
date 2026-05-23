@@ -1,5 +1,6 @@
 'use client'
 
+import { cn } from '@/lib/utils'
 import type { ReactNode } from 'react'
 
 type LearnDetailBodyGridProps = {
@@ -18,7 +19,14 @@ export function LearnDetailBodyGrid({
 }: LearnDetailBodyGridProps) {
   return (
     <section className="grid grid-cols-1 gap-4 lg:grid-cols-10">
-      <div className="min-h-[200px] rounded-lg border border-dashed border-gray-300 bg-gray-50/80 p-4 lg:col-span-7">
+      <div
+        className={cn(
+          'min-h-[200px] rounded-lg p-4 lg:col-span-7',
+          main
+            ? 'border border-gray-200 bg-white'
+            : 'border border-dashed border-gray-300 bg-gray-50/80',
+        )}
+      >
         {main ?? (
           <p className="type-b2-regular text-muted-foreground">{mainPlaceholder ?? ''}</p>
         )}

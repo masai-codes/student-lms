@@ -92,6 +92,12 @@ export interface DiscussionListItem {
  * Mirrors listing card fields — all strings/arrays are finalized on the server.
  */
 export type {
+  AssignmentDetailPayload,
+  AssignmentKind,
+  AssignmentPhase,
+} from '@/server/learn/assignmentDetailTypes'
+
+export type {
   LectureDetailPayload,
   LectureDetailTabContent,
   LectureKind,
