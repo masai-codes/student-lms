@@ -2,6 +2,12 @@
 
 Last updated: 2026-05-23
 
+## Resource detail (`/resources/:id`)
+- Area: Resource kind from category, phase resolution, reading body, type/phase UI routing (pre-read, notes, material × before, during, after)
+- Status: Covered (server utils + phase copy; associated content / video not in scope yet)
+- Test files: `src/server/learn/utils/__tests__/normalizeResourceKind.test.ts`, `src/server/learn/utils/__tests__/buildResourceDetailPayload.test.ts`, `src/components/features/learn/LearnPageDetails/resource/shared/__tests__/resourcePhaseCopy.test.ts`
+- Notes: See `docs/testing/features/resource-detail.md`
+
 ## Assignment detail (`/assignments/:id`)
 - Area: Assignment kind + phase resolution, detail payload, type/phase UI routing (practice, assignment, evaluation × before, during, after)
 - Status: Covered (server utils + phase copy; problems/submissions UI not in scope yet)

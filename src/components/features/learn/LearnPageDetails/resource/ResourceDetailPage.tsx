@@ -1,40 +1,22 @@
 'use client'
 
-import {
-  LearnDetailBodyGrid,
-  LearnDetailDefaultActions,
-  LearnDetailOverview,
-} from '../common'
-import type { LearnHubDetailPayload } from '@/server/learn/types'
-import { EntityDiscussionsPanel } from '@/components/features/new-discussions'
+import { MaterialResourceContent } from './material/MaterialResourceContent'
+import { NotesResourceContent } from './notes/NotesResourceContent'
+import { PreReadResourceContent } from './pre-read/PreReadResourceContent'
 
+import type { ResourceDetailPayload } from '@/server/learn/resourceDetailTypes'
 
 type ResourceDetailPageProps = {
-  detail: LearnHubDetailPayload
+  detail: ResourceDetailPayload
 }
 
 export function ResourceDetailPage({ detail }: ResourceDetailPageProps) {
-  return (
-    <div className="w-full space-y-6 pb-12">
-      <LearnDetailOverview
-        title={detail.title}
-        hostName={detail.hostName}
-        displayDate={detail.displayDate}
-        priority={detail.priority}
-        tags={detail.tags}
-        actions={<LearnDetailDefaultActions />}
-      />
-      <LearnDetailBodyGrid
-        mainPlaceholder="Resource — main content area"
-        aside={
-          <EntityDiscussionsPanel
-            entityKind="lecture"
-            entityId={detail.id}
-            discussions={detail.discussions}
-            emptyStateContext="resource"
-          />
-        }
-      />
-    </div>
-  )
+  switch (detail.resourceKind) {
+    case 'pre-read':
+      return <PreReadResourceContent detail={detail} />
+    case 'notes':
+      return <NotesResourceContent detail={detail} />
+    case 'material':
+      return <MaterialResourceContent detail={detail} />
+  }
 }

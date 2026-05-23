@@ -98,6 +98,12 @@ export type {
 } from '@/server/learn/assignmentDetailTypes'
 
 export type {
+  ResourceDetailPayload,
+  ResourceKind,
+  ResourcePhase,
+} from '@/server/learn/resourceDetailTypes'
+
+export type {
   LectureDetailPayload,
   LectureDetailTabContent,
   LectureKind,
