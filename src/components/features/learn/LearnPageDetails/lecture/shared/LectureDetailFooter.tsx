@@ -50,7 +50,10 @@ export function LectureDetailFooter({
       />
       <LectureDiscussionsSection
         entityId={entityId}
+        entityKind="lecture"
         discussions={discussions}
+        emptyStateContext="lecture"
+        layout="footer"
         className="border-t border-border px-0"
       />
     </>

@@ -5,7 +5,7 @@ import type { ResourceDetailPayload } from '@/server/learn/resourceDetailTypes'
 import { db } from '@/db'
 import { lectures, users } from '@/db/schema'
 import { DISCUSSION_ENTITY_LECTURE } from '@/server/new-discussions/discussionEntityTypes'
-import { listDiscussionsForLearnEntity } from '@/server/new-discussions/services/listDiscussionsForLearnEntity'
+import { listDiscussionsWithThreadsForLearnEntity } from '@/server/new-discussions/services/listDiscussionsWithThreadsForLearnEntity'
 import { buildLearnDetailPresentation } from '@/server/learn/utils/buildLearnDetailPresentation'
 import { buildResourceDetailPayload } from '@/server/learn/utils/buildResourceDetailPayload'
 import { ensureUserCanAccessLearnHubEntity } from '@/server/learn/utils/ensureLearnEntityAccess'
@@ -69,7 +69,7 @@ export async function getResourceLearningDetailForUser(
   }
 
   const core = buildLearnDetailPresentation(row)
-  const discussions = await listDiscussionsForLearnEntity(
+  const discussions = await listDiscussionsWithThreadsForLearnEntity(
     userId,
     DISCUSSION_ENTITY_LECTURE,
     resourceId,

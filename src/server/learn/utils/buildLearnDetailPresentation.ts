@@ -7,6 +7,7 @@ import {
   formatLearnDetailHostName,
   formatLearnDetailTagLabel,
 } from '@/server/learn/utils/formatLearnDetailDisplay'
+import { LECTURE_RESOURCE_TYPE } from '@/server/learn/utils/resolveLectureLearningType'
 import { formatSqlDate } from '@/utils/generics'
 
 type LearnLikeRow = {
@@ -38,8 +39,10 @@ export function buildLearnDetailPresentation(row: LearnLikeRow): LearnDetailCore
       : 'Unknown Instructor'
 
   const moduleName = formatLearnDetailTagLabel(resolveModuleName(row.module, row.week))
+  const typeTagSource =
+    row.type.trim().toLowerCase() === LECTURE_RESOURCE_TYPE ? 'resource' : row.type
   const tags = [
-    formatLearnDetailTagLabel(row.type),
+    formatLearnDetailTagLabel(typeTagSource),
     formatLearnDetailTagLabel(row.category),
     moduleName,
   ]

@@ -2,12 +2,10 @@ import { and, asc, eq, isNull } from 'drizzle-orm'
 
 import { db } from '@/db'
 import { discussions, threads, users } from '@/db/schema'
-import type {
-  LearnDiscussionDetail,
-  LearnDiscussionThreadItem,
-} from '@/server/new-discussions/types/learnDiscussionDetail'
+import type { LearnDiscussionDetail } from '@/server/new-discussions/types/learnDiscussionDetail'
 import { assertStudentMayInteractWithDiscussion } from '@/server/new-discussions/services/discussionAccess'
 import { tinyintToBool } from '@/server/new-discussions/utils/discussionPresentation'
+import { mapDiscussionThreadRow } from '@/server/new-discussions/utils/mapDiscussionThreadRow'
 
 function authorFromRow(
   authorId: number,
@@ -65,13 +63,7 @@ export async function getLearnDiscussionById(
     .where(and(eq(threads.discussionId, discussionId), isNull(threads.deletedAt)))
     .orderBy(asc(threads.createdAt))
 
-  const mappedThreads: Array<LearnDiscussionThreadItem> = threadRows.map(row => ({
-    id: row.id,
-    message: row.message,
-    createdAt: row.createdAt,
-    author: authorFromRow(row.authorId, row.authorName),
-    authorProfileImageUrl: profileImageUrl(row.authorProfilePhotoPath),
-  }))
+  const mappedThreads = threadRows.map(row => mapDiscussionThreadRow(row))
 
   return {
     id: discussion.id,

@@ -5,7 +5,7 @@ import type { AssignmentDetailPayload } from '@/server/learn/assignmentDetailTyp
 import { db } from '@/db'
 import { assignments, users } from '@/db/schema'
 import { DISCUSSION_ENTITY_ASSIGNMENT } from '@/server/new-discussions/discussionEntityTypes'
-import { listDiscussionsForLearnEntity } from '@/server/new-discussions/services/listDiscussionsForLearnEntity'
+import { listDiscussionsWithThreadsForLearnEntity } from '@/server/new-discussions/services/listDiscussionsWithThreadsForLearnEntity'
 import {
   buildAssignmentDetailPayload,
   isSupportedAssignmentDetailType,
@@ -61,7 +61,7 @@ export async function getAssignmentLearningDetailForUser(
   }
 
   const core = buildLearnDetailPresentation(row)
-  const discussions = await listDiscussionsForLearnEntity(
+  const discussions = await listDiscussionsWithThreadsForLearnEntity(
     userId,
     DISCUSSION_ENTITY_ASSIGNMENT,
     assignmentId,

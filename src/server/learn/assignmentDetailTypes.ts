@@ -1,3 +1,4 @@
+import type { LearnPhaseContent } from '@/server/learn/learnPhaseContentTypes'
 import type { LearnHubDetailPayload } from '@/server/learn/types'
 
 export type AssignmentKind = 'practice' | 'assignment' | 'evaluation'
@@ -13,4 +14,5 @@ export type AssignmentDetailPayload = LearnHubDetailPayload & {
   hostAvatarUrl: string | null
   instructions: string | null
   enforceDeadline: boolean
+  phaseContent: LearnPhaseContent
 }

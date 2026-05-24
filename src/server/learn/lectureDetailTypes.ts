@@ -1,6 +1,15 @@
 import type { LearnHubDetailPayload } from '@/server/learn/types'
+import type { JoinLiveButtonState } from '@/server/learn/utils/resolveJoinLiveButtonState'
+import type { WatchIntervalSegment } from '@/server/video-attendance/types'
 
 export type LectureKind = 'live' | 'video'
+
+export type LectureVideoAttendanceState = {
+  lastWatchedPosition: number
+  totalDuration: number | null
+  watchPercentage: number
+  mergedIntervals: Array<WatchIntervalSegment>
+}
 
 export type LiveLecturePhase = 'before' | 'during' | 'after'
 
@@ -29,4 +38,6 @@ export type LectureDetailPayload = LearnHubDetailPayload & {
   livePhase: LiveLecturePhase | null
   videoPhase: VideoLecturePhase | null
   hasRecording: boolean
+  joinLiveButtonState: JoinLiveButtonState | null
+  videoAttendance: LectureVideoAttendanceState | null
 }

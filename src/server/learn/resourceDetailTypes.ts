@@ -1,3 +1,4 @@
+import type { LearnPhaseContent } from '@/server/learn/learnPhaseContentTypes'
 import type { LearnHubDetailPayload } from '@/server/learn/types'
 
 /** Normalized from lecture `category` for reading resources. */
@@ -15,4 +16,5 @@ export type ResourceDetailPayload = LearnHubDetailPayload & {
   /** Primary reading content (notes, else description). */
   body: string | null
   hideNotes: boolean
+  phaseContent: LearnPhaseContent
 }

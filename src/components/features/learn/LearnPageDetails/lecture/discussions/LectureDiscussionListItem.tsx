@@ -4,6 +4,7 @@ import * as React from 'react'
 import { CaretDown, CaretUp } from '@phosphor-icons/react'
 import { useRouter } from '@tanstack/react-router'
 
+import { getDiscussionRepliesToggleLabel } from './discussionRepliesToggleLabel'
 import { LectureDiscussionReplyForm } from './LectureDiscussionReplyForm'
 import { LectureDiscussionReplyItem } from './LectureDiscussionReplyItem'
 
@@ -81,9 +82,7 @@ export function LectureDiscussionListItem({ discussion }: LectureDiscussionListI
   }
 
   const replyCount = detail?.threads.length ?? discussion.threadCount
-  const replyLabel =
-    replyCount === 1 ? '1 reply' : `${replyCount} replies`
-  const toggleLabel = expanded ? 'Hide replies' : `View ${replyLabel}`
+  const toggleLabel = getDiscussionRepliesToggleLabel(expanded, replyCount)
 
   return (
     <div className="rounded-lg border border-gray-200 bg-white shadow-sm">

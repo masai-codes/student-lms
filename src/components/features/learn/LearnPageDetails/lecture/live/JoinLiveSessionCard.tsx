@@ -2,7 +2,7 @@
 
 import { ArrowSquareOut } from '@phosphor-icons/react'
 
-import type { JoinLiveButtonState } from './utils/resolveJoinLiveButtonState'
+import type { JoinLiveButtonState } from '@/server/learn/utils/resolveJoinLiveButtonState'
 import { Button } from '@/components/ui/button'
 
 type JoinLiveSessionCardProps = {

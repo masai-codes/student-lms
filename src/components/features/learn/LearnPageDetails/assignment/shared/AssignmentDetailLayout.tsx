@@ -1,5 +1,6 @@
 'use client'
 
+import { MarkdownContent } from '@/components/shared/markdown-content'
 import { LearnEntityDetailLayout } from '../../common/layout/LearnEntityDetailLayout'
 
 import type { AssignmentDetailPayload } from '@/server/learn/assignmentDetailTypes'
@@ -21,9 +22,11 @@ export function AssignmentDetailLayout({ detail, main }: AssignmentDetailLayoutP
         detail.instructions ? (
           <section data-testid="assignment-instructions">
             <h2 className="type-h6 text-gray-900">Instructions</h2>
-            <div className="type-b2-regular mt-3 whitespace-pre-wrap text-gray-700">
-              {detail.instructions}
-            </div>
+            <MarkdownContent
+              value={detail.instructions}
+              variant="detail"
+              className="type-b2-regular mt-3 text-gray-700"
+            />
           </section>
         ) : null
       }

@@ -9,7 +9,7 @@ const core: LearnHubDetailPayload = {
   hostName: 'Ravi',
   displayDate: '20 May, 10:00 AM',
   priority: 'recommended',
-  tags: ['reading', 'pre-read', 'Week 1'],
+  tags: ['Resource', 'Pre-read', 'Week 1'],
   discussions: [],
 }
 

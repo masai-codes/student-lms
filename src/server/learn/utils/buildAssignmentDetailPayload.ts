@@ -4,6 +4,7 @@ import type {
 } from '@/server/learn/assignmentDetailTypes'
 import type { LearnHubDetailPayload } from '@/server/learn/types'
 import { formatLectureScheduleRange } from '@/server/learn/utils/formatLectureScheduleRange'
+import { buildAssignmentPhaseContent } from '@/server/learn/utils/buildLearnPhaseContent'
 import { resolveAssignmentPhase } from '@/server/learn/utils/resolveAssignmentPhase'
 
 type AssignmentDetailRow = {
@@ -64,6 +65,7 @@ export function buildAssignmentDetailPayload(
     hostAvatarUrl: row.hostAvatarUrl,
     instructions,
     enforceDeadline: row.enforceDeadline === 1,
+    phaseContent: buildAssignmentPhaseContent(assignmentKind, phase, row.schedule),
   }
 }
 

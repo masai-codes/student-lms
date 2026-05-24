@@ -6,6 +6,7 @@ import type { LearnHubDetailPayload } from '@/server/learn/types'
 import { formatLectureScheduleRange } from '@/server/learn/utils/formatLectureScheduleRange'
 import { normalizeResourceKind } from '@/server/learn/utils/normalizeResourceKind'
 import { resolveAssignmentPhase } from '@/server/learn/utils/resolveAssignmentPhase'
+import { buildResourcePhaseContent } from '@/server/learn/utils/buildLearnPhaseContent'
 import { normalizeNullableText } from '@/server/learn/utils/normalizeNullableText'
 import { parseLectureSettings } from '@/server/learn/utils/parseLectureSettings'
 
@@ -46,5 +47,6 @@ export function buildResourceDetailPayload(
     hostAvatarUrl: row.hostAvatarUrl,
     body,
     hideNotes: settings.hideNotes,
+    phaseContent: buildResourcePhaseContent(resourceKind, phase, row.schedule),
   }
 }

@@ -74,6 +74,8 @@ export interface DiscussionAuthorPreview {
   name: string | null
 }
 
+import type { LearnDiscussionThreadItem } from '@/server/new-discussions/types/learnDiscussionDetail'
+
 /** Discussion rows scoped to the learn entity (assignment or lecture/resource); visibility enforced server-side. */
 export interface DiscussionListItem {
   id: number
@@ -85,6 +87,8 @@ export interface DiscussionListItem {
   updatedAt: string | null
   threadCount: number
   author: DiscussionAuthorPreview | null
+  /** Reply threads loaded with the detail page (empty on non-detail listings). */
+  threads: Array<LearnDiscussionThreadItem>
 }
 
 /**

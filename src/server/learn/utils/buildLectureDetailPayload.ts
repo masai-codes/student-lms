@@ -8,8 +8,10 @@ import { formatLectureScheduleRange } from '@/server/learn/utils/formatLectureSc
 import { parseLectureSettings } from '@/server/learn/utils/parseLectureSettings'
 import { resolveLiveLecturePhase } from '@/server/learn/utils/resolveLiveLecturePhase'
 import { resolveLectureVideoUrl } from '@/server/learn/utils/resolveLectureVideoUrl'
+import { resolveJoinLiveButtonState } from '@/server/learn/utils/resolveJoinLiveButtonState'
 import { resolveVideoLecturePhase } from '@/server/learn/utils/resolveVideoLecturePhase'
 import { scrubZoomLinkForSchedule } from '@/server/learn/utils/scrubZoomLinkForSchedule'
+import type { LectureVideoAttendanceState } from '@/server/learn/lectureDetailTypes'
 
 type LectureDetailRow = {
   type: string
@@ -39,6 +41,7 @@ export function buildLectureDetailPayload(
   row: LectureDetailRow,
   nowMs: number,
   tabs: LectureDetailTabContent,
+  videoAttendance: LectureVideoAttendanceState | null,
 ): LectureDetailPayload {
   const lectureKind = normalizeLectureKind(row.type)
   if (lectureKind == null) {
@@ -78,6 +81,16 @@ export function buildLectureDetailPayload(
         })
       : null
 
+  const joinLiveButtonState =
+    lectureKind === 'live'
+      ? resolveJoinLiveButtonState({
+          schedule: row.schedule,
+          concludes: row.concludes,
+          nowMs,
+          zoomLink: row.zoomLink,
+        })
+      : null
+
   return {
     ...core,
     lectureKind,
@@ -94,6 +107,8 @@ export function buildLectureDetailPayload(
     livePhase,
     videoPhase,
     hasRecording,
+    joinLiveButtonState,
+    videoAttendance: hasRecording ? videoAttendance : null,
   }
 }
 

@@ -5,7 +5,8 @@ import type { LectureDetailPayload } from '@/server/learn/lectureDetailTypes'
 import { db } from '@/db'
 import { lectures, lecturesAi, users } from '@/db/schema'
 import { DISCUSSION_ENTITY_LECTURE } from '@/server/new-discussions/discussionEntityTypes'
-import { listDiscussionsForLearnEntity } from '@/server/new-discussions/services/listDiscussionsForLearnEntity'
+import { listDiscussionsWithThreadsForLearnEntity } from '@/server/new-discussions/services/listDiscussionsWithThreadsForLearnEntity'
+import { buildLectureVideoAttendanceState } from '@/server/learn/utils/buildLectureVideoAttendanceState'
 import {
   buildLectureDetailPayload,
   isSupportedLectureDetailType,
@@ -77,9 +78,13 @@ export async function getLectureLearningDetailForUser(
     throw new Error('LEARN_DETAIL_NOT_FOUND')
   }
 
-  const [core, discussions, aiRows, associatedItems] = await Promise.all([
+  const [core, discussions, aiRows, associatedItems, videoAttendance] = await Promise.all([
     Promise.resolve(buildLearnDetailPresentation(row)),
-    listDiscussionsForLearnEntity(userId, DISCUSSION_ENTITY_LECTURE, lectureId),
+    listDiscussionsWithThreadsForLearnEntity(
+      userId,
+      DISCUSSION_ENTITY_LECTURE,
+      lectureId,
+    ),
     db
       .select({
         summary: lecturesAi.summary,
@@ -95,6 +100,7 @@ export async function getLectureLearningDetailForUser(
       sectionId: row.sectionId,
       lectureData: row.data,
     }),
+    buildLectureVideoAttendanceState(lectureId),
   ])
 
   const tabs = buildLectureTabContent({
@@ -120,5 +126,6 @@ export async function getLectureLearningDetailForUser(
     },
     Date.now(),
     tabs,
+    videoAttendance,
   )
 }

@@ -19,9 +19,8 @@ function renderLiveHero(detail: LectureDetailPayload) {
     case 'during':
       return (
         <DuringLiveLecture
-          schedule={detail.schedule}
-          concludes={detail.concludes}
           zoomLink={detail.zoomLink}
+          joinLiveButtonState={detail.joinLiveButtonState ?? 'hidden'}
         />
       )
     case 'after':

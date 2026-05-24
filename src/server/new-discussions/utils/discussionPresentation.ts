@@ -25,7 +25,8 @@ export type DiscussionRowWithAuthor = {
 
 export function toDiscussionListItem(
   row: DiscussionRowWithAuthor,
-  threadCount: number
+  threadCount: number,
+  threads: DiscussionListItem['threads'] = [],
 ): DiscussionListItem {
   const previewSource = plainTextFromHtml(row.message) || row.message
   return {
@@ -37,6 +38,7 @@ export function toDiscussionListItem(
     createdAt: row.createdAt,
     updatedAt: row.updatedAt,
     threadCount,
+    threads,
     author: {
       id: row.authorId,
       name: row.authorName != null && row.authorName.trim() !== '' ? row.authorName.trim() : null,
