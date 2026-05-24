@@ -1,0 +1,70 @@
+import { ApiClientError } from '@/lib/api/apiClientError'
+import { fetchJson } from '@/lib/api/fetchJson'
+
+async function postLearnApi<T>(path: string, body: unknown): Promise<T> {
+  try {
+    return await fetchJson<T>(path, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    })
+  } catch (error) {
+    if (error instanceof ApiClientError) {
+      throw new Error(error.message || error.code)
+    }
+    throw error
+  }
+}
+
+async function patchLearnApi<T>(path: string, body: unknown): Promise<T> {
+  try {
+    return await fetchJson<T>(path, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    })
+  } catch (error) {
+    if (error instanceof ApiClientError) {
+      throw new Error(error.message || error.code)
+    }
+    throw error
+  }
+}
+
+export function createAssignmentSubmission(assignmentId: number) {
+  return postLearnApi<{ id: number }>(
+    `/api/learn/assignments/${assignmentId}/submissions`,
+    {},
+  )
+}
+
+export function createAssessPlatformUrl(input: {
+  assignmentId: number
+  submissionId: number
+  platform: string | null
+}) {
+  return postLearnApi<{ url: string }>(
+    `/api/learn/assignments/${input.assignmentId}/assess-platform-url`,
+    {
+      submissionId: input.submissionId,
+      platform: input.platform,
+    },
+  )
+}
+
+export function updateSubmissionCompletion(input: {
+  submissionId: number
+  completed: boolean
+}) {
+  return patchLearnApi<{ success: boolean }>(
+    `/api/learn/submissions/${input.submissionId}`,
+    { completed: input.completed },
+  )
+}
+
+export function fetchAssessPlatformViewUrl(submissionId: number) {
+  return postLearnApi<{ url: string }>(
+    `/api/learn/submissions/${submissionId}/view-on-platform`,
+    {},
+  )
+}

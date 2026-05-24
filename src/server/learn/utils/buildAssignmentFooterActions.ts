@@ -2,7 +2,9 @@ import type {
   AssignmentFooterAction,
   AssignmentFooterActionKind,
 } from '@/server/learn/assignmentDetailFooterTypes'
+import type { AssignmentKind } from '@/server/learn/assignmentDetailTypes'
 import { isAssessmentPlatform } from '@/server/learn/utils/assignmentPlatform'
+import { getAssignmentFooterActionLabels } from '@/server/learn/utils/getAssignmentFooterActionLabels'
 
 type SubmissionSnapshot = {
   completed: boolean
@@ -13,6 +15,7 @@ type SubmissionSnapshot = {
 }
 
 export type BuildAssignmentFooterActionsInput = {
+  assignmentKind: AssignmentKind
   platform: string | null
   showSubmission: boolean
   hideShowSubmissionButton: boolean
@@ -38,6 +41,8 @@ export function buildAssignmentFooterActions(
     return []
   }
 
+  const ctaLabels = getAssignmentFooterActionLabels(input.assignmentKind)
+
   if (!isAssessmentPlatform(input.platform)) {
     if (input.submission == null) {
       return []
@@ -59,7 +64,7 @@ export function buildAssignmentFooterActions(
   if (submission == null) {
     if (!input.isExpired) {
       actions.push(
-        action('start-assessment', 'Start Assignment', 'primary', true),
+        action('start-assessment', ctaLabels.start, 'primary', true),
       )
     }
     return actions
@@ -73,7 +78,7 @@ export function buildAssignmentFooterActions(
     actions.push(
       action(
         submission.assessPlatformLink ? 'continue-assessment' : 'start-assessment',
-        submission.assessPlatformLink ? 'Continue Assignment' : 'Start Assignment',
+        submission.assessPlatformLink ? ctaLabels.continue : ctaLabels.start,
         'primary',
         true,
       ),

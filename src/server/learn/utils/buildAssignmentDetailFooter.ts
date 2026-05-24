@@ -197,6 +197,7 @@ export function buildAssignmentDetailFooter(
         }
 
   const actionsInput: BuildAssignmentFooterActionsInput = {
+    assignmentKind: context.assignmentKind,
     platform: context.platform,
     showSubmission: context.showSubmission === true,
     hideShowSubmissionButton: readAssignmentSettingsFlag(
@@ -214,8 +215,17 @@ export function buildAssignmentDetailFooter(
       ? buildAssignmentFooterActions(actionsInput)
       : []
 
+  const assessPlatformLink = readAssessPlatformLink(
+    context.submission?.data ?? null,
+  )
+
   return {
     visible: context.problemCount === 0,
+    meta: {
+      submissionId: context.submission?.id ?? null,
+      assessPlatformLink,
+      platform: context.platform,
+    },
     statusChip: shouldShowStatusChip(progressStatus, context.assignmentKind)
       ? {
           status: progressStatus,

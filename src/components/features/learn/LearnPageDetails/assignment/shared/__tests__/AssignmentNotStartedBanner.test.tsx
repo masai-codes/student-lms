@@ -29,6 +29,7 @@ const baseDetail = {
   },
   footer: {
     visible: false,
+    meta: { submissionId: null, assessPlatformLink: null, platform: null },
     statusChip: null,
     showPracticeModeChip: false,
     score: null,

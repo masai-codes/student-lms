@@ -32,6 +32,11 @@ describe('AssignmentDetailStickyFooter', () => {
           ...baseDetail,
           footer: {
             visible: true,
+            meta: {
+              submissionId: 99,
+              assessPlatformLink: null,
+              platform: 'Assessment Platform',
+            },
             statusChip: {
               status: 'in-progress',
               label: 'In Progress',
@@ -68,6 +73,11 @@ describe('AssignmentDetailStickyFooter', () => {
           ...baseDetail,
           footer: {
             visible: false,
+            meta: {
+              submissionId: null,
+              assessPlatformLink: null,
+              platform: null,
+            },
             statusChip: null,
             showPracticeModeChip: false,
             score: null,

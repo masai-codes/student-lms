@@ -34,6 +34,12 @@ export type AssignmentFooterNotice = {
   message: string
 }
 
+export type AssignmentDetailFooterMeta = {
+  submissionId: number | null
+  assessPlatformLink: string | null
+  platform: string | null
+}
+
 /** Server-driven sticky footer for assignment detail (desktop-first, mirrors legacy LMS). */
 export type AssignmentDetailFooter = {
   visible: boolean
@@ -42,4 +48,5 @@ export type AssignmentDetailFooter = {
   score: AssignmentFooterScore | null
   notices: Array<AssignmentFooterNotice>
   actions: Array<AssignmentFooterAction>
+  meta: AssignmentDetailFooterMeta
 }

@@ -23,6 +23,7 @@ describe('buildAssignmentDetailFooter', () => {
     })
 
     expect(footer.visible).toBe(true)
+    expect(footer.meta.submissionId).toBeNull()
     expect(footer.actions).toEqual([
       expect.objectContaining({
         kind: 'start-assessment',
@@ -85,6 +86,25 @@ describe('buildAssignmentDetailFooter', () => {
 
     expect(footer.visible).toBe(false)
     expect(footer.actions).toEqual([])
+  })
+
+  it('uses evaluation CTA labels for evaluation assignments', () => {
+    const duringMs = new Date(schedule).getTime() + 60_000
+    const footer = buildAssignmentDetailFooter({
+      assignmentKind: 'evaluation',
+      category: 'module',
+      platform: 'Assessment Platform',
+      showScores: false,
+      showSubmission: false,
+      settings: { case: 'case2' },
+      schedule,
+      concludes,
+      nowMs: duringMs,
+      problemCount: 0,
+      submission: null,
+    })
+
+    expect(footer.actions[0]?.label).toBe('Start Evaluation')
   })
 
   it('shows score policy notice for evaluation without problems', () => {

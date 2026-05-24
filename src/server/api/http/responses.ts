@@ -35,6 +35,23 @@ export function mapThrownErrorToResponse(error: unknown): Response {
         return jsonError(500, error.message)
       case 'SERVER_ERROR_FETCHING_BATCH_LEARNING_DATA':
         return jsonError(500, error.message)
+      case 'EXPERIENCE_API_NOT_CONFIGURED':
+      case 'EXPERIENCE_API_REQUEST_FAILED':
+      case 'EXPERIENCE_API_EMPTY_RESPONSE':
+        return jsonError(503, error.message)
+      case 'ASSESS_PLATFORM_NOT_CONFIGURED':
+      case 'ASSESS_PLATFORM_LINK_MISSING':
+      case 'ASSESS_PLATFORM_CLIENT_ID_MISSING':
+      case 'ASSESS_PLATFORM_TOKEN_MISSING':
+      case 'ASSESS_PLATFORM_REPORT_FAILED':
+      case 'ASSESS_PLATFORM_REPORT_TOKEN_MISSING':
+      case 'ASSESS_PLATFORM_VIEW_URL_FAILED':
+      case 'ASSESS_PLATFORM_VIEW_URL_MISSING':
+        return jsonError(503, error.message)
+      case 'SUBMISSION_NOT_FOUND':
+      case 'INVALID_SUBMISSION_ID':
+      case 'INVALID_SUBMISSION_PAYLOAD':
+        return jsonError(400, error.message)
       default:
         break
     }

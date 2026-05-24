@@ -4,7 +4,9 @@ import { ClipboardText, WarningCircle } from '@phosphor-icons/react'
 
 import { MasaiButton } from '@/components/ui/masai-button'
 import { MasaiChips } from '@/components/ui/masai-chips'
+import { AssessmentPlatformRedirectModal } from './AssessmentPlatformRedirectModal'
 import { getAssignmentStatusChipStyles } from './getAssignmentStatusChipStyles'
+import { useAssignmentFooterActions } from './useAssignmentFooterActions'
 
 import type { AssignmentDetailFooter } from '@/server/learn/assignmentDetailFooterTypes'
 import type { AssignmentDetailPayload } from '@/server/learn/assignmentDetailTypes'
@@ -48,6 +50,14 @@ export function AssignmentDetailStickyFooter({
   detail,
 }: AssignmentDetailStickyFooterProps) {
   const { footer } = detail
+  const {
+    modalOpen,
+    setModalOpen,
+    loading,
+    errorMessage,
+    handleAction,
+    confirmModal,
+  } = useAssignmentFooterActions(detail)
 
   if (!footer.visible) {
     return null
@@ -66,71 +76,87 @@ export function AssignmentDetailStickyFooter({
   }
 
   return (
-    <footer
-      data-testid="assignment-detail-sticky-footer"
-      className="fixed bottom-[calc(4.5rem+env(safe-area-inset-bottom))] left-0 right-0 z-[80] flex flex-col gap-3 border-t border-gray-100 bg-white px-4 py-3 shadow-[0_1px_4px_0_rgba(0,0,0,0.20)] md:bottom-0 md:flex-row md:items-center md:justify-between"
-    >
-      <div className="flex min-w-0 flex-1 flex-wrap items-center gap-3">
-        {footer.showPracticeModeChip ? <PracticeModeChip /> : null}
-        {footer.statusChip ? (
-          <MasaiChips
-            label={
-              getAssignmentStatusChipStyles(
-                footer.statusChip.status,
-                footer.statusChip.label,
-              ).label
-            }
-            size="regular"
-            backgroundClassName={
-              getAssignmentStatusChipStyles(footer.statusChip.status)
-                .backgroundClassName
-            }
-            textClassName={
-              getAssignmentStatusChipStyles(footer.statusChip.status)
-                .textClassName
-            }
-            className="pointer-events-none"
-            tabIndex={-1}
-            data-testid="assignment-footer-status-chip"
-          />
-        ) : null}
-        {footer.notices
-          .filter((notice) => notice.variant === 'score-policy')
-          .map((notice) => (
-            <ScorePolicyNotice key={notice.message} message={notice.message} />
-          ))}
-        {footer.score ? (
-          <div
-            className="flex items-center gap-2 rounded-full border border-blue-200 bg-white px-3 py-1.5"
-            data-testid="assignment-footer-score"
-          >
-            <ClipboardText
-              className="size-5 text-blue-500"
-              aria-hidden
-              weight="duotone"
+    <>
+      <footer
+        data-testid="assignment-detail-sticky-footer"
+        className="fixed bottom-[calc(4.5rem+env(safe-area-inset-bottom))] left-0 right-0 z-[80] flex flex-col gap-3 border-t border-gray-100 bg-white px-4 py-3 shadow-[0_1px_4px_0_rgba(0,0,0,0.20)] md:bottom-0 md:flex-row md:items-center md:justify-between"
+      >
+        <div className="flex min-w-0 flex-1 flex-wrap items-center gap-3">
+          {footer.showPracticeModeChip ? <PracticeModeChip /> : null}
+          {footer.statusChip ? (
+            <MasaiChips
+              label={
+                getAssignmentStatusChipStyles(
+                  footer.statusChip.status,
+                  footer.statusChip.label,
+                ).label
+              }
+              size="regular"
+              backgroundClassName={
+                getAssignmentStatusChipStyles(footer.statusChip.status)
+                  .backgroundClassName
+              }
+              textClassName={
+                getAssignmentStatusChipStyles(footer.statusChip.status)
+                  .textClassName
+              }
+              className="pointer-events-none"
+              tabIndex={-1}
+              data-testid="assignment-footer-status-chip"
             />
-            <span className="type-b3-md text-gray-600">{footer.score.label}</span>
-          </div>
-        ) : null}
-      </div>
-
-      {hasRight ? (
-        <div className="flex shrink-0 flex-wrap items-center justify-end gap-2">
-          {footer.actions.map((action) => (
-            <MasaiButton
-              key={action.kind}
-              type={action.variant === 'secondary' ? 'secondary' : 'primary'}
-              size="md"
-              ctaText={action.label}
-              htmlType="button"
-              disabled={!action.enabled}
-              data-testid={`assignment-footer-action-${action.kind}`}
-              onClick={() => undefined}
-            />
-          ))}
+          ) : null}
+          {footer.notices
+            .filter((notice) => notice.variant === 'score-policy')
+            .map((notice) => (
+              <ScorePolicyNotice key={notice.message} message={notice.message} />
+            ))}
+          {footer.score ? (
+            <div
+              className="flex items-center gap-2 rounded-full border border-blue-200 bg-white px-3 py-1.5"
+              data-testid="assignment-footer-score"
+            >
+              <ClipboardText
+                className="size-5 text-blue-500"
+                aria-hidden
+                weight="duotone"
+              />
+              <span className="type-b3-md text-gray-600">{footer.score.label}</span>
+            </div>
+          ) : null}
         </div>
-      ) : null}
-    </footer>
+
+        <div className="flex min-w-0 flex-col items-stretch gap-2 md:items-end">
+          {errorMessage ? (
+            <p className="type-b3-md text-red-600" role="alert">
+              {errorMessage}
+            </p>
+          ) : null}
+          {hasRight ? (
+            <div className="flex shrink-0 flex-wrap items-center justify-end gap-2">
+              {footer.actions.map((action) => (
+                <MasaiButton
+                  key={action.kind}
+                  type={action.variant === 'secondary' ? 'secondary' : 'primary'}
+                  size="md"
+                  ctaText={action.label}
+                  htmlType="button"
+                  disabled={!action.enabled || loading}
+                  data-testid={`assignment-footer-action-${action.kind}`}
+                  onClick={() => void handleAction(action.kind)}
+                />
+              ))}
+            </div>
+          ) : null}
+        </div>
+      </footer>
+
+      <AssessmentPlatformRedirectModal
+        open={modalOpen}
+        loading={loading}
+        onOpenChange={setModalOpen}
+        onConfirm={confirmModal}
+      />
+    </>
   )
 }
 

@@ -17,12 +17,16 @@ import { Route as ApiLearnBatchDataRouteImport } from './routes/api/learn/batch-
 import { Route as protectedLayoutMasaiverseRouteRouteImport } from './routes/(protected)/_layout/masaiverse/route'
 import { Route as protectedLayoutMasaiverseIndexRouteImport } from './routes/(protected)/_layout/masaiverse/index'
 import { Route as protectedLayoutLearnIndexRouteImport } from './routes/(protected)/_layout/learn/index'
+import { Route as ApiLearnSubmissionsSubmissionIdRouteImport } from './routes/api/learn/submissions/$submissionId'
 import { Route as ApiLearnResourcesResourceIdRouteImport } from './routes/api/learn/resources/$resourceId'
 import { Route as ApiLearnLecturesLectureIdRouteImport } from './routes/api/learn/lectures/$lectureId'
 import { Route as ApiLearnAssignmentsAssignmentIdRouteImport } from './routes/api/learn/assignments/$assignmentId'
 import { Route as protectedLayoutResourcesResourceIdRouteRouteImport } from './routes/(protected)/_layout/resources_/$resourceId/route'
 import { Route as protectedLayoutLecturesLectureIdRouteRouteImport } from './routes/(protected)/_layout/lectures_/$lectureId/route'
 import { Route as protectedLayoutAssignmentsAssignmentIdRouteRouteImport } from './routes/(protected)/_layout/assignments_/$assignmentId/route'
+import { Route as ApiLearnSubmissionsSubmissionIdViewOnPlatformRouteImport } from './routes/api/learn/submissions/$submissionId/view-on-platform'
+import { Route as ApiLearnAssignmentsAssignmentIdSubmissionsRouteImport } from './routes/api/learn/assignments/$assignmentId/submissions'
+import { Route as ApiLearnAssignmentsAssignmentIdAssessPlatformUrlRouteImport } from './routes/api/learn/assignments/$assignmentId/assess-platform-url'
 
 const protectedLayoutRouteRoute = protectedLayoutRouteRouteImport.update({
   id: '/(protected)/_layout',
@@ -66,6 +70,12 @@ const protectedLayoutLearnIndexRoute =
     path: '/learn/',
     getParentRoute: () => protectedLayoutRouteRoute,
   } as any)
+const ApiLearnSubmissionsSubmissionIdRoute =
+  ApiLearnSubmissionsSubmissionIdRouteImport.update({
+    id: '/api/learn/submissions/$submissionId',
+    path: '/api/learn/submissions/$submissionId',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiLearnResourcesResourceIdRoute =
   ApiLearnResourcesResourceIdRouteImport.update({
     id: '/api/learn/resources/$resourceId',
@@ -102,6 +112,24 @@ const protectedLayoutAssignmentsAssignmentIdRouteRoute =
     path: '/assignments/$assignmentId',
     getParentRoute: () => protectedLayoutRouteRoute,
   } as any)
+const ApiLearnSubmissionsSubmissionIdViewOnPlatformRoute =
+  ApiLearnSubmissionsSubmissionIdViewOnPlatformRouteImport.update({
+    id: '/view-on-platform',
+    path: '/view-on-platform',
+    getParentRoute: () => ApiLearnSubmissionsSubmissionIdRoute,
+  } as any)
+const ApiLearnAssignmentsAssignmentIdSubmissionsRoute =
+  ApiLearnAssignmentsAssignmentIdSubmissionsRouteImport.update({
+    id: '/submissions',
+    path: '/submissions',
+    getParentRoute: () => ApiLearnAssignmentsAssignmentIdRoute,
+  } as any)
+const ApiLearnAssignmentsAssignmentIdAssessPlatformUrlRoute =
+  ApiLearnAssignmentsAssignmentIdAssessPlatformUrlRouteImport.update({
+    id: '/assess-platform-url',
+    path: '/assess-platform-url',
+    getParentRoute: () => ApiLearnAssignmentsAssignmentIdRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/masaiverse': typeof protectedLayoutMasaiverseRouteRouteWithChildren
@@ -112,11 +140,15 @@ export interface FileRoutesByFullPath {
   '/assignments/$assignmentId': typeof protectedLayoutAssignmentsAssignmentIdRouteRoute
   '/lectures/$lectureId': typeof protectedLayoutLecturesLectureIdRouteRoute
   '/resources/$resourceId': typeof protectedLayoutResourcesResourceIdRouteRoute
-  '/api/learn/assignments/$assignmentId': typeof ApiLearnAssignmentsAssignmentIdRoute
+  '/api/learn/assignments/$assignmentId': typeof ApiLearnAssignmentsAssignmentIdRouteWithChildren
   '/api/learn/lectures/$lectureId': typeof ApiLearnLecturesLectureIdRoute
   '/api/learn/resources/$resourceId': typeof ApiLearnResourcesResourceIdRoute
+  '/api/learn/submissions/$submissionId': typeof ApiLearnSubmissionsSubmissionIdRouteWithChildren
   '/learn/': typeof protectedLayoutLearnIndexRoute
   '/masaiverse/': typeof protectedLayoutMasaiverseIndexRoute
+  '/api/learn/assignments/$assignmentId/assess-platform-url': typeof ApiLearnAssignmentsAssignmentIdAssessPlatformUrlRoute
+  '/api/learn/assignments/$assignmentId/submissions': typeof ApiLearnAssignmentsAssignmentIdSubmissionsRoute
+  '/api/learn/submissions/$submissionId/view-on-platform': typeof ApiLearnSubmissionsSubmissionIdViewOnPlatformRoute
 }
 export interface FileRoutesByTo {
   '/api/learn/batch-data': typeof ApiLearnBatchDataRoute
@@ -126,11 +158,15 @@ export interface FileRoutesByTo {
   '/assignments/$assignmentId': typeof protectedLayoutAssignmentsAssignmentIdRouteRoute
   '/lectures/$lectureId': typeof protectedLayoutLecturesLectureIdRouteRoute
   '/resources/$resourceId': typeof protectedLayoutResourcesResourceIdRouteRoute
-  '/api/learn/assignments/$assignmentId': typeof ApiLearnAssignmentsAssignmentIdRoute
+  '/api/learn/assignments/$assignmentId': typeof ApiLearnAssignmentsAssignmentIdRouteWithChildren
   '/api/learn/lectures/$lectureId': typeof ApiLearnLecturesLectureIdRoute
   '/api/learn/resources/$resourceId': typeof ApiLearnResourcesResourceIdRoute
+  '/api/learn/submissions/$submissionId': typeof ApiLearnSubmissionsSubmissionIdRouteWithChildren
   '/learn': typeof protectedLayoutLearnIndexRoute
   '/masaiverse': typeof protectedLayoutMasaiverseIndexRoute
+  '/api/learn/assignments/$assignmentId/assess-platform-url': typeof ApiLearnAssignmentsAssignmentIdAssessPlatformUrlRoute
+  '/api/learn/assignments/$assignmentId/submissions': typeof ApiLearnAssignmentsAssignmentIdSubmissionsRoute
+  '/api/learn/submissions/$submissionId/view-on-platform': typeof ApiLearnSubmissionsSubmissionIdViewOnPlatformRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -143,11 +179,15 @@ export interface FileRoutesById {
   '/(protected)/_layout/assignments_/$assignmentId': typeof protectedLayoutAssignmentsAssignmentIdRouteRoute
   '/(protected)/_layout/lectures_/$lectureId': typeof protectedLayoutLecturesLectureIdRouteRoute
   '/(protected)/_layout/resources_/$resourceId': typeof protectedLayoutResourcesResourceIdRouteRoute
-  '/api/learn/assignments/$assignmentId': typeof ApiLearnAssignmentsAssignmentIdRoute
+  '/api/learn/assignments/$assignmentId': typeof ApiLearnAssignmentsAssignmentIdRouteWithChildren
   '/api/learn/lectures/$lectureId': typeof ApiLearnLecturesLectureIdRoute
   '/api/learn/resources/$resourceId': typeof ApiLearnResourcesResourceIdRoute
+  '/api/learn/submissions/$submissionId': typeof ApiLearnSubmissionsSubmissionIdRouteWithChildren
   '/(protected)/_layout/learn/': typeof protectedLayoutLearnIndexRoute
   '/(protected)/_layout/masaiverse/': typeof protectedLayoutMasaiverseIndexRoute
+  '/api/learn/assignments/$assignmentId/assess-platform-url': typeof ApiLearnAssignmentsAssignmentIdAssessPlatformUrlRoute
+  '/api/learn/assignments/$assignmentId/submissions': typeof ApiLearnAssignmentsAssignmentIdSubmissionsRoute
+  '/api/learn/submissions/$submissionId/view-on-platform': typeof ApiLearnSubmissionsSubmissionIdViewOnPlatformRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -163,8 +203,12 @@ export interface FileRouteTypes {
     | '/api/learn/assignments/$assignmentId'
     | '/api/learn/lectures/$lectureId'
     | '/api/learn/resources/$resourceId'
+    | '/api/learn/submissions/$submissionId'
     | '/learn/'
     | '/masaiverse/'
+    | '/api/learn/assignments/$assignmentId/assess-platform-url'
+    | '/api/learn/assignments/$assignmentId/submissions'
+    | '/api/learn/submissions/$submissionId/view-on-platform'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/api/learn/batch-data'
@@ -177,8 +221,12 @@ export interface FileRouteTypes {
     | '/api/learn/assignments/$assignmentId'
     | '/api/learn/lectures/$lectureId'
     | '/api/learn/resources/$resourceId'
+    | '/api/learn/submissions/$submissionId'
     | '/learn'
     | '/masaiverse'
+    | '/api/learn/assignments/$assignmentId/assess-platform-url'
+    | '/api/learn/assignments/$assignmentId/submissions'
+    | '/api/learn/submissions/$submissionId/view-on-platform'
   id:
     | '__root__'
     | '/(protected)/_layout'
@@ -193,8 +241,12 @@ export interface FileRouteTypes {
     | '/api/learn/assignments/$assignmentId'
     | '/api/learn/lectures/$lectureId'
     | '/api/learn/resources/$resourceId'
+    | '/api/learn/submissions/$submissionId'
     | '/(protected)/_layout/learn/'
     | '/(protected)/_layout/masaiverse/'
+    | '/api/learn/assignments/$assignmentId/assess-platform-url'
+    | '/api/learn/assignments/$assignmentId/submissions'
+    | '/api/learn/submissions/$submissionId/view-on-platform'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -202,9 +254,10 @@ export interface RootRouteChildren {
   ApiLearnBatchDataRoute: typeof ApiLearnBatchDataRoute
   ApiLearnBatchesRoute: typeof ApiLearnBatchesRoute
   authLoginIndexRoute: typeof authLoginIndexRoute
-  ApiLearnAssignmentsAssignmentIdRoute: typeof ApiLearnAssignmentsAssignmentIdRoute
+  ApiLearnAssignmentsAssignmentIdRoute: typeof ApiLearnAssignmentsAssignmentIdRouteWithChildren
   ApiLearnLecturesLectureIdRoute: typeof ApiLearnLecturesLectureIdRoute
   ApiLearnResourcesResourceIdRoute: typeof ApiLearnResourcesResourceIdRoute
+  ApiLearnSubmissionsSubmissionIdRoute: typeof ApiLearnSubmissionsSubmissionIdRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
@@ -265,6 +318,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof protectedLayoutLearnIndexRouteImport
       parentRoute: typeof protectedLayoutRouteRoute
     }
+    '/api/learn/submissions/$submissionId': {
+      id: '/api/learn/submissions/$submissionId'
+      path: '/api/learn/submissions/$submissionId'
+      fullPath: '/api/learn/submissions/$submissionId'
+      preLoaderRoute: typeof ApiLearnSubmissionsSubmissionIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/learn/resources/$resourceId': {
       id: '/api/learn/resources/$resourceId'
       path: '/api/learn/resources/$resourceId'
@@ -306,6 +366,27 @@ declare module '@tanstack/react-router' {
       fullPath: '/assignments/$assignmentId'
       preLoaderRoute: typeof protectedLayoutAssignmentsAssignmentIdRouteRouteImport
       parentRoute: typeof protectedLayoutRouteRoute
+    }
+    '/api/learn/submissions/$submissionId/view-on-platform': {
+      id: '/api/learn/submissions/$submissionId/view-on-platform'
+      path: '/view-on-platform'
+      fullPath: '/api/learn/submissions/$submissionId/view-on-platform'
+      preLoaderRoute: typeof ApiLearnSubmissionsSubmissionIdViewOnPlatformRouteImport
+      parentRoute: typeof ApiLearnSubmissionsSubmissionIdRoute
+    }
+    '/api/learn/assignments/$assignmentId/submissions': {
+      id: '/api/learn/assignments/$assignmentId/submissions'
+      path: '/submissions'
+      fullPath: '/api/learn/assignments/$assignmentId/submissions'
+      preLoaderRoute: typeof ApiLearnAssignmentsAssignmentIdSubmissionsRouteImport
+      parentRoute: typeof ApiLearnAssignmentsAssignmentIdRoute
+    }
+    '/api/learn/assignments/$assignmentId/assess-platform-url': {
+      id: '/api/learn/assignments/$assignmentId/assess-platform-url'
+      path: '/assess-platform-url'
+      fullPath: '/api/learn/assignments/$assignmentId/assess-platform-url'
+      preLoaderRoute: typeof ApiLearnAssignmentsAssignmentIdAssessPlatformUrlRouteImport
+      parentRoute: typeof ApiLearnAssignmentsAssignmentIdRoute
     }
   }
 }
@@ -349,14 +430,50 @@ const protectedLayoutRouteRouteChildren: protectedLayoutRouteRouteChildren = {
 const protectedLayoutRouteRouteWithChildren =
   protectedLayoutRouteRoute._addFileChildren(protectedLayoutRouteRouteChildren)
 
+interface ApiLearnAssignmentsAssignmentIdRouteChildren {
+  ApiLearnAssignmentsAssignmentIdAssessPlatformUrlRoute: typeof ApiLearnAssignmentsAssignmentIdAssessPlatformUrlRoute
+  ApiLearnAssignmentsAssignmentIdSubmissionsRoute: typeof ApiLearnAssignmentsAssignmentIdSubmissionsRoute
+}
+
+const ApiLearnAssignmentsAssignmentIdRouteChildren: ApiLearnAssignmentsAssignmentIdRouteChildren =
+  {
+    ApiLearnAssignmentsAssignmentIdAssessPlatformUrlRoute:
+      ApiLearnAssignmentsAssignmentIdAssessPlatformUrlRoute,
+    ApiLearnAssignmentsAssignmentIdSubmissionsRoute:
+      ApiLearnAssignmentsAssignmentIdSubmissionsRoute,
+  }
+
+const ApiLearnAssignmentsAssignmentIdRouteWithChildren =
+  ApiLearnAssignmentsAssignmentIdRoute._addFileChildren(
+    ApiLearnAssignmentsAssignmentIdRouteChildren,
+  )
+
+interface ApiLearnSubmissionsSubmissionIdRouteChildren {
+  ApiLearnSubmissionsSubmissionIdViewOnPlatformRoute: typeof ApiLearnSubmissionsSubmissionIdViewOnPlatformRoute
+}
+
+const ApiLearnSubmissionsSubmissionIdRouteChildren: ApiLearnSubmissionsSubmissionIdRouteChildren =
+  {
+    ApiLearnSubmissionsSubmissionIdViewOnPlatformRoute:
+      ApiLearnSubmissionsSubmissionIdViewOnPlatformRoute,
+  }
+
+const ApiLearnSubmissionsSubmissionIdRouteWithChildren =
+  ApiLearnSubmissionsSubmissionIdRoute._addFileChildren(
+    ApiLearnSubmissionsSubmissionIdRouteChildren,
+  )
+
 const rootRouteChildren: RootRouteChildren = {
   protectedLayoutRouteRoute: protectedLayoutRouteRouteWithChildren,
   ApiLearnBatchDataRoute: ApiLearnBatchDataRoute,
   ApiLearnBatchesRoute: ApiLearnBatchesRoute,
   authLoginIndexRoute: authLoginIndexRoute,
-  ApiLearnAssignmentsAssignmentIdRoute: ApiLearnAssignmentsAssignmentIdRoute,
+  ApiLearnAssignmentsAssignmentIdRoute:
+    ApiLearnAssignmentsAssignmentIdRouteWithChildren,
   ApiLearnLecturesLectureIdRoute: ApiLearnLecturesLectureIdRoute,
   ApiLearnResourcesResourceIdRoute: ApiLearnResourcesResourceIdRoute,
+  ApiLearnSubmissionsSubmissionIdRoute:
+    ApiLearnSubmissionsSubmissionIdRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
