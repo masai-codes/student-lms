@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect } from 'react'
 
 import {
   LectureAiChatDock,
@@ -28,8 +28,6 @@ import type {
   LectureDetailTabContent,
   LectureVideoAttendanceState,
 } from '@/server/learn/lectureDetailTypes'
-import { cn } from '@/lib/utils'
-
 type LectureRecordingExperienceProps = {
   videoUrl: string
   title: string
@@ -69,7 +67,6 @@ export function LectureRecordingExperience({
   const { rootRef, heightPx } = useLectureHeroViewportHeight()
   const { isTheaterMode, toggleTheaterMode } = useLectureTheaterMode()
   const isSplitLayout = !isTheaterMode
-  const [isChatDocked, setIsChatDocked] = useState(false)
   const chat = useLectureAiChat({
     defaultExpanded: isSplitLayout && LECTURE_SPLIT_CHAT_OPEN_BY_DEFAULT,
   })
@@ -106,14 +103,7 @@ export function LectureRecordingExperience({
   const hero = (
     <div
       ref={rootRef}
-      className={cn(
-        'flex w-full shrink-0 flex-col overflow-visible bg-white',
-        isTheaterMode &&
-          isChatDocked &&
-          (chat.isExpanded
-            ? 'pb-[calc(7rem+18rem+env(safe-area-inset-bottom))] max-md:pb-[calc(11.5rem+18rem+env(safe-area-inset-bottom))]'
-            : 'pb-28 max-md:pb-[calc(7rem+env(safe-area-inset-bottom))]'),
-      )}
+      className="flex w-full shrink-0 flex-col overflow-visible bg-white"
       style={
         heightPx != null
           ? { height: heightPx, minHeight: heightPx, maxHeight: heightPx }
@@ -159,9 +149,7 @@ export function LectureRecordingExperience({
     </div>
   )
 
-  const belowHero = isTheaterMode ? (
-    <LectureAiChatDock {...chatProps} onDockedChange={setIsChatDocked} />
-  ) : null
+  const belowHero = isTheaterMode ? <LectureAiChatDock {...chatProps} /> : null
 
   return (
     <LectureDetailChrome

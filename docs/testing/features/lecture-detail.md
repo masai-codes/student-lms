@@ -7,6 +7,8 @@
 - Server payload: `getLectureLearningDetail` → `LectureDetailPayload` (all tab bodies from DB; no static lecture copy)
 
 ## Test files
+- `src/components/features/learn/LearnPageDetails/lecture/hooks/__tests__/lectureViewportLayout.test.ts` — first-viewport hero height reserves title, chat, and tab rows
+- `src/components/features/learn/LearnPageDetails/lecture/hooks/__tests__/lectureChatDockLayout.test.ts` — inline chat docks only after scroll, not when below the fold
 - `src/server/learn/utils/__tests__/parseLectureSettings.test.ts`
 - `src/server/learn/utils/__tests__/resolveLectureVideoUrl.test.ts`
 - `src/server/learn/utils/__tests__/resolveLiveLecturePhase.test.ts`

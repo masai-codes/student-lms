@@ -34,7 +34,10 @@ export function LectureDetailChrome({
     <div className="w-full pb-12">
       <section className="flex w-full shrink-0 flex-col overflow-visible bg-white">
         {hero}
-        <div className={cn(lectureDetailContentClasses, 'relative z-20 shrink-0')}>
+        <div
+          data-lecture-viewport-chrome
+          className={cn(lectureDetailContentClasses, 'relative z-20 shrink-0')}
+        >
           <LectureDetailOverviewHeader
             title={title}
             tags={tags}

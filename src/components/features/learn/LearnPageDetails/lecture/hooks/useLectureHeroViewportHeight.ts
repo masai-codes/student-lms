@@ -2,7 +2,11 @@
 
 import { useLayoutEffect, useRef, useState } from 'react'
 
-const MIN_HERO_HEIGHT_PX = 180
+import {
+  computeLectureHeroHeightPx,
+  getStableHeroRootTopPx,
+  measureLectureViewportChromeHeightPx,
+} from './lectureViewportLayout'
 
 function getMobileTabBarHeightPx(): number {
   if (typeof window === 'undefined') return 0
@@ -14,37 +18,53 @@ function getMobileTabBarHeightPx(): number {
   return tabBar?.getBoundingClientRect().height ?? 0
 }
 
-function measureHeroHeight(root: HTMLElement): number {
-  const top = root.getBoundingClientRect().top
-  const bottomChrome = getMobileTabBarHeightPx()
+type LectureViewportLocks = {
+  heightPx: number
+  reservedChromePx: number
+}
+
+function measureHeroHeight(
+  root: HTMLElement,
+  reservedChromePx: number,
+): number {
   const viewportHeight = window.visualViewport?.height ?? window.innerHeight
-  return Math.max(Math.floor(viewportHeight - top - bottomChrome), MIN_HERO_HEIGHT_PX)
+  return computeLectureHeroHeightPx({
+    viewportHeight,
+    rootTop: getStableHeroRootTopPx(root, window.scrollY),
+    mobileTabBarHeightPx: getMobileTabBarHeightPx(),
+    reservedChromePx,
+  })
 }
 
 /**
  * Locks hero height from the initial viewport slice. Only updates on window
- * resize/orientation — not when tab content below expands (avoids video growth).
+ * resize/orientation — not on scroll or when docked chat collapses inline chrome.
  */
 export function useLectureHeroViewportHeight() {
   const rootRef = useRef<HTMLDivElement>(null)
   const [heightPx, setHeightPx] = useState<number | undefined>(undefined)
-  const lockedHeightRef = useRef<number | null>(null)
+  const locksRef = useRef<LectureViewportLocks | null>(null)
 
   useLayoutEffect(() => {
     const root = rootRef.current
     if (!root) return
 
     const applyMeasure = (force = false) => {
-      const next = measureHeroHeight(root)
-      if (!force && lockedHeightRef.current != null) return
-      lockedHeightRef.current = next
-      setHeightPx(next)
+      if (!force && locksRef.current != null) {
+        setHeightPx(locksRef.current.heightPx)
+        return
+      }
+
+      const reservedChromePx = measureLectureViewportChromeHeightPx()
+      const nextHeightPx = measureHeroHeight(root, reservedChromePx)
+      locksRef.current = { heightPx: nextHeightPx, reservedChromePx }
+      setHeightPx(nextHeightPx)
     }
 
     applyMeasure(true)
 
     const onResize = () => {
-      lockedHeightRef.current = null
+      locksRef.current = null
       applyMeasure(true)
     }
 

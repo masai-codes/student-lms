@@ -37,12 +37,14 @@ export function LectureDetailFooter({
 
   return (
     <>
-      <LectureTabBar
-        activeTabId={activeTabId}
-        onTabChange={setActiveTabId}
-        hideNotes={hideNotes}
-        className="shrink-0 border-b border-border pb-3 pt-3"
-      />
+      <div data-lecture-viewport-chrome className="shrink-0">
+        <LectureTabBar
+          activeTabId={activeTabId}
+          onTabChange={setActiveTabId}
+          hideNotes={hideNotes}
+          className="border-b border-border pb-3 pt-3"
+        />
+      </div>
       <LectureTabContentSection
         tabId={activeTabId}
         tabs={tabs}
