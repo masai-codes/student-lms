@@ -5,7 +5,6 @@ import { getSectionIdsForUserInBatch } from '@/server/batches/getSectionIdsForUs
 import type {
   GetBatchLearningDataInput,
   GetBatchLearningDataResponse,
-  LearningItem,
 } from '@/server/learn/types'
 import type { LearningEntityRow } from '@/server/learn/utils/learningDataMappers'
 
@@ -29,53 +28,12 @@ import {
 } from '@/server/learn/utils/calculateAssignmentProgressStatus'
 import { resolveAssignmentPhase } from '@/server/learn/utils/resolveAssignmentPhase'
 import type { ResourcePhase } from '@/server/learn/resourceDetailTypes'
+import { applyLearnListingFilters } from '@/server/learn/utils/applyLearnListingFilters'
 
 const DEFAULT_PAGE = 1
 /** Legacy learn listings use `ROW_PER_PAGE = 15` in experience-ui. */
 const DEFAULT_PAGE_SIZE = 15
 const MAX_PAGE_SIZE = 50
-
-function parseMs(value: string | null | undefined): number | null {
-  if (value == null) return null
-  const t = Date.parse(value)
-  return Number.isNaN(t) ? null : t
-}
-
-/** Local calendar midnight for `yyyy-mm-dd`. */
-function startOfDayFromYmd(ymd: string): number {
-  const parts = ymd.split('-').map(Number)
-  const y = parts[0] ?? 1970
-  const m = parts[1] ?? 1
-  const d = parts[2] ?? 1
-  return new Date(y, m - 1, d).setHours(0, 0, 0, 0)
-}
-
-/** Local calendar midnight for ISO schedule string from DB (if parseable). */
-function startOfDayFromSchedule(scheduleISO: string | null): number | null {
-  if (scheduleISO == null || scheduleISO.trim() === '') return null
-  const t = parseMs(scheduleISO)
-  if (t == null) return null
-  const dt = new Date(t)
-  return new Date(dt.getFullYear(), dt.getMonth(), dt.getDate()).getTime()
-}
-
-function matchesScheduleBounds(
-  scheduleDate: string | null,
-  startYmd?: string,
-  endYmd?: string
-): boolean {
-  const hasLower = startYmd != null && startYmd.trim() !== ''
-  const hasUpper = endYmd != null && endYmd.trim() !== ''
-  if (!hasLower && !hasUpper) return true
-
-  const itemDay = startOfDayFromSchedule(scheduleDate)
-  if (itemDay == null) return false
-
-  if (hasLower && itemDay < startOfDayFromYmd(startYmd!)) return false
-  if (hasUpper && itemDay > startOfDayFromYmd(endYmd!)) return false
-
-  return true
-}
 
 function normalizePagination(page?: number, pageSize?: number) {
   const safePage = Number.isFinite(page) && page != null && page > 0 ? page : DEFAULT_PAGE
@@ -85,55 +43,6 @@ function normalizePagination(page?: number, pageSize?: number) {
       : DEFAULT_PAGE_SIZE
 
   return { page: safePage, pageSize: resolvedPageSize }
-}
-
-function applyInMemoryFilters(
-  items: Array<LearningItem>,
-  filters: GetBatchLearningDataInput['filters']
-): Array<LearningItem> {
-  if (filters == null) {
-    return items
-  }
-
-  return items.filter((item) => {
-    const moduleMatch =
-      filters.modules == null ||
-      filters.modules.length === 0 ||
-      filters.modules.includes(item.moduleName)
-
-    const categoryMatch =
-      filters.categories == null ||
-      filters.categories.length === 0 ||
-      filters.categories.includes(item.category)
-
-    const typeMatch =
-      filters.types == null || filters.types.length === 0 || filters.types.includes(item.type)
-
-    const priorityMatch =
-      filters.priorities == null ||
-      filters.priorities.length === 0 ||
-      filters.priorities.includes(item.isOptional)
-
-    const instructorMatch =
-      filters.instructors == null ||
-      filters.instructors.length === 0 ||
-      filters.instructors.includes(item.hostName)
-
-    const scheduleMatch = matchesScheduleBounds(
-      item.scheduleDate,
-      filters.scheduleStartDate,
-      filters.scheduleEndDate
-    )
-
-    return (
-      moduleMatch &&
-      categoryMatch &&
-      typeMatch &&
-      priorityMatch &&
-      instructorMatch &&
-      scheduleMatch
-    )
-  })
 }
 
 async function fetchLectureLikeItems(
@@ -366,6 +275,8 @@ export async function getBatchLearningData(
       ? buildResourcePhaseById(sourceRows, nowMs)
       : new Map<number, ResourcePhase>()
 
+  const rowsById = new Map(sourceRows.map((row) => [row.id, row]))
+
   const mappedItems = sourceRows.map((row) => {
     const attendance = attendanceSummaries.get(row.id) ?? null
     const assignmentProgressStatus = assignmentProgressById.get(row.id) ?? null
@@ -390,7 +301,12 @@ export async function getBatchLearningData(
       resourcePhaseById.get(row.id) ?? null,
     )
   })
-  const filteredItems = applyInMemoryFilters(mappedItems, input.filters)
+  const filteredItems = applyLearnListingFilters(
+    mappedItems,
+    rowsById,
+    input.filters,
+    nowMs,
+  )
 
   const totalItems = filteredItems.length
   const totalPages = Math.max(1, Math.ceil(totalItems / pageSize))

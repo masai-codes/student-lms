@@ -31,6 +31,7 @@ const SEARCH_PLACEHOLDER_BY_TAB: Record<LearnTab, string> = {
 
 interface LearnControlsSectionProps {
   activeTab: LearnTab
+  filterCount: number
   onTabChange: (tab: LearnTab) => void
   searchValue: string
   onSearchChange: (value: string) => void
@@ -45,6 +46,7 @@ interface LearnControlsSectionProps {
 
 export function LearnControlsSection({
   activeTab,
+  filterCount,
   onTabChange,
   searchValue,
   onSearchChange,
@@ -115,16 +117,30 @@ export function LearnControlsSection({
           triggerClassName="min-w-0 w-full"
         />
 
-        <MasaiButton
-          type="tertiary"
-          size="md"
-          iconOnly
-          icon={<Filter className="size-6" strokeWidth={2} />}
-          htmlType="button"
-          onClick={() => setFiltersOpen(true)}
-          aria-label="Open filters"
-          className="!border !border-slate-200 !text-slate-700 hover:!bg-slate-50"
-        />
+        <div className="relative shrink-0">
+          <MasaiButton
+            type="tertiary"
+            size="md"
+            iconOnly
+            icon={<Filter className="size-6" strokeWidth={2} />}
+            htmlType="button"
+            onClick={() => setFiltersOpen(true)}
+            aria-label={
+              filterCount > 0
+                ? `Open filters, ${filterCount} active`
+                : 'Open filters'
+            }
+            className="!border !border-slate-200 !text-slate-700 hover:!bg-slate-50"
+          />
+          {filterCount > 0 ? (
+            <span
+              className="absolute -right-1.5 -top-1.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-red-500 px-1 text-xs font-bold text-white"
+              aria-hidden
+            >
+              {filterCount > 99 ? '99+' : filterCount}
+            </span>
+          ) : null}
+        </div>
       </div>
 
       <MasaiDrawer
@@ -135,6 +151,7 @@ export function LearnControlsSection({
         title="Filters"
         content={
           <LearnFiltersPanel
+            activeTab={activeTab}
             filtersOpen={filtersOpen}
             moduleOptions={moduleFilterOptions}
             categoryOptions={categoryFilterOptions}

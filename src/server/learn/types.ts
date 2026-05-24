@@ -35,6 +35,9 @@ export interface LearnListingCardCtas {
   assignmentStatusChip: AssignmentListingStatusChip
 }
 
+export type LearnSchedulePhaseFilter = 'all' | 'upcoming' | 'past'
+export type LearnAttendanceStatusFilter = 'present' | 'absent'
+
 export interface BatchLearningFiltersInput {
   modules?: Array<string>
   categories?: Array<string>
@@ -44,6 +47,12 @@ export interface BatchLearningFiltersInput {
   /** Inclusive; `yyyy-mm-dd` against schedule timestamps. */
   scheduleStartDate?: string
   scheduleEndDate?: string
+  /** Lectures/resources: upcoming (not ended) vs past (ended). */
+  schedulePhase?: LearnSchedulePhaseFilter
+  /** Mandatory lectures with attendance rows only. */
+  attendanceStatus?: LearnAttendanceStatusFilter
+  /** Assignments: progress chip statuses (omit or empty = all). */
+  assignmentProgressStatuses?: Array<AssignmentProgressStatus>
 }
 
 export interface GetBatchLearningDataInput {

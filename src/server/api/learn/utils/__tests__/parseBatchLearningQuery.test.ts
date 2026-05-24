@@ -27,6 +27,24 @@ describe('parseBatchLearningQuery', () => {
     })
   })
 
+  it('parses legacy lecture and assignment filter params', () => {
+    const url = new URL(
+      'http://localhost/api/learn/batch-data?batchId=1&learningType=lecture&lectureTab=upcoming&attendanceStatus=present&optional=yes',
+    )
+    expect(parseBatchLearningQuery(url).filters).toMatchObject({
+      schedulePhase: 'upcoming',
+      attendanceStatus: 'present',
+      priorities: ['recommended'],
+    })
+
+    const assignmentUrl = new URL(
+      'http://localhost/api/learn/batch-data?batchId=1&learningType=assignment&assignmentTab=overdue',
+    )
+    expect(parseBatchLearningQuery(assignmentUrl).filters).toMatchObject({
+      assignmentProgressStatuses: ['overdue'],
+    })
+  })
+
   it('throws when batchId is missing', () => {
     const url = new URL('http://localhost/api/learn/batch-data?learningType=lecture')
     expect(() => parseBatchLearningQuery(url)).toThrow('MISSING_BATCH_ID')

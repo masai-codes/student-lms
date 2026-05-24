@@ -36,6 +36,10 @@ export interface LearnFilterValues {
   instructorFilterValues: Array<string>
 }
 
+export type LearnSchedulePhase = 'all' | 'upcoming' | 'past'
+export type LearnAttendanceFilter = 'present' | 'absent'
+export type LearnAssignmentProgressFilter = 'all' | AssignmentProgressStatus
+
 export interface LearnModalFiltersState {
   modules: Array<string>
   categories: Array<string>
@@ -46,6 +50,12 @@ export interface LearnModalFiltersState {
   scheduleStartDate: string | null
   /** Inclusive schedule upper bound (`yyyy-mm-dd`). */
   scheduleEndDate: string | null
+  /** Lectures: upcoming vs past session window. */
+  schedulePhase: LearnSchedulePhase
+  /** Lectures: attendance facet (mandatory lectures only). */
+  attendanceStatus: LearnAttendanceFilter | null
+  /** Assignments: progress chip filter. */
+  assignmentProgress: LearnAssignmentProgressFilter
 }
 
 export function createEmptyLearnModalFilters(): LearnModalFiltersState {
@@ -57,5 +67,8 @@ export function createEmptyLearnModalFilters(): LearnModalFiltersState {
     instructors: [],
     scheduleStartDate: null,
     scheduleEndDate: null,
+    schedulePhase: 'all',
+    attendanceStatus: null,
+    assignmentProgress: 'all',
   }
 }

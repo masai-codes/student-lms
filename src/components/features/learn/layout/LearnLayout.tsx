@@ -1,11 +1,11 @@
-import { useMemo, useState } from 'react'
+import { useMemo } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { LearnHeaderSection } from '../section-one/LearnHeaderSection'
 import { LearnControlsSection } from '../section-two/LearnControlsSection'
 import { LearnContentListSection } from '../section-three/LearnContentListSection'
 import { LearnPaginationSection } from '../section-four/LearnPaginationSection'
-import { createEmptyLearnModalFilters } from '../shared/types'
-import type { LearnContentItem, LearnTab } from '../shared/types'
+import type { LearnContentItem } from '../shared/types'
+import { useLearnPageState } from './useLearnPageState'
 import { AppLoading } from '@/components/common'
 import { fetchBatchLearningDataFromApi } from '@/lib/api/learn/learnApi'
 import { LAYOUT_MAIN_PADDING_X, LAYOUT_MAX_WIDTH_CLASS } from '@/lib/layout'
@@ -27,10 +27,19 @@ export function LearnLayout({
   selectedBatchId,
   onBatchChange,
 }: LearnLayoutProps) {
-  const [activeTab, setActiveTab] = useState<LearnTab>('lectures')
-  const [searchValue, setSearchValue] = useState('')
-  const [currentPage, setCurrentPage] = useState(1)
-  const [modalFilters, setModalFilters] = useState(createEmptyLearnModalFilters)
+  const {
+    activeTab,
+    currentPage,
+    searchValue,
+    modalFilters,
+    filterCount,
+    apiFilters,
+    setActiveTab,
+    setSearchValue,
+    setCurrentPage,
+    setModalFilters,
+    setModules,
+  } = useLearnPageState()
 
   const resolvedBatchId = useMemo(() => {
     if (selectedBatchId != null) {
@@ -46,6 +55,10 @@ export function LearnLayout({
     return 'resource' as const
   }, [activeTab])
 
+  const hasActiveApiFilters = Object.values(apiFilters).some(
+    (value) => value != null && (!(Array.isArray(value)) || value.length > 0),
+  )
+
   const { data, isLoading, isFetching } = useQuery({
     queryKey: [
       'learn-batch-learning-data',
@@ -53,7 +66,7 @@ export function LearnLayout({
       learningType,
       searchValue,
       currentPage,
-      modalFilters,
+      apiFilters,
     ],
     enabled: typeof resolvedBatchId === 'number',
     queryFn: async () => {
@@ -67,15 +80,7 @@ export function LearnLayout({
         search: searchValue.trim() || undefined,
         page: currentPage,
         pageSize: 15,
-        filters: {
-          modules: modalFilters.modules,
-          categories: modalFilters.categories,
-          types: modalFilters.types,
-          priorities: modalFilters.priorities,
-          instructors: modalFilters.instructors,
-          scheduleStartDate: modalFilters.scheduleStartDate ?? undefined,
-          scheduleEndDate: modalFilters.scheduleEndDate ?? undefined,
-        },
+        filters: hasActiveApiFilters ? apiFilters : undefined,
       })
     },
   })
@@ -102,8 +107,11 @@ export function LearnLayout({
   )
 
   const moduleFilterNames = data?.filterValues.moduleFilterValues ?? []
-
   const totalPages = data?.pagination.totalPages ?? 1
+
+  if (resolvedBatchId == null) {
+    return null
+  }
 
   return (
     <div className="w-full mt-[-24px]">
@@ -120,25 +128,16 @@ export function LearnLayout({
             }))}
             onBatchChange={(value) => {
               onBatchChange(Number(value))
-              setCurrentPage(1)
             }}
           />
 
           <LearnControlsSection
             activeTab={activeTab}
-            onTabChange={(tab) => {
-              setActiveTab(tab)
-              setCurrentPage(1)
-            }}
+            filterCount={filterCount}
+            onTabChange={setActiveTab}
             searchValue={searchValue}
-            onSearchChange={(value) => {
-              setSearchValue(value)
-              setCurrentPage(1)
-            }}
-            onModulesChange={(modules) => {
-              setModalFilters((prev) => ({ ...prev, modules }))
-              setCurrentPage(1)
-            }}
+            onSearchChange={setSearchValue}
+            onModulesChange={setModules}
             moduleFilterOptions={moduleFilterNames}
             categoryFilterOptions={
               data?.filterValues.categoryFilterValues ?? []
@@ -148,10 +147,7 @@ export function LearnLayout({
               data?.filterValues.instructorFilterValues ?? []
             }
             modalFilters={modalFilters}
-            onApplyModalFilters={(next) => {
-              setModalFilters(next)
-              setCurrentPage(1)
-            }}
+            onApplyModalFilters={setModalFilters}
           />
         </div>
       </div>

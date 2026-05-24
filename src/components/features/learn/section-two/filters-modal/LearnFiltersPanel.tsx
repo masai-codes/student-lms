@@ -7,7 +7,14 @@ import {
   createEmptyLearnModalFilters,
   type LearnModalFiltersState,
   type LearnPriority,
+  type LearnTab,
 } from '../../shared/types'
+
+import {
+  getDefaultLearnFilterNav,
+  getLearnFilterNavItems,
+  type FilterNavKey,
+} from './learnFilterNavConfig'
 
 import { MasaiButton } from '@/components/masai-button'
 import { MasaiCheckbox } from '@/components/ui/masai-checkbox'
@@ -16,25 +23,9 @@ import { MasaiInput } from '@/components/ui/masai-input'
 import { MasaiRadioGroup } from '@/components/ui/masai-radio-group'
 
 const PRIORITY_ANY_VALUE = 'any'
-
-export type FilterNavKey =
-  | 'module'
-  | 'category'
-  | 'type'
-  | 'date'
-  | 'priority'
-  | 'instructor'
-
-type NavItem = { key: FilterNavKey; label: string }
-
-const NAV_ITEMS: Array<NavItem> = [
-  { key: 'module', label: 'Module' },
-  { key: 'category', label: 'Category' },
-  { key: 'type', label: 'Type' },
-  { key: 'date', label: 'Date' },
-  { key: 'priority', label: 'Priority' },
-  { key: 'instructor', label: 'Instructor' },
-]
+const SCHEDULE_PHASE_ANY = 'all'
+const ATTENDANCE_ANY = 'any'
+const ASSIGNMENT_PROGRESS_ANY = 'all'
 
 function toggleString(values: Array<string>, value: string): Array<string> {
   if (values.includes(value)) return values.filter((item) => item !== value)
@@ -42,6 +33,7 @@ function toggleString(values: Array<string>, value: string): Array<string> {
 }
 
 export interface LearnFiltersPanelProps {
+  activeTab: LearnTab
   filtersOpen: boolean
   moduleOptions: Array<string>
   categoryOptions: Array<string>
@@ -53,6 +45,7 @@ export interface LearnFiltersPanelProps {
 }
 
 export function LearnFiltersPanel({
+  activeTab,
   filtersOpen,
   moduleOptions,
   categoryOptions,
@@ -62,8 +55,11 @@ export function LearnFiltersPanel({
   onApply,
   onRequestClose,
 }: LearnFiltersPanelProps) {
+  const navItems = useMemo(() => getLearnFilterNavItems(activeTab), [activeTab])
   const [draft, setDraft] = useState<LearnModalFiltersState>(selectedFilters)
-  const [activeNav, setActiveNav] = useState<FilterNavKey>('module')
+  const [activeNav, setActiveNav] = useState<FilterNavKey>(() =>
+    getDefaultLearnFilterNav(activeTab),
+  )
   const [listSearch, setListSearch] = useState('')
   const prevFiltersOpen = useRef(false)
 
@@ -71,18 +67,18 @@ export function LearnFiltersPanel({
     if (filtersOpen && !prevFiltersOpen.current) {
       setDraft(structuredClone(selectedFilters))
       setListSearch('')
-      setActiveNav('module')
+      setActiveNav(getDefaultLearnFilterNav(activeTab))
     }
     prevFiltersOpen.current = filtersOpen
-  }, [filtersOpen, selectedFilters])
+  }, [activeTab, filtersOpen, selectedFilters])
 
   useEffect(() => {
     setListSearch('')
   }, [activeNav])
 
   const activeNavLabel = useMemo(
-    () => NAV_ITEMS.find((n) => n.key === activeNav)?.label ?? '',
-    [activeNav],
+    () => navItems.find((n) => n.key === activeNav)?.label ?? '',
+    [activeNav, navItems],
   )
 
   const searchPlaceholder = useMemo(() => {
@@ -142,7 +138,7 @@ export function LearnFiltersPanel({
           className="flex w-[148px] shrink-0 flex-col gap-1 border-r border-slate-200 py-4 pl-4 pr-2"
           aria-label="Filter categories"
         >
-          {NAV_ITEMS.map(({ key, label }) => {
+          {navItems.map(({ key, label }) => {
             const active = activeNav === key
             return (
               <button
@@ -242,6 +238,69 @@ export function LearnFiltersPanel({
               />
             ) : null}
 
+            {activeNav === 'progress' && activeTab === 'lectures' ? (
+              <MasaiRadioGroup
+                value={draft.schedulePhase}
+                onValueChange={(value) =>
+                  setDraft((prev) => ({
+                    ...prev,
+                    schedulePhase:
+                      value === 'upcoming' || value === 'past'
+                        ? value
+                        : 'all',
+                  }))
+                }
+                options={[
+                  { value: SCHEDULE_PHASE_ANY, label: 'All' },
+                  { value: 'upcoming', label: 'Upcoming' },
+                  { value: 'past', label: 'Past' },
+                ]}
+              />
+            ) : null}
+
+            {activeNav === 'progress' && activeTab === 'assignments' ? (
+              <MasaiRadioGroup
+                value={draft.assignmentProgress}
+                onValueChange={(value) =>
+                  setDraft((prev) => ({
+                    ...prev,
+                    assignmentProgress:
+                      value === 'new' ||
+                      value === 'in-progress' ||
+                      value === 'completed' ||
+                      value === 'overdue'
+                        ? value
+                        : 'all',
+                  }))
+                }
+                options={[
+                  { value: ASSIGNMENT_PROGRESS_ANY, label: 'All' },
+                  { value: 'new', label: 'New' },
+                  { value: 'in-progress', label: 'In Progress' },
+                  { value: 'completed', label: 'Completed' },
+                  { value: 'overdue', label: 'Overdue' },
+                ]}
+              />
+            ) : null}
+
+            {activeNav === 'attendance' ? (
+              <MasaiRadioGroup
+                value={draft.attendanceStatus ?? ATTENDANCE_ANY}
+                onValueChange={(value) =>
+                  setDraft((prev) => ({
+                    ...prev,
+                    attendanceStatus:
+                      value === 'present' || value === 'absent' ? value : null,
+                  }))
+                }
+                options={[
+                  { value: ATTENDANCE_ANY, label: 'Any' },
+                  { value: 'present', label: 'Present' },
+                  { value: 'absent', label: 'Absent' },
+                ]}
+              />
+            ) : null}
+
             {activeNav === 'priority' ? (
               <MasaiRadioGroup
                 value={priorityRadioValue}
@@ -266,8 +325,8 @@ export function LearnFiltersPanel({
             {activeNav === 'date' ? (
               <div className="space-y-4">
                 <p className="type-b2-regular text-gray-600">
-                  Filter by lecture or resource schedule dates. Items without a
-                  scheduled date are hidden when either bound is set.
+                  Filter by schedule dates. Items without a scheduled date are
+                  hidden when either bound is set.
                 </p>
                 <MasaiDateSelection
                   label="Start date"
@@ -301,7 +360,12 @@ export function LearnFiltersPanel({
           size="md"
           htmlType="button"
           ctaText="Clear filters"
-          onClick={() => setDraft(createEmptyLearnModalFilters())}
+          onClick={() => {
+            const cleared = createEmptyLearnModalFilters()
+            setDraft(cleared)
+            onApply(cleared)
+            onRequestClose()
+          }}
         />
         <MasaiButton
           type="primary"
