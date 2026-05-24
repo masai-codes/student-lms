@@ -6,9 +6,9 @@ import { getBatchLearningData } from '@/server/learn/services/getBatchLearningDa
 
 export async function handleGetBatchLearningData(request: Request): Promise<Response> {
   try {
-    await requireSessionUserId(request)
+    const userId = await requireSessionUserId(request)
     const input = parseBatchLearningQuery(new URL(request.url))
-    const data = await getBatchLearningData(input)
+    const data = await getBatchLearningData(input, userId)
     return jsonOk(data)
   } catch (error) {
     if (!isApiError(error)) {

@@ -11,6 +11,7 @@ import {
   isSupportedAssignmentDetailType,
 } from '@/server/learn/utils/buildAssignmentDetailPayload'
 import { buildLearnDetailPresentation } from '@/server/learn/utils/buildLearnDetailPresentation'
+import { getAssignmentAssociatedContent } from '@/server/learn/services/getAssignmentAssociatedContent.service'
 import { ensureUserCanAccessLearnHubEntity } from '@/server/learn/utils/ensureLearnEntityAccess'
 
 export async function getAssignmentLearningDetailForUser(
@@ -40,6 +41,7 @@ export async function getAssignmentLearningDetailForUser(
       showScores: assignments.showScores,
       showSubmission: assignments.showSubmission,
       settings: assignments.settings,
+      data: assignments.data,
     })
     .from(assignments)
     .leftJoin(users, eq(assignments.userId, users.id))
@@ -66,7 +68,8 @@ export async function getAssignmentLearningDetailForUser(
     throw new Error('LEARN_DETAIL_NOT_FOUND')
   }
 
-  const [submissionRows, problemCountRows, discussions] = await Promise.all([
+  const [submissionRows, problemCountRows, discussions, associatedItems] =
+    await Promise.all([
     db
       .select({
         id: submissions.id,
@@ -97,6 +100,11 @@ export async function getAssignmentLearningDetailForUser(
       DISCUSSION_ENTITY_ASSIGNMENT,
       assignmentId,
     ),
+    getAssignmentAssociatedContent({
+      assignmentId,
+      sectionId: row.sectionId,
+      assignmentData: row.data,
+    }),
   ])
 
   const submissionRow = submissionRows[0] ?? null
@@ -139,5 +147,6 @@ export async function getAssignmentLearningDetailForUser(
               data: submissionRow.data ?? null,
             },
     },
+    associatedItems,
   )
 }

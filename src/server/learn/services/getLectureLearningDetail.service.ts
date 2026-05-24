@@ -6,7 +6,9 @@ import { db } from '@/db'
 import { lectures, lecturesAi, users } from '@/db/schema'
 import { DISCUSSION_ENTITY_LECTURE } from '@/server/new-discussions/discussionEntityTypes'
 import { listDiscussionsWithThreadsForLearnEntity } from '@/server/new-discussions/services/listDiscussionsWithThreadsForLearnEntity'
+import { fetchLectureAttendanceSummaries } from '@/server/attendance/services/fetchLectureAttendanceSummaries'
 import { buildLectureVideoAttendanceState } from '@/server/learn/utils/buildLectureVideoAttendanceState'
+import { toLearningPriority } from '@/server/learn/utils/learningDataMappers'
 import {
   buildLectureDetailPayload,
   isSupportedLectureDetailType,
@@ -78,7 +80,10 @@ export async function getLectureLearningDetailForUser(
     throw new Error('LEARN_DETAIL_NOT_FOUND')
   }
 
-  const [core, discussions, aiRows, associatedItems, videoAttendance] = await Promise.all([
+  const isRecommended = toLearningPriority(row.optional) === 'recommended'
+
+  const [core, discussions, aiRows, associatedItems, videoAttendance, attendanceMap] =
+    await Promise.all([
     Promise.resolve(buildLearnDetailPresentation(row)),
     listDiscussionsWithThreadsForLearnEntity(
       userId,
@@ -101,7 +106,20 @@ export async function getLectureLearningDetailForUser(
       lectureData: row.data,
     }),
     buildLectureVideoAttendanceState(lectureId),
+    isRecommended || row.sectionId == null
+      ? Promise.resolve(new Map())
+      : fetchLectureAttendanceSummaries(userId, [
+          {
+            lectureId,
+            sectionId: row.sectionId,
+            schedule: row.schedule,
+            concludes: row.concludes,
+            optional: row.optional,
+          },
+        ]),
   ])
+
+  const attendance = isRecommended ? null : (attendanceMap.get(lectureId) ?? null)
 
   const tabs = buildLectureTabContent({
     description: row.description,
@@ -127,5 +145,6 @@ export async function getLectureLearningDetailForUser(
     Date.now(),
     tabs,
     videoAttendance,
+    attendance,
   )
 }

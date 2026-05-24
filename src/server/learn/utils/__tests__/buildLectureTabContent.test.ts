@@ -21,7 +21,8 @@ describe('buildLectureTabContent', () => {
     expect(tabs.description).toBe('About this lecture')
     expect(tabs.notes).toBe('Instructor notes')
     expect(tabs.aiSummary).toBe('Key points')
-    expect(tabs.associated).toContain('Lab 1')
+    expect(tabs.associatedItems).toHaveLength(1)
+    expect(tabs.associatedItems[0]?.title).toBe('Lab 1')
   })
 
   it('omits unpublished AI summary', () => {
@@ -39,5 +40,6 @@ describe('buildLectureTabContent', () => {
 
     expect(tabs.aiSummary).toBeNull()
     expect(tabs.transcript).toBe('Hello')
+    expect(tabs.associatedItems).toEqual([])
   })
 })

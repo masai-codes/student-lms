@@ -12,6 +12,8 @@ import { ensureUserCanAccessLearnHubEntity } from '@/server/learn/utils/ensureLe
 import {
   isSupportedResourceLectureType,
 } from '@/server/learn/utils/normalizeResourceKind'
+import { getLectureAssociatedContent } from '@/server/learn/services/getLectureAssociatedContent.service'
+import { dedupeLearnAssociatedItems } from '@/server/learn/utils/dedupeLearnAssociatedItems'
 import { LECTURE_RESOURCE_TYPE } from '@/server/learn/utils/resolveLectureLearningType'
 
 export async function getResourceLearningDetailForUser(
@@ -36,6 +38,7 @@ export async function getResourceLearningDetailForUser(
       notes: lectures.notes,
       description: lectures.description,
       settings: lectures.settings,
+      data: lectures.data,
     })
     .from(lectures)
     .leftJoin(users, eq(lectures.hostId, users.id))
@@ -68,12 +71,20 @@ export async function getResourceLearningDetailForUser(
     throw new Error('LEARN_DETAIL_NOT_FOUND')
   }
 
+  const [discussions, associatedItems] = await Promise.all([
+    listDiscussionsWithThreadsForLearnEntity(
+      userId,
+      DISCUSSION_ENTITY_LECTURE,
+      resourceId,
+    ),
+    getLectureAssociatedContent({
+      lectureId: resourceId,
+      sectionId: row.sectionId,
+      lectureData: row.data,
+    }),
+  ])
+
   const core = buildLearnDetailPresentation(row)
-  const discussions = await listDiscussionsWithThreadsForLearnEntity(
-    userId,
-    DISCUSSION_ENTITY_LECTURE,
-    resourceId,
-  )
 
   return buildResourceDetailPayload(
     { ...core, discussions },
@@ -87,5 +98,9 @@ export async function getResourceLearningDetailForUser(
       settings: row.settings,
     },
     Date.now(),
+    dedupeLearnAssociatedItems(associatedItems, {
+      kind: 'resource',
+      id: resourceId,
+    }),
   )
 }

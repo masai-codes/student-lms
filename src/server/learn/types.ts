@@ -1,3 +1,9 @@
+import type { LectureAttendanceSummary } from '@/server/attendance/types'
+import type { AssignmentProgressStatus } from '@/server/learn/utils/calculateAssignmentProgressStatus'
+import type { ResourcePhase } from '@/server/learn/resourceDetailTypes'
+
+export type { LectureAttendanceSummary }
+
 export interface EnrolledBatch {
   batchId: number
   courseTitle: string
@@ -13,6 +19,21 @@ export interface EnrolledBatchRow {
 
 export type LearningType = 'lecture' | 'assignment' | 'resource'
 export type LearningPriority = 'recommended' | 'mandatory'
+
+export type LearnListingJoinLiveState = 'hidden' | 'disabled' | 'active'
+
+/** Assignment status chip on learn listing cards (legacy AssignmentListCard rules). */
+export type AssignmentListingStatusChip =
+  | AssignmentProgressStatus
+  | 'practice-mode'
+  | null
+
+/** Server-resolved CTA visibility for learn listing cards — see `buildLearnListingCardCtas`. */
+export interface LearnListingCardCtas {
+  joinLive: LearnListingJoinLiveState
+  showAttendance: boolean
+  assignmentStatusChip: AssignmentListingStatusChip
+}
 
 export interface BatchLearningFiltersInput {
   modules?: Array<string>
@@ -44,6 +65,14 @@ export interface LearningItem {
   category: string
   isOptional: LearningPriority
   moduleName: string
+  /** Present for mandatory lectures only; null for assignments/resources/optional lectures. */
+  attendance: LectureAttendanceSummary | null
+  /** Present for assignments only. */
+  assignmentProgressStatus: AssignmentProgressStatus | null
+  /** Present for resources only. */
+  resourcePhase: ResourcePhase | null
+  /** Listing card CTAs — resolved on the server to match legacy LMS rules. */
+  listingCtas: LearnListingCardCtas
 }
 
 export interface LearningFilterValues {

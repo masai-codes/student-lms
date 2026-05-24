@@ -60,7 +60,7 @@ Same shape as `GetBatchLearningDataResponse` in `src/server/learn/types.ts`.
 Full lecture detail payload for the detail page (single response).
 
 ### Success `200`
-`LectureDetailPayload` from `src/server/learn/lectureDetailTypes.ts`.
+`LectureDetailPayload` from `src/server/learn/lectureDetailTypes.ts` (includes `attendance` for mandatory lectures).
 
 ### Errors
 | Status | code |

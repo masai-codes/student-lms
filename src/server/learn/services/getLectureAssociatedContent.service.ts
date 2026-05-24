@@ -2,11 +2,13 @@ import { and, eq, isNull, ne } from 'drizzle-orm'
 
 import { db } from '@/db'
 import { assignments, lectures } from '@/db/schema'
-import type { LectureAssociatedListItem } from '@/server/learn/lectureAssociatedTypes'
+import type { LearnAssociatedListItem } from '@/server/learn/learnAssociatedTypes'
+import { dedupeLearnAssociatedItems } from '@/server/learn/utils/dedupeLearnAssociatedItems'
 import {
   isAssignmentLinkedToLecture,
   readAssociatedLectureId,
 } from '@/server/learn/utils/parseLectureDataJson'
+import { resolveLearnAssociatedKindFromLectureType } from '@/server/learn/utils/resolveLearnAssociatedKind'
 import { formatSqlDate } from '@/utils/generics'
 
 function formatScheduleLabel(schedule: string | null): string | null {
@@ -14,38 +16,42 @@ function formatScheduleLabel(schedule: string | null): string | null {
   return formatSqlDate(schedule)
 }
 
-function readAssociatedLectureIdFromRow(data: unknown): number | null {
-  return readAssociatedLectureId(data)
+function toLectureItem(row: {
+  id: number
+  title: string
+  schedule: string | null
+  type: string
+}): LearnAssociatedListItem {
+  return {
+    id: row.id,
+    kind: resolveLearnAssociatedKindFromLectureType(row.type),
+    title: row.title,
+    meta: formatScheduleLabel(row.schedule),
+  }
 }
 
 export async function getLectureAssociatedContent(input: {
   lectureId: number
   sectionId: number | null
   lectureData: unknown
-}): Promise<Array<LectureAssociatedListItem>> {
-  const items: Array<LectureAssociatedListItem> = []
+}): Promise<Array<LearnAssociatedListItem>> {
+  const items: Array<LearnAssociatedListItem> = []
 
-  const forwardId = readAssociatedLectureIdFromRow(input.lectureData)
+  const forwardId = readAssociatedLectureId(input.lectureData)
   if (forwardId != null && forwardId !== input.lectureId) {
     const linked = await db
       .select({
         id: lectures.id,
         title: lectures.title,
         schedule: lectures.schedule,
+        type: lectures.type,
       })
       .from(lectures)
       .where(and(eq(lectures.id, forwardId), isNull(lectures.deletedAt)))
       .limit(1)
 
     const row = linked[0]
-    if (row) {
-      items.push({
-        id: row.id,
-        kind: 'lecture',
-        title: row.title,
-        meta: formatScheduleLabel(row.schedule),
-      })
-    }
+    if (row) items.push(toLectureItem(row))
   }
 
   if (input.sectionId != null) {
@@ -54,6 +60,7 @@ export async function getLectureAssociatedContent(input: {
         id: lectures.id,
         title: lectures.title,
         schedule: lectures.schedule,
+        type: lectures.type,
         data: lectures.data,
       })
       .from(lectures)
@@ -66,14 +73,9 @@ export async function getLectureAssociatedContent(input: {
       )
 
     for (const row of sectionLectures) {
-      const pointsHere = readAssociatedLectureIdFromRow(row.data)
+      const pointsHere = readAssociatedLectureId(row.data)
       if (pointsHere !== input.lectureId) continue
-      items.push({
-        id: row.id,
-        kind: 'lecture',
-        title: row.title,
-        meta: formatScheduleLabel(row.schedule),
-      })
+      items.push(toLectureItem(row))
     }
 
     const sectionAssignments = await db
@@ -99,12 +101,5 @@ export async function getLectureAssociatedContent(input: {
     }
   }
 
-  const seen = new Set<string>()
-  return items.filter(item => {
-    const key = `${item.kind}-${item.id}`
-    if (seen.has(key)) return false
-    seen.add(key)
-    return true
-  })
+  return dedupeLearnAssociatedItems(items)
 }
-

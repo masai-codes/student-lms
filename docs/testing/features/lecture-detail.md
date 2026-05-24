@@ -16,6 +16,9 @@
 - `src/server/learn/utils/__tests__/scrubZoomLinkForSchedule.test.ts`
 - `src/server/learn/utils/__tests__/buildLectureDetailPayload.test.ts`
 - `src/server/learn/__tests__/getLectureLearningDetail.service.test.ts`
+- `src/server/attendance/**/__tests__/*`
+- `src/lib/lecture-attendance/**/__tests__/*`
+- `src/components/features/learn/attendance/*`
 - `src/components/features/learn/LearnPageDetails/lecture/live/utils/__tests__/resolveJoinLiveButtonState.test.ts`
 
 ## Lecture discussions UI

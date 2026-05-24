@@ -1,5 +1,13 @@
 export type LearnTab = 'lectures' | 'assignments' | 'resources'
 
+import type { LectureAttendanceSummary } from '@/server/attendance/types'
+import type {
+  AssignmentListingStatusChip,
+  LearnListingCardCtas,
+} from '@/server/learn/types'
+import type { AssignmentProgressStatus } from '@/server/learn/utils/calculateAssignmentProgressStatus'
+import type { ResourcePhase } from '@/server/learn/resourceDetailTypes'
+
 export type LearnContentType = 'lecture' | 'assignment' | 'resource'
 export type LearnPriority = 'recommended' | 'mandatory'
 
@@ -13,6 +21,11 @@ export interface LearnContentItem {
   learningSubType: string
   priority: LearnPriority
   tags: string[]
+  attendance: LectureAttendanceSummary | null
+  assignmentProgressStatus: AssignmentProgressStatus | null
+  resourcePhase: ResourcePhase | null
+  listingCtas: LearnListingCardCtas
+  assignmentStatusChip: AssignmentListingStatusChip
 }
 
 export interface LearnFilterValues {

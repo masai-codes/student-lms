@@ -1,6 +1,5 @@
 import type { LectureDetailTabContent } from '@/server/learn/lectureDetailTypes'
-import type { LectureAssociatedListItem } from '@/server/learn/lectureAssociatedTypes'
-import { formatLectureAssociatedMarkdown } from '@/server/learn/utils/formatLectureAssociatedMarkdown'
+import type { LearnAssociatedListItem } from '@/server/learn/learnAssociatedTypes'
 import { formatLectureTranscript } from '@/server/learn/utils/formatLectureTranscript'
 import { isLectureAiFieldPublished } from '@/server/learn/utils/isLectureAiFieldPublished'
 import { normalizeNullableText } from '@/server/learn/utils/normalizeNullableText'
@@ -16,7 +15,7 @@ export function buildLectureTabContent(input: {
   description: string | null
   notes: string | null
   lecturesAi: LecturesAiRow
-  associatedItems: Array<LectureAssociatedListItem>
+  associatedItems: Array<LearnAssociatedListItem>
 }): LectureDetailTabContent {
   const ai = input.lecturesAi
 
@@ -40,6 +39,6 @@ export function buildLectureTabContent(input: {
     notes: normalizeNullableText(input.notes),
     aiSummary,
     transcript,
-    associated: formatLectureAssociatedMarkdown(input.associatedItems),
+    associatedItems: input.associatedItems,
   }
 }

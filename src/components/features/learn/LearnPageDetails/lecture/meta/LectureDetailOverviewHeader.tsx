@@ -2,6 +2,9 @@
 
 import { lectureDetailTagChipPalette } from './lectureDetailTagChips'
 
+import { LectureAttendanceInline } from '@/components/features/learn/attendance/LectureAttendanceInline'
+import { useListingAttendancePresentation } from '@/components/features/learn/attendance/useLectureAttendancePresentation'
+import type { LectureAttendanceSummary } from '@/server/attendance/types'
 import type { LearningPriority } from '@/server/learn/types'
 import { formatLearnDetailPriorityLabel } from '@/server/learn/utils/formatLearnDetailDisplay'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
@@ -15,6 +18,8 @@ type LectureDetailOverviewHeaderProps = {
   hostName: string
   avatarUrl: string | null
   dateRange: string
+  attendance: LectureAttendanceSummary | null
+  watchPercentage?: number | null
   className?: string
 }
 
@@ -34,8 +39,15 @@ export function LectureDetailOverviewHeader({
   hostName,
   avatarUrl,
   dateRange,
+  attendance,
+  watchPercentage,
   className,
 }: LectureDetailOverviewHeaderProps) {
+  const attendancePresentation = useListingAttendancePresentation(
+    attendance,
+    watchPercentage,
+  )
+
   return (
     <section
       className={cn(
@@ -68,7 +80,11 @@ export function LectureDetailOverviewHeader({
         </div>
       </div>
 
-      <div className="flex shrink-0 items-start gap-3 md:max-w-[min(100%,280px)]">
+      <div className="flex shrink-0 flex-col items-end gap-2 md:max-w-[min(100%,280px)]">
+        {attendance != null ? (
+          <LectureAttendanceInline {...attendancePresentation} />
+        ) : null}
+        <div className="flex items-start gap-3">
         <Avatar size="lg" className="size-10 shrink-0">
           {avatarUrl ? <AvatarImage src={avatarUrl} alt={hostName} /> : null}
           <AvatarFallback className="type-b2-md bg-muted text-gray-700">
@@ -80,6 +96,7 @@ export function LectureDetailOverviewHeader({
           {dateRange ? (
             <p className="type-b2-regular mt-0.5 text-gray-600">{dateRange}</p>
           ) : null}
+        </div>
         </div>
       </div>
     </section>

@@ -25,6 +25,7 @@ export function DuringAfterVideoLecture({ detail }: DuringAfterVideoLectureProps
         hideNotes={detail.hideNotes}
         tabs={detail.tabs}
         videoAttendance={detail.videoAttendance}
+        attendance={detail.attendance}
       />
     )
   }

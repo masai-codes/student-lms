@@ -14,6 +14,7 @@ const baseDetail = {
   priority: 'mandatory' as const,
   tags: [],
   discussions: [],
+  associatedItems: [],
   assignmentKind: 'assignment' as const,
   phase: 'before' as const,
   schedule: '2026-05-20T10:00:00.000Z',

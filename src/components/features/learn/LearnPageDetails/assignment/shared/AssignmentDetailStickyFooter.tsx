@@ -11,6 +11,9 @@ import { useAssignmentFooterActions } from './useAssignmentFooterActions'
 import type { AssignmentDetailFooter } from '@/server/learn/assignmentDetailFooterTypes'
 import type { AssignmentDetailPayload } from '@/server/learn/assignmentDetailTypes'
 
+export const ASSIGNMENT_DETAIL_STICKY_FOOTER_SELECTOR =
+  '[data-testid="assignment-detail-sticky-footer"]'
+
 type AssignmentDetailStickyFooterProps = {
   detail: AssignmentDetailPayload
 }

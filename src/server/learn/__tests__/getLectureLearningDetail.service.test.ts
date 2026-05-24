@@ -6,6 +6,7 @@ const hoisted = vi.hoisted(() => ({
   listDiscussions: vi.fn(),
   associatedContent: vi.fn(),
   videoAttendance: vi.fn(),
+  fetchAttendance: vi.fn(),
 }))
 
 vi.mock('@/db', () => ({
@@ -31,6 +32,10 @@ vi.mock('@/server/learn/utils/buildLectureVideoAttendanceState', () => ({
   buildLectureVideoAttendanceState: hoisted.videoAttendance,
 }))
 
+vi.mock('@/server/attendance/services/fetchLectureAttendanceSummaries', () => ({
+  fetchLectureAttendanceSummaries: hoisted.fetchAttendance,
+}))
+
 describe('getLectureLearningDetailForUser', () => {
   beforeEach(() => {
     vi.clearAllMocks()
@@ -38,6 +43,7 @@ describe('getLectureLearningDetailForUser', () => {
     hoisted.listDiscussions.mockResolvedValue([])
     hoisted.associatedContent.mockResolvedValue([])
     hoisted.videoAttendance.mockResolvedValue(null)
+    hoisted.fetchAttendance.mockResolvedValue(new Map())
   })
 
   it('returns lecture detail payload for supported live lectures', async () => {
@@ -97,6 +103,7 @@ describe('getLectureLearningDetailForUser', () => {
     expect(result.lectureKind).toBe('live')
     expect(result.livePhase).toBe('after')
     expect(result.discussions).toEqual([])
+    expect(result.attendance).toBeNull()
   })
 
   it('throws when lecture type is unsupported', async () => {

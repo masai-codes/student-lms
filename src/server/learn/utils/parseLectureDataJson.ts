@@ -16,14 +16,37 @@ export function parseLectureDataJson(raw: unknown): Record<string, unknown> | nu
   return null
 }
 
-export function readAssociatedLectureId(data: unknown): number | null {
-  const record = parseLectureDataJson(data)
-  if (!record) return null
-  const associated = record.associatedLecture
-  if (!isRecord(associated)) return null
-  const id = associated.id
-  const numeric = typeof id === 'number' ? id : typeof id === 'string' ? Number(id) : NaN
+function readPositiveId(value: unknown): number | null {
+  const numeric =
+    typeof value === 'number' ? value : typeof value === 'string' ? Number(value) : NaN
   return Number.isFinite(numeric) && numeric > 0 ? numeric : null
+}
+
+export function readAssociatedLectureId(data: unknown): number | null {
+  const ids = readAssociatedLectureIds(data)
+  return ids[0] ?? null
+}
+
+export function readAssociatedLectureIds(data: unknown): Array<number> {
+  const record = parseLectureDataJson(data)
+  if (!record) return []
+
+  const associated = record.associatedLecture
+  if (associated == null) return []
+
+  if (Array.isArray(associated)) {
+    const ids: Array<number> = []
+    for (const item of associated) {
+      if (!isRecord(item)) continue
+      const id = readPositiveId(item.id)
+      if (id != null) ids.push(id)
+    }
+    return ids
+  }
+
+  if (!isRecord(associated)) return []
+  const id = readPositiveId(associated.id)
+  return id != null ? [id] : []
 }
 
 export function isAssignmentLinkedToLecture(

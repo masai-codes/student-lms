@@ -39,6 +39,8 @@ export function VideoLectureContent({ detail }: VideoLectureContentProps) {
       hostName={detail.hostName}
       hostAvatarUrl={detail.hostAvatarUrl}
       scheduleDisplayRange={detail.scheduleDisplayRange}
+      attendance={detail.attendance}
+      watchPercentage={detail.videoAttendance?.watchPercentage}
       hero={renderVideoHero(detail)}
       footer={
         <LectureDetailFooter

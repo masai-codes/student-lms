@@ -1,8 +1,10 @@
 'use client'
 
 import { MarkdownContent } from '@/components/shared/markdown-content'
+import { AssociatedContentEntryCta } from '../../common/associated/AssociatedContentEntryCta'
 import { LearnEntityDetailLayout } from '../../common/layout/LearnEntityDetailLayout'
 import {
+  ASSIGNMENT_DETAIL_STICKY_FOOTER_SELECTOR,
   AssignmentDetailFooterInlineNotices,
   AssignmentDetailStickyFooter,
 } from './AssignmentDetailStickyFooter'
@@ -35,9 +37,19 @@ export function AssignmentDetailLayout({ detail, main }: AssignmentDetailLayoutP
           discussionEntityKind="assignment"
           emptyStateContext="assignment"
           fullWidthBanner={
-            detail.phase === 'before' ? (
-              <AssignmentNotStartedBanner detail={detail} />
-            ) : null
+            <div className="flex flex-col gap-4">
+              {detail.phase === 'before' ? (
+                <AssignmentNotStartedBanner detail={detail} />
+              ) : null}
+              <AssociatedContentEntryCta
+                items={detail.associatedItems}
+                reserveViewportBottomFrom={
+                  detail.footer.visible
+                    ? ASSIGNMENT_DETAIL_STICKY_FOOTER_SELECTOR
+                    : undefined
+                }
+              />
+            </div>
           }
           mainFooter={
             detail.instructions ? (

@@ -2,6 +2,12 @@
 
 Last updated: 2026-05-24
 
+## Lecture attendance (learn listing + detail)
+- Area: `student_attendances` summaries on `GET /api/learn/batch-data` and `GET /api/learn/lectures/:id`; shared server utils + client UI state resolver
+- Status: Covered (unit tests for catch-up + UI mapping)
+- Test files: `src/server/attendance/**/__tests__/*`, `src/lib/lecture-attendance/**/__tests__/*`
+- Notes: Optional (recommended) lectures omit `attendance` on both APIs
+
 ## Learn REST APIs (`/api/learn/*`)
 - Area: HTTP routes for batches, batch-data, lecture/assignment/resource detail; client `learnApi.ts`; handlers + services split
 - Status: Partial (handler + query parser tests; route integration tests pending)
@@ -10,7 +16,7 @@ Last updated: 2026-05-24
 
 ## Resource detail (`/resources/:id`)
 - Area: `GET /api/learn/resources/:id` + loader via `fetchResourceLearningDetailFromApi`; resource kind/phase/body/phase copy + discussions with threads on server
-- Status: Covered (server utils + phase content; associated content / video not in scope yet)
+- Status: Covered (server utils + phase content + associated content drawer)
 - Test files: `src/server/learn/utils/__tests__/normalizeResourceKind.test.ts`, `src/server/learn/utils/__tests__/buildResourceDetailPayload.test.ts`, `src/server/learn/utils/__tests__/buildLearnPhaseContent.test.ts`, `src/components/shared/markdown-content/__tests__/*`
 - Notes: See `docs/testing/features/resource-detail.md`
 

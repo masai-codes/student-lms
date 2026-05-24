@@ -3,6 +3,7 @@
 import { LectureDetailOverviewHeader } from '../meta'
 import type { ReactNode } from 'react'
 
+import type { LectureAttendanceSummary } from '@/server/attendance/types'
 import type { LearningPriority } from '@/server/learn/types'
 import { lectureDetailContentClasses } from '@/lib/layout'
 import { cn } from '@/lib/utils'
@@ -14,6 +15,8 @@ type LectureDetailChromeProps = {
   hostName: string
   hostAvatarUrl: string | null
   scheduleDisplayRange: string
+  attendance: LectureAttendanceSummary | null
+  watchPercentage?: number | null
   hero: ReactNode
   belowHero?: ReactNode
   footer?: ReactNode
@@ -26,6 +29,8 @@ export function LectureDetailChrome({
   hostName,
   hostAvatarUrl,
   scheduleDisplayRange,
+  attendance,
+  watchPercentage,
   hero,
   belowHero,
   footer,
@@ -45,6 +50,8 @@ export function LectureDetailChrome({
             hostName={hostName}
             avatarUrl={hostAvatarUrl}
             dateRange={scheduleDisplayRange}
+            attendance={attendance}
+            watchPercentage={watchPercentage}
           />
           {belowHero}
         </div>

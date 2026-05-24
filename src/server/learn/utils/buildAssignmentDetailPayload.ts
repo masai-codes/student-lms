@@ -2,6 +2,7 @@ import type {
   AssignmentDetailPayload,
   AssignmentKind,
 } from '@/server/learn/assignmentDetailTypes'
+import type { LearnAssociatedListItem } from '@/server/learn/learnAssociatedTypes'
 import type { LearnHubDetailPayload } from '@/server/learn/types'
 import {
   buildAssignmentDetailFooter,
@@ -53,6 +54,7 @@ export function buildAssignmentDetailPayload(
   row: AssignmentDetailRow,
   nowMs: number,
   footerInput: AssignmentDetailFooterInput,
+  associatedItems: Array<LearnAssociatedListItem>,
 ): AssignmentDetailPayload {
   const assignmentKind = normalizeAssignmentKind(row.type)
   if (assignmentKind == null) {
@@ -86,6 +88,7 @@ export function buildAssignmentDetailPayload(
 
   return {
     ...core,
+    associatedItems,
     assignmentKind,
     phase,
     schedule: row.schedule,

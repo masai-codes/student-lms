@@ -13,6 +13,7 @@ const baseDetail = {
   priority: 'mandatory',
   tags: [],
   discussions: [],
+  associatedItems: [],
   assignmentKind: 'assignment',
   phase: 'during',
   schedule: '2026-05-20T10:00:00.000Z',

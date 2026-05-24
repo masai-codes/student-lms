@@ -66,7 +66,7 @@ export function LearnLayout({
         learningType,
         search: searchValue.trim() || undefined,
         page: currentPage,
-        pageSize: 10,
+        pageSize: 15,
         filters: {
           modules: modalFilters.modules,
           categories: modalFilters.categories,
@@ -92,6 +92,11 @@ export function LearnLayout({
         learningSubType: item.type,
         priority: item.isOptional,
         tags: [item.type, item.category, item.moduleName],
+        attendance: item.attendance,
+        assignmentProgressStatus: item.assignmentProgressStatus,
+        resourcePhase: item.resourcePhase,
+        listingCtas: item.listingCtas,
+        assignmentStatusChip: item.listingCtas.assignmentStatusChip,
       })),
     [data?.learningItems],
   )

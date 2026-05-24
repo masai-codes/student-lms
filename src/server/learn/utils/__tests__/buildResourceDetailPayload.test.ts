@@ -31,6 +31,7 @@ describe('buildResourceDetailPayload', () => {
         settings: null,
       },
       scheduleMs + 60_000,
+      [],
     )
 
     expect(payload.resourceKind).toBe('pre-read')
@@ -53,6 +54,7 @@ describe('buildResourceDetailPayload', () => {
         settings: { hide_notes: 1 },
       },
       scheduleMs + 60_000,
+      [],
     )
 
     expect(payload.resourceKind).toBe('notes')
@@ -74,6 +76,7 @@ describe('buildResourceDetailPayload', () => {
         settings: null,
       },
       scheduleMs - 60_000,
+      [],
     )
 
     expect(payload.resourceKind).toBe('material')

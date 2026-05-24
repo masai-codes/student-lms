@@ -15,6 +15,8 @@ type MasaiDrawerProps = {
   content: React.ReactNode | React.ComponentType;
   direction?: DrawerDirection;
   sideMarginInPx?: number;
+  /** Extra space to leave at the viewport bottom (e.g. fixed footers). */
+  bottomInsetPx?: number;
   title?: React.ReactNode;
   showCloseButton?: boolean;
   className?: string;
@@ -42,6 +44,7 @@ export function MasaiDrawer({
   content,
   direction = "bottom",
   sideMarginInPx,
+  bottomInsetPx = 0,
   title,
   showCloseButton = true,
   className,
@@ -49,18 +52,23 @@ export function MasaiDrawer({
 }: MasaiDrawerProps) {
   const renderedContent = React.useMemo(() => resolveContent(content), [content]);
   const hasFloatingMargin = typeof sideMarginInPx === "number" && sideMarginInPx > 0;
+  const resolvedBottomInsetPx = Math.max(0, bottomInsetPx);
+  const stacksAboveFixedChrome = resolvedBottomInsetPx > 0;
+
   const floatingPanelStyle = React.useMemo(() => {
     if (!hasFloatingMargin || !sideMarginInPx) return undefined;
 
     const spacing = `${sideMarginInPx}px`;
+    const bottomSpacing = `calc(${spacing} + ${resolvedBottomInsetPx}px)`;
     const viewportInsetWidth = `calc(100vw - ${sideMarginInPx * 2}px)`;
-    const viewportInsetHeight = `calc(100svh - ${sideMarginInPx * 2}px)`;
+    const verticalInsetTotal = sideMarginInPx * 2 + resolvedBottomInsetPx;
+    const viewportInsetHeight = `calc(100svh - ${verticalInsetTotal}px)`;
 
     if (direction === "right") {
       return {
         top: spacing,
         right: spacing,
-        bottom: spacing,
+        bottom: bottomSpacing,
         width: `min(420px, ${viewportInsetWidth})`,
         height: viewportInsetHeight,
       } as React.CSSProperties;
@@ -70,7 +78,7 @@ export function MasaiDrawer({
       return {
         top: spacing,
         left: spacing,
-        bottom: spacing,
+        bottom: bottomSpacing,
         width: `min(420px, ${viewportInsetWidth})`,
         height: viewportInsetHeight,
       } as React.CSSProperties;
@@ -80,10 +88,12 @@ export function MasaiDrawer({
       top: spacing,
       left: spacing,
       right: spacing,
-      bottom: spacing,
+      bottom: bottomSpacing,
       height: viewportInsetHeight,
     } as React.CSSProperties;
-  }, [direction, hasFloatingMargin, sideMarginInPx]);
+  }, [direction, hasFloatingMargin, resolvedBottomInsetPx, sideMarginInPx]);
+
+  const drawerLayerClass = stacksAboveFixedChrome ? "z-[90]" : "z-50";
 
   return (
     <Drawer.Root
@@ -98,11 +108,14 @@ export function MasaiDrawer({
         <Drawer.Overlay
           onClick={() => onOpenChange(false)}
           className={cn(
-            "fixed inset-0 z-50 bg-black/50 transition-opacity duration-300 ease-out data-[state=closed]:opacity-0 data-[state=open]:opacity-100",
+            "fixed inset-0 bg-black/50 transition-opacity duration-300 ease-out data-[state=closed]:opacity-0 data-[state=open]:opacity-100",
+            drawerLayerClass,
             overlayClassName,
           )}
         />
-        <Drawer.Content className="fixed inset-0 z-50 bg-transparent outline-none">
+        <Drawer.Content
+          className={cn("fixed inset-0 bg-transparent outline-none", drawerLayerClass)}
+        >
           <button
             type="button"
             aria-label="Close drawer backdrop"
@@ -112,7 +125,8 @@ export function MasaiDrawer({
           <div
             style={floatingPanelStyle}
             className={cn(
-              "pointer-events-auto fixed z-50 flex flex-col border bg-white font-poppins shadow-xl outline-none",
+              "pointer-events-auto fixed flex flex-col border bg-white font-poppins shadow-xl outline-none",
+              drawerLayerClass,
               hasFloatingMargin
                 ? "rounded-2xl"
                 : drawerDirectionClassNames[direction],

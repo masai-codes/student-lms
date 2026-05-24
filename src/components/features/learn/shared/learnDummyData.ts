@@ -37,6 +37,15 @@ function createDummyItems(
       learningSubType: index % 2 === 0 ? 'Live' : 'Faculty',
       priority: priorities[index % priorities.length],
       tags: ['Live', 'Faculty', 'Recommended', moduleName],
+      attendance: null,
+      assignmentProgressStatus: null,
+      resourcePhase: null,
+      listingCtas: {
+        joinLive: 'hidden',
+        showAttendance: false,
+        assignmentStatusChip: null,
+      },
+      assignmentStatusChip: null,
     }
   })
 }

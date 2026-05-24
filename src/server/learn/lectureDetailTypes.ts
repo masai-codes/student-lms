@@ -1,3 +1,5 @@
+import type { LectureAttendanceSummary } from '@/server/attendance/types'
+import type { LearnAssociatedListItem } from '@/server/learn/learnAssociatedTypes'
 import type { LearnHubDetailPayload } from '@/server/learn/types'
 import type { JoinLiveButtonState } from '@/server/learn/utils/resolveJoinLiveButtonState'
 import type { WatchIntervalSegment } from '@/server/video-attendance/types'
@@ -20,7 +22,7 @@ export type LectureDetailTabContent = {
   notes: string | null
   aiSummary: string | null
   transcript: string | null
-  associated: string | null
+  associatedItems: Array<LearnAssociatedListItem>
 }
 
 export type LectureDetailPayload = LearnHubDetailPayload & {
@@ -40,4 +42,6 @@ export type LectureDetailPayload = LearnHubDetailPayload & {
   hasRecording: boolean
   joinLiveButtonState: JoinLiveButtonState | null
   videoAttendance: LectureVideoAttendanceState | null
+  /** Null for recommended (optional) lectures. */
+  attendance: LectureAttendanceSummary | null
 }

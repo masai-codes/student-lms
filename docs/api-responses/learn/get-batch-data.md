@@ -63,7 +63,16 @@ Filter object shape:
       "type": "live",
       "category": "coding",
       "isOptional": "recommended",
-      "moduleName": "Module 1"
+      "moduleName": "Module 1",
+      "attendance": {
+        "overallStatus": 0,
+        "notApplicable": false,
+        "hasStudentAttendanceEntry": true,
+        "isCatchupWindowOver": false,
+        "videoPercentage": 25,
+        "daysRemaining": 3,
+        "lateByMinutes": null
+      }
     }
   ],
   "pagination": {
@@ -94,3 +103,4 @@ Filter object shape:
 - Filter value arrays are unique values derived from the filtered dataset before pagination.
 - Instructor values are resolved from `users.name` using `host_id` (lectures) and `user_id` (assignments).
 - `moduleName` is currently derived as `Module <week>` because schema has `week` on both tables.
+- `attendance` is included for mandatory lectures only (`isOptional !== "recommended"`). Assignments and resources always return `attendance: null`. Values come from `student_attendances` plus section catch-up settings (same rules as legacy LMS).

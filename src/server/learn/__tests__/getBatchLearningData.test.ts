@@ -41,6 +41,14 @@ describe('getBatchLearningData api', () => {
           category: 'coding',
           isOptional: 'recommended',
           moduleName: 'Module 1',
+          attendance: null,
+          assignmentProgressStatus: null,
+          resourcePhase: null,
+          listingCtas: {
+            joinLive: 'hidden',
+            showAttendance: false,
+            assignmentStatusChip: null,
+          },
         },
       ],
       pagination: {
@@ -54,8 +62,10 @@ describe('getBatchLearningData api', () => {
     }
     hoisted.getBatchLearningDataService.mockResolvedValueOnce(payload)
 
-    await expect(getBatchLearningDataHandler({ data: input })).resolves.toEqual(payload)
-    expect(hoisted.getBatchLearningDataService).toHaveBeenCalledWith(input)
+    await expect(getBatchLearningDataHandler({ data: input, userId: 1 })).resolves.toEqual(
+      payload,
+    )
+    expect(hoisted.getBatchLearningDataService).toHaveBeenCalledWith(input, 1)
   })
 
   it('throws stable server error when service fails', async () => {
@@ -66,7 +76,7 @@ describe('getBatchLearningData api', () => {
     }
     hoisted.getBatchLearningDataService.mockRejectedValueOnce(new Error('db fail'))
 
-    await expect(getBatchLearningDataHandler({ data: input })).rejects.toThrow(
+    await expect(getBatchLearningDataHandler({ data: input, userId: 1 })).rejects.toThrow(
       'SERVER_ERROR_FETCHING_BATCH_LEARNING_DATA'
     )
   })

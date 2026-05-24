@@ -11,6 +11,7 @@ import { resolveLectureVideoUrl } from '@/server/learn/utils/resolveLectureVideo
 import { resolveJoinLiveButtonState } from '@/server/learn/utils/resolveJoinLiveButtonState'
 import { resolveVideoLecturePhase } from '@/server/learn/utils/resolveVideoLecturePhase'
 import { scrubZoomLinkForSchedule } from '@/server/learn/utils/scrubZoomLinkForSchedule'
+import type { LectureAttendanceSummary } from '@/server/attendance/types'
 import type { LectureVideoAttendanceState } from '@/server/learn/lectureDetailTypes'
 
 type LectureDetailRow = {
@@ -42,6 +43,7 @@ export function buildLectureDetailPayload(
   nowMs: number,
   tabs: LectureDetailTabContent,
   videoAttendance: LectureVideoAttendanceState | null,
+  attendance: LectureAttendanceSummary | null,
 ): LectureDetailPayload {
   const lectureKind = normalizeLectureKind(row.type)
   if (lectureKind == null) {
@@ -109,6 +111,7 @@ export function buildLectureDetailPayload(
     hasRecording,
     joinLiveButtonState,
     videoAttendance: hasRecording ? videoAttendance : null,
+    attendance,
   }
 }
 

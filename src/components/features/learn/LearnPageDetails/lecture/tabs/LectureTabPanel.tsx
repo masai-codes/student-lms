@@ -1,5 +1,6 @@
 'use client'
 
+import { AssociatedContentList } from '../../common/associated/AssociatedContentList'
 import { ExpandableTabContent } from './ExpandableTabContent'
 import { LectureNotesTabContent } from './LectureNotesTabContent'
 import { LectureTabEmptyState } from './LectureTabEmptyState'
@@ -9,13 +10,15 @@ import type { LectureDetailTabId } from './constants/staticLectureTabContent'
 import type { LectureDetailTabContent } from '@/server/learn/lectureDetailTypes'
 
 const LECTURE_TAB_CONTENT_KEY: Record<
-  Exclude<LectureDetailTabId, 'notes'>,
-  keyof LectureDetailTabContent
+  Exclude<LectureDetailTabId, 'notes' | 'associated'>,
+  keyof Pick<
+    LectureDetailTabContent,
+    'description' | 'aiSummary' | 'transcript'
+  >
 > = {
   description: 'description',
   'ai-summary': 'aiSummary',
   transcript: 'transcript',
-  associated: 'associated',
 }
 
 const TAB_EMPTY_COPY: Record<
@@ -39,7 +42,7 @@ const TAB_EMPTY_COPY: Record<
   associated: {
     title: 'No associated content',
     description:
-      'There are no linked lectures or assignments for this session yet.',
+      'There are no linked lectures, assignments, or resources for this session yet.',
   },
 }
 
@@ -49,7 +52,7 @@ type LectureTabPanelProps = {
 }
 
 function renderMarkdownTab(
-  tabId: Exclude<LectureDetailTabId, 'notes'>,
+  tabId: Exclude<LectureDetailTabId, 'notes' | 'associated'>,
   content: string | null,
 ) {
   if (!content) {
@@ -72,11 +75,20 @@ export function LectureTabPanel({ tabId, tabs }: LectureTabPanelProps) {
       aria-labelledby={`lecture-tab-${tabId}`}
       className="pt-0"
     >
-      <div
-        className="rounded-xl bg-gray-100 px-4 py-3 ring-1 ring-gray-200/80"
-      >
+      <div className="rounded-xl bg-gray-100 px-4 py-3 ring-1 ring-gray-200/80">
         {tabId === 'notes' ? (
           <LectureNotesTabContent notes={tabs.notes} />
+        ) : tabId === 'associated' ? (
+          tabs.associatedItems.length === 0 ? (
+            <LectureTabEmptyState
+              title={TAB_EMPTY_COPY.associated.title}
+              description={TAB_EMPTY_COPY.associated.description}
+            />
+          ) : (
+            <ExpandableTabContent>
+              <AssociatedContentList items={tabs.associatedItems} />
+            </ExpandableTabContent>
+          )
         ) : (
           renderMarkdownTab(tabId, tabs[LECTURE_TAB_CONTENT_KEY[tabId]])
         )}

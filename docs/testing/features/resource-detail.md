@@ -3,7 +3,7 @@
 ## Scope
 
 - Server: reading-type lectures only; `resourceKind` from category (`pre-read`, `notes`, `material`); phase from schedule/concludes; notes/description body.
-- Client: `ResourceDetailPage` routes by kind; each kind routes by phase; overview + left main / right discussions (`LectureDiscussionsSection`, same UI as lecture detail).
+- Client: `ResourceDetailPage` routes by kind; each kind routes by phase; overview + associated-content CTA/drawer + left main / right discussions (`LectureDiscussionsSection`, same UI as lecture detail).
 
 ## Test files
 
@@ -14,6 +14,7 @@
 | Detail tags (Reading → Resource) | `src/server/learn/utils/__tests__/buildLearnDetailPresentation.test.ts` |
 | Phase copy | `src/components/features/learn/LearnPageDetails/resource/shared/__tests__/resourcePhaseCopy.test.ts` |
 | Markdown body rendering | `src/components/shared/markdown-content/__tests__/*` |
+| Associated content list + href | `src/components/features/learn/LearnPageDetails/common/associated/__tests__/*` |
 
 ## Commands
 

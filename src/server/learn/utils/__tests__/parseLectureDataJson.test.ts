@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest'
 import {
   isAssignmentLinkedToLecture,
   readAssociatedLectureId,
+  readAssociatedLectureIds,
 } from '../parseLectureDataJson'
 
 describe('parseLectureDataJson', () => {
@@ -10,6 +11,14 @@ describe('parseLectureDataJson', () => {
     expect(
       readAssociatedLectureId({ associatedLecture: { id: 42 } }),
     ).toBe(42)
+  })
+
+  it('reads multiple associated lecture ids', () => {
+    expect(
+      readAssociatedLectureIds({
+        associatedLecture: [{ id: 7 }, { id: '8' }],
+      }),
+    ).toEqual([7, 8])
   })
 
   it('detects assignment links', () => {

@@ -22,7 +22,7 @@ const emptyTabs: LectureDetailTabContent = {
   notes: null,
   aiSummary: null,
   transcript: null,
-  associated: null,
+  associatedItems: [],
 }
 
 describe('buildLectureDetailPayload', () => {
@@ -44,6 +44,7 @@ describe('buildLectureDetailPayload', () => {
       },
       concludesMs + 60_000,
       { ...emptyTabs, notes: 'Lecture notes' },
+      null,
       null,
     )
 
@@ -78,6 +79,7 @@ describe('buildLectureDetailPayload', () => {
       scheduleMs,
       emptyTabs,
       null,
+      null,
     )
 
     expect(payload.lectureKind).toBe('video')
@@ -107,6 +109,7 @@ describe('buildLectureDetailPayload', () => {
         },
         Date.now(),
         emptyTabs,
+        null,
         null,
       ),
     ).toThrow('LECTURE_DETAIL_UNSUPPORTED_TYPE')

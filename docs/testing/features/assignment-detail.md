@@ -3,7 +3,7 @@
 ## Scope
 
 - Server: assignment kind normalization (`practice` | `assignment` | `evaluation`), phase resolution (`before` | `during` | `after`), detail payload builder, progress status + sticky footer builder (submission, platform, settings), access-controlled loader.
-- Client: parent `AssignmentDetailPage` routes by kind; each kind content component routes by phase; layout (`LearnDetailOverview` + optional full-width not-started banner + `LearnDetailBodyGrid` with main left / discussions right + server-driven sticky footer).
+- Client: parent `AssignmentDetailPage` routes by kind; each kind content component routes by phase; layout (`LearnDetailOverview` + optional full-width not-started banner + associated-content CTA/drawer + `LearnDetailBodyGrid` with main left / discussions right + server-driven sticky footer).
 
 ## Test files
 
@@ -18,6 +18,9 @@
 | Not-started banner UI | `src/components/features/learn/LearnPageDetails/assignment/shared/__tests__/AssignmentNotStartedBanner.test.tsx` |
 | Reusable full-width banner | `src/components/features/learn/LearnPageDetails/common/layout/__tests__/LearnDetailFullWidthBanner.test.tsx` |
 | Markdown instructions rendering | `src/components/shared/markdown-content/__tests__/*` |
+| Associated content list + href | `src/components/features/learn/LearnPageDetails/common/associated/__tests__/*` |
+| Associated lecture id parsing | `src/server/learn/utils/__tests__/parseLectureDataJson.test.ts` |
+| Associated dedupe | `src/server/learn/utils/__tests__/dedupeLearnAssociatedItems.test.ts` |
 
 ## Commands
 

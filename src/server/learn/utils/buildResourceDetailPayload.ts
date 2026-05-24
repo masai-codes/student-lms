@@ -2,6 +2,7 @@ import type {
   ResourceDetailPayload,
   ResourceKind,
 } from '@/server/learn/resourceDetailTypes'
+import type { LearnAssociatedListItem } from '@/server/learn/learnAssociatedTypes'
 import type { LearnHubDetailPayload } from '@/server/learn/types'
 import { formatLectureScheduleRange } from '@/server/learn/utils/formatLectureScheduleRange'
 import { normalizeResourceKind } from '@/server/learn/utils/normalizeResourceKind'
@@ -24,6 +25,7 @@ export function buildResourceDetailPayload(
   core: LearnHubDetailPayload,
   row: ResourceDetailRow,
   nowMs: number,
+  associatedItems: Array<LearnAssociatedListItem>,
 ): ResourceDetailPayload {
   const resourceKind: ResourceKind = normalizeResourceKind(row.category)
   const phase = resolveAssignmentPhase({
@@ -39,6 +41,7 @@ export function buildResourceDetailPayload(
 
   return {
     ...core,
+    associatedItems,
     resourceKind,
     phase,
     schedule: row.schedule,

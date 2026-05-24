@@ -1,4 +1,8 @@
+import type { LectureAttendanceSummary } from '@/server/attendance/types'
+import type { AssignmentProgressStatus } from '@/server/learn/utils/calculateAssignmentProgressStatus'
+import type { ResourcePhase } from '@/server/learn/resourceDetailTypes'
 import type {
+  LearnListingCardCtas,
   LearningItem,
   LearningPriority,
   LearningType,
@@ -12,10 +16,13 @@ export interface LearningEntityRow {
   type: string
   optional: number | null
   schedule: string | null
+  concludes?: string | null
+  sectionId?: number | null
   week: number
   /** DB `module` column; when empty, UI falls back to `Module {week}`. */
   module: string | null
   hostName: string | null
+  zoomLink?: string | null
 }
 
 export function toLearningPriority(optional: number | null): LearningPriority {
@@ -37,14 +44,22 @@ export function resolveModuleName(module: string | null | undefined, week: numbe
 
 export function mapLearningEntityRow(
   row: LearningEntityRow,
-  sourceLearningType: LearningType
+  sourceLearningType: LearningType,
+  listingCtas: LearnListingCardCtas,
+  attendance: LectureAttendanceSummary | null = null,
+  assignmentProgressStatus: AssignmentProgressStatus | null = null,
+  resourcePhase: ResourcePhase | null = null,
 ): LearningItem {
+  const learningType =
+    sourceLearningType === 'assignment'
+      ? 'assignment'
+      : resolveLectureLearningType(row.type)
+
+  const isRecommended = toLearningPriority(row.optional) === 'recommended'
+
   return {
     id: row.id,
-    learningType:
-      sourceLearningType === 'assignment'
-        ? 'assignment'
-        : resolveLectureLearningType(row.type),
+    learningType,
     title: row.title,
     hostName: row.hostName ?? 'Unknown Instructor',
     scheduleDate: row.schedule,
@@ -52,5 +67,10 @@ export function mapLearningEntityRow(
     category: row.category,
     isOptional: toLearningPriority(row.optional),
     moduleName: resolveModuleName(row.module, row.week),
+    attendance:
+      learningType === 'lecture' && !isRecommended ? attendance : null,
+    assignmentProgressStatus: learningType === 'assignment' ? assignmentProgressStatus : null,
+    resourcePhase: learningType === 'resource' ? resourcePhase : null,
+    listingCtas,
   }
 }

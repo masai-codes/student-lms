@@ -1,7 +1,13 @@
 import { Link } from '@tanstack/react-router'
 import type { LearnContentItem, LearnContentType } from '../../shared/types'
-import { Badge } from '@/components/ui/badge'
+import { LectureAttendanceInline } from '@/components/features/learn/attendance/LectureAttendanceInline'
+import { getAssignmentStatusChipStyles } from '@/components/features/learn/LearnPageDetails/assignment/shared/getAssignmentStatusChipStyles'
+import { LearnListingJoinLiveCta } from '@/components/features/learn/section-three/content-card/LearnListingJoinLiveCta'
 import { MasaiChips } from '@/components/ui/masai-chips'
+import {
+  getLearnListingAttendancePresentation,
+  shouldShowAssignmentStatusChip,
+} from '@/lib/learn/listingCardPresentation'
 
 const LEARN_TYPE_ICON_SRC: Record<LearnContentType, string> = {
   lecture:
@@ -16,11 +22,6 @@ const LEARN_TYPE_ICON_ALT: Record<LearnContentType, string> = {
   lecture: 'Lecture',
   assignment: 'Assignment',
   resource: 'Resource',
-}
-
-const dummyAttendanceClassName: Record<'Present' | 'Absent', string> = {
-  Present: 'bg-emerald-100 text-emerald-700',
-  Absent: 'bg-rose-100 text-rose-700',
 }
 
 const learnContentTagChipPalette = {
@@ -43,8 +44,16 @@ function LearnTypeIcon({ type }: Pick<LearnContentItem, 'type'>) {
 }
 
 export function LearnContentCard({ item }: { item: LearnContentItem }) {
-  const dummyAttendance: 'Present' | 'Absent' =
-    item.title.length % 2 === 0 ? 'Present' : 'Absent'
+  const attendancePresentation = getLearnListingAttendancePresentation(
+    item.listingCtas,
+    item.attendance,
+  )
+  const assignmentStatusStyles =
+    item.type === 'assignment' &&
+    shouldShowAssignmentStatusChip(item.assignmentStatusChip) &&
+    item.assignmentStatusChip !== 'practice-mode'
+      ? getAssignmentStatusChipStyles(item.assignmentStatusChip)
+      : null
 
   const id = String(item.id)
   const linkProps =
@@ -64,10 +73,8 @@ export function LearnContentCard({ item }: { item: LearnContentItem }) {
     >
       <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
         <div className="flex items-start gap-3">
-          <div className="">
-            <LearnTypeIcon type={item.type} />
-          </div>
-          <div className="">
+          <LearnTypeIcon type={item.type} />
+          <div>
             <p className="type-b1-md">{item.title}</p>
             <p className="mt-[4px] type-t1 flex flex-wrap items-center gap-x-2 gap-y-1">
               <span className="min-w-0">{item.hostName}</span>
@@ -101,9 +108,44 @@ export function LearnContentCard({ item }: { item: LearnContentItem }) {
           </div>
         </div>
 
-        <Badge className={dummyAttendanceClassName[dummyAttendance]}>
-          {dummyAttendance}
-        </Badge>
+        <div
+          className="flex shrink-0 flex-wrap items-center justify-end gap-2"
+          onClick={(event) => {
+            event.preventDefault()
+            event.stopPropagation()
+          }}
+          onKeyDown={(event) => {
+            event.stopPropagation()
+          }}
+        >
+          {item.type === 'lecture' && attendancePresentation ? (
+            <LectureAttendanceInline {...attendancePresentation} />
+          ) : null}
+          {item.type === 'assignment' &&
+          item.assignmentStatusChip === 'practice-mode' ? (
+            <MasaiChips
+              label="Practice Mode"
+              size="regular"
+              backgroundClassName="bg-teal-50 border border-teal-100"
+              textClassName="!text-teal-600"
+              className="pointer-events-none"
+              tabIndex={-1}
+            />
+          ) : null}
+          {item.type === 'assignment' && assignmentStatusStyles ? (
+            <MasaiChips
+              label={assignmentStatusStyles.label}
+              size="regular"
+              backgroundClassName={assignmentStatusStyles.backgroundClassName}
+              textClassName={assignmentStatusStyles.textClassName}
+              className="pointer-events-none"
+              tabIndex={-1}
+            />
+          ) : null}
+          {item.type === 'lecture' ? (
+            <LearnListingJoinLiveCta joinLive={item.listingCtas.joinLive} />
+          ) : null}
+        </div>
       </div>
     </Link>
   )

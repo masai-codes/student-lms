@@ -1,5 +1,6 @@
 'use client'
 
+import { AssociatedContentEntryCta } from '../../common/associated/AssociatedContentEntryCta'
 import { LearnEntityDetailLayout } from '../../common/layout/LearnEntityDetailLayout'
 
 import type { ResourceDetailPayload } from '@/server/learn/resourceDetailTypes'
@@ -17,6 +18,9 @@ export function ResourceDetailLayout({ detail, main }: ResourceDetailLayoutProps
       main={main}
       discussionEntityKind="lecture"
       emptyStateContext="resource"
+      fullWidthBanner={
+        <AssociatedContentEntryCta items={detail.associatedItems} />
+      }
     />
   )
 }

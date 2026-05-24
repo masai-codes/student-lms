@@ -24,6 +24,7 @@ import { LectureDetailFooter } from './shared/LectureDetailFooter'
 import { LectureDetailChrome } from './shared/LectureDetailChrome'
 import { LectureVideoSection } from './video'
 import type { DiscussionListItem, LearningPriority } from '@/server/learn/types'
+import type { LectureAttendanceSummary } from '@/server/attendance/types'
 import type {
   LectureDetailTabContent,
   LectureVideoAttendanceState,
@@ -41,6 +42,7 @@ type LectureRecordingExperienceProps = {
   hideNotes: boolean
   tabs: LectureDetailTabContent
   videoAttendance: LectureVideoAttendanceState | null
+  attendance: LectureAttendanceSummary | null
 }
 
 const chatLoaderProps = {
@@ -63,6 +65,7 @@ export function LectureRecordingExperience({
   hideNotes,
   tabs,
   videoAttendance,
+  attendance,
 }: LectureRecordingExperienceProps) {
   const { rootRef, heightPx } = useLectureHeroViewportHeight()
   const { isTheaterMode, toggleTheaterMode } = useLectureTheaterMode()
@@ -159,6 +162,8 @@ export function LectureRecordingExperience({
       hostName={hostName}
       hostAvatarUrl={hostAvatarUrl}
       scheduleDisplayRange={scheduleDisplayRange}
+      attendance={attendance}
+      watchPercentage={videoAttendance?.watchPercentage}
       hero={hero}
       belowHero={belowHero}
       footer={

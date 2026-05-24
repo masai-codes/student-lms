@@ -36,6 +36,7 @@ describe('buildAssignmentDetailPayload', () => {
       },
       scheduleMs + 60_000,
       { problemCount: 0, submission: null },
+      [],
     )
 
     expect(payload.assignmentKind).toBe('practice')
@@ -67,6 +68,7 @@ describe('buildAssignmentDetailPayload', () => {
       },
       concludesMs + 60_000,
       { problemCount: 0, submission: null },
+      [],
     )
 
     expect(payload.assignmentKind).toBe('evaluation')
@@ -93,6 +95,7 @@ describe('buildAssignmentDetailPayload', () => {
         },
         Date.now(),
         { problemCount: 0, submission: null },
+        [],
       ),
     ).toThrow('ASSIGNMENT_DETAIL_UNSUPPORTED_TYPE')
   })

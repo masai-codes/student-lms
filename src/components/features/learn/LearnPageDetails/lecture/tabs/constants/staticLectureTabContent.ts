@@ -13,7 +13,7 @@ export const LECTURE_DETAIL_TABS: ReadonlyArray<{
   { id: 'notes', label: 'Notes' },
   { id: 'ai-summary', label: 'AI Summary' },
   { id: 'transcript', label: 'Transcript' },
-  { id: 'associated', label: 'Associated Lectures and Assignments' },
+  { id: 'associated', label: 'Associated Content' },
 ]
 
 export function resolveVisibleLectureDetailTabs(
