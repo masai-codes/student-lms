@@ -2,7 +2,7 @@
 
 import { useCallback, useMemo, useRef, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
-import { getRouteApi } from '@tanstack/react-router'
+import { getRouteApi, useNavigate, useRouterState } from '@tanstack/react-router'
 import {
   Book,
   Bookmark,
@@ -36,6 +36,7 @@ import {
   getPostLogoutRedirectUrl,
 } from '@/utils/authRedirect'
 import { fetchLevelupSso } from '@/utils/levelupSso'
+import { activeAppNavIdForPathname } from '@/lib/appNavActiveItem'
 import { fetchReferralLmsLoginRedirectUrl } from '@/utils/referralLmsLogin'
 
 const layoutRouteApi = getRouteApi('/(protected)/_layout')
@@ -73,6 +74,9 @@ function oldStudentUiLink(
 
 export default function AppNavbar() {
   const { user } = layoutRouteApi.useRouteContext()
+  const navigate = useNavigate()
+  const pathname = useRouterState({ select: (s) => s.location.pathname })
+  const activeNavId = activeAppNavIdForPathname(pathname)
   const [downloadAppOpen, setDownloadAppOpen] = useState(false)
   const [isLevelupLoading, setIsLevelupLoading] = useState(false)
   const levelupLoadingRef = useRef(false)
@@ -129,6 +133,14 @@ export default function AppNavbar() {
     [],
   )
 
+  const handleLearnClick = useCallback(
+    (e: React.MouseEvent<HTMLAnchorElement>) => {
+      e.preventDefault()
+      void navigate({ to: '/learn', search: { batchId: undefined } })
+    },
+    [navigate],
+  )
+
   const handleReferAndEarnClick = useCallback(
     (e: React.MouseEvent<HTMLAnchorElement>) => {
       e.preventDefault()
@@ -150,35 +162,45 @@ export default function AppNavbar() {
     [isReferralUrlLoading, referralUrl],
   )
 
-  const navItems: Array<NavbarLinkItem> = [
-    {
-      id: 'home',
-      label: 'Home',
-      ...oldStudentUiLink(OLD_STUDENT_UI_NAV_PATHS.home),
-    },
-    {
-      id: 'learn',
-      label: 'Learn',
-      ...oldStudentUiLink(OLD_STUDENT_UI_NAV_PATHS.learn),
-    },
-    {
-      id: 'support',
-      label: 'Support',
-      ...oldStudentUiLink(OLD_STUDENT_UI_NAV_PATHS.support),
-    },
-    {
-      id: 'discussions',
-      label: 'Discussions',
-      ...oldStudentUiLink(OLD_STUDENT_UI_NAV_PATHS.discussions),
-    },
-    {
-      id: 'refer',
-      label: 'Refer & Earn',
-      href: '#',
-      openInNewTab: false,
-      onClick: handleReferAndEarnClick,
-    },
-  ]
+  const navItems: Array<NavbarLinkItem> = useMemo(
+    () => [
+      {
+        id: 'home',
+        label: 'Home',
+        isActive: activeNavId === 'home',
+        ...oldStudentUiLink(OLD_STUDENT_UI_NAV_PATHS.home),
+      },
+      {
+        id: 'learn',
+        label: 'Learn',
+        href: '/learn',
+        openInNewTab: false,
+        isActive: activeNavId === 'learn',
+        onClick: handleLearnClick,
+      },
+      {
+        id: 'support',
+        label: 'Support',
+        isActive: false,
+        ...oldStudentUiLink(OLD_STUDENT_UI_NAV_PATHS.support),
+      },
+      {
+        id: 'discussions',
+        label: 'Discussions',
+        isActive: false,
+        ...oldStudentUiLink(OLD_STUDENT_UI_NAV_PATHS.discussions),
+      },
+      {
+        id: 'refer',
+        label: 'Refer & Earn',
+        href: '#',
+        openInNewTab: false,
+        isActive: false,
+        onClick: handleReferAndEarnClick,
+      },
+    ],
+    [activeNavId, handleLearnClick, handleReferAndEarnClick],
+  )
 
   const trailingActions: Array<NavbarActionItem> = useMemo(
     () => [
@@ -246,6 +268,7 @@ export default function AppNavbar() {
         icon: <Users className="size-4" />,
         href: '/masaiverse',
         openInNewTab: false,
+        isActive: activeNavId === 'masaiverse',
       },
       {
         id: 'practice-interview',
@@ -292,7 +315,7 @@ export default function AppNavbar() {
         },
       },
     ],
-    [handleLevelupClick, handleSignOut, isLevelupLoading],
+    [activeNavId, handleLevelupClick, handleSignOut, isLevelupLoading],
   )
 
   const profile: NavbarProfile = useMemo(

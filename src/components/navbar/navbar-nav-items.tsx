@@ -28,10 +28,10 @@ export function NavbarNavItems({ items, className }: NavbarNavItemsProps) {
               aria-current={item.isActive ? 'page' : undefined}
               className={cn(
                 /* Weight 500 + subpixel smoothing on these links only: body `antialiased` makes 500 *look* thin on macOS Chrome; subpixel restores perceived stroke like legacy LMS. */
-                'subpixel-antialiased cursor-pointer border border-transparent pb-1 font-poppins text-base leading-6 !font-[500] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-0',
+                'subpixel-antialiased cursor-pointer font-poppins text-base leading-6 !font-[500] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-0',
                 'text-[#6B7280] hover:text-[#6962AC]',
                 item.isActive &&
-                  'border-b-2 border-[#6962AC] pb-1 text-[#6962AC]',
+                  'text-[#6962AC] underline decoration-[#6962AC] underline-offset-4',
               )}
             >
               {item.label}

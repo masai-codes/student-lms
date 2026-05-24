@@ -5,25 +5,23 @@ import { useNavigate, useRouterState } from '@tanstack/react-router'
 import { Home, LayoutGrid, Users } from 'lucide-react'
 
 import { TabNavbar } from '@/components/tab-navbar'
+import { OLD_STUDENT_UI_NAV_PATHS } from '@/constants/oldStudentUiNavPaths'
+import { activeAppNavIdForPathname } from '@/lib/appNavActiveItem'
+import { getOldStudentUiUrlForPath } from '@/utils/authRedirect'
 
-function activeTabIdForPathname(pathname: string): string | undefined {
-  if (pathname === '/' || pathname === '') return 'home'
-  if (pathname.startsWith('/learn')) return 'learn'
-  if (pathname.startsWith('/masaiverse')) return 'masaiverse'
-  if (
-    pathname.startsWith('/assignments') ||
-    pathname.startsWith('/lectures') ||
-    pathname.startsWith('/resources')
-  ) {
-    return 'learn'
+function navigateToOldStudentPath(path: string) {
+  const url = getOldStudentUiUrlForPath(path)
+  if (!url) {
+    console.warn('VITE_OLD_STUDENT_UI_URL is not configured')
+    return
   }
-  return undefined
+  window.location.assign(url)
 }
 
 export default function AppMobileTabBar() {
   const pathname = useRouterState({ select: (s) => s.location.pathname })
   const navigate = useNavigate()
-  const activeId = activeTabIdForPathname(pathname)
+  const activeId = activeAppNavIdForPathname(pathname)
 
   const items = useMemo(
     () => [
@@ -33,7 +31,7 @@ export default function AppMobileTabBar() {
         icon: <Home strokeWidth={1.75} className="size-6 shrink-0 text-current" />,
         isActive: activeId === 'home',
         onClick: () => {
-          void navigate({ to: '/learn', search: { batchId: undefined } })
+          navigateToOldStudentPath(OLD_STUDENT_UI_NAV_PATHS.home)
         },
       },
       {
