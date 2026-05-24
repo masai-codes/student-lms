@@ -1,9 +1,8 @@
 'use client'
 
-import { AfterMaterialResource } from './AfterMaterialResource'
-import { BeforeMaterialResource } from './BeforeMaterialResource'
-import { DuringMaterialResource } from './DuringMaterialResource'
 import { ResourceDetailLayout } from '../shared/ResourceDetailLayout'
+import { ResourceOpenPhaseMain } from '../shared/ResourceOpenPhaseMain'
+import { ResourcePhaseContent } from '../shared/ResourcePhaseContent'
 
 import type { ResourceDetailPayload } from '@/server/learn/resourceDetailTypes'
 
@@ -12,16 +11,10 @@ type MaterialResourceContentProps = {
 }
 
 function renderMaterialMain(detail: ResourceDetailPayload) {
-  switch (detail.phase) {
-    case 'before':
-      return <BeforeMaterialResource schedule={detail.schedule} />
-    case 'during':
-      return <DuringMaterialResource detail={detail} />
-    case 'after':
-      return <AfterMaterialResource detail={detail} />
-    default:
-      return <BeforeMaterialResource schedule={detail.schedule} />
+  if (detail.phase === 'before') {
+    return <ResourcePhaseContent content={detail.phaseContent} />
   }
+  return <ResourceOpenPhaseMain detail={detail} />
 }
 
 export function MaterialResourceContent({ detail }: MaterialResourceContentProps) {

@@ -42,5 +42,6 @@ describe('discussionPresentation', () => {
     expect(item.isClosed).toBe(false)
     expect(item.author?.name).toBe('Sam')
     expect(item.messagePreview.length).toBeGreaterThan(0)
+    expect(item.threads).toEqual([])
   })
 })

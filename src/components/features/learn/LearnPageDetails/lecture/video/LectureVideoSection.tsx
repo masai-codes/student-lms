@@ -3,11 +3,13 @@
 import { LectureReactPlayer } from './LectureReactPlayer'
 import { LectureVideoFullBleed } from './LectureVideoFullBleed'
 
+import type { LectureVideoAttendanceState } from '@/server/learn/lectureDetailTypes'
 import { cn } from '@/lib/utils'
 
 type LectureVideoSectionProps = {
   lectureId: number
   videoUrl: string
+  initialAttendance: LectureVideoAttendanceState | null
   className?: string
   /** When false, video stays in its column (theater layout). */
   fullBleed?: boolean
@@ -18,6 +20,7 @@ type LectureVideoSectionProps = {
 export function LectureVideoSection({
   lectureId,
   videoUrl,
+  initialAttendance,
   className,
   fullBleed = true,
   isTheaterMode = false,
@@ -27,6 +30,7 @@ export function LectureVideoSection({
     <LectureReactPlayer
       lectureId={lectureId}
       src={videoUrl}
+      initialAttendance={initialAttendance}
       isTheaterMode={isTheaterMode}
       onTheaterModeToggle={onTheaterModeToggle}
     />

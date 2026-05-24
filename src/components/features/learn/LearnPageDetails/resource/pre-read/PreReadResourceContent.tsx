@@ -1,9 +1,8 @@
 'use client'
 
-import { AfterPreReadResource } from './AfterPreReadResource'
-import { BeforePreReadResource } from './BeforePreReadResource'
-import { DuringPreReadResource } from './DuringPreReadResource'
 import { ResourceDetailLayout } from '../shared/ResourceDetailLayout'
+import { ResourceOpenPhaseMain } from '../shared/ResourceOpenPhaseMain'
+import { ResourcePhaseContent } from '../shared/ResourcePhaseContent'
 
 import type { ResourceDetailPayload } from '@/server/learn/resourceDetailTypes'
 
@@ -12,16 +11,10 @@ type PreReadResourceContentProps = {
 }
 
 function renderPreReadMain(detail: ResourceDetailPayload) {
-  switch (detail.phase) {
-    case 'before':
-      return <BeforePreReadResource schedule={detail.schedule} />
-    case 'during':
-      return <DuringPreReadResource detail={detail} />
-    case 'after':
-      return <AfterPreReadResource detail={detail} />
-    default:
-      return <BeforePreReadResource schedule={detail.schedule} />
+  if (detail.phase === 'before') {
+    return <ResourcePhaseContent content={detail.phaseContent} />
   }
+  return <ResourceOpenPhaseMain detail={detail} />
 }
 
 export function PreReadResourceContent({ detail }: PreReadResourceContentProps) {

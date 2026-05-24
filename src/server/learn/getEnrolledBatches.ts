@@ -1,11 +1,7 @@
-import { createServerFn } from '@tanstack/react-start'
 import { getCurrentSessionUserId } from '@/server/auth/getCurrentSessionUserId'
 import { getEnrolledBatchesForUser } from '@/server/learn/services/getEnrolledBatches.service'
 
-export const getEnrolledBatches = createServerFn({ method: 'GET' }).handler(
-  getEnrolledBatchesHandler
-)
-
+/** @deprecated Use GET `/api/learn/batches` via `fetchEnrolledBatchesFromApi`. */
 export async function getEnrolledBatchesHandler() {
   const userId = await getCurrentSessionUserId()
 

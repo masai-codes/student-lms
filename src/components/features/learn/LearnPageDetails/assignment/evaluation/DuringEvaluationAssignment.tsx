@@ -2,20 +2,17 @@
 
 import { AssignmentPhaseContent } from '../shared/AssignmentPhaseContent'
 
+import type { LearnPhaseContent } from '@/server/learn/learnPhaseContentTypes'
 import { MasaiButton } from '@/components/ui/masai-button'
 
 type DuringEvaluationAssignmentProps = {
-  schedule: string | null
+  content: LearnPhaseContent
 }
 
-export function DuringEvaluationAssignment({
-  schedule,
-}: DuringEvaluationAssignmentProps) {
+export function DuringEvaluationAssignment({ content }: DuringEvaluationAssignmentProps) {
   return (
     <AssignmentPhaseContent
-      kind="evaluation"
-      phase="during"
-      schedule={schedule}
+      content={content}
       action={
         <MasaiButton type="primary" size="md" ctaText="Start evaluation" disabled />
       }

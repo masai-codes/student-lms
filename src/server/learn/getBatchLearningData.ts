@@ -1,14 +1,10 @@
-import { createServerFn } from '@tanstack/react-start'
 import type {
   GetBatchLearningDataInput,
   GetBatchLearningDataResponse,
 } from '@/server/learn/types'
 import { getBatchLearningData as getBatchLearningDataService } from '@/server/learn/services/getBatchLearningData.service'
 
-export const getBatchLearningData = createServerFn({ method: 'GET' })
-  .inputValidator((data: GetBatchLearningDataInput) => data)
-  .handler(getBatchLearningDataHandler)
-
+/** @deprecated Use GET `/api/learn/batch-data` via `fetchBatchLearningDataFromApi`. */
 export async function getBatchLearningDataHandler({
   data,
 }: {

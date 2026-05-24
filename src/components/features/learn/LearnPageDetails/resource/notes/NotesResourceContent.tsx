@@ -1,9 +1,8 @@
 'use client'
 
-import { AfterNotesResource } from './AfterNotesResource'
-import { BeforeNotesResource } from './BeforeNotesResource'
-import { DuringNotesResource } from './DuringNotesResource'
 import { ResourceDetailLayout } from '../shared/ResourceDetailLayout'
+import { ResourceOpenPhaseMain } from '../shared/ResourceOpenPhaseMain'
+import { ResourcePhaseContent } from '../shared/ResourcePhaseContent'
 
 import type { ResourceDetailPayload } from '@/server/learn/resourceDetailTypes'
 
@@ -12,16 +11,10 @@ type NotesResourceContentProps = {
 }
 
 function renderNotesMain(detail: ResourceDetailPayload) {
-  switch (detail.phase) {
-    case 'before':
-      return <BeforeNotesResource schedule={detail.schedule} />
-    case 'during':
-      return <DuringNotesResource detail={detail} />
-    case 'after':
-      return <AfterNotesResource detail={detail} />
-    default:
-      return <BeforeNotesResource schedule={detail.schedule} />
+  if (detail.phase === 'before') {
+    return <ResourcePhaseContent content={detail.phaseContent} />
   }
+  return <ResourceOpenPhaseMain detail={detail} />
 }
 
 export function NotesResourceContent({ detail }: NotesResourceContentProps) {

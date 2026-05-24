@@ -1,7 +1,7 @@
 'use client'
 
-import { useQuery, useQueryClient } from '@tanstack/react-query'
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useRouter } from '@tanstack/react-router'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import Hls from 'hls.js'
 
 import { SEEK_ALIGNMENT_EPSILON } from '../controls/lectureVideoChrome.constants'
@@ -9,20 +9,12 @@ import { applyResumeIfNeeded, seekPlayerToSeconds } from './lectureVideoResume'
 import { useTimer } from './useTimer'
 import type { LectureChromePlayerRef } from '../controls/lectureVideoChrome.utils'
 import type { OnProgressProps } from 'react-player/base'
-import { normalizeAndMergeIntervals } from '@/lib/video-attendance/normalizeAndMergeIntervals'
+import type { LectureVideoAttendanceState } from '@/server/learn/lectureDetailTypes'
 import {
   nextVideoProgressRetryAt,
   shouldSaveVideoProgress,
 } from '@/lib/video-attendance/videoProgressSavePolicy'
-import { getLectureVideoAttendanceIntervals } from '@/server/video-attendance/getLectureVideoAttendanceIntervals'
-import { getLectureVideoProgress } from '@/server/video-attendance/getLectureVideoProgress'
 import { storeLectureVideoProgress } from '@/server/video-attendance/storeLectureVideoProgress'
-
-export const lectureVideoIntervalsQueryKey = (lectureId: number) =>
-  ['lectureVideoAttendanceIntervals', lectureId] as const
-
-export const lectureVideoProgressQueryKey = (lectureId: number) =>
-  ['lectureVideoProgress', lectureId] as const
 
 function isHlsUrl(url: string): boolean {
   return url.includes('.m3u8')
@@ -32,14 +24,16 @@ type UseLectureVideoAttendanceOptions = {
   lectureId: number
   src: string
   videoRef: React.MutableRefObject<LectureChromePlayerRef>
+  initialAttendance: LectureVideoAttendanceState | null
 }
 
 export function useLectureVideoAttendance({
   lectureId,
   src,
   videoRef,
+  initialAttendance,
 }: UseLectureVideoAttendanceOptions) {
-  const queryClient = useQueryClient()
+  const router = useRouter()
   const isHls = isHlsUrl(src)
 
   const [progress, setProgress] = useState(0)
@@ -48,6 +42,9 @@ export function useLectureVideoAttendance({
   const [playbackRate, setPlaybackRate] = useState(1)
   const [playerReadyVersion, setPlayerReadyVersion] = useState(0)
   const [seekHint, setSeekHint] = useState<'forward' | 'backward' | null>(null)
+  const [mergedAttendanceIntervals, setMergedAttendanceIntervals] = useState(
+    () => initialAttendance?.mergedIntervals ?? [],
+  )
 
   const isVideoPausedRef = useRef<boolean | null>(null)
   const isUpdatingRef = useRef(false)
@@ -65,22 +62,7 @@ export function useLectureVideoAttendance({
   const { time: timer, startTimer, stopTimer, resetTimer, changeSpeed, setTime: setTimer } =
     useTimer(0)
 
-  const { data: videoProgressData } = useQuery({
-    queryKey: lectureVideoProgressQueryKey(lectureId),
-    queryFn: () => getLectureVideoProgress({ data: { lectureId } }),
-    enabled: Number.isFinite(lectureId) && lectureId > 0,
-    staleTime: 0,
-    refetchOnMount: true,
-  })
-
-  const { data: intervalsData } = useQuery({
-    queryKey: lectureVideoIntervalsQueryKey(lectureId),
-    queryFn: () => getLectureVideoAttendanceIntervals({ data: { lectureId } }),
-    enabled: Number.isFinite(lectureId) && lectureId > 0,
-    staleTime: 60_000,
-  })
-
-  const effectiveLastWatchedPosition = videoProgressData?.lastWatchedPosition
+  const effectiveLastWatchedPosition = initialAttendance?.lastWatchedPosition
   resumeTargetSecondsRef.current =
     typeof effectiveLastWatchedPosition === 'number' &&
     Number.isFinite(effectiveLastWatchedPosition) &&
@@ -88,10 +70,9 @@ export function useLectureVideoAttendance({
       ? effectiveLastWatchedPosition
       : null
 
-  const mergedAttendanceIntervals = useMemo(
-    () => normalizeAndMergeIntervals(intervalsData?.intervals, totalDuration),
-    [intervalsData?.intervals, totalDuration],
-  )
+  useEffect(() => {
+    setMergedAttendanceIntervals(initialAttendance?.mergedIntervals ?? [])
+  }, [initialAttendance?.mergedIntervals])
 
   const saveProgress = useCallback(async () => {
     if (isUpdatingRef.current) return
@@ -106,12 +87,7 @@ export function useLectureVideoAttendance({
       })
 
       if (result.ok) {
-        void queryClient.invalidateQueries({
-          queryKey: lectureVideoIntervalsQueryKey(lectureId),
-        })
-        void queryClient.invalidateQueries({
-          queryKey: lectureVideoProgressQueryKey(lectureId),
-        })
+        await router.invalidate()
         resetTimer()
         if (isVideoPausedRef.current) stopTimer()
         else startTimer()
@@ -128,7 +104,7 @@ export function useLectureVideoAttendance({
     } finally {
       isUpdatingRef.current = false
     }
-  }, [lectureId, queryClient, resetTimer, startTimer, stopTimer, totalDuration])
+  }, [lectureId, resetTimer, router, startTimer, stopTimer, totalDuration])
 
   const updateIfNeeded = useCallback(
     (time: number, duration: number, force = false) => {

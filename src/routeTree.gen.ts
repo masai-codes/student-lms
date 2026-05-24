@@ -12,9 +12,14 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as protectedLayoutRouteRouteImport } from './routes/(protected)/_layout/route'
 import { Route as protectedLayoutIndexRouteImport } from './routes/(protected)/_layout/index'
 import { Route as authLoginIndexRouteImport } from './routes/(auth)/login/index'
+import { Route as ApiLearnBatchesRouteImport } from './routes/api/learn/batches'
+import { Route as ApiLearnBatchDataRouteImport } from './routes/api/learn/batch-data'
 import { Route as protectedLayoutMasaiverseRouteRouteImport } from './routes/(protected)/_layout/masaiverse/route'
 import { Route as protectedLayoutMasaiverseIndexRouteImport } from './routes/(protected)/_layout/masaiverse/index'
 import { Route as protectedLayoutLearnIndexRouteImport } from './routes/(protected)/_layout/learn/index'
+import { Route as ApiLearnResourcesResourceIdRouteImport } from './routes/api/learn/resources/$resourceId'
+import { Route as ApiLearnLecturesLectureIdRouteImport } from './routes/api/learn/lectures/$lectureId'
+import { Route as ApiLearnAssignmentsAssignmentIdRouteImport } from './routes/api/learn/assignments/$assignmentId'
 import { Route as protectedLayoutResourcesResourceIdRouteRouteImport } from './routes/(protected)/_layout/resources_/$resourceId/route'
 import { Route as protectedLayoutLecturesLectureIdRouteRouteImport } from './routes/(protected)/_layout/lectures_/$lectureId/route'
 import { Route as protectedLayoutAssignmentsAssignmentIdRouteRouteImport } from './routes/(protected)/_layout/assignments_/$assignmentId/route'
@@ -31,6 +36,16 @@ const protectedLayoutIndexRoute = protectedLayoutIndexRouteImport.update({
 const authLoginIndexRoute = authLoginIndexRouteImport.update({
   id: '/(auth)/login/',
   path: '/login/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiLearnBatchesRoute = ApiLearnBatchesRouteImport.update({
+  id: '/api/learn/batches',
+  path: '/api/learn/batches',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiLearnBatchDataRoute = ApiLearnBatchDataRouteImport.update({
+  id: '/api/learn/batch-data',
+  path: '/api/learn/batch-data',
   getParentRoute: () => rootRouteImport,
 } as any)
 const protectedLayoutMasaiverseRouteRoute =
@@ -50,6 +65,24 @@ const protectedLayoutLearnIndexRoute =
     id: '/learn/',
     path: '/learn/',
     getParentRoute: () => protectedLayoutRouteRoute,
+  } as any)
+const ApiLearnResourcesResourceIdRoute =
+  ApiLearnResourcesResourceIdRouteImport.update({
+    id: '/api/learn/resources/$resourceId',
+    path: '/api/learn/resources/$resourceId',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiLearnLecturesLectureIdRoute =
+  ApiLearnLecturesLectureIdRouteImport.update({
+    id: '/api/learn/lectures/$lectureId',
+    path: '/api/learn/lectures/$lectureId',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiLearnAssignmentsAssignmentIdRoute =
+  ApiLearnAssignmentsAssignmentIdRouteImport.update({
+    id: '/api/learn/assignments/$assignmentId',
+    path: '/api/learn/assignments/$assignmentId',
+    getParentRoute: () => rootRouteImport,
   } as any)
 const protectedLayoutResourcesResourceIdRouteRoute =
   protectedLayoutResourcesResourceIdRouteRouteImport.update({
@@ -72,20 +105,30 @@ const protectedLayoutAssignmentsAssignmentIdRouteRoute =
 
 export interface FileRoutesByFullPath {
   '/masaiverse': typeof protectedLayoutMasaiverseRouteRouteWithChildren
+  '/api/learn/batch-data': typeof ApiLearnBatchDataRoute
+  '/api/learn/batches': typeof ApiLearnBatchesRoute
   '/login/': typeof authLoginIndexRoute
   '/': typeof protectedLayoutIndexRoute
   '/assignments/$assignmentId': typeof protectedLayoutAssignmentsAssignmentIdRouteRoute
   '/lectures/$lectureId': typeof protectedLayoutLecturesLectureIdRouteRoute
   '/resources/$resourceId': typeof protectedLayoutResourcesResourceIdRouteRoute
+  '/api/learn/assignments/$assignmentId': typeof ApiLearnAssignmentsAssignmentIdRoute
+  '/api/learn/lectures/$lectureId': typeof ApiLearnLecturesLectureIdRoute
+  '/api/learn/resources/$resourceId': typeof ApiLearnResourcesResourceIdRoute
   '/learn/': typeof protectedLayoutLearnIndexRoute
   '/masaiverse/': typeof protectedLayoutMasaiverseIndexRoute
 }
 export interface FileRoutesByTo {
+  '/api/learn/batch-data': typeof ApiLearnBatchDataRoute
+  '/api/learn/batches': typeof ApiLearnBatchesRoute
   '/login': typeof authLoginIndexRoute
   '/': typeof protectedLayoutIndexRoute
   '/assignments/$assignmentId': typeof protectedLayoutAssignmentsAssignmentIdRouteRoute
   '/lectures/$lectureId': typeof protectedLayoutLecturesLectureIdRouteRoute
   '/resources/$resourceId': typeof protectedLayoutResourcesResourceIdRouteRoute
+  '/api/learn/assignments/$assignmentId': typeof ApiLearnAssignmentsAssignmentIdRoute
+  '/api/learn/lectures/$lectureId': typeof ApiLearnLecturesLectureIdRoute
+  '/api/learn/resources/$resourceId': typeof ApiLearnResourcesResourceIdRoute
   '/learn': typeof protectedLayoutLearnIndexRoute
   '/masaiverse': typeof protectedLayoutMasaiverseIndexRoute
 }
@@ -93,11 +136,16 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/(protected)/_layout': typeof protectedLayoutRouteRouteWithChildren
   '/(protected)/_layout/masaiverse': typeof protectedLayoutMasaiverseRouteRouteWithChildren
+  '/api/learn/batch-data': typeof ApiLearnBatchDataRoute
+  '/api/learn/batches': typeof ApiLearnBatchesRoute
   '/(auth)/login/': typeof authLoginIndexRoute
   '/(protected)/_layout/': typeof protectedLayoutIndexRoute
   '/(protected)/_layout/assignments_/$assignmentId': typeof protectedLayoutAssignmentsAssignmentIdRouteRoute
   '/(protected)/_layout/lectures_/$lectureId': typeof protectedLayoutLecturesLectureIdRouteRoute
   '/(protected)/_layout/resources_/$resourceId': typeof protectedLayoutResourcesResourceIdRouteRoute
+  '/api/learn/assignments/$assignmentId': typeof ApiLearnAssignmentsAssignmentIdRoute
+  '/api/learn/lectures/$lectureId': typeof ApiLearnLecturesLectureIdRoute
+  '/api/learn/resources/$resourceId': typeof ApiLearnResourcesResourceIdRoute
   '/(protected)/_layout/learn/': typeof protectedLayoutLearnIndexRoute
   '/(protected)/_layout/masaiverse/': typeof protectedLayoutMasaiverseIndexRoute
 }
@@ -105,38 +153,58 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/masaiverse'
+    | '/api/learn/batch-data'
+    | '/api/learn/batches'
     | '/login/'
     | '/'
     | '/assignments/$assignmentId'
     | '/lectures/$lectureId'
     | '/resources/$resourceId'
+    | '/api/learn/assignments/$assignmentId'
+    | '/api/learn/lectures/$lectureId'
+    | '/api/learn/resources/$resourceId'
     | '/learn/'
     | '/masaiverse/'
   fileRoutesByTo: FileRoutesByTo
   to:
+    | '/api/learn/batch-data'
+    | '/api/learn/batches'
     | '/login'
     | '/'
     | '/assignments/$assignmentId'
     | '/lectures/$lectureId'
     | '/resources/$resourceId'
+    | '/api/learn/assignments/$assignmentId'
+    | '/api/learn/lectures/$lectureId'
+    | '/api/learn/resources/$resourceId'
     | '/learn'
     | '/masaiverse'
   id:
     | '__root__'
     | '/(protected)/_layout'
     | '/(protected)/_layout/masaiverse'
+    | '/api/learn/batch-data'
+    | '/api/learn/batches'
     | '/(auth)/login/'
     | '/(protected)/_layout/'
     | '/(protected)/_layout/assignments_/$assignmentId'
     | '/(protected)/_layout/lectures_/$lectureId'
     | '/(protected)/_layout/resources_/$resourceId'
+    | '/api/learn/assignments/$assignmentId'
+    | '/api/learn/lectures/$lectureId'
+    | '/api/learn/resources/$resourceId'
     | '/(protected)/_layout/learn/'
     | '/(protected)/_layout/masaiverse/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   protectedLayoutRouteRoute: typeof protectedLayoutRouteRouteWithChildren
+  ApiLearnBatchDataRoute: typeof ApiLearnBatchDataRoute
+  ApiLearnBatchesRoute: typeof ApiLearnBatchesRoute
   authLoginIndexRoute: typeof authLoginIndexRoute
+  ApiLearnAssignmentsAssignmentIdRoute: typeof ApiLearnAssignmentsAssignmentIdRoute
+  ApiLearnLecturesLectureIdRoute: typeof ApiLearnLecturesLectureIdRoute
+  ApiLearnResourcesResourceIdRoute: typeof ApiLearnResourcesResourceIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -162,6 +230,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof authLoginIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/learn/batches': {
+      id: '/api/learn/batches'
+      path: '/api/learn/batches'
+      fullPath: '/api/learn/batches'
+      preLoaderRoute: typeof ApiLearnBatchesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/learn/batch-data': {
+      id: '/api/learn/batch-data'
+      path: '/api/learn/batch-data'
+      fullPath: '/api/learn/batch-data'
+      preLoaderRoute: typeof ApiLearnBatchDataRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/(protected)/_layout/masaiverse': {
       id: '/(protected)/_layout/masaiverse'
       path: '/masaiverse'
@@ -182,6 +264,27 @@ declare module '@tanstack/react-router' {
       fullPath: '/learn/'
       preLoaderRoute: typeof protectedLayoutLearnIndexRouteImport
       parentRoute: typeof protectedLayoutRouteRoute
+    }
+    '/api/learn/resources/$resourceId': {
+      id: '/api/learn/resources/$resourceId'
+      path: '/api/learn/resources/$resourceId'
+      fullPath: '/api/learn/resources/$resourceId'
+      preLoaderRoute: typeof ApiLearnResourcesResourceIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/learn/lectures/$lectureId': {
+      id: '/api/learn/lectures/$lectureId'
+      path: '/api/learn/lectures/$lectureId'
+      fullPath: '/api/learn/lectures/$lectureId'
+      preLoaderRoute: typeof ApiLearnLecturesLectureIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/learn/assignments/$assignmentId': {
+      id: '/api/learn/assignments/$assignmentId'
+      path: '/api/learn/assignments/$assignmentId'
+      fullPath: '/api/learn/assignments/$assignmentId'
+      preLoaderRoute: typeof ApiLearnAssignmentsAssignmentIdRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/(protected)/_layout/resources_/$resourceId': {
       id: '/(protected)/_layout/resources_/$resourceId'
@@ -248,7 +351,12 @@ const protectedLayoutRouteRouteWithChildren =
 
 const rootRouteChildren: RootRouteChildren = {
   protectedLayoutRouteRoute: protectedLayoutRouteRouteWithChildren,
+  ApiLearnBatchDataRoute: ApiLearnBatchDataRoute,
+  ApiLearnBatchesRoute: ApiLearnBatchesRoute,
   authLoginIndexRoute: authLoginIndexRoute,
+  ApiLearnAssignmentsAssignmentIdRoute: ApiLearnAssignmentsAssignmentIdRoute,
+  ApiLearnLecturesLectureIdRoute: ApiLearnLecturesLectureIdRoute,
+  ApiLearnResourcesResourceIdRoute: ApiLearnResourcesResourceIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

@@ -38,6 +38,7 @@ describe('buildAssignmentDetailPayload', () => {
     expect(payload.enforceDeadline).toBe(true)
     expect(payload.hostAvatarUrl).toBe('/avatar.png')
     expect(payload.scheduleDisplayRange).toContain('2026')
+    expect(payload.phaseContent.title).toContain('open')
   })
 
   it('builds evaluation assignment in after phase', () => {

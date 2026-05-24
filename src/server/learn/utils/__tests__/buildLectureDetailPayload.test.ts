@@ -44,6 +44,7 @@ describe('buildLectureDetailPayload', () => {
       },
       concludesMs + 60_000,
       { ...emptyTabs, notes: 'Lecture notes' },
+      null,
     )
 
     expect(payload.lectureKind).toBe('live')
@@ -54,6 +55,8 @@ describe('buildLectureDetailPayload', () => {
     expect(payload.hasRecording).toBe(true)
     expect(payload.videoUrl).toBe('https://cdn.example/hls.m3u8')
     expect(payload.zoomLink).toBe('https://zoom.example/j/1')
+    expect(payload.joinLiveButtonState).toBe('hidden')
+    expect(payload.videoAttendance).toBeNull()
   })
 
   it('strips video when hide_video is enabled', () => {
@@ -74,6 +77,7 @@ describe('buildLectureDetailPayload', () => {
       },
       scheduleMs,
       emptyTabs,
+      null,
     )
 
     expect(payload.lectureKind).toBe('video')
@@ -103,6 +107,7 @@ describe('buildLectureDetailPayload', () => {
         },
         Date.now(),
         emptyTabs,
+        null,
       ),
     ).toThrow('LECTURE_DETAIL_UNSUPPORTED_TYPE')
   })

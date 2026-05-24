@@ -5,7 +5,7 @@ import {
   getLastSelectedBatchIdForUser,
   setLastSelectedBatchIdForUser,
 } from '@/lib/learnBatchSelection'
-import { getEnrolledBatches } from '@/server/learn/getEnrolledBatches'
+import { fetchEnrolledBatchesFromApi } from '@/lib/api/learn/learnApi'
 
 const layoutRouteApi = getRouteApi('/(protected)/_layout')
 
@@ -21,7 +21,7 @@ export const Route = createFileRoute('/(protected)/_layout/learn/')({
     }
   },
   loader: async () => {
-    const enrolledBatches = await getEnrolledBatches()
+    const enrolledBatches = await fetchEnrolledBatchesFromApi()
     return { enrolledBatches }
   },
   component: LearnPage,

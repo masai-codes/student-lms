@@ -2,22 +2,28 @@
 
 Last updated: 2026-05-24
 
+## Learn REST APIs (`/api/learn/*`)
+- Area: HTTP routes for batches, batch-data, lecture/assignment/resource detail; client `learnApi.ts`; handlers + services split
+- Status: Partial (handler + query parser tests; route integration tests pending)
+- Test files: `src/server/api/learn/**/__tests__/*`
+- Notes: See `docs/api-responses/learn/rest-endpoints.md`
+
 ## Resource detail (`/resources/:id`)
-- Area: Resource kind from category, phase resolution, reading body, type/phase UI routing (pre-read, notes, material × before, during, after)
-- Status: Covered (server utils + phase copy; associated content / video not in scope yet)
-- Test files: `src/server/learn/utils/__tests__/normalizeResourceKind.test.ts`, `src/server/learn/utils/__tests__/buildResourceDetailPayload.test.ts`, `src/components/features/learn/LearnPageDetails/resource/shared/__tests__/resourcePhaseCopy.test.ts`, `src/components/shared/markdown-content/__tests__/*`
+- Area: `GET /api/learn/resources/:id` + loader via `fetchResourceLearningDetailFromApi`; resource kind/phase/body/phase copy + discussions with threads on server
+- Status: Covered (server utils + phase content; associated content / video not in scope yet)
+- Test files: `src/server/learn/utils/__tests__/normalizeResourceKind.test.ts`, `src/server/learn/utils/__tests__/buildResourceDetailPayload.test.ts`, `src/server/learn/utils/__tests__/buildLearnPhaseContent.test.ts`, `src/components/shared/markdown-content/__tests__/*`
 - Notes: See `docs/testing/features/resource-detail.md`
 
 ## Assignment detail (`/assignments/:id`)
-- Area: Assignment kind + phase resolution, detail payload, type/phase UI routing (practice, assignment, evaluation × before, during, after)
-- Status: Covered (server utils + phase copy; problems/submissions UI not in scope yet)
-- Test files: `src/server/learn/utils/__tests__/resolveAssignmentPhase.test.ts`, `src/server/learn/utils/__tests__/buildAssignmentDetailPayload.test.ts`, `src/components/features/learn/LearnPageDetails/assignment/shared/__tests__/assignmentPhaseCopy.test.ts`, `src/components/shared/markdown-content/__tests__/*`
+- Area: Single `getAssignmentLearningDetail` loader; assignment kind/phase/instructions/phase copy + discussions with threads on server
+- Status: Covered (server utils + phase content; problems/submissions UI not in scope yet)
+- Test files: `src/server/learn/utils/__tests__/resolveAssignmentPhase.test.ts`, `src/server/learn/utils/__tests__/buildAssignmentDetailPayload.test.ts`, `src/server/learn/utils/__tests__/buildLearnPhaseContent.test.ts`, `src/components/shared/markdown-content/__tests__/*`
 - Notes: See `docs/testing/features/assignment-detail.md`
 
 ## Lecture detail (`/lectures/:id`)
-- Area: Live/video phase resolution, recording URL resolution, lecture detail UI states, video player + attendance
-- Status: Covered (server utils + service; join button client util; video attendance utils + API proxy)
-- Test files: `src/server/learn/**/__tests__/*lecture*`, `src/components/features/learn/LearnPageDetails/lecture/live/utils/__tests__/*`, `src/lib/video-attendance/__tests__/*`, `src/server/video-attendance/**/__tests__/*`, `src/components/features/learn/LearnPageDetails/lecture/video/hooks/__tests__/*`
+- Area: Single `getLectureLearningDetail` loader (tabs, AI, associated, discussions+threads, video attendance, join button state); video save still POST-only
+- Status: Covered (server utils + service; no initial client fetch for progress/intervals/discussion threads)
+- Test files: `src/server/learn/**/__tests__/*lecture*`, `src/server/learn/utils/__tests__/resolveJoinLiveButtonState.test.ts`, `src/server/video-attendance/**/__tests__/*`, `src/components/features/learn/LearnPageDetails/lecture/video/hooks/__tests__/*`
 - Notes: See `docs/testing/features/lecture-detail.md`, `docs/testing/features/lecture-video-player.md`
 
 ## Learn hub (new-discussions)

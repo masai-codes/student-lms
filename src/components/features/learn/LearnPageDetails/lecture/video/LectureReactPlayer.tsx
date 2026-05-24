@@ -12,11 +12,13 @@ import type { LectureChromePlayerRef } from './controls/lectureVideoChrome.utils
 
 import './lectureReactPlayer.css'
 
+import type { LectureVideoAttendanceState } from '@/server/learn/lectureDetailTypes'
 import { cn } from '@/lib/utils'
 
 type LectureReactPlayerProps = {
   lectureId: number
   src: string
+  initialAttendance: LectureVideoAttendanceState | null
   className?: string
   isTheaterMode?: boolean
   onTheaterModeToggle?: () => void
@@ -29,6 +31,7 @@ function isHlsUrl(url: string): boolean {
 export function LectureReactPlayer({
   lectureId,
   src,
+  initialAttendance,
   className,
   isTheaterMode = false,
   onTheaterModeToggle,
@@ -36,7 +39,12 @@ export function LectureReactPlayer({
   const fullscreenContainerRef = useRef<HTMLDivElement>(null)
   const videoRef = useRef<LectureChromePlayerRef>(null)
 
-  const attendance = useLectureVideoAttendance({ lectureId, src, videoRef })
+  const attendance = useLectureVideoAttendance({
+    lectureId,
+    src,
+    videoRef,
+    initialAttendance,
+  })
 
   useEffect(() => {
     const onWindowKey = (event: KeyboardEvent) => {

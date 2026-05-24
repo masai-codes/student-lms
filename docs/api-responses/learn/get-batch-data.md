@@ -7,7 +7,7 @@
 Returns learn page data for the selected batch (lectures, assignments, resources, pagination, filters, etc.).
 
 ## Endpoint
-`TBD` (learn batch data endpoint)
+`GET /api/learn/batch-data`
 
 ## Method
 `GET`
@@ -18,23 +18,26 @@ Returns learn page data for the selected batch (lectures, assignments, resources
 None
 
 ### Query Params
-None (TanStack ServerFn input object)
+| Param | Required | Description |
+|-------|----------|-------------|
+| `batchId` | yes | Batch id |
+| `learningType` | yes | `lecture` \| `assignment` \| `resource` |
+| `search` | no | Search string |
+| `page`, `pageSize` | no | Pagination |
+| `filters` | no | URL-encoded JSON of filter object (see below) |
 
-### Body
+Example: `/api/learn/batch-data?batchId=123&learningType=lecture&page=1&pageSize=10&filters=%7B%22modules%22%3A%5B%22Module%201%22%5D%7D`
+
+Filter object shape:
 ```json
 {
-  "batchId": 123,
-  "learningType": "lecture",
-  "search": "react",
-  "page": 1,
-  "pageSize": 10,
-  "filters": {
-    "modules": ["Module 1"],
-    "categories": ["coding"],
-    "types": ["live"],
-    "priorities": ["recommended"],
-    "instructors": ["Ananya Singh"]
-  }
+  "modules": ["Module 1"],
+  "categories": ["coding"],
+  "types": ["live"],
+  "priorities": ["recommended"],
+  "instructors": ["Ananya Singh"],
+  "scheduleStartDate": "2026-05-01",
+  "scheduleEndDate": "2026-05-31"
 }
 ```
 

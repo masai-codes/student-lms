@@ -7,7 +7,7 @@ import { LearnPaginationSection } from '../section-four/LearnPaginationSection'
 import { createEmptyLearnModalFilters } from '../shared/types'
 import type { LearnContentItem, LearnTab } from '../shared/types'
 import { AppLoading } from '@/components/common'
-import { getBatchLearningData } from '@/server/learn/getBatchLearningData'
+import { fetchBatchLearningDataFromApi } from '@/lib/api/learn/learnApi'
 import { LAYOUT_MAIN_PADDING_X, LAYOUT_MAX_WIDTH_CLASS } from '@/lib/layout'
 
 interface EnrolledBatchOption {
@@ -61,22 +61,20 @@ export function LearnLayout({
       if (typeof batchId !== 'number') {
         throw new Error('MISSING_BATCH_ID_FOR_LEARN_QUERY')
       }
-      return getBatchLearningData({
-        data: {
-          batchId,
-          learningType,
-          search: searchValue.trim() || undefined,
-          page: currentPage,
-          pageSize: 10,
-          filters: {
-            modules: modalFilters.modules,
-            categories: modalFilters.categories,
-            types: modalFilters.types,
-            priorities: modalFilters.priorities,
-            instructors: modalFilters.instructors,
-            scheduleStartDate: modalFilters.scheduleStartDate ?? undefined,
-            scheduleEndDate: modalFilters.scheduleEndDate ?? undefined,
-          },
+      return fetchBatchLearningDataFromApi({
+        batchId,
+        learningType,
+        search: searchValue.trim() || undefined,
+        page: currentPage,
+        pageSize: 10,
+        filters: {
+          modules: modalFilters.modules,
+          categories: modalFilters.categories,
+          types: modalFilters.types,
+          priorities: modalFilters.priorities,
+          instructors: modalFilters.instructors,
+          scheduleStartDate: modalFilters.scheduleStartDate ?? undefined,
+          scheduleEndDate: modalFilters.scheduleEndDate ?? undefined,
         },
       })
     },

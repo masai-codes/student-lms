@@ -24,7 +24,10 @@ import { LectureDetailFooter } from './shared/LectureDetailFooter'
 import { LectureDetailChrome } from './shared/LectureDetailChrome'
 import { LectureVideoSection } from './video'
 import type { DiscussionListItem, LearningPriority } from '@/server/learn/types'
-import type { LectureDetailTabContent } from '@/server/learn/lectureDetailTypes'
+import type {
+  LectureDetailTabContent,
+  LectureVideoAttendanceState,
+} from '@/server/learn/lectureDetailTypes'
 import { cn } from '@/lib/utils'
 
 type LectureRecordingExperienceProps = {
@@ -39,6 +42,7 @@ type LectureRecordingExperienceProps = {
   discussions: Array<DiscussionListItem>
   hideNotes: boolean
   tabs: LectureDetailTabContent
+  videoAttendance: LectureVideoAttendanceState | null
 }
 
 const chatLoaderProps = {
@@ -60,6 +64,7 @@ export function LectureRecordingExperience({
   discussions,
   hideNotes,
   tabs,
+  videoAttendance,
 }: LectureRecordingExperienceProps) {
   const { rootRef, heightPx } = useLectureHeroViewportHeight()
   const { isTheaterMode, toggleTheaterMode } = useLectureTheaterMode()
@@ -119,6 +124,7 @@ export function LectureRecordingExperience({
         <LectureVideoSection
           lectureId={entityId}
           videoUrl={videoUrl}
+          initialAttendance={videoAttendance}
           className="min-h-0 flex-1"
           isTheaterMode={isTheaterMode}
           onTheaterModeToggle={onTheaterModeToggle}
@@ -135,6 +141,7 @@ export function LectureRecordingExperience({
             <LectureVideoSection
               lectureId={entityId}
               videoUrl={videoUrl}
+              initialAttendance={videoAttendance}
               className="min-h-0 flex-1"
               fullBleed={false}
               isTheaterMode={isTheaterMode}

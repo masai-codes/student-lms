@@ -5,7 +5,7 @@ import {
   LectureDetailPage,
 } from '@/components/features/learn/LearnPageDetails'
 import { lectureDetailRouteClasses } from '@/lib/layout'
-import { getLectureLearningDetail } from '@/server/learn/getLectureLearningDetail'
+import { fetchLectureLearningDetailFromApi } from '@/lib/api/learn/learnApi'
 
 export const Route = createFileRoute('/(protected)/_layout/lectures_/$lectureId')({
   component: RouteComponent,
@@ -15,7 +15,7 @@ export const Route = createFileRoute('/(protected)/_layout/lectures_/$lectureId'
     if (!Number.isFinite(lectureId) || lectureId <= 0) {
       throw new Error('LEARN_DETAIL_NOT_FOUND')
     }
-    return getLectureLearningDetail({ data: { lectureId } })
+    return fetchLectureLearningDetailFromApi(lectureId)
   },
 })
 

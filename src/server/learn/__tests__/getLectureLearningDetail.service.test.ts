@@ -5,6 +5,7 @@ const hoisted = vi.hoisted(() => ({
   ensureAccess: vi.fn(),
   listDiscussions: vi.fn(),
   associatedContent: vi.fn(),
+  videoAttendance: vi.fn(),
 }))
 
 vi.mock('@/db', () => ({
@@ -15,12 +16,19 @@ vi.mock('@/server/learn/utils/ensureLearnEntityAccess', () => ({
   ensureUserCanAccessLearnHubEntity: hoisted.ensureAccess,
 }))
 
-vi.mock('@/server/new-discussions/services/listDiscussionsForLearnEntity', () => ({
-  listDiscussionsForLearnEntity: hoisted.listDiscussions,
-}))
+vi.mock(
+  '@/server/new-discussions/services/listDiscussionsWithThreadsForLearnEntity',
+  () => ({
+    listDiscussionsWithThreadsForLearnEntity: hoisted.listDiscussions,
+  }),
+)
 
 vi.mock('@/server/learn/services/getLectureAssociatedContent.service', () => ({
   getLectureAssociatedContent: hoisted.associatedContent,
+}))
+
+vi.mock('@/server/learn/utils/buildLectureVideoAttendanceState', () => ({
+  buildLectureVideoAttendanceState: hoisted.videoAttendance,
 }))
 
 describe('getLectureLearningDetailForUser', () => {
@@ -29,6 +37,7 @@ describe('getLectureLearningDetailForUser', () => {
     hoisted.ensureAccess.mockResolvedValue(true)
     hoisted.listDiscussions.mockResolvedValue([])
     hoisted.associatedContent.mockResolvedValue([])
+    hoisted.videoAttendance.mockResolvedValue(null)
   })
 
   it('returns lecture detail payload for supported live lectures', async () => {

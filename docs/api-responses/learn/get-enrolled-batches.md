@@ -7,7 +7,7 @@
 Returns the list of batches the logged-in user is enrolled in.
 
 ## Endpoint
-`TBD` (learn enrolled batches endpoint)
+`GET /api/learn/batches`
 
 ## Method
 `GET`
@@ -27,16 +27,15 @@ None
 
 ### Success Response
 ```json
-[
-  {
-    "batchId": "batch_123",
-    "courseTitle": "Cohort Alpha - Full Stack"
-  },
-  {
-    "batchId": "batch_456",
-    "courseTitle": "Cohort Beta - Data Science"
-  }
-]
+{
+  "batches": [
+    {
+      "batchId": 123,
+      "courseTitle": "Cohort Alpha - Full Stack",
+      "courseLogo": null
+    }
+  ]
+}
 ```
 
 ### Error Response

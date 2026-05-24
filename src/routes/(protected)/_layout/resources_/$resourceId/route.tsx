@@ -6,7 +6,7 @@ import {
   ResourceDetailPage,
 } from '@/components/features/learn/LearnPageDetails'
 import { layoutMainClasses } from '@/lib/layout'
-import { getResourceLearningDetail } from '@/server/learn/getResourceLearningDetail'
+import { fetchResourceLearningDetailFromApi } from '@/lib/api/learn/learnApi'
 
 export const Route = createFileRoute('/(protected)/_layout/resources_/$resourceId')({
   component: RouteComponent,
@@ -16,7 +16,7 @@ export const Route = createFileRoute('/(protected)/_layout/resources_/$resourceI
     if (!Number.isFinite(resourceId) || resourceId <= 0) {
       throw new Error('LEARN_DETAIL_NOT_FOUND')
     }
-    return getResourceLearningDetail({ data: { resourceId } })
+    return fetchResourceLearningDetailFromApi(resourceId)
   },
 })
 

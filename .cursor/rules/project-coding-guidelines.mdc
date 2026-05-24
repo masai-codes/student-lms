@@ -48,12 +48,13 @@ alwaysApply: true
 - Preserve accessibility basics (semantic elements, interactive affordances, readable text).
 
 ## Backend and API Structure
-- Keep API/server entrypoints thin (route handlers, server functions, controller-like files).
-- Move main business logic into separate feature-level service files.
-- Move small reusable helpers (mapping, parsing, validation, formatting) into dedicated util files.
-- Organize by feature domain (for example, `learn/services/*` and `learn/utils/*`) instead of large mixed files.
-- Design service/util layers so the same logic can be reused if server functions are later migrated to REST APIs.
+- **Prefer REST APIs** for new and migrated features. Expose HTTP endpoints under `src/routes/api/**` using TanStack Start `server.handlers` (GET/POST/etc.), not `createServerFn`, unless there is a documented exception.
+- Keep route files thin: parse request → call a handler in `src/server/api/<feature>/handlers/` → return `Response.json`.
+- Put shared HTTP concerns in `src/server/api/http/` (auth, JSON responses, error mapping) and request parsing in `src/server/api/<feature>/utils/`.
+- Put domain/business logic in `src/server/<feature>/services/*` and presentation helpers in `src/server/<feature>/utils/*` (for example `learn/services/*`). Route handlers must not contain SQL or heavy business rules.
+- Call REST endpoints through typed helpers in `src/lib/api/*` (for example `learn/learnApi.ts`) using `fetch` with `credentials: 'same-origin'`. Use the same helpers in route loaders and React Query so SSR and CSR share one HTTP contract.
 - Do not write raw SQL queries in application code. Prefer typed ORM query builders (Drizzle) for safety, consistency, and maintainability.
+- Document REST contracts under `docs/api-responses/<feature>/` (method, path, query/body, success and error shapes).
 
 ## PR Quality Bar
 - Ensure `npm run test`, `npm run lint`, and `npm run typecheck` pass for touched code.
