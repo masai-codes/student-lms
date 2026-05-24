@@ -1,9 +1,9 @@
-import { and, eq, isNull } from 'drizzle-orm'
+import { and, count, desc, eq, isNull } from 'drizzle-orm'
 
 import type { AssignmentDetailPayload } from '@/server/learn/assignmentDetailTypes'
 
 import { db } from '@/db'
-import { assignments, users } from '@/db/schema'
+import { assignmentProblem, assignments, submissions, users } from '@/db/schema'
 import { DISCUSSION_ENTITY_ASSIGNMENT } from '@/server/new-discussions/discussionEntityTypes'
 import { listDiscussionsWithThreadsForLearnEntity } from '@/server/new-discussions/services/listDiscussionsWithThreadsForLearnEntity'
 import {
@@ -17,6 +17,8 @@ export async function getAssignmentLearningDetailForUser(
   userId: number,
   assignmentId: number,
 ): Promise<AssignmentDetailPayload> {
+  const nowMs = Date.now()
+
   const rows = await db
     .select({
       id: assignments.id,
@@ -34,6 +36,10 @@ export async function getAssignmentLearningDetailForUser(
       hostAvatarUrl: users.profilePhotoPath,
       instructions: assignments.instructions,
       enforceDeadline: assignments.enforceDeadline,
+      platform: assignments.platform,
+      showScores: assignments.showScores,
+      showSubmission: assignments.showSubmission,
+      settings: assignments.settings,
     })
     .from(assignments)
     .leftJoin(users, eq(assignments.userId, users.id))
@@ -60,23 +66,78 @@ export async function getAssignmentLearningDetailForUser(
     throw new Error('LEARN_DETAIL_NOT_FOUND')
   }
 
+  const [submissionRows, problemCountRows, discussions] = await Promise.all([
+    db
+      .select({
+        id: submissions.id,
+        completed: submissions.completed,
+        status: submissions.status,
+        markAsCompleted: submissions.markAsCompleted,
+        score: submissions.score,
+        startedAt: submissions.startedAt,
+        completedAt: submissions.completedAt,
+        data: submissions.data,
+      })
+      .from(submissions)
+      .where(
+        and(
+          eq(submissions.assignmentId, assignmentId),
+          eq(submissions.userId, userId),
+          isNull(submissions.deletedAt),
+        ),
+      )
+      .orderBy(desc(submissions.createdAt))
+      .limit(1),
+    db
+      .select({ count: count() })
+      .from(assignmentProblem)
+      .where(eq(assignmentProblem.assignmentId, assignmentId)),
+    listDiscussionsWithThreadsForLearnEntity(
+      userId,
+      DISCUSSION_ENTITY_ASSIGNMENT,
+      assignmentId,
+    ),
+  ])
+
+  const submissionRow = submissionRows[0] ?? null
+  const problemCount = Number(problemCountRows[0]?.count ?? 0)
+
   const core = buildLearnDetailPresentation(row)
-  const discussions = await listDiscussionsWithThreadsForLearnEntity(
-    userId,
-    DISCUSSION_ENTITY_ASSIGNMENT,
-    assignmentId,
-  )
 
   return buildAssignmentDetailPayload(
     { ...core, discussions },
     {
       type: row.type,
+      category: row.category,
+      platform: row.platform,
+      showScores: row.showScores,
+      showSubmission: row.showSubmission,
+      settings: row.settings,
       schedule: row.schedule,
       concludes: row.concludes,
       hostAvatarUrl: row.hostAvatarUrl,
       instructions: row.instructions,
       enforceDeadline: row.enforceDeadline,
     },
-    Date.now(),
+    nowMs,
+    {
+      problemCount,
+      submission:
+        submissionRow == null
+          ? null
+          : {
+              id: submissionRow.id,
+              completed: submissionRow.completed === 1,
+              status: submissionRow.status,
+              markAsCompleted:
+                submissionRow.markAsCompleted == null
+                  ? null
+                  : submissionRow.markAsCompleted === 1,
+              score: submissionRow.score,
+              startedAt: submissionRow.startedAt,
+              completedAt: submissionRow.completedAt,
+              data: submissionRow.data ?? null,
+            },
+    },
   )
 }

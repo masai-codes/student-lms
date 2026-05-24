@@ -37,4 +37,32 @@ describe('MarkdownContent', () => {
     expect(link.getAttribute('target')).toBe('_blank')
     expect(link.getAttribute('rel')).toBe('noopener noreferrer')
   })
+
+  it('renders bullet lists with disc styling', () => {
+    const { container } = render(
+      <MarkdownContent value={'- First item\n- Second item'} variant="detail" />,
+    )
+
+    const list = container.querySelector('.markdown-content ul')
+    expect(list).toBeTruthy()
+    expect(list?.querySelectorAll('li').length).toBe(2)
+  })
+
+  it('keeps URL lines inside list items when authors use blank lines', () => {
+    const { container } = render(
+      <MarkdownContent
+        value={`- Join the helpdesk:
+https://example.com/join
+
+- Second point`}
+        variant="detail"
+      />,
+    )
+
+    expect(container.querySelectorAll('.markdown-content ul').length).toBe(1)
+    expect(container.querySelectorAll('.markdown-content li').length).toBe(2)
+    expect(container.querySelector('.markdown-content a')?.getAttribute('href')).toBe(
+      'https://example.com/join',
+    )
+  })
 })

@@ -9,10 +9,10 @@ import { cn } from '@/lib/utils'
 
 import { decodeMarkdownPayload } from './decodeMarkdownPayload'
 import { getMarkdownComponents, type MarkdownContentVariant } from './getMarkdownComponents'
+import { normalizeMarkdownForDisplay } from './normalizeMarkdownForDisplay'
 import { markdownSanitizeSchema } from './sanitizeSchema'
 
-const markdownLayoutClassName =
-  'min-w-0 max-w-full break-words [&_a]:break-all [&_code]:break-all [&_li]:min-w-0 [&_li]:whitespace-pre-wrap [&_ol]:min-w-0 [&_p]:min-w-0 [&_p]:whitespace-pre-wrap [&_ul]:min-w-0'
+import './markdown-content.css'
 
 type MarkdownContentProps = {
   value: string
@@ -28,13 +28,13 @@ export function MarkdownContent({
   if (!value.trim()) return null
 
   return (
-    <div className={cn(markdownLayoutClassName, className)}>
+    <div className={cn('markdown-content', className)}>
       <ReactMarkdown
         remarkPlugins={[remarkGfm]}
         rehypePlugins={[rehypeRaw, [rehypeSanitize, markdownSanitizeSchema]]}
         components={getMarkdownComponents(variant)}
       >
-        {decodeMarkdownPayload(value)}
+        {normalizeMarkdownForDisplay(decodeMarkdownPayload(value))}
       </ReactMarkdown>
     </div>
   )

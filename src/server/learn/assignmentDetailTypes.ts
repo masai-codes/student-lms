@@ -1,3 +1,4 @@
+import type { AssignmentDetailFooter } from '@/server/learn/assignmentDetailFooterTypes'
 import type { LearnPhaseContent } from '@/server/learn/learnPhaseContentTypes'
 import type { LearnHubDetailPayload } from '@/server/learn/types'
 
@@ -15,4 +16,5 @@ export type AssignmentDetailPayload = LearnHubDetailPayload & {
   instructions: string | null
   enforceDeadline: boolean
   phaseContent: LearnPhaseContent
+  footer: AssignmentDetailFooter
 }

@@ -3,12 +3,21 @@ import type {
   AssignmentKind,
 } from '@/server/learn/assignmentDetailTypes'
 import type { LearnHubDetailPayload } from '@/server/learn/types'
+import {
+  buildAssignmentDetailFooter,
+  type AssignmentDetailFooterContext,
+} from '@/server/learn/utils/buildAssignmentDetailFooter'
 import { formatLectureScheduleRange } from '@/server/learn/utils/formatLectureScheduleRange'
 import { buildAssignmentPhaseContent } from '@/server/learn/utils/buildLearnPhaseContent'
 import { resolveAssignmentPhase } from '@/server/learn/utils/resolveAssignmentPhase'
 
 type AssignmentDetailRow = {
   type: string
+  category: string
+  platform: string | null
+  showScores: number
+  showSubmission: number
+  settings: Record<string, unknown> | null
   schedule: string | null
   concludes: string | null
   hostAvatarUrl: string | null
@@ -34,10 +43,16 @@ function normalizeAssignmentKind(type: string): AssignmentKind | null {
   return null
 }
 
+export type AssignmentDetailFooterInput = Pick<
+  AssignmentDetailFooterContext,
+  'problemCount' | 'submission'
+>
+
 export function buildAssignmentDetailPayload(
   core: LearnHubDetailPayload,
   row: AssignmentDetailRow,
   nowMs: number,
+  footerInput: AssignmentDetailFooterInput,
 ): AssignmentDetailPayload {
   const assignmentKind = normalizeAssignmentKind(row.type)
   if (assignmentKind == null) {
@@ -55,6 +70,20 @@ export function buildAssignmentDetailPayload(
       ? row.instructions.trim()
       : null
 
+  const footer = buildAssignmentDetailFooter({
+    assignmentKind,
+    category: row.category,
+    platform: row.platform,
+    showScores: row.showScores === 1,
+    showSubmission: row.showSubmission === 1,
+    settings: row.settings,
+    schedule: row.schedule,
+    concludes: row.concludes,
+    nowMs,
+    problemCount: footerInput.problemCount,
+    submission: footerInput.submission,
+  })
+
   return {
     ...core,
     assignmentKind,
@@ -66,6 +95,7 @@ export function buildAssignmentDetailPayload(
     instructions,
     enforceDeadline: row.enforceDeadline === 1,
     phaseContent: buildAssignmentPhaseContent(assignmentKind, phase, row.schedule),
+    footer,
   }
 }
 

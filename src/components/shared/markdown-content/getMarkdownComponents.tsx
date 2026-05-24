@@ -7,17 +7,14 @@ function externalLinkProps() {
   return { target: '_blank' as const, rel: 'noopener noreferrer' }
 }
 
-function createDetailComponents(): Components {
+function createSharedBodyComponents(): Pick<
+  Components,
+  'p' | 'ul' | 'ol' | 'li' | 'strong' | 'a' | 'blockquote' | 'br'
+> {
   return {
-    p: ({ children }: { children?: ReactNode }) => (
-      <p className="mb-3 last:mb-0 text-gray-700">{children}</p>
-    ),
-    ul: ({ children }: { children?: ReactNode }) => (
-      <ul className="mb-3 list-disc space-y-1 pl-5 last:mb-0">{children}</ul>
-    ),
-    ol: ({ children }: { children?: ReactNode }) => (
-      <ol className="mb-3 list-decimal space-y-1 pl-5 last:mb-0">{children}</ol>
-    ),
+    p: ({ children }: { children?: ReactNode }) => <p>{children}</p>,
+    ul: ({ children }: { children?: ReactNode }) => <ul>{children}</ul>,
+    ol: ({ children }: { children?: ReactNode }) => <ol>{children}</ol>,
     li: ({ children }: { children?: ReactNode }) => (
       <li className="text-gray-700">{children}</li>
     ),
@@ -27,17 +24,22 @@ function createDetailComponents(): Components {
     a: ({ children, href }: { children?: ReactNode; href?: string }) => (
       <a
         href={href}
-        className="text-primary-500 underline-offset-2 hover:underline"
+        className="text-primary-500 underline underline-offset-2 hover:text-primary-600"
         {...externalLinkProps()}
       >
         {children}
       </a>
     ),
+    blockquote: ({ children }: { children?: ReactNode }) => (
+      <blockquote>{children}</blockquote>
+    ),
+    br: () => <br />,
   }
 }
 
 function createCardComponents(): Components {
   return {
+    ...createSharedBodyComponents(),
     h1: ({ node, ...props }) => (
       <h1 className="mt-6 mb-3 text-[28px] leading-[34px] font-semibold text-gray-900" {...props} />
     ),
@@ -56,8 +58,22 @@ function createCardComponents(): Components {
     h6: ({ node, ...props }) => (
       <h6 className="mt-3 mb-2 text-[14px] leading-[20px] font-semibold text-gray-900" {...props} />
     ),
-    hr: ({ node, ...props }) => <hr className="my-4 border-0 border-t border-gray-300" {...props} />,
-    a: ({ node, ...props }) => <a {...props} {...externalLinkProps()} />,
+    hr: ({ node, ...props }) => <hr {...props} />,
+  }
+}
+
+function createDetailComponents(): Components {
+  return {
+    ...createSharedBodyComponents(),
+    h1: ({ children }: { children?: ReactNode }) => (
+      <h1 className="type-h4 mb-3 text-gray-900">{children}</h1>
+    ),
+    h2: ({ children }: { children?: ReactNode }) => (
+      <h2 className="type-h5 mb-3 text-gray-900">{children}</h2>
+    ),
+    h3: ({ children }: { children?: ReactNode }) => (
+      <h3 className="type-h6 mb-2 text-gray-900">{children}</h3>
+    ),
   }
 }
 

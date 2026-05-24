@@ -23,6 +23,11 @@ describe('buildAssignmentDetailPayload', () => {
       core,
       {
         type: 'practice',
+        category: 'coding',
+        platform: 'Assessment Platform',
+        showScores: 1,
+        showSubmission: 0,
+        settings: { case: 'case2' },
         schedule,
         concludes,
         hostAvatarUrl: '/avatar.png',
@@ -30,6 +35,7 @@ describe('buildAssignmentDetailPayload', () => {
         enforceDeadline: 1,
       },
       scheduleMs + 60_000,
+      { problemCount: 0, submission: null },
     )
 
     expect(payload.assignmentKind).toBe('practice')
@@ -39,6 +45,7 @@ describe('buildAssignmentDetailPayload', () => {
     expect(payload.hostAvatarUrl).toBe('/avatar.png')
     expect(payload.scheduleDisplayRange).toContain('2026')
     expect(payload.phaseContent.title).toContain('open')
+    expect(payload.footer.visible).toBe(true)
   })
 
   it('builds evaluation assignment in after phase', () => {
@@ -47,6 +54,11 @@ describe('buildAssignmentDetailPayload', () => {
       core,
       {
         type: 'evaluation',
+        category: 'module',
+        platform: null,
+        showScores: 0,
+        showSubmission: 0,
+        settings: null,
         schedule,
         concludes,
         hostAvatarUrl: null,
@@ -54,6 +66,7 @@ describe('buildAssignmentDetailPayload', () => {
         enforceDeadline: 0,
       },
       concludesMs + 60_000,
+      { problemCount: 0, submission: null },
     )
 
     expect(payload.assignmentKind).toBe('evaluation')
@@ -67,6 +80,11 @@ describe('buildAssignmentDetailPayload', () => {
         core,
         {
           type: 'quiz',
+          category: 'other',
+          platform: null,
+          showScores: 0,
+          showSubmission: 0,
+          settings: null,
           schedule,
           concludes,
           hostAvatarUrl: null,
@@ -74,6 +92,7 @@ describe('buildAssignmentDetailPayload', () => {
           enforceDeadline: 0,
         },
         Date.now(),
+        { problemCount: 0, submission: null },
       ),
     ).toThrow('ASSIGNMENT_DETAIL_UNSUPPORTED_TYPE')
   })
