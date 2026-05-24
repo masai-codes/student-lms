@@ -3,6 +3,7 @@
 import { lectureDetailTagChipPalette } from './lectureDetailTagChips'
 
 import type { LearningPriority } from '@/server/learn/types'
+import { formatLearnDetailPriorityLabel } from '@/server/learn/utils/formatLearnDetailDisplay'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { MasaiChips } from '@/components/ui/masai-chips'
 import { cn } from '@/lib/utils'
@@ -59,7 +60,7 @@ export function LectureDetailOverviewHeader({
           <MasaiChips
             type="default"
             size="regular"
-            label={priority}
+            label={formatLearnDetailPriorityLabel(priority)}
             tabIndex={-1}
             className="cursor-default"
             {...lectureDetailTagChipPalette}

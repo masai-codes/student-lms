@@ -3,6 +3,10 @@ import {
   resolveModuleName,
   toLearningPriority,
 } from '@/server/learn/utils/learningDataMappers'
+import {
+  formatLearnDetailHostName,
+  formatLearnDetailTagLabel,
+} from '@/server/learn/utils/formatLearnDetailDisplay'
 import { formatSqlDate } from '@/utils/generics'
 
 type LearnLikeRow = {
@@ -30,11 +34,15 @@ type LearnDetailCore = Omit<LearnHubDetailPayload, 'discussions'>
 export function buildLearnDetailPresentation(row: LearnLikeRow): LearnDetailCore {
   const hostName =
     row.hostName != null && row.hostName.trim() !== ''
-      ? row.hostName.trim()
+      ? formatLearnDetailHostName(row.hostName)
       : 'Unknown Instructor'
 
-  const moduleName = resolveModuleName(row.module, row.week)
-  const tags = [row.type, row.category, moduleName]
+  const moduleName = formatLearnDetailTagLabel(resolveModuleName(row.module, row.week))
+  const tags = [
+    formatLearnDetailTagLabel(row.type),
+    formatLearnDetailTagLabel(row.category),
+    moduleName,
+  ]
   const priority: LearningPriority = toLearningPriority(row.optional)
 
   return {
