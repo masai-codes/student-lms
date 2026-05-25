@@ -1,7 +1,7 @@
 'use client'
 
 import { useCallback, useLayoutEffect, useRef, useState } from 'react'
-import { Microphone, PaperPlaneRight, Plus, Waveform } from '@phosphor-icons/react'
+import { Microphone, PaperPlaneRight, Waveform } from '@phosphor-icons/react'
 import type { RefObject } from 'react'
 
 import { cn } from '@/lib/utils'
@@ -87,14 +87,6 @@ export function LectureAiChatBar({
           roundedClass,
         )}
       >
-        <button
-          type="button"
-          aria-label="Add attachment"
-          className="mb-0.5 flex size-9 shrink-0 items-center justify-center self-end rounded-full text-gray-300 transition-colors hover:bg-white/10 hover:text-white"
-        >
-          <Plus className="size-5" weight="bold" />
-        </button>
-
         <textarea
           ref={inputRef ? mergeRefs(localTextareaRef, inputRef) : localTextareaRef}
           rows={1}

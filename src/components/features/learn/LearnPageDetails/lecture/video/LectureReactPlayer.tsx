@@ -20,8 +20,6 @@ type LectureReactPlayerProps = {
   src: string
   initialAttendance: LectureVideoAttendanceState | null
   className?: string
-  isTheaterMode?: boolean
-  onTheaterModeToggle?: () => void
 }
 
 function isHlsUrl(url: string): boolean {
@@ -33,8 +31,6 @@ export function LectureReactPlayer({
   src,
   initialAttendance,
   className,
-  isTheaterMode = false,
-  onTheaterModeToggle,
 }: LectureReactPlayerProps) {
   const fullscreenContainerRef = useRef<HTMLDivElement>(null)
   const videoRef = useRef<LectureChromePlayerRef>(null)
@@ -148,8 +144,6 @@ export function LectureReactPlayer({
           playerReadyVersion={attendance.playerReadyVersion}
           playbackRate={attendance.playbackRate}
           onPlaybackRateChange={attendance.handlePlayBackRateChange}
-          isTheaterMode={isTheaterMode}
-          onTheaterModeToggle={onTheaterModeToggle}
         />
       </div>
     </div>

@@ -11,20 +11,18 @@ import {
   SpeakerSlash,
 } from '@phosphor-icons/react'
 
-import { LectureTheaterModeToggle } from '../LectureTheaterModeToggle'
 import {
   LECTURE_VIDEO_OVERFLOW_VOLUME_CSS,
   PLAYBACK_RATE_OPTIONS,
 } from './lectureVideoChrome.constants'
 import {
-  
   asPromise,
   formatVideoClock,
   getHtmlVideoFromPlayer,
   getVimeoLikeInternal,
-  playbackRateLabel
+  playbackRateLabel,
 } from './lectureVideoChrome.utils'
-import type {LectureChromePlayerRef} from './lectureVideoChrome.utils';
+import type { LectureChromePlayerRef } from './lectureVideoChrome.utils'
 
 type LectureVideoControlsToolbarProps = {
   videoRef: React.MutableRefObject<LectureChromePlayerRef>
@@ -36,8 +34,6 @@ type LectureVideoControlsToolbarProps = {
   onPlaybackRateChange: (rate: number) => void
   fullscreenContainerRef: React.RefObject<HTMLDivElement | null>
   onActivity: () => void
-  isTheaterMode?: boolean
-  onTheaterModeToggle?: () => void
 }
 
 export function LectureVideoControlsToolbar({
@@ -50,8 +46,6 @@ export function LectureVideoControlsToolbar({
   onPlaybackRateChange,
   fullscreenContainerRef,
   onActivity,
-  isTheaterMode = false,
-  onTheaterModeToggle,
 }: LectureVideoControlsToolbarProps) {
   const overflowMenuRef = useRef<HTMLDivElement>(null)
   const [volumeUi, setVolumeUi] = useState(1)
@@ -211,15 +205,6 @@ export function LectureVideoControlsToolbar({
         </div>
 
         <div className="flex shrink-0 items-center gap-0.5 md:gap-1">
-          {onTheaterModeToggle ? (
-            <LectureTheaterModeToggle
-              isTheaterMode={isTheaterMode}
-              onToggle={() => {
-                onActivity()
-                onTheaterModeToggle()
-              }}
-            />
-          ) : null}
           <button
             type="button"
             onClick={toggleFullscreen}

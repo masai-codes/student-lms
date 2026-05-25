@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useEffect } from 'react'
+import { useEffect } from 'react'
 
 import {
   LectureAiChatDock,
@@ -16,10 +16,8 @@ import {
 import {
   LECTURE_SPLIT_CHAT_OPEN_BY_DEFAULT,
   LECTURE_SPLIT_CHAT_WIDTH_PERCENT,
-  LECTURE_SPLIT_VIDEO_WIDTH_PERCENT,
-} from './constants/lectureTheaterMode'
+} from './constants/lectureSplitLayout'
 import { useLectureHeroViewportHeight } from './hooks/useLectureHeroViewportHeight'
-import { useLectureTheaterMode } from './hooks/useLectureTheaterMode'
 import { LectureDetailFooter } from './shared/LectureDetailFooter'
 import { LectureDetailChrome } from './shared/LectureDetailChrome'
 import { LectureVideoSection } from './video'
@@ -29,6 +27,8 @@ import type {
   LectureDetailTabContent,
   LectureVideoAttendanceState,
 } from '@/server/learn/lectureDetailTypes'
+import { cn } from '@/lib/utils'
+
 type LectureRecordingExperienceProps = {
   videoUrl: string
   title: string
@@ -52,6 +52,10 @@ const chatLoaderProps = {
   openingLoaderGif: LECTURE_CHAT_OPENING_LOADER_GIF,
 } as const
 
+/** Edge-to-edge row: breaks out of any centered page column. */
+const heroRowFullBleedClasses =
+  'relative w-screen max-w-[100vw] shrink-0 left-1/2 -translate-x-1/2'
+
 export function LectureRecordingExperience({
   videoUrl,
   title,
@@ -68,28 +72,13 @@ export function LectureRecordingExperience({
   attendance,
 }: LectureRecordingExperienceProps) {
   const { rootRef, heightPx } = useLectureHeroViewportHeight()
-  const { isTheaterMode, toggleTheaterMode } = useLectureTheaterMode()
-  const isSplitLayout = !isTheaterMode
   const chat = useLectureAiChat({
-    defaultExpanded: isSplitLayout && LECTURE_SPLIT_CHAT_OPEN_BY_DEFAULT,
+    defaultExpanded: LECTURE_SPLIT_CHAT_OPEN_BY_DEFAULT,
   })
 
   useEffect(() => {
-    if (isSplitLayout) {
-      chat.open()
-      return
-    }
-    chat.close()
-  }, [isSplitLayout, chat.open, chat.close])
-
-  const onTheaterModeToggle = useCallback(() => {
-    if (isTheaterMode) {
-      chat.open()
-    } else {
-      chat.close()
-    }
-    toggleTheaterMode()
-  }, [isTheaterMode, toggleTheaterMode, chat.open, chat.close])
+    chat.open()
+  }, [chat.open])
 
   const chatProps = {
     ...chatLoaderProps,
@@ -103,6 +92,16 @@ export function LectureRecordingExperience({
     onSend: chat.sendMessage,
   }
 
+  const renderVideoSection = () => (
+    <LectureVideoSection
+      lectureId={entityId}
+      videoUrl={videoUrl}
+      initialAttendance={videoAttendance}
+      className="min-h-0 flex-1"
+      fullBleed={false}
+    />
+  )
+
   const hero = (
     <div
       ref={rootRef}
@@ -113,46 +112,40 @@ export function LectureRecordingExperience({
           : undefined
       }
     >
-      {isTheaterMode ? (
-        <LectureVideoSection
-          lectureId={entityId}
-          videoUrl={videoUrl}
-          initialAttendance={videoAttendance}
-          className="min-h-0 flex-1"
-          isTheaterMode={isTheaterMode}
-          onTheaterModeToggle={onTheaterModeToggle}
-        />
-      ) : (
-        <div
-          className="flex min-h-0 w-full flex-1 flex-row items-stretch overflow-hidden bg-black"
-          data-lecture-split-layout
-        >
-          <div
-            className="flex min-h-0 shrink-0 flex-col border-r border-black bg-black"
-            style={{ width: `${LECTURE_SPLIT_VIDEO_WIDTH_PERCENT}%` }}
-          >
-            <LectureVideoSection
-              lectureId={entityId}
-              videoUrl={videoUrl}
-              initialAttendance={videoAttendance}
-              className="min-h-0 flex-1"
-              fullBleed={false}
-              isTheaterMode={isTheaterMode}
-              onTheaterModeToggle={onTheaterModeToggle}
-            />
-          </div>
-          <div
-            className="flex h-full min-h-0 shrink-0 flex-col"
-            style={{ width: `${LECTURE_SPLIT_CHAT_WIDTH_PERCENT}%` }}
-          >
-            <LectureAiChatTheaterSidebar {...chatProps} />
-          </div>
+      <div
+        className={cn(
+          heroRowFullBleedClasses,
+          'hidden min-h-0 flex-1 flex-row items-stretch overflow-hidden bg-black md:flex',
+        )}
+        data-lecture-split-layout
+      >
+        <div className="flex min-h-0 min-w-0 flex-1 flex-col bg-black">
+          {renderVideoSection()}
         </div>
-      )}
+        <div
+          className="flex h-full min-h-0 shrink-0 flex-col bg-[#1c1c1c]"
+          style={{ width: `${LECTURE_SPLIT_CHAT_WIDTH_PERCENT}%` }}
+        >
+          <LectureAiChatTheaterSidebar {...chatProps} />
+        </div>
+      </div>
+
+      <div
+        className={cn(
+          heroRowFullBleedClasses,
+          'flex min-h-0 flex-1 flex-col bg-black md:hidden',
+        )}
+      >
+        {renderVideoSection()}
+      </div>
     </div>
   )
 
-  const belowHero = isTheaterMode ? <LectureAiChatDock {...chatProps} /> : null
+  const belowHero = (
+    <div className="md:hidden">
+      <LectureAiChatDock {...chatProps} />
+    </div>
+  )
 
   return (
     <LectureDetailChrome

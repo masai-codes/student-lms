@@ -26,8 +26,6 @@ type VideoAttendanceCustomControlsProps = {
   playbackRate: number
   onPlaybackRateChange: (rate: number) => void
   className?: string
-  isTheaterMode?: boolean
-  onTheaterModeToggle?: () => void
 }
 
 export function VideoAttendanceCustomControls({
@@ -43,8 +41,6 @@ export function VideoAttendanceCustomControls({
   playbackRate,
   onPlaybackRateChange,
   className = '',
-  isTheaterMode,
-  onTheaterModeToggle,
 }: VideoAttendanceCustomControlsProps) {
   const [scrubPreviewSeconds, setScrubPreviewSeconds] = useState<number | null>(null)
   const [committedSeekSeconds, setCommittedSeekSeconds] = useState<number | null>(null)
@@ -190,8 +186,6 @@ export function VideoAttendanceCustomControls({
         onPlaybackRateChange={onPlaybackRateChange}
         fullscreenContainerRef={fullscreenContainerRef}
         onActivity={bumpChromeActivity}
-        isTheaterMode={isTheaterMode}
-        onTheaterModeToggle={onTheaterModeToggle}
       />
     </div>
   )

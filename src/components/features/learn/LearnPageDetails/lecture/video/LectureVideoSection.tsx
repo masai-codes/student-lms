@@ -11,10 +11,8 @@ type LectureVideoSectionProps = {
   videoUrl: string
   initialAttendance: LectureVideoAttendanceState | null
   className?: string
-  /** When false, video stays in its column (theater layout). */
+  /** When false, video stays in its column within a split row. */
   fullBleed?: boolean
-  isTheaterMode?: boolean
-  onTheaterModeToggle?: () => void
 }
 
 export function LectureVideoSection({
@@ -23,16 +21,12 @@ export function LectureVideoSection({
   initialAttendance,
   className,
   fullBleed = true,
-  isTheaterMode = false,
-  onTheaterModeToggle,
 }: LectureVideoSectionProps) {
   const player = (
     <LectureReactPlayer
       lectureId={lectureId}
       src={videoUrl}
       initialAttendance={initialAttendance}
-      isTheaterMode={isTheaterMode}
-      onTheaterModeToggle={onTheaterModeToggle}
     />
   )
 
