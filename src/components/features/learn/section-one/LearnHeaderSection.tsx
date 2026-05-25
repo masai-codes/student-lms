@@ -16,16 +16,18 @@ interface LearnHeaderSectionProps {
   selectedBatch: string
   batches: Array<LearnBatchOption>
   onBatchChange: (batch: string) => void
-  attendanceReportHref?: string
-  courseDetailsHref?: string
+  // TODO: Re-enable when Attendance Report and Course Details pages are ready.
+  // attendanceReportHref?: string
+  // courseDetailsHref?: string
 }
 
 export function LearnHeaderSection({
   selectedBatch,
   batches,
   onBatchChange,
-  attendanceReportHref = '#',
-  courseDetailsHref = '#',
+  // TODO: Re-enable when Attendance Report and Course Details pages are ready.
+  // attendanceReportHref = '#',
+  // courseDetailsHref = '#',
 }: LearnHeaderSectionProps) {
   const [isBatchDrawerOpen, setIsBatchDrawerOpen] = useState(false)
   const [isDesktop, setIsDesktop] = useState(false)
@@ -108,21 +110,24 @@ export function LearnHeaderSection({
         }
       />
 
-      <div className="flex items-center gap-4">
-        <a
-          href={attendanceReportHref}
-          className="type-b1-md text-primary-500 hover:underline"
-        >
-          Attendance Report
-        </a>
-        <div className="h-4 w-[1px] bg-gray-300" />
-        <a
-          href={courseDetailsHref}
-          className="type-b1-md text-primary-500 hover:underline"
-        >
-          Course Details
-        </a>
-      </div>
+      {/*
+        TODO: Re-enable when Attendance Report and Course Details pages are ready.
+        <div className="flex items-center gap-4">
+          <a
+            href={attendanceReportHref}
+            className="type-b1-md text-primary-500 hover:underline"
+          >
+            Attendance Report
+          </a>
+          <div className="h-4 w-[1px] bg-gray-300" />
+          <a
+            href={courseDetailsHref}
+            className="type-b1-md text-primary-500 hover:underline"
+          >
+            Course Details
+          </a>
+        </div>
+      */}
     </section>
   )
 }
