@@ -50,6 +50,30 @@
   transform: translateY(4px);
 }
 
+/* Voice mode: subtle red glow on the panel to signal "audio mode". */
+.lecture-chat-panel--listening {
+  box-shadow:
+    0 -8px 32px rgba(0, 0, 0, 0.4),
+    0 0 0 1px rgba(239, 68, 68, 0.35),
+    0 0 38px rgba(239, 68, 68, 0.18);
+}
+
+.lecture-chat-status-dot {
+  animation: lecture-chat-status-dot-pulse 1.4s ease-in-out infinite;
+}
+
+@keyframes lecture-chat-status-dot-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.6);
+    opacity: 0.55;
+  }
+}
+
 /* Split-layout sidebar: no roll-up animation, always visible when mounted. */
 .lecture-chat-panel--sidebar {
   transform: none;

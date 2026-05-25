@@ -2,10 +2,16 @@
 
 import { useRef } from 'react'
 
+import { useLectureChatDock } from '../hooks/useLectureChatDock'
+import {
+  LECTURE_CHAT_OPENING_LOADER_ENABLED,
+  LECTURE_CHAT_OPENING_LOADER_GIF,
+  LECTURE_CHAT_OPENING_LOADER_SIZE_PX,
+  LECTURE_CHAT_OPENING_LOADER_SWEEP_MS,
+} from './constants/lectureAiChatUi'
 import { LectureAiChatBar } from './LectureAiChatBar'
 import { LectureAiChatPanel } from './LectureAiChatPanel'
-import type { LectureChatMessage } from './constants/mockLectureChatMessages'
-import { useLectureChatDock } from '../hooks/useLectureChatDock'
+import { useLectureAiChatStateContext } from './LectureAiChatStateContext'
 
 import { lectureDetailContentClasses } from '@/lib/layout'
 import { cn } from '@/lib/utils'
@@ -13,14 +19,6 @@ import { cn } from '@/lib/utils'
 type LectureAiChatDockProps = {
   className?: string
   onDockedChange?: (isDocked: boolean) => void
-  isExpanded: boolean
-  isSending: boolean
-  messages: Array<LectureChatMessage>
-  inputValue: string
-  onInputChange: (value: string) => void
-  onOpen: () => void
-  onClose: () => void
-  onSend: () => void
   openingLoaderSweepMs?: number
   openingLoaderSizePx?: number
   showOpeningLoader?: boolean
@@ -29,37 +27,55 @@ type LectureAiChatDockProps = {
 
 /**
  * Inline above tabs on load; fixed to bottom once the user scrolls past the anchor.
+ *
+ * Reads chat state from the `LectureAiChatStateContext` so it stays in sync
+ * with the desktop sidebar.
  */
 export function LectureAiChatDock({
   className,
   onDockedChange,
-  isExpanded,
-  isSending,
-  messages,
-  inputValue,
-  onInputChange,
-  onOpen,
-  onClose,
-  onSend,
-  openingLoaderSweepMs,
-  openingLoaderSizePx,
-  showOpeningLoader,
-  openingLoaderGif,
+  openingLoaderSweepMs = LECTURE_CHAT_OPENING_LOADER_SWEEP_MS,
+  openingLoaderSizePx = LECTURE_CHAT_OPENING_LOADER_SIZE_PX,
+  showOpeningLoader = LECTURE_CHAT_OPENING_LOADER_ENABLED,
+  openingLoaderGif = LECTURE_CHAT_OPENING_LOADER_GIF,
 }: LectureAiChatDockProps) {
+  const chat = useLectureAiChatStateContext()
   const { anchorRef, isDocked, chatBarBlockPx } = useLectureChatDock(onDockedChange)
   const chatBarRef = useRef<HTMLDivElement>(null)
+
+  if (!chat) return null
 
   const bar = (
     <div ref={chatBarRef} className="w-full">
       <LectureAiChatBar
-        value={inputValue}
-        onChange={onInputChange}
-        onFocus={onOpen}
-        onSend={onSend}
-        isSending={isSending}
+        value={chat.inputValue}
+        onChange={chat.setInputValue}
+        onFocus={chat.open}
+        onSend={chat.sendMessage}
+        onMicToggle={chat.toggleMic}
+        isSending={chat.isSending}
+        isMicEnabled={chat.isMicEnabled}
+        isMicPending={chat.isMicPending}
       />
     </div>
   )
+
+  const panelProps = {
+    chatBarRef,
+    isOpen: chat.isExpanded,
+    messages: chat.messages,
+    isSending: chat.isSending,
+    isHistoryLoading: chat.isHistoryLoading,
+    sessionState: chat.sessionState,
+    errorCode: chat.errorCode,
+    isMicEnabled: chat.isMicEnabled,
+    isAgentSpeaking: chat.isAgentSpeaking,
+    onClose: chat.close,
+    openingLoaderSweepMs,
+    openingLoaderSizePx,
+    showOpeningLoader,
+    openingLoaderGif,
+  } as const
 
   return (
     <>
@@ -70,18 +86,7 @@ export function LectureAiChatDock({
       >
         {!isDocked ? (
           <>
-            <LectureAiChatPanel
-              variant="anchor"
-              chatBarRef={chatBarRef}
-              isOpen={isExpanded}
-              messages={messages}
-              isSending={isSending}
-              onClose={onClose}
-              openingLoaderSweepMs={openingLoaderSweepMs}
-              openingLoaderSizePx={openingLoaderSizePx}
-              showOpeningLoader={showOpeningLoader}
-              openingLoaderGif={openingLoaderGif}
-            />
+            <LectureAiChatPanel variant="anchor" {...panelProps} />
             {bar}
           </>
         ) : null}
@@ -98,18 +103,7 @@ export function LectureAiChatDock({
           )}
         >
           <div className={cn(lectureDetailContentClasses, 'flex flex-col')}>
-            <LectureAiChatPanel
-              variant="raised"
-              chatBarRef={chatBarRef}
-              isOpen={isExpanded}
-              messages={messages}
-              isSending={isSending}
-              onClose={onClose}
-              openingLoaderSweepMs={openingLoaderSweepMs}
-              openingLoaderSizePx={openingLoaderSizePx}
-              showOpeningLoader={showOpeningLoader}
-              openingLoaderGif={openingLoaderGif}
-            />
+            <LectureAiChatPanel variant="raised" {...panelProps} />
             <div className="py-3">{bar}</div>
           </div>
         </div>

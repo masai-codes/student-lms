@@ -4,43 +4,34 @@ import { useRef } from 'react'
 
 import { LectureAiChatBar } from './LectureAiChatBar'
 import { LectureAiChatPanel } from './LectureAiChatPanel'
-import type { LectureChatMessage } from './constants/mockLectureChatMessages'
+import { useLectureAiChatStateContext } from './LectureAiChatStateContext'
 
 import { cn } from '@/lib/utils'
 
 type LectureAiChatTheaterSidebarProps = {
   className?: string
-  isExpanded: boolean
-  isSending: boolean
-  messages: Array<LectureChatMessage>
-  inputValue: string
-  onInputChange: (value: string) => void
-  onOpen: () => void
-  onClose: () => void
-  onSend: () => void
   openingLoaderSweepMs?: number
   openingLoaderSizePx?: number
   showOpeningLoader?: boolean
   openingLoaderGif?: string
 }
 
-/** Right column in split layout: panel + composer, full bleed in the column. */
+/**
+ * Right column in the split layout: panel + composer, full bleed in the
+ * column. Pulls its state from the shared `LectureAiChatStateContext`, so it
+ * mirrors the mobile dock.
+ */
 export function LectureAiChatTheaterSidebar({
   className,
-  isExpanded,
-  isSending,
-  messages,
-  inputValue,
-  onInputChange,
-  onOpen,
-  onClose,
-  onSend,
   openingLoaderSweepMs,
   openingLoaderSizePx,
   showOpeningLoader,
   openingLoaderGif,
 }: LectureAiChatTheaterSidebarProps) {
+  const chat = useLectureAiChatStateContext()
   const chatBarRef = useRef<HTMLDivElement>(null)
+
+  if (!chat) return null
 
   return (
     <aside
@@ -53,10 +44,15 @@ export function LectureAiChatTheaterSidebar({
       <LectureAiChatPanel
         variant="sidebar"
         chatBarRef={chatBarRef}
-        isOpen={isExpanded}
-        messages={messages}
-        isSending={isSending}
-        onClose={onClose}
+        isOpen={chat.isExpanded}
+        messages={chat.messages}
+        isSending={chat.isSending}
+        isHistoryLoading={chat.isHistoryLoading}
+        sessionState={chat.sessionState}
+        errorCode={chat.errorCode}
+        isMicEnabled={chat.isMicEnabled}
+        isAgentSpeaking={chat.isAgentSpeaking}
+        onClose={chat.close}
         openingLoaderSweepMs={openingLoaderSweepMs}
         openingLoaderSizePx={openingLoaderSizePx}
         showOpeningLoader={showOpeningLoader}
@@ -68,11 +64,14 @@ export function LectureAiChatTheaterSidebar({
         className="shrink-0 border-t border-white/10 p-2"
       >
         <LectureAiChatBar
-          value={inputValue}
-          onChange={onInputChange}
-          onFocus={onOpen}
-          onSend={onSend}
-          isSending={isSending}
+          value={chat.inputValue}
+          onChange={chat.setInputValue}
+          onFocus={chat.open}
+          onSend={chat.sendMessage}
+          onMicToggle={chat.toggleMic}
+          isSending={chat.isSending}
+          isMicEnabled={chat.isMicEnabled}
+          isMicPending={chat.isMicPending}
           className="w-full"
         />
       </div>

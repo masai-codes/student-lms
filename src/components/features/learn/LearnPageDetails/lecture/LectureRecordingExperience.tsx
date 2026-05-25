@@ -1,11 +1,9 @@
 'use client'
 
-import { useEffect } from 'react'
-
 import {
   LectureAiChatDock,
+  LectureAiChatProvider,
   LectureAiChatTheaterSidebar,
-  useLectureAiChat,
 } from './ai-chat'
 import {
   LECTURE_CHAT_OPENING_LOADER_ENABLED,
@@ -52,7 +50,6 @@ const chatLoaderProps = {
   openingLoaderGif: LECTURE_CHAT_OPENING_LOADER_GIF,
 } as const
 
-/** Edge-to-edge row: breaks out of any centered page column. */
 const heroRowFullBleedClasses =
   'relative w-screen max-w-[100vw] shrink-0 left-1/2 -translate-x-1/2'
 
@@ -72,25 +69,6 @@ export function LectureRecordingExperience({
   attendance,
 }: LectureRecordingExperienceProps) {
   const { rootRef, heightPx } = useLectureHeroViewportHeight()
-  const chat = useLectureAiChat({
-    defaultExpanded: LECTURE_SPLIT_CHAT_OPEN_BY_DEFAULT,
-  })
-
-  useEffect(() => {
-    chat.open()
-  }, [chat.open])
-
-  const chatProps = {
-    ...chatLoaderProps,
-    isExpanded: chat.isExpanded,
-    isSending: chat.isSending,
-    messages: chat.messages,
-    inputValue: chat.inputValue,
-    onInputChange: chat.setInputValue,
-    onOpen: chat.open,
-    onClose: chat.close,
-    onSend: chat.sendMessage,
-  }
 
   const renderVideoSection = () => (
     <LectureVideoSection
@@ -126,7 +104,7 @@ export function LectureRecordingExperience({
           className="flex h-full min-h-0 shrink-0 flex-col bg-[#1c1c1c]"
           style={{ width: `${LECTURE_SPLIT_CHAT_WIDTH_PERCENT}%` }}
         >
-          <LectureAiChatTheaterSidebar {...chatProps} />
+          <LectureAiChatTheaterSidebar {...chatLoaderProps} />
         </div>
       </div>
 
@@ -143,30 +121,35 @@ export function LectureRecordingExperience({
 
   const belowHero = (
     <div className="md:hidden">
-      <LectureAiChatDock {...chatProps} />
+      <LectureAiChatDock {...chatLoaderProps} />
     </div>
   )
 
   return (
-    <LectureDetailChrome
-      title={title}
-      tags={tags}
-      priority={priority}
-      hostName={hostName}
-      hostAvatarUrl={hostAvatarUrl}
-      scheduleDisplayRange={scheduleDisplayRange}
-      attendance={attendance}
-      watchPercentage={videoAttendance?.watchPercentage}
-      hero={hero}
-      belowHero={belowHero}
-      footer={
-        <LectureDetailFooter
-          entityId={entityId}
-          discussions={discussions}
-          hideNotes={hideNotes}
-          tabs={tabs}
-        />
-      }
-    />
+    <LectureAiChatProvider
+      lectureId={entityId}
+      defaultExpanded={LECTURE_SPLIT_CHAT_OPEN_BY_DEFAULT}
+    >
+      <LectureDetailChrome
+        title={title}
+        tags={tags}
+        priority={priority}
+        hostName={hostName}
+        hostAvatarUrl={hostAvatarUrl}
+        scheduleDisplayRange={scheduleDisplayRange}
+        attendance={attendance}
+        watchPercentage={videoAttendance?.watchPercentage}
+        hero={hero}
+        belowHero={belowHero}
+        footer={
+          <LectureDetailFooter
+            entityId={entityId}
+            discussions={discussions}
+            hideNotes={hideNotes}
+            tabs={tabs}
+          />
+        }
+      />
+    </LectureAiChatProvider>
   )
 }

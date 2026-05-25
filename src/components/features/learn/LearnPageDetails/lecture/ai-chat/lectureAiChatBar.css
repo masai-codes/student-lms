@@ -58,6 +58,43 @@
   opacity: 0.65;
 }
 
+.lecture-chat-bar-shine--listening {
+  --lecture-chat-bar-shine-speed: 2s;
+  box-shadow:
+    0 2px 18px rgba(220, 38, 38, 0.32),
+    0 0 0 1px rgba(255, 255, 255, 0.1),
+    0 0 36px rgba(220, 38, 38, 0.45);
+}
+
+.lecture-chat-bar-shine--listening::after {
+  opacity: 0.75;
+}
+
+.lecture-chat-mic-pulse {
+  position: relative;
+}
+
+.lecture-chat-mic-pulse::before {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border-radius: 9999px;
+  border: 2px solid rgba(239, 68, 68, 0.55);
+  animation: lecture-chat-mic-pulse-ring 1.6s ease-out infinite;
+  pointer-events: none;
+}
+
+@keyframes lecture-chat-mic-pulse-ring {
+  0% {
+    transform: scale(0.85);
+    opacity: 0.9;
+  }
+  100% {
+    transform: scale(1.35);
+    opacity: 0;
+  }
+}
+
 .lecture-chat-bar-shine__inner {
   display: flex;
   min-height: 3rem;

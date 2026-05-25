@@ -1,7 +1,6 @@
 'use client'
 
-import type { RefObject } from 'react'
-import { X } from '@phosphor-icons/react'
+import { Microphone, WarningCircle, X } from '@phosphor-icons/react'
 
 import { useLectureChatPanelAnimation } from './hooks/useLectureChatPanelAnimation'
 import { useLectureChatPanelLayout } from './hooks/useLectureChatPanelLayout'
@@ -14,7 +13,10 @@ import {
   LECTURE_CHAT_OPENING_LOADER_SIZE_PX,
   LECTURE_CHAT_OPENING_LOADER_SWEEP_MS,
 } from './constants/lectureAiChatUi'
-import type { LectureChatMessage } from './constants/mockLectureChatMessages'
+import { aiTutorErrorMessage } from './utils/aiTutorErrorMessage'
+import type { RefObject } from 'react'
+import type { AiTutorSessionState, LectureChatMessage } from './types'
+
 
 import { cn } from '@/lib/utils'
 
@@ -26,6 +28,11 @@ type LectureAiChatPanelProps = {
   isOpen: boolean
   messages: Array<LectureChatMessage>
   isSending: boolean
+  isHistoryLoading?: boolean
+  sessionState?: AiTutorSessionState
+  errorCode?: string | null
+  isMicEnabled?: boolean
+  isAgentSpeaking?: boolean
   onClose: () => void
   chatBarRef: RefObject<HTMLElement | null>
   variant?: LectureAiChatPanelVariant
@@ -40,10 +47,37 @@ type LectureAiChatPanelProps = {
   className?: string
 }
 
+type StatusBadge = {
+  tone: 'idle' | 'listening' | 'speaking' | 'connecting'
+  label: string
+}
+
+function resolveStatus(props: {
+  sessionState?: AiTutorSessionState
+  isMicEnabled?: boolean
+  isAgentSpeaking?: boolean
+}): StatusBadge | null {
+  if (props.sessionState === 'creating' || props.sessionState === 'connecting') {
+    return { tone: 'connecting', label: 'Connecting…' }
+  }
+  if (props.isAgentSpeaking) {
+    return { tone: 'speaking', label: 'AI Tutor is speaking' }
+  }
+  if (props.isMicEnabled) {
+    return { tone: 'listening', label: 'Listening…' }
+  }
+  return null
+}
+
 export function LectureAiChatPanel({
   isOpen,
   messages,
   isSending,
+  isHistoryLoading = false,
+  sessionState,
+  errorCode = null,
+  isMicEnabled = false,
+  isAgentSpeaking = false,
   onClose,
   chatBarRef,
   variant = 'anchor',
@@ -71,6 +105,9 @@ export function LectureAiChatPanel({
     isSending,
   })
 
+  const status = resolveStatus({ sessionState, isMicEnabled, isAgentSpeaking })
+  const errorMessage = aiTutorErrorMessage(errorCode)
+
   if (!isSidebar && !isPresent) return null
   if (isSidebar && !isOpen) return null
 
@@ -93,6 +130,7 @@ export function LectureAiChatPanel({
                 'absolute bottom-full left-0 right-0 z-50 mb-2',
               variant === 'raised' && 'shrink-0 rounded-b-none',
             ),
+        isMicEnabled && 'lecture-chat-panel--listening',
         className,
       )}
       style={
@@ -104,17 +142,39 @@ export function LectureAiChatPanel({
       <div className="lecture-chat-panel__inner flex min-h-0 flex-1 flex-col">
         <div
           className={cn(
-            'flex shrink-0 border-b border-white/10 px-4 py-3',
-            isSidebar ? 'items-center' : 'items-center justify-between',
+            'flex shrink-0 items-center gap-3 border-b border-white/10 px-4 py-3',
+            isSidebar ? '' : 'justify-between',
           )}
         >
           <p className="type-b1-md !text-white">AI Tutor</p>
+          {status ? (
+            <span
+              className={cn(
+                'inline-flex items-center gap-1.5 rounded-full px-2.5 py-1',
+                'type-caption-regular',
+                status.tone === 'listening' && 'bg-red-500/15 !text-red-300',
+                status.tone === 'speaking' && 'bg-primary-500/15 !text-primary-200',
+                status.tone === 'connecting' && 'bg-white/10 !text-gray-200',
+              )}
+              aria-live="polite"
+            >
+              <span
+                className={cn(
+                  'size-1.5 rounded-full',
+                  status.tone === 'listening' && 'lecture-chat-status-dot bg-red-400',
+                  status.tone === 'speaking' && 'lecture-chat-status-dot bg-primary-300',
+                  status.tone === 'connecting' && 'bg-gray-300',
+                )}
+              />
+              {status.label}
+            </span>
+          ) : null}
           {!isSidebar ? (
             <button
               type="button"
               onClick={onClose}
               aria-label="Close chat"
-              className="flex size-8 items-center justify-center rounded-full text-gray-300 transition-colors hover:bg-white/10 hover:text-white"
+              className="ml-auto flex size-8 items-center justify-center rounded-full text-gray-300 transition-colors hover:bg-white/10 hover:text-white"
             >
               <X className="size-5" weight="bold" />
             </button>
@@ -126,6 +186,36 @@ export function LectureAiChatPanel({
             ref={listRef}
             className="min-h-0 flex-1 space-y-3 overflow-y-auto overscroll-contain px-4 py-4"
           >
+            {errorMessage ? (
+              <div
+                role="alert"
+                className="flex items-start gap-2 rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2"
+              >
+                <WarningCircle
+                  className="mt-0.5 size-4 shrink-0 !text-red-300"
+                  weight="fill"
+                />
+                <p className="type-caption-regular !text-red-200">
+                  {errorMessage}
+                </p>
+              </div>
+            ) : null}
+            {isHistoryLoading && messages.length === 0 ? (
+              <p className="type-caption-regular !text-gray-400">
+                Loading chat history…
+              </p>
+            ) : null}
+            {messages.length === 0 && !isHistoryLoading && !isSending && !errorMessage ? (
+              <div className="space-y-2 py-4">
+                <p className="type-b2-regular !text-gray-300">
+                  Ask anything about this lecture.
+                </p>
+                <p className="inline-flex items-center gap-1.5 type-caption-regular !text-gray-400">
+                  <Microphone className="size-3.5" weight="fill" />
+                  Tap the mic to speak instead — replies appear right here.
+                </p>
+              </div>
+            ) : null}
             {messages.map(message => (
               <LectureAiChatMessage key={message.id} message={message} />
             ))}

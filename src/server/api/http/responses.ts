@@ -52,6 +52,27 @@ export function mapThrownErrorToResponse(error: unknown): Response {
       case 'INVALID_SUBMISSION_ID':
       case 'INVALID_SUBMISSION_PAYLOAD':
         return jsonError(400, error.message)
+      case 'AI_TUTOR_DAILY_LIMIT':
+        return jsonError(429, error.message)
+      case 'AI_TUTOR_LECTURE_FORBIDDEN':
+        return jsonError(403, error.message)
+      case 'AI_TUTOR_LECTURE_NOT_FOUND':
+      case 'AI_TUTOR_SESSION_NOT_FOUND':
+        return jsonError(404, error.message)
+      case 'AI_TUTOR_SESSION_NOT_OWNED':
+        return jsonError(403, error.message)
+      case 'AI_TUTOR_TRANSCRIPT_UNAVAILABLE':
+        return jsonError(409, error.message)
+      case 'AI_TUTOR_TOKEN_SERVER_NOT_CONFIGURED':
+      case 'AI_TUTOR_TOKEN_SERVER_TIMEOUT':
+      case 'AI_TUTOR_TOKEN_SERVER_GENERATE_FAILED':
+      case 'AI_TUTOR_TOKEN_SERVER_INVALID_RESPONSE':
+      case 'AI_TUTOR_TOKEN_SERVER_DISPATCH_FAILED':
+      case 'AI_TUTOR_TOKEN_SERVER_END_FAILED':
+      case 'AI_TUTOR_TOKEN_SERVER_TRANSCRIPT_FAILED':
+      case 'AI_TUTOR_SESSION_CREATE_FAILED':
+      case 'AI_TUTOR_RECORD_INSERT_FAILED':
+        return jsonError(503, error.message)
       default:
         break
     }

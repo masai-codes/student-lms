@@ -1,15 +1,15 @@
 'use client'
 
-import type { CSSProperties } from 'react'
-
-import { cn } from '@/lib/utils'
-
 import {
   LECTURE_CHAT_OPENING_LOADER_GIF,
   LECTURE_CHAT_OPENING_LOADER_SIZE_PX,
   LECTURE_CHAT_OPENING_LOADER_SWEEP_MS,
   lectureChatOpeningLoaderSrc,
 } from './constants/lectureAiChatUi'
+import type { CSSProperties } from 'react'
+
+import { cn } from '@/lib/utils'
+
 
 import './lectureAiChatPanelLoader.css'
 

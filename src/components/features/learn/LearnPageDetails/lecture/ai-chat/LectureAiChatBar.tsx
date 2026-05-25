@@ -1,7 +1,12 @@
 'use client'
 
 import { useCallback, useLayoutEffect, useRef, useState } from 'react'
-import { Microphone, PaperPlaneRight, Waveform } from '@phosphor-icons/react'
+import {
+  CircleNotch,
+  Microphone,
+  MicrophoneSlash,
+  PaperPlaneRight,
+} from '@phosphor-icons/react'
 import type { RefObject } from 'react'
 
 import { cn } from '@/lib/utils'
@@ -19,7 +24,10 @@ type LectureAiChatBarProps = {
   onFocus?: () => void
   onBlur?: () => void
   onSend?: () => void
+  onMicToggle?: () => void
   isSending?: boolean
+  isMicEnabled?: boolean
+  isMicPending?: boolean
   inputRef?: RefObject<HTMLTextAreaElement | null>
 }
 
@@ -42,13 +50,17 @@ export function LectureAiChatBar({
   onFocus,
   onBlur,
   onSend,
+  onMicToggle,
   isSending = false,
+  isMicEnabled = false,
+  isMicPending = false,
   inputRef,
 }: LectureAiChatBarProps) {
   const [isFocused, setIsFocused] = useState(false)
   const [isMultiline, setIsMultiline] = useState(false)
   const localTextareaRef = useRef<HTMLTextAreaElement>(null)
-  const canSend = value.trim().length > 0 && !isSending
+  const hasText = value.trim().length > 0
+  const canSend = hasText && !isSending
 
   const resizeTextarea = useCallback(() => {
     const textarea = localTextareaRef.current
@@ -71,12 +83,64 @@ export function LectureAiChatBar({
 
   const roundedClass = isMultiline ? 'rounded-[1.25rem]' : 'rounded-full'
 
+  const renderMicButton = () => {
+    const showSpinner = isMicPending
+    const baseClasses =
+      'flex size-9 items-center justify-center rounded-full transition-colors'
+    const stateClasses = isMicEnabled
+      ? 'lecture-chat-mic-pulse bg-red-500 text-white hover:bg-red-600'
+      : 'bg-white text-[#2f2f2f] shadow-sm hover:opacity-90'
+
+    return (
+      <button
+        type="button"
+        onClick={onMicToggle}
+        disabled={showSpinner}
+        aria-label={isMicEnabled ? 'Stop voice chat' : 'Start voice chat'}
+        aria-pressed={isMicEnabled}
+        className={cn(baseClasses, stateClasses)}
+      >
+        {showSpinner ? (
+          <CircleNotch className="size-5 animate-spin" weight="bold" />
+        ) : isMicEnabled ? (
+          <MicrophoneSlash className="size-5" weight="fill" />
+        ) : (
+          <Microphone className="size-5" weight="fill" />
+        )}
+      </button>
+    )
+  }
+
+  const renderPrimaryAction = () => {
+    if (hasText) {
+      return (
+        <button
+          type="button"
+          onClick={onSend}
+          disabled={!canSend}
+          aria-label="Send message"
+          className={cn(
+            'flex size-9 items-center justify-center rounded-full transition-colors',
+            canSend
+              ? 'bg-primary-600 text-white hover:bg-primary-700'
+              : 'cursor-not-allowed bg-white/10 text-gray-500',
+          )}
+        >
+          <PaperPlaneRight className="size-5" weight="fill" />
+        </button>
+      )
+    }
+
+    return renderMicButton()
+  }
+
   return (
     <div
       className={cn(
         'lecture-chat-bar-shine',
         roundedClass,
         isFocused && 'lecture-chat-bar-shine--focused',
+        isMicEnabled && 'lecture-chat-bar-shine--listening',
         className,
       )}
     >
@@ -106,42 +170,15 @@ export function LectureAiChatBar({
             event.preventDefault()
             if (canSend) onSend?.()
           }}
-          placeholder="Ask anything..."
+          placeholder={
+            isMicEnabled ? 'Listening… speak or type to respond' : 'Ask anything...'
+          }
           aria-label="Ask the AI tutor"
           className="type-b2-regular max-h-[7.5rem] min-h-6 min-w-0 flex-1 resize-none overflow-y-auto bg-transparent py-1.5 text-white outline-none placeholder:text-gray-400"
         />
 
         <div className="flex shrink-0 items-center gap-0.5 self-end">
-          <button
-            type="button"
-            onClick={onSend}
-            disabled={!canSend}
-            aria-label="Send message"
-            className={cn(
-              'flex size-9 items-center justify-center rounded-full transition-colors',
-              canSend
-                ? 'bg-primary-600 text-white hover:bg-primary-700'
-                : 'cursor-not-allowed bg-white/10 text-gray-500',
-            )}
-          >
-            <PaperPlaneRight className="size-5" weight="fill" />
-          </button>
-
-          <button
-            type="button"
-            aria-label="Voice input"
-            className="flex size-9 items-center justify-center rounded-full text-gray-300 transition-colors hover:bg-white/10 hover:text-white"
-          >
-            <Microphone className="size-5" weight="fill" />
-          </button>
-
-          <button
-            type="button"
-            aria-label="Audio chat"
-            className="flex size-9 items-center justify-center rounded-full bg-white text-[#2f2f2f] shadow-sm transition-opacity hover:opacity-90"
-          >
-            <Waveform className="size-5" weight="bold" />
-          </button>
+          {renderPrimaryAction()}
         </div>
       </div>
     </div>

@@ -2,54 +2,75 @@
 
 import { useCallback, useEffect, useState } from 'react'
 
-import type { LectureChatMessage } from '../constants/mockLectureChatMessages'
-
-const AI_TUTOR_UNAVAILABLE_MESSAGE =
-  'AI tutor is not connected for this lecture yet. Chat history will appear here once it is enabled.'
+import { useAiTutorAgentSpeaking } from './useAiTutorAgentSpeaking'
+import { useAiTutorMessages } from './useAiTutorMessages'
+import { useAiTutorMic } from './useAiTutorMic'
+import { useAiTutorSession } from './useAiTutorSession'
+import type { AiTutorSessionState, LectureChatMessage } from '../types'
 
 type UseLectureAiChatOptions = {
+  lectureId: number
+  language?: string
   defaultExpanded?: boolean
 }
 
+export type UseLectureAiChatResult = {
+  isExpanded: boolean
+  isSending: boolean
+  inputValue: string
+  messages: Array<LectureChatMessage>
+  sessionState: AiTutorSessionState
+  agentJoined: boolean
+  isAgentSpeaking: boolean
+  errorCode: string | null
+  isHistoryLoading: boolean
+  isMicEnabled: boolean
+  isMicPending: boolean
+  open: () => void
+  close: () => void
+  setInputValue: (value: string) => void
+  sendMessage: () => Promise<void>
+  toggleMic: () => Promise<void>
+  endSession: () => Promise<void>
+}
+
 export function useLectureAiChat({
+  lectureId,
+  language = 'English',
   defaultExpanded = false,
-}: UseLectureAiChatOptions = {}) {
+}: UseLectureAiChatOptions): UseLectureAiChatResult {
   const [isExpanded, setIsExpanded] = useState(() => defaultExpanded)
   const [inputValue, setInputValue] = useState('')
-  const [messages, setMessages] = useState<Array<LectureChatMessage>>([])
-  const [isSending, setIsSending] = useState(false)
+
+  const session = useAiTutorSession({ lectureId, language })
+  const chat = useAiTutorMessages({
+    lectureId,
+    refetchKey: session.session?.sessionId ?? 'idle',
+  })
+  const mic = useAiTutorMic({ ensureConnected: session.ensureConnected })
+  const isAgentSpeaking = useAiTutorAgentSpeaking()
 
   const open = useCallback(() => setIsExpanded(true), [])
   const close = useCallback(() => setIsExpanded(false), [])
 
-  const sendMessage = useCallback(() => {
+  const sendMessage = useCallback(async () => {
     const text = inputValue.trim()
-    if (!text || isSending) return
+    if (!text || chat.isSending) return
 
-    const userMessage: LectureChatMessage = {
-      id: `user-${Date.now()}`,
-      role: 'user',
-      content: text,
-      createdAtLabel: 'Just now',
-    }
+    const ok = await session.ensureConnected()
+    if (!ok) return
 
-    setMessages(current => [...current, userMessage])
     setInputValue('')
-    setIsSending(true)
+    try {
+      await chat.send(text)
+    } catch {
+      setInputValue(text)
+    }
+  }, [chat, inputValue, session])
 
-    window.setTimeout(() => {
-      setMessages(current => [
-        ...current,
-        {
-          id: `assistant-${Date.now()}`,
-          role: 'assistant',
-          content: AI_TUTOR_UNAVAILABLE_MESSAGE,
-          createdAtLabel: 'Just now',
-        },
-      ])
-      setIsSending(false)
-    }, 400)
-  }, [inputValue, isSending])
+  const endSession = useCallback(async () => {
+    await session.endSession()
+  }, [session])
 
   useEffect(() => {
     if (!isExpanded) return
@@ -64,12 +85,21 @@ export function useLectureAiChat({
 
   return {
     isExpanded,
-    isSending,
+    isSending: chat.isSending || session.state === 'creating' || session.state === 'connecting',
     inputValue,
-    messages,
+    messages: chat.messages,
+    sessionState: session.state,
+    agentJoined: session.agentJoined,
+    isAgentSpeaking,
+    errorCode: session.errorCode,
+    isHistoryLoading: chat.isHistoryLoading,
+    isMicEnabled: mic.isMicEnabled,
+    isMicPending: mic.isMicPending,
     open,
     close,
     setInputValue,
     sendMessage,
+    toggleMic: mic.toggleMic,
+    endSession,
   }
 }
