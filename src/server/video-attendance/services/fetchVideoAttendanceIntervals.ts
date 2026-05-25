@@ -12,9 +12,20 @@ export async function fetchVideoAttendanceIntervals(
 ): Promise<VideoAttendanceIntervalsData | null> {
   if (!Number.isFinite(lectureId) || lectureId <= 0) return null
 
-  const response = await experienceApiFetch(
-    `/video-attendances/progress/${lectureId}/intervals`,
-  )
+  let response: Response
+  try {
+    response = await experienceApiFetch(
+      `/video-attendances/progress/${lectureId}/intervals`,
+    )
+  } catch (error) {
+    // Upstream unreachable (e.g. ECONNREFUSED). Treat as "no intervals yet"
+    // so the lecture page can still render.
+    console.warn(
+      'fetchVideoAttendanceIntervals: experience API unreachable',
+      error,
+    )
+    return null
+  }
 
   if (!response.ok) return null
 

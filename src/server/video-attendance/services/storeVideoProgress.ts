@@ -14,16 +14,24 @@ export async function storeVideoProgress(
   if (!Number.isFinite(totalDuration) || totalDuration < 1) return false
   if (!Array.isArray(intervals) || intervals.length === 0) return false
 
-  const response = await experienceApiFetch('/video-attendances/progress', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      videoId: lectureId,
-      totalDuration: Math.round(totalDuration),
-      intervals,
-      sessionToken,
-    }),
-  })
+  let response: Response
+  try {
+    response = await experienceApiFetch('/video-attendances/progress', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        videoId: lectureId,
+        totalDuration: Math.round(totalDuration),
+        intervals,
+        sessionToken,
+      }),
+    })
+  } catch (error) {
+    // Upstream unreachable (e.g. ECONNREFUSED). Report failure to the caller
+    // instead of throwing so the request handler can respond cleanly.
+    console.warn('storeVideoProgress: experience API unreachable', error)
+    return false
+  }
 
   if (!response.ok) return false
 

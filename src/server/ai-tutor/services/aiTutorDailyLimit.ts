@@ -5,7 +5,7 @@ import { db } from '@/db'
 import { aiTutorSessions } from '@/db/schema'
 
 
-export const AI_TUTOR_DAILY_LIMIT = 10
+export const AI_TUTOR_DAILY_LIMIT = 1000
 
 function utcDayBoundsIso(now: Date = new Date()): {
   startIso: string

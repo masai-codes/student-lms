@@ -12,9 +12,17 @@ export async function fetchVideoProgress(
 ): Promise<VideoProgressData | null> {
   if (!Number.isFinite(lectureId) || lectureId <= 0) return null
 
-  const response = await experienceApiFetch(
-    `/video-attendances/progress/${lectureId}`,
-  )
+  let response: Response
+  try {
+    response = await experienceApiFetch(
+      `/video-attendances/progress/${lectureId}`,
+    )
+  } catch (error) {
+    // Upstream unreachable (e.g. ECONNREFUSED). Treat as "no progress yet"
+    // so the lecture page can still render.
+    console.warn('fetchVideoProgress: experience API unreachable', error)
+    return null
+  }
 
   if (!response.ok) return null
 
