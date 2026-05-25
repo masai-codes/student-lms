@@ -14,6 +14,12 @@ import { Route as protectedLayoutIndexRouteImport } from './routes/(protected)/_
 import { Route as authLoginIndexRouteImport } from './routes/(auth)/login/index'
 import { Route as ApiLearnBatchesRouteImport } from './routes/api/learn/batches'
 import { Route as ApiLearnBatchDataRouteImport } from './routes/api/learn/batch-data'
+import { Route as ApiDashboardScheduleRouteImport } from './routes/api/dashboard/schedule'
+import { Route as ApiDashboardProductUpdatesRouteImport } from './routes/api/dashboard/product-updates'
+import { Route as ApiDashboardPendingTasksRouteImport } from './routes/api/dashboard/pending-tasks'
+import { Route as ApiDashboardBannersRouteImport } from './routes/api/dashboard/banners'
+import { Route as ApiDashboardAnnouncementsRouteImport } from './routes/api/dashboard/announcements'
+import { Route as ApiDashboardActionBannersRouteImport } from './routes/api/dashboard/action-banners'
 import { Route as protectedLayoutMasaiverseRouteRouteImport } from './routes/(protected)/_layout/masaiverse/route'
 import { Route as protectedLayoutMasaiverseIndexRouteImport } from './routes/(protected)/_layout/masaiverse/index'
 import { Route as protectedLayoutLearnIndexRouteImport } from './routes/(protected)/_layout/learn/index'
@@ -60,6 +66,40 @@ const ApiLearnBatchDataRoute = ApiLearnBatchDataRouteImport.update({
   path: '/api/learn/batch-data',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiDashboardScheduleRoute = ApiDashboardScheduleRouteImport.update({
+  id: '/api/dashboard/schedule',
+  path: '/api/dashboard/schedule',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiDashboardProductUpdatesRoute =
+  ApiDashboardProductUpdatesRouteImport.update({
+    id: '/api/dashboard/product-updates',
+    path: '/api/dashboard/product-updates',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiDashboardPendingTasksRoute =
+  ApiDashboardPendingTasksRouteImport.update({
+    id: '/api/dashboard/pending-tasks',
+    path: '/api/dashboard/pending-tasks',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiDashboardBannersRoute = ApiDashboardBannersRouteImport.update({
+  id: '/api/dashboard/banners',
+  path: '/api/dashboard/banners',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiDashboardAnnouncementsRoute =
+  ApiDashboardAnnouncementsRouteImport.update({
+    id: '/api/dashboard/announcements',
+    path: '/api/dashboard/announcements',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiDashboardActionBannersRoute =
+  ApiDashboardActionBannersRouteImport.update({
+    id: '/api/dashboard/action-banners',
+    path: '/api/dashboard/action-banners',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const protectedLayoutMasaiverseRouteRoute =
   protectedLayoutMasaiverseRouteRouteImport.update({
     id: '/masaiverse',
@@ -187,6 +227,12 @@ const ApiLearnAiChatLectureIdHistoryRoute =
 
 export interface FileRoutesByFullPath {
   '/masaiverse': typeof protectedLayoutMasaiverseRouteRouteWithChildren
+  '/api/dashboard/action-banners': typeof ApiDashboardActionBannersRoute
+  '/api/dashboard/announcements': typeof ApiDashboardAnnouncementsRoute
+  '/api/dashboard/banners': typeof ApiDashboardBannersRoute
+  '/api/dashboard/pending-tasks': typeof ApiDashboardPendingTasksRoute
+  '/api/dashboard/product-updates': typeof ApiDashboardProductUpdatesRoute
+  '/api/dashboard/schedule': typeof ApiDashboardScheduleRoute
   '/api/learn/batch-data': typeof ApiLearnBatchDataRoute
   '/api/learn/batches': typeof ApiLearnBatchesRoute
   '/login/': typeof authLoginIndexRoute
@@ -213,6 +259,12 @@ export interface FileRoutesByFullPath {
   '/api/learn/submissions/$submissionId/view-on-platform': typeof ApiLearnSubmissionsSubmissionIdViewOnPlatformRoute
 }
 export interface FileRoutesByTo {
+  '/api/dashboard/action-banners': typeof ApiDashboardActionBannersRoute
+  '/api/dashboard/announcements': typeof ApiDashboardAnnouncementsRoute
+  '/api/dashboard/banners': typeof ApiDashboardBannersRoute
+  '/api/dashboard/pending-tasks': typeof ApiDashboardPendingTasksRoute
+  '/api/dashboard/product-updates': typeof ApiDashboardProductUpdatesRoute
+  '/api/dashboard/schedule': typeof ApiDashboardScheduleRoute
   '/api/learn/batch-data': typeof ApiLearnBatchDataRoute
   '/api/learn/batches': typeof ApiLearnBatchesRoute
   '/login': typeof authLoginIndexRoute
@@ -242,6 +294,12 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/(protected)/_layout': typeof protectedLayoutRouteRouteWithChildren
   '/(protected)/_layout/masaiverse': typeof protectedLayoutMasaiverseRouteRouteWithChildren
+  '/api/dashboard/action-banners': typeof ApiDashboardActionBannersRoute
+  '/api/dashboard/announcements': typeof ApiDashboardAnnouncementsRoute
+  '/api/dashboard/banners': typeof ApiDashboardBannersRoute
+  '/api/dashboard/pending-tasks': typeof ApiDashboardPendingTasksRoute
+  '/api/dashboard/product-updates': typeof ApiDashboardProductUpdatesRoute
+  '/api/dashboard/schedule': typeof ApiDashboardScheduleRoute
   '/api/learn/batch-data': typeof ApiLearnBatchDataRoute
   '/api/learn/batches': typeof ApiLearnBatchesRoute
   '/(auth)/login/': typeof authLoginIndexRoute
@@ -271,6 +329,12 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/masaiverse'
+    | '/api/dashboard/action-banners'
+    | '/api/dashboard/announcements'
+    | '/api/dashboard/banners'
+    | '/api/dashboard/pending-tasks'
+    | '/api/dashboard/product-updates'
+    | '/api/dashboard/schedule'
     | '/api/learn/batch-data'
     | '/api/learn/batches'
     | '/login/'
@@ -297,6 +361,12 @@ export interface FileRouteTypes {
     | '/api/learn/submissions/$submissionId/view-on-platform'
   fileRoutesByTo: FileRoutesByTo
   to:
+    | '/api/dashboard/action-banners'
+    | '/api/dashboard/announcements'
+    | '/api/dashboard/banners'
+    | '/api/dashboard/pending-tasks'
+    | '/api/dashboard/product-updates'
+    | '/api/dashboard/schedule'
     | '/api/learn/batch-data'
     | '/api/learn/batches'
     | '/login'
@@ -325,6 +395,12 @@ export interface FileRouteTypes {
     | '__root__'
     | '/(protected)/_layout'
     | '/(protected)/_layout/masaiverse'
+    | '/api/dashboard/action-banners'
+    | '/api/dashboard/announcements'
+    | '/api/dashboard/banners'
+    | '/api/dashboard/pending-tasks'
+    | '/api/dashboard/product-updates'
+    | '/api/dashboard/schedule'
     | '/api/learn/batch-data'
     | '/api/learn/batches'
     | '/(auth)/login/'
@@ -353,6 +429,12 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   protectedLayoutRouteRoute: typeof protectedLayoutRouteRouteWithChildren
+  ApiDashboardActionBannersRoute: typeof ApiDashboardActionBannersRoute
+  ApiDashboardAnnouncementsRoute: typeof ApiDashboardAnnouncementsRoute
+  ApiDashboardBannersRoute: typeof ApiDashboardBannersRoute
+  ApiDashboardPendingTasksRoute: typeof ApiDashboardPendingTasksRoute
+  ApiDashboardProductUpdatesRoute: typeof ApiDashboardProductUpdatesRoute
+  ApiDashboardScheduleRoute: typeof ApiDashboardScheduleRoute
   ApiLearnBatchDataRoute: typeof ApiLearnBatchDataRoute
   ApiLearnBatchesRoute: typeof ApiLearnBatchesRoute
   authLoginIndexRoute: typeof authLoginIndexRoute
@@ -405,6 +487,48 @@ declare module '@tanstack/react-router' {
       path: '/api/learn/batch-data'
       fullPath: '/api/learn/batch-data'
       preLoaderRoute: typeof ApiLearnBatchDataRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/dashboard/schedule': {
+      id: '/api/dashboard/schedule'
+      path: '/api/dashboard/schedule'
+      fullPath: '/api/dashboard/schedule'
+      preLoaderRoute: typeof ApiDashboardScheduleRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/dashboard/product-updates': {
+      id: '/api/dashboard/product-updates'
+      path: '/api/dashboard/product-updates'
+      fullPath: '/api/dashboard/product-updates'
+      preLoaderRoute: typeof ApiDashboardProductUpdatesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/dashboard/pending-tasks': {
+      id: '/api/dashboard/pending-tasks'
+      path: '/api/dashboard/pending-tasks'
+      fullPath: '/api/dashboard/pending-tasks'
+      preLoaderRoute: typeof ApiDashboardPendingTasksRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/dashboard/banners': {
+      id: '/api/dashboard/banners'
+      path: '/api/dashboard/banners'
+      fullPath: '/api/dashboard/banners'
+      preLoaderRoute: typeof ApiDashboardBannersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/dashboard/announcements': {
+      id: '/api/dashboard/announcements'
+      path: '/api/dashboard/announcements'
+      fullPath: '/api/dashboard/announcements'
+      preLoaderRoute: typeof ApiDashboardAnnouncementsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/dashboard/action-banners': {
+      id: '/api/dashboard/action-banners'
+      path: '/api/dashboard/action-banners'
+      fullPath: '/api/dashboard/action-banners'
+      preLoaderRoute: typeof ApiDashboardActionBannersRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/(protected)/_layout/masaiverse': {
@@ -631,6 +755,12 @@ const ApiLearnSubmissionsSubmissionIdRouteWithChildren =
 
 const rootRouteChildren: RootRouteChildren = {
   protectedLayoutRouteRoute: protectedLayoutRouteRouteWithChildren,
+  ApiDashboardActionBannersRoute: ApiDashboardActionBannersRoute,
+  ApiDashboardAnnouncementsRoute: ApiDashboardAnnouncementsRoute,
+  ApiDashboardBannersRoute: ApiDashboardBannersRoute,
+  ApiDashboardPendingTasksRoute: ApiDashboardPendingTasksRoute,
+  ApiDashboardProductUpdatesRoute: ApiDashboardProductUpdatesRoute,
+  ApiDashboardScheduleRoute: ApiDashboardScheduleRoute,
   ApiLearnBatchDataRoute: ApiLearnBatchDataRoute,
   ApiLearnBatchesRoute: ApiLearnBatchesRoute,
   authLoginIndexRoute: authLoginIndexRoute,

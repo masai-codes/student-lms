@@ -133,6 +133,14 @@ export default function AppNavbar() {
     [],
   )
 
+  const handleHomeClick = useCallback(
+    (e: React.MouseEvent<HTMLAnchorElement>) => {
+      e.preventDefault()
+      void navigate({ to: '/' })
+    },
+    [navigate],
+  )
+
   const handleLearnClick = useCallback(
     (e: React.MouseEvent<HTMLAnchorElement>) => {
       e.preventDefault()
@@ -167,8 +175,10 @@ export default function AppNavbar() {
       {
         id: 'home',
         label: 'Home',
+        href: '/',
+        openInNewTab: false,
         isActive: activeNavId === 'home',
-        ...oldStudentUiLink(OLD_STUDENT_UI_NAV_PATHS.home),
+        onClick: handleHomeClick,
       },
       {
         id: 'learn',
@@ -199,7 +209,7 @@ export default function AppNavbar() {
         onClick: handleReferAndEarnClick,
       },
     ],
-    [activeNavId, handleLearnClick, handleReferAndEarnClick],
+    [activeNavId, handleHomeClick, handleLearnClick, handleReferAndEarnClick],
   )
 
   const trailingActions: Array<NavbarActionItem> = useMemo(

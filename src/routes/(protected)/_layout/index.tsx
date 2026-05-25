@@ -1,7 +1,10 @@
-import { createFileRoute, redirect } from '@tanstack/react-router'
+import { createFileRoute } from '@tanstack/react-router'
+import { DashboardLayout } from '@/components/features/dashboard/layout/DashboardLayout'
 
 export const Route = createFileRoute('/(protected)/_layout/')({
-  beforeLoad: () => {
-    throw redirect({ to: '/learn', search: { batchId: undefined } })
-  },
+  component: DashboardPage,
 })
+
+function DashboardPage() {
+  return <DashboardLayout />
+}

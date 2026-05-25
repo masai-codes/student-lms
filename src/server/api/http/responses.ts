@@ -35,6 +35,18 @@ export function mapThrownErrorToResponse(error: unknown): Response {
         return jsonError(500, error.message)
       case 'SERVER_ERROR_FETCHING_BATCH_LEARNING_DATA':
         return jsonError(500, error.message)
+      case 'SERVER_ERROR_FETCHING_DASHBOARD_ANNOUNCEMENTS':
+        return jsonError(500, error.message)
+      case 'SERVER_ERROR_FETCHING_PRODUCT_UPDATES':
+        return jsonError(500, error.message)
+      case 'SERVER_ERROR_FETCHING_DASHBOARD_SCHEDULE':
+        return jsonError(500, error.message)
+      case 'SERVER_ERROR_FETCHING_DASHBOARD_BANNERS':
+        return jsonError(500, error.message)
+      case 'SERVER_ERROR_FETCHING_DASHBOARD_ACTION_BANNERS':
+        return jsonError(500, error.message)
+      case 'SERVER_ERROR_FETCHING_DASHBOARD_PENDING_TASKS':
+        return jsonError(500, error.message)
       case 'EXPERIENCE_API_NOT_CONFIGURED':
       case 'EXPERIENCE_API_REQUEST_FAILED':
       case 'EXPERIENCE_API_EMPTY_RESPONSE':

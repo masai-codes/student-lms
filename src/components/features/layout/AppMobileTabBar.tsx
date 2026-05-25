@@ -5,18 +5,7 @@ import { useNavigate, useRouterState } from '@tanstack/react-router'
 import { Home, LayoutGrid, Users } from 'lucide-react'
 
 import { TabNavbar } from '@/components/tab-navbar'
-import { OLD_STUDENT_UI_NAV_PATHS } from '@/constants/oldStudentUiNavPaths'
 import { activeAppNavIdForPathname } from '@/lib/appNavActiveItem'
-import { getOldStudentUiUrlForPath } from '@/utils/authRedirect'
-
-function navigateToOldStudentPath(path: string) {
-  const url = getOldStudentUiUrlForPath(path)
-  if (!url) {
-    console.warn('VITE_OLD_STUDENT_UI_URL is not configured')
-    return
-  }
-  window.location.assign(url)
-}
 
 export default function AppMobileTabBar() {
   const pathname = useRouterState({ select: (s) => s.location.pathname })
@@ -31,7 +20,7 @@ export default function AppMobileTabBar() {
         icon: <Home strokeWidth={1.75} className="size-6 shrink-0 text-current" />,
         isActive: activeId === 'home',
         onClick: () => {
-          navigateToOldStudentPath(OLD_STUDENT_UI_NAV_PATHS.home)
+          void navigate({ to: '/' })
         },
       },
       {
