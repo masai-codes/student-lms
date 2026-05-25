@@ -1,14 +1,15 @@
 import type { LectureDetailTabContent } from '@/server/learn/lectureDetailTypes'
 import type { LearnAssociatedListItem } from '@/server/learn/learnAssociatedTypes'
-import { formatLectureTranscript } from '@/server/learn/utils/formatLectureTranscript'
-import { isLectureAiFieldPublished } from '@/server/learn/utils/isLectureAiFieldPublished'
+import {
+  buildTranscriptPlainText,
+  parseLectureTranscriptSegments,
+} from '@/server/learn/utils/formatLectureTranscript'
 import { normalizeNullableText } from '@/server/learn/utils/normalizeNullableText'
 
 type LecturesAiRow = {
   summary: string | null
   transcript: string | null
   transcriptSegments: unknown
-  isSummaryPublished: number | null
 } | null
 
 export function buildLectureTabContent(input: {
@@ -19,18 +20,16 @@ export function buildLectureTabContent(input: {
 }): LectureDetailTabContent {
   const ai = input.lecturesAi
 
-  const aiSummary =
-    ai != null &&
-    isLectureAiFieldPublished(ai.isSummaryPublished) &&
-    normalizeNullableText(ai.summary) != null
-      ? normalizeNullableText(ai.summary)
-      : null
+  const aiSummary = ai != null ? normalizeNullableText(ai.summary) : null
+
+  const transcriptSegments =
+    ai != null ? parseLectureTranscriptSegments(ai.transcriptSegments) : []
 
   const transcript =
     ai != null
-      ? formatLectureTranscript({
+      ? buildTranscriptPlainText({
           transcript: ai.transcript,
-          transcriptSegments: ai.transcriptSegments,
+          segments: transcriptSegments,
         })
       : null
 
@@ -39,6 +38,7 @@ export function buildLectureTabContent(input: {
     notes: normalizeNullableText(input.notes),
     aiSummary,
     transcript,
+    transcriptSegments,
     associatedItems: input.associatedItems,
   }
 }

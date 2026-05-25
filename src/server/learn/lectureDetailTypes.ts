@@ -17,11 +17,21 @@ export type LiveLecturePhase = 'before' | 'during' | 'after'
 
 export type VideoLecturePhase = 'before' | 'during_after'
 
+export type LectureTranscriptSegment = {
+  id: number
+  start: number
+  end: number
+  text: string
+}
+
 export type LectureDetailTabContent = {
   description: string | null
   notes: string | null
   aiSummary: string | null
+  /** Plain-text fallback (used when no segments are available). */
   transcript: string | null
+  /** Structured transcript segments preferred for timestamp rendering. */
+  transcriptSegments: Array<LectureTranscriptSegment>
   associatedItems: Array<LearnAssociatedListItem>
 }
 

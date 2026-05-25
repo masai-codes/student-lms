@@ -15,7 +15,10 @@
 - `src/server/learn/utils/__tests__/resolveVideoLecturePhase.test.ts`
 - `src/server/learn/utils/__tests__/scrubZoomLinkForSchedule.test.ts`
 - `src/server/learn/utils/__tests__/buildLectureDetailPayload.test.ts`
+- `src/server/learn/utils/__tests__/buildLectureTabContent.test.ts` — AI summary surfacing + transcript JSON parsing (incl. numeric strings)
+- `src/server/learn/utils/__tests__/formatLectureTranscript.test.ts` — transcript segment parser tolerates string-typed `start`/`end`
 - `src/server/learn/__tests__/getLectureLearningDetail.service.test.ts`
+- `src/components/features/learn/LearnPageDetails/lecture/tabs/__tests__/ExpandableTabContent.test.tsx` — fixed-height clamp + Show more / Show less toggle for every lecture tab
 - `src/server/attendance/**/__tests__/*`
 - `src/lib/lecture-attendance/**/__tests__/*`
 - `src/components/features/learn/attendance/*`

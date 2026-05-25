@@ -1,6 +1,6 @@
 # Feature Test Matrix
 
-Last updated: 2026-05-24
+Last updated: 2026-05-25
 
 ## Lecture attendance (learn listing + detail)
 - Area: `student_attendances` summaries on `GET /api/learn/batch-data` and `GET /api/learn/lectures/:id`; shared server utils + client UI state resolver

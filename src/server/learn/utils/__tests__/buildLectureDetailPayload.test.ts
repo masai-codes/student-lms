@@ -22,6 +22,7 @@ const emptyTabs: LectureDetailTabContent = {
   notes: null,
   aiSummary: null,
   transcript: null,
+  transcriptSegments: [],
   associatedItems: [],
 }
 

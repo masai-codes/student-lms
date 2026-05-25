@@ -5,20 +5,19 @@ import { ExpandableTabContent } from './ExpandableTabContent'
 import { LectureNotesTabContent } from './LectureNotesTabContent'
 import { LectureTabEmptyState } from './LectureTabEmptyState'
 import { LectureTabMarkdown } from './LectureTabMarkdown'
+import { LectureTranscriptTabContent } from './LectureTranscriptTabContent'
 import type { LectureDetailTabId } from './constants/staticLectureTabContent'
 
 import type { LectureDetailTabContent } from '@/server/learn/lectureDetailTypes'
 
-const LECTURE_TAB_CONTENT_KEY: Record<
-  Exclude<LectureDetailTabId, 'notes' | 'associated'>,
-  keyof Pick<
-    LectureDetailTabContent,
-    'description' | 'aiSummary' | 'transcript'
-  >
+type MarkdownTabId = Extract<LectureDetailTabId, 'description' | 'ai-summary'>
+
+const MARKDOWN_TAB_FIELD: Record<
+  MarkdownTabId,
+  keyof Pick<LectureDetailTabContent, 'description' | 'aiSummary'>
 > = {
   description: 'description',
   'ai-summary': 'aiSummary',
-  transcript: 'transcript',
 }
 
 const TAB_EMPTY_COPY: Record<
@@ -51,10 +50,7 @@ type LectureTabPanelProps = {
   tabs: LectureDetailTabContent
 }
 
-function renderMarkdownTab(
-  tabId: Exclude<LectureDetailTabId, 'notes' | 'associated'>,
-  content: string | null,
-) {
+function renderMarkdownTab(tabId: MarkdownTabId, content: string | null) {
   if (!content) {
     const copy = TAB_EMPTY_COPY[tabId]
     return <LectureTabEmptyState title={copy.title} description={copy.description} />
@@ -67,6 +63,41 @@ function renderMarkdownTab(
   )
 }
 
+function renderTabBody(tabId: LectureDetailTabId, tabs: LectureDetailTabContent) {
+  if (tabId === 'notes') {
+    return <LectureNotesTabContent notes={tabs.notes} />
+  }
+
+  if (tabId === 'associated') {
+    if (tabs.associatedItems.length === 0) {
+      return (
+        <LectureTabEmptyState
+          title={TAB_EMPTY_COPY.associated.title}
+          description={TAB_EMPTY_COPY.associated.description}
+        />
+      )
+    }
+    return (
+      <ExpandableTabContent>
+        <AssociatedContentList items={tabs.associatedItems} />
+      </ExpandableTabContent>
+    )
+  }
+
+  if (tabId === 'transcript') {
+    return (
+      <LectureTranscriptTabContent
+        segments={tabs.transcriptSegments}
+        fallbackText={tabs.transcript}
+        emptyTitle={TAB_EMPTY_COPY.transcript.title}
+        emptyDescription={TAB_EMPTY_COPY.transcript.description}
+      />
+    )
+  }
+
+  return renderMarkdownTab(tabId, tabs[MARKDOWN_TAB_FIELD[tabId]])
+}
+
 export function LectureTabPanel({ tabId, tabs }: LectureTabPanelProps) {
   return (
     <div
@@ -76,22 +107,7 @@ export function LectureTabPanel({ tabId, tabs }: LectureTabPanelProps) {
       className="pt-0"
     >
       <div className="rounded-xl bg-gray-100 px-4 py-3 ring-1 ring-gray-200/80">
-        {tabId === 'notes' ? (
-          <LectureNotesTabContent notes={tabs.notes} />
-        ) : tabId === 'associated' ? (
-          tabs.associatedItems.length === 0 ? (
-            <LectureTabEmptyState
-              title={TAB_EMPTY_COPY.associated.title}
-              description={TAB_EMPTY_COPY.associated.description}
-            />
-          ) : (
-            <ExpandableTabContent>
-              <AssociatedContentList items={tabs.associatedItems} />
-            </ExpandableTabContent>
-          )
-        ) : (
-          renderMarkdownTab(tabId, tabs[LECTURE_TAB_CONTENT_KEY[tabId]])
-        )}
+        {renderTabBody(tabId, tabs)}
       </div>
     </div>
   )

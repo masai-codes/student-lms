@@ -95,7 +95,6 @@ export async function getLectureLearningDetailForUser(
         summary: lecturesAi.summary,
         transcript: lecturesAi.transcript,
         transcriptSegments: lecturesAi.transcriptSegments,
-        isSummaryPublished: lecturesAi.isSummaryPublished,
       })
       .from(lecturesAi)
       .where(eq(lecturesAi.lectureId, lectureId))
