@@ -95,6 +95,31 @@ export async function markRecordFailed(input: {
     .where(eq(aiTutorSessions.id, input.recordId))
 }
 
+export async function findOwnedSessionByActiveSessionId(input: {
+  userId: number
+  sessionId: string
+}): Promise<{ id: number; lectureId: number; sessionId: string } | null> {
+  const rows = await db
+    .select({
+      id: aiTutorSessions.id,
+      lectureId: aiTutorSessions.lectureId,
+      sessionId: aiTutorSessions.sessionId,
+    })
+    .from(aiTutorSessions)
+    .where(
+      and(
+        eq(aiTutorSessions.userId, input.userId),
+        eq(aiTutorSessions.sessionId, input.sessionId),
+      ),
+    )
+    .limit(1)
+
+  if (rows.length === 0) return null
+  const row = rows[0]
+  if (!row.sessionId) return null
+  return { id: row.id, lectureId: row.lectureId, sessionId: row.sessionId }
+}
+
 export async function listSessionsForLecture(input: {
   userId: number
   lectureId: number

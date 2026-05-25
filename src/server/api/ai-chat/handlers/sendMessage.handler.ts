@@ -26,6 +26,7 @@ export async function handleSendAiChatMessage(
 
     const rawBody = await request.json().catch(() => ({}))
     const parsed = sendMessageBodySchema.safeParse(rawBody)
+   
     if (!parsed.success) {
       throw new ApiError(400, 'INVALID_AI_CHAT_PAYLOAD')
     }

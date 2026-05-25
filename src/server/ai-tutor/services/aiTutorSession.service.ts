@@ -11,6 +11,9 @@ import {
   fetchTranscriptOnTokenServer,
   generateSessionOnTokenServer,
 } from '@/server/ai-tutor/clients/aiTutorTokenServer'
+import { persistVoiceTranscriptToHistory } from '@/server/ai-chat/services/persistVoiceTranscript'
+import { projectHistoryToPromptTurns } from '@/server/ai-chat/services/aiChatHistoryProjection'
+import { findChatRow } from '@/server/ai-chat/services/aiChatPracticeQuestions.repo'
 import {
   AI_TUTOR_DAILY_LIMIT,
   checkAiTutorDailyLimit,
@@ -22,6 +25,7 @@ import {
 import {
   attachTokenServerSessionToRecord,
   createAiTutorSessionRecord,
+  findOwnedSessionByActiveSessionId,
   listSessionsForLecture,
   markRecordFailed,
   updateLatestSessionFeedback,
@@ -78,6 +82,14 @@ export async function createAiTutorSession(input: {
     durationMinutes: DEFAULT_DURATION_MINUTES,
   })
 
+  const priorChatRow = await findChatRow({
+    userId: input.userId,
+    lectureId: input.lectureId,
+  })
+  const priorTurns = priorChatRow
+    ? projectHistoryToPromptTurns(priorChatRow.chatHistory)
+    : []
+
   try {
     const generated = await generateSessionOnTokenServer({
       participantName: lectureContext.participantName,
@@ -86,6 +98,7 @@ export async function createAiTutorSession(input: {
       lectureId: input.lectureId,
       lectureTranscript: lectureContext.context.transcript,
       durationMinutes: DEFAULT_DURATION_MINUTES,
+      chatHistory: priorTurns,
     })
 
     await attachTokenServerSessionToRecord({
@@ -147,11 +160,26 @@ export async function endAiTutorSession(input: {
   userId: number
   sessionId: string
 }): Promise<void> {
-  // We do not strictly need to verify ownership here (LiveKit room is already
-  // tied to a session id), but if the user has any session by this id at all
-  // we still call the token server. If not, treat as no-op idempotent.
   await endSessionOnTokenServer(input.sessionId)
-  void input.userId
+
+  // Persist the voice transcript as audio entries on the chatHistory blob so
+  // it survives page reloads. Token server may be unavailable post-end; if so
+  // we silently drop the persistence step — the session itself is already
+  // closed in LiveKit.
+  try {
+    const ownedSession = await findOwnedSessionByActiveSessionId({
+      userId: input.userId,
+      sessionId: input.sessionId,
+    })
+    if (!ownedSession) return
+    await persistVoiceTranscriptToHistory({
+      userId: input.userId,
+      lectureId: ownedSession.lectureId,
+      sessionId: input.sessionId,
+    })
+  } catch {
+    /* swallow: session is ended, transcript persistence is best-effort */
+  }
 }
 
 export async function fetchAiTutorTranscript(input: {

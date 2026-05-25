@@ -83,11 +83,18 @@ export type GenerateSessionInput = {
   lectureId: number
   lectureTranscript: string
   durationMinutes: number
+  /**
+   * Prior chat history for this (user, lecture), flattened to `{role, content}`.
+   * When non-empty we forward it as `chat_history` so the voice agent can
+   * resume the existing thread instead of starting fresh.
+   */
+  chatHistory?: ReadonlyArray<{ role: 'user' | 'assistant'; content: string }>
 }
 
 export async function generateSessionOnTokenServer(
   input: GenerateSessionInput,
 ): Promise<TokenServerSession> {
+  const includeChatHistory = (input.chatHistory ?? []).length > 0
   const response = await tokenServerFetch(
     '/generate-session',
     {
@@ -100,6 +107,7 @@ export async function generateSessionOnTokenServer(
         lecture_id: input.lectureId.toString(),
         lecture_transcript: input.lectureTranscript,
         duration_minutes: input.durationMinutes,
+        ...(includeChatHistory ? { chat_history: input.chatHistory } : {}),
       }),
     },
     'AI_TUTOR_TOKEN_SERVER_GENERATE_FAILED',

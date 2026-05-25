@@ -19,20 +19,46 @@ A step-by-step reference for the lecture AI tutor (text chat + voice chat). Use 
 
 ```
 User types ──► useLectureAiChat.sendMessage
-            └► useAiTutorSession.ensureConnected  (must succeed first!)
+            └► useAiTutorSession.ensureConnected  (best-effort)
                   └► POST /api/learn/ai-tutor/$lectureId/session  ── token server /generate-session
                   └► livekit-client room.connect(url, token)
                   └► POST /api/learn/ai-tutor/$lectureId/dispatch ── token server /dispatch
             └► useAiTutorMessages.send
                   └► POST /api/learn/ai-chat/$lectureId/send ── OpenAI Chat Completions
-                                                                └► INSERT INTO aiChatMessages (x2)
+                                                                └► UPSERT row in aiChatPracticeQuestions
+                                                                   chatHistory.push({type:'text', userMessage, aiMessage, timestamp})
 
 User taps mic ──► useAiTutorMic.toggleMic
               └► ensureConnected (same as above)
               └► livekit useTrackToggle(Microphone) publishes audio track to LiveKit
               ── Python agent in the room does STT/LLM/TTS, streams audio + transcript text back
-              └► useTranscriptions() pushes live text into the merged message list
+              └► useTranscriptions() pushes live text into the merged message list (live-only)
+
+User ends ──► useAiTutorSession.endSession
+            └► POST /api/learn/ai-tutor/end ── token server /end
+                                                └► fetch transcript from token server
+                                                └► append each turn into chatHistory as
+                                                   {type:'audio_chat_student_speaking'|'audio_chat_ai_response'}
 ```
+
+---
+
+## Persistence model
+
+All chat (text + voice) for one `(userId, lectureId)` lives in **one row** of `ai_chat_practice_questions`, with the conversation persisted as a single JSON array in the `chatHistory` column.
+
+Each entry is one of:
+
+```ts
+// Text chat (one entry per completed REST turn)
+{ type: 'text', userMessage: string, aiMessage: string, timestamp: number }
+
+// Voice chat (one entry per speaker turn, written when the session ends)
+{ type: 'audio_chat_student_speaking', content: string, timestamp: number }
+{ type: 'audio_chat_ai_response',     content: string, timestamp: number }
+```
+
+When projecting to the client we expand each text entry into a user + assistant message and each audio entry into a single voice message.
 
 ---
 
@@ -40,10 +66,10 @@ User taps mic ──► useAiTutorMic.toggleMic
 
 | # | File | What it does |
 |---|---|---|
-| 1 | `src/components/features/learn/LearnPageDetails/lecture/ai-chat/LectureAiChatProvider.tsx` | Creates a single `Room` per lecture, wraps the tree in `RoomContext.Provider`, mounts `<RoomAudioRenderer />` so the agent's voice is audible. Client-only via `ClientOnly`. |
-| 2 | `src/components/features/learn/LearnPageDetails/lecture/ai-chat/hooks/useLectureAiChat.ts` | Composes the four sub-hooks (`useAiTutorSession`, `useAiTutorMessages`, `useAiTutorMic`, `useAiTutorAgentSpeaking`) and exposes `sendMessage`, `toggleMic`, `endSession` to the UI. |
-| 3 | `src/components/features/learn/LearnPageDetails/lecture/ai-chat/LectureAiChatStateContext.tsx` | Shares the hook's state between sidebar (`LectureAiChatTheaterSidebar.tsx`) and dock (`LectureAiChatDock.tsx`). |
-| 4 | `src/components/features/learn/LearnPageDetails/lecture/ai-chat/LectureAiChatPanel.tsx` + `LectureAiChatBar.tsx` + `LectureAiChatMessage.tsx` | Renders the message list, status badge, input box, mic button. |
+| 1 | `src/components/features/learn/LearnPageDetails/lecture/ai-chat/LectureAiChatProvider.tsx` | Creates a single `Room` per lecture, wraps the tree in `RoomContext.Provider`, mounts `<RoomAudioRenderer />`. Client-only. |
+| 2 | `src/components/features/learn/LearnPageDetails/lecture/ai-chat/hooks/useLectureAiChat.ts` | Composes the four sub-hooks (`useAiTutorSession`, `useAiTutorMessages`, `useAiTutorMic`, `useAiTutorAgentSpeaking`). |
+| 3 | `…/ai-chat/LectureAiChatStateContext.tsx` | Shares the hook's state between sidebar and dock. |
+| 4 | `…/ai-chat/LectureAiChatPanel.tsx` + `LectureAiChatBar.tsx` + `LectureAiChatMessage.tsx` | Renders the message list, status badge, input box, mic button. |
 
 ---
 
@@ -54,35 +80,35 @@ User taps mic ──► useAiTutorMic.toggleMic
 | Step | File | Function | What happens |
 |---|---|---|---|
 | 1 | `…/ai-chat/LectureAiChatBar.tsx` | `onKeyDown` / send button | User types and presses Enter. Calls `onSend` prop. |
-| 2 | `…/ai-chat/hooks/useLectureAiChat.ts` | `sendMessage` | Trims text. Calls `session.ensureConnected()` **before** sending — text chat will not send if the LiveKit session can't be created. |
-| 3 | `…/ai-chat/hooks/useAiTutorSession.ts` | `ensureConnected` | If not already connected, runs the session-create flow (see §2a). |
-| 4 | `…/ai-chat/hooks/useAiTutorMessages.ts` | `send` | Inserts an optimistic `pending` message (`source: 'live-text'`), then calls the API client. |
-| 5 | `src/lib/api/learn/aiChatApi.ts` | `sendAiChatMessageRequest` | `POST /api/learn/ai-chat/$lectureId/send` with `{ message }`. |
+| 2 | `…/ai-chat/hooks/useLectureAiChat.ts` | `sendMessage` | Trims text. Calls `session.ensureConnected()` (text chat will not block if LiveKit also fails — voice and text share the gate today; revisit if independent failure is required). |
+| 3 | `…/ai-chat/hooks/useAiTutorMessages.ts` | `send` | Inserts an optimistic `pending` message (`source: 'live-text'`), then calls the API client. |
+| 4 | `src/lib/api/learn/aiChatApi.ts` | `sendAiChatMessageRequest` | `POST /api/learn/ai-chat/$lectureId/send` with `{ message }`. |
 
-### 1b. Server (LMS Next/TanStack Start)
+### 1b. Server
 
 | Step | File | What happens |
 |---|---|---|
-| 6 | `src/routes/api/learn/ai-chat/$lectureId/send.ts` | Route definition; forwards to handler. |
-| 7 | `src/server/api/ai-chat/handlers/sendMessage.handler.ts` | `requireSessionUserId`, parses body with Zod (`message` ≤ 4 000 chars), calls service. |
-| 8 | `src/server/ai-chat/services/sendAiChatMessage.ts` | Pipeline: |
-|   |   | 1. `resolveAiTutorLectureContext` — access + lecture + transcript (see §4). |
-|   |   | 2. `listRecentAiChatMessagesForContext` — last 16 turns. |
-|   |   | 3. `insertAiChatMessage(role:'user', source:'text')`. |
+| 5 | `src/routes/api/learn/ai-chat/$lectureId/send.ts` | Route definition; forwards to handler. |
+| 6 | `src/server/api/ai-chat/handlers/sendMessage.handler.ts` | `requireSessionUserId`, parses body with Zod (`message` ≤ 4 000 chars), calls service. |
+| 7 | `src/server/ai-chat/services/sendAiChatMessage.ts` | Pipeline: |
+|   |   | 1. `resolveAiTutorLectureContext` — access + lecture + transcript. |
+|   |   | 2. `loadOrCreateChatRow` — get the JSON row for (user, lecture). |
+|   |   | 3. `projectHistoryToPromptTurns` — flatten history (text + voice) into `{role, content}[]`, take last 16 turns. |
 |   |   | 4. `buildChatPromptMessages` — system prompt + lecture summary (clamped 8 000 chars) + history + user msg. |
 |   |   | 5. `requestOpenAiChatCompletion` — OpenAI call. |
-|   |   | 6. `insertAiChatMessage(role:'assistant', source:'text')`. |
-|   |   | 7. Returns `{ userMessage, assistantMessage }`. |
-| 9 | `src/server/ai-tutor/services/aiTutorLectureAccess.ts` | Access checks + loads `lecturesAi.summary \|\| lecturesAi.transcript`. |
-| 10 | `src/server/ai-chat/services/aiChatMessages.repo.ts` | `insertAiChatMessage`, `listAiChatMessages`, `listRecentAiChatMessagesForContext` (Drizzle, `aiChatMessages` table). |
-| 11 | `src/server/ai-chat/services/buildChatPrompt.ts` | Builds the OpenAI `messages` array. System prompt lives at `AI_CHAT_SYSTEM_PROMPT`. |
+|   |   | 6. `appendChatHistoryEntries` — push `{type:'text', userMessage, aiMessage, timestamp}`. |
+|   |   | 7. Returns `{ userMessage, assistantMessage }` derived from the new entry's index. |
+| 8 | `src/server/ai-tutor/services/aiTutorLectureAccess.ts` | Access checks + loads `lecturesAi.summary \|\| lecturesAi.transcript`. |
+| 9 | `src/server/ai-chat/services/aiChatPracticeQuestions.repo.ts` | `findChatRow`, `loadOrCreateChatRow`, `appendChatHistoryEntries`. |
+| 10 | `src/server/ai-chat/services/aiChatHistoryProjection.ts` | `projectHistoryToMessages`, `projectHistoryToPromptTurns` — shared by send/history/voice flows. |
+| 11 | `src/server/ai-chat/services/buildChatPrompt.ts` | Builds the OpenAI `messages` array. System prompt at `AI_CHAT_SYSTEM_PROMPT`. |
 | 12 | `src/server/ai-chat/clients/openAiChatCompletions.ts` | `POST https://api.openai.com/v1/chat/completions`, model `gpt-4.1-mini`, temp 0.4, 30 s timeout. Needs `OPENAI_API_KEY`. |
 
 ### 1c. Back on the frontend
 
 | Step | File | What happens |
 |---|---|---|
-| 13 | `…/ai-chat/hooks/useAiTutorMessages.ts` | Replaces the optimistic `pending` row, merges the two new DB rows into `history`. |
+| 13 | `…/ai-chat/hooks/useAiTutorMessages.ts` | Replaces the optimistic `pending` row, merges the two new turn-derived messages into `history`. |
 | 14 | `…/ai-chat/utils/mergeChatMessages.ts` | Dedupes by `id`, sorts by timestamp. |
 | 15 | `…/ai-chat/LectureAiChatPanel.tsx` → `LectureAiChatMessage.tsx` | Renders. |
 
@@ -94,11 +120,8 @@ User taps mic ──► useAiTutorMic.toggleMic
 
 | Step | File | What happens |
 |---|---|---|
-| 1 | `…/ai-chat/hooks/useAiTutorMic.ts` | `toggleMic` — if mic is off, calls `ensureConnected()` then `toggle(true)` to publish the LiveKit mic track. |
-| 2 | `…/ai-chat/hooks/useAiTutorSession.ts` | `ensureConnected` runs three things sequentially: |
-|   |   | a. `createAiTutorSessionRequest` (HTTP). |
-|   |   | b. `room.connect(url, token)` (WebRTC, direct to LiveKit). |
-|   |   | c. `dispatchAiTutorAgentRequest` (HTTP), unless an agent participant already exists in the room. |
+| 1 | `…/ai-chat/hooks/useAiTutorMic.ts` | `toggleMic` — if mic is off, calls `ensureConnected()` then publishes the LiveKit mic track. |
+| 2 | `…/ai-chat/hooks/useAiTutorSession.ts` | `ensureConnected` runs three steps: create session (HTTP), `room.connect`, dispatch agent. |
 | 3 | `src/lib/api/learn/aiTutorApi.ts` | `createAiTutorSessionRequest`, `dispatchAiTutorAgentRequest`, `endAiTutorSessionRequest`, `endAiTutorSessionWithBeacon`. |
 
 Server side — create:
@@ -107,11 +130,11 @@ Server side — create:
 |---|---|---|
 | 4 | `src/routes/api/learn/ai-tutor/$lectureId/session.ts` | Route definition. |
 | 5 | `src/server/api/ai-tutor/handlers/createSession.handler.ts` | Auth, body parse, calls service. |
-| 6 | `src/server/ai-tutor/services/aiTutorSession.service.ts` → `createAiTutorSession` | 1. `checkAiTutorDailyLimit` (`AI_TUTOR_DAILY_LIMIT = 1000`). 2. `resolveAiTutorLectureContext`. 3. `createAiTutorSessionRecord` (insert pending row). 4. `generateSessionOnTokenServer`. 5. `attachTokenServerSessionToRecord` (write LiveKit creds back). 6. On failure: `markRecordFailed`. |
+| 6 | `src/server/ai-tutor/services/aiTutorSession.service.ts` → `createAiTutorSession` | 1. `checkAiTutorDailyLimit`. 2. `resolveAiTutorLectureContext`. 3. `createAiTutorSessionRecord` (insert pending row). 4. `findChatRow` + `projectHistoryToPromptTurns` to load prior conversation. 5. `generateSessionOnTokenServer` with `chatHistory` payload. 6. `attachTokenServerSessionToRecord`. 7. On failure: `markRecordFailed`. |
 | 7 | `src/server/ai-tutor/services/aiTutorDailyLimit.ts` | UTC-day query over `aiTutorSessions`. |
 | 8 | `src/server/ai-tutor/services/aiTutorLectureAccess.ts` | Same access/transcript check used by text chat. |
-| 9 | `src/server/ai-tutor/services/aiTutorSessionRecords.ts` | DB ops on `aiTutorSessions` (`createAiTutorSessionRecord`, `attachTokenServerSessionToRecord`, `markRecordFailed`, `listSessionsForLecture`, `updateLatestSessionFeedback`). |
-| 10 | `src/server/ai-tutor/clients/aiTutorTokenServer.ts` | `POST {TOKEN_SERVER_URL}/generate-session` with `{ participantName, language, unique_id, lecture_id, lecture_transcript, duration_minutes }`. Validates the response shape. |
+| 9 | `src/server/ai-tutor/services/aiTutorSessionRecords.ts` | DB ops on `aiTutorSessions`. |
+| 10 | `src/server/ai-tutor/clients/aiTutorTokenServer.ts` | `POST {TOKEN_SERVER_URL}/generate-session` with `{ participantName, language, unique_id, lecture_id, lecture_transcript, duration_minutes, chat_history? }`. The `chat_history` field carries prior turns so the voice agent picks up the existing conversation. |
 
 Server side — dispatch:
 
@@ -120,7 +143,6 @@ Server side — dispatch:
 | 11 | `src/routes/api/learn/ai-tutor/$lectureId/dispatch.ts` | Route definition. |
 | 12 | `src/server/api/ai-tutor/handlers/dispatchAgent.handler.ts` | Auth, body parse, calls service. |
 | 13 | `src/server/ai-tutor/services/aiTutorSession.service.ts` → `dispatchAiTutorAgent` | Ownership check via `listSessionsForLecture`, then `dispatchAgentOnTokenServer`. |
-| 14 | `src/server/ai-tutor/clients/aiTutorTokenServer.ts` | `POST {TOKEN_SERVER_URL}/dispatch` with `{ room_name, agent_name }`. Default agent name = `process.env.LIVEKIT_AGENT_NAME \|\| 'local-agent'`. |
 
 ### 2b. Live voice (audio + transcript)
 
@@ -128,20 +150,20 @@ After dispatch, the Python agent joins the LiveKit room. **Nothing flows through
 
 | Step | File | What happens |
 |---|---|---|
-| 15 | LiveKit | Browser publishes mic track → agent receives audio → STT → LLM → TTS → audio track back. |
-| 16 | `…/ai-chat/LectureAiChatProvider.tsx` — `<RoomAudioRenderer />` | Plays the agent's outgoing audio. |
-| 17 | `…/ai-chat/hooks/useAiTutorAgentSpeaking.ts` | Watches `RoomEvent.ActiveSpeakersChanged` for an identity matching `agent\|tutor` → drives the "AI Tutor is speaking" badge. |
-| 18 | `…/ai-chat/hooks/useAiTutorSession.ts` | `RoomEvent.ParticipantConnected/Disconnected` → `agentJoined`. |
-| 19 | `…/ai-chat/hooks/useAiTutorMessages.ts` → `useTranscriptions()` | Reads LiveKit text-stream transcripts the agent emits, mapped to `{ source: 'live-voice' }` and merged into the unified timeline. |
+| 14 | LiveKit | Browser publishes mic track → agent receives audio → STT → LLM → TTS → audio track back. |
+| 15 | `…/ai-chat/LectureAiChatProvider.tsx` — `<RoomAudioRenderer />` | Plays the agent's outgoing audio. |
+| 16 | `…/ai-chat/hooks/useAiTutorAgentSpeaking.ts` | Watches `RoomEvent.ActiveSpeakersChanged` for an `agent`/`tutor` identity. |
+| 17 | `…/ai-chat/hooks/useAiTutorMessages.ts` → `useTranscriptions()` | Reads LiveKit text-stream transcripts the agent emits and merges them into the timeline as `source: 'live-voice'`. These are **only live** — they are not persisted until the session ends. |
 
-### 2c. Ending the session
+### 2c. Ending the session — persists voice transcript
 
 | Step | File | What happens |
 |---|---|---|
-| 20 | `…/ai-chat/hooks/useAiTutorSession.ts` | `endSession` (manual) or `beforeunload` handler (uses `navigator.sendBeacon`). |
-| 21 | `src/lib/api/learn/aiTutorApi.ts` | `endAiTutorSessionRequest` / `endAiTutorSessionWithBeacon`. |
-| 22 | `src/routes/api/learn/ai-tutor/end.ts` → `src/server/api/ai-tutor/handlers/endSession.handler.ts` | Validates `{ sessionId }`. |
-| 23 | `src/server/ai-tutor/services/aiTutorSession.service.ts` → `endAiTutorSession` | Calls `endSessionOnTokenServer` (`POST {TOKEN_SERVER_URL}/end`). **No DB write here** — the row stays as-is. |
+| 18 | `…/ai-chat/hooks/useAiTutorSession.ts` | `endSession` (manual) or `beforeunload` handler. |
+| 19 | `src/lib/api/learn/aiTutorApi.ts` | `endAiTutorSessionRequest` / `endAiTutorSessionWithBeacon`. |
+| 20 | `src/routes/api/learn/ai-tutor/end.ts` → `src/server/api/ai-tutor/handlers/endSession.handler.ts` | Validates `{ sessionId }`. |
+| 21 | `src/server/ai-tutor/services/aiTutorSession.service.ts` → `endAiTutorSession` | 1. `endSessionOnTokenServer`. 2. `findOwnedSessionByActiveSessionId` (resolves `lectureId` from `sessionId`). 3. `persistVoiceTranscriptToHistory`. Any failure here is swallowed — the session is already closed. |
+| 22 | `src/server/ai-chat/services/persistVoiceTranscript.ts` | Fetches the transcript from the token server and appends each turn into the same `chatHistory` JSON as `audio_chat_student_speaking` / `audio_chat_ai_response` entries. |
 
 ---
 
@@ -152,13 +174,11 @@ After dispatch, the Python agent joins the LiveKit room. **Nothing flows through
 | 1 | `…/ai-chat/hooks/useAiTutorMessages.ts` | On mount or when `refetchKey` (current `sessionId`) changes, calls `fetchAiChatHistoryRequest`. |
 | 2 | `src/lib/api/learn/aiChatApi.ts` | `GET /api/learn/ai-chat/$lectureId/history`. |
 | 3 | `src/routes/api/learn/ai-chat/$lectureId/history.ts` → `src/server/api/ai-chat/handlers/getHistory.handler.ts` | Auth, calls service. |
-| 4 | `src/server/ai-chat/services/getAiChatHistory.ts` | In parallel: `listAiChatMessages` (DB text rows) **and** `fetchAiTutorTranscript` (voice transcripts from the token server). Merges, sorts by timestamp. |
-| 5 | `src/server/ai-tutor/services/aiTutorSession.service.ts` → `fetchAiTutorTranscript` | For each past session of this `(user, lecture)`, calls `fetchTranscriptOnTokenServer`. Failures are swallowed via `Promise.allSettled`. |
-| 6 | `src/server/ai-tutor/clients/aiTutorTokenServer.ts` → `fetchTranscriptOnTokenServer` | `GET {TOKEN_SERVER_URL}/transcript/:sessionId`. |
-| 7 | `…/ai-chat/hooks/useAiTutorMessages.ts` | Maps DB rows + voice entries into `LectureChatMessage`, then `mergeChatMessages(history, pending, liveVoice)`. |
-| 8 | `…/ai-chat/LectureAiChatPanel.tsx` | Renders the merged timeline. |
+| 4 | `src/server/ai-chat/services/getAiChatHistory.ts` | `findChatRow` → `projectHistoryToMessages`. No token server fetch at read time. |
+| 5 | `…/ai-chat/hooks/useAiTutorMessages.ts` | Maps `AiChatMessage[]` into `LectureChatMessage[]`, then `mergeChatMessages(history, pending, liveVoice)`. |
+| 6 | `…/ai-chat/LectureAiChatPanel.tsx` | Renders the merged timeline. |
 
-Voice content is **never written to the LMS DB**. It lives on the Python token server; the LMS DB only stores session metadata (`aiTutorSessions`) and text rows (`aiChatMessages`).
+Voice content is now persisted in our DB (in the same row as text) once the session ends. During the live session the panel shows the live transcript via `useTranscriptions()`; after the session ends and the panel refetches history, the persisted entries replace the live ones.
 
 ---
 
@@ -182,7 +202,7 @@ If this throws, **both** text chat and voice chat fail with the same code.
 | `POST /api/learn/ai-tutor/$lectureId/session` | `createSession.handler.ts` | `createAiTutorSession` |
 | `POST /api/learn/ai-tutor/$lectureId/dispatch` | `dispatchAgent.handler.ts` | `dispatchAiTutorAgent` |
 | `POST /api/learn/ai-tutor/end` | `endSession.handler.ts` | `endAiTutorSession` |
-| `GET  /api/learn/ai-tutor/$lectureId/transcript` | `getTranscript.handler.ts` | `fetchAiTutorTranscript` |
+| `GET  /api/learn/ai-tutor/$lectureId/transcript` | `getTranscript.handler.ts` | `fetchAiTutorTranscript` (still pulls live from token server; used as an admin/debug view, no longer needed by the chat panel) |
 | `GET  /api/learn/ai-tutor/limit` | `getLimit.handler.ts` | `fetchAiTutorLimit` |
 | `POST /api/learn/ai-tutor/$lectureId/feedback` | `submitFeedback.handler.ts` | `submitAiTutorFeedback` |
 | `POST /api/learn/ai-chat/$lectureId/send` | `sendMessage.handler.ts` | `sendAiChatMessage` |
@@ -205,24 +225,21 @@ idle ──ensureConnected──► creating ──create OK──► connecting
   └──────────────────────── endSession ──── ending ◄──────────────────────────────────┘
 ```
 
-Where each transition fires: see `ensureConnected` and `endSession` in `…/ai-chat/hooks/useAiTutorSession.ts`.
-
 ---
 
 ## 7. Common failure modes & where to look
 
 | Symptom | Likely cause | File to inspect |
 |---|---|---|
-| Text chat fails too when voice is broken | `sendMessage` calls `ensureConnected()` first | `…/hooks/useLectureAiChat.ts` (`sendMessage`) |
+| Text chat fails too when voice is broken | `sendMessage` currently calls `ensureConnected()` first | `…/hooks/useLectureAiChat.ts` (`sendMessage`) |
 | `AI_TUTOR_TOKEN_SERVER_NOT_CONFIGURED` | `TOKEN_SERVER_URL` env unset | `src/server/ai-tutor/clients/aiTutorTokenServer.ts` |
-| `AI_TUTOR_TOKEN_SERVER_INVALID_RESPONSE` | Python token server returned 200 but missing `session_id/room_name/url/token/...` | same file, `generateSessionOnTokenServer` |
-| Agent never shown as joined / speaking | Agent identity doesn't include `agent` or `tutor` | `isAgentParticipantIdentity` in `useAiTutorSession.ts`, regex in `useAiTutorMessages.ts:34`, `isAgentParticipant` in `useAiTutorAgentSpeaking.ts` |
-| Optimistic user msg disappears | OpenAI failed after the user row was inserted | `sendAiChatMessage.ts` (rows are sequenced: user-row → OpenAI → assistant-row) |
-| `AI_TUTOR_TRANSCRIPT_UNAVAILABLE` | `lecturesAi` row missing or empty `summary`/`transcript` for this lecture | `aiTutorLectureAccess.ts` → `loadTranscript` |
-| History missing voice content | Token server unreachable; failure is swallowed | `getAiChatHistory.ts` (`.catch(() => [])`) |
+| `AI_TUTOR_TOKEN_SERVER_INVALID_RESPONSE` | Python token server returned 200 but missing fields | same file, `generateSessionOnTokenServer` |
+| Agent never shown as joined / speaking | Agent identity doesn't include `agent` or `tutor` | `isAgentParticipantIdentity` and friends |
+| Optimistic user msg disappears | OpenAI failed — no row written for the failed turn | `sendAiChatMessage.ts` |
+| `AI_TUTOR_TRANSCRIPT_UNAVAILABLE` | `lecturesAi` row missing or empty `summary`/`transcript` | `aiTutorLectureAccess.ts` → `loadTranscript` |
+| Voice transcript missing after session ends | Token server unreachable when `endAiTutorSession` ran; persistence is best-effort | `persistVoiceTranscript.ts` |
 | Daily limit miscounts | Only counts rows where `sessionId IS NOT NULL` | `aiTutorDailyLimit.ts` |
-| Session never marked ended in DB | `endAiTutorSession` only calls token server | `aiTutorSession.service.ts` |
-| Tab close doesn't end room | `beforeunload` uses `sendBeacon` — no response visibility | `useAiTutorSession.ts` + `endAiTutorSessionWithBeacon` |
+| Tab close doesn't persist voice | `beforeunload` uses `sendBeacon`; persistence still runs server-side as part of `/end`, but if the beacon never reaches the server the transcript stays only on the token server | `useAiTutorSession.ts` + `endAiTutorSession` |
 
 ---
 
@@ -243,6 +260,6 @@ Where each transition fires: see `ensureConnected` and `endSession` in `…/ai-c
 | Table | Written by | Notes |
 |---|---|---|
 | `aiTutorSessions` | `createAiTutorSessionRecord`, `attachTokenServerSessionToRecord`, `markRecordFailed`, `updateLatestSessionFeedback` | One row per voice session attempt; `sessionId` is `NULL` until the token server responds. |
-| `aiChatMessages` | `insertAiChatMessage` (only `source:'text'` in practice today) | Text chat persistent store. |
+| `aiChatPracticeQuestions` | `loadOrCreateChatRow`, `appendChatHistoryEntries` (from `sendAiChatMessage` and `persistVoiceTranscriptToHistory`) | One row per `(userId, lectureId)`; the entire conversation (text + voice) lives in the `chatHistory` JSON column. |
 | `lecturesAi` | (read-only) | Source of the lecture transcript/summary used as prompt context. |
 | `lectures`, `sectionUser`, `users` | (read-only) | Access checks. |

@@ -1,11 +1,15 @@
-import type { AiChatMessage, SendAiChatMessageResult } from '@/server/ai-chat/types'
+import type {
+  AiChatMessage,
+  SendAiChatMessageResult,
+} from '@/server/ai-chat/types'
 
 import { requestOpenAiChatCompletion } from '@/server/ai-chat/clients/openAiChatCompletions'
-import { buildChatPromptMessages } from '@/server/ai-chat/services/buildChatPrompt'
+import { projectHistoryToPromptTurns } from '@/server/ai-chat/services/aiChatHistoryProjection'
 import {
-  insertAiChatMessage,
-  listRecentAiChatMessagesForContext,
-} from '@/server/ai-chat/services/aiChatMessages.repo'
+  appendChatHistoryEntries,
+  loadOrCreateChatRow,
+} from '@/server/ai-chat/services/aiChatPracticeQuestions.repo'
+import { buildChatPromptMessages } from '@/server/ai-chat/services/buildChatPrompt'
 import {
   AiTutorLectureAccessError,
   resolveAiTutorLectureContext,
@@ -14,27 +18,19 @@ import {
 export const AI_CHAT_MAX_MESSAGE_LENGTH = 4_000
 const HISTORY_TURNS_FOR_PROMPT = 16
 
-function toClientMessage(row: {
-  id: number
-  role: 'user' | 'assistant'
-  content: string
-  source: 'text' | 'voice'
-  createdAt: string
-}): AiChatMessage {
-  const epoch = new Date(`${row.createdAt}Z`).getTime()
-  return {
-    id: `db-${row.id}`,
-    role: row.role,
-    content: row.content,
-    source: row.source,
-    timestamp: Number.isFinite(epoch) ? epoch : Date.now(),
-  }
-}
-
 /**
- * Persists a student message, asks OpenAI for a reply using lecture context,
- * persists the reply, and returns both turns. Voice transcripts live on the
- * LiveKit token server and are merged into the unified history at read time.
+ * Text chat send pipeline:
+ *   1. Validate access + lecture context.
+ *   2. Load (or create) the single `aiChatPracticeQuestions` row for this
+ *      (user, lecture).
+ *   3. Project prior history into OpenAI prompt turns (text + voice mixed).
+ *   4. Call OpenAI.
+ *   5. Append the completed turn as a single `{ type: 'text', userMessage,
+ *      aiMessage }` entry in the persisted JSON history.
+ *   6. Return both messages to the client.
+ *
+ * Text chat is intentionally independent of the LiveKit voice session — if
+ * audio is broken, typed messages still work.
  */
 export async function sendAiChatMessage(input: {
   userId: number
@@ -58,39 +54,54 @@ export async function sendAiChatMessage(input: {
     throw error
   }
 
-  const history = await listRecentAiChatMessagesForContext({
+  const row = await loadOrCreateChatRow({
     userId: input.userId,
     lectureId: input.lectureId,
-    limit: HISTORY_TURNS_FOR_PROMPT,
   })
 
-  const userRow = await insertAiChatMessage({
-    userId: input.userId,
-    lectureId: input.lectureId,
-    role: 'user',
-    source: 'text',
-    content: trimmed,
-  })
+  const turns = projectHistoryToPromptTurns(row.chatHistory)
+  const recentTurns = turns.slice(-HISTORY_TURNS_FOR_PROMPT)
 
-  const messages = buildChatPromptMessages({
+  const promptMessages = buildChatPromptMessages({
     lectureTitle: lectureContext.context.title,
     lectureSummary: lectureContext.context.transcript,
-    history,
+    history: recentTurns,
     userMessage: trimmed,
   })
 
-  const assistantContent = await requestOpenAiChatCompletion({ messages })
-
-  const assistantRow = await insertAiChatMessage({
-    userId: input.userId,
-    lectureId: input.lectureId,
-    role: 'assistant',
-    source: 'text',
-    content: assistantContent,
+  const assistantContent = await requestOpenAiChatCompletion({
+    messages: promptMessages,
   })
 
-  return {
-    userMessage: toClientMessage(userRow),
-    assistantMessage: toClientMessage(assistantRow),
+  const timestamp = Date.now()
+  const newEntryIndex = row.chatHistory.length
+
+  await appendChatHistoryEntries({
+    rowId: row.id,
+    entries: [
+      {
+        type: 'text',
+        userMessage: trimmed,
+        aiMessage: assistantContent,
+        timestamp,
+      },
+    ],
+  })
+
+  const userMessage: AiChatMessage = {
+    id: `text-${row.id}-${newEntryIndex}-u`,
+    role: 'user',
+    content: trimmed,
+    source: 'text',
+    timestamp,
   }
+  const assistantMessage: AiChatMessage = {
+    id: `text-${row.id}-${newEntryIndex}-a`,
+    role: 'assistant',
+    content: assistantContent,
+    source: 'text',
+    timestamp: timestamp + 1,
+  }
+
+  return { userMessage, assistantMessage }
 }

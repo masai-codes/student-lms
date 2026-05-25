@@ -6,9 +6,9 @@ import {
 } from '../sendAiChatMessage'
 import { requestOpenAiChatCompletion } from '@/server/ai-chat/clients/openAiChatCompletions'
 import {
-  insertAiChatMessage,
-  listRecentAiChatMessagesForContext,
-} from '@/server/ai-chat/services/aiChatMessages.repo'
+  appendChatHistoryEntries,
+  loadOrCreateChatRow,
+} from '@/server/ai-chat/services/aiChatPracticeQuestions.repo'
 import {
   AiTutorLectureAccessError,
   resolveAiTutorLectureContext,
@@ -18,9 +18,9 @@ vi.mock('@/server/ai-chat/clients/openAiChatCompletions', () => ({
   requestOpenAiChatCompletion: vi.fn(),
 }))
 
-vi.mock('@/server/ai-chat/services/aiChatMessages.repo', () => ({
-  insertAiChatMessage: vi.fn(),
-  listRecentAiChatMessagesForContext: vi.fn(),
+vi.mock('@/server/ai-chat/services/aiChatPracticeQuestions.repo', () => ({
+  loadOrCreateChatRow: vi.fn(),
+  appendChatHistoryEntries: vi.fn(),
 }))
 
 vi.mock('@/server/ai-tutor/services/aiTutorLectureAccess', () => {
@@ -38,8 +38,8 @@ vi.mock('@/server/ai-tutor/services/aiTutorLectureAccess', () => {
 
 beforeEach(() => {
   vi.mocked(requestOpenAiChatCompletion).mockReset()
-  vi.mocked(insertAiChatMessage).mockReset()
-  vi.mocked(listRecentAiChatMessagesForContext).mockReset()
+  vi.mocked(loadOrCreateChatRow).mockReset()
+  vi.mocked(appendChatHistoryEntries).mockReset()
   vi.mocked(resolveAiTutorLectureContext).mockReset()
 })
 
@@ -56,44 +56,41 @@ function mockAccess(transcript = 'lecture summary'): void {
   })
 }
 
-function mockInsert(id: number, role: 'user' | 'assistant', content: string) {
-  vi.mocked(insertAiChatMessage).mockResolvedValueOnce({
-    id,
-    userId: 1,
-    lectureId: 5,
-    role,
-    source: 'text',
-    content,
-    sessionId: null,
-    createdAt: '2026-05-25 10:00:00',
-  })
-}
-
 describe('sendAiChatMessage', () => {
-  it('persists user + assistant turns and returns both with timestamps', async () => {
+  it('appends a text turn and returns both messages', async () => {
     mockAccess()
-    vi.mocked(listRecentAiChatMessagesForContext).mockResolvedValueOnce([])
-    mockInsert(101, 'user', 'What is JSX?')
+    vi.mocked(loadOrCreateChatRow).mockResolvedValueOnce({
+      id: 42,
+      chatHistory: [],
+    })
     vi.mocked(requestOpenAiChatCompletion).mockResolvedValueOnce(
       'JSX is syntax sugar.',
     )
-    mockInsert(102, 'assistant', 'JSX is syntax sugar.')
+    vi.mocked(appendChatHistoryEntries).mockResolvedValueOnce([])
 
     const result = await sendAiChatMessage(baseInput)
 
     expect(result.userMessage).toMatchObject({
-      id: 'db-101',
+      id: 'text-42-0-u',
       role: 'user',
       content: 'What is JSX?',
       source: 'text',
     })
     expect(result.assistantMessage).toMatchObject({
-      id: 'db-102',
+      id: 'text-42-0-a',
       role: 'assistant',
       content: 'JSX is syntax sugar.',
       source: 'text',
     })
-    expect(insertAiChatMessage).toHaveBeenCalledTimes(2)
+
+    const append = vi.mocked(appendChatHistoryEntries).mock.calls[0][0]
+    expect(append.rowId).toBe(42)
+    expect(append.entries).toHaveLength(1)
+    expect(append.entries[0]).toMatchObject({
+      type: 'text',
+      userMessage: 'What is JSX?',
+      aiMessage: 'JSX is syntax sugar.',
+    })
   })
 
   it('rejects an empty message before doing any work', async () => {
@@ -101,7 +98,7 @@ describe('sendAiChatMessage', () => {
       sendAiChatMessage({ ...baseInput, message: '   ' }),
     ).rejects.toThrow('AI_CHAT_MESSAGE_EMPTY')
     expect(resolveAiTutorLectureContext).not.toHaveBeenCalled()
-    expect(insertAiChatMessage).not.toHaveBeenCalled()
+    expect(loadOrCreateChatRow).not.toHaveBeenCalled()
   })
 
   it('rejects an oversize message', async () => {
@@ -111,7 +108,7 @@ describe('sendAiChatMessage', () => {
         message: 'x'.repeat(AI_CHAT_MAX_MESSAGE_LENGTH + 1),
       }),
     ).rejects.toThrow('AI_CHAT_MESSAGE_TOO_LONG')
-    expect(insertAiChatMessage).not.toHaveBeenCalled()
+    expect(loadOrCreateChatRow).not.toHaveBeenCalled()
   })
 
   it('translates lecture access errors to their code', async () => {
@@ -122,13 +119,15 @@ describe('sendAiChatMessage', () => {
     await expect(sendAiChatMessage(baseInput)).rejects.toThrow(
       'AI_TUTOR_LECTURE_FORBIDDEN',
     )
-    expect(insertAiChatMessage).not.toHaveBeenCalled()
+    expect(loadOrCreateChatRow).not.toHaveBeenCalled()
   })
 
-  it('does not write an assistant turn when OpenAI fails', async () => {
+  it('does not append a turn when OpenAI fails', async () => {
     mockAccess()
-    vi.mocked(listRecentAiChatMessagesForContext).mockResolvedValueOnce([])
-    mockInsert(101, 'user', 'What is JSX?')
+    vi.mocked(loadOrCreateChatRow).mockResolvedValueOnce({
+      id: 42,
+      chatHistory: [],
+    })
     vi.mocked(requestOpenAiChatCompletion).mockRejectedValueOnce(
       new Error('AI_CHAT_OPENAI_REQUEST_FAILED'),
     )
@@ -136,28 +135,64 @@ describe('sendAiChatMessage', () => {
     await expect(sendAiChatMessage(baseInput)).rejects.toThrow(
       'AI_CHAT_OPENAI_REQUEST_FAILED',
     )
-    expect(insertAiChatMessage).toHaveBeenCalledTimes(1)
+    expect(appendChatHistoryEntries).not.toHaveBeenCalled()
   })
 
-  it('passes recent history into the prompt builder', async () => {
+  it('feeds prior text+voice history into the OpenAI prompt', async () => {
     mockAccess('lecture text')
-    vi.mocked(listRecentAiChatMessagesForContext).mockResolvedValueOnce([
-      { role: 'user', content: 'q1' },
-      { role: 'assistant', content: 'a1' },
-    ])
-    mockInsert(101, 'user', 'What is JSX?')
+    vi.mocked(loadOrCreateChatRow).mockResolvedValueOnce({
+      id: 42,
+      chatHistory: [
+        { type: 'text', userMessage: 'q1', aiMessage: 'a1', timestamp: 100 },
+        {
+          type: 'audio_chat_student_speaking',
+          content: 'spoken question',
+          timestamp: 200,
+        },
+        {
+          type: 'audio_chat_ai_response',
+          content: 'spoken reply',
+          timestamp: 300,
+        },
+      ],
+    })
     vi.mocked(requestOpenAiChatCompletion).mockResolvedValueOnce('answer')
-    mockInsert(102, 'assistant', 'answer')
+    vi.mocked(appendChatHistoryEntries).mockResolvedValueOnce([])
 
     await sendAiChatMessage(baseInput)
 
     const call = vi.mocked(requestOpenAiChatCompletion).mock.calls[0]
     const messages = call[0].messages
-    expect(messages.some(m => m.role === 'system')).toBe(true)
-    expect(messages.some(m => m.role === 'user' && m.content === 'q1')).toBe(true)
+    expect(messages.some(m => m.role === 'user' && m.content === 'q1')).toBe(
+      true,
+    )
+    expect(
+      messages.some(m => m.role === 'user' && m.content === 'spoken question'),
+    ).toBe(true)
+    expect(
+      messages.some(m => m.role === 'assistant' && m.content === 'spoken reply'),
+    ).toBe(true)
     expect(messages[messages.length - 1]).toEqual({
       role: 'user',
       content: 'What is JSX?',
     })
+  })
+
+  it('uses the new entry index for stable client IDs', async () => {
+    mockAccess()
+    vi.mocked(loadOrCreateChatRow).mockResolvedValueOnce({
+      id: 42,
+      chatHistory: [
+        { type: 'text', userMessage: 'q', aiMessage: 'a', timestamp: 100 },
+        { type: 'text', userMessage: 'q2', aiMessage: 'a2', timestamp: 200 },
+      ],
+    })
+    vi.mocked(requestOpenAiChatCompletion).mockResolvedValueOnce('a3')
+    vi.mocked(appendChatHistoryEntries).mockResolvedValueOnce([])
+
+    const result = await sendAiChatMessage(baseInput)
+
+    expect(result.userMessage.id).toBe('text-42-2-u')
+    expect(result.assistantMessage.id).toBe('text-42-2-a')
   })
 })

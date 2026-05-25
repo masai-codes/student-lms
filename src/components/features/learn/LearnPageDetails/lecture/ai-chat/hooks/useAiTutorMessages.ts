@@ -120,6 +120,7 @@ export function useAiTutorMessages({
       }
       setPending(prev => [...prev, optimistic])
       setIsSending(true)
+
       try {
         const result = await sendAiChatMessageRequest({
           lectureId,

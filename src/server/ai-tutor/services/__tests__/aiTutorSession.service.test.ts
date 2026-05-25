@@ -21,10 +21,13 @@ import {
 import {
   attachTokenServerSessionToRecord,
   createAiTutorSessionRecord,
+  findOwnedSessionByActiveSessionId,
   listSessionsForLecture,
   markRecordFailed,
   updateLatestSessionFeedback,
 } from '@/server/ai-tutor/services/aiTutorSessionRecords'
+import { findChatRow } from '@/server/ai-chat/services/aiChatPracticeQuestions.repo'
+import { persistVoiceTranscriptToHistory } from '@/server/ai-chat/services/persistVoiceTranscript'
 
 
 vi.mock('@/server/ai-tutor/services/aiTutorDailyLimit', () => ({
@@ -51,6 +54,7 @@ vi.mock('@/server/ai-tutor/services/aiTutorSessionRecords', () => ({
   markRecordFailed: vi.fn(),
   listSessionsForLecture: vi.fn(),
   updateLatestSessionFeedback: vi.fn(),
+  findOwnedSessionByActiveSessionId: vi.fn(),
 }))
 
 vi.mock('@/server/ai-tutor/clients/aiTutorTokenServer', () => ({
@@ -58,6 +62,14 @@ vi.mock('@/server/ai-tutor/clients/aiTutorTokenServer', () => ({
   dispatchAgentOnTokenServer: vi.fn(),
   endSessionOnTokenServer: vi.fn(),
   fetchTranscriptOnTokenServer: vi.fn(),
+}))
+
+vi.mock('@/server/ai-chat/services/aiChatPracticeQuestions.repo', () => ({
+  findChatRow: vi.fn(),
+}))
+
+vi.mock('@/server/ai-chat/services/persistVoiceTranscript', () => ({
+  persistVoiceTranscriptToHistory: vi.fn(),
 }))
 
 beforeEach(() => {
@@ -68,10 +80,13 @@ beforeEach(() => {
   vi.mocked(markRecordFailed).mockReset()
   vi.mocked(listSessionsForLecture).mockReset()
   vi.mocked(updateLatestSessionFeedback).mockReset()
+  vi.mocked(findOwnedSessionByActiveSessionId).mockReset()
   vi.mocked(generateSessionOnTokenServer).mockReset()
   vi.mocked(dispatchAgentOnTokenServer).mockReset()
   vi.mocked(endSessionOnTokenServer).mockReset()
   vi.mocked(fetchTranscriptOnTokenServer).mockReset()
+  vi.mocked(findChatRow).mockReset()
+  vi.mocked(persistVoiceTranscriptToHistory).mockReset()
 })
 
 afterEach(() => {
@@ -99,6 +114,7 @@ describe('createAiTutorSession', () => {
       roomName: null,
       createdAt: null,
     })
+    vi.mocked(findChatRow).mockResolvedValueOnce(null)
     vi.mocked(generateSessionOnTokenServer).mockResolvedValueOnce({
       session_id: 's',
       room_name: 'r',
@@ -180,6 +196,7 @@ describe('createAiTutorSession', () => {
       roomName: null,
       createdAt: null,
     })
+    vi.mocked(findChatRow).mockResolvedValueOnce(null)
     vi.mocked(generateSessionOnTokenServer).mockRejectedValueOnce(
       new Error('AI_TUTOR_TOKEN_SERVER_GENERATE_FAILED'),
     )
@@ -230,12 +247,51 @@ describe('dispatchAiTutorAgent', () => {
 })
 
 describe('endAiTutorSession', () => {
-  it('proxies to the token server', async () => {
+  it('ends on the token server then persists the voice transcript', async () => {
     vi.mocked(endSessionOnTokenServer).mockResolvedValueOnce(undefined)
+    vi.mocked(findOwnedSessionByActiveSessionId).mockResolvedValueOnce({
+      id: 22,
+      lectureId: 5,
+      sessionId: 's',
+    })
+    vi.mocked(persistVoiceTranscriptToHistory).mockResolvedValueOnce(undefined)
+
     await expect(
       endAiTutorSession({ userId: 1, sessionId: 's' }),
     ).resolves.toBeUndefined()
+
     expect(endSessionOnTokenServer).toHaveBeenCalledWith('s')
+    expect(persistVoiceTranscriptToHistory).toHaveBeenCalledWith({
+      userId: 1,
+      lectureId: 5,
+      sessionId: 's',
+    })
+  })
+
+  it('skips persistence when the session record is not found', async () => {
+    vi.mocked(endSessionOnTokenServer).mockResolvedValueOnce(undefined)
+    vi.mocked(findOwnedSessionByActiveSessionId).mockResolvedValueOnce(null)
+
+    await expect(
+      endAiTutorSession({ userId: 1, sessionId: 's' }),
+    ).resolves.toBeUndefined()
+    expect(persistVoiceTranscriptToHistory).not.toHaveBeenCalled()
+  })
+
+  it('swallows persistence failures so the session is still considered ended', async () => {
+    vi.mocked(endSessionOnTokenServer).mockResolvedValueOnce(undefined)
+    vi.mocked(findOwnedSessionByActiveSessionId).mockResolvedValueOnce({
+      id: 22,
+      lectureId: 5,
+      sessionId: 's',
+    })
+    vi.mocked(persistVoiceTranscriptToHistory).mockRejectedValueOnce(
+      new Error('AI_TUTOR_TOKEN_SERVER_TRANSCRIPT_FAILED'),
+    )
+
+    await expect(
+      endAiTutorSession({ userId: 1, sessionId: 's' }),
+    ).resolves.toBeUndefined()
   })
 })
 
