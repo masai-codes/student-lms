@@ -33,6 +33,8 @@ import { Route as ApiLearnAiTutorLectureIdTranscriptRouteImport } from './routes
 import { Route as ApiLearnAiTutorLectureIdSessionRouteImport } from './routes/api/learn/ai-tutor/$lectureId/session'
 import { Route as ApiLearnAiTutorLectureIdFeedbackRouteImport } from './routes/api/learn/ai-tutor/$lectureId/feedback'
 import { Route as ApiLearnAiTutorLectureIdDispatchRouteImport } from './routes/api/learn/ai-tutor/$lectureId/dispatch'
+import { Route as ApiLearnAiChatLectureIdSendRouteImport } from './routes/api/learn/ai-chat/$lectureId/send'
+import { Route as ApiLearnAiChatLectureIdHistoryRouteImport } from './routes/api/learn/ai-chat/$lectureId/history'
 
 const protectedLayoutRouteRoute = protectedLayoutRouteRouteImport.update({
   id: '/(protected)/_layout',
@@ -170,6 +172,18 @@ const ApiLearnAiTutorLectureIdDispatchRoute =
     path: '/api/learn/ai-tutor/$lectureId/dispatch',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiLearnAiChatLectureIdSendRoute =
+  ApiLearnAiChatLectureIdSendRouteImport.update({
+    id: '/api/learn/ai-chat/$lectureId/send',
+    path: '/api/learn/ai-chat/$lectureId/send',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiLearnAiChatLectureIdHistoryRoute =
+  ApiLearnAiChatLectureIdHistoryRouteImport.update({
+    id: '/api/learn/ai-chat/$lectureId/history',
+    path: '/api/learn/ai-chat/$lectureId/history',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/masaiverse': typeof protectedLayoutMasaiverseRouteRouteWithChildren
@@ -188,6 +202,8 @@ export interface FileRoutesByFullPath {
   '/api/learn/submissions/$submissionId': typeof ApiLearnSubmissionsSubmissionIdRouteWithChildren
   '/learn/': typeof protectedLayoutLearnIndexRoute
   '/masaiverse/': typeof protectedLayoutMasaiverseIndexRoute
+  '/api/learn/ai-chat/$lectureId/history': typeof ApiLearnAiChatLectureIdHistoryRoute
+  '/api/learn/ai-chat/$lectureId/send': typeof ApiLearnAiChatLectureIdSendRoute
   '/api/learn/ai-tutor/$lectureId/dispatch': typeof ApiLearnAiTutorLectureIdDispatchRoute
   '/api/learn/ai-tutor/$lectureId/feedback': typeof ApiLearnAiTutorLectureIdFeedbackRoute
   '/api/learn/ai-tutor/$lectureId/session': typeof ApiLearnAiTutorLectureIdSessionRoute
@@ -212,6 +228,8 @@ export interface FileRoutesByTo {
   '/api/learn/submissions/$submissionId': typeof ApiLearnSubmissionsSubmissionIdRouteWithChildren
   '/learn': typeof protectedLayoutLearnIndexRoute
   '/masaiverse': typeof protectedLayoutMasaiverseIndexRoute
+  '/api/learn/ai-chat/$lectureId/history': typeof ApiLearnAiChatLectureIdHistoryRoute
+  '/api/learn/ai-chat/$lectureId/send': typeof ApiLearnAiChatLectureIdSendRoute
   '/api/learn/ai-tutor/$lectureId/dispatch': typeof ApiLearnAiTutorLectureIdDispatchRoute
   '/api/learn/ai-tutor/$lectureId/feedback': typeof ApiLearnAiTutorLectureIdFeedbackRoute
   '/api/learn/ai-tutor/$lectureId/session': typeof ApiLearnAiTutorLectureIdSessionRoute
@@ -239,6 +257,8 @@ export interface FileRoutesById {
   '/api/learn/submissions/$submissionId': typeof ApiLearnSubmissionsSubmissionIdRouteWithChildren
   '/(protected)/_layout/learn/': typeof protectedLayoutLearnIndexRoute
   '/(protected)/_layout/masaiverse/': typeof protectedLayoutMasaiverseIndexRoute
+  '/api/learn/ai-chat/$lectureId/history': typeof ApiLearnAiChatLectureIdHistoryRoute
+  '/api/learn/ai-chat/$lectureId/send': typeof ApiLearnAiChatLectureIdSendRoute
   '/api/learn/ai-tutor/$lectureId/dispatch': typeof ApiLearnAiTutorLectureIdDispatchRoute
   '/api/learn/ai-tutor/$lectureId/feedback': typeof ApiLearnAiTutorLectureIdFeedbackRoute
   '/api/learn/ai-tutor/$lectureId/session': typeof ApiLearnAiTutorLectureIdSessionRoute
@@ -266,6 +286,8 @@ export interface FileRouteTypes {
     | '/api/learn/submissions/$submissionId'
     | '/learn/'
     | '/masaiverse/'
+    | '/api/learn/ai-chat/$lectureId/history'
+    | '/api/learn/ai-chat/$lectureId/send'
     | '/api/learn/ai-tutor/$lectureId/dispatch'
     | '/api/learn/ai-tutor/$lectureId/feedback'
     | '/api/learn/ai-tutor/$lectureId/session'
@@ -290,6 +312,8 @@ export interface FileRouteTypes {
     | '/api/learn/submissions/$submissionId'
     | '/learn'
     | '/masaiverse'
+    | '/api/learn/ai-chat/$lectureId/history'
+    | '/api/learn/ai-chat/$lectureId/send'
     | '/api/learn/ai-tutor/$lectureId/dispatch'
     | '/api/learn/ai-tutor/$lectureId/feedback'
     | '/api/learn/ai-tutor/$lectureId/session'
@@ -316,6 +340,8 @@ export interface FileRouteTypes {
     | '/api/learn/submissions/$submissionId'
     | '/(protected)/_layout/learn/'
     | '/(protected)/_layout/masaiverse/'
+    | '/api/learn/ai-chat/$lectureId/history'
+    | '/api/learn/ai-chat/$lectureId/send'
     | '/api/learn/ai-tutor/$lectureId/dispatch'
     | '/api/learn/ai-tutor/$lectureId/feedback'
     | '/api/learn/ai-tutor/$lectureId/session'
@@ -336,6 +362,8 @@ export interface RootRouteChildren {
   ApiLearnLecturesLectureIdRoute: typeof ApiLearnLecturesLectureIdRoute
   ApiLearnResourcesResourceIdRoute: typeof ApiLearnResourcesResourceIdRoute
   ApiLearnSubmissionsSubmissionIdRoute: typeof ApiLearnSubmissionsSubmissionIdRouteWithChildren
+  ApiLearnAiChatLectureIdHistoryRoute: typeof ApiLearnAiChatLectureIdHistoryRoute
+  ApiLearnAiChatLectureIdSendRoute: typeof ApiLearnAiChatLectureIdSendRoute
   ApiLearnAiTutorLectureIdDispatchRoute: typeof ApiLearnAiTutorLectureIdDispatchRoute
   ApiLearnAiTutorLectureIdFeedbackRoute: typeof ApiLearnAiTutorLectureIdFeedbackRoute
   ApiLearnAiTutorLectureIdSessionRoute: typeof ApiLearnAiTutorLectureIdSessionRoute
@@ -512,6 +540,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiLearnAiTutorLectureIdDispatchRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/learn/ai-chat/$lectureId/send': {
+      id: '/api/learn/ai-chat/$lectureId/send'
+      path: '/api/learn/ai-chat/$lectureId/send'
+      fullPath: '/api/learn/ai-chat/$lectureId/send'
+      preLoaderRoute: typeof ApiLearnAiChatLectureIdSendRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/learn/ai-chat/$lectureId/history': {
+      id: '/api/learn/ai-chat/$lectureId/history'
+      path: '/api/learn/ai-chat/$lectureId/history'
+      fullPath: '/api/learn/ai-chat/$lectureId/history'
+      preLoaderRoute: typeof ApiLearnAiChatLectureIdHistoryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -600,6 +642,8 @@ const rootRouteChildren: RootRouteChildren = {
   ApiLearnResourcesResourceIdRoute: ApiLearnResourcesResourceIdRoute,
   ApiLearnSubmissionsSubmissionIdRoute:
     ApiLearnSubmissionsSubmissionIdRouteWithChildren,
+  ApiLearnAiChatLectureIdHistoryRoute: ApiLearnAiChatLectureIdHistoryRoute,
+  ApiLearnAiChatLectureIdSendRoute: ApiLearnAiChatLectureIdSendRoute,
   ApiLearnAiTutorLectureIdDispatchRoute: ApiLearnAiTutorLectureIdDispatchRoute,
   ApiLearnAiTutorLectureIdFeedbackRoute: ApiLearnAiTutorLectureIdFeedbackRoute,
   ApiLearnAiTutorLectureIdSessionRoute: ApiLearnAiTutorLectureIdSessionRoute,

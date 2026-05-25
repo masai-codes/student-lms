@@ -73,6 +73,15 @@ export function mapThrownErrorToResponse(error: unknown): Response {
       case 'AI_TUTOR_SESSION_CREATE_FAILED':
       case 'AI_TUTOR_RECORD_INSERT_FAILED':
         return jsonError(503, error.message)
+      case 'AI_CHAT_MESSAGE_EMPTY':
+      case 'AI_CHAT_MESSAGE_TOO_LONG':
+        return jsonError(400, error.message)
+      case 'AI_CHAT_OPENAI_NOT_CONFIGURED':
+      case 'AI_CHAT_OPENAI_REQUEST_FAILED':
+      case 'AI_CHAT_OPENAI_EMPTY_RESPONSE':
+      case 'AI_CHAT_OPENAI_TIMEOUT':
+      case 'AI_CHAT_MESSAGE_INSERT_FAILED':
+        return jsonError(503, error.message)
       default:
         break
     }

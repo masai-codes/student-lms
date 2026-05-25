@@ -1,55 +1,27 @@
 'use client'
 
-import {
-  
-  
-  useChat,
-  useTranscriptions
-} from '@livekit/components-react'
-import { useEffect, useMemo, useState } from 'react'
-
+import { useTranscriptions } from '@livekit/components-react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { mergeChatMessages } from '../utils/mergeChatMessages'
-import type {ReceivedChatMessage, TextStreamData} from '@livekit/components-react';
-import type { AiTutorTranscriptSession } from '@/server/ai-tutor/types'
+import type { TextStreamData } from '@livekit/components-react'
+
+import type { AiChatMessage } from '@/server/ai-chat/types'
 
 import type { LectureChatMessage } from '../types'
-import { fetchAiTutorTranscriptRequest } from '@/lib/api/learn/aiTutorApi'
+import {
+  fetchAiChatHistoryRequest,
+  sendAiChatMessageRequest,
+} from '@/lib/api/learn/aiChatApi'
 
-function transcriptSessionsToMessages(
-  sessions: Array<AiTutorTranscriptSession>,
-): Array<LectureChatMessage> {
-  const messages: Array<LectureChatMessage> = []
-  for (const session of sessions) {
-    session.transcript.forEach((entry, index) => {
-      const ts = new Date(entry.timestamp).getTime()
-      messages.push({
-        id: `history-${session.sessionId}-${index}`,
-        role: entry.role,
-        content: entry.content,
-        timestamp: Number.isFinite(ts) ? ts : Date.now(),
-        source: 'history',
-      })
-    })
+
+function aiChatMessageToLecture(msg: AiChatMessage): LectureChatMessage {
+  return {
+    id: msg.id,
+    role: msg.role,
+    content: msg.content,
+    timestamp: msg.timestamp,
+    source: 'history',
   }
-  return messages
-}
-
-function liveTextChatToMessages(
-  chatMessages: ReadonlyArray<ReceivedChatMessage>,
-): Array<LectureChatMessage> {
-  return chatMessages.map(msg => {
-    const fromIsLocal = msg.from?.isLocal === true
-    const fromIdentity = msg.from?.identity ?? ''
-    const fromAgent =
-      !fromIsLocal && /agent|tutor/i.test(fromIdentity)
-    return {
-      id: msg.id,
-      role: fromAgent ? 'assistant' : 'user',
-      content: msg.message,
-      timestamp: msg.timestamp,
-      source: 'live-text',
-    }
-  })
 }
 
 function liveTranscriptsToMessages(
@@ -62,10 +34,10 @@ function liveTranscriptsToMessages(
       const isAgent = /agent|tutor|ai/i.test(identity)
       return {
         id: `voice-${identity}-${t.streamInfo.id}`,
-        role: isAgent ? 'assistant' : 'user',
+        role: isAgent ? ('assistant' as const) : ('user' as const),
         content: t.text,
         timestamp: t.streamInfo.timestamp,
-        source: 'live-voice',
+        source: 'live-voice' as const,
       }
     })
 }
@@ -89,27 +61,28 @@ export function useAiTutorMessages({
   lectureId,
   refetchKey,
 }: UseAiTutorMessagesOptions): UseAiTutorMessagesResult {
-  const { send, isSending, chatMessages } = useChat()
   const transcriptions = useTranscriptions()
 
   const [history, setHistory] = useState<Array<LectureChatMessage>>([])
+  const [pending, setPending] = useState<Array<LectureChatMessage>>([])
   const [isHistoryLoading, setIsHistoryLoading] = useState(false)
   const [historyError, setHistoryError] = useState<string | null>(null)
+  const [isSending, setIsSending] = useState(false)
   const [historyVersion, setHistoryVersion] = useState(0)
 
   useEffect(() => {
     let cancelled = false
     setIsHistoryLoading(true)
     setHistoryError(null)
-    fetchAiTutorTranscriptRequest(lectureId)
-      .then(sessions => {
+    fetchAiChatHistoryRequest(lectureId)
+      .then(rows => {
         if (cancelled) return
-        setHistory(transcriptSessionsToMessages(sessions))
+        setHistory(rows.map(aiChatMessageToLecture))
       })
       .catch((error: unknown) => {
         if (cancelled) return
         setHistoryError(
-          error instanceof Error ? error.message : 'AI_TUTOR_UNKNOWN_ERROR',
+          error instanceof Error ? error.message : 'AI_CHAT_UNKNOWN_ERROR',
         )
       })
       .finally(() => {
@@ -121,29 +94,59 @@ export function useAiTutorMessages({
     }
   }, [lectureId, refetchKey, historyVersion])
 
-  const liveText = useMemo(
-    () => liveTextChatToMessages(chatMessages),
-    [chatMessages],
-  )
   const liveVoice = useMemo(
     () => liveTranscriptsToMessages(transcriptions),
     [transcriptions],
   )
 
   const messages = useMemo(
-    () => mergeChatMessages(history, liveText, liveVoice),
-    [history, liveText, liveVoice],
+    () => mergeChatMessages(history, pending, liveVoice),
+    [history, pending, liveVoice],
+  )
+
+  const send = useCallback(
+    async (text: string) => {
+      const trimmed = text.trim()
+      if (!trimmed) return
+
+      const localId = `local-${Date.now()}`
+      const now = Date.now()
+      const optimistic: LectureChatMessage = {
+        id: localId,
+        role: 'user',
+        content: trimmed,
+        timestamp: now,
+        source: 'live-text',
+      }
+      setPending(prev => [...prev, optimistic])
+      setIsSending(true)
+      try {
+        const result = await sendAiChatMessageRequest({
+          lectureId,
+          message: trimmed,
+        })
+        setHistory(prev =>
+          mergeChatMessages(prev, [
+            aiChatMessageToLecture(result.userMessage),
+            aiChatMessageToLecture(result.assistantMessage),
+          ]),
+        )
+        setPending(prev => prev.filter(m => m.id !== localId))
+      } catch (error) {
+        setPending(prev => prev.filter(m => m.id !== localId))
+        throw error
+      } finally {
+        setIsSending(false)
+      }
+    },
+    [lectureId],
   )
 
   return {
     messages,
     isHistoryLoading,
     historyError,
-    send: async (text: string) => {
-      const trimmed = text.trim()
-      if (!trimmed) return
-      await send(trimmed)
-    },
+    send,
     isSending,
     refetchHistory: () => setHistoryVersion(v => v + 1),
   }

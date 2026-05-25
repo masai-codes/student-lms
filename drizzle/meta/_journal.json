@@ -8,6 +8,13 @@
       "when": 1769499853036,
       "tag": "0000_watery_agent_zero",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "5",
+      "when": 1779700000000,
+      "tag": "0001_add_ai_chat_messages",
+      "breakpoints": true
     }
   ]
 }

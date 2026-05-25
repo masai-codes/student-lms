@@ -2,6 +2,13 @@
 
 Last updated: 2026-05-25
 
+## Lecture AI chat (REST text + LiveKit voice)
+- Area: `POST /api/learn/ai-chat/:lectureId/send` (OpenAI `gpt-4.1-mini` via direct REST) and `GET /api/learn/ai-chat/:lectureId/history` (merges new `ai_chat_messages` Drizzle table with LiveKit voice transcripts from the token server); `useAiTutorMessages` rewritten to drop LiveKit `useChat()` for text and use REST instead; voice continues to use LiveKit STT/TTS unchanged.
+- Status: Covered (prompt builder, OpenAI client, send + history services, both handlers)
+- Test files: `src/server/ai-chat/**/__tests__/*`, `src/server/api/ai-chat/handlers/__tests__/*`
+- Notes: Voice transcript fetch errors fall back gracefully (return text history only). New migration `drizzle/0001_add_ai_chat_messages.sql`.
+
+
 ## Lecture attendance (learn listing + detail)
 - Area: `student_attendances` summaries on `GET /api/learn/batch-data` and `GET /api/learn/lectures/:id`; shared server utils + client UI state resolver
 - Status: Covered (unit tests for catch-up + UI mapping)

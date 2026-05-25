@@ -157,6 +157,22 @@ export const adhocSessions = mysqlTable("adhoc_sessions", {
 	primaryKey({ columns: [table.id], name: "adhoc_sessions_id"}),
 ]);
 
+export const aiChatMessages = mysqlTable("ai_chat_messages", {
+	id: int({ unsigned: true }).autoincrement().notNull(),
+	userId: bigint("user_id", { mode: "number", unsigned: true }).notNull().references(() => users.id, { onDelete: "restrict", onUpdate: "cascade" } ),
+	lectureId: int("lecture_id", { unsigned: true }).notNull().references(() => lectures.id, { onDelete: "restrict", onUpdate: "cascade" } ),
+	role: varchar({ length: 16 }).notNull(),
+	source: varchar({ length: 16 }).notNull().default('text'),
+	content: longtext().notNull(),
+	sessionId: varchar("session_id", { length: 255 }),
+	createdAt: timestamp("created_at", { mode: 'string' }).default(sql`CURRENT_TIMESTAMP`).notNull(),
+},
+(table) => [
+	index("ai_chat_messages_lecture_user_created_idx").on(table.lectureId, table.userId, table.createdAt),
+	index("ai_chat_messages_session_id_idx").on(table.sessionId),
+	primaryKey({ columns: [table.id], name: "ai_chat_messages_id"}),
+]);
+
 export const aiChatPracticeQuestions = mysqlTable("ai_chat_practice_questions", {
 	id: int({ unsigned: true }).autoincrement().notNull(),
 	lectureId: int({ unsigned: true }).notNull().references(() => lectures.id, { onDelete: "restrict", onUpdate: "cascade" } ),
