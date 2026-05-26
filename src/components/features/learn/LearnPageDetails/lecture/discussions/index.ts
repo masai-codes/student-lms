@@ -1,0 +1,5 @@
+export { LectureDiscussionsSection } from './LectureDiscussionsSection'
+export { LectureDiscussionCreateForm } from './LectureDiscussionCreateForm'
+export { LectureDiscussionListItem } from './LectureDiscussionListItem'
+export { LectureDiscussionReplyForm } from './LectureDiscussionReplyForm'
+export { LectureDiscussionReplyItem } from './LectureDiscussionReplyItem'

@@ -1,5 +1,3 @@
-import * as React from "react"
-
 import type { TabNavbarProps } from "./types"
 
 import { cn } from "@/lib/utils"

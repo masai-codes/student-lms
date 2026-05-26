@@ -1,0 +1,147 @@
+@property --lecture-chat-bar-angle {
+  syntax: '<angle>';
+  initial-value: 0deg;
+  inherits: false;
+}
+
+.lecture-chat-bar-shine {
+  --lecture-chat-bar-shine-speed: 5s;
+  position: relative;
+  width: 100%;
+  padding: 2px;
+  transition: border-radius 0.2s ease;
+  background: conic-gradient(
+    from var(--lecture-chat-bar-angle),
+    #2f2f2f 0deg,
+    #6962ac 55deg,
+    #c4b5fd 95deg,
+    #ffffff 115deg,
+    #a5b4fc 135deg,
+    #6962ac 175deg,
+    #2f2f2f 220deg,
+    #6962ac 300deg,
+    #e9d5ff 340deg,
+    #2f2f2f 360deg
+  );
+  animation: lecture-chat-bar-shine-spin var(--lecture-chat-bar-shine-speed) linear
+    infinite;
+  box-shadow:
+    0 2px 12px rgba(0, 0, 0, 0.18),
+    0 0 0 1px rgba(255, 255, 255, 0.06),
+    0 0 22px rgba(105, 98, 172, 0.22);
+}
+
+.lecture-chat-bar-shine::after {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  padding: 2px;
+  background: inherit;
+  filter: blur(10px);
+  opacity: 0.45;
+  z-index: -1;
+  animation: lecture-chat-bar-shine-spin var(--lecture-chat-bar-shine-speed) linear
+    infinite;
+}
+
+.lecture-chat-bar-shine--focused {
+  --lecture-chat-bar-shine-speed: 3.2s;
+  box-shadow:
+    0 2px 16px rgba(0, 0, 0, 0.22),
+    0 0 0 1px rgba(255, 255, 255, 0.1),
+    0 0 28px rgba(105, 98, 172, 0.38),
+    0 0 48px rgba(167, 139, 250, 0.15);
+}
+
+.lecture-chat-bar-shine--focused::after {
+  opacity: 0.65;
+}
+
+.lecture-chat-bar-shine--listening {
+  --lecture-chat-bar-shine-speed: 2s;
+  box-shadow:
+    0 2px 18px rgba(220, 38, 38, 0.32),
+    0 0 0 1px rgba(255, 255, 255, 0.1),
+    0 0 36px rgba(220, 38, 38, 0.45);
+}
+
+.lecture-chat-bar-shine--listening::after {
+  opacity: 0.75;
+}
+
+.lecture-chat-mic-pulse {
+  position: relative;
+}
+
+.lecture-chat-mic-pulse::before {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border-radius: 9999px;
+  border: 2px solid rgba(239, 68, 68, 0.55);
+  animation: lecture-chat-mic-pulse-ring 1.6s ease-out infinite;
+  pointer-events: none;
+}
+
+@keyframes lecture-chat-mic-pulse-ring {
+  0% {
+    transform: scale(0.85);
+    opacity: 0.9;
+  }
+  100% {
+    transform: scale(1.35);
+    opacity: 0;
+  }
+}
+
+.lecture-chat-bar-shine__inner {
+  display: flex;
+  min-height: 3rem;
+  width: 100%;
+  align-items: center;
+  gap: 0.5rem;
+  background: #2f2f2f;
+  padding: 0.375rem 0.75rem;
+  transition: border-radius 0.2s ease;
+}
+
+.lecture-chat-bar-shine__inner--multiline {
+  align-items: flex-end;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+}
+
+@keyframes lecture-chat-bar-shine-spin {
+  to {
+    --lecture-chat-bar-angle: 360deg;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lecture-chat-bar-shine,
+  .lecture-chat-bar-shine::after {
+    animation: none;
+    background: linear-gradient(
+      90deg,
+      #6962ac,
+      #c4b5fd,
+      #6962ac
+    );
+    background-size: 200% 100%;
+  }
+
+  .lecture-chat-bar-shine--focused {
+    animation: lecture-chat-bar-shine-pulse 2.5s ease-in-out infinite;
+  }
+
+  @keyframes lecture-chat-bar-shine-pulse {
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.85;
+    }
+  }
+}

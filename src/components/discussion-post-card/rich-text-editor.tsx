@@ -15,6 +15,8 @@ type RichTextEditorProps = {
   className?: string
   contentClassName?: string
   showToolbar?: boolean
+  /** Flatter chrome for embedded composers (no outer editor border). */
+  embedded?: boolean
 }
 
 export function RichTextEditor({
@@ -24,10 +26,13 @@ export function RichTextEditor({
   className = "",
   contentClassName = "",
   showToolbar = true,
+  embedded = false,
 }: RichTextEditorProps) {
-  const contentBorderClass = showToolbar
-    ? "rounded-b-lg border border-t-0 border-[#E5E7EB]"
-    : "rounded-lg border border-[#E5E7EB]"
+  const contentBorderClass = embedded
+    ? "border-0"
+    : showToolbar
+      ? "rounded-b-lg border border-t-0 border-[#E5E7EB]"
+      : "rounded-lg border border-[#E5E7EB]"
 
   const [isMounted, setIsMounted] = React.useState(false)
 
@@ -70,11 +75,23 @@ export function RichTextEditor({
   })
 
   const toolbarButtonClass = (isActive: boolean) =>
-    `inline-flex h-8 w-8 items-center justify-center rounded-md border border-[#E5E7EB] transition-colors ${
+    `inline-flex items-center justify-center rounded-md border border-[#E5E7EB] transition-colors ${
+      embedded ? "h-7 w-7" : "h-8 w-8"
+    } ${
       isActive
         ? "bg-[#FDE8D7] text-[#B45309]"
         : "text-[#4B5563] hover:bg-[#F9FAFB]"
     }`
+
+  const toolbarTopClass = embedded
+    ? "flex flex-wrap items-center gap-1 border-b border-gray-100 px-2 py-1.5"
+    : "flex flex-wrap items-center gap-2 rounded-t-lg border border-[#E5E7EB] p-2"
+
+  const placeholderTopClass = showToolbar
+    ? embedded
+      ? "top-[40px]"
+      : "top-[56px]"
+    : "top-[8px]"
 
   if (!isMounted || !editor) {
     return (
@@ -90,7 +107,7 @@ export function RichTextEditor({
   return (
     <div className={`discussion-rich-editor relative ${className}`}>
       {showToolbar ? (
-        <div className="flex flex-wrap items-center gap-2 rounded-t-lg border border-[#E5E7EB] p-2">
+        <div className={toolbarTopClass}>
         <button
           type="button"
           onMouseDown={(event) => event.preventDefault()}
@@ -128,9 +145,7 @@ export function RichTextEditor({
       <EditorContent editor={editor} />
       {editorState?.isEmpty ? (
         <p
-          className={`pointer-events-none absolute left-3 right-3 text-[14px] leading-[22px] text-[#9CA3AF] ${
-            showToolbar ? "top-[56px]" : "top-[8px]"
-          }`}
+          className={`pointer-events-none absolute left-3 right-3 text-[14px] leading-[22px] text-[#9CA3AF] ${placeholderTopClass}`}
         >
           {placeholder}
         </p>

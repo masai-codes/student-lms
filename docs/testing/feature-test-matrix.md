@@ -1,13 +1,49 @@
 # Feature Test Matrix
 
-Last updated: 2026-05-11
+Last updated: 2026-05-25
 
-## Sign-in (student UI)
+## Lecture AI chat (REST text + LiveKit voice)
+- Area: `POST /api/learn/ai-chat/:lectureId/send` (OpenAI `gpt-4.1-mini` via direct REST) and `GET /api/learn/ai-chat/:lectureId/history` (merges new `ai_chat_messages` Drizzle table with LiveKit voice transcripts from the token server); `useAiTutorMessages` rewritten to drop LiveKit `useChat()` for text and use REST instead; voice continues to use LiveKit STT/TTS unchanged.
+- Status: Covered (prompt builder, OpenAI client, send + history services, both handlers)
+- Test files: `src/server/ai-chat/**/__tests__/*`, `src/server/api/ai-chat/handlers/__tests__/*`
+- Notes: Voice transcript fetch errors fall back gracefully (return text history only). New migration `drizzle/0001_add_ai_chat_messages.sql`.
 
-- Area: Client sign-in flow (`src/components/features/sign-in/**`)
-- Status: Covered (mock-only; no backend)
-- Test files: `src/components/features/sign-in/*.test.ts`, `SignInFlow.test.tsx`
-- Notes: Identifier parsing, reducer transitions, submit validation, and primary UI paths.
+
+## Lecture attendance (learn listing + detail)
+- Area: `student_attendances` summaries on `GET /api/learn/batch-data` and `GET /api/learn/lectures/:id`; shared server utils + client UI state resolver
+- Status: Covered (unit tests for catch-up + UI mapping)
+- Test files: `src/server/attendance/**/__tests__/*`, `src/lib/lecture-attendance/**/__tests__/*`
+- Notes: Optional (recommended) lectures omit `attendance` on both APIs
+
+## Learn REST APIs (`/api/learn/*`)
+- Area: HTTP routes for batches, batch-data, lecture/assignment/resource detail; client `learnApi.ts`; handlers + services split
+- Status: Partial (handler + query parser tests; route integration tests pending)
+- Test files: `src/server/api/learn/**/__tests__/*`
+- Notes: See `docs/api-responses/learn/rest-endpoints.md`
+
+## Resource detail (`/resources/:id`)
+- Area: `GET /api/learn/resources/:id` + loader via `fetchResourceLearningDetailFromApi`; resource kind/phase/body/phase copy + discussions with threads on server
+- Status: Covered (server utils + phase content + associated content drawer)
+- Test files: `src/server/learn/utils/__tests__/normalizeResourceKind.test.ts`, `src/server/learn/utils/__tests__/buildResourceDetailPayload.test.ts`, `src/server/learn/utils/__tests__/buildLearnPhaseContent.test.ts`, `src/components/shared/markdown-content/__tests__/*`
+- Notes: See `docs/testing/features/resource-detail.md`
+
+## Assignment detail (`/assignments/:id`)
+- Area: Single `getAssignmentLearningDetail` loader; assignment kind/phase/instructions/phase copy, server-driven sticky footer (status, score, CTAs), discussions with threads on server
+- Status: Covered (server utils + footer builder + sticky footer UI; CTA click handlers / assess-platform APIs pending)
+- Test files: `src/server/learn/utils/__tests__/resolveAssignmentPhase.test.ts`, `src/server/learn/utils/__tests__/calculateAssignmentProgressStatus.test.ts`, `src/server/learn/utils/__tests__/buildAssignmentDetailFooter.test.ts`, `src/server/learn/utils/__tests__/buildAssignmentDetailPayload.test.ts`, `src/components/features/learn/LearnPageDetails/assignment/shared/__tests__/AssignmentDetailStickyFooter.test.tsx`, `src/components/shared/markdown-content/__tests__/*`
+- Notes: See `docs/testing/features/assignment-detail.md`
+
+## Lecture detail (`/lectures/:id`)
+- Area: Single `getLectureLearningDetail` loader (tabs, AI, associated, discussions+threads, video attendance, join button state); video save still POST-only
+- Status: Covered (server utils + service; no initial client fetch for progress/intervals/discussion threads)
+- Test files: `src/server/learn/**/__tests__/*lecture*`, `src/server/learn/utils/__tests__/resolveJoinLiveButtonState.test.ts`, `src/server/video-attendance/**/__tests__/*`, `src/components/features/learn/LearnPageDetails/lecture/video/hooks/__tests__/*`
+- Notes: See `docs/testing/features/lecture-detail.md`, `docs/testing/features/lecture-video-player.md`
+
+## Learn hub (new-discussions)
+- Area: Server + learn detail integration for entity-scoped discussions (non-admin)
+- Status: Partial (unit coverage for helpers; integration tests for Drizzle list/create/reply not added yet)
+- Test files: `src/server/new-discussions/**/__tests__/*.test.ts`
+- Notes: UI lives under `src/components/features/new-discussions/`. Legacy `discussions` module and course discussion routes removed.
 
 ## Masaiverse
 - Area: Server APIs (all endpoints)

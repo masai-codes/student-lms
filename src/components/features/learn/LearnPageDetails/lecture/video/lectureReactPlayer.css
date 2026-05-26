@@ -1,0 +1,33 @@
+.lecture-react-player {
+  min-height: 0;
+}
+
+.lecture-react-player__stage,
+.react-player-page {
+  position: relative;
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  min-height: 0;
+  width: 100%;
+}
+
+.react-player-page > div,
+.lecture-react-player__rp {
+  display: flex !important;
+  flex: 1 1 auto;
+  flex-direction: column;
+  width: 100% !important;
+  height: 100% !important;
+  min-height: 0;
+  padding-top: 0 !important;
+}
+
+.react-player-page video,
+.lecture-react-player__rp video {
+  flex: 1 1 auto;
+  width: 100%;
+  min-height: 0;
+  object-fit: contain;
+  background: #000;
+}

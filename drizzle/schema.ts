@@ -487,11 +487,11 @@ export const badgeConfigs = mysqlTable("badge_configs", {
 	lectureCriteria: mysqlEnum("lecture_criteria", ['none','mandatory','recommended','both']).default('none').notNull(),
 	lectureCriteriaPercentage: double("lecture_criteria_percentage"),
 	assignmentCriteria: mysqlEnum("assignment_criteria", ['none','mandatory','recommended','both']).default('none').notNull(),
+	assignmentTypesCriteria: json("assignment_types_criteria"),
 	assignmentSubmissionCriteriaPercentage: double("assignment_submission_criteria_percentage"),
 	assignmentScoreCriteriaPercentage: double("assignment_score_criteria_percentage"),
 	createdAt: timestamp("created_at", { mode: 'string' }),
 	updatedAt: timestamp("updated_at", { mode: 'string' }),
-	assignmentTypesCriteria: json("assignment_types_criteria"),
 },
 (table) => [
 	primaryKey({ columns: [table.id], name: "badge_configs_id"}),
@@ -502,12 +502,12 @@ export const badges = mysqlTable("badges", {
 	id: int({ unsigned: true }).autoincrement().notNull(),
 	title: varchar({ length: 255 }).notNull(),
 	description: text().notNull(),
+	lockedBadgeDescription: text("locked_badge_description"),
+	theme: varchar({ length: 255 }),
 	image: varchar({ length: 2048 }).notNull(),
 	linkedinShareText: text("linkedin_share_text"),
 	createdAt: timestamp("created_at", { mode: 'string' }),
 	updatedAt: timestamp("updated_at", { mode: 'string' }),
-	lockedBadgeDescription: text("locked_badge_description"),
-	theme: varchar({ length: 255 }),
 },
 (table) => [
 	primaryKey({ columns: [table.id], name: "badges_id"}),
@@ -557,6 +557,7 @@ export const batchInfo = mysqlTable("batch_info", {
 	team: varchar({ length: 50 }),
 	stageId: bigint("stage_id", { mode: "number", unsigned: true }).notNull().references(() => batchInfoStages.id, { onDelete: "cascade" } ),
 	description: text(),
+	labels: json(),
 },
 (table) => [
 	index("batch_info_batch_id_idx").on(table.batchId),
@@ -633,6 +634,7 @@ export const batchInfoTemplateItems = mysqlTable("batch_info_template_items", {
 	updatedAt: timestamp("updated_at", { mode: 'string' }).notNull(),
 	description: text(),
 	team: varchar({ length: 50 }),
+	labels: json(),
 },
 (table) => [
 	index("batch_info_template_items_batch_info_template_id_idx").on(table.batchInfoTemplateId),
@@ -900,6 +902,43 @@ export const bountyPrograms = mysqlTable("bounty_programs", {
 	unique("bounty_programs_username_unique").on(table.username),
 ]);
 
+export const certificateTemplateConfig = mysqlTable("certificate_template_config", {
+	id: int({ unsigned: true }).autoincrement().notNull(),
+	templateId: int("template_id", { unsigned: true }).notNull().references(() => certificateTemplates.id),
+	fields: json().notNull(),
+	qrCode: json("qr_code").notNull(),
+	certificateId: json("certificate_id").notNull(),
+	createdAt: timestamp("created_at", { mode: 'string' }),
+	updatedAt: timestamp("updated_at", { mode: 'string' }),
+},
+(table) => [
+	index("certificate_template_config_template_id_index").on(table.templateId),
+	primaryKey({ columns: [table.id], name: "certificate_template_config_id"}),
+]);
+
+export const certificateTemplates = mysqlTable("certificate_templates", {
+	id: int({ unsigned: true }).autoincrement().notNull(),
+	name: varchar({ length: 255 }).notNull(),
+	s3ObjectId: varchar("s3_object_id", { length: 500 }).notNull(),
+	fileName: varchar("file_name", { length: 255 }),
+	mimeType: varchar("mime_type", { length: 100 }),
+	status: varchar({ length: 50 }).default('active').notNull(),
+	meta: json(),
+	createdBy: bigint("created_by", { mode: "number", unsigned: true }).notNull().references(() => users.id),
+	updatedBy: bigint("updated_by", { mode: "number", unsigned: true }).references(() => users.id),
+	deletedAt: timestamp("deleted_at", { mode: 'string' }),
+	createdAt: timestamp("created_at", { mode: 'string' }),
+	updatedAt: timestamp("updated_at", { mode: 'string' }),
+},
+(table) => [
+	index("certificate_templates_created_by_index").on(table.createdBy),
+	index("certificate_templates_name_index").on(table.name),
+	index("certificate_templates_s3_object_id_index").on(table.s3ObjectId),
+	index("certificate_templates_status_index").on(table.status),
+	index("certificate_templates_updated_by_index").on(table.updatedBy),
+	primaryKey({ columns: [table.id], name: "certificate_templates_id"}),
+]);
+
 export const certificates = mysqlTable("certificates", {
 	id: int({ unsigned: true }).autoincrement().notNull(),
 	type: varchar({ length: 255 }).notNull(),
@@ -910,6 +949,61 @@ export const certificates = mysqlTable("certificates", {
 },
 (table) => [
 	primaryKey({ columns: [table.id], name: "certificates_id"}),
+]);
+
+export const certificatesBatchStudents = mysqlTable("certificates_batch_students", {
+	id: int({ unsigned: true }).autoincrement().notNull(),
+	batchId: int("batch_id", { unsigned: true }).notNull().references(() => certificatesTemplateBatch.id),
+	studentData: json("student_data").notNull(),
+	certificateObjectId: varchar("certificate_object_id", { length: 500 }),
+	meta: json(),
+	createdAt: timestamp("created_at", { mode: 'string' }),
+	updatedAt: timestamp("updated_at", { mode: 'string' }),
+},
+(table) => [
+	index("certificates_batch_students_batch_id_index").on(table.batchId),
+	primaryKey({ columns: [table.id], name: "certificates_batch_students_id"}),
+	unique("certificates_batch_students_certificate_object_id_unique").on(table.certificateObjectId),
+]);
+
+export const certificatesEmailTemplates = mysqlTable("certificates_email_templates", {
+	id: int({ unsigned: true }).autoincrement().notNull(),
+	templateName: varchar("template_name", { length: 255 }).notNull(),
+	description: varchar({ length: 255 }),
+	emailSubject: varchar("email_subject", { length: 255 }).notNull(),
+	emailBody: longtext("email_body").notNull(),
+	variables: json(),
+	status: varchar({ length: 50 }).default('active').notNull(),
+	meta: json(),
+	createdBy: bigint("created_by", { mode: "number", unsigned: true }).notNull().references(() => users.id),
+	updatedBy: bigint("updated_by", { mode: "number", unsigned: true }).references(() => users.id),
+	deletedAt: timestamp("deleted_at", { mode: 'string' }),
+	createdAt: timestamp("created_at", { mode: 'string' }),
+	updatedAt: timestamp("updated_at", { mode: 'string' }),
+},
+(table) => [
+	index("certificates_email_templates_created_by_index").on(table.createdBy),
+	index("certificates_email_templates_status_index").on(table.status),
+	index("certificates_email_templates_template_name_index").on(table.templateName),
+	index("certificates_email_templates_updated_by_index").on(table.updatedBy),
+	primaryKey({ columns: [table.id], name: "certificates_email_templates_id"}),
+]);
+
+export const certificatesTemplateBatch = mysqlTable("certificates_template_batch", {
+	id: int({ unsigned: true }).autoincrement().notNull(),
+	templateId: int("template_id", { unsigned: true }).notNull().references(() => certificateTemplates.id),
+	batchName: varchar("batch_name", { length: 255 }).notNull(),
+	meta: json().notNull(),
+	createdBy: bigint("created_by", { mode: "number", unsigned: true }).notNull().references(() => users.id),
+	updatedBy: bigint("updated_by", { mode: "number", unsigned: true }).references(() => users.id),
+	deletedAt: timestamp("deleted_at", { mode: 'string' }),
+	createdAt: timestamp("created_at", { mode: 'string' }),
+	updatedAt: timestamp("updated_at", { mode: 'string' }),
+},
+(table) => [
+	index("certificates_template_batch_created_by_index").on(table.createdBy),
+	index("certificates_template_batch_template_id_index").on(table.templateId),
+	primaryKey({ columns: [table.id], name: "certificates_template_batch_id"}),
 ]);
 
 export const clubMembers = mysqlTable("club_members", {
@@ -1136,7 +1230,6 @@ export const eeOnboardingForm = mysqlTable("ee_onboarding_form", {
 	status: mysqlEnum(['Pending','Approved','Rejected']).default('Pending').notNull(),
 	name: varchar({ length: 255 }).notNull(),
 	address: text().notNull(),
-	marketingWebsiteAcknowledgement: tinyint("marketing_website_acknowledgement").default(0).notNull(),
 	contactNumber: varchar("contact_number", { length: 15 }).notNull(),
 	panNumber: char("pan_number", { length: 10 }).notNull(),
 	panDocumentUrl: varchar("pan_document_url", { length: 2048 }).notNull(),
@@ -1160,6 +1253,7 @@ export const eeOnboardingForm = mysqlTable("ee_onboarding_form", {
 	techStacks: text("tech_stacks"),
 	createdAt: timestamp("created_at", { mode: 'string' }).defaultNow().notNull(),
 	updatedAt: timestamp("updated_at", { mode: 'string' }).notNull(),
+	marketingWebsiteAcknowledgement: tinyint("marketing_website_acknowledgement").default(0).notNull(),
 },
 (table) => [
 	index("ee_onboarding_form_ee_id_index").on(table.eeId),
@@ -1351,6 +1445,7 @@ export const events = mysqlTable("events", {
 	clubId: bigint("club_id", { mode: "number", unsigned: true }).references(() => clubs.id, { onDelete: "cascade" } ),
 	title: varchar({ length: 255 }).notNull(),
 	description: text(),
+	imageLink: text("image_link"),
 	category: mysqlEnum(['hackathon','meetup','webinar']),
 	mode: mysqlEnum(['online','offline']),
 	locationTitle: varchar("location_title", { length: 255 }),
@@ -1363,7 +1458,6 @@ export const events = mysqlTable("events", {
 	createdBy: bigint("created_by", { mode: "number", unsigned: true }).references(() => users.id),
 	createdAt: timestamp("created_at", { mode: 'string' }).defaultNow().notNull(),
 	updatedAt: timestamp("updated_at", { mode: 'string' }).notNull(),
-	imageLink: text("image_link"),
 },
 (table) => [
 	index("events_club_id_index").on(table.clubId),
@@ -1389,19 +1483,19 @@ export const externalEmployees = mysqlTable("external_employees", {
 	agreementText: text("agreement_text"),
 	defaultPayType: varchar("default_pay_type", { length: 50 }),
 	defaultPayRate: decimal("default_pay_rate", { precision: 10, scale: 2 }),
-	contactDuration: varchar("contact_duration", { length: 100 }),
-	specializations: json(),
-	photoUrl: varchar("photo_url", { length: 2048 }),
-	position: varchar({ length: 255 }),
-	university: varchar({ length: 255 }),
-	linkedinUrl: varchar("linkedin_url", { length: 2048 }),
-	description: text(),
 	defaultWeeklyHours: int("default_weekly_hours", { unsigned: true }),
 	defaultMonthlyHours: int("default_monthly_hours", { unsigned: true }),
 	meta: json(),
 	createdAt: timestamp("created_at", { mode: 'string' }).defaultNow().notNull(),
 	updatedAt: timestamp("updated_at", { mode: 'string' }).notNull(),
 	deletedAt: timestamp("deleted_at", { mode: 'string' }),
+	contactDuration: varchar("contact_duration", { length: 100 }),
+	description: text(),
+	linkedinUrl: varchar("linkedin_url", { length: 2048 }),
+	photoUrl: varchar("photo_url", { length: 2048 }),
+	position: varchar({ length: 255 }),
+	specializations: json(),
+	university: varchar({ length: 255 }),
 },
 (table) => [
 	index("external_employees_contract_end_date_index").on(table.contractEndDate),
@@ -2570,6 +2664,24 @@ export const posts = mysqlTable("posts", {
 	primaryKey({ columns: [table.id], name: "posts_id"}),
 ]);
 
+export const practiceInterviewTemplates = mysqlTable("practice_interview_templates", {
+	id: int({ unsigned: true }).autoincrement().notNull(),
+	title: varchar({ length: 255 }).notNull(),
+	duration: int({ unsigned: true }).notNull(),
+	difficultyLevel: mysqlEnum("difficulty_level", ['easy','medium','hard']).notNull(),
+	subCategory: varchar("sub_category", { length: 255 }).notNull(),
+	category: varchar({ length: 100 }).notNull(),
+	aiInterviewId: varchar("ai_interview_id", { length: 255 }).notNull(),
+	createdAt: timestamp("created_at", { mode: 'string' }),
+	updatedAt: timestamp("updated_at", { mode: 'string' }),
+},
+(table) => [
+	index("pit_category_index").on(table.category),
+	index("pit_created_at_index").on(table.createdAt),
+	index("pit_difficulty_level_index").on(table.difficultyLevel),
+	primaryKey({ columns: [table.id], name: "practice_interview_templates_id"}),
+]);
+
 export const practiceInterviews = mysqlTable("practice_interviews", {
 	id: int({ unsigned: true }).autoincrement().notNull(),
 	userId: bigint("user_id", { mode: "number", unsigned: true }).notNull().references(() => users.id),
@@ -2656,6 +2768,23 @@ export const practiceTestTopics = mysqlTable("practice_test_topics", {
 },
 (table) => [
 	primaryKey({ columns: [table.id], name: "practice_test_topics_id"}),
+]);
+
+export const prepaidAgreements = mysqlTable("prepaid_agreements", {
+	id: bigint({ mode: "number", unsigned: true }).autoincrement().notNull(),
+	batchId: int("batch_id").notNull(),
+	sourceS3Link: varchar("source_s3_link", { length: 1024 }).notNull(),
+	generatedDocxUrl: varchar("generated_docx_url", { length: 1024 }).notNull(),
+	filename: varchar({ length: 255 }),
+	mimeType: varchar("mime_type", { length: 255 }),
+	sizeBytes: int("size_bytes"),
+	report: json(),
+	createdAt: timestamp("created_at", { mode: 'string' }).defaultNow().notNull(),
+	updatedAt: timestamp("updated_at", { mode: 'string' }).notNull(),
+},
+(table) => [
+	index("idx_prepaid_agreements_batch_created_at").on(table.batchId, table.createdAt),
+	primaryKey({ columns: [table.id], name: "prepaid_agreements_id"}),
 ]);
 
 export const problemLinks = mysqlTable("problem_links", {
@@ -2756,6 +2885,7 @@ export const profiles = mysqlTable("profiles", {
 	haveAcceptedLegalAggrement: tinyint(),
 	haveClosedModal: int({ unsigned: true }),
 	legalData: json("legal_data"),
+	slackId: varchar("slack_id", { length: 255 }),
 },
 (table) => [
 	primaryKey({ columns: [table.id], name: "profiles_id"}),
@@ -3718,6 +3848,23 @@ export const usersCourse = mysqlTable("users_course", {
 	statusTime: datetime("status_time", { mode: 'string'}),
 	meta: json(),
 });
+
+export const viPptLogs = mysqlTable("vi_ppt_logs", {
+	id: bigint({ mode: "number", unsigned: true }).autoincrement().notNull(),
+	batchId: int("batch_id").notNull(),
+	sourceS3Link: varchar("source_s3_link", { length: 1024 }).notNull(),
+	generatedPptxUrl: varchar("generated_pptx_url", { length: 1024 }).notNull(),
+	filename: varchar({ length: 255 }),
+	mimeType: varchar("mime_type", { length: 255 }),
+	sizeBytes: int("size_bytes"),
+	report: json(),
+	createdAt: timestamp("created_at", { mode: 'string' }).defaultNow().notNull(),
+	updatedAt: timestamp("updated_at", { mode: 'string' }).notNull(),
+},
+(table) => [
+	index("idx_virtual_inaugural_ppts_batch_created_at").on(table.batchId, table.createdAt),
+	primaryKey({ columns: [table.id], name: "vi_ppt_logs_id"}),
+]);
 
 export const videoAttendances = mysqlTable("video_attendances", {
 	id: int({ unsigned: true }).autoincrement().notNull(),

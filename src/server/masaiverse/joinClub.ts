@@ -4,6 +4,14 @@ import { db } from '@/db'
 import { clubMembers, clubs, users } from '@/db/schema'
 import { getCurrentSessionUserId } from '@/server/auth/getCurrentSessionUserId'
 
+function parseClubId(value: string): number {
+  const clubId = Number(String(value ?? '').trim())
+  if (!Number.isFinite(clubId) || clubId <= 0) {
+    throw new Error('INVALID_CLUB_ID')
+  }
+  return clubId
+}
+
 export const joinClub = createServerFn({ method: 'POST' })
   .inputValidator((data: { clubId: string }) => data)
   .handler(joinClubHandler)
@@ -27,10 +35,7 @@ export async function joinClubHandler({ data }: { data: { clubId: string } }) {
     throw new Error('ADMIN_CANNOT_JOIN_CLUB')
   }
 
-  const clubId = String(data.clubId).trim()
-  if (!clubId) {
-    throw new Error('INVALID_CLUB_ID')
-  }
+  const clubId = parseClubId(data.clubId)
 
   const club = await db
     .select({ id: clubs.id })
@@ -48,24 +53,25 @@ export async function joinClubHandler({ data }: { data: { clubId: string } }) {
     .where(eq(clubMembers.userId, userId))
     .limit(1)
 
-  const joinedClubId = existingMembership[0]?.clubId ? String(existingMembership[0].clubId) : null
+  const joinedClubId = existingMembership[0]?.clubId ?? null
 
-  if (joinedClubId) {
+  if (joinedClubId != null) {
     return {
       success: joinedClubId === clubId,
-      joinedClubId,
+      joinedClubId: String(joinedClubId),
       reason: 'ALREADY_JOINED_A_CLUB',
     }
   }
 
-  await db
-    .insert(clubMembers)
-    // DB now auto-generates club_members.id (BIGINT AUTO_INCREMENT).
-    .values({ userId, clubId, role: 'member' } as typeof clubMembers.$inferInsert)
+  await db.insert(clubMembers).values({
+    userId,
+    clubId,
+    role: 'member',
+  })
 
   return {
     success: true,
-    joinedClubId: clubId,
+    joinedClubId: String(clubId),
     reason: 'JOINED',
   }
 }

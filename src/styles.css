@@ -1,5 +1,7 @@
 @import "tailwindcss";
 @import "tw-animate-css";
+@import "./lib/masai-colors.css";
+@import "./lib/masai-typography.css";
 
 @custom-variant dark (&:is(.dark *));
 

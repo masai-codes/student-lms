@@ -5,25 +5,45 @@ import {
   useRouterState,
 } from '@tanstack/react-router'
 import { useEffect } from 'react'
+import { AppLoading } from '@/components/common'
 import { AppMobileTabBar, AppNavbar } from '@/components/features/layout'
 import { isMasaiverseApp } from '@/constants/masaiverseDrawerUi'
 import { layoutMainClasses } from '@/lib/layout'
 import { fetchCurrentUser } from '@/server/auth/fetchCurrentUser'
+import {
+  getOldStudentUiUrlForPath,
+  isLegacyStudentRedirectEnabled,
+} from '@/utils/authRedirect'
 import { initClarity, setCurrentUserForTracking } from '@/utils/tracking'
-import { getLegacyProtectedRouteRedirectUrl } from '@/utils/authRedirect'
-import { getNewStudentUiUrl } from '@/utils/viteEnv'
+
+/** Paths served by this app when legacy redirect is enabled (everything else → old LMS). */
+function isNewStudentExperienceRoute(pathname: string): boolean {
+  if (pathname === '/' || pathname === '') return true
+  if (pathname.startsWith('/masaiverse')) return true
+  if (pathname.startsWith('/learn')) return true
+  if (pathname.startsWith('/assignments')) return true
+  if (pathname.startsWith('/lectures')) return true
+  if (pathname.startsWith('/resources')) return true
+  return false
+}
+
 
 export const Route = createFileRoute('/(protected)/_layout')({
   beforeLoad: async ({ location }) => {
+    const shouldRedirectToLegacy = isLegacyStudentRedirectEnabled()
     const isMasaiverseRoute = location.pathname.startsWith('/masaiverse')
-    const isSigninRoute = location.pathname === '/signin'
     const requestUrl = new URL(location.href, 'http://localhost')
     const token = requestUrl.searchParams.get('token')
 
     const user = await fetchCurrentUser()
 
-    if (isMasaiverseRoute && token) {
-      const newStudentUiBase = getNewStudentUiUrl()?.replace(/\/$/, '')
+    if (!user) {
+      throw redirect({ to: '/signin' })
+    }
+
+    if (shouldRedirectToLegacy && isMasaiverseRoute && token) {
+      const newStudentUiBase =
+        import.meta.env.VITE_NEW_STUDENT_UI_URL?.trim().replace(/\/$/, '')
       const redirectSearchParams = new URLSearchParams(requestUrl.searchParams)
       // Token is only needed for legacy app redirect auth flow.
       redirectSearchParams.delete('token')
@@ -32,21 +52,18 @@ export const Route = createFileRoute('/(protected)/_layout')({
         ? `${newStudentUiBase}${location.pathname}?${redirectSearchParams.toString()}`
         : null
 
-      if (user && redirectTarget) {
+      if (redirectTarget) {
         throw redirect({ href: redirectTarget })
       }
-
-      if (!user && redirectTarget) {
-        throw redirect({ to: '/signin' })
-      }
     }
 
-    if (!user) {
-      throw redirect({ to: '/signin' })
-    }
-// also for homepage we dont want to do legacy redirect and  for /sign also
-    if (!isMasaiverseRoute && !isSigninRoute) {
-      const oldUiUrl = getLegacyProtectedRouteRedirectUrl(location.href)
+    if (
+      shouldRedirectToLegacy &&
+      !isNewStudentExperienceRoute(location.pathname)
+    ) {
+      const url = new URL(location.href, 'http://localhost')
+      const pathForLegacy = `${url.pathname}${url.search}`
+      const oldUiUrl = getOldStudentUiUrlForPath(pathForLegacy)
       if (oldUiUrl) {
         throw redirect({ href: oldUiUrl })
       }
@@ -56,7 +73,7 @@ export const Route = createFileRoute('/(protected)/_layout')({
     }
   },
   component: RouteComponent,
-  pendingComponent: () => <div>Loading...</div>,
+  pendingComponent: () => <AppLoading fullPage label="Loading workspace..." />,
 })
 
 function RouteComponent() {

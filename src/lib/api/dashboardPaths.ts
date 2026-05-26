@@ -1,0 +1,8 @@
+export const DASHBOARD_API = {
+  announcements: '/api/dashboard/announcements',
+  productUpdates: '/api/dashboard/product-updates',
+  schedule: '/api/dashboard/schedule',
+  banners: '/api/dashboard/banners',
+  actionBanners: '/api/dashboard/action-banners',
+  pendingTasks: '/api/dashboard/pending-tasks',
+} as const

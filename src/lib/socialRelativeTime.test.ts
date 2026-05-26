@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { formatSocialPostTime } from './socialRelativeTime'
+import { formatIstDiscussionDateTime, formatSocialPostTime } from './socialRelativeTime'
 
 describe('formatSocialPostTime', () => {
   it('returns Just now for null, invalid, future, and under 60s', () => {
@@ -41,6 +41,23 @@ describe('formatSocialPostTime', () => {
     expect(out).not.toContain('Today')
     expect(out).not.toContain('Yesterday')
     expect(out).not.toContain('ago')
+    expect(out).toMatch(/\d{1,2}:\d{2}/)
+  })
+})
+
+describe('formatIstDiscussionDateTime', () => {
+  it('returns empty string for missing or invalid timestamps', () => {
+    const now = new Date('2026-04-12T15:00:00.000Z')
+    expect(formatIstDiscussionDateTime(null, now)).toBe('')
+    expect(formatIstDiscussionDateTime('', now)).toBe('')
+    expect(formatIstDiscussionDateTime('not-a-date', now)).toBe('')
+  })
+
+  it('formats timestamp in IST with IST suffix', () => {
+    const now = new Date('2026-04-12T15:00:00.000Z')
+    const out = formatIstDiscussionDateTime('2026-04-12T08:30:00+05:30', now)
+    expect(out.endsWith(' IST')).toBe(true)
+    expect(out).toMatch(/2026/)
     expect(out).toMatch(/\d{1,2}:\d{2}/)
   })
 })

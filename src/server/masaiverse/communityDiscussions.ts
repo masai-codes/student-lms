@@ -69,13 +69,11 @@ function normalizeRows<T>(result: unknown): Array<T> {
     }
     return result as Array<T>
   }
-  if (
-    result &&
-    typeof result === 'object' &&
-    'rows' in result &&
-    Array.isArray((result as { rows: unknown }).rows)
-  ) {
-    return (result as { rows: Array<T> }).rows
+  if (result && typeof result === 'object' && 'rows' in result) {
+    const { rows } = result
+    if (Array.isArray(rows)) {
+      return rows as Array<T>
+    }
   }
   return []
 }

@@ -98,3 +98,33 @@ export function formatSocialPostTime(value: string | null, now: Date = new Date(
   }
   return post.toLocaleString('en-IN', { ...opts, timeZone: IST_TIME_ZONE })
 }
+
+/**
+ * Absolute IST date and time for display under discussion posts and replies.
+ * Example: "12 Apr 2026, 3:45 pm IST"
+ */
+export function formatIstDiscussionDateTime(
+  value: string | null,
+  now: Date = new Date(),
+): string {
+  if (!value) {
+    return ''
+  }
+
+  const post = parseServerTimestamp(value, { nowMs: now.getTime() })
+  if (!post) {
+    return ''
+  }
+
+  const formatted = post.toLocaleString('en-IN', {
+    timeZone: IST_TIME_ZONE,
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: true,
+  })
+
+  return `${formatted} IST`
+}
