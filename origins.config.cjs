@@ -10,7 +10,7 @@ module.exports = {
   },
   ihub: {
     VITE_APP_ORIGIN: 'ihub',
-    VITE_OLD_STUDENT_UI_URL: 'https://ihubiitrcourses.iasam.dev',
+    VITE_OLD_STUDENT_UI_URL: 'https://demo-students.ihubiitrcourses.org',
     VITE_NEW_STUDENT_UI_URL: 'https://students-demo-v2.ihubiitrcourses.org',
   },
 }
