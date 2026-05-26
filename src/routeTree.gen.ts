@@ -10,7 +10,10 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as protectedLayoutRouteRouteImport } from './routes/(protected)/_layout/route'
+import { Route as protectedZoomIndexRouteImport } from './routes/(protected)/zoom/index'
 import { Route as protectedLayoutIndexRouteImport } from './routes/(protected)/_layout/index'
+import { Route as authSwitchAccountIndexRouteImport } from './routes/(auth)/switch-account/index'
+import { Route as authSigninIndexRouteImport } from './routes/(auth)/signin/index'
 import { Route as authLoginIndexRouteImport } from './routes/(auth)/login/index'
 import { Route as ApiLearnBatchesRouteImport } from './routes/api/learn/batches'
 import { Route as ApiLearnBatchDataRouteImport } from './routes/api/learn/batch-data'
@@ -20,15 +23,24 @@ import { Route as ApiDashboardPendingTasksRouteImport } from './routes/api/dashb
 import { Route as ApiDashboardBannersRouteImport } from './routes/api/dashboard/banners'
 import { Route as ApiDashboardAnnouncementsRouteImport } from './routes/api/dashboard/announcements'
 import { Route as ApiDashboardActionBannersRouteImport } from './routes/api/dashboard/action-banners'
+import { Route as authV2ResetPasswordRouteImport } from './routes/(auth)/v2/reset-password'
+import { Route as authV2MeRouteImport } from './routes/(auth)/v2/me'
+import { Route as authV2ForgotPasswordRouteImport } from './routes/(auth)/v2/forgot-password'
 import { Route as protectedLayoutMasaiverseRouteRouteImport } from './routes/(protected)/_layout/masaiverse/route'
 import { Route as protectedLayoutMasaiverseIndexRouteImport } from './routes/(protected)/_layout/masaiverse/index'
 import { Route as protectedLayoutLearnIndexRouteImport } from './routes/(protected)/_layout/learn/index'
+import { Route as authV2LoginIndexRouteImport } from './routes/(auth)/v2/login/index'
+import { Route as authResetPasswordTokenIndexRouteImport } from './routes/(auth)/reset-password.$token/index'
 import { Route as ApiLearnSubmissionsSubmissionIdRouteImport } from './routes/api/learn/submissions/$submissionId'
 import { Route as ApiLearnResourcesResourceIdRouteImport } from './routes/api/learn/resources/$resourceId'
 import { Route as ApiLearnLecturesLectureIdRouteImport } from './routes/api/learn/lectures/$lectureId'
 import { Route as ApiLearnAssignmentsAssignmentIdRouteImport } from './routes/api/learn/assignments/$assignmentId'
 import { Route as ApiLearnAiTutorLimitRouteImport } from './routes/api/learn/ai-tutor/limit'
 import { Route as ApiLearnAiTutorEndRouteImport } from './routes/api/learn/ai-tutor/end'
+import { Route as authV2LoginVerifyOtpRouteImport } from './routes/(auth)/v2/login/verify-otp'
+import { Route as authV2LoginRequestOtpRouteImport } from './routes/(auth)/v2/login/request-otp'
+import { Route as authV2AuthUseAccountRouteImport } from './routes/(auth)/v2/auth/use-account'
+import { Route as authV2AuthLinkedAccountsRouteImport } from './routes/(auth)/v2/auth/linked-accounts'
 import { Route as protectedLayoutResourcesResourceIdRouteRouteImport } from './routes/(protected)/_layout/resources_/$resourceId/route'
 import { Route as protectedLayoutLecturesLectureIdRouteRouteImport } from './routes/(protected)/_layout/lectures_/$lectureId/route'
 import { Route as protectedLayoutAssignmentsAssignmentIdRouteRouteImport } from './routes/(protected)/_layout/assignments_/$assignmentId/route'
@@ -46,10 +58,25 @@ const protectedLayoutRouteRoute = protectedLayoutRouteRouteImport.update({
   id: '/(protected)/_layout',
   getParentRoute: () => rootRouteImport,
 } as any)
+const protectedZoomIndexRoute = protectedZoomIndexRouteImport.update({
+  id: '/(protected)/zoom/',
+  path: '/zoom/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const protectedLayoutIndexRoute = protectedLayoutIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => protectedLayoutRouteRoute,
+} as any)
+const authSwitchAccountIndexRoute = authSwitchAccountIndexRouteImport.update({
+  id: '/(auth)/switch-account/',
+  path: '/switch-account/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const authSigninIndexRoute = authSigninIndexRouteImport.update({
+  id: '/(auth)/signin/',
+  path: '/signin/',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const authLoginIndexRoute = authLoginIndexRouteImport.update({
   id: '/(auth)/login/',
@@ -100,6 +127,21 @@ const ApiDashboardActionBannersRoute =
     path: '/api/dashboard/action-banners',
     getParentRoute: () => rootRouteImport,
   } as any)
+const authV2ResetPasswordRoute = authV2ResetPasswordRouteImport.update({
+  id: '/(auth)/v2/reset-password',
+  path: '/v2/reset-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const authV2MeRoute = authV2MeRouteImport.update({
+  id: '/(auth)/v2/me',
+  path: '/v2/me',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const authV2ForgotPasswordRoute = authV2ForgotPasswordRouteImport.update({
+  id: '/(auth)/v2/forgot-password',
+  path: '/v2/forgot-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const protectedLayoutMasaiverseRouteRoute =
   protectedLayoutMasaiverseRouteRouteImport.update({
     id: '/masaiverse',
@@ -117,6 +159,17 @@ const protectedLayoutLearnIndexRoute =
     id: '/learn/',
     path: '/learn/',
     getParentRoute: () => protectedLayoutRouteRoute,
+  } as any)
+const authV2LoginIndexRoute = authV2LoginIndexRouteImport.update({
+  id: '/(auth)/v2/login/',
+  path: '/v2/login/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const authResetPasswordTokenIndexRoute =
+  authResetPasswordTokenIndexRouteImport.update({
+    id: '/(auth)/reset-password/$token/',
+    path: '/reset-password/$token/',
+    getParentRoute: () => rootRouteImport,
   } as any)
 const ApiLearnSubmissionsSubmissionIdRoute =
   ApiLearnSubmissionsSubmissionIdRouteImport.update({
@@ -152,6 +205,27 @@ const ApiLearnAiTutorEndRoute = ApiLearnAiTutorEndRouteImport.update({
   path: '/api/learn/ai-tutor/end',
   getParentRoute: () => rootRouteImport,
 } as any)
+const authV2LoginVerifyOtpRoute = authV2LoginVerifyOtpRouteImport.update({
+  id: '/(auth)/v2/login/verify-otp',
+  path: '/v2/login/verify-otp',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const authV2LoginRequestOtpRoute = authV2LoginRequestOtpRouteImport.update({
+  id: '/(auth)/v2/login/request-otp',
+  path: '/v2/login/request-otp',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const authV2AuthUseAccountRoute = authV2AuthUseAccountRouteImport.update({
+  id: '/(auth)/v2/auth/use-account',
+  path: '/v2/auth/use-account',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const authV2AuthLinkedAccountsRoute =
+  authV2AuthLinkedAccountsRouteImport.update({
+    id: '/(auth)/v2/auth/linked-accounts',
+    path: '/v2/auth/linked-accounts',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const protectedLayoutResourcesResourceIdRouteRoute =
   protectedLayoutResourcesResourceIdRouteRouteImport.update({
     id: '/resources_/$resourceId',
@@ -227,6 +301,9 @@ const ApiLearnAiChatLectureIdHistoryRoute =
 
 export interface FileRoutesByFullPath {
   '/masaiverse': typeof protectedLayoutMasaiverseRouteRouteWithChildren
+  '/v2/forgot-password': typeof authV2ForgotPasswordRoute
+  '/v2/me': typeof authV2MeRoute
+  '/v2/reset-password': typeof authV2ResetPasswordRoute
   '/api/dashboard/action-banners': typeof ApiDashboardActionBannersRoute
   '/api/dashboard/announcements': typeof ApiDashboardAnnouncementsRoute
   '/api/dashboard/banners': typeof ApiDashboardBannersRoute
@@ -236,16 +313,25 @@ export interface FileRoutesByFullPath {
   '/api/learn/batch-data': typeof ApiLearnBatchDataRoute
   '/api/learn/batches': typeof ApiLearnBatchesRoute
   '/login/': typeof authLoginIndexRoute
+  '/signin/': typeof authSigninIndexRoute
+  '/switch-account/': typeof authSwitchAccountIndexRoute
   '/': typeof protectedLayoutIndexRoute
+  '/zoom/': typeof protectedZoomIndexRoute
   '/assignments/$assignmentId': typeof protectedLayoutAssignmentsAssignmentIdRouteRoute
   '/lectures/$lectureId': typeof protectedLayoutLecturesLectureIdRouteRoute
   '/resources/$resourceId': typeof protectedLayoutResourcesResourceIdRouteRoute
+  '/v2/auth/linked-accounts': typeof authV2AuthLinkedAccountsRoute
+  '/v2/auth/use-account': typeof authV2AuthUseAccountRoute
+  '/v2/login/request-otp': typeof authV2LoginRequestOtpRoute
+  '/v2/login/verify-otp': typeof authV2LoginVerifyOtpRoute
   '/api/learn/ai-tutor/end': typeof ApiLearnAiTutorEndRoute
   '/api/learn/ai-tutor/limit': typeof ApiLearnAiTutorLimitRoute
   '/api/learn/assignments/$assignmentId': typeof ApiLearnAssignmentsAssignmentIdRouteWithChildren
   '/api/learn/lectures/$lectureId': typeof ApiLearnLecturesLectureIdRoute
   '/api/learn/resources/$resourceId': typeof ApiLearnResourcesResourceIdRoute
   '/api/learn/submissions/$submissionId': typeof ApiLearnSubmissionsSubmissionIdRouteWithChildren
+  '/reset-password/$token/': typeof authResetPasswordTokenIndexRoute
+  '/v2/login/': typeof authV2LoginIndexRoute
   '/learn/': typeof protectedLayoutLearnIndexRoute
   '/masaiverse/': typeof protectedLayoutMasaiverseIndexRoute
   '/api/learn/ai-chat/$lectureId/history': typeof ApiLearnAiChatLectureIdHistoryRoute
@@ -259,6 +345,9 @@ export interface FileRoutesByFullPath {
   '/api/learn/submissions/$submissionId/view-on-platform': typeof ApiLearnSubmissionsSubmissionIdViewOnPlatformRoute
 }
 export interface FileRoutesByTo {
+  '/v2/forgot-password': typeof authV2ForgotPasswordRoute
+  '/v2/me': typeof authV2MeRoute
+  '/v2/reset-password': typeof authV2ResetPasswordRoute
   '/api/dashboard/action-banners': typeof ApiDashboardActionBannersRoute
   '/api/dashboard/announcements': typeof ApiDashboardAnnouncementsRoute
   '/api/dashboard/banners': typeof ApiDashboardBannersRoute
@@ -268,16 +357,25 @@ export interface FileRoutesByTo {
   '/api/learn/batch-data': typeof ApiLearnBatchDataRoute
   '/api/learn/batches': typeof ApiLearnBatchesRoute
   '/login': typeof authLoginIndexRoute
+  '/signin': typeof authSigninIndexRoute
+  '/switch-account': typeof authSwitchAccountIndexRoute
   '/': typeof protectedLayoutIndexRoute
+  '/zoom': typeof protectedZoomIndexRoute
   '/assignments/$assignmentId': typeof protectedLayoutAssignmentsAssignmentIdRouteRoute
   '/lectures/$lectureId': typeof protectedLayoutLecturesLectureIdRouteRoute
   '/resources/$resourceId': typeof protectedLayoutResourcesResourceIdRouteRoute
+  '/v2/auth/linked-accounts': typeof authV2AuthLinkedAccountsRoute
+  '/v2/auth/use-account': typeof authV2AuthUseAccountRoute
+  '/v2/login/request-otp': typeof authV2LoginRequestOtpRoute
+  '/v2/login/verify-otp': typeof authV2LoginVerifyOtpRoute
   '/api/learn/ai-tutor/end': typeof ApiLearnAiTutorEndRoute
   '/api/learn/ai-tutor/limit': typeof ApiLearnAiTutorLimitRoute
   '/api/learn/assignments/$assignmentId': typeof ApiLearnAssignmentsAssignmentIdRouteWithChildren
   '/api/learn/lectures/$lectureId': typeof ApiLearnLecturesLectureIdRoute
   '/api/learn/resources/$resourceId': typeof ApiLearnResourcesResourceIdRoute
   '/api/learn/submissions/$submissionId': typeof ApiLearnSubmissionsSubmissionIdRouteWithChildren
+  '/reset-password/$token': typeof authResetPasswordTokenIndexRoute
+  '/v2/login': typeof authV2LoginIndexRoute
   '/learn': typeof protectedLayoutLearnIndexRoute
   '/masaiverse': typeof protectedLayoutMasaiverseIndexRoute
   '/api/learn/ai-chat/$lectureId/history': typeof ApiLearnAiChatLectureIdHistoryRoute
@@ -294,6 +392,9 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/(protected)/_layout': typeof protectedLayoutRouteRouteWithChildren
   '/(protected)/_layout/masaiverse': typeof protectedLayoutMasaiverseRouteRouteWithChildren
+  '/(auth)/v2/forgot-password': typeof authV2ForgotPasswordRoute
+  '/(auth)/v2/me': typeof authV2MeRoute
+  '/(auth)/v2/reset-password': typeof authV2ResetPasswordRoute
   '/api/dashboard/action-banners': typeof ApiDashboardActionBannersRoute
   '/api/dashboard/announcements': typeof ApiDashboardAnnouncementsRoute
   '/api/dashboard/banners': typeof ApiDashboardBannersRoute
@@ -303,16 +404,25 @@ export interface FileRoutesById {
   '/api/learn/batch-data': typeof ApiLearnBatchDataRoute
   '/api/learn/batches': typeof ApiLearnBatchesRoute
   '/(auth)/login/': typeof authLoginIndexRoute
+  '/(auth)/signin/': typeof authSigninIndexRoute
+  '/(auth)/switch-account/': typeof authSwitchAccountIndexRoute
   '/(protected)/_layout/': typeof protectedLayoutIndexRoute
+  '/(protected)/zoom/': typeof protectedZoomIndexRoute
   '/(protected)/_layout/assignments_/$assignmentId': typeof protectedLayoutAssignmentsAssignmentIdRouteRoute
   '/(protected)/_layout/lectures_/$lectureId': typeof protectedLayoutLecturesLectureIdRouteRoute
   '/(protected)/_layout/resources_/$resourceId': typeof protectedLayoutResourcesResourceIdRouteRoute
+  '/(auth)/v2/auth/linked-accounts': typeof authV2AuthLinkedAccountsRoute
+  '/(auth)/v2/auth/use-account': typeof authV2AuthUseAccountRoute
+  '/(auth)/v2/login/request-otp': typeof authV2LoginRequestOtpRoute
+  '/(auth)/v2/login/verify-otp': typeof authV2LoginVerifyOtpRoute
   '/api/learn/ai-tutor/end': typeof ApiLearnAiTutorEndRoute
   '/api/learn/ai-tutor/limit': typeof ApiLearnAiTutorLimitRoute
   '/api/learn/assignments/$assignmentId': typeof ApiLearnAssignmentsAssignmentIdRouteWithChildren
   '/api/learn/lectures/$lectureId': typeof ApiLearnLecturesLectureIdRoute
   '/api/learn/resources/$resourceId': typeof ApiLearnResourcesResourceIdRoute
   '/api/learn/submissions/$submissionId': typeof ApiLearnSubmissionsSubmissionIdRouteWithChildren
+  '/(auth)/reset-password/$token/': typeof authResetPasswordTokenIndexRoute
+  '/(auth)/v2/login/': typeof authV2LoginIndexRoute
   '/(protected)/_layout/learn/': typeof protectedLayoutLearnIndexRoute
   '/(protected)/_layout/masaiverse/': typeof protectedLayoutMasaiverseIndexRoute
   '/api/learn/ai-chat/$lectureId/history': typeof ApiLearnAiChatLectureIdHistoryRoute
@@ -329,6 +439,9 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/masaiverse'
+    | '/v2/forgot-password'
+    | '/v2/me'
+    | '/v2/reset-password'
     | '/api/dashboard/action-banners'
     | '/api/dashboard/announcements'
     | '/api/dashboard/banners'
@@ -338,16 +451,25 @@ export interface FileRouteTypes {
     | '/api/learn/batch-data'
     | '/api/learn/batches'
     | '/login/'
+    | '/signin/'
+    | '/switch-account/'
     | '/'
+    | '/zoom/'
     | '/assignments/$assignmentId'
     | '/lectures/$lectureId'
     | '/resources/$resourceId'
+    | '/v2/auth/linked-accounts'
+    | '/v2/auth/use-account'
+    | '/v2/login/request-otp'
+    | '/v2/login/verify-otp'
     | '/api/learn/ai-tutor/end'
     | '/api/learn/ai-tutor/limit'
     | '/api/learn/assignments/$assignmentId'
     | '/api/learn/lectures/$lectureId'
     | '/api/learn/resources/$resourceId'
     | '/api/learn/submissions/$submissionId'
+    | '/reset-password/$token/'
+    | '/v2/login/'
     | '/learn/'
     | '/masaiverse/'
     | '/api/learn/ai-chat/$lectureId/history'
@@ -361,6 +483,9 @@ export interface FileRouteTypes {
     | '/api/learn/submissions/$submissionId/view-on-platform'
   fileRoutesByTo: FileRoutesByTo
   to:
+    | '/v2/forgot-password'
+    | '/v2/me'
+    | '/v2/reset-password'
     | '/api/dashboard/action-banners'
     | '/api/dashboard/announcements'
     | '/api/dashboard/banners'
@@ -370,16 +495,25 @@ export interface FileRouteTypes {
     | '/api/learn/batch-data'
     | '/api/learn/batches'
     | '/login'
+    | '/signin'
+    | '/switch-account'
     | '/'
+    | '/zoom'
     | '/assignments/$assignmentId'
     | '/lectures/$lectureId'
     | '/resources/$resourceId'
+    | '/v2/auth/linked-accounts'
+    | '/v2/auth/use-account'
+    | '/v2/login/request-otp'
+    | '/v2/login/verify-otp'
     | '/api/learn/ai-tutor/end'
     | '/api/learn/ai-tutor/limit'
     | '/api/learn/assignments/$assignmentId'
     | '/api/learn/lectures/$lectureId'
     | '/api/learn/resources/$resourceId'
     | '/api/learn/submissions/$submissionId'
+    | '/reset-password/$token'
+    | '/v2/login'
     | '/learn'
     | '/masaiverse'
     | '/api/learn/ai-chat/$lectureId/history'
@@ -395,6 +529,9 @@ export interface FileRouteTypes {
     | '__root__'
     | '/(protected)/_layout'
     | '/(protected)/_layout/masaiverse'
+    | '/(auth)/v2/forgot-password'
+    | '/(auth)/v2/me'
+    | '/(auth)/v2/reset-password'
     | '/api/dashboard/action-banners'
     | '/api/dashboard/announcements'
     | '/api/dashboard/banners'
@@ -404,16 +541,25 @@ export interface FileRouteTypes {
     | '/api/learn/batch-data'
     | '/api/learn/batches'
     | '/(auth)/login/'
+    | '/(auth)/signin/'
+    | '/(auth)/switch-account/'
     | '/(protected)/_layout/'
+    | '/(protected)/zoom/'
     | '/(protected)/_layout/assignments_/$assignmentId'
     | '/(protected)/_layout/lectures_/$lectureId'
     | '/(protected)/_layout/resources_/$resourceId'
+    | '/(auth)/v2/auth/linked-accounts'
+    | '/(auth)/v2/auth/use-account'
+    | '/(auth)/v2/login/request-otp'
+    | '/(auth)/v2/login/verify-otp'
     | '/api/learn/ai-tutor/end'
     | '/api/learn/ai-tutor/limit'
     | '/api/learn/assignments/$assignmentId'
     | '/api/learn/lectures/$lectureId'
     | '/api/learn/resources/$resourceId'
     | '/api/learn/submissions/$submissionId'
+    | '/(auth)/reset-password/$token/'
+    | '/(auth)/v2/login/'
     | '/(protected)/_layout/learn/'
     | '/(protected)/_layout/masaiverse/'
     | '/api/learn/ai-chat/$lectureId/history'
@@ -429,6 +575,9 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   protectedLayoutRouteRoute: typeof protectedLayoutRouteRouteWithChildren
+  authV2ForgotPasswordRoute: typeof authV2ForgotPasswordRoute
+  authV2MeRoute: typeof authV2MeRoute
+  authV2ResetPasswordRoute: typeof authV2ResetPasswordRoute
   ApiDashboardActionBannersRoute: typeof ApiDashboardActionBannersRoute
   ApiDashboardAnnouncementsRoute: typeof ApiDashboardAnnouncementsRoute
   ApiDashboardBannersRoute: typeof ApiDashboardBannersRoute
@@ -438,12 +587,21 @@ export interface RootRouteChildren {
   ApiLearnBatchDataRoute: typeof ApiLearnBatchDataRoute
   ApiLearnBatchesRoute: typeof ApiLearnBatchesRoute
   authLoginIndexRoute: typeof authLoginIndexRoute
+  authSigninIndexRoute: typeof authSigninIndexRoute
+  authSwitchAccountIndexRoute: typeof authSwitchAccountIndexRoute
+  protectedZoomIndexRoute: typeof protectedZoomIndexRoute
+  authV2AuthLinkedAccountsRoute: typeof authV2AuthLinkedAccountsRoute
+  authV2AuthUseAccountRoute: typeof authV2AuthUseAccountRoute
+  authV2LoginRequestOtpRoute: typeof authV2LoginRequestOtpRoute
+  authV2LoginVerifyOtpRoute: typeof authV2LoginVerifyOtpRoute
   ApiLearnAiTutorEndRoute: typeof ApiLearnAiTutorEndRoute
   ApiLearnAiTutorLimitRoute: typeof ApiLearnAiTutorLimitRoute
   ApiLearnAssignmentsAssignmentIdRoute: typeof ApiLearnAssignmentsAssignmentIdRouteWithChildren
   ApiLearnLecturesLectureIdRoute: typeof ApiLearnLecturesLectureIdRoute
   ApiLearnResourcesResourceIdRoute: typeof ApiLearnResourcesResourceIdRoute
   ApiLearnSubmissionsSubmissionIdRoute: typeof ApiLearnSubmissionsSubmissionIdRouteWithChildren
+  authResetPasswordTokenIndexRoute: typeof authResetPasswordTokenIndexRoute
+  authV2LoginIndexRoute: typeof authV2LoginIndexRoute
   ApiLearnAiChatLectureIdHistoryRoute: typeof ApiLearnAiChatLectureIdHistoryRoute
   ApiLearnAiChatLectureIdSendRoute: typeof ApiLearnAiChatLectureIdSendRoute
   ApiLearnAiTutorLectureIdDispatchRoute: typeof ApiLearnAiTutorLectureIdDispatchRoute
@@ -461,12 +619,33 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof protectedLayoutRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/(protected)/zoom/': {
+      id: '/(protected)/zoom/'
+      path: '/zoom'
+      fullPath: '/zoom/'
+      preLoaderRoute: typeof protectedZoomIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/(protected)/_layout/': {
       id: '/(protected)/_layout/'
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof protectedLayoutIndexRouteImport
       parentRoute: typeof protectedLayoutRouteRoute
+    }
+    '/(auth)/switch-account/': {
+      id: '/(auth)/switch-account/'
+      path: '/switch-account'
+      fullPath: '/switch-account/'
+      preLoaderRoute: typeof authSwitchAccountIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/(auth)/signin/': {
+      id: '/(auth)/signin/'
+      path: '/signin'
+      fullPath: '/signin/'
+      preLoaderRoute: typeof authSigninIndexRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/(auth)/login/': {
       id: '/(auth)/login/'
@@ -531,6 +710,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiDashboardActionBannersRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/(auth)/v2/reset-password': {
+      id: '/(auth)/v2/reset-password'
+      path: '/v2/reset-password'
+      fullPath: '/v2/reset-password'
+      preLoaderRoute: typeof authV2ResetPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/(auth)/v2/me': {
+      id: '/(auth)/v2/me'
+      path: '/v2/me'
+      fullPath: '/v2/me'
+      preLoaderRoute: typeof authV2MeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/(auth)/v2/forgot-password': {
+      id: '/(auth)/v2/forgot-password'
+      path: '/v2/forgot-password'
+      fullPath: '/v2/forgot-password'
+      preLoaderRoute: typeof authV2ForgotPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/(protected)/_layout/masaiverse': {
       id: '/(protected)/_layout/masaiverse'
       path: '/masaiverse'
@@ -551,6 +751,20 @@ declare module '@tanstack/react-router' {
       fullPath: '/learn/'
       preLoaderRoute: typeof protectedLayoutLearnIndexRouteImport
       parentRoute: typeof protectedLayoutRouteRoute
+    }
+    '/(auth)/v2/login/': {
+      id: '/(auth)/v2/login/'
+      path: '/v2/login'
+      fullPath: '/v2/login/'
+      preLoaderRoute: typeof authV2LoginIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/(auth)/reset-password/$token/': {
+      id: '/(auth)/reset-password/$token/'
+      path: '/reset-password/$token'
+      fullPath: '/reset-password/$token/'
+      preLoaderRoute: typeof authResetPasswordTokenIndexRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/api/learn/submissions/$submissionId': {
       id: '/api/learn/submissions/$submissionId'
@@ -592,6 +806,34 @@ declare module '@tanstack/react-router' {
       path: '/api/learn/ai-tutor/end'
       fullPath: '/api/learn/ai-tutor/end'
       preLoaderRoute: typeof ApiLearnAiTutorEndRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/(auth)/v2/login/verify-otp': {
+      id: '/(auth)/v2/login/verify-otp'
+      path: '/v2/login/verify-otp'
+      fullPath: '/v2/login/verify-otp'
+      preLoaderRoute: typeof authV2LoginVerifyOtpRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/(auth)/v2/login/request-otp': {
+      id: '/(auth)/v2/login/request-otp'
+      path: '/v2/login/request-otp'
+      fullPath: '/v2/login/request-otp'
+      preLoaderRoute: typeof authV2LoginRequestOtpRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/(auth)/v2/auth/use-account': {
+      id: '/(auth)/v2/auth/use-account'
+      path: '/v2/auth/use-account'
+      fullPath: '/v2/auth/use-account'
+      preLoaderRoute: typeof authV2AuthUseAccountRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/(auth)/v2/auth/linked-accounts': {
+      id: '/(auth)/v2/auth/linked-accounts'
+      path: '/v2/auth/linked-accounts'
+      fullPath: '/v2/auth/linked-accounts'
+      preLoaderRoute: typeof authV2AuthLinkedAccountsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/(protected)/_layout/resources_/$resourceId': {
@@ -755,6 +997,9 @@ const ApiLearnSubmissionsSubmissionIdRouteWithChildren =
 
 const rootRouteChildren: RootRouteChildren = {
   protectedLayoutRouteRoute: protectedLayoutRouteRouteWithChildren,
+  authV2ForgotPasswordRoute: authV2ForgotPasswordRoute,
+  authV2MeRoute: authV2MeRoute,
+  authV2ResetPasswordRoute: authV2ResetPasswordRoute,
   ApiDashboardActionBannersRoute: ApiDashboardActionBannersRoute,
   ApiDashboardAnnouncementsRoute: ApiDashboardAnnouncementsRoute,
   ApiDashboardBannersRoute: ApiDashboardBannersRoute,
@@ -764,6 +1009,13 @@ const rootRouteChildren: RootRouteChildren = {
   ApiLearnBatchDataRoute: ApiLearnBatchDataRoute,
   ApiLearnBatchesRoute: ApiLearnBatchesRoute,
   authLoginIndexRoute: authLoginIndexRoute,
+  authSigninIndexRoute: authSigninIndexRoute,
+  authSwitchAccountIndexRoute: authSwitchAccountIndexRoute,
+  protectedZoomIndexRoute: protectedZoomIndexRoute,
+  authV2AuthLinkedAccountsRoute: authV2AuthLinkedAccountsRoute,
+  authV2AuthUseAccountRoute: authV2AuthUseAccountRoute,
+  authV2LoginRequestOtpRoute: authV2LoginRequestOtpRoute,
+  authV2LoginVerifyOtpRoute: authV2LoginVerifyOtpRoute,
   ApiLearnAiTutorEndRoute: ApiLearnAiTutorEndRoute,
   ApiLearnAiTutorLimitRoute: ApiLearnAiTutorLimitRoute,
   ApiLearnAssignmentsAssignmentIdRoute:
@@ -772,6 +1024,8 @@ const rootRouteChildren: RootRouteChildren = {
   ApiLearnResourcesResourceIdRoute: ApiLearnResourcesResourceIdRoute,
   ApiLearnSubmissionsSubmissionIdRoute:
     ApiLearnSubmissionsSubmissionIdRouteWithChildren,
+  authResetPasswordTokenIndexRoute: authResetPasswordTokenIndexRoute,
+  authV2LoginIndexRoute: authV2LoginIndexRoute,
   ApiLearnAiChatLectureIdHistoryRoute: ApiLearnAiChatLectureIdHistoryRoute,
   ApiLearnAiChatLectureIdSendRoute: ApiLearnAiChatLectureIdSendRoute,
   ApiLearnAiTutorLectureIdDispatchRoute: ApiLearnAiTutorLectureIdDispatchRoute,

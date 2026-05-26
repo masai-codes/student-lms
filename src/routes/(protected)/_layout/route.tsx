@@ -27,10 +27,12 @@ function isNewStudentExperienceRoute(pathname: string): boolean {
   return false
 }
 
+
 export const Route = createFileRoute('/(protected)/_layout')({
   beforeLoad: async ({ location }) => {
     const shouldRedirectToLegacy = isLegacyStudentRedirectEnabled()
     const isMasaiverseRoute = location.pathname.startsWith('/masaiverse')
+    const isSigninRoute = location.pathname === '/signin'
     const requestUrl = new URL(location.href, 'http://localhost')
     const token = requestUrl.searchParams.get('token')
 
@@ -48,13 +50,13 @@ export const Route = createFileRoute('/(protected)/_layout')({
         : null
 
       const user = await fetchCurrentUser()
+   
       if (user && redirectTarget) {
         throw redirect({ href: redirectTarget })
       }
 
-      if (!user && oldStudentUiBase && redirectTarget) {
-        const appRedirectUrl = `${oldStudentUiBase}/app-redirect-app?token=${encodeURIComponent(token)}&redirect=${encodeURIComponent(redirectTarget)}`
-        throw redirect({ href: appRedirectUrl })
+      if (!user && redirectTarget) {
+        throw redirect({ to: '/signin' })
       }
     }
 
@@ -69,13 +71,8 @@ export const Route = createFileRoute('/(protected)/_layout')({
         throw redirect({ href: oldUiUrl })
       }
     }
-
-    const user = await fetchCurrentUser()
-    if (!user) {
-      throw redirect({ to: '/login' })
-    }
     return {
-      user,
+      user
     }
   },
   component: RouteComponent,
