@@ -1,7 +1,4 @@
-import {
-  getOldStudentUiUrlFromEnv,
-  isLegacyStudentRedirectEnabled,
-} from '@/utils/viteEnv'
+import { getOldStudentUiUrlFromEnv } from '@/utils/viteEnv'
 
 export function getOldStudentUiUrl() {
   return getOldStudentUiUrlFromEnv()

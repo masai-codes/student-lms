@@ -10,7 +10,6 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as protectedLayoutRouteRouteImport } from './routes/(protected)/_layout/route'
-import { Route as protectedZoomIndexRouteImport } from './routes/(protected)/zoom/index'
 import { Route as protectedLayoutIndexRouteImport } from './routes/(protected)/_layout/index'
 import { Route as authSwitchAccountIndexRouteImport } from './routes/(auth)/switch-account/index'
 import { Route as authSigninIndexRouteImport } from './routes/(auth)/signin/index'
@@ -56,11 +55,6 @@ import { Route as ApiLearnAiChatLectureIdHistoryRouteImport } from './routes/api
 
 const protectedLayoutRouteRoute = protectedLayoutRouteRouteImport.update({
   id: '/(protected)/_layout',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const protectedZoomIndexRoute = protectedZoomIndexRouteImport.update({
-  id: '/(protected)/zoom/',
-  path: '/zoom/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const protectedLayoutIndexRoute = protectedLayoutIndexRouteImport.update({
@@ -316,7 +310,6 @@ export interface FileRoutesByFullPath {
   '/signin/': typeof authSigninIndexRoute
   '/switch-account/': typeof authSwitchAccountIndexRoute
   '/': typeof protectedLayoutIndexRoute
-  '/zoom/': typeof protectedZoomIndexRoute
   '/assignments/$assignmentId': typeof protectedLayoutAssignmentsAssignmentIdRouteRoute
   '/lectures/$lectureId': typeof protectedLayoutLecturesLectureIdRouteRoute
   '/resources/$resourceId': typeof protectedLayoutResourcesResourceIdRouteRoute
@@ -360,7 +353,6 @@ export interface FileRoutesByTo {
   '/signin': typeof authSigninIndexRoute
   '/switch-account': typeof authSwitchAccountIndexRoute
   '/': typeof protectedLayoutIndexRoute
-  '/zoom': typeof protectedZoomIndexRoute
   '/assignments/$assignmentId': typeof protectedLayoutAssignmentsAssignmentIdRouteRoute
   '/lectures/$lectureId': typeof protectedLayoutLecturesLectureIdRouteRoute
   '/resources/$resourceId': typeof protectedLayoutResourcesResourceIdRouteRoute
@@ -407,7 +399,6 @@ export interface FileRoutesById {
   '/(auth)/signin/': typeof authSigninIndexRoute
   '/(auth)/switch-account/': typeof authSwitchAccountIndexRoute
   '/(protected)/_layout/': typeof protectedLayoutIndexRoute
-  '/(protected)/zoom/': typeof protectedZoomIndexRoute
   '/(protected)/_layout/assignments_/$assignmentId': typeof protectedLayoutAssignmentsAssignmentIdRouteRoute
   '/(protected)/_layout/lectures_/$lectureId': typeof protectedLayoutLecturesLectureIdRouteRoute
   '/(protected)/_layout/resources_/$resourceId': typeof protectedLayoutResourcesResourceIdRouteRoute
@@ -454,7 +445,6 @@ export interface FileRouteTypes {
     | '/signin/'
     | '/switch-account/'
     | '/'
-    | '/zoom/'
     | '/assignments/$assignmentId'
     | '/lectures/$lectureId'
     | '/resources/$resourceId'
@@ -498,7 +488,6 @@ export interface FileRouteTypes {
     | '/signin'
     | '/switch-account'
     | '/'
-    | '/zoom'
     | '/assignments/$assignmentId'
     | '/lectures/$lectureId'
     | '/resources/$resourceId'
@@ -544,7 +533,6 @@ export interface FileRouteTypes {
     | '/(auth)/signin/'
     | '/(auth)/switch-account/'
     | '/(protected)/_layout/'
-    | '/(protected)/zoom/'
     | '/(protected)/_layout/assignments_/$assignmentId'
     | '/(protected)/_layout/lectures_/$lectureId'
     | '/(protected)/_layout/resources_/$resourceId'
@@ -589,7 +577,6 @@ export interface RootRouteChildren {
   authLoginIndexRoute: typeof authLoginIndexRoute
   authSigninIndexRoute: typeof authSigninIndexRoute
   authSwitchAccountIndexRoute: typeof authSwitchAccountIndexRoute
-  protectedZoomIndexRoute: typeof protectedZoomIndexRoute
   authV2AuthLinkedAccountsRoute: typeof authV2AuthLinkedAccountsRoute
   authV2AuthUseAccountRoute: typeof authV2AuthUseAccountRoute
   authV2LoginRequestOtpRoute: typeof authV2LoginRequestOtpRoute
@@ -617,13 +604,6 @@ declare module '@tanstack/react-router' {
       path: ''
       fullPath: ''
       preLoaderRoute: typeof protectedLayoutRouteRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/(protected)/zoom/': {
-      id: '/(protected)/zoom/'
-      path: '/zoom'
-      fullPath: '/zoom/'
-      preLoaderRoute: typeof protectedZoomIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/(protected)/_layout/': {
@@ -1011,7 +991,6 @@ const rootRouteChildren: RootRouteChildren = {
   authLoginIndexRoute: authLoginIndexRoute,
   authSigninIndexRoute: authSigninIndexRoute,
   authSwitchAccountIndexRoute: authSwitchAccountIndexRoute,
-  protectedZoomIndexRoute: protectedZoomIndexRoute,
   authV2AuthLinkedAccountsRoute: authV2AuthLinkedAccountsRoute,
   authV2AuthUseAccountRoute: authV2AuthUseAccountRoute,
   authV2LoginRequestOtpRoute: authV2LoginRequestOtpRoute,
