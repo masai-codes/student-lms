@@ -27,6 +27,7 @@ function isNewStudentExperienceRoute(pathname: string): boolean {
   return false
 }
 
+
 export const Route = createFileRoute('/(protected)/_layout')({
   beforeLoad: async ({ location }) => {
     const shouldRedirectToLegacy = isLegacyStudentRedirectEnabled()
@@ -34,11 +35,15 @@ export const Route = createFileRoute('/(protected)/_layout')({
     const requestUrl = new URL(location.href, 'http://localhost')
     const token = requestUrl.searchParams.get('token')
 
+    const user = await fetchCurrentUser()
+
+    if (!user) {
+      throw redirect({ to: '/signin' })
+    }
+
     if (shouldRedirectToLegacy && isMasaiverseRoute && token) {
       const newStudentUiBase =
         import.meta.env.VITE_NEW_STUDENT_UI_URL?.trim().replace(/\/$/, '')
-      const oldStudentUiBase =
-        import.meta.env.VITE_OLD_STUDENT_UI_URL?.trim().replace(/\/$/, '')
       const redirectSearchParams = new URLSearchParams(requestUrl.searchParams)
       // Token is only needed for legacy app redirect auth flow.
       redirectSearchParams.delete('token')
@@ -47,14 +52,8 @@ export const Route = createFileRoute('/(protected)/_layout')({
         ? `${newStudentUiBase}${location.pathname}?${redirectSearchParams.toString()}`
         : null
 
-      const user = await fetchCurrentUser()
-      if (user && redirectTarget) {
+      if (redirectTarget) {
         throw redirect({ href: redirectTarget })
-      }
-
-      if (!user && oldStudentUiBase && redirectTarget) {
-        const appRedirectUrl = `${oldStudentUiBase}/app-redirect-app?token=${encodeURIComponent(token)}&redirect=${encodeURIComponent(redirectTarget)}`
-        throw redirect({ href: appRedirectUrl })
       }
     }
 
@@ -68,11 +67,6 @@ export const Route = createFileRoute('/(protected)/_layout')({
       if (oldUiUrl) {
         throw redirect({ href: oldUiUrl })
       }
-    }
-
-    const user = await fetchCurrentUser()
-    if (!user) {
-      throw redirect({ to: '/login' })
     }
     return {
       user,

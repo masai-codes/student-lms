@@ -1811,6 +1811,23 @@ export const optInChoices = mysqlTable("opt_in_choices", {
 	primaryKey({ columns: [table.id], name: "opt_in_choices_id"}),
 ]);
 
+export const otpCodes = mysqlTable("otp_codes", {
+	id: bigint({ mode: "number", unsigned: true }).autoincrement().notNull(),
+	sessionId: varchar("session_id", { length: 36 }).notNull(),
+	identifier: varchar({ length: 255 }).notNull(),
+	channel: varchar({ length: 20 }).notNull(),
+	otpHash: varchar("otp_hash", { length: 255 }).notNull(),
+	expiresAt: datetime("expires_at", { mode: 'string' }).notNull(),
+	attempts: int().default(0).notNull(),
+	usedAt: datetime("used_at", { mode: 'string' }),
+	createdAt: timestamp("created_at", { mode: 'string' }).defaultNow().notNull(),
+},
+(table) => [
+	index("otp_codes_identifier_index").on(table.identifier),
+	unique("otp_codes_session_id_unique").on(table.sessionId),
+	primaryKey({ columns: [table.id], name: "otp_codes_id"}),
+]);
+
 export const pages = mysqlTable("pages", {
 	id: bigint({ mode: "number", unsigned: true }).autoincrement().notNull(),
 	title: varchar({ length: 255 }).notNull(),
