@@ -58,7 +58,7 @@ export function SignInFlow() {
   const [submitBusy, setSubmitBusy] = useState(false)
   const [phoneResendBusy, setPhoneResendBusy] = useState(false)
   const [forgotBusy, setForgotBusy] = useState(false)
-  const [rememberMe, setRememberMe] = useState(false)
+  const [rememberMe, setRememberMe] = useState(true)
 
   const goHomeAfterSignIn = useCallback(() => {
     void navigate({ to: '/' })
