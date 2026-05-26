@@ -1,3 +1,5 @@
+import { withAppMobileHeaders } from '@/utils/appMobile'
+
 export type AppOrigin = 'masai' | 'ihub'
 
 const APP_ORIGIN_HEADER = 'X-App-Origin'
@@ -16,6 +18,10 @@ export function withAppOriginHeader(headers?: HeadersInit): Headers {
   const nextHeaders = new Headers(headers)
   nextHeaders.set(APP_ORIGIN_HEADER, getConfiguredAppOrigin())
   return nextHeaders
+}
+
+function withClientContextHeaders(headers?: HeadersInit): Headers {
+  return withAppMobileHeaders(withAppOriginHeader(headers))
 }
 
 function isSameOriginRequest(input: RequestInfo | URL): boolean {
@@ -57,14 +63,14 @@ export function installAppOriginFetchHeader(): void {
     if (input instanceof Request) {
       const requestWithHeader = new Request(input, {
         ...init,
-        headers: withAppOriginHeader(init?.headers ?? input.headers),
+        headers: withClientContextHeaders(init?.headers ?? input.headers),
       })
       return originalFetch(requestWithHeader)
     }
 
     return originalFetch(input, {
       ...init,
-      headers: withAppOriginHeader(init?.headers),
+      headers: withClientContextHeaders(init?.headers),
     })
   }) as typeof fetch
 
