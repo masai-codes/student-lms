@@ -1,13 +1,32 @@
+import type { EmailPortal } from '@/server/auth/v2/isRequestFromIHub'
+
 const ENDPOINT = 'https://backend.api-wa.co/campaign/serri-india/api/v2'
-const CAMPAIGN_NAME = 'otp_masai_saharan'
-const USER_NAME = 'IIT Online Programs 19'
 const SOURCE = 'lms-v2-login'
 const SEND_TIMEOUT_MS = 10_000
 
-function getApiKey(): string {
-  const key = process.env.WHATSAPP_SERRI_API_KEY?.trim()
+type PortalAisensyConfig = {
+  apiKeyEnvVar: string
+  campaignName: string
+  userName: string
+}
+
+const PORTAL_CONFIG: Record<EmailPortal, PortalAisensyConfig> = {
+  masai: {
+    apiKeyEnvVar: 'WHATSAPP_SERRI_API_KEY_MASAI',
+    campaignName: 'otp_masai_saharan',
+    userName: 'IIT Online Programs 19',
+  },
+  ihub: {
+    apiKeyEnvVar: 'WHATSAPP_SERRI_API_KEY_IHUB',
+    campaignName: 'otp_prepleaf_01',
+    userName: 'IIT Online Programs 23',
+  },
+}
+
+function getApiKey(envVar: string): string {
+  const key = process.env[envVar]?.trim()
   if (!key) {
-    throw new Error('WHATSAPP_SERRI_API_KEY env var is not set')
+    throw new Error(`${envVar} env var is not set`)
   }
   return key
 }
@@ -22,10 +41,16 @@ function normalizeForAisensy(input: string): string {
 export type SendOtpWhatsappArgs = {
   mobile: string
   otp: string
+  portal: EmailPortal
 }
 
-export async function sendOtpWhatsapp({ mobile, otp }: SendOtpWhatsappArgs): Promise<void> {
+export async function sendOtpWhatsapp({
+  mobile,
+  otp,
+  portal,
+}: SendOtpWhatsappArgs): Promise<void> {
   const destination = normalizeForAisensy(mobile)
+  const config = PORTAL_CONFIG[portal]
 
   const controller = new AbortController()
   const timeout = setTimeout(() => controller.abort(), SEND_TIMEOUT_MS)
@@ -36,10 +61,10 @@ export async function sendOtpWhatsapp({ mobile, otp }: SendOtpWhatsappArgs): Pro
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        apiKey: getApiKey(),
-        campaignName: CAMPAIGN_NAME,
+        apiKey: getApiKey(config.apiKeyEnvVar),
+        campaignName: config.campaignName,
         destination,
-        userName: USER_NAME,
+        userName: config.userName,
         templateParams: [otp],
         source: SOURCE,
         media: {},

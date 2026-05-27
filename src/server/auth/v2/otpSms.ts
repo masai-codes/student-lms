@@ -2,7 +2,7 @@
 import TwoFactor from '2factor'
 
 const SEND_TIMEOUT_MS = 10_000
-const TEMPLATE = 'Nolan%20Admissions'
+const TEMPLATE = 'MSI-ADM-OTP'
 
 function getApiKey(): string {
   const key = process.env.OTP_2FACTOR_API_KEY?.trim()
