@@ -2,7 +2,7 @@ import { eq } from 'drizzle-orm'
 import jwt from 'jsonwebtoken'
 import { db } from '@/db'
 import { users } from '@/db/schema'
-import { getEmailPortal } from '@/server/auth/v2/isRequestFromIHub'
+import { toEmailPortal } from '@/server/auth/v2/isRequestFromIHub'
 import {
   getStudentPasswordResetBaseUrl,
   sendResetPasswordEmail,
@@ -31,17 +31,20 @@ function buildResetLink(role: string | null, token: string, portal: 'masai' | 'i
 
 export type SendForgotPasswordEmailInput = {
   email: string
-  request: Request
 }
 
 export async function sendForgotPasswordEmail({
   email,
-  request,
 }: SendForgotPasswordEmailInput): Promise<void> {
   const normalizedEmail = email.trim().toLowerCase()
 
   const rows = await db
-    .select({ email: users.email, name: users.name, role: users.role })
+    .select({
+      email: users.email,
+      name: users.name,
+      role: users.role,
+      client: users.client,
+    })
     .from(users)
     .where(eq(users.email, normalizedEmail))
     .limit(1)
@@ -59,7 +62,10 @@ export async function sendForgotPasswordEmail({
     expiresIn: TOKEN_TTL,
   })
 
-  const portal = getEmailPortal(request)
+  // Reset email + URL follow the user's portal (user.client), not the request
+  // portal — keeps branding consistent with the user's program even if they
+  // click "forgot password" from a different portal's login page.
+  const portal = toEmailPortal(user.client)
   const resetLink = buildResetLink(user.role, token, portal)
 
   if (!resetLink) {
