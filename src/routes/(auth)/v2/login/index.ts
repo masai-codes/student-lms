@@ -10,6 +10,7 @@ import {
   LoginError,
   loginWithPassword,
 } from '@/server/auth/v2/loginWithPassword'
+import { canAccessPortal } from '@/server/auth/v2/portalGate'
 
 type PasswordLoginBody = {
   email?: unknown
@@ -47,6 +48,16 @@ async function handlePasswordLogin(request: Request): Promise<Response> {
 
   try {
     const user = await loginWithPassword({ email, password })
+
+    const allowed = await canAccessPortal({ user, request })
+    if (!allowed) {
+      return errorResponse(
+        403,
+        'PORTAL_MISMATCH',
+        'This account cannot sign in from this portal.',
+      )
+    }
+
     const { activeToken, setCookieHeader } = await createSessions({
       userIds: [user.id],
       request,
