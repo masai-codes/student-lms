@@ -89,6 +89,7 @@ export async function verifyOtp({ otpSessionId, otp }: VerifyOtpInput): Promise<
       email: users.email,
       mobile: users.mobile,
       role: users.role,
+      client: users.client,
     })
     .from(users)
     .where(eq(isEmailChannel ? users.email : users.mobile, record.identifier))

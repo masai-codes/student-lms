@@ -6,6 +6,7 @@ import {
   jsonResponse,
   readJsonBody,
 } from '@/server/auth/v2/httpHelpers'
+import { canAccessPortal } from '@/server/auth/v2/portalGate'
 import { VerifyOtpError, verifyOtp } from '@/server/auth/v2/verifyOtp'
 
 type VerifyOtpBody = {
@@ -50,6 +51,19 @@ async function handleVerifyOtp(request: Request): Promise<Response> {
 
   try {
     const matchedUsers = await verifyOtp({ otpSessionId, otp })
+
+    const gateResults = await Promise.all(
+      matchedUsers.map((u) => canAccessPortal({ user: u, request })),
+    )
+    const allowedUsers = matchedUsers.filter((_, i) => gateResults[i])
+    if (allowedUsers.length === 0) {
+      return errorResponse(
+        403,
+        'PORTAL_MISMATCH',
+        'This account cannot sign in from this portal.',
+      )
+    }
+
     const {
       sessions: sessionRecords,
       activeUserId,
@@ -57,13 +71,13 @@ async function handleVerifyOtp(request: Request): Promise<Response> {
       activeToken,
       setCookieHeader,
     } = await createSessions({
-      userIds: matchedUsers.map((u) => u.id),
+      userIds: allowedUsers.map((u) => u.id),
       request,
       rememberMe,
       source: 'v2-login-otp',
     })
 
-    const userById = new Map(matchedUsers.map((u) => [u.id, u]))
+    const userById = new Map(allowedUsers.map((u) => [u.id, u]))
     const accounts = sessionRecords.map(({ userId, sessionId }) => ({
       user: userById.get(userId)!,
       sessionId,

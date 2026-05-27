@@ -3062,9 +3062,11 @@ export const users = mysqlTable("users", {
 	lastActiveAt: timestamp("last_active_at", { mode: 'string' }),
 	statusTime: datetime("status_time", { mode: 'string'}),
 	meta: json(),
+	client: varchar({ length: 20 }).default("masai").notNull(),
 },
 (table) => [
 	index("idx_name").on(table.name),
+	index("idx_client").on(table.client),
 	primaryKey({ columns: [table.id], name: "users_id"}),
 	unique("users_email_unique").on(table.email),
 	unique("users_username_unique").on(table.username),

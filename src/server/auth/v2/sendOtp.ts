@@ -3,7 +3,7 @@ import { hash } from 'bcryptjs'
 import { and, eq, gte } from 'drizzle-orm'
 import { db } from '@/db'
 import { otpCodes, users } from '@/db/schema'
-import { getEmailPortal, type EmailPortal } from '@/server/auth/v2/isRequestFromIHub'
+import { toEmailPortal, type EmailPortal } from '@/server/auth/v2/isRequestFromIHub'
 import { sendOtpEmail } from '@/server/auth/v2/otpEmail'
 import { sendOtpSms } from '@/server/auth/v2/otpSms'
 import { sendOtpWhatsapp } from '@/server/auth/v2/otpWhatsapp'
@@ -21,7 +21,6 @@ const HOURLY_WINDOW_SECONDS = 3600
 export type SendOtpInput = {
   identifier: string
   isResend?: boolean
-  request: Request
 }
 
 export type SendOtpResult = {
@@ -120,7 +119,6 @@ async function persistOtp({
 export async function sendOtp({
   identifier,
   isResend,
-  request,
 }: SendOtpInput): Promise<SendOtpResult> {
   const normalized = identifier.trim().toLowerCase()
   const isEmail = isEmailIdentifier(normalized)
@@ -128,7 +126,12 @@ export async function sendOtp({
   await assertSendAllowed(normalized)
 
   const userRows = await db
-    .select({ id: users.id, email: users.email, mobile: users.mobile })
+    .select({
+      id: users.id,
+      email: users.email,
+      mobile: users.mobile,
+      client: users.client,
+    })
     .from(users)
     .where(eq(isEmail ? users.email : users.mobile, normalized))
     .limit(1)
@@ -138,6 +141,11 @@ export async function sendOtp({
     throw new SendOtpError('USER_NOT_FOUND', 'User not found')
   }
 
+  // OTP routing follows the user's portal (user.client), not the request portal.
+  // A grandfathered iHub user signing in via the Masai mobile app still receives
+  // iHub-branded WhatsApp/email so the identity stays consistent with their program.
+  const portal = toEmailPortal(user.client)
+
   if (isEmail) {
     const otp = generateOtp()
     const otpSessionId = await persistOtp({
@@ -146,13 +154,11 @@ export async function sendOtp({
       otp,
     })
 
-    const portal = getEmailPortal(request)
     await sendOtpEmail({ toEmail: user.email, otp, portal })
 
     return { channel: 'email', otpSessionId }
   }
 
-  const portal = getEmailPortal(request)
   const preferredChannel = pickPhoneChannel(portal, isResend === true)
   const fallbackChannel: 'sms' | 'whatsapp' = preferredChannel === 'sms' ? 'whatsapp' : 'sms'
   const targetMobile = user.mobile ?? normalized
@@ -161,6 +167,7 @@ export async function sendOtp({
   const deliveredChannel = await deliverPhoneOtp({
     mobile: targetMobile,
     otp,
+    portal,
     preferredChannel,
     fallbackChannel,
   })
@@ -177,18 +184,20 @@ export async function sendOtp({
 async function deliverPhoneOtp({
   mobile,
   otp,
+  portal,
   preferredChannel,
   fallbackChannel,
 }: {
   mobile: string
   otp: string
+  portal: EmailPortal
   preferredChannel: 'sms' | 'whatsapp'
   fallbackChannel: 'sms' | 'whatsapp'
 }): Promise<'sms' | 'whatsapp'> {
   const dispatch = (channel: 'sms' | 'whatsapp') =>
     channel === 'sms'
       ? sendOtpSms({ mobile, otp })
-      : sendOtpWhatsapp({ mobile, otp })
+      : sendOtpWhatsapp({ mobile, otp, portal })
 
   try {
     await dispatch(preferredChannel)

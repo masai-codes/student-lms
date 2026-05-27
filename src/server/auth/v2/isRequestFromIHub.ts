@@ -1,5 +1,14 @@
 export type EmailPortal = 'masai' | 'ihub'
 
+/**
+ * Narrows a raw `users.client` string (or any other untyped value) to a known
+ * EmailPortal. Unknown values fall back to 'masai' — safe default historically
+ * (everything pre-iHub was Masai). Add new cases here when we onboard new clients.
+ */
+export function toEmailPortal(value: string | null | undefined): EmailPortal {
+  return value === 'ihub' ? 'ihub' : 'masai'
+}
+
 function getIHubOrigins(): Set<string> {
   return new Set(
     (process.env.IHUB_ORIGINS ?? '')
