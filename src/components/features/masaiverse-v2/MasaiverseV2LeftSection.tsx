@@ -21,7 +21,7 @@ export default function MasaiverseV2LeftSection() {
     : undefined
 
   return (
-    <aside className="hidden w-[20%] shrink-0 border-r border-[#E5E7EB] py-6 pr-4 md:block">
+    <aside className="hidden w-[20%] shrink-0 border-r border-[#E5E7EB] bg-white py-6 pr-4 md:block">
       <div className="px-1">
         <h1 className="text-[20px] font-bold leading-7 text-[#111827]">
           MasaiVerse
