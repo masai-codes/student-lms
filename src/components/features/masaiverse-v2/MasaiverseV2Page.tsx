@@ -1,20 +1,25 @@
 import MasaiverseV2LeftSection from './MasaiverseV2LeftSection'
-import MasaiverseV2RightSection from './MasaiverseV2RightSection'
+import type { ReactNode } from 'react'
+
+type MasaiverseV2PageProps = {
+  children: ReactNode
+}
 
 /**
- * Masaiverse v2 home page.
+ * Masaiverse v2 shell layout.
  *
- * Fresh, empty canvas that replaces the legacy home-tab UI. A centered
- * container (same max width as the old masaiverse) gives horizontal breathing
- * room on the left/right, with no top/bottom margin. The left and right
- * sections sit flush against each other, separated only by a divider border.
+ * Persistent left sidebar + a content area that renders the active route
+ * (passed as `children`, i.e. the route `<Outlet />`). A centered container
+ * matches the old masaiverse width, pulled up to meet the navbar with no
+ * top margin. Left and right sit flush, separated only by the sidebar's
+ * divider border.
  */
-export default function MasaiverseV2Page() {
+export default function MasaiverseV2Page({ children }: MasaiverseV2PageProps) {
   return (
     <div className="mx-auto -mt-6 w-full max-w-[1440px] px-4 md:-mt-[24px] md:px-6">
       <div className="flex w-full items-stretch">
         <MasaiverseV2LeftSection />
-        <MasaiverseV2RightSection />
+        <section className="min-w-0 w-full p-6 md:w-[80%]">{children}</section>
       </div>
     </div>
   )
