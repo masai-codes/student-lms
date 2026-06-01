@@ -31,7 +31,7 @@ async function handleForgotPassword(request: Request): Promise<Response> {
   }
 
   try {
-    await sendForgotPasswordEmail({ email, request })
+    await sendForgotPasswordEmail({ email })
   } catch (err) {
     console.error('[forgot-password] failed to send reset email:', err)
     return errorResponse(

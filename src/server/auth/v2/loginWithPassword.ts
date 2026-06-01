@@ -14,6 +14,7 @@ export type AuthenticatedUser = {
   email: string
   mobile: string | null
   role: string | null
+  client: string
 }
 
 export class LoginError extends Error {
@@ -38,6 +39,7 @@ export async function loginWithPassword({
       email: users.email,
       mobile: users.mobile,
       role: users.role,
+      client: users.client,
       password: users.password,
     })
     .from(users)
@@ -67,5 +69,6 @@ export async function loginWithPassword({
     email: user.email,
     mobile: user.mobile,
     role: user.role,
+    client: user.client,
   }
 }

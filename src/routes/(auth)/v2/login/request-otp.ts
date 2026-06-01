@@ -37,7 +37,7 @@ async function handleRequestOtp(request: Request): Promise<Response> {
   }
 
   try {
-    const result = await sendOtp({ identifier, isResend, request })
+    const result = await sendOtp({ identifier, isResend })
     return jsonResponse({ channel: result.channel, otpSessionId: result.otpSessionId })
   } catch (err) {
     if (err instanceof SendOtpError) {
