@@ -12,6 +12,8 @@ export const CLUBS_DUMMY_DATA: Array<MasaiverseClubDetail> = [
     icon: '💻',
     category: 'Engineering',
     membersCount: 1240,
+    tagline: 'Code · DSA · Projects',
+    accent: 'orange',
     description:
       'Build projects, pair on problems, and ship code with fellow learners. Weekly contests and code reviews.',
   },
@@ -21,6 +23,8 @@ export const CLUBS_DUMMY_DATA: Array<MasaiverseClubDetail> = [
     icon: '🎨',
     category: 'Design',
     membersCount: 860,
+    tagline: 'UI/UX · Case Studies',
+    accent: 'purple',
     description:
       'A space for product, UI, and UX enthusiasts to share work, run critiques, and grow together.',
   },
@@ -30,6 +34,8 @@ export const CLUBS_DUMMY_DATA: Array<MasaiverseClubDetail> = [
     icon: '📊',
     category: 'Data',
     membersCount: 1530,
+    tagline: 'ML · Analytics · AI',
+    accent: 'blue',
     description:
       'Explore machine learning, analytics, and data engineering through hands-on challenges and study jams.',
   },
@@ -39,6 +45,8 @@ export const CLUBS_DUMMY_DATA: Array<MasaiverseClubDetail> = [
     icon: '🤖',
     category: 'Hardware',
     membersCount: 420,
+    tagline: 'Hardware · Embedded',
+    accent: 'green',
     description:
       'Tinker with hardware, automation, and embedded systems. Monthly build nights and demos.',
   },
@@ -48,6 +56,8 @@ export const CLUBS_DUMMY_DATA: Array<MasaiverseClubDetail> = [
     icon: '🧭',
     category: 'Product',
     membersCount: 690,
+    tagline: 'Discovery · Roadmaps',
+    accent: 'orange',
     description:
       'Learn product thinking, roadmapping, and discovery with case studies and mock interviews.',
   },
@@ -57,6 +67,8 @@ export const CLUBS_DUMMY_DATA: Array<MasaiverseClubDetail> = [
     icon: '✍️',
     category: 'Communication',
     membersCount: 350,
+    tagline: 'Writing · Storytelling',
+    accent: 'purple',
     description:
       'Sharpen technical writing and storytelling. Share drafts and get thoughtful feedback.',
   },
