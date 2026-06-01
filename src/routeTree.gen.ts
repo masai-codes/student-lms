@@ -10,6 +10,8 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as protectedLayoutRouteRouteImport } from './routes/(protected)/_layout/route'
+import { Route as ApiBookmarksIndexRouteImport } from './routes/api/bookmarks/index'
+import { Route as ApiAnnouncementIndexRouteImport } from './routes/api/announcement/index'
 import { Route as protectedLayoutIndexRouteImport } from './routes/(protected)/_layout/index'
 import { Route as authSwitchAccountIndexRouteImport } from './routes/(auth)/switch-account/index'
 import { Route as authSigninIndexRouteImport } from './routes/(auth)/signin/index'
@@ -26,8 +28,11 @@ import { Route as authV2ResetPasswordRouteImport } from './routes/(auth)/v2/rese
 import { Route as authV2MeRouteImport } from './routes/(auth)/v2/me'
 import { Route as authV2ForgotPasswordRouteImport } from './routes/(auth)/v2/forgot-password'
 import { Route as protectedLayoutMasaiverseRouteRouteImport } from './routes/(protected)/_layout/masaiverse/route'
+import { Route as ApiAnnouncementIdIndexRouteImport } from './routes/api/announcement/$id/index'
 import { Route as protectedLayoutMasaiverseIndexRouteImport } from './routes/(protected)/_layout/masaiverse/index'
 import { Route as protectedLayoutLearnIndexRouteImport } from './routes/(protected)/_layout/learn/index'
+import { Route as protectedLayoutBookmarksIndexRouteImport } from './routes/(protected)/_layout/bookmarks/index'
+import { Route as protectedLayoutAnnouncementsIndexRouteImport } from './routes/(protected)/_layout/announcements/index'
 import { Route as authV2LoginIndexRouteImport } from './routes/(auth)/v2/login/index'
 import { Route as authResetPasswordTokenIndexRouteImport } from './routes/(auth)/reset-password.$token/index'
 import { Route as ApiLearnSubmissionsSubmissionIdRouteImport } from './routes/api/learn/submissions/$submissionId'
@@ -43,6 +48,7 @@ import { Route as authV2AuthLinkedAccountsRouteImport } from './routes/(auth)/v2
 import { Route as protectedLayoutResourcesResourceIdRouteRouteImport } from './routes/(protected)/_layout/resources_/$resourceId/route'
 import { Route as protectedLayoutLecturesLectureIdRouteRouteImport } from './routes/(protected)/_layout/lectures_/$lectureId/route'
 import { Route as protectedLayoutAssignmentsAssignmentIdRouteRouteImport } from './routes/(protected)/_layout/assignments_/$assignmentId/route'
+import { Route as protectedLayoutAnnouncementsIdRouteRouteImport } from './routes/(protected)/_layout/announcements_/$id/route'
 import { Route as ApiLearnSubmissionsSubmissionIdViewOnPlatformRouteImport } from './routes/api/learn/submissions/$submissionId/view-on-platform'
 import { Route as ApiLearnAssignmentsAssignmentIdSubmissionsRouteImport } from './routes/api/learn/assignments/$assignmentId/submissions'
 import { Route as ApiLearnAssignmentsAssignmentIdAssessPlatformUrlRouteImport } from './routes/api/learn/assignments/$assignmentId/assess-platform-url'
@@ -55,6 +61,16 @@ import { Route as ApiLearnAiChatLectureIdHistoryRouteImport } from './routes/api
 
 const protectedLayoutRouteRoute = protectedLayoutRouteRouteImport.update({
   id: '/(protected)/_layout',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiBookmarksIndexRoute = ApiBookmarksIndexRouteImport.update({
+  id: '/api/bookmarks/',
+  path: '/api/bookmarks/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAnnouncementIndexRoute = ApiAnnouncementIndexRouteImport.update({
+  id: '/api/announcement/',
+  path: '/api/announcement/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const protectedLayoutIndexRoute = protectedLayoutIndexRouteImport.update({
@@ -142,6 +158,11 @@ const protectedLayoutMasaiverseRouteRoute =
     path: '/masaiverse',
     getParentRoute: () => protectedLayoutRouteRoute,
   } as any)
+const ApiAnnouncementIdIndexRoute = ApiAnnouncementIdIndexRouteImport.update({
+  id: '/api/announcement/$id/',
+  path: '/api/announcement/$id/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const protectedLayoutMasaiverseIndexRoute =
   protectedLayoutMasaiverseIndexRouteImport.update({
     id: '/',
@@ -152,6 +173,18 @@ const protectedLayoutLearnIndexRoute =
   protectedLayoutLearnIndexRouteImport.update({
     id: '/learn/',
     path: '/learn/',
+    getParentRoute: () => protectedLayoutRouteRoute,
+  } as any)
+const protectedLayoutBookmarksIndexRoute =
+  protectedLayoutBookmarksIndexRouteImport.update({
+    id: '/bookmarks/',
+    path: '/bookmarks/',
+    getParentRoute: () => protectedLayoutRouteRoute,
+  } as any)
+const protectedLayoutAnnouncementsIndexRoute =
+  protectedLayoutAnnouncementsIndexRouteImport.update({
+    id: '/announcements/',
+    path: '/announcements/',
     getParentRoute: () => protectedLayoutRouteRoute,
   } as any)
 const authV2LoginIndexRoute = authV2LoginIndexRouteImport.update({
@@ -238,6 +271,12 @@ const protectedLayoutAssignmentsAssignmentIdRouteRoute =
     path: '/assignments/$assignmentId',
     getParentRoute: () => protectedLayoutRouteRoute,
   } as any)
+const protectedLayoutAnnouncementsIdRouteRoute =
+  protectedLayoutAnnouncementsIdRouteRouteImport.update({
+    id: '/announcements_/$id',
+    path: '/announcements/$id',
+    getParentRoute: () => protectedLayoutRouteRoute,
+  } as any)
 const ApiLearnSubmissionsSubmissionIdViewOnPlatformRoute =
   ApiLearnSubmissionsSubmissionIdViewOnPlatformRouteImport.update({
     id: '/view-on-platform',
@@ -310,6 +349,9 @@ export interface FileRoutesByFullPath {
   '/signin/': typeof authSigninIndexRoute
   '/switch-account/': typeof authSwitchAccountIndexRoute
   '/': typeof protectedLayoutIndexRoute
+  '/api/announcement/': typeof ApiAnnouncementIndexRoute
+  '/api/bookmarks/': typeof ApiBookmarksIndexRoute
+  '/announcements/$id': typeof protectedLayoutAnnouncementsIdRouteRoute
   '/assignments/$assignmentId': typeof protectedLayoutAssignmentsAssignmentIdRouteRoute
   '/lectures/$lectureId': typeof protectedLayoutLecturesLectureIdRouteRoute
   '/resources/$resourceId': typeof protectedLayoutResourcesResourceIdRouteRoute
@@ -325,8 +367,11 @@ export interface FileRoutesByFullPath {
   '/api/learn/submissions/$submissionId': typeof ApiLearnSubmissionsSubmissionIdRouteWithChildren
   '/reset-password/$token/': typeof authResetPasswordTokenIndexRoute
   '/v2/login/': typeof authV2LoginIndexRoute
+  '/announcements/': typeof protectedLayoutAnnouncementsIndexRoute
+  '/bookmarks/': typeof protectedLayoutBookmarksIndexRoute
   '/learn/': typeof protectedLayoutLearnIndexRoute
   '/masaiverse/': typeof protectedLayoutMasaiverseIndexRoute
+  '/api/announcement/$id/': typeof ApiAnnouncementIdIndexRoute
   '/api/learn/ai-chat/$lectureId/history': typeof ApiLearnAiChatLectureIdHistoryRoute
   '/api/learn/ai-chat/$lectureId/send': typeof ApiLearnAiChatLectureIdSendRoute
   '/api/learn/ai-tutor/$lectureId/dispatch': typeof ApiLearnAiTutorLectureIdDispatchRoute
@@ -353,6 +398,9 @@ export interface FileRoutesByTo {
   '/signin': typeof authSigninIndexRoute
   '/switch-account': typeof authSwitchAccountIndexRoute
   '/': typeof protectedLayoutIndexRoute
+  '/api/announcement': typeof ApiAnnouncementIndexRoute
+  '/api/bookmarks': typeof ApiBookmarksIndexRoute
+  '/announcements/$id': typeof protectedLayoutAnnouncementsIdRouteRoute
   '/assignments/$assignmentId': typeof protectedLayoutAssignmentsAssignmentIdRouteRoute
   '/lectures/$lectureId': typeof protectedLayoutLecturesLectureIdRouteRoute
   '/resources/$resourceId': typeof protectedLayoutResourcesResourceIdRouteRoute
@@ -368,8 +416,11 @@ export interface FileRoutesByTo {
   '/api/learn/submissions/$submissionId': typeof ApiLearnSubmissionsSubmissionIdRouteWithChildren
   '/reset-password/$token': typeof authResetPasswordTokenIndexRoute
   '/v2/login': typeof authV2LoginIndexRoute
+  '/announcements': typeof protectedLayoutAnnouncementsIndexRoute
+  '/bookmarks': typeof protectedLayoutBookmarksIndexRoute
   '/learn': typeof protectedLayoutLearnIndexRoute
   '/masaiverse': typeof protectedLayoutMasaiverseIndexRoute
+  '/api/announcement/$id': typeof ApiAnnouncementIdIndexRoute
   '/api/learn/ai-chat/$lectureId/history': typeof ApiLearnAiChatLectureIdHistoryRoute
   '/api/learn/ai-chat/$lectureId/send': typeof ApiLearnAiChatLectureIdSendRoute
   '/api/learn/ai-tutor/$lectureId/dispatch': typeof ApiLearnAiTutorLectureIdDispatchRoute
@@ -399,6 +450,9 @@ export interface FileRoutesById {
   '/(auth)/signin/': typeof authSigninIndexRoute
   '/(auth)/switch-account/': typeof authSwitchAccountIndexRoute
   '/(protected)/_layout/': typeof protectedLayoutIndexRoute
+  '/api/announcement/': typeof ApiAnnouncementIndexRoute
+  '/api/bookmarks/': typeof ApiBookmarksIndexRoute
+  '/(protected)/_layout/announcements_/$id': typeof protectedLayoutAnnouncementsIdRouteRoute
   '/(protected)/_layout/assignments_/$assignmentId': typeof protectedLayoutAssignmentsAssignmentIdRouteRoute
   '/(protected)/_layout/lectures_/$lectureId': typeof protectedLayoutLecturesLectureIdRouteRoute
   '/(protected)/_layout/resources_/$resourceId': typeof protectedLayoutResourcesResourceIdRouteRoute
@@ -414,8 +468,11 @@ export interface FileRoutesById {
   '/api/learn/submissions/$submissionId': typeof ApiLearnSubmissionsSubmissionIdRouteWithChildren
   '/(auth)/reset-password/$token/': typeof authResetPasswordTokenIndexRoute
   '/(auth)/v2/login/': typeof authV2LoginIndexRoute
+  '/(protected)/_layout/announcements/': typeof protectedLayoutAnnouncementsIndexRoute
+  '/(protected)/_layout/bookmarks/': typeof protectedLayoutBookmarksIndexRoute
   '/(protected)/_layout/learn/': typeof protectedLayoutLearnIndexRoute
   '/(protected)/_layout/masaiverse/': typeof protectedLayoutMasaiverseIndexRoute
+  '/api/announcement/$id/': typeof ApiAnnouncementIdIndexRoute
   '/api/learn/ai-chat/$lectureId/history': typeof ApiLearnAiChatLectureIdHistoryRoute
   '/api/learn/ai-chat/$lectureId/send': typeof ApiLearnAiChatLectureIdSendRoute
   '/api/learn/ai-tutor/$lectureId/dispatch': typeof ApiLearnAiTutorLectureIdDispatchRoute
@@ -445,6 +502,9 @@ export interface FileRouteTypes {
     | '/signin/'
     | '/switch-account/'
     | '/'
+    | '/api/announcement/'
+    | '/api/bookmarks/'
+    | '/announcements/$id'
     | '/assignments/$assignmentId'
     | '/lectures/$lectureId'
     | '/resources/$resourceId'
@@ -460,8 +520,11 @@ export interface FileRouteTypes {
     | '/api/learn/submissions/$submissionId'
     | '/reset-password/$token/'
     | '/v2/login/'
+    | '/announcements/'
+    | '/bookmarks/'
     | '/learn/'
     | '/masaiverse/'
+    | '/api/announcement/$id/'
     | '/api/learn/ai-chat/$lectureId/history'
     | '/api/learn/ai-chat/$lectureId/send'
     | '/api/learn/ai-tutor/$lectureId/dispatch'
@@ -488,6 +551,9 @@ export interface FileRouteTypes {
     | '/signin'
     | '/switch-account'
     | '/'
+    | '/api/announcement'
+    | '/api/bookmarks'
+    | '/announcements/$id'
     | '/assignments/$assignmentId'
     | '/lectures/$lectureId'
     | '/resources/$resourceId'
@@ -503,8 +569,11 @@ export interface FileRouteTypes {
     | '/api/learn/submissions/$submissionId'
     | '/reset-password/$token'
     | '/v2/login'
+    | '/announcements'
+    | '/bookmarks'
     | '/learn'
     | '/masaiverse'
+    | '/api/announcement/$id'
     | '/api/learn/ai-chat/$lectureId/history'
     | '/api/learn/ai-chat/$lectureId/send'
     | '/api/learn/ai-tutor/$lectureId/dispatch'
@@ -533,6 +602,9 @@ export interface FileRouteTypes {
     | '/(auth)/signin/'
     | '/(auth)/switch-account/'
     | '/(protected)/_layout/'
+    | '/api/announcement/'
+    | '/api/bookmarks/'
+    | '/(protected)/_layout/announcements_/$id'
     | '/(protected)/_layout/assignments_/$assignmentId'
     | '/(protected)/_layout/lectures_/$lectureId'
     | '/(protected)/_layout/resources_/$resourceId'
@@ -548,8 +620,11 @@ export interface FileRouteTypes {
     | '/api/learn/submissions/$submissionId'
     | '/(auth)/reset-password/$token/'
     | '/(auth)/v2/login/'
+    | '/(protected)/_layout/announcements/'
+    | '/(protected)/_layout/bookmarks/'
     | '/(protected)/_layout/learn/'
     | '/(protected)/_layout/masaiverse/'
+    | '/api/announcement/$id/'
     | '/api/learn/ai-chat/$lectureId/history'
     | '/api/learn/ai-chat/$lectureId/send'
     | '/api/learn/ai-tutor/$lectureId/dispatch'
@@ -577,6 +652,8 @@ export interface RootRouteChildren {
   authLoginIndexRoute: typeof authLoginIndexRoute
   authSigninIndexRoute: typeof authSigninIndexRoute
   authSwitchAccountIndexRoute: typeof authSwitchAccountIndexRoute
+  ApiAnnouncementIndexRoute: typeof ApiAnnouncementIndexRoute
+  ApiBookmarksIndexRoute: typeof ApiBookmarksIndexRoute
   authV2AuthLinkedAccountsRoute: typeof authV2AuthLinkedAccountsRoute
   authV2AuthUseAccountRoute: typeof authV2AuthUseAccountRoute
   authV2LoginRequestOtpRoute: typeof authV2LoginRequestOtpRoute
@@ -589,6 +666,7 @@ export interface RootRouteChildren {
   ApiLearnSubmissionsSubmissionIdRoute: typeof ApiLearnSubmissionsSubmissionIdRouteWithChildren
   authResetPasswordTokenIndexRoute: typeof authResetPasswordTokenIndexRoute
   authV2LoginIndexRoute: typeof authV2LoginIndexRoute
+  ApiAnnouncementIdIndexRoute: typeof ApiAnnouncementIdIndexRoute
   ApiLearnAiChatLectureIdHistoryRoute: typeof ApiLearnAiChatLectureIdHistoryRoute
   ApiLearnAiChatLectureIdSendRoute: typeof ApiLearnAiChatLectureIdSendRoute
   ApiLearnAiTutorLectureIdDispatchRoute: typeof ApiLearnAiTutorLectureIdDispatchRoute
@@ -604,6 +682,20 @@ declare module '@tanstack/react-router' {
       path: ''
       fullPath: ''
       preLoaderRoute: typeof protectedLayoutRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/bookmarks/': {
+      id: '/api/bookmarks/'
+      path: '/api/bookmarks'
+      fullPath: '/api/bookmarks/'
+      preLoaderRoute: typeof ApiBookmarksIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/announcement/': {
+      id: '/api/announcement/'
+      path: '/api/announcement'
+      fullPath: '/api/announcement/'
+      preLoaderRoute: typeof ApiAnnouncementIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/(protected)/_layout/': {
@@ -718,6 +810,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof protectedLayoutMasaiverseRouteRouteImport
       parentRoute: typeof protectedLayoutRouteRoute
     }
+    '/api/announcement/$id/': {
+      id: '/api/announcement/$id/'
+      path: '/api/announcement/$id'
+      fullPath: '/api/announcement/$id/'
+      preLoaderRoute: typeof ApiAnnouncementIdIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/(protected)/_layout/masaiverse/': {
       id: '/(protected)/_layout/masaiverse/'
       path: '/'
@@ -730,6 +829,20 @@ declare module '@tanstack/react-router' {
       path: '/learn'
       fullPath: '/learn/'
       preLoaderRoute: typeof protectedLayoutLearnIndexRouteImport
+      parentRoute: typeof protectedLayoutRouteRoute
+    }
+    '/(protected)/_layout/bookmarks/': {
+      id: '/(protected)/_layout/bookmarks/'
+      path: '/bookmarks'
+      fullPath: '/bookmarks/'
+      preLoaderRoute: typeof protectedLayoutBookmarksIndexRouteImport
+      parentRoute: typeof protectedLayoutRouteRoute
+    }
+    '/(protected)/_layout/announcements/': {
+      id: '/(protected)/_layout/announcements/'
+      path: '/announcements'
+      fullPath: '/announcements/'
+      preLoaderRoute: typeof protectedLayoutAnnouncementsIndexRouteImport
       parentRoute: typeof protectedLayoutRouteRoute
     }
     '/(auth)/v2/login/': {
@@ -837,6 +950,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof protectedLayoutAssignmentsAssignmentIdRouteRouteImport
       parentRoute: typeof protectedLayoutRouteRoute
     }
+    '/(protected)/_layout/announcements_/$id': {
+      id: '/(protected)/_layout/announcements_/$id'
+      path: '/announcements/$id'
+      fullPath: '/announcements/$id'
+      preLoaderRoute: typeof protectedLayoutAnnouncementsIdRouteRouteImport
+      parentRoute: typeof protectedLayoutRouteRoute
+    }
     '/api/learn/submissions/$submissionId/view-on-platform': {
       id: '/api/learn/submissions/$submissionId/view-on-platform'
       path: '/view-on-platform'
@@ -920,9 +1040,12 @@ const protectedLayoutMasaiverseRouteRouteWithChildren =
 interface protectedLayoutRouteRouteChildren {
   protectedLayoutMasaiverseRouteRoute: typeof protectedLayoutMasaiverseRouteRouteWithChildren
   protectedLayoutIndexRoute: typeof protectedLayoutIndexRoute
+  protectedLayoutAnnouncementsIdRouteRoute: typeof protectedLayoutAnnouncementsIdRouteRoute
   protectedLayoutAssignmentsAssignmentIdRouteRoute: typeof protectedLayoutAssignmentsAssignmentIdRouteRoute
   protectedLayoutLecturesLectureIdRouteRoute: typeof protectedLayoutLecturesLectureIdRouteRoute
   protectedLayoutResourcesResourceIdRouteRoute: typeof protectedLayoutResourcesResourceIdRouteRoute
+  protectedLayoutAnnouncementsIndexRoute: typeof protectedLayoutAnnouncementsIndexRoute
+  protectedLayoutBookmarksIndexRoute: typeof protectedLayoutBookmarksIndexRoute
   protectedLayoutLearnIndexRoute: typeof protectedLayoutLearnIndexRoute
 }
 
@@ -930,12 +1053,17 @@ const protectedLayoutRouteRouteChildren: protectedLayoutRouteRouteChildren = {
   protectedLayoutMasaiverseRouteRoute:
     protectedLayoutMasaiverseRouteRouteWithChildren,
   protectedLayoutIndexRoute: protectedLayoutIndexRoute,
+  protectedLayoutAnnouncementsIdRouteRoute:
+    protectedLayoutAnnouncementsIdRouteRoute,
   protectedLayoutAssignmentsAssignmentIdRouteRoute:
     protectedLayoutAssignmentsAssignmentIdRouteRoute,
   protectedLayoutLecturesLectureIdRouteRoute:
     protectedLayoutLecturesLectureIdRouteRoute,
   protectedLayoutResourcesResourceIdRouteRoute:
     protectedLayoutResourcesResourceIdRouteRoute,
+  protectedLayoutAnnouncementsIndexRoute:
+    protectedLayoutAnnouncementsIndexRoute,
+  protectedLayoutBookmarksIndexRoute: protectedLayoutBookmarksIndexRoute,
   protectedLayoutLearnIndexRoute: protectedLayoutLearnIndexRoute,
 }
 
@@ -991,6 +1119,8 @@ const rootRouteChildren: RootRouteChildren = {
   authLoginIndexRoute: authLoginIndexRoute,
   authSigninIndexRoute: authSigninIndexRoute,
   authSwitchAccountIndexRoute: authSwitchAccountIndexRoute,
+  ApiAnnouncementIndexRoute: ApiAnnouncementIndexRoute,
+  ApiBookmarksIndexRoute: ApiBookmarksIndexRoute,
   authV2AuthLinkedAccountsRoute: authV2AuthLinkedAccountsRoute,
   authV2AuthUseAccountRoute: authV2AuthUseAccountRoute,
   authV2LoginRequestOtpRoute: authV2LoginRequestOtpRoute,
@@ -1005,6 +1135,7 @@ const rootRouteChildren: RootRouteChildren = {
     ApiLearnSubmissionsSubmissionIdRouteWithChildren,
   authResetPasswordTokenIndexRoute: authResetPasswordTokenIndexRoute,
   authV2LoginIndexRoute: authV2LoginIndexRoute,
+  ApiAnnouncementIdIndexRoute: ApiAnnouncementIdIndexRoute,
   ApiLearnAiChatLectureIdHistoryRoute: ApiLearnAiChatLectureIdHistoryRoute,
   ApiLearnAiChatLectureIdSendRoute: ApiLearnAiChatLectureIdSendRoute,
   ApiLearnAiTutorLectureIdDispatchRoute: ApiLearnAiTutorLectureIdDispatchRoute,
