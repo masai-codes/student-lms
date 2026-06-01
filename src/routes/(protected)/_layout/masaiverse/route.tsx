@@ -7,6 +7,7 @@ import {
 } from '@tanstack/react-router'
 import { ChevronLeft } from 'lucide-react'
 import MasaiverseHomepage from '@/components/features/masaiverse/MasaiverseHomepage'
+import MasaiverseV2Page from '@/components/features/masaiverse-v2/MasaiverseV2Page'
 import { getMasaiverseAccessDebugServer } from '@/server/masaiverse/getMasaiverseAccessDebugServer'
 import { redirectToOldStudentUi } from '@/utils/authRedirect'
 import { sendTrackingEvent } from '@/utils/tracking'
@@ -48,9 +49,13 @@ function RouteComponent() {
       searchStr: state.location.searchStr,
     }),
   })
+  const tabParam = new URLSearchParams(searchStr).get('tab')
   const isMasaiverseEventsPage =
-    pathname === '/masaiverse' &&
-    new URLSearchParams(searchStr).get('tab') === 'events'
+    pathname === '/masaiverse' && tabParam === 'events'
+  // Home tab is served by the new (v2) empty-canvas UI. Other tabs keep the
+  // legacy layout/components, which remain available for reference.
+  const isMasaiverseV2HomePage =
+    pathname === '/masaiverse' && (tabParam === 'home' || tabParam === null)
 
   useEffect(() => {
     if (!canShowMasaiverse) {
@@ -89,6 +94,10 @@ function RouteComponent() {
   }, [canShowMasaiverse, pathname, searchStr])
 
   if (!canShowMasaiverse) return null
+
+  if (isMasaiverseV2HomePage) {
+    return <MasaiverseV2Page />
+  }
 
   return (
     <>

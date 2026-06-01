@@ -16,6 +16,7 @@ import { Route as protectedLayoutIndexRouteImport } from './routes/(protected)/_
 import { Route as authSwitchAccountIndexRouteImport } from './routes/(auth)/switch-account/index'
 import { Route as authSigninIndexRouteImport } from './routes/(auth)/signin/index'
 import { Route as authLoginIndexRouteImport } from './routes/(auth)/login/index'
+import { Route as ApiMasaiverseV2HomeRouteImport } from './routes/api/masaiverse-v2/home'
 import { Route as ApiLearnBatchesRouteImport } from './routes/api/learn/batches'
 import { Route as ApiLearnBatchDataRouteImport } from './routes/api/learn/batch-data'
 import { Route as ApiDashboardScheduleRouteImport } from './routes/api/dashboard/schedule'
@@ -91,6 +92,11 @@ const authSigninIndexRoute = authSigninIndexRouteImport.update({
 const authLoginIndexRoute = authLoginIndexRouteImport.update({
   id: '/(auth)/login/',
   path: '/login/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiMasaiverseV2HomeRoute = ApiMasaiverseV2HomeRouteImport.update({
+  id: '/api/masaiverse-v2/home',
+  path: '/api/masaiverse-v2/home',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiLearnBatchesRoute = ApiLearnBatchesRouteImport.update({
@@ -345,6 +351,7 @@ export interface FileRoutesByFullPath {
   '/api/dashboard/schedule': typeof ApiDashboardScheduleRoute
   '/api/learn/batch-data': typeof ApiLearnBatchDataRoute
   '/api/learn/batches': typeof ApiLearnBatchesRoute
+  '/api/masaiverse-v2/home': typeof ApiMasaiverseV2HomeRoute
   '/login/': typeof authLoginIndexRoute
   '/signin/': typeof authSigninIndexRoute
   '/switch-account/': typeof authSwitchAccountIndexRoute
@@ -394,6 +401,7 @@ export interface FileRoutesByTo {
   '/api/dashboard/schedule': typeof ApiDashboardScheduleRoute
   '/api/learn/batch-data': typeof ApiLearnBatchDataRoute
   '/api/learn/batches': typeof ApiLearnBatchesRoute
+  '/api/masaiverse-v2/home': typeof ApiMasaiverseV2HomeRoute
   '/login': typeof authLoginIndexRoute
   '/signin': typeof authSigninIndexRoute
   '/switch-account': typeof authSwitchAccountIndexRoute
@@ -446,6 +454,7 @@ export interface FileRoutesById {
   '/api/dashboard/schedule': typeof ApiDashboardScheduleRoute
   '/api/learn/batch-data': typeof ApiLearnBatchDataRoute
   '/api/learn/batches': typeof ApiLearnBatchesRoute
+  '/api/masaiverse-v2/home': typeof ApiMasaiverseV2HomeRoute
   '/(auth)/login/': typeof authLoginIndexRoute
   '/(auth)/signin/': typeof authSigninIndexRoute
   '/(auth)/switch-account/': typeof authSwitchAccountIndexRoute
@@ -498,6 +507,7 @@ export interface FileRouteTypes {
     | '/api/dashboard/schedule'
     | '/api/learn/batch-data'
     | '/api/learn/batches'
+    | '/api/masaiverse-v2/home'
     | '/login/'
     | '/signin/'
     | '/switch-account/'
@@ -547,6 +557,7 @@ export interface FileRouteTypes {
     | '/api/dashboard/schedule'
     | '/api/learn/batch-data'
     | '/api/learn/batches'
+    | '/api/masaiverse-v2/home'
     | '/login'
     | '/signin'
     | '/switch-account'
@@ -598,6 +609,7 @@ export interface FileRouteTypes {
     | '/api/dashboard/schedule'
     | '/api/learn/batch-data'
     | '/api/learn/batches'
+    | '/api/masaiverse-v2/home'
     | '/(auth)/login/'
     | '/(auth)/signin/'
     | '/(auth)/switch-account/'
@@ -649,6 +661,7 @@ export interface RootRouteChildren {
   ApiDashboardScheduleRoute: typeof ApiDashboardScheduleRoute
   ApiLearnBatchDataRoute: typeof ApiLearnBatchDataRoute
   ApiLearnBatchesRoute: typeof ApiLearnBatchesRoute
+  ApiMasaiverseV2HomeRoute: typeof ApiMasaiverseV2HomeRoute
   authLoginIndexRoute: typeof authLoginIndexRoute
   authSigninIndexRoute: typeof authSigninIndexRoute
   authSwitchAccountIndexRoute: typeof authSwitchAccountIndexRoute
@@ -724,6 +737,13 @@ declare module '@tanstack/react-router' {
       path: '/login'
       fullPath: '/login/'
       preLoaderRoute: typeof authLoginIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/masaiverse-v2/home': {
+      id: '/api/masaiverse-v2/home'
+      path: '/api/masaiverse-v2/home'
+      fullPath: '/api/masaiverse-v2/home'
+      preLoaderRoute: typeof ApiMasaiverseV2HomeRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/learn/batches': {
@@ -1116,6 +1136,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiDashboardScheduleRoute: ApiDashboardScheduleRoute,
   ApiLearnBatchDataRoute: ApiLearnBatchDataRoute,
   ApiLearnBatchesRoute: ApiLearnBatchesRoute,
+  ApiMasaiverseV2HomeRoute: ApiMasaiverseV2HomeRoute,
   authLoginIndexRoute: authLoginIndexRoute,
   authSigninIndexRoute: authSigninIndexRoute,
   authSwitchAccountIndexRoute: authSwitchAccountIndexRoute,

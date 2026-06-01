@@ -54,6 +54,8 @@ export function mapThrownErrorToResponse(error: unknown): Response {
         return jsonError(500, error.message)
       case 'SERVER_ERROR_FETCHING_DASHBOARD_PENDING_TASKS':
         return jsonError(500, error.message)
+      case 'SERVER_ERROR_FETCHING_MASAIVERSE_V2_HOME':
+        return jsonError(500, error.message)
       case 'EXPERIENCE_API_NOT_CONFIGURED':
       case 'EXPERIENCE_API_REQUEST_FAILED':
       case 'EXPERIENCE_API_EMPTY_RESPONSE':
