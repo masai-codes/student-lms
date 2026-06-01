@@ -19,7 +19,9 @@ export default function MasaiverseV2Page({ children }: MasaiverseV2PageProps) {
     <div className="mx-auto -mt-6 w-full max-w-[1440px] px-4 md:-mt-[24px] md:px-6">
       <div className="flex w-full items-stretch">
         <MasaiverseV2LeftSection />
-        <section className="min-w-0 w-full p-6 md:w-[80%]">{children}</section>
+        <section className="min-w-0 w-full bg-[#FBF7F2] p-6 md:w-[80%]">
+          {children}
+        </section>
       </div>
     </div>
   )
