@@ -38,7 +38,7 @@ export default function AppMobileTabBar() {
         icon: <Users strokeWidth={1.75} className="size-6 shrink-0 text-current" />,
         isActive: activeId === 'masaiverse',
         onClick: () => {
-          void navigate({ to: '/masaiverse', search: { tab: 'home' } })
+          void navigate({ to: '/masaiverse/home' })
         },
       },
     ],

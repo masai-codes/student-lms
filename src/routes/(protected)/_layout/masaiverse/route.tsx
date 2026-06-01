@@ -2,17 +2,26 @@ import { useEffect } from 'react'
 import {
   Outlet,
   createFileRoute,
-  useRouter,
   useRouterState,
 } from '@tanstack/react-router'
-import { ChevronLeft } from 'lucide-react'
-import MasaiverseHomepage from '@/components/features/masaiverse/MasaiverseHomepage'
 import MasaiverseV2Page from '@/components/features/masaiverse-v2/MasaiverseV2Page'
 import { getMasaiverseAccessDebugServer } from '@/server/masaiverse/getMasaiverseAccessDebugServer'
 import { redirectToOldStudentUi } from '@/utils/authRedirect'
 import { sendTrackingEvent } from '@/utils/tracking'
 
+type MasaiverseSearch = {
+  isApp?: boolean
+}
+
 export const Route = createFileRoute('/(protected)/_layout/masaiverse')({
+  validateSearch: (search: Record<string, unknown>): MasaiverseSearch => {
+    const isApp =
+      search.isApp === true ||
+      search.isApp === 'true' ||
+      search.isApp === 1 ||
+      search.isApp === '1'
+    return { isApp: isApp || undefined }
+  },
   loader: async ({ context }) => {
     if (context.user.role === 'admin') {
       return {
@@ -41,41 +50,33 @@ export const Route = createFileRoute('/(protected)/_layout/masaiverse')({
 })
 
 function RouteComponent() {
-  const { canShowMasaiverse, redirectReason, masaiverseAccessDebug } = Route.useLoaderData()
-  const router = useRouter()
+  const { canShowMasaiverse, redirectReason, masaiverseAccessDebug } =
+    Route.useLoaderData()
   const { pathname, searchStr } = useRouterState({
     select: (state) => ({
       pathname: state.location.pathname,
       searchStr: state.location.searchStr,
     }),
   })
-  const tabParam = new URLSearchParams(searchStr).get('tab')
-  const isMasaiverseEventsPage =
-    pathname === '/masaiverse' && tabParam === 'events'
-  // Home tab is served by the new (v2) empty-canvas UI. Other tabs keep the
-  // legacy layout/components, which remain available for reference.
-  const isMasaiverseV2HomePage =
-    pathname === '/masaiverse' && (tabParam === 'home' || tabParam === null)
 
   useEffect(() => {
     if (!canShowMasaiverse) {
       redirectToOldStudentUi({
         source: '(protected)/_layout/masaiverse RouteComponent useEffect',
-        reason: 'Masaiverse is unavailable for this user and should open in legacy UI',
+        reason:
+          'Masaiverse is unavailable for this user and should open in legacy UI',
         extra: {
           trigger: 'feature-gate-check',
           canShowMasaiverse,
           redirectReason,
           pathname,
           searchStr,
-          isMasaiverseEventsPage,
           masaiverseAccessDebug,
         },
       })
     }
   }, [
     canShowMasaiverse,
-    isMasaiverseEventsPage,
     masaiverseAccessDebug,
     pathname,
     redirectReason,
@@ -95,33 +96,9 @@ function RouteComponent() {
 
   if (!canShowMasaiverse) return null
 
-  if (isMasaiverseV2HomePage) {
-    return <MasaiverseV2Page />
-  }
-
   return (
-    <>
-      {isMasaiverseEventsPage ? (
-        <div className="fixed inset-x-0 top-0 z-[120] rounded-b-[16px] border-b border-[#E5E7EB] bg-white px-4 py-3 shadow-[0_4px_16px_rgba(17,24,39,0.06)] md:hidden">
-          <div className="relative flex items-center justify-center">
-            <button
-              type="button"
-              className="absolute left-0 inline-flex items-center gap-1 text-[14px] font-medium text-[#111827]"
-              onClick={() => router.history.back()}
-              aria-label="Go back"
-            >
-              <ChevronLeft className="size-4" />
-              Back
-            </button>
-            <p className="text-[16px] font-semibold text-[#111827]">Masaiverse</p>
-          </div>
-        </div>
-      ) : null}
-      <div className={isMasaiverseEventsPage ? 'pt-[57px] md:pt-0' : ''}>
-        <MasaiverseHomepage>
-          <Outlet />
-        </MasaiverseHomepage>
-      </div>
-    </>
+    <MasaiverseV2Page>
+      <Outlet />
+    </MasaiverseV2Page>
   )
 }
