@@ -31,6 +31,13 @@ export function mapThrownErrorToResponse(error: unknown): Response {
       case 'RESOURCE_DETAIL_UNSUPPORTED_TYPE':
       case 'LECTURE_DETAIL_UNSUPPORTED_TYPE':
         return jsonError(404, error.message)
+      case 'SERVER_ERROR_FETCHING_BOOKMARKS':
+        return jsonError(500, error.message)
+      case 'ANNOUNCEMENT_NOT_FOUND':
+        return jsonError(404, error.message)
+      case 'SERVER_ERROR_FETCHING_ANNOUNCEMENT':
+      case 'SERVER_ERROR_FETCHING_ANNOUNCEMENTS':
+        return jsonError(500, error.message)
       case 'SERVER_ERROR_FETCHING_ENROLLED_BATCHES':
         return jsonError(500, error.message)
       case 'SERVER_ERROR_FETCHING_BATCH_LEARNING_DATA':

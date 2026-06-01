@@ -149,6 +149,14 @@ export default function AppNavbar() {
     [navigate],
   )
 
+  const handleAnnouncementsClick = useCallback(
+    (e: React.MouseEvent<HTMLAnchorElement>) => {
+      e.preventDefault()
+      void navigate({ to: '/announcements', search: { page: 1 } })
+    },
+    [navigate],
+  )
+
   const handleReferAndEarnClick = useCallback(
     (e: React.MouseEvent<HTMLAnchorElement>) => {
       e.preventDefault()
@@ -246,10 +254,12 @@ export default function AppNavbar() {
         type: 'icon',
         icon: <Megaphone className="size-5" />,
         ariaLabel: 'Announcements',
-        ...oldStudentUiLink(OLD_STUDENT_UI_NAV_PATHS.announcements),
+        href: '/announcements',
+        openInNewTab: false,
+        onClick: handleAnnouncementsClick,
       },
     ],
-    [],
+    [handleAnnouncementsClick],
   )
 
   const profileMenuItems: Array<NavbarProfileMenuItem> = useMemo(
@@ -270,7 +280,8 @@ export default function AppNavbar() {
         id: 'bookmark',
         label: 'Bookmark',
         icon: <Bookmark className="size-4" />,
-        ...oldStudentUiLink(OLD_STUDENT_UI_NAV_PATHS.bookmarks),
+        href: '/bookmarks',
+        openInNewTab: false,
       },
       {
         id: 'masaiverse-menu',
