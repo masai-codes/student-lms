@@ -1,7 +1,9 @@
+import type { MasaiverseV2HomeEvent } from '@/server/api/masaiverse-v2/services/getHomeEvents.service'
 import { getCommunityLearnerCount } from '@/server/api/masaiverse-v2/services/getCommunityLearnerCount.service'
 import { getDiscussionsThisWeekCount } from '@/server/api/masaiverse-v2/services/getDiscussionsThisWeekCount.service'
 import { getEventRegistrationsThisYearCount } from '@/server/api/masaiverse-v2/services/getEventRegistrationsThisYearCount.service'
 import { getEventsThisYearCount } from '@/server/api/masaiverse-v2/services/getEventsThisYearCount.service'
+import { getHomeEvents } from '@/server/api/masaiverse-v2/services/getHomeEvents.service'
 
 /**
  * Masaiverse v2 aggregated home data.
@@ -26,7 +28,10 @@ export interface MasaiverseV2CommunityStats {
 }
 
 export interface MasaiverseV2HomeData {
+  /** Section 1 — community headline stats. */
   stats: MasaiverseV2CommunityStats
+  /** Section 2 — live or upcoming events. */
+  events: Array<MasaiverseV2HomeEvent>
 }
 
 export async function getMasaiverseV2Home(
@@ -38,11 +43,13 @@ export async function getMasaiverseV2Home(
     discussionsThisWeek,
     eventsThisYear,
     eventRegistrationsThisYear,
+    events,
   ] = await Promise.all([
     getCommunityLearnerCount(),
     getDiscussionsThisWeekCount(now),
     getEventsThisYearCount(now),
     getEventRegistrationsThisYearCount(now),
+    getHomeEvents(now),
   ])
 
   return {
@@ -52,5 +59,6 @@ export async function getMasaiverseV2Home(
       eventsThisYear,
       eventRegistrationsThisYear,
     },
+    events,
   }
 }

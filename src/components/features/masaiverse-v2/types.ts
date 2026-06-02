@@ -29,21 +29,6 @@ export interface MasaiverseV2SidebarData {
   myClubs: Array<MasaiverseClub>
 }
 
-export interface MasaiverseWeekEvent {
-  id: string
-  badgeLabel: string
-  /** Live events show a red badge; everything else uses the orange badge. */
-  isLive: boolean
-  dateDay: string
-  dateMonth: string
-  emoji: string
-  /** Banner background color (hex). */
-  bannerColor: string
-  category: string
-  title: string
-  subtitle: string
-}
-
 export type HighlightCtaTone = 'green' | 'purple'
 
 export interface MasaiverseHighlightMeta {

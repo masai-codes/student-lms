@@ -5,6 +5,7 @@ const hoisted = vi.hoisted(() => ({
   discussions: vi.fn(),
   events: vi.fn(),
   registrations: vi.fn(),
+  homeEvents: vi.fn(),
 }))
 
 vi.mock('../services/getCommunityLearnerCount.service', () => ({
@@ -19,13 +20,16 @@ vi.mock('../services/getEventsThisYearCount.service', () => ({
 vi.mock('../services/getEventRegistrationsThisYearCount.service', () => ({
   getEventRegistrationsThisYearCount: hoisted.registrations,
 }))
+vi.mock('../services/getHomeEvents.service', () => ({
+  getHomeEvents: hoisted.homeEvents,
+}))
 
 describe('getMasaiverseV2Home', () => {
   beforeEach(() => {
     vi.clearAllMocks()
   })
 
-  it('composes section-one stats from the segment services', async () => {
+  it('composes section-one stats and section-two events', async () => {
     const { getMasaiverseV2Home } = await import(
       '../getMasaiverseV2Home.service'
     )
@@ -33,6 +37,7 @@ describe('getMasaiverseV2Home', () => {
     hoisted.discussions.mockResolvedValueOnce(38)
     hoisted.events.mockResolvedValueOnce(6)
     hoisted.registrations.mockResolvedValueOnce(124)
+    hoisted.homeEvents.mockResolvedValueOnce([{ id: '12', title: 'Sprint' }])
 
     await expect(getMasaiverseV2Home(7)).resolves.toEqual({
       stats: {
@@ -41,6 +46,7 @@ describe('getMasaiverseV2Home', () => {
         eventsThisYear: 6,
         eventRegistrationsThisYear: 124,
       },
+      events: [{ id: '12', title: 'Sprint' }],
     })
   })
 
@@ -52,6 +58,7 @@ describe('getMasaiverseV2Home', () => {
     hoisted.discussions.mockResolvedValueOnce(0)
     hoisted.events.mockResolvedValueOnce(0)
     hoisted.registrations.mockResolvedValueOnce(0)
+    hoisted.homeEvents.mockResolvedValueOnce([])
     const now = new Date('2026-06-03T12:00:00Z')
 
     await getMasaiverseV2Home(7, now)
@@ -59,5 +66,6 @@ describe('getMasaiverseV2Home', () => {
     expect(hoisted.discussions).toHaveBeenCalledWith(now)
     expect(hoisted.events).toHaveBeenCalledWith(now)
     expect(hoisted.registrations).toHaveBeenCalledWith(now)
+    expect(hoisted.homeEvents).toHaveBeenCalledWith(now)
   })
 })

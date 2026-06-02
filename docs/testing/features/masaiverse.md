@@ -16,7 +16,11 @@ Current focus: server API/unit test coverage for `src/server/masaiverse/**`.
 - `src/server/api/masaiverse-v2/__tests__/sectionOneStats.service.test.ts`
 - `src/server/api/masaiverse-v2/__tests__/getMasaiverseV2Home.service.test.ts`
 - `src/lib/dateRanges.test.ts` (shared IST week/year range helpers)
+- `src/lib/masaiverseEventCard.test.ts` (IST event-card display helper)
+- `src/server/api/masaiverse-v2/__tests__/getHomeEvents.service.test.ts`
 - `src/components/features/masaiverse-v2/pages/home/StatsSection.test.tsx`
+- `src/components/features/masaiverse-v2/pages/home/EventCard.test.tsx`
+- `src/components/features/masaiverse-v2/pages/home/ThisWeekSection.test.tsx`
 
 ## How To Run
 
@@ -63,6 +67,11 @@ Current focus: server API/unit test coverage for `src/server/masaiverse/**`.
 - `MASAIVE-V2-013` - Module: `StatsSection` (home UI) - Case: renders four labelled stat cards - Status: Covered
 - `MASAIVE-V2-014` - Module: `StatsSection` (home UI) - Case: shows formatted counts from the home API on success - Status: Covered
 - `MASAIVE-V2-015` - Module: `StatsSection` (home UI) - Case: falls back to a dash for every card on request failure - Status: Covered
+- `MASAIVE-V2-016` - Module: `getHomeEvents` - Case: maps rows to card shape (image, meta aboveTitle/belowTitle, UTC ISO times); normalizes nulls; empty list - Status: Covered
+- `MASAIVE-V2-017` - Module: `getMasaiverseV2Home` - Case: includes section-two events and passes `now` to `getHomeEvents` - Status: Covered
+- `MASAIVE-V2-018` - Module: `getEventCardDisplay` - Case: IST LIVE / TODAY / TOMORROW / start-time badge + date box, missing-time fallback - Status: Covered
+- `MASAIVE-V2-019` - Module: `EventCard` (home UI) - Case: renders image + 3 lines, LIVE badge, omits optional bits when absent - Status: Covered
+- `MASAIVE-V2-020` - Module: `ThisWeekSection` (home UI) - Case: loading message, event cards + count, empty state - Status: Covered
 
 ## Pending / Next Cases
 
