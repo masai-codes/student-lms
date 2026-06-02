@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { CalendarDays, Clock } from 'lucide-react'
+import { CalendarDays, Clock, History } from 'lucide-react'
 import { groupItemsByWeek } from '../shared/scheduleUtils'
 import { ScheduleWeekGroupSection } from './ScheduleWeekGroup'
 import { ScheduleCard } from './schedule-card/ScheduleCard'
@@ -90,9 +90,13 @@ export function DashboardScheduleSection({
 
         {!isPendingLoading && activeTab === 'pending' ? (
           pendingItems.length === 0 ? (
-            <p className="type-b2 text-gray-400 text-center py-8">
-              No pending tasks right now.
-            </p>
+            <div className="flex flex-col items-center justify-center py-12 gap-4">
+              <History size={64} strokeWidth={1.75} className="text-gray-300" />
+              <div className="text-center">
+                <p className="text-lg font-bold text-gray-800">No pending tasks</p>
+                <p className="mt-1 text-sm text-gray-400">No pending tasks at the moment.</p>
+              </div>
+            </div>
           ) : (
             <div className="flex flex-col gap-2">
               {pendingItems.map((item) => (

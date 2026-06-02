@@ -21,7 +21,7 @@ export async function getProductUpdates(): Promise<Array<DashboardProductUpdateI
     })
     .from(whatsnew)
     .orderBy(desc(whatsnew.createdAt))
-    .limit(10)
+    .limit(5)
 
   return rows.map((row) => ({
     id: row.id,

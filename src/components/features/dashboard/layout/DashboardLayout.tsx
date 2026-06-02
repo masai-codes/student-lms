@@ -12,6 +12,7 @@ import {
   fetchDashboardSchedule,
   fetchProductUpdates,
 } from '@/lib/api/dashboard/dashboardApi'
+import { fetchEnrolledBatchesFromApi } from '@/lib/api/learn/learnApi'
 
 const layoutRouteApi = getRouteApi('/(protected)/_layout')
 
@@ -41,6 +42,12 @@ export function DashboardLayout() {
   const { data: pendingTasksData, isLoading: isPendingLoading } = useQuery({
     queryKey: ['dashboard-pending-tasks'],
     queryFn: fetchDashboardPendingTasks,
+  })
+
+  const { data: enrolledBatches = [] } = useQuery({
+    queryKey: ['enrolled-batches'],
+    queryFn: fetchEnrolledBatchesFromApi,
+    staleTime: 5 * 60 * 1000,
   })
 
   const isBannerVisible =
@@ -91,6 +98,7 @@ export function DashboardLayout() {
             <DashboardSidebarSection
               announcements={announcements}
               productUpdates={productUpdates}
+              enrolledBatches={enrolledBatches}
             />
           </div>
         </div>

@@ -1,4 +1,5 @@
 import { ArrowRight } from 'lucide-react'
+import type { EnrolledBatch } from '@/server/learn/types'
 
 interface ProgressStat {
   id: string
@@ -31,10 +32,21 @@ const PROGRESS_STATS: Array<ProgressStat> = [
   },
 ]
 
-export function YourProgressPanel() {
+// ── Single progress card ───────────────────────────────────────────────────────
+
+interface ProgressCardProps {
+  title: string
+}
+
+function ProgressCard({ title }: ProgressCardProps) {
   return (
     <div className="bg-[#F9FAFB] rounded-[16px] border border-gray-200 p-4 flex flex-col gap-3">
-      <h3 className="type-b1-md font-semibold text-gray-900">Your Progress</h3>
+      <h3
+        className="type-b1-md font-semibold text-gray-900 truncate"
+        title={title}
+      >
+        {title}
+      </h3>
 
       <div className="grid grid-cols-2 gap-3">
         {PROGRESS_STATS.map((stat) => (
@@ -71,6 +83,26 @@ export function YourProgressPanel() {
           </div>
         ))}
       </div>
+    </div>
+  )
+}
+
+// ── Panel ──────────────────────────────────────────────────────────────────────
+
+interface YourProgressPanelProps {
+  enrolledBatches: Array<EnrolledBatch>
+}
+
+export function YourProgressPanel({ enrolledBatches }: YourProgressPanelProps) {
+  if (enrolledBatches.length <= 1) {
+    return <ProgressCard title="Your Progress" />
+  }
+
+  return (
+    <div className="flex flex-col gap-3">
+      {enrolledBatches.map((batch) => (
+        <ProgressCard key={batch.batchId} title={batch.courseTitle} />
+      ))}
     </div>
   )
 }

@@ -13,6 +13,14 @@ function parseMysqlDatetime(raw: string | null): Date | null {
   return Number.isNaN(d.getTime()) ? null : d
 }
 
+/** Parse a yyyy-mm-dd date string as a local midnight Date (no timezone shift). */
+function parseLocalDate(dateStr: string | null): Date | null {
+  if (!dateStr) return null
+  const [year, month, day] = dateStr.split('-').map(Number)
+  if (!year || !month || !day) return null
+  return new Date(year, month - 1, day)
+}
+
 function formatHour(d: Date): string {
   const h = d.getHours() % 12 || 12
   const min = d.getMinutes()
@@ -32,6 +40,10 @@ function isSameDay(a: Date, b: Date): boolean {
   )
 }
 
+/**
+ * For a **single-day** event: returns "8PM - 10PM" style range.
+ * Used when start_date === end_date (or dates unavailable).
+ */
 export function formatTimeRange(schedule: string | null, concludes: string | null): string {
   const start = parseMysqlDatetime(schedule)
   if (!start) return ''
@@ -44,6 +56,34 @@ export function formatTimeRange(schedule: string | null, concludes: string | nul
   return `${formatShortDate(start)}, ${formatHour(start)} - ${formatShortDate(end)}, ${formatHour(end)}`
 }
 
+/**
+ * For a **multi-day** event: returns just the end date, e.g. "12 Jun".
+ * Used when start_date !== end_date.
+ */
+export function formatEndDate(endDate: string | null): string {
+  const d = parseLocalDate(endDate)
+  if (!d) return ''
+  return `${d.getDate()} ${MONTH_NAMES[d.getMonth()]}`
+}
+
+/**
+ * Returns the display string for the time/date slot on a schedule card.
+ * - Single-day (startDate === endDate or dates unavailable): "8PM - 10PM"
+ * - Multi-day: "Ends 12 Jun"
+ */
+export function formatScheduleTime(item: DashboardScheduleItem): string {
+  const isMultiDay =
+    item.startDate &&
+    item.endDate &&
+    item.startDate !== item.endDate
+
+  if (isMultiDay) {
+    const end = formatEndDate(item.endDate)
+    return end ? `Ends ${end}` : ''
+  }
+  return formatTimeRange(item.schedule, item.concludes)
+}
+
 function toDateKey(d: Date): string {
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`
 }
@@ -52,19 +92,13 @@ function toDayLabel(d: Date): string {
   return `${DAY_NAMES[d.getDay()]} ${pad(d.getDate())}`
 }
 
-function toWeekLabel(weekStart: Date, weekEnd: Date): string {
-  const sm = MONTH_NAMES[weekStart.getMonth()].toUpperCase()
-  const em = MONTH_NAMES[weekEnd.getMonth()].toUpperCase()
+function toWeekLabel(start: Date, end: Date): string {
+  const sm = MONTH_NAMES[start.getMonth()].toUpperCase()
+  const em = MONTH_NAMES[end.getMonth()].toUpperCase()
   if (sm === em) {
-    return `${sm} ${weekStart.getDate()}-${weekEnd.getDate()}`
+    return `${sm} ${pad(start.getDate())}-${pad(end.getDate())}`
   }
-  return `${sm} ${weekStart.getDate()} - ${em} ${weekEnd.getDate()}`
-}
-
-function getMondayOf(d: Date): Date {
-  const day = d.getDay()
-  const diff = day === 0 ? -6 : 1 - day
-  return new Date(d.getFullYear(), d.getMonth(), d.getDate() + diff)
+  return `${sm} ${pad(start.getDate())} - ${em} ${pad(end.getDate())}`
 }
 
 /**
@@ -102,15 +136,25 @@ export function getTodayDateKey(): string {
   return toDateKey(new Date())
 }
 
+/**
+ * Groups schedule items into a rolling 7-day window starting from today
+ * (today → today + 6 days, i.e. the same weekday next week − 1 day).
+ *
+ * Items are bucketed by their start_date (preferred) or schedule datetime.
+ * All 7 days are always emitted so empty days are visible in the UI.
+ */
 export function groupItemsByWeek(items: Array<DashboardScheduleItem>): Array<ScheduleWeekGroup> {
   const today = new Date()
-  const monday = getMondayOf(today)
-  const sunday = new Date(monday.getFullYear(), monday.getMonth(), monday.getDate() + 6)
+  today.setHours(0, 0, 0, 0)
 
-  // Bucket items by their schedule date
+  // Build a lookup: dateKey → items
   const itemsByDay = new Map<string, Array<DashboardScheduleItem>>()
+
   for (const item of items) {
-    const d = parseMysqlDatetime(item.schedule)
+    // Prefer start_date (date column) over schedule (datetime)
+    const d = item.startDate
+      ? parseLocalDate(item.startDate)
+      : parseMysqlDatetime(item.schedule)
     if (!d) continue
     const dateKey = toDateKey(d)
     const bucket = itemsByDay.get(dateKey)
@@ -121,10 +165,10 @@ export function groupItemsByWeek(items: Array<DashboardScheduleItem>): Array<Sch
     }
   }
 
-  // Always produce all 7 days Mon–Sun so empty days are visible
+  // Always produce all 7 days today … today+6
   const dateGroups: Array<ScheduleDateGroup> = []
   for (let i = 0; i < 7; i++) {
-    const date = new Date(monday.getFullYear(), monday.getMonth(), monday.getDate() + i)
+    const date = new Date(today.getFullYear(), today.getMonth(), today.getDate() + i)
     const dateKey = toDateKey(date)
     dateGroups.push({
       dateKey,
@@ -134,5 +178,6 @@ export function groupItemsByWeek(items: Array<DashboardScheduleItem>): Array<Sch
     })
   }
 
-  return [{ weekLabel: toWeekLabel(monday, sunday), dateGroups }]
+  const windowEnd = dateGroups[6].date
+  return [{ weekLabel: toWeekLabel(today, windowEnd), dateGroups }]
 }

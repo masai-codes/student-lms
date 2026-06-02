@@ -1,6 +1,9 @@
 import { Link, getRouteApi, useNavigate } from '@tanstack/react-router'
-import { useQuery, keepPreviousData } from '@tanstack/react-query'
+import { keepPreviousData, useQuery } from '@tanstack/react-query'
 import { Bookmark, Search, SlidersHorizontal, Ticket } from 'lucide-react'
+import { BOOKMARKS_PER_PAGE, BOOKMARK_TABS } from './bookmarksConfig'
+import type { BookmarkEntityType, BookmarkItem } from '@/server/api/bookmarks/getBookmarks.service'
+import type { BookmarkTab } from './bookmarksConfig'
 import { Skeleton } from '@/components/ui/skeleton'
 import {
   Breadcrumb,
@@ -12,9 +15,6 @@ import {
 import { MasaiInput } from '@/components/ui/masai-input'
 import AppPagination from '@/components/common/Pagination'
 import { fetchBookmarks } from '@/lib/api/bookmarks/bookmarksApi'
-import { BOOKMARK_TABS, BOOKMARKS_PER_PAGE } from './bookmarksConfig'
-import type { BookmarkTab } from './bookmarksConfig'
-import type { BookmarkItem, BookmarkEntityType } from '@/server/api/bookmarks/getBookmarks.service'
 
 const STALE_TIME_MS = 5 * 60 * 1000
 
