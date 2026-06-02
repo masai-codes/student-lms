@@ -21,6 +21,7 @@ import { Route as ApiLearnBatchesRouteImport } from './routes/api/learn/batches'
 import { Route as ApiLearnBatchDataRouteImport } from './routes/api/learn/batch-data'
 import { Route as ApiDashboardScheduleRouteImport } from './routes/api/dashboard/schedule'
 import { Route as ApiDashboardProductUpdatesRouteImport } from './routes/api/dashboard/product-updates'
+import { Route as ApiDashboardLmsSupportRouteImport } from './routes/api/dashboard/lms-support'
 import { Route as ApiDashboardPendingTasksRouteImport } from './routes/api/dashboard/pending-tasks'
 import { Route as ApiDashboardBannersRouteImport } from './routes/api/dashboard/banners'
 import { Route as ApiDashboardAnnouncementsRouteImport } from './routes/api/dashboard/announcements'
@@ -123,6 +124,11 @@ const ApiDashboardProductUpdatesRoute =
     path: '/api/dashboard/product-updates',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiDashboardLmsSupportRoute = ApiDashboardLmsSupportRouteImport.update({
+  id: '/api/dashboard/lms-support',
+  path: '/api/dashboard/lms-support',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiDashboardPendingTasksRoute =
   ApiDashboardPendingTasksRouteImport.update({
     id: '/api/dashboard/pending-tasks',
@@ -367,6 +373,7 @@ export interface FileRoutesByFullPath {
   '/api/dashboard/announcements': typeof ApiDashboardAnnouncementsRoute
   '/api/dashboard/banners': typeof ApiDashboardBannersRoute
   '/api/dashboard/pending-tasks': typeof ApiDashboardPendingTasksRoute
+  '/api/dashboard/lms-support': typeof ApiDashboardLmsSupportRoute
   '/api/dashboard/product-updates': typeof ApiDashboardProductUpdatesRoute
   '/api/dashboard/schedule': typeof ApiDashboardScheduleRoute
   '/api/learn/batch-data': typeof ApiLearnBatchDataRoute
@@ -420,6 +427,7 @@ export interface FileRoutesByTo {
   '/api/dashboard/announcements': typeof ApiDashboardAnnouncementsRoute
   '/api/dashboard/banners': typeof ApiDashboardBannersRoute
   '/api/dashboard/pending-tasks': typeof ApiDashboardPendingTasksRoute
+  '/api/dashboard/lms-support': typeof ApiDashboardLmsSupportRoute
   '/api/dashboard/product-updates': typeof ApiDashboardProductUpdatesRoute
   '/api/dashboard/schedule': typeof ApiDashboardScheduleRoute
   '/api/learn/batch-data': typeof ApiLearnBatchDataRoute
@@ -476,6 +484,7 @@ export interface FileRoutesById {
   '/api/dashboard/announcements': typeof ApiDashboardAnnouncementsRoute
   '/api/dashboard/banners': typeof ApiDashboardBannersRoute
   '/api/dashboard/pending-tasks': typeof ApiDashboardPendingTasksRoute
+  '/api/dashboard/lms-support': typeof ApiDashboardLmsSupportRoute
   '/api/dashboard/product-updates': typeof ApiDashboardProductUpdatesRoute
   '/api/dashboard/schedule': typeof ApiDashboardScheduleRoute
   '/api/learn/batch-data': typeof ApiLearnBatchDataRoute
@@ -532,6 +541,7 @@ export interface FileRouteTypes {
     | '/api/dashboard/announcements'
     | '/api/dashboard/banners'
     | '/api/dashboard/pending-tasks'
+    | '/api/dashboard/lms-support'
     | '/api/dashboard/product-updates'
     | '/api/dashboard/schedule'
     | '/api/learn/batch-data'
@@ -585,6 +595,7 @@ export interface FileRouteTypes {
     | '/api/dashboard/announcements'
     | '/api/dashboard/banners'
     | '/api/dashboard/pending-tasks'
+    | '/api/dashboard/lms-support'
     | '/api/dashboard/product-updates'
     | '/api/dashboard/schedule'
     | '/api/learn/batch-data'
@@ -640,6 +651,7 @@ export interface FileRouteTypes {
     | '/api/dashboard/announcements'
     | '/api/dashboard/banners'
     | '/api/dashboard/pending-tasks'
+    | '/api/dashboard/lms-support'
     | '/api/dashboard/product-updates'
     | '/api/dashboard/schedule'
     | '/api/learn/batch-data'
@@ -695,6 +707,7 @@ export interface RootRouteChildren {
   ApiDashboardAnnouncementsRoute: typeof ApiDashboardAnnouncementsRoute
   ApiDashboardBannersRoute: typeof ApiDashboardBannersRoute
   ApiDashboardPendingTasksRoute: typeof ApiDashboardPendingTasksRoute
+  ApiDashboardLmsSupportRoute: typeof ApiDashboardLmsSupportRoute
   ApiDashboardProductUpdatesRoute: typeof ApiDashboardProductUpdatesRoute
   ApiDashboardScheduleRoute: typeof ApiDashboardScheduleRoute
   ApiLearnBatchDataRoute: typeof ApiLearnBatchDataRoute
@@ -804,6 +817,13 @@ declare module '@tanstack/react-router' {
       path: '/api/dashboard/schedule'
       fullPath: '/api/dashboard/schedule'
       preLoaderRoute: typeof ApiDashboardScheduleRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/dashboard/lms-support': {
+      id: '/api/dashboard/lms-support'
+      path: '/api/dashboard/lms-support'
+      fullPath: '/api/dashboard/lms-support'
+      preLoaderRoute: typeof ApiDashboardLmsSupportRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/dashboard/product-updates': {
@@ -1196,6 +1216,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiDashboardAnnouncementsRoute: ApiDashboardAnnouncementsRoute,
   ApiDashboardBannersRoute: ApiDashboardBannersRoute,
   ApiDashboardPendingTasksRoute: ApiDashboardPendingTasksRoute,
+  ApiDashboardLmsSupportRoute: ApiDashboardLmsSupportRoute,
   ApiDashboardProductUpdatesRoute: ApiDashboardProductUpdatesRoute,
   ApiDashboardScheduleRoute: ApiDashboardScheduleRoute,
   ApiLearnBatchDataRoute: ApiLearnBatchDataRoute,
