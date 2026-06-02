@@ -3194,3 +3194,36 @@ export const eventEnrollments = mysqlTable("event_enrollments", {
 	index("event_enrollments_event_id_index").on(table.eventId),
 	primaryKey({ columns: [table.id], name: "event_enrollments_id"}),
 ]);
+
+export const posts = mysqlTable("posts", {
+	id: bigint({ mode: "number", unsigned: true }).autoincrement().notNull(),
+	clubId: bigint("club_id", { mode: "number", unsigned: true }).notNull().references(() => clubs.id, { onDelete: "cascade" }),
+	userId: bigint("user_id", { mode: "number", unsigned: true }).notNull().references(() => users.id),
+	title: text(),
+	content: text(),
+	createdAt: timestamp("created_at", { mode: 'string' }).defaultNow().notNull(),
+	updatedAt: timestamp("updated_at", { mode: 'string' }).notNull(),
+	bannedBy: bigint("banned_by", { mode: "number", unsigned: true }).references(() => users.id, { onDelete: "set null" }),
+	bannedDate: timestamp("banned_date", { mode: 'string' }),
+	isBanned: tinyint("is_banned").default(0).notNull(),
+},
+(table) => [
+	index("posts_banned_by_index").on(table.bannedBy),
+	index("posts_club_id_index").on(table.clubId),
+	index("posts_user_id_index").on(table.userId),
+	primaryKey({ columns: [table.id], name: "posts_id"}),
+]);
+
+export const replies = mysqlTable("replies", {
+	id: bigint({ mode: "number", unsigned: true }).autoincrement().notNull(),
+	postId: bigint("post_id", { mode: "number", unsigned: true }).notNull().references(() => posts.id, { onDelete: "cascade" }),
+	userId: bigint("user_id", { mode: "number", unsigned: true }).notNull().references(() => users.id),
+	content: text(),
+	createdAt: timestamp("created_at", { mode: 'string' }).defaultNow().notNull(),
+	updatedAt: timestamp("updated_at", { mode: 'string' }).notNull(),
+},
+(table) => [
+	index("replies_post_id_index").on(table.postId),
+	index("replies_user_id_index").on(table.userId),
+	primaryKey({ columns: [table.id], name: "replies_id"}),
+]);

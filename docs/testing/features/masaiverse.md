@@ -13,6 +13,9 @@ Current focus: server API/unit test coverage for `src/server/masaiverse/**`.
 - `src/server/masaiverse/__tests__/testSetup.ts` (shared mocks and helpers)
 - `src/server/api/masaiverse-v2/__tests__/markMasaiverseVisited.service.test.ts`
 - `src/server/api/masaiverse-v2/__tests__/markMasaiverseVisited.handler.test.ts`
+- `src/server/api/masaiverse-v2/__tests__/sectionOneStats.service.test.ts`
+- `src/server/api/masaiverse-v2/__tests__/getMasaiverseV2Home.service.test.ts`
+- `src/lib/dateRanges.test.ts` (shared IST week/year range helpers)
 
 ## How To Run
 
@@ -49,6 +52,13 @@ Current focus: server API/unit test coverage for `src/server/masaiverse/**`.
 - `MASAIVE-V2-003` - Module: `handleMarkMasaiverseVisited` - Case: marks session user and returns `{ success: true }` - Status: Covered
 - `MASAIVE-V2-004` - Module: `handleMarkMasaiverseVisited` - Case: returns 401 when no session user - Status: Covered
 - `MASAIVE-V2-005` - Module: `handleMarkMasaiverseVisited` - Case: maps unexpected failures to 500 `SERVER_ERROR_MARKING_MASAIVERSE_VISITED` - Status: Covered
+- `MASAIVE-V2-006` - Module: `dateRanges` - Case: current IST week spans Monday→Monday, using IST day at the boundary - Status: Covered
+- `MASAIVE-V2-007` - Module: `dateRanges` - Case: current IST year spans Jan 1→Jan 1, using IST year at the boundary - Status: Covered
+- `MASAIVE-V2-008` - Module: `getCommunityLearnerCount` - Case: returns distinct learner count, 0 when empty - Status: Covered
+- `MASAIVE-V2-009` - Module: `getDiscussionsThisWeekCount` - Case: sums posts + replies this week, 0 when empty - Status: Covered
+- `MASAIVE-V2-010` - Module: `getEventsThisYearCount` - Case: counts events scheduled this year, 0 when empty - Status: Covered
+- `MASAIVE-V2-011` - Module: `getEventRegistrationsThisYearCount` - Case: counts registrations this year, 0 when empty - Status: Covered
+- `MASAIVE-V2-012` - Module: `getMasaiverseV2Home` - Case: composes section-one stats and passes a single `now` to time-bounded services - Status: Covered
 
 ## Pending / Next Cases
 

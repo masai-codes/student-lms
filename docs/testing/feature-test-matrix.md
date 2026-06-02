@@ -19,7 +19,7 @@ Last updated: 2026-05-11
 - Area: REST endpoints (`src/server/api/masaiverse-v2/**`)
 - Status: Covered
 - Test files: `src/server/api/masaiverse-v2/__tests__/*.test.ts`
-- Notes: `markMasaiverseVisited` service + handler — success, unauthorized (401), and server-error (500) paths.
+- Notes: `markMasaiverseVisited` service + handler — success, unauthorized (401), and server-error (500) paths. Home (`GET /api/masaiverse-v2/home`) Section-1 stats: learners-in-community, discussions-this-week (posts + replies), events-this-year, registrations-this-year, plus the shared IST `dateRanges` helpers.
 
 ## Status Meaning
 
