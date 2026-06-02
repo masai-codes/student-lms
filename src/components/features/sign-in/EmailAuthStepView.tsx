@@ -67,6 +67,13 @@ export function EmailAuthStepView({
 
   const canResend = authMode === 'otp' && resendSecondsLeft === 0 && !resendBusy
 
+  const handleEnterSubmit = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key !== 'Enter') return
+    e.preventDefault()
+    if (submitDisabled) return
+    onSubmit()
+  }
+
   return (
     <div className="space-y-5">
       <Button
@@ -125,6 +132,7 @@ export function EmailAuthStepView({
             autoComplete="current-password"
             value={password}
             onChange={(e) => onPasswordChange(e.target.value)}
+            onKeyDown={handleEnterSubmit}
             aria-invalid={Boolean(error)}
           />
         </div>
@@ -153,6 +161,7 @@ export function EmailAuthStepView({
             placeholder="Paste or type your code"
             value={otp}
             onChange={(e) => onOtpChange(e.target.value)}
+            onKeyDown={handleEnterSubmit}
             aria-invalid={Boolean(error)}
           />
         </div>
