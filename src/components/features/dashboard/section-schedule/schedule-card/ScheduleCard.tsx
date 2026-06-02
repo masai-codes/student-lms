@@ -1,5 +1,6 @@
+import { useEffect, useState } from 'react'
 import { Link } from '@tanstack/react-router'
-import { formatTimeRange } from '../../shared/scheduleUtils'
+import { formatScheduleTime } from '../../shared/scheduleUtils'
 import type { DashboardScheduleItem } from '../../shared/types'
 import { MasaiChips } from '@/components/ui/masai-chips'
 
@@ -7,12 +8,14 @@ const TYPE_ICON_SRC: Record<DashboardScheduleItem['learningType'], string> = {
   lecture: 'https://s3.ap-south-1.amazonaws.com/static.masaischool.com/lecture.svg',
   assignment: 'https://s3.ap-south-1.amazonaws.com/static.masaischool.com/assignment.svg',
   resource: 'https://s3.ap-south-1.amazonaws.com/static.masaischool.com/resource.svg',
+  quiz: 'https://s3.ap-south-1.amazonaws.com/static.masaischool.com/lecture.svg',
 }
 
 const TYPE_ICON_ALT: Record<DashboardScheduleItem['learningType'], string> = {
   lecture: 'Lecture',
   assignment: 'Assignment',
   resource: 'Resource',
+  quiz: 'Quiz',
 }
 
 const tagChipPalette = {
@@ -31,6 +34,65 @@ function buildLinkProps(item: DashboardScheduleItem) {
   return { to: '/resources/$resourceId', params: { resourceId: id } } as const
 }
 
+// ── Join Live button logic ────────────────────────────────────────────────────
+
+type JoinState = 'soon' | 'live' | null
+
+/**
+ * Parse a naive datetime string (no timezone) as IST (UTC+5:30).
+ * DB times are stored in IST without a timezone specifier.
+ */
+function parseIST(raw: string | null): Date | null {
+  if (!raw) return null
+  const normalized = raw.includes('T') ? raw : raw.replace(' ', 'T')
+  // Append +05:30 only if no tz info present
+  const withTz = /[Z+]/.test(normalized) ? normalized : `${normalized}+05:30`
+  const d = new Date(withTz)
+  return Number.isNaN(d.getTime()) ? null : d
+}
+
+function computeJoinState(schedule: string | null, concludes: string | null): JoinState {
+  const start = parseIST(schedule)
+  if (!start) return null
+  const end = parseIST(concludes)
+
+  const now = Date.now()
+  const startMs = start.getTime()
+  const endMs = end?.getTime() ?? startMs + 60 * 60 * 1000 // fallback: 1 h window
+
+  if (now >= startMs - 10 * 60 * 1000 && now < startMs - 5 * 60 * 1000) return 'soon'
+  if (now >= startMs - 5 * 60 * 1000 && now <= endMs) return 'live'
+  return null
+}
+
+/** Whether this lecture item should show the Join Live button at all. */
+function shouldShowJoinButton(item: DashboardScheduleItem): boolean {
+  if (item.learningType !== 'lecture') return false
+  if (!item.hasZoomLink) return false
+  const t = item.lectureType?.toLowerCase() ?? ''
+  return t === 'live' || t === 'scrum'
+}
+
+function useJoinState(item: DashboardScheduleItem): JoinState {
+  const eligible = shouldShowJoinButton(item)
+  const [state, setState] = useState<JoinState>(() =>
+    eligible ? computeJoinState(item.schedule, item.concludes) : null,
+  )
+
+  useEffect(() => {
+    if (!eligible) return
+    // Re-evaluate every 30 s so the button appears/disappears without page refresh
+    const id = setInterval(() => {
+      setState(computeJoinState(item.schedule, item.concludes))
+    }, 30_000)
+    return () => clearInterval(id)
+  }, [eligible, item.schedule, item.concludes])
+
+  return eligible ? state : null
+}
+
+// ── Component ─────────────────────────────────────────────────────────────────
+
 interface ScheduleCardProps {
   item: DashboardScheduleItem
   dayLabel: string | null
@@ -38,12 +100,16 @@ interface ScheduleCardProps {
 }
 
 export function ScheduleCard({ item, dayLabel, isToday }: ScheduleCardProps) {
-  const timeRange = formatTimeRange(item.schedule, item.concludes)
+  const timeDisplay = formatScheduleTime(item)
   const linkProps = buildLinkProps(item)
-  const meta = [timeRange, item.batchName].filter(Boolean).join(' • ')
+  const joinState = useJoinState(item)
+
+  const metaParts = [timeDisplay, item.batchName].filter(Boolean)
+  const meta = metaParts.join(' • ')
 
   return (
     <div className="flex items-stretch gap-3">
+      {/* Day label column */}
       <div className="w-[52px] shrink-0 flex flex-col items-center pt-3">
         {dayLabel ? (
           <div
@@ -61,11 +127,12 @@ export function ScheduleCard({ item, dayLabel, isToday }: ScheduleCardProps) {
         ) : null}
       </div>
 
+      {/* Card */}
       <Link
         {...linkProps}
-        className="flex-1 min-w-0 bg-white rounded-[8px] border border-gray-200 p-3 block transition-colors hover:bg-gray-50/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        className="flex-1 min-w-0 bg-white rounded-[8px] border border-gray-200 p-3 block shadow-sm hover:shadow-md transition-shadow focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
       >
-        <div className="flex items-start gap-3">
+        <div className="flex items-center gap-3">
           <img
             src={TYPE_ICON_SRC[item.learningType]}
             alt={TYPE_ICON_ALT[item.learningType]}
@@ -75,10 +142,9 @@ export function ScheduleCard({ item, dayLabel, isToday }: ScheduleCardProps) {
             loading="lazy"
             decoding="async"
           />
+
           <div className="min-w-0 flex flex-col gap-1.5 flex-1">
-            {/* Line 1: title */}
             <p className="type-b1-md truncate">{item.title}</p>
-            {/* Line 2: time/batch + chips all inline */}
             <div className="flex items-center flex-wrap gap-x-3 gap-y-1">
               {meta ? (
                 <p className="type-t1 text-gray-500 shrink-0">{meta}</p>
@@ -113,6 +179,17 @@ export function ScheduleCard({ item, dayLabel, isToday }: ScheduleCardProps) {
               />
             </div>
           </div>
+
+          {/* Join Live / Starts Soon button */}
+          {joinState === 'live' ? (
+            <span className="shrink-0 inline-flex items-center px-4 py-1.5 rounded-full bg-[#4B44A8] text-white text-sm font-semibold whitespace-nowrap">
+              Join Live
+            </span>
+          ) : joinState === 'soon' ? (
+            <span className="shrink-0 inline-flex items-center px-4 py-1.5 rounded-full bg-gray-200 text-gray-500 text-sm font-semibold whitespace-nowrap cursor-not-allowed">
+              Starts Soon
+            </span>
+          ) : null}
         </div>
       </Link>
     </div>

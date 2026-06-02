@@ -18,10 +18,11 @@
     "pm2:delete": "pm2 delete student-lms-masai student-lms-ihub",
     "preview": "vite preview",
     "test": "vitest run",
-    "lint": "eslint",
-    "typecheck": "tsc --noEmit",
+    "lint": "eslint . --ext .ts,.tsx",
+    "lint:format": "prettier --check .",
     "format": "prettier",
     "check": "prettier --write . && eslint --fix",
+    "typecheck": "tsc --noEmit",
     "sync:masai-styles": "node ./scripts/sync-masai-styles.mjs",
     "prepare": "husky"
   },

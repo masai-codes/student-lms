@@ -4,15 +4,18 @@ import { YourProgressPanel } from './YourProgressPanel'
 import { LmsSupportPanel } from './LmsSupportPanel'
 import type { AnnouncementItem } from './AnnouncementsPanel'
 import type { ProductUpdateItem } from './ProductUpdatesPanel'
+import type { EnrolledBatch } from '@/server/learn/types'
 
 interface DashboardSidebarSectionProps {
   announcements: Array<AnnouncementItem>
   productUpdates: Array<ProductUpdateItem>
+  enrolledBatches: Array<EnrolledBatch>
 }
 
 export function DashboardSidebarSection({
   announcements,
   productUpdates,
+  enrolledBatches,
 }: DashboardSidebarSectionProps) {
   const hasAnnouncements = announcements.length > 0
 
@@ -29,7 +32,7 @@ export function DashboardSidebarSection({
           <AnnouncementsPanel announcements={announcements} />
         </>
       )}
-      <YourProgressPanel />
+      <YourProgressPanel enrolledBatches={enrolledBatches} />
       <LmsSupportPanel />
     </div>
   )

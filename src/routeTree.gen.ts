@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as protectedLayoutRouteRouteImport } from './routes/(protected)/_layout/route'
+import { Route as ApiWhatsNewIndexRouteImport } from './routes/api/whats-new/index'
 import { Route as ApiBookmarksIndexRouteImport } from './routes/api/bookmarks/index'
 import { Route as ApiAnnouncementIndexRouteImport } from './routes/api/announcement/index'
 import { Route as protectedLayoutIndexRouteImport } from './routes/(protected)/_layout/index'
@@ -28,7 +29,9 @@ import { Route as authV2ResetPasswordRouteImport } from './routes/(auth)/v2/rese
 import { Route as authV2MeRouteImport } from './routes/(auth)/v2/me'
 import { Route as authV2ForgotPasswordRouteImport } from './routes/(auth)/v2/forgot-password'
 import { Route as protectedLayoutMasaiverseRouteRouteImport } from './routes/(protected)/_layout/masaiverse/route'
+import { Route as ApiWhatsNewIdIndexRouteImport } from './routes/api/whats-new/$id/index'
 import { Route as ApiAnnouncementIdIndexRouteImport } from './routes/api/announcement/$id/index'
+import { Route as protectedLayoutWhatsNewIndexRouteImport } from './routes/(protected)/_layout/whats-new/index'
 import { Route as protectedLayoutMasaiverseIndexRouteImport } from './routes/(protected)/_layout/masaiverse/index'
 import { Route as protectedLayoutLearnIndexRouteImport } from './routes/(protected)/_layout/learn/index'
 import { Route as protectedLayoutBookmarksIndexRouteImport } from './routes/(protected)/_layout/bookmarks/index'
@@ -45,6 +48,7 @@ import { Route as authV2LoginVerifyOtpRouteImport } from './routes/(auth)/v2/log
 import { Route as authV2LoginRequestOtpRouteImport } from './routes/(auth)/v2/login/request-otp'
 import { Route as authV2AuthUseAccountRouteImport } from './routes/(auth)/v2/auth/use-account'
 import { Route as authV2AuthLinkedAccountsRouteImport } from './routes/(auth)/v2/auth/linked-accounts'
+import { Route as protectedLayoutWhatsNewIdRouteRouteImport } from './routes/(protected)/_layout/whats-new_/$id/route'
 import { Route as protectedLayoutResourcesResourceIdRouteRouteImport } from './routes/(protected)/_layout/resources_/$resourceId/route'
 import { Route as protectedLayoutLecturesLectureIdRouteRouteImport } from './routes/(protected)/_layout/lectures_/$lectureId/route'
 import { Route as protectedLayoutAssignmentsAssignmentIdRouteRouteImport } from './routes/(protected)/_layout/assignments_/$assignmentId/route'
@@ -61,6 +65,11 @@ import { Route as ApiLearnAiChatLectureIdHistoryRouteImport } from './routes/api
 
 const protectedLayoutRouteRoute = protectedLayoutRouteRouteImport.update({
   id: '/(protected)/_layout',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiWhatsNewIndexRoute = ApiWhatsNewIndexRouteImport.update({
+  id: '/api/whats-new/',
+  path: '/api/whats-new/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiBookmarksIndexRoute = ApiBookmarksIndexRouteImport.update({
@@ -158,11 +167,22 @@ const protectedLayoutMasaiverseRouteRoute =
     path: '/masaiverse',
     getParentRoute: () => protectedLayoutRouteRoute,
   } as any)
+const ApiWhatsNewIdIndexRoute = ApiWhatsNewIdIndexRouteImport.update({
+  id: '/api/whats-new/$id/',
+  path: '/api/whats-new/$id/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiAnnouncementIdIndexRoute = ApiAnnouncementIdIndexRouteImport.update({
   id: '/api/announcement/$id/',
   path: '/api/announcement/$id/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const protectedLayoutWhatsNewIndexRoute =
+  protectedLayoutWhatsNewIndexRouteImport.update({
+    id: '/whats-new/',
+    path: '/whats-new/',
+    getParentRoute: () => protectedLayoutRouteRoute,
+  } as any)
 const protectedLayoutMasaiverseIndexRoute =
   protectedLayoutMasaiverseIndexRouteImport.update({
     id: '/',
@@ -252,6 +272,12 @@ const authV2AuthLinkedAccountsRoute =
     id: '/(auth)/v2/auth/linked-accounts',
     path: '/v2/auth/linked-accounts',
     getParentRoute: () => rootRouteImport,
+  } as any)
+const protectedLayoutWhatsNewIdRouteRoute =
+  protectedLayoutWhatsNewIdRouteRouteImport.update({
+    id: '/whats-new_/$id',
+    path: '/whats-new/$id',
+    getParentRoute: () => protectedLayoutRouteRoute,
   } as any)
 const protectedLayoutResourcesResourceIdRouteRoute =
   protectedLayoutResourcesResourceIdRouteRouteImport.update({
@@ -351,10 +377,12 @@ export interface FileRoutesByFullPath {
   '/': typeof protectedLayoutIndexRoute
   '/api/announcement/': typeof ApiAnnouncementIndexRoute
   '/api/bookmarks/': typeof ApiBookmarksIndexRoute
+  '/api/whats-new/': typeof ApiWhatsNewIndexRoute
   '/announcements/$id': typeof protectedLayoutAnnouncementsIdRouteRoute
   '/assignments/$assignmentId': typeof protectedLayoutAssignmentsAssignmentIdRouteRoute
   '/lectures/$lectureId': typeof protectedLayoutLecturesLectureIdRouteRoute
   '/resources/$resourceId': typeof protectedLayoutResourcesResourceIdRouteRoute
+  '/whats-new/$id': typeof protectedLayoutWhatsNewIdRouteRoute
   '/v2/auth/linked-accounts': typeof authV2AuthLinkedAccountsRoute
   '/v2/auth/use-account': typeof authV2AuthUseAccountRoute
   '/v2/login/request-otp': typeof authV2LoginRequestOtpRoute
@@ -371,7 +399,9 @@ export interface FileRoutesByFullPath {
   '/bookmarks/': typeof protectedLayoutBookmarksIndexRoute
   '/learn/': typeof protectedLayoutLearnIndexRoute
   '/masaiverse/': typeof protectedLayoutMasaiverseIndexRoute
+  '/whats-new/': typeof protectedLayoutWhatsNewIndexRoute
   '/api/announcement/$id/': typeof ApiAnnouncementIdIndexRoute
+  '/api/whats-new/$id/': typeof ApiWhatsNewIdIndexRoute
   '/api/learn/ai-chat/$lectureId/history': typeof ApiLearnAiChatLectureIdHistoryRoute
   '/api/learn/ai-chat/$lectureId/send': typeof ApiLearnAiChatLectureIdSendRoute
   '/api/learn/ai-tutor/$lectureId/dispatch': typeof ApiLearnAiTutorLectureIdDispatchRoute
@@ -400,10 +430,12 @@ export interface FileRoutesByTo {
   '/': typeof protectedLayoutIndexRoute
   '/api/announcement': typeof ApiAnnouncementIndexRoute
   '/api/bookmarks': typeof ApiBookmarksIndexRoute
+  '/api/whats-new': typeof ApiWhatsNewIndexRoute
   '/announcements/$id': typeof protectedLayoutAnnouncementsIdRouteRoute
   '/assignments/$assignmentId': typeof protectedLayoutAssignmentsAssignmentIdRouteRoute
   '/lectures/$lectureId': typeof protectedLayoutLecturesLectureIdRouteRoute
   '/resources/$resourceId': typeof protectedLayoutResourcesResourceIdRouteRoute
+  '/whats-new/$id': typeof protectedLayoutWhatsNewIdRouteRoute
   '/v2/auth/linked-accounts': typeof authV2AuthLinkedAccountsRoute
   '/v2/auth/use-account': typeof authV2AuthUseAccountRoute
   '/v2/login/request-otp': typeof authV2LoginRequestOtpRoute
@@ -420,7 +452,9 @@ export interface FileRoutesByTo {
   '/bookmarks': typeof protectedLayoutBookmarksIndexRoute
   '/learn': typeof protectedLayoutLearnIndexRoute
   '/masaiverse': typeof protectedLayoutMasaiverseIndexRoute
+  '/whats-new': typeof protectedLayoutWhatsNewIndexRoute
   '/api/announcement/$id': typeof ApiAnnouncementIdIndexRoute
+  '/api/whats-new/$id': typeof ApiWhatsNewIdIndexRoute
   '/api/learn/ai-chat/$lectureId/history': typeof ApiLearnAiChatLectureIdHistoryRoute
   '/api/learn/ai-chat/$lectureId/send': typeof ApiLearnAiChatLectureIdSendRoute
   '/api/learn/ai-tutor/$lectureId/dispatch': typeof ApiLearnAiTutorLectureIdDispatchRoute
@@ -452,10 +486,12 @@ export interface FileRoutesById {
   '/(protected)/_layout/': typeof protectedLayoutIndexRoute
   '/api/announcement/': typeof ApiAnnouncementIndexRoute
   '/api/bookmarks/': typeof ApiBookmarksIndexRoute
+  '/api/whats-new/': typeof ApiWhatsNewIndexRoute
   '/(protected)/_layout/announcements_/$id': typeof protectedLayoutAnnouncementsIdRouteRoute
   '/(protected)/_layout/assignments_/$assignmentId': typeof protectedLayoutAssignmentsAssignmentIdRouteRoute
   '/(protected)/_layout/lectures_/$lectureId': typeof protectedLayoutLecturesLectureIdRouteRoute
   '/(protected)/_layout/resources_/$resourceId': typeof protectedLayoutResourcesResourceIdRouteRoute
+  '/(protected)/_layout/whats-new_/$id': typeof protectedLayoutWhatsNewIdRouteRoute
   '/(auth)/v2/auth/linked-accounts': typeof authV2AuthLinkedAccountsRoute
   '/(auth)/v2/auth/use-account': typeof authV2AuthUseAccountRoute
   '/(auth)/v2/login/request-otp': typeof authV2LoginRequestOtpRoute
@@ -472,7 +508,9 @@ export interface FileRoutesById {
   '/(protected)/_layout/bookmarks/': typeof protectedLayoutBookmarksIndexRoute
   '/(protected)/_layout/learn/': typeof protectedLayoutLearnIndexRoute
   '/(protected)/_layout/masaiverse/': typeof protectedLayoutMasaiverseIndexRoute
+  '/(protected)/_layout/whats-new/': typeof protectedLayoutWhatsNewIndexRoute
   '/api/announcement/$id/': typeof ApiAnnouncementIdIndexRoute
+  '/api/whats-new/$id/': typeof ApiWhatsNewIdIndexRoute
   '/api/learn/ai-chat/$lectureId/history': typeof ApiLearnAiChatLectureIdHistoryRoute
   '/api/learn/ai-chat/$lectureId/send': typeof ApiLearnAiChatLectureIdSendRoute
   '/api/learn/ai-tutor/$lectureId/dispatch': typeof ApiLearnAiTutorLectureIdDispatchRoute
@@ -504,10 +542,12 @@ export interface FileRouteTypes {
     | '/'
     | '/api/announcement/'
     | '/api/bookmarks/'
+    | '/api/whats-new/'
     | '/announcements/$id'
     | '/assignments/$assignmentId'
     | '/lectures/$lectureId'
     | '/resources/$resourceId'
+    | '/whats-new/$id'
     | '/v2/auth/linked-accounts'
     | '/v2/auth/use-account'
     | '/v2/login/request-otp'
@@ -524,7 +564,9 @@ export interface FileRouteTypes {
     | '/bookmarks/'
     | '/learn/'
     | '/masaiverse/'
+    | '/whats-new/'
     | '/api/announcement/$id/'
+    | '/api/whats-new/$id/'
     | '/api/learn/ai-chat/$lectureId/history'
     | '/api/learn/ai-chat/$lectureId/send'
     | '/api/learn/ai-tutor/$lectureId/dispatch'
@@ -553,10 +595,12 @@ export interface FileRouteTypes {
     | '/'
     | '/api/announcement'
     | '/api/bookmarks'
+    | '/api/whats-new'
     | '/announcements/$id'
     | '/assignments/$assignmentId'
     | '/lectures/$lectureId'
     | '/resources/$resourceId'
+    | '/whats-new/$id'
     | '/v2/auth/linked-accounts'
     | '/v2/auth/use-account'
     | '/v2/login/request-otp'
@@ -573,7 +617,9 @@ export interface FileRouteTypes {
     | '/bookmarks'
     | '/learn'
     | '/masaiverse'
+    | '/whats-new'
     | '/api/announcement/$id'
+    | '/api/whats-new/$id'
     | '/api/learn/ai-chat/$lectureId/history'
     | '/api/learn/ai-chat/$lectureId/send'
     | '/api/learn/ai-tutor/$lectureId/dispatch'
@@ -604,10 +650,12 @@ export interface FileRouteTypes {
     | '/(protected)/_layout/'
     | '/api/announcement/'
     | '/api/bookmarks/'
+    | '/api/whats-new/'
     | '/(protected)/_layout/announcements_/$id'
     | '/(protected)/_layout/assignments_/$assignmentId'
     | '/(protected)/_layout/lectures_/$lectureId'
     | '/(protected)/_layout/resources_/$resourceId'
+    | '/(protected)/_layout/whats-new_/$id'
     | '/(auth)/v2/auth/linked-accounts'
     | '/(auth)/v2/auth/use-account'
     | '/(auth)/v2/login/request-otp'
@@ -624,7 +672,9 @@ export interface FileRouteTypes {
     | '/(protected)/_layout/bookmarks/'
     | '/(protected)/_layout/learn/'
     | '/(protected)/_layout/masaiverse/'
+    | '/(protected)/_layout/whats-new/'
     | '/api/announcement/$id/'
+    | '/api/whats-new/$id/'
     | '/api/learn/ai-chat/$lectureId/history'
     | '/api/learn/ai-chat/$lectureId/send'
     | '/api/learn/ai-tutor/$lectureId/dispatch'
@@ -654,6 +704,7 @@ export interface RootRouteChildren {
   authSwitchAccountIndexRoute: typeof authSwitchAccountIndexRoute
   ApiAnnouncementIndexRoute: typeof ApiAnnouncementIndexRoute
   ApiBookmarksIndexRoute: typeof ApiBookmarksIndexRoute
+  ApiWhatsNewIndexRoute: typeof ApiWhatsNewIndexRoute
   authV2AuthLinkedAccountsRoute: typeof authV2AuthLinkedAccountsRoute
   authV2AuthUseAccountRoute: typeof authV2AuthUseAccountRoute
   authV2LoginRequestOtpRoute: typeof authV2LoginRequestOtpRoute
@@ -667,6 +718,7 @@ export interface RootRouteChildren {
   authResetPasswordTokenIndexRoute: typeof authResetPasswordTokenIndexRoute
   authV2LoginIndexRoute: typeof authV2LoginIndexRoute
   ApiAnnouncementIdIndexRoute: typeof ApiAnnouncementIdIndexRoute
+  ApiWhatsNewIdIndexRoute: typeof ApiWhatsNewIdIndexRoute
   ApiLearnAiChatLectureIdHistoryRoute: typeof ApiLearnAiChatLectureIdHistoryRoute
   ApiLearnAiChatLectureIdSendRoute: typeof ApiLearnAiChatLectureIdSendRoute
   ApiLearnAiTutorLectureIdDispatchRoute: typeof ApiLearnAiTutorLectureIdDispatchRoute
@@ -682,6 +734,13 @@ declare module '@tanstack/react-router' {
       path: ''
       fullPath: ''
       preLoaderRoute: typeof protectedLayoutRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/whats-new/': {
+      id: '/api/whats-new/'
+      path: '/api/whats-new'
+      fullPath: '/api/whats-new/'
+      preLoaderRoute: typeof ApiWhatsNewIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/bookmarks/': {
@@ -810,12 +869,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof protectedLayoutMasaiverseRouteRouteImport
       parentRoute: typeof protectedLayoutRouteRoute
     }
+    '/api/whats-new/$id/': {
+      id: '/api/whats-new/$id/'
+      path: '/api/whats-new/$id'
+      fullPath: '/api/whats-new/$id/'
+      preLoaderRoute: typeof ApiWhatsNewIdIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/announcement/$id/': {
       id: '/api/announcement/$id/'
       path: '/api/announcement/$id'
       fullPath: '/api/announcement/$id/'
       preLoaderRoute: typeof ApiAnnouncementIdIndexRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/(protected)/_layout/whats-new/': {
+      id: '/(protected)/_layout/whats-new/'
+      path: '/whats-new'
+      fullPath: '/whats-new/'
+      preLoaderRoute: typeof protectedLayoutWhatsNewIndexRouteImport
+      parentRoute: typeof protectedLayoutRouteRoute
     }
     '/(protected)/_layout/masaiverse/': {
       id: '/(protected)/_layout/masaiverse/'
@@ -928,6 +1001,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/v2/auth/linked-accounts'
       preLoaderRoute: typeof authV2AuthLinkedAccountsRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/(protected)/_layout/whats-new_/$id': {
+      id: '/(protected)/_layout/whats-new_/$id'
+      path: '/whats-new/$id'
+      fullPath: '/whats-new/$id'
+      preLoaderRoute: typeof protectedLayoutWhatsNewIdRouteRouteImport
+      parentRoute: typeof protectedLayoutRouteRoute
     }
     '/(protected)/_layout/resources_/$resourceId': {
       id: '/(protected)/_layout/resources_/$resourceId'
@@ -1044,9 +1124,11 @@ interface protectedLayoutRouteRouteChildren {
   protectedLayoutAssignmentsAssignmentIdRouteRoute: typeof protectedLayoutAssignmentsAssignmentIdRouteRoute
   protectedLayoutLecturesLectureIdRouteRoute: typeof protectedLayoutLecturesLectureIdRouteRoute
   protectedLayoutResourcesResourceIdRouteRoute: typeof protectedLayoutResourcesResourceIdRouteRoute
+  protectedLayoutWhatsNewIdRouteRoute: typeof protectedLayoutWhatsNewIdRouteRoute
   protectedLayoutAnnouncementsIndexRoute: typeof protectedLayoutAnnouncementsIndexRoute
   protectedLayoutBookmarksIndexRoute: typeof protectedLayoutBookmarksIndexRoute
   protectedLayoutLearnIndexRoute: typeof protectedLayoutLearnIndexRoute
+  protectedLayoutWhatsNewIndexRoute: typeof protectedLayoutWhatsNewIndexRoute
 }
 
 const protectedLayoutRouteRouteChildren: protectedLayoutRouteRouteChildren = {
@@ -1061,10 +1143,12 @@ const protectedLayoutRouteRouteChildren: protectedLayoutRouteRouteChildren = {
     protectedLayoutLecturesLectureIdRouteRoute,
   protectedLayoutResourcesResourceIdRouteRoute:
     protectedLayoutResourcesResourceIdRouteRoute,
+  protectedLayoutWhatsNewIdRouteRoute: protectedLayoutWhatsNewIdRouteRoute,
   protectedLayoutAnnouncementsIndexRoute:
     protectedLayoutAnnouncementsIndexRoute,
   protectedLayoutBookmarksIndexRoute: protectedLayoutBookmarksIndexRoute,
   protectedLayoutLearnIndexRoute: protectedLayoutLearnIndexRoute,
+  protectedLayoutWhatsNewIndexRoute: protectedLayoutWhatsNewIndexRoute,
 }
 
 const protectedLayoutRouteRouteWithChildren =
@@ -1121,6 +1205,7 @@ const rootRouteChildren: RootRouteChildren = {
   authSwitchAccountIndexRoute: authSwitchAccountIndexRoute,
   ApiAnnouncementIndexRoute: ApiAnnouncementIndexRoute,
   ApiBookmarksIndexRoute: ApiBookmarksIndexRoute,
+  ApiWhatsNewIndexRoute: ApiWhatsNewIndexRoute,
   authV2AuthLinkedAccountsRoute: authV2AuthLinkedAccountsRoute,
   authV2AuthUseAccountRoute: authV2AuthUseAccountRoute,
   authV2LoginRequestOtpRoute: authV2LoginRequestOtpRoute,
@@ -1136,6 +1221,7 @@ const rootRouteChildren: RootRouteChildren = {
   authResetPasswordTokenIndexRoute: authResetPasswordTokenIndexRoute,
   authV2LoginIndexRoute: authV2LoginIndexRoute,
   ApiAnnouncementIdIndexRoute: ApiAnnouncementIdIndexRoute,
+  ApiWhatsNewIdIndexRoute: ApiWhatsNewIdIndexRoute,
   ApiLearnAiChatLectureIdHistoryRoute: ApiLearnAiChatLectureIdHistoryRoute,
   ApiLearnAiChatLectureIdSendRoute: ApiLearnAiChatLectureIdSendRoute,
   ApiLearnAiTutorLectureIdDispatchRoute: ApiLearnAiTutorLectureIdDispatchRoute,
