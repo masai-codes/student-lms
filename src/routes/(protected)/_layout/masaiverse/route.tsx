@@ -5,6 +5,7 @@ import {
   useRouterState,
 } from '@tanstack/react-router'
 import MasaiverseV2Page from '@/components/features/masaiverse-v2/MasaiverseV2Page'
+import { markMasaiverseV2Visited } from '@/lib/api/masaiverse-v2/masaiverseV2Api'
 import { getMasaiverseAccessDebugServer } from '@/server/masaiverse/getMasaiverseAccessDebugServer'
 import { redirectToOldStudentUi } from '@/utils/authRedirect'
 import { sendTrackingEvent } from '@/utils/tracking'
@@ -82,6 +83,15 @@ function RouteComponent() {
     redirectReason,
     searchStr,
   ])
+
+  useEffect(() => {
+    if (!canShowMasaiverse) return
+
+    // Best-effort: mark the user as having visited Masaiverse once. Fired from
+    // the section layout so it covers every Masaiverse page, and is a no-op on
+    // the server after the first visit. Failures must never block the page.
+    void markMasaiverseV2Visited().catch(() => {})
+  }, [canShowMasaiverse])
 
   useEffect(() => {
     if (!canShowMasaiverse) return

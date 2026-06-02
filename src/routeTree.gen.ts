@@ -16,6 +16,7 @@ import { Route as protectedLayoutIndexRouteImport } from './routes/(protected)/_
 import { Route as authSwitchAccountIndexRouteImport } from './routes/(auth)/switch-account/index'
 import { Route as authSigninIndexRouteImport } from './routes/(auth)/signin/index'
 import { Route as authLoginIndexRouteImport } from './routes/(auth)/login/index'
+import { Route as ApiMasaiverseV2VisitedRouteImport } from './routes/api/masaiverse-v2/visited'
 import { Route as ApiMasaiverseV2HomeRouteImport } from './routes/api/masaiverse-v2/home'
 import { Route as authV2ResetPasswordRouteImport } from './routes/(auth)/v2/reset-password'
 import { Route as authV2MeRouteImport } from './routes/(auth)/v2/me'
@@ -100,6 +101,11 @@ const authSigninIndexRoute = authSigninIndexRouteImport.update({
 const authLoginIndexRoute = authLoginIndexRouteImport.update({
   id: '/(auth)/login/',
   path: '/login/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiMasaiverseV2VisitedRoute = ApiMasaiverseV2VisitedRouteImport.update({
+  id: '/api/masaiverse-v2/visited',
+  path: '/api/masaiverse-v2/visited',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiMasaiverseV2HomeRoute = ApiMasaiverseV2HomeRouteImport.update({
@@ -447,6 +453,7 @@ export interface FileRoutesByFullPath {
   '/v2/me': typeof authV2MeRoute
   '/v2/reset-password': typeof authV2ResetPasswordRoute
   '/api/masaiverse-v2/home': typeof ApiMasaiverseV2HomeRoute
+  '/api/masaiverse-v2/visited': typeof ApiMasaiverseV2VisitedRoute
   '/login/': typeof authLoginIndexRoute
   '/signin/': typeof authSigninIndexRoute
   '/switch-account/': typeof authSwitchAccountIndexRoute
@@ -505,6 +512,7 @@ export interface FileRoutesByTo {
   '/v2/me': typeof authV2MeRoute
   '/v2/reset-password': typeof authV2ResetPasswordRoute
   '/api/masaiverse-v2/home': typeof ApiMasaiverseV2HomeRoute
+  '/api/masaiverse-v2/visited': typeof ApiMasaiverseV2VisitedRoute
   '/login': typeof authLoginIndexRoute
   '/signin': typeof authSigninIndexRoute
   '/switch-account': typeof authSwitchAccountIndexRoute
@@ -563,6 +571,7 @@ export interface FileRoutesById {
   '/(auth)/v2/me': typeof authV2MeRoute
   '/(auth)/v2/reset-password': typeof authV2ResetPasswordRoute
   '/api/masaiverse-v2/home': typeof ApiMasaiverseV2HomeRoute
+  '/api/masaiverse-v2/visited': typeof ApiMasaiverseV2VisitedRoute
   '/(auth)/login/': typeof authLoginIndexRoute
   '/(auth)/signin/': typeof authSigninIndexRoute
   '/(auth)/switch-account/': typeof authSwitchAccountIndexRoute
@@ -624,6 +633,7 @@ export interface FileRouteTypes {
     | '/v2/me'
     | '/v2/reset-password'
     | '/api/masaiverse-v2/home'
+    | '/api/masaiverse-v2/visited'
     | '/login/'
     | '/signin/'
     | '/switch-account/'
@@ -682,6 +692,7 @@ export interface FileRouteTypes {
     | '/v2/me'
     | '/v2/reset-password'
     | '/api/masaiverse-v2/home'
+    | '/api/masaiverse-v2/visited'
     | '/login'
     | '/signin'
     | '/switch-account'
@@ -739,6 +750,7 @@ export interface FileRouteTypes {
     | '/(auth)/v2/me'
     | '/(auth)/v2/reset-password'
     | '/api/masaiverse-v2/home'
+    | '/api/masaiverse-v2/visited'
     | '/(auth)/login/'
     | '/(auth)/signin/'
     | '/(auth)/switch-account/'
@@ -799,6 +811,7 @@ export interface RootRouteChildren {
   authV2MeRoute: typeof authV2MeRoute
   authV2ResetPasswordRoute: typeof authV2ResetPasswordRoute
   ApiMasaiverseV2HomeRoute: typeof ApiMasaiverseV2HomeRoute
+  ApiMasaiverseV2VisitedRoute: typeof ApiMasaiverseV2VisitedRoute
   authLoginIndexRoute: typeof authLoginIndexRoute
   authSigninIndexRoute: typeof authSigninIndexRoute
   authSwitchAccountIndexRoute: typeof authSwitchAccountIndexRoute
@@ -860,6 +873,13 @@ declare module '@tanstack/react-router' {
       path: '/login'
       fullPath: '/login/'
       preLoaderRoute: typeof authLoginIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/masaiverse-v2/visited': {
+      id: '/api/masaiverse-v2/visited'
+      path: '/api/masaiverse-v2/visited'
+      fullPath: '/api/masaiverse-v2/visited'
+      preLoaderRoute: typeof ApiMasaiverseV2VisitedRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/masaiverse-v2/home': {
@@ -1411,6 +1431,7 @@ const rootRouteChildren: RootRouteChildren = {
   authV2MeRoute: authV2MeRoute,
   authV2ResetPasswordRoute: authV2ResetPasswordRoute,
   ApiMasaiverseV2HomeRoute: ApiMasaiverseV2HomeRoute,
+  ApiMasaiverseV2VisitedRoute: ApiMasaiverseV2VisitedRoute,
   authLoginIndexRoute: authLoginIndexRoute,
   authSigninIndexRoute: authSigninIndexRoute,
   authSwitchAccountIndexRoute: authSwitchAccountIndexRoute,

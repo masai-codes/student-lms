@@ -11,6 +11,8 @@ Current focus: server API/unit test coverage for `src/server/masaiverse/**`.
 - `src/server/masaiverse/__tests__/listings.test.ts`
 - `src/server/masaiverse/__tests__/community-auth.test.ts`
 - `src/server/masaiverse/__tests__/testSetup.ts` (shared mocks and helpers)
+- `src/server/api/masaiverse-v2/__tests__/markMasaiverseVisited.service.test.ts`
+- `src/server/api/masaiverse-v2/__tests__/markMasaiverseVisited.handler.test.ts`
 
 ## How To Run
 
@@ -42,6 +44,11 @@ Current focus: server API/unit test coverage for `src/server/masaiverse/**`.
 - `MASAIVE-API-019` - Module: `voteCommunityPost` - Case: throws `UNAUTHORIZED` when no active user - Status: Covered
 - `MASAIVE-API-020` - Module: `voteCommunityReply` - Case: throws `UNAUTHORIZED` when no active user - Status: Covered
 - `MASAIVE-API-021` - Module: `toggleCommunityPostBookmark` - Case: throws `UNAUTHORIZED` when no active user - Status: Covered
+- `MASAIVE-V2-001` - Module: `markMasaiverseVisited` (service) - Case: issues a single guarded UPDATE for the given user - Status: Covered
+- `MASAIVE-V2-002` - Module: `markMasaiverseVisited` (service) - Case: propagates DB errors to caller - Status: Covered
+- `MASAIVE-V2-003` - Module: `handleMarkMasaiverseVisited` - Case: marks session user and returns `{ success: true }` - Status: Covered
+- `MASAIVE-V2-004` - Module: `handleMarkMasaiverseVisited` - Case: returns 401 when no session user - Status: Covered
+- `MASAIVE-V2-005` - Module: `handleMarkMasaiverseVisited` - Case: maps unexpected failures to 500 `SERVER_ERROR_MARKING_MASAIVERSE_VISITED` - Status: Covered
 
 ## Pending / Next Cases
 

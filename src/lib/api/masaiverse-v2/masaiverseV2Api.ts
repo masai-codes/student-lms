@@ -5,3 +5,13 @@ import { MASAIVERSE_V2_API } from '@/lib/api/masaiverse-v2/masaiverseV2Paths'
 export async function fetchMasaiverseV2Home(): Promise<MasaiverseV2HomeData> {
   return fetchJson<MasaiverseV2HomeData>(MASAIVERSE_V2_API.home)
 }
+
+/**
+ * Records that the user has opened a Masaiverse page at least once, setting
+ * `users.meta.isMasaiverseVisitedOnce`. Idempotent on the server.
+ */
+export async function markMasaiverseV2Visited(): Promise<{ success: boolean }> {
+  return fetchJson<{ success: boolean }>(MASAIVERSE_V2_API.visited, {
+    method: 'POST',
+  })
+}

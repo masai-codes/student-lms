@@ -15,6 +15,12 @@ Last updated: 2026-05-11
 - Test files: `src/server/masaiverse/__tests__/*.test.ts`
 - Notes: Baseline unit tests exist for every exported API in `src/server/masaiverse/**`, split into modular files.
 
+## Masaiverse v2 API
+- Area: REST endpoints (`src/server/api/masaiverse-v2/**`)
+- Status: Covered
+- Test files: `src/server/api/masaiverse-v2/__tests__/*.test.ts`
+- Notes: `markMasaiverseVisited` service + handler — success, unauthorized (401), and server-error (500) paths.
+
 ## Status Meaning
 
 - `Covered`: key behavior and edge paths are fully tested for current scope.

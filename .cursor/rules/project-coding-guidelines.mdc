@@ -14,6 +14,17 @@ alwaysApply: true
 - Keep file size minimal; max file length is 200 lines. Split into smaller components/hooks/utils when approaching this limit.
 - Handle edge cases explicitly (empty states, invalid inputs, null/undefined values).
 
+## API Architecture
+- Expose all backend functionality as REST API routes only (file routes under
+  `src/routes/api/**` with `server.handlers` for GET/POST/etc.). Do not add new
+  TanStack `createServerFn` server functions for new work.
+- Structure each endpoint as route handler → handler (`src/server/api/**/handlers`)
+  → service (`src/server/api/**/*.service.ts`), and call it from the client via
+  the typed `fetchJson` helpers in `src/lib/api/**`.
+- Access the database through the Drizzle query builder (`db.select`, `db.insert`,
+  `db.update`, `db.delete` from `@/db`). Avoid raw `sql` template queries unless a
+  query genuinely cannot be expressed with the builder.
+
 ## Testing Requirements
 - Add or update tests for every non-trivial behavior change.
 - Prefer behavior-driven tests with Testing Library over implementation details.
