@@ -5,4 +5,5 @@ export const DASHBOARD_API = {
   banners: '/api/dashboard/banners',
   actionBanners: '/api/dashboard/action-banners',
   pendingTasks: '/api/dashboard/pending-tasks',
+  lmsSupport: '/api/dashboard/lms-support',
 } as const

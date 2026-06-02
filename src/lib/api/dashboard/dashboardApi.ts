@@ -5,6 +5,7 @@ import type { DashboardProductUpdateItem } from '@/server/api/dashboard/getProdu
 import type { DashboardScheduleItem } from '@/server/dashboard/getDashboardScheduleData'
 import type { DashboardBannerItem } from '@/server/api/dashboard/getDashboardBanners.service'
 import type { DashboardActionBannersResult } from '@/server/api/dashboard/getDashboardActionBanners.service'
+import type { LmsSupportInfo } from '@/server/api/dashboard/getLmsSupportInfo.service'
 
 type GetAnnouncementsResponse = { announcements: Array<DashboardAnnouncementItem> }
 type GetProductUpdatesResponse = { productUpdates: Array<DashboardProductUpdateItem> }
@@ -58,4 +59,11 @@ export async function fetchDashboardPendingTasks(): Promise<
     DASHBOARD_API.pendingTasks,
   )
   return pendingTasks
+}
+
+export async function fetchLmsSupportInfo(): Promise<LmsSupportInfo> {
+  const { lmsSupport } = await fetchJson<{ lmsSupport: LmsSupportInfo }>(
+    DASHBOARD_API.lmsSupport,
+  )
+  return lmsSupport
 }
