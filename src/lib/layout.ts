@@ -9,6 +9,12 @@ export const LAYOUT_MAIN_PADDING_Y = "py-6 md:pt-[24px]"
 
 export const layoutMainClasses = `mx-auto w-full flex-1 min-h-0 ${LAYOUT_MAX_WIDTH_CLASS} ${LAYOUT_MAIN_PADDING_X} ${LAYOUT_MAIN_PADDING_Y}`
 
+/**
+ * Full-viewport-width main content column (no `max-w` cap, no centering).
+ * Used by Masaiverse pages, which should span the full viewport width.
+ */
+export const layoutMainClassesFullWidth = `w-full flex-1 min-h-0 ${LAYOUT_MAIN_PADDING_X} ${LAYOUT_MAIN_PADDING_Y}`
+
 export const LAYOUT_NAVBAR_OUTER_CLASSES = "w-full"
 
 export const LAYOUT_NAVBAR_INNER_CLASSES =
