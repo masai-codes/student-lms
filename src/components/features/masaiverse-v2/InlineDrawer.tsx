@@ -34,13 +34,13 @@ export default function InlineDrawer({
       <div className="min-w-0 flex-1">{children}</div>
       <div
         className={`shrink-0 overflow-hidden transition-[width] duration-300 ease-out ${
-          open ? 'border-l border-[#E5E7EB] bg-white' : ''
+          open ? '-my-6 -mr-6 border-l border-[#E5E7EB] bg-white' : ''
         }`}
         style={{ width: open ? panelWidth : 0 }}
         aria-hidden={!open}
       >
         <div
-          className="sticky top-[100px] max-h-[calc(100vh-120px)] overflow-y-auto px-5 py-1"
+          className="sticky top-[72px] max-h-[calc(100vh-72px)] overflow-y-auto px-5 py-4"
           style={{ width: panelWidth }}
         >
           {onClose ? (
