@@ -16,6 +16,7 @@ Current focus: server API/unit test coverage for `src/server/masaiverse/**`.
 - `src/server/api/masaiverse-v2/__tests__/sectionOneStats.service.test.ts`
 - `src/server/api/masaiverse-v2/__tests__/getMasaiverseV2Home.service.test.ts`
 - `src/lib/dateRanges.test.ts` (shared IST week/year range helpers)
+- `src/components/features/masaiverse-v2/pages/home/StatsSection.test.tsx`
 
 ## How To Run
 
@@ -59,6 +60,9 @@ Current focus: server API/unit test coverage for `src/server/masaiverse/**`.
 - `MASAIVE-V2-010` - Module: `getEventsThisYearCount` - Case: counts events scheduled this year, 0 when empty - Status: Covered
 - `MASAIVE-V2-011` - Module: `getEventRegistrationsThisYearCount` - Case: counts registrations this year, 0 when empty - Status: Covered
 - `MASAIVE-V2-012` - Module: `getMasaiverseV2Home` - Case: composes section-one stats and passes a single `now` to time-bounded services - Status: Covered
+- `MASAIVE-V2-013` - Module: `StatsSection` (home UI) - Case: renders four labelled stat cards - Status: Covered
+- `MASAIVE-V2-014` - Module: `StatsSection` (home UI) - Case: shows formatted counts from the home API on success - Status: Covered
+- `MASAIVE-V2-015` - Module: `StatsSection` (home UI) - Case: falls back to a dash for every card on request failure - Status: Covered
 
 ## Pending / Next Cases
 

@@ -29,15 +29,6 @@ export interface MasaiverseV2SidebarData {
   myClubs: Array<MasaiverseClub>
 }
 
-export interface MasaiverseStat {
-  id: string
-  emoji: string
-  /** Pre-formatted display value, e.g. "2,841". */
-  value: string
-  label: string
-  accent: AccentColor
-}
-
 export interface MasaiverseWeekEvent {
   id: string
   badgeLabel: string
