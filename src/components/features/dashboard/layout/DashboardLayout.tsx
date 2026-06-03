@@ -8,6 +8,7 @@ import { DashboardSidebarSection } from '../section-sidebar/DashboardSidebarSect
 import {
   fetchDashboardActionBanners,
   fetchDashboardAnnouncements,
+  fetchDashboardAttendance,
   fetchDashboardPendingTasks,
   fetchDashboardSchedule,
   fetchProductUpdates,
@@ -50,11 +51,18 @@ export function DashboardLayout() {
     staleTime: 5 * 60 * 1000,
   })
 
+  const { data: attendanceData = [] } = useQuery({
+    queryKey: ['dashboard-attendance'],
+    queryFn: fetchDashboardAttendance,
+    staleTime: 5 * 60 * 1000,
+  })
+
   const isBannerVisible =
     actionBannersData != null &&
     (actionBannersData.showAgreement ||
       actionBannersData.showFeedback ||
-      actionBannersData.showZoom)
+      actionBannersData.showZoom ||
+      actionBannersData.showDownloadApp)
 
   const announcements = (announcementsData ?? []).map((item) => ({
     id: String(item.id),
@@ -99,6 +107,7 @@ export function DashboardLayout() {
               announcements={announcements}
               productUpdates={productUpdates}
               enrolledBatches={enrolledBatches}
+              attendanceData={attendanceData}
             />
           </div>
         </div>

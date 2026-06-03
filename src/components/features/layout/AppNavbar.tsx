@@ -27,6 +27,7 @@ import type {
 import { Navbar } from '@/components/navbar'
 import { LevelUpIcon } from '@/components/common/LevelUpIcon'
 import { DownloadAppModal } from '@/components/features/layout/DownloadAppModal'
+import { UpcomingLecturePill } from '@/components/features/layout/UpcomingLecturePill'
 import { LEGACY_STUDENT_LMS_URL } from '@/constants/legacyStudentUi'
 import { OLD_STUDENT_UI_NAV_PATHS } from '@/constants/oldStudentUiNavPaths'
 import { getBugReportFormUrl } from '@/utils/bugReportFormUrl'
@@ -268,7 +269,8 @@ export default function AppNavbar() {
         id: 'profile',
         label: 'My Profile',
         icon: <UserCircle className="size-4" />,
-        ...oldStudentUiLink('/profile'),
+        href: '/profile',
+        openInNewTab: false,
       },
       {
         id: 'courses',
@@ -360,6 +362,7 @@ export default function AppNavbar() {
           ...oldStudentUiLink(OLD_STUDENT_UI_NAV_PATHS.home),
         }}
         navItems={navItems}
+        centerSlot={<UpcomingLecturePill />}
         trailingActions={trailingActions}
         profile={profile}
       />

@@ -40,21 +40,26 @@ function formatNextSession(raw: string | null): string {
 
 // ── Join-state computation ─────────────────────────────────────────────────────
 
-type CardState = 'generic' | 'join' | 'cancelled'
+type CardState = 'generic' | 'scheduled-today' | 'join' | 'next-session'
 
 function computeCardState(info: LmsSupportInfo): CardState {
-  if (info.isCancelledToday) return 'cancelled'
-
   const start = parseIST(info.todaySchedule)
-  if (!start) return 'generic'
 
-  const end = parseIST(info.todayConcludes)
-  const now = Date.now()
-  const startMs = start.getTime()
-  const endMs = end?.getTime() ?? startMs + 60 * 60 * 1000 // 1-hour fallback
+  if (start) {
+    const end = parseIST(info.todayConcludes)
+    const now = Date.now()
+    const startMs = start.getTime()
+    const endMs = end?.getTime() ?? startMs + 60 * 60 * 1000
 
-  // Show "Join" from 5 min before schedule until concludes
-  if (now >= startMs - 5 * 60 * 1000 && now <= endMs) return 'join'
+    // Live: 5 min before start until concludes
+    if (now >= startMs - 5 * 60 * 1000 && now <= endMs) return 'join'
+
+    // Scheduled later today
+    return 'scheduled-today'
+  }
+
+  // No lecture today but upcoming
+  if (info.nextSchedule) return 'next-session'
 
   return 'generic'
 }
@@ -79,16 +84,16 @@ function useCardState(info: LmsSupportInfo | undefined): CardState {
 function GenericCard() {
   return (
     <div className="rounded-[16px] border border-gray-200 bg-[#F9FAFB] overflow-hidden flex items-center gap-0">
-      <div className="shrink-0 w-[136px] self-stretch">
+      <div className="shrink-0 w-[120px]">
         <img
           src="/SupportDashboard.svg"
           alt="LMS Support"
-          className="w-full h-full object-cover"
+          className="w-full h-full object-contain"
           loading="lazy"
           decoding="async"
         />
       </div>
-      <div className="flex flex-col gap-2 p-4 flex-1 min-w-0">
+      <div className="flex flex-col gap-2 px-3 py-4 flex-1 min-w-0">
         <p className="text-base font-bold text-gray-900 leading-snug">LMS Support Session</p>
         <p className="text-sm text-gray-500 leading-snug">
           Join our daily session to get your questions answered
@@ -103,17 +108,17 @@ function GenericCard() {
 
 function JoinCard({ zoomLink }: { zoomLink: string | null }) {
   return (
-    <div className="rounded-[16px] border border-blue-100 bg-blue-50 overflow-hidden flex items-center gap-0">
-      <div className="shrink-0 w-[136px] self-stretch">
+    <div className="rounded-[16px] border border-gray-200 bg-blue-50 overflow-hidden flex items-center gap-0">
+      <div className="shrink-0 w-[120px]">
         <img
           src="/SupportDashboard.svg"
           alt="LMS Support"
-          className="w-full h-full object-cover"
+          className="w-full h-full object-contain"
           loading="lazy"
           decoding="async"
         />
       </div>
-      <div className="flex flex-col gap-2.5 p-4 flex-1 min-w-0">
+      <div className="flex flex-col gap-2.5 px-3 py-4 flex-1 min-w-0">
         <p className="text-base font-bold text-gray-900 leading-snug">LMS Support Session</p>
         <p className="text-sm text-gray-600 leading-snug">We're live now to help you</p>
         {zoomLink ? (
@@ -121,12 +126,12 @@ function JoinCard({ zoomLink }: { zoomLink: string | null }) {
             href={zoomLink}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex self-start items-center px-5 py-1.5 rounded-full bg-[#4B44A8] text-white text-sm font-semibold hover:bg-[#3d379a] transition-colors"
+            className="inline-flex self-start items-center px-5 py-1.5 rounded-md bg-[#6962AC] text-white text-sm font-semibold hover:bg-[#5a54a0] transition-colors"
           >
             Join Now
           </a>
         ) : (
-          <span className="inline-flex self-start items-center px-5 py-1.5 rounded-full bg-[#4B44A8] text-white text-sm font-semibold opacity-70 cursor-not-allowed">
+          <span className="inline-flex self-start items-center px-5 py-1.5 rounded-md bg-[#6962AC] text-white text-sm font-semibold opacity-70 cursor-not-allowed">
             Join Now
           </span>
         )}
@@ -135,20 +140,46 @@ function JoinCard({ zoomLink }: { zoomLink: string | null }) {
   )
 }
 
-function CancelledCard({ nextSchedule }: { nextSchedule: string | null }) {
-  const label = formatNextSession(nextSchedule)
+function ScheduledTodayCard({ schedule }: { schedule: string | null }) {
+  const label = formatNextSession(schedule)
   return (
-    <div className="rounded-[16px] border-2 border-blue-400 bg-white overflow-hidden flex items-center gap-0">
-      <div className="shrink-0 w-[136px] self-stretch">
+    <div className="rounded-[16px] border border-gray-200 bg-[#F9FAFB] overflow-hidden flex items-center gap-0">
+      <div className="shrink-0 w-[120px]">
         <img
           src="/SupportDashboard.svg"
           alt="LMS Support"
-          className="w-full h-full object-cover"
+          className="w-full h-full object-contain"
           loading="lazy"
           decoding="async"
         />
       </div>
-      <div className="flex flex-col gap-2 p-4 flex-1 min-w-0">
+      <div className="flex flex-col gap-2 px-3 py-4 flex-1 min-w-0">
+        <p className="text-base font-bold text-gray-900 leading-snug">LMS Support Session</p>
+        <p className="text-sm text-gray-500 leading-snug">Today's session is scheduled at</p>
+        {label ? (
+          <span className="inline-flex self-start items-center px-3 py-1 rounded-full bg-[#FEF9C3] text-sm font-semibold text-[#713F12]">
+            {label}
+          </span>
+        ) : null}
+      </div>
+    </div>
+  )
+}
+
+function NextSessionCard({ nextSchedule }: { nextSchedule: string | null }) {
+  const label = formatNextSession(nextSchedule)
+  return (
+    <div className="rounded-[16px] border border-gray-200 bg-white overflow-hidden flex items-center gap-0">
+      <div className="shrink-0 w-[120px]">
+        <img
+          src="/SupportDashboard.svg"
+          alt="LMS Support"
+          className="w-full h-full object-contain"
+          loading="lazy"
+          decoding="async"
+        />
+      </div>
+      <div className="flex flex-col gap-2 px-3 py-4 flex-1 min-w-0">
         <p className="text-base font-bold text-gray-900 leading-snug">LMS Support Session</p>
         <p className="text-sm text-gray-500 leading-snug">
           No session today, the next session is scheduled for
@@ -174,11 +205,10 @@ export function LmsSupportPanel() {
 
   const cardState = useCardState(info)
 
-  // Not visible (not in section 5996, or no lectures scheduled)
   if (info && !info.visible) return null
 
-  // While loading, show generic as placeholder
   if (!info || cardState === 'generic') return <GenericCard />
   if (cardState === 'join') return <JoinCard zoomLink={info.todayZoomLink} />
-  return <CancelledCard nextSchedule={info.nextSchedule} />
+  if (cardState === 'scheduled-today') return <ScheduledTodayCard schedule={info.todaySchedule} />
+  return <NextSessionCard nextSchedule={info.nextSchedule} />
 }

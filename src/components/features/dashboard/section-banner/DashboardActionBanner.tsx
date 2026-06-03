@@ -1,17 +1,18 @@
 import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
-import { ChevronLeft, ChevronRight, FileText, Monitor, ThumbsUp } from 'lucide-react'
+import { ChevronLeft, ChevronRight, FileText, Monitor, Smartphone, ThumbsUp } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import { AGREEMENT_ONE_LINER } from '@/globalSettings'
 import { fetchDashboardActionBanners } from '@/lib/api/dashboard/dashboardApi'
 
-type SlideId = 'agreement' | 'feedback' | 'zoom'
+type SlideId = 'agreement' | 'feedback' | 'zoom' | 'appDownload'
 
 interface ActionSlide {
   id: SlideId
   Icon: LucideIcon
   text: string
   cta: string
+  ctaHref?: string
 }
 
 const ALL_SLIDES: Array<ActionSlide> = [
@@ -33,6 +34,13 @@ const ALL_SLIDES: Array<ActionSlide> = [
     text: 'Complete your Zoom authentication',
     cta: 'Start',
   },
+  {
+    id: 'appDownload',
+    Icon: Smartphone,
+    text: 'Learn on the go with the Masai Learn App',
+    cta: 'Download App',
+    ctaHref: 'https://play.google.com/store/apps/details?id=com.lms.masai',
+  }
 ]
 
 export function DashboardActionBanner() {
@@ -43,10 +51,11 @@ export function DashboardActionBanner() {
 
   const [current, setCurrent] = useState(0)
 
-  // Don't render while loading or if no flags are available
-  if (isLoading || !data) return null
+  if (isLoading) return null
 
   const visibleSlides = ALL_SLIDES.filter((slide) => {
+    if (!data) return slide.id === 'appDownload'
+    if (slide.id === 'appDownload') return data.showDownloadApp
     if (slide.id === 'agreement') return data.showAgreement
     if (slide.id === 'feedback') return data.showFeedback
     return data.showZoom
@@ -72,12 +81,23 @@ export function DashboardActionBanner() {
         <p className="text-sm font-medium text-white leading-snug min-w-0">
           {slide.text}
         </p>
-        <button
-          type="button"
-          className="shrink-0 px-5 py-2 rounded-md bg-white text-[#4B4396] text-sm font-semibold hover:bg-white/90 transition-colors focus-visible:outline-none"
-        >
-          {slide.cta}
-        </button>
+        {slide.ctaHref ? (
+          <a
+            href={slide.ctaHref}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="shrink-0 px-5 py-2 rounded-md bg-white text-[#4B4396] text-sm font-semibold hover:bg-white/90 transition-colors focus-visible:outline-none"
+          >
+            {slide.cta}
+          </a>
+        ) : (
+          <button
+            type="button"
+            className="shrink-0 px-5 py-2 rounded-md bg-white text-[#4B4396] text-sm font-semibold hover:bg-white/90 transition-colors focus-visible:outline-none"
+          >
+            {slide.cta}
+          </button>
+        )}
       </div>
 
       {/* Prev / dots / Next — boxy style */}

@@ -95,7 +95,6 @@ export async function getDashboardBanners(
       visible_to
     FROM banners
     WHERE is_active = 1
-      AND settings->>'$.isMasaiVerse' = 'false'
       AND start_date < NOW()
       AND NOW() < end_date
       AND deleted_at IS NULL
