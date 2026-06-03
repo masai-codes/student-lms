@@ -18,9 +18,12 @@ Current focus: server API/unit test coverage for `src/server/masaiverse/**`.
 - `src/lib/dateRanges.test.ts` (shared IST week/year range helpers)
 - `src/lib/masaiverseEventCard.test.ts` (IST event-card display helper)
 - `src/server/api/masaiverse-v2/__tests__/getHomeEvents.service.test.ts`
+- `src/server/api/masaiverse-v2/__tests__/getHomeHighlights.service.test.ts`
 - `src/components/features/masaiverse-v2/pages/home/StatsSection.test.tsx`
 - `src/components/features/masaiverse-v2/pages/home/EventCard.test.tsx`
 - `src/components/features/masaiverse-v2/pages/home/ThisWeekSection.test.tsx`
+- `src/components/features/masaiverse-v2/pages/home/HighlightCard.test.tsx`
+- `src/components/features/masaiverse-v2/pages/home/HighlightsSection.test.tsx`
 
 ## How To Run
 
@@ -71,7 +74,12 @@ Current focus: server API/unit test coverage for `src/server/masaiverse/**`.
 - `MASAIVE-V2-017` - Module: `getMasaiverseV2Home` - Case: includes section-two events and passes `now` to `getHomeEvents` - Status: Covered
 - `MASAIVE-V2-018` - Module: `getEventCardDisplay` - Case: IST LIVE / TODAY / TOMORROW / start-time badge + date box, missing-time fallback - Status: Covered
 - `MASAIVE-V2-019` - Module: `EventCard` (home UI) - Case: renders image + 3 lines, LIVE badge, omits optional bits when absent - Status: Covered
-- `MASAIVE-V2-020` - Module: `ThisWeekSection` (home UI) - Case: loading message, event cards + count, empty state - Status: Covered
+- `MASAIVE-V2-020` - Module: `ThisWeekSection` (home UI) - Case: loading message, event cards + count, empty state, Swiper carousel navigation shown only when >1 event - Status: Covered
+- `MASAIVE-V2-021` - Module: `getLastWeekRangeIst` - Case: previous IST week is the seven days before the current week - Status: Covered
+- `MASAIVE-V2-022` - Module: `getHomeHighlights` - Case: maps last-week events to recap cards (aboveTitle/title/belowTitle + pastEventEmojiValue); normalizes nulls; empty list - Status: Covered
+- `MASAIVE-V2-023` - Module: `getMasaiverseV2Home` - Case: includes section-three highlights and passes `now` to `getHomeHighlights` - Status: Covered
+- `MASAIVE-V2-024` - Module: `HighlightCard` (home UI) - Case: renders emoji + 3 lines, omits optional bits when absent - Status: Covered
+- `MASAIVE-V2-025` - Module: `HighlightsSection` (home UI) - Case: loading message, recap cards, empty state - Status: Covered
 
 ## Pending / Next Cases
 

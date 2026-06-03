@@ -46,6 +46,21 @@ function toDate(value: string | null): Date | null {
   return Number.isNaN(date.getTime()) ? null : date
 }
 
+/**
+ * Formats a UTC ISO instant as an IST date + time, e.g. "May 28 · 2:00 PM".
+ * Returns null when the timestamp is missing or unparseable.
+ */
+export function formatIstDateTime(value: string | null): string | null {
+  const date = toDate(value)
+  if (!date) return null
+  const datePart = new Intl.DateTimeFormat('en-US', {
+    timeZone: IST_TIME_ZONE,
+    month: 'short',
+    day: 'numeric',
+  }).format(date)
+  return `${datePart} · ${formatIstTime(date)}`
+}
+
 export function getEventCardDisplay(
   event: EventTimes,
   now: Date,

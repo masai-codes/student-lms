@@ -48,6 +48,21 @@ describe('ThisWeekSection', () => {
 
     await waitFor(() => expect(screen.getByText('Build Sprint #12')).toBeTruthy())
     expect(screen.getByText('· 1 event live or upcoming')).toBeTruthy()
+    // A single event needs no carousel navigation.
+    expect(screen.queryByLabelText('Next events')).toBeNull()
+  })
+
+  it('shows carousel navigation when there is more than one event', async () => {
+    fetchHome.mockResolvedValue({
+      stats: {},
+      events: [baseEvent, { ...baseEvent, id: '13', title: 'HackArena' }],
+    })
+    renderWithClient(<ThisWeekSection onViewCalendar={() => {}} />)
+
+    await waitFor(() => expect(screen.getByText('HackArena')).toBeTruthy())
+    expect(screen.getByText('· 2 events live or upcoming')).toBeTruthy()
+    expect(screen.getByLabelText('Previous events')).toBeTruthy()
+    expect(screen.getByLabelText('Next events')).toBeTruthy()
   })
 
   it('shows an empty state when there are no events', async () => {

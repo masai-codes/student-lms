@@ -4,8 +4,8 @@ import { events } from '@/db/schema'
 import { toMysqlUtc } from '@/lib/dateRanges'
 import { parseMasaiverseEventDbTimestamp } from '@/lib/eventTimestamps'
 
-/** Max events shown in the home "This Week" section. */
-const HOME_EVENTS_LIMIT = 8
+/** Max events shown in the home "This Week" carousel. */
+const HOME_EVENTS_LIMIT = 20
 
 export interface MasaiverseV2HomeEvent {
   id: string

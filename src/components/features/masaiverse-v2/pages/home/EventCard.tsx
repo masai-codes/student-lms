@@ -14,7 +14,7 @@ export default function EventCard({ event, now = new Date() }: EventCardProps) {
   )
 
   return (
-    <div className="flex flex-col overflow-hidden rounded-[14px] border border-[#EDEAE8] bg-white">
+    <div className="flex h-full flex-col overflow-hidden rounded-[14px] border border-[#EDEAE8] bg-white">
       <div className="relative h-[116px] bg-[#241C16]">
         {event.imageUrl ? (
           <img

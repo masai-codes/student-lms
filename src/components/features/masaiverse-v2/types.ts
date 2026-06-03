@@ -29,25 +29,6 @@ export interface MasaiverseV2SidebarData {
   myClubs: Array<MasaiverseClub>
 }
 
-export type HighlightCtaTone = 'green' | 'purple'
-
-export interface MasaiverseHighlightMeta {
-  emoji: string
-  text: string
-}
-
-export interface MasaiverseHighlight {
-  id: string
-  emoji: string
-  /** Optional left-border accent color (hex). */
-  accentColor?: string
-  category: string
-  title: string
-  meta: Array<MasaiverseHighlightMeta>
-  ctaLabel: string
-  ctaTone: HighlightCtaTone
-}
-
 export interface MasaiverseUpcomingEvent {
   id: string
   day: string

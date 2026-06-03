@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { getEventCardDisplay } from './masaiverseEventCard'
+import { formatIstDateTime, getEventCardDisplay } from './masaiverseEventCard'
 
 // 2026-06-03 17:30 IST (Wed).
 const NOW = new Date('2026-06-03T12:00:00Z')
@@ -51,5 +51,17 @@ describe('getEventCardDisplay', () => {
     expect(result.isLive).toBe(false)
     expect(result.badgeLabel).toBe('')
     expect(result.dateDay).toBe('')
+  })
+})
+
+describe('formatIstDateTime', () => {
+  it('formats a UTC instant as an IST date + time', () => {
+    // 2026-05-28 09:00 UTC == 14:30 IST.
+    expect(formatIstDateTime('2026-05-28T09:00:00Z')).toBe('May 28 · 2:30 PM')
+  })
+
+  it('returns null for a missing or unparseable timestamp', () => {
+    expect(formatIstDateTime(null)).toBeNull()
+    expect(formatIstDateTime('not-a-date')).toBeNull()
   })
 })

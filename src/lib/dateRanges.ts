@@ -48,6 +48,18 @@ export function getCurrentWeekRangeIst(now: Date): DateRange {
 }
 
 /**
+ * Previous IST calendar week — the seven days immediately before the current
+ * week (Monday 00:00 inclusive → this week's Monday 00:00 exclusive).
+ */
+export function getLastWeekRangeIst(now: Date): DateRange {
+  const thisWeek = getCurrentWeekRangeIst(now)
+  return {
+    start: new Date(thisWeek.start.getTime() - 7 * 24 * 60 * 60 * 1000),
+    end: thisWeek.start,
+  }
+}
+
+/**
  * Current IST calendar year, Jan 1 00:00 (inclusive) → next Jan 1 00:00
  * (exclusive).
  */

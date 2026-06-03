@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import {
   getCurrentWeekRangeIst,
   getCurrentYearRangeIst,
+  getLastWeekRangeIst,
   toMysqlUtc,
 } from './dateRanges'
 
@@ -27,6 +28,16 @@ describe('getCurrentWeekRangeIst', () => {
     const range = getCurrentWeekRangeIst(new Date('2026-06-07T19:00:00Z'))
     expect(range.start.toISOString()).toBe('2026-06-07T18:30:00.000Z')
     expect(range.end.toISOString()).toBe('2026-06-14T18:30:00.000Z')
+  })
+})
+
+describe('getLastWeekRangeIst', () => {
+  it('is the seven days immediately before the current week', () => {
+    const range = getLastWeekRangeIst(new Date('2026-06-03T12:00:00Z'))
+    // This week starts Mon 2026-06-01 IST (2026-05-31 18:30 UTC); last week is
+    // the prior Monday→Monday.
+    expect(range.start.toISOString()).toBe('2026-05-24T18:30:00.000Z')
+    expect(range.end.toISOString()).toBe('2026-05-31T18:30:00.000Z')
   })
 })
 
