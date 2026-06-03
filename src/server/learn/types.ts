@@ -9,12 +9,15 @@ export interface EnrolledBatch {
   courseTitle: string
   /** From `batches.meta.courseLogo` when present (image URL). */
   courseLogo: string | null
+  showAttendanceReport: boolean
+  showEvaluationReport: boolean
 }
 
 export interface EnrolledBatchRow {
   id: number
   name: string
   meta: unknown
+  settings: unknown
 }
 
 export type LearningType = 'lecture' | 'assignment' | 'resource'

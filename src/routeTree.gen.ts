@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as protectedLayoutRouteRouteImport } from './routes/(protected)/_layout/route'
 import { Route as ApiWhatsNewIndexRouteImport } from './routes/api/whats-new/index'
+import { Route as ApiProfileIndexRouteImport } from './routes/api/profile/index'
 import { Route as ApiBookmarksIndexRouteImport } from './routes/api/bookmarks/index'
 import { Route as ApiAnnouncementIndexRouteImport } from './routes/api/announcement/index'
 import { Route as protectedLayoutIndexRouteImport } from './routes/(protected)/_layout/index'
@@ -21,9 +22,11 @@ import { Route as ApiLearnBatchesRouteImport } from './routes/api/learn/batches'
 import { Route as ApiLearnBatchDataRouteImport } from './routes/api/learn/batch-data'
 import { Route as ApiDashboardScheduleRouteImport } from './routes/api/dashboard/schedule'
 import { Route as ApiDashboardProductUpdatesRouteImport } from './routes/api/dashboard/product-updates'
-import { Route as ApiDashboardLmsSupportRouteImport } from './routes/api/dashboard/lms-support'
 import { Route as ApiDashboardPendingTasksRouteImport } from './routes/api/dashboard/pending-tasks'
+import { Route as ApiDashboardNavbarPillRouteImport } from './routes/api/dashboard/navbar-pill'
+import { Route as ApiDashboardLmsSupportRouteImport } from './routes/api/dashboard/lms-support'
 import { Route as ApiDashboardBannersRouteImport } from './routes/api/dashboard/banners'
+import { Route as ApiDashboardAttendanceRouteImport } from './routes/api/dashboard/attendance'
 import { Route as ApiDashboardAnnouncementsRouteImport } from './routes/api/dashboard/announcements'
 import { Route as ApiDashboardActionBannersRouteImport } from './routes/api/dashboard/action-banners'
 import { Route as authV2ResetPasswordRouteImport } from './routes/(auth)/v2/reset-password'
@@ -31,14 +34,18 @@ import { Route as authV2MeRouteImport } from './routes/(auth)/v2/me'
 import { Route as authV2ForgotPasswordRouteImport } from './routes/(auth)/v2/forgot-password'
 import { Route as protectedLayoutMasaiverseRouteRouteImport } from './routes/(protected)/_layout/masaiverse/route'
 import { Route as ApiWhatsNewIdIndexRouteImport } from './routes/api/whats-new/$id/index'
+import { Route as ApiProfileEmailPreferencesIndexRouteImport } from './routes/api/profile/email-preferences/index'
+import { Route as ApiProfileAccountActivityIndexRouteImport } from './routes/api/profile/account-activity/index'
 import { Route as ApiAnnouncementIdIndexRouteImport } from './routes/api/announcement/$id/index'
 import { Route as protectedLayoutWhatsNewIndexRouteImport } from './routes/(protected)/_layout/whats-new/index'
+import { Route as protectedLayoutProfileIndexRouteImport } from './routes/(protected)/_layout/profile/index'
 import { Route as protectedLayoutMasaiverseIndexRouteImport } from './routes/(protected)/_layout/masaiverse/index'
 import { Route as protectedLayoutLearnIndexRouteImport } from './routes/(protected)/_layout/learn/index'
 import { Route as protectedLayoutBookmarksIndexRouteImport } from './routes/(protected)/_layout/bookmarks/index'
 import { Route as protectedLayoutAnnouncementsIndexRouteImport } from './routes/(protected)/_layout/announcements/index'
 import { Route as authV2LoginIndexRouteImport } from './routes/(auth)/v2/login/index'
 import { Route as authResetPasswordTokenIndexRouteImport } from './routes/(auth)/reset-password.$token/index'
+import { Route as ApiProfileAccountActivitySignOutAllRouteImport } from './routes/api/profile/account-activity/sign-out-all'
 import { Route as ApiLearnSubmissionsSubmissionIdRouteImport } from './routes/api/learn/submissions/$submissionId'
 import { Route as ApiLearnResourcesResourceIdRouteImport } from './routes/api/learn/resources/$resourceId'
 import { Route as ApiLearnLecturesLectureIdRouteImport } from './routes/api/learn/lectures/$lectureId'
@@ -71,6 +78,11 @@ const protectedLayoutRouteRoute = protectedLayoutRouteRouteImport.update({
 const ApiWhatsNewIndexRoute = ApiWhatsNewIndexRouteImport.update({
   id: '/api/whats-new/',
   path: '/api/whats-new/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiProfileIndexRoute = ApiProfileIndexRouteImport.update({
+  id: '/api/profile/',
+  path: '/api/profile/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiBookmarksIndexRoute = ApiBookmarksIndexRouteImport.update({
@@ -124,20 +136,30 @@ const ApiDashboardProductUpdatesRoute =
     path: '/api/dashboard/product-updates',
     getParentRoute: () => rootRouteImport,
   } as any)
-const ApiDashboardLmsSupportRoute = ApiDashboardLmsSupportRouteImport.update({
-  id: '/api/dashboard/lms-support',
-  path: '/api/dashboard/lms-support',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const ApiDashboardPendingTasksRoute =
   ApiDashboardPendingTasksRouteImport.update({
     id: '/api/dashboard/pending-tasks',
     path: '/api/dashboard/pending-tasks',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiDashboardNavbarPillRoute = ApiDashboardNavbarPillRouteImport.update({
+  id: '/api/dashboard/navbar-pill',
+  path: '/api/dashboard/navbar-pill',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiDashboardLmsSupportRoute = ApiDashboardLmsSupportRouteImport.update({
+  id: '/api/dashboard/lms-support',
+  path: '/api/dashboard/lms-support',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiDashboardBannersRoute = ApiDashboardBannersRouteImport.update({
   id: '/api/dashboard/banners',
   path: '/api/dashboard/banners',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiDashboardAttendanceRoute = ApiDashboardAttendanceRouteImport.update({
+  id: '/api/dashboard/attendance',
+  path: '/api/dashboard/attendance',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiDashboardAnnouncementsRoute =
@@ -178,6 +200,18 @@ const ApiWhatsNewIdIndexRoute = ApiWhatsNewIdIndexRouteImport.update({
   path: '/api/whats-new/$id/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiProfileEmailPreferencesIndexRoute =
+  ApiProfileEmailPreferencesIndexRouteImport.update({
+    id: '/api/profile/email-preferences/',
+    path: '/api/profile/email-preferences/',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiProfileAccountActivityIndexRoute =
+  ApiProfileAccountActivityIndexRouteImport.update({
+    id: '/api/profile/account-activity/',
+    path: '/api/profile/account-activity/',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiAnnouncementIdIndexRoute = ApiAnnouncementIdIndexRouteImport.update({
   id: '/api/announcement/$id/',
   path: '/api/announcement/$id/',
@@ -187,6 +221,12 @@ const protectedLayoutWhatsNewIndexRoute =
   protectedLayoutWhatsNewIndexRouteImport.update({
     id: '/whats-new/',
     path: '/whats-new/',
+    getParentRoute: () => protectedLayoutRouteRoute,
+  } as any)
+const protectedLayoutProfileIndexRoute =
+  protectedLayoutProfileIndexRouteImport.update({
+    id: '/profile/',
+    path: '/profile/',
     getParentRoute: () => protectedLayoutRouteRoute,
   } as any)
 const protectedLayoutMasaiverseIndexRoute =
@@ -222,6 +262,12 @@ const authResetPasswordTokenIndexRoute =
   authResetPasswordTokenIndexRouteImport.update({
     id: '/(auth)/reset-password/$token/',
     path: '/reset-password/$token/',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiProfileAccountActivitySignOutAllRoute =
+  ApiProfileAccountActivitySignOutAllRouteImport.update({
+    id: '/api/profile/account-activity/sign-out-all',
+    path: '/api/profile/account-activity/sign-out-all',
     getParentRoute: () => rootRouteImport,
   } as any)
 const ApiLearnSubmissionsSubmissionIdRoute =
@@ -371,9 +417,11 @@ export interface FileRoutesByFullPath {
   '/v2/reset-password': typeof authV2ResetPasswordRoute
   '/api/dashboard/action-banners': typeof ApiDashboardActionBannersRoute
   '/api/dashboard/announcements': typeof ApiDashboardAnnouncementsRoute
+  '/api/dashboard/attendance': typeof ApiDashboardAttendanceRoute
   '/api/dashboard/banners': typeof ApiDashboardBannersRoute
-  '/api/dashboard/pending-tasks': typeof ApiDashboardPendingTasksRoute
   '/api/dashboard/lms-support': typeof ApiDashboardLmsSupportRoute
+  '/api/dashboard/navbar-pill': typeof ApiDashboardNavbarPillRoute
+  '/api/dashboard/pending-tasks': typeof ApiDashboardPendingTasksRoute
   '/api/dashboard/product-updates': typeof ApiDashboardProductUpdatesRoute
   '/api/dashboard/schedule': typeof ApiDashboardScheduleRoute
   '/api/learn/batch-data': typeof ApiLearnBatchDataRoute
@@ -384,6 +432,7 @@ export interface FileRoutesByFullPath {
   '/': typeof protectedLayoutIndexRoute
   '/api/announcement/': typeof ApiAnnouncementIndexRoute
   '/api/bookmarks/': typeof ApiBookmarksIndexRoute
+  '/api/profile/': typeof ApiProfileIndexRoute
   '/api/whats-new/': typeof ApiWhatsNewIndexRoute
   '/announcements/$id': typeof protectedLayoutAnnouncementsIdRouteRoute
   '/assignments/$assignmentId': typeof protectedLayoutAssignmentsAssignmentIdRouteRoute
@@ -400,14 +449,18 @@ export interface FileRoutesByFullPath {
   '/api/learn/lectures/$lectureId': typeof ApiLearnLecturesLectureIdRoute
   '/api/learn/resources/$resourceId': typeof ApiLearnResourcesResourceIdRoute
   '/api/learn/submissions/$submissionId': typeof ApiLearnSubmissionsSubmissionIdRouteWithChildren
+  '/api/profile/account-activity/sign-out-all': typeof ApiProfileAccountActivitySignOutAllRoute
   '/reset-password/$token/': typeof authResetPasswordTokenIndexRoute
   '/v2/login/': typeof authV2LoginIndexRoute
   '/announcements/': typeof protectedLayoutAnnouncementsIndexRoute
   '/bookmarks/': typeof protectedLayoutBookmarksIndexRoute
   '/learn/': typeof protectedLayoutLearnIndexRoute
   '/masaiverse/': typeof protectedLayoutMasaiverseIndexRoute
+  '/profile/': typeof protectedLayoutProfileIndexRoute
   '/whats-new/': typeof protectedLayoutWhatsNewIndexRoute
   '/api/announcement/$id/': typeof ApiAnnouncementIdIndexRoute
+  '/api/profile/account-activity/': typeof ApiProfileAccountActivityIndexRoute
+  '/api/profile/email-preferences/': typeof ApiProfileEmailPreferencesIndexRoute
   '/api/whats-new/$id/': typeof ApiWhatsNewIdIndexRoute
   '/api/learn/ai-chat/$lectureId/history': typeof ApiLearnAiChatLectureIdHistoryRoute
   '/api/learn/ai-chat/$lectureId/send': typeof ApiLearnAiChatLectureIdSendRoute
@@ -425,9 +478,11 @@ export interface FileRoutesByTo {
   '/v2/reset-password': typeof authV2ResetPasswordRoute
   '/api/dashboard/action-banners': typeof ApiDashboardActionBannersRoute
   '/api/dashboard/announcements': typeof ApiDashboardAnnouncementsRoute
+  '/api/dashboard/attendance': typeof ApiDashboardAttendanceRoute
   '/api/dashboard/banners': typeof ApiDashboardBannersRoute
-  '/api/dashboard/pending-tasks': typeof ApiDashboardPendingTasksRoute
   '/api/dashboard/lms-support': typeof ApiDashboardLmsSupportRoute
+  '/api/dashboard/navbar-pill': typeof ApiDashboardNavbarPillRoute
+  '/api/dashboard/pending-tasks': typeof ApiDashboardPendingTasksRoute
   '/api/dashboard/product-updates': typeof ApiDashboardProductUpdatesRoute
   '/api/dashboard/schedule': typeof ApiDashboardScheduleRoute
   '/api/learn/batch-data': typeof ApiLearnBatchDataRoute
@@ -438,6 +493,7 @@ export interface FileRoutesByTo {
   '/': typeof protectedLayoutIndexRoute
   '/api/announcement': typeof ApiAnnouncementIndexRoute
   '/api/bookmarks': typeof ApiBookmarksIndexRoute
+  '/api/profile': typeof ApiProfileIndexRoute
   '/api/whats-new': typeof ApiWhatsNewIndexRoute
   '/announcements/$id': typeof protectedLayoutAnnouncementsIdRouteRoute
   '/assignments/$assignmentId': typeof protectedLayoutAssignmentsAssignmentIdRouteRoute
@@ -454,14 +510,18 @@ export interface FileRoutesByTo {
   '/api/learn/lectures/$lectureId': typeof ApiLearnLecturesLectureIdRoute
   '/api/learn/resources/$resourceId': typeof ApiLearnResourcesResourceIdRoute
   '/api/learn/submissions/$submissionId': typeof ApiLearnSubmissionsSubmissionIdRouteWithChildren
+  '/api/profile/account-activity/sign-out-all': typeof ApiProfileAccountActivitySignOutAllRoute
   '/reset-password/$token': typeof authResetPasswordTokenIndexRoute
   '/v2/login': typeof authV2LoginIndexRoute
   '/announcements': typeof protectedLayoutAnnouncementsIndexRoute
   '/bookmarks': typeof protectedLayoutBookmarksIndexRoute
   '/learn': typeof protectedLayoutLearnIndexRoute
   '/masaiverse': typeof protectedLayoutMasaiverseIndexRoute
+  '/profile': typeof protectedLayoutProfileIndexRoute
   '/whats-new': typeof protectedLayoutWhatsNewIndexRoute
   '/api/announcement/$id': typeof ApiAnnouncementIdIndexRoute
+  '/api/profile/account-activity': typeof ApiProfileAccountActivityIndexRoute
+  '/api/profile/email-preferences': typeof ApiProfileEmailPreferencesIndexRoute
   '/api/whats-new/$id': typeof ApiWhatsNewIdIndexRoute
   '/api/learn/ai-chat/$lectureId/history': typeof ApiLearnAiChatLectureIdHistoryRoute
   '/api/learn/ai-chat/$lectureId/send': typeof ApiLearnAiChatLectureIdSendRoute
@@ -482,9 +542,11 @@ export interface FileRoutesById {
   '/(auth)/v2/reset-password': typeof authV2ResetPasswordRoute
   '/api/dashboard/action-banners': typeof ApiDashboardActionBannersRoute
   '/api/dashboard/announcements': typeof ApiDashboardAnnouncementsRoute
+  '/api/dashboard/attendance': typeof ApiDashboardAttendanceRoute
   '/api/dashboard/banners': typeof ApiDashboardBannersRoute
-  '/api/dashboard/pending-tasks': typeof ApiDashboardPendingTasksRoute
   '/api/dashboard/lms-support': typeof ApiDashboardLmsSupportRoute
+  '/api/dashboard/navbar-pill': typeof ApiDashboardNavbarPillRoute
+  '/api/dashboard/pending-tasks': typeof ApiDashboardPendingTasksRoute
   '/api/dashboard/product-updates': typeof ApiDashboardProductUpdatesRoute
   '/api/dashboard/schedule': typeof ApiDashboardScheduleRoute
   '/api/learn/batch-data': typeof ApiLearnBatchDataRoute
@@ -495,6 +557,7 @@ export interface FileRoutesById {
   '/(protected)/_layout/': typeof protectedLayoutIndexRoute
   '/api/announcement/': typeof ApiAnnouncementIndexRoute
   '/api/bookmarks/': typeof ApiBookmarksIndexRoute
+  '/api/profile/': typeof ApiProfileIndexRoute
   '/api/whats-new/': typeof ApiWhatsNewIndexRoute
   '/(protected)/_layout/announcements_/$id': typeof protectedLayoutAnnouncementsIdRouteRoute
   '/(protected)/_layout/assignments_/$assignmentId': typeof protectedLayoutAssignmentsAssignmentIdRouteRoute
@@ -511,14 +574,18 @@ export interface FileRoutesById {
   '/api/learn/lectures/$lectureId': typeof ApiLearnLecturesLectureIdRoute
   '/api/learn/resources/$resourceId': typeof ApiLearnResourcesResourceIdRoute
   '/api/learn/submissions/$submissionId': typeof ApiLearnSubmissionsSubmissionIdRouteWithChildren
+  '/api/profile/account-activity/sign-out-all': typeof ApiProfileAccountActivitySignOutAllRoute
   '/(auth)/reset-password/$token/': typeof authResetPasswordTokenIndexRoute
   '/(auth)/v2/login/': typeof authV2LoginIndexRoute
   '/(protected)/_layout/announcements/': typeof protectedLayoutAnnouncementsIndexRoute
   '/(protected)/_layout/bookmarks/': typeof protectedLayoutBookmarksIndexRoute
   '/(protected)/_layout/learn/': typeof protectedLayoutLearnIndexRoute
   '/(protected)/_layout/masaiverse/': typeof protectedLayoutMasaiverseIndexRoute
+  '/(protected)/_layout/profile/': typeof protectedLayoutProfileIndexRoute
   '/(protected)/_layout/whats-new/': typeof protectedLayoutWhatsNewIndexRoute
   '/api/announcement/$id/': typeof ApiAnnouncementIdIndexRoute
+  '/api/profile/account-activity/': typeof ApiProfileAccountActivityIndexRoute
+  '/api/profile/email-preferences/': typeof ApiProfileEmailPreferencesIndexRoute
   '/api/whats-new/$id/': typeof ApiWhatsNewIdIndexRoute
   '/api/learn/ai-chat/$lectureId/history': typeof ApiLearnAiChatLectureIdHistoryRoute
   '/api/learn/ai-chat/$lectureId/send': typeof ApiLearnAiChatLectureIdSendRoute
@@ -539,9 +606,11 @@ export interface FileRouteTypes {
     | '/v2/reset-password'
     | '/api/dashboard/action-banners'
     | '/api/dashboard/announcements'
+    | '/api/dashboard/attendance'
     | '/api/dashboard/banners'
-    | '/api/dashboard/pending-tasks'
     | '/api/dashboard/lms-support'
+    | '/api/dashboard/navbar-pill'
+    | '/api/dashboard/pending-tasks'
     | '/api/dashboard/product-updates'
     | '/api/dashboard/schedule'
     | '/api/learn/batch-data'
@@ -552,6 +621,7 @@ export interface FileRouteTypes {
     | '/'
     | '/api/announcement/'
     | '/api/bookmarks/'
+    | '/api/profile/'
     | '/api/whats-new/'
     | '/announcements/$id'
     | '/assignments/$assignmentId'
@@ -568,14 +638,18 @@ export interface FileRouteTypes {
     | '/api/learn/lectures/$lectureId'
     | '/api/learn/resources/$resourceId'
     | '/api/learn/submissions/$submissionId'
+    | '/api/profile/account-activity/sign-out-all'
     | '/reset-password/$token/'
     | '/v2/login/'
     | '/announcements/'
     | '/bookmarks/'
     | '/learn/'
     | '/masaiverse/'
+    | '/profile/'
     | '/whats-new/'
     | '/api/announcement/$id/'
+    | '/api/profile/account-activity/'
+    | '/api/profile/email-preferences/'
     | '/api/whats-new/$id/'
     | '/api/learn/ai-chat/$lectureId/history'
     | '/api/learn/ai-chat/$lectureId/send'
@@ -593,9 +667,11 @@ export interface FileRouteTypes {
     | '/v2/reset-password'
     | '/api/dashboard/action-banners'
     | '/api/dashboard/announcements'
+    | '/api/dashboard/attendance'
     | '/api/dashboard/banners'
-    | '/api/dashboard/pending-tasks'
     | '/api/dashboard/lms-support'
+    | '/api/dashboard/navbar-pill'
+    | '/api/dashboard/pending-tasks'
     | '/api/dashboard/product-updates'
     | '/api/dashboard/schedule'
     | '/api/learn/batch-data'
@@ -606,6 +682,7 @@ export interface FileRouteTypes {
     | '/'
     | '/api/announcement'
     | '/api/bookmarks'
+    | '/api/profile'
     | '/api/whats-new'
     | '/announcements/$id'
     | '/assignments/$assignmentId'
@@ -622,14 +699,18 @@ export interface FileRouteTypes {
     | '/api/learn/lectures/$lectureId'
     | '/api/learn/resources/$resourceId'
     | '/api/learn/submissions/$submissionId'
+    | '/api/profile/account-activity/sign-out-all'
     | '/reset-password/$token'
     | '/v2/login'
     | '/announcements'
     | '/bookmarks'
     | '/learn'
     | '/masaiverse'
+    | '/profile'
     | '/whats-new'
     | '/api/announcement/$id'
+    | '/api/profile/account-activity'
+    | '/api/profile/email-preferences'
     | '/api/whats-new/$id'
     | '/api/learn/ai-chat/$lectureId/history'
     | '/api/learn/ai-chat/$lectureId/send'
@@ -649,9 +730,11 @@ export interface FileRouteTypes {
     | '/(auth)/v2/reset-password'
     | '/api/dashboard/action-banners'
     | '/api/dashboard/announcements'
+    | '/api/dashboard/attendance'
     | '/api/dashboard/banners'
-    | '/api/dashboard/pending-tasks'
     | '/api/dashboard/lms-support'
+    | '/api/dashboard/navbar-pill'
+    | '/api/dashboard/pending-tasks'
     | '/api/dashboard/product-updates'
     | '/api/dashboard/schedule'
     | '/api/learn/batch-data'
@@ -662,6 +745,7 @@ export interface FileRouteTypes {
     | '/(protected)/_layout/'
     | '/api/announcement/'
     | '/api/bookmarks/'
+    | '/api/profile/'
     | '/api/whats-new/'
     | '/(protected)/_layout/announcements_/$id'
     | '/(protected)/_layout/assignments_/$assignmentId'
@@ -678,14 +762,18 @@ export interface FileRouteTypes {
     | '/api/learn/lectures/$lectureId'
     | '/api/learn/resources/$resourceId'
     | '/api/learn/submissions/$submissionId'
+    | '/api/profile/account-activity/sign-out-all'
     | '/(auth)/reset-password/$token/'
     | '/(auth)/v2/login/'
     | '/(protected)/_layout/announcements/'
     | '/(protected)/_layout/bookmarks/'
     | '/(protected)/_layout/learn/'
     | '/(protected)/_layout/masaiverse/'
+    | '/(protected)/_layout/profile/'
     | '/(protected)/_layout/whats-new/'
     | '/api/announcement/$id/'
+    | '/api/profile/account-activity/'
+    | '/api/profile/email-preferences/'
     | '/api/whats-new/$id/'
     | '/api/learn/ai-chat/$lectureId/history'
     | '/api/learn/ai-chat/$lectureId/send'
@@ -705,9 +793,11 @@ export interface RootRouteChildren {
   authV2ResetPasswordRoute: typeof authV2ResetPasswordRoute
   ApiDashboardActionBannersRoute: typeof ApiDashboardActionBannersRoute
   ApiDashboardAnnouncementsRoute: typeof ApiDashboardAnnouncementsRoute
+  ApiDashboardAttendanceRoute: typeof ApiDashboardAttendanceRoute
   ApiDashboardBannersRoute: typeof ApiDashboardBannersRoute
-  ApiDashboardPendingTasksRoute: typeof ApiDashboardPendingTasksRoute
   ApiDashboardLmsSupportRoute: typeof ApiDashboardLmsSupportRoute
+  ApiDashboardNavbarPillRoute: typeof ApiDashboardNavbarPillRoute
+  ApiDashboardPendingTasksRoute: typeof ApiDashboardPendingTasksRoute
   ApiDashboardProductUpdatesRoute: typeof ApiDashboardProductUpdatesRoute
   ApiDashboardScheduleRoute: typeof ApiDashboardScheduleRoute
   ApiLearnBatchDataRoute: typeof ApiLearnBatchDataRoute
@@ -717,6 +807,7 @@ export interface RootRouteChildren {
   authSwitchAccountIndexRoute: typeof authSwitchAccountIndexRoute
   ApiAnnouncementIndexRoute: typeof ApiAnnouncementIndexRoute
   ApiBookmarksIndexRoute: typeof ApiBookmarksIndexRoute
+  ApiProfileIndexRoute: typeof ApiProfileIndexRoute
   ApiWhatsNewIndexRoute: typeof ApiWhatsNewIndexRoute
   authV2AuthLinkedAccountsRoute: typeof authV2AuthLinkedAccountsRoute
   authV2AuthUseAccountRoute: typeof authV2AuthUseAccountRoute
@@ -728,9 +819,12 @@ export interface RootRouteChildren {
   ApiLearnLecturesLectureIdRoute: typeof ApiLearnLecturesLectureIdRoute
   ApiLearnResourcesResourceIdRoute: typeof ApiLearnResourcesResourceIdRoute
   ApiLearnSubmissionsSubmissionIdRoute: typeof ApiLearnSubmissionsSubmissionIdRouteWithChildren
+  ApiProfileAccountActivitySignOutAllRoute: typeof ApiProfileAccountActivitySignOutAllRoute
   authResetPasswordTokenIndexRoute: typeof authResetPasswordTokenIndexRoute
   authV2LoginIndexRoute: typeof authV2LoginIndexRoute
   ApiAnnouncementIdIndexRoute: typeof ApiAnnouncementIdIndexRoute
+  ApiProfileAccountActivityIndexRoute: typeof ApiProfileAccountActivityIndexRoute
+  ApiProfileEmailPreferencesIndexRoute: typeof ApiProfileEmailPreferencesIndexRoute
   ApiWhatsNewIdIndexRoute: typeof ApiWhatsNewIdIndexRoute
   ApiLearnAiChatLectureIdHistoryRoute: typeof ApiLearnAiChatLectureIdHistoryRoute
   ApiLearnAiChatLectureIdSendRoute: typeof ApiLearnAiChatLectureIdSendRoute
@@ -754,6 +848,13 @@ declare module '@tanstack/react-router' {
       path: '/api/whats-new'
       fullPath: '/api/whats-new/'
       preLoaderRoute: typeof ApiWhatsNewIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/profile/': {
+      id: '/api/profile/'
+      path: '/api/profile'
+      fullPath: '/api/profile/'
+      preLoaderRoute: typeof ApiProfileIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/bookmarks/': {
@@ -819,13 +920,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiDashboardScheduleRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/dashboard/lms-support': {
-      id: '/api/dashboard/lms-support'
-      path: '/api/dashboard/lms-support'
-      fullPath: '/api/dashboard/lms-support'
-      preLoaderRoute: typeof ApiDashboardLmsSupportRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/api/dashboard/product-updates': {
       id: '/api/dashboard/product-updates'
       path: '/api/dashboard/product-updates'
@@ -840,11 +934,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiDashboardPendingTasksRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/dashboard/navbar-pill': {
+      id: '/api/dashboard/navbar-pill'
+      path: '/api/dashboard/navbar-pill'
+      fullPath: '/api/dashboard/navbar-pill'
+      preLoaderRoute: typeof ApiDashboardNavbarPillRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/dashboard/lms-support': {
+      id: '/api/dashboard/lms-support'
+      path: '/api/dashboard/lms-support'
+      fullPath: '/api/dashboard/lms-support'
+      preLoaderRoute: typeof ApiDashboardLmsSupportRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/dashboard/banners': {
       id: '/api/dashboard/banners'
       path: '/api/dashboard/banners'
       fullPath: '/api/dashboard/banners'
       preLoaderRoute: typeof ApiDashboardBannersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/dashboard/attendance': {
+      id: '/api/dashboard/attendance'
+      path: '/api/dashboard/attendance'
+      fullPath: '/api/dashboard/attendance'
+      preLoaderRoute: typeof ApiDashboardAttendanceRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/dashboard/announcements': {
@@ -896,6 +1011,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiWhatsNewIdIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/profile/email-preferences/': {
+      id: '/api/profile/email-preferences/'
+      path: '/api/profile/email-preferences'
+      fullPath: '/api/profile/email-preferences/'
+      preLoaderRoute: typeof ApiProfileEmailPreferencesIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/profile/account-activity/': {
+      id: '/api/profile/account-activity/'
+      path: '/api/profile/account-activity'
+      fullPath: '/api/profile/account-activity/'
+      preLoaderRoute: typeof ApiProfileAccountActivityIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/announcement/$id/': {
       id: '/api/announcement/$id/'
       path: '/api/announcement/$id'
@@ -908,6 +1037,13 @@ declare module '@tanstack/react-router' {
       path: '/whats-new'
       fullPath: '/whats-new/'
       preLoaderRoute: typeof protectedLayoutWhatsNewIndexRouteImport
+      parentRoute: typeof protectedLayoutRouteRoute
+    }
+    '/(protected)/_layout/profile/': {
+      id: '/(protected)/_layout/profile/'
+      path: '/profile'
+      fullPath: '/profile/'
+      preLoaderRoute: typeof protectedLayoutProfileIndexRouteImport
       parentRoute: typeof protectedLayoutRouteRoute
     }
     '/(protected)/_layout/masaiverse/': {
@@ -950,6 +1086,13 @@ declare module '@tanstack/react-router' {
       path: '/reset-password/$token'
       fullPath: '/reset-password/$token/'
       preLoaderRoute: typeof authResetPasswordTokenIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/profile/account-activity/sign-out-all': {
+      id: '/api/profile/account-activity/sign-out-all'
+      path: '/api/profile/account-activity/sign-out-all'
+      fullPath: '/api/profile/account-activity/sign-out-all'
+      preLoaderRoute: typeof ApiProfileAccountActivitySignOutAllRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/learn/submissions/$submissionId': {
@@ -1148,6 +1291,7 @@ interface protectedLayoutRouteRouteChildren {
   protectedLayoutAnnouncementsIndexRoute: typeof protectedLayoutAnnouncementsIndexRoute
   protectedLayoutBookmarksIndexRoute: typeof protectedLayoutBookmarksIndexRoute
   protectedLayoutLearnIndexRoute: typeof protectedLayoutLearnIndexRoute
+  protectedLayoutProfileIndexRoute: typeof protectedLayoutProfileIndexRoute
   protectedLayoutWhatsNewIndexRoute: typeof protectedLayoutWhatsNewIndexRoute
 }
 
@@ -1168,6 +1312,7 @@ const protectedLayoutRouteRouteChildren: protectedLayoutRouteRouteChildren = {
     protectedLayoutAnnouncementsIndexRoute,
   protectedLayoutBookmarksIndexRoute: protectedLayoutBookmarksIndexRoute,
   protectedLayoutLearnIndexRoute: protectedLayoutLearnIndexRoute,
+  protectedLayoutProfileIndexRoute: protectedLayoutProfileIndexRoute,
   protectedLayoutWhatsNewIndexRoute: protectedLayoutWhatsNewIndexRoute,
 }
 
@@ -1214,9 +1359,11 @@ const rootRouteChildren: RootRouteChildren = {
   authV2ResetPasswordRoute: authV2ResetPasswordRoute,
   ApiDashboardActionBannersRoute: ApiDashboardActionBannersRoute,
   ApiDashboardAnnouncementsRoute: ApiDashboardAnnouncementsRoute,
+  ApiDashboardAttendanceRoute: ApiDashboardAttendanceRoute,
   ApiDashboardBannersRoute: ApiDashboardBannersRoute,
-  ApiDashboardPendingTasksRoute: ApiDashboardPendingTasksRoute,
   ApiDashboardLmsSupportRoute: ApiDashboardLmsSupportRoute,
+  ApiDashboardNavbarPillRoute: ApiDashboardNavbarPillRoute,
+  ApiDashboardPendingTasksRoute: ApiDashboardPendingTasksRoute,
   ApiDashboardProductUpdatesRoute: ApiDashboardProductUpdatesRoute,
   ApiDashboardScheduleRoute: ApiDashboardScheduleRoute,
   ApiLearnBatchDataRoute: ApiLearnBatchDataRoute,
@@ -1226,6 +1373,7 @@ const rootRouteChildren: RootRouteChildren = {
   authSwitchAccountIndexRoute: authSwitchAccountIndexRoute,
   ApiAnnouncementIndexRoute: ApiAnnouncementIndexRoute,
   ApiBookmarksIndexRoute: ApiBookmarksIndexRoute,
+  ApiProfileIndexRoute: ApiProfileIndexRoute,
   ApiWhatsNewIndexRoute: ApiWhatsNewIndexRoute,
   authV2AuthLinkedAccountsRoute: authV2AuthLinkedAccountsRoute,
   authV2AuthUseAccountRoute: authV2AuthUseAccountRoute,
@@ -1239,9 +1387,13 @@ const rootRouteChildren: RootRouteChildren = {
   ApiLearnResourcesResourceIdRoute: ApiLearnResourcesResourceIdRoute,
   ApiLearnSubmissionsSubmissionIdRoute:
     ApiLearnSubmissionsSubmissionIdRouteWithChildren,
+  ApiProfileAccountActivitySignOutAllRoute:
+    ApiProfileAccountActivitySignOutAllRoute,
   authResetPasswordTokenIndexRoute: authResetPasswordTokenIndexRoute,
   authV2LoginIndexRoute: authV2LoginIndexRoute,
   ApiAnnouncementIdIndexRoute: ApiAnnouncementIdIndexRoute,
+  ApiProfileAccountActivityIndexRoute: ApiProfileAccountActivityIndexRoute,
+  ApiProfileEmailPreferencesIndexRoute: ApiProfileEmailPreferencesIndexRoute,
   ApiWhatsNewIdIndexRoute: ApiWhatsNewIdIndexRoute,
   ApiLearnAiChatLectureIdHistoryRoute: ApiLearnAiChatLectureIdHistoryRoute,
   ApiLearnAiChatLectureIdSendRoute: ApiLearnAiChatLectureIdSendRoute,

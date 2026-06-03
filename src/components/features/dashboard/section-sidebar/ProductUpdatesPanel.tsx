@@ -31,7 +31,7 @@ export function ProductUpdatesPanel({ updates }: ProductUpdatesPanelProps) {
             key={item.id}
             to="/whats-new/$id"
             params={{ id: item.id }}
-            className="rounded-[8px] border border-gray-200 bg-white px-3 py-2.5 flex items-center gap-3 shadow-sm hover:shadow-md transition-shadow focus-visible:outline-none"
+            className="rounded-[8px] border border-gray-200 bg-white px-3 py-2.5 flex items-center gap-3 shadow-sm hover:shadow-md hover:border-gray-300 transition-all focus-visible:outline-none"
           >
             <img
               src="/CheckerDashboard.svg"

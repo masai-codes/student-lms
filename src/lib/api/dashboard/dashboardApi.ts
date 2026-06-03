@@ -6,6 +6,8 @@ import type { DashboardScheduleItem } from '@/server/dashboard/getDashboardSched
 import type { DashboardBannerItem } from '@/server/api/dashboard/getDashboardBanners.service'
 import type { DashboardActionBannersResult } from '@/server/api/dashboard/getDashboardActionBanners.service'
 import type { LmsSupportInfo } from '@/server/api/dashboard/getLmsSupportInfo.service'
+import type { BatchAttendance } from '@/server/api/dashboard/getDashboardAttendance.service'
+import type { NavbarPillEvent } from '@/server/api/dashboard/getNavbarPill.service'
 
 type GetAnnouncementsResponse = { announcements: Array<DashboardAnnouncementItem> }
 type GetProductUpdatesResponse = { productUpdates: Array<DashboardProductUpdateItem> }
@@ -59,6 +61,18 @@ export async function fetchDashboardPendingTasks(): Promise<
     DASHBOARD_API.pendingTasks,
   )
   return pendingTasks
+}
+
+export async function fetchDashboardAttendance(): Promise<Array<BatchAttendance>> {
+  const { attendance } = await fetchJson<{ attendance: Array<BatchAttendance> }>(
+    DASHBOARD_API.attendance,
+  )
+  return attendance
+}
+
+export async function fetchNavbarPillEvent(): Promise<NavbarPillEvent | null> {
+  const { event } = await fetchJson<{ event: NavbarPillEvent | null }>(DASHBOARD_API.navbarPill)
+  return event
 }
 
 export async function fetchLmsSupportInfo(): Promise<LmsSupportInfo> {

@@ -14,13 +14,13 @@ export function Navbar({
   navItems,
   profile,
   trailingActions,
+  centerSlot,
   className,
 }: NavbarProps) {
   return (
     <header
       data-app-navbar
       className={cn(
-        /* Outer bar matches legacy DesktopNavbar; shadow = v3 `.shadow-sm` (0 1px 2px / 5%), not Tailwind v4’s heavier `shadow-sm` token. */
         'sticky top-0 z-[210] flex w-full flex-col bg-white shadow-[0_1px_2px_0_rgb(0_0_0/0.05)] md:px-[24px] rounded-b-[32px]',
         className,
       )}
@@ -37,6 +37,7 @@ export function Navbar({
         </div>
 
         <div className="flex shrink-0 items-center gap-6">
+          {centerSlot ?? null}
           <NavbarTrailingActions items={trailingActions ?? []} />
           <NavbarProfileMenu profile={profile} />
         </div>

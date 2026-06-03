@@ -1,5 +1,6 @@
 import { HeadContent, Scripts, createRootRouteWithContext } from '@tanstack/react-router'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { Toaster } from 'sonner'
 import appCss from '../styles.css?url'
 import type { RouterContext } from '@/types'
 import { captureAppMobileContextFromUrl } from '@/utils/appMobile'
@@ -70,6 +71,12 @@ gtag('config', '${GA_MEASUREMENT_ID}');`,
       <body>
         <QueryClientProvider client={queryClient}>
           {children}
+          <Toaster
+            position="top-center"
+            richColors
+            closeButton
+            toastOptions={{ duration: 4000 }}
+          />
         </QueryClientProvider>
         <Scripts />
       </body>

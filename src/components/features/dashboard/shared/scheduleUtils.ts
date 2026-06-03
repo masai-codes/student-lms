@@ -40,6 +40,7 @@ function isSameDay(a: Date, b: Date): boolean {
   )
 }
 
+
 /**
  * For a **single-day** event: returns "8PM - 10PM" style range.
  * Used when start_date === end_date (or dates unavailable).
@@ -48,39 +49,20 @@ export function formatTimeRange(schedule: string | null, concludes: string | nul
   const start = parseMysqlDatetime(schedule)
   if (!start) return ''
   const end = concludes ? parseMysqlDatetime(concludes) : null
-  if (!end) return formatHour(start)
+  if (!end) return `${formatHour(start)} (IST)`
   if (isSameDay(start, end)) {
-    return `${formatHour(start)} - ${formatHour(end)}`
+    return `${formatHour(start)} - ${formatHour(end)} (IST)`
   }
-  // Cross-day: "8 Jan, 11AM - 12 Jan, 11:30 AM"
-  return `${formatShortDate(start)}, ${formatHour(start)} - ${formatShortDate(end)}, ${formatHour(end)}`
+  return `${formatShortDate(start)}, ${formatHour(start)} - ${formatShortDate(end)}, ${formatHour(end)} (IST)`
 }
 
-/**
- * For a **multi-day** event: returns just the end date, e.g. "12 Jun".
- * Used when start_date !== end_date.
- */
-export function formatEndDate(endDate: string | null): string {
-  const d = parseLocalDate(endDate)
-  if (!d) return ''
-  return `${d.getDate()} ${MONTH_NAMES[d.getMonth()]}`
-}
 
 /**
  * Returns the display string for the time/date slot on a schedule card.
- * - Single-day (startDate === endDate or dates unavailable): "8PM - 10PM"
- * - Multi-day: "Ends 12 Jun"
+ * - Same-day: "8PM - 10PM"
+ * - Cross-day: "8 Jan, 11AM - 12 Jan, 11:30AM"
  */
 export function formatScheduleTime(item: DashboardScheduleItem): string {
-  const isMultiDay =
-    item.startDate &&
-    item.endDate &&
-    item.startDate !== item.endDate
-
-  if (isMultiDay) {
-    const end = formatEndDate(item.endDate)
-    return end ? `Ends ${end}` : ''
-  }
   return formatTimeRange(item.schedule, item.concludes)
 }
 

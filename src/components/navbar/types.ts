@@ -95,5 +95,7 @@ export type NavbarProps = {
   profile: NavbarProfile
   /** Shown to the left of the profile control (text links and/or icon buttons). */
   trailingActions?: NavbarActionItem[]
+  /** Optional content rendered between nav items and trailing actions. */
+  centerSlot?: ReactNode
   className?: string
 }

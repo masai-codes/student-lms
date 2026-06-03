@@ -17,6 +17,7 @@ export async function getEnrolledBatchesForUser(userId: number): Promise<Array<E
       id: batches.id,
       name: batches.name,
       meta: batches.meta,
+      settings: batches.settings,
     })
     .from(batches)
     .where(and(inArray(batches.id, batchIds), isNull(batches.deletedAt)))

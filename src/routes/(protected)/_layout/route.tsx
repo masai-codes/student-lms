@@ -27,6 +27,7 @@ function isNewStudentExperienceRoute(pathname: string): boolean {
   if (pathname.startsWith('/announcements')) return true
   if (pathname.startsWith('/bookmarks')) return true
   if (pathname.startsWith('/whats-new')) return true
+  if (pathname.startsWith('/profile')) return true
   return false
 }
 
