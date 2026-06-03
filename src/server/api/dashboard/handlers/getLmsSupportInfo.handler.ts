@@ -2,7 +2,7 @@ import { isApiError } from '@/server/api/http/apiError'
 import { jsonOk, mapThrownErrorToResponse } from '@/server/api/http/responses'
 import { getLmsSupportInfo } from '@/server/api/dashboard/getLmsSupportInfo.service'
 
-export async function handleGetLmsSupportInfo(request: Request): Promise<Response> {
+export async function handleGetLmsSupportInfo(_request: Request): Promise<Response> {
   try {
     const info = await getLmsSupportInfo()
     return jsonOk({ lmsSupport: info })
