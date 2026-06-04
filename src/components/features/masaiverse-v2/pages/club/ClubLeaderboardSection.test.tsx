@@ -49,7 +49,6 @@ describe('ClubLeaderboardSection', () => {
     renderWithClient(<ClubLeaderboardSection clubId="5" />)
 
     expect(screen.getByText('Club Leaderboard')).toBeTruthy()
-    expect(screen.getByText('· This tenure')).toBeTruthy()
     expect(screen.getByLabelText('Loading leaderboard')).toBeTruthy()
   })
 

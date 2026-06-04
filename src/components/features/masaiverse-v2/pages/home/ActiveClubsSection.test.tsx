@@ -12,7 +12,21 @@ vi.mock('@/lib/api/masaiverse-v2/masaiverseV2Api', () => ({
 }))
 
 vi.mock('@tanstack/react-router', () => ({
-  Link: ({ children }: { children: ReactNode }) => children,
+  Link: ({
+    children,
+    to,
+    params,
+    className,
+  }: {
+    children: ReactNode
+    to?: string
+    params?: { clubId?: string }
+    className?: string
+  }) => (
+    <a href={to} data-club-id={params?.clubId} className={className}>
+      {children}
+    </a>
+  ),
 }))
 
 function renderWithClient(ui: ReactNode) {
@@ -61,6 +75,25 @@ describe('ActiveClubsSection', () => {
     expect(screen.getByText('428 members')).toBeTruthy()
     // A single club needs no carousel navigation.
     expect(screen.queryByLabelText('Next clubs')).toBeNull()
+  })
+
+  it('links each club card to its detail page', async () => {
+    fetchHome.mockResolvedValue({
+      stats: {},
+      events: [],
+      highlights: [],
+      clubs: [club],
+    })
+    renderWithClient(<ActiveClubsSection />)
+
+    await waitFor(() =>
+      expect(screen.getByText('Programming Club')).toBeTruthy(),
+    )
+    const cardLink = screen
+      .getByText('Programming Club')
+      .closest('a[data-club-id]')
+    expect(cardLink?.getAttribute('href')).toBe('/masaiverse/club/$clubId')
+    expect(cardLink?.getAttribute('data-club-id')).toBe('1')
   })
 
   it('shows carousel navigation when there is more than one club', async () => {

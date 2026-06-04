@@ -1,13 +1,8 @@
 import { createFileRoute } from '@tanstack/react-router'
-import PagePlaceholder from '@/components/features/masaiverse-v2/pages/PagePlaceholder'
+import LeaderboardPage from '@/components/features/masaiverse-v2/pages/LeaderboardPage'
 
 export const Route = createFileRoute(
   '/(protected)/_layout/masaiverse/leaderboard',
 )({
-  component: () => (
-    <PagePlaceholder
-      title="Leaderboard"
-      description="The masaiverse leaderboard will appear here."
-    />
-  ),
+  component: LeaderboardPage,
 })

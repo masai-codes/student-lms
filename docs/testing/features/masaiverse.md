@@ -73,6 +73,9 @@ Current focus: server API/unit test coverage for `src/server/masaiverse/**`.
 - `src/components/features/masaiverse-v2/pages/club/clubLeaderboardAvatar.test.ts`
 - `src/components/features/masaiverse-v2/pages/club/ClubLeaderboardRow.test.tsx`
 - `src/components/features/masaiverse-v2/pages/club/ClubLeaderboardSection.test.tsx`
+- `src/server/api/masaiverse-v2/__tests__/getGlobalLeaderboard.service.test.ts`
+- `src/server/api/masaiverse-v2/__tests__/getGlobalLeaderboard.handler.test.ts`
+- `src/components/features/masaiverse-v2/pages/home/calendar/GlobalLeaders.test.tsx`
 - `src/server/api/masaiverse-v2/__tests__/getEventDetail.service.test.ts`
 - `src/server/api/masaiverse-v2/__tests__/setEventEnrollment.service.test.ts`
 - `src/server/api/masaiverse-v2/__tests__/getEventDetail.handler.test.ts`
@@ -88,9 +91,15 @@ Current focus: server API/unit test coverage for `src/server/masaiverse/**`.
 - `src/components/features/masaiverse-v2/pages/home/EventCard.test.tsx`
 - `src/server/api/masaiverse-v2/__tests__/getEventsList.service.test.ts`
 - `src/server/api/masaiverse-v2/__tests__/getEventsList.handler.test.ts`
+- `src/server/api/masaiverse-v2/__tests__/getMemberClubIds.service.test.ts`
 - `src/components/features/masaiverse-v2/pages/events/eventBuckets.test.ts`
 - `src/components/features/masaiverse-v2/pages/events/EventListCard.test.tsx`
 - `src/components/features/masaiverse-v2/pages/EventsPage.test.tsx`
+- `src/components/features/masaiverse-v2/pages/home/calendar/calendarUtils.test.ts`
+- `src/components/features/masaiverse-v2/pages/home/calendar/ReadOnlyCalendar.test.tsx`
+- `src/components/features/masaiverse-v2/pages/home/calendar/CalendarDayEvents.test.tsx`
+- `src/components/features/masaiverse-v2/pages/home/calendar/UpcomingEvents.test.tsx`
+- `src/components/features/masaiverse-v2/pages/home/calendar/CalendarPanel.test.tsx`
 
 ## How To Run
 

@@ -1,6 +1,7 @@
 import type { MasaiverseV2HomeClub } from '@/server/api/masaiverse-v2/services/getHomeClubs.service'
 import type { MasaiverseV2HomeEvent } from '@/server/api/masaiverse-v2/services/getHomeEvents.service'
 import type { MasaiverseV2HomeHighlight } from '@/server/api/masaiverse-v2/services/getHomeHighlights.service'
+import type { MasaiverseV2Discussion } from '@/server/api/masaiverse-v2/services/getCommunityDiscussions.service'
 import { getCommunityLearnerCount } from '@/server/api/masaiverse-v2/services/getCommunityLearnerCount.service'
 import { getDiscussionsThisWeekCount } from '@/server/api/masaiverse-v2/services/getDiscussionsThisWeekCount.service'
 import { getEventRegistrationsThisYearCount } from '@/server/api/masaiverse-v2/services/getEventRegistrationsThisYearCount.service'
@@ -9,6 +10,10 @@ import { getHomeClubs } from '@/server/api/masaiverse-v2/services/getHomeClubs.s
 import { getHomeEvents } from '@/server/api/masaiverse-v2/services/getHomeEvents.service'
 import { getHomeHighlights } from '@/server/api/masaiverse-v2/services/getHomeHighlights.service'
 import { getMemberClubIds } from '@/server/api/masaiverse-v2/services/getMemberClubIds.service'
+import { getCommunityDiscussions } from '@/server/api/masaiverse-v2/services/getCommunityDiscussions.service'
+
+/** Number of latest community discussions embedded in the home payload. */
+const HOME_DISCUSSIONS_LIMIT = 5
 
 /**
  * Masaiverse v2 aggregated home data.
@@ -41,6 +46,8 @@ export interface MasaiverseV2HomeData {
   highlights: Array<MasaiverseV2HomeHighlight>
   /** Section 4 — all clubs with member counts. */
   clubs: Array<MasaiverseV2HomeClub>
+  /** Section 5 — latest 5 community discussions (newest first). */
+  discussions: Array<MasaiverseV2Discussion>
 }
 
 export async function getMasaiverseV2Home(
@@ -58,6 +65,7 @@ export async function getMasaiverseV2Home(
     events,
     highlights,
     clubs,
+    discussionsPage,
   ] = await Promise.all([
     getCommunityLearnerCount(),
     getDiscussionsThisWeekCount(now),
@@ -66,6 +74,7 @@ export async function getMasaiverseV2Home(
     getHomeEvents(now, { visibleClubIds: memberClubIds }, userId),
     getHomeHighlights(now, { visibleClubIds: memberClubIds }),
     getHomeClubs(),
+    getCommunityDiscussions(userId, 0, HOME_DISCUSSIONS_LIMIT),
   ])
 
   return {
@@ -78,5 +87,6 @@ export async function getMasaiverseV2Home(
     events,
     highlights,
     clubs,
+    discussions: discussionsPage.discussions,
   }
 }

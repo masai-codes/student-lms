@@ -60,7 +60,14 @@ export default function ActiveClubsSection() {
           >
             {clubs.map((club) => (
               <SwiperSlide key={club.id} className="!h-auto">
-                <HomeClubCard club={club} />
+                <Link
+                  to="/masaiverse/club/$clubId"
+                  params={{ clubId: club.id }}
+                  search={(prev) => prev}
+                  className="flex h-full rounded-[14px] transition-shadow hover:shadow-[0_4px_16px_rgba(17,24,39,0.06)] [&>div]:w-full"
+                >
+                  <HomeClubCard club={club} />
+                </Link>
               </SwiperSlide>
             ))}
           </Swiper>

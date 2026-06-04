@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useQuery } from '@tanstack/react-query'
 import InlineDrawer from '../InlineDrawer'
 import ActiveClubsSection from './home/ActiveClubsSection'
 import CommunityDiscussionsSection from './home/CommunityDiscussionsSection'
@@ -6,6 +7,7 @@ import HighlightsSection from './home/HighlightsSection'
 import StatsSection from './home/StatsSection'
 import ThisWeekSection from './home/ThisWeekSection'
 import CalendarPanel from './home/calendar/CalendarPanel'
+import { masaiverseV2HomeQuery } from '@/query/masaiverse-v2/homeQuery'
 
 /**
  * Masaiverse v2 home content. Sections: stats, live & upcoming events, past
@@ -14,6 +16,11 @@ import CalendarPanel from './home/calendar/CalendarPanel'
  */
 export default function HomePage() {
   const [isCalendarOpen, setIsCalendarOpen] = useState(false)
+  // The home payload carries the latest discussions, so the section renders
+  // from this one request rather than fetching its own paginated feed.
+  const { data: home, isPending: isHomePending } = useQuery(
+    masaiverseV2HomeQuery(),
+  )
 
   return (
     <InlineDrawer
@@ -28,7 +35,10 @@ export default function HomePage() {
         />
         <HighlightsSection />
         <ActiveClubsSection />
-        <CommunityDiscussionsSection />
+        <CommunityDiscussionsSection
+          preloadedDiscussions={home?.discussions}
+          preloadedLoading={isHomePending}
+        />
       </div>
     </InlineDrawer>
   )

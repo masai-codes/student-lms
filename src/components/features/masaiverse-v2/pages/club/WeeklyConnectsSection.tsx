@@ -3,6 +3,7 @@ import SectionHeader from '../home/SectionHeader'
 import { repeat } from '../home/skeletons'
 import WeeklyConnectRow from './WeeklyConnectRow'
 import type { MasaiverseV2WeeklyConnect } from '@/server/api/masaiverse-v2/services/getClubWeeklyConnects.service'
+import type { MasaiverseV2ClubEvents } from '@/server/api/masaiverse-v2/services/getClubEvents.service'
 import { masaiverseV2ClubEventsQuery } from '@/query/masaiverse-v2/clubsQuery'
 import { getEventStatus } from '@/lib/masaiverseEventCard'
 
@@ -12,6 +13,8 @@ type WeeklyConnectsSectionProps = {
   onViewSchedule?: () => void
   /** Injectable clock for deterministic rendering/tests. */
   now?: Date
+  /** Events embedded in the club detail payload; seeds the query. */
+  initialEvents?: MasaiverseV2ClubEvents
 }
 
 const STATUS_ORDER = { live: 0, upcoming: 1, completed: 2 } as const
@@ -37,8 +40,12 @@ export default function WeeklyConnectsSection({
   clubId,
   onViewSchedule,
   now = new Date(),
+  initialEvents,
 }: WeeklyConnectsSectionProps) {
-  const { data, isPending } = useQuery(masaiverseV2ClubEventsQuery(clubId))
+  const { data, isPending } = useQuery({
+    ...masaiverseV2ClubEventsQuery(clubId),
+    ...(initialEvents ? { initialData: initialEvents } : {}),
+  })
   const connects = sortConnects(data?.weeklyConnects ?? [], now)
 
   return (

@@ -13,6 +13,38 @@ vi.mock('@/db/schema', () => ({
   },
 }))
 
+// The detail service embeds these sections; stub the sub-services so this unit
+// test stays focused on the club mapping (and so their module-level `sql`
+// templates don't need the full schema mock).
+const MOCK_STATS = {
+  activeMembers: 3,
+  avgEventRating: 4.5,
+  projectsBuilt: 2,
+  communityPosts: 10,
+}
+const MOCK_EVENTS = { weeklyConnects: [], upcoming: [], past: [] }
+const MOCK_LEADERBOARD = {
+  entries: [],
+  page: 0,
+  perPage: 5,
+  total: 0,
+  hasMore: false,
+}
+vi.mock('../services/getClubStats.service', () => ({
+  getClubStats: vi.fn(() => Promise.resolve(MOCK_STATS)),
+}))
+vi.mock('../services/getClubEvents.service', () => ({
+  getClubEvents: vi.fn(() => Promise.resolve(MOCK_EVENTS)),
+}))
+vi.mock('../services/getClubLeaderboard.service', () => ({
+  getClubLeaderboard: vi.fn(() => Promise.resolve(MOCK_LEADERBOARD)),
+}))
+vi.mock('../services/getCommunityDiscussions.service', () => ({
+  getCommunityDiscussions: vi.fn(() =>
+    Promise.resolve({ discussions: [], hasMore: false }),
+  ),
+}))
+
 /** `db.select().from().where().limit()` */
 function limitChain(rows: unknown) {
   return { from: () => ({ where: () => ({ limit: () => Promise.resolve(rows) }) }) }
@@ -105,6 +137,10 @@ describe('getClubDetail', () => {
       galleryImages: ['https://cdn/p1.jpg', 'https://cdn/p2.jpg'],
       memberCount: 234,
       isJoined: true,
+      stats: MOCK_STATS,
+      events: MOCK_EVENTS,
+      leaderboard: MOCK_LEADERBOARD,
+      discussions: [],
     })
   })
 
@@ -137,6 +173,10 @@ describe('getClubDetail', () => {
       galleryImages: [],
       memberCount: 0,
       isJoined: false,
+      stats: MOCK_STATS,
+      events: MOCK_EVENTS,
+      leaderboard: MOCK_LEADERBOARD,
+      discussions: [],
     })
   })
 })

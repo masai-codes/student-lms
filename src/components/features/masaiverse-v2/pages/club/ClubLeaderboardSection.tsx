@@ -2,10 +2,17 @@ import { useState } from 'react'
 import { keepPreviousData, useQuery } from '@tanstack/react-query'
 import { CaretLeft, CaretRight } from '@phosphor-icons/react'
 import ClubLeaderboardRow from './ClubLeaderboardRow'
+import type { ClubLeaderboardPage } from '@/server/api/masaiverse-v2/services/getClubLeaderboard.service'
 import { masaiverseV2ClubLeaderboardQuery } from '@/query/masaiverse-v2/clubsQuery'
 
 type ClubLeaderboardSectionProps = {
   clubId: string
+  /**
+   * First page of the leaderboard embedded in the club detail payload; seeds
+   * page 0 so the section renders without an extra request. Later pages are
+   * still fetched on demand.
+   */
+  initialLeaderboard?: ClubLeaderboardPage
 }
 
 const PER_PAGE = 5
@@ -16,7 +23,6 @@ function SectionHeading() {
       <h2 className="text-[22px] font-extrabold leading-7 text-[#111827]">
         Club Leaderboard
       </h2>
-      <span className="text-[15px] text-[#9CA3AF]">· This tenure</span>
     </div>
   )
 }
@@ -28,11 +34,15 @@ function SectionHeading() {
  */
 export default function ClubLeaderboardSection({
   clubId,
+  initialLeaderboard,
 }: ClubLeaderboardSectionProps) {
   const [page, setPage] = useState(0)
   const { data, isPending, isError } = useQuery({
     ...masaiverseV2ClubLeaderboardQuery(clubId, page, PER_PAGE),
     placeholderData: keepPreviousData,
+    ...(page === 0 && initialLeaderboard
+      ? { initialData: initialLeaderboard }
+      : {}),
   })
 
   const entries = data?.entries ?? []

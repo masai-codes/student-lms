@@ -97,15 +97,26 @@ export default function ClubDetailPage({ clubId }: ClubDetailPageProps) {
       <div className="flex flex-col gap-6">
         <BackToClubsLink />
         <ClubDetailBanner club={club} />
-        <ClubStatsSection clubId={clubId} />
+        <ClubStatsSection clubId={clubId} initialStats={club.stats} />
         <AboutClubSection club={club} />
         <LearningTenureSection club={club} />
-        <WeeklyConnectsSection clubId={clubId} onViewSchedule={toggleCalendar} />
-        <ClubUpcomingSection clubId={clubId} onViewCalendar={toggleCalendar} />
-        <ClubPastSection clubId={clubId} />
-        <ClubLeaderboardSection clubId={clubId} />
+        <WeeklyConnectsSection
+          clubId={clubId}
+          onViewSchedule={toggleCalendar}
+          initialEvents={club.events}
+        />
+        <ClubUpcomingSection
+          clubId={clubId}
+          onViewCalendar={toggleCalendar}
+          initialEvents={club.events}
+        />
+        <ClubPastSection clubId={clubId} initialEvents={club.events} />
+        <ClubLeaderboardSection
+          clubId={clubId}
+          initialLeaderboard={club.leaderboard}
+        />
         <ClubPhotosSection club={club} />
-        <ClubDiscussionsSection clubId={clubId} />
+        <ClubDiscussionsSection clubId={clubId} discussions={club.discussions} />
       </div>
     </InlineDrawer>
   )

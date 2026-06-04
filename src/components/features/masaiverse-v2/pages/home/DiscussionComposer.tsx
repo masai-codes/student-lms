@@ -5,6 +5,8 @@ import { createMasaiverseV2Discussion } from '@/lib/api/masaiverse-v2/masaiverse
 import { parseTagsInput } from '@/lib/discussionTags'
 import { htmlPlainText } from '@/lib/html'
 import { MASAIVERSE_V2_DISCUSSIONS_KEY } from '@/query/masaiverse-v2/discussionsQuery'
+import { MASAIVERSE_V2_HOME_KEY } from '@/query/masaiverse-v2/homeQuery'
+import { masaiverseV2ClubDetailQuery } from '@/query/masaiverse-v2/clubsQuery'
 
 type DiscussionComposerProps = {
   onClose: () => void
@@ -24,9 +26,19 @@ export default function DiscussionComposer({
   const mutation = useMutation({
     mutationFn: createMasaiverseV2Discussion,
     onSuccess: () => {
+      // The standalone, paginated feed reads from the discussions query…
       void queryClient.invalidateQueries({
         queryKey: MASAIVERSE_V2_DISCUSSIONS_KEY,
       })
+      // …while the home and club detail pages now embed the latest discussions
+      // in their own payloads, so refresh those too.
+      void queryClient.invalidateQueries({ queryKey: MASAIVERSE_V2_HOME_KEY })
+      if (clubId) {
+        void queryClient.invalidateQueries({
+          queryKey: masaiverseV2ClubDetailQuery(clubId).queryKey,
+          exact: true,
+        })
+      }
       onClose()
     },
   })

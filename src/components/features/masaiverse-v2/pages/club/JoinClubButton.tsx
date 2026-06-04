@@ -32,9 +32,11 @@ export default function JoinClubButton({ clubId, isJoined }: JoinClubButtonProps
 
       // Reflect the new membership immediately so the button flips to "Joined".
       queryClient.setQueryData<MasaiverseV2ClubDetail>(detailKey, applyMembership)
-      // Refetch the club detail API so the page shows fully refreshed data
-      // (e.g. member list). `exact` keeps it to the detail query.
-      await queryClient.invalidateQueries({ queryKey: detailKey, exact: true })
+      // Refetch everything scoped to this club. `detailKey` is the prefix of the
+      // stats / events / leaderboard query keys, so a non-exact invalidate
+      // refreshes the whole page (member count, active members, …) — not just
+      // the detail payload — after the membership change.
+      await queryClient.invalidateQueries({ queryKey: detailKey })
       // Re-assert the confirmed membership: the refetch above can race the
       // just-committed write and return a stale `isJoined: false`, which would
       // otherwise snap the button back to "Join" until a manual refresh.

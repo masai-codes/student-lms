@@ -1,6 +1,19 @@
 import { and, count, eq } from 'drizzle-orm'
+import { getClubStats } from './getClubStats.service'
+import { getClubEvents } from './getClubEvents.service'
+import { getClubLeaderboard } from './getClubLeaderboard.service'
+import { getCommunityDiscussions } from './getCommunityDiscussions.service'
+import type { MasaiverseV2ClubStats } from './getClubStats.service'
+import type { MasaiverseV2ClubEvents } from './getClubEvents.service'
+import type { ClubLeaderboardPage } from './getClubLeaderboard.service'
+import type { MasaiverseV2Discussion } from './getCommunityDiscussions.service'
 import { db } from '@/db'
 import { clubMembers, clubs } from '@/db/schema'
+
+/** First page size for the leaderboard embedded in the detail payload. */
+const CLUB_LEADERBOARD_PER_PAGE = 5
+/** Number of latest discussions embedded in the detail payload. */
+const CLUB_DISCUSSIONS_LIMIT = 5
 
 export interface MasaiverseV2ClubDetail {
   id: string
@@ -35,6 +48,26 @@ export interface MasaiverseV2ClubDetail {
   memberCount: number
   /** Whether the requesting user is a member of this club. */
   isJoined: boolean
+  /**
+   * The club detail page renders from this single payload. The sections below
+   * are the same data the standalone `clubs/stats`, `clubs/events`,
+   * `clubs/leaderboard` and `discussions` endpoints return, embedded here so the
+   * page needs only one request.
+   */
+  /** Headline stats section (active members, avg rating, projects, posts). */
+  stats: MasaiverseV2ClubStats | null
+  /** Weekly connects + live/upcoming + past event sections. */
+  events: MasaiverseV2ClubEvents
+  /** First page (5 entries) of the club leaderboard. */
+  leaderboard: ClubLeaderboardPage
+  /** Latest 5 discussions for the club. */
+  discussions: Array<MasaiverseV2Discussion>
+}
+
+const EMPTY_EVENTS: MasaiverseV2ClubEvents = {
+  weeklyConnects: [],
+  upcoming: [],
+  past: [],
 }
 
 export interface ClubAboutDetail {
@@ -110,6 +143,7 @@ function toLearningTenure(value: unknown): Array<ClubLearningTenureItem> {
 export async function getClubDetail(
   clubId: number,
   userId: number,
+  now: Date = new Date(),
 ): Promise<MasaiverseV2ClubDetail | null> {
   if (!Number.isFinite(clubId)) return null
 
@@ -128,18 +162,36 @@ export async function getClubDetail(
 
   if (!club) return null
 
-  const [{ memberCount }] = await db
-    .select({ memberCount: count() })
-    .from(clubMembers)
-    .where(eq(clubMembers.clubId, clubId))
+  // Fan out: the live member count + this user's membership, plus the four
+  // sections the page used to fetch separately (stats, events, leaderboard's
+  // first page, latest discussions). Each sub-service re-checks the club but it
+  // already exists here, so they resolve with data.
+  const [memberCountRows, membership, stats, events, leaderboard, discussions] =
+    await Promise.all([
+      db
+        .select({ memberCount: count() })
+        .from(clubMembers)
+        .where(eq(clubMembers.clubId, clubId)),
+      db
+        .select({ id: clubMembers.id })
+        .from(clubMembers)
+        .where(
+          and(eq(clubMembers.clubId, clubId), eq(clubMembers.userId, userId)),
+        )
+        .limit(1),
+      getClubStats(clubId, now),
+      getClubEvents(clubId, now),
+      getClubLeaderboard(clubId, 0, CLUB_LEADERBOARD_PER_PAGE),
+      getCommunityDiscussions(
+        userId,
+        0,
+        CLUB_DISCUSSIONS_LIMIT,
+        '',
+        String(clubId),
+      ),
+    ])
 
-  const membership = await db
-    .select({ id: clubMembers.id })
-    .from(clubMembers)
-    .where(
-      and(eq(clubMembers.clubId, clubId), eq(clubMembers.userId, userId)),
-    )
-    .limit(1)
+  const memberCount = memberCountRows.at(0)?.memberCount ?? 0
 
   return {
     id: String(club.id),
@@ -157,5 +209,15 @@ export async function getClubDetail(
     galleryImages: toStringList(club.meta?.galleryImages),
     memberCount,
     isJoined: membership.length > 0,
+    stats,
+    events: events ?? EMPTY_EVENTS,
+    leaderboard: leaderboard ?? {
+      entries: [],
+      page: 0,
+      perPage: CLUB_LEADERBOARD_PER_PAGE,
+      total: 0,
+      hasMore: false,
+    },
+    discussions: discussions.discussions,
   }
 }
