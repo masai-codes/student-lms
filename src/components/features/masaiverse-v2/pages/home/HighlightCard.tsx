@@ -3,13 +3,21 @@ import { formatIstDateTime } from '@/lib/masaiverseEventCard'
 
 type HighlightCardProps = {
   highlight: MasaiverseV2HomeHighlight
+  /** Hex color for the card's left-edge accent. */
+  accentColor?: string
 }
 
-export default function HighlightCard({ highlight }: HighlightCardProps) {
+export default function HighlightCard({
+  highlight,
+  accentColor = 'var(--color-masaiverse-orange)',
+}: HighlightCardProps) {
   const startLabel = formatIstDateTime(highlight.startTime)
 
   return (
-    <div className="flex h-full gap-3 rounded-[14px] border border-[#EDEAE8] bg-white p-4">
+    <div
+      className="flex h-full gap-3 rounded-[14px] border border-[#EDEAE8] bg-white p-4"
+      style={{ borderLeft: `4px solid ${accentColor}` }}
+    >
       {highlight.pastEventEmojiValue ? (
         <span className="text-[24px] leading-none">
           {highlight.pastEventEmojiValue}

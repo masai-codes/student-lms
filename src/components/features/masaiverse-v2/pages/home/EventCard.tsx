@@ -27,7 +27,7 @@ export default function EventCard({ event, now = new Date() }: EventCardProps) {
         {badgeLabel ? (
           <span
             className={`absolute left-3 top-3 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-bold uppercase leading-none text-white ${
-              isLive ? 'bg-[#EF4444]' : 'bg-[#EF8833]'
+              isLive ? 'bg-[#EF4444]' : 'bg-masaiverse-orange'
             }`}
           >
             {isLive ? <span className="size-1.5 rounded-full bg-white" /> : null}

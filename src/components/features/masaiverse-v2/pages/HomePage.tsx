@@ -1,15 +1,16 @@
 import { useState } from 'react'
 import InlineDrawer from '../InlineDrawer'
 import ActiveClubsSection from './home/ActiveClubsSection'
+import CommunityDiscussionsSection from './home/CommunityDiscussionsSection'
 import HighlightsSection from './home/HighlightsSection'
 import StatsSection from './home/StatsSection'
 import ThisWeekSection from './home/ThisWeekSection'
 import CalendarPanel from './home/calendar/CalendarPanel'
 
 /**
- * Masaiverse v2 home content. Four sections (stats, this week's events, last
- * week's highlights, active clubs). "View calendar" opens an inline drawer
- * that renders the calendar panel and shrinks the main content.
+ * Masaiverse v2 home content. Sections: stats, this week's events, last week's
+ * highlights, active clubs, and community discussions. "View calendar" opens an
+ * inline drawer that renders the calendar panel and shrinks the main content.
  */
 export default function HomePage() {
   const [isCalendarOpen, setIsCalendarOpen] = useState(false)
@@ -27,6 +28,7 @@ export default function HomePage() {
         />
         <HighlightsSection />
         <ActiveClubsSection />
+        <CommunityDiscussionsSection />
       </div>
     </InlineDrawer>
   )

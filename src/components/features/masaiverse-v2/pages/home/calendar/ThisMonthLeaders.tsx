@@ -37,7 +37,7 @@ export default function ThisMonthLeaders() {
                 {leader.role}
               </p>
             </div>
-            <span className="text-[13px] font-bold text-[#E8632A]">
+            <span className="text-[13px] font-bold text-masaiverse-orange">
               {leader.score}
             </span>
           </div>

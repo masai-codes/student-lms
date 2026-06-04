@@ -22,7 +22,7 @@ export default function UpcomingEvents() {
                 <p className="text-[14px] font-bold leading-5 text-[#111827]">
                   {event.title}
                 </p>
-                <span className="shrink-0 rounded-full bg-[#FCEBDD] px-2 py-0.5 text-[11px] font-semibold text-[#E8632A]">
+                <span className="shrink-0 rounded-full bg-masaiverse-orange/15 px-2 py-0.5 text-[11px] font-semibold text-masaiverse-orange">
                   {event.ctaLabel}
                 </span>
               </div>

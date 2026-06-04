@@ -1,9 +1,10 @@
-import { CaretLeft, CaretRight } from '@phosphor-icons/react'
 import { useQuery } from '@tanstack/react-query'
 import { Navigation } from 'swiper/modules'
 import { Swiper, SwiperSlide } from 'swiper/react'
+import CarouselNavButtons from './CarouselNavButtons'
 import EventCard from './EventCard'
 import SectionHeader from './SectionHeader'
+import { EventCardSkeleton, repeat } from './skeletons'
 import { masaiverseV2HomeQuery } from '@/query/masaiverse-v2/homeQuery'
 import 'swiper/css'
 import 'swiper/css/navigation'
@@ -31,14 +32,23 @@ export default function ThisWeekSection({
           <button
             type="button"
             onClick={onViewCalendar}
-            className="text-[14px] font-medium text-[#EF8833] hover:underline"
+            className="text-[14px] font-medium text-masaiverse-orange hover:underline"
           >
             View calendar →
           </button>
         }
       />
       {isPending ? (
-        <p className="text-[14px] text-[#6B7280]">Loading events…</p>
+        <div
+          role="status"
+          aria-label="Loading events"
+          className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+        >
+          <span className="sr-only">Loading events…</span>
+          {repeat(4, (key) => (
+            <EventCardSkeleton key={key} />
+          ))}
+        </div>
       ) : events.length === 0 ? (
         <p className="text-[14px] text-[#6B7280]">
           No live or upcoming events right now.
@@ -65,22 +75,11 @@ export default function ThisWeekSection({
           </Swiper>
 
           {events.length > 1 ? (
-            <div className="mt-4 flex justify-end gap-2">
-              <button
-                type="button"
-                aria-label="Previous events"
-                className="events-prev flex size-9 items-center justify-center rounded-full border border-[#EDEAE8] bg-white text-[#EF8833] disabled:opacity-40"
-              >
-                <CaretLeft size={16} weight="bold" />
-              </button>
-              <button
-                type="button"
-                aria-label="Next events"
-                className="events-next flex size-9 items-center justify-center rounded-full border border-[#EDEAE8] bg-white text-[#EF8833] disabled:opacity-40"
-              >
-                <CaretRight size={16} weight="bold" />
-              </button>
-            </div>
+            <CarouselNavButtons
+              prevClassName="events-prev"
+              nextClassName="events-next"
+              label="events"
+            />
           ) : null}
         </div>
       )}

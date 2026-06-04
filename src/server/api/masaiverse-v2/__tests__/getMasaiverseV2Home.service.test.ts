@@ -7,6 +7,7 @@ const hoisted = vi.hoisted(() => ({
   registrations: vi.fn(),
   homeEvents: vi.fn(),
   highlights: vi.fn(),
+  homeClubs: vi.fn(),
 }))
 
 vi.mock('../services/getCommunityLearnerCount.service', () => ({
@@ -27,6 +28,9 @@ vi.mock('../services/getHomeEvents.service', () => ({
 vi.mock('../services/getHomeHighlights.service', () => ({
   getHomeHighlights: hoisted.highlights,
 }))
+vi.mock('../services/getHomeClubs.service', () => ({
+  getHomeClubs: hoisted.homeClubs,
+}))
 
 describe('getMasaiverseV2Home', () => {
   beforeEach(() => {
@@ -43,6 +47,7 @@ describe('getMasaiverseV2Home', () => {
     hoisted.registrations.mockResolvedValueOnce(124)
     hoisted.homeEvents.mockResolvedValueOnce([{ id: '12', title: 'Sprint' }])
     hoisted.highlights.mockResolvedValueOnce([{ id: '11', title: 'Recap' }])
+    hoisted.homeClubs.mockResolvedValueOnce([{ id: '1', name: 'Programming' }])
 
     await expect(getMasaiverseV2Home(7)).resolves.toEqual({
       stats: {
@@ -53,6 +58,7 @@ describe('getMasaiverseV2Home', () => {
       },
       events: [{ id: '12', title: 'Sprint' }],
       highlights: [{ id: '11', title: 'Recap' }],
+      clubs: [{ id: '1', name: 'Programming' }],
     })
   })
 
@@ -66,6 +72,7 @@ describe('getMasaiverseV2Home', () => {
     hoisted.registrations.mockResolvedValueOnce(0)
     hoisted.homeEvents.mockResolvedValueOnce([])
     hoisted.highlights.mockResolvedValueOnce([])
+    hoisted.homeClubs.mockResolvedValueOnce([])
     const now = new Date('2026-06-03T12:00:00Z')
 
     await getMasaiverseV2Home(7, now)

@@ -1,10 +1,18 @@
+import { useQuery } from '@tanstack/react-query'
 import { Link } from '@tanstack/react-router'
-import { ACCENT_STYLES } from '../../accentStyles'
-import { CLUBS_DUMMY_DATA } from '../../data/clubsDummyData'
+import { Navigation } from 'swiper/modules'
+import { Swiper, SwiperSlide } from 'swiper/react'
+import CarouselNavButtons from './CarouselNavButtons'
+import HomeClubCard from './HomeClubCard'
 import SectionHeader from './SectionHeader'
+import { HomeClubCardSkeleton, repeat } from './skeletons'
+import { masaiverseV2HomeQuery } from '@/query/masaiverse-v2/homeQuery'
+import 'swiper/css'
+import 'swiper/css/navigation'
 
 export default function ActiveClubsSection() {
-  const clubs = CLUBS_DUMMY_DATA.slice(0, 3)
+  const { data, isPending } = useQuery(masaiverseV2HomeQuery())
+  const clubs = data?.clubs ?? []
 
   return (
     <section>
@@ -15,41 +23,57 @@ export default function ActiveClubsSection() {
           <Link
             to="/masaiverse/clubs"
             search={(prev) => prev}
-            className="text-[14px] font-medium text-[#EF8833] hover:underline"
+            className="text-[14px] font-medium text-masaiverse-orange hover:underline"
           >
             All clubs →
           </Link>
         }
       />
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {clubs.map((club) => {
-          const accent = ACCENT_STYLES[club.accent]
-          return (
-            <Link
-              key={club.id}
-              to="/masaiverse/club/$clubId"
-              params={{ clubId: club.id }}
-              search={(prev) => prev}
-              className="flex items-center gap-3 rounded-[14px] border border-[#EDEAE8] bg-white p-4 transition-shadow hover:shadow-[0_4px_16px_rgba(17,24,39,0.06)]"
-            >
-              <span
-                className="flex size-11 shrink-0 items-center justify-center rounded-[12px] text-[20px]"
-                style={{ backgroundColor: accent.iconBg }}
-              >
-                {club.icon}
-              </span>
-              <div className="min-w-0">
-                <p className="text-[15px] font-bold leading-5 text-[#111827]">
-                  {club.name}
-                </p>
-                <p className="mt-0.5 text-[13px] leading-4 text-[#6B7280]">
-                  {club.tagline}
-                </p>
-              </div>
-            </Link>
-          )
-        })}
-      </div>
+      {isPending ? (
+        <div
+          role="status"
+          aria-label="Loading clubs"
+          className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3"
+        >
+          <span className="sr-only">Loading clubs…</span>
+          {repeat(3, (key) => (
+            <HomeClubCardSkeleton key={key} />
+          ))}
+        </div>
+      ) : clubs.length === 0 ? (
+        <p className="text-[14px] text-[#6B7280]">No clubs yet.</p>
+      ) : (
+        <div className="relative">
+          <Swiper
+            modules={[Navigation]}
+            navigation={{
+              prevEl: '.home-clubs-prev',
+              nextEl: '.home-clubs-next',
+            }}
+            spaceBetween={16}
+            slidesPerView={1.1}
+            breakpoints={{
+              640: { slidesPerView: 2.2 },
+              1024: { slidesPerView: 3 },
+            }}
+            className="[&_.swiper-slide]:!h-auto [&_.swiper-wrapper]:items-stretch"
+          >
+            {clubs.map((club) => (
+              <SwiperSlide key={club.id} className="!h-auto">
+                <HomeClubCard club={club} />
+              </SwiperSlide>
+            ))}
+          </Swiper>
+
+          {clubs.length > 1 ? (
+            <CarouselNavButtons
+              prevClassName="home-clubs-prev"
+              nextClassName="home-clubs-next"
+              label="clubs"
+            />
+          ) : null}
+        </div>
+      )}
     </section>
   )
 }

@@ -24,7 +24,7 @@ export default function SidebarNavItem({
       to={to}
       search={(prev) => prev}
       className={`flex items-center gap-2.5 rounded-[10px] px-4 py-[10px] ${
-        isActive ? 'bg-[#EF8833]' : 'hover:bg-[#FBF9F9]'
+        isActive ? 'bg-masaiverse-orange' : 'hover:bg-[#FBF9F9]'
       }`}
     >
       <IconComponent
@@ -40,7 +40,7 @@ export default function SidebarNavItem({
         {label}
       </span>
       {showBadge ? (
-        <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-[#EF8833] px-1.5 text-[12px] font-semibold leading-none text-white">
+        <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-masaiverse-orange px-1.5 text-[12px] font-semibold leading-none text-white">
           {badgeCount}
         </span>
       ) : null}

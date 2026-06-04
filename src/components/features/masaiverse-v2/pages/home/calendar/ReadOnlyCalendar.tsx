@@ -31,7 +31,7 @@ export default function ReadOnlyCalendar({
   const cells = getMonthGrid(viewDate)
 
   return (
-    <div className="rounded-[16px] p-4" style={{ backgroundColor: '#EF8833' }}>
+    <div className="rounded-[16px] p-4" style={{ backgroundColor: 'var(--color-masaiverse-orange)' }}>
       <div className="mb-3 flex items-center justify-between">
         <button
           type="button"
@@ -72,7 +72,7 @@ export default function ReadOnlyCalendar({
               <span
                 className={`flex size-7 items-center justify-center rounded-full text-[13px] ${
                   cell.dateKey === todayKey
-                    ? 'bg-white font-bold text-[#EF8833]'
+                    ? 'bg-white font-bold text-masaiverse-orange'
                     : 'text-white'
                 }`}
               >

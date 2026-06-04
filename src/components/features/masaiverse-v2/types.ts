@@ -14,15 +14,6 @@ export interface MasaiverseClub {
   icon: string
 }
 
-export interface MasaiverseClubDetail extends MasaiverseClub {
-  description: string
-  membersCount: number
-  category: string
-  /** Short "Code · DSA · Projects" style tagline shown on cards. */
-  tagline: string
-  accent: AccentColor
-}
-
 export interface MasaiverseV2SidebarData {
   /** Count shown as a badge next to the "Events" nav item. */
   eventsCount: number

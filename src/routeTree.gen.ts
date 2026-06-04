@@ -18,6 +18,7 @@ import { Route as authSigninIndexRouteImport } from './routes/(auth)/signin/inde
 import { Route as authLoginIndexRouteImport } from './routes/(auth)/login/index'
 import { Route as ApiMasaiverseV2VisitedRouteImport } from './routes/api/masaiverse-v2/visited'
 import { Route as ApiMasaiverseV2HomeRouteImport } from './routes/api/masaiverse-v2/home'
+import { Route as ApiMasaiverseV2DiscussionsRouteImport } from './routes/api/masaiverse-v2/discussions'
 import { Route as authV2ResetPasswordRouteImport } from './routes/(auth)/v2/reset-password'
 import { Route as authV2MeRouteImport } from './routes/(auth)/v2/me'
 import { Route as authV2ForgotPasswordRouteImport } from './routes/(auth)/v2/forgot-password'
@@ -35,6 +36,11 @@ import { Route as protectedLayoutBookmarkIndexRouteImport } from './routes/(prot
 import { Route as protectedLayoutAnnouncementsIndexRouteImport } from './routes/(protected)/_layout/announcements/index'
 import { Route as authV2LoginIndexRouteImport } from './routes/(auth)/v2/login/index'
 import { Route as authResetPasswordTokenIndexRouteImport } from './routes/(auth)/reset-password.$token/index'
+import { Route as ApiMasaiverseV2DiscussionsVoteRouteImport } from './routes/api/masaiverse-v2/discussions/vote'
+import { Route as ApiMasaiverseV2DiscussionsRepliesRouteImport } from './routes/api/masaiverse-v2/discussions/replies'
+import { Route as ApiMasaiverseV2ClubsMineRouteImport } from './routes/api/masaiverse-v2/clubs/mine'
+import { Route as ApiMasaiverseV2ClubsMembershipRouteImport } from './routes/api/masaiverse-v2/clubs/membership'
+import { Route as ApiMasaiverseV2ClubsDetailRouteImport } from './routes/api/masaiverse-v2/clubs/detail'
 import { Route as protectedLayoutMasaiverseLeaderboardRouteImport } from './routes/(protected)/_layout/masaiverse/leaderboard'
 import { Route as protectedLayoutMasaiverseHomeRouteImport } from './routes/(protected)/_layout/masaiverse/home'
 import { Route as protectedLayoutMasaiverseEventsRouteImport } from './routes/(protected)/_layout/masaiverse/events'
@@ -113,6 +119,12 @@ const ApiMasaiverseV2HomeRoute = ApiMasaiverseV2HomeRouteImport.update({
   path: '/api/masaiverse-v2/home',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiMasaiverseV2DiscussionsRoute =
+  ApiMasaiverseV2DiscussionsRouteImport.update({
+    id: '/api/masaiverse-v2/discussions',
+    path: '/api/masaiverse-v2/discussions',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const authV2ResetPasswordRoute = authV2ResetPasswordRouteImport.update({
   id: '/(auth)/v2/reset-password',
   path: '/v2/reset-password',
@@ -209,6 +221,36 @@ const authResetPasswordTokenIndexRoute =
   authResetPasswordTokenIndexRouteImport.update({
     id: '/(auth)/reset-password/$token/',
     path: '/reset-password/$token/',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiMasaiverseV2DiscussionsVoteRoute =
+  ApiMasaiverseV2DiscussionsVoteRouteImport.update({
+    id: '/vote',
+    path: '/vote',
+    getParentRoute: () => ApiMasaiverseV2DiscussionsRoute,
+  } as any)
+const ApiMasaiverseV2DiscussionsRepliesRoute =
+  ApiMasaiverseV2DiscussionsRepliesRouteImport.update({
+    id: '/replies',
+    path: '/replies',
+    getParentRoute: () => ApiMasaiverseV2DiscussionsRoute,
+  } as any)
+const ApiMasaiverseV2ClubsMineRoute =
+  ApiMasaiverseV2ClubsMineRouteImport.update({
+    id: '/api/masaiverse-v2/clubs/mine',
+    path: '/api/masaiverse-v2/clubs/mine',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiMasaiverseV2ClubsMembershipRoute =
+  ApiMasaiverseV2ClubsMembershipRouteImport.update({
+    id: '/api/masaiverse-v2/clubs/membership',
+    path: '/api/masaiverse-v2/clubs/membership',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiMasaiverseV2ClubsDetailRoute =
+  ApiMasaiverseV2ClubsDetailRouteImport.update({
+    id: '/api/masaiverse-v2/clubs/detail',
+    path: '/api/masaiverse-v2/clubs/detail',
     getParentRoute: () => rootRouteImport,
   } as any)
 const protectedLayoutMasaiverseLeaderboardRoute =
@@ -452,6 +494,7 @@ export interface FileRoutesByFullPath {
   '/v2/forgot-password': typeof authV2ForgotPasswordRoute
   '/v2/me': typeof authV2MeRoute
   '/v2/reset-password': typeof authV2ResetPasswordRoute
+  '/api/masaiverse-v2/discussions': typeof ApiMasaiverseV2DiscussionsRouteWithChildren
   '/api/masaiverse-v2/home': typeof ApiMasaiverseV2HomeRoute
   '/api/masaiverse-v2/visited': typeof ApiMasaiverseV2VisitedRoute
   '/login/': typeof authLoginIndexRoute
@@ -468,6 +511,11 @@ export interface FileRoutesByFullPath {
   '/masaiverse/events': typeof protectedLayoutMasaiverseEventsRoute
   '/masaiverse/home': typeof protectedLayoutMasaiverseHomeRoute
   '/masaiverse/leaderboard': typeof protectedLayoutMasaiverseLeaderboardRoute
+  '/api/masaiverse-v2/clubs/detail': typeof ApiMasaiverseV2ClubsDetailRoute
+  '/api/masaiverse-v2/clubs/membership': typeof ApiMasaiverseV2ClubsMembershipRoute
+  '/api/masaiverse-v2/clubs/mine': typeof ApiMasaiverseV2ClubsMineRoute
+  '/api/masaiverse-v2/discussions/replies': typeof ApiMasaiverseV2DiscussionsRepliesRoute
+  '/api/masaiverse-v2/discussions/vote': typeof ApiMasaiverseV2DiscussionsVoteRoute
   '/reset-password/$token/': typeof authResetPasswordTokenIndexRoute
   '/v2/login/': typeof authV2LoginIndexRoute
   '/announcements/': typeof protectedLayoutAnnouncementsIndexRoute
@@ -511,6 +559,7 @@ export interface FileRoutesByTo {
   '/v2/forgot-password': typeof authV2ForgotPasswordRoute
   '/v2/me': typeof authV2MeRoute
   '/v2/reset-password': typeof authV2ResetPasswordRoute
+  '/api/masaiverse-v2/discussions': typeof ApiMasaiverseV2DiscussionsRouteWithChildren
   '/api/masaiverse-v2/home': typeof ApiMasaiverseV2HomeRoute
   '/api/masaiverse-v2/visited': typeof ApiMasaiverseV2VisitedRoute
   '/login': typeof authLoginIndexRoute
@@ -527,6 +576,11 @@ export interface FileRoutesByTo {
   '/masaiverse/events': typeof protectedLayoutMasaiverseEventsRoute
   '/masaiverse/home': typeof protectedLayoutMasaiverseHomeRoute
   '/masaiverse/leaderboard': typeof protectedLayoutMasaiverseLeaderboardRoute
+  '/api/masaiverse-v2/clubs/detail': typeof ApiMasaiverseV2ClubsDetailRoute
+  '/api/masaiverse-v2/clubs/membership': typeof ApiMasaiverseV2ClubsMembershipRoute
+  '/api/masaiverse-v2/clubs/mine': typeof ApiMasaiverseV2ClubsMineRoute
+  '/api/masaiverse-v2/discussions/replies': typeof ApiMasaiverseV2DiscussionsRepliesRoute
+  '/api/masaiverse-v2/discussions/vote': typeof ApiMasaiverseV2DiscussionsVoteRoute
   '/reset-password/$token': typeof authResetPasswordTokenIndexRoute
   '/v2/login': typeof authV2LoginIndexRoute
   '/announcements': typeof protectedLayoutAnnouncementsIndexRoute
@@ -570,6 +624,7 @@ export interface FileRoutesById {
   '/(auth)/v2/forgot-password': typeof authV2ForgotPasswordRoute
   '/(auth)/v2/me': typeof authV2MeRoute
   '/(auth)/v2/reset-password': typeof authV2ResetPasswordRoute
+  '/api/masaiverse-v2/discussions': typeof ApiMasaiverseV2DiscussionsRouteWithChildren
   '/api/masaiverse-v2/home': typeof ApiMasaiverseV2HomeRoute
   '/api/masaiverse-v2/visited': typeof ApiMasaiverseV2VisitedRoute
   '/(auth)/login/': typeof authLoginIndexRoute
@@ -586,6 +641,11 @@ export interface FileRoutesById {
   '/(protected)/_layout/masaiverse/events': typeof protectedLayoutMasaiverseEventsRoute
   '/(protected)/_layout/masaiverse/home': typeof protectedLayoutMasaiverseHomeRoute
   '/(protected)/_layout/masaiverse/leaderboard': typeof protectedLayoutMasaiverseLeaderboardRoute
+  '/api/masaiverse-v2/clubs/detail': typeof ApiMasaiverseV2ClubsDetailRoute
+  '/api/masaiverse-v2/clubs/membership': typeof ApiMasaiverseV2ClubsMembershipRoute
+  '/api/masaiverse-v2/clubs/mine': typeof ApiMasaiverseV2ClubsMineRoute
+  '/api/masaiverse-v2/discussions/replies': typeof ApiMasaiverseV2DiscussionsRepliesRoute
+  '/api/masaiverse-v2/discussions/vote': typeof ApiMasaiverseV2DiscussionsVoteRoute
   '/(auth)/reset-password/$token/': typeof authResetPasswordTokenIndexRoute
   '/(auth)/v2/login/': typeof authV2LoginIndexRoute
   '/(protected)/_layout/announcements/': typeof protectedLayoutAnnouncementsIndexRoute
@@ -632,6 +692,7 @@ export interface FileRouteTypes {
     | '/v2/forgot-password'
     | '/v2/me'
     | '/v2/reset-password'
+    | '/api/masaiverse-v2/discussions'
     | '/api/masaiverse-v2/home'
     | '/api/masaiverse-v2/visited'
     | '/login/'
@@ -648,6 +709,11 @@ export interface FileRouteTypes {
     | '/masaiverse/events'
     | '/masaiverse/home'
     | '/masaiverse/leaderboard'
+    | '/api/masaiverse-v2/clubs/detail'
+    | '/api/masaiverse-v2/clubs/membership'
+    | '/api/masaiverse-v2/clubs/mine'
+    | '/api/masaiverse-v2/discussions/replies'
+    | '/api/masaiverse-v2/discussions/vote'
     | '/reset-password/$token/'
     | '/v2/login/'
     | '/announcements/'
@@ -691,6 +757,7 @@ export interface FileRouteTypes {
     | '/v2/forgot-password'
     | '/v2/me'
     | '/v2/reset-password'
+    | '/api/masaiverse-v2/discussions'
     | '/api/masaiverse-v2/home'
     | '/api/masaiverse-v2/visited'
     | '/login'
@@ -707,6 +774,11 @@ export interface FileRouteTypes {
     | '/masaiverse/events'
     | '/masaiverse/home'
     | '/masaiverse/leaderboard'
+    | '/api/masaiverse-v2/clubs/detail'
+    | '/api/masaiverse-v2/clubs/membership'
+    | '/api/masaiverse-v2/clubs/mine'
+    | '/api/masaiverse-v2/discussions/replies'
+    | '/api/masaiverse-v2/discussions/vote'
     | '/reset-password/$token'
     | '/v2/login'
     | '/announcements'
@@ -749,6 +821,7 @@ export interface FileRouteTypes {
     | '/(auth)/v2/forgot-password'
     | '/(auth)/v2/me'
     | '/(auth)/v2/reset-password'
+    | '/api/masaiverse-v2/discussions'
     | '/api/masaiverse-v2/home'
     | '/api/masaiverse-v2/visited'
     | '/(auth)/login/'
@@ -765,6 +838,11 @@ export interface FileRouteTypes {
     | '/(protected)/_layout/masaiverse/events'
     | '/(protected)/_layout/masaiverse/home'
     | '/(protected)/_layout/masaiverse/leaderboard'
+    | '/api/masaiverse-v2/clubs/detail'
+    | '/api/masaiverse-v2/clubs/membership'
+    | '/api/masaiverse-v2/clubs/mine'
+    | '/api/masaiverse-v2/discussions/replies'
+    | '/api/masaiverse-v2/discussions/vote'
     | '/(auth)/reset-password/$token/'
     | '/(auth)/v2/login/'
     | '/(protected)/_layout/announcements/'
@@ -810,6 +888,7 @@ export interface RootRouteChildren {
   authV2ForgotPasswordRoute: typeof authV2ForgotPasswordRoute
   authV2MeRoute: typeof authV2MeRoute
   authV2ResetPasswordRoute: typeof authV2ResetPasswordRoute
+  ApiMasaiverseV2DiscussionsRoute: typeof ApiMasaiverseV2DiscussionsRouteWithChildren
   ApiMasaiverseV2HomeRoute: typeof ApiMasaiverseV2HomeRoute
   ApiMasaiverseV2VisitedRoute: typeof ApiMasaiverseV2VisitedRoute
   authLoginIndexRoute: typeof authLoginIndexRoute
@@ -820,6 +899,9 @@ export interface RootRouteChildren {
   authV2AuthUseAccountRoute: typeof authV2AuthUseAccountRoute
   authV2LoginRequestOtpRoute: typeof authV2LoginRequestOtpRoute
   authV2LoginVerifyOtpRoute: typeof authV2LoginVerifyOtpRoute
+  ApiMasaiverseV2ClubsDetailRoute: typeof ApiMasaiverseV2ClubsDetailRoute
+  ApiMasaiverseV2ClubsMembershipRoute: typeof ApiMasaiverseV2ClubsMembershipRoute
+  ApiMasaiverseV2ClubsMineRoute: typeof ApiMasaiverseV2ClubsMineRoute
   authResetPasswordTokenIndexRoute: typeof authResetPasswordTokenIndexRoute
   authV2LoginIndexRoute: typeof authV2LoginIndexRoute
 }
@@ -887,6 +969,13 @@ declare module '@tanstack/react-router' {
       path: '/api/masaiverse-v2/home'
       fullPath: '/api/masaiverse-v2/home'
       preLoaderRoute: typeof ApiMasaiverseV2HomeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/masaiverse-v2/discussions': {
+      id: '/api/masaiverse-v2/discussions'
+      path: '/api/masaiverse-v2/discussions'
+      fullPath: '/api/masaiverse-v2/discussions'
+      preLoaderRoute: typeof ApiMasaiverseV2DiscussionsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/(auth)/v2/reset-password': {
@@ -1006,6 +1095,41 @@ declare module '@tanstack/react-router' {
       path: '/reset-password/$token'
       fullPath: '/reset-password/$token/'
       preLoaderRoute: typeof authResetPasswordTokenIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/masaiverse-v2/discussions/vote': {
+      id: '/api/masaiverse-v2/discussions/vote'
+      path: '/vote'
+      fullPath: '/api/masaiverse-v2/discussions/vote'
+      preLoaderRoute: typeof ApiMasaiverseV2DiscussionsVoteRouteImport
+      parentRoute: typeof ApiMasaiverseV2DiscussionsRoute
+    }
+    '/api/masaiverse-v2/discussions/replies': {
+      id: '/api/masaiverse-v2/discussions/replies'
+      path: '/replies'
+      fullPath: '/api/masaiverse-v2/discussions/replies'
+      preLoaderRoute: typeof ApiMasaiverseV2DiscussionsRepliesRouteImport
+      parentRoute: typeof ApiMasaiverseV2DiscussionsRoute
+    }
+    '/api/masaiverse-v2/clubs/mine': {
+      id: '/api/masaiverse-v2/clubs/mine'
+      path: '/api/masaiverse-v2/clubs/mine'
+      fullPath: '/api/masaiverse-v2/clubs/mine'
+      preLoaderRoute: typeof ApiMasaiverseV2ClubsMineRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/masaiverse-v2/clubs/membership': {
+      id: '/api/masaiverse-v2/clubs/membership'
+      path: '/api/masaiverse-v2/clubs/membership'
+      fullPath: '/api/masaiverse-v2/clubs/membership'
+      preLoaderRoute: typeof ApiMasaiverseV2ClubsMembershipRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/masaiverse-v2/clubs/detail': {
+      id: '/api/masaiverse-v2/clubs/detail'
+      path: '/api/masaiverse-v2/clubs/detail'
+      fullPath: '/api/masaiverse-v2/clubs/detail'
+      preLoaderRoute: typeof ApiMasaiverseV2ClubsDetailRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/(protected)/_layout/masaiverse/leaderboard': {
@@ -1424,12 +1548,30 @@ const protectedLayoutRouteRouteChildren: protectedLayoutRouteRouteChildren = {
 const protectedLayoutRouteRouteWithChildren =
   protectedLayoutRouteRoute._addFileChildren(protectedLayoutRouteRouteChildren)
 
+interface ApiMasaiverseV2DiscussionsRouteChildren {
+  ApiMasaiverseV2DiscussionsRepliesRoute: typeof ApiMasaiverseV2DiscussionsRepliesRoute
+  ApiMasaiverseV2DiscussionsVoteRoute: typeof ApiMasaiverseV2DiscussionsVoteRoute
+}
+
+const ApiMasaiverseV2DiscussionsRouteChildren: ApiMasaiverseV2DiscussionsRouteChildren =
+  {
+    ApiMasaiverseV2DiscussionsRepliesRoute:
+      ApiMasaiverseV2DiscussionsRepliesRoute,
+    ApiMasaiverseV2DiscussionsVoteRoute: ApiMasaiverseV2DiscussionsVoteRoute,
+  }
+
+const ApiMasaiverseV2DiscussionsRouteWithChildren =
+  ApiMasaiverseV2DiscussionsRoute._addFileChildren(
+    ApiMasaiverseV2DiscussionsRouteChildren,
+  )
+
 const rootRouteChildren: RootRouteChildren = {
   TestRoute: TestRoute,
   protectedLayoutRouteRoute: protectedLayoutRouteRouteWithChildren,
   authV2ForgotPasswordRoute: authV2ForgotPasswordRoute,
   authV2MeRoute: authV2MeRoute,
   authV2ResetPasswordRoute: authV2ResetPasswordRoute,
+  ApiMasaiverseV2DiscussionsRoute: ApiMasaiverseV2DiscussionsRouteWithChildren,
   ApiMasaiverseV2HomeRoute: ApiMasaiverseV2HomeRoute,
   ApiMasaiverseV2VisitedRoute: ApiMasaiverseV2VisitedRoute,
   authLoginIndexRoute: authLoginIndexRoute,
@@ -1440,6 +1582,9 @@ const rootRouteChildren: RootRouteChildren = {
   authV2AuthUseAccountRoute: authV2AuthUseAccountRoute,
   authV2LoginRequestOtpRoute: authV2LoginRequestOtpRoute,
   authV2LoginVerifyOtpRoute: authV2LoginVerifyOtpRoute,
+  ApiMasaiverseV2ClubsDetailRoute: ApiMasaiverseV2ClubsDetailRoute,
+  ApiMasaiverseV2ClubsMembershipRoute: ApiMasaiverseV2ClubsMembershipRoute,
+  ApiMasaiverseV2ClubsMineRoute: ApiMasaiverseV2ClubsMineRoute,
   authResetPasswordTokenIndexRoute: authResetPasswordTokenIndexRoute,
   authV2LoginIndexRoute: authV2LoginIndexRoute,
 }

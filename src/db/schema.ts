@@ -3197,7 +3197,8 @@ export const eventEnrollments = mysqlTable("event_enrollments", {
 
 export const posts = mysqlTable("posts", {
 	id: bigint({ mode: "number", unsigned: true }).autoincrement().notNull(),
-	clubId: bigint("club_id", { mode: "number", unsigned: true }).notNull().references(() => clubs.id, { onDelete: "cascade" }),
+	// Nullable: community discussions created from Masaiverse v2 belong to no club.
+	clubId: bigint("club_id", { mode: "number", unsigned: true }).references(() => clubs.id, { onDelete: "cascade" }),
 	userId: bigint("user_id", { mode: "number", unsigned: true }).notNull().references(() => users.id),
 	title: text(),
 	content: text(),
@@ -3226,4 +3227,18 @@ export const replies = mysqlTable("replies", {
 	index("replies_post_id_index").on(table.postId),
 	index("replies_user_id_index").on(table.userId),
 	primaryKey({ columns: [table.id], name: "replies_id"}),
+]);
+
+export const votes = mysqlTable("votes", {
+	id: bigint({ mode: "number", unsigned: true }).autoincrement().notNull(),
+	userId: bigint("user_id", { mode: "number", unsigned: true }).notNull().references(() => users.id, { onDelete: "cascade" }),
+	postId: bigint("post_id", { mode: "number", unsigned: true }).references(() => posts.id, { onDelete: "cascade" }),
+	replyId: bigint("reply_id", { mode: "number", unsigned: true }).references(() => replies.id, { onDelete: "cascade" }),
+	vote: mysqlEnum(['upvote', 'downvote']).notNull(),
+	createdAt: timestamp("created_at", { mode: 'string' }).defaultNow(),
+},
+(table) => [
+	index("votes_post_id_index").on(table.postId),
+	index("votes_reply_id_index").on(table.replyId),
+	primaryKey({ columns: [table.id], name: "votes_id"}),
 ]);

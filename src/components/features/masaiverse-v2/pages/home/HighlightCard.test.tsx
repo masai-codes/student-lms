@@ -32,6 +32,19 @@ describe('HighlightCard', () => {
     expect(screen.getByText('May 28 · 2:30 PM')).toBeTruthy()
   })
 
+  it('applies the accent color as a left-edge border', () => {
+    const { container } = render(
+      <HighlightCard highlight={makeHighlight()} accentColor="#2563EB" />,
+    )
+    const { borderLeftColor, borderLeftWidth, borderLeftStyle } = (
+      container.firstChild as HTMLElement
+    ).style
+    // jsdom normalizes the hex (#2563EB) to rgb.
+    expect(borderLeftColor).toBe('rgb(37, 99, 235)')
+    expect(borderLeftWidth).toBe('4px')
+    expect(borderLeftStyle).toBe('solid')
+  })
+
   it('omits the emoji, optional lines, and date when absent', () => {
     render(
       <HighlightCard

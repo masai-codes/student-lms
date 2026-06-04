@@ -1,9 +1,11 @@
+import type { MasaiverseV2HomeClub } from '@/server/api/masaiverse-v2/services/getHomeClubs.service'
 import type { MasaiverseV2HomeEvent } from '@/server/api/masaiverse-v2/services/getHomeEvents.service'
 import type { MasaiverseV2HomeHighlight } from '@/server/api/masaiverse-v2/services/getHomeHighlights.service'
 import { getCommunityLearnerCount } from '@/server/api/masaiverse-v2/services/getCommunityLearnerCount.service'
 import { getDiscussionsThisWeekCount } from '@/server/api/masaiverse-v2/services/getDiscussionsThisWeekCount.service'
 import { getEventRegistrationsThisYearCount } from '@/server/api/masaiverse-v2/services/getEventRegistrationsThisYearCount.service'
 import { getEventsThisYearCount } from '@/server/api/masaiverse-v2/services/getEventsThisYearCount.service'
+import { getHomeClubs } from '@/server/api/masaiverse-v2/services/getHomeClubs.service'
 import { getHomeEvents } from '@/server/api/masaiverse-v2/services/getHomeEvents.service'
 import { getHomeHighlights } from '@/server/api/masaiverse-v2/services/getHomeHighlights.service'
 
@@ -36,6 +38,8 @@ export interface MasaiverseV2HomeData {
   events: Array<MasaiverseV2HomeEvent>
   /** Section 3 — recaps of last week's events. */
   highlights: Array<MasaiverseV2HomeHighlight>
+  /** Section 4 — all clubs with member counts. */
+  clubs: Array<MasaiverseV2HomeClub>
 }
 
 export async function getMasaiverseV2Home(
@@ -49,6 +53,7 @@ export async function getMasaiverseV2Home(
     eventRegistrationsThisYear,
     events,
     highlights,
+    clubs,
   ] = await Promise.all([
     getCommunityLearnerCount(),
     getDiscussionsThisWeekCount(now),
@@ -56,6 +61,7 @@ export async function getMasaiverseV2Home(
     getEventRegistrationsThisYearCount(now),
     getHomeEvents(now),
     getHomeHighlights(now),
+    getHomeClubs(),
   ])
 
   return {
@@ -67,5 +73,6 @@ export async function getMasaiverseV2Home(
     },
     events,
     highlights,
+    clubs,
   }
 }

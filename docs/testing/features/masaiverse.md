@@ -19,11 +19,36 @@ Current focus: server API/unit test coverage for `src/server/masaiverse/**`.
 - `src/lib/masaiverseEventCard.test.ts` (IST event-card display helper)
 - `src/server/api/masaiverse-v2/__tests__/getHomeEvents.service.test.ts`
 - `src/server/api/masaiverse-v2/__tests__/getHomeHighlights.service.test.ts`
+- `src/server/api/masaiverse-v2/__tests__/getHomeClubs.service.test.ts`
+- `src/server/api/masaiverse-v2/__tests__/getCommunityDiscussions.service.test.ts`
+- `src/server/api/masaiverse-v2/__tests__/createCommunityDiscussion.service.test.ts`
+- `src/server/api/masaiverse-v2/__tests__/createCommunityDiscussion.handler.test.ts`
+- `src/lib/initials.test.ts`
+- `src/lib/discussionTags.test.ts`
+- `src/lib/html.test.ts`
+- `src/server/api/masaiverse-v2/__tests__/voteCommunityDiscussion.service.test.ts`
+- `src/server/api/masaiverse-v2/__tests__/discussionReplies.service.test.ts`
+- `src/server/api/masaiverse-v2/__tests__/discussionInteractions.handler.test.ts` (vote post/reply, list discussions, replies list/create)
 - `src/components/features/masaiverse-v2/pages/home/StatsSection.test.tsx`
 - `src/components/features/masaiverse-v2/pages/home/EventCard.test.tsx`
 - `src/components/features/masaiverse-v2/pages/home/ThisWeekSection.test.tsx`
 - `src/components/features/masaiverse-v2/pages/home/HighlightCard.test.tsx`
 - `src/components/features/masaiverse-v2/pages/home/HighlightsSection.test.tsx`
+- `src/components/features/masaiverse-v2/pages/home/HomeClubCard.test.tsx`
+- `src/components/features/masaiverse-v2/pages/home/ActiveClubsSection.test.tsx`
+- `src/components/features/masaiverse-v2/pages/home/DiscussionComposer.test.tsx`
+- `src/components/features/masaiverse-v2/pages/home/CommunityDiscussionsSection.test.tsx`
+- `src/components/features/masaiverse-v2/pages/home/DiscussionTags.test.tsx`
+- `src/components/features/masaiverse-v2/pages/home/DiscussionVotes.test.tsx`
+- `src/components/features/masaiverse-v2/pages/home/DiscussionReplies.test.tsx`
+- `src/server/api/masaiverse-v2/__tests__/getMyClubs.service.test.ts`
+- `src/server/api/masaiverse-v2/__tests__/getClubDetail.service.test.ts`
+- `src/server/api/masaiverse-v2/__tests__/setClubMembership.service.test.ts`
+- `src/components/features/masaiverse-v2/MyClubsSection.test.tsx`
+- `src/components/features/masaiverse-v2/pages/ClubDetailPage.test.tsx`
+- `src/components/features/masaiverse-v2/pages/club/ClubDetailBanner.test.tsx`
+- `src/components/features/masaiverse-v2/pages/club/JoinClubButton.test.tsx`
+- `src/components/features/masaiverse-v2/pages/club/ShareClubButton.test.tsx`
 
 ## How To Run
 
@@ -80,6 +105,42 @@ Current focus: server API/unit test coverage for `src/server/masaiverse/**`.
 - `MASAIVE-V2-023` - Module: `getMasaiverseV2Home` - Case: includes section-three highlights and passes `now` to `getHomeHighlights` - Status: Covered
 - `MASAIVE-V2-024` - Module: `HighlightCard` (home UI) - Case: renders emoji + 3 lines, omits optional bits when absent - Status: Covered
 - `MASAIVE-V2-025` - Module: `HighlightsSection` (home UI) - Case: loading message, recap cards, empty state - Status: Covered
+- `MASAIVE-V2-026` - Module: `getHomeClubs` - Case: maps clubs with member counts + capped name sample; skips member queries when no clubs - Status: Covered
+- `MASAIVE-V2-027` - Module: `getMasaiverseV2Home` - Case: includes section-four clubs - Status: Covered
+- `MASAIVE-V2-028` - Module: `HomeClubCard` (home UI) - Case: image/name/descriptions/member initials + count, name-initial fallback, "+" chip logic - Status: Covered
+- `MASAIVE-V2-029` - Module: `ActiveClubsSection` (home UI) - Case: loading message, club cards, empty state - Status: Covered
+- `MASAIVE-V2-030` - Module: `getCommunityDiscussions` - Case: maps club-less posts with author + upvote/reply counts; empty list skips count queries - Status: Covered
+- `MASAIVE-V2-031` - Module: `createCommunityDiscussion` - Case: inserts club-less post and returns id; rejects empty title/content (400) without inserting - Status: Covered
+- `MASAIVE-V2-032` - Module: `handleCreateCommunityDiscussion` - Case: 201 success, 401 unauth, validation ApiError passthrough, 500 on unexpected - Status: Covered
+- `MASAIVE-V2-033` - Module: `getMasaiverseV2Home` - Case: includes section-five discussions - Status: Covered
+- `MASAIVE-V2-034` - Module: `getInitials` - Case: two-word, single-word, and empty-name initials - Status: Covered
+- `MASAIVE-V2-035` - Module: `DiscussionComposer` (home UI) - Case: Post gated until title+content; submits trimmed title + content and closes; shows error and stays open on failure - Status: Covered
+- `MASAIVE-V2-036` - Module: `CommunityDiscussionsSection` (home UI) - Case: loading, discussion rows, empty state, opens composer on "Start a discussion", renders tag pills - Status: Covered
+- `MASAIVE-V2-037` - Module: `discussionTags` - Case: parse comma input (trim/dedupe), serialize+parse round-trip, no-tags passthrough, marker sanitization - Status: Covered
+- `MASAIVE-V2-038` - Module: `htmlPlainText` - Case: strips tags/entities; empty paragraph → empty - Status: Covered
+- `MASAIVE-V2-039` - Module: `DiscussionTags` (UI) - Case: pill per tag, nothing when empty, stable color per tag - Status: Covered
+- `MASAIVE-V2-040` - Module: `getCommunityDiscussions` - Case: extracts tags from content marker (and empty when none) - Status: Covered
+- `MASAIVE-V2-041` - Module: `createCommunityDiscussion` / handler - Case: tags appended behind content marker; non-string tags filtered - Status: Covered
+- `MASAIVE-V2-042` - Module: `voteCommunityDiscussion` - Case: insert/toggle-off/switch vote, upvote-count recompute, invalid post id/vote - Status: Covered
+- `MASAIVE-V2-043` - Module: `getDiscussionReplies` / `createDiscussionReply` - Case: maps replies (UTC ISO); inserts reply; rejects empty content / invalid post id - Status: Covered
+- `MASAIVE-V2-044` - Module: vote/replies handlers - Case: vote returns state, replies list by query postId, create reply 201, 401 unauth, ApiError passthrough - Status: Covered
+- `MASAIVE-V2-045` - Module: `getCommunityDiscussions` - Case: returns the signed-in user's `myVote` per post - Status: Covered
+- `MASAIVE-V2-046` - Module: `DiscussionVotes` (UI) - Case: shows only upvote count; casting an upvote updates cached count + myVote - Status: Covered
+- `MASAIVE-V2-047` - Module: `DiscussionReplies` (UI) - Case: renders fetched replies (with per-reply vote control); posts a reply and clears the box - Status: Covered
+- `MASAIVE-V2-048` - Module: `voteDiscussionReply` / vote handler - Case: votes on a reply via `replyId`; handler routes replyId→reply, else post - Status: Covered
+- `MASAIVE-V2-049` - Module: `getDiscussionReplies` - Case: returns per-reply upvotes + the user's vote - Status: Covered
+- `MASAIVE-V2-050` - Module: `getCommunityDiscussions` (paginated) - Case: returns `{discussions, hasMore}`; flags hasMore via limit+1 probe; empty page - Status: Covered
+- `MASAIVE-V2-051` - Module: `handleListCommunityDiscussions` - Case: parses offset/limit and returns the page - Status: Covered
+- `MASAIVE-V2-052` - Module: `CommunityDiscussionsSection` (UI) - Case: infinite list; "Load more" fetches next page at offset; hidden when no more - Status: Covered
+- `MASAIVE-V2-053` - Module: `getCommunityDiscussions` (search) - Case: AND-of-terms match on title/content (covers tags), LIKE wildcards escaped - Status: Covered
+- `MASAIVE-V2-054` - Module: `handleListCommunityDiscussions` - Case: passes `q` search param through - Status: Covered
+- `MASAIVE-V2-055` - Module: `CommunityDiscussionsSection` (UI) - Case: debounced search re-queries with the typed term from offset 0 - Status: Covered
+- `MASAIVE-V2-056` - Module: `getMyClubs` - Case: maps a user's joined clubs (imageUrl prefers `meta.cardImageLink`, falls back to `clubs.image`, null otherwise); empty list when none - Status: Covered
+- `MASAIVE-V2-057` - Module: `getClubDetail` - Case: null for non-finite/unknown id; maps banner subtitle (`belowTitleCardText` fallback), filters non-string banner tags, live member count and joined state - Status: Covered
+- `MASAIVE-V2-058` - Module: `setClubMembership` - Case: rejects invalid id (400) / unknown club (404); join is idempotent, leave deletes; returns `{isJoined, memberCount}` - Status: Covered
+- `MASAIVE-V2-059` - Module: `MyClubsSection` / `MasaiverseV2LeftSection` (UI) - Case: live "My Clubs" list (image vs initials), loading skeleton, empty state - Status: Covered
+- `MASAIVE-V2-060` - Module: `ClubDetailBanner` (UI) - Case: title/subtitle/image-or-initials; pill row is `[first meta tag, member count, …rest tags]`; member pill shown even with no meta tags - Status: Covered
+- `MASAIVE-V2-061` - Module: `JoinClubButton` / `ShareClubButton` / `ClubDetailPage` (UI) - Case: join/leave toggles membership and patches the detail cache; Share copies the page URL and shows a self-dismissing "Link copied" confirmation; page loading/404/error/success branches - Status: Covered
 
 ## Pending / Next Cases
 

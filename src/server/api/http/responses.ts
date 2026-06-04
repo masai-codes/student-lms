@@ -56,6 +56,14 @@ export function mapThrownErrorToResponse(error: unknown): Response {
         return jsonError(500, error.message)
       case 'SERVER_ERROR_FETCHING_MASAIVERSE_V2_HOME':
       case 'SERVER_ERROR_MARKING_MASAIVERSE_VISITED':
+      case 'SERVER_ERROR_CREATING_DISCUSSION':
+      case 'SERVER_ERROR_VOTING_DISCUSSION':
+      case 'SERVER_ERROR_FETCHING_REPLIES':
+      case 'SERVER_ERROR_CREATING_REPLY':
+      case 'SERVER_ERROR_FETCHING_DISCUSSIONS':
+      case 'SERVER_ERROR_FETCHING_MY_CLUBS':
+      case 'SERVER_ERROR_FETCHING_CLUB_DETAIL':
+      case 'SERVER_ERROR_UPDATING_CLUB_MEMBERSHIP':
         return jsonError(500, error.message)
       case 'EXPERIENCE_API_NOT_CONFIGURED':
       case 'EXPERIENCE_API_REQUEST_FAILED':

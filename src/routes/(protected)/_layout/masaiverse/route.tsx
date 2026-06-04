@@ -4,6 +4,7 @@ import {
   createFileRoute,
   useRouterState,
 } from '@tanstack/react-router'
+import MasaiverseLoader from '@/components/features/masaiverse-v2/MasaiverseLoader'
 import MasaiverseV2Page from '@/components/features/masaiverse-v2/MasaiverseV2Page'
 import { markMasaiverseV2Visited } from '@/lib/api/masaiverse-v2/masaiverseV2Api'
 import { getMasaiverseAccessDebugServer } from '@/server/masaiverse/getMasaiverseAccessDebugServer'
@@ -47,6 +48,17 @@ export const Route = createFileRoute('/(protected)/_layout/masaiverse')({
       masaiverseAccessDebug,
     }
   },
+  // The access check is per-user and stable for the session. Caching it keeps
+  // the loader from re-running on every in-section navigation, which is what
+  // made switching between pages (events ↔ club ↔ …) flash a bare loader.
+  staleTime: 5 * 60 * 1000,
+  // Branded pending UI: keep the sidebar in place and show the Masai loader in
+  // the content area instead of falling back to the layout's plain "Loading…".
+  pendingComponent: () => (
+    <MasaiverseV2Page>
+      <MasaiverseLoader />
+    </MasaiverseV2Page>
+  ),
   component: RouteComponent,
 })
 
