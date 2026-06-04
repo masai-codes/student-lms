@@ -20,7 +20,7 @@ function normalizeRows(result: unknown): Array<RawRow> {
     if (Array.isArray(first)) return first as Array<RawRow>
     return result as Array<RawRow>
   }
-  if (result && typeof result === 'object' && 'rows' in result && Array.isArray((result as { rows: unknown }).rows)) {
+  if (result && typeof result === 'object' && 'rows' in result && Array.isArray((result as Record<string, unknown>)['rows'])) {
     return (result as { rows: Array<RawRow> }).rows
   }
   return []
