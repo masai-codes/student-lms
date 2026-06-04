@@ -59,8 +59,10 @@ export async function getMasaiverseV2Home(
     getDiscussionsThisWeekCount(now),
     getEventsThisYearCount(now),
     getEventRegistrationsThisYearCount(now),
-    getHomeEvents(now),
-    getHomeHighlights(now),
+    // Home shows community-wide public events only (no club). Club events live
+    // on each club's page.
+    getHomeEvents(now, { publicOnly: true }),
+    getHomeHighlights(now, { publicOnly: true }),
     getHomeClubs(),
   ])
 

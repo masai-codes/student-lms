@@ -63,6 +63,9 @@ export function mapThrownErrorToResponse(error: unknown): Response {
       case 'SERVER_ERROR_FETCHING_DISCUSSIONS':
       case 'SERVER_ERROR_FETCHING_MY_CLUBS':
       case 'SERVER_ERROR_FETCHING_CLUB_DETAIL':
+      case 'SERVER_ERROR_FETCHING_CLUB_STATS':
+      case 'SERVER_ERROR_FETCHING_CLUB_EVENTS':
+      case 'SERVER_ERROR_RECORDING_CLUB_VISIT':
       case 'SERVER_ERROR_UPDATING_CLUB_MEMBERSHIP':
         return jsonError(500, error.message)
       case 'EXPERIENCE_API_NOT_CONFIGURED':

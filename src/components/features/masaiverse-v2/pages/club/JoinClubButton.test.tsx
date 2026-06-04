@@ -35,6 +35,11 @@ function renderWithClient(node: ReactNode) {
     imageUrl: null,
     bannerSubtitle: null,
     bannerTags: [],
+    aboutDescription: null,
+    aboutDetails: [],
+    learningTenureDateText: null,
+    learningTenure: [],
+    galleryImages: [],
     memberCount: 234,
     isJoined: false,
   })

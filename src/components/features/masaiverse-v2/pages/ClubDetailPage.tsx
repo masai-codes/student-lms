@@ -1,8 +1,19 @@
+import { useEffect, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { Link } from '@tanstack/react-router'
 import { ArrowLeft } from '@phosphor-icons/react'
+import InlineDrawer from '../InlineDrawer'
+import AboutClubSection from './club/AboutClubSection'
 import ClubDetailBanner from './club/ClubDetailBanner'
+import ClubPastSection from './club/ClubPastSection'
+import ClubPhotosSection from './club/ClubPhotosSection'
+import ClubStatsSection from './club/ClubStatsSection'
+import ClubUpcomingSection from './club/ClubUpcomingSection'
+import LearningTenureSection from './club/LearningTenureSection'
+import WeeklyConnectsSection from './club/WeeklyConnectsSection'
+import CalendarPanel from './home/calendar/CalendarPanel'
 import { ApiClientError } from '@/lib/api/apiClientError'
+import { recordMasaiverseV2ClubVisit } from '@/lib/api/masaiverse-v2/masaiverseV2Api'
 import { masaiverseV2ClubDetailQuery } from '@/query/masaiverse-v2/clubsQuery'
 
 type ClubDetailPageProps = {
@@ -30,6 +41,15 @@ export default function ClubDetailPage({ clubId }: ClubDetailPageProps) {
   const { data: club, isPending, error } = useQuery(
     masaiverseV2ClubDetailQuery(clubId),
   )
+  const [isCalendarOpen, setIsCalendarOpen] = useState(false)
+
+  // Members get their `lastVisitedAt` stamped on each visit. Non-members never
+  // hit the endpoint. Best-effort: failures must not affect the page.
+  const isMember = club?.isJoined === true
+  useEffect(() => {
+    if (!isMember) return
+    void recordMasaiverseV2ClubVisit(clubId).catch(() => {})
+  }, [clubId, isMember])
 
   if (isPending) {
     return (
@@ -63,11 +83,27 @@ export default function ClubDetailPage({ clubId }: ClubDetailPageProps) {
     )
   }
 
+  const toggleCalendar = () => setIsCalendarOpen((open) => !open)
+
   return (
-    <div className="flex flex-col gap-6">
-      <BackToClubsLink />
-      <ClubDetailBanner club={club} />
-      {/* More sections (about, events, discussions…) will be added here. */}
-    </div>
+    <InlineDrawer
+      open={isCalendarOpen}
+      panel={<CalendarPanel />}
+      title="Schedule"
+      onClose={() => setIsCalendarOpen(false)}
+    >
+      <div className="flex flex-col gap-6">
+        <BackToClubsLink />
+        <ClubDetailBanner club={club} />
+        <ClubStatsSection clubId={clubId} />
+        <AboutClubSection club={club} />
+        <LearningTenureSection club={club} />
+        <WeeklyConnectsSection clubId={clubId} onViewSchedule={toggleCalendar} />
+        <ClubUpcomingSection clubId={clubId} onViewCalendar={toggleCalendar} />
+        <ClubPastSection clubId={clubId} />
+        <ClubPhotosSection club={club} />
+        {/* More sections (discussions…) will be added here. */}
+      </div>
+    </InlineDrawer>
   )
 }

@@ -1,5 +1,10 @@
 import { describe, expect, it } from 'vitest'
-import { formatIstDateTime, getEventCardDisplay } from './masaiverseEventCard'
+import {
+  formatIstDateTime,
+  formatIstDayBadge,
+  getEventCardDisplay,
+  getEventStatus,
+} from './masaiverseEventCard'
 
 // 2026-06-03 17:30 IST (Wed).
 const NOW = new Date('2026-06-03T12:00:00Z')
@@ -63,5 +68,55 @@ describe('formatIstDateTime', () => {
   it('returns null for a missing or unparseable timestamp', () => {
     expect(formatIstDateTime(null)).toBeNull()
     expect(formatIstDateTime('not-a-date')).toBeNull()
+  })
+})
+
+describe('getEventStatus', () => {
+  it('returns live for a currently-running event', () => {
+    expect(
+      getEventStatus(
+        { startTime: '2026-06-03T11:00:00Z', endTime: '2026-06-03T13:00:00Z' },
+        NOW,
+      ),
+    ).toBe('live')
+  })
+
+  it('returns upcoming for a future start, or only a future end', () => {
+    expect(
+      getEventStatus(
+        { startTime: '2026-06-10T11:00:00Z', endTime: '2026-06-10T13:00:00Z' },
+        NOW,
+      ),
+    ).toBe('upcoming')
+    expect(
+      getEventStatus({ startTime: null, endTime: '2026-06-10T13:00:00Z' }, NOW),
+    ).toBe('upcoming')
+  })
+
+  it('returns completed for ended events or unplaceable timestamps', () => {
+    expect(
+      getEventStatus(
+        { startTime: '2026-05-01T11:00:00Z', endTime: '2026-05-01T13:00:00Z' },
+        NOW,
+      ),
+    ).toBe('completed')
+    expect(getEventStatus({ startTime: null, endTime: null }, NOW)).toBe(
+      'completed',
+    )
+  })
+})
+
+describe('formatIstDayBadge', () => {
+  it('formats a UTC instant as an IST weekday + day', () => {
+    // 2026-06-03 12:00 UTC == Wed 3 Jun, 17:30 IST.
+    expect(formatIstDayBadge('2026-06-03T12:00:00Z')).toEqual({
+      weekday: 'WED',
+      day: '3',
+    })
+  })
+
+  it('returns null for a missing or unparseable timestamp', () => {
+    expect(formatIstDayBadge(null)).toBeNull()
+    expect(formatIstDayBadge('nope')).toBeNull()
   })
 })

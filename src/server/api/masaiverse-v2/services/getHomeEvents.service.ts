@@ -1,4 +1,6 @@
 import { and, asc, gte, isNull, or } from 'drizzle-orm'
+import { eventScopeConditions } from './eventScope'
+import type { MasaiverseEventScope } from './eventScope'
 import { db } from '@/db'
 import { events } from '@/db/schema'
 import { toMysqlUtc } from '@/lib/dateRanges'
@@ -39,9 +41,13 @@ function toUtcIso(value: string | null): string | null {
  * "Not ended" = the event has an end time still in the future, or has no end
  * time but starts in the future. Events with neither timestamp are excluded
  * since they can't be placed on the timeline.
+ *
+ * Pass a {@link MasaiverseEventScope} to reuse this for a single club's events
+ * (e.g. the club page's upcoming/live section, weekly-connects excluded).
  */
 export async function getHomeEvents(
   now: Date,
+  scope: MasaiverseEventScope = {},
 ): Promise<Array<MasaiverseV2HomeEvent>> {
   const nowUtc = toMysqlUtc(now)
 
@@ -56,9 +62,12 @@ export async function getHomeEvents(
     })
     .from(events)
     .where(
-      or(
-        gte(events.endTime, nowUtc),
-        and(isNull(events.endTime), gte(events.startTime, nowUtc)),
+      and(
+        or(
+          gte(events.endTime, nowUtc),
+          and(isNull(events.endTime), gte(events.startTime, nowUtc)),
+        ),
+        ...eventScopeConditions(scope),
       ),
     )
     .orderBy(asc(events.startTime))

@@ -7,6 +7,7 @@ vi.mock('@/db', () => ({ db: { select: hoisted.dbSelect } }))
 vi.mock('@/db/schema', () => ({
   events: {
     id: 'events.id',
+    clubId: 'events.club_id',
     title: 'events.title',
     imageLink: 'events.image_link',
     meta: 'events.meta',
@@ -94,5 +95,35 @@ describe('getHomeEvents', () => {
     hoisted.dbSelect.mockReturnValueOnce(selectChain([]))
 
     await expect(getHomeEvents(NOW)).resolves.toEqual([])
+  })
+
+  it('accepts a club + weekly-connect scope and still maps rows', async () => {
+    const { getHomeEvents } = await import('../services/getHomeEvents.service')
+    hoisted.dbSelect.mockReturnValueOnce(
+      selectChain([
+        {
+          id: 3,
+          title: 'Club Meetup',
+          imageLink: null,
+          meta: null,
+          startTime: null,
+          endTime: null,
+        },
+      ]),
+    )
+
+    await expect(
+      getHomeEvents(NOW, { clubId: 5, weeklyConnect: 'exclude' }),
+    ).resolves.toEqual([
+      {
+        id: '3',
+        imageUrl: null,
+        aboveTitle: null,
+        title: 'Club Meetup',
+        belowTitle: null,
+        startTime: null,
+        endTime: null,
+      },
+    ])
   })
 })

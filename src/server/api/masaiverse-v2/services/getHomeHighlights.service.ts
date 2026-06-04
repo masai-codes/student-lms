@@ -1,4 +1,6 @@
 import { and, desc, gte, isNull, lt, or } from 'drizzle-orm'
+import { eventScopeConditions } from './eventScope'
+import type { MasaiverseEventScope } from './eventScope'
 import { db } from '@/db'
 import { events } from '@/db/schema'
 import { getLastWeekRangeIst, toMysqlUtc } from '@/lib/dateRanges'
@@ -34,9 +36,13 @@ function toUtcIso(value: string | null): string | null {
  * Section 3 — recaps of events that happened last IST week, community-wide,
  * most recent first. An event "happened last week" when it ended within last
  * week's window, or (with no end time) started within it.
+ *
+ * Pass a {@link MasaiverseEventScope} to reuse this for a single club's past
+ * events (e.g. the club page's past-events section, weekly-connects excluded).
  */
 export async function getHomeHighlights(
   now: Date,
+  scope: MasaiverseEventScope = {},
 ): Promise<Array<MasaiverseV2HomeHighlight>> {
   const { start, end } = getLastWeekRangeIst(now)
   const startUtc = toMysqlUtc(start)
@@ -51,13 +57,16 @@ export async function getHomeHighlights(
     })
     .from(events)
     .where(
-      or(
-        and(gte(events.endTime, startUtc), lt(events.endTime, endUtc)),
-        and(
-          isNull(events.endTime),
-          gte(events.startTime, startUtc),
-          lt(events.startTime, endUtc),
+      and(
+        or(
+          and(gte(events.endTime, startUtc), lt(events.endTime, endUtc)),
+          and(
+            isNull(events.endTime),
+            gte(events.startTime, startUtc),
+            lt(events.startTime, endUtc),
+          ),
         ),
+        ...eventScopeConditions(scope),
       ),
     )
     .orderBy(desc(events.endTime), desc(events.startTime))

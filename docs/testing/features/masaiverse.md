@@ -44,11 +44,27 @@ Current focus: server API/unit test coverage for `src/server/masaiverse/**`.
 - `src/server/api/masaiverse-v2/__tests__/getMyClubs.service.test.ts`
 - `src/server/api/masaiverse-v2/__tests__/getClubDetail.service.test.ts`
 - `src/server/api/masaiverse-v2/__tests__/setClubMembership.service.test.ts`
+- `src/server/api/masaiverse-v2/__tests__/getClubStats.service.test.ts`
+- `src/server/api/masaiverse-v2/__tests__/getClubStats.handler.test.ts`
+- `src/server/api/masaiverse-v2/__tests__/recordClubVisit.service.test.ts`
+- `src/server/api/masaiverse-v2/__tests__/recordClubVisit.handler.test.ts`
 - `src/components/features/masaiverse-v2/MyClubsSection.test.tsx`
 - `src/components/features/masaiverse-v2/pages/ClubDetailPage.test.tsx`
 - `src/components/features/masaiverse-v2/pages/club/ClubDetailBanner.test.tsx`
+- `src/components/features/masaiverse-v2/pages/club/ClubStatsSection.test.tsx`
+- `src/components/features/masaiverse-v2/pages/club/clubStatsConfig.test.ts`
 - `src/components/features/masaiverse-v2/pages/club/JoinClubButton.test.tsx`
 - `src/components/features/masaiverse-v2/pages/club/ShareClubButton.test.tsx`
+- `src/server/api/masaiverse-v2/__tests__/eventScope.service.test.ts`
+- `src/server/api/masaiverse-v2/__tests__/getClubWeeklyConnects.service.test.ts`
+- `src/server/api/masaiverse-v2/__tests__/getClubEvents.service.test.ts`
+- `src/server/api/masaiverse-v2/__tests__/getClubEvents.handler.test.ts`
+- `src/components/features/masaiverse-v2/pages/home/EventsCarousel.test.tsx`
+- `src/components/features/masaiverse-v2/pages/home/HighlightsCarousel.test.tsx`
+- `src/components/features/masaiverse-v2/pages/club/WeeklyConnectRow.test.tsx`
+- `src/components/features/masaiverse-v2/pages/club/WeeklyConnectsSection.test.tsx`
+- `src/components/features/masaiverse-v2/pages/club/ClubUpcomingSection.test.tsx`
+- `src/components/features/masaiverse-v2/pages/club/ClubPastSection.test.tsx`
 
 ## How To Run
 
@@ -141,6 +157,19 @@ Current focus: server API/unit test coverage for `src/server/masaiverse/**`.
 - `MASAIVE-V2-059` - Module: `MyClubsSection` / `MasaiverseV2LeftSection` (UI) - Case: live "My Clubs" list (image vs initials), loading skeleton, empty state - Status: Covered
 - `MASAIVE-V2-060` - Module: `ClubDetailBanner` (UI) - Case: title/subtitle/image-or-initials; pill row is `[first meta tag, member count, …rest tags]`; member pill shown even with no meta tags - Status: Covered
 - `MASAIVE-V2-061` - Module: `JoinClubButton` / `ShareClubButton` / `ClubDetailPage` (UI) - Case: join/leave toggles membership and patches the detail cache; Share copies the page URL and shows a self-dismissing "Link copied" confirmation; page loading/404/error/success branches - Status: Covered
+- `MASAIVE-V2-062` - Module: `recordClubVisit` - Case: no-op for non-finite id / non-member; stamps `club_members.meta.lastVisitedAt` preserving sibling keys; initializes null meta - Status: Covered
+- `MASAIVE-V2-063` - Module: `handleRecordClubVisit` (`POST /clubs/visit`) - Case: records for session user and returns `{recorded}`; NaN clubId when body missing; 401 unauth; 500 on unexpected - Status: Covered
+- `MASAIVE-V2-064` - Module: `getClubStats` - Case: null for non-finite/unknown id; active members (30-day `lastVisitedAt`), avg event rating rounded to 1dp (null when unrated/non-numeric), `projectsBuild` coerced from number/string (0 when invalid), community posts = club posts + replies - Status: Covered
+- `MASAIVE-V2-065` - Module: `handleGetClubStats` (`GET /clubs/stats`) - Case: returns stats; 404 unknown club; 401 unauth; 500 on unexpected - Status: Covered
+- `MASAIVE-V2-066` - Module: `clubStatsConfig` (`formatClubStat`) - Case: dash when stats/value missing; rating to one decimal; counts with locale grouping - Status: Covered
+- `MASAIVE-V2-067` - Module: `ClubStatsSection` / `ClubDetailPage` (UI) - Case: four labelled stat cards, loading skeletons, formatted values (rating 1dp), dash for null rating and on request failure; ClubDetailPage records a visit only when the user is a member - Status: Covered
+- `MASAIVE-V2-068` - Module: `eventScopeConditions` - Case: empty for unscoped; club id condition (skips non-finite); weekly-connect only/exclude; combined club + weekly-connect - Status: Covered
+- `MASAIVE-V2-069` - Module: `getHomeEvents` / `getHomeHighlights` (scoped) - Case: accept a club + weekly-connect scope and still map rows (home/community behavior unchanged) - Status: Covered
+- `MASAIVE-V2-070` - Module: `getClubWeeklyConnects` - Case: empty for non-finite id (no db); maps rows with `meta.belowTitle` subtitle + UTC ISO times; null subtitle/timestamps - Status: Covered
+- `MASAIVE-V2-071` - Module: `getClubEvents` / `handleGetClubEvents` (`GET /clubs/events`) - Case: null/404 for unknown club, null for non-finite id; aggregates weeklyConnects + scoped upcoming + scoped past; 401 unauth; 500 on unexpected - Status: Covered
+- `MASAIVE-V2-072` - Module: `getEventStatus` / `formatIstDayBadge` - Case: live/upcoming/completed derivation incl. no-start; IST weekday+day badge, null for missing/unparseable - Status: Covered
+- `MASAIVE-V2-073` - Module: `EventsCarousel` / `HighlightsCarousel` - Case: loading, empty, single (no nav), multiple (nav controls) — shared by home + club sections - Status: Covered
+- `MASAIVE-V2-074` - Module: `WeeklyConnectRow` / `WeeklyConnectsSection` / `ClubUpcomingSection` / `ClubPastSection` (UI) - Case: row status pill (Live/Upcoming/Completed) + IST day badge + subtitle fallback; section orders live→upcoming→completed, loading + empty states; club upcoming/past reuse home carousels with club-scoped data - Status: Covered
 
 ## Pending / Next Cases
 

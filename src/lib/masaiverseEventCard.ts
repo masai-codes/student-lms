@@ -61,6 +61,52 @@ export function formatIstDateTime(value: string | null): string | null {
   return `${datePart} · ${formatIstTime(date)}`
 }
 
+export type EventStatus = 'live' | 'upcoming' | 'completed'
+
+/**
+ * Derives an event's lifecycle status from its UTC timestamps:
+ * - `live`: started and not yet ended (needs both timestamps)
+ * - `upcoming`: starts in the future, or has only a future end time
+ * - `completed`: everything else (already ended / started with no future end)
+ */
+export function getEventStatus(event: EventTimes, now: Date): EventStatus {
+  const start = toDate(event.startTime)
+  const end = toDate(event.endTime)
+  const t = now.getTime()
+
+  if (start && end && start.getTime() <= t && t <= end.getTime()) return 'live'
+  if (start && start.getTime() > t) return 'upcoming'
+  if (!start && end && end.getTime() > t) return 'upcoming'
+  return 'completed'
+}
+
+export interface IstDayBadge {
+  /** Uppercase short weekday, e.g. "WED". */
+  weekday: string
+  /** Day of month, e.g. "21". */
+  day: string
+}
+
+/**
+ * Formats a UTC ISO instant as an IST `{ weekday, day }` badge (e.g. WED 21).
+ * Returns null when the timestamp is missing or unparseable.
+ */
+export function formatIstDayBadge(value: string | null): IstDayBadge | null {
+  const date = toDate(value)
+  if (!date) return null
+  const weekday = new Intl.DateTimeFormat('en-US', {
+    timeZone: IST_TIME_ZONE,
+    weekday: 'short',
+  })
+    .format(date)
+    .toUpperCase()
+  const day = new Intl.DateTimeFormat('en-US', {
+    timeZone: IST_TIME_ZONE,
+    day: 'numeric',
+  }).format(date)
+  return { weekday, day }
+}
+
 export function getEventCardDisplay(
   event: EventTimes,
   now: Date,

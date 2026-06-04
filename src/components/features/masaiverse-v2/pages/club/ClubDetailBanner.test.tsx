@@ -25,6 +25,11 @@ const baseClub: MasaiverseV2ClubDetail = {
   imageUrl: null,
   bannerSubtitle: 'Code. Build. Ship. Repeat. · Est. Batch 23',
   bannerTags: ['Code · DSA · Projects', 'Tenure 4 · Active'],
+  aboutDescription: null,
+  aboutDetails: [],
+  learningTenureDateText: null,
+  learningTenure: [],
+  galleryImages: [],
   memberCount: 234,
   isJoined: true,
 }

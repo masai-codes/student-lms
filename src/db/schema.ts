@@ -3151,6 +3151,9 @@ export const clubMembers = mysqlTable("club_members", {
 	clubId: bigint("club_id", { mode: "number", unsigned: true }).notNull().references(() => clubs.id, { onDelete: "cascade" }),
 	role: varchar({ length: 50 }).default("member").notNull(),
 	joinedAt: timestamp("joined_at", { mode: "string" }).defaultNow().notNull(),
+	// Free-form per-membership metadata, e.g. `lastVisitedAt` (ISO timestamp of
+	// the member's most recent visit to the club detail page).
+	meta: json().$type<Record<string, any>>(),
 },
 (table) => [
 	unique("club_members_user_id_club_id_unique").on(table.userId, table.clubId),
@@ -3188,6 +3191,9 @@ export const eventEnrollments = mysqlTable("event_enrollments", {
 	userId: bigint("user_id", { mode: "number", unsigned: true }).notNull().references(() => users.id, { onDelete: "cascade" }),
 	eventId: bigint("event_id", { mode: "number", unsigned: true }).notNull().references(() => events.id, { onDelete: "cascade" }),
 	enrolledAt: timestamp("enrolled_at", { mode: "string" }).defaultNow().notNull(),
+	// Free-form per-enrollment metadata, e.g. `rating` (the score the enrolled
+	// user gave the event after attending).
+	meta: json().$type<Record<string, any>>(),
 },
 (table) => [
 	unique("event_enrollments_user_id_event_id_unique").on(table.userId, table.eventId),

@@ -4,6 +4,8 @@ import type { DiscussionVoteState } from '@/server/api/masaiverse-v2/services/vo
 import type { MasaiverseV2Reply } from '@/server/api/masaiverse-v2/services/getDiscussionReplies.service'
 import type { MasaiverseV2SidebarClub } from '@/server/api/masaiverse-v2/services/getMyClubs.service'
 import type { MasaiverseV2ClubDetail } from '@/server/api/masaiverse-v2/services/getClubDetail.service'
+import type { MasaiverseV2ClubStats } from '@/server/api/masaiverse-v2/services/getClubStats.service'
+import type { MasaiverseV2ClubEvents } from '@/server/api/masaiverse-v2/services/getClubEvents.service'
 import type { ClubMembershipState } from '@/server/api/masaiverse-v2/services/setClubMembership.service'
 import { fetchJson } from '@/lib/api/fetchJson'
 import { MASAIVERSE_V2_API } from '@/lib/api/masaiverse-v2/masaiverseV2Paths'
@@ -114,6 +116,38 @@ export async function fetchMasaiverseV2ClubDetail(
   return fetchJson<MasaiverseV2ClubDetail>(
     `${MASAIVERSE_V2_API.clubDetail}?clubId=${encodeURIComponent(clubId)}`,
   )
+}
+
+/** Headline stats (active members, avg rating, projects, posts) for a club. */
+export async function fetchMasaiverseV2ClubStats(
+  clubId: string,
+): Promise<MasaiverseV2ClubStats> {
+  return fetchJson<MasaiverseV2ClubStats>(
+    `${MASAIVERSE_V2_API.clubStats}?clubId=${encodeURIComponent(clubId)}`,
+  )
+}
+
+/** Weekly connects + upcoming/live + past events for a club's detail page. */
+export async function fetchMasaiverseV2ClubEvents(
+  clubId: string,
+): Promise<MasaiverseV2ClubEvents> {
+  return fetchJson<MasaiverseV2ClubEvents>(
+    `${MASAIVERSE_V2_API.clubEvents}?clubId=${encodeURIComponent(clubId)}`,
+  )
+}
+
+/**
+ * Records that the current member opened a club's detail page, stamping
+ * `club_members.meta.lastVisitedAt`. A no-op on the server for non-members.
+ */
+export async function recordMasaiverseV2ClubVisit(
+  clubId: string,
+): Promise<{ recorded: boolean }> {
+  return fetchJson<{ recorded: boolean }>(MASAIVERSE_V2_API.clubVisit, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ clubId }),
+  })
 }
 
 /** Joins or leaves a club and resolves with the new membership state. */
