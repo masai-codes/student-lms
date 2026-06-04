@@ -15,6 +15,13 @@
       "when": 1769499853037,
       "tag": "0001_club_event_meta",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1780579441024,
+      "tag": "0002_open_bill_hollister",
+      "breakpoints": true
     }
   ]
 }

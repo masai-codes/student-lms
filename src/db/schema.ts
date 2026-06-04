@@ -3248,3 +3248,29 @@ export const votes = mysqlTable("votes", {
 	index("votes_reply_id_index").on(table.replyId),
 	primaryKey({ columns: [table.id], name: "votes_id"}),
 ]);
+
+export const masaiverseLeaderboard = mysqlTable("masaiverse_leaderboard", {
+	id: bigint({ mode: "number", unsigned: true }).autoincrement().notNull(),
+	// User who received the points.
+	userId: bigint("user_id", { mode: "number", unsigned: true }).notNull().references(() => users.id, { onDelete: "cascade" }),
+	// User whose action caused the points.
+	createdBy: bigint("created_by", { mode: "number", unsigned: true }).references(() => users.id, { onDelete: "set null" }),
+	// Type of points event.
+	reason: varchar({ length: 50 }).notNull(),
+	// Points awarded.
+	points: int().notNull(),
+	postId: bigint("post_id", { mode: "number", unsigned: true }).references(() => posts.id, { onDelete: "set null" }),
+	replyId: bigint("reply_id", { mode: "number", unsigned: true }).references(() => replies.id, { onDelete: "set null" }),
+	eventId: bigint("event_id", { mode: "number", unsigned: true }).references(() => events.id, { onDelete: "set null" }),
+	meta: json().$type<Record<string, any>>(),
+	createdAt: timestamp("created_at", { mode: "string" }).defaultNow().notNull(),
+},
+(table) => [
+	index("masaiverse_leaderboard_user_id_index").on(table.userId),
+	index("masaiverse_leaderboard_created_by_index").on(table.createdBy),
+	index("masaiverse_leaderboard_post_id_index").on(table.postId),
+	index("masaiverse_leaderboard_reply_id_index").on(table.replyId),
+	index("masaiverse_leaderboard_event_id_index").on(table.eventId),
+	index("masaiverse_leaderboard_reason_index").on(table.reason),
+	primaryKey({ columns: [table.id], name: "masaiverse_leaderboard_id"}),
+]);
