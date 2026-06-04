@@ -56,7 +56,7 @@ describe('HomeClubCard', () => {
       />,
     )
     expect(screen.queryByText('+')).toBeNull()
-    expect(screen.getByText('1 members')).toBeTruthy()
+    expect(screen.getByText('1 member')).toBeTruthy()
   })
 
   it('hides the members row entirely when there are no members', () => {

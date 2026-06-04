@@ -1,6 +1,7 @@
 import {
   fetchMasaiverseV2ClubDetail,
   fetchMasaiverseV2ClubEvents,
+  fetchMasaiverseV2ClubLeaderboard,
   fetchMasaiverseV2ClubStats,
   fetchMasaiverseV2MyClubs,
 } from '@/lib/api/masaiverse-v2/masaiverseV2Api'
@@ -26,6 +27,24 @@ export const masaiverseV2ClubStatsQuery = (clubId: string) => ({
   queryKey: ['masaiverse-v2', 'club', clubId, 'stats'] as const,
   queryFn: () => fetchMasaiverseV2ClubStats(clubId),
   staleTime: 5 * 60 * 1000,
+})
+
+/** Query options for a page of a club's leaderboard. */
+export const masaiverseV2ClubLeaderboardQuery = (
+  clubId: string,
+  page: number,
+  perPage: number,
+) => ({
+  queryKey: [
+    'masaiverse-v2',
+    'club',
+    clubId,
+    'leaderboard',
+    page,
+    perPage,
+  ] as const,
+  queryFn: () => fetchMasaiverseV2ClubLeaderboard({ clubId, page, perPage }),
+  staleTime: 60 * 1000,
 })
 
 /** Query options for a club's event sections (weekly connects + upcoming + past). */

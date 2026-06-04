@@ -8,8 +8,8 @@ import ThisWeekSection from './home/ThisWeekSection'
 import CalendarPanel from './home/calendar/CalendarPanel'
 
 /**
- * Masaiverse v2 home content. Sections: stats, this week's events, last week's
- * highlights, active clubs, and community discussions. "View calendar" opens an
+ * Masaiverse v2 home content. Sections: stats, live & upcoming events, past
+ * events, active clubs, and community discussions. "View calendar" opens an
  * inline drawer that renders the calendar panel and shrinks the main content.
  */
 export default function HomePage() {

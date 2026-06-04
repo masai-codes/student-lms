@@ -8,6 +8,7 @@ const hoisted = vi.hoisted(() => ({
   homeEvents: vi.fn(),
   highlights: vi.fn(),
   homeClubs: vi.fn(),
+  memberClubIds: vi.fn(),
 }))
 
 vi.mock('../services/getCommunityLearnerCount.service', () => ({
@@ -31,6 +32,9 @@ vi.mock('../services/getHomeHighlights.service', () => ({
 vi.mock('../services/getHomeClubs.service', () => ({
   getHomeClubs: hoisted.homeClubs,
 }))
+vi.mock('../services/getMemberClubIds.service', () => ({
+  getMemberClubIds: hoisted.memberClubIds,
+}))
 
 describe('getMasaiverseV2Home', () => {
   beforeEach(() => {
@@ -48,6 +52,7 @@ describe('getMasaiverseV2Home', () => {
     hoisted.homeEvents.mockResolvedValueOnce([{ id: '12', title: 'Sprint' }])
     hoisted.highlights.mockResolvedValueOnce([{ id: '11', title: 'Recap' }])
     hoisted.homeClubs.mockResolvedValueOnce([{ id: '1', name: 'Programming' }])
+    hoisted.memberClubIds.mockResolvedValueOnce([3, 9])
 
     await expect(getMasaiverseV2Home(7)).resolves.toEqual({
       stats: {
@@ -73,14 +78,23 @@ describe('getMasaiverseV2Home', () => {
     hoisted.homeEvents.mockResolvedValueOnce([])
     hoisted.highlights.mockResolvedValueOnce([])
     hoisted.homeClubs.mockResolvedValueOnce([])
+    hoisted.memberClubIds.mockResolvedValueOnce([3, 9])
     const now = new Date('2026-06-03T12:00:00Z')
 
     await getMasaiverseV2Home(7, now)
 
+    expect(hoisted.memberClubIds).toHaveBeenCalledWith(7)
     expect(hoisted.discussions).toHaveBeenCalledWith(now)
     expect(hoisted.events).toHaveBeenCalledWith(now)
     expect(hoisted.registrations).toHaveBeenCalledWith(now)
-    expect(hoisted.homeEvents).toHaveBeenCalledWith(now, { publicOnly: true })
-    expect(hoisted.highlights).toHaveBeenCalledWith(now, { publicOnly: true })
+    // Home now scopes events to public + the member's joined clubs.
+    expect(hoisted.homeEvents).toHaveBeenCalledWith(
+      now,
+      { visibleClubIds: [3, 9] },
+      7,
+    )
+    expect(hoisted.highlights).toHaveBeenCalledWith(now, {
+      visibleClubIds: [3, 9],
+    })
   })
 })

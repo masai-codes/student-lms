@@ -14,6 +14,10 @@ vi.mock('@/db/schema', () => ({
     startTime: 'events.start_time',
     endTime: 'events.end_time',
   },
+  eventEnrollments: {
+    eventId: 'event_enrollments.event_id',
+    userId: 'event_enrollments.user_id',
+  },
 }))
 
 /** Resolves a `select(...).from(...).where(...).orderBy(...).limit(...)` chain. */
@@ -58,6 +62,7 @@ describe('getHomeEvents', () => {
         belowTitle: '48 teams',
         startTime: '2026-06-05T08:30:00.000Z',
         endTime: '2026-06-05T10:30:00.000Z',
+        isEnrolled: false,
       },
     ])
   })
@@ -86,6 +91,7 @@ describe('getHomeEvents', () => {
         belowTitle: null,
         startTime: null,
         endTime: null,
+        isEnrolled: false,
       },
     ])
   })
@@ -123,7 +129,43 @@ describe('getHomeEvents', () => {
         belowTitle: null,
         startTime: null,
         endTime: null,
+        isEnrolled: false,
       },
+    ])
+  })
+
+  it('marks events the user is enrolled in when a userId is passed', async () => {
+    const { getHomeEvents } = await import('../services/getHomeEvents.service')
+    hoisted.dbSelect
+      .mockReturnValueOnce(
+        selectChain([
+          {
+            id: 12,
+            title: 'Build Sprint #12',
+            imageLink: null,
+            meta: null,
+            startTime: null,
+            endTime: null,
+          },
+          {
+            id: 13,
+            title: 'Design Jam',
+            imageLink: null,
+            meta: null,
+            startTime: null,
+            endTime: null,
+          },
+        ]),
+      )
+      // The enrollment lookup: the user is registered for event 12 only.
+      .mockReturnValueOnce({
+        from: () => ({ where: () => Promise.resolve([{ eventId: 12 }]) }),
+      })
+
+    const result = await getHomeEvents(NOW, {}, 1)
+    expect(result.map((e) => [e.id, e.isEnrolled])).toEqual([
+      ['12', true],
+      ['13', false],
     ])
   })
 })

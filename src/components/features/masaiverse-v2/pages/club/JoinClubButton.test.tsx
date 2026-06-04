@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { QueryClient, QueryClientProvider, useQuery } from '@tanstack/react-query'
 import {
   act,
   cleanup,
@@ -12,13 +12,18 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import JoinClubButton from './JoinClubButton'
 import type { ReactNode } from 'react'
 import { masaiverseV2ClubDetailQuery } from '@/query/masaiverse-v2/clubsQuery'
-import { setMasaiverseV2ClubMembership } from '@/lib/api/masaiverse-v2/masaiverseV2Api'
+import {
+  fetchMasaiverseV2ClubDetail,
+  setMasaiverseV2ClubMembership,
+} from '@/lib/api/masaiverse-v2/masaiverseV2Api'
 
 vi.mock('@/lib/api/masaiverse-v2/masaiverseV2Api', () => ({
   setMasaiverseV2ClubMembership: vi.fn(),
+  fetchMasaiverseV2ClubDetail: vi.fn(),
 }))
 
 const mockedSet = vi.mocked(setMasaiverseV2ClubMembership)
+const mockedFetchDetail = vi.mocked(fetchMasaiverseV2ClubDetail)
 
 afterEach(() => {
   cleanup()
@@ -76,14 +81,59 @@ describe('JoinClubButton', () => {
     })
   })
 
-  it('leaves the club when already joined', async () => {
-    mockedSet.mockResolvedValue({ isJoined: false, memberCount: 233 })
-    renderWithClient(<JoinClubButton clubId="5" isJoined />)
-
-    await act(async () => {
-      fireEvent.click(screen.getByRole('button', { name: 'Joined' }))
+  it('stays "Joined" even when the detail refetch races back stale', async () => {
+    // Server confirms the join…
+    mockedSet.mockResolvedValue({ isJoined: true, memberCount: 235 })
+    // …but the immediate detail refetch races the write and returns the old,
+    // not-yet-joined state. The button must not snap back to "Join".
+    mockedFetchDetail.mockResolvedValue({
+      id: '5',
+      name: 'Programming Club',
+      imageUrl: null,
+      bannerSubtitle: null,
+      bannerTags: [],
+      aboutDescription: null,
+      aboutDetails: [],
+      learningTenureDateText: null,
+      learningTenure: [],
+      galleryImages: [],
+      memberCount: 234,
+      isJoined: false,
     })
 
-    expect(mockedSet).toHaveBeenCalledWith({ clubId: '5', join: false })
+    // A live, mounted detail query so invalidate() actually refetches, and the
+    // button is driven by that query's data — exactly like the real page.
+    function Harness() {
+      const { data } = useQuery(masaiverseV2ClubDetailQuery('5'))
+      if (!data) return null
+      return <JoinClubButton clubId="5" isJoined={data.isJoined} />
+    }
+
+    const { queryClient } = renderWithClient(<Harness />)
+
+    await act(async () => {
+      fireEvent.click(await screen.findByRole('button', { name: 'Join' }))
+    })
+
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: 'Joined' })).toBeTruthy()
+    })
+    const cached = queryClient.getQueryData(
+      masaiverseV2ClubDetailQuery('5').queryKey,
+    )
+    expect(cached).toMatchObject({ isJoined: true, memberCount: 235 })
+  })
+
+  it('does not allow leaving once joined', async () => {
+    renderWithClient(<JoinClubButton clubId="5" isJoined />)
+
+    const button = screen.getByRole('button', { name: 'Joined' })
+    expect(button.hasAttribute('disabled')).toBe(true)
+
+    await act(async () => {
+      fireEvent.click(button)
+    })
+
+    expect(mockedSet).not.toHaveBeenCalled()
   })
 })

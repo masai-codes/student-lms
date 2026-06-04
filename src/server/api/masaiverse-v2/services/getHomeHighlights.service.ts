@@ -1,13 +1,13 @@
-import { and, desc, gte, isNull, lt, or } from 'drizzle-orm'
+import { and, desc, isNull, lt, or } from 'drizzle-orm'
 import { eventScopeConditions } from './eventScope'
 import type { MasaiverseEventScope } from './eventScope'
 import { db } from '@/db'
 import { events } from '@/db/schema'
-import { getLastWeekRangeIst, toMysqlUtc } from '@/lib/dateRanges'
+import { toMysqlUtc } from '@/lib/dateRanges'
 import { parseMasaiverseEventDbTimestamp } from '@/lib/eventTimestamps'
 
-/** Max recap cards shown in the home "Last Week's Highlights" section. */
-const HIGHLIGHTS_LIMIT = 6
+/** Max recap cards shown in the home "Past Events" section. */
+const HIGHLIGHTS_LIMIT = 20
 
 export interface MasaiverseV2HomeHighlight {
   id: string
@@ -33,9 +33,10 @@ function toUtcIso(value: string | null): string | null {
 }
 
 /**
- * Section 3 — recaps of events that happened last IST week, community-wide,
- * most recent first. An event "happened last week" when it ended within last
- * week's window, or (with no end time) started within it.
+ * Section 3 — recaps of past events, community-wide, most recent first. An
+ * event is "past" when it has already ended, or (with no end time) started in
+ * the past. This is the complement of the live/upcoming set in
+ * {@link getHomeEvents}; events with neither timestamp are excluded.
  *
  * Pass a {@link MasaiverseEventScope} to reuse this for a single club's past
  * events (e.g. the club page's past-events section, weekly-connects excluded).
@@ -44,9 +45,7 @@ export async function getHomeHighlights(
   now: Date,
   scope: MasaiverseEventScope = {},
 ): Promise<Array<MasaiverseV2HomeHighlight>> {
-  const { start, end } = getLastWeekRangeIst(now)
-  const startUtc = toMysqlUtc(start)
-  const endUtc = toMysqlUtc(end)
+  const nowUtc = toMysqlUtc(now)
 
   const rows = await db
     .select({
@@ -59,12 +58,8 @@ export async function getHomeHighlights(
     .where(
       and(
         or(
-          and(gte(events.endTime, startUtc), lt(events.endTime, endUtc)),
-          and(
-            isNull(events.endTime),
-            gte(events.startTime, startUtc),
-            lt(events.startTime, endUtc),
-          ),
+          lt(events.endTime, nowUtc),
+          and(isNull(events.endTime), lt(events.startTime, nowUtc)),
         ),
         ...eventScopeConditions(scope),
       ),

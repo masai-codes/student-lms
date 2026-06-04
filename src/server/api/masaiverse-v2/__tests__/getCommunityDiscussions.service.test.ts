@@ -155,6 +155,31 @@ describe('getCommunityDiscussions', () => {
     expect(page.discussions[0].title).toBe('React interview tips')
   })
 
+  it('scopes the feed to a club when a clubId is given', async () => {
+    const { getCommunityDiscussions } = await import(
+      '../services/getCommunityDiscussions.service'
+    )
+    hoisted.dbSelect
+      .mockReturnValueOnce(
+        postsChain([
+          {
+            id: 7,
+            title: 'Club-only post',
+            content: '<p>x</p>',
+            createdAt: '2026-06-03 09:00:00',
+            authorName: 'A',
+          },
+        ]),
+      )
+      .mockReturnValueOnce(groupedChain([]))
+      .mockReturnValueOnce(groupedChain([]))
+      .mockReturnValueOnce(whereChain([]))
+
+    const page = await getCommunityDiscussions(12, 0, 5, '', '81910')
+    expect(page.discussions).toHaveLength(1)
+    expect(page.discussions[0].title).toBe('Club-only post')
+  })
+
   it('returns an empty list (and skips count queries) when no posts', async () => {
     const { getCommunityDiscussions } = await import(
       '../services/getCommunityDiscussions.service'

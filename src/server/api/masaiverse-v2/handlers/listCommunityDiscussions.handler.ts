@@ -18,8 +18,15 @@ export async function handleListCommunityDiscussions(
       Math.max(1, Number(params.get('limit')) || DEFAULT_LIMIT),
     )
     const search = params.get('q') ?? ''
+    const clubId = params.get('clubId')
 
-    const page = await getCommunityDiscussions(userId, offset, limit, search)
+    const page = await getCommunityDiscussions(
+      userId,
+      offset,
+      limit,
+      search,
+      clubId,
+    )
     return jsonOk(page)
   } catch (error) {
     if (!isApiError(error)) {

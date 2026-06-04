@@ -12,6 +12,7 @@ export async function handleCreateCommunityDiscussion(
       title?: unknown
       content?: unknown
       tags?: unknown
+      clubId?: unknown
     } | null
 
     const title = typeof body?.title === 'string' ? body.title : ''
@@ -19,11 +20,13 @@ export async function handleCreateCommunityDiscussion(
     const tags = Array.isArray(body?.tags)
       ? body.tags.filter((tag): tag is string => typeof tag === 'string')
       : []
+    const clubId = typeof body?.clubId === 'string' ? body.clubId : null
 
     const created = await createCommunityDiscussion(userId, {
       title,
       content,
       tags,
+      clubId,
     })
     return jsonOk(created, { status: 201 })
   } catch (error) {

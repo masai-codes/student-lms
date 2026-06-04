@@ -3259,6 +3259,7 @@ export const masaiverseLeaderboard = mysqlTable("masaiverse_leaderboard", {
 	reason: varchar({ length: 50 }).notNull(),
 	// Points awarded.
 	points: int().notNull(),
+	clubId: bigint("club_id", { mode: "number", unsigned: true }).references(() => clubs.id, { onDelete: "set null" }),
 	postId: bigint("post_id", { mode: "number", unsigned: true }).references(() => posts.id, { onDelete: "set null" }),
 	replyId: bigint("reply_id", { mode: "number", unsigned: true }).references(() => replies.id, { onDelete: "set null" }),
 	eventId: bigint("event_id", { mode: "number", unsigned: true }).references(() => events.id, { onDelete: "set null" }),
@@ -3268,6 +3269,7 @@ export const masaiverseLeaderboard = mysqlTable("masaiverse_leaderboard", {
 (table) => [
 	index("masaiverse_leaderboard_user_id_index").on(table.userId),
 	index("masaiverse_leaderboard_created_by_index").on(table.createdBy),
+	index("masaiverse_leaderboard_club_id_index").on(table.clubId),
 	index("masaiverse_leaderboard_post_id_index").on(table.postId),
 	index("masaiverse_leaderboard_reply_id_index").on(table.replyId),
 	index("masaiverse_leaderboard_event_id_index").on(table.eventId),

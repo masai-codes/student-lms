@@ -43,11 +43,37 @@ describe('handleCreateCommunityDiscussion', () => {
 
     expect(res.status).toBe(201)
     await expect(res.json()).resolves.toEqual({ id: '99' })
-    // Non-string tags are filtered out.
+    // Non-string tags are filtered out; no clubId means a community post.
     expect(hoisted.createDiscussion).toHaveBeenCalledWith(5, {
       title: 'Hi',
       content: '<p>Yo</p>',
       tags: ['Career', 'Interviews'],
+      clubId: null,
+    })
+  })
+
+  it('forwards a string clubId so the post is scoped to that club', async () => {
+    const { handleCreateCommunityDiscussion } = await import(
+      '../handlers/createCommunityDiscussion.handler'
+    )
+    hoisted.getUserIdFromCookieHeader.mockResolvedValueOnce(5)
+    hoisted.createDiscussion.mockResolvedValueOnce({ id: '99' })
+
+    const res = await handleCreateCommunityDiscussion(
+      postRequest({
+        title: 'Hi',
+        content: '<p>Yo</p>',
+        tags: [],
+        clubId: '81910',
+      }),
+    )
+
+    expect(res.status).toBe(201)
+    expect(hoisted.createDiscussion).toHaveBeenCalledWith(5, {
+      title: 'Hi',
+      content: '<p>Yo</p>',
+      tags: [],
+      clubId: '81910',
     })
   })
 

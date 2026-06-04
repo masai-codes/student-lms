@@ -94,6 +94,27 @@ describe('DiscussionComposer', () => {
     })
   })
 
+  it('includes the clubId in the payload when scoped to a club', async () => {
+    createDiscussion.mockResolvedValueOnce({ id: '99' })
+    renderWithClient(<DiscussionComposer onClose={() => {}} clubId="81910" />)
+
+    fireEvent.change(screen.getByPlaceholderText('Discussion title'), {
+      target: { value: 'Title' },
+    })
+    fireEvent.change(screen.getByLabelText('content'), {
+      target: { value: 'Body' },
+    })
+    fireEvent.click(screen.getByText('Post'))
+
+    await waitFor(() => expect(createDiscussion).toHaveBeenCalled())
+    expect(createDiscussion.mock.calls[0][0]).toEqual({
+      title: 'Title',
+      content: 'Body',
+      tags: [],
+      clubId: '81910',
+    })
+  })
+
   it('shows an error and stays open when the request fails', async () => {
     createDiscussion.mockRejectedValueOnce(new Error('boom'))
     const onClose = vi.fn()

@@ -5,6 +5,8 @@ import { ArrowLeft } from '@phosphor-icons/react'
 import InlineDrawer from '../InlineDrawer'
 import AboutClubSection from './club/AboutClubSection'
 import ClubDetailBanner from './club/ClubDetailBanner'
+import ClubDiscussionsSection from './club/ClubDiscussionsSection'
+import ClubLeaderboardSection from './club/ClubLeaderboardSection'
 import ClubPastSection from './club/ClubPastSection'
 import ClubPhotosSection from './club/ClubPhotosSection'
 import ClubStatsSection from './club/ClubStatsSection'
@@ -101,8 +103,9 @@ export default function ClubDetailPage({ clubId }: ClubDetailPageProps) {
         <WeeklyConnectsSection clubId={clubId} onViewSchedule={toggleCalendar} />
         <ClubUpcomingSection clubId={clubId} onViewCalendar={toggleCalendar} />
         <ClubPastSection clubId={clubId} />
+        <ClubLeaderboardSection clubId={clubId} />
         <ClubPhotosSection club={club} />
-        {/* More sections (discussions…) will be added here. */}
+        <ClubDiscussionsSection clubId={clubId} />
       </div>
     </InlineDrawer>
   )

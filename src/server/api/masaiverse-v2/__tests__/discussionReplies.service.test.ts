@@ -1,9 +1,16 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-const hoisted = vi.hoisted(() => ({ dbSelect: vi.fn(), dbInsert: vi.fn() }))
+const hoisted = vi.hoisted(() => ({
+  dbSelect: vi.fn(),
+  dbInsert: vi.fn(),
+  awardReplyPoints: vi.fn(),
+}))
 
 vi.mock('@/db', () => ({
   db: { select: hoisted.dbSelect, insert: hoisted.dbInsert },
+}))
+vi.mock('../services/awardLeaderboardPoints.service', () => ({
+  awardReplyPoints: hoisted.awardReplyPoints,
 }))
 vi.mock('@/db/schema', () => ({
   replies: {
@@ -88,6 +95,12 @@ describe('createDiscussionReply', () => {
       id: '55',
     })
     expect(captured[0]).toMatchObject({ postId: 7, userId: 1, content: 'Nice' })
+    // Awards reply points (given + received) for the new reply.
+    expect(hoisted.awardReplyPoints).toHaveBeenCalledWith({
+      replierId: 1,
+      postId: 7,
+      replyId: 55,
+    })
   })
 
   it('rejects empty content and invalid post id', async () => {

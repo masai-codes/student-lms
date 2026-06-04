@@ -2,6 +2,7 @@ import JoinClubButton from './JoinClubButton'
 import ShareClubButton from './ShareClubButton'
 import type { MasaiverseV2ClubDetail } from '@/server/api/masaiverse-v2/services/getClubDetail.service'
 import { getInitials } from '@/lib/initials'
+import { formatMemberCount } from '@/lib/pluralize'
 
 type ClubDetailBannerProps = {
   club: MasaiverseV2ClubDetail
@@ -15,7 +16,7 @@ function buildPills(club: MasaiverseV2ClubDetail): Array<Pill> {
   const pills: Array<Pill> = []
   if (first) pills.push({ label: first, accent: true })
   pills.push({
-    label: `${club.memberCount.toLocaleString('en-IN')} members`,
+    label: formatMemberCount(club.memberCount),
     accent: false,
   })
   for (const tag of rest) pills.push({ label: tag, accent: false })

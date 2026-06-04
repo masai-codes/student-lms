@@ -1,8 +1,15 @@
 // @vitest-environment jsdom
 import { cleanup, render, screen } from '@testing-library/react'
-import { afterEach, describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import EventsCarousel from './EventsCarousel'
+import type { ReactNode } from 'react'
 import type { MasaiverseV2HomeEvent } from '@/server/api/masaiverse-v2/services/getHomeEvents.service'
+
+// The carousel renders EventCard, which links to the detail route; stub the
+// router Link so the cards render without a RouterProvider.
+vi.mock('@tanstack/react-router', () => ({
+  Link: ({ children }: { children: ReactNode }) => <a href="#">{children}</a>,
+}))
 
 function event(id: string, title: string): MasaiverseV2HomeEvent {
   return {
@@ -13,6 +20,7 @@ function event(id: string, title: string): MasaiverseV2HomeEvent {
     belowTitle: null,
     startTime: null,
     endTime: null,
+    isEnrolled: false,
   }
 }
 

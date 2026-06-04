@@ -27,6 +27,24 @@ describe('eventScopeConditions', () => {
     expect(eventScopeConditions({ publicOnly: false })).toEqual([])
   })
 
+  it('adds a public-or-member-clubs condition for a non-empty visibleClubIds', async () => {
+    const { eventScopeConditions } = await import('../services/eventScope')
+    expect(eventScopeConditions({ visibleClubIds: [3, 7] })).toHaveLength(1)
+  })
+
+  it('falls back to public-only when visibleClubIds is empty', async () => {
+    const { eventScopeConditions } = await import('../services/eventScope')
+    expect(eventScopeConditions({ visibleClubIds: [] })).toHaveLength(1)
+  })
+
+  it('ignores non-finite ids inside visibleClubIds', async () => {
+    const { eventScopeConditions } = await import('../services/eventScope')
+    // Only NaN ids → treated as "public only" (still one condition).
+    expect(eventScopeConditions({ visibleClubIds: [Number.NaN] })).toHaveLength(
+      1,
+    )
+  })
+
   it('adds the weekly-connect only/exclude condition', async () => {
     const { eventScopeConditions } = await import('../services/eventScope')
     expect(eventScopeConditions({ weeklyConnect: 'only' })).toHaveLength(1)

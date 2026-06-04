@@ -33,11 +33,9 @@ describe('ClubPastSection', () => {
     fetchEvents.mockResolvedValue({ weeklyConnects: [], upcoming: [], past: [] })
     renderWithClient(<ClubPastSection clubId="5" />)
 
-    expect(screen.getByText('Club Events from Last Week')).toBeTruthy()
+    expect(screen.getByText('Past Events')).toBeTruthy()
     await waitFor(() =>
-      expect(
-        screen.getByText('No club events from last week.'),
-      ).toBeTruthy(),
+      expect(screen.getByText('No past events yet.')).toBeTruthy(),
     )
   })
 

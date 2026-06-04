@@ -1,5 +1,6 @@
 import type { MasaiverseV2HomeClub } from '@/server/api/masaiverse-v2/services/getHomeClubs.service'
 import { getInitials } from '@/lib/initials'
+import { formatMemberCount } from '@/lib/pluralize'
 
 type HomeClubCardProps = {
   club: MasaiverseV2HomeClub
@@ -62,7 +63,7 @@ export default function HomeClubCard({ club }: HomeClubCardProps) {
             </div>
           ) : null}
           <p className="text-[13px] text-[#6B7280]">
-            {club.memberCount.toLocaleString('en-IN')} members
+            {formatMemberCount(club.memberCount)}
           </p>
         </div>
       ) : null}

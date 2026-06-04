@@ -30,8 +30,8 @@ type HighlightsCarouselProps = {
 
 /**
  * Shared past-events carousel — swiper of {@link HighlightCard}s with cycling
- * accents, loading skeletons, and an empty state. Used by the home "Last Week's
- * Highlights" section and the club page's past-events section.
+ * accents, loading skeletons, and an empty state. Used by the home "Past
+ * Events" section and the club page's past-events section.
  */
 export default function HighlightsCarousel({
   highlights,

@@ -20,23 +20,3 @@ export interface MasaiverseV2SidebarData {
   myClubs: Array<MasaiverseClub>
 }
 
-export interface MasaiverseUpcomingEvent {
-  id: string
-  day: string
-  month: string
-  title: string
-  subtitle: string
-  /** Action label, e.g. RSVP / Join / Register. */
-  ctaLabel: string
-}
-
-export interface MasaiverseLeader {
-  id: string
-  name: string
-  role: string
-  score: number
-  /** Medal emoji for the top ranks; undefined otherwise (numeric rank shown). */
-  medal?: string
-  /** Avatar background color (hex). */
-  avatarColor: string
-}

@@ -8,6 +8,7 @@ import { getEventsThisYearCount } from '@/server/api/masaiverse-v2/services/getE
 import { getHomeClubs } from '@/server/api/masaiverse-v2/services/getHomeClubs.service'
 import { getHomeEvents } from '@/server/api/masaiverse-v2/services/getHomeEvents.service'
 import { getHomeHighlights } from '@/server/api/masaiverse-v2/services/getHomeHighlights.service'
+import { getMemberClubIds } from '@/server/api/masaiverse-v2/services/getMemberClubIds.service'
 
 /**
  * Masaiverse v2 aggregated home data.
@@ -21,7 +22,7 @@ import { getHomeHighlights } from '@/server/api/masaiverse-v2/services/getHomeHi
  * headline stats.
  */
 export interface MasaiverseV2CommunityStats {
-  /** Distinct learners who belong to at least one club. */
+  /** Users who have opened Masaiverse at least once. */
   learnersInCommunity: number
   /** Posts + replies created in the current IST week. */
   discussionsThisWeek: number
@@ -36,16 +37,19 @@ export interface MasaiverseV2HomeData {
   stats: MasaiverseV2CommunityStats
   /** Section 2 — live or upcoming events. */
   events: Array<MasaiverseV2HomeEvent>
-  /** Section 3 — recaps of last week's events. */
+  /** Section 3 — recaps of past events. */
   highlights: Array<MasaiverseV2HomeHighlight>
   /** Section 4 — all clubs with member counts. */
   clubs: Array<MasaiverseV2HomeClub>
 }
 
 export async function getMasaiverseV2Home(
-  _userId: number,
+  userId: number,
   now: Date = new Date(),
 ): Promise<MasaiverseV2HomeData> {
+  // Home shows public (club-less) events plus the events of clubs this user has
+  // joined — both in "Live & Upcoming" and "Past Events".
+  const memberClubIds = await getMemberClubIds(userId)
   const [
     learnersInCommunity,
     discussionsThisWeek,
@@ -59,10 +63,8 @@ export async function getMasaiverseV2Home(
     getDiscussionsThisWeekCount(now),
     getEventsThisYearCount(now),
     getEventRegistrationsThisYearCount(now),
-    // Home shows community-wide public events only (no club). Club events live
-    // on each club's page.
-    getHomeEvents(now, { publicOnly: true }),
-    getHomeHighlights(now, { publicOnly: true }),
+    getHomeEvents(now, { visibleClubIds: memberClubIds }, userId),
+    getHomeHighlights(now, { visibleClubIds: memberClubIds }),
     getHomeClubs(),
   ])
 

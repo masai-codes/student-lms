@@ -14,15 +14,12 @@ export default function ClubPastSection({ clubId }: ClubPastSectionProps) {
 
   return (
     <section>
-      <SectionHeader
-        title="Club Events from Last Week"
-        subtitle="recap & replays"
-      />
+      <SectionHeader title="Past Events" subtitle="recap & replays" />
       <HighlightsCarousel
         highlights={highlights}
         isPending={isPending}
         loadingLabel="Loading past events"
-        emptyMessage="No club events from last week."
+        emptyMessage="No past events yet."
         navKey="club-highlights"
       />
     </section>

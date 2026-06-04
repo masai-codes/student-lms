@@ -60,16 +60,24 @@ function toUtcIso(value: string | null): string | null {
 }
 
 /**
- * A page of community discussions — posts with no club (`club_id IS NULL`),
- * newest first, with author, tags, upvote/reply counts and the signed-in
- * user's vote. Banned posts are excluded.
+ * A page of discussions, newest first, with author, tags, upvote/reply counts
+ * and the signed-in user's vote. Banned posts are excluded.
+ *
+ * When `clubId` is null the result is the club-less community feed
+ * (`club_id IS NULL`); when a `clubId` is given it is scoped to that club's
+ * posts (`club_id = clubId`).
  */
 export async function getCommunityDiscussions(
   userId: number,
   offset = 0,
   limit = 5,
   search = '',
+  clubId: string | null = null,
 ): Promise<CommunityDiscussionsPage> {
+  const clubScope =
+    clubId === null
+      ? isNull(posts.clubId)
+      : eq(posts.clubId, Number(clubId))
   // Fetch one extra row to detect whether another page exists.
   const postRows = await db
     .select({
@@ -82,11 +90,7 @@ export async function getCommunityDiscussions(
     .from(posts)
     .innerJoin(users, eq(users.id, posts.userId))
     .where(
-      and(
-        isNull(posts.clubId),
-        eq(posts.isBanned, 0),
-        buildSearchCondition(search),
-      ),
+      and(clubScope, eq(posts.isBanned, 0), buildSearchCondition(search)),
     )
     .orderBy(desc(posts.createdAt))
     .limit(limit + 1)

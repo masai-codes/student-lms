@@ -17,19 +17,29 @@ export default function JoinClubButton({ clubId, isJoined }: JoinClubButtonProps
   const detailKey = masaiverseV2ClubDetailQuery(clubId).queryKey
 
   const mutation = useMutation({
-    mutationFn: () =>
-      setMasaiverseV2ClubMembership({ clubId, join: !isJoined }),
-    onSuccess: (state) => {
-      queryClient.setQueryData<MasaiverseV2ClubDetail>(detailKey, (prev) =>
+    mutationFn: () => setMasaiverseV2ClubMembership({ clubId, join: true }),
+    onSuccess: async (state) => {
+      // The mutation response is authoritative — the server just performed the
+      // join and returned the resulting membership. Apply it to the cache.
+      const applyMembership = (prev?: MasaiverseV2ClubDetail) =>
         prev
           ? {
               ...prev,
               isJoined: state.isJoined,
               memberCount: state.memberCount,
             }
-          : prev,
-      )
-      // The sidebar "My Clubs" list now needs to gain/lose this club.
+          : prev
+
+      // Reflect the new membership immediately so the button flips to "Joined".
+      queryClient.setQueryData<MasaiverseV2ClubDetail>(detailKey, applyMembership)
+      // Refetch the club detail API so the page shows fully refreshed data
+      // (e.g. member list). `exact` keeps it to the detail query.
+      await queryClient.invalidateQueries({ queryKey: detailKey, exact: true })
+      // Re-assert the confirmed membership: the refetch above can race the
+      // just-committed write and return a stale `isJoined: false`, which would
+      // otherwise snap the button back to "Join" until a manual refresh.
+      queryClient.setQueryData<MasaiverseV2ClubDetail>(detailKey, applyMembership)
+      // The sidebar "My Clubs" list now needs to gain this club.
       void queryClient.invalidateQueries({ queryKey: MASAIVERSE_V2_MY_CLUBS_KEY })
     },
   })
@@ -37,12 +47,14 @@ export default function JoinClubButton({ clubId, isJoined }: JoinClubButtonProps
   return (
     <button
       type="button"
-      onClick={() => mutation.mutate()}
-      disabled={mutation.isPending}
+      onClick={() => {
+        if (!isJoined) mutation.mutate()
+      }}
+      disabled={isJoined || mutation.isPending}
       aria-pressed={isJoined}
       className={`flex items-center justify-center gap-2 rounded-[12px] px-5 py-2.5 text-[14px] font-bold transition-colors disabled:opacity-70 ${
         isJoined
-          ? 'bg-masaiverse-orange text-white hover:bg-masaiverse-orange-dark'
+          ? 'bg-masaiverse-orange text-white'
           : 'bg-white text-[#111827] hover:bg-white/90'
       }`}
     >

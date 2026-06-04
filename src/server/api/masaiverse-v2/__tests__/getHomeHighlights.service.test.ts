@@ -86,7 +86,7 @@ describe('getHomeHighlights', () => {
     ])
   })
 
-  it('returns an empty list when nothing happened last week', async () => {
+  it('returns an empty list when there are no past events', async () => {
     const { getHomeHighlights } = await import(
       '../services/getHomeHighlights.service'
     )

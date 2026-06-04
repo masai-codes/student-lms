@@ -9,12 +9,12 @@ export default function HighlightsSection() {
 
   return (
     <section>
-      <SectionHeader title="Last Week's Highlights" subtitle="recap & replays" />
+      <SectionHeader title="Past Events" subtitle="recap & replays" />
       <HighlightsCarousel
         highlights={highlights}
         isPending={isPending}
-        loadingLabel="Loading highlights"
-        emptyMessage="No highlights from last week."
+        loadingLabel="Loading past events"
+        emptyMessage="No past events yet."
       />
     </section>
   )

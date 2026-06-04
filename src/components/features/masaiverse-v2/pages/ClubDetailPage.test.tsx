@@ -54,6 +54,16 @@ vi.mock('./club/ClubPhotosSection', () => ({
     <div data-testid="photos">{club.name}</div>
   ),
 }))
+vi.mock('./club/ClubLeaderboardSection', () => ({
+  default: ({ clubId }: { clubId: string }) => (
+    <div data-testid="leaderboard">{clubId}</div>
+  ),
+}))
+vi.mock('./club/ClubDiscussionsSection', () => ({
+  default: ({ clubId }: { clubId: string }) => (
+    <div data-testid="discussions">{clubId}</div>
+  ),
+}))
 vi.mock('./home/calendar/CalendarPanel', () => ({
   default: () => <div data-testid="calendar-panel" />,
 }))

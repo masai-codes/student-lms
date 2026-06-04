@@ -1,3 +1,5 @@
+import { Link } from '@tanstack/react-router'
+import { CheckCircle } from '@phosphor-icons/react'
 import type { MasaiverseV2HomeEvent } from '@/server/api/masaiverse-v2/services/getHomeEvents.service'
 import { getEventCardDisplay } from '@/lib/masaiverseEventCard'
 
@@ -14,7 +16,12 @@ export default function EventCard({ event, now = new Date() }: EventCardProps) {
   )
 
   return (
-    <div className="flex h-full flex-col overflow-hidden rounded-[14px] border border-[#EDEAE8] bg-white">
+    <Link
+      to="/masaiverse/event/$eventId"
+      params={{ eventId: event.id }}
+      search={(prev) => prev}
+      className="flex h-full flex-col overflow-hidden rounded-[14px] border border-[#EDEAE8] bg-white transition-shadow hover:shadow-[0_8px_24px_-12px_rgba(0,0,0,0.25)]"
+    >
       <div className="relative h-[116px] bg-[#241C16]">
         {event.imageUrl ? (
           <img
@@ -45,6 +52,13 @@ export default function EventCard({ event, now = new Date() }: EventCardProps) {
             </span>
           </span>
         ) : null}
+
+        {event.isEnrolled ? (
+          <span className="absolute bottom-3 left-3 inline-flex items-center gap-1 rounded-full bg-[#16A34A] px-2 py-0.5 text-[11px] font-bold leading-none text-white shadow-sm">
+            <CheckCircle size={13} weight="fill" />
+            Registered
+          </span>
+        ) : null}
       </div>
 
       <div className="flex flex-1 flex-col p-3">
@@ -62,6 +76,6 @@ export default function EventCard({ event, now = new Date() }: EventCardProps) {
           </p>
         ) : null}
       </div>
-    </div>
+    </Link>
   )
 }

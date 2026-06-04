@@ -1,4 +1,4 @@
-import { eq, isNull, sql } from 'drizzle-orm'
+import { eq, inArray, isNull, or, sql } from 'drizzle-orm'
 import type { SQL } from 'drizzle-orm'
 import { events } from '@/db/schema'
 
@@ -8,6 +8,13 @@ export interface MasaiverseEventScope {
   clubId?: number
   /** Restrict to public events only — those with no club (`club_id IS NULL`). */
   publicOnly?: boolean
+  /**
+   * Member-visibility filter: keep public events (no club) *plus* the events of
+   * the listed clubs. An empty array means public events only. Omit the field
+   * entirely to skip this filter. This is how a member sees community events
+   * plus the events of clubs they've actually joined.
+   */
+  visibleClubIds?: Array<number>
   /**
    * Weekly-connect filter on `events.meta.isWeeklyConnect`:
    * - `only`: the flag is exactly `true`
@@ -32,6 +39,14 @@ export function eventScopeConditions(
     conditions.push(eq(events.clubId, scope.clubId))
   }
   if (scope.publicOnly) conditions.push(isNull(events.clubId))
+  if (scope.visibleClubIds != null) {
+    const ids = scope.visibleClubIds.filter((id) => Number.isFinite(id))
+    conditions.push(
+      ids.length > 0
+        ? (or(isNull(events.clubId), inArray(events.clubId, ids)) as SQL)
+        : isNull(events.clubId),
+    )
+  }
   if (scope.weeklyConnect === 'only') conditions.push(isWeeklyConnect)
   if (scope.weeklyConnect === 'exclude') conditions.push(notWeeklyConnect)
   return conditions

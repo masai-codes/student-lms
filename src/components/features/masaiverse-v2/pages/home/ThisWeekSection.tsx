@@ -16,7 +16,7 @@ export default function ThisWeekSection({
   return (
     <section>
       <SectionHeader
-        title="This Week on MasaiVerse"
+        title="Live & Upcoming"
         subtitle={
           events.length
             ? `· ${events.length} event${events.length === 1 ? '' : 's'} live or upcoming`

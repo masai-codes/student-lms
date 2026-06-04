@@ -1,6 +1,7 @@
 import { db } from '@/db'
 import { replies } from '@/db/schema'
 import { ApiError } from '@/server/api/http/apiError'
+import { awardReplyPoints } from '@/server/api/masaiverse-v2/services/awardLeaderboardPoints.service'
 import { toMysqlUtc } from '@/lib/dateRanges'
 
 const REPLY_MAX = 5000
@@ -29,6 +30,14 @@ export async function createDiscussionReply(
     content: text,
     createdAt: nowUtc,
     updatedAt: nowUtc,
+  })
+
+  // Awards `reply_given` to the replier and `reply_received` to the post author
+  // (club inferred from the post). Self-replies skip the "received" award.
+  await awardReplyPoints({
+    replierId: userId,
+    postId,
+    replyId: Number(header.insertId),
   })
 
   return { id: String(header.insertId) }

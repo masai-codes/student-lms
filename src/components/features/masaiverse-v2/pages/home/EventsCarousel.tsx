@@ -20,8 +20,8 @@ type EventsCarouselProps = {
 
 /**
  * Shared events carousel — swiper of {@link EventCard}s, with loading skeletons
- * and an empty state. Used by the home "This Week" section and the club page's
- * upcoming/live section so the card layout lives in one place.
+ * and an empty state. Used by the home "Live & Upcoming" section and the club
+ * page's live/upcoming section so the card layout lives in one place.
  */
 export default function EventsCarousel({
   events,

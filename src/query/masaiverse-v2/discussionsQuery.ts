@@ -13,14 +13,21 @@ export const MASAIVERSE_V2_DISCUSSIONS_KEY = [
 /** Page size for the "load more" pagination. */
 export const DISCUSSIONS_PAGE_SIZE = 5
 
-/** Infinite-query options for the paginated, searchable discussions list. */
-export const masaiverseV2DiscussionsInfiniteQuery = (search: string) => ({
-  queryKey: [...MASAIVERSE_V2_DISCUSSIONS_KEY, search],
+/**
+ * Infinite-query options for the paginated, searchable discussions list.
+ * Pass a `clubId` to scope to a single club; omit it for the community feed.
+ */
+export const masaiverseV2DiscussionsInfiniteQuery = (
+  search: string,
+  clubId?: string,
+) => ({
+  queryKey: [...MASAIVERSE_V2_DISCUSSIONS_KEY, clubId ?? null, search],
   queryFn: ({ pageParam }: { pageParam: number }) =>
     fetchMasaiverseV2Discussions({
       offset: pageParam,
       limit: DISCUSSIONS_PAGE_SIZE,
       q: search,
+      ...(clubId ? { clubId } : {}),
     }),
   initialPageParam: 0,
   getNextPageParam: (

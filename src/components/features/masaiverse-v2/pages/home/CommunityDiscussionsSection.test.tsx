@@ -124,4 +124,22 @@ describe('CommunityDiscussionsSection', () => {
       ).toBeTruthy(),
     )
   })
+
+  it('scopes to a club: passes clubId, uses the title, hides "View all"', async () => {
+    fetchDiscussions.mockResolvedValue({ discussions: [], hasMore: false })
+    renderWithClient(
+      <CommunityDiscussionsSection clubId="81910" title="Club Discussion" />,
+    )
+
+    expect(screen.getByText('Club Discussion')).toBeTruthy()
+    expect(screen.queryByText('View all →')).toBeNull()
+    await waitFor(() =>
+      expect(fetchDiscussions).toHaveBeenLastCalledWith({
+        offset: 0,
+        limit: 5,
+        q: '',
+        clubId: '81910',
+      }),
+    )
+  })
 })

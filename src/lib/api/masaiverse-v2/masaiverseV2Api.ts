@@ -5,8 +5,14 @@ import type { MasaiverseV2Reply } from '@/server/api/masaiverse-v2/services/getD
 import type { MasaiverseV2SidebarClub } from '@/server/api/masaiverse-v2/services/getMyClubs.service'
 import type { MasaiverseV2ClubDetail } from '@/server/api/masaiverse-v2/services/getClubDetail.service'
 import type { MasaiverseV2ClubStats } from '@/server/api/masaiverse-v2/services/getClubStats.service'
+import type { ClubLeaderboardPage } from '@/server/api/masaiverse-v2/services/getClubLeaderboard.service'
+import type { GlobalLeaderboardEntry } from '@/server/api/masaiverse-v2/services/getGlobalLeaderboard.service'
 import type { MasaiverseV2ClubEvents } from '@/server/api/masaiverse-v2/services/getClubEvents.service'
 import type { ClubMembershipState } from '@/server/api/masaiverse-v2/services/setClubMembership.service'
+import type { MasaiverseV2EventListItem } from '@/server/api/masaiverse-v2/services/getEventsList.service'
+import type { MasaiverseV2EventDetail } from '@/server/api/masaiverse-v2/services/getEventDetail.service'
+import type { EventEnrollmentState } from '@/server/api/masaiverse-v2/services/setEventEnrollment.service'
+import type { EventRatingState } from '@/server/api/masaiverse-v2/services/rateEvent.service'
 import { fetchJson } from '@/lib/api/fetchJson'
 import { MASAIVERSE_V2_API } from '@/lib/api/masaiverse-v2/masaiverseV2Paths'
 
@@ -24,27 +30,36 @@ export async function markMasaiverseV2Visited(): Promise<{ success: boolean }> {
   })
 }
 
-/** A page of community discussions (paginated, newest first, optional search). */
+/**
+ * A page of discussions (paginated, newest first, optional search). Pass a
+ * `clubId` to scope the feed to a single club; omit it for the community feed.
+ */
 export async function fetchMasaiverseV2Discussions(input: {
   offset: number
   limit: number
   q?: string
+  clubId?: string
 }): Promise<CommunityDiscussionsPage> {
   const params = new URLSearchParams({
     offset: String(input.offset),
     limit: String(input.limit),
   })
   if (input.q) params.set('q', input.q)
+  if (input.clubId) params.set('clubId', input.clubId)
   return fetchJson<CommunityDiscussionsPage>(
     `${MASAIVERSE_V2_API.discussions}?${params.toString()}`,
   )
 }
 
-/** Creates a club-less community discussion post (title + rich-text content + tags). */
+/**
+ * Creates a discussion post (title + rich-text content + tags). Pass a
+ * `clubId` to post it to that club; omit it for a club-less community post.
+ */
 export async function createMasaiverseV2Discussion(input: {
   title: string
   content: string
   tags: Array<string>
+  clubId?: string
 }): Promise<{ id: string }> {
   return fetchJson<{ id: string }>(MASAIVERSE_V2_API.discussions, {
     method: 'POST',
@@ -127,6 +142,36 @@ export async function fetchMasaiverseV2ClubStats(
   )
 }
 
+/** A page of a club's leaderboard, ranked by club-scoped points. */
+export async function fetchMasaiverseV2ClubLeaderboard(input: {
+  clubId: string
+  page: number
+  perPage: number
+}): Promise<ClubLeaderboardPage> {
+  const params = new URLSearchParams({
+    clubId: input.clubId,
+    page: String(input.page),
+    perPage: String(input.perPage),
+  })
+  return fetchJson<ClubLeaderboardPage>(
+    `${MASAIVERSE_V2_API.clubLeaderboard}?${params.toString()}`,
+  )
+}
+
+/**
+ * The community-wide (global) leaderboard — members ranked by total all-time
+ * points. Returns at most `limit` entries (server-clamped).
+ */
+export async function fetchMasaiverseV2GlobalLeaderboard(
+  limit?: number,
+): Promise<Array<GlobalLeaderboardEntry>> {
+  const query = limit == null ? '' : `?limit=${encodeURIComponent(limit)}`
+  const { entries } = await fetchJson<{
+    entries: Array<GlobalLeaderboardEntry>
+  }>(`${MASAIVERSE_V2_API.leaderboard}${query}`)
+  return entries
+}
+
 /** Weekly connects + upcoming/live + past events for a club's detail page. */
 export async function fetchMasaiverseV2ClubEvents(
   clubId: string,
@@ -134,6 +179,58 @@ export async function fetchMasaiverseV2ClubEvents(
   return fetchJson<MasaiverseV2ClubEvents>(
     `${MASAIVERSE_V2_API.clubEvents}?clubId=${encodeURIComponent(clubId)}`,
   )
+}
+
+/**
+ * Every community event (public + club-hosted) for the events listing page.
+ * The client buckets them into upcoming/past and segregates public vs club.
+ */
+export async function fetchMasaiverseV2Events(): Promise<
+  Array<MasaiverseV2EventListItem>
+> {
+  const { events } = await fetchJson<{
+    events: Array<MasaiverseV2EventListItem>
+  }>(MASAIVERSE_V2_API.events)
+  return events
+}
+
+/** Full detail payload for a single event's registration page. */
+export async function fetchMasaiverseV2EventDetail(
+  eventId: string,
+): Promise<MasaiverseV2EventDetail> {
+  return fetchJson<MasaiverseV2EventDetail>(
+    `${MASAIVERSE_V2_API.eventDetail}?eventId=${encodeURIComponent(eventId)}`,
+  )
+}
+
+/**
+ * Registers the current user for an event and resolves with the new enrollment
+ * state plus the post-registration redirect target (event link / map link).
+ */
+export async function enrollMasaiverseV2Event(
+  eventId: string,
+): Promise<EventEnrollmentState> {
+  return fetchJson<EventEnrollmentState>(MASAIVERSE_V2_API.eventEnroll, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ eventId }),
+  })
+}
+
+/**
+ * Submits the current user's rating (and optional feedback) for an event they
+ * attended. The server allows this only once per enrollment.
+ */
+export async function rateMasaiverseV2Event(input: {
+  eventId: string
+  rating: number
+  feedback?: string
+}): Promise<EventRatingState> {
+  return fetchJson<EventRatingState>(MASAIVERSE_V2_API.eventRate, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(input),
+  })
 }
 
 /**

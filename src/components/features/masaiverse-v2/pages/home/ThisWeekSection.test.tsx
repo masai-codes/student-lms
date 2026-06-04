@@ -11,6 +11,12 @@ vi.mock('@/lib/api/masaiverse-v2/masaiverseV2Api', () => ({
   fetchMasaiverseV2Home: fetchHome,
 }))
 
+// EventCard links to the detail route; stub the router Link so cards render
+// without a RouterProvider.
+vi.mock('@tanstack/react-router', () => ({
+  Link: ({ children }: { children: ReactNode }) => <a href="#">{children}</a>,
+}))
+
 function renderWithClient(ui: ReactNode) {
   const client = new QueryClient({
     defaultOptions: { queries: { retry: false } },

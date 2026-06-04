@@ -110,7 +110,27 @@ describe('handleListCommunityDiscussions', () => {
       discussions: [{ id: '7' }],
       hasMore: true,
     })
-    expect(hoisted.listDiscussions).toHaveBeenCalledWith(5, 5, 5, 'react')
+    // No clubId in the query string → community feed (clubId null).
+    expect(hoisted.listDiscussions).toHaveBeenCalledWith(5, 5, 5, 'react', null)
+  })
+
+  it('forwards a clubId from the query string to scope the feed', async () => {
+    const { handleListCommunityDiscussions } = await import(
+      '../handlers/listCommunityDiscussions.handler'
+    )
+    hoisted.listDiscussions.mockResolvedValueOnce({
+      discussions: [],
+      hasMore: false,
+    })
+
+    const res = await handleListCommunityDiscussions(
+      new Request(
+        'http://localhost/api/masaiverse-v2/discussions?clubId=81910',
+        { headers: cookie },
+      ),
+    )
+    expect(res.status).toBe(200)
+    expect(hoisted.listDiscussions).toHaveBeenCalledWith(5, 0, 5, '', '81910')
   })
 })
 

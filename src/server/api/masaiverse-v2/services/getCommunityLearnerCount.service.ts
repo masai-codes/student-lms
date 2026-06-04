@@ -1,15 +1,18 @@
-import { countDistinct } from 'drizzle-orm'
+import { sql } from 'drizzle-orm'
 import { db } from '@/db'
-import { clubMembers } from '@/db/schema'
+import { users } from '@/db/schema'
 
 /**
- * Number of distinct learners in the community — i.e. unique users who are a
- * member of at least one club. A learner in several clubs is counted once.
+ * Number of learners in the community — i.e. users who have opened Masaiverse
+ * at least once, tracked by `users.meta.isMasaiverseVisitedOnce === true`.
  */
 export async function getCommunityLearnerCount(): Promise<number> {
   const rows = await db
-    .select({ count: countDistinct(clubMembers.userId) })
-    .from(clubMembers)
+    .select({ count: sql<number>`cast(count(*) as unsigned)` })
+    .from(users)
+    .where(
+      sql`JSON_EXTRACT(${users.meta}, '$.isMasaiverseVisitedOnce') = true`,
+    )
 
   return rows.at(0)?.count ?? 0
 }

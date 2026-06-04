@@ -11,7 +11,17 @@ import { masaiverseV2DiscussionsInfiniteQuery } from '@/query/masaiverse-v2/disc
 /** Avatar colors cycled per row so adjacent authors differ. */
 const AVATAR_COLORS = ['var(--color-masaiverse-orange)', '#6D28D9', '#2E7D46', '#2563EB', '#DB2777']
 
-export default function CommunityDiscussionsSection() {
+type CommunityDiscussionsSectionProps = {
+  /** Scopes the feed and new posts to a single club; omit for the community feed. */
+  clubId?: string
+  /** Heading shown above the feed. */
+  title?: string
+}
+
+export default function CommunityDiscussionsSection({
+  clubId,
+  title = 'Community Discussions',
+}: CommunityDiscussionsSectionProps = {}) {
   const [isComposing, setIsComposing] = useState(false)
   const [searchInput, setSearchInput] = useState('')
   const [search, setSearch] = useState('')
@@ -23,27 +33,32 @@ export default function CommunityDiscussionsSection() {
   }, [searchInput])
 
   const { data, isPending, fetchNextPage, hasNextPage, isFetchingNextPage } =
-    useInfiniteQuery(masaiverseV2DiscussionsInfiniteQuery(search))
+    useInfiniteQuery(masaiverseV2DiscussionsInfiniteQuery(search, clubId))
 
   const discussions = data?.pages.flatMap((page) => page.discussions) ?? []
 
   return (
     <section>
       <SectionHeader
-        title="Community Discussions"
+        title={title}
         action={
-          <Link
-            to="/masaiverse/discussions"
-            search={(prev) => prev}
-            className="text-[14px] font-medium text-masaiverse-orange hover:underline"
-          >
-            View all →
-          </Link>
+          clubId ? undefined : (
+            <Link
+              to="/masaiverse/discussions"
+              search={(prev) => prev}
+              className="text-[14px] font-medium text-masaiverse-orange hover:underline"
+            >
+              View all →
+            </Link>
+          )
         }
       />
 
       {isComposing ? (
-        <DiscussionComposer onClose={() => setIsComposing(false)} />
+        <DiscussionComposer
+          clubId={clubId}
+          onClose={() => setIsComposing(false)}
+        />
       ) : (
         <button
           type="button"

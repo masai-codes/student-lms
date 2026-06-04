@@ -5,6 +5,8 @@ const hoisted = vi.hoisted(() => ({
   dbInsert: vi.fn(),
   dbUpdate: vi.fn(),
   dbDelete: vi.fn(),
+  awardUpvotePoints: vi.fn(),
+  revokeUpvotePoints: vi.fn(),
 }))
 
 vi.mock('@/db', () => ({
@@ -14,6 +16,10 @@ vi.mock('@/db', () => ({
     update: hoisted.dbUpdate,
     delete: hoisted.dbDelete,
   },
+}))
+vi.mock('../services/awardLeaderboardPoints.service', () => ({
+  awardUpvotePoints: hoisted.awardUpvotePoints,
+  revokeUpvotePoints: hoisted.revokeUpvotePoints,
 }))
 vi.mock('@/db/schema', () => ({
   votes: {
@@ -51,6 +57,24 @@ describe('voteCommunityDiscussion', () => {
       myVote: 'upvote',
     })
     expect(hoisted.dbInsert).toHaveBeenCalled()
+    expect(hoisted.awardUpvotePoints).toHaveBeenCalledWith({
+      voterId: 1,
+      target: { postId: 7 },
+    })
+  })
+
+  it('awards nothing for a fresh downvote', async () => {
+    const { voteCommunityDiscussion } = await import(
+      '../services/voteCommunityDiscussion.service'
+    )
+    hoisted.dbSelect
+      .mockReturnValueOnce(existingChain([]))
+      .mockReturnValueOnce(countChain([{ total: 0 }]))
+    hoisted.dbInsert.mockReturnValueOnce({ values: () => Promise.resolve([]) })
+
+    await voteCommunityDiscussion(1, 7, 'downvote')
+    expect(hoisted.awardUpvotePoints).not.toHaveBeenCalled()
+    expect(hoisted.revokeUpvotePoints).not.toHaveBeenCalled()
   })
 
   it('removes the vote when the same vote is repeated', async () => {
@@ -67,6 +91,10 @@ describe('voteCommunityDiscussion', () => {
       myVote: null,
     })
     expect(hoisted.dbDelete).toHaveBeenCalled()
+    expect(hoisted.revokeUpvotePoints).toHaveBeenCalledWith({
+      voterId: 1,
+      target: { postId: 7 },
+    })
   })
 
   it('switches the vote when the opposite is cast', async () => {
@@ -85,6 +113,30 @@ describe('voteCommunityDiscussion', () => {
       myVote: 'upvote',
     })
     expect(hoisted.dbUpdate).toHaveBeenCalled()
+    // Switching down→up awards the upvote's points.
+    expect(hoisted.awardUpvotePoints).toHaveBeenCalledWith({
+      voterId: 1,
+      target: { postId: 7 },
+    })
+  })
+
+  it('revokes points when switching an upvote to a downvote', async () => {
+    const { voteCommunityDiscussion } = await import(
+      '../services/voteCommunityDiscussion.service'
+    )
+    hoisted.dbSelect
+      .mockReturnValueOnce(existingChain([{ id: 9, vote: 'upvote' }]))
+      .mockReturnValueOnce(countChain([{ total: 1 }]))
+    hoisted.dbUpdate.mockReturnValueOnce({
+      set: () => ({ where: () => Promise.resolve([]) }),
+    })
+
+    await voteCommunityDiscussion(1, 7, 'downvote')
+    expect(hoisted.revokeUpvotePoints).toHaveBeenCalledWith({
+      voterId: 1,
+      target: { postId: 7 },
+    })
+    expect(hoisted.awardUpvotePoints).not.toHaveBeenCalled()
   })
 
   it('votes on a reply via replyId', async () => {
@@ -107,6 +159,10 @@ describe('voteCommunityDiscussion', () => {
       myVote: 'upvote',
     })
     expect(captured[0]).toMatchObject({ userId: 1, replyId: 3, vote: 'upvote' })
+    expect(hoisted.awardUpvotePoints).toHaveBeenCalledWith({
+      voterId: 1,
+      target: { replyId: 3 },
+    })
   })
 
   it('rejects an invalid post id or vote', async () => {

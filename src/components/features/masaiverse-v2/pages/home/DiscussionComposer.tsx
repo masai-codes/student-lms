@@ -8,10 +8,13 @@ import { MASAIVERSE_V2_DISCUSSIONS_KEY } from '@/query/masaiverse-v2/discussions
 
 type DiscussionComposerProps = {
   onClose: () => void
+  /** When set, the new post is scoped to this club instead of the community. */
+  clubId?: string
 }
 
 export default function DiscussionComposer({
   onClose,
+  clubId,
 }: DiscussionComposerProps) {
   const queryClient = useQueryClient()
   const [title, setTitle] = useState('')
@@ -42,6 +45,7 @@ export default function DiscussionComposer({
             title: title.trim(),
             content,
             tags: parseTagsInput(tagsInput),
+            ...(clubId ? { clubId } : {}),
           })
         }
       }}

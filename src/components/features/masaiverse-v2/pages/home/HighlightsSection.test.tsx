@@ -37,7 +37,7 @@ describe('HighlightsSection', () => {
   it('shows a loading message while fetching', () => {
     fetchHome.mockReturnValue(new Promise(() => {}))
     renderWithClient(<HighlightsSection />)
-    expect(screen.getByText('Loading highlights…')).toBeTruthy()
+    expect(screen.getByText('Loading past events…')).toBeTruthy()
   })
 
   it('renders recap cards once loaded', async () => {
@@ -65,12 +65,12 @@ describe('HighlightsSection', () => {
     expect(screen.getByLabelText('Next highlights')).toBeTruthy()
   })
 
-  it('shows an empty state when there were no highlights', async () => {
+  it('shows an empty state when there are no past events', async () => {
     fetchHome.mockResolvedValue({ stats: {}, events: [], highlights: [] })
     renderWithClient(<HighlightsSection />)
 
     await waitFor(() =>
-      expect(screen.getByText('No highlights from last week.')).toBeTruthy(),
+      expect(screen.getByText('No past events yet.')).toBeTruthy(),
     )
   })
 })
