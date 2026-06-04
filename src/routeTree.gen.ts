@@ -35,6 +35,7 @@ import { Route as authV2ForgotPasswordRouteImport } from './routes/(auth)/v2/for
 import { Route as protectedLayoutMasaiverseRouteRouteImport } from './routes/(protected)/_layout/masaiverse/route'
 import { Route as ApiWhatsNewIdIndexRouteImport } from './routes/api/whats-new/$id/index'
 import { Route as ApiProfileEmailPreferencesIndexRouteImport } from './routes/api/profile/email-preferences/index'
+import { Route as ApiProfileCertificatesIndexRouteImport } from './routes/api/profile/certificates/index'
 import { Route as ApiProfileAccountActivityIndexRouteImport } from './routes/api/profile/account-activity/index'
 import { Route as ApiAnnouncementIdIndexRouteImport } from './routes/api/announcement/$id/index'
 import { Route as protectedLayoutWhatsNewIndexRouteImport } from './routes/(protected)/_layout/whats-new/index'
@@ -204,6 +205,12 @@ const ApiProfileEmailPreferencesIndexRoute =
   ApiProfileEmailPreferencesIndexRouteImport.update({
     id: '/api/profile/email-preferences/',
     path: '/api/profile/email-preferences/',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiProfileCertificatesIndexRoute =
+  ApiProfileCertificatesIndexRouteImport.update({
+    id: '/api/profile/certificates/',
+    path: '/api/profile/certificates/',
     getParentRoute: () => rootRouteImport,
   } as any)
 const ApiProfileAccountActivityIndexRoute =
@@ -460,6 +467,7 @@ export interface FileRoutesByFullPath {
   '/whats-new/': typeof protectedLayoutWhatsNewIndexRoute
   '/api/announcement/$id/': typeof ApiAnnouncementIdIndexRoute
   '/api/profile/account-activity/': typeof ApiProfileAccountActivityIndexRoute
+  '/api/profile/certificates/': typeof ApiProfileCertificatesIndexRoute
   '/api/profile/email-preferences/': typeof ApiProfileEmailPreferencesIndexRoute
   '/api/whats-new/$id/': typeof ApiWhatsNewIdIndexRoute
   '/api/learn/ai-chat/$lectureId/history': typeof ApiLearnAiChatLectureIdHistoryRoute
@@ -521,6 +529,7 @@ export interface FileRoutesByTo {
   '/whats-new': typeof protectedLayoutWhatsNewIndexRoute
   '/api/announcement/$id': typeof ApiAnnouncementIdIndexRoute
   '/api/profile/account-activity': typeof ApiProfileAccountActivityIndexRoute
+  '/api/profile/certificates': typeof ApiProfileCertificatesIndexRoute
   '/api/profile/email-preferences': typeof ApiProfileEmailPreferencesIndexRoute
   '/api/whats-new/$id': typeof ApiWhatsNewIdIndexRoute
   '/api/learn/ai-chat/$lectureId/history': typeof ApiLearnAiChatLectureIdHistoryRoute
@@ -585,6 +594,7 @@ export interface FileRoutesById {
   '/(protected)/_layout/whats-new/': typeof protectedLayoutWhatsNewIndexRoute
   '/api/announcement/$id/': typeof ApiAnnouncementIdIndexRoute
   '/api/profile/account-activity/': typeof ApiProfileAccountActivityIndexRoute
+  '/api/profile/certificates/': typeof ApiProfileCertificatesIndexRoute
   '/api/profile/email-preferences/': typeof ApiProfileEmailPreferencesIndexRoute
   '/api/whats-new/$id/': typeof ApiWhatsNewIdIndexRoute
   '/api/learn/ai-chat/$lectureId/history': typeof ApiLearnAiChatLectureIdHistoryRoute
@@ -649,6 +659,7 @@ export interface FileRouteTypes {
     | '/whats-new/'
     | '/api/announcement/$id/'
     | '/api/profile/account-activity/'
+    | '/api/profile/certificates/'
     | '/api/profile/email-preferences/'
     | '/api/whats-new/$id/'
     | '/api/learn/ai-chat/$lectureId/history'
@@ -710,6 +721,7 @@ export interface FileRouteTypes {
     | '/whats-new'
     | '/api/announcement/$id'
     | '/api/profile/account-activity'
+    | '/api/profile/certificates'
     | '/api/profile/email-preferences'
     | '/api/whats-new/$id'
     | '/api/learn/ai-chat/$lectureId/history'
@@ -773,6 +785,7 @@ export interface FileRouteTypes {
     | '/(protected)/_layout/whats-new/'
     | '/api/announcement/$id/'
     | '/api/profile/account-activity/'
+    | '/api/profile/certificates/'
     | '/api/profile/email-preferences/'
     | '/api/whats-new/$id/'
     | '/api/learn/ai-chat/$lectureId/history'
@@ -824,6 +837,7 @@ export interface RootRouteChildren {
   authV2LoginIndexRoute: typeof authV2LoginIndexRoute
   ApiAnnouncementIdIndexRoute: typeof ApiAnnouncementIdIndexRoute
   ApiProfileAccountActivityIndexRoute: typeof ApiProfileAccountActivityIndexRoute
+  ApiProfileCertificatesIndexRoute: typeof ApiProfileCertificatesIndexRoute
   ApiProfileEmailPreferencesIndexRoute: typeof ApiProfileEmailPreferencesIndexRoute
   ApiWhatsNewIdIndexRoute: typeof ApiWhatsNewIdIndexRoute
   ApiLearnAiChatLectureIdHistoryRoute: typeof ApiLearnAiChatLectureIdHistoryRoute
@@ -1016,6 +1030,13 @@ declare module '@tanstack/react-router' {
       path: '/api/profile/email-preferences'
       fullPath: '/api/profile/email-preferences/'
       preLoaderRoute: typeof ApiProfileEmailPreferencesIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/profile/certificates/': {
+      id: '/api/profile/certificates/'
+      path: '/api/profile/certificates'
+      fullPath: '/api/profile/certificates/'
+      preLoaderRoute: typeof ApiProfileCertificatesIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/profile/account-activity/': {
@@ -1393,6 +1414,7 @@ const rootRouteChildren: RootRouteChildren = {
   authV2LoginIndexRoute: authV2LoginIndexRoute,
   ApiAnnouncementIdIndexRoute: ApiAnnouncementIdIndexRoute,
   ApiProfileAccountActivityIndexRoute: ApiProfileAccountActivityIndexRoute,
+  ApiProfileCertificatesIndexRoute: ApiProfileCertificatesIndexRoute,
   ApiProfileEmailPreferencesIndexRoute: ApiProfileEmailPreferencesIndexRoute,
   ApiWhatsNewIdIndexRoute: ApiWhatsNewIdIndexRoute,
   ApiLearnAiChatLectureIdHistoryRoute: ApiLearnAiChatLectureIdHistoryRoute,

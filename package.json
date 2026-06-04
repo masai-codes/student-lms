@@ -27,9 +27,11 @@
     "prepare": "husky"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.1061.0",
     "@aws-sdk/client-sesv2": "^3.1045.0",
     "@aws-sdk/client-ssm": "^3.1034.0",
     "@aws-sdk/credential-providers": "^3.1034.0",
+    "@aws-sdk/s3-request-presigner": "^3.1061.0",
     "@livekit/components-react": "^2.9.21",
     "@livekit/components-styles": "^1.2.0",
     "@phosphor-icons/react": "^2.1.10",
@@ -54,9 +56,11 @@
     "@tiptap/react": "^3.22.4",
     "@tiptap/starter-kit": "^3.22.4",
     "@types/bcryptjs": "^2.4.6",
+    "@types/canvas-confetti": "^1.9.0",
     "@zoom/meetingsdk": "^5.1.0",
     "2factor": "^1.0.6",
     "bcryptjs": "^3.0.3",
+    "canvas-confetti": "^1.9.4",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "dompurify": "^3.4.0",

@@ -1,0 +1,230 @@
+import { useState, useEffect, useRef } from 'react'
+import { Share2, X } from 'lucide-react'
+import confetti from 'canvas-confetti'
+import { Modal, ModalContent } from '@/components/ui/modal'
+
+export interface CertificateCardData {
+  certificateObjectId: string
+  pdfUrl: string | null
+  verificationUrl: string | null
+  certificateTitle: string | null
+  certificateType: string | null
+  issuedDateIso: string | null
+  batchName: string
+}
+
+interface CertificateCardProps {
+  certificate: CertificateCardData
+}
+
+function formatDate(iso: string | null): string {
+  if (!iso) return '-'
+  try {
+    return new Date(iso).toLocaleDateString('en-IN', {
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric',
+    })
+  } catch {
+    return '-'
+  }
+}
+
+function ConfettiCanvas({ open }: { open: boolean }) {
+  const canvasRef = useRef<HTMLCanvasElement>(null)
+  const animFrameRef = useRef<number | null>(null)
+  const instanceRef = useRef<ReturnType<typeof confetti.create> | null>(null)
+
+  useEffect(() => {
+    const canvas = canvasRef.current
+    if (!canvas || !open) return
+
+    // Create a confetti instance bound to this canvas
+    const fire = confetti.create(canvas, { resize: true, useWorker: false })
+    instanceRef.current = fire
+
+    const duration = 3000
+    const end = Date.now() + duration
+
+    function frame() {
+      void fire({
+        particleCount: 6,
+        angle: 60,
+        spread: 55,
+        origin: { x: 0, y: 0.4 },
+        gravity: 1.2,
+        scalar: 0.9,
+        ticks: 150,
+      })
+      void fire({
+        particleCount: 6,
+        angle: 120,
+        spread: 55,
+        origin: { x: 1, y: 0.4 },
+        gravity: 1.2,
+        scalar: 0.9,
+        ticks: 150,
+      })
+
+      if (Date.now() < end) {
+        animFrameRef.current = requestAnimationFrame(frame)
+      } else {
+        void fire({ particleCount: 40, spread: 90, origin: { x: 0.5, y: 0.3 }, ticks: 250, decay: 0.88 })
+      }
+    }
+
+    animFrameRef.current = requestAnimationFrame(frame)
+
+    return () => {
+      if (animFrameRef.current !== null) cancelAnimationFrame(animFrameRef.current)
+      instanceRef.current?.reset()
+    }
+  }, [open])
+
+  return (
+    <canvas
+      ref={canvasRef}
+      className="pointer-events-none absolute inset-0 w-full h-full z-10"
+    />
+  )
+}
+
+function CertificateViewModal({
+  open,
+  onClose,
+  certificate,
+}: {
+  open: boolean
+  onClose: () => void
+  certificate: CertificateCardData
+}) {
+  return (
+    <Modal open={open} onOpenChange={(v) => { if (!v) onClose() }}>
+      <ModalContent
+        className="max-w-[1000px] w-full rounded-[20px] p-6 shadow-xl overflow-hidden"
+        showCloseButton={false}
+      >
+        {/* Confetti canvas — covers the entire modal */}
+        <ConfettiCanvas open={open} />
+
+        <div className="relative z-20 flex flex-col gap-4">
+          {/* Header */}
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <h2 className="text-lg font-bold text-gray-900">{certificate.certificateTitle ?? 'Certificate'}</h2>
+              <p className="text-sm text-gray-500 mt-0.5">
+                Congratulations on earning this certification! Share your achievement or open it in a new tab.
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={onClose}
+              className="shrink-0 text-gray-400 hover:text-gray-600 transition-colors focus-visible:outline-none"
+              aria-label="Close"
+            >
+              <X size={20} />
+            </button>
+          </div>
+
+          {/* Certificate iframe */}
+          {certificate.verificationUrl ? (
+            <div className="rounded-[12px] overflow-hidden border border-gray-200 bg-gray-50" style={{ height: '480px' }}>
+              <iframe
+                src={certificate.verificationUrl}
+                title={certificate.certificateTitle ?? 'Certificate'}
+                className="w-full h-full border-0"
+                allow="fullscreen"
+              />
+            </div>
+          ) : certificate.pdfUrl ? (
+            <div className="rounded-[12px] overflow-hidden border border-gray-200 bg-gray-50" style={{ height: '480px' }}>
+              <iframe
+                src={certificate.pdfUrl}
+                title={certificate.certificateTitle ?? 'Certificate'}
+                className="w-full h-full border-0"
+              />
+            </div>
+          ) : (
+            <div className="flex items-center justify-center h-40 rounded-[12px] bg-gray-50 border border-gray-200">
+              <p className="text-sm text-gray-400">Certificate not available</p>
+            </div>
+          )}
+
+          {/* Footer actions */}
+          <div className="flex items-center justify-center gap-3 pt-1">
+            {certificate.verificationUrl && (
+              <button
+                type="button"
+                onClick={() => {
+                  void navigator.clipboard?.writeText(certificate.verificationUrl!)
+                }}
+                className="flex items-center gap-2 px-5 py-2.5 rounded-[10px] bg-blue-500 text-white text-sm font-semibold hover:bg-blue-600 transition-colors"
+              >
+                <Share2 size={15} />
+                Share
+              </button>
+            )}
+            {certificate.pdfUrl && (
+              <a
+                href={certificate.pdfUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-5 py-2.5 rounded-[10px] bg-gray-900 text-white text-sm font-semibold hover:bg-gray-700 transition-colors"
+              >
+                Open in new tab
+              </a>
+            )}
+          </div>
+        </div>
+      </ModalContent>
+    </Modal>
+  )
+}
+
+export function CertificateCard({ certificate }: CertificateCardProps) {
+  const [viewOpen, setViewOpen] = useState(false)
+
+  return (
+    <>
+      <div className="rounded-[12px] border border-gray-200 bg-white p-5 flex flex-col gap-3">
+        <h3 className="text-[15px] font-bold text-gray-900 leading-snug">
+          {certificate.certificateTitle ?? 'Certificate'}
+        </h3>
+
+        <div className="flex flex-col gap-1 text-sm text-gray-600">
+          <p><span className="font-medium text-gray-700">Type:</span> {certificate.certificateType ?? '-'}</p>
+          <p><span className="font-medium text-gray-700">Issue date:</span> {formatDate(certificate.issuedDateIso)}</p>
+          <p><span className="font-medium text-gray-700">Batch:</span> {certificate.batchName}</p>
+        </div>
+
+        <div className="flex items-center gap-2 pt-1">
+          <button
+            type="button"
+            onClick={() => setViewOpen(true)}
+            className="px-4 py-2 rounded-[8px] bg-gray-900 text-white text-sm font-semibold hover:bg-gray-700 transition-colors"
+          >
+            View
+          </button>
+          {certificate.verificationUrl && (
+            <button
+              type="button"
+              onClick={() => {
+                void navigator.clipboard?.writeText(certificate.verificationUrl!)
+              }}
+              className="flex items-center gap-1.5 px-4 py-2 rounded-[8px] bg-blue-500 text-white text-sm font-semibold hover:bg-blue-600 transition-colors"
+            >
+              <Share2 size={14} />
+              Share
+            </button>
+          )}
+        </div>
+      </div>
+
+      <CertificateViewModal
+        open={viewOpen}
+        onClose={() => setViewOpen(false)}
+        certificate={certificate}
+      />
+    </>
+  )
+}
