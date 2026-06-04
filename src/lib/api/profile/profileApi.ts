@@ -3,6 +3,7 @@ import { PROFILE_API } from '@/lib/api/profilePaths'
 import type { UserProfile } from '@/server/api/profile/getProfile.service'
 import type { EmailPreferences } from '@/server/api/profile/emailPreferences.service'
 import type { SessionInfo } from '@/server/api/profile/accountActivity.service'
+import type { CertificateItem } from '@/server/api/profile/certificates.service'
 
 export async function fetchProfile(): Promise<UserProfile> {
   const { profile } = await fetchJson<{ profile: UserProfile }>(PROFILE_API.profile)
@@ -72,4 +73,11 @@ export async function signOutAllSessions(): Promise<void> {
   await fetchJson<{ success: boolean }>(PROFILE_API.accountActivitySignOutAll, {
     method: 'POST',
   })
+}
+
+export async function fetchCertificates(): Promise<Array<CertificateItem>> {
+  const { certificates } = await fetchJson<{ certificates: Array<CertificateItem> }>(
+    PROFILE_API.certificates,
+  )
+  return certificates
 }

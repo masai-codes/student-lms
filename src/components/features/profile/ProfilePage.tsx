@@ -12,6 +12,7 @@ import { fetchProfile } from '@/lib/api/profile/profileApi'
 import { ProfileDetailsTab } from './tabs/ProfileDetailsTab'
 import { EmailPreferencesTab } from './tabs/EmailPreferencesTab'
 import { AccountActivityTab } from './tabs/AccountActivityTab'
+import { CertificatesTab } from './tabs/CertificatesTab'
 import { ComingSoonTab } from './tabs/ComingSoonTab'
 import type { ProfileTab } from '@/routes/(protected)/_layout/profile/index'
 
@@ -127,7 +128,8 @@ export function ProfilePage() {
           {tab === 'profile-details' && <ProfileDetailsTab />}
           {tab === 'email-preferences' && <EmailPreferencesTab />}
           {tab === 'account-activity' && <AccountActivityTab />}
-          {tab !== 'profile-details' && tab !== 'email-preferences' && tab !== 'account-activity' && (
+          {tab === 'certificates' && <CertificatesTab />}
+          {tab !== 'profile-details' && tab !== 'email-preferences' && tab !== 'account-activity' && tab !== 'certificates' && (
             <ComingSoonTab tab={TABS.find((t) => t.slug === tab)?.label ?? tab} />
           )}
         </div>
