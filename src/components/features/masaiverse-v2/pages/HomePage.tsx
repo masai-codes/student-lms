@@ -25,7 +25,9 @@ export default function HomePage() {
   return (
     <InlineDrawer
       open={isCalendarOpen}
-      panel={<CalendarPanel />}
+      // Render the panel only while open so its events/list fetch runs on
+      // demand rather than eagerly on every home page load.
+      panel={isCalendarOpen ? <CalendarPanel /> : null}
       onClose={() => setIsCalendarOpen(false)}
     >
       <div className="flex flex-col gap-8">

@@ -90,7 +90,9 @@ export default function ClubDetailPage({ clubId }: ClubDetailPageProps) {
   return (
     <InlineDrawer
       open={isCalendarOpen}
-      panel={<CalendarPanel />}
+      // Render the panel only while open so its events/list fetch runs on
+      // demand rather than eagerly on every club detail page load.
+      panel={isCalendarOpen ? <CalendarPanel /> : null}
       title="Schedule"
       onClose={() => setIsCalendarOpen(false)}
     >

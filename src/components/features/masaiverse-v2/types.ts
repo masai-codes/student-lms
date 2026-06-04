@@ -1,7 +1,5 @@
 /**
- * Domain types for the masaiverse-v2 UI. These mirror the shape that the
- * single aggregated GET `/api/masaiverse-v2/home` will return, so the dummy
- * data and the eventual API response are interchangeable.
+ * Shared presentation types for the masaiverse-v2 UI.
  */
 
 /** Accent palette shared by stat cards and club icons. */
