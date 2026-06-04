@@ -7,16 +7,3 @@
 /** Accent palette shared by stat cards and club icons. */
 export type AccentColor = 'orange' | 'green' | 'purple' | 'blue'
 
-export interface MasaiverseClub {
-  id: string
-  name: string
-  /** Emoji for now; later this may become an image URL from the API. */
-  icon: string
-}
-
-export interface MasaiverseV2SidebarData {
-  /** Count shown as a badge next to the "Events" nav item. */
-  eventsCount: number
-  myClubs: Array<MasaiverseClub>
-}
-

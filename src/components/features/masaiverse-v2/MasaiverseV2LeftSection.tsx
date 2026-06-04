@@ -2,7 +2,6 @@ import { useQuery } from '@tanstack/react-query'
 import { useRouterState } from '@tanstack/react-router'
 import MyClubsSection from './MyClubsSection'
 import SidebarNavItem from './SidebarNavItem'
-import { SIDEBAR_DUMMY_DATA } from './data/sidebarDummyData'
 import { SIDEBAR_NAV_ITEMS } from './data/sidebarNavItems'
 import { masaiverseV2MyClubsQuery } from '@/query/masaiverse-v2/clubsQuery'
 
@@ -14,7 +13,6 @@ import { masaiverseV2MyClubsQuery } from '@/query/masaiverse-v2/clubsQuery'
  * separates it from the right (content) section.
  */
 export default function MasaiverseV2LeftSection() {
-  const { eventsCount } = SIDEBAR_DUMMY_DATA
   const { data: myClubs = [], isPending: isLoadingClubs } = useQuery(
     masaiverseV2MyClubsQuery(),
   )
@@ -39,7 +37,6 @@ export default function MasaiverseV2LeftSection() {
             icon={item.icon}
             to={item.to}
             isActive={pathname === item.to}
-            badgeCount={item.id === 'events' ? eventsCount : undefined}
           />
         ))}
       </nav>
