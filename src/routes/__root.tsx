@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { HeadContent, Scripts, createRootRouteWithContext } from '@tanstack/react-router'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import appCss from '../styles.css?url'
@@ -50,7 +51,13 @@ export const Route = createRootRouteWithContext<RouterContext>()({
 })
 
 function RootDocument({ children }: { children: React.ReactNode }) {
-  const queryClient = new QueryClient()
+  // Must be a stable instance: creating the client inline on every render would
+  // hand `QueryClientProvider` a brand-new, empty cache whenever this shell
+  // re-renders, silently discarding every cached query and optimistic write
+  // (e.g. a club's `isJoined` / `memberCount` after Join). `useState` keeps one
+  // client for the life of the browser tab while still giving each SSR request
+  // its own.
+  const [queryClient] = useState(() => new QueryClient())
 
   return (
     <html lang="en">

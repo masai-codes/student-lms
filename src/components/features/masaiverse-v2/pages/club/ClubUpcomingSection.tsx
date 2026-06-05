@@ -1,0 +1,55 @@
+import { useQuery } from '@tanstack/react-query'
+import EventsCarousel from '../home/EventsCarousel'
+import SectionHeader from '../home/SectionHeader'
+import type { MasaiverseV2ClubEvents } from '@/server/api/masaiverse-v2/services/getClubEvents.service'
+import { masaiverseV2ClubEventsQuery } from '@/query/masaiverse-v2/clubsQuery'
+
+type ClubUpcomingSectionProps = {
+  clubId: string
+  /** Opens the calendar drawer. */
+  onViewCalendar?: () => void
+  /** Events embedded in the club detail payload; seeds the query. */
+  initialEvents?: MasaiverseV2ClubEvents
+}
+
+/** Club page's live/upcoming events — reuses the home events carousel. */
+export default function ClubUpcomingSection({
+  clubId,
+  onViewCalendar,
+  initialEvents,
+}: ClubUpcomingSectionProps) {
+  const { data, isPending } = useQuery({
+    ...masaiverseV2ClubEventsQuery(clubId),
+    ...(initialEvents ? { initialData: initialEvents } : {}),
+  })
+  const events = data?.upcoming ?? []
+
+  return (
+    <section>
+      <SectionHeader
+        title="Live & Upcoming"
+        subtitle={
+          events.length
+            ? `· ${events.length} event${events.length === 1 ? '' : 's'}`
+            : undefined
+        }
+        action={
+          <button
+            type="button"
+            onClick={onViewCalendar}
+            className="text-[14px] font-medium text-masaiverse-orange hover:underline"
+          >
+            View calendar →
+          </button>
+        }
+      />
+      <EventsCarousel
+        events={events}
+        isPending={isPending}
+        loadingLabel="Loading events"
+        emptyMessage="No live or upcoming events right now."
+        navKey="club-events"
+      />
+    </section>
+  )
+}

@@ -1,0 +1,223 @@
+import { and, count, eq } from 'drizzle-orm'
+import { getClubStats } from './getClubStats.service'
+import { getClubEvents } from './getClubEvents.service'
+import { getClubLeaderboard } from './getClubLeaderboard.service'
+import { getCommunityDiscussions } from './getCommunityDiscussions.service'
+import type { MasaiverseV2ClubStats } from './getClubStats.service'
+import type { MasaiverseV2ClubEvents } from './getClubEvents.service'
+import type { ClubLeaderboardPage } from './getClubLeaderboard.service'
+import type { MasaiverseV2Discussion } from './getCommunityDiscussions.service'
+import { db } from '@/db'
+import { clubMembers, clubs } from '@/db/schema'
+
+/** First page size for the leaderboard embedded in the detail payload. */
+const CLUB_LEADERBOARD_PER_PAGE = 5
+/** Number of latest discussions embedded in the detail payload. */
+const CLUB_DISCUSSIONS_LIMIT = 5
+
+export interface MasaiverseV2ClubDetail {
+  id: string
+  name: string
+  /** `clubs.meta.cardImageLink` (falls back to `clubs.image`); null when none. */
+  imageUrl: string | null
+  /**
+   * Banner subtitle shown under the title —
+   * `clubs.meta.clubDetailBannerSubtitle`, falling back to
+   * `clubs.meta.belowTitleCardText`. Null when neither is set.
+   */
+  bannerSubtitle: string | null
+  /** `clubs.meta.clubDetailBannerTags` — arbitrary pills shown in the banner. */
+  bannerTags: Array<string>
+  /** `clubs.meta.description` — the "About the Club" paragraph. */
+  aboutDescription: string | null
+  /**
+   * `clubs.meta.aboutCardDetails` — labelled facts (Founded, Tenure, …) shown
+   * in the About card grid. Entries missing a heading or value are dropped.
+   */
+  aboutDetails: Array<ClubAboutDetail>
+  /** `clubs.meta.learningTenureDateText` — the week label, e.g. "20-26 June". */
+  learningTenureDateText: string | null
+  /**
+   * `clubs.meta.learningTenureData` — the learning-tenure cards (emoji, heading,
+   * text, tags). Entries without a heading are dropped.
+   */
+  learningTenure: Array<ClubLearningTenureItem>
+  /** `clubs.meta.galleryImages` — club photo URLs (non-empty strings). */
+  galleryImages: Array<string>
+  /** Live count of rows in `club_members` for this club. */
+  memberCount: number
+  /** Whether the requesting user is a member of this club. */
+  isJoined: boolean
+  /**
+   * The club detail page renders from this single payload. The sections below
+   * are the same data the standalone `clubs/stats`, `clubs/events`,
+   * `clubs/leaderboard` and `discussions` endpoints return, embedded here so the
+   * page needs only one request.
+   */
+  /** Headline stats section (active members, avg rating, projects, posts). */
+  stats: MasaiverseV2ClubStats | null
+  /** Weekly connects + live/upcoming + past event sections. */
+  events: MasaiverseV2ClubEvents
+  /** First page (5 entries) of the club leaderboard. */
+  leaderboard: ClubLeaderboardPage
+  /** Latest 5 discussions for the club. */
+  discussions: Array<MasaiverseV2Discussion>
+}
+
+const EMPTY_EVENTS: MasaiverseV2ClubEvents = {
+  weeklyConnects: [],
+  upcoming: [],
+  past: [],
+}
+
+export interface ClubAboutDetail {
+  heading: string
+  value: string
+}
+
+export interface ClubLearningTenureItem {
+  emoji: string | null
+  heading: string
+  text: string | null
+  tags: Array<string>
+}
+
+function toStringOrNull(value: unknown): string | null {
+  if (typeof value !== 'string') return null
+  const trimmed = value.trim()
+  return trimmed.length > 0 ? trimmed : null
+}
+
+/** Coerces `meta.clubDetailBannerTags` into a clean list of non-empty strings. */
+function toStringList(value: unknown): Array<string> {
+  if (!Array.isArray(value)) return []
+  return value
+    .map((tag) => toStringOrNull(tag))
+    .filter((tag): tag is string => tag !== null)
+}
+
+/**
+ * Coerces `meta.aboutCardDetails` into `{ heading, value }` rows, dropping any
+ * entry that isn't an object with both a non-empty heading and value.
+ */
+function toAboutDetails(value: unknown): Array<ClubAboutDetail> {
+  if (!Array.isArray(value)) return []
+  return value
+    .map((entry): ClubAboutDetail | null => {
+      if (typeof entry !== 'object' || entry === null) return null
+      const heading = toStringOrNull((entry as Record<string, unknown>).heading)
+      const detail = toStringOrNull((entry as Record<string, unknown>).value)
+      return heading && detail ? { heading, value: detail } : null
+    })
+    .filter((entry): entry is ClubAboutDetail => entry !== null)
+}
+
+/**
+ * Coerces `meta.learningTenureData` into learning-tenure cards, dropping any
+ * entry that isn't an object with a non-empty heading. Emoji/text fall back to
+ * null and tags to a clean string list.
+ */
+function toLearningTenure(value: unknown): Array<ClubLearningTenureItem> {
+  if (!Array.isArray(value)) return []
+  return value
+    .map((entry): ClubLearningTenureItem | null => {
+      if (typeof entry !== 'object' || entry === null) return null
+      const record = entry as Record<string, unknown>
+      const heading = toStringOrNull(record.heading)
+      if (!heading) return null
+      return {
+        emoji: toStringOrNull(record.emoji),
+        heading,
+        text: toStringOrNull(record.text),
+        tags: toStringList(record.tags),
+      }
+    })
+    .filter((entry): entry is ClubLearningTenureItem => entry !== null)
+}
+
+/**
+ * Full detail for a single club's page. Returns `null` when no club matches the
+ * id so the route can render a "not found" state. `memberCount` and `isJoined`
+ * are derived live from `club_members`.
+ */
+export async function getClubDetail(
+  clubId: number,
+  userId: number,
+  now: Date = new Date(),
+): Promise<MasaiverseV2ClubDetail | null> {
+  if (!Number.isFinite(clubId)) return null
+
+  const club = (
+    await db
+      .select({
+        id: clubs.id,
+        name: clubs.name,
+        image: clubs.image,
+        meta: clubs.meta,
+      })
+      .from(clubs)
+      .where(eq(clubs.id, clubId))
+      .limit(1)
+  ).at(0)
+
+  if (!club) return null
+
+  // Fan out: the live member count + this user's membership, plus the four
+  // sections the page used to fetch separately (stats, events, leaderboard's
+  // first page, latest discussions). Each sub-service re-checks the club but it
+  // already exists here, so they resolve with data.
+  const [memberCountRows, membership, stats, events, leaderboard, discussions] =
+    await Promise.all([
+      db
+        .select({ memberCount: count() })
+        .from(clubMembers)
+        .where(eq(clubMembers.clubId, clubId)),
+      db
+        .select({ id: clubMembers.id })
+        .from(clubMembers)
+        .where(
+          and(eq(clubMembers.clubId, clubId), eq(clubMembers.userId, userId)),
+        )
+        .limit(1),
+      getClubStats(clubId, now),
+      getClubEvents(clubId, now),
+      getClubLeaderboard(clubId, 0, CLUB_LEADERBOARD_PER_PAGE),
+      getCommunityDiscussions(
+        userId,
+        0,
+        CLUB_DISCUSSIONS_LIMIT,
+        '',
+        String(clubId),
+      ),
+    ])
+
+  const memberCount = memberCountRows.at(0)?.memberCount ?? 0
+
+  return {
+    id: String(club.id),
+    name: club.name,
+    imageUrl:
+      toStringOrNull(club.meta?.cardImageLink) ?? toStringOrNull(club.image),
+    bannerSubtitle:
+      toStringOrNull(club.meta?.clubDetailBannerSubtitle) ??
+      toStringOrNull(club.meta?.belowTitleCardText),
+    bannerTags: toStringList(club.meta?.clubDetailBannerTags),
+    aboutDescription: toStringOrNull(club.meta?.description),
+    aboutDetails: toAboutDetails(club.meta?.aboutCardDetails),
+    learningTenureDateText: toStringOrNull(club.meta?.learningTenureDateText),
+    learningTenure: toLearningTenure(club.meta?.learningTenureData),
+    galleryImages: toStringList(club.meta?.galleryImages),
+    memberCount,
+    isJoined: membership.length > 0,
+    stats,
+    events: events ?? EMPTY_EVENTS,
+    leaderboard: leaderboard ?? {
+      entries: [],
+      page: 0,
+      perPage: CLUB_LEADERBOARD_PER_PAGE,
+      total: 0,
+      hasMore: false,
+    },
+    discussions: discussions.discussions,
+  }
+}
