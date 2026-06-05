@@ -69,7 +69,15 @@ function eventRow(overrides: Record<string, unknown> = {}) {
     platform: 'Google Meet',
     startTime: '2026-06-10 09:00:00',
     endTime: '2026-06-10 17:00:00',
-    meta: { aboveTitle: 'WEEKLY', belowTitle: '48 teams', isWeeklyConnect: true },
+    meta: {
+      aboveTitle: 'WEEKLY',
+      belowTitle: '48 teams',
+      isWeeklyConnect: true,
+      hostedBy: [
+        { host: 'Aman Kumar', imageUrl: 'https://cdn/aman.png' },
+        { host: 'Priya Rao', imageUrl: '' },
+      ],
+    },
     clubName: 'Programming Club',
     ...overrides,
   }
@@ -119,6 +127,10 @@ describe('getEventDetail', () => {
       isWeeklyConnect: true,
       clubId: '3',
       clubName: 'Programming Club',
+      hostedBy: [
+        { name: 'Aman Kumar', imageUrl: 'https://cdn/aman.png' },
+        { name: 'Priya Rao', imageUrl: null },
+      ],
       status: 'upcoming',
       isEnrolled: true,
       enrolledCount: 12,
@@ -184,9 +196,36 @@ describe('getEventDetail', () => {
       isWeeklyConnect: false,
       clubId: null,
       clubName: null,
+      hostedBy: [],
       status: 'completed',
       isEnrolled: false,
       enrolledCount: 0,
+    })
+  })
+
+  it('drops malformed hostedBy entries and those without a host name', async () => {
+    const { getEventDetail } = await import('../services/getEventDetail.service')
+    hoisted.dbSelect
+      .mockReturnValueOnce(
+        rowChain([
+          eventRow({
+            meta: {
+              hostedBy: [
+                { host: 'Sam Niko', imageUrl: 'https://cdn/sam.png' },
+                { host: '   ', imageUrl: 'https://cdn/blank.png' },
+                { imageUrl: 'https://cdn/no-name.png' },
+                'not-an-object',
+                null,
+              ],
+            },
+          }),
+        ]),
+      )
+      .mockReturnValueOnce(countChain([{ enrolledCount: 0 }]))
+      .mockReturnValueOnce(limitChain([]))
+
+    await expect(getEventDetail(7, 1, NOW)).resolves.toMatchObject({
+      hostedBy: [{ name: 'Sam Niko', imageUrl: 'https://cdn/sam.png' }],
     })
   })
 })

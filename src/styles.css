@@ -189,3 +189,95 @@ code {
 .animate-masaiverse-star-pop {
   animation: masaiverse-star-pop 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) both;
 }
+
+/* Luma-style "hyperspace" backdrop: thin prismatic light rays burst outward
+   from behind the event's cover image and rotate slowly against a near-black
+   sky, while a blurred copy of the cover image tints the burst with the event's
+   own colours. Each ray layer spins at its own speed/direction so the streaks
+   shimmer and never visibly repeat. The burst is centred on the cover image
+   (left third) and masked so the very centre (where the image sits) stays
+   clear and the rays fade gently before the edges. */
+.event-rays {
+  position: absolute;
+  left: 30%;
+  top: 42%;
+  width: 230vmax;
+  height: 230vmax;
+  border-radius: 9999px;
+  transform: translate(-50%, -50%);
+  will-change: transform;
+  -webkit-mask-image: radial-gradient(
+    closest-side,
+    transparent 3%,
+    #000 20%,
+    #000 55%,
+    transparent 80%
+  );
+  mask-image: radial-gradient(
+    closest-side,
+    transparent 3%,
+    #000 20%,
+    #000 55%,
+    transparent 80%
+  );
+}
+
+/* Fine white streaks — the backbone of the burst. */
+.event-rays--white {
+  background: repeating-conic-gradient(
+    from 0deg at 50% 50%,
+    rgba(255, 255, 255, 0) 0deg,
+    rgba(255, 255, 255, 0) 0.9deg,
+    rgba(255, 255, 255, 0.55) 1.3deg,
+    rgba(255, 255, 255, 0) 1.7deg,
+    rgba(255, 255, 255, 0) 4deg
+  );
+  filter: blur(0.5px);
+}
+
+/* Wider, colour-split streaks layered with `screen` for the prismatic shimmer. */
+.event-rays--prism {
+  background: repeating-conic-gradient(
+    from 7deg at 50% 50%,
+    rgba(56, 189, 248, 0) 0deg,
+    rgba(56, 189, 248, 0) 2deg,
+    rgba(56, 189, 248, 0.5) 2.5deg,
+    rgba(168, 85, 247, 0.45) 3deg,
+    rgba(251, 146, 60, 0.45) 3.6deg,
+    rgba(56, 189, 248, 0) 4.2deg,
+    rgba(56, 189, 248, 0) 9deg
+  );
+  filter: blur(1.2px);
+  mix-blend-mode: screen;
+}
+
+@keyframes event-rays-cw {
+  0% {
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
+  100% {
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
+}
+@keyframes event-rays-ccw {
+  0% {
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
+  100% {
+    transform: translate(-50%, -50%) rotate(-360deg);
+  }
+}
+
+.animate-event-rays-cw {
+  animation: event-rays-cw 120s linear infinite;
+}
+.animate-event-rays-ccw {
+  animation: event-rays-ccw 90s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-event-rays-cw,
+  .animate-event-rays-ccw {
+    animation: none;
+  }
+}

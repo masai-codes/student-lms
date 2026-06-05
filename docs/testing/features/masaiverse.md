@@ -86,6 +86,7 @@ Current focus: server API/unit test coverage for `src/server/masaiverse/**`.
 - `src/components/features/masaiverse-v2/pages/event/eventDetailFormat.test.ts`
 - `src/components/features/masaiverse-v2/pages/event/EventHeroImage.test.tsx`
 - `src/components/features/masaiverse-v2/pages/event/EventInfoRows.test.tsx`
+- `src/components/features/masaiverse-v2/pages/event/EventHosts.test.tsx`
 - `src/components/features/masaiverse-v2/pages/event/EventRegisterCard.test.tsx`
 - `src/components/features/masaiverse-v2/pages/EventDetailPage.test.tsx`
 - `src/components/features/masaiverse-v2/pages/home/EventCard.test.tsx`
@@ -230,6 +231,7 @@ Current focus: server API/unit test coverage for `src/server/masaiverse/**`.
 - `MASAIVE-V2-097` - Module: `rateEvent` (service) - Case: non-finite id → `INVALID_EVENT_ID`; rating outside 1–5 or non-integer → `INVALID_RATING`; unknown event → `EVENT_NOT_FOUND`; not-yet-ended event → `EVENT_NOT_ENDED`; non-attendee → `NOT_ENROLLED`; existing rating → `ALREADY_RATED`; success writes `{rating,feedback,ratedAt}` into `event_enrollments.meta` (preserving prior keys) with trimmed feedback, blank feedback normalized to null - Status: Covered
 - `MASAIVE-V2-098` - Module: `handleRateEvent` (`POST /events/rate`) - Case: success returns the rating state via `rateEvent(userId, eventId, rating, feedback)`; no session → 401 (service not called); a service `ApiError` (e.g. `ALREADY_RATED` 409) is propagated; unexpected failure → 500 `SERVER_ERROR_RATING_EVENT` - Status: Covered
 - `MASAIVE-V2-099` - Module: `EventRatingCard` / `StarRow` (UI) - Case: renders nothing unless the event has ended and the user attended; submit disabled until a star is picked; submitting calls `rateMasaiverseV2Event` (trimmed feedback / undefined when blank), patches the cached detail's `userRating`/`userFeedback` and flips to a read-only thank-you in place; an already-rated event shows the stored stars + feedback with no picker; a failed submission surfaces an inline error - Status: Covered
+- `MASAIVE-V2-100` - Module: `getEventDetail` (`toHostedBy`) / `EventHosts` (UI) - Case: `meta.hostedBy` maps to `{ name, imageUrl }` (blank avatar → null), dropping entries without a host name and non-object/null entries; the "Hosted By" section renders each host with an avatar image or initials fallback, lists multiple hosts in order, and renders nothing when the list is empty; the detail page shows the section under the hero image - Status: Covered
 
 ## Pending / Next Cases
 

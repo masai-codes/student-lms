@@ -47,6 +47,7 @@ function makeEvent(
     enrolledCount: 4,
     userRating: null,
     userFeedback: null,
+    hostedBy: [],
     ...overrides,
   }
 }
@@ -88,6 +89,22 @@ describe('EventDetailPage', () => {
     expect(screen.getByText('In-person')).toBeTruthy()
     expect(screen.getByText('About this event')).toBeTruthy()
     expect(screen.getByText('4 people registered')).toBeTruthy()
+  })
+
+  it('renders the "Hosted By" section from hostedBy', async () => {
+    fetchDetail.mockResolvedValue(
+      makeEvent({
+        hostedBy: [
+          { name: 'Aman Kumar', imageUrl: 'https://cdn/aman.png' },
+          { name: 'Priya Rao', imageUrl: null },
+        ],
+      }),
+    )
+    renderPage()
+
+    expect(await screen.findByText('Hosted By')).toBeTruthy()
+    expect(screen.getByText('Aman Kumar')).toBeTruthy()
+    expect(screen.getByText('Priya Rao')).toBeTruthy()
   })
 
   it('renders the description as rich markdown/HTML, not plain text', async () => {

@@ -44,6 +44,7 @@ function makeEvent(
     enrolledCount: 10,
     userRating: null,
     userFeedback: null,
+    hostedBy: [],
     ...overrides,
   }
 }

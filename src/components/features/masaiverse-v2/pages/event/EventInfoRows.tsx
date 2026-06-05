@@ -22,15 +22,15 @@ function InfoRow({
 }) {
   return (
     <div className="flex items-center gap-3">
-      <span className="flex size-11 shrink-0 items-center justify-center rounded-[12px] border border-[#EDEAE8] bg-[#FAF8F6] text-[#4B5563]">
+      <span className="flex size-11 shrink-0 items-center justify-center rounded-[12px] border border-white/15 bg-white/10 text-white/80">
         {icon}
       </span>
       <span className="min-w-0">
-        <span className="block text-[15px] font-bold leading-5 text-[#111827]">
+        <span className="block text-[15px] font-bold leading-5 text-white">
           {title}
         </span>
         {subtitle ? (
-          <span className="block truncate text-[13px] leading-5 text-[#6B7280]">
+          <span className="block truncate text-[13px] leading-5 text-white/60">
             {subtitle}
           </span>
         ) : null}
@@ -74,11 +74,11 @@ export default function EventInfoRows({ event }: EventInfoRowsProps) {
           ) : null}
         </span>
         <span className="min-w-0">
-          <span className="block text-[15px] font-bold leading-5 text-[#111827]">
+          <span className="block text-[15px] font-bold leading-5 text-white">
             {longDate ?? 'Date to be announced'}
           </span>
           {timeRange ? (
-            <span className="block text-[13px] leading-5 text-[#6B7280]">
+            <span className="block text-[13px] leading-5 text-white/60">
               {timeRange} IST
             </span>
           ) : null}

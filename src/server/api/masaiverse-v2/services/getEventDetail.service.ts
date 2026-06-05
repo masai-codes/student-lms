@@ -9,6 +9,13 @@ import { readEnrollmentRating } from '@/server/api/masaiverse-v2/services/rateEv
 export type EventCategory = 'hackathon' | 'meetup' | 'webinar'
 export type EventMode = 'online' | 'offline'
 
+export interface EventHost {
+  /** Host display name. */
+  name: string
+  /** Host avatar URL; null when none is set. */
+  imageUrl: string | null
+}
+
 export interface MasaiverseV2EventDetail {
   id: string
   title: string
@@ -38,6 +45,8 @@ export interface MasaiverseV2EventDetail {
   clubId: string | null
   /** Hosting club name (via join); null for community-wide events. */
   clubName: string | null
+  /** `events.meta.hostedBy` — named hosts (with optional avatars) for the event. */
+  hostedBy: Array<EventHost>
   /** Lifecycle status derived from the timestamps (live / upcoming / completed). */
   status: EventStatus
   /** Whether the requesting user has already registered. */
@@ -58,6 +67,22 @@ function toStringOrNull(value: unknown): string | null {
 
 function toUtcIso(value: string | null): string | null {
   return parseMasaiverseEventDbTimestamp(value)?.toISOString() ?? null
+}
+
+/**
+ * Coerces `meta.hostedBy` into a clean `{ name, imageUrl }` list, dropping any
+ * entry without a non-empty host name. Blank/absent avatars become null.
+ */
+function toHostedBy(value: unknown): Array<EventHost> {
+  if (!Array.isArray(value)) return []
+  return value
+    .map((entry): EventHost | null => {
+      if (typeof entry !== 'object' || entry === null) return null
+      const record = entry as Record<string, unknown>
+      const name = toStringOrNull(record.host)
+      return name ? { name, imageUrl: toStringOrNull(record.imageUrl) } : null
+    })
+    .filter((entry): entry is EventHost => entry !== null)
 }
 
 /**
@@ -141,6 +166,7 @@ export async function getEventDetail(
     isWeeklyConnect: row.meta?.isWeeklyConnect === true,
     clubId: row.clubId != null ? String(row.clubId) : null,
     clubName: toStringOrNull(row.clubName),
+    hostedBy: toHostedBy(row.meta?.hostedBy),
     status: getEventStatus({ startTime, endTime }, now),
     isEnrolled,
     enrolledCount,
