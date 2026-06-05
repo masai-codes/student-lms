@@ -1,3 +1,4 @@
+import { Link } from '@tanstack/react-router'
 import { MONTH_NAMES } from './calendarUtils'
 import type { CalendarEvent } from './calendarUtils'
 import { formatIstDateTime } from '@/lib/masaiverseEventCard'
@@ -38,18 +39,25 @@ export default function CalendarDayEvents({
       ) : (
         <ul className="flex flex-col gap-2">
           {events.map((event) => (
-            <li key={event.id} className="flex flex-col gap-0.5">
-              <span className="text-[13px] font-semibold leading-4 text-[#111827]">
-                {event.title}
-              </span>
-              <span className="flex flex-wrap items-center gap-1.5 text-[11px] text-[#6B7280]">
-                {formatIstDateTime(event.startTime) ?? 'Time TBA'}
-                {event.clubName ? (
-                  <span className="rounded-full bg-masaiverse-orange/15 px-1.5 py-0.5 font-semibold text-masaiverse-orange">
-                    {event.clubName}
-                  </span>
-                ) : null}
-              </span>
+            <li key={event.id}>
+              <Link
+                to="/masaiverse/event/$eventId"
+                params={{ eventId: event.id }}
+                search={(prev) => prev}
+                className="flex flex-col gap-0.5 rounded-[8px] -mx-1 px-1 py-0.5 transition-colors hover:bg-masaiverse-orange/10"
+              >
+                <span className="text-[13px] font-semibold leading-4 text-[#111827]">
+                  {event.title}
+                </span>
+                <span className="flex flex-wrap items-center gap-1.5 text-[11px] text-[#6B7280]">
+                  {formatIstDateTime(event.startTime) ?? 'Time TBA'}
+                  {event.clubName ? (
+                    <span className="rounded-full bg-masaiverse-orange/15 px-1.5 py-0.5 font-semibold text-masaiverse-orange">
+                      {event.clubName}
+                    </span>
+                  ) : null}
+                </span>
+              </Link>
             </li>
           ))}
         </ul>

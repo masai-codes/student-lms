@@ -1,7 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { Link } from '@tanstack/react-router'
 import { ArrowLeft } from '@phosphor-icons/react'
-import EventAmbientBackground from './event/EventAmbientBackground'
 import EventHeroImage from './event/EventHeroImage'
 import EventHosts from './event/EventHosts'
 import EventInfoRows from './event/EventInfoRows'
@@ -21,7 +20,7 @@ function BackToEventsLink() {
     <Link
       to="/masaiverse/events"
       search={(prev) => prev}
-      className="inline-flex items-center gap-1 text-[14px] font-medium text-white/70 transition-colors hover:text-white"
+      className="inline-flex items-center gap-1 text-[14px] font-medium text-[#6B7280] hover:text-[#111827]"
     >
       <ArrowLeft size={16} />
       Back to events
@@ -93,8 +92,7 @@ export default function EventDetailPage({ eventId }: EventDetailPageProps) {
   }
 
   return (
-    <div className="relative isolate -m-6 flex min-h-full flex-col gap-6 overflow-hidden bg-[#0a0b12] p-6 text-white">
-      <EventAmbientBackground imageUrl={event.imageUrl} />
+    <div className="flex flex-col gap-6">
       <BackToEventsLink />
 
       <div className="grid grid-cols-1 gap-8 md:grid-cols-[minmax(0,360px)_minmax(0,1fr)]">
@@ -110,18 +108,18 @@ export default function EventDetailPage({ eventId }: EventDetailPageProps) {
                 {event.aboveTitle}
               </p>
             ) : null}
-            <h1 className="mt-1 text-[28px] font-extrabold leading-9 text-white sm:text-[32px]">
+            <h1 className="mt-1 text-[28px] font-extrabold leading-9 text-[#111827] sm:text-[32px]">
               {event.title}
             </h1>
             {event.belowTitle ? (
-              <p className="mt-1.5 text-[15px] leading-6 text-white/70">
+              <p className="mt-1.5 text-[15px] leading-6 text-[#6B7280]">
                 {event.belowTitle}
               </p>
             ) : null}
             {event.clubName ? (
-              <p className="mt-2 text-[14px] leading-5 text-white/70">
+              <p className="mt-2 text-[14px] leading-5 text-[#6B7280]">
                 Hosted by{' '}
-                <span className="font-semibold text-white">
+                <span className="font-semibold text-[#111827]">
                   {event.clubName}
                 </span>
               </p>
@@ -135,14 +133,14 @@ export default function EventDetailPage({ eventId }: EventDetailPageProps) {
 
           {event.description ? (
             <section>
-              <h2 className="text-[16px] font-bold leading-6 text-white">
+              <h2 className="text-[16px] font-bold leading-6 text-[#111827]">
                 About this event
               </h2>
               {/* Description may contain markdown / raw HTML tags — render it
                   richly (sanitized) instead of as plain text. */}
               <RichContent
                 value={event.description}
-                className="mt-2 text-[14px] leading-6 text-white/80"
+                className="mt-2 text-[14px] leading-6 text-[#4B5563]"
               />
             </section>
           ) : null}

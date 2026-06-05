@@ -117,8 +117,8 @@ export default function ClubDetailPage({ clubId }: ClubDetailPageProps) {
           clubId={clubId}
           initialLeaderboard={club.leaderboard}
         />
-        <ClubPhotosSection club={club} />
         <ClubDiscussionsSection clubId={clubId} discussions={club.discussions} />
+        <ClubPhotosSection club={club} />
       </div>
     </InlineDrawer>
   )

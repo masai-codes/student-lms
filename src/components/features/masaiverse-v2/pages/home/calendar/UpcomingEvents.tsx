@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
+import { Link } from '@tanstack/react-router'
 import type { MasaiverseV2HomeEvent } from '@/server/api/masaiverse-v2/services/getHomeEvents.service'
 import { getEventCardDisplay } from '@/lib/masaiverseEventCard'
 import { masaiverseV2HomeQuery } from '@/query/masaiverse-v2/homeQuery'
@@ -51,7 +52,12 @@ function UpcomingEventRow({ event }: { event: MasaiverseV2HomeEvent }) {
   const ctaLabel = event.isEnrolled ? 'Going' : display.isLive ? 'Join' : 'RSVP'
 
   return (
-    <div className="flex gap-3">
+    <Link
+      to="/masaiverse/event/$eventId"
+      params={{ eventId: event.id }}
+      search={(prev) => prev}
+      className="flex gap-3 rounded-[8px] -mx-1 px-1 py-1 transition-colors hover:bg-masaiverse-orange/10"
+    >
       <div className="flex w-7 shrink-0 flex-col items-center leading-none">
         <span className="text-[16px] font-bold text-[#111827]">
           {display.dateDay || '—'}
@@ -75,6 +81,6 @@ function UpcomingEventRow({ event }: { event: MasaiverseV2HomeEvent }) {
           </p>
         ) : null}
       </div>
-    </div>
+    </Link>
   )
 }

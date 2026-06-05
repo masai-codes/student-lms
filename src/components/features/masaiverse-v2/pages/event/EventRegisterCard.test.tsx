@@ -119,7 +119,7 @@ describe('EventRegisterCard', () => {
 
     // No page refresh needed: the card shows the confirmation and updated count.
     expect(await screen.findByText("You're registered! 🎉")).toBeTruthy()
-    expect(screen.getByText('3 people registered')).toBeTruthy()
+    expect(screen.getByLabelText('3 people registered')).toBeTruthy()
     expect(screen.queryByRole('button', { name: 'Register' })).toBeNull()
   })
 
@@ -139,7 +139,7 @@ describe('EventRegisterCard', () => {
   it('lets an enrolled user join an online event', () => {
     renderCard(makeEvent({ isEnrolled: true, enrolledCount: 5 }))
     expect(screen.getByText("You're registered! 🎉")).toBeTruthy()
-    expect(screen.getByText('5 people registered')).toBeTruthy()
+    expect(screen.getByLabelText('5 people registered')).toBeTruthy()
     fireEvent.click(screen.getByRole('button', { name: 'Join event' }))
     expect(window.open).toHaveBeenCalledWith(
       'https://meet.example/x',
@@ -152,7 +152,7 @@ describe('EventRegisterCard', () => {
     renderCard(
       makeEvent({ mode: 'offline', isEnrolled: true, enrolledCount: 1 }),
     )
-    expect(screen.getByText('1 person registered')).toBeTruthy()
+    expect(screen.getByLabelText('1 person registered')).toBeTruthy()
     fireEvent.click(screen.getByRole('button', { name: 'Get directions' }))
     expect(window.open).toHaveBeenCalledWith(
       'https://maps.example/hq',

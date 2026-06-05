@@ -1,3 +1,4 @@
+import { Link } from '@tanstack/react-router'
 import type { MasaiverseV2HomeHighlight } from '@/server/api/masaiverse-v2/services/getHomeHighlights.service'
 import { formatIstDateTime } from '@/lib/masaiverseEventCard'
 
@@ -14,8 +15,11 @@ export default function HighlightCard({
   const startLabel = formatIstDateTime(highlight.startTime)
 
   return (
-    <div
-      className="flex h-full gap-3 rounded-[14px] border border-[#EDEAE8] bg-white p-4"
+    <Link
+      to="/masaiverse/event/$eventId"
+      params={{ eventId: highlight.id }}
+      search={(prev) => prev}
+      className="flex h-full gap-3 rounded-[14px] border border-[#EDEAE8] bg-white p-4 transition-shadow hover:shadow-[0_8px_24px_-12px_rgba(0,0,0,0.25)]"
       style={{ borderLeft: `4px solid ${accentColor}` }}
     >
       {highlight.pastEventEmojiValue ? (
@@ -43,6 +47,6 @@ export default function HighlightCard({
           {startLabel}
         </span>
       ) : null}
-    </div>
+    </Link>
   )
 }

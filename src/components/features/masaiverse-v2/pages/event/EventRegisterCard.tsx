@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { ArrowSquareOut, CheckCircle, MapPin } from '@phosphor-icons/react'
+import { ArrowSquareOut, CheckCircle, MapPin, Ticket } from '@phosphor-icons/react'
+import EventAttendees from './EventAttendees'
 import type { MasaiverseV2EventDetail } from '@/server/api/masaiverse-v2/services/getEventDetail.service'
 import type { EventEnrollmentState } from '@/server/api/masaiverse-v2/services/setEventEnrollment.service'
 import { enrollMasaiverseV2Event } from '@/lib/api/masaiverse-v2/masaiverseV2Api'
@@ -60,7 +61,7 @@ export default function EventRegisterCard({ event }: EventRegisterCardProps) {
   const OpenIcon = isOffline ? MapPin : ArrowSquareOut
 
   return (
-    <div className="rounded-[16px] border border-[#EDEAE8] bg-white p-5">
+    <div className="rounded-[20px] border border-[#EDEAE8] bg-white/95 p-5 shadow-[0_10px_40px_-18px_rgba(0,0,0,0.28)] backdrop-blur-sm">
       <p className="text-[13px] font-semibold uppercase tracking-wide text-[#9CA3AF]">
         Registration
       </p>
@@ -89,7 +90,7 @@ export default function EventRegisterCard({ event }: EventRegisterCardProps) {
             <button
               type="button"
               onClick={() => openExternal(link)}
-              className="mt-3 flex w-full items-center justify-center gap-2 rounded-[12px] bg-masaiverse-orange px-5 py-3 text-[15px] font-bold text-white transition-colors hover:bg-masaiverse-orange-dark"
+              className="mt-3 flex w-full items-center justify-center gap-2 rounded-[14px] bg-gradient-to-r from-masaiverse-orange to-[#FF7A29] px-5 py-3.5 text-[15px] font-bold text-white shadow-[0_8px_20px_-6px_rgba(242,92,4,0.5)] transition-all hover:shadow-[0_10px_26px_-6px_rgba(242,92,4,0.6)] active:scale-[0.99]"
             >
               <OpenIcon size={18} weight="bold" />
               {openLabel}
@@ -101,19 +102,14 @@ export default function EventRegisterCard({ event }: EventRegisterCardProps) {
           type="button"
           onClick={() => mutation.mutate()}
           disabled={mutation.isPending}
-          className="mt-3 flex w-full items-center justify-center gap-2 rounded-[12px] bg-masaiverse-orange px-5 py-3 text-[15px] font-bold text-white transition-colors hover:bg-masaiverse-orange-dark disabled:opacity-70"
+          className="mt-3 flex w-full items-center justify-center gap-2 rounded-[14px] bg-gradient-to-r from-masaiverse-orange to-[#FF7A29] px-5 py-3.5 text-[15px] font-bold text-white shadow-[0_8px_20px_-6px_rgba(242,92,4,0.5)] transition-all hover:shadow-[0_10px_26px_-6px_rgba(242,92,4,0.6)] active:scale-[0.99] disabled:opacity-70 disabled:shadow-none"
         >
+          <Ticket size={18} weight="fill" />
           {mutation.isPending ? 'Registering…' : 'Register'}
         </button>
       )}
 
-      <p className="mt-3 text-[13px] text-[#6B7280]">
-        {enrolledCount === 0
-          ? 'Be the first to register'
-          : `${enrolledCount.toLocaleString('en-IN')} ${
-              enrolledCount === 1 ? 'person' : 'people'
-            } registered`}
-      </p>
+      <EventAttendees count={enrolledCount} />
     </div>
   )
 }

@@ -88,7 +88,7 @@ describe('EventDetailPage', () => {
     expect(screen.getByText('hackathon')).toBeTruthy()
     expect(screen.getByText('In-person')).toBeTruthy()
     expect(screen.getByText('About this event')).toBeTruthy()
-    expect(screen.getByText('4 people registered')).toBeTruthy()
+    expect(screen.getByLabelText('4 people registered')).toBeTruthy()
   })
 
   it('renders the "Hosted By" section from hostedBy', async () => {

@@ -1,8 +1,32 @@
 // @vitest-environment jsdom
 import { cleanup, render, screen } from '@testing-library/react'
-import { afterEach, describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import HighlightCard from './HighlightCard'
+import type { CSSProperties, ReactNode } from 'react'
 import type { MasaiverseV2HomeHighlight } from '@/server/api/masaiverse-v2/services/getHomeHighlights.service'
+
+vi.mock('@tanstack/react-router', () => ({
+  Link: ({
+    children,
+    params,
+    className,
+    style,
+  }: {
+    children: ReactNode
+    params?: { eventId?: string }
+    className?: string
+    style?: CSSProperties
+  }) => (
+    <a
+      href="#"
+      data-event-id={params?.eventId}
+      className={className}
+      style={style}
+    >
+      {children}
+    </a>
+  ),
+}))
 
 function makeHighlight(
   overrides: Partial<MasaiverseV2HomeHighlight> = {},
@@ -30,6 +54,12 @@ describe('HighlightCard', () => {
     expect(screen.getByText('43 submissions')).toBeTruthy()
     // Start date + time, formatted in IST (14:30 IST == 09:00 UTC).
     expect(screen.getByText('May 28 · 2:30 PM')).toBeTruthy()
+  })
+
+  it('links to the event detail route, even though it is a past event', () => {
+    render(<HighlightCard highlight={makeHighlight()} />)
+    const link = screen.getByRole('link')
+    expect(link.getAttribute('data-event-id')).toBe('11')
   })
 
   it('applies the accent color as a left-edge border', () => {

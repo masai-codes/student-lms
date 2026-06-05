@@ -14,8 +14,8 @@ export default function EventHosts({ hosts }: EventHostsProps) {
   if (hosts.length === 0) return null
 
   return (
-    <section className="border-t border-white/10 pt-4">
-      <p className="text-[12px] font-semibold uppercase tracking-wide text-white/50">
+    <section className="border-t border-[#EDEAE8] pt-4">
+      <p className="text-[12px] font-semibold uppercase tracking-wide text-[#9CA3AF]">
         Hosted By
       </p>
       <ul className="mt-3 flex flex-col gap-3">
@@ -32,7 +32,7 @@ export default function EventHosts({ hosts }: EventHostsProps) {
                 getInitials(host.name)
               )}
             </span>
-            <span className="text-[14px] font-semibold leading-5 text-white">
+            <span className="text-[14px] font-semibold leading-5 text-[#111827]">
               {host.name}
             </span>
           </li>

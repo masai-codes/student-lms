@@ -11,6 +11,22 @@ vi.mock('@/lib/api/masaiverse-v2/masaiverseV2Api', () => ({
   fetchMasaiverseV2Home: fetchHome,
 }))
 
+vi.mock('@tanstack/react-router', () => ({
+  Link: ({
+    children,
+    params,
+    className,
+  }: {
+    children: ReactNode
+    params?: { eventId?: string }
+    className?: string
+  }) => (
+    <a href="#" data-event-id={params?.eventId} className={className}>
+      {children}
+    </a>
+  ),
+}))
+
 function renderWithClient(ui: ReactNode) {
   const client = new QueryClient({
     defaultOptions: { queries: { retry: false } },
@@ -96,5 +112,9 @@ describe('UpcomingEvents', () => {
     expect(screen.getAllByText('RSVP')).toHaveLength(2)
     // The June 20 start renders as day 20.
     expect(screen.getByText('20')).toBeTruthy()
+    // Each row links to its event detail route.
+    expect(
+      screen.getAllByRole('link').map((l) => l.getAttribute('data-event-id')),
+    ).toEqual(['1', '2', '3', '4'])
   })
 })
