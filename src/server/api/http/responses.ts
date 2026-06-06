@@ -9,7 +9,11 @@ export function jsonOk<T>(data: T, init?: ResponseInit): Response {
   return Response.json(data, { status: 200, ...init })
 }
 
-export function jsonError(status: number, code: string, message?: string): Response {
+export function jsonError(
+  status: number,
+  code: string,
+  message?: string,
+): Response {
   const body: ApiErrorBody = {
     code,
     message: message ?? code,
@@ -53,6 +57,26 @@ export function mapThrownErrorToResponse(error: unknown): Response {
       case 'SERVER_ERROR_FETCHING_DASHBOARD_ACTION_BANNERS':
         return jsonError(500, error.message)
       case 'SERVER_ERROR_FETCHING_DASHBOARD_PENDING_TASKS':
+        return jsonError(500, error.message)
+      case 'SERVER_ERROR_FETCHING_MASAIVERSE_V2_HOME':
+      case 'SERVER_ERROR_MARKING_MASAIVERSE_VISITED':
+      case 'SERVER_ERROR_CREATING_DISCUSSION':
+      case 'SERVER_ERROR_VOTING_DISCUSSION':
+      case 'SERVER_ERROR_FETCHING_REPLIES':
+      case 'SERVER_ERROR_CREATING_REPLY':
+      case 'SERVER_ERROR_FETCHING_DISCUSSIONS':
+      case 'SERVER_ERROR_FETCHING_MY_CLUBS':
+      case 'SERVER_ERROR_FETCHING_CLUB_DETAIL':
+      case 'SERVER_ERROR_FETCHING_CLUB_STATS':
+      case 'SERVER_ERROR_FETCHING_CLUB_LEADERBOARD':
+      case 'SERVER_ERROR_FETCHING_GLOBAL_LEADERBOARD':
+      case 'SERVER_ERROR_FETCHING_CLUB_EVENTS':
+      case 'SERVER_ERROR_RECORDING_CLUB_VISIT':
+      case 'SERVER_ERROR_UPDATING_CLUB_MEMBERSHIP':
+      case 'SERVER_ERROR_FETCHING_EVENTS_LIST':
+      case 'SERVER_ERROR_FETCHING_EVENT_DETAIL':
+      case 'SERVER_ERROR_ENROLLING_EVENT':
+      case 'SERVER_ERROR_RATING_EVENT':
         return jsonError(500, error.message)
       case 'EXPERIENCE_API_NOT_CONFIGURED':
       case 'EXPERIENCE_API_REQUEST_FAILED':

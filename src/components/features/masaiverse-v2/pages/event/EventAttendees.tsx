@@ -1,0 +1,59 @@
+import { Sparkle } from '@phosphor-icons/react'
+
+type EventAttendeesProps = {
+  count: number
+}
+
+/** Decorative gradient palette for the overlapping attendee bubbles. */
+const BUBBLE_GRADIENTS = [
+  'from-[#F97316] to-[#FDBA74]',
+  'from-[#6366F1] to-[#A5B4FC]',
+  'from-[#10B981] to-[#6EE7B7]',
+  'from-[#EC4899] to-[#F9A8D4]',
+]
+
+/**
+ * Prominent "people registered" stat for the registration card — a row of
+ * decorative overlapping bubbles (a visual motif, not real attendee photos)
+ * beside a large bold count. An empty event invites the user to be the first.
+ */
+export default function EventAttendees({ count }: EventAttendeesProps) {
+  if (count === 0) {
+    return (
+      <div className="mt-4 flex items-center justify-center gap-2 rounded-[14px] border border-dashed border-masaiverse-orange/30 bg-masaiverse-orange/[0.04] px-4 py-3 text-[13px] font-semibold text-masaiverse-orange">
+        <Sparkle size={16} weight="fill" />
+        Be the first to register
+      </div>
+    )
+  }
+
+  const bubbles = Math.min(count, BUBBLE_GRADIENTS.length)
+  const noun = count === 1 ? 'person' : 'people'
+  const formatted = count.toLocaleString('en-IN')
+
+  return (
+    <div
+      aria-label={`${formatted} ${noun} registered`}
+      className="mt-4 flex items-center gap-3 rounded-[14px] bg-gradient-to-r from-masaiverse-orange/[0.10] via-masaiverse-orange/[0.04] to-transparent px-4 py-3"
+    >
+      <div className="flex -space-x-2.5" aria-hidden="true">
+        {Array.from({ length: bubbles }).map((_, index) => (
+          <span
+            key={index}
+            className={`size-8 rounded-full bg-gradient-to-br ring-2 ring-white ${
+              BUBBLE_GRADIENTS[index % BUBBLE_GRADIENTS.length]
+            }`}
+          />
+        ))}
+      </div>
+      <p className="leading-none">
+        <span className="text-[24px] font-extrabold tracking-tight text-[#111827]">
+          {formatted}
+        </span>
+        <span className="ml-1.5 text-[13px] font-medium text-[#6B7280]">
+          {noun} registered
+        </span>
+      </p>
+    </div>
+  )
+}
