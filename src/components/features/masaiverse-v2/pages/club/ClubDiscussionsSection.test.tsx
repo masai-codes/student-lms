@@ -36,7 +36,7 @@ afterEach(() => {
 describe('ClubDiscussionsSection', () => {
   it('renders the club-scoped discussion feed', async () => {
     fetchDiscussions.mockResolvedValue({ discussions: [], hasMore: false })
-    renderWithClient(<ClubDiscussionsSection clubId="81910" />)
+    renderWithClient(<ClubDiscussionsSection clubId="81910" discussions={[]} />)
 
     expect(screen.getByText('Club Discussion')).toBeTruthy()
     await waitFor(() =>
