@@ -16,4 +16,5 @@ export const MASAIVERSE_V2_API = {
   eventDetail: '/api/masaiverse-v2/events/detail',
   eventEnroll: '/api/masaiverse-v2/events/enroll',
   eventRate: '/api/masaiverse-v2/events/rate',
+  adminMode: '/api/masaiverse-v2/admin-mode',
 } as const

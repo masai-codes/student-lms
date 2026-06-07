@@ -20,6 +20,7 @@ import { Route as ApiMasaiverseV2VisitedRouteImport } from './routes/api/masaive
 import { Route as ApiMasaiverseV2LeaderboardRouteImport } from './routes/api/masaiverse-v2/leaderboard'
 import { Route as ApiMasaiverseV2HomeRouteImport } from './routes/api/masaiverse-v2/home'
 import { Route as ApiMasaiverseV2DiscussionsRouteImport } from './routes/api/masaiverse-v2/discussions'
+import { Route as ApiMasaiverseV2AdminModeRouteImport } from './routes/api/masaiverse-v2/admin-mode'
 import { Route as authV2ResetPasswordRouteImport } from './routes/(auth)/v2/reset-password'
 import { Route as authV2MeRouteImport } from './routes/(auth)/v2/me'
 import { Route as authV2ForgotPasswordRouteImport } from './routes/(auth)/v2/forgot-password'
@@ -140,6 +141,12 @@ const ApiMasaiverseV2DiscussionsRoute =
   ApiMasaiverseV2DiscussionsRouteImport.update({
     id: '/api/masaiverse-v2/discussions',
     path: '/api/masaiverse-v2/discussions',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiMasaiverseV2AdminModeRoute =
+  ApiMasaiverseV2AdminModeRouteImport.update({
+    id: '/api/masaiverse-v2/admin-mode',
+    path: '/api/masaiverse-v2/admin-mode',
     getParentRoute: () => rootRouteImport,
   } as any)
 const authV2ResetPasswordRoute = authV2ResetPasswordRouteImport.update({
@@ -571,6 +578,7 @@ export interface FileRoutesByFullPath {
   '/v2/forgot-password': typeof authV2ForgotPasswordRoute
   '/v2/me': typeof authV2MeRoute
   '/v2/reset-password': typeof authV2ResetPasswordRoute
+  '/api/masaiverse-v2/admin-mode': typeof ApiMasaiverseV2AdminModeRoute
   '/api/masaiverse-v2/discussions': typeof ApiMasaiverseV2DiscussionsRouteWithChildren
   '/api/masaiverse-v2/home': typeof ApiMasaiverseV2HomeRoute
   '/api/masaiverse-v2/leaderboard': typeof ApiMasaiverseV2LeaderboardRoute
@@ -647,6 +655,7 @@ export interface FileRoutesByTo {
   '/v2/forgot-password': typeof authV2ForgotPasswordRoute
   '/v2/me': typeof authV2MeRoute
   '/v2/reset-password': typeof authV2ResetPasswordRoute
+  '/api/masaiverse-v2/admin-mode': typeof ApiMasaiverseV2AdminModeRoute
   '/api/masaiverse-v2/discussions': typeof ApiMasaiverseV2DiscussionsRouteWithChildren
   '/api/masaiverse-v2/home': typeof ApiMasaiverseV2HomeRoute
   '/api/masaiverse-v2/leaderboard': typeof ApiMasaiverseV2LeaderboardRoute
@@ -723,6 +732,7 @@ export interface FileRoutesById {
   '/(auth)/v2/forgot-password': typeof authV2ForgotPasswordRoute
   '/(auth)/v2/me': typeof authV2MeRoute
   '/(auth)/v2/reset-password': typeof authV2ResetPasswordRoute
+  '/api/masaiverse-v2/admin-mode': typeof ApiMasaiverseV2AdminModeRoute
   '/api/masaiverse-v2/discussions': typeof ApiMasaiverseV2DiscussionsRouteWithChildren
   '/api/masaiverse-v2/home': typeof ApiMasaiverseV2HomeRoute
   '/api/masaiverse-v2/leaderboard': typeof ApiMasaiverseV2LeaderboardRoute
@@ -802,6 +812,7 @@ export interface FileRouteTypes {
     | '/v2/forgot-password'
     | '/v2/me'
     | '/v2/reset-password'
+    | '/api/masaiverse-v2/admin-mode'
     | '/api/masaiverse-v2/discussions'
     | '/api/masaiverse-v2/home'
     | '/api/masaiverse-v2/leaderboard'
@@ -878,6 +889,7 @@ export interface FileRouteTypes {
     | '/v2/forgot-password'
     | '/v2/me'
     | '/v2/reset-password'
+    | '/api/masaiverse-v2/admin-mode'
     | '/api/masaiverse-v2/discussions'
     | '/api/masaiverse-v2/home'
     | '/api/masaiverse-v2/leaderboard'
@@ -953,6 +965,7 @@ export interface FileRouteTypes {
     | '/(auth)/v2/forgot-password'
     | '/(auth)/v2/me'
     | '/(auth)/v2/reset-password'
+    | '/api/masaiverse-v2/admin-mode'
     | '/api/masaiverse-v2/discussions'
     | '/api/masaiverse-v2/home'
     | '/api/masaiverse-v2/leaderboard'
@@ -1031,6 +1044,7 @@ export interface RootRouteChildren {
   authV2ForgotPasswordRoute: typeof authV2ForgotPasswordRoute
   authV2MeRoute: typeof authV2MeRoute
   authV2ResetPasswordRoute: typeof authV2ResetPasswordRoute
+  ApiMasaiverseV2AdminModeRoute: typeof ApiMasaiverseV2AdminModeRoute
   ApiMasaiverseV2DiscussionsRoute: typeof ApiMasaiverseV2DiscussionsRouteWithChildren
   ApiMasaiverseV2HomeRoute: typeof ApiMasaiverseV2HomeRoute
   ApiMasaiverseV2LeaderboardRoute: typeof ApiMasaiverseV2LeaderboardRoute
@@ -1135,6 +1149,13 @@ declare module '@tanstack/react-router' {
       path: '/api/masaiverse-v2/discussions'
       fullPath: '/api/masaiverse-v2/discussions'
       preLoaderRoute: typeof ApiMasaiverseV2DiscussionsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/masaiverse-v2/admin-mode': {
+      id: '/api/masaiverse-v2/admin-mode'
+      path: '/api/masaiverse-v2/admin-mode'
+      fullPath: '/api/masaiverse-v2/admin-mode'
+      preLoaderRoute: typeof ApiMasaiverseV2AdminModeRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/(auth)/v2/reset-password': {
@@ -1806,6 +1827,7 @@ const rootRouteChildren: RootRouteChildren = {
   authV2ForgotPasswordRoute: authV2ForgotPasswordRoute,
   authV2MeRoute: authV2MeRoute,
   authV2ResetPasswordRoute: authV2ResetPasswordRoute,
+  ApiMasaiverseV2AdminModeRoute: ApiMasaiverseV2AdminModeRoute,
   ApiMasaiverseV2DiscussionsRoute: ApiMasaiverseV2DiscussionsRouteWithChildren,
   ApiMasaiverseV2HomeRoute: ApiMasaiverseV2HomeRoute,
   ApiMasaiverseV2LeaderboardRoute: ApiMasaiverseV2LeaderboardRoute,

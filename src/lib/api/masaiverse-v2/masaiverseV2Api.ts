@@ -13,6 +13,7 @@ import type { MasaiverseV2EventListItem } from '@/server/api/masaiverse-v2/servi
 import type { MasaiverseV2EventDetail } from '@/server/api/masaiverse-v2/services/getEventDetail.service'
 import type { EventEnrollmentState } from '@/server/api/masaiverse-v2/services/setEventEnrollment.service'
 import type { EventRatingState } from '@/server/api/masaiverse-v2/services/rateEvent.service'
+import type { MasaiverseV2AdminModeState } from '@/server/api/masaiverse-v2/services/adminMode.service'
 import { fetchJson } from '@/lib/api/fetchJson'
 import { MASAIVERSE_V2_API } from '@/lib/api/masaiverse-v2/masaiverseV2Paths'
 
@@ -244,6 +245,28 @@ export async function recordMasaiverseV2ClubVisit(
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ clubId }),
+  })
+}
+
+/**
+ * Current admin-mode state for the signed-in user. Students resolve to
+ * `{ isAdmin: false, enabled: false }`, so the client can hide the toggle.
+ */
+export async function fetchMasaiverseV2AdminMode(): Promise<MasaiverseV2AdminModeState> {
+  return fetchJson<MasaiverseV2AdminModeState>(MASAIVERSE_V2_API.adminMode)
+}
+
+/**
+ * Enables/disables admin mode for the signed-in user. Server-gated on the DB
+ * role — non-admins receive a 403.
+ */
+export async function setMasaiverseV2AdminMode(
+  enabled: boolean,
+): Promise<MasaiverseV2AdminModeState> {
+  return fetchJson<MasaiverseV2AdminModeState>(MASAIVERSE_V2_API.adminMode, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ enabled }),
   })
 }
 
