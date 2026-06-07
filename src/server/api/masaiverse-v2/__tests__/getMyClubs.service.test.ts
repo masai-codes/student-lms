@@ -26,6 +26,11 @@ function myClubsChain(rows: unknown) {
   }
 }
 
+/** Admin-mode "all clubs" chain: `select().from(clubs).orderBy(...)`. */
+function allClubsChain(rows: unknown) {
+  return { from: () => ({ orderBy: () => Promise.resolve(rows) }) }
+}
+
 beforeEach(() => {
   vi.clearAllMocks()
 })
@@ -53,5 +58,20 @@ describe('getMyClubs', () => {
     hoisted.dbSelect.mockReturnValueOnce(myClubsChain([]))
 
     await expect(getMyClubs(7)).resolves.toEqual([])
+  })
+
+  it('returns every club (not just joined) in admin mode', async () => {
+    const { getMyClubs } = await import('../services/getMyClubs.service')
+    hoisted.dbSelect.mockReturnValueOnce(
+      allClubsChain([
+        { id: 5, name: 'Unjoined Club', image: null, meta: { cardImageLink: 'https://cdn/a.png' } },
+        { id: 6, name: 'Draft Club', image: null, meta: null },
+      ]),
+    )
+
+    await expect(getMyClubs(1, true)).resolves.toEqual([
+      { id: '5', name: 'Unjoined Club', imageUrl: 'https://cdn/a.png' },
+      { id: '6', name: 'Draft Club', imageUrl: null },
+    ])
   })
 })

@@ -165,7 +165,7 @@ describe('getClubDetail', () => {
     })
     // Members get the gated sections fetched and embedded.
     expect(hoisted.getClubEvents).toHaveBeenCalledTimes(1)
-    expect(hoisted.getClubLeaderboard).toHaveBeenCalledWith(5, 0, 5)
+    expect(hoisted.getClubLeaderboard).toHaveBeenCalledWith(5, 0, 5, false)
     expect(hoisted.getCommunityDiscussions).toHaveBeenCalledWith(1, 0, 5, '', '5')
   })
 

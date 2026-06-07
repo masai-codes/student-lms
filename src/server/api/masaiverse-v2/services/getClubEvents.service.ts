@@ -1,7 +1,8 @@
-import { eq } from 'drizzle-orm'
+import { and, eq } from 'drizzle-orm'
 import { getClubWeeklyConnects } from './getClubWeeklyConnects.service'
 import { getHomeEvents } from './getHomeEvents.service'
 import { getHomeHighlights } from './getHomeHighlights.service'
+import { publishedClubCondition } from './publishVisibility'
 import type { MasaiverseV2WeeklyConnect } from './getClubWeeklyConnects.service'
 import type { MasaiverseV2HomeEvent } from './getHomeEvents.service'
 import type { MasaiverseV2HomeHighlight } from './getHomeHighlights.service'
@@ -27,6 +28,7 @@ export interface MasaiverseV2ClubEvents {
 export async function getClubEvents(
   clubId: number,
   now: Date = new Date(),
+  canSeeUnpublished = false,
 ): Promise<MasaiverseV2ClubEvents | null> {
   if (!Number.isFinite(clubId)) return null
 
@@ -34,15 +36,15 @@ export async function getClubEvents(
     await db
       .select({ id: clubs.id })
       .from(clubs)
-      .where(eq(clubs.id, clubId))
+      .where(and(eq(clubs.id, clubId), publishedClubCondition(canSeeUnpublished)))
       .limit(1)
   ).at(0)
   if (!club) return null
 
   const [weeklyConnects, upcoming, past] = await Promise.all([
-    getClubWeeklyConnects(clubId),
-    getHomeEvents(now, { clubId, weeklyConnect: 'exclude' }),
-    getHomeHighlights(now, { clubId, weeklyConnect: 'exclude' }),
+    getClubWeeklyConnects(clubId, canSeeUnpublished),
+    getHomeEvents(now, { clubId, weeklyConnect: 'exclude' }, undefined, canSeeUnpublished),
+    getHomeHighlights(now, { clubId, weeklyConnect: 'exclude' }, canSeeUnpublished),
   ])
 
   return { weeklyConnects, upcoming, past }

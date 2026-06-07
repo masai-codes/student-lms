@@ -13,6 +13,10 @@ vi.mock('@/server/auth/getCurrentSessionUserId', () => ({
   getUserIdFromCookieHeader: hoisted.getUserIdFromCookieHeader,
 }))
 
+vi.mock('@/server/api/masaiverse-v2/services/publishVisibility', () => ({
+  canSeeUnpublished: vi.fn().mockResolvedValue(false),
+}))
+
 function getRequest(eventId: string, cookie: string | null): Request {
   return new Request(
     `http://localhost/api/masaiverse-v2/events/detail?eventId=${eventId}`,
@@ -38,7 +42,7 @@ describe('handleGetEventDetail', () => {
 
     expect(response.status).toBe(200)
     await expect(response.json()).resolves.toEqual(PAYLOAD)
-    expect(hoisted.getEventDetail).toHaveBeenCalledWith(7, 1)
+    expect(hoisted.getEventDetail).toHaveBeenCalledWith(7, 1, undefined, false)
   })
 
   it('returns 404 when the event is missing', async () => {

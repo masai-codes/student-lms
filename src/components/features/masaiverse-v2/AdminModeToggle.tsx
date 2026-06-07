@@ -23,6 +23,9 @@ export default function AdminModeToggle() {
         MASAIVERSE_V2_ADMIN_MODE_KEY,
         state,
       )
+      // Admin mode changes what's visible across every page (drafts appear /
+      // disappear), so reload once to refetch all data with the new visibility.
+      window.location.reload()
     },
   })
 

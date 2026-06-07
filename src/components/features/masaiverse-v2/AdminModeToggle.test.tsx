@@ -25,8 +25,18 @@ function renderToggle() {
   )
 }
 
+const reloadMock = vi.fn()
+
 beforeEach(() => {
   vi.clearAllMocks()
+  reloadMock.mockReset()
+  // jsdom doesn't implement navigation; stub reload so the toggle's
+  // post-success page reload is observable instead of throwing.
+  Object.defineProperty(window, 'location', {
+    configurable: true,
+    writable: true,
+    value: { reload: reloadMock },
+  })
 })
 
 afterEach(cleanup)
@@ -60,7 +70,7 @@ describe('AdminModeToggle', () => {
     expect(toggle.getAttribute('aria-checked')).toBe('true')
   })
 
-  it('toggles admin mode on and reflects the new state', async () => {
+  it('toggles admin mode on and reloads the page', async () => {
     fetchAdminMode.mockResolvedValue({ isAdmin: true, enabled: false })
     setAdminMode.mockResolvedValue({ isAdmin: true, enabled: true })
     renderToggle()
@@ -69,12 +79,6 @@ describe('AdminModeToggle', () => {
     fireEvent.click(toggle)
 
     await waitFor(() => expect(setAdminMode).toHaveBeenCalledWith(true))
-    await waitFor(() =>
-      expect(
-        screen
-          .getByRole('switch', { name: 'Enable admin mode' })
-          .getAttribute('aria-checked'),
-      ).toBe('true'),
-    )
+    await waitFor(() => expect(reloadMock).toHaveBeenCalledTimes(1))
   })
 })

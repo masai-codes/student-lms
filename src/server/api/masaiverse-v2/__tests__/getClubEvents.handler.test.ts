@@ -13,6 +13,10 @@ vi.mock('@/server/auth/getCurrentSessionUserId', () => ({
   getUserIdFromCookieHeader: hoisted.getUserIdFromCookieHeader,
 }))
 
+vi.mock('@/server/api/masaiverse-v2/services/publishVisibility', () => ({
+  canSeeUnpublished: vi.fn().mockResolvedValue(false),
+}))
+
 function getRequest(clubId: string, cookie: string | null): Request {
   return new Request(
     `http://localhost/api/masaiverse-v2/clubs/events?clubId=${clubId}`,
@@ -38,7 +42,7 @@ describe('handleGetClubEvents', () => {
 
     expect(response.status).toBe(200)
     await expect(response.json()).resolves.toEqual(PAYLOAD)
-    expect(hoisted.getClubEvents).toHaveBeenCalledWith(5)
+    expect(hoisted.getClubEvents).toHaveBeenCalledWith(5, undefined, false)
   })
 
   it('returns 404 when the club is missing', async () => {

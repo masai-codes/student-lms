@@ -42,6 +42,7 @@ import { Route as ApiMasaiverseV2EventsRateRouteImport } from './routes/api/masa
 import { Route as ApiMasaiverseV2EventsListRouteImport } from './routes/api/masaiverse-v2/events/list'
 import { Route as ApiMasaiverseV2EventsEnrollRouteImport } from './routes/api/masaiverse-v2/events/enroll'
 import { Route as ApiMasaiverseV2EventsDetailRouteImport } from './routes/api/masaiverse-v2/events/detail'
+import { Route as ApiMasaiverseV2EventsCreateRouteImport } from './routes/api/masaiverse-v2/events/create'
 import { Route as ApiMasaiverseV2DiscussionsVoteRouteImport } from './routes/api/masaiverse-v2/discussions/vote'
 import { Route as ApiMasaiverseV2DiscussionsRepliesRouteImport } from './routes/api/masaiverse-v2/discussions/replies'
 import { Route as ApiMasaiverseV2ClubsVisitRouteImport } from './routes/api/masaiverse-v2/clubs/visit'
@@ -51,6 +52,7 @@ import { Route as ApiMasaiverseV2ClubsMembershipRouteImport } from './routes/api
 import { Route as ApiMasaiverseV2ClubsLeaderboardRouteImport } from './routes/api/masaiverse-v2/clubs/leaderboard'
 import { Route as ApiMasaiverseV2ClubsEventsRouteImport } from './routes/api/masaiverse-v2/clubs/events'
 import { Route as ApiMasaiverseV2ClubsDetailRouteImport } from './routes/api/masaiverse-v2/clubs/detail'
+import { Route as ApiMasaiverseV2ClubsCreateRouteImport } from './routes/api/masaiverse-v2/clubs/create'
 import { Route as protectedLayoutMasaiverseLeaderboardRouteImport } from './routes/(protected)/_layout/masaiverse/leaderboard'
 import { Route as protectedLayoutMasaiverseHomeRouteImport } from './routes/(protected)/_layout/masaiverse/home'
 import { Route as protectedLayoutMasaiverseEventsRouteImport } from './routes/(protected)/_layout/masaiverse/events'
@@ -271,6 +273,12 @@ const ApiMasaiverseV2EventsDetailRoute =
     path: '/api/masaiverse-v2/events/detail',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiMasaiverseV2EventsCreateRoute =
+  ApiMasaiverseV2EventsCreateRouteImport.update({
+    id: '/api/masaiverse-v2/events/create',
+    path: '/api/masaiverse-v2/events/create',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiMasaiverseV2DiscussionsVoteRoute =
   ApiMasaiverseV2DiscussionsVoteRouteImport.update({
     id: '/vote',
@@ -323,6 +331,12 @@ const ApiMasaiverseV2ClubsDetailRoute =
   ApiMasaiverseV2ClubsDetailRouteImport.update({
     id: '/api/masaiverse-v2/clubs/detail',
     path: '/api/masaiverse-v2/clubs/detail',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiMasaiverseV2ClubsCreateRoute =
+  ApiMasaiverseV2ClubsCreateRouteImport.update({
+    id: '/api/masaiverse-v2/clubs/create',
+    path: '/api/masaiverse-v2/clubs/create',
     getParentRoute: () => rootRouteImport,
   } as any)
 const protectedLayoutMasaiverseLeaderboardRoute =
@@ -597,6 +611,7 @@ export interface FileRoutesByFullPath {
   '/masaiverse/events': typeof protectedLayoutMasaiverseEventsRoute
   '/masaiverse/home': typeof protectedLayoutMasaiverseHomeRoute
   '/masaiverse/leaderboard': typeof protectedLayoutMasaiverseLeaderboardRoute
+  '/api/masaiverse-v2/clubs/create': typeof ApiMasaiverseV2ClubsCreateRoute
   '/api/masaiverse-v2/clubs/detail': typeof ApiMasaiverseV2ClubsDetailRoute
   '/api/masaiverse-v2/clubs/events': typeof ApiMasaiverseV2ClubsEventsRoute
   '/api/masaiverse-v2/clubs/leaderboard': typeof ApiMasaiverseV2ClubsLeaderboardRoute
@@ -606,6 +621,7 @@ export interface FileRoutesByFullPath {
   '/api/masaiverse-v2/clubs/visit': typeof ApiMasaiverseV2ClubsVisitRoute
   '/api/masaiverse-v2/discussions/replies': typeof ApiMasaiverseV2DiscussionsRepliesRoute
   '/api/masaiverse-v2/discussions/vote': typeof ApiMasaiverseV2DiscussionsVoteRoute
+  '/api/masaiverse-v2/events/create': typeof ApiMasaiverseV2EventsCreateRoute
   '/api/masaiverse-v2/events/detail': typeof ApiMasaiverseV2EventsDetailRoute
   '/api/masaiverse-v2/events/enroll': typeof ApiMasaiverseV2EventsEnrollRoute
   '/api/masaiverse-v2/events/list': typeof ApiMasaiverseV2EventsListRoute
@@ -674,6 +690,7 @@ export interface FileRoutesByTo {
   '/masaiverse/events': typeof protectedLayoutMasaiverseEventsRoute
   '/masaiverse/home': typeof protectedLayoutMasaiverseHomeRoute
   '/masaiverse/leaderboard': typeof protectedLayoutMasaiverseLeaderboardRoute
+  '/api/masaiverse-v2/clubs/create': typeof ApiMasaiverseV2ClubsCreateRoute
   '/api/masaiverse-v2/clubs/detail': typeof ApiMasaiverseV2ClubsDetailRoute
   '/api/masaiverse-v2/clubs/events': typeof ApiMasaiverseV2ClubsEventsRoute
   '/api/masaiverse-v2/clubs/leaderboard': typeof ApiMasaiverseV2ClubsLeaderboardRoute
@@ -683,6 +700,7 @@ export interface FileRoutesByTo {
   '/api/masaiverse-v2/clubs/visit': typeof ApiMasaiverseV2ClubsVisitRoute
   '/api/masaiverse-v2/discussions/replies': typeof ApiMasaiverseV2DiscussionsRepliesRoute
   '/api/masaiverse-v2/discussions/vote': typeof ApiMasaiverseV2DiscussionsVoteRoute
+  '/api/masaiverse-v2/events/create': typeof ApiMasaiverseV2EventsCreateRoute
   '/api/masaiverse-v2/events/detail': typeof ApiMasaiverseV2EventsDetailRoute
   '/api/masaiverse-v2/events/enroll': typeof ApiMasaiverseV2EventsEnrollRoute
   '/api/masaiverse-v2/events/list': typeof ApiMasaiverseV2EventsListRoute
@@ -751,6 +769,7 @@ export interface FileRoutesById {
   '/(protected)/_layout/masaiverse/events': typeof protectedLayoutMasaiverseEventsRoute
   '/(protected)/_layout/masaiverse/home': typeof protectedLayoutMasaiverseHomeRoute
   '/(protected)/_layout/masaiverse/leaderboard': typeof protectedLayoutMasaiverseLeaderboardRoute
+  '/api/masaiverse-v2/clubs/create': typeof ApiMasaiverseV2ClubsCreateRoute
   '/api/masaiverse-v2/clubs/detail': typeof ApiMasaiverseV2ClubsDetailRoute
   '/api/masaiverse-v2/clubs/events': typeof ApiMasaiverseV2ClubsEventsRoute
   '/api/masaiverse-v2/clubs/leaderboard': typeof ApiMasaiverseV2ClubsLeaderboardRoute
@@ -760,6 +779,7 @@ export interface FileRoutesById {
   '/api/masaiverse-v2/clubs/visit': typeof ApiMasaiverseV2ClubsVisitRoute
   '/api/masaiverse-v2/discussions/replies': typeof ApiMasaiverseV2DiscussionsRepliesRoute
   '/api/masaiverse-v2/discussions/vote': typeof ApiMasaiverseV2DiscussionsVoteRoute
+  '/api/masaiverse-v2/events/create': typeof ApiMasaiverseV2EventsCreateRoute
   '/api/masaiverse-v2/events/detail': typeof ApiMasaiverseV2EventsDetailRoute
   '/api/masaiverse-v2/events/enroll': typeof ApiMasaiverseV2EventsEnrollRoute
   '/api/masaiverse-v2/events/list': typeof ApiMasaiverseV2EventsListRoute
@@ -831,6 +851,7 @@ export interface FileRouteTypes {
     | '/masaiverse/events'
     | '/masaiverse/home'
     | '/masaiverse/leaderboard'
+    | '/api/masaiverse-v2/clubs/create'
     | '/api/masaiverse-v2/clubs/detail'
     | '/api/masaiverse-v2/clubs/events'
     | '/api/masaiverse-v2/clubs/leaderboard'
@@ -840,6 +861,7 @@ export interface FileRouteTypes {
     | '/api/masaiverse-v2/clubs/visit'
     | '/api/masaiverse-v2/discussions/replies'
     | '/api/masaiverse-v2/discussions/vote'
+    | '/api/masaiverse-v2/events/create'
     | '/api/masaiverse-v2/events/detail'
     | '/api/masaiverse-v2/events/enroll'
     | '/api/masaiverse-v2/events/list'
@@ -908,6 +930,7 @@ export interface FileRouteTypes {
     | '/masaiverse/events'
     | '/masaiverse/home'
     | '/masaiverse/leaderboard'
+    | '/api/masaiverse-v2/clubs/create'
     | '/api/masaiverse-v2/clubs/detail'
     | '/api/masaiverse-v2/clubs/events'
     | '/api/masaiverse-v2/clubs/leaderboard'
@@ -917,6 +940,7 @@ export interface FileRouteTypes {
     | '/api/masaiverse-v2/clubs/visit'
     | '/api/masaiverse-v2/discussions/replies'
     | '/api/masaiverse-v2/discussions/vote'
+    | '/api/masaiverse-v2/events/create'
     | '/api/masaiverse-v2/events/detail'
     | '/api/masaiverse-v2/events/enroll'
     | '/api/masaiverse-v2/events/list'
@@ -984,6 +1008,7 @@ export interface FileRouteTypes {
     | '/(protected)/_layout/masaiverse/events'
     | '/(protected)/_layout/masaiverse/home'
     | '/(protected)/_layout/masaiverse/leaderboard'
+    | '/api/masaiverse-v2/clubs/create'
     | '/api/masaiverse-v2/clubs/detail'
     | '/api/masaiverse-v2/clubs/events'
     | '/api/masaiverse-v2/clubs/leaderboard'
@@ -993,6 +1018,7 @@ export interface FileRouteTypes {
     | '/api/masaiverse-v2/clubs/visit'
     | '/api/masaiverse-v2/discussions/replies'
     | '/api/masaiverse-v2/discussions/vote'
+    | '/api/masaiverse-v2/events/create'
     | '/api/masaiverse-v2/events/detail'
     | '/api/masaiverse-v2/events/enroll'
     | '/api/masaiverse-v2/events/list'
@@ -1057,6 +1083,7 @@ export interface RootRouteChildren {
   authV2AuthUseAccountRoute: typeof authV2AuthUseAccountRoute
   authV2LoginRequestOtpRoute: typeof authV2LoginRequestOtpRoute
   authV2LoginVerifyOtpRoute: typeof authV2LoginVerifyOtpRoute
+  ApiMasaiverseV2ClubsCreateRoute: typeof ApiMasaiverseV2ClubsCreateRoute
   ApiMasaiverseV2ClubsDetailRoute: typeof ApiMasaiverseV2ClubsDetailRoute
   ApiMasaiverseV2ClubsEventsRoute: typeof ApiMasaiverseV2ClubsEventsRoute
   ApiMasaiverseV2ClubsLeaderboardRoute: typeof ApiMasaiverseV2ClubsLeaderboardRoute
@@ -1064,6 +1091,7 @@ export interface RootRouteChildren {
   ApiMasaiverseV2ClubsMineRoute: typeof ApiMasaiverseV2ClubsMineRoute
   ApiMasaiverseV2ClubsStatsRoute: typeof ApiMasaiverseV2ClubsStatsRoute
   ApiMasaiverseV2ClubsVisitRoute: typeof ApiMasaiverseV2ClubsVisitRoute
+  ApiMasaiverseV2EventsCreateRoute: typeof ApiMasaiverseV2EventsCreateRoute
   ApiMasaiverseV2EventsDetailRoute: typeof ApiMasaiverseV2EventsDetailRoute
   ApiMasaiverseV2EventsEnrollRoute: typeof ApiMasaiverseV2EventsEnrollRoute
   ApiMasaiverseV2EventsListRoute: typeof ApiMasaiverseV2EventsListRoute
@@ -1305,6 +1333,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiMasaiverseV2EventsDetailRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/masaiverse-v2/events/create': {
+      id: '/api/masaiverse-v2/events/create'
+      path: '/api/masaiverse-v2/events/create'
+      fullPath: '/api/masaiverse-v2/events/create'
+      preLoaderRoute: typeof ApiMasaiverseV2EventsCreateRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/masaiverse-v2/discussions/vote': {
       id: '/api/masaiverse-v2/discussions/vote'
       path: '/vote'
@@ -1366,6 +1401,13 @@ declare module '@tanstack/react-router' {
       path: '/api/masaiverse-v2/clubs/detail'
       fullPath: '/api/masaiverse-v2/clubs/detail'
       preLoaderRoute: typeof ApiMasaiverseV2ClubsDetailRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/masaiverse-v2/clubs/create': {
+      id: '/api/masaiverse-v2/clubs/create'
+      path: '/api/masaiverse-v2/clubs/create'
+      fullPath: '/api/masaiverse-v2/clubs/create'
+      preLoaderRoute: typeof ApiMasaiverseV2ClubsCreateRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/(protected)/_layout/masaiverse/leaderboard': {
@@ -1840,6 +1882,7 @@ const rootRouteChildren: RootRouteChildren = {
   authV2AuthUseAccountRoute: authV2AuthUseAccountRoute,
   authV2LoginRequestOtpRoute: authV2LoginRequestOtpRoute,
   authV2LoginVerifyOtpRoute: authV2LoginVerifyOtpRoute,
+  ApiMasaiverseV2ClubsCreateRoute: ApiMasaiverseV2ClubsCreateRoute,
   ApiMasaiverseV2ClubsDetailRoute: ApiMasaiverseV2ClubsDetailRoute,
   ApiMasaiverseV2ClubsEventsRoute: ApiMasaiverseV2ClubsEventsRoute,
   ApiMasaiverseV2ClubsLeaderboardRoute: ApiMasaiverseV2ClubsLeaderboardRoute,
@@ -1847,6 +1890,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiMasaiverseV2ClubsMineRoute: ApiMasaiverseV2ClubsMineRoute,
   ApiMasaiverseV2ClubsStatsRoute: ApiMasaiverseV2ClubsStatsRoute,
   ApiMasaiverseV2ClubsVisitRoute: ApiMasaiverseV2ClubsVisitRoute,
+  ApiMasaiverseV2EventsCreateRoute: ApiMasaiverseV2EventsCreateRoute,
   ApiMasaiverseV2EventsDetailRoute: ApiMasaiverseV2EventsDetailRoute,
   ApiMasaiverseV2EventsEnrollRoute: ApiMasaiverseV2EventsEnrollRoute,
   ApiMasaiverseV2EventsListRoute: ApiMasaiverseV2EventsListRoute,

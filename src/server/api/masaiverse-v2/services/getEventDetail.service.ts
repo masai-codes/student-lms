@@ -1,4 +1,5 @@
 import { and, count, eq } from 'drizzle-orm'
+import { publishedEventCondition } from './publishVisibility'
 import type { EventStatus } from '@/lib/masaiverseEventCard'
 import { db } from '@/db'
 import { clubs, eventEnrollments, events } from '@/db/schema'
@@ -105,6 +106,7 @@ export async function getEventDetail(
   eventId: number,
   userId: number,
   now: Date = new Date(),
+  canSeeUnpublished = false,
 ): Promise<MasaiverseV2EventDetail | null> {
   if (!Number.isFinite(eventId)) return null
 
@@ -129,7 +131,7 @@ export async function getEventDetail(
       })
       .from(events)
       .leftJoin(clubs, eq(events.clubId, clubs.id))
-      .where(eq(events.id, eventId))
+      .where(and(eq(events.id, eventId), publishedEventCondition(canSeeUnpublished)))
       .limit(1)
   ).at(0)
 

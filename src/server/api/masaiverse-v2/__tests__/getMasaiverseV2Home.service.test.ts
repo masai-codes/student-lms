@@ -98,16 +98,20 @@ describe('getMasaiverseV2Home', () => {
 
     expect(hoisted.memberClubIds).toHaveBeenCalledWith(7)
     expect(hoisted.discussions).toHaveBeenCalledWith(now)
-    expect(hoisted.events).toHaveBeenCalledWith(now)
+    expect(hoisted.events).toHaveBeenCalledWith(now, false)
     expect(hoisted.registrations).toHaveBeenCalledWith(now)
-    // Home now scopes events to public + the member's joined clubs.
+    // Home now scopes events to public + the member's joined clubs, and passes
+    // the publish-visibility flag (false for a non-admin) to every event read.
     expect(hoisted.homeEvents).toHaveBeenCalledWith(
       now,
       { visibleClubIds: [3, 9] },
       7,
+      false,
     )
-    expect(hoisted.highlights).toHaveBeenCalledWith(now, {
-      visibleClubIds: [3, 9],
-    })
+    expect(hoisted.highlights).toHaveBeenCalledWith(
+      now,
+      { visibleClubIds: [3, 9] },
+      false,
+    )
   })
 })

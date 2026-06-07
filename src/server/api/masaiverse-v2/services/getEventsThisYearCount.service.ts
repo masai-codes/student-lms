@@ -1,4 +1,5 @@
 import { and, count, gte, lt } from 'drizzle-orm'
+import { publishedEventCondition } from './publishVisibility'
 import { db } from '@/db'
 import { events } from '@/db/schema'
 import { getCurrentYearRangeIst, toMysqlUtc } from '@/lib/dateRanges'
@@ -8,7 +9,10 @@ import { getCurrentYearRangeIst, toMysqlUtc } from '@/lib/dateRanges'
  * (no `clubId`) and club events — keyed off `start_time`. Events without a
  * start time are excluded since they can't be placed in a year.
  */
-export async function getEventsThisYearCount(now: Date): Promise<number> {
+export async function getEventsThisYearCount(
+  now: Date,
+  canSeeUnpublished = false,
+): Promise<number> {
   const { start, end } = getCurrentYearRangeIst(now)
 
   const rows = await db
@@ -18,6 +22,7 @@ export async function getEventsThisYearCount(now: Date): Promise<number> {
       and(
         gte(events.startTime, toMysqlUtc(start)),
         lt(events.startTime, toMysqlUtc(end)),
+        publishedEventCondition(canSeeUnpublished),
       ),
     )
 

@@ -2,12 +2,18 @@ import { ApiError, isApiError } from '@/server/api/http/apiError'
 import { jsonOk, mapThrownErrorToResponse } from '@/server/api/http/responses'
 import { requireSessionUserId } from '@/server/api/http/requireSessionUser'
 import { getClubDetail } from '@/server/api/masaiverse-v2/services/getClubDetail.service'
+import { canSeeUnpublished } from '@/server/api/masaiverse-v2/services/publishVisibility'
 
 export async function handleGetClubDetail(request: Request): Promise<Response> {
   try {
     const userId = await requireSessionUserId(request)
     const clubId = Number(new URL(request.url).searchParams.get('clubId'))
-    const club = await getClubDetail(clubId, userId)
+    const club = await getClubDetail(
+      clubId,
+      userId,
+      undefined,
+      await canSeeUnpublished(userId),
+    )
     if (!club) {
       throw new ApiError(404, 'CLUB_NOT_FOUND')
     }

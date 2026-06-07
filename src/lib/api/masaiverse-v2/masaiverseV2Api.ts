@@ -270,6 +270,26 @@ export async function setMasaiverseV2AdminMode(
   })
 }
 
+/**
+ * Creates a new draft event (admin only). The server fills it with placeholder
+ * data and `meta.isPublished = false`; resolves with the new event id.
+ */
+export async function createMasaiverseV2Event(): Promise<{ id: string }> {
+  return fetchJson<{ id: string }>(MASAIVERSE_V2_API.eventCreate, {
+    method: 'POST',
+  })
+}
+
+/**
+ * Creates a new draft club (admin only). The server fills it with placeholder
+ * data and `meta.isPublished = false`; resolves with the new club id.
+ */
+export async function createMasaiverseV2Club(): Promise<{ id: string }> {
+  return fetchJson<{ id: string }>(MASAIVERSE_V2_API.clubCreate, {
+    method: 'POST',
+  })
+}
+
 /** Joins or leaves a club and resolves with the new membership state. */
 export async function setMasaiverseV2ClubMembership(input: {
   clubId: string

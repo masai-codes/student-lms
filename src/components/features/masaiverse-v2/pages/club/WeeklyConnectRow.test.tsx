@@ -1,8 +1,34 @@
 // @vitest-environment jsdom
 import { cleanup, render, screen } from '@testing-library/react'
-import { afterEach, describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import WeeklyConnectRow from './WeeklyConnectRow'
+import type { ReactNode } from 'react'
 import type { MasaiverseV2WeeklyConnect } from '@/server/api/masaiverse-v2/services/getClubWeeklyConnects.service'
+
+// The row links to the event detail page; render a plain anchor so the test
+// doesn't need a full router, but keep the resolved `to`/`params` observable.
+vi.mock('@tanstack/react-router', () => ({
+  Link: ({
+    children,
+    to,
+    params,
+    className,
+  }: {
+    children: ReactNode
+    to: string
+    params?: { eventId: string }
+    className?: string
+  }) => (
+    <a
+      href="#"
+      className={className}
+      data-to={to}
+      data-event-id={params?.eventId ?? ''}
+    >
+      {children}
+    </a>
+  ),
+}))
 
 const NOW = new Date('2026-06-03T12:00:00Z')
 
@@ -54,6 +80,13 @@ describe('WeeklyConnectRow', () => {
       />,
     )
     expect(screen.getByText('Completed')).toBeTruthy()
+  })
+
+  it('links to the event detail page for its event id', () => {
+    render(<WeeklyConnectRow connect={connect({ id: '42' })} now={NOW} />)
+    const link = screen.getByRole('link')
+    expect(link.getAttribute('data-to')).toBe('/masaiverse/event/$eventId')
+    expect(link.getAttribute('data-event-id')).toBe('42')
   })
 
   it('falls back to a calendar glyph and hides subtitle when data is missing', () => {

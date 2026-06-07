@@ -75,6 +75,8 @@ export function mapThrownErrorToResponse(error: unknown): Response {
       case 'SERVER_ERROR_RATING_EVENT':
       case 'SERVER_ERROR_FETCHING_ADMIN_MODE':
       case 'SERVER_ERROR_UPDATING_ADMIN_MODE':
+      case 'SERVER_ERROR_CREATING_EVENT':
+      case 'SERVER_ERROR_CREATING_CLUB':
         return jsonError(500, error.message)
       case 'INVALID_ADMIN_MODE_PAYLOAD':
         return jsonError(400, error.message)
