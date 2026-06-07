@@ -52,7 +52,16 @@ export default function ClubStatsSection({
                 {isError ? '—' : formatClubStat(card, data)}
               </p>
             )}
-            <p className="text-[14px] leading-5 text-[#6B7280]">{card.label}</p>
+            <div>
+              <p className="text-[14px] leading-5 text-[#6B7280]">
+                {card.label}
+              </p>
+              {card.sublabel ? (
+                <p className="mt-0.5 text-[12px] leading-4 text-[#9CA3AF]">
+                  {card.sublabel}
+                </p>
+              ) : null}
+            </div>
           </div>
         )
       })}

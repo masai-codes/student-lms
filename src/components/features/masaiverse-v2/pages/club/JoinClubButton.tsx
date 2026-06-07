@@ -17,12 +17,26 @@ type JoinClubButtonProps = {
    * confirmation dialog with this markdown before the membership request.
    */
   confirmationModalText?: string | null
+  /**
+   * `onDark` (default) is the white pill used on the orange banner; `primary`
+   * is the filled-orange pill for light surfaces such as the locked-section
+   * unlock overlay.
+   */
+  variant?: 'onDark' | 'primary'
 }
+
+/** Per-variant classes for the not-yet-joined state. */
+const VARIANT_STYLES = {
+  onDark: 'bg-white text-[#111827] hover:bg-white/90',
+  primary:
+    'bg-masaiverse-orange text-white shadow-sm hover:bg-masaiverse-orange/90 hover:shadow-md hover:-translate-y-0.5 active:translate-y-0',
+} as const
 
 export default function JoinClubButton({
   clubId,
   isJoined,
   confirmationModalText = null,
+  variant = 'onDark',
 }: JoinClubButtonProps) {
   const queryClient = useQueryClient()
   const detailKey = masaiverseV2ClubDetailQuery(clubId).queryKey
@@ -76,10 +90,8 @@ export default function JoinClubButton({
         onClick={handleJoinClick}
         disabled={isJoined || mutation.isPending}
         aria-pressed={isJoined}
-        className={`flex items-center justify-center gap-2 rounded-[12px] px-5 py-2.5 text-[14px] font-bold transition-colors disabled:opacity-70 ${
-          isJoined
-            ? 'bg-masaiverse-orange text-white'
-            : 'bg-white text-[#111827] hover:bg-white/90'
+        className={`flex items-center justify-center gap-2 rounded-[12px] px-5 py-2.5 text-[14px] font-bold transition-all disabled:opacity-70 ${
+          isJoined ? 'bg-masaiverse-orange text-white' : VARIANT_STYLES[variant]
         }`}
       >
         {isJoined ? (

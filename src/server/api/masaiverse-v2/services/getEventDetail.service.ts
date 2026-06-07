@@ -47,6 +47,11 @@ export interface MasaiverseV2EventDetail {
    * before registering. Null when unset, in which case registration is direct.
    */
   confirmationModalText: string | null
+  /**
+   * `events.meta.eventSummary` — markdown/HTML recap shown above the "About"
+   * section once the event has ended. Null when unset.
+   */
+  eventSummary: string | null
   clubId: string | null
   /** Hosting club name (via join); null for community-wide events. */
   clubName: string | null
@@ -170,6 +175,7 @@ export async function getEventDetail(
     belowTitle: toStringOrNull(row.meta?.belowTitle),
     isWeeklyConnect: row.meta?.isWeeklyConnect === true,
     confirmationModalText: toStringOrNull(row.meta?.confirmationModalText),
+    eventSummary: toStringOrNull(row.meta?.eventSummary),
     clubId: row.clubId != null ? String(row.clubId) : null,
     clubName: toStringOrNull(row.clubName),
     hostedBy: toHostedBy(row.meta?.hostedBy),

@@ -33,6 +33,7 @@ describe('ClubStatsSection', () => {
     renderWithClient(<ClubStatsSection clubId="5" />)
 
     expect(screen.getByText('Active Members')).toBeTruthy()
+    expect(screen.getByText('in the last 30 days')).toBeTruthy()
     expect(screen.getByText('Avg event rating')).toBeTruthy()
     expect(screen.getByText('Projects built')).toBeTruthy()
     expect(screen.getByText('Community posts')).toBeTruthy()

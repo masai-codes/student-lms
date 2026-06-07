@@ -5,6 +5,8 @@ export interface ClubStatCardConfig {
   id: string
   emoji: string
   label: string
+  /** Optional smaller line under the label clarifying the metric's window. */
+  sublabel?: string
   accent: AccentColor
   /** Which field of the club-stats payload this card displays. */
   metric: keyof MasaiverseV2ClubStats
@@ -18,6 +20,7 @@ export const CLUB_STAT_CARDS: Array<ClubStatCardConfig> = [
     id: 'active-members',
     emoji: '👥',
     label: 'Active Members',
+    sublabel: 'in the last 30 days',
     accent: 'orange',
     metric: 'activeMembers',
     format: 'count',

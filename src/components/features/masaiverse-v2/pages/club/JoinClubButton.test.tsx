@@ -63,6 +63,15 @@ describe('JoinClubButton', () => {
     expect(screen.getByRole('button', { name: 'Join' })).toBeTruthy()
   })
 
+  it('uses the filled-orange pill for the primary variant', () => {
+    renderWithClient(
+      <JoinClubButton clubId="5" isJoined={false} variant="primary" />,
+    )
+    const button = screen.getByRole('button', { name: 'Join' })
+    expect(button.className).toContain('bg-masaiverse-orange')
+    expect(button.className).not.toContain('bg-white')
+  })
+
   it('opens a confirmation dialog and only joins after acknowledging', async () => {
     mockedSet.mockResolvedValue({ isJoined: true, memberCount: 235 })
     renderWithClient(

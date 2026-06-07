@@ -167,36 +167,44 @@ export async function getClubDetail(
 
   if (!club) return null
 
-  // Fan out: the live member count + this user's membership, plus the four
-  // sections the page used to fetch separately (stats, events, leaderboard's
-  // first page, latest discussions). Each sub-service re-checks the club but it
-  // already exists here, so they resolve with data.
-  const [memberCountRows, membership, stats, events, leaderboard, discussions] =
-    await Promise.all([
-      db
-        .select({ memberCount: count() })
-        .from(clubMembers)
-        .where(eq(clubMembers.clubId, clubId)),
-      db
-        .select({ id: clubMembers.id })
-        .from(clubMembers)
-        .where(
-          and(eq(clubMembers.clubId, clubId), eq(clubMembers.userId, userId)),
-        )
-        .limit(1),
-      getClubStats(clubId, now),
-      getClubEvents(clubId, now),
-      getClubLeaderboard(clubId, 0, CLUB_LEADERBOARD_PER_PAGE),
-      getCommunityDiscussions(
-        userId,
-        0,
-        CLUB_DISCUSSIONS_LIMIT,
-        '',
-        String(clubId),
-      ),
-    ])
+  // Fan out: the live member count, this user's membership, and the headline
+  // stats (which stay visible to everyone). Each sub-service re-checks the club
+  // but it already exists here, so they resolve with data.
+  const [memberCountRows, membership, stats] = await Promise.all([
+    db
+      .select({ memberCount: count() })
+      .from(clubMembers)
+      .where(eq(clubMembers.clubId, clubId)),
+    db
+      .select({ id: clubMembers.id })
+      .from(clubMembers)
+      .where(
+        and(eq(clubMembers.clubId, clubId), eq(clubMembers.userId, userId)),
+      )
+      .limit(1),
+    getClubStats(clubId, now),
+  ])
 
   const memberCount = memberCountRows.at(0)?.memberCount ?? 0
+  const isJoined = membership.length > 0
+
+  // Members-only sections (weekly connects, live/upcoming + past events,
+  // leaderboard, discussions). Non-members get empty payloads so the page can
+  // blur these segments as a "join to unlock" teaser without ever shipping
+  // their contents to the client.
+  const [events, leaderboard, discussions] = isJoined
+    ? await Promise.all([
+        getClubEvents(clubId, now),
+        getClubLeaderboard(clubId, 0, CLUB_LEADERBOARD_PER_PAGE),
+        getCommunityDiscussions(
+          userId,
+          0,
+          CLUB_DISCUSSIONS_LIMIT,
+          '',
+          String(clubId),
+        ),
+      ])
+    : [null, null, { discussions: [], hasMore: false }]
 
   return {
     id: String(club.id),
@@ -213,7 +221,7 @@ export async function getClubDetail(
     learningTenure: toLearningTenure(club.meta?.learningTenureData),
     galleryImages: toStringList(club.meta?.galleryImages),
     memberCount,
-    isJoined: membership.length > 0,
+    isJoined,
     confirmationModalText: toStringOrNull(club.meta?.confirmationModalText),
     stats,
     events: events ?? EMPTY_EVENTS,

@@ -15,6 +15,13 @@ type EventDetailPageProps = {
   eventId: string
 }
 
+/** True once the event's end time (UTC ISO) is in the past. */
+function eventHasEnded(endTime: string | null): boolean {
+  if (!endTime) return false
+  const end = new Date(endTime)
+  return !Number.isNaN(end.getTime()) && end.getTime() <= Date.now()
+}
+
 function BackToEventsLink() {
   return (
     <Link
@@ -130,6 +137,22 @@ export default function EventDetailPage({ eventId }: EventDetailPageProps) {
           <EventInfoRows event={event} />
           <EventRegisterCard event={event} />
           <EventRatingCard event={event} />
+
+          {/* Recap shown only once the event has ended (end time passed) and a
+              summary has been authored in `events.meta.eventSummary`. */}
+          {event.eventSummary && eventHasEnded(event.endTime) ? (
+            <section>
+              <h2 className="text-[16px] font-bold leading-6 text-[#111827]">
+                Event summary
+              </h2>
+              {/* Summary may contain markdown / raw HTML — render it richly
+                  (sanitized) instead of as plain text. */}
+              <RichContent
+                value={event.eventSummary}
+                className="mt-2 text-[14px] leading-6 text-[#4B5563]"
+              />
+            </section>
+          ) : null}
 
           {event.description ? (
             <section>

@@ -12,6 +12,7 @@ import ClubPhotosSection from './club/ClubPhotosSection'
 import ClubStatsSection from './club/ClubStatsSection'
 import ClubUpcomingSection from './club/ClubUpcomingSection'
 import LearningTenureSection from './club/LearningTenureSection'
+import LockedSection from './club/LockedSection'
 import WeeklyConnectsSection from './club/WeeklyConnectsSection'
 import CalendarPanel from './home/calendar/CalendarPanel'
 import { ApiClientError } from '@/lib/api/apiClientError'
@@ -102,22 +103,77 @@ export default function ClubDetailPage({ clubId }: ClubDetailPageProps) {
         <ClubStatsSection clubId={clubId} initialStats={club.stats} />
         <AboutClubSection club={club} />
         <LearningTenureSection club={club} />
-        <WeeklyConnectsSection
-          clubId={clubId}
-          onViewSchedule={toggleCalendar}
-          initialEvents={club.events}
-        />
-        <ClubUpcomingSection
-          clubId={clubId}
-          onViewCalendar={toggleCalendar}
-          initialEvents={club.events}
-        />
-        <ClubPastSection clubId={clubId} initialEvents={club.events} />
-        <ClubLeaderboardSection
-          clubId={clubId}
-          initialLeaderboard={club.leaderboard}
-        />
-        <ClubDiscussionsSection clubId={clubId} discussions={club.discussions} />
+        {/* The sections below are member-only: non-members see a blurred
+            "join to unlock" teaser, and the server withholds their data. */}
+        {isMember ? (
+          <WeeklyConnectsSection
+            clubId={clubId}
+            onViewSchedule={toggleCalendar}
+            initialEvents={club.events}
+          />
+        ) : (
+          <LockedSection
+            clubId={clubId}
+            title="Weekly Connects"
+            variant="list"
+            teaser="Join to see the club's recurring weekly sessions and never miss a connect."
+            confirmationModalText={club.confirmationModalText}
+          />
+        )}
+        {isMember ? (
+          <ClubUpcomingSection
+            clubId={clubId}
+            onViewCalendar={toggleCalendar}
+            initialEvents={club.events}
+          />
+        ) : (
+          <LockedSection
+            clubId={clubId}
+            title="Live & Upcoming Events"
+            variant="cards"
+            teaser="Join to discover live and upcoming events happening in this club."
+            confirmationModalText={club.confirmationModalText}
+          />
+        )}
+        {isMember ? (
+          <ClubPastSection clubId={clubId} initialEvents={club.events} />
+        ) : (
+          <LockedSection
+            clubId={clubId}
+            title="Past Events"
+            variant="cards"
+            teaser="Join to catch recaps and replays from the club's past events."
+            confirmationModalText={club.confirmationModalText}
+          />
+        )}
+        {isMember ? (
+          <ClubLeaderboardSection
+            clubId={clubId}
+            initialLeaderboard={club.leaderboard}
+          />
+        ) : (
+          <LockedSection
+            clubId={clubId}
+            title="Club Leaderboard"
+            variant="list"
+            teaser="Join to see how members rank and where you could land."
+            confirmationModalText={club.confirmationModalText}
+          />
+        )}
+        {isMember ? (
+          <ClubDiscussionsSection
+            clubId={clubId}
+            discussions={club.discussions}
+          />
+        ) : (
+          <LockedSection
+            clubId={clubId}
+            title="Club Discussion"
+            variant="list"
+            teaser="Join the conversation and see what members are discussing."
+            confirmationModalText={club.confirmationModalText}
+          />
+        )}
         <ClubPhotosSection club={club} />
       </div>
     </InlineDrawer>
