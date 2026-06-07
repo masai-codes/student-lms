@@ -290,6 +290,91 @@ export async function createMasaiverseV2Club(): Promise<{ id: string }> {
   })
 }
 
+/** Raw editable club data (name + full meta) for the admin edit drawer. */
+export type MasaiverseV2ClubEditData = {
+  id: string
+  name: string
+  meta: Record<string, unknown>
+}
+
+export async function fetchMasaiverseV2ClubEditData(
+  clubId: string,
+): Promise<MasaiverseV2ClubEditData> {
+  return fetchJson<MasaiverseV2ClubEditData>(
+    `${MASAIVERSE_V2_API.clubEditData}?clubId=${encodeURIComponent(clubId)}`,
+  )
+}
+
+/** Raw editable event data (columns + full meta) for the admin edit drawer. */
+export type MasaiverseV2EventEditData = {
+  id: string
+  columns: {
+    title: string
+    description: string | null
+    category: string | null
+    mode: string | null
+    locationTitle: string | null
+    locationMapLink: string | null
+    eventLink: string | null
+    imageLink: string | null
+    platform: string | null
+    startTime: string | null
+    endTime: string | null
+  }
+  meta: Record<string, unknown>
+}
+
+export async function fetchMasaiverseV2EventEditData(
+  eventId: string,
+): Promise<MasaiverseV2EventEditData> {
+  return fetchJson<MasaiverseV2EventEditData>(
+    `${MASAIVERSE_V2_API.eventEditData}?eventId=${encodeURIComponent(eventId)}`,
+  )
+}
+
+/**
+ * Uploads an image file to S3 and resolves with its public URL. Reusable for
+ * any image field; the file rides in a multipart `file` field.
+ */
+export async function uploadMasaiverseV2Image(file: File): Promise<{ url: string }> {
+  const body = new FormData()
+  body.append('file', file)
+  return fetchJson<{ url: string }>(MASAIVERSE_V2_API.uploadImage, {
+    method: 'POST',
+    body,
+  })
+}
+
+/** A partial inline edit to an event/club: column and/or meta key changes. */
+export type MasaiverseV2EntityPatch = {
+  column?: Record<string, unknown>
+  meta?: Record<string, unknown>
+}
+
+/** Applies an admin inline edit to an event (whitelisted columns/meta keys). */
+export async function updateMasaiverseV2Event(
+  eventId: string,
+  patch: MasaiverseV2EntityPatch,
+): Promise<{ success: true }> {
+  return fetchJson<{ success: true }>(MASAIVERSE_V2_API.eventUpdate, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ eventId, ...patch }),
+  })
+}
+
+/** Applies an admin inline edit to a club (whitelisted columns/meta keys). */
+export async function updateMasaiverseV2Club(
+  clubId: string,
+  patch: MasaiverseV2EntityPatch,
+): Promise<{ success: true }> {
+  return fetchJson<{ success: true }>(MASAIVERSE_V2_API.clubUpdate, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ clubId, ...patch }),
+  })
+}
+
 /** Joins or leaves a club and resolves with the new membership state. */
 export async function setMasaiverseV2ClubMembership(input: {
   clubId: string

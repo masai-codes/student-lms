@@ -18,5 +18,10 @@ export const MASAIVERSE_V2_API = {
   eventRate: '/api/masaiverse-v2/events/rate',
   eventCreate: '/api/masaiverse-v2/events/create',
   clubCreate: '/api/masaiverse-v2/clubs/create',
+  eventUpdate: '/api/masaiverse-v2/events/update',
+  clubUpdate: '/api/masaiverse-v2/clubs/update',
+  clubEditData: '/api/masaiverse-v2/clubs/edit-data',
+  eventEditData: '/api/masaiverse-v2/events/edit-data',
+  uploadImage: '/api/masaiverse-v2/uploads/image',
   adminMode: '/api/masaiverse-v2/admin-mode',
 } as const

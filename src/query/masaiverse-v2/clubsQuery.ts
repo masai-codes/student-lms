@@ -1,5 +1,6 @@
 import {
   fetchMasaiverseV2ClubDetail,
+  fetchMasaiverseV2ClubEditData,
   fetchMasaiverseV2ClubEvents,
   fetchMasaiverseV2ClubLeaderboard,
   fetchMasaiverseV2ClubStats,
@@ -13,6 +14,13 @@ export const masaiverseV2MyClubsQuery = () => ({
   queryKey: MASAIVERSE_V2_MY_CLUBS_KEY,
   queryFn: fetchMasaiverseV2MyClubs,
   staleTime: 5 * 60 * 1000,
+})
+
+/** Query options for the admin club edit drawer (raw name + meta). */
+export const masaiverseV2ClubEditDataQuery = (clubId: string) => ({
+  queryKey: ['masaiverse-v2', 'club', clubId, 'edit-data'] as const,
+  queryFn: () => fetchMasaiverseV2ClubEditData(clubId),
+  staleTime: 0,
 })
 
 /** Query options for a single club's detail page. */
