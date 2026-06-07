@@ -66,7 +66,7 @@ function BannerCard({
 }
 
 /**
- * Sticky home banners shown above the stats section. Multiple banners rotate in
+ * Home banners shown above the stats section. Multiple banners rotate in
  * a swiper. Admins in admin mode can add a banner and edit/publish/delete each;
  * students see only published banners (the section hides when there are none).
  */
@@ -86,7 +86,7 @@ export default function BannersSection() {
   if (banners.length === 0 && !canManage) return null
 
   return (
-    <section className="sticky top-[72px] z-20 -mx-1 bg-[#FAF9F9] px-1 pb-3 pt-1">
+    <section>
       <div className="flex items-center justify-between">
         <h2 className="text-[13px] font-bold uppercase tracking-wide text-[#9CA3AF]">
           Announcements

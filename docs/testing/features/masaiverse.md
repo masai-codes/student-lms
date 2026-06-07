@@ -277,7 +277,7 @@ Current focus: server API/unit test coverage for `src/server/masaiverse/**`.
 - `MASAIVE-V2-132` - Module: banner handlers - Case: `GET /banners/list` scopes by `canSeeUnpublished` (401 without a session), `POST /banners/create` returns 201, `POST /banners/update` forwards the parsed patch + propagates the service 403, `POST /banners/delete` forwards the id + maps failures to `SERVER_ERROR_DELETING_BANNER` - Status: Covered
 - `MASAIVE-V2-133` - Module: `BannersSection` (UI) - Case: hidden for a student with no banners; shows a published banner without admin controls; for an admin shows the "Add banner" button (creates one) and a draft badge + edit control per banner - Status: Covered
 - `MASAIVE-V2-134` - Module: `BannerEditModal` (UI) - Case: editing title + toggling Published saves a `{ column, meta:{isPublished} }` patch and closes; Delete removes the banner and closes - Status: Covered
-- Note: home banners live in `masaiverse_banners` (title/description/cta + `meta.isPublished`); the sticky "Announcements" swiper renders above the stats section. - Status: N/A
+- Note: home banners live in `masaiverse_banners` (title/description/cta + `meta.isPublished`); the "Announcements" swiper renders above the stats section. - Status: N/A
 
 ## Pending / Next Cases
 
