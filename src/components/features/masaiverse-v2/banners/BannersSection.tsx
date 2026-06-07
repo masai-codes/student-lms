@@ -1,0 +1,141 @@
+import { useState } from 'react'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { Pagination } from 'swiper/modules'
+import { Swiper, SwiperSlide } from 'swiper/react'
+import { PencilSimple, Plus } from '@phosphor-icons/react'
+import BannerEditModal from './BannerEditModal'
+import type { MasaiverseV2Banner } from '@/server/api/masaiverse-v2/services/getBanners.service'
+import { RichContent } from '@/components/event-card/rich-content'
+import { createMasaiverseV2Banner } from '@/lib/api/masaiverse-v2/masaiverseV2Api'
+import {
+  MASAIVERSE_V2_BANNERS_KEY,
+  masaiverseV2BannersQuery,
+} from '@/query/masaiverse-v2/bannersQuery'
+import { masaiverseV2AdminModeQuery } from '@/query/masaiverse-v2/adminModeQuery'
+import 'swiper/css'
+import 'swiper/css/pagination'
+
+function BannerCard({
+  banner,
+  canManage,
+  onEdit,
+}: {
+  banner: MasaiverseV2Banner
+  canManage: boolean
+  onEdit: () => void
+}) {
+  return (
+    <div className="relative overflow-hidden rounded-[16px] bg-gradient-to-r from-masaiverse-orange to-[#FF7A29] p-5 text-white">
+      {canManage ? (
+        <div className="absolute right-3 top-3 flex items-center gap-2">
+          {!banner.isPublished ? (
+            <span className="rounded-full bg-black/25 px-2 py-0.5 text-[11px] font-semibold">
+              Draft
+            </span>
+          ) : null}
+          <button
+            type="button"
+            onClick={onEdit}
+            aria-label={`Edit banner ${banner.title}`}
+            className="inline-flex size-7 items-center justify-center rounded-full bg-white/20 text-white hover:bg-white/30"
+          >
+            <PencilSimple size={14} weight="bold" />
+          </button>
+        </div>
+      ) : null}
+
+      <h3 className="pr-16 text-[18px] font-bold leading-6">{banner.title}</h3>
+      {banner.description ? (
+        <RichContent
+          value={banner.description}
+          className="mt-1 text-[14px] leading-5 text-white/90 [&_a]:underline"
+        />
+      ) : null}
+      {banner.ctaText && banner.ctaUrl ? (
+        <a
+          href={banner.ctaUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="mt-3 inline-flex items-center rounded-lg bg-white px-3.5 py-1.5 text-[13px] font-bold text-masaiverse-orange"
+        >
+          {banner.ctaText}
+        </a>
+      ) : null}
+    </div>
+  )
+}
+
+/**
+ * Sticky home banners shown above the stats section. Multiple banners rotate in
+ * a swiper. Admins in admin mode can add a banner and edit/publish/delete each;
+ * students see only published banners (the section hides when there are none).
+ */
+export default function BannersSection() {
+  const queryClient = useQueryClient()
+  const { data: banners = [] } = useQuery(masaiverseV2BannersQuery())
+  const { data: adminMode } = useQuery(masaiverseV2AdminModeQuery())
+  const canManage = adminMode?.enabled ?? false
+  const [editing, setEditing] = useState<MasaiverseV2Banner | null>(null)
+
+  const create = useMutation({
+    mutationFn: createMasaiverseV2Banner,
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: MASAIVERSE_V2_BANNERS_KEY }),
+  })
+
+  if (banners.length === 0 && !canManage) return null
+
+  return (
+    <section className="sticky top-[72px] z-20 -mx-1 bg-[#FAF9F9] px-1 pb-3 pt-1">
+      <div className="flex items-center justify-between">
+        <h2 className="text-[13px] font-bold uppercase tracking-wide text-[#9CA3AF]">
+          Announcements
+        </h2>
+        {canManage ? (
+          <button
+            type="button"
+            onClick={() => create.mutate()}
+            disabled={create.isPending}
+            className="inline-flex items-center gap-1.5 rounded-lg border border-[#111827] px-3 py-1.5 text-[13px] font-semibold text-[#111827] transition-colors hover:bg-[#111827] hover:text-white disabled:opacity-50"
+          >
+            <Plus size={14} weight="bold" />
+            {create.isPending ? 'Adding…' : 'Add banner'}
+          </button>
+        ) : null}
+      </div>
+
+      {banners.length === 0 ? (
+        <p className="mt-3 rounded-[16px] border border-dashed border-[#E0D9D3] bg-white px-4 py-6 text-center text-[13px] text-[#9CA3AF]">
+          No banners yet. Click “Add banner” to create one.
+        </p>
+      ) : (
+        <div className="mt-3">
+          <Swiper
+            modules={[Pagination]}
+            pagination={{ clickable: true }}
+            spaceBetween={16}
+            slidesPerView={1}
+          >
+            {banners.map((banner) => (
+              <SwiperSlide key={banner.id} className="pb-8">
+                <BannerCard
+                  banner={banner}
+                  canManage={canManage}
+                  onEdit={() => setEditing(banner)}
+                />
+              </SwiperSlide>
+            ))}
+          </Swiper>
+        </div>
+      )}
+
+      {editing ? (
+        <BannerEditModal
+          banner={editing}
+          open
+          onClose={() => setEditing(null)}
+        />
+      ) : null}
+    </section>
+  )
+}

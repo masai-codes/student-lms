@@ -23,5 +23,9 @@ export const MASAIVERSE_V2_API = {
   clubEditData: '/api/masaiverse-v2/clubs/edit-data',
   eventEditData: '/api/masaiverse-v2/events/edit-data',
   uploadImage: '/api/masaiverse-v2/uploads/image',
+  banners: '/api/masaiverse-v2/banners/list',
+  bannerCreate: '/api/masaiverse-v2/banners/create',
+  bannerUpdate: '/api/masaiverse-v2/banners/update',
+  bannerDelete: '/api/masaiverse-v2/banners/delete',
   adminMode: '/api/masaiverse-v2/admin-mode',
 } as const

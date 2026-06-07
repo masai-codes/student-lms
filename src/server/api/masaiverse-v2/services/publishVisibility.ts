@@ -1,6 +1,6 @@
 import { sql } from 'drizzle-orm'
 import type { SQL } from 'drizzle-orm'
-import { clubs, events } from '@/db/schema'
+import { clubs, events, masaiverseBanners } from '@/db/schema'
 import { getAdminModeState } from '@/server/api/masaiverse-v2/services/adminMode.service'
 
 /** `meta` key that marks an event/club as published (visible to students). */
@@ -39,4 +39,10 @@ export function publishedEventCondition(canSee: boolean): SQL | undefined {
 export function publishedClubCondition(canSee: boolean): SQL | undefined {
   if (canSee) return undefined
   return sql`json_extract(${clubs.meta}, '$.${sql.raw(PUBLISHED_META_KEY)}') = true`
+}
+
+/** As {@link publishedEventCondition}, but for `masaiverse_banners.meta.isPublished`. */
+export function publishedBannerCondition(canSee: boolean): SQL | undefined {
+  if (canSee) return undefined
+  return sql`json_extract(${masaiverseBanners.meta}, '$.${sql.raw(PUBLISHED_META_KEY)}') = true`
 }

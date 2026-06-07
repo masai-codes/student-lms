@@ -14,6 +14,7 @@ import type { MasaiverseV2EventDetail } from '@/server/api/masaiverse-v2/service
 import type { EventEnrollmentState } from '@/server/api/masaiverse-v2/services/setEventEnrollment.service'
 import type { EventRatingState } from '@/server/api/masaiverse-v2/services/rateEvent.service'
 import type { MasaiverseV2AdminModeState } from '@/server/api/masaiverse-v2/services/adminMode.service'
+import type { MasaiverseV2Banner } from '@/server/api/masaiverse-v2/services/getBanners.service'
 import { fetchJson } from '@/lib/api/fetchJson'
 import { MASAIVERSE_V2_API } from '@/lib/api/masaiverse-v2/masaiverseV2Paths'
 
@@ -287,6 +288,44 @@ export async function createMasaiverseV2Event(): Promise<{ id: string }> {
 export async function createMasaiverseV2Club(): Promise<{ id: string }> {
   return fetchJson<{ id: string }>(MASAIVERSE_V2_API.clubCreate, {
     method: 'POST',
+  })
+}
+
+/** Home-page banners (published only, unless the admin is in admin mode). */
+export async function fetchMasaiverseV2Banners(): Promise<Array<MasaiverseV2Banner>> {
+  const { banners } = await fetchJson<{ banners: Array<MasaiverseV2Banner> }>(
+    MASAIVERSE_V2_API.banners,
+  )
+  return banners
+}
+
+/** Creates a draft banner (admin only); resolves with the new banner id. */
+export async function createMasaiverseV2Banner(): Promise<{ id: string }> {
+  return fetchJson<{ id: string }>(MASAIVERSE_V2_API.bannerCreate, {
+    method: 'POST',
+  })
+}
+
+/** Applies an admin edit to a banner (whitelisted columns/meta keys). */
+export async function updateMasaiverseV2Banner(
+  bannerId: string,
+  patch: MasaiverseV2EntityPatch,
+): Promise<{ success: true }> {
+  return fetchJson<{ success: true }>(MASAIVERSE_V2_API.bannerUpdate, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ bannerId, ...patch }),
+  })
+}
+
+/** Permanently deletes a banner (admin only). */
+export async function deleteMasaiverseV2Banner(
+  bannerId: string,
+): Promise<{ success: true }> {
+  return fetchJson<{ success: true }>(MASAIVERSE_V2_API.bannerDelete, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ bannerId }),
   })
 }
 

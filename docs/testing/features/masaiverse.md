@@ -272,6 +272,13 @@ Current focus: server API/unit test coverage for `src/server/masaiverse/**`.
 - `MASAIVE-V2-129` - Module: publish toggle - Case: `meta.isPublished` is whitelisted in `updateEvent`/`updateClub` and exposed as a "Published" `Switch` in both edit drawers; `clubFormState`/`eventFormState` seed it from `meta.isPublished === true` and include it in the patch - Status: Covered
 - Note: the inline-edit components (`EditModeProvider`/`EditableField`/`EditFieldModal`/`EditFieldsPanel`/`EditToggleButton`) and their `EditMode.test.tsx` were **removed** — both clubs and events now edit via right drawers (`ClubEditForm`/`EventEditForm`). `editDateTime` + `ImageUploadField` are retained and reused. - Status: N/A
 
+- `MASAIVE-V2-130` - Module: `getMasaiverseBanners` (service) - Case: maps rows to the banner shape, reads `isPublished` from `meta` (false when missing), normalizes blank strings to null, and returns [] when empty; the `publishedBannerCondition` gates visibility by `canSeeUnpublished` - Status: Covered
+- `MASAIVE-V2-131` - Module: `createMasaiverseBanner` / `updateMasaiverseBanner` / `deleteMasaiverseBanner` (services) - Case: all admin-gated (403); create inserts an unpublished draft (`meta.isPublished=false`, `createdBy`/`lastEditedBy`); update 404s on a missing banner, whitelists columns/meta, merges meta and stamps `lastEditedBy`; delete removes the row - Status: Covered
+- `MASAIVE-V2-132` - Module: banner handlers - Case: `GET /banners/list` scopes by `canSeeUnpublished` (401 without a session), `POST /banners/create` returns 201, `POST /banners/update` forwards the parsed patch + propagates the service 403, `POST /banners/delete` forwards the id + maps failures to `SERVER_ERROR_DELETING_BANNER` - Status: Covered
+- `MASAIVE-V2-133` - Module: `BannersSection` (UI) - Case: hidden for a student with no banners; shows a published banner without admin controls; for an admin shows the "Add banner" button (creates one) and a draft badge + edit control per banner - Status: Covered
+- `MASAIVE-V2-134` - Module: `BannerEditModal` (UI) - Case: editing title + toggling Published saves a `{ column, meta:{isPublished} }` patch and closes; Delete removes the banner and closes - Status: Covered
+- Note: home banners live in `masaiverse_banners` (title/description/cta + `meta.isPublished`); the sticky "Announcements" swiper renders above the stats section. - Status: N/A
+
 ## Pending / Next Cases
 
 - `MASAIVE-API-022` - Module: `joinClub` - Case: invalid club id input should throw `INVALID_CLUB_ID` - Status: Planned

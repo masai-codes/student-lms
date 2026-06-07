@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import InlineDrawer from '../InlineDrawer'
+import BannersSection from '../banners/BannersSection'
 import ActiveClubsSection from './home/ActiveClubsSection'
 import CommunityDiscussionsSection from './home/CommunityDiscussionsSection'
 import HighlightsSection from './home/HighlightsSection'
@@ -31,6 +32,7 @@ export default function HomePage() {
       onClose={() => setIsCalendarOpen(false)}
     >
       <div className="flex flex-col gap-8">
+        <BannersSection />
         <StatsSection />
         <ThisWeekSection
           onViewCalendar={() => setIsCalendarOpen((open) => !open)}
