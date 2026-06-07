@@ -1,3 +1,4 @@
+import ResponsiveCardCarousel from '../home/ResponsiveCardCarousel'
 import SectionHeader from '../home/SectionHeader'
 import type { MasaiverseV2ClubDetail } from '@/server/api/masaiverse-v2/services/getClubDetail.service'
 
@@ -29,12 +30,15 @@ export default function LearningTenureSection({
           ) : undefined
         }
       />
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {learningTenure.map((item, index) => (
-          <div
-            key={`${item.heading}-${index}`}
-            className="flex h-full flex-col rounded-[16px] border border-[#EDEAE8] bg-white p-5"
-          >
+      <ResponsiveCardCarousel
+        items={learningTenure}
+        getKey={(item, index) => `${item.heading}-${index}`}
+        navKey="learning-tenure"
+        navLabel="learning tenure cards"
+        slidesPerView={1.15}
+        breakpoints={{ 640: { slidesPerView: 2.2 }, 1024: { slidesPerView: 3 } }}
+        renderItem={(item) => (
+          <div className="flex h-full flex-col rounded-[16px] border border-[#EDEAE8] bg-white p-5">
             {item.emoji ? (
               <span className="flex size-12 items-center justify-center rounded-[14px] bg-masaiverse-orange/10 text-[22px]">
                 {item.emoji}
@@ -61,8 +65,8 @@ export default function LearningTenureSection({
               </div>
             ) : null}
           </div>
-        ))}
-      </div>
+        )}
+      />
     </section>
   )
 }

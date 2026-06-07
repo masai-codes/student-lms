@@ -31,7 +31,7 @@ export default function HomePage() {
       panel={isCalendarOpen ? <CalendarPanel /> : null}
       onClose={() => setIsCalendarOpen(false)}
     >
-      <div className="flex flex-col gap-8">
+      <div className="flex flex-col gap-6 md:gap-8">
         <BannersSection />
         <StatsSection />
         <ThisWeekSection

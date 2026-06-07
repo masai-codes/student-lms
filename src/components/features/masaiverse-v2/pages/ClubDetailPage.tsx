@@ -120,7 +120,7 @@ export default function ClubDetailPage({ clubId }: ClubDetailPageProps) {
       title={isEditOpen ? 'Edit club' : 'Schedule'}
       onClose={closeDrawer}
     >
-      <div className="flex flex-col gap-6">
+      <div className="flex flex-col gap-5 md:gap-6">
         <div className="flex items-center justify-between gap-4">
           <BackToClubsLink />
           {canEdit ? (

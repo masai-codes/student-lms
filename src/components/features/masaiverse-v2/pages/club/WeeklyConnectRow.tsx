@@ -39,7 +39,7 @@ export default function WeeklyConnectRow({
       to="/masaiverse/event/$eventId"
       params={{ eventId: connect.id }}
       search={(prev) => prev}
-      className="flex items-center gap-4 rounded-[16px] border border-[#EDEAE8] bg-white p-4 transition-shadow hover:shadow-[0_8px_24px_-12px_rgba(0,0,0,0.25)]"
+      className="flex h-full items-center gap-4 rounded-[16px] border border-[#EDEAE8] bg-white p-4 transition-shadow hover:shadow-[0_8px_24px_-12px_rgba(0,0,0,0.25)]"
     >
       <span
         className={`flex size-14 shrink-0 flex-col items-center justify-center rounded-[12px] leading-none ${BADGE_STYLES[status]}`}
