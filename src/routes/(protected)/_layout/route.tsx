@@ -6,6 +6,7 @@ import {
 } from '@tanstack/react-router'
 import { useEffect } from 'react'
 import { AppMobileTabBar, AppNavbar } from '@/components/features/layout'
+import MasaiverseMobileTabBar from '@/components/features/masaiverse-v2/MasaiverseMobileTabBar'
 import { isMasaiverseApp } from '@/constants/masaiverseDrawerUi'
 import { layoutMainClasses, layoutMainClassesFullWidth } from '@/lib/layout'
 import { fetchCurrentUser } from '@/server/auth/fetchCurrentUser'
@@ -89,7 +90,13 @@ function RouteComponent() {
       >
         <Outlet />
       </main>
-      {!isApp ? <AppMobileTabBar /> : null}
+      {!isApp ? (
+        isMasaiverseRoute ? (
+          <MasaiverseMobileTabBar />
+        ) : (
+          <AppMobileTabBar />
+        )
+      ) : null}
     </div>
   )
 }
