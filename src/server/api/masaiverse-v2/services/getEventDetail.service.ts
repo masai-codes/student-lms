@@ -42,6 +42,11 @@ export interface MasaiverseV2EventDetail {
   belowTitle: string | null
   /** `events.meta.isWeeklyConnect` — marks recurring weekly-connect sessions. */
   isWeeklyConnect: boolean
+  /**
+   * `events.meta.confirmationModalText` — markdown shown in a confirm dialog
+   * before registering. Null when unset, in which case registration is direct.
+   */
+  confirmationModalText: string | null
   clubId: string | null
   /** Hosting club name (via join); null for community-wide events. */
   clubName: string | null
@@ -164,6 +169,7 @@ export async function getEventDetail(
     aboveTitle: toStringOrNull(row.meta?.aboveTitle),
     belowTitle: toStringOrNull(row.meta?.belowTitle),
     isWeeklyConnect: row.meta?.isWeeklyConnect === true,
+    confirmationModalText: toStringOrNull(row.meta?.confirmationModalText),
     clubId: row.clubId != null ? String(row.clubId) : null,
     clubName: toStringOrNull(row.clubName),
     hostedBy: toHostedBy(row.meta?.hostedBy),

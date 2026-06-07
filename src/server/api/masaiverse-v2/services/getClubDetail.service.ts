@@ -49,6 +49,11 @@ export interface MasaiverseV2ClubDetail {
   /** Whether the requesting user is a member of this club. */
   isJoined: boolean
   /**
+   * `clubs.meta.confirmationModalText` — markdown shown in a confirm dialog
+   * before joining. Null when unset, in which case joining is direct.
+   */
+  confirmationModalText: string | null
+  /**
    * The club detail page renders from this single payload. The sections below
    * are the same data the standalone `clubs/stats`, `clubs/events`,
    * `clubs/leaderboard` and `discussions` endpoints return, embedded here so the
@@ -209,6 +214,7 @@ export async function getClubDetail(
     galleryImages: toStringList(club.meta?.galleryImages),
     memberCount,
     isJoined: membership.length > 0,
+    confirmationModalText: toStringOrNull(club.meta?.confirmationModalText),
     stats,
     events: events ?? EMPTY_EVENTS,
     leaderboard: leaderboard ?? {

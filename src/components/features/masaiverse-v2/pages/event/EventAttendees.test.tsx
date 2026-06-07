@@ -6,9 +6,9 @@ import EventAttendees from './EventAttendees'
 afterEach(cleanup)
 
 describe('EventAttendees', () => {
-  it('invites the user to be first when nobody has registered', () => {
-    render(<EventAttendees count={0} />)
-    expect(screen.getByText('Be the first to register')).toBeTruthy()
+  it('renders nothing when nobody has registered', () => {
+    const { container } = render(<EventAttendees count={0} />)
+    expect(container.firstChild).toBeNull()
   })
 
   it('shows a prominent count with the singular noun for one attendee', () => {

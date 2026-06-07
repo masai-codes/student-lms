@@ -32,6 +32,7 @@ const baseClub: MasaiverseV2ClubDetail = {
   galleryImages: [],
   memberCount: 234,
   isJoined: true,
+  confirmationModalText: null,
 }
 
 afterEach(cleanup)

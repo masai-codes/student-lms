@@ -47,6 +47,7 @@ function renderWithClient(node: ReactNode) {
     galleryImages: [],
     memberCount: 234,
     isJoined: false,
+    confirmationModalText: null,
   })
   return {
     queryClient,
@@ -60,6 +61,36 @@ describe('JoinClubButton', () => {
   it('renders "Join" when not a member', () => {
     renderWithClient(<JoinClubButton clubId="5" isJoined={false} />)
     expect(screen.getByRole('button', { name: 'Join' })).toBeTruthy()
+  })
+
+  it('opens a confirmation dialog and only joins after acknowledging', async () => {
+    mockedSet.mockResolvedValue({ isJoined: true, memberCount: 235 })
+    renderWithClient(
+      <JoinClubButton
+        clubId="5"
+        isJoined={false}
+        confirmationModalText="By joining you accept the **rules**."
+      />,
+    )
+
+    // Clicking Join opens the dialog instead of calling the API.
+    await act(async () => {
+      fireEvent.click(screen.getByRole('button', { name: 'Join' }))
+    })
+    expect(screen.getByText('Confirm joining this club')).toBeTruthy()
+    expect(screen.getByText('rules')).toBeTruthy()
+    expect(mockedSet).not.toHaveBeenCalled()
+
+    // The confirm action stays disabled until the checkbox is ticked.
+    const confirmButton = screen.getByRole('button', { name: 'Confirm & join' })
+    expect((confirmButton as HTMLButtonElement).disabled).toBe(true)
+    fireEvent.click(screen.getByRole('checkbox'))
+    expect((confirmButton as HTMLButtonElement).disabled).toBe(false)
+
+    await act(async () => {
+      fireEvent.click(confirmButton)
+    })
+    expect(mockedSet).toHaveBeenCalledWith({ clubId: '5', join: true })
   })
 
   it('joins and writes the new state into the detail query cache', async () => {

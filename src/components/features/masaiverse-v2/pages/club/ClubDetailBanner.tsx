@@ -85,7 +85,11 @@ export default function ClubDetailBanner({ club }: ClubDetailBannerProps) {
         </div>
 
         <div className="flex shrink-0 flex-row gap-2.5 sm:flex-col sm:items-end">
-          <JoinClubButton clubId={club.id} isJoined={club.isJoined} />
+          <JoinClubButton
+            clubId={club.id}
+            isJoined={club.isJoined}
+            confirmationModalText={club.confirmationModalText}
+          />
           <ShareClubButton />
         </div>
       </div>

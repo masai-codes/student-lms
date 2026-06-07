@@ -1,5 +1,3 @@
-import { Sparkle } from '@phosphor-icons/react'
-
 type EventAttendeesProps = {
   count: number
 }
@@ -15,17 +13,11 @@ const BUBBLE_GRADIENTS = [
 /**
  * Prominent "people registered" stat for the registration card — a row of
  * decorative overlapping bubbles (a visual motif, not real attendee photos)
- * beside a large bold count. An empty event invites the user to be the first.
+ * beside a large bold count. Renders nothing until there's at least one
+ * registration.
  */
 export default function EventAttendees({ count }: EventAttendeesProps) {
-  if (count === 0) {
-    return (
-      <div className="mt-4 flex items-center justify-center gap-2 rounded-[14px] border border-dashed border-masaiverse-orange/30 bg-masaiverse-orange/[0.04] px-4 py-3 text-[13px] font-semibold text-masaiverse-orange">
-        <Sparkle size={16} weight="fill" />
-        Be the first to register
-      </div>
-    )
-  }
+  if (count === 0) return null
 
   const bubbles = Math.min(count, BUBBLE_GRADIENTS.length)
   const noun = count === 1 ? 'person' : 'people'
