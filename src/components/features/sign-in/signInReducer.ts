@@ -1,6 +1,6 @@
 import type { ParsedIdentifier } from '@/components/features/sign-in/detectIdentifier'
 import { identifierErrorMessage, parseIdentifier } from '@/components/features/sign-in/detectIdentifier'
-import { emailOtpSentBody, phoneOtpFirstSendBody, phoneOtpResentBody } from '@/components/features/sign-in/signInMessages'
+import { phoneOtpFirstSendBody, phoneOtpResentBody } from '@/components/features/sign-in/signInMessages'
 
 export type SignInState =
   | { step: 'identifier'; draft: string; error?: string }
@@ -134,12 +134,7 @@ export function signInReducer(state: SignInState, action: SignInAction): SignInS
       }
       return {
         step: 'identifier',
-        draft:
-          state.step === 'email'
-            ? state.email
-            : state.step === 'phone'
-              ? state.displayPhone
-              : state.draft,
+        draft: state.step === 'email' ? state.email : state.displayPhone,
       }
     case 'email_set_auth_mode':
       return state.step === 'email'

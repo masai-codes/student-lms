@@ -23,6 +23,11 @@ function club(
     galleryImages: [],
     memberCount: 0,
     isJoined: false,
+    stats: null,
+    events: { weeklyConnects: [], upcoming: [], past: [] },
+    leaderboard: { entries: [], page: 1, perPage: 5, total: 0, hasMore: false },
+    discussions: [],
+    confirmationModalText: null,
     ...overrides,
   }
 }

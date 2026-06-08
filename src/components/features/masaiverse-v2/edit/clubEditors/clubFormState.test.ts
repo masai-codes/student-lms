@@ -71,6 +71,7 @@ describe('toClubPatch', () => {
       clubDetailBannerTags: ['t'],
       confirmationModalText: 'c',
       learningTenureDateText: 'date',
+      isPublished: true,
     })
 
     expect(patch.column).toEqual({ name: 'New name' })
@@ -97,6 +98,7 @@ describe('toClubPatch', () => {
       clubDetailBannerTags: [],
       confirmationModalText: '',
       learningTenureDateText: '',
+      isPublished: false,
     })
     expect(patch.meta?.projectsBuild).toBe(0)
   })

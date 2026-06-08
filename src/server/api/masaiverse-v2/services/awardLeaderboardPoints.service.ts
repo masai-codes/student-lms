@@ -195,7 +195,8 @@ export async function revokeUpvotePoints(input: {
   const column = isReply
     ? masaiverseLeaderboard.replyId
     : masaiverseLeaderboard.postId
-  const id = isReply ? input.target.replyId : input.target.postId
+  const id =
+    'replyId' in input.target ? input.target.replyId : input.target.postId
 
   await db
     .delete(masaiverseLeaderboard)

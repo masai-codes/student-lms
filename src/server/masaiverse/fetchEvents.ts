@@ -75,9 +75,9 @@ export async function fetchAllEventsHandler({ data }: { data: { searchQuery?: st
         const aEnded = Number.isFinite(aEnd) && aEnd < now
         const bEnded = Number.isFinite(bEnd) && bEnd < now
 
-        const getRank = (eventEnded: boolean, eventClubId: string | null) => {
+        const getRank = (eventEnded: boolean, eventClubId: number | null) => {
           if (eventEnded) return 2
-          if (eventClubId && joinedClubIds.has(eventClubId)) return 0
+          if (eventClubId != null && joinedClubIds.has(eventClubId)) return 0
           return 1
         }
 

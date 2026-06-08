@@ -51,7 +51,7 @@ describe('ConfirmActionModal', () => {
     renderModal({ isPending: true })
     fireEvent.click(screen.getByRole('checkbox'))
     expect(
-      (screen.getByRole('button', { name: 'Confirm' }))
+      (screen.getByRole('button', { name: 'Confirm' }) as HTMLButtonElement)
         .disabled,
     ).toBe(true)
   })

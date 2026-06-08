@@ -3,7 +3,6 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { cleanup, render, screen, within } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import ClubDetailBanner from './ClubDetailBanner'
-import type { ReactNode } from 'react'
 import type { MasaiverseV2ClubDetail } from '@/server/api/masaiverse-v2/services/getClubDetail.service'
 
 vi.mock('@/lib/api/masaiverse-v2/masaiverseV2Api', () => ({
@@ -32,6 +31,10 @@ const baseClub: MasaiverseV2ClubDetail = {
   galleryImages: [],
   memberCount: 234,
   isJoined: true,
+  stats: null,
+  events: { weeklyConnects: [], upcoming: [], past: [] },
+  leaderboard: { entries: [], page: 1, perPage: 5, total: 0, hasMore: false },
+  discussions: [],
   confirmationModalText: null,
 }
 

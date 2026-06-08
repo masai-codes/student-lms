@@ -1,7 +1,7 @@
 import type { Course } from "@/types"
 
 // ---- mock fetcher (replace with serverFn / API) ----
-export async function fetchCourseById(courseId:string): Promise<Array<Course>> {
+export async function fetchCourseById(_courseId:string): Promise<Array<Course>> {
   await new Promise((r) => setTimeout(r, 1200))
   return [
     {

@@ -34,18 +34,12 @@ afterEach(() => {
 })
 
 describe('ClubDiscussionsSection', () => {
-  it('renders the club-scoped discussion feed', async () => {
-    fetchDiscussions.mockResolvedValue({ discussions: [], hasMore: false })
-    renderWithClient(<ClubDiscussionsSection clubId="81910" />)
+  it('renders the club-scoped discussion feed from the preloaded payload without fetching', async () => {
+    renderWithClient(<ClubDiscussionsSection clubId="81910" discussions={[]} />)
 
     expect(screen.getByText('Club Discussion')).toBeTruthy()
-    await waitFor(() =>
-      expect(fetchDiscussions).toHaveBeenLastCalledWith({
-        offset: 0,
-        limit: 5,
-        q: '',
-        clubId: '81910',
-      }),
-    )
+    // The latest discussions are embedded in the club detail payload, so the
+    // feed renders without issuing a separate request.
+    await waitFor(() => expect(fetchDiscussions).not.toHaveBeenCalled())
   })
 })

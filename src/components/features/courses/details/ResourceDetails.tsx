@@ -1,5 +1,4 @@
 import type { ResourceType } from "@/server/resources/fetchAllResources"
-import { Button } from "@/components/ui/button"
 
 interface ResourceDetailBodyProps {
   data: ResourceType

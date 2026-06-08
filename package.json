@@ -20,7 +20,9 @@
     "test": "vitest run",
     "lint": "eslint",
     "format": "prettier",
-    "check": "prettier --write . && eslint --fix"
+    "check": "prettier --write . && eslint --fix",
+    "typecheck": "tsc --noEmit",
+    "prepare": "husky"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1063.0",
@@ -86,6 +88,7 @@
     "@types/react-dom": "^19.2.0",
     "@vitejs/plugin-react": "^5.0.4",
     "drizzle-kit": "^0.31.8",
+    "husky": "^9.1.7",
     "jsdom": "^27.0.0",
     "pm2": "^5.4.3",
     "prettier": "^3.5.3",

@@ -56,7 +56,7 @@ export const Route = createFileRoute(
   }),
 
   loader: async ({ deps, context }) => {
-    const { page, type } = deps
+    const { page } = deps
     const { user } = context
 
     const discussionList = await fetchAllDiscussions({

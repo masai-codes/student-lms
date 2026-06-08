@@ -139,6 +139,17 @@ describe('JoinClubButton', () => {
       galleryImages: [],
       memberCount: 234,
       isJoined: false,
+      stats: null,
+      events: { weeklyConnects: [], upcoming: [], past: [] },
+      leaderboard: {
+        entries: [],
+        page: 1,
+        perPage: 5,
+        total: 0,
+        hasMore: false,
+      },
+      discussions: [],
+      confirmationModalText: null,
     })
 
     // A live, mounted detail query so invalidate() actually refetches, and the

@@ -43,7 +43,7 @@ function RouteComponent() {
 
   const { useParams } = getRouteApi('/(protected)/_layout/courses/$courseId/lectures_/$lectureId')
 
-  const { courseId, lectureId } = useParams()
+  const { courseId } = useParams()
 
   const panel = (searchPanel ?? 'default')
 

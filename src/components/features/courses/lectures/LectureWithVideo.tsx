@@ -39,7 +39,6 @@ export function LectureWithVideo({
   const lectureId = JSON.stringify(lecture.id)
 
   const {
-    data,
     // isLoading,
     // isError,
     refetch,
