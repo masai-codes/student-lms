@@ -1,92 +1,34 @@
-import { createFileRoute } from "@tanstack/react-router"
-import HomeSection from "@/components/features/masaiverse/MasaiverseSections/HomeSection"
-import EventsSection from "@/components/features/masaiverse/MasaiverseSections/EventsSection"
-import LeaderboardSection from "@/components/features/masaiverse/MasaiverseSections/LeaderboardSection"
-import ResourcesSection from "@/components/features/masaiverse/MasaiverseSections/ResourcesSection"
+import { createFileRoute, redirect } from '@tanstack/react-router'
 
-type MasaiverseTab = "home" | "events" | "leaderboard" | "resources"
-type MasaiverseSearch = {
-  tab: MasaiverseTab
-  isApp?: boolean
-  postId?: string
-  createDiscussion?: boolean
-  discussionSearch?: string
-  discussionPage?: number
-}
+/** Legacy `?tab=` values mapped to their new path-based routes. */
+const TAB_TO_PATH = {
+  home: '/masaiverse/home',
+  events: '/masaiverse/events',
+  discussions: '/masaiverse/discussions',
+  leaderboard: '/masaiverse/leaderboard',
+  // `resources` was removed in v2; fall back to home.
+  resources: '/masaiverse/home',
+} as const
 
-export const Route = createFileRoute("/(protected)/_layout/masaiverse/")({
-  validateSearch: (search): MasaiverseSearch => {
+type LegacyTab = keyof typeof TAB_TO_PATH
+
+export const Route = createFileRoute('/(protected)/_layout/masaiverse/')({
+  validateSearch: (search: Record<string, unknown>): { tab?: LegacyTab } => {
     const tab = search.tab
-    const normalizedPostId =
-      typeof search.postId === "string" || typeof search.postId === "number"
-        ? String(search.postId)
-        : undefined
-    const normalizedIsApp =
-      search.isApp === true ||
-      search.isApp === 'true' ||
-      search.isApp === 1 ||
-      search.isApp === '1'
-    const normalizedCreateDiscussion =
-      search.createDiscussion === true ||
-      search.createDiscussion === 'true' ||
-      search.createDiscussion === 1 ||
-      search.createDiscussion === '1'
-    const normalizedDiscussionSearch = typeof search.discussionSearch === 'string'
-      ? search.discussionSearch.trim() || undefined
-      : undefined
-    const normalizedDiscussionPageRaw =
-      typeof search.discussionPage === 'number'
-        ? search.discussionPage
-        : Number(search.discussionPage)
-    const normalizedDiscussionPage = Number.isFinite(normalizedDiscussionPageRaw)
-      && normalizedDiscussionPageRaw > 0
-      ? Math.floor(normalizedDiscussionPageRaw)
-      : undefined
     if (
-      tab === "home" ||
-      tab === "events" ||
-      tab === "leaderboard" ||
-      tab === "resources"
+      tab === 'home' ||
+      tab === 'events' ||
+      tab === 'discussions' ||
+      tab === 'leaderboard' ||
+      tab === 'resources'
     ) {
-      return {
-        tab,
-        isApp: normalizedIsApp || undefined,
-        postId: normalizedPostId,
-        createDiscussion: normalizedCreateDiscussion || undefined,
-        discussionSearch: normalizedDiscussionSearch,
-        discussionPage: normalizedDiscussionPage,
-      }
+      return { tab }
     }
-    return {
-      tab: "home",
-      isApp: normalizedIsApp || undefined,
-      postId: normalizedPostId,
-      createDiscussion: normalizedCreateDiscussion || undefined,
-      discussionSearch: normalizedDiscussionSearch,
-      discussionPage: normalizedDiscussionPage,
-    }
+    return {}
   },
-  component: RouteComponent,
+  beforeLoad: ({ search }) => {
+    const to = search.tab ? TAB_TO_PATH[search.tab] : '/masaiverse/home'
+    // Preserve isApp (validated on the parent route); drop the legacy tab.
+    throw redirect({ to, search: ({ isApp }) => ({ isApp }) })
+  },
 })
-
-function RouteComponent() {
-  const { tab, postId, createDiscussion, discussionSearch, discussionPage } = Route.useSearch()
-
-  switch (tab) {
-    case "events":
-      return <EventsSection />
-    case "leaderboard":
-      return <LeaderboardSection />
-    case "resources":
-      return <ResourcesSection />
-    default:
-      return (
-        <HomeSection
-          postId={postId}
-          shouldOpenCreateDiscussion={Boolean(createDiscussion)}
-          initialDiscussionSearch={discussionSearch}
-          initialDiscussionPage={discussionPage}
-        />
-      )
-  }
-}

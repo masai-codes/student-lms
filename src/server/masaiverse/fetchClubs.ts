@@ -3,6 +3,7 @@ import { desc, sql } from "drizzle-orm"
 import type { InferSelectModel } from "drizzle-orm"
 import { db } from "@/db"
 import { clubMembers, clubs } from "@/db/schema"
+import { publishedClubCondition } from "@/server/api/masaiverse-v2/services/publishVisibility"
 
 type ClubRow = InferSelectModel<typeof clubs>
 type ClubMeta = {
@@ -19,7 +20,12 @@ export const fetchAllClubs = createServerFn({ method: "GET" }).handler(fetchAllC
 
 export async function fetchAllClubsHandler() {
   try {
-    const clubsData = await db.select().from(clubs).orderBy(desc(clubs.createdAt))
+    // v1 has no admin mode, so draft (unpublished) clubs are always hidden here.
+    const clubsData = await db
+      .select()
+      .from(clubs)
+      .where(publishedClubCondition(false))
+      .orderBy(desc(clubs.createdAt))
 
     const memberCountRows = await db
       .select({
