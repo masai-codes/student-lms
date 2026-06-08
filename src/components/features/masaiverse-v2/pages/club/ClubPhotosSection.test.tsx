@@ -27,6 +27,7 @@ function club(images: Array<string>): MasaiverseV2ClubDetail {
     events: { weeklyConnects: [], upcoming: [], past: [] },
     leaderboard: { entries: [], page: 1, perPage: 5, total: 0, hasMore: false },
     discussions: [],
+    confirmationModalText: null,
   }
 }
 

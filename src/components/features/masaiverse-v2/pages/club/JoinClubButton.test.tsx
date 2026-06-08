@@ -149,6 +149,7 @@ describe('JoinClubButton', () => {
         hasMore: false,
       },
       discussions: [],
+      confirmationModalText: null,
     })
 
     // A live, mounted detail query so invalidate() actually refetches, and the

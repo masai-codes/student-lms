@@ -49,6 +49,7 @@ function makeEvent(
     belowTitle: '48 teams competing',
     isWeeklyConnect: true,
     confirmationModalText: null,
+    eventSummary: null,
     clubId: '3',
     clubName: 'Programming Club',
     status: 'upcoming',

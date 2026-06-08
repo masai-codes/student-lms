@@ -39,6 +39,7 @@ function makeEvent(
     belowTitle: null,
     isWeeklyConnect: false,
     confirmationModalText: null,
+    eventSummary: null,
     clubId: null,
     clubName: null,
     status: 'upcoming',
