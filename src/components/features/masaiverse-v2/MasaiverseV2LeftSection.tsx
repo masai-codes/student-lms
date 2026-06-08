@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { useRouterState } from '@tanstack/react-router'
+import AdminModeToggle from './AdminModeToggle'
 import MyClubsSection from './MyClubsSection'
 import SidebarNavItem from './SidebarNavItem'
 import { SIDEBAR_NAV_ITEMS } from './data/sidebarNavItems'
@@ -28,6 +29,8 @@ export default function MasaiverseV2LeftSection() {
       <div className="mb-5 flex justify-center border-b border-[#E5E7EB] px-1 pb-6">
         <img src="/Masaiverse.svg" alt="Masaiverse" className="h-16 w-auto" />
       </div>
+
+      <AdminModeToggle />
 
       <nav className="mt-6 flex flex-col gap-1">
         {SIDEBAR_NAV_ITEMS.map((item) => (

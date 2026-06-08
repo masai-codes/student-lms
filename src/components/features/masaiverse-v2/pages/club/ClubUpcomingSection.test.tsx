@@ -45,7 +45,7 @@ describe('ClubUpcomingSection', () => {
     fetchEvents.mockResolvedValue({ weeklyConnects: [], upcoming: [], past: [] })
     renderWithClient(<ClubUpcomingSection clubId="5" />)
 
-    expect(screen.getByText('Live & Upcoming')).toBeTruthy()
+    expect(screen.getByText('Live & Upcoming Events')).toBeTruthy()
     await waitFor(() =>
       expect(
         screen.getByText('No live or upcoming events right now.'),

@@ -3,6 +3,7 @@ import { getClubStats } from './getClubStats.service'
 import { getClubEvents } from './getClubEvents.service'
 import { getClubLeaderboard } from './getClubLeaderboard.service'
 import { getCommunityDiscussions } from './getCommunityDiscussions.service'
+import { publishedClubCondition } from './publishVisibility'
 import type { MasaiverseV2ClubStats } from './getClubStats.service'
 import type { MasaiverseV2ClubEvents } from './getClubEvents.service'
 import type { ClubLeaderboardPage } from './getClubLeaderboard.service'
@@ -48,6 +49,11 @@ export interface MasaiverseV2ClubDetail {
   memberCount: number
   /** Whether the requesting user is a member of this club. */
   isJoined: boolean
+  /**
+   * `clubs.meta.confirmationModalText` — markdown shown in a confirm dialog
+   * before joining. Null when unset, in which case joining is direct.
+   */
+  confirmationModalText: string | null
   /**
    * The club detail page renders from this single payload. The sections below
    * are the same data the standalone `clubs/stats`, `clubs/events`,
@@ -144,6 +150,7 @@ export async function getClubDetail(
   clubId: number,
   userId: number,
   now: Date = new Date(),
+  canSeeUnpublished = false,
 ): Promise<MasaiverseV2ClubDetail | null> {
   if (!Number.isFinite(clubId)) return null
 
@@ -156,42 +163,50 @@ export async function getClubDetail(
         meta: clubs.meta,
       })
       .from(clubs)
-      .where(eq(clubs.id, clubId))
+      .where(and(eq(clubs.id, clubId), publishedClubCondition(canSeeUnpublished)))
       .limit(1)
   ).at(0)
 
   if (!club) return null
 
-  // Fan out: the live member count + this user's membership, plus the four
-  // sections the page used to fetch separately (stats, events, leaderboard's
-  // first page, latest discussions). Each sub-service re-checks the club but it
-  // already exists here, so they resolve with data.
-  const [memberCountRows, membership, stats, events, leaderboard, discussions] =
-    await Promise.all([
-      db
-        .select({ memberCount: count() })
-        .from(clubMembers)
-        .where(eq(clubMembers.clubId, clubId)),
-      db
-        .select({ id: clubMembers.id })
-        .from(clubMembers)
-        .where(
-          and(eq(clubMembers.clubId, clubId), eq(clubMembers.userId, userId)),
-        )
-        .limit(1),
-      getClubStats(clubId, now),
-      getClubEvents(clubId, now),
-      getClubLeaderboard(clubId, 0, CLUB_LEADERBOARD_PER_PAGE),
-      getCommunityDiscussions(
-        userId,
-        0,
-        CLUB_DISCUSSIONS_LIMIT,
-        '',
-        String(clubId),
-      ),
-    ])
+  // Fan out: the live member count, this user's membership, and the headline
+  // stats (which stay visible to everyone). Each sub-service re-checks the club
+  // but it already exists here, so they resolve with data.
+  const [memberCountRows, membership, stats] = await Promise.all([
+    db
+      .select({ memberCount: count() })
+      .from(clubMembers)
+      .where(eq(clubMembers.clubId, clubId)),
+    db
+      .select({ id: clubMembers.id })
+      .from(clubMembers)
+      .where(
+        and(eq(clubMembers.clubId, clubId), eq(clubMembers.userId, userId)),
+      )
+      .limit(1),
+    getClubStats(clubId, now, canSeeUnpublished),
+  ])
 
   const memberCount = memberCountRows.at(0)?.memberCount ?? 0
+  const isJoined = membership.length > 0
+
+  // Members-only sections (weekly connects, live/upcoming + past events,
+  // leaderboard, discussions). Non-members get empty payloads so the page can
+  // blur these segments as a "join to unlock" teaser without ever shipping
+  // their contents to the client.
+  const [events, leaderboard, discussions] = isJoined
+    ? await Promise.all([
+        getClubEvents(clubId, now, canSeeUnpublished),
+        getClubLeaderboard(clubId, 0, CLUB_LEADERBOARD_PER_PAGE, canSeeUnpublished),
+        getCommunityDiscussions(
+          userId,
+          0,
+          CLUB_DISCUSSIONS_LIMIT,
+          '',
+          String(clubId),
+        ),
+      ])
+    : [null, null, { discussions: [], hasMore: false }]
 
   return {
     id: String(club.id),
@@ -208,7 +223,8 @@ export async function getClubDetail(
     learningTenure: toLearningTenure(club.meta?.learningTenureData),
     galleryImages: toStringList(club.meta?.galleryImages),
     memberCount,
-    isJoined: membership.length > 0,
+    isJoined,
+    confirmationModalText: toStringOrNull(club.meta?.confirmationModalText),
     stats,
     events: events ?? EMPTY_EVENTS,
     leaderboard: leaderboard ?? {

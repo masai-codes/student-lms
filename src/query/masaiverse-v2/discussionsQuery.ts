@@ -4,6 +4,7 @@ import type {
   MasaiverseV2Discussion,
 } from '@/server/api/masaiverse-v2/services/getCommunityDiscussions.service'
 import { fetchMasaiverseV2Discussions } from '@/lib/api/masaiverse-v2/masaiverseV2Api'
+import { MASAIVERSE_V2_HOME_KEY } from '@/query/masaiverse-v2/homeQuery'
 
 export const MASAIVERSE_V2_DISCUSSIONS_KEY = [
   'masaiverse-v2',
@@ -36,15 +37,23 @@ export const masaiverseV2DiscussionsInfiniteQuery = (
   ) => (lastPage.hasMore ? allPages.length * DISCUSSIONS_PAGE_SIZE : undefined),
 })
 
+/** A cached payload that embeds a flat `discussions` array (home, club detail). */
+type DiscussionsEmbed = { discussions: Array<MasaiverseV2Discussion> }
+
 /**
- * Applies `update` to a discussion across every cached discussions list
- * (the key carries the search term, so we match the prefix and patch them all).
+ * Applies `update` to a discussion everywhere it's cached, so vote/reply changes
+ * show without a reload regardless of which screen the user is on:
+ *  - the paginated/searchable feed (`['masaiverse-v2', 'discussions', …]`),
+ *  - the home payload (`['masaiverse-v2', 'home']`), and
+ *  - any club detail payload (`['masaiverse-v2', 'club', clubId]`).
+ * The feed key carries clubId + search, so we match its prefix and patch them all.
  */
 function mapDiscussionInCache(
   queryClient: QueryClient,
   id: string,
   update: (discussion: MasaiverseV2Discussion) => MasaiverseV2Discussion,
 ): void {
+  // The paginated / searchable infinite feed (View all, discussions page).
   queryClient.setQueriesData<InfiniteData<CommunityDiscussionsPage>>(
     { queryKey: MASAIVERSE_V2_DISCUSSIONS_KEY },
     (prev) =>
@@ -59,6 +68,25 @@ function mapDiscussionInCache(
             })),
           }
         : prev,
+  )
+
+  // Payloads that embed the newest discussions inline: the home page and every
+  // cached club detail page. The `['masaiverse-v2', 'club']` prefix also matches
+  // sibling caches (stats, leaderboard, events) that have no `discussions`
+  // array, so we guard before mapping and leave those untouched.
+  const patchEmbed = (prev: DiscussionsEmbed | undefined) =>
+    prev && Array.isArray(prev.discussions)
+      ? {
+          ...prev,
+          discussions: prev.discussions.map((d) =>
+            d.id === id ? update(d) : d,
+          ),
+        }
+      : prev
+  queryClient.setQueryData<DiscussionsEmbed>(MASAIVERSE_V2_HOME_KEY, patchEmbed)
+  queryClient.setQueriesData<DiscussionsEmbed>(
+    { queryKey: ['masaiverse-v2', 'club'] },
+    patchEmbed,
   )
 }
 

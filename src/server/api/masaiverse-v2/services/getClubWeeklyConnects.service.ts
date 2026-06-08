@@ -1,5 +1,6 @@
 import { and, asc } from 'drizzle-orm'
 import { eventScopeConditions } from './eventScope'
+import { publishedEventCondition } from './publishVisibility'
 import { db } from '@/db'
 import { events } from '@/db/schema'
 import { parseMasaiverseEventDbTimestamp } from '@/lib/eventTimestamps'
@@ -34,6 +35,7 @@ function toUtcIso(value: string | null): string | null {
  */
 export async function getClubWeeklyConnects(
   clubId: number,
+  canSeeUnpublished = false,
 ): Promise<Array<MasaiverseV2WeeklyConnect>> {
   if (!Number.isFinite(clubId)) return []
 
@@ -46,7 +48,12 @@ export async function getClubWeeklyConnects(
       endTime: events.endTime,
     })
     .from(events)
-    .where(and(...eventScopeConditions({ clubId, weeklyConnect: 'only' })))
+    .where(
+      and(
+        ...eventScopeConditions({ clubId, weeklyConnect: 'only' }),
+        publishedEventCondition(canSeeUnpublished),
+      ),
+    )
     .orderBy(asc(events.startTime))
     .limit(WEEKLY_CONNECTS_LIMIT)
 

@@ -2,11 +2,12 @@ import { isApiError } from '@/server/api/http/apiError'
 import { jsonOk, mapThrownErrorToResponse } from '@/server/api/http/responses'
 import { requireSessionUserId } from '@/server/api/http/requireSessionUser'
 import { getEventsList } from '@/server/api/masaiverse-v2/services/getEventsList.service'
+import { canSeeUnpublished } from '@/server/api/masaiverse-v2/services/publishVisibility'
 
 export async function handleGetEventsList(request: Request): Promise<Response> {
   try {
     const userId = await requireSessionUserId(request)
-    const events = await getEventsList(userId)
+    const events = await getEventsList(userId, await canSeeUnpublished(userId))
     return jsonOk({ events })
   } catch (error) {
     if (!isApiError(error)) {

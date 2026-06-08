@@ -13,6 +13,8 @@ import type { MasaiverseV2EventListItem } from '@/server/api/masaiverse-v2/servi
 import type { MasaiverseV2EventDetail } from '@/server/api/masaiverse-v2/services/getEventDetail.service'
 import type { EventEnrollmentState } from '@/server/api/masaiverse-v2/services/setEventEnrollment.service'
 import type { EventRatingState } from '@/server/api/masaiverse-v2/services/rateEvent.service'
+import type { MasaiverseV2AdminModeState } from '@/server/api/masaiverse-v2/services/adminMode.service'
+import type { MasaiverseV2Banner } from '@/server/api/masaiverse-v2/services/getBanners.service'
 import { fetchJson } from '@/lib/api/fetchJson'
 import { MASAIVERSE_V2_API } from '@/lib/api/masaiverse-v2/masaiverseV2Paths'
 
@@ -244,6 +246,171 @@ export async function recordMasaiverseV2ClubVisit(
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ clubId }),
+  })
+}
+
+/**
+ * Current admin-mode state for the signed-in user. Students resolve to
+ * `{ isAdmin: false, enabled: false }`, so the client can hide the toggle.
+ */
+export async function fetchMasaiverseV2AdminMode(): Promise<MasaiverseV2AdminModeState> {
+  return fetchJson<MasaiverseV2AdminModeState>(MASAIVERSE_V2_API.adminMode)
+}
+
+/**
+ * Enables/disables admin mode for the signed-in user. Server-gated on the DB
+ * role — non-admins receive a 403.
+ */
+export async function setMasaiverseV2AdminMode(
+  enabled: boolean,
+): Promise<MasaiverseV2AdminModeState> {
+  return fetchJson<MasaiverseV2AdminModeState>(MASAIVERSE_V2_API.adminMode, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ enabled }),
+  })
+}
+
+/**
+ * Creates a new draft event (admin only). The server fills it with placeholder
+ * data and `meta.isPublished = false`; resolves with the new event id.
+ */
+export async function createMasaiverseV2Event(): Promise<{ id: string }> {
+  return fetchJson<{ id: string }>(MASAIVERSE_V2_API.eventCreate, {
+    method: 'POST',
+  })
+}
+
+/**
+ * Creates a new draft club (admin only). The server fills it with placeholder
+ * data and `meta.isPublished = false`; resolves with the new club id.
+ */
+export async function createMasaiverseV2Club(): Promise<{ id: string }> {
+  return fetchJson<{ id: string }>(MASAIVERSE_V2_API.clubCreate, {
+    method: 'POST',
+  })
+}
+
+/** Home-page banners (published only, unless the admin is in admin mode). */
+export async function fetchMasaiverseV2Banners(): Promise<Array<MasaiverseV2Banner>> {
+  const { banners } = await fetchJson<{ banners: Array<MasaiverseV2Banner> }>(
+    MASAIVERSE_V2_API.banners,
+  )
+  return banners
+}
+
+/** Creates a draft banner (admin only); resolves with the new banner id. */
+export async function createMasaiverseV2Banner(): Promise<{ id: string }> {
+  return fetchJson<{ id: string }>(MASAIVERSE_V2_API.bannerCreate, {
+    method: 'POST',
+  })
+}
+
+/** Applies an admin edit to a banner (whitelisted columns/meta keys). */
+export async function updateMasaiverseV2Banner(
+  bannerId: string,
+  patch: MasaiverseV2EntityPatch,
+): Promise<{ success: true }> {
+  return fetchJson<{ success: true }>(MASAIVERSE_V2_API.bannerUpdate, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ bannerId, ...patch }),
+  })
+}
+
+/** Permanently deletes a banner (admin only). */
+export async function deleteMasaiverseV2Banner(
+  bannerId: string,
+): Promise<{ success: true }> {
+  return fetchJson<{ success: true }>(MASAIVERSE_V2_API.bannerDelete, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ bannerId }),
+  })
+}
+
+/** Raw editable club data (name + full meta) for the admin edit drawer. */
+export type MasaiverseV2ClubEditData = {
+  id: string
+  name: string
+  meta: Record<string, unknown>
+}
+
+export async function fetchMasaiverseV2ClubEditData(
+  clubId: string,
+): Promise<MasaiverseV2ClubEditData> {
+  return fetchJson<MasaiverseV2ClubEditData>(
+    `${MASAIVERSE_V2_API.clubEditData}?clubId=${encodeURIComponent(clubId)}`,
+  )
+}
+
+/** Raw editable event data (columns + full meta) for the admin edit drawer. */
+export type MasaiverseV2EventEditData = {
+  id: string
+  columns: {
+    title: string
+    description: string | null
+    category: string | null
+    mode: string | null
+    locationTitle: string | null
+    locationMapLink: string | null
+    eventLink: string | null
+    imageLink: string | null
+    platform: string | null
+    startTime: string | null
+    endTime: string | null
+  }
+  meta: Record<string, unknown>
+}
+
+export async function fetchMasaiverseV2EventEditData(
+  eventId: string,
+): Promise<MasaiverseV2EventEditData> {
+  return fetchJson<MasaiverseV2EventEditData>(
+    `${MASAIVERSE_V2_API.eventEditData}?eventId=${encodeURIComponent(eventId)}`,
+  )
+}
+
+/**
+ * Uploads an image file to S3 and resolves with its public URL. Reusable for
+ * any image field; the file rides in a multipart `file` field.
+ */
+export async function uploadMasaiverseV2Image(file: File): Promise<{ url: string }> {
+  const body = new FormData()
+  body.append('file', file)
+  return fetchJson<{ url: string }>(MASAIVERSE_V2_API.uploadImage, {
+    method: 'POST',
+    body,
+  })
+}
+
+/** A partial inline edit to an event/club: column and/or meta key changes. */
+export type MasaiverseV2EntityPatch = {
+  column?: Record<string, unknown>
+  meta?: Record<string, unknown>
+}
+
+/** Applies an admin inline edit to an event (whitelisted columns/meta keys). */
+export async function updateMasaiverseV2Event(
+  eventId: string,
+  patch: MasaiverseV2EntityPatch,
+): Promise<{ success: true }> {
+  return fetchJson<{ success: true }>(MASAIVERSE_V2_API.eventUpdate, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ eventId, ...patch }),
+  })
+}
+
+/** Applies an admin inline edit to a club (whitelisted columns/meta keys). */
+export async function updateMasaiverseV2Club(
+  clubId: string,
+  patch: MasaiverseV2EntityPatch,
+): Promise<{ success: true }> {
+  return fetchJson<{ success: true }>(MASAIVERSE_V2_API.clubUpdate, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ clubId, ...patch }),
   })
 }
 

@@ -1,4 +1,5 @@
 import { asc, count, desc, eq } from 'drizzle-orm'
+import { publishedClubCondition } from './publishVisibility'
 import { db } from '@/db'
 import { clubMembers, clubs, users } from '@/db/schema'
 
@@ -35,7 +36,9 @@ function toStringOrNull(value: unknown): string | null {
  * member-count query). If membership grows large this is the spot to switch to
  * a per-club windowed query.
  */
-export async function getHomeClubs(): Promise<Array<MasaiverseV2HomeClub>> {
+export async function getHomeClubs(
+  canSeeUnpublished = false,
+): Promise<Array<MasaiverseV2HomeClub>> {
   const clubRows = await db
     .select({
       id: clubs.id,
@@ -43,6 +46,7 @@ export async function getHomeClubs(): Promise<Array<MasaiverseV2HomeClub>> {
       meta: clubs.meta,
     })
     .from(clubs)
+    .where(publishedClubCondition(canSeeUnpublished))
     .orderBy(desc(clubs.createdAt))
 
   if (clubRows.length === 0) return []

@@ -15,6 +15,10 @@ vi.mock('@/server/auth/getCurrentSessionUserId', () => ({
   getUserIdFromCookieHeader: hoisted.getUserIdFromCookieHeader,
 }))
 
+vi.mock('@/server/api/masaiverse-v2/services/publishVisibility', () => ({
+  canSeeUnpublished: vi.fn().mockResolvedValue(false),
+}))
+
 function getRequest(query: string, cookie: string | null): Request {
   return new Request(
     `http://localhost/api/masaiverse-v2/clubs/leaderboard${query}`,
@@ -59,7 +63,7 @@ describe('handleGetClubLeaderboard', () => {
 
     expect(response.status).toBe(200)
     await expect(response.json()).resolves.toEqual(PAGE)
-    expect(hoisted.getClubLeaderboard).toHaveBeenCalledWith(5, 1, 10)
+    expect(hoisted.getClubLeaderboard).toHaveBeenCalledWith(5, 1, 10, false)
   })
 
   it('defaults page to 0 and per_page to undefined when omitted', async () => {
@@ -69,7 +73,7 @@ describe('handleGetClubLeaderboard', () => {
     hoisted.getClubLeaderboard.mockResolvedValueOnce(PAGE)
 
     await handleGetClubLeaderboard(getRequest('?clubId=5', 'session=abc'))
-    expect(hoisted.getClubLeaderboard).toHaveBeenCalledWith(5, 0, undefined)
+    expect(hoisted.getClubLeaderboard).toHaveBeenCalledWith(5, 0, undefined, false)
   })
 
   it('returns 404 when the club is missing', async () => {

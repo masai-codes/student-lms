@@ -1,14 +1,15 @@
 import type { MasaiverseV2ClubDetail } from '@/server/api/masaiverse-v2/services/getClubDetail.service'
+import { RichContent } from '@/components/event-card/rich-content'
 
 type AboutClubSectionProps = {
   club: MasaiverseV2ClubDetail
 }
 
 /**
- * "About the Club" section — a description paragraph followed by a grid of
- * labelled facts (Founded, Current Tenure, …). Both come from `clubs.meta`
- * (`aboutCardDescription` + `aboutCardDetails`); the whole section is hidden
- * when neither is set.
+ * "About the Club" section — a markdown/HTML description paragraph (rendered
+ * with the shared `RichContent` renderer) followed by a grid of labelled facts
+ * (Founded, Current Tenure, …). Hidden when there's nothing to show. Editing
+ * happens in the admin "Edit club" drawer, not inline.
  */
 export default function AboutClubSection({ club }: AboutClubSectionProps) {
   const { aboutDescription, aboutDetails } = club
@@ -21,9 +22,10 @@ export default function AboutClubSection({ club }: AboutClubSectionProps) {
       </h2>
       <div className="rounded-[20px] border border-[#EDEAE8] bg-white p-6 sm:p-8">
         {aboutDescription ? (
-          <p className="text-[16px] leading-7 text-[#4B5563]">
-            {aboutDescription}
-          </p>
+          <RichContent
+            value={aboutDescription}
+            className="text-[16px] leading-7 text-[#4B5563]"
+          />
         ) : null}
 
         {aboutDetails.length > 0 ? (

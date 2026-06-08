@@ -4,6 +4,7 @@ import { ArrowSquareOut, CheckCircle, MapPin, Ticket } from '@phosphor-icons/rea
 import EventAttendees from './EventAttendees'
 import type { MasaiverseV2EventDetail } from '@/server/api/masaiverse-v2/services/getEventDetail.service'
 import type { EventEnrollmentState } from '@/server/api/masaiverse-v2/services/setEventEnrollment.service'
+import ConfirmActionModal from '@/components/features/masaiverse-v2/ConfirmActionModal'
 import { enrollMasaiverseV2Event } from '@/lib/api/masaiverse-v2/masaiverseV2Api'
 import { masaiverseV2EventDetailQuery } from '@/query/masaiverse-v2/eventsQuery'
 
@@ -42,10 +43,14 @@ export default function EventRegisterCard({ event }: EventRegisterCardProps) {
   const [justRegistered, setJustRegistered] = useState<EventEnrollmentState | null>(
     null,
   )
+  // Whether the pre-registration confirmation dialog is open. Only ever shown
+  // when the event configures `confirmationModalText`.
+  const [confirmOpen, setConfirmOpen] = useState(false)
 
   const mutation = useMutation({
     mutationFn: () => enrollMasaiverseV2Event(event.id),
     onSuccess: (state) => {
+      setConfirmOpen(false)
       setJustRegistered(state)
       queryClient.setQueryData<MasaiverseV2EventDetail>(detailKey, (prev) =>
         prev
@@ -54,6 +59,13 @@ export default function EventRegisterCard({ event }: EventRegisterCardProps) {
       )
     },
   })
+
+  // Gate registration behind the confirmation dialog when the event provides
+  // notice text; otherwise register straight away.
+  const handleRegisterClick = () => {
+    if (event.confirmationModalText) setConfirmOpen(true)
+    else mutation.mutate()
+  }
 
   const isEnrolled = event.isEnrolled || justRegistered !== null
   const enrolledCount = justRegistered?.enrolledCount ?? event.enrolledCount
@@ -100,7 +112,7 @@ export default function EventRegisterCard({ event }: EventRegisterCardProps) {
       ) : (
         <button
           type="button"
-          onClick={() => mutation.mutate()}
+          onClick={handleRegisterClick}
           disabled={mutation.isPending}
           className="mt-3 flex w-full items-center justify-center gap-2 rounded-[14px] bg-gradient-to-r from-masaiverse-orange to-[#FF7A29] px-5 py-3.5 text-[15px] font-bold text-white shadow-[0_8px_20px_-6px_rgba(242,92,4,0.5)] transition-all hover:shadow-[0_10px_26px_-6px_rgba(242,92,4,0.6)] active:scale-[0.99] disabled:opacity-70 disabled:shadow-none"
         >
@@ -110,6 +122,18 @@ export default function EventRegisterCard({ event }: EventRegisterCardProps) {
       )}
 
       <EventAttendees count={enrolledCount} />
+
+      {event.confirmationModalText ? (
+        <ConfirmActionModal
+          open={confirmOpen}
+          onOpenChange={setConfirmOpen}
+          confirmationText={event.confirmationModalText}
+          title="Confirm your registration"
+          confirmLabel={mutation.isPending ? 'Registering…' : 'Confirm & register'}
+          isPending={mutation.isPending}
+          onConfirm={() => mutation.mutate()}
+        />
+      ) : null}
     </div>
   )
 }

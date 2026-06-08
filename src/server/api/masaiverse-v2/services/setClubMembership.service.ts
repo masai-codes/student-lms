@@ -25,6 +25,7 @@ export async function setClubMembership(
   userId: number,
   clubId: number,
   join: boolean,
+  now: Date = new Date(),
 ): Promise<ClubMembershipState> {
   if (!Number.isFinite(clubId)) {
     throw new ApiError(400, 'INVALID_CLUB_ID')
@@ -42,11 +43,16 @@ export async function setClubMembership(
   }
 
   if (join) {
-    // The (user_id, club_id) unique index makes re-joining a no-op.
+    // Stamp `lastVisitedAt` at join time so the new member is immediately
+    // counted as "active" by the stats section — without it the count only
+    // updates on the next page visit, which looks like a stale stat after
+    // joining. The (user_id, club_id) unique index makes re-joining a no-op
+    // that simply refreshes the timestamp.
+    const meta = { lastVisitedAt: now.toISOString() }
     await db
       .insert(clubMembers)
-      .values({ userId, clubId })
-      .onDuplicateKeyUpdate({ set: { clubId } })
+      .values({ userId, clubId, meta })
+      .onDuplicateKeyUpdate({ set: { meta } })
   } else {
     await db
       .delete(clubMembers)

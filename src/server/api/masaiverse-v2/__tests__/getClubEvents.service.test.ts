@@ -59,14 +59,17 @@ describe('getClubEvents', () => {
       past: [{ id: 'h1' }],
     })
 
-    expect(hoisted.getClubWeeklyConnects).toHaveBeenCalledWith(5)
-    expect(hoisted.getHomeEvents).toHaveBeenCalledWith(NOW, {
-      clubId: 5,
-      weeklyConnect: 'exclude',
-    })
-    expect(hoisted.getHomeHighlights).toHaveBeenCalledWith(NOW, {
-      clubId: 5,
-      weeklyConnect: 'exclude',
-    })
+    expect(hoisted.getClubWeeklyConnects).toHaveBeenCalledWith(5, false)
+    expect(hoisted.getHomeEvents).toHaveBeenCalledWith(
+      NOW,
+      { clubId: 5, weeklyConnect: 'exclude' },
+      undefined,
+      false,
+    )
+    expect(hoisted.getHomeHighlights).toHaveBeenCalledWith(
+      NOW,
+      { clubId: 5, weeklyConnect: 'exclude' },
+      false,
+    )
   })
 })

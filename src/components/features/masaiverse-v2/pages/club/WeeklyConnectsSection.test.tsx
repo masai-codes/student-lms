@@ -20,6 +20,16 @@ vi.mock('@/lib/api/masaiverse-v2/masaiverseV2Api', () => ({
   fetchMasaiverseV2MyClubs: vi.fn(),
 }))
 
+// Weekly-connect rows link to the event detail page; render plain anchors so
+// the section can mount its rows without a full router.
+vi.mock('@tanstack/react-router', () => ({
+  Link: ({ children, className }: { children: ReactNode; className?: string }) => (
+    <a href="#" className={className}>
+      {children}
+    </a>
+  ),
+}))
+
 const NOW = new Date('2026-06-03T12:00:00Z')
 
 function renderWithClient(ui: ReactNode) {
