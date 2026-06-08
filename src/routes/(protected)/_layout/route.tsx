@@ -107,16 +107,14 @@ function RouteComponent() {
     <div className="min-h-dvh bg-[#FAF9F9] flex flex-col">
       <AppNavbar />
       <main
-        className={`${mainClasses} ${isApp ? 'pb-0' : 'pb-[calc(4.5rem+env(safe-area-inset-bottom))]'} md:pb-0`}
+        className={`${mainClasses} ${isApp && !isMasaiverseRoute ? 'pb-0' : 'pb-[calc(4.5rem+env(safe-area-inset-bottom))]'} md:pb-0`}
       >
         <Outlet />
       </main>
-      {!isApp ? (
-        isMasaiverseRoute ? (
-          <MasaiverseMobileTabBar />
-        ) : (
-          <AppMobileTabBar />
-        )
+      {isMasaiverseRoute ? (
+        <MasaiverseMobileTabBar />
+      ) : !isApp ? (
+        <AppMobileTabBar />
       ) : null}
     </div>
   )

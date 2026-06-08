@@ -10,6 +10,10 @@ import { TabNavbar } from '@/components/tab-navbar'
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet'
 import { OLD_STUDENT_UI_NAV_PATHS } from '@/constants/oldStudentUiNavPaths'
 import { getOldStudentUiUrlForPath } from '@/utils/authRedirect'
+import { isMasaiverseApp } from '@/constants/masaiverseDrawerUi'
+
+/** Custom event the native app listens for to handle "Back to Masai" itself. */
+const REDIRECT_TO_MASAI_EVENT = 'redirect-to-masai'
 
 /**
  * How many Masaiverse tabs sit directly in the bottom bar. The rest collapse
@@ -22,8 +26,21 @@ const PRIMARY_NAV_ITEMS = SIDEBAR_NAV_ITEMS.slice(0, PRIMARY_TAB_COUNT)
 const MORE_NAV_ITEMS = SIDEBAR_NAV_ITEMS.slice(PRIMARY_TAB_COUNT)
 const MORE_NAV_IDS = new Set<MasaiverseV2Tab>(MORE_NAV_ITEMS.map((i) => i.id))
 
-/** "Back to Masai" — leave Masaiverse and return to the legacy student app home. */
+/**
+ * "Back to Masai" — leave Masaiverse and return to the legacy student app home.
+ *
+ * Inside the native app we don't navigate the webview ourselves; instead we
+ * dispatch a `redirect-to-masai` event (like the SSO flow) and let the app
+ * handle the redirect natively.
+ */
 function navigateBackToMasai() {
+  if (isMasaiverseApp()) {
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent(REDIRECT_TO_MASAI_EVENT))
+    }
+    return
+  }
+
   const url = getOldStudentUiUrlForPath(OLD_STUDENT_UI_NAV_PATHS.home)
   if (!url) {
     console.warn('VITE_OLD_STUDENT_UI_URL is not configured')
