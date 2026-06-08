@@ -4,6 +4,7 @@ import type { UserProfile } from '@/server/api/profile/getProfile.service'
 import type { EmailPreferences } from '@/server/api/profile/emailPreferences.service'
 import type { SessionInfo } from '@/server/api/profile/accountActivity.service'
 import type { CertificateItem } from '@/server/api/profile/certificates.service'
+import type { AchievementItem } from '@/server/api/profile/achievements.service'
 
 export async function fetchProfile(): Promise<UserProfile> {
   const { profile } = await fetchJson<{ profile: UserProfile }>(PROFILE_API.profile)
@@ -80,4 +81,11 @@ export async function fetchCertificates(): Promise<Array<CertificateItem>> {
     PROFILE_API.certificates,
   )
   return certificates
+}
+
+export async function fetchAchievements(): Promise<Array<AchievementItem>> {
+  const { achievements } = await fetchJson<{ achievements: Array<AchievementItem> }>(
+    PROFILE_API.achievements,
+  )
+  return achievements
 }

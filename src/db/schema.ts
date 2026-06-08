@@ -3196,3 +3196,95 @@ export const eventEnrollments = mysqlTable("event_enrollments", {
 	index("event_enrollments_event_id_index").on(table.eventId),
 	primaryKey({ columns: [table.id], name: "event_enrollments_id"}),
 ]);
+
+export const assessNpsForm = mysqlTable("assess_nps_form", {
+	id: int({ unsigned: true }).autoincrement().notNull(),
+	title: varchar({ length: 255 }).notNull(),
+	description: text(),
+	userId: bigint("user_id", { mode: "number", unsigned: true }).notNull(),
+	batchId: int("batch_id", { unsigned: true }),
+	sectionId: int("section_id", { unsigned: true }),
+	templateId: varchar("template_id", { length: 191 }),
+	clientId: varchar("client_id", { length: 191 }),
+	startsAt: datetime("starts_at", { mode: "string" }),
+	endsAt: datetime("ends_at", { mode: "string" }),
+	allowMultipleAttempts: tinyint("allow_multiple_attempts").default(0).notNull(),
+	maxAttempts: int("max_attempts"),
+	settings: json(),
+	meta: json(),
+	logs: json(),
+	createdAt: timestamp("created_at", { mode: "string" }).defaultNow().notNull(),
+	updatedAt: timestamp("updated_at", { mode: "string" }).notNull(),
+	deletedAt: timestamp("deleted_at", { mode: "string" }),
+},
+(table) => [
+	primaryKey({ columns: [table.id], name: "assess_nps_form_id" }),
+]);
+
+export const assessNpsSubmissions = mysqlTable("assess_nps_submissions", {
+	id: int({ unsigned: true }).autoincrement().notNull(),
+	npsFormId: int("nps_form_id", { unsigned: true }).notNull(),
+	userId: bigint("user_id", { mode: "number", unsigned: true }).notNull(),
+	batchId: int("batch_id", { unsigned: true }),
+	sectionId: int("section_id", { unsigned: true }),
+	templateId: varchar("template_id", { length: 191 }),
+	assessLink: text("assess_link"),
+	assessCallback: text("assess_callback"),
+	startsAt: datetime("starts_at", { mode: "string" }),
+	completedAt: datetime("completed_at", { mode: "string" }),
+	meta: json(),
+	clientId: varchar("client_id", { length: 191 }),
+	createdAt: timestamp("created_at", { mode: "string" }).defaultNow().notNull(),
+	updatedAt: timestamp("updated_at", { mode: "string" }).notNull(),
+},
+(table) => [
+	primaryKey({ columns: [table.id], name: "assess_nps_submissions_id" }),
+]);
+
+export const badges = mysqlTable("badges", {
+	id: int({ unsigned: true }).autoincrement().notNull(),
+	title: varchar({ length: 255 }).notNull(),
+	description: text(),
+	lockedBadgeDescription: text("locked_badge_description"),
+	theme: varchar({ length: 255 }),
+	image: varchar({ length: 2048 }),
+	linkedinShareText: text("linkedin_share_text"),
+	createdAt: timestamp("created_at", { mode: 'string' }).defaultNow().notNull(),
+	updatedAt: timestamp("updated_at", { mode: 'string' }).notNull(),
+},
+(table) => [
+	primaryKey({ columns: [table.id], name: "badges_id" }),
+]);
+
+export const badgeConfigs = mysqlTable("badge_configs", {
+	id: int({ unsigned: true }).autoincrement().notNull(),
+	badgeId: int("badge_id", { unsigned: true }).notNull(),
+	batchId: int("batch_id", { unsigned: true }).notNull(),
+	sectionId: int("section_id", { unsigned: true }).notNull(),
+	lectureCriteria: mysqlEnum("lecture_criteria", ['none','mandatory','recommended','both']),
+	lectureCriteriaPercentage: double("lecture_criteria_percentage"),
+	assignmentCriteria: mysqlEnum("assignment_criteria", ['none','mandatory','recommended','both']),
+	assignmentTypesCriteria: json("assignment_types_criteria"),
+	assignmentSubmissionCriteriaPercentage: double("assignment_submission_criteria_percentage"),
+	assignmentScoreCriteriaPercentage: double("assignment_score_criteria_percentage"),
+	createdAt: timestamp("created_at", { mode: 'string' }).defaultNow().notNull(),
+	updatedAt: timestamp("updated_at", { mode: 'string' }).notNull(),
+},
+(table) => [
+	primaryKey({ columns: [table.id], name: "badge_configs_id" }),
+]);
+
+export const userBadges = mysqlTable("user_badges", {
+	id: bigint({ mode: "number", unsigned: true }).autoincrement().notNull(),
+	badgeId: int("badge_id", { unsigned: true }).notNull(),
+	userId: bigint("user_id", { mode: "number", unsigned: true }).notNull(),
+	badgeConfigId: int("badge_config_id", { unsigned: true }).notNull(),
+	badgeConfigSnapshot: json("badge_config_snapshot"),
+	createdBy: bigint("created_by", { mode: "number", unsigned: true }),
+	releaseDate: date("release_date", { mode: 'string' }),
+	createdAt: timestamp("created_at", { mode: 'string' }).defaultNow().notNull(),
+	updatedAt: timestamp("updated_at", { mode: 'string' }).notNull(),
+},
+(table) => [
+	primaryKey({ columns: [table.id], name: "user_badges_id" }),
+]);

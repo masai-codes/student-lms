@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link } from '@tanstack/react-router'
-import { formatScheduleTime } from '../../shared/scheduleUtils'
+import { formatScheduleTime, formatScheduleTimeIST } from '../../shared/scheduleUtils'
 import type { DashboardScheduleItem } from '../../shared/types'
 import { MasaiChips } from '@/components/ui/masai-chips'
 
@@ -100,12 +100,10 @@ interface ScheduleCardProps {
 }
 
 export function ScheduleCard({ item, dayLabel, isToday }: ScheduleCardProps) {
-  const timeDisplay = formatScheduleTime(item)
+  const timeDisplay = formatScheduleTime(item)       // local TZ — main display
+  const timeDisplayIST = formatScheduleTimeIST(item) // IST hardcoded — tooltip
   const linkProps = buildLinkProps(item)
   const joinState = useJoinState(item)
-
-  const metaParts = [timeDisplay, item.batchName].filter(Boolean)
-  const meta = metaParts.join(' • ')
 
   return (
     <div className="flex items-stretch gap-3">
@@ -146,8 +144,21 @@ export function ScheduleCard({ item, dayLabel, isToday }: ScheduleCardProps) {
           <div className="min-w-0 flex flex-col gap-1.5 flex-1">
             <p className="type-b1-md truncate">{item.title}</p>
             <div className="flex items-center flex-wrap gap-x-3 gap-y-1">
-              {meta ? (
-                <p className="type-t1 text-gray-500 shrink-0">{meta}</p>
+              {timeDisplay ? (
+                <span className="relative group/time shrink-0">
+                  <p className="type-t1 text-gray-500 cursor-default">{timeDisplay}{item.batchName ? ` • ${item.batchName}` : ''}</p>
+                  {/* IST tooltip */}
+                  <span className="pointer-events-none absolute bottom-full left-0 mb-1.5 z-20
+                    opacity-0 group-hover/time:opacity-100 transition-opacity duration-150
+                    whitespace-nowrap rounded-md bg-gray-900 px-2.5 py-1.5
+                    text-xs font-medium text-white shadow-lg">
+                    {timeDisplayIST}
+                    {/* Arrow */}
+                    <span className="absolute top-full left-4 -translate-x-1/2 border-4 border-transparent border-t-gray-900" />
+                  </span>
+                </span>
+              ) : item.batchName ? (
+                <p className="type-t1 text-gray-500 shrink-0">{item.batchName}</p>
               ) : null}
               {item.subType ? (
                 <MasaiChips

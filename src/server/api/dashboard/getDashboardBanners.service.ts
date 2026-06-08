@@ -69,7 +69,7 @@ function parseVisibleTo(raw: RawBannerRow['visible_to']): VisibleTo {
 /**
  * Fetches banners visible to the given user, applying four filters in order:
  *
- * 1. DB-level: is_active=1, isMasaiVerse=false, start_date < NOW < end_date
+ * 1. DB-level: is_active=1, deleted_at IS NULL, start_date < NOW() IST < end_date
  * 2. Batch filter: visible_to.batches is empty (all) OR at least one of the
  *    user's enrolled batches is listed
  * 3. Group filter: visible_to.random_group is empty (all) OR the user's
@@ -95,8 +95,8 @@ export async function getDashboardBanners(
       visible_to
     FROM banners
     WHERE is_active = 1
-      AND start_date < NOW()
-      AND NOW() < end_date
+      AND start_date < CONVERT_TZ(NOW(), '+00:00', '+05:30')
+      AND CONVERT_TZ(NOW(), '+00:00', '+05:30') < end_date
       AND deleted_at IS NULL
     ORDER BY created_at DESC
   `)

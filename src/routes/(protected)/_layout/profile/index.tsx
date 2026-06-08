@@ -3,7 +3,6 @@ import { ProfilePage } from '@/components/features/profile/ProfilePage'
 
 export type ProfileTab =
   | 'profile-details'
-  | 'zoom-integrations'
   | 'acknowledgement'
   | 'account-activity'
   | 'certificates'
@@ -11,7 +10,6 @@ export type ProfileTab =
 
 const VALID_TABS: Array<ProfileTab> = [
   'profile-details',
-  'zoom-integrations',
   'acknowledgement',
   'account-activity',
   'certificates',

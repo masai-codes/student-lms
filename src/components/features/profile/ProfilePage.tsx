@@ -14,13 +14,13 @@ import { EmailPreferencesTab } from './tabs/EmailPreferencesTab'
 import { AccountActivityTab } from './tabs/AccountActivityTab'
 import { CertificatesTab } from './tabs/CertificatesTab'
 import { ComingSoonTab } from './tabs/ComingSoonTab'
+import { AchievementsSection } from './AchievementsSection'
 import type { ProfileTab } from '@/routes/(protected)/_layout/profile/index'
 
 // ── Tab config ────────────────────────────────────────────────────────────────
 
 const TABS: Array<{ slug: ProfileTab; label: string }> = [
   { slug: 'profile-details', label: 'Profile Details' },
-  { slug: 'zoom-integrations', label: 'Zoom Integrations' },
   { slug: 'acknowledgement', label: 'Acknowledgement' },
   { slug: 'account-activity', label: 'Account Activity' },
   { slug: 'certificates', label: 'Certificates' },
@@ -101,6 +101,9 @@ export function ProfilePage() {
           )}
         </div>
       </div>
+
+      {/* Achievements */}
+      <AchievementsSection />
 
       {/* Tabs + content */}
       <div className="rounded-2xl border border-gray-200 bg-white overflow-hidden">

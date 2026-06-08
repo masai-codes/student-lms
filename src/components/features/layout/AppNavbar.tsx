@@ -253,7 +253,7 @@ export default function AppNavbar() {
       {
         id: 'announcements',
         type: 'icon',
-        icon: <Megaphone className="size-5" />,
+        icon: <Megaphone className="size-5 -scale-x-100" />,
         ariaLabel: 'Announcements',
         href: '/announcements',
         openInNewTab: false,

@@ -4,4 +4,5 @@ export const PROFILE_API = {
   accountActivity: '/api/profile/account-activity',
   accountActivitySignOutAll: '/api/profile/account-activity/sign-out-all',
   certificates: '/api/profile/certificates',
+  achievements: '/api/profile/achievements',
 } as const

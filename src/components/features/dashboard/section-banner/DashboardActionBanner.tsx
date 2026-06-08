@@ -1,11 +1,10 @@
 import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
-import { ChevronLeft, ChevronRight, FileText, Monitor, Smartphone, ThumbsUp } from 'lucide-react'
+import { Camera, ChevronLeft, ChevronRight, CircleUserRound, Download, FileText, Monitor, Smartphone, ThumbsUp } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
-import { AGREEMENT_ONE_LINER } from '@/globalSettings'
 import { fetchDashboardActionBanners } from '@/lib/api/dashboard/dashboardApi'
 
-type SlideId = 'agreement' | 'feedback' | 'zoom' | 'appDownload'
+type SlideId = string
 
 interface ActionSlide {
   id: SlideId
@@ -13,21 +12,10 @@ interface ActionSlide {
   text: string
   cta: string
   ctaHref?: string
+  ctaIcon?: LucideIcon
 }
 
-const ALL_SLIDES: Array<ActionSlide> = [
-  {
-    id: 'agreement',
-    Icon: FileText,
-    text: AGREEMENT_ONE_LINER,
-    cta: 'Start Learning',
-  },
-  {
-    id: 'feedback',
-    Icon: ThumbsUp,
-    text: 'Please complete your feedback form',
-    cta: 'Complete Feedback',
-  },
+const STATIC_SLIDES: Array<ActionSlide> = [
   {
     id: 'zoom',
     Icon: Monitor,
@@ -39,8 +27,17 @@ const ALL_SLIDES: Array<ActionSlide> = [
     Icon: Smartphone,
     text: 'Learn on the go with the Masai Learn App',
     cta: 'Download App',
+    ctaIcon: Download,
     ctaHref: 'https://play.google.com/store/apps/details?id=com.lms.masai',
-  }
+  },
+  {
+    id: 'profilePicture',
+    Icon: CircleUserRound,
+    text: 'Complete your profile by adding your profile picture',
+    cta: 'Take Photo',
+    ctaIcon: Camera,
+    ctaHref: '/profile',
+  },
 ]
 
 export function DashboardActionBanner() {
@@ -53,19 +50,36 @@ export function DashboardActionBanner() {
 
   if (isLoading) return null
 
-  const visibleSlides = ALL_SLIDES.filter((slide) => {
+  const agreementSlides: Array<ActionSlide> = (data?.pendingAgreementSections ?? []).map((section) => ({
+    id: `agreement-${section.sectionId}`,
+    Icon: FileText,
+    text: `Review and sign your ${section.heading || 'agreement'} to start your course.`,
+    cta: `Review ${section.heading}`,
+  }))
+
+  const feedbackSlides: Array<ActionSlide> = (data?.pendingFeedbackForms ?? []).map((form) => ({
+    id: `feedback-${form.source}-${form.id}`,
+    Icon: ThumbsUp,
+    text: `Please complete your feedback form: ${form.title}.`,
+    cta: 'Complete Feedback',
+  }))
+
+  const staticSlides = STATIC_SLIDES.filter((slide) => {
     if (!data) return slide.id === 'appDownload'
     if (slide.id === 'appDownload') return data.showDownloadApp
-    if (slide.id === 'agreement') return data.showAgreement
-    if (slide.id === 'feedback') return data.showFeedback
+    if (slide.id === 'profilePicture') return data.showProfilePicture
     return data.showZoom
   })
+
+  // Agreement first, then feedback, then zoom/download/profile
+  const visibleSlides = [...agreementSlides, ...feedbackSlides, ...staticSlides]
 
   if (visibleSlides.length === 0) return null
 
   const count = visibleSlides.length
   const slide = visibleSlides[current % count]
   const { Icon } = slide
+  const CtaIcon = slide.ctaIcon
 
   const prev = () => setCurrent((c) => (c - 1 + count) % count)
   const next = () => setCurrent((c) => (c + 1) % count)
@@ -84,17 +98,19 @@ export function DashboardActionBanner() {
         {slide.ctaHref ? (
           <a
             href={slide.ctaHref}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="shrink-0 px-5 py-2 rounded-md bg-white text-[#4B4396] text-sm font-semibold hover:bg-white/90 transition-colors focus-visible:outline-none"
+            target={slide.ctaHref.startsWith('http') ? '_blank' : '_self'}
+            rel={slide.ctaHref.startsWith('http') ? 'noopener noreferrer' : undefined}
+            className="shrink-0 flex items-center gap-1.5 px-5 py-2 rounded-md bg-white text-[#4B4396] text-sm font-semibold hover:bg-white/90 transition-colors focus-visible:outline-none"
           >
+            {CtaIcon && <CtaIcon size={15} strokeWidth={2} />}
             {slide.cta}
           </a>
         ) : (
           <button
             type="button"
-            className="shrink-0 px-5 py-2 rounded-md bg-white text-[#4B4396] text-sm font-semibold hover:bg-white/90 transition-colors focus-visible:outline-none"
+            className="shrink-0 flex items-center gap-1.5 px-5 py-2 rounded-md bg-white text-[#4B4396] text-sm font-semibold hover:bg-white/90 transition-colors focus-visible:outline-none"
           >
+            {CtaIcon && <CtaIcon size={15} strokeWidth={2} />}
             {slide.cta}
           </button>
         )}

@@ -1,12 +1,24 @@
 import { and, eq, isNull, sql } from 'drizzle-orm'
 import { db } from '@/db'
-import { profiles, sectionUser, users, userDeviceTokens } from '@/db/schema'
+import { assessNpsForm, assessNpsSubmissions, npsForms, npsSubmissions, profiles, sectionUser, userDeviceTokens, users } from '@/db/schema'
+
+export interface PendingAgreementSection {
+  sectionId: number
+  heading: string
+}
+
+export interface PendingFeedbackForm {
+  id: number
+  title: string
+  source: 'nps' | 'assess_nps'
+}
 
 export interface DashboardActionBannersResult {
-  showAgreement: boolean
-  showFeedback: boolean
+  pendingAgreementSections: Array<PendingAgreementSection>
+  pendingFeedbackForms: Array<PendingFeedbackForm>
   showZoom: boolean
   showDownloadApp: boolean
+  showProfilePicture: boolean
 }
 
 function normalizeRows(result: unknown): Array<Record<string, unknown>> {
@@ -22,45 +34,61 @@ function normalizeRows(result: unknown): Array<Record<string, unknown>> {
 }
 
 /**
- * Show agreement banner when:
- * - User is enrolled in a section (section_user, not deleted)
- * - That section is active and has settings.agreements.shouldModalBeVisible = true
- *   with a valid heading + pdfUrl, and hidePolicy != true
- * - User's profile legal_data does NOT have haveAcceptedLegalAgreement = true
- *   for that section
+ * Returns true if the agreements JSON for a section has at least one valid sub-key
+ * (e.g. grading_policy, posh_compliance, program_agreement) that has:
+ *   - non-empty pdfUrl
+ *   - non-empty heading
+ *   - hidePolicy != true
+ * Ignores the reserved key 'shouldModalBeVisible'.
  */
-async function checkAgreementRequired(userId: number): Promise<boolean> {
+function hasValidAgreementSubKey(agreementsJson: Record<string, unknown>): boolean {
+  const RESERVED_KEYS = new Set(['shouldModalBeVisible'])
+  return Object.entries(agreementsJson).some(([key, value]) => {
+    if (RESERVED_KEYS.has(key)) return false
+    const entry = value as Record<string, unknown> | null | undefined
+    if (!entry || typeof entry !== 'object') return false
+    const pdfUrl = entry['pdfUrl']
+    const heading = entry['heading']
+    const hidePolicy = entry['hidePolicy']
+    return (
+      typeof pdfUrl === 'string' && pdfUrl.trim() !== '' &&
+      typeof heading === 'string' && heading.trim() !== '' &&
+      hidePolicy !== true && hidePolicy !== 'true'
+    )
+  })
+}
+
+/**
+ * Returns one entry per qualifying unaccepted section, each carrying the heading
+ * from its first valid agreement sub-key (grading_policy, posh_compliance, …).
+ * Returns an empty array when no banners are needed.
+ */
+async function checkAgreementRequired(userId: number): Promise<Array<PendingAgreementSection>> {
   const sectionRows = await db
     .select({ sectionId: sectionUser.sectionId })
     .from(sectionUser)
     .where(and(eq(sectionUser.userId, userId), isNull(sectionUser.deletedAt)))
 
-  if (sectionRows.length === 0) return false
+  if (sectionRows.length === 0) return []
 
   const sectionIds = [...new Set(sectionRows.map((r) => r.sectionId))].filter(Number.isFinite)
-  if (sectionIds.length === 0) return false
+  if (sectionIds.length === 0) return []
 
-  const sectionIdList = sectionIds.join(', ')
-
-  // Find sections that require agreement
+  // Fetch active sections with shouldModalBeVisible = true — pull full agreements JSON
+  // for JS-side sub-key inspection (keys like grading_policy, posh_compliance are dynamic)
   const sectionResult = normalizeRows(
     await db.execute(sql`
-      SELECT id
+      SELECT id, settings->>'$.agreements' AS agreements
       FROM sections
-      WHERE id IN (${sql.raw(sectionIdList)})
+      WHERE id IN (${sql.raw(sectionIds.join(', '))})
         AND active = 1
         AND settings->>'$.agreements.shouldModalBeVisible' = 'true'
-        AND settings->>'$.agreements.pdfUrl' IS NOT NULL
-        AND settings->>'$.agreements.pdfUrl' != ''
-        AND settings->>'$.agreements.heading' IS NOT NULL
-        AND settings->>'$.agreements.heading' != ''
-        AND (settings->>'$.agreements.hidePolicy' IS NULL OR settings->>'$.agreements.hidePolicy' != 'true')
     `)
   )
 
-  if (sectionResult.length === 0) return false
+  if (sectionResult.length === 0) return []
 
-  // Check if user has already accepted all agreements
+  // Check if user has already accepted each section
   const profileRows = await db
     .select({ legalData: profiles.legalData })
     .from(profiles)
@@ -68,59 +96,157 @@ async function checkAgreementRequired(userId: number): Promise<boolean> {
     .limit(1)
 
   const legalData = profileRows[0]?.legalData as Record<string, unknown> | null | undefined
-  const agreements = (legalData?.['agreements'] ?? {}) as Record<string, unknown>
+  const userAgreements = (legalData?.['agreements'] ?? {}) as Record<string, unknown>
 
-  // Show if any required section has NOT been accepted
-  return sectionResult.some((row) => {
+  const pending: Array<PendingAgreementSection> = []
+
+  for (const row of sectionResult) {
     const sectionId = Number(row.id)
+
+    // Skip if already accepted
     const sectionKey = `section_${sectionId}`
-    const sectionAgreement = agreements[sectionKey] as Record<string, unknown> | undefined
-    return sectionAgreement?.['haveAcceptedLegalAgreement'] !== true
-  })
+    const sectionAgreement = userAgreements[sectionKey] as Record<string, unknown> | undefined
+    if (sectionAgreement?.['haveAcceptedLegalAgreement'] === true) continue
+
+    // Parse agreements JSON and find first valid sub-key
+    let agreementsJson: Record<string, unknown> | null = null
+    try {
+      agreementsJson = (
+        typeof row.agreements === 'string' ? JSON.parse(row.agreements) : row.agreements
+      ) as Record<string, unknown> | null
+    } catch {
+      continue
+    }
+    if (!agreementsJson || typeof agreementsJson !== 'object') continue
+
+    if (!hasValidAgreementSubKey(agreementsJson)) continue
+
+    // Pick the heading from the first valid sub-key
+    const RESERVED_KEYS = new Set(['shouldModalBeVisible'])
+    let heading = ''
+    for (const [key, value] of Object.entries(agreementsJson)) {
+      if (RESERVED_KEYS.has(key)) continue
+      const entry = value as Record<string, unknown> | null | undefined
+      if (!entry || typeof entry !== 'object') continue
+      const pdfUrl = entry['pdfUrl']
+      const h = entry['heading']
+      const hidePolicy = entry['hidePolicy']
+      if (
+        typeof pdfUrl === 'string' && pdfUrl.trim() !== '' &&
+        typeof h === 'string' && h.trim() !== '' &&
+        hidePolicy !== true && hidePolicy !== 'true'
+      ) {
+        heading = h.trim()
+        break
+      }
+    }
+
+    pending.push({ sectionId, heading })
+  }
+
+  return pending
 }
 
 /**
  * Show feedback banner when:
- * - User has a lecture in an enrolled section scheduled within the last 7 days
- * - That lecture has a feedback_id linked to an active feedback window
- * - User has no response for that feedback
+ * - User is enrolled in a section (section_user, not deleted)
+ * - That section has an active, published NPS form (nps_forms) OR an active assess NPS form
+ *   (assess_nps_form) with an open window
+ * - User has not submitted that form
+ * Returns all pending forms from both sources merged, ordered by starts_at ASC, created_at ASC.
  */
-async function checkFeedbackPending(userId: number): Promise<boolean> {
+async function checkFeedbackPending(userId: number): Promise<Array<PendingFeedbackForm>> {
   const sectionRows = await db
     .select({ sectionId: sectionUser.sectionId })
     .from(sectionUser)
     .where(and(eq(sectionUser.userId, userId), isNull(sectionUser.deletedAt)))
 
-  if (sectionRows.length === 0) return false
+  if (sectionRows.length === 0) return []
 
   const sectionIds = [...new Set(sectionRows.map((r) => r.sectionId))].filter(Number.isFinite)
-  if (sectionIds.length === 0) return false
+  if (sectionIds.length === 0) return []
 
-  const sectionIdList = sectionIds.join(', ')
+  const sectionIdList = sql.raw(sectionIds.join(', '))
+  const nowIst = sql`CONVERT_TZ(NOW(), '+00:00', '+05:30')`
 
-  const result = normalizeRows(
-    await db.execute(sql`
-      SELECT 1
-      FROM lectures l
-      INNER JOIN feedback f ON f.id = l.feedback_id
-      WHERE l.section_id IN (${sql.raw(sectionIdList)})
-        AND l.deleted_at IS NULL
-        AND l.feedback_id IS NOT NULL
-        AND l.schedule >= DATE_SUB(NOW(), INTERVAL 7 DAY)
-        AND l.schedule <= NOW()
-        AND f.start_time <= NOW()
-        AND f.end_time   >= NOW()
-        AND NOT EXISTS (
-          SELECT 1
-          FROM feedback_responses fr
-          WHERE fr.feedback_id = f.id
-            AND fr.user_id     = ${userId}
+  // ── nps_forms ──────────────────────────────────────────────────────────────
+  const activeNpsForms = await db
+    .select({ id: npsForms.id, title: npsForms.title, startsAt: npsForms.startsAt, createdAt: npsForms.createdAt })
+    .from(npsForms)
+    .where(
+      and(
+        sql`${npsForms.sectionId} IN (${sectionIdList})`,
+        isNull(npsForms.deletedAt),
+        eq(npsForms.isActive, 1),
+        eq(npsForms.status, 'PUBLISHED'),
+        sql`(${npsForms.startsAt} IS NULL OR ${npsForms.startsAt} <= ${nowIst})`,
+        sql`(${npsForms.endsAt}   IS NULL OR ${npsForms.endsAt}   >= ${nowIst})`,
+      )
+    )
+    .orderBy(npsForms.startsAt, npsForms.createdAt)
+
+  const npsFormIds = activeNpsForms.map((f) => f.id)
+  const npsSubmitted = npsFormIds.length > 0
+    ? await db
+        .select({ npsFormId: npsSubmissions.npsFormId })
+        .from(npsSubmissions)
+        .where(
+          and(
+            eq(npsSubmissions.userId, userId),
+            sql`${npsSubmissions.npsFormId} IN (${sql.raw(npsFormIds.join(', '))})`,
+            eq(npsSubmissions.status, 'SUBMITTED'),
+            isNull(npsSubmissions.deletedAt),
+          )
         )
-      LIMIT 1
-    `)
-  )
+    : []
+  const npsSubmittedIds = new Set(npsSubmitted.map((s) => s.npsFormId))
 
-  return result.length > 0
+  const pendingNps: Array<PendingFeedbackForm> = activeNpsForms
+    .filter((f) => !npsSubmittedIds.has(f.id))
+    .map((f) => ({ id: f.id, title: f.title, source: 'nps' as const }))
+
+  // ── assess_nps_form ────────────────────────────────────────────────────────
+  const activeAssessForms = await db
+    .select({ id: assessNpsForm.id, title: assessNpsForm.title, startsAt: assessNpsForm.startsAt, createdAt: assessNpsForm.createdAt })
+    .from(assessNpsForm)
+    .where(
+      and(
+        sql`${assessNpsForm.sectionId} IN (${sectionIdList})`,
+        isNull(assessNpsForm.deletedAt),
+        sql`(${assessNpsForm.startsAt} IS NULL OR ${assessNpsForm.startsAt} <= ${nowIst})`,
+        sql`(${assessNpsForm.endsAt}   IS NULL OR ${assessNpsForm.endsAt}   >= ${nowIst})`,
+      )
+    )
+    .orderBy(assessNpsForm.startsAt, assessNpsForm.createdAt)
+
+  const assessFormIds = activeAssessForms.map((f) => f.id)
+  const assessSubmitted = assessFormIds.length > 0
+    ? await db
+        .select({ npsFormId: assessNpsSubmissions.npsFormId })
+        .from(assessNpsSubmissions)
+        .where(
+          and(
+            eq(assessNpsSubmissions.userId, userId),
+            sql`${assessNpsSubmissions.npsFormId} IN (${sql.raw(assessFormIds.join(', '))})`,
+            sql`${assessNpsSubmissions.completedAt} IS NOT NULL`,
+          )
+        )
+    : []
+  const assessSubmittedIds = new Set(assessSubmitted.map((s) => s.npsFormId))
+
+  const pendingAssess: Array<PendingFeedbackForm> = activeAssessForms
+    .filter((f) => !assessSubmittedIds.has(f.id))
+    .map((f) => ({ id: f.id, title: f.title, source: 'assess_nps' as const }))
+
+  // Merge both sources, re-sort by starts_at ASC (nulls last), then created_at ASC
+  return [...pendingNps, ...pendingAssess].sort((a, b) => {
+    const aTime = (activeNpsForms.find((f) => f.id === a.id) ?? activeAssessForms.find((f) => f.id === a.id))?.startsAt ?? ''
+    const bTime = (activeNpsForms.find((f) => f.id === b.id) ?? activeAssessForms.find((f) => f.id === b.id))?.startsAt ?? ''
+    if (!aTime && !bTime) return 0
+    if (!aTime) return 1
+    if (!bTime) return -1
+    return aTime.localeCompare(bTime)
+  })
 }
 
 /**
@@ -140,6 +266,34 @@ async function checkZoomRequired(userId: number): Promise<boolean> {
 }
 
 /**
+ * Show profile picture banner when profiles.meta.profile_pic is missing or not a valid URL.
+ */
+function parseMeta(raw: unknown): Record<string, unknown> {
+  if (!raw) return {}
+  if (typeof raw === 'object') return raw as Record<string, unknown>
+  try { return JSON.parse(String(raw)) as Record<string, unknown> } catch { return {} }
+}
+
+async function checkProfilePictureRequired(userId: number): Promise<boolean> {
+  const rows = await db
+    .select({ meta: profiles.meta })
+    .from(profiles)
+    .where(eq(profiles.userId, userId))
+    .limit(1)
+
+  const meta = parseMeta(rows[0]?.meta)
+  const pic = meta['profile_pic']
+  if (!pic || typeof pic !== 'string' || pic.trim() === '') return true
+  // Must be a valid http/https URL
+  try {
+    const url = new URL(pic.trim())
+    return url.protocol !== 'http:' && url.protocol !== 'https:'
+  } catch {
+    return true
+  }
+}
+
+/**
  * Show Download App banner when user has no rows in user_device_tokens.
  */
 async function checkDownloadAppRequired(userId: number): Promise<boolean> {
@@ -155,12 +309,13 @@ async function checkDownloadAppRequired(userId: number): Promise<boolean> {
 export async function getDashboardActionBanners(
   userId: number,
 ): Promise<DashboardActionBannersResult> {
-  const [showAgreement, showFeedback, showZoom, showDownloadApp] = await Promise.all([
+  const [pendingAgreementSections, pendingFeedbackForms, showZoom, showDownloadApp, showProfilePicture] = await Promise.all([
     checkAgreementRequired(userId),
     checkFeedbackPending(userId),
     checkZoomRequired(userId),
     checkDownloadAppRequired(userId),
+    checkProfilePictureRequired(userId),
   ])
 
-  return { showAgreement, showFeedback, showZoom, showDownloadApp }
+  return { pendingAgreementSections, pendingFeedbackForms, showZoom, showDownloadApp, showProfilePicture }
 }

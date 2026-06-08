@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { CalendarDays, Clock, History } from 'lucide-react'
-import { groupItemsByWeek } from '../shared/scheduleUtils'
+import { extractSpanningItems, groupItemsByWeek } from '../shared/scheduleUtils'
 import { ScheduleWeekGroupSection } from './ScheduleWeekGroup'
 import { ScheduleCard } from './schedule-card/ScheduleCard'
 import type { DashboardScheduleItem, ScheduleWeekGroup } from '../shared/types'
@@ -23,8 +23,15 @@ export function DashboardScheduleSection({
 }: DashboardScheduleSectionProps) {
   const [activeTab, setActiveTab] = useState<ScheduleTab>('schedule')
 
+  // Items that span the entire week are excluded from My Schedule
+  // and surfaced in Pending Tasks instead
+  const spanningItems = extractSpanningItems(items)
+  const spanningIds = new Set(spanningItems.map((i) => i.id))
+  const scheduleItems = items.filter((i) => !spanningIds.has(i.id))
+  const effectivePendingItems = [...pendingItems, ...spanningItems]
+
   const weekGroups: Array<ScheduleWeekGroup> =
-    activeTab === 'schedule' ? groupItemsByWeek(items) : []
+    activeTab === 'schedule' ? groupItemsByWeek(scheduleItems) : []
 
   return (
     <div className="bg-[#F9FAFB] rounded-[16px] border border-gray-200 overflow-hidden">
@@ -53,9 +60,9 @@ export function DashboardScheduleSection({
         >
           <Clock size={16} />
           Pending Tasks
-          {pendingItems.length > 0 ? (
+          {effectivePendingItems.length > 0 ? (
             <span className="inline-flex items-center justify-center size-5 rounded-full bg-red-500 text-white text-xs font-semibold">
-              {pendingItems.length}
+              {effectivePendingItems.length}
             </span>
           ) : null}
         </button>
@@ -89,7 +96,7 @@ export function DashboardScheduleSection({
         ) : null}
 
         {!isPendingLoading && activeTab === 'pending' ? (
-          pendingItems.length === 0 ? (
+          effectivePendingItems.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-12 gap-4">
               <History size={64} strokeWidth={1.75} className="text-gray-300" />
               <div className="text-center">
@@ -99,7 +106,7 @@ export function DashboardScheduleSection({
             </div>
           ) : (
             <div className="flex flex-col gap-2">
-              {pendingItems.map((item) => (
+              {effectivePendingItems.map((item) => (
                 <ScheduleCard
                   key={`pending-${item.id}`}
                   item={item}

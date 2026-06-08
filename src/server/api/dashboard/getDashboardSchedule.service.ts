@@ -50,8 +50,12 @@ function toLearningType(raw: string): DashboardScheduleItem['learningType'] {
  * the user is actively enrolled in.
  *
  * Combines lectures, assignments, and quizzes — each scoped by section_id.
- * An event is included if its start_date OR end_date falls within the window
- * (mirrors the block-plan-events/all-events API logic from experience-api).
+ * An event is included when ANY of these hold:
+ *   - start_date falls within the window
+ *   - end_date falls within the window
+ *   - event spans the ENTIRE window (start_date < today AND end_date > today+6)
+ *     — these spanning items are excluded from My Schedule display and surfaced
+ *       in the Pending Tasks tab instead (handled client-side by extractSpanningItems).
  *
  * Batch name is included on each card only when the user belongs to more
  * than one batch.
@@ -95,6 +99,7 @@ export async function getDashboardSchedule(
       AND (
         l.start_date BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL 6 DAY)
         OR l.end_date BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL 6 DAY)
+        OR (l.start_date < CURDATE() AND l.end_date > DATE_ADD(CURDATE(), INTERVAL 6 DAY))
       )
 
     UNION ALL
@@ -121,6 +126,7 @@ export async function getDashboardSchedule(
       AND (
         a.start_date BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL 6 DAY)
         OR a.end_date BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL 6 DAY)
+        OR (a.start_date < CURDATE() AND a.end_date > DATE_ADD(CURDATE(), INTERVAL 6 DAY))
       )
 
     UNION ALL
@@ -147,6 +153,7 @@ export async function getDashboardSchedule(
       AND (
         q.start_date BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL 6 DAY)
         OR q.end_date BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL 6 DAY)
+        OR (q.start_date < CURDATE() AND q.end_date > DATE_ADD(CURDATE(), INTERVAL 6 DAY))
       )
 
     ORDER BY startDate ASC, schedule ASC, id ASC

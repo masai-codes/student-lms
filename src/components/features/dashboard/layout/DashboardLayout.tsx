@@ -59,8 +59,8 @@ export function DashboardLayout() {
 
   const isBannerVisible =
     actionBannersData != null &&
-    (actionBannersData.showAgreement ||
-      actionBannersData.showFeedback ||
+    (actionBannersData.pendingAgreementSections.length > 0 ||
+      actionBannersData.pendingFeedbackForms.length > 0 ||
       actionBannersData.showZoom ||
       actionBannersData.showDownloadApp)
 
