@@ -51,15 +51,15 @@ describe('masaiverse membership and joins', () => {
     mocks.getCurrentSessionUserId.mockResolvedValueOnce(10)
     mocks.dbSelect
       .mockReturnValueOnce(mockSelectChain([{ role: 'student' }]))
-      .mockReturnValueOnce(mockSelectChain([{ id: 'club-1' }]))
-      .mockReturnValueOnce(mockSelectChain([{ clubId: 'club-2' }]))
+      .mockReturnValueOnce(mockSelectChain([{ id: 42 }]))
+      .mockReturnValueOnce(mockSelectChain([{ clubId: 7 }]))
 
     const insertValues = vi.fn()
     mocks.dbInsert.mockReturnValueOnce({ values: insertValues })
 
-    await expect(joinClubHandler({ data: { clubId: 'club-1' } })).resolves.toEqual({
+    await expect(joinClubHandler({ data: { clubId: '42' } })).resolves.toEqual({
       success: false,
-      joinedClubId: 'club-2',
+      joinedClubId: '7',
       reason: 'ALREADY_JOINED_A_CLUB',
     })
     expect(insertValues).not.toHaveBeenCalled()
@@ -70,7 +70,7 @@ describe('masaiverse membership and joins', () => {
     mocks.getCurrentSessionUserId.mockResolvedValueOnce(10)
     mocks.dbSelect.mockReturnValueOnce(mockSelectChain([{ role: 'admin' }]))
 
-    await expect(joinClubHandler({ data: { clubId: 'club-1' } })).rejects.toThrow(
+    await expect(joinClubHandler({ data: { clubId: '42' } })).rejects.toThrow(
       'ADMIN_CANNOT_JOIN_CLUB',
     )
   })
@@ -79,14 +79,14 @@ describe('masaiverse membership and joins', () => {
     const { joinEventHandler } = await import('../joinEvent')
     mocks.getCurrentSessionUserId.mockResolvedValueOnce(13)
     mocks.dbSelect
-      .mockReturnValueOnce(mockSelectChain([{ id: 'ev-1' }]))
+      .mockReturnValueOnce(mockSelectChain([{ id: 55 }]))
       .mockReturnValueOnce(mockSelectChain([]))
 
     mocks.dbInsert.mockReturnValueOnce({ values: vi.fn().mockResolvedValue(undefined) })
 
-    await expect(joinEventHandler({ data: { eventId: ' ev-1 ' } })).resolves.toEqual({
+    await expect(joinEventHandler({ data: { eventId: ' 55 ' } })).resolves.toEqual({
       success: true,
-      enrolledEventId: 'ev-1',
+      enrolledEventId: '55',
       reason: 'ENROLLED',
     })
     expect(mocks.dbInsert).toHaveBeenCalledTimes(1)
@@ -96,15 +96,15 @@ describe('masaiverse membership and joins', () => {
     const { joinEventHandler } = await import('../joinEvent')
     mocks.getCurrentSessionUserId.mockResolvedValueOnce(13)
     mocks.dbSelect
-      .mockReturnValueOnce(mockSelectChain([{ id: 'ev-1' }]))
+      .mockReturnValueOnce(mockSelectChain([{ id: 55 }]))
       .mockReturnValueOnce(mockSelectChain([{ id: 'enr-1' }]))
 
     const insertValues = vi.fn()
     mocks.dbInsert.mockReturnValueOnce({ values: insertValues })
 
-    await expect(joinEventHandler({ data: { eventId: 'ev-1' } })).resolves.toEqual({
+    await expect(joinEventHandler({ data: { eventId: '55' } })).resolves.toEqual({
       success: true,
-      enrolledEventId: 'ev-1',
+      enrolledEventId: '55',
       reason: 'ALREADY_ENROLLED',
     })
     expect(insertValues).not.toHaveBeenCalled()
