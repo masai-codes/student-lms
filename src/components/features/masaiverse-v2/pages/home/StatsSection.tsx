@@ -1,21 +1,26 @@
 import { useQuery } from '@tanstack/react-query'
 import { ACCENT_STYLES } from '../../accentStyles'
 import { STAT_CARDS } from '../../data/statsConfig'
+import ResponsiveCardCarousel from './ResponsiveCardCarousel'
 import { masaiverseV2HomeQuery } from '@/query/masaiverse-v2/homeQuery'
 
 export default function StatsSection() {
   const { data, isPending, isError } = useQuery(masaiverseV2HomeQuery())
 
   return (
-    <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-      {STAT_CARDS.map((card) => {
+    <ResponsiveCardCarousel
+      items={STAT_CARDS}
+      getKey={(card) => card.id}
+      navKey="home-stats"
+      navLabel="stats"
+      // Two-and-a-bit cards on phones (swipe for the rest); all four in a row at lg.
+      slidesPerView={2.15}
+      breakpoints={{ 1024: { slidesPerView: 4 } }}
+      renderItem={(card) => {
         const accent = ACCENT_STYLES[card.accent]
         const count = data?.stats[card.metric]
         return (
-          <div
-            key={card.id}
-            className="flex items-center gap-3 rounded-[16px] border border-[#EDEAE8] bg-white p-4"
-          >
+          <div className="flex h-full items-center gap-3 rounded-[16px] border border-[#EDEAE8] bg-white p-4">
             <span
               className="flex size-10 shrink-0 items-center justify-center rounded-[12px] text-[18px]"
               style={{ backgroundColor: accent.iconBg }}
@@ -44,7 +49,7 @@ export default function StatsSection() {
             </div>
           </div>
         )
-      })}
-    </div>
+      }}
+    />
   )
 }

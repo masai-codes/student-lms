@@ -125,6 +125,7 @@ describe('getEventDetail', () => {
       aboveTitle: 'WEEKLY',
       belowTitle: '48 teams',
       isWeeklyConnect: true,
+      confirmationModalText: null,
       clubId: '3',
       clubName: 'Programming Club',
       hostedBy: [
@@ -136,6 +137,24 @@ describe('getEventDetail', () => {
       enrolledCount: 12,
       userRating: null,
       userFeedback: null,
+    })
+  })
+
+  it('surfaces meta.confirmationModalText, trimmed, when present', async () => {
+    const { getEventDetail } = await import('../services/getEventDetail.service')
+    hoisted.dbSelect
+      .mockReturnValueOnce(
+        rowChain([
+          eventRow({
+            meta: { confirmationModalText: '  **Please note** the rules.  ' },
+          }),
+        ]),
+      )
+      .mockReturnValueOnce(countChain([{ enrolledCount: 0 }]))
+      .mockReturnValueOnce(limitChain([]))
+
+    await expect(getEventDetail(7, 1, NOW)).resolves.toMatchObject({
+      confirmationModalText: '**Please note** the rules.',
     })
   })
 
@@ -194,6 +213,7 @@ describe('getEventDetail', () => {
       aboveTitle: null,
       belowTitle: null,
       isWeeklyConnect: false,
+      confirmationModalText: null,
       clubId: null,
       clubName: null,
       hostedBy: [],

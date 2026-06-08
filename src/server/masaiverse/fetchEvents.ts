@@ -5,6 +5,7 @@ import { db } from "@/db"
 import { clubMembers, events, users } from "@/db/schema"
 import { getCurrentSessionUserId } from "@/server/auth/getCurrentSessionUserId"
 import { eventDbTimestampToMs } from "@/lib/eventTimestamps"
+import { publishedEventCondition } from "@/server/api/masaiverse-v2/services/publishVisibility"
 
 export type EventType = InferSelectModel<typeof events>
 
@@ -40,6 +41,8 @@ export async function fetchAllEventsHandler({ data }: { data: { searchQuery?: st
         ? like(events.title, `%${sanitizedSearchQuery}%`)
         : undefined
 
+      // Non-admins never see unpublished (draft) events; admins see everything.
+      const publishedOnly = publishedEventCondition(isAdminUser)
       const fetchedEvents =
         isAdminUser
           ? await db
@@ -55,13 +58,14 @@ export async function fetchAllEventsHandler({ data }: { data: { searchQuery?: st
                 and(
                   or(isNull(events.clubId), inArray(events.clubId, joinedClubIdsArray)),
                   searchCondition,
+                  publishedOnly,
                 ),
               )
               .orderBy(asc(events.startTime), asc(events.createdAt))
           : await db
               .select()
               .from(events)
-              .where(and(isNull(events.clubId), searchCondition))
+              .where(and(isNull(events.clubId), searchCondition, publishedOnly))
               .orderBy(asc(events.startTime), asc(events.createdAt))
 
       const now = Date.now()

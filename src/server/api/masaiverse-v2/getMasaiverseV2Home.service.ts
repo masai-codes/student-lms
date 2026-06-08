@@ -53,6 +53,7 @@ export interface MasaiverseV2HomeData {
 export async function getMasaiverseV2Home(
   userId: number,
   now: Date = new Date(),
+  canSeeUnpublished = false,
 ): Promise<MasaiverseV2HomeData> {
   // Home shows public (club-less) events plus the events of clubs this user has
   // joined — both in "Live & Upcoming" and "Past Events".
@@ -69,11 +70,11 @@ export async function getMasaiverseV2Home(
   ] = await Promise.all([
     getCommunityLearnerCount(),
     getDiscussionsThisWeekCount(now),
-    getEventsThisYearCount(now),
+    getEventsThisYearCount(now, canSeeUnpublished),
     getEventRegistrationsThisYearCount(now),
-    getHomeEvents(now, { visibleClubIds: memberClubIds }, userId),
-    getHomeHighlights(now, { visibleClubIds: memberClubIds }),
-    getHomeClubs(),
+    getHomeEvents(now, { visibleClubIds: memberClubIds }, userId, canSeeUnpublished),
+    getHomeHighlights(now, { visibleClubIds: memberClubIds }, canSeeUnpublished),
+    getHomeClubs(canSeeUnpublished),
     getCommunityDiscussions(userId, 0, HOME_DISCUSSIONS_LIMIT),
   ])
 

@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { CalendarX } from '@phosphor-icons/react'
+import AdminCreateButton from '../AdminCreateButton'
 import EventListCard from './events/EventListCard'
 import EventsToolbar from './events/EventsToolbar'
 import {
@@ -58,10 +59,18 @@ export default function EventsPage({ now: nowProp }: { now?: Date }) {
 
   return (
     <div>
-      <h2 className="text-[20px] font-bold leading-7 text-[#111827]">Events</h2>
-      <p className="mt-1 text-[14px] leading-5 text-[#6B7280]">
-        Hackathons, meetups, and webinars across the community and your clubs.
-      </p>
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <h2 className="text-[20px] font-bold leading-7 text-[#111827]">
+            Events
+          </h2>
+          <p className="mt-1 text-[14px] leading-5 text-[#6B7280]">
+            Hackathons, meetups, and webinars across the community and your
+            clubs.
+          </p>
+        </div>
+        <AdminCreateButton kind="event" />
+      </div>
 
       <EventsToolbar
         search={search}

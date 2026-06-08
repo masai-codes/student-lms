@@ -1,5 +1,6 @@
 import { and, asc, eq, gte, inArray, isNull, or } from 'drizzle-orm'
 import { eventScopeConditions } from './eventScope'
+import { publishedEventCondition } from './publishVisibility'
 import type { MasaiverseEventScope } from './eventScope'
 import { db } from '@/db'
 import { eventEnrollments, events } from '@/db/schema'
@@ -72,6 +73,7 @@ export async function getHomeEvents(
   now: Date,
   scope: MasaiverseEventScope = {},
   userId?: number,
+  canSeeUnpublished = false,
 ): Promise<Array<MasaiverseV2HomeEvent>> {
   const nowUtc = toMysqlUtc(now)
 
@@ -92,6 +94,7 @@ export async function getHomeEvents(
           and(isNull(events.endTime), gte(events.startTime, nowUtc)),
         ),
         ...eventScopeConditions(scope),
+        publishedEventCondition(canSeeUnpublished),
       ),
     )
     .orderBy(asc(events.startTime))

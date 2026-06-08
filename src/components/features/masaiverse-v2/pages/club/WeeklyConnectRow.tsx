@@ -1,3 +1,4 @@
+import { Link } from '@tanstack/react-router'
 import type { MasaiverseV2WeeklyConnect } from '@/server/api/masaiverse-v2/services/getClubWeeklyConnects.service'
 import { formatIstDayBadge, getEventStatus } from '@/lib/masaiverseEventCard'
 
@@ -34,7 +35,12 @@ export default function WeeklyConnectRow({
   const isMuted = status === 'completed'
 
   return (
-    <div className="flex items-center gap-4 rounded-[16px] border border-[#EDEAE8] bg-white p-4">
+    <Link
+      to="/masaiverse/event/$eventId"
+      params={{ eventId: connect.id }}
+      search={(prev) => prev}
+      className="flex h-full items-center gap-4 rounded-[16px] border border-[#EDEAE8] bg-white p-4 transition-shadow hover:shadow-[0_8px_24px_-12px_rgba(0,0,0,0.25)]"
+    >
       <span
         className={`flex size-14 shrink-0 flex-col items-center justify-center rounded-[12px] leading-none ${BADGE_STYLES[status]}`}
       >
@@ -75,6 +81,6 @@ export default function WeeklyConnectRow({
         ) : null}
         {PILL_LABELS[status]}
       </span>
-    </div>
+    </Link>
   )
 }

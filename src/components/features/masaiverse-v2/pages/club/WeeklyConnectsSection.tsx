@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
+import ResponsiveCardCarousel from '../home/ResponsiveCardCarousel'
 import SectionHeader from '../home/SectionHeader'
 import { repeat } from '../home/skeletons'
 import WeeklyConnectRow from './WeeklyConnectRow'
@@ -81,11 +82,16 @@ export default function WeeklyConnectsSection({
           No weekly connects scheduled yet.
         </p>
       ) : (
-        <div className="flex flex-col gap-3">
-          {connects.map((connect) => (
-            <WeeklyConnectRow key={connect.id} connect={connect} now={now} />
-          ))}
-        </div>
+        <ResponsiveCardCarousel
+          items={connects}
+          getKey={(connect) => connect.id}
+          navKey="weekly-connects"
+          navLabel="weekly connects"
+          // One wide row at a time on phones, easing up to ~two on desktop.
+          slidesPerView={1.05}
+          breakpoints={{ 768: { slidesPerView: 1.8 }, 1024: { slidesPerView: 2.2 } }}
+          renderItem={(connect) => <WeeklyConnectRow connect={connect} now={now} />}
+        />
       )}
     </section>
   )

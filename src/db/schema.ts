@@ -3203,6 +3203,27 @@ export const eventEnrollments = mysqlTable("event_enrollments", {
 	primaryKey({ columns: [table.id], name: "event_enrollments_id"}),
 ]);
 
+export const masaiverseBanners = mysqlTable("masaiverse_banners", {
+	id: bigint({ mode: "number", unsigned: true }).autoincrement().notNull(),
+	title: varchar({ length: 255 }).notNull(),
+	description: text(),
+	ctaText: varchar("cta_text", { length: 255 }),
+	ctaUrl: text("cta_url"),
+	startDate: timestamp("start_date", { mode: 'string' }),
+	endDate: timestamp("end_date", { mode: 'string' }),
+	// Free-form metadata; `isPublished` (boolean) gates visibility to students.
+	meta: json().$type<Record<string, any>>(),
+	createdBy: bigint("created_by", { mode: "number", unsigned: true }).references(() => users.id),
+	lastEditedBy: bigint("last_edited_by", { mode: "number", unsigned: true }).references(() => users.id),
+	createdAt: timestamp("created_at", { mode: 'string' }).defaultNow().notNull(),
+	updatedAt: timestamp("updated_at", { mode: 'string' }).notNull(),
+},
+(table) => [
+	index("masaiverse_banners_created_by_index").on(table.createdBy),
+	index("masaiverse_banners_last_edited_by_index").on(table.lastEditedBy),
+	primaryKey({ columns: [table.id], name: "masaiverse_banners_id"}),
+]);
+
 export const posts = mysqlTable("posts", {
 	id: bigint({ mode: "number", unsigned: true }).autoincrement().notNull(),
 	// Nullable: community discussions created from Masaiverse v2 belong to no club.

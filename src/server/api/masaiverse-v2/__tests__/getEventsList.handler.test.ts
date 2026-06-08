@@ -13,6 +13,10 @@ vi.mock('@/server/auth/getCurrentSessionUserId', () => ({
   getUserIdFromCookieHeader: hoisted.getUserIdFromCookieHeader,
 }))
 
+vi.mock('@/server/api/masaiverse-v2/services/publishVisibility', () => ({
+  canSeeUnpublished: vi.fn().mockResolvedValue(false),
+}))
+
 function getRequest(cookie: string | null): Request {
   return new Request('http://localhost/api/masaiverse-v2/events/list', {
     headers: cookie ? { cookie } : {},
@@ -38,7 +42,7 @@ describe('handleGetEventsList', () => {
       events: [{ id: '1', title: 'Demo' }],
     })
     // The session user is forwarded so the service can flag enrollments.
-    expect(hoisted.getEventsList).toHaveBeenCalledWith(1)
+    expect(hoisted.getEventsList).toHaveBeenCalledWith(1, false)
   })
 
   it('returns 401 when there is no session user', async () => {

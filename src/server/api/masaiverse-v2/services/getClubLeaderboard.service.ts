@@ -1,4 +1,5 @@
 import { and, count, desc, eq, inArray, sql } from 'drizzle-orm'
+import { publishedClubCondition } from './publishVisibility'
 import { db } from '@/db'
 import {
   clubMembers,
@@ -82,6 +83,7 @@ export async function getClubLeaderboard(
   clubId: number,
   page = 0,
   perPage = DEFAULT_PER_PAGE,
+  canSeeUnpublished = false,
 ): Promise<ClubLeaderboardPage | null> {
   if (!Number.isFinite(clubId)) return null
   const safePage = Number.isFinite(page) && page > 0 ? Math.floor(page) : 0
@@ -93,7 +95,7 @@ export async function getClubLeaderboard(
     await db
       .select({ id: clubs.id })
       .from(clubs)
-      .where(eq(clubs.id, clubId))
+      .where(and(eq(clubs.id, clubId), publishedClubCondition(canSeeUnpublished)))
       .limit(1)
   ).at(0)
   if (!club) return null

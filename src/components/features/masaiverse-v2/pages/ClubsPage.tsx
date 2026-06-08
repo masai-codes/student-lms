@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { Link } from '@tanstack/react-router'
+import AdminCreateButton from '../AdminCreateButton'
 import HomeClubCard from './home/HomeClubCard'
 import { masaiverseV2HomeQuery } from '@/query/masaiverse-v2/homeQuery'
 
@@ -13,12 +14,17 @@ export default function ClubsPage() {
 
   return (
     <div>
-      <h2 className="text-[20px] font-bold leading-7 text-[#111827]">
-        Explore clubs
-      </h2>
-      <p className="mt-1 text-[14px] leading-5 text-[#6B7280]">
-        Discover communities and join the ones that match your interests.
-      </p>
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <h2 className="text-[20px] font-bold leading-7 text-[#111827]">
+            Explore clubs
+          </h2>
+          <p className="mt-1 text-[14px] leading-5 text-[#6B7280]">
+            Discover communities and join the ones that match your interests.
+          </p>
+        </div>
+        <AdminCreateButton kind="club" />
+      </div>
 
       {isPending ? (
         <div

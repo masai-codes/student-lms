@@ -224,4 +224,38 @@ describe('getEventsList', () => {
       ['13', true],
     ])
   })
+
+  it('returns events from any club (no member scoping) in admin mode', async () => {
+    const { getEventsList } = await import('../services/getEventsList.service')
+    hoisted.dbSelect
+      // No member-club lookup happens first: admin mode skips it entirely.
+      .mockReturnValueOnce(
+        selectChain([
+          {
+            id: 21,
+            title: 'Other Club Event',
+            imageLink: null,
+            category: null,
+            mode: 'online',
+            locationTitle: null,
+            meta: null,
+            // A club the user has NOT joined still shows up in admin mode.
+            clubId: 99,
+            clubName: 'Other Club',
+            startTime: null,
+            endTime: null,
+          },
+        ]),
+      )
+      // Enrollment lookup (userId passed).
+      .mockReturnValueOnce({
+        from: () => ({ where: () => Promise.resolve([]) }),
+      })
+
+    const result = await getEventsList(1, true)
+    expect(result).toHaveLength(1)
+    expect(result[0].clubId).toBe('99')
+    // Only the events query + enrollment lookup ran — no member-club scoping.
+    expect(hoisted.dbSelect).toHaveBeenCalledTimes(2)
+  })
 })

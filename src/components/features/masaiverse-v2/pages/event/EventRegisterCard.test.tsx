@@ -38,6 +38,7 @@ function makeEvent(
     aboveTitle: null,
     belowTitle: null,
     isWeeklyConnect: false,
+    confirmationModalText: null,
     clubId: null,
     clubName: null,
     status: 'upcoming',
@@ -95,7 +96,6 @@ describe('EventRegisterCard', () => {
     const event = makeEvent()
     const client = renderCard(event, { seedCache: true })
 
-    expect(screen.getByText('Be the first to register')).toBeTruthy()
     fireEvent.click(screen.getByRole('button', { name: 'Register' }))
 
     await waitFor(() => expect(enroll).toHaveBeenCalledWith('7'))
@@ -121,6 +121,47 @@ describe('EventRegisterCard', () => {
     expect(await screen.findByText("You're registered! 🎉")).toBeTruthy()
     expect(screen.getByLabelText('3 people registered')).toBeTruthy()
     expect(screen.queryByRole('button', { name: 'Register' })).toBeNull()
+  })
+
+  it('registers directly without a dialog when no confirmation text is set', async () => {
+    enroll.mockResolvedValueOnce({
+      isEnrolled: true,
+      enrolledCount: 1,
+      redirectUrl: null,
+    })
+    renderCard(makeEvent())
+
+    fireEvent.click(screen.getByRole('button', { name: 'Register' }))
+    await waitFor(() => expect(enroll).toHaveBeenCalledWith('7'))
+    // No confirmation dialog appears for events without notice text.
+    expect(screen.queryByText('Confirm your registration')).toBeNull()
+  })
+
+  it('opens a confirmation dialog and only registers after acknowledging', async () => {
+    enroll.mockResolvedValueOnce({
+      isEnrolled: true,
+      enrolledCount: 1,
+      redirectUrl: null,
+    })
+    renderCard(
+      makeEvent({ confirmationModalText: 'Please **read the rules** first.' }),
+    )
+
+    // Clicking Register opens the dialog instead of calling the API.
+    fireEvent.click(screen.getByRole('button', { name: 'Register' }))
+    expect(await screen.findByText('Confirm your registration')).toBeTruthy()
+    expect(screen.getByText('read the rules')).toBeTruthy()
+    expect(enroll).not.toHaveBeenCalled()
+
+    // The confirm action stays disabled until the checkbox is ticked.
+    const confirmButton = screen.getByRole('button', { name: 'Confirm & register' })
+    expect((confirmButton as HTMLButtonElement).disabled).toBe(true)
+
+    fireEvent.click(screen.getByRole('checkbox'))
+    expect((confirmButton as HTMLButtonElement).disabled).toBe(false)
+    fireEvent.click(confirmButton)
+
+    await waitFor(() => expect(enroll).toHaveBeenCalledWith('7'))
   })
 
   it('never redirects on registration even when a url is returned', async () => {

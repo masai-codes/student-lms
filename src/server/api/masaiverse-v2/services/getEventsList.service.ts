@@ -1,5 +1,6 @@
 import { and, asc, eq, inArray } from 'drizzle-orm'
 import { eventScopeConditions } from './eventScope'
+import { publishedEventCondition } from './publishVisibility'
 import { getMemberClubIds } from './getMemberClubIds.service'
 import { db } from '@/db'
 import { clubs, eventEnrollments, events } from '@/db/schema'
@@ -71,7 +72,9 @@ async function fetchEnrolledEventIds(
  * Every community event the user is allowed to see — public (no club) events
  * plus the events of clubs they've joined — including weekly connects, for the
  * dedicated events page. Club events of clubs the user is *not* a member of are
- * excluded; the home and club pages show further curated subsets.
+ * excluded; the home and club pages show further curated subsets. In admin mode
+ * (`canSeeUnpublished`) the membership scoping is dropped entirely, so every
+ * event (public + every club's, including unpublished drafts) is returned.
  *
  * Returned ascending by start time so the natural order is "soonest first";
  * the client splits this into upcoming/past buckets and segregates public vs
@@ -83,8 +86,14 @@ async function fetchEnrolledEventIds(
  */
 export async function getEventsList(
   userId?: number,
+  canSeeUnpublished = false,
 ): Promise<Array<MasaiverseV2EventListItem>> {
-  const memberClubIds = userId == null ? [] : await getMemberClubIds(userId)
+  // Admin mode is a full view: no club-membership scoping, so every event
+  // (public + every club's) is returned. Otherwise scope to public events plus
+  // the clubs this user has joined.
+  const scope = canSeeUnpublished
+    ? {}
+    : { visibleClubIds: userId == null ? [] : await getMemberClubIds(userId) }
 
   const rows = await db
     .select({
@@ -102,7 +111,12 @@ export async function getEventsList(
     })
     .from(events)
     .leftJoin(clubs, eq(events.clubId, clubs.id))
-    .where(and(...eventScopeConditions({ visibleClubIds: memberClubIds })))
+    .where(
+      and(
+        ...eventScopeConditions(scope),
+        publishedEventCondition(canSeeUnpublished),
+      ),
+    )
     .orderBy(asc(events.startTime))
 
   const enrolledIds =

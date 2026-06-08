@@ -24,6 +24,10 @@ vi.mock('@tanstack/react-router', () => ({
 
 vi.mock('@tanstack/react-query', () => ({ useQuery: () => useQuery() }))
 
+// The admin-mode toggle has its own dedicated test; stub it here so this suite
+// stays focused on the sidebar shell and is unaffected by its data fetching.
+vi.mock('./AdminModeToggle', () => ({ default: () => null }))
+
 afterEach(() => {
   cleanup()
   useRouterState.mockReset()

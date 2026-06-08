@@ -27,7 +27,7 @@ export default function ClubUpcomingSection({
   return (
     <section>
       <SectionHeader
-        title="Live & Upcoming"
+        title="Live & Upcoming Events"
         subtitle={
           events.length
             ? `· ${events.length} event${events.length === 1 ? '' : 's'}`

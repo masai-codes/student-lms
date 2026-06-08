@@ -31,7 +31,7 @@ export default function ClubDetailBanner({ club }: ClubDetailBannerProps) {
   const pills = buildPills(club)
 
   return (
-    <section className="relative rounded-[20px] bg-[#1C1A19] p-6 sm:p-8">
+    <section className="relative rounded-[20px] bg-[#1C1A19] p-5 sm:p-8">
       {/* Watermark gets its own clip so the section can let the Share popover overflow. */}
       <div className="pointer-events-none absolute inset-0 overflow-hidden rounded-[20px]">
         <span className="absolute -right-10 top-1/2 -translate-y-1/2 select-none text-[160px] font-black leading-none text-white/[0.03]">
@@ -39,8 +39,8 @@ export default function ClubDetailBanner({ club }: ClubDetailBannerProps) {
         </span>
       </div>
 
-      <div className="relative flex flex-col gap-6 sm:flex-row sm:items-start sm:justify-between">
-        <div className="flex min-w-0 items-start gap-5">
+      <div className="relative flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between sm:gap-6">
+        <div className="flex min-w-0 items-start gap-4 sm:gap-5">
           <span className="flex size-16 shrink-0 items-center justify-center overflow-hidden rounded-[16px] bg-masaiverse-orange sm:size-[72px]">
             {club.imageUrl ? (
               <img
@@ -85,7 +85,11 @@ export default function ClubDetailBanner({ club }: ClubDetailBannerProps) {
         </div>
 
         <div className="flex shrink-0 flex-row gap-2.5 sm:flex-col sm:items-end">
-          <JoinClubButton clubId={club.id} isJoined={club.isJoined} />
+          <JoinClubButton
+            clubId={club.id}
+            isJoined={club.isJoined}
+            confirmationModalText={club.confirmationModalText}
+          />
           <ShareClubButton />
         </div>
       </div>

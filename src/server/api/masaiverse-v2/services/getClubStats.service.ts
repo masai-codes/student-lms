@@ -1,4 +1,5 @@
 import { and, avg, count, eq, gte, sql } from 'drizzle-orm'
+import { publishedClubCondition } from './publishVisibility'
 import { db } from '@/db'
 import {
   clubMembers,
@@ -77,6 +78,7 @@ async function getCommunityPosts(clubId: number): Promise<number> {
 export async function getClubStats(
   clubId: number,
   now: Date = new Date(),
+  canSeeUnpublished = false,
 ): Promise<MasaiverseV2ClubStats | null> {
   if (!Number.isFinite(clubId)) return null
 
@@ -84,7 +86,7 @@ export async function getClubStats(
     await db
       .select({ meta: clubs.meta })
       .from(clubs)
-      .where(eq(clubs.id, clubId))
+      .where(and(eq(clubs.id, clubId), publishedClubCondition(canSeeUnpublished)))
       .limit(1)
   ).at(0)
 

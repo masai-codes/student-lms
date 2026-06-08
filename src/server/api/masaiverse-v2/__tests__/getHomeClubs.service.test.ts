@@ -21,7 +21,9 @@ vi.mock('@/db/schema', () => ({
 }))
 
 function clubsChain(rows: unknown) {
-  return { from: () => ({ orderBy: () => Promise.resolve(rows) }) }
+  return {
+    from: () => ({ where: () => ({ orderBy: () => Promise.resolve(rows) }) }),
+  }
 }
 function countsChain(rows: unknown) {
   return { from: () => ({ groupBy: () => Promise.resolve(rows) }) }

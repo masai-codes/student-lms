@@ -15,6 +15,14 @@ const { fetchDetail, enroll } = vi.hoisted(() => ({
 vi.mock('@/lib/api/masaiverse-v2/masaiverseV2Api', () => ({
   fetchMasaiverseV2EventDetail: fetchDetail,
   enrollMasaiverseV2Event: enroll,
+  // The page is wrapped in the edit provider; default to a non-admin so the
+  // edit affordances stay hidden and these tests see the read-only page.
+  fetchMasaiverseV2AdminMode: vi.fn().mockResolvedValue({
+    isAdmin: false,
+    enabled: false,
+  }),
+  updateMasaiverseV2Event: vi.fn(),
+  updateMasaiverseV2Club: vi.fn(),
 }))
 
 vi.mock('@tanstack/react-router', () => ({
@@ -40,6 +48,7 @@ function makeEvent(
     aboveTitle: 'FLAGSHIP',
     belowTitle: '48 teams competing',
     isWeeklyConnect: true,
+    confirmationModalText: null,
     clubId: '3',
     clubName: 'Programming Club',
     status: 'upcoming',

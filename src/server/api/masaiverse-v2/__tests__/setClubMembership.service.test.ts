@@ -45,7 +45,7 @@ describe('setClubMembership', () => {
     await expect(setClubMembership(1, 5, true)).rejects.toThrow('CLUB_NOT_FOUND')
   })
 
-  it('joins idempotently and returns the new member count', async () => {
+  it('joins idempotently, stamps lastVisitedAt and returns the new count', async () => {
     const { setClubMembership } = await import('../services/setClubMembership.service')
     const onDuplicateKeyUpdate = vi.fn().mockResolvedValue(undefined)
     const values = vi.fn().mockReturnValue({ onDuplicateKeyUpdate })
@@ -54,12 +54,17 @@ describe('setClubMembership', () => {
       .mockReturnValueOnce(limitChain([{ id: 5 }]))
       .mockReturnValueOnce(whereChain([{ memberCount: 235 }]))
 
-    await expect(setClubMembership(1, 5, true)).resolves.toEqual({
+    const now = new Date('2026-06-07T10:00:00.000Z')
+    await expect(setClubMembership(1, 5, true, now)).resolves.toEqual({
       isJoined: true,
       memberCount: 235,
     })
     expect(hoisted.dbInsert).toHaveBeenCalledTimes(1)
-    expect(values).toHaveBeenCalledWith({ userId: 1, clubId: 5 })
+    // The join stamps `lastVisitedAt` so the new member counts as active
+    // immediately, both on a fresh insert and on a re-join (duplicate key).
+    const meta = { lastVisitedAt: now.toISOString() }
+    expect(values).toHaveBeenCalledWith({ userId: 1, clubId: 5, meta })
+    expect(onDuplicateKeyUpdate).toHaveBeenCalledWith({ set: { meta } })
     expect(hoisted.dbDelete).not.toHaveBeenCalled()
   })
 

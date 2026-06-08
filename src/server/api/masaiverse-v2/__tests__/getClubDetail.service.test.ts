@@ -1,6 +1,12 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-const hoisted = vi.hoisted(() => ({ dbSelect: vi.fn() }))
+const hoisted = vi.hoisted(() => ({
+  dbSelect: vi.fn(),
+  getClubStats: vi.fn(),
+  getClubEvents: vi.fn(),
+  getClubLeaderboard: vi.fn(),
+  getCommunityDiscussions: vi.fn(),
+}))
 
 vi.mock('@/db', () => ({ db: { select: hoisted.dbSelect } }))
 
@@ -31,18 +37,16 @@ const MOCK_LEADERBOARD = {
   hasMore: false,
 }
 vi.mock('../services/getClubStats.service', () => ({
-  getClubStats: vi.fn(() => Promise.resolve(MOCK_STATS)),
+  getClubStats: hoisted.getClubStats,
 }))
 vi.mock('../services/getClubEvents.service', () => ({
-  getClubEvents: vi.fn(() => Promise.resolve(MOCK_EVENTS)),
+  getClubEvents: hoisted.getClubEvents,
 }))
 vi.mock('../services/getClubLeaderboard.service', () => ({
-  getClubLeaderboard: vi.fn(() => Promise.resolve(MOCK_LEADERBOARD)),
+  getClubLeaderboard: hoisted.getClubLeaderboard,
 }))
 vi.mock('../services/getCommunityDiscussions.service', () => ({
-  getCommunityDiscussions: vi.fn(() =>
-    Promise.resolve({ discussions: [], hasMore: false }),
-  ),
+  getCommunityDiscussions: hoisted.getCommunityDiscussions,
 }))
 
 /** `db.select().from().where().limit()` */
@@ -54,8 +58,23 @@ function whereChain(rows: unknown) {
   return { from: () => ({ where: () => Promise.resolve(rows) }) }
 }
 
+const EMPTY_LEADERBOARD = {
+  entries: [],
+  page: 0,
+  perPage: 5,
+  total: 0,
+  hasMore: false,
+}
+
 beforeEach(() => {
   vi.clearAllMocks()
+  hoisted.getClubStats.mockResolvedValue(MOCK_STATS)
+  hoisted.getClubEvents.mockResolvedValue(MOCK_EVENTS)
+  hoisted.getClubLeaderboard.mockResolvedValue(MOCK_LEADERBOARD)
+  hoisted.getCommunityDiscussions.mockResolvedValue({
+    discussions: [],
+    hasMore: false,
+  })
 })
 
 describe('getClubDetail', () => {
@@ -106,6 +125,7 @@ describe('getClubDetail', () => {
                 'not-an-object',
               ],
               galleryImages: ['https://cdn/p1.jpg', '', 'https://cdn/p2.jpg', 7],
+              confirmationModalText: '  By joining you agree to the **code of conduct**.  ',
             },
           },
         ]),
@@ -137,11 +157,42 @@ describe('getClubDetail', () => {
       galleryImages: ['https://cdn/p1.jpg', 'https://cdn/p2.jpg'],
       memberCount: 234,
       isJoined: true,
+      confirmationModalText: 'By joining you agree to the **code of conduct**.',
       stats: MOCK_STATS,
       events: MOCK_EVENTS,
       leaderboard: MOCK_LEADERBOARD,
       discussions: [],
     })
+    // Members get the gated sections fetched and embedded.
+    expect(hoisted.getClubEvents).toHaveBeenCalledTimes(1)
+    expect(hoisted.getClubLeaderboard).toHaveBeenCalledWith(5, 0, 5, false)
+    expect(hoisted.getCommunityDiscussions).toHaveBeenCalledWith(1, 0, 5, '', '5')
+  })
+
+  it('withholds member-only sections for a non-member (blur teaser)', async () => {
+    const { getClubDetail } = await import('../services/getClubDetail.service')
+    hoisted.dbSelect
+      .mockReturnValueOnce(
+        limitChain([{ id: 7, name: 'Robotics', image: null, meta: {} }]),
+      )
+      .mockReturnValueOnce(whereChain([{ memberCount: 12 }]))
+      .mockReturnValueOnce(limitChain([])) // no membership row
+
+    const detail = await getClubDetail(7, 1)
+
+    expect(detail).toMatchObject({
+      isJoined: false,
+      // Stats stay visible to everyone…
+      stats: MOCK_STATS,
+      // …but the gated sections come back empty.
+      events: { weeklyConnects: [], upcoming: [], past: [] },
+      leaderboard: EMPTY_LEADERBOARD,
+      discussions: [],
+    })
+    // Their services are never even invoked for a non-member.
+    expect(hoisted.getClubEvents).not.toHaveBeenCalled()
+    expect(hoisted.getClubLeaderboard).not.toHaveBeenCalled()
+    expect(hoisted.getCommunityDiscussions).not.toHaveBeenCalled()
   })
 
   it('falls back to belowTitleCardText and reports not-joined / no tags', async () => {
@@ -173,9 +224,11 @@ describe('getClubDetail', () => {
       galleryImages: [],
       memberCount: 0,
       isJoined: false,
+      confirmationModalText: null,
       stats: MOCK_STATS,
-      events: MOCK_EVENTS,
-      leaderboard: MOCK_LEADERBOARD,
+      // Non-member: gated sections withheld (see the dedicated test above).
+      events: { weeklyConnects: [], upcoming: [], past: [] },
+      leaderboard: EMPTY_LEADERBOARD,
       discussions: [],
     })
   })

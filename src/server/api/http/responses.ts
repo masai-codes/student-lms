@@ -77,7 +77,23 @@ export function mapThrownErrorToResponse(error: unknown): Response {
       case 'SERVER_ERROR_FETCHING_EVENT_DETAIL':
       case 'SERVER_ERROR_ENROLLING_EVENT':
       case 'SERVER_ERROR_RATING_EVENT':
+      case 'SERVER_ERROR_FETCHING_ADMIN_MODE':
+      case 'SERVER_ERROR_UPDATING_ADMIN_MODE':
+      case 'SERVER_ERROR_CREATING_EVENT':
+      case 'SERVER_ERROR_CREATING_CLUB':
+      case 'SERVER_ERROR_UPDATING_EVENT':
+      case 'SERVER_ERROR_UPDATING_CLUB':
+      case 'SERVER_ERROR_FETCHING_CLUB_EDIT_DATA':
+      case 'SERVER_ERROR_FETCHING_EVENT_EDIT_DATA':
+      case 'SERVER_ERROR_UPLOADING_IMAGE':
+      case 'SERVER_ERROR_FETCHING_BANNERS':
+      case 'SERVER_ERROR_CREATING_BANNER':
+      case 'SERVER_ERROR_UPDATING_BANNER':
+      case 'SERVER_ERROR_DELETING_BANNER':
         return jsonError(500, error.message)
+      case 'INVALID_ADMIN_MODE_PAYLOAD':
+      case 'INVALID_UPDATE_PAYLOAD':
+        return jsonError(400, error.message)
       case 'EXPERIENCE_API_NOT_CONFIGURED':
       case 'EXPERIENCE_API_REQUEST_FAILED':
       case 'EXPERIENCE_API_EMPTY_RESPONSE':

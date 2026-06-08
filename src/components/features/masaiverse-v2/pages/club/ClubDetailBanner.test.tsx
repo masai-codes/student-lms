@@ -31,10 +31,14 @@ const baseClub: MasaiverseV2ClubDetail = {
   galleryImages: [],
   memberCount: 234,
   isJoined: true,
+<<<<<<< HEAD
   stats: null,
   events: { weeklyConnects: [], upcoming: [], past: [] },
   leaderboard: { entries: [], page: 1, perPage: 5, total: 0, hasMore: false },
   discussions: [],
+=======
+  confirmationModalText: null,
+>>>>>>> pre-prod-v3
 }
 
 afterEach(cleanup)

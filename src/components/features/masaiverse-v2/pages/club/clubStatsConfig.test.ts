@@ -32,4 +32,8 @@ describe('formatClubStat', () => {
   it('formats counts with locale grouping', () => {
     expect(formatClubStat(card('active-members'), stats)).toBe('1,234')
   })
+
+  it('clarifies the active-members window with a 30-day sublabel', () => {
+    expect(card('active-members').sublabel).toBe('in the last 30 days')
+  })
 })

@@ -18,6 +18,10 @@ vi.mock('@/lib/api/masaiverse-v2/masaiverseV2Api', () => ({
   fetchMasaiverseV2Events: fetchEvents,
 }))
 
+// The admin "Add an event" CTA has its own dedicated test; stub it here so this
+// suite stays focused on the events listing.
+vi.mock('../AdminCreateButton', () => ({ default: () => null }))
+
 vi.mock('@tanstack/react-router', () => ({
   Link: ({ children }: { children: ReactNode }) => <a href="#">{children}</a>,
 }))

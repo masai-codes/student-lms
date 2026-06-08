@@ -1,5 +1,6 @@
 import {
   fetchMasaiverseV2EventDetail,
+  fetchMasaiverseV2EventEditData,
   fetchMasaiverseV2Events,
 } from '@/lib/api/masaiverse-v2/masaiverseV2Api'
 
@@ -15,4 +16,11 @@ export const masaiverseV2EventDetailQuery = (eventId: string) => ({
   queryKey: ['masaiverse-v2', 'event', eventId] as const,
   queryFn: () => fetchMasaiverseV2EventDetail(eventId),
   staleTime: 5 * 60 * 1000,
+})
+
+/** Query options for the admin event edit drawer (raw columns + meta). */
+export const masaiverseV2EventEditDataQuery = (eventId: string) => ({
+  queryKey: ['masaiverse-v2', 'event', eventId, 'edit-data'] as const,
+  queryFn: () => fetchMasaiverseV2EventEditData(eventId),
+  staleTime: 0,
 })

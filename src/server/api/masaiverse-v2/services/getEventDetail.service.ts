@@ -1,4 +1,5 @@
 import { and, count, eq } from 'drizzle-orm'
+import { publishedEventCondition } from './publishVisibility'
 import type { EventStatus } from '@/lib/masaiverseEventCard'
 import { db } from '@/db'
 import { clubs, eventEnrollments, events } from '@/db/schema'
@@ -42,6 +43,16 @@ export interface MasaiverseV2EventDetail {
   belowTitle: string | null
   /** `events.meta.isWeeklyConnect` — marks recurring weekly-connect sessions. */
   isWeeklyConnect: boolean
+  /**
+   * `events.meta.confirmationModalText` — markdown shown in a confirm dialog
+   * before registering. Null when unset, in which case registration is direct.
+   */
+  confirmationModalText: string | null
+  /**
+   * `events.meta.eventSummary` — markdown/HTML recap shown above the "About"
+   * section once the event has ended. Null when unset.
+   */
+  eventSummary: string | null
   clubId: string | null
   /** Hosting club name (via join); null for community-wide events. */
   clubName: string | null
@@ -95,6 +106,7 @@ export async function getEventDetail(
   eventId: number,
   userId: number,
   now: Date = new Date(),
+  canSeeUnpublished = false,
 ): Promise<MasaiverseV2EventDetail | null> {
   if (!Number.isFinite(eventId)) return null
 
@@ -119,7 +131,7 @@ export async function getEventDetail(
       })
       .from(events)
       .leftJoin(clubs, eq(events.clubId, clubs.id))
-      .where(eq(events.id, eventId))
+      .where(and(eq(events.id, eventId), publishedEventCondition(canSeeUnpublished)))
       .limit(1)
   ).at(0)
 
@@ -164,6 +176,8 @@ export async function getEventDetail(
     aboveTitle: toStringOrNull(row.meta?.aboveTitle),
     belowTitle: toStringOrNull(row.meta?.belowTitle),
     isWeeklyConnect: row.meta?.isWeeklyConnect === true,
+    confirmationModalText: toStringOrNull(row.meta?.confirmationModalText),
+    eventSummary: toStringOrNull(row.meta?.eventSummary),
     clubId: row.clubId != null ? String(row.clubId) : null,
     clubName: toStringOrNull(row.clubName),
     hostedBy: toHostedBy(row.meta?.hostedBy),

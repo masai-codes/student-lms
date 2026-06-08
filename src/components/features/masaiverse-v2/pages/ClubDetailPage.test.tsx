@@ -10,7 +10,11 @@ const { useQuery, recordVisit } = vi.hoisted(() => ({
   recordVisit: vi.fn(),
 }))
 
-vi.mock('@tanstack/react-query', () => ({ useQuery: () => useQuery() }))
+vi.mock('@tanstack/react-query', () => ({
+  useQuery: () => useQuery(),
+  // The edit provider grabs the query client to refetch after saves.
+  useQueryClient: () => ({ invalidateQueries: vi.fn() }),
+}))
 vi.mock('@tanstack/react-router', () => ({
   Link: ({ children }: { children: ReactNode }) => <a>{children}</a>,
 }))
@@ -64,11 +68,24 @@ vi.mock('./club/ClubDiscussionsSection', () => ({
     <div data-testid="discussions">{clubId}</div>
   ),
 }))
+vi.mock('./club/LockedSection', () => ({
+  default: ({ title }: { title: string }) => (
+    <div data-testid="locked">{title}</div>
+  ),
+}))
 vi.mock('./home/calendar/CalendarPanel', () => ({
   default: () => <div data-testid="calendar-panel" />,
 }))
 vi.mock('@/lib/api/masaiverse-v2/masaiverseV2Api', () => ({
   recordMasaiverseV2ClubVisit: recordVisit,
+  // The page is wrapped in the edit provider; default to a non-admin so the
+  // edit affordances stay hidden and these tests see the read-only page.
+  fetchMasaiverseV2AdminMode: vi.fn().mockResolvedValue({
+    isAdmin: false,
+    enabled: false,
+  }),
+  updateMasaiverseV2Event: vi.fn(),
+  updateMasaiverseV2Club: vi.fn(),
 }))
 
 afterEach(() => {
@@ -109,6 +126,47 @@ describe('ClubDetailPage', () => {
     render(<ClubDetailPage clubId="5" />)
     expect(screen.getByTestId('banner').textContent).toBe('Programming Club')
     expect(screen.getByTestId('stats').textContent).toBe('5')
+  })
+
+  it('blurs the member-only sections for a non-member', () => {
+    useQuery.mockReturnValue({
+      isPending: false,
+      error: null,
+      data: { name: 'Programming Club', isJoined: false },
+    })
+    render(<ClubDetailPage clubId="5" />)
+
+    const locked = screen.getAllByTestId('locked').map((el) => el.textContent)
+    expect(locked).toEqual([
+      'Weekly Connects',
+      'Live & Upcoming Events',
+      'Past Events',
+      'Club Leaderboard',
+      'Club Discussion',
+    ])
+    // None of the real member-only sections are mounted.
+    expect(screen.queryByTestId('weekly')).toBeNull()
+    expect(screen.queryByTestId('upcoming')).toBeNull()
+    expect(screen.queryByTestId('past')).toBeNull()
+    expect(screen.queryByTestId('leaderboard')).toBeNull()
+    expect(screen.queryByTestId('discussions')).toBeNull()
+  })
+
+  it('renders the real member-only sections for a member', () => {
+    recordVisit.mockResolvedValue({ recorded: true })
+    useQuery.mockReturnValue({
+      isPending: false,
+      error: null,
+      data: { name: 'Programming Club', isJoined: true },
+    })
+    render(<ClubDetailPage clubId="5" />)
+
+    expect(screen.queryByTestId('locked')).toBeNull()
+    expect(screen.getByTestId('weekly').textContent).toBe('5')
+    expect(screen.getByTestId('upcoming').textContent).toBe('5')
+    expect(screen.getByTestId('past').textContent).toBe('5')
+    expect(screen.getByTestId('leaderboard').textContent).toBe('5')
+    expect(screen.getByTestId('discussions').textContent).toBe('5')
   })
 
   it('records a visit when the user is a member', async () => {

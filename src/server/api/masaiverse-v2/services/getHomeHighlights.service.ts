@@ -1,5 +1,6 @@
 import { and, desc, isNull, lt, or } from 'drizzle-orm'
 import { eventScopeConditions } from './eventScope'
+import { publishedEventCondition } from './publishVisibility'
 import type { MasaiverseEventScope } from './eventScope'
 import { db } from '@/db'
 import { events } from '@/db/schema'
@@ -44,6 +45,7 @@ function toUtcIso(value: string | null): string | null {
 export async function getHomeHighlights(
   now: Date,
   scope: MasaiverseEventScope = {},
+  canSeeUnpublished = false,
 ): Promise<Array<MasaiverseV2HomeHighlight>> {
   const nowUtc = toMysqlUtc(now)
 
@@ -62,6 +64,7 @@ export async function getHomeHighlights(
           and(isNull(events.endTime), lt(events.startTime, nowUtc)),
         ),
         ...eventScopeConditions(scope),
+        publishedEventCondition(canSeeUnpublished),
       ),
     )
     .orderBy(desc(events.endTime), desc(events.startTime))
