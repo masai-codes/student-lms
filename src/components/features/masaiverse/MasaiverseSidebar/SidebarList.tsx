@@ -1,5 +1,5 @@
 import { useRouterState } from '@tanstack/react-router'
-import { Folder, Calendar, House, Trophy } from '@phosphor-icons/react'
+import { Calendar, House } from '@phosphor-icons/react'
 import SidebarItem from './SidebarItem'
 import type { Icon } from '@phosphor-icons/react'
 import type { MasaiverseTab } from './SidebarItem'

@@ -1,7 +1,5 @@
 "use client"
 
-import * as React from "react"
-
 import { NavbarAnchor } from "./navbar-anchor"
 import type { NavbarLogo as NavbarLogoConfig } from "./types"
 

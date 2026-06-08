@@ -37,7 +37,7 @@ export const Route = createFileRoute(
     )
   },
   loaderDeps: ({ search: { page } }) => ({ page }),
-  loader: async ({ deps, context }) => {
+  loader: async ({ deps }) => {
     const { page } = deps
     // const { user } = context
     const announcementList = await fetchAllAnnouncements({

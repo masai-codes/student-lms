@@ -1,7 +1,7 @@
 import type { DiscussionType } from '@/server/discussions/fetchAllDiscussionsByEntityId'
 
 
-export default function DiscussionView({ discussion }: { discussion: DiscussionType }) {
+export default function DiscussionView({ }: { discussion: DiscussionType }) {
     return (
         <div>
             <div className='bg-white p-4 border rounded-xl'>

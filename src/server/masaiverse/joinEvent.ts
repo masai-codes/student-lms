@@ -4,6 +4,14 @@ import { db } from '@/db'
 import { eventEnrollments, events } from '@/db/schema'
 import { getCurrentSessionUserId } from '@/server/auth/getCurrentSessionUserId'
 
+function parseEventId(value: string): number {
+  const eventId = Number(String(value ?? '').trim())
+  if (!Number.isFinite(eventId) || eventId <= 0) {
+    throw new Error('INVALID_EVENT_ID')
+  }
+  return eventId
+}
+
 export const joinEvent = createServerFn({ method: 'POST' })
   .inputValidator((data: { eventId: string }) => data)
   .handler(joinEventHandler)
@@ -14,10 +22,7 @@ export async function joinEventHandler({ data }: { data: { eventId: string } }) 
     throw new Error('UNAUTHORIZED')
   }
 
-  const eventId = String(data.eventId ?? '').trim()
-  if (!eventId) {
-    throw new Error('INVALID_EVENT_ID')
-  }
+  const eventId = parseEventId(data.eventId)
 
   const event = await db
     .select({ id: events.id })
@@ -38,7 +43,7 @@ export async function joinEventHandler({ data }: { data: { eventId: string } }) 
   if (existingEnrollment[0]) {
     return {
       success: true,
-      enrolledEventId: eventId,
+      enrolledEventId: String(eventId),
       reason: 'ALREADY_ENROLLED',
     }
   }
@@ -46,11 +51,11 @@ export async function joinEventHandler({ data }: { data: { eventId: string } }) 
   await db.insert(eventEnrollments).values({
     userId,
     eventId,
-  } as typeof eventEnrollments.$inferInsert)
+  })
 
   return {
     success: true,
-    enrolledEventId: eventId,
+    enrolledEventId: String(eventId),
     reason: 'ENROLLED',
   }
 }

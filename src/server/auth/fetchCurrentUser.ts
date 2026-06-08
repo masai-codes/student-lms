@@ -88,7 +88,10 @@ export const fetchCurrentUser = createServerFn({ method: "GET" }).handler(async 
     mobile: row.mobile,
     role: row.role,
     profileImageUrl: pickProfileImageUrl(row.profileImage),
-    joinedClubId: membershipRows[0]?.clubId ?? null,
+    joinedClubId:
+      membershipRows[0]?.clubId != null
+        ? String(membershipRows[0].clubId)
+        : null,
   };
 });
 

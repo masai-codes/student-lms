@@ -10,18 +10,6 @@ export const routeApiMap = {
   resources_i:  getRouteApi(
     "/(protected)/_layout/courses/$courseId/_courseTabLayout/resources/"
   ),
-  announcements_i: getRouteApi(
-    "/(protected)/_layout/courses/$courseId/_courseTabLayout/announcements/"
-  ),
-  lectures_o: getRouteApi(
-    "/(protected)/_layout/lectures/"
-  ),
-  assignments_o: getRouteApi(
-    "/(protected)/_layout/assignments/"
-  ),
-  resources_o:  getRouteApi(
-    "/(protected)/_layout/resources/"
-  ),
   announcements_o: getRouteApi(
     "/(protected)/_layout/announcements/"
   ),

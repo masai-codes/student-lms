@@ -104,10 +104,12 @@ describe('signInReducer', () => {
       otpSessionId: 'otp-session-email',
       info: 'Code sent to user@example.com',
     })
+    if (s.step !== 'email') throw new Error('expected email')
     expect(s.authMode).toBe('otp')
     expect(s.otpSessionId).toBe('otp-session-email')
     expect(s.info).toBe('Code sent to user@example.com')
     s = signInReducer(s, { type: 'email_use_password_mock' })
+    if (s.step !== 'email') throw new Error('expected email')
     expect(s.authMode).toBe('password')
     expect(s.info).toBeUndefined()
     s = signInReducer(s, {
@@ -137,6 +139,7 @@ describe('signInReducer', () => {
     })
     if (s.step !== 'phone') throw new Error('expected phone')
     s = signInReducer(s, { type: 'phone_otp', value: 'abcd' })
+    if (s.step !== 'phone') throw new Error('expected phone')
     expect(s.otp).toBe('abcd')
     s = signInReducer(s, {
       type: 'phone_resend_ok',
@@ -144,6 +147,7 @@ describe('signInReducer', () => {
       delivery: 'sms',
       info: 'resent',
     })
+    if (s.step !== 'phone') throw new Error('expected phone')
     expect(s.otpSessionId).toBe('otp-session-2')
     expect(s.resendCount).toBe(1)
     expect(s.delivery).toBe('sms')

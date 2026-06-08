@@ -45,6 +45,8 @@ function makeEvent(
     userRating: null,
     userFeedback: null,
     hostedBy: [],
+    confirmationModalText: null,
+    eventSummary: null,
     ...overrides,
   }
 }

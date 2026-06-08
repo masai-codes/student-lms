@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { cleanup, render, screen, waitFor } from '@testing-library/react'
+import { cleanup, render, screen } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import EventDetailPage from './EventDetailPage'
 import type { ReactNode } from 'react'
@@ -49,6 +49,7 @@ function makeEvent(
     belowTitle: '48 teams competing',
     isWeeklyConnect: true,
     confirmationModalText: null,
+    eventSummary: null,
     clubId: '3',
     clubName: 'Programming Club',
     status: 'upcoming',
