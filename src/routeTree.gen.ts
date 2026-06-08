@@ -696,7 +696,6 @@ export interface FileRoutesByFullPath {
   '/api/dashboard/schedule': typeof ApiDashboardScheduleRoute
   '/api/learn/batch-data': typeof ApiLearnBatchDataRoute
   '/api/learn/batches': typeof ApiLearnBatchesRoute
-  '/api/profile/achievements': typeof ApiProfileAchievementsRoute
   '/api/masaiverse-v2/admin-mode': typeof ApiMasaiverseV2AdminModeRoute
   '/api/masaiverse-v2/discussions': typeof ApiMasaiverseV2DiscussionsRouteWithChildren
   '/api/masaiverse-v2/home': typeof ApiMasaiverseV2HomeRoute
@@ -754,6 +753,7 @@ export interface FileRoutesByFullPath {
   '/api/masaiverse-v2/events/rate': typeof ApiMasaiverseV2EventsRateRoute
   '/api/masaiverse-v2/events/update': typeof ApiMasaiverseV2EventsUpdateRoute
   '/api/masaiverse-v2/uploads/image': typeof ApiMasaiverseV2UploadsImageRoute
+  '/api/profile/achievements': typeof ApiProfileAchievementsRoute
   '/api/profile/account-activity/sign-out-all': typeof ApiProfileAccountActivitySignOutAllRoute
   '/reset-password/$token/': typeof authResetPasswordTokenIndexRoute
   '/v2/login/': typeof authV2LoginIndexRoute
@@ -796,7 +796,6 @@ export interface FileRoutesByTo {
   '/api/dashboard/schedule': typeof ApiDashboardScheduleRoute
   '/api/learn/batch-data': typeof ApiLearnBatchDataRoute
   '/api/learn/batches': typeof ApiLearnBatchesRoute
-  '/api/profile/achievements': typeof ApiProfileAchievementsRoute
   '/api/masaiverse-v2/admin-mode': typeof ApiMasaiverseV2AdminModeRoute
   '/api/masaiverse-v2/discussions': typeof ApiMasaiverseV2DiscussionsRouteWithChildren
   '/api/masaiverse-v2/home': typeof ApiMasaiverseV2HomeRoute
@@ -854,6 +853,7 @@ export interface FileRoutesByTo {
   '/api/masaiverse-v2/events/rate': typeof ApiMasaiverseV2EventsRateRoute
   '/api/masaiverse-v2/events/update': typeof ApiMasaiverseV2EventsUpdateRoute
   '/api/masaiverse-v2/uploads/image': typeof ApiMasaiverseV2UploadsImageRoute
+  '/api/profile/achievements': typeof ApiProfileAchievementsRoute
   '/api/profile/account-activity/sign-out-all': typeof ApiProfileAccountActivitySignOutAllRoute
   '/reset-password/$token': typeof authResetPasswordTokenIndexRoute
   '/v2/login': typeof authV2LoginIndexRoute
@@ -864,6 +864,7 @@ export interface FileRoutesByTo {
   '/profile': typeof protectedLayoutProfileIndexRoute
   '/whats-new': typeof protectedLayoutWhatsNewIndexRoute
   '/api/announcement/$id': typeof ApiAnnouncementIdIndexRoute
+  '/api/profile/achievements': typeof ApiProfileAchievementsRoute
   '/api/profile/account-activity': typeof ApiProfileAccountActivityIndexRoute
   '/api/profile/certificates': typeof ApiProfileCertificatesIndexRoute
   '/api/profile/email-preferences': typeof ApiProfileEmailPreferencesIndexRoute
@@ -899,7 +900,6 @@ export interface FileRoutesById {
   '/api/dashboard/schedule': typeof ApiDashboardScheduleRoute
   '/api/learn/batch-data': typeof ApiLearnBatchDataRoute
   '/api/learn/batches': typeof ApiLearnBatchesRoute
-  '/api/profile/achievements': typeof ApiProfileAchievementsRoute
   '/api/masaiverse-v2/admin-mode': typeof ApiMasaiverseV2AdminModeRoute
   '/api/masaiverse-v2/discussions': typeof ApiMasaiverseV2DiscussionsRouteWithChildren
   '/api/masaiverse-v2/home': typeof ApiMasaiverseV2HomeRoute
@@ -1002,7 +1002,6 @@ export interface FileRouteTypes {
     | '/api/dashboard/schedule'
     | '/api/learn/batch-data'
     | '/api/learn/batches'
-    | '/api/profile/achievements'
     | '/api/masaiverse-v2/admin-mode'
     | '/api/masaiverse-v2/discussions'
     | '/api/masaiverse-v2/home'
@@ -1102,7 +1101,6 @@ export interface FileRouteTypes {
     | '/api/dashboard/schedule'
     | '/api/learn/batch-data'
     | '/api/learn/batches'
-    | '/api/profile/achievements'
     | '/api/masaiverse-v2/admin-mode'
     | '/api/masaiverse-v2/discussions'
     | '/api/masaiverse-v2/home'
@@ -1170,6 +1168,7 @@ export interface FileRouteTypes {
     | '/profile'
     | '/whats-new'
     | '/api/announcement/$id'
+    | '/api/profile/achievements'
     | '/api/profile/account-activity'
     | '/api/profile/certificates'
     | '/api/profile/email-preferences'
@@ -1204,7 +1203,6 @@ export interface FileRouteTypes {
     | '/api/dashboard/schedule'
     | '/api/learn/batch-data'
     | '/api/learn/batches'
-    | '/api/profile/achievements'
     | '/api/masaiverse-v2/admin-mode'
     | '/api/masaiverse-v2/discussions'
     | '/api/masaiverse-v2/home'
@@ -1306,7 +1304,6 @@ export interface RootRouteChildren {
   ApiDashboardScheduleRoute: typeof ApiDashboardScheduleRoute
   ApiLearnBatchDataRoute: typeof ApiLearnBatchDataRoute
   ApiLearnBatchesRoute: typeof ApiLearnBatchesRoute
-  ApiProfileAchievementsRoute: typeof ApiProfileAchievementsRoute
   ApiMasaiverseV2AdminModeRoute: typeof ApiMasaiverseV2AdminModeRoute
   ApiMasaiverseV2DiscussionsRoute: typeof ApiMasaiverseV2DiscussionsRouteWithChildren
   ApiMasaiverseV2HomeRoute: typeof ApiMasaiverseV2HomeRoute
@@ -1432,11 +1429,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof authLoginIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/profile/achievements': {
-      id: '/api/profile/achievements'
-      path: '/api/profile/achievements'
-      fullPath: '/api/profile/achievements'
-      preLoaderRoute: typeof ApiProfileAchievementsRouteImport
     '/api/masaiverse-v2/visited': {
       id: '/api/masaiverse-v2/visited'
       path: '/api/masaiverse-v2/visited'
@@ -1589,6 +1581,13 @@ declare module '@tanstack/react-router' {
       path: '/api/profile/email-preferences'
       fullPath: '/api/profile/email-preferences/'
       preLoaderRoute: typeof ApiProfileEmailPreferencesIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/profile/achievements': {
+      id: '/api/profile/achievements'
+      path: '/api/profile/achievements'
+      fullPath: '/api/profile/achievements'
+      preLoaderRoute: typeof ApiProfileAchievementsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/profile/certificates/': {
@@ -2210,7 +2209,6 @@ const rootRouteChildren: RootRouteChildren = {
   ApiDashboardScheduleRoute: ApiDashboardScheduleRoute,
   ApiLearnBatchDataRoute: ApiLearnBatchDataRoute,
   ApiLearnBatchesRoute: ApiLearnBatchesRoute,
-  ApiProfileAchievementsRoute: ApiProfileAchievementsRoute,
   ApiMasaiverseV2AdminModeRoute: ApiMasaiverseV2AdminModeRoute,
   ApiMasaiverseV2DiscussionsRoute: ApiMasaiverseV2DiscussionsRouteWithChildren,
   ApiMasaiverseV2HomeRoute: ApiMasaiverseV2HomeRoute,
@@ -2263,6 +2261,7 @@ const rootRouteChildren: RootRouteChildren = {
   authV2LoginIndexRoute: authV2LoginIndexRoute,
   ApiAnnouncementIdIndexRoute: ApiAnnouncementIdIndexRoute,
   ApiProfileAccountActivityIndexRoute: ApiProfileAccountActivityIndexRoute,
+  ApiProfileAchievementsRoute: ApiProfileAchievementsRoute,
   ApiProfileCertificatesIndexRoute: ApiProfileCertificatesIndexRoute,
   ApiProfileEmailPreferencesIndexRoute: ApiProfileEmailPreferencesIndexRoute,
   ApiWhatsNewIdIndexRoute: ApiWhatsNewIdIndexRoute,
