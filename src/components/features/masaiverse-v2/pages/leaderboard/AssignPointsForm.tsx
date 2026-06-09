@@ -100,7 +100,8 @@ export default function AssignPointsForm({ onDone }: { onDone: () => void }) {
           <SelectTrigger aria-label="Club">
             <SelectValue />
           </SelectTrigger>
-          <SelectContent>
+          {/* Lift above the modal (z-[300]); the default z-50 sits behind it. */}
+          <SelectContent className="z-[400]">
             <SelectItem value={NO_CLUB}>No club (community-wide)</SelectItem>
             {clubs.map((club) => (
               <SelectItem key={club.id} value={club.id}>
