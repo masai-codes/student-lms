@@ -1,5 +1,5 @@
 /**
- * Paths on the legacy student app (`VITE_OLD_STUDENT_UI_URL`).
+ * Paths on the legacy student app (base URL resolved per origin in `originUrls.ts`).
  * Keep in sync with `experience-ui/apps/student-experience` (`route.utils.ts`, `DesktopNavbar`, `MobileBottomNav`).
  */
 export const OLD_STUDENT_UI_NAV_PATHS = {

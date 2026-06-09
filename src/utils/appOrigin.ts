@@ -1,3 +1,5 @@
+import { createIsomorphicFn } from '@tanstack/react-start'
+import { getRequestHost } from '@tanstack/react-start/server'
 import { withAppMobileHeaders } from '@/utils/appMobile'
 
 export type AppOrigin = 'masai' | 'ihub'
@@ -5,18 +7,47 @@ export type AppOrigin = 'masai' | 'ihub'
 const APP_ORIGIN_HEADER = 'X-App-Origin'
 const DEFAULT_APP_ORIGIN: AppOrigin = 'masai'
 
-function normalizeAppOrigin(value: string | undefined): AppOrigin {
-  const normalized = value?.trim().toLowerCase()
-  return normalized === 'ihub' ? 'ihub' : DEFAULT_APP_ORIGIN
+/**
+ * Maps a host (domain/subdomain) to an app origin: anything containing "ihub"
+ * is iHub, everything else falls back to Masai. This is what lets us ship a
+ * single build for both portals — the origin is derived from the request URL
+ * at runtime instead of being baked in at build time.
+ */
+export function originFromHost(host: string | null | undefined): AppOrigin {
+  return host?.toLowerCase().includes('ihub') ? 'ihub' : DEFAULT_APP_ORIGIN
 }
 
-export function getConfiguredAppOrigin(): AppOrigin {
-  return normalizeAppOrigin(import.meta.env.VITE_APP_ORIGIN as string | undefined)
+/**
+ * Incoming request's Host header during SSR / server fns.
+ *
+ * `createIsomorphicFn` keeps the server-only `getRequestHost` import out of the
+ * client bundle (TanStack Start strips the `.server()` body when bundling).
+ */
+const resolveServerHost = createIsomorphicFn()
+  .client((): string | undefined => undefined)
+  .server(() => {
+    try {
+      return getRequestHost() ?? undefined
+    } catch {
+      return undefined
+    }
+  })
+
+/**
+ * Current app origin, derived from the request URL at runtime:
+ *  - browser: `window.location.hostname`
+ *  - SSR / server fns: the incoming request's Host header
+ */
+export function getAppOrigin(): AppOrigin {
+  if (typeof window !== 'undefined') {
+    return originFromHost(window.location.hostname)
+  }
+  return originFromHost(resolveServerHost())
 }
 
 export function withAppOriginHeader(headers?: HeadersInit): Headers {
   const nextHeaders = new Headers(headers)
-  nextHeaders.set(APP_ORIGIN_HEADER, getConfiguredAppOrigin())
+  nextHeaders.set(APP_ORIGIN_HEADER, getAppOrigin())
   return nextHeaders
 }
 

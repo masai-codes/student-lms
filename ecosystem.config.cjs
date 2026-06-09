@@ -1,6 +1,5 @@
 const path = require('path')
 const dotenv = require('dotenv')
-const origins = require('./origins.config.cjs')
 
 const { parsed: dotEnv = {} } = dotenv.config({
   path: path.join(__dirname, '.env'),
@@ -11,26 +10,18 @@ const sharedEnv = {
   NODE_ENV: 'production',
 }
 
+// Single build/app serves both Masai and iHub. The origin is detected from the
+// request host at runtime (see `src/utils/appOrigin.ts`), so there's no
+// per-origin build or env any more — point both domains at this app in nginx.
 module.exports = {
   apps: [
     {
-      name: 'student-lms-masai',
+      name: 'student-lms',
       cwd: __dirname,
-      script: '.output-masai/server/index.mjs',
+      script: '.output/server/index.mjs',
       env: {
         ...sharedEnv,
         PORT: 7090,
-        ...origins.masai,
-      },
-    },
-    {
-      name: 'student-lms-ihub',
-      cwd: __dirname,
-      script: '.output-ihub/server/index.mjs',
-      env: {
-        ...sharedEnv,
-        PORT: 7091,
-        ...origins.ihub,
       },
     },
   ],

@@ -43,7 +43,7 @@ function navigateBackToMasai() {
 
   const url = getOldStudentUiUrlForPath(OLD_STUDENT_UI_NAV_PATHS.home)
   if (!url) {
-    console.warn('VITE_OLD_STUDENT_UI_URL is not configured')
+    console.warn('Legacy student app URL is not configured for this origin')
     return
   }
   window.location.assign(url)
