@@ -1,4 +1,4 @@
-import { Search, SlidersHorizontal } from 'lucide-react'
+import { Search } from 'lucide-react'
 import { getRouteApi, useNavigate, Link } from '@tanstack/react-router'
 import { useQuery, keepPreviousData } from '@tanstack/react-query'
 import { MasaiInput } from '@/components/ui/masai-input'
@@ -6,6 +6,7 @@ import AppPagination from '@/components/common/Pagination'
 import { fetchAnnouncements } from '@/lib/api/announcement/announcementApi'
 import { ANNOUNCEMENTS_PER_PAGE } from './announcementsConfig'
 import type { AnnouncementItem } from '@/server/api/announcement/getAnnouncements.service'
+import { formatTimestampLocal, formatTimestampIST } from '@/components/features/dashboard/shared/scheduleUtils'
 
 const STALE_TIME_MS = 5 * 60 * 1000 // 5 minutes
 
@@ -18,48 +19,62 @@ function AnnouncementCard({ item }: { item: AnnouncementItem }) {
     <Link
       to="/announcements/$id"
       params={{ id: item.id }}
-      className="p-[10px] md:p-[12px] rounded-[8px] flex gap-[10px] border border-[#E5E7EB] bg-white transition-shadow shadow-sm hover:shadow-md cursor-pointer no-underline"
+      search={{ src: item.source }}
+      className={`p-[10px] md:p-[12px] rounded-[8px] flex items-center gap-[10px] border bg-white transition-shadow shadow-sm hover:shadow-md cursor-pointer no-underline ${item.isForYou ? 'border-[#fad1e8]' : 'border-[#E5E7EB]'}`}
     >
-      {/* Icon — hidden on mobile */}
+      {/* Icon — hidden on mobile; red tint for critical announcements */}
       <div className="hidden md:block shrink-0 self-start mt-0.5">
-        <img src="/AnnouncementIcon.svg" alt="" className="size-8" />
+        <img
+          src="/AnnouncementIcon.svg"
+          alt=""
+          className="size-8"
+          style={item.type === 'critical' ? { filter: 'invert(17%) sepia(99%) saturate(7473%) hue-rotate(1deg) brightness(103%) contrast(114%)' } : undefined}
+        />
       </div>
 
       {/* Content */}
-      <div className="flex min-w-0 flex-1 items-start gap-4">
-        <div className="min-w-0 flex-1">
-          {/* Title */}
-          <h5
-            className="text-left text-[14px] md:text-[16px] font-[500] font-poppins cursor-pointer break-words text-gray-900 leading-snug"
-            style={{ wordBreak: 'break-word', overflowWrap: 'anywhere' }}
-          >
-            {item.title}
-          </h5>
+      <div className="min-w-0 flex-1">
+        {/* Title */}
+        <h5
+          className="text-left text-[14px] md:text-[16px] font-[500] font-poppins cursor-pointer break-words text-gray-900 leading-snug"
+          style={{ wordBreak: 'break-word', overflowWrap: 'anywhere' }}
+        >
+          {item.title}
+        </h5>
 
-          {/* Meta row */}
-          <div className="mt-2 flex flex-wrap items-center gap-2">
-            {/* Author */}
-            <span className="truncate text-gray-600 text-[14px] font-[400] font-poppins leading-[16px] md:max-w-[50ch] max-w-[15ch]">
-              {item.authorName}
+        {/* Meta row */}
+        <div className="mt-2 flex flex-wrap items-center gap-2">
+          <span className="truncate text-gray-600 text-[14px] font-[400] font-poppins leading-[16px] md:max-w-[50ch] max-w-[15ch]">
+            {item.authorName}
+          </span>
+          <span className="size-1 rounded-full bg-gray-400 shrink-0" />
+          {/* Date — local TZ displayed, IST in tooltip (same pattern as ScheduleCard) */}
+          <span className="relative group/date cursor-default text-gray-600 text-[14px] font-[400] font-inter leading-[16px]">
+            {formatTimestampLocal(item.createdAt)}
+            <span className="pointer-events-none absolute bottom-full left-0 mb-1.5 z-20
+              opacity-0 group-hover/date:opacity-100 transition-opacity duration-150
+              whitespace-nowrap rounded-md bg-gray-900 px-2.5 py-1.5
+              text-xs font-medium text-white shadow-lg">
+              {formatTimestampIST(item.createdAt)}
+              <span className="absolute top-full left-4 -translate-x-1/2 border-4 border-transparent border-t-gray-900" />
             </span>
-
-            {/* Dot separator */}
-            <span className="size-1 rounded-full bg-gray-400 shrink-0" />
-
-            {/* Date */}
-            <span className="text-gray-600 text-[14px] font-[400] font-inter leading-[16px]">
-              {item.date}
-            </span>
-
-            {/* For You badge */}
-            {item.isForYou && (
-              <span className="shrink-0 inline-flex items-center px-2 py-0.5 rounded-full bg-primary-50 text-primary-700 text-[11px] font-semibold">
-                For You
-              </span>
-            )}
-          </div>
+          </span>
         </div>
       </div>
+
+      {/* Right — unread dot + For You badge */}
+      {(item.isUnread || item.isForYou) && (
+        <div className="shrink-0 flex items-center gap-2 ml-4">
+          {item.isUnread && (
+            <span className="size-2 rounded-full bg-[#ED0331]" />
+          )}
+          {item.isForYou && (
+            <span className="inline-flex items-center px-4 py-1.5 rounded-full bg-[#EBF5FF] text-[#3F83F8] text-sm font-semibold">
+              For you
+            </span>
+          )}
+        </div>
+      )}
     </Link>
   )
 }
@@ -67,13 +82,14 @@ function AnnouncementCard({ item }: { item: AnnouncementItem }) {
 // ── Main Page ──────────────────────────────────────────────────────────────────
 
 export function AnnouncementsPage() {
-  const { q, page } = routeApi.useSearch()
+  const { q, page, message } = routeApi.useSearch()
   const navigate = useNavigate()
+  const messagesOnly = message === true
 
   const { data, isLoading, isFetching } = useQuery({
-    queryKey: ['announcements', { page, q: q ?? '' }],
+    queryKey: ['announcements', { page, q: q ?? '', message: messagesOnly }],
     queryFn: () =>
-      fetchAnnouncements({ page, limit: ANNOUNCEMENTS_PER_PAGE, q }),
+      fetchAnnouncements({ page, limit: ANNOUNCEMENTS_PER_PAGE, q, message: messagesOnly }),
     staleTime: STALE_TIME_MS,
     placeholderData: keepPreviousData,
   })
@@ -86,14 +102,21 @@ export function AnnouncementsPage() {
   function handleSearch(value: string) {
     void navigate({
       to: '/announcements',
-      search: value ? { q: value, page: 1 } : { page: 1 },
+      search: { q: value || undefined, page: 1, message: message },
     })
   }
 
   function handlePageChange(newPage: number) {
     void navigate({
       to: '/announcements',
-      search: q ? { q, page: newPage } : { page: newPage },
+      search: { q, page: newPage, message },
+    })
+  }
+
+  function handleMessagesToggle() {
+    void navigate({
+      to: '/announcements',
+      search: { q, page: 1, message: messagesOnly ? undefined : true },
     })
   }
 
@@ -105,7 +128,7 @@ export function AnnouncementsPage() {
         <h1 className="text-xl font-semibold text-gray-900 shrink-0">Announcements</h1>
         <div className="flex items-center gap-2 shrink-0">
           <MasaiInput
-            placeholder="Search…"
+            placeholder="Search Announcements"
             value={q ?? ''}
             onChange={(e) => handleSearch(e.target.value)}
             iconLeft={<Search size={15} className="text-gray-400" />}
@@ -113,10 +136,14 @@ export function AnnouncementsPage() {
           />
           <button
             type="button"
-            className="flex items-center gap-1.5 px-3 py-2.5 rounded-xl border border-gray-200 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400"
+            onClick={handleMessagesToggle}
+            className={`px-4 py-2.5 rounded-md border text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6962AC] ${
+              messagesOnly
+                ? 'bg-[#6962AC] border-[#6962AC] text-white hover:bg-[#6962AC]'
+                : 'bg-white border-[#6962AC] text-[#6962AC] hover:bg-[#6962AC]/10'
+            }`}
           >
-            <SlidersHorizontal size={15} className="text-gray-500" />
-            Filter
+            Important for you
           </button>
         </div>
       </div>

@@ -7,6 +7,7 @@ export interface FetchAnnouncementsParams {
   page: number
   limit: number
   q?: string
+  message?: boolean
 }
 
 export interface FetchAnnouncementsResult {
@@ -22,17 +23,48 @@ export async function fetchAnnouncements(
     limit: String(params.limit),
   })
   if (params.q) search.set('q', params.q)
+  if (params.message) search.set('message', 'true')
 
   return fetchJson<FetchAnnouncementsResult>(
     `${ANNOUNCEMENT_API.list}?${search.toString()}`,
   )
 }
 
+export async function addBookmark(entityId: number): Promise<number> {
+  const { bookmarkId } = await fetchJson<{ bookmarkId: number }>(
+    ANNOUNCEMENT_API.addBookmark(entityId),
+    { method: 'POST' },
+  )
+  return bookmarkId
+}
+
+export async function removeBookmark(bookmarkId: number): Promise<void> {
+  await fetchJson<{ ok: boolean }>(
+    ANNOUNCEMENT_API.removeBookmark(bookmarkId),
+    { method: 'DELETE' },
+  )
+}
+
+export async function markAnnouncementRead(
+  id: number,
+  source: 'a' | 'm' = 'a',
+): Promise<void> {
+  await fetchJson<{ ok: boolean }>(ANNOUNCEMENT_API.markRead(id, source), { method: 'POST' })
+}
+
+export async function markAnnouncementUnread(
+  id: number,
+  source: 'a' | 'm' = 'a',
+): Promise<void> {
+  await fetchJson<{ ok: boolean }>(ANNOUNCEMENT_API.markUnread(id, source), { method: 'POST' })
+}
+
 export async function fetchAnnouncementById(
   id: number | string,
+  source: 'a' | 'm' = 'a',
 ): Promise<AnnouncementDetail> {
   const { announcement } = await fetchJson<{ announcement: AnnouncementDetail }>(
-    ANNOUNCEMENT_API.detail(id),
+    ANNOUNCEMENT_API.detail(id, source),
   )
   return announcement
 }

@@ -4,6 +4,7 @@ import { AnnouncementsPage } from '@/components/features/announcements/Announcem
 type AnnouncementsSearch = {
   q?: string
   page: number
+  message?: boolean
 }
 
 export const Route = createFileRoute('/(protected)/_layout/announcements/')({
@@ -14,7 +15,9 @@ export const Route = createFileRoute('/(protected)/_layout/announcements/')({
     const rawPage = typeof raw.page === 'number' ? raw.page : Number(raw.page)
     const page = Number.isFinite(rawPage) && rawPage > 0 ? Math.floor(rawPage) : 1
 
-    return { q, page }
+    const message = raw.message === true || raw.message === 'true' ? true : undefined
+
+    return { q, page, message }
   },
   component: AnnouncementsPage,
 })

@@ -8,13 +8,16 @@ export async function handleGetAnnouncementById(
   announcementId: string,
 ): Promise<Response> {
   try {
-    const id = parseInt(announcementId, 10)
-    if (!Number.isFinite(id) || id <= 0) {
+    const numericId = parseInt(announcementId, 10)
+    if (!Number.isFinite(numericId) || numericId <= 0) {
       return jsonError(404, 'ANNOUNCEMENT_NOT_FOUND')
     }
 
+    const src = new URL(request.url).searchParams.get('src')
+    const source: 'a' | 'm' = src === 'm' ? 'm' : 'a'
+
     const userId = await requireSessionUserId(request)
-    const announcement = await getAnnouncementById(userId, id)
+    const announcement = await getAnnouncementById(userId, numericId, source)
 
     if (!announcement) {
       return jsonError(404, 'ANNOUNCEMENT_NOT_FOUND')

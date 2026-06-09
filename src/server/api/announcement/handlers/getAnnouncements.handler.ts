@@ -10,8 +10,8 @@ export async function handleGetAnnouncements(
   try {
     const userId = await requireSessionUserId(request)
     const params = parseAnnouncementsQuery(new URL(request.url))
-    const { items, total } = await getAnnouncements(userId, params)
-    return jsonOk({ announcements: items, total })
+    const { announcements, total } = await getAnnouncements(userId, params)
+    return jsonOk({ announcements, total })
   } catch (error) {
     if (!isApiError(error)) {
       console.error('Failed to fetch announcements', error)
