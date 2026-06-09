@@ -5,6 +5,7 @@ import LeaderboardPeriodTabs from '../leaderboard/LeaderboardPeriodTabs'
 import type { ClubLeaderboardResult } from '@/server/api/masaiverse-v2/services/getClubLeaderboard.service'
 import type { LeaderboardPeriod } from '@/server/api/masaiverse-v2/services/leaderboardPeriod'
 import { masaiverseV2ClubLeaderboardQuery } from '@/query/masaiverse-v2/clubsQuery'
+import { MASAIVERSE_EVENTS, trackMasaiverse } from '../../tracking'
 
 type ClubLeaderboardSectionProps = {
   clubId: string
@@ -36,7 +37,17 @@ export default function ClubLeaderboardSection({
       <h2 className="text-[22px] font-extrabold leading-7 text-[#111827]">
         Club Leaderboard
       </h2>
-      <LeaderboardPeriodTabs value={period} onChange={setPeriod} />
+      <LeaderboardPeriodTabs
+        value={period}
+        onChange={(next) => {
+          trackMasaiverse(MASAIVERSE_EVENTS.leaderboardPeriodChange, {
+            period: next,
+            scope: 'club',
+            club_id: clubId,
+          })
+          setPeriod(next)
+        }}
+      />
       {isPending ? (
         <LeaderboardSkeleton />
       ) : isError ? (

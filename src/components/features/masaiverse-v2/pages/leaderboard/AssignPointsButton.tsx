@@ -9,6 +9,7 @@ import {
   ModalTitle,
 } from '@/components/ui/modal'
 import { masaiverseV2AdminModeQuery } from '@/query/masaiverse-v2/adminModeQuery'
+import { MASAIVERSE_EVENTS, trackMasaiverse } from '../../tracking'
 
 /**
  * "Assign points" CTA on the leaderboard page. Rendered only for admins with
@@ -25,7 +26,10 @@ export default function AssignPointsButton() {
     <>
       <button
         type="button"
-        onClick={() => setOpen(true)}
+        onClick={() => {
+          trackMasaiverse(MASAIVERSE_EVENTS.pointsAssignClick)
+          setOpen(true)
+        }}
         className="inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-[#111827] px-3.5 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#1F2937]"
       >
         <Plus size={16} weight="bold" />

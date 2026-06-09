@@ -1,6 +1,7 @@
 import { Link } from '@tanstack/react-router'
 import type { MasaiverseV2WeeklyConnect } from '@/server/api/masaiverse-v2/services/getClubWeeklyConnects.service'
 import { formatIstDayBadge, getEventStatus } from '@/lib/masaiverseEventCard'
+import { MASAIVERSE_EVENTS, trackMasaiverse } from '../../tracking'
 
 type WeeklyConnectRowProps = {
   connect: MasaiverseV2WeeklyConnect
@@ -39,6 +40,12 @@ export default function WeeklyConnectRow({
       to="/masaiverse/event/$eventId"
       params={{ eventId: connect.id }}
       search={(prev) => prev}
+      onClick={() =>
+        trackMasaiverse(MASAIVERSE_EVENTS.eventCardClick, {
+          event_id: connect.id,
+          source: 'weekly_connect',
+        })
+      }
       className="flex h-full items-center gap-4 rounded-[16px] border border-[#EDEAE8] bg-white p-4 transition-shadow hover:shadow-[0_8px_24px_-12px_rgba(0,0,0,0.25)]"
     >
       <span

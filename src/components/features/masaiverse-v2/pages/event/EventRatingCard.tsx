@@ -5,6 +5,7 @@ import StarRow from './StarRow'
 import type { MasaiverseV2EventDetail } from '@/server/api/masaiverse-v2/services/getEventDetail.service'
 import { rateMasaiverseV2Event } from '@/lib/api/masaiverse-v2/masaiverseV2Api'
 import { masaiverseV2EventDetailQuery } from '@/query/masaiverse-v2/eventsQuery'
+import { MASAIVERSE_EVENTS, trackMasaiverse } from '../../tracking'
 
 type EventRatingCardProps = {
   event: MasaiverseV2EventDetail
@@ -36,6 +37,10 @@ export default function EventRatingCard({ event }: EventRatingCardProps) {
         feedback: feedback.trim() || undefined,
       }),
     onSuccess: (state) => {
+      trackMasaiverse(MASAIVERSE_EVENTS.eventRatingSubmit, {
+        event_id: event.id,
+        rating: state.rating,
+      })
       setSubmitted(state.rating)
       queryClient.setQueryData<MasaiverseV2EventDetail>(detailKey, (prev) =>
         prev

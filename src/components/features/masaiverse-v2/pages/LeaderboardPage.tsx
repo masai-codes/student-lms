@@ -5,6 +5,7 @@ import AssignPointsButton from './leaderboard/AssignPointsButton'
 import ClubLeaderboardSection from './club/ClubLeaderboardSection'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { masaiverseV2MyClubsQuery } from '@/query/masaiverse-v2/clubsQuery'
+import { MASAIVERSE_EVENTS, trackMasaiverse } from '../tracking'
 
 /** The "Global" tab uses a reserved value; club tabs key off their numeric id. */
 const GLOBAL_TAB = 'global'
@@ -34,7 +35,17 @@ export default function LeaderboardPage() {
         <AssignPointsButton />
       </div>
 
-      <Tabs value={tab} onValueChange={setTab} className="mt-5">
+      <Tabs
+        value={tab}
+        onValueChange={(value) => {
+          trackMasaiverse(MASAIVERSE_EVENTS.leaderboardTabChange, {
+            tab: value === GLOBAL_TAB ? 'global' : 'club',
+            club_id: value === GLOBAL_TAB ? undefined : value,
+          })
+          setTab(value)
+        }}
+        className="mt-5"
+      >
         <div className="overflow-x-auto">
           <TabsList className="bg-[#F1ECE8]">
             <TabsTrigger value={GLOBAL_TAB} className="px-3">

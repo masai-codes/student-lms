@@ -13,6 +13,7 @@ import {
   masaiverseV2BannersQuery,
 } from '@/query/masaiverse-v2/bannersQuery'
 import { masaiverseV2AdminModeQuery } from '@/query/masaiverse-v2/adminModeQuery'
+import { MASAIVERSE_EVENTS, trackMasaiverse } from '../tracking'
 import 'swiper/css'
 import 'swiper/css/pagination'
 
@@ -49,7 +50,13 @@ function BannerCard({
           ) : null}
           <button
             type="button"
-            onClick={onEdit}
+            onClick={() => {
+              trackMasaiverse(MASAIVERSE_EVENTS.bannerEditClick, {
+                banner_id: banner.id,
+                banner_title: banner.title,
+              })
+              onEdit()
+            }}
             aria-label={`Edit banner ${banner.title}`}
             className="inline-flex size-7 items-center justify-center rounded-full bg-white/20 text-white hover:bg-white/30"
           >
@@ -72,7 +79,14 @@ function BannerCard({
           {canExpand || expanded ? (
             <button
               type="button"
-              onClick={() => setExpanded((v) => !v)}
+              onClick={() => {
+                trackMasaiverse(MASAIVERSE_EVENTS.bannerExpandToggle, {
+                  banner_id: banner.id,
+                  banner_title: banner.title,
+                  expanded: !expanded,
+                })
+                setExpanded((v) => !v)
+              }}
               className="mt-1 text-[13px] font-semibold text-white underline"
             >
               {expanded ? 'View less' : 'View more'}
@@ -86,6 +100,14 @@ function BannerCard({
             href={banner.ctaUrl}
             target="_blank"
             rel="noopener noreferrer"
+            onClick={() =>
+              trackMasaiverse(MASAIVERSE_EVENTS.bannerCtaClick, {
+                banner_id: banner.id,
+                banner_title: banner.title,
+                cta_text: banner.ctaText,
+                cta_url: banner.ctaUrl,
+              })
+            }
             className="inline-flex items-center rounded-lg bg-white px-3.5 py-1.5 text-[13px] font-bold text-masaiverse-orange"
           >
             {banner.ctaText}
@@ -134,7 +156,10 @@ export default function BannersSection() {
         {canManage ? (
           <button
             type="button"
-            onClick={() => create.mutate()}
+            onClick={() => {
+              trackMasaiverse(MASAIVERSE_EVENTS.bannerCreateClick)
+              create.mutate()
+            }}
             disabled={create.isPending}
             className="inline-flex items-center gap-1.5 rounded-lg border border-[#111827] px-3 py-1.5 text-[13px] font-semibold text-[#111827] transition-colors hover:bg-[#111827] hover:text-white disabled:opacity-50"
           >
@@ -181,7 +206,13 @@ export default function BannersSection() {
                   card slides in. */}
               <button
                 type="button"
-                onClick={() => swiper?.slidePrev()}
+                onClick={() => {
+                  trackMasaiverse(MASAIVERSE_EVENTS.carouselNav, {
+                    carousel: 'banners',
+                    direction: 'prev',
+                  })
+                  swiper?.slidePrev()
+                }}
                 disabled={navState.isBeginning}
                 aria-label="Previous banner"
                 className="absolute left-0 top-1/2 z-10 inline-flex size-7 -translate-x-1/2 -translate-y-[calc(50%+16px)] items-center justify-center rounded-full bg-white/90 text-masaiverse-orange shadow-md transition hover:bg-white disabled:cursor-not-allowed disabled:opacity-40"
@@ -190,7 +221,13 @@ export default function BannersSection() {
               </button>
               <button
                 type="button"
-                onClick={() => swiper?.slideNext()}
+                onClick={() => {
+                  trackMasaiverse(MASAIVERSE_EVENTS.carouselNav, {
+                    carousel: 'banners',
+                    direction: 'next',
+                  })
+                  swiper?.slideNext()
+                }}
                 disabled={navState.isEnd}
                 aria-label="Next banner"
                 className="absolute right-0 top-1/2 z-10 inline-flex size-7 translate-x-1/2 -translate-y-[calc(50%+16px)] items-center justify-center rounded-full bg-white/90 text-masaiverse-orange shadow-md transition hover:bg-white disabled:cursor-not-allowed disabled:opacity-40"

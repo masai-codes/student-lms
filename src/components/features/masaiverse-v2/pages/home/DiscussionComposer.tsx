@@ -8,6 +8,7 @@ import { MASAIVERSE_V2_DISCUSSIONS_KEY } from '@/query/masaiverse-v2/discussions
 import { MASAIVERSE_V2_HOME_KEY } from '@/query/masaiverse-v2/homeQuery'
 import { masaiverseV2ClubDetailQuery } from '@/query/masaiverse-v2/clubsQuery'
 import { invalidateMasaiverseV2Leaderboards } from '@/query/masaiverse-v2/leaderboardQuery'
+import { MASAIVERSE_EVENTS, trackMasaiverse } from '../../tracking'
 
 type DiscussionComposerProps = {
   onClose: () => void
@@ -27,6 +28,7 @@ export default function DiscussionComposer({
   const mutation = useMutation({
     mutationFn: createMasaiverseV2Discussion,
     onSuccess: () => {
+      trackMasaiverse(MASAIVERSE_EVENTS.discussionCreate, { club_id: clubId })
       // The standalone, paginated feed reads from the discussions query…
       void queryClient.invalidateQueries({
         queryKey: MASAIVERSE_V2_DISCUSSIONS_KEY,

@@ -3,6 +3,7 @@ import EventsCarousel from '../home/EventsCarousel'
 import SectionHeader from '../home/SectionHeader'
 import type { MasaiverseV2ClubEvents } from '@/server/api/masaiverse-v2/services/getClubEvents.service'
 import { masaiverseV2ClubEventsQuery } from '@/query/masaiverse-v2/clubsQuery'
+import { MASAIVERSE_EVENTS, trackMasaiverse } from '../../tracking'
 
 type ClubUpcomingSectionProps = {
   clubId: string
@@ -36,7 +37,13 @@ export default function ClubUpcomingSection({
         action={
           <button
             type="button"
-            onClick={onViewCalendar}
+            onClick={() => {
+              trackMasaiverse(MASAIVERSE_EVENTS.calendarOpen, {
+                source: 'club_upcoming',
+                club_id: clubId,
+              })
+              onViewCalendar?.()
+            }}
             className="text-[14px] font-medium text-masaiverse-orange hover:underline"
           >
             View calendar →

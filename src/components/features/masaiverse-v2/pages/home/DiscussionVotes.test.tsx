@@ -31,6 +31,8 @@ describe('DiscussionVotes', () => {
         myVote={null}
         onVote={vi.fn()}
         onVoted={vi.fn()}
+        target="post"
+        targetId="post-1"
       />,
     )
     expect(screen.getByText('24')).toBeTruthy()
@@ -47,6 +49,8 @@ describe('DiscussionVotes', () => {
         myVote={null}
         onVote={onVote}
         onVoted={onVoted}
+        target="post"
+        targetId="post-1"
       />,
     )
 
@@ -65,6 +69,8 @@ describe('DiscussionVotes', () => {
         myVote={null}
         onVote={onVote}
         onVoted={vi.fn()}
+        target="reply"
+        targetId="reply-1"
       />,
     )
     const leaderboardKey = ['masaiverse-v2', 'global-leaderboard', 'overall', 10]

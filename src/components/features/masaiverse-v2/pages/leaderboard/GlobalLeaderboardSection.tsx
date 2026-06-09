@@ -4,6 +4,7 @@ import LeaderboardList from './LeaderboardList'
 import LeaderboardPeriodTabs from './LeaderboardPeriodTabs'
 import type { LeaderboardPeriod } from '@/server/api/masaiverse-v2/services/leaderboardPeriod'
 import { masaiverseV2GlobalLeaderboardQuery } from '@/query/masaiverse-v2/leaderboardQuery'
+import { MASAIVERSE_EVENTS, trackMasaiverse } from '../../tracking'
 
 /** Top 10; the server also pins the viewer's own row when they fall below it. */
 const GLOBAL_LIMIT = 10
@@ -21,7 +22,16 @@ export default function GlobalLeaderboardSection() {
 
   return (
     <div className="flex flex-col gap-4">
-      <LeaderboardPeriodTabs value={period} onChange={setPeriod} />
+      <LeaderboardPeriodTabs
+        value={period}
+        onChange={(next) => {
+          trackMasaiverse(MASAIVERSE_EVENTS.leaderboardPeriodChange, {
+            period: next,
+            scope: 'global',
+          })
+          setPeriod(next)
+        }}
+      />
       {isPending ? (
         <LeaderboardSkeleton />
       ) : isError ? (

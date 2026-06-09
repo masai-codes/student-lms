@@ -14,6 +14,7 @@ import {
 } from '@/components/ui/select'
 import { awardMasaiverseV2Points } from '@/lib/api/masaiverse-v2/masaiverseV2Api'
 import { masaiverseV2MyClubsQuery } from '@/query/masaiverse-v2/clubsQuery'
+import { MASAIVERSE_EVENTS, trackMasaiverse } from '../../tracking'
 
 const NO_CLUB = 'none'
 
@@ -63,6 +64,11 @@ export default function AssignPointsForm({ onDone }: { onDone: () => void }) {
         clubId: resolveClubId(clubId),
       }),
     onSuccess: () => {
+      trackMasaiverse(MASAIVERSE_EVENTS.pointsAssign, {
+        target_user_id: user?.id,
+        points: pointsValue,
+        club_id: resolveClubId(clubId),
+      })
       pointsInvalidationKeys(clubId).forEach((queryKey) => {
         void queryClient.invalidateQueries({ queryKey })
       })

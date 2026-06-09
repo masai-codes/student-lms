@@ -1,5 +1,6 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import createDOMPurify from 'dompurify'
+import { MASAIVERSE_EVENTS, trackMasaiverse } from '../../tracking'
 
 type DiscussionContentProps = {
   /** Rich-text HTML body of the discussion. */
@@ -65,7 +66,12 @@ export default function DiscussionContent({
       {isOverflowing || expanded ? (
         <button
           type="button"
-          onClick={() => setExpanded((open) => !open)}
+          onClick={() => {
+            trackMasaiverse(MASAIVERSE_EVENTS.discussionExpandToggle, {
+              expanded: !expanded,
+            })
+            setExpanded((open) => !open)
+          }}
           className="mt-1 text-[12px] font-semibold text-masaiverse-orange hover:text-masaiverse-orange-dark"
         >
           {expanded ? 'View less' : 'View more'}

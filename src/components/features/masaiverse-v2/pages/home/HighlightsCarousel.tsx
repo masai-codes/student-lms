@@ -86,6 +86,7 @@ export default function HighlightsCarousel({
           prevClassName={`${navKey}-prev`}
           nextClassName={`${navKey}-next`}
           label="highlights"
+          trackingId={navKey}
         />
       ) : null}
     </div>

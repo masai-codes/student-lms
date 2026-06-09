@@ -6,6 +6,7 @@ import {
 } from '@/lib/api/masaiverse-v2/masaiverseV2Api'
 import { masaiverseV2AdminModeQuery } from '@/query/masaiverse-v2/adminModeQuery'
 import { MASAIVERSE_V2_HOME_KEY } from '@/query/masaiverse-v2/homeQuery'
+import { MASAIVERSE_EVENTS, trackMasaiverse } from './tracking'
 
 type CreateKind = 'event' | 'club'
 
@@ -56,7 +57,14 @@ export default function AdminCreateButton({ kind }: { kind: CreateKind }) {
   return (
     <button
       type="button"
-      onClick={() => mutation.mutate()}
+      onClick={() => {
+        trackMasaiverse(
+          kind === 'club'
+            ? MASAIVERSE_EVENTS.clubCreateClick
+            : MASAIVERSE_EVENTS.eventCreateClick,
+        )
+        mutation.mutate()
+      }}
       disabled={mutation.isPending}
       className="inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-[#111827] px-3.5 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#1F2937] disabled:opacity-60"
     >

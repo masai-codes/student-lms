@@ -13,6 +13,7 @@ import { RichTextEditor } from '@/components/discussion-post-card/rich-text-edit
 import { Switch } from '@/components/ui/switch'
 import { updateMasaiverseV2Event } from '@/lib/api/masaiverse-v2/masaiverseV2Api'
 import { masaiverseV2EventEditDataQuery } from '@/query/masaiverse-v2/eventsQuery'
+import { MASAIVERSE_EVENTS, trackMasaiverse } from '../tracking'
 
 type EventEditFormProps = {
   eventId: string
@@ -59,6 +60,10 @@ export default function EventEditForm({ eventId, onClose }: EventEditFormProps) 
     mutationFn: () =>
       updateMasaiverseV2Event(eventId, toEventPatch(form as EventFormState)),
     onSuccess: async () => {
+      trackMasaiverse(MASAIVERSE_EVENTS.eventUpdate, {
+        event_id: eventId,
+        is_published: form?.isPublished,
+      })
       await queryClient.invalidateQueries({
         queryKey: ['masaiverse-v2', 'event', eventId],
       })

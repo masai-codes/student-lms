@@ -20,6 +20,7 @@ import { recordMasaiverseV2ClubVisit } from '@/lib/api/masaiverse-v2/masaiverseV
 import { masaiverseV2ClubDetailQuery } from '@/query/masaiverse-v2/clubsQuery'
 import { masaiverseV2AdminModeQuery } from '@/query/masaiverse-v2/adminModeQuery'
 import ClubEditForm from '@/components/features/masaiverse-v2/edit/ClubEditForm'
+import { MASAIVERSE_EVENTS, trackMasaiverse } from '../tracking'
 
 type ClubDetailPageProps = {
   clubId: string
@@ -30,6 +31,9 @@ function BackToClubsLink() {
     <Link
       to="/masaiverse/clubs"
       search={(prev) => prev}
+      onClick={() =>
+        trackMasaiverse(MASAIVERSE_EVENTS.backClick, { to: 'clubs' })
+      }
       className="inline-flex items-center gap-1 text-[14px] font-medium text-[#6B7280] hover:text-[#111827]"
     >
       <ArrowLeft size={16} />
@@ -96,6 +100,7 @@ export default function ClubDetailPage({ clubId }: ClubDetailPageProps) {
     setIsCalendarOpen((open) => !open)
   }
   const openEdit = () => {
+    trackMasaiverse(MASAIVERSE_EVENTS.clubEditClick, { club_id: clubId })
     setIsCalendarOpen(false)
     setIsEditOpen(true)
   }

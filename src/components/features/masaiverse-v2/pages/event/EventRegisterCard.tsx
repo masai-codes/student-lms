@@ -8,6 +8,7 @@ import ConfirmActionModal from '@/components/features/masaiverse-v2/ConfirmActio
 import { enrollMasaiverseV2Event } from '@/lib/api/masaiverse-v2/masaiverseV2Api'
 import { masaiverseV2EventDetailQuery } from '@/query/masaiverse-v2/eventsQuery'
 import { invalidateMasaiverseV2Leaderboards } from '@/query/masaiverse-v2/leaderboardQuery'
+import { MASAIVERSE_EVENTS, trackMasaiverse } from '../../tracking'
 
 type EventRegisterCardProps = {
   event: MasaiverseV2EventDetail
@@ -51,6 +52,11 @@ export default function EventRegisterCard({ event }: EventRegisterCardProps) {
   const mutation = useMutation({
     mutationFn: () => enrollMasaiverseV2Event(event.id),
     onSuccess: (state) => {
+      trackMasaiverse(MASAIVERSE_EVENTS.eventRegisterSuccess, {
+        event_id: event.id,
+        mode: event.mode,
+        club_id: event.clubId,
+      })
       setConfirmOpen(false)
       setJustRegistered(state)
       queryClient.setQueryData<MasaiverseV2EventDetail>(detailKey, (prev) =>
@@ -66,6 +72,11 @@ export default function EventRegisterCard({ event }: EventRegisterCardProps) {
   // Gate registration behind the confirmation dialog when the event provides
   // notice text; otherwise register straight away.
   const handleRegisterClick = () => {
+    trackMasaiverse(MASAIVERSE_EVENTS.eventRegisterClick, {
+      event_id: event.id,
+      mode: event.mode,
+      has_confirmation: Boolean(event.confirmationModalText),
+    })
     if (event.confirmationModalText) setConfirmOpen(true)
     else mutation.mutate()
   }
@@ -104,7 +115,13 @@ export default function EventRegisterCard({ event }: EventRegisterCardProps) {
           {link ? (
             <button
               type="button"
-              onClick={() => openExternal(link)}
+              onClick={() => {
+                trackMasaiverse(MASAIVERSE_EVENTS.eventExternalLinkClick, {
+                  event_id: event.id,
+                  link_type: isOffline ? 'directions' : 'join',
+                })
+                openExternal(link)
+              }}
               className="mt-3 flex w-full items-center justify-center gap-2 rounded-[14px] bg-gradient-to-r from-masaiverse-orange to-[#FF7A29] px-5 py-3.5 text-[15px] font-bold text-white shadow-[0_8px_20px_-6px_rgba(242,92,4,0.5)] transition-all hover:shadow-[0_10px_26px_-6px_rgba(242,92,4,0.6)] active:scale-[0.99]"
             >
               <OpenIcon size={18} weight="bold" />
