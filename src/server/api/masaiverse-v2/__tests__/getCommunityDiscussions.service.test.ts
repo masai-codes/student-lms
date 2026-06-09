@@ -85,6 +85,7 @@ describe('getCommunityDiscussions', () => {
         {
           id: '7',
           title: 'How to explain projects?',
+          content: '<p>body</p>',
           authorName: 'Arjun Pandey',
           tags: ['Career', 'Interviews'],
           upvotes: 24,
@@ -95,6 +96,7 @@ describe('getCommunityDiscussions', () => {
         {
           id: '8',
           title: 'Deployed my capstone',
+          content: '<p>no tags here</p>',
           authorName: 'Sneha Rao',
           tags: [],
           upvotes: 0,

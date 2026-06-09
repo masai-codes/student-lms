@@ -1,15 +1,16 @@
 import { and, count, gte, lt } from 'drizzle-orm'
 import { db } from '@/db'
 import { posts, replies } from '@/db/schema'
-import { getCurrentWeekRangeIst, toMysqlUtc } from '@/lib/dateRanges'
+import { getCurrentMonthRangeIst, toMysqlUtc } from '@/lib/dateRanges'
 
 /**
- * Community discussion activity in the current IST week. A "discussion" counts
- * both top-level posts and replies, since each is a contribution to the thread.
- * Week boundaries come from {@link getCurrentWeekRangeIst} (Mon → next Mon, IST).
+ * Community discussion activity in the current IST month. A "discussion" counts
+ * both top-level posts and replies, since each is a contribution to the thread,
+ * across both club and club-less (non-club) discussions. Month boundaries come
+ * from {@link getCurrentMonthRangeIst} (1st → next month's 1st, IST).
  */
-export async function getDiscussionsThisWeekCount(now: Date): Promise<number> {
-  const { start, end } = getCurrentWeekRangeIst(now)
+export async function getDiscussionsThisMonthCount(now: Date): Promise<number> {
+  const { start, end } = getCurrentMonthRangeIst(now)
   const startUtc = toMysqlUtc(start)
   const endUtc = toMysqlUtc(end)
 

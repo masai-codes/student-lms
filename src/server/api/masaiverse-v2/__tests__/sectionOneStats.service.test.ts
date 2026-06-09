@@ -48,27 +48,27 @@ describe('getCommunityLearnerCount', () => {
   })
 })
 
-describe('getDiscussionsThisWeekCount', () => {
-  it('sums posts and replies created this week', async () => {
-    const { getDiscussionsThisWeekCount } = await import(
-      '../services/getDiscussionsThisWeekCount.service'
+describe('getDiscussionsThisMonthCount', () => {
+  it('sums posts and replies created this month', async () => {
+    const { getDiscussionsThisMonthCount } = await import(
+      '../services/getDiscussionsThisMonthCount.service'
     )
     hoisted.dbSelect
       .mockReturnValueOnce(selectFromWhere([{ count: 30 }]))
       .mockReturnValueOnce(selectFromWhere([{ count: 8 }]))
 
-    await expect(getDiscussionsThisWeekCount(NOW)).resolves.toBe(38)
+    await expect(getDiscussionsThisMonthCount(NOW)).resolves.toBe(38)
   })
 
   it('treats missing rows as zero on both sides', async () => {
-    const { getDiscussionsThisWeekCount } = await import(
-      '../services/getDiscussionsThisWeekCount.service'
+    const { getDiscussionsThisMonthCount } = await import(
+      '../services/getDiscussionsThisMonthCount.service'
     )
     hoisted.dbSelect
       .mockReturnValueOnce(selectFromWhere([]))
       .mockReturnValueOnce(selectFromWhere([]))
 
-    await expect(getDiscussionsThisWeekCount(NOW)).resolves.toBe(0)
+    await expect(getDiscussionsThisMonthCount(NOW)).resolves.toBe(0)
   })
 })
 

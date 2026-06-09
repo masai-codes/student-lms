@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
+import DiscussionContent from './DiscussionContent'
 import DiscussionReplies from './DiscussionReplies'
 import DiscussionTags from './DiscussionTags'
 import DiscussionVotes from './DiscussionVotes'
@@ -43,6 +44,7 @@ export default function DiscussionRow({
           <p className="mt-1 text-[15px] font-bold leading-5 text-[#111827]">
             {discussion.title}
           </p>
+          <DiscussionContent html={discussion.content} />
           <DiscussionTags tags={discussion.tags} />
 
           <div className="mt-2 flex items-center gap-4">

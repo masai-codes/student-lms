@@ -22,9 +22,9 @@ export const STAT_CARDS: Array<StatCardConfig> = [
   {
     id: 'discussions',
     emoji: '💬',
-    label: 'discussions this week',
+    label: 'Community Discussions',
     accent: 'green',
-    metric: 'discussionsThisWeek',
+    metric: 'discussionsThisMonth',
   },
   {
     id: 'events',
