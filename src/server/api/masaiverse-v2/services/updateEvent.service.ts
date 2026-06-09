@@ -15,6 +15,7 @@ const EDITABLE_COLUMNS = new Set([
   'description',
   'category',
   'mode',
+  'clubId',
   'locationTitle',
   'locationMapLink',
   'eventLink',
@@ -25,6 +26,13 @@ const EDITABLE_COLUMNS = new Set([
 ])
 /** Columns whose value is an ISO timestamp to be stored as MySQL UTC. */
 const DATE_COLUMNS = new Set(['startTime', 'endTime'])
+
+/** Coerces the `clubId` form value to a numeric club id, or null when unset. */
+function toClubId(value: unknown): number | null {
+  if (value == null || value === '') return null
+  const id = Number(value)
+  return Number.isFinite(id) ? id : null
+}
 /** `events.meta` keys an admin may edit inline. */
 const EDITABLE_META = new Set([
   'aboveTitle',
@@ -33,7 +41,6 @@ const EDITABLE_META = new Set([
   'isPublished',
   'confirmationModalText',
   'eventSummary',
-  'event_detail_description',
   'pastEventEmojiValue',
   'hostedBy',
 ])
@@ -78,7 +85,13 @@ export async function updateMasaiverseEvent(
   const setPayload: Record<string, unknown> = {}
   for (const [key, value] of Object.entries(input.column ?? {})) {
     if (!EDITABLE_COLUMNS.has(key)) continue
-    setPayload[key] = DATE_COLUMNS.has(key) ? toDbTimestamp(value) : value
+    if (key === 'clubId') {
+      setPayload.clubId = toClubId(value)
+    } else if (DATE_COLUMNS.has(key)) {
+      setPayload[key] = toDbTimestamp(value)
+    } else {
+      setPayload[key] = value
+    }
   }
 
   const meta = { ...((existing.meta ?? {}) as Record<string, unknown>) }

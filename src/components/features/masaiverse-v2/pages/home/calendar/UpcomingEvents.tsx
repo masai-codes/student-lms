@@ -49,7 +49,6 @@ export default function UpcomingEvents() {
 
 function UpcomingEventRow({ event }: { event: MasaiverseV2HomeEvent }) {
   const display = getEventCardDisplay(event, new Date())
-  const ctaLabel = event.isEnrolled ? 'Going' : display.isLive ? 'Join' : 'RSVP'
 
   return (
     <Link
@@ -67,14 +66,9 @@ function UpcomingEventRow({ event }: { event: MasaiverseV2HomeEvent }) {
         </span>
       </div>
       <div className="min-w-0 flex-1">
-        <div className="flex items-start justify-between gap-2">
-          <p className="text-[14px] font-bold leading-5 text-[#111827]">
-            {event.title}
-          </p>
-          <span className="shrink-0 rounded-full bg-masaiverse-orange/15 px-2 py-0.5 text-[11px] font-semibold text-masaiverse-orange">
-            {ctaLabel}
-          </span>
-        </div>
+        <p className="text-[14px] font-bold leading-5 text-[#111827]">
+          {event.title}
+        </p>
         {event.belowTitle ? (
           <p className="mt-1 text-[12px] leading-4 text-[#6B7280]">
             {event.belowTitle}

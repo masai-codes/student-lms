@@ -1,6 +1,6 @@
-import { eq } from 'drizzle-orm'
+import { asc, eq } from 'drizzle-orm'
 import { db } from '@/db'
-import { events } from '@/db/schema'
+import { clubs, events } from '@/db/schema'
 import { ApiError } from '@/server/api/http/apiError'
 import { getAdminModeState } from '@/server/api/masaiverse-v2/services/adminMode.service'
 import { parseMasaiverseEventDbTimestamp } from '@/lib/eventTimestamps'
@@ -12,6 +12,8 @@ export interface MasaiverseV2EventEditData {
     description: string | null
     category: string | null
     mode: string | null
+    /** Hosting club id (as a string), or null for a community-wide event. */
+    clubId: string | null
     locationTitle: string | null
     locationMapLink: string | null
     eventLink: string | null
@@ -23,6 +25,8 @@ export interface MasaiverseV2EventEditData {
   }
   /** Raw `events.meta` so the edit drawer can seed every editable field. */
   meta: Record<string, unknown>
+  /** All clubs (id + name), so the drawer can offer a host-club picker. */
+  clubs: Array<{ id: string; name: string }>
 }
 
 function toUtcIso(value: string | null): string | null {
@@ -48,6 +52,7 @@ export async function getEventEditData(
       description: events.description,
       category: events.category,
       mode: events.mode,
+      clubId: events.clubId,
       locationTitle: events.locationTitle,
       locationMapLink: events.locationMapLink,
       eventLink: events.eventLink,
@@ -63,6 +68,11 @@ export async function getEventEditData(
   const row = rows.at(0)
   if (!row) throw new ApiError(404, 'EVENT_NOT_FOUND')
 
+  const clubRows = await db
+    .select({ id: clubs.id, name: clubs.name })
+    .from(clubs)
+    .orderBy(asc(clubs.name))
+
   return {
     id: String(row.id),
     columns: {
@@ -70,6 +80,7 @@ export async function getEventEditData(
       description: row.description ?? null,
       category: row.category ?? null,
       mode: row.mode ?? null,
+      clubId: row.clubId != null ? String(row.clubId) : null,
       locationTitle: row.locationTitle ?? null,
       locationMapLink: row.locationMapLink ?? null,
       eventLink: row.eventLink ?? null,
@@ -79,5 +90,6 @@ export async function getEventEditData(
       endTime: toUtcIso(row.endTime),
     },
     meta: (row.meta ?? {}) as Record<string, unknown>,
+    clubs: clubRows.map((club) => ({ id: String(club.id), name: club.name })),
   }
 }

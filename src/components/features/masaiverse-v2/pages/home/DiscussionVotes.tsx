@@ -1,7 +1,8 @@
 import { ArrowDown, ArrowUp } from '@phosphor-icons/react'
-import { useMutation } from '@tanstack/react-query'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import type { DiscussionVote } from '@/server/api/masaiverse-v2/services/getCommunityDiscussions.service'
 import type { DiscussionVoteState } from '@/server/api/masaiverse-v2/services/voteCommunityDiscussion.service'
+import { invalidateMasaiverseV2Leaderboards } from '@/query/masaiverse-v2/leaderboardQuery'
 
 type DiscussionVotesProps = {
   upvotes: number
@@ -18,7 +19,15 @@ export default function DiscussionVotes({
   onVote,
   onVoted,
 }: DiscussionVotesProps) {
-  const mutation = useMutation({ mutationFn: onVote, onSuccess: onVoted })
+  const queryClient = useQueryClient()
+  const mutation = useMutation({
+    mutationFn: onVote,
+    onSuccess: (state) => {
+      onVoted(state)
+      // Voting awards/revokes points for voter and target owner; refresh standings.
+      invalidateMasaiverseV2Leaderboards(queryClient)
+    },
+  })
 
   const isUp = myVote === 'upvote'
   const isDown = myVote === 'downvote'

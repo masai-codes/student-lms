@@ -7,6 +7,7 @@ import type { EventEnrollmentState } from '@/server/api/masaiverse-v2/services/s
 import ConfirmActionModal from '@/components/features/masaiverse-v2/ConfirmActionModal'
 import { enrollMasaiverseV2Event } from '@/lib/api/masaiverse-v2/masaiverseV2Api'
 import { masaiverseV2EventDetailQuery } from '@/query/masaiverse-v2/eventsQuery'
+import { invalidateMasaiverseV2Leaderboards } from '@/query/masaiverse-v2/leaderboardQuery'
 
 type EventRegisterCardProps = {
   event: MasaiverseV2EventDetail
@@ -57,6 +58,8 @@ export default function EventRegisterCard({ event }: EventRegisterCardProps) {
           ? { ...prev, isEnrolled: true, enrolledCount: state.enrolledCount }
           : prev,
       )
+      // First-time registration awards leaderboard points; refresh standings.
+      invalidateMasaiverseV2Leaderboards(queryClient)
     },
   })
 

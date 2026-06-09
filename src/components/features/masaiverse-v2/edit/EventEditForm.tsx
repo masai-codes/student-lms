@@ -166,6 +166,22 @@ export default function EventEditForm({ eventId, onClose }: EventEditFormProps) 
         </div>
       </div>
 
+      <div>
+        <p className={LABEL}>Host club</p>
+        <select
+          value={form.clubId}
+          onChange={(event) => set('clubId', event.target.value)}
+          className={INPUT}
+        >
+          <option value="">None (community-wide)</option>
+          {(data?.clubs ?? []).map((club) => (
+            <option key={club.id} value={club.id}>
+              {club.name}
+            </option>
+          ))}
+        </select>
+      </div>
+
       <div className="flex gap-3">
         <div className="w-1/2">
           <p className={LABEL}>Start time (IST)</p>
@@ -242,13 +258,6 @@ export default function EventEditForm({ eventId, onClose }: EventEditFormProps) 
         <RichTextEditor
           value={form.description}
           onChange={(value) => set('description', value)}
-        />
-      </div>
-      <div>
-        <p className={LABEL}>Event detail description</p>
-        <RichTextEditor
-          value={form.eventDetailDescription}
-          onChange={(value) => set('eventDetailDescription', value)}
         />
       </div>
       <div>

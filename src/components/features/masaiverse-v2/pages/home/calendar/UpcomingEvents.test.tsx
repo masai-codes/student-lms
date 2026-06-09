@@ -58,10 +58,10 @@ describe('UpcomingEvents', () => {
     )
   })
 
-  it('renders rows with date, title, subtitle and the right CTA', async () => {
+  it('renders rows with date, title and subtitle (no CTA chip)', async () => {
     fetchHome.mockResolvedValue({
       events: [
-        // Future, not enrolled → RSVP; has a subtitle.
+        // Future, not enrolled; has a subtitle.
         {
           id: '1',
           title: 'AI Agents Workshop',
@@ -70,7 +70,7 @@ describe('UpcomingEvents', () => {
           endTime: null,
           isEnrolled: false,
         },
-        // Enrolled → Going.
+        // Enrolled.
         {
           id: '2',
           title: 'Design Jam',
@@ -79,7 +79,7 @@ describe('UpcomingEvents', () => {
           endTime: null,
           isEnrolled: true,
         },
-        // Currently live → Join.
+        // Currently live.
         {
           id: '3',
           title: 'Live Standup',
@@ -105,11 +105,11 @@ describe('UpcomingEvents', () => {
       expect(screen.getByText('AI Agents Workshop')).toBeTruthy(),
     )
     expect(screen.getByText('hands-on')).toBeTruthy()
-    expect(screen.getByText('Going')).toBeTruthy()
-    expect(screen.getByText('Join')).toBeTruthy()
     expect(screen.getByText('—')).toBeTruthy()
-    // The future + unscheduled rows both show an RSVP chip.
-    expect(screen.getAllByText('RSVP')).toHaveLength(2)
+    // No Join / RSVP / Going status chips are rendered anymore.
+    expect(screen.queryByText('Going')).toBeNull()
+    expect(screen.queryByText('Join')).toBeNull()
+    expect(screen.queryByText('RSVP')).toBeNull()
     // The June 20 start renders as day 20.
     expect(screen.getByText('20')).toBeTruthy()
     // Each row links to its event detail route.

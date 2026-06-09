@@ -382,6 +382,7 @@ export type MasaiverseV2EventEditData = {
     description: string | null
     category: string | null
     mode: string | null
+    clubId: string | null
     locationTitle: string | null
     locationMapLink: string | null
     eventLink: string | null
@@ -391,6 +392,7 @@ export type MasaiverseV2EventEditData = {
     endTime: string | null
   }
   meta: Record<string, unknown>
+  clubs: Array<{ id: string; name: string }>
 }
 
 export async function fetchMasaiverseV2EventEditData(

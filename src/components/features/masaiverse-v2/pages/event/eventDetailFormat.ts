@@ -21,6 +21,32 @@ function formatIstTime(date: Date): string {
   }).format(date)
 }
 
+/** Short date, e.g. "Wed, 10 Jun 2026" — used for compact multi-day lines. */
+function formatIstShortDate(date: Date): string {
+  return new Intl.DateTimeFormat('en-GB', {
+    timeZone: IST_TIME_ZONE,
+    weekday: 'short',
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+  }).format(date)
+}
+
+/** "Wed, 10 Jun 2026, 9:00 AM" — a full instant for multi-day events. */
+function formatIstDateTime(date: Date): string {
+  return `${formatIstShortDate(date)}, ${formatIstTime(date)}`
+}
+
+/** The IST calendar day ("2026-06-10") two instants fall on, for comparison. */
+function istDayKey(date: Date): string {
+  return new Intl.DateTimeFormat('en-CA', {
+    timeZone: IST_TIME_ZONE,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).format(date)
+}
+
 export interface EventDateBadge {
   /** Uppercase short month, e.g. "JUN". */
   month: string
@@ -78,4 +104,41 @@ export function formatIstTimeRange(
   if (start) return formatIstTime(start)
   if (end) return `Ends ${formatIstTime(end)}`
   return null
+}
+
+/** Two display lines for the event "when" row: a bold date line and a muted
+ * time line (which already carries the "IST" suffix). Either can be `null`. */
+export interface EventSchedule {
+  dateLine: string | null
+  timeLine: string | null
+}
+
+/**
+ * Builds the date/time lines for the detail page's "when" row. Single-day
+ * events keep the long date + time-range layout. Multi-day events instead show
+ * the full start instant on the date line and the full end instant on the time
+ * line ("to Fri, 12 Jun 2026, 11:30 AM IST"), so both dates are unambiguous.
+ */
+export function formatIstSchedule(
+  startTime: string | null,
+  endTime: string | null,
+): EventSchedule {
+  const start = toDate(startTime)
+  const end = toDate(endTime)
+
+  const isMultiDay =
+    start != null && end != null && istDayKey(start) !== istDayKey(end)
+
+  if (isMultiDay) {
+    return {
+      dateLine: formatIstDateTime(start),
+      timeLine: `to ${formatIstDateTime(end)} IST`,
+    }
+  }
+
+  const range = formatIstTimeRange(startTime, endTime)
+  return {
+    dateLine: formatIstLongDate(startTime, endTime),
+    timeLine: range ? `${range} IST` : null,
+  }
 }
