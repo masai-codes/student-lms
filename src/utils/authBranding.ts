@@ -1,5 +1,5 @@
 import type { AppOrigin } from '@/utils/appOrigin'
-import { getConfiguredAppOrigin } from '@/utils/appOrigin'
+import { getAppOrigin } from '@/utils/appOrigin'
 
 export type AuthBranding = {
   logoSrc: string
@@ -38,6 +38,6 @@ const BRANDING: Record<AppOrigin, AuthBranding> = {
   },
 }
 
-export function getAuthBranding(origin: AppOrigin = getConfiguredAppOrigin()): AuthBranding {
+export function getAuthBranding(origin: AppOrigin = getAppOrigin()): AuthBranding {
   return BRANDING[origin]
 }
