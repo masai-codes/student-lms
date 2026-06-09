@@ -63,7 +63,6 @@ export const MASAIVERSE_EVENTS = {
 
   // Calendar
   calendarOpen: 'masaiverse_calendar_open',
-  calendarClose: 'masaiverse_calendar_close',
   calendarMonthNav: 'masaiverse_calendar_month_nav',
   calendarDaySelect: 'masaiverse_calendar_day_select',
 
