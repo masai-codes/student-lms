@@ -12,6 +12,8 @@ export const MASAIVERSE_V2_API = {
   clubMembership: '/api/masaiverse-v2/clubs/membership',
   clubVisit: '/api/masaiverse-v2/clubs/visit',
   leaderboard: '/api/masaiverse-v2/leaderboard',
+  awardPoints: '/api/masaiverse-v2/award-points',
+  userSearch: '/api/masaiverse-v2/users/search',
   events: '/api/masaiverse-v2/events/list',
   eventDetail: '/api/masaiverse-v2/events/detail',
   eventEnroll: '/api/masaiverse-v2/events/enroll',

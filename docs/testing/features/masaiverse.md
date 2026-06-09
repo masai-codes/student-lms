@@ -78,6 +78,13 @@ Current focus: server API/unit test coverage for `src/server/masaiverse/**`.
 - `src/components/features/masaiverse-v2/pages/leaderboard/LeaderboardPeriodTabs.test.tsx`
 - `src/server/api/masaiverse-v2/__tests__/getGlobalLeaderboard.service.test.ts`
 - `src/server/api/masaiverse-v2/__tests__/getGlobalLeaderboard.handler.test.ts`
+- `src/server/api/masaiverse-v2/__tests__/awardManualPoints.service.test.ts`
+- `src/server/api/masaiverse-v2/__tests__/searchUsers.service.test.ts`
+- `src/server/api/masaiverse-v2/__tests__/awardManualPoints.handler.test.ts`
+- `src/server/api/masaiverse-v2/__tests__/searchUsers.handler.test.ts`
+- `src/components/features/masaiverse-v2/pages/leaderboard/UserSearchField.test.tsx`
+- `src/components/features/masaiverse-v2/pages/leaderboard/AssignPointsForm.test.tsx`
+- `src/components/features/masaiverse-v2/pages/leaderboard/AssignPointsButton.test.tsx`
 - `src/components/features/masaiverse-v2/pages/home/calendar/GlobalLeaders.test.tsx`
 - `src/server/api/masaiverse-v2/__tests__/getEventDetail.service.test.ts`
 - `src/server/api/masaiverse-v2/__tests__/setEventEnrollment.service.test.ts`
@@ -286,6 +293,10 @@ Current focus: server API/unit test coverage for `src/server/masaiverse/**`.
 - `MASAIVE-V2-136` - Module: `getGlobalLeaderboard.service` - Case: ranks the top `limit` members (clamped default/min/max/NaN, null sums → 0) and pins the viewer's `currentUser` (rank = members ranked strictly above + 1; `null` when they have no points), honouring the `month` period filter - Status: Covered
 - `MASAIVE-V2-137` - Module: `getGlobalLeaderboard.handler` (`GET /leaderboard`) - Case: parses `limit` + `period` (default overall), forwards `currentUserId`, returns 200 `{entries,currentUser}`, 401 without a session, 500 on unexpected error - Status: Covered
 - `MASAIVE-V2-138` - Module: `GlobalLeaderboardSection` / `GlobalLeaders` (UI) - Case: both the full section and the home calendar-drawer `GlobalLeaders` show the period toggle, the top 10, and the pinned "You" row when the viewer is off the top, plus loading/error/empty states and a period-switch refetch (`{period,limit:10}`); `GlobalLeaders` keeps its compact medal/avatar/`toLocaleString` styling - Status: Covered
+- `MASAIVE-V2-139` - Module: `awardManualPoints.service` - Case: 403 for non-admins (no db touch); 400 for invalid target id, and for zero/non-integer/out-of-range points; 404 for a missing target user; 400 for a non-positive club id and 404 for a missing club; otherwise inserts a `masaiverse_leaderboard` row (`reason 'manual'`, `createdBy` = admin, club null or the given club) and returns its id - Status: Covered
+- `MASAIVE-V2-140` - Module: `searchUsers.service` - Case: 403 for non-admins; `[]` (no query) for blank/short terms; otherwise name/email `LIKE` matches mapped to `{ id, name, email, avatarUrl }` (string ids, null photos) capped at 10 - Status: Covered
+- `MASAIVE-V2-141` - Module: `awardManualPoints.handler` (`POST /award-points`) + `searchUsers.handler` (`GET /users/search`) - Case: award parses `targetUserId`/`points`/`clubId` (blank/missing club → null), 201 on success, 401 no session, propagates the service 403, maps failures to `SERVER_ERROR_AWARDING_POINTS`; search forwards the `q` param (default `''`), 200 `{users}`, 401 no session, maps failures to `SERVER_ERROR_SEARCHING_USERS` - Status: Covered
+- `MASAIVE-V2-142` - Module: `UserSearchField` / `AssignPointsForm` / `AssignPointsButton` (UI) - Case: search field stays quiet under 2 chars, lists matches, reports the picked user and collapses to a chip with a clear control; `resolveClubId`/`pointsInvalidationKeys` map the `none` sentinel and build the refetch keys; form keeps submit disabled until a user + non-zero points are set, awards community-wide points and closes on success, and surfaces an error on failure; the button is hidden unless admin mode is on and opens the modal when clicked - Status: Covered
 
 ## Pending / Next Cases
 

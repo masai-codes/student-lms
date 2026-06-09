@@ -22,6 +22,13 @@ export enum LeaderboardReason {
   REPLY_RECEIVED = 'reply_received',
 }
 
+/**
+ * Reason stored for points an admin assigns by hand. Unlike `LeaderboardReason`
+ * the amount is not fixed — the admin supplies it — so it lives outside
+ * `LEADERBOARD_POINTS`.
+ */
+export const MANUAL_LEADERBOARD_REASON = 'manual'
+
 /** Points awarded per reason. */
 export const LEADERBOARD_POINTS: Record<LeaderboardReason, number> = {
   [LeaderboardReason.POST_CREATION]: 10,

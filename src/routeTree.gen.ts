@@ -20,6 +20,7 @@ import { Route as ApiMasaiverseV2VisitedRouteImport } from './routes/api/masaive
 import { Route as ApiMasaiverseV2LeaderboardRouteImport } from './routes/api/masaiverse-v2/leaderboard'
 import { Route as ApiMasaiverseV2HomeRouteImport } from './routes/api/masaiverse-v2/home'
 import { Route as ApiMasaiverseV2DiscussionsRouteImport } from './routes/api/masaiverse-v2/discussions'
+import { Route as ApiMasaiverseV2AwardPointsRouteImport } from './routes/api/masaiverse-v2/award-points'
 import { Route as ApiMasaiverseV2AdminModeRouteImport } from './routes/api/masaiverse-v2/admin-mode'
 import { Route as authV2ResetPasswordRouteImport } from './routes/(auth)/v2/reset-password'
 import { Route as authV2MeRouteImport } from './routes/(auth)/v2/me'
@@ -38,6 +39,7 @@ import { Route as protectedLayoutBookmarkIndexRouteImport } from './routes/(prot
 import { Route as protectedLayoutAnnouncementsIndexRouteImport } from './routes/(protected)/_layout/announcements/index'
 import { Route as authV2LoginIndexRouteImport } from './routes/(auth)/v2/login/index'
 import { Route as authResetPasswordTokenIndexRouteImport } from './routes/(auth)/reset-password.$token/index'
+import { Route as ApiMasaiverseV2UsersSearchRouteImport } from './routes/api/masaiverse-v2/users/search'
 import { Route as ApiMasaiverseV2UploadsImageRouteImport } from './routes/api/masaiverse-v2/uploads/image'
 import { Route as ApiMasaiverseV2EventsUpdateRouteImport } from './routes/api/masaiverse-v2/events/update'
 import { Route as ApiMasaiverseV2EventsRateRouteImport } from './routes/api/masaiverse-v2/events/rate'
@@ -154,6 +156,12 @@ const ApiMasaiverseV2DiscussionsRoute =
     path: '/api/masaiverse-v2/discussions',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiMasaiverseV2AwardPointsRoute =
+  ApiMasaiverseV2AwardPointsRouteImport.update({
+    id: '/api/masaiverse-v2/award-points',
+    path: '/api/masaiverse-v2/award-points',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiMasaiverseV2AdminModeRoute =
   ApiMasaiverseV2AdminModeRouteImport.update({
     id: '/api/masaiverse-v2/admin-mode',
@@ -256,6 +264,12 @@ const authResetPasswordTokenIndexRoute =
   authResetPasswordTokenIndexRouteImport.update({
     id: '/(auth)/reset-password/$token/',
     path: '/reset-password/$token/',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiMasaiverseV2UsersSearchRoute =
+  ApiMasaiverseV2UsersSearchRouteImport.update({
+    id: '/api/masaiverse-v2/users/search',
+    path: '/api/masaiverse-v2/users/search',
     getParentRoute: () => rootRouteImport,
   } as any)
 const ApiMasaiverseV2UploadsImageRoute =
@@ -656,6 +670,7 @@ export interface FileRoutesByFullPath {
   '/v2/me': typeof authV2MeRoute
   '/v2/reset-password': typeof authV2ResetPasswordRoute
   '/api/masaiverse-v2/admin-mode': typeof ApiMasaiverseV2AdminModeRoute
+  '/api/masaiverse-v2/award-points': typeof ApiMasaiverseV2AwardPointsRoute
   '/api/masaiverse-v2/discussions': typeof ApiMasaiverseV2DiscussionsRouteWithChildren
   '/api/masaiverse-v2/home': typeof ApiMasaiverseV2HomeRoute
   '/api/masaiverse-v2/leaderboard': typeof ApiMasaiverseV2LeaderboardRoute
@@ -698,6 +713,7 @@ export interface FileRoutesByFullPath {
   '/api/masaiverse-v2/events/rate': typeof ApiMasaiverseV2EventsRateRoute
   '/api/masaiverse-v2/events/update': typeof ApiMasaiverseV2EventsUpdateRoute
   '/api/masaiverse-v2/uploads/image': typeof ApiMasaiverseV2UploadsImageRoute
+  '/api/masaiverse-v2/users/search': typeof ApiMasaiverseV2UsersSearchRoute
   '/reset-password/$token/': typeof authResetPasswordTokenIndexRoute
   '/v2/login/': typeof authV2LoginIndexRoute
   '/announcements/': typeof protectedLayoutAnnouncementsIndexRoute
@@ -744,6 +760,7 @@ export interface FileRoutesByTo {
   '/v2/me': typeof authV2MeRoute
   '/v2/reset-password': typeof authV2ResetPasswordRoute
   '/api/masaiverse-v2/admin-mode': typeof ApiMasaiverseV2AdminModeRoute
+  '/api/masaiverse-v2/award-points': typeof ApiMasaiverseV2AwardPointsRoute
   '/api/masaiverse-v2/discussions': typeof ApiMasaiverseV2DiscussionsRouteWithChildren
   '/api/masaiverse-v2/home': typeof ApiMasaiverseV2HomeRoute
   '/api/masaiverse-v2/leaderboard': typeof ApiMasaiverseV2LeaderboardRoute
@@ -786,6 +803,7 @@ export interface FileRoutesByTo {
   '/api/masaiverse-v2/events/rate': typeof ApiMasaiverseV2EventsRateRoute
   '/api/masaiverse-v2/events/update': typeof ApiMasaiverseV2EventsUpdateRoute
   '/api/masaiverse-v2/uploads/image': typeof ApiMasaiverseV2UploadsImageRoute
+  '/api/masaiverse-v2/users/search': typeof ApiMasaiverseV2UsersSearchRoute
   '/reset-password/$token': typeof authResetPasswordTokenIndexRoute
   '/v2/login': typeof authV2LoginIndexRoute
   '/announcements': typeof protectedLayoutAnnouncementsIndexRoute
@@ -832,6 +850,7 @@ export interface FileRoutesById {
   '/(auth)/v2/me': typeof authV2MeRoute
   '/(auth)/v2/reset-password': typeof authV2ResetPasswordRoute
   '/api/masaiverse-v2/admin-mode': typeof ApiMasaiverseV2AdminModeRoute
+  '/api/masaiverse-v2/award-points': typeof ApiMasaiverseV2AwardPointsRoute
   '/api/masaiverse-v2/discussions': typeof ApiMasaiverseV2DiscussionsRouteWithChildren
   '/api/masaiverse-v2/home': typeof ApiMasaiverseV2HomeRoute
   '/api/masaiverse-v2/leaderboard': typeof ApiMasaiverseV2LeaderboardRoute
@@ -874,6 +893,7 @@ export interface FileRoutesById {
   '/api/masaiverse-v2/events/rate': typeof ApiMasaiverseV2EventsRateRoute
   '/api/masaiverse-v2/events/update': typeof ApiMasaiverseV2EventsUpdateRoute
   '/api/masaiverse-v2/uploads/image': typeof ApiMasaiverseV2UploadsImageRoute
+  '/api/masaiverse-v2/users/search': typeof ApiMasaiverseV2UsersSearchRoute
   '/(auth)/reset-password/$token/': typeof authResetPasswordTokenIndexRoute
   '/(auth)/v2/login/': typeof authV2LoginIndexRoute
   '/(protected)/_layout/announcements/': typeof protectedLayoutAnnouncementsIndexRoute
@@ -923,6 +943,7 @@ export interface FileRouteTypes {
     | '/v2/me'
     | '/v2/reset-password'
     | '/api/masaiverse-v2/admin-mode'
+    | '/api/masaiverse-v2/award-points'
     | '/api/masaiverse-v2/discussions'
     | '/api/masaiverse-v2/home'
     | '/api/masaiverse-v2/leaderboard'
@@ -965,6 +986,7 @@ export interface FileRouteTypes {
     | '/api/masaiverse-v2/events/rate'
     | '/api/masaiverse-v2/events/update'
     | '/api/masaiverse-v2/uploads/image'
+    | '/api/masaiverse-v2/users/search'
     | '/reset-password/$token/'
     | '/v2/login/'
     | '/announcements/'
@@ -1011,6 +1033,7 @@ export interface FileRouteTypes {
     | '/v2/me'
     | '/v2/reset-password'
     | '/api/masaiverse-v2/admin-mode'
+    | '/api/masaiverse-v2/award-points'
     | '/api/masaiverse-v2/discussions'
     | '/api/masaiverse-v2/home'
     | '/api/masaiverse-v2/leaderboard'
@@ -1053,6 +1076,7 @@ export interface FileRouteTypes {
     | '/api/masaiverse-v2/events/rate'
     | '/api/masaiverse-v2/events/update'
     | '/api/masaiverse-v2/uploads/image'
+    | '/api/masaiverse-v2/users/search'
     | '/reset-password/$token'
     | '/v2/login'
     | '/announcements'
@@ -1098,6 +1122,7 @@ export interface FileRouteTypes {
     | '/(auth)/v2/me'
     | '/(auth)/v2/reset-password'
     | '/api/masaiverse-v2/admin-mode'
+    | '/api/masaiverse-v2/award-points'
     | '/api/masaiverse-v2/discussions'
     | '/api/masaiverse-v2/home'
     | '/api/masaiverse-v2/leaderboard'
@@ -1140,6 +1165,7 @@ export interface FileRouteTypes {
     | '/api/masaiverse-v2/events/rate'
     | '/api/masaiverse-v2/events/update'
     | '/api/masaiverse-v2/uploads/image'
+    | '/api/masaiverse-v2/users/search'
     | '/(auth)/reset-password/$token/'
     | '/(auth)/v2/login/'
     | '/(protected)/_layout/announcements/'
@@ -1188,6 +1214,7 @@ export interface RootRouteChildren {
   authV2MeRoute: typeof authV2MeRoute
   authV2ResetPasswordRoute: typeof authV2ResetPasswordRoute
   ApiMasaiverseV2AdminModeRoute: typeof ApiMasaiverseV2AdminModeRoute
+  ApiMasaiverseV2AwardPointsRoute: typeof ApiMasaiverseV2AwardPointsRoute
   ApiMasaiverseV2DiscussionsRoute: typeof ApiMasaiverseV2DiscussionsRouteWithChildren
   ApiMasaiverseV2HomeRoute: typeof ApiMasaiverseV2HomeRoute
   ApiMasaiverseV2LeaderboardRoute: typeof ApiMasaiverseV2LeaderboardRoute
@@ -1222,6 +1249,7 @@ export interface RootRouteChildren {
   ApiMasaiverseV2EventsRateRoute: typeof ApiMasaiverseV2EventsRateRoute
   ApiMasaiverseV2EventsUpdateRoute: typeof ApiMasaiverseV2EventsUpdateRoute
   ApiMasaiverseV2UploadsImageRoute: typeof ApiMasaiverseV2UploadsImageRoute
+  ApiMasaiverseV2UsersSearchRoute: typeof ApiMasaiverseV2UsersSearchRoute
   authResetPasswordTokenIndexRoute: typeof authResetPasswordTokenIndexRoute
   authV2LoginIndexRoute: typeof authV2LoginIndexRoute
 }
@@ -1303,6 +1331,13 @@ declare module '@tanstack/react-router' {
       path: '/api/masaiverse-v2/discussions'
       fullPath: '/api/masaiverse-v2/discussions'
       preLoaderRoute: typeof ApiMasaiverseV2DiscussionsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/masaiverse-v2/award-points': {
+      id: '/api/masaiverse-v2/award-points'
+      path: '/api/masaiverse-v2/award-points'
+      fullPath: '/api/masaiverse-v2/award-points'
+      preLoaderRoute: typeof ApiMasaiverseV2AwardPointsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/masaiverse-v2/admin-mode': {
@@ -1429,6 +1464,13 @@ declare module '@tanstack/react-router' {
       path: '/reset-password/$token'
       fullPath: '/reset-password/$token/'
       preLoaderRoute: typeof authResetPasswordTokenIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/masaiverse-v2/users/search': {
+      id: '/api/masaiverse-v2/users/search'
+      path: '/api/masaiverse-v2/users/search'
+      fullPath: '/api/masaiverse-v2/users/search'
+      preLoaderRoute: typeof ApiMasaiverseV2UsersSearchRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/masaiverse-v2/uploads/image': {
@@ -2059,6 +2101,7 @@ const rootRouteChildren: RootRouteChildren = {
   authV2MeRoute: authV2MeRoute,
   authV2ResetPasswordRoute: authV2ResetPasswordRoute,
   ApiMasaiverseV2AdminModeRoute: ApiMasaiverseV2AdminModeRoute,
+  ApiMasaiverseV2AwardPointsRoute: ApiMasaiverseV2AwardPointsRoute,
   ApiMasaiverseV2DiscussionsRoute: ApiMasaiverseV2DiscussionsRouteWithChildren,
   ApiMasaiverseV2HomeRoute: ApiMasaiverseV2HomeRoute,
   ApiMasaiverseV2LeaderboardRoute: ApiMasaiverseV2LeaderboardRoute,
@@ -2093,6 +2136,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiMasaiverseV2EventsRateRoute: ApiMasaiverseV2EventsRateRoute,
   ApiMasaiverseV2EventsUpdateRoute: ApiMasaiverseV2EventsUpdateRoute,
   ApiMasaiverseV2UploadsImageRoute: ApiMasaiverseV2UploadsImageRoute,
+  ApiMasaiverseV2UsersSearchRoute: ApiMasaiverseV2UsersSearchRoute,
   authResetPasswordTokenIndexRoute: authResetPasswordTokenIndexRoute,
   authV2LoginIndexRoute: authV2LoginIndexRoute,
 }

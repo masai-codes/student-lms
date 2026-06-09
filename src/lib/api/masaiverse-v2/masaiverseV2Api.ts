@@ -8,6 +8,7 @@ import type { MasaiverseV2ClubStats } from '@/server/api/masaiverse-v2/services/
 import type { ClubLeaderboardResult } from '@/server/api/masaiverse-v2/services/getClubLeaderboard.service'
 import type { GlobalLeaderboardResult } from '@/server/api/masaiverse-v2/services/getGlobalLeaderboard.service'
 import type { LeaderboardPeriod } from '@/server/api/masaiverse-v2/services/leaderboardPeriod'
+import type { UserSearchResult } from '@/server/api/masaiverse-v2/services/searchUsers.service'
 import type { MasaiverseV2ClubEvents } from '@/server/api/masaiverse-v2/services/getClubEvents.service'
 import type { ClubMembershipState } from '@/server/api/masaiverse-v2/services/setClubMembership.service'
 import type { MasaiverseV2EventListItem } from '@/server/api/masaiverse-v2/services/getEventsList.service'
@@ -178,6 +179,29 @@ export async function fetchMasaiverseV2GlobalLeaderboard(input?: {
   return fetchJson<GlobalLeaderboardResult>(
     `${MASAIVERSE_V2_API.leaderboard}${query ? `?${query}` : ''}`,
   )
+}
+
+/** Admin-only user search (by name/email) for the assign-points picker. */
+export async function searchMasaiverseV2Users(
+  query: string,
+): Promise<Array<UserSearchResult>> {
+  const { users } = await fetchJson<{ users: Array<UserSearchResult> }>(
+    `${MASAIVERSE_V2_API.userSearch}?q=${encodeURIComponent(query)}`,
+  )
+  return users
+}
+
+/** Admin-only: hand-assign points to a user (optionally scoped to a club). */
+export async function awardMasaiverseV2Points(input: {
+  targetUserId: string
+  points: number
+  clubId: string | null
+}): Promise<{ id: string }> {
+  return fetchJson<{ id: string }>(MASAIVERSE_V2_API.awardPoints, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(input),
+  })
 }
 
 /** Weekly connects + upcoming/live + past events for a club's detail page. */

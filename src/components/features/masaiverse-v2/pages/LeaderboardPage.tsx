@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import GlobalLeaderboardSection from './leaderboard/GlobalLeaderboardSection'
+import AssignPointsButton from './leaderboard/AssignPointsButton'
 import ClubLeaderboardSection from './club/ClubLeaderboardSection'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { masaiverseV2MyClubsQuery } from '@/query/masaiverse-v2/clubsQuery'
@@ -21,12 +22,17 @@ export default function LeaderboardPage() {
 
   return (
     <div>
-      <h2 className="text-[20px] font-bold leading-7 text-[#111827]">
-        Leaderboard
-      </h2>
-      <p className="mt-1 text-[14px] leading-5 text-[#6B7280]">
-        See who&apos;s leading across the community and inside your clubs.
-      </p>
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <h2 className="text-[20px] font-bold leading-7 text-[#111827]">
+            Leaderboard
+          </h2>
+          <p className="mt-1 text-[14px] leading-5 text-[#6B7280]">
+            See who&apos;s leading across the community and inside your clubs.
+          </p>
+        </div>
+        <AssignPointsButton />
+      </div>
 
       <Tabs value={tab} onValueChange={setTab} className="mt-5">
         <div className="overflow-x-auto">
