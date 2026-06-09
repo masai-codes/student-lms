@@ -7,7 +7,10 @@ import DiscussionRow from './DiscussionRow'
 import SectionHeader from './SectionHeader'
 import { DiscussionRowSkeleton, repeat } from './skeletons'
 import type { MasaiverseV2Discussion } from '@/server/api/masaiverse-v2/services/getCommunityDiscussions.service'
-import { masaiverseV2DiscussionsInfiniteQuery } from '@/query/masaiverse-v2/discussionsQuery'
+import {
+  DISCUSSIONS_PUBLIC_TAB,
+  masaiverseV2DiscussionsInfiniteQuery,
+} from '@/query/masaiverse-v2/discussionsQuery'
 
 /** Avatar colors cycled per row so adjacent authors differ. */
 const AVATAR_COLORS = ['var(--color-masaiverse-orange)', '#6D28D9', '#2E7D46', '#2563EB', '#DB2777']
@@ -67,10 +70,15 @@ export default function CommunityDiscussionsSection({
       <SectionHeader
         title={title}
         action={
-          clubId || hideViewAllLink ? undefined : (
+          hideViewAllLink ? undefined : (
             <Link
               to="/masaiverse/discussions"
-              search={(prev) => prev}
+              // Deep-link to the matching tab on the discussions page: this
+              // club's feed, or the public feed when unscoped.
+              search={(prev) => ({
+                ...prev,
+                tab: clubId ?? DISCUSSIONS_PUBLIC_TAB,
+              })}
               className="text-[14px] font-medium text-masaiverse-orange hover:underline"
             >
               View all →

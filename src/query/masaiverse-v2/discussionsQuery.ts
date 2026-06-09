@@ -15,6 +15,13 @@ export const MASAIVERSE_V2_DISCUSSIONS_KEY = [
 export const DISCUSSIONS_PAGE_SIZE = 5
 
 /**
+ * Reserved `?tab=` value for the club-less community feed on the discussions
+ * page. Club tabs use their numeric club id, so this can't collide with one.
+ * Shared so "View all" links and the page itself agree on the value.
+ */
+export const DISCUSSIONS_PUBLIC_TAB = 'public'
+
+/**
  * Infinite-query options for the paginated, searchable discussions list.
  * Pass a `clubId` to scope to a single club; omit it for the community feed.
  */
