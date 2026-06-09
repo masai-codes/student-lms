@@ -5,9 +5,7 @@ import { useNavigate, useRouterState } from '@tanstack/react-router'
 import { Home, LayoutGrid, Users } from 'lucide-react'
 
 import { TabNavbar } from '@/components/tab-navbar'
-<<<<<<< HEAD
 import { activeAppNavIdForPathname } from '@/lib/appNavActiveItem'
-=======
 import { OLD_STUDENT_UI_NAV_PATHS } from '@/constants/oldStudentUiNavPaths'
 import { getOldStudentUiUrlForPath } from '@/utils/authRedirect'
 
@@ -35,11 +33,13 @@ function activeTabIdForPathname(pathname: string): string | undefined {
 function ChatTabIcon() {
   return (
     <span className="relative inline-flex items-center justify-center text-current">
-      <MessagesSquare strokeWidth={1.75} className="size-6 shrink-0 text-current" />
+      <MessagesSquare
+        strokeWidth={1.75}
+        className="size-6 shrink-0 text-current"
+      />
     </span>
   )
 }
->>>>>>> pre-prod-v3
 
 export default function AppMobileTabBar() {
   const pathname = useRouterState({ select: (s) => s.location.pathname })
@@ -51,7 +51,9 @@ export default function AppMobileTabBar() {
       {
         id: 'home',
         label: 'Home',
-        icon: <Home strokeWidth={1.75} className="size-6 shrink-0 text-current" />,
+        icon: (
+          <Home strokeWidth={1.75} className="size-6 shrink-0 text-current" />
+        ),
         isActive: activeId === 'home',
         onClick: () => {
           void navigate({ to: '/' })
@@ -60,7 +62,12 @@ export default function AppMobileTabBar() {
       {
         id: 'learn',
         label: 'Learn',
-        icon: <LayoutGrid strokeWidth={1.75} className="size-6 shrink-0 text-current" />,
+        icon: (
+          <LayoutGrid
+            strokeWidth={1.75}
+            className="size-6 shrink-0 text-current"
+          />
+        ),
         isActive: activeId === 'learn',
         onClick: () => {
           void navigate({ to: '/learn', search: { batchId: undefined } })
@@ -69,7 +76,9 @@ export default function AppMobileTabBar() {
       {
         id: 'masaiverse',
         label: 'MasaiVerse',
-        icon: <Users strokeWidth={1.75} className="size-6 shrink-0 text-current" />,
+        icon: (
+          <Users strokeWidth={1.75} className="size-6 shrink-0 text-current" />
+        ),
         isActive: activeId === 'masaiverse',
         onClick: () => {
           void navigate({ to: '/masaiverse', search: { tab: 'home' } })
