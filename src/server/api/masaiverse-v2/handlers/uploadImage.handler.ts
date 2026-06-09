@@ -3,8 +3,8 @@ import { jsonOk, mapThrownErrorToResponse } from '@/server/api/http/responses'
 import { requireSessionUserId } from '@/server/api/http/requireSessionUser'
 import { uploadImageToS3 } from '@/server/storage/s3Upload'
 
-/** Max image upload size (5 MB). */
-const MAX_BYTES = 5 * 1024 * 1024
+/** Max image upload size (10 MB). */
+const MAX_BYTES = 10 * 1024 * 1024
 
 /**
  * Accepts a multipart form upload (`file` field), validates it's an image

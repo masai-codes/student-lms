@@ -45,8 +45,6 @@ export async function createMasaiverseEvent(
     confirmationModalText:
       'By registering you confirm your spot for this event. <b>See you there!</b>',
     hostedBy: [{ host: 'Event Host', imageUrl: DUMMY_AVATAR }],
-    event_detail_description:
-      'Event details go here. Edit this draft before publishing.',
     eventSummary:
       'A quick recap of this event will appear here once it wraps. Edit this draft before publishing.',
     [PUBLISHED_META_KEY]: false,

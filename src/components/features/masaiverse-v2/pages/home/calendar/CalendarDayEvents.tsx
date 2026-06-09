@@ -2,6 +2,7 @@ import { Link } from '@tanstack/react-router'
 import { MONTH_NAMES } from './calendarUtils'
 import type { CalendarEvent } from './calendarUtils'
 import { formatIstDateTime } from '@/lib/masaiverseEventCard'
+import { MASAIVERSE_EVENTS, trackMasaiverse } from '../../../tracking'
 
 type CalendarDayEventsProps = {
   /** Selected day key (YYYY-MM-DD); null when no day is selected. */
@@ -44,6 +45,12 @@ export default function CalendarDayEvents({
                 to="/masaiverse/event/$eventId"
                 params={{ eventId: event.id }}
                 search={(prev) => prev}
+                onClick={() =>
+                  trackMasaiverse(MASAIVERSE_EVENTS.eventCardClick, {
+                    event_id: event.id,
+                    source: 'calendar_day',
+                  })
+                }
                 className="flex flex-col gap-0.5 rounded-[8px] -mx-1 px-1 py-0.5 transition-colors hover:bg-masaiverse-orange/10"
               >
                 <span className="text-[13px] font-semibold leading-4 text-[#111827]">

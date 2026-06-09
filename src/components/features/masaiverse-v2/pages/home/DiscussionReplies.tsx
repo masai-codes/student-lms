@@ -9,7 +9,9 @@ import {
 } from '@/lib/api/masaiverse-v2/masaiverseV2Api'
 import { getInitials } from '@/lib/initials'
 import { incrementReplyCountInCache } from '@/query/masaiverse-v2/discussionsQuery'
+import { invalidateMasaiverseV2Leaderboards } from '@/query/masaiverse-v2/leaderboardQuery'
 import { formatSocialPostTime } from '@/lib/socialRelativeTime'
+import { MASAIVERSE_EVENTS, trackMasaiverse } from '../../tracking'
 
 type DiscussionRepliesProps = {
   postId: string
@@ -28,9 +30,14 @@ export default function DiscussionReplies({ postId }: DiscussionRepliesProps) {
   const createMutation = useMutation({
     mutationFn: createMasaiverseV2DiscussionReply,
     onSuccess: () => {
+      trackMasaiverse(MASAIVERSE_EVENTS.discussionReplyCreate, {
+        post_id: postId,
+      })
       setText('')
       void queryClient.invalidateQueries({ queryKey: repliesKey })
       incrementReplyCountInCache(queryClient, postId)
+      // Replying awards points to both replier and post author; refresh standings.
+      invalidateMasaiverseV2Leaderboards(queryClient)
     },
   })
 
@@ -93,6 +100,8 @@ export default function DiscussionReplies({ postId }: DiscussionRepliesProps) {
                 </p>
               </div>
               <DiscussionVotes
+                target="reply"
+                targetId={reply.id}
                 upvotes={reply.upvotes}
                 myVote={reply.myVote}
                 onVote={(vote) =>

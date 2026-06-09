@@ -1,4 +1,5 @@
-import { count, eq } from 'drizzle-orm'
+import { and, count, eq } from 'drizzle-orm'
+import { awardEventRegistrationPoints } from './awardLeaderboardPoints.service'
 import { db } from '@/db'
 import { ApiError } from '@/server/api/http/apiError'
 import { eventEnrollments, events } from '@/db/schema'
@@ -50,6 +51,7 @@ export async function setEventEnrollment(
         mode: events.mode,
         eventLink: events.eventLink,
         locationMapLink: events.locationMapLink,
+        clubId: events.clubId,
       })
       .from(events)
       .where(eq(events.id, eventId))
@@ -59,11 +61,36 @@ export async function setEventEnrollment(
     throw new ApiError(404, 'EVENT_NOT_FOUND')
   }
 
+  // Whether they were already enrolled decides if registration points are due:
+  // re-registering is a no-op and must not award twice.
+  const alreadyEnrolled =
+    (
+      await db
+        .select({ userId: eventEnrollments.userId })
+        .from(eventEnrollments)
+        .where(
+          and(
+            eq(eventEnrollments.userId, userId),
+            eq(eventEnrollments.eventId, eventId),
+          ),
+        )
+        .limit(1)
+    ).length > 0
+
   // The (user_id, event_id) unique index makes re-registering a no-op.
   await db
     .insert(eventEnrollments)
     .values({ userId, eventId })
     .onDuplicateKeyUpdate({ set: { eventId } })
+
+  // First-time registration earns event-registration points (club id rides along).
+  if (!alreadyEnrolled) {
+    await awardEventRegistrationPoints({
+      userId,
+      eventId,
+      clubId: event.clubId ?? null,
+    })
+  }
 
   const redirectUrl =
     event.mode === 'offline'

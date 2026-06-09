@@ -5,6 +5,7 @@ import { ArrowLeft } from '@phosphor-icons/react'
 import PhotoLightbox from './club/PhotoLightbox'
 import { ApiClientError } from '@/lib/api/apiClientError'
 import { masaiverseV2ClubDetailQuery } from '@/query/masaiverse-v2/clubsQuery'
+import { MASAIVERSE_EVENTS, trackMasaiverse } from '../tracking'
 
 type ClubGalleryPageProps = {
   clubId: string
@@ -16,6 +17,12 @@ function BackToClubLink({ clubId }: { clubId: string }) {
       to="/masaiverse/club/$clubId"
       params={{ clubId }}
       search={(prev) => prev}
+      onClick={() =>
+        trackMasaiverse(MASAIVERSE_EVENTS.backClick, {
+          to: 'club',
+          club_id: clubId,
+        })
+      }
       className="inline-flex items-center gap-1 text-[14px] font-medium text-[#6B7280] hover:text-[#111827]"
     >
       <ArrowLeft size={16} />

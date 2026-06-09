@@ -2,6 +2,9 @@ import { useState } from 'react'
 import { UploadSimple } from '@phosphor-icons/react'
 import { uploadMasaiverseV2Image } from '@/lib/api/masaiverse-v2/masaiverseV2Api'
 
+/** Max image upload size (10 MB); keep in sync with the upload API. */
+const MAX_IMAGE_BYTES = 10 * 1024 * 1024
+
 type ImageUploadFieldProps = {
   value: string | null
   onChange: (url: string) => void
@@ -22,6 +25,10 @@ export default function ImageUploadField({
   const [error, setError] = useState<string | null>(null)
 
   const handleFile = async (file: File) => {
+    if (file.size > MAX_IMAGE_BYTES) {
+      setError('Image is too large. Maximum size is 10 MB.')
+      return
+    }
     setUploading(true)
     setError(null)
     try {
@@ -64,6 +71,7 @@ export default function ImageUploadField({
           {uploading ? 'Uploading…' : value ? 'Replace' : 'Upload'}
         </label>
       </div>
+      <p className="mt-1 text-[11px] text-[#9CA3AF]">Max file size: 10 MB</p>
       <input
         type="text"
         value={value ?? ''}

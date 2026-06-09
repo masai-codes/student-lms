@@ -1,9 +1,5 @@
 import { MapPin, VideoCamera } from '@phosphor-icons/react'
-import {
-  formatIstDateBadge,
-  formatIstLongDate,
-  formatIstTimeRange,
-} from './eventDetailFormat'
+import { formatIstDateBadge, formatIstSchedule } from './eventDetailFormat'
 import type { ReactNode } from 'react'
 import type { MasaiverseV2EventDetail } from '@/server/api/masaiverse-v2/services/getEventDetail.service'
 
@@ -45,8 +41,10 @@ function InfoRow({
  */
 export default function EventInfoRows({ event }: EventInfoRowsProps) {
   const badge = formatIstDateBadge(event.startTime, event.endTime)
-  const longDate = formatIstLongDate(event.startTime, event.endTime)
-  const timeRange = formatIstTimeRange(event.startTime, event.endTime)
+  const { dateLine, timeLine } = formatIstSchedule(
+    event.startTime,
+    event.endTime,
+  )
   const isOffline = event.mode === 'offline'
 
   const placeTitle = isOffline
@@ -75,11 +73,11 @@ export default function EventInfoRows({ event }: EventInfoRowsProps) {
         </span>
         <span className="min-w-0">
           <span className="block text-[15px] font-bold leading-5 text-[#111827]">
-            {longDate ?? 'Date to be announced'}
+            {dateLine ?? 'Date to be announced'}
           </span>
-          {timeRange ? (
+          {timeLine ? (
             <span className="block text-[13px] leading-5 text-[#6B7280]">
-              {timeRange} IST
+              {timeLine}
             </span>
           ) : null}
         </span>

@@ -3,6 +3,7 @@ import { Link } from '@tanstack/react-router'
 import AdminCreateButton from '../AdminCreateButton'
 import HomeClubCard from './home/HomeClubCard'
 import { masaiverseV2HomeQuery } from '@/query/masaiverse-v2/homeQuery'
+import { MASAIVERSE_EVENTS, trackMasaiverse } from '../tracking'
 
 /**
  * Club listing ("Explore clubs") page. Reuses the live home clubs payload so
@@ -50,6 +51,12 @@ export default function ClubsPage() {
               to="/masaiverse/club/$clubId"
               params={{ clubId: club.id }}
               search={(prev) => prev}
+              onClick={() =>
+                trackMasaiverse(MASAIVERSE_EVENTS.clubCardClick, {
+                  club_id: club.id,
+                  source: 'clubs',
+                })
+              }
               className="flex rounded-[14px] transition-shadow hover:shadow-[0_4px_16px_rgba(17,24,39,0.06)] [&>div]:w-full"
             >
               <HomeClubCard club={club} />

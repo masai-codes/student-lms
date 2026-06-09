@@ -86,6 +86,8 @@ export function mapThrownErrorToResponse(error: unknown): Response {
       case 'SERVER_ERROR_CREATING_BANNER':
       case 'SERVER_ERROR_UPDATING_BANNER':
       case 'SERVER_ERROR_DELETING_BANNER':
+      case 'SERVER_ERROR_AWARDING_POINTS':
+      case 'SERVER_ERROR_SEARCHING_USERS':
         return jsonError(500, error.message)
       case 'INVALID_ADMIN_MODE_PAYLOAD':
       case 'INVALID_UPDATE_PAYLOAD':

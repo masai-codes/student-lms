@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { CheckCircle, LinkSimple, ShareNetwork } from '@phosphor-icons/react'
+import { MASAIVERSE_EVENTS, trackMasaiverse } from '@/components/features/masaiverse-v2/tracking'
 
 /** How long the "link copied" confirmation stays visible. */
 const COPIED_VISIBLE_MS = 2200
@@ -47,6 +48,7 @@ export default function ShareClubButton() {
 
   async function handleShare() {
     const url = window.location.href
+    trackMasaiverse(MASAIVERSE_EVENTS.clubShareClick, { url })
     const ok = await copyToClipboard(url)
     if (!ok) return
     setCopied(true)

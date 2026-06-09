@@ -19,6 +19,7 @@ import {
   masaiverseV2ClubEditDataQuery,
 } from '@/query/masaiverse-v2/clubsQuery'
 import { MASAIVERSE_V2_HOME_KEY } from '@/query/masaiverse-v2/homeQuery'
+import { MASAIVERSE_EVENTS, trackMasaiverse } from '../tracking'
 
 type ClubEditFormProps = {
   clubId: string
@@ -42,6 +43,10 @@ export default function ClubEditForm({ clubId, onClose }: ClubEditFormProps) {
   const mutation = useMutation({
     mutationFn: () => updateMasaiverseV2Club(clubId, toClubPatch(form as ClubFormState)),
     onSuccess: async () => {
+      trackMasaiverse(MASAIVERSE_EVENTS.clubUpdate, {
+        club_id: clubId,
+        is_published: form?.isPublished,
+      })
       await queryClient.invalidateQueries({
         queryKey: masaiverseV2ClubDetailQuery(clubId).queryKey,
       })

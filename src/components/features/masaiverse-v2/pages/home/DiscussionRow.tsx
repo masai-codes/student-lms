@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
+import DiscussionContent from './DiscussionContent'
 import DiscussionReplies from './DiscussionReplies'
 import DiscussionTags from './DiscussionTags'
 import DiscussionVotes from './DiscussionVotes'
@@ -8,6 +9,7 @@ import { voteMasaiverseV2Discussion } from '@/lib/api/masaiverse-v2/masaiverseV2
 import { getInitials } from '@/lib/initials'
 import { patchDiscussionInCache } from '@/query/masaiverse-v2/discussionsQuery'
 import { formatSocialPostTime } from '@/lib/socialRelativeTime'
+import { MASAIVERSE_EVENTS, trackMasaiverse } from '../../tracking'
 
 type DiscussionRowProps = {
   discussion: MasaiverseV2Discussion
@@ -43,10 +45,13 @@ export default function DiscussionRow({
           <p className="mt-1 text-[15px] font-bold leading-5 text-[#111827]">
             {discussion.title}
           </p>
+          <DiscussionContent html={discussion.content} />
           <DiscussionTags tags={discussion.tags} />
 
           <div className="mt-2 flex items-center gap-4">
             <DiscussionVotes
+              target="post"
+              targetId={discussion.id}
               upvotes={discussion.upvotes}
               myVote={discussion.myVote}
               onVote={(vote) =>
@@ -61,7 +66,13 @@ export default function DiscussionRow({
             />
             <button
               type="button"
-              onClick={() => setShowReplies((open) => !open)}
+              onClick={() => {
+                trackMasaiverse(MASAIVERSE_EVENTS.discussionRepliesToggle, {
+                  post_id: discussion.id,
+                  open: !showReplies,
+                })
+                setShowReplies((open) => !open)
+              }}
               className="text-[12px] font-medium text-[#9CA3AF] hover:text-[#111827]"
             >
               {showReplies ? 'Hide replies' : `${discussion.replyCount} replies`}

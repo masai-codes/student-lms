@@ -9,6 +9,7 @@ import {
   updateMasaiverseV2Banner,
 } from '@/lib/api/masaiverse-v2/masaiverseV2Api'
 import { MASAIVERSE_V2_BANNERS_KEY } from '@/query/masaiverse-v2/bannersQuery'
+import { MASAIVERSE_EVENTS, trackMasaiverse } from '../tracking'
 
 type BannerEditModalProps = {
   banner: MasaiverseV2Banner
@@ -128,7 +129,13 @@ export default function BannerEditModal({
         <div className="mt-6 flex items-center justify-between gap-3">
           <button
             type="button"
-            onClick={() => remove.mutate()}
+            onClick={() => {
+              trackMasaiverse(MASAIVERSE_EVENTS.bannerDelete, {
+                banner_id: banner.id,
+                banner_title: banner.title,
+              })
+              remove.mutate()
+            }}
             disabled={isBusy}
             className="rounded-[12px] border border-[#FCA5A5] px-4 py-2.5 text-[14px] font-semibold text-[#DC2626] transition-colors hover:bg-[#FEF2F2] disabled:opacity-50"
           >
@@ -144,7 +151,14 @@ export default function BannerEditModal({
             </button>
             <button
               type="button"
-              onClick={() => save.mutate()}
+              onClick={() => {
+                trackMasaiverse(MASAIVERSE_EVENTS.bannerSave, {
+                  banner_id: banner.id,
+                  banner_title: title,
+                  is_published: isPublished,
+                })
+                save.mutate()
+              }}
               disabled={isBusy}
               className="rounded-[12px] bg-[#111827] px-5 py-2.5 text-[14px] font-bold text-white hover:bg-[#1F2937] disabled:opacity-50"
             >

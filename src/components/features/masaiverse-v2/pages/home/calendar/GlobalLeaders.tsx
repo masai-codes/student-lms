@@ -1,20 +1,36 @@
+import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { Trophy } from '@phosphor-icons/react'
+import LeaderboardPeriodTabs from '../../leaderboard/LeaderboardPeriodTabs'
 import {
   getAvatarPalette,
   getInitials,
   getRankMedal,
 } from '../../club/clubLeaderboardAvatar'
 import type { GlobalLeaderboardEntry } from '@/server/api/masaiverse-v2/services/getGlobalLeaderboard.service'
+import type { LeaderboardPeriod } from '@/server/api/masaiverse-v2/services/leaderboardPeriod'
 import { masaiverseV2GlobalLeaderboardQuery } from '@/query/masaiverse-v2/leaderboardQuery'
+import { MASAIVERSE_EVENTS, trackMasaiverse } from '../../../tracking'
+
+/** Top 10; the server also pins the viewer's own row when they fall below it. */
+const GLOBAL_LIMIT = 10
 
 /**
- * The calendar drawer's leaderboard — the community-wide (global) ranking by
- * total all-time points, not scoped to a month or club.
+ * The calendar drawer's leaderboard — the community-wide (global) ranking, with
+ * an Overall / This month toggle and the top 10 plus the signed-in member's own
+ * placement pinned in.
  */
 export default function GlobalLeaders() {
-  const { data, isPending } = useQuery(masaiverseV2GlobalLeaderboardQuery())
-  const leaders = data ?? []
+  const [period, setPeriod] = useState<LeaderboardPeriod>('overall')
+  const { data, isPending } = useQuery(
+    masaiverseV2GlobalLeaderboardQuery(period, GLOBAL_LIMIT),
+  )
+  const leaders = data?.entries ?? []
+  const currentUser = data?.currentUser ?? null
+  const pinnedCurrentUser =
+    currentUser != null && !leaders.some((l) => l.userId === currentUser.userId)
+      ? currentUser
+      : null
 
   return (
     <div>
@@ -22,6 +38,18 @@ export default function GlobalLeaders() {
         <Trophy size={14} />
         Global leaderboard
       </p>
+      <div className="mb-3">
+        <LeaderboardPeriodTabs
+          value={period}
+          onChange={(next) => {
+            trackMasaiverse(MASAIVERSE_EVENTS.leaderboardPeriodChange, {
+              period: next,
+              scope: 'home_calendar',
+            })
+            setPeriod(next)
+          }}
+        />
+      </div>
       {isPending ? (
         <div
           role="status"
@@ -41,15 +69,36 @@ export default function GlobalLeaders() {
       ) : (
         <div className="flex flex-col gap-3">
           {leaders.map((leader) => (
-            <LeaderRow key={leader.userId} leader={leader} />
+            <LeaderRow
+              key={leader.userId}
+              leader={leader}
+              isCurrentUser={currentUser?.userId === leader.userId}
+            />
           ))}
+          {pinnedCurrentUser ? (
+            <>
+              <p
+                className="text-center text-[13px] leading-none text-[#9CA3AF]"
+                aria-hidden
+              >
+                ···
+              </p>
+              <LeaderRow leader={pinnedCurrentUser} isCurrentUser />
+            </>
+          ) : null}
         </div>
       )}
     </div>
   )
 }
 
-function LeaderRow({ leader }: { leader: GlobalLeaderboardEntry }) {
+function LeaderRow({
+  leader,
+  isCurrentUser = false,
+}: {
+  leader: GlobalLeaderboardEntry
+  isCurrentUser?: boolean
+}) {
   const medal = getRankMedal(leader.rank)
   const palette = getAvatarPalette(leader.userId)
 
@@ -74,6 +123,11 @@ function LeaderRow({ leader }: { leader: GlobalLeaderboardEntry }) {
       </span>
       <p className="min-w-0 flex-1 truncate text-[13px] font-semibold leading-4 text-[#111827]">
         {leader.name}
+        {isCurrentUser ? (
+          <span className="ml-1.5 text-[11px] font-semibold text-masaiverse-orange">
+            You
+          </span>
+        ) : null}
       </p>
       <span className="text-[13px] font-bold text-masaiverse-orange">
         {leader.points.toLocaleString()}

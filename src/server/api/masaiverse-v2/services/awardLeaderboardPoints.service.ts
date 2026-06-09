@@ -99,6 +99,27 @@ export async function awardReplyPoints(input: {
   await insertAwards(awards)
 }
 
+/**
+ * Awards event-registration points to the user who just enrolled. The event's
+ * club id rides along (null for a community-wide event), and the event id is
+ * stored on the row. Call this only on a *new* enrollment so repeated
+ * (idempotent) registrations don't award twice.
+ */
+export async function awardEventRegistrationPoints(input: {
+  userId: number
+  eventId: number
+  clubId: number | null
+}): Promise<void> {
+  await db.insert(masaiverseLeaderboard).values({
+    userId: input.userId,
+    createdBy: input.userId,
+    reason: LeaderboardReason.EVENT_REGISTRATION,
+    points: LEADERBOARD_POINTS[LeaderboardReason.EVENT_REGISTRATION],
+    clubId: input.clubId,
+    eventId: input.eventId,
+  })
+}
+
 export type VoteTarget = { postId: number } | { replyId: number }
 
 /** The given/received reasons for an upvote on the given target type. */

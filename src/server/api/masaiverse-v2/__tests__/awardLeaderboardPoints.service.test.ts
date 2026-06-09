@@ -214,3 +214,43 @@ describe('revokeUpvotePoints', () => {
     expect(where).toHaveBeenCalled()
   })
 })
+
+describe('awardEventRegistrationPoints', () => {
+  it('inserts a single 5-point event_registration row with club + event ids', async () => {
+    const { awardEventRegistrationPoints } =
+      await import('../services/awardLeaderboardPoints.service')
+    const captured: Array<Record<string, unknown>> = []
+    hoisted.dbInsert.mockReturnValue({
+      values: (value: Record<string, unknown>) => {
+        captured.push(value)
+        return Promise.resolve([])
+      },
+    })
+
+    await awardEventRegistrationPoints({ userId: 5, eventId: 42, clubId: 3 })
+
+    expect(captured[0]).toEqual({
+      userId: 5,
+      createdBy: 5,
+      reason: 'event_registration',
+      points: 5,
+      clubId: 3,
+      eventId: 42,
+    })
+  })
+
+  it('stores a null club id for a community-wide event', async () => {
+    const { awardEventRegistrationPoints } =
+      await import('../services/awardLeaderboardPoints.service')
+    const captured: Array<Record<string, unknown>> = []
+    hoisted.dbInsert.mockReturnValue({
+      values: (value: Record<string, unknown>) => {
+        captured.push(value)
+        return Promise.resolve([])
+      },
+    })
+
+    await awardEventRegistrationPoints({ userId: 5, eventId: 42, clubId: null })
+    expect(captured[0]).toMatchObject({ clubId: null, eventId: 42 })
+  })
+})

@@ -15,8 +15,8 @@ const hoisted = vi.hoisted(() => ({
 vi.mock('../services/getCommunityLearnerCount.service', () => ({
   getCommunityLearnerCount: hoisted.learners,
 }))
-vi.mock('../services/getDiscussionsThisWeekCount.service', () => ({
-  getDiscussionsThisWeekCount: hoisted.discussions,
+vi.mock('../services/getDiscussionsThisMonthCount.service', () => ({
+  getDiscussionsThisMonthCount: hoisted.discussions,
 }))
 vi.mock('../services/getEventsThisYearCount.service', () => ({
   getEventsThisYearCount: hoisted.events,
@@ -65,7 +65,7 @@ describe('getMasaiverseV2Home', () => {
     await expect(getMasaiverseV2Home(7)).resolves.toEqual({
       stats: {
         learnersInCommunity: 2841,
-        discussionsThisWeek: 38,
+        discussionsThisMonth: 38,
         eventsThisYear: 6,
         eventRegistrationsThisYear: 124,
       },

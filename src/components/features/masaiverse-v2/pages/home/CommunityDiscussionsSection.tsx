@@ -7,7 +7,11 @@ import DiscussionRow from './DiscussionRow'
 import SectionHeader from './SectionHeader'
 import { DiscussionRowSkeleton, repeat } from './skeletons'
 import type { MasaiverseV2Discussion } from '@/server/api/masaiverse-v2/services/getCommunityDiscussions.service'
-import { masaiverseV2DiscussionsInfiniteQuery } from '@/query/masaiverse-v2/discussionsQuery'
+import {
+  DISCUSSIONS_PUBLIC_TAB,
+  masaiverseV2DiscussionsInfiniteQuery,
+} from '@/query/masaiverse-v2/discussionsQuery'
+import { MASAIVERSE_EVENTS, trackMasaiverse } from '../../tracking'
 
 /** Avatar colors cycled per row so adjacent authors differ. */
 const AVATAR_COLORS = ['var(--color-masaiverse-orange)', '#6D28D9', '#2E7D46', '#2563EB', '#DB2777']
@@ -45,9 +49,19 @@ export default function CommunityDiscussionsSection({
 
   // Debounce so we query ~300ms after the user stops typing, not per keystroke.
   useEffect(() => {
-    const id = setTimeout(() => setSearch(searchInput.trim()), 300)
+    const id = setTimeout(() => {
+      const trimmed = searchInput.trim()
+      setSearch(trimmed)
+      // Track the committed (debounced) query, not every keystroke.
+      if (trimmed) {
+        trackMasaiverse(MASAIVERSE_EVENTS.discussionSearch, {
+          query: trimmed,
+          club_id: clubId,
+        })
+      }
+    }, 300)
     return () => clearTimeout(id)
-  }, [searchInput])
+  }, [searchInput, clubId])
 
   const { data, isPending, fetchNextPage, hasNextPage, isFetchingNextPage } =
     useInfiniteQuery({
@@ -67,10 +81,22 @@ export default function CommunityDiscussionsSection({
       <SectionHeader
         title={title}
         action={
-          clubId || hideViewAllLink ? undefined : (
+          hideViewAllLink ? undefined : (
             <Link
               to="/masaiverse/discussions"
-              search={(prev) => prev}
+              // Deep-link to the matching tab on the discussions page: this
+              // club's feed, or the public feed when unscoped.
+              search={(prev) => ({
+                ...prev,
+                tab: clubId ?? DISCUSSIONS_PUBLIC_TAB,
+              })}
+              onClick={() =>
+                trackMasaiverse(MASAIVERSE_EVENTS.seeAllClick, {
+                  section: 'discussions',
+                  to: 'discussions',
+                  club_id: clubId,
+                })
+              }
               className="text-[14px] font-medium text-masaiverse-orange hover:underline"
             >
               View all →
@@ -87,7 +113,12 @@ export default function CommunityDiscussionsSection({
       ) : (
         <button
           type="button"
-          onClick={() => setIsComposing(true)}
+          onClick={() => {
+            trackMasaiverse(MASAIVERSE_EVENTS.discussionComposeOpen, {
+              club_id: clubId,
+            })
+            setIsComposing(true)
+          }}
           className="w-full rounded-[14px] bg-masaiverse-orange py-3.5 text-[15px] font-semibold text-white hover:bg-masaiverse-orange-dark"
         >
           + Start a discussion
@@ -139,7 +170,12 @@ export default function CommunityDiscussionsSection({
               <button
                 type="button"
                 disabled={isFetchingNextPage}
-                onClick={() => fetchNextPage()}
+                onClick={() => {
+                  trackMasaiverse(MASAIVERSE_EVENTS.discussionLoadMore, {
+                    club_id: clubId,
+                  })
+                  fetchNextPage()
+                }}
                 className="rounded-full border border-[#EDEAE8] bg-white px-5 py-2 text-[14px] font-medium text-masaiverse-orange hover:bg-[#FAF7F5] disabled:opacity-50"
               >
                 {isFetchingNextPage ? 'Loading…' : 'Load more'}

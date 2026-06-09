@@ -37,6 +37,8 @@ export type DiscussionVote = 'upvote' | 'downvote'
 export interface MasaiverseV2Discussion {
   id: string
   title: string
+  /** Rich-text HTML body (with the tags marker stripped out). */
+  content: string
   authorName: string
   /** Tags extracted from the stored content marker. */
   tags: Array<string>
@@ -122,16 +124,20 @@ export async function getCommunityDiscussions(
     .where(and(eq(votes.userId, userId), inArray(votes.postId, postIds)))
   const myVoteByPost = new Map(myVoteRows.map((row) => [row.postId, row.vote]))
 
-  const discussions = pageRows.map((post) => ({
-    id: String(post.id),
-    title: post.title ?? '',
-    authorName: post.authorName,
-    tags: parseContentWithTags(post.content ?? '').tags,
-    upvotes: upvotesByPost.get(post.id) ?? 0,
-    replyCount: repliesByPost.get(post.id) ?? 0,
-    myVote: myVoteByPost.get(post.id) ?? null,
-    createdAt: toUtcIso(post.createdAt),
-  }))
+  const discussions = pageRows.map((post) => {
+    const { content, tags } = parseContentWithTags(post.content ?? '')
+    return {
+      id: String(post.id),
+      title: post.title ?? '',
+      content,
+      authorName: post.authorName,
+      tags,
+      upvotes: upvotesByPost.get(post.id) ?? 0,
+      replyCount: repliesByPost.get(post.id) ?? 0,
+      myVote: myVoteByPost.get(post.id) ?? null,
+      createdAt: toUtcIso(post.createdAt),
+    }
+  })
 
   return { discussions, hasMore }
 }

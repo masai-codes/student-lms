@@ -14,6 +14,7 @@ import {
   getEventStatus,
 } from '@/lib/masaiverseEventCard'
 import { cn } from '@/lib/utils'
+import { MASAIVERSE_EVENTS, trackMasaiverse } from '../../tracking'
 
 type EventListCardProps = {
   event: MasaiverseV2EventListItem
@@ -45,6 +46,12 @@ export default function EventListCard({
       to="/masaiverse/event/$eventId"
       params={{ eventId: event.id }}
       search={(prev) => prev}
+      onClick={() =>
+        trackMasaiverse(MASAIVERSE_EVENTS.eventCardClick, {
+          event_id: event.id,
+          source: 'events_list',
+        })
+      }
       className={cn(
         'flex h-full flex-col overflow-hidden rounded-[14px] border border-[#EDEAE8] bg-white transition-shadow hover:shadow-[0_8px_24px_-12px_rgba(0,0,0,0.25)]',
         isPast && 'opacity-90',

@@ -10,6 +10,8 @@ export type EventFormState = {
   description: string
   category: string
   mode: string
+  /** Hosting club id as a string ('' = community-wide). */
+  clubId: string
   locationTitle: string
   locationMapLink: string
   eventLink: string
@@ -22,7 +24,6 @@ export type EventFormState = {
   aboveTitle: string
   belowTitle: string
   pastEventEmojiValue: string
-  eventDetailDescription: string
   eventSummary: string
   confirmationModalText: string
   isWeeklyConnect: boolean
@@ -52,6 +53,7 @@ export function toEventFormState(data: MasaiverseV2EventEditData): EventFormStat
     description: c.description ?? '',
     category: c.category ?? '',
     mode: c.mode ?? '',
+    clubId: c.clubId ?? '',
     locationTitle: c.locationTitle ?? '',
     locationMapLink: c.locationMapLink ?? '',
     eventLink: c.eventLink ?? '',
@@ -62,7 +64,6 @@ export function toEventFormState(data: MasaiverseV2EventEditData): EventFormStat
     aboveTitle: str(meta.aboveTitle),
     belowTitle: str(meta.belowTitle),
     pastEventEmojiValue: str(meta.pastEventEmojiValue),
-    eventDetailDescription: str(meta.event_detail_description),
     eventSummary: str(meta.eventSummary),
     confirmationModalText: str(meta.confirmationModalText),
     isWeeklyConnect: meta.isWeeklyConnect === true,
@@ -79,6 +80,7 @@ export function toEventPatch(state: EventFormState): MasaiverseV2EntityPatch {
       description: state.description,
       category: state.category || null,
       mode: state.mode || null,
+      clubId: state.clubId ? Number(state.clubId) : null,
       locationTitle: state.locationTitle,
       locationMapLink: state.locationMapLink,
       eventLink: state.eventLink,
@@ -91,7 +93,6 @@ export function toEventPatch(state: EventFormState): MasaiverseV2EntityPatch {
       aboveTitle: state.aboveTitle,
       belowTitle: state.belowTitle,
       pastEventEmojiValue: state.pastEventEmojiValue,
-      event_detail_description: state.eventDetailDescription,
       eventSummary: state.eventSummary,
       confirmationModalText: state.confirmationModalText,
       isWeeklyConnect: state.isWeeklyConnect,

@@ -3,6 +3,7 @@ import { Link } from '@tanstack/react-router'
 import type { MasaiverseV2HomeEvent } from '@/server/api/masaiverse-v2/services/getHomeEvents.service'
 import { getEventCardDisplay } from '@/lib/masaiverseEventCard'
 import { masaiverseV2HomeQuery } from '@/query/masaiverse-v2/homeQuery'
+import { MASAIVERSE_EVENTS, trackMasaiverse } from '../../../tracking'
 
 /**
  * The calendar drawer's "Upcoming events" list. Uses the same source as the
@@ -49,13 +50,18 @@ export default function UpcomingEvents() {
 
 function UpcomingEventRow({ event }: { event: MasaiverseV2HomeEvent }) {
   const display = getEventCardDisplay(event, new Date())
-  const ctaLabel = event.isEnrolled ? 'Going' : display.isLive ? 'Join' : 'RSVP'
 
   return (
     <Link
       to="/masaiverse/event/$eventId"
       params={{ eventId: event.id }}
       search={(prev) => prev}
+      onClick={() =>
+        trackMasaiverse(MASAIVERSE_EVENTS.eventCardClick, {
+          event_id: event.id,
+          source: 'calendar_upcoming',
+        })
+      }
       className="flex gap-3 rounded-[8px] -mx-1 px-1 py-1 transition-colors hover:bg-masaiverse-orange/10"
     >
       <div className="flex w-7 shrink-0 flex-col items-center leading-none">
@@ -67,14 +73,9 @@ function UpcomingEventRow({ event }: { event: MasaiverseV2HomeEvent }) {
         </span>
       </div>
       <div className="min-w-0 flex-1">
-        <div className="flex items-start justify-between gap-2">
-          <p className="text-[14px] font-bold leading-5 text-[#111827]">
-            {event.title}
-          </p>
-          <span className="shrink-0 rounded-full bg-masaiverse-orange/15 px-2 py-0.5 text-[11px] font-semibold text-masaiverse-orange">
-            {ctaLabel}
-          </span>
-        </div>
+        <p className="text-[14px] font-bold leading-5 text-[#111827]">
+          {event.title}
+        </p>
         {event.belowTitle ? (
           <p className="mt-1 text-[12px] leading-4 text-[#6B7280]">
             {event.belowTitle}

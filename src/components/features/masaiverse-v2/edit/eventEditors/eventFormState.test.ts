@@ -8,6 +8,7 @@ const EDIT_DATA = {
     description: 'About',
     category: 'hackathon',
     mode: 'online',
+    clubId: '7',
     locationTitle: null,
     locationMapLink: null,
     eventLink: 'https://meet',
@@ -16,11 +17,11 @@ const EDIT_DATA = {
     startTime: '2026-06-10T09:00:00.000Z',
     endTime: '2026-06-10T11:00:00.000Z',
   },
+  clubs: [{ id: '7', name: 'Code Club' }],
   meta: {
     aboveTitle: 'FLAGSHIP',
     belowTitle: 'below',
     pastEventEmojiValue: '⚡',
-    event_detail_description: 'detail',
     eventSummary: 'recap',
     confirmationModalText: 'confirm',
     isWeeklyConnect: true,
@@ -39,7 +40,7 @@ describe('toEventFormState', () => {
     expect(state.category).toBe('hackathon')
     expect(state.mode).toBe('online')
     expect(state.startTime).toBe('2026-06-10T09:00:00.000Z')
-    expect(state.eventDetailDescription).toBe('detail')
+    expect(state.clubId).toBe('7')
     expect(state.isWeeklyConnect).toBe(true)
     expect(state.isPublished).toBe(true)
     expect(state.hostedBy).toEqual([{ host: 'Aman', imageUrl: 'https://cdn/a.png' }])
@@ -53,6 +54,7 @@ describe('toEventFormState', () => {
         description: null,
         category: null,
         mode: null,
+        clubId: null,
         locationTitle: null,
         locationMapLink: null,
         eventLink: null,
@@ -61,6 +63,7 @@ describe('toEventFormState', () => {
         startTime: null,
         endTime: null,
       },
+      clubs: [],
       meta: {},
     })
     expect(state.description).toBe('')
@@ -84,7 +87,7 @@ describe('toEventPatch', () => {
     expect(patch.meta).toMatchObject({
       isPublished: true,
       isWeeklyConnect: true,
-      event_detail_description: 'detail',
+      eventSummary: 'recap',
     })
   })
 })

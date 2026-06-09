@@ -3,23 +3,21 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 const hoisted = vi.hoisted(() => ({ dbSelect: vi.fn() }))
 
 vi.mock('@/db', () => ({ db: { select: hoisted.dbSelect } }))
+vi.mock('./publishVisibility', () => ({
+  publishedClubCondition: () => 'published-condition',
+}))
 vi.mock('@/db/schema', () => ({
   clubs: { id: 'clubs.id' },
   clubMembers: {
     userId: 'club_members.user_id',
     clubId: 'club_members.club_id',
   },
-  eventEnrollments: {
-    userId: 'event_enrollments.user_id',
-    eventId: 'event_enrollments.event_id',
-  },
-  events: { id: 'events.id', clubId: 'events.club_id' },
   masaiverseLeaderboard: {
     userId: 'ml.user_id',
     points: 'ml.points',
     clubId: 'ml.club_id',
+    createdAt: 'ml.created_at',
   },
-  posts: { userId: 'posts.user_id', clubId: 'posts.club_id' },
   users: {
     id: 'users.id',
     name: 'users.name',
@@ -27,34 +25,47 @@ vi.mock('@/db/schema', () => ({
   },
 }))
 
-const limitChain = (rows: unknown) => ({
+/** select().from().where().limit() — club lookup. */
+const clubChain = (rows: unknown) => ({
   from: () => ({ where: () => ({ limit: () => Promise.resolve(rows) }) }),
 })
-const joinWhereChain = (rows: unknown) => ({
-  from: () => ({ innerJoin: () => ({ where: () => Promise.resolve(rows) }) }),
-})
-const rankedChain = (rows: unknown) => ({
-  from: () => ({
-    innerJoin: () => ({
+
+/** from().innerJoin().innerJoin().where().groupBy().orderBy().limit() — top board. */
+function topChain(rows: unknown, onLimit?: (value: number) => void) {
+  return {
+    from: () => ({
       innerJoin: () => ({
-        where: () => ({
-          groupBy: () => ({
-            orderBy: () => ({
-              limit: () => ({ offset: () => Promise.resolve(rows) }),
+        innerJoin: () => ({
+          where: () => ({
+            groupBy: () => ({
+              orderBy: () => ({
+                limit: (value: number) => {
+                  onLimit?.(value)
+                  return Promise.resolve(rows)
+                },
+              }),
             }),
           }),
         }),
       }),
     }),
-  }),
-})
-const groupByChain = (rows: unknown) => ({
-  from: () => ({ where: () => ({ groupBy: () => Promise.resolve(rows) }) }),
-})
-const joinGroupByChain = (rows: unknown) => ({
+  }
+}
+
+/** from().innerJoin().innerJoin().where().groupBy() — the signed-in member's row. */
+const meChain = (rows: unknown) => ({
   from: () => ({
     innerJoin: () => ({
-      where: () => ({ groupBy: () => Promise.resolve(rows) }),
+      innerJoin: () => ({ where: () => ({ groupBy: () => Promise.resolve(rows) }) }),
+    }),
+  }),
+})
+
+/** from().innerJoin().where().groupBy().having() — members ranked above. */
+const aboveChain = (rows: unknown) => ({
+  from: () => ({
+    innerJoin: () => ({
+      where: () => ({ groupBy: () => ({ having: () => Promise.resolve(rows) }) }),
     }),
   }),
 })
@@ -63,142 +74,101 @@ beforeEach(() => {
   vi.clearAllMocks()
 })
 
+async function load() {
+  return (await import('../services/getClubLeaderboard.service')).getClubLeaderboard
+}
+
 describe('getClubLeaderboard', () => {
   it('returns null for a non-finite club id without touching the db', async () => {
-    const { getClubLeaderboard } =
-      await import('../services/getClubLeaderboard.service')
-    await expect(getClubLeaderboard(Number.NaN)).resolves.toBeNull()
+    const getClubLeaderboard = await load()
+    await expect(
+      getClubLeaderboard({ clubId: Number.NaN, currentUserId: 1 }),
+    ).resolves.toBeNull()
     expect(hoisted.dbSelect).not.toHaveBeenCalled()
   })
 
   it('returns null when no club matches the id', async () => {
-    const { getClubLeaderboard } =
-      await import('../services/getClubLeaderboard.service')
-    hoisted.dbSelect.mockReturnValueOnce(limitChain([]))
-    await expect(getClubLeaderboard(99)).resolves.toBeNull()
+    const getClubLeaderboard = await load()
+    hoisted.dbSelect.mockReturnValueOnce(clubChain([]))
+    await expect(
+      getClubLeaderboard({ clubId: 99, currentUserId: 1 }),
+    ).resolves.toBeNull()
   })
 
-  it('ranks members with club-scoped points, paginated with hasMore', async () => {
-    const { getClubLeaderboard } =
-      await import('../services/getClubLeaderboard.service')
+  it('ranks members and pins the current user when off the top', async () => {
+    const getClubLeaderboard = await load()
     hoisted.dbSelect
-      .mockReturnValueOnce(limitChain([{ id: 5 }]))
-      .mockReturnValueOnce(joinWhereChain([{ total: 7 }]))
+      .mockReturnValueOnce(clubChain([{ id: 5 }]))
       .mockReturnValueOnce(
-        rankedChain([
+        topChain([
           { userId: 10, name: 'Priya', avatarUrl: 'p.jpg', points: '940' },
-          { userId: 20, name: 'Arjun', avatarUrl: null, points: '820' },
-          { userId: 30, name: 'Nisha', avatarUrl: null, points: '710' },
+          { userId: 20, name: 'Arjun', avatarUrl: null, points: null },
         ]),
       )
-      .mockReturnValueOnce(groupByChain([{ userId: 10, total: 4 }]))
       .mockReturnValueOnce(
-        joinGroupByChain([
-          { userId: 10, total: 8 },
-          { userId: 20, total: 2 },
-        ]),
+        meChain([{ name: 'Vidit', avatarUrl: null, points: '300' }]),
       )
+      .mockReturnValueOnce(aboveChain([{ userId: 10 }, { userId: 20 }]))
 
-    await expect(getClubLeaderboard(5, 0, 2)).resolves.toEqual({
-      page: 0,
-      perPage: 2,
-      total: 7,
-      hasMore: true,
+    await expect(
+      getClubLeaderboard({ clubId: 5, currentUserId: 99 }),
+    ).resolves.toEqual({
       entries: [
-        {
-          rank: 1,
-          userId: '10',
-          name: 'Priya',
-          avatarUrl: 'p.jpg',
-          points: 940,
-          postsCount: 4,
-          eventsCount: 8,
-        },
-        {
-          rank: 2,
-          userId: '20',
-          name: 'Arjun',
-          avatarUrl: null,
-          points: 820,
-          postsCount: 0,
-          eventsCount: 2,
-        },
+        { rank: 1, userId: '10', name: 'Priya', avatarUrl: 'p.jpg', points: 940 },
+        { rank: 2, userId: '20', name: 'Arjun', avatarUrl: null, points: 0 },
       ],
+      currentUser: {
+        rank: 3,
+        userId: '99',
+        name: 'Vidit',
+        avatarUrl: null,
+        points: 300,
+      },
     })
   })
 
-  it('returns an empty page when the club has no ranked members', async () => {
-    const { getClubLeaderboard } =
-      await import('../services/getClubLeaderboard.service')
+  it('returns a null current user when they have no club points', async () => {
+    const getClubLeaderboard = await load()
     hoisted.dbSelect
-      .mockReturnValueOnce(limitChain([{ id: 5 }]))
-      .mockReturnValueOnce(joinWhereChain([]))
-      .mockReturnValueOnce(rankedChain([]))
+      .mockReturnValueOnce(clubChain([{ id: 5 }]))
+      .mockReturnValueOnce(topChain([]))
+      .mockReturnValueOnce(meChain([]))
 
-    await expect(getClubLeaderboard(5, 0, 2)).resolves.toEqual({
-      page: 0,
-      perPage: 2,
-      total: 0,
-      hasMore: false,
-      entries: [],
-    })
+    await expect(
+      getClubLeaderboard({ clubId: 5, currentUserId: 99 }),
+    ).resolves.toEqual({ entries: [], currentUser: null })
   })
 
-  it('clamps a later page with a too-large/too-small per_page and defaults missing counts', async () => {
-    const { getClubLeaderboard } =
-      await import('../services/getClubLeaderboard.service')
+  it('clamps a huge limit to the max', async () => {
+    const getClubLeaderboard = await load()
+    let captured = 0
     hoisted.dbSelect
-      .mockReturnValueOnce(limitChain([{ id: 5 }]))
-      .mockReturnValueOnce(joinWhereChain([{ total: 3 }]))
-      .mockReturnValueOnce(
-        rankedChain([
-          { userId: 30, name: 'Nisha', avatarUrl: null, points: null },
-        ]),
-      )
-      .mockReturnValueOnce(groupByChain([]))
-      .mockReturnValueOnce(joinGroupByChain([]))
-
-    // page 2, per_page 0 → clamped to 1; rank carries the page offset (2*1+1).
-    await expect(getClubLeaderboard(5, 2, 0)).resolves.toEqual({
-      page: 2,
-      perPage: 1,
-      total: 3,
-      hasMore: false,
-      entries: [
-        {
-          rank: 3,
-          userId: '30',
-          name: 'Nisha',
-          avatarUrl: null,
-          points: 0,
-          postsCount: 0,
-          eventsCount: 0,
-        },
-      ],
-    })
+      .mockReturnValueOnce(clubChain([{ id: 5 }]))
+      .mockReturnValueOnce(topChain([], (value) => (captured = value)))
+      .mockReturnValueOnce(meChain([]))
+    await getClubLeaderboard({ clubId: 5, currentUserId: 1, limit: 1000 })
+    expect(captured).toBe(50)
   })
 
-  it('clamps a huge per_page to the max', async () => {
-    const { getClubLeaderboard } =
-      await import('../services/getClubLeaderboard.service')
+  it('falls back to the default limit when it is not finite', async () => {
+    const getClubLeaderboard = await load()
+    let captured = 0
     hoisted.dbSelect
-      .mockReturnValueOnce(limitChain([{ id: 5 }]))
-      .mockReturnValueOnce(joinWhereChain([{ total: 0 }]))
-      .mockReturnValueOnce(rankedChain([]))
-
-    const result = await getClubLeaderboard(5, 0, 1000)
-    expect(result?.perPage).toBe(50)
+      .mockReturnValueOnce(clubChain([{ id: 5 }]))
+      .mockReturnValueOnce(topChain([], (value) => (captured = value)))
+      .mockReturnValueOnce(meChain([]))
+    await getClubLeaderboard({ clubId: 5, currentUserId: 1, limit: Number.NaN })
+    expect(captured).toBe(10)
   })
 
-  it('falls back to the default per_page when it is not a finite number', async () => {
-    const { getClubLeaderboard } =
-      await import('../services/getClubLeaderboard.service')
+  it('applies the month period filter without error', async () => {
+    const getClubLeaderboard = await load()
     hoisted.dbSelect
-      .mockReturnValueOnce(limitChain([{ id: 5 }]))
-      .mockReturnValueOnce(joinWhereChain([]))
-      .mockReturnValueOnce(rankedChain([]))
-
-    const result = await getClubLeaderboard(5, 0, Number.NaN)
-    expect(result?.perPage).toBe(5)
+      .mockReturnValueOnce(clubChain([{ id: 5 }]))
+      .mockReturnValueOnce(topChain([]))
+      .mockReturnValueOnce(meChain([]))
+    await expect(
+      getClubLeaderboard({ clubId: 5, currentUserId: 1, period: 'month' }),
+    ).resolves.toEqual({ entries: [], currentUser: null })
   })
 })

@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { CalendarX } from '@phosphor-icons/react'
 import AdminCreateButton from '../AdminCreateButton'
@@ -15,6 +15,7 @@ import type {
   EventTimeBucket,
 } from './events/eventBuckets'
 import { masaiverseV2EventsQuery } from '@/query/masaiverse-v2/eventsQuery'
+import { MASAIVERSE_EVENTS, trackMasaiverse } from '../tracking'
 
 /**
  * Community events page. One GET feeds every card; the client segregates them
@@ -31,6 +32,16 @@ export default function EventsPage({ now: nowProp }: { now?: Date }) {
   const [tab, setTab] = useState<EventTimeBucket>('upcoming')
   const [scope, setScope] = useState<EventScopeFilter>('all')
   const [search, setSearch] = useState('')
+
+  // Track the committed (debounced) search query, not every keystroke.
+  useEffect(() => {
+    const trimmed = search.trim()
+    if (!trimmed) return
+    const id = setTimeout(() => {
+      trackMasaiverse(MASAIVERSE_EVENTS.eventsSearch, { query: trimmed })
+    }, 400)
+    return () => clearTimeout(id)
+  }, [search])
 
   const view = useMemo(() => {
     const searched = events.filter((event) => matchesSearch(event, search))
@@ -76,10 +87,16 @@ export default function EventsPage({ now: nowProp }: { now?: Date }) {
         search={search}
         onSearchChange={setSearch}
         tab={tab}
-        onTabChange={setTab}
+        onTabChange={(next) => {
+          trackMasaiverse(MASAIVERSE_EVENTS.eventsTabChange, { tab: next })
+          setTab(next)
+        }}
         tabCounts={view.tabCounts}
         scope={scope}
-        onScopeChange={setScope}
+        onScopeChange={(next) => {
+          trackMasaiverse(MASAIVERSE_EVENTS.eventsScopeChange, { scope: next })
+          setScope(next)
+        }}
         scopeCounts={view.scopeCounts}
       />
 

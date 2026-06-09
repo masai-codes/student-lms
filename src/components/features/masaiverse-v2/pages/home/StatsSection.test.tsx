@@ -31,7 +31,7 @@ describe('StatsSection', () => {
     renderWithClient(<StatsSection />)
 
     expect(screen.getByText('learners in community')).toBeTruthy()
-    expect(screen.getByText('discussions this week')).toBeTruthy()
+    expect(screen.getByText('Community Discussions')).toBeTruthy()
     expect(screen.getByText('events this year')).toBeTruthy()
     expect(screen.getByText('event registrations')).toBeTruthy()
   })
@@ -40,7 +40,7 @@ describe('StatsSection', () => {
     fetchHome.mockResolvedValue({
       stats: {
         learnersInCommunity: 2841,
-        discussionsThisWeek: 38,
+        discussionsThisMonth: 38,
         eventsThisYear: 6,
         eventRegistrationsThisYear: 124,
       },

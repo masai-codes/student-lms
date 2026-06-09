@@ -2,6 +2,7 @@ import { Link } from '@tanstack/react-router'
 import { CheckCircle } from '@phosphor-icons/react'
 import type { MasaiverseV2HomeEvent } from '@/server/api/masaiverse-v2/services/getHomeEvents.service'
 import { getEventCardDisplay } from '@/lib/masaiverseEventCard'
+import { MASAIVERSE_EVENTS, trackMasaiverse } from '../../tracking'
 
 type EventCardProps = {
   event: MasaiverseV2HomeEvent
@@ -20,6 +21,12 @@ export default function EventCard({ event, now = new Date() }: EventCardProps) {
       to="/masaiverse/event/$eventId"
       params={{ eventId: event.id }}
       search={(prev) => prev}
+      onClick={() =>
+        trackMasaiverse(MASAIVERSE_EVENTS.eventCardClick, {
+          event_id: event.id,
+          source: 'home_events',
+        })
+      }
       className="flex h-full flex-col overflow-hidden rounded-[14px] border border-[#EDEAE8] bg-white transition-shadow hover:shadow-[0_8px_24px_-12px_rgba(0,0,0,0.25)]"
     >
       <div className="relative h-[116px] bg-[#241C16]">

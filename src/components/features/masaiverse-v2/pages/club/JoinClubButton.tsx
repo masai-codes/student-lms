@@ -8,6 +8,7 @@ import {
   MASAIVERSE_V2_MY_CLUBS_KEY,
   masaiverseV2ClubDetailQuery,
 } from '@/query/masaiverse-v2/clubsQuery'
+import { MASAIVERSE_EVENTS, trackMasaiverse } from '@/components/features/masaiverse-v2/tracking'
 
 type JoinClubButtonProps = {
   clubId: string
@@ -47,6 +48,7 @@ export default function JoinClubButton({
   const mutation = useMutation({
     mutationFn: () => setMasaiverseV2ClubMembership({ clubId, join: true }),
     onSuccess: async (state) => {
+      trackMasaiverse(MASAIVERSE_EVENTS.clubJoinSuccess, { club_id: clubId })
       setConfirmOpen(false)
       // The mutation response is authoritative — the server just performed the
       // join and returned the resulting membership. Apply it to the cache.
@@ -79,6 +81,10 @@ export default function JoinClubButton({
   // text; otherwise join straight away.
   const handleJoinClick = () => {
     if (isJoined) return
+    trackMasaiverse(MASAIVERSE_EVENTS.clubJoinClick, {
+      club_id: clubId,
+      has_confirmation: Boolean(confirmationModalText),
+    })
     if (confirmationModalText) setConfirmOpen(true)
     else mutation.mutate()
   }

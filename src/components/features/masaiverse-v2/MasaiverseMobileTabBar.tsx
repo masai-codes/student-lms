@@ -11,6 +11,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sh
 import { OLD_STUDENT_UI_NAV_PATHS } from '@/constants/oldStudentUiNavPaths'
 import { getOldStudentUiUrlForPath } from '@/utils/authRedirect'
 import { isMasaiverseApp } from '@/constants/masaiverseDrawerUi'
+import { MASAIVERSE_EVENTS, trackMasaiverse } from './tracking'
 
 /** Custom event the native app listens for to handle "Back to Masai" itself. */
 const REDIRECT_TO_MASAI_EVENT = 'redirect-to-masai'
@@ -83,7 +84,13 @@ export default function MasaiverseMobileTabBar() {
         label: 'Masai',
         icon: <ArrowLeft size={24} weight="regular" className="text-current" />,
         isActive: false,
-        onClick: navigateBackToMasai,
+        onClick: () => {
+          trackMasaiverse(MASAIVERSE_EVENTS.navClick, {
+            item: 'back_to_masai',
+            surface: 'mobile_tabbar',
+          })
+          navigateBackToMasai()
+        },
       },
       ...PRIMARY_NAV_ITEMS.map(({ id, label, icon: Icon, to }) => ({
         id,
@@ -96,7 +103,14 @@ export default function MasaiverseMobileTabBar() {
           />
         ),
         isActive: activeId === id,
-        onClick: () => navigate({ to, search: (prev) => prev }),
+        onClick: () => {
+          trackMasaiverse(MASAIVERSE_EVENTS.navClick, {
+            item: id,
+            surface: 'mobile_tabbar',
+            to,
+          })
+          navigate({ to, search: (prev) => prev })
+        },
       })),
       {
         id: 'more',
@@ -109,7 +123,13 @@ export default function MasaiverseMobileTabBar() {
           />
         ),
         isActive: isMoreActive,
-        onClick: () => setIsMoreOpen(true),
+        onClick: () => {
+          trackMasaiverse(MASAIVERSE_EVENTS.navClick, {
+            item: 'more',
+            surface: 'mobile_tabbar',
+          })
+          setIsMoreOpen(true)
+        },
       },
     ],
     [activeId, isMoreActive, navigate],
@@ -143,6 +163,11 @@ export default function MasaiverseMobileTabBar() {
                   key={id}
                   type="button"
                   onClick={() => {
+                    trackMasaiverse(MASAIVERSE_EVENTS.navClick, {
+                      item: id,
+                      surface: 'mobile_more',
+                      to,
+                    })
                     goTo(to)
                     setIsMoreOpen(false)
                   }}
