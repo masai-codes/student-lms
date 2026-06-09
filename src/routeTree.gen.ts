@@ -85,6 +85,9 @@ import { Route as ApiLearnLecturesLectureIdRouteImport } from './routes/api/lear
 import { Route as ApiLearnAssignmentsAssignmentIdRouteImport } from './routes/api/learn/assignments/$assignmentId'
 import { Route as ApiLearnAiTutorLimitRouteImport } from './routes/api/learn/ai-tutor/limit'
 import { Route as ApiLearnAiTutorEndRouteImport } from './routes/api/learn/ai-tutor/end'
+import { Route as ApiAnnouncementIdMarkUnreadRouteImport } from './routes/api/announcement/$id/mark-unread'
+import { Route as ApiAnnouncementIdMarkReadRouteImport } from './routes/api/announcement/$id/mark-read'
+import { Route as ApiAnnouncementIdBookmarkRouteImport } from './routes/api/announcement/$id/bookmark'
 import { Route as protectedLayoutMasaiverseLeaderboardRouteImport } from './routes/(protected)/_layout/masaiverse/leaderboard'
 import { Route as protectedLayoutMasaiverseHomeRouteImport } from './routes/(protected)/_layout/masaiverse/home'
 import { Route as protectedLayoutMasaiverseEventsRouteImport } from './routes/(protected)/_layout/masaiverse/events'
@@ -539,6 +542,24 @@ const ApiLearnAiTutorEndRoute = ApiLearnAiTutorEndRouteImport.update({
   path: '/api/learn/ai-tutor/end',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiAnnouncementIdMarkUnreadRoute =
+  ApiAnnouncementIdMarkUnreadRouteImport.update({
+    id: '/api/announcement/$id/mark-unread',
+    path: '/api/announcement/$id/mark-unread',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiAnnouncementIdMarkReadRoute =
+  ApiAnnouncementIdMarkReadRouteImport.update({
+    id: '/api/announcement/$id/mark-read',
+    path: '/api/announcement/$id/mark-read',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiAnnouncementIdBookmarkRoute =
+  ApiAnnouncementIdBookmarkRouteImport.update({
+    id: '/api/announcement/$id/bookmark',
+    path: '/api/announcement/$id/bookmark',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const protectedLayoutMasaiverseLeaderboardRoute =
   protectedLayoutMasaiverseLeaderboardRouteImport.update({
     id: '/leaderboard',
@@ -739,6 +760,9 @@ export interface FileRoutesByFullPath {
   '/masaiverse/events': typeof protectedLayoutMasaiverseEventsRoute
   '/masaiverse/home': typeof protectedLayoutMasaiverseHomeRoute
   '/masaiverse/leaderboard': typeof protectedLayoutMasaiverseLeaderboardRoute
+  '/api/announcement/$id/bookmark': typeof ApiAnnouncementIdBookmarkRoute
+  '/api/announcement/$id/mark-read': typeof ApiAnnouncementIdMarkReadRoute
+  '/api/announcement/$id/mark-unread': typeof ApiAnnouncementIdMarkUnreadRoute
   '/api/learn/ai-tutor/end': typeof ApiLearnAiTutorEndRoute
   '/api/learn/ai-tutor/limit': typeof ApiLearnAiTutorLimitRoute
   '/api/learn/assignments/$assignmentId': typeof ApiLearnAssignmentsAssignmentIdRouteWithChildren
@@ -841,6 +865,9 @@ export interface FileRoutesByTo {
   '/masaiverse/events': typeof protectedLayoutMasaiverseEventsRoute
   '/masaiverse/home': typeof protectedLayoutMasaiverseHomeRoute
   '/masaiverse/leaderboard': typeof protectedLayoutMasaiverseLeaderboardRoute
+  '/api/announcement/$id/bookmark': typeof ApiAnnouncementIdBookmarkRoute
+  '/api/announcement/$id/mark-read': typeof ApiAnnouncementIdMarkReadRoute
+  '/api/announcement/$id/mark-unread': typeof ApiAnnouncementIdMarkUnreadRoute
   '/api/learn/ai-tutor/end': typeof ApiLearnAiTutorEndRoute
   '/api/learn/ai-tutor/limit': typeof ApiLearnAiTutorLimitRoute
   '/api/learn/assignments/$assignmentId': typeof ApiLearnAssignmentsAssignmentIdRouteWithChildren
@@ -946,6 +973,9 @@ export interface FileRoutesById {
   '/(protected)/_layout/masaiverse/events': typeof protectedLayoutMasaiverseEventsRoute
   '/(protected)/_layout/masaiverse/home': typeof protectedLayoutMasaiverseHomeRoute
   '/(protected)/_layout/masaiverse/leaderboard': typeof protectedLayoutMasaiverseLeaderboardRoute
+  '/api/announcement/$id/bookmark': typeof ApiAnnouncementIdBookmarkRoute
+  '/api/announcement/$id/mark-read': typeof ApiAnnouncementIdMarkReadRoute
+  '/api/announcement/$id/mark-unread': typeof ApiAnnouncementIdMarkUnreadRoute
   '/api/learn/ai-tutor/end': typeof ApiLearnAiTutorEndRoute
   '/api/learn/ai-tutor/limit': typeof ApiLearnAiTutorLimitRoute
   '/api/learn/assignments/$assignmentId': typeof ApiLearnAssignmentsAssignmentIdRouteWithChildren
@@ -1051,6 +1081,9 @@ export interface FileRouteTypes {
     | '/masaiverse/events'
     | '/masaiverse/home'
     | '/masaiverse/leaderboard'
+    | '/api/announcement/$id/bookmark'
+    | '/api/announcement/$id/mark-read'
+    | '/api/announcement/$id/mark-unread'
     | '/api/learn/ai-tutor/end'
     | '/api/learn/ai-tutor/limit'
     | '/api/learn/assignments/$assignmentId'
@@ -1153,6 +1186,9 @@ export interface FileRouteTypes {
     | '/masaiverse/events'
     | '/masaiverse/home'
     | '/masaiverse/leaderboard'
+    | '/api/announcement/$id/bookmark'
+    | '/api/announcement/$id/mark-read'
+    | '/api/announcement/$id/mark-unread'
     | '/api/learn/ai-tutor/end'
     | '/api/learn/ai-tutor/limit'
     | '/api/learn/assignments/$assignmentId'
@@ -1257,6 +1293,9 @@ export interface FileRouteTypes {
     | '/(protected)/_layout/masaiverse/events'
     | '/(protected)/_layout/masaiverse/home'
     | '/(protected)/_layout/masaiverse/leaderboard'
+    | '/api/announcement/$id/bookmark'
+    | '/api/announcement/$id/mark-read'
+    | '/api/announcement/$id/mark-unread'
     | '/api/learn/ai-tutor/end'
     | '/api/learn/ai-tutor/limit'
     | '/api/learn/assignments/$assignmentId'
@@ -1350,6 +1389,9 @@ export interface RootRouteChildren {
   authV2AuthUseAccountRoute: typeof authV2AuthUseAccountRoute
   authV2LoginRequestOtpRoute: typeof authV2LoginRequestOtpRoute
   authV2LoginVerifyOtpRoute: typeof authV2LoginVerifyOtpRoute
+  ApiAnnouncementIdBookmarkRoute: typeof ApiAnnouncementIdBookmarkRoute
+  ApiAnnouncementIdMarkReadRoute: typeof ApiAnnouncementIdMarkReadRoute
+  ApiAnnouncementIdMarkUnreadRoute: typeof ApiAnnouncementIdMarkUnreadRoute
   ApiLearnAiTutorEndRoute: typeof ApiLearnAiTutorEndRoute
   ApiLearnAiTutorLimitRoute: typeof ApiLearnAiTutorLimitRoute
   ApiLearnAssignmentsAssignmentIdRoute: typeof ApiLearnAssignmentsAssignmentIdRouteWithChildren
@@ -1928,6 +1970,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiLearnAiTutorEndRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/announcement/$id/mark-unread': {
+      id: '/api/announcement/$id/mark-unread'
+      path: '/api/announcement/$id/mark-unread'
+      fullPath: '/api/announcement/$id/mark-unread'
+      preLoaderRoute: typeof ApiAnnouncementIdMarkUnreadRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/announcement/$id/mark-read': {
+      id: '/api/announcement/$id/mark-read'
+      path: '/api/announcement/$id/mark-read'
+      fullPath: '/api/announcement/$id/mark-read'
+      preLoaderRoute: typeof ApiAnnouncementIdMarkReadRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/announcement/$id/bookmark': {
+      id: '/api/announcement/$id/bookmark'
+      path: '/api/announcement/$id/bookmark'
+      fullPath: '/api/announcement/$id/bookmark'
+      preLoaderRoute: typeof ApiAnnouncementIdBookmarkRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/(protected)/_layout/masaiverse/leaderboard': {
       id: '/(protected)/_layout/masaiverse/leaderboard'
       path: '/leaderboard'
@@ -2272,6 +2335,9 @@ const rootRouteChildren: RootRouteChildren = {
   authV2AuthUseAccountRoute: authV2AuthUseAccountRoute,
   authV2LoginRequestOtpRoute: authV2LoginRequestOtpRoute,
   authV2LoginVerifyOtpRoute: authV2LoginVerifyOtpRoute,
+  ApiAnnouncementIdBookmarkRoute: ApiAnnouncementIdBookmarkRoute,
+  ApiAnnouncementIdMarkReadRoute: ApiAnnouncementIdMarkReadRoute,
+  ApiAnnouncementIdMarkUnreadRoute: ApiAnnouncementIdMarkUnreadRoute,
   ApiLearnAiTutorEndRoute: ApiLearnAiTutorEndRoute,
   ApiLearnAiTutorLimitRoute: ApiLearnAiTutorLimitRoute,
   ApiLearnAssignmentsAssignmentIdRoute:

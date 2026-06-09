@@ -1,4 +1,4 @@
-export const BOOKMARKS_PER_PAGE = 10
+export const BOOKMARKS_PER_PAGE = 15
 
 export const BOOKMARK_TABS = [
   { id: 'lectures', label: 'Lectures' },

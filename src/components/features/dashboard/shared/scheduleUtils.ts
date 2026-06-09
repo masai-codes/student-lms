@@ -146,6 +146,27 @@ export function formatScheduleTimeIST(item: DashboardScheduleItem): string {
   return `${formatShortDateIST(start)}, ${formatHourIST(start)} - ${formatShortDateIST(end)}, ${formatHourIST(end)} (IST)`
 }
 
+/**
+ * Format a single raw timestamp (no concludes) in the browser's local timezone.
+ * e.g. "6 Jun, 4:24 AM (EDT)" — used for announcement card dates.
+ */
+export function formatTimestampLocal(raw: string): string {
+  const d = parseMysqlDatetime(raw)
+  if (!d) return ''
+  const tz = getTimezoneAbbr()
+  return `${formatShortDate(d)}, ${formatHour(d)} (${tz})`
+}
+
+/**
+ * Format a single raw timestamp hardcoded to IST — used in tooltips.
+ * e.g. "6 Jun, 9:54 AM (IST)"
+ */
+export function formatTimestampIST(raw: string): string {
+  const d = parseMysqlDatetime(raw)
+  if (!d) return ''
+  return `${formatShortDateIST(d)}, ${formatHourIST(d)} (IST)`
+}
+
 function toDateKey(d: Date): string {
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`
 }

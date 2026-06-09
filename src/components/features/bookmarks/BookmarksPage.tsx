@@ -1,6 +1,6 @@
 import { Link, getRouteApi, useNavigate } from '@tanstack/react-router'
 import { keepPreviousData, useQuery } from '@tanstack/react-query'
-import { Bookmark, Search, SlidersHorizontal, Ticket } from 'lucide-react'
+import { Bookmark, Globe, Search, SlidersHorizontal, Ticket } from 'lucide-react'
 import { BOOKMARKS_PER_PAGE, BOOKMARK_TABS } from './bookmarksConfig'
 import type { BookmarkEntityType, BookmarkItem } from '@/server/api/bookmarks/getBookmarks.service'
 import type { BookmarkTab } from './bookmarksConfig'
@@ -15,6 +15,7 @@ import {
 import { MasaiInput } from '@/components/ui/masai-input'
 import AppPagination from '@/components/common/Pagination'
 import { fetchBookmarks } from '@/lib/api/bookmarks/bookmarksApi'
+import { formatTimestampLocal, formatTimestampIST } from '@/components/features/dashboard/shared/scheduleUtils'
 
 const STALE_TIME_MS = 5 * 60 * 1000
 
@@ -35,6 +36,9 @@ function EntityIcon({ type }: { type: BookmarkEntityType }) {
   if (type === 'announcement') {
     return <img src="/AnnouncementIcon.svg" alt="" className="size-5 shrink-0" />
   }
+  if (type === 'masaiverse') {
+    return <Globe size={18} strokeWidth={1.75} className="text-indigo-400 shrink-0" />
+  }
   // ticket
   return <Ticket size={18} strokeWidth={1.75} className="text-gray-400 shrink-0" />
 }
@@ -42,8 +46,8 @@ function EntityIcon({ type }: { type: BookmarkEntityType }) {
 // ── Bookmark Card ──────────────────────────────────────────────────────────────
 
 function BookmarkCard({ item }: { item: BookmarkItem }) {
-  return (
-    <div className="flex items-center gap-3 p-4 rounded-xl border border-gray-200 bg-white transition-shadow hover:shadow-md cursor-pointer">
+  const inner = (
+    <>
       <div className="shrink-0">
         <EntityIcon type={item.entityType} />
       </div>
@@ -58,27 +62,48 @@ function BookmarkCard({ item }: { item: BookmarkItem }) {
             </span>
           )}
         </div>
-        <div className="mt-1.5 flex items-center gap-2 text-[13px] text-gray-400">
+        <div className="mt-1.5 flex items-center gap-2 text-[13px] text-gray-900">
           {item.author && (
             <>
               <span>{item.author}</span>
-              <span className="size-1 rounded-full bg-gray-300 shrink-0" />
+              <span className="size-1 rounded-full bg-gray-600 shrink-0" />
             </>
           )}
-          {item.meta && (
-            <>
-              <span>{item.meta}</span>
-              <span className="size-1 rounded-full bg-gray-300 shrink-0" />
-            </>
-          )}
-          <span>{item.savedAt}</span>
+          {/* Time — local TZ on card, IST in tooltip */}
+          <span className="relative group/savedAt cursor-default">
+            {formatTimestampLocal(item.savedAt)}
+            <span className="pointer-events-none absolute bottom-full left-0 mb-1.5 z-20
+              opacity-0 group-hover/savedAt:opacity-100 transition-opacity duration-150
+              whitespace-nowrap rounded-md bg-gray-900 px-2.5 py-1.5
+              text-xs font-medium text-white shadow-lg">
+              {formatTimestampIST(item.savedAt)}
+              <span className="absolute top-full left-4 -translate-x-1/2 border-4 border-transparent border-t-gray-900" />
+            </span>
+          </span>
         </div>
       </div>
       {/* Read-only bookmark badge */}
       <div className="shrink-0 flex items-center justify-center w-9 h-9 rounded-xl bg-indigo-50">
         <Bookmark size={16} className="text-indigo-500 fill-indigo-500" />
       </div>
-    </div>
+    </>
+  )
+
+  const cardClass = "flex items-center gap-3 p-4 rounded-xl border border-gray-200 bg-white transition-shadow hover:shadow-md no-underline"
+
+  // Masaiverse uses an internal route with search params — use a plain anchor
+  if (item.entityType === 'masaiverse') {
+    return (
+      <a href={item.ctaUrl} className={cardClass}>
+        {inner}
+      </a>
+    )
+  }
+
+  return (
+    <a href={item.ctaUrl} className={cardClass}>
+      {inner}
+    </a>
   )
 }
 
