@@ -1,18 +1,16 @@
-import { describe, expect, it, vi } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import { getAuthBranding } from '@/utils/authBranding'
 
 describe('getAuthBranding', () => {
-  it('returns masai branding by default', () => {
-    vi.stubEnv('VITE_APP_ORIGIN', '')
-    expect(getAuthBranding()).toMatchObject({
+  it('returns masai branding for the masai origin', () => {
+    expect(getAuthBranding('masai')).toMatchObject({
       logoSrc: '/masai-logo.svg',
       logoAlt: 'Masai School',
     })
   })
 
-  it('returns ihub branding when configured', () => {
-    vi.stubEnv('VITE_APP_ORIGIN', 'ihub')
-    expect(getAuthBranding()).toMatchObject({
+  it('returns ihub branding for the ihub origin', () => {
+    expect(getAuthBranding('ihub')).toMatchObject({
       logoSrc: '/ihub-logo.png',
       logoAlt: 'i-HUB Divyasampark',
       pageTitle: 'iHub DivyaSampark',

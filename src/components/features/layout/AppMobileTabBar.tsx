@@ -11,7 +11,7 @@ import { getOldStudentUiUrlForPath } from '@/utils/authRedirect'
 function navigateToOldStudentPath(path: string) {
   const url = getOldStudentUiUrlForPath(path)
   if (!url) {
-    console.warn('VITE_OLD_STUDENT_UI_URL is not configured')
+    console.warn('Legacy student app URL is not configured for this origin')
     return
   }
   window.location.assign(url)

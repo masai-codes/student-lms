@@ -13,7 +13,7 @@ type RedirectDebugContext = {
   extra?: Record<string, unknown>
 }
 
-/** Full URL to a path on the legacy student app (`VITE_OLD_STUDENT_UI_URL`). Edit paths in `AppNavbar` as needed. */
+/** Full URL to a path on the legacy student app (base URL resolved per origin). Edit paths in `AppNavbar` as needed. */
 export function getOldStudentUiUrlForPath(path: string): string | undefined {
   const base = getOldStudentUiUrl()?.trim()
   if (!base) return undefined
@@ -52,7 +52,7 @@ export function redirectToOldStudentUi(context?: RedirectDebugContext) {
   console.info('[redirectToOldStudentUi] Redirect requested', debugInfo)
 
   if (!studentUiUrl) {
-    console.warn('[redirectToOldStudentUi] Missing VITE_OLD_STUDENT_UI_URL', debugInfo)
+    console.warn('[redirectToOldStudentUi] Missing legacy student app URL for this origin', debugInfo)
     return
   }
 

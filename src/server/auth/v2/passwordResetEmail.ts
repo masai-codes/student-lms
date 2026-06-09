@@ -1,6 +1,6 @@
 import { SESv2Client, SendEmailCommand } from '@aws-sdk/client-sesv2'
 import type { EmailPortal } from '@/server/auth/v2/isRequestFromIHub'
-import { getNewStudentUiUrl } from '@/utils/viteEnv'
+import { ORIGIN_URLS } from '@/utils/originUrls'
 
 const MASAI_SOURCE = 'operations@masaischool.com'
 const IHUB_SOURCE = 'notify-lms@ihubiitrcourses.org'
@@ -13,15 +13,10 @@ function resolveSourceEmail(portal: EmailPortal): string {
   return portal === 'ihub' ? IHUB_SOURCE : MASAI_SOURCE
 }
 
-function getConfiguredStudentUiUrl(): string {
-  return (getNewStudentUiUrl() ?? '').trim().replace(/\/$/, '')
-}
-
 export function getStudentPasswordResetBaseUrl(portal: EmailPortal): string {
-  const fromEnv = getConfiguredStudentUiUrl()
-  if (fromEnv) return fromEnv
-  // Fallback when VITE_NEW_STUDENT_UI_URL is unset (each PM2 app should set it per deploy).
-  return portal === 'ihub' ? 'https://courses.ihubiitrcourses.org' : ''
+  // Keyed by the user's portal (not the request origin) so reset links match
+  // the user's program. See `sendForgotPasswordEmail`.
+  return ORIGIN_URLS[portal].newStudentUi.trim().replace(/\/$/, '')
 }
 
 function buildHtml(name: string, link: string, portal: EmailPortal): string {
