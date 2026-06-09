@@ -1,8 +1,7 @@
 import { useState } from 'react'
-import { useQuery } from '@tanstack/react-query'
 import { Camera, ChevronLeft, ChevronRight, CircleUserRound, Download, FileText, Monitor, Smartphone, ThumbsUp } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
-import { fetchDashboardActionBanners } from '@/lib/api/dashboard/dashboardApi'
+import type { DashboardActionBannersResult } from '@/server/api/dashboard/getDashboardActionBanners.service'
 
 type SlideId = string
 
@@ -40,15 +39,10 @@ const STATIC_SLIDES: Array<ActionSlide> = [
   },
 ]
 
-export function DashboardActionBanner() {
-  const { data, isLoading } = useQuery({
-    queryKey: ['dashboard-action-banners'],
-    queryFn: fetchDashboardActionBanners,
-  })
-
+export function DashboardActionBanner({ actionBanners: data }: { actionBanners: DashboardActionBannersResult | undefined }) {
   const [current, setCurrent] = useState(0)
 
-  if (isLoading) return null
+  if (!data) return null
 
   const agreementSlides: Array<ActionSlide> = (data?.pendingAgreementSections ?? []).map((section) => ({
     id: `agreement-${section.sectionId}`,

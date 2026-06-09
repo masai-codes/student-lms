@@ -69,7 +69,7 @@ function PillContent({ event }: { event: NavbarPillEvent }) {
       {countdown !== null ? (
         <span className="shrink-0 bg-white rounded-[10px] px-3 py-1.5 text-[13px] font-bold text-gray-800 shadow-sm whitespace-nowrap">{countdown}</span>
       ) : (
-        <span className="shrink-0 bg-[#3F83F8] rounded-[10px] px-3 py-1.5 text-[13px] font-bold text-white whitespace-nowrap">{isEvaluation ? 'Start' : 'Join Now'}</span>
+        <span className="shrink-0 bg-[#6962AC] rounded-[10px] px-3 py-1.5 text-[13px] font-bold text-white whitespace-nowrap">{isEvaluation ? 'Start' : 'View Details'}</span>
       )}
     </>
   )
@@ -97,8 +97,8 @@ export function UpcomingLecturePill() {
   const { data } = useQuery({
     queryKey: ['navbar-pill'],
     queryFn: fetchNavbarPillEvent,
-    staleTime: 30 * 1000,
-    refetchInterval: 30 * 1000,
+    staleTime: 5 * 60 * 1000,
+    refetchInterval: 5 * 60 * 1000,
   })
 
   if (!data) return null

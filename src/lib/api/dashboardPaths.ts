@@ -1,4 +1,6 @@
 export const DASHBOARD_API = {
+  leftSection: '/api/dashboard/left-section',
+  rightSection: '/api/dashboard/right-section',
   announcements: '/api/dashboard/announcements',
   productUpdates: '/api/dashboard/product-updates',
   schedule: '/api/dashboard/schedule',

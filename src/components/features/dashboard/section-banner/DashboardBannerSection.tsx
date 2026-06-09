@@ -1,8 +1,6 @@
 import { useState } from 'react'
-import { useQuery } from '@tanstack/react-query'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import type { DashboardBannerItem } from '@/server/api/dashboard/getDashboardBanners.service'
-import { fetchDashboardBanners } from '@/lib/api/dashboard/dashboardApi'
 
 function BannerSlideCard({ banner }: { banner: DashboardBannerItem }) {
   const inner = (
@@ -53,12 +51,7 @@ function BannerSlideCard({ banner }: { banner: DashboardBannerItem }) {
   return inner
 }
 
-export function DashboardBannerSection() {
-  const { data: banners = [] } = useQuery({
-    queryKey: ['dashboard-banners'],
-    queryFn: fetchDashboardBanners,
-  })
-
+export function DashboardBannerSection({ banners }: { banners: Array<DashboardBannerItem> }) {
   const [current, setCurrent] = useState(0)
 
   if (banners.length === 0) return null

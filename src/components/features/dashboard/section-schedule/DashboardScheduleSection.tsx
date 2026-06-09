@@ -1,34 +1,52 @@
 import { useState } from 'react'
+import { useQuery } from '@tanstack/react-query'
 import { CalendarDays, Clock, History } from 'lucide-react'
 import { extractSpanningItems, groupItemsByWeek } from '../shared/scheduleUtils'
 import { ScheduleWeekGroupSection } from './ScheduleWeekGroup'
 import { ScheduleCard } from './schedule-card/ScheduleCard'
 import type { DashboardScheduleItem, ScheduleWeekGroup } from '../shared/types'
 import { AppLoading } from '@/components/common'
+import { fetchDashboardPendingTasks } from '@/lib/api/dashboard/dashboardApi'
 
 type ScheduleTab = 'schedule' | 'pending'
 
 interface DashboardScheduleSectionProps {
   items: Array<DashboardScheduleItem>
-  pendingItems: Array<DashboardScheduleItem>
   isLoading: boolean
-  isPendingLoading: boolean
+  pendingTasksCount: number
 }
 
 export function DashboardScheduleSection({
   items,
-  pendingItems,
   isLoading,
-  isPendingLoading,
+  pendingTasksCount,
 }: DashboardScheduleSectionProps) {
   const [activeTab, setActiveTab] = useState<ScheduleTab>('schedule')
+  const [pendingTabActivated, setPendingTabActivated] = useState(false)
+
+  const { data: pendingTasksData, isLoading: isPendingLoading } = useQuery({
+    queryKey: ['dashboard-pending-tasks'],
+    queryFn: fetchDashboardPendingTasks,
+    enabled: pendingTabActivated,
+  })
+
+  function handlePendingTabClick() {
+    setPendingTabActivated(true)
+    setActiveTab('pending')
+  }
 
   // Items that span the entire week are excluded from My Schedule
   // and surfaced in Pending Tasks instead
   const spanningItems = extractSpanningItems(items)
   const spanningIds = new Set(spanningItems.map((i) => i.id))
   const scheduleItems = items.filter((i) => !spanningIds.has(i.id))
-  const effectivePendingItems = [...pendingItems, ...spanningItems]
+  const effectivePendingItems = [...(pendingTasksData ?? []), ...spanningItems]
+
+  // Before the tab is clicked we use the lightweight count from the API;
+  // after activation we use the actual fetched items length.
+  const badgeCount = pendingTabActivated
+    ? effectivePendingItems.length
+    : pendingTasksCount + spanningItems.length
 
   const weekGroups: Array<ScheduleWeekGroup> =
     activeTab === 'schedule' ? groupItemsByWeek(scheduleItems) : []
@@ -51,7 +69,7 @@ export function DashboardScheduleSection({
 
         <button
           type="button"
-          onClick={() => setActiveTab('pending')}
+          onClick={handlePendingTabClick}
           className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400 ${
             activeTab === 'pending'
               ? 'bg-[#EBF5FF] border border-primary-700 text-primary-700'
@@ -60,9 +78,9 @@ export function DashboardScheduleSection({
         >
           <Clock size={16} />
           Pending Tasks
-          {effectivePendingItems.length > 0 ? (
+          {badgeCount > 0 ? (
             <span className="inline-flex items-center justify-center size-5 rounded-full bg-red-500 text-white text-xs font-semibold">
-              {effectivePendingItems.length}
+              {badgeCount}
             </span>
           ) : null}
         </button>

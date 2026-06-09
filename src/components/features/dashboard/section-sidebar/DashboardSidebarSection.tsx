@@ -6,12 +6,14 @@ import type { AnnouncementItem } from './AnnouncementsPanel'
 import type { ProductUpdateItem } from './ProductUpdatesPanel'
 import type { EnrolledBatch } from '@/server/learn/types'
 import type { BatchAttendance } from '@/server/api/dashboard/getDashboardAttendance.service'
+import type { LmsSupportInfo } from '@/server/api/dashboard/getLmsSupportInfo.service'
 
 interface DashboardSidebarSectionProps {
   announcements: Array<AnnouncementItem>
   productUpdates: Array<ProductUpdateItem>
   enrolledBatches: Array<EnrolledBatch>
   attendanceData: Array<BatchAttendance>
+  lmsSupport: LmsSupportInfo | undefined
 }
 
 export function DashboardSidebarSection({
@@ -19,6 +21,7 @@ export function DashboardSidebarSection({
   productUpdates,
   enrolledBatches,
   attendanceData,
+  lmsSupport,
 }: DashboardSidebarSectionProps) {
   const hasAnnouncements = announcements.length > 0
 
@@ -36,7 +39,7 @@ export function DashboardSidebarSection({
         </>
       )}
       <YourProgressPanel enrolledBatches={enrolledBatches} attendanceData={attendanceData} />
-      <LmsSupportPanel />
+      <LmsSupportPanel info={lmsSupport} />
     </div>
   )
 }

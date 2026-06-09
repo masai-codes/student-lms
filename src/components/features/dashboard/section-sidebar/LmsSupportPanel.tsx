@@ -1,6 +1,4 @@
 import { useState, useEffect } from 'react'
-import { useQuery } from '@tanstack/react-query'
-import { fetchLmsSupportInfo } from '@/lib/api/dashboard/dashboardApi'
 import type { LmsSupportInfo } from '@/server/api/dashboard/getLmsSupportInfo.service'
 
 // ── IST time helpers ───────────────────────────────────────────────────────────
@@ -196,13 +194,7 @@ function NextSessionCard({ nextSchedule }: { nextSchedule: string | null }) {
 
 // ── Main panel ─────────────────────────────────────────────────────────────────
 
-export function LmsSupportPanel() {
-  const { data: info } = useQuery({
-    queryKey: ['lms-support-info'],
-    queryFn: fetchLmsSupportInfo,
-    staleTime: 5 * 60 * 1000,
-  })
-
+export function LmsSupportPanel({ info }: { info: LmsSupportInfo | undefined }) {
   const cardState = useCardState(info)
 
   if (info && !info.visible) return null
