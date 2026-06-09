@@ -8,6 +8,30 @@ import type { DashboardActionBannersResult } from '@/server/api/dashboard/getDas
 import type { LmsSupportInfo } from '@/server/api/dashboard/getLmsSupportInfo.service'
 import type { BatchAttendance } from '@/server/api/dashboard/getDashboardAttendance.service'
 import type { NavbarPillEvent } from '@/server/api/dashboard/getNavbarPill.service'
+import type { EnrolledBatch } from '@/server/learn/types'
+
+export interface DashboardRightSectionData {
+  announcements: Array<DashboardAnnouncementItem>
+  productUpdates: Array<DashboardProductUpdateItem>
+  lmsSupport: LmsSupportInfo
+  attendance: Array<BatchAttendance>
+  batches: Array<EnrolledBatch>
+}
+
+export async function fetchDashboardRightSection(): Promise<DashboardRightSectionData> {
+  return fetchJson<DashboardRightSectionData>(DASHBOARD_API.rightSection)
+}
+
+export interface DashboardLeftSectionData {
+  schedule: Array<DashboardScheduleItem>
+  banners: Array<DashboardBannerItem>
+  actionBanners: DashboardActionBannersResult
+  pendingTasksCount: number
+}
+
+export async function fetchDashboardLeftSection(): Promise<DashboardLeftSectionData> {
+  return fetchJson<DashboardLeftSectionData>(DASHBOARD_API.leftSection)
+}
 
 type GetAnnouncementsResponse = { announcements: Array<DashboardAnnouncementItem> }
 type GetProductUpdatesResponse = { productUpdates: Array<DashboardProductUpdateItem> }

@@ -27,10 +27,12 @@ import { Route as ApiMasaiverseV2AdminModeRouteImport } from './routes/api/masai
 import { Route as ApiLearnBatchesRouteImport } from './routes/api/learn/batches'
 import { Route as ApiLearnBatchDataRouteImport } from './routes/api/learn/batch-data'
 import { Route as ApiDashboardScheduleRouteImport } from './routes/api/dashboard/schedule'
+import { Route as ApiDashboardRightSectionRouteImport } from './routes/api/dashboard/right-section'
 import { Route as ApiDashboardProductUpdatesRouteImport } from './routes/api/dashboard/product-updates'
 import { Route as ApiDashboardPendingTasksRouteImport } from './routes/api/dashboard/pending-tasks'
 import { Route as ApiDashboardNavbarPillRouteImport } from './routes/api/dashboard/navbar-pill'
 import { Route as ApiDashboardLmsSupportRouteImport } from './routes/api/dashboard/lms-support'
+import { Route as ApiDashboardLeftSectionRouteImport } from './routes/api/dashboard/left-section'
 import { Route as ApiDashboardBannersRouteImport } from './routes/api/dashboard/banners'
 import { Route as ApiDashboardAttendanceRouteImport } from './routes/api/dashboard/attendance'
 import { Route as ApiDashboardAnnouncementsRouteImport } from './routes/api/dashboard/announcements'
@@ -202,6 +204,12 @@ const ApiDashboardScheduleRoute = ApiDashboardScheduleRouteImport.update({
   path: '/api/dashboard/schedule',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiDashboardRightSectionRoute =
+  ApiDashboardRightSectionRouteImport.update({
+    id: '/api/dashboard/right-section',
+    path: '/api/dashboard/right-section',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiDashboardProductUpdatesRoute =
   ApiDashboardProductUpdatesRouteImport.update({
     id: '/api/dashboard/product-updates',
@@ -222,6 +230,11 @@ const ApiDashboardNavbarPillRoute = ApiDashboardNavbarPillRouteImport.update({
 const ApiDashboardLmsSupportRoute = ApiDashboardLmsSupportRouteImport.update({
   id: '/api/dashboard/lms-support',
   path: '/api/dashboard/lms-support',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiDashboardLeftSectionRoute = ApiDashboardLeftSectionRouteImport.update({
+  id: '/api/dashboard/left-section',
+  path: '/api/dashboard/left-section',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiDashboardBannersRoute = ApiDashboardBannersRouteImport.update({
@@ -689,10 +702,12 @@ export interface FileRoutesByFullPath {
   '/api/dashboard/announcements': typeof ApiDashboardAnnouncementsRoute
   '/api/dashboard/attendance': typeof ApiDashboardAttendanceRoute
   '/api/dashboard/banners': typeof ApiDashboardBannersRoute
+  '/api/dashboard/left-section': typeof ApiDashboardLeftSectionRoute
   '/api/dashboard/lms-support': typeof ApiDashboardLmsSupportRoute
   '/api/dashboard/navbar-pill': typeof ApiDashboardNavbarPillRoute
   '/api/dashboard/pending-tasks': typeof ApiDashboardPendingTasksRoute
   '/api/dashboard/product-updates': typeof ApiDashboardProductUpdatesRoute
+  '/api/dashboard/right-section': typeof ApiDashboardRightSectionRoute
   '/api/dashboard/schedule': typeof ApiDashboardScheduleRoute
   '/api/learn/batch-data': typeof ApiLearnBatchDataRoute
   '/api/learn/batches': typeof ApiLearnBatchesRoute
@@ -789,10 +804,12 @@ export interface FileRoutesByTo {
   '/api/dashboard/announcements': typeof ApiDashboardAnnouncementsRoute
   '/api/dashboard/attendance': typeof ApiDashboardAttendanceRoute
   '/api/dashboard/banners': typeof ApiDashboardBannersRoute
+  '/api/dashboard/left-section': typeof ApiDashboardLeftSectionRoute
   '/api/dashboard/lms-support': typeof ApiDashboardLmsSupportRoute
   '/api/dashboard/navbar-pill': typeof ApiDashboardNavbarPillRoute
   '/api/dashboard/pending-tasks': typeof ApiDashboardPendingTasksRoute
   '/api/dashboard/product-updates': typeof ApiDashboardProductUpdatesRoute
+  '/api/dashboard/right-section': typeof ApiDashboardRightSectionRoute
   '/api/dashboard/schedule': typeof ApiDashboardScheduleRoute
   '/api/learn/batch-data': typeof ApiLearnBatchDataRoute
   '/api/learn/batches': typeof ApiLearnBatchesRoute
@@ -892,10 +909,12 @@ export interface FileRoutesById {
   '/api/dashboard/announcements': typeof ApiDashboardAnnouncementsRoute
   '/api/dashboard/attendance': typeof ApiDashboardAttendanceRoute
   '/api/dashboard/banners': typeof ApiDashboardBannersRoute
+  '/api/dashboard/left-section': typeof ApiDashboardLeftSectionRoute
   '/api/dashboard/lms-support': typeof ApiDashboardLmsSupportRoute
   '/api/dashboard/navbar-pill': typeof ApiDashboardNavbarPillRoute
   '/api/dashboard/pending-tasks': typeof ApiDashboardPendingTasksRoute
   '/api/dashboard/product-updates': typeof ApiDashboardProductUpdatesRoute
+  '/api/dashboard/right-section': typeof ApiDashboardRightSectionRoute
   '/api/dashboard/schedule': typeof ApiDashboardScheduleRoute
   '/api/learn/batch-data': typeof ApiLearnBatchDataRoute
   '/api/learn/batches': typeof ApiLearnBatchesRoute
@@ -995,10 +1014,12 @@ export interface FileRouteTypes {
     | '/api/dashboard/announcements'
     | '/api/dashboard/attendance'
     | '/api/dashboard/banners'
+    | '/api/dashboard/left-section'
     | '/api/dashboard/lms-support'
     | '/api/dashboard/navbar-pill'
     | '/api/dashboard/pending-tasks'
     | '/api/dashboard/product-updates'
+    | '/api/dashboard/right-section'
     | '/api/dashboard/schedule'
     | '/api/learn/batch-data'
     | '/api/learn/batches'
@@ -1095,10 +1116,12 @@ export interface FileRouteTypes {
     | '/api/dashboard/announcements'
     | '/api/dashboard/attendance'
     | '/api/dashboard/banners'
+    | '/api/dashboard/left-section'
     | '/api/dashboard/lms-support'
     | '/api/dashboard/navbar-pill'
     | '/api/dashboard/pending-tasks'
     | '/api/dashboard/product-updates'
+    | '/api/dashboard/right-section'
     | '/api/dashboard/schedule'
     | '/api/learn/batch-data'
     | '/api/learn/batches'
@@ -1197,10 +1220,12 @@ export interface FileRouteTypes {
     | '/api/dashboard/announcements'
     | '/api/dashboard/attendance'
     | '/api/dashboard/banners'
+    | '/api/dashboard/left-section'
     | '/api/dashboard/lms-support'
     | '/api/dashboard/navbar-pill'
     | '/api/dashboard/pending-tasks'
     | '/api/dashboard/product-updates'
+    | '/api/dashboard/right-section'
     | '/api/dashboard/schedule'
     | '/api/learn/batch-data'
     | '/api/learn/batches'
@@ -1299,10 +1324,12 @@ export interface RootRouteChildren {
   ApiDashboardAnnouncementsRoute: typeof ApiDashboardAnnouncementsRoute
   ApiDashboardAttendanceRoute: typeof ApiDashboardAttendanceRoute
   ApiDashboardBannersRoute: typeof ApiDashboardBannersRoute
+  ApiDashboardLeftSectionRoute: typeof ApiDashboardLeftSectionRoute
   ApiDashboardLmsSupportRoute: typeof ApiDashboardLmsSupportRoute
   ApiDashboardNavbarPillRoute: typeof ApiDashboardNavbarPillRoute
   ApiDashboardPendingTasksRoute: typeof ApiDashboardPendingTasksRoute
   ApiDashboardProductUpdatesRoute: typeof ApiDashboardProductUpdatesRoute
+  ApiDashboardRightSectionRoute: typeof ApiDashboardRightSectionRoute
   ApiDashboardScheduleRoute: typeof ApiDashboardScheduleRoute
   ApiLearnBatchDataRoute: typeof ApiLearnBatchDataRoute
   ApiLearnBatchesRoute: typeof ApiLearnBatchesRoute
@@ -1495,6 +1522,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiDashboardScheduleRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/dashboard/right-section': {
+      id: '/api/dashboard/right-section'
+      path: '/api/dashboard/right-section'
+      fullPath: '/api/dashboard/right-section'
+      preLoaderRoute: typeof ApiDashboardRightSectionRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/dashboard/product-updates': {
       id: '/api/dashboard/product-updates'
       path: '/api/dashboard/product-updates'
@@ -1521,6 +1555,13 @@ declare module '@tanstack/react-router' {
       path: '/api/dashboard/lms-support'
       fullPath: '/api/dashboard/lms-support'
       preLoaderRoute: typeof ApiDashboardLmsSupportRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/dashboard/left-section': {
+      id: '/api/dashboard/left-section'
+      path: '/api/dashboard/left-section'
+      fullPath: '/api/dashboard/left-section'
+      preLoaderRoute: typeof ApiDashboardLeftSectionRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/dashboard/banners': {
@@ -2205,10 +2246,12 @@ const rootRouteChildren: RootRouteChildren = {
   ApiDashboardAnnouncementsRoute: ApiDashboardAnnouncementsRoute,
   ApiDashboardAttendanceRoute: ApiDashboardAttendanceRoute,
   ApiDashboardBannersRoute: ApiDashboardBannersRoute,
+  ApiDashboardLeftSectionRoute: ApiDashboardLeftSectionRoute,
   ApiDashboardLmsSupportRoute: ApiDashboardLmsSupportRoute,
   ApiDashboardNavbarPillRoute: ApiDashboardNavbarPillRoute,
   ApiDashboardPendingTasksRoute: ApiDashboardPendingTasksRoute,
   ApiDashboardProductUpdatesRoute: ApiDashboardProductUpdatesRoute,
+  ApiDashboardRightSectionRoute: ApiDashboardRightSectionRoute,
   ApiDashboardScheduleRoute: ApiDashboardScheduleRoute,
   ApiLearnBatchDataRoute: ApiLearnBatchDataRoute,
   ApiLearnBatchesRoute: ApiLearnBatchesRoute,
