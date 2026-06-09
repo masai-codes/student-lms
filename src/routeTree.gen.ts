@@ -701,6 +701,7 @@ export interface FileRoutesByFullPath {
   '/api/masaiverse-v2/home': typeof ApiMasaiverseV2HomeRoute
   '/api/masaiverse-v2/leaderboard': typeof ApiMasaiverseV2LeaderboardRoute
   '/api/masaiverse-v2/visited': typeof ApiMasaiverseV2VisitedRoute
+  '/api/profile/achievements': typeof ApiProfileAchievementsRoute
   '/login/': typeof authLoginIndexRoute
   '/signin/': typeof authSigninIndexRoute
   '/switch-account/': typeof authSwitchAccountIndexRoute
@@ -753,7 +754,6 @@ export interface FileRoutesByFullPath {
   '/api/masaiverse-v2/events/rate': typeof ApiMasaiverseV2EventsRateRoute
   '/api/masaiverse-v2/events/update': typeof ApiMasaiverseV2EventsUpdateRoute
   '/api/masaiverse-v2/uploads/image': typeof ApiMasaiverseV2UploadsImageRoute
-  '/api/profile/achievements': typeof ApiProfileAchievementsRoute
   '/api/profile/account-activity/sign-out-all': typeof ApiProfileAccountActivitySignOutAllRoute
   '/reset-password/$token/': typeof authResetPasswordTokenIndexRoute
   '/v2/login/': typeof authV2LoginIndexRoute
@@ -801,6 +801,7 @@ export interface FileRoutesByTo {
   '/api/masaiverse-v2/home': typeof ApiMasaiverseV2HomeRoute
   '/api/masaiverse-v2/leaderboard': typeof ApiMasaiverseV2LeaderboardRoute
   '/api/masaiverse-v2/visited': typeof ApiMasaiverseV2VisitedRoute
+  '/api/profile/achievements': typeof ApiProfileAchievementsRoute
   '/login': typeof authLoginIndexRoute
   '/signin': typeof authSigninIndexRoute
   '/switch-account': typeof authSwitchAccountIndexRoute
@@ -853,7 +854,6 @@ export interface FileRoutesByTo {
   '/api/masaiverse-v2/events/rate': typeof ApiMasaiverseV2EventsRateRoute
   '/api/masaiverse-v2/events/update': typeof ApiMasaiverseV2EventsUpdateRoute
   '/api/masaiverse-v2/uploads/image': typeof ApiMasaiverseV2UploadsImageRoute
-  '/api/profile/achievements': typeof ApiProfileAchievementsRoute
   '/api/profile/account-activity/sign-out-all': typeof ApiProfileAccountActivitySignOutAllRoute
   '/reset-password/$token': typeof authResetPasswordTokenIndexRoute
   '/v2/login': typeof authV2LoginIndexRoute
@@ -864,7 +864,6 @@ export interface FileRoutesByTo {
   '/profile': typeof protectedLayoutProfileIndexRoute
   '/whats-new': typeof protectedLayoutWhatsNewIndexRoute
   '/api/announcement/$id': typeof ApiAnnouncementIdIndexRoute
-  '/api/profile/achievements': typeof ApiProfileAchievementsRoute
   '/api/profile/account-activity': typeof ApiProfileAccountActivityIndexRoute
   '/api/profile/certificates': typeof ApiProfileCertificatesIndexRoute
   '/api/profile/email-preferences': typeof ApiProfileEmailPreferencesIndexRoute
@@ -905,6 +904,7 @@ export interface FileRoutesById {
   '/api/masaiverse-v2/home': typeof ApiMasaiverseV2HomeRoute
   '/api/masaiverse-v2/leaderboard': typeof ApiMasaiverseV2LeaderboardRoute
   '/api/masaiverse-v2/visited': typeof ApiMasaiverseV2VisitedRoute
+  '/api/profile/achievements': typeof ApiProfileAchievementsRoute
   '/(auth)/login/': typeof authLoginIndexRoute
   '/(auth)/signin/': typeof authSigninIndexRoute
   '/(auth)/switch-account/': typeof authSwitchAccountIndexRoute
@@ -1007,6 +1007,7 @@ export interface FileRouteTypes {
     | '/api/masaiverse-v2/home'
     | '/api/masaiverse-v2/leaderboard'
     | '/api/masaiverse-v2/visited'
+    | '/api/profile/achievements'
     | '/login/'
     | '/signin/'
     | '/switch-account/'
@@ -1106,6 +1107,7 @@ export interface FileRouteTypes {
     | '/api/masaiverse-v2/home'
     | '/api/masaiverse-v2/leaderboard'
     | '/api/masaiverse-v2/visited'
+    | '/api/profile/achievements'
     | '/login'
     | '/signin'
     | '/switch-account'
@@ -1168,7 +1170,6 @@ export interface FileRouteTypes {
     | '/profile'
     | '/whats-new'
     | '/api/announcement/$id'
-    | '/api/profile/achievements'
     | '/api/profile/account-activity'
     | '/api/profile/certificates'
     | '/api/profile/email-preferences'
@@ -1208,6 +1209,7 @@ export interface FileRouteTypes {
     | '/api/masaiverse-v2/home'
     | '/api/masaiverse-v2/leaderboard'
     | '/api/masaiverse-v2/visited'
+    | '/api/profile/achievements'
     | '/(auth)/login/'
     | '/(auth)/signin/'
     | '/(auth)/switch-account/'
@@ -1309,6 +1311,7 @@ export interface RootRouteChildren {
   ApiMasaiverseV2HomeRoute: typeof ApiMasaiverseV2HomeRoute
   ApiMasaiverseV2LeaderboardRoute: typeof ApiMasaiverseV2LeaderboardRoute
   ApiMasaiverseV2VisitedRoute: typeof ApiMasaiverseV2VisitedRoute
+  ApiProfileAchievementsRoute: typeof ApiProfileAchievementsRoute
   authLoginIndexRoute: typeof authLoginIndexRoute
   authSigninIndexRoute: typeof authSigninIndexRoute
   authSwitchAccountIndexRoute: typeof authSwitchAccountIndexRoute
@@ -1427,6 +1430,13 @@ declare module '@tanstack/react-router' {
       path: '/login'
       fullPath: '/login/'
       preLoaderRoute: typeof authLoginIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/profile/achievements': {
+      id: '/api/profile/achievements'
+      path: '/api/profile/achievements'
+      fullPath: '/api/profile/achievements'
+      preLoaderRoute: typeof ApiProfileAchievementsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/masaiverse-v2/visited': {
@@ -1581,13 +1591,6 @@ declare module '@tanstack/react-router' {
       path: '/api/profile/email-preferences'
       fullPath: '/api/profile/email-preferences/'
       preLoaderRoute: typeof ApiProfileEmailPreferencesIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/profile/achievements': {
-      id: '/api/profile/achievements'
-      path: '/api/profile/achievements'
-      fullPath: '/api/profile/achievements'
-      preLoaderRoute: typeof ApiProfileAchievementsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/profile/certificates/': {
@@ -2214,6 +2217,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiMasaiverseV2HomeRoute: ApiMasaiverseV2HomeRoute,
   ApiMasaiverseV2LeaderboardRoute: ApiMasaiverseV2LeaderboardRoute,
   ApiMasaiverseV2VisitedRoute: ApiMasaiverseV2VisitedRoute,
+  ApiProfileAchievementsRoute: ApiProfileAchievementsRoute,
   authLoginIndexRoute: authLoginIndexRoute,
   authSigninIndexRoute: authSigninIndexRoute,
   authSwitchAccountIndexRoute: authSwitchAccountIndexRoute,
@@ -2261,7 +2265,6 @@ const rootRouteChildren: RootRouteChildren = {
   authV2LoginIndexRoute: authV2LoginIndexRoute,
   ApiAnnouncementIdIndexRoute: ApiAnnouncementIdIndexRoute,
   ApiProfileAccountActivityIndexRoute: ApiProfileAccountActivityIndexRoute,
-  ApiProfileAchievementsRoute: ApiProfileAchievementsRoute,
   ApiProfileCertificatesIndexRoute: ApiProfileCertificatesIndexRoute,
   ApiProfileEmailPreferencesIndexRoute: ApiProfileEmailPreferencesIndexRoute,
   ApiWhatsNewIdIndexRoute: ApiWhatsNewIdIndexRoute,
