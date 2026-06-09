@@ -82,7 +82,7 @@ describe('handleUploadImage', () => {
   it('400s for a file over the size limit', async () => {
     const { handleUploadImage } = await import('../handlers/uploadImage.handler')
     hoisted.getUserIdFromCookieHeader.mockResolvedValueOnce(9)
-    const big = new File([new Uint8Array(6 * 1024 * 1024)], 'big.png', {
+    const big = new File([new Uint8Array(11 * 1024 * 1024)], 'big.png', {
       type: 'image/png',
     })
 
