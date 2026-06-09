@@ -15,6 +15,7 @@ describe('LEADERBOARD_POINTS', () => {
       upvote_given_on_reply: 1,
       reply_given: 5,
       reply_received: 5,
+      event_registration: 5,
     })
   })
 

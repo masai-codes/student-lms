@@ -20,6 +20,8 @@ export enum LeaderboardReason {
   REPLY_GIVEN = 'reply_given',
   /** The user received a reply on their post. */
   REPLY_RECEIVED = 'reply_received',
+  /** The user registered for an event. */
+  EVENT_REGISTRATION = 'event_registration',
 }
 
 /**
@@ -38,4 +40,5 @@ export const LEADERBOARD_POINTS: Record<LeaderboardReason, number> = {
   [LeaderboardReason.UPVOTE_GIVEN_ON_REPLY]: 1,
   [LeaderboardReason.REPLY_GIVEN]: 5,
   [LeaderboardReason.REPLY_RECEIVED]: 5,
+  [LeaderboardReason.EVENT_REGISTRATION]: 5,
 }
