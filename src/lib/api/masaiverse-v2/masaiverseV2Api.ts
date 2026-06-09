@@ -5,8 +5,9 @@ import type { MasaiverseV2Reply } from '@/server/api/masaiverse-v2/services/getD
 import type { MasaiverseV2SidebarClub } from '@/server/api/masaiverse-v2/services/getMyClubs.service'
 import type { MasaiverseV2ClubDetail } from '@/server/api/masaiverse-v2/services/getClubDetail.service'
 import type { MasaiverseV2ClubStats } from '@/server/api/masaiverse-v2/services/getClubStats.service'
-import type { ClubLeaderboardPage } from '@/server/api/masaiverse-v2/services/getClubLeaderboard.service'
-import type { GlobalLeaderboardEntry } from '@/server/api/masaiverse-v2/services/getGlobalLeaderboard.service'
+import type { ClubLeaderboardResult } from '@/server/api/masaiverse-v2/services/getClubLeaderboard.service'
+import type { GlobalLeaderboardResult } from '@/server/api/masaiverse-v2/services/getGlobalLeaderboard.service'
+import type { LeaderboardPeriod } from '@/server/api/masaiverse-v2/services/leaderboardPeriod'
 import type { MasaiverseV2ClubEvents } from '@/server/api/masaiverse-v2/services/getClubEvents.service'
 import type { ClubMembershipState } from '@/server/api/masaiverse-v2/services/setClubMembership.service'
 import type { MasaiverseV2EventListItem } from '@/server/api/masaiverse-v2/services/getEventsList.service'
@@ -144,34 +145,39 @@ export async function fetchMasaiverseV2ClubStats(
   )
 }
 
-/** A page of a club's leaderboard, ranked by club-scoped points. */
+/**
+ * A club's leaderboard for the given period: the top members ranked by their
+ * club-scoped points plus the viewer's own placement.
+ */
 export async function fetchMasaiverseV2ClubLeaderboard(input: {
   clubId: string
-  page: number
-  perPage: number
-}): Promise<ClubLeaderboardPage> {
+  period: LeaderboardPeriod
+}): Promise<ClubLeaderboardResult> {
   const params = new URLSearchParams({
     clubId: input.clubId,
-    page: String(input.page),
-    perPage: String(input.perPage),
+    period: input.period,
   })
-  return fetchJson<ClubLeaderboardPage>(
+  return fetchJson<ClubLeaderboardResult>(
     `${MASAIVERSE_V2_API.clubLeaderboard}?${params.toString()}`,
   )
 }
 
 /**
- * The community-wide (global) leaderboard — members ranked by total all-time
- * points. Returns at most `limit` entries (server-clamped).
+ * The community-wide (global) leaderboard for the given period: the top members
+ * by total points plus the viewer's own placement. Returns at most `limit` top
+ * entries (server-clamped).
  */
-export async function fetchMasaiverseV2GlobalLeaderboard(
-  limit?: number,
-): Promise<Array<GlobalLeaderboardEntry>> {
-  const query = limit == null ? '' : `?limit=${encodeURIComponent(limit)}`
-  const { entries } = await fetchJson<{
-    entries: Array<GlobalLeaderboardEntry>
-  }>(`${MASAIVERSE_V2_API.leaderboard}${query}`)
-  return entries
+export async function fetchMasaiverseV2GlobalLeaderboard(input?: {
+  period?: LeaderboardPeriod
+  limit?: number
+}): Promise<GlobalLeaderboardResult> {
+  const params = new URLSearchParams()
+  if (input?.period) params.set('period', input.period)
+  if (input?.limit != null) params.set('limit', String(input.limit))
+  const query = params.toString()
+  return fetchJson<GlobalLeaderboardResult>(
+    `${MASAIVERSE_V2_API.leaderboard}${query ? `?${query}` : ''}`,
+  )
 }
 
 /** Weekly connects + upcoming/live + past events for a club's detail page. */

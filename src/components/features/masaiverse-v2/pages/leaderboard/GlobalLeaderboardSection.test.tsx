@@ -1,6 +1,12 @@
 // @vitest-environment jsdom
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { cleanup, render, screen, waitFor } from '@testing-library/react'
+import {
+  cleanup,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import GlobalLeaderboardSection from './GlobalLeaderboardSection'
 import type { ReactNode } from 'react'
@@ -43,32 +49,67 @@ describe('GlobalLeaderboardSection', () => {
   })
 
   it('shows an empty message when nobody has points', async () => {
-    fetchLeaderboard.mockResolvedValue([])
+    fetchLeaderboard.mockResolvedValue({ entries: [], currentUser: null })
     renderWithClient(<GlobalLeaderboardSection />)
     await waitFor(() =>
       expect(screen.getByText('No points have been earned yet.')).toBeTruthy(),
     )
   })
 
-  it('renders ranked members with medals, initials, photos and points', async () => {
-    fetchLeaderboard.mockResolvedValue([
-      { rank: 1, userId: '10', name: 'Priya Rajan', avatarUrl: null, points: 940 },
-      {
-        rank: 2,
-        userId: '20',
-        name: 'Arjun Mehta',
-        avatarUrl: 'https://cdn/a.png',
-        points: 1200,
+  it('renders the top members and pins the signed-in member below them', async () => {
+    fetchLeaderboard.mockResolvedValue({
+      entries: [
+        { rank: 1, userId: '10', name: 'Priya Rajan', avatarUrl: null, points: 940 },
+        {
+          rank: 2,
+          userId: '20',
+          name: 'Arjun Mehta',
+          avatarUrl: 'https://cdn/a.png',
+          points: 1200,
+        },
+      ],
+      currentUser: {
+        rank: 18,
+        userId: '99',
+        name: 'Vidit',
+        avatarUrl: null,
+        points: 120,
       },
-    ])
+    })
     renderWithClient(<GlobalLeaderboardSection />)
 
     await waitFor(() => expect(screen.getByText('Priya Rajan')).toBeTruthy())
-    // Rank 1 → gold medal; initials for the photo-less member.
     expect(screen.getByText('🥇')).toBeTruthy()
-    expect(screen.getByText('PR')).toBeTruthy()
-    // Points carry a thousands separator and a "pts" suffix.
-    expect(screen.getByText('1,200')).toBeTruthy()
-    expect(screen.getAllByText('pts')).toHaveLength(2)
+    // Pinned current-user row is labelled and shows their own rank.
+    expect(screen.getByText('Vidit')).toBeTruthy()
+    expect(screen.getByText('You')).toBeTruthy()
+    expect(screen.getByText('18')).toBeTruthy()
+  })
+
+  it('refetches for the "This month" period when the tab is switched', async () => {
+    fetchLeaderboard.mockImplementation((input: { period: string }) =>
+      Promise.resolve({
+        entries: [
+          {
+            rank: 1,
+            userId: '10',
+            name: input.period === 'month' ? 'Monthly Mira' : 'Overall Olivia',
+            avatarUrl: null,
+            points: 100,
+          },
+        ],
+        currentUser: null,
+      }),
+    )
+    renderWithClient(<GlobalLeaderboardSection />)
+
+    await waitFor(() => expect(screen.getByText('Overall Olivia')).toBeTruthy())
+    // Radix Tabs uses automatic activation, so focusing the tab selects it.
+    fireEvent.focus(screen.getByRole('tab', { name: 'This month' }))
+    await waitFor(() => expect(screen.getByText('Monthly Mira')).toBeTruthy())
+    expect(fetchLeaderboard).toHaveBeenLastCalledWith({
+      period: 'month',
+      limit: 10,
+    })
   })
 })

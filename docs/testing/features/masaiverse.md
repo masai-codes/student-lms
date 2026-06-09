@@ -68,11 +68,14 @@ Current focus: server API/unit test coverage for `src/server/masaiverse/**`.
 - `src/components/features/masaiverse-v2/pages/club/ClubPastSection.test.tsx`
 - `src/server/api/masaiverse-v2/__tests__/leaderboardPoints.test.ts`
 - `src/server/api/masaiverse-v2/__tests__/awardLeaderboardPoints.service.test.ts`
+- `src/server/api/masaiverse-v2/__tests__/leaderboardPeriod.test.ts`
 - `src/server/api/masaiverse-v2/__tests__/getClubLeaderboard.service.test.ts`
 - `src/server/api/masaiverse-v2/__tests__/getClubLeaderboard.handler.test.ts`
 - `src/components/features/masaiverse-v2/pages/club/clubLeaderboardAvatar.test.ts`
-- `src/components/features/masaiverse-v2/pages/club/ClubLeaderboardRow.test.tsx`
 - `src/components/features/masaiverse-v2/pages/club/ClubLeaderboardSection.test.tsx`
+- `src/components/features/masaiverse-v2/pages/leaderboard/LeaderboardRow.test.tsx`
+- `src/components/features/masaiverse-v2/pages/leaderboard/LeaderboardList.test.tsx`
+- `src/components/features/masaiverse-v2/pages/leaderboard/LeaderboardPeriodTabs.test.tsx`
 - `src/server/api/masaiverse-v2/__tests__/getGlobalLeaderboard.service.test.ts`
 - `src/server/api/masaiverse-v2/__tests__/getGlobalLeaderboard.handler.test.ts`
 - `src/components/features/masaiverse-v2/pages/home/calendar/GlobalLeaders.test.tsx`
@@ -210,9 +213,9 @@ Current focus: server API/unit test coverage for `src/server/masaiverse/**`.
 - `MASAIVE-V2-075` - Module: `leaderboardPoints` - Case: `LEADERBOARD_POINTS` matches the agreed scoring and every `LeaderboardReason` has a positive value - Status: Covered
 - `MASAIVE-V2-076` - Module: `awardLeaderboardPoints.service` - Case: post creation awards a single 10-pt row; reply awards given + (non-self) received with club from post and no-op when post missing; upvote awards given + (non-self) received using post club (reply via reply→post lookup) and no-op when target missing; revoke deletes the voter's rows for the target - Status: Covered
 - `MASAIVE-V2-077` - Module: `createCommunityDiscussion` / `createDiscussionReply` / `voteCommunityDiscussion` (points wiring) - Case: post creation calls `awardPostCreationPoints` (club null); reply calls `awardReplyPoints`; upvote add/switch-to-up awards, toggle-off/switch-to-down revokes, fresh downvote scores nothing; reply target routes by `replyId` - Status: Covered
-- `MASAIVE-V2-078` - Module: `getClubLeaderboard.service` - Case: null for non-finite id / missing club; ranks club members by club-scoped points with pagination (`hasMore` via fetch-one-extra, rank carries page offset), per-page clamping (default/min/max/NaN), and `points`/posts/events coercion + defaults - Status: Covered
-- `MASAIVE-V2-079` - Module: `getClubLeaderboard.handler` (`GET /clubs/leaderboard`) - Case: parses `clubId`/`page`/`perPage` (defaults), 200 page payload, 404 missing club, 401 no session, 500 on unexpected error - Status: Covered
-- `MASAIVE-V2-080` - Module: `clubLeaderboardAvatar` / `ClubLeaderboardRow` / `ClubLeaderboardSection` (UI) - Case: initials/medal/palette helpers; row shows medal-or-rank, initials/photo avatar, projects·events subtitle, separated points; section header + loading/error/empty states, single-page (no pager) and Prev/Next paging - Status: Covered
+- `MASAIVE-V2-078` - Module: `getClubLeaderboard.service` - Case: null for non-finite id / missing club; ranks club members by club-scoped points (top `limit`, clamped default/max/NaN), pins the viewer's `currentUser` (rank from members ranked above; `null` when no club points), and coerces null sums to 0; honours the `month` period filter - Status: Covered
+- `MASAIVE-V2-079` - Module: `getClubLeaderboard.handler` (`GET /clubs/leaderboard`) - Case: parses `clubId` + `period` (default overall), forwards `currentUserId`/`canSeeUnpublished`, 200 `{entries,currentUser}` payload, 404 missing club, 401 no session, 500 on unexpected error - Status: Covered
+- `MASAIVE-V2-080` - Module: `clubLeaderboardAvatar` / `LeaderboardRow` / `LeaderboardList` / `LeaderboardPeriodTabs` / `ClubLeaderboardSection` (UI) - Case: initials/medal/palette helpers; row shows medal-or-rank, initials/photo avatar, separated points, and a "You" label + highlight for the current user; list renders top entries, highlights an in-top current user in place, and pins an off-top current user below a `···` separator; period tabs report overall/month on change; section header + loading/error/empty states + period-switch refetch (no pager, no projects·events subtitle) - Status: Covered
 - `MASAIVE-V2-081` - Module: `getCommunityDiscussions` / `handleListCommunityDiscussions` (club scope) - Case: a `clubId` scopes the feed to `club_id = clubId` (else `club_id IS NULL`); handler forwards the `clubId` query param (null when absent) - Status: Covered
 - `MASAIVE-V2-082` - Module: `createCommunityDiscussion` / `handleCreateCommunityDiscussion` (club scope) - Case: a string `clubId` inserts a club-scoped post (id coerced to number) and awards points with that club; absent `clubId` stays club-less - Status: Covered
 - `MASAIVE-V2-083` - Module: `CommunityDiscussionsSection` / `DiscussionComposer` / `ClubDiscussionsSection` (UI) - Case: a `clubId` prop scopes the fetch + new posts to the club, renders the custom title, and hides the "View all" link; club wrapper renders the feed as "Club Discussion" - Status: Covered
@@ -278,6 +281,11 @@ Current focus: server API/unit test coverage for `src/server/masaiverse/**`.
 - `MASAIVE-V2-133` - Module: `BannersSection` (UI) - Case: hidden for a student with no banners; shows a published banner without admin controls; for an admin shows the "Add banner" button (creates one) and a draft badge + edit control per banner - Status: Covered
 - `MASAIVE-V2-134` - Module: `BannerEditModal` (UI) - Case: editing title + toggling Published saves a `{ column, meta:{isPublished} }` patch and closes; Delete removes the banner and closes - Status: Covered
 - Note: home banners live in `masaiverse_banners` (title/description/cta + `meta.isPublished`); the "Announcements" swiper renders above the stats section. - Status: N/A
+
+- `MASAIVE-V2-135` - Module: `leaderboardPeriod` - Case: `parseLeaderboardPeriod` keeps `month` and defaults everything else to `overall`; `monthStart` returns the zero-padded 1st of the date's month at midnight; `leaderboardPeriodCondition` is `undefined` for overall and a condition for month - Status: Covered
+- `MASAIVE-V2-136` - Module: `getGlobalLeaderboard.service` - Case: ranks the top `limit` members (clamped default/min/max/NaN, null sums → 0) and pins the viewer's `currentUser` (rank = members ranked strictly above + 1; `null` when they have no points), honouring the `month` period filter - Status: Covered
+- `MASAIVE-V2-137` - Module: `getGlobalLeaderboard.handler` (`GET /leaderboard`) - Case: parses `limit` + `period` (default overall), forwards `currentUserId`, returns 200 `{entries,currentUser}`, 401 without a session, 500 on unexpected error - Status: Covered
+- `MASAIVE-V2-138` - Module: `GlobalLeaderboardSection` / `GlobalLeaders` (UI) - Case: both the full section and the home calendar-drawer `GlobalLeaders` show the period toggle, the top 10, and the pinned "You" row when the viewer is off the top, plus loading/error/empty states and a period-switch refetch (`{period,limit:10}`); `GlobalLeaders` keeps its compact medal/avatar/`toLocaleString` styling - Status: Covered
 
 ## Pending / Next Cases
 

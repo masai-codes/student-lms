@@ -6,13 +6,13 @@ import { getCommunityDiscussions } from './getCommunityDiscussions.service'
 import { publishedClubCondition } from './publishVisibility'
 import type { MasaiverseV2ClubStats } from './getClubStats.service'
 import type { MasaiverseV2ClubEvents } from './getClubEvents.service'
-import type { ClubLeaderboardPage } from './getClubLeaderboard.service'
+import type { ClubLeaderboardResult } from './getClubLeaderboard.service'
 import type { MasaiverseV2Discussion } from './getCommunityDiscussions.service'
 import { db } from '@/db'
 import { clubMembers, clubs } from '@/db/schema'
 
-/** First page size for the leaderboard embedded in the detail payload. */
-const CLUB_LEADERBOARD_PER_PAGE = 5
+/** How many top members the leaderboard embedded in the detail payload holds. */
+const CLUB_LEADERBOARD_LIMIT = 10
 /** Number of latest discussions embedded in the detail payload. */
 const CLUB_DISCUSSIONS_LIMIT = 5
 
@@ -64,8 +64,8 @@ export interface MasaiverseV2ClubDetail {
   stats: MasaiverseV2ClubStats | null
   /** Weekly connects + live/upcoming + past event sections. */
   events: MasaiverseV2ClubEvents
-  /** First page (5 entries) of the club leaderboard. */
-  leaderboard: ClubLeaderboardPage
+  /** Top members of the club leaderboard plus the viewer's own placement. */
+  leaderboard: ClubLeaderboardResult
   /** Latest 5 discussions for the club. */
   discussions: Array<MasaiverseV2Discussion>
 }
@@ -197,7 +197,12 @@ export async function getClubDetail(
   const [events, leaderboard, discussions] = isJoined
     ? await Promise.all([
         getClubEvents(clubId, now, canSeeUnpublished),
-        getClubLeaderboard(clubId, 0, CLUB_LEADERBOARD_PER_PAGE, canSeeUnpublished),
+        getClubLeaderboard({
+          clubId,
+          currentUserId: userId,
+          limit: CLUB_LEADERBOARD_LIMIT,
+          canSeeUnpublished,
+        }),
         getCommunityDiscussions(
           userId,
           0,
@@ -227,13 +232,7 @@ export async function getClubDetail(
     confirmationModalText: toStringOrNull(club.meta?.confirmationModalText),
     stats,
     events: events ?? EMPTY_EVENTS,
-    leaderboard: leaderboard ?? {
-      entries: [],
-      page: 0,
-      perPage: CLUB_LEADERBOARD_PER_PAGE,
-      total: 0,
-      hasMore: false,
-    },
+    leaderboard: leaderboard ?? { entries: [], currentUser: null },
     discussions: discussions.discussions,
   }
 }

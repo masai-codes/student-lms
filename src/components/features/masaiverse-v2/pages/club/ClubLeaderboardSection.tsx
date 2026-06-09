@@ -1,117 +1,56 @@
 import { useState } from 'react'
-import { keepPreviousData, useQuery } from '@tanstack/react-query'
-import { CaretLeft, CaretRight } from '@phosphor-icons/react'
-import ClubLeaderboardRow from './ClubLeaderboardRow'
-import type { ClubLeaderboardPage } from '@/server/api/masaiverse-v2/services/getClubLeaderboard.service'
+import { useQuery } from '@tanstack/react-query'
+import LeaderboardList from '../leaderboard/LeaderboardList'
+import LeaderboardPeriodTabs from '../leaderboard/LeaderboardPeriodTabs'
+import type { ClubLeaderboardResult } from '@/server/api/masaiverse-v2/services/getClubLeaderboard.service'
+import type { LeaderboardPeriod } from '@/server/api/masaiverse-v2/services/leaderboardPeriod'
 import { masaiverseV2ClubLeaderboardQuery } from '@/query/masaiverse-v2/clubsQuery'
 
 type ClubLeaderboardSectionProps = {
   clubId: string
   /**
-   * First page of the leaderboard embedded in the club detail payload; seeds
-   * page 0 so the section renders without an extra request. Later pages are
-   * still fetched on demand.
+   * Top members embedded in the club detail payload; seeds the Overall tab so
+   * the section renders without an extra request. Other periods fetch on demand.
    */
-  initialLeaderboard?: ClubLeaderboardPage
-}
-
-const PER_PAGE = 5
-
-function SectionHeading() {
-  return (
-    <div className="flex items-baseline gap-2">
-      <h2 className="text-[22px] font-extrabold leading-7 text-[#111827]">
-        Club Leaderboard
-      </h2>
-    </div>
-  )
+  initialLeaderboard?: ClubLeaderboardResult
 }
 
 /**
- * Club detail leaderboard — ranks the club's members by their club-scoped
- * points, five per page. Members with no points are omitted, and the board is
- * paginated via Prev/Next rather than a full-board link.
+ * Club detail leaderboard — the club's top members by their club-scoped points,
+ * with an Overall / This month toggle and the viewer's own placement pinned in.
  */
 export default function ClubLeaderboardSection({
   clubId,
   initialLeaderboard,
 }: ClubLeaderboardSectionProps) {
-  const [page, setPage] = useState(0)
+  const [period, setPeriod] = useState<LeaderboardPeriod>('overall')
   const { data, isPending, isError } = useQuery({
-    ...masaiverseV2ClubLeaderboardQuery(clubId, page, PER_PAGE),
-    placeholderData: keepPreviousData,
-    ...(page === 0 && initialLeaderboard
+    ...masaiverseV2ClubLeaderboardQuery(clubId, period),
+    ...(period === 'overall' && initialLeaderboard
       ? { initialData: initialLeaderboard }
       : {}),
   })
 
-  const entries = data?.entries ?? []
-  const showPager = page > 0 || (data?.hasMore ?? false)
-
   return (
     <section className="flex flex-col gap-4">
-      <SectionHeading />
+      <h2 className="text-[22px] font-extrabold leading-7 text-[#111827]">
+        Club Leaderboard
+      </h2>
+      <LeaderboardPeriodTabs value={period} onChange={setPeriod} />
       {isPending ? (
         <LeaderboardSkeleton />
       ) : isError ? (
         <p className="rounded-[16px] border border-[#EDEAE8] bg-white p-6 text-[14px] text-[#6B7280]">
           We couldn&apos;t load the leaderboard. Please try again.
         </p>
-      ) : entries.length === 0 ? (
+      ) : data.entries.length === 0 ? (
         <p className="rounded-[16px] border border-[#EDEAE8] bg-white p-6 text-[14px] text-[#6B7280]">
           No points have been earned in this club yet.
         </p>
       ) : (
-        <div className="flex flex-col gap-3">
-          {entries.map((entry) => (
-            <ClubLeaderboardRow key={entry.userId} entry={entry} />
-          ))}
-        </div>
+        <LeaderboardList entries={data.entries} currentUser={data.currentUser} />
       )}
-      {showPager ? (
-        <div className="flex items-center justify-end gap-2">
-          <PagerButton
-            label="Previous page"
-            disabled={page === 0}
-            onClick={() => setPage((current) => Math.max(current - 1, 0))}
-          >
-            <CaretLeft size={16} />
-          </PagerButton>
-          <span className="text-[13px] text-[#6B7280]">Page {page + 1}</span>
-          <PagerButton
-            label="Next page"
-            disabled={!data?.hasMore}
-            onClick={() => setPage((current) => current + 1)}
-          >
-            <CaretRight size={16} />
-          </PagerButton>
-        </div>
-      ) : null}
     </section>
-  )
-}
-
-function PagerButton({
-  label,
-  disabled,
-  onClick,
-  children,
-}: {
-  label: string
-  disabled: boolean
-  onClick: () => void
-  children: React.ReactNode
-}) {
-  return (
-    <button
-      type="button"
-      aria-label={label}
-      disabled={disabled}
-      onClick={onClick}
-      className="flex size-8 items-center justify-center rounded-full border border-[#EDEAE8] bg-white text-[#374151] disabled:cursor-not-allowed disabled:opacity-40"
-    >
-      {children}
-    </button>
   )
 }
 

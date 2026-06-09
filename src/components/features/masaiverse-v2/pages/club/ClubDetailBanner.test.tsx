@@ -33,7 +33,7 @@ const baseClub: MasaiverseV2ClubDetail = {
   isJoined: true,
   stats: null,
   events: { weeklyConnects: [], upcoming: [], past: [] },
-  leaderboard: { entries: [], page: 1, perPage: 5, total: 0, hasMore: false },
+  leaderboard: { entries: [], currentUser: null },
   discussions: [],
   confirmationModalText: null,
 }

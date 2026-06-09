@@ -29,13 +29,7 @@ const MOCK_STATS = {
   communityPosts: 10,
 }
 const MOCK_EVENTS = { weeklyConnects: [], upcoming: [], past: [] }
-const MOCK_LEADERBOARD = {
-  entries: [],
-  page: 0,
-  perPage: 5,
-  total: 0,
-  hasMore: false,
-}
+const MOCK_LEADERBOARD = { entries: [], currentUser: null }
 vi.mock('../services/getClubStats.service', () => ({
   getClubStats: hoisted.getClubStats,
 }))
@@ -58,13 +52,7 @@ function whereChain(rows: unknown) {
   return { from: () => ({ where: () => Promise.resolve(rows) }) }
 }
 
-const EMPTY_LEADERBOARD = {
-  entries: [],
-  page: 0,
-  perPage: 5,
-  total: 0,
-  hasMore: false,
-}
+const EMPTY_LEADERBOARD = { entries: [], currentUser: null }
 
 beforeEach(() => {
   vi.clearAllMocks()
@@ -165,7 +153,12 @@ describe('getClubDetail', () => {
     })
     // Members get the gated sections fetched and embedded.
     expect(hoisted.getClubEvents).toHaveBeenCalledTimes(1)
-    expect(hoisted.getClubLeaderboard).toHaveBeenCalledWith(5, 0, 5, false)
+    expect(hoisted.getClubLeaderboard).toHaveBeenCalledWith({
+      clubId: 5,
+      currentUserId: 1,
+      limit: 10,
+      canSeeUnpublished: false,
+    })
     expect(hoisted.getCommunityDiscussions).toHaveBeenCalledWith(1, 0, 5, '', '5')
   })
 
