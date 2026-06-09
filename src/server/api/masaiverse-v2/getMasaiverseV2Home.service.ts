@@ -3,7 +3,7 @@ import type { MasaiverseV2HomeEvent } from '@/server/api/masaiverse-v2/services/
 import type { MasaiverseV2HomeHighlight } from '@/server/api/masaiverse-v2/services/getHomeHighlights.service'
 import type { MasaiverseV2Discussion } from '@/server/api/masaiverse-v2/services/getCommunityDiscussions.service'
 import { getCommunityLearnerCount } from '@/server/api/masaiverse-v2/services/getCommunityLearnerCount.service'
-import { getDiscussionsThisWeekCount } from '@/server/api/masaiverse-v2/services/getDiscussionsThisWeekCount.service'
+import { getDiscussionsThisMonthCount } from '@/server/api/masaiverse-v2/services/getDiscussionsThisMonthCount.service'
 import { getEventRegistrationsThisYearCount } from '@/server/api/masaiverse-v2/services/getEventRegistrationsThisYearCount.service'
 import { getEventsThisYearCount } from '@/server/api/masaiverse-v2/services/getEventsThisYearCount.service'
 import { getHomeClubs } from '@/server/api/masaiverse-v2/services/getHomeClubs.service'
@@ -29,8 +29,11 @@ const HOME_DISCUSSIONS_LIMIT = 5
 export interface MasaiverseV2CommunityStats {
   /** Users who have opened Masaiverse at least once. */
   learnersInCommunity: number
-  /** Posts + replies created in the current IST week. */
-  discussionsThisWeek: number
+  /**
+   * Community discussions this IST month — posts + replies created across both
+   * club and club-less (non-club) discussions.
+   */
+  discussionsThisMonth: number
   /** Public + club events scheduled in the current IST year. */
   eventsThisYear: number
   /** Event registrations made in the current IST year. */
@@ -60,7 +63,7 @@ export async function getMasaiverseV2Home(
   const memberClubIds = await getMemberClubIds(userId)
   const [
     learnersInCommunity,
-    discussionsThisWeek,
+    discussionsThisMonth,
     eventsThisYear,
     eventRegistrationsThisYear,
     events,
@@ -69,7 +72,7 @@ export async function getMasaiverseV2Home(
     discussionsPage,
   ] = await Promise.all([
     getCommunityLearnerCount(),
-    getDiscussionsThisWeekCount(now),
+    getDiscussionsThisMonthCount(now),
     getEventsThisYearCount(now, canSeeUnpublished),
     getEventRegistrationsThisYearCount(now),
     getHomeEvents(now, { visibleClubIds: memberClubIds }, userId, canSeeUnpublished),
@@ -81,7 +84,7 @@ export async function getMasaiverseV2Home(
   return {
     stats: {
       learnersInCommunity,
-      discussionsThisWeek,
+      discussionsThisMonth,
       eventsThisYear,
       eventRegistrationsThisYear,
     },

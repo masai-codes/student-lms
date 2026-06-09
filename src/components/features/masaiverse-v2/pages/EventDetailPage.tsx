@@ -14,6 +14,7 @@ import { ApiClientError } from '@/lib/api/apiClientError'
 import { masaiverseV2EventDetailQuery } from '@/query/masaiverse-v2/eventsQuery'
 import { masaiverseV2AdminModeQuery } from '@/query/masaiverse-v2/adminModeQuery'
 import EventEditForm from '@/components/features/masaiverse-v2/edit/EventEditForm'
+import { MASAIVERSE_EVENTS, trackMasaiverse } from '../tracking'
 
 type EventDetailPageProps = {
   eventId: string
@@ -31,6 +32,9 @@ function BackToEventsLink() {
     <Link
       to="/masaiverse/events"
       search={(prev) => prev}
+      onClick={() =>
+        trackMasaiverse(MASAIVERSE_EVENTS.backClick, { to: 'events' })
+      }
       className="inline-flex items-center gap-1 text-[14px] font-medium text-[#6B7280] hover:text-[#111827]"
     >
       <ArrowLeft size={16} />
@@ -123,7 +127,12 @@ export default function EventDetailPage({ eventId }: EventDetailPageProps) {
           {canEdit ? (
             <button
               type="button"
-              onClick={() => setIsEditOpen(true)}
+              onClick={() => {
+                trackMasaiverse(MASAIVERSE_EVENTS.eventEditClick, {
+                  event_id: eventId,
+                })
+                setIsEditOpen(true)
+              }}
               className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-[#111827] px-3.5 py-2 text-sm font-semibold text-[#111827] transition-colors hover:bg-[#111827] hover:text-white"
             >
               <PencilSimple size={16} weight="bold" />

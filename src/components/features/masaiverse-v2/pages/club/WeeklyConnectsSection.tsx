@@ -7,6 +7,7 @@ import type { MasaiverseV2WeeklyConnect } from '@/server/api/masaiverse-v2/servi
 import type { MasaiverseV2ClubEvents } from '@/server/api/masaiverse-v2/services/getClubEvents.service'
 import { masaiverseV2ClubEventsQuery } from '@/query/masaiverse-v2/clubsQuery'
 import { getEventStatus } from '@/lib/masaiverseEventCard'
+import { MASAIVERSE_EVENTS, trackMasaiverse } from '../../tracking'
 
 type WeeklyConnectsSectionProps = {
   clubId: string
@@ -56,7 +57,13 @@ export default function WeeklyConnectsSection({
         action={
           <button
             type="button"
-            onClick={onViewSchedule}
+            onClick={() => {
+              trackMasaiverse(MASAIVERSE_EVENTS.calendarOpen, {
+                source: 'weekly_connects',
+                club_id: clubId,
+              })
+              onViewSchedule?.()
+            }}
             className="text-[14px] font-medium text-masaiverse-orange hover:underline"
           >
             See schedule →

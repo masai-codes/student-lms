@@ -80,6 +80,7 @@ export default function ResponsiveCardCarousel<T>({
           prevClassName={`${navKey}-prev`}
           nextClassName={`${navKey}-next`}
           label={navLabel}
+          trackingId={navKey}
         />
       ) : null}
     </div>

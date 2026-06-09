@@ -60,6 +60,18 @@ export function getLastWeekRangeIst(now: Date): DateRange {
 }
 
 /**
+ * Current IST calendar month, the 1st 00:00 (inclusive) → next month's 1st
+ * 00:00 (exclusive).
+ */
+export function getCurrentMonthRangeIst(now: Date): DateRange {
+  const { year, month } = toIstParts(now)
+  return {
+    start: istMidnightToUtc(year, month, 1),
+    end: istMidnightToUtc(year, month + 1, 1),
+  }
+}
+
+/**
  * Current IST calendar year, Jan 1 00:00 (inclusive) → next Jan 1 00:00
  * (exclusive).
  */

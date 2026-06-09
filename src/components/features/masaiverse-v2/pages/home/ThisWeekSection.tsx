@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query'
 import EventsCarousel from './EventsCarousel'
 import SectionHeader from './SectionHeader'
 import { masaiverseV2HomeQuery } from '@/query/masaiverse-v2/homeQuery'
+import { MASAIVERSE_EVENTS, trackMasaiverse } from '../../tracking'
 
 type ThisWeekSectionProps = {
   onViewCalendar: () => void
@@ -25,7 +26,12 @@ export default function ThisWeekSection({
         action={
           <button
             type="button"
-            onClick={onViewCalendar}
+            onClick={() => {
+              trackMasaiverse(MASAIVERSE_EVENTS.calendarOpen, {
+                source: 'home_this_week',
+              })
+              onViewCalendar()
+            }}
             className="text-[14px] font-medium text-masaiverse-orange hover:underline"
           >
             View calendar →

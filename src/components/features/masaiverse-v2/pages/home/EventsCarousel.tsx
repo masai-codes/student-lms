@@ -75,6 +75,7 @@ export default function EventsCarousel({
           prevClassName={`${navKey}-prev`}
           nextClassName={`${navKey}-next`}
           label="events"
+          trackingId={navKey}
         />
       ) : null}
     </div>

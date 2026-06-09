@@ -13,6 +13,7 @@ vi.mock('@/db/schema', () => ({
     description: 'events.description',
     category: 'events.category',
     mode: 'events.mode',
+    clubId: 'events.club_id',
     locationTitle: 'events.location_title',
     locationMapLink: 'events.location_map_link',
     eventLink: 'events.event_link',
@@ -22,6 +23,7 @@ vi.mock('@/db/schema', () => ({
     endTime: 'events.end_time',
     meta: 'events.meta',
   },
+  clubs: { id: 'clubs.id', name: 'clubs.name' },
 }))
 vi.mock('@/server/api/masaiverse-v2/services/adminMode.service', () => ({
   getAdminModeState: hoisted.getAdminModeState,
@@ -35,6 +37,10 @@ function selectChain(rows: unknown) {
   return {
     from: () => ({ where: () => ({ limit: () => Promise.resolve(rows) }) }),
   }
+}
+
+function clubsChain(rows: unknown) {
+  return { from: () => ({ orderBy: () => Promise.resolve(rows) }) }
 }
 
 beforeEach(() => {
@@ -72,6 +78,7 @@ describe('getEventEditData', () => {
           description: 'd',
           category: 'hackathon',
           mode: 'online',
+          clubId: 7,
           locationTitle: null,
           locationMapLink: null,
           eventLink: 'https://meet',
@@ -83,6 +90,12 @@ describe('getEventEditData', () => {
         },
       ]),
     )
+    hoisted.dbSelect.mockReturnValueOnce(
+      clubsChain([
+        { id: 7, name: 'Code Club' },
+        { id: 9, name: 'Design Guild' },
+      ]),
+    )
 
     await expect(getEventEditData(1, 5)).resolves.toEqual({
       id: '5',
@@ -91,6 +104,7 @@ describe('getEventEditData', () => {
         description: 'd',
         category: 'hackathon',
         mode: 'online',
+        clubId: '7',
         locationTitle: null,
         locationMapLink: null,
         eventLink: 'https://meet',
@@ -100,6 +114,10 @@ describe('getEventEditData', () => {
         endTime: null,
       },
       meta: { isPublished: true, hostedBy: [] },
+      clubs: [
+        { id: '7', name: 'Code Club' },
+        { id: '9', name: 'Design Guild' },
+      ],
     })
   })
 })

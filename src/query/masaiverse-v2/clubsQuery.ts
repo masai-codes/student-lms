@@ -1,3 +1,4 @@
+import type { LeaderboardPeriod } from '@/server/api/masaiverse-v2/services/leaderboardPeriod'
 import {
   fetchMasaiverseV2ClubDetail,
   fetchMasaiverseV2ClubEditData,
@@ -37,21 +38,13 @@ export const masaiverseV2ClubStatsQuery = (clubId: string) => ({
   staleTime: 5 * 60 * 1000,
 })
 
-/** Query options for a page of a club's leaderboard. */
+/** Query options for a club's leaderboard for a period. */
 export const masaiverseV2ClubLeaderboardQuery = (
   clubId: string,
-  page: number,
-  perPage: number,
+  period: LeaderboardPeriod = 'overall',
 ) => ({
-  queryKey: [
-    'masaiverse-v2',
-    'club',
-    clubId,
-    'leaderboard',
-    page,
-    perPage,
-  ] as const,
-  queryFn: () => fetchMasaiverseV2ClubLeaderboard({ clubId, page, perPage }),
+  queryKey: ['masaiverse-v2', 'club', clubId, 'leaderboard', period] as const,
+  queryFn: () => fetchMasaiverseV2ClubLeaderboard({ clubId, period }),
   staleTime: 60 * 1000,
 })
 

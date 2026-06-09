@@ -48,6 +48,19 @@ describe('EventInfoRows', () => {
     expect(screen.getByText('2:30 PM – 5:00 PM IST')).toBeTruthy()
   })
 
+  it('shows both start and end dates for a multi-day event', () => {
+    render(
+      <EventInfoRows
+        event={makeEvent({
+          startTime: '2026-06-10T09:00:00Z',
+          endTime: '2026-06-12T06:00:00Z',
+        })}
+      />,
+    )
+    expect(screen.getByText('Wed, 10 Jun 2026, 2:30 PM')).toBeTruthy()
+    expect(screen.getByText('to Fri, 12 Jun 2026, 11:30 AM IST')).toBeTruthy()
+  })
+
   it('renders the location for an offline event', () => {
     render(<EventInfoRows event={makeEvent()} />)
     expect(screen.getByText('Masai HQ, Bengaluru')).toBeTruthy()

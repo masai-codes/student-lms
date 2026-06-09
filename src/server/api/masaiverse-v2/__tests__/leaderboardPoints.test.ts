@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import {
   LEADERBOARD_POINTS,
   LeaderboardReason,
+  MANUAL_LEADERBOARD_REASON,
 } from '../services/leaderboardPoints'
 
 describe('LEADERBOARD_POINTS', () => {
@@ -14,6 +15,7 @@ describe('LEADERBOARD_POINTS', () => {
       upvote_given_on_reply: 1,
       reply_given: 5,
       reply_received: 5,
+      event_registration: 5,
     })
   })
 
@@ -21,5 +23,10 @@ describe('LEADERBOARD_POINTS', () => {
     for (const reason of Object.values(LeaderboardReason)) {
       expect(LEADERBOARD_POINTS[reason]).toBeGreaterThan(0)
     }
+  })
+
+  it('exposes a distinct manual reason that is not a fixed-points reason', () => {
+    expect(MANUAL_LEADERBOARD_REASON).toBe('manual')
+    expect(Object.values(LeaderboardReason)).not.toContain(MANUAL_LEADERBOARD_REASON)
   })
 })

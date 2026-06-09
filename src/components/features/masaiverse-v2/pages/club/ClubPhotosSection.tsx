@@ -1,6 +1,7 @@
 import { Link } from '@tanstack/react-router'
 import SectionHeader from '../home/SectionHeader'
 import type { MasaiverseV2ClubDetail } from '@/server/api/masaiverse-v2/services/getClubDetail.service'
+import { MASAIVERSE_EVENTS, trackMasaiverse } from '../../tracking'
 
 type ClubPhotosSectionProps = {
   club: MasaiverseV2ClubDetail
@@ -48,6 +49,12 @@ export default function ClubPhotosSection({ club }: ClubPhotosSectionProps) {
             to="/masaiverse/club/$clubId/gallery"
             params={{ clubId: club.id }}
             search={(prev) => prev}
+            onClick={() =>
+              trackMasaiverse(MASAIVERSE_EVENTS.clubGalleryOpen, {
+                club_id: club.id,
+                source: 'view_gallery_link',
+              })
+            }
             className="text-[14px] font-medium text-masaiverse-orange hover:underline"
           >
             View gallery →
@@ -72,6 +79,12 @@ export default function ClubPhotosSection({ club }: ClubPhotosSectionProps) {
                       to="/masaiverse/club/$clubId/gallery"
                       params={{ clubId: club.id }}
                       search={(prev) => prev}
+                      onClick={() =>
+                        trackMasaiverse(MASAIVERSE_EVENTS.clubGalleryOpen, {
+                          club_id: club.id,
+                          source: 'photo_overlay',
+                        })
+                      }
                       className="absolute inset-0 flex flex-col items-center justify-center rounded-[16px] bg-[#1C1A19]/80 text-white"
                     >
                       <span className="text-[26px] font-extrabold leading-none">

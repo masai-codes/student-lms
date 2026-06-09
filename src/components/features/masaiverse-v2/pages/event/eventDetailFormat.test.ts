@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import {
   formatIstDateBadge,
   formatIstLongDate,
+  formatIstSchedule,
   formatIstTimeRange,
 } from './eventDetailFormat'
 
@@ -49,5 +50,35 @@ describe('formatIstTimeRange', () => {
 
   it('returns null when neither time is present', () => {
     expect(formatIstTimeRange(null, null)).toBeNull()
+  })
+})
+
+describe('formatIstSchedule', () => {
+  it('uses the long-date + time-range layout for a single-day event', () => {
+    expect(formatIstSchedule(START, END)).toEqual({
+      dateLine: 'Wednesday, 10 June 2026',
+      timeLine: '2:30 PM – 5:00 PM IST',
+    })
+  })
+
+  it('shows both full instants for a multi-day event', () => {
+    expect(formatIstSchedule(START, '2026-06-12T06:00:00Z')).toEqual({
+      dateLine: 'Wed, 10 Jun 2026, 2:30 PM',
+      timeLine: 'to Fri, 12 Jun 2026, 11:30 AM IST',
+    })
+  })
+
+  it('keeps a single time when only the start is present', () => {
+    expect(formatIstSchedule(START, null)).toEqual({
+      dateLine: 'Wednesday, 10 June 2026',
+      timeLine: '2:30 PM IST',
+    })
+  })
+
+  it('returns null lines when no timestamps are present', () => {
+    expect(formatIstSchedule(null, null)).toEqual({
+      dateLine: null,
+      timeLine: null,
+    })
   })
 })

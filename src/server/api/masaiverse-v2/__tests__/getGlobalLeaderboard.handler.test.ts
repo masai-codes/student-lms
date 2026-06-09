@@ -23,36 +23,49 @@ const ENTRIES = [
   { rank: 1, userId: '10', name: 'Priya', avatarUrl: null, points: 940 },
 ]
 
+const RESULT = {
+  entries: ENTRIES,
+  currentUser: { rank: 4, userId: '99', name: 'Vidit', avatarUrl: null, points: 120 },
+}
+
 describe('handleGetGlobalLeaderboard', () => {
   beforeEach(() => {
     vi.clearAllMocks()
   })
 
-  it('returns the leaderboard entries, parsing the limit', async () => {
+  it('returns the leaderboard result, parsing the limit and month period', async () => {
     const { handleGetGlobalLeaderboard } = await import(
       '../handlers/getGlobalLeaderboard.handler'
     )
-    hoisted.getUserIdFromCookieHeader.mockResolvedValueOnce(1)
-    hoisted.getGlobalLeaderboard.mockResolvedValueOnce(ENTRIES)
+    hoisted.getUserIdFromCookieHeader.mockResolvedValueOnce(7)
+    hoisted.getGlobalLeaderboard.mockResolvedValueOnce(RESULT)
 
     const response = await handleGetGlobalLeaderboard(
-      getRequest('?limit=5', 'session=abc'),
+      getRequest('?limit=5&period=month', 'session=abc'),
     )
 
     expect(response.status).toBe(200)
-    await expect(response.json()).resolves.toEqual({ entries: ENTRIES })
-    expect(hoisted.getGlobalLeaderboard).toHaveBeenCalledWith(5)
+    await expect(response.json()).resolves.toEqual(RESULT)
+    expect(hoisted.getGlobalLeaderboard).toHaveBeenCalledWith({
+      currentUserId: 7,
+      period: 'month',
+      limit: 5,
+    })
   })
 
-  it('passes undefined when no limit is given', async () => {
+  it('defaults to the overall period and undefined limit when omitted', async () => {
     const { handleGetGlobalLeaderboard } = await import(
       '../handlers/getGlobalLeaderboard.handler'
     )
-    hoisted.getUserIdFromCookieHeader.mockResolvedValueOnce(1)
-    hoisted.getGlobalLeaderboard.mockResolvedValueOnce([])
+    hoisted.getUserIdFromCookieHeader.mockResolvedValueOnce(7)
+    hoisted.getGlobalLeaderboard.mockResolvedValueOnce(RESULT)
 
     await handleGetGlobalLeaderboard(getRequest('', 'session=abc'))
-    expect(hoisted.getGlobalLeaderboard).toHaveBeenCalledWith(undefined)
+    expect(hoisted.getGlobalLeaderboard).toHaveBeenCalledWith({
+      currentUserId: 7,
+      period: 'overall',
+      limit: undefined,
+    })
   })
 
   it('returns 401 when there is no session', async () => {

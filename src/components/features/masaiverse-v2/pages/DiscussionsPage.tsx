@@ -1,11 +1,12 @@
-import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
+import { getRouteApi } from '@tanstack/react-router'
 import CommunityDiscussionsSection from './home/CommunityDiscussionsSection'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { masaiverseV2MyClubsQuery } from '@/query/masaiverse-v2/clubsQuery'
+import { DISCUSSIONS_PUBLIC_TAB as PUBLIC_TAB } from '@/query/masaiverse-v2/discussionsQuery'
+import { MASAIVERSE_EVENTS, trackMasaiverse } from '../tracking'
 
-/** The "Public" tab uses a reserved value; club tabs key off their numeric id. */
-const PUBLIC_TAB = 'public'
+const routeApi = getRouteApi('/(protected)/_layout/masaiverse/discussions')
 
 /**
  * Community discussions page. A "Public" tab shows the club-less community feed
@@ -16,7 +17,32 @@ const PUBLIC_TAB = 'public'
 export default function DiscussionsPage() {
   const { data, isPending } = useQuery(masaiverseV2MyClubsQuery())
   const clubs = data ?? []
-  const [tab, setTab] = useState<string>(PUBLIC_TAB)
+
+  // The active tab lives in the URL so "View all" links can deep-link to a
+  // specific club's feed. Default to Public, and fall back to Public if the
+  // requested club tab isn't one the user has joined — but only once clubs have
+  // loaded, so a valid club deep-link isn't bounced to Public mid-fetch.
+  const { tab } = routeApi.useSearch()
+  const navigate = routeApi.useNavigate()
+  const requested = tab ?? PUBLIC_TAB
+  const tabExists =
+    requested === PUBLIC_TAB || clubs.some((club) => club.id === requested)
+  const activeTab = tabExists || isPending ? requested : PUBLIC_TAB
+
+  const setTab = (value: string) => {
+    trackMasaiverse(MASAIVERSE_EVENTS.discussionsTabChange, {
+      tab: value === PUBLIC_TAB ? 'public' : 'club',
+      club_id: value === PUBLIC_TAB ? undefined : value,
+    })
+    void navigate({
+      // Keep Public out of the URL so the default stays a clean `/discussions`.
+      search: (prev) => ({
+        ...prev,
+        tab: value === PUBLIC_TAB ? undefined : value,
+      }),
+      replace: true,
+    })
+  }
 
   return (
     <div>
@@ -28,7 +54,7 @@ export default function DiscussionsPage() {
         clubs.
       </p>
 
-      <Tabs value={tab} onValueChange={setTab} className="mt-5">
+      <Tabs value={activeTab} onValueChange={setTab} className="mt-5">
         <div className="overflow-x-auto">
           <TabsList className="bg-[#F1ECE8]">
             <TabsTrigger value={PUBLIC_TAB} className="px-3">

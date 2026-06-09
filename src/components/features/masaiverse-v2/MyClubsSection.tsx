@@ -2,6 +2,7 @@ import { Link } from '@tanstack/react-router'
 import { Plus } from '@phosphor-icons/react'
 import type { MasaiverseV2SidebarClub } from '@/server/api/masaiverse-v2/services/getMyClubs.service'
 import { getInitials } from '@/lib/initials'
+import { MASAIVERSE_EVENTS, trackMasaiverse } from './tracking'
 
 type MyClubsSectionProps = {
   clubs: Array<MasaiverseV2SidebarClub>
@@ -41,6 +42,12 @@ export default function MyClubsSection({
             to="/masaiverse/club/$clubId"
             params={{ clubId: club.id }}
             search={(prev) => prev}
+            onClick={() =>
+              trackMasaiverse(MASAIVERSE_EVENTS.clubCardClick, {
+                club_id: club.id,
+                source: 'sidebar_my_clubs',
+              })
+            }
             className={`flex items-center gap-2.5 rounded-[10px] px-4 py-[10px] ${
               club.id === activeClubId ? 'bg-masaiverse-orange/10' : 'hover:bg-[#FBF9F9]'
             }`}
@@ -68,6 +75,12 @@ export default function MyClubsSection({
       <Link
         to="/masaiverse/clubs"
         search={(prev) => prev}
+        onClick={() =>
+          trackMasaiverse(MASAIVERSE_EVENTS.seeAllClick, {
+            section: 'sidebar_my_clubs',
+            to: 'clubs',
+          })
+        }
         className="mt-1 flex items-center justify-center gap-1 rounded-[10px] border border-dashed border-[#D1D5DB] px-4 py-[10px] text-[14px] font-medium text-[#6B7280] hover:bg-[#FBF9F9]"
       >
         <Plus size={16} weight="bold" />

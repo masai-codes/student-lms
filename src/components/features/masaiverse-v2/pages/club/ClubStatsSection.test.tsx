@@ -36,7 +36,7 @@ describe('ClubStatsSection', () => {
     expect(screen.getByText('in the last 30 days')).toBeTruthy()
     expect(screen.getByText('Avg event rating')).toBeTruthy()
     expect(screen.getByText('Projects built')).toBeTruthy()
-    expect(screen.getByText('Community posts')).toBeTruthy()
+    expect(screen.getByText('Community Discussions')).toBeTruthy()
   })
 
   it('shows formatted values, with one decimal for the rating', async () => {

@@ -7,6 +7,8 @@ import { htmlPlainText } from '@/lib/html'
 import { MASAIVERSE_V2_DISCUSSIONS_KEY } from '@/query/masaiverse-v2/discussionsQuery'
 import { MASAIVERSE_V2_HOME_KEY } from '@/query/masaiverse-v2/homeQuery'
 import { masaiverseV2ClubDetailQuery } from '@/query/masaiverse-v2/clubsQuery'
+import { invalidateMasaiverseV2Leaderboards } from '@/query/masaiverse-v2/leaderboardQuery'
+import { MASAIVERSE_EVENTS, trackMasaiverse } from '../../tracking'
 
 type DiscussionComposerProps = {
   onClose: () => void
@@ -26,6 +28,7 @@ export default function DiscussionComposer({
   const mutation = useMutation({
     mutationFn: createMasaiverseV2Discussion,
     onSuccess: () => {
+      trackMasaiverse(MASAIVERSE_EVENTS.discussionCreate, { club_id: clubId })
       // The standalone, paginated feed reads from the discussions query…
       void queryClient.invalidateQueries({
         queryKey: MASAIVERSE_V2_DISCUSSIONS_KEY,
@@ -39,6 +42,8 @@ export default function DiscussionComposer({
           exact: true,
         })
       }
+      // Creating a post awards leaderboard points, so refresh the standings.
+      invalidateMasaiverseV2Leaderboards(queryClient)
       onClose()
     },
   })
@@ -69,7 +74,7 @@ export default function DiscussionComposer({
         onChange={(event) => setTitle(event.target.value)}
         placeholder="Discussion title"
         maxLength={255}
-        className="mb-3 w-full rounded-lg border border-[#E5E7EB] px-3 py-2 text-[15px] font-semibold text-[#111827] outline-none placeholder:font-normal placeholder:text-[#9CA3AF]"
+        className="mb-3 w-full rounded-lg border border-[#E5E7EB] px-3 py-2 text-[16px] font-semibold text-[#111827] outline-none placeholder:font-normal placeholder:text-[#9CA3AF] sm:text-[15px]"
       />
       <RichTextEditor
         value={content}
@@ -81,7 +86,7 @@ export default function DiscussionComposer({
         value={tagsInput}
         onChange={(event) => setTagsInput(event.target.value)}
         placeholder="Add tags, comma separated (e.g. Career, Interviews)"
-        className="mt-3 w-full rounded-lg border border-[#E5E7EB] px-3 py-2 text-[14px] text-[#111827] outline-none placeholder:text-[#9CA3AF]"
+        className="mt-3 w-full rounded-lg border border-[#E5E7EB] px-3 py-2 text-[16px] text-[#111827] outline-none placeholder:text-[#9CA3AF] sm:text-[14px]"
       />
       {mutation.isError ? (
         <p className="mt-2 text-[13px] text-[#DC2626]">

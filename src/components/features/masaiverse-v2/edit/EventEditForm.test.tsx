@@ -34,6 +34,7 @@ const ONLINE_DATA = {
     description: 'About',
     category: 'hackathon',
     mode: 'online',
+    clubId: null,
     locationTitle: null,
     locationMapLink: null,
     eventLink: 'https://meet',
@@ -43,6 +44,10 @@ const ONLINE_DATA = {
     endTime: '2026-06-10T11:00:00.000Z',
   },
   meta: { isPublished: false },
+  clubs: [
+    { id: '7', name: 'Code Club' },
+    { id: '9', name: 'Design Guild' },
+  ],
 }
 
 function renderForm(onClose = vi.fn()) {
@@ -81,6 +86,17 @@ describe('EventEditForm', () => {
     expect(screen.getByText('Location title')).toBeTruthy()
     expect(screen.getByText('Location map link')).toBeTruthy()
     expect(screen.queryByText('Event link')).toBeNull()
+  })
+
+  it('offers a host-club picker seeded from the edit data', async () => {
+    fetchEditData.mockResolvedValue(ONLINE_DATA)
+    renderForm()
+
+    await screen.findByDisplayValue('Build Sprint')
+    expect(screen.getByText('Host club')).toBeTruthy()
+    expect(screen.getByRole('option', { name: 'None (community-wide)' })).toBeTruthy()
+    expect(screen.getByRole('option', { name: 'Code Club' })).toBeTruthy()
+    expect(screen.getByRole('option', { name: 'Design Guild' })).toBeTruthy()
   })
 
   it('saves the patched event and closes', async () => {

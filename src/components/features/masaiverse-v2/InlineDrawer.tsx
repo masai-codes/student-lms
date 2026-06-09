@@ -1,14 +1,16 @@
 import { X } from '@phosphor-icons/react'
-import type { ReactNode } from 'react'
+import { useEffect, useState, type ReactNode } from 'react'
+
+import BottomDrawer from '@/components/ui/bottom-drawer'
 
 type InlineDrawerProps = {
-  /** Whether the right-hand panel is open. */
+  /** Whether the panel is open. */
   open: boolean
-  /** Content rendered inside the panel (e.g. the calendar). */
+  /** Content rendered inside the panel (e.g. the calendar). Shared across breakpoints. */
   panel: ReactNode
-  /** Main content; shrinks to make room when the panel opens. */
+  /** Main content; shrinks to make room when the panel opens (desktop only). */
   children: ReactNode
-  /** Panel width in px when open. */
+  /** Panel width in px when open (desktop only; mobile uses a full-width bottom sheet). */
   panelWidth?: number
   /** When provided, a close button is shown at the top of the panel. */
   onClose?: () => void
@@ -16,15 +18,40 @@ type InlineDrawerProps = {
   title?: string
 }
 
-/** Top offset (global nav height) so the panel sits below the top bar. */
+/** Top offset (global nav height) so the desktop panel sits below the top bar. */
 const TOP_OFFSET = 72
 
+/** `md` breakpoint — desktop shows the inline side panel, mobile a bottom sheet. */
+const DESKTOP_MEDIA_QUERY = '(min-width: 768px)'
+
 /**
- * Reusable docs-style inline drawer. The main content shrinks to make room
- * (animated) while the panel itself is pinned to the viewport with
- * `position: fixed`, so it always opens anchored to the top — its header and
- * first items are visible no matter how far the page is scrolled — and scrolls
- * internally when its content is taller than the viewport.
+ * Tracks whether the viewport is at the desktop breakpoint. Mirrors the
+ * `useResolvedDirection` pattern used by the card drawers. Defaults to `true`
+ * so the (closed) desktop layout renders first; the panel itself is only
+ * visible after a user action, so there is no mobile/desktop flash.
+ */
+function useIsDesktop() {
+  const [isDesktop, setIsDesktop] = useState(true)
+  useEffect(() => {
+    const mediaQuery = window.matchMedia(DESKTOP_MEDIA_QUERY)
+    const sync = () => setIsDesktop(mediaQuery.matches)
+    sync()
+    mediaQuery.addEventListener('change', sync)
+    return () => mediaQuery.removeEventListener('change', sync)
+  }, [])
+  return isDesktop
+}
+
+/**
+ * Reusable responsive drawer. The body content (`panel`) is identical across
+ * breakpoints — only the presentation differs:
+ *
+ * - Desktop (≥768px): a docs-style inline side panel. The main content shrinks
+ *   to make room (animated) while the panel is pinned to the viewport with
+ *   `position: fixed`, so it always opens anchored to the top and scrolls
+ *   internally when taller than the viewport.
+ * - Mobile (<768px): a bottom sheet that floats over the content, avoiding the
+ *   broken layout caused by a narrow fixed side panel on small screens.
  */
 export default function InlineDrawer({
   open,
@@ -34,6 +61,21 @@ export default function InlineDrawer({
   onClose,
   title,
 }: InlineDrawerProps) {
+  const isDesktop = useIsDesktop()
+
+  // Mobile: render content full-width and present the panel as a bottom sheet.
+  if (!isDesktop) {
+    return (
+      <>
+        {children}
+        <BottomDrawer open={open} onClose={onClose} title={title}>
+          {panel}
+        </BottomDrawer>
+      </>
+    )
+  }
+
+  // Desktop: inline side panel that shrinks the main content.
   return (
     <div className={`flex w-full items-stretch ${open ? 'gap-6' : ''}`}>
       <div className="min-w-0 flex-1">{children}</div>

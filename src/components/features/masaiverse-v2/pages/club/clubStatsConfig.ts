@@ -44,7 +44,7 @@ export const CLUB_STAT_CARDS: Array<ClubStatCardConfig> = [
   {
     id: 'community-posts',
     emoji: '💬',
-    label: 'Community posts',
+    label: 'Community Discussions',
     accent: 'blue',
     metric: 'communityPosts',
     format: 'count',

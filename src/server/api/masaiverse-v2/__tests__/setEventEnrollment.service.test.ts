@@ -3,10 +3,15 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 const hoisted = vi.hoisted(() => ({
   dbSelect: vi.fn(),
   dbInsert: vi.fn(),
+  awardEventRegistrationPoints: vi.fn(),
 }))
 
 vi.mock('@/db', () => ({
   db: { select: hoisted.dbSelect, insert: hoisted.dbInsert },
+}))
+
+vi.mock('../services/awardLeaderboardPoints.service', () => ({
+  awardEventRegistrationPoints: hoisted.awardEventRegistrationPoints,
 }))
 
 vi.mock('@/db/schema', () => ({
@@ -15,6 +20,7 @@ vi.mock('@/db/schema', () => ({
     mode: 'events.mode',
     eventLink: 'events.event_link',
     locationMapLink: 'events.location_map_link',
+    clubId: 'events.club_id',
   },
   eventEnrollments: {
     eventId: 'event_enrollments.event_id',
@@ -76,9 +82,11 @@ describe('setEventEnrollment', () => {
             mode: 'offline',
             eventLink: 'https://meet.example/x',
             locationMapLink: 'https://maps.example/hq',
+            clubId: 8,
           },
         ]),
       )
+      .mockReturnValueOnce(limitChain([])) // not yet enrolled
       .mockReturnValueOnce(whereChain([{ enrolledCount: 9 }]))
 
     await expect(setEventEnrollment(1, 5)).resolves.toEqual({
@@ -87,6 +95,36 @@ describe('setEventEnrollment', () => {
       redirectUrl: 'https://maps.example/hq',
     })
     expect(values).toHaveBeenCalledWith({ userId: 1, eventId: 5 })
+    // A first-time registration earns event-registration points with the club id.
+    expect(hoisted.awardEventRegistrationPoints).toHaveBeenCalledWith({
+      userId: 1,
+      eventId: 5,
+      clubId: 8,
+    })
+  })
+
+  it('does not award points again when the user is already enrolled', async () => {
+    const { setEventEnrollment } = await import(
+      '../services/setEventEnrollment.service'
+    )
+    mockInsert()
+    hoisted.dbSelect
+      .mockReturnValueOnce(
+        limitChain([
+          {
+            id: 5,
+            mode: 'online',
+            eventLink: 'https://meet.example/x',
+            locationMapLink: null,
+            clubId: null,
+          },
+        ]),
+      )
+      .mockReturnValueOnce(limitChain([{ userId: 1 }])) // already enrolled
+      .mockReturnValueOnce(whereChain([{ enrolledCount: 9 }]))
+
+    await setEventEnrollment(1, 5)
+    expect(hoisted.awardEventRegistrationPoints).not.toHaveBeenCalled()
   })
 
   it('redirects online events to the event link', async () => {
@@ -102,9 +140,11 @@ describe('setEventEnrollment', () => {
             mode: 'online',
             eventLink: 'https://meet.example/x',
             locationMapLink: null,
+            clubId: null,
           },
         ]),
       )
+      .mockReturnValueOnce(limitChain([])) // not yet enrolled
       .mockReturnValueOnce(whereChain([{ enrolledCount: 1 }]))
 
     await expect(setEventEnrollment(1, 5)).resolves.toMatchObject({
@@ -120,9 +160,16 @@ describe('setEventEnrollment', () => {
     hoisted.dbSelect
       .mockReturnValueOnce(
         limitChain([
-          { id: 5, mode: 'online', eventLink: '   ', locationMapLink: null },
+          {
+            id: 5,
+            mode: 'online',
+            eventLink: '   ',
+            locationMapLink: null,
+            clubId: null,
+          },
         ]),
       )
+      .mockReturnValueOnce(limitChain([])) // not yet enrolled
       .mockReturnValueOnce(whereChain([{ enrolledCount: 2 }]))
 
     await expect(setEventEnrollment(1, 5)).resolves.toMatchObject({

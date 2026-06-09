@@ -28,22 +28,11 @@ function getRequest(query: string, cookie: string | null): Request {
   )
 }
 
-const PAGE = {
+const RESULT = {
   entries: [
-    {
-      rank: 1,
-      userId: '10',
-      name: 'Priya',
-      avatarUrl: null,
-      points: 940,
-      postsCount: 4,
-      eventsCount: 8,
-    },
+    { rank: 1, userId: '10', name: 'Priya', avatarUrl: null, points: 940 },
   ],
-  page: 1,
-  perPage: 10,
-  total: 7,
-  hasMore: false,
+  currentUser: { rank: 3, userId: '99', name: 'Vidit', avatarUrl: null, points: 300 },
 }
 
 describe('handleGetClubLeaderboard', () => {
@@ -51,29 +40,39 @@ describe('handleGetClubLeaderboard', () => {
     vi.clearAllMocks()
   })
 
-  it('returns a leaderboard page with the parsed pagination args', async () => {
+  it('returns a leaderboard result, parsing the club id and month period', async () => {
     const { handleGetClubLeaderboard } =
       await import('../handlers/getClubLeaderboard.handler')
-    hoisted.getUserIdFromCookieHeader.mockResolvedValueOnce(1)
-    hoisted.getClubLeaderboard.mockResolvedValueOnce(PAGE)
+    hoisted.getUserIdFromCookieHeader.mockResolvedValueOnce(7)
+    hoisted.getClubLeaderboard.mockResolvedValueOnce(RESULT)
 
     const response = await handleGetClubLeaderboard(
-      getRequest('?clubId=5&page=1&perPage=10', 'session=abc'),
+      getRequest('?clubId=5&period=month', 'session=abc'),
     )
 
     expect(response.status).toBe(200)
-    await expect(response.json()).resolves.toEqual(PAGE)
-    expect(hoisted.getClubLeaderboard).toHaveBeenCalledWith(5, 1, 10, false)
+    await expect(response.json()).resolves.toEqual(RESULT)
+    expect(hoisted.getClubLeaderboard).toHaveBeenCalledWith({
+      clubId: 5,
+      currentUserId: 7,
+      period: 'month',
+      canSeeUnpublished: false,
+    })
   })
 
-  it('defaults page to 0 and per_page to undefined when omitted', async () => {
+  it('defaults to the overall period when omitted', async () => {
     const { handleGetClubLeaderboard } =
       await import('../handlers/getClubLeaderboard.handler')
-    hoisted.getUserIdFromCookieHeader.mockResolvedValueOnce(1)
-    hoisted.getClubLeaderboard.mockResolvedValueOnce(PAGE)
+    hoisted.getUserIdFromCookieHeader.mockResolvedValueOnce(7)
+    hoisted.getClubLeaderboard.mockResolvedValueOnce(RESULT)
 
     await handleGetClubLeaderboard(getRequest('?clubId=5', 'session=abc'))
-    expect(hoisted.getClubLeaderboard).toHaveBeenCalledWith(5, 0, undefined, false)
+    expect(hoisted.getClubLeaderboard).toHaveBeenCalledWith({
+      clubId: 5,
+      currentUserId: 7,
+      period: 'overall',
+      canSeeUnpublished: false,
+    })
   })
 
   it('returns 404 when the club is missing', async () => {

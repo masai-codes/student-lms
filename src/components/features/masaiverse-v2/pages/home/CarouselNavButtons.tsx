@@ -1,4 +1,5 @@
 import { CaretLeft, CaretRight } from '@phosphor-icons/react'
+import { MASAIVERSE_EVENTS, trackMasaiverse } from '../../tracking'
 
 type CarouselNavButtonsProps = {
   /** Class Swiper binds the "prev" control to, e.g. `events-prev`. */
@@ -7,6 +8,12 @@ type CarouselNavButtonsProps = {
   nextClassName: string
   /** Used for aria-labels: "Previous {label}" / "Next {label}". */
   label: string
+  /**
+   * Identifier sent to GA for funnel tracking (e.g. `home_events`). Defaults to
+   * `label` when omitted. Swiper handles the actual slide via its class binding;
+   * the onClick here only fires the tracking event.
+   */
+  trackingId?: string
 }
 
 const BASE =
@@ -21,12 +28,20 @@ export default function CarouselNavButtons({
   prevClassName,
   nextClassName,
   label,
+  trackingId,
 }: CarouselNavButtonsProps) {
+  const carousel = trackingId ?? label
   return (
     <>
       <button
         type="button"
         aria-label={`Previous ${label}`}
+        onClick={() =>
+          trackMasaiverse(MASAIVERSE_EVENTS.carouselNav, {
+            carousel,
+            direction: 'prev',
+          })
+        }
         className={`${prevClassName} ${BASE} left-0 -translate-x-1/2`}
       >
         <CaretLeft size={16} weight="bold" />
@@ -34,6 +49,12 @@ export default function CarouselNavButtons({
       <button
         type="button"
         aria-label={`Next ${label}`}
+        onClick={() =>
+          trackMasaiverse(MASAIVERSE_EVENTS.carouselNav, {
+            carousel,
+            direction: 'next',
+          })
+        }
         className={`${nextClassName} ${BASE} right-0 translate-x-1/2`}
       >
         <CaretRight size={16} weight="bold" />

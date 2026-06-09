@@ -34,8 +34,6 @@ const entry = (rank: number, name: string, points: number) => ({
   name,
   avatarUrl: null,
   points,
-  postsCount: rank,
-  eventsCount: rank * 2,
 })
 
 afterEach(() => {
@@ -62,13 +60,7 @@ describe('ClubLeaderboardSection', () => {
   })
 
   it('shows an empty state when no points exist', async () => {
-    fetchLeaderboard.mockResolvedValue({
-      entries: [],
-      page: 0,
-      perPage: 5,
-      total: 0,
-      hasMore: false,
-    })
+    fetchLeaderboard.mockResolvedValue({ entries: [], currentUser: null })
     renderWithClient(<ClubLeaderboardSection clubId="5" />)
 
     await waitFor(() =>
@@ -76,57 +68,47 @@ describe('ClubLeaderboardSection', () => {
     )
   })
 
-  it('renders ranked members without a pager on a single page', async () => {
+  it('renders ranked members without the projects/events subtitle', async () => {
     fetchLeaderboard.mockResolvedValue({
       entries: [entry(1, 'Priya', 940), entry(2, 'Arjun', 820)],
-      page: 0,
-      perPage: 5,
-      total: 2,
-      hasMore: false,
+      currentUser: null,
     })
     renderWithClient(<ClubLeaderboardSection clubId="5" />)
 
     await waitFor(() => expect(screen.getByText('Priya')).toBeTruthy())
     expect(screen.getByText('Arjun')).toBeTruthy()
-    expect(screen.queryByLabelText('Next page')).toBeNull()
+    expect(screen.queryByText(/projects ·/)).toBeNull()
   })
 
-  it('pages forward and back through the leaderboard', async () => {
-    fetchLeaderboard.mockImplementation((input: { page: number }) =>
-      Promise.resolve(
-        input.page === 0
-          ? {
-              entries: [entry(1, 'Priya', 940)],
-              page: 0,
-              perPage: 5,
-              total: 6,
-              hasMore: true,
-            }
-          : {
-              entries: [entry(6, 'Rohit', 530)],
-              page: 1,
-              perPage: 5,
-              total: 6,
-              hasMore: false,
-            },
-      ),
+  it('pins the signed-in member when they fall outside the top list', async () => {
+    fetchLeaderboard.mockResolvedValue({
+      entries: [entry(1, 'Priya', 940)],
+      currentUser: { ...entry(7, 'Vidit', 120) },
+    })
+    renderWithClient(<ClubLeaderboardSection clubId="5" />)
+
+    await waitFor(() => expect(screen.getByText('Vidit')).toBeTruthy())
+    expect(screen.getByText('You')).toBeTruthy()
+  })
+
+  it('refetches for the "This month" period when the tab is switched', async () => {
+    fetchLeaderboard.mockImplementation((input: { period: string }) =>
+      Promise.resolve({
+        entries: [
+          entry(1, input.period === 'month' ? 'Monthly Mira' : 'Overall Olivia', 50),
+        ],
+        currentUser: null,
+      }),
     )
     renderWithClient(<ClubLeaderboardSection clubId="5" />)
 
-    await waitFor(() => expect(screen.getByText('Priya')).toBeTruthy())
-    expect(screen.getByText('Page 1')).toBeTruthy()
-    expect(screen.getByLabelText('Previous page')).toHaveProperty(
-      'disabled',
-      true,
-    )
-
-    fireEvent.click(screen.getByLabelText('Next page'))
-
-    await waitFor(() => expect(screen.getByText('Rohit')).toBeTruthy())
-    expect(screen.getByText('Page 2')).toBeTruthy()
-    expect(screen.getByLabelText('Next page')).toHaveProperty('disabled', true)
-
-    fireEvent.click(screen.getByLabelText('Previous page'))
-    await waitFor(() => expect(screen.getByText('Priya')).toBeTruthy())
+    await waitFor(() => expect(screen.getByText('Overall Olivia')).toBeTruthy())
+    // Radix Tabs uses automatic activation, so focusing the tab selects it.
+    fireEvent.focus(screen.getByRole('tab', { name: 'This month' }))
+    await waitFor(() => expect(screen.getByText('Monthly Mira')).toBeTruthy())
+    expect(fetchLeaderboard).toHaveBeenLastCalledWith({
+      clubId: '5',
+      period: 'month',
+    })
   })
 })

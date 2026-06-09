@@ -12,6 +12,9 @@ vi.mock('@tanstack/react-query', () => ({ useQuery: () => useQuery() }))
 vi.mock('./leaderboard/GlobalLeaderboardSection', () => ({
   default: () => <div data-testid="global-board">global</div>,
 }))
+vi.mock('./leaderboard/AssignPointsButton', () => ({
+  default: () => <div data-testid="assign-points" />,
+}))
 vi.mock('./club/ClubLeaderboardSection', () => ({
   default: ({ clubId }: { clubId: string }) => (
     <div data-testid="club-board" data-club-id={clubId}>

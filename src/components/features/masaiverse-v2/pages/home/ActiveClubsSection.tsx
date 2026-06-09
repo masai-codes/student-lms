@@ -7,6 +7,7 @@ import HomeClubCard from './HomeClubCard'
 import SectionHeader from './SectionHeader'
 import { HomeClubCardSkeleton, repeat } from './skeletons'
 import { masaiverseV2HomeQuery } from '@/query/masaiverse-v2/homeQuery'
+import { MASAIVERSE_EVENTS, trackMasaiverse } from '../../tracking'
 import 'swiper/css'
 import 'swiper/css/navigation'
 
@@ -23,6 +24,12 @@ export default function ActiveClubsSection() {
           <Link
             to="/masaiverse/clubs"
             search={(prev) => prev}
+            onClick={() =>
+              trackMasaiverse(MASAIVERSE_EVENTS.seeAllClick, {
+                section: 'home_active_clubs',
+                to: 'clubs',
+              })
+            }
             className="text-[14px] font-medium text-masaiverse-orange hover:underline"
           >
             All clubs →
@@ -64,6 +71,12 @@ export default function ActiveClubsSection() {
                   to="/masaiverse/club/$clubId"
                   params={{ clubId: club.id }}
                   search={(prev) => prev}
+                  onClick={() =>
+                    trackMasaiverse(MASAIVERSE_EVENTS.clubCardClick, {
+                      club_id: club.id,
+                      source: 'home_active_clubs',
+                    })
+                  }
                   className="flex h-full rounded-[14px] transition-shadow hover:shadow-[0_4px_16px_rgba(17,24,39,0.06)] [&>div]:w-full"
                 >
                   <HomeClubCard club={club} />
@@ -77,6 +90,7 @@ export default function ActiveClubsSection() {
               prevClassName="home-clubs-prev"
               nextClassName="home-clubs-next"
               label="clubs"
+              trackingId="home_clubs"
             />
           ) : null}
         </div>

@@ -6,6 +6,7 @@ import {
   getMonthGrid,
   toDateKey,
 } from './calendarUtils'
+import { MASAIVERSE_EVENTS, trackMasaiverse } from '../../../tracking'
 
 type ReadOnlyCalendarProps = {
   /** Date keys (YYYY-MM-DD) that have at least one event → shown with a dot. */
@@ -32,8 +33,12 @@ export default function ReadOnlyCalendar({
     () => new Date(today.getFullYear(), today.getMonth(), 1),
   )
 
-  const goToMonth = (delta: number) =>
+  const goToMonth = (delta: number) => {
+    trackMasaiverse(MASAIVERSE_EVENTS.calendarMonthNav, {
+      direction: delta < 0 ? 'prev' : 'next',
+    })
     setViewDate((date) => new Date(date.getFullYear(), date.getMonth() + delta, 1))
+  }
 
   const cells = getMonthGrid(viewDate)
 
@@ -114,7 +119,13 @@ function DayCell({
       type="button"
       aria-label={label}
       aria-pressed={isSelected}
-      onClick={() => onSelectDate?.(dateKey)}
+      onClick={() => {
+        trackMasaiverse(MASAIVERSE_EVENTS.calendarDaySelect, {
+          date_key: dateKey,
+          has_events: hasEvents,
+        })
+        onSelectDate?.(dateKey)
+      }}
       className="flex flex-col items-center rounded-[8px] py-0.5 hover:bg-white/15"
     >
       <span

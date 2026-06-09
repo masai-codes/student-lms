@@ -6,6 +6,7 @@ import {
   masaiverseV2AdminModeQuery,
 } from '@/query/masaiverse-v2/adminModeQuery'
 import { Switch } from '@/components/ui/switch'
+import { MASAIVERSE_EVENTS, trackMasaiverse } from './tracking'
 
 /**
  * "Enable admin mode" toggle shown below the Masaiverse logo. Only rendered for
@@ -38,7 +39,10 @@ export default function AdminModeToggle() {
       <Switch
         checked={data.enabled}
         disabled={mutation.isPending}
-        onCheckedChange={(next) => mutation.mutate(next)}
+        onCheckedChange={(next) => {
+          trackMasaiverse(MASAIVERSE_EVENTS.adminModeToggle, { enabled: next })
+          mutation.mutate(next)
+        }}
         aria-label="Enable admin mode"
       />
     </div>

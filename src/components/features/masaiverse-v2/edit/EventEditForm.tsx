@@ -13,6 +13,7 @@ import { RichTextEditor } from '@/components/discussion-post-card/rich-text-edit
 import { Switch } from '@/components/ui/switch'
 import { updateMasaiverseV2Event } from '@/lib/api/masaiverse-v2/masaiverseV2Api'
 import { masaiverseV2EventEditDataQuery } from '@/query/masaiverse-v2/eventsQuery'
+import { MASAIVERSE_EVENTS, trackMasaiverse } from '../tracking'
 
 type EventEditFormProps = {
   eventId: string
@@ -59,6 +60,10 @@ export default function EventEditForm({ eventId, onClose }: EventEditFormProps) 
     mutationFn: () =>
       updateMasaiverseV2Event(eventId, toEventPatch(form as EventFormState)),
     onSuccess: async () => {
+      trackMasaiverse(MASAIVERSE_EVENTS.eventUpdate, {
+        event_id: eventId,
+        is_published: form?.isPublished,
+      })
       await queryClient.invalidateQueries({
         queryKey: ['masaiverse-v2', 'event', eventId],
       })
@@ -166,6 +171,22 @@ export default function EventEditForm({ eventId, onClose }: EventEditFormProps) 
         </div>
       </div>
 
+      <div>
+        <p className={LABEL}>Host club</p>
+        <select
+          value={form.clubId}
+          onChange={(event) => set('clubId', event.target.value)}
+          className={INPUT}
+        >
+          <option value="">None (community-wide)</option>
+          {(data?.clubs ?? []).map((club) => (
+            <option key={club.id} value={club.id}>
+              {club.name}
+            </option>
+          ))}
+        </select>
+      </div>
+
       <div className="flex gap-3">
         <div className="w-1/2">
           <p className={LABEL}>Start time (IST)</p>
@@ -242,13 +263,6 @@ export default function EventEditForm({ eventId, onClose }: EventEditFormProps) 
         <RichTextEditor
           value={form.description}
           onChange={(value) => set('description', value)}
-        />
-      </div>
-      <div>
-        <p className={LABEL}>Event detail description</p>
-        <RichTextEditor
-          value={form.eventDetailDescription}
-          onChange={(value) => set('eventDetailDescription', value)}
         />
       </div>
       <div>
