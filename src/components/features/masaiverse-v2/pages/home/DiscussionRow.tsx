@@ -15,11 +15,14 @@ type DiscussionRowProps = {
   discussion: MasaiverseV2Discussion
   /** Avatar background color (hex). */
   accentColor: string
+  /** When set, replies update this club's stats count. */
+  clubId?: string
 }
 
 export default function DiscussionRow({
   discussion,
   accentColor,
+  clubId,
 }: DiscussionRowProps) {
   const queryClient = useQueryClient()
   const [showReplies, setShowReplies] = useState(false)
@@ -81,7 +84,9 @@ export default function DiscussionRow({
         </div>
       </div>
 
-      {showReplies ? <DiscussionReplies postId={discussion.id} /> : null}
+      {showReplies ? (
+        <DiscussionReplies postId={discussion.id} clubId={clubId} />
+      ) : null}
     </div>
   )
 }

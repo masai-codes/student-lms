@@ -9,15 +9,22 @@ import {
 } from '@/lib/api/masaiverse-v2/masaiverseV2Api'
 import { getInitials } from '@/lib/initials'
 import { incrementReplyCountInCache } from '@/query/masaiverse-v2/discussionsQuery'
+import { masaiverseV2ClubStatsQuery } from '@/query/masaiverse-v2/clubsQuery'
+import { MASAIVERSE_V2_HOME_KEY } from '@/query/masaiverse-v2/homeQuery'
 import { invalidateMasaiverseV2Leaderboards } from '@/query/masaiverse-v2/leaderboardQuery'
 import { formatSocialPostTime } from '@/lib/socialRelativeTime'
 import { MASAIVERSE_EVENTS, trackMasaiverse } from '../../tracking'
 
 type DiscussionRepliesProps = {
   postId: string
+  /** When set, a new reply refreshes this club's stats count. */
+  clubId?: string
 }
 
-export default function DiscussionReplies({ postId }: DiscussionRepliesProps) {
+export default function DiscussionReplies({
+  postId,
+  clubId,
+}: DiscussionRepliesProps) {
   const queryClient = useQueryClient()
   const [text, setText] = useState('')
   const repliesKey = ['masaiverse-v2', 'discussion-replies', postId]
@@ -36,6 +43,17 @@ export default function DiscussionReplies({ postId }: DiscussionRepliesProps) {
       setText('')
       void queryClient.invalidateQueries({ queryKey: repliesKey })
       incrementReplyCountInCache(queryClient, postId)
+      // A reply counts toward the club's communityPosts stat, which lives in a
+      // separate query from the feed, so refresh it on the club page.
+      if (clubId) {
+        void queryClient.invalidateQueries({
+          queryKey: masaiverseV2ClubStatsQuery(clubId).queryKey,
+          exact: true,
+        })
+      }
+      // The home stats' "discussions this month" counts posts + replies, so a
+      // new reply must refresh the home payload too.
+      void queryClient.invalidateQueries({ queryKey: MASAIVERSE_V2_HOME_KEY })
       // Replying awards points to both replier and post author; refresh standings.
       invalidateMasaiverseV2Leaderboards(queryClient)
     },
