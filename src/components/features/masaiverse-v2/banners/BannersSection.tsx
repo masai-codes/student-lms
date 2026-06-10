@@ -6,6 +6,7 @@ import type { Swiper as SwiperClass } from 'swiper/types'
 import { CaretLeft, CaretRight, PencilSimple, Plus } from '@phosphor-icons/react'
 import BannerEditModal from './BannerEditModal'
 import type { MasaiverseV2Banner } from '@/server/api/masaiverse-v2/services/getBanners.service'
+import { Modal, ModalContent, ModalTitle } from '@/components/ui/modal'
 import { RichContent } from '@/components/event-card/rich-content'
 import { createMasaiverseV2Banner } from '@/lib/api/masaiverse-v2/masaiverseV2Api'
 import {
@@ -26,18 +27,17 @@ function BannerCard({
   canManage: boolean
   onEdit: () => void
 }) {
-  const [expanded, setExpanded] = useState(false)
-  // Whether the clamped description actually overflows — only then do we show
-  // the "View more" toggle. Measured while collapsed so it stays true once
-  // expanded (otherwise "View less" would vanish as soon as it's shown).
+  const [detailOpen, setDetailOpen] = useState(false)
+  // Whether the clamped description overflows — only then do we show "View
+  // more", which opens the full content in a modal rather than expanding inline.
   const [canExpand, setCanExpand] = useState(false)
   const descRef = useRef<HTMLDivElement>(null)
 
   useLayoutEffect(() => {
     const el = descRef.current
-    if (!el || expanded) return
+    if (!el) return
     setCanExpand(el.scrollHeight > el.clientHeight + 1)
-  }, [banner.description, expanded])
+  }, [banner.description])
 
   return (
     <div className="relative overflow-hidden rounded-[16px] bg-gradient-to-r from-masaiverse-orange to-[#FF7A29] p-5 text-white">
@@ -70,26 +70,24 @@ function BannerCard({
         <>
           <div
             ref={descRef}
-            className={`mt-1 text-[14px] leading-5 text-white/90 [&_a]:underline ${
-              expanded ? '' : 'line-clamp-3'
-            }`}
+            className="mt-1 line-clamp-3 text-[14px] leading-5 text-white/90 [&_a]:underline"
           >
             <RichContent value={banner.description} />
           </div>
-          {canExpand || expanded ? (
+          {canExpand ? (
             <button
               type="button"
               onClick={() => {
                 trackMasaiverse(MASAIVERSE_EVENTS.bannerExpandToggle, {
                   banner_id: banner.id,
                   banner_title: banner.title,
-                  expanded: !expanded,
+                  expanded: true,
                 })
-                setExpanded((v) => !v)
+                setDetailOpen(true)
               }}
               className="mt-1 text-[13px] font-semibold text-white underline"
             >
-              {expanded ? 'View less' : 'View more'}
+              View more
             </button>
           ) : null}
         </>
@@ -113,6 +111,40 @@ function BannerCard({
             {banner.ctaText}
           </a>
         </div>
+      ) : null}
+
+      {banner.description ? (
+        <Modal open={detailOpen} onOpenChange={setDetailOpen}>
+          <ModalContent className="max-w-[560px]">
+            <ModalTitle className="pr-8 text-[18px] font-bold text-[#111827]">
+              {banner.title}
+            </ModalTitle>
+            <RichContent
+              value={banner.description}
+              className="mt-3 text-[14px] leading-6 text-[#374151] [&_a]:text-masaiverse-orange [&_a]:underline"
+            />
+            {banner.ctaText && banner.ctaUrl ? (
+              <div className="mt-5">
+                <a
+                  href={banner.ctaUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={() =>
+                    trackMasaiverse(MASAIVERSE_EVENTS.bannerCtaClick, {
+                      banner_id: banner.id,
+                      banner_title: banner.title,
+                      cta_text: banner.ctaText,
+                      cta_url: banner.ctaUrl,
+                    })
+                  }
+                  className="inline-flex items-center rounded-lg bg-masaiverse-orange px-4 py-2 text-[14px] font-bold text-white"
+                >
+                  {banner.ctaText}
+                </a>
+              </div>
+            ) : null}
+          </ModalContent>
+        </Modal>
       ) : null}
     </div>
   )
@@ -153,20 +185,56 @@ export default function BannersSection() {
         <h2 className="text-[13px] font-bold uppercase tracking-wide text-[#9CA3AF]">
           Announcements
         </h2>
-        {canManage ? (
-          <button
-            type="button"
-            onClick={() => {
-              trackMasaiverse(MASAIVERSE_EVENTS.bannerCreateClick)
-              create.mutate()
-            }}
-            disabled={create.isPending}
-            className="inline-flex items-center gap-1.5 rounded-lg border border-[#111827] px-3 py-1.5 text-[13px] font-semibold text-[#111827] transition-colors hover:bg-[#111827] hover:text-white disabled:opacity-50"
-          >
-            <Plus size={14} weight="bold" />
-            {create.isPending ? 'Adding…' : 'Add banner'}
-          </button>
-        ) : null}
+        <div className="flex items-center gap-2">
+          {showArrows ? (
+            <div className="flex items-center gap-1.5">
+              <button
+                type="button"
+                onClick={() => {
+                  trackMasaiverse(MASAIVERSE_EVENTS.carouselNav, {
+                    carousel: 'banners',
+                    direction: 'prev',
+                  })
+                  swiper?.slidePrev()
+                }}
+                disabled={navState.isBeginning}
+                aria-label="Previous banner"
+                className="inline-flex size-7 items-center justify-center rounded-full border border-[#E5E7EB] text-[#111827] transition hover:bg-[#F9FAFB] disabled:cursor-not-allowed disabled:opacity-40"
+              >
+                <CaretLeft size={14} weight="bold" />
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  trackMasaiverse(MASAIVERSE_EVENTS.carouselNav, {
+                    carousel: 'banners',
+                    direction: 'next',
+                  })
+                  swiper?.slideNext()
+                }}
+                disabled={navState.isEnd}
+                aria-label="Next banner"
+                className="inline-flex size-7 items-center justify-center rounded-full border border-[#E5E7EB] text-[#111827] transition hover:bg-[#F9FAFB] disabled:cursor-not-allowed disabled:opacity-40"
+              >
+                <CaretRight size={14} weight="bold" />
+              </button>
+            </div>
+          ) : null}
+          {canManage ? (
+            <button
+              type="button"
+              onClick={() => {
+                trackMasaiverse(MASAIVERSE_EVENTS.bannerCreateClick)
+                create.mutate()
+              }}
+              disabled={create.isPending}
+              className="inline-flex items-center gap-1.5 rounded-lg border border-[#111827] px-3 py-1.5 text-[13px] font-semibold text-[#111827] transition-colors hover:bg-[#111827] hover:text-white disabled:opacity-50"
+            >
+              <Plus size={14} weight="bold" />
+              {create.isPending ? 'Adding…' : 'Add banner'}
+            </button>
+          ) : null}
+        </div>
       </div>
 
       {banners.length === 0 ? (
@@ -174,7 +242,7 @@ export default function BannersSection() {
           No banners yet. Click “Add banner” to create one.
         </p>
       ) : (
-        <div className="relative mt-3">
+        <div className="mt-3">
           <Swiper
             modules={[Navigation, Pagination]}
             pagination={{ clickable: true }}
@@ -197,45 +265,6 @@ export default function BannersSection() {
               </SwiperSlide>
             ))}
           </Swiper>
-
-          {showArrows ? (
-            <>
-              {/* Vertically centered on the current card. The -16px nudge offsets
-                  the slide's pb-8 (pagination strip) so arrows sit on the card's
-                  true center; autoHeight re-centers them when a taller/shorter
-                  card slides in. */}
-              <button
-                type="button"
-                onClick={() => {
-                  trackMasaiverse(MASAIVERSE_EVENTS.carouselNav, {
-                    carousel: 'banners',
-                    direction: 'prev',
-                  })
-                  swiper?.slidePrev()
-                }}
-                disabled={navState.isBeginning}
-                aria-label="Previous banner"
-                className="absolute left-0 top-1/2 z-10 inline-flex size-7 -translate-x-1/2 -translate-y-[calc(50%+16px)] items-center justify-center rounded-full bg-white/90 text-masaiverse-orange shadow-md transition hover:bg-white disabled:cursor-not-allowed disabled:opacity-40"
-              >
-                <CaretLeft size={14} weight="bold" />
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  trackMasaiverse(MASAIVERSE_EVENTS.carouselNav, {
-                    carousel: 'banners',
-                    direction: 'next',
-                  })
-                  swiper?.slideNext()
-                }}
-                disabled={navState.isEnd}
-                aria-label="Next banner"
-                className="absolute right-0 top-1/2 z-10 inline-flex size-7 translate-x-1/2 -translate-y-[calc(50%+16px)] items-center justify-center rounded-full bg-white/90 text-masaiverse-orange shadow-md transition hover:bg-white disabled:cursor-not-allowed disabled:opacity-40"
-              >
-                <CaretRight size={14} weight="bold" />
-              </button>
-            </>
-          ) : null}
         </div>
       )}
 
