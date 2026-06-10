@@ -6,7 +6,10 @@ import { parseTagsInput } from '@/lib/discussionTags'
 import { htmlPlainText } from '@/lib/html'
 import { MASAIVERSE_V2_DISCUSSIONS_KEY } from '@/query/masaiverse-v2/discussionsQuery'
 import { MASAIVERSE_V2_HOME_KEY } from '@/query/masaiverse-v2/homeQuery'
-import { masaiverseV2ClubDetailQuery } from '@/query/masaiverse-v2/clubsQuery'
+import {
+  masaiverseV2ClubDetailQuery,
+  masaiverseV2ClubStatsQuery,
+} from '@/query/masaiverse-v2/clubsQuery'
 import { invalidateMasaiverseV2Leaderboards } from '@/query/masaiverse-v2/leaderboardQuery'
 import { MASAIVERSE_EVENTS, trackMasaiverse } from '../../tracking'
 
@@ -39,6 +42,12 @@ export default function DiscussionComposer({
       if (clubId) {
         void queryClient.invalidateQueries({
           queryKey: masaiverseV2ClubDetailQuery(clubId).queryKey,
+          exact: true,
+        })
+        // The stats header reads from a separate query; the new post bumps its
+        // communityPosts count, so refresh it too.
+        void queryClient.invalidateQueries({
+          queryKey: masaiverseV2ClubStatsQuery(clubId).queryKey,
           exact: true,
         })
       }

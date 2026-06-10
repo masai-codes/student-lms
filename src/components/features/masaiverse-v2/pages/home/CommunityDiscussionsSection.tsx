@@ -162,6 +162,7 @@ export default function CommunityDiscussionsSection({
                 key={discussion.id}
                 discussion={discussion}
                 accentColor={AVATAR_COLORS[index % AVATAR_COLORS.length]}
+                clubId={clubId}
               />
             ))}
           </div>

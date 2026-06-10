@@ -7,6 +7,9 @@ import { setMasaiverseV2ClubMembership } from '@/lib/api/masaiverse-v2/masaivers
 import {
   MASAIVERSE_V2_MY_CLUBS_KEY,
   masaiverseV2ClubDetailQuery,
+  masaiverseV2ClubEventsQuery,
+  masaiverseV2ClubLeaderboardQuery,
+  masaiverseV2ClubStatsQuery,
 } from '@/query/masaiverse-v2/clubsQuery'
 import { MASAIVERSE_EVENTS, trackMasaiverse } from '@/components/features/masaiverse-v2/tracking'
 
@@ -72,6 +75,27 @@ export default function JoinClubButton({
       // just-committed write and return a stale `isJoined: false`, which would
       // otherwise snap the button back to "Join" until a manual refresh.
       queryClient.setQueryData<MasaiverseV2ClubDetail>(detailKey, applyMembership)
+      // The member-only sections (events, leaderboard, stats) seed their own
+      // queries from the detail payload's embedded data via `initialData`, which
+      // is sticky after first mount. Flipping membership above mounts them with
+      // the pre-join (server-withheld, empty) data, so they'd stay empty until a
+      // manual refresh. Push the freshly refetched values into those caches now
+      // that the user is a member.
+      const fresh = queryClient.getQueryData<MasaiverseV2ClubDetail>(detailKey)
+      if (fresh) {
+        queryClient.setQueryData(
+          masaiverseV2ClubEventsQuery(clubId).queryKey,
+          fresh.events,
+        )
+        queryClient.setQueryData(
+          masaiverseV2ClubLeaderboardQuery(clubId, 'overall').queryKey,
+          fresh.leaderboard,
+        )
+        queryClient.setQueryData(
+          masaiverseV2ClubStatsQuery(clubId).queryKey,
+          fresh.stats,
+        )
+      }
       // The sidebar "My Clubs" list now needs to gain this club.
       void queryClient.invalidateQueries({ queryKey: MASAIVERSE_V2_MY_CLUBS_KEY })
     },
