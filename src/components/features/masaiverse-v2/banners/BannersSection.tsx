@@ -70,7 +70,7 @@ function BannerCard({
         <>
           <div
             ref={descRef}
-            className="mt-1 line-clamp-3 text-[14px] leading-5 text-white/90 [&_a]:underline"
+            className="mt-1 line-clamp-3 text-[14px] leading-5 text-white/90 [&_a]:underline [&_h1]:text-white [&_h2]:text-white [&_h3]:text-white [&_h4]:text-white [&_h5]:text-white [&_h6]:text-white"
           >
             <RichContent value={banner.description} />
           </div>
