@@ -1,7 +1,8 @@
 import { useState } from 'react'
 import { Camera, ChevronLeft, ChevronRight, CircleUserRound, Download, FileText, Monitor, Smartphone, ThumbsUp } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
-import type { DashboardActionBannersResult } from '@/server/api/dashboard/getDashboardActionBanners.service'
+import type { DashboardActionBannersResult, PendingAgreementSection } from '@/server/api/dashboard/getDashboardActionBanners.service'
+import { AgreementModal } from '@/components/modals/AgreementModal'
 
 type SlideId = string
 
@@ -12,6 +13,7 @@ interface ActionSlide {
   cta: string
   ctaHref?: string
   ctaIcon?: LucideIcon
+  agreementSection?: PendingAgreementSection
 }
 
 const STATIC_SLIDES: Array<ActionSlide> = [
@@ -41,6 +43,7 @@ const STATIC_SLIDES: Array<ActionSlide> = [
 
 export function DashboardActionBanner({ actionBanners: data }: { actionBanners: DashboardActionBannersResult | undefined }) {
   const [current, setCurrent] = useState(0)
+  const [openAgreement, setOpenAgreement] = useState<PendingAgreementSection | null>(null)
 
   if (!data) return null
 
@@ -49,6 +52,7 @@ export function DashboardActionBanner({ actionBanners: data }: { actionBanners: 
     Icon: FileText,
     text: `Review and sign your ${section.heading || 'agreement'} to start your course.`,
     cta: `Review ${section.heading}`,
+    agreementSection: section,
   }))
 
   const feedbackSlides: Array<ActionSlide> = (data?.pendingFeedbackForms ?? []).map((form) => ({
@@ -79,6 +83,7 @@ export function DashboardActionBanner({ actionBanners: data }: { actionBanners: 
   const next = () => setCurrent((c) => (c + 1) % count)
 
   return (
+    <>
     <div
       className="rounded-2xl px-5 pt-4 pb-12 flex items-center gap-4 min-h-[64px]"
       style={{ background: 'linear-gradient(90.38deg, #4B4396 2.62%, #6962AC 100%)' }}
@@ -102,6 +107,7 @@ export function DashboardActionBanner({ actionBanners: data }: { actionBanners: 
         ) : (
           <button
             type="button"
+            onClick={() => slide.agreementSection ? setOpenAgreement(slide.agreementSection) : undefined}
             className="shrink-0 flex items-center gap-1.5 px-5 py-2 rounded-md bg-white text-[#4B4396] text-sm font-semibold hover:bg-white/90 transition-colors focus-visible:outline-none"
           >
             {CtaIcon && <CtaIcon size={15} strokeWidth={2} />}
@@ -145,5 +151,10 @@ export function DashboardActionBanner({ actionBanners: data }: { actionBanners: 
         </button>
       </div>
     </div>
+
+    {openAgreement && (
+      <AgreementModal onClose={() => setOpenAgreement(null)} />
+    )}
+  </>
   )
 }
