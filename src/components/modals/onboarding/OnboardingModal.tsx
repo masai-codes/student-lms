@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
   Camera,
   CheckCircle2,
@@ -9,21 +9,16 @@ import {
   StickyNote,
 } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
-import { AgreementFlow } from '@/components/modals/AgreementModal'
-import { FeedbackForm } from '@/components/modals/onboarding/FeedbackModal'
+import type { PendingAgreementSection, PendingFeedbackForm } from '@/server/api/dashboard/getDashboardActionBanners.service'
+import { AgreementFlow } from '@/components/modals/onboarding/AgreementFlow'
+import { FeedbackFormContent } from '@/components/modals/onboarding/FeedbackModal'
+import { AssessNpsContent } from '@/components/modals/onboarding/AssessNpsContent'
 
 interface Step {
   id: string
   label: string
   Icon: LucideIcon
 }
-
-const STEPS: Step[] = [
-  { id: 'photo',     label: 'Profile Photo',        Icon: Camera },
-  { id: 'agreement', label: 'Agreement',             Icon: ClipboardList },
-  { id: 'feedback',  label: 'Feedback Form',         Icon: StickyNote },
-]
-
 
 // ── Step right-panel: Profile Photo ───────────────────────────────────────────
 
@@ -155,15 +150,55 @@ function PhotoContent({ initialSnapshot, onSave }: { initialSnapshot: string | n
 
 // ── Main modal ─────────────────────────────────────────────────────────────────
 
-export function OnboardingModal({ onClose }: { onClose: () => void }) {
-  const [activeStep, setActiveStep] = useState('photo')
+export function OnboardingModal({
+  onClose,
+  initialStep,
+  showProfilePhoto = false,
+  agreementSections = [],
+  feedbackForms = [],
+}: {
+  onClose: () => void
+  initialStep?: string
+  showProfilePhoto?: boolean
+  agreementSections?: Array<PendingAgreementSection>
+  feedbackForms?: Array<PendingFeedbackForm>
+}) {
+  const steps: Array<Step> = useMemo(() => [
+    ...(showProfilePhoto ? [{ id: 'photo', label: 'Profile Photo', Icon: Camera }] : []),
+    ...agreementSections.map((s) => ({
+      id: `agreement-${s.sectionId}`,
+      label: `Agreement - ${s.name}`,
+      Icon: ClipboardList,
+    })),
+    ...feedbackForms.filter((f) => f.source === 'nps').map((f) => ({
+      id: `feedback-${f.id}`,
+      label: `Feedback - ${f.title}`,
+      Icon: StickyNote,
+    })),
+    ...feedbackForms.filter((f) => f.source === 'assess_nps').map((f) => ({
+      id: `assess-${f.id}`,
+      label: `Feedback - ${f.title}`,
+      Icon: StickyNote,
+    })),
+  ], [showProfilePhoto, agreementSections, feedbackForms])
+
+  const defaultStep = initialStep ?? steps[0].id
+  const [activeStep, setActiveStep] = useState(defaultStep)
   const [completedSteps, setCompletedSteps] = useState<Set<string>>(new Set())
   const [photoSnapshot, setPhotoSnapshot] = useState<string | null>(null)
 
+  useEffect(() => {
+    const prev = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    return () => { document.body.style.overflow = prev }
+  }, [])
 
-  function markDone(stepId: string, next?: string) {
+  function markDone(stepId: string) {
     setCompletedSteps((prev) => new Set([...prev, stepId]))
-    if (next) setActiveStep(next)
+    const idx = steps.findIndex((s) => s.id === stepId)
+    if (idx !== -1 && idx < steps.length - 1) {
+      setActiveStep(steps[idx + 1].id)
+    }
   }
 
   const doneCount = completedSteps.size
@@ -186,7 +221,7 @@ export function OnboardingModal({ onClose }: { onClose: () => void }) {
               <div className="h-2.5 rounded-full overflow-hidden" style={{ background: '#DEF7EC' }}>
                 <div
                   className="h-full rounded-full transition-all"
-                  style={{ width: `${(doneCount / STEPS.length) * 100}%`, background: '#31C48D' }}
+                  style={{ width: `${(doneCount / steps.length) * 100}%`, background: '#31C48D' }}
                 />
               </div>
               <div className="flex justify-between mt-1.5">
@@ -194,14 +229,14 @@ export function OnboardingModal({ onClose }: { onClose: () => void }) {
                   Your Progress
                 </span>
                 <span style={{ fontFamily: 'Poppins', fontSize: 12, color: '#1F2A37', fontWeight: 500 }}>
-                  {doneCount} of {STEPS.length} done
+                  {doneCount} of {steps.length} done
                 </span>
               </div>
             </div>
 
             {/* Step cards */}
             <div className="mt-4 flex flex-col">
-              {STEPS.map((step, i) => {
+              {steps.map((step, i) => {
                 const isCompleted = completedSteps.has(step.id)
                 const isActive = activeStep === step.id
                 const { Icon } = step
@@ -224,7 +259,7 @@ export function OnboardingModal({ onClose }: { onClose: () => void }) {
                           : <Icon size={22} style={{ color: isActive ? '#6962AC' : '#9CA3AF' }} />}
                       </span>
                       <span
-                        className="flex-1 text-left text-sm font-medium"
+                        className="flex-1 text-left text-sm font-medium truncate"
                         style={{ fontFamily: 'Poppins', color: '#1F2A37' }}
                       >
                         {step.label}
@@ -232,7 +267,7 @@ export function OnboardingModal({ onClose }: { onClose: () => void }) {
                       <ChevronRight size={18} className="text-gray-400 shrink-0" />
                     </button>
 
-                    {i < STEPS.length - 1 && (
+                    {i < steps.length - 1 && (
                       <div className="h-4 flex">
                         <div className="w-px bg-gray-300 ml-[23px]" />
                       </div>
@@ -262,15 +297,18 @@ export function OnboardingModal({ onClose }: { onClose: () => void }) {
                 initialSnapshot={photoSnapshot}
                 onSave={(snap) => {
                   setPhotoSnapshot(snap)
-                  markDone('photo', 'agreement')
+                  markDone('photo')
                 }}
               />
             )}
 
-            {activeStep === 'agreement' && (
-              completedSteps.has('agreement')
-                ? (
-                  <div className="flex-1 flex flex-col items-center justify-center gap-4 p-10">
+            {steps
+              .filter((s) => s.id.startsWith('agreement-'))
+              .map((step) => {
+                const sectionId = parseInt(step.id.replace('agreement-', ''), 10)
+                if (activeStep !== step.id) return null
+                return completedSteps.has(step.id) ? (
+                  <div key={step.id} className="flex-1 flex flex-col items-center justify-center gap-4 p-10">
                     <div className="size-16 rounded-full bg-green-50 flex items-center justify-center">
                       <CheckCircle2 size={32} className="text-green-500" strokeWidth={2} />
                     </div>
@@ -281,26 +319,48 @@ export function OnboardingModal({ onClose }: { onClose: () => void }) {
                       You have successfully reviewed and signed your program agreement.
                     </p>
                   </div>
-                )
-                : (
-                  <div className="min-w-[1200px] h-full">
-                    <AgreementFlow onSubmit={() => markDone('agreement', 'feedback')} />
+                ) : (
+                  <div key={step.id} className="min-w-[1200px] h-full">
+                    <AgreementFlow onSubmit={() => markDone(step.id)} sectionId={sectionId} />
                   </div>
                 )
-            )}
+              })}
 
-            {activeStep === 'feedback' && (
-              <FeedbackForm
-                onSubmit={() => {
-                  markDone('feedback')
-                  onClose()
-                }}
-              />
-            )}
+            {steps
+              .filter((s) => s.id.startsWith('feedback-'))
+              .map((step) => {
+                const formId = parseInt(step.id.replace('feedback-', ''), 10)
+                if (activeStep !== step.id) return null
+                return (
+                  <FeedbackFormContent
+                    key={step.id}
+                    formId={formId}
+                    isOnlyStep={steps.length === 1}
+                    onSubmitted={() => {
+                      markDone(step.id)
+                      if (steps.length === 1) onClose()
+                    }}
+                  />
+                )
+              })}
+
+            {steps
+              .filter((s) => s.id.startsWith('assess-'))
+              .map((step) => {
+                const formId = parseInt(step.id.replace('assess-', ''), 10)
+                if (activeStep !== step.id) return null
+                const form = feedbackForms.find((f) => f.source === 'assess_nps' && f.id === formId)
+                return (
+                  <AssessNpsContent
+                    key={step.id}
+                    formId={formId}
+                    title={form?.title ?? 'Assessment'}
+                  />
+                )
+              })}
           </div>
         </div>
       </div>
-
     </>
   )
 }

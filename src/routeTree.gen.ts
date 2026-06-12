@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as ApiAssessNpsCallbackRouteRouteImport } from './routes/api/assess-nps-callback/route'
 import { Route as protectedLayoutRouteRouteImport } from './routes/(protected)/_layout/route'
 import { Route as ApiWhatsNewIndexRouteImport } from './routes/api/whats-new/index'
 import { Route as ApiProfileIndexRouteImport } from './routes/api/profile/index'
@@ -87,6 +88,8 @@ import { Route as ApiLearnLecturesLectureIdRouteImport } from './routes/api/lear
 import { Route as ApiLearnAssignmentsAssignmentIdRouteImport } from './routes/api/learn/assignments/$assignmentId'
 import { Route as ApiLearnAiTutorLimitRouteImport } from './routes/api/learn/ai-tutor/limit'
 import { Route as ApiLearnAiTutorEndRouteImport } from './routes/api/learn/ai-tutor/end'
+import { Route as ApiDashboardNpsFormFormIdRouteImport } from './routes/api/dashboard/nps-form/$formId'
+import { Route as ApiDashboardAgreementSectionIdRouteImport } from './routes/api/dashboard/agreement/$sectionId'
 import { Route as ApiAnnouncementIdMarkUnreadRouteImport } from './routes/api/announcement/$id/mark-unread'
 import { Route as ApiAnnouncementIdMarkReadRouteImport } from './routes/api/announcement/$id/mark-read'
 import { Route as ApiAnnouncementIdBookmarkRouteImport } from './routes/api/announcement/$id/bookmark'
@@ -113,10 +116,24 @@ import { Route as ApiLearnAiTutorLectureIdFeedbackRouteImport } from './routes/a
 import { Route as ApiLearnAiTutorLectureIdDispatchRouteImport } from './routes/api/learn/ai-tutor/$lectureId/dispatch'
 import { Route as ApiLearnAiChatLectureIdSendRouteImport } from './routes/api/learn/ai-chat/$lectureId/send'
 import { Route as ApiLearnAiChatLectureIdHistoryRouteImport } from './routes/api/learn/ai-chat/$lectureId/history'
+import { Route as ApiDashboardNpsFormFormIdStartRouteImport } from './routes/api/dashboard/nps-form/$formId/start'
+import { Route as ApiDashboardNpsFormFormIdResponseRouteImport } from './routes/api/dashboard/nps-form/$formId/response'
+import { Route as ApiDashboardNpsFormFormIdCompleteRouteImport } from './routes/api/dashboard/nps-form/$formId/complete'
+import { Route as ApiDashboardAssessNpsFormIdLinkRouteImport } from './routes/api/dashboard/assess-nps/$formId/link'
+import { Route as ApiDashboardAgreementSectionIdSubmitRouteImport } from './routes/api/dashboard/agreement/$sectionId/submit'
+import { Route as ApiDashboardAgreementSectionIdStepRouteImport } from './routes/api/dashboard/agreement/$sectionId/step'
+import { Route as ApiDashboardAgreementSectionIdOpenRouteImport } from './routes/api/dashboard/agreement/$sectionId/open'
+import { Route as ApiDashboardAgreementSectionIdDismissRouteImport } from './routes/api/dashboard/agreement/$sectionId/dismiss'
 import { Route as protectedLayoutMasaiverseEventEventIdRouteImport } from './routes/(protected)/_layout/masaiverse/event.$eventId'
 import { Route as protectedLayoutMasaiverseClubClubIdRouteImport } from './routes/(protected)/_layout/masaiverse/club.$clubId'
 import { Route as protectedLayoutMasaiverseClubClubIdGalleryRouteImport } from './routes/(protected)/_layout/masaiverse/club.$clubId_.gallery'
 
+const ApiAssessNpsCallbackRouteRoute =
+  ApiAssessNpsCallbackRouteRouteImport.update({
+    id: '/api/assess-nps-callback',
+    path: '/api/assess-nps-callback',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const protectedLayoutRouteRoute = protectedLayoutRouteRouteImport.update({
   id: '/(protected)/_layout',
   getParentRoute: () => rootRouteImport,
@@ -556,6 +573,18 @@ const ApiLearnAiTutorEndRoute = ApiLearnAiTutorEndRouteImport.update({
   path: '/api/learn/ai-tutor/end',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiDashboardNpsFormFormIdRoute =
+  ApiDashboardNpsFormFormIdRouteImport.update({
+    id: '/api/dashboard/nps-form/$formId',
+    path: '/api/dashboard/nps-form/$formId',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiDashboardAgreementSectionIdRoute =
+  ApiDashboardAgreementSectionIdRouteImport.update({
+    id: '/api/dashboard/agreement/$sectionId',
+    path: '/api/dashboard/agreement/$sectionId',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiAnnouncementIdMarkUnreadRoute =
   ApiAnnouncementIdMarkUnreadRouteImport.update({
     id: '/api/announcement/$id/mark-unread',
@@ -709,6 +738,54 @@ const ApiLearnAiChatLectureIdHistoryRoute =
     path: '/api/learn/ai-chat/$lectureId/history',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiDashboardNpsFormFormIdStartRoute =
+  ApiDashboardNpsFormFormIdStartRouteImport.update({
+    id: '/start',
+    path: '/start',
+    getParentRoute: () => ApiDashboardNpsFormFormIdRoute,
+  } as any)
+const ApiDashboardNpsFormFormIdResponseRoute =
+  ApiDashboardNpsFormFormIdResponseRouteImport.update({
+    id: '/response',
+    path: '/response',
+    getParentRoute: () => ApiDashboardNpsFormFormIdRoute,
+  } as any)
+const ApiDashboardNpsFormFormIdCompleteRoute =
+  ApiDashboardNpsFormFormIdCompleteRouteImport.update({
+    id: '/complete',
+    path: '/complete',
+    getParentRoute: () => ApiDashboardNpsFormFormIdRoute,
+  } as any)
+const ApiDashboardAssessNpsFormIdLinkRoute =
+  ApiDashboardAssessNpsFormIdLinkRouteImport.update({
+    id: '/api/dashboard/assess-nps/$formId/link',
+    path: '/api/dashboard/assess-nps/$formId/link',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiDashboardAgreementSectionIdSubmitRoute =
+  ApiDashboardAgreementSectionIdSubmitRouteImport.update({
+    id: '/submit',
+    path: '/submit',
+    getParentRoute: () => ApiDashboardAgreementSectionIdRoute,
+  } as any)
+const ApiDashboardAgreementSectionIdStepRoute =
+  ApiDashboardAgreementSectionIdStepRouteImport.update({
+    id: '/step',
+    path: '/step',
+    getParentRoute: () => ApiDashboardAgreementSectionIdRoute,
+  } as any)
+const ApiDashboardAgreementSectionIdOpenRoute =
+  ApiDashboardAgreementSectionIdOpenRouteImport.update({
+    id: '/open',
+    path: '/open',
+    getParentRoute: () => ApiDashboardAgreementSectionIdRoute,
+  } as any)
+const ApiDashboardAgreementSectionIdDismissRoute =
+  ApiDashboardAgreementSectionIdDismissRouteImport.update({
+    id: '/dismiss',
+    path: '/dismiss',
+    getParentRoute: () => ApiDashboardAgreementSectionIdRoute,
+  } as any)
 const protectedLayoutMasaiverseEventEventIdRoute =
   protectedLayoutMasaiverseEventEventIdRouteImport.update({
     id: '/event/$eventId',
@@ -729,6 +806,7 @@ const protectedLayoutMasaiverseClubClubIdGalleryRoute =
   } as any)
 
 export interface FileRoutesByFullPath {
+  '/api/assess-nps-callback': typeof ApiAssessNpsCallbackRouteRoute
   '/masaiverse': typeof protectedLayoutMasaiverseRouteRouteWithChildren
   '/v2/forgot-password': typeof authV2ForgotPasswordRoute
   '/v2/me': typeof authV2MeRoute
@@ -778,6 +856,8 @@ export interface FileRoutesByFullPath {
   '/api/announcement/$id/bookmark': typeof ApiAnnouncementIdBookmarkRoute
   '/api/announcement/$id/mark-read': typeof ApiAnnouncementIdMarkReadRoute
   '/api/announcement/$id/mark-unread': typeof ApiAnnouncementIdMarkUnreadRoute
+  '/api/dashboard/agreement/$sectionId': typeof ApiDashboardAgreementSectionIdRouteWithChildren
+  '/api/dashboard/nps-form/$formId': typeof ApiDashboardNpsFormFormIdRouteWithChildren
   '/api/learn/ai-tutor/end': typeof ApiLearnAiTutorEndRoute
   '/api/learn/ai-tutor/limit': typeof ApiLearnAiTutorLimitRoute
   '/api/learn/assignments/$assignmentId': typeof ApiLearnAssignmentsAssignmentIdRouteWithChildren
@@ -825,6 +905,14 @@ export interface FileRoutesByFullPath {
   '/api/whats-new/$id/': typeof ApiWhatsNewIdIndexRoute
   '/masaiverse/club/$clubId': typeof protectedLayoutMasaiverseClubClubIdRoute
   '/masaiverse/event/$eventId': typeof protectedLayoutMasaiverseEventEventIdRoute
+  '/api/dashboard/agreement/$sectionId/dismiss': typeof ApiDashboardAgreementSectionIdDismissRoute
+  '/api/dashboard/agreement/$sectionId/open': typeof ApiDashboardAgreementSectionIdOpenRoute
+  '/api/dashboard/agreement/$sectionId/step': typeof ApiDashboardAgreementSectionIdStepRoute
+  '/api/dashboard/agreement/$sectionId/submit': typeof ApiDashboardAgreementSectionIdSubmitRoute
+  '/api/dashboard/assess-nps/$formId/link': typeof ApiDashboardAssessNpsFormIdLinkRoute
+  '/api/dashboard/nps-form/$formId/complete': typeof ApiDashboardNpsFormFormIdCompleteRoute
+  '/api/dashboard/nps-form/$formId/response': typeof ApiDashboardNpsFormFormIdResponseRoute
+  '/api/dashboard/nps-form/$formId/start': typeof ApiDashboardNpsFormFormIdStartRoute
   '/api/learn/ai-chat/$lectureId/history': typeof ApiLearnAiChatLectureIdHistoryRoute
   '/api/learn/ai-chat/$lectureId/send': typeof ApiLearnAiChatLectureIdSendRoute
   '/api/learn/ai-tutor/$lectureId/dispatch': typeof ApiLearnAiTutorLectureIdDispatchRoute
@@ -837,6 +925,7 @@ export interface FileRoutesByFullPath {
   '/masaiverse/club/$clubId/gallery': typeof protectedLayoutMasaiverseClubClubIdGalleryRoute
 }
 export interface FileRoutesByTo {
+  '/api/assess-nps-callback': typeof ApiAssessNpsCallbackRouteRoute
   '/v2/forgot-password': typeof authV2ForgotPasswordRoute
   '/v2/me': typeof authV2MeRoute
   '/v2/reset-password': typeof authV2ResetPasswordRoute
@@ -885,6 +974,8 @@ export interface FileRoutesByTo {
   '/api/announcement/$id/bookmark': typeof ApiAnnouncementIdBookmarkRoute
   '/api/announcement/$id/mark-read': typeof ApiAnnouncementIdMarkReadRoute
   '/api/announcement/$id/mark-unread': typeof ApiAnnouncementIdMarkUnreadRoute
+  '/api/dashboard/agreement/$sectionId': typeof ApiDashboardAgreementSectionIdRouteWithChildren
+  '/api/dashboard/nps-form/$formId': typeof ApiDashboardNpsFormFormIdRouteWithChildren
   '/api/learn/ai-tutor/end': typeof ApiLearnAiTutorEndRoute
   '/api/learn/ai-tutor/limit': typeof ApiLearnAiTutorLimitRoute
   '/api/learn/assignments/$assignmentId': typeof ApiLearnAssignmentsAssignmentIdRouteWithChildren
@@ -932,6 +1023,14 @@ export interface FileRoutesByTo {
   '/api/whats-new/$id': typeof ApiWhatsNewIdIndexRoute
   '/masaiverse/club/$clubId': typeof protectedLayoutMasaiverseClubClubIdRoute
   '/masaiverse/event/$eventId': typeof protectedLayoutMasaiverseEventEventIdRoute
+  '/api/dashboard/agreement/$sectionId/dismiss': typeof ApiDashboardAgreementSectionIdDismissRoute
+  '/api/dashboard/agreement/$sectionId/open': typeof ApiDashboardAgreementSectionIdOpenRoute
+  '/api/dashboard/agreement/$sectionId/step': typeof ApiDashboardAgreementSectionIdStepRoute
+  '/api/dashboard/agreement/$sectionId/submit': typeof ApiDashboardAgreementSectionIdSubmitRoute
+  '/api/dashboard/assess-nps/$formId/link': typeof ApiDashboardAssessNpsFormIdLinkRoute
+  '/api/dashboard/nps-form/$formId/complete': typeof ApiDashboardNpsFormFormIdCompleteRoute
+  '/api/dashboard/nps-form/$formId/response': typeof ApiDashboardNpsFormFormIdResponseRoute
+  '/api/dashboard/nps-form/$formId/start': typeof ApiDashboardNpsFormFormIdStartRoute
   '/api/learn/ai-chat/$lectureId/history': typeof ApiLearnAiChatLectureIdHistoryRoute
   '/api/learn/ai-chat/$lectureId/send': typeof ApiLearnAiChatLectureIdSendRoute
   '/api/learn/ai-tutor/$lectureId/dispatch': typeof ApiLearnAiTutorLectureIdDispatchRoute
@@ -946,6 +1045,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/(protected)/_layout': typeof protectedLayoutRouteRouteWithChildren
+  '/api/assess-nps-callback': typeof ApiAssessNpsCallbackRouteRoute
   '/(protected)/_layout/masaiverse': typeof protectedLayoutMasaiverseRouteRouteWithChildren
   '/(auth)/v2/forgot-password': typeof authV2ForgotPasswordRoute
   '/(auth)/v2/me': typeof authV2MeRoute
@@ -995,6 +1095,8 @@ export interface FileRoutesById {
   '/api/announcement/$id/bookmark': typeof ApiAnnouncementIdBookmarkRoute
   '/api/announcement/$id/mark-read': typeof ApiAnnouncementIdMarkReadRoute
   '/api/announcement/$id/mark-unread': typeof ApiAnnouncementIdMarkUnreadRoute
+  '/api/dashboard/agreement/$sectionId': typeof ApiDashboardAgreementSectionIdRouteWithChildren
+  '/api/dashboard/nps-form/$formId': typeof ApiDashboardNpsFormFormIdRouteWithChildren
   '/api/learn/ai-tutor/end': typeof ApiLearnAiTutorEndRoute
   '/api/learn/ai-tutor/limit': typeof ApiLearnAiTutorLimitRoute
   '/api/learn/assignments/$assignmentId': typeof ApiLearnAssignmentsAssignmentIdRouteWithChildren
@@ -1042,6 +1144,14 @@ export interface FileRoutesById {
   '/api/whats-new/$id/': typeof ApiWhatsNewIdIndexRoute
   '/(protected)/_layout/masaiverse/club/$clubId': typeof protectedLayoutMasaiverseClubClubIdRoute
   '/(protected)/_layout/masaiverse/event/$eventId': typeof protectedLayoutMasaiverseEventEventIdRoute
+  '/api/dashboard/agreement/$sectionId/dismiss': typeof ApiDashboardAgreementSectionIdDismissRoute
+  '/api/dashboard/agreement/$sectionId/open': typeof ApiDashboardAgreementSectionIdOpenRoute
+  '/api/dashboard/agreement/$sectionId/step': typeof ApiDashboardAgreementSectionIdStepRoute
+  '/api/dashboard/agreement/$sectionId/submit': typeof ApiDashboardAgreementSectionIdSubmitRoute
+  '/api/dashboard/assess-nps/$formId/link': typeof ApiDashboardAssessNpsFormIdLinkRoute
+  '/api/dashboard/nps-form/$formId/complete': typeof ApiDashboardNpsFormFormIdCompleteRoute
+  '/api/dashboard/nps-form/$formId/response': typeof ApiDashboardNpsFormFormIdResponseRoute
+  '/api/dashboard/nps-form/$formId/start': typeof ApiDashboardNpsFormFormIdStartRoute
   '/api/learn/ai-chat/$lectureId/history': typeof ApiLearnAiChatLectureIdHistoryRoute
   '/api/learn/ai-chat/$lectureId/send': typeof ApiLearnAiChatLectureIdSendRoute
   '/api/learn/ai-tutor/$lectureId/dispatch': typeof ApiLearnAiTutorLectureIdDispatchRoute
@@ -1056,6 +1166,7 @@ export interface FileRoutesById {
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
+    | '/api/assess-nps-callback'
     | '/masaiverse'
     | '/v2/forgot-password'
     | '/v2/me'
@@ -1105,6 +1216,8 @@ export interface FileRouteTypes {
     | '/api/announcement/$id/bookmark'
     | '/api/announcement/$id/mark-read'
     | '/api/announcement/$id/mark-unread'
+    | '/api/dashboard/agreement/$sectionId'
+    | '/api/dashboard/nps-form/$formId'
     | '/api/learn/ai-tutor/end'
     | '/api/learn/ai-tutor/limit'
     | '/api/learn/assignments/$assignmentId'
@@ -1152,6 +1265,14 @@ export interface FileRouteTypes {
     | '/api/whats-new/$id/'
     | '/masaiverse/club/$clubId'
     | '/masaiverse/event/$eventId'
+    | '/api/dashboard/agreement/$sectionId/dismiss'
+    | '/api/dashboard/agreement/$sectionId/open'
+    | '/api/dashboard/agreement/$sectionId/step'
+    | '/api/dashboard/agreement/$sectionId/submit'
+    | '/api/dashboard/assess-nps/$formId/link'
+    | '/api/dashboard/nps-form/$formId/complete'
+    | '/api/dashboard/nps-form/$formId/response'
+    | '/api/dashboard/nps-form/$formId/start'
     | '/api/learn/ai-chat/$lectureId/history'
     | '/api/learn/ai-chat/$lectureId/send'
     | '/api/learn/ai-tutor/$lectureId/dispatch'
@@ -1164,6 +1285,7 @@ export interface FileRouteTypes {
     | '/masaiverse/club/$clubId/gallery'
   fileRoutesByTo: FileRoutesByTo
   to:
+    | '/api/assess-nps-callback'
     | '/v2/forgot-password'
     | '/v2/me'
     | '/v2/reset-password'
@@ -1212,6 +1334,8 @@ export interface FileRouteTypes {
     | '/api/announcement/$id/bookmark'
     | '/api/announcement/$id/mark-read'
     | '/api/announcement/$id/mark-unread'
+    | '/api/dashboard/agreement/$sectionId'
+    | '/api/dashboard/nps-form/$formId'
     | '/api/learn/ai-tutor/end'
     | '/api/learn/ai-tutor/limit'
     | '/api/learn/assignments/$assignmentId'
@@ -1259,6 +1383,14 @@ export interface FileRouteTypes {
     | '/api/whats-new/$id'
     | '/masaiverse/club/$clubId'
     | '/masaiverse/event/$eventId'
+    | '/api/dashboard/agreement/$sectionId/dismiss'
+    | '/api/dashboard/agreement/$sectionId/open'
+    | '/api/dashboard/agreement/$sectionId/step'
+    | '/api/dashboard/agreement/$sectionId/submit'
+    | '/api/dashboard/assess-nps/$formId/link'
+    | '/api/dashboard/nps-form/$formId/complete'
+    | '/api/dashboard/nps-form/$formId/response'
+    | '/api/dashboard/nps-form/$formId/start'
     | '/api/learn/ai-chat/$lectureId/history'
     | '/api/learn/ai-chat/$lectureId/send'
     | '/api/learn/ai-tutor/$lectureId/dispatch'
@@ -1272,6 +1404,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/(protected)/_layout'
+    | '/api/assess-nps-callback'
     | '/(protected)/_layout/masaiverse'
     | '/(auth)/v2/forgot-password'
     | '/(auth)/v2/me'
@@ -1321,6 +1454,8 @@ export interface FileRouteTypes {
     | '/api/announcement/$id/bookmark'
     | '/api/announcement/$id/mark-read'
     | '/api/announcement/$id/mark-unread'
+    | '/api/dashboard/agreement/$sectionId'
+    | '/api/dashboard/nps-form/$formId'
     | '/api/learn/ai-tutor/end'
     | '/api/learn/ai-tutor/limit'
     | '/api/learn/assignments/$assignmentId'
@@ -1368,6 +1503,14 @@ export interface FileRouteTypes {
     | '/api/whats-new/$id/'
     | '/(protected)/_layout/masaiverse/club/$clubId'
     | '/(protected)/_layout/masaiverse/event/$eventId'
+    | '/api/dashboard/agreement/$sectionId/dismiss'
+    | '/api/dashboard/agreement/$sectionId/open'
+    | '/api/dashboard/agreement/$sectionId/step'
+    | '/api/dashboard/agreement/$sectionId/submit'
+    | '/api/dashboard/assess-nps/$formId/link'
+    | '/api/dashboard/nps-form/$formId/complete'
+    | '/api/dashboard/nps-form/$formId/response'
+    | '/api/dashboard/nps-form/$formId/start'
     | '/api/learn/ai-chat/$lectureId/history'
     | '/api/learn/ai-chat/$lectureId/send'
     | '/api/learn/ai-tutor/$lectureId/dispatch'
@@ -1382,6 +1525,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   protectedLayoutRouteRoute: typeof protectedLayoutRouteRouteWithChildren
+  ApiAssessNpsCallbackRouteRoute: typeof ApiAssessNpsCallbackRouteRoute
   authV2ForgotPasswordRoute: typeof authV2ForgotPasswordRoute
   authV2MeRoute: typeof authV2MeRoute
   authV2ResetPasswordRoute: typeof authV2ResetPasswordRoute
@@ -1419,6 +1563,8 @@ export interface RootRouteChildren {
   ApiAnnouncementIdBookmarkRoute: typeof ApiAnnouncementIdBookmarkRoute
   ApiAnnouncementIdMarkReadRoute: typeof ApiAnnouncementIdMarkReadRoute
   ApiAnnouncementIdMarkUnreadRoute: typeof ApiAnnouncementIdMarkUnreadRoute
+  ApiDashboardAgreementSectionIdRoute: typeof ApiDashboardAgreementSectionIdRouteWithChildren
+  ApiDashboardNpsFormFormIdRoute: typeof ApiDashboardNpsFormFormIdRouteWithChildren
   ApiLearnAiTutorEndRoute: typeof ApiLearnAiTutorEndRoute
   ApiLearnAiTutorLimitRoute: typeof ApiLearnAiTutorLimitRoute
   ApiLearnAssignmentsAssignmentIdRoute: typeof ApiLearnAssignmentsAssignmentIdRouteWithChildren
@@ -1456,6 +1602,7 @@ export interface RootRouteChildren {
   ApiProfileCertificatesIndexRoute: typeof ApiProfileCertificatesIndexRoute
   ApiProfileEmailPreferencesIndexRoute: typeof ApiProfileEmailPreferencesIndexRoute
   ApiWhatsNewIdIndexRoute: typeof ApiWhatsNewIdIndexRoute
+  ApiDashboardAssessNpsFormIdLinkRoute: typeof ApiDashboardAssessNpsFormIdLinkRoute
   ApiLearnAiChatLectureIdHistoryRoute: typeof ApiLearnAiChatLectureIdHistoryRoute
   ApiLearnAiChatLectureIdSendRoute: typeof ApiLearnAiChatLectureIdSendRoute
   ApiLearnAiTutorLectureIdDispatchRoute: typeof ApiLearnAiTutorLectureIdDispatchRoute
@@ -1466,6 +1613,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/api/assess-nps-callback': {
+      id: '/api/assess-nps-callback'
+      path: '/api/assess-nps-callback'
+      fullPath: '/api/assess-nps-callback'
+      preLoaderRoute: typeof ApiAssessNpsCallbackRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/(protected)/_layout': {
       id: '/(protected)/_layout'
       path: ''
@@ -2012,6 +2166,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiLearnAiTutorEndRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/dashboard/nps-form/$formId': {
+      id: '/api/dashboard/nps-form/$formId'
+      path: '/api/dashboard/nps-form/$formId'
+      fullPath: '/api/dashboard/nps-form/$formId'
+      preLoaderRoute: typeof ApiDashboardNpsFormFormIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/dashboard/agreement/$sectionId': {
+      id: '/api/dashboard/agreement/$sectionId'
+      path: '/api/dashboard/agreement/$sectionId'
+      fullPath: '/api/dashboard/agreement/$sectionId'
+      preLoaderRoute: typeof ApiDashboardAgreementSectionIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/announcement/$id/mark-unread': {
       id: '/api/announcement/$id/mark-unread'
       path: '/api/announcement/$id/mark-unread'
@@ -2194,6 +2362,62 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiLearnAiChatLectureIdHistoryRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/dashboard/nps-form/$formId/start': {
+      id: '/api/dashboard/nps-form/$formId/start'
+      path: '/start'
+      fullPath: '/api/dashboard/nps-form/$formId/start'
+      preLoaderRoute: typeof ApiDashboardNpsFormFormIdStartRouteImport
+      parentRoute: typeof ApiDashboardNpsFormFormIdRoute
+    }
+    '/api/dashboard/nps-form/$formId/response': {
+      id: '/api/dashboard/nps-form/$formId/response'
+      path: '/response'
+      fullPath: '/api/dashboard/nps-form/$formId/response'
+      preLoaderRoute: typeof ApiDashboardNpsFormFormIdResponseRouteImport
+      parentRoute: typeof ApiDashboardNpsFormFormIdRoute
+    }
+    '/api/dashboard/nps-form/$formId/complete': {
+      id: '/api/dashboard/nps-form/$formId/complete'
+      path: '/complete'
+      fullPath: '/api/dashboard/nps-form/$formId/complete'
+      preLoaderRoute: typeof ApiDashboardNpsFormFormIdCompleteRouteImport
+      parentRoute: typeof ApiDashboardNpsFormFormIdRoute
+    }
+    '/api/dashboard/assess-nps/$formId/link': {
+      id: '/api/dashboard/assess-nps/$formId/link'
+      path: '/api/dashboard/assess-nps/$formId/link'
+      fullPath: '/api/dashboard/assess-nps/$formId/link'
+      preLoaderRoute: typeof ApiDashboardAssessNpsFormIdLinkRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/dashboard/agreement/$sectionId/submit': {
+      id: '/api/dashboard/agreement/$sectionId/submit'
+      path: '/submit'
+      fullPath: '/api/dashboard/agreement/$sectionId/submit'
+      preLoaderRoute: typeof ApiDashboardAgreementSectionIdSubmitRouteImport
+      parentRoute: typeof ApiDashboardAgreementSectionIdRoute
+    }
+    '/api/dashboard/agreement/$sectionId/step': {
+      id: '/api/dashboard/agreement/$sectionId/step'
+      path: '/step'
+      fullPath: '/api/dashboard/agreement/$sectionId/step'
+      preLoaderRoute: typeof ApiDashboardAgreementSectionIdStepRouteImport
+      parentRoute: typeof ApiDashboardAgreementSectionIdRoute
+    }
+    '/api/dashboard/agreement/$sectionId/open': {
+      id: '/api/dashboard/agreement/$sectionId/open'
+      path: '/open'
+      fullPath: '/api/dashboard/agreement/$sectionId/open'
+      preLoaderRoute: typeof ApiDashboardAgreementSectionIdOpenRouteImport
+      parentRoute: typeof ApiDashboardAgreementSectionIdRoute
+    }
+    '/api/dashboard/agreement/$sectionId/dismiss': {
+      id: '/api/dashboard/agreement/$sectionId/dismiss'
+      path: '/dismiss'
+      fullPath: '/api/dashboard/agreement/$sectionId/dismiss'
+      preLoaderRoute: typeof ApiDashboardAgreementSectionIdDismissRouteImport
+      parentRoute: typeof ApiDashboardAgreementSectionIdRoute
+    }
     '/(protected)/_layout/masaiverse/event/$eventId': {
       id: '/(protected)/_layout/masaiverse/event/$eventId'
       path: '/event/$eventId'
@@ -2309,6 +2533,50 @@ const ApiMasaiverseV2DiscussionsRouteWithChildren =
     ApiMasaiverseV2DiscussionsRouteChildren,
   )
 
+interface ApiDashboardAgreementSectionIdRouteChildren {
+  ApiDashboardAgreementSectionIdDismissRoute: typeof ApiDashboardAgreementSectionIdDismissRoute
+  ApiDashboardAgreementSectionIdOpenRoute: typeof ApiDashboardAgreementSectionIdOpenRoute
+  ApiDashboardAgreementSectionIdStepRoute: typeof ApiDashboardAgreementSectionIdStepRoute
+  ApiDashboardAgreementSectionIdSubmitRoute: typeof ApiDashboardAgreementSectionIdSubmitRoute
+}
+
+const ApiDashboardAgreementSectionIdRouteChildren: ApiDashboardAgreementSectionIdRouteChildren =
+  {
+    ApiDashboardAgreementSectionIdDismissRoute:
+      ApiDashboardAgreementSectionIdDismissRoute,
+    ApiDashboardAgreementSectionIdOpenRoute:
+      ApiDashboardAgreementSectionIdOpenRoute,
+    ApiDashboardAgreementSectionIdStepRoute:
+      ApiDashboardAgreementSectionIdStepRoute,
+    ApiDashboardAgreementSectionIdSubmitRoute:
+      ApiDashboardAgreementSectionIdSubmitRoute,
+  }
+
+const ApiDashboardAgreementSectionIdRouteWithChildren =
+  ApiDashboardAgreementSectionIdRoute._addFileChildren(
+    ApiDashboardAgreementSectionIdRouteChildren,
+  )
+
+interface ApiDashboardNpsFormFormIdRouteChildren {
+  ApiDashboardNpsFormFormIdCompleteRoute: typeof ApiDashboardNpsFormFormIdCompleteRoute
+  ApiDashboardNpsFormFormIdResponseRoute: typeof ApiDashboardNpsFormFormIdResponseRoute
+  ApiDashboardNpsFormFormIdStartRoute: typeof ApiDashboardNpsFormFormIdStartRoute
+}
+
+const ApiDashboardNpsFormFormIdRouteChildren: ApiDashboardNpsFormFormIdRouteChildren =
+  {
+    ApiDashboardNpsFormFormIdCompleteRoute:
+      ApiDashboardNpsFormFormIdCompleteRoute,
+    ApiDashboardNpsFormFormIdResponseRoute:
+      ApiDashboardNpsFormFormIdResponseRoute,
+    ApiDashboardNpsFormFormIdStartRoute: ApiDashboardNpsFormFormIdStartRoute,
+  }
+
+const ApiDashboardNpsFormFormIdRouteWithChildren =
+  ApiDashboardNpsFormFormIdRoute._addFileChildren(
+    ApiDashboardNpsFormFormIdRouteChildren,
+  )
+
 interface ApiLearnAssignmentsAssignmentIdRouteChildren {
   ApiLearnAssignmentsAssignmentIdAssessPlatformUrlRoute: typeof ApiLearnAssignmentsAssignmentIdAssessPlatformUrlRoute
   ApiLearnAssignmentsAssignmentIdSubmissionsRoute: typeof ApiLearnAssignmentsAssignmentIdSubmissionsRoute
@@ -2344,6 +2612,7 @@ const ApiLearnSubmissionsSubmissionIdRouteWithChildren =
 
 const rootRouteChildren: RootRouteChildren = {
   protectedLayoutRouteRoute: protectedLayoutRouteRouteWithChildren,
+  ApiAssessNpsCallbackRouteRoute: ApiAssessNpsCallbackRouteRoute,
   authV2ForgotPasswordRoute: authV2ForgotPasswordRoute,
   authV2MeRoute: authV2MeRoute,
   authV2ResetPasswordRoute: authV2ResetPasswordRoute,
@@ -2381,6 +2650,9 @@ const rootRouteChildren: RootRouteChildren = {
   ApiAnnouncementIdBookmarkRoute: ApiAnnouncementIdBookmarkRoute,
   ApiAnnouncementIdMarkReadRoute: ApiAnnouncementIdMarkReadRoute,
   ApiAnnouncementIdMarkUnreadRoute: ApiAnnouncementIdMarkUnreadRoute,
+  ApiDashboardAgreementSectionIdRoute:
+    ApiDashboardAgreementSectionIdRouteWithChildren,
+  ApiDashboardNpsFormFormIdRoute: ApiDashboardNpsFormFormIdRouteWithChildren,
   ApiLearnAiTutorEndRoute: ApiLearnAiTutorEndRoute,
   ApiLearnAiTutorLimitRoute: ApiLearnAiTutorLimitRoute,
   ApiLearnAssignmentsAssignmentIdRoute:
@@ -2421,6 +2693,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiProfileCertificatesIndexRoute: ApiProfileCertificatesIndexRoute,
   ApiProfileEmailPreferencesIndexRoute: ApiProfileEmailPreferencesIndexRoute,
   ApiWhatsNewIdIndexRoute: ApiWhatsNewIdIndexRoute,
+  ApiDashboardAssessNpsFormIdLinkRoute: ApiDashboardAssessNpsFormIdLinkRoute,
   ApiLearnAiChatLectureIdHistoryRoute: ApiLearnAiChatLectureIdHistoryRoute,
   ApiLearnAiChatLectureIdSendRoute: ApiLearnAiChatLectureIdSendRoute,
   ApiLearnAiTutorLectureIdDispatchRoute: ApiLearnAiTutorLectureIdDispatchRoute,

@@ -1,5 +1,11 @@
 import { fetchJson } from '@/lib/api/fetchJson'
 import { DASHBOARD_API } from '@/lib/api/dashboardPaths'
+import type { NpsFormData } from '@/server/api/dashboard/getNpsForm.service'
+import type { NpsSubmissionResult } from '@/server/api/dashboard/createNpsSubmission.service'
+import type { AssessLinkResult } from '@/server/api/dashboard/getAssessLink.service'
+import type { AgreementDataResponse } from '@/server/api/dashboard/getAgreementData.service'
+import type { NpsQuestionAnswer } from '@/server/api/dashboard/submitNpsForm.service'
+import type { AgreementFormData } from '@/server/api/dashboard/submitAgreement.service'
 import type { DashboardAnnouncementItem } from '@/server/api/dashboard/getDashboardAnnouncements.service'
 import type { DashboardProductUpdateItem } from '@/server/api/dashboard/getProductUpdates.service'
 import type { DashboardScheduleItem } from '@/server/dashboard/getDashboardScheduleData'
@@ -104,4 +110,91 @@ export async function fetchLmsSupportInfo(): Promise<LmsSupportInfo> {
     DASHBOARD_API.lmsSupport,
   )
   return lmsSupport
+}
+
+export async function fetchNpsForm(formId: number): Promise<NpsFormData> {
+  return fetchJson<NpsFormData>(DASHBOARD_API.npsForm(formId))
+}
+
+export async function startNpsSubmission(formId: number): Promise<NpsSubmissionResult> {
+  return fetchJson<NpsSubmissionResult>(DASHBOARD_API.npsFormStart(formId), {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({}),
+  })
+}
+
+export async function saveNpsResponse(
+  formId: number,
+  submissionId: number,
+  questionId: number,
+  response: unknown,
+): Promise<void> {
+  await fetchJson<{ success: boolean }>(DASHBOARD_API.npsFormResponse(formId), {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ submissionId, questionId, response }),
+  })
+}
+
+export async function completeNpsSubmission(formId: number, submissionId: number): Promise<void> {
+  await fetchJson<{ success: boolean }>(DASHBOARD_API.npsFormComplete(formId), {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ submissionId }),
+  })
+}
+
+export async function fetchAssessLink(formId: number): Promise<AssessLinkResult> {
+  return fetchJson<AssessLinkResult>(DASHBOARD_API.assessNpsLink(formId))
+}
+
+export async function fetchAgreementData(sectionId: number): Promise<AgreementDataResponse> {
+  return fetchJson<AgreementDataResponse>(DASHBOARD_API.agreement(sectionId))
+}
+
+export async function recordAgreementOpen(sectionId: number): Promise<void> {
+  await fetchJson<{ success: boolean }>(DASHBOARD_API.agreementOpen(sectionId), {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({}),
+  })
+}
+
+export async function recordAgreementStep(sectionId: number, stepKey: string): Promise<void> {
+  await fetchJson<{ success: boolean }>(DASHBOARD_API.agreementStep(sectionId), {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ stepKey }),
+  })
+}
+
+export async function submitAgreement(
+  sectionId: number,
+  formData: AgreementFormData,
+): Promise<void> {
+  await fetchJson<{ success: boolean }>(DASHBOARD_API.agreementSubmit(sectionId), {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ formData }),
+  })
+}
+
+export async function dismissAgreement(sectionId: number): Promise<void> {
+  await fetchJson<{ success: boolean }>(DASHBOARD_API.agreementDismiss(sectionId), {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({}),
+  })
+}
+
+export async function submitNpsFormAnswers(
+  formId: number,
+  answers: Array<NpsQuestionAnswer>,
+): Promise<{ submissionId: number }> {
+  return fetchJson<{ submissionId: number }>(DASHBOARD_API.npsForm(formId), {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ answers }),
+  })
 }

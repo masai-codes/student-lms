@@ -1,8 +1,8 @@
 import { useState } from 'react'
 import { Camera, ChevronLeft, ChevronRight, CircleUserRound, Download, FileText, Monitor, Smartphone, ThumbsUp } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
-import type { DashboardActionBannersResult, PendingAgreementSection } from '@/server/api/dashboard/getDashboardActionBanners.service'
-import { AgreementModal } from '@/components/modals/AgreementModal'
+import type { DashboardActionBannersResult, PendingAgreementSection, PendingFeedbackForm } from '@/server/api/dashboard/getDashboardActionBanners.service'
+import { OnboardingModal } from '@/components/modals/onboarding/OnboardingModal'
 
 type SlideId = string
 
@@ -14,6 +14,7 @@ interface ActionSlide {
   ctaHref?: string
   ctaIcon?: LucideIcon
   agreementSection?: PendingAgreementSection
+  feedbackForm?: PendingFeedbackForm
 }
 
 const STATIC_SLIDES: Array<ActionSlide> = [
@@ -43,27 +44,31 @@ const STATIC_SLIDES: Array<ActionSlide> = [
 
 export function DashboardActionBanner({ actionBanners: data }: { actionBanners: DashboardActionBannersResult | undefined }) {
   const [current, setCurrent] = useState(0)
-  const [openAgreement, setOpenAgreement] = useState<PendingAgreementSection | null>(null)
+  const [onboardingInitialStep, setOnboardingInitialStep] = useState<string | undefined>(undefined)
+  const [onboardingOpen, setOnboardingOpen] = useState(false)
 
   if (!data) return null
 
-  const agreementSlides: Array<ActionSlide> = (data?.pendingAgreementSections ?? []).map((section) => ({
-    id: `agreement-${section.sectionId}`,
-    Icon: FileText,
-    text: `Review and sign your ${section.heading || 'agreement'} to start your course.`,
-    cta: `Review ${section.heading}`,
-    agreementSection: section,
-  }))
+  const agreementSlides: Array<ActionSlide> = data.pendingAgreementSections.map((section) => {
+    const truncatedName = section.name.length > 18 ? `${section.name.slice(0, 18)}…` : section.name
+    return {
+      id: `agreement-${section.sectionId}`,
+      Icon: FileText,
+      text: `Review and sign your ${truncatedName || 'agreement'} to start your course.`,
+      cta: `Review ${truncatedName}`,
+      agreementSection: section,
+    }
+  })
 
-  const feedbackSlides: Array<ActionSlide> = (data?.pendingFeedbackForms ?? []).map((form) => ({
+  const feedbackSlides: Array<ActionSlide> = data.pendingFeedbackForms.map((form) => ({
     id: `feedback-${form.source}-${form.id}`,
     Icon: ThumbsUp,
     text: `Please complete your feedback form: ${form.title}.`,
     cta: 'Complete Feedback',
+    feedbackForm: form,
   }))
 
   const staticSlides = STATIC_SLIDES.filter((slide) => {
-    if (!data) return slide.id === 'appDownload'
     if (slide.id === 'appDownload') return data.showDownloadApp
     if (slide.id === 'profilePicture') return data.showProfilePicture
     return data.showZoom
@@ -107,7 +112,18 @@ export function DashboardActionBanner({ actionBanners: data }: { actionBanners: 
         ) : (
           <button
             type="button"
-            onClick={() => slide.agreementSection ? setOpenAgreement(slide.agreementSection) : undefined}
+            onClick={() => {
+              if (slide.agreementSection) {
+                setOnboardingInitialStep(`agreement-${slide.agreementSection.sectionId}`)
+                setOnboardingOpen(true)
+              } else if (slide.feedbackForm) {
+                const stepId = slide.feedbackForm.source === 'assess_nps'
+                  ? `assess-${slide.feedbackForm.id}`
+                  : `feedback-${slide.feedbackForm.id}`
+                setOnboardingInitialStep(stepId)
+                setOnboardingOpen(true)
+              }
+            }}
             className="shrink-0 flex items-center gap-1.5 px-5 py-2 rounded-md bg-white text-[#4B4396] text-sm font-semibold hover:bg-white/90 transition-colors focus-visible:outline-none"
           >
             {CtaIcon && <CtaIcon size={15} strokeWidth={2} />}
@@ -152,8 +168,14 @@ export function DashboardActionBanner({ actionBanners: data }: { actionBanners: 
       </div>
     </div>
 
-    {openAgreement && (
-      <AgreementModal onClose={() => setOpenAgreement(null)} />
+    {onboardingOpen && (
+      <OnboardingModal
+        onClose={() => setOnboardingOpen(false)}
+        initialStep={onboardingInitialStep}
+        showProfilePhoto={data.showProfilePicture}
+        agreementSections={data.pendingAgreementSections}
+        feedbackForms={data.pendingFeedbackForms}
+      />
     )}
   </>
   )

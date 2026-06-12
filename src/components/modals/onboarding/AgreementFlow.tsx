@@ -1,40 +1,93 @@
-import { useState, useCallback } from 'react'
-import { Check, ChevronDown, MapPin, Loader2, X } from 'lucide-react'
-
-interface AgreementModalProps {
-  onClose: () => void
-}
+import { useState, useEffect, useCallback } from 'react'
+import { Check, ChevronDown, Loader2, MapPin, X } from 'lucide-react'
+import {
+  fetchAgreementData,
+  recordAgreementOpen as apiRecordOpen,
+  recordAgreementStep as apiRecordStep,
+  submitAgreement as apiSubmitAgreement,
+  dismissAgreement as apiDismissAgreement,
+} from '@/lib/api/dashboard/dashboardApi'
+import type { AgreementStep as ApiAgreementStep } from '@/server/api/dashboard/getAgreementData.service'
+import type { AgreementFormData } from '@/server/api/dashboard/submitAgreement.service'
 
 interface FormValues {
+  // Personal
   location: string
   name: string
-  address: string
-  dateOfBirth: string
+  email: string
+  phone: string
+  dob: string
   gender: string
+  address: string
+  // Family
+  fatherName: string
   parentName: string
   parentEmail: string
   parentMobileCountry: string
   parentMobileNumber: string
+  // Education & work
   currentStatus: string
   studyYear: string
   workDomain: string
   educationDetails: string
   yearOfGraduation: string
   collegeName: string
-  panNumber: string
-  passportNumber: string
   currentCompanyName: string
   workExperience: string
   ctc: string
+  // Documents
+  panNumber: string
+  passportNumber: string
+  // Emergency contact
+  emergencyContactName: string
+  emergencyContactPhone: string
+  emergencyContactRelationship: string
 }
 
-const STEPS = [
-  { key: 'enter_details', label: 'Enter Details' },
-  { key: 'program_agreement', label: 'Program Agreement' },
-  { key: 'grading_policy', label: 'Grading Policy' },
-  { key: 'posh_compliance', label: 'POSH Compliance' },
-  { key: 'signature', label: 'Signature Certificate' },
-]
+// ── Helpers ────────────────────────────────────────────────────────────────────
+
+function isValidEmail(email: string) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
+}
+
+function isValidPhone(number: string) {
+  return number.replace(/\D/g, '').length === 10
+}
+
+function isValidPan(pan: string) {
+  return pan.trim().length === 10
+}
+
+function isEnterDetailsValid(v: FormValues): boolean {
+  const today = new Date().toISOString().split('T')[0]
+  const base =
+    v.location.trim() !== '' &&
+    v.name.trim() !== '' &&
+    isValidEmail(v.email) &&
+    isValidPhone(v.phone) &&
+    v.dob !== '' && v.dob <= today &&
+    v.gender !== '' &&
+    v.address.trim() !== '' &&
+    v.fatherName.trim() !== '' &&
+    v.parentName.trim() !== '' &&
+    isValidEmail(v.parentEmail) &&
+    v.parentMobileCountry !== '' &&
+    isValidPhone(v.parentMobileNumber) &&
+    v.currentStatus !== '' &&
+    v.educationDetails !== '' &&
+    v.yearOfGraduation.length === 4 &&
+    v.collegeName.trim() !== '' &&
+    v.emergencyContactName.trim() !== '' &&
+    isValidPhone(v.emergencyContactPhone) &&
+    v.emergencyContactRelationship !== ''
+  if (!base) return false
+  if (v.currentStatus === 'studying' && v.studyYear === '') return false
+  if (v.currentStatus === 'working' && v.workDomain.trim() === '') return false
+  if (v.panNumber.trim() !== '' && !isValidPan(v.panNumber)) return false
+  return true
+}
+
+// ── Constants ─────────────────────────────────────────────────────────────────
 
 const COUNTRY_CODES = [
   { code: '+91', country: 'IN' },
@@ -67,47 +120,7 @@ const CURRENT_STATUS_OPTIONS = [
 
 const STUDY_YEAR_OPTIONS = ['1st Year', '2nd Year', '3rd Year', '4th Year', '5th Year']
 
-// ── Helpers ────────────────────────────────────────────────────────────────────
-
-function isValidEmail(email: string) {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
-}
-
-function isValidPhone(number: string) {
-  return number.replace(/\D/g, '').length === 10
-}
-
-function isValidPan(pan: string) {
-  return pan.length === 10
-}
-
-function isValidAadhar(aadhar: string) {
-  return aadhar.replace(/\D/g, '').length === 12
-}
-
-function isEnterDetailsValid(v: FormValues): boolean {
-  const today = new Date().toISOString().split('T')[0]
-  const required =
-    v.location.trim() !== '' &&
-    v.name.trim() !== '' &&
-    v.address.trim() !== '' &&
-    v.dateOfBirth !== '' &&
-    v.dateOfBirth <= today &&
-    v.gender !== '' &&
-    v.parentName.trim() !== '' &&
-    isValidEmail(v.parentEmail) &&
-    v.parentMobileCountry !== '' &&
-    isValidPhone(v.parentMobileNumber) &&
-    v.currentStatus !== '' &&
-    v.educationDetails !== '' &&
-    v.yearOfGraduation.length === 4 &&
-    v.collegeName.trim() !== '' &&
-    (v.currentStatus !== 'studying' || v.studyYear !== '') &&
-    (v.currentStatus !== 'working' || v.workDomain.trim() !== '')
-  if (!required) return false
-  if (v.panNumber.trim() !== '' && !isValidPan(v.panNumber)) return false
-  return true
-}
+const RELATIONSHIP_OPTIONS = ['Parent', 'Sibling', 'Spouse', 'Friend', 'Guardian', 'Other']
 
 // ── Step tab ───────────────────────────────────────────────────────────────────
 
@@ -153,7 +166,19 @@ function StepTab({
 
 // ── Reusable field wrappers ────────────────────────────────────────────────────
 
-function Field({ label, required, children, hint, tooltip }: { label: string; required?: boolean; children: React.ReactNode; hint?: string; tooltip?: string }) {
+function Field({
+  label,
+  required,
+  hint,
+  tooltip,
+  children,
+}: {
+  label: string
+  required?: boolean
+  hint?: string
+  tooltip?: string
+  children: React.ReactNode
+}) {
   return (
     <div>
       <label className="block text-sm font-medium mb-1.5" style={{ color: '#21191B' }}>
@@ -209,6 +234,14 @@ function SelectInput({
   )
 }
 
+function SectionHeading({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="pt-2 pb-1 border-b border-gray-100">
+      <p className="text-sm font-semibold" style={{ color: '#21191B' }}>{children}</p>
+    </div>
+  )
+}
+
 // ── Step 1 — Enter Details ─────────────────────────────────────────────────────
 
 function EnterDetailsStep({
@@ -220,10 +253,15 @@ function EnterDetailsStep({
 }) {
   const [locLoading, setLocLoading] = useState(false)
   const [locError, setLocError] = useState('')
-  const [locChecked, setLocChecked] = useState(false)
-  const [phoneTouched, setPhoneTouched] = useState(false)
+  const [locChecked, setLocChecked] = useState(!!values.location)
   const [emailTouched, setEmailTouched] = useState(false)
+  const [parentEmailTouched, setParentEmailTouched] = useState(false)
+  const [phoneTouched, setPhoneTouched] = useState(false)
+  const [parentPhoneTouched, setParentPhoneTouched] = useState(false)
+  const [emergencyPhoneTouched, setEmergencyPhoneTouched] = useState(false)
   const [yearTouched, setYearTouched] = useState(false)
+
+  const today = new Date().toISOString().split('T')[0]
 
   const fetchLocation = useCallback(() => {
     if (!navigator.geolocation) {
@@ -237,7 +275,7 @@ function EnterDetailsStep({
         try {
           const { latitude, longitude } = pos.coords
           const res = await fetch(
-            `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`
+            `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`,
           )
           const data = await res.json() as { display_name?: string }
           onChange('location', data.display_name ?? `${latitude}, ${longitude}`)
@@ -251,7 +289,7 @@ function EnterDetailsStep({
         setLocError('Unable to fetch location. Please allow location access.')
         setLocLoading(false)
         setLocChecked(false)
-      }
+      },
     )
   }, [onChange])
 
@@ -265,12 +303,12 @@ function EnterDetailsStep({
     }
   }
 
-  const today = new Date().toISOString().split('T')[0]
-
   return (
     <div className="flex flex-col gap-4">
 
-      {/* ── Location ── */}
+      <SectionHeading>Personal Information</SectionHeading>
+
+      {/* Location */}
       <Field label="Location" required>
         <label className="flex items-start gap-2.5 cursor-pointer select-none">
           <div className="relative mt-0.5 shrink-0">
@@ -298,42 +336,63 @@ function EnterDetailsStep({
         )}
       </Field>
 
-      {/* ── Name ── */}
-      <Field label="Name" required tooltip="Enter your name">
+      {/* Full Name */}
+      <Field label="Full Name" required>
         <input
           type="text"
-          placeholder="Enter your name"
+          placeholder="Enter your full name"
           value={values.name}
           onChange={(e) => onChange('name', e.target.value.replace(/[^a-zA-Z\s]/g, ''))}
           className={inputClass}
         />
       </Field>
 
-      {/* ── Address ── */}
-      <Field label="Address" required hint="(as per Aadhaar)" tooltip="Enter address">
+      {/* Email */}
+      <Field label="Email" required>
         <input
-          type="text"
-          placeholder="Enter address"
-          value={values.address}
-          onChange={(e) => onChange('address', e.target.value)}
+          type="email"
+          placeholder="Enter your email"
+          value={values.email}
+          onChange={(e) => onChange('email', e.target.value)}
+          onBlur={() => setEmailTouched(true)}
           className={inputClass}
         />
+        {emailTouched && values.email.length > 0 && !isValidEmail(values.email) && (
+          <p className="mt-1.5 text-xs text-red-500">Please enter a valid email address</p>
+        )}
       </Field>
 
-      {/* ── Date of Birth ── */}
+      {/* Phone */}
+      <Field label="Phone Number" required>
+        <input
+          type="tel"
+          inputMode="numeric"
+          placeholder="Enter 10-digit phone number"
+          value={values.phone}
+          maxLength={10}
+          onChange={(e) => onChange('phone', e.target.value.replace(/\D/g, '').slice(0, 10))}
+          onBlur={() => setPhoneTouched(true)}
+          className={inputClass}
+        />
+        {phoneTouched && values.phone.length > 0 && !isValidPhone(values.phone) && (
+          <p className="mt-1.5 text-xs text-red-500">Please enter a valid 10-digit phone number</p>
+        )}
+      </Field>
+
+      {/* Date of Birth */}
       <Field label="Date of Birth" required>
         <input
           type="date"
           max={today}
-          value={values.dateOfBirth}
-          onChange={(e) => onChange('dateOfBirth', e.target.value)}
+          value={values.dob}
+          onChange={(e) => onChange('dob', e.target.value)}
           className={`${inputClass} pr-3`}
-          style={{ color: values.dateOfBirth ? '#111928' : '#9CA3AF' }}
+          style={{ color: values.dob ? '#111928' : '#9CA3AF' }}
         />
       </Field>
 
-      {/* ── Gender ── */}
-      <Field label="Gender" required tooltip="Select gender">
+      {/* Gender */}
+      <Field label="Gender" required>
         <SelectInput
           value={values.gender}
           onChange={(v) => onChange('gender', v)}
@@ -346,40 +405,63 @@ function EnterDetailsStep({
         />
       </Field>
 
-      {/* ── Parent's Name ── */}
-      <Field label="Parent's Name" required tooltip="Enter parent's name">
+      {/* Address */}
+      <Field label="Address" required hint="(as per Aadhaar)">
         <input
           type="text"
-          placeholder="Enter parent's name"
+          placeholder="Enter address"
+          value={values.address}
+          onChange={(e) => onChange('address', e.target.value)}
+          className={inputClass}
+        />
+      </Field>
+
+      <SectionHeading>Family Information</SectionHeading>
+
+      {/* Father's Name */}
+      <Field label="Father's Name" required>
+        <input
+          type="text"
+          placeholder="Enter father's name"
+          value={values.fatherName}
+          onChange={(e) => onChange('fatherName', e.target.value.replace(/[^a-zA-Z\s]/g, ''))}
+          className={inputClass}
+        />
+      </Field>
+
+      {/* Parent's Name */}
+      <Field label="Parent's / Guardian's Name" required>
+        <input
+          type="text"
+          placeholder="Enter parent's or guardian's name"
           value={values.parentName}
           onChange={(e) => onChange('parentName', e.target.value.replace(/[^a-zA-Z\s]/g, ''))}
           className={inputClass}
         />
       </Field>
 
-      {/* ── Parent's Email ── */}
-      <Field label="Parent's Email" required tooltip="Enter parent's email">
+      {/* Parent's Email */}
+      <Field label="Parent's Email" required>
         <input
           type="email"
           placeholder="Enter parent's email"
           value={values.parentEmail}
           onChange={(e) => onChange('parentEmail', e.target.value)}
-          onBlur={() => setEmailTouched(true)}
+          onBlur={() => setParentEmailTouched(true)}
           className={inputClass}
         />
-        {emailTouched && values.parentEmail.length > 0 && !isValidEmail(values.parentEmail) && (
+        {parentEmailTouched && values.parentEmail.length > 0 && !isValidEmail(values.parentEmail) && (
           <p className="mt-1.5 text-xs text-red-500">Please enter a valid email address</p>
         )}
       </Field>
 
-      {/* ── Parent's Mobile ── */}
-      <Field label="Parent's Mobile" required tooltip="Select country code and enter 10-digit mobile number">
+      {/* Parent's Mobile */}
+      <Field label="Parent's Mobile" required>
         <div className="flex gap-2">
           <div className="relative shrink-0" style={{ width: 110 }}>
             <select
               value={values.parentMobileCountry}
               onChange={(e) => onChange('parentMobileCountry', e.target.value)}
-              onBlur={() => setPhoneTouched(true)}
               className={`${inputClass} appearance-none pr-6 w-full`}
             >
               <option value="" disabled>Code</option>
@@ -395,24 +477,23 @@ function EnterDetailsStep({
             placeholder="Enter mobile number"
             value={values.parentMobileNumber}
             maxLength={10}
-            onChange={(e) => {
-              const digits = e.target.value.replace(/\D/g, '').slice(0, 10)
-              onChange('parentMobileNumber', digits)
-            }}
-            onBlur={() => setPhoneTouched(true)}
+            onChange={(e) => onChange('parentMobileNumber', e.target.value.replace(/\D/g, '').slice(0, 10))}
+            onBlur={() => setParentPhoneTouched(true)}
             className={`${inputClass} flex-1`}
           />
         </div>
-        {phoneTouched && values.parentMobileCountry === '' && (
+        {parentPhoneTouched && values.parentMobileCountry === '' && (
           <p className="mt-1.5 text-xs text-red-500">Please select a country code</p>
         )}
-        {phoneTouched && values.parentMobileNumber.length > 0 && values.parentMobileNumber.length < 10 && (
-          <p className="mt-1.5 text-xs text-red-500">Please enter a valid phone number for the selected country</p>
+        {parentPhoneTouched && values.parentMobileNumber.length > 0 && !isValidPhone(values.parentMobileNumber) && (
+          <p className="mt-1.5 text-xs text-red-500">Please enter a valid phone number</p>
         )}
       </Field>
 
-      {/* ── Current Status ── */}
-      <Field label="Current Status" required tooltip="Select current status">
+      <SectionHeading>Education &amp; Career</SectionHeading>
+
+      {/* Current Status */}
+      <Field label="Current Status" required>
         <SelectInput
           value={values.currentStatus}
           onChange={(v) => onChange('currentStatus', v)}
@@ -421,9 +502,9 @@ function EnterDetailsStep({
         />
       </Field>
 
-      {/* ── Study Year (conditional) ── */}
+      {/* Study Year — conditional */}
       {values.currentStatus === 'studying' && (
-        <Field label="Study Year" required tooltip="Select study year">
+        <Field label="Study Year" required>
           <SelectInput
             value={values.studyYear}
             onChange={(v) => onChange('studyYear', v)}
@@ -433,9 +514,9 @@ function EnterDetailsStep({
         </Field>
       )}
 
-      {/* ── Work Domain (conditional) ── */}
+      {/* Work Domain — conditional */}
       {values.currentStatus === 'working' && (
-        <Field label="Work Domain" required tooltip="Enter your work domain">
+        <Field label="Work Domain" required>
           <input
             type="text"
             placeholder="Enter your work domain"
@@ -446,8 +527,8 @@ function EnterDetailsStep({
         </Field>
       )}
 
-      {/* ── Education Details ── */}
-      <Field label="Education Details" required tooltip="Select education level">
+      {/* Education Details */}
+      <Field label="Education Details" required>
         <SelectInput
           value={values.educationDetails}
           onChange={(v) => onChange('educationDetails', v)}
@@ -456,45 +537,53 @@ function EnterDetailsStep({
         />
       </Field>
 
-      {/* ── Year of Graduation ── */}
-      <Field label="Year of Graduation (Bachelors)" required tooltip="If you have not completed graduation or are a college dropout, mention the year of completion of your college">
+      {/* Year of Graduation */}
+      <Field
+        label="Year of Graduation (Bachelors)"
+        required
+        tooltip="If you have not completed graduation or are a college dropout, mention the year of completion of your college"
+      >
         <input
           type="text"
-          placeholder="If you have not completed graduation or are a college dropout, mention the year of completion of your college"
+          placeholder="YYYY"
           value={values.yearOfGraduation}
           onChange={(e) => onChange('yearOfGraduation', e.target.value.replace(/\D/g, '').slice(0, 4))}
           onBlur={() => setYearTouched(true)}
           className={inputClass}
         />
         {yearTouched && values.yearOfGraduation.length > 0 && values.yearOfGraduation.length < 4 && (
-          <p className="mt-1.5 text-xs text-red-500">Please enter a valid year (YYYY), only 4 digit numbers</p>
+          <p className="mt-1.5 text-xs text-red-500">Please enter a valid 4-digit year</p>
         )}
       </Field>
 
-      {/* ── College Name ── */}
-      <Field label="College Name" required tooltip="If you are not currently studying, mention the last studied college name and school name if you completed only 12th">
+      {/* College Name */}
+      <Field
+        label="College Name"
+        required
+        tooltip="If not currently studying, mention the last studied college. For 12th completions, mention school name."
+      >
         <input
           type="text"
-          placeholder="If you are not currently studying, mention the last studied college name and school name if you completed only 12th"
+          placeholder="Enter college name"
           value={values.collegeName}
           onChange={(e) => onChange('collegeName', e.target.value)}
           className={inputClass}
         />
       </Field>
 
-      {/* ── Current Company Name ── */}
-      <Field label="Current Company Name" tooltip="Mention NA if you are not working">
+      {/* Current Company */}
+      <Field label="Current Company Name" tooltip="Mention NA if not working">
         <input
           type="text"
-          placeholder="Mention NA if you are not working"
+          placeholder="Mention NA if not working"
           value={values.currentCompanyName}
           onChange={(e) => onChange('currentCompanyName', e.target.value)}
           className={inputClass}
         />
       </Field>
 
-      {/* ── Work Experience ── */}
-      <Field label="Number of Years of Work Experience" tooltip="Enter 0 for no experience">
+      {/* Work Experience */}
+      <Field label="Years of Work Experience" tooltip="Enter 0 for no experience">
         <input
           type="text"
           placeholder="Enter 0 for no experience"
@@ -504,8 +593,8 @@ function EnterDetailsStep({
         />
       </Field>
 
-      {/* ── CTC ── */}
-      <Field label="CTC p.a (if working)" tooltip="Enter annual CTC">
+      {/* CTC */}
+      <Field label="CTC p.a. (if working)" tooltip="Enter annual CTC in INR">
         <input
           type="text"
           placeholder="Enter annual CTC"
@@ -515,8 +604,10 @@ function EnterDetailsStep({
         />
       </Field>
 
-      {/* ── PAN Number ── */}
-      <Field label="PAN Number" tooltip="Enter PAN Number">
+      <SectionHeading>Identity Documents</SectionHeading>
+
+      {/* PAN */}
+      <Field label="PAN Number" tooltip="Optional — enter if available">
         <input
           type="text"
           placeholder="Enter PAN Number"
@@ -525,10 +616,13 @@ function EnterDetailsStep({
           onChange={(e) => onChange('panNumber', e.target.value.replace(/[^a-zA-Z0-9]/g, '').toUpperCase())}
           className={inputClass}
         />
+        {values.panNumber.trim().length > 0 && !isValidPan(values.panNumber) && (
+          <p className="mt-1.5 text-xs text-red-500">PAN must be 10 characters</p>
+        )}
       </Field>
 
-      {/* ── Passport Number ── */}
-      <Field label="Passport Number (for international students only)" tooltip="Enter Passport Number">
+      {/* Passport */}
+      <Field label="Passport Number" hint="(for international students only)">
         <input
           type="text"
           placeholder="Enter Passport Number"
@@ -538,22 +632,75 @@ function EnterDetailsStep({
         />
       </Field>
 
+      <SectionHeading>Emergency Contact</SectionHeading>
+
+      <Field label="Contact Name" required>
+        <input
+          type="text"
+          placeholder="Enter emergency contact name"
+          value={values.emergencyContactName}
+          onChange={(e) => onChange('emergencyContactName', e.target.value.replace(/[^a-zA-Z\s]/g, ''))}
+          className={inputClass}
+        />
+      </Field>
+
+      <Field label="Contact Phone" required>
+        <input
+          type="tel"
+          inputMode="numeric"
+          placeholder="Enter 10-digit phone number"
+          value={values.emergencyContactPhone}
+          maxLength={10}
+          onChange={(e) => onChange('emergencyContactPhone', e.target.value.replace(/\D/g, '').slice(0, 10))}
+          onBlur={() => setEmergencyPhoneTouched(true)}
+          className={inputClass}
+        />
+        {emergencyPhoneTouched && values.emergencyContactPhone.length > 0 && !isValidPhone(values.emergencyContactPhone) && (
+          <p className="mt-1.5 text-xs text-red-500">Please enter a valid 10-digit phone number</p>
+        )}
+      </Field>
+
+      <Field label="Relationship" required>
+        <SelectInput
+          value={values.emergencyContactRelationship}
+          onChange={(v) => onChange('emergencyContactRelationship', v)}
+          placeholder="Select relationship"
+          options={RELATIONSHIP_OPTIONS}
+        />
+      </Field>
+
       <div className="pb-8" />
     </div>
   )
 }
 
-// ── Shared inner content (used both standalone and embedded) ──────────────────
+// ── AgreementFlow ──────────────────────────────────────────────────────────────
 
-export function AgreementFlow({ onClose, onSubmit }: { onClose?: () => void; onSubmit?: () => void }) {
+export function AgreementFlow({
+  onClose,
+  onSubmit,
+  sectionId,
+}: {
+  onClose?: () => void
+  onSubmit?: () => void
+  sectionId?: number
+}) {
   const [activeStep, setActiveStep] = useState(0)
-  const [agreementChecks, setAgreementChecks] = useState([false, false, false])
+  const [apiLoading, setApiLoading] = useState(!!sectionId)
+  const [sectionName, setSectionName] = useState<string | null>(null)
+  const [daysLeft, setDaysLeft] = useState<number>(7)
+  const [alreadyAccepted, setAlreadyAccepted] = useState(false)
+  const [apiAgreementSteps, setApiAgreementSteps] = useState<Array<ApiAgreementStep> | null>(null)
+  const [agreementChecks, setAgreementChecks] = useState<Array<boolean>>([])
   const [form, setForm] = useState<FormValues>({
     location: '',
     name: '',
-    address: '',
-    dateOfBirth: '',
+    email: '',
+    phone: '',
+    dob: '',
     gender: '',
+    address: '',
+    fatherName: '',
     parentName: '',
     parentEmail: '',
     parentMobileCountry: '+91',
@@ -564,21 +711,70 @@ export function AgreementFlow({ onClose, onSubmit }: { onClose?: () => void; onS
     educationDetails: '',
     yearOfGraduation: '',
     collegeName: '',
-    panNumber: '',
-    passportNumber: '',
     currentCompanyName: '',
     workExperience: '',
     ctc: '',
+    panNumber: '',
+    passportNumber: '',
+    emergencyContactName: '',
+    emergencyContactPhone: '',
+    emergencyContactRelationship: '',
   })
+
+  useEffect(() => {
+    if (!sectionId) return
+    setApiLoading(true)
+    fetchAgreementData(sectionId)
+      .then((data) => {
+        setSectionName(data.sectionName)
+        setDaysLeft(data.daysLeft)
+        setAlreadyAccepted(data.alreadyAccepted)
+        setApiAgreementSteps(data.agreementSteps)
+        setAgreementChecks(new Array(data.agreementSteps.length).fill(false))
+        if (data.prefill) {
+          setForm((prev) => ({ ...prev, ...data.prefill }))
+        }
+      })
+      .catch((err: unknown) => { console.error('Failed to fetch agreement data', err) })
+      .finally(() => { setApiLoading(false) })
+
+    void apiRecordOpen(sectionId).catch((err: unknown) => {
+      console.error('Failed to record agreement open', err)
+    })
+  }, [sectionId])
+
+  const STEPS = apiAgreementSteps != null
+    ? [
+        { key: 'enter_details', label: 'Enter Details' },
+        ...apiAgreementSteps.map((s) => ({ key: s.key, label: s.heading })),
+        { key: 'signature', label: 'Signature Certificate' },
+      ]
+    : [
+        { key: 'enter_details', label: 'Enter Details' },
+        { key: 'signature', label: 'Signature Certificate' },
+      ]
 
   function handleChange(field: keyof FormValues, value: string) {
     setForm((prev) => ({ ...prev, [field]: value }))
   }
 
-  function handleNext() {
+  async function handleNext() {
     if (isLastStep) {
+      if (sectionId) {
+        try {
+          await apiSubmitAgreement(sectionId, form as unknown as AgreementFormData)
+        } catch (err) {
+          console.error('Failed to submit agreement', err)
+        }
+      }
       onSubmit?.()
     } else {
+      if (isAgreementStep && sectionId) {
+        const stepKey = STEPS[activeStep].key
+        void apiRecordStep(sectionId, stepKey).catch((err: unknown) => {
+          console.error('Failed to record agreement step', err)
+        })
+      }
       setActiveStep((s) => s + 1)
     }
   }
@@ -587,21 +783,41 @@ export function AgreementFlow({ onClose, onSubmit }: { onClose?: () => void; onS
     if (activeStep > 0) setActiveStep((s) => s - 1)
   }
 
+  function handleClose() {
+    if (sectionId) {
+      void apiDismissAgreement(sectionId).catch((err: unknown) => {
+        console.error('Failed to dismiss agreement', err)
+      })
+    }
+    onClose?.()
+  }
+
   const isLastStep = activeStep === STEPS.length - 1
   const isAgreementStep = activeStep > 0 && activeStep < STEPS.length - 1
   const canProceed =
     activeStep === 0 ? isEnterDetailsValid(form) :
-    isAgreementStep ? agreementChecks[activeStep - 1] :
+    isAgreementStep ? (agreementChecks[activeStep - 1] ?? false) :
     true
+
+  const displayTitle = sectionName ?? 'Program Agreement'
+  const showDaysBadge = !(alreadyAccepted && daysLeft <= 0)
+
+  if (apiLoading) {
+    return (
+      <div className="flex flex-col h-full bg-white items-center justify-center gap-4">
+        <Loader2 size={32} className="animate-spin text-[#6962AC]" />
+        <p className="text-sm text-gray-500">Loading agreement...</p>
+      </div>
+    )
+  }
 
   return (
     <div className="flex flex-col h-full bg-white relative">
 
-      {/* Close button — only when used as standalone modal */}
       {onClose && (
         <button
           type="button"
-          onClick={onClose}
+          onClick={handleClose}
           className="absolute right-5 top-5 flex items-center justify-center size-8 rounded-full text-gray-700 hover:bg-gray-100 transition-colors focus-visible:outline-none z-10"
           aria-label="Close"
         >
@@ -611,25 +827,22 @@ export function AgreementFlow({ onClose, onSubmit }: { onClose?: () => void; onS
 
       {/* Header */}
       <div className="flex flex-col items-center pt-10 pb-8 px-16 shrink-0">
-        <div
-          className="flex items-center gap-2 rounded-[56px] px-6 py-2 mb-4 border"
-          style={{ background: '#FFF8F1', borderColor: '#FCD9BD' }}
-        >
-          <span className="text-sm font-medium text-white px-4 rounded-full" style={{ background: '#FF5A1F' }}>
-            7 days
-          </span>
-          <span className="text-sm" style={{ color: '#374151' }}>
-            left to review and complete this agreement.
-          </span>
-        </div>
+        {showDaysBadge && (
+          <div
+            className="flex items-center gap-2 rounded-[56px] px-6 py-2 mb-4 border"
+            style={{ background: '#FFF8F1', borderColor: '#FCD9BD' }}
+          >
+            <span className="text-sm font-medium text-white px-4 rounded-full" style={{ background: '#FF5A1F' }}>
+              {daysLeft} {daysLeft === 1 ? 'day' : 'days'}
+            </span>
+            <span className="text-sm" style={{ color: '#374151' }}>
+              left to review and complete this agreement.
+            </span>
+          </div>
+        )}
         <h2 className="font-bold text-center" style={{ fontFamily: 'Poppins', fontSize: 20, lineHeight: '28px', color: '#111928' }}>
-          Product Management and Agentic AI from BITSoM
+          {displayTitle}
         </h2>
-        <p className="my-4 text-center" style={{ fontFamily: 'Poppins', fontSize: 14, lineHeight: '20px', color: '#4B5563' }}>
-          Nolan Edutech Private Limited
-          <br />
-          Incubex HSR21, 5th Main Rd, Sector 6, HSR Layout, Bengaluru, Karnataka 560068
-        </p>
       </div>
 
       {/* Step tabs */}
@@ -647,32 +860,23 @@ export function AgreementFlow({ onClose, onSubmit }: { onClose?: () => void; onS
         </div>
       </div>
 
-      {/* Content — only the gray card scrolls */}
+      {/* Scrollable content */}
       <div className="flex-1 py-6 px-25 min-h-0">
         <div
           className="w-full h-full rounded-2xl py-6 flex justify-center overflow-auto"
           style={{ background: '#F9FAFB' }}
         >
           <div style={{ width: isAgreementStep ? 960 : 720 }}>
+
             {activeStep === 0 && (
               <EnterDetailsStep values={form} onChange={handleChange} />
             )}
-            {activeStep === STEPS.length - 1 && (
-              <div className="flex flex-col items-center justify-center py-12 gap-4 text-center">
-                <div className="size-16 rounded-full bg-green-50 flex items-center justify-center">
-                  <Check size={32} className="text-green-500" strokeWidth={2} />
-                </div>
-                <h3 className="text-lg font-semibold text-gray-900">Signature Certificate</h3>
-                <p className="text-sm text-gray-500 max-w-sm">
-                  By clicking Submit, you confirm that you have reviewed and agreed to all the terms.
-                </p>
-              </div>
-            )}
-            {activeStep > 0 && activeStep < STEPS.length - 1 && (
+
+            {isAgreementStep && apiAgreementSteps && (
               <div className="flex flex-col gap-5 pb-6">
                 <div className="rounded-xl border border-gray-200 overflow-hidden" style={{ height: 480 }}>
                   <iframe
-                    src="https://www.orimi.com/pdf-test.pdf"
+                    src={apiAgreementSteps[activeStep - 1].pdfUrl}
                     title={STEPS[activeStep].label}
                     className="w-full h-full"
                   />
@@ -681,7 +885,7 @@ export function AgreementFlow({ onClose, onSubmit }: { onClose?: () => void; onS
                   <div className="relative mt-0.5 shrink-0">
                     <input
                       type="checkbox"
-                      checked={agreementChecks[activeStep - 1]}
+                      checked={agreementChecks[activeStep - 1] ?? false}
                       onChange={(e) => {
                         const updated = [...agreementChecks]
                         updated[activeStep - 1] = e.target.checked
@@ -690,7 +894,7 @@ export function AgreementFlow({ onClose, onSubmit }: { onClose?: () => void; onS
                       className="peer sr-only"
                     />
                     <div className="size-4 rounded border border-[#E5E7EB] bg-white peer-checked:bg-[#6962AC] peer-checked:border-[#6962AC] transition-colors flex items-center justify-center">
-                      {agreementChecks[activeStep - 1] && <Check size={10} strokeWidth={3} className="text-white" />}
+                      {(agreementChecks[activeStep - 1] ?? false) && <Check size={10} strokeWidth={3} className="text-white" />}
                     </div>
                   </div>
                   <p className="text-sm text-gray-700 leading-relaxed">
@@ -702,6 +906,19 @@ export function AgreementFlow({ onClose, onSubmit }: { onClose?: () => void; onS
                 </label>
               </div>
             )}
+
+            {isLastStep && (
+              <div className="flex flex-col items-center justify-center py-12 gap-4 text-center">
+                <div className="size-16 rounded-full bg-green-50 flex items-center justify-center">
+                  <Check size={32} className="text-green-500" strokeWidth={2} />
+                </div>
+                <h3 className="text-lg font-semibold text-gray-900">Signature Certificate</h3>
+                <p className="text-sm text-gray-500 max-w-sm">
+                  By clicking Submit, you confirm that you have reviewed and agreed to all the terms.
+                </p>
+              </div>
+            )}
+
           </div>
         </div>
       </div>
@@ -723,7 +940,7 @@ export function AgreementFlow({ onClose, onSubmit }: { onClose?: () => void; onS
         )}
         <button
           type="button"
-          onClick={handleNext}
+          onClick={() => { void handleNext() }}
           disabled={!canProceed}
           className="flex items-center justify-center text-white font-medium rounded-lg transition-opacity hover:opacity-90 focus-visible:outline-none disabled:opacity-40 disabled:cursor-not-allowed"
           style={{ width: 166, height: 40, background: '#6962AC', fontFamily: 'Poppins', fontSize: 16 }}
@@ -731,16 +948,6 @@ export function AgreementFlow({ onClose, onSubmit }: { onClose?: () => void; onS
           {isLastStep ? 'Submit' : 'Save & Continue'}
         </button>
       </div>
-    </div>
-  )
-}
-
-// ── Full-screen standalone wrapper ────────────────────────────────────────────
-
-export function AgreementModal({ onClose }: AgreementModalProps) {
-  return (
-    <div className="fixed inset-0 z-50">
-      <AgreementFlow onClose={onClose} />
     </div>
   )
 }

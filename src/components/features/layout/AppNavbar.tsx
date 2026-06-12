@@ -27,7 +27,6 @@ import type {
 import { Navbar } from '@/components/navbar'
 import { LevelUpIcon } from '@/components/common/LevelUpIcon'
 import { DownloadAppModal } from '@/components/features/layout/DownloadAppModal'
-import { OnboardingModal } from '@/components/modals/onboarding/OnboardingModal'
 import { UpcomingLecturePill } from '@/components/features/layout/UpcomingLecturePill'
 import { LEGACY_STUDENT_LMS_URL } from '@/constants/legacyStudentUi'
 import { OLD_STUDENT_UI_NAV_PATHS } from '@/constants/oldStudentUiNavPaths'
@@ -80,7 +79,6 @@ export default function AppNavbar() {
   const pathname = useRouterState({ select: (s) => s.location.pathname })
   const activeNavId = activeAppNavIdForPathname(pathname)
   const [downloadAppOpen, setDownloadAppOpen] = useState(false)
-  const [onboardingOpen, setOnboardingOpen] = useState(false)
   const [isLevelupLoading, setIsLevelupLoading] = useState(false)
   const levelupLoadingRef = useRef(false)
   const REFERRAL_URL_REFETCH_INTERVAL = 5 * 60 * 1000
@@ -219,19 +217,8 @@ export default function AppNavbar() {
         isActive: false,
         onClick: handleReferAndEarnClick,
       },
-      {
-        id: 'onboarding',
-        label: 'Onboarding',
-        href: '#',
-        openInNewTab: false,
-        isActive: false,
-        onClick: (e) => {
-          e.preventDefault()
-          setOnboardingOpen(true)
-        },
-      },
     ],
-    [activeNavId, handleHomeClick, handleLearnClick, handleReferAndEarnClick, setOnboardingOpen],
+    [activeNavId, handleHomeClick, handleLearnClick, handleReferAndEarnClick],
   )
 
   const trailingActions: Array<NavbarActionItem> = useMemo(
@@ -383,9 +370,6 @@ export default function AppNavbar() {
         open={downloadAppOpen}
         onOpenChange={setDownloadAppOpen}
       />
-      {onboardingOpen && (
-        <OnboardingModal onClose={() => setOnboardingOpen(false)} />
-      )}
     </>
   )
 }
