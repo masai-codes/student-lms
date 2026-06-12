@@ -1,3 +1,13 @@
+// Load secrets written by AfterInstall.sh from Secrets Manager into the env
+// block at config-read time. This avoids PM2's known bug where env_file is not
+// re-processed on `pm2 reload --update-env`, causing DATABASE_URL and other
+// runtime secrets to be missing on re-deployments.
+const { configDotenv } = require('dotenv')
+
+const { parsed: runtimeEnv = {} } = configDotenv({
+  path: '/home/ubuntu/app/.env.production.local',
+})
+
 module.exports = {
   apps: [
     {
@@ -6,7 +16,6 @@ module.exports = {
       cwd: '/home/ubuntu/app',
       instances: 'MAX',
       exec_mode: 'cluster',
-      env_file: '/home/ubuntu/app/.env.production.local',
       // Restart policy
       autorestart: true,
       max_restarts: 10,
@@ -18,10 +27,13 @@ module.exports = {
       error_file: '/home/ubuntu/logs/app-error.log',
       merge_logs: true,
       log_date_format: 'YYYY-MM-DD HH:mm:ss Z',
-      // Environment
+      // Environment — static vars first, then secrets from .env.production.local.
+      // Inlining here (instead of using PM2's env_file option) ensures the vars
+      // are present on both fresh starts and zero-downtime reloads.
       env: {
         NODE_ENV: 'production',
         PORT: '3000',
+        ...runtimeEnv,
       },
     },
   ],
