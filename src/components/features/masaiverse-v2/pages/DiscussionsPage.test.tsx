@@ -7,6 +7,37 @@ const { useQuery } = vi.hoisted(() => ({ useQuery: vi.fn() }))
 
 vi.mock('@tanstack/react-query', () => ({ useQuery: () => useQuery() }))
 
+// The active tab is stored in the URL search, read via `routeApi.useSearch()`
+// and updated via `routeApi.useNavigate()`. Back it with a tiny reactive store
+// so navigating (e.g. focusing a tab) re-renders the controlled <Tabs>.
+const search = vi.hoisted(() => ({ value: {} as { tab?: string } }))
+
+vi.mock('@tanstack/react-router', async () => {
+  const React = await import('react')
+  const listeners = new Set<() => void>()
+  const navigate = (opts: {
+    search: (prev: { tab?: string }) => { tab?: string }
+  }) => {
+    search.value = opts.search(search.value)
+    listeners.forEach((notify) => notify())
+  }
+  return {
+    getRouteApi: () => ({
+      useSearch: () => {
+        const [, force] = React.useReducer((c: number) => c + 1, 0)
+        React.useEffect(() => {
+          listeners.add(force)
+          return () => {
+            listeners.delete(force)
+          }
+        }, [])
+        return search.value
+      },
+      useNavigate: () => navigate,
+    }),
+  }
+})
+
 // Stub the shared feed so the test asserts how the page scopes each tab,
 // without pulling in the infinite-query / network machinery.
 vi.mock('./home/CommunityDiscussionsSection', () => ({
@@ -37,6 +68,7 @@ const CLUBS = [
 afterEach(() => {
   cleanup()
   useQuery.mockReset()
+  search.value = {}
 })
 
 describe('DiscussionsPage', () => {

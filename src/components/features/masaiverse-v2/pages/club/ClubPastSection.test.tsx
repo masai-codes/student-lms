@@ -14,6 +14,17 @@ vi.mock('@/lib/api/masaiverse-v2/masaiverseV2Api', () => ({
   fetchMasaiverseV2MyClubs: vi.fn(),
 }))
 
+// ClubPastSection renders HighlightsCarousel, whose cards use a router <Link>
+// inside a Swiper; both need stubbing in jsdom.
+vi.mock('@tanstack/react-router', () => ({
+  Link: ({ children }: { children: ReactNode }) => children,
+}))
+vi.mock('swiper/react', () => ({
+  Swiper: ({ children }: { children: ReactNode }) => <div>{children}</div>,
+  SwiperSlide: ({ children }: { children: ReactNode }) => <div>{children}</div>,
+}))
+vi.mock('swiper/modules', () => ({ Navigation: {} }))
+
 function renderWithClient(ui: ReactNode) {
   const client = new QueryClient({
     defaultOptions: { queries: { retry: false } },
