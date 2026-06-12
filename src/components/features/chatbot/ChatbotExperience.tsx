@@ -199,17 +199,23 @@ export function ChatbotExperience({
 
   useEffect(() => {
     let cancelled = false
-      ; (async () => {
-        setSessionsLoading(true)
-        try {
-          const list = await listChatbotSessions(lectureId)
+    ;(async () => {
+      setSessionsLoading(true)
+      try {
+        const list = await listChatbotSessions(lectureId)
+        if (!cancelled) {
           setSessions(list)
-        } catch (error) {
+        }
+      } catch (error) {
+        if (!cancelled) {
           setLoadError(error instanceof Error ? error.message : 'Failed to load sessions')
-        } finally {
+        }
+      } finally {
+        if (!cancelled) {
           setSessionsLoading(false)
         }
-      })()
+      }
+    })()
     return () => {
       cancelled = true
     }

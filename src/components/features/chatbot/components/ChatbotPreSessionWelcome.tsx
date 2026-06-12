@@ -4,14 +4,12 @@ import { ChatbotPromptCards } from '@/components/features/chatbot/components/Cha
 import { cn } from '@/lib/utils'
 
 type ChatbotPreSessionWelcomeProps = {
-  greeting: string
   onPromptSelect: (prompt: string) => void
   promptsDisabled?: boolean
   composer: ReactNode
 }
 
 export function ChatbotPreSessionWelcome({
-  greeting,
   composer,
   onPromptSelect,
   promptsDisabled = false,

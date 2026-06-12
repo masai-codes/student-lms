@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useRef } from 'react'
 import { ChatbotAssistantStatusBubble } from '@/components/features/chatbot/components/ChatbotAssistantStatusBubble'
 import type { DisplayMessage } from '@/components/features/chatbot/types'
 import { cn } from '@/lib/utils'

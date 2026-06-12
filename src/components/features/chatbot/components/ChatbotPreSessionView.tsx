@@ -1,20 +1,15 @@
-import { getRouteApi } from '@tanstack/react-router'
-import { useMemo, useState } from 'react'
+import { useState } from 'react'
 import { ChatbotComposer } from '@/components/features/chatbot/components/ChatbotComposer'
 import { ChatbotConversationLayout } from '@/components/features/chatbot/components/ChatbotConversationLayout'
 import { ChatbotPreSessionWelcome } from '@/components/features/chatbot/components/ChatbotPreSessionWelcome'
 import type { DisplayMessage } from '@/components/features/chatbot/types'
-import { buildPreSessionGreeting } from '@/components/features/chatbot/utils/preSessionGreeting'
 import { cn } from '@/lib/utils'
-
-const layoutRouteApi = getRouteApi('/(protected)/_layout')
 
 type ChatbotPreSessionViewProps = {
   optimisticMessages: DisplayMessage[]
   onStartWithText: (text: string) => void | Promise<void>
   onStartWithVoice: () => void | Promise<void>
   isCreating?: boolean
-  lectureLabel?: string
 }
 
 export function ChatbotPreSessionView({
@@ -22,15 +17,8 @@ export function ChatbotPreSessionView({
   onStartWithText,
   onStartWithVoice,
   isCreating = false,
-  lectureLabel,
 }: ChatbotPreSessionViewProps) {
   const [input, setInput] = useState('')
-  const { user } = layoutRouteApi.useRouteContext()
-
-  const greeting = useMemo(
-    () => buildPreSessionGreeting(user.name, lectureLabel ?? 'the lecture'),
-    [lectureLabel, user.name],
-  )
 
   const handleSubmit = () => {
     const text = input.trim()
@@ -74,7 +62,6 @@ export function ChatbotPreSessionView({
         aria-label="Lecture assistant"
       >
         <ChatbotPreSessionWelcome
-          greeting={greeting}
           onPromptSelect={handlePromptSelect}
           promptsDisabled={isCreating}
           composer={composer}

@@ -1,7 +1,6 @@
 import { CaretLeft } from '@phosphor-icons/react'
 import type { SessionSummary } from '@/components/features/chatbot/types'
 import { SessionHistoryList } from '@/components/features/chatbot/components/SessionHistoryList'
-import { chatbotBtnPrimaryClass } from '@/components/features/chatbot/chatbotUi'
 
 type ChatbotHistoryPanelProps = {
   sessions: SessionSummary[]
