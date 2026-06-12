@@ -181,7 +181,7 @@ NEW_AMI_ID=$(aws ec2 create-image \
   --instance-id "$INSTANCE_ID" \
   --name "$AMI_NAME" \
   --description "Student LMS Golden AMI - Ubuntu 22.04 ARM64, Node ${NODE_MAJOR}, pm2, CodeDeploy agent, CloudWatch agent, SSM agent" \
-  --tag-specifications "ResourceType=image,Tags=[{Key=Name,Value=${AMI_NAME}},{Key=Project,Value=student-lms},{Key=NodeVersion,Value=${NODE_MAJOR}}]"
+  --tag-specifications "ResourceType=image,Tags=[{Key=Name,Value=${AMI_NAME}},{Key=Project,Value=student-lms},{Key=NodeVersion,Value=${NODE_MAJOR}}]" \
   --query 'ImageId' \
   --output text)
 
