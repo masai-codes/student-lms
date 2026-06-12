@@ -4,7 +4,7 @@
 # NOTE: Replace the GoldenAMIId placeholder below with the ARM64 Golden AMI ID
 #       built in the production account via scripts/golden-ami/build.sh before running.
 
-aws cloudformation deploy --stack-name student-lms-prod --template-file cloudformation.yml --capabilities CAPABILITY_NAMED_IAM\
+aws cloudformation deploy --stack-name student-lms-production --template-file cloudformation.yml --capabilities CAPABILITY_NAMED_IAM\
   --parameter-overrides \
   GoldenAMIId=ami-0372ffb3c8401306b \
   RDSInstanceIdentifier=msi-experience \
