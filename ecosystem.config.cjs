@@ -1,27 +1,27 @@
-const path = require('path')
-const dotenv = require('dotenv')
-
-const { parsed: dotEnv = {} } = dotenv.config({
-  path: path.join(__dirname, '.env'),
-})
-
-const sharedEnv = {
-  ...dotEnv,
-  NODE_ENV: 'production',
-}
-
-// Single build/app serves both Masai and iHub. The origin is detected from the
-// request host at runtime (see `src/utils/appOrigin.ts`), so there's no
-// per-origin build or env any more — point both domains at this app in nginx.
 module.exports = {
   apps: [
     {
       name: 'student-lms',
-      cwd: __dirname,
-      script: '.output/server/index.mjs',
+      script: '/home/ubuntu/app/.output/server/index.mjs',
+      cwd: '/home/ubuntu/app',
+      instances: 'MAX',
+      exec_mode: 'cluster',
+      env_file: '/home/ubuntu/app/.env.production.local',
+      // Restart policy
+      autorestart: true,
+      max_restarts: 10,
+      restart_delay: 1000,
+      // Graceful shutdown — give in-flight requests 15s to complete
+      kill_timeout: 15000,
+      // Logging
+      out_file: '/home/ubuntu/logs/app-out.log',
+      error_file: '/home/ubuntu/logs/app-error.log',
+      merge_logs: true,
+      log_date_format: 'YYYY-MM-DD HH:mm:ss Z',
+      // Environment
       env: {
-        ...sharedEnv,
-        PORT: 7090,
+        NODE_ENV: 'production',
+        PORT: '3000',
       },
     },
   ],

@@ -1,0 +1,43 @@
+version: 0.2
+
+env:
+  variables:
+    NODE_OPTIONS: '--max_old_space_size=6144'
+
+phases:
+  install:
+    runtime-versions:
+      nodejs: 24
+    commands:
+      - node --version
+      - npm ci
+
+  pre_build:
+    commands:
+      - echo "Running tests..."
+      - npm test
+
+  build:
+    commands:
+      - echo "Building application with Nitro preset=node-server..."
+      - npm run build
+      # Sync static assets to S3 — additive only (default; no --delete flag)
+      - echo "Uploading static assets to S3..."
+      - aws s3 sync .output/public/assets/ "s3://${STATIC_ASSETS_BUCKET}/assets/" --cache-control "max-age=31536000,immutable"
+
+  post_build:
+    commands:
+      - echo "Build complete."
+
+artifacts:
+  files:
+    - appspec.yml
+    - ecosystem.config.cjs
+    - hooks/**/*
+    - .output/server/**/*
+  discard-paths: no
+
+cache:
+  paths:
+    - node_modules/**/*
+    - /root/.npm/**/*

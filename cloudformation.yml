@@ -1,0 +1,1333 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: >
+  student-lms-production - Full deployment stack for the Student LMS application.
+  Includes: VPC networking, ALB, EC2 Auto Scaling Group (mixed On-Demand + Spot),
+  CloudFront distribution, S3 (static assets + pipeline artifacts), CodePipeline
+  (GitHub source -> parallel Test+Build -> CodeDeploy Blue/Green), CloudWatch
+  monitoring and dashboard, Route53 DNS.
+
+# =============================================================================
+# PARAMETERS
+# =============================================================================
+Parameters:
+  GoldenAMIId:
+    Type: AWS::EC2::Image::Id
+    Description: >
+      ARM64 Golden AMI ID built by golden-ami-build.sh.
+      Contains: Ubuntu 22.04, Node 22, Bun 1.3.9, pm2, CodeDeploy agent, CloudWatch agent.
+
+  SecretsManagerARN:
+    Type: String
+    Description: >
+      ARN of the AWS Secrets Manager secret containing application runtime secrets
+      (DATABASE_URL, JWT_SECRET_KEY, etc.) as a JSON blob.
+    AllowedPattern: '^arn:aws:secretsmanager:[a-z0-9-]+:[0-9]+:secret:.+$'
+
+  RDSInstanceIdentifier:
+    Type: String
+    Description: RDS instance identifier for CloudWatch dashboard metrics.
+
+  GitHubOrg:
+    Type: String
+    Default: masai-codes
+    Description: GitHub organisation name.
+
+  GitHubRepo:
+    Type: String
+    Default: student-lms
+    Description: GitHub repository name.
+
+  GitHubBranch:
+    Type: String
+    Default: main
+    Description: Branch that triggers the pipeline.
+
+  GitHubConnection:
+    Type: String
+    Default: 'arn:aws:codestar-connections:ap-south-1:016530944324:connection/71493bbf-615c-48c1-adc5-fbb0e15ecffa'
+    Description: >
+      ARN of an existing CodeStar/CodeConnections GitHub connection used by CodePipeline.
+    AllowedPattern: '^arn:aws:codestar-connections:[a-z0-9-]+:[0-9]+:connection/.+$'
+
+  ACMCertificateARNRegional:
+    Type: String
+    Default: 'arn:aws:acm:ap-south-1:016530944324:certificate/23c7139a-ae42-4b85-b56a-92c0b7efd56e'
+    Description: ACM certificate ARN in ap-south-1 (used by the ALB).
+
+  ACMCertificateARNCloudFront:
+    Type: String
+    Default: 'arn:aws:acm:us-east-1:016530944324:certificate/ca368ef5-069e-4f1c-8730-e5e3bc505417'
+    Description: ACM certificate ARN in us-east-1 (used by CloudFront).
+
+  HostedZoneId:
+    Type: String
+    Default: Z0182996VBEVAGTG3F6U
+    Description: Route53 hosted zone ID for learn.masaischool.com.
+
+  DomainName:
+    Type: String
+    Default: learn.masaischool.com
+    Description: Domain name for the application.
+
+  SNSTopicARN:
+    Type: String
+    Default: 'arn:aws:sns:ap-south-1:016530944324:Tech-Product-Stakeholders'
+    Description: Existing SNS topic ARN for CloudWatch alarm notifications.
+
+# =============================================================================
+# METADATA - Parameter grouping for the AWS Console UI
+# =============================================================================
+Metadata:
+  AWS::CloudFormation::Interface:
+    ParameterGroups:
+      - Label: { default: 'Required - fill these in before deploying' }
+        Parameters: [GoldenAMIId, SecretsManagerARN, RDSInstanceIdentifier]
+      - Label: { default: 'GitHub Source' }
+        Parameters: [GitHubOrg, GitHubRepo, GitHubBranch, GitHubConnection]
+      - Label: { default: 'DNS & TLS' }
+        Parameters:
+          [
+            DomainName,
+            HostedZoneId,
+            ACMCertificateARNRegional,
+            ACMCertificateARNCloudFront,
+          ]
+      - Label: { default: 'Notifications' }
+        Parameters: [SNSTopicARN]
+    ParameterLabels:
+      GoldenAMIId: { default: 'Golden AMI ID (ARM64)' }
+      SecretsManagerARN: { default: 'Secrets Manager Secret ARN' }
+      RDSInstanceIdentifier: { default: 'RDS Instance Identifier' }
+
+# =============================================================================
+# RESOURCES
+# =============================================================================
+Resources:
+  # ---------------------------------------------------------------------------
+  # S3 - Static Assets Bucket
+  # ---------------------------------------------------------------------------
+  StaticAssetsBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub 'student-lms-static-assets-${AWS::AccountId}'
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      VersioningConfiguration:
+        Status: Suspended
+      Tags:
+        - Key: Project
+          Value: student-lms
+
+  StaticAssetsBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref StaticAssetsBucket
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Sid: AllowCloudFrontOAC
+            Effect: Allow
+            Principal:
+              Service: cloudfront.amazonaws.com
+            Action: s3:GetObject
+            Resource: !Sub '${StaticAssetsBucket.Arn}/*'
+            Condition:
+              StringEquals:
+                AWS:SourceArn: !Sub 'arn:aws:cloudfront::${AWS::AccountId}:distribution/${CloudFrontDistribution}'
+          - Sid: AllowCodeBuildUpload
+            Effect: Allow
+            Principal:
+              AWS: !GetAtt CodeBuildRole.Arn
+            Action:
+              - s3:PutObject
+              - s3:PutObjectAcl
+            Resource: !Sub '${StaticAssetsBucket.Arn}/assets/*'
+
+  # ---------------------------------------------------------------------------
+  # S3 - Pipeline Artifacts Bucket
+  # ---------------------------------------------------------------------------
+  PipelineArtifactsBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub 'student-lms-pipeline-artifacts-${AWS::AccountId}'
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      VersioningConfiguration:
+        Status: Enabled
+      LifecycleConfiguration:
+        Rules:
+          # Expire ALB access logs after 30 days
+          - Id: ExpireALBLogs
+            Status: Enabled
+            Prefix: alb-logs/
+            ExpirationInDays: 30
+          # Expire old pipeline artifacts after 90 days
+          - Id: ExpireOldArtifacts
+            Status: Enabled
+            Prefix: codepipeline/
+            ExpirationInDays: 90
+      Tags:
+        - Key: Project
+          Value: student-lms
+
+  PipelineArtifactsBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref PipelineArtifactsBucket
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          # Allow ALB to write access logs
+          - Sid: AllowALBAccessLogs
+            Effect: Allow
+            Principal:
+              AWS: 'arn:aws:iam::718504428378:root' # AWS ELB service account for ap-south-1
+            Action: s3:PutObject
+            Resource: !Sub '${PipelineArtifactsBucket.Arn}/alb-logs/*'
+
+  # ---------------------------------------------------------------------------
+  # NETWORKING - Custom resource Lambda to look up default VPC + subnets
+  # ---------------------------------------------------------------------------
+
+  DefaultVpcLookupRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: student-lms-vpc-lookup-role
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Policies:
+        - PolicyName: DescribeVpcSubnets
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - ec2:DescribeVpcs
+                  - ec2:DescribeSubnets
+                Resource: '*'
+
+  DefaultVpcLookupFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: student-lms-vpc-lookup
+      Runtime: python3.12
+      Handler: index.handler
+      Role: !GetAtt DefaultVpcLookupRole.Arn
+      Timeout: 30
+      Code:
+        ZipFile: |
+          import boto3, json, urllib.request, urllib.parse
+          def send(event, context, status, data={}, reason=''):
+            body = json.dumps({'Status': status, 'Reason': reason,
+              'PhysicalResourceId': context.log_stream_name,
+              'StackId': event['StackId'], 'RequestId': event['RequestId'],
+              'LogicalResourceId': event['LogicalResourceId'], 'Data': data})
+            req = urllib.request.Request(event['ResponseURL'],
+              data=body.encode(), method='PUT',
+              headers={'Content-Type': '', 'Content-Length': len(body)})
+            urllib.request.urlopen(req)
+          def handler(event, context):
+            try:
+              if event['RequestType'] == 'Delete':
+                return send(event, context, 'SUCCESS')
+              ec2 = boto3.client('ec2')
+              vpcs = ec2.describe_vpcs(Filters=[{'Name':'isDefault','Values':['true']}])['Vpcs']
+              vpc_id = vpcs[0]['VpcId']
+              subnets = ec2.describe_subnets(Filters=[{'Name':'vpc-id','Values':[vpc_id]},
+                {'Name':'defaultForAz','Values':['true']}])['Subnets']
+              subnet_ids = ','.join(s['SubnetId'] for s in subnets)
+              send(event, context, 'SUCCESS', {'VpcId': vpc_id, 'SubnetIds': subnet_ids})
+            except Exception as e:
+              send(event, context, 'FAILED', reason=str(e))
+
+  DefaultVpcInfo:
+    Type: AWS::CloudFormation::CustomResource
+    Properties:
+      ServiceToken: !GetAtt DefaultVpcLookupFunction.Arn
+
+  # ---------------------------------------------------------------------------
+  # NETWORKING - Security Groups
+  # ---------------------------------------------------------------------------
+
+  # ALB Security Group
+  ALBSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupName: student-lms-alb-sg
+      GroupDescription: Security group for the student-lms Application Load Balancer
+      VpcId: !GetAtt DefaultVpcInfo.VpcId
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0
+          Description: HTTP from internet
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 0.0.0.0/0
+          Description: HTTPS from internet
+      Tags:
+        - Key: Name
+          Value: student-lms-alb-sg
+        - Key: Project
+          Value: student-lms
+
+  # EC2 Security Group
+  EC2SecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupName: student-lms-ec2-sg
+      GroupDescription: Security group for student-lms EC2 instances - allows inbound only from ALB
+      VpcId: !GetAtt DefaultVpcInfo.VpcId
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 3000
+          ToPort: 3000
+          SourceSecurityGroupId: !Ref ALBSecurityGroup
+          Description: App port from ALB only
+      Tags:
+        - Key: Name
+          Value: student-lms-ec2-sg
+        - Key: Project
+          Value: student-lms
+
+  # RDS Security Group (attach to your RDS instance manually post-deploy)
+  RDSSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupName: student-lms-rds-sg
+      GroupDescription: Allows MySQL from student-lms EC2 instances only. Attach to RDS instance after stack creation.
+      VpcId: !GetAtt DefaultVpcInfo.VpcId
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 3306
+          ToPort: 3306
+          SourceSecurityGroupId: !Ref EC2SecurityGroup
+          Description: MySQL from EC2 ASG instances only
+      Tags:
+        - Key: Name
+          Value: student-lms-rds-sg
+        - Key: Project
+          Value: student-lms
+
+  # ---------------------------------------------------------------------------
+  # ALB - Application Load Balancer
+  # ---------------------------------------------------------------------------
+  ALB:
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    Properties:
+      Name: student-lms-alb
+      Type: application
+      Scheme: internet-facing
+      IpAddressType: ipv4
+      SecurityGroups:
+        - !Ref ALBSecurityGroup
+      Subnets: !Split [',', !GetAtt DefaultVpcInfo.SubnetIds]
+      LoadBalancerAttributes:
+        - Key: access_logs.s3.enabled
+          Value: 'true'
+        - Key: access_logs.s3.bucket
+          Value: !Ref PipelineArtifactsBucket
+        - Key: access_logs.s3.prefix
+          Value: alb-logs
+        - Key: idle_timeout.timeout_seconds
+          Value: '60'
+        - Key: routing.http2.enabled
+          Value: 'true'
+      Tags:
+        - Key: Name
+          Value: student-lms-alb
+        - Key: Project
+          Value: student-lms
+
+  # Blue Target Group
+  ALBTargetGroupBlue:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      Name: student-lms-tg-blue
+      Protocol: HTTP
+      Port: 3000
+      VpcId: !GetAtt DefaultVpcInfo.VpcId
+      TargetType: instance
+      TargetGroupAttributes:
+        - Key: deregistration_delay.timeout_seconds
+          Value: '60'
+      HealthCheckEnabled: true
+      HealthCheckProtocol: HTTP
+      HealthCheckPath: /api/health
+      HealthCheckPort: '3000'
+      HealthCheckIntervalSeconds: 15
+      HealthCheckTimeoutSeconds: 5
+      HealthyThresholdCount: 2
+      UnhealthyThresholdCount: 3
+      Matcher:
+        HttpCode: '200'
+      Tags:
+        - Key: Name
+          Value: student-lms-tg-blue
+        - Key: Project
+          Value: student-lms
+
+  # HTTPS Listener (primary)
+  ALBListenerHTTPS:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      LoadBalancerArn: !Ref ALB
+      Protocol: HTTPS
+      Port: 443
+      Certificates:
+        - CertificateArn: !Ref ACMCertificateARNRegional
+      SslPolicy: ELBSecurityPolicy-TLS13-1-2-2021-06
+      DefaultActions:
+        - Type: forward
+          TargetGroupArn: !Ref ALBTargetGroupBlue
+
+  # HTTP -> HTTPS redirect
+  ALBListenerHTTP:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      LoadBalancerArn: !Ref ALB
+      Protocol: HTTP
+      Port: 80
+      DefaultActions:
+        - Type: redirect
+          RedirectConfig:
+            Protocol: HTTPS
+            Port: '443'
+            StatusCode: HTTP_301
+
+  # ---------------------------------------------------------------------------
+  # IAM - EC2 Instance Role
+  # ---------------------------------------------------------------------------
+  EC2InstanceRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: student-lms-ec2-role
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: ec2.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AmazonEC2RoleforAWSCodeDeploy
+        - arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore
+        - arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy
+      Policies:
+        - PolicyName: SecretsManagerReadOnly
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action: secretsmanager:GetSecretValue
+                Resource: !Ref SecretsManagerARN
+        - PolicyName: ALBDeregisterOnSpotInterruption
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - elasticloadbalancing:DeregisterTargets
+                  - elasticloadbalancing:DescribeTargetHealth
+                Resource: '*'
+        - PolicyName: ASGDescribeForSpotInterruption
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - autoscaling:DescribeAutoScalingInstances
+                Resource: '*'
+      Tags:
+        - Key: Project
+          Value: student-lms
+
+  EC2InstanceProfile:
+    Type: AWS::IAM::InstanceProfile
+    Properties:
+      InstanceProfileName: student-lms-ec2-instance-profile
+      Roles:
+        - !Ref EC2InstanceRole
+
+  # ---------------------------------------------------------------------------
+  # EC2 - Launch Template
+  # ---------------------------------------------------------------------------
+  LaunchTemplate:
+    Type: AWS::EC2::LaunchTemplate
+    Properties:
+      LaunchTemplateName: student-lms-lt
+      LaunchTemplateData:
+        ImageId: !Ref GoldenAMIId
+        IamInstanceProfile:
+          Arn: !GetAtt EC2InstanceProfile.Arn
+        NetworkInterfaces:
+          - DeviceIndex: 0
+            AssociatePublicIpAddress: true
+            Groups:
+              - !Ref EC2SecurityGroup
+        BlockDeviceMappings:
+          - DeviceName: /dev/sda1
+            Ebs:
+              VolumeSize: 20
+              VolumeType: gp3
+              DeleteOnTermination: true
+              Encrypted: true
+        MetadataOptions:
+          HttpTokens: required
+          HttpEndpoint: enabled
+          HttpPutResponseHopLimit: 1
+        UserData:
+          Fn::Base64: !Sub |
+            #!/bin/bash
+            set -euo pipefail
+            echo "SECRETS_MANAGER_ARN=${SecretsManagerARN}" >> /etc/environment
+            sudo -u ubuntu pm2 startup systemd -u ubuntu --hp /home/ubuntu 2>/dev/null || true
+            STARTUP_CMD=$(sudo -u ubuntu pm2 startup systemd -u ubuntu --hp /home/ubuntu 2>/dev/null | grep 'sudo' || true)
+            if [ -n "$STARTUP_CMD" ]; then eval "$STARTUP_CMD" || true; fi
+            /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl \
+              -a fetch-config -m ec2 -s \
+              -c file:/opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.json || true
+            echo "==> Ensuring CodeDeploy agent is running..."
+            for i in 1 2 3 4 5; do
+              systemctl is-active --quiet codedeploy-agent && break
+              echo "Attempt $i: starting codedeploy-agent..."
+              systemctl start codedeploy-agent || true
+              sleep 5
+            done
+            systemctl is-active --quiet codedeploy-agent \
+              && echo "CodeDeploy agent is running." \
+              || echo "WARNING: CodeDeploy agent failed to start."
+            echo "UserData complete."
+        TagSpecifications:
+          - ResourceType: instance
+            Tags:
+              - Key: Name
+                Value: student-lms-ec2
+              - Key: Project
+                Value: student-lms
+          - ResourceType: volume
+            Tags:
+              - Key: Project
+                Value: student-lms
+
+  # ---------------------------------------------------------------------------
+  # EC2 - Auto Scaling Group
+  # ---------------------------------------------------------------------------
+  AutoScalingGroup:
+    Type: AWS::AutoScaling::AutoScalingGroup
+    Properties:
+      AutoScalingGroupName: student-lms-asg
+      # Use all 3 default VPC subnets for AZ diversity
+      VPCZoneIdentifier: !Split [',', !GetAtt DefaultVpcInfo.SubnetIds]
+      MinSize: '4'
+      MaxSize: '30'
+      DesiredCapacity: '8'
+      HealthCheckType: ELB
+      HealthCheckGracePeriod: 120
+      TargetGroupARNs:
+        - !Ref ALBTargetGroupBlue
+      MixedInstancesPolicy:
+        InstancesDistribution:
+          OnDemandBaseCapacity: 2
+          OnDemandPercentageAboveBaseCapacity: 0 # All above baseline are Spot
+          SpotAllocationStrategy: capacity-optimized
+        LaunchTemplate:
+          LaunchTemplateSpecification:
+            LaunchTemplateId: !Ref LaunchTemplate
+            Version: !GetAtt LaunchTemplate.LatestVersionNumber
+          # Instance type diversification - ARM64 Graviton across 4 types
+          Overrides:
+            - InstanceType: m7g.medium
+            - InstanceType: t4g.medium
+            - InstanceType: m7g.large
+            - InstanceType: m6g.medium # fallback pool for spot diversity
+      # Lifecycle hook for graceful spot termination during normal operation
+      LifecycleHookSpecificationList:
+        - LifecycleTransition: autoscaling:EC2_INSTANCE_TERMINATING
+          LifecycleHookName: student-lms-graceful-termination
+          HeartbeatTimeout: 120
+          DefaultResult: CONTINUE
+      Tags:
+        - Key: Name
+          Value: student-lms-ec2
+          PropagateAtLaunch: true
+        - Key: Project
+          Value: student-lms
+          PropagateAtLaunch: true
+
+  # ---------------------------------------------------------------------------
+  # Auto Scaling - Scheduled Actions (IST = UTC+5:30)
+  # ---------------------------------------------------------------------------
+
+  # 8:00 AM IST = 2:30 AM UTC
+  ScheduledScaleUpDay:
+    Type: AWS::AutoScaling::ScheduledAction
+    Properties:
+      AutoScalingGroupName: !Ref AutoScalingGroup
+      MinSize: 8
+      MaxSize: 30
+      Recurrence: '30 2 * * *' # 2:30 AM UTC = 8:00 AM IST
+
+  # 12:30 AM IST = 7:00 PM UTC
+  ScheduledScaleDownNight:
+    Type: AWS::AutoScaling::ScheduledAction
+    Properties:
+      AutoScalingGroupName: !Ref AutoScalingGroup
+      MinSize: 4
+      MaxSize: 30
+      Recurrence: '0 19 * * *' # 7:00 PM UTC = 12:30 AM IST
+
+  # ---------------------------------------------------------------------------
+  # Auto Scaling - Target Tracking Policy (2000 req/min per instance)
+  # ---------------------------------------------------------------------------
+  TargetTrackingPolicy:
+    Type: AWS::AutoScaling::ScalingPolicy
+    Properties:
+      AutoScalingGroupName: !Ref AutoScalingGroup
+      PolicyType: TargetTrackingScaling
+      TargetTrackingConfiguration:
+        PredefinedMetricSpecification:
+          PredefinedMetricType: ALBRequestCountPerTarget
+          ResourceLabel: !Sub
+            - '${ALBFullName}/${TargetGroupFullName}'
+            - ALBFullName: !GetAtt ALB.LoadBalancerFullName
+              TargetGroupFullName: !GetAtt ALBTargetGroupBlue.TargetGroupFullName
+        TargetValue: 2000
+        DisableScaleIn: false
+      EstimatedInstanceWarmup: 300
+
+  # ---------------------------------------------------------------------------
+  # IAM - CodeDeploy Service Role
+  # ---------------------------------------------------------------------------
+  CodeDeployServiceRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: student-lms-codedeploy-role
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: codedeploy.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSCodeDeployRole
+      Policies:
+        - PolicyName: student-lms-codedeploy-inplace
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Sid: AutoScalingPermissions
+                Effect: Allow
+                Action:
+                  - autoscaling:CompleteLifecycleAction
+                  - autoscaling:DeleteLifecycleHook
+                  - autoscaling:DescribeAutoScalingGroups
+                  - autoscaling:DescribeLifecycleHooks
+                  - autoscaling:PutLifecycleHook
+                  - autoscaling:RecordLifecycleActionHeartbeat
+                  - autoscaling:ResumeProcesses
+                  - autoscaling:SuspendProcesses
+                  - autoscaling:UpdateAutoScalingGroup
+                  - autoscaling:DescribeAutoScalingInstances
+                Resource: '*'
+              - Sid: LoadBalancerPermissions
+                Effect: Allow
+                Action:
+                  - elasticloadbalancing:DeregisterTargets
+                  - elasticloadbalancing:DescribeTargetGroups
+                  - elasticloadbalancing:DescribeTargetHealth
+                  - elasticloadbalancing:RegisterTargets
+                Resource: '*'
+      Tags:
+        - Key: Project
+          Value: student-lms
+
+  # ---------------------------------------------------------------------------
+  # CodeDeploy - Application and Deployment Group
+  # ---------------------------------------------------------------------------
+  CodeDeployApplication:
+    Type: AWS::CodeDeploy::Application
+    Properties:
+      ApplicationName: student-lms
+      ComputePlatform: Server
+
+  CodeDeployDeploymentConfig:
+    Type: AWS::CodeDeploy::DeploymentConfig
+    Properties:
+      DeploymentConfigName: student-lms-60pct-healthy
+      MinimumHealthyHosts:
+        Type: FLEET_PERCENT
+        Value: 60
+
+  CodeDeployDeploymentGroup:
+    Type: AWS::CodeDeploy::DeploymentGroup
+    Properties:
+      ApplicationName: !Ref CodeDeployApplication
+      DeploymentGroupName: student-lms-production
+      ServiceRoleArn: !GetAtt CodeDeployServiceRole.Arn
+      DeploymentConfigName: !Ref CodeDeployDeploymentConfig
+      DeploymentStyle:
+        DeploymentType: IN_PLACE
+        DeploymentOption: WITH_TRAFFIC_CONTROL
+      LoadBalancerInfo:
+        TargetGroupInfoList:
+          - Name: !GetAtt ALBTargetGroupBlue.TargetGroupName
+      AutoScalingGroups:
+        - !Ref AutoScalingGroup
+      AutoRollbackConfiguration:
+        Enabled: true
+        Events:
+          - DEPLOYMENT_FAILURE
+          - DEPLOYMENT_STOP_ON_ALARM
+      AlarmConfiguration:
+        Enabled: true
+        Alarms:
+          - Name: !Ref AlarmTargetResponseTimeHigh
+          - Name: !Ref Alarm5XXHigh
+      Tags:
+        - Key: Project
+          Value: student-lms
+
+  # ---------------------------------------------------------------------------
+  # IAM - CodeBuild Role
+  # ---------------------------------------------------------------------------
+  CodeBuildRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: student-lms-codebuild-role
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: codebuild.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: CodeBuildPermissions
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource: !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/codebuild/student-lms-*'
+              - Effect: Allow
+                Action:
+                  - s3:GetObject
+                  - s3:PutObject
+                  - s3:GetObjectVersion
+                Resource:
+                  - !Sub '${PipelineArtifactsBucket.Arn}/*'
+                  - !Sub '${StaticAssetsBucket.Arn}/*'
+              - Effect: Allow
+                Action:
+                  - s3:ListBucket
+                Resource:
+                  - !GetAtt PipelineArtifactsBucket.Arn
+                  - !GetAtt StaticAssetsBucket.Arn
+              - Effect: Allow
+                Action:
+                  - codebuild:CreateReportGroup
+                  - codebuild:CreateReport
+                  - codebuild:UpdateReport
+                  - codebuild:BatchPutTestCases
+                Resource: !Sub 'arn:aws:codebuild:${AWS::Region}:${AWS::AccountId}:report-group/student-lms-*'
+      Tags:
+        - Key: Project
+          Value: student-lms
+
+  # ---------------------------------------------------------------------------
+  # CodeBuild - Test Project
+  # ---------------------------------------------------------------------------
+  CodeBuildTestProject:
+    Type: AWS::CodeBuild::Project
+    Properties:
+      Name: student-lms-test
+      Description: Runs vitest unit tests for student-lms
+      ServiceRole: !GetAtt CodeBuildRole.Arn
+      Artifacts:
+        Type: CODEPIPELINE
+      Environment:
+        Type: ARM_CONTAINER
+        ComputeType: BUILD_GENERAL1_LARGE
+        Image: aws/codebuild/amazonlinux2023-aarch64-standard:4.0
+        PrivilegedMode: false
+      Source:
+        Type: CODEPIPELINE
+        BuildSpec: |
+          version: 0.2
+          phases:
+            install:
+              runtime-versions:
+                nodejs: 24
+              commands:
+                - npm ci
+            build:
+              commands:
+                - npm test
+          cache:
+            paths:
+              - node_modules/**/*
+              - /root/.npm/**/*
+      Cache:
+        Type: S3
+        Location: !Sub '${PipelineArtifactsBucket}/codebuild-cache/test'
+      TimeoutInMinutes: 15
+      Tags:
+        - Key: Project
+          Value: student-lms
+
+  # ---------------------------------------------------------------------------
+  # CodeBuild - Build Project
+  # ---------------------------------------------------------------------------
+  CodeBuildBuildProject:
+    Type: AWS::CodeBuild::Project
+    Properties:
+      Name: student-lms-build
+      Description: Builds the Nitro/Node bundle and uploads static assets to S3
+      ServiceRole: !GetAtt CodeBuildRole.Arn
+      Artifacts:
+        Type: CODEPIPELINE
+      Environment:
+        Type: ARM_CONTAINER
+        ComputeType: BUILD_GENERAL1_LARGE
+        Image: aws/codebuild/amazonlinux2023-aarch64-standard:4.0
+        PrivilegedMode: false
+        EnvironmentVariables:
+          - Name: NITRO_PRESET
+            Value: node-server
+          - Name: NODE_OPTIONS
+            Value: '--max_old_space_size=6144'
+          - Name: STATIC_ASSETS_BUCKET
+            Value: !Ref StaticAssetsBucket
+      Source:
+        Type: CODEPIPELINE
+        BuildSpec: buildspec.yml
+      Cache:
+        Type: S3
+        Location: !Sub '${PipelineArtifactsBucket}/codebuild-cache/build'
+      TimeoutInMinutes: 30
+      Tags:
+        - Key: Project
+          Value: student-lms
+
+  # ---------------------------------------------------------------------------
+  # IAM - CodePipeline Role
+  # ---------------------------------------------------------------------------
+  CodePipelineRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: student-lms-codepipeline-role
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: codepipeline.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: CodePipelinePermissions
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - s3:GetObject
+                  - s3:PutObject
+                  - s3:GetObjectVersion
+                  - s3:GetBucketVersioning
+                Resource:
+                  - !GetAtt PipelineArtifactsBucket.Arn
+                  - !Sub '${PipelineArtifactsBucket.Arn}/*'
+              - Effect: Allow
+                Action:
+                  - codebuild:BatchGetBuilds
+                  - codebuild:StartBuild
+                Resource:
+                  - !GetAtt CodeBuildTestProject.Arn
+                  - !GetAtt CodeBuildBuildProject.Arn
+              - Effect: Allow
+                Action:
+                  - codedeploy:CreateDeployment
+                  - codedeploy:GetApplication
+                  - codedeploy:GetApplicationRevision
+                  - codedeploy:GetDeployment
+                  - codedeploy:GetDeploymentConfig
+                  - codedeploy:RegisterApplicationRevision
+                Resource: '*'
+              - Effect: Allow
+                Action:
+                  - codestar-connections:UseConnection
+                Resource: !Ref GitHubConnection
+              - Effect: Allow
+                Action:
+                  - cloudfront:CreateInvalidation
+                Resource: !Sub 'arn:aws:cloudfront::${AWS::AccountId}:distribution/${CloudFrontDistribution}'
+              - Effect: Allow
+                Action:
+                  - codebuild:BatchGetBuilds
+                  - codebuild:StartBuild
+                Resource: !GetAtt CodeBuildInvalidationProject.Arn
+      Tags:
+        - Key: Project
+          Value: student-lms
+
+  # ---------------------------------------------------------------------------
+  # CodeBuild - CloudFront Invalidation Project (post-deploy step)
+  # ---------------------------------------------------------------------------
+  CodeBuildInvalidationProject:
+    Type: AWS::CodeBuild::Project
+    Properties:
+      Name: student-lms-cf-invalidation
+      Description: Invalidates non-hashed CloudFront paths after each deployment
+      ServiceRole: !GetAtt CodeBuildInvalidationRole.Arn
+      Artifacts:
+        Type: CODEPIPELINE
+      Environment:
+        Type: LINUX_CONTAINER
+        ComputeType: BUILD_GENERAL1_SMALL
+        Image: aws/codebuild/standard:7.0
+        EnvironmentVariables:
+          - Name: CLOUDFRONT_DISTRIBUTION_ID
+            Value: !Ref CloudFrontDistribution
+      Source:
+        Type: CODEPIPELINE
+        BuildSpec: |
+          version: 0.2
+          phases:
+            build:
+              commands:
+                - echo "Invalidating CloudFront non-hashed paths..."
+                - |
+                  aws cloudfront create-invalidation \
+                    --distribution-id "$CLOUDFRONT_DISTRIBUTION_ID" \
+                    --paths "/" "/manifest.json" "/favicon.ico"
+                - echo "CloudFront invalidation submitted."
+      TimeoutInMinutes: 5
+      Tags:
+        - Key: Project
+          Value: student-lms
+
+  CodeBuildInvalidationRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: student-lms-cf-invalidation-role
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: codebuild.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: CloudFrontInvalidation
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action: cloudfront:CreateInvalidation
+                Resource: !Sub 'arn:aws:cloudfront::${AWS::AccountId}:distribution/${CloudFrontDistribution}'
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource: !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/codebuild/student-lms-cf-invalidation*'
+              - Effect: Allow
+                Action:
+                  - s3:GetObject
+                  - s3:PutObject
+                Resource: !Sub '${PipelineArtifactsBucket.Arn}/*'
+
+  # ---------------------------------------------------------------------------
+  # CodePipeline
+  # ---------------------------------------------------------------------------
+  Pipeline:
+    Type: AWS::CodePipeline::Pipeline
+    Properties:
+      Name: student-lms-production
+      RoleArn: !GetAtt CodePipelineRole.Arn
+      ArtifactStore:
+        Type: S3
+        Location: !Ref PipelineArtifactsBucket
+      Stages:
+        # Stage 1: Source
+        - Name: Source
+          Actions:
+            - Name: GitHubSource
+              ActionTypeId:
+                Category: Source
+                Owner: AWS
+                Provider: CodeStarSourceConnection
+                Version: '1'
+              Configuration:
+                ConnectionArn: !Ref GitHubConnection
+                FullRepositoryId: !Sub '${GitHubOrg}/${GitHubRepo}'
+                BranchName: !Ref GitHubBranch
+                OutputArtifactFormat: CODE_ZIP
+                DetectChanges: 'true'
+              OutputArtifacts:
+                - Name: SourceArtifact
+              RunOrder: 1
+
+        # Stage 2: Test + Build (parallel)
+        - Name: TestAndBuild
+          Actions:
+            - Name: Test
+              ActionTypeId:
+                Category: Build
+                Owner: AWS
+                Provider: CodeBuild
+                Version: '1'
+              Configuration:
+                ProjectName: !Ref CodeBuildTestProject
+              InputArtifacts:
+                - Name: SourceArtifact
+              RunOrder: 1
+
+            - Name: Build
+              ActionTypeId:
+                Category: Build
+                Owner: AWS
+                Provider: CodeBuild
+                Version: '1'
+              Configuration:
+                ProjectName: !Ref CodeBuildBuildProject
+              InputArtifacts:
+                - Name: SourceArtifact
+              OutputArtifacts:
+                - Name: BuildArtifact
+              RunOrder: 1
+
+        # Stage 3: Deploy
+        - Name: Deploy
+          Actions:
+            - Name: CodeDeploy
+              ActionTypeId:
+                Category: Deploy
+                Owner: AWS
+                Provider: CodeDeploy
+                Version: '1'
+              Configuration:
+                ApplicationName: !Ref CodeDeployApplication
+                DeploymentGroupName: !Ref CodeDeployDeploymentGroup
+              InputArtifacts:
+                - Name: BuildArtifact
+              RunOrder: 1
+
+        # Stage 4: CloudFront Invalidation
+        - Name: Invalidate
+          Actions:
+            - Name: CloudFrontInvalidation
+              ActionTypeId:
+                Category: Build
+                Owner: AWS
+                Provider: CodeBuild
+                Version: '1'
+              Configuration:
+                ProjectName: !Ref CodeBuildInvalidationProject
+              InputArtifacts:
+                - Name: SourceArtifact
+              RunOrder: 1
+
+      Tags:
+        - Key: Project
+          Value: student-lms
+
+  # ---------------------------------------------------------------------------
+  # CloudFront - Origin Access Control (for S3 static assets)
+  # ---------------------------------------------------------------------------
+  CloudFrontOAC:
+    Type: AWS::CloudFront::OriginAccessControl
+    Properties:
+      OriginAccessControlConfig:
+        Name: student-lms-s3-oac
+        OriginAccessControlOriginType: s3
+        SigningBehavior: always
+        SigningProtocol: sigv4
+
+  # ---------------------------------------------------------------------------
+  # CloudFront - Distribution
+  # ---------------------------------------------------------------------------
+  CloudFrontDistribution:
+    Type: AWS::CloudFront::Distribution
+    Properties:
+      DistributionConfig:
+        Enabled: true
+        Comment: student-lms production distribution
+        Aliases:
+          - !Ref DomainName
+        ViewerCertificate:
+          AcmCertificateArn: !Ref ACMCertificateARNCloudFront
+          SslSupportMethod: sni-only
+          MinimumProtocolVersion: TLSv1.2_2021
+        HttpVersion: http2and3
+        IPV6Enabled: true
+        PriceClass: PriceClass_All
+
+        Origins:
+          # Origin 1: S3 for static assets
+          - Id: S3StaticAssets
+            DomainName: !GetAtt StaticAssetsBucket.RegionalDomainName
+            S3OriginConfig:
+              OriginAccessIdentity: ''
+            OriginAccessControlId: !GetAtt CloudFrontOAC.Id
+
+          # Origin 2: ALB for all dynamic requests
+          - Id: ALBOrigin
+            DomainName: !GetAtt ALB.DNSName
+            CustomOriginConfig:
+              HTTPSPort: 443
+              OriginProtocolPolicy: https-only
+              OriginSSLProtocols:
+                - TLSv1.2
+
+        # Cache behavior 1: /assets/* -> S3, immutable long TTL
+        CacheBehaviors:
+          - PathPattern: /assets/*
+            TargetOriginId: S3StaticAssets
+            ViewerProtocolPolicy: redirect-to-https
+            CachePolicyId: 658327ea-f89d-4fab-a63d-7e88639e58f6 # Managed-CachingOptimized
+            AllowedMethods:
+              - GET
+              - HEAD
+            CachedMethods:
+              - GET
+              - HEAD
+            Compress: true
+
+        # Default behavior: ALB - no cache
+        DefaultCacheBehavior:
+          TargetOriginId: ALBOrigin
+          ViewerProtocolPolicy: redirect-to-https
+          CachePolicyId: 4135ea2d-6df8-44a3-9df3-4b5a84be39ad # Managed-CachingDisabled
+          OriginRequestPolicyId: 216adef6-5c7f-47e4-b989-5492eafa07d3 # Managed-AllViewer
+          AllowedMethods:
+            - GET
+            - HEAD
+            - OPTIONS
+            - PUT
+            - POST
+            - PATCH
+            - DELETE
+          CachedMethods:
+            - GET
+            - HEAD
+          Compress: true
+
+        CustomErrorResponses:
+          - ErrorCode: 403
+            ResponseCode: 200
+            ResponsePagePath: /
+            ErrorCachingMinTTL: 0
+          - ErrorCode: 404
+            ResponseCode: 200
+            ResponsePagePath: /
+            ErrorCachingMinTTL: 0
+
+      Tags:
+        - Key: Project
+          Value: student-lms
+
+  # ---------------------------------------------------------------------------
+  # Route53 - DNS record for learn.masaischool.com
+  # ---------------------------------------------------------------------------
+  DNSRecord:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      HostedZoneId: !Ref HostedZoneId
+      Name: !Ref DomainName
+      Type: A
+      AliasTarget:
+        DNSName: !GetAtt CloudFrontDistribution.DomainName
+        HostedZoneId: Z2FDTNDATAQYW2 # CloudFront hosted zone ID (constant for all distributions)
+        EvaluateTargetHealth: false
+
+  # ---------------------------------------------------------------------------
+  # CloudWatch - Alarms
+  # ---------------------------------------------------------------------------
+
+  # ALB P99 response time > 2 seconds -> CodeDeploy rollback + SNS alert
+  AlarmTargetResponseTimeHigh:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: student-lms-p99-response-time-high
+      AlarmDescription: ALB P99 target response time exceeded 2 seconds
+      Namespace: AWS/ApplicationELB
+      MetricName: TargetResponseTime
+      Dimensions:
+        - Name: LoadBalancer
+          Value: !GetAtt ALB.LoadBalancerFullName
+      ExtendedStatistic: p99
+      Period: 60
+      EvaluationPeriods: 2
+      Threshold: 2
+      ComparisonOperator: GreaterThanThreshold
+      TreatMissingData: notBreaching
+      AlarmActions:
+        - !Ref SNSTopicARN
+      OKActions:
+        - !Ref SNSTopicARN
+
+  # ALB 5XX count > 50 per minute -> CodeDeploy rollback + SNS alert
+  Alarm5XXHigh:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: student-lms-5xx-count-high
+      AlarmDescription: ALB target 5XX count exceeded 50 per minute
+      Namespace: AWS/ApplicationELB
+      MetricName: HTTPCode_Target_5XX_Count
+      Dimensions:
+        - Name: LoadBalancer
+          Value: !GetAtt ALB.LoadBalancerFullName
+      Statistic: Sum
+      Period: 60
+      EvaluationPeriods: 1
+      Threshold: 50
+      ComparisonOperator: GreaterThanThreshold
+      TreatMissingData: notBreaching
+      AlarmActions:
+        - !Ref SNSTopicARN
+      OKActions:
+        - !Ref SNSTopicARN
+
+  # EC2 CPU > 85% - notification only
+  AlarmCPUHigh:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: student-lms-cpu-high
+      AlarmDescription: EC2 average CPU utilization exceeded 85%
+      Namespace: AWS/EC2
+      MetricName: CPUUtilization
+      Dimensions:
+        - Name: AutoScalingGroupName
+          Value: !Ref AutoScalingGroup
+      Statistic: Average
+      Period: 300
+      EvaluationPeriods: 2
+      Threshold: 85
+      ComparisonOperator: GreaterThanThreshold
+      TreatMissingData: notBreaching
+      AlarmActions:
+        - !Ref SNSTopicARN
+      OKActions:
+        - !Ref SNSTopicARN
+
+  # EC2 Memory > 85% - notification only (requires CloudWatch agent)
+  AlarmMemoryHigh:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: student-lms-memory-high
+      AlarmDescription: EC2 average memory utilization exceeded 85%
+      Namespace: StudentLMS/EC2
+      MetricName: mem_used_percent
+      Dimensions:
+        - Name: AutoScalingGroupName
+          Value: !Ref AutoScalingGroup
+      Statistic: Average
+      Period: 300
+      EvaluationPeriods: 2
+      Threshold: 85
+      ComparisonOperator: GreaterThanThreshold
+      TreatMissingData: notBreaching
+      AlarmActions:
+        - !Ref SNSTopicARN
+      OKActions:
+        - !Ref SNSTopicARN
+
+  # Unhealthy host count > 0 - notification only
+  AlarmUnhealthyHosts:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: student-lms-unhealthy-hosts
+      AlarmDescription: One or more ALB targets are unhealthy
+      Namespace: AWS/ApplicationELB
+      MetricName: UnHealthyHostCount
+      Dimensions:
+        - Name: LoadBalancer
+          Value: !GetAtt ALB.LoadBalancerFullName
+        - Name: TargetGroup
+          Value: !GetAtt ALBTargetGroupBlue.TargetGroupFullName
+      Statistic: Maximum
+      Period: 60
+      EvaluationPeriods: 2
+      Threshold: 0
+      ComparisonOperator: GreaterThanThreshold
+      TreatMissingData: notBreaching
+      AlarmActions:
+        - !Ref SNSTopicARN
+      OKActions:
+        - !Ref SNSTopicARN
+Outputs:
+  # !!️ MANUAL STEPS AFTER STACK CREATION
+  ManualStepsRequired:
+    Description: >
+      1. GITHUB CONNECTION: Developer Tools > Connections > student-lms-github > Update pending connection.
+      2. RDS SECURITY GROUP: Attach RDSSecurityGroupId output to your RDS instance.
+    Value: 'See description above'
+
+  CloudFrontDistributionId:
+    Description: CloudFront distribution ID
+    Value: !Ref CloudFrontDistribution
+    Export:
+      Name: student-lms-cloudfront-distribution-id
+
+  CloudFrontDomainName:
+    Description: CloudFront distribution domain name
+    Value: !GetAtt CloudFrontDistribution.DomainName
+
+  ALBDNSName:
+    Description: ALB DNS name (internal - traffic comes via CloudFront)
+    Value: !GetAtt ALB.DNSName
+
+  StaticAssetsBucketName:
+    Description: S3 bucket for static assets
+    Value: !Ref StaticAssetsBucket
+    Export:
+      Name: student-lms-static-assets-bucket
+
+  PipelineArtifactsBucketName:
+    Description: S3 bucket for pipeline artifacts
+    Value: !Ref PipelineArtifactsBucket
+
+  RDSSecurityGroupId:
+    Description: >
+      Security group ID to attach to your RDS instance.
+      Manual step: RDS Console -> Instance -> Modify -> Add this SG.
+    Value: !Ref RDSSecurityGroup
+    Export:
+      Name: student-lms-rds-sg-id
+
+  CodeDeployApplicationName:
+    Description: CodeDeploy application name
+    Value: !Ref CodeDeployApplication
+
+  PipelineURL:
+    Description: CodePipeline console URL
+    Value: !Sub 'https://${AWS::Region}.console.aws.amazon.com/codesuite/codepipeline/pipelines/student-lms-production/view'
+
+  DashboardURL:
+    Description: CloudWatch dashboard URL
+    Value: !Sub 'https://${AWS::Region}.console.aws.amazon.com/cloudwatch/home#dashboards:name=student-lms-production'
+
+  AppURL:
+    Description: Application URL
+    Value: !Sub 'https://${DomainName}'
