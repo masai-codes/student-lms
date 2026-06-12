@@ -1,5 +1,7 @@
-import { useState, type FormEvent } from 'react'
+import { useEffect, useState } from 'react'
 import type { useAgent, useSessionMessages } from '@livekit/components-react'
+import { ChatbotComposer } from '@/components/features/chatbot/components/ChatbotComposer'
+import { chatbotErrorBannerClass } from '@/components/features/chatbot/chatbotUi'
 
 type TextChatInputProps = {
   agent: ReturnType<typeof useAgent>
@@ -7,6 +9,11 @@ type TextChatInputProps = {
   isSending: boolean
   isRoomConnected: boolean
   isConnecting: boolean
+  pendingMessage?: string | null
+  onPendingMessageSent?: () => void
+  placeholder?: string
+  isVoiceActive?: boolean
+  onVoiceActivate?: () => void
 }
 
 export function TextChatInput({
@@ -15,6 +22,11 @@ export function TextChatInput({
   isSending,
   isRoomConnected,
   isConnecting,
+  pendingMessage,
+  onPendingMessageSent,
+  placeholder,
+  isVoiceActive = false,
+  onVoiceActivate,
 }: TextChatInputProps) {
   const [input, setInput] = useState('')
   const [sendError, setSendError] = useState<string | null>(null)
@@ -27,16 +39,33 @@ export function TextChatInput({
     agent.state === 'initializing'
 
   const canSend = isRoomConnected && agentReady && !isConnecting
-  const placeholder = isConnecting
-    ? 'Connecting to assistant...'
-    : !isRoomConnected
-      ? 'Connecting to room...'
-      : agentReady
-        ? 'Ask about the lecture...'
-        : 'Waiting for assistant...'
 
-  const handleSubmit = async (event: FormEvent) => {
-    event.preventDefault()
+  useEffect(() => {
+    if (!pendingMessage || !canSend || isSending) {
+      return
+    }
+
+    let cancelled = false
+    const sendPending = async () => {
+      try {
+        await send(pendingMessage, { topic: 'lk.chat' })
+        if (!cancelled) {
+          onPendingMessageSent?.()
+        }
+      } catch (error) {
+        if (!cancelled) {
+          setSendError(error instanceof Error ? error.message : 'Failed to send message')
+        }
+      }
+    }
+
+    void sendPending()
+    return () => {
+      cancelled = true
+    }
+  }, [canSend, isSending, onPendingMessageSent, pendingMessage, send])
+
+  const handleSubmit = async () => {
     const text = input.trim()
     if (!text || isSending || !canSend) {
       return
@@ -53,27 +82,27 @@ export function TextChatInput({
   }
 
   return (
-    <div className="chatbot-text-input">
-      <p className="chatbot-agent-status">Agent: {agent.state}</p>
-      {sendError && <div className="chatbot-error-banner">{sendError}</div>}
-      <form className="chatbot-input-row" onSubmit={handleSubmit}>
-        <input
-          type="text"
-          value={input}
-          onChange={(event) => setInput(event.target.value)}
-          placeholder={placeholder}
-          disabled={!canSend || isSending}
-          autoFocus
-        />
-        <button
-          type="submit"
-          className="chatbot-btn chatbot-btn-primary"
-          disabled={!input.trim() || isSending || !canSend}
-        >
-          {isSending ? 'Sending...' : 'Send'}
-        </button>
-      </form>
+    <div>
+      {sendError && <div className={chatbotErrorBannerClass}>{sendError}</div>}
+      <ChatbotComposer
+        value={input}
+        onChange={setInput}
+        onSubmit={() => void handleSubmit()}
+        onVoiceActivate={onVoiceActivate}
+        isVoiceActive={isVoiceActive}
+        disabled={!canSend}
+        voiceDisabled={isConnecting}
+        isSending={isSending}
+        isConnecting={isConnecting}
+        placeholder={
+          placeholder ??
+          (!isRoomConnected
+            ? 'Connecting to room...'
+            : agentReady
+              ? 'Ask about the lecture...'
+              : 'Waiting for assistant...')
+        }
+      />
     </div>
   )
 }
-

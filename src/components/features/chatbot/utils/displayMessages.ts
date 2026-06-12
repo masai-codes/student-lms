@@ -15,20 +15,27 @@ export function storedToDisplay(messages: StoredMessage[]): DisplayMessage[] {
   }))
 }
 
+export type LiveMessageDisplayMode = 'full' | 'text-chat'
+
+function shouldIncludeLiveMessage(
+  message: ReceivedMessage,
+  displayMode: LiveMessageDisplayMode,
+): boolean {
+  if (displayMode === 'text-chat' && message.type === 'userTranscript') {
+    return false
+  }
+  return getMessageText(message).trim().length > 0
+}
+
 function liveToDisplay(
   messages: ReceivedMessage[],
   localIdentity: string,
-  showTranscripts: boolean,
+  displayMode: LiveMessageDisplayMode,
 ): DisplayMessage[] {
   const filtered = filterMessagesForPersistence(messages, localIdentity)
 
   return filtered
-    .filter((message) => {
-      if (!showTranscripts && (message.type === 'userTranscript' || message.type === 'agentTranscript')) {
-        return false
-      }
-      return getMessageText(message).trim().length > 0
-    })
+    .filter((message) => shouldIncludeLiveMessage(message, displayMode))
     .map((message, index) => ({
       id: messageKey(message, index),
       role: isUserMessage(message, localIdentity) ? 'user' : 'assistant',
@@ -44,10 +51,10 @@ export function mergeDisplayMessages(
   historical: StoredMessage[],
   live: ReceivedMessage[],
   localIdentity: string,
-  showTranscripts: boolean,
+  displayMode: LiveMessageDisplayMode = 'full',
 ): DisplayMessage[] {
   const stored = storedToDisplay(historical)
-  const liveDisplay = liveToDisplay(live, localIdentity, showTranscripts)
+  const liveDisplay = liveToDisplay(live, localIdentity, displayMode)
   const liveIds = new Set(liveDisplay.map((message) => message.id))
   const liveContentKeys = new Set(liveDisplay.map(displayDedupeKey))
   const storedOnly = stored.filter(

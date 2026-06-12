@@ -1,9 +1,12 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { SessionProvider, useSession } from '@livekit/components-react'
 import { TokenSource } from 'livekit-client'
+import type { ChatMode, DisplayMessage, SessionSummary, StoredMessage } from '@/components/features/chatbot/types'
 import { ChatPanel } from '@/components/features/chatbot/components/ChatPanel'
-import { SessionSidebar } from '@/components/features/chatbot/components/SessionSidebar'
-import type { ChatMode, SessionSummary, StoredMessage } from '@/components/features/chatbot/types'
+import { ChatbotHistoryHeader } from '@/components/features/chatbot/components/ChatbotHistoryHeader'
+import { ChatbotHistoryPanel } from '@/components/features/chatbot/components/ChatbotHistoryPanel'
+import { ChatbotPreSessionView } from '@/components/features/chatbot/components/ChatbotPreSessionView'
+import { ChatbotSlideContainer } from '@/components/features/chatbot/components/ChatbotSlideContainer'
 import {
   createChatbotSession,
   createChatbotToken,
@@ -12,7 +15,13 @@ import {
   patchChatbotSession,
 } from '@/lib/api/chatbot/chatbotApi'
 import { refreshSessionMessages } from '@/components/features/chatbot/utils/refreshMessages'
-import '@/components/features/chatbot/chatbot.css'
+import {
+  chatbotErrorBannerClass,
+  chatbotInfoBannerClass,
+  chatbotMainClass,
+  chatbotShellClass,
+} from '@/components/features/chatbot/chatbotUi'
+import { cn } from '@/lib/utils'
 
 const AGENT_NAME = 'chat-agent'
 
@@ -20,24 +29,26 @@ type ChatSessionProps = {
   lectureId: number
   sessionId: string
   mode: ChatMode
-  layout: 'page' | 'sidebar'
-  historicalMessages: StoredMessage[]
+  historicalMessages: Array<StoredMessage>
+  optimisticMessages: Array<DisplayMessage>
   isSwitchingMode: boolean
-  onModeChange: (mode: ChatMode) => void | Promise<void>
-  onNewChat: () => void | Promise<void>
   onSessionsChange: () => void
+  onModeChange: (mode: ChatMode) => void | Promise<void>
+  pendingMessage?: string | null
+  onPendingMessageSent?: () => void
 }
 
 function ChatSession({
   lectureId,
   sessionId,
   mode,
-  layout,
   historicalMessages,
+  optimisticMessages,
   isSwitchingMode,
-  onModeChange,
-  onNewChat,
   onSessionsChange,
+  onModeChange,
+  pendingMessage,
+  onPendingMessageSent,
 }: ChatSessionProps) {
   const [error, setError] = useState<string | null>(null)
   const [isConnecting, setIsConnecting] = useState(false)
@@ -75,19 +86,17 @@ function ChatSession({
     }
   }, [lectureId, mode, onSessionsChange, sessionId])
 
-  const handleModeSwitch = useCallback(
-    async (nextMode: ChatMode) => {
-      if (nextMode === mode || isSwitchingMode) {
-        return
-      }
-      const lkSession = sessionRef.current
-      if (lkSession?.isConnected) {
-        await lkSession.end()
-      }
-      await onModeChange(nextMode)
-    },
-    [isSwitchingMode, mode, onModeChange],
-  )
+  const handleVoiceModeToggle = useCallback(async () => {
+    const nextMode = mode === 'voice' ? 'text' : 'voice'
+    if (nextMode === mode || isSwitchingMode) {
+      return
+    }
+    const lkSession = sessionRef.current
+    if (lkSession?.isConnected) {
+      await lkSession.end()
+    }
+    await onModeChange(nextMode)
+  }, [isSwitchingMode, mode, onModeChange])
 
   useEffect(() => {
     if (isSwitchingMode) {
@@ -134,45 +143,9 @@ function ChatSession({
 
   return (
     <SessionProvider session={session}>
-      <section className="chatbot-session-shell">
-        <header className="chatbot-header">
-          <div className="chatbot-header-title">
-            <h2>Lecture assistant</h2>
-            <p>Ask doubts from this lecture</p>
-          </div>
-          <div className="chatbot-header-actions">
-            {layout === 'sidebar' ? (
-              <button
-                type="button"
-                className="chatbot-btn"
-                onClick={() => void onNewChat()}
-                disabled={isSwitchingMode}
-              >
-                New
-              </button>
-            ) : null}
-            <div className="chatbot-mode-toggle" role="group" aria-label="Chat mode">
-              <button
-                type="button"
-                className={`chatbot-mode-toggle-btn ${mode === 'text' ? 'chatbot-mode-toggle-btn-active' : ''}`}
-                disabled={isSwitchingMode}
-                onClick={() => handleModeSwitch('text')}
-              >
-                Text
-              </button>
-              <button
-                type="button"
-                className={`chatbot-mode-toggle-btn ${mode === 'voice' ? 'chatbot-mode-toggle-btn-active' : ''}`}
-                disabled={isSwitchingMode}
-                onClick={() => handleModeSwitch('voice')}
-              >
-                Voice
-              </button>
-            </div>
-          </div>
-        </header>
+      <div className="flex min-h-0 flex-1 flex-col">
         {isSwitchingMode && (
-          <div className="chatbot-info-banner">
+          <div className={cn(chatbotInfoBannerClass, 'mx-3 mt-2 shrink-0')}>
             Switching to {mode === 'voice' ? 'voice' : 'text'} mode...
           </div>
         )}
@@ -181,32 +154,39 @@ function ChatSession({
           mode={mode}
           sessionId={sessionId}
           historicalMessages={historicalMessages}
+          optimisticMessages={optimisticMessages}
           isConnecting={isBusy}
           isSwitchingMode={isSwitchingMode}
           connectionError={error}
           onRetryConnect={handleConnect}
+          pendingMessage={pendingMessage}
+          onPendingMessageSent={onPendingMessageSent}
+          onVoiceModeToggle={handleVoiceModeToggle}
         />
-      </section>
+      </div>
     </SessionProvider>
   )
 }
 
 type ChatbotExperienceProps = {
   lectureId: number
-  layout?: 'page' | 'sidebar'
 }
 
 export function ChatbotExperience({
   lectureId,
-  layout = 'page',
 }: ChatbotExperienceProps) {
-  const [sessions, setSessions] = useState<SessionSummary[]>([])
+  const [sessions, setSessions] = useState<Array<SessionSummary>>([])
   const [sessionsLoading, setSessionsLoading] = useState(true)
   const [activeSessionId, setActiveSessionId] = useState<string | null>(null)
-  const [historicalMessages, setHistoricalMessages] = useState<StoredMessage[]>([])
+  const [historicalMessages, setHistoricalMessages] = useState<Array<StoredMessage>>([])
   const [mode, setMode] = useState<ChatMode>('voice')
   const [isSwitchingMode, setIsSwitchingMode] = useState(false)
+  const [isCreatingSession, setIsCreatingSession] = useState(false)
+  const [pendingMessage, setPendingMessage] = useState<string | null>(null)
+  const [optimisticMessages, setOptimisticMessages] = useState<Array<DisplayMessage>>([])
   const [loadError, setLoadError] = useState<string | null>(null)
+  const [isHistoryOpen, setIsHistoryOpen] = useState(false)
+  const hasAutoLoadedSessionRef = useRef(false)
 
   const refreshSessions = useCallback(async () => {
     try {
@@ -217,34 +197,17 @@ export function ChatbotExperience({
     }
   }, [lectureId])
 
-  const reloadHistoricalMessages = useCallback(
-    async (sessionId: string, settle = false) => {
-      const messages = settle
-        ? await refreshSessionMessages(lectureId, sessionId)
-        : await getChatbotSessionMessages(lectureId, sessionId)
-      setHistoricalMessages(messages)
-      return messages
-    },
-    [lectureId],
-  )
-
   useEffect(() => {
     let cancelled = false
       ; (async () => {
         setSessionsLoading(true)
         try {
           const list = await listChatbotSessions(lectureId)
-          if (!cancelled) {
-            setSessions(list)
-          }
+          setSessions(list)
         } catch (error) {
-          if (!cancelled) {
-            setLoadError(error instanceof Error ? error.message : 'Failed to load sessions')
-          }
+          setLoadError(error instanceof Error ? error.message : 'Failed to load sessions')
         } finally {
-          if (!cancelled) {
-            setSessionsLoading(false)
-          }
+          setSessionsLoading(false)
         }
       })()
     return () => {
@@ -255,10 +218,12 @@ export function ChatbotExperience({
   const loadSession = useCallback(
     async (sessionId: string) => {
       setLoadError(null)
+      setOptimisticMessages([])
+      setPendingMessage(null)
       const messages = await getChatbotSessionMessages(lectureId, sessionId)
       setHistoricalMessages(messages)
       setMode('voice')
-      setActiveSessionId(sessionId)
+      // setActiveSessionId(sessionId)
       setIsSwitchingMode(false)
     },
     [lectureId],
@@ -266,18 +231,32 @@ export function ChatbotExperience({
 
   useEffect(() => {
     if (
-      layout !== 'sidebar' ||
       activeSessionId ||
       sessionsLoading ||
-      sessions.length === 0
+      sessions.length === 0 ||
+      hasAutoLoadedSessionRef.current
     ) {
       return
     }
+    hasAutoLoadedSessionRef.current = true
     void loadSession(sessions[0].sessionId)
-  }, [activeSessionId, layout, loadSession, sessions, sessionsLoading])
+  }, [activeSessionId, loadSession, sessions, sessionsLoading])
 
   const handleNewChat = useCallback(async () => {
     setLoadError(null)
+    setPendingMessage(null)
+    setOptimisticMessages([])
+    setActiveSessionId(null)
+    setHistoricalMessages([])
+    setIsCreatingSession(false)
+    setIsSwitchingMode(false)
+  }, [])
+
+  const handleStartVoiceSession = useCallback(async () => {
+    setLoadError(null)
+    setPendingMessage(null)
+    setOptimisticMessages([])
+    setIsCreatingSession(true)
     try {
       const session = await createChatbotSession(lectureId, 'voice')
       setSessions((prev) => [session, ...prev.filter((item) => item.sessionId !== session.sessionId)])
@@ -287,8 +266,41 @@ export function ChatbotExperience({
       setIsSwitchingMode(false)
     } catch (error) {
       setLoadError(error instanceof Error ? error.message : 'Failed to create session')
+    } finally {
+      setIsCreatingSession(false)
     }
   }, [lectureId])
+
+  const handleStartWithText = useCallback(
+    async (text: string) => {
+      setLoadError(null)
+      setOptimisticMessages([
+        { id: `optimistic-${Date.now()}`, role: 'user', content: text },
+      ])
+      setPendingMessage(text)
+      setIsCreatingSession(true)
+      try {
+        const session = await createChatbotSession(lectureId, 'text')
+        setSessions((prev) => [session, ...prev.filter((item) => item.sessionId !== session.sessionId)])
+        setMode('text')
+        setActiveSessionId(session.sessionId)
+        setHistoricalMessages([])
+        setIsSwitchingMode(false)
+      } catch (error) {
+        setOptimisticMessages([])
+        setPendingMessage(null)
+        setLoadError(error instanceof Error ? error.message : 'Failed to create session')
+      } finally {
+        setIsCreatingSession(false)
+      }
+    },
+    [lectureId],
+  )
+
+  const handlePendingMessageSent = useCallback(() => {
+    setPendingMessage(null)
+    setOptimisticMessages([])
+  }, [])
 
   const handleModeChange = useCallback(
     async (nextMode: ChatMode) => {
@@ -303,7 +315,7 @@ export function ChatbotExperience({
       setIsSwitchingMode(true)
       setMode(nextMode)
       try {
-        const messages = await reloadHistoricalMessages(activeSessionId, true)
+        const messages = await refreshSessionMessages(lectureId, activeSessionId)
         setHistoricalMessages(messages)
         await patchChatbotSession(lectureId, activeSessionId, { lastMode: nextMode })
         await refreshSessions()
@@ -314,52 +326,59 @@ export function ChatbotExperience({
         setIsSwitchingMode(false)
       }
     },
-    [activeSessionId, lectureId, mode, refreshSessions, reloadHistoricalMessages],
+    [activeSessionId, lectureId, mode, refreshSessions],
   )
 
-  const shellClassName =
-    layout === 'sidebar' ? 'chatbot-shell-sidebar' : 'chatbot-shell'
-
   return (
-    <div className={shellClassName}>
-      {layout === 'page' ? (
-        <SessionSidebar
-          sessions={sessions}
-          activeSessionId={activeSessionId}
-          loading={sessionsLoading}
-          onNewChat={handleNewChat}
-          onSelect={loadSession}
+
+    <div className={chatbotShellClass}>
+      <main className={cn(chatbotMainClass, 'flex min-h-0 flex-1 flex-col')}>
+        {loadError && <div className={chatbotErrorBannerClass}>{loadError}</div>}
+        <ChatbotSlideContainer
+          isSecondaryOpen={isHistoryOpen}
+          primary={
+            <>
+              <ChatbotHistoryHeader onOpenHistory={() => setIsHistoryOpen(true)} />
+              <div className="flex min-h-0 flex-1 flex-col">
+                {!activeSessionId ? (
+                  <ChatbotPreSessionView
+                    optimisticMessages={optimisticMessages}
+                    onStartWithText={handleStartWithText}
+                    onStartWithVoice={handleStartVoiceSession}
+                    isCreating={isCreatingSession}
+                  />
+                ) : (
+                  <ChatSession
+                    key={activeSessionId}
+                    lectureId={lectureId}
+                    sessionId={activeSessionId}
+                    mode={mode}
+                    historicalMessages={historicalMessages}
+                    optimisticMessages={optimisticMessages}
+                    isSwitchingMode={isSwitchingMode}
+                    onSessionsChange={refreshSessions}
+                    onModeChange={handleModeChange}
+                    pendingMessage={pendingMessage}
+                    onPendingMessageSent={handlePendingMessageSent}
+                  />
+                )}
+              </div>
+            </>
+          }
+          secondary={
+            <ChatbotHistoryPanel
+              sessions={sessions}
+              activeSessionId={activeSessionId}
+              loading={sessionsLoading}
+              onBack={() => setIsHistoryOpen(false)}
+              onNewChat={handleNewChat}
+              onSelect={loadSession}
+            />
+          }
         />
-      ) : null}
-      <main className="chatbot-main">
-        {loadError && <div className="chatbot-error-banner">{loadError}</div>}
-        {!activeSessionId ? (
-          <div className="chatbot-welcome-panel">
-            <h2>Ask about this lecture</h2>
-            <p>
-              Get help with concepts from the lecture transcript. Ask out loud by default and
-              switch to text mode anytime.
-            </p>
-            <button type="button" className="chatbot-btn chatbot-btn-primary" onClick={handleNewChat}>
-              Ask a question
-            </button>
-          </div>
-        ) : (
-          <ChatSession
-            key={activeSessionId}
-            lectureId={lectureId}
-            sessionId={activeSessionId}
-            mode={mode}
-            layout={layout}
-            historicalMessages={historicalMessages}
-            isSwitchingMode={isSwitchingMode}
-            onModeChange={handleModeChange}
-            onNewChat={handleNewChat}
-            onSessionsChange={refreshSessions}
-          />
-        )}
       </main>
     </div>
+
   )
 }
 

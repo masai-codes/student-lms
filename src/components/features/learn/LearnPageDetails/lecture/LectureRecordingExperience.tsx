@@ -81,10 +81,10 @@ export function LectureRecordingExperience({
           {renderVideoSection()}
         </div>
         <div
-          className="flex h-full min-h-0 shrink-0 flex-col bg-[#1c1c1c]"
+          className="flex h-full min-h-0 shrink-0 flex-col border-l border-gray-200 bg-white"
           style={{ width: `${LECTURE_SPLIT_CHAT_WIDTH_PERCENT}%` }}
         >
-          <ChatbotExperience lectureId={entityId} layout="sidebar" />
+          <ChatbotExperience lectureId={entityId} />
         </div>
       </div>
 
@@ -100,8 +100,8 @@ export function LectureRecordingExperience({
   )
 
   const belowHero = (
-    <div className="min-h-112 md:hidden">
-      <ChatbotExperience lectureId={entityId} layout="sidebar" />
+    <div className="min-h-112 border-t border-gray-200 bg-white md:hidden">
+      <ChatbotExperience lectureId={entityId} />
     </div>
   )
 
