@@ -2,11 +2,33 @@
 // block at config-read time. This avoids PM2's known bug where env_file is not
 // re-processed on `pm2 reload --update-env`, causing DATABASE_URL and other
 // runtime secrets to be missing on re-deployments.
-const { configDotenv } = require('dotenv')
+//
+// dotenv is not available on the server (node_modules is not deployed), so we
+// parse the file manually using Node's built-in fs module.
+const fs = require('fs')
 
-const { parsed: runtimeEnv = {} } = configDotenv({
-  path: '/home/ubuntu/app/.env.production.local',
-})
+function parseEnvFile(filePath) {
+  try {
+    return fs
+      .readFileSync(filePath, 'utf8')
+      .split('\n')
+      .reduce((acc, line) => {
+        // Skip blank lines and comments
+        if (!line.trim() || line.trimStart().startsWith('#')) return acc
+        const eq = line.indexOf('=')
+        if (eq === -1) return acc
+        const key = line.slice(0, eq).trim()
+        const val = line.slice(eq + 1).trim()
+        if (key) acc[key] = val
+        return acc
+      }, {})
+  } catch (_) {
+    // File doesn't exist yet (e.g. local dev) — continue without it.
+    return {}
+  }
+}
+
+const runtimeEnv = parseEnvFile('/home/ubuntu/app/.env.production.local')
 
 module.exports = {
   apps: [
