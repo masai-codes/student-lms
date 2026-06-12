@@ -1,8 +1,19 @@
 // @vitest-environment jsdom
 import { cleanup, render, screen } from '@testing-library/react'
-import { afterEach, describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import HighlightsCarousel from './HighlightsCarousel'
 import type { MasaiverseV2HomeHighlight } from '@/server/api/masaiverse-v2/services/getHomeHighlights.service'
+import type { ReactNode } from 'react'
+
+// HighlightCard renders a router <Link>; Swiper needs layout APIs jsdom lacks.
+vi.mock('@tanstack/react-router', () => ({
+  Link: ({ children }: { children: ReactNode }) => children,
+}))
+vi.mock('swiper/react', () => ({
+  Swiper: ({ children }: { children: ReactNode }) => <div>{children}</div>,
+  SwiperSlide: ({ children }: { children: ReactNode }) => <div>{children}</div>,
+}))
+vi.mock('swiper/modules', () => ({ Navigation: {} }))
 
 function highlight(id: string, title: string): MasaiverseV2HomeHighlight {
   return {

@@ -5,17 +5,13 @@ const hoisted = vi.hoisted(() => ({ dbSelect: vi.fn() }))
 vi.mock('@/db', () => ({ db: { select: hoisted.dbSelect } }))
 
 vi.mock('@/db/schema', () => ({
+  users: { meta: 'users.meta' },
   clubMembers: { userId: 'club_members.user_id' },
   posts: { createdAt: 'posts.created_at' },
   replies: { createdAt: 'replies.created_at' },
   events: { startTime: 'events.start_time' },
   eventEnrollments: { enrolledAt: 'event_enrollments.enrolled_at' },
 }))
-
-/** Resolves a `select(...).from(...)` chain (no where clause). */
-function selectFrom(rows: unknown) {
-  return { from: () => Promise.resolve(rows) }
-}
 
 /** Resolves a `select(...).from(...).where(...)` chain. */
 function selectFromWhere(rows: unknown) {
@@ -33,7 +29,7 @@ describe('getCommunityLearnerCount', () => {
     const { getCommunityLearnerCount } = await import(
       '../services/getCommunityLearnerCount.service'
     )
-    hoisted.dbSelect.mockReturnValueOnce(selectFrom([{ count: 2841 }]))
+    hoisted.dbSelect.mockReturnValueOnce(selectFromWhere([{ count: 2841 }]))
 
     await expect(getCommunityLearnerCount()).resolves.toBe(2841)
   })
@@ -42,7 +38,7 @@ describe('getCommunityLearnerCount', () => {
     const { getCommunityLearnerCount } = await import(
       '../services/getCommunityLearnerCount.service'
     )
-    hoisted.dbSelect.mockReturnValueOnce(selectFrom([]))
+    hoisted.dbSelect.mockReturnValueOnce(selectFromWhere([]))
 
     await expect(getCommunityLearnerCount()).resolves.toBe(0)
   })
