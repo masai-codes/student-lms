@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as ApiHealthRouteImport } from './routes/api/health'
 import { Route as protectedLayoutRouteRouteImport } from './routes/(protected)/_layout/route'
 import { Route as protectedZoomIndexRouteImport } from './routes/(protected)/zoom/index'
 import { Route as protectedLayoutIndexRouteImport } from './routes/(protected)/_layout/index'
@@ -99,6 +100,11 @@ import { Route as protectedLayoutCoursesCourseIdLecturesLectureIdDiscussionsDisc
 import { Route as protectedLayoutCoursesCourseIdAssignmentsAssignmentIdDiscussionsCreateIndexRouteImport } from './routes/(protected)/_layout/courses/$courseId/assignments_/$assignmentId/discussions/create/index'
 import { Route as protectedLayoutCoursesCourseIdAssignmentsAssignmentIdDiscussionsDiscussionIdIndexRouteImport } from './routes/(protected)/_layout/courses/$courseId/assignments_/$assignmentId/discussions/$discussionId/index'
 
+const ApiHealthRoute = ApiHealthRouteImport.update({
+  id: '/api/health',
+  path: '/api/health',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const protectedLayoutRouteRoute = protectedLayoutRouteRouteImport.update({
   id: '/(protected)/_layout',
   getParentRoute: () => rootRouteImport,
@@ -658,6 +664,7 @@ const protectedLayoutCoursesCourseIdAssignmentsAssignmentIdDiscussionsDiscussion
   )
 
 export interface FileRoutesByFullPath {
+  '/api/health': typeof ApiHealthRoute
   '/masaiverse': typeof protectedLayoutMasaiverseRouteRouteWithChildren
   '/v2/forgot-password': typeof authV2ForgotPasswordRoute
   '/v2/me': typeof authV2MeRoute
@@ -748,6 +755,7 @@ export interface FileRoutesByFullPath {
   '/courses/$courseId/resources/$resourceId/discussions/create/': typeof protectedLayoutCoursesCourseIdResourcesResourceIdDiscussionsCreateIndexRoute
 }
 export interface FileRoutesByTo {
+  '/api/health': typeof ApiHealthRoute
   '/v2/forgot-password': typeof authV2ForgotPasswordRoute
   '/v2/me': typeof authV2MeRoute
   '/v2/reset-password': typeof authV2ResetPasswordRoute
@@ -836,6 +844,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/(protected)/_layout': typeof protectedLayoutRouteRouteWithChildren
+  '/api/health': typeof ApiHealthRoute
   '/(protected)/_layout/masaiverse': typeof protectedLayoutMasaiverseRouteRouteWithChildren
   '/(auth)/v2/forgot-password': typeof authV2ForgotPasswordRoute
   '/(auth)/v2/me': typeof authV2MeRoute
@@ -928,6 +937,7 @@ export interface FileRoutesById {
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
+    | '/api/health'
     | '/masaiverse'
     | '/v2/forgot-password'
     | '/v2/me'
@@ -1018,6 +1028,7 @@ export interface FileRouteTypes {
     | '/courses/$courseId/resources/$resourceId/discussions/create/'
   fileRoutesByTo: FileRoutesByTo
   to:
+    | '/api/health'
     | '/v2/forgot-password'
     | '/v2/me'
     | '/v2/reset-password'
@@ -1105,6 +1116,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/(protected)/_layout'
+    | '/api/health'
     | '/(protected)/_layout/masaiverse'
     | '/(auth)/v2/forgot-password'
     | '/(auth)/v2/me'
@@ -1197,6 +1209,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   protectedLayoutRouteRoute: typeof protectedLayoutRouteRouteWithChildren
+  ApiHealthRoute: typeof ApiHealthRoute
   authV2ForgotPasswordRoute: typeof authV2ForgotPasswordRoute
   authV2MeRoute: typeof authV2MeRoute
   authV2ResetPasswordRoute: typeof authV2ResetPasswordRoute
@@ -1243,6 +1256,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/api/health': {
+      id: '/api/health'
+      path: '/api/health'
+      fullPath: '/api/health'
+      preLoaderRoute: typeof ApiHealthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/(protected)/_layout': {
       id: '/(protected)/_layout'
       path: ''
@@ -2076,6 +2096,7 @@ const ApiMasaiverseV2DiscussionsRouteWithChildren =
 
 const rootRouteChildren: RootRouteChildren = {
   protectedLayoutRouteRoute: protectedLayoutRouteRouteWithChildren,
+  ApiHealthRoute: ApiHealthRoute,
   authV2ForgotPasswordRoute: authV2ForgotPasswordRoute,
   authV2MeRoute: authV2MeRoute,
   authV2ResetPasswordRoute: authV2ResetPasswordRoute,
