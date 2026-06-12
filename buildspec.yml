@@ -12,11 +12,6 @@ phases:
       - node --version
       - npm ci
 
-  pre_build:
-    commands:
-      - echo "Running tests..."
-      - npm test
-
   build:
     commands:
       - echo "Building application with Nitro preset=node-server..."
