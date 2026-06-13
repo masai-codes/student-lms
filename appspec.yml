@@ -4,6 +4,8 @@ os: linux
 files:
   - source: .output/server
     destination: /home/ubuntu/app/.output/server
+  - source: .output/public
+    destination: /home/ubuntu/app/.output/public
   - source: ecosystem.config.cjs
     destination: /home/ubuntu/app
   - source: hooks

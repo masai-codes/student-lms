@@ -56,6 +56,7 @@ rm -rf /home/ubuntu/app/hooks
 
 # Ensure required directories exist.
 mkdir -p /home/ubuntu/app/.output/server
+mkdir -p /home/ubuntu/app/.output/public
 mkdir -p /home/ubuntu/logs
 chown -R ubuntu:ubuntu /home/ubuntu/app
 chown -R ubuntu:ubuntu /home/ubuntu/logs
