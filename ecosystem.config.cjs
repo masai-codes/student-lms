@@ -28,6 +28,7 @@ function parseEnvFile(filePath) {
   }
 }
 
+const staticEnv = parseEnvFile('/home/ubuntu/app/.env.production')
 const runtimeEnv = parseEnvFile('/home/ubuntu/app/.env.production.local')
 
 module.exports = {
@@ -49,12 +50,14 @@ module.exports = {
       error_file: '/home/ubuntu/logs/app-error.log',
       merge_logs: true,
       log_date_format: 'YYYY-MM-DD HH:mm:ss Z',
-      // Environment — static vars first, then secrets from .env.production.local.
+      // Environment — static vars from .env.production first, then secrets
+      // from .env.production.local (so secrets take precedence on any overlap).
       // Inlining here (instead of using PM2's env_file option) ensures the vars
       // are present on both fresh starts and zero-downtime reloads.
       env: {
         NODE_ENV: 'production',
         PORT: '3000',
+        ...staticEnv,
         ...runtimeEnv,
       },
     },

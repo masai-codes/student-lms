@@ -8,6 +8,8 @@ files:
     destination: /home/ubuntu/app
   - source: hooks
     destination: /home/ubuntu/app/hooks
+  - source: .env.production
+    destination: /home/ubuntu/app
 
 permissions:
   - object: /home/ubuntu/app/hooks

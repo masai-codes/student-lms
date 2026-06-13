@@ -30,6 +30,7 @@ artifacts:
     - ecosystem.config.cjs
     - hooks/**/*
     - .output/server/**/*
+    - .env.production
   discard-paths: no
 
 cache:
