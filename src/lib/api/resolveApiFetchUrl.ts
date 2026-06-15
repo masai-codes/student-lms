@@ -1,10 +1,10 @@
+import { getAppOrigin } from '@/utils/appOrigin'
+import { ORIGIN_URLS } from '@/utils/originUrls'
+
 /** Origin for server-side `fetch` when no browser `window` exists (SSR loaders). */
-function readServerOriginFromEnv(): string {
-  const fromVite = import.meta.env.VITE_NEW_STUDENT_UI_URL as string | undefined
-  if (typeof fromVite === 'string' && fromVite.trim() !== '') {
-    return fromVite.trim().replace(/\/$/, '')
-  }
-  return 'http://127.0.0.1:3002'
+function readServerOrigin(): string {
+  const base = ORIGIN_URLS[getAppOrigin()].newStudentUi.trim().replace(/\/$/, '')
+  return base || 'http://127.0.0.1:3002'
 }
 
 /**
@@ -20,5 +20,5 @@ export function resolveApiFetchUrl(path: string): string {
     return new URL(path, window.location.origin).href
   }
 
-  return new URL(path, readServerOriginFromEnv()).href
+  return new URL(path, readServerOrigin()).href
 }

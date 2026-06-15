@@ -7,4 +7,7 @@ export default defineConfig({
       projects: ['./tsconfig.json'],
     }),
   ],
+  test: {
+    setupFiles: ['./vitest.setup.ts'],
+  },
 })

@@ -126,7 +126,7 @@ describe('SignInFlow', () => {
     fireEvent.click(screen.getByRole('button', { name: /^sign in$/i }))
 
     await waitFor(() => {
-      expect(navigateMock).toHaveBeenCalledWith({ to: '/' })
+      expect(redirectToOldStudentUiMock).toHaveBeenCalled()
     })
 
     const loginCall = fetchMock.mock.calls.find(([input]) => {
@@ -141,7 +141,7 @@ describe('SignInFlow', () => {
     })
   })
 
-  it('walks through email password path and navigates home', async () => {
+  it('walks through email password path and redirects to old student UI', async () => {
     const dispatchSpy = vi.spyOn(window, 'dispatchEvent')
     ;(window as Window & { dataLayer?: Array<Record<string, unknown>> }).dataLayer = []
 
@@ -160,7 +160,7 @@ describe('SignInFlow', () => {
     fireEvent.click(screen.getByRole('button', { name: /^sign in$/i }))
 
     await waitFor(() => {
-      expect(navigateMock).toHaveBeenCalledWith({ to: '/' })
+      expect(redirectToOldStudentUiMock).toHaveBeenCalled()
     })
     expect(dispatchSpy).toHaveBeenCalledWith(
       expect.objectContaining({

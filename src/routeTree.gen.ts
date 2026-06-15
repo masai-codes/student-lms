@@ -9,81 +9,109 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as ApiHealthRouteImport } from './routes/api/health'
 import { Route as protectedLayoutRouteRouteImport } from './routes/(protected)/_layout/route'
-import { Route as ApiBookmarksIndexRouteImport } from './routes/api/bookmarks/index'
-import { Route as ApiAnnouncementIndexRouteImport } from './routes/api/announcement/index'
+import { Route as protectedZoomIndexRouteImport } from './routes/(protected)/zoom/index'
 import { Route as protectedLayoutIndexRouteImport } from './routes/(protected)/_layout/index'
 import { Route as authSwitchAccountIndexRouteImport } from './routes/(auth)/switch-account/index'
 import { Route as authSigninIndexRouteImport } from './routes/(auth)/signin/index'
 import { Route as authLoginIndexRouteImport } from './routes/(auth)/login/index'
+import { Route as ApiMasaiverseV2VisitedRouteImport } from './routes/api/masaiverse-v2/visited'
+import { Route as ApiMasaiverseV2LeaderboardRouteImport } from './routes/api/masaiverse-v2/leaderboard'
 import { Route as ApiMasaiverseV2HomeRouteImport } from './routes/api/masaiverse-v2/home'
-import { Route as ApiLearnBatchesRouteImport } from './routes/api/learn/batches'
-import { Route as ApiLearnBatchDataRouteImport } from './routes/api/learn/batch-data'
-import { Route as ApiDashboardScheduleRouteImport } from './routes/api/dashboard/schedule'
-import { Route as ApiDashboardProductUpdatesRouteImport } from './routes/api/dashboard/product-updates'
-import { Route as ApiDashboardPendingTasksRouteImport } from './routes/api/dashboard/pending-tasks'
-import { Route as ApiDashboardBannersRouteImport } from './routes/api/dashboard/banners'
-import { Route as ApiDashboardAnnouncementsRouteImport } from './routes/api/dashboard/announcements'
-import { Route as ApiDashboardActionBannersRouteImport } from './routes/api/dashboard/action-banners'
+import { Route as ApiMasaiverseV2DiscussionsRouteImport } from './routes/api/masaiverse-v2/discussions'
+import { Route as ApiMasaiverseV2AwardPointsRouteImport } from './routes/api/masaiverse-v2/award-points'
+import { Route as ApiMasaiverseV2AdminModeRouteImport } from './routes/api/masaiverse-v2/admin-mode'
 import { Route as authV2ResetPasswordRouteImport } from './routes/(auth)/v2/reset-password'
 import { Route as authV2MeRouteImport } from './routes/(auth)/v2/me'
 import { Route as authV2ForgotPasswordRouteImport } from './routes/(auth)/v2/forgot-password'
 import { Route as protectedLayoutMasaiverseRouteRouteImport } from './routes/(protected)/_layout/masaiverse/route'
-import { Route as ApiAnnouncementIdIndexRouteImport } from './routes/api/announcement/$id/index'
+import { Route as protectedLayoutWhatsNewIndexRouteImport } from './routes/(protected)/_layout/whats-new/index'
+import { Route as protectedLayoutSupportIndexRouteImport } from './routes/(protected)/_layout/support/index'
+import { Route as protectedLayoutReferAndEarnIndexRouteImport } from './routes/(protected)/_layout/refer-and-earn/index'
+import { Route as protectedLayoutProfileIndexRouteImport } from './routes/(protected)/_layout/profile/index'
+import { Route as protectedLayoutPracticeInterviewIndexRouteImport } from './routes/(protected)/_layout/practice-interview/index'
 import { Route as protectedLayoutMasaiverseIndexRouteImport } from './routes/(protected)/_layout/masaiverse/index'
-import { Route as protectedLayoutLearnIndexRouteImport } from './routes/(protected)/_layout/learn/index'
-import { Route as protectedLayoutBookmarksIndexRouteImport } from './routes/(protected)/_layout/bookmarks/index'
+import { Route as protectedLayoutDiscussionsIndexRouteImport } from './routes/(protected)/_layout/discussions/index'
+import { Route as protectedLayoutCoursesIndexRouteImport } from './routes/(protected)/_layout/courses/index'
+import { Route as protectedLayoutChatIndexRouteImport } from './routes/(protected)/_layout/chat/index'
+import { Route as protectedLayoutBookmarkIndexRouteImport } from './routes/(protected)/_layout/bookmark/index'
 import { Route as protectedLayoutAnnouncementsIndexRouteImport } from './routes/(protected)/_layout/announcements/index'
 import { Route as authV2LoginIndexRouteImport } from './routes/(auth)/v2/login/index'
 import { Route as authResetPasswordTokenIndexRouteImport } from './routes/(auth)/reset-password.$token/index'
-import { Route as ApiLearnSubmissionsSubmissionIdRouteImport } from './routes/api/learn/submissions/$submissionId'
-import { Route as ApiLearnResourcesResourceIdRouteImport } from './routes/api/learn/resources/$resourceId'
-import { Route as ApiLearnLecturesLectureIdRouteImport } from './routes/api/learn/lectures/$lectureId'
-import { Route as ApiLearnAssignmentsAssignmentIdRouteImport } from './routes/api/learn/assignments/$assignmentId'
-import { Route as ApiLearnAiTutorLimitRouteImport } from './routes/api/learn/ai-tutor/limit'
-import { Route as ApiLearnAiTutorEndRouteImport } from './routes/api/learn/ai-tutor/end'
-import { Route as ApiChatbotLectureIdTokenRouteImport } from './routes/api/chatbot/$lectureId/token'
+import { Route as ApiMasaiverseV2UsersSearchRouteImport } from './routes/api/masaiverse-v2/users/search'
+import { Route as ApiMasaiverseV2UploadsImageRouteImport } from './routes/api/masaiverse-v2/uploads/image'
+import { Route as ApiMasaiverseV2EventsUpdateRouteImport } from './routes/api/masaiverse-v2/events/update'
+import { Route as ApiMasaiverseV2EventsRateRouteImport } from './routes/api/masaiverse-v2/events/rate'
+import { Route as ApiMasaiverseV2EventsListRouteImport } from './routes/api/masaiverse-v2/events/list'
+import { Route as ApiMasaiverseV2EventsEnrollRouteImport } from './routes/api/masaiverse-v2/events/enroll'
+import { Route as ApiMasaiverseV2EventsEditDataRouteImport } from './routes/api/masaiverse-v2/events/edit-data'
+import { Route as ApiMasaiverseV2EventsDetailRouteImport } from './routes/api/masaiverse-v2/events/detail'
+import { Route as ApiMasaiverseV2EventsCreateRouteImport } from './routes/api/masaiverse-v2/events/create'
+import { Route as ApiMasaiverseV2DiscussionsVoteRouteImport } from './routes/api/masaiverse-v2/discussions/vote'
+import { Route as ApiMasaiverseV2DiscussionsRepliesRouteImport } from './routes/api/masaiverse-v2/discussions/replies'
+import { Route as ApiMasaiverseV2ClubsVisitRouteImport } from './routes/api/masaiverse-v2/clubs/visit'
+import { Route as ApiMasaiverseV2ClubsUpdateRouteImport } from './routes/api/masaiverse-v2/clubs/update'
+import { Route as ApiMasaiverseV2ClubsStatsRouteImport } from './routes/api/masaiverse-v2/clubs/stats'
+import { Route as ApiMasaiverseV2ClubsMineRouteImport } from './routes/api/masaiverse-v2/clubs/mine'
+import { Route as ApiMasaiverseV2ClubsMembershipRouteImport } from './routes/api/masaiverse-v2/clubs/membership'
+import { Route as ApiMasaiverseV2ClubsLeaderboardRouteImport } from './routes/api/masaiverse-v2/clubs/leaderboard'
+import { Route as ApiMasaiverseV2ClubsEventsRouteImport } from './routes/api/masaiverse-v2/clubs/events'
+import { Route as ApiMasaiverseV2ClubsEditDataRouteImport } from './routes/api/masaiverse-v2/clubs/edit-data'
+import { Route as ApiMasaiverseV2ClubsDetailRouteImport } from './routes/api/masaiverse-v2/clubs/detail'
+import { Route as ApiMasaiverseV2ClubsCreateRouteImport } from './routes/api/masaiverse-v2/clubs/create'
+import { Route as ApiMasaiverseV2BannersUpdateRouteImport } from './routes/api/masaiverse-v2/banners/update'
+import { Route as ApiMasaiverseV2BannersListRouteImport } from './routes/api/masaiverse-v2/banners/list'
+import { Route as ApiMasaiverseV2BannersDeleteRouteImport } from './routes/api/masaiverse-v2/banners/delete'
+import { Route as ApiMasaiverseV2BannersCreateRouteImport } from './routes/api/masaiverse-v2/banners/create'
 import { Route as protectedLayoutMasaiverseLeaderboardRouteImport } from './routes/(protected)/_layout/masaiverse/leaderboard'
 import { Route as protectedLayoutMasaiverseHomeRouteImport } from './routes/(protected)/_layout/masaiverse/home'
 import { Route as protectedLayoutMasaiverseEventsRouteImport } from './routes/(protected)/_layout/masaiverse/events'
 import { Route as protectedLayoutMasaiverseDiscussionsRouteImport } from './routes/(protected)/_layout/masaiverse/discussions'
 import { Route as protectedLayoutMasaiverseClubsRouteImport } from './routes/(protected)/_layout/masaiverse/clubs'
-import { Route as protectedLayoutChatbotLectureIdRouteImport } from './routes/(protected)/_layout/chatbot/$lectureId'
 import { Route as authV2LoginVerifyOtpRouteImport } from './routes/(auth)/v2/login/verify-otp'
 import { Route as authV2LoginRequestOtpRouteImport } from './routes/(auth)/v2/login/request-otp'
 import { Route as authV2AuthUseAccountRouteImport } from './routes/(auth)/v2/auth/use-account'
 import { Route as authV2AuthLinkedAccountsRouteImport } from './routes/(auth)/v2/auth/linked-accounts'
-import { Route as protectedLayoutResourcesResourceIdRouteRouteImport } from './routes/(protected)/_layout/resources_/$resourceId/route'
-import { Route as protectedLayoutLecturesLectureIdRouteRouteImport } from './routes/(protected)/_layout/lectures_/$lectureId/route'
-import { Route as protectedLayoutAssignmentsAssignmentIdRouteRouteImport } from './routes/(protected)/_layout/assignments_/$assignmentId/route'
-import { Route as protectedLayoutAnnouncementsIdRouteRouteImport } from './routes/(protected)/_layout/announcements_/$id/route'
-import { Route as ApiChatbotLectureIdSessionsIndexRouteImport } from './routes/api/chatbot/$lectureId/sessions/index'
-import { Route as ApiLearnSubmissionsSubmissionIdViewOnPlatformRouteImport } from './routes/api/learn/submissions/$submissionId/view-on-platform'
-import { Route as ApiLearnAssignmentsAssignmentIdSubmissionsRouteImport } from './routes/api/learn/assignments/$assignmentId/submissions'
-import { Route as ApiLearnAssignmentsAssignmentIdAssessPlatformUrlRouteImport } from './routes/api/learn/assignments/$assignmentId/assess-platform-url'
-import { Route as ApiLearnAiTutorLectureIdTranscriptRouteImport } from './routes/api/learn/ai-tutor/$lectureId/transcript'
-import { Route as ApiLearnAiTutorLectureIdSessionRouteImport } from './routes/api/learn/ai-tutor/$lectureId/session'
-import { Route as ApiLearnAiTutorLectureIdFeedbackRouteImport } from './routes/api/learn/ai-tutor/$lectureId/feedback'
-import { Route as ApiLearnAiTutorLectureIdDispatchRouteImport } from './routes/api/learn/ai-tutor/$lectureId/dispatch'
-import { Route as ApiLearnAiChatLectureIdSendRouteImport } from './routes/api/learn/ai-chat/$lectureId/send'
-import { Route as ApiLearnAiChatLectureIdHistoryRouteImport } from './routes/api/learn/ai-chat/$lectureId/history'
+import { Route as protectedLayoutSupportSupportIdIndexRouteImport } from './routes/(protected)/_layout/support/$supportId/index'
+import { Route as protectedLayoutDiscussionsCreateIndexRouteImport } from './routes/(protected)/_layout/discussions/create/index'
+import { Route as protectedLayoutDiscussionsDiscussionIdIndexRouteImport } from './routes/(protected)/_layout/discussions/$discussionId/index'
+import { Route as protectedLayoutMasaiverseEventEventIdRouteImport } from './routes/(protected)/_layout/masaiverse/event.$eventId'
 import { Route as protectedLayoutMasaiverseClubClubIdRouteImport } from './routes/(protected)/_layout/masaiverse/club.$clubId'
-import { Route as ApiChatbotLectureIdSessionsSessionIdIndexRouteImport } from './routes/api/chatbot/$lectureId/sessions/$sessionId/index'
-import { Route as ApiChatbotInternalSessionsSessionIdMessagesRouteImport } from './routes/api/chatbot/internal/sessions/$sessionId/messages'
-import { Route as ApiChatbotLectureIdSessionsSessionIdMessagesRouteImport } from './routes/api/chatbot/$lectureId/sessions/$sessionId/messages'
+import { Route as protectedLayoutCoursesCourseIdCourseTabLayoutRouteRouteImport } from './routes/(protected)/_layout/courses/$courseId/_courseTabLayout/route'
+import { Route as protectedLayoutCoursesCourseIdCourseTabLayoutIndexRouteImport } from './routes/(protected)/_layout/courses/$courseId/_courseTabLayout/index'
+import { Route as protectedLayoutMasaiverseClubClubIdGalleryRouteImport } from './routes/(protected)/_layout/masaiverse/club.$clubId_.gallery'
+import { Route as protectedLayoutCoursesCourseIdResourcesResourceIdRouteRouteImport } from './routes/(protected)/_layout/courses/$courseId/resources_/$resourceId/route'
+import { Route as protectedLayoutCoursesCourseIdLecturesLectureIdRouteRouteImport } from './routes/(protected)/_layout/courses/$courseId/lectures_/$lectureId/route'
+import { Route as protectedLayoutCoursesCourseIdAssignmentsAssignmentIdRouteRouteImport } from './routes/(protected)/_layout/courses/$courseId/assignments_/$assignmentId/route'
+import { Route as protectedLayoutCoursesCourseIdResourcesResourceIdIndexRouteImport } from './routes/(protected)/_layout/courses/$courseId/resources_/$resourceId/index'
+import { Route as protectedLayoutCoursesCourseIdAssignmentsAssignmentIdIndexRouteImport } from './routes/(protected)/_layout/courses/$courseId/assignments_/$assignmentId/index'
+import { Route as protectedLayoutCoursesCourseIdAnnouncementsAnnouncementIdIndexRouteImport } from './routes/(protected)/_layout/courses/$courseId/announcements_/$announcementId/index'
+import { Route as protectedLayoutCoursesCourseIdCourseTabLayoutResourcesIndexRouteImport } from './routes/(protected)/_layout/courses/$courseId/_courseTabLayout/resources/index'
+import { Route as protectedLayoutCoursesCourseIdCourseTabLayoutLecturesIndexRouteImport } from './routes/(protected)/_layout/courses/$courseId/_courseTabLayout/lectures/index'
+import { Route as protectedLayoutCoursesCourseIdCourseTabLayoutAssignmentsIndexRouteImport } from './routes/(protected)/_layout/courses/$courseId/_courseTabLayout/assignments/index'
+import { Route as protectedLayoutCoursesCourseIdResourcesResourceIdDiscussionsIndexRouteImport } from './routes/(protected)/_layout/courses/$courseId/resources_/$resourceId/discussions/index'
+import { Route as protectedLayoutCoursesCourseIdLecturesLectureIdDiscussionsIndexRouteImport } from './routes/(protected)/_layout/courses/$courseId/lectures_/$lectureId/discussions/index'
+import { Route as protectedLayoutCoursesCourseIdAssignmentsAssignmentIdDiscussionsIndexRouteImport } from './routes/(protected)/_layout/courses/$courseId/assignments_/$assignmentId/discussions/index'
+import { Route as protectedLayoutCoursesCourseIdResourcesResourceIdDiscussionsCreateIndexRouteImport } from './routes/(protected)/_layout/courses/$courseId/resources_/$resourceId/discussions/create/index'
+import { Route as protectedLayoutCoursesCourseIdResourcesResourceIdDiscussionsDiscussionIdIndexRouteImport } from './routes/(protected)/_layout/courses/$courseId/resources_/$resourceId/discussions/$discussionId/index'
+import { Route as protectedLayoutCoursesCourseIdLecturesLectureIdDiscussionsCreateIndexRouteImport } from './routes/(protected)/_layout/courses/$courseId/lectures_/$lectureId/discussions/create/index'
+import { Route as protectedLayoutCoursesCourseIdLecturesLectureIdDiscussionsDiscussionIdIndexRouteImport } from './routes/(protected)/_layout/courses/$courseId/lectures_/$lectureId/discussions/$discussionId/index'
+import { Route as protectedLayoutCoursesCourseIdAssignmentsAssignmentIdDiscussionsCreateIndexRouteImport } from './routes/(protected)/_layout/courses/$courseId/assignments_/$assignmentId/discussions/create/index'
+import { Route as protectedLayoutCoursesCourseIdAssignmentsAssignmentIdDiscussionsDiscussionIdIndexRouteImport } from './routes/(protected)/_layout/courses/$courseId/assignments_/$assignmentId/discussions/$discussionId/index'
 
+const ApiHealthRoute = ApiHealthRouteImport.update({
+  id: '/api/health',
+  path: '/api/health',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const protectedLayoutRouteRoute = protectedLayoutRouteRouteImport.update({
   id: '/(protected)/_layout',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiBookmarksIndexRoute = ApiBookmarksIndexRouteImport.update({
-  id: '/api/bookmarks/',
-  path: '/api/bookmarks/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiAnnouncementIndexRoute = ApiAnnouncementIndexRouteImport.update({
-  id: '/api/announcement/',
-  path: '/api/announcement/',
+const protectedZoomIndexRoute = protectedZoomIndexRouteImport.update({
+  id: '/(protected)/zoom/',
+  path: '/zoom/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const protectedLayoutIndexRoute = protectedLayoutIndexRouteImport.update({
@@ -106,53 +134,38 @@ const authLoginIndexRoute = authLoginIndexRouteImport.update({
   path: '/login/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiMasaiverseV2VisitedRoute = ApiMasaiverseV2VisitedRouteImport.update({
+  id: '/api/masaiverse-v2/visited',
+  path: '/api/masaiverse-v2/visited',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiMasaiverseV2LeaderboardRoute =
+  ApiMasaiverseV2LeaderboardRouteImport.update({
+    id: '/api/masaiverse-v2/leaderboard',
+    path: '/api/masaiverse-v2/leaderboard',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiMasaiverseV2HomeRoute = ApiMasaiverseV2HomeRouteImport.update({
   id: '/api/masaiverse-v2/home',
   path: '/api/masaiverse-v2/home',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiLearnBatchesRoute = ApiLearnBatchesRouteImport.update({
-  id: '/api/learn/batches',
-  path: '/api/learn/batches',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiLearnBatchDataRoute = ApiLearnBatchDataRouteImport.update({
-  id: '/api/learn/batch-data',
-  path: '/api/learn/batch-data',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiDashboardScheduleRoute = ApiDashboardScheduleRouteImport.update({
-  id: '/api/dashboard/schedule',
-  path: '/api/dashboard/schedule',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiDashboardProductUpdatesRoute =
-  ApiDashboardProductUpdatesRouteImport.update({
-    id: '/api/dashboard/product-updates',
-    path: '/api/dashboard/product-updates',
+const ApiMasaiverseV2DiscussionsRoute =
+  ApiMasaiverseV2DiscussionsRouteImport.update({
+    id: '/api/masaiverse-v2/discussions',
+    path: '/api/masaiverse-v2/discussions',
     getParentRoute: () => rootRouteImport,
   } as any)
-const ApiDashboardPendingTasksRoute =
-  ApiDashboardPendingTasksRouteImport.update({
-    id: '/api/dashboard/pending-tasks',
-    path: '/api/dashboard/pending-tasks',
+const ApiMasaiverseV2AwardPointsRoute =
+  ApiMasaiverseV2AwardPointsRouteImport.update({
+    id: '/api/masaiverse-v2/award-points',
+    path: '/api/masaiverse-v2/award-points',
     getParentRoute: () => rootRouteImport,
   } as any)
-const ApiDashboardBannersRoute = ApiDashboardBannersRouteImport.update({
-  id: '/api/dashboard/banners',
-  path: '/api/dashboard/banners',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiDashboardAnnouncementsRoute =
-  ApiDashboardAnnouncementsRouteImport.update({
-    id: '/api/dashboard/announcements',
-    path: '/api/dashboard/announcements',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const ApiDashboardActionBannersRoute =
-  ApiDashboardActionBannersRouteImport.update({
-    id: '/api/dashboard/action-banners',
-    path: '/api/dashboard/action-banners',
+const ApiMasaiverseV2AdminModeRoute =
+  ApiMasaiverseV2AdminModeRouteImport.update({
+    id: '/api/masaiverse-v2/admin-mode',
+    path: '/api/masaiverse-v2/admin-mode',
     getParentRoute: () => rootRouteImport,
   } as any)
 const authV2ResetPasswordRoute = authV2ResetPasswordRouteImport.update({
@@ -176,27 +189,64 @@ const protectedLayoutMasaiverseRouteRoute =
     path: '/masaiverse',
     getParentRoute: () => protectedLayoutRouteRoute,
   } as any)
-const ApiAnnouncementIdIndexRoute = ApiAnnouncementIdIndexRouteImport.update({
-  id: '/api/announcement/$id/',
-  path: '/api/announcement/$id/',
-  getParentRoute: () => rootRouteImport,
-} as any)
+const protectedLayoutWhatsNewIndexRoute =
+  protectedLayoutWhatsNewIndexRouteImport.update({
+    id: '/whats-new/',
+    path: '/whats-new/',
+    getParentRoute: () => protectedLayoutRouteRoute,
+  } as any)
+const protectedLayoutSupportIndexRoute =
+  protectedLayoutSupportIndexRouteImport.update({
+    id: '/support/',
+    path: '/support/',
+    getParentRoute: () => protectedLayoutRouteRoute,
+  } as any)
+const protectedLayoutReferAndEarnIndexRoute =
+  protectedLayoutReferAndEarnIndexRouteImport.update({
+    id: '/refer-and-earn/',
+    path: '/refer-and-earn/',
+    getParentRoute: () => protectedLayoutRouteRoute,
+  } as any)
+const protectedLayoutProfileIndexRoute =
+  protectedLayoutProfileIndexRouteImport.update({
+    id: '/profile/',
+    path: '/profile/',
+    getParentRoute: () => protectedLayoutRouteRoute,
+  } as any)
+const protectedLayoutPracticeInterviewIndexRoute =
+  protectedLayoutPracticeInterviewIndexRouteImport.update({
+    id: '/practice-interview/',
+    path: '/practice-interview/',
+    getParentRoute: () => protectedLayoutRouteRoute,
+  } as any)
 const protectedLayoutMasaiverseIndexRoute =
   protectedLayoutMasaiverseIndexRouteImport.update({
     id: '/',
     path: '/',
     getParentRoute: () => protectedLayoutMasaiverseRouteRoute,
   } as any)
-const protectedLayoutLearnIndexRoute =
-  protectedLayoutLearnIndexRouteImport.update({
-    id: '/learn/',
-    path: '/learn/',
+const protectedLayoutDiscussionsIndexRoute =
+  protectedLayoutDiscussionsIndexRouteImport.update({
+    id: '/discussions/',
+    path: '/discussions/',
     getParentRoute: () => protectedLayoutRouteRoute,
   } as any)
-const protectedLayoutBookmarksIndexRoute =
-  protectedLayoutBookmarksIndexRouteImport.update({
-    id: '/bookmarks/',
-    path: '/bookmarks/',
+const protectedLayoutCoursesIndexRoute =
+  protectedLayoutCoursesIndexRouteImport.update({
+    id: '/courses/',
+    path: '/courses/',
+    getParentRoute: () => protectedLayoutRouteRoute,
+  } as any)
+const protectedLayoutChatIndexRoute =
+  protectedLayoutChatIndexRouteImport.update({
+    id: '/chat/',
+    path: '/chat/',
+    getParentRoute: () => protectedLayoutRouteRoute,
+  } as any)
+const protectedLayoutBookmarkIndexRoute =
+  protectedLayoutBookmarkIndexRouteImport.update({
+    id: '/bookmark/',
+    path: '/bookmark/',
     getParentRoute: () => protectedLayoutRouteRoute,
   } as any)
 const protectedLayoutAnnouncementsIndexRoute =
@@ -216,44 +266,154 @@ const authResetPasswordTokenIndexRoute =
     path: '/reset-password/$token/',
     getParentRoute: () => rootRouteImport,
   } as any)
-const ApiLearnSubmissionsSubmissionIdRoute =
-  ApiLearnSubmissionsSubmissionIdRouteImport.update({
-    id: '/api/learn/submissions/$submissionId',
-    path: '/api/learn/submissions/$submissionId',
+const ApiMasaiverseV2UsersSearchRoute =
+  ApiMasaiverseV2UsersSearchRouteImport.update({
+    id: '/api/masaiverse-v2/users/search',
+    path: '/api/masaiverse-v2/users/search',
     getParentRoute: () => rootRouteImport,
   } as any)
-const ApiLearnResourcesResourceIdRoute =
-  ApiLearnResourcesResourceIdRouteImport.update({
-    id: '/api/learn/resources/$resourceId',
-    path: '/api/learn/resources/$resourceId',
+const ApiMasaiverseV2UploadsImageRoute =
+  ApiMasaiverseV2UploadsImageRouteImport.update({
+    id: '/api/masaiverse-v2/uploads/image',
+    path: '/api/masaiverse-v2/uploads/image',
     getParentRoute: () => rootRouteImport,
   } as any)
-const ApiLearnLecturesLectureIdRoute =
-  ApiLearnLecturesLectureIdRouteImport.update({
-    id: '/api/learn/lectures/$lectureId',
-    path: '/api/learn/lectures/$lectureId',
+const ApiMasaiverseV2EventsUpdateRoute =
+  ApiMasaiverseV2EventsUpdateRouteImport.update({
+    id: '/api/masaiverse-v2/events/update',
+    path: '/api/masaiverse-v2/events/update',
     getParentRoute: () => rootRouteImport,
   } as any)
-const ApiLearnAssignmentsAssignmentIdRoute =
-  ApiLearnAssignmentsAssignmentIdRouteImport.update({
-    id: '/api/learn/assignments/$assignmentId',
-    path: '/api/learn/assignments/$assignmentId',
+const ApiMasaiverseV2EventsRateRoute =
+  ApiMasaiverseV2EventsRateRouteImport.update({
+    id: '/api/masaiverse-v2/events/rate',
+    path: '/api/masaiverse-v2/events/rate',
     getParentRoute: () => rootRouteImport,
   } as any)
-const ApiLearnAiTutorLimitRoute = ApiLearnAiTutorLimitRouteImport.update({
-  id: '/api/learn/ai-tutor/limit',
-  path: '/api/learn/ai-tutor/limit',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiLearnAiTutorEndRoute = ApiLearnAiTutorEndRouteImport.update({
-  id: '/api/learn/ai-tutor/end',
-  path: '/api/learn/ai-tutor/end',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiChatbotLectureIdTokenRoute =
-  ApiChatbotLectureIdTokenRouteImport.update({
-    id: '/api/chatbot/$lectureId/token',
-    path: '/api/chatbot/$lectureId/token',
+const ApiMasaiverseV2EventsListRoute =
+  ApiMasaiverseV2EventsListRouteImport.update({
+    id: '/api/masaiverse-v2/events/list',
+    path: '/api/masaiverse-v2/events/list',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiMasaiverseV2EventsEnrollRoute =
+  ApiMasaiverseV2EventsEnrollRouteImport.update({
+    id: '/api/masaiverse-v2/events/enroll',
+    path: '/api/masaiverse-v2/events/enroll',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiMasaiverseV2EventsEditDataRoute =
+  ApiMasaiverseV2EventsEditDataRouteImport.update({
+    id: '/api/masaiverse-v2/events/edit-data',
+    path: '/api/masaiverse-v2/events/edit-data',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiMasaiverseV2EventsDetailRoute =
+  ApiMasaiverseV2EventsDetailRouteImport.update({
+    id: '/api/masaiverse-v2/events/detail',
+    path: '/api/masaiverse-v2/events/detail',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiMasaiverseV2EventsCreateRoute =
+  ApiMasaiverseV2EventsCreateRouteImport.update({
+    id: '/api/masaiverse-v2/events/create',
+    path: '/api/masaiverse-v2/events/create',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiMasaiverseV2DiscussionsVoteRoute =
+  ApiMasaiverseV2DiscussionsVoteRouteImport.update({
+    id: '/vote',
+    path: '/vote',
+    getParentRoute: () => ApiMasaiverseV2DiscussionsRoute,
+  } as any)
+const ApiMasaiverseV2DiscussionsRepliesRoute =
+  ApiMasaiverseV2DiscussionsRepliesRouteImport.update({
+    id: '/replies',
+    path: '/replies',
+    getParentRoute: () => ApiMasaiverseV2DiscussionsRoute,
+  } as any)
+const ApiMasaiverseV2ClubsVisitRoute =
+  ApiMasaiverseV2ClubsVisitRouteImport.update({
+    id: '/api/masaiverse-v2/clubs/visit',
+    path: '/api/masaiverse-v2/clubs/visit',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiMasaiverseV2ClubsUpdateRoute =
+  ApiMasaiverseV2ClubsUpdateRouteImport.update({
+    id: '/api/masaiverse-v2/clubs/update',
+    path: '/api/masaiverse-v2/clubs/update',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiMasaiverseV2ClubsStatsRoute =
+  ApiMasaiverseV2ClubsStatsRouteImport.update({
+    id: '/api/masaiverse-v2/clubs/stats',
+    path: '/api/masaiverse-v2/clubs/stats',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiMasaiverseV2ClubsMineRoute =
+  ApiMasaiverseV2ClubsMineRouteImport.update({
+    id: '/api/masaiverse-v2/clubs/mine',
+    path: '/api/masaiverse-v2/clubs/mine',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiMasaiverseV2ClubsMembershipRoute =
+  ApiMasaiverseV2ClubsMembershipRouteImport.update({
+    id: '/api/masaiverse-v2/clubs/membership',
+    path: '/api/masaiverse-v2/clubs/membership',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiMasaiverseV2ClubsLeaderboardRoute =
+  ApiMasaiverseV2ClubsLeaderboardRouteImport.update({
+    id: '/api/masaiverse-v2/clubs/leaderboard',
+    path: '/api/masaiverse-v2/clubs/leaderboard',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiMasaiverseV2ClubsEventsRoute =
+  ApiMasaiverseV2ClubsEventsRouteImport.update({
+    id: '/api/masaiverse-v2/clubs/events',
+    path: '/api/masaiverse-v2/clubs/events',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiMasaiverseV2ClubsEditDataRoute =
+  ApiMasaiverseV2ClubsEditDataRouteImport.update({
+    id: '/api/masaiverse-v2/clubs/edit-data',
+    path: '/api/masaiverse-v2/clubs/edit-data',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiMasaiverseV2ClubsDetailRoute =
+  ApiMasaiverseV2ClubsDetailRouteImport.update({
+    id: '/api/masaiverse-v2/clubs/detail',
+    path: '/api/masaiverse-v2/clubs/detail',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiMasaiverseV2ClubsCreateRoute =
+  ApiMasaiverseV2ClubsCreateRouteImport.update({
+    id: '/api/masaiverse-v2/clubs/create',
+    path: '/api/masaiverse-v2/clubs/create',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiMasaiverseV2BannersUpdateRoute =
+  ApiMasaiverseV2BannersUpdateRouteImport.update({
+    id: '/api/masaiverse-v2/banners/update',
+    path: '/api/masaiverse-v2/banners/update',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiMasaiverseV2BannersListRoute =
+  ApiMasaiverseV2BannersListRouteImport.update({
+    id: '/api/masaiverse-v2/banners/list',
+    path: '/api/masaiverse-v2/banners/list',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiMasaiverseV2BannersDeleteRoute =
+  ApiMasaiverseV2BannersDeleteRouteImport.update({
+    id: '/api/masaiverse-v2/banners/delete',
+    path: '/api/masaiverse-v2/banners/delete',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiMasaiverseV2BannersCreateRoute =
+  ApiMasaiverseV2BannersCreateRouteImport.update({
+    id: '/api/masaiverse-v2/banners/create',
+    path: '/api/masaiverse-v2/banners/create',
     getParentRoute: () => rootRouteImport,
   } as any)
 const protectedLayoutMasaiverseLeaderboardRoute =
@@ -286,12 +446,6 @@ const protectedLayoutMasaiverseClubsRoute =
     path: '/clubs',
     getParentRoute: () => protectedLayoutMasaiverseRouteRoute,
   } as any)
-const protectedLayoutChatbotLectureIdRoute =
-  protectedLayoutChatbotLectureIdRouteImport.update({
-    id: '/chatbot/$lectureId',
-    path: '/chatbot/$lectureId',
-    getParentRoute: () => protectedLayoutRouteRoute,
-  } as any)
 const authV2LoginVerifyOtpRoute = authV2LoginVerifyOtpRouteImport.update({
   id: '/(auth)/v2/login/verify-otp',
   path: '/v2/login/verify-otp',
@@ -313,89 +467,29 @@ const authV2AuthLinkedAccountsRoute =
     path: '/v2/auth/linked-accounts',
     getParentRoute: () => rootRouteImport,
   } as any)
-const protectedLayoutResourcesResourceIdRouteRoute =
-  protectedLayoutResourcesResourceIdRouteRouteImport.update({
-    id: '/resources_/$resourceId',
-    path: '/resources/$resourceId',
+const protectedLayoutSupportSupportIdIndexRoute =
+  protectedLayoutSupportSupportIdIndexRouteImport.update({
+    id: '/support/$supportId/',
+    path: '/support/$supportId/',
     getParentRoute: () => protectedLayoutRouteRoute,
   } as any)
-const protectedLayoutLecturesLectureIdRouteRoute =
-  protectedLayoutLecturesLectureIdRouteRouteImport.update({
-    id: '/lectures_/$lectureId',
-    path: '/lectures/$lectureId',
+const protectedLayoutDiscussionsCreateIndexRoute =
+  protectedLayoutDiscussionsCreateIndexRouteImport.update({
+    id: '/discussions/create/',
+    path: '/discussions/create/',
     getParentRoute: () => protectedLayoutRouteRoute,
   } as any)
-const protectedLayoutAssignmentsAssignmentIdRouteRoute =
-  protectedLayoutAssignmentsAssignmentIdRouteRouteImport.update({
-    id: '/assignments_/$assignmentId',
-    path: '/assignments/$assignmentId',
+const protectedLayoutDiscussionsDiscussionIdIndexRoute =
+  protectedLayoutDiscussionsDiscussionIdIndexRouteImport.update({
+    id: '/discussions/$discussionId/',
+    path: '/discussions/$discussionId/',
     getParentRoute: () => protectedLayoutRouteRoute,
   } as any)
-const protectedLayoutAnnouncementsIdRouteRoute =
-  protectedLayoutAnnouncementsIdRouteRouteImport.update({
-    id: '/announcements_/$id',
-    path: '/announcements/$id',
-    getParentRoute: () => protectedLayoutRouteRoute,
-  } as any)
-const ApiChatbotLectureIdSessionsIndexRoute =
-  ApiChatbotLectureIdSessionsIndexRouteImport.update({
-    id: '/api/chatbot/$lectureId/sessions/',
-    path: '/api/chatbot/$lectureId/sessions/',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const ApiLearnSubmissionsSubmissionIdViewOnPlatformRoute =
-  ApiLearnSubmissionsSubmissionIdViewOnPlatformRouteImport.update({
-    id: '/view-on-platform',
-    path: '/view-on-platform',
-    getParentRoute: () => ApiLearnSubmissionsSubmissionIdRoute,
-  } as any)
-const ApiLearnAssignmentsAssignmentIdSubmissionsRoute =
-  ApiLearnAssignmentsAssignmentIdSubmissionsRouteImport.update({
-    id: '/submissions',
-    path: '/submissions',
-    getParentRoute: () => ApiLearnAssignmentsAssignmentIdRoute,
-  } as any)
-const ApiLearnAssignmentsAssignmentIdAssessPlatformUrlRoute =
-  ApiLearnAssignmentsAssignmentIdAssessPlatformUrlRouteImport.update({
-    id: '/assess-platform-url',
-    path: '/assess-platform-url',
-    getParentRoute: () => ApiLearnAssignmentsAssignmentIdRoute,
-  } as any)
-const ApiLearnAiTutorLectureIdTranscriptRoute =
-  ApiLearnAiTutorLectureIdTranscriptRouteImport.update({
-    id: '/api/learn/ai-tutor/$lectureId/transcript',
-    path: '/api/learn/ai-tutor/$lectureId/transcript',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const ApiLearnAiTutorLectureIdSessionRoute =
-  ApiLearnAiTutorLectureIdSessionRouteImport.update({
-    id: '/api/learn/ai-tutor/$lectureId/session',
-    path: '/api/learn/ai-tutor/$lectureId/session',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const ApiLearnAiTutorLectureIdFeedbackRoute =
-  ApiLearnAiTutorLectureIdFeedbackRouteImport.update({
-    id: '/api/learn/ai-tutor/$lectureId/feedback',
-    path: '/api/learn/ai-tutor/$lectureId/feedback',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const ApiLearnAiTutorLectureIdDispatchRoute =
-  ApiLearnAiTutorLectureIdDispatchRouteImport.update({
-    id: '/api/learn/ai-tutor/$lectureId/dispatch',
-    path: '/api/learn/ai-tutor/$lectureId/dispatch',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const ApiLearnAiChatLectureIdSendRoute =
-  ApiLearnAiChatLectureIdSendRouteImport.update({
-    id: '/api/learn/ai-chat/$lectureId/send',
-    path: '/api/learn/ai-chat/$lectureId/send',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const ApiLearnAiChatLectureIdHistoryRoute =
-  ApiLearnAiChatLectureIdHistoryRouteImport.update({
-    id: '/api/learn/ai-chat/$lectureId/history',
-    path: '/api/learn/ai-chat/$lectureId/history',
-    getParentRoute: () => rootRouteImport,
+const protectedLayoutMasaiverseEventEventIdRoute =
+  protectedLayoutMasaiverseEventEventIdRouteImport.update({
+    id: '/event/$eventId',
+    path: '/event/$eventId',
+    getParentRoute: () => protectedLayoutMasaiverseRouteRoute,
   } as any)
 const protectedLayoutMasaiverseClubClubIdRoute =
   protectedLayoutMasaiverseClubClubIdRouteImport.update({
@@ -403,454 +497,772 @@ const protectedLayoutMasaiverseClubClubIdRoute =
     path: '/club/$clubId',
     getParentRoute: () => protectedLayoutMasaiverseRouteRoute,
   } as any)
-const ApiChatbotLectureIdSessionsSessionIdIndexRoute =
-  ApiChatbotLectureIdSessionsSessionIdIndexRouteImport.update({
-    id: '/api/chatbot/$lectureId/sessions/$sessionId/',
-    path: '/api/chatbot/$lectureId/sessions/$sessionId/',
-    getParentRoute: () => rootRouteImport,
+const protectedLayoutCoursesCourseIdCourseTabLayoutRouteRoute =
+  protectedLayoutCoursesCourseIdCourseTabLayoutRouteRouteImport.update({
+    id: '/courses/$courseId/_courseTabLayout',
+    path: '/courses/$courseId',
+    getParentRoute: () => protectedLayoutRouteRoute,
   } as any)
-const ApiChatbotInternalSessionsSessionIdMessagesRoute =
-  ApiChatbotInternalSessionsSessionIdMessagesRouteImport.update({
-    id: '/api/chatbot/internal/sessions/$sessionId/messages',
-    path: '/api/chatbot/internal/sessions/$sessionId/messages',
-    getParentRoute: () => rootRouteImport,
+const protectedLayoutCoursesCourseIdCourseTabLayoutIndexRoute =
+  protectedLayoutCoursesCourseIdCourseTabLayoutIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () =>
+      protectedLayoutCoursesCourseIdCourseTabLayoutRouteRoute,
   } as any)
-const ApiChatbotLectureIdSessionsSessionIdMessagesRoute =
-  ApiChatbotLectureIdSessionsSessionIdMessagesRouteImport.update({
-    id: '/api/chatbot/$lectureId/sessions/$sessionId/messages',
-    path: '/api/chatbot/$lectureId/sessions/$sessionId/messages',
-    getParentRoute: () => rootRouteImport,
+const protectedLayoutMasaiverseClubClubIdGalleryRoute =
+  protectedLayoutMasaiverseClubClubIdGalleryRouteImport.update({
+    id: '/club/$clubId_/gallery',
+    path: '/club/$clubId/gallery',
+    getParentRoute: () => protectedLayoutMasaiverseRouteRoute,
   } as any)
+const protectedLayoutCoursesCourseIdResourcesResourceIdRouteRoute =
+  protectedLayoutCoursesCourseIdResourcesResourceIdRouteRouteImport.update({
+    id: '/courses/$courseId/resources_/$resourceId',
+    path: '/courses/$courseId/resources/$resourceId',
+    getParentRoute: () => protectedLayoutRouteRoute,
+  } as any)
+const protectedLayoutCoursesCourseIdLecturesLectureIdRouteRoute =
+  protectedLayoutCoursesCourseIdLecturesLectureIdRouteRouteImport.update({
+    id: '/courses/$courseId/lectures_/$lectureId',
+    path: '/courses/$courseId/lectures/$lectureId',
+    getParentRoute: () => protectedLayoutRouteRoute,
+  } as any)
+const protectedLayoutCoursesCourseIdAssignmentsAssignmentIdRouteRoute =
+  protectedLayoutCoursesCourseIdAssignmentsAssignmentIdRouteRouteImport.update({
+    id: '/courses/$courseId/assignments_/$assignmentId',
+    path: '/courses/$courseId/assignments/$assignmentId',
+    getParentRoute: () => protectedLayoutRouteRoute,
+  } as any)
+const protectedLayoutCoursesCourseIdResourcesResourceIdIndexRoute =
+  protectedLayoutCoursesCourseIdResourcesResourceIdIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () =>
+      protectedLayoutCoursesCourseIdResourcesResourceIdRouteRoute,
+  } as any)
+const protectedLayoutCoursesCourseIdAssignmentsAssignmentIdIndexRoute =
+  protectedLayoutCoursesCourseIdAssignmentsAssignmentIdIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () =>
+      protectedLayoutCoursesCourseIdAssignmentsAssignmentIdRouteRoute,
+  } as any)
+const protectedLayoutCoursesCourseIdAnnouncementsAnnouncementIdIndexRoute =
+  protectedLayoutCoursesCourseIdAnnouncementsAnnouncementIdIndexRouteImport.update(
+    {
+      id: '/courses/$courseId/announcements_/$announcementId/',
+      path: '/courses/$courseId/announcements/$announcementId/',
+      getParentRoute: () => protectedLayoutRouteRoute,
+    } as any,
+  )
+const protectedLayoutCoursesCourseIdCourseTabLayoutResourcesIndexRoute =
+  protectedLayoutCoursesCourseIdCourseTabLayoutResourcesIndexRouteImport.update(
+    {
+      id: '/resources/',
+      path: '/resources/',
+      getParentRoute: () =>
+        protectedLayoutCoursesCourseIdCourseTabLayoutRouteRoute,
+    } as any,
+  )
+const protectedLayoutCoursesCourseIdCourseTabLayoutLecturesIndexRoute =
+  protectedLayoutCoursesCourseIdCourseTabLayoutLecturesIndexRouteImport.update({
+    id: '/lectures/',
+    path: '/lectures/',
+    getParentRoute: () =>
+      protectedLayoutCoursesCourseIdCourseTabLayoutRouteRoute,
+  } as any)
+const protectedLayoutCoursesCourseIdCourseTabLayoutAssignmentsIndexRoute =
+  protectedLayoutCoursesCourseIdCourseTabLayoutAssignmentsIndexRouteImport.update(
+    {
+      id: '/assignments/',
+      path: '/assignments/',
+      getParentRoute: () =>
+        protectedLayoutCoursesCourseIdCourseTabLayoutRouteRoute,
+    } as any,
+  )
+const protectedLayoutCoursesCourseIdResourcesResourceIdDiscussionsIndexRoute =
+  protectedLayoutCoursesCourseIdResourcesResourceIdDiscussionsIndexRouteImport.update(
+    {
+      id: '/discussions/',
+      path: '/discussions/',
+      getParentRoute: () =>
+        protectedLayoutCoursesCourseIdResourcesResourceIdRouteRoute,
+    } as any,
+  )
+const protectedLayoutCoursesCourseIdLecturesLectureIdDiscussionsIndexRoute =
+  protectedLayoutCoursesCourseIdLecturesLectureIdDiscussionsIndexRouteImport.update(
+    {
+      id: '/discussions/',
+      path: '/discussions/',
+      getParentRoute: () =>
+        protectedLayoutCoursesCourseIdLecturesLectureIdRouteRoute,
+    } as any,
+  )
+const protectedLayoutCoursesCourseIdAssignmentsAssignmentIdDiscussionsIndexRoute =
+  protectedLayoutCoursesCourseIdAssignmentsAssignmentIdDiscussionsIndexRouteImport.update(
+    {
+      id: '/discussions/',
+      path: '/discussions/',
+      getParentRoute: () =>
+        protectedLayoutCoursesCourseIdAssignmentsAssignmentIdRouteRoute,
+    } as any,
+  )
+const protectedLayoutCoursesCourseIdResourcesResourceIdDiscussionsCreateIndexRoute =
+  protectedLayoutCoursesCourseIdResourcesResourceIdDiscussionsCreateIndexRouteImport.update(
+    {
+      id: '/discussions/create/',
+      path: '/discussions/create/',
+      getParentRoute: () =>
+        protectedLayoutCoursesCourseIdResourcesResourceIdRouteRoute,
+    } as any,
+  )
+const protectedLayoutCoursesCourseIdResourcesResourceIdDiscussionsDiscussionIdIndexRoute =
+  protectedLayoutCoursesCourseIdResourcesResourceIdDiscussionsDiscussionIdIndexRouteImport.update(
+    {
+      id: '/discussions/$discussionId/',
+      path: '/discussions/$discussionId/',
+      getParentRoute: () =>
+        protectedLayoutCoursesCourseIdResourcesResourceIdRouteRoute,
+    } as any,
+  )
+const protectedLayoutCoursesCourseIdLecturesLectureIdDiscussionsCreateIndexRoute =
+  protectedLayoutCoursesCourseIdLecturesLectureIdDiscussionsCreateIndexRouteImport.update(
+    {
+      id: '/discussions/create/',
+      path: '/discussions/create/',
+      getParentRoute: () =>
+        protectedLayoutCoursesCourseIdLecturesLectureIdRouteRoute,
+    } as any,
+  )
+const protectedLayoutCoursesCourseIdLecturesLectureIdDiscussionsDiscussionIdIndexRoute =
+  protectedLayoutCoursesCourseIdLecturesLectureIdDiscussionsDiscussionIdIndexRouteImport.update(
+    {
+      id: '/discussions/$discussionId/',
+      path: '/discussions/$discussionId/',
+      getParentRoute: () =>
+        protectedLayoutCoursesCourseIdLecturesLectureIdRouteRoute,
+    } as any,
+  )
+const protectedLayoutCoursesCourseIdAssignmentsAssignmentIdDiscussionsCreateIndexRoute =
+  protectedLayoutCoursesCourseIdAssignmentsAssignmentIdDiscussionsCreateIndexRouteImport.update(
+    {
+      id: '/discussions/create/',
+      path: '/discussions/create/',
+      getParentRoute: () =>
+        protectedLayoutCoursesCourseIdAssignmentsAssignmentIdRouteRoute,
+    } as any,
+  )
+const protectedLayoutCoursesCourseIdAssignmentsAssignmentIdDiscussionsDiscussionIdIndexRoute =
+  protectedLayoutCoursesCourseIdAssignmentsAssignmentIdDiscussionsDiscussionIdIndexRouteImport.update(
+    {
+      id: '/discussions/$discussionId/',
+      path: '/discussions/$discussionId/',
+      getParentRoute: () =>
+        protectedLayoutCoursesCourseIdAssignmentsAssignmentIdRouteRoute,
+    } as any,
+  )
 
 export interface FileRoutesByFullPath {
+  '/api/health': typeof ApiHealthRoute
   '/masaiverse': typeof protectedLayoutMasaiverseRouteRouteWithChildren
   '/v2/forgot-password': typeof authV2ForgotPasswordRoute
   '/v2/me': typeof authV2MeRoute
   '/v2/reset-password': typeof authV2ResetPasswordRoute
-  '/api/dashboard/action-banners': typeof ApiDashboardActionBannersRoute
-  '/api/dashboard/announcements': typeof ApiDashboardAnnouncementsRoute
-  '/api/dashboard/banners': typeof ApiDashboardBannersRoute
-  '/api/dashboard/pending-tasks': typeof ApiDashboardPendingTasksRoute
-  '/api/dashboard/product-updates': typeof ApiDashboardProductUpdatesRoute
-  '/api/dashboard/schedule': typeof ApiDashboardScheduleRoute
-  '/api/learn/batch-data': typeof ApiLearnBatchDataRoute
-  '/api/learn/batches': typeof ApiLearnBatchesRoute
+  '/api/masaiverse-v2/admin-mode': typeof ApiMasaiverseV2AdminModeRoute
+  '/api/masaiverse-v2/award-points': typeof ApiMasaiverseV2AwardPointsRoute
+  '/api/masaiverse-v2/discussions': typeof ApiMasaiverseV2DiscussionsRouteWithChildren
   '/api/masaiverse-v2/home': typeof ApiMasaiverseV2HomeRoute
+  '/api/masaiverse-v2/leaderboard': typeof ApiMasaiverseV2LeaderboardRoute
+  '/api/masaiverse-v2/visited': typeof ApiMasaiverseV2VisitedRoute
   '/login/': typeof authLoginIndexRoute
   '/signin/': typeof authSigninIndexRoute
   '/switch-account/': typeof authSwitchAccountIndexRoute
   '/': typeof protectedLayoutIndexRoute
-  '/api/announcement/': typeof ApiAnnouncementIndexRoute
-  '/api/bookmarks/': typeof ApiBookmarksIndexRoute
-  '/announcements/$id': typeof protectedLayoutAnnouncementsIdRouteRoute
-  '/assignments/$assignmentId': typeof protectedLayoutAssignmentsAssignmentIdRouteRoute
-  '/lectures/$lectureId': typeof protectedLayoutLecturesLectureIdRouteRoute
-  '/resources/$resourceId': typeof protectedLayoutResourcesResourceIdRouteRoute
+  '/zoom/': typeof protectedZoomIndexRoute
   '/v2/auth/linked-accounts': typeof authV2AuthLinkedAccountsRoute
   '/v2/auth/use-account': typeof authV2AuthUseAccountRoute
   '/v2/login/request-otp': typeof authV2LoginRequestOtpRoute
   '/v2/login/verify-otp': typeof authV2LoginVerifyOtpRoute
-  '/chatbot/$lectureId': typeof protectedLayoutChatbotLectureIdRoute
   '/masaiverse/clubs': typeof protectedLayoutMasaiverseClubsRoute
   '/masaiverse/discussions': typeof protectedLayoutMasaiverseDiscussionsRoute
   '/masaiverse/events': typeof protectedLayoutMasaiverseEventsRoute
   '/masaiverse/home': typeof protectedLayoutMasaiverseHomeRoute
   '/masaiverse/leaderboard': typeof protectedLayoutMasaiverseLeaderboardRoute
-  '/api/chatbot/$lectureId/token': typeof ApiChatbotLectureIdTokenRoute
-  '/api/learn/ai-tutor/end': typeof ApiLearnAiTutorEndRoute
-  '/api/learn/ai-tutor/limit': typeof ApiLearnAiTutorLimitRoute
-  '/api/learn/assignments/$assignmentId': typeof ApiLearnAssignmentsAssignmentIdRouteWithChildren
-  '/api/learn/lectures/$lectureId': typeof ApiLearnLecturesLectureIdRoute
-  '/api/learn/resources/$resourceId': typeof ApiLearnResourcesResourceIdRoute
-  '/api/learn/submissions/$submissionId': typeof ApiLearnSubmissionsSubmissionIdRouteWithChildren
+  '/api/masaiverse-v2/banners/create': typeof ApiMasaiverseV2BannersCreateRoute
+  '/api/masaiverse-v2/banners/delete': typeof ApiMasaiverseV2BannersDeleteRoute
+  '/api/masaiverse-v2/banners/list': typeof ApiMasaiverseV2BannersListRoute
+  '/api/masaiverse-v2/banners/update': typeof ApiMasaiverseV2BannersUpdateRoute
+  '/api/masaiverse-v2/clubs/create': typeof ApiMasaiverseV2ClubsCreateRoute
+  '/api/masaiverse-v2/clubs/detail': typeof ApiMasaiverseV2ClubsDetailRoute
+  '/api/masaiverse-v2/clubs/edit-data': typeof ApiMasaiverseV2ClubsEditDataRoute
+  '/api/masaiverse-v2/clubs/events': typeof ApiMasaiverseV2ClubsEventsRoute
+  '/api/masaiverse-v2/clubs/leaderboard': typeof ApiMasaiverseV2ClubsLeaderboardRoute
+  '/api/masaiverse-v2/clubs/membership': typeof ApiMasaiverseV2ClubsMembershipRoute
+  '/api/masaiverse-v2/clubs/mine': typeof ApiMasaiverseV2ClubsMineRoute
+  '/api/masaiverse-v2/clubs/stats': typeof ApiMasaiverseV2ClubsStatsRoute
+  '/api/masaiverse-v2/clubs/update': typeof ApiMasaiverseV2ClubsUpdateRoute
+  '/api/masaiverse-v2/clubs/visit': typeof ApiMasaiverseV2ClubsVisitRoute
+  '/api/masaiverse-v2/discussions/replies': typeof ApiMasaiverseV2DiscussionsRepliesRoute
+  '/api/masaiverse-v2/discussions/vote': typeof ApiMasaiverseV2DiscussionsVoteRoute
+  '/api/masaiverse-v2/events/create': typeof ApiMasaiverseV2EventsCreateRoute
+  '/api/masaiverse-v2/events/detail': typeof ApiMasaiverseV2EventsDetailRoute
+  '/api/masaiverse-v2/events/edit-data': typeof ApiMasaiverseV2EventsEditDataRoute
+  '/api/masaiverse-v2/events/enroll': typeof ApiMasaiverseV2EventsEnrollRoute
+  '/api/masaiverse-v2/events/list': typeof ApiMasaiverseV2EventsListRoute
+  '/api/masaiverse-v2/events/rate': typeof ApiMasaiverseV2EventsRateRoute
+  '/api/masaiverse-v2/events/update': typeof ApiMasaiverseV2EventsUpdateRoute
+  '/api/masaiverse-v2/uploads/image': typeof ApiMasaiverseV2UploadsImageRoute
+  '/api/masaiverse-v2/users/search': typeof ApiMasaiverseV2UsersSearchRoute
   '/reset-password/$token/': typeof authResetPasswordTokenIndexRoute
   '/v2/login/': typeof authV2LoginIndexRoute
   '/announcements/': typeof protectedLayoutAnnouncementsIndexRoute
-  '/bookmarks/': typeof protectedLayoutBookmarksIndexRoute
-  '/learn/': typeof protectedLayoutLearnIndexRoute
+  '/bookmark/': typeof protectedLayoutBookmarkIndexRoute
+  '/chat/': typeof protectedLayoutChatIndexRoute
+  '/courses/': typeof protectedLayoutCoursesIndexRoute
+  '/discussions/': typeof protectedLayoutDiscussionsIndexRoute
   '/masaiverse/': typeof protectedLayoutMasaiverseIndexRoute
-  '/api/announcement/$id/': typeof ApiAnnouncementIdIndexRoute
+  '/practice-interview/': typeof protectedLayoutPracticeInterviewIndexRoute
+  '/profile/': typeof protectedLayoutProfileIndexRoute
+  '/refer-and-earn/': typeof protectedLayoutReferAndEarnIndexRoute
+  '/support/': typeof protectedLayoutSupportIndexRoute
+  '/whats-new/': typeof protectedLayoutWhatsNewIndexRoute
+  '/courses/$courseId': typeof protectedLayoutCoursesCourseIdCourseTabLayoutRouteRouteWithChildren
   '/masaiverse/club/$clubId': typeof protectedLayoutMasaiverseClubClubIdRoute
-  '/api/learn/ai-chat/$lectureId/history': typeof ApiLearnAiChatLectureIdHistoryRoute
-  '/api/learn/ai-chat/$lectureId/send': typeof ApiLearnAiChatLectureIdSendRoute
-  '/api/learn/ai-tutor/$lectureId/dispatch': typeof ApiLearnAiTutorLectureIdDispatchRoute
-  '/api/learn/ai-tutor/$lectureId/feedback': typeof ApiLearnAiTutorLectureIdFeedbackRoute
-  '/api/learn/ai-tutor/$lectureId/session': typeof ApiLearnAiTutorLectureIdSessionRoute
-  '/api/learn/ai-tutor/$lectureId/transcript': typeof ApiLearnAiTutorLectureIdTranscriptRoute
-  '/api/learn/assignments/$assignmentId/assess-platform-url': typeof ApiLearnAssignmentsAssignmentIdAssessPlatformUrlRoute
-  '/api/learn/assignments/$assignmentId/submissions': typeof ApiLearnAssignmentsAssignmentIdSubmissionsRoute
-  '/api/learn/submissions/$submissionId/view-on-platform': typeof ApiLearnSubmissionsSubmissionIdViewOnPlatformRoute
-  '/api/chatbot/$lectureId/sessions/': typeof ApiChatbotLectureIdSessionsIndexRoute
-  '/api/chatbot/$lectureId/sessions/$sessionId/messages': typeof ApiChatbotLectureIdSessionsSessionIdMessagesRoute
-  '/api/chatbot/internal/sessions/$sessionId/messages': typeof ApiChatbotInternalSessionsSessionIdMessagesRoute
-  '/api/chatbot/$lectureId/sessions/$sessionId/': typeof ApiChatbotLectureIdSessionsSessionIdIndexRoute
+  '/masaiverse/event/$eventId': typeof protectedLayoutMasaiverseEventEventIdRoute
+  '/discussions/$discussionId/': typeof protectedLayoutDiscussionsDiscussionIdIndexRoute
+  '/discussions/create/': typeof protectedLayoutDiscussionsCreateIndexRoute
+  '/support/$supportId/': typeof protectedLayoutSupportSupportIdIndexRoute
+  '/courses/$courseId/assignments/$assignmentId': typeof protectedLayoutCoursesCourseIdAssignmentsAssignmentIdRouteRouteWithChildren
+  '/courses/$courseId/lectures/$lectureId': typeof protectedLayoutCoursesCourseIdLecturesLectureIdRouteRouteWithChildren
+  '/courses/$courseId/resources/$resourceId': typeof protectedLayoutCoursesCourseIdResourcesResourceIdRouteRouteWithChildren
+  '/masaiverse/club/$clubId/gallery': typeof protectedLayoutMasaiverseClubClubIdGalleryRoute
+  '/courses/$courseId/': typeof protectedLayoutCoursesCourseIdCourseTabLayoutIndexRoute
+  '/courses/$courseId/assignments/': typeof protectedLayoutCoursesCourseIdCourseTabLayoutAssignmentsIndexRoute
+  '/courses/$courseId/lectures/': typeof protectedLayoutCoursesCourseIdCourseTabLayoutLecturesIndexRoute
+  '/courses/$courseId/resources/': typeof protectedLayoutCoursesCourseIdCourseTabLayoutResourcesIndexRoute
+  '/courses/$courseId/announcements/$announcementId/': typeof protectedLayoutCoursesCourseIdAnnouncementsAnnouncementIdIndexRoute
+  '/courses/$courseId/assignments/$assignmentId/': typeof protectedLayoutCoursesCourseIdAssignmentsAssignmentIdIndexRoute
+  '/courses/$courseId/resources/$resourceId/': typeof protectedLayoutCoursesCourseIdResourcesResourceIdIndexRoute
+  '/courses/$courseId/assignments/$assignmentId/discussions/': typeof protectedLayoutCoursesCourseIdAssignmentsAssignmentIdDiscussionsIndexRoute
+  '/courses/$courseId/lectures/$lectureId/discussions/': typeof protectedLayoutCoursesCourseIdLecturesLectureIdDiscussionsIndexRoute
+  '/courses/$courseId/resources/$resourceId/discussions/': typeof protectedLayoutCoursesCourseIdResourcesResourceIdDiscussionsIndexRoute
+  '/courses/$courseId/assignments/$assignmentId/discussions/$discussionId/': typeof protectedLayoutCoursesCourseIdAssignmentsAssignmentIdDiscussionsDiscussionIdIndexRoute
+  '/courses/$courseId/assignments/$assignmentId/discussions/create/': typeof protectedLayoutCoursesCourseIdAssignmentsAssignmentIdDiscussionsCreateIndexRoute
+  '/courses/$courseId/lectures/$lectureId/discussions/$discussionId/': typeof protectedLayoutCoursesCourseIdLecturesLectureIdDiscussionsDiscussionIdIndexRoute
+  '/courses/$courseId/lectures/$lectureId/discussions/create/': typeof protectedLayoutCoursesCourseIdLecturesLectureIdDiscussionsCreateIndexRoute
+  '/courses/$courseId/resources/$resourceId/discussions/$discussionId/': typeof protectedLayoutCoursesCourseIdResourcesResourceIdDiscussionsDiscussionIdIndexRoute
+  '/courses/$courseId/resources/$resourceId/discussions/create/': typeof protectedLayoutCoursesCourseIdResourcesResourceIdDiscussionsCreateIndexRoute
 }
 export interface FileRoutesByTo {
+  '/api/health': typeof ApiHealthRoute
   '/v2/forgot-password': typeof authV2ForgotPasswordRoute
   '/v2/me': typeof authV2MeRoute
   '/v2/reset-password': typeof authV2ResetPasswordRoute
-  '/api/dashboard/action-banners': typeof ApiDashboardActionBannersRoute
-  '/api/dashboard/announcements': typeof ApiDashboardAnnouncementsRoute
-  '/api/dashboard/banners': typeof ApiDashboardBannersRoute
-  '/api/dashboard/pending-tasks': typeof ApiDashboardPendingTasksRoute
-  '/api/dashboard/product-updates': typeof ApiDashboardProductUpdatesRoute
-  '/api/dashboard/schedule': typeof ApiDashboardScheduleRoute
-  '/api/learn/batch-data': typeof ApiLearnBatchDataRoute
-  '/api/learn/batches': typeof ApiLearnBatchesRoute
+  '/api/masaiverse-v2/admin-mode': typeof ApiMasaiverseV2AdminModeRoute
+  '/api/masaiverse-v2/award-points': typeof ApiMasaiverseV2AwardPointsRoute
+  '/api/masaiverse-v2/discussions': typeof ApiMasaiverseV2DiscussionsRouteWithChildren
   '/api/masaiverse-v2/home': typeof ApiMasaiverseV2HomeRoute
+  '/api/masaiverse-v2/leaderboard': typeof ApiMasaiverseV2LeaderboardRoute
+  '/api/masaiverse-v2/visited': typeof ApiMasaiverseV2VisitedRoute
   '/login': typeof authLoginIndexRoute
   '/signin': typeof authSigninIndexRoute
   '/switch-account': typeof authSwitchAccountIndexRoute
   '/': typeof protectedLayoutIndexRoute
-  '/api/announcement': typeof ApiAnnouncementIndexRoute
-  '/api/bookmarks': typeof ApiBookmarksIndexRoute
-  '/announcements/$id': typeof protectedLayoutAnnouncementsIdRouteRoute
-  '/assignments/$assignmentId': typeof protectedLayoutAssignmentsAssignmentIdRouteRoute
-  '/lectures/$lectureId': typeof protectedLayoutLecturesLectureIdRouteRoute
-  '/resources/$resourceId': typeof protectedLayoutResourcesResourceIdRouteRoute
+  '/zoom': typeof protectedZoomIndexRoute
   '/v2/auth/linked-accounts': typeof authV2AuthLinkedAccountsRoute
   '/v2/auth/use-account': typeof authV2AuthUseAccountRoute
   '/v2/login/request-otp': typeof authV2LoginRequestOtpRoute
   '/v2/login/verify-otp': typeof authV2LoginVerifyOtpRoute
-  '/chatbot/$lectureId': typeof protectedLayoutChatbotLectureIdRoute
   '/masaiverse/clubs': typeof protectedLayoutMasaiverseClubsRoute
   '/masaiverse/discussions': typeof protectedLayoutMasaiverseDiscussionsRoute
   '/masaiverse/events': typeof protectedLayoutMasaiverseEventsRoute
   '/masaiverse/home': typeof protectedLayoutMasaiverseHomeRoute
   '/masaiverse/leaderboard': typeof protectedLayoutMasaiverseLeaderboardRoute
-  '/api/chatbot/$lectureId/token': typeof ApiChatbotLectureIdTokenRoute
-  '/api/learn/ai-tutor/end': typeof ApiLearnAiTutorEndRoute
-  '/api/learn/ai-tutor/limit': typeof ApiLearnAiTutorLimitRoute
-  '/api/learn/assignments/$assignmentId': typeof ApiLearnAssignmentsAssignmentIdRouteWithChildren
-  '/api/learn/lectures/$lectureId': typeof ApiLearnLecturesLectureIdRoute
-  '/api/learn/resources/$resourceId': typeof ApiLearnResourcesResourceIdRoute
-  '/api/learn/submissions/$submissionId': typeof ApiLearnSubmissionsSubmissionIdRouteWithChildren
+  '/api/masaiverse-v2/banners/create': typeof ApiMasaiverseV2BannersCreateRoute
+  '/api/masaiverse-v2/banners/delete': typeof ApiMasaiverseV2BannersDeleteRoute
+  '/api/masaiverse-v2/banners/list': typeof ApiMasaiverseV2BannersListRoute
+  '/api/masaiverse-v2/banners/update': typeof ApiMasaiverseV2BannersUpdateRoute
+  '/api/masaiverse-v2/clubs/create': typeof ApiMasaiverseV2ClubsCreateRoute
+  '/api/masaiverse-v2/clubs/detail': typeof ApiMasaiverseV2ClubsDetailRoute
+  '/api/masaiverse-v2/clubs/edit-data': typeof ApiMasaiverseV2ClubsEditDataRoute
+  '/api/masaiverse-v2/clubs/events': typeof ApiMasaiverseV2ClubsEventsRoute
+  '/api/masaiverse-v2/clubs/leaderboard': typeof ApiMasaiverseV2ClubsLeaderboardRoute
+  '/api/masaiverse-v2/clubs/membership': typeof ApiMasaiverseV2ClubsMembershipRoute
+  '/api/masaiverse-v2/clubs/mine': typeof ApiMasaiverseV2ClubsMineRoute
+  '/api/masaiverse-v2/clubs/stats': typeof ApiMasaiverseV2ClubsStatsRoute
+  '/api/masaiverse-v2/clubs/update': typeof ApiMasaiverseV2ClubsUpdateRoute
+  '/api/masaiverse-v2/clubs/visit': typeof ApiMasaiverseV2ClubsVisitRoute
+  '/api/masaiverse-v2/discussions/replies': typeof ApiMasaiverseV2DiscussionsRepliesRoute
+  '/api/masaiverse-v2/discussions/vote': typeof ApiMasaiverseV2DiscussionsVoteRoute
+  '/api/masaiverse-v2/events/create': typeof ApiMasaiverseV2EventsCreateRoute
+  '/api/masaiverse-v2/events/detail': typeof ApiMasaiverseV2EventsDetailRoute
+  '/api/masaiverse-v2/events/edit-data': typeof ApiMasaiverseV2EventsEditDataRoute
+  '/api/masaiverse-v2/events/enroll': typeof ApiMasaiverseV2EventsEnrollRoute
+  '/api/masaiverse-v2/events/list': typeof ApiMasaiverseV2EventsListRoute
+  '/api/masaiverse-v2/events/rate': typeof ApiMasaiverseV2EventsRateRoute
+  '/api/masaiverse-v2/events/update': typeof ApiMasaiverseV2EventsUpdateRoute
+  '/api/masaiverse-v2/uploads/image': typeof ApiMasaiverseV2UploadsImageRoute
+  '/api/masaiverse-v2/users/search': typeof ApiMasaiverseV2UsersSearchRoute
   '/reset-password/$token': typeof authResetPasswordTokenIndexRoute
   '/v2/login': typeof authV2LoginIndexRoute
   '/announcements': typeof protectedLayoutAnnouncementsIndexRoute
-  '/bookmarks': typeof protectedLayoutBookmarksIndexRoute
-  '/learn': typeof protectedLayoutLearnIndexRoute
+  '/bookmark': typeof protectedLayoutBookmarkIndexRoute
+  '/chat': typeof protectedLayoutChatIndexRoute
+  '/courses': typeof protectedLayoutCoursesIndexRoute
+  '/discussions': typeof protectedLayoutDiscussionsIndexRoute
   '/masaiverse': typeof protectedLayoutMasaiverseIndexRoute
-  '/api/announcement/$id': typeof ApiAnnouncementIdIndexRoute
+  '/practice-interview': typeof protectedLayoutPracticeInterviewIndexRoute
+  '/profile': typeof protectedLayoutProfileIndexRoute
+  '/refer-and-earn': typeof protectedLayoutReferAndEarnIndexRoute
+  '/support': typeof protectedLayoutSupportIndexRoute
+  '/whats-new': typeof protectedLayoutWhatsNewIndexRoute
   '/masaiverse/club/$clubId': typeof protectedLayoutMasaiverseClubClubIdRoute
-  '/api/learn/ai-chat/$lectureId/history': typeof ApiLearnAiChatLectureIdHistoryRoute
-  '/api/learn/ai-chat/$lectureId/send': typeof ApiLearnAiChatLectureIdSendRoute
-  '/api/learn/ai-tutor/$lectureId/dispatch': typeof ApiLearnAiTutorLectureIdDispatchRoute
-  '/api/learn/ai-tutor/$lectureId/feedback': typeof ApiLearnAiTutorLectureIdFeedbackRoute
-  '/api/learn/ai-tutor/$lectureId/session': typeof ApiLearnAiTutorLectureIdSessionRoute
-  '/api/learn/ai-tutor/$lectureId/transcript': typeof ApiLearnAiTutorLectureIdTranscriptRoute
-  '/api/learn/assignments/$assignmentId/assess-platform-url': typeof ApiLearnAssignmentsAssignmentIdAssessPlatformUrlRoute
-  '/api/learn/assignments/$assignmentId/submissions': typeof ApiLearnAssignmentsAssignmentIdSubmissionsRoute
-  '/api/learn/submissions/$submissionId/view-on-platform': typeof ApiLearnSubmissionsSubmissionIdViewOnPlatformRoute
-  '/api/chatbot/$lectureId/sessions': typeof ApiChatbotLectureIdSessionsIndexRoute
-  '/api/chatbot/$lectureId/sessions/$sessionId/messages': typeof ApiChatbotLectureIdSessionsSessionIdMessagesRoute
-  '/api/chatbot/internal/sessions/$sessionId/messages': typeof ApiChatbotInternalSessionsSessionIdMessagesRoute
-  '/api/chatbot/$lectureId/sessions/$sessionId': typeof ApiChatbotLectureIdSessionsSessionIdIndexRoute
+  '/masaiverse/event/$eventId': typeof protectedLayoutMasaiverseEventEventIdRoute
+  '/discussions/$discussionId': typeof protectedLayoutDiscussionsDiscussionIdIndexRoute
+  '/discussions/create': typeof protectedLayoutDiscussionsCreateIndexRoute
+  '/support/$supportId': typeof protectedLayoutSupportSupportIdIndexRoute
+  '/courses/$courseId/lectures/$lectureId': typeof protectedLayoutCoursesCourseIdLecturesLectureIdRouteRouteWithChildren
+  '/masaiverse/club/$clubId/gallery': typeof protectedLayoutMasaiverseClubClubIdGalleryRoute
+  '/courses/$courseId': typeof protectedLayoutCoursesCourseIdCourseTabLayoutIndexRoute
+  '/courses/$courseId/assignments': typeof protectedLayoutCoursesCourseIdCourseTabLayoutAssignmentsIndexRoute
+  '/courses/$courseId/lectures': typeof protectedLayoutCoursesCourseIdCourseTabLayoutLecturesIndexRoute
+  '/courses/$courseId/resources': typeof protectedLayoutCoursesCourseIdCourseTabLayoutResourcesIndexRoute
+  '/courses/$courseId/announcements/$announcementId': typeof protectedLayoutCoursesCourseIdAnnouncementsAnnouncementIdIndexRoute
+  '/courses/$courseId/assignments/$assignmentId': typeof protectedLayoutCoursesCourseIdAssignmentsAssignmentIdIndexRoute
+  '/courses/$courseId/resources/$resourceId': typeof protectedLayoutCoursesCourseIdResourcesResourceIdIndexRoute
+  '/courses/$courseId/assignments/$assignmentId/discussions': typeof protectedLayoutCoursesCourseIdAssignmentsAssignmentIdDiscussionsIndexRoute
+  '/courses/$courseId/lectures/$lectureId/discussions': typeof protectedLayoutCoursesCourseIdLecturesLectureIdDiscussionsIndexRoute
+  '/courses/$courseId/resources/$resourceId/discussions': typeof protectedLayoutCoursesCourseIdResourcesResourceIdDiscussionsIndexRoute
+  '/courses/$courseId/assignments/$assignmentId/discussions/$discussionId': typeof protectedLayoutCoursesCourseIdAssignmentsAssignmentIdDiscussionsDiscussionIdIndexRoute
+  '/courses/$courseId/assignments/$assignmentId/discussions/create': typeof protectedLayoutCoursesCourseIdAssignmentsAssignmentIdDiscussionsCreateIndexRoute
+  '/courses/$courseId/lectures/$lectureId/discussions/$discussionId': typeof protectedLayoutCoursesCourseIdLecturesLectureIdDiscussionsDiscussionIdIndexRoute
+  '/courses/$courseId/lectures/$lectureId/discussions/create': typeof protectedLayoutCoursesCourseIdLecturesLectureIdDiscussionsCreateIndexRoute
+  '/courses/$courseId/resources/$resourceId/discussions/$discussionId': typeof protectedLayoutCoursesCourseIdResourcesResourceIdDiscussionsDiscussionIdIndexRoute
+  '/courses/$courseId/resources/$resourceId/discussions/create': typeof protectedLayoutCoursesCourseIdResourcesResourceIdDiscussionsCreateIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/(protected)/_layout': typeof protectedLayoutRouteRouteWithChildren
+  '/api/health': typeof ApiHealthRoute
   '/(protected)/_layout/masaiverse': typeof protectedLayoutMasaiverseRouteRouteWithChildren
   '/(auth)/v2/forgot-password': typeof authV2ForgotPasswordRoute
   '/(auth)/v2/me': typeof authV2MeRoute
   '/(auth)/v2/reset-password': typeof authV2ResetPasswordRoute
-  '/api/dashboard/action-banners': typeof ApiDashboardActionBannersRoute
-  '/api/dashboard/announcements': typeof ApiDashboardAnnouncementsRoute
-  '/api/dashboard/banners': typeof ApiDashboardBannersRoute
-  '/api/dashboard/pending-tasks': typeof ApiDashboardPendingTasksRoute
-  '/api/dashboard/product-updates': typeof ApiDashboardProductUpdatesRoute
-  '/api/dashboard/schedule': typeof ApiDashboardScheduleRoute
-  '/api/learn/batch-data': typeof ApiLearnBatchDataRoute
-  '/api/learn/batches': typeof ApiLearnBatchesRoute
+  '/api/masaiverse-v2/admin-mode': typeof ApiMasaiverseV2AdminModeRoute
+  '/api/masaiverse-v2/award-points': typeof ApiMasaiverseV2AwardPointsRoute
+  '/api/masaiverse-v2/discussions': typeof ApiMasaiverseV2DiscussionsRouteWithChildren
   '/api/masaiverse-v2/home': typeof ApiMasaiverseV2HomeRoute
+  '/api/masaiverse-v2/leaderboard': typeof ApiMasaiverseV2LeaderboardRoute
+  '/api/masaiverse-v2/visited': typeof ApiMasaiverseV2VisitedRoute
   '/(auth)/login/': typeof authLoginIndexRoute
   '/(auth)/signin/': typeof authSigninIndexRoute
   '/(auth)/switch-account/': typeof authSwitchAccountIndexRoute
   '/(protected)/_layout/': typeof protectedLayoutIndexRoute
-  '/api/announcement/': typeof ApiAnnouncementIndexRoute
-  '/api/bookmarks/': typeof ApiBookmarksIndexRoute
-  '/(protected)/_layout/announcements_/$id': typeof protectedLayoutAnnouncementsIdRouteRoute
-  '/(protected)/_layout/assignments_/$assignmentId': typeof protectedLayoutAssignmentsAssignmentIdRouteRoute
-  '/(protected)/_layout/lectures_/$lectureId': typeof protectedLayoutLecturesLectureIdRouteRoute
-  '/(protected)/_layout/resources_/$resourceId': typeof protectedLayoutResourcesResourceIdRouteRoute
+  '/(protected)/zoom/': typeof protectedZoomIndexRoute
   '/(auth)/v2/auth/linked-accounts': typeof authV2AuthLinkedAccountsRoute
   '/(auth)/v2/auth/use-account': typeof authV2AuthUseAccountRoute
   '/(auth)/v2/login/request-otp': typeof authV2LoginRequestOtpRoute
   '/(auth)/v2/login/verify-otp': typeof authV2LoginVerifyOtpRoute
-  '/(protected)/_layout/chatbot/$lectureId': typeof protectedLayoutChatbotLectureIdRoute
   '/(protected)/_layout/masaiverse/clubs': typeof protectedLayoutMasaiverseClubsRoute
   '/(protected)/_layout/masaiverse/discussions': typeof protectedLayoutMasaiverseDiscussionsRoute
   '/(protected)/_layout/masaiverse/events': typeof protectedLayoutMasaiverseEventsRoute
   '/(protected)/_layout/masaiverse/home': typeof protectedLayoutMasaiverseHomeRoute
   '/(protected)/_layout/masaiverse/leaderboard': typeof protectedLayoutMasaiverseLeaderboardRoute
-  '/api/chatbot/$lectureId/token': typeof ApiChatbotLectureIdTokenRoute
-  '/api/learn/ai-tutor/end': typeof ApiLearnAiTutorEndRoute
-  '/api/learn/ai-tutor/limit': typeof ApiLearnAiTutorLimitRoute
-  '/api/learn/assignments/$assignmentId': typeof ApiLearnAssignmentsAssignmentIdRouteWithChildren
-  '/api/learn/lectures/$lectureId': typeof ApiLearnLecturesLectureIdRoute
-  '/api/learn/resources/$resourceId': typeof ApiLearnResourcesResourceIdRoute
-  '/api/learn/submissions/$submissionId': typeof ApiLearnSubmissionsSubmissionIdRouteWithChildren
+  '/api/masaiverse-v2/banners/create': typeof ApiMasaiverseV2BannersCreateRoute
+  '/api/masaiverse-v2/banners/delete': typeof ApiMasaiverseV2BannersDeleteRoute
+  '/api/masaiverse-v2/banners/list': typeof ApiMasaiverseV2BannersListRoute
+  '/api/masaiverse-v2/banners/update': typeof ApiMasaiverseV2BannersUpdateRoute
+  '/api/masaiverse-v2/clubs/create': typeof ApiMasaiverseV2ClubsCreateRoute
+  '/api/masaiverse-v2/clubs/detail': typeof ApiMasaiverseV2ClubsDetailRoute
+  '/api/masaiverse-v2/clubs/edit-data': typeof ApiMasaiverseV2ClubsEditDataRoute
+  '/api/masaiverse-v2/clubs/events': typeof ApiMasaiverseV2ClubsEventsRoute
+  '/api/masaiverse-v2/clubs/leaderboard': typeof ApiMasaiverseV2ClubsLeaderboardRoute
+  '/api/masaiverse-v2/clubs/membership': typeof ApiMasaiverseV2ClubsMembershipRoute
+  '/api/masaiverse-v2/clubs/mine': typeof ApiMasaiverseV2ClubsMineRoute
+  '/api/masaiverse-v2/clubs/stats': typeof ApiMasaiverseV2ClubsStatsRoute
+  '/api/masaiverse-v2/clubs/update': typeof ApiMasaiverseV2ClubsUpdateRoute
+  '/api/masaiverse-v2/clubs/visit': typeof ApiMasaiverseV2ClubsVisitRoute
+  '/api/masaiverse-v2/discussions/replies': typeof ApiMasaiverseV2DiscussionsRepliesRoute
+  '/api/masaiverse-v2/discussions/vote': typeof ApiMasaiverseV2DiscussionsVoteRoute
+  '/api/masaiverse-v2/events/create': typeof ApiMasaiverseV2EventsCreateRoute
+  '/api/masaiverse-v2/events/detail': typeof ApiMasaiverseV2EventsDetailRoute
+  '/api/masaiverse-v2/events/edit-data': typeof ApiMasaiverseV2EventsEditDataRoute
+  '/api/masaiverse-v2/events/enroll': typeof ApiMasaiverseV2EventsEnrollRoute
+  '/api/masaiverse-v2/events/list': typeof ApiMasaiverseV2EventsListRoute
+  '/api/masaiverse-v2/events/rate': typeof ApiMasaiverseV2EventsRateRoute
+  '/api/masaiverse-v2/events/update': typeof ApiMasaiverseV2EventsUpdateRoute
+  '/api/masaiverse-v2/uploads/image': typeof ApiMasaiverseV2UploadsImageRoute
+  '/api/masaiverse-v2/users/search': typeof ApiMasaiverseV2UsersSearchRoute
   '/(auth)/reset-password/$token/': typeof authResetPasswordTokenIndexRoute
   '/(auth)/v2/login/': typeof authV2LoginIndexRoute
   '/(protected)/_layout/announcements/': typeof protectedLayoutAnnouncementsIndexRoute
-  '/(protected)/_layout/bookmarks/': typeof protectedLayoutBookmarksIndexRoute
-  '/(protected)/_layout/learn/': typeof protectedLayoutLearnIndexRoute
+  '/(protected)/_layout/bookmark/': typeof protectedLayoutBookmarkIndexRoute
+  '/(protected)/_layout/chat/': typeof protectedLayoutChatIndexRoute
+  '/(protected)/_layout/courses/': typeof protectedLayoutCoursesIndexRoute
+  '/(protected)/_layout/discussions/': typeof protectedLayoutDiscussionsIndexRoute
   '/(protected)/_layout/masaiverse/': typeof protectedLayoutMasaiverseIndexRoute
-  '/api/announcement/$id/': typeof ApiAnnouncementIdIndexRoute
+  '/(protected)/_layout/practice-interview/': typeof protectedLayoutPracticeInterviewIndexRoute
+  '/(protected)/_layout/profile/': typeof protectedLayoutProfileIndexRoute
+  '/(protected)/_layout/refer-and-earn/': typeof protectedLayoutReferAndEarnIndexRoute
+  '/(protected)/_layout/support/': typeof protectedLayoutSupportIndexRoute
+  '/(protected)/_layout/whats-new/': typeof protectedLayoutWhatsNewIndexRoute
+  '/(protected)/_layout/courses/$courseId/_courseTabLayout': typeof protectedLayoutCoursesCourseIdCourseTabLayoutRouteRouteWithChildren
   '/(protected)/_layout/masaiverse/club/$clubId': typeof protectedLayoutMasaiverseClubClubIdRoute
-  '/api/learn/ai-chat/$lectureId/history': typeof ApiLearnAiChatLectureIdHistoryRoute
-  '/api/learn/ai-chat/$lectureId/send': typeof ApiLearnAiChatLectureIdSendRoute
-  '/api/learn/ai-tutor/$lectureId/dispatch': typeof ApiLearnAiTutorLectureIdDispatchRoute
-  '/api/learn/ai-tutor/$lectureId/feedback': typeof ApiLearnAiTutorLectureIdFeedbackRoute
-  '/api/learn/ai-tutor/$lectureId/session': typeof ApiLearnAiTutorLectureIdSessionRoute
-  '/api/learn/ai-tutor/$lectureId/transcript': typeof ApiLearnAiTutorLectureIdTranscriptRoute
-  '/api/learn/assignments/$assignmentId/assess-platform-url': typeof ApiLearnAssignmentsAssignmentIdAssessPlatformUrlRoute
-  '/api/learn/assignments/$assignmentId/submissions': typeof ApiLearnAssignmentsAssignmentIdSubmissionsRoute
-  '/api/learn/submissions/$submissionId/view-on-platform': typeof ApiLearnSubmissionsSubmissionIdViewOnPlatformRoute
-  '/api/chatbot/$lectureId/sessions/': typeof ApiChatbotLectureIdSessionsIndexRoute
-  '/api/chatbot/$lectureId/sessions/$sessionId/messages': typeof ApiChatbotLectureIdSessionsSessionIdMessagesRoute
-  '/api/chatbot/internal/sessions/$sessionId/messages': typeof ApiChatbotInternalSessionsSessionIdMessagesRoute
-  '/api/chatbot/$lectureId/sessions/$sessionId/': typeof ApiChatbotLectureIdSessionsSessionIdIndexRoute
+  '/(protected)/_layout/masaiverse/event/$eventId': typeof protectedLayoutMasaiverseEventEventIdRoute
+  '/(protected)/_layout/discussions/$discussionId/': typeof protectedLayoutDiscussionsDiscussionIdIndexRoute
+  '/(protected)/_layout/discussions/create/': typeof protectedLayoutDiscussionsCreateIndexRoute
+  '/(protected)/_layout/support/$supportId/': typeof protectedLayoutSupportSupportIdIndexRoute
+  '/(protected)/_layout/courses/$courseId/assignments_/$assignmentId': typeof protectedLayoutCoursesCourseIdAssignmentsAssignmentIdRouteRouteWithChildren
+  '/(protected)/_layout/courses/$courseId/lectures_/$lectureId': typeof protectedLayoutCoursesCourseIdLecturesLectureIdRouteRouteWithChildren
+  '/(protected)/_layout/courses/$courseId/resources_/$resourceId': typeof protectedLayoutCoursesCourseIdResourcesResourceIdRouteRouteWithChildren
+  '/(protected)/_layout/masaiverse/club/$clubId_/gallery': typeof protectedLayoutMasaiverseClubClubIdGalleryRoute
+  '/(protected)/_layout/courses/$courseId/_courseTabLayout/': typeof protectedLayoutCoursesCourseIdCourseTabLayoutIndexRoute
+  '/(protected)/_layout/courses/$courseId/_courseTabLayout/assignments/': typeof protectedLayoutCoursesCourseIdCourseTabLayoutAssignmentsIndexRoute
+  '/(protected)/_layout/courses/$courseId/_courseTabLayout/lectures/': typeof protectedLayoutCoursesCourseIdCourseTabLayoutLecturesIndexRoute
+  '/(protected)/_layout/courses/$courseId/_courseTabLayout/resources/': typeof protectedLayoutCoursesCourseIdCourseTabLayoutResourcesIndexRoute
+  '/(protected)/_layout/courses/$courseId/announcements_/$announcementId/': typeof protectedLayoutCoursesCourseIdAnnouncementsAnnouncementIdIndexRoute
+  '/(protected)/_layout/courses/$courseId/assignments_/$assignmentId/': typeof protectedLayoutCoursesCourseIdAssignmentsAssignmentIdIndexRoute
+  '/(protected)/_layout/courses/$courseId/resources_/$resourceId/': typeof protectedLayoutCoursesCourseIdResourcesResourceIdIndexRoute
+  '/(protected)/_layout/courses/$courseId/assignments_/$assignmentId/discussions/': typeof protectedLayoutCoursesCourseIdAssignmentsAssignmentIdDiscussionsIndexRoute
+  '/(protected)/_layout/courses/$courseId/lectures_/$lectureId/discussions/': typeof protectedLayoutCoursesCourseIdLecturesLectureIdDiscussionsIndexRoute
+  '/(protected)/_layout/courses/$courseId/resources_/$resourceId/discussions/': typeof protectedLayoutCoursesCourseIdResourcesResourceIdDiscussionsIndexRoute
+  '/(protected)/_layout/courses/$courseId/assignments_/$assignmentId/discussions/$discussionId/': typeof protectedLayoutCoursesCourseIdAssignmentsAssignmentIdDiscussionsDiscussionIdIndexRoute
+  '/(protected)/_layout/courses/$courseId/assignments_/$assignmentId/discussions/create/': typeof protectedLayoutCoursesCourseIdAssignmentsAssignmentIdDiscussionsCreateIndexRoute
+  '/(protected)/_layout/courses/$courseId/lectures_/$lectureId/discussions/$discussionId/': typeof protectedLayoutCoursesCourseIdLecturesLectureIdDiscussionsDiscussionIdIndexRoute
+  '/(protected)/_layout/courses/$courseId/lectures_/$lectureId/discussions/create/': typeof protectedLayoutCoursesCourseIdLecturesLectureIdDiscussionsCreateIndexRoute
+  '/(protected)/_layout/courses/$courseId/resources_/$resourceId/discussions/$discussionId/': typeof protectedLayoutCoursesCourseIdResourcesResourceIdDiscussionsDiscussionIdIndexRoute
+  '/(protected)/_layout/courses/$courseId/resources_/$resourceId/discussions/create/': typeof protectedLayoutCoursesCourseIdResourcesResourceIdDiscussionsCreateIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
+    | '/api/health'
     | '/masaiverse'
     | '/v2/forgot-password'
     | '/v2/me'
     | '/v2/reset-password'
-    | '/api/dashboard/action-banners'
-    | '/api/dashboard/announcements'
-    | '/api/dashboard/banners'
-    | '/api/dashboard/pending-tasks'
-    | '/api/dashboard/product-updates'
-    | '/api/dashboard/schedule'
-    | '/api/learn/batch-data'
-    | '/api/learn/batches'
+    | '/api/masaiverse-v2/admin-mode'
+    | '/api/masaiverse-v2/award-points'
+    | '/api/masaiverse-v2/discussions'
     | '/api/masaiverse-v2/home'
+    | '/api/masaiverse-v2/leaderboard'
+    | '/api/masaiverse-v2/visited'
     | '/login/'
     | '/signin/'
     | '/switch-account/'
     | '/'
-    | '/api/announcement/'
-    | '/api/bookmarks/'
-    | '/announcements/$id'
-    | '/assignments/$assignmentId'
-    | '/lectures/$lectureId'
-    | '/resources/$resourceId'
+    | '/zoom/'
     | '/v2/auth/linked-accounts'
     | '/v2/auth/use-account'
     | '/v2/login/request-otp'
     | '/v2/login/verify-otp'
-    | '/chatbot/$lectureId'
     | '/masaiverse/clubs'
     | '/masaiverse/discussions'
     | '/masaiverse/events'
     | '/masaiverse/home'
     | '/masaiverse/leaderboard'
-    | '/api/chatbot/$lectureId/token'
-    | '/api/learn/ai-tutor/end'
-    | '/api/learn/ai-tutor/limit'
-    | '/api/learn/assignments/$assignmentId'
-    | '/api/learn/lectures/$lectureId'
-    | '/api/learn/resources/$resourceId'
-    | '/api/learn/submissions/$submissionId'
+    | '/api/masaiverse-v2/banners/create'
+    | '/api/masaiverse-v2/banners/delete'
+    | '/api/masaiverse-v2/banners/list'
+    | '/api/masaiverse-v2/banners/update'
+    | '/api/masaiverse-v2/clubs/create'
+    | '/api/masaiverse-v2/clubs/detail'
+    | '/api/masaiverse-v2/clubs/edit-data'
+    | '/api/masaiverse-v2/clubs/events'
+    | '/api/masaiverse-v2/clubs/leaderboard'
+    | '/api/masaiverse-v2/clubs/membership'
+    | '/api/masaiverse-v2/clubs/mine'
+    | '/api/masaiverse-v2/clubs/stats'
+    | '/api/masaiverse-v2/clubs/update'
+    | '/api/masaiverse-v2/clubs/visit'
+    | '/api/masaiverse-v2/discussions/replies'
+    | '/api/masaiverse-v2/discussions/vote'
+    | '/api/masaiverse-v2/events/create'
+    | '/api/masaiverse-v2/events/detail'
+    | '/api/masaiverse-v2/events/edit-data'
+    | '/api/masaiverse-v2/events/enroll'
+    | '/api/masaiverse-v2/events/list'
+    | '/api/masaiverse-v2/events/rate'
+    | '/api/masaiverse-v2/events/update'
+    | '/api/masaiverse-v2/uploads/image'
+    | '/api/masaiverse-v2/users/search'
     | '/reset-password/$token/'
     | '/v2/login/'
     | '/announcements/'
-    | '/bookmarks/'
-    | '/learn/'
+    | '/bookmark/'
+    | '/chat/'
+    | '/courses/'
+    | '/discussions/'
     | '/masaiverse/'
-    | '/api/announcement/$id/'
+    | '/practice-interview/'
+    | '/profile/'
+    | '/refer-and-earn/'
+    | '/support/'
+    | '/whats-new/'
+    | '/courses/$courseId'
     | '/masaiverse/club/$clubId'
-    | '/api/learn/ai-chat/$lectureId/history'
-    | '/api/learn/ai-chat/$lectureId/send'
-    | '/api/learn/ai-tutor/$lectureId/dispatch'
-    | '/api/learn/ai-tutor/$lectureId/feedback'
-    | '/api/learn/ai-tutor/$lectureId/session'
-    | '/api/learn/ai-tutor/$lectureId/transcript'
-    | '/api/learn/assignments/$assignmentId/assess-platform-url'
-    | '/api/learn/assignments/$assignmentId/submissions'
-    | '/api/learn/submissions/$submissionId/view-on-platform'
-    | '/api/chatbot/$lectureId/sessions/'
-    | '/api/chatbot/$lectureId/sessions/$sessionId/messages'
-    | '/api/chatbot/internal/sessions/$sessionId/messages'
-    | '/api/chatbot/$lectureId/sessions/$sessionId/'
+    | '/masaiverse/event/$eventId'
+    | '/discussions/$discussionId/'
+    | '/discussions/create/'
+    | '/support/$supportId/'
+    | '/courses/$courseId/assignments/$assignmentId'
+    | '/courses/$courseId/lectures/$lectureId'
+    | '/courses/$courseId/resources/$resourceId'
+    | '/masaiverse/club/$clubId/gallery'
+    | '/courses/$courseId/'
+    | '/courses/$courseId/assignments/'
+    | '/courses/$courseId/lectures/'
+    | '/courses/$courseId/resources/'
+    | '/courses/$courseId/announcements/$announcementId/'
+    | '/courses/$courseId/assignments/$assignmentId/'
+    | '/courses/$courseId/resources/$resourceId/'
+    | '/courses/$courseId/assignments/$assignmentId/discussions/'
+    | '/courses/$courseId/lectures/$lectureId/discussions/'
+    | '/courses/$courseId/resources/$resourceId/discussions/'
+    | '/courses/$courseId/assignments/$assignmentId/discussions/$discussionId/'
+    | '/courses/$courseId/assignments/$assignmentId/discussions/create/'
+    | '/courses/$courseId/lectures/$lectureId/discussions/$discussionId/'
+    | '/courses/$courseId/lectures/$lectureId/discussions/create/'
+    | '/courses/$courseId/resources/$resourceId/discussions/$discussionId/'
+    | '/courses/$courseId/resources/$resourceId/discussions/create/'
   fileRoutesByTo: FileRoutesByTo
   to:
+    | '/api/health'
     | '/v2/forgot-password'
     | '/v2/me'
     | '/v2/reset-password'
-    | '/api/dashboard/action-banners'
-    | '/api/dashboard/announcements'
-    | '/api/dashboard/banners'
-    | '/api/dashboard/pending-tasks'
-    | '/api/dashboard/product-updates'
-    | '/api/dashboard/schedule'
-    | '/api/learn/batch-data'
-    | '/api/learn/batches'
+    | '/api/masaiverse-v2/admin-mode'
+    | '/api/masaiverse-v2/award-points'
+    | '/api/masaiverse-v2/discussions'
     | '/api/masaiverse-v2/home'
+    | '/api/masaiverse-v2/leaderboard'
+    | '/api/masaiverse-v2/visited'
     | '/login'
     | '/signin'
     | '/switch-account'
     | '/'
-    | '/api/announcement'
-    | '/api/bookmarks'
-    | '/announcements/$id'
-    | '/assignments/$assignmentId'
-    | '/lectures/$lectureId'
-    | '/resources/$resourceId'
+    | '/zoom'
     | '/v2/auth/linked-accounts'
     | '/v2/auth/use-account'
     | '/v2/login/request-otp'
     | '/v2/login/verify-otp'
-    | '/chatbot/$lectureId'
     | '/masaiverse/clubs'
     | '/masaiverse/discussions'
     | '/masaiverse/events'
     | '/masaiverse/home'
     | '/masaiverse/leaderboard'
-    | '/api/chatbot/$lectureId/token'
-    | '/api/learn/ai-tutor/end'
-    | '/api/learn/ai-tutor/limit'
-    | '/api/learn/assignments/$assignmentId'
-    | '/api/learn/lectures/$lectureId'
-    | '/api/learn/resources/$resourceId'
-    | '/api/learn/submissions/$submissionId'
+    | '/api/masaiverse-v2/banners/create'
+    | '/api/masaiverse-v2/banners/delete'
+    | '/api/masaiverse-v2/banners/list'
+    | '/api/masaiverse-v2/banners/update'
+    | '/api/masaiverse-v2/clubs/create'
+    | '/api/masaiverse-v2/clubs/detail'
+    | '/api/masaiverse-v2/clubs/edit-data'
+    | '/api/masaiverse-v2/clubs/events'
+    | '/api/masaiverse-v2/clubs/leaderboard'
+    | '/api/masaiverse-v2/clubs/membership'
+    | '/api/masaiverse-v2/clubs/mine'
+    | '/api/masaiverse-v2/clubs/stats'
+    | '/api/masaiverse-v2/clubs/update'
+    | '/api/masaiverse-v2/clubs/visit'
+    | '/api/masaiverse-v2/discussions/replies'
+    | '/api/masaiverse-v2/discussions/vote'
+    | '/api/masaiverse-v2/events/create'
+    | '/api/masaiverse-v2/events/detail'
+    | '/api/masaiverse-v2/events/edit-data'
+    | '/api/masaiverse-v2/events/enroll'
+    | '/api/masaiverse-v2/events/list'
+    | '/api/masaiverse-v2/events/rate'
+    | '/api/masaiverse-v2/events/update'
+    | '/api/masaiverse-v2/uploads/image'
+    | '/api/masaiverse-v2/users/search'
     | '/reset-password/$token'
     | '/v2/login'
     | '/announcements'
-    | '/bookmarks'
-    | '/learn'
+    | '/bookmark'
+    | '/chat'
+    | '/courses'
+    | '/discussions'
     | '/masaiverse'
-    | '/api/announcement/$id'
+    | '/practice-interview'
+    | '/profile'
+    | '/refer-and-earn'
+    | '/support'
+    | '/whats-new'
     | '/masaiverse/club/$clubId'
-    | '/api/learn/ai-chat/$lectureId/history'
-    | '/api/learn/ai-chat/$lectureId/send'
-    | '/api/learn/ai-tutor/$lectureId/dispatch'
-    | '/api/learn/ai-tutor/$lectureId/feedback'
-    | '/api/learn/ai-tutor/$lectureId/session'
-    | '/api/learn/ai-tutor/$lectureId/transcript'
-    | '/api/learn/assignments/$assignmentId/assess-platform-url'
-    | '/api/learn/assignments/$assignmentId/submissions'
-    | '/api/learn/submissions/$submissionId/view-on-platform'
-    | '/api/chatbot/$lectureId/sessions'
-    | '/api/chatbot/$lectureId/sessions/$sessionId/messages'
-    | '/api/chatbot/internal/sessions/$sessionId/messages'
-    | '/api/chatbot/$lectureId/sessions/$sessionId'
+    | '/masaiverse/event/$eventId'
+    | '/discussions/$discussionId'
+    | '/discussions/create'
+    | '/support/$supportId'
+    | '/courses/$courseId/lectures/$lectureId'
+    | '/masaiverse/club/$clubId/gallery'
+    | '/courses/$courseId'
+    | '/courses/$courseId/assignments'
+    | '/courses/$courseId/lectures'
+    | '/courses/$courseId/resources'
+    | '/courses/$courseId/announcements/$announcementId'
+    | '/courses/$courseId/assignments/$assignmentId'
+    | '/courses/$courseId/resources/$resourceId'
+    | '/courses/$courseId/assignments/$assignmentId/discussions'
+    | '/courses/$courseId/lectures/$lectureId/discussions'
+    | '/courses/$courseId/resources/$resourceId/discussions'
+    | '/courses/$courseId/assignments/$assignmentId/discussions/$discussionId'
+    | '/courses/$courseId/assignments/$assignmentId/discussions/create'
+    | '/courses/$courseId/lectures/$lectureId/discussions/$discussionId'
+    | '/courses/$courseId/lectures/$lectureId/discussions/create'
+    | '/courses/$courseId/resources/$resourceId/discussions/$discussionId'
+    | '/courses/$courseId/resources/$resourceId/discussions/create'
   id:
     | '__root__'
     | '/(protected)/_layout'
+    | '/api/health'
     | '/(protected)/_layout/masaiverse'
     | '/(auth)/v2/forgot-password'
     | '/(auth)/v2/me'
     | '/(auth)/v2/reset-password'
-    | '/api/dashboard/action-banners'
-    | '/api/dashboard/announcements'
-    | '/api/dashboard/banners'
-    | '/api/dashboard/pending-tasks'
-    | '/api/dashboard/product-updates'
-    | '/api/dashboard/schedule'
-    | '/api/learn/batch-data'
-    | '/api/learn/batches'
+    | '/api/masaiverse-v2/admin-mode'
+    | '/api/masaiverse-v2/award-points'
+    | '/api/masaiverse-v2/discussions'
     | '/api/masaiverse-v2/home'
+    | '/api/masaiverse-v2/leaderboard'
+    | '/api/masaiverse-v2/visited'
     | '/(auth)/login/'
     | '/(auth)/signin/'
     | '/(auth)/switch-account/'
     | '/(protected)/_layout/'
-    | '/api/announcement/'
-    | '/api/bookmarks/'
-    | '/(protected)/_layout/announcements_/$id'
-    | '/(protected)/_layout/assignments_/$assignmentId'
-    | '/(protected)/_layout/lectures_/$lectureId'
-    | '/(protected)/_layout/resources_/$resourceId'
+    | '/(protected)/zoom/'
     | '/(auth)/v2/auth/linked-accounts'
     | '/(auth)/v2/auth/use-account'
     | '/(auth)/v2/login/request-otp'
     | '/(auth)/v2/login/verify-otp'
-    | '/(protected)/_layout/chatbot/$lectureId'
     | '/(protected)/_layout/masaiverse/clubs'
     | '/(protected)/_layout/masaiverse/discussions'
     | '/(protected)/_layout/masaiverse/events'
     | '/(protected)/_layout/masaiverse/home'
     | '/(protected)/_layout/masaiverse/leaderboard'
-    | '/api/chatbot/$lectureId/token'
-    | '/api/learn/ai-tutor/end'
-    | '/api/learn/ai-tutor/limit'
-    | '/api/learn/assignments/$assignmentId'
-    | '/api/learn/lectures/$lectureId'
-    | '/api/learn/resources/$resourceId'
-    | '/api/learn/submissions/$submissionId'
+    | '/api/masaiverse-v2/banners/create'
+    | '/api/masaiverse-v2/banners/delete'
+    | '/api/masaiverse-v2/banners/list'
+    | '/api/masaiverse-v2/banners/update'
+    | '/api/masaiverse-v2/clubs/create'
+    | '/api/masaiverse-v2/clubs/detail'
+    | '/api/masaiverse-v2/clubs/edit-data'
+    | '/api/masaiverse-v2/clubs/events'
+    | '/api/masaiverse-v2/clubs/leaderboard'
+    | '/api/masaiverse-v2/clubs/membership'
+    | '/api/masaiverse-v2/clubs/mine'
+    | '/api/masaiverse-v2/clubs/stats'
+    | '/api/masaiverse-v2/clubs/update'
+    | '/api/masaiverse-v2/clubs/visit'
+    | '/api/masaiverse-v2/discussions/replies'
+    | '/api/masaiverse-v2/discussions/vote'
+    | '/api/masaiverse-v2/events/create'
+    | '/api/masaiverse-v2/events/detail'
+    | '/api/masaiverse-v2/events/edit-data'
+    | '/api/masaiverse-v2/events/enroll'
+    | '/api/masaiverse-v2/events/list'
+    | '/api/masaiverse-v2/events/rate'
+    | '/api/masaiverse-v2/events/update'
+    | '/api/masaiverse-v2/uploads/image'
+    | '/api/masaiverse-v2/users/search'
     | '/(auth)/reset-password/$token/'
     | '/(auth)/v2/login/'
     | '/(protected)/_layout/announcements/'
-    | '/(protected)/_layout/bookmarks/'
-    | '/(protected)/_layout/learn/'
+    | '/(protected)/_layout/bookmark/'
+    | '/(protected)/_layout/chat/'
+    | '/(protected)/_layout/courses/'
+    | '/(protected)/_layout/discussions/'
     | '/(protected)/_layout/masaiverse/'
-    | '/api/announcement/$id/'
+    | '/(protected)/_layout/practice-interview/'
+    | '/(protected)/_layout/profile/'
+    | '/(protected)/_layout/refer-and-earn/'
+    | '/(protected)/_layout/support/'
+    | '/(protected)/_layout/whats-new/'
+    | '/(protected)/_layout/courses/$courseId/_courseTabLayout'
     | '/(protected)/_layout/masaiverse/club/$clubId'
-    | '/api/learn/ai-chat/$lectureId/history'
-    | '/api/learn/ai-chat/$lectureId/send'
-    | '/api/learn/ai-tutor/$lectureId/dispatch'
-    | '/api/learn/ai-tutor/$lectureId/feedback'
-    | '/api/learn/ai-tutor/$lectureId/session'
-    | '/api/learn/ai-tutor/$lectureId/transcript'
-    | '/api/learn/assignments/$assignmentId/assess-platform-url'
-    | '/api/learn/assignments/$assignmentId/submissions'
-    | '/api/learn/submissions/$submissionId/view-on-platform'
-    | '/api/chatbot/$lectureId/sessions/'
-    | '/api/chatbot/$lectureId/sessions/$sessionId/messages'
-    | '/api/chatbot/internal/sessions/$sessionId/messages'
-    | '/api/chatbot/$lectureId/sessions/$sessionId/'
+    | '/(protected)/_layout/masaiverse/event/$eventId'
+    | '/(protected)/_layout/discussions/$discussionId/'
+    | '/(protected)/_layout/discussions/create/'
+    | '/(protected)/_layout/support/$supportId/'
+    | '/(protected)/_layout/courses/$courseId/assignments_/$assignmentId'
+    | '/(protected)/_layout/courses/$courseId/lectures_/$lectureId'
+    | '/(protected)/_layout/courses/$courseId/resources_/$resourceId'
+    | '/(protected)/_layout/masaiverse/club/$clubId_/gallery'
+    | '/(protected)/_layout/courses/$courseId/_courseTabLayout/'
+    | '/(protected)/_layout/courses/$courseId/_courseTabLayout/assignments/'
+    | '/(protected)/_layout/courses/$courseId/_courseTabLayout/lectures/'
+    | '/(protected)/_layout/courses/$courseId/_courseTabLayout/resources/'
+    | '/(protected)/_layout/courses/$courseId/announcements_/$announcementId/'
+    | '/(protected)/_layout/courses/$courseId/assignments_/$assignmentId/'
+    | '/(protected)/_layout/courses/$courseId/resources_/$resourceId/'
+    | '/(protected)/_layout/courses/$courseId/assignments_/$assignmentId/discussions/'
+    | '/(protected)/_layout/courses/$courseId/lectures_/$lectureId/discussions/'
+    | '/(protected)/_layout/courses/$courseId/resources_/$resourceId/discussions/'
+    | '/(protected)/_layout/courses/$courseId/assignments_/$assignmentId/discussions/$discussionId/'
+    | '/(protected)/_layout/courses/$courseId/assignments_/$assignmentId/discussions/create/'
+    | '/(protected)/_layout/courses/$courseId/lectures_/$lectureId/discussions/$discussionId/'
+    | '/(protected)/_layout/courses/$courseId/lectures_/$lectureId/discussions/create/'
+    | '/(protected)/_layout/courses/$courseId/resources_/$resourceId/discussions/$discussionId/'
+    | '/(protected)/_layout/courses/$courseId/resources_/$resourceId/discussions/create/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   protectedLayoutRouteRoute: typeof protectedLayoutRouteRouteWithChildren
+  ApiHealthRoute: typeof ApiHealthRoute
   authV2ForgotPasswordRoute: typeof authV2ForgotPasswordRoute
   authV2MeRoute: typeof authV2MeRoute
   authV2ResetPasswordRoute: typeof authV2ResetPasswordRoute
-  ApiDashboardActionBannersRoute: typeof ApiDashboardActionBannersRoute
-  ApiDashboardAnnouncementsRoute: typeof ApiDashboardAnnouncementsRoute
-  ApiDashboardBannersRoute: typeof ApiDashboardBannersRoute
-  ApiDashboardPendingTasksRoute: typeof ApiDashboardPendingTasksRoute
-  ApiDashboardProductUpdatesRoute: typeof ApiDashboardProductUpdatesRoute
-  ApiDashboardScheduleRoute: typeof ApiDashboardScheduleRoute
-  ApiLearnBatchDataRoute: typeof ApiLearnBatchDataRoute
-  ApiLearnBatchesRoute: typeof ApiLearnBatchesRoute
+  ApiMasaiverseV2AdminModeRoute: typeof ApiMasaiverseV2AdminModeRoute
+  ApiMasaiverseV2AwardPointsRoute: typeof ApiMasaiverseV2AwardPointsRoute
+  ApiMasaiverseV2DiscussionsRoute: typeof ApiMasaiverseV2DiscussionsRouteWithChildren
   ApiMasaiverseV2HomeRoute: typeof ApiMasaiverseV2HomeRoute
+  ApiMasaiverseV2LeaderboardRoute: typeof ApiMasaiverseV2LeaderboardRoute
+  ApiMasaiverseV2VisitedRoute: typeof ApiMasaiverseV2VisitedRoute
   authLoginIndexRoute: typeof authLoginIndexRoute
   authSigninIndexRoute: typeof authSigninIndexRoute
   authSwitchAccountIndexRoute: typeof authSwitchAccountIndexRoute
-  ApiAnnouncementIndexRoute: typeof ApiAnnouncementIndexRoute
-  ApiBookmarksIndexRoute: typeof ApiBookmarksIndexRoute
+  protectedZoomIndexRoute: typeof protectedZoomIndexRoute
   authV2AuthLinkedAccountsRoute: typeof authV2AuthLinkedAccountsRoute
   authV2AuthUseAccountRoute: typeof authV2AuthUseAccountRoute
   authV2LoginRequestOtpRoute: typeof authV2LoginRequestOtpRoute
   authV2LoginVerifyOtpRoute: typeof authV2LoginVerifyOtpRoute
-  ApiChatbotLectureIdTokenRoute: typeof ApiChatbotLectureIdTokenRoute
-  ApiLearnAiTutorEndRoute: typeof ApiLearnAiTutorEndRoute
-  ApiLearnAiTutorLimitRoute: typeof ApiLearnAiTutorLimitRoute
-  ApiLearnAssignmentsAssignmentIdRoute: typeof ApiLearnAssignmentsAssignmentIdRouteWithChildren
-  ApiLearnLecturesLectureIdRoute: typeof ApiLearnLecturesLectureIdRoute
-  ApiLearnResourcesResourceIdRoute: typeof ApiLearnResourcesResourceIdRoute
-  ApiLearnSubmissionsSubmissionIdRoute: typeof ApiLearnSubmissionsSubmissionIdRouteWithChildren
+  ApiMasaiverseV2BannersCreateRoute: typeof ApiMasaiverseV2BannersCreateRoute
+  ApiMasaiverseV2BannersDeleteRoute: typeof ApiMasaiverseV2BannersDeleteRoute
+  ApiMasaiverseV2BannersListRoute: typeof ApiMasaiverseV2BannersListRoute
+  ApiMasaiverseV2BannersUpdateRoute: typeof ApiMasaiverseV2BannersUpdateRoute
+  ApiMasaiverseV2ClubsCreateRoute: typeof ApiMasaiverseV2ClubsCreateRoute
+  ApiMasaiverseV2ClubsDetailRoute: typeof ApiMasaiverseV2ClubsDetailRoute
+  ApiMasaiverseV2ClubsEditDataRoute: typeof ApiMasaiverseV2ClubsEditDataRoute
+  ApiMasaiverseV2ClubsEventsRoute: typeof ApiMasaiverseV2ClubsEventsRoute
+  ApiMasaiverseV2ClubsLeaderboardRoute: typeof ApiMasaiverseV2ClubsLeaderboardRoute
+  ApiMasaiverseV2ClubsMembershipRoute: typeof ApiMasaiverseV2ClubsMembershipRoute
+  ApiMasaiverseV2ClubsMineRoute: typeof ApiMasaiverseV2ClubsMineRoute
+  ApiMasaiverseV2ClubsStatsRoute: typeof ApiMasaiverseV2ClubsStatsRoute
+  ApiMasaiverseV2ClubsUpdateRoute: typeof ApiMasaiverseV2ClubsUpdateRoute
+  ApiMasaiverseV2ClubsVisitRoute: typeof ApiMasaiverseV2ClubsVisitRoute
+  ApiMasaiverseV2EventsCreateRoute: typeof ApiMasaiverseV2EventsCreateRoute
+  ApiMasaiverseV2EventsDetailRoute: typeof ApiMasaiverseV2EventsDetailRoute
+  ApiMasaiverseV2EventsEditDataRoute: typeof ApiMasaiverseV2EventsEditDataRoute
+  ApiMasaiverseV2EventsEnrollRoute: typeof ApiMasaiverseV2EventsEnrollRoute
+  ApiMasaiverseV2EventsListRoute: typeof ApiMasaiverseV2EventsListRoute
+  ApiMasaiverseV2EventsRateRoute: typeof ApiMasaiverseV2EventsRateRoute
+  ApiMasaiverseV2EventsUpdateRoute: typeof ApiMasaiverseV2EventsUpdateRoute
+  ApiMasaiverseV2UploadsImageRoute: typeof ApiMasaiverseV2UploadsImageRoute
+  ApiMasaiverseV2UsersSearchRoute: typeof ApiMasaiverseV2UsersSearchRoute
   authResetPasswordTokenIndexRoute: typeof authResetPasswordTokenIndexRoute
   authV2LoginIndexRoute: typeof authV2LoginIndexRoute
-  ApiAnnouncementIdIndexRoute: typeof ApiAnnouncementIdIndexRoute
-  ApiLearnAiChatLectureIdHistoryRoute: typeof ApiLearnAiChatLectureIdHistoryRoute
-  ApiLearnAiChatLectureIdSendRoute: typeof ApiLearnAiChatLectureIdSendRoute
-  ApiLearnAiTutorLectureIdDispatchRoute: typeof ApiLearnAiTutorLectureIdDispatchRoute
-  ApiLearnAiTutorLectureIdFeedbackRoute: typeof ApiLearnAiTutorLectureIdFeedbackRoute
-  ApiLearnAiTutorLectureIdSessionRoute: typeof ApiLearnAiTutorLectureIdSessionRoute
-  ApiLearnAiTutorLectureIdTranscriptRoute: typeof ApiLearnAiTutorLectureIdTranscriptRoute
-  ApiChatbotLectureIdSessionsIndexRoute: typeof ApiChatbotLectureIdSessionsIndexRoute
-  ApiChatbotLectureIdSessionsSessionIdMessagesRoute: typeof ApiChatbotLectureIdSessionsSessionIdMessagesRoute
-  ApiChatbotInternalSessionsSessionIdMessagesRoute: typeof ApiChatbotInternalSessionsSessionIdMessagesRoute
-  ApiChatbotLectureIdSessionsSessionIdIndexRoute: typeof ApiChatbotLectureIdSessionsSessionIdIndexRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/api/health': {
+      id: '/api/health'
+      path: '/api/health'
+      fullPath: '/api/health'
+      preLoaderRoute: typeof ApiHealthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/(protected)/_layout': {
       id: '/(protected)/_layout'
       path: ''
@@ -858,18 +1270,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof protectedLayoutRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/bookmarks/': {
-      id: '/api/bookmarks/'
-      path: '/api/bookmarks'
-      fullPath: '/api/bookmarks/'
-      preLoaderRoute: typeof ApiBookmarksIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/announcement/': {
-      id: '/api/announcement/'
-      path: '/api/announcement'
-      fullPath: '/api/announcement/'
-      preLoaderRoute: typeof ApiAnnouncementIndexRouteImport
+    '/(protected)/zoom/': {
+      id: '/(protected)/zoom/'
+      path: '/zoom'
+      fullPath: '/zoom/'
+      preLoaderRoute: typeof protectedZoomIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/(protected)/_layout/': {
@@ -900,6 +1305,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof authLoginIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/masaiverse-v2/visited': {
+      id: '/api/masaiverse-v2/visited'
+      path: '/api/masaiverse-v2/visited'
+      fullPath: '/api/masaiverse-v2/visited'
+      preLoaderRoute: typeof ApiMasaiverseV2VisitedRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/masaiverse-v2/leaderboard': {
+      id: '/api/masaiverse-v2/leaderboard'
+      path: '/api/masaiverse-v2/leaderboard'
+      fullPath: '/api/masaiverse-v2/leaderboard'
+      preLoaderRoute: typeof ApiMasaiverseV2LeaderboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/masaiverse-v2/home': {
       id: '/api/masaiverse-v2/home'
       path: '/api/masaiverse-v2/home'
@@ -907,60 +1326,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiMasaiverseV2HomeRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/learn/batches': {
-      id: '/api/learn/batches'
-      path: '/api/learn/batches'
-      fullPath: '/api/learn/batches'
-      preLoaderRoute: typeof ApiLearnBatchesRouteImport
+    '/api/masaiverse-v2/discussions': {
+      id: '/api/masaiverse-v2/discussions'
+      path: '/api/masaiverse-v2/discussions'
+      fullPath: '/api/masaiverse-v2/discussions'
+      preLoaderRoute: typeof ApiMasaiverseV2DiscussionsRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/learn/batch-data': {
-      id: '/api/learn/batch-data'
-      path: '/api/learn/batch-data'
-      fullPath: '/api/learn/batch-data'
-      preLoaderRoute: typeof ApiLearnBatchDataRouteImport
+    '/api/masaiverse-v2/award-points': {
+      id: '/api/masaiverse-v2/award-points'
+      path: '/api/masaiverse-v2/award-points'
+      fullPath: '/api/masaiverse-v2/award-points'
+      preLoaderRoute: typeof ApiMasaiverseV2AwardPointsRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/dashboard/schedule': {
-      id: '/api/dashboard/schedule'
-      path: '/api/dashboard/schedule'
-      fullPath: '/api/dashboard/schedule'
-      preLoaderRoute: typeof ApiDashboardScheduleRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/dashboard/product-updates': {
-      id: '/api/dashboard/product-updates'
-      path: '/api/dashboard/product-updates'
-      fullPath: '/api/dashboard/product-updates'
-      preLoaderRoute: typeof ApiDashboardProductUpdatesRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/dashboard/pending-tasks': {
-      id: '/api/dashboard/pending-tasks'
-      path: '/api/dashboard/pending-tasks'
-      fullPath: '/api/dashboard/pending-tasks'
-      preLoaderRoute: typeof ApiDashboardPendingTasksRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/dashboard/banners': {
-      id: '/api/dashboard/banners'
-      path: '/api/dashboard/banners'
-      fullPath: '/api/dashboard/banners'
-      preLoaderRoute: typeof ApiDashboardBannersRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/dashboard/announcements': {
-      id: '/api/dashboard/announcements'
-      path: '/api/dashboard/announcements'
-      fullPath: '/api/dashboard/announcements'
-      preLoaderRoute: typeof ApiDashboardAnnouncementsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/dashboard/action-banners': {
-      id: '/api/dashboard/action-banners'
-      path: '/api/dashboard/action-banners'
-      fullPath: '/api/dashboard/action-banners'
-      preLoaderRoute: typeof ApiDashboardActionBannersRouteImport
+    '/api/masaiverse-v2/admin-mode': {
+      id: '/api/masaiverse-v2/admin-mode'
+      path: '/api/masaiverse-v2/admin-mode'
+      fullPath: '/api/masaiverse-v2/admin-mode'
+      preLoaderRoute: typeof ApiMasaiverseV2AdminModeRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/(auth)/v2/reset-password': {
@@ -991,12 +1375,40 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof protectedLayoutMasaiverseRouteRouteImport
       parentRoute: typeof protectedLayoutRouteRoute
     }
-    '/api/announcement/$id/': {
-      id: '/api/announcement/$id/'
-      path: '/api/announcement/$id'
-      fullPath: '/api/announcement/$id/'
-      preLoaderRoute: typeof ApiAnnouncementIdIndexRouteImport
-      parentRoute: typeof rootRouteImport
+    '/(protected)/_layout/whats-new/': {
+      id: '/(protected)/_layout/whats-new/'
+      path: '/whats-new'
+      fullPath: '/whats-new/'
+      preLoaderRoute: typeof protectedLayoutWhatsNewIndexRouteImport
+      parentRoute: typeof protectedLayoutRouteRoute
+    }
+    '/(protected)/_layout/support/': {
+      id: '/(protected)/_layout/support/'
+      path: '/support'
+      fullPath: '/support/'
+      preLoaderRoute: typeof protectedLayoutSupportIndexRouteImport
+      parentRoute: typeof protectedLayoutRouteRoute
+    }
+    '/(protected)/_layout/refer-and-earn/': {
+      id: '/(protected)/_layout/refer-and-earn/'
+      path: '/refer-and-earn'
+      fullPath: '/refer-and-earn/'
+      preLoaderRoute: typeof protectedLayoutReferAndEarnIndexRouteImport
+      parentRoute: typeof protectedLayoutRouteRoute
+    }
+    '/(protected)/_layout/profile/': {
+      id: '/(protected)/_layout/profile/'
+      path: '/profile'
+      fullPath: '/profile/'
+      preLoaderRoute: typeof protectedLayoutProfileIndexRouteImport
+      parentRoute: typeof protectedLayoutRouteRoute
+    }
+    '/(protected)/_layout/practice-interview/': {
+      id: '/(protected)/_layout/practice-interview/'
+      path: '/practice-interview'
+      fullPath: '/practice-interview/'
+      preLoaderRoute: typeof protectedLayoutPracticeInterviewIndexRouteImport
+      parentRoute: typeof protectedLayoutRouteRoute
     }
     '/(protected)/_layout/masaiverse/': {
       id: '/(protected)/_layout/masaiverse/'
@@ -1005,18 +1417,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof protectedLayoutMasaiverseIndexRouteImport
       parentRoute: typeof protectedLayoutMasaiverseRouteRoute
     }
-    '/(protected)/_layout/learn/': {
-      id: '/(protected)/_layout/learn/'
-      path: '/learn'
-      fullPath: '/learn/'
-      preLoaderRoute: typeof protectedLayoutLearnIndexRouteImport
+    '/(protected)/_layout/discussions/': {
+      id: '/(protected)/_layout/discussions/'
+      path: '/discussions'
+      fullPath: '/discussions/'
+      preLoaderRoute: typeof protectedLayoutDiscussionsIndexRouteImport
       parentRoute: typeof protectedLayoutRouteRoute
     }
-    '/(protected)/_layout/bookmarks/': {
-      id: '/(protected)/_layout/bookmarks/'
-      path: '/bookmarks'
-      fullPath: '/bookmarks/'
-      preLoaderRoute: typeof protectedLayoutBookmarksIndexRouteImport
+    '/(protected)/_layout/courses/': {
+      id: '/(protected)/_layout/courses/'
+      path: '/courses'
+      fullPath: '/courses/'
+      preLoaderRoute: typeof protectedLayoutCoursesIndexRouteImport
+      parentRoute: typeof protectedLayoutRouteRoute
+    }
+    '/(protected)/_layout/chat/': {
+      id: '/(protected)/_layout/chat/'
+      path: '/chat'
+      fullPath: '/chat/'
+      preLoaderRoute: typeof protectedLayoutChatIndexRouteImport
+      parentRoute: typeof protectedLayoutRouteRoute
+    }
+    '/(protected)/_layout/bookmark/': {
+      id: '/(protected)/_layout/bookmark/'
+      path: '/bookmark'
+      fullPath: '/bookmark/'
+      preLoaderRoute: typeof protectedLayoutBookmarkIndexRouteImport
       parentRoute: typeof protectedLayoutRouteRoute
     }
     '/(protected)/_layout/announcements/': {
@@ -1040,53 +1466,179 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof authResetPasswordTokenIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/learn/submissions/$submissionId': {
-      id: '/api/learn/submissions/$submissionId'
-      path: '/api/learn/submissions/$submissionId'
-      fullPath: '/api/learn/submissions/$submissionId'
-      preLoaderRoute: typeof ApiLearnSubmissionsSubmissionIdRouteImport
+    '/api/masaiverse-v2/users/search': {
+      id: '/api/masaiverse-v2/users/search'
+      path: '/api/masaiverse-v2/users/search'
+      fullPath: '/api/masaiverse-v2/users/search'
+      preLoaderRoute: typeof ApiMasaiverseV2UsersSearchRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/learn/resources/$resourceId': {
-      id: '/api/learn/resources/$resourceId'
-      path: '/api/learn/resources/$resourceId'
-      fullPath: '/api/learn/resources/$resourceId'
-      preLoaderRoute: typeof ApiLearnResourcesResourceIdRouteImport
+    '/api/masaiverse-v2/uploads/image': {
+      id: '/api/masaiverse-v2/uploads/image'
+      path: '/api/masaiverse-v2/uploads/image'
+      fullPath: '/api/masaiverse-v2/uploads/image'
+      preLoaderRoute: typeof ApiMasaiverseV2UploadsImageRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/learn/lectures/$lectureId': {
-      id: '/api/learn/lectures/$lectureId'
-      path: '/api/learn/lectures/$lectureId'
-      fullPath: '/api/learn/lectures/$lectureId'
-      preLoaderRoute: typeof ApiLearnLecturesLectureIdRouteImport
+    '/api/masaiverse-v2/events/update': {
+      id: '/api/masaiverse-v2/events/update'
+      path: '/api/masaiverse-v2/events/update'
+      fullPath: '/api/masaiverse-v2/events/update'
+      preLoaderRoute: typeof ApiMasaiverseV2EventsUpdateRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/learn/assignments/$assignmentId': {
-      id: '/api/learn/assignments/$assignmentId'
-      path: '/api/learn/assignments/$assignmentId'
-      fullPath: '/api/learn/assignments/$assignmentId'
-      preLoaderRoute: typeof ApiLearnAssignmentsAssignmentIdRouteImport
+    '/api/masaiverse-v2/events/rate': {
+      id: '/api/masaiverse-v2/events/rate'
+      path: '/api/masaiverse-v2/events/rate'
+      fullPath: '/api/masaiverse-v2/events/rate'
+      preLoaderRoute: typeof ApiMasaiverseV2EventsRateRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/learn/ai-tutor/limit': {
-      id: '/api/learn/ai-tutor/limit'
-      path: '/api/learn/ai-tutor/limit'
-      fullPath: '/api/learn/ai-tutor/limit'
-      preLoaderRoute: typeof ApiLearnAiTutorLimitRouteImport
+    '/api/masaiverse-v2/events/list': {
+      id: '/api/masaiverse-v2/events/list'
+      path: '/api/masaiverse-v2/events/list'
+      fullPath: '/api/masaiverse-v2/events/list'
+      preLoaderRoute: typeof ApiMasaiverseV2EventsListRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/learn/ai-tutor/end': {
-      id: '/api/learn/ai-tutor/end'
-      path: '/api/learn/ai-tutor/end'
-      fullPath: '/api/learn/ai-tutor/end'
-      preLoaderRoute: typeof ApiLearnAiTutorEndRouteImport
+    '/api/masaiverse-v2/events/enroll': {
+      id: '/api/masaiverse-v2/events/enroll'
+      path: '/api/masaiverse-v2/events/enroll'
+      fullPath: '/api/masaiverse-v2/events/enroll'
+      preLoaderRoute: typeof ApiMasaiverseV2EventsEnrollRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/chatbot/$lectureId/token': {
-      id: '/api/chatbot/$lectureId/token'
-      path: '/api/chatbot/$lectureId/token'
-      fullPath: '/api/chatbot/$lectureId/token'
-      preLoaderRoute: typeof ApiChatbotLectureIdTokenRouteImport
+    '/api/masaiverse-v2/events/edit-data': {
+      id: '/api/masaiverse-v2/events/edit-data'
+      path: '/api/masaiverse-v2/events/edit-data'
+      fullPath: '/api/masaiverse-v2/events/edit-data'
+      preLoaderRoute: typeof ApiMasaiverseV2EventsEditDataRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/masaiverse-v2/events/detail': {
+      id: '/api/masaiverse-v2/events/detail'
+      path: '/api/masaiverse-v2/events/detail'
+      fullPath: '/api/masaiverse-v2/events/detail'
+      preLoaderRoute: typeof ApiMasaiverseV2EventsDetailRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/masaiverse-v2/events/create': {
+      id: '/api/masaiverse-v2/events/create'
+      path: '/api/masaiverse-v2/events/create'
+      fullPath: '/api/masaiverse-v2/events/create'
+      preLoaderRoute: typeof ApiMasaiverseV2EventsCreateRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/masaiverse-v2/discussions/vote': {
+      id: '/api/masaiverse-v2/discussions/vote'
+      path: '/vote'
+      fullPath: '/api/masaiverse-v2/discussions/vote'
+      preLoaderRoute: typeof ApiMasaiverseV2DiscussionsVoteRouteImport
+      parentRoute: typeof ApiMasaiverseV2DiscussionsRoute
+    }
+    '/api/masaiverse-v2/discussions/replies': {
+      id: '/api/masaiverse-v2/discussions/replies'
+      path: '/replies'
+      fullPath: '/api/masaiverse-v2/discussions/replies'
+      preLoaderRoute: typeof ApiMasaiverseV2DiscussionsRepliesRouteImport
+      parentRoute: typeof ApiMasaiverseV2DiscussionsRoute
+    }
+    '/api/masaiverse-v2/clubs/visit': {
+      id: '/api/masaiverse-v2/clubs/visit'
+      path: '/api/masaiverse-v2/clubs/visit'
+      fullPath: '/api/masaiverse-v2/clubs/visit'
+      preLoaderRoute: typeof ApiMasaiverseV2ClubsVisitRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/masaiverse-v2/clubs/update': {
+      id: '/api/masaiverse-v2/clubs/update'
+      path: '/api/masaiverse-v2/clubs/update'
+      fullPath: '/api/masaiverse-v2/clubs/update'
+      preLoaderRoute: typeof ApiMasaiverseV2ClubsUpdateRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/masaiverse-v2/clubs/stats': {
+      id: '/api/masaiverse-v2/clubs/stats'
+      path: '/api/masaiverse-v2/clubs/stats'
+      fullPath: '/api/masaiverse-v2/clubs/stats'
+      preLoaderRoute: typeof ApiMasaiverseV2ClubsStatsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/masaiverse-v2/clubs/mine': {
+      id: '/api/masaiverse-v2/clubs/mine'
+      path: '/api/masaiverse-v2/clubs/mine'
+      fullPath: '/api/masaiverse-v2/clubs/mine'
+      preLoaderRoute: typeof ApiMasaiverseV2ClubsMineRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/masaiverse-v2/clubs/membership': {
+      id: '/api/masaiverse-v2/clubs/membership'
+      path: '/api/masaiverse-v2/clubs/membership'
+      fullPath: '/api/masaiverse-v2/clubs/membership'
+      preLoaderRoute: typeof ApiMasaiverseV2ClubsMembershipRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/masaiverse-v2/clubs/leaderboard': {
+      id: '/api/masaiverse-v2/clubs/leaderboard'
+      path: '/api/masaiverse-v2/clubs/leaderboard'
+      fullPath: '/api/masaiverse-v2/clubs/leaderboard'
+      preLoaderRoute: typeof ApiMasaiverseV2ClubsLeaderboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/masaiverse-v2/clubs/events': {
+      id: '/api/masaiverse-v2/clubs/events'
+      path: '/api/masaiverse-v2/clubs/events'
+      fullPath: '/api/masaiverse-v2/clubs/events'
+      preLoaderRoute: typeof ApiMasaiverseV2ClubsEventsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/masaiverse-v2/clubs/edit-data': {
+      id: '/api/masaiverse-v2/clubs/edit-data'
+      path: '/api/masaiverse-v2/clubs/edit-data'
+      fullPath: '/api/masaiverse-v2/clubs/edit-data'
+      preLoaderRoute: typeof ApiMasaiverseV2ClubsEditDataRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/masaiverse-v2/clubs/detail': {
+      id: '/api/masaiverse-v2/clubs/detail'
+      path: '/api/masaiverse-v2/clubs/detail'
+      fullPath: '/api/masaiverse-v2/clubs/detail'
+      preLoaderRoute: typeof ApiMasaiverseV2ClubsDetailRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/masaiverse-v2/clubs/create': {
+      id: '/api/masaiverse-v2/clubs/create'
+      path: '/api/masaiverse-v2/clubs/create'
+      fullPath: '/api/masaiverse-v2/clubs/create'
+      preLoaderRoute: typeof ApiMasaiverseV2ClubsCreateRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/masaiverse-v2/banners/update': {
+      id: '/api/masaiverse-v2/banners/update'
+      path: '/api/masaiverse-v2/banners/update'
+      fullPath: '/api/masaiverse-v2/banners/update'
+      preLoaderRoute: typeof ApiMasaiverseV2BannersUpdateRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/masaiverse-v2/banners/list': {
+      id: '/api/masaiverse-v2/banners/list'
+      path: '/api/masaiverse-v2/banners/list'
+      fullPath: '/api/masaiverse-v2/banners/list'
+      preLoaderRoute: typeof ApiMasaiverseV2BannersListRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/masaiverse-v2/banners/delete': {
+      id: '/api/masaiverse-v2/banners/delete'
+      path: '/api/masaiverse-v2/banners/delete'
+      fullPath: '/api/masaiverse-v2/banners/delete'
+      preLoaderRoute: typeof ApiMasaiverseV2BannersDeleteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/masaiverse-v2/banners/create': {
+      id: '/api/masaiverse-v2/banners/create'
+      path: '/api/masaiverse-v2/banners/create'
+      fullPath: '/api/masaiverse-v2/banners/create'
+      preLoaderRoute: typeof ApiMasaiverseV2BannersCreateRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/(protected)/_layout/masaiverse/leaderboard': {
@@ -1124,13 +1676,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof protectedLayoutMasaiverseClubsRouteImport
       parentRoute: typeof protectedLayoutMasaiverseRouteRoute
     }
-    '/(protected)/_layout/chatbot/$lectureId': {
-      id: '/(protected)/_layout/chatbot/$lectureId'
-      path: '/chatbot/$lectureId'
-      fullPath: '/chatbot/$lectureId'
-      preLoaderRoute: typeof protectedLayoutChatbotLectureIdRouteImport
-      parentRoute: typeof protectedLayoutRouteRoute
-    }
     '/(auth)/v2/login/verify-otp': {
       id: '/(auth)/v2/login/verify-otp'
       path: '/v2/login/verify-otp'
@@ -1159,103 +1704,33 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof authV2AuthLinkedAccountsRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/(protected)/_layout/resources_/$resourceId': {
-      id: '/(protected)/_layout/resources_/$resourceId'
-      path: '/resources/$resourceId'
-      fullPath: '/resources/$resourceId'
-      preLoaderRoute: typeof protectedLayoutResourcesResourceIdRouteRouteImport
+    '/(protected)/_layout/support/$supportId/': {
+      id: '/(protected)/_layout/support/$supportId/'
+      path: '/support/$supportId'
+      fullPath: '/support/$supportId/'
+      preLoaderRoute: typeof protectedLayoutSupportSupportIdIndexRouteImport
       parentRoute: typeof protectedLayoutRouteRoute
     }
-    '/(protected)/_layout/lectures_/$lectureId': {
-      id: '/(protected)/_layout/lectures_/$lectureId'
-      path: '/lectures/$lectureId'
-      fullPath: '/lectures/$lectureId'
-      preLoaderRoute: typeof protectedLayoutLecturesLectureIdRouteRouteImport
+    '/(protected)/_layout/discussions/create/': {
+      id: '/(protected)/_layout/discussions/create/'
+      path: '/discussions/create'
+      fullPath: '/discussions/create/'
+      preLoaderRoute: typeof protectedLayoutDiscussionsCreateIndexRouteImport
       parentRoute: typeof protectedLayoutRouteRoute
     }
-    '/(protected)/_layout/assignments_/$assignmentId': {
-      id: '/(protected)/_layout/assignments_/$assignmentId'
-      path: '/assignments/$assignmentId'
-      fullPath: '/assignments/$assignmentId'
-      preLoaderRoute: typeof protectedLayoutAssignmentsAssignmentIdRouteRouteImport
+    '/(protected)/_layout/discussions/$discussionId/': {
+      id: '/(protected)/_layout/discussions/$discussionId/'
+      path: '/discussions/$discussionId'
+      fullPath: '/discussions/$discussionId/'
+      preLoaderRoute: typeof protectedLayoutDiscussionsDiscussionIdIndexRouteImport
       parentRoute: typeof protectedLayoutRouteRoute
     }
-    '/(protected)/_layout/announcements_/$id': {
-      id: '/(protected)/_layout/announcements_/$id'
-      path: '/announcements/$id'
-      fullPath: '/announcements/$id'
-      preLoaderRoute: typeof protectedLayoutAnnouncementsIdRouteRouteImport
-      parentRoute: typeof protectedLayoutRouteRoute
-    }
-    '/api/chatbot/$lectureId/sessions/': {
-      id: '/api/chatbot/$lectureId/sessions/'
-      path: '/api/chatbot/$lectureId/sessions'
-      fullPath: '/api/chatbot/$lectureId/sessions/'
-      preLoaderRoute: typeof ApiChatbotLectureIdSessionsIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/learn/submissions/$submissionId/view-on-platform': {
-      id: '/api/learn/submissions/$submissionId/view-on-platform'
-      path: '/view-on-platform'
-      fullPath: '/api/learn/submissions/$submissionId/view-on-platform'
-      preLoaderRoute: typeof ApiLearnSubmissionsSubmissionIdViewOnPlatformRouteImport
-      parentRoute: typeof ApiLearnSubmissionsSubmissionIdRoute
-    }
-    '/api/learn/assignments/$assignmentId/submissions': {
-      id: '/api/learn/assignments/$assignmentId/submissions'
-      path: '/submissions'
-      fullPath: '/api/learn/assignments/$assignmentId/submissions'
-      preLoaderRoute: typeof ApiLearnAssignmentsAssignmentIdSubmissionsRouteImport
-      parentRoute: typeof ApiLearnAssignmentsAssignmentIdRoute
-    }
-    '/api/learn/assignments/$assignmentId/assess-platform-url': {
-      id: '/api/learn/assignments/$assignmentId/assess-platform-url'
-      path: '/assess-platform-url'
-      fullPath: '/api/learn/assignments/$assignmentId/assess-platform-url'
-      preLoaderRoute: typeof ApiLearnAssignmentsAssignmentIdAssessPlatformUrlRouteImport
-      parentRoute: typeof ApiLearnAssignmentsAssignmentIdRoute
-    }
-    '/api/learn/ai-tutor/$lectureId/transcript': {
-      id: '/api/learn/ai-tutor/$lectureId/transcript'
-      path: '/api/learn/ai-tutor/$lectureId/transcript'
-      fullPath: '/api/learn/ai-tutor/$lectureId/transcript'
-      preLoaderRoute: typeof ApiLearnAiTutorLectureIdTranscriptRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/learn/ai-tutor/$lectureId/session': {
-      id: '/api/learn/ai-tutor/$lectureId/session'
-      path: '/api/learn/ai-tutor/$lectureId/session'
-      fullPath: '/api/learn/ai-tutor/$lectureId/session'
-      preLoaderRoute: typeof ApiLearnAiTutorLectureIdSessionRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/learn/ai-tutor/$lectureId/feedback': {
-      id: '/api/learn/ai-tutor/$lectureId/feedback'
-      path: '/api/learn/ai-tutor/$lectureId/feedback'
-      fullPath: '/api/learn/ai-tutor/$lectureId/feedback'
-      preLoaderRoute: typeof ApiLearnAiTutorLectureIdFeedbackRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/learn/ai-tutor/$lectureId/dispatch': {
-      id: '/api/learn/ai-tutor/$lectureId/dispatch'
-      path: '/api/learn/ai-tutor/$lectureId/dispatch'
-      fullPath: '/api/learn/ai-tutor/$lectureId/dispatch'
-      preLoaderRoute: typeof ApiLearnAiTutorLectureIdDispatchRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/learn/ai-chat/$lectureId/send': {
-      id: '/api/learn/ai-chat/$lectureId/send'
-      path: '/api/learn/ai-chat/$lectureId/send'
-      fullPath: '/api/learn/ai-chat/$lectureId/send'
-      preLoaderRoute: typeof ApiLearnAiChatLectureIdSendRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/learn/ai-chat/$lectureId/history': {
-      id: '/api/learn/ai-chat/$lectureId/history'
-      path: '/api/learn/ai-chat/$lectureId/history'
-      fullPath: '/api/learn/ai-chat/$lectureId/history'
-      preLoaderRoute: typeof ApiLearnAiChatLectureIdHistoryRouteImport
-      parentRoute: typeof rootRouteImport
+    '/(protected)/_layout/masaiverse/event/$eventId': {
+      id: '/(protected)/_layout/masaiverse/event/$eventId'
+      path: '/event/$eventId'
+      fullPath: '/masaiverse/event/$eventId'
+      preLoaderRoute: typeof protectedLayoutMasaiverseEventEventIdRouteImport
+      parentRoute: typeof protectedLayoutMasaiverseRouteRoute
     }
     '/(protected)/_layout/masaiverse/club/$clubId': {
       id: '/(protected)/_layout/masaiverse/club/$clubId'
@@ -1264,26 +1739,152 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof protectedLayoutMasaiverseClubClubIdRouteImport
       parentRoute: typeof protectedLayoutMasaiverseRouteRoute
     }
-    '/api/chatbot/$lectureId/sessions/$sessionId/': {
-      id: '/api/chatbot/$lectureId/sessions/$sessionId/'
-      path: '/api/chatbot/$lectureId/sessions/$sessionId'
-      fullPath: '/api/chatbot/$lectureId/sessions/$sessionId/'
-      preLoaderRoute: typeof ApiChatbotLectureIdSessionsSessionIdIndexRouteImport
-      parentRoute: typeof rootRouteImport
+    '/(protected)/_layout/courses/$courseId/_courseTabLayout': {
+      id: '/(protected)/_layout/courses/$courseId/_courseTabLayout'
+      path: '/courses/$courseId'
+      fullPath: '/courses/$courseId'
+      preLoaderRoute: typeof protectedLayoutCoursesCourseIdCourseTabLayoutRouteRouteImport
+      parentRoute: typeof protectedLayoutRouteRoute
     }
-    '/api/chatbot/internal/sessions/$sessionId/messages': {
-      id: '/api/chatbot/internal/sessions/$sessionId/messages'
-      path: '/api/chatbot/internal/sessions/$sessionId/messages'
-      fullPath: '/api/chatbot/internal/sessions/$sessionId/messages'
-      preLoaderRoute: typeof ApiChatbotInternalSessionsSessionIdMessagesRouteImport
-      parentRoute: typeof rootRouteImport
+    '/(protected)/_layout/courses/$courseId/_courseTabLayout/': {
+      id: '/(protected)/_layout/courses/$courseId/_courseTabLayout/'
+      path: '/'
+      fullPath: '/courses/$courseId/'
+      preLoaderRoute: typeof protectedLayoutCoursesCourseIdCourseTabLayoutIndexRouteImport
+      parentRoute: typeof protectedLayoutCoursesCourseIdCourseTabLayoutRouteRoute
     }
-    '/api/chatbot/$lectureId/sessions/$sessionId/messages': {
-      id: '/api/chatbot/$lectureId/sessions/$sessionId/messages'
-      path: '/api/chatbot/$lectureId/sessions/$sessionId/messages'
-      fullPath: '/api/chatbot/$lectureId/sessions/$sessionId/messages'
-      preLoaderRoute: typeof ApiChatbotLectureIdSessionsSessionIdMessagesRouteImport
-      parentRoute: typeof rootRouteImport
+    '/(protected)/_layout/masaiverse/club/$clubId_/gallery': {
+      id: '/(protected)/_layout/masaiverse/club/$clubId_/gallery'
+      path: '/club/$clubId/gallery'
+      fullPath: '/masaiverse/club/$clubId/gallery'
+      preLoaderRoute: typeof protectedLayoutMasaiverseClubClubIdGalleryRouteImport
+      parentRoute: typeof protectedLayoutMasaiverseRouteRoute
+    }
+    '/(protected)/_layout/courses/$courseId/resources_/$resourceId': {
+      id: '/(protected)/_layout/courses/$courseId/resources_/$resourceId'
+      path: '/courses/$courseId/resources/$resourceId'
+      fullPath: '/courses/$courseId/resources/$resourceId'
+      preLoaderRoute: typeof protectedLayoutCoursesCourseIdResourcesResourceIdRouteRouteImport
+      parentRoute: typeof protectedLayoutRouteRoute
+    }
+    '/(protected)/_layout/courses/$courseId/lectures_/$lectureId': {
+      id: '/(protected)/_layout/courses/$courseId/lectures_/$lectureId'
+      path: '/courses/$courseId/lectures/$lectureId'
+      fullPath: '/courses/$courseId/lectures/$lectureId'
+      preLoaderRoute: typeof protectedLayoutCoursesCourseIdLecturesLectureIdRouteRouteImport
+      parentRoute: typeof protectedLayoutRouteRoute
+    }
+    '/(protected)/_layout/courses/$courseId/assignments_/$assignmentId': {
+      id: '/(protected)/_layout/courses/$courseId/assignments_/$assignmentId'
+      path: '/courses/$courseId/assignments/$assignmentId'
+      fullPath: '/courses/$courseId/assignments/$assignmentId'
+      preLoaderRoute: typeof protectedLayoutCoursesCourseIdAssignmentsAssignmentIdRouteRouteImport
+      parentRoute: typeof protectedLayoutRouteRoute
+    }
+    '/(protected)/_layout/courses/$courseId/resources_/$resourceId/': {
+      id: '/(protected)/_layout/courses/$courseId/resources_/$resourceId/'
+      path: '/'
+      fullPath: '/courses/$courseId/resources/$resourceId/'
+      preLoaderRoute: typeof protectedLayoutCoursesCourseIdResourcesResourceIdIndexRouteImport
+      parentRoute: typeof protectedLayoutCoursesCourseIdResourcesResourceIdRouteRoute
+    }
+    '/(protected)/_layout/courses/$courseId/assignments_/$assignmentId/': {
+      id: '/(protected)/_layout/courses/$courseId/assignments_/$assignmentId/'
+      path: '/'
+      fullPath: '/courses/$courseId/assignments/$assignmentId/'
+      preLoaderRoute: typeof protectedLayoutCoursesCourseIdAssignmentsAssignmentIdIndexRouteImport
+      parentRoute: typeof protectedLayoutCoursesCourseIdAssignmentsAssignmentIdRouteRoute
+    }
+    '/(protected)/_layout/courses/$courseId/announcements_/$announcementId/': {
+      id: '/(protected)/_layout/courses/$courseId/announcements_/$announcementId/'
+      path: '/courses/$courseId/announcements/$announcementId'
+      fullPath: '/courses/$courseId/announcements/$announcementId/'
+      preLoaderRoute: typeof protectedLayoutCoursesCourseIdAnnouncementsAnnouncementIdIndexRouteImport
+      parentRoute: typeof protectedLayoutRouteRoute
+    }
+    '/(protected)/_layout/courses/$courseId/_courseTabLayout/resources/': {
+      id: '/(protected)/_layout/courses/$courseId/_courseTabLayout/resources/'
+      path: '/resources'
+      fullPath: '/courses/$courseId/resources/'
+      preLoaderRoute: typeof protectedLayoutCoursesCourseIdCourseTabLayoutResourcesIndexRouteImport
+      parentRoute: typeof protectedLayoutCoursesCourseIdCourseTabLayoutRouteRoute
+    }
+    '/(protected)/_layout/courses/$courseId/_courseTabLayout/lectures/': {
+      id: '/(protected)/_layout/courses/$courseId/_courseTabLayout/lectures/'
+      path: '/lectures'
+      fullPath: '/courses/$courseId/lectures/'
+      preLoaderRoute: typeof protectedLayoutCoursesCourseIdCourseTabLayoutLecturesIndexRouteImport
+      parentRoute: typeof protectedLayoutCoursesCourseIdCourseTabLayoutRouteRoute
+    }
+    '/(protected)/_layout/courses/$courseId/_courseTabLayout/assignments/': {
+      id: '/(protected)/_layout/courses/$courseId/_courseTabLayout/assignments/'
+      path: '/assignments'
+      fullPath: '/courses/$courseId/assignments/'
+      preLoaderRoute: typeof protectedLayoutCoursesCourseIdCourseTabLayoutAssignmentsIndexRouteImport
+      parentRoute: typeof protectedLayoutCoursesCourseIdCourseTabLayoutRouteRoute
+    }
+    '/(protected)/_layout/courses/$courseId/resources_/$resourceId/discussions/': {
+      id: '/(protected)/_layout/courses/$courseId/resources_/$resourceId/discussions/'
+      path: '/discussions'
+      fullPath: '/courses/$courseId/resources/$resourceId/discussions/'
+      preLoaderRoute: typeof protectedLayoutCoursesCourseIdResourcesResourceIdDiscussionsIndexRouteImport
+      parentRoute: typeof protectedLayoutCoursesCourseIdResourcesResourceIdRouteRoute
+    }
+    '/(protected)/_layout/courses/$courseId/lectures_/$lectureId/discussions/': {
+      id: '/(protected)/_layout/courses/$courseId/lectures_/$lectureId/discussions/'
+      path: '/discussions'
+      fullPath: '/courses/$courseId/lectures/$lectureId/discussions/'
+      preLoaderRoute: typeof protectedLayoutCoursesCourseIdLecturesLectureIdDiscussionsIndexRouteImport
+      parentRoute: typeof protectedLayoutCoursesCourseIdLecturesLectureIdRouteRoute
+    }
+    '/(protected)/_layout/courses/$courseId/assignments_/$assignmentId/discussions/': {
+      id: '/(protected)/_layout/courses/$courseId/assignments_/$assignmentId/discussions/'
+      path: '/discussions'
+      fullPath: '/courses/$courseId/assignments/$assignmentId/discussions/'
+      preLoaderRoute: typeof protectedLayoutCoursesCourseIdAssignmentsAssignmentIdDiscussionsIndexRouteImport
+      parentRoute: typeof protectedLayoutCoursesCourseIdAssignmentsAssignmentIdRouteRoute
+    }
+    '/(protected)/_layout/courses/$courseId/resources_/$resourceId/discussions/create/': {
+      id: '/(protected)/_layout/courses/$courseId/resources_/$resourceId/discussions/create/'
+      path: '/discussions/create'
+      fullPath: '/courses/$courseId/resources/$resourceId/discussions/create/'
+      preLoaderRoute: typeof protectedLayoutCoursesCourseIdResourcesResourceIdDiscussionsCreateIndexRouteImport
+      parentRoute: typeof protectedLayoutCoursesCourseIdResourcesResourceIdRouteRoute
+    }
+    '/(protected)/_layout/courses/$courseId/resources_/$resourceId/discussions/$discussionId/': {
+      id: '/(protected)/_layout/courses/$courseId/resources_/$resourceId/discussions/$discussionId/'
+      path: '/discussions/$discussionId'
+      fullPath: '/courses/$courseId/resources/$resourceId/discussions/$discussionId/'
+      preLoaderRoute: typeof protectedLayoutCoursesCourseIdResourcesResourceIdDiscussionsDiscussionIdIndexRouteImport
+      parentRoute: typeof protectedLayoutCoursesCourseIdResourcesResourceIdRouteRoute
+    }
+    '/(protected)/_layout/courses/$courseId/lectures_/$lectureId/discussions/create/': {
+      id: '/(protected)/_layout/courses/$courseId/lectures_/$lectureId/discussions/create/'
+      path: '/discussions/create'
+      fullPath: '/courses/$courseId/lectures/$lectureId/discussions/create/'
+      preLoaderRoute: typeof protectedLayoutCoursesCourseIdLecturesLectureIdDiscussionsCreateIndexRouteImport
+      parentRoute: typeof protectedLayoutCoursesCourseIdLecturesLectureIdRouteRoute
+    }
+    '/(protected)/_layout/courses/$courseId/lectures_/$lectureId/discussions/$discussionId/': {
+      id: '/(protected)/_layout/courses/$courseId/lectures_/$lectureId/discussions/$discussionId/'
+      path: '/discussions/$discussionId'
+      fullPath: '/courses/$courseId/lectures/$lectureId/discussions/$discussionId/'
+      preLoaderRoute: typeof protectedLayoutCoursesCourseIdLecturesLectureIdDiscussionsDiscussionIdIndexRouteImport
+      parentRoute: typeof protectedLayoutCoursesCourseIdLecturesLectureIdRouteRoute
+    }
+    '/(protected)/_layout/courses/$courseId/assignments_/$assignmentId/discussions/create/': {
+      id: '/(protected)/_layout/courses/$courseId/assignments_/$assignmentId/discussions/create/'
+      path: '/discussions/create'
+      fullPath: '/courses/$courseId/assignments/$assignmentId/discussions/create/'
+      preLoaderRoute: typeof protectedLayoutCoursesCourseIdAssignmentsAssignmentIdDiscussionsCreateIndexRouteImport
+      parentRoute: typeof protectedLayoutCoursesCourseIdAssignmentsAssignmentIdRouteRoute
+    }
+    '/(protected)/_layout/courses/$courseId/assignments_/$assignmentId/discussions/$discussionId/': {
+      id: '/(protected)/_layout/courses/$courseId/assignments_/$assignmentId/discussions/$discussionId/'
+      path: '/discussions/$discussionId'
+      fullPath: '/courses/$courseId/assignments/$assignmentId/discussions/$discussionId/'
+      preLoaderRoute: typeof protectedLayoutCoursesCourseIdAssignmentsAssignmentIdDiscussionsDiscussionIdIndexRouteImport
+      parentRoute: typeof protectedLayoutCoursesCourseIdAssignmentsAssignmentIdRouteRoute
     }
   }
 }
@@ -1296,6 +1897,8 @@ interface protectedLayoutMasaiverseRouteRouteChildren {
   protectedLayoutMasaiverseLeaderboardRoute: typeof protectedLayoutMasaiverseLeaderboardRoute
   protectedLayoutMasaiverseIndexRoute: typeof protectedLayoutMasaiverseIndexRoute
   protectedLayoutMasaiverseClubClubIdRoute: typeof protectedLayoutMasaiverseClubClubIdRoute
+  protectedLayoutMasaiverseEventEventIdRoute: typeof protectedLayoutMasaiverseEventEventIdRoute
+  protectedLayoutMasaiverseClubClubIdGalleryRoute: typeof protectedLayoutMasaiverseClubClubIdGalleryRoute
 }
 
 const protectedLayoutMasaiverseRouteRouteChildren: protectedLayoutMasaiverseRouteRouteChildren =
@@ -1310,6 +1913,10 @@ const protectedLayoutMasaiverseRouteRouteChildren: protectedLayoutMasaiverseRout
     protectedLayoutMasaiverseIndexRoute: protectedLayoutMasaiverseIndexRoute,
     protectedLayoutMasaiverseClubClubIdRoute:
       protectedLayoutMasaiverseClubClubIdRoute,
+    protectedLayoutMasaiverseEventEventIdRoute:
+      protectedLayoutMasaiverseEventEventIdRoute,
+    protectedLayoutMasaiverseClubClubIdGalleryRoute:
+      protectedLayoutMasaiverseClubClubIdGalleryRoute,
   }
 
 const protectedLayoutMasaiverseRouteRouteWithChildren =
@@ -1317,123 +1924,221 @@ const protectedLayoutMasaiverseRouteRouteWithChildren =
     protectedLayoutMasaiverseRouteRouteChildren,
   )
 
+interface protectedLayoutCoursesCourseIdCourseTabLayoutRouteRouteChildren {
+  protectedLayoutCoursesCourseIdCourseTabLayoutIndexRoute: typeof protectedLayoutCoursesCourseIdCourseTabLayoutIndexRoute
+  protectedLayoutCoursesCourseIdCourseTabLayoutAssignmentsIndexRoute: typeof protectedLayoutCoursesCourseIdCourseTabLayoutAssignmentsIndexRoute
+  protectedLayoutCoursesCourseIdCourseTabLayoutLecturesIndexRoute: typeof protectedLayoutCoursesCourseIdCourseTabLayoutLecturesIndexRoute
+  protectedLayoutCoursesCourseIdCourseTabLayoutResourcesIndexRoute: typeof protectedLayoutCoursesCourseIdCourseTabLayoutResourcesIndexRoute
+}
+
+const protectedLayoutCoursesCourseIdCourseTabLayoutRouteRouteChildren: protectedLayoutCoursesCourseIdCourseTabLayoutRouteRouteChildren =
+  {
+    protectedLayoutCoursesCourseIdCourseTabLayoutIndexRoute:
+      protectedLayoutCoursesCourseIdCourseTabLayoutIndexRoute,
+    protectedLayoutCoursesCourseIdCourseTabLayoutAssignmentsIndexRoute:
+      protectedLayoutCoursesCourseIdCourseTabLayoutAssignmentsIndexRoute,
+    protectedLayoutCoursesCourseIdCourseTabLayoutLecturesIndexRoute:
+      protectedLayoutCoursesCourseIdCourseTabLayoutLecturesIndexRoute,
+    protectedLayoutCoursesCourseIdCourseTabLayoutResourcesIndexRoute:
+      protectedLayoutCoursesCourseIdCourseTabLayoutResourcesIndexRoute,
+  }
+
+const protectedLayoutCoursesCourseIdCourseTabLayoutRouteRouteWithChildren =
+  protectedLayoutCoursesCourseIdCourseTabLayoutRouteRoute._addFileChildren(
+    protectedLayoutCoursesCourseIdCourseTabLayoutRouteRouteChildren,
+  )
+
+interface protectedLayoutCoursesCourseIdAssignmentsAssignmentIdRouteRouteChildren {
+  protectedLayoutCoursesCourseIdAssignmentsAssignmentIdIndexRoute: typeof protectedLayoutCoursesCourseIdAssignmentsAssignmentIdIndexRoute
+  protectedLayoutCoursesCourseIdAssignmentsAssignmentIdDiscussionsIndexRoute: typeof protectedLayoutCoursesCourseIdAssignmentsAssignmentIdDiscussionsIndexRoute
+  protectedLayoutCoursesCourseIdAssignmentsAssignmentIdDiscussionsDiscussionIdIndexRoute: typeof protectedLayoutCoursesCourseIdAssignmentsAssignmentIdDiscussionsDiscussionIdIndexRoute
+  protectedLayoutCoursesCourseIdAssignmentsAssignmentIdDiscussionsCreateIndexRoute: typeof protectedLayoutCoursesCourseIdAssignmentsAssignmentIdDiscussionsCreateIndexRoute
+}
+
+const protectedLayoutCoursesCourseIdAssignmentsAssignmentIdRouteRouteChildren: protectedLayoutCoursesCourseIdAssignmentsAssignmentIdRouteRouteChildren =
+  {
+    protectedLayoutCoursesCourseIdAssignmentsAssignmentIdIndexRoute:
+      protectedLayoutCoursesCourseIdAssignmentsAssignmentIdIndexRoute,
+    protectedLayoutCoursesCourseIdAssignmentsAssignmentIdDiscussionsIndexRoute:
+      protectedLayoutCoursesCourseIdAssignmentsAssignmentIdDiscussionsIndexRoute,
+    protectedLayoutCoursesCourseIdAssignmentsAssignmentIdDiscussionsDiscussionIdIndexRoute:
+      protectedLayoutCoursesCourseIdAssignmentsAssignmentIdDiscussionsDiscussionIdIndexRoute,
+    protectedLayoutCoursesCourseIdAssignmentsAssignmentIdDiscussionsCreateIndexRoute:
+      protectedLayoutCoursesCourseIdAssignmentsAssignmentIdDiscussionsCreateIndexRoute,
+  }
+
+const protectedLayoutCoursesCourseIdAssignmentsAssignmentIdRouteRouteWithChildren =
+  protectedLayoutCoursesCourseIdAssignmentsAssignmentIdRouteRoute._addFileChildren(
+    protectedLayoutCoursesCourseIdAssignmentsAssignmentIdRouteRouteChildren,
+  )
+
+interface protectedLayoutCoursesCourseIdLecturesLectureIdRouteRouteChildren {
+  protectedLayoutCoursesCourseIdLecturesLectureIdDiscussionsIndexRoute: typeof protectedLayoutCoursesCourseIdLecturesLectureIdDiscussionsIndexRoute
+  protectedLayoutCoursesCourseIdLecturesLectureIdDiscussionsDiscussionIdIndexRoute: typeof protectedLayoutCoursesCourseIdLecturesLectureIdDiscussionsDiscussionIdIndexRoute
+  protectedLayoutCoursesCourseIdLecturesLectureIdDiscussionsCreateIndexRoute: typeof protectedLayoutCoursesCourseIdLecturesLectureIdDiscussionsCreateIndexRoute
+}
+
+const protectedLayoutCoursesCourseIdLecturesLectureIdRouteRouteChildren: protectedLayoutCoursesCourseIdLecturesLectureIdRouteRouteChildren =
+  {
+    protectedLayoutCoursesCourseIdLecturesLectureIdDiscussionsIndexRoute:
+      protectedLayoutCoursesCourseIdLecturesLectureIdDiscussionsIndexRoute,
+    protectedLayoutCoursesCourseIdLecturesLectureIdDiscussionsDiscussionIdIndexRoute:
+      protectedLayoutCoursesCourseIdLecturesLectureIdDiscussionsDiscussionIdIndexRoute,
+    protectedLayoutCoursesCourseIdLecturesLectureIdDiscussionsCreateIndexRoute:
+      protectedLayoutCoursesCourseIdLecturesLectureIdDiscussionsCreateIndexRoute,
+  }
+
+const protectedLayoutCoursesCourseIdLecturesLectureIdRouteRouteWithChildren =
+  protectedLayoutCoursesCourseIdLecturesLectureIdRouteRoute._addFileChildren(
+    protectedLayoutCoursesCourseIdLecturesLectureIdRouteRouteChildren,
+  )
+
+interface protectedLayoutCoursesCourseIdResourcesResourceIdRouteRouteChildren {
+  protectedLayoutCoursesCourseIdResourcesResourceIdIndexRoute: typeof protectedLayoutCoursesCourseIdResourcesResourceIdIndexRoute
+  protectedLayoutCoursesCourseIdResourcesResourceIdDiscussionsIndexRoute: typeof protectedLayoutCoursesCourseIdResourcesResourceIdDiscussionsIndexRoute
+  protectedLayoutCoursesCourseIdResourcesResourceIdDiscussionsDiscussionIdIndexRoute: typeof protectedLayoutCoursesCourseIdResourcesResourceIdDiscussionsDiscussionIdIndexRoute
+  protectedLayoutCoursesCourseIdResourcesResourceIdDiscussionsCreateIndexRoute: typeof protectedLayoutCoursesCourseIdResourcesResourceIdDiscussionsCreateIndexRoute
+}
+
+const protectedLayoutCoursesCourseIdResourcesResourceIdRouteRouteChildren: protectedLayoutCoursesCourseIdResourcesResourceIdRouteRouteChildren =
+  {
+    protectedLayoutCoursesCourseIdResourcesResourceIdIndexRoute:
+      protectedLayoutCoursesCourseIdResourcesResourceIdIndexRoute,
+    protectedLayoutCoursesCourseIdResourcesResourceIdDiscussionsIndexRoute:
+      protectedLayoutCoursesCourseIdResourcesResourceIdDiscussionsIndexRoute,
+    protectedLayoutCoursesCourseIdResourcesResourceIdDiscussionsDiscussionIdIndexRoute:
+      protectedLayoutCoursesCourseIdResourcesResourceIdDiscussionsDiscussionIdIndexRoute,
+    protectedLayoutCoursesCourseIdResourcesResourceIdDiscussionsCreateIndexRoute:
+      protectedLayoutCoursesCourseIdResourcesResourceIdDiscussionsCreateIndexRoute,
+  }
+
+const protectedLayoutCoursesCourseIdResourcesResourceIdRouteRouteWithChildren =
+  protectedLayoutCoursesCourseIdResourcesResourceIdRouteRoute._addFileChildren(
+    protectedLayoutCoursesCourseIdResourcesResourceIdRouteRouteChildren,
+  )
+
 interface protectedLayoutRouteRouteChildren {
   protectedLayoutMasaiverseRouteRoute: typeof protectedLayoutMasaiverseRouteRouteWithChildren
   protectedLayoutIndexRoute: typeof protectedLayoutIndexRoute
-  protectedLayoutAnnouncementsIdRouteRoute: typeof protectedLayoutAnnouncementsIdRouteRoute
-  protectedLayoutAssignmentsAssignmentIdRouteRoute: typeof protectedLayoutAssignmentsAssignmentIdRouteRoute
-  protectedLayoutLecturesLectureIdRouteRoute: typeof protectedLayoutLecturesLectureIdRouteRoute
-  protectedLayoutResourcesResourceIdRouteRoute: typeof protectedLayoutResourcesResourceIdRouteRoute
-  protectedLayoutChatbotLectureIdRoute: typeof protectedLayoutChatbotLectureIdRoute
   protectedLayoutAnnouncementsIndexRoute: typeof protectedLayoutAnnouncementsIndexRoute
-  protectedLayoutBookmarksIndexRoute: typeof protectedLayoutBookmarksIndexRoute
-  protectedLayoutLearnIndexRoute: typeof protectedLayoutLearnIndexRoute
+  protectedLayoutBookmarkIndexRoute: typeof protectedLayoutBookmarkIndexRoute
+  protectedLayoutChatIndexRoute: typeof protectedLayoutChatIndexRoute
+  protectedLayoutCoursesIndexRoute: typeof protectedLayoutCoursesIndexRoute
+  protectedLayoutDiscussionsIndexRoute: typeof protectedLayoutDiscussionsIndexRoute
+  protectedLayoutPracticeInterviewIndexRoute: typeof protectedLayoutPracticeInterviewIndexRoute
+  protectedLayoutProfileIndexRoute: typeof protectedLayoutProfileIndexRoute
+  protectedLayoutReferAndEarnIndexRoute: typeof protectedLayoutReferAndEarnIndexRoute
+  protectedLayoutSupportIndexRoute: typeof protectedLayoutSupportIndexRoute
+  protectedLayoutWhatsNewIndexRoute: typeof protectedLayoutWhatsNewIndexRoute
+  protectedLayoutCoursesCourseIdCourseTabLayoutRouteRoute: typeof protectedLayoutCoursesCourseIdCourseTabLayoutRouteRouteWithChildren
+  protectedLayoutDiscussionsDiscussionIdIndexRoute: typeof protectedLayoutDiscussionsDiscussionIdIndexRoute
+  protectedLayoutDiscussionsCreateIndexRoute: typeof protectedLayoutDiscussionsCreateIndexRoute
+  protectedLayoutSupportSupportIdIndexRoute: typeof protectedLayoutSupportSupportIdIndexRoute
+  protectedLayoutCoursesCourseIdAssignmentsAssignmentIdRouteRoute: typeof protectedLayoutCoursesCourseIdAssignmentsAssignmentIdRouteRouteWithChildren
+  protectedLayoutCoursesCourseIdLecturesLectureIdRouteRoute: typeof protectedLayoutCoursesCourseIdLecturesLectureIdRouteRouteWithChildren
+  protectedLayoutCoursesCourseIdResourcesResourceIdRouteRoute: typeof protectedLayoutCoursesCourseIdResourcesResourceIdRouteRouteWithChildren
+  protectedLayoutCoursesCourseIdAnnouncementsAnnouncementIdIndexRoute: typeof protectedLayoutCoursesCourseIdAnnouncementsAnnouncementIdIndexRoute
 }
 
 const protectedLayoutRouteRouteChildren: protectedLayoutRouteRouteChildren = {
   protectedLayoutMasaiverseRouteRoute:
     protectedLayoutMasaiverseRouteRouteWithChildren,
   protectedLayoutIndexRoute: protectedLayoutIndexRoute,
-  protectedLayoutAnnouncementsIdRouteRoute:
-    protectedLayoutAnnouncementsIdRouteRoute,
-  protectedLayoutAssignmentsAssignmentIdRouteRoute:
-    protectedLayoutAssignmentsAssignmentIdRouteRoute,
-  protectedLayoutLecturesLectureIdRouteRoute:
-    protectedLayoutLecturesLectureIdRouteRoute,
-  protectedLayoutResourcesResourceIdRouteRoute:
-    protectedLayoutResourcesResourceIdRouteRoute,
-  protectedLayoutChatbotLectureIdRoute: protectedLayoutChatbotLectureIdRoute,
   protectedLayoutAnnouncementsIndexRoute:
     protectedLayoutAnnouncementsIndexRoute,
-  protectedLayoutBookmarksIndexRoute: protectedLayoutBookmarksIndexRoute,
-  protectedLayoutLearnIndexRoute: protectedLayoutLearnIndexRoute,
+  protectedLayoutBookmarkIndexRoute: protectedLayoutBookmarkIndexRoute,
+  protectedLayoutChatIndexRoute: protectedLayoutChatIndexRoute,
+  protectedLayoutCoursesIndexRoute: protectedLayoutCoursesIndexRoute,
+  protectedLayoutDiscussionsIndexRoute: protectedLayoutDiscussionsIndexRoute,
+  protectedLayoutPracticeInterviewIndexRoute:
+    protectedLayoutPracticeInterviewIndexRoute,
+  protectedLayoutProfileIndexRoute: protectedLayoutProfileIndexRoute,
+  protectedLayoutReferAndEarnIndexRoute: protectedLayoutReferAndEarnIndexRoute,
+  protectedLayoutSupportIndexRoute: protectedLayoutSupportIndexRoute,
+  protectedLayoutWhatsNewIndexRoute: protectedLayoutWhatsNewIndexRoute,
+  protectedLayoutCoursesCourseIdCourseTabLayoutRouteRoute:
+    protectedLayoutCoursesCourseIdCourseTabLayoutRouteRouteWithChildren,
+  protectedLayoutDiscussionsDiscussionIdIndexRoute:
+    protectedLayoutDiscussionsDiscussionIdIndexRoute,
+  protectedLayoutDiscussionsCreateIndexRoute:
+    protectedLayoutDiscussionsCreateIndexRoute,
+  protectedLayoutSupportSupportIdIndexRoute:
+    protectedLayoutSupportSupportIdIndexRoute,
+  protectedLayoutCoursesCourseIdAssignmentsAssignmentIdRouteRoute:
+    protectedLayoutCoursesCourseIdAssignmentsAssignmentIdRouteRouteWithChildren,
+  protectedLayoutCoursesCourseIdLecturesLectureIdRouteRoute:
+    protectedLayoutCoursesCourseIdLecturesLectureIdRouteRouteWithChildren,
+  protectedLayoutCoursesCourseIdResourcesResourceIdRouteRoute:
+    protectedLayoutCoursesCourseIdResourcesResourceIdRouteRouteWithChildren,
+  protectedLayoutCoursesCourseIdAnnouncementsAnnouncementIdIndexRoute:
+    protectedLayoutCoursesCourseIdAnnouncementsAnnouncementIdIndexRoute,
 }
 
 const protectedLayoutRouteRouteWithChildren =
   protectedLayoutRouteRoute._addFileChildren(protectedLayoutRouteRouteChildren)
 
-interface ApiLearnAssignmentsAssignmentIdRouteChildren {
-  ApiLearnAssignmentsAssignmentIdAssessPlatformUrlRoute: typeof ApiLearnAssignmentsAssignmentIdAssessPlatformUrlRoute
-  ApiLearnAssignmentsAssignmentIdSubmissionsRoute: typeof ApiLearnAssignmentsAssignmentIdSubmissionsRoute
+interface ApiMasaiverseV2DiscussionsRouteChildren {
+  ApiMasaiverseV2DiscussionsRepliesRoute: typeof ApiMasaiverseV2DiscussionsRepliesRoute
+  ApiMasaiverseV2DiscussionsVoteRoute: typeof ApiMasaiverseV2DiscussionsVoteRoute
 }
 
-const ApiLearnAssignmentsAssignmentIdRouteChildren: ApiLearnAssignmentsAssignmentIdRouteChildren =
+const ApiMasaiverseV2DiscussionsRouteChildren: ApiMasaiverseV2DiscussionsRouteChildren =
   {
-    ApiLearnAssignmentsAssignmentIdAssessPlatformUrlRoute:
-      ApiLearnAssignmentsAssignmentIdAssessPlatformUrlRoute,
-    ApiLearnAssignmentsAssignmentIdSubmissionsRoute:
-      ApiLearnAssignmentsAssignmentIdSubmissionsRoute,
+    ApiMasaiverseV2DiscussionsRepliesRoute:
+      ApiMasaiverseV2DiscussionsRepliesRoute,
+    ApiMasaiverseV2DiscussionsVoteRoute: ApiMasaiverseV2DiscussionsVoteRoute,
   }
 
-const ApiLearnAssignmentsAssignmentIdRouteWithChildren =
-  ApiLearnAssignmentsAssignmentIdRoute._addFileChildren(
-    ApiLearnAssignmentsAssignmentIdRouteChildren,
-  )
-
-interface ApiLearnSubmissionsSubmissionIdRouteChildren {
-  ApiLearnSubmissionsSubmissionIdViewOnPlatformRoute: typeof ApiLearnSubmissionsSubmissionIdViewOnPlatformRoute
-}
-
-const ApiLearnSubmissionsSubmissionIdRouteChildren: ApiLearnSubmissionsSubmissionIdRouteChildren =
-  {
-    ApiLearnSubmissionsSubmissionIdViewOnPlatformRoute:
-      ApiLearnSubmissionsSubmissionIdViewOnPlatformRoute,
-  }
-
-const ApiLearnSubmissionsSubmissionIdRouteWithChildren =
-  ApiLearnSubmissionsSubmissionIdRoute._addFileChildren(
-    ApiLearnSubmissionsSubmissionIdRouteChildren,
+const ApiMasaiverseV2DiscussionsRouteWithChildren =
+  ApiMasaiverseV2DiscussionsRoute._addFileChildren(
+    ApiMasaiverseV2DiscussionsRouteChildren,
   )
 
 const rootRouteChildren: RootRouteChildren = {
   protectedLayoutRouteRoute: protectedLayoutRouteRouteWithChildren,
+  ApiHealthRoute: ApiHealthRoute,
   authV2ForgotPasswordRoute: authV2ForgotPasswordRoute,
   authV2MeRoute: authV2MeRoute,
   authV2ResetPasswordRoute: authV2ResetPasswordRoute,
-  ApiDashboardActionBannersRoute: ApiDashboardActionBannersRoute,
-  ApiDashboardAnnouncementsRoute: ApiDashboardAnnouncementsRoute,
-  ApiDashboardBannersRoute: ApiDashboardBannersRoute,
-  ApiDashboardPendingTasksRoute: ApiDashboardPendingTasksRoute,
-  ApiDashboardProductUpdatesRoute: ApiDashboardProductUpdatesRoute,
-  ApiDashboardScheduleRoute: ApiDashboardScheduleRoute,
-  ApiLearnBatchDataRoute: ApiLearnBatchDataRoute,
-  ApiLearnBatchesRoute: ApiLearnBatchesRoute,
+  ApiMasaiverseV2AdminModeRoute: ApiMasaiverseV2AdminModeRoute,
+  ApiMasaiverseV2AwardPointsRoute: ApiMasaiverseV2AwardPointsRoute,
+  ApiMasaiverseV2DiscussionsRoute: ApiMasaiverseV2DiscussionsRouteWithChildren,
   ApiMasaiverseV2HomeRoute: ApiMasaiverseV2HomeRoute,
+  ApiMasaiverseV2LeaderboardRoute: ApiMasaiverseV2LeaderboardRoute,
+  ApiMasaiverseV2VisitedRoute: ApiMasaiverseV2VisitedRoute,
   authLoginIndexRoute: authLoginIndexRoute,
   authSigninIndexRoute: authSigninIndexRoute,
   authSwitchAccountIndexRoute: authSwitchAccountIndexRoute,
-  ApiAnnouncementIndexRoute: ApiAnnouncementIndexRoute,
-  ApiBookmarksIndexRoute: ApiBookmarksIndexRoute,
+  protectedZoomIndexRoute: protectedZoomIndexRoute,
   authV2AuthLinkedAccountsRoute: authV2AuthLinkedAccountsRoute,
   authV2AuthUseAccountRoute: authV2AuthUseAccountRoute,
   authV2LoginRequestOtpRoute: authV2LoginRequestOtpRoute,
   authV2LoginVerifyOtpRoute: authV2LoginVerifyOtpRoute,
-  ApiChatbotLectureIdTokenRoute: ApiChatbotLectureIdTokenRoute,
-  ApiLearnAiTutorEndRoute: ApiLearnAiTutorEndRoute,
-  ApiLearnAiTutorLimitRoute: ApiLearnAiTutorLimitRoute,
-  ApiLearnAssignmentsAssignmentIdRoute:
-    ApiLearnAssignmentsAssignmentIdRouteWithChildren,
-  ApiLearnLecturesLectureIdRoute: ApiLearnLecturesLectureIdRoute,
-  ApiLearnResourcesResourceIdRoute: ApiLearnResourcesResourceIdRoute,
-  ApiLearnSubmissionsSubmissionIdRoute:
-    ApiLearnSubmissionsSubmissionIdRouteWithChildren,
+  ApiMasaiverseV2BannersCreateRoute: ApiMasaiverseV2BannersCreateRoute,
+  ApiMasaiverseV2BannersDeleteRoute: ApiMasaiverseV2BannersDeleteRoute,
+  ApiMasaiverseV2BannersListRoute: ApiMasaiverseV2BannersListRoute,
+  ApiMasaiverseV2BannersUpdateRoute: ApiMasaiverseV2BannersUpdateRoute,
+  ApiMasaiverseV2ClubsCreateRoute: ApiMasaiverseV2ClubsCreateRoute,
+  ApiMasaiverseV2ClubsDetailRoute: ApiMasaiverseV2ClubsDetailRoute,
+  ApiMasaiverseV2ClubsEditDataRoute: ApiMasaiverseV2ClubsEditDataRoute,
+  ApiMasaiverseV2ClubsEventsRoute: ApiMasaiverseV2ClubsEventsRoute,
+  ApiMasaiverseV2ClubsLeaderboardRoute: ApiMasaiverseV2ClubsLeaderboardRoute,
+  ApiMasaiverseV2ClubsMembershipRoute: ApiMasaiverseV2ClubsMembershipRoute,
+  ApiMasaiverseV2ClubsMineRoute: ApiMasaiverseV2ClubsMineRoute,
+  ApiMasaiverseV2ClubsStatsRoute: ApiMasaiverseV2ClubsStatsRoute,
+  ApiMasaiverseV2ClubsUpdateRoute: ApiMasaiverseV2ClubsUpdateRoute,
+  ApiMasaiverseV2ClubsVisitRoute: ApiMasaiverseV2ClubsVisitRoute,
+  ApiMasaiverseV2EventsCreateRoute: ApiMasaiverseV2EventsCreateRoute,
+  ApiMasaiverseV2EventsDetailRoute: ApiMasaiverseV2EventsDetailRoute,
+  ApiMasaiverseV2EventsEditDataRoute: ApiMasaiverseV2EventsEditDataRoute,
+  ApiMasaiverseV2EventsEnrollRoute: ApiMasaiverseV2EventsEnrollRoute,
+  ApiMasaiverseV2EventsListRoute: ApiMasaiverseV2EventsListRoute,
+  ApiMasaiverseV2EventsRateRoute: ApiMasaiverseV2EventsRateRoute,
+  ApiMasaiverseV2EventsUpdateRoute: ApiMasaiverseV2EventsUpdateRoute,
+  ApiMasaiverseV2UploadsImageRoute: ApiMasaiverseV2UploadsImageRoute,
+  ApiMasaiverseV2UsersSearchRoute: ApiMasaiverseV2UsersSearchRoute,
   authResetPasswordTokenIndexRoute: authResetPasswordTokenIndexRoute,
   authV2LoginIndexRoute: authV2LoginIndexRoute,
-  ApiAnnouncementIdIndexRoute: ApiAnnouncementIdIndexRoute,
-  ApiLearnAiChatLectureIdHistoryRoute: ApiLearnAiChatLectureIdHistoryRoute,
-  ApiLearnAiChatLectureIdSendRoute: ApiLearnAiChatLectureIdSendRoute,
-  ApiLearnAiTutorLectureIdDispatchRoute: ApiLearnAiTutorLectureIdDispatchRoute,
-  ApiLearnAiTutorLectureIdFeedbackRoute: ApiLearnAiTutorLectureIdFeedbackRoute,
-  ApiLearnAiTutorLectureIdSessionRoute: ApiLearnAiTutorLectureIdSessionRoute,
-  ApiLearnAiTutorLectureIdTranscriptRoute:
-    ApiLearnAiTutorLectureIdTranscriptRoute,
-  ApiChatbotLectureIdSessionsIndexRoute: ApiChatbotLectureIdSessionsIndexRoute,
-  ApiChatbotLectureIdSessionsSessionIdMessagesRoute:
-    ApiChatbotLectureIdSessionsSessionIdMessagesRoute,
-  ApiChatbotInternalSessionsSessionIdMessagesRoute:
-    ApiChatbotInternalSessionsSessionIdMessagesRoute,
-  ApiChatbotLectureIdSessionsSessionIdIndexRoute:
-    ApiChatbotLectureIdSessionsSessionIdIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

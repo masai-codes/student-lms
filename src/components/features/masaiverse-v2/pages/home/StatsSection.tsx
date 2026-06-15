@@ -1,36 +1,55 @@
+import { useQuery } from '@tanstack/react-query'
 import { ACCENT_STYLES } from '../../accentStyles'
-import { STATS_DUMMY_DATA } from '../../data/statsDummyData'
+import { STAT_CARDS } from '../../data/statsConfig'
+import ResponsiveCardCarousel from './ResponsiveCardCarousel'
+import { masaiverseV2HomeQuery } from '@/query/masaiverse-v2/homeQuery'
 
 export default function StatsSection() {
+  const { data, isPending, isError } = useQuery(masaiverseV2HomeQuery())
+
   return (
-    <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-      {STATS_DUMMY_DATA.map((stat) => {
-        const accent = ACCENT_STYLES[stat.accent]
+    <ResponsiveCardCarousel
+      items={STAT_CARDS}
+      getKey={(card) => card.id}
+      navKey="home-stats"
+      navLabel="stats"
+      // Two-and-a-bit cards on phones (swipe for the rest); all four in a row at lg.
+      slidesPerView={2.15}
+      breakpoints={{ 1024: { slidesPerView: 4 } }}
+      renderItem={(card) => {
+        const accent = ACCENT_STYLES[card.accent]
+        const count = data?.stats[card.metric]
         return (
-          <div
-            key={stat.id}
-            className="flex items-center gap-3 rounded-[16px] border border-[#EDEAE8] bg-white p-4"
-          >
+          <div className="flex h-full items-center gap-3 rounded-[16px] border border-[#EDEAE8] bg-white p-4">
             <span
               className="flex size-10 shrink-0 items-center justify-center rounded-[12px] text-[18px]"
               style={{ backgroundColor: accent.iconBg }}
             >
-              {stat.emoji}
+              {card.emoji}
             </span>
             <div className="min-w-0">
-              <p
-                className="text-[22px] font-bold leading-7"
-                style={{ color: accent.value }}
-              >
-                {stat.value}
-              </p>
+              {isPending ? (
+                <div
+                  className="h-7 w-12 animate-pulse rounded bg-[#EDEAE8]"
+                  aria-hidden
+                />
+              ) : (
+                <p
+                  className="text-[22px] font-bold leading-7"
+                  style={{ color: accent.value }}
+                >
+                  {isError || count == null
+                    ? '—'
+                    : count.toLocaleString('en-IN')}
+                </p>
+              )}
               <p className="text-[13px] leading-4 text-[#6B7280]">
-                {stat.label}
+                {card.label}
               </p>
             </div>
           </div>
         )
-      })}
-    </div>
+      }}
+    />
   )
 }

@@ -11,6 +11,107 @@ Current focus: server API/unit test coverage for `src/server/masaiverse/**`.
 - `src/server/masaiverse/__tests__/listings.test.ts`
 - `src/server/masaiverse/__tests__/community-auth.test.ts`
 - `src/server/masaiverse/__tests__/testSetup.ts` (shared mocks and helpers)
+- `src/server/api/masaiverse-v2/__tests__/markMasaiverseVisited.service.test.ts`
+- `src/server/api/masaiverse-v2/__tests__/markMasaiverseVisited.handler.test.ts`
+- `src/server/api/masaiverse-v2/__tests__/sectionOneStats.service.test.ts`
+- `src/server/api/masaiverse-v2/__tests__/getMasaiverseV2Home.service.test.ts`
+- `src/lib/dateRanges.test.ts` (shared IST week/year range helpers)
+- `src/lib/masaiverseEventCard.test.ts` (IST event-card display helper)
+- `src/server/api/masaiverse-v2/__tests__/getHomeEvents.service.test.ts`
+- `src/server/api/masaiverse-v2/__tests__/getHomeHighlights.service.test.ts`
+- `src/server/api/masaiverse-v2/__tests__/getHomeClubs.service.test.ts`
+- `src/server/api/masaiverse-v2/__tests__/getCommunityDiscussions.service.test.ts`
+- `src/server/api/masaiverse-v2/__tests__/createCommunityDiscussion.service.test.ts`
+- `src/server/api/masaiverse-v2/__tests__/createCommunityDiscussion.handler.test.ts`
+- `src/lib/initials.test.ts`
+- `src/lib/discussionTags.test.ts`
+- `src/lib/html.test.ts`
+- `src/server/api/masaiverse-v2/__tests__/voteCommunityDiscussion.service.test.ts`
+- `src/server/api/masaiverse-v2/__tests__/discussionReplies.service.test.ts`
+- `src/server/api/masaiverse-v2/__tests__/discussionInteractions.handler.test.ts` (vote post/reply, list discussions, replies list/create)
+- `src/components/features/masaiverse-v2/pages/home/StatsSection.test.tsx`
+- `src/components/features/masaiverse-v2/pages/home/EventCard.test.tsx`
+- `src/components/features/masaiverse-v2/pages/home/ThisWeekSection.test.tsx`
+- `src/components/features/masaiverse-v2/pages/home/HighlightCard.test.tsx`
+- `src/components/features/masaiverse-v2/pages/home/HighlightsSection.test.tsx`
+- `src/components/features/masaiverse-v2/pages/home/HomeClubCard.test.tsx`
+- `src/components/features/masaiverse-v2/pages/home/ActiveClubsSection.test.tsx`
+- `src/components/features/masaiverse-v2/pages/home/DiscussionComposer.test.tsx`
+- `src/components/features/masaiverse-v2/pages/home/CommunityDiscussionsSection.test.tsx`
+- `src/components/features/masaiverse-v2/pages/home/DiscussionTags.test.tsx`
+- `src/components/features/masaiverse-v2/pages/home/DiscussionVotes.test.tsx`
+- `src/components/features/masaiverse-v2/pages/home/DiscussionReplies.test.tsx`
+- `src/components/features/masaiverse-v2/pages/club/ClubDiscussionsSection.test.tsx`
+- `src/server/api/masaiverse-v2/__tests__/getMyClubs.service.test.ts`
+- `src/server/api/masaiverse-v2/__tests__/getClubDetail.service.test.ts`
+- `src/server/api/masaiverse-v2/__tests__/setClubMembership.service.test.ts`
+- `src/server/api/masaiverse-v2/__tests__/getClubStats.service.test.ts`
+- `src/server/api/masaiverse-v2/__tests__/getClubStats.handler.test.ts`
+- `src/server/api/masaiverse-v2/__tests__/recordClubVisit.service.test.ts`
+- `src/server/api/masaiverse-v2/__tests__/recordClubVisit.handler.test.ts`
+- `src/components/features/masaiverse-v2/MyClubsSection.test.tsx`
+- `src/components/features/masaiverse-v2/pages/ClubDetailPage.test.tsx`
+- `src/components/features/masaiverse-v2/pages/club/ClubDetailBanner.test.tsx`
+- `src/components/features/masaiverse-v2/pages/club/ClubStatsSection.test.tsx`
+- `src/components/features/masaiverse-v2/pages/club/clubStatsConfig.test.ts`
+- `src/components/features/masaiverse-v2/pages/club/JoinClubButton.test.tsx`
+- `src/components/features/masaiverse-v2/pages/club/ShareClubButton.test.tsx`
+- `src/server/api/masaiverse-v2/__tests__/eventScope.service.test.ts`
+- `src/server/api/masaiverse-v2/__tests__/getClubWeeklyConnects.service.test.ts`
+- `src/server/api/masaiverse-v2/__tests__/getClubEvents.service.test.ts`
+- `src/server/api/masaiverse-v2/__tests__/getClubEvents.handler.test.ts`
+- `src/components/features/masaiverse-v2/pages/home/EventsCarousel.test.tsx`
+- `src/components/features/masaiverse-v2/pages/home/HighlightsCarousel.test.tsx`
+- `src/components/features/masaiverse-v2/pages/club/WeeklyConnectRow.test.tsx`
+- `src/components/features/masaiverse-v2/pages/club/WeeklyConnectsSection.test.tsx`
+- `src/components/features/masaiverse-v2/pages/club/ClubUpcomingSection.test.tsx`
+- `src/components/features/masaiverse-v2/pages/club/ClubPastSection.test.tsx`
+- `src/server/api/masaiverse-v2/__tests__/leaderboardPoints.test.ts`
+- `src/server/api/masaiverse-v2/__tests__/awardLeaderboardPoints.service.test.ts`
+- `src/server/api/masaiverse-v2/__tests__/leaderboardPeriod.test.ts`
+- `src/server/api/masaiverse-v2/__tests__/getClubLeaderboard.service.test.ts`
+- `src/server/api/masaiverse-v2/__tests__/getClubLeaderboard.handler.test.ts`
+- `src/components/features/masaiverse-v2/pages/club/clubLeaderboardAvatar.test.ts`
+- `src/components/features/masaiverse-v2/pages/club/ClubLeaderboardSection.test.tsx`
+- `src/components/features/masaiverse-v2/pages/leaderboard/LeaderboardRow.test.tsx`
+- `src/components/features/masaiverse-v2/pages/leaderboard/LeaderboardList.test.tsx`
+- `src/components/features/masaiverse-v2/pages/leaderboard/LeaderboardPeriodTabs.test.tsx`
+- `src/server/api/masaiverse-v2/__tests__/getGlobalLeaderboard.service.test.ts`
+- `src/server/api/masaiverse-v2/__tests__/getGlobalLeaderboard.handler.test.ts`
+- `src/server/api/masaiverse-v2/__tests__/awardManualPoints.service.test.ts`
+- `src/server/api/masaiverse-v2/__tests__/searchUsers.service.test.ts`
+- `src/server/api/masaiverse-v2/__tests__/awardManualPoints.handler.test.ts`
+- `src/server/api/masaiverse-v2/__tests__/searchUsers.handler.test.ts`
+- `src/components/features/masaiverse-v2/pages/leaderboard/UserSearchField.test.tsx`
+- `src/components/features/masaiverse-v2/pages/leaderboard/AssignPointsForm.test.tsx`
+- `src/components/features/masaiverse-v2/pages/leaderboard/AssignPointsButton.test.tsx`
+- `src/components/features/masaiverse-v2/pages/home/calendar/GlobalLeaders.test.tsx`
+- `src/server/api/masaiverse-v2/__tests__/getEventDetail.service.test.ts`
+- `src/server/api/masaiverse-v2/__tests__/setEventEnrollment.service.test.ts`
+- `src/server/api/masaiverse-v2/__tests__/getEventDetail.handler.test.ts`
+- `src/server/api/masaiverse-v2/__tests__/setEventEnrollment.handler.test.ts`
+- `src/server/api/masaiverse-v2/__tests__/rateEvent.service.test.ts`
+- `src/server/api/masaiverse-v2/__tests__/rateEvent.handler.test.ts`
+- `src/components/features/masaiverse-v2/pages/event/EventRatingCard.test.tsx`
+- `src/components/features/masaiverse-v2/pages/event/eventDetailFormat.test.ts`
+- `src/components/features/masaiverse-v2/pages/event/EventHeroImage.test.tsx`
+- `src/components/features/masaiverse-v2/pages/event/EventInfoRows.test.tsx`
+- `src/components/features/masaiverse-v2/pages/event/EventHosts.test.tsx`
+- `src/components/features/masaiverse-v2/pages/event/EventAttendees.test.tsx`
+- `src/components/features/masaiverse-v2/pages/event/EventRegisterCard.test.tsx`
+- `src/components/features/masaiverse-v2/pages/EventDetailPage.test.tsx`
+- `src/components/features/masaiverse-v2/pages/home/EventCard.test.tsx`
+- `src/server/api/masaiverse-v2/__tests__/getEventsList.service.test.ts`
+- `src/server/api/masaiverse-v2/__tests__/getEventsList.handler.test.ts`
+- `src/server/api/masaiverse-v2/__tests__/getMemberClubIds.service.test.ts`
+- `src/components/features/masaiverse-v2/pages/events/eventBuckets.test.ts`
+- `src/components/features/masaiverse-v2/pages/events/EventListCard.test.tsx`
+- `src/components/features/masaiverse-v2/pages/EventsPage.test.tsx`
+- `src/components/features/masaiverse-v2/pages/home/calendar/calendarUtils.test.ts`
+- `src/components/features/masaiverse-v2/pages/home/calendar/ReadOnlyCalendar.test.tsx`
+- `src/components/features/masaiverse-v2/pages/home/calendar/CalendarDayEvents.test.tsx`
+- `src/components/features/masaiverse-v2/pages/home/calendar/UpcomingEvents.test.tsx`
+- `src/components/features/masaiverse-v2/pages/home/calendar/CalendarPanel.test.tsx`
 
 ## How To Run
 
@@ -42,6 +143,160 @@ Current focus: server API/unit test coverage for `src/server/masaiverse/**`.
 - `MASAIVE-API-019` - Module: `voteCommunityPost` - Case: throws `UNAUTHORIZED` when no active user - Status: Covered
 - `MASAIVE-API-020` - Module: `voteCommunityReply` - Case: throws `UNAUTHORIZED` when no active user - Status: Covered
 - `MASAIVE-API-021` - Module: `toggleCommunityPostBookmark` - Case: throws `UNAUTHORIZED` when no active user - Status: Covered
+- `MASAIVE-V2-001` - Module: `markMasaiverseVisited` (service) - Case: issues a single guarded UPDATE for the given user - Status: Covered
+- `MASAIVE-V2-002` - Module: `markMasaiverseVisited` (service) - Case: propagates DB errors to caller - Status: Covered
+- `MASAIVE-V2-003` - Module: `handleMarkMasaiverseVisited` - Case: marks session user and returns `{ success: true }` - Status: Covered
+- `MASAIVE-V2-004` - Module: `handleMarkMasaiverseVisited` - Case: returns 401 when no session user - Status: Covered
+- `MASAIVE-V2-005` - Module: `handleMarkMasaiverseVisited` - Case: maps unexpected failures to 500 `SERVER_ERROR_MARKING_MASAIVERSE_VISITED` - Status: Covered
+- `MASAIVE-V2-006` - Module: `dateRanges` - Case: current IST week spans Monday→Monday, using IST day at the boundary - Status: Covered
+- `MASAIVE-V2-007` - Module: `dateRanges` - Case: current IST year spans Jan 1→Jan 1, using IST year at the boundary - Status: Covered
+- `MASAIVE-V2-008` - Module: `getCommunityLearnerCount` - Case: returns distinct learner count, 0 when empty - Status: Covered
+- `MASAIVE-V2-009` - Module: `getDiscussionsThisWeekCount` - Case: sums posts + replies this week, 0 when empty - Status: Covered
+- `MASAIVE-V2-010` - Module: `getEventsThisYearCount` - Case: counts events scheduled this year, 0 when empty - Status: Covered
+- `MASAIVE-V2-011` - Module: `getEventRegistrationsThisYearCount` - Case: counts registrations this year, 0 when empty - Status: Covered
+- `MASAIVE-V2-012` - Module: `getMasaiverseV2Home` - Case: composes section-one stats and passes a single `now` to time-bounded services - Status: Covered
+- `MASAIVE-V2-013` - Module: `StatsSection` (home UI) - Case: renders four labelled stat cards - Status: Covered
+- `MASAIVE-V2-014` - Module: `StatsSection` (home UI) - Case: shows formatted counts from the home API on success - Status: Covered
+- `MASAIVE-V2-015` - Module: `StatsSection` (home UI) - Case: falls back to a dash for every card on request failure - Status: Covered
+- `MASAIVE-V2-016` - Module: `getHomeEvents` - Case: maps rows to card shape (image, meta aboveTitle/belowTitle, UTC ISO times); normalizes nulls; empty list; `isEnrolled` defaults false with no `userId`, and is set per-event from a batched enrollment lookup when a `userId` is passed - Status: Covered
+- `MASAIVE-V2-017` - Module: `getMasaiverseV2Home` - Case: includes section-two events and passes `now` + the session `userId` to `getHomeEvents` (so cards can flag enrollments) - Status: Covered
+- `MASAIVE-V2-018` - Module: `getEventCardDisplay` - Case: IST LIVE / TODAY / TOMORROW / start-time badge + date box, missing-time fallback - Status: Covered
+- `MASAIVE-V2-019` - Module: `EventCard` (home UI) - Case: renders image + 3 lines, LIVE badge, omits optional bits when absent; shows a green "Registered" badge only when `isEnrolled` - Status: Covered
+- `MASAIVE-V2-020` - Module: `ThisWeekSection` (home UI) - Case: loading message, event cards + count, empty state, Swiper carousel navigation shown only when >1 event - Status: Covered
+- `MASAIVE-V2-021` - Module: `getLastWeekRangeIst` - Case: previous IST week is the seven days before the current week - Status: Covered
+- `MASAIVE-V2-022` - Module: `getHomeHighlights` - Case: maps past events to recap cards (aboveTitle/title/belowTitle + pastEventEmojiValue); normalizes nulls; empty list - Status: Covered
+- `MASAIVE-V2-023` - Module: `getMasaiverseV2Home` - Case: includes section-three highlights and passes `now` to `getHomeHighlights` - Status: Covered
+- `MASAIVE-V2-024` - Module: `HighlightCard` (home UI) - Case: renders emoji + 3 lines, omits optional bits when absent - Status: Covered
+- `MASAIVE-V2-025` - Module: `HighlightsSection` (home UI) - Case: loading message, recap cards, empty state - Status: Covered
+- `MASAIVE-V2-026` - Module: `getHomeClubs` - Case: maps clubs with member counts + capped name sample; skips member queries when no clubs - Status: Covered
+- `MASAIVE-V2-027` - Module: `getMasaiverseV2Home` - Case: includes section-four clubs - Status: Covered
+- `MASAIVE-V2-028` - Module: `HomeClubCard` (home UI) - Case: image/name/descriptions/member initials + count, name-initial fallback, "+" chip logic - Status: Covered
+- `MASAIVE-V2-029` - Module: `ActiveClubsSection` (home UI) - Case: loading message, club cards, empty state - Status: Covered
+- `MASAIVE-V2-030` - Module: `getCommunityDiscussions` - Case: maps club-less posts with author + upvote/reply counts; empty list skips count queries - Status: Covered
+- `MASAIVE-V2-031` - Module: `createCommunityDiscussion` - Case: inserts club-less post and returns id; rejects empty title/content (400) without inserting - Status: Covered
+- `MASAIVE-V2-032` - Module: `handleCreateCommunityDiscussion` - Case: 201 success, 401 unauth, validation ApiError passthrough, 500 on unexpected - Status: Covered
+- `MASAIVE-V2-033` - Module: `getMasaiverseV2Home` - Case: includes section-five discussions - Status: Covered
+- `MASAIVE-V2-034` - Module: `getInitials` - Case: two-word, single-word, and empty-name initials - Status: Covered
+- `MASAIVE-V2-035` - Module: `DiscussionComposer` (home UI) - Case: Post gated until title+content; submits trimmed title + content and closes; shows error and stays open on failure - Status: Covered
+- `MASAIVE-V2-036` - Module: `CommunityDiscussionsSection` (home UI) - Case: loading, discussion rows, empty state, opens composer on "Start a discussion", renders tag pills - Status: Covered
+- `MASAIVE-V2-037` - Module: `discussionTags` - Case: parse comma input (trim/dedupe), serialize+parse round-trip, no-tags passthrough, marker sanitization - Status: Covered
+- `MASAIVE-V2-038` - Module: `htmlPlainText` - Case: strips tags/entities; empty paragraph → empty - Status: Covered
+- `MASAIVE-V2-039` - Module: `DiscussionTags` (UI) - Case: pill per tag, nothing when empty, stable color per tag - Status: Covered
+- `MASAIVE-V2-040` - Module: `getCommunityDiscussions` - Case: extracts tags from content marker (and empty when none) - Status: Covered
+- `MASAIVE-V2-041` - Module: `createCommunityDiscussion` / handler - Case: tags appended behind content marker; non-string tags filtered - Status: Covered
+- `MASAIVE-V2-042` - Module: `voteCommunityDiscussion` - Case: insert/toggle-off/switch vote, upvote-count recompute, invalid post id/vote - Status: Covered
+- `MASAIVE-V2-043` - Module: `getDiscussionReplies` / `createDiscussionReply` - Case: maps replies (UTC ISO); inserts reply; rejects empty content / invalid post id - Status: Covered
+- `MASAIVE-V2-044` - Module: vote/replies handlers - Case: vote returns state, replies list by query postId, create reply 201, 401 unauth, ApiError passthrough - Status: Covered
+- `MASAIVE-V2-045` - Module: `getCommunityDiscussions` - Case: returns the signed-in user's `myVote` per post - Status: Covered
+- `MASAIVE-V2-046` - Module: `DiscussionVotes` (UI) - Case: shows only upvote count; casting an upvote updates cached count + myVote - Status: Covered
+- `MASAIVE-V2-047` - Module: `DiscussionReplies` (UI) - Case: renders fetched replies (with per-reply vote control); posts a reply and clears the box - Status: Covered
+- `MASAIVE-V2-048` - Module: `voteDiscussionReply` / vote handler - Case: votes on a reply via `replyId`; handler routes replyId→reply, else post - Status: Covered
+- `MASAIVE-V2-049` - Module: `getDiscussionReplies` - Case: returns per-reply upvotes + the user's vote - Status: Covered
+- `MASAIVE-V2-050` - Module: `getCommunityDiscussions` (paginated) - Case: returns `{discussions, hasMore}`; flags hasMore via limit+1 probe; empty page - Status: Covered
+- `MASAIVE-V2-051` - Module: `handleListCommunityDiscussions` - Case: parses offset/limit and returns the page - Status: Covered
+- `MASAIVE-V2-052` - Module: `CommunityDiscussionsSection` (UI) - Case: infinite list; "Load more" fetches next page at offset; hidden when no more - Status: Covered
+- `MASAIVE-V2-053` - Module: `getCommunityDiscussions` (search) - Case: AND-of-terms match on title/content (covers tags), LIKE wildcards escaped - Status: Covered
+- `MASAIVE-V2-054` - Module: `handleListCommunityDiscussions` - Case: passes `q` search param through - Status: Covered
+- `MASAIVE-V2-055` - Module: `CommunityDiscussionsSection` (UI) - Case: debounced search re-queries with the typed term from offset 0 - Status: Covered
+- `MASAIVE-V2-056` - Module: `getMyClubs` - Case: maps a user's joined clubs (imageUrl prefers `meta.cardImageLink`, falls back to `clubs.image`, null otherwise); empty list when none - Status: Covered
+- `MASAIVE-V2-057` - Module: `getClubDetail` - Case: null for non-finite/unknown id; maps banner subtitle (`belowTitleCardText` fallback), filters non-string banner tags, live member count and joined state - Status: Covered
+- `MASAIVE-V2-058` - Module: `setClubMembership` - Case: rejects invalid id (400) / unknown club (404); join is idempotent, leave deletes; returns `{isJoined, memberCount}` - Status: Covered
+- `MASAIVE-V2-059` - Module: `MyClubsSection` / `MasaiverseV2LeftSection` (UI) - Case: live "My Clubs" list (image vs initials), loading skeleton, empty state - Status: Covered
+- `MASAIVE-V2-060` - Module: `ClubDetailBanner` (UI) - Case: title/subtitle/image-or-initials; pill row is `[first meta tag, member count, …rest tags]`; member pill shown even with no meta tags - Status: Covered
+- `MASAIVE-V2-061` - Module: `JoinClubButton` / `ShareClubButton` / `ClubDetailPage` (UI) - Case: join/leave toggles membership and patches the detail cache; Share copies the page URL and shows a self-dismissing "Link copied" confirmation; page loading/404/error/success branches - Status: Covered
+- `MASAIVE-V2-062` - Module: `recordClubVisit` - Case: no-op for non-finite id / non-member; stamps `club_members.meta.lastVisitedAt` preserving sibling keys; initializes null meta - Status: Covered
+- `MASAIVE-V2-063` - Module: `handleRecordClubVisit` (`POST /clubs/visit`) - Case: records for session user and returns `{recorded}`; NaN clubId when body missing; 401 unauth; 500 on unexpected - Status: Covered
+- `MASAIVE-V2-064` - Module: `getClubStats` - Case: null for non-finite/unknown id; active members (30-day `lastVisitedAt`), avg event rating rounded to 1dp (null when unrated/non-numeric), `projectsBuild` coerced from number/string (0 when invalid), community posts = club posts + replies - Status: Covered
+- `MASAIVE-V2-065` - Module: `handleGetClubStats` (`GET /clubs/stats`) - Case: returns stats; 404 unknown club; 401 unauth; 500 on unexpected - Status: Covered
+- `MASAIVE-V2-066` - Module: `clubStatsConfig` (`formatClubStat`) - Case: dash when stats/value missing; rating to one decimal; counts with locale grouping - Status: Covered
+- `MASAIVE-V2-067` - Module: `ClubStatsSection` / `ClubDetailPage` (UI) - Case: four labelled stat cards, loading skeletons, formatted values (rating 1dp), dash for null rating and on request failure; ClubDetailPage records a visit only when the user is a member - Status: Covered
+- `MASAIVE-V2-068` - Module: `eventScopeConditions` - Case: empty for unscoped; club id condition (skips non-finite); weekly-connect only/exclude; combined club + weekly-connect - Status: Covered
+- `MASAIVE-V2-069` - Module: `getHomeEvents` / `getHomeHighlights` (scoped) - Case: accept a club + weekly-connect scope and still map rows (home/community behavior unchanged) - Status: Covered
+- `MASAIVE-V2-070` - Module: `getClubWeeklyConnects` - Case: empty for non-finite id (no db); maps rows with `meta.belowTitle` subtitle + UTC ISO times; null subtitle/timestamps - Status: Covered
+- `MASAIVE-V2-071` - Module: `getClubEvents` / `handleGetClubEvents` (`GET /clubs/events`) - Case: null/404 for unknown club, null for non-finite id; aggregates weeklyConnects + scoped upcoming + scoped past; 401 unauth; 500 on unexpected - Status: Covered
+- `MASAIVE-V2-072` - Module: `getEventStatus` / `formatIstDayBadge` - Case: live/upcoming/completed derivation incl. no-start; IST weekday+day badge, null for missing/unparseable - Status: Covered
+- `MASAIVE-V2-073` - Module: `EventsCarousel` / `HighlightsCarousel` - Case: loading, empty, single (no nav), multiple (nav controls) — shared by home + club sections - Status: Covered
+- `MASAIVE-V2-074` - Module: `WeeklyConnectRow` / `WeeklyConnectsSection` / `ClubUpcomingSection` / `ClubPastSection` (UI) - Case: row status pill (Live/Upcoming/Completed) + IST day badge + subtitle fallback; section orders live→upcoming→completed, loading + empty states; club upcoming/past reuse home carousels with club-scoped data - Status: Covered
+- `MASAIVE-V2-075` - Module: `leaderboardPoints` - Case: `LEADERBOARD_POINTS` matches the agreed scoring (incl. `event_registration` 5) and every `LeaderboardReason` has a positive value - Status: Covered
+- `MASAIVE-V2-076` - Module: `awardLeaderboardPoints.service` - Case: post creation awards a single 10-pt row; reply awards given + (non-self) received with club from post and no-op when post missing; upvote awards given + (non-self) received using post club (reply via reply→post lookup) and no-op when target missing; revoke deletes the voter's rows for the target; `awardEventRegistrationPoints` inserts a single 5-pt `event_registration` row stamping `createdBy` = the enrollee, the event's `club_id` (null for community-wide) and `event_id` - Status: Covered
+- `MASAIVE-V2-077` - Module: `createCommunityDiscussion` / `createDiscussionReply` / `voteCommunityDiscussion` (points wiring) - Case: post creation calls `awardPostCreationPoints` (club null); reply calls `awardReplyPoints`; upvote add/switch-to-up awards, toggle-off/switch-to-down revokes, fresh downvote scores nothing; reply target routes by `replyId` - Status: Covered
+- `MASAIVE-V2-078` - Module: `getClubLeaderboard.service` - Case: null for non-finite id / missing club; ranks club members by club-scoped points (top `limit`, clamped default/max/NaN), pins the viewer's `currentUser` (rank from members ranked above; `null` when no club points), and coerces null sums to 0; honours the `month` period filter - Status: Covered
+- `MASAIVE-V2-079` - Module: `getClubLeaderboard.handler` (`GET /clubs/leaderboard`) - Case: parses `clubId` + `period` (default overall), forwards `currentUserId`/`canSeeUnpublished`, 200 `{entries,currentUser}` payload, 404 missing club, 401 no session, 500 on unexpected error - Status: Covered
+- `MASAIVE-V2-080` - Module: `clubLeaderboardAvatar` / `LeaderboardRow` / `LeaderboardList` / `LeaderboardPeriodTabs` / `ClubLeaderboardSection` (UI) - Case: initials/medal/palette helpers; row shows medal-or-rank, initials/photo avatar, separated points, and a "You" label + highlight for the current user; list renders top entries, highlights an in-top current user in place, and pins an off-top current user below a `···` separator; period tabs report overall/month on change; section header + loading/error/empty states + period-switch refetch (no pager, no projects·events subtitle) - Status: Covered
+- `MASAIVE-V2-081` - Module: `getCommunityDiscussions` / `handleListCommunityDiscussions` (club scope) - Case: a `clubId` scopes the feed to `club_id = clubId` (else `club_id IS NULL`); handler forwards the `clubId` query param (null when absent) - Status: Covered
+- `MASAIVE-V2-082` - Module: `createCommunityDiscussion` / `handleCreateCommunityDiscussion` (club scope) - Case: a string `clubId` inserts a club-scoped post (id coerced to number) and awards points with that club; absent `clubId` stays club-less - Status: Covered
+- `MASAIVE-V2-083` - Module: `CommunityDiscussionsSection` / `DiscussionComposer` / `ClubDiscussionsSection` (UI) - Case: a `clubId` prop scopes the fetch + new posts to the club, renders the custom title, and hides the "View all" link; club wrapper renders the feed as "Club Discussion" - Status: Covered
+- `MASAIVE-V2-084` - Module: `getEventDetail` (service) - Case: non-finite id returns null without a query; a missing row returns null after only the row lookup; a full row maps meta (`aboveTitle`/`belowTitle`/`isWeeklyConnect`), joined club name, derived status, `isEnrolled` and `enrolledCount`; blank/null optional fields and an absent `meta`/club fall back to nulls (`isWeeklyConnect: false`, `clubId: null`) - Status: Covered
+- `MASAIVE-V2-085` - Module: `handleGetEventDetail` (handler) - Case: success returns the detail with `getEventDetail(eventId, userId)`; null row → 404 `EVENT_NOT_FOUND`; no session → 401; unexpected failure → 500 `SERVER_ERROR_FETCHING_EVENT_DETAIL` - Status: Covered
+- `MASAIVE-V2-086` - Module: `setEventEnrollment` (service) - Case: non-finite id throws `INVALID_EVENT_ID`; unknown event throws `EVENT_NOT_FOUND` without inserting; idempotent register returns the count and redirects offline→`location_map_link` / online→`event_link`; a blank link yields `redirectUrl: null`; a first-time registration awards `event_registration` points with the event's club id, while an already-enrolled re-register awards nothing - Status: Covered
+- `MASAIVE-V2-087` - Module: `handleSetEventEnrollment` (handler) - Case: success returns the enrollment state with `setEventEnrollment(userId, eventId)`; a missing body coerces to `NaN`; no session → 401; a service `ApiError` (e.g. 404) is propagated; unexpected failure → 500 `SERVER_ERROR_ENROLLING_EVENT` - Status: Covered
+- `MASAIVE-V2-088` - Module: `eventDetailFormat` (util) - Case: IST date badge (month/day, start→end fallback, null when unparseable), long date, and time range (range / single / "Ends" / null) - Status: Covered
+- `MASAIVE-V2-089` - Module: `EventHeroImage` / `EventInfoRows` (UI) - Case: hero renders the image or placeholder and a LIVE badge only when live; info rows show the IST date badge + long date + time range, the offline location vs online platform/link-hint, and generic fallbacks for absent location/date - Status: Covered
+- `MASAIVE-V2-090` - Module: `EventRegisterCard` (UI) - Case: ended event is disabled; registering patches the cached detail, refreshes the count and flips to a celebratory confirmation in place (never auto-redirects); enrolled users can optionally re-open the join link (online) / directions (offline), and the open button is hidden when no link exists; attendee count copy (0 / 1 / n) - Status: Covered
+- `MASAIVE-V2-091` - Module: `EventDetailPage` / `EventCard` (UI) - Case: page shows a loading state, then the title/eyebrow/subtitle/host/pills/about once loaded, omits absent blocks, and renders not-found (404) vs generic error states; `EventCard` links to `/masaiverse/event/$eventId` with the event id - Status: Covered
+- `MASAIVE-V2-092` - Module: `getEventsList` (service) - Case: returns all events (public + club-hosted, weekly connects included); maps a club-hosted row (club name, category, mode, location, UTC ISO times); a club-less row yields a public event (null club fields); blank/whitespace strings and a club with no name normalize to null; empty list returns `[]`; `isEnrolled` defaults false with no `userId` and is set per-event from a batched enrollment lookup when a `userId` is passed - Status: Covered
+- `MASAIVE-V2-093` - Module: `handleGetEventsList` (`GET /events/list`) - Case: wraps the list under an `events` key and forwards the session `userId` to `getEventsList`; no session → 401 (service not called); unexpected failure → 500 `SERVER_ERROR_FETCHING_EVENTS_LIST` - Status: Covered
+- `MASAIVE-V2-094` - Module: `eventBuckets` (util) - Case: live/upcoming bucket as `upcoming`, completed as `past`; `matchesScope` for all/public/clubs; `matchesSearch` blank-true / title-club-location-aboveTitle (case-insensitive) / null-field + no-match false; `sortForBucket` upcoming asc, past desc, end-time fallback, timeless/unparseable events sink, stable when both timeless - Status: Covered
+- `MASAIVE-V2-095` - Module: `EventListCard` (UI) - Case: live club event shows LIVE badge, club host badge, category pill, IST date-time and venue; public online event shows Community badge + "Online" (no image/category); finished event shows "Ended"; timeless event hides the date and falls back to "Venue to be announced"; shows a green "Registered" badge only when `isEnrolled` - Status: Covered
+- `MASAIVE-V2-096` - Module: `EventsPage` (UI) - Case: loading skeleton; default system clock when no `now`; upcoming list ordered live→soonest (past excluded); Clubs chip filters to club events; Past tab shows past events; search box filters by title; tailored empty states per tab - Status: Covered
+- `MASAIVE-V2-097` - Module: `rateEvent` (service) - Case: non-finite id → `INVALID_EVENT_ID`; rating outside 1–5 or non-integer → `INVALID_RATING`; unknown event → `EVENT_NOT_FOUND`; not-yet-ended event → `EVENT_NOT_ENDED`; non-attendee → `NOT_ENROLLED`; existing rating → `ALREADY_RATED`; success writes `{rating,feedback,ratedAt}` into `event_enrollments.meta` (preserving prior keys) with trimmed feedback, blank feedback normalized to null - Status: Covered
+- `MASAIVE-V2-098` - Module: `handleRateEvent` (`POST /events/rate`) - Case: success returns the rating state via `rateEvent(userId, eventId, rating, feedback)`; no session → 401 (service not called); a service `ApiError` (e.g. `ALREADY_RATED` 409) is propagated; unexpected failure → 500 `SERVER_ERROR_RATING_EVENT` - Status: Covered
+- `MASAIVE-V2-099` - Module: `EventRatingCard` / `StarRow` (UI) - Case: renders nothing unless the event has ended and the user attended; submit disabled until a star is picked; submitting calls `rateMasaiverseV2Event` (trimmed feedback / undefined when blank), patches the cached detail's `userRating`/`userFeedback` and flips to a read-only thank-you in place; an already-rated event shows the stored stars + feedback with no picker; a failed submission surfaces an inline error - Status: Covered
+- `MASAIVE-V2-100` - Module: `getEventDetail` (`toHostedBy`) / `EventHosts` (UI) - Case: `meta.hostedBy` maps to `{ name, imageUrl }` (blank avatar → null), dropping entries without a host name and non-object/null entries; the "Hosted By" section renders each host with an avatar image or initials fallback, lists multiple hosts in order, and renders nothing when the list is empty; the detail page shows the section under the hero image - Status: Covered
+- `MASAIVE-V2-101` - Module: `EventAttendees` (UI) - Case: zero attendees shows the "Be the first to register" invite; one attendee uses the singular noun; many attendees render a localised count (e.g. `1,234`) with the plural noun and an `aria-label`; the decorative bubble row is capped at four. The register card renders the count via this block (asserted with `getByLabelText`) - Status: Covered
+
+- `MASAIVE-V2-102` - Module: `getAdminModeState` (service) - Case: missing user and student roles resolve to `{ isAdmin: false, enabled: false }`; an admin/`super_admin` returns `enabled` from `users.meta.isMasaiverseAdminModeEnabled`, defaulting to `false` for null/empty meta - Status: Covered
+- `MASAIVE-V2-103` - Module: `setAdminModeState` (service) - Case: non-admin / missing user throws `ApiError(403, MASAIVERSE_ADMIN_FORBIDDEN)` and never writes; an admin merges the flag into `users.meta` (preserving sibling keys) for both enable and disable - Status: Covered
+- `MASAIVE-V2-104` - Module: `handleGetAdminMode` (handler) - Case: returns the state for the session user (200), 401 without a session, and maps unexpected failures to `SERVER_ERROR_FETCHING_ADMIN_MODE` (500) - Status: Covered
+- `MASAIVE-V2-105` - Module: `handleSetAdminMode` (handler) - Case: toggles and returns new state (200); rejects a non-boolean / missing `enabled` with `INVALID_ADMIN_MODE_PAYLOAD` (400); 401 without a session; propagates the service 403; maps unexpected failures to `SERVER_ERROR_UPDATING_ADMIN_MODE` (500) - Status: Covered
+- `MASAIVE-V2-106` - Module: `AdminModeToggle` / `Switch` (UI) - Case: toggle renders nothing while loading and for non-admins; admins see an on/off `role="switch"` reflecting the persisted state, clicking calls `setMasaiverseV2AdminMode` and updates the cached state; the `Switch` covers checked/unchecked render, click callback, and disabled (no-op) - Status: Covered
+
+- `MASAIVE-V2-107` - Module: `publishVisibility` (`canSeeUnpublished` / `publishedEventCondition` / `publishedClubCondition`) - Case: `canSeeUnpublished` is false for a null user (no admin-state lookup), true only for admin + admin-mode-enabled, false for admin-mode-off and non-admins; the SQL conditions return `undefined` when drafts are visible and a filter otherwise - Status: Covered
+- `MASAIVE-V2-108` - Module: `createMasaiverseEvent` / `createMasaiverseClub` (services) - Case: a non-admin is rejected with `ApiError(403, MASAIVERSE_ADMIN_FORBIDDEN)` and nothing is inserted; an admin inserts an unpublished draft (`meta.isPublished=false`, `lastEditedBy`/`lastEditedAt`, `createdBy`, placeholder picsum image, sample meta) and the new id is returned - Status: Covered
+- `MASAIVE-V2-109` - Module: `handleCreateEvent` / `handleCreateClub` (handlers) - Case: returns 201 + `{id}` for the session admin, 401 without a session, propagates the service 403, and maps unexpected failures to `SERVER_ERROR_CREATING_EVENT` / `SERVER_ERROR_CREATING_CLUB` (500) - Status: Covered
+- `MASAIVE-V2-110` - Module: read handlers + services (publish threading) - Case: every event/club read handler computes `canSeeUnpublished(userId)` and forwards it (asserted in the events-list/detail and club events/stats/leaderboard handler tests, and in the home/club-detail/club-events service tests); leaf reads apply the published filter so drafts never reach students or admins outside admin mode - Status: Covered
+- `MASAIVE-V2-111` - Module: `AdminCreateButton` (UI) - Case: renders nothing while loading and for non-enabled users; for an admin in admin mode it shows "Add an event"/"Add a club", and clicking calls the matching create API then invalidates the events + home (event) or home (club) query keys - Status: Covered
+- `MASAIVE-V2-112` - Module: `AdminModeToggle` (UI) - Case: toggling admin mode persists the new state and then reloads the page (`window.location.reload`) so every list refetches with the new draft visibility - Status: Covered
+- Note: publish visibility is **strict** — only `meta.isPublished === true` is shown to non-admins; missing/`false` is hidden (updated from the earlier backward-compatible "missing = visible" behaviour). - Status: N/A
+- `MASAIVE-V2-113` - Module: `getEventsList` (admin full view) - Case: in admin mode (`canSeeUnpublished`) the member-club scoping is dropped so events from clubs the user has not joined are returned, and the member-club lookup query is skipped - Status: Covered
+- `MASAIVE-V2-114` - Module: `getMyClubs` (admin full view) - Case: in admin mode it returns *every* club (newest first, drafts included) instead of just the joined clubs, so the sidebar + the discussions/leaderboard club tabs cover all clubs - Status: Covered
+- `MASAIVE-V2-115` - Module: `WeeklyConnectRow` (UI) - Case: the club-page weekly-connect row links to the event detail page (`/masaiverse/event/$eventId`) for its event id, while still rendering the day badge / status pill / subtitle - Status: Covered
+- Note: admin-created event/club drafts now fill **all** columns (both online `eventLink`/`platform` and offline `locationTitle`/`locationMapLink`) and every `meta` key with non-empty placeholder text (e.g. `confirmationModalText`, `eventSummary`, club `detail_description`) so conditionally-rendered UI (confirm modals, link vs map) all works on a fresh draft. - Status: N/A
+
+- `MASAIVE-V2-116` - Module: `updateMasaiverseEvent` / `updateMasaiverseClub` (services) - Case: non-admin → `ApiError(403)` and no write; missing row → 404; whitelisted columns applied + unknown keys ignored; `meta` merged with unknown keys dropped and `lastEditedBy`/`lastEditedAt` stamped; event date columns coerced to MySQL UTC - Status: Covered
+- `MASAIVE-V2-117` - Module: `handleUpdateEvent` / `handleUpdateClub` (handlers) - Case: parses `{ eventId|clubId, column?, meta? }` and forwards to the service (200 success); 401 without a session; propagates the service 403; maps unexpected failures to `SERVER_ERROR_UPDATING_EVENT` / `SERVER_ERROR_UPDATING_CLUB` (500) - Status: Covered
+- `MASAIVE-V2-118` - Module: `editDateTime` - Case: `utcIsoToIstLocalInput` renders a UTC ISO as an IST `datetime-local` value (empty for missing/invalid); `istLocalInputToUtcIso` parses it back to UTC (null when blank); round-trips - Status: Covered
+- `MASAIVE-V2-119` - Module: edit flow (`EditModeProvider` + `EditToggleButton` + `EditableField` + `EditFieldModal`) - Case: edit affordances are hidden for non-admins; an admin can toggle edit mode, open a field's modal, change the value and save — which calls the update API with the right `{ column|meta }` patch - Status: Covered
+- `MASAIVE-V2-120` - Module: `AboutClubSection` (UI) - Case: the club about description renders via the shared `RichContent` markdown renderer (not plain text), and the section + detail rows still render/omit correctly - Status: Covered
+
+- `MASAIVE-V2-121` - Module: `getClubEditData` (service + handler) - Case: admin-gated (403 for non-admin), 404 for a missing club, returns raw `{ id, name, meta }` (empty meta object when null); handler returns 200 / 401 / propagates 403 / maps failures to `SERVER_ERROR_FETCHING_CLUB_EDIT_DATA` - Status: Covered
+- `MASAIVE-V2-122` - Module: `handleUploadImage` (S3 upload) - Case: a valid image returns 201 `{ url }` (forwarding contentType/ext to `uploadImageToS3`); 401 without a session; 400 for no file / non-image / over-5MB; unexpected failure → `SERVER_ERROR_UPLOADING_IMAGE` (500) - Status: Covered
+- `MASAIVE-V2-123` - Module: `clubFormState` (`toClubFormState` / `toClubPatch`) - Case: seeds every field from name+meta with type coercion (drops non-strings from lists, malformed rows), and serializes back to a `{ column:{name}, meta:{…} }` patch with `projectsBuild` coerced to a number (0 when invalid) - Status: Covered
+- `MASAIVE-V2-124` - Module: `ImageUploadField` (UI) - Case: choosing a file uploads it (S3 API) and reports the returned URL; a pasted URL is reported directly; an upload failure surfaces an inline error - Status: Covered
+- `MASAIVE-V2-125` - Module: `ClubEditForm` (UI) - Case: shows a loading state until edit data resolves, seeds the form from `{ name, meta }`, and saving sends a `{ column:{name}, meta }` patch via the club update API then closes the drawer - Status: Covered
+- Note: the club detail page's inline edit pencils/panel were replaced by an admin-only "Edit club" button opening a right drawer (`ClubEditForm`); event detail keeps inline editing. - Status: N/A
+
+- `MASAIVE-V2-126` - Module: `getEventEditData` (service + handler) - Case: admin-gated (403), 404 for a missing/invalid event, returns `{ id, columns, meta }` with start/end as UTC ISO and raw meta; handler 200/401/403/`SERVER_ERROR_FETCHING_EVENT_EDIT_DATA` (500) - Status: Covered
+- `MASAIVE-V2-127` - Module: `eventFormState` (`toEventFormState` / `toEventPatch`) - Case: seeds columns + meta (coercing flags + hosts, dropping bad host entries), and serializes back to a `{ column, meta }` patch, nulling empty enum/date columns and including `isPublished`/`isWeeklyConnect` - Status: Covered
+- `MASAIVE-V2-128` - Module: `EventEditForm` (UI) - Case: seeds from edit data, shows online fields (event link + platform) vs offline fields (location title + map link) conditionally on the mode select, and saving sends a `{ column, meta }` patch via the event update API then closes - Status: Covered
+- `MASAIVE-V2-129` - Module: publish toggle - Case: `meta.isPublished` is whitelisted in `updateEvent`/`updateClub` and exposed as a "Published" `Switch` in both edit drawers; `clubFormState`/`eventFormState` seed it from `meta.isPublished === true` and include it in the patch - Status: Covered
+- Note: the inline-edit components (`EditModeProvider`/`EditableField`/`EditFieldModal`/`EditFieldsPanel`/`EditToggleButton`) and their `EditMode.test.tsx` were **removed** — both clubs and events now edit via right drawers (`ClubEditForm`/`EventEditForm`). `editDateTime` + `ImageUploadField` are retained and reused. - Status: N/A
+
+- `MASAIVE-V2-130` - Module: `getMasaiverseBanners` (service) - Case: maps rows to the banner shape, reads `isPublished` from `meta` (false when missing), normalizes blank strings to null, and returns [] when empty; the `publishedBannerCondition` gates visibility by `canSeeUnpublished` - Status: Covered
+- `MASAIVE-V2-131` - Module: `createMasaiverseBanner` / `updateMasaiverseBanner` / `deleteMasaiverseBanner` (services) - Case: all admin-gated (403); create inserts an unpublished draft (`meta.isPublished=false`, `createdBy`/`lastEditedBy`); update 404s on a missing banner, whitelists columns/meta, merges meta and stamps `lastEditedBy`; delete removes the row - Status: Covered
+- `MASAIVE-V2-132` - Module: banner handlers - Case: `GET /banners/list` scopes by `canSeeUnpublished` (401 without a session), `POST /banners/create` returns 201, `POST /banners/update` forwards the parsed patch + propagates the service 403, `POST /banners/delete` forwards the id + maps failures to `SERVER_ERROR_DELETING_BANNER` - Status: Covered
+- `MASAIVE-V2-133` - Module: `BannersSection` (UI) - Case: hidden for a student with no banners; shows a published banner without admin controls; for an admin shows the "Add banner" button (creates one) and a draft badge + edit control per banner - Status: Covered
+- `MASAIVE-V2-134` - Module: `BannerEditModal` (UI) - Case: editing title + toggling Published saves a `{ column, meta:{isPublished} }` patch and closes; Delete removes the banner and closes - Status: Covered
+- Note: home banners live in `masaiverse_banners` (title/description/cta + `meta.isPublished`); the "Announcements" swiper renders above the stats section. - Status: N/A
+
+- `MASAIVE-V2-135` - Module: `leaderboardPeriod` - Case: `parseLeaderboardPeriod` keeps `month` and defaults everything else to `overall`; `monthStart` returns the zero-padded 1st of the date's month at midnight; `leaderboardPeriodCondition` is `undefined` for overall and a condition for month - Status: Covered
+- `MASAIVE-V2-136` - Module: `getGlobalLeaderboard.service` - Case: ranks the top `limit` members (clamped default/min/max/NaN, null sums → 0) and pins the viewer's `currentUser` (rank = members ranked strictly above + 1; `null` when they have no points), honouring the `month` period filter - Status: Covered
+- `MASAIVE-V2-137` - Module: `getGlobalLeaderboard.handler` (`GET /leaderboard`) - Case: parses `limit` + `period` (default overall), forwards `currentUserId`, returns 200 `{entries,currentUser}`, 401 without a session, 500 on unexpected error - Status: Covered
+- `MASAIVE-V2-138` - Module: `GlobalLeaderboardSection` / `GlobalLeaders` (UI) - Case: both the full section and the home calendar-drawer `GlobalLeaders` show the period toggle, the top 10, and the pinned "You" row when the viewer is off the top, plus loading/error/empty states and a period-switch refetch (`{period,limit:10}`); `GlobalLeaders` keeps its compact medal/avatar/`toLocaleString` styling - Status: Covered
+- `MASAIVE-V2-139` - Module: `awardManualPoints.service` - Case: 403 for non-admins (no db touch); 400 for invalid target id, and for zero/non-integer/out-of-range points; 404 for a missing target user; 400 for a non-positive club id and 404 for a missing club; otherwise inserts a `masaiverse_leaderboard` row (`reason 'manual'`, `createdBy` = admin, club null or the given club) and returns its id - Status: Covered
+- `MASAIVE-V2-140` - Module: `searchUsers.service` - Case: 403 for non-admins; `[]` (no query) for blank/short terms; otherwise name/email `LIKE` matches mapped to `{ id, name, email, avatarUrl }` (string ids, null photos) capped at 10 - Status: Covered
+- `MASAIVE-V2-141` - Module: `awardManualPoints.handler` (`POST /award-points`) + `searchUsers.handler` (`GET /users/search`) - Case: award parses `targetUserId`/`points`/`clubId` (blank/missing club → null), 201 on success, 401 no session, propagates the service 403, maps failures to `SERVER_ERROR_AWARDING_POINTS`; search forwards the `q` param (default `''`), 200 `{users}`, 401 no session, maps failures to `SERVER_ERROR_SEARCHING_USERS` - Status: Covered
+- `MASAIVE-V2-142` - Module: `UserSearchField` / `AssignPointsForm` / `AssignPointsButton` (UI) - Case: search field stays quiet under 2 chars, lists matches, reports the picked user and collapses to a chip with a clear control; `resolveClubId`/`pointsInvalidationKeys` map the `none` sentinel and build the refetch keys; form keeps submit disabled until a user + non-zero points are set, awards community-wide points and closes on success, and surfaces an error on failure; the button is hidden unless admin mode is on and opens the modal when clicked - Status: Covered
 
 ## Pending / Next Cases
 

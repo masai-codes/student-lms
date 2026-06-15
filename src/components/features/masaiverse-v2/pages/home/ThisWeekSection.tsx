@@ -1,6 +1,8 @@
-import { THIS_WEEK_EVENTS_DUMMY_DATA } from '../../data/thisWeekEventsDummyData'
-import EventCard from './EventCard'
+import { useQuery } from '@tanstack/react-query'
+import EventsCarousel from './EventsCarousel'
 import SectionHeader from './SectionHeader'
+import { masaiverseV2HomeQuery } from '@/query/masaiverse-v2/homeQuery'
+import { MASAIVERSE_EVENTS, trackMasaiverse } from '../../tracking'
 
 type ThisWeekSectionProps = {
   onViewCalendar: () => void
@@ -9,26 +11,39 @@ type ThisWeekSectionProps = {
 export default function ThisWeekSection({
   onViewCalendar,
 }: ThisWeekSectionProps) {
+  const { data, isPending } = useQuery(masaiverseV2HomeQuery())
+  const events = data?.events ?? []
+
   return (
     <section>
       <SectionHeader
-        title="This Week on MasaiVerse"
-        subtitle="· 2 events live or upcoming"
+        title="Live & Upcoming"
+        subtitle={
+          events.length
+            ? `· ${events.length} event${events.length === 1 ? '' : 's'} live or upcoming`
+            : undefined
+        }
         action={
           <button
             type="button"
-            onClick={onViewCalendar}
-            className="text-[14px] font-medium text-[#EF8833] hover:underline"
+            onClick={() => {
+              trackMasaiverse(MASAIVERSE_EVENTS.calendarOpen, {
+                source: 'home_this_week',
+              })
+              onViewCalendar()
+            }}
+            className="text-[14px] font-medium text-masaiverse-orange hover:underline"
           >
             View calendar →
           </button>
         }
       />
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        {THIS_WEEK_EVENTS_DUMMY_DATA.map((event) => (
-          <EventCard key={event.id} event={event} />
-        ))}
-      </div>
+      <EventsCarousel
+        events={events}
+        isPending={isPending}
+        loadingLabel="Loading events"
+        emptyMessage="No live or upcoming events right now."
+      />
     </section>
   )
 }

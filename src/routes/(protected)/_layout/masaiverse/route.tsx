@@ -4,7 +4,9 @@ import {
   createFileRoute,
   useRouterState,
 } from '@tanstack/react-router'
+import MasaiverseLoader from '@/components/features/masaiverse-v2/MasaiverseLoader'
 import MasaiverseV2Page from '@/components/features/masaiverse-v2/MasaiverseV2Page'
+import { markMasaiverseV2Visited } from '@/lib/api/masaiverse-v2/masaiverseV2Api'
 import { getMasaiverseAccessDebugServer } from '@/server/masaiverse/getMasaiverseAccessDebugServer'
 import { redirectToOldStudentUi } from '@/utils/authRedirect'
 import { sendTrackingEvent } from '@/utils/tracking'
@@ -46,6 +48,17 @@ export const Route = createFileRoute('/(protected)/_layout/masaiverse')({
       masaiverseAccessDebug,
     }
   },
+  // The access check is per-user and stable for the session. Caching it keeps
+  // the loader from re-running on every in-section navigation, which is what
+  // made switching between pages (events ↔ club ↔ …) flash a bare loader.
+  staleTime: 5 * 60 * 1000,
+  // Branded pending UI: keep the sidebar in place and show the Masai loader in
+  // the content area instead of falling back to the layout's plain "Loading…".
+  pendingComponent: () => (
+    <MasaiverseV2Page>
+      <MasaiverseLoader />
+    </MasaiverseV2Page>
+  ),
   component: RouteComponent,
 })
 
@@ -82,6 +95,15 @@ function RouteComponent() {
     redirectReason,
     searchStr,
   ])
+
+  useEffect(() => {
+    if (!canShowMasaiverse) return
+
+    // Best-effort: mark the user as having visited Masaiverse once. Fired from
+    // the section layout so it covers every Masaiverse page, and is a no-op on
+    // the server after the first visit. Failures must never block the page.
+    void markMasaiverseV2Visited().catch(() => {})
+  }, [canShowMasaiverse])
 
   useEffect(() => {
     if (!canShowMasaiverse) return

@@ -3169,6 +3169,9 @@ export const clubMembers = mysqlTable("club_members", {
 	clubId: bigint("club_id", { mode: "number", unsigned: true }).notNull().references(() => clubs.id, { onDelete: "cascade" }),
 	role: varchar({ length: 50 }).default("member").notNull(),
 	joinedAt: timestamp("joined_at", { mode: "string" }).defaultNow().notNull(),
+	// Free-form per-membership metadata, e.g. `lastVisitedAt` (ISO timestamp of
+	// the member's most recent visit to the club detail page).
+	meta: json().$type<Record<string, any>>(),
 },
 (table) => [
 	unique("club_members_user_id_club_id_unique").on(table.userId, table.clubId),
@@ -3206,9 +3209,109 @@ export const eventEnrollments = mysqlTable("event_enrollments", {
 	userId: bigint("user_id", { mode: "number", unsigned: true }).notNull().references(() => users.id, { onDelete: "cascade" }),
 	eventId: bigint("event_id", { mode: "number", unsigned: true }).notNull().references(() => events.id, { onDelete: "cascade" }),
 	enrolledAt: timestamp("enrolled_at", { mode: "string" }).defaultNow().notNull(),
+	// Free-form per-enrollment metadata, e.g. `rating` (the score the enrolled
+	// user gave the event after attending).
+	meta: json().$type<Record<string, any>>(),
 },
 (table) => [
 	unique("event_enrollments_user_id_event_id_unique").on(table.userId, table.eventId),
 	index("event_enrollments_event_id_index").on(table.eventId),
 	primaryKey({ columns: [table.id], name: "event_enrollments_id"}),
+]);
+
+export const masaiverseBanners = mysqlTable("masaiverse_banners", {
+	id: bigint({ mode: "number", unsigned: true }).autoincrement().notNull(),
+	title: varchar({ length: 255 }).notNull(),
+	description: text(),
+	ctaText: varchar("cta_text", { length: 255 }),
+	ctaUrl: text("cta_url"),
+	startDate: timestamp("start_date", { mode: 'string' }),
+	endDate: timestamp("end_date", { mode: 'string' }),
+	// Free-form metadata; `isPublished` (boolean) gates visibility to students.
+	meta: json().$type<Record<string, any>>(),
+	createdBy: bigint("created_by", { mode: "number", unsigned: true }).references(() => users.id),
+	lastEditedBy: bigint("last_edited_by", { mode: "number", unsigned: true }).references(() => users.id),
+	createdAt: timestamp("created_at", { mode: 'string' }).defaultNow().notNull(),
+	updatedAt: timestamp("updated_at", { mode: 'string' }).notNull(),
+},
+(table) => [
+	index("masaiverse_banners_created_by_index").on(table.createdBy),
+	index("masaiverse_banners_last_edited_by_index").on(table.lastEditedBy),
+	primaryKey({ columns: [table.id], name: "masaiverse_banners_id"}),
+]);
+
+export const posts = mysqlTable("posts", {
+	id: bigint({ mode: "number", unsigned: true }).autoincrement().notNull(),
+	// Nullable: community discussions created from Masaiverse v2 belong to no club.
+	clubId: bigint("club_id", { mode: "number", unsigned: true }).references(() => clubs.id, { onDelete: "cascade" }),
+	userId: bigint("user_id", { mode: "number", unsigned: true }).notNull().references(() => users.id),
+	title: text(),
+	content: text(),
+	createdAt: timestamp("created_at", { mode: 'string' }).defaultNow().notNull(),
+	updatedAt: timestamp("updated_at", { mode: 'string' }).notNull(),
+	bannedBy: bigint("banned_by", { mode: "number", unsigned: true }).references(() => users.id, { onDelete: "set null" }),
+	bannedDate: timestamp("banned_date", { mode: 'string' }),
+	isBanned: tinyint("is_banned").default(0).notNull(),
+},
+(table) => [
+	index("posts_banned_by_index").on(table.bannedBy),
+	index("posts_club_id_index").on(table.clubId),
+	index("posts_user_id_index").on(table.userId),
+	primaryKey({ columns: [table.id], name: "posts_id"}),
+]);
+
+export const replies = mysqlTable("replies", {
+	id: bigint({ mode: "number", unsigned: true }).autoincrement().notNull(),
+	postId: bigint("post_id", { mode: "number", unsigned: true }).notNull().references(() => posts.id, { onDelete: "cascade" }),
+	userId: bigint("user_id", { mode: "number", unsigned: true }).notNull().references(() => users.id),
+	content: text(),
+	createdAt: timestamp("created_at", { mode: 'string' }).defaultNow().notNull(),
+	updatedAt: timestamp("updated_at", { mode: 'string' }).notNull(),
+},
+(table) => [
+	index("replies_post_id_index").on(table.postId),
+	index("replies_user_id_index").on(table.userId),
+	primaryKey({ columns: [table.id], name: "replies_id"}),
+]);
+
+export const votes = mysqlTable("votes", {
+	id: bigint({ mode: "number", unsigned: true }).autoincrement().notNull(),
+	userId: bigint("user_id", { mode: "number", unsigned: true }).notNull().references(() => users.id, { onDelete: "cascade" }),
+	postId: bigint("post_id", { mode: "number", unsigned: true }).references(() => posts.id, { onDelete: "cascade" }),
+	replyId: bigint("reply_id", { mode: "number", unsigned: true }).references(() => replies.id, { onDelete: "cascade" }),
+	vote: mysqlEnum(['upvote', 'downvote']).notNull(),
+	createdAt: timestamp("created_at", { mode: 'string' }).defaultNow(),
+},
+(table) => [
+	index("votes_post_id_index").on(table.postId),
+	index("votes_reply_id_index").on(table.replyId),
+	primaryKey({ columns: [table.id], name: "votes_id"}),
+]);
+
+export const masaiverseLeaderboard = mysqlTable("masaiverse_leaderboard", {
+	id: bigint({ mode: "number", unsigned: true }).autoincrement().notNull(),
+	// User who received the points.
+	userId: bigint("user_id", { mode: "number", unsigned: true }).notNull().references(() => users.id, { onDelete: "cascade" }),
+	// User whose action caused the points.
+	createdBy: bigint("created_by", { mode: "number", unsigned: true }).references(() => users.id, { onDelete: "set null" }),
+	// Type of points event.
+	reason: varchar({ length: 50 }).notNull(),
+	// Points awarded.
+	points: int().notNull(),
+	clubId: bigint("club_id", { mode: "number", unsigned: true }).references(() => clubs.id, { onDelete: "set null" }),
+	postId: bigint("post_id", { mode: "number", unsigned: true }).references(() => posts.id, { onDelete: "set null" }),
+	replyId: bigint("reply_id", { mode: "number", unsigned: true }).references(() => replies.id, { onDelete: "set null" }),
+	eventId: bigint("event_id", { mode: "number", unsigned: true }).references(() => events.id, { onDelete: "set null" }),
+	meta: json().$type<Record<string, any>>(),
+	createdAt: timestamp("created_at", { mode: "string" }).defaultNow().notNull(),
+},
+(table) => [
+	index("masaiverse_leaderboard_user_id_index").on(table.userId),
+	index("masaiverse_leaderboard_created_by_index").on(table.createdBy),
+	index("masaiverse_leaderboard_club_id_index").on(table.clubId),
+	index("masaiverse_leaderboard_post_id_index").on(table.postId),
+	index("masaiverse_leaderboard_reply_id_index").on(table.replyId),
+	index("masaiverse_leaderboard_event_id_index").on(table.eventId),
+	index("masaiverse_leaderboard_reason_index").on(table.reason),
+	primaryKey({ columns: [table.id], name: "masaiverse_leaderboard_id"}),
 ]);

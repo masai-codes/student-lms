@@ -15,8 +15,6 @@ type RichTextEditorProps = {
   className?: string
   contentClassName?: string
   showToolbar?: boolean
-  /** Flatter chrome for embedded composers (no outer editor border). */
-  embedded?: boolean
 }
 
 export function RichTextEditor({
@@ -26,13 +24,10 @@ export function RichTextEditor({
   className = "",
   contentClassName = "",
   showToolbar = true,
-  embedded = false,
 }: RichTextEditorProps) {
-  const contentBorderClass = embedded
-    ? "border-0"
-    : showToolbar
-      ? "rounded-b-lg border border-t-0 border-[#E5E7EB]"
-      : "rounded-lg border border-[#E5E7EB]"
+  const contentBorderClass = showToolbar
+    ? "rounded-b-lg border border-t-0 border-[#E5E7EB]"
+    : "rounded-lg border border-[#E5E7EB]"
 
   const [isMounted, setIsMounted] = React.useState(false)
 
@@ -46,7 +41,7 @@ export function RichTextEditor({
     editorProps: {
       attributes: {
         class:
-          `min-h-24 ${contentBorderClass} px-3 py-2 text-[14px] leading-[22px] text-[#111928] outline-none [&_h1]:my-2 [&_h1]:text-[28px] [&_h1]:font-[700] [&_h1]:leading-[36px] [&_h2]:my-2 [&_h2]:text-[22px] [&_h2]:font-[600] [&_h2]:leading-[30px] [&_h3]:my-2 [&_h3]:text-[18px] [&_h3]:font-[600] [&_h3]:leading-[26px] [&_p]:my-0 [&_p+p]:mt-2 [&_ul]:my-2 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:my-2 [&_ol]:list-decimal [&_ol]:pl-5 [&_li]:my-1 [&_blockquote]:border-l-2 [&_blockquote]:border-[#E5E7EB] [&_blockquote]:pl-3 ${contentClassName}`,
+          `min-h-24 ${contentBorderClass} px-3 py-2 text-[16px] leading-[22px] text-[#111928] outline-none break-words sm:text-[14px] [&_h1]:my-2 [&_h1]:text-[28px] [&_h1]:font-[700] [&_h1]:leading-[36px] [&_h2]:my-2 [&_h2]:text-[22px] [&_h2]:font-[600] [&_h2]:leading-[30px] [&_h3]:my-2 [&_h3]:text-[18px] [&_h3]:font-[600] [&_h3]:leading-[26px] [&_p]:my-0 [&_p+p]:mt-2 [&_ul]:my-2 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:my-2 [&_ol]:list-decimal [&_ol]:pl-5 [&_li]:my-1 [&_blockquote]:border-l-2 [&_blockquote]:border-[#E5E7EB] [&_blockquote]:pl-3 ${contentClassName}`,
       },
     },
     onUpdate: ({ editor: tiptapEditor }) => {
@@ -75,23 +70,11 @@ export function RichTextEditor({
   })
 
   const toolbarButtonClass = (isActive: boolean) =>
-    `inline-flex items-center justify-center rounded-md border border-[#E5E7EB] transition-colors ${
-      embedded ? "h-7 w-7" : "h-8 w-8"
-    } ${
+    `inline-flex h-8 w-8 items-center justify-center rounded-md border border-[#E5E7EB] transition-colors ${
       isActive
         ? "bg-[#FDE8D7] text-[#B45309]"
         : "text-[#4B5563] hover:bg-[#F9FAFB]"
     }`
-
-  const toolbarTopClass = embedded
-    ? "flex flex-wrap items-center gap-1 border-b border-gray-100 px-2 py-1.5"
-    : "flex flex-wrap items-center gap-2 rounded-t-lg border border-[#E5E7EB] p-2"
-
-  const placeholderTopClass = showToolbar
-    ? embedded
-      ? "top-[40px]"
-      : "top-[56px]"
-    : "top-[8px]"
 
   if (!isMounted || !editor) {
     return (
@@ -99,7 +82,7 @@ export function RichTextEditor({
         value={value}
         onChange={(event) => onChange(event.target.value)}
         placeholder={placeholder}
-        className={`min-h-24 w-full resize-y rounded-lg border border-[#E5E7EB] px-3 py-2 text-[14px] leading-[22px] text-[#111928] outline-none placeholder:text-[#9CA3AF] ${className}`}
+        className={`min-h-24 w-full resize-y rounded-lg border border-[#E5E7EB] px-3 py-2 text-[16px] leading-[22px] text-[#111928] outline-none placeholder:text-[#9CA3AF] sm:text-[14px] ${className}`}
       />
     )
   }
@@ -107,7 +90,7 @@ export function RichTextEditor({
   return (
     <div className={`discussion-rich-editor relative ${className}`}>
       {showToolbar ? (
-        <div className={toolbarTopClass}>
+        <div className="flex flex-wrap items-center gap-2 rounded-t-lg border border-[#E5E7EB] p-2">
         <button
           type="button"
           onMouseDown={(event) => event.preventDefault()}
@@ -145,7 +128,9 @@ export function RichTextEditor({
       <EditorContent editor={editor} />
       {editorState?.isEmpty ? (
         <p
-          className={`pointer-events-none absolute left-3 right-3 text-[14px] leading-[22px] text-[#9CA3AF] ${placeholderTopClass}`}
+          className={`pointer-events-none absolute left-3 right-3 text-[16px] leading-[22px] text-[#9CA3AF] sm:text-[14px] ${
+            showToolbar ? "top-[56px]" : "top-[8px]"
+          }`}
         >
           {placeholder}
         </p>

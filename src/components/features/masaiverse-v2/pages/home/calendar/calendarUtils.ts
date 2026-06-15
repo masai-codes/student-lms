@@ -66,14 +66,54 @@ export function getMonthGrid(viewDate: Date): Array<CalendarCell> {
   return cells
 }
 
-/**
- * Dummy event dates (keys) relative to `today`, so the calendar always shows
- * dots near the current month. Replace with real event dates from the API.
- */
-const DUMMY_EVENT_DAY_OFFSETS = [0, 1, 3, 6, 7, 9, 14, 18, 21, 24]
+/** Minimal event shape the calendar needs to place dots and list a day's events. */
+export interface CalendarEvent {
+  id: string
+  title: string
+  /** UTC ISO start instant; events without one are skipped. */
+  startTime: string | null
+  /** Hosting club name, or null for a public (community) event. */
+  clubName: string | null
+}
 
-export function getDummyEventDateKeys(today: Date): Array<string> {
-  return DUMMY_EVENT_DAY_OFFSETS.map((offset) =>
-    toDateKey(new Date(today.getFullYear(), today.getMonth(), today.getDate() + offset)),
-  )
+const IST_TIME_ZONE = 'Asia/Kolkata'
+
+/**
+ * The IST calendar day of a UTC instant as `YYYY-MM-DD` (matching
+ * {@link toDateKey}). Returns null when the timestamp is missing/unparseable,
+ * so callers can skip undatable events. IST keeps the dot on the same day the
+ * rest of the app shows the event in.
+ */
+export function istDateKey(value: string | null): string | null {
+  if (!value) return null
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) return null
+  return new Intl.DateTimeFormat('en-CA', {
+    timeZone: IST_TIME_ZONE,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).format(date)
+}
+
+/**
+ * Buckets events by their IST calendar day, so the calendar can show a dot per
+ * day and list the events for a selected day. Events within a day keep their
+ * incoming order (the events query already sorts ascending by start time).
+ */
+export function buildEventsByDate(
+  events: Array<CalendarEvent>,
+): Map<string, Array<CalendarEvent>> {
+  const byDate = new Map<string, Array<CalendarEvent>>()
+  for (const event of events) {
+    const key = istDateKey(event.startTime)
+    if (!key) continue
+    const existing = byDate.get(key)
+    if (existing) {
+      existing.push(event)
+    } else {
+      byDate.set(key, [event])
+    }
+  }
+  return byDate
 }

@@ -1,14 +1,16 @@
 import { X } from '@phosphor-icons/react'
-import type { ReactNode } from 'react'
+import { useEffect, useState, type ReactNode } from 'react'
+
+import BottomDrawer from '@/components/ui/bottom-drawer'
 
 type InlineDrawerProps = {
-  /** Whether the right-hand panel is open. */
+  /** Whether the panel is open. */
   open: boolean
-  /** Content rendered inside the panel (e.g. the calendar). */
+  /** Content rendered inside the panel (e.g. the calendar). Shared across breakpoints. */
   panel: ReactNode
-  /** Main content; shrinks to make room when the panel opens. */
+  /** Main content; shrinks to make room when the panel opens (desktop only). */
   children: ReactNode
-  /** Panel width in px when open. */
+  /** Panel width in px when open (desktop only; mobile uses a full-width bottom sheet). */
   panelWidth?: number
   /** When provided, a close button is shown at the top of the panel. */
   onClose?: () => void
@@ -16,10 +18,40 @@ type InlineDrawerProps = {
   title?: string
 }
 
+/** Top offset (global nav height) so the desktop panel sits below the top bar. */
+const TOP_OFFSET = 72
+
+/** `md` breakpoint — desktop shows the inline side panel, mobile a bottom sheet. */
+const DESKTOP_MEDIA_QUERY = '(min-width: 768px)'
+
 /**
- * Reusable docs-style inline drawer. Instead of overlaying, the panel pushes
- * in from the right and the main content shrinks to make room (animated).
- * Pass whatever you want to render via the `panel` prop.
+ * Tracks whether the viewport is at the desktop breakpoint. Mirrors the
+ * `useResolvedDirection` pattern used by the card drawers. Defaults to `true`
+ * so the (closed) desktop layout renders first; the panel itself is only
+ * visible after a user action, so there is no mobile/desktop flash.
+ */
+function useIsDesktop() {
+  const [isDesktop, setIsDesktop] = useState(true)
+  useEffect(() => {
+    const mediaQuery = window.matchMedia(DESKTOP_MEDIA_QUERY)
+    const sync = () => setIsDesktop(mediaQuery.matches)
+    sync()
+    mediaQuery.addEventListener('change', sync)
+    return () => mediaQuery.removeEventListener('change', sync)
+  }, [])
+  return isDesktop
+}
+
+/**
+ * Reusable responsive drawer. The body content (`panel`) is identical across
+ * breakpoints — only the presentation differs:
+ *
+ * - Desktop (≥768px): a docs-style inline side panel. The main content shrinks
+ *   to make room (animated) while the panel is pinned to the viewport with
+ *   `position: fixed`, so it always opens anchored to the top and scrolls
+ *   internally when taller than the viewport.
+ * - Mobile (<768px): a bottom sheet that floats over the content, avoiding the
+ *   broken layout caused by a narrow fixed side panel on small screens.
  */
 export default function InlineDrawer({
   open,
@@ -29,38 +61,61 @@ export default function InlineDrawer({
   onClose,
   title,
 }: InlineDrawerProps) {
+  const isDesktop = useIsDesktop()
+
+  // Mobile: render content full-width and present the panel as a bottom sheet.
+  if (!isDesktop) {
+    return (
+      <>
+        {children}
+        <BottomDrawer open={open} onClose={onClose} title={title}>
+          {panel}
+        </BottomDrawer>
+      </>
+    )
+  }
+
+  // Desktop: inline side panel that shrinks the main content.
   return (
     <div className={`flex w-full items-stretch ${open ? 'gap-6' : ''}`}>
       <div className="min-w-0 flex-1">{children}</div>
+
+      {/* Reserves horizontal space so the content shrinks; the visible panel is
+          fixed to the viewport (below) and slides over this reserved column. */}
       <div
-        className={`shrink-0 overflow-hidden transition-[width] duration-300 ease-out ${
-          open ? '-my-6 -mr-6 border-l border-[#E5E7EB] bg-white' : ''
-        }`}
+        className="shrink-0 transition-[width] duration-300 ease-out"
         style={{ width: open ? panelWidth : 0 }}
         aria-hidden={!open}
+      />
+
+      <aside
+        className={`fixed right-0 z-30 flex flex-col border-l border-[#E5E7EB] bg-white shadow-[-8px_0_24px_rgba(17,24,39,0.06)] transition-transform duration-300 ease-out ${
+          open ? 'translate-x-0' : 'pointer-events-none translate-x-full'
+        }`}
+        style={{
+          top: TOP_OFFSET,
+          width: panelWidth,
+          height: `calc(100vh - ${TOP_OFFSET}px)`,
+        }}
+        aria-hidden={!open}
       >
-        <div
-          className="sticky top-[72px] max-h-[calc(100vh-72px)] overflow-y-auto px-5 py-4"
-          style={{ width: panelWidth }}
-        >
-          {onClose ? (
-            <div className="mb-3 flex items-center justify-between">
-              <span className="text-[15px] font-bold text-[#111827]">
-                {title ?? ''}
-              </span>
-              <button
-                type="button"
-                onClick={onClose}
-                aria-label="Close panel"
-                className="flex size-8 items-center justify-center rounded-full text-[#6B7280] hover:bg-[#F3F4F6] hover:text-[#111827]"
-              >
-                <X size={18} />
-              </button>
-            </div>
-          ) : null}
-          {panel}
-        </div>
-      </div>
+        {onClose ? (
+          <div className="flex shrink-0 items-center justify-between px-5 pb-3 pt-4">
+            <span className="text-[15px] font-bold text-[#111827]">
+              {title ?? ''}
+            </span>
+            <button
+              type="button"
+              onClick={onClose}
+              aria-label="Close panel"
+              className="flex size-8 items-center justify-center rounded-full text-[#6B7280] hover:bg-[#F3F4F6] hover:text-[#111827]"
+            >
+              <X size={18} />
+            </button>
+          </div>
+        ) : null}
+        <div className="min-h-0 flex-1 overflow-y-auto px-5 pb-4">{panel}</div>
+      </aside>
     </div>
   )
 }

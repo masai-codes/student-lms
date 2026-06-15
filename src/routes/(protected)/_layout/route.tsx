@@ -7,8 +7,9 @@ import {
 import { useEffect } from 'react'
 import { AppLoading } from '@/components/common'
 import { AppMobileTabBar, AppNavbar } from '@/components/features/layout'
+import MasaiverseMobileTabBar from '@/components/features/masaiverse-v2/MasaiverseMobileTabBar'
 import { isMasaiverseApp } from '@/constants/masaiverseDrawerUi'
-import { layoutMainClasses } from '@/lib/layout'
+import { layoutMainClasses, layoutMainClassesFullWidth } from '@/lib/layout'
 import { fetchCurrentUser } from '@/server/auth/fetchCurrentUser'
 import {
   getOldStudentUiUrlForPath,
@@ -77,9 +78,18 @@ export const Route = createFileRoute('/(protected)/_layout')({
 })
 
 function RouteComponent() {
-  const searchStr = useRouterState({ select: (state) => state.location.searchStr })
+  const { searchStr, pathname } = useRouterState({
+    select: (state) => ({
+      searchStr: state.location.searchStr,
+      pathname: state.location.pathname,
+    }),
+  })
   const { user } = Route.useRouteContext()
   const isApp = isMasaiverseApp(searchStr)
+  const isMasaiverseRoute = pathname.startsWith('/masaiverse')
+  const mainClasses = isMasaiverseRoute
+    ? layoutMainClassesFullWidth
+    : layoutMainClasses
 
   useEffect(() => {
     initClarity()
@@ -93,11 +103,15 @@ function RouteComponent() {
     <div className="min-h-dvh bg-[#FAF9F9] flex flex-col">
       <AppNavbar />
       <main
-        className={`${layoutMainClasses} ${isApp ? 'pb-0' : 'pb-[calc(4.5rem+env(safe-area-inset-bottom))]'} md:pb-0`}
+        className={`${mainClasses} ${isApp && !isMasaiverseRoute ? 'pb-0' : 'pb-[calc(4.5rem+env(safe-area-inset-bottom))]'} md:pb-0`}
       >
         <Outlet />
       </main>
-      {!isApp ? <AppMobileTabBar /> : null}
+      {isMasaiverseRoute ? (
+        <MasaiverseMobileTabBar />
+      ) : !isApp ? (
+        <AppMobileTabBar />
+      ) : null}
     </div>
   )
 }

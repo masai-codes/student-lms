@@ -1,5 +1,4 @@
 import { useCallback, useReducer, useState } from 'react'
-import { useNavigate } from '@tanstack/react-router'
 import type { VerifyOtpResult } from '@/components/features/sign-in/v2AuthClient'
 import { EmailAuthStepView } from '@/components/features/sign-in/EmailAuthStepView'
 import { ForgotPasswordStepView } from '@/components/features/sign-in/ForgotPasswordStepView'
@@ -51,7 +50,6 @@ function formatAuthError(err: unknown): string {
 }
 
 export function SignInFlow() {
-  const navigate = useNavigate()
   const [state, dispatch] = useReducer(signInReducer, initialSignInState)
   const [identifierBusy, setIdentifierBusy] = useState(false)
   const [emailOtpBusy, setEmailOtpBusy] = useState(false)
@@ -60,18 +58,17 @@ export function SignInFlow() {
   const [forgotBusy, setForgotBusy] = useState(false)
   const [rememberMe, setRememberMe] = useState(true)
 
-  const goHomeAfterSignIn = useCallback(() => {
-    void navigate({ to: '/' })
-  }, [navigate])
-
   const completePrimarySignIn = useCallback(() => {
     const redirectTo = getRedirectToSearchParam()
     if (redirectTo) {
       redirectToResolvedUrl(redirectTo)
       return
     }
-    goHomeAfterSignIn()
-  }, [goHomeAfterSignIn])
+    redirectToOldStudentUi({
+      source: 'SignInFlow',
+      reason: 'Email sign-in completed',
+    })
+  }, [])
 
   const completePhoneRedirect = useCallback(
     (method: 'phone-otp' | 'phone-use-account', response: VerifyOtpResult) => {
