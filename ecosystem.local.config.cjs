@@ -34,8 +34,10 @@ module.exports = {
       name: 'student-lms',
       script: path.join(__dirname, '.output/server/index.mjs'),
       cwd: __dirname,
-      instances: 'MAX',
-      exec_mode: 'cluster',
+      // Shared host: a single process is enough (the prod config uses 'MAX'
+      // because it owns the whole box). fork mode matches the other apps here.
+      instances: 1,
+      exec_mode: 'fork',
       autorestart: true,
       max_restarts: 10,
       restart_delay: 1000,
