@@ -47,7 +47,7 @@ export default function AppMobileTabBar() {
         ),
         isActive: activeId === 'masaiverse',
         onClick: () => {
-          void navigate({ to: '/masaiverse', search: { tab: 'home' } })
+          void navigate({ to: '/masaiverse/home' })
         },
       },
     ],
