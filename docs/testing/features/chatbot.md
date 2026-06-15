@@ -1,4 +1,4 @@
-# Chatbot (text mode)
+# Chatbot (text + voice mode)
 
 Last updated: 2026-06-15
 
@@ -8,6 +8,7 @@ Last updated: 2026-06-15
 - ChatGPT-style turn scroll: latest user message snaps to the top of the message viewport
 - User message max height: 30% of viewport with bottom-aligned clipping when overflow
 - Smooth scroll on subsequent user sends; instant snap when loading history
+- Voice mode subtitle: last message from the same `mergeDisplayMessages` timeline as text chat (`full` display mode includes voice transcripts); fixed-height caption slot with top trimming in ~3-line steps when overflow
 - Token creation: `POST /api/chatbot/:lectureId/token` resolves lecture access + transcript (same helper as AI Tutor) and passes `lecture_id` / `lecture_transcript` to the LiveKit agent metadata
 
 ## Test files
@@ -15,6 +16,8 @@ Last updated: 2026-06-15
 | File | Covers |
 |------|--------|
 | `src/components/features/chatbot/utils/chatScroll.test.ts` | Spacer height, max height ratio, latest user lookup, scroll offset math |
+| `src/components/features/chatbot/utils/voiceSubtitle.test.ts` | Voice subtitle selection from merged display messages |
+| `src/components/features/chatbot/utils/voiceSubtitleViewport.test.ts` | Fixed-height voice subtitle top trimming |
 | `src/components/features/chatbot/hooks/useChatTurnScroll.test.tsx` | ResizeObserver viewport sizing, instant vs smooth snap, no re-scroll on assistant-only updates |
 | `src/components/features/chatbot/hooks/useIsMobileViewport.test.ts` | Mobile breakpoint detection and media-query subscription |
 | `src/server/api/chatbot/__tests__/token.service.test.ts` | LiveKit token metadata includes lecture id + transcript |
@@ -36,6 +39,7 @@ npm run lint
 4. Send a second prompt — prior turn scrolls up smoothly; new prompt takes the top slot.
 5. Open a history session with multiple turns — latest user message snaps instantly to top.
 6. Assistant streams below without re-scrolling the user bubble.
-7. Resize the panel — 30% cap and spacer recalculate.
+7. Voice mode: multi-turn conversation updates the subtitle to the latest utterance (user → assistant → user).
+8. Resize the panel — 30% cap and spacer recalculate.
 
 Update this file and `feature-test-matrix.md` when chatbot scroll behavior or tests change.

@@ -10,6 +10,7 @@ import type { DisplayMessage, StoredMessage, ChatMode } from '@/components/featu
 import { getAssistantStatusLabel } from '@/components/features/chatbot/utils/assistantStatus'
 import { mergeDisplayMessages } from '@/components/features/chatbot/utils/displayMessages'
 import { appendOptimisticMessages } from '@/components/features/chatbot/utils/optimisticMessages'
+import { selectVoiceSubtitle } from '@/components/features/chatbot/utils/voiceSubtitle'
 import { ChatbotConversationLayout } from '@/components/features/chatbot/components/ChatbotConversationLayout'
 import { ChatbotVoiceModeView } from '@/components/features/chatbot/components/ChatbotVoiceModeView'
 import { TextChatInput } from '@/components/features/chatbot/components/TextChatInput'
@@ -69,6 +70,14 @@ export function ChatPanel({
     optimisticMessages,
   )
 
+  const voiceSubtitle = useMemo(() => {
+    const voiceMessages = appendOptimisticMessages(
+      mergeDisplayMessages(historicalMessages, liveMessages, localIdentity, 'full'),
+      optimisticMessages,
+    )
+    return selectVoiceSubtitle(voiceMessages)
+  }, [historicalMessages, liveMessages, localIdentity, optimisticMessages])
+
   const agentReady =
     agent.state === 'listening' ||
     agent.state === 'thinking' ||
@@ -112,7 +121,7 @@ export function ChatPanel({
     return (
       <ChatbotVoiceModeView
         agent={agent}
-        transcriptions={transcriptions}
+        subtitle={voiceSubtitle}
         isConnecting={isConnecting || isSwitchingMode}
         connectionError={connectionError}
         onRetryConnect={onRetryConnect}

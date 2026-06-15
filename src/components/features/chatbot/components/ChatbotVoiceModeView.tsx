@@ -8,11 +8,10 @@ import {
   useVoiceAssistant,
   type useAgent,
 } from '@livekit/components-react'
-import type { TextStreamData } from '@livekit/components-core'
 import { ChatsCircle, Microphone, MicrophoneSlash } from '@phosphor-icons/react'
 import { AIAvatar } from '@/components/common/AIAvatar'
 import { ChatbotVoiceSubtitle } from '@/components/features/chatbot/components/ChatbotVoiceSubtitle'
-import { useVoiceSubtitle } from '@/components/features/chatbot/hooks/useVoiceSubtitle'
+import type { VoiceSubtitle } from '@/components/features/chatbot/utils/voiceSubtitle'
 import {
   chatbotBtnPrimaryClass,
   chatbotErrorBannerClass,
@@ -23,7 +22,7 @@ import { cn } from '@/lib/utils'
 
 type ChatbotVoiceModeViewProps = {
   agent: ReturnType<typeof useAgent>
-  transcriptions: TextStreamData[]
+  subtitle: VoiceSubtitle | null
   isConnecting: boolean
   connectionError: string | null
   onRetryConnect: () => void
@@ -32,7 +31,7 @@ type ChatbotVoiceModeViewProps = {
 
 export function ChatbotVoiceModeView({
   agent,
-  transcriptions,
+  subtitle,
   isConnecting,
   connectionError,
   onRetryConnect,
@@ -44,13 +43,6 @@ export function ChatbotVoiceModeView({
   const userSpeaking = useIsSpeaking(localParticipant)
   const agentSpeaking = agentState === 'speaking'
   const [micEnabled, setMicEnabled] = useState(true)
-
-  const subtitle = useVoiceSubtitle(
-    transcriptions,
-    session.room.localParticipant.identity,
-    userSpeaking,
-    agentSpeaking,
-  )
 
   useEffect(() => {
     setMicEnabled(localParticipant.isMicrophoneEnabled)
@@ -98,8 +90,8 @@ export function ChatbotVoiceModeView({
         </div>
       ) : null}
 
-      <div className="flex min-h-0 flex-1 flex-col">
-        <div className="flex flex-1 flex-col items-center justify-center gap-4">
+      <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
+        <div className="flex min-h-0 flex-1 flex-col items-center justify-center gap-4 overflow-hidden">
           <div
             className={cn(
               'transition-transform duration-500 ease-out',
