@@ -25,8 +25,18 @@ function parseEnvFile(filePath) {
   }
 }
 
-const staticEnv = parseEnvFile(path.join(__dirname, '.env.production'))
-const runtimeEnv = parseEnvFile(path.join(__dirname, '.env.production.local'))
+// Merge whichever env files exist in this folder, lowest precedence first so
+// more specific files win on overlap. Covers a plain .env as well as the
+// production-named files, so the app finds DATABASE_URL etc. wherever you keep them.
+const fileEnv = [
+  '.env',
+  '.env.local',
+  '.env.production',
+  '.env.production.local',
+].reduce(
+  (acc, file) => ({ ...acc, ...parseEnvFile(path.join(__dirname, file)) }),
+  {},
+)
 
 module.exports = {
   apps: [
@@ -48,10 +58,9 @@ module.exports = {
       log_date_format: 'YYYY-MM-DD HH:mm:ss Z',
       env: {
         NODE_ENV: 'production',
-        // Default port; overridden by PORT in .env.production(.local) if set.
+        // Default port; overridden by PORT in any of the env files if set.
         PORT: '7090',
-        ...staticEnv,
-        ...runtimeEnv,
+        ...fileEnv,
       },
     },
   ],
