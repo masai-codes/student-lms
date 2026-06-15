@@ -1,7 +1,8 @@
-import type { RoomConfiguration } from '@livekit/protocol'
 import { AccessToken } from 'livekit-server-sdk'
-import { CHATBOT_AGENT_NAME } from '@/server/api/chatbot/constants'
 import type { ChatMode } from '@/server/api/chatbot/types'
+import type { RoomConfiguration } from '@livekit/protocol'
+import { CHATBOT_AGENT_NAME } from '@/server/api/chatbot/constants'
+
 
 function getRequiredEnv(name: string): string {
   const value = process.env[name]
@@ -14,6 +15,8 @@ function getRequiredEnv(name: string): string {
 export async function createChatbotToken(params: {
   mode: ChatMode
   sessionId: string
+  lectureId: number
+  lectureTranscript: string
 }) {
   const apiKey = getRequiredEnv('LIVEKIT_API_KEY')
   const apiSecret = getRequiredEnv('LIVEKIT_API_SECRET')
@@ -43,6 +46,8 @@ export async function createChatbotToken(params: {
           mode: params.mode,
           participant_identity: participantName,
           session_id: params.sessionId,
+          lecture_id: params.lectureId.toString(),
+          lecture_transcript: params.lectureTranscript,
         }),
       },
     ],

@@ -8,6 +8,7 @@ Last updated: 2026-06-15
 - ChatGPT-style turn scroll: latest user message snaps to the top of the message viewport
 - User message max height: 30% of viewport with bottom-aligned clipping when overflow
 - Smooth scroll on subsequent user sends; instant snap when loading history
+- Token creation: `POST /api/chatbot/:lectureId/token` resolves lecture access + transcript (same helper as AI Tutor) and passes `lecture_id` / `lecture_transcript` to the LiveKit agent metadata
 
 ## Test files
 
@@ -16,11 +17,13 @@ Last updated: 2026-06-15
 | `src/components/features/chatbot/utils/chatScroll.test.ts` | Spacer height, max height ratio, latest user lookup, scroll offset math |
 | `src/components/features/chatbot/hooks/useChatTurnScroll.test.tsx` | ResizeObserver viewport sizing, instant vs smooth snap, no re-scroll on assistant-only updates |
 | `src/components/features/chatbot/hooks/useIsMobileViewport.test.ts` | Mobile breakpoint detection and media-query subscription |
+| `src/server/api/chatbot/__tests__/token.service.test.ts` | LiveKit token metadata includes lecture id + transcript |
+| `src/server/api/chatbot/handlers/__tests__/token.handler.test.ts` | Handler wires lecture context; maps access/transcript errors |
 
 ## Commands
 
 ```bash
-npm run test -- src/components/features/chatbot
+npm run test -- src/components/features/chatbot src/server/api/chatbot
 npm run typecheck
 npm run lint
 ```

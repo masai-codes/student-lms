@@ -2,9 +2,13 @@ import { z } from 'zod'
 import { ApiError } from '@/server/api/http/apiError'
 import { jsonOk, mapThrownErrorToResponse } from '@/server/api/http/responses'
 import { requireSessionUserId } from '@/server/api/http/requireSessionUser'
-import { resolveSessionForToken, parseMode } from '@/server/api/chatbot/sessions.service'
+import { parseMode, resolveSessionForToken } from '@/server/api/chatbot/sessions.service'
 import { createChatbotToken } from '@/server/api/chatbot/token.service'
 import { parseLectureId } from '@/server/api/chatbot/utils'
+import {
+  AiTutorLectureAccessError,
+  resolveAiTutorLectureContext,
+} from '@/server/ai-tutor/services/aiTutorLectureAccess'
 
 const tokenBodySchema = z.object({
   mode: z.enum(['text', 'voice']).optional(),
@@ -30,7 +34,23 @@ export async function handleCreateChatbotToken(
       userId,
       mode,
     })
-    const token = await createChatbotToken({ mode, sessionId: session.sessionId })
+
+    let lectureContext
+    try {
+      lectureContext = await resolveAiTutorLectureContext({ userId, lectureId })
+    } catch (error) {
+      if (error instanceof AiTutorLectureAccessError) {
+        throw new Error(error.message)
+      }
+      throw error
+    }
+
+    const token = await createChatbotToken({
+      mode,
+      sessionId: session.sessionId,
+      lectureId,
+      lectureTranscript: lectureContext.context.transcript,
+    })
     return jsonOk(token)
   } catch (error) {
     return mapThrownErrorToResponse(error)
