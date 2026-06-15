@@ -19,6 +19,12 @@ export const layoutMainClasses = `mx-auto w-full flex-1 min-h-0 ${LAYOUT_MAX_WID
  */
 export const layoutMainClassesFullWidth = `flex w-full flex-1 min-h-0 flex-col ${LAYOUT_MAIN_PADDING_X}`
 
+/** Lecture-detail route shell: pulls the content up under the navbar. */
+export const lectureDetailRouteClasses = 'w-full -mt-6 md:-mt-[24px]'
+
+/** Lecture-detail content column (centered, capped width). */
+export const lectureDetailContentClasses = `mx-auto w-full ${LAYOUT_MAX_WIDTH_CLASS} px-4 md:px-6`
+
 export const LAYOUT_NAVBAR_OUTER_CLASSES = "w-full"
 
 export const LAYOUT_NAVBAR_INNER_CLASSES =
