@@ -42,8 +42,20 @@ describe('getEnrolledBatchesForUser service', () => {
     })
 
     await expect(getEnrolledBatchesForUser(77)).resolves.toEqual([
-      { batchId: 1, courseTitle: 'Cohort A', courseLogo: null },
-      { batchId: 2, courseTitle: 'DS Cohort B', courseLogo: null },
+      {
+        batchId: 1,
+        courseTitle: 'Cohort A',
+        courseLogo: null,
+        showAttendanceReport: false,
+        showEvaluationReport: false,
+      },
+      {
+        batchId: 2,
+        courseTitle: 'DS Cohort B',
+        courseLogo: null,
+        showAttendanceReport: false,
+        showEvaluationReport: false,
+      },
     ])
   })
 
@@ -67,7 +79,13 @@ describe('getEnrolledBatchesForUser service', () => {
     })
 
     await expect(getEnrolledBatchesForUser(77)).resolves.toEqual([
-      { batchId: 9, courseTitle: 'PM with AI', courseLogo: 'https://cdn.example/logo.png' },
+      {
+        batchId: 9,
+        courseTitle: 'PM with AI',
+        courseLogo: 'https://cdn.example/logo.png',
+        showAttendanceReport: false,
+        showEvaluationReport: false,
+      },
     ])
   })
 })

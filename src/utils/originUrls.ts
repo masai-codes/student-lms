@@ -8,18 +8,70 @@ type OriginUrls = {
 }
 
 /**
- * Per-origin URLs. Single source of truth now that we ship ONE build and detect
- * the origin from the request host at runtime (see `getAppOrigin`). Previously
- * these lived in `origins.config.cjs` and were baked per build. Update here and
- * rebuild.
+ * Read an env var from runtime `process.env` (PM2 / SSR) first, then the
+ * build-time `import.meta.env` baked into the client bundle. Same resolution
+ * order as `viteEnv.ts` — values are static for the life of the process.
  */
-export const ORIGIN_URLS: Record<AppOrigin, OriginUrls> = {
+function readEnv(key: string): string | undefined {
+  const fromProcess =
+    typeof process !== 'undefined' ? process.env[key] : undefined
+  if (fromProcess != null && fromProcess.trim() !== '') {
+    return fromProcess.trim()
+  }
+  const fromImport = import.meta.env[key] as string | undefined
+  return fromImport != null && fromImport.trim() !== ''
+    ? fromImport.trim()
+    : undefined
+}
+
+/**
+ * Per-origin env var names + hardcoded fallbacks. We ship ONE build for both
+ * portals and detect the origin from the request host at runtime (see
+ * `getAppOrigin`), so every origin's URLs must be present in the env — baked in
+ * for the client (`VITE_*`) and/or available at runtime for the server. `masai`
+ * is the default origin and reuses the legacy unprefixed vars for backward
+ * compatibility; other origins use an `_<ORIGIN>` suffix. Fallbacks are the
+ * previous hardcoded demo URLs and are only used when the env var is unset.
+ */
+const ORIGIN_ENV: Record<
+  AppOrigin,
+  { oldStudentUiKey: string; newStudentUiKey: string; fallback: OriginUrls }
+> = {
   masai: {
-    oldStudentUi: 'https://demo-students.masaischool.com',
-    newStudentUi: 'https://students-demo-v2.masaischool.com',
+    oldStudentUiKey: 'VITE_OLD_STUDENT_UI_URL',
+    newStudentUiKey: 'VITE_NEW_STUDENT_UI_URL',
+    fallback: {
+      oldStudentUi: 'https://students.masaischool.com',
+      newStudentUi: 'https://students-v2.masaischool.com',
+    },
   },
   ihub: {
-    oldStudentUi: 'https://demo-students.ihubiitrcourses.org',
-    newStudentUi: 'https://students-demo-v2.ihubiitrcourses.org',
+    oldStudentUiKey: 'VITE_OLD_STUDENT_UI_URL_IHUB',
+    newStudentUiKey: 'VITE_NEW_STUDENT_UI_URL_IHUB',
+    fallback: {
+      oldStudentUi: 'https://students.masaischool.com',
+      newStudentUi: 'https://students-v2.masaischool.com',
+    },
   },
+}
+
+function resolveOriginUrls({
+  oldStudentUiKey,
+  newStudentUiKey,
+  fallback,
+}: (typeof ORIGIN_ENV)[AppOrigin]): OriginUrls {
+  return {
+    oldStudentUi: readEnv(oldStudentUiKey) ?? fallback.oldStudentUi,
+    newStudentUi: readEnv(newStudentUiKey) ?? fallback.newStudentUi,
+  }
+}
+
+/**
+ * Per-origin URLs, resolved from the env (see `ORIGIN_ENV`). Single source of
+ * truth now that we ship ONE build and detect the origin from the request host
+ * at runtime. Override via env vars; the hardcoded fallbacks ship as a safety net.
+ */
+export const ORIGIN_URLS: Record<AppOrigin, OriginUrls> = {
+  masai: resolveOriginUrls(ORIGIN_ENV.masai),
+  ihub: resolveOriginUrls(ORIGIN_ENV.ihub),
 }

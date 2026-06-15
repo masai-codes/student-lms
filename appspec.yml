@@ -1,0 +1,51 @@
+version: 0.0
+os: linux
+
+files:
+  - source: .output/server
+    destination: /home/ubuntu/app/.output/server
+  - source: .output/public
+    destination: /home/ubuntu/app/.output/public
+  - source: ecosystem.config.cjs
+    destination: /home/ubuntu/app
+  - source: hooks
+    destination: /home/ubuntu/app/hooks
+  - source: .env.production
+    destination: /home/ubuntu/app
+
+permissions:
+  - object: /home/ubuntu/app/hooks
+    pattern: '**/*.sh'
+    owner: ubuntu
+    group: ubuntu
+    mode: '755'
+  - object: /home/ubuntu/app
+    owner: ubuntu
+    group: ubuntu
+    mode: '755'
+
+hooks:
+  BeforeInstall:
+    - location: hooks/BeforeInstall.sh
+      timeout: 60
+      runas: ubuntu
+
+  AfterInstall:
+    - location: hooks/AfterInstall.sh
+      timeout: 120
+      runas: ubuntu
+
+  ApplicationStop:
+    - location: hooks/ApplicationStop.sh
+      timeout: 30
+      runas: ubuntu
+
+  ApplicationStart:
+    - location: hooks/ApplicationStart.sh
+      timeout: 60
+      runas: ubuntu
+
+  ValidateService:
+    - location: hooks/ValidateService.sh
+      timeout: 30
+      runas: ubuntu

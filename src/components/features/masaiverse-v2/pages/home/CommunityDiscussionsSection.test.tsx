@@ -125,14 +125,16 @@ describe('CommunityDiscussionsSection', () => {
     )
   })
 
-  it('scopes to a club: passes clubId, uses the title, hides "View all"', async () => {
+  it('scopes to a club: passes clubId, uses the title, keeps "View all"', async () => {
     fetchDiscussions.mockResolvedValue({ discussions: [], hasMore: false })
     renderWithClient(
       <CommunityDiscussionsSection clubId="81910" title="Club Discussion" />,
     )
 
     expect(screen.getByText('Club Discussion')).toBeTruthy()
-    expect(screen.queryByText('View all →')).toBeNull()
+    // Scoping by clubId alone keeps the "View all" link (it deep-links to the
+    // club's discussions tab); only the explicit `hideViewAllLink` removes it.
+    expect(screen.getByText('View all →')).toBeTruthy()
     await waitFor(() =>
       expect(fetchDiscussions).toHaveBeenLastCalledWith({
         offset: 0,

@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as ApiServerTimeRouteImport } from './routes/api/server-time'
+import { Route as ApiHealthRouteImport } from './routes/api/health'
 import { Route as ApiAssessNpsCallbackRouteRouteImport } from './routes/api/assess-nps-callback/route'
 import { Route as protectedLayoutRouteRouteImport } from './routes/(protected)/_layout/route'
 import { Route as ApiWhatsNewIndexRouteImport } from './routes/api/whats-new/index'
@@ -138,6 +139,11 @@ import { Route as protectedLayoutMasaiverseClubClubIdGalleryRouteImport } from '
 const ApiServerTimeRoute = ApiServerTimeRouteImport.update({
   id: '/api/server-time',
   path: '/api/server-time',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiHealthRoute = ApiHealthRouteImport.update({
+  id: '/api/health',
+  path: '/api/health',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiAssessNpsCallbackRouteRoute =
@@ -595,6 +601,8 @@ const ApiDashboardAgreementSectionIdRoute =
   ApiDashboardAgreementSectionIdRouteImport.update({
     id: '/api/dashboard/agreement/$sectionId',
     path: '/api/dashboard/agreement/$sectionId',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiChatbotLectureIdTokenRoute =
   ApiChatbotLectureIdTokenRouteImport.update({
     id: '/api/chatbot/$lectureId/token',
@@ -853,6 +861,7 @@ const protectedLayoutMasaiverseClubClubIdGalleryRoute =
 
 export interface FileRoutesByFullPath {
   '/api/assess-nps-callback': typeof ApiAssessNpsCallbackRouteRoute
+  '/api/health': typeof ApiHealthRoute
   '/api/server-time': typeof ApiServerTimeRoute
   '/masaiverse': typeof protectedLayoutMasaiverseRouteRouteWithChildren
   '/v2/forgot-password': typeof authV2ForgotPasswordRoute
@@ -904,9 +913,9 @@ export interface FileRoutesByFullPath {
   '/api/announcement/$id/bookmark': typeof ApiAnnouncementIdBookmarkRoute
   '/api/announcement/$id/mark-read': typeof ApiAnnouncementIdMarkReadRoute
   '/api/announcement/$id/mark-unread': typeof ApiAnnouncementIdMarkUnreadRoute
+  '/api/chatbot/$lectureId/token': typeof ApiChatbotLectureIdTokenRoute
   '/api/dashboard/agreement/$sectionId': typeof ApiDashboardAgreementSectionIdRouteWithChildren
   '/api/dashboard/nps-form/$formId': typeof ApiDashboardNpsFormFormIdRouteWithChildren
-  '/api/chatbot/$lectureId/token': typeof ApiChatbotLectureIdTokenRoute
   '/api/learn/ai-tutor/end': typeof ApiLearnAiTutorEndRoute
   '/api/learn/ai-tutor/limit': typeof ApiLearnAiTutorLimitRoute
   '/api/learn/assignments/$assignmentId': typeof ApiLearnAssignmentsAssignmentIdRouteWithChildren
@@ -979,6 +988,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/api/assess-nps-callback': typeof ApiAssessNpsCallbackRouteRoute
+  '/api/health': typeof ApiHealthRoute
   '/api/server-time': typeof ApiServerTimeRoute
   '/v2/forgot-password': typeof authV2ForgotPasswordRoute
   '/v2/me': typeof authV2MeRoute
@@ -1029,9 +1039,9 @@ export interface FileRoutesByTo {
   '/api/announcement/$id/bookmark': typeof ApiAnnouncementIdBookmarkRoute
   '/api/announcement/$id/mark-read': typeof ApiAnnouncementIdMarkReadRoute
   '/api/announcement/$id/mark-unread': typeof ApiAnnouncementIdMarkUnreadRoute
+  '/api/chatbot/$lectureId/token': typeof ApiChatbotLectureIdTokenRoute
   '/api/dashboard/agreement/$sectionId': typeof ApiDashboardAgreementSectionIdRouteWithChildren
   '/api/dashboard/nps-form/$formId': typeof ApiDashboardNpsFormFormIdRouteWithChildren
-  '/api/chatbot/$lectureId/token': typeof ApiChatbotLectureIdTokenRoute
   '/api/learn/ai-tutor/end': typeof ApiLearnAiTutorEndRoute
   '/api/learn/ai-tutor/limit': typeof ApiLearnAiTutorLimitRoute
   '/api/learn/assignments/$assignmentId': typeof ApiLearnAssignmentsAssignmentIdRouteWithChildren
@@ -1106,6 +1116,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/(protected)/_layout': typeof protectedLayoutRouteRouteWithChildren
   '/api/assess-nps-callback': typeof ApiAssessNpsCallbackRouteRoute
+  '/api/health': typeof ApiHealthRoute
   '/api/server-time': typeof ApiServerTimeRoute
   '/(protected)/_layout/masaiverse': typeof protectedLayoutMasaiverseRouteRouteWithChildren
   '/(auth)/v2/forgot-password': typeof authV2ForgotPasswordRoute
@@ -1157,9 +1168,9 @@ export interface FileRoutesById {
   '/api/announcement/$id/bookmark': typeof ApiAnnouncementIdBookmarkRoute
   '/api/announcement/$id/mark-read': typeof ApiAnnouncementIdMarkReadRoute
   '/api/announcement/$id/mark-unread': typeof ApiAnnouncementIdMarkUnreadRoute
+  '/api/chatbot/$lectureId/token': typeof ApiChatbotLectureIdTokenRoute
   '/api/dashboard/agreement/$sectionId': typeof ApiDashboardAgreementSectionIdRouteWithChildren
   '/api/dashboard/nps-form/$formId': typeof ApiDashboardNpsFormFormIdRouteWithChildren
-  '/api/chatbot/$lectureId/token': typeof ApiChatbotLectureIdTokenRoute
   '/api/learn/ai-tutor/end': typeof ApiLearnAiTutorEndRoute
   '/api/learn/ai-tutor/limit': typeof ApiLearnAiTutorLimitRoute
   '/api/learn/assignments/$assignmentId': typeof ApiLearnAssignmentsAssignmentIdRouteWithChildren
@@ -1234,6 +1245,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/api/assess-nps-callback'
+    | '/api/health'
     | '/api/server-time'
     | '/masaiverse'
     | '/v2/forgot-password'
@@ -1285,9 +1297,9 @@ export interface FileRouteTypes {
     | '/api/announcement/$id/bookmark'
     | '/api/announcement/$id/mark-read'
     | '/api/announcement/$id/mark-unread'
+    | '/api/chatbot/$lectureId/token'
     | '/api/dashboard/agreement/$sectionId'
     | '/api/dashboard/nps-form/$formId'
-    | '/api/chatbot/$lectureId/token'
     | '/api/learn/ai-tutor/end'
     | '/api/learn/ai-tutor/limit'
     | '/api/learn/assignments/$assignmentId'
@@ -1360,6 +1372,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/api/assess-nps-callback'
+    | '/api/health'
     | '/api/server-time'
     | '/v2/forgot-password'
     | '/v2/me'
@@ -1410,9 +1423,9 @@ export interface FileRouteTypes {
     | '/api/announcement/$id/bookmark'
     | '/api/announcement/$id/mark-read'
     | '/api/announcement/$id/mark-unread'
+    | '/api/chatbot/$lectureId/token'
     | '/api/dashboard/agreement/$sectionId'
     | '/api/dashboard/nps-form/$formId'
-    | '/api/chatbot/$lectureId/token'
     | '/api/learn/ai-tutor/end'
     | '/api/learn/ai-tutor/limit'
     | '/api/learn/assignments/$assignmentId'
@@ -1486,6 +1499,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/(protected)/_layout'
     | '/api/assess-nps-callback'
+    | '/api/health'
     | '/api/server-time'
     | '/(protected)/_layout/masaiverse'
     | '/(auth)/v2/forgot-password'
@@ -1537,9 +1551,9 @@ export interface FileRouteTypes {
     | '/api/announcement/$id/bookmark'
     | '/api/announcement/$id/mark-read'
     | '/api/announcement/$id/mark-unread'
+    | '/api/chatbot/$lectureId/token'
     | '/api/dashboard/agreement/$sectionId'
     | '/api/dashboard/nps-form/$formId'
-    | '/api/chatbot/$lectureId/token'
     | '/api/learn/ai-tutor/end'
     | '/api/learn/ai-tutor/limit'
     | '/api/learn/assignments/$assignmentId'
@@ -1614,6 +1628,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   protectedLayoutRouteRoute: typeof protectedLayoutRouteRouteWithChildren
   ApiAssessNpsCallbackRouteRoute: typeof ApiAssessNpsCallbackRouteRoute
+  ApiHealthRoute: typeof ApiHealthRoute
   ApiServerTimeRoute: typeof ApiServerTimeRoute
   authV2ForgotPasswordRoute: typeof authV2ForgotPasswordRoute
   authV2MeRoute: typeof authV2MeRoute
@@ -1652,9 +1667,9 @@ export interface RootRouteChildren {
   ApiAnnouncementIdBookmarkRoute: typeof ApiAnnouncementIdBookmarkRoute
   ApiAnnouncementIdMarkReadRoute: typeof ApiAnnouncementIdMarkReadRoute
   ApiAnnouncementIdMarkUnreadRoute: typeof ApiAnnouncementIdMarkUnreadRoute
+  ApiChatbotLectureIdTokenRoute: typeof ApiChatbotLectureIdTokenRoute
   ApiDashboardAgreementSectionIdRoute: typeof ApiDashboardAgreementSectionIdRouteWithChildren
   ApiDashboardNpsFormFormIdRoute: typeof ApiDashboardNpsFormFormIdRouteWithChildren
-  ApiChatbotLectureIdTokenRoute: typeof ApiChatbotLectureIdTokenRoute
   ApiLearnAiTutorEndRoute: typeof ApiLearnAiTutorEndRoute
   ApiLearnAiTutorLimitRoute: typeof ApiLearnAiTutorLimitRoute
   ApiLearnAssignmentsAssignmentIdRoute: typeof ApiLearnAssignmentsAssignmentIdRouteWithChildren
@@ -1712,6 +1727,13 @@ declare module '@tanstack/react-router' {
       path: '/api/server-time'
       fullPath: '/api/server-time'
       preLoaderRoute: typeof ApiServerTimeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/health': {
+      id: '/api/health'
+      path: '/api/health'
+      fullPath: '/api/health'
+      preLoaderRoute: typeof ApiHealthRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/assess-nps-callback': {
@@ -2279,6 +2301,8 @@ declare module '@tanstack/react-router' {
       path: '/api/dashboard/agreement/$sectionId'
       fullPath: '/api/dashboard/agreement/$sectionId'
       preLoaderRoute: typeof ApiDashboardAgreementSectionIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/chatbot/$lectureId/token': {
       id: '/api/chatbot/$lectureId/token'
       path: '/api/chatbot/$lectureId/token'
@@ -2756,6 +2780,7 @@ const ApiLearnSubmissionsSubmissionIdRouteWithChildren =
 const rootRouteChildren: RootRouteChildren = {
   protectedLayoutRouteRoute: protectedLayoutRouteRouteWithChildren,
   ApiAssessNpsCallbackRouteRoute: ApiAssessNpsCallbackRouteRoute,
+  ApiHealthRoute: ApiHealthRoute,
   ApiServerTimeRoute: ApiServerTimeRoute,
   authV2ForgotPasswordRoute: authV2ForgotPasswordRoute,
   authV2MeRoute: authV2MeRoute,
@@ -2794,10 +2819,10 @@ const rootRouteChildren: RootRouteChildren = {
   ApiAnnouncementIdBookmarkRoute: ApiAnnouncementIdBookmarkRoute,
   ApiAnnouncementIdMarkReadRoute: ApiAnnouncementIdMarkReadRoute,
   ApiAnnouncementIdMarkUnreadRoute: ApiAnnouncementIdMarkUnreadRoute,
+  ApiChatbotLectureIdTokenRoute: ApiChatbotLectureIdTokenRoute,
   ApiDashboardAgreementSectionIdRoute:
     ApiDashboardAgreementSectionIdRouteWithChildren,
   ApiDashboardNpsFormFormIdRoute: ApiDashboardNpsFormFormIdRouteWithChildren,
-  ApiChatbotLectureIdTokenRoute: ApiChatbotLectureIdTokenRoute,
   ApiLearnAiTutorEndRoute: ApiLearnAiTutorEndRoute,
   ApiLearnAiTutorLimitRoute: ApiLearnAiTutorLimitRoute,
   ApiLearnAssignmentsAssignmentIdRoute:
