@@ -1,6 +1,12 @@
 # Feature Test Matrix
 
-Last updated: 2026-05-25
+Last updated: 2026-06-15
+
+## Chatbot (text mode)
+- Area: `MessageList` turn scroll (`useChatTurnScroll`, `chatScroll` utils, `ChatbotUserMessage`); shared by `ChatPanel` and `ChatbotPreSessionView` via `ChatbotConversationLayout`; mobile composer-only + bottom drawer (`ChatbotMobileShell`, `useIsMobileViewport`)
+- Status: Covered (scroll math + hook behavior for instant/smooth snap; mobile viewport hook)
+- Test files: `src/components/features/chatbot/utils/chatScroll.test.ts`, `src/components/features/chatbot/hooks/useChatTurnScroll.test.tsx`, `src/components/features/chatbot/hooks/useIsMobileViewport.test.ts`
+- Notes: Voice mode (`ChatbotVoiceModeView`) is out of scope. See `docs/testing/features/chatbot.md`.
 
 ## Lecture AI chat (REST text + LiveKit voice)
 - Area: `POST /api/learn/ai-chat/:lectureId/send` (OpenAI `gpt-4.1-mini` via direct REST) and `GET /api/learn/ai-chat/:lectureId/history` (merges new `ai_chat_messages` Drizzle table with LiveKit voice transcripts from the token server); `useAiTutorMessages` rewritten to drop LiveKit `useChat()` for text and use REST instead; voice continues to use LiveKit STT/TTS unchanged.

@@ -103,6 +103,23 @@ export function mapThrownErrorToResponse(error: unknown): Response {
       case 'AI_CHAT_OPENAI_TIMEOUT':
       case 'AI_CHAT_MESSAGE_INSERT_FAILED':
         return jsonError(503, error.message)
+      case 'CHATBOT_INVALID_LECTURE_ID':
+      case 'CHATBOT_INVALID_SESSION_PAYLOAD':
+      case 'CHATBOT_INVALID_SESSION_PATCH':
+      case 'CHATBOT_INVALID_MESSAGE_PAYLOAD':
+      case 'CHATBOT_INVALID_TOKEN_PAYLOAD':
+      case 'CHATBOT_MESSAGE_EMPTY':
+        return jsonError(400, error.message)
+      case 'CHATBOT_UNAUTHORIZED_INTERNAL':
+        return jsonError(401, error.message)
+      case 'CHATBOT_SESSION_NOT_FOUND':
+        return jsonError(404, error.message)
+      case 'CHATBOT_MONGODB_URI_NOT_CONFIGURED':
+      case 'CHATBOT_LIVEKIT_API_KEY_NOT_CONFIGURED':
+      case 'CHATBOT_LIVEKIT_API_SECRET_NOT_CONFIGURED':
+      case 'CHATBOT_LIVEKIT_URL_NOT_CONFIGURED':
+      case 'CHATBOT_SESSION_CREATE_FAILED':
+        return jsonError(503, error.message)
       default:
         break
     }
