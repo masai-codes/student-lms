@@ -32,7 +32,9 @@ export function ChatbotConversationLayout({
           assistantStatusLabel={assistantStatusLabel}
         />
       </div>
-      <footer className="flex shrink-0 flex-col gap-2 pt-2 mb-2">{composer}</footer>
+      <footer className="flex shrink-0 flex-col gap-2 border-t border-gray-100 bg-white px-2 pt-2 pb-[max(0.5rem,env(safe-area-inset-bottom))]">
+        {composer}
+      </footer>
     </section>
   )
 }

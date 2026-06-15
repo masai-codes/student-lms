@@ -10,6 +10,7 @@ type ChatbotPreSessionViewProps = {
   onStartWithText: (text: string) => void | Promise<void>
   onStartWithVoice: () => void | Promise<void>
   isCreating?: boolean
+  layout?: 'default' | 'composerOnly'
 }
 
 export function ChatbotPreSessionView({
@@ -17,6 +18,7 @@ export function ChatbotPreSessionView({
   onStartWithText,
   onStartWithVoice,
   isCreating = false,
+  layout = 'default',
 }: ChatbotPreSessionViewProps) {
   const [input, setInput] = useState('')
 
@@ -51,6 +53,10 @@ export function ChatbotPreSessionView({
       placeholder="How can I help you today?"
     />
   )
+
+  if (layout === 'composerOnly' && showWelcome) {
+    return composer
+  }
 
   if (showWelcome) {
     return (

@@ -13,7 +13,7 @@ export function ChatbotSlideContainer({
   secondary,
 }: ChatbotSlideContainerProps) {
   return (
-    <div className="relative min-h-0 flex-1 overflow-hidden">
+    <div className="relative h-full min-h-0 flex-1 overflow-hidden">
       <div
         className={cn(
           'flex h-full w-[200%] transition-transform duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] motion-reduce:transition-none',

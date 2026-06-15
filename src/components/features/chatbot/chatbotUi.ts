@@ -21,3 +21,18 @@ export const chatbotMainClass = cn(
   'flex min-h-0 flex-col overflow-hidden bg-white',
   'flex-1 rounded-none border-0',
 )
+
+/** Mobile tab bar clearance — keep in sync with `routes/(protected)/_layout/route.tsx`. */
+export const CHATBOT_MOBILE_TAB_BAR_OFFSET = '4.5rem'
+
+export function getChatbotMobileDrawerSurfaceClass(isApp: boolean): string {
+  return cn(
+    'fixed inset-x-0 bottom-0 z-[220] flex w-full max-w-full flex-col overflow-hidden',
+    'h-[calc(100dvh-env(safe-area-inset-top))] max-h-none',
+    'rounded-t-2xl border-t border-gray-200 bg-white outline-none',
+    !isApp && 'pb-[calc(4.5rem+env(safe-area-inset-bottom))]',
+  )
+}
+
+export const chatbotMobileDrawerBodyClass =
+  'flex min-h-0 flex-1 flex-col overflow-hidden [&>div]:h-full [&>div]:min-h-0 [&>div]:flex-1'

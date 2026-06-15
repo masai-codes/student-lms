@@ -100,7 +100,7 @@ export function LectureRecordingExperience({
   )
 
   const belowHero = (
-    <div className="min-h-112 border-t border-gray-200 bg-white md:hidden">
+    <div className="shrink-0 border-t border-gray-200 bg-white md:hidden">
       <ChatbotExperience lectureId={entityId} />
     </div>
   )

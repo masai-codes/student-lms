@@ -21,6 +21,8 @@ import {
   chatbotMainClass,
   chatbotShellClass,
 } from '@/components/features/chatbot/chatbotUi'
+import { ChatbotMobileShell } from '@/components/features/chatbot/components/ChatbotMobileShell'
+import { useIsMobileViewport } from '@/components/features/chatbot/hooks/useIsMobileViewport'
 import { cn } from '@/lib/utils'
 
 const AGENT_NAME = 'chat-agent'
@@ -186,7 +188,8 @@ export function ChatbotExperience({
   const [optimisticMessages, setOptimisticMessages] = useState<Array<DisplayMessage>>([])
   const [loadError, setLoadError] = useState<string | null>(null)
   const [isHistoryOpen, setIsHistoryOpen] = useState(false)
-  const hasAutoLoadedSessionRef = useRef(false)
+  const [isMobileDrawerOpen, setIsMobileDrawerOpen] = useState(false)
+  const isMobile = useIsMobileViewport()
 
   const refreshSessions = useCallback(async () => {
     try {
@@ -199,23 +202,23 @@ export function ChatbotExperience({
 
   useEffect(() => {
     let cancelled = false
-    ;(async () => {
-      setSessionsLoading(true)
-      try {
-        const list = await listChatbotSessions(lectureId)
-        if (!cancelled) {
-          setSessions(list)
+      ; (async () => {
+        setSessionsLoading(true)
+        try {
+          const list = await listChatbotSessions(lectureId)
+          if (!cancelled) {
+            setSessions(list)
+          }
+        } catch (error) {
+          if (!cancelled) {
+            setLoadError(error instanceof Error ? error.message : 'Failed to load sessions')
+          }
+        } finally {
+          if (!cancelled) {
+            setSessionsLoading(false)
+          }
         }
-      } catch (error) {
-        if (!cancelled) {
-          setLoadError(error instanceof Error ? error.message : 'Failed to load sessions')
-        }
-      } finally {
-        if (!cancelled) {
-          setSessionsLoading(false)
-        }
-      }
-    })()
+      })()
     return () => {
       cancelled = true
     }
@@ -228,25 +231,16 @@ export function ChatbotExperience({
       setPendingMessage(null)
       const messages = await getChatbotSessionMessages(lectureId, sessionId)
       setHistoricalMessages(messages)
-      setMode('voice')
-      // setActiveSessionId(sessionId)
+      setMode('text')
+      setActiveSessionId(sessionId)
       setIsSwitchingMode(false)
+      if (isMobile) {
+        setIsMobileDrawerOpen(true)
+      }
     },
-    [lectureId],
+    [isMobile, lectureId],
   )
 
-  useEffect(() => {
-    if (
-      activeSessionId ||
-      sessionsLoading ||
-      sessions.length === 0 ||
-      hasAutoLoadedSessionRef.current
-    ) {
-      return
-    }
-    hasAutoLoadedSessionRef.current = true
-    void loadSession(sessions[0].sessionId)
-  }, [activeSessionId, loadSession, sessions, sessionsLoading])
 
   const handleNewChat = useCallback(async () => {
     setLoadError(null)
@@ -256,12 +250,16 @@ export function ChatbotExperience({
     setHistoricalMessages([])
     setIsCreatingSession(false)
     setIsSwitchingMode(false)
+    setIsMobileDrawerOpen(false)
   }, [])
 
   const handleStartVoiceSession = useCallback(async () => {
     setLoadError(null)
     setPendingMessage(null)
     setOptimisticMessages([])
+    if (isMobile) {
+      setIsMobileDrawerOpen(true)
+    }
     setIsCreatingSession(true)
     try {
       const session = await createChatbotSession(lectureId, 'voice')
@@ -275,11 +273,14 @@ export function ChatbotExperience({
     } finally {
       setIsCreatingSession(false)
     }
-  }, [lectureId])
+  }, [isMobile, lectureId])
 
   const handleStartWithText = useCallback(
     async (text: string) => {
       setLoadError(null)
+      if (isMobile) {
+        setIsMobileDrawerOpen(true)
+      }
       setOptimisticMessages([
         { id: `optimistic-${Date.now()}`, role: 'user', content: text },
       ])
@@ -300,8 +301,16 @@ export function ChatbotExperience({
         setIsCreatingSession(false)
       }
     },
-    [lectureId],
+    [isMobile, lectureId],
   )
+
+  const handleMobileInlineSend = useCallback((text: string) => {
+    setOptimisticMessages([
+      { id: `optimistic-${Date.now()}`, role: 'user', content: text },
+    ])
+    setPendingMessage(text)
+    setIsMobileDrawerOpen(true)
+  }, [])
 
   const handlePendingMessageSent = useCallback(() => {
     setPendingMessage(null)
@@ -335,56 +344,75 @@ export function ChatbotExperience({
     [activeSessionId, lectureId, mode, refreshSessions],
   )
 
-  return (
+  const chatContent = (
+    <ChatbotSlideContainer
+      isSecondaryOpen={isHistoryOpen}
+      primary={
+        <>
+          <ChatbotHistoryHeader onOpenHistory={() => setIsHistoryOpen(true)} />
+          <div className="flex min-h-0 flex-1 flex-col">
+            {!activeSessionId ? (
+              <ChatbotPreSessionView
+                optimisticMessages={optimisticMessages}
+                onStartWithText={handleStartWithText}
+                onStartWithVoice={handleStartVoiceSession}
+                isCreating={isCreatingSession}
+              />
+            ) : (
+              <ChatSession
+                key={activeSessionId}
+                lectureId={lectureId}
+                sessionId={activeSessionId}
+                mode={mode}
+                historicalMessages={historicalMessages}
+                optimisticMessages={optimisticMessages}
+                isSwitchingMode={isSwitchingMode}
+                onSessionsChange={refreshSessions}
+                onModeChange={handleModeChange}
+                pendingMessage={pendingMessage}
+                onPendingMessageSent={handlePendingMessageSent}
+              />
+            )}
+          </div>
+        </>
+      }
+      secondary={
+        <ChatbotHistoryPanel
+          sessions={sessions}
+          activeSessionId={activeSessionId}
+          loading={sessionsLoading}
+          onBack={() => setIsHistoryOpen(false)}
+          onNewChat={handleNewChat}
+          onSelect={loadSession}
+        />
+      }
+    />
+  )
 
+  if (isMobile) {
+    return (
+      <ChatbotMobileShell
+        isDrawerOpen={isMobileDrawerOpen}
+        onDrawerOpenChange={setIsMobileDrawerOpen}
+        loadError={loadError}
+        activeSessionId={activeSessionId}
+        optimisticMessages={optimisticMessages}
+        isCreatingSession={isCreatingSession}
+        onStartWithText={handleStartWithText}
+        onStartWithVoice={handleStartVoiceSession}
+        onInlineSend={handleMobileInlineSend}
+        drawerContent={chatContent}
+      />
+    )
+  }
+
+  return (
     <div className={chatbotShellClass}>
       <main className={cn(chatbotMainClass, 'flex min-h-0 flex-1 flex-col')}>
         {loadError && <div className={chatbotErrorBannerClass}>{loadError}</div>}
-        <ChatbotSlideContainer
-          isSecondaryOpen={isHistoryOpen}
-          primary={
-            <>
-              <ChatbotHistoryHeader onOpenHistory={() => setIsHistoryOpen(true)} />
-              <div className="flex min-h-0 flex-1 flex-col">
-                {!activeSessionId ? (
-                  <ChatbotPreSessionView
-                    optimisticMessages={optimisticMessages}
-                    onStartWithText={handleStartWithText}
-                    onStartWithVoice={handleStartVoiceSession}
-                    isCreating={isCreatingSession}
-                  />
-                ) : (
-                  <ChatSession
-                    key={activeSessionId}
-                    lectureId={lectureId}
-                    sessionId={activeSessionId}
-                    mode={mode}
-                    historicalMessages={historicalMessages}
-                    optimisticMessages={optimisticMessages}
-                    isSwitchingMode={isSwitchingMode}
-                    onSessionsChange={refreshSessions}
-                    onModeChange={handleModeChange}
-                    pendingMessage={pendingMessage}
-                    onPendingMessageSent={handlePendingMessageSent}
-                  />
-                )}
-              </div>
-            </>
-          }
-          secondary={
-            <ChatbotHistoryPanel
-              sessions={sessions}
-              activeSessionId={activeSessionId}
-              loading={sessionsLoading}
-              onBack={() => setIsHistoryOpen(false)}
-              onNewChat={handleNewChat}
-              onSelect={loadSession}
-            />
-          }
-        />
+        {chatContent}
       </main>
     </div>
-
   )
 }
 
