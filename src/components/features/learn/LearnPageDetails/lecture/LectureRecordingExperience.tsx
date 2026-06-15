@@ -1,20 +1,6 @@
 'use client'
 
-import {
-  LectureAiChatDock,
-  LectureAiChatProvider,
-  LectureAiChatTheaterSidebar,
-} from './ai-chat'
-import {
-  LECTURE_CHAT_OPENING_LOADER_ENABLED,
-  LECTURE_CHAT_OPENING_LOADER_GIF,
-  LECTURE_CHAT_OPENING_LOADER_SIZE_PX,
-  LECTURE_CHAT_OPENING_LOADER_SWEEP_MS,
-} from './ai-chat/constants/lectureAiChatUi'
-import {
-  LECTURE_SPLIT_CHAT_OPEN_BY_DEFAULT,
-  LECTURE_SPLIT_CHAT_WIDTH_PERCENT,
-} from './constants/lectureSplitLayout'
+import { LECTURE_SPLIT_CHAT_WIDTH_PERCENT } from './constants/lectureSplitLayout'
 import { useLectureHeroViewportHeight } from './hooks/useLectureHeroViewportHeight'
 import { LectureDetailFooter } from './shared/LectureDetailFooter'
 import { LectureDetailChrome } from './shared/LectureDetailChrome'
@@ -25,6 +11,7 @@ import type {
   LectureDetailTabContent,
   LectureVideoAttendanceState,
 } from '@/server/learn/lectureDetailTypes'
+import { ChatbotExperience } from '@/components/features/chatbot/ChatbotExperience'
 import { cn } from '@/lib/utils'
 
 type LectureRecordingExperienceProps = {
@@ -42,13 +29,6 @@ type LectureRecordingExperienceProps = {
   videoAttendance: LectureVideoAttendanceState | null
   attendance: LectureAttendanceSummary | null
 }
-
-const chatLoaderProps = {
-  openingLoaderSweepMs: LECTURE_CHAT_OPENING_LOADER_SWEEP_MS,
-  openingLoaderSizePx: LECTURE_CHAT_OPENING_LOADER_SIZE_PX,
-  showOpeningLoader: LECTURE_CHAT_OPENING_LOADER_ENABLED,
-  openingLoaderGif: LECTURE_CHAT_OPENING_LOADER_GIF,
-} as const
 
 const heroRowFullBleedClasses =
   'relative w-screen max-w-[100vw] shrink-0 left-1/2 -translate-x-1/2'
@@ -101,10 +81,10 @@ export function LectureRecordingExperience({
           {renderVideoSection()}
         </div>
         <div
-          className="flex h-full min-h-0 shrink-0 flex-col bg-[#1c1c1c]"
+          className="flex h-full min-h-0 shrink-0 flex-col border-l border-gray-200 bg-white"
           style={{ width: `${LECTURE_SPLIT_CHAT_WIDTH_PERCENT}%` }}
         >
-          <LectureAiChatTheaterSidebar {...chatLoaderProps} />
+          <ChatbotExperience lectureId={entityId} />
         </div>
       </div>
 
@@ -120,36 +100,31 @@ export function LectureRecordingExperience({
   )
 
   const belowHero = (
-    <div className="md:hidden">
-      <LectureAiChatDock {...chatLoaderProps} />
+    <div className="shrink-0 border-t border-gray-200 bg-white md:hidden">
+      <ChatbotExperience lectureId={entityId} />
     </div>
   )
 
   return (
-    <LectureAiChatProvider
-      lectureId={entityId}
-      defaultExpanded={LECTURE_SPLIT_CHAT_OPEN_BY_DEFAULT}
-    >
-      <LectureDetailChrome
-        title={title}
-        tags={tags}
-        priority={priority}
-        hostName={hostName}
-        hostAvatarUrl={hostAvatarUrl}
-        scheduleDisplayRange={scheduleDisplayRange}
-        attendance={attendance}
-        watchPercentage={videoAttendance?.watchPercentage}
-        hero={hero}
-        belowHero={belowHero}
-        footer={
-          <LectureDetailFooter
-            entityId={entityId}
-            discussions={discussions}
-            hideNotes={hideNotes}
-            tabs={tabs}
-          />
-        }
-      />
-    </LectureAiChatProvider>
+    <LectureDetailChrome
+      title={title}
+      tags={tags}
+      priority={priority}
+      hostName={hostName}
+      hostAvatarUrl={hostAvatarUrl}
+      scheduleDisplayRange={scheduleDisplayRange}
+      attendance={attendance}
+      watchPercentage={videoAttendance?.watchPercentage}
+      hero={hero}
+      belowHero={belowHero}
+      footer={
+        <LectureDetailFooter
+          entityId={entityId}
+          discussions={discussions}
+          hideNotes={hideNotes}
+          tabs={tabs}
+        />
+      }
+    />
   )
 }

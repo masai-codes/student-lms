@@ -229,6 +229,22 @@ export const aiTutorSessions = mysqlTable("ai_tutor_sessions", {
 	primaryKey({ columns: [table.id], name: "ai_tutor_sessions_id"}),
 ]);
 
+export const chatbotSessions = mysqlTable("chatbot_sessions", {
+	id: varchar({ length: 191 }).notNull(),
+	userId: bigint("user_id", { mode: "number", unsigned: true }).notNull().references(() => users.id, { onDelete: "restrict", onUpdate: "cascade" } ),
+	lectureId: int("lecture_id", { unsigned: true }).notNull().references(() => lectures.id, { onDelete: "restrict", onUpdate: "cascade" } ),
+	title: varchar({ length: 255 }).notNull().default("New chat"),
+	lastMode: varchar("last_mode", { length: 16 }).notNull().default("voice"),
+	createdAt: timestamp("created_at", { mode: 'string' }).notNull().defaultNow(),
+	updatedAt: timestamp("updated_at", { mode: 'string' }).notNull().defaultNow(),
+},
+(table) => [
+	index("chatbot_sessions_lecture_id_index").on(table.lectureId),
+	index("chatbot_sessions_updated_at_index").on(table.updatedAt),
+	index("chatbot_sessions_user_id_index").on(table.userId),
+	primaryKey({ columns: [table.id], name: "chatbot_sessions_id"}),
+]);
+
 export const algorithms = mysqlTable("algorithms", {
 	id: bigint({ mode: "number", unsigned: true }).autoincrement().notNull(),
 	createdAt: timestamp("created_at", { mode: 'string' }),
