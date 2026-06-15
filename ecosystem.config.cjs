@@ -31,6 +31,14 @@ function parseEnvFile(filePath) {
 const staticEnv = parseEnvFile('/home/ubuntu/app/.env.production')
 const runtimeEnv = parseEnvFile('/home/ubuntu/app/.env.production.local')
 
+// Merge env-file values (secrets in .env.production.local take precedence on
+// any overlap). NODE_ENV from the files decides the default port: development
+// listens on 7090, everything else on 3000. An explicit PORT in the env files
+// still wins over this default.
+const fileEnv = { ...staticEnv, ...runtimeEnv }
+const nodeEnv = fileEnv.NODE_ENV || 'production'
+const defaultPort = nodeEnv === 'development' ? '7090' : '3000'
+
 module.exports = {
   apps: [
     {
@@ -56,9 +64,8 @@ module.exports = {
       // are present on both fresh starts and zero-downtime reloads.
       env: {
         NODE_ENV: 'production',
-        PORT: '3000',
-        ...staticEnv,
-        ...runtimeEnv,
+        PORT: defaultPort,
+        ...fileEnv,
       },
     },
   ],
