@@ -24,7 +24,7 @@ vi.mock('swiper/react', () => ({
   Swiper: ({ children }: { children: ReactNode }) => <div>{children}</div>,
   SwiperSlide: ({ children }: { children: ReactNode }) => <div>{children}</div>,
 }))
-vi.mock('swiper/modules', () => ({ Pagination: {} }))
+vi.mock('swiper/modules', () => ({ Navigation: {}, Pagination: {} }))
 
 function banner(overrides = {}) {
   return {

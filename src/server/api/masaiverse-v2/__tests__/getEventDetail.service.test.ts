@@ -126,6 +126,7 @@ describe('getEventDetail', () => {
       belowTitle: '48 teams',
       isWeeklyConnect: true,
       confirmationModalText: null,
+      eventSummary: null,
       clubId: '3',
       clubName: 'Programming Club',
       hostedBy: [

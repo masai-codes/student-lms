@@ -24,6 +24,11 @@ vi.mock('@/lib/api/masaiverse-v2/masaiverseV2Api', () => ({
   fetchMasaiverseV2GlobalLeaderboard: fetchLeaderboard,
 }))
 
+// The day/upcoming event lists render router <Link>s; stub them in jsdom.
+vi.mock('@tanstack/react-router', () => ({
+  Link: ({ children }: { children: ReactNode }) => children,
+}))
+
 function renderWithClient(ui: ReactNode) {
   const client = new QueryClient({
     defaultOptions: { queries: { retry: false } },

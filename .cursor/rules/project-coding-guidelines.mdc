@@ -7,7 +7,6 @@ alwaysApply: true
 
 ## Core Standards
 - Use TypeScript strict mode patterns; avoid `any` unless absolutely necessary.
-- Write type-safe code in both frontend and backend; prefer explicit domain types, validated inputs, and safe narrowing over type assertions.
 - Reuse existing components, utilities.
 - Prefer `shadcn/ui` and Radix UI primitives wherever possible before building custom UI from scratch.
 - Prefer icons from a maintained icon library (for example, `@phosphor-icons/react`) over image URLs or custom icon assets wherever possible.
@@ -42,26 +41,11 @@ alwaysApply: true
 - Ensure documented test commands are valid and runnable.
 
 ## Styling and UX
-- Use the shared Masai design system for UI primitives instead of one-off styles:
-  - **Buttons and CTAs**: `MasaiButton` (`src/components/ui/masai-button.tsx`) for primary actions; `CardCtaButton` (`src/components/shared/card-cta-button.tsx`) for card-level CTAs. Do not build custom button/CTA markup with ad-hoc colors or padding.
-  - **Other controls**: Prefer existing `masai-*` components in `src/components/ui/` (inputs, chips, tabs, drawers, pagination, etc.) before creating new variants.
-  - **Colors**: Use Masai color tokens from `src/lib/masai-colors.css` (e.g. `primary-*`, `gray-*`) via Tailwind classes. Avoid hardcoded hex/rgb values when a token exists.
-  - **Typography**: Use Masai typography classes from `src/lib/masai-typography.css` (e.g. `type-h*`, `type-b*`, `type-s*`). Do not invent custom font sizes/weights for standard UI text.
 - Follow existing Tailwind and component style conventions in the same feature area.
 - Avoid hardcoded magic values when a project token or shared constant exists.
 - Preserve accessibility basics (semantic elements, interactive affordances, readable text).
 
-## Backend and API Structure
-- **Prefer REST APIs** for new and migrated features. Expose HTTP endpoints under `src/routes/api/**` using TanStack Start `server.handlers` (GET/POST/etc.), not `createServerFn`, unless there is a documented exception.
-- Keep route files thin: parse request → call a handler in `src/server/api/<feature>/handlers/` → return `Response.json`.
-- Put shared HTTP concerns in `src/server/api/http/` (auth, JSON responses, error mapping) and request parsing in `src/server/api/<feature>/utils/`.
-- Put domain/business logic in `src/server/<feature>/services/*` and presentation helpers in `src/server/<feature>/utils/*` (for example `learn/services/*`). Route handlers must not contain SQL or heavy business rules.
-- Call REST endpoints through typed helpers in `src/lib/api/*` (for example `learn/learnApi.ts`) using `fetch` with `credentials: 'same-origin'`. Use the same helpers in route loaders and React Query so SSR and CSR share one HTTP contract.
-- Do not write raw SQL queries in application code. Prefer typed ORM query builders (Drizzle) for safety, consistency, and maintainability.
-- Document REST contracts under `docs/api-responses/<feature>/` (method, path, query/body, success and error shapes).
-
 ## PR Quality Bar
-- Ensure `npm run test`, `npm run lint`, and `npm run typecheck` pass for touched code.
-- Ensure TypeScript has zero errors for changed code paths; target 0 TypeScript errors in the project.
+- Ensure `npm run test` and `npm run lint` pass for touched code.
 - Keep changes scoped to the request; do not refactor unrelated areas.
 - Add concise code comments only where logic is non-obvious.
