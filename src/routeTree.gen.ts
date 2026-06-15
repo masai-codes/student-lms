@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as ApiServerTimeRouteImport } from './routes/api/server-time'
 import { Route as ApiAssessNpsCallbackRouteRouteImport } from './routes/api/assess-nps-callback/route'
 import { Route as protectedLayoutRouteRouteImport } from './routes/(protected)/_layout/route'
 import { Route as ApiWhatsNewIndexRouteImport } from './routes/api/whats-new/index'
@@ -128,6 +129,11 @@ import { Route as protectedLayoutMasaiverseEventEventIdRouteImport } from './rou
 import { Route as protectedLayoutMasaiverseClubClubIdRouteImport } from './routes/(protected)/_layout/masaiverse/club.$clubId'
 import { Route as protectedLayoutMasaiverseClubClubIdGalleryRouteImport } from './routes/(protected)/_layout/masaiverse/club.$clubId_.gallery'
 
+const ApiServerTimeRoute = ApiServerTimeRouteImport.update({
+  id: '/api/server-time',
+  path: '/api/server-time',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiAssessNpsCallbackRouteRoute =
   ApiAssessNpsCallbackRouteRouteImport.update({
     id: '/api/assess-nps-callback',
@@ -807,6 +813,7 @@ const protectedLayoutMasaiverseClubClubIdGalleryRoute =
 
 export interface FileRoutesByFullPath {
   '/api/assess-nps-callback': typeof ApiAssessNpsCallbackRouteRoute
+  '/api/server-time': typeof ApiServerTimeRoute
   '/masaiverse': typeof protectedLayoutMasaiverseRouteRouteWithChildren
   '/v2/forgot-password': typeof authV2ForgotPasswordRoute
   '/v2/me': typeof authV2MeRoute
@@ -926,6 +933,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/api/assess-nps-callback': typeof ApiAssessNpsCallbackRouteRoute
+  '/api/server-time': typeof ApiServerTimeRoute
   '/v2/forgot-password': typeof authV2ForgotPasswordRoute
   '/v2/me': typeof authV2MeRoute
   '/v2/reset-password': typeof authV2ResetPasswordRoute
@@ -1046,6 +1054,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/(protected)/_layout': typeof protectedLayoutRouteRouteWithChildren
   '/api/assess-nps-callback': typeof ApiAssessNpsCallbackRouteRoute
+  '/api/server-time': typeof ApiServerTimeRoute
   '/(protected)/_layout/masaiverse': typeof protectedLayoutMasaiverseRouteRouteWithChildren
   '/(auth)/v2/forgot-password': typeof authV2ForgotPasswordRoute
   '/(auth)/v2/me': typeof authV2MeRoute
@@ -1167,6 +1176,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/api/assess-nps-callback'
+    | '/api/server-time'
     | '/masaiverse'
     | '/v2/forgot-password'
     | '/v2/me'
@@ -1286,6 +1296,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/api/assess-nps-callback'
+    | '/api/server-time'
     | '/v2/forgot-password'
     | '/v2/me'
     | '/v2/reset-password'
@@ -1405,6 +1416,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/(protected)/_layout'
     | '/api/assess-nps-callback'
+    | '/api/server-time'
     | '/(protected)/_layout/masaiverse'
     | '/(auth)/v2/forgot-password'
     | '/(auth)/v2/me'
@@ -1526,6 +1538,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   protectedLayoutRouteRoute: typeof protectedLayoutRouteRouteWithChildren
   ApiAssessNpsCallbackRouteRoute: typeof ApiAssessNpsCallbackRouteRoute
+  ApiServerTimeRoute: typeof ApiServerTimeRoute
   authV2ForgotPasswordRoute: typeof authV2ForgotPasswordRoute
   authV2MeRoute: typeof authV2MeRoute
   authV2ResetPasswordRoute: typeof authV2ResetPasswordRoute
@@ -1613,6 +1626,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/api/server-time': {
+      id: '/api/server-time'
+      path: '/api/server-time'
+      fullPath: '/api/server-time'
+      preLoaderRoute: typeof ApiServerTimeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/assess-nps-callback': {
       id: '/api/assess-nps-callback'
       path: '/api/assess-nps-callback'
@@ -2613,6 +2633,7 @@ const ApiLearnSubmissionsSubmissionIdRouteWithChildren =
 const rootRouteChildren: RootRouteChildren = {
   protectedLayoutRouteRoute: protectedLayoutRouteRouteWithChildren,
   ApiAssessNpsCallbackRouteRoute: ApiAssessNpsCallbackRouteRoute,
+  ApiServerTimeRoute: ApiServerTimeRoute,
   authV2ForgotPasswordRoute: authV2ForgotPasswordRoute,
   authV2MeRoute: authV2MeRoute,
   authV2ResetPasswordRoute: authV2ResetPasswordRoute,

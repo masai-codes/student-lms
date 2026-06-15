@@ -1,3 +1,5 @@
+export const SERVER_TIME_API = '/api/server-time'
+
 export const DASHBOARD_API = {
   leftSection: '/api/dashboard/left-section',
   rightSection: '/api/dashboard/right-section',

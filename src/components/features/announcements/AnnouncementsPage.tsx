@@ -6,7 +6,8 @@ import AppPagination from '@/components/common/Pagination'
 import { fetchAnnouncements } from '@/lib/api/announcement/announcementApi'
 import { ANNOUNCEMENTS_PER_PAGE } from './announcementsConfig'
 import type { AnnouncementItem } from '@/server/api/announcement/getAnnouncements.service'
-import { formatTimestampLocal, formatTimestampIST } from '@/components/features/dashboard/shared/scheduleUtils'
+import { formatTimestampLocal, formatTimestampIST } from '@/utils/timeZoneHandler'
+import { useServerTime } from '@/hooks/useServerTime'
 
 const STALE_TIME_MS = 5 * 60 * 1000 // 5 minutes
 
@@ -15,6 +16,7 @@ const routeApi = getRouteApi('/(protected)/_layout/announcements/')
 // ── Announcement Card ──────────────────────────────────────────────────────────
 
 function AnnouncementCard({ item }: { item: AnnouncementItem }) {
+  const { skewMs } = useServerTime()
   return (
     <Link
       to="/announcements/$id"
@@ -50,7 +52,7 @@ function AnnouncementCard({ item }: { item: AnnouncementItem }) {
           <span className="size-1 rounded-full bg-gray-400 shrink-0" />
           {/* Date — local TZ displayed, IST in tooltip (same pattern as ScheduleCard) */}
           <span className="relative group/date cursor-default text-gray-600 text-[14px] font-[400] font-inter leading-[16px]">
-            {formatTimestampLocal(item.createdAt)}
+            {formatTimestampLocal(item.createdAt, skewMs)}
             <span className="pointer-events-none absolute bottom-full left-0 mb-1.5 z-20
               opacity-0 group-hover/date:opacity-100 transition-opacity duration-150
               whitespace-nowrap rounded-md bg-gray-900 px-2.5 py-1.5

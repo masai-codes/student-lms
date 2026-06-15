@@ -3,6 +3,8 @@ import { Link } from '@tanstack/react-router'
 import { formatScheduleTime, formatScheduleTimeIST } from '../../shared/scheduleUtils'
 import type { DashboardScheduleItem } from '../../shared/types'
 import { MasaiChips } from '@/components/ui/masai-chips'
+import { useServerTime } from '@/hooks/useServerTime'
+import { parseMysqlDatetimeIST } from '@/utils/timeZoneHandler'
 
 const TYPE_ICON_SRC: Record<DashboardScheduleItem['learningType'], string> = {
   lecture: 'https://s3.ap-south-1.amazonaws.com/static.masaischool.com/lecture.svg',
@@ -38,30 +40,20 @@ function buildLinkProps(item: DashboardScheduleItem) {
 
 type JoinState = 'soon' | 'live' | null
 
-/**
- * Parse a naive datetime string (no timezone) as IST (UTC+5:30).
- * DB times are stored in IST without a timezone specifier.
- */
-function parseIST(raw: string | null): Date | null {
-  if (!raw) return null
-  const normalized = raw.includes('T') ? raw : raw.replace(' ', 'T')
-  // Append +05:30 only if no tz info present
-  const withTz = /[Z+]/.test(normalized) ? normalized : `${normalized}+05:30`
-  const d = new Date(withTz)
-  return Number.isNaN(d.getTime()) ? null : d
-}
-
-function computeJoinState(schedule: string | null, concludes: string | null): JoinState {
-  const start = parseIST(schedule)
+function computeJoinState(
+  schedule: string | null,
+  concludes: string | null,
+  nowMs: number,
+): JoinState {
+  const start = parseMysqlDatetimeIST(schedule)
   if (!start) return null
-  const end = parseIST(concludes)
+  const end = parseMysqlDatetimeIST(concludes)
 
-  const now = Date.now()
-  const startMs = start.getTime()
-  const endMs = end?.getTime() ?? startMs + 60 * 60 * 1000 // fallback: 1 h window
+  const startMs = start.valueOf()
+  const endMs = end?.valueOf() ?? startMs + 60 * 60 * 1000
 
-  if (now >= startMs - 10 * 60 * 1000 && now < startMs - 5 * 60 * 1000) return 'soon'
-  if (now >= startMs - 5 * 60 * 1000 && now <= endMs) return 'live'
+  if (nowMs >= startMs - 10 * 60 * 1000 && nowMs < startMs - 5 * 60 * 1000) return 'soon'
+  if (nowMs >= startMs - 5 * 60 * 1000 && nowMs <= endMs) return 'live'
   return null
 }
 
@@ -73,20 +65,21 @@ function shouldShowJoinButton(item: DashboardScheduleItem): boolean {
   return t === 'live' || t === 'scrum'
 }
 
-function useJoinState(item: DashboardScheduleItem): JoinState {
+function useJoinState(item: DashboardScheduleItem, nowMs: number, skewMs: number): JoinState {
   const eligible = shouldShowJoinButton(item)
   const [state, setState] = useState<JoinState>(() =>
-    eligible ? computeJoinState(item.schedule, item.concludes) : null,
+    eligible ? computeJoinState(item.schedule, item.concludes, nowMs) : null,
   )
 
   useEffect(() => {
     if (!eligible) return
-    // Re-evaluate every 30 s so the button appears/disappears without page refresh
+    // Date.now() + skewMs = server-corrected current time
+    setState(computeJoinState(item.schedule, item.concludes, Date.now() + skewMs))
     const id = setInterval(() => {
-      setState(computeJoinState(item.schedule, item.concludes))
+      setState(computeJoinState(item.schedule, item.concludes, Date.now() + skewMs))
     }, 30_000)
     return () => clearInterval(id)
-  }, [eligible, item.schedule, item.concludes])
+  }, [eligible, item.schedule, item.concludes, skewMs])
 
   return eligible ? state : null
 }
@@ -100,10 +93,12 @@ interface ScheduleCardProps {
 }
 
 export function ScheduleCard({ item, dayLabel, isToday }: ScheduleCardProps) {
-  const timeDisplay = formatScheduleTime(item)       // local TZ — main display
+  const { now, skewMs } = useServerTime()
+  const timeDisplay = formatScheduleTime(item, skewMs)
   const timeDisplayIST = formatScheduleTimeIST(item) // IST hardcoded — tooltip
   const linkProps = buildLinkProps(item)
-  const joinState = useJoinState(item)
+  const joinState = useJoinState(item, now.valueOf(), skewMs)
+
 
   return (
     <div className="flex items-stretch gap-3">
