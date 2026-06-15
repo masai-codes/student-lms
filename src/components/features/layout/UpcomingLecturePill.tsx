@@ -4,12 +4,8 @@ import { Link } from '@tanstack/react-router'
 import { PlayCircle } from 'lucide-react'
 import type { NavbarPillEvent } from '@/server/api/dashboard/getNavbarPill.service'
 import { fetchNavbarPillEvent } from '@/lib/api/dashboard/dashboardApi'
-
-function parseToMs(raw: string): number {
-  const normalized = raw.includes('T') ? raw : raw.replace(' ', 'T')
-  const withTz = /[Z+]/.test(normalized) ? normalized : `${normalized}+05:30`
-  return new Date(withTz).getTime()
-}
+import { parseMysqlDatetimeIST } from '@/utils/timeZoneHandler'
+import { useServerTime } from '@/hooks/useServerTime'
 
 function formatMmSs(ms: number): string {
   const totalSecs = Math.max(0, Math.floor(ms / 1000))
@@ -23,19 +19,20 @@ function formatMins(ms: number): string {
   return `${mins} mins`
 }
 
-function useNow(intervalMs: number) {
-  const [now, setNow] = useState(Date.now)
+function useServerNow(intervalMs: number, skewMs: number): number {
+  const [now, setNow] = useState(() => Date.now() + skewMs)
   useEffect(() => {
-    const id = setInterval(() => setNow(Date.now()), intervalMs)
+    setNow(Date.now() + skewMs)
+    const id = setInterval(() => setNow(Date.now() + skewMs), intervalMs)
     return () => clearInterval(id)
-  }, [intervalMs])
+  }, [intervalMs, skewMs])
   return now
 }
 
-function PillContent({ event }: { event: NavbarPillEvent }) {
-  const now = useNow(event.eventType === 'evaluation' ? 1000 : 30000)
-  const startMs = parseToMs(event.schedule)
-  const endMs = parseToMs(event.concludes)
+function PillContent({ event, skewMs }: { event: NavbarPillEvent; skewMs: number }) {
+  const now = useServerNow(event.eventType === 'evaluation' ? 1000 : 30000, skewMs)
+  const startMs = parseMysqlDatetimeIST(event.schedule)?.valueOf() ?? 0
+  const endMs = parseMysqlDatetimeIST(event.concludes)?.valueOf() ?? 0
   const msUntilStart = startMs - now
   const isStarted = now >= startMs
   const isEnded = now >= endMs
@@ -94,6 +91,7 @@ function PillContent({ event }: { event: NavbarPillEvent }) {
 }
 
 export function UpcomingLecturePill() {
+  const { skewMs } = useServerTime()
   const { data } = useQuery({
     queryKey: ['navbar-pill'],
     queryFn: fetchNavbarPillEvent,
@@ -102,5 +100,5 @@ export function UpcomingLecturePill() {
   })
 
   if (!data) return null
-  return <PillContent event={data} />
+  return <PillContent event={data} skewMs={skewMs} />
 }

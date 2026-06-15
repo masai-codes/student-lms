@@ -1,76 +1,52 @@
 import { useState, useEffect } from 'react'
 import type { LmsSupportInfo } from '@/server/api/dashboard/getLmsSupportInfo.service'
+import { parseMysqlDatetimeIST, getTzLabel } from '@/utils/timeZoneHandler'
+import { useServerTime } from '@/hooks/useServerTime'
 
-// ── IST time helpers ───────────────────────────────────────────────────────────
-
-/**
- * Parse a naive datetime string (stored in IST, no tz specifier) as IST.
- * Appends +05:30 only when no timezone info is present.
- */
-function parseIST(raw: string | null): Date | null {
-  if (!raw) return null
-  const normalized = raw.includes('T') ? raw : raw.replace(' ', 'T')
-  const withTz = /[Z+]/.test(normalized) ? normalized : `${normalized}+05:30`
-  const d = new Date(withTz)
-  return Number.isNaN(d.getTime()) ? null : d
-}
-
-/**
- * Format an IST datetime string as "27 Feb at 6:30 PM"
- */
-function formatNextSession(raw: string | null): string {
+function formatNextSession(raw: string | null, skewMs = 0): string {
   if (!raw) return ''
-  const d = parseIST(raw)
-  if (!d) return ''
-  const datePart = d.toLocaleDateString('en-GB', {
-    day: 'numeric',
-    month: 'short',
-    timeZone: 'Asia/Kolkata',
-  })
-  const timePart = d.toLocaleTimeString('en-US', {
-    hour: 'numeric',
-    minute: '2-digit',
-    hour12: true,
-    timeZone: 'Asia/Kolkata',
-  })
-  return `${datePart} at ${timePart}`
+  const parsed = parseMysqlDatetimeIST(raw)
+  if (!parsed) return ''
+  const date = new Date(parsed.valueOf() - skewMs)
+  const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+  const day = date.getDate()
+  const month = MONTHS[date.getMonth()]
+  const h = date.getHours() % 12 || 12
+  const min = date.getMinutes()
+  const ampm = date.getHours() >= 12 ? 'PM' : 'AM'
+  const timePart = min === 0 ? `${h} ${ampm}` : `${h}:${String(min).padStart(2, '0')} ${ampm}`
+  return `${day} ${month} at ${timePart} (${getTzLabel()})`
 }
 
 // ── Join-state computation ─────────────────────────────────────────────────────
 
 type CardState = 'generic' | 'scheduled-today' | 'join' | 'next-session'
 
-function computeCardState(info: LmsSupportInfo): CardState {
-  const start = parseIST(info.todaySchedule)
+function computeCardState(info: LmsSupportInfo, nowMs: number): CardState {
+  const start = parseMysqlDatetimeIST(info.todaySchedule)
 
   if (start) {
-    const end = parseIST(info.todayConcludes)
-    const now = Date.now()
-    const startMs = start.getTime()
-    const endMs = end?.getTime() ?? startMs + 60 * 60 * 1000
+    const end = parseMysqlDatetimeIST(info.todayConcludes)
+    const startMs = start.valueOf()
+    const endMs = end?.valueOf() ?? startMs + 60 * 60 * 1000
 
-    // Live: 5 min before start until concludes
-    if (now >= startMs - 5 * 60 * 1000 && now <= endMs) return 'join'
-
-    // Scheduled later today
+    if (nowMs >= startMs - 5 * 60 * 1000 && nowMs <= endMs) return 'join'
     return 'scheduled-today'
   }
 
-  // No lecture today but upcoming
   if (info.nextSchedule) return 'next-session'
-
   return 'generic'
 }
 
-function useCardState(info: LmsSupportInfo | undefined): CardState {
+function useCardState(info: LmsSupportInfo | undefined, nowMs: number): CardState {
   const [state, setState] = useState<CardState>(() =>
-    info ? computeCardState(info) : 'generic',
+    info ? computeCardState(info, nowMs) : 'generic',
   )
 
   useEffect(() => {
     if (!info) return
-    setState(computeCardState(info))
-    const id = setInterval(() => setState(computeCardState(info)), 30_000)
+    setState(computeCardState(info, Date.now()))
+    const id = setInterval(() => setState(computeCardState(info, Date.now())), 30_000)
     return () => clearInterval(id)
   }, [info])
 
@@ -138,8 +114,8 @@ function JoinCard({ zoomLink }: { zoomLink: string | null }) {
   )
 }
 
-function ScheduledTodayCard({ schedule }: { schedule: string | null }) {
-  const label = formatNextSession(schedule)
+function ScheduledTodayCard({ schedule, skewMs }: { schedule: string | null; skewMs: number }) {
+  const label = formatNextSession(schedule, skewMs)
   return (
     <div className="rounded-[16px] border border-gray-200 bg-[#F9FAFB] overflow-hidden flex items-center gap-0">
       <div className="shrink-0 w-[120px]">
@@ -164,8 +140,8 @@ function ScheduledTodayCard({ schedule }: { schedule: string | null }) {
   )
 }
 
-function NextSessionCard({ nextSchedule }: { nextSchedule: string | null }) {
-  const label = formatNextSession(nextSchedule)
+function NextSessionCard({ nextSchedule, skewMs }: { nextSchedule: string | null; skewMs: number }) {
+  const label = formatNextSession(nextSchedule, skewMs)
   return (
     <div className="rounded-[16px] border border-gray-200 bg-white overflow-hidden flex items-center gap-0">
       <div className="shrink-0 w-[120px]">
@@ -195,12 +171,13 @@ function NextSessionCard({ nextSchedule }: { nextSchedule: string | null }) {
 // ── Main panel ─────────────────────────────────────────────────────────────────
 
 export function LmsSupportPanel({ info }: { info: LmsSupportInfo | undefined }) {
-  const cardState = useCardState(info)
+  const { now, skewMs } = useServerTime()
+  const cardState = useCardState(info, now.valueOf())
 
   if (info && !info.visible) return null
 
   if (!info || cardState === 'generic') return <GenericCard />
   if (cardState === 'join') return <JoinCard zoomLink={info.todayZoomLink} />
-  if (cardState === 'scheduled-today') return <ScheduledTodayCard schedule={info.todaySchedule} />
-  return <NextSessionCard nextSchedule={info.nextSchedule} />
+  if (cardState === 'scheduled-today') return <ScheduledTodayCard schedule={info.todaySchedule} skewMs={skewMs} />
+  return <NextSessionCard nextSchedule={info.nextSchedule} skewMs={skewMs} />
 }

@@ -12,13 +12,15 @@ import {
 import type { AnnouncementDetail } from '@/server/api/announcement/getAnnouncementById.service'
 import { markAnnouncementRead, markAnnouncementUnread, addBookmark, removeBookmark } from '@/lib/api/announcement/announcementApi'
 import { toast } from '@/lib/toast'
-import { formatTimestampLocal, formatTimestampIST } from '@/components/features/dashboard/shared/scheduleUtils'
+import { formatTimestampLocal, formatTimestampIST } from '@/utils/timeZoneHandler'
+import { useServerTime } from '@/hooks/useServerTime'
 
 interface AnnouncementDetailPageProps {
   detail: AnnouncementDetail
 }
 
 export function AnnouncementDetailPage({ detail }: AnnouncementDetailPageProps) {
+  const { skewMs } = useServerTime()
   const [isUnread, setIsUnread] = useState(false)
   const [isBookmarked, setIsBookmarked] = useState(detail.isBookmarked)
   const [bookmarkId, setBookmarkId] = useState<number | null>(detail.bookmarkId)
@@ -128,7 +130,7 @@ export function AnnouncementDetailPage({ detail }: AnnouncementDetailPageProps) 
               <>
                 <span>•</span>
                 <span className="relative group/date cursor-default">
-                  {formatTimestampLocal(detail.scheduledAt)}
+                  {formatTimestampLocal(detail.scheduledAt, skewMs)}
                   <span className="pointer-events-none absolute bottom-full left-0 mb-1.5 z-20
                     opacity-0 group-hover/date:opacity-100 transition-opacity duration-150
                     whitespace-nowrap rounded-md bg-gray-900 px-2.5 py-1.5
@@ -191,7 +193,6 @@ export function AnnouncementDetailPage({ detail }: AnnouncementDetailPageProps) 
           className="prose prose-sm md:prose-base max-w-none text-gray-800 leading-relaxed
             prose-a:text-blue-600 prose-a:underline
             prose-p:my-3 prose-ul:my-3 prose-ol:my-3 prose-li:my-1"
-          // eslint-disable-next-line react/no-danger
           dangerouslySetInnerHTML={{ __html: detail.body }}
         />
       </div>

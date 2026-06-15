@@ -1,6 +1,7 @@
 import { getTodayDateKey } from '../shared/scheduleUtils'
 import { ScheduleCard } from './schedule-card/ScheduleCard'
 import type { ScheduleDateGroup, ScheduleWeekGroup } from '../shared/types'
+import { useServerTime } from '@/hooks/useServerTime'
 
 function EmptyDayRow({
   dateGroup,
@@ -34,7 +35,8 @@ interface ScheduleWeekGroupProps {
 }
 
 export function ScheduleWeekGroupSection({ group }: ScheduleWeekGroupProps) {
-  const todayKey = getTodayDateKey()
+  const { now } = useServerTime()
+  const todayKey = getTodayDateKey(now)
 
   return (
     <div className="flex flex-col gap-2">

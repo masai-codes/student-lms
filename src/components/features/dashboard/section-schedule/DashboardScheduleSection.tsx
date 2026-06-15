@@ -7,6 +7,7 @@ import { ScheduleCard } from './schedule-card/ScheduleCard'
 import type { DashboardScheduleItem, ScheduleWeekGroup } from '../shared/types'
 import { AppLoading } from '@/components/common'
 import { fetchDashboardPendingTasks } from '@/lib/api/dashboard/dashboardApi'
+import { useServerTime } from '@/hooks/useServerTime'
 
 type ScheduleTab = 'schedule' | 'pending'
 
@@ -23,6 +24,7 @@ export function DashboardScheduleSection({
 }: DashboardScheduleSectionProps) {
   const [activeTab, setActiveTab] = useState<ScheduleTab>('schedule')
   const [pendingTabActivated, setPendingTabActivated] = useState(false)
+  const { now } = useServerTime()
 
   const { data: pendingTasksData, isLoading: isPendingLoading } = useQuery({
     queryKey: ['dashboard-pending-tasks'],
@@ -37,19 +39,17 @@ export function DashboardScheduleSection({
 
   // Items that span the entire week are excluded from My Schedule
   // and surfaced in Pending Tasks instead
-  const spanningItems = extractSpanningItems(items)
+  const spanningItems = extractSpanningItems(items, now)
   const spanningIds = new Set(spanningItems.map((i) => i.id))
   const scheduleItems = items.filter((i) => !spanningIds.has(i.id))
   const effectivePendingItems = [...(pendingTasksData ?? []), ...spanningItems]
 
-  // Before the tab is clicked we use the lightweight count from the API;
-  // after activation we use the actual fetched items length.
   const badgeCount = pendingTabActivated
     ? effectivePendingItems.length
     : pendingTasksCount + spanningItems.length
 
   const weekGroups: Array<ScheduleWeekGroup> =
-    activeTab === 'schedule' ? groupItemsByWeek(scheduleItems) : []
+    activeTab === 'schedule' ? groupItemsByWeek(scheduleItems, now) : []
 
   return (
     <div className="bg-[#F9FAFB] rounded-[16px] border border-gray-200 overflow-hidden">

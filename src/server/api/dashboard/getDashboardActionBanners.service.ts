@@ -1,10 +1,10 @@
 import { and, eq, isNull, sql } from 'drizzle-orm'
 import { db } from '@/db'
-import { assessNpsForm, assessNpsSubmissions, npsForms, npsSubmissions, profiles, sectionUser, userDeviceTokens, users } from '@/db/schema'
+import { assessNpsForm, assessNpsSubmissions, batchUser, npsForms, npsSubmissions, profiles, sectionUser, userDeviceTokens, users } from '@/db/schema'
 
 export interface PendingAgreementSection {
   sectionId: number
-  heading: string
+  name: string
 }
 
 export interface PendingFeedbackForm {
@@ -78,7 +78,7 @@ async function checkAgreementRequired(userId: number): Promise<Array<PendingAgre
   // for JS-side sub-key inspection (keys like grading_policy, posh_compliance are dynamic)
   const sectionResult = normalizeRows(
     await db.execute(sql`
-      SELECT id, settings->>'$.agreements' AS agreements
+      SELECT id, name, settings->>'$.agreements' AS agreements
       FROM sections
       WHERE id IN (${sql.raw(sectionIds.join(', '))})
         AND active = 1
@@ -121,27 +121,7 @@ async function checkAgreementRequired(userId: number): Promise<Array<PendingAgre
 
     if (!hasValidAgreementSubKey(agreementsJson)) continue
 
-    // Pick the heading from the first valid sub-key
-    const RESERVED_KEYS = new Set(['shouldModalBeVisible'])
-    let heading = ''
-    for (const [key, value] of Object.entries(agreementsJson)) {
-      if (RESERVED_KEYS.has(key)) continue
-      const entry = value as Record<string, unknown> | null | undefined
-      if (!entry || typeof entry !== 'object') continue
-      const pdfUrl = entry['pdfUrl']
-      const h = entry['heading']
-      const hidePolicy = entry['hidePolicy']
-      if (
-        typeof pdfUrl === 'string' && pdfUrl.trim() !== '' &&
-        typeof h === 'string' && h.trim() !== '' &&
-        hidePolicy !== true && hidePolicy !== 'true'
-      ) {
-        heading = h.trim()
-        break
-      }
-    }
-
-    pending.push({ sectionId, heading })
+    pending.push({ sectionId, name: String(row.name ?? '') })
   }
 
   return pending
@@ -155,22 +135,41 @@ async function checkAgreementRequired(userId: number): Promise<Array<PendingAgre
  * - User has not submitted that form
  * Returns all pending forms from both sources merged, ordered by starts_at ASC, created_at ASC.
  */
-async function checkFeedbackPending(userId: number): Promise<Array<PendingFeedbackForm>> {
-  const sectionRows = await db
-    .select({ sectionId: sectionUser.sectionId })
-    .from(sectionUser)
-    .where(and(eq(sectionUser.userId, userId), isNull(sectionUser.deletedAt)))
+function isAssessCompleted(sub: { completedAt: string | null; assessCallback: string | null }): boolean {
+  if (sub.completedAt) return true
+  const cb = sub.assessCallback
+  if (!cb) return false
+  if (cb === 'true') return true
+  // Legacy: callback stored as JSON (older rows)
+  try {
+    const parsed = JSON.parse(cb) as { eventType?: string }
+    return parsed.eventType === 'endAssessment' || parsed.eventType === 'gradingDurationOver'
+  } catch {
+    return false
+  }
+}
 
-  if (sectionRows.length === 0) return []
+async function checkFeedbackPending(userId: number): Promise<Array<PendingFeedbackForm>> {
+  const [sectionRows, batchRows] = await Promise.all([
+    db.select({ sectionId: sectionUser.sectionId })
+      .from(sectionUser)
+      .where(and(eq(sectionUser.userId, userId), isNull(sectionUser.deletedAt))),
+    db.select({ batchId: batchUser.batchId })
+      .from(batchUser)
+      .where(eq(batchUser.userId, userId)),
+  ])
 
   const sectionIds = [...new Set(sectionRows.map((r) => r.sectionId))].filter(Number.isFinite)
-  if (sectionIds.length === 0) return []
+  const batchIds = [...new Set(batchRows.map((r) => r.batchId))].filter(Number.isFinite)
 
-  const sectionIdList = sql.raw(sectionIds.join(', '))
+  if (sectionIds.length === 0 && batchIds.length === 0) return []
+
+  const sectionIdList = sectionIds.length > 0 ? sql.raw(sectionIds.join(', ')) : null
+  const batchIdList = batchIds.length > 0 ? sql.raw(batchIds.join(', ')) : null
   const nowIst = sql`CONVERT_TZ(NOW(), '+00:00', '+05:30')`
 
   // ── nps_forms ──────────────────────────────────────────────────────────────
-  const activeNpsForms = await db
+  const activeNpsForms = sectionIdList ? await db
     .select({ id: npsForms.id, title: npsForms.title, startsAt: npsForms.startsAt, createdAt: npsForms.createdAt })
     .from(npsForms)
     .where(
@@ -184,6 +183,7 @@ async function checkFeedbackPending(userId: number): Promise<Array<PendingFeedba
       )
     )
     .orderBy(npsForms.startsAt, npsForms.createdAt)
+  : []
 
   const npsFormIds = activeNpsForms.map((f) => f.id)
   const npsSubmitted = npsFormIds.length > 0
@@ -206,33 +206,44 @@ async function checkFeedbackPending(userId: number): Promise<Array<PendingFeedba
     .map((f) => ({ id: f.id, title: f.title, source: 'nps' as const }))
 
   // ── assess_nps_form ────────────────────────────────────────────────────────
-  const activeAssessForms = await db
+  const sectionOrBatchClause = ([] as ReturnType<typeof sql>[]).concat(
+    sectionIdList ? [sql`${assessNpsForm.sectionId} IN (${sectionIdList})`] : [],
+    batchIdList ? [sql`${assessNpsForm.batchId} IN (${batchIdList})`] : [],
+  )
+
+  const activeAssessForms = sectionOrBatchClause.length > 0 ? await db
     .select({ id: assessNpsForm.id, title: assessNpsForm.title, startsAt: assessNpsForm.startsAt, createdAt: assessNpsForm.createdAt })
     .from(assessNpsForm)
     .where(
       and(
-        sql`${assessNpsForm.sectionId} IN (${sectionIdList})`,
+        sql`(${sql.join(sectionOrBatchClause, sql` OR `)})`,
         isNull(assessNpsForm.deletedAt),
         sql`(${assessNpsForm.startsAt} IS NULL OR ${assessNpsForm.startsAt} <= ${nowIst})`,
         sql`(${assessNpsForm.endsAt}   IS NULL OR ${assessNpsForm.endsAt}   >= ${nowIst})`,
       )
     )
     .orderBy(assessNpsForm.startsAt, assessNpsForm.createdAt)
+  : []
 
   const assessFormIds = activeAssessForms.map((f) => f.id)
-  const assessSubmitted = assessFormIds.length > 0
+  const assessSubmissions = assessFormIds.length > 0
     ? await db
-        .select({ npsFormId: assessNpsSubmissions.npsFormId })
+        .select({
+          npsFormId: assessNpsSubmissions.npsFormId,
+          completedAt: assessNpsSubmissions.completedAt,
+          assessCallback: assessNpsSubmissions.assessCallback,
+        })
         .from(assessNpsSubmissions)
         .where(
           and(
             eq(assessNpsSubmissions.userId, userId),
             sql`${assessNpsSubmissions.npsFormId} IN (${sql.raw(assessFormIds.join(', '))})`,
-            sql`${assessNpsSubmissions.completedAt} IS NOT NULL`,
           )
         )
     : []
-  const assessSubmittedIds = new Set(assessSubmitted.map((s) => s.npsFormId))
+  const assessSubmittedIds = new Set(
+    assessSubmissions.filter(isAssessCompleted).map((s) => s.npsFormId)
+  )
 
   const pendingAssess: Array<PendingFeedbackForm> = activeAssessForms
     .filter((f) => !assessSubmittedIds.has(f.id))
