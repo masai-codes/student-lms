@@ -25,18 +25,9 @@ function parseEnvFile(filePath) {
   }
 }
 
-// Merge whichever env files exist in this folder, lowest precedence first so
-// more specific files win on overlap. Covers a plain .env as well as the
-// production-named files, so the app finds DATABASE_URL etc. wherever you keep them.
-const fileEnv = [
-  '.env',
-  '.env.local',
-  '.env.production',
-  '.env.production.local',
-].reduce(
-  (acc, file) => ({ ...acc, ...parseEnvFile(path.join(__dirname, file)) }),
-  {},
-)
+// Read env from a single .env in this folder (DATABASE_URL, PORT, secrets, …).
+// The prod config uses the .env.production* files; this local runner uses .env.
+const fileEnv = parseEnvFile(path.join(__dirname, '.env'))
 
 module.exports = {
   apps: [
