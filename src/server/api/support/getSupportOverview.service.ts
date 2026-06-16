@@ -25,7 +25,10 @@ import {
   getSupportGate,
   getUserSupportBatches,
 } from '@/server/api/support/services/directory.service'
-import { getCallbackOptions } from '@/server/api/support/services/callback.service'
+import {
+  getCallbackOptions,
+  listCallbacks,
+} from '@/server/api/support/services/callback.service'
 import {
   countOpenTickets,
   listTickets,
@@ -59,6 +62,7 @@ export async function getSupportOverview(
       tickets: [],
       openTicketCount: 0,
       callback: { reasons: [], timeslots: [] },
+      callbackTickets: [],
       coordinators: [],
     }
   }
@@ -76,6 +80,7 @@ export async function getSupportOverview(
     tickets,
     openTicketCount,
     callback,
+    callbackTickets,
     coordinators,
   ] = await Promise.all([
     getSupportGate({ userId, batchId }),
@@ -85,6 +90,7 @@ export async function getSupportOverview(
     listTickets({ userId, tab: 'unresolved' }),
     countOpenTickets(userId),
     getCallbackOptions(),
+    listCallbacks(userId),
     activeBatch.oneOnOneEnabled
       ? getCoordinators({ userId, batchId })
       : Promise.resolve([]),
@@ -99,6 +105,7 @@ export async function getSupportOverview(
     tickets,
     openTicketCount,
     callback,
+    callbackTickets,
     coordinators,
   }
 }

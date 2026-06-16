@@ -1,24 +1,22 @@
-import { createFileRoute } from '@tanstack/react-router'
-
-import { TicketConversation } from '@/components/features/support'
+import { createFileRoute, redirect } from '@tanstack/react-router'
 
 /**
- * `/support/$supportId` — a single ticket's conversation.
+ * `/support/$supportId` — deep-link to a single ticket.
  *
- * Thin route: parses the id and renders {@link TicketConversation}, which loads
- * the whole thread from one GET (`/api/support/tickets/thread`) and wires reply /
- * rate / reopen / escalate through mutations that invalidate the thread + the
- * overview.
+ * In the legacy flow the conversation is a modal on `/support` (driven by
+ * `?step=ticketdetails&ticketId=`), not a standalone page. So this route simply
+ * redirects into that modal flow, preserving deep-links to a ticket.
  */
 export const Route = createFileRoute('/(protected)/_layout/support/$supportId/')({
-  component: RouteComponent,
+  beforeLoad: ({ params }) => {
+    throw redirect({
+      to: '/support',
+      search: {
+        tickets: 'ticketlisting',
+        tab: 'all',
+        step: 'ticketdetails',
+        ticketId: Number(params.supportId),
+      },
+    })
+  },
 })
-
-function RouteComponent() {
-  const { supportId } = Route.useParams()
-  return (
-    <div className="mx-auto h-[calc(100dvh-8rem)] w-full max-w-3xl">
-      <TicketConversation ticketId={Number(supportId)} />
-    </div>
-  )
-}

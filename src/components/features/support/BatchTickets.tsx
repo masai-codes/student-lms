@@ -1,0 +1,485 @@
+/**
+ * BatchTickets — the `/support` shell. Faithful port of the legacy container.
+ *
+ * Three tabs (Help / Raised Tickets / 1:1 Support), each reproducing the
+ * original flow:
+ *   - Help: (multi-batch) batch picker → searchable category accordion →
+ *           subcategory opens the create-ticket modal. Plus "Request a Callback".
+ *   - Raised Tickets: the listing (see TicketListingPage).
+ *   - 1:1 Support: coordinator booking (shown only when available).
+ *
+ * Everything is driven by URL search params (via {@link supportRouteApi}) and
+ * fed by the single aggregated overview query.
+ */
+
+import { useMemo, useState } from 'react'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { Phone } from '@phosphor-icons/react'
+
+import type { SupportCategory } from '@/server/api/support/support.types'
+import { supportOverviewQuery } from '@/query/support/supportQueries'
+import { createSupportCallback } from '@/lib/api/support/supportApi'
+import { CategoryAccordion } from '@/components/features/support/CategoryAccordion'
+import { CreateTicketModal } from '@/components/features/support/CreateTicketModal'
+import { PairProgrammingTab } from '@/components/features/support/PairProgrammingTab'
+import { TicketListingPage } from '@/components/features/support/TicketListingPage'
+import { supportRouteApi } from '@/components/features/support/supportRoute'
+
+export function BatchTickets() {
+  const navigate = supportRouteApi.useNavigate()
+  const search = supportRouteApi.useSearch()
+  const queryClient = useQueryClient()
+
+  const [expandedItem, setExpandedItem] = useState<string | null>(null)
+  const [selectedBatchId, setSelectedBatchId] = useState<string | null>(null)
+  const [helpSearchQuery, setHelpSearchQuery] = useState('')
+
+  // Callback flow modals
+  const [callbackStep, setCallbackStep] = useState<'reason' | 'timeslot' | 'success' | null>(null)
+  const [selectedReason, setSelectedReason] = useState<string | null>(null)
+  const [selectedTimeslot, setSelectedTimeslot] = useState<string | null>(null)
+
+  const { data: overview, isLoading } = useQuery(
+    supportOverviewQuery(selectedBatchId ? Number(selectedBatchId) : undefined),
+  )
+  const batches = overview?.batches ?? []
+
+  const effectiveBatchId = useMemo(() => {
+    if (selectedBatchId) return selectedBatchId
+    if (batches.length === 1) return String(batches[0].id)
+    return null
+  }, [selectedBatchId, batches])
+
+  const hasOneOnOne = (overview?.coordinators.length ?? 0) > 0
+  const activeTab =
+    search.tickets === 'ticketlisting'
+      ? 'support-tickets'
+      : search.tickets === 'pair-programming' && hasOneOnOne
+        ? 'pair-programming'
+        : 'help'
+
+  const tabs = useMemo(
+    () => [
+      { label: 'Help', value: 'help' },
+      { label: 'Raised Tickets', value: 'support-tickets' },
+      ...(hasOneOnOne ? [{ label: '1:1 Support', value: 'pair-programming' }] : []),
+    ],
+    [hasOneOnOne],
+  )
+
+  const handleTabChange = (value: string) => {
+    if (value === 'support-tickets') {
+      void navigate({ search: (p) => ({ ...p, tickets: 'ticketlisting' }) })
+    } else if (value === 'pair-programming') {
+      void navigate({
+        search: (p) => ({
+          ...p,
+          tickets: 'pair-programming',
+          step: undefined,
+          ticketId: undefined,
+          category: undefined,
+          subcategory: undefined,
+        }),
+      })
+    } else {
+      setHelpSearchQuery('')
+      void navigate({
+        search: () => ({}),
+      })
+    }
+  }
+
+  // Client-side category/subcategory filter (matches legacy search behaviour).
+  const visibleCategories = useMemo<Array<SupportCategory>>(() => {
+    const cats = overview?.categories ?? []
+    const q = helpSearchQuery.trim().toLowerCase()
+    if (!q) return cats
+    return cats
+      .map((c) => {
+        if (c.label.toLowerCase().includes(q)) return c
+        const subs = c.subcategories.filter((s) => s.label.toLowerCase().includes(q))
+        return subs.length ? { ...c, subcategories: subs } : null
+      })
+      .filter((c): c is SupportCategory => c !== null)
+  }, [overview?.categories, helpSearchQuery])
+
+  const openCreate = (categorySlug: string, subcategorySlug: string) => {
+    void navigate({
+      search: (p) => ({
+        ...p,
+        category: categorySlug,
+        subcategory: subcategorySlug,
+        step: 'ticketCreate',
+        ticketId: undefined,
+      }),
+    })
+  }
+
+  const closeModal = () =>
+    void navigate({
+      search: (p) => ({
+        ...p,
+        step: undefined,
+        ticketId: undefined,
+        category: undefined,
+        subcategory: undefined,
+      }),
+    })
+
+  // Callback creation
+  const callbackMutation = useMutation({
+    mutationFn: (timeslot: string) =>
+      createSupportCallback({
+        batchId: Number(effectiveBatchId ?? batches[0]?.id),
+        category: selectedReason!,
+        preferredTimeSlot: timeslot,
+      }),
+    onSuccess: () => {
+      setCallbackStep('success')
+      void queryClient.invalidateQueries({ queryKey: ['support', 'overview'] })
+    },
+  })
+
+  const contact = overview?.contact
+  const showContact = Boolean(contact?.text || contact?.phone)
+  const showCallbackButton = Boolean(effectiveBatchId && (overview?.callback.reasons.length ?? 0) > 0)
+  const isTicketModalOpen = search.step === 'ticketCreate' && Boolean(effectiveBatchId)
+
+  return (
+    <>
+      <div className="md:relative mx-auto w-full md:max-w-[1440px]">
+        <div className="overflow-hidden">
+          {/* Header: tabs + contact + callback button */}
+          <div className="flex flex-col sm:flex-row sm:items-stretch sm:justify-between">
+            <div className="min-w-0 flex-1 border-b border-gray-200 bg-[#F9FAFB]">
+              <div className="px-4 pt-3 md:px-6 md:pt-4">
+                <div className="flex gap-2">
+                  {tabs.map((t) => {
+                    const active = activeTab === t.value
+                    return (
+                      <button
+                        key={t.value}
+                        type="button"
+                        onClick={() => handleTabChange(t.value)}
+                        className={`font-poppins rounded-t-lg px-4 py-2.5 text-[14px] font-[500] transition-colors ${
+                          active
+                            ? 'bg-white text-[#6962AC] border border-b-0 border-gray-200'
+                            : 'text-gray-600 hover:text-gray-900'
+                        }`}
+                      >
+                        {t.label}
+                      </button>
+                    )
+                  })}
+                </div>
+              </div>
+              {showContact && (
+                <div className="border-t border-gray-200 px-4 py-3 md:px-6">
+                  <p className="font-poppins text-[11px] text-gray-600 md:text-[13px] md:text-gray-700">
+                    {contact?.text}
+                    {contact?.phone && (
+                      <span className="whitespace-nowrap">
+                        {contact.text ? ': ' : ''}
+                        <a href={`tel:${contact.phone}`} className="font-semibold text-[#2b67d1] hover:underline">
+                          {contact.phone}
+                        </a>
+                      </span>
+                    )}
+                  </p>
+                </div>
+              )}
+            </div>
+            {showCallbackButton && (
+              <div className="flex flex-wrap items-center gap-2 border-b border-gray-200 bg-[#F9FAFB] px-4 py-3 sm:bg-transparent sm:px-0 sm:pb-3 sm:pr-4 sm:pt-3">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSelectedReason(null)
+                    setSelectedTimeslot(null)
+                    setCallbackStep('reason')
+                  }}
+                  className="shrink-0 rounded-lg border border-gray-300 bg-white py-2 px-3 font-poppins text-[12px] font-semibold text-gray-800 transition-colors hover:bg-gray-50 sm:text-[13px]"
+                >
+                  <Phone className="mr-1.5 inline-block h-3.5 w-3.5" aria-hidden />
+                  Request a Callback
+                </button>
+              </div>
+            )}
+          </div>
+
+          {/* Tab body */}
+          <div
+            className={`relative z-0 min-h-[320px] bg-white border border-gray-200 ${
+              activeTab === 'support-tickets' ? 'rounded-xl' : 'rounded-b-xl rounded-tr-xl sm:rounded-tl-xl'
+            }`}
+          >
+            {activeTab === 'support-tickets' ? (
+              <div className="p-4 md:p-6">
+                <TicketListingPage batchId={effectiveBatchId ?? String(batches[0]?.id ?? '')} />
+              </div>
+            ) : activeTab === 'pair-programming' ? (
+              <div className="p-4 md:p-6">
+                <PairProgrammingTab coordinators={overview?.coordinators ?? []} />
+              </div>
+            ) : (
+              <HelpTab
+                isLoading={isLoading}
+                gateReason={overview?.gateReason ?? null}
+                batches={batches}
+                effectiveBatchId={effectiveBatchId}
+                onSelectBatch={(id) => {
+                  setSelectedBatchId(id)
+                  setHelpSearchQuery('')
+                }}
+                helpSearchQuery={helpSearchQuery}
+                setHelpSearchQuery={setHelpSearchQuery}
+                visibleCategories={visibleCategories}
+                expandedItem={expandedItem}
+                setExpandedItem={setExpandedItem}
+                onSubcategoryClick={openCreate}
+                onFallbackCreate={() => openCreate('fallback-no-poc-mapped', 'General')}
+              />
+            )}
+
+            {activeTab === 'help' && isTicketModalOpen && effectiveBatchId && (
+              <CreateTicketModal
+                category={search.category}
+                subcategory={search.subcategory}
+                onClose={closeModal}
+                onBack={closeModal}
+                batchId={effectiveBatchId}
+              />
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Callback modals */}
+      {callbackStep && (
+        <CallbackFlow
+          step={callbackStep}
+          reasons={(overview?.callback.reasons ?? []).map((r) => r.value)}
+          timeslots={(overview?.callback.timeslots ?? []).map((t) => t.value)}
+          selectedTimeslot={selectedTimeslot}
+          onClose={() => setCallbackStep(null)}
+          onPickReason={(r) => {
+            setSelectedReason(r)
+            setCallbackStep('timeslot')
+          }}
+          onPickTimeslot={(t) => {
+            setSelectedTimeslot(t)
+            callbackMutation.mutate(t)
+          }}
+        />
+      )}
+    </>
+  )
+}
+
+/* ---------------------------- Help tab ---------------------------- */
+
+function HelpTab(props: {
+  isLoading: boolean
+  gateReason: 'legal-agreement' | 'no-active-section' | null
+  batches: Array<{ id: number; name: string }>
+  effectiveBatchId: string | null
+  onSelectBatch: (id: string) => void
+  helpSearchQuery: string
+  setHelpSearchQuery: (v: string) => void
+  visibleCategories: Array<SupportCategory>
+  expandedItem: string | null
+  setExpandedItem: (v: string | null) => void
+  onSubcategoryClick: (c: string, s: string) => void
+  onFallbackCreate: () => void
+}) {
+  const {
+    isLoading,
+    gateReason,
+    batches,
+    effectiveBatchId,
+    onSelectBatch,
+    helpSearchQuery,
+    setHelpSearchQuery,
+    visibleCategories,
+    expandedItem,
+    setExpandedItem,
+    onSubcategoryClick,
+    onFallbackCreate,
+  } = props
+
+  const SearchBar = (
+    <div className="border-b border-gray-200 bg-white px-4 py-4 md:px-6 md:py-5">
+      <div className="relative">
+        <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" aria-hidden>
+          <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
+        </span>
+        <input
+          type="search"
+          autoComplete="off"
+          value={helpSearchQuery}
+          onChange={(e) => setHelpSearchQuery(e.target.value)}
+          placeholder="Search category and subcategory here"
+          className="font-poppins w-full rounded-xl border border-gray-200 bg-white py-3 pl-11 pr-4 text-[14px] text-gray-800 placeholder:text-gray-400 outline-none transition-colors focus:border-gray-400 focus:ring-2 focus:ring-gray-200"
+        />
+      </div>
+    </div>
+  )
+
+  return (
+    <>
+      {gateReason === 'legal-agreement' && (
+        <div className="mx-4 mb-4 mt-4 rounded-lg border border-[#ED0331] bg-[#FFF0F3] p-4 md:mx-6">
+          <div className="flex items-center gap-3">
+            <div className="text-[#ED0331] text-lg">⚠️</div>
+            <div>
+              <h4 className="text-[#ED0331] font-semibold text-lg">Access Restricted</h4>
+              <p className="text-[#ED0331] text-sm mt-1">
+                Your LMS access has been paused as the Terms &amp; Conditions for your program have not yet been
+                accepted. Once you complete this step, your access will be restored immediately.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Batch selection (multi-batch) */}
+      {!effectiveBatchId && batches.length > 1 && (
+        <div className="mb-6 grid gap-4 px-4 sm:grid-cols-2 md:px-6 lg:grid-cols-3 pt-6">
+          {batches.map((batch) => (
+            <button
+              key={batch.id}
+              type="button"
+              onClick={() => onSelectBatch(String(batch.id))}
+              className="w-full rounded-2xl border border-gray-200 bg-white p-4 text-left shadow-sm hover:shadow-md transition-shadow focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+            >
+              <div className="text-xs text-gray-500 mb-1">Batch</div>
+              <div className="text-sm font-semibold text-gray-900 truncate">{batch.name || `Batch ${batch.id}`}</div>
+            </button>
+          ))}
+        </div>
+      )}
+
+      {effectiveBatchId &&
+        (isLoading ? (
+          <div className="mt-10 flex justify-center">
+            <p className="font-poppins text-sm text-gray-500">Loading categories…</p>
+          </div>
+        ) : visibleCategories.length > 0 ? (
+          <div>
+            {SearchBar}
+            <CategoryAccordion
+              expandedItem={expandedItem}
+              setExpandedItem={setExpandedItem}
+              onSubcategoryClick={onSubcategoryClick}
+              categories={visibleCategories}
+            />
+          </div>
+        ) : (
+          <>
+            {SearchBar}
+            {helpSearchQuery.trim() ? (
+              <div className="px-4 py-6 text-sm text-gray-600 md:px-6">
+                No matching category or subcategory found.
+              </div>
+            ) : (
+              <div className="mt-6 flex flex-col gap-4 px-4 py-6 md:flex-row md:items-center md:justify-between md:px-6">
+                <p className="text-[11px] md:text-sm text-gray-800 max-w-2xl leading-relaxed">
+                  <span className="font-semibold">Have doubts about your program?</span> Click on{' '}
+                  <span className="font-semibold">Create Ticket</span> and our support team will assist you shortly.
+                </p>
+                <button
+                  type="button"
+                  onClick={onFallbackCreate}
+                  className="w-full md:w-auto bg-white text-[#6962AC] hover:opacity-90 font-semibold rounded-full py-2.5 px-5 shadow-sm border border-[#6962AC] font-poppins text-[13px] md:text-[14px] whitespace-nowrap"
+                >
+                  Create Ticket
+                </button>
+              </div>
+            )}
+          </>
+        ))}
+    </>
+  )
+}
+
+/* ------------------------- Callback flow modals ------------------------- */
+
+function CallbackFlow(props: {
+  step: 'reason' | 'timeslot' | 'success'
+  reasons: Array<string>
+  timeslots: Array<string>
+  selectedTimeslot: string | null
+  onClose: () => void
+  onPickReason: (r: string) => void
+  onPickTimeslot: (t: string) => void
+}) {
+  const { step, reasons, timeslots, selectedTimeslot, onClose, onPickReason, onPickTimeslot } = props
+
+  if (step === 'success') {
+    return (
+      <>
+        <div className="fixed inset-0 z-[202] bg-black/30" aria-hidden onClick={onClose} />
+        <div className="fixed left-1/2 top-1/2 z-[203] w-[90vw] max-w-[500px] -translate-x-1/2 -translate-y-1/2 rounded-2xl bg-white p-6 shadow-xl">
+          <div className="flex flex-col items-center text-center pt-2 pb-1">
+            <div className="w-14 h-14 rounded-full bg-[#D1FAE5] border-2 border-[#10B981] flex items-center justify-center mb-4 text-2xl">
+              ✓
+            </div>
+            <h2 className="text-xl font-bold font-poppins text-gray-900 mb-3">Callback Requested Successfully</h2>
+            <p className="text-sm font-poppins text-gray-600 leading-relaxed mb-6 max-w-[320px]">
+              {selectedTimeslot
+                ? `Our team will reach out to you within 48 hours during ${selectedTimeslot}.`
+                : 'Our team will reach out to you within 48 hours.'}
+            </p>
+            <button
+              type="button"
+              onClick={onClose}
+              className="w-full max-w-[150px] py-2 rounded-lg bg-[#6962AC] hover:bg-[#5B548F] text-white font-poppins font-semibold text-[14px] transition-colors"
+            >
+              Got It
+            </button>
+          </div>
+        </div>
+      </>
+    )
+  }
+
+  const isReason = step === 'reason'
+  const options = isReason ? reasons : timeslots
+  const title = isReason ? 'Select the reason for call back' : 'Select a preferred time slot for callback'
+
+  return (
+    <>
+      <div className="fixed inset-0 z-[200] bg-black/20" aria-hidden onClick={onClose} />
+      <div className="fixed top-20 right-2 bottom-2 z-[201] w-full max-w-[400px] bg-white rounded-2xl shadow-xl flex flex-col">
+        <div className="flex items-center justify-between p-5 border-b border-gray-200">
+          <h2 className="text-lg font-bold font-poppins text-gray-900">{title}</h2>
+          <button
+            type="button"
+            onClick={onClose}
+            className="p-1.5 rounded-lg text-gray-500 hover:bg-gray-100 hover:text-gray-700"
+            aria-label="Close"
+          >
+            ✕
+          </button>
+        </div>
+        <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-3">
+          {options.map((value) => (
+            <button
+              key={value}
+              type="button"
+              onClick={() => (isReason ? onPickReason(value) : onPickTimeslot(value))}
+              className="w-full flex items-center justify-between rounded-xl border border-gray-200 bg-white px-4 py-3.5 text-left font-poppins text-[14px] font-medium text-gray-900 hover:bg-gray-50 hover:border-gray-300 transition-colors"
+            >
+              <span>{value}</span>
+              <svg className="w-5 h-5 text-gray-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </button>
+          ))}
+        </div>
+      </div>
+    </>
+  )
+}

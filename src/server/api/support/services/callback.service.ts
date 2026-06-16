@@ -8,8 +8,11 @@
  * keys the legacy system uses), so ops can edit them without a deploy.
  */
 
-import { and, asc, eq } from 'drizzle-orm'
-import type { CallbackOption } from '@/server/api/support/support.types'
+import { and, asc, desc, eq } from 'drizzle-orm'
+import type {
+  CallbackOption,
+  CallbackTicketItem,
+} from '@/server/api/support/support.types'
 import { db } from '@/db'
 import { menus, userCallbackTickets } from '@/db/schema'
 
@@ -25,6 +28,33 @@ async function readMenu(category: string): Promise<Array<CallbackOption>> {
     .where(and(eq(menus.category, category), eq(menus.deprecated, 0)))
     .orderBy(asc(menus.ordering))
   return rows.map((r) => ({ id: r.id, value: r.value, ordering: r.ordering }))
+}
+
+/** List the callback requests a student has raised (newest first). */
+export async function listCallbacks(
+  userId: number,
+): Promise<Array<CallbackTicketItem>> {
+  const rows = await db
+    .select({
+      id: userCallbackTickets.id,
+      category: userCallbackTickets.category,
+      status: userCallbackTickets.status,
+      preferredTimeSlot: userCallbackTickets.preferredTimeSlot,
+      createdAt: userCallbackTickets.createdAt,
+      updatedAt: userCallbackTickets.updatedAt,
+    })
+    .from(userCallbackTickets)
+    .where(eq(userCallbackTickets.userId, userId))
+    .orderBy(desc(userCallbackTickets.createdAt))
+
+  return rows.map((r) => ({
+    id: r.id,
+    category: r.category,
+    status: r.status,
+    preferredTimeSlot: r.preferredTimeSlot ?? null,
+    createdAt: r.createdAt,
+    updatedAt: r.updatedAt,
+  }))
 }
 
 /** The reason + time-slot option lists for the callback flow. */

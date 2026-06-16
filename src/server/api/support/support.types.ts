@@ -95,6 +95,16 @@ export interface SupportCoordinator extends SupportPerson {
   calendlyUrl?: string | null
 }
 
+/** A callback request the student has raised (listed in the Raised Tickets tab). */
+export interface CallbackTicketItem {
+  id: number
+  category: string
+  status: string
+  preferredTimeSlot: string | null
+  createdAt: string | null
+  updatedAt: string | null
+}
+
 /**
  * Why ticket creation might be blocked. `null` means the student can raise a
  * ticket. The UI resolves the gate **before** showing the compose box.
@@ -187,6 +197,8 @@ export interface SupportOverview {
   openTicketCount: number
   /** Options for the "request a callback" flow. */
   callback: { reasons: Array<CallbackOption>; timeslots: Array<CallbackOption> }
+  /** Callback requests the student has already raised (shown in Raised Tickets). */
+  callbackTickets: Array<CallbackTicketItem>
   /** Coordinators for 1:1 booking (empty when not enabled). */
   coordinators: Array<SupportCoordinator>
 }
