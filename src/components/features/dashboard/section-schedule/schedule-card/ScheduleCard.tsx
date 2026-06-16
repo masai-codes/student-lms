@@ -65,7 +65,7 @@ function shouldShowJoinButton(item: DashboardScheduleItem): boolean {
   return t === 'live' || t === 'scrum'
 }
 
-function useJoinState(item: DashboardScheduleItem, nowMs: number, skewMs: number): JoinState {
+function useJoinState(item: DashboardScheduleItem, nowMs: number): JoinState {
   const eligible = shouldShowJoinButton(item)
   const [state, setState] = useState<JoinState>(() =>
     eligible ? computeJoinState(item.schedule, item.concludes, nowMs) : null,
@@ -73,13 +73,12 @@ function useJoinState(item: DashboardScheduleItem, nowMs: number, skewMs: number
 
   useEffect(() => {
     if (!eligible) return
-    // Date.now() + skewMs = server-corrected current time
-    setState(computeJoinState(item.schedule, item.concludes, Date.now() + skewMs))
+    setState(computeJoinState(item.schedule, item.concludes, Date.now()))
     const id = setInterval(() => {
-      setState(computeJoinState(item.schedule, item.concludes, Date.now() + skewMs))
+      setState(computeJoinState(item.schedule, item.concludes, Date.now()))
     }, 30_000)
     return () => clearInterval(id)
-  }, [eligible, item.schedule, item.concludes, skewMs])
+  }, [eligible, item.schedule, item.concludes])
 
   return eligible ? state : null
 }
@@ -93,11 +92,11 @@ interface ScheduleCardProps {
 }
 
 export function ScheduleCard({ item, dayLabel, isToday }: ScheduleCardProps) {
-  const { now, skewMs } = useServerTime()
-  const timeDisplay = formatScheduleTime(item, skewMs)
+  const { now } = useServerTime()
+  const timeDisplay = formatScheduleTime(item)
   const timeDisplayIST = formatScheduleTimeIST(item) // IST hardcoded — tooltip
   const linkProps = buildLinkProps(item)
-  const joinState = useJoinState(item, now.valueOf(), skewMs)
+  const joinState = useJoinState(item, now.valueOf())
 
 
   return (

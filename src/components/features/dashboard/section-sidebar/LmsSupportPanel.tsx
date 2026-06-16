@@ -3,11 +3,11 @@ import type { LmsSupportInfo } from '@/server/api/dashboard/getLmsSupportInfo.se
 import { parseMysqlDatetimeIST, getTzLabel } from '@/utils/timeZoneHandler'
 import { useServerTime } from '@/hooks/useServerTime'
 
-function formatNextSession(raw: string | null, skewMs = 0): string {
+function formatNextSession(raw: string | null): string {
   if (!raw) return ''
   const parsed = parseMysqlDatetimeIST(raw)
   if (!parsed) return ''
-  const date = new Date(parsed.valueOf() - skewMs)
+  const date = new Date(parsed.valueOf())
   const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
   const day = date.getDate()
   const month = MONTHS[date.getMonth()]
@@ -114,8 +114,8 @@ function JoinCard({ zoomLink }: { zoomLink: string | null }) {
   )
 }
 
-function ScheduledTodayCard({ schedule, skewMs }: { schedule: string | null; skewMs: number }) {
-  const label = formatNextSession(schedule, skewMs)
+function ScheduledTodayCard({ schedule }: { schedule: string | null }) {
+  const label = formatNextSession(schedule)
   return (
     <div className="rounded-[16px] border border-gray-200 bg-[#F9FAFB] overflow-hidden flex items-center gap-0">
       <div className="shrink-0 w-[120px]">
@@ -140,8 +140,8 @@ function ScheduledTodayCard({ schedule, skewMs }: { schedule: string | null; ske
   )
 }
 
-function NextSessionCard({ nextSchedule, skewMs }: { nextSchedule: string | null; skewMs: number }) {
-  const label = formatNextSession(nextSchedule, skewMs)
+function NextSessionCard({ nextSchedule }: { nextSchedule: string | null }) {
+  const label = formatNextSession(nextSchedule)
   return (
     <div className="rounded-[16px] border border-gray-200 bg-white overflow-hidden flex items-center gap-0">
       <div className="shrink-0 w-[120px]">
@@ -171,13 +171,13 @@ function NextSessionCard({ nextSchedule, skewMs }: { nextSchedule: string | null
 // ── Main panel ─────────────────────────────────────────────────────────────────
 
 export function LmsSupportPanel({ info }: { info: LmsSupportInfo | undefined }) {
-  const { now, skewMs } = useServerTime()
+  const { now } = useServerTime()
   const cardState = useCardState(info, now.valueOf())
 
   if (info && !info.visible) return null
 
   if (!info || cardState === 'generic') return <GenericCard />
   if (cardState === 'join') return <JoinCard zoomLink={info.todayZoomLink} />
-  if (cardState === 'scheduled-today') return <ScheduledTodayCard schedule={info.todaySchedule} skewMs={skewMs} />
-  return <NextSessionCard nextSchedule={info.nextSchedule} skewMs={skewMs} />
+  if (cardState === 'scheduled-today') return <ScheduledTodayCard schedule={info.todaySchedule} />
+  return <NextSessionCard nextSchedule={info.nextSchedule} />
 }

@@ -19,17 +19,17 @@ function pad(n: number): string {
 
 // ── Aliases kept for backward compat with any callers ─────────────────────────
 
-export function formatTimestampLocal(raw: string, skewMs = 0): string {
-  return tzFormatTimestampLocal(raw, skewMs)
+export function formatTimestampLocal(raw: string): string {
+  return tzFormatTimestampLocal(raw)
 }
 
 export function formatTimestampIST(raw: string): string {
   return tzFormatTimestampIST(raw)
 }
 
-/** Schedule card — device-local time, skew-adjusted. */
-export function formatScheduleTime(item: DashboardScheduleItem, skewMs = 0): string {
-  return formatTimeRangeLocal(item.schedule, item.concludes, skewMs)
+/** Schedule card — device-local time. */
+export function formatScheduleTime(item: DashboardScheduleItem): string {
+  return formatTimeRangeLocal(item.schedule, item.concludes)
 }
 
 /** Tooltip — always IST. */

@@ -81,11 +81,8 @@ export interface CalendarEvent {
  * {@link toDateKey}). Returns null when the timestamp is missing/unparseable,
  * so callers can skip undatable events. Using the viewer's timezone keeps the
  * dot on the same day the rest of the app shows the event in.
- *
- * `skewMs` (server UTC − device UTC, from {@link useServerTime}) is subtracted
- * so the day matches the displayed wall-clock on the user's device.
  */
-export function localDateKey(value: string | null, skewMs = 0): string | null {
+export function localDateKey(value: string | null): string | null {
   if (!value) return null
   const date = new Date(value)
   if (Number.isNaN(date.getTime())) return null
@@ -93,7 +90,7 @@ export function localDateKey(value: string | null, skewMs = 0): string | null {
     year: 'numeric',
     month: '2-digit',
     day: '2-digit',
-  }).format(new Date(date.getTime() - skewMs))
+  }).format(date)
 }
 
 /**
@@ -103,11 +100,10 @@ export function localDateKey(value: string | null, skewMs = 0): string | null {
  */
 export function buildEventsByDate(
   events: Array<CalendarEvent>,
-  skewMs = 0,
 ): Map<string, Array<CalendarEvent>> {
   const byDate = new Map<string, Array<CalendarEvent>>()
   for (const event of events) {
-    const key = localDateKey(event.startTime, skewMs)
+    const key = localDateKey(event.startTime)
     if (!key) continue
     const existing = byDate.get(key)
     if (existing) {

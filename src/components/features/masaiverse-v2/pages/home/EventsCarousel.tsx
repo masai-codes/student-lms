@@ -16,8 +16,6 @@ type EventsCarouselProps = {
   emptyMessage: string
   /** Unique nav-button class prefix so multiple carousels can coexist. */
   navKey?: string
-  /** Device/server clock skew (ms) so card times render on the viewer's clock. */
-  skewMs?: number
 }
 
 /**
@@ -31,7 +29,6 @@ export default function EventsCarousel({
   loadingLabel,
   emptyMessage,
   navKey = 'events',
-  skewMs = 0,
 }: EventsCarouselProps) {
   if (isPending) {
     return (
@@ -68,7 +65,7 @@ export default function EventsCarousel({
       >
         {events.map((event) => (
           <SwiperSlide key={event.id} className="!h-auto">
-            <EventCard event={event} skewMs={skewMs} />
+            <EventCard event={event} />
           </SwiperSlide>
         ))}
       </Swiper>
