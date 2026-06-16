@@ -4,10 +4,7 @@ import type { MasaiverseV2Banner } from '@/server/api/masaiverse-v2/services/get
 import { Modal, ModalContent, ModalTitle } from '@/components/ui/modal'
 import { RichTextEditor } from '@/components/discussion-post-card/rich-text-editor'
 import { Switch } from '@/components/ui/switch'
-import {
-  deleteMasaiverseV2Banner,
-  updateMasaiverseV2Banner,
-} from '@/lib/api/masaiverse-v2/masaiverseV2Api'
+import { updateMasaiverseV2Banner } from '@/lib/api/masaiverse-v2/masaiverseV2Api'
 import { MASAIVERSE_V2_BANNERS_KEY } from '@/query/masaiverse-v2/bannersQuery'
 import { MASAIVERSE_EVENTS, trackMasaiverse } from '../tracking'
 
@@ -21,7 +18,7 @@ const LABEL = 'mb-1 text-[12px] font-semibold text-[#6B7280]'
 const INPUT =
   'w-full rounded-lg border border-[#E5E7EB] px-3 py-2 text-[14px] text-[#111928] outline-none'
 
-/** Admin modal to edit (or delete) a single home banner. */
+/** Admin modal to edit a single home banner. */
 export default function BannerEditModal({
   banner,
   open,
@@ -59,15 +56,7 @@ export default function BannerEditModal({
     },
   })
 
-  const remove = useMutation({
-    mutationFn: () => deleteMasaiverseV2Banner(banner.id),
-    onSuccess: async () => {
-      await invalidate()
-      onClose()
-    },
-  })
-
-  const isBusy = save.isPending || remove.isPending
+  const isBusy = save.isPending
 
   return (
     <Modal open={open} onOpenChange={(next) => (next ? undefined : onClose())}>
@@ -126,45 +115,29 @@ export default function BannerEditModal({
           </div>
         </div>
 
-        <div className="mt-6 flex items-center justify-between gap-3">
+        <div className="mt-6 flex items-center justify-end gap-3">
+          <button
+            type="button"
+            onClick={onClose}
+            className="rounded-[12px] border border-[#E5E7EB] px-5 py-2.5 text-[14px] font-semibold text-[#374151] hover:bg-[#F9FAFB]"
+          >
+            Cancel
+          </button>
           <button
             type="button"
             onClick={() => {
-              trackMasaiverse(MASAIVERSE_EVENTS.bannerDelete, {
+              trackMasaiverse(MASAIVERSE_EVENTS.bannerSave, {
                 banner_id: banner.id,
-                banner_title: banner.title,
+                banner_title: title,
+                is_published: isPublished,
               })
-              remove.mutate()
+              save.mutate()
             }}
             disabled={isBusy}
-            className="rounded-[12px] border border-[#FCA5A5] px-4 py-2.5 text-[14px] font-semibold text-[#DC2626] transition-colors hover:bg-[#FEF2F2] disabled:opacity-50"
+            className="rounded-[12px] bg-[#111827] px-5 py-2.5 text-[14px] font-bold text-white hover:bg-[#1F2937] disabled:opacity-50"
           >
-            {remove.isPending ? 'Deleting…' : 'Delete'}
+            {save.isPending ? 'Saving…' : 'Save'}
           </button>
-          <div className="flex gap-3">
-            <button
-              type="button"
-              onClick={onClose}
-              className="rounded-[12px] border border-[#E5E7EB] px-5 py-2.5 text-[14px] font-semibold text-[#374151] hover:bg-[#F9FAFB]"
-            >
-              Cancel
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                trackMasaiverse(MASAIVERSE_EVENTS.bannerSave, {
-                  banner_id: banner.id,
-                  banner_title: title,
-                  is_published: isPublished,
-                })
-                save.mutate()
-              }}
-              disabled={isBusy}
-              className="rounded-[12px] bg-[#111827] px-5 py-2.5 text-[14px] font-bold text-white hover:bg-[#1F2937] disabled:opacity-50"
-            >
-              {save.isPending ? 'Saving…' : 'Save'}
-            </button>
-          </div>
         </div>
       </ModalContent>
     </Modal>

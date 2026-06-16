@@ -3,7 +3,13 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Navigation, Pagination } from 'swiper/modules'
 import { Swiper, SwiperSlide } from 'swiper/react'
 import type { Swiper as SwiperClass } from 'swiper/types'
-import { CaretLeft, CaretRight, PencilSimple, Plus } from '@phosphor-icons/react'
+import {
+  CaretLeft,
+  CaretRight,
+  Megaphone,
+  PencilSimple,
+  Plus,
+} from '@phosphor-icons/react'
 import BannerEditModal from './BannerEditModal'
 import type { MasaiverseV2Banner } from '@/server/api/masaiverse-v2/services/getBanners.service'
 import { Modal, ModalContent, ModalTitle } from '@/components/ui/modal'
@@ -40,11 +46,21 @@ function BannerCard({
   }, [banner.description])
 
   return (
-    <div className="relative overflow-hidden rounded-[16px] bg-gradient-to-r from-masaiverse-orange to-[#FF7A29] p-5 text-white">
+    <div className="relative overflow-hidden rounded-2xl border border-masaiverse-orange/15 bg-gradient-to-br from-[#FFF8F3] via-white to-[#FFF6EE] p-5 shadow-[0_2px_16px_-6px_rgba(242,92,4,0.18)]">
+      {/* Soft brand glow + left accent bar keep it warm without drowning the text in orange. */}
+      <span
+        aria-hidden
+        className="pointer-events-none absolute -right-12 -top-12 size-36 rounded-full bg-masaiverse-orange/10 blur-3xl"
+      />
+      <span
+        aria-hidden
+        className="absolute inset-y-0 left-0 w-1 bg-gradient-to-b from-masaiverse-orange to-[#FF8A3D]"
+      />
+
       {canManage ? (
-        <div className="absolute right-3 top-3 flex items-center gap-2">
+        <div className="absolute right-3 top-3 z-20 flex items-center gap-2">
           {!banner.isPublished ? (
-            <span className="rounded-full bg-black/25 px-2 py-0.5 text-[11px] font-semibold">
+            <span className="rounded-full bg-masaiverse-orange/12 px-2 py-0.5 text-[11px] font-semibold text-masaiverse-orange">
               Draft
             </span>
           ) : null}
@@ -58,60 +74,73 @@ function BannerCard({
               onEdit()
             }}
             aria-label={`Edit banner ${banner.title}`}
-            className="inline-flex size-7 items-center justify-center rounded-full bg-white/20 text-white hover:bg-white/30"
+            className="inline-flex size-7 items-center justify-center rounded-full bg-masaiverse-orange/10 text-masaiverse-orange transition-colors hover:bg-masaiverse-orange/20"
           >
             <PencilSimple size={14} weight="bold" />
           </button>
         </div>
       ) : null}
 
-      <h3 className="pr-16 text-[18px] font-bold leading-6">{banner.title}</h3>
-      {banner.description ? (
-        <>
-          <div ref={descRef} className="mt-1 line-clamp-3 text-[14px] leading-5">
-            <RichContent
-              value={banner.description}
-              className="!text-white/90 [&_a]:underline [&_a]:!text-white [&_h1]:!text-white [&_h2]:!text-white [&_h3]:!text-white [&_h4]:!text-white [&_h5]:!text-white [&_h6]:!text-white [&_strong]:!text-white [&_blockquote]:!text-white [&_li]:!text-white [&_p]:!text-white"
-            />
-          </div>
-          {canExpand ? (
-            <button
-              type="button"
-              onClick={() => {
-                trackMasaiverse(MASAIVERSE_EVENTS.bannerExpandToggle, {
-                  banner_id: banner.id,
-                  banner_title: banner.title,
-                  expanded: true,
-                })
-                setDetailOpen(true)
-              }}
-              className="mt-1 text-[13px] font-semibold text-white underline"
-            >
-              View more
-            </button>
+      <div className="relative z-10 flex items-start gap-3">
+        <span className="mt-0.5 inline-flex size-9 shrink-0 items-center justify-center rounded-xl bg-masaiverse-orange/12 text-masaiverse-orange">
+          <Megaphone size={18} weight="fill" />
+        </span>
+
+        <div className="min-w-0 flex-1">
+          <h3 className="pr-16 text-[17px] font-bold leading-6 text-[#1F2937]">
+            {banner.title}
+          </h3>
+          {banner.description ? (
+            <>
+              <div
+                ref={descRef}
+                className="mt-1.5 line-clamp-3 text-[14px] leading-[1.55]"
+              >
+                <RichContent
+                  value={banner.description}
+                  className="!text-[#4B5563] [&_a]:!text-masaiverse-orange [&_a]:underline [&_blockquote]:!text-[#4B5563] [&_h1]:!text-[#1F2937] [&_h2]:!text-[#1F2937] [&_h3]:!text-[#1F2937] [&_h4]:!text-[#1F2937] [&_h5]:!text-[#1F2937] [&_h6]:!text-[#1F2937] [&_li]:!text-[#4B5563] [&_p]:!text-[#4B5563] [&_strong]:!text-[#1F2937]"
+                />
+              </div>
+              {canExpand ? (
+                <button
+                  type="button"
+                  onClick={() => {
+                    trackMasaiverse(MASAIVERSE_EVENTS.bannerExpandToggle, {
+                      banner_id: banner.id,
+                      banner_title: banner.title,
+                      expanded: true,
+                    })
+                    setDetailOpen(true)
+                  }}
+                  className="mt-1 text-[13px] font-semibold text-masaiverse-orange hover:underline"
+                >
+                  View more
+                </button>
+              ) : null}
+            </>
           ) : null}
-        </>
-      ) : null}
-      {banner.ctaText && banner.ctaUrl ? (
-        <div className="mt-3">
-          <a
-            href={banner.ctaUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={() =>
-              trackMasaiverse(MASAIVERSE_EVENTS.bannerCtaClick, {
-                banner_id: banner.id,
-                banner_title: banner.title,
-                cta_text: banner.ctaText,
-                cta_url: banner.ctaUrl,
-              })
-            }
-            className="inline-flex items-center rounded-lg bg-white px-3.5 py-1.5 text-[13px] font-bold text-masaiverse-orange"
-          >
-            {banner.ctaText}
-          </a>
+          {banner.ctaText && banner.ctaUrl ? (
+            <div className="mt-3.5">
+              <a
+                href={banner.ctaUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={() =>
+                  trackMasaiverse(MASAIVERSE_EVENTS.bannerCtaClick, {
+                    banner_id: banner.id,
+                    banner_title: banner.title,
+                    cta_text: banner.ctaText,
+                    cta_url: banner.ctaUrl,
+                  })
+                }
+                className="inline-flex items-center rounded-lg bg-masaiverse-orange px-4 py-2 text-[13px] font-bold text-white shadow-[0_4px_12px_-3px_rgba(242,92,4,0.5)] transition-transform hover:scale-[1.02] active:scale-95"
+              >
+                {banner.ctaText}
+              </a>
+            </div>
+          ) : null}
         </div>
-      ) : null}
+      </div>
 
       {banner.description ? (
         <Modal open={detailOpen} onOpenChange={setDetailOpen}>

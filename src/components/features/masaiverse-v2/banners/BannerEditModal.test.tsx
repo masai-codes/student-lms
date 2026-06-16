@@ -4,14 +4,12 @@ import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/re
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import BannerEditModal from './BannerEditModal'
 
-const { updateBanner, deleteBanner } = vi.hoisted(() => ({
+const { updateBanner } = vi.hoisted(() => ({
   updateBanner: vi.fn(),
-  deleteBanner: vi.fn(),
 }))
 
 vi.mock('@/lib/api/masaiverse-v2/masaiverseV2Api', () => ({
   updateMasaiverseV2Banner: updateBanner,
-  deleteMasaiverseV2Banner: deleteBanner,
 }))
 
 vi.mock('@/components/discussion-post-card/rich-text-editor', () => ({
@@ -69,16 +67,6 @@ describe('BannerEditModal', () => {
     expect(bannerId).toBe('5')
     expect(patch.column.title).toBe('Updated')
     expect(patch.meta).toEqual({ isPublished: true })
-    await waitFor(() => expect(onClose).toHaveBeenCalled())
-  })
-
-  it('deletes the banner and closes', async () => {
-    deleteBanner.mockResolvedValue({ success: true })
-    const { onClose } = renderModal()
-
-    fireEvent.click(screen.getByRole('button', { name: 'Delete' }))
-
-    await waitFor(() => expect(deleteBanner).toHaveBeenCalledWith('5'))
     await waitFor(() => expect(onClose).toHaveBeenCalled())
   })
 })
