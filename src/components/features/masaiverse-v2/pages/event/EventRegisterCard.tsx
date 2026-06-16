@@ -7,6 +7,7 @@ import type { EventEnrollmentState } from '@/server/api/masaiverse-v2/services/s
 import ConfirmActionModal from '@/components/features/masaiverse-v2/ConfirmActionModal'
 import { enrollMasaiverseV2Event } from '@/lib/api/masaiverse-v2/masaiverseV2Api'
 import { masaiverseV2EventDetailQuery } from '@/query/masaiverse-v2/eventsQuery'
+import { MASAIVERSE_V2_HOME_KEY } from '@/query/masaiverse-v2/homeQuery'
 import { invalidateMasaiverseV2Leaderboards } from '@/query/masaiverse-v2/leaderboardQuery'
 import { MASAIVERSE_EVENTS, trackMasaiverse } from '../../tracking'
 
@@ -64,6 +65,12 @@ export default function EventRegisterCard({ event }: EventRegisterCardProps) {
           ? { ...prev, isEnrolled: true, enrolledCount: state.enrolledCount }
           : prev,
       )
+      // The home + events lists embed this event's enrollment status; mark them
+      // stale so the "Registered" label is correct when the user navigates back.
+      void queryClient.invalidateQueries({ queryKey: MASAIVERSE_V2_HOME_KEY })
+      void queryClient.invalidateQueries({
+        queryKey: ['masaiverse-v2', 'events'],
+      })
       // First-time registration awards leaderboard points; refresh standings.
       invalidateMasaiverseV2Leaderboards(queryClient)
     },

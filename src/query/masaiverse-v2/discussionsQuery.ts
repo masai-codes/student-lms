@@ -5,6 +5,7 @@ import type {
 } from '@/server/api/masaiverse-v2/services/getCommunityDiscussions.service'
 import { fetchMasaiverseV2Discussions } from '@/lib/api/masaiverse-v2/masaiverseV2Api'
 import { MASAIVERSE_V2_HOME_KEY } from '@/query/masaiverse-v2/homeQuery'
+import { MASAIVERSE_V2_REFETCH_ON_NAV } from '@/query/masaiverse-v2/queryDefaults'
 
 export const MASAIVERSE_V2_DISCUSSIONS_KEY = [
   'masaiverse-v2',
@@ -42,6 +43,7 @@ export const masaiverseV2DiscussionsInfiniteQuery = (
     lastPage: CommunityDiscussionsPage,
     allPages: Array<CommunityDiscussionsPage>,
   ) => (lastPage.hasMore ? allPages.length * DISCUSSIONS_PAGE_SIZE : undefined),
+  ...MASAIVERSE_V2_REFETCH_ON_NAV,
 })
 
 /** A cached payload that embeds a flat `discussions` array (home, club detail). */

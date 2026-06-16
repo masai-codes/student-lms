@@ -4,6 +4,7 @@ import {
   fetchMasaiverseV2GlobalLeaderboard,
   searchMasaiverseV2Users,
 } from '@/lib/api/masaiverse-v2/masaiverseV2Api'
+import { MASAIVERSE_V2_REFETCH_ON_NAV } from '@/query/masaiverse-v2/queryDefaults'
 
 /** Query options for the community-wide (global) leaderboard for a period. */
 export const masaiverseV2GlobalLeaderboardQuery = (
@@ -18,6 +19,7 @@ export const masaiverseV2GlobalLeaderboardQuery = (
   ] as const,
   queryFn: () => fetchMasaiverseV2GlobalLeaderboard({ period, limit }),
   staleTime: 60 * 1000,
+  ...MASAIVERSE_V2_REFETCH_ON_NAV,
 })
 
 /**
