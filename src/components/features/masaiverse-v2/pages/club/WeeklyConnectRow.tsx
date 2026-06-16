@@ -7,8 +7,6 @@ type WeeklyConnectRowProps = {
   connect: MasaiverseV2WeeklyConnect
   /** Injectable clock for deterministic rendering/tests. */
   now?: Date
-  /** Device/server clock skew (ms) so the day badge renders on the viewer's clock. */
-  skewMs?: number
 }
 
 const BADGE_STYLES = {
@@ -32,10 +30,9 @@ const PILL_LABELS = {
 export default function WeeklyConnectRow({
   connect,
   now = new Date(),
-  skewMs = 0,
 }: WeeklyConnectRowProps) {
   const status = getEventStatus(connect, now)
-  const badge = formatLocalDayBadge(connect.startTime, skewMs)
+  const badge = formatLocalDayBadge(connect.startTime)
   const isMuted = status === 'completed'
 
   return (

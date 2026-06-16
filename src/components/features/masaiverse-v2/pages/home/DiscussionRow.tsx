@@ -26,7 +26,7 @@ export default function DiscussionRow({
   clubId,
 }: DiscussionRowProps) {
   const queryClient = useQueryClient()
-  const { now, skewMs } = useServerTime()
+  const { now } = useServerTime()
   const [showReplies, setShowReplies] = useState(false)
 
   return (
@@ -48,7 +48,6 @@ export default function DiscussionRow({
             {formatSocialPostTime(
               discussion.createdAt,
               new Date(now.valueOf()),
-              skewMs,
             )}
           </p>
           <p className="mt-1 text-[15px] font-bold leading-5 text-[#111827]">

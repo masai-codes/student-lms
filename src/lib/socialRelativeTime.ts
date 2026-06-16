@@ -5,10 +5,6 @@ import { parseServerTimestamp } from './parseServerTimestamp'
  * timezone (their device timezone), so wall-clock times ("Today at 2:30 PM")
  * read on the user's own clock. See
  * docs/masaiverse-discussion-relative-time.md for the full rules.
- *
- * `skewMs` (server UTC − device UTC, from {@link useServerTime}) is subtracted
- * from the displayed instants so the wall-clock matches the user's device clock.
- * Relative durations ("2 hours ago") use true times, so they are unaffected.
  */
 
 /** Viewer-local calendar day as `YYYY-MM-DD`. */
@@ -50,12 +46,10 @@ const IST_TIME_ZONE = 'Asia/Kolkata'
 /**
  * @param value - ISO string from the server, or null when unknown
  * @param now - Optional reference time (defaults to `new Date()`); useful for tests
- * @param skewMs - Server/device clock skew from {@link useServerTime}; defaults to 0
  */
 export function formatSocialPostTime(
   value: string | null,
   now: Date = new Date(),
-  skewMs = 0,
 ): string {
   if (!value) {
     return 'Just now'
@@ -82,10 +76,9 @@ export function formatSocialPostTime(
     return minutes === 1 ? '1 minute ago' : `${minutes} minutes ago`
   }
 
-  // Wall-clock display + day comparisons use the user's device clock: shift the
-  // true instants by skewMs and read them in the viewer's local timezone.
-  const postLocal = new Date(post.getTime() - skewMs)
-  const nowLocal = new Date(now.getTime() - skewMs)
+  // Wall-clock display + day comparisons use the user's device clock.
+  const postLocal = new Date(post.getTime())
+  const nowLocal = new Date(now.getTime())
   const sameDay = isSameLocalCalendarDay(postLocal, nowLocal)
 
   if (sameDay) {

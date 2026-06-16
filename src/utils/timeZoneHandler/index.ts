@@ -79,26 +79,22 @@ export function getTzLabel(): string {
 
 /**
  * Format a time range matching what the user's device clock actually shows.
- *
- * skewMs = serverUTC_ms − deviceUTC_ms (captured at last server-time fetch).
- * Positive means device clock is behind actual UTC.
- * Subtracting skewMs from the event's UTC before calling getHours() ensures
- * the displayed time matches the reading on the user's (possibly wrong) clock.
+ * UTC timestamps from the server displayed via native browser Date APIs
+ * already show in the user's local timezone correctly.
  */
 export function formatTimeRangeLocal(
   scheduleIST: string | null,
   concludesIST: string | null | undefined,
-  skewMs = 0,
 ): string {
   const start = parseMysqlDatetimeIST(scheduleIST)
   if (!start) return ''
-  const startDate = new Date(start.valueOf() - skewMs)
+  const startDate = new Date(start.valueOf())
   const tzLabel = getTzLabel()
 
   const end = concludesIST ? parseMysqlDatetimeIST(concludesIST) : null
   if (!end) return `${formatHourLocal(startDate)} (${tzLabel})`
 
-  const endDate = new Date(end.valueOf() - skewMs)
+  const endDate = new Date(end.valueOf())
   if (isSameDayLocal(startDate, endDate)) {
     return `${formatHourLocal(startDate)} - ${formatHourLocal(endDate)} (${tzLabel})`
   }
@@ -139,12 +135,11 @@ export function formatTimeRangeIST(
 
 /**
  * Format a single timestamp matching what the user's device clock shows.
- * skewMs: see formatTimeRangeLocal.
  */
-export function formatTimestampLocal(raw: string, skewMs = 0): string {
+export function formatTimestampLocal(raw: string): string {
   const d = parseMysqlDatetimeIST(raw)
   if (!d) return ''
-  const date = new Date(d.valueOf() - skewMs)
+  const date = new Date(d.valueOf())
   return `${formatShortDateLocal(date)}, ${formatHourLocal(date)} (${getTzLabel()})`
 }
 

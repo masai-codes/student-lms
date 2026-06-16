@@ -34,16 +34,12 @@ async function fetchServerTime(): Promise<CacheEntry> {
 }
 
 /**
- * Returns server-adjusted current time and skewMs.
- *
- * skewMs = serverUTC_ms − deviceUTC_ms at last fetch.
- * Positive when device clock is behind actual UTC.
- * Pass skewMs to format functions so displayed times match the user's device clock.
+ * Returns server-adjusted current time.
  *
  * Uses localStorage to seed an immediate value on load — eliminates the
  * "shows wrong time for 2 seconds then corrects" flash.
  */
-export function useServerTime(): { now: dayjs.Dayjs; skewMs: number } {
+export function useServerTime(): { now: dayjs.Dayjs } {
   const { data } = useQuery({
     queryKey: ['server-time'],
     queryFn: fetchServerTime,
@@ -57,11 +53,5 @@ export function useServerTime(): { now: dayjs.Dayjs; skewMs: number } {
     ? getAdjustedNow(data.serverTimeISO, data.fetchedAt)
     : getAdjustedNow(new Date().toISOString(), Date.now())
 
-  const rawSkewMs = data
-    ? new Date(data.serverTimeISO).getTime() - data.fetchedAt
-    : 0
-  // Round to nearest minute so sub-minute noise doesn't shift displayed times
-  const skewMs = Math.round(rawSkewMs / 60_000) * 60_000
-
-  return { now, skewMs }
+  return { now }
 }
