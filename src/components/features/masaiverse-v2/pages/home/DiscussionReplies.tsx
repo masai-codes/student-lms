@@ -27,7 +27,7 @@ export default function DiscussionReplies({
   clubId,
 }: DiscussionRepliesProps) {
   const queryClient = useQueryClient()
-  const { now, skewMs } = useServerTime()
+  const { now } = useServerTime()
   const [text, setText] = useState('')
   const repliesKey = ['masaiverse-v2', 'discussion-replies', postId]
 
@@ -116,7 +116,6 @@ export default function DiscussionReplies({
                   {formatSocialPostTime(
                     reply.createdAt,
                     new Date(now.valueOf()),
-                    skewMs,
                   )}
                 </p>
                 <p className="whitespace-pre-wrap text-[14px] leading-5 text-[#111827]">

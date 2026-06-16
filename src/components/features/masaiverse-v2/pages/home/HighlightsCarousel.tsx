@@ -26,8 +26,6 @@ type HighlightsCarouselProps = {
   emptyMessage: string
   /** Unique nav-button class prefix so multiple carousels can coexist. */
   navKey?: string
-  /** Device/server clock skew (ms) so card times render on the viewer's clock. */
-  skewMs?: number
 }
 
 /**
@@ -41,7 +39,6 @@ export default function HighlightsCarousel({
   loadingLabel,
   emptyMessage,
   navKey = 'highlights',
-  skewMs = 0,
 }: HighlightsCarouselProps) {
   if (isPending) {
     return (
@@ -79,7 +76,6 @@ export default function HighlightsCarousel({
               accentColor={
                 HIGHLIGHT_ACCENT_COLORS[index % HIGHLIGHT_ACCENT_COLORS.length]
               }
-              skewMs={skewMs}
             />
           </SwiperSlide>
         ))}

@@ -5,8 +5,6 @@ import type { MasaiverseV2EventDetail } from '@/server/api/masaiverse-v2/service
 
 type EventInfoRowsProps = {
   event: MasaiverseV2EventDetail
-  /** Device/server clock skew (ms) so times render on the viewer's clock. */
-  skewMs?: number
 }
 
 function InfoRow({
@@ -43,13 +41,11 @@ function InfoRow({
  */
 export default function EventInfoRows({
   event,
-  skewMs = 0,
 }: EventInfoRowsProps) {
-  const badge = formatLocalDateBadge(event.startTime, event.endTime, skewMs)
+  const badge = formatLocalDateBadge(event.startTime, event.endTime)
   const { dateLine, timeLine } = formatLocalSchedule(
     event.startTime,
     event.endTime,
-    skewMs,
   )
   const isOffline = event.mode === 'offline'
 
