@@ -22,10 +22,18 @@ export default function DiscussionContent({
   const [expanded, setExpanded] = useState(false)
   const [isOverflowing, setIsOverflowing] = useState(false)
 
-  const sanitizedHtml =
-    typeof window === 'undefined'
-      ? html
-      : createDOMPurify(window).sanitize(html)
+  const sanitizedHtml = (() => {
+    if (typeof window === 'undefined') return html
+    const purify = createDOMPurify(window)
+    // Force every link in the discussion body to open in a new tab.
+    purify.addHook('afterSanitizeAttributes', (node) => {
+      if (node.tagName === 'A') {
+        node.setAttribute('target', '_blank')
+        node.setAttribute('rel', 'noopener noreferrer')
+      }
+    })
+    return purify.sanitize(html)
+  })()
 
   // Measure after layout so we know whether the clamped body overflows.
   useLayoutEffect(() => {
