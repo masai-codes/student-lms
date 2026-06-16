@@ -21,6 +21,8 @@ import { Route as protectedLayoutIndexRouteImport } from './routes/(protected)/_
 import { Route as authSwitchAccountIndexRouteImport } from './routes/(auth)/switch-account/index'
 import { Route as authSigninIndexRouteImport } from './routes/(auth)/signin/index'
 import { Route as authLoginIndexRouteImport } from './routes/(auth)/login/index'
+import { Route as ApiProfilePhotoUploadUrlRouteImport } from './routes/api/profile/photo-upload-url'
+import { Route as ApiProfilePhotoRouteImport } from './routes/api/profile/photo'
 import { Route as ApiProfileAchievementsRouteImport } from './routes/api/profile/achievements'
 import { Route as ApiMasaiverseV2VisitedRouteImport } from './routes/api/masaiverse-v2/visited'
 import { Route as ApiMasaiverseV2LeaderboardRouteImport } from './routes/api/masaiverse-v2/leaderboard'
@@ -129,6 +131,7 @@ import { Route as ApiDashboardAgreementSectionIdSubmitRouteImport } from './rout
 import { Route as ApiDashboardAgreementSectionIdStepRouteImport } from './routes/api/dashboard/agreement/$sectionId/step'
 import { Route as ApiDashboardAgreementSectionIdOpenRouteImport } from './routes/api/dashboard/agreement/$sectionId/open'
 import { Route as ApiDashboardAgreementSectionIdDismissRouteImport } from './routes/api/dashboard/agreement/$sectionId/dismiss'
+import { Route as ApiDashboardAgreementSectionIdDetailsRouteImport } from './routes/api/dashboard/agreement/$sectionId/details'
 import { Route as protectedLayoutMasaiverseEventEventIdRouteImport } from './routes/(protected)/_layout/masaiverse/event.$eventId'
 import { Route as protectedLayoutMasaiverseClubClubIdRouteImport } from './routes/(protected)/_layout/masaiverse/club.$clubId'
 import { Route as ApiChatbotLectureIdSessionsSessionIdIndexRouteImport } from './routes/api/chatbot/$lectureId/sessions/$sessionId/index'
@@ -194,6 +197,17 @@ const authSigninIndexRoute = authSigninIndexRouteImport.update({
 const authLoginIndexRoute = authLoginIndexRouteImport.update({
   id: '/(auth)/login/',
   path: '/login/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiProfilePhotoUploadUrlRoute =
+  ApiProfilePhotoUploadUrlRouteImport.update({
+    id: '/api/profile/photo-upload-url',
+    path: '/api/profile/photo-upload-url',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiProfilePhotoRoute = ApiProfilePhotoRouteImport.update({
+  id: '/api/profile/photo',
+  path: '/api/profile/photo',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiProfileAchievementsRoute = ApiProfileAchievementsRouteImport.update({
@@ -822,6 +836,12 @@ const ApiDashboardAgreementSectionIdDismissRoute =
     path: '/dismiss',
     getParentRoute: () => ApiDashboardAgreementSectionIdRoute,
   } as any)
+const ApiDashboardAgreementSectionIdDetailsRoute =
+  ApiDashboardAgreementSectionIdDetailsRouteImport.update({
+    id: '/details',
+    path: '/details',
+    getParentRoute: () => ApiDashboardAgreementSectionIdRoute,
+  } as any)
 const protectedLayoutMasaiverseEventEventIdRoute =
   protectedLayoutMasaiverseEventEventIdRouteImport.update({
     id: '/event/$eventId',
@@ -887,6 +907,8 @@ export interface FileRoutesByFullPath {
   '/api/masaiverse-v2/leaderboard': typeof ApiMasaiverseV2LeaderboardRoute
   '/api/masaiverse-v2/visited': typeof ApiMasaiverseV2VisitedRoute
   '/api/profile/achievements': typeof ApiProfileAchievementsRoute
+  '/api/profile/photo': typeof ApiProfilePhotoRoute
+  '/api/profile/photo-upload-url': typeof ApiProfilePhotoUploadUrlRoute
   '/login/': typeof authLoginIndexRoute
   '/signin/': typeof authSigninIndexRoute
   '/switch-account/': typeof authSwitchAccountIndexRoute
@@ -963,6 +985,7 @@ export interface FileRoutesByFullPath {
   '/api/whats-new/$id/': typeof ApiWhatsNewIdIndexRoute
   '/masaiverse/club/$clubId': typeof protectedLayoutMasaiverseClubClubIdRoute
   '/masaiverse/event/$eventId': typeof protectedLayoutMasaiverseEventEventIdRoute
+  '/api/dashboard/agreement/$sectionId/details': typeof ApiDashboardAgreementSectionIdDetailsRoute
   '/api/dashboard/agreement/$sectionId/dismiss': typeof ApiDashboardAgreementSectionIdDismissRoute
   '/api/dashboard/agreement/$sectionId/open': typeof ApiDashboardAgreementSectionIdOpenRoute
   '/api/dashboard/agreement/$sectionId/step': typeof ApiDashboardAgreementSectionIdStepRoute
@@ -1013,6 +1036,8 @@ export interface FileRoutesByTo {
   '/api/masaiverse-v2/leaderboard': typeof ApiMasaiverseV2LeaderboardRoute
   '/api/masaiverse-v2/visited': typeof ApiMasaiverseV2VisitedRoute
   '/api/profile/achievements': typeof ApiProfileAchievementsRoute
+  '/api/profile/photo': typeof ApiProfilePhotoRoute
+  '/api/profile/photo-upload-url': typeof ApiProfilePhotoUploadUrlRoute
   '/login': typeof authLoginIndexRoute
   '/signin': typeof authSigninIndexRoute
   '/switch-account': typeof authSwitchAccountIndexRoute
@@ -1089,6 +1114,7 @@ export interface FileRoutesByTo {
   '/api/whats-new/$id': typeof ApiWhatsNewIdIndexRoute
   '/masaiverse/club/$clubId': typeof protectedLayoutMasaiverseClubClubIdRoute
   '/masaiverse/event/$eventId': typeof protectedLayoutMasaiverseEventEventIdRoute
+  '/api/dashboard/agreement/$sectionId/details': typeof ApiDashboardAgreementSectionIdDetailsRoute
   '/api/dashboard/agreement/$sectionId/dismiss': typeof ApiDashboardAgreementSectionIdDismissRoute
   '/api/dashboard/agreement/$sectionId/open': typeof ApiDashboardAgreementSectionIdOpenRoute
   '/api/dashboard/agreement/$sectionId/step': typeof ApiDashboardAgreementSectionIdStepRoute
@@ -1142,6 +1168,8 @@ export interface FileRoutesById {
   '/api/masaiverse-v2/leaderboard': typeof ApiMasaiverseV2LeaderboardRoute
   '/api/masaiverse-v2/visited': typeof ApiMasaiverseV2VisitedRoute
   '/api/profile/achievements': typeof ApiProfileAchievementsRoute
+  '/api/profile/photo': typeof ApiProfilePhotoRoute
+  '/api/profile/photo-upload-url': typeof ApiProfilePhotoUploadUrlRoute
   '/(auth)/login/': typeof authLoginIndexRoute
   '/(auth)/signin/': typeof authSigninIndexRoute
   '/(auth)/switch-account/': typeof authSwitchAccountIndexRoute
@@ -1218,6 +1246,7 @@ export interface FileRoutesById {
   '/api/whats-new/$id/': typeof ApiWhatsNewIdIndexRoute
   '/(protected)/_layout/masaiverse/club/$clubId': typeof protectedLayoutMasaiverseClubClubIdRoute
   '/(protected)/_layout/masaiverse/event/$eventId': typeof protectedLayoutMasaiverseEventEventIdRoute
+  '/api/dashboard/agreement/$sectionId/details': typeof ApiDashboardAgreementSectionIdDetailsRoute
   '/api/dashboard/agreement/$sectionId/dismiss': typeof ApiDashboardAgreementSectionIdDismissRoute
   '/api/dashboard/agreement/$sectionId/open': typeof ApiDashboardAgreementSectionIdOpenRoute
   '/api/dashboard/agreement/$sectionId/step': typeof ApiDashboardAgreementSectionIdStepRoute
@@ -1271,6 +1300,8 @@ export interface FileRouteTypes {
     | '/api/masaiverse-v2/leaderboard'
     | '/api/masaiverse-v2/visited'
     | '/api/profile/achievements'
+    | '/api/profile/photo'
+    | '/api/profile/photo-upload-url'
     | '/login/'
     | '/signin/'
     | '/switch-account/'
@@ -1347,6 +1378,7 @@ export interface FileRouteTypes {
     | '/api/whats-new/$id/'
     | '/masaiverse/club/$clubId'
     | '/masaiverse/event/$eventId'
+    | '/api/dashboard/agreement/$sectionId/details'
     | '/api/dashboard/agreement/$sectionId/dismiss'
     | '/api/dashboard/agreement/$sectionId/open'
     | '/api/dashboard/agreement/$sectionId/step'
@@ -1397,6 +1429,8 @@ export interface FileRouteTypes {
     | '/api/masaiverse-v2/leaderboard'
     | '/api/masaiverse-v2/visited'
     | '/api/profile/achievements'
+    | '/api/profile/photo'
+    | '/api/profile/photo-upload-url'
     | '/login'
     | '/signin'
     | '/switch-account'
@@ -1473,6 +1507,7 @@ export interface FileRouteTypes {
     | '/api/whats-new/$id'
     | '/masaiverse/club/$clubId'
     | '/masaiverse/event/$eventId'
+    | '/api/dashboard/agreement/$sectionId/details'
     | '/api/dashboard/agreement/$sectionId/dismiss'
     | '/api/dashboard/agreement/$sectionId/open'
     | '/api/dashboard/agreement/$sectionId/step'
@@ -1525,6 +1560,8 @@ export interface FileRouteTypes {
     | '/api/masaiverse-v2/leaderboard'
     | '/api/masaiverse-v2/visited'
     | '/api/profile/achievements'
+    | '/api/profile/photo'
+    | '/api/profile/photo-upload-url'
     | '/(auth)/login/'
     | '/(auth)/signin/'
     | '/(auth)/switch-account/'
@@ -1601,6 +1638,7 @@ export interface FileRouteTypes {
     | '/api/whats-new/$id/'
     | '/(protected)/_layout/masaiverse/club/$clubId'
     | '/(protected)/_layout/masaiverse/event/$eventId'
+    | '/api/dashboard/agreement/$sectionId/details'
     | '/api/dashboard/agreement/$sectionId/dismiss'
     | '/api/dashboard/agreement/$sectionId/open'
     | '/api/dashboard/agreement/$sectionId/step'
@@ -1653,6 +1691,8 @@ export interface RootRouteChildren {
   ApiMasaiverseV2LeaderboardRoute: typeof ApiMasaiverseV2LeaderboardRoute
   ApiMasaiverseV2VisitedRoute: typeof ApiMasaiverseV2VisitedRoute
   ApiProfileAchievementsRoute: typeof ApiProfileAchievementsRoute
+  ApiProfilePhotoRoute: typeof ApiProfilePhotoRoute
+  ApiProfilePhotoUploadUrlRoute: typeof ApiProfilePhotoUploadUrlRoute
   authLoginIndexRoute: typeof authLoginIndexRoute
   authSigninIndexRoute: typeof authSigninIndexRoute
   authSwitchAccountIndexRoute: typeof authSwitchAccountIndexRoute
@@ -1804,6 +1844,20 @@ declare module '@tanstack/react-router' {
       path: '/login'
       fullPath: '/login/'
       preLoaderRoute: typeof authLoginIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/profile/photo-upload-url': {
+      id: '/api/profile/photo-upload-url'
+      path: '/api/profile/photo-upload-url'
+      fullPath: '/api/profile/photo-upload-url'
+      preLoaderRoute: typeof ApiProfilePhotoUploadUrlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/profile/photo': {
+      id: '/api/profile/photo'
+      path: '/api/profile/photo'
+      fullPath: '/api/profile/photo'
+      preLoaderRoute: typeof ApiProfilePhotoRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/profile/achievements': {
@@ -2562,6 +2616,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiDashboardAgreementSectionIdDismissRouteImport
       parentRoute: typeof ApiDashboardAgreementSectionIdRoute
     }
+    '/api/dashboard/agreement/$sectionId/details': {
+      id: '/api/dashboard/agreement/$sectionId/details'
+      path: '/details'
+      fullPath: '/api/dashboard/agreement/$sectionId/details'
+      preLoaderRoute: typeof ApiDashboardAgreementSectionIdDetailsRouteImport
+      parentRoute: typeof ApiDashboardAgreementSectionIdRoute
+    }
     '/(protected)/_layout/masaiverse/event/$eventId': {
       id: '/(protected)/_layout/masaiverse/event/$eventId'
       path: '/event/$eventId'
@@ -2701,6 +2762,7 @@ const ApiMasaiverseV2DiscussionsRouteWithChildren =
   )
 
 interface ApiDashboardAgreementSectionIdRouteChildren {
+  ApiDashboardAgreementSectionIdDetailsRoute: typeof ApiDashboardAgreementSectionIdDetailsRoute
   ApiDashboardAgreementSectionIdDismissRoute: typeof ApiDashboardAgreementSectionIdDismissRoute
   ApiDashboardAgreementSectionIdOpenRoute: typeof ApiDashboardAgreementSectionIdOpenRoute
   ApiDashboardAgreementSectionIdStepRoute: typeof ApiDashboardAgreementSectionIdStepRoute
@@ -2709,6 +2771,8 @@ interface ApiDashboardAgreementSectionIdRouteChildren {
 
 const ApiDashboardAgreementSectionIdRouteChildren: ApiDashboardAgreementSectionIdRouteChildren =
   {
+    ApiDashboardAgreementSectionIdDetailsRoute:
+      ApiDashboardAgreementSectionIdDetailsRoute,
     ApiDashboardAgreementSectionIdDismissRoute:
       ApiDashboardAgreementSectionIdDismissRoute,
     ApiDashboardAgreementSectionIdOpenRoute:
@@ -2805,6 +2869,8 @@ const rootRouteChildren: RootRouteChildren = {
   ApiMasaiverseV2LeaderboardRoute: ApiMasaiverseV2LeaderboardRoute,
   ApiMasaiverseV2VisitedRoute: ApiMasaiverseV2VisitedRoute,
   ApiProfileAchievementsRoute: ApiProfileAchievementsRoute,
+  ApiProfilePhotoRoute: ApiProfilePhotoRoute,
+  ApiProfilePhotoUploadUrlRoute: ApiProfilePhotoUploadUrlRoute,
   authLoginIndexRoute: authLoginIndexRoute,
   authSigninIndexRoute: authSigninIndexRoute,
   authSwitchAccountIndexRoute: authSwitchAccountIndexRoute,

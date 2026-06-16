@@ -77,6 +77,7 @@
     "mongodb": "^7.2.0",
     "mysql2": "^3.16.2",
     "nitro": "npm:nitro-nightly@latest",
+    "pdf-lib": "^1.17.1",
     "radix-ui": "^1.4.3",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",

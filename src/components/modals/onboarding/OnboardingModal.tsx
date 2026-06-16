@@ -22,17 +22,21 @@ interface Step {
 
 // ── Step right-panel: Profile Photo ───────────────────────────────────────────
 
-function PhotoContent({ initialSnapshot, onSave }: { initialSnapshot: string | null; onSave: (snap: string) => void }) {
+function PhotoContent({ initialSnapshot, onSave, onPhotoSaved, isActive }: { initialSnapshot: string | null; onSave: (snap: string) => void; onPhotoSaved?: () => void; isActive: boolean }) {
   const videoRef = useRef<HTMLVideoElement>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const streamRef = useRef<MediaStream | null>(null)
   const [snapshot, setSnapshot] = useState<string | null>(initialSnapshot)
-  const [loading, setLoading] = useState(!initialSnapshot)
+  const [loading, setLoading] = useState(false)
   const [camError, setCamError] = useState('')
+  const [uploading, setUploading] = useState(false)
+  const [uploadError, setUploadError] = useState('')
+  const [camBlocked, setCamBlocked] = useState(false)
 
   const startCamera = useCallback(async () => {
     setLoading(true)
     setCamError('')
+    setCamBlocked(false)
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false })
       streamRef.current = stream
@@ -40,7 +44,19 @@ function PhotoContent({ initialSnapshot, onSave }: { initialSnapshot: string | n
         videoRef.current.srcObject = stream
       }
     } catch {
-      setCamError('Camera access denied. Please allow camera permission and try again.')
+      let blocked = false
+      try {
+        const status = await navigator.permissions.query({ name: 'camera' as PermissionName })
+        blocked = status.state === 'denied'
+      } catch {
+        blocked = true
+      }
+      setCamBlocked(blocked)
+      setCamError(
+        blocked
+          ? 'Camera access is blocked by your browser.'
+          : 'Camera access denied. Please allow camera permission and try again.',
+      )
     } finally {
       setLoading(false)
     }
@@ -49,12 +65,19 @@ function PhotoContent({ initialSnapshot, onSave }: { initialSnapshot: string | n
   function stopCamera() {
     streamRef.current?.getTracks().forEach((t) => t.stop())
     streamRef.current = null
+    if (videoRef.current) videoRef.current.srcObject = null
   }
 
+  // Google Meet-style: camera is tied to isActive, not component lifecycle.
+  // Turning off the tab = turning off the camera immediately.
   useEffect(() => {
-    if (!initialSnapshot) void startCamera()
+    if (isActive && !snapshot) {
+      void startCamera()
+    } else {
+      stopCamera()
+    }
     return () => stopCamera()
-  }, [startCamera, initialSnapshot])
+  }, [isActive, startCamera])
 
   function handleCapture() {
     const video = videoRef.current
@@ -73,9 +96,41 @@ function PhotoContent({ initialSnapshot, onSave }: { initialSnapshot: string | n
     void startCamera()
   }
 
-  function handleSave() {
+  async function handleSave() {
+    if (!snapshot) return
     stopCamera()
-    if (snapshot) onSave(snapshot)
+    setUploading(true)
+    setUploadError('')
+    try {
+      // 1. Get a presigned PUT URL from the server
+      const presignRes = await fetch('/api/profile/photo-upload-url?contentType=image/jpeg')
+      if (!presignRes.ok) throw new Error('Failed to get upload URL')
+      const { uploadUrl, s3Url } = (await presignRes.json()) as { uploadUrl: string; s3Url: string }
+
+      // 2. Convert base64 dataURL to a Blob and upload directly to S3 via presigned URL
+      const blob = await fetch(snapshot).then((r) => r.blob())
+      const putRes = await fetch(uploadUrl, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'image/jpeg' },
+        body: blob,
+      })
+      if (!putRes.ok) throw new Error('S3 upload failed')
+
+      // 3. Persist the S3 URL in the DB
+      const saveRes = await fetch('/api/profile/photo', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ s3Url }),
+      })
+      if (!saveRes.ok) throw new Error('Failed to save profile picture')
+
+      onSave(s3Url)
+      onPhotoSaved?.()
+    } catch (err) {
+      setUploadError(err instanceof Error ? err.message : 'Upload failed. Please try again.')
+    } finally {
+      setUploading(false)
+    }
   }
 
   return (
@@ -105,7 +160,24 @@ function PhotoContent({ initialSnapshot, onSave }: { initialSnapshot: string | n
               <Loader2 size={32} className="animate-spin text-white/60" />
             )}
             {camError && (
-              <p className="text-white/70 text-sm text-center px-8">{camError}</p>
+              <div className="flex flex-col items-center gap-4 px-8">
+                <p className="text-white/70 text-sm text-center">{camError}</p>
+                {camBlocked ? (
+                  <p className="text-white/50 text-xs text-center leading-relaxed">
+                    Click the lock / camera icon in your browser's address bar, set Camera to &quot;Allow&quot;, then reload the page.
+                  </p>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => void startCamera()}
+                    className="flex items-center gap-2 text-white font-medium rounded-lg hover:opacity-90 transition-opacity focus-visible:outline-none"
+                    style={{ height: 40, padding: '0 20px', background: '#6962AC', fontFamily: 'Poppins', fontSize: 14 }}
+                  >
+                    <Camera size={16} />
+                    Allow Camera Permission
+                  </button>
+                )}
+              </div>
             )}
           </>
         )}
@@ -124,24 +196,32 @@ function PhotoContent({ initialSnapshot, onSave }: { initialSnapshot: string | n
           Capture
         </button>
       ) : (
-        <div className="flex gap-4">
-          <button
-            type="button"
-            onClick={handleRetake}
-            className="flex items-center gap-2 font-medium rounded-lg border border-gray-200 bg-white text-gray-700 hover:bg-gray-50 transition-colors focus-visible:outline-none"
-            style={{ height: 40, padding: '0 20px', fontFamily: 'Poppins', fontSize: 16 }}
-          >
-            <RotateCcw size={18} style={{ color: '#6962AC' }} />
-            Retake
-          </button>
-          <button
-            type="button"
-            onClick={handleSave}
-            className="flex items-center gap-2 text-white font-medium rounded-lg hover:opacity-90 transition-opacity focus-visible:outline-none"
-            style={{ height: 40, padding: '0 20px', background: '#6962AC', fontFamily: 'Poppins', fontSize: 16 }}
-          >
-            Save &amp; Submit
-          </button>
+        <div className="flex flex-col items-center gap-3">
+          <div className="flex gap-4">
+            <button
+              type="button"
+              onClick={handleRetake}
+              disabled={uploading}
+              className="flex items-center gap-2 font-medium rounded-lg border border-gray-200 bg-white text-gray-700 hover:bg-gray-50 transition-colors focus-visible:outline-none disabled:opacity-40 disabled:cursor-not-allowed"
+              style={{ height: 40, padding: '0 20px', fontFamily: 'Poppins', fontSize: 16 }}
+            >
+              <RotateCcw size={18} style={{ color: '#6962AC' }} />
+              Retake
+            </button>
+            <button
+              type="button"
+              onClick={() => void handleSave()}
+              disabled={uploading}
+              className="flex items-center gap-2 text-white font-medium rounded-lg hover:opacity-90 transition-opacity focus-visible:outline-none disabled:opacity-60 disabled:cursor-not-allowed"
+              style={{ height: 40, padding: '0 20px', background: '#6962AC', fontFamily: 'Poppins', fontSize: 16 }}
+            >
+              {uploading ? <Loader2 size={18} className="animate-spin" /> : null}
+              {uploading ? 'Uploading…' : 'Save & Submit'}
+            </button>
+          </div>
+          {uploadError && (
+            <p className="text-sm text-red-500" style={{ fontFamily: 'Poppins' }}>{uploadError}</p>
+          )}
         </div>
       )}
     </div>
@@ -156,12 +236,16 @@ export function OnboardingModal({
   showProfilePhoto = false,
   agreementSections = [],
   feedbackForms = [],
+  onPhotoSaved,
+  onAgreementSubmitted,
 }: {
   onClose: () => void
   initialStep?: string
   showProfilePhoto?: boolean
   agreementSections?: Array<PendingAgreementSection>
   feedbackForms?: Array<PendingFeedbackForm>
+  onPhotoSaved?: () => void
+  onAgreementSubmitted?: () => void
 }) {
   const steps: Array<Step> = useMemo(() => [
     ...(showProfilePhoto ? [{ id: 'photo', label: 'Profile Photo', Icon: Camera }] : []),
@@ -292,14 +376,18 @@ export function OnboardingModal({
 
           {/* ── Right panel ── */}
           <div className="flex-1 bg-white rounded-2xl overflow-auto flex flex-col">
-            {activeStep === 'photo' && (
-              <PhotoContent
-                initialSnapshot={photoSnapshot}
-                onSave={(snap) => {
-                  setPhotoSnapshot(snap)
-                  markDone('photo')
-                }}
-              />
+            {showProfilePhoto && (
+              <div className={activeStep === 'photo' ? 'contents' : 'hidden'}>
+                <PhotoContent
+                  isActive={activeStep === 'photo'}
+                  initialSnapshot={photoSnapshot}
+                  onPhotoSaved={onPhotoSaved}
+                  onSave={(snap) => {
+                    setPhotoSnapshot(snap)
+                    markDone('photo')
+                  }}
+                />
+              </div>
             )}
 
             {steps
@@ -321,7 +409,13 @@ export function OnboardingModal({
                   </div>
                 ) : (
                   <div key={step.id} className="min-w-[1200px] h-full">
-                    <AgreementFlow onSubmit={() => markDone(step.id)} sectionId={sectionId} />
+                    <AgreementFlow
+                      onSubmit={() => {
+                        markDone(step.id)
+                        onAgreementSubmitted?.()
+                      }}
+                      sectionId={sectionId}
+                    />
                   </div>
                 )
               })}

@@ -1,4 +1,6 @@
 import { useState } from 'react'
+import { useQueryClient } from '@tanstack/react-query'
+import { useRouter } from '@tanstack/react-router'
 import { Camera, ChevronLeft, ChevronRight, CircleUserRound, Download, FileText, Monitor, Smartphone, ThumbsUp } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import type { DashboardActionBannersResult, PendingAgreementSection, PendingFeedbackForm } from '@/server/api/dashboard/getDashboardActionBanners.service'
@@ -38,11 +40,12 @@ const STATIC_SLIDES: Array<ActionSlide> = [
     text: 'Complete your profile by adding your profile picture',
     cta: 'Take Photo',
     ctaIcon: Camera,
-    ctaHref: '/profile',
   },
 ]
 
 export function DashboardActionBanner({ actionBanners: data }: { actionBanners: DashboardActionBannersResult | undefined }) {
+  const queryClient = useQueryClient()
+  const router = useRouter()
   const [current, setCurrent] = useState(0)
   const [onboardingInitialStep, setOnboardingInitialStep] = useState<string | undefined>(undefined)
   const [onboardingOpen, setOnboardingOpen] = useState(false)
@@ -113,7 +116,10 @@ export function DashboardActionBanner({ actionBanners: data }: { actionBanners: 
           <button
             type="button"
             onClick={() => {
-              if (slide.agreementSection) {
+              if (slide.id === 'profilePicture') {
+                setOnboardingInitialStep('photo')
+                setOnboardingOpen(true)
+              } else if (slide.agreementSection) {
                 setOnboardingInitialStep(`agreement-${slide.agreementSection.sectionId}`)
                 setOnboardingOpen(true)
               } else if (slide.feedbackForm) {
@@ -175,6 +181,13 @@ export function DashboardActionBanner({ actionBanners: data }: { actionBanners: 
         showProfilePhoto={data.showProfilePicture}
         agreementSections={data.pendingAgreementSections}
         feedbackForms={data.pendingFeedbackForms}
+        onPhotoSaved={() => {
+          void queryClient.invalidateQueries({ queryKey: ['dashboard-left-section'] })
+          void router.invalidate()
+        }}
+        onAgreementSubmitted={() => {
+          void queryClient.invalidateQueries({ queryKey: ['dashboard-left-section'] })
+        }}
       />
     )}
   </>
