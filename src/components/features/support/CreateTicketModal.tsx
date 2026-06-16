@@ -26,6 +26,7 @@ import {
   uploadSupportAttachment,
 } from '@/lib/api/support/supportApi'
 import { SUPPORT_KEYS, ticketThreadQuery } from '@/query/support/supportQueries'
+import { MarkdownComposer } from '@/components/ui/markdown-composer'
 import { SupportMarkdown } from '@/components/features/support/SupportMarkdown'
 import { supportRouteApi } from '@/components/features/support/supportRoute'
 
@@ -241,12 +242,11 @@ export function CreateTicketModal({
         {/* Footer: composer (open) or feedback (resolved/closed) */}
         {(!isExisting || capabilities?.canReply) && (
           <div className={`${isDesktop ? 'px-5 py-4' : 'px-4 py-4'}`}>
-            <textarea
+            <MarkdownComposer
               value={message}
-              onChange={(e) => setMessage(e.target.value)}
+              onChange={setMessage}
               rows={3}
               placeholder="Type your message…"
-              className="font-poppins w-full resize-none rounded-xl border border-gray-200 bg-white p-3 text-[14px] text-gray-800 outline-none focus:border-gray-400 focus:ring-2 focus:ring-gray-200"
             />
 
             {/* Selected attachments */}

@@ -60,11 +60,11 @@ export async function voteSupportFaq(input: {
   return fetchJson(SUPPORT_API.faqVote, jsonPost(input))
 }
 
-/** GET the student's tickets for a tab. */
+/** GET the student's tickets for a tab (with the total count for pagination). */
 export async function fetchSupportTickets(input: {
   tab: TicketTab
   page?: number
-}): Promise<{ tickets: Array<TicketListItem> }> {
+}): Promise<{ tickets: Array<TicketListItem>; total: number }> {
   const params = new URLSearchParams({ tab: input.tab })
   if (input.page) params.set('page', String(input.page))
   return fetchJson(`${SUPPORT_API.tickets}?${params.toString()}`)

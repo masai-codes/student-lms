@@ -19,6 +19,7 @@ import type {
 } from '@/server/api/support/support.types'
 import { db } from '@/db'
 import { batches, sectionUser, sections, users } from '@/db/schema'
+import { checkAgreementRequired } from '@/server/api/dashboard/getDashboardActionBanners.service'
 
 /**
  * The student's batches — **derived from their section enrollments**, exactly
@@ -70,22 +71,20 @@ export async function getUserSupportBatches(
 }
 
 /**
- * Decide whether ticket creation is blocked.
- *
- * Currently enforces the **active-section** rule: a student with no active,
- * non-deleted section in the batch cannot raise a ticket (mirrors the legacy
- * `getSectionsForTicket` gate).
- *
- * The legal-agreement gate is a documented extension point: when the agreements
- * data model is wired up here, return `'legal-agreement'` ahead of the section
- * check. Until then it is treated as accepted.
+ * Decide whether ticket creation is blocked, in legacy precedence order:
+ *   1. **legal-agreement** — the student has a mandatory, unsigned agreement
+ *      (reuses the dashboard's `checkAgreementRequired`, so the rule stays in one
+ *      place and matches the agreement banner shown elsewhere).
+ *   2. **no-active-section** — no active, non-deleted section in the batch
+ *      (mirrors the legacy `getSectionsForTicket` gate).
  */
 export async function getSupportGate(input: {
   userId: number
   batchId: number
 }): Promise<SupportGateReason> {
-  // TODO(agreements): when the agreements table is mapped, check it here first
-  // and return 'legal-agreement' if the student hasn't signed.
+  // 1) Mandatory unsigned agreement blocks everything (same as the dashboard).
+  const pendingAgreements = await checkAgreementRequired(input.userId)
+  if (pendingAgreements.length > 0) return 'legal-agreement'
 
   const activeSections = await db
     .select({ id: sectionUser.id })

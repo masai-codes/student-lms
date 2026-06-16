@@ -40,6 +40,9 @@ export function TicketListingPage({ batchId }: { batchId: string }) {
   const { data, isLoading } = useQuery(supportTicketsQuery(tab, page))
   const { data: overview } = useQuery(supportOverviewQuery())
   const tickets = data?.tickets ?? []
+  const total = data?.total ?? 0
+  const pageSize = 10
+  const totalPages = Math.max(1, Math.ceil(total / pageSize))
 
   const callbackTickets = (overview?.callbackTickets ?? []).filter((t) => {
     if (tab === 'resolved') return t.status.toLowerCase() === 'resolved'
@@ -108,8 +111,8 @@ export function TicketListingPage({ batchId }: { batchId: string }) {
         )}
       </div>
 
-      {/* Pagination (prev / next; a full page implies there may be more) */}
-      {(page > 1 || tickets.length >= 10) && (
+      {/* Pagination — real page count from the total. */}
+      {totalPages > 1 && (
         <div className="flex items-center justify-center gap-2 pt-4">
           <button
             type="button"
@@ -119,10 +122,12 @@ export function TicketListingPage({ batchId }: { batchId: string }) {
           >
             Previous
           </button>
-          <span className="font-poppins text-sm text-gray-600">Page {page}</span>
+          <span className="font-poppins text-sm text-gray-600">
+            Page {page} of {totalPages}
+          </span>
           <button
             type="button"
-            disabled={tickets.length < 10}
+            disabled={page >= totalPages}
             onClick={() => void navigate({ search: (p) => ({ ...p, page: page + 1 }) })}
             className="rounded-lg border border-gray-200 px-3 py-1.5 text-sm text-gray-700 disabled:opacity-40 hover:bg-gray-50"
           >

@@ -17,6 +17,7 @@ import { z } from 'zod'
 import { jsonOk } from '@/server/api/http/responses'
 import { requireSessionUserId } from '@/server/api/http/requireSessionUser'
 import {
+  countTickets,
   getTicketThread,
   listTickets,
 } from '@/server/api/support/services/tickets.read.service'
@@ -42,12 +43,11 @@ export async function handleListTickets(request: Request): Promise<Response> {
     const tabRaw = url.searchParams.get('tab')
     const tab =
       tabRaw === 'resolved' || tabRaw === 'all' ? tabRaw : 'unresolved'
-    const tickets = await listTickets({
-      userId,
-      tab,
-      page: optionalIntParam(url, 'page'),
-    })
-    return jsonOk({ tickets })
+    const [tickets, total] = await Promise.all([
+      listTickets({ userId, tab, page: optionalIntParam(url, 'page') }),
+      countTickets(userId, tab),
+    ])
+    return jsonOk({ tickets, total })
   } catch (error) {
     return mapSupportError(error)
   }

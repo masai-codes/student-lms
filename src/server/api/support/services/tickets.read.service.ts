@@ -35,6 +35,26 @@ const RESOLVED_STATUSES = ['resolved', 'closed', 'automatic']
 /** Statuses considered "unresolved" for the default tab. */
 const UNRESOLVED_STATUSES = ['open', 're-opened']
 
+/** Rows per page in the Raised Tickets list. */
+export const TICKETS_PAGE_SIZE = PAGE_SIZE
+
+/** WHERE conditions for a tab (shared by list + count). */
+function tabConditions(userId: number, tab: TicketTab) {
+  const conditions = [eq(tickets.userId, userId)]
+  if (tab === 'unresolved') conditions.push(inArray(tickets.status, UNRESOLVED_STATUSES))
+  if (tab === 'resolved') conditions.push(inArray(tickets.status, RESOLVED_STATUSES))
+  return conditions
+}
+
+/** Total tickets for a tab (for pagination). */
+export async function countTickets(userId: number, tab: TicketTab): Promise<number> {
+  const [row] = await db
+    .select({ count: sql<number>`count(*)` })
+    .from(tickets)
+    .where(and(...tabConditions(userId, tab)))
+  return Number(row.count)
+}
+
 /**
  * List a student's tickets for a given tab, newest-updated first.
  *
@@ -50,11 +70,7 @@ export async function listTickets(input: {
   const tab = input.tab ?? 'unresolved'
   const page = input.page ?? 1
 
-  const conditions = [eq(tickets.userId, input.userId)]
-  if (tab === 'unresolved')
-    conditions.push(inArray(tickets.status, UNRESOLVED_STATUSES))
-  if (tab === 'resolved')
-    conditions.push(inArray(tickets.status, RESOLVED_STATUSES))
+  const conditions = tabConditions(input.userId, tab)
 
   const rows = await db
     .select({
