@@ -124,3 +124,12 @@ export async function createSupportCallback(input: {
 }): Promise<{ id: number }> {
   return fetchJson(SUPPORT_API.callbackCreate, jsonPost(input))
 }
+
+/** Upload one ticket attachment (multipart); returns its public URL + name. */
+export async function uploadSupportAttachment(
+  file: File,
+): Promise<{ url: string; name: string }> {
+  const body = new FormData()
+  body.append('file', file)
+  return fetchJson(SUPPORT_API.upload, { method: 'POST', body })
+}

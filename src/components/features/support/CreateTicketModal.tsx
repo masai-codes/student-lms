@@ -15,7 +15,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { ArrowLeft } from '@phosphor-icons/react'
+import { ArrowLeft, Paperclip } from '@phosphor-icons/react'
 
 import type { TicketMessage } from '@/server/api/support/support.types'
 import {
@@ -23,6 +23,7 @@ import {
   escalateSupportTicket,
   rateSupportTicket,
   replyToTicket,
+  uploadSupportAttachment,
 } from '@/lib/api/support/supportApi'
 import { SUPPORT_KEYS, ticketThreadQuery } from '@/query/support/supportQueries'
 import { SupportMarkdown } from '@/components/features/support/SupportMarkdown'
@@ -55,9 +56,14 @@ export function CreateTicketModal({
 
   const ticketId = search.ticketId ?? null
   const [message, setMessage] = useState('')
+  const [files, setFiles] = useState<Array<File>>([])
+  const [uploading, setUploading] = useState(false)
   const [isDesktop, setIsDesktop] = useState(false)
   const [pendingRating, setPendingRating] = useState<1 | 5 | null>(null)
   const scrollRef = useRef<HTMLDivElement>(null)
+
+  /** Max attachments per message (matches the legacy limit). */
+  const MAX_FILES = 5
 
   const categoryDisplayName =
     category === 'fallback-no-poc-mapped'
@@ -89,24 +95,26 @@ export function CreateTicketModal({
   }
 
   const createMutation = useMutation({
-    mutationFn: () =>
+    mutationFn: (finalMessage: string) =>
       createSupportTicket({
         batchId: Number(batchId),
         category: category || 'support',
         subCategory: subcategory ?? null,
-        message: message.trim(),
+        message: finalMessage,
       }),
     onSuccess: ({ id }) => {
       setMessage('')
+      setFiles([])
       void queryClient.invalidateQueries({ queryKey: ['support', 'overview'] })
       void navigate({ search: (prev) => ({ ...prev, ticketId: id, step: 'ticketdetails' }) })
     },
   })
 
   const replyMutation = useMutation({
-    mutationFn: () => replyToTicket({ ticketId: ticketId!, message: message.trim() }),
+    mutationFn: (finalMessage: string) => replyToTicket({ ticketId: ticketId!, message: finalMessage }),
     onSuccess: () => {
       setMessage('')
+      setFiles([])
       refresh()
     },
   })
@@ -123,12 +131,34 @@ export function CreateTicketModal({
   })
 
   const isExisting = Boolean(ticketId)
-  const submitting = createMutation.isPending || replyMutation.isPending
+  const submitting = createMutation.isPending || replyMutation.isPending || uploading
 
-  const handleSubmit = () => {
-    if (!message.trim() || submitting) return
-    if (isExisting) replyMutation.mutate()
-    else createMutation.mutate()
+  const addFiles = (incoming: FileList | null) => {
+    if (!incoming) return
+    setFiles((prev) => [...prev, ...Array.from(incoming)].slice(0, MAX_FILES))
+  }
+
+  const handleSubmit = async () => {
+    if ((!message.trim() && files.length === 0) || submitting) return
+
+    // Upload attachments first, then embed them as markdown links in the body —
+    // exactly how the legacy flow stores attachments.
+    let finalMessage = message.trim()
+    if (files.length > 0) {
+      setUploading(true)
+      try {
+        const uploaded = await Promise.all(files.map((f) => uploadSupportAttachment(f)))
+        const links = uploaded.map((u) => `[${u.name}](${u.url})`).join('\n\n')
+        finalMessage = finalMessage ? `${finalMessage}\n\n${links}` : links
+      } catch {
+        setUploading(false)
+        return
+      }
+      setUploading(false)
+    }
+
+    if (isExisting) replyMutation.mutate(finalMessage)
+    else createMutation.mutate(finalMessage)
   }
 
   const scrollToBottom = useCallback(() => {
@@ -211,13 +241,51 @@ export function CreateTicketModal({
               placeholder="Type your message…"
               className="font-poppins w-full resize-none rounded-xl border border-gray-200 bg-white p-3 text-[14px] text-gray-800 outline-none focus:border-gray-400 focus:ring-2 focus:ring-gray-200"
             />
-            <div className="mt-4 flex justify-end">
+
+            {/* Selected attachments */}
+            {files.length > 0 && (
+              <div className="mt-2 flex flex-wrap gap-2">
+                {files.map((f, i) => (
+                  <span
+                    key={`${f.name}-${i}`}
+                    className="inline-flex items-center gap-1.5 rounded-full bg-gray-100 px-3 py-1 font-poppins text-[12px] text-gray-700"
+                  >
+                    <Paperclip className="size-3.5" />
+                    <span className="max-w-[140px] truncate">{f.name}</span>
+                    <button
+                      type="button"
+                      aria-label={`Remove ${f.name}`}
+                      onClick={() => setFiles((prev) => prev.filter((_, idx) => idx !== i))}
+                      className="text-gray-400 hover:text-gray-700"
+                    >
+                      ✕
+                    </button>
+                  </span>
+                ))}
+              </div>
+            )}
+
+            <div className="mt-4 flex items-center justify-between">
+              <label className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border border-gray-200 px-3 py-2 font-poppins text-[13px] text-gray-700 hover:bg-gray-50">
+                <Paperclip className="size-4" />
+                Attach
+                <input
+                  type="file"
+                  multiple
+                  className="hidden"
+                  disabled={files.length >= MAX_FILES}
+                  onChange={(e) => {
+                    addFiles(e.target.files)
+                    e.target.value = ''
+                  }}
+                />
+              </label>
               <button
-                onClick={handleSubmit}
-                disabled={submitting || !message.trim()}
+                onClick={() => void handleSubmit()}
+                disabled={submitting || (!message.trim() && files.length === 0)}
                 className="px-5 py-3 bg-[#242C3C] rounded-[12px] text-white font-semibold text-[14px] hover:bg-[#1B2130] transition disabled:opacity-60 disabled:cursor-not-allowed"
               >
-                {submitting ? 'Sending…' : 'Send'}
+                {uploading ? 'Uploading…' : submitting ? 'Sending…' : 'Send'}
               </button>
             </div>
           </div>

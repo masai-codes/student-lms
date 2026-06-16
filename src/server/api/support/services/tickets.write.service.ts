@@ -94,6 +94,7 @@ export async function createTicket(input: {
       batch_id: String(input.batchId),
       subCategory: input.subCategory ?? null,
       question_id: input.questionId ?? null,
+      help_faq_question: true,
     },
     logstamps: { L1_assigned_at: new Date().toISOString() },
   })

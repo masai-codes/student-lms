@@ -28,4 +28,6 @@ export const SUPPORT_API = {
   ticketEscalate: '/api/support/tickets/escalate',
   /** POST — request a callback. */
   callbackCreate: '/api/support/callback/create',
+  /** POST (multipart) — upload a ticket attachment. */
+  upload: '/api/support/upload',
 } as const

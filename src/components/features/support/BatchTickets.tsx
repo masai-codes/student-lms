@@ -143,7 +143,11 @@ export function BatchTickets() {
   const contact = overview?.contact
   const showContact = Boolean(contact?.text || contact?.phone)
   const showCallbackButton = Boolean(effectiveBatchId && (overview?.callback.reasons.length ?? 0) > 0)
-  const isTicketModalOpen = search.step === 'ticketCreate' && Boolean(effectiveBatchId)
+  // The modal stays mounted across create → details (after creating, the step
+  // flips to 'ticketdetails' and the same modal shows the new conversation).
+  const isTicketModalOpen =
+    (search.step === 'ticketCreate' || search.step === 'ticketdetails') &&
+    Boolean(effectiveBatchId)
 
   return (
     <>

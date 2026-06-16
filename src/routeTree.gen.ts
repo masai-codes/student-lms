@@ -21,6 +21,7 @@ import { Route as protectedLayoutIndexRouteImport } from './routes/(protected)/_
 import { Route as authSwitchAccountIndexRouteImport } from './routes/(auth)/switch-account/index'
 import { Route as authSigninIndexRouteImport } from './routes/(auth)/signin/index'
 import { Route as authLoginIndexRouteImport } from './routes/(auth)/login/index'
+import { Route as ApiSupportUploadRouteImport } from './routes/api/support/upload'
 import { Route as ApiSupportTicketsRouteImport } from './routes/api/support/tickets'
 import { Route as ApiSupportOverviewRouteImport } from './routes/api/support/overview'
 import { Route as ApiSupportFaqsRouteImport } from './routes/api/support/faqs'
@@ -210,6 +211,11 @@ const authSigninIndexRoute = authSigninIndexRouteImport.update({
 const authLoginIndexRoute = authLoginIndexRouteImport.update({
   id: '/(auth)/login/',
   path: '/login/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiSupportUploadRoute = ApiSupportUploadRouteImport.update({
+  id: '/api/support/upload',
+  path: '/api/support/upload',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiSupportTicketsRoute = ApiSupportTicketsRouteImport.update({
@@ -994,6 +1000,7 @@ export interface FileRoutesByFullPath {
   '/api/support/faqs': typeof ApiSupportFaqsRouteWithChildren
   '/api/support/overview': typeof ApiSupportOverviewRoute
   '/api/support/tickets': typeof ApiSupportTicketsRouteWithChildren
+  '/api/support/upload': typeof ApiSupportUploadRoute
   '/login/': typeof authLoginIndexRoute
   '/signin/': typeof authSigninIndexRoute
   '/switch-account/': typeof authSwitchAccountIndexRoute
@@ -1136,6 +1143,7 @@ export interface FileRoutesByTo {
   '/api/support/faqs': typeof ApiSupportFaqsRouteWithChildren
   '/api/support/overview': typeof ApiSupportOverviewRoute
   '/api/support/tickets': typeof ApiSupportTicketsRouteWithChildren
+  '/api/support/upload': typeof ApiSupportUploadRoute
   '/login': typeof authLoginIndexRoute
   '/signin': typeof authSigninIndexRoute
   '/switch-account': typeof authSwitchAccountIndexRoute
@@ -1281,6 +1289,7 @@ export interface FileRoutesById {
   '/api/support/faqs': typeof ApiSupportFaqsRouteWithChildren
   '/api/support/overview': typeof ApiSupportOverviewRoute
   '/api/support/tickets': typeof ApiSupportTicketsRouteWithChildren
+  '/api/support/upload': typeof ApiSupportUploadRoute
   '/(auth)/login/': typeof authLoginIndexRoute
   '/(auth)/signin/': typeof authSigninIndexRoute
   '/(auth)/switch-account/': typeof authSwitchAccountIndexRoute
@@ -1426,6 +1435,7 @@ export interface FileRouteTypes {
     | '/api/support/faqs'
     | '/api/support/overview'
     | '/api/support/tickets'
+    | '/api/support/upload'
     | '/login/'
     | '/signin/'
     | '/switch-account/'
@@ -1568,6 +1578,7 @@ export interface FileRouteTypes {
     | '/api/support/faqs'
     | '/api/support/overview'
     | '/api/support/tickets'
+    | '/api/support/upload'
     | '/login'
     | '/signin'
     | '/switch-account'
@@ -1712,6 +1723,7 @@ export interface FileRouteTypes {
     | '/api/support/faqs'
     | '/api/support/overview'
     | '/api/support/tickets'
+    | '/api/support/upload'
     | '/(auth)/login/'
     | '/(auth)/signin/'
     | '/(auth)/switch-account/'
@@ -1856,6 +1868,7 @@ export interface RootRouteChildren {
   ApiSupportFaqsRoute: typeof ApiSupportFaqsRouteWithChildren
   ApiSupportOverviewRoute: typeof ApiSupportOverviewRoute
   ApiSupportTicketsRoute: typeof ApiSupportTicketsRouteWithChildren
+  ApiSupportUploadRoute: typeof ApiSupportUploadRoute
   authLoginIndexRoute: typeof authLoginIndexRoute
   authSigninIndexRoute: typeof authSigninIndexRoute
   authSwitchAccountIndexRoute: typeof authSwitchAccountIndexRoute
@@ -2008,6 +2021,13 @@ declare module '@tanstack/react-router' {
       path: '/login'
       fullPath: '/login/'
       preLoaderRoute: typeof authLoginIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/support/upload': {
+      id: '/api/support/upload'
+      path: '/api/support/upload'
+      fullPath: '/api/support/upload'
+      preLoaderRoute: typeof ApiSupportUploadRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/support/tickets': {
@@ -3167,6 +3187,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiSupportFaqsRoute: ApiSupportFaqsRouteWithChildren,
   ApiSupportOverviewRoute: ApiSupportOverviewRoute,
   ApiSupportTicketsRoute: ApiSupportTicketsRouteWithChildren,
+  ApiSupportUploadRoute: ApiSupportUploadRoute,
   authLoginIndexRoute: authLoginIndexRoute,
   authSigninIndexRoute: authSigninIndexRoute,
   authSwitchAccountIndexRoute: authSwitchAccountIndexRoute,
