@@ -1,30 +1,28 @@
 import { useState, useEffect, useCallback } from 'react'
-import { Check, ChevronDown, Loader2, MapPin, X } from 'lucide-react'
+import { Check, ChevronDown, Loader2, MapPin } from 'lucide-react'
 import {
   fetchAgreementData,
   recordAgreementOpen as apiRecordOpen,
   recordAgreementStep as apiRecordStep,
+  saveAgreementDetails as apiSaveDetails,
   submitAgreement as apiSubmitAgreement,
   dismissAgreement as apiDismissAgreement,
 } from '@/lib/api/dashboard/dashboardApi'
-import type { AgreementStep as ApiAgreementStep } from '@/server/api/dashboard/getAgreementData.service'
-import type { AgreementFormData } from '@/server/api/dashboard/submitAgreement.service'
+import type { AgreementDataResponse } from '@/server/api/dashboard/getAgreementData.service'
+import type { AgreementDetailsData } from '@/server/api/dashboard/saveAgreementDetails.service'
 
 interface FormValues {
   // Personal
   location: string
   name: string
-  email: string
-  phone: string
   dob: string
   gender: string
   address: string
   // Family
-  fatherName: string
   parentName: string
-  parentEmail: string
-  parentMobileCountry: string
-  parentMobileNumber: string
+  parentsEmail: string
+  parentsMobileCountry: string
+  parentsMobile: string
   // Education & work
   currentStatus: string
   studyYear: string
@@ -38,24 +36,20 @@ interface FormValues {
   // Documents
   panNumber: string
   passportNumber: string
-  // Emergency contact
-  emergencyContactName: string
-  emergencyContactPhone: string
-  emergencyContactRelationship: string
 }
 
 // ── Helpers ────────────────────────────────────────────────────────────────────
 
-function isValidEmail(email: string) {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
-}
-
-function isValidPhone(number: string) {
-  return number.replace(/\D/g, '').length === 10
-}
-
 function isValidPan(pan: string) {
   return pan.trim().length === 10
+}
+
+function isValidEmail(email: string) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())
+}
+
+function isValidPhone(phone: string) {
+  return /^\d{10}$/.test(phone.trim())
 }
 
 function isEnterDetailsValid(v: FormValues): boolean {
@@ -63,28 +57,26 @@ function isEnterDetailsValid(v: FormValues): boolean {
   const base =
     v.location.trim() !== '' &&
     v.name.trim() !== '' &&
-    isValidEmail(v.email) &&
-    isValidPhone(v.phone) &&
     v.dob !== '' && v.dob <= today &&
     v.gender !== '' &&
     v.address.trim() !== '' &&
-    v.fatherName.trim() !== '' &&
     v.parentName.trim() !== '' &&
-    isValidEmail(v.parentEmail) &&
-    v.parentMobileCountry !== '' &&
-    isValidPhone(v.parentMobileNumber) &&
     v.currentStatus !== '' &&
     v.educationDetails !== '' &&
     v.yearOfGraduation.length === 4 &&
-    v.collegeName.trim() !== '' &&
-    v.emergencyContactName.trim() !== '' &&
-    isValidPhone(v.emergencyContactPhone) &&
-    v.emergencyContactRelationship !== ''
+    v.collegeName.trim() !== ''
   if (!base) return false
   if (v.currentStatus === 'studying' && v.studyYear === '') return false
   if (v.currentStatus === 'working' && v.workDomain.trim() === '') return false
   if (v.panNumber.trim() !== '' && !isValidPan(v.panNumber)) return false
+  if (v.parentsEmail.trim() !== '' && !isValidEmail(v.parentsEmail)) return false
+  if (v.parentsMobile.trim() !== '' && !isValidPhone(v.parentsMobile)) return false
   return true
+}
+
+function formatDateDisplay(iso: string | null | undefined): string {
+  if (!iso) return '—'
+  try { return new Date(iso).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' }) } catch { return iso }
 }
 
 // ── Constants ─────────────────────────────────────────────────────────────────
@@ -119,8 +111,6 @@ const CURRENT_STATUS_OPTIONS = [
 ]
 
 const STUDY_YEAR_OPTIONS = ['1st Year', '2nd Year', '3rd Year', '4th Year', '5th Year']
-
-const RELATIONSHIP_OPTIONS = ['Parent', 'Sibling', 'Spouse', 'Friend', 'Guardian', 'Other']
 
 // ── Step tab ───────────────────────────────────────────────────────────────────
 
@@ -254,12 +244,9 @@ function EnterDetailsStep({
   const [locLoading, setLocLoading] = useState(false)
   const [locError, setLocError] = useState('')
   const [locChecked, setLocChecked] = useState(!!values.location)
-  const [emailTouched, setEmailTouched] = useState(false)
-  const [parentEmailTouched, setParentEmailTouched] = useState(false)
-  const [phoneTouched, setPhoneTouched] = useState(false)
-  const [parentPhoneTouched, setParentPhoneTouched] = useState(false)
-  const [emergencyPhoneTouched, setEmergencyPhoneTouched] = useState(false)
   const [yearTouched, setYearTouched] = useState(false)
+  const [parentEmailTouched, setParentEmailTouched] = useState(false)
+  const [parentPhoneTouched, setParentPhoneTouched] = useState(false)
 
   const today = new Date().toISOString().split('T')[0]
 
@@ -347,38 +334,6 @@ function EnterDetailsStep({
         />
       </Field>
 
-      {/* Email */}
-      <Field label="Email" required>
-        <input
-          type="email"
-          placeholder="Enter your email"
-          value={values.email}
-          onChange={(e) => onChange('email', e.target.value)}
-          onBlur={() => setEmailTouched(true)}
-          className={inputClass}
-        />
-        {emailTouched && values.email.length > 0 && !isValidEmail(values.email) && (
-          <p className="mt-1.5 text-xs text-red-500">Please enter a valid email address</p>
-        )}
-      </Field>
-
-      {/* Phone */}
-      <Field label="Phone Number" required>
-        <input
-          type="tel"
-          inputMode="numeric"
-          placeholder="Enter 10-digit phone number"
-          value={values.phone}
-          maxLength={10}
-          onChange={(e) => onChange('phone', e.target.value.replace(/\D/g, '').slice(0, 10))}
-          onBlur={() => setPhoneTouched(true)}
-          className={inputClass}
-        />
-        {phoneTouched && values.phone.length > 0 && !isValidPhone(values.phone) && (
-          <p className="mt-1.5 text-xs text-red-500">Please enter a valid 10-digit phone number</p>
-        )}
-      </Field>
-
       {/* Date of Birth */}
       <Field label="Date of Birth" required>
         <input
@@ -418,22 +373,11 @@ function EnterDetailsStep({
 
       <SectionHeading>Family Information</SectionHeading>
 
-      {/* Father's Name */}
-      <Field label="Father's Name" required>
-        <input
-          type="text"
-          placeholder="Enter father's name"
-          value={values.fatherName}
-          onChange={(e) => onChange('fatherName', e.target.value.replace(/[^a-zA-Z\s]/g, ''))}
-          className={inputClass}
-        />
-      </Field>
-
       {/* Parent's Name */}
-      <Field label="Parent's / Guardian's Name" required>
+      <Field label="Parent's Name" required>
         <input
           type="text"
-          placeholder="Enter parent's or guardian's name"
+          placeholder="Enter parent's name"
           value={values.parentName}
           onChange={(e) => onChange('parentName', e.target.value.replace(/[^a-zA-Z\s]/g, ''))}
           className={inputClass}
@@ -441,32 +385,31 @@ function EnterDetailsStep({
       </Field>
 
       {/* Parent's Email */}
-      <Field label="Parent's Email" required>
+      <Field label="Parent's Email">
         <input
           type="email"
           placeholder="Enter parent's email"
-          value={values.parentEmail}
-          onChange={(e) => onChange('parentEmail', e.target.value)}
+          value={values.parentsEmail}
+          onChange={(e) => onChange('parentsEmail', e.target.value)}
           onBlur={() => setParentEmailTouched(true)}
           className={inputClass}
         />
-        {parentEmailTouched && values.parentEmail.length > 0 && !isValidEmail(values.parentEmail) && (
+        {parentEmailTouched && values.parentsEmail.trim() !== '' && !isValidEmail(values.parentsEmail) && (
           <p className="mt-1.5 text-xs text-red-500">Please enter a valid email address</p>
         )}
       </Field>
 
       {/* Parent's Mobile */}
-      <Field label="Parent's Mobile" required>
+      <Field label="Parent's Mobile">
         <div className="flex gap-2">
-          <div className="relative shrink-0" style={{ width: 110 }}>
+          <div className="relative" style={{ width: 100 }}>
             <select
-              value={values.parentMobileCountry}
-              onChange={(e) => onChange('parentMobileCountry', e.target.value)}
-              className={`${inputClass} appearance-none pr-6 w-full`}
+              value={values.parentsMobileCountry}
+              onChange={(e) => onChange('parentsMobileCountry', e.target.value)}
+              className={`${inputClass} appearance-none pr-6`}
             >
-              <option value="" disabled>Code</option>
               {COUNTRY_CODES.map((c) => (
-                <option key={c.code} value={c.code}>{c.code} {c.country}</option>
+                <option key={c.code} value={c.code}>{c.code}</option>
               ))}
             </select>
             <ChevronDown size={14} className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-[#6B7280]" />
@@ -474,19 +417,16 @@ function EnterDetailsStep({
           <input
             type="tel"
             inputMode="numeric"
-            placeholder="Enter mobile number"
-            value={values.parentMobileNumber}
+            placeholder="10-digit mobile number"
             maxLength={10}
-            onChange={(e) => onChange('parentMobileNumber', e.target.value.replace(/\D/g, '').slice(0, 10))}
+            value={values.parentsMobile}
+            onChange={(e) => onChange('parentsMobile', e.target.value.replace(/\D/g, '').slice(0, 10))}
             onBlur={() => setParentPhoneTouched(true)}
             className={`${inputClass} flex-1`}
           />
         </div>
-        {parentPhoneTouched && values.parentMobileCountry === '' && (
-          <p className="mt-1.5 text-xs text-red-500">Please select a country code</p>
-        )}
-        {parentPhoneTouched && values.parentMobileNumber.length > 0 && !isValidPhone(values.parentMobileNumber) && (
-          <p className="mt-1.5 text-xs text-red-500">Please enter a valid phone number</p>
+        {parentPhoneTouched && values.parentsMobile.trim() !== '' && !isValidPhone(values.parentsMobile) && (
+          <p className="mt-1.5 text-xs text-red-500">Please enter a valid 10-digit mobile number</p>
         )}
       </Field>
 
@@ -632,44 +572,78 @@ function EnterDetailsStep({
         />
       </Field>
 
-      <SectionHeading>Emergency Contact</SectionHeading>
-
-      <Field label="Contact Name" required>
-        <input
-          type="text"
-          placeholder="Enter emergency contact name"
-          value={values.emergencyContactName}
-          onChange={(e) => onChange('emergencyContactName', e.target.value.replace(/[^a-zA-Z\s]/g, ''))}
-          className={inputClass}
-        />
-      </Field>
-
-      <Field label="Contact Phone" required>
-        <input
-          type="tel"
-          inputMode="numeric"
-          placeholder="Enter 10-digit phone number"
-          value={values.emergencyContactPhone}
-          maxLength={10}
-          onChange={(e) => onChange('emergencyContactPhone', e.target.value.replace(/\D/g, '').slice(0, 10))}
-          onBlur={() => setEmergencyPhoneTouched(true)}
-          className={inputClass}
-        />
-        {emergencyPhoneTouched && values.emergencyContactPhone.length > 0 && !isValidPhone(values.emergencyContactPhone) && (
-          <p className="mt-1.5 text-xs text-red-500">Please enter a valid 10-digit phone number</p>
-        )}
-      </Field>
-
-      <Field label="Relationship" required>
-        <SelectInput
-          value={values.emergencyContactRelationship}
-          onChange={(v) => onChange('emergencyContactRelationship', v)}
-          placeholder="Select relationship"
-          options={RELATIONSHIP_OPTIONS}
-        />
-      </Field>
-
       <div className="pb-8" />
+    </div>
+  )
+}
+
+// ── Signature Certificate ──────────────────────────────────────────────────────
+
+function SigRow({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="flex items-baseline gap-3 text-sm">
+      <span className="text-gray-500 shrink-0" style={{ width: 80 }}>{label}</span>
+      <span className="text-gray-400 shrink-0">:</span>
+      <span className="text-gray-700">{value || '—'}</span>
+    </div>
+  )
+}
+
+function SigSection({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <div className="flex flex-col gap-3">
+      <p className="text-sm font-semibold text-gray-800">{title}</p>
+      {children}
+    </div>
+  )
+}
+
+function SignatureCertificate({
+  form,
+  apiData,
+  sectionId,
+  signedAt,
+  ipAddress,
+  referenceNumber: refNumProp,
+}: {
+  form: FormValues
+  apiData: AgreementDataResponse | null
+  sectionId: number | undefined
+  signedAt: string
+  ipAddress: string | null
+  referenceNumber: string | null
+}) {
+  const referenceNumber = refNumProp
+    ?? apiData?.prefill?.referenceNumber
+    ?? (apiData?.userId && sectionId ? `TC-${apiData.userId}-section_${sectionId}` : '—')
+
+  const resolvedIp = ipAddress ?? apiData?.prefill?.ipAddress ?? '—'
+  const viewTime = apiData?.viewTime
+
+  return (
+    <div className="flex flex-col rounded-xl bg-white border border-gray-100 overflow-hidden" style={{ boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
+      {/* Name + email block */}
+      <div className="px-8 pt-7 pb-5 border-b border-gray-100">
+        <p className="text-base font-semibold text-gray-900">{form.name || '—'}</p>
+        <p className="text-sm text-gray-500 mt-0.5">Email : <span className="font-medium text-gray-700">{apiData?.userEmail || '—'}</span></p>
+      </div>
+
+      {/* Timestamp + Signature sections */}
+      <div className="px-8 py-6 flex flex-col gap-7">
+        <SigSection title="Timestamp">
+          <SigRow label="Sent" value={formatDateDisplay(viewTime)} />
+          <SigRow label="Viewed" value={formatDateDisplay(viewTime)} />
+          <SigRow label="Signed" value={formatDateDisplay(signedAt)} />
+        </SigSection>
+
+        <SigSection title="Signature">
+          <SigRow label="IP Address" value={resolvedIp} />
+          <SigRow label="Location" value={form.location || '—'} />
+        </SigSection>
+      </div>
+
+      {/* Hidden cert info used internally for PDF — not shown in UI */}
+      <input type="hidden" value={referenceNumber} />
     </div>
   )
 }
@@ -687,24 +661,22 @@ export function AgreementFlow({
 }) {
   const [activeStep, setActiveStep] = useState(0)
   const [apiLoading, setApiLoading] = useState(!!sectionId)
-  const [sectionName, setSectionName] = useState<string | null>(null)
-  const [daysLeft, setDaysLeft] = useState<number>(7)
-  const [alreadyAccepted, setAlreadyAccepted] = useState(false)
-  const [apiAgreementSteps, setApiAgreementSteps] = useState<Array<ApiAgreementStep> | null>(null)
+  const [submitting, setSubmitting] = useState(false)
+  const [apiData, setApiData] = useState<AgreementDataResponse | null>(null)
   const [agreementChecks, setAgreementChecks] = useState<Array<boolean>>([])
+  const [signedAt] = useState(() => new Date().toISOString())
+  const [savedIpAddress, setSavedIpAddress] = useState<string | null>(null)
+  const [savedReferenceNumber, setSavedReferenceNumber] = useState<string | null>(null)
   const [form, setForm] = useState<FormValues>({
     location: '',
     name: '',
-    email: '',
-    phone: '',
     dob: '',
     gender: '',
     address: '',
-    fatherName: '',
     parentName: '',
-    parentEmail: '',
-    parentMobileCountry: '+91',
-    parentMobileNumber: '',
+    parentsEmail: '',
+    parentsMobileCountry: '+91',
+    parentsMobile: '',
     currentStatus: '',
     studyYear: '',
     workDomain: '',
@@ -716,23 +688,41 @@ export function AgreementFlow({
     ctc: '',
     panNumber: '',
     passportNumber: '',
-    emergencyContactName: '',
-    emergencyContactPhone: '',
-    emergencyContactRelationship: '',
   })
+
+  const apiAgreementSteps = apiData?.agreementSteps ?? null
 
   useEffect(() => {
     if (!sectionId) return
     setApiLoading(true)
     fetchAgreementData(sectionId)
       .then((data) => {
-        setSectionName(data.sectionName)
-        setDaysLeft(data.daysLeft)
-        setAlreadyAccepted(data.alreadyAccepted)
-        setApiAgreementSteps(data.agreementSteps)
+        setApiData(data)
         setAgreementChecks(new Array(data.agreementSteps.length).fill(false))
         if (data.prefill) {
-          setForm((prev) => ({ ...prev, ...data.prefill }))
+          setForm((prev) => ({
+            ...prev,
+            name: data.prefill?.name ?? prev.name,
+            dob: data.prefill?.dob ?? prev.dob,
+            gender: data.prefill?.gender ?? prev.gender,
+            address: data.prefill?.address ?? prev.address,
+            parentName: data.prefill?.parentsName ?? prev.parentName,
+            parentsEmail: data.prefill?.parentsEmail ?? prev.parentsEmail,
+            parentsMobileCountry: data.prefill?.parentsMobileCountry ?? prev.parentsMobileCountry,
+            parentsMobile: data.prefill?.parentsMobileNumber ?? prev.parentsMobile,
+            currentStatus: data.prefill?.currentStatus ?? prev.currentStatus,
+            studyYear: data.prefill?.studyYear ?? prev.studyYear,
+            workDomain: data.prefill?.workDomain ?? prev.workDomain,
+            educationDetails: data.prefill?.educationDetails ?? prev.educationDetails,
+            yearOfGraduation: data.prefill?.yearOfGraduation ?? prev.yearOfGraduation,
+            collegeName: data.prefill?.collegeName ?? prev.collegeName,
+            currentCompanyName: data.prefill?.currentCompanyName ?? prev.currentCompanyName,
+            workExperience: data.prefill?.workExperience ?? prev.workExperience,
+            ctc: data.prefill?.ctc ?? prev.ctc,
+            panNumber: data.prefill?.panNumber ?? prev.panNumber,
+            passportNumber: data.prefill?.passportNumber ?? prev.passportNumber,
+            location: data.prefill?.location ?? prev.location,
+          }))
         }
       })
       .catch((err: unknown) => { console.error('Failed to fetch agreement data', err) })
@@ -760,15 +750,63 @@ export function AgreementFlow({
 
   async function handleNext() {
     if (isLastStep) {
+      // Final submit
       if (sectionId) {
+        setSubmitting(true)
         try {
-          await apiSubmitAgreement(sectionId, form as unknown as AgreementFormData)
+          await apiSubmitAgreement(sectionId)
         } catch (err) {
           console.error('Failed to submit agreement', err)
+        } finally {
+          setSubmitting(false)
         }
       }
       onSubmit?.()
+    } else if (activeStep === 0) {
+      // Save enter details
+      if (sectionId) {
+        let clientIp: string | undefined
+        try {
+          const ipRes = await fetch('https://api.ipify.org?format=json')
+          const ipJson = await ipRes.json() as { ip?: string }
+          clientIp = ipJson.ip
+        } catch { /* ignore — server-side header fallback will be used */ }
+
+        const detailsData: AgreementDetailsData = {
+          name: form.name,
+          address: form.address,
+          panNumber: form.panNumber,
+          passportNumber: form.passportNumber,
+          dob: form.dob,
+          gender: form.gender,
+          parentsName: form.parentName,
+          parentsEmail: form.parentsEmail,
+          parentsMobileCountry: form.parentsMobileCountry,
+          parentsMobile: form.parentsMobile,
+          currentStatus: form.currentStatus,
+          studyYear: form.studyYear,
+          workDomain: form.workDomain,
+          educationDetails: form.educationDetails,
+          graduationYear: form.yearOfGraduation,
+          collegeName: form.collegeName,
+          companyName: form.currentCompanyName,
+          workExperience: form.workExperience,
+          ctc: form.ctc,
+          location: form.location,
+          clientIp,
+        }
+        apiSaveDetails(sectionId, detailsData)
+          .then(({ ipAddress, referenceNumber }) => {
+            setSavedIpAddress(ipAddress)
+            setSavedReferenceNumber(referenceNumber)
+          })
+          .catch((err: unknown) => {
+            console.error('Failed to save agreement details', err)
+          })
+      }
+      setActiveStep((s) => s + 1)
     } else {
+      // Agreement step: record acceptance
       if (isAgreementStep && sectionId) {
         const stepKey = STEPS[activeStep].key
         void apiRecordStep(sectionId, stepKey).catch((err: unknown) => {
@@ -799,7 +837,9 @@ export function AgreementFlow({
     isAgreementStep ? (agreementChecks[activeStep - 1] ?? false) :
     true
 
-  const displayTitle = sectionName ?? 'Program Agreement'
+  const displayTitle = apiData?.sectionName ?? 'Program Agreement'
+  const daysLeft = apiData?.daysLeft ?? 7
+  const alreadyAccepted = apiData?.alreadyAccepted ?? false
   const showDaysBadge = !(alreadyAccepted && daysLeft <= 0)
 
   if (apiLoading) {
@@ -821,7 +861,7 @@ export function AgreementFlow({
           className="absolute right-5 top-5 flex items-center justify-center size-8 rounded-full text-gray-700 hover:bg-gray-100 transition-colors focus-visible:outline-none z-10"
           aria-label="Close"
         >
-          <X size={18} strokeWidth={2.5} />
+          ✕
         </button>
       )}
 
@@ -908,15 +948,14 @@ export function AgreementFlow({
             )}
 
             {isLastStep && (
-              <div className="flex flex-col items-center justify-center py-12 gap-4 text-center">
-                <div className="size-16 rounded-full bg-green-50 flex items-center justify-center">
-                  <Check size={32} className="text-green-500" strokeWidth={2} />
-                </div>
-                <h3 className="text-lg font-semibold text-gray-900">Signature Certificate</h3>
-                <p className="text-sm text-gray-500 max-w-sm">
-                  By clicking Submit, you confirm that you have reviewed and agreed to all the terms.
-                </p>
-              </div>
+              <SignatureCertificate
+                form={form}
+                apiData={apiData}
+                sectionId={sectionId}
+                signedAt={signedAt}
+                ipAddress={savedIpAddress}
+                referenceNumber={savedReferenceNumber}
+              />
             )}
 
           </div>
@@ -941,10 +980,11 @@ export function AgreementFlow({
         <button
           type="button"
           onClick={() => { void handleNext() }}
-          disabled={!canProceed}
-          className="flex items-center justify-center text-white font-medium rounded-lg transition-opacity hover:opacity-90 focus-visible:outline-none disabled:opacity-40 disabled:cursor-not-allowed"
+          disabled={!canProceed || submitting}
+          className="flex items-center justify-center text-white font-medium rounded-lg transition-opacity hover:opacity-90 focus-visible:outline-none disabled:opacity-40 disabled:cursor-not-allowed gap-2"
           style={{ width: 166, height: 40, background: '#6962AC', fontFamily: 'Poppins', fontSize: 16 }}
         >
+          {submitting && <Loader2 size={16} className="animate-spin" />}
           {isLastStep ? 'Submit' : 'Save & Continue'}
         </button>
       </div>

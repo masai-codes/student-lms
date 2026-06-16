@@ -1,6 +1,15 @@
-import { eq } from 'drizzle-orm'
+import { and, eq, isNull } from 'drizzle-orm'
 import { db } from '@/db'
 import { profiles } from '@/db/schema'
+
+function getAgreementFieldName(stepKey: string): string {
+  switch (stepKey) {
+    case 'program_agreement': return 'programAgreement'
+    case 'grading_policy': return 'criteriaAgreement'
+    case 'posh_compliance': return 'poshAgreement'
+    default: return stepKey
+  }
+}
 
 export async function recordAgreementStep(
   sectionId: number,
@@ -10,7 +19,7 @@ export async function recordAgreementStep(
   const [profile] = await db
     .select({ id: profiles.id, legalData: profiles.legalData })
     .from(profiles)
-    .where(eq(profiles.userId, userId))
+    .where(and(eq(profiles.userId, userId), isNull(profiles.deletedAt)))
     .limit(1)
 
   if (!profile) return
@@ -21,6 +30,10 @@ export async function recordAgreementStep(
   const sectionKey = `section_${sectionId}`
   const existing = (agreements[sectionKey] ?? {}) as Record<string, unknown>
 
+  const fieldName = getAgreementFieldName(stepKey)
+  const isFirstAcceptance = !existing[fieldName]
+  const timeKey = isFirstAcceptance ? `${fieldName}CreateTime` : `${fieldName}UpdateTime`
+
   await db
     .update(profiles)
     .set({
@@ -28,7 +41,11 @@ export async function recordAgreementStep(
         ...legalData,
         agreements: {
           ...agreements,
-          [sectionKey]: { ...existing, [stepKey]: now },
+          [sectionKey]: {
+            ...existing,
+            [fieldName]: now,
+            [timeKey]: now,
+          },
         },
       },
     })

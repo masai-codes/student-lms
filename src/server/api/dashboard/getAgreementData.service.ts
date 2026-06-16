@@ -1,6 +1,6 @@
 import { eq } from 'drizzle-orm'
 import { db } from '@/db'
-import { profiles, sections } from '@/db/schema'
+import { profiles, sections, batches, users } from '@/db/schema'
 
 export interface AgreementStep {
   key: string
@@ -11,6 +11,11 @@ export interface AgreementStep {
 
 export interface AgreementDataResponse {
   sectionName: string
+  programName: string
+  userId: number
+  userEmail: string
+  studentCode: string
+  viewTime: string | null
   daysLeft: number
   alreadyAccepted: boolean
   agreementSteps: Array<AgreementStep>
@@ -18,18 +23,16 @@ export interface AgreementDataResponse {
 }
 
 export interface AgreementFormPrefill {
-  location: string
   name: string
-  email: string
-  phone: string
+  address: string
+  panNumber: string
+  passportNumber: string
   dob: string
   gender: string
-  address: string
-  fatherName: string
-  parentName: string
-  parentEmail: string
-  parentMobileCountry: string
-  parentMobileNumber: string
+  parentsName: string
+  parentsEmail: string
+  parentsMobileCountry: string
+  parentsMobileNumber: string
   currentStatus: string
   studyYear: string
   workDomain: string
@@ -39,11 +42,9 @@ export interface AgreementFormPrefill {
   currentCompanyName: string
   workExperience: string
   ctc: string
-  panNumber: string
-  passportNumber: string
-  emergencyContactName: string
-  emergencyContactPhone: string
-  emergencyContactRelationship: string
+  location: string
+  ipAddress: string
+  referenceNumber: string
 }
 
 interface AgreementEntry {
@@ -55,33 +56,32 @@ interface AgreementEntry {
 
 interface ProfileLegalData {
   lastModalCloseTime?: string | null
-  agreements?: Record<string, { haveAcceptedLegalAgreement?: boolean }>
-  location?: string
-  name?: string
-  email?: string
-  phone?: string
-  dob?: string
-  gender?: string
-  address?: string
-  fatherName?: string
-  parentName?: string
-  parentEmail?: string
-  parentMobileCountry?: string
-  parentMobileNumber?: string
-  currentStatus?: string
-  studyYear?: string
-  workDomain?: string
-  educationDetails?: string
-  yearOfGraduation?: string
-  collegeName?: string
-  currentCompanyName?: string
-  workExperience?: string
-  ctc?: string
-  panNumber?: string
-  passportNumber?: string
-  emergencyContactName?: string
-  emergencyContactPhone?: string
-  emergencyContactRelationship?: string
+  viewTime?: string | null
+  agreements?: Record<string, {
+    haveAcceptedLegalAgreement?: boolean
+    name?: string
+    address?: string
+    panNumber?: string
+    passportNumber?: string
+    dateOfBirth?: string
+    gender?: string
+    parentsName?: string
+    parentsEmail?: string
+    parentsMobileCountry?: string
+    parentsMobile?: string
+    currentStatus?: string
+    studyYear?: string
+    workDomain?: string
+    educationDetails?: string
+    graduationYear?: string
+    collegeName?: string
+    companyName?: string
+    workExperience?: string
+    ctc?: string
+    location?: string
+    ipAddress?: string
+    referenceNumber?: string
+  }>
 }
 
 export async function getAgreementData(
@@ -89,12 +89,24 @@ export async function getAgreementData(
   userId: number,
 ): Promise<AgreementDataResponse> {
   const [section] = await db
-    .select({ id: sections.id, name: sections.name, settings: sections.settings })
+    .select({ id: sections.id, name: sections.name, settings: sections.settings, batchId: sections.batchId })
     .from(sections)
     .where(eq(sections.id, sectionId))
     .limit(1)
 
   if (!section) throw new Error('AGREEMENT_SECTION_NOT_FOUND')
+
+  const [batch] = await db
+    .select({ program: batches.program, name: batches.name })
+    .from(batches)
+    .where(eq(batches.id, section.batchId))
+    .limit(1)
+
+  const [userRow] = await db
+    .select({ email: users.email, username: users.username })
+    .from(users)
+    .where(eq(users.id, userId))
+    .limit(1)
 
   const settings = section.settings as Record<string, unknown> | null
   const agreementsRaw = (settings?.agreements ?? {}) as Record<string, unknown>
@@ -129,7 +141,6 @@ export async function getAgreementData(
 
   const alreadyAccepted = sectionAgreement?.haveAcceptedLegalAgreement === true
 
-  // lastModalCloseTime is now top-level in legal_data
   const lastClose = legalData?.lastModalCloseTime ?? null
   let daysLeft: number
   if (!lastClose) {
@@ -141,37 +152,38 @@ export async function getAgreementData(
     daysLeft = Math.max(0, 7 - daysSince)
   }
 
-  const prefill: Partial<AgreementFormPrefill> | null = legalData ? {
-    location: legalData.location,
-    name: legalData.name,
-    email: legalData.email,
-    phone: legalData.phone,
-    dob: legalData.dob,
-    gender: legalData.gender,
-    address: legalData.address,
-    fatherName: legalData.fatherName,
-    parentName: legalData.parentName,
-    parentEmail: legalData.parentEmail,
-    parentMobileCountry: legalData.parentMobileCountry,
-    parentMobileNumber: legalData.parentMobileNumber,
-    currentStatus: legalData.currentStatus,
-    studyYear: legalData.studyYear,
-    workDomain: legalData.workDomain,
-    educationDetails: legalData.educationDetails,
-    yearOfGraduation: legalData.yearOfGraduation,
-    collegeName: legalData.collegeName,
-    currentCompanyName: legalData.currentCompanyName,
-    workExperience: legalData.workExperience,
-    ctc: legalData.ctc,
-    panNumber: legalData.panNumber,
-    passportNumber: legalData.passportNumber,
-    emergencyContactName: legalData.emergencyContactName,
-    emergencyContactPhone: legalData.emergencyContactPhone,
-    emergencyContactRelationship: legalData.emergencyContactRelationship,
+  const prefill: Partial<AgreementFormPrefill> | null = sectionAgreement ? {
+    name: sectionAgreement.name,
+    address: sectionAgreement.address,
+    panNumber: sectionAgreement.panNumber,
+    passportNumber: sectionAgreement.passportNumber,
+    dob: sectionAgreement.dateOfBirth,
+    gender: sectionAgreement.gender,
+    parentsName: sectionAgreement.parentsName,
+    parentsEmail: sectionAgreement.parentsEmail,
+    parentsMobileCountry: sectionAgreement.parentsMobileCountry,
+    parentsMobileNumber: sectionAgreement.parentsMobile,
+    currentStatus: sectionAgreement.currentStatus,
+    studyYear: sectionAgreement.studyYear,
+    workDomain: sectionAgreement.workDomain,
+    educationDetails: sectionAgreement.educationDetails,
+    yearOfGraduation: sectionAgreement.graduationYear,
+    collegeName: sectionAgreement.collegeName,
+    currentCompanyName: sectionAgreement.companyName,
+    workExperience: sectionAgreement.workExperience,
+    ctc: sectionAgreement.ctc,
+    location: sectionAgreement.location,
+    ipAddress: sectionAgreement.ipAddress,
+    referenceNumber: sectionAgreement.referenceNumber,
   } : null
 
   return {
+    userId,
     sectionName: section.name,
+    programName: batch?.program ?? '',
+    userEmail: userRow?.email ?? '',
+    studentCode: userRow?.username ?? '',
+    viewTime: legalData?.viewTime ?? null,
     daysLeft,
     alreadyAccepted,
     agreementSteps,

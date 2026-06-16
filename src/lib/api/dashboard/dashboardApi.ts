@@ -5,7 +5,7 @@ import type { NpsSubmissionResult } from '@/server/api/dashboard/createNpsSubmis
 import type { AssessLinkResult } from '@/server/api/dashboard/getAssessLink.service'
 import type { AgreementDataResponse } from '@/server/api/dashboard/getAgreementData.service'
 import type { NpsQuestionAnswer } from '@/server/api/dashboard/submitNpsForm.service'
-import type { AgreementFormData } from '@/server/api/dashboard/submitAgreement.service'
+import type { AgreementDetailsData } from '@/server/api/dashboard/saveAgreementDetails.service'
 import type { DashboardAnnouncementItem } from '@/server/api/dashboard/getDashboardAnnouncements.service'
 import type { DashboardProductUpdateItem } from '@/server/api/dashboard/getProductUpdates.service'
 import type { DashboardScheduleItem } from '@/server/dashboard/getDashboardScheduleData'
@@ -161,6 +161,21 @@ export async function recordAgreementOpen(sectionId: number): Promise<void> {
   })
 }
 
+export async function saveAgreementDetails(
+  sectionId: number,
+  data: AgreementDetailsData,
+): Promise<{ ipAddress: string; referenceNumber: string }> {
+  const res = await fetchJson<{ success: boolean; ipAddress: string; referenceNumber: string }>(
+    DASHBOARD_API.agreementDetails(sectionId),
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ data }),
+    },
+  )
+  return { ipAddress: res.ipAddress, referenceNumber: res.referenceNumber }
+}
+
 export async function recordAgreementStep(sectionId: number, stepKey: string): Promise<void> {
   await fetchJson<{ success: boolean }>(DASHBOARD_API.agreementStep(sectionId), {
     method: 'POST',
@@ -169,14 +184,11 @@ export async function recordAgreementStep(sectionId: number, stepKey: string): P
   })
 }
 
-export async function submitAgreement(
-  sectionId: number,
-  formData: AgreementFormData,
-): Promise<void> {
+export async function submitAgreement(sectionId: number): Promise<void> {
   await fetchJson<{ success: boolean }>(DASHBOARD_API.agreementSubmit(sectionId), {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ formData }),
+    body: JSON.stringify({}),
   })
 }
 
