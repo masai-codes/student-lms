@@ -13,9 +13,11 @@ export default function StatsSection() {
       getKey={(card) => card.id}
       navKey="home-stats"
       navLabel="stats"
-      // Two-and-a-bit cards on phones (swipe for the rest); all four in a row at lg.
-      slidesPerView={2.15}
-      breakpoints={{ 1024: { slidesPerView: 4 } }}
+      // One-and-a-bit cards on phones (swipe for the rest) so each card is wide
+      // enough for its label to read on two lines; more as the screen grows, all
+      // four in a row at lg.
+      slidesPerView={1.5}
+      breakpoints={{ 640: { slidesPerView: 2.5 }, 1024: { slidesPerView: 4 } }}
       renderItem={(card) => {
         const accent = ACCENT_STYLES[card.accent]
         const count = data?.stats[card.metric]
@@ -43,7 +45,7 @@ export default function StatsSection() {
                     : count.toLocaleString('en-IN')}
                 </p>
               )}
-              <p className="text-[13px] leading-4 text-[#6B7280]">
+              <p className="break-words text-[13px] leading-4 text-[#6B7280]">
                 {card.label}
               </p>
             </div>
