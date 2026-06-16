@@ -5,6 +5,10 @@ import HighlightCard from './HighlightCard'
 import type { CSSProperties, ReactNode } from 'react'
 import type { MasaiverseV2HomeHighlight } from '@/server/api/masaiverse-v2/services/getHomeHighlights.service'
 
+// Pin the timezone so the viewer-local time renders deterministically.
+// Asia/Kolkata → getTzLabel() === 'IST'.
+process.env.TZ = 'Asia/Kolkata'
+
 vi.mock('@tanstack/react-router', () => ({
   Link: ({
     children,
@@ -53,7 +57,7 @@ describe('HighlightCard', () => {
     expect(screen.getByText('Build Sprint #11 — Winners')).toBeTruthy()
     expect(screen.getByText('43 submissions')).toBeTruthy()
     // Start date + time, formatted in IST (14:30 IST == 09:00 UTC).
-    expect(screen.getByText('May 28 · 2:30 PM')).toBeTruthy()
+    expect(screen.getByText('May 28 · 2:30 PM (IST)')).toBeTruthy()
   })
 
   it('links to the event detail route, even though it is a past event', () => {

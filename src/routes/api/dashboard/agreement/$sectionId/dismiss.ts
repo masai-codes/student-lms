@@ -4,7 +4,7 @@ import { handleDismissAgreement } from '@/server/api/dashboard/handlers/dismissA
 export const Route = createFileRoute('/api/dashboard/agreement/$sectionId/dismiss')({
   server: {
     handlers: {
-      POST: ({ request }) => handleDismissAgreement(request),
+      POST: ({ request, params }) => handleDismissAgreement(request, params.sectionId),
     },
   },
 })

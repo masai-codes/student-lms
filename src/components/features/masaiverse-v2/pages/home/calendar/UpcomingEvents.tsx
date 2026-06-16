@@ -3,6 +3,7 @@ import { Link } from '@tanstack/react-router'
 import type { MasaiverseV2HomeEvent } from '@/server/api/masaiverse-v2/services/getHomeEvents.service'
 import { getEventCardDisplay } from '@/lib/masaiverseEventCard'
 import { masaiverseV2HomeQuery } from '@/query/masaiverse-v2/homeQuery'
+import { useServerTime } from '@/hooks/useServerTime'
 import { MASAIVERSE_EVENTS, trackMasaiverse } from '../../../tracking'
 
 /**
@@ -49,7 +50,8 @@ export default function UpcomingEvents() {
 }
 
 function UpcomingEventRow({ event }: { event: MasaiverseV2HomeEvent }) {
-  const display = getEventCardDisplay(event, new Date())
+  const { skewMs } = useServerTime()
+  const display = getEventCardDisplay(event, new Date(), skewMs)
 
   return (
     <Link

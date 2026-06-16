@@ -5,6 +5,9 @@ import WeeklyConnectRow from './WeeklyConnectRow'
 import type { ReactNode } from 'react'
 import type { MasaiverseV2WeeklyConnect } from '@/server/api/masaiverse-v2/services/getClubWeeklyConnects.service'
 
+// Pin the timezone so the viewer-local day badge renders deterministically.
+process.env.TZ = 'Asia/Kolkata'
+
 // The row links to the event detail page; render a plain anchor so the test
 // doesn't need a full router, but keep the resolved `to`/`params` observable.
 vi.mock('@tanstack/react-router', () => ({

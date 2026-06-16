@@ -289,7 +289,7 @@ async function checkProfilePictureRequired(userId: number): Promise<boolean> {
   const rows = await db
     .select({ meta: profiles.meta })
     .from(profiles)
-    .where(eq(profiles.userId, userId))
+    .where(and(eq(profiles.userId, userId), isNull(profiles.deletedAt)))
     .limit(1)
 
   const meta = parseMeta(rows[0]?.meta)

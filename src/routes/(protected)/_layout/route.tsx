@@ -2,10 +2,11 @@ import {
   Outlet,
   createFileRoute,
   redirect,
+  useRouter,
   useRouterState,
 } from '@tanstack/react-router'
 import { useEffect, useState } from 'react'
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { AppLoading } from '@/components/common'
 import { AppMobileTabBar, AppNavbar } from '@/components/features/layout'
 import MasaiverseMobileTabBar from '@/components/features/masaiverse-v2/MasaiverseMobileTabBar'
@@ -100,6 +101,8 @@ function RouteComponent() {
     ? layoutMainClassesFullWidth
     : layoutMainClasses
 
+  const router = useRouter()
+  const queryClient = useQueryClient()
   const [onboardingOpen, setOnboardingOpen] = useState(false)
 
   const { data: leftSectionData } = useQuery({
@@ -145,6 +148,13 @@ function RouteComponent() {
           showProfilePhoto={leftSectionData.actionBanners.showProfilePicture}
           agreementSections={leftSectionData.actionBanners.pendingAgreementSections}
           feedbackForms={leftSectionData.actionBanners.pendingFeedbackForms}
+          onPhotoSaved={() => {
+            void queryClient.invalidateQueries({ queryKey: ['dashboard-left-section'] })
+            void router.invalidate()
+          }}
+          onAgreementSubmitted={() => {
+            void queryClient.invalidateQueries({ queryKey: ['dashboard-left-section'] })
+          }}
         />
       )}
     </div>

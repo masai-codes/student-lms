@@ -6,6 +6,7 @@ import ReadOnlyCalendar from './ReadOnlyCalendar'
 import UpcomingEvents from './UpcomingEvents'
 import { buildEventsByDate } from './calendarUtils'
 import { masaiverseV2EventsQuery } from '@/query/masaiverse-v2/eventsQuery'
+import { useServerTime } from '@/hooks/useServerTime'
 
 /**
  * Drawer content for "View calendar": an interactive month calendar (dots on
@@ -16,11 +17,12 @@ import { masaiverseV2EventsQuery } from '@/query/masaiverse-v2/eventsQuery'
 export default function CalendarPanel() {
   const { data } = useQuery(masaiverseV2EventsQuery())
   const events = data ?? []
+  const { skewMs } = useServerTime()
   const [selectedDateKey, setSelectedDateKey] = useState<string | null>(null)
 
   const eventsByDate = useMemo(
-    () => buildEventsByDate(events),
-    [events],
+    () => buildEventsByDate(events, skewMs),
+    [events, skewMs],
   )
   const eventDateKeys = useMemo(
     () => new Set(eventsByDate.keys()),
@@ -41,6 +43,7 @@ export default function CalendarPanel() {
         <CalendarDayEvents
           dateKey={selectedDateKey}
           events={selectedDayEvents}
+          skewMs={skewMs}
         />
       </div>
       <UpcomingEvents />
