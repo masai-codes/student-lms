@@ -82,8 +82,9 @@ export default function MasaiverseMobileTabBar() {
       {
         id: 'back-to-masai',
         label: 'Masai',
-        icon: <ArrowLeft size={24} weight="regular" className="text-current" />,
+        icon: <ArrowLeft size={20} weight="bold" className="text-current" />,
         isActive: false,
+        accent: true,
         onClick: () => {
           trackMasaiverse(MASAIVERSE_EVENTS.navClick, {
             item: 'back_to_masai',
@@ -142,6 +143,7 @@ export default function MasaiverseMobileTabBar() {
           items={items}
           ariaLabel="Masaiverse navigation"
           labelClassName="text-[11px]"
+          activeClassName="text-masaiverse-orange"
           className="shadow-[0_-4px_24px_rgba(0,0,0,0.08)] pb-[max(0.5rem,env(safe-area-inset-bottom))]"
         />
       </div>
