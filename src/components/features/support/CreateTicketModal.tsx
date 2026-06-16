@@ -220,6 +220,13 @@ export function CreateTicketModal({
           {ticket?.message && (
             <ResponseBubble isStudent author={ticket.owner.name} message={ticket.message} />
           )}
+          {thread?.statusResponse && (
+            <ResponseBubble
+              isStudent={false}
+              author="Support Team"
+              message={`**${thread.statusResponse.heading}**\n\n${thread.statusResponse.message}`}
+            />
+          )}
           {thread?.messages.map((m: TicketMessage) => (
             <ResponseBubble
               key={m.id}

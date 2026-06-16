@@ -389,6 +389,21 @@ function HelpTab(props: {
         </div>
       )}
 
+      {gateReason === 'no-active-section' && (
+        <div className="mx-4 mb-4 mt-4 rounded-lg border border-amber-300 bg-amber-50 p-4 md:mx-6">
+          <div className="flex items-center gap-3">
+            <div className="text-amber-600 text-lg">⚠️</div>
+            <div>
+              <h4 className="text-amber-900 font-semibold text-[15px]">No active section yet</h4>
+              <p className="text-amber-800 text-sm mt-1">
+                You’ll be able to raise tickets once you’re placed in an active section. You can still browse topics
+                below.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Batch selection (multi-batch) */}
       {!effectiveBatchId && batches.length > 1 && (
         <div className="mb-6 grid gap-4 px-4 sm:grid-cols-2 md:px-6 lg:grid-cols-3 pt-6">
