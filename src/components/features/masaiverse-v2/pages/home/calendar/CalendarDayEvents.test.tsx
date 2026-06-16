@@ -4,6 +4,10 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import CalendarDayEvents from './CalendarDayEvents'
 import type { ReactNode } from 'react'
 
+// Pin the timezone so the viewer-local time renders deterministically.
+// Asia/Kolkata → getTzLabel() === 'IST'.
+process.env.TZ = 'Asia/Kolkata'
+
 vi.mock('@tanstack/react-router', () => ({
   Link: ({
     children,
@@ -59,7 +63,7 @@ describe('CalendarDayEvents', () => {
     expect(screen.getByText('Build Sprint')).toBeTruthy()
     expect(screen.getByText('Code Club')).toBeTruthy()
     // 10:00 UTC → 3:30 PM IST.
-    expect(screen.getByText('Jun 5 · 3:30 PM')).toBeTruthy()
+    expect(screen.getByText('Jun 5 · 3:30 PM (IST)')).toBeTruthy()
     // Missing start time falls back to a placeholder.
     expect(screen.getByText('Time TBA')).toBeTruthy()
   })

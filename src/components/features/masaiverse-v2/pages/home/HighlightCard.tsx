@@ -1,19 +1,22 @@
 import { Link } from '@tanstack/react-router'
 import type { MasaiverseV2HomeHighlight } from '@/server/api/masaiverse-v2/services/getHomeHighlights.service'
-import { formatIstDateTime } from '@/lib/masaiverseEventCard'
+import { formatLocalDateTime } from '@/lib/masaiverseEventCard'
 import { MASAIVERSE_EVENTS, trackMasaiverse } from '../../tracking'
 
 type HighlightCardProps = {
   highlight: MasaiverseV2HomeHighlight
   /** Hex color for the card's left-edge accent. */
   accentColor?: string
+  /** Device/server clock skew (ms) so times render on the viewer's clock. */
+  skewMs?: number
 }
 
 export default function HighlightCard({
   highlight,
   accentColor = 'var(--color-masaiverse-orange)',
+  skewMs = 0,
 }: HighlightCardProps) {
-  const startLabel = formatIstDateTime(highlight.startTime)
+  const startLabel = formatLocalDateTime(highlight.startTime, skewMs)
 
   return (
     <Link

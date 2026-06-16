@@ -3,6 +3,7 @@ import HighlightsCarousel from '../home/HighlightsCarousel'
 import SectionHeader from '../home/SectionHeader'
 import type { MasaiverseV2ClubEvents } from '@/server/api/masaiverse-v2/services/getClubEvents.service'
 import { masaiverseV2ClubEventsQuery } from '@/query/masaiverse-v2/clubsQuery'
+import { useServerTime } from '@/hooks/useServerTime'
 
 type ClubPastSectionProps = {
   clubId: string
@@ -20,6 +21,7 @@ export default function ClubPastSection({
     ...(initialEvents ? { initialData: initialEvents } : {}),
   })
   const highlights = data?.past ?? []
+  const { skewMs } = useServerTime()
 
   return (
     <section>
@@ -30,6 +32,7 @@ export default function ClubPastSection({
         loadingLabel="Loading past events"
         emptyMessage="No past events yet."
         navKey="club-highlights"
+        skewMs={skewMs}
       />
     </section>
   )

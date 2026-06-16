@@ -1,10 +1,12 @@
 import { MapPin, VideoCamera } from '@phosphor-icons/react'
-import { formatIstDateBadge, formatIstSchedule } from './eventDetailFormat'
+import { formatLocalDateBadge, formatLocalSchedule } from './eventDetailFormat'
 import type { ReactNode } from 'react'
 import type { MasaiverseV2EventDetail } from '@/server/api/masaiverse-v2/services/getEventDetail.service'
 
 type EventInfoRowsProps = {
   event: MasaiverseV2EventDetail
+  /** Device/server clock skew (ms) so times render on the viewer's clock. */
+  skewMs?: number
 }
 
 function InfoRow({
@@ -39,11 +41,15 @@ function InfoRow({
  * The "when" and "where" rows of the event page — a calendar date badge with
  * the long date + IST time range, and a location/online row reflecting the mode.
  */
-export default function EventInfoRows({ event }: EventInfoRowsProps) {
-  const badge = formatIstDateBadge(event.startTime, event.endTime)
-  const { dateLine, timeLine } = formatIstSchedule(
+export default function EventInfoRows({
+  event,
+  skewMs = 0,
+}: EventInfoRowsProps) {
+  const badge = formatLocalDateBadge(event.startTime, event.endTime, skewMs)
+  const { dateLine, timeLine } = formatLocalSchedule(
     event.startTime,
     event.endTime,
+    skewMs,
   )
   const isOffline = event.mode === 'offline'
 

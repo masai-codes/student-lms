@@ -1,12 +1,14 @@
 import { Link } from '@tanstack/react-router'
 import type { MasaiverseV2WeeklyConnect } from '@/server/api/masaiverse-v2/services/getClubWeeklyConnects.service'
-import { formatIstDayBadge, getEventStatus } from '@/lib/masaiverseEventCard'
+import { formatLocalDayBadge, getEventStatus } from '@/lib/masaiverseEventCard'
 import { MASAIVERSE_EVENTS, trackMasaiverse } from '../../tracking'
 
 type WeeklyConnectRowProps = {
   connect: MasaiverseV2WeeklyConnect
   /** Injectable clock for deterministic rendering/tests. */
   now?: Date
+  /** Device/server clock skew (ms) so the day badge renders on the viewer's clock. */
+  skewMs?: number
 }
 
 const BADGE_STYLES = {
@@ -30,9 +32,10 @@ const PILL_LABELS = {
 export default function WeeklyConnectRow({
   connect,
   now = new Date(),
+  skewMs = 0,
 }: WeeklyConnectRowProps) {
   const status = getEventStatus(connect, now)
-  const badge = formatIstDayBadge(connect.startTime)
+  const badge = formatLocalDayBadge(connect.startTime, skewMs)
   const isMuted = status === 'completed'
 
   return (
