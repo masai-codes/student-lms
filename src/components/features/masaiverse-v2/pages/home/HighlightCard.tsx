@@ -7,16 +7,13 @@ type HighlightCardProps = {
   highlight: MasaiverseV2HomeHighlight
   /** Hex color for the card's left-edge accent. */
   accentColor?: string
-  /** Device/server clock skew (ms) so times render on the viewer's clock. */
-  skewMs?: number
 }
 
 export default function HighlightCard({
   highlight,
   accentColor = 'var(--color-masaiverse-orange)',
-  skewMs = 0,
 }: HighlightCardProps) {
-  const startLabel = formatLocalDateTime(highlight.startTime, skewMs)
+  const startLabel = formatLocalDateTime(highlight.startTime)
 
   return (
     <Link
