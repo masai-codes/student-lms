@@ -4,6 +4,7 @@ const hoisted = vi.hoisted(() => ({
   dbSelect: vi.fn(),
   dbInsert: vi.fn(),
   awardReplyPoints: vi.fn(),
+  notifyDiscussionReply: vi.fn(),
 }))
 
 vi.mock('@/db', () => ({
@@ -11,6 +12,9 @@ vi.mock('@/db', () => ({
 }))
 vi.mock('../services/awardLeaderboardPoints.service', () => ({
   awardReplyPoints: hoisted.awardReplyPoints,
+}))
+vi.mock('../services/notifyDiscussionReply.service', () => ({
+  notifyDiscussionReply: hoisted.notifyDiscussionReply,
 }))
 vi.mock('@/db/schema', () => ({
   replies: {
@@ -100,6 +104,12 @@ describe('createDiscussionReply', () => {
       replierId: 1,
       postId: 7,
       replyId: 55,
+    })
+    // Notifies the post author with the trimmed reply preview.
+    expect(hoisted.notifyDiscussionReply).toHaveBeenCalledWith({
+      postId: 7,
+      replierId: 1,
+      replyPreview: 'Nice',
     })
   })
 
