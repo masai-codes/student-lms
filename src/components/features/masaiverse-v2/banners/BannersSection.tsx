@@ -68,11 +68,11 @@ function BannerCard({
       <h3 className="pr-16 text-[18px] font-bold leading-6">{banner.title}</h3>
       {banner.description ? (
         <>
-          <div
-            ref={descRef}
-            className="mt-1 line-clamp-3 text-[14px] leading-5 text-white/90 [&_a]:underline [&_h1]:text-white [&_h2]:text-white [&_h3]:text-white [&_h4]:text-white [&_h5]:text-white [&_h6]:text-white"
-          >
-            <RichContent value={banner.description} />
+          <div ref={descRef} className="mt-1 line-clamp-3 text-[14px] leading-5">
+            <RichContent
+              value={banner.description}
+              className="!text-white/90 [&_a]:underline [&_a]:!text-white [&_h1]:!text-white [&_h2]:!text-white [&_h3]:!text-white [&_h4]:!text-white [&_h5]:!text-white [&_h6]:!text-white [&_strong]:!text-white [&_blockquote]:!text-white [&_li]:!text-white [&_p]:!text-white"
+            />
           </div>
           {canExpand ? (
             <button
