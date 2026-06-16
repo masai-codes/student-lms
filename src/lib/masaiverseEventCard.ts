@@ -5,11 +5,6 @@
  * `socialRelativeTime.ts`), so a learner in any region sees the time on their
  * own clock with a timezone label (e.g. "IST", "GST", "EST").
  *
- * `skewMs` comes from {@link useServerTime} (server UTC − device UTC). It is
- * subtracted from the instant before formatting so the displayed wall-clock
- * matches the reading on the user's (possibly wrong) device clock — the same
- * convention `formatTimestampLocal` uses.
- *
  * Left badge precedence: LIVE → TODAY → TOMORROW → the start time (e.g. "2:00 PM").
  * The date box on the right always shows the start date (day + short month).
  */
@@ -36,14 +31,9 @@ function toDate(value: string | null): Date | null {
   return Number.isNaN(date.getTime()) ? null : date
 }
 
-/**
- * Parse a UTC ISO instant and shift it by `skewMs` so the wall-clock we format
- * matches the reading on the user's device clock. Returns null when
- * missing/unparseable.
- */
-function toLocalDate(value: string | null, skewMs = 0): Date | null {
-  const date = toDate(value)
-  return date ? new Date(date.getTime() - skewMs) : null
+/** Parse a UTC ISO instant. Returns null when missing/unparseable. */
+function toLocalDate(value: string | null): Date | null {
+  return toDate(value)
 }
 
 /** Viewer-local calendar day as `YYYY-MM-DD`, used to compare today / tomorrow. */
@@ -70,9 +60,8 @@ function formatLocalTime(date: Date): string {
  */
 export function formatLocalDateTime(
   value: string | null,
-  skewMs = 0,
 ): string | null {
-  const date = toLocalDate(value, skewMs)
+  const date = toLocalDate(value)
   if (!date) return null
   const datePart = new Intl.DateTimeFormat('en-US', {
     month: 'short',
@@ -115,9 +104,8 @@ export interface LocalDayBadge {
  */
 export function formatLocalDayBadge(
   value: string | null,
-  skewMs = 0,
 ): LocalDayBadge | null {
-  const date = toLocalDate(value, skewMs)
+  const date = toLocalDate(value)
   if (!date) return null
   const weekday = new Intl.DateTimeFormat('en-US', {
     weekday: 'short',
@@ -133,7 +121,6 @@ export function formatLocalDayBadge(
 export function getEventCardDisplay(
   event: EventTimes,
   now: Date,
-  skewMs = 0,
 ): EventCardDisplay {
   const start = toDate(event.startTime)
   const end = toDate(event.endTime)
@@ -146,7 +133,7 @@ export function getEventCardDisplay(
 
   // The date box uses the start instant, falling back to end when start is
   // absent, shown in the viewer's timezone.
-  const dateBasis = toLocalDate(event.startTime, skewMs) ?? toLocalDate(event.endTime, skewMs)
+  const dateBasis = toLocalDate(event.startTime) ?? toLocalDate(event.endTime)
   const dateDay = dateBasis
     ? new Intl.DateTimeFormat('en-US', {
         day: 'numeric',
@@ -164,15 +151,13 @@ export function getEventCardDisplay(
   if (isLive) {
     badgeLabel = 'LIVE'
   } else if (start) {
-    const startLocal = new Date(start.getTime() - skewMs)
-    const nowLocal = new Date(now.getTime() - skewMs)
-    const startDay = localDayId(startLocal)
-    if (startDay === localDayId(nowLocal)) {
+    const startDay = localDayId(start)
+    if (startDay === localDayId(now)) {
       badgeLabel = 'TODAY'
-    } else if (startDay === localDayId(new Date(nowLocal.getTime() + DAY_MS))) {
+    } else if (startDay === localDayId(new Date(now.getTime() + DAY_MS))) {
       badgeLabel = 'TOMORROW'
     } else {
-      badgeLabel = formatLocalTime(startLocal)
+      badgeLabel = formatLocalTime(start)
     }
   }
 

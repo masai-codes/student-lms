@@ -20,8 +20,6 @@ type EventListCardProps = {
   event: MasaiverseV2EventListItem
   /** Injectable clock for deterministic rendering/tests. */
   now?: Date
-  /** Device/server clock skew (ms) so times render on the viewer's clock. */
-  skewMs?: number
 }
 
 /** Human label for the category pill, keyed off `events.category`. */
@@ -34,16 +32,14 @@ const CATEGORY_LABEL: Record<string, string> = {
 export default function EventListCard({
   event,
   now = new Date(),
-  skewMs = 0,
 }: EventListCardProps) {
   const status = getEventStatus(event, now)
   const { isLive, badgeLabel, dateDay, dateMonth } = getEventCardDisplay(
     event,
     now,
-    skewMs,
   )
   const isPast = status === 'completed'
-  const dateTimeLine = formatLocalDateTime(event.startTime, skewMs)
+  const dateTimeLine = formatLocalDateTime(event.startTime)
 
   return (
     <Link

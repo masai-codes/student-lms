@@ -6,18 +6,14 @@
  * `null` when a timestamp is missing or unparseable so callers can fall back
  * gracefully.
  *
- * `skewMs` comes from {@link useServerTime} (server UTC − device UTC). It is
- * subtracted from the instant before formatting so the displayed wall-clock
- * matches the reading on the user's (possibly wrong) device clock — the same
- * convention `formatTimestampLocal` uses.
  */
 import { getTzLabel } from '@/utils/timeZoneHandler'
 
-function toDate(value: string | null, skewMs = 0): Date | null {
+function toDate(value: string | null): Date | null {
   if (!value) return null
   const date = new Date(value)
   if (Number.isNaN(date.getTime())) return null
-  return new Date(date.getTime() - skewMs)
+  return date
 }
 
 function formatLocalTime(date: Date): string {
@@ -63,9 +59,8 @@ export interface EventDateBadge {
 export function formatLocalDateBadge(
   startTime: string | null,
   endTime: string | null,
-  skewMs = 0,
 ): EventDateBadge | null {
-  const date = toDate(startTime, skewMs) ?? toDate(endTime, skewMs)
+  const date = toDate(startTime) ?? toDate(endTime)
   if (!date) return null
   const month = new Intl.DateTimeFormat('en-US', {
     month: 'short',
@@ -82,9 +77,8 @@ export function formatLocalDateBadge(
 export function formatLocalLongDate(
   startTime: string | null,
   endTime: string | null,
-  skewMs = 0,
 ): string | null {
-  const date = toDate(startTime, skewMs) ?? toDate(endTime, skewMs)
+  const date = toDate(startTime) ?? toDate(endTime)
   if (!date) return null
   return new Intl.DateTimeFormat('en-GB', {
     weekday: 'long',
@@ -102,10 +96,9 @@ export function formatLocalLongDate(
 export function formatLocalTimeRange(
   startTime: string | null,
   endTime: string | null,
-  skewMs = 0,
 ): string | null {
-  const start = toDate(startTime, skewMs)
-  const end = toDate(endTime, skewMs)
+  const start = toDate(startTime)
+  const end = toDate(endTime)
   if (start && end) return `${formatLocalTime(start)} – ${formatLocalTime(end)}`
   if (start) return formatLocalTime(start)
   if (end) return `Ends ${formatLocalTime(end)}`
@@ -128,10 +121,9 @@ export interface EventSchedule {
 export function formatLocalSchedule(
   startTime: string | null,
   endTime: string | null,
-  skewMs = 0,
 ): EventSchedule {
-  const start = toDate(startTime, skewMs)
-  const end = toDate(endTime, skewMs)
+  const start = toDate(startTime)
+  const end = toDate(endTime)
   const tzLabel = getTzLabel()
 
   const isMultiDay =
@@ -144,9 +136,9 @@ export function formatLocalSchedule(
     }
   }
 
-  const range = formatLocalTimeRange(startTime, endTime, skewMs)
+  const range = formatLocalTimeRange(startTime, endTime)
   return {
-    dateLine: formatLocalLongDate(startTime, endTime, skewMs),
+    dateLine: formatLocalLongDate(startTime, endTime),
     timeLine: range ? `${range} (${tzLabel})` : null,
   }
 }

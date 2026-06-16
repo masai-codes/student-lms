@@ -16,7 +16,6 @@ import { MasaiInput } from '@/components/ui/masai-input'
 import AppPagination from '@/components/common/Pagination'
 import { fetchBookmarks } from '@/lib/api/bookmarks/bookmarksApi'
 import { formatTimestampLocal, formatTimestampIST } from '@/utils/timeZoneHandler'
-import { useServerTime } from '@/hooks/useServerTime'
 
 const STALE_TIME_MS = 5 * 60 * 1000
 
@@ -47,7 +46,6 @@ function EntityIcon({ type }: { type: BookmarkEntityType }) {
 // ── Bookmark Card ──────────────────────────────────────────────────────────────
 
 function BookmarkCard({ item }: { item: BookmarkItem }) {
-  const { skewMs } = useServerTime()
   const inner = (
     <>
       <div className="shrink-0">
@@ -73,7 +71,7 @@ function BookmarkCard({ item }: { item: BookmarkItem }) {
           )}
           {/* Time — local TZ on card, IST in tooltip */}
           <span className="relative group/savedAt cursor-default">
-            {formatTimestampLocal(item.savedAt, skewMs)}
+            {formatTimestampLocal(item.savedAt)}
             <span className="pointer-events-none absolute bottom-full left-0 mb-1.5 z-20
               opacity-0 group-hover/savedAt:opacity-100 transition-opacity duration-150
               whitespace-nowrap rounded-md bg-gray-900 px-2.5 py-1.5
