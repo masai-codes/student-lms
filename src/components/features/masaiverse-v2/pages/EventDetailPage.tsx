@@ -13,6 +13,7 @@ import { RichContent } from '@/components/event-card/rich-content'
 import { ApiClientError } from '@/lib/api/apiClientError'
 import { masaiverseV2EventDetailQuery } from '@/query/masaiverse-v2/eventsQuery'
 import { masaiverseV2AdminModeQuery } from '@/query/masaiverse-v2/adminModeQuery'
+import { useServerTime } from '@/hooks/useServerTime'
 import EventEditForm from '@/components/features/masaiverse-v2/edit/EventEditForm'
 import { MASAIVERSE_EVENTS, trackMasaiverse } from '../tracking'
 
@@ -76,6 +77,8 @@ export default function EventDetailPage({ eventId }: EventDetailPageProps) {
   const { data: adminMode } = useQuery(masaiverseV2AdminModeQuery())
   const canEdit = adminMode?.enabled ?? false
   const [isEditOpen, setIsEditOpen] = useState(false)
+  // Skew so the event's "when" row renders on the viewer's own clock.
+  const { skewMs } = useServerTime()
 
   if (isPending) {
     return (
@@ -173,7 +176,7 @@ export default function EventDetailPage({ eventId }: EventDetailPageProps) {
               <EventPills event={event} />
             </div>
 
-            <EventInfoRows event={event} />
+            <EventInfoRows event={event} skewMs={skewMs} />
             <EventRegisterCard event={event} />
             <EventRatingCard event={event} />
 

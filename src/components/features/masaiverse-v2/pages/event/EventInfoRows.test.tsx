@@ -4,6 +4,10 @@ import { afterEach, describe, expect, it } from 'vitest'
 import EventInfoRows from './EventInfoRows'
 import type { MasaiverseV2EventDetail } from '@/server/api/masaiverse-v2/services/getEventDetail.service'
 
+// Pin the timezone so the viewer-local time renders deterministically.
+// Asia/Kolkata → getTzLabel() === 'IST'.
+process.env.TZ = 'Asia/Kolkata'
+
 function makeEvent(
   overrides: Partial<MasaiverseV2EventDetail> = {},
 ): MasaiverseV2EventDetail {
@@ -45,7 +49,7 @@ describe('EventInfoRows', () => {
     expect(screen.getByText('JUN')).toBeTruthy()
     expect(screen.getByText('10')).toBeTruthy()
     expect(screen.getByText('Wednesday, 10 June 2026')).toBeTruthy()
-    expect(screen.getByText('2:30 PM – 5:00 PM IST')).toBeTruthy()
+    expect(screen.getByText('2:30 PM – 5:00 PM (IST)')).toBeTruthy()
   })
 
   it('shows both start and end dates for a multi-day event', () => {
@@ -58,7 +62,7 @@ describe('EventInfoRows', () => {
       />,
     )
     expect(screen.getByText('Wed, 10 Jun 2026, 2:30 PM')).toBeTruthy()
-    expect(screen.getByText('to Fri, 12 Jun 2026, 11:30 AM IST')).toBeTruthy()
+    expect(screen.getByText('to Fri, 12 Jun 2026, 11:30 AM (IST)')).toBeTruthy()
   })
 
   it('renders the location for an offline event', () => {

@@ -9,6 +9,7 @@ import { voteMasaiverseV2Discussion } from '@/lib/api/masaiverse-v2/masaiverseV2
 import { getInitials } from '@/lib/initials'
 import { patchDiscussionInCache } from '@/query/masaiverse-v2/discussionsQuery'
 import { formatSocialPostTime } from '@/lib/socialRelativeTime'
+import { useServerTime } from '@/hooks/useServerTime'
 import { MASAIVERSE_EVENTS, trackMasaiverse } from '../../tracking'
 
 type DiscussionRowProps = {
@@ -25,6 +26,7 @@ export default function DiscussionRow({
   clubId,
 }: DiscussionRowProps) {
   const queryClient = useQueryClient()
+  const { now, skewMs } = useServerTime()
   const [showReplies, setShowReplies] = useState(false)
 
   return (
@@ -43,7 +45,11 @@ export default function DiscussionRow({
               {discussion.authorName}
             </span>
             {' · '}
-            {formatSocialPostTime(discussion.createdAt)}
+            {formatSocialPostTime(
+              discussion.createdAt,
+              new Date(now.valueOf()),
+              skewMs,
+            )}
           </p>
           <p className="mt-1 text-[15px] font-bold leading-5 text-[#111827]">
             {discussion.title}

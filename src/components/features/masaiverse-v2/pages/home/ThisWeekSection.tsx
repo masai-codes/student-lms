@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query'
 import EventsCarousel from './EventsCarousel'
 import SectionHeader from './SectionHeader'
 import { masaiverseV2HomeQuery } from '@/query/masaiverse-v2/homeQuery'
+import { useServerTime } from '@/hooks/useServerTime'
 import { MASAIVERSE_EVENTS, trackMasaiverse } from '../../tracking'
 
 type ThisWeekSectionProps = {
@@ -13,6 +14,7 @@ export default function ThisWeekSection({
 }: ThisWeekSectionProps) {
   const { data, isPending } = useQuery(masaiverseV2HomeQuery())
   const events = data?.events ?? []
+  const { skewMs } = useServerTime()
 
   return (
     <section>
@@ -43,6 +45,7 @@ export default function ThisWeekSection({
         isPending={isPending}
         loadingLabel="Loading events"
         emptyMessage="No live or upcoming events right now."
+        skewMs={skewMs}
       />
     </section>
   )

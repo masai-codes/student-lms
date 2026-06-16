@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as ApiServerTimeRouteImport } from './routes/api/server-time'
 import { Route as ApiHealthRouteImport } from './routes/api/health'
 import { Route as protectedLayoutRouteRouteImport } from './routes/(protected)/_layout/route'
 import { Route as protectedZoomIndexRouteImport } from './routes/(protected)/zoom/index'
@@ -100,6 +101,11 @@ import { Route as protectedLayoutCoursesCourseIdLecturesLectureIdDiscussionsDisc
 import { Route as protectedLayoutCoursesCourseIdAssignmentsAssignmentIdDiscussionsCreateIndexRouteImport } from './routes/(protected)/_layout/courses/$courseId/assignments_/$assignmentId/discussions/create/index'
 import { Route as protectedLayoutCoursesCourseIdAssignmentsAssignmentIdDiscussionsDiscussionIdIndexRouteImport } from './routes/(protected)/_layout/courses/$courseId/assignments_/$assignmentId/discussions/$discussionId/index'
 
+const ApiServerTimeRoute = ApiServerTimeRouteImport.update({
+  id: '/api/server-time',
+  path: '/api/server-time',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiHealthRoute = ApiHealthRouteImport.update({
   id: '/api/health',
   path: '/api/health',
@@ -665,6 +671,7 @@ const protectedLayoutCoursesCourseIdAssignmentsAssignmentIdDiscussionsDiscussion
 
 export interface FileRoutesByFullPath {
   '/api/health': typeof ApiHealthRoute
+  '/api/server-time': typeof ApiServerTimeRoute
   '/masaiverse': typeof protectedLayoutMasaiverseRouteRouteWithChildren
   '/v2/forgot-password': typeof authV2ForgotPasswordRoute
   '/v2/me': typeof authV2MeRoute
@@ -756,6 +763,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/api/health': typeof ApiHealthRoute
+  '/api/server-time': typeof ApiServerTimeRoute
   '/v2/forgot-password': typeof authV2ForgotPasswordRoute
   '/v2/me': typeof authV2MeRoute
   '/v2/reset-password': typeof authV2ResetPasswordRoute
@@ -845,6 +853,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/(protected)/_layout': typeof protectedLayoutRouteRouteWithChildren
   '/api/health': typeof ApiHealthRoute
+  '/api/server-time': typeof ApiServerTimeRoute
   '/(protected)/_layout/masaiverse': typeof protectedLayoutMasaiverseRouteRouteWithChildren
   '/(auth)/v2/forgot-password': typeof authV2ForgotPasswordRoute
   '/(auth)/v2/me': typeof authV2MeRoute
@@ -938,6 +947,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/api/health'
+    | '/api/server-time'
     | '/masaiverse'
     | '/v2/forgot-password'
     | '/v2/me'
@@ -1029,6 +1039,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/api/health'
+    | '/api/server-time'
     | '/v2/forgot-password'
     | '/v2/me'
     | '/v2/reset-password'
@@ -1117,6 +1128,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/(protected)/_layout'
     | '/api/health'
+    | '/api/server-time'
     | '/(protected)/_layout/masaiverse'
     | '/(auth)/v2/forgot-password'
     | '/(auth)/v2/me'
@@ -1210,6 +1222,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   protectedLayoutRouteRoute: typeof protectedLayoutRouteRouteWithChildren
   ApiHealthRoute: typeof ApiHealthRoute
+  ApiServerTimeRoute: typeof ApiServerTimeRoute
   authV2ForgotPasswordRoute: typeof authV2ForgotPasswordRoute
   authV2MeRoute: typeof authV2MeRoute
   authV2ResetPasswordRoute: typeof authV2ResetPasswordRoute
@@ -1256,6 +1269,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/api/server-time': {
+      id: '/api/server-time'
+      path: '/api/server-time'
+      fullPath: '/api/server-time'
+      preLoaderRoute: typeof ApiServerTimeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/health': {
       id: '/api/health'
       path: '/api/health'
@@ -2097,6 +2117,7 @@ const ApiMasaiverseV2DiscussionsRouteWithChildren =
 const rootRouteChildren: RootRouteChildren = {
   protectedLayoutRouteRoute: protectedLayoutRouteRouteWithChildren,
   ApiHealthRoute: ApiHealthRoute,
+  ApiServerTimeRoute: ApiServerTimeRoute,
   authV2ForgotPasswordRoute: authV2ForgotPasswordRoute,
   authV2MeRoute: authV2MeRoute,
   authV2ResetPasswordRoute: authV2ResetPasswordRoute,

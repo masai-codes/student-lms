@@ -1,0 +1,25 @@
+export const SERVER_TIME_API = '/api/server-time'
+
+export const DASHBOARD_API = {
+  leftSection: '/api/dashboard/left-section',
+  rightSection: '/api/dashboard/right-section',
+  announcements: '/api/dashboard/announcements',
+  productUpdates: '/api/dashboard/product-updates',
+  schedule: '/api/dashboard/schedule',
+  banners: '/api/dashboard/banners',
+  actionBanners: '/api/dashboard/action-banners',
+  pendingTasks: '/api/dashboard/pending-tasks',
+  lmsSupport: '/api/dashboard/lms-support',
+  attendance: '/api/dashboard/attendance',
+  navbarPill: '/api/dashboard/navbar-pill',
+  npsForm: (formId: number) => `/api/dashboard/nps-form/${formId}`,
+  npsFormStart: (formId: number) => `/api/dashboard/nps-form/${formId}/start`,
+  npsFormResponse: (formId: number) => `/api/dashboard/nps-form/${formId}/response`,
+  npsFormComplete: (formId: number) => `/api/dashboard/nps-form/${formId}/complete`,
+  agreement: (sectionId: number) => `/api/dashboard/agreement/${sectionId}`,
+  agreementOpen: (sectionId: number) => `/api/dashboard/agreement/${sectionId}/open`,
+  agreementStep: (sectionId: number) => `/api/dashboard/agreement/${sectionId}/step`,
+  assessNpsLink: (formId: number) => `/api/dashboard/assess-nps/${formId}/link`,
+  agreementSubmit: (sectionId: number) => `/api/dashboard/agreement/${sectionId}/submit`,
+  agreementDismiss: (sectionId: number) => `/api/dashboard/agreement/${sectionId}/dismiss`,
+} as const
