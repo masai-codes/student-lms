@@ -20,6 +20,7 @@ export const DASHBOARD_API = {
   agreementOpen: (sectionId: number) => `/api/dashboard/agreement/${sectionId}/open`,
   agreementStep: (sectionId: number) => `/api/dashboard/agreement/${sectionId}/step`,
   assessNpsLink: (formId: number) => `/api/dashboard/assess-nps/${formId}/link`,
+  agreementDetails: (sectionId: number) => `/api/dashboard/agreement/${sectionId}/details`,
   agreementSubmit: (sectionId: number) => `/api/dashboard/agreement/${sectionId}/submit`,
   agreementDismiss: (sectionId: number) => `/api/dashboard/agreement/${sectionId}/dismiss`,
 } as const
