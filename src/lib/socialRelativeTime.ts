@@ -44,6 +44,9 @@ function formatClock12h(d: Date): string {
 
 const SAME_DAY_HOURS_AGO_CAP = 6
 
+/** IANA timezone for IST, used for absolute IST timestamps. */
+const IST_TIME_ZONE = 'Asia/Kolkata'
+
 /**
  * @param value - ISO string from the server, or null when unknown
  * @param now - Optional reference time (defaults to `new Date()`); useful for tests
