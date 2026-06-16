@@ -231,6 +231,25 @@ export function BatchTickets() {
                   setSelectedBatchId(id)
                   setHelpSearchQuery('')
                 }}
+                /* Multi-batch users can return to the batch picker. */
+                canChangeBatch={batches.length > 1 && Boolean(selectedBatchId)}
+                activeBatchName={
+                  batches.find((b) => String(b.id) === effectiveBatchId)?.name ?? null
+                }
+                onChangeBatch={() => {
+                  setSelectedBatchId(null)
+                  setHelpSearchQuery('')
+                  setExpandedItem(null)
+                  void navigate({
+                    search: (p) => ({
+                      ...p,
+                      step: undefined,
+                      ticketId: undefined,
+                      category: undefined,
+                      subcategory: undefined,
+                    }),
+                  })
+                }}
                 helpSearchQuery={helpSearchQuery}
                 setHelpSearchQuery={setHelpSearchQuery}
                 visibleCategories={visibleCategories}
@@ -284,6 +303,9 @@ function HelpTab(props: {
   batches: Array<{ id: number; name: string }>
   effectiveBatchId: string | null
   onSelectBatch: (id: string) => void
+  canChangeBatch: boolean
+  activeBatchName: string | null
+  onChangeBatch: () => void
   helpSearchQuery: string
   setHelpSearchQuery: (v: string) => void
   visibleCategories: Array<SupportCategory>
@@ -298,6 +320,9 @@ function HelpTab(props: {
     batches,
     effectiveBatchId,
     onSelectBatch,
+    canChangeBatch,
+    activeBatchName,
+    onChangeBatch,
     helpSearchQuery,
     setHelpSearchQuery,
     visibleCategories,
@@ -329,6 +354,22 @@ function HelpTab(props: {
 
   return (
     <>
+      {/* Selected-batch bar with a way back to the picker (multi-batch). */}
+      {canChangeBatch && effectiveBatchId && (
+        <div className="flex items-center justify-between gap-3 border-b border-gray-200 bg-white px-4 py-3 md:px-6">
+          <p className="font-poppins text-[13px] text-gray-700">
+            Batch: <span className="font-semibold text-gray-900">{activeBatchName}</span>
+          </p>
+          <button
+            type="button"
+            onClick={onChangeBatch}
+            className="font-poppins text-[13px] font-semibold text-[#6962AC] hover:underline"
+          >
+            Change batch
+          </button>
+        </div>
+      )}
+
       {gateReason === 'legal-agreement' && (
         <div className="mx-4 mb-4 mt-4 rounded-lg border border-[#ED0331] bg-[#FFF0F3] p-4 md:mx-6">
           <div className="flex items-center gap-3">

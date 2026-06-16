@@ -11,44 +11,62 @@
  * fan them out in parallel.
  */
 
-import { and, eq, inArray, isNull } from 'drizzle-orm'
+import { and, desc, eq, inArray, isNull } from 'drizzle-orm'
 import type {
   SupportBatch,
   SupportCoordinator,
   SupportGateReason,
 } from '@/server/api/support/support.types'
 import { db } from '@/db'
-import { batchUser, batches, sectionUser, sections, users } from '@/db/schema'
+import { batches, sectionUser, sections, users } from '@/db/schema'
 
 /**
- * The student's active batches. The first returned is treated as the default
- * support scope by the UI. `oneOnOneEnabled` reads `batches.settings.show_pp`.
+ * The student's batches — **derived from their section enrollments**, exactly
+ * like the legacy `getUserBatchesWithShowBatchDetails`: every batch the user has
+ * a `section_user` row for, de-duplicated, ordered by latest enrollment
+ * (`section_user.id` desc). No `active`/`isActive` filtering — that's what the
+ * original does, and filtering it down was hiding batches.
+ *
+ * The first returned batch is the default support scope. `oneOnOneEnabled` reads
+ * `batches.settings.show_pp`.
  */
 export async function getUserSupportBatches(
   userId: number,
 ): Promise<Array<SupportBatch>> {
-  const rows = await db
-    .select({
-      id: batches.id,
-      name: batches.name,
-      settings: batches.settings,
-    })
-    .from(batchUser)
-    .innerJoin(batches, eq(batches.id, batchUser.batchId))
-    .where(
-      and(
-        eq(batchUser.userId, userId),
-        eq(batchUser.isActive, 1),
-        eq(batches.active, 1),
-        isNull(batchUser.deletedAt),
-      ),
-    )
+  // 1) The user's sections → batch ids, newest enrollment first.
+  const enrollments = await db
+    .select({ batchId: sections.batchId })
+    .from(sectionUser)
+    .innerJoin(sections, eq(sections.id, sectionUser.sectionId))
+    .where(eq(sectionUser.userId, userId))
+    .orderBy(desc(sectionUser.id))
 
-  return rows.map((r) => ({
-    id: r.id,
-    name: r.name,
-    oneOnOneEnabled: Boolean(r.settings?.show_pp),
-  }))
+  // 2) Unique, order-preserving list of batch ids.
+  const orderedBatchIds: Array<number> = []
+  const seen = new Set<number>()
+  for (const e of enrollments) {
+    if (!seen.has(e.batchId)) {
+      seen.add(e.batchId)
+      orderedBatchIds.push(e.batchId)
+    }
+  }
+  if (orderedBatchIds.length === 0) return []
+
+  // 3) Fetch batch details and return them in enrollment order.
+  const rows = await db
+    .select({ id: batches.id, name: batches.name, settings: batches.settings })
+    .from(batches)
+    .where(inArray(batches.id, orderedBatchIds))
+
+  const byId = new Map(rows.map((r) => [r.id, r]))
+  return orderedBatchIds
+    .map((id) => byId.get(id))
+    .filter((b): b is (typeof rows)[number] => Boolean(b))
+    .map((b) => ({
+      id: b.id,
+      name: b.name,
+      oneOnOneEnabled: Boolean(b.settings?.show_pp),
+    }))
 }
 
 /**

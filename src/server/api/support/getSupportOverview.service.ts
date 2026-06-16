@@ -16,7 +16,7 @@
 
 import type { SupportOverview } from '@/server/api/support/support.types'
 import {
-  getCategoriesForBatch,
+  getTicketCategories,
   searchFaqs,
 } from '@/server/api/support/services/faqs.service'
 import {
@@ -85,7 +85,7 @@ export async function getSupportOverview(
   ] = await Promise.all([
     getSupportGate({ userId, batchId }),
     getBatchContact(batchId),
-    getCategoriesForBatch(batchId),
+    getTicketCategories(),
     searchFaqs({ batchId, limit: INITIAL_FAQ_LIMIT }),
     listTickets({ userId, tab: 'unresolved' }),
     countOpenTickets(userId),

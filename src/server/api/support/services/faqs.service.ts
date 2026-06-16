@@ -1,24 +1,27 @@
 /**
  * Support module — FAQ / knowledge-base services.
  *
- * Backed entirely by the `help_faqs` table (per-batch articles). Three concerns:
- *   1. {@link searchFaqs}          — search/list articles for a batch.
- *   2. {@link getCategoriesForBatch} — derive the category→subcategory tree.
+ * Concerns:
+ *   1. {@link getTicketCategories} — the category→subcategory tree, read from the
+ *      `menus` table (global), matching the legacy
+ *      `getTicketCategoriesWithSubcategories` — this is what the Help tab shows.
+ *   2. {@link searchFaqs}          — search/list `help_faqs` articles for a batch.
  *   3. {@link voteFaq}             — record 👍/👎 helpfulness (stored in meta).
- *
- * Categories are derived from the FAQs themselves (the legacy
- * `getFaqCategoriesWithSubcategoriesByBatch` does the same), so the browse tree
- * and the article set can never drift apart.
  */
 
-import { and, eq, like, or, sql } from 'drizzle-orm'
+import { and, asc, eq, like, or, sql } from 'drizzle-orm'
 import type {
   FaqVote,
   SupportCategory,
   SupportFaq,
 } from '@/server/api/support/support.types'
 import { db } from '@/db'
-import { helpFaqs } from '@/db/schema'
+import { helpFaqs, menus } from '@/db/schema'
+
+/** `menus.category` value holding the ticket categories. */
+const TICKET_CATEGORY_MENU = 'tickets-category'
+/** `menus.category` suffix holding a category's subcategories. */
+const SUBCATEGORY_SUFFIX = '-subcategory'
 
 /** Turn a slug ("evaluation-score") into a label ("Evaluation Score"). */
 function toLabel(slug: string): string {
@@ -81,33 +84,38 @@ export async function searchFaqs(input: {
 }
 
 /**
- * Build the category → subcategory tree for a batch by grouping its FAQs.
- * Returned in stable, label-sorted order so the browse grid is deterministic.
+ * The full ticket category → subcategory tree, **from the `menus` table** —
+ * exactly like the legacy `getTicketCategoriesWithSubcategories`:
+ *   - categories: `menus` rows where category = 'tickets-category'
+ *   - subcategories: `menus` rows where category ends with '-subcategory';
+ *     a category `value` owns the subcategories whose menu category is
+ *     `"{value}-subcategory"`.
+ *
+ * This is global (not batch-scoped) and is the authoritative list the Help tab
+ * shows. (Deriving it from `help_faqs` per batch — the previous approach — was
+ * why far fewer categories appeared.)
  */
-export async function getCategoriesForBatch(
-  batchId: number,
-): Promise<Array<SupportCategory>> {
-  const rows = await db
-    .select({ category: helpFaqs.category, subCategory: helpFaqs.subCategory })
-    .from(helpFaqs)
-    .where(and(eq(helpFaqs.batchId, batchId), eq(helpFaqs.isHidden, 0)))
+export async function getTicketCategories(): Promise<Array<SupportCategory>> {
+  const [categoryRows, subcategoryRows] = await Promise.all([
+    db
+      .select({ value: menus.value, ordering: menus.ordering })
+      .from(menus)
+      .where(and(eq(menus.category, TICKET_CATEGORY_MENU), eq(menus.deprecated, 0)))
+      .orderBy(asc(menus.ordering)),
+    db
+      .select({ category: menus.category, value: menus.value, ordering: menus.ordering })
+      .from(menus)
+      .where(and(like(menus.category, `%${SUBCATEGORY_SUFFIX}`), eq(menus.deprecated, 0)))
+      .orderBy(asc(menus.category), asc(menus.ordering)),
+  ])
 
-  const map = new Map<string, Set<string>>()
-  for (const row of rows) {
-    if (!row.category) continue
-    if (!map.has(row.category)) map.set(row.category, new Set())
-    if (row.subCategory) map.get(row.category)!.add(row.subCategory)
-  }
-
-  return Array.from(map.entries())
-    .map(([value, subs]) => ({
-      value,
-      label: toLabel(value),
-      subcategories: Array.from(subs)
-        .map((s) => ({ value: s, label: toLabel(s) }))
-        .sort((a, b) => a.label.localeCompare(b.label)),
-    }))
-    .sort((a, b) => a.label.localeCompare(b.label))
+  return categoryRows.map((cat) => ({
+    value: cat.value,
+    label: toLabel(cat.value),
+    subcategories: subcategoryRows
+      .filter((sub) => sub.category === `${cat.value}${SUBCATEGORY_SUFFIX}`)
+      .map((sub) => ({ value: sub.value, label: toLabel(sub.value) })),
+  }))
 }
 
 /**
