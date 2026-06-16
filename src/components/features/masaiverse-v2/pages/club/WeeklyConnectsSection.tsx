@@ -7,6 +7,7 @@ import type { MasaiverseV2WeeklyConnect } from '@/server/api/masaiverse-v2/servi
 import type { MasaiverseV2ClubEvents } from '@/server/api/masaiverse-v2/services/getClubEvents.service'
 import { masaiverseV2ClubEventsQuery } from '@/query/masaiverse-v2/clubsQuery'
 import { getEventStatus } from '@/lib/masaiverseEventCard'
+import { useServerTime } from '@/hooks/useServerTime'
 import { MASAIVERSE_EVENTS, trackMasaiverse } from '../../tracking'
 
 type WeeklyConnectsSectionProps = {
@@ -49,6 +50,7 @@ export default function WeeklyConnectsSection({
     ...(initialEvents ? { initialData: initialEvents } : {}),
   })
   const connects = sortConnects(data?.weeklyConnects ?? [], now)
+  const { skewMs } = useServerTime()
 
   return (
     <section>
@@ -97,7 +99,9 @@ export default function WeeklyConnectsSection({
           // One wide row at a time on phones, easing up to ~two on desktop.
           slidesPerView={1.05}
           breakpoints={{ 768: { slidesPerView: 1.8 }, 1024: { slidesPerView: 2.2 } }}
-          renderItem={(connect) => <WeeklyConnectRow connect={connect} now={now} />}
+          renderItem={(connect) => (
+            <WeeklyConnectRow connect={connect} now={now} skewMs={skewMs} />
+          )}
         />
       )}
     </section>

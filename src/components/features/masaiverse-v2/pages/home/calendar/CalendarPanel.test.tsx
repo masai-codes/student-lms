@@ -12,6 +12,9 @@ import CalendarPanel from './CalendarPanel'
 import { toDateKey } from './calendarUtils'
 import type { ReactNode } from 'react'
 
+// Pin the timezone so the viewer-local day bucketing is deterministic.
+process.env.TZ = 'Asia/Kolkata'
+
 const { fetchEvents, fetchHome, fetchLeaderboard } = vi.hoisted(() => ({
   fetchEvents: vi.fn(),
   fetchHome: vi.fn(),

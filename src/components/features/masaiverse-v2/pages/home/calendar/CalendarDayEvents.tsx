@@ -1,7 +1,7 @@
 import { Link } from '@tanstack/react-router'
 import { MONTH_NAMES } from './calendarUtils'
 import type { CalendarEvent } from './calendarUtils'
-import { formatIstDateTime } from '@/lib/masaiverseEventCard'
+import { formatLocalDateTime } from '@/lib/masaiverseEventCard'
 import { MASAIVERSE_EVENTS, trackMasaiverse } from '../../../tracking'
 
 type CalendarDayEventsProps = {
@@ -9,6 +9,8 @@ type CalendarDayEventsProps = {
   dateKey: string | null
   /** Events that fall on the selected day, in start-time order. */
   events: Array<CalendarEvent>
+  /** Device/server clock skew (ms) so times render on the viewer's clock. */
+  skewMs?: number
 }
 
 /** A friendly "Mon 5 June" heading from a YYYY-MM-DD key (no timezone math). */
@@ -27,6 +29,7 @@ function formatDayHeading(dateKey: string): string {
 export default function CalendarDayEvents({
   dateKey,
   events,
+  skewMs = 0,
 }: CalendarDayEventsProps) {
   if (!dateKey) return null
 
@@ -57,7 +60,7 @@ export default function CalendarDayEvents({
                   {event.title}
                 </span>
                 <span className="flex flex-wrap items-center gap-1.5 text-[11px] text-[#6B7280]">
-                  {formatIstDateTime(event.startTime) ?? 'Time TBA'}
+                  {formatLocalDateTime(event.startTime, skewMs) ?? 'Time TBA'}
                   {event.clubName ? (
                     <span className="rounded-full bg-masaiverse-orange/15 px-1.5 py-0.5 font-semibold text-masaiverse-orange">
                       {event.clubName}

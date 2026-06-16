@@ -1,10 +1,16 @@
 import { describe, expect, it } from 'vitest'
 import {
-  formatIstDateTime,
-  formatIstDayBadge,
+  formatLocalDateTime,
+  formatLocalDayBadge,
   getEventCardDisplay,
   getEventStatus,
 } from './masaiverseEventCard'
+
+// Pin the timezone so the viewer-local formatters produce deterministic output
+// regardless of the machine/CI timezone. Asia/Kolkata → getTzLabel() === 'IST'.
+// The formatters read the zone at call time, so setting it here (before any
+// test runs) is sufficient.
+process.env.TZ = 'Asia/Kolkata'
 
 // 2026-06-03 17:30 IST (Wed).
 const NOW = new Date('2026-06-03T12:00:00Z')
@@ -20,7 +26,7 @@ describe('getEventCardDisplay', () => {
   })
 
   it('labels an event later today as TODAY', () => {
-    // 2026-06-03 23:30 IST — same IST day, not yet started.
+    // 2026-06-03 23:30 IST — same local day, not yet started.
     const result = getEventCardDisplay(
       { startTime: '2026-06-03T18:00:00Z', endTime: '2026-06-03T19:00:00Z' },
       NOW,
@@ -29,7 +35,7 @@ describe('getEventCardDisplay', () => {
     expect(result.badgeLabel).toBe('TODAY')
   })
 
-  it('labels the next IST day as TOMORROW', () => {
+  it('labels the next local day as TOMORROW', () => {
     const result = getEventCardDisplay(
       { startTime: '2026-06-04T06:00:00Z', endTime: '2026-06-04T07:00:00Z' },
       NOW,
@@ -37,7 +43,7 @@ describe('getEventCardDisplay', () => {
     expect(result.badgeLabel).toBe('TOMORROW')
   })
 
-  it('shows the IST start time for further-out events, plus the date box', () => {
+  it('shows the local start time for further-out events, plus the date box', () => {
     // 2026-06-10 08:30 IST.
     const result = getEventCardDisplay(
       { startTime: '2026-06-10T03:00:00Z', endTime: '2026-06-10T05:00:00Z' },
@@ -59,15 +65,17 @@ describe('getEventCardDisplay', () => {
   })
 })
 
-describe('formatIstDateTime', () => {
-  it('formats a UTC instant as an IST date + time', () => {
+describe('formatLocalDateTime', () => {
+  it('formats a UTC instant as a viewer-local date + time with a tz label', () => {
     // 2026-05-28 09:00 UTC == 14:30 IST.
-    expect(formatIstDateTime('2026-05-28T09:00:00Z')).toBe('May 28 · 2:30 PM')
+    expect(formatLocalDateTime('2026-05-28T09:00:00Z')).toBe(
+      'May 28 · 2:30 PM (IST)',
+    )
   })
 
   it('returns null for a missing or unparseable timestamp', () => {
-    expect(formatIstDateTime(null)).toBeNull()
-    expect(formatIstDateTime('not-a-date')).toBeNull()
+    expect(formatLocalDateTime(null)).toBeNull()
+    expect(formatLocalDateTime('not-a-date')).toBeNull()
   })
 })
 
@@ -106,17 +114,17 @@ describe('getEventStatus', () => {
   })
 })
 
-describe('formatIstDayBadge', () => {
-  it('formats a UTC instant as an IST weekday + day', () => {
+describe('formatLocalDayBadge', () => {
+  it('formats a UTC instant as a viewer-local weekday + day', () => {
     // 2026-06-03 12:00 UTC == Wed 3 Jun, 17:30 IST.
-    expect(formatIstDayBadge('2026-06-03T12:00:00Z')).toEqual({
+    expect(formatLocalDayBadge('2026-06-03T12:00:00Z')).toEqual({
       weekday: 'WED',
       day: '3',
     })
   })
 
   it('returns null for a missing or unparseable timestamp', () => {
-    expect(formatIstDayBadge(null)).toBeNull()
-    expect(formatIstDayBadge('nope')).toBeNull()
+    expect(formatLocalDayBadge(null)).toBeNull()
+    expect(formatLocalDayBadge('nope')).toBeNull()
   })
 })

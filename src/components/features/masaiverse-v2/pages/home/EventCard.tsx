@@ -8,12 +8,19 @@ type EventCardProps = {
   event: MasaiverseV2HomeEvent
   /** Injectable clock for deterministic rendering/tests. */
   now?: Date
+  /** Device/server clock skew (ms) so times render on the viewer's clock. */
+  skewMs?: number
 }
 
-export default function EventCard({ event, now = new Date() }: EventCardProps) {
+export default function EventCard({
+  event,
+  now = new Date(),
+  skewMs = 0,
+}: EventCardProps) {
   const { isLive, badgeLabel, dateDay, dateMonth } = getEventCardDisplay(
     event,
     now,
+    skewMs,
   )
 
   return (

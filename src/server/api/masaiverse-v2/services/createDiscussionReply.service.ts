@@ -2,6 +2,7 @@ import { db } from '@/db'
 import { replies } from '@/db/schema'
 import { ApiError } from '@/server/api/http/apiError'
 import { awardReplyPoints } from '@/server/api/masaiverse-v2/services/awardLeaderboardPoints.service'
+import { notifyDiscussionReply } from '@/server/api/masaiverse-v2/services/notifyDiscussionReply.service'
 import { toMysqlUtc } from '@/lib/dateRanges'
 
 const REPLY_MAX = 5000
@@ -39,6 +40,10 @@ export async function createDiscussionReply(
     postId,
     replyId: Number(header.insertId),
   })
+
+  // Notify the post author (public + club discussions). Resilient by design: it
+  // skips self-replies and never throws, so it can't break reply creation.
+  await notifyDiscussionReply({ postId, replierId: userId, replyPreview: text })
 
   return { id: String(header.insertId) }
 }

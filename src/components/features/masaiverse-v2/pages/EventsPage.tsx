@@ -15,6 +15,7 @@ import type {
   EventTimeBucket,
 } from './events/eventBuckets'
 import { masaiverseV2EventsQuery } from '@/query/masaiverse-v2/eventsQuery'
+import { useServerTime } from '@/hooks/useServerTime'
 import { MASAIVERSE_EVENTS, trackMasaiverse } from '../tracking'
 
 /**
@@ -28,6 +29,9 @@ export default function EventsPage({ now: nowProp }: { now?: Date }) {
   // One clock per render keeps the bucketing of every card consistent;
   // `now` is injectable so tests can pin the upcoming/past split.
   const now = useMemo(() => nowProp ?? new Date(), [nowProp])
+  // Clock skew between the device and the server, so card times render on the
+  // viewer's own clock (see useServerTime / formatTimestampLocal).
+  const { skewMs } = useServerTime()
 
   const [tab, setTab] = useState<EventTimeBucket>('upcoming')
   const [scope, setScope] = useState<EventScopeFilter>('all')
@@ -119,7 +123,12 @@ export default function EventsPage({ now: nowProp }: { now?: Date }) {
       ) : (
         <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {view.visible.map((event) => (
-            <EventListCard key={event.id} event={event} now={now} />
+            <EventListCard
+              key={event.id}
+              event={event}
+              now={now}
+              skewMs={skewMs}
+            />
           ))}
         </div>
       )}

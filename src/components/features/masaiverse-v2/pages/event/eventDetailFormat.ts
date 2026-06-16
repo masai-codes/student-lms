@@ -1,20 +1,27 @@
 /**
- * Date/time formatting for the event detail page, all in IST to match the rest
- * of Masaiverse (see `masaiverseEventCard.ts`). Inputs are UTC ISO strings; the
- * helpers return `null` when a timestamp is missing or unparseable so callers
- * can fall back gracefully.
+ * Date/time formatting for the event detail page, all in the viewer's own
+ * timezone (their device timezone) to match the rest of Masaiverse (see
+ * `masaiverseEventCard.ts`), so each learner sees the event time on their own
+ * clock with a timezone label. Inputs are UTC ISO strings; the helpers return
+ * `null` when a timestamp is missing or unparseable so callers can fall back
+ * gracefully.
+ *
+ * `skewMs` comes from {@link useServerTime} (server UTC − device UTC). It is
+ * subtracted from the instant before formatting so the displayed wall-clock
+ * matches the reading on the user's (possibly wrong) device clock — the same
+ * convention `formatTimestampLocal` uses.
  */
-const IST_TIME_ZONE = 'Asia/Kolkata'
+import { getTzLabel } from '@/utils/timeZoneHandler'
 
-function toDate(value: string | null): Date | null {
+function toDate(value: string | null, skewMs = 0): Date | null {
   if (!value) return null
   const date = new Date(value)
-  return Number.isNaN(date.getTime()) ? null : date
+  if (Number.isNaN(date.getTime())) return null
+  return new Date(date.getTime() - skewMs)
 }
 
-function formatIstTime(date: Date): string {
+function formatLocalTime(date: Date): string {
   return new Intl.DateTimeFormat('en-US', {
-    timeZone: IST_TIME_ZONE,
     hour: 'numeric',
     minute: '2-digit',
     hour12: true,
@@ -22,9 +29,8 @@ function formatIstTime(date: Date): string {
 }
 
 /** Short date, e.g. "Wed, 10 Jun 2026" — used for compact multi-day lines. */
-function formatIstShortDate(date: Date): string {
+function formatLocalShortDate(date: Date): string {
   return new Intl.DateTimeFormat('en-GB', {
-    timeZone: IST_TIME_ZONE,
     weekday: 'short',
     day: 'numeric',
     month: 'short',
@@ -33,14 +39,13 @@ function formatIstShortDate(date: Date): string {
 }
 
 /** "Wed, 10 Jun 2026, 9:00 AM" — a full instant for multi-day events. */
-function formatIstDateTime(date: Date): string {
-  return `${formatIstShortDate(date)}, ${formatIstTime(date)}`
+function formatLocalDateTime(date: Date): string {
+  return `${formatLocalShortDate(date)}, ${formatLocalTime(date)}`
 }
 
-/** The IST calendar day ("2026-06-10") two instants fall on, for comparison. */
-function istDayKey(date: Date): string {
+/** The viewer-local calendar day ("2026-06-10") an instant falls on, for comparison. */
+function localDayKey(date: Date): string {
   return new Intl.DateTimeFormat('en-CA', {
-    timeZone: IST_TIME_ZONE,
     year: 'numeric',
     month: '2-digit',
     day: '2-digit',
@@ -55,34 +60,33 @@ export interface EventDateBadge {
 }
 
 /** Calendar-block badge ({ month, day }) from the start (or end) instant. */
-export function formatIstDateBadge(
+export function formatLocalDateBadge(
   startTime: string | null,
   endTime: string | null,
+  skewMs = 0,
 ): EventDateBadge | null {
-  const date = toDate(startTime) ?? toDate(endTime)
+  const date = toDate(startTime, skewMs) ?? toDate(endTime, skewMs)
   if (!date) return null
   const month = new Intl.DateTimeFormat('en-US', {
-    timeZone: IST_TIME_ZONE,
     month: 'short',
   })
     .format(date)
     .toUpperCase()
   const day = new Intl.DateTimeFormat('en-US', {
-    timeZone: IST_TIME_ZONE,
     day: 'numeric',
   }).format(date)
   return { month, day }
 }
 
 /** Long date line, e.g. "Saturday, 15 June 2026". Null when no start/end. */
-export function formatIstLongDate(
+export function formatLocalLongDate(
   startTime: string | null,
   endTime: string | null,
+  skewMs = 0,
 ): string | null {
-  const date = toDate(startTime) ?? toDate(endTime)
+  const date = toDate(startTime, skewMs) ?? toDate(endTime, skewMs)
   if (!date) return null
   return new Intl.DateTimeFormat('en-GB', {
-    timeZone: IST_TIME_ZONE,
     weekday: 'long',
     day: 'numeric',
     month: 'long',
@@ -91,23 +95,25 @@ export function formatIstLongDate(
 }
 
 /**
- * Time line in IST. Returns a range ("2:00 PM – 5:00 PM") when both timestamps
- * are present, a single time when only one is, and `null` when neither is.
+ * Time line in the viewer's timezone. Returns a range ("2:00 PM – 5:00 PM")
+ * when both timestamps are present, a single time when only one is, and `null`
+ * when neither is. The timezone label is added by the caller.
  */
-export function formatIstTimeRange(
+export function formatLocalTimeRange(
   startTime: string | null,
   endTime: string | null,
+  skewMs = 0,
 ): string | null {
-  const start = toDate(startTime)
-  const end = toDate(endTime)
-  if (start && end) return `${formatIstTime(start)} – ${formatIstTime(end)}`
-  if (start) return formatIstTime(start)
-  if (end) return `Ends ${formatIstTime(end)}`
+  const start = toDate(startTime, skewMs)
+  const end = toDate(endTime, skewMs)
+  if (start && end) return `${formatLocalTime(start)} – ${formatLocalTime(end)}`
+  if (start) return formatLocalTime(start)
+  if (end) return `Ends ${formatLocalTime(end)}`
   return null
 }
 
 /** Two display lines for the event "when" row: a bold date line and a muted
- * time line (which already carries the "IST" suffix). Either can be `null`. */
+ * time line (which already carries the timezone label). Either can be `null`. */
 export interface EventSchedule {
   dateLine: string | null
   timeLine: string | null
@@ -117,28 +123,30 @@ export interface EventSchedule {
  * Builds the date/time lines for the detail page's "when" row. Single-day
  * events keep the long date + time-range layout. Multi-day events instead show
  * the full start instant on the date line and the full end instant on the time
- * line ("to Fri, 12 Jun 2026, 11:30 AM IST"), so both dates are unambiguous.
+ * line ("to Fri, 12 Jun 2026, 11:30 AM (IST)"), so both dates are unambiguous.
  */
-export function formatIstSchedule(
+export function formatLocalSchedule(
   startTime: string | null,
   endTime: string | null,
+  skewMs = 0,
 ): EventSchedule {
-  const start = toDate(startTime)
-  const end = toDate(endTime)
+  const start = toDate(startTime, skewMs)
+  const end = toDate(endTime, skewMs)
+  const tzLabel = getTzLabel()
 
   const isMultiDay =
-    start != null && end != null && istDayKey(start) !== istDayKey(end)
+    start != null && end != null && localDayKey(start) !== localDayKey(end)
 
   if (isMultiDay) {
     return {
-      dateLine: formatIstDateTime(start),
-      timeLine: `to ${formatIstDateTime(end)} IST`,
+      dateLine: formatLocalDateTime(start),
+      timeLine: `to ${formatLocalDateTime(end)} (${tzLabel})`,
     }
   }
 
-  const range = formatIstTimeRange(startTime, endTime)
+  const range = formatLocalTimeRange(startTime, endTime, skewMs)
   return {
-    dateLine: formatIstLongDate(startTime, endTime),
-    timeLine: range ? `${range} IST` : null,
+    dateLine: formatLocalLongDate(startTime, endTime, skewMs),
+    timeLine: range ? `${range} (${tzLabel})` : null,
   }
 }

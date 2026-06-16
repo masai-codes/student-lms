@@ -2,9 +2,13 @@ import { describe, expect, it } from 'vitest'
 import {
   buildEventsByDate,
   getMonthGrid,
-  istDateKey,
+  localDateKey,
   toDateKey,
 } from './calendarUtils'
+
+// Pin the timezone so the viewer-local day keys are deterministic regardless of
+// the machine/CI timezone. Asia/Kolkata matches the values asserted below.
+process.env.TZ = 'Asia/Kolkata'
 
 describe('toDateKey', () => {
   it('formats a date as zero-padded YYYY-MM-DD', () => {
@@ -40,22 +44,22 @@ describe('getMonthGrid', () => {
   })
 })
 
-describe('istDateKey', () => {
+describe('localDateKey', () => {
   it('returns null for a missing or unparseable timestamp', () => {
-    expect(istDateKey(null)).toBeNull()
-    expect(istDateKey('not-a-date')).toBeNull()
+    expect(localDateKey(null)).toBeNull()
+    expect(localDateKey('not-a-date')).toBeNull()
   })
 
-  it('uses the IST calendar day of the instant', () => {
+  it('uses the viewer-local calendar day of the instant', () => {
     // 10:00 UTC → 15:30 IST, same day.
-    expect(istDateKey('2026-06-05T10:00:00Z')).toBe('2026-06-05')
+    expect(localDateKey('2026-06-05T10:00:00Z')).toBe('2026-06-05')
     // 20:00 UTC → 01:30 IST the next day.
-    expect(istDateKey('2026-06-05T20:00:00Z')).toBe('2026-06-06')
+    expect(localDateKey('2026-06-05T20:00:00Z')).toBe('2026-06-06')
   })
 })
 
 describe('buildEventsByDate', () => {
-  it('buckets events by IST day and skips undatable ones', () => {
+  it('buckets events by local day and skips undatable ones', () => {
     const map = buildEventsByDate([
       { id: 'a', title: 'A', startTime: '2026-06-05T10:00:00Z', clubName: null },
       {

@@ -63,6 +63,12 @@ Last updated: 2026-06-15
 - Test files: `src/server/api/masaiverse-v2/__tests__/*.test.ts`
 - Notes: `markMasaiverseVisited` service + handler — success, unauthorized (401), and server-error (500) paths. Home (`GET /api/masaiverse-v2/home`) Section-1 stats: learners-in-community, discussions-this-week (posts + replies), events-this-year, registrations-this-year, plus the shared IST `dateRanges` helpers.
 
+## Masaiverse v2 app notifications
+- Area: Discussion-reply app notification trigger (`src/server/api/masaiverse-v2/services/notifyDiscussionReply.service.ts`, `src/server/masaiverse/triggerExperienceApiCommunityNotify.ts`, wired into `createDiscussionReply.service.ts`)
+- Status: Covered
+- Test files: `src/server/api/masaiverse-v2/__tests__/notifyDiscussionReply.service.test.ts`, `src/server/masaiverse/__tests__/triggerExperienceApiCommunityNotify.test.ts`, `src/server/api/masaiverse-v2/__tests__/discussionReplies.service.test.ts`
+- Notes: A reply notifies the post author via experience-api (which owns Expo delivery). Public discussions send `postId`; club discussions also send `clubId`; both use `notificationType: discussion-reply-received`. Covers club vs public, self-reply skip, missing post, unconfigured env, club_id omission for public, explicit notificationType, non-ok response, and transport errors. Event reminders (1hr/10min before, `eventId` in payload) are owned end-to-end by experience-api's BullMQ jobs and are not triggered from student-lms.
+
 ## Masaiverse v2 shell (sidebar + loading)
 - Area: Section shell (`src/components/features/masaiverse-v2/MasaiverseV2LeftSection.tsx`, `MasaiverseLoader.tsx`)
 - Status: Covered

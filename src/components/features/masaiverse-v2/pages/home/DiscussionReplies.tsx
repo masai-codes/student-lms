@@ -13,6 +13,7 @@ import { masaiverseV2ClubStatsQuery } from '@/query/masaiverse-v2/clubsQuery'
 import { MASAIVERSE_V2_HOME_KEY } from '@/query/masaiverse-v2/homeQuery'
 import { invalidateMasaiverseV2Leaderboards } from '@/query/masaiverse-v2/leaderboardQuery'
 import { formatSocialPostTime } from '@/lib/socialRelativeTime'
+import { useServerTime } from '@/hooks/useServerTime'
 import { MASAIVERSE_EVENTS, trackMasaiverse } from '../../tracking'
 
 type DiscussionRepliesProps = {
@@ -26,6 +27,7 @@ export default function DiscussionReplies({
   clubId,
 }: DiscussionRepliesProps) {
   const queryClient = useQueryClient()
+  const { now, skewMs } = useServerTime()
   const [text, setText] = useState('')
   const repliesKey = ['masaiverse-v2', 'discussion-replies', postId]
 
@@ -111,7 +113,11 @@ export default function DiscussionReplies({
                     {reply.authorName}
                   </span>
                   {' · '}
-                  {formatSocialPostTime(reply.createdAt)}
+                  {formatSocialPostTime(
+                    reply.createdAt,
+                    new Date(now.valueOf()),
+                    skewMs,
+                  )}
                 </p>
                 <p className="whitespace-pre-wrap text-[14px] leading-5 text-[#111827]">
                   {reply.content}

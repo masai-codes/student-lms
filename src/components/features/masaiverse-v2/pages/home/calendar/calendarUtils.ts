@@ -76,37 +76,38 @@ export interface CalendarEvent {
   clubName: string | null
 }
 
-const IST_TIME_ZONE = 'Asia/Kolkata'
-
 /**
- * The IST calendar day of a UTC instant as `YYYY-MM-DD` (matching
+ * The viewer-local calendar day of a UTC instant as `YYYY-MM-DD` (matching
  * {@link toDateKey}). Returns null when the timestamp is missing/unparseable,
- * so callers can skip undatable events. IST keeps the dot on the same day the
- * rest of the app shows the event in.
+ * so callers can skip undatable events. Using the viewer's timezone keeps the
+ * dot on the same day the rest of the app shows the event in.
+ *
+ * `skewMs` (server UTC − device UTC, from {@link useServerTime}) is subtracted
+ * so the day matches the displayed wall-clock on the user's device.
  */
-export function istDateKey(value: string | null): string | null {
+export function localDateKey(value: string | null, skewMs = 0): string | null {
   if (!value) return null
   const date = new Date(value)
   if (Number.isNaN(date.getTime())) return null
   return new Intl.DateTimeFormat('en-CA', {
-    timeZone: IST_TIME_ZONE,
     year: 'numeric',
     month: '2-digit',
     day: '2-digit',
-  }).format(date)
+  }).format(new Date(date.getTime() - skewMs))
 }
 
 /**
- * Buckets events by their IST calendar day, so the calendar can show a dot per
- * day and list the events for a selected day. Events within a day keep their
- * incoming order (the events query already sorts ascending by start time).
+ * Buckets events by their viewer-local calendar day, so the calendar can show a
+ * dot per day and list the events for a selected day. Events within a day keep
+ * their incoming order (the events query already sorts ascending by start time).
  */
 export function buildEventsByDate(
   events: Array<CalendarEvent>,
+  skewMs = 0,
 ): Map<string, Array<CalendarEvent>> {
   const byDate = new Map<string, Array<CalendarEvent>>()
   for (const event of events) {
-    const key = istDateKey(event.startTime)
+    const key = localDateKey(event.startTime, skewMs)
     if (!key) continue
     const existing = byDate.get(key)
     if (existing) {
