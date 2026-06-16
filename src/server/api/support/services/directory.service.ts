@@ -13,6 +13,7 @@
 
 import { and, desc, eq, inArray, isNull } from 'drizzle-orm'
 import type {
+  OneOnOneSection,
   SupportBatch,
   SupportCoordinator,
   SupportGateReason,
@@ -104,78 +105,104 @@ export async function getSupportGate(input: {
   return activeSections.length === 0 ? 'no-active-section' : null
 }
 
-/** Maps a raw `section_user.role` to the coordinator kind shown in the UI. */
-function coordinatorKind(role: string | null): SupportCoordinator['kind'] | null {
-  const r = (role ?? '').toUpperCase()
-  if (r.includes('IA') || r.includes('INSTRUCTOR')) return 'IA'
-  if (r.includes('EC') || r.includes('EDUCATION')) return 'EC'
-  if (r.includes('PC') || r.includes('PROGRAM')) return 'PC'
-  return null
-}
-
 /**
- * The coordinators (IA / EC / PC) attached to the student's active sections in
- * a batch, for 1:1 booking. Returns `[]` when the batch hasn't enabled 1:1 or
- * none are configured — the UI then hides the section entirely.
+ * The student's 1:1 ("pair programming") sections, mirroring the legacy
+ * `getSectionDetailsOfUser`:
+ *   - one entry per **active** section the student is in that has
+ *     `settings.show_pp === true` **and** a non-empty `settings.ppLink`;
+ *   - each carries its IA (the section_user `manager_id`), EC and PC
+ *     (the section's `role='ec'`/`'pc'` holders).
  *
- * The Calendly link, if any, is read from `users.meta.calendly`.
+ * Returns `[]` when none qualify — the UI then hides the 1:1 tab.
  */
-export async function getCoordinators(input: {
-  userId: number
-  batchId: number
-}): Promise<Array<SupportCoordinator>> {
-  // Find the student's active sections in this batch.
-  const studentSections = await db
-    .select({ sectionId: sectionUser.sectionId })
+export async function getOneOnOneSections(
+  userId: number,
+): Promise<Array<OneOnOneSection>> {
+  // 1) The student's active sections + their pp settings + IA (manager_id).
+  const myRows = await db
+    .select({
+      sectionId: sections.id,
+      sectionName: sections.name,
+      batchId: sections.batchId,
+      settings: sections.settings,
+      managerId: sectionUser.managerId,
+    })
     .from(sectionUser)
     .innerJoin(sections, eq(sections.id, sectionUser.sectionId))
     .where(
       and(
-        eq(sectionUser.userId, input.userId),
-        eq(sections.batchId, input.batchId),
+        eq(sectionUser.userId, userId),
         eq(sections.active, 1),
         isNull(sectionUser.deletedAt),
       ),
     )
 
-  const sectionIds = studentSections.map((s) => s.sectionId)
-  if (sectionIds.length === 0) return []
+  // Keep only pp-enabled sections (show_pp + ppLink).
+  const enabled = myRows
+    .map((r) => {
+      const s = (r.settings as Record<string, any> | null) ?? {}
+      const ppLink = typeof s.ppLink === 'string' ? s.ppLink.trim() : ''
+      return { ...r, showPp: Boolean(s.show_pp), ppLink }
+    })
+    .filter((r) => r.showPp && r.ppLink !== '')
 
-  // Coordinators are the non-student members of those sections.
-  const rows = await db
+  if (enabled.length === 0) return []
+
+  const sectionIds = enabled.map((r) => r.sectionId)
+  const managerIds = enabled.map((r) => r.managerId).filter((id): id is number => id != null)
+
+  // 2) EC/PC holders for those sections (role is lowercase 'ec'/'pc').
+  const ecPcRows = await db
     .select({
+      sectionId: sectionUser.sectionId,
+      role: sectionUser.role,
       id: users.id,
       name: users.name,
-      role: sectionUser.role,
       profilePhotoPath: users.profilePhotoPath,
-      meta: users.meta,
     })
     .from(sectionUser)
     .innerJoin(users, eq(users.id, sectionUser.userId))
     .where(
       and(
         inArray(sectionUser.sectionId, sectionIds),
+        inArray(sectionUser.role, ['ec', 'pc']),
         isNull(sectionUser.deletedAt),
       ),
     )
 
-  const seen = new Set<number>()
-  const coordinators: Array<SupportCoordinator> = []
-  for (const r of rows) {
-    const kind = coordinatorKind(r.role)
-    if (!kind || seen.has(r.id)) continue
-    seen.add(r.id)
-    const meta = (r.meta as Record<string, any> | null) ?? {}
-    coordinators.push({
-      id: r.id,
-      name: r.name,
-      kind,
-      role: r.role,
-      profilePhotoPath: r.profilePhotoPath ?? null,
-      calendlyUrl: typeof meta.calendly === 'string' ? meta.calendly : null,
-    })
-  }
-  return coordinators
+  // 3) IA users (by manager_id).
+  const iaRows = managerIds.length
+    ? await db
+        .select({ id: users.id, name: users.name, profilePhotoPath: users.profilePhotoPath })
+        .from(users)
+        .where(inArray(users.id, managerIds))
+    : []
+  const iaById = new Map(iaRows.map((u) => [u.id, u]))
+
+  return enabled.map((sec) => {
+    const coordinators: Array<SupportCoordinator> = []
+
+    const ia = sec.managerId != null ? iaById.get(sec.managerId) : undefined
+    if (ia) coordinators.push({ id: ia.id, name: ia.name, kind: 'IA', profilePhotoPath: ia.profilePhotoPath ?? null })
+
+    for (const row of ecPcRows) {
+      if (row.sectionId !== sec.sectionId) continue
+      coordinators.push({
+        id: row.id,
+        name: row.name,
+        kind: row.role === 'ec' ? 'EC' : 'PC',
+        profilePhotoPath: row.profilePhotoPath ?? null,
+      })
+    }
+
+    return {
+      sectionId: sec.sectionId,
+      sectionName: sec.sectionName,
+      batchId: sec.batchId,
+      ppLink: sec.ppLink,
+      coordinators,
+    }
+  })
 }
 
 /** Support contact line + phone for a batch (from `batches.settings`). */

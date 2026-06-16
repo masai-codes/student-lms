@@ -95,6 +95,22 @@ export interface SupportCoordinator extends SupportPerson {
   calendlyUrl?: string | null
 }
 
+/**
+ * A section that has 1:1 ("pair programming") booking enabled. Mirrors the
+ * legacy `getSectionDetailsOfUser`: `show_pp` + `ppLink` live on the section's
+ * settings; IA = `section_user.manager_id`, EC/PC = the section's `ec`/`pc`
+ * role holders. The 1:1 tab shows only for sections with `show_pp && ppLink`.
+ */
+export interface OneOnOneSection {
+  sectionId: number
+  sectionName: string
+  batchId: number
+  /** The booking link (Calendly etc.) — drives "Book a 1:1 session". */
+  ppLink: string
+  /** IA / EC / PC for the section (those that exist). */
+  coordinators: Array<SupportCoordinator>
+}
+
 /** A callback request the student has raised (listed in the Raised Tickets tab). */
 export interface CallbackTicketItem {
   id: number
@@ -199,8 +215,8 @@ export interface SupportOverview {
   callback: { reasons: Array<CallbackOption>; timeslots: Array<CallbackOption> }
   /** Callback requests the student has already raised (shown in Raised Tickets). */
   callbackTickets: Array<CallbackTicketItem>
-  /** Coordinators for 1:1 booking (empty when not enabled). */
-  coordinators: Array<SupportCoordinator>
+  /** Sections with 1:1 booking enabled (empty when none — hides the 1:1 tab). */
+  oneOnOne: Array<OneOnOneSection>
 }
 
 /** The conversation payload — fetched in one GET (`/api/support/tickets/thread`). */

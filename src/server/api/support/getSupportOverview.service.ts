@@ -21,7 +21,7 @@ import {
 } from '@/server/api/support/services/faqs.service'
 import {
   getBatchContact,
-  getCoordinators,
+  getOneOnOneSections,
   getSupportGate,
   getUserSupportBatches,
 } from '@/server/api/support/services/directory.service'
@@ -63,7 +63,7 @@ export async function getSupportOverview(
       openTicketCount: 0,
       callback: { reasons: [], timeslots: [] },
       callbackTickets: [],
-      coordinators: [],
+      oneOnOne: [],
     }
   }
 
@@ -81,7 +81,7 @@ export async function getSupportOverview(
     openTicketCount,
     callback,
     callbackTickets,
-    coordinators,
+    oneOnOne,
   ] = await Promise.all([
     getSupportGate({ userId, batchId }),
     getBatchContact(batchId),
@@ -91,9 +91,7 @@ export async function getSupportOverview(
     countOpenTickets(userId),
     getCallbackOptions(),
     listCallbacks(userId),
-    activeBatch.oneOnOneEnabled
-      ? getCoordinators({ userId, batchId })
-      : Promise.resolve([]),
+    getOneOnOneSections(userId),
   ])
 
   return {
@@ -106,6 +104,6 @@ export async function getSupportOverview(
     openTicketCount,
     callback,
     callbackTickets,
-    coordinators,
+    oneOnOne,
   }
 }

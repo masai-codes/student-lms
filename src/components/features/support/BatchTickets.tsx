@@ -50,7 +50,7 @@ export function BatchTickets() {
     return null
   }, [selectedBatchId, batches])
 
-  const hasOneOnOne = (overview?.coordinators.length ?? 0) > 0
+  const hasOneOnOne = (overview?.oneOnOne.length ?? 0) > 0
   const activeTab =
     search.tickets === 'ticketlisting'
       ? 'support-tickets'
@@ -223,7 +223,7 @@ export function BatchTickets() {
               </div>
             ) : activeTab === 'pair-programming' ? (
               <div className="p-4 md:p-6">
-                <PairProgrammingTab coordinators={overview?.coordinators ?? []} />
+                <PairProgrammingTab sections={overview?.oneOnOne ?? []} />
               </div>
             ) : (
               <HelpTab
