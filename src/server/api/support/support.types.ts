@@ -1,0 +1,200 @@
+/**
+ * Support module — shared domain types.
+ *
+ * This is the single source of truth for the shapes that flow across the whole
+ * support feature: server services return them, the typed API client re-exports
+ * them, and the React components consume them. If you are new to this module,
+ * **start here** — every other file references these names.
+ *
+ * Big picture (read `START_HERE.md` in this folder for the full tour):
+ *
+ *   DB (Drizzle)  →  services/*.service.ts  →  handlers/*.handler.ts
+ *                 →  routes/api/support/*    →  lib/api/support/supportApi.ts
+ *                 →  query/support/*         →  components/features/support/*
+ *
+ * The page loads from **one** GET (`getSupportOverview`) and then mutations
+ * (POST) invalidate the relevant query so the UI re-fetches just what changed.
+ */
+
+/**
+ * The lifecycle state of a ticket. Mirrors the `tickets.status` column values
+ * used by the legacy system so existing rows render correctly.
+ *
+ * - `open`       — newly raised, awaiting / in conversation with a coordinator
+ * - `re-opened`  — student reopened or escalated a previously closed ticket
+ * - `resolved`   — coordinator marked it solved (student can rate / reopen)
+ * - `closed`     — closed by the system / coordinator
+ * - `automatic`  — auto-resolved (e.g. short leave, chatbot) with a templated reply
+ */
+export type TicketStatus =
+  | 'open'
+  | 're-opened'
+  | 'resolved'
+  | 'closed'
+  | 'automatic'
+
+/** The three list filters shown above the ticket list. */
+export type TicketTab = 'unresolved' | 'resolved' | 'all'
+
+/** FAQ helpfulness vote. */
+export type FaqVote = 'upvote' | 'downvote'
+
+/** Quick satisfaction rating: 1 = 👎 (not helpful), 5 = 👍 (helpful). */
+export type TicketRating = 1 | 5
+
+/** A person rendered in the UI (ticket author, coordinator, comment author). */
+export interface SupportPerson {
+  id: number
+  name: string
+  /** Role label shown under the name, e.g. "Curriculum Co-ordinator". */
+  role?: string | null
+  profilePhotoPath?: string | null
+}
+
+/** A help-centre article. */
+export interface SupportFaq {
+  id: number
+  question: string
+  /** Markdown. */
+  answer: string
+  category: string
+  subCategory: string
+  batchId: number
+}
+
+/** A category (+ its subcategories) used to organise FAQs and ticket creation. */
+export interface SupportCategory {
+  /** Slug used in payloads, e.g. "evaluation". */
+  value: string
+  /** Display label, e.g. "Evaluation". */
+  label: string
+  subcategories: Array<{ value: string; label: string }>
+}
+
+/** A batch the student belongs to (support is always batch-scoped). */
+export interface SupportBatch {
+  id: number
+  name: string
+  /** Whether 1:1 / pair-programming booking is enabled for this batch. */
+  oneOnOneEnabled: boolean
+}
+
+/** Options for the "request a callback" flow (sourced from the `menus` table). */
+export interface CallbackOption {
+  id: number
+  /** Human label shown in the picker, e.g. "Student Kit" / "10am – 12pm". */
+  value: string
+  ordering: number
+}
+
+/** A coordinator the student can reach for 1:1 help. */
+export interface SupportCoordinator extends SupportPerson {
+  /** IA / EC / PC. */
+  kind: 'IA' | 'EC' | 'PC'
+  /** Optional Calendly booking link. */
+  calendlyUrl?: string | null
+}
+
+/**
+ * Why ticket creation might be blocked. `null` means the student can raise a
+ * ticket. The UI resolves the gate **before** showing the compose box.
+ */
+export type SupportGateReason = 'legal-agreement' | 'no-active-section' | null
+
+/** A row in the ticket list. */
+export interface TicketListItem {
+  id: number
+  title: string
+  category: string
+  status: TicketStatus
+  /** 0 when unrated. */
+  rating: number
+  /** ISO timestamp of the last update. */
+  updatedAt: string | null
+  /** Derived: there is at least one coordinator reply the student hasn't seen. */
+  hasUnread: boolean
+}
+
+/** A single message in a ticket conversation. */
+export interface TicketMessage {
+  id: number
+  /** Markdown; may embed attachment links as `[name](url)`. */
+  message: string
+  createdAt: string | null
+  author: SupportPerson
+  /** Who sent it — decides bubble alignment + styling. */
+  side: 'student' | 'agent' | 'system'
+}
+
+/** The status banner shown at the top of a conversation. */
+export interface TicketStatusResponse {
+  heading: string
+  message: string
+  createdAt?: string | null
+  author?: SupportPerson | null
+}
+
+/** Full ticket detail (header + the student's opening message). */
+export interface TicketDetail {
+  id: number
+  title: string
+  /** The opening message (markdown). */
+  message: string
+  category: string
+  subCategory?: string | null
+  status: TicketStatus
+  rating: number
+  /** SLA / expected turnaround in hours, for the "usually answered in Nh" hint. */
+  tatHours: number | null
+  createdAt: string | null
+  batchId: number | null
+  owner: SupportPerson
+  assignee?: SupportPerson | null
+}
+
+/**
+ * What the student is allowed to do with a ticket *right now*. Computed once by
+ * {@link getTicketCapabilities} and read by every action surface so the rules
+ * live in exactly one place. See `ticketCapabilities.ts`.
+ */
+export interface TicketCapabilities {
+  canReply: boolean
+  canRate: boolean
+  canReopen: boolean
+  canEscalate: boolean
+}
+
+/**
+ * The aggregated payload for the support landing page — fetched in **one** GET
+ * (`/api/support/overview`). Every section below is produced by an independent,
+ * reusable service so other endpoints can call them in isolation; the overview
+ * orchestrator just fans out with `Promise.all` and composes the results.
+ */
+export interface SupportOverview {
+  /** The student's batches; the first is the default scope. */
+  batches: Array<SupportBatch>
+  /** Whether (and why) ticket creation is blocked. */
+  gateReason: SupportGateReason
+  /** Optional batch support contact line + phone. */
+  contact: { text: string | null; phone: string | null }
+  /** Category tree for browsing FAQs and for the create-ticket picker. */
+  categories: Array<SupportCategory>
+  /** A first page of FAQs to show before the student searches. */
+  faqs: Array<SupportFaq>
+  /** The student's current tickets (first page, newest first). */
+  tickets: Array<TicketListItem>
+  /** Count of not-yet-resolved tickets (drives the header badge). */
+  openTicketCount: number
+  /** Options for the "request a callback" flow. */
+  callback: { reasons: Array<CallbackOption>; timeslots: Array<CallbackOption> }
+  /** Coordinators for 1:1 booking (empty when not enabled). */
+  coordinators: Array<SupportCoordinator>
+}
+
+/** The conversation payload — fetched in one GET (`/api/support/tickets/thread`). */
+export interface TicketThread {
+  ticket: TicketDetail
+  statusResponse: TicketStatusResponse | null
+  messages: Array<TicketMessage>
+  capabilities: TicketCapabilities
+}

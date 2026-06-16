@@ -21,6 +21,9 @@ import { Route as protectedLayoutIndexRouteImport } from './routes/(protected)/_
 import { Route as authSwitchAccountIndexRouteImport } from './routes/(auth)/switch-account/index'
 import { Route as authSigninIndexRouteImport } from './routes/(auth)/signin/index'
 import { Route as authLoginIndexRouteImport } from './routes/(auth)/login/index'
+import { Route as ApiSupportTicketsRouteImport } from './routes/api/support/tickets'
+import { Route as ApiSupportOverviewRouteImport } from './routes/api/support/overview'
+import { Route as ApiSupportFaqsRouteImport } from './routes/api/support/faqs'
 import { Route as ApiProfilePhotoUploadUrlRouteImport } from './routes/api/profile/photo-upload-url'
 import { Route as ApiProfilePhotoRouteImport } from './routes/api/profile/photo'
 import { Route as ApiProfileAchievementsRouteImport } from './routes/api/profile/achievements'
@@ -53,6 +56,7 @@ import { Route as ApiProfileCertificatesIndexRouteImport } from './routes/api/pr
 import { Route as ApiProfileAccountActivityIndexRouteImport } from './routes/api/profile/account-activity/index'
 import { Route as ApiAnnouncementIdIndexRouteImport } from './routes/api/announcement/$id/index'
 import { Route as protectedLayoutWhatsNewIndexRouteImport } from './routes/(protected)/_layout/whats-new/index'
+import { Route as protectedLayoutSupportIndexRouteImport } from './routes/(protected)/_layout/support/index'
 import { Route as protectedLayoutProfileIndexRouteImport } from './routes/(protected)/_layout/profile/index'
 import { Route as protectedLayoutMasaiverseIndexRouteImport } from './routes/(protected)/_layout/masaiverse/index'
 import { Route as protectedLayoutLearnIndexRouteImport } from './routes/(protected)/_layout/learn/index'
@@ -60,6 +64,14 @@ import { Route as protectedLayoutBookmarksIndexRouteImport } from './routes/(pro
 import { Route as protectedLayoutAnnouncementsIndexRouteImport } from './routes/(protected)/_layout/announcements/index'
 import { Route as authV2LoginIndexRouteImport } from './routes/(auth)/v2/login/index'
 import { Route as authResetPasswordTokenIndexRouteImport } from './routes/(auth)/reset-password.$token/index'
+import { Route as ApiSupportTicketsThreadRouteImport } from './routes/api/support/tickets/thread'
+import { Route as ApiSupportTicketsReplyRouteImport } from './routes/api/support/tickets/reply'
+import { Route as ApiSupportTicketsReopenRouteImport } from './routes/api/support/tickets/reopen'
+import { Route as ApiSupportTicketsRateRouteImport } from './routes/api/support/tickets/rate'
+import { Route as ApiSupportTicketsEscalateRouteImport } from './routes/api/support/tickets/escalate'
+import { Route as ApiSupportTicketsCreateRouteImport } from './routes/api/support/tickets/create'
+import { Route as ApiSupportFaqsVoteRouteImport } from './routes/api/support/faqs/vote'
+import { Route as ApiSupportCallbackCreateRouteImport } from './routes/api/support/callback/create'
 import { Route as ApiProfileAccountActivitySignOutAllRouteImport } from './routes/api/profile/account-activity/sign-out-all'
 import { Route as ApiMasaiverseV2UsersSearchRouteImport } from './routes/api/masaiverse-v2/users/search'
 import { Route as ApiMasaiverseV2UploadsImageRouteImport } from './routes/api/masaiverse-v2/uploads/image'
@@ -114,6 +126,7 @@ import { Route as protectedLayoutLecturesLectureIdRouteRouteImport } from './rou
 import { Route as protectedLayoutAssignmentsAssignmentIdRouteRouteImport } from './routes/(protected)/_layout/assignments_/$assignmentId/route'
 import { Route as protectedLayoutAnnouncementsIdRouteRouteImport } from './routes/(protected)/_layout/announcements_/$id/route'
 import { Route as ApiChatbotLectureIdSessionsIndexRouteImport } from './routes/api/chatbot/$lectureId/sessions/index'
+import { Route as protectedLayoutSupportSupportIdIndexRouteImport } from './routes/(protected)/_layout/support/$supportId/index'
 import { Route as ApiLearnSubmissionsSubmissionIdViewOnPlatformRouteImport } from './routes/api/learn/submissions/$submissionId/view-on-platform'
 import { Route as ApiLearnAssignmentsAssignmentIdSubmissionsRouteImport } from './routes/api/learn/assignments/$assignmentId/submissions'
 import { Route as ApiLearnAssignmentsAssignmentIdAssessPlatformUrlRouteImport } from './routes/api/learn/assignments/$assignmentId/assess-platform-url'
@@ -197,6 +210,21 @@ const authSigninIndexRoute = authSigninIndexRouteImport.update({
 const authLoginIndexRoute = authLoginIndexRouteImport.update({
   id: '/(auth)/login/',
   path: '/login/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiSupportTicketsRoute = ApiSupportTicketsRouteImport.update({
+  id: '/api/support/tickets',
+  path: '/api/support/tickets',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiSupportOverviewRoute = ApiSupportOverviewRouteImport.update({
+  id: '/api/support/overview',
+  path: '/api/support/overview',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiSupportFaqsRoute = ApiSupportFaqsRouteImport.update({
+  id: '/api/support/faqs',
+  path: '/api/support/faqs',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiProfilePhotoUploadUrlRoute =
@@ -374,6 +402,12 @@ const protectedLayoutWhatsNewIndexRoute =
     path: '/whats-new/',
     getParentRoute: () => protectedLayoutRouteRoute,
   } as any)
+const protectedLayoutSupportIndexRoute =
+  protectedLayoutSupportIndexRouteImport.update({
+    id: '/support/',
+    path: '/support/',
+    getParentRoute: () => protectedLayoutRouteRoute,
+  } as any)
 const protectedLayoutProfileIndexRoute =
   protectedLayoutProfileIndexRouteImport.update({
     id: '/profile/',
@@ -413,6 +447,48 @@ const authResetPasswordTokenIndexRoute =
   authResetPasswordTokenIndexRouteImport.update({
     id: '/(auth)/reset-password/$token/',
     path: '/reset-password/$token/',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiSupportTicketsThreadRoute = ApiSupportTicketsThreadRouteImport.update({
+  id: '/thread',
+  path: '/thread',
+  getParentRoute: () => ApiSupportTicketsRoute,
+} as any)
+const ApiSupportTicketsReplyRoute = ApiSupportTicketsReplyRouteImport.update({
+  id: '/reply',
+  path: '/reply',
+  getParentRoute: () => ApiSupportTicketsRoute,
+} as any)
+const ApiSupportTicketsReopenRoute = ApiSupportTicketsReopenRouteImport.update({
+  id: '/reopen',
+  path: '/reopen',
+  getParentRoute: () => ApiSupportTicketsRoute,
+} as any)
+const ApiSupportTicketsRateRoute = ApiSupportTicketsRateRouteImport.update({
+  id: '/rate',
+  path: '/rate',
+  getParentRoute: () => ApiSupportTicketsRoute,
+} as any)
+const ApiSupportTicketsEscalateRoute =
+  ApiSupportTicketsEscalateRouteImport.update({
+    id: '/escalate',
+    path: '/escalate',
+    getParentRoute: () => ApiSupportTicketsRoute,
+  } as any)
+const ApiSupportTicketsCreateRoute = ApiSupportTicketsCreateRouteImport.update({
+  id: '/create',
+  path: '/create',
+  getParentRoute: () => ApiSupportTicketsRoute,
+} as any)
+const ApiSupportFaqsVoteRoute = ApiSupportFaqsVoteRouteImport.update({
+  id: '/vote',
+  path: '/vote',
+  getParentRoute: () => ApiSupportFaqsRoute,
+} as any)
+const ApiSupportCallbackCreateRoute =
+  ApiSupportCallbackCreateRouteImport.update({
+    id: '/api/support/callback/create',
+    path: '/api/support/callback/create',
     getParentRoute: () => rootRouteImport,
   } as any)
 const ApiProfileAccountActivitySignOutAllRoute =
@@ -734,6 +810,12 @@ const ApiChatbotLectureIdSessionsIndexRoute =
     path: '/api/chatbot/$lectureId/sessions/',
     getParentRoute: () => rootRouteImport,
   } as any)
+const protectedLayoutSupportSupportIdIndexRoute =
+  protectedLayoutSupportSupportIdIndexRouteImport.update({
+    id: '/support/$supportId/',
+    path: '/support/$supportId/',
+    getParentRoute: () => protectedLayoutRouteRoute,
+  } as any)
 const ApiLearnSubmissionsSubmissionIdViewOnPlatformRoute =
   ApiLearnSubmissionsSubmissionIdViewOnPlatformRouteImport.update({
     id: '/view-on-platform',
@@ -909,6 +991,9 @@ export interface FileRoutesByFullPath {
   '/api/profile/achievements': typeof ApiProfileAchievementsRoute
   '/api/profile/photo': typeof ApiProfilePhotoRoute
   '/api/profile/photo-upload-url': typeof ApiProfilePhotoUploadUrlRoute
+  '/api/support/faqs': typeof ApiSupportFaqsRouteWithChildren
+  '/api/support/overview': typeof ApiSupportOverviewRoute
+  '/api/support/tickets': typeof ApiSupportTicketsRouteWithChildren
   '/login/': typeof authLoginIndexRoute
   '/signin/': typeof authSigninIndexRoute
   '/switch-account/': typeof authSwitchAccountIndexRoute
@@ -970,6 +1055,14 @@ export interface FileRoutesByFullPath {
   '/api/masaiverse-v2/uploads/image': typeof ApiMasaiverseV2UploadsImageRoute
   '/api/masaiverse-v2/users/search': typeof ApiMasaiverseV2UsersSearchRoute
   '/api/profile/account-activity/sign-out-all': typeof ApiProfileAccountActivitySignOutAllRoute
+  '/api/support/callback/create': typeof ApiSupportCallbackCreateRoute
+  '/api/support/faqs/vote': typeof ApiSupportFaqsVoteRoute
+  '/api/support/tickets/create': typeof ApiSupportTicketsCreateRoute
+  '/api/support/tickets/escalate': typeof ApiSupportTicketsEscalateRoute
+  '/api/support/tickets/rate': typeof ApiSupportTicketsRateRoute
+  '/api/support/tickets/reopen': typeof ApiSupportTicketsReopenRoute
+  '/api/support/tickets/reply': typeof ApiSupportTicketsReplyRoute
+  '/api/support/tickets/thread': typeof ApiSupportTicketsThreadRoute
   '/reset-password/$token/': typeof authResetPasswordTokenIndexRoute
   '/v2/login/': typeof authV2LoginIndexRoute
   '/announcements/': typeof protectedLayoutAnnouncementsIndexRoute
@@ -977,6 +1070,7 @@ export interface FileRoutesByFullPath {
   '/learn/': typeof protectedLayoutLearnIndexRoute
   '/masaiverse/': typeof protectedLayoutMasaiverseIndexRoute
   '/profile/': typeof protectedLayoutProfileIndexRoute
+  '/support/': typeof protectedLayoutSupportIndexRoute
   '/whats-new/': typeof protectedLayoutWhatsNewIndexRoute
   '/api/announcement/$id/': typeof ApiAnnouncementIdIndexRoute
   '/api/profile/account-activity/': typeof ApiProfileAccountActivityIndexRoute
@@ -1003,6 +1097,7 @@ export interface FileRoutesByFullPath {
   '/api/learn/assignments/$assignmentId/assess-platform-url': typeof ApiLearnAssignmentsAssignmentIdAssessPlatformUrlRoute
   '/api/learn/assignments/$assignmentId/submissions': typeof ApiLearnAssignmentsAssignmentIdSubmissionsRoute
   '/api/learn/submissions/$submissionId/view-on-platform': typeof ApiLearnSubmissionsSubmissionIdViewOnPlatformRoute
+  '/support/$supportId/': typeof protectedLayoutSupportSupportIdIndexRoute
   '/api/chatbot/$lectureId/sessions/': typeof ApiChatbotLectureIdSessionsIndexRoute
   '/masaiverse/club/$clubId/gallery': typeof protectedLayoutMasaiverseClubClubIdGalleryRoute
   '/api/chatbot/$lectureId/sessions/$sessionId/messages': typeof ApiChatbotLectureIdSessionsSessionIdMessagesRoute
@@ -1038,6 +1133,9 @@ export interface FileRoutesByTo {
   '/api/profile/achievements': typeof ApiProfileAchievementsRoute
   '/api/profile/photo': typeof ApiProfilePhotoRoute
   '/api/profile/photo-upload-url': typeof ApiProfilePhotoUploadUrlRoute
+  '/api/support/faqs': typeof ApiSupportFaqsRouteWithChildren
+  '/api/support/overview': typeof ApiSupportOverviewRoute
+  '/api/support/tickets': typeof ApiSupportTicketsRouteWithChildren
   '/login': typeof authLoginIndexRoute
   '/signin': typeof authSigninIndexRoute
   '/switch-account': typeof authSwitchAccountIndexRoute
@@ -1099,6 +1197,14 @@ export interface FileRoutesByTo {
   '/api/masaiverse-v2/uploads/image': typeof ApiMasaiverseV2UploadsImageRoute
   '/api/masaiverse-v2/users/search': typeof ApiMasaiverseV2UsersSearchRoute
   '/api/profile/account-activity/sign-out-all': typeof ApiProfileAccountActivitySignOutAllRoute
+  '/api/support/callback/create': typeof ApiSupportCallbackCreateRoute
+  '/api/support/faqs/vote': typeof ApiSupportFaqsVoteRoute
+  '/api/support/tickets/create': typeof ApiSupportTicketsCreateRoute
+  '/api/support/tickets/escalate': typeof ApiSupportTicketsEscalateRoute
+  '/api/support/tickets/rate': typeof ApiSupportTicketsRateRoute
+  '/api/support/tickets/reopen': typeof ApiSupportTicketsReopenRoute
+  '/api/support/tickets/reply': typeof ApiSupportTicketsReplyRoute
+  '/api/support/tickets/thread': typeof ApiSupportTicketsThreadRoute
   '/reset-password/$token': typeof authResetPasswordTokenIndexRoute
   '/v2/login': typeof authV2LoginIndexRoute
   '/announcements': typeof protectedLayoutAnnouncementsIndexRoute
@@ -1106,6 +1212,7 @@ export interface FileRoutesByTo {
   '/learn': typeof protectedLayoutLearnIndexRoute
   '/masaiverse': typeof protectedLayoutMasaiverseIndexRoute
   '/profile': typeof protectedLayoutProfileIndexRoute
+  '/support': typeof protectedLayoutSupportIndexRoute
   '/whats-new': typeof protectedLayoutWhatsNewIndexRoute
   '/api/announcement/$id': typeof ApiAnnouncementIdIndexRoute
   '/api/profile/account-activity': typeof ApiProfileAccountActivityIndexRoute
@@ -1132,6 +1239,7 @@ export interface FileRoutesByTo {
   '/api/learn/assignments/$assignmentId/assess-platform-url': typeof ApiLearnAssignmentsAssignmentIdAssessPlatformUrlRoute
   '/api/learn/assignments/$assignmentId/submissions': typeof ApiLearnAssignmentsAssignmentIdSubmissionsRoute
   '/api/learn/submissions/$submissionId/view-on-platform': typeof ApiLearnSubmissionsSubmissionIdViewOnPlatformRoute
+  '/support/$supportId': typeof protectedLayoutSupportSupportIdIndexRoute
   '/api/chatbot/$lectureId/sessions': typeof ApiChatbotLectureIdSessionsIndexRoute
   '/masaiverse/club/$clubId/gallery': typeof protectedLayoutMasaiverseClubClubIdGalleryRoute
   '/api/chatbot/$lectureId/sessions/$sessionId/messages': typeof ApiChatbotLectureIdSessionsSessionIdMessagesRoute
@@ -1170,6 +1278,9 @@ export interface FileRoutesById {
   '/api/profile/achievements': typeof ApiProfileAchievementsRoute
   '/api/profile/photo': typeof ApiProfilePhotoRoute
   '/api/profile/photo-upload-url': typeof ApiProfilePhotoUploadUrlRoute
+  '/api/support/faqs': typeof ApiSupportFaqsRouteWithChildren
+  '/api/support/overview': typeof ApiSupportOverviewRoute
+  '/api/support/tickets': typeof ApiSupportTicketsRouteWithChildren
   '/(auth)/login/': typeof authLoginIndexRoute
   '/(auth)/signin/': typeof authSigninIndexRoute
   '/(auth)/switch-account/': typeof authSwitchAccountIndexRoute
@@ -1231,6 +1342,14 @@ export interface FileRoutesById {
   '/api/masaiverse-v2/uploads/image': typeof ApiMasaiverseV2UploadsImageRoute
   '/api/masaiverse-v2/users/search': typeof ApiMasaiverseV2UsersSearchRoute
   '/api/profile/account-activity/sign-out-all': typeof ApiProfileAccountActivitySignOutAllRoute
+  '/api/support/callback/create': typeof ApiSupportCallbackCreateRoute
+  '/api/support/faqs/vote': typeof ApiSupportFaqsVoteRoute
+  '/api/support/tickets/create': typeof ApiSupportTicketsCreateRoute
+  '/api/support/tickets/escalate': typeof ApiSupportTicketsEscalateRoute
+  '/api/support/tickets/rate': typeof ApiSupportTicketsRateRoute
+  '/api/support/tickets/reopen': typeof ApiSupportTicketsReopenRoute
+  '/api/support/tickets/reply': typeof ApiSupportTicketsReplyRoute
+  '/api/support/tickets/thread': typeof ApiSupportTicketsThreadRoute
   '/(auth)/reset-password/$token/': typeof authResetPasswordTokenIndexRoute
   '/(auth)/v2/login/': typeof authV2LoginIndexRoute
   '/(protected)/_layout/announcements/': typeof protectedLayoutAnnouncementsIndexRoute
@@ -1238,6 +1357,7 @@ export interface FileRoutesById {
   '/(protected)/_layout/learn/': typeof protectedLayoutLearnIndexRoute
   '/(protected)/_layout/masaiverse/': typeof protectedLayoutMasaiverseIndexRoute
   '/(protected)/_layout/profile/': typeof protectedLayoutProfileIndexRoute
+  '/(protected)/_layout/support/': typeof protectedLayoutSupportIndexRoute
   '/(protected)/_layout/whats-new/': typeof protectedLayoutWhatsNewIndexRoute
   '/api/announcement/$id/': typeof ApiAnnouncementIdIndexRoute
   '/api/profile/account-activity/': typeof ApiProfileAccountActivityIndexRoute
@@ -1264,6 +1384,7 @@ export interface FileRoutesById {
   '/api/learn/assignments/$assignmentId/assess-platform-url': typeof ApiLearnAssignmentsAssignmentIdAssessPlatformUrlRoute
   '/api/learn/assignments/$assignmentId/submissions': typeof ApiLearnAssignmentsAssignmentIdSubmissionsRoute
   '/api/learn/submissions/$submissionId/view-on-platform': typeof ApiLearnSubmissionsSubmissionIdViewOnPlatformRoute
+  '/(protected)/_layout/support/$supportId/': typeof protectedLayoutSupportSupportIdIndexRoute
   '/api/chatbot/$lectureId/sessions/': typeof ApiChatbotLectureIdSessionsIndexRoute
   '/(protected)/_layout/masaiverse/club/$clubId_/gallery': typeof protectedLayoutMasaiverseClubClubIdGalleryRoute
   '/api/chatbot/$lectureId/sessions/$sessionId/messages': typeof ApiChatbotLectureIdSessionsSessionIdMessagesRoute
@@ -1302,6 +1423,9 @@ export interface FileRouteTypes {
     | '/api/profile/achievements'
     | '/api/profile/photo'
     | '/api/profile/photo-upload-url'
+    | '/api/support/faqs'
+    | '/api/support/overview'
+    | '/api/support/tickets'
     | '/login/'
     | '/signin/'
     | '/switch-account/'
@@ -1363,6 +1487,14 @@ export interface FileRouteTypes {
     | '/api/masaiverse-v2/uploads/image'
     | '/api/masaiverse-v2/users/search'
     | '/api/profile/account-activity/sign-out-all'
+    | '/api/support/callback/create'
+    | '/api/support/faqs/vote'
+    | '/api/support/tickets/create'
+    | '/api/support/tickets/escalate'
+    | '/api/support/tickets/rate'
+    | '/api/support/tickets/reopen'
+    | '/api/support/tickets/reply'
+    | '/api/support/tickets/thread'
     | '/reset-password/$token/'
     | '/v2/login/'
     | '/announcements/'
@@ -1370,6 +1502,7 @@ export interface FileRouteTypes {
     | '/learn/'
     | '/masaiverse/'
     | '/profile/'
+    | '/support/'
     | '/whats-new/'
     | '/api/announcement/$id/'
     | '/api/profile/account-activity/'
@@ -1396,6 +1529,7 @@ export interface FileRouteTypes {
     | '/api/learn/assignments/$assignmentId/assess-platform-url'
     | '/api/learn/assignments/$assignmentId/submissions'
     | '/api/learn/submissions/$submissionId/view-on-platform'
+    | '/support/$supportId/'
     | '/api/chatbot/$lectureId/sessions/'
     | '/masaiverse/club/$clubId/gallery'
     | '/api/chatbot/$lectureId/sessions/$sessionId/messages'
@@ -1431,6 +1565,9 @@ export interface FileRouteTypes {
     | '/api/profile/achievements'
     | '/api/profile/photo'
     | '/api/profile/photo-upload-url'
+    | '/api/support/faqs'
+    | '/api/support/overview'
+    | '/api/support/tickets'
     | '/login'
     | '/signin'
     | '/switch-account'
@@ -1492,6 +1629,14 @@ export interface FileRouteTypes {
     | '/api/masaiverse-v2/uploads/image'
     | '/api/masaiverse-v2/users/search'
     | '/api/profile/account-activity/sign-out-all'
+    | '/api/support/callback/create'
+    | '/api/support/faqs/vote'
+    | '/api/support/tickets/create'
+    | '/api/support/tickets/escalate'
+    | '/api/support/tickets/rate'
+    | '/api/support/tickets/reopen'
+    | '/api/support/tickets/reply'
+    | '/api/support/tickets/thread'
     | '/reset-password/$token'
     | '/v2/login'
     | '/announcements'
@@ -1499,6 +1644,7 @@ export interface FileRouteTypes {
     | '/learn'
     | '/masaiverse'
     | '/profile'
+    | '/support'
     | '/whats-new'
     | '/api/announcement/$id'
     | '/api/profile/account-activity'
@@ -1525,6 +1671,7 @@ export interface FileRouteTypes {
     | '/api/learn/assignments/$assignmentId/assess-platform-url'
     | '/api/learn/assignments/$assignmentId/submissions'
     | '/api/learn/submissions/$submissionId/view-on-platform'
+    | '/support/$supportId'
     | '/api/chatbot/$lectureId/sessions'
     | '/masaiverse/club/$clubId/gallery'
     | '/api/chatbot/$lectureId/sessions/$sessionId/messages'
@@ -1562,6 +1709,9 @@ export interface FileRouteTypes {
     | '/api/profile/achievements'
     | '/api/profile/photo'
     | '/api/profile/photo-upload-url'
+    | '/api/support/faqs'
+    | '/api/support/overview'
+    | '/api/support/tickets'
     | '/(auth)/login/'
     | '/(auth)/signin/'
     | '/(auth)/switch-account/'
@@ -1623,6 +1773,14 @@ export interface FileRouteTypes {
     | '/api/masaiverse-v2/uploads/image'
     | '/api/masaiverse-v2/users/search'
     | '/api/profile/account-activity/sign-out-all'
+    | '/api/support/callback/create'
+    | '/api/support/faqs/vote'
+    | '/api/support/tickets/create'
+    | '/api/support/tickets/escalate'
+    | '/api/support/tickets/rate'
+    | '/api/support/tickets/reopen'
+    | '/api/support/tickets/reply'
+    | '/api/support/tickets/thread'
     | '/(auth)/reset-password/$token/'
     | '/(auth)/v2/login/'
     | '/(protected)/_layout/announcements/'
@@ -1630,6 +1788,7 @@ export interface FileRouteTypes {
     | '/(protected)/_layout/learn/'
     | '/(protected)/_layout/masaiverse/'
     | '/(protected)/_layout/profile/'
+    | '/(protected)/_layout/support/'
     | '/(protected)/_layout/whats-new/'
     | '/api/announcement/$id/'
     | '/api/profile/account-activity/'
@@ -1656,6 +1815,7 @@ export interface FileRouteTypes {
     | '/api/learn/assignments/$assignmentId/assess-platform-url'
     | '/api/learn/assignments/$assignmentId/submissions'
     | '/api/learn/submissions/$submissionId/view-on-platform'
+    | '/(protected)/_layout/support/$supportId/'
     | '/api/chatbot/$lectureId/sessions/'
     | '/(protected)/_layout/masaiverse/club/$clubId_/gallery'
     | '/api/chatbot/$lectureId/sessions/$sessionId/messages'
@@ -1693,6 +1853,9 @@ export interface RootRouteChildren {
   ApiProfileAchievementsRoute: typeof ApiProfileAchievementsRoute
   ApiProfilePhotoRoute: typeof ApiProfilePhotoRoute
   ApiProfilePhotoUploadUrlRoute: typeof ApiProfilePhotoUploadUrlRoute
+  ApiSupportFaqsRoute: typeof ApiSupportFaqsRouteWithChildren
+  ApiSupportOverviewRoute: typeof ApiSupportOverviewRoute
+  ApiSupportTicketsRoute: typeof ApiSupportTicketsRouteWithChildren
   authLoginIndexRoute: typeof authLoginIndexRoute
   authSigninIndexRoute: typeof authSigninIndexRoute
   authSwitchAccountIndexRoute: typeof authSwitchAccountIndexRoute
@@ -1740,6 +1903,7 @@ export interface RootRouteChildren {
   ApiMasaiverseV2UploadsImageRoute: typeof ApiMasaiverseV2UploadsImageRoute
   ApiMasaiverseV2UsersSearchRoute: typeof ApiMasaiverseV2UsersSearchRoute
   ApiProfileAccountActivitySignOutAllRoute: typeof ApiProfileAccountActivitySignOutAllRoute
+  ApiSupportCallbackCreateRoute: typeof ApiSupportCallbackCreateRoute
   authResetPasswordTokenIndexRoute: typeof authResetPasswordTokenIndexRoute
   authV2LoginIndexRoute: typeof authV2LoginIndexRoute
   ApiAnnouncementIdIndexRoute: typeof ApiAnnouncementIdIndexRoute
@@ -1844,6 +2008,27 @@ declare module '@tanstack/react-router' {
       path: '/login'
       fullPath: '/login/'
       preLoaderRoute: typeof authLoginIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/support/tickets': {
+      id: '/api/support/tickets'
+      path: '/api/support/tickets'
+      fullPath: '/api/support/tickets'
+      preLoaderRoute: typeof ApiSupportTicketsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/support/overview': {
+      id: '/api/support/overview'
+      path: '/api/support/overview'
+      fullPath: '/api/support/overview'
+      preLoaderRoute: typeof ApiSupportOverviewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/support/faqs': {
+      id: '/api/support/faqs'
+      path: '/api/support/faqs'
+      fullPath: '/api/support/faqs'
+      preLoaderRoute: typeof ApiSupportFaqsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/profile/photo-upload-url': {
@@ -2070,6 +2255,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof protectedLayoutWhatsNewIndexRouteImport
       parentRoute: typeof protectedLayoutRouteRoute
     }
+    '/(protected)/_layout/support/': {
+      id: '/(protected)/_layout/support/'
+      path: '/support'
+      fullPath: '/support/'
+      preLoaderRoute: typeof protectedLayoutSupportIndexRouteImport
+      parentRoute: typeof protectedLayoutRouteRoute
+    }
     '/(protected)/_layout/profile/': {
       id: '/(protected)/_layout/profile/'
       path: '/profile'
@@ -2117,6 +2309,62 @@ declare module '@tanstack/react-router' {
       path: '/reset-password/$token'
       fullPath: '/reset-password/$token/'
       preLoaderRoute: typeof authResetPasswordTokenIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/support/tickets/thread': {
+      id: '/api/support/tickets/thread'
+      path: '/thread'
+      fullPath: '/api/support/tickets/thread'
+      preLoaderRoute: typeof ApiSupportTicketsThreadRouteImport
+      parentRoute: typeof ApiSupportTicketsRoute
+    }
+    '/api/support/tickets/reply': {
+      id: '/api/support/tickets/reply'
+      path: '/reply'
+      fullPath: '/api/support/tickets/reply'
+      preLoaderRoute: typeof ApiSupportTicketsReplyRouteImport
+      parentRoute: typeof ApiSupportTicketsRoute
+    }
+    '/api/support/tickets/reopen': {
+      id: '/api/support/tickets/reopen'
+      path: '/reopen'
+      fullPath: '/api/support/tickets/reopen'
+      preLoaderRoute: typeof ApiSupportTicketsReopenRouteImport
+      parentRoute: typeof ApiSupportTicketsRoute
+    }
+    '/api/support/tickets/rate': {
+      id: '/api/support/tickets/rate'
+      path: '/rate'
+      fullPath: '/api/support/tickets/rate'
+      preLoaderRoute: typeof ApiSupportTicketsRateRouteImport
+      parentRoute: typeof ApiSupportTicketsRoute
+    }
+    '/api/support/tickets/escalate': {
+      id: '/api/support/tickets/escalate'
+      path: '/escalate'
+      fullPath: '/api/support/tickets/escalate'
+      preLoaderRoute: typeof ApiSupportTicketsEscalateRouteImport
+      parentRoute: typeof ApiSupportTicketsRoute
+    }
+    '/api/support/tickets/create': {
+      id: '/api/support/tickets/create'
+      path: '/create'
+      fullPath: '/api/support/tickets/create'
+      preLoaderRoute: typeof ApiSupportTicketsCreateRouteImport
+      parentRoute: typeof ApiSupportTicketsRoute
+    }
+    '/api/support/faqs/vote': {
+      id: '/api/support/faqs/vote'
+      path: '/vote'
+      fullPath: '/api/support/faqs/vote'
+      preLoaderRoute: typeof ApiSupportFaqsVoteRouteImport
+      parentRoute: typeof ApiSupportFaqsRoute
+    }
+    '/api/support/callback/create': {
+      id: '/api/support/callback/create'
+      path: '/api/support/callback/create'
+      fullPath: '/api/support/callback/create'
+      preLoaderRoute: typeof ApiSupportCallbackCreateRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/profile/account-activity/sign-out-all': {
@@ -2497,6 +2745,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiChatbotLectureIdSessionsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/(protected)/_layout/support/$supportId/': {
+      id: '/(protected)/_layout/support/$supportId/'
+      path: '/support/$supportId'
+      fullPath: '/support/$supportId/'
+      preLoaderRoute: typeof protectedLayoutSupportSupportIdIndexRouteImport
+      parentRoute: typeof protectedLayoutRouteRoute
+    }
     '/api/learn/submissions/$submissionId/view-on-platform': {
       id: '/api/learn/submissions/$submissionId/view-on-platform'
       path: '/view-on-platform'
@@ -2716,7 +2971,9 @@ interface protectedLayoutRouteRouteChildren {
   protectedLayoutBookmarksIndexRoute: typeof protectedLayoutBookmarksIndexRoute
   protectedLayoutLearnIndexRoute: typeof protectedLayoutLearnIndexRoute
   protectedLayoutProfileIndexRoute: typeof protectedLayoutProfileIndexRoute
+  protectedLayoutSupportIndexRoute: typeof protectedLayoutSupportIndexRoute
   protectedLayoutWhatsNewIndexRoute: typeof protectedLayoutWhatsNewIndexRoute
+  protectedLayoutSupportSupportIdIndexRoute: typeof protectedLayoutSupportSupportIdIndexRoute
 }
 
 const protectedLayoutRouteRouteChildren: protectedLayoutRouteRouteChildren = {
@@ -2738,7 +2995,10 @@ const protectedLayoutRouteRouteChildren: protectedLayoutRouteRouteChildren = {
   protectedLayoutBookmarksIndexRoute: protectedLayoutBookmarksIndexRoute,
   protectedLayoutLearnIndexRoute: protectedLayoutLearnIndexRoute,
   protectedLayoutProfileIndexRoute: protectedLayoutProfileIndexRoute,
+  protectedLayoutSupportIndexRoute: protectedLayoutSupportIndexRoute,
   protectedLayoutWhatsNewIndexRoute: protectedLayoutWhatsNewIndexRoute,
+  protectedLayoutSupportSupportIdIndexRoute:
+    protectedLayoutSupportSupportIdIndexRoute,
 }
 
 const protectedLayoutRouteRouteWithChildren =
@@ -2760,6 +3020,39 @@ const ApiMasaiverseV2DiscussionsRouteWithChildren =
   ApiMasaiverseV2DiscussionsRoute._addFileChildren(
     ApiMasaiverseV2DiscussionsRouteChildren,
   )
+
+interface ApiSupportFaqsRouteChildren {
+  ApiSupportFaqsVoteRoute: typeof ApiSupportFaqsVoteRoute
+}
+
+const ApiSupportFaqsRouteChildren: ApiSupportFaqsRouteChildren = {
+  ApiSupportFaqsVoteRoute: ApiSupportFaqsVoteRoute,
+}
+
+const ApiSupportFaqsRouteWithChildren = ApiSupportFaqsRoute._addFileChildren(
+  ApiSupportFaqsRouteChildren,
+)
+
+interface ApiSupportTicketsRouteChildren {
+  ApiSupportTicketsCreateRoute: typeof ApiSupportTicketsCreateRoute
+  ApiSupportTicketsEscalateRoute: typeof ApiSupportTicketsEscalateRoute
+  ApiSupportTicketsRateRoute: typeof ApiSupportTicketsRateRoute
+  ApiSupportTicketsReopenRoute: typeof ApiSupportTicketsReopenRoute
+  ApiSupportTicketsReplyRoute: typeof ApiSupportTicketsReplyRoute
+  ApiSupportTicketsThreadRoute: typeof ApiSupportTicketsThreadRoute
+}
+
+const ApiSupportTicketsRouteChildren: ApiSupportTicketsRouteChildren = {
+  ApiSupportTicketsCreateRoute: ApiSupportTicketsCreateRoute,
+  ApiSupportTicketsEscalateRoute: ApiSupportTicketsEscalateRoute,
+  ApiSupportTicketsRateRoute: ApiSupportTicketsRateRoute,
+  ApiSupportTicketsReopenRoute: ApiSupportTicketsReopenRoute,
+  ApiSupportTicketsReplyRoute: ApiSupportTicketsReplyRoute,
+  ApiSupportTicketsThreadRoute: ApiSupportTicketsThreadRoute,
+}
+
+const ApiSupportTicketsRouteWithChildren =
+  ApiSupportTicketsRoute._addFileChildren(ApiSupportTicketsRouteChildren)
 
 interface ApiDashboardAgreementSectionIdRouteChildren {
   ApiDashboardAgreementSectionIdDetailsRoute: typeof ApiDashboardAgreementSectionIdDetailsRoute
@@ -2871,6 +3164,9 @@ const rootRouteChildren: RootRouteChildren = {
   ApiProfileAchievementsRoute: ApiProfileAchievementsRoute,
   ApiProfilePhotoRoute: ApiProfilePhotoRoute,
   ApiProfilePhotoUploadUrlRoute: ApiProfilePhotoUploadUrlRoute,
+  ApiSupportFaqsRoute: ApiSupportFaqsRouteWithChildren,
+  ApiSupportOverviewRoute: ApiSupportOverviewRoute,
+  ApiSupportTicketsRoute: ApiSupportTicketsRouteWithChildren,
   authLoginIndexRoute: authLoginIndexRoute,
   authSigninIndexRoute: authSigninIndexRoute,
   authSwitchAccountIndexRoute: authSwitchAccountIndexRoute,
@@ -2922,6 +3218,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiMasaiverseV2UsersSearchRoute: ApiMasaiverseV2UsersSearchRoute,
   ApiProfileAccountActivitySignOutAllRoute:
     ApiProfileAccountActivitySignOutAllRoute,
+  ApiSupportCallbackCreateRoute: ApiSupportCallbackCreateRoute,
   authResetPasswordTokenIndexRoute: authResetPasswordTokenIndexRoute,
   authV2LoginIndexRoute: authV2LoginIndexRoute,
   ApiAnnouncementIdIndexRoute: ApiAnnouncementIdIndexRoute,
