@@ -11,8 +11,10 @@ import { MASAIVERSE_EVENTS, trackMasaiverse } from '../../tracking'
 
 type WeeklyConnectsSectionProps = {
   clubId: string
-  /** Opens the calendar/schedule drawer. */
+  /** Toggles the calendar/schedule drawer. */
   onViewSchedule?: () => void
+  /** Whether the schedule drawer is currently open (toggles the CTA label). */
+  scheduleOpen?: boolean
   /** Injectable clock for deterministic rendering/tests. */
   now?: Date
   /** Events embedded in the club detail payload; seeds the query. */
@@ -41,6 +43,7 @@ function sortConnects(
 export default function WeeklyConnectsSection({
   clubId,
   onViewSchedule,
+  scheduleOpen = false,
   now = new Date(),
   initialEvents,
 }: WeeklyConnectsSectionProps) {
@@ -66,7 +69,7 @@ export default function WeeklyConnectsSection({
             }}
             className="text-[14px] font-medium text-masaiverse-orange hover:underline"
           >
-            See schedule →
+            {scheduleOpen ? 'Hide schedule →' : 'See schedule →'}
           </button>
         }
       />

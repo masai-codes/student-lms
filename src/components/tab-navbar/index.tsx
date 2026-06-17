@@ -44,7 +44,10 @@ export function TabNavbar({
               <span
                 className={cn(
                   "-mt-1 flex size-7 shrink-0 items-center justify-center rounded-full",
-                  "bg-gradient-to-br from-primary-500 to-primary-700 text-white",
+                  // Concrete Masai-indigo gradient — the `primary-500/700` scale
+                  // isn't defined in this app's theme, so those utilities emitted
+                  // no background and the white icon sat invisibly on a bare ring.
+                  "bg-gradient-to-br from-[#7B73B8] to-[#564E97] text-white",
                   "shadow-[0_4px_12px_-2px_rgba(96,89,157,0.55)] ring-[3px] ring-white",
                   "transition-transform duration-200 group-hover:scale-105 group-active:scale-95",
                   "[&_svg]:size-4 [&_svg]:shrink-0",
@@ -64,7 +67,7 @@ export function TabNavbar({
             <span
               className={cn(
                 "truncate text-center text-[11px] font-medium leading-4",
-                accent && "font-semibold text-primary-600",
+                accent && "font-semibold text-[#564E97]",
                 labelClassName,
               )}
             >

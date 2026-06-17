@@ -312,6 +312,21 @@ export async function createMasaiverseV2Event(): Promise<{ id: string }> {
 }
 
 /**
+ * Clones an existing event into a new draft (admin only). The server copies
+ * every field, resets `meta.isPublished = false`, and resolves with the new
+ * (unpublished) event id.
+ */
+export async function cloneMasaiverseV2Event(
+  eventId: string,
+): Promise<{ id: string }> {
+  return fetchJson<{ id: string }>(MASAIVERSE_V2_API.eventClone, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ eventId }),
+  })
+}
+
+/**
  * Creates a new draft club (admin only). The server fills it with placeholder
  * data and `meta.isPublished = false`; resolves with the new club id.
  */

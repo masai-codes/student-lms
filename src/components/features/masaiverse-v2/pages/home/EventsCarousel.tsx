@@ -55,13 +55,11 @@ export default function EventsCarousel({
         modules={[Navigation]}
         navigation={{ prevEl: `.${navKey}-prev`, nextEl: `.${navKey}-next` }}
         spaceBetween={16}
-        slidesPerView={1.1}
-        breakpoints={{
-          640: { slidesPerView: 2.2 },
-          1024: { slidesPerView: 3 },
-          1280: { slidesPerView: 4 },
-        }}
-        className="[&_.swiper-slide]:!h-auto [&_.swiper-wrapper]:items-stretch"
+        // Fixed-width cards (capped) so the card image never sprawls on wide
+        // screens; the track packs in as many as fit and scrolls the rest.
+        // `watchOverflow` (default) hides the nav when everything fits.
+        slidesPerView="auto"
+        className="[&_.swiper-slide]:!h-auto [&_.swiper-slide]:!w-[280px] sm:[&_.swiper-slide]:!w-[300px] [&_.swiper-wrapper]:items-stretch"
       >
         {events.map((event) => (
           <SwiperSlide key={event.id} className="!h-auto">

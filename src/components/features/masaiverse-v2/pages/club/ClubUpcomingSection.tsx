@@ -7,8 +7,10 @@ import { MASAIVERSE_EVENTS, trackMasaiverse } from '../../tracking'
 
 type ClubUpcomingSectionProps = {
   clubId: string
-  /** Opens the calendar drawer. */
+  /** Toggles the calendar drawer. */
   onViewCalendar?: () => void
+  /** Whether the calendar drawer is currently open (toggles the CTA label). */
+  calendarOpen?: boolean
   /** Events embedded in the club detail payload; seeds the query. */
   initialEvents?: MasaiverseV2ClubEvents
 }
@@ -17,6 +19,7 @@ type ClubUpcomingSectionProps = {
 export default function ClubUpcomingSection({
   clubId,
   onViewCalendar,
+  calendarOpen = false,
   initialEvents,
 }: ClubUpcomingSectionProps) {
   const { data, isPending } = useQuery({
@@ -46,7 +49,7 @@ export default function ClubUpcomingSection({
             }}
             className="text-[14px] font-medium text-masaiverse-orange hover:underline"
           >
-            View calendar →
+            {calendarOpen ? 'Hide calendar →' : 'View calendar →'}
           </button>
         }
       />

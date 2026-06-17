@@ -19,6 +19,7 @@ export const MASAIVERSE_V2_API = {
   eventEnroll: '/api/masaiverse-v2/events/enroll',
   eventRate: '/api/masaiverse-v2/events/rate',
   eventCreate: '/api/masaiverse-v2/events/create',
+  eventClone: '/api/masaiverse-v2/events/clone',
   clubCreate: '/api/masaiverse-v2/clubs/create',
   eventUpdate: '/api/masaiverse-v2/events/update',
   clubUpdate: '/api/masaiverse-v2/clubs/update',

@@ -20,6 +20,15 @@ type ResponsiveCardCarouselProps<T> = {
   slidesPerView?: number
   /** Larger `slidesPerView` at wider breakpoints, e.g. `{ 1024: { slidesPerView: 4 } }`. */
   breakpoints?: SlidesBreakpoints
+  /**
+   * Fixed/max per-slide width (Tailwind classes with `!` to beat Swiper's base
+   * `width: 100%`, e.g. `'!w-[200px] sm:!w-[240px]'`).
+   * When set, the carousel switches to `slidesPerView="auto"`: every card keeps
+   * this width and the track packs in as many as fit (rest scroll), instead of
+   * stretching a fixed count to fill the row. Use it to stop cards/images from
+   * sprawling on wide screens. Takes precedence over `slidesPerView`/`breakpoints`.
+   */
+  slideWidth?: string
   spaceBetween?: number
   /** Nav-button class prefix so multiple carousels on a page stay independent. */
   navKey: string
@@ -44,15 +53,20 @@ export default function ResponsiveCardCarousel<T>({
   renderItem,
   slidesPerView = 1.15,
   breakpoints,
+  slideWidth,
   spaceBetween = 16,
   navKey,
   navLabel,
 }: ResponsiveCardCarouselProps<T>) {
+  // Auto-width mode caps each card's width; fixed-count mode stretches N slides.
+  const autoWidth = slideWidth != null
   const maxPerView = Math.max(
     slidesPerView,
     ...Object.values(breakpoints ?? {}).map((b) => b.slidesPerView),
   )
-  const showNav = items.length > Math.floor(maxPerView)
+  // In auto-width mode we can't know up front how many fit, so always wire up
+  // navigation; Swiper's `watchOverflow` hides the controls when they all fit.
+  const showNav = autoWidth ? items.length > 1 : items.length > Math.floor(maxPerView)
 
   return (
     <div className="relative">
@@ -64,12 +78,18 @@ export default function ResponsiveCardCarousel<T>({
             : false
         }
         spaceBetween={spaceBetween}
-        slidesPerView={slidesPerView}
-        breakpoints={breakpoints}
+        slidesPerView={autoWidth ? 'auto' : slidesPerView}
+        breakpoints={autoWidth ? undefined : breakpoints}
+        // Resolve breakpoints against the carousel's own width, not the window,
+        // so the cards reflow when an open side panel shrinks the content column.
+        breakpointsBase="container"
         className="[&_.swiper-slide]:!h-auto [&_.swiper-wrapper]:items-stretch"
       >
         {items.map((item, index) => (
-          <SwiperSlide key={getKey(item, index)} className="!h-auto">
+          <SwiperSlide
+            key={getKey(item, index)}
+            className={autoWidth ? `!h-auto ${slideWidth}` : '!h-auto'}
+          >
             {renderItem(item, index)}
           </SwiperSlide>
         ))}

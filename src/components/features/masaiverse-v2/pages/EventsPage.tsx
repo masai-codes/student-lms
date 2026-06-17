@@ -104,7 +104,7 @@ export default function EventsPage({ now: nowProp }: { now?: Date }) {
         <div
           role="status"
           aria-label="Loading events"
-          className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+          className="mt-6 grid grid-cols-[repeat(auto-fill,minmax(min(100%,260px),1fr))] gap-4"
         >
           <span className="sr-only">Loading events…</span>
           {[0, 1, 2, 3].map((key) => (
@@ -117,7 +117,7 @@ export default function EventsPage({ now: nowProp }: { now?: Date }) {
       ) : view.visible.length === 0 ? (
         <EmptyState bucket={tab} />
       ) : (
-        <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        <div className="mt-6 grid grid-cols-[repeat(auto-fill,minmax(min(100%,260px),1fr))] gap-4">
           {view.visible.map((event) => (
             <EventListCard
               key={event.id}

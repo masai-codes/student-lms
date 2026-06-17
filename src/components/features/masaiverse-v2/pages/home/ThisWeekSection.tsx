@@ -6,10 +6,13 @@ import { MASAIVERSE_EVENTS, trackMasaiverse } from '../../tracking'
 
 type ThisWeekSectionProps = {
   onViewCalendar: () => void
+  /** Whether the calendar drawer is currently open (toggles the CTA label). */
+  calendarOpen?: boolean
 }
 
 export default function ThisWeekSection({
   onViewCalendar,
+  calendarOpen = false,
 }: ThisWeekSectionProps) {
   const { data, isPending } = useQuery(masaiverseV2HomeQuery())
   const events = data?.events ?? []
@@ -34,7 +37,7 @@ export default function ThisWeekSection({
             }}
             className="text-[14px] font-medium text-masaiverse-orange hover:underline"
           >
-            View calendar →
+            {calendarOpen ? 'Hide calendar →' : 'View calendar →'}
           </button>
         }
       />
