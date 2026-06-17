@@ -13,11 +13,9 @@ export default function StatsSection() {
       getKey={(card) => card.id}
       navKey="home-stats"
       navLabel="stats"
-      // One-and-a-bit cards on phones (swipe for the rest) so each card is wide
-      // enough for its label to read on two lines; more as the screen grows, all
-      // four in a row at lg.
-      slidesPerView={1.5}
-      breakpoints={{ 640: { slidesPerView: 2.5 }, 1024: { slidesPerView: 4 } }}
+      // Fixed-width cards (capped) so they stay compact and don't sprawl into
+      // empty space on wide screens; extras scroll via the carousel.
+      slideWidth="!w-[200px] sm:!w-[230px]"
       renderItem={(card) => {
         const accent = ACCENT_STYLES[card.accent]
         const count = data?.stats[card.metric]

@@ -31,7 +31,7 @@ export default function ClubsPage() {
         <div
           role="status"
           aria-label="Loading clubs"
-          className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3"
+          className="mt-6 grid grid-cols-[repeat(auto-fill,minmax(min(100%,280px),1fr))] gap-4"
         >
           <span className="sr-only">Loading clubs…</span>
           {[0, 1, 2].map((key) => (
@@ -44,7 +44,7 @@ export default function ClubsPage() {
       ) : clubs.length === 0 ? (
         <p className="mt-6 text-[14px] text-[#6B7280]">No clubs yet.</p>
       ) : (
-        <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="mt-6 grid grid-cols-[repeat(auto-fill,minmax(min(100%,280px),1fr))] gap-4">
           {clubs.map((club) => (
             <Link
               key={club.id}

@@ -1,7 +1,7 @@
 import { useState } from 'react'
-import { useQuery } from '@tanstack/react-query'
-import { Link } from '@tanstack/react-router'
-import { ArrowLeft, PencilSimple } from '@phosphor-icons/react'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useCanGoBack, useNavigate, useRouter } from '@tanstack/react-router'
+import { ArrowLeft, CopySimple, PencilSimple } from '@phosphor-icons/react'
 import InlineDrawer from '../InlineDrawer'
 import EventHeroImage from './event/EventHeroImage'
 import EventHosts from './event/EventHosts'
@@ -11,8 +11,10 @@ import EventRegisterCard from './event/EventRegisterCard'
 import type { MasaiverseV2EventDetail } from '@/server/api/masaiverse-v2/services/getEventDetail.service'
 import { RichContent } from '@/components/event-card/rich-content'
 import { ApiClientError } from '@/lib/api/apiClientError'
+import { cloneMasaiverseV2Event } from '@/lib/api/masaiverse-v2/masaiverseV2Api'
 import { masaiverseV2EventDetailQuery } from '@/query/masaiverse-v2/eventsQuery'
 import { masaiverseV2AdminModeQuery } from '@/query/masaiverse-v2/adminModeQuery'
+import { MASAIVERSE_V2_HOME_KEY } from '@/query/masaiverse-v2/homeQuery'
 import EventEditForm from '@/components/features/masaiverse-v2/edit/EventEditForm'
 import { MASAIVERSE_EVENTS, trackMasaiverse } from '../tracking'
 
@@ -27,19 +29,34 @@ function eventHasEnded(endTime: string | null): boolean {
   return !Number.isNaN(end.getTime()) && end.getTime() <= Date.now()
 }
 
+/**
+ * Returns the user to wherever they opened this event from (home, a club page,
+ * the calendar, the events list, …) via the router history. Falls back to the
+ * events list when there's no in-app history — e.g. on a direct/shared link.
+ */
 function BackToEventsLink() {
+  const router = useRouter()
+  const navigate = useNavigate()
+  const canGoBack = useCanGoBack()
+
+  const handleBack = () => {
+    trackMasaiverse(MASAIVERSE_EVENTS.backClick, { to: 'events' })
+    if (canGoBack) {
+      router.history.back()
+    } else {
+      void navigate({ to: '/masaiverse/events', search: (prev) => prev })
+    }
+  }
+
   return (
-    <Link
-      to="/masaiverse/events"
-      search={(prev) => prev}
-      onClick={() =>
-        trackMasaiverse(MASAIVERSE_EVENTS.backClick, { to: 'events' })
-      }
+    <button
+      type="button"
+      onClick={handleBack}
       className="inline-flex items-center gap-1 text-[14px] font-medium text-[#6B7280] hover:text-[#111827]"
     >
       <ArrowLeft size={16} />
       Back to events
-    </Link>
+    </button>
   )
 }
 
@@ -76,6 +93,19 @@ export default function EventDetailPage({ eventId }: EventDetailPageProps) {
   const { data: adminMode } = useQuery(masaiverseV2AdminModeQuery())
   const canEdit = adminMode?.enabled ?? false
   const [isEditOpen, setIsEditOpen] = useState(false)
+  const navigate = useNavigate()
+  const queryClient = useQueryClient()
+
+  // Clones this event into a fresh draft, refreshes the lists it shows up in,
+  // then opens the new draft so the admin can edit it right away.
+  const cloneMutation = useMutation({
+    mutationFn: () => cloneMasaiverseV2Event(eventId),
+    onSuccess: ({ id }) => {
+      void queryClient.invalidateQueries({ queryKey: ['masaiverse-v2', 'events'] })
+      void queryClient.invalidateQueries({ queryKey: MASAIVERSE_V2_HOME_KEY })
+      void navigate({ to: '/masaiverse/event/$eventId', params: { eventId: id } })
+    },
+  })
 
   if (isPending) {
     return (
@@ -125,19 +155,35 @@ export default function EventDetailPage({ eventId }: EventDetailPageProps) {
         <div className="flex items-center justify-between gap-4">
           <BackToEventsLink />
           {canEdit ? (
-            <button
-              type="button"
-              onClick={() => {
-                trackMasaiverse(MASAIVERSE_EVENTS.eventEditClick, {
-                  event_id: eventId,
-                })
-                setIsEditOpen(true)
-              }}
-              className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-[#111827] px-3.5 py-2 text-sm font-semibold text-[#111827] transition-colors hover:bg-[#111827] hover:text-white"
-            >
-              <PencilSimple size={16} weight="bold" />
-              Edit event
-            </button>
+            <div className="flex shrink-0 items-center gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  trackMasaiverse(MASAIVERSE_EVENTS.eventCloneClick, {
+                    event_id: eventId,
+                  })
+                  cloneMutation.mutate()
+                }}
+                disabled={cloneMutation.isPending}
+                className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-[#111827] px-3.5 py-2 text-sm font-semibold text-[#111827] transition-colors hover:bg-[#111827] hover:text-white disabled:opacity-60"
+              >
+                <CopySimple size={16} weight="bold" />
+                {cloneMutation.isPending ? 'Cloning…' : 'Clone event'}
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  trackMasaiverse(MASAIVERSE_EVENTS.eventEditClick, {
+                    event_id: eventId,
+                  })
+                  setIsEditOpen(true)
+                }}
+                className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-[#111827] px-3.5 py-2 text-sm font-semibold text-[#111827] transition-colors hover:bg-[#111827] hover:text-white"
+              >
+                <PencilSimple size={16} weight="bold" />
+                Edit event
+              </button>
+            </div>
           ) : null}
         </div>
 

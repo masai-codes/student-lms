@@ -17,6 +17,9 @@ vi.mock('@tanstack/react-query', () => ({
 }))
 vi.mock('@tanstack/react-router', () => ({
   Link: ({ children }: { children: ReactNode }) => <a>{children}</a>,
+  useNavigate: () => vi.fn(),
+  useRouter: () => ({ history: { back: vi.fn() } }),
+  useCanGoBack: () => false,
 }))
 vi.mock('./club/ClubDetailBanner', () => ({
   default: ({ club }: { club: { name: string } }) => (

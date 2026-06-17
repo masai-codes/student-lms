@@ -34,6 +34,7 @@ export const MASAIVERSE_EVENTS = {
 
   // Events
   eventCreateClick: 'masaiverse_event_create_click',
+  eventCloneClick: 'masaiverse_event_clone_click',
   eventEditClick: 'masaiverse_event_edit_click',
   eventUpdate: 'masaiverse_event_update',
   eventsTabChange: 'masaiverse_events_tab_change',
