@@ -31,8 +31,11 @@ export function BatchTickets() {
   const queryClient = useQueryClient()
 
   const [expandedItem, setExpandedItem] = useState<string | null>(null)
-  const [selectedBatchId, setSelectedBatchId] = useState<string | null>(null)
   const [helpSearchQuery, setHelpSearchQuery] = useState('')
+
+  // The selected batch lives in the URL (?batchId=) so it survives refresh /
+  // sharing and every selection is reflected in the address bar.
+  const selectedBatchId = search.batchId ? String(search.batchId) : null
 
   // Callback flow modals
   const [callbackStep, setCallbackStep] = useState<
@@ -42,7 +45,7 @@ export function BatchTickets() {
   const [selectedTimeslot, setSelectedTimeslot] = useState<string | null>(null)
 
   const { data: overview, isLoading } = useQuery(
-    supportOverviewQuery(selectedBatchId ? Number(selectedBatchId) : undefined),
+    supportOverviewQuery(search.batchId),
   )
   const batches = overview?.batches ?? []
 
@@ -86,10 +89,9 @@ export function BatchTickets() {
         }),
       })
     } else {
+      // Back to Help — keep the selected batch, drop everything else.
       setHelpSearchQuery('')
-      void navigate({
-        search: () => ({}),
-      })
+      void navigate({ search: (p) => ({ batchId: p.batchId }) })
     }
   }
 
@@ -250,8 +252,19 @@ export function BatchTickets() {
                 batches={batches}
                 effectiveBatchId={effectiveBatchId}
                 onSelectBatch={(id) => {
-                  setSelectedBatchId(id)
                   setHelpSearchQuery('')
+                  setExpandedItem(null)
+                  // Record the batch in the URL; clear any open modal/search state.
+                  void navigate({
+                    search: (p) => ({
+                      ...p,
+                      batchId: Number(id),
+                      step: undefined,
+                      ticketId: undefined,
+                      category: undefined,
+                      subcategory: undefined,
+                    }),
+                  })
                 }}
                 /* Multi-batch users can return to the batch picker. */
                 canChangeBatch={batches.length > 1 && Boolean(selectedBatchId)}
@@ -260,12 +273,12 @@ export function BatchTickets() {
                     ?.name ?? null
                 }
                 onChangeBatch={() => {
-                  setSelectedBatchId(null)
                   setHelpSearchQuery('')
                   setExpandedItem(null)
                   void navigate({
                     search: (p) => ({
                       ...p,
+                      batchId: undefined,
                       step: undefined,
                       ticketId: undefined,
                       category: undefined,

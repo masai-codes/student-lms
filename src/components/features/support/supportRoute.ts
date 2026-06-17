@@ -10,6 +10,8 @@ export const supportRouteApi = getRouteApi('/(protected)/_layout/support/')
 
 /** The validated shape of the support route's search params. */
 export type SupportSearch = {
+  /** The selected batch (Help-tab scope). Absent = batch picker / single batch. */
+  batchId?: number
   tickets?: 'ticketlisting' | 'pair-programming'
   tab?: string
   step?: 'ticketCreate' | 'ticketdetails'

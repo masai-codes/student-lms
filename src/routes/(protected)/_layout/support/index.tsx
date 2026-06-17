@@ -14,6 +14,10 @@ import { BatchTickets } from '@/components/features/support'
  */
 export const Route = createFileRoute('/(protected)/_layout/support/')({
   validateSearch: (search: Record<string, unknown>): SupportSearch => ({
+    batchId:
+      search.batchId != null && Number(search.batchId) > 0
+        ? Number(search.batchId)
+        : undefined,
     tickets:
       search.tickets === 'ticketlisting' || search.tickets === 'pair-programming'
         ? search.tickets
