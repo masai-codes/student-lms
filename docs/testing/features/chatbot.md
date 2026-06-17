@@ -4,11 +4,13 @@ Last updated: 2026-06-17
 
 ## Scope
 
-- Text conversation layout in `MessageList` via `ChatbotConversationLayout`; assistant replies render markdown (`ChatbotAssistantMessage` + shared `MarkdownContent`)
+- Shared conversation layout in `MessageList` via `ChatbotConversationLayout` for both text and voice modes; assistant replies render markdown (`ChatbotAssistantMessage` + shared `MarkdownContent`)
+- Voice mode uses the same message timeline as text chat (`mergeDisplayMessages` with `full` display mode includes voice transcripts in `MessageList`)
+- Voice footer: `ChatbotVoiceControls` with small `AIAvatar` (heartbeat pulse while agent is speaking), end-session cross, and mute/unmute — no text input in voice mode
 - ChatGPT-style turn scroll: latest user message snaps to the top of the message viewport
 - User message max height: 30% of viewport with bottom-aligned clipping when overflow
 - Smooth scroll on subsequent user sends; instant snap when loading history
-- Voice mode subtitle: last message from the same `mergeDisplayMessages` timeline as text chat (`full` display mode includes voice transcripts); fixed-height caption slot with top trimming in ~3-line steps when overflow
+- Voice subtitle utilities remain for legacy caption trimming tests; live voice UI uses the shared message list
 - Token creation: `POST /api/chatbot/:lectureId/token` resolves lecture access + transcript (same helper as AI Tutor) and passes `lecture_id` / `lecture_transcript` to the LiveKit agent metadata
 
 ## Test files
@@ -24,6 +26,10 @@ Last updated: 2026-06-17
 | `src/components/features/chatbot/components/ChatbotHistoryHeader.test.tsx` | Desktop sidebar close control + lecture header title |
 | `src/components/features/chatbot/components/ChatbotPreSessionWelcome.test.tsx` | Pre-session greeting, disclaimer, and prompt selection |
 | `src/components/features/chatbot/components/ChatbotAssistantMessage.test.tsx` | Assistant bubble markdown rendering (bold, lists, empty content) |
+| `src/components/features/chatbot/components/ChatbotComposer.test.tsx` | Composer submit keys |
+| `src/components/features/chatbot/components/ChatbotMobileShell.test.tsx` | Mobile full-bleed composer dock, inline send, drawer voice activation |
+| `src/components/features/chatbot/components/ChatbotVoiceControls.test.tsx` | Voice footer controls, avatar speaking state, mic toggle |
+| `src/components/common/AIAvatar.test.tsx` | Speaking pulse animation class |
 
 ## Commands
 
@@ -42,7 +48,8 @@ npm run lint
 5. Send a second prompt — prior turn scrolls up smoothly; new prompt takes the top slot.
 6. Open a history session with multiple turns — latest user message snaps instantly to top.
 7. Assistant streams below without re-scrolling the user bubble.
-8. Voice mode: multi-turn conversation updates the subtitle to the latest utterance (user → assistant → user).
-9. Resize the panel — 30% cap and spacer recalculate.
+8. Voice mode: messages appear in the shared history list in real time (user and assistant turns).
+9. Voice mode: cross ends voice session (switches to text); mute toggles mic; avatar pulses while the agent is speaking.
+10. Resize the panel — 30% cap and spacer recalculate.
 
 Update this file and `feature-test-matrix.md` when chatbot scroll behavior or tests change.

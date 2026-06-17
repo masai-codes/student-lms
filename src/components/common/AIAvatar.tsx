@@ -7,6 +7,7 @@ import { cn } from '@/lib/utils'
 
 type AIAvatarProps = {
   className?: string
+  isSpeaking?: boolean
 }
 
 type LottieComponent = ComponentType<LottieComponentProps>
@@ -25,7 +26,7 @@ function resolveLottieComponent(
   return module.default.default
 }
 
-export function AIAvatar({ className }: AIAvatarProps) {
+export function AIAvatar({ className, isSpeaking = false }: AIAvatarProps) {
   const [Lottie, setLottie] = useState<LottieComponent | null>(null)
 
   useEffect(() => {
@@ -39,7 +40,14 @@ export function AIAvatar({ className }: AIAvatarProps) {
       className={cn('mx-auto size-[min(11rem,42vw)] max-w-full shrink-0', className)}
       aria-hidden
     >
-      {Lottie ? <Lottie animationData={aiAvatarAnimation} loop /> : null}
+      <div
+        className={cn(
+          'size-full transition-transform duration-500 ease-out',
+          isSpeaking && 'animate-ai-avatar-speak',
+        )}
+      >
+        {Lottie ? <Lottie animationData={aiAvatarAnimation} loop /> : null}
+      </div>
     </div>
   )
 }
