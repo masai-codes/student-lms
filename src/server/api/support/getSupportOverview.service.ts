@@ -71,7 +71,19 @@ export async function getSupportOverview(
     batches.find((b) => b.id === requestedBatchId) ?? batches[0]
   const batchId = activeBatch.id
 
-  // 2) Fan out every section in parallel.
+  // 2) Fan out every (non-batch) section in parallel, each ISOLATED: a failure
+  //    in one (e.g. agreements, 1:1, callbacks) must not blank out the whole
+  //    page — most importantly it must never wipe the batch list. Each falls
+  //    back to a safe empty value and logs.
+  const safe = async <T>(label: string, fn: () => Promise<T>, fallback: T): Promise<T> => {
+    try {
+      return await fn()
+    } catch (error) {
+      console.error(`[support] overview section "${label}" failed`, error)
+      return fallback
+    }
+  }
+
   const [
     gateReason,
     contact,
@@ -83,15 +95,15 @@ export async function getSupportOverview(
     callbackTickets,
     oneOnOne,
   ] = await Promise.all([
-    getSupportGate({ userId, batchId }),
-    getBatchContact(batchId),
-    getTicketCategories(),
-    searchFaqs({ batchId, limit: INITIAL_FAQ_LIMIT }),
-    listTickets({ userId, tab: 'unresolved' }),
-    countOpenTickets(userId),
-    getCallbackOptions(),
-    listCallbacks(userId),
-    getOneOnOneGroups(userId),
+    safe('gate', () => getSupportGate({ userId, batchId }), null),
+    safe('contact', () => getBatchContact(batchId), { text: null, phone: null }),
+    safe('categories', () => getTicketCategories(), []),
+    safe('faqs', () => searchFaqs({ batchId, limit: INITIAL_FAQ_LIMIT }), []),
+    safe('tickets', () => listTickets({ userId, tab: 'unresolved' }), []),
+    safe('openTicketCount', () => countOpenTickets(userId), 0),
+    safe('callbackOptions', () => getCallbackOptions(), { reasons: [], timeslots: [] }),
+    safe('callbackTickets', () => listCallbacks(userId), []),
+    safe('oneOnOne', () => getOneOnOneGroups(userId), []),
   ])
 
   return {

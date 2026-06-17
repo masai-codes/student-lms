@@ -44,16 +44,14 @@ export function BatchTickets() {
   const [selectedReason, setSelectedReason] = useState<string | null>(null)
   const [selectedTimeslot, setSelectedTimeslot] = useState<string | null>(null)
 
-  const { data: overview, isLoading } = useQuery(
+  const { data: overview, isLoading, isError, refetch } = useQuery(
     supportOverviewQuery(search.batchId),
   )
   const batches = overview?.batches ?? []
 
-  const effectiveBatchId = useMemo(() => {
-    if (selectedBatchId) return selectedBatchId
-    if (batches.length === 1) return String(batches[0].id)
-    return null
-  }, [selectedBatchId, batches])
+  // No auto-select: the Help tab shows the batch picker by default and a batch
+  // is "active" only once chosen (present in the URL as ?batchId).
+  const effectiveBatchId = selectedBatchId
 
   const hasOneOnOne = (overview?.oneOnOne.length ?? 0) > 0
   const activeTab =
@@ -248,6 +246,8 @@ export function BatchTickets() {
             ) : (
               <HelpTab
                 isLoading={isLoading}
+                isError={isError}
+                onRetry={() => void refetch()}
                 gateReason={overview?.gateReason ?? null}
                 batches={batches}
                 effectiveBatchId={effectiveBatchId}
@@ -337,6 +337,8 @@ export function BatchTickets() {
 
 function HelpTab(props: {
   isLoading: boolean
+  isError: boolean
+  onRetry: () => void
   gateReason: 'legal-agreement' | 'no-active-section' | null
   batches: Array<{ id: number; name: string }>
   effectiveBatchId: string | null
@@ -354,6 +356,8 @@ function HelpTab(props: {
 }) {
   const {
     isLoading,
+    isError,
+    onRetry,
     gateReason,
     batches,
     effectiveBatchId,
@@ -369,6 +373,42 @@ function HelpTab(props: {
     onSubcategoryClick,
     onFallbackCreate,
   } = props
+
+  // Top-level Help states: loading → error → no-batches → batch picker → content.
+  if (isLoading) {
+    return (
+      <div className="flex min-h-[200px] items-center justify-center p-8">
+        <p className="font-poppins text-sm text-gray-500">Loading…</p>
+      </div>
+    )
+  }
+
+  if (isError) {
+    return (
+      <div className="flex min-h-[200px] flex-col items-center justify-center gap-3 p-8 text-center">
+        <p className="font-poppins text-sm text-gray-700">Couldn’t load your support details.</p>
+        <button
+          type="button"
+          onClick={onRetry}
+          className="rounded-lg border border-gray-300 bg-white px-4 py-2 font-poppins text-[13px] font-semibold text-gray-800 hover:bg-gray-50"
+        >
+          Try again
+        </button>
+      </div>
+    )
+  }
+
+  if (batches.length === 0) {
+    return (
+      <div className="flex min-h-[200px] flex-col items-center justify-center gap-2 p-8 text-center">
+        <p className="font-poppins text-[15px] font-semibold text-gray-900">No batches found</p>
+        <p className="font-poppins text-[13px] text-gray-500">
+          We couldn’t find any batch linked to your account. If this looks wrong, please reach
+          out to your program team.
+        </p>
+      </div>
+    )
+  }
 
   const SearchBar = (
     <div className="border-b border-gray-200 bg-white px-4 py-4 md:px-6 md:py-5">
@@ -459,33 +499,32 @@ function HelpTab(props: {
         </div>
       )}
 
-      {/* Batch selection (multi-batch) */}
-      {!effectiveBatchId && batches.length > 1 && (
-        <div className="mb-6 grid gap-4 px-4 sm:grid-cols-2 md:px-6 lg:grid-cols-3 pt-6">
-          {batches.map((batch) => (
-            <button
-              key={batch.id}
-              type="button"
-              onClick={() => onSelectBatch(String(batch.id))}
-              className="w-full rounded-2xl border border-gray-200 bg-white p-4 text-left shadow-sm hover:shadow-md transition-shadow focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-            >
-              <div className="text-xs text-gray-500 mb-1">Batch</div>
-              <div className="text-sm font-semibold text-gray-900 truncate">
-                {batch.name || `Batch ${batch.id}`}
-              </div>
-            </button>
-          ))}
+      {/* Batch selection — shown by default until a batch is chosen. */}
+      {!effectiveBatchId && (
+        <div className="px-4 pt-6 md:px-6">
+          <h3 className="mb-3 font-poppins text-[14px] font-semibold text-gray-900">
+            Select a batch to continue
+          </h3>
+          <div className="mb-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {batches.map((batch) => (
+              <button
+                key={batch.id}
+                type="button"
+                onClick={() => onSelectBatch(String(batch.id))}
+                className="w-full rounded-2xl border border-gray-200 bg-white p-4 text-left shadow-sm hover:shadow-md transition-shadow focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+              >
+                <div className="text-xs text-gray-500 mb-1">Batch</div>
+                <div className="text-sm font-semibold text-gray-900 truncate">
+                  {batch.name || `Batch ${batch.id}`}
+                </div>
+              </button>
+            ))}
+          </div>
         </div>
       )}
 
       {effectiveBatchId &&
-        (isLoading ? (
-          <div className="mt-10 flex justify-center">
-            <p className="font-poppins text-sm text-gray-500">
-              Loading categories…
-            </p>
-          </div>
-        ) : visibleCategories.length > 0 ? (
+        (visibleCategories.length > 0 ? (
           <div>
             {SearchBar}
             <CategoryAccordion
