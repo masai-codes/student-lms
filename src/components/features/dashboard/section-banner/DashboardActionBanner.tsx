@@ -5,6 +5,7 @@ import { Camera, ChevronLeft, ChevronRight, CircleUserRound, Download, FileText,
 import type { LucideIcon } from 'lucide-react'
 import type { DashboardActionBannersResult, PendingAgreementSection, PendingFeedbackForm } from '@/server/api/dashboard/getDashboardActionBanners.service'
 import { OnboardingModal } from '@/components/modals/onboarding/OnboardingModal'
+import { DownloadAppModal } from '@/components/features/layout/DownloadAppModal'
 
 type SlideId = string
 
@@ -32,7 +33,6 @@ const STATIC_SLIDES: Array<ActionSlide> = [
     text: 'Learn on the go with the Masai Learn App',
     cta: 'Download App',
     ctaIcon: Download,
-    ctaHref: 'https://play.google.com/store/apps/details?id=com.lms.masai',
   },
   {
     id: 'profilePicture',
@@ -49,6 +49,7 @@ export function DashboardActionBanner({ actionBanners: data }: { actionBanners: 
   const [current, setCurrent] = useState(0)
   const [onboardingInitialStep, setOnboardingInitialStep] = useState<string | undefined>(undefined)
   const [onboardingOpen, setOnboardingOpen] = useState(false)
+  const [downloadAppOpen, setDownloadAppOpen] = useState(false)
 
   if (!data) return null
 
@@ -116,7 +117,9 @@ export function DashboardActionBanner({ actionBanners: data }: { actionBanners: 
           <button
             type="button"
             onClick={() => {
-              if (slide.id === 'profilePicture') {
+              if (slide.id === 'appDownload') {
+                setDownloadAppOpen(true)
+              } else if (slide.id === 'profilePicture') {
                 setOnboardingInitialStep('photo')
                 setOnboardingOpen(true)
               } else if (slide.agreementSection) {
@@ -173,6 +176,8 @@ export function DashboardActionBanner({ actionBanners: data }: { actionBanners: 
         </button>
       </div>
     </div>
+
+    <DownloadAppModal open={downloadAppOpen} onOpenChange={setDownloadAppOpen} />
 
     {onboardingOpen && (
       <OnboardingModal

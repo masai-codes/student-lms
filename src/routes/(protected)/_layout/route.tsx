@@ -2,26 +2,21 @@ import {
   Outlet,
   createFileRoute,
   redirect,
-  useRouter,
   useRouterState,
 } from '@tanstack/react-router'
-import { useEffect, useState } from 'react'
-import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { useEffect } from 'react'
 import { AppLoading } from '@/components/common'
 import { AppMobileTabBar, AppNavbar } from '@/components/features/layout'
 import MasaiverseMobileTabBar from '@/components/features/masaiverse-v2/MasaiverseMobileTabBar'
-import { OnboardingModal } from '@/components/modals/onboarding/OnboardingModal'
 import { isMasaiverseApp } from '@/constants/masaiverseDrawerUi'
 import { layoutMainClasses, layoutMainClassesFullWidth } from '@/lib/layout'
 import { fetchCurrentUser } from '@/server/auth/fetchCurrentUser'
-import { fetchDashboardLeftSection } from '@/lib/api/dashboard/dashboardApi'
 import {
   getOldStudentUiUrlForPath,
   isLegacyStudentRedirectEnabled,
 } from '@/utils/authRedirect'
 import { initClarity, setCurrentUserForTracking } from '@/utils/tracking'
 
-const AUTO_ONBOARDING_KEY = 'onboarding_modal_shown'
 
 /** Paths served by this app when legacy redirect is enabled (everything else → old LMS). */
 function isNewStudentExperienceRoute(pathname: string): boolean {
@@ -35,6 +30,8 @@ function isNewStudentExperienceRoute(pathname: string): boolean {
   if (pathname.startsWith('/bookmarks')) return true
   if (pathname.startsWith('/whats-new')) return true
   if (pathname.startsWith('/profile')) return true
+  if (pathname.startsWith('/my-courses')) return true
+  if (pathname.startsWith('/course')) return true
   return false
 }
 
@@ -101,26 +98,6 @@ function RouteComponent() {
     ? layoutMainClassesFullWidth
     : layoutMainClasses
 
-  const router = useRouter()
-  const queryClient = useQueryClient()
-  const [onboardingOpen, setOnboardingOpen] = useState(false)
-
-  const { data: leftSectionData } = useQuery({
-    queryKey: ['dashboard-left-section'],
-    queryFn: fetchDashboardLeftSection,
-    staleTime: 5 * 60 * 1000,
-  })
-
-  useEffect(() => {
-    if (!leftSectionData) return
-    if (sessionStorage.getItem(AUTO_ONBOARDING_KEY)) return
-    const { pendingAgreementSections, pendingFeedbackForms } = leftSectionData.actionBanners
-    const hasBanners = pendingAgreementSections.length > 0 || pendingFeedbackForms.length > 0
-    if (!hasBanners) return
-    sessionStorage.setItem(AUTO_ONBOARDING_KEY, '1')
-    setOnboardingOpen(true)
-  }, [leftSectionData])
-
   useEffect(() => {
     initClarity()
   }, [])
@@ -142,21 +119,6 @@ function RouteComponent() {
       ) : !isApp ? (
         <AppMobileTabBar />
       ) : null}
-      {onboardingOpen && leftSectionData && (
-        <OnboardingModal
-          onClose={() => setOnboardingOpen(false)}
-          showProfilePhoto={leftSectionData.actionBanners.showProfilePicture}
-          agreementSections={leftSectionData.actionBanners.pendingAgreementSections}
-          feedbackForms={leftSectionData.actionBanners.pendingFeedbackForms}
-          onPhotoSaved={() => {
-            void queryClient.invalidateQueries({ queryKey: ['dashboard-left-section'] })
-            void router.invalidate()
-          }}
-          onAgreementSubmitted={() => {
-            void queryClient.invalidateQueries({ queryKey: ['dashboard-left-section'] })
-          }}
-        />
-      )}
     </div>
   )
 }
