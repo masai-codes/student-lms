@@ -3,7 +3,11 @@ import {
   readSessionIdFromAuthHeader,
   readSessionIdFromCookieHeader,
 } from '@/server/auth/getCurrentSessionUserId'
-import { errorResponse, jsonResponse } from '@/server/auth/v2/httpHelpers'
+import {
+  errorResponse,
+  jsonResponse,
+  withAuthErrorHandling,
+} from '@/server/auth/v2/httpHelpers'
 import { getLinkedAccountsForSession } from '@/server/auth/v2/linkedAccounts'
 
 function resolveSessionId(request: Request): string | null {
@@ -30,7 +34,7 @@ async function handleLinkedAccounts(request: Request): Promise<Response> {
 export const Route = createFileRoute('/(auth)/v2/auth/linked-accounts')({
   server: {
     handlers: {
-      GET: async ({ request }) => handleLinkedAccounts(request),
+      GET: withAuthErrorHandling('linked-accounts', handleLinkedAccounts),
     },
   },
 })

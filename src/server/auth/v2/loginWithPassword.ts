@@ -48,7 +48,10 @@ export async function loginWithPassword({
 
   const user = rows[0]
   if (!user) {
-    throw new LoginError('USER_NOT_FOUND', 'User not found')
+    throw new LoginError(
+      'USER_NOT_FOUND',
+      "We couldn't find an account with that email address. Please check it and try again, or sign up.",
+    )
   }
 
   if (!user.password || user.password.trim() === '') {
@@ -60,7 +63,10 @@ export async function loginWithPassword({
 
   const match = await compare(password, user.password.trim())
   if (!match) {
-    throw new LoginError('INCORRECT_CREDENTIALS', 'Incorrect credentials')
+    throw new LoginError(
+      'INCORRECT_CREDENTIALS',
+      'The password you entered is incorrect. Please try again.',
+    )
   }
 
   return {

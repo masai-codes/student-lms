@@ -51,19 +51,31 @@ export async function verifyOtp({ otpSessionId, otp }: VerifyOtpInput): Promise<
 
   const record = otpRows[0]
   if (!record) {
-    throw new VerifyOtpError('OTP_NOT_FOUND', 'OTP session not found')
+    throw new VerifyOtpError(
+      'OTP_NOT_FOUND',
+      'This sign-in code is no longer valid. Please request a new one.',
+    )
   }
 
   if (record.usedAt) {
-    throw new VerifyOtpError('OTP_ALREADY_USED', 'OTP has already been used')
+    throw new VerifyOtpError(
+      'OTP_ALREADY_USED',
+      'This code has already been used. Please request a new one.',
+    )
   }
 
   if (isExpired(record.expiresAt)) {
-    throw new VerifyOtpError('OTP_EXPIRED', 'OTP has expired')
+    throw new VerifyOtpError(
+      'OTP_EXPIRED',
+      'This code has expired. Please request a new one.',
+    )
   }
 
   if (record.attempts >= MAX_ATTEMPTS) {
-    throw new VerifyOtpError('TOO_MANY_ATTEMPTS', 'Too many failed attempts')
+    throw new VerifyOtpError(
+      'TOO_MANY_ATTEMPTS',
+      'Too many incorrect attempts. Please request a new code.',
+    )
   }
 
   const match = await compare(otp.trim(), record.otpHash)
@@ -72,7 +84,10 @@ export async function verifyOtp({ otpSessionId, otp }: VerifyOtpInput): Promise<
       .update(otpCodes)
       .set({ attempts: record.attempts + 1 })
       .where(eq(otpCodes.id, record.id))
-    throw new VerifyOtpError('INVALID_OTP', 'Invalid OTP')
+    throw new VerifyOtpError(
+      'INVALID_OTP',
+      'The code you entered is incorrect. Please check it and try again.',
+    )
   }
 
   await db
@@ -95,7 +110,10 @@ export async function verifyOtp({ otpSessionId, otp }: VerifyOtpInput): Promise<
     .where(eq(isEmailChannel ? users.email : users.mobile, record.identifier))
 
   if (userRows.length === 0) {
-    throw new VerifyOtpError('USER_NOT_FOUND', 'User not found')
+    throw new VerifyOtpError(
+      'USER_NOT_FOUND',
+      "We couldn't find an account for this code. Please check your details, or sign up.",
+    )
   }
 
   return userRows
