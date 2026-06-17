@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { SignInNotice } from '@/components/features/sign-in/SignInNotice'
+import { useAutoFocus } from '@/hooks/useAutoFocus'
 
 type Props = {
   email: string
@@ -23,6 +24,8 @@ export function ForgotPasswordStepView({
   onEmailChange,
   onSubmit,
 }: Props) {
+  const emailRef = useAutoFocus<HTMLInputElement>()
+
   return (
     <div className="space-y-5">
       <Button
@@ -54,6 +57,7 @@ export function ForgotPasswordStepView({
           Email
         </Label>
         <Input
+          ref={emailRef}
           id="forgot-email"
           name="email"
           type="email"

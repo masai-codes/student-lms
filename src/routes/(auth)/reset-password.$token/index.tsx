@@ -4,6 +4,7 @@ import { ArrowLeft } from '@phosphor-icons/react'
 import { Button } from '@/components/ui/button'
 import { PasswordInput } from '@/components/ui/password-input'
 import { Label } from '@/components/ui/label'
+import { useAutoFocus } from '@/hooks/useAutoFocus'
 import { SignInShell } from '@/components/features/sign-in/SignInShell'
 import { V2AuthRequestError, v2ResetPassword } from '@/components/features/sign-in/v2AuthClient'
 
@@ -29,6 +30,7 @@ function ResetPasswordPage() {
   const [error, setError] = useState<string | undefined>()
   const [busy, setBusy] = useState(false)
   const [done, setDone] = useState(false)
+  const passwordRef = useAutoFocus<HTMLInputElement>()
 
   const onSubmit = async () => {
     setError(undefined)
@@ -82,6 +84,7 @@ function ResetPasswordPage() {
             <div className="space-y-2">
               <Label htmlFor="reset-password-1">New password</Label>
               <PasswordInput
+                ref={passwordRef}
                 id="reset-password-1"
                 name="new-password"
                 autoComplete="new-password"
