@@ -58,12 +58,11 @@ export default function ActiveClubsSection() {
               nextEl: '.home-clubs-next',
             }}
             spaceBetween={16}
-            slidesPerView={1.1}
-            breakpoints={{
-              640: { slidesPerView: 2.2 },
-              1024: { slidesPerView: 3 },
-            }}
-            className="[&_.swiper-slide]:!h-auto [&_.swiper-wrapper]:items-stretch"
+            // Fixed-width cards (capped) so they don't sprawl on wide screens;
+            // the track packs in as many as fit and scrolls the rest.
+            // `watchOverflow` (default) hides the nav when everything fits.
+            slidesPerView="auto"
+            className="[&_.swiper-slide]:!h-auto [&_.swiper-slide]:!w-[300px] sm:[&_.swiper-slide]:!w-[320px] [&_.swiper-wrapper]:items-stretch"
           >
             {clubs.map((club) => (
               <SwiperSlide key={club.id} className="!h-auto">

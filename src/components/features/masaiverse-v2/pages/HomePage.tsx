@@ -16,7 +16,8 @@ import { masaiverseV2HomeQuery } from '@/query/masaiverse-v2/homeQuery'
  * inline drawer that renders the calendar panel and shrinks the main content.
  */
 export default function HomePage() {
-  const [isCalendarOpen, setIsCalendarOpen] = useState(false)
+  // The calendar panel opens by default; users can collapse it via "View calendar".
+  const [isCalendarOpen, setIsCalendarOpen] = useState(true)
   // The home payload carries the latest discussions, so the section renders
   // from this one request rather than fetching its own paginated feed.
   const { data: home, isPending: isHomePending } = useQuery(
@@ -36,6 +37,7 @@ export default function HomePage() {
         <StatsSection />
         <ThisWeekSection
           onViewCalendar={() => setIsCalendarOpen((open) => !open)}
+          calendarOpen={isCalendarOpen}
         />
         <HighlightsSection />
         <ActiveClubsSection />

@@ -35,9 +35,9 @@ export default function ClubStatsSection({
         getKey={(card) => card.id}
         navKey="club-stats"
         navLabel="stats"
-        // One-and-a-bit tall cards on phones, two on tablets, all four at lg.
-        slidesPerView={1.3}
-        breakpoints={{ 640: { slidesPerView: 2.2 }, 1024: { slidesPerView: 4 } }}
+        // Fixed-width cards (capped) so they don't sprawl into empty space on
+        // wide screens / when the side panel is closed; extras scroll.
+        slideWidth="!w-[200px] sm:!w-[240px]"
         renderItem={(card) => {
           const accent = ACCENT_STYLES[card.accent]
           return (

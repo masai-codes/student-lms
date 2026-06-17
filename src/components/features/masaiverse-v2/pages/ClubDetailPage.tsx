@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
-import { Link } from '@tanstack/react-router'
+import { useCanGoBack, useNavigate, useRouter } from '@tanstack/react-router'
 import { ArrowLeft, PencilSimple } from '@phosphor-icons/react'
 import InlineDrawer from '../InlineDrawer'
 import AboutClubSection from './club/AboutClubSection'
@@ -26,19 +26,34 @@ type ClubDetailPageProps = {
   clubId: string
 }
 
+/**
+ * Returns the user to wherever they opened this club from (home, the sidebar,
+ * the clubs list, …) via the router history. Falls back to the clubs list when
+ * there's no in-app history — e.g. on a direct/shared link.
+ */
 function BackToClubsLink() {
+  const router = useRouter()
+  const navigate = useNavigate()
+  const canGoBack = useCanGoBack()
+
+  const handleBack = () => {
+    trackMasaiverse(MASAIVERSE_EVENTS.backClick, { to: 'clubs' })
+    if (canGoBack) {
+      router.history.back()
+    } else {
+      void navigate({ to: '/masaiverse/clubs', search: (prev) => prev })
+    }
+  }
+
   return (
-    <Link
-      to="/masaiverse/clubs"
-      search={(prev) => prev}
-      onClick={() =>
-        trackMasaiverse(MASAIVERSE_EVENTS.backClick, { to: 'clubs' })
-      }
+    <button
+      type="button"
+      onClick={handleBack}
       className="inline-flex items-center gap-1 text-[14px] font-medium text-[#6B7280] hover:text-[#111827]"
     >
       <ArrowLeft size={16} />
       Back to clubs
-    </Link>
+    </button>
   )
 }
 
@@ -52,7 +67,8 @@ export default function ClubDetailPage({ clubId }: ClubDetailPageProps) {
   )
   const { data: adminMode } = useQuery(masaiverseV2AdminModeQuery())
   const canEdit = adminMode?.enabled ?? false
-  const [isCalendarOpen, setIsCalendarOpen] = useState(false)
+  // The schedule/calendar panel opens by default; admins/members can close it.
+  const [isCalendarOpen, setIsCalendarOpen] = useState(true)
   const [isEditOpen, setIsEditOpen] = useState(false)
 
   // Members get their `lastVisitedAt` stamped on each visit. Non-members never
@@ -149,6 +165,7 @@ export default function ClubDetailPage({ clubId }: ClubDetailPageProps) {
           <WeeklyConnectsSection
             clubId={clubId}
             onViewSchedule={toggleCalendar}
+            scheduleOpen={isCalendarOpen}
             initialEvents={club.events}
           />
         ) : (
@@ -164,6 +181,7 @@ export default function ClubDetailPage({ clubId }: ClubDetailPageProps) {
           <ClubUpcomingSection
             clubId={clubId}
             onViewCalendar={toggleCalendar}
+            calendarOpen={isCalendarOpen}
             initialEvents={club.events}
           />
         ) : (

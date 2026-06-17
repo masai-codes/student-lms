@@ -70,6 +70,7 @@ import { Route as ApiMasaiverseV2EventsEnrollRouteImport } from './routes/api/ma
 import { Route as ApiMasaiverseV2EventsEditDataRouteImport } from './routes/api/masaiverse-v2/events/edit-data'
 import { Route as ApiMasaiverseV2EventsDetailRouteImport } from './routes/api/masaiverse-v2/events/detail'
 import { Route as ApiMasaiverseV2EventsCreateRouteImport } from './routes/api/masaiverse-v2/events/create'
+import { Route as ApiMasaiverseV2EventsCloneRouteImport } from './routes/api/masaiverse-v2/events/clone'
 import { Route as ApiMasaiverseV2DiscussionsVoteRouteImport } from './routes/api/masaiverse-v2/discussions/vote'
 import { Route as ApiMasaiverseV2DiscussionsRepliesRouteImport } from './routes/api/masaiverse-v2/discussions/replies'
 import { Route as ApiMasaiverseV2ClubsVisitRouteImport } from './routes/api/masaiverse-v2/clubs/visit'
@@ -473,6 +474,12 @@ const ApiMasaiverseV2EventsCreateRoute =
   ApiMasaiverseV2EventsCreateRouteImport.update({
     id: '/api/masaiverse-v2/events/create',
     path: '/api/masaiverse-v2/events/create',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiMasaiverseV2EventsCloneRoute =
+  ApiMasaiverseV2EventsCloneRouteImport.update({
+    id: '/api/masaiverse-v2/events/clone',
+    path: '/api/masaiverse-v2/events/clone',
     getParentRoute: () => rootRouteImport,
   } as any)
 const ApiMasaiverseV2DiscussionsVoteRoute =
@@ -960,6 +967,7 @@ export interface FileRoutesByFullPath {
   '/api/masaiverse-v2/clubs/visit': typeof ApiMasaiverseV2ClubsVisitRoute
   '/api/masaiverse-v2/discussions/replies': typeof ApiMasaiverseV2DiscussionsRepliesRoute
   '/api/masaiverse-v2/discussions/vote': typeof ApiMasaiverseV2DiscussionsVoteRoute
+  '/api/masaiverse-v2/events/clone': typeof ApiMasaiverseV2EventsCloneRoute
   '/api/masaiverse-v2/events/create': typeof ApiMasaiverseV2EventsCreateRoute
   '/api/masaiverse-v2/events/detail': typeof ApiMasaiverseV2EventsDetailRoute
   '/api/masaiverse-v2/events/edit-data': typeof ApiMasaiverseV2EventsEditDataRoute
@@ -1089,6 +1097,7 @@ export interface FileRoutesByTo {
   '/api/masaiverse-v2/clubs/visit': typeof ApiMasaiverseV2ClubsVisitRoute
   '/api/masaiverse-v2/discussions/replies': typeof ApiMasaiverseV2DiscussionsRepliesRoute
   '/api/masaiverse-v2/discussions/vote': typeof ApiMasaiverseV2DiscussionsVoteRoute
+  '/api/masaiverse-v2/events/clone': typeof ApiMasaiverseV2EventsCloneRoute
   '/api/masaiverse-v2/events/create': typeof ApiMasaiverseV2EventsCreateRoute
   '/api/masaiverse-v2/events/detail': typeof ApiMasaiverseV2EventsDetailRoute
   '/api/masaiverse-v2/events/edit-data': typeof ApiMasaiverseV2EventsEditDataRoute
@@ -1221,6 +1230,7 @@ export interface FileRoutesById {
   '/api/masaiverse-v2/clubs/visit': typeof ApiMasaiverseV2ClubsVisitRoute
   '/api/masaiverse-v2/discussions/replies': typeof ApiMasaiverseV2DiscussionsRepliesRoute
   '/api/masaiverse-v2/discussions/vote': typeof ApiMasaiverseV2DiscussionsVoteRoute
+  '/api/masaiverse-v2/events/clone': typeof ApiMasaiverseV2EventsCloneRoute
   '/api/masaiverse-v2/events/create': typeof ApiMasaiverseV2EventsCreateRoute
   '/api/masaiverse-v2/events/detail': typeof ApiMasaiverseV2EventsDetailRoute
   '/api/masaiverse-v2/events/edit-data': typeof ApiMasaiverseV2EventsEditDataRoute
@@ -1353,6 +1363,7 @@ export interface FileRouteTypes {
     | '/api/masaiverse-v2/clubs/visit'
     | '/api/masaiverse-v2/discussions/replies'
     | '/api/masaiverse-v2/discussions/vote'
+    | '/api/masaiverse-v2/events/clone'
     | '/api/masaiverse-v2/events/create'
     | '/api/masaiverse-v2/events/detail'
     | '/api/masaiverse-v2/events/edit-data'
@@ -1482,6 +1493,7 @@ export interface FileRouteTypes {
     | '/api/masaiverse-v2/clubs/visit'
     | '/api/masaiverse-v2/discussions/replies'
     | '/api/masaiverse-v2/discussions/vote'
+    | '/api/masaiverse-v2/events/clone'
     | '/api/masaiverse-v2/events/create'
     | '/api/masaiverse-v2/events/detail'
     | '/api/masaiverse-v2/events/edit-data'
@@ -1613,6 +1625,7 @@ export interface FileRouteTypes {
     | '/api/masaiverse-v2/clubs/visit'
     | '/api/masaiverse-v2/discussions/replies'
     | '/api/masaiverse-v2/discussions/vote'
+    | '/api/masaiverse-v2/events/clone'
     | '/api/masaiverse-v2/events/create'
     | '/api/masaiverse-v2/events/detail'
     | '/api/masaiverse-v2/events/edit-data'
@@ -1730,6 +1743,7 @@ export interface RootRouteChildren {
   ApiMasaiverseV2ClubsStatsRoute: typeof ApiMasaiverseV2ClubsStatsRoute
   ApiMasaiverseV2ClubsUpdateRoute: typeof ApiMasaiverseV2ClubsUpdateRoute
   ApiMasaiverseV2ClubsVisitRoute: typeof ApiMasaiverseV2ClubsVisitRoute
+  ApiMasaiverseV2EventsCloneRoute: typeof ApiMasaiverseV2EventsCloneRoute
   ApiMasaiverseV2EventsCreateRoute: typeof ApiMasaiverseV2EventsCreateRoute
   ApiMasaiverseV2EventsDetailRoute: typeof ApiMasaiverseV2EventsDetailRoute
   ApiMasaiverseV2EventsEditDataRoute: typeof ApiMasaiverseV2EventsEditDataRoute
@@ -2187,6 +2201,13 @@ declare module '@tanstack/react-router' {
       path: '/api/masaiverse-v2/events/create'
       fullPath: '/api/masaiverse-v2/events/create'
       preLoaderRoute: typeof ApiMasaiverseV2EventsCreateRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/masaiverse-v2/events/clone': {
+      id: '/api/masaiverse-v2/events/clone'
+      path: '/api/masaiverse-v2/events/clone'
+      fullPath: '/api/masaiverse-v2/events/clone'
+      preLoaderRoute: typeof ApiMasaiverseV2EventsCloneRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/masaiverse-v2/discussions/vote': {
@@ -2911,6 +2932,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiMasaiverseV2ClubsStatsRoute: ApiMasaiverseV2ClubsStatsRoute,
   ApiMasaiverseV2ClubsUpdateRoute: ApiMasaiverseV2ClubsUpdateRoute,
   ApiMasaiverseV2ClubsVisitRoute: ApiMasaiverseV2ClubsVisitRoute,
+  ApiMasaiverseV2EventsCloneRoute: ApiMasaiverseV2EventsCloneRoute,
   ApiMasaiverseV2EventsCreateRoute: ApiMasaiverseV2EventsCreateRoute,
   ApiMasaiverseV2EventsDetailRoute: ApiMasaiverseV2EventsDetailRoute,
   ApiMasaiverseV2EventsEditDataRoute: ApiMasaiverseV2EventsEditDataRoute,
