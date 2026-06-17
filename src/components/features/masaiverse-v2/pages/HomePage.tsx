@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import InlineDrawer from '../InlineDrawer'
 import BannersSection from '../banners/BannersSection'
@@ -16,8 +16,15 @@ import { masaiverseV2HomeQuery } from '@/query/masaiverse-v2/homeQuery'
  * inline drawer that renders the calendar panel and shrinks the main content.
  */
 export default function HomePage() {
-  // The calendar panel opens by default; users can collapse it via "View calendar".
-  const [isCalendarOpen, setIsCalendarOpen] = useState(true)
+  const [isCalendarOpen, setIsCalendarOpen] = useState(false)
+  // Open the calendar by default on desktop only. On mobile the panel is a
+  // bottom sheet that would cover the content, so it must start closed. Runs
+  // once on mount (after hydration) to avoid an SSR/client mismatch.
+  useEffect(() => {
+    if (window.matchMedia('(min-width: 768px)').matches) {
+      setIsCalendarOpen(true)
+    }
+  }, [])
   // The home payload carries the latest discussions, so the section renders
   // from this one request rather than fetching its own paginated feed.
   const { data: home, isPending: isHomePending } = useQuery(
