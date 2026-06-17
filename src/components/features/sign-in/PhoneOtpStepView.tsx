@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { RememberMeField } from '@/components/features/sign-in/RememberMeField'
 import { SignInNotice } from '@/components/features/sign-in/SignInNotice'
+import { useAutoFocus } from '@/hooks/useAutoFocus'
 
 const RESEND_OTP_COOLDOWN_SEC = 30
 
@@ -42,6 +43,7 @@ export function PhoneOtpStepView({
   submitDisabled = false,
 }: Props) {
   const [resendSecondsLeft, setResendSecondsLeft] = useState(RESEND_OTP_COOLDOWN_SEC)
+  const otpRef = useAutoFocus<HTMLInputElement>()
 
   useEffect(() => {
     setResendSecondsLeft(RESEND_OTP_COOLDOWN_SEC)
@@ -82,6 +84,7 @@ export function PhoneOtpStepView({
           Sign-in code
         </Label>
         <Input
+          ref={otpRef}
           id="signin-phone-otp"
           name="one-time-code"
           type="text"

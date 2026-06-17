@@ -6,8 +6,8 @@ import { db } from '@/db'
 import { clubs, eventEnrollments, events } from '@/db/schema'
 import { parseMasaiverseEventDbTimestamp } from '@/lib/eventTimestamps'
 
-/** Allowed `events.category` values, surfaced to the client as a pill. */
-export type MasaiverseV2EventCategory = 'hackathon' | 'meetup' | 'webinar'
+/** Free-form `events.category` string, surfaced to the client as a pill. */
+export type MasaiverseV2EventCategory = string
 /** Allowed `events.mode` values. */
 export type MasaiverseV2EventMode = 'online' | 'offline'
 

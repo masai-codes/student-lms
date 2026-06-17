@@ -70,7 +70,7 @@ describe('EventInfoRows', () => {
     expect(screen.getByText('Masai HQ, Bengaluru')).toBeTruthy()
   })
 
-  it('renders the platform and a link hint for an online event', () => {
+  it('renders the platform as the title for an online event', () => {
     render(
       <EventInfoRows
         event={makeEvent({
@@ -82,7 +82,8 @@ describe('EventInfoRows', () => {
       />,
     )
     expect(screen.getByText('Zoom')).toBeTruthy()
-    expect(screen.getByText('Link shared after you register')).toBeTruthy()
+    // No fabricated secondary line.
+    expect(screen.queryByText('Link shared after you register')).toBeNull()
   })
 
   it('falls back to generic labels and announces a missing date', () => {
@@ -108,6 +109,7 @@ describe('EventInfoRows', () => {
       />,
     )
     expect(screen.getByText('In-person event')).toBeTruthy()
-    expect(screen.getByText('On campus')).toBeTruthy()
+    // The online-only `platform` value must never leak onto an offline event.
+    expect(screen.queryByText('On campus')).toBeNull()
   })
 })

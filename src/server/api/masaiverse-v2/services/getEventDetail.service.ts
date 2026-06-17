@@ -7,7 +7,8 @@ import { parseMasaiverseEventDbTimestamp } from '@/lib/eventTimestamps'
 import { getEventStatus } from '@/lib/masaiverseEventCard'
 import { readEnrollmentRating } from '@/server/api/masaiverse-v2/services/rateEvent.service'
 
-export type EventCategory = 'hackathon' | 'meetup' | 'webinar'
+/** Free-form `events.category` string (e.g. "hackathon", "offline_meetup"). */
+export type EventCategory = string
 export type EventMode = 'online' | 'offline'
 
 export interface EventHost {

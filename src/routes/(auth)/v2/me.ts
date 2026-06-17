@@ -3,7 +3,11 @@ import { createFileRoute } from '@tanstack/react-router'
 import { db } from '@/db'
 import { users } from '@/db/schema'
 import { getUserIdFromRequest } from '@/server/auth/getCurrentSessionUserId'
-import { errorResponse, jsonResponse } from '@/server/auth/v2/httpHelpers'
+import {
+  errorResponse,
+  jsonResponse,
+  withAuthErrorHandling,
+} from '@/server/auth/v2/httpHelpers'
 
 async function handleMe(request: Request): Promise<Response> {
   const userId = await getUserIdFromRequest(request)
@@ -34,7 +38,7 @@ async function handleMe(request: Request): Promise<Response> {
 export const Route = createFileRoute('/(auth)/v2/me')({
   server: {
     handlers: {
-      GET: async ({ request }) => handleMe(request),
+      GET: withAuthErrorHandling('me', handleMe),
     },
   },
 })

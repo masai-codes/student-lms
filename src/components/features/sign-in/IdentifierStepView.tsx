@@ -2,6 +2,7 @@ import { ArrowRight } from '@phosphor-icons/react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { useAutoFocus } from '@/hooks/useAutoFocus'
 import { getAuthBranding } from '@/utils/authBranding'
 
 type Props = {
@@ -21,6 +22,8 @@ export function IdentifierStepView({
   onSubmit,
   onForgotPassword,
 }: Props) {
+  const inputRef = useAutoFocus<HTMLInputElement>()
+
   return (
     <div className="space-y-6">
       <div className="space-y-2 text-left">
@@ -37,6 +40,7 @@ export function IdentifierStepView({
           Email or mobile number
         </Label>
         <Input
+          ref={inputRef}
           id="signin-identifier"
           name="identifier"
           type="text"

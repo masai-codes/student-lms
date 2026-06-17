@@ -3166,7 +3166,7 @@ export const events = mysqlTable("events", {
 	clubId: bigint("club_id", { mode: "number", unsigned: true }).references(() => clubs.id, { onDelete: "cascade" }),
 	title: varchar({ length: 255 }).notNull(),
 	description: text(),
-	category: mysqlEnum(["hackathon", "meetup", "webinar"]),
+	category: varchar({ length: 255 }),
 	mode: mysqlEnum(["online", "offline"]),
 	locationTitle: varchar("location_title", { length: 255 }),
 	locationMapLink: text("location_map_link"),
