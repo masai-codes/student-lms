@@ -28,11 +28,12 @@ import {
   toPerson,
 } from '@/server/api/support/services/serialize'
 
-const PAGE_SIZE = 10
+// Matches the legacy `PAGINATION_ITEM_PER_PAGE` for tickets.
+const PAGE_SIZE = 15
 
-/** Statuses considered "resolved" for the Resolved tab. */
-const RESOLVED_STATUSES = ['resolved', 'closed', 'automatic']
-/** Statuses considered "unresolved" for the default tab. */
+/** Statuses for the "resolved" tab — matches legacy getTickets exactly. */
+const RESOLVED_STATUSES = ['closed', 'resolved', 'automatic', 'chatbot']
+/** Statuses for the default "unresolved" tab — matches legacy. */
 const UNRESOLVED_STATUSES = ['open', 're-opened']
 
 /** Rows per page in the Raised Tickets list. */
@@ -83,7 +84,7 @@ export async function listTickets(input: {
     })
     .from(tickets)
     .where(and(...conditions))
-    .orderBy(desc(tickets.updatedAt))
+    .orderBy(desc(tickets.id))
     .limit(PAGE_SIZE)
     .offset((page - 1) * PAGE_SIZE)
 
@@ -203,7 +204,7 @@ export async function getTicketThread(input: {
     .from(comments)
     .innerJoin(users, eq(users.id, comments.userId))
     .where(and(eq(comments.ticketId, input.ticketId), eq(comments.public, 1)))
-    .orderBy(asc(comments.createdAt))
+    .orderBy(asc(comments.id))
 
   const messages: Array<TicketMessage> = messageRows.map((m) => ({
     id: m.id,

@@ -78,6 +78,7 @@ export async function searchFaqs(input: {
     .select()
     .from(helpFaqs)
     .where(and(...conditions))
+    .orderBy(asc(helpFaqs.id))
     .limit(input.limit ?? 20)
 
   return rows.map(toFaq)

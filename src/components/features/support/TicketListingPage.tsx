@@ -41,7 +41,7 @@ export function TicketListingPage({ batchId }: { batchId: string }) {
   const { data: overview } = useQuery(supportOverviewQuery())
   const tickets = data?.tickets ?? []
   const total = data?.total ?? 0
-  const pageSize = 10
+  const pageSize = 15 // matches the backend page size (legacy parity)
   const totalPages = Math.max(1, Math.ceil(total / pageSize))
 
   const callbackTickets = (overview?.callbackTickets ?? []).filter((t) => {
