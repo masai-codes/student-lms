@@ -1,10 +1,10 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { createSessions } from '@/server/auth/v2/createSession'
 import {
-  BadRequestError,
   errorResponse,
   jsonResponse,
   readJsonBody,
+  withAuthErrorHandling,
 } from '@/server/auth/v2/httpHelpers'
 import { canAccessPortal } from '@/server/auth/v2/portalGate'
 import { VerifyOtpError, verifyOtp } from '@/server/auth/v2/verifyOtp'
@@ -33,13 +33,7 @@ function statusForVerifyOtpError(code: VerifyOtpError['code']): number {
 }
 
 async function handleVerifyOtp(request: Request): Promise<Response> {
-  let body: VerifyOtpBody
-  try {
-    body = await readJsonBody<VerifyOtpBody>(request)
-  } catch (err) {
-    if (err instanceof BadRequestError) return errorResponse(400, err.code, err.message)
-    throw err
-  }
+  const body = await readJsonBody<VerifyOtpBody>(request)
 
   const otpSessionId = typeof body.otpSessionId === 'string' ? body.otpSessionId : ''
   const otp = typeof body.otp === 'string' ? body.otp : ''
@@ -101,7 +95,7 @@ async function handleVerifyOtp(request: Request): Promise<Response> {
 export const Route = createFileRoute('/(auth)/v2/login/verify-otp')({
   server: {
     handlers: {
-      POST: async ({ request }) => handleVerifyOtp(request),
+      POST: withAuthErrorHandling('verify-otp', handleVerifyOtp),
     },
   },
 })

@@ -36,3 +36,36 @@ export class BadRequestError extends Error {
     super(message)
   }
 }
+
+/**
+ * Wraps an auth route handler so no raw error ever reaches the client.
+ *
+ * Handlers convert their own *expected* failures (wrong password, OTP expired,
+ * user not found, …) into structured `errorResponse`s. Anything that still
+ * escapes — a DB outage, an SMS-provider failure, a `null` dereference — is
+ * caught here: the real cause is logged for ops, and the user gets a single,
+ * meaningful message instead of a leaked database/stack/null error.
+ *
+ * `BadRequestError` (malformed body) is handled here too, so individual
+ * handlers can simply `await readJsonBody(...)` without their own try/catch.
+ */
+export function withAuthErrorHandling(
+  context: string,
+  handler: (request: Request) => Promise<Response>,
+): (ctx: { request: Request }) => Promise<Response> {
+  return async ({ request }) => {
+    try {
+      return await handler(request)
+    } catch (err) {
+      if (err instanceof BadRequestError) {
+        return errorResponse(400, err.code, err.message)
+      }
+      console.error(`[auth:${context}] unexpected error:`, err)
+      return errorResponse(
+        500,
+        'UNEXPECTED_ERROR',
+        'Something went wrong on our end. Please try again in a moment.',
+      )
+    }
+  }
+}

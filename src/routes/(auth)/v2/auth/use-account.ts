@@ -11,10 +11,10 @@ import {
   signSessionToken,
 } from '@/server/auth/v2/createSession'
 import {
-  BadRequestError,
   errorResponse,
   jsonResponse,
   readJsonBody,
+  withAuthErrorHandling,
 } from '@/server/auth/v2/httpHelpers'
 import { isSessionLinkedTo } from '@/server/auth/v2/linkedAccounts'
 
@@ -36,13 +36,7 @@ async function handleUseAccount(request: Request): Promise<Response> {
     return errorResponse(401, 'UNAUTHENTICATED', 'Not signed in')
   }
 
-  let body: UseAccountBody
-  try {
-    body = await readJsonBody<UseAccountBody>(request)
-  } catch (err) {
-    if (err instanceof BadRequestError) return errorResponse(400, err.code, err.message)
-    throw err
-  }
+  const body = await readJsonBody<UseAccountBody>(request)
 
   const targetSessionId = typeof body.sessionId === 'string' ? body.sessionId : ''
   const rememberMe = body.rememberMe === true
@@ -99,7 +93,7 @@ async function handleUseAccount(request: Request): Promise<Response> {
 export const Route = createFileRoute('/(auth)/v2/auth/use-account')({
   server: {
     handlers: {
-      POST: async ({ request }) => handleUseAccount(request),
+      POST: withAuthErrorHandling('use-account', handleUseAccount),
     },
   },
 })

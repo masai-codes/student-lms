@@ -1,9 +1,9 @@
 import { createFileRoute } from '@tanstack/react-router'
 import {
-  BadRequestError,
   errorResponse,
   jsonResponse,
   readJsonBody,
+  withAuthErrorHandling,
 } from '@/server/auth/v2/httpHelpers'
 import { SendOtpError, sendOtp } from '@/server/auth/v2/sendOtp'
 
@@ -22,13 +22,7 @@ function statusForSendOtpError(code: SendOtpError['code']): number {
 }
 
 async function handleRequestOtp(request: Request): Promise<Response> {
-  let body: RequestOtpBody
-  try {
-    body = await readJsonBody<RequestOtpBody>(request)
-  } catch (err) {
-    if (err instanceof BadRequestError) return errorResponse(400, err.code, err.message)
-    throw err
-  }
+  const body = await readJsonBody<RequestOtpBody>(request)
 
   const identifier = typeof body.identifier === 'string' ? body.identifier : ''
   const isResend = body.isResend === true
@@ -50,7 +44,7 @@ async function handleRequestOtp(request: Request): Promise<Response> {
 export const Route = createFileRoute('/(auth)/v2/login/request-otp')({
   server: {
     handlers: {
-      POST: async ({ request }) => handleRequestOtp(request),
+      POST: withAuthErrorHandling('request-otp', handleRequestOtp),
     },
   },
 })

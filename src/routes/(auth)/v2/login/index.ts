@@ -1,10 +1,10 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { createSessions } from '@/server/auth/v2/createSession'
 import {
-  BadRequestError,
   errorResponse,
   jsonResponse,
   readJsonBody,
+  withAuthErrorHandling,
 } from '@/server/auth/v2/httpHelpers'
 import {
   LoginError,
@@ -30,13 +30,7 @@ function statusForLoginError(code: LoginError['code']): number {
 }
 
 async function handlePasswordLogin(request: Request): Promise<Response> {
-  let body: PasswordLoginBody
-  try {
-    body = await readJsonBody<PasswordLoginBody>(request)
-  } catch (err) {
-    if (err instanceof BadRequestError) return errorResponse(400, err.code, err.message)
-    throw err
-  }
+  const body = await readJsonBody<PasswordLoginBody>(request)
 
   const email = typeof body.email === 'string' ? body.email : ''
   const password = typeof body.password === 'string' ? body.password : ''
@@ -79,7 +73,7 @@ async function handlePasswordLogin(request: Request): Promise<Response> {
 export const Route = createFileRoute('/(auth)/v2/login/')({
   server: {
     handlers: {
-      POST: async ({ request }) => handlePasswordLogin(request),
+      POST: withAuthErrorHandling('login-password', handlePasswordLogin),
     },
   },
 })

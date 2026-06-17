@@ -1,9 +1,9 @@
 import { createFileRoute } from '@tanstack/react-router'
 import {
-  BadRequestError,
   errorResponse,
   jsonResponse,
   readJsonBody,
+  withAuthErrorHandling,
 } from '@/server/auth/v2/httpHelpers'
 import { sendForgotPasswordEmail } from '@/server/auth/v2/sendForgotPasswordEmail'
 
@@ -17,13 +17,7 @@ const GENERIC_OK = {
 }
 
 async function handleForgotPassword(request: Request): Promise<Response> {
-  let body: ForgotPasswordBody
-  try {
-    body = await readJsonBody<ForgotPasswordBody>(request)
-  } catch (err) {
-    if (err instanceof BadRequestError) return errorResponse(400, err.code, err.message)
-    throw err
-  }
+  const body = await readJsonBody<ForgotPasswordBody>(request)
 
   const email = typeof body.email === 'string' ? body.email.trim() : ''
   if (!email) {
@@ -47,7 +41,7 @@ async function handleForgotPassword(request: Request): Promise<Response> {
 export const Route = createFileRoute('/(auth)/v2/forgot-password')({
   server: {
     handlers: {
-      POST: async ({ request }) => handleForgotPassword(request),
+      POST: withAuthErrorHandling('forgot-password', handleForgotPassword),
     },
   },
 })
