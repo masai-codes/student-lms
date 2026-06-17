@@ -1,5 +1,7 @@
-import { useQuery } from '@tanstack/react-query'
-import { getRouteApi } from '@tanstack/react-router'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { getRouteApi, useRouter } from '@tanstack/react-router'
+import { useEffect, useState } from 'react'
+import { OnboardingModal } from '@/components/modals/onboarding/OnboardingModal'
 import { DashboardWelcomeSection } from '../section-welcome/DashboardWelcomeSection'
 import { DashboardActionBanner } from '../section-banner/DashboardActionBanner'
 import { DashboardBannerSection } from '../section-banner/DashboardBannerSection'
@@ -14,10 +16,15 @@ import {
   fetchDashboardRightSection,
 } from '@/lib/api/dashboard/dashboardApi'
 
+const AUTO_ONBOARDING_KEY = 'onboarding_modal_shown'
+
 const layoutRouteApi = getRouteApi('/(protected)/_layout')
 
 export function DashboardLayout() {
   const { user } = layoutRouteApi.useRouteContext()
+  const router = useRouter()
+  const queryClient = useQueryClient()
+  const [onboardingOpen, setOnboardingOpen] = useState(false)
 
   const { data: rightSectionData } = useQuery({
     queryKey: ['dashboard-right-section'],
@@ -30,6 +37,15 @@ export function DashboardLayout() {
     queryFn: fetchDashboardLeftSection,
     staleTime: 5 * 60 * 1000,
   })
+
+  useEffect(() => {
+    if (!leftSectionData) return
+    if (sessionStorage.getItem(AUTO_ONBOARDING_KEY)) return
+    const { pendingAgreementSections, pendingFeedbackForms } = leftSectionData.actionBanners
+    if (pendingAgreementSections.length === 0 && pendingFeedbackForms.length === 0) return
+    sessionStorage.setItem(AUTO_ONBOARDING_KEY, '1')
+    setOnboardingOpen(true)
+  }, [leftSectionData])
 
   const actionBanners = leftSectionData?.actionBanners
   const isBannerVisible =
@@ -52,49 +68,67 @@ export function DashboardLayout() {
   }))
 
   return (
-    <div className="flex flex-col mx-4 mb-6 md:mx-8">
-      {/* Action banner */}
-      {isLeftSectionLoading
-        ? <DashboardActionBannerSkeleton />
-        : <DashboardActionBanner actionBanners={leftSectionData?.actionBanners} />}
+    <>
+      <div className="flex flex-col mx-4 mb-6 md:mx-8">
+        {/* Action banner */}
+        {isLeftSectionLoading
+          ? <DashboardActionBannerSkeleton />
+          : <DashboardActionBanner actionBanners={leftSectionData?.actionBanners} />}
 
-      {/* Main dashboard card */}
-      <div className={`relative z-10 rounded-2xl border border-gray-200 bg-white p-6 flex flex-col gap-6 ${isBannerVisible || isLeftSectionLoading ? '-mt-8' : 'mt-4'}`}>
-        <div className="flex items-center gap-10">
-          <div className="shrink-0">
-            <DashboardWelcomeSection userName={user.name} />
-          </div>
-          <div className="ml-auto w-[60vw] min-w-0">
-            {isLeftSectionLoading
-              ? <DashboardBannerSectionSkeleton />
-              : <DashboardBannerSection banners={leftSectionData?.banners ?? []} />}
-          </div>
-        </div>
-
-        <div className="flex flex-col gap-6 md:flex-row md:items-start">
-          <div className="flex-1 min-w-0">
-            {isLeftSectionLoading
-              ? <DashboardScheduleSectionSkeleton />
-              : <DashboardScheduleSection
-                  items={leftSectionData?.schedule ?? []}
-                  isLoading={false}
-                  pendingTasksCount={leftSectionData?.pendingTasksCount ?? 0}
-                />}
+        {/* Main dashboard card */}
+        <div className={`relative z-10 rounded-2xl border border-gray-200 bg-white p-6 flex flex-col gap-6 ${isBannerVisible || isLeftSectionLoading ? '-mt-8' : 'mt-4'}`}>
+          <div className="flex items-center gap-10">
+            <div className="shrink-0">
+              <DashboardWelcomeSection userName={user.name} />
+            </div>
+            <div className="ml-auto w-[60vw] min-w-0">
+              {isLeftSectionLoading
+                ? <DashboardBannerSectionSkeleton />
+                : <DashboardBannerSection banners={leftSectionData?.banners ?? []} />}
+            </div>
           </div>
 
-          <div className="w-full md:w-[360px] shrink-0">
-            {rightSectionData == null
-              ? <DashboardSidebarSectionSkeleton />
-              : <DashboardSidebarSection
-                  announcements={announcements}
-                  productUpdates={productUpdates}
-                  enrolledBatches={rightSectionData.batches}
-                  attendanceData={rightSectionData.attendance}
-                  lmsSupport={rightSectionData.lmsSupport}
-                />}
+          <div className="flex flex-col gap-6 md:flex-row md:items-start">
+            <div className="flex-1 min-w-0">
+              {isLeftSectionLoading
+                ? <DashboardScheduleSectionSkeleton />
+                : <DashboardScheduleSection
+                    items={leftSectionData?.schedule ?? []}
+                    isLoading={false}
+                    pendingTasksCount={leftSectionData?.pendingTasksCount ?? 0}
+                  />}
+            </div>
+
+            <div className="w-full md:w-[360px] shrink-0">
+              {rightSectionData == null
+                ? <DashboardSidebarSectionSkeleton />
+                : <DashboardSidebarSection
+                    announcements={announcements}
+                    productUpdates={productUpdates}
+                    enrolledBatches={rightSectionData.batches}
+                    attendanceData={rightSectionData.attendance}
+                    lmsSupport={rightSectionData.lmsSupport}
+                  />}
+            </div>
           </div>
         </div>
       </div>
-    </div>
+
+      {onboardingOpen && leftSectionData && (
+        <OnboardingModal
+          onClose={() => setOnboardingOpen(false)}
+          showProfilePhoto={leftSectionData.actionBanners.showProfilePicture}
+          agreementSections={leftSectionData.actionBanners.pendingAgreementSections}
+          feedbackForms={leftSectionData.actionBanners.pendingFeedbackForms}
+          onPhotoSaved={() => {
+            void queryClient.invalidateQueries({ queryKey: ['dashboard-left-section'] })
+            void router.invalidate()
+          }}
+          onAgreementSubmitted={() => {
+            void queryClient.invalidateQueries({ queryKey: ['dashboard-left-section'] })
+          }}
+        />
+      )}
+    </>
   )
 }

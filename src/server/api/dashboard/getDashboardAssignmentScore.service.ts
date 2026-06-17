@@ -47,9 +47,9 @@ export async function getDashboardAssignmentScore(
 
   const assignmentIdList = assignmentIds.join(', ')
 
-  const scoreRows = normalizeRows<{ avgScore: number | string | null }>(
+  const scoreRows = normalizeRows<{ totalScore: number | string | null }>(
     await db.execute(sql`
-      SELECT AVG(s.score) AS avgScore
+      SELECT SUM(s.score) AS totalScore
       FROM submissions s
       WHERE s.user_id       = ${userId}
         AND s.assignment_id IN (${sql.raw(assignmentIdList)})
@@ -58,8 +58,8 @@ export async function getDashboardAssignmentScore(
     `)
   )
 
-  const raw = scoreRows[0]?.avgScore
+  const raw = scoreRows[0]?.totalScore
   if (raw === null || raw === undefined) return null
 
-  return Math.round(Number(raw) * 100) / 100
+  return Math.round((Number(raw) / assignmentIds.length) * 100) / 100
 }

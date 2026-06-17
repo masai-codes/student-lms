@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto'
-import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3'
+import { GetObjectCommand, PutObjectCommand, S3Client } from '@aws-sdk/client-s3'
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
 import { ApiError } from '@/server/api/http/apiError'
 
@@ -91,6 +91,21 @@ export async function generatePresignedUploadUrl(
   const s3Url = `https://${bucket}.s3.${getAwsRegion()}.amazonaws.com/${key}`
 
   return { uploadUrl, s3Url, key }
+}
+
+/**
+ * Generates a presigned GET URL for reading a private S3 object (e.g. a certificate PDF).
+ * Expires in 1 hour by default.
+ */
+export async function getSignedDownloadUrl(
+  key: string,
+  expiresIn = 3600,
+): Promise<string> {
+  const bucket = (process.env.AWS_S3_CERTIFICATE_BUCKET_NAME || process.env.AWS_S3_BUCKET_NAME)?.trim()
+  if (!bucket) throw new ApiError(500, 'S3_NOT_CONFIGURED')
+
+  const command = new GetObjectCommand({ Bucket: bucket, Key: key })
+  return getSignedUrl(getClient(), command, { expiresIn })
 }
 
 /**

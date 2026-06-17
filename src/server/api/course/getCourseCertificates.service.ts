@@ -1,17 +1,9 @@
 import { sql } from 'drizzle-orm'
 import { db } from '@/db'
 import { resolveCertificateS3Config } from '@/secrets'
+import type { CertificateItem } from '@/server/api/profile/certificates.service'
 
-export interface CertificateItem {
-  certificateObjectId: string
-  code: string | null
-  pdfUrl: string | null
-  verificationUrl: string | null
-  certificateTitle: string | null
-  certificateType: string | null
-  issuedDateIso: string | null
-  batchName: string
-}
+export type { CertificateItem }
 
 type RawRow = Record<string, unknown>
 
@@ -72,27 +64,40 @@ async function generateSignedUrl(objectKey: string): Promise<string | null> {
   }
 }
 
-async function fetchNewCerts(whereClause: ReturnType<typeof sql>): Promise<CertificateItem[]> {
-  const rows = normalizeRows(await db.execute(sql`
-    SELECT
-      cbs.certificate_object_id,
-      cbs.meta                     AS cbsMeta,
-      ctb.meta                     AS ctbMeta,
-      ctb.batch_name               AS batchName
-    FROM certificate_user_relation cur
-    JOIN certificates_batch_students cbs ON cbs.id = cur.certificate_id
-    JOIN certificates_template_batch ctb ON ctb.id = cbs.batch_id
-    WHERE ${whereClause}
-      AND cur.deleted_at IS NULL
-    ORDER BY cur.created_at DESC
-  `))
+export async function getCourseCertificates(
+  batchId: number,
+  userId: number,
+): Promise<CertificateItem[]> {
+  const [newRows, legacyRows] = await Promise.all([
+    normalizeRows(await db.execute(sql`
+      SELECT
+        cbs.certificate_object_id,
+        cbs.meta                     AS cbsMeta,
+        ctb.meta                     AS ctbMeta,
+        ctb.batch_name               AS batchName
+      FROM certificate_user_relation cur
+      JOIN certificates_batch_students cbs ON cbs.id = cur.certificate_id
+      JOIN certificates_template_batch ctb ON ctb.id = cbs.batch_id
+      WHERE cur.user_id  = ${userId}
+        AND cur.batch_id = ${batchId}
+        AND cur.deleted_at IS NULL
+      ORDER BY cur.created_at DESC
+    `)),
+    normalizeRows(await db.execute(sql`
+      SELECT id, certificate_type, certificate_url, share_text, created_at
+      FROM user_certificates
+      WHERE user_id  = ${userId}
+        AND batch_id = ${batchId}
+      ORDER BY created_at DESC
+    `)),
+  ])
 
-  const visible = rows.filter((row) => {
+  const visible = newRows.filter((row) => {
     const ctbMeta = parseJson(row.ctbMeta)
     return ctbMeta['visibleToStudents'] === true || ctbMeta['visibleToStudents'] === 'true'
   })
 
-  return Promise.all(
+  const newCerts = await Promise.all(
     visible.map(async (row): Promise<CertificateItem> => {
       const cbsMeta = parseJson(row.cbsMeta)
       const ctbMeta = parseJson(row.ctbMeta)
@@ -116,18 +121,8 @@ async function fetchNewCerts(whereClause: ReturnType<typeof sql>): Promise<Certi
       }
     })
   )
-}
 
-async function fetchLegacyCerts(whereClause: ReturnType<typeof sql>): Promise<CertificateItem[]> {
-  const rows = normalizeRows(await db.execute(sql`
-    SELECT id, certificate_type, certificate_url, certificate_code, share_text, created_at
-    FROM user_certificates
-    WHERE ${whereClause}
-    ORDER BY created_at DESC
-  `))
-
-
-  return rows.map((row): CertificateItem => ({
+  const legacyCerts: CertificateItem[] = legacyRows.map((row): CertificateItem => ({
     certificateObjectId: `legacy-${String(row.id)}`,
     code: row.certificate_code ? String(row.certificate_code) : null,
     pdfUrl: row.certificate_url ? String(row.certificate_url) : null,
@@ -137,12 +132,6 @@ async function fetchLegacyCerts(whereClause: ReturnType<typeof sql>): Promise<Ce
     issuedDateIso: row.created_at ? String(row.created_at) : null,
     batchName: '',
   }))
-}
 
-export async function getCertificates(userId: number): Promise<Array<CertificateItem>> {
-  const [newCerts, legacyCerts] = await Promise.all([
-    fetchNewCerts(sql`cur.user_id = ${userId}`),
-    fetchLegacyCerts(sql`user_id = ${userId}`),
-  ])
   return [...newCerts, ...legacyCerts]
 }
