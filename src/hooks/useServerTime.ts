@@ -1,8 +1,8 @@
 import { useQuery } from '@tanstack/react-query'
+import type dayjs from 'dayjs'
+import type { ServerTimeResult } from '@/server/api/serverTime/getServerTime.handler'
 import { getAdjustedNow } from '@/utils/timeZoneHandler'
 import { SERVER_TIME_API } from '@/lib/api/dashboardPaths'
-import type { ServerTimeResult } from '@/server/api/serverTime/getServerTime.handler'
-import type dayjs from 'dayjs'
 
 const POLL_INTERVAL_MS = 5 * 60 * 1000
 const STORAGE_KEY = 'lms-server-time-cache'

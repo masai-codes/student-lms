@@ -276,7 +276,8 @@ export default function AppNavbar() {
         id: 'courses',
         label: 'My Courses',
         icon: <Book className="size-4" />,
-        ...oldStudentUiLink(OLD_STUDENT_UI_NAV_PATHS.myLectures),
+        href: '/my-courses',
+        openInNewTab: false,
       },
       {
         id: 'bookmark',
@@ -359,7 +360,8 @@ export default function AppNavbar() {
         logo={{
           src: MASAI_LOGO,
           alt: 'Masai Logo',
-          ...oldStudentUiLink(OLD_STUDENT_UI_NAV_PATHS.home),
+          href: '/',
+          openInNewTab: false,
         }}
         navItems={navItems}
         centerSlot={<UpcomingLecturePill />}

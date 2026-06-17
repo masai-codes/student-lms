@@ -5,6 +5,7 @@ import { Modal, ModalContent } from '@/components/ui/modal'
 
 export interface CertificateCardData {
   certificateObjectId: string
+  code?: string | null
   pdfUrl: string | null
   verificationUrl: string | null
   certificateTitle: string | null
@@ -89,7 +90,7 @@ function ConfettiCanvas({ open }: { open: boolean }) {
   )
 }
 
-function CertificateViewModal({
+export function CertificateViewModal({
   open,
   onClose,
   certificate,
@@ -164,9 +165,9 @@ function CertificateViewModal({
                 Share
               </button>
             )}
-            {certificate.pdfUrl && (
+            {(certificate.verificationUrl || certificate.pdfUrl) && (
               <a
-                href={certificate.pdfUrl}
+                href={certificate.verificationUrl ?? certificate.pdfUrl ?? ''}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="px-5 py-2.5 rounded-[10px] bg-gray-900 text-white text-sm font-semibold hover:bg-gray-700 transition-colors"
