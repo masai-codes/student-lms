@@ -22,12 +22,12 @@ export function ChatbotUserMessage({
   const clipStyle =
     isLatest && maxHeightPx > 0
       ? {
-          maxHeight: maxHeightPx,
-          display: 'flex',
-          flexDirection: 'column' as const,
-          justifyContent: 'flex-end',
-          overflow: 'hidden',
-        }
+        maxHeight: maxHeightPx,
+        display: 'flex',
+        flexDirection: 'column' as const,
+        justifyContent: 'flex-end',
+        overflow: 'hidden',
+      }
       : undefined
 
   return (

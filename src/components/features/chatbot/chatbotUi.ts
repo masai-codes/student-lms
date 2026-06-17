@@ -36,3 +36,13 @@ export function getChatbotMobileDrawerSurfaceClass(isApp: boolean): string {
 
 export const chatbotMobileDrawerBodyClass =
   'flex min-h-0 flex-1 flex-col overflow-hidden [&>div]:h-full [&>div]:min-h-0 [&>div]:flex-1'
+
+/** Breaks out of ancestor horizontal padding to span the full viewport on mobile. */
+export const chatbotMobileFullBleedClass =
+  'relative left-1/2 w-screen max-w-[100vw] shrink-0 -translate-x-1/2'
+
+export const chatbotMobileInlineDockClass = cn(
+  'border-t border-gray-200 bg-white px-4 py-3',
+  'shadow-[0_-4px_16px_rgba(0,0,0,0.06)]',
+  'pb-[max(0.75rem,env(safe-area-inset-bottom))]',
+)

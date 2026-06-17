@@ -172,10 +172,12 @@ function ChatSession({
 
 type ChatbotExperienceProps = {
   lectureId: number
+  onCloseSidebar?: () => void
 }
 
 export function ChatbotExperience({
   lectureId,
+  onCloseSidebar,
 }: ChatbotExperienceProps) {
   const [sessions, setSessions] = useState<Array<SessionSummary>>([])
   const [sessionsLoading, setSessionsLoading] = useState(true)
@@ -349,7 +351,10 @@ export function ChatbotExperience({
       isSecondaryOpen={isHistoryOpen}
       primary={
         <>
-          <ChatbotHistoryHeader onOpenHistory={() => setIsHistoryOpen(true)} />
+          <ChatbotHistoryHeader
+            onOpenHistory={() => setIsHistoryOpen(true)}
+            onCloseSidebar={onCloseSidebar}
+          />
           <div className="flex min-h-0 flex-1 flex-col">
             {!activeSessionId ? (
               <ChatbotPreSessionView

@@ -17,6 +17,7 @@ type ChatbotComposerProps = {
   voiceDisabled?: boolean
   isSending?: boolean
   isConnecting?: boolean
+  className?: string
 }
 
 export function ChatbotComposer({
@@ -30,6 +31,7 @@ export function ChatbotComposer({
   voiceDisabled = false,
   isSending = false,
   isConnecting = false,
+  className,
 }: ChatbotComposerProps) {
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const [isMultiline, setIsMultiline] = useState(false)
@@ -83,8 +85,9 @@ export function ChatbotComposer({
   return (
     <form
       className={cn(
-        'flex min-h-12 w-full gap-2 border border-gray-300 bg-white py-1.5 pr-2 pl-3.5',
+        'flex min-h-12 w-full gap-2 border border-gray-200 bg-white py-1.5 pr-2 pl-3.5 shadow-sm',
         isMultiline ? 'items-end rounded-2xl' : 'items-center rounded-full',
+        className,
       )}
       onSubmit={handleSubmit}
     >

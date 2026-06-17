@@ -7,6 +7,11 @@
 - Server payload: `getLectureLearningDetail` → `LectureDetailPayload` (all tab bodies from DB; no static lecture copy)
 
 ## Test files
+- `src/components/features/learn/LearnPageDetails/lecture/constants/__tests__/lectureSplitLayout.test.ts` — desktop chat opens at clamped width; collapsed by default
+- `src/components/features/learn/LearnPageDetails/lecture/hooks/__tests__/useLectureSplitChatOpen.test.ts` — nudge/sidebar open state + localStorage persistence
+- `src/components/features/learn/LearnPageDetails/lecture/video/controls/__tests__/LectureVideoAskAiPill.test.tsx` — Ask pill in video controls
+- `src/components/features/learn/LearnPageDetails/lecture/video/controls/__tests__/LectureVideoControlsToolbar.test.tsx` — Ask pill visibility + open action
+- `src/components/features/learn/LearnPageDetails/lecture/components/__tests__/LectureDesktopChatSidebar.test.tsx` — desktop split toggles between nudge and sidebar
 - `src/components/features/learn/LearnPageDetails/lecture/hooks/__tests__/lectureViewportLayout.test.ts` — first-viewport hero height reserves title, chat, and tab rows
 - `src/components/features/learn/LearnPageDetails/lecture/hooks/__tests__/lectureChatDockLayout.test.ts` — inline chat docks only after scroll, not when below the fold
 - `src/server/learn/utils/__tests__/parseLectureSettings.test.ts`

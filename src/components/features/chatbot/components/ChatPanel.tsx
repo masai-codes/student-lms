@@ -1,4 +1,6 @@
 import {
+  RoomAudioRenderer,
+  StartAudio,
   useAgent,
   useSessionContext,
   useSessionMessages,
@@ -6,13 +8,12 @@ import {
 } from '@livekit/components-react'
 import { useMemo } from 'react'
 import { usePersistedMessages } from '@/components/features/chatbot/hooks/usePersistedMessages'
-import type { DisplayMessage, StoredMessage, ChatMode } from '@/components/features/chatbot/types'
+import type { ChatMode, DisplayMessage, StoredMessage } from '@/components/features/chatbot/types'
 import { getAssistantStatusLabel } from '@/components/features/chatbot/utils/assistantStatus'
 import { mergeDisplayMessages } from '@/components/features/chatbot/utils/displayMessages'
 import { appendOptimisticMessages } from '@/components/features/chatbot/utils/optimisticMessages'
-import { selectVoiceSubtitle } from '@/components/features/chatbot/utils/voiceSubtitle'
 import { ChatbotConversationLayout } from '@/components/features/chatbot/components/ChatbotConversationLayout'
-import { ChatbotVoiceModeView } from '@/components/features/chatbot/components/ChatbotVoiceModeView'
+import { ChatbotVoiceControls } from '@/components/features/chatbot/components/ChatbotVoiceControls'
 import { TextChatInput } from '@/components/features/chatbot/components/TextChatInput'
 import {
   chatbotBtnPrimaryClass,
@@ -55,6 +56,8 @@ export function ChatPanel({
   const transcriptions = useTranscriptions({ room: session.room })
   const localIdentity = session.room.localParticipant.identity
   const roomConnected = session.isConnected
+  const isVoiceMode = mode === 'voice'
+  const isBusy = isConnecting || isSwitchingMode
 
   usePersistedMessages(
     lectureId,
@@ -66,17 +69,14 @@ export function ChatPanel({
   )
 
   const displayMessages: DisplayMessage[] = appendOptimisticMessages(
-    mergeDisplayMessages(historicalMessages, liveMessages, localIdentity, 'text-chat'),
+    mergeDisplayMessages(
+      historicalMessages,
+      liveMessages,
+      localIdentity,
+      isVoiceMode ? 'full' : 'text-chat',
+    ),
     optimisticMessages,
   )
-
-  const voiceSubtitle = useMemo(() => {
-    const voiceMessages = appendOptimisticMessages(
-      mergeDisplayMessages(historicalMessages, liveMessages, localIdentity, 'full'),
-      optimisticMessages,
-    )
-    return selectVoiceSubtitle(voiceMessages)
-  }, [historicalMessages, liveMessages, localIdentity, optimisticMessages])
 
   const agentReady =
     agent.state === 'listening' ||
@@ -93,7 +93,7 @@ export function ChatPanel({
     () =>
       getAssistantStatusLabel({
         hasUserTurn,
-        isConnecting: isConnecting || isSwitchingMode,
+        isConnecting: isBusy,
         roomConnected,
         agentReady,
         pendingMessage: Boolean(pendingMessage),
@@ -105,9 +105,8 @@ export function ChatPanel({
       agent.state,
       agentReady,
       hasUserTurn,
-      isConnecting,
+      isBusy,
       isSending,
-      isSwitchingMode,
       lastMessageRole,
       pendingMessage,
       roomConnected,
@@ -115,45 +114,38 @@ export function ChatPanel({
   )
 
   const isWaitingToConnect =
-    (isConnecting || isSwitchingMode) && !roomConnected && !hasUserTurn
+    isBusy && !roomConnected && !hasUserTurn
 
-  if (mode === 'voice') {
-    return (
-      <ChatbotVoiceModeView
-        agent={agent}
-        subtitle={voiceSubtitle}
-        isConnecting={isConnecting || isSwitchingMode}
-        connectionError={connectionError}
-        onRetryConnect={onRetryConnect}
-        onSwitchToText={() => void onVoiceModeToggle?.()}
+  const banner = connectionError ? (
+    <div className={cn(chatbotErrorBannerClass, 'mb-2')}>
+      {connectionError}
+      <button
+        type="button"
+        className={cn(chatbotBtnPrimaryClass, 'mt-1.5')}
+        onClick={onRetryConnect}
+      >
+        Retry connection
+      </button>
+    </div>
+  ) : null
+
+  const composer = isVoiceMode ? (
+    <div>
+      <ChatbotVoiceControls
+        isSpeaking={agent.state === 'speaking'}
+        isConnecting={isBusy}
+        onEndSession={() => void onVoiceModeToggle?.()}
       />
-    )
-  }
-
-  const banner = (
-    <>
-      {connectionError && (
-        <div className={cn(chatbotErrorBannerClass, 'mb-2')}>
-          {connectionError}
-          <button
-            type="button"
-            className={cn(chatbotBtnPrimaryClass, 'mt-1.5')}
-            onClick={onRetryConnect}
-          >
-            Retry connection
-          </button>
-        </div>
-      )}
-    </>
-  )
-
-  const composer = (
+      <RoomAudioRenderer />
+      <StartAudio label="Enable audio playback" className={chatbotBtnPrimaryClass} />
+    </div>
+  ) : (
     <TextChatInput
       agent={agent}
       send={send}
       isSending={isSending}
       isRoomConnected={roomConnected}
-      isConnecting={isConnecting || isSwitchingMode}
+      isConnecting={isBusy}
       pendingMessage={pendingMessage}
       onPendingMessageSent={onPendingMessageSent}
       isVoiceActive={false}
@@ -166,7 +158,11 @@ export function ChatPanel({
       {banner}
       <ChatbotConversationLayout
         messages={displayMessages}
-        emptyLabel="Ask a question about the lecture."
+        emptyLabel={
+          isVoiceMode
+            ? 'Start speaking to ask about the lecture.'
+            : 'Ask a question about the lecture.'
+        }
         assistantStatusLabel={
           assistantStatusLabel ??
           (isWaitingToConnect ? 'Connecting to assistant...' : null)

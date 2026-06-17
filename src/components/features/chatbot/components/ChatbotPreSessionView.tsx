@@ -1,16 +1,16 @@
 import { useState } from 'react'
+import type { DisplayMessage } from '@/components/features/chatbot/types'
 import { ChatbotComposer } from '@/components/features/chatbot/components/ChatbotComposer'
 import { ChatbotConversationLayout } from '@/components/features/chatbot/components/ChatbotConversationLayout'
 import { ChatbotPreSessionWelcome } from '@/components/features/chatbot/components/ChatbotPreSessionWelcome'
-import type { DisplayMessage } from '@/components/features/chatbot/types'
-import { cn } from '@/lib/utils'
 
 type ChatbotPreSessionViewProps = {
-  optimisticMessages: DisplayMessage[]
+  optimisticMessages: Array<DisplayMessage>
   onStartWithText: (text: string) => void | Promise<void>
   onStartWithVoice: () => void | Promise<void>
   isCreating?: boolean
   layout?: 'default' | 'composerOnly'
+  composerClassName?: string
 }
 
 export function ChatbotPreSessionView({
@@ -19,6 +19,7 @@ export function ChatbotPreSessionView({
   onStartWithVoice,
   isCreating = false,
   layout = 'default',
+  composerClassName,
 }: ChatbotPreSessionViewProps) {
   const [input, setInput] = useState('')
 
@@ -50,7 +51,8 @@ export function ChatbotPreSessionView({
       onVoiceActivate={() => void onStartWithVoice()}
       disabled={isCreating}
       isConnecting={isCreating}
-      placeholder="How can I help you today?"
+      placeholder="Ask a question..."
+      className={composerClassName}
     />
   )
 
@@ -61,10 +63,7 @@ export function ChatbotPreSessionView({
   if (showWelcome) {
     return (
       <section
-        className={cn(
-          'flex min-h-0 flex-1 flex-col',
-          'p-2',
-        )}
+        className="flex min-h-0 flex-1 flex-col"
         aria-label="Lecture assistant"
       >
         <ChatbotPreSessionWelcome
