@@ -64,7 +64,9 @@ function BackToEventsLink() {
 function EventPills({ event }: { event: MasaiverseV2EventDetail }) {
   const labels: Array<string> = []
   if (event.isWeeklyConnect) labels.push('Weekly Connect')
-  if (event.category) labels.push(event.category)
+  // `capitalize` upper-cases each word, so swap underscores for spaces first
+  // (e.g. `offline_meetup` → "Offline Meetup").
+  if (event.category) labels.push(event.category.replace(/_/g, ' '))
   if (event.mode) labels.push(event.mode === 'online' ? 'Online' : 'In-person')
   if (labels.length === 0) return null
   return (

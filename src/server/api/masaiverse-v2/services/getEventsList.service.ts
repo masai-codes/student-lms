@@ -7,7 +7,14 @@ import { clubs, eventEnrollments, events } from '@/db/schema'
 import { parseMasaiverseEventDbTimestamp } from '@/lib/eventTimestamps'
 
 /** Allowed `events.category` values, surfaced to the client as a pill. */
-export type MasaiverseV2EventCategory = 'hackathon' | 'meetup' | 'webinar'
+export type MasaiverseV2EventCategory =
+  | 'hackathon'
+  | 'meetup'
+  | 'webinar'
+  | 'session'
+  | 'challenge'
+  | 'contest'
+  | 'offline_meetup'
 /** Allowed `events.mode` values. */
 export type MasaiverseV2EventMode = 'online' | 'offline'
 
