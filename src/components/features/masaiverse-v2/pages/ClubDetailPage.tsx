@@ -67,9 +67,17 @@ export default function ClubDetailPage({ clubId }: ClubDetailPageProps) {
   )
   const { data: adminMode } = useQuery(masaiverseV2AdminModeQuery())
   const canEdit = adminMode?.enabled ?? false
-  // The schedule/calendar panel opens by default; admins/members can close it.
-  const [isCalendarOpen, setIsCalendarOpen] = useState(true)
+  const [isCalendarOpen, setIsCalendarOpen] = useState(false)
   const [isEditOpen, setIsEditOpen] = useState(false)
+
+  // Open the schedule panel by default on desktop only. On mobile it's a bottom
+  // sheet that would cover the content, so it must start closed. Runs once on
+  // mount (after hydration) to avoid an SSR/client mismatch.
+  useEffect(() => {
+    if (window.matchMedia('(min-width: 768px)').matches) {
+      setIsCalendarOpen(true)
+    }
+  }, [])
 
   // Members get their `lastVisitedAt` stamped on each visit. Non-members never
   // hit the endpoint. Best-effort: failures must not affect the page.
