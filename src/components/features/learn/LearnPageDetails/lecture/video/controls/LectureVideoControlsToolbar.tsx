@@ -22,7 +22,9 @@ import {
   getVimeoLikeInternal,
   playbackRateLabel,
 } from './lectureVideoChrome.utils'
+import { LectureVideoAskAiPill } from './LectureVideoAskAiPill'
 import type { LectureChromePlayerRef } from './lectureVideoChrome.utils'
+import { useLectureSplitChatOptional } from '../../hooks/LectureSplitChatContext'
 
 type LectureVideoControlsToolbarProps = {
   videoRef: React.MutableRefObject<LectureChromePlayerRef>
@@ -47,6 +49,7 @@ export function LectureVideoControlsToolbar({
   fullscreenContainerRef,
   onActivity,
 }: LectureVideoControlsToolbarProps) {
+  const splitChat = useLectureSplitChatOptional()
   const overflowMenuRef = useRef<HTMLDivElement>(null)
   const [volumeUi, setVolumeUi] = useState(1)
   const [mutedUi, setMutedUi] = useState(false)
@@ -182,6 +185,11 @@ export function LectureVideoControlsToolbar({
     }
   }
 
+  const openAssistant = () => {
+    onActivity()
+    splitChat?.open()
+  }
+
   return (
     <>
       <style>{LECTURE_VIDEO_OVERFLOW_VOLUME_CSS}</style>
@@ -205,6 +213,9 @@ export function LectureVideoControlsToolbar({
         </div>
 
         <div className="flex shrink-0 items-center gap-0.5 md:gap-1">
+          {splitChat && !splitChat.isOpen ? (
+            <LectureVideoAskAiPill onClick={openAssistant} />
+          ) : null}
           <button
             type="button"
             onClick={toggleFullscreen}

@@ -1,12 +1,12 @@
 # Feature Test Matrix
 
-Last updated: 2026-06-15
+Last updated: 2026-06-17
 
-## Chatbot (text mode)
-- Area: `MessageList` turn scroll (`useChatTurnScroll`, `chatScroll` utils, `ChatbotUserMessage`); shared by `ChatPanel` and `ChatbotPreSessionView` via `ChatbotConversationLayout`; mobile composer-only + bottom drawer (`ChatbotMobileShell`, `useIsMobileViewport`); `POST /api/chatbot/:lectureId/token` loads lecture transcript via `resolveAiTutorLectureContext` and forwards it to the LiveKit agent metadata
-- Status: Covered (scroll math + hook behavior for instant/smooth snap; mobile viewport hook; token handler + service)
-- Test files: `src/components/features/chatbot/utils/chatScroll.test.ts`, `src/components/features/chatbot/hooks/useChatTurnScroll.test.tsx`, `src/components/features/chatbot/hooks/useIsMobileViewport.test.ts`, `src/server/api/chatbot/__tests__/token.service.test.ts`, `src/server/api/chatbot/handlers/__tests__/token.handler.test.ts`
-- Notes: Voice mode (`ChatbotVoiceModeView`) is out of scope. See `docs/testing/features/chatbot.md`.
+## Chatbot (text + voice mode)
+- Area: `MessageList` turn scroll (`useChatTurnScroll`, `chatScroll` utils, `ChatbotUserMessage`, `ChatbotAssistantMessage` markdown); shared by `ChatPanel` (text + voice) and `ChatbotPreSessionView` via `ChatbotConversationLayout`; voice footer in `ChatbotVoiceControls` + `AIAvatar` speaking pulse; mobile composer-only + bottom drawer (`ChatbotMobileShell`, `useIsMobileViewport`); `POST /api/chatbot/:lectureId/token` loads lecture transcript via `resolveAiTutorLectureContext` and forwards it to the LiveKit agent metadata
+- Status: Covered (scroll math + hook behavior for instant/smooth snap; mobile viewport hook; token handler + service; voice controls + avatar pulse)
+- Test files: `src/components/features/chatbot/utils/chatScroll.test.ts`, `src/components/features/chatbot/hooks/useChatTurnScroll.test.tsx`, `src/components/features/chatbot/hooks/useIsMobileViewport.test.ts`, `src/components/features/chatbot/components/ChatbotHistoryHeader.test.tsx`, `src/components/features/chatbot/components/ChatbotPreSessionWelcome.test.tsx`, `src/components/features/chatbot/components/ChatbotAssistantMessage.test.tsx`, `src/components/features/chatbot/components/ChatbotComposer.test.tsx`, `src/components/features/chatbot/components/ChatbotMobileShell.test.tsx`, `src/components/features/chatbot/components/ChatbotVoiceControls.test.tsx`, `src/components/common/AIAvatar.test.tsx`, `src/server/api/chatbot/__tests__/token.service.test.ts`, `src/server/api/chatbot/handlers/__tests__/token.handler.test.ts`
+- Notes: See `docs/testing/features/chatbot.md`.
 
 ## Lecture AI chat (REST text + LiveKit voice)
 - Area: `POST /api/learn/ai-chat/:lectureId/send` (OpenAI `gpt-4.1-mini` via direct REST) and `GET /api/learn/ai-chat/:lectureId/history` (merges new `ai_chat_messages` Drizzle table with LiveKit voice transcripts from the token server); `useAiTutorMessages` rewritten to drop LiveKit `useChat()` for text and use REST instead; voice continues to use LiveKit STT/TTS unchanged.

@@ -1,4 +1,5 @@
 import type { DisplayMessage } from '@/components/features/chatbot/types'
+import { ChatbotAssistantMessage } from '@/components/features/chatbot/components/ChatbotAssistantMessage'
 import { ChatbotAssistantStatusBubble } from '@/components/features/chatbot/components/ChatbotAssistantStatusBubble'
 import { ChatbotUserMessage } from '@/components/features/chatbot/components/ChatbotUserMessage'
 import { useChatTurnScroll } from '@/components/features/chatbot/hooks/useChatTurnScroll'
@@ -56,12 +57,7 @@ export function MessageList({
             isLatest={message.id === latestUserMessageId}
           />
         ) : (
-          <div
-            key={message.id}
-            className={cn(messageBaseClass, 'self-start bg-gray-100 text-gray-900')}
-          >
-            {message.content}
-          </div>
+          <ChatbotAssistantMessage key={message.id} content={message.content} />
         ),
       )}
       {assistantStatusLabel ? (

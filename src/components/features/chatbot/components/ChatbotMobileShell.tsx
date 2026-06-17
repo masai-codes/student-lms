@@ -1,4 +1,7 @@
+import { Sparkle } from '@phosphor-icons/react'
+import { useState } from 'react'
 import type { ReactNode } from 'react'
+import type { DisplayMessage } from '@/components/features/chatbot/types'
 import { ChatbotMobileDrawer } from '@/components/features/chatbot/components/ChatbotMobileDrawer'
 import { ChatbotPreSessionView } from '@/components/features/chatbot/components/ChatbotPreSessionView'
 import { ChatbotComposer } from '@/components/features/chatbot/components/ChatbotComposer'
@@ -6,23 +9,40 @@ import {
   chatbotErrorBannerClass,
   chatbotMainClass,
   chatbotMobileDrawerBodyClass,
+  chatbotMobileFullBleedClass,
+  chatbotMobileInlineDockClass,
   chatbotShellClass,
 } from '@/components/features/chatbot/chatbotUi'
-import type { DisplayMessage } from '@/components/features/chatbot/types'
 import { cn } from '@/lib/utils'
-import { useState } from 'react'
 
 type ChatbotMobileShellProps = {
   isDrawerOpen: boolean
   onDrawerOpenChange: (open: boolean) => void
   loadError: string | null
   activeSessionId: string | null
-  optimisticMessages: DisplayMessage[]
+  optimisticMessages: Array<DisplayMessage>
   isCreatingSession: boolean
   onStartWithText: (text: string) => void | Promise<void>
   onStartWithVoice: () => void | Promise<void>
   onInlineSend: (text: string) => void
   drawerContent: ReactNode
+}
+
+function ChatbotMobileComposerDock({ children }: { children: ReactNode }) {
+  return (
+    <div className={chatbotMobileFullBleedClass}>
+      <div className={chatbotMobileInlineDockClass}>
+        <div className="mb-2.5 flex items-center justify-center gap-1.5">
+          <Sparkle className="size-3.5 shrink-0 text-teal-700" weight="fill" aria-hidden />
+          <span className="text-xs font-medium text-gray-700">Ask AI about this lecture</span>
+        </div>
+        {children}
+        <p className="mt-2 text-center text-[10px] leading-snug text-gray-400">
+          AI can make mistakes, so double-check it.
+        </p>
+      </div>
+    </div>
+  )
 }
 
 function ChatbotMobileInlineComposer({
@@ -52,7 +72,8 @@ function ChatbotMobileInlineComposer({
       onSubmit={handleSubmit}
       onVoiceActivate={onVoiceActivate}
       disabled={disabled}
-      placeholder="How can I help you today?"
+      placeholder="Ask a question..."
+      className="shadow-md"
     />
   )
 }
@@ -79,25 +100,26 @@ export function ChatbotMobileShell({
         ) : null}
 
         {showInlineComposer && !activeSessionId ? (
-          <div className="shrink-0 p-2">
+          <ChatbotMobileComposerDock>
             <ChatbotPreSessionView
               layout="composerOnly"
               optimisticMessages={optimisticMessages}
               onStartWithText={onStartWithText}
               onStartWithVoice={onStartWithVoice}
               isCreating={isCreatingSession}
+              composerClassName="shadow-md"
             />
-          </div>
+          </ChatbotMobileComposerDock>
         ) : null}
 
         {showInlineComposer && activeSessionId ? (
-          <div className="shrink-0 p-2">
+          <ChatbotMobileComposerDock>
             <ChatbotMobileInlineComposer
               onSubmit={onInlineSend}
               onVoiceActivate={() => onDrawerOpenChange(true)}
               disabled={isCreatingSession}
             />
-          </div>
+          </ChatbotMobileComposerDock>
         ) : null}
 
         {isDrawerOpen || activeSessionId ? (

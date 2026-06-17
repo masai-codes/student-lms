@@ -1,6 +1,6 @@
 'use client'
 
-import { LECTURE_SPLIT_CHAT_WIDTH_PERCENT } from './constants/lectureSplitLayout'
+import { LectureDesktopChatSidebar } from './components/LectureDesktopChatSidebar'
 import { useLectureHeroViewportHeight } from './hooks/useLectureHeroViewportHeight'
 import { LectureDetailFooter } from './shared/LectureDetailFooter'
 import { LectureDetailChrome } from './shared/LectureDetailChrome'
@@ -77,15 +77,10 @@ export function LectureRecordingExperience({
         )}
         data-lecture-split-layout
       >
-        <div className="flex min-h-0 min-w-0 flex-1 flex-col bg-black">
-          {renderVideoSection()}
-        </div>
-        <div
-          className="flex h-full min-h-0 shrink-0 flex-col border-l border-gray-200 bg-white"
-          style={{ width: `${LECTURE_SPLIT_CHAT_WIDTH_PERCENT}%` }}
-        >
-          <ChatbotExperience lectureId={entityId} />
-        </div>
+        <LectureDesktopChatSidebar
+          lectureId={entityId}
+          video={renderVideoSection()}
+        />
       </div>
 
       <div
