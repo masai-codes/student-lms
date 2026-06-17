@@ -22,13 +22,6 @@
       "when": 1780579441024,
       "tag": "0002_open_bill_hollister",
       "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "5",
-      "when": 1781708556876,
-      "tag": "0003_masaiverse_event_categories",
-      "breakpoints": true
     }
   ]
 }

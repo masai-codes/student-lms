@@ -1,5 +1,5 @@
 import { relations } from "drizzle-orm/relations";
-import { users, accessLogs, adhocSessions, adhocSessionApprovers, adhocSessionBatches, batches, adhocSessionBlocks, blocks, adhocSessionSections, sections, adhocSessionUsers, adhocSessionBlueprints, lectures, aiChatPracticeQuestions, aiFeedback, aiPracticeQuestions, aiTutorSessions, announcements, attempts, answers, questions, applications, applicationComments, applicationHistories, positions, assignments, assignmentBlueprints, blueprints, assignmentBlueprintsProblems, problems, assignmentProblem, quizzes, attendances, badges, badgeConfigs, batchInfo, batchInfoStages, batchInfoApprovers, batchInfoHistory, batchInfoTemplates, batchInfoTemplateItems, meetings, batchParticipants, batchUser, blockDraftUnitMovements, draftUnitMovements, blockUnitMovementEmails, bookmarks, certificates, clubs, clubMembers, posts, clubPostBookmarks, tickets, comments, disbursalStatuses, discussions, unitMovementRules, payoutCycles, eeCycleRecords, externalEmployees, eeEngagementCosts, eeLeaveRequests, eeOnboardingForm, eePayoutHistories, eeSectionMapping, electives, electiveEntity, electiveProgress, electiveUser, electiveSection, emailNotificationLogs, events, eventEnrollments, companies, externalOffers, leads, feedbackBlueprints, feedback, feedbackQuestionBlueprints, feedbackQuestions, feedbackResponses, flags, flagQuery, queries, githubs, guardian, helpFaqs, instituteBatches, institutes, interactions, interactionMessages, interviews, topicObjectives, learningObjectives, lectureAiGeneratedContent, lectureBlueprints, sectionFeedbackBlueprints, lectureFeedback, lectureInteractions, lectureParticipants, lecturesAi, masaiverseBanners, messages, notes, notificationLogs, npsForms, npsQuestions, npsQuestionResponses, npsSubmissions, optInChoices, participantMetrics, participants, placementStatuses, placementTags, portfolioSubmissions, portfolioFeedback, portfolioStudentIas, positionParams, eligibilities, positionsHistories, practiceInterviews, practiceQuizResponses, practiceTestSubTopics, practiceTestQuestions, practiceTestQuestionsUsersAttempted, practiceTestTopics, problemLinks, profileVerifies, profiles, queryComments, questionQuiz, quizBlueprints, quizBlueprintsQuestions, rbacPermissions, rbacRolePermissions, rbacRoles, rbacUserRoles, replies, scenes, sectionUser, segments, solutions, submissions, studentAttendances, studentTagCategories, studentTagRelation, studentTagNames, studentTagTypes, tasks, teams, teamInvitations, threads, ticketTemplates, menus, unitMovementUserDetails, userBadges, userBatchAdmissionData, userBlockEmails, userCallbackTickets, userCertificates, userDeviceTokens, userDocuments, userGuardian, userRelation, userRelationHistory, userScenes, userSegments, videoAttendances, votes } from "./schema";
+import { users, accessLogs, adhocSessions, adhocSessionApprovers, adhocSessionBatches, batches, adhocSessionBlocks, blocks, adhocSessionSections, sections, adhocSessionUsers, adhocSessionBlueprints, lectures, aiChatPracticeQuestions, aiFeedback, aiPracticeQuestions, aiTutorSessions, announcements, announcementReads, attempts, answers, questions, applications, applicationComments, applicationHistories, positions, assessNpsForm, assessNpsSubmissions, assignments, assignmentBlueprints, blueprints, assignmentBlueprintsProblems, problems, assignmentProblem, quizzes, attendances, badges, badgeConfigs, batchInfo, batchInfoStages, batchInfoApprovers, batchInfoHistory, batchInfoTemplates, batchInfoTemplateItems, meetings, batchParticipants, batchUser, blockDraftUnitMovements, draftUnitMovements, blockUnitMovementEmails, bookmarks, certificateTemplates, certificateTemplateConfig, certificateUserRelation, certificatesBatchStudents, certificates, certificatesTemplateBatch, certificatesEmailTemplates, clubs, clubMembers, posts, clubPostBookmarks, tickets, comments, disbursalStatuses, discussions, unitMovementRules, payoutCycles, eeCycleRecords, externalEmployees, eeEngagementCosts, eeLeaveRequests, eeOnboardingForm, eePayoutHistories, eeSectionMapping, electives, electiveEntity, electiveProgress, electiveUser, electiveSection, emailNotificationLogs, events, eventEnrollments, companies, externalOffers, leads, feedbackBlueprints, feedback, feedbackQuestionBlueprints, feedbackQuestions, feedbackResponses, flags, flagQuery, queries, githubs, guardian, helpFaqs, instituteBatches, institutes, interactions, interactionMessages, interviews, topicObjectives, learningObjectives, lectureAiGeneratedContent, lectureBlueprints, sectionFeedbackBlueprints, lectureFeedback, lectureInteractions, lectureParticipants, lectureZoomChat, lecturesAi, masaiverseBanners, masaiverseLeaderboard, replies, messages, notes, notificationLogs, npsForms, npsQuestions, npsQuestionResponses, npsSubmissions, oldCertsDumpBatches, oldCertsDumpCertificates, optInChoices, participantMetrics, participants, placementStatuses, placementTags, portfolioSubmissions, portfolioFeedback, portfolioStudentIas, positionParams, eligibilities, positionsHistories, practiceInterviews, practiceQuizResponses, practiceTestSubTopics, practiceTestQuestions, practiceTestQuestionsUsersAttempted, practiceTestTopics, problemLinks, profileVerifies, profiles, queryComments, questionQuiz, quizBlueprints, quizBlueprintsQuestions, rbacPermissions, rbacRolePermissions, rbacRoles, rbacUserRoles, scenes, sectionUser, segments, solutions, submissions, studentAttendances, studentTagCategories, studentTagRelation, studentTagNames, studentTagTypes, tasks, teams, teamInvitations, threads, ticketTemplates, menus, unitMovementUserDetails, userBadges, userBatchAdmissionData, userBlockEmails, userCallbackTickets, userCertificates, userDeviceTokens, userDocuments, userGuardian, userRelation, userRelationHistory, userScenes, userSegments, videoAttendances, votes, zefMetaData, zefFeedbackRating, zefLo, zefPoll, zefQuiz } from "./schema";
 
 export const accessLogsRelations = relations(accessLogs, ({one}) => ({
 	user: one(users, {
@@ -17,10 +17,13 @@ export const usersRelations = relations(users, ({many}) => ({
 	aiFeedbacks: many(aiFeedback),
 	aiPracticeQuestions: many(aiPracticeQuestions),
 	aiTutorSessions: many(aiTutorSessions),
+	announcementReads: many(announcementReads),
 	announcements: many(announcements),
 	applicationComments: many(applicationComments),
 	applicationHistories: many(applicationHistories),
 	applications: many(applications),
+	assessNpsForms: many(assessNpsForm),
+	assessNpsSubmissions: many(assessNpsSubmissions),
 	assignmentBlueprints: many(assignmentBlueprints),
 	assignments: many(assignments),
 	attempts: many(attempts),
@@ -42,7 +45,26 @@ export const usersRelations = relations(users, ({many}) => ({
 	blockDraftUnitMovements: many(blockDraftUnitMovements),
 	blueprints: many(blueprints),
 	bookmarks: many(bookmarks),
+	certificateTemplates_createdBy: many(certificateTemplates, {
+		relationName: "certificateTemplates_createdBy_users_id"
+	}),
+	certificateTemplates_updatedBy: many(certificateTemplates, {
+		relationName: "certificateTemplates_updatedBy_users_id"
+	}),
+	certificateUserRelations: many(certificateUserRelation),
 	certificates: many(certificates),
+	certificatesEmailTemplates_createdBy: many(certificatesEmailTemplates, {
+		relationName: "certificatesEmailTemplates_createdBy_users_id"
+	}),
+	certificatesEmailTemplates_updatedBy: many(certificatesEmailTemplates, {
+		relationName: "certificatesEmailTemplates_updatedBy_users_id"
+	}),
+	certificatesTemplateBatches_createdBy: many(certificatesTemplateBatch, {
+		relationName: "certificatesTemplateBatch_createdBy_users_id"
+	}),
+	certificatesTemplateBatches_updatedBy: many(certificatesTemplateBatch, {
+		relationName: "certificatesTemplateBatch_updatedBy_users_id"
+	}),
 	clubMembers: many(clubMembers),
 	clubPostBookmarks: many(clubPostBookmarks),
 	clubs: many(clubs),
@@ -84,6 +106,7 @@ export const usersRelations = relations(users, ({many}) => ({
 	lectureFeedbacks: many(lectureFeedback),
 	lectureInteractions: many(lectureInteractions),
 	lectureParticipants: many(lectureParticipants),
+	lectureZoomChats: many(lectureZoomChat),
 	lectures_hostId: many(lectures, {
 		relationName: "lectures_hostId_users_id"
 	}),
@@ -95,6 +118,12 @@ export const usersRelations = relations(users, ({many}) => ({
 	}),
 	masaiverseBanners_lastEditedBy: many(masaiverseBanners, {
 		relationName: "masaiverseBanners_lastEditedBy_users_id"
+	}),
+	masaiverseLeaderboards_createdBy: many(masaiverseLeaderboard, {
+		relationName: "masaiverseLeaderboard_createdBy_users_id"
+	}),
+	masaiverseLeaderboards_userId: many(masaiverseLeaderboard, {
+		relationName: "masaiverseLeaderboard_userId_users_id"
 	}),
 	messages_authorId: many(messages, {
 		relationName: "messages_authorId_users_id"
@@ -257,6 +286,8 @@ export const adhocSessionBatchesRelations = relations(adhocSessionBatches, ({one
 export const batchesRelations = relations(batches, ({many}) => ({
 	adhocSessionBatches: many(adhocSessionBatches),
 	announcements: many(announcements),
+	assessNpsForms: many(assessNpsForm),
+	assessNpsSubmissions: many(assessNpsSubmissions),
 	assignments: many(assignments),
 	attendances: many(attendances),
 	badgeConfigs: many(badgeConfigs),
@@ -264,6 +295,7 @@ export const batchesRelations = relations(batches, ({many}) => ({
 	batchInfoHistories: many(batchInfoHistory),
 	batchInfoStages: many(batchInfoStages),
 	batchUsers: many(batchUser),
+	certificateUserRelations: many(certificateUserRelation),
 	eeSectionMappings: many(eeSectionMapping),
 	electiveSections: many(electiveSection),
 	flags: many(flags),
@@ -315,6 +347,8 @@ export const adhocSessionSectionsRelations = relations(adhocSessionSections, ({o
 export const sectionsRelations = relations(sections, ({one, many}) => ({
 	adhocSessionSections: many(adhocSessionSections),
 	announcements: many(announcements),
+	assessNpsForms: many(assessNpsForm),
+	assessNpsSubmissions: many(assessNpsSubmissions),
 	assignments: many(assignments),
 	attendances: many(attendances),
 	badgeConfigs: many(badgeConfigs),
@@ -399,6 +433,7 @@ export const lecturesRelations = relations(lectures, ({one, many}) => ({
 	lectureFeedbacks: many(lectureFeedback),
 	lectureInteractions: many(lectureInteractions),
 	lectureParticipants: many(lectureParticipants),
+	lectureZoomChats: many(lectureZoomChat),
 	batch: one(batches, {
 		fields: [lectures.batchId],
 		references: [batches.id]
@@ -426,6 +461,7 @@ export const lecturesRelations = relations(lectures, ({one, many}) => ({
 	scenes: many(scenes),
 	studentAttendances: many(studentAttendances),
 	videoAttendances: many(videoAttendances),
+	zefMetaData: many(zefMetaData),
 }));
 
 export const aiFeedbackRelations = relations(aiFeedback, ({one}) => ({
@@ -461,7 +497,19 @@ export const aiTutorSessionsRelations = relations(aiTutorSessions, ({one}) => ({
 	}),
 }));
 
-export const announcementsRelations = relations(announcements, ({one}) => ({
+export const announcementReadsRelations = relations(announcementReads, ({one}) => ({
+	announcement: one(announcements, {
+		fields: [announcementReads.announcementId],
+		references: [announcements.id]
+	}),
+	user: one(users, {
+		fields: [announcementReads.userId],
+		references: [users.id]
+	}),
+}));
+
+export const announcementsRelations = relations(announcements, ({one, many}) => ({
+	announcementReads: many(announcementReads),
 	batch: one(batches, {
 		fields: [announcements.batchId],
 		references: [batches.id]
@@ -561,6 +609,41 @@ export const positionsRelations = relations(positions, ({one, many}) => ({
 		references: [users.id]
 	}),
 	positionsHistories: many(positionsHistories),
+}));
+
+export const assessNpsFormRelations = relations(assessNpsForm, ({one, many}) => ({
+	batch: one(batches, {
+		fields: [assessNpsForm.batchId],
+		references: [batches.id]
+	}),
+	section: one(sections, {
+		fields: [assessNpsForm.sectionId],
+		references: [sections.id]
+	}),
+	user: one(users, {
+		fields: [assessNpsForm.userId],
+		references: [users.id]
+	}),
+	assessNpsSubmissions: many(assessNpsSubmissions),
+}));
+
+export const assessNpsSubmissionsRelations = relations(assessNpsSubmissions, ({one}) => ({
+	batch: one(batches, {
+		fields: [assessNpsSubmissions.batchId],
+		references: [batches.id]
+	}),
+	assessNpsForm: one(assessNpsForm, {
+		fields: [assessNpsSubmissions.npsFormId],
+		references: [assessNpsForm.id]
+	}),
+	section: one(sections, {
+		fields: [assessNpsSubmissions.sectionId],
+		references: [sections.id]
+	}),
+	user: one(users, {
+		fields: [assessNpsSubmissions.userId],
+		references: [users.id]
+	}),
 }));
 
 export const assignmentBlueprintsRelations = relations(assignmentBlueprints, ({one, many}) => ({
@@ -712,7 +795,7 @@ export const badgesRelations = relations(badges, ({many}) => ({
 	userBadges: many(userBadges),
 }));
 
-export const batchInfoRelations = relations(batchInfo, ({one}) => ({
+export const batchInfoRelations = relations(batchInfo, ({one, many}) => ({
 	batch: one(batches, {
 		fields: [batchInfo.batchId],
 		references: [batches.id]
@@ -721,6 +804,14 @@ export const batchInfoRelations = relations(batchInfo, ({one}) => ({
 		fields: [batchInfo.checkerId],
 		references: [users.id],
 		relationName: "batchInfo_checkerId_users_id"
+	}),
+	batchInfo: one(batchInfo, {
+		fields: [batchInfo.dependsOnItemId],
+		references: [batchInfo.id],
+		relationName: "batchInfo_dependsOnItemId_batchInfo_id"
+	}),
+	batchInfos: many(batchInfo, {
+		relationName: "batchInfo_dependsOnItemId_batchInfo_id"
 	}),
 	user_makerId: one(users, {
 		fields: [batchInfo.makerId],
@@ -764,10 +855,18 @@ export const batchInfoHistoryRelations = relations(batchInfoHistory, ({one}) => 
 	}),
 }));
 
-export const batchInfoTemplateItemsRelations = relations(batchInfoTemplateItems, ({one}) => ({
+export const batchInfoTemplateItemsRelations = relations(batchInfoTemplateItems, ({one, many}) => ({
 	batchInfoTemplate: one(batchInfoTemplates, {
 		fields: [batchInfoTemplateItems.batchInfoTemplateId],
 		references: [batchInfoTemplates.id]
+	}),
+	batchInfoTemplateItem: one(batchInfoTemplateItems, {
+		fields: [batchInfoTemplateItems.dependsOnTemplateItemId],
+		references: [batchInfoTemplateItems.id],
+		relationName: "batchInfoTemplateItems_dependsOnTemplateItemId_batchInfoTemplateItems_id"
+	}),
+	batchInfoTemplateItems: many(batchInfoTemplateItems, {
+		relationName: "batchInfoTemplateItems_dependsOnTemplateItemId_batchInfoTemplateItems_id"
 	}),
 }));
 
@@ -865,6 +964,51 @@ export const bookmarksRelations = relations(bookmarks, ({one}) => ({
 	}),
 }));
 
+export const certificateTemplateConfigRelations = relations(certificateTemplateConfig, ({one}) => ({
+	certificateTemplate: one(certificateTemplates, {
+		fields: [certificateTemplateConfig.templateId],
+		references: [certificateTemplates.id]
+	}),
+}));
+
+export const certificateTemplatesRelations = relations(certificateTemplates, ({one, many}) => ({
+	certificateTemplateConfigs: many(certificateTemplateConfig),
+	user_createdBy: one(users, {
+		fields: [certificateTemplates.createdBy],
+		references: [users.id],
+		relationName: "certificateTemplates_createdBy_users_id"
+	}),
+	user_updatedBy: one(users, {
+		fields: [certificateTemplates.updatedBy],
+		references: [users.id],
+		relationName: "certificateTemplates_updatedBy_users_id"
+	}),
+	certificatesTemplateBatches: many(certificatesTemplateBatch),
+}));
+
+export const certificateUserRelationRelations = relations(certificateUserRelation, ({one}) => ({
+	batch: one(batches, {
+		fields: [certificateUserRelation.batchId],
+		references: [batches.id]
+	}),
+	certificatesBatchStudent: one(certificatesBatchStudents, {
+		fields: [certificateUserRelation.certificateId],
+		references: [certificatesBatchStudents.id]
+	}),
+	user: one(users, {
+		fields: [certificateUserRelation.userId],
+		references: [users.id]
+	}),
+}));
+
+export const certificatesBatchStudentsRelations = relations(certificatesBatchStudents, ({one, many}) => ({
+	certificateUserRelations: many(certificateUserRelation),
+	certificatesTemplateBatch: one(certificatesTemplateBatch, {
+		fields: [certificatesBatchStudents.batchId],
+		references: [certificatesTemplateBatch.id]
+	}),
+}));
+
 export const certificatesRelations = relations(certificates, ({one}) => ({
 	section: one(sections, {
 		fields: [certificates.sectionId],
@@ -873,6 +1017,37 @@ export const certificatesRelations = relations(certificates, ({one}) => ({
 	user: one(users, {
 		fields: [certificates.userId],
 		references: [users.id]
+	}),
+}));
+
+export const certificatesTemplateBatchRelations = relations(certificatesTemplateBatch, ({one, many}) => ({
+	certificatesBatchStudents: many(certificatesBatchStudents),
+	user_createdBy: one(users, {
+		fields: [certificatesTemplateBatch.createdBy],
+		references: [users.id],
+		relationName: "certificatesTemplateBatch_createdBy_users_id"
+	}),
+	user_updatedBy: one(users, {
+		fields: [certificatesTemplateBatch.updatedBy],
+		references: [users.id],
+		relationName: "certificatesTemplateBatch_updatedBy_users_id"
+	}),
+	certificateTemplate: one(certificateTemplates, {
+		fields: [certificatesTemplateBatch.templateId],
+		references: [certificateTemplates.id]
+	}),
+}));
+
+export const certificatesEmailTemplatesRelations = relations(certificatesEmailTemplates, ({one}) => ({
+	user_createdBy: one(users, {
+		fields: [certificatesEmailTemplates.createdBy],
+		references: [users.id],
+		relationName: "certificatesEmailTemplates_createdBy_users_id"
+	}),
+	user_updatedBy: one(users, {
+		fields: [certificatesEmailTemplates.updatedBy],
+		references: [users.id],
+		relationName: "certificatesEmailTemplates_updatedBy_users_id"
 	}),
 }));
 
@@ -894,6 +1069,7 @@ export const clubsRelations = relations(clubs, ({one, many}) => ({
 		references: [users.id]
 	}),
 	events: many(events),
+	masaiverseLeaderboards: many(masaiverseLeaderboard),
 	posts: many(posts),
 }));
 
@@ -910,6 +1086,7 @@ export const clubPostBookmarksRelations = relations(clubPostBookmarks, ({one}) =
 
 export const postsRelations = relations(posts, ({one, many}) => ({
 	clubPostBookmarks: many(clubPostBookmarks),
+	masaiverseLeaderboards: many(masaiverseLeaderboard),
 	user_bannedBy: one(users, {
 		fields: [posts.bannedBy],
 		references: [users.id],
@@ -1182,6 +1359,7 @@ export const eventsRelations = relations(events, ({one, many}) => ({
 		fields: [events.createdBy],
 		references: [users.id]
 	}),
+	masaiverseLeaderboards: many(masaiverseLeaderboard),
 }));
 
 export const externalOffersRelations = relations(externalOffers, ({one}) => ({
@@ -1487,6 +1665,17 @@ export const lectureParticipantsRelations = relations(lectureParticipants, ({one
 	}),
 }));
 
+export const lectureZoomChatRelations = relations(lectureZoomChat, ({one}) => ({
+	user: one(users, {
+		fields: [lectureZoomChat.lastEditedBy],
+		references: [users.id]
+	}),
+	lecture: one(lectures, {
+		fields: [lectureZoomChat.lectureId],
+		references: [lectures.id]
+	}),
+}));
+
 export const lecturesAiRelations = relations(lecturesAi, ({one}) => ({
 	lecture: one(lectures, {
 		fields: [lecturesAi.lectureId],
@@ -1505,6 +1694,48 @@ export const masaiverseBannersRelations = relations(masaiverseBanners, ({one}) =
 		references: [users.id],
 		relationName: "masaiverseBanners_lastEditedBy_users_id"
 	}),
+}));
+
+export const masaiverseLeaderboardRelations = relations(masaiverseLeaderboard, ({one}) => ({
+	club: one(clubs, {
+		fields: [masaiverseLeaderboard.clubId],
+		references: [clubs.id]
+	}),
+	user_createdBy: one(users, {
+		fields: [masaiverseLeaderboard.createdBy],
+		references: [users.id],
+		relationName: "masaiverseLeaderboard_createdBy_users_id"
+	}),
+	event: one(events, {
+		fields: [masaiverseLeaderboard.eventId],
+		references: [events.id]
+	}),
+	post: one(posts, {
+		fields: [masaiverseLeaderboard.postId],
+		references: [posts.id]
+	}),
+	reply: one(replies, {
+		fields: [masaiverseLeaderboard.replyId],
+		references: [replies.id]
+	}),
+	user_userId: one(users, {
+		fields: [masaiverseLeaderboard.userId],
+		references: [users.id],
+		relationName: "masaiverseLeaderboard_userId_users_id"
+	}),
+}));
+
+export const repliesRelations = relations(replies, ({one, many}) => ({
+	masaiverseLeaderboards: many(masaiverseLeaderboard),
+	post: one(posts, {
+		fields: [replies.postId],
+		references: [posts.id]
+	}),
+	user: one(users, {
+		fields: [replies.userId],
+		references: [users.id]
+	}),
+	votes: many(votes),
 }));
 
 export const messagesRelations = relations(messages, ({one, many}) => ({
@@ -1588,6 +1819,17 @@ export const npsSubmissionsRelations = relations(npsSubmissions, ({one, many}) =
 		fields: [npsSubmissions.userId],
 		references: [users.id]
 	}),
+}));
+
+export const oldCertsDumpCertificatesRelations = relations(oldCertsDumpCertificates, ({one}) => ({
+	oldCertsDumpBatch: one(oldCertsDumpBatches, {
+		fields: [oldCertsDumpCertificates.batchId],
+		references: [oldCertsDumpBatches.id]
+	}),
+}));
+
+export const oldCertsDumpBatchesRelations = relations(oldCertsDumpBatches, ({many}) => ({
+	oldCertsDumpCertificates: many(oldCertsDumpCertificates),
 }));
 
 export const optInChoicesRelations = relations(optInChoices, ({one, many}) => ({
@@ -1863,18 +2105,6 @@ export const rbacUserRolesRelations = relations(rbacUserRoles, ({one}) => ({
 		references: [users.id],
 		relationName: "rbacUserRoles_userId_users_id"
 	}),
-}));
-
-export const repliesRelations = relations(replies, ({one, many}) => ({
-	post: one(posts, {
-		fields: [replies.postId],
-		references: [posts.id]
-	}),
-	user: one(users, {
-		fields: [replies.userId],
-		references: [users.id]
-	}),
-	votes: many(votes),
 }));
 
 export const scenesRelations = relations(scenes, ({one, many}) => ({
@@ -2241,5 +2471,44 @@ export const votesRelations = relations(votes, ({one}) => ({
 	user: one(users, {
 		fields: [votes.userId],
 		references: [users.id]
+	}),
+}));
+
+export const zefFeedbackRatingRelations = relations(zefFeedbackRating, ({one}) => ({
+	zefMetaDatum: one(zefMetaData, {
+		fields: [zefFeedbackRating.zefMetaDataId],
+		references: [zefMetaData.id]
+	}),
+}));
+
+export const zefMetaDataRelations = relations(zefMetaData, ({one, many}) => ({
+	zefFeedbackRatings: many(zefFeedbackRating),
+	zefLos: many(zefLo),
+	lecture: one(lectures, {
+		fields: [zefMetaData.lectureId],
+		references: [lectures.id]
+	}),
+	zefPolls: many(zefPoll),
+	zefQuizs: many(zefQuiz),
+}));
+
+export const zefLoRelations = relations(zefLo, ({one}) => ({
+	zefMetaDatum: one(zefMetaData, {
+		fields: [zefLo.zefMetaDataId],
+		references: [zefMetaData.id]
+	}),
+}));
+
+export const zefPollRelations = relations(zefPoll, ({one}) => ({
+	zefMetaDatum: one(zefMetaData, {
+		fields: [zefPoll.zefMetaDataId],
+		references: [zefMetaData.id]
+	}),
+}));
+
+export const zefQuizRelations = relations(zefQuiz, ({one}) => ({
+	zefMetaDatum: one(zefMetaData, {
+		fields: [zefQuiz.zefMetaDataId],
+		references: [zefMetaData.id]
 	}),
 }));

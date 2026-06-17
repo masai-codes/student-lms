@@ -214,6 +214,23 @@ export const algorithms = mysqlTable("algorithms", {
 	primaryKey({ columns: [table.id], name: "algorithms_id"}),
 ]);
 
+export const announcementReads = mysqlTable("announcement_reads", {
+	id: bigint({ mode: "number", unsigned: true }).autoincrement().notNull(),
+	announcementId: int("announcement_id", { unsigned: true }).notNull().references(() => announcements.id, { onDelete: "cascade" } ),
+	userId: bigint("user_id", { mode: "number", unsigned: true }).notNull().references(() => users.id, { onDelete: "cascade" } ),
+	readAt: datetime("read_at", { mode: 'string'}),
+	isUnread: tinyint("is_unread").default(0).notNull(),
+	createdAt: timestamp("created_at", { mode: 'string' }),
+	updatedAt: timestamp("updated_at", { mode: 'string' }),
+	meta: json(),
+	popupDisplay: tinyint("popup_display"),
+},
+(table) => [
+	index("announcement_reads_user_id_is_unread_index").on(table.userId, table.isUnread),
+	primaryKey({ columns: [table.id], name: "announcement_reads_id"}),
+	unique("announcement_reads_announcement_id_user_id_unique").on(table.announcementId, table.userId),
+]);
+
 export const announcements = mysqlTable("announcements", {
 	id: int({ unsigned: true }).autoincrement().notNull(),
 	subject: varchar({ length: 255 }).notNull(),
@@ -233,6 +250,11 @@ export const announcements = mysqlTable("announcements", {
 	deletedAt: timestamp("deleted_at", { mode: 'string' }),
 	createdAt: timestamp("created_at", { mode: 'string' }),
 	updatedAt: timestamp("updated_at", { mode: 'string' }),
+	trackRead: tinyint("track_read"),
+	ctaLink: varchar("cta_link", { length: 255 }),
+	ctaName: varchar("cta_name", { length: 255 }),
+	meta: json(),
+	showAsPopup: tinyint("show_as_popup").default(0).notNull(),
 },
 (table) => [
 	primaryKey({ columns: [table.id], name: "announcements_id"}),
@@ -276,6 +298,27 @@ export const appConfigs = mysqlTable("app_configs", {
 	index("app_configs_platform_index").on(table.platform),
 	primaryKey({ columns: [table.id], name: "app_configs_id"}),
 	unique("app_configs_appName_platform_unique").on(table.appName, table.platform),
+]);
+
+export const appFeatureConfigurations = mysqlTable("app_feature_configurations", {
+	id: bigint({ mode: "number", unsigned: true }).autoincrement().notNull(),
+	appName: varchar({ length: 100 }).notNull(),
+	featureKey: varchar({ length: 100 }).notNull(),
+	platform: mysqlEnum(['android','ios','web']),
+	enabled: tinyint().default(0).notNull(),
+	description: varchar({ length: 500 }),
+	rules: json(),
+	updatedByHistory: json("updated_by_history"),
+	createdAt: timestamp("created_at", { mode: 'string' }).defaultNow().notNull(),
+	updatedAt: timestamp("updated_at", { mode: 'string' }).notNull(),
+},
+(table) => [
+	index("app_feature_config_appName_index").on(table.appName),
+	index("app_feature_config_enabled_index").on(table.enabled),
+	index("app_feature_config_featureKey_index").on(table.featureKey),
+	index("app_feature_config_platform_index").on(table.platform),
+	primaryKey({ columns: [table.id], name: "app_feature_configurations_id"}),
+	unique("app_feature_config_app_feature_platform_unique").on(table.appName, table.featureKey, table.platform),
 ]);
 
 export const applicationComments = mysqlTable("application_comments", {
@@ -331,6 +374,51 @@ export const applications = mysqlTable("applications", {
 (table) => [
 	index("idx_status").on(table.status),
 	primaryKey({ columns: [table.id], name: "applications_id"}),
+]);
+
+export const assessNpsForm = mysqlTable("assess_nps_form", {
+	id: int({ unsigned: true }).autoincrement().notNull(),
+	title: varchar({ length: 255 }).notNull(),
+	description: text(),
+	userId: bigint("user_id", { mode: "number", unsigned: true }).notNull().references(() => users.id),
+	batchId: int("batch_id", { unsigned: true }).references(() => batches.id),
+	sectionId: int("section_id", { unsigned: true }).references(() => sections.id),
+	templateId: varchar("template_id", { length: 191 }),
+	startsAt: datetime("starts_at", { mode: 'string'}),
+	endsAt: datetime("ends_at", { mode: 'string'}),
+	allowMultipleAttempts: tinyint("allow_multiple_attempts").default(0).notNull(),
+	maxAttempts: int("max_attempts"),
+	settings: json(),
+	meta: json(),
+	logs: json(),
+	createdAt: timestamp("created_at", { mode: 'string' }).defaultNow().notNull(),
+	updatedAt: timestamp("updated_at", { mode: 'string' }).notNull(),
+	deletedAt: timestamp("deleted_at", { mode: 'string' }),
+	clientId: varchar("client_id", { length: 191 }),
+},
+(table) => [
+	primaryKey({ columns: [table.id], name: "assess_nps_form_id"}),
+]);
+
+export const assessNpsSubmissions = mysqlTable("assess_nps_submissions", {
+	id: int({ unsigned: true }).autoincrement().notNull(),
+	npsFormId: int("nps_form_id", { unsigned: true }).notNull().references(() => assessNpsForm.id, { onDelete: "cascade" } ),
+	userId: bigint("user_id", { mode: "number", unsigned: true }).notNull().references(() => users.id),
+	batchId: int("batch_id", { unsigned: true }).references(() => batches.id),
+	sectionId: int("section_id", { unsigned: true }).references(() => sections.id),
+	templateId: varchar("template_id", { length: 191 }),
+	assessLink: text("assess_link"),
+	assessCallback: text("assess_callback"),
+	startsAt: datetime("starts_at", { mode: 'string'}),
+	completedAt: datetime("completed_at", { mode: 'string'}),
+	meta: json(),
+	createdAt: timestamp("created_at", { mode: 'string' }).defaultNow().notNull(),
+	updatedAt: timestamp("updated_at", { mode: 'string' }).notNull(),
+	clientId: varchar("client_id", { length: 191 }),
+},
+(table) => [
+	primaryKey({ columns: [table.id], name: "assess_nps_submissions_id"}),
+	unique("assess_nps_submissions_form_user_unique").on(table.npsFormId, table.userId),
 ]);
 
 export const assignmentBlueprints = mysqlTable("assignment_blueprints", {
@@ -487,11 +575,11 @@ export const badgeConfigs = mysqlTable("badge_configs", {
 	lectureCriteria: mysqlEnum("lecture_criteria", ['none','mandatory','recommended','both']).default('none').notNull(),
 	lectureCriteriaPercentage: double("lecture_criteria_percentage"),
 	assignmentCriteria: mysqlEnum("assignment_criteria", ['none','mandatory','recommended','both']).default('none').notNull(),
+	assignmentTypesCriteria: json("assignment_types_criteria"),
 	assignmentSubmissionCriteriaPercentage: double("assignment_submission_criteria_percentage"),
 	assignmentScoreCriteriaPercentage: double("assignment_score_criteria_percentage"),
 	createdAt: timestamp("created_at", { mode: 'string' }),
 	updatedAt: timestamp("updated_at", { mode: 'string' }),
-	assignmentTypesCriteria: json("assignment_types_criteria"),
 },
 (table) => [
 	primaryKey({ columns: [table.id], name: "badge_configs_id"}),
@@ -502,12 +590,12 @@ export const badges = mysqlTable("badges", {
 	id: int({ unsigned: true }).autoincrement().notNull(),
 	title: varchar({ length: 255 }).notNull(),
 	description: text().notNull(),
+	lockedBadgeDescription: text("locked_badge_description"),
+	theme: varchar({ length: 255 }),
 	image: varchar({ length: 2048 }).notNull(),
 	linkedinShareText: text("linkedin_share_text"),
 	createdAt: timestamp("created_at", { mode: 'string' }),
 	updatedAt: timestamp("updated_at", { mode: 'string' }),
-	lockedBadgeDescription: text("locked_badge_description"),
-	theme: varchar({ length: 255 }),
 },
 (table) => [
 	primaryKey({ columns: [table.id], name: "badges_id"}),
@@ -516,8 +604,8 @@ export const badges = mysqlTable("badges", {
 export const banners = mysqlTable("banners", {
 	id: int({ unsigned: true }).autoincrement().notNull(),
 	type: varchar({ length: 100 }).notNull(),
-	variant: varchar({ length: 100 }).notNull(),
-	groupName: varchar("group_name", { length: 150 }).notNull(),
+	variant: varchar({ length: 100 }),
+	groupName: varchar("group_name", { length: 150 }),
 	title: varchar({ length: 255 }).notNull(),
 	description: text().notNull(),
 	imageUrl: varchar("image_url", { length: 500 }).notNull(),
@@ -557,14 +645,25 @@ export const batchInfo = mysqlTable("batch_info", {
 	team: varchar({ length: 50 }),
 	stageId: bigint("stage_id", { mode: "number", unsigned: true }).notNull().references(() => batchInfoStages.id, { onDelete: "cascade" } ),
 	description: text(),
+	labels: json(),
+	groupLabel: varchar("group_label", { length: 255 }),
+	dependsOnItemId: bigint("depends_on_item_id", { mode: "number", unsigned: true }),
+	dependsOnValue: varchar("depends_on_value", { length: 100 }),
+	showDependentItems: varchar("show_dependent_items", { length: 10 }).default('true').notNull(),
 },
 (table) => [
 	index("batch_info_batch_id_idx").on(table.batchId),
 	index("batch_info_checker_id_idx").on(table.checkerId),
+	index("batch_info_depends_on_item_id_idx").on(table.dependsOnItemId),
 	index("batch_info_maker_id_idx").on(table.makerId),
 	index("batch_info_stage_id_idx").on(table.stageId),
 	index("batch_info_status_idx").on(table.status),
 	index("batch_info_type_idx").on(table.type),
+	foreignKey({
+			columns: [table.dependsOnItemId],
+			foreignColumns: [table.id],
+			name: "batch_info_depends_on_item_id_foreign"
+		}).onDelete("set null"),
 	primaryKey({ columns: [table.id], name: "batch_info_id"}),
 ]);
 
@@ -633,10 +732,21 @@ export const batchInfoTemplateItems = mysqlTable("batch_info_template_items", {
 	updatedAt: timestamp("updated_at", { mode: 'string' }).notNull(),
 	description: text(),
 	team: varchar({ length: 50 }),
+	labels: json(),
+	groupLabel: varchar("group_label", { length: 255 }),
+	dependsOnTemplateItemId: bigint("depends_on_template_item_id", { mode: "number", unsigned: true }),
+	dependsOnValue: varchar("depends_on_value", { length: 100 }),
+	showDependentItems: varchar("show_dependent_items", { length: 10 }).default('true').notNull(),
 },
 (table) => [
 	index("batch_info_template_items_batch_info_template_id_idx").on(table.batchInfoTemplateId),
+	index("batch_info_template_items_depends_on_template_item_id_idx").on(table.dependsOnTemplateItemId),
 	index("batch_info_template_items_type_idx").on(table.type),
+	foreignKey({
+			columns: [table.dependsOnTemplateItemId],
+			foreignColumns: [table.id],
+			name: "batch_info_template_items_depends_on_template_item_id_foreign"
+		}).onDelete("set null"),
 	primaryKey({ columns: [table.id], name: "batch_info_template_items_id"}),
 ]);
 
@@ -900,6 +1010,61 @@ export const bountyPrograms = mysqlTable("bounty_programs", {
 	unique("bounty_programs_username_unique").on(table.username),
 ]);
 
+export const certificateTemplateConfig = mysqlTable("certificate_template_config", {
+	id: int({ unsigned: true }).autoincrement().notNull(),
+	templateId: int("template_id", { unsigned: true }).notNull().references(() => certificateTemplates.id),
+	fields: json().notNull(),
+	qrCode: json("qr_code").notNull(),
+	certificateId: json("certificate_id").notNull(),
+	createdAt: timestamp("created_at", { mode: 'string' }),
+	updatedAt: timestamp("updated_at", { mode: 'string' }),
+},
+(table) => [
+	index("certificate_template_config_template_id_index").on(table.templateId),
+	primaryKey({ columns: [table.id], name: "certificate_template_config_id"}),
+]);
+
+export const certificateTemplates = mysqlTable("certificate_templates", {
+	id: int({ unsigned: true }).autoincrement().notNull(),
+	name: varchar({ length: 255 }).notNull(),
+	s3ObjectId: varchar("s3_object_id", { length: 500 }).notNull(),
+	fileName: varchar("file_name", { length: 255 }),
+	mimeType: varchar("mime_type", { length: 100 }),
+	status: varchar({ length: 50 }).default('active').notNull(),
+	meta: json(),
+	createdBy: bigint("created_by", { mode: "number", unsigned: true }).notNull().references(() => users.id),
+	updatedBy: bigint("updated_by", { mode: "number", unsigned: true }).references(() => users.id),
+	deletedAt: timestamp("deleted_at", { mode: 'string' }),
+	createdAt: timestamp("created_at", { mode: 'string' }),
+	updatedAt: timestamp("updated_at", { mode: 'string' }),
+},
+(table) => [
+	index("certificate_templates_created_by_index").on(table.createdBy),
+	index("certificate_templates_name_index").on(table.name),
+	index("certificate_templates_s3_object_id_index").on(table.s3ObjectId),
+	index("certificate_templates_status_index").on(table.status),
+	index("certificate_templates_updated_by_index").on(table.updatedBy),
+	primaryKey({ columns: [table.id], name: "certificate_templates_id"}),
+]);
+
+export const certificateUserRelation = mysqlTable("certificate_user_relation", {
+	id: int({ unsigned: true }).autoincrement().notNull(),
+	certificateId: int("certificate_id", { unsigned: true }).notNull().references(() => certificatesBatchStudents.id),
+	userId: bigint("user_id", { mode: "number", unsigned: true }).notNull().references(() => users.id),
+	batchId: int("batch_id", { unsigned: true }).notNull().references(() => batches.id),
+	meta: json(),
+	deletedAt: timestamp("deleted_at", { mode: 'string' }),
+	createdAt: timestamp("created_at", { mode: 'string' }),
+	updatedAt: timestamp("updated_at", { mode: 'string' }),
+},
+(table) => [
+	index("certificate_user_relation_batch_id_index").on(table.batchId),
+	index("certificate_user_relation_certificate_id_index").on(table.certificateId),
+	index("certificate_user_relation_user_id_index").on(table.userId),
+	primaryKey({ columns: [table.id], name: "certificate_user_relation_id"}),
+	unique("certificate_user_relation_unique").on(table.certificateId, table.userId, table.batchId),
+]);
+
 export const certificates = mysqlTable("certificates", {
 	id: int({ unsigned: true }).autoincrement().notNull(),
 	type: varchar({ length: 255 }).notNull(),
@@ -912,12 +1077,68 @@ export const certificates = mysqlTable("certificates", {
 	primaryKey({ columns: [table.id], name: "certificates_id"}),
 ]);
 
+export const certificatesBatchStudents = mysqlTable("certificates_batch_students", {
+	id: int({ unsigned: true }).autoincrement().notNull(),
+	batchId: int("batch_id", { unsigned: true }).notNull().references(() => certificatesTemplateBatch.id),
+	studentData: json("student_data").notNull(),
+	certificateObjectId: varchar("certificate_object_id", { length: 500 }),
+	meta: json(),
+	createdAt: timestamp("created_at", { mode: 'string' }),
+	updatedAt: timestamp("updated_at", { mode: 'string' }),
+},
+(table) => [
+	index("certificates_batch_students_batch_id_index").on(table.batchId),
+	primaryKey({ columns: [table.id], name: "certificates_batch_students_id"}),
+	unique("certificates_batch_students_certificate_object_id_unique").on(table.certificateObjectId),
+]);
+
+export const certificatesEmailTemplates = mysqlTable("certificates_email_templates", {
+	id: int({ unsigned: true }).autoincrement().notNull(),
+	templateName: varchar("template_name", { length: 255 }).notNull(),
+	description: varchar({ length: 255 }),
+	emailSubject: varchar("email_subject", { length: 255 }).notNull(),
+	emailBody: longtext("email_body").notNull(),
+	variables: json(),
+	status: varchar({ length: 50 }).default('active').notNull(),
+	meta: json(),
+	createdBy: bigint("created_by", { mode: "number", unsigned: true }).notNull().references(() => users.id),
+	updatedBy: bigint("updated_by", { mode: "number", unsigned: true }).references(() => users.id),
+	deletedAt: timestamp("deleted_at", { mode: 'string' }),
+	createdAt: timestamp("created_at", { mode: 'string' }),
+	updatedAt: timestamp("updated_at", { mode: 'string' }),
+},
+(table) => [
+	index("certificates_email_templates_created_by_index").on(table.createdBy),
+	index("certificates_email_templates_status_index").on(table.status),
+	index("certificates_email_templates_template_name_index").on(table.templateName),
+	index("certificates_email_templates_updated_by_index").on(table.updatedBy),
+	primaryKey({ columns: [table.id], name: "certificates_email_templates_id"}),
+]);
+
+export const certificatesTemplateBatch = mysqlTable("certificates_template_batch", {
+	id: int({ unsigned: true }).autoincrement().notNull(),
+	templateId: int("template_id", { unsigned: true }).notNull().references(() => certificateTemplates.id),
+	batchName: varchar("batch_name", { length: 255 }).notNull(),
+	meta: json().notNull(),
+	createdBy: bigint("created_by", { mode: "number", unsigned: true }).notNull().references(() => users.id),
+	updatedBy: bigint("updated_by", { mode: "number", unsigned: true }).references(() => users.id),
+	deletedAt: timestamp("deleted_at", { mode: 'string' }),
+	createdAt: timestamp("created_at", { mode: 'string' }),
+	updatedAt: timestamp("updated_at", { mode: 'string' }),
+},
+(table) => [
+	index("certificates_template_batch_created_by_index").on(table.createdBy),
+	index("certificates_template_batch_template_id_index").on(table.templateId),
+	primaryKey({ columns: [table.id], name: "certificates_template_batch_id"}),
+]);
+
 export const clubMembers = mysqlTable("club_members", {
 	id: bigint({ mode: "number", unsigned: true }).autoincrement().notNull(),
 	userId: bigint("user_id", { mode: "number", unsigned: true }).notNull().references(() => users.id, { onDelete: "cascade" } ),
 	clubId: bigint("club_id", { mode: "number", unsigned: true }).notNull().references(() => clubs.id, { onDelete: "cascade" } ),
 	role: varchar({ length: 50 }).default('member').notNull(),
 	joinedAt: timestamp("joined_at", { mode: 'string' }).defaultNow().notNull(),
+	meta: json(),
 },
 (table) => [
 	index("club_members_club_id_index").on(table.clubId),
@@ -1136,7 +1357,6 @@ export const eeOnboardingForm = mysqlTable("ee_onboarding_form", {
 	status: mysqlEnum(['Pending','Approved','Rejected']).default('Pending').notNull(),
 	name: varchar({ length: 255 }).notNull(),
 	address: text().notNull(),
-	marketingWebsiteAcknowledgement: tinyint("marketing_website_acknowledgement").default(0).notNull(),
 	contactNumber: varchar("contact_number", { length: 15 }).notNull(),
 	panNumber: char("pan_number", { length: 10 }).notNull(),
 	panDocumentUrl: varchar("pan_document_url", { length: 2048 }).notNull(),
@@ -1160,6 +1380,7 @@ export const eeOnboardingForm = mysqlTable("ee_onboarding_form", {
 	techStacks: text("tech_stacks"),
 	createdAt: timestamp("created_at", { mode: 'string' }).defaultNow().notNull(),
 	updatedAt: timestamp("updated_at", { mode: 'string' }).notNull(),
+	marketingWebsiteAcknowledgement: tinyint("marketing_website_acknowledgement").default(0).notNull(),
 },
 (table) => [
 	index("ee_onboarding_form_ee_id_index").on(table.eeId),
@@ -1324,10 +1545,13 @@ export const emailNotificationLogs = mysqlTable("email_notification_logs", {
 	errorMessage: text("error_message"),
 	createdAt: timestamp("created_at", { mode: 'string' }).defaultNow().notNull(),
 	updatedAt: timestamp("updated_at", { mode: 'string' }).notNull(),
+	openedAt: timestamp("opened_at", { mode: 'string' }),
+	sesMessageId: varchar("ses_message_id", { length: 255 }),
 },
 (table) => [
 	index("email_notification_logs_created_at_index").on(table.createdAt),
 	index("email_notification_logs_entity_index").on(table.entityId, table.notificationType),
+	index("email_notification_logs_ses_message_id_index").on(table.sesMessageId),
 	index("email_notification_logs_status_index").on(table.status),
 	index("email_notification_logs_user_id_index").on(table.userId),
 	primaryKey({ columns: [table.id], name: "email_notification_logs_id"}),
@@ -1339,6 +1563,7 @@ export const eventEnrollments = mysqlTable("event_enrollments", {
 	userId: bigint("user_id", { mode: "number", unsigned: true }).notNull().references(() => users.id, { onDelete: "cascade" } ),
 	eventId: bigint("event_id", { mode: "number", unsigned: true }).notNull().references(() => events.id, { onDelete: "cascade" } ),
 	enrolledAt: timestamp("enrolled_at", { mode: 'string' }).defaultNow().notNull(),
+	meta: json(),
 },
 (table) => [
 	index("event_enrollments_event_id_index").on(table.eventId),
@@ -1351,7 +1576,8 @@ export const events = mysqlTable("events", {
 	clubId: bigint("club_id", { mode: "number", unsigned: true }).references(() => clubs.id, { onDelete: "cascade" } ),
 	title: varchar({ length: 255 }).notNull(),
 	description: text(),
-	category: mysqlEnum(['hackathon','meetup','webinar']),
+	imageLink: text("image_link"),
+	category: varchar({ length: 255 }),
 	mode: mysqlEnum(['online','offline']),
 	locationTitle: varchar("location_title", { length: 255 }),
 	locationMapLink: text("location_map_link"),
@@ -1363,7 +1589,6 @@ export const events = mysqlTable("events", {
 	createdBy: bigint("created_by", { mode: "number", unsigned: true }).references(() => users.id),
 	createdAt: timestamp("created_at", { mode: 'string' }).defaultNow().notNull(),
 	updatedAt: timestamp("updated_at", { mode: 'string' }).notNull(),
-	imageLink: text("image_link"),
 },
 (table) => [
 	index("events_club_id_index").on(table.clubId),
@@ -1389,19 +1614,19 @@ export const externalEmployees = mysqlTable("external_employees", {
 	agreementText: text("agreement_text"),
 	defaultPayType: varchar("default_pay_type", { length: 50 }),
 	defaultPayRate: decimal("default_pay_rate", { precision: 10, scale: 2 }),
-	contactDuration: varchar("contact_duration", { length: 100 }),
-	specializations: json(),
-	photoUrl: varchar("photo_url", { length: 2048 }),
-	position: varchar({ length: 255 }),
-	university: varchar({ length: 255 }),
-	linkedinUrl: varchar("linkedin_url", { length: 2048 }),
-	description: text(),
 	defaultWeeklyHours: int("default_weekly_hours", { unsigned: true }),
 	defaultMonthlyHours: int("default_monthly_hours", { unsigned: true }),
 	meta: json(),
 	createdAt: timestamp("created_at", { mode: 'string' }).defaultNow().notNull(),
 	updatedAt: timestamp("updated_at", { mode: 'string' }).notNull(),
 	deletedAt: timestamp("deleted_at", { mode: 'string' }),
+	contactDuration: varchar("contact_duration", { length: 100 }),
+	description: text(),
+	linkedinUrl: varchar("linkedin_url", { length: 2048 }),
+	photoUrl: varchar("photo_url", { length: 2048 }),
+	position: varchar({ length: 255 }),
+	specializations: json(),
+	university: varchar({ length: 255 }),
 },
 (table) => [
 	index("external_employees_contract_end_date_index").on(table.contractEndDate),
@@ -1876,6 +2101,21 @@ export const lectureParticipants = mysqlTable("lecture_participants", {
 	primaryKey({ columns: [table.id], name: "lecture_participants_id"}),
 ]);
 
+export const lectureZoomChat = mysqlTable("lecture_zoom_chat", {
+	id: bigint({ mode: "number", unsigned: true }).autoincrement().notNull(),
+	lectureId: int("lecture_id", { unsigned: true }).notNull().references(() => lectures.id),
+	meetingId: varchar("meeting_id", { length: 255 }),
+	originalChat: json("original_chat").notNull(),
+	finalChat: json("final_chat").notNull(),
+	lastEditedBy: bigint("last_edited_by", { mode: "number", unsigned: true }).references(() => users.id),
+	createdAt: timestamp("created_at", { mode: 'string' }).defaultNow().notNull(),
+	updatedAt: timestamp("updated_at", { mode: 'string' }).notNull(),
+},
+(table) => [
+	primaryKey({ columns: [table.id], name: "lecture_zoom_chat_id"}),
+	unique("lecture_zoom_chat_lecture_id_unique").on(table.lectureId),
+]);
+
 export const lectures = mysqlTable("lectures", {
 	id: int({ unsigned: true }).autoincrement().notNull(),
 	title: varchar({ length: 255 }).notNull(),
@@ -2001,6 +2241,30 @@ export const masaiverseBanners = mysqlTable("masaiverse_banners", {
 	primaryKey({ columns: [table.id], name: "masaiverse_banners_id"}),
 ]);
 
+export const masaiverseLeaderboard = mysqlTable("masaiverse_leaderboard", {
+	id: bigint({ mode: "number", unsigned: true }).autoincrement().notNull(),
+	userId: bigint("user_id", { mode: "number", unsigned: true }).notNull().references(() => users.id, { onDelete: "cascade" } ),
+	createdBy: bigint("created_by", { mode: "number", unsigned: true }).references(() => users.id, { onDelete: "set null" } ),
+	reason: varchar({ length: 50 }).notNull(),
+	points: int().notNull(),
+	clubId: bigint("club_id", { mode: "number", unsigned: true }).references(() => clubs.id, { onDelete: "set null" } ),
+	postId: bigint("post_id", { mode: "number", unsigned: true }).references(() => posts.id, { onDelete: "set null" } ),
+	replyId: bigint("reply_id", { mode: "number", unsigned: true }).references(() => replies.id, { onDelete: "set null" } ),
+	eventId: bigint("event_id", { mode: "number", unsigned: true }).references(() => events.id, { onDelete: "set null" } ),
+	meta: json(),
+	createdAt: timestamp("created_at", { mode: 'string' }).defaultNow().notNull(),
+},
+(table) => [
+	index("masaiverse_leaderboard_club_id_index").on(table.clubId),
+	index("masaiverse_leaderboard_created_by_index").on(table.createdBy),
+	index("masaiverse_leaderboard_event_id_index").on(table.eventId),
+	index("masaiverse_leaderboard_post_id_index").on(table.postId),
+	index("masaiverse_leaderboard_reason_index").on(table.reason),
+	index("masaiverse_leaderboard_reply_id_index").on(table.replyId),
+	index("masaiverse_leaderboard_user_id_index").on(table.userId),
+	primaryKey({ columns: [table.id], name: "masaiverse_leaderboard_id"}),
+]);
+
 export const media = mysqlTable("media", {
 	id: int({ unsigned: true }).autoincrement().notNull(),
 	location: varchar({ length: 255 }),
@@ -2075,6 +2339,11 @@ export const messages = mysqlTable("messages", {
 	deletedAt: timestamp("deleted_at", { mode: 'string' }),
 	createdAt: timestamp("created_at", { mode: 'string' }),
 	updatedAt: timestamp("updated_at", { mode: 'string' }),
+	concludes: datetime({ mode: 'string'}),
+	schedule: datetime({ mode: 'string'}),
+	ctaLink: varchar("cta_link", { length: 255 }),
+	ctaName: varchar("cta_name", { length: 255 }),
+	showAsPopup: tinyint("show_as_popup").default(0).notNull(),
 },
 (table) => [
 	foreignKey({
@@ -2225,6 +2494,40 @@ export const npsSubmissions = mysqlTable("nps_submissions", {
 	unique("nps_submissions_nps_form_id_user_id_attempt_number_unique").on(table.npsFormId, table.userId, table.attemptNumber),
 ]);
 
+export const oldCertsDumpBatches = mysqlTable("old_certs_dump_batches", {
+	id: int({ unsigned: true }).autoincrement().notNull(),
+	batchCode: varchar("batch_code", { length: 255 }),
+	name: varchar({ length: 255 }).notNull(),
+	templateId: char("template_id", { length: 36 }),
+	// you can use { mode: 'date' }, if you want to have Date as type for this column
+	issuedOn: date("issued_on", { mode: 'string' }),
+	createdAt: datetime("created_at", { mode: 'string'}),
+	visibleVerificationFields: json("visible_verification_fields"),
+},
+(table) => [
+	primaryKey({ columns: [table.id], name: "old_certs_dump_batches_id"}),
+	unique("old_certs_dump_batches_batch_code_key").on(table.batchCode),
+]);
+
+export const oldCertsDumpCertificates = mysqlTable("old_certs_dump_certificates", {
+	id: int({ unsigned: true }).autoincrement().notNull(),
+	certificateId: varchar("certificate_id", { length: 255 }).notNull(),
+	batchId: int("batch_id", { unsigned: true }).references(() => oldCertsDumpBatches.id, { onDelete: "set null", onUpdate: "cascade" } ),
+	email: varchar({ length: 255 }).notNull(),
+	name: varchar({ length: 255 }),
+	data: json(),
+	filePath: varchar("file_path", { length: 255 }),
+	signatureStatus: varchar("signature_status", { length: 10 }),
+	signedAt: datetime("signed_at", { mode: 'string'}),
+	createdAt: datetime("created_at", { mode: 'string'}),
+},
+(table) => [
+	index("old_certs_dump_certificates_batch_id_idx").on(table.batchId),
+	index("old_certs_dump_certificates_certificate_id_idx").on(table.certificateId),
+	primaryKey({ columns: [table.id], name: "old_certs_dump_certificates_id"}),
+	unique("old_certs_dump_certificates_certificate_id_key").on(table.certificateId),
+]);
+
 export const onboardingCallSummaries = mysqlTable("onboarding_call_summaries", {
 	id: bigint({ mode: "number", unsigned: true }).autoincrement().notNull(),
 	userId: bigint("user_id", { mode: "number", unsigned: true }),
@@ -2246,6 +2549,8 @@ export const onboardingCallSummaries = mysqlTable("onboarding_call_summaries", {
 	createdAt: timestamp("created_at", { mode: 'string' }).defaultNow().notNull(),
 	updatedAt: timestamp("updated_at", { mode: 'string' }).notNull(),
 	meta: json(),
+	adminComment: text("admin_comment"),
+	adminStatus: varchar("admin_status", { length: 50 }).default('pending').notNull(),
 },
 (table) => [
 	index("onboarding_call_summaries_call_id_index").on(table.callId),
@@ -2287,6 +2592,23 @@ export const optInChoices = mysqlTable("opt_in_choices", {
 },
 (table) => [
 	primaryKey({ columns: [table.id], name: "opt_in_choices_id"}),
+]);
+
+export const otpCodes = mysqlTable("otp_codes", {
+	id: bigint({ mode: "number", unsigned: true }).autoincrement().notNull(),
+	sessionId: varchar("session_id", { length: 36 }).notNull(),
+	identifier: varchar({ length: 255 }).notNull(),
+	channel: varchar({ length: 20 }).notNull(),
+	otpHash: varchar("otp_hash", { length: 255 }).notNull(),
+	expiresAt: datetime("expires_at", { mode: 'string', fsp: 3 }).notNull(),
+	attempts: int().default(0).notNull(),
+	usedAt: datetime("used_at", { mode: 'string', fsp: 3 }),
+	createdAt: datetime("created_at", { mode: 'string', fsp: 3 }).default(sql`(CURRENT_TIMESTAMP(3))`).notNull(),
+},
+(table) => [
+	index("otp_codes_identifier_idx").on(table.identifier),
+	primaryKey({ columns: [table.id], name: "otp_codes_id"}),
+	unique("otp_codes_session_id_key").on(table.sessionId),
 ]);
 
 export const pages = mysqlTable("pages", {
@@ -2553,7 +2875,7 @@ export const positionsHistories = mysqlTable("positions_histories", {
 
 export const posts = mysqlTable("posts", {
 	id: bigint({ mode: "number", unsigned: true }).autoincrement().notNull(),
-	clubId: bigint("club_id", { mode: "number", unsigned: true }).notNull().references(() => clubs.id, { onDelete: "cascade" } ),
+	clubId: bigint("club_id", { mode: "number", unsigned: true }).references(() => clubs.id, { onDelete: "cascade" } ),
 	userId: bigint("user_id", { mode: "number", unsigned: true }).notNull().references(() => users.id),
 	title: text(),
 	content: text(),
@@ -2562,12 +2884,31 @@ export const posts = mysqlTable("posts", {
 	bannedBy: bigint("banned_by", { mode: "number", unsigned: true }).references(() => users.id, { onDelete: "set null" } ),
 	bannedDate: timestamp("banned_date", { mode: 'string' }),
 	isBanned: tinyint("is_banned").default(0).notNull(),
+	meta: json(),
 },
 (table) => [
 	index("posts_banned_by_index").on(table.bannedBy),
 	index("posts_club_id_index").on(table.clubId),
 	index("posts_user_id_index").on(table.userId),
 	primaryKey({ columns: [table.id], name: "posts_id"}),
+]);
+
+export const practiceInterviewTemplates = mysqlTable("practice_interview_templates", {
+	id: int({ unsigned: true }).autoincrement().notNull(),
+	title: varchar({ length: 255 }).notNull(),
+	duration: int({ unsigned: true }).notNull(),
+	difficultyLevel: mysqlEnum("difficulty_level", ['easy','medium','hard']).notNull(),
+	subCategory: varchar("sub_category", { length: 255 }).notNull(),
+	category: varchar({ length: 100 }).notNull(),
+	aiInterviewId: varchar("ai_interview_id", { length: 255 }).notNull(),
+	createdAt: timestamp("created_at", { mode: 'string' }),
+	updatedAt: timestamp("updated_at", { mode: 'string' }),
+},
+(table) => [
+	index("pit_category_index").on(table.category),
+	index("pit_created_at_index").on(table.createdAt),
+	index("pit_difficulty_level_index").on(table.difficultyLevel),
+	primaryKey({ columns: [table.id], name: "practice_interview_templates_id"}),
 ]);
 
 export const practiceInterviews = mysqlTable("practice_interviews", {
@@ -2656,6 +2997,23 @@ export const practiceTestTopics = mysqlTable("practice_test_topics", {
 },
 (table) => [
 	primaryKey({ columns: [table.id], name: "practice_test_topics_id"}),
+]);
+
+export const prepaidAgreements = mysqlTable("prepaid_agreements", {
+	id: bigint({ mode: "number", unsigned: true }).autoincrement().notNull(),
+	batchId: int("batch_id").notNull(),
+	sourceS3Link: varchar("source_s3_link", { length: 1024 }).notNull(),
+	generatedDocxUrl: varchar("generated_docx_url", { length: 1024 }).notNull(),
+	filename: varchar({ length: 255 }),
+	mimeType: varchar("mime_type", { length: 255 }),
+	sizeBytes: int("size_bytes"),
+	report: json(),
+	createdAt: timestamp("created_at", { mode: 'string' }).defaultNow().notNull(),
+	updatedAt: timestamp("updated_at", { mode: 'string' }).notNull(),
+},
+(table) => [
+	index("idx_prepaid_agreements_batch_created_at").on(table.batchId, table.createdAt),
+	primaryKey({ columns: [table.id], name: "prepaid_agreements_id"}),
 ]);
 
 export const problemLinks = mysqlTable("problem_links", {
@@ -2756,6 +3114,7 @@ export const profiles = mysqlTable("profiles", {
 	haveAcceptedLegalAggrement: tinyint(),
 	haveClosedModal: int({ unsigned: true }),
 	legalData: json("legal_data"),
+	slackId: varchar("slack_id", { length: 255 }),
 },
 (table) => [
 	primaryKey({ columns: [table.id], name: "profiles_id"}),
@@ -3553,6 +3912,8 @@ export const userCertificates = mysqlTable("user_certificates", {
 	certificateType: varchar("certificate_type", { length: 250 }).notNull(),
 	createdAt: timestamp("created_at", { mode: 'string' }).defaultNow().notNull(),
 	updatedAt: timestamp("updated_at", { mode: 'string' }).notNull(),
+	meta: json(),
+	shareText: text("share_text"),
 },
 (table) => [
 	index("idx_batch_id").on(table.batchId),
@@ -3688,10 +4049,13 @@ export const users = mysqlTable("users", {
 	lastActiveAt: timestamp("last_active_at", { mode: 'string' }),
 	statusTime: datetime("status_time", { mode: 'string'}),
 	meta: json(),
+	client: varchar({ length: 20 }).default('masai').notNull(),
 },
 (table) => [
+	index("idx_client").on(table.client),
 	index("idx_name").on(table.name),
 	primaryKey({ columns: [table.id], name: "users_id"}),
+	unique("users_email_client_unique").on(table.email, table.client),
 	unique("users_email_unique").on(table.email),
 	unique("users_username_unique").on(table.username),
 ]);
@@ -3718,6 +4082,23 @@ export const usersCourse = mysqlTable("users_course", {
 	statusTime: datetime("status_time", { mode: 'string'}),
 	meta: json(),
 });
+
+export const viPptLogs = mysqlTable("vi_ppt_logs", {
+	id: bigint({ mode: "number", unsigned: true }).autoincrement().notNull(),
+	batchId: int("batch_id").notNull(),
+	sourceS3Link: varchar("source_s3_link", { length: 1024 }).notNull(),
+	generatedPptxUrl: varchar("generated_pptx_url", { length: 1024 }).notNull(),
+	filename: varchar({ length: 255 }),
+	mimeType: varchar("mime_type", { length: 255 }),
+	sizeBytes: int("size_bytes"),
+	report: json(),
+	createdAt: timestamp("created_at", { mode: 'string' }).defaultNow().notNull(),
+	updatedAt: timestamp("updated_at", { mode: 'string' }).notNull(),
+},
+(table) => [
+	index("idx_virtual_inaugural_ppts_batch_created_at").on(table.batchId, table.createdAt),
+	primaryKey({ columns: [table.id], name: "vi_ppt_logs_id"}),
+]);
 
 export const videoAttendances = mysqlTable("video_attendances", {
 	id: int({ unsigned: true }).autoincrement().notNull(),
@@ -3768,4 +4149,94 @@ export const whatsnew = mysqlTable("whatsnew", {
 },
 (table) => [
 	primaryKey({ columns: [table.id], name: "whatsnew_id"}),
+]);
+
+export const zefFeedbackRating = mysqlTable("zef_feedback_rating", {
+	id: int({ unsigned: true }).autoincrement().notNull(),
+	zefMetaDataId: int("zef_meta_data_id", { unsigned: true }).notNull().references(() => zefMetaData.id, { onDelete: "cascade" } ),
+	zefId: varchar("zef_id", { length: 100 }).notNull(),
+	zefUserId: varchar("zef_user_id", { length: 100 }).notNull(),
+	rating: tinyint({ unsigned: true }).notNull(),
+	message: text(),
+	followupTags: json("followup_tags"),
+	submittedAt: timestamp("submitted_at", { mode: 'string' }),
+	createdAt: timestamp("created_at", { mode: 'string' }).defaultNow(),
+	updatedAt: timestamp("updated_at", { mode: 'string' }),
+},
+(table) => [
+	index("zef_feedback_rating_rating_index").on(table.rating),
+	index("zef_feedback_rating_zef_meta_data_id_index").on(table.zefMetaDataId),
+	index("zef_feedback_rating_zef_user_id_index").on(table.zefUserId),
+	primaryKey({ columns: [table.id], name: "zef_feedback_rating_id"}),
+	unique("zef_feedback_rating_meta_zef_id_unique").on(table.zefMetaDataId, table.zefId),
+]);
+
+export const zefLo = mysqlTable("zef_lo", {
+	id: int({ unsigned: true }).autoincrement().notNull(),
+	zefMetaDataId: int("zef_meta_data_id", { unsigned: true }).notNull().references(() => zefMetaData.id, { onDelete: "cascade" } ),
+	zefId: varchar("zef_id", { length: 100 }).notNull(),
+	text: text().notNull(),
+	isCompleted: tinyint("is_completed").default(0).notNull(),
+	lastUpdatedAt: timestamp("last_updated_at", { mode: 'string' }),
+	createdAt: timestamp("created_at", { mode: 'string' }).defaultNow(),
+	updatedAt: timestamp("updated_at", { mode: 'string' }),
+},
+(table) => [
+	index("zef_lo_zef_meta_data_id_index").on(table.zefMetaDataId),
+	primaryKey({ columns: [table.id], name: "zef_lo_id"}),
+	unique("zef_lo_meta_zef_id_unique").on(table.zefMetaDataId, table.zefId),
+]);
+
+export const zefMetaData = mysqlTable("zef_meta_data", {
+	id: int({ unsigned: true }).autoincrement().notNull(),
+	lectureId: int("lecture_id", { unsigned: true }).notNull().references(() => lectures.id),
+	title: varchar({ length: 255 }).notNull(),
+	date: datetime({ mode: 'string'}),
+	adminName: varchar("admin_name", { length: 255 }),
+	adminEmail: varchar("admin_email", { length: 255 }).notNull(),
+	participantsCount: int("participants_count", { unsigned: true }).default(0).notNull(),
+	fetchedAt: timestamp("fetched_at", { mode: 'string' }),
+	createdAt: timestamp("created_at", { mode: 'string' }).defaultNow(),
+	updatedAt: timestamp("updated_at", { mode: 'string' }),
+},
+(table) => [
+	index("zef_meta_data_admin_email_index").on(table.adminEmail),
+	index("zef_meta_data_lecture_id_index").on(table.lectureId),
+	primaryKey({ columns: [table.id], name: "zef_meta_data_id"}),
+	unique("zef_meta_data_lecture_id_key").on(table.lectureId),
+]);
+
+export const zefPoll = mysqlTable("zef_poll", {
+	id: int({ unsigned: true }).autoincrement().notNull(),
+	zefMetaDataId: int("zef_meta_data_id", { unsigned: true }).notNull().references(() => zefMetaData.id, { onDelete: "cascade" } ),
+	zefId: varchar("zef_id", { length: 100 }).notNull(),
+	question: text(),
+	launchedAt: timestamp("launched_at", { mode: 'string' }),
+	attempted: int({ unsigned: true }),
+	totalParticipants: int("total_participants", { unsigned: true }),
+	createdAt: timestamp("created_at", { mode: 'string' }).defaultNow(),
+	updatedAt: timestamp("updated_at", { mode: 'string' }),
+},
+(table) => [
+	index("zef_poll_zef_meta_data_id_index").on(table.zefMetaDataId),
+	primaryKey({ columns: [table.id], name: "zef_poll_id"}),
+	unique("zef_poll_meta_zef_id_unique").on(table.zefMetaDataId, table.zefId),
+]);
+
+export const zefQuiz = mysqlTable("zef_quiz", {
+	id: int({ unsigned: true }).autoincrement().notNull(),
+	zefMetaDataId: int("zef_meta_data_id", { unsigned: true }).notNull().references(() => zefMetaData.id, { onDelete: "cascade" } ),
+	zefId: varchar("zef_id", { length: 100 }).notNull(),
+	question: text().notNull(),
+	launchedAt: timestamp("launched_at", { mode: 'string' }),
+	attempted: int({ unsigned: true }).default(0).notNull(),
+	correct: int({ unsigned: true }).default(0).notNull(),
+	totalParticipants: int("total_participants", { unsigned: true }).default(0).notNull(),
+	createdAt: timestamp("created_at", { mode: 'string' }).defaultNow(),
+	updatedAt: timestamp("updated_at", { mode: 'string' }),
+},
+(table) => [
+	index("zef_quiz_zef_meta_data_id_index").on(table.zefMetaDataId),
+	primaryKey({ columns: [table.id], name: "zef_quiz_id"}),
+	unique("zef_quiz_meta_zef_id_unique").on(table.zefMetaDataId, table.zefId),
 ]);
