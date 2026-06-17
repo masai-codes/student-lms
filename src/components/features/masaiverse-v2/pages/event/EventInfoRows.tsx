@@ -49,14 +49,14 @@ export default function EventInfoRows({
   )
   const isOffline = event.mode === 'offline'
 
+  // Online events show the platform (e.g. "Google Meet") as the title; offline
+  // events show their location. We never surface a secondary line — no
+  // fabricated copy, and never the stale `platform` value drafts leave on
+  // offline events.
   const placeTitle = isOffline
     ? (event.locationTitle ?? 'In-person event')
     : (event.platform ?? 'Online event')
-  const placeSubtitle = isOffline
-    ? (event.platform ?? null)
-    : event.platform
-      ? 'Link shared after you register'
-      : null
+  const placeSubtitle = null
 
   return (
     <div className="flex flex-col gap-3.5">
