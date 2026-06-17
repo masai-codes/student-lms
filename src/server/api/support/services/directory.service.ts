@@ -13,14 +13,14 @@
 
 import { and, desc, eq, inArray, isNull } from 'drizzle-orm'
 import type {
+  OneOnOneBatchGroup,
   OneOnOneSection,
   SupportBatch,
   SupportCoordinator,
   SupportGateReason,
 } from '@/server/api/support/support.types'
 import { db } from '@/db'
-import { batches, sectionUser, sections, users } from '@/db/schema'
-import { checkAgreementRequired } from '@/server/api/dashboard/getDashboardActionBanners.service'
+import { batches, profiles, sectionUser, sections, users } from '@/db/schema'
 
 /**
  * The student's batches — **derived from their section enrollments**, exactly
@@ -71,11 +71,78 @@ export async function getUserSupportBatches(
     }))
 }
 
+/** True if a configured agreement sub-key (heading + pdfUrl, not hidden) exists. */
+function hasConfiguredAgreement(agreements: Record<string, any>): boolean {
+  return Object.entries(agreements).some(([key, val]) => {
+    if (key === 'shouldModalBeVisible') return false
+    const e = val as Record<string, any> | null
+    return (
+      !!e &&
+      typeof e.heading === 'string' && e.heading.trim() !== '' &&
+      typeof e.pdfUrl === 'string' && e.pdfUrl.trim() !== '' &&
+      e.hidePolicy !== true && e.hidePolicy !== 'true'
+    )
+  })
+}
+
+/**
+ * Whether a mandatory agreement currently **blocks** ticket creation — faithful
+ * to the legacy `getLegalAgreementData` + support gate:
+ *
+ *   blocked ⇔ some active section with a configured, modal-enabled agreement
+ *             where the modal is **non-closable** and **not accepted**, i.e.
+ *             `viewTime` exists AND `daysSinceFirstView >= 7` AND not accepted.
+ *
+ * Crucially it does NOT block during the 7-day grace window (or before first
+ * view) — which is why most students never see "Access Restricted".
+ */
+async function isLegalAgreementBlocking(userId: number): Promise<boolean> {
+  const rows = await db
+    .select({ sectionId: sections.id, settings: sections.settings })
+    .from(sectionUser)
+    .innerJoin(sections, eq(sections.id, sectionUser.sectionId))
+    .where(
+      and(
+        eq(sectionUser.userId, userId),
+        eq(sections.active, 1),
+        isNull(sectionUser.deletedAt),
+      ),
+    )
+
+  const enabled = rows.filter((r) => {
+    const s = (r.settings as Record<string, any> | null) ?? {}
+    const agreements = (s.agreements ?? {}) as Record<string, any>
+    return agreements.shouldModalBeVisible === true && hasConfiguredAgreement(agreements)
+  })
+  if (enabled.length === 0) return false
+
+  const profileRows = await db
+    .select({ legalData: profiles.legalData })
+    .from(profiles)
+    .where(eq(profiles.userId, userId))
+    .limit(1)
+
+  const legalData = ((profileRows.length > 0 ? profileRows[0].legalData : null) ??
+    {}) as Record<string, any>
+  const agreementsBySection = (legalData.agreements ?? {}) as Record<string, any>
+  const nowMs = Date.now()
+
+  return enabled.some((sec) => {
+    const data = (agreementsBySection[`section_${sec.sectionId}`] ?? {}) as Record<string, any>
+    if (data.haveAcceptedLegalAgreement === true) return false
+    if (!data.viewTime) return false // not yet viewed → modal still closable → not blocking
+    const daysSince = Math.floor((nowMs - new Date(data.viewTime).getTime()) / 86_400_000)
+    const isModalClosable = daysSince < 7
+    return !isModalClosable // blocked only once the 7-day window has passed
+  })
+}
+
 /**
  * Decide whether ticket creation is blocked, in legacy precedence order:
- *   1. **legal-agreement** — the student has a mandatory, unsigned agreement
- *      (reuses the dashboard's `checkAgreementRequired`, so the rule stays in one
- *      place and matches the agreement banner shown elsewhere).
+ *   1. **legal-agreement** — a mandatory agreement modal has become
+ *      non-closable (7+ days since first view) and isn't accepted (see
+ *      {@link isLegalAgreementBlocking}). Does NOT trigger during the grace
+ *      window — matching the original.
  *   2. **no-active-section** — no active, non-deleted section in the batch
  *      (mirrors the legacy `getSectionsForTicket` gate).
  */
@@ -83,9 +150,7 @@ export async function getSupportGate(input: {
   userId: number
   batchId: number
 }): Promise<SupportGateReason> {
-  // 1) Mandatory unsigned agreement blocks everything (same as the dashboard).
-  const pendingAgreements = await checkAgreementRequired(input.userId)
-  if (pendingAgreements.length > 0) return 'legal-agreement'
+  if (await isLegalAgreementBlocking(input.userId)) return 'legal-agreement'
 
   const activeSections = await db
     .select({ id: sectionUser.id })
@@ -105,19 +170,26 @@ export async function getSupportGate(input: {
   return activeSections.length === 0 ? 'no-active-section' : null
 }
 
+/** Normalise a pp link: trim and prepend https:// when no protocol present. */
+function normalizePpLink(value: unknown): string | null {
+  const trimmed = typeof value === 'string' ? value.trim() : ''
+  if (!trimmed) return null
+  return /^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`
+}
+
 /**
- * The student's 1:1 ("pair programming") sections, mirroring the legacy
- * `getSectionDetailsOfUser`:
- *   - one entry per **active** section the student is in that has
- *     `settings.show_pp === true` **and** a non-empty `settings.ppLink`;
- *   - each carries its IA (the section_user `manager_id`), EC and PC
- *     (the section's `role='ec'`/`'pc'` holders).
+ * The student's 1:1 ("pair programming") support, **grouped by batch** — the
+ * legacy layout (batches → sections) with a booking link at both levels:
+ *   - batch level: `batches.meta.ppLink`
+ *   - section level: `sections.settings.ppLink` (only for active sections with
+ *     `show_pp === true`), plus IA (`section_user.manager_id`) + EC/PC
+ *     (`role='ec'/'pc'`).
  *
- * Returns `[]` when none qualify — the UI then hides the 1:1 tab.
+ * Returns `[]` when no section qualifies — the UI then hides the 1:1 tab.
  */
-export async function getOneOnOneSections(
+export async function getOneOnOneGroups(
   userId: number,
-): Promise<Array<OneOnOneSection>> {
+): Promise<Array<OneOnOneBatchGroup>> {
   // 1) The student's active sections + their pp settings + IA (manager_id).
   const myRows = await db
     .select({
@@ -179,7 +251,8 @@ export async function getOneOnOneSections(
     : []
   const iaById = new Map(iaRows.map((u) => [u.id, u]))
 
-  return enabled.map((sec) => {
+  // Build a section entry (with coordinators) for each qualifying section.
+  const sectionEntries = enabled.map((sec) => {
     const coordinators: Array<SupportCoordinator> = []
 
     const ia = sec.managerId != null ? iaById.get(sec.managerId) : undefined
@@ -195,14 +268,39 @@ export async function getOneOnOneSections(
       })
     }
 
-    return {
+    const entry: OneOnOneSection = {
       sectionId: sec.sectionId,
       sectionName: sec.sectionName,
-      batchId: sec.batchId,
-      ppLink: sec.ppLink,
+      ppLink: normalizePpLink(sec.ppLink) ?? sec.ppLink,
       coordinators,
     }
+    return { batchId: sec.batchId, entry }
   })
+
+  // 4) Batch names + batch-level pp link (batches.meta.ppLink).
+  const batchIds = [...new Set(sectionEntries.map((s) => s.batchId))]
+  const batchRows = await db
+    .select({ id: batches.id, name: batches.name, meta: batches.meta })
+    .from(batches)
+    .where(inArray(batches.id, batchIds))
+  const batchById = new Map(batchRows.map((b) => [b.id, b]))
+
+  // 5) Group sections by batch.
+  const groups = new Map<number, OneOnOneBatchGroup>()
+  for (const { batchId, entry } of sectionEntries) {
+    if (!groups.has(batchId)) {
+      const b = batchById.get(batchId)
+      groups.set(batchId, {
+        batchId,
+        batchName: b?.name ?? `Batch ${batchId}`,
+        batchPpLink: normalizePpLink(b?.meta?.ppLink),
+        sections: [],
+      })
+    }
+    groups.get(batchId)!.sections.push(entry)
+  }
+
+  return Array.from(groups.values())
 }
 
 /** Support contact line + phone for a batch (from `batches.settings`). */

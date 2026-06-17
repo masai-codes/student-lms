@@ -1,14 +1,16 @@
 /**
  * PairProgrammingTab — the "1:1 Support" tab.
  *
- * Lists each pp-enabled section (from `getOneOnOneSections`) with its IA / EC /
- * PC and a "Book a 1:1 session" link (the section's `ppLink`). The tab itself is
- * shown by the parent only when at least one such section exists.
+ * Faithful to the legacy layout: **batches → sections**, with a "Book a 1:1
+ * session" link at **both** the batch level (`batchPpLink`) and each section
+ * level (`section.ppLink`), and each section listing its IA / EC / PC. Shown by
+ * the parent only when at least one qualifying section exists.
  */
 
 import { CalendarCheck } from '@phosphor-icons/react'
 
 import type {
+  OneOnOneBatchGroup,
   OneOnOneSection,
   SupportCoordinator,
 } from '@/server/api/support/support.types'
@@ -19,8 +21,50 @@ const KIND_LABEL: Record<SupportCoordinator['kind'], string> = {
   PC: 'Program Coordinator',
 }
 
-export function PairProgrammingTab({ sections }: { sections: Array<OneOnOneSection> }) {
-  if (sections.length === 0) {
+function BookButton({ href, label }: { href: string; label: string }) {
+  return (
+    <a
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-[#242C3C] px-3 py-2 font-poppins text-[13px] font-semibold text-white transition-colors hover:bg-[#1B2130]"
+    >
+      <CalendarCheck className="size-4" />
+      {label}
+    </a>
+  )
+}
+
+function SectionRow({ section }: { section: OneOnOneSection }) {
+  return (
+    <div className="rounded-xl border border-gray-200 bg-white p-3">
+      <div className="mb-2 flex items-center justify-between gap-3">
+        <h4 className="font-poppins text-[13px] font-semibold text-[#1F2A37]">
+          {section.sectionName}
+        </h4>
+        <BookButton href={section.ppLink} label="Book 1:1" />
+      </div>
+      {section.coordinators.length > 0 && (
+        <div className="flex flex-wrap gap-x-5 gap-y-2">
+          {section.coordinators.map((c) => (
+            <div key={`${section.sectionId}-${c.kind}-${c.id}`} className="flex items-center gap-2">
+              <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-[#EBF5FF] font-poppins text-[11px] font-semibold text-[#6962AC]">
+                {c.name.slice(0, 2).toUpperCase()}
+              </div>
+              <div className="min-w-0">
+                <p className="truncate font-poppins text-[12px] font-medium text-[#1F2A37]">{c.name}</p>
+                <p className="font-poppins text-[11px] text-gray-500">{KIND_LABEL[c.kind]}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
+export function PairProgrammingTab({ groups }: { groups: Array<OneOnOneBatchGroup> }) {
+  if (groups.length === 0) {
     return (
       <div className="rounded-xl border border-gray-200 bg-white p-5">
         <p className="font-poppins text-sm text-gray-700">
@@ -31,39 +75,27 @@ export function PairProgrammingTab({ sections }: { sections: Array<OneOnOneSecti
   }
 
   return (
-    <div className="space-y-4">
-      {sections.map((section) => (
-        <div key={section.sectionId} className="rounded-xl border border-gray-200 bg-white p-4">
+    <div className="space-y-5">
+      {groups.map((group) => (
+        <div
+          key={group.batchId ?? 'unknown'}
+          className="rounded-xl border border-gray-200 bg-[#F9FAFB] p-4"
+        >
+          {/* Batch header + batch-level 1:1 link */}
           <div className="mb-3 flex items-center justify-between gap-3">
-            <h3 className="font-poppins text-[14px] font-semibold text-gray-900">
-              {section.sectionName}
-            </h3>
-            <a
-              href={section.ppLink}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-[#242C3C] px-3 py-2 font-poppins text-[13px] font-semibold text-white transition-colors hover:bg-[#1B2130]"
-            >
-              <CalendarCheck className="size-4" />
-              Book a 1:1 session
-            </a>
+            <div>
+              <p className="font-poppins text-[11px] uppercase tracking-wide text-gray-500">Batch</p>
+              <h3 className="font-poppins text-[15px] font-semibold text-gray-900">{group.batchName}</h3>
+            </div>
+            {group.batchPpLink && <BookButton href={group.batchPpLink} label="Book 1:1 (Batch)" />}
           </div>
 
-          {section.coordinators.length > 0 && (
-            <div className="space-y-2">
-              {section.coordinators.map((c) => (
-                <div key={`${section.sectionId}-${c.kind}-${c.id}`} className="flex items-center gap-3">
-                  <div className="flex size-9 shrink-0 items-center justify-center rounded-full bg-[#EBF5FF] font-poppins text-[12px] font-semibold text-[#6962AC]">
-                    {c.name.slice(0, 2).toUpperCase()}
-                  </div>
-                  <div className="min-w-0">
-                    <p className="truncate font-poppins text-[13px] font-medium text-[#1F2A37]">{c.name}</p>
-                    <p className="font-poppins text-[11px] text-gray-500">{KIND_LABEL[c.kind]}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
+          {/* Sections within the batch */}
+          <div className="space-y-3">
+            {group.sections.map((section) => (
+              <SectionRow key={section.sectionId} section={section} />
+            ))}
+          </div>
         </div>
       ))}
     </div>

@@ -35,7 +35,9 @@ export function BatchTickets() {
   const [helpSearchQuery, setHelpSearchQuery] = useState('')
 
   // Callback flow modals
-  const [callbackStep, setCallbackStep] = useState<'reason' | 'timeslot' | 'success' | null>(null)
+  const [callbackStep, setCallbackStep] = useState<
+    'reason' | 'timeslot' | 'success' | null
+  >(null)
   const [selectedReason, setSelectedReason] = useState<string | null>(null)
   const [selectedTimeslot, setSelectedTimeslot] = useState<string | null>(null)
 
@@ -62,7 +64,9 @@ export function BatchTickets() {
     () => [
       { label: 'Help', value: 'help' },
       { label: 'Raised Tickets', value: 'support-tickets' },
-      ...(hasOneOnOne ? [{ label: '1:1 Support', value: 'pair-programming' }] : []),
+      ...(hasOneOnOne
+        ? [{ label: '1:1 Support', value: 'pair-programming' }]
+        : []),
     ],
     [hasOneOnOne],
   )
@@ -97,7 +101,9 @@ export function BatchTickets() {
     return cats
       .map((c) => {
         if (c.label.toLowerCase().includes(q)) return c
-        const subs = c.subcategories.filter((s) => s.label.toLowerCase().includes(q))
+        const subs = c.subcategories.filter((s) =>
+          s.label.toLowerCase().includes(q),
+        )
         return subs.length ? { ...c, subcategories: subs } : null
       })
       .filter((c): c is SupportCategory => c !== null)
@@ -142,7 +148,9 @@ export function BatchTickets() {
 
   const contact = overview?.contact
   const showContact = Boolean(contact?.text || contact?.phone)
-  const showCallbackButton = Boolean(effectiveBatchId && (overview?.callback.reasons.length ?? 0) > 0)
+  const showCallbackButton = Boolean(
+    effectiveBatchId && (overview?.callback.reasons.length ?? 0) > 0,
+  )
   // The modal stays mounted across create → details (after creating, the step
   // flips to 'ticketdetails' and the same modal shows the new conversation).
   const isTicketModalOpen =
@@ -184,7 +192,10 @@ export function BatchTickets() {
                     {contact?.phone && (
                       <span className="whitespace-nowrap">
                         {contact.text ? ': ' : ''}
-                        <a href={`tel:${contact.phone}`} className="font-semibold text-[#2b67d1] hover:underline">
+                        <a
+                          href={`tel:${contact.phone}`}
+                          className="font-semibold text-[#2b67d1] hover:underline"
+                        >
                           {contact.phone}
                         </a>
                       </span>
@@ -204,7 +215,10 @@ export function BatchTickets() {
                   }}
                   className="shrink-0 rounded-lg border border-gray-300 bg-white py-2 px-3 font-poppins text-[12px] font-semibold text-gray-800 transition-colors hover:bg-gray-50 sm:text-[13px]"
                 >
-                  <Phone className="mr-1.5 inline-block h-3.5 w-3.5" aria-hidden />
+                  <Phone
+                    className="mr-1.5 inline-block h-3.5 w-3.5"
+                    aria-hidden
+                  />
                   Request a Callback
                 </button>
               </div>
@@ -214,16 +228,20 @@ export function BatchTickets() {
           {/* Tab body */}
           <div
             className={`relative z-0 min-h-[320px] bg-white border border-gray-200 ${
-              activeTab === 'support-tickets' ? 'rounded-xl' : 'rounded-b-xl rounded-tr-xl sm:rounded-tl-xl'
+              activeTab === 'support-tickets'
+                ? 'rounded-xl'
+                : 'rounded-b-xl rounded-tr-xl sm:rounded-tl-xl'
             }`}
           >
             {activeTab === 'support-tickets' ? (
               <div className="p-4 md:p-6">
-                <TicketListingPage batchId={effectiveBatchId ?? String(batches[0]?.id ?? '')} />
+                <TicketListingPage
+                  batchId={effectiveBatchId ?? String(batches[0]?.id ?? '')}
+                />
               </div>
             ) : activeTab === 'pair-programming' ? (
               <div className="p-4 md:p-6">
-                <PairProgrammingTab sections={overview?.oneOnOne ?? []} />
+                <PairProgrammingTab groups={overview?.oneOnOne ?? []} />
               </div>
             ) : (
               <HelpTab
@@ -238,7 +256,8 @@ export function BatchTickets() {
                 /* Multi-batch users can return to the batch picker. */
                 canChangeBatch={batches.length > 1 && Boolean(selectedBatchId)}
                 activeBatchName={
-                  batches.find((b) => String(b.id) === effectiveBatchId)?.name ?? null
+                  batches.find((b) => String(b.id) === effectiveBatchId)
+                    ?.name ?? null
                 }
                 onChangeBatch={() => {
                   setSelectedBatchId(null)
@@ -260,7 +279,9 @@ export function BatchTickets() {
                 expandedItem={expandedItem}
                 setExpandedItem={setExpandedItem}
                 onSubcategoryClick={openCreate}
-                onFallbackCreate={() => openCreate('fallback-no-poc-mapped', 'General')}
+                onFallbackCreate={() =>
+                  openCreate('fallback-no-poc-mapped', 'General')
+                }
               />
             )}
 
@@ -339,9 +360,22 @@ function HelpTab(props: {
   const SearchBar = (
     <div className="border-b border-gray-200 bg-white px-4 py-4 md:px-6 md:py-5">
       <div className="relative">
-        <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" aria-hidden>
-          <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+        <span
+          className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+          aria-hidden
+        >
+          <svg
+            className="h-5 w-5"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+            />
           </svg>
         </span>
         <input
@@ -362,7 +396,10 @@ function HelpTab(props: {
       {canChangeBatch && effectiveBatchId && (
         <div className="flex items-center justify-between gap-3 border-b border-gray-200 bg-white px-4 py-3 md:px-6">
           <p className="font-poppins text-[13px] text-gray-700">
-            Batch: <span className="font-semibold text-gray-900">{activeBatchName}</span>
+            Batch:{' '}
+            <span className="font-semibold text-gray-900">
+              {activeBatchName}
+            </span>
           </p>
           <button
             type="button"
@@ -379,10 +416,13 @@ function HelpTab(props: {
           <div className="flex items-center gap-3">
             <div className="text-[#ED0331] text-lg">⚠️</div>
             <div>
-              <h4 className="text-[#ED0331] font-semibold text-lg">Access Restricted</h4>
+              <h4 className="text-[#ED0331] font-semibold text-lg">
+                Access Restricted
+              </h4>
               <p className="text-[#ED0331] text-sm mt-1">
-                Your LMS access has been paused as the Terms &amp; Conditions for your program have not yet been
-                accepted. Once you complete this step, your access will be restored immediately.
+                Your LMS access has been paused as the Terms &amp; Conditions
+                for your program have not yet been accepted. Once you complete
+                this step, your access will be restored immediately.
               </p>
             </div>
           </div>
@@ -394,10 +434,12 @@ function HelpTab(props: {
           <div className="flex items-center gap-3">
             <div className="text-amber-600 text-lg">⚠️</div>
             <div>
-              <h4 className="text-amber-900 font-semibold text-[15px]">No active section yet</h4>
+              <h4 className="text-amber-900 font-semibold text-[15px]">
+                No active section yet
+              </h4>
               <p className="text-amber-800 text-sm mt-1">
-                You’ll be able to raise tickets once you’re placed in an active section. You can still browse topics
-                below.
+                You’ll be able to raise tickets once you’re placed in an active
+                section. You can still browse topics below.
               </p>
             </div>
           </div>
@@ -415,7 +457,9 @@ function HelpTab(props: {
               className="w-full rounded-2xl border border-gray-200 bg-white p-4 text-left shadow-sm hover:shadow-md transition-shadow focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
             >
               <div className="text-xs text-gray-500 mb-1">Batch</div>
-              <div className="text-sm font-semibold text-gray-900 truncate">{batch.name || `Batch ${batch.id}`}</div>
+              <div className="text-sm font-semibold text-gray-900 truncate">
+                {batch.name || `Batch ${batch.id}`}
+              </div>
             </button>
           ))}
         </div>
@@ -424,7 +468,9 @@ function HelpTab(props: {
       {effectiveBatchId &&
         (isLoading ? (
           <div className="mt-10 flex justify-center">
-            <p className="font-poppins text-sm text-gray-500">Loading categories…</p>
+            <p className="font-poppins text-sm text-gray-500">
+              Loading categories…
+            </p>
           </div>
         ) : visibleCategories.length > 0 ? (
           <div>
@@ -446,8 +492,11 @@ function HelpTab(props: {
             ) : (
               <div className="mt-6 flex flex-col gap-4 px-4 py-6 md:flex-row md:items-center md:justify-between md:px-6">
                 <p className="text-[11px] md:text-sm text-gray-800 max-w-2xl leading-relaxed">
-                  <span className="font-semibold">Have doubts about your program?</span> Click on{' '}
-                  <span className="font-semibold">Create Ticket</span> and our support team will assist you shortly.
+                  <span className="font-semibold">
+                    Have doubts about your program?
+                  </span>{' '}
+                  Click on <span className="font-semibold">Create Ticket</span>{' '}
+                  and our support team will assist you shortly.
                 </p>
                 <button
                   type="button"
@@ -475,18 +524,32 @@ function CallbackFlow(props: {
   onPickReason: (r: string) => void
   onPickTimeslot: (t: string) => void
 }) {
-  const { step, reasons, timeslots, selectedTimeslot, onClose, onPickReason, onPickTimeslot } = props
+  const {
+    step,
+    reasons,
+    timeslots,
+    selectedTimeslot,
+    onClose,
+    onPickReason,
+    onPickTimeslot,
+  } = props
 
   if (step === 'success') {
     return (
       <>
-        <div className="fixed inset-0 z-[202] bg-black/30" aria-hidden onClick={onClose} />
+        <div
+          className="fixed inset-0 z-[202] bg-black/30"
+          aria-hidden
+          onClick={onClose}
+        />
         <div className="fixed left-1/2 top-1/2 z-[203] w-[90vw] max-w-[500px] -translate-x-1/2 -translate-y-1/2 rounded-2xl bg-white p-6 shadow-xl">
           <div className="flex flex-col items-center text-center pt-2 pb-1">
             <div className="w-14 h-14 rounded-full bg-[#D1FAE5] border-2 border-[#10B981] flex items-center justify-center mb-4 text-2xl">
               ✓
             </div>
-            <h2 className="text-xl font-bold font-poppins text-gray-900 mb-3">Callback Requested Successfully</h2>
+            <h2 className="text-xl font-bold font-poppins text-gray-900 mb-3">
+              Callback Requested Successfully
+            </h2>
             <p className="text-sm font-poppins text-gray-600 leading-relaxed mb-6 max-w-[320px]">
               {selectedTimeslot
                 ? `Our team will reach out to you within 48 hours during ${selectedTimeslot}.`
@@ -507,14 +570,22 @@ function CallbackFlow(props: {
 
   const isReason = step === 'reason'
   const options = isReason ? reasons : timeslots
-  const title = isReason ? 'Select the reason for call back' : 'Select a preferred time slot for callback'
+  const title = isReason
+    ? 'Select the reason for call back'
+    : 'Select a preferred time slot for callback'
 
   return (
     <>
-      <div className="fixed inset-0 z-[200] bg-black/20" aria-hidden onClick={onClose} />
+      <div
+        className="fixed inset-0 z-[200] bg-black/20"
+        aria-hidden
+        onClick={onClose}
+      />
       <div className="fixed top-20 right-2 bottom-2 z-[201] w-full max-w-[400px] bg-white rounded-2xl shadow-xl flex flex-col">
         <div className="flex items-center justify-between p-5 border-b border-gray-200">
-          <h2 className="text-lg font-bold font-poppins text-gray-900">{title}</h2>
+          <h2 className="text-lg font-bold font-poppins text-gray-900">
+            {title}
+          </h2>
           <button
             type="button"
             onClick={onClose}
@@ -529,12 +600,24 @@ function CallbackFlow(props: {
             <button
               key={value}
               type="button"
-              onClick={() => (isReason ? onPickReason(value) : onPickTimeslot(value))}
+              onClick={() =>
+                isReason ? onPickReason(value) : onPickTimeslot(value)
+              }
               className="w-full flex items-center justify-between rounded-xl border border-gray-200 bg-white px-4 py-3.5 text-left font-poppins text-[14px] font-medium text-gray-900 hover:bg-gray-50 hover:border-gray-300 transition-colors"
             >
               <span>{value}</span>
-              <svg className="w-5 h-5 text-gray-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              <svg
+                className="w-5 h-5 text-gray-400 shrink-0"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M9 5l7 7-7 7"
+                />
               </svg>
             </button>
           ))}

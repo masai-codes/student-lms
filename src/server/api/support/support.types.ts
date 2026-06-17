@@ -96,19 +96,31 @@ export interface SupportCoordinator extends SupportPerson {
 }
 
 /**
- * A section that has 1:1 ("pair programming") booking enabled. Mirrors the
- * legacy `getSectionDetailsOfUser`: `show_pp` + `ppLink` live on the section's
- * settings; IA = `section_user.manager_id`, EC/PC = the section's `ec`/`pc`
- * role holders. The 1:1 tab shows only for sections with `show_pp && ppLink`.
+ * A section with 1:1 ("pair programming") booking enabled. `show_pp` + `ppLink`
+ * live on the section's settings; IA = `section_user.manager_id`, EC/PC = the
+ * section's `ec`/`pc` role holders. Only sections with `show_pp && ppLink`
+ * appear.
  */
 export interface OneOnOneSection {
   sectionId: number
   sectionName: string
-  batchId: number
-  /** The booking link (Calendly etc.) — drives "Book a 1:1 session". */
+  /** Section-level booking link — drives the section "Book a 1:1 session". */
   ppLink: string
   /** IA / EC / PC for the section (those that exist). */
   coordinators: Array<SupportCoordinator>
+}
+
+/**
+ * 1:1 support grouped by batch (the legacy layout: batches → sections, with a
+ * booking link at **both** the batch level (`batches.meta.ppLink`) and each
+ * section level (`sections.settings.ppLink`)).
+ */
+export interface OneOnOneBatchGroup {
+  batchId: number | null
+  batchName: string
+  /** Batch-level booking link (from `batches.meta.ppLink`), if any. */
+  batchPpLink: string | null
+  sections: Array<OneOnOneSection>
 }
 
 /** A callback request the student has raised (listed in the Raised Tickets tab). */
@@ -215,8 +227,8 @@ export interface SupportOverview {
   callback: { reasons: Array<CallbackOption>; timeslots: Array<CallbackOption> }
   /** Callback requests the student has already raised (shown in Raised Tickets). */
   callbackTickets: Array<CallbackTicketItem>
-  /** Sections with 1:1 booking enabled (empty when none — hides the 1:1 tab). */
-  oneOnOne: Array<OneOnOneSection>
+  /** 1:1 booking grouped by batch (empty when none — hides the 1:1 tab). */
+  oneOnOne: Array<OneOnOneBatchGroup>
 }
 
 /** The conversation payload — fetched in one GET (`/api/support/tickets/thread`). */

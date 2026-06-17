@@ -21,7 +21,7 @@ import {
 } from '@/server/api/support/services/faqs.service'
 import {
   getBatchContact,
-  getOneOnOneSections,
+  getOneOnOneGroups,
   getSupportGate,
   getUserSupportBatches,
 } from '@/server/api/support/services/directory.service'
@@ -91,7 +91,7 @@ export async function getSupportOverview(
     countOpenTickets(userId),
     getCallbackOptions(),
     listCallbacks(userId),
-    getOneOnOneSections(userId),
+    getOneOnOneGroups(userId),
   ])
 
   return {

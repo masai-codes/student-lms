@@ -59,6 +59,7 @@ export function CreateTicketModal({
   const [message, setMessage] = useState('')
   const [files, setFiles] = useState<Array<File>>([])
   const [uploading, setUploading] = useState(false)
+  const [uploadError, setUploadError] = useState<string | null>(null)
   const [isDesktop, setIsDesktop] = useState(false)
   const [pendingRating, setPendingRating] = useState<1 | 5 | null>(null)
   const scrollRef = useRef<HTMLDivElement>(null)
@@ -139,20 +140,26 @@ export function CreateTicketModal({
     setFiles((prev) => [...prev, ...Array.from(incoming)].slice(0, MAX_FILES))
   }
 
+  const isImageName = (name: string) => /\.(png|jpe?g|gif|webp|svg|bmp)$/i.test(name)
+
   const handleSubmit = async () => {
     if ((!message.trim() && files.length === 0) || submitting) return
+    setUploadError(null)
 
-    // Upload attachments first, then embed them as markdown links in the body —
-    // exactly how the legacy flow stores attachments.
+    // Upload attachments first, then embed them in the body — images inline
+    // (`![](…)`) and other files as links (`[](…)`), like the legacy flow.
     let finalMessage = message.trim()
     if (files.length > 0) {
       setUploading(true)
       try {
         const uploaded = await Promise.all(files.map((f) => uploadSupportAttachment(f)))
-        const links = uploaded.map((u) => `[${u.name}](${u.url})`).join('\n\n')
+        const links = uploaded
+          .map((u) => (isImageName(u.name) ? `![${u.name}](${u.url})` : `[${u.name}](${u.url})`))
+          .join('\n\n')
         finalMessage = finalMessage ? `${finalMessage}\n\n${links}` : links
       } catch {
         setUploading(false)
+        setUploadError('Couldn’t upload your attachment. Please try again.')
         return
       }
       setUploading(false)
@@ -248,6 +255,10 @@ export function CreateTicketModal({
               rows={3}
               placeholder="Type your message…"
             />
+
+            {uploadError && (
+              <p className="mt-2 font-poppins text-[12px] text-red-600">{uploadError}</p>
+            )}
 
             {/* Selected attachments */}
             {files.length > 0 && (
