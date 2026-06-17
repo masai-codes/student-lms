@@ -5,14 +5,18 @@ import ReactPlayer from 'react-player/lazy'
 
 import { VideoAttendanceCustomControls } from './controls/VideoAttendanceCustomControls'
 import { LECTURE_VIDEO_CHROME_CSS } from './controls/lectureVideoChrome.constants'
+import { getLectureSplitChatOpenWidthCss } from '../constants/lectureSplitLayout'
+import { useLectureSplitChatOptional } from '../hooks/LectureSplitChatContext'
 import { seekPlayerToSeconds } from './hooks/lectureVideoResume'
 import { useLectureVideoAttendance } from './hooks/useLectureVideoAttendance'
+import { useIsElementFullscreen } from './hooks/useLectureVideoFullscreen'
 import { VideoPlaybackOverlays } from './VideoPlaybackOverlays'
 import type { LectureChromePlayerRef } from './controls/lectureVideoChrome.utils'
 
 import './lectureReactPlayer.css'
 
 import type { LectureVideoAttendanceState } from '@/server/learn/lectureDetailTypes'
+import { ChatbotExperience } from '@/components/features/chatbot/ChatbotExperience'
 import { cn } from '@/lib/utils'
 
 type LectureReactPlayerProps = {
@@ -34,6 +38,8 @@ export function LectureReactPlayer({
 }: LectureReactPlayerProps) {
   const fullscreenContainerRef = useRef<HTMLDivElement>(null)
   const videoRef = useRef<LectureChromePlayerRef>(null)
+  const splitChat = useLectureSplitChatOptional()
+  const isFullscreen = useIsElementFullscreen(fullscreenContainerRef)
 
   const attendance = useLectureVideoAttendance({
     lectureId,
@@ -145,6 +151,17 @@ export function LectureReactPlayer({
           playbackRate={attendance.playbackRate}
           onPlaybackRateChange={attendance.handlePlayBackRateChange}
         />
+        {splitChat?.isOpen && isFullscreen ? (
+          <div
+            className="absolute inset-y-0 right-0 z-[55] flex min-h-0 flex-col border-l border-gray-200 bg-white shadow-2xl"
+            style={{ width: getLectureSplitChatOpenWidthCss() }}
+          >
+            <ChatbotExperience
+              lectureId={lectureId}
+              onCloseSidebar={splitChat.close}
+            />
+          </div>
+        ) : null}
       </div>
     </div>
   )

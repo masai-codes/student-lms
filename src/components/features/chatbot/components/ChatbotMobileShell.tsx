@@ -52,7 +52,7 @@ function ChatbotMobileInlineComposer({
       onSubmit={handleSubmit}
       onVoiceActivate={onVoiceActivate}
       disabled={disabled}
-      placeholder="How can I help you today?"
+      placeholder="Ask a question..."
     />
   )
 }

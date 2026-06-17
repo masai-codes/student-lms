@@ -1,10 +1,10 @@
 # Chatbot (text + voice mode)
 
-Last updated: 2026-06-15
+Last updated: 2026-06-17
 
 ## Scope
 
-- Text conversation layout in `MessageList` via `ChatbotConversationLayout`
+- Text conversation layout in `MessageList` via `ChatbotConversationLayout`; assistant replies render markdown (`ChatbotAssistantMessage` + shared `MarkdownContent`)
 - ChatGPT-style turn scroll: latest user message snaps to the top of the message viewport
 - User message max height: 30% of viewport with bottom-aligned clipping when overflow
 - Smooth scroll on subsequent user sends; instant snap when loading history
@@ -21,7 +21,9 @@ Last updated: 2026-06-15
 | `src/components/features/chatbot/hooks/useChatTurnScroll.test.tsx` | ResizeObserver viewport sizing, instant vs smooth snap, no re-scroll on assistant-only updates |
 | `src/components/features/chatbot/hooks/useIsMobileViewport.test.ts` | Mobile breakpoint detection and media-query subscription |
 | `src/server/api/chatbot/__tests__/token.service.test.ts` | LiveKit token metadata includes lecture id + transcript |
-| `src/server/api/chatbot/handlers/__tests__/token.handler.test.ts` | Handler wires lecture context; maps access/transcript errors |
+| `src/components/features/chatbot/components/ChatbotHistoryHeader.test.tsx` | Desktop sidebar close control + lecture header title |
+| `src/components/features/chatbot/components/ChatbotPreSessionWelcome.test.tsx` | Pre-session greeting, disclaimer, and prompt selection |
+| `src/components/features/chatbot/components/ChatbotAssistantMessage.test.tsx` | Assistant bubble markdown rendering (bold, lists, empty content) |
 
 ## Commands
 
@@ -34,12 +36,13 @@ npm run lint
 ## Manual QA
 
 1. Mobile (<768px): only the composer shows below the video until the user sends a message; chat opens in a bottom drawer.
-2. Mobile: dismiss the drawer with an active session — inline composer remains; sending reopens the drawer.
-3. Pre-session: send a long prompt — bottom of text remains visible in the top-aligned bubble.
-4. Send a second prompt — prior turn scrolls up smoothly; new prompt takes the top slot.
-5. Open a history session with multiple turns — latest user message snaps instantly to top.
-6. Assistant streams below without re-scrolling the user bubble.
-7. Voice mode: multi-turn conversation updates the subtitle to the latest utterance (user → assistant → user).
-8. Resize the panel — 30% cap and spacer recalculate.
+2. Desktop (≥768px): video is full width on load; an **Ask** pill in the video controls opens a wider clamped sidebar, and a header close control returns to full video. The same pill is available in fullscreen and opens a right-side overlay there.
+3. Mobile: dismiss the drawer with an active session — inline composer remains; sending reopens the drawer.
+4. Pre-session: send a long prompt — bottom of text remains visible in the top-aligned bubble.
+5. Send a second prompt — prior turn scrolls up smoothly; new prompt takes the top slot.
+6. Open a history session with multiple turns — latest user message snaps instantly to top.
+7. Assistant streams below without re-scrolling the user bubble.
+8. Voice mode: multi-turn conversation updates the subtitle to the latest utterance (user → assistant → user).
+9. Resize the panel — 30% cap and spacer recalculate.
 
 Update this file and `feature-test-matrix.md` when chatbot scroll behavior or tests change.

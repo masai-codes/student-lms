@@ -1,11 +1,11 @@
 # Feature Test Matrix
 
-Last updated: 2026-06-15
+Last updated: 2026-06-17
 
 ## Chatbot (text mode)
-- Area: `MessageList` turn scroll (`useChatTurnScroll`, `chatScroll` utils, `ChatbotUserMessage`); shared by `ChatPanel` and `ChatbotPreSessionView` via `ChatbotConversationLayout`; mobile composer-only + bottom drawer (`ChatbotMobileShell`, `useIsMobileViewport`); `POST /api/chatbot/:lectureId/token` loads lecture transcript via `resolveAiTutorLectureContext` and forwards it to the LiveKit agent metadata
+- Area: `MessageList` turn scroll (`useChatTurnScroll`, `chatScroll` utils, `ChatbotUserMessage`, `ChatbotAssistantMessage` markdown); shared by `ChatPanel` and `ChatbotPreSessionView` via `ChatbotConversationLayout`; mobile composer-only + bottom drawer (`ChatbotMobileShell`, `useIsMobileViewport`); `POST /api/chatbot/:lectureId/token` loads lecture transcript via `resolveAiTutorLectureContext` and forwards it to the LiveKit agent metadata
 - Status: Covered (scroll math + hook behavior for instant/smooth snap; mobile viewport hook; token handler + service)
-- Test files: `src/components/features/chatbot/utils/chatScroll.test.ts`, `src/components/features/chatbot/hooks/useChatTurnScroll.test.tsx`, `src/components/features/chatbot/hooks/useIsMobileViewport.test.ts`, `src/server/api/chatbot/__tests__/token.service.test.ts`, `src/server/api/chatbot/handlers/__tests__/token.handler.test.ts`
+- Test files: `src/components/features/chatbot/utils/chatScroll.test.ts`, `src/components/features/chatbot/hooks/useChatTurnScroll.test.tsx`, `src/components/features/chatbot/hooks/useIsMobileViewport.test.ts`, `src/components/features/chatbot/components/ChatbotHistoryHeader.test.tsx`, `src/components/features/chatbot/components/ChatbotPreSessionWelcome.test.tsx`, `src/components/features/chatbot/components/ChatbotAssistantMessage.test.tsx`, `src/server/api/chatbot/__tests__/token.service.test.ts`, `src/server/api/chatbot/handlers/__tests__/token.handler.test.ts`
 - Notes: Voice mode (`ChatbotVoiceModeView`) is out of scope. See `docs/testing/features/chatbot.md`.
 
 ## Lecture AI chat (REST text + LiveKit voice)
