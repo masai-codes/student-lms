@@ -139,9 +139,7 @@ function upvoteReasons(isReply: boolean): {
 }
 
 /** Resolves the upvoted target's owner and club for awarding. */
-async function getVoteContext(
-  target: VoteTarget,
-): Promise<{
+async function getVoteContext(target: VoteTarget): Promise<{
   ownerId: number
   clubId: number | null
   postId?: number

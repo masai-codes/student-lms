@@ -26,9 +26,8 @@ describe('handleMarkMasaiverseVisited', () => {
   })
 
   it('marks the session user and returns success', async () => {
-    const { handleMarkMasaiverseVisited } = await import(
-      '../handlers/markMasaiverseVisited.handler'
-    )
+    const { handleMarkMasaiverseVisited } =
+      await import('../handlers/markMasaiverseVisited.handler')
     hoisted.getUserIdFromCookieHeader.mockResolvedValueOnce(99)
     hoisted.markMasaiverseVisited.mockResolvedValueOnce(undefined)
 
@@ -42,9 +41,8 @@ describe('handleMarkMasaiverseVisited', () => {
   })
 
   it('returns 401 when there is no session user', async () => {
-    const { handleMarkMasaiverseVisited } = await import(
-      '../handlers/markMasaiverseVisited.handler'
-    )
+    const { handleMarkMasaiverseVisited } =
+      await import('../handlers/markMasaiverseVisited.handler')
     hoisted.getUserIdFromCookieHeader.mockResolvedValueOnce(null)
 
     const response = await handleMarkMasaiverseVisited(requestWithCookie(null))
@@ -58,9 +56,8 @@ describe('handleMarkMasaiverseVisited', () => {
   })
 
   it('maps unexpected service failures to a 500 error', async () => {
-    const { handleMarkMasaiverseVisited } = await import(
-      '../handlers/markMasaiverseVisited.handler'
-    )
+    const { handleMarkMasaiverseVisited } =
+      await import('../handlers/markMasaiverseVisited.handler')
     hoisted.getUserIdFromCookieHeader.mockResolvedValueOnce(5)
     hoisted.markMasaiverseVisited.mockRejectedValueOnce(new Error('boom'))
     const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})

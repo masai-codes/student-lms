@@ -12,7 +12,9 @@ export async function handleGetBanners(request: Request): Promise<Response> {
   } catch (error) {
     if (!isApiError(error)) {
       console.error('Failed to fetch banners', error)
-      return mapThrownErrorToResponse(new Error('SERVER_ERROR_FETCHING_BANNERS'))
+      return mapThrownErrorToResponse(
+        new Error('SERVER_ERROR_FETCHING_BANNERS'),
+      )
     }
     return mapThrownErrorToResponse(error)
   }

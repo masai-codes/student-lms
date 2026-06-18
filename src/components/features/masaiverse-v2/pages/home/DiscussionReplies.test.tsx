@@ -21,6 +21,10 @@ vi.mock('@/lib/api/masaiverse-v2/masaiverseV2Api', () => ({
   fetchMasaiverseV2DiscussionReplies: listReplies,
   createMasaiverseV2DiscussionReply: createReply,
   voteMasaiverseV2Reply: voteReply,
+  banMasaiverseV2Reply: vi.fn(),
+  fetchMasaiverseV2AdminMode: vi
+    .fn()
+    .mockResolvedValue({ isAdmin: false, enabled: false }),
 }))
 
 function renderWith(ui: ReactNode) {

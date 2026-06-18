@@ -38,9 +38,8 @@ describe('markMasaiverseVisited service', () => {
   })
 
   it('sets the flag while preserving existing meta keys', async () => {
-    const { markMasaiverseVisited } = await import(
-      '../markMasaiverseVisited.service'
-    )
+    const { markMasaiverseVisited } =
+      await import('../markMasaiverseVisited.service')
     hoisted.dbSelect.mockReturnValueOnce(
       mockSelectResult([{ meta: { profile_pic: 'p.png' } }]),
     )
@@ -54,9 +53,8 @@ describe('markMasaiverseVisited service', () => {
   })
 
   it('initializes meta when the column is null', async () => {
-    const { markMasaiverseVisited } = await import(
-      '../markMasaiverseVisited.service'
-    )
+    const { markMasaiverseVisited } =
+      await import('../markMasaiverseVisited.service')
     hoisted.dbSelect.mockReturnValueOnce(mockSelectResult([{ meta: null }]))
     const setArgs = captureUpdate()
 
@@ -66,9 +64,8 @@ describe('markMasaiverseVisited service', () => {
   })
 
   it('is a no-op when the flag is already set', async () => {
-    const { markMasaiverseVisited } = await import(
-      '../markMasaiverseVisited.service'
-    )
+    const { markMasaiverseVisited } =
+      await import('../markMasaiverseVisited.service')
     hoisted.dbSelect.mockReturnValueOnce(
       mockSelectResult([{ meta: { isMasaiverseVisitedOnce: true } }]),
     )
@@ -79,9 +76,8 @@ describe('markMasaiverseVisited service', () => {
   })
 
   it('is a no-op when the user does not exist', async () => {
-    const { markMasaiverseVisited } = await import(
-      '../markMasaiverseVisited.service'
-    )
+    const { markMasaiverseVisited } =
+      await import('../markMasaiverseVisited.service')
     hoisted.dbSelect.mockReturnValueOnce(mockSelectResult([]))
 
     await markMasaiverseVisited(404)

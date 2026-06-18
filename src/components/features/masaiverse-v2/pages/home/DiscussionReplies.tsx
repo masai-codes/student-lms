@@ -1,20 +1,22 @@
 import { useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { MASAIVERSE_EVENTS, trackMasaiverse } from '../../tracking'
 import DiscussionVotes from './DiscussionVotes'
 import type { MasaiverseV2Reply } from '@/server/api/masaiverse-v2/services/getDiscussionReplies.service'
 import {
+  banMasaiverseV2Reply,
   createMasaiverseV2DiscussionReply,
   fetchMasaiverseV2DiscussionReplies,
   voteMasaiverseV2Reply,
 } from '@/lib/api/masaiverse-v2/masaiverseV2Api'
 import { getInitials } from '@/lib/initials'
 import { incrementReplyCountInCache } from '@/query/masaiverse-v2/discussionsQuery'
+import { masaiverseV2AdminModeQuery } from '@/query/masaiverse-v2/adminModeQuery'
 import { masaiverseV2ClubStatsQuery } from '@/query/masaiverse-v2/clubsQuery'
 import { MASAIVERSE_V2_HOME_KEY } from '@/query/masaiverse-v2/homeQuery'
 import { invalidateMasaiverseV2Leaderboards } from '@/query/masaiverse-v2/leaderboardQuery'
 import { formatSocialPostTime } from '@/lib/socialRelativeTime'
 import { useServerTime } from '@/hooks/useServerTime'
-import { MASAIVERSE_EVENTS, trackMasaiverse } from '../../tracking'
 
 type DiscussionRepliesProps = {
   postId: string
@@ -69,6 +71,26 @@ export default function DiscussionReplies({
     )
   }
 
+  const { data: adminMode } = useQuery(masaiverseV2AdminModeQuery())
+  const canModerate = adminMode?.enabled ?? false
+
+  const banMutation = useMutation({
+    mutationFn: (vars: { replyId: string; banned: boolean }) =>
+      banMasaiverseV2Reply({
+        postId,
+        replyId: vars.replyId,
+        banned: vars.banned,
+      }),
+    onSuccess: (state) => {
+      trackMasaiverse(MASAIVERSE_EVENTS.discussionReplyBan, {
+        post_id: postId,
+        reply_id: state.replyId,
+        banned: state.isBanned,
+      })
+      if (state.replyId) patchReply(state.replyId, { isBanned: state.isBanned })
+    },
+  })
+
   const canPost = text.trim().length > 0 && !createMutation.isPending
   const replies = repliesQuery.data ?? []
 
@@ -103,7 +125,12 @@ export default function DiscussionReplies({
           </p>
         ) : (
           replies.map((reply) => (
-            <div key={reply.id} className="flex items-start gap-2">
+            <div
+              key={reply.id}
+              className={`flex items-start gap-2 ${
+                reply.isBanned ? 'opacity-60' : ''
+              }`}
+            >
               <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-[#EDEAE8] text-[11px] font-bold text-[#6B7280]">
                 {getInitials(reply.authorName)}
               </span>
@@ -117,10 +144,30 @@ export default function DiscussionReplies({
                     reply.createdAt,
                     new Date(now.valueOf()),
                   )}
+                  {reply.isBanned ? (
+                    <span className="ml-2 rounded-full bg-red-100 px-2 py-0.5 text-[10px] font-semibold text-red-700">
+                      Banned
+                    </span>
+                  ) : null}
                 </p>
                 <p className="whitespace-pre-wrap text-[14px] leading-5 text-[#111827]">
                   {reply.content}
                 </p>
+                {canModerate ? (
+                  <button
+                    type="button"
+                    disabled={banMutation.isPending}
+                    onClick={() =>
+                      banMutation.mutate({
+                        replyId: reply.id,
+                        banned: !reply.isBanned,
+                      })
+                    }
+                    className="mt-1 text-[11px] font-semibold text-red-600 hover:text-red-700 disabled:opacity-50"
+                  >
+                    {reply.isBanned ? 'Unban' : 'Ban'}
+                  </button>
+                ) : null}
               </div>
               <DiscussionVotes
                 target="reply"

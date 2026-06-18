@@ -26,18 +26,16 @@ beforeEach(() => {
 
 describe('getCommunityLearnerCount', () => {
   it('returns the distinct learner count', async () => {
-    const { getCommunityLearnerCount } = await import(
-      '../services/getCommunityLearnerCount.service'
-    )
+    const { getCommunityLearnerCount } =
+      await import('../services/getCommunityLearnerCount.service')
     hoisted.dbSelect.mockReturnValueOnce(selectFromWhere([{ count: 2841 }]))
 
     await expect(getCommunityLearnerCount()).resolves.toBe(2841)
   })
 
   it('falls back to 0 when the query returns no rows', async () => {
-    const { getCommunityLearnerCount } = await import(
-      '../services/getCommunityLearnerCount.service'
-    )
+    const { getCommunityLearnerCount } =
+      await import('../services/getCommunityLearnerCount.service')
     hoisted.dbSelect.mockReturnValueOnce(selectFromWhere([]))
 
     await expect(getCommunityLearnerCount()).resolves.toBe(0)
@@ -46,9 +44,8 @@ describe('getCommunityLearnerCount', () => {
 
 describe('getDiscussionsThisMonthCount', () => {
   it('sums posts and replies created this month', async () => {
-    const { getDiscussionsThisMonthCount } = await import(
-      '../services/getDiscussionsThisMonthCount.service'
-    )
+    const { getDiscussionsThisMonthCount } =
+      await import('../services/getDiscussionsThisMonthCount.service')
     hoisted.dbSelect
       .mockReturnValueOnce(selectFromWhere([{ count: 30 }]))
       .mockReturnValueOnce(selectFromWhere([{ count: 8 }]))
@@ -57,9 +54,8 @@ describe('getDiscussionsThisMonthCount', () => {
   })
 
   it('treats missing rows as zero on both sides', async () => {
-    const { getDiscussionsThisMonthCount } = await import(
-      '../services/getDiscussionsThisMonthCount.service'
-    )
+    const { getDiscussionsThisMonthCount } =
+      await import('../services/getDiscussionsThisMonthCount.service')
     hoisted.dbSelect
       .mockReturnValueOnce(selectFromWhere([]))
       .mockReturnValueOnce(selectFromWhere([]))
@@ -70,18 +66,16 @@ describe('getDiscussionsThisMonthCount', () => {
 
 describe('getEventsThisYearCount', () => {
   it('returns the count of events scheduled this year', async () => {
-    const { getEventsThisYearCount } = await import(
-      '../services/getEventsThisYearCount.service'
-    )
+    const { getEventsThisYearCount } =
+      await import('../services/getEventsThisYearCount.service')
     hoisted.dbSelect.mockReturnValueOnce(selectFromWhere([{ count: 6 }]))
 
     await expect(getEventsThisYearCount(NOW)).resolves.toBe(6)
   })
 
   it('falls back to 0 when there are no rows', async () => {
-    const { getEventsThisYearCount } = await import(
-      '../services/getEventsThisYearCount.service'
-    )
+    const { getEventsThisYearCount } =
+      await import('../services/getEventsThisYearCount.service')
     hoisted.dbSelect.mockReturnValueOnce(selectFromWhere([]))
 
     await expect(getEventsThisYearCount(NOW)).resolves.toBe(0)
@@ -90,18 +84,16 @@ describe('getEventsThisYearCount', () => {
 
 describe('getEventRegistrationsThisYearCount', () => {
   it('returns the count of registrations this year', async () => {
-    const { getEventRegistrationsThisYearCount } = await import(
-      '../services/getEventRegistrationsThisYearCount.service'
-    )
+    const { getEventRegistrationsThisYearCount } =
+      await import('../services/getEventRegistrationsThisYearCount.service')
     hoisted.dbSelect.mockReturnValueOnce(selectFromWhere([{ count: 124 }]))
 
     await expect(getEventRegistrationsThisYearCount(NOW)).resolves.toBe(124)
   })
 
   it('falls back to 0 when there are no rows', async () => {
-    const { getEventRegistrationsThisYearCount } = await import(
-      '../services/getEventRegistrationsThisYearCount.service'
-    )
+    const { getEventRegistrationsThisYearCount } =
+      await import('../services/getEventRegistrationsThisYearCount.service')
     hoisted.dbSelect.mockReturnValueOnce(selectFromWhere([]))
 
     await expect(getEventRegistrationsThisYearCount(NOW)).resolves.toBe(0)

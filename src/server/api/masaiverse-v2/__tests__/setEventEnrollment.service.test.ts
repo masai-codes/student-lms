@@ -60,27 +60,24 @@ beforeEach(() => {
 
 describe('setEventEnrollment', () => {
   it('rejects a non-finite event id', async () => {
-    const { setEventEnrollment } = await import(
-      '../services/setEventEnrollment.service'
-    )
+    const { setEventEnrollment } =
+      await import('../services/setEventEnrollment.service')
     await expect(setEventEnrollment(1, Number.NaN)).rejects.toThrow(
       'INVALID_EVENT_ID',
     )
   })
 
   it('rejects when the event does not exist', async () => {
-    const { setEventEnrollment } = await import(
-      '../services/setEventEnrollment.service'
-    )
+    const { setEventEnrollment } =
+      await import('../services/setEventEnrollment.service')
     hoisted.dbSelect.mockReturnValueOnce(limitChain([]))
     await expect(setEventEnrollment(1, 5)).rejects.toThrow('EVENT_NOT_FOUND')
     expect(hoisted.dbInsert).not.toHaveBeenCalled()
   })
 
   it('registers idempotently and redirects offline events to the map link', async () => {
-    const { setEventEnrollment } = await import(
-      '../services/setEventEnrollment.service'
-    )
+    const { setEventEnrollment } =
+      await import('../services/setEventEnrollment.service')
     const { values } = mockInsert()
     hoisted.dbSelect
       .mockReturnValueOnce(
@@ -113,9 +110,8 @@ describe('setEventEnrollment', () => {
   })
 
   it('does not award points again when the user is already enrolled', async () => {
-    const { setEventEnrollment } = await import(
-      '../services/setEventEnrollment.service'
-    )
+    const { setEventEnrollment } =
+      await import('../services/setEventEnrollment.service')
     mockInsert()
     hoisted.dbSelect
       .mockReturnValueOnce(
@@ -137,9 +133,8 @@ describe('setEventEnrollment', () => {
   })
 
   it('redirects online events to the event link', async () => {
-    const { setEventEnrollment } = await import(
-      '../services/setEventEnrollment.service'
-    )
+    const { setEventEnrollment } =
+      await import('../services/setEventEnrollment.service')
     mockInsert()
     hoisted.dbSelect
       .mockReturnValueOnce(
@@ -162,9 +157,8 @@ describe('setEventEnrollment', () => {
   })
 
   it('returns a null redirect when the relevant link is blank', async () => {
-    const { setEventEnrollment } = await import(
-      '../services/setEventEnrollment.service'
-    )
+    const { setEventEnrollment } =
+      await import('../services/setEventEnrollment.service')
     mockInsert()
     hoisted.dbSelect
       .mockReturnValueOnce(
@@ -187,9 +181,8 @@ describe('setEventEnrollment', () => {
   })
 
   it('rejects registration for a club event when the user is not a member', async () => {
-    const { setEventEnrollment } = await import(
-      '../services/setEventEnrollment.service'
-    )
+    const { setEventEnrollment } =
+      await import('../services/setEventEnrollment.service')
     hoisted.dbSelect
       .mockReturnValueOnce(
         limitChain([

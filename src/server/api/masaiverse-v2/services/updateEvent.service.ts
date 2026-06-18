@@ -72,7 +72,8 @@ export async function updateMasaiverseEvent(
 ): Promise<{ success: true }> {
   const state = await getAdminModeState(userId)
   if (!state.isAdmin) throw new ApiError(403, 'MASAIVERSE_ADMIN_FORBIDDEN')
-  if (!Number.isFinite(input.eventId)) throw new ApiError(400, 'INVALID_UPDATE_PAYLOAD')
+  if (!Number.isFinite(input.eventId))
+    throw new ApiError(400, 'INVALID_UPDATE_PAYLOAD')
 
   const rows = await db
     .select({ meta: events.meta })
@@ -105,10 +106,7 @@ export async function updateMasaiverseEvent(
   setPayload.meta = meta
   setPayload.updatedAt = toMysqlUtc(now)
 
-  await db
-    .update(events)
-    .set(setPayload)
-    .where(eq(events.id, input.eventId))
+  await db.update(events).set(setPayload).where(eq(events.id, input.eventId))
 
   return { success: true }
 }

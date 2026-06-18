@@ -163,7 +163,9 @@ export async function getClubDetail(
         meta: clubs.meta,
       })
       .from(clubs)
-      .where(and(eq(clubs.id, clubId), publishedClubCondition(canSeeUnpublished)))
+      .where(
+        and(eq(clubs.id, clubId), publishedClubCondition(canSeeUnpublished)),
+      )
       .limit(1)
   ).at(0)
 
@@ -213,6 +215,7 @@ export async function getClubDetail(
           CLUB_DISCUSSIONS_LIMIT,
           '',
           String(clubId),
+          canSeeUnpublished,
         )
       : { discussions: [], hasMore: false },
   ])

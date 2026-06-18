@@ -146,7 +146,9 @@ export async function getEventDetail(
       })
       .from(events)
       .leftJoin(clubs, eq(events.clubId, clubs.id))
-      .where(and(eq(events.id, eventId), publishedEventCondition(canSeeUnpublished)))
+      .where(
+        and(eq(events.id, eventId), publishedEventCondition(canSeeUnpublished)),
+      )
       .limit(1)
   ).at(0)
 

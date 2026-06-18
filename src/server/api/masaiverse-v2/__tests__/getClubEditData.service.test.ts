@@ -25,8 +25,12 @@ beforeEach(() => {
 
 describe('getClubEditData', () => {
   it('rejects a non-admin with a 403', async () => {
-    const { getClubEditData } = await import('../services/getClubEditData.service')
-    hoisted.getAdminModeState.mockResolvedValueOnce({ isAdmin: false, enabled: false })
+    const { getClubEditData } =
+      await import('../services/getClubEditData.service')
+    hoisted.getAdminModeState.mockResolvedValueOnce({
+      isAdmin: false,
+      enabled: false,
+    })
     await expect(getClubEditData(1, 5)).rejects.toMatchObject({
       status: 403,
       code: 'MASAIVERSE_ADMIN_FORBIDDEN',
@@ -34,8 +38,12 @@ describe('getClubEditData', () => {
   })
 
   it('404s when the club is missing', async () => {
-    const { getClubEditData } = await import('../services/getClubEditData.service')
-    hoisted.getAdminModeState.mockResolvedValueOnce({ isAdmin: true, enabled: true })
+    const { getClubEditData } =
+      await import('../services/getClubEditData.service')
+    hoisted.getAdminModeState.mockResolvedValueOnce({
+      isAdmin: true,
+      enabled: true,
+    })
     hoisted.dbSelect.mockReturnValueOnce(selectChain([]))
     await expect(getClubEditData(1, 99)).rejects.toMatchObject({
       status: 404,
@@ -44,10 +52,20 @@ describe('getClubEditData', () => {
   })
 
   it('returns the raw name + meta for an admin', async () => {
-    const { getClubEditData } = await import('../services/getClubEditData.service')
-    hoisted.getAdminModeState.mockResolvedValueOnce({ isAdmin: true, enabled: true })
+    const { getClubEditData } =
+      await import('../services/getClubEditData.service')
+    hoisted.getAdminModeState.mockResolvedValueOnce({
+      isAdmin: true,
+      enabled: true,
+    })
     hoisted.dbSelect.mockReturnValueOnce(
-      selectChain([{ id: 5, name: 'Code Club', meta: { description: 'd', cardDescription: 'cd' } }]),
+      selectChain([
+        {
+          id: 5,
+          name: 'Code Club',
+          meta: { description: 'd', cardDescription: 'cd' },
+        },
+      ]),
     )
     await expect(getClubEditData(1, 5)).resolves.toEqual({
       id: '5',
@@ -57,9 +75,15 @@ describe('getClubEditData', () => {
   })
 
   it('returns an empty meta object when the column is null', async () => {
-    const { getClubEditData } = await import('../services/getClubEditData.service')
-    hoisted.getAdminModeState.mockResolvedValueOnce({ isAdmin: true, enabled: true })
-    hoisted.dbSelect.mockReturnValueOnce(selectChain([{ id: 6, name: 'X', meta: null }]))
+    const { getClubEditData } =
+      await import('../services/getClubEditData.service')
+    hoisted.getAdminModeState.mockResolvedValueOnce({
+      isAdmin: true,
+      enabled: true,
+    })
+    hoisted.dbSelect.mockReturnValueOnce(
+      selectChain([{ id: 6, name: 'X', meta: null }]),
+    )
     await expect(getClubEditData(1, 6)).resolves.toEqual({
       id: '6',
       name: 'X',

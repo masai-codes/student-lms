@@ -34,9 +34,8 @@ beforeEach(() => {
 
 describe('getHomeHighlights', () => {
   it('maps rows into recap cards with meta + the past-event emoji', async () => {
-    const { getHomeHighlights } = await import(
-      '../services/getHomeHighlights.service'
-    )
+    const { getHomeHighlights } =
+      await import('../services/getHomeHighlights.service')
     hoisted.dbSelect.mockReturnValueOnce(
       selectChain([
         {
@@ -65,9 +64,8 @@ describe('getHomeHighlights', () => {
   })
 
   it('normalizes missing meta values to null', async () => {
-    const { getHomeHighlights } = await import(
-      '../services/getHomeHighlights.service'
-    )
+    const { getHomeHighlights } =
+      await import('../services/getHomeHighlights.service')
     hoisted.dbSelect.mockReturnValueOnce(
       selectChain([
         { id: 5, title: 'Mystery Recap', meta: null, startTime: null },
@@ -87,18 +85,16 @@ describe('getHomeHighlights', () => {
   })
 
   it('returns an empty list when there are no past events', async () => {
-    const { getHomeHighlights } = await import(
-      '../services/getHomeHighlights.service'
-    )
+    const { getHomeHighlights } =
+      await import('../services/getHomeHighlights.service')
     hoisted.dbSelect.mockReturnValueOnce(selectChain([]))
 
     await expect(getHomeHighlights(NOW)).resolves.toEqual([])
   })
 
   it('accepts a club + weekly-connect scope and still maps rows', async () => {
-    const { getHomeHighlights } = await import(
-      '../services/getHomeHighlights.service'
-    )
+    const { getHomeHighlights } =
+      await import('../services/getHomeHighlights.service')
     hoisted.dbSelect.mockReturnValueOnce(
       selectChain([
         { id: 7, title: 'Club Recap', meta: null, startTime: null },

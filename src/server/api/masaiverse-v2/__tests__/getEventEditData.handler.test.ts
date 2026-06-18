@@ -26,17 +26,25 @@ beforeEach(() => {
 
 describe('handleGetEventEditData', () => {
   it('returns the edit data for the session admin', async () => {
-    const { handleGetEventEditData } = await import('../handlers/getEventEditData.handler')
+    const { handleGetEventEditData } =
+      await import('../handlers/getEventEditData.handler')
     hoisted.getUserIdFromCookieHeader.mockResolvedValueOnce(9)
-    hoisted.getEventEditData.mockResolvedValueOnce({ id: '5', columns: {}, meta: {} })
+    hoisted.getEventEditData.mockResolvedValueOnce({
+      id: '5',
+      columns: {},
+      meta: {},
+    })
 
-    const response = await handleGetEventEditData(getRequest('5', 'session=abc'))
+    const response = await handleGetEventEditData(
+      getRequest('5', 'session=abc'),
+    )
     expect(response.status).toBe(200)
     expect(hoisted.getEventEditData).toHaveBeenCalledWith(9, 5)
   })
 
   it('returns 401 without a session', async () => {
-    const { handleGetEventEditData } = await import('../handlers/getEventEditData.handler')
+    const { handleGetEventEditData } =
+      await import('../handlers/getEventEditData.handler')
     hoisted.getUserIdFromCookieHeader.mockResolvedValueOnce(null)
     const response = await handleGetEventEditData(getRequest('5', null))
     expect(response.status).toBe(401)
@@ -44,21 +52,27 @@ describe('handleGetEventEditData', () => {
   })
 
   it('propagates a 403 from the service', async () => {
-    const { handleGetEventEditData } = await import('../handlers/getEventEditData.handler')
+    const { handleGetEventEditData } =
+      await import('../handlers/getEventEditData.handler')
     hoisted.getUserIdFromCookieHeader.mockResolvedValueOnce(9)
     hoisted.getEventEditData.mockRejectedValueOnce(
       new ApiError(403, 'MASAIVERSE_ADMIN_FORBIDDEN'),
     )
-    const response = await handleGetEventEditData(getRequest('5', 'session=abc'))
+    const response = await handleGetEventEditData(
+      getRequest('5', 'session=abc'),
+    )
     expect(response.status).toBe(403)
   })
 
   it('maps unexpected failures to a 500 error', async () => {
-    const { handleGetEventEditData } = await import('../handlers/getEventEditData.handler')
+    const { handleGetEventEditData } =
+      await import('../handlers/getEventEditData.handler')
     hoisted.getUserIdFromCookieHeader.mockResolvedValueOnce(9)
     hoisted.getEventEditData.mockRejectedValueOnce(new Error('boom'))
     const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
-    const response = await handleGetEventEditData(getRequest('5', 'session=abc'))
+    const response = await handleGetEventEditData(
+      getRequest('5', 'session=abc'),
+    )
     expect(response.status).toBe(500)
     await expect(response.json()).resolves.toMatchObject({
       code: 'SERVER_ERROR_FETCHING_EVENT_EDIT_DATA',

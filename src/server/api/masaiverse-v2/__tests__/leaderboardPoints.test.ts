@@ -27,6 +27,8 @@ describe('LEADERBOARD_POINTS', () => {
 
   it('exposes a distinct manual reason that is not a fixed-points reason', () => {
     expect(MANUAL_LEADERBOARD_REASON).toBe('manual')
-    expect(Object.values(LeaderboardReason)).not.toContain(MANUAL_LEADERBOARD_REASON)
+    expect(Object.values(LeaderboardReason)).not.toContain(
+      MANUAL_LEADERBOARD_REASON,
+    )
   })
 })

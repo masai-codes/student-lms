@@ -4,6 +4,7 @@ export const MASAIVERSE_V2_API = {
   discussions: '/api/masaiverse-v2/discussions',
   discussionVote: '/api/masaiverse-v2/discussions/vote',
   discussionReplies: '/api/masaiverse-v2/discussions/replies',
+  discussionBan: '/api/masaiverse-v2/discussions/ban',
   myClubs: '/api/masaiverse-v2/clubs/mine',
   clubDetail: '/api/masaiverse-v2/clubs/detail',
   clubStats: '/api/masaiverse-v2/clubs/stats',

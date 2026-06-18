@@ -97,13 +97,15 @@ beforeEach(() => {
 
 describe('getEventDetail', () => {
   it('returns null for a non-finite event id without touching the db', async () => {
-    const { getEventDetail } = await import('../services/getEventDetail.service')
+    const { getEventDetail } =
+      await import('../services/getEventDetail.service')
     await expect(getEventDetail(Number.NaN, 1, NOW)).resolves.toBeNull()
     expect(hoisted.dbSelect).not.toHaveBeenCalled()
   })
 
   it('returns null when no event matches the id', async () => {
-    const { getEventDetail } = await import('../services/getEventDetail.service')
+    const { getEventDetail } =
+      await import('../services/getEventDetail.service')
     hoisted.dbSelect.mockReturnValueOnce(rowChain([]))
     await expect(getEventDetail(99, 1, NOW)).resolves.toBeNull()
     // Only the row lookup runs; count/enrollment are skipped.
@@ -111,7 +113,8 @@ describe('getEventDetail', () => {
   })
 
   it('maps a full event row, including meta, club name and enrollment', async () => {
-    const { getEventDetail } = await import('../services/getEventDetail.service')
+    const { getEventDetail } =
+      await import('../services/getEventDetail.service')
     hoisted.dbSelect
       .mockReturnValueOnce(rowChain([eventRow()]))
       .mockReturnValueOnce(countChain([{ enrolledCount: 12 }]))
@@ -153,7 +156,8 @@ describe('getEventDetail', () => {
   })
 
   it('surfaces meta.confirmationModalText, trimmed, when present', async () => {
-    const { getEventDetail } = await import('../services/getEventDetail.service')
+    const { getEventDetail } =
+      await import('../services/getEventDetail.service')
     hoisted.dbSelect
       .mockReturnValueOnce(
         rowChain([
@@ -172,7 +176,8 @@ describe('getEventDetail', () => {
   })
 
   it("surfaces the user's stored rating and feedback from the enrollment meta", async () => {
-    const { getEventDetail } = await import('../services/getEventDetail.service')
+    const { getEventDetail } =
+      await import('../services/getEventDetail.service')
     hoisted.dbSelect
       .mockReturnValueOnce(rowChain([eventRow()]))
       .mockReturnValueOnce(countChain([{ enrolledCount: 12 }]))
@@ -191,7 +196,8 @@ describe('getEventDetail', () => {
   })
 
   it('falls back to nulls for blank/absent optional fields and an empty meta', async () => {
-    const { getEventDetail } = await import('../services/getEventDetail.service')
+    const { getEventDetail } =
+      await import('../services/getEventDetail.service')
     hoisted.dbSelect
       .mockReturnValueOnce(
         rowChain([
@@ -238,7 +244,8 @@ describe('getEventDetail', () => {
   })
 
   it('drops malformed hostedBy entries and those without a host name', async () => {
-    const { getEventDetail } = await import('../services/getEventDetail.service')
+    const { getEventDetail } =
+      await import('../services/getEventDetail.service')
     hoisted.dbSelect
       .mockReturnValueOnce(
         rowChain([

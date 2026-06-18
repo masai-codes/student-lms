@@ -9,7 +9,10 @@ const hoisted = vi.hoisted(() => ({
 vi.mock('@/db', () => ({
   db: { select: hoisted.dbSelect, update: hoisted.dbUpdate },
 }))
-vi.mock('@/db/schema', () => ({ clubs: { id: 'clubs.id', meta: 'clubs.meta' }, events: {} }))
+vi.mock('@/db/schema', () => ({
+  clubs: { id: 'clubs.id', meta: 'clubs.meta' },
+  events: {},
+}))
 vi.mock('@/server/api/masaiverse-v2/services/adminMode.service', () => ({
   getAdminModeState: hoisted.getAdminModeState,
 }))
@@ -28,8 +31,12 @@ beforeEach(() => {
 
 describe('updateMasaiverseClub', () => {
   it('rejects a non-admin with a 403 and never updates', async () => {
-    const { updateMasaiverseClub } = await import('../services/updateClub.service')
-    hoisted.getAdminModeState.mockResolvedValueOnce({ isAdmin: false, enabled: false })
+    const { updateMasaiverseClub } =
+      await import('../services/updateClub.service')
+    hoisted.getAdminModeState.mockResolvedValueOnce({
+      isAdmin: false,
+      enabled: false,
+    })
 
     await expect(
       updateMasaiverseClub(1, { clubId: 5, column: { name: 'X' } }, NOW),
@@ -38,8 +45,12 @@ describe('updateMasaiverseClub', () => {
   })
 
   it('404s when the club does not exist', async () => {
-    const { updateMasaiverseClub } = await import('../services/updateClub.service')
-    hoisted.getAdminModeState.mockResolvedValueOnce({ isAdmin: true, enabled: true })
+    const { updateMasaiverseClub } =
+      await import('../services/updateClub.service')
+    hoisted.getAdminModeState.mockResolvedValueOnce({
+      isAdmin: true,
+      enabled: true,
+    })
     hoisted.dbSelect.mockReturnValueOnce(selectChain([]))
 
     await expect(
@@ -48,9 +59,15 @@ describe('updateMasaiverseClub', () => {
   })
 
   it('updates whitelisted columns + merges meta, stamping the editor', async () => {
-    const { updateMasaiverseClub } = await import('../services/updateClub.service')
-    hoisted.getAdminModeState.mockResolvedValueOnce({ isAdmin: true, enabled: true })
-    hoisted.dbSelect.mockReturnValueOnce(selectChain([{ meta: { isPublished: false } }]))
+    const { updateMasaiverseClub } =
+      await import('../services/updateClub.service')
+    hoisted.getAdminModeState.mockResolvedValueOnce({
+      isAdmin: true,
+      enabled: true,
+    })
+    hoisted.dbSelect.mockReturnValueOnce(
+      selectChain([{ meta: { isPublished: false } }]),
+    )
     const where = vi.fn().mockResolvedValue(undefined)
     const set = vi.fn().mockReturnValue({ where })
     hoisted.dbUpdate.mockReturnValue({ set })

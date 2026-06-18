@@ -3,6 +3,7 @@ import { jsonOk, mapThrownErrorToResponse } from '@/server/api/http/responses'
 import { requireSessionUserId } from '@/server/api/http/requireSessionUser'
 import { createDiscussionReply } from '@/server/api/masaiverse-v2/services/createDiscussionReply.service'
 import { getDiscussionReplies } from '@/server/api/masaiverse-v2/services/getDiscussionReplies.service'
+import { canSeeUnpublished } from '@/server/api/masaiverse-v2/services/publishVisibility'
 
 export async function handleListDiscussionReplies(
   request: Request,
@@ -10,12 +11,18 @@ export async function handleListDiscussionReplies(
   try {
     const userId = await requireSessionUserId(request)
     const postId = Number(new URL(request.url).searchParams.get('postId'))
-    const replies = await getDiscussionReplies(postId, userId)
+    const replies = await getDiscussionReplies(
+      postId,
+      userId,
+      await canSeeUnpublished(userId),
+    )
     return jsonOk({ replies })
   } catch (error) {
     if (!isApiError(error)) {
       console.error('Failed to fetch replies', error)
-      return mapThrownErrorToResponse(new Error('SERVER_ERROR_FETCHING_REPLIES'))
+      return mapThrownErrorToResponse(
+        new Error('SERVER_ERROR_FETCHING_REPLIES'),
+      )
     }
     return mapThrownErrorToResponse(error)
   }

@@ -34,7 +34,11 @@ export async function awardManualPoints(
   if (!Number.isInteger(targetUserId) || targetUserId <= 0) {
     throw new ApiError(400, 'INVALID_USER_ID')
   }
-  if (!Number.isInteger(points) || points === 0 || Math.abs(points) > MAX_POINTS) {
+  if (
+    !Number.isInteger(points) ||
+    points === 0 ||
+    Math.abs(points) > MAX_POINTS
+  ) {
     throw new ApiError(400, 'INVALID_POINTS')
   }
 
@@ -52,7 +56,11 @@ export async function awardManualPoints(
       throw new ApiError(400, 'INVALID_CLUB_ID')
     }
     const club = (
-      await db.select({ id: clubs.id }).from(clubs).where(eq(clubs.id, clubId)).limit(1)
+      await db
+        .select({ id: clubs.id })
+        .from(clubs)
+        .where(eq(clubs.id, clubId))
+        .limit(1)
     ).at(0)
     if (!club) throw new ApiError(404, 'CLUB_NOT_FOUND')
   }

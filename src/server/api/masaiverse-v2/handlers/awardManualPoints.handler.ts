@@ -28,9 +28,7 @@ export async function handleAwardManualPoints(
   } catch (error) {
     if (!isApiError(error)) {
       console.error('Failed to award manual points', error)
-      return mapThrownErrorToResponse(
-        new Error('SERVER_ERROR_AWARDING_POINTS'),
-      )
+      return mapThrownErrorToResponse(new Error('SERVER_ERROR_AWARDING_POINTS'))
     }
     return mapThrownErrorToResponse(error)
   }

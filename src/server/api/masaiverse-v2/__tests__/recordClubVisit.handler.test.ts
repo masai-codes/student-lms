@@ -27,9 +27,8 @@ describe('handleRecordClubVisit', () => {
   })
 
   it('records the visit for the session user and returns the result', async () => {
-    const { handleRecordClubVisit } = await import(
-      '../handlers/recordClubVisit.handler'
-    )
+    const { handleRecordClubVisit } =
+      await import('../handlers/recordClubVisit.handler')
     hoisted.getUserIdFromCookieHeader.mockResolvedValueOnce(99)
     hoisted.recordClubVisit.mockResolvedValueOnce(true)
 
@@ -43,9 +42,8 @@ describe('handleRecordClubVisit', () => {
   })
 
   it('passes NaN to the service when the body is missing', async () => {
-    const { handleRecordClubVisit } = await import(
-      '../handlers/recordClubVisit.handler'
-    )
+    const { handleRecordClubVisit } =
+      await import('../handlers/recordClubVisit.handler')
     hoisted.getUserIdFromCookieHeader.mockResolvedValueOnce(3)
     hoisted.recordClubVisit.mockResolvedValueOnce(false)
 
@@ -59,21 +57,21 @@ describe('handleRecordClubVisit', () => {
   })
 
   it('returns 401 when there is no session user', async () => {
-    const { handleRecordClubVisit } = await import(
-      '../handlers/recordClubVisit.handler'
-    )
+    const { handleRecordClubVisit } =
+      await import('../handlers/recordClubVisit.handler')
     hoisted.getUserIdFromCookieHeader.mockResolvedValueOnce(null)
 
-    const response = await handleRecordClubVisit(postRequest({ clubId: 5 }, null))
+    const response = await handleRecordClubVisit(
+      postRequest({ clubId: 5 }, null),
+    )
 
     expect(response.status).toBe(401)
     expect(hoisted.recordClubVisit).not.toHaveBeenCalled()
   })
 
   it('maps unexpected service failures to a 500 error', async () => {
-    const { handleRecordClubVisit } = await import(
-      '../handlers/recordClubVisit.handler'
-    )
+    const { handleRecordClubVisit } =
+      await import('../handlers/recordClubVisit.handler')
     hoisted.getUserIdFromCookieHeader.mockResolvedValueOnce(5)
     hoisted.recordClubVisit.mockRejectedValueOnce(new Error('boom'))
     const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})

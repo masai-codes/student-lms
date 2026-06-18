@@ -21,9 +21,8 @@ beforeEach(() => {
 
 describe('getMemberClubIds', () => {
   it('returns the numeric club ids the user has joined', async () => {
-    const { getMemberClubIds } = await import(
-      '../services/getMemberClubIds.service'
-    )
+    const { getMemberClubIds } =
+      await import('../services/getMemberClubIds.service')
     hoisted.dbSelect.mockReturnValueOnce(
       selectChain([{ clubId: 7 }, { clubId: 3 }]),
     )
@@ -31,9 +30,8 @@ describe('getMemberClubIds', () => {
   })
 
   it('returns an empty array when the user is in no clubs', async () => {
-    const { getMemberClubIds } = await import(
-      '../services/getMemberClubIds.service'
-    )
+    const { getMemberClubIds } =
+      await import('../services/getMemberClubIds.service')
     hoisted.dbSelect.mockReturnValueOnce(selectChain([]))
     await expect(getMemberClubIds(1)).resolves.toEqual([])
   })

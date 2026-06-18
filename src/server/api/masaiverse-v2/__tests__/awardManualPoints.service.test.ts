@@ -40,13 +40,17 @@ beforeEach(() => {
 })
 
 async function load() {
-  return (await import('../services/awardManualPoints.service')).awardManualPoints
+  return (await import('../services/awardManualPoints.service'))
+    .awardManualPoints
 }
 
 describe('awardManualPoints', () => {
   it('rejects a non-admin with 403 and never touches the db', async () => {
     const awardManualPoints = await load()
-    hoisted.getAdminModeState.mockResolvedValueOnce({ isAdmin: false, enabled: false })
+    hoisted.getAdminModeState.mockResolvedValueOnce({
+      isAdmin: false,
+      enabled: false,
+    })
     await expect(
       awardManualPoints(1, { targetUserId: 2, points: 10, clubId: null }),
     ).rejects.toMatchObject({ status: 403 })
@@ -57,7 +61,11 @@ describe('awardManualPoints', () => {
   it('rejects an invalid target user id', async () => {
     const awardManualPoints = await load()
     await expect(
-      awardManualPoints(1, { targetUserId: Number.NaN, points: 10, clubId: null }),
+      awardManualPoints(1, {
+        targetUserId: Number.NaN,
+        points: 10,
+        clubId: null,
+      }),
     ).rejects.toMatchObject({ status: 400, code: 'INVALID_USER_ID' })
   })
 

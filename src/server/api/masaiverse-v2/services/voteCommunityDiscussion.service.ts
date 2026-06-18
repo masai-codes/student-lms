@@ -55,7 +55,9 @@ async function applyVote(
   if (!current) {
     await db
       .insert(votes)
-      .values(isReply ? { userId, replyId: id, vote } : { userId, postId: id, vote })
+      .values(
+        isReply ? { userId, replyId: id, vote } : { userId, postId: id, vote },
+      )
     myVote = vote
     // Only upvotes score; a fresh downvote awards nothing.
     if (vote === 'upvote') {

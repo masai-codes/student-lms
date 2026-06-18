@@ -25,36 +25,43 @@ describe('canSeeUnpublished', () => {
 
   it('is true only for an admin with admin mode enabled', async () => {
     const { canSeeUnpublished } = await import('../services/publishVisibility')
-    hoisted.getAdminModeState.mockResolvedValueOnce({ isAdmin: true, enabled: true })
+    hoisted.getAdminModeState.mockResolvedValueOnce({
+      isAdmin: true,
+      enabled: true,
+    })
     await expect(canSeeUnpublished(1)).resolves.toBe(true)
   })
 
   it('is false for an admin with admin mode disabled', async () => {
     const { canSeeUnpublished } = await import('../services/publishVisibility')
-    hoisted.getAdminModeState.mockResolvedValueOnce({ isAdmin: true, enabled: false })
+    hoisted.getAdminModeState.mockResolvedValueOnce({
+      isAdmin: true,
+      enabled: false,
+    })
     await expect(canSeeUnpublished(1)).resolves.toBe(false)
   })
 
   it('is false for a non-admin', async () => {
     const { canSeeUnpublished } = await import('../services/publishVisibility')
-    hoisted.getAdminModeState.mockResolvedValueOnce({ isAdmin: false, enabled: false })
+    hoisted.getAdminModeState.mockResolvedValueOnce({
+      isAdmin: false,
+      enabled: false,
+    })
     await expect(canSeeUnpublished(1)).resolves.toBe(false)
   })
 })
 
 describe('publishedEventCondition / publishedClubCondition', () => {
   it('returns no condition when the viewer may see drafts', async () => {
-    const { publishedEventCondition, publishedClubCondition } = await import(
-      '../services/publishVisibility'
-    )
+    const { publishedEventCondition, publishedClubCondition } =
+      await import('../services/publishVisibility')
     expect(publishedEventCondition(true)).toBeUndefined()
     expect(publishedClubCondition(true)).toBeUndefined()
   })
 
   it('returns a SQL filter when the viewer may not see drafts', async () => {
-    const { publishedEventCondition, publishedClubCondition } = await import(
-      '../services/publishVisibility'
-    )
+    const { publishedEventCondition, publishedClubCondition } =
+      await import('../services/publishVisibility')
     expect(publishedEventCondition(false)).toBeDefined()
     expect(publishedClubCondition(false)).toBeDefined()
   })

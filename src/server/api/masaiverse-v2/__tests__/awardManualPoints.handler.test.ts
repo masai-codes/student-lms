@@ -6,9 +6,12 @@ const hoisted = vi.hoisted(() => ({
   getUserIdFromCookieHeader: vi.fn(),
 }))
 
-vi.mock('@/server/api/masaiverse-v2/services/awardManualPoints.service', () => ({
-  awardManualPoints: hoisted.awardManualPoints,
-}))
+vi.mock(
+  '@/server/api/masaiverse-v2/services/awardManualPoints.service',
+  () => ({
+    awardManualPoints: hoisted.awardManualPoints,
+  }),
+)
 vi.mock('@/server/auth/getCurrentSessionUserId', () => ({
   getUserIdFromCookieHeader: hoisted.getUserIdFromCookieHeader,
 }))
@@ -37,7 +40,10 @@ describe('handleAwardManualPoints', () => {
     hoisted.awardManualPoints.mockResolvedValueOnce({ id: '99' })
 
     const response = await handle(
-      postRequest({ targetUserId: '2', points: '50', clubId: '9' }, 'session=abc'),
+      postRequest(
+        { targetUserId: '2', points: '50', clubId: '9' },
+        'session=abc',
+      ),
     )
 
     expect(response.status).toBe(201)
@@ -54,7 +60,12 @@ describe('handleAwardManualPoints', () => {
     hoisted.getUserIdFromCookieHeader.mockResolvedValueOnce(7)
     hoisted.awardManualPoints.mockResolvedValueOnce({ id: '1' })
 
-    await handle(postRequest({ targetUserId: '2', points: '5', clubId: '' }, 'session=abc'))
+    await handle(
+      postRequest(
+        { targetUserId: '2', points: '5', clubId: '' },
+        'session=abc',
+      ),
+    )
     expect(hoisted.awardManualPoints).toHaveBeenCalledWith(7, {
       targetUserId: 2,
       points: 5,
@@ -66,7 +77,9 @@ describe('handleAwardManualPoints', () => {
     const handle = await load()
     hoisted.getUserIdFromCookieHeader.mockResolvedValueOnce(null)
 
-    const response = await handle(postRequest({ targetUserId: '2', points: 5 }, null))
+    const response = await handle(
+      postRequest({ targetUserId: '2', points: 5 }, null),
+    )
     expect(response.status).toBe(401)
     expect(hoisted.awardManualPoints).not.toHaveBeenCalled()
   })

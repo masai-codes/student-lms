@@ -44,13 +44,15 @@ describe('recordClubVisit service', () => {
   })
 
   it('returns false for a non-finite club id without touching the db', async () => {
-    const { recordClubVisit } = await import('../services/recordClubVisit.service')
+    const { recordClubVisit } =
+      await import('../services/recordClubVisit.service')
     await expect(recordClubVisit(1, Number.NaN, NOW)).resolves.toBe(false)
     expect(hoisted.dbSelect).not.toHaveBeenCalled()
   })
 
   it('does not write when the user is not a member', async () => {
-    const { recordClubVisit } = await import('../services/recordClubVisit.service')
+    const { recordClubVisit } =
+      await import('../services/recordClubVisit.service')
     hoisted.dbSelect.mockReturnValueOnce(limitChain([]))
 
     await expect(recordClubVisit(1, 5, NOW)).resolves.toBe(false)
@@ -58,7 +60,8 @@ describe('recordClubVisit service', () => {
   })
 
   it('stamps lastVisitedAt while preserving sibling meta keys', async () => {
-    const { recordClubVisit } = await import('../services/recordClubVisit.service')
+    const { recordClubVisit } =
+      await import('../services/recordClubVisit.service')
     hoisted.dbSelect.mockReturnValueOnce(
       limitChain([{ id: 11, meta: { role: 'lead' } }]),
     )
@@ -71,7 +74,8 @@ describe('recordClubVisit service', () => {
   })
 
   it('initializes meta when the column is null', async () => {
-    const { recordClubVisit } = await import('../services/recordClubVisit.service')
+    const { recordClubVisit } =
+      await import('../services/recordClubVisit.service')
     hoisted.dbSelect.mockReturnValueOnce(limitChain([{ id: 7, meta: null }]))
     const setArgs = captureUpdate()
 

@@ -11,9 +11,7 @@ export async function handleSetAdminMode(request: Request): Promise<Response> {
     } | null
 
     if (typeof body?.enabled !== 'boolean') {
-      return mapThrownErrorToResponse(
-        new Error('INVALID_ADMIN_MODE_PAYLOAD'),
-      )
+      return mapThrownErrorToResponse(new Error('INVALID_ADMIN_MODE_PAYLOAD'))
     }
 
     const state = await setAdminModeState(userId, body.enabled)

@@ -3,7 +3,9 @@ import { jsonOk, mapThrownErrorToResponse } from '@/server/api/http/responses'
 import { requireSessionUserId } from '@/server/api/http/requireSessionUser'
 import { getClubEditData } from '@/server/api/masaiverse-v2/services/getClubEditData.service'
 
-export async function handleGetClubEditData(request: Request): Promise<Response> {
+export async function handleGetClubEditData(
+  request: Request,
+): Promise<Response> {
   try {
     const userId = await requireSessionUserId(request)
     const clubId = Number(new URL(request.url).searchParams.get('clubId'))

@@ -28,7 +28,9 @@ export async function handleVoteCommunityDiscussion(
   } catch (error) {
     if (!isApiError(error)) {
       console.error('Failed to vote on discussion', error)
-      return mapThrownErrorToResponse(new Error('SERVER_ERROR_VOTING_DISCUSSION'))
+      return mapThrownErrorToResponse(
+        new Error('SERVER_ERROR_VOTING_DISCUSSION'),
+      )
     }
     return mapThrownErrorToResponse(error)
   }

@@ -4,7 +4,9 @@ import { requireSessionUserId } from '@/server/api/http/requireSessionUser'
 import { getEventDetail } from '@/server/api/masaiverse-v2/services/getEventDetail.service'
 import { canSeeUnpublished } from '@/server/api/masaiverse-v2/services/publishVisibility'
 
-export async function handleGetEventDetail(request: Request): Promise<Response> {
+export async function handleGetEventDetail(
+  request: Request,
+): Promise<Response> {
   try {
     const userId = await requireSessionUserId(request)
     const eventId = Number(new URL(request.url).searchParams.get('eventId'))

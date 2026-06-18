@@ -49,8 +49,12 @@ beforeEach(() => {
 
 describe('getEventEditData', () => {
   it('rejects a non-admin with a 403', async () => {
-    const { getEventEditData } = await import('../services/getEventEditData.service')
-    hoisted.getAdminModeState.mockResolvedValueOnce({ isAdmin: false, enabled: false })
+    const { getEventEditData } =
+      await import('../services/getEventEditData.service')
+    hoisted.getAdminModeState.mockResolvedValueOnce({
+      isAdmin: false,
+      enabled: false,
+    })
     await expect(getEventEditData(1, 5)).rejects.toMatchObject({
       status: 403,
       code: 'MASAIVERSE_ADMIN_FORBIDDEN',
@@ -58,8 +62,12 @@ describe('getEventEditData', () => {
   })
 
   it('404s when the event is missing', async () => {
-    const { getEventEditData } = await import('../services/getEventEditData.service')
-    hoisted.getAdminModeState.mockResolvedValueOnce({ isAdmin: true, enabled: true })
+    const { getEventEditData } =
+      await import('../services/getEventEditData.service')
+    hoisted.getAdminModeState.mockResolvedValueOnce({
+      isAdmin: true,
+      enabled: true,
+    })
     hoisted.dbSelect.mockReturnValueOnce(selectChain([]))
     await expect(getEventEditData(1, 99)).rejects.toMatchObject({
       status: 404,
@@ -68,8 +76,12 @@ describe('getEventEditData', () => {
   })
 
   it('returns columns (timestamps as UTC ISO) + raw meta', async () => {
-    const { getEventEditData } = await import('../services/getEventEditData.service')
-    hoisted.getAdminModeState.mockResolvedValueOnce({ isAdmin: true, enabled: true })
+    const { getEventEditData } =
+      await import('../services/getEventEditData.service')
+    hoisted.getAdminModeState.mockResolvedValueOnce({
+      isAdmin: true,
+      enabled: true,
+    })
     hoisted.dbSelect.mockReturnValueOnce(
       selectChain([
         {

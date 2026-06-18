@@ -11,7 +11,12 @@ const hoisted = vi.hoisted(() => ({
 vi.mock('@/db', () => ({ db: { select: hoisted.dbSelect } }))
 
 vi.mock('@/db/schema', () => ({
-  clubs: { id: 'clubs.id', name: 'clubs.name', image: 'clubs.image', meta: 'clubs.meta' },
+  clubs: {
+    id: 'clubs.id',
+    name: 'clubs.name',
+    image: 'clubs.image',
+    meta: 'clubs.meta',
+  },
   clubMembers: {
     id: 'club_members.id',
     clubId: 'club_members.club_id',
@@ -45,7 +50,9 @@ vi.mock('../services/getCommunityDiscussions.service', () => ({
 
 /** `db.select().from().where().limit()` */
 function limitChain(rows: unknown) {
-  return { from: () => ({ where: () => ({ limit: () => Promise.resolve(rows) }) }) }
+  return {
+    from: () => ({ where: () => ({ limit: () => Promise.resolve(rows) }) }),
+  }
 }
 /** `db.select().from().where()` */
 function whereChain(rows: unknown) {
@@ -90,7 +97,12 @@ describe('getClubDetail', () => {
             meta: {
               cardImageLink: 'https://cdn/c.png',
               clubDetailBannerSubtitle: 'Code. Build. Ship.',
-              clubDetailBannerTags: ['Code · DSA · Projects', '', 'Tenure 4 · Active', 7],
+              clubDetailBannerTags: [
+                'Code · DSA · Projects',
+                '',
+                'Tenure 4 · Active',
+                7,
+              ],
               description: 'The technical heartbeat of MasaiVerse.',
               aboutCardDetails: [
                 { heading: 'Founded', value: 'September 2023' },
@@ -112,8 +124,14 @@ describe('getClubDetail', () => {
                 { emoji: '🌐', text: 'no heading dropped' },
                 'not-an-object',
               ],
-              galleryImages: ['https://cdn/p1.jpg', '', 'https://cdn/p2.jpg', 7],
-              confirmationModalText: '  By joining you agree to the **code of conduct**.  ',
+              galleryImages: [
+                'https://cdn/p1.jpg',
+                '',
+                'https://cdn/p2.jpg',
+                7,
+              ],
+              confirmationModalText:
+                '  By joining you agree to the **code of conduct**.  ',
             },
           },
         ]),
@@ -159,7 +177,14 @@ describe('getClubDetail', () => {
       limit: 10,
       canSeeUnpublished: false,
     })
-    expect(hoisted.getCommunityDiscussions).toHaveBeenCalledWith(1, 0, 5, '', '5')
+    expect(hoisted.getCommunityDiscussions).toHaveBeenCalledWith(
+      1,
+      0,
+      5,
+      '',
+      '5',
+      false,
+    )
   })
 
   it('withholds member-only sections for a non-member (blur teaser)', async () => {

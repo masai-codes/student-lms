@@ -40,7 +40,8 @@ export async function updateMasaiverseBanner(
 ): Promise<{ success: true }> {
   const state = await getAdminModeState(userId)
   if (!state.isAdmin) throw new ApiError(403, 'MASAIVERSE_ADMIN_FORBIDDEN')
-  if (!Number.isFinite(input.bannerId)) throw new ApiError(400, 'INVALID_UPDATE_PAYLOAD')
+  if (!Number.isFinite(input.bannerId))
+    throw new ApiError(400, 'INVALID_UPDATE_PAYLOAD')
 
   const rows = await db
     .select({ meta: masaiverseBanners.meta })

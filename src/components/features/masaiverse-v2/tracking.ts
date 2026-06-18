@@ -55,6 +55,8 @@ export const MASAIVERSE_EVENTS = {
   discussionVote: 'masaiverse_discussion_vote',
   discussionExpandToggle: 'masaiverse_discussion_expand_toggle',
   discussionLoadMore: 'masaiverse_discussion_load_more',
+  discussionPostBan: 'masaiverse_discussion_post_ban',
+  discussionReplyBan: 'masaiverse_discussion_reply_ban',
 
   // Leaderboard
   leaderboardTabChange: 'masaiverse_leaderboard_tab_change',
