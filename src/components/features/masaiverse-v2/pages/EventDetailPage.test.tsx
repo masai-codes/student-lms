@@ -56,6 +56,8 @@ function makeEvent(
     eventSummary: null,
     clubId: '3',
     clubName: 'Programming Club',
+    isClubMember: true,
+    clubConfirmationModalText: null,
     status: 'upcoming',
     isEnrolled: false,
     enrolledCount: 4,

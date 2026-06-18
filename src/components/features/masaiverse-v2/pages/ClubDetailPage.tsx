@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query'
 import { useCanGoBack, useNavigate, useRouter } from '@tanstack/react-router'
 import { ArrowLeft, PencilSimple } from '@phosphor-icons/react'
 import InlineDrawer from '../InlineDrawer'
+import { MASAIVERSE_EVENTS, trackMasaiverse } from '../tracking'
 import AboutClubSection from './club/AboutClubSection'
 import ClubDetailBanner from './club/ClubDetailBanner'
 import ClubDiscussionsSection from './club/ClubDiscussionsSection'
@@ -20,7 +21,6 @@ import { recordMasaiverseV2ClubVisit } from '@/lib/api/masaiverse-v2/masaiverseV
 import { masaiverseV2ClubDetailQuery } from '@/query/masaiverse-v2/clubsQuery'
 import { masaiverseV2AdminModeQuery } from '@/query/masaiverse-v2/adminModeQuery'
 import ClubEditForm from '@/components/features/masaiverse-v2/edit/ClubEditForm'
-import { MASAIVERSE_EVENTS, trackMasaiverse } from '../tracking'
 
 type ClubDetailPageProps = {
   clubId: string
@@ -167,51 +167,24 @@ export default function ClubDetailPage({ clubId }: ClubDetailPageProps) {
         <ClubStatsSection clubId={clubId} initialStats={club.stats} />
         <AboutClubSection club={club} />
         <LearningTenureSection club={club} />
-        {/* The sections below are member-only: non-members see a blurred
-            "join to unlock" teaser, and the server withholds their data. */}
-        {isMember ? (
-          <WeeklyConnectsSection
-            clubId={clubId}
-            onViewSchedule={toggleCalendar}
-            scheduleOpen={isCalendarOpen}
-            initialEvents={club.events}
-          />
-        ) : (
-          <LockedSection
-            clubId={clubId}
-            title="Weekly Connects"
-            variant="list"
-            teaser="Join to see the club's recurring weekly sessions and never miss a connect."
-            confirmationModalText={club.confirmationModalText}
-          />
-        )}
-        {isMember ? (
-          <ClubUpcomingSection
-            clubId={clubId}
-            onViewCalendar={toggleCalendar}
-            calendarOpen={isCalendarOpen}
-            initialEvents={club.events}
-          />
-        ) : (
-          <LockedSection
-            clubId={clubId}
-            title="Live & Upcoming Events"
-            variant="cards"
-            teaser="Join to discover live and upcoming events happening in this club."
-            confirmationModalText={club.confirmationModalText}
-          />
-        )}
-        {isMember ? (
-          <ClubPastSection clubId={clubId} initialEvents={club.events} />
-        ) : (
-          <LockedSection
-            clubId={clubId}
-            title="Past Events"
-            variant="cards"
-            teaser="Join to catch recaps and replays from the club's past events."
-            confirmationModalText={club.confirmationModalText}
-          />
-        )}
+        {/* Event sections are visible to everyone — non-members can browse the
+            club's schedule and open an event. Registration is gated to members
+            on the event page itself. The leaderboard and discussions below stay
+            member-only: non-members see a blurred "join to unlock" teaser and
+            the server withholds their data. */}
+        <WeeklyConnectsSection
+          clubId={clubId}
+          onViewSchedule={toggleCalendar}
+          scheduleOpen={isCalendarOpen}
+          initialEvents={club.events}
+        />
+        <ClubUpcomingSection
+          clubId={clubId}
+          onViewCalendar={toggleCalendar}
+          calendarOpen={isCalendarOpen}
+          initialEvents={club.events}
+        />
+        <ClubPastSection clubId={clubId} initialEvents={club.events} />
         {isMember ? (
           <ClubLeaderboardSection
             clubId={clubId}

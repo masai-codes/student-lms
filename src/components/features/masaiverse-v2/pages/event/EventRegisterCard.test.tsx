@@ -12,10 +12,14 @@ import EventRegisterCard from './EventRegisterCard'
 import type { MasaiverseV2EventDetail } from '@/server/api/masaiverse-v2/services/getEventDetail.service'
 import { masaiverseV2EventDetailQuery } from '@/query/masaiverse-v2/eventsQuery'
 
-const { enroll } = vi.hoisted(() => ({ enroll: vi.fn() }))
+const { enroll, joinClub } = vi.hoisted(() => ({
+  enroll: vi.fn(),
+  joinClub: vi.fn(),
+}))
 
 vi.mock('@/lib/api/masaiverse-v2/masaiverseV2Api', () => ({
   enrollMasaiverseV2Event: enroll,
+  setMasaiverseV2ClubMembership: joinClub,
   fetchMasaiverseV2EventDetail: vi.fn(),
 }))
 
@@ -42,6 +46,8 @@ function makeEvent(
     eventSummary: null,
     clubId: null,
     clubName: null,
+    isClubMember: true,
+    clubConfirmationModalText: null,
     status: 'upcoming',
     isEnrolled: false,
     enrolledCount: 0,
@@ -209,5 +215,38 @@ describe('EventRegisterCard', () => {
     )
     expect(screen.getByText("You're registered! 🎉")).toBeTruthy()
     expect(screen.queryByRole('button')).toBeNull()
+  })
+
+  it('hides Register and shows a Join club CTA for a non-member of the hosting club', () => {
+    renderCard(
+      makeEvent({ clubId: '3', clubName: 'Programming Club', isClubMember: false }),
+    )
+    expect(screen.queryByRole('button', { name: 'Register' })).toBeNull()
+    expect(screen.getByRole('button', { name: 'Join club' })).toBeTruthy()
+    expect(screen.getByText('Programming Club')).toBeTruthy()
+  })
+
+  it('joins the club then reveals the Register CTA', async () => {
+    joinClub.mockResolvedValueOnce({ isJoined: true, memberCount: 2 })
+    const event = makeEvent({ clubId: '3', isClubMember: false })
+    const client = renderCard(event, { seedCache: true })
+
+    fireEvent.click(screen.getByRole('button', { name: 'Join club' }))
+
+    await waitFor(() =>
+      expect(joinClub).toHaveBeenCalledWith({ clubId: '3', join: true }),
+    )
+    // Once joined, the gate lifts and the Register CTA appears in place.
+    expect(await screen.findByRole('button', { name: 'Register' })).toBeTruthy()
+    const cached = client.getQueryData<MasaiverseV2EventDetail>(
+      masaiverseV2EventDetailQuery(event.id).queryKey,
+    )
+    expect(cached).toMatchObject({ isClubMember: true })
+  })
+
+  it('still lets a member register for a club event', () => {
+    renderCard(makeEvent({ clubId: '3', isClubMember: true }))
+    expect(screen.getByRole('button', { name: 'Register' })).toBeTruthy()
+    expect(screen.queryByRole('button', { name: 'Join club' })).toBeNull()
   })
 })

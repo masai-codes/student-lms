@@ -1,15 +1,28 @@
 import { useState } from 'react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { ArrowSquareOut, CheckCircle, MapPin, Ticket } from '@phosphor-icons/react'
+import {
+  ArrowSquareOut,
+  CheckCircle,
+  MapPin,
+  Plus,
+  Ticket,
+} from '@phosphor-icons/react'
+import { MASAIVERSE_EVENTS, trackMasaiverse } from '../../tracking'
 import EventAttendees from './EventAttendees'
 import type { MasaiverseV2EventDetail } from '@/server/api/masaiverse-v2/services/getEventDetail.service'
 import type { EventEnrollmentState } from '@/server/api/masaiverse-v2/services/setEventEnrollment.service'
 import ConfirmActionModal from '@/components/features/masaiverse-v2/ConfirmActionModal'
-import { enrollMasaiverseV2Event } from '@/lib/api/masaiverse-v2/masaiverseV2Api'
+import {
+  enrollMasaiverseV2Event,
+  setMasaiverseV2ClubMembership,
+} from '@/lib/api/masaiverse-v2/masaiverseV2Api'
 import { masaiverseV2EventDetailQuery } from '@/query/masaiverse-v2/eventsQuery'
+import {
+  MASAIVERSE_V2_MY_CLUBS_KEY,
+  masaiverseV2ClubDetailQuery,
+} from '@/query/masaiverse-v2/clubsQuery'
 import { MASAIVERSE_V2_HOME_KEY } from '@/query/masaiverse-v2/homeQuery'
 import { invalidateMasaiverseV2Leaderboards } from '@/query/masaiverse-v2/leaderboardQuery'
-import { MASAIVERSE_EVENTS, trackMasaiverse } from '../../tracking'
 
 type EventRegisterCardProps = {
   event: MasaiverseV2EventDetail
@@ -49,6 +62,12 @@ export default function EventRegisterCard({ event }: EventRegisterCardProps) {
   // Whether the pre-registration confirmation dialog is open. Only ever shown
   // when the event configures `confirmationModalText`.
   const [confirmOpen, setConfirmOpen] = useState(false)
+  // Local club-membership flip so the Register CTA appears instantly after the
+  // user joins the club from this page, without waiting for a detail refetch.
+  const [justJoinedClub, setJustJoinedClub] = useState(false)
+  // Whether the pre-join confirmation dialog is open. Only ever shown when the
+  // hosting club configures `clubConfirmationModalText`.
+  const [joinConfirmOpen, setJoinConfirmOpen] = useState(false)
 
   const mutation = useMutation({
     mutationFn: () => enrollMasaiverseV2Event(event.id),
@@ -76,6 +95,42 @@ export default function EventRegisterCard({ event }: EventRegisterCardProps) {
     },
   })
 
+  // Joins the hosting club so the user can then register. Flips the local +
+  // cached membership state and refreshes the club's own page / sidebar list.
+  const joinMutation = useMutation({
+    mutationFn: () =>
+      setMasaiverseV2ClubMembership({ clubId: event.clubId!, join: true }),
+    onSuccess: () => {
+      trackMasaiverse(MASAIVERSE_EVENTS.clubJoinSuccess, {
+        club_id: event.clubId,
+      })
+      setJoinConfirmOpen(false)
+      setJustJoinedClub(true)
+      queryClient.setQueryData<MasaiverseV2EventDetail>(detailKey, (prev) =>
+        prev ? { ...prev, isClubMember: true } : prev,
+      )
+      // The club's own page (member count, locked sections) and the sidebar
+      // "My Clubs" list now reflect the new membership.
+      if (event.clubId) {
+        void queryClient.invalidateQueries({
+          queryKey: masaiverseV2ClubDetailQuery(event.clubId).queryKey,
+        })
+      }
+      void queryClient.invalidateQueries({ queryKey: MASAIVERSE_V2_MY_CLUBS_KEY })
+    },
+  })
+
+  // Gate joining behind the confirmation dialog when the club provides notice
+  // text; otherwise join straight away.
+  const handleJoinClick = () => {
+    trackMasaiverse(MASAIVERSE_EVENTS.clubJoinClick, {
+      club_id: event.clubId,
+      has_confirmation: Boolean(event.clubConfirmationModalText),
+    })
+    if (event.clubConfirmationModalText) setJoinConfirmOpen(true)
+    else joinMutation.mutate()
+  }
+
   // Gate registration behind the confirmation dialog when the event provides
   // notice text; otherwise register straight away.
   const handleRegisterClick = () => {
@@ -92,6 +147,11 @@ export default function EventRegisterCard({ event }: EventRegisterCardProps) {
   const enrolledCount = justRegistered?.enrolledCount ?? event.enrolledCount
   const openLabel = isOffline ? 'Get directions' : 'Join event'
   const OpenIcon = isOffline ? MapPin : ArrowSquareOut
+  // Registration is members-only. When the event belongs to a club the user
+  // hasn't joined, the Register CTA is replaced by a "Join club" CTA; once the
+  // user joins, the Register CTA takes its place.
+  const isClubMember = event.isClubMember || justJoinedClub
+  const needsClubMembership = event.clubId != null && !isClubMember
 
   return (
     <div className="rounded-[20px] border border-[#EDEAE8] bg-white/95 p-5 shadow-[0_10px_40px_-18px_rgba(0,0,0,0.28)] backdrop-blur-sm">
@@ -136,6 +196,25 @@ export default function EventRegisterCard({ event }: EventRegisterCardProps) {
             </button>
           ) : null}
         </div>
+      ) : needsClubMembership ? (
+        <div className="mt-3">
+          <p className="text-[14px] leading-5 text-[#6B7280]">
+            Join{' '}
+            <span className="font-semibold text-[#111827]">
+              {event.clubName ?? 'the club'}
+            </span>{' '}
+            to register for this event.
+          </p>
+          <button
+            type="button"
+            onClick={handleJoinClick}
+            disabled={joinMutation.isPending}
+            className="mt-3 flex w-full items-center justify-center gap-2 rounded-[14px] bg-gradient-to-r from-masaiverse-orange to-[#FF7A29] px-5 py-3.5 text-[15px] font-bold text-white shadow-[0_8px_20px_-6px_rgba(242,92,4,0.5)] transition-all hover:shadow-[0_10px_26px_-6px_rgba(242,92,4,0.6)] active:scale-[0.99] disabled:opacity-70 disabled:shadow-none"
+          >
+            <Plus size={18} weight="bold" />
+            {joinMutation.isPending ? 'Joining…' : 'Join club'}
+          </button>
+        </div>
       ) : (
         <button
           type="button"
@@ -159,6 +238,18 @@ export default function EventRegisterCard({ event }: EventRegisterCardProps) {
           confirmLabel={mutation.isPending ? 'Registering…' : 'Confirm & register'}
           isPending={mutation.isPending}
           onConfirm={() => mutation.mutate()}
+        />
+      ) : null}
+
+      {event.clubConfirmationModalText ? (
+        <ConfirmActionModal
+          open={joinConfirmOpen}
+          onOpenChange={setJoinConfirmOpen}
+          confirmationText={event.clubConfirmationModalText}
+          title="Confirm joining this club"
+          confirmLabel={joinMutation.isPending ? 'Joining…' : 'Confirm & join'}
+          isPending={joinMutation.isPending}
+          onConfirm={() => joinMutation.mutate()}
         />
       ) : null}
     </div>

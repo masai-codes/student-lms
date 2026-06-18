@@ -29,6 +29,8 @@ function makeEvent(
     isWeeklyConnect: false,
     clubId: null,
     clubName: null,
+    isClubMember: true,
+    clubConfirmationModalText: null,
     status: 'upcoming',
     isEnrolled: false,
     enrolledCount: 0,
