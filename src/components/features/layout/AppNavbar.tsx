@@ -9,6 +9,7 @@ import {
   BriefcaseBusiness,
   Bug,
   CalendarDays,
+  Gift,
   LogOutIcon,
   Megaphone,
   MessagesSquare,
@@ -31,6 +32,7 @@ import { LEGACY_STUDENT_LMS_URL } from '@/constants/legacyStudentUi'
 import { OLD_STUDENT_UI_NAV_PATHS } from '@/constants/oldStudentUiNavPaths'
 import { getBugReportFormUrl } from '@/utils/bugReportFormUrl'
 import { logout } from '@/server/auth/logout'
+import { getMasaiverseAccessDebugServer } from '@/server/masaiverse/getMasaiverseAccessDebugServer'
 import {
   getOldStudentUiUrlForPath,
   getPostLogoutRedirectUrl,
@@ -86,6 +88,22 @@ export default function AppNavbar() {
     refetchIntervalInBackground: false,
     retry: 1,
   })
+
+  // MasaiVerse Community access is per-user and stable for the session, so cache
+  // it the same way the masaiverse route loader does. Admins always have access.
+  const { data: masaiverseAccess } = useQuery({
+    queryKey: ['masaiverse-access', user.id],
+    queryFn: () => getMasaiverseAccessDebugServer({ data: { userId: user.id } }),
+    staleTime: 5 * 60 * 1000,
+    enabled: user.role !== 'admin',
+  })
+
+  // When the CTA is active we surface "MasaiVerse Community" in the main desktop
+  // nav (replacing "Refer & Earn") and move "Refer & Earn" into the profile
+  // dropdown. Otherwise the nav keeps "Refer & Earn" and the dropdown keeps
+  // "MasaiVerse Community" as-is.
+  const showMasaiverseCta =
+    user.role === 'admin' || masaiverseAccess?.canShowMasaiverse === true
 
   const handleLevelupClick = useCallback(
     async (e: React.MouseEvent<HTMLAnchorElement>) => {
@@ -171,13 +189,20 @@ export default function AppNavbar() {
       label: 'Discussions',
       ...oldStudentUiLink(OLD_STUDENT_UI_NAV_PATHS.discussions),
     },
-    {
-      id: 'refer',
-      label: 'Refer & Earn',
-      href: '#',
-      openInNewTab: false,
-      onClick: handleReferAndEarnClick,
-    },
+    showMasaiverseCta
+      ? {
+          id: 'masaiverse-nav',
+          label: 'MasaiVerse Community',
+          href: '/masaiverse',
+          openInNewTab: false,
+        }
+      : {
+          id: 'refer',
+          label: 'Refer & Earn',
+          href: '#',
+          openInNewTab: false,
+          onClick: handleReferAndEarnClick,
+        },
   ]
 
   const trailingActions: Array<NavbarActionItem> = useMemo(
@@ -241,13 +266,22 @@ export default function AppNavbar() {
         icon: <Bookmark className="size-4" />,
         ...oldStudentUiLink(OLD_STUDENT_UI_NAV_PATHS.bookmarks),
       },
-      {
-        id: 'masaiverse-menu',
-        label: 'MasaiVerse Community',
-        icon: <Users className="size-4" />,
-        href: '/masaiverse',
-        openInNewTab: false,
-      },
+      showMasaiverseCta
+        ? {
+            id: 'refer-menu',
+            label: 'Refer & Earn',
+            icon: <Gift className="size-4" />,
+            href: '#',
+            openInNewTab: false,
+            onClick: handleReferAndEarnClick,
+          }
+        : {
+            id: 'masaiverse-menu',
+            label: 'MasaiVerse Community',
+            icon: <Users className="size-4" />,
+            href: '/masaiverse',
+            openInNewTab: false,
+          },
       {
         id: 'practice-interview',
         label: 'Practice Interviews',
@@ -294,7 +328,13 @@ export default function AppNavbar() {
         },
       },
     ],
-    [handleLevelupClick, handleSignOut, isLevelupLoading],
+    [
+      handleLevelupClick,
+      handleReferAndEarnClick,
+      handleSignOut,
+      isLevelupLoading,
+      showMasaiverseCta,
+    ],
   )
 
   const profile: NavbarProfile = useMemo(
