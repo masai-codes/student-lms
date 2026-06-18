@@ -1,16 +1,20 @@
 import { useState } from 'react'
-import { useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { MASAIVERSE_EVENTS, trackMasaiverse } from '../../tracking'
 import DiscussionContent from './DiscussionContent'
 import DiscussionReplies from './DiscussionReplies'
 import DiscussionTags from './DiscussionTags'
 import DiscussionVotes from './DiscussionVotes'
 import type { MasaiverseV2Discussion } from '@/server/api/masaiverse-v2/services/getCommunityDiscussions.service'
-import { voteMasaiverseV2Discussion } from '@/lib/api/masaiverse-v2/masaiverseV2Api'
+import {
+  banMasaiverseV2Post,
+  voteMasaiverseV2Discussion,
+} from '@/lib/api/masaiverse-v2/masaiverseV2Api'
 import { getInitials } from '@/lib/initials'
 import { patchDiscussionInCache } from '@/query/masaiverse-v2/discussionsQuery'
+import { masaiverseV2AdminModeQuery } from '@/query/masaiverse-v2/adminModeQuery'
 import { formatSocialPostTime } from '@/lib/socialRelativeTime'
 import { useServerTime } from '@/hooks/useServerTime'
-import { MASAIVERSE_EVENTS, trackMasaiverse } from '../../tracking'
 
 type DiscussionRowProps = {
   discussion: MasaiverseV2Discussion
@@ -28,9 +32,32 @@ export default function DiscussionRow({
   const queryClient = useQueryClient()
   const { now } = useServerTime()
   const [showReplies, setShowReplies] = useState(false)
+  const { data: adminMode } = useQuery(masaiverseV2AdminModeQuery())
+  const canModerate = adminMode?.enabled ?? false
+
+  const banMutation = useMutation({
+    mutationFn: () =>
+      banMasaiverseV2Post({
+        postId: discussion.id,
+        banned: !discussion.isBanned,
+      }),
+    onSuccess: (state) => {
+      trackMasaiverse(MASAIVERSE_EVENTS.discussionPostBan, {
+        post_id: discussion.id,
+        banned: state.isBanned,
+      })
+      patchDiscussionInCache(queryClient, discussion.id, {
+        isBanned: state.isBanned,
+      })
+    },
+  })
 
   return (
-    <div className="border-b border-[#EDEAE8] py-4 last:border-b-0">
+    <div
+      className={`border-b border-[#EDEAE8] py-4 last:border-b-0 ${
+        discussion.isBanned ? 'opacity-60' : ''
+      }`}
+    >
       <div className="flex items-start gap-3">
         <span
           className="flex size-10 shrink-0 items-center justify-center rounded-full text-[13px] font-bold text-white"
@@ -49,6 +76,11 @@ export default function DiscussionRow({
               discussion.createdAt,
               new Date(now.valueOf()),
             )}
+            {discussion.isBanned ? (
+              <span className="ml-2 rounded-full bg-red-100 px-2 py-0.5 text-[11px] font-semibold text-red-700">
+                Banned
+              </span>
+            ) : null}
           </p>
           <p className="mt-1 text-[15px] font-bold leading-5 text-[#111827]">
             {discussion.title}
@@ -83,8 +115,20 @@ export default function DiscussionRow({
               }}
               className="text-[12px] font-medium text-[#9CA3AF] hover:text-[#111827]"
             >
-              {showReplies ? 'Hide replies' : `${discussion.replyCount} replies`}
+              {showReplies
+                ? 'Hide replies'
+                : `${discussion.replyCount} replies`}
             </button>
+            {canModerate ? (
+              <button
+                type="button"
+                disabled={banMutation.isPending}
+                onClick={() => banMutation.mutate()}
+                className="text-[12px] font-semibold text-red-600 hover:text-red-700 disabled:opacity-50"
+              >
+                {discussion.isBanned ? 'Unban' : 'Ban'}
+              </button>
+            ) : null}
           </div>
         </div>
       </div>

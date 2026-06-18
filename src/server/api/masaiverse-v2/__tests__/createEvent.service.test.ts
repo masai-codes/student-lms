@@ -19,10 +19,12 @@ beforeEach(() => {
 
 describe('createMasaiverseEvent', () => {
   it('rejects a non-admin with a 403 and never inserts', async () => {
-    const { createMasaiverseEvent } = await import(
-      '../services/createEvent.service'
-    )
-    hoisted.getAdminModeState.mockResolvedValueOnce({ isAdmin: false, enabled: false })
+    const { createMasaiverseEvent } =
+      await import('../services/createEvent.service')
+    hoisted.getAdminModeState.mockResolvedValueOnce({
+      isAdmin: false,
+      enabled: false,
+    })
 
     await expect(createMasaiverseEvent(1, NOW)).rejects.toMatchObject({
       status: 403,
@@ -32,10 +34,12 @@ describe('createMasaiverseEvent', () => {
   })
 
   it('inserts an unpublished draft owned by the admin and returns the id', async () => {
-    const { createMasaiverseEvent } = await import(
-      '../services/createEvent.service'
-    )
-    hoisted.getAdminModeState.mockResolvedValueOnce({ isAdmin: true, enabled: true })
+    const { createMasaiverseEvent } =
+      await import('../services/createEvent.service')
+    hoisted.getAdminModeState.mockResolvedValueOnce({
+      isAdmin: true,
+      enabled: true,
+    })
     const values = vi.fn().mockResolvedValue([{ insertId: 77 }])
     hoisted.dbInsert.mockReturnValue({ values })
 

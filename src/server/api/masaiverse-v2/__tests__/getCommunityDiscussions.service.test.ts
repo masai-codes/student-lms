@@ -36,7 +36,9 @@ function postsChain(rows: unknown) {
   }
 }
 function groupedChain(rows: unknown) {
-  return { from: () => ({ where: () => ({ groupBy: () => Promise.resolve(rows) }) }) }
+  return {
+    from: () => ({ where: () => ({ groupBy: () => Promise.resolve(rows) }) }),
+  }
 }
 function whereChain(rows: unknown) {
   return { from: () => ({ where: () => Promise.resolve(rows) }) }
@@ -48,9 +50,8 @@ beforeEach(() => {
 
 describe('getCommunityDiscussions', () => {
   it('maps posts with author, upvote and reply counts', async () => {
-    const { getCommunityDiscussions } = await import(
-      '../services/getCommunityDiscussions.service'
-    )
+    const { getCommunityDiscussions } =
+      await import('../services/getCommunityDiscussions.service')
     hoisted.dbSelect
       .mockReturnValueOnce(
         postsChain([
@@ -91,6 +92,7 @@ describe('getCommunityDiscussions', () => {
           upvotes: 24,
           replyCount: 14,
           myVote: 'upvote',
+          isBanned: false,
           createdAt: '2026-06-03T09:00:00.000Z',
         },
         {
@@ -102,6 +104,7 @@ describe('getCommunityDiscussions', () => {
           upvotes: 0,
           replyCount: 27,
           myVote: null,
+          isBanned: false,
           createdAt: '2026-06-03T06:00:00.000Z',
         },
       ],
@@ -109,9 +112,8 @@ describe('getCommunityDiscussions', () => {
   })
 
   it('flags hasMore when an extra row beyond the limit is returned', async () => {
-    const { getCommunityDiscussions } = await import(
-      '../services/getCommunityDiscussions.service'
-    )
+    const { getCommunityDiscussions } =
+      await import('../services/getCommunityDiscussions.service')
     // limit 1 + 1 extra row signals another page exists.
     const row = (id: number) => ({
       id,
@@ -132,9 +134,8 @@ describe('getCommunityDiscussions', () => {
   })
 
   it('applies a multi-term search and returns matches', async () => {
-    const { getCommunityDiscussions } = await import(
-      '../services/getCommunityDiscussions.service'
-    )
+    const { getCommunityDiscussions } =
+      await import('../services/getCommunityDiscussions.service')
     hoisted.dbSelect
       .mockReturnValueOnce(
         postsChain([
@@ -158,9 +159,8 @@ describe('getCommunityDiscussions', () => {
   })
 
   it('scopes the feed to a club when a clubId is given', async () => {
-    const { getCommunityDiscussions } = await import(
-      '../services/getCommunityDiscussions.service'
-    )
+    const { getCommunityDiscussions } =
+      await import('../services/getCommunityDiscussions.service')
     hoisted.dbSelect
       .mockReturnValueOnce(
         postsChain([
@@ -183,9 +183,8 @@ describe('getCommunityDiscussions', () => {
   })
 
   it('returns an empty list (and skips count queries) when no posts', async () => {
-    const { getCommunityDiscussions } = await import(
-      '../services/getCommunityDiscussions.service'
-    )
+    const { getCommunityDiscussions } =
+      await import('../services/getCommunityDiscussions.service')
     hoisted.dbSelect.mockReturnValueOnce(postsChain([]))
 
     await expect(getCommunityDiscussions(12)).resolves.toEqual({

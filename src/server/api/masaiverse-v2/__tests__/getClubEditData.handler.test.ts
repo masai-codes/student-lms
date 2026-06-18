@@ -26,18 +26,28 @@ beforeEach(() => {
 
 describe('handleGetClubEditData', () => {
   it('returns the edit data for the session admin', async () => {
-    const { handleGetClubEditData } = await import('../handlers/getClubEditData.handler')
+    const { handleGetClubEditData } =
+      await import('../handlers/getClubEditData.handler')
     hoisted.getUserIdFromCookieHeader.mockResolvedValueOnce(9)
-    hoisted.getClubEditData.mockResolvedValueOnce({ id: '5', name: 'X', meta: {} })
+    hoisted.getClubEditData.mockResolvedValueOnce({
+      id: '5',
+      name: 'X',
+      meta: {},
+    })
 
     const response = await handleGetClubEditData(getRequest('5', 'session=abc'))
     expect(response.status).toBe(200)
-    await expect(response.json()).resolves.toEqual({ id: '5', name: 'X', meta: {} })
+    await expect(response.json()).resolves.toEqual({
+      id: '5',
+      name: 'X',
+      meta: {},
+    })
     expect(hoisted.getClubEditData).toHaveBeenCalledWith(9, 5)
   })
 
   it('returns 401 without a session', async () => {
-    const { handleGetClubEditData } = await import('../handlers/getClubEditData.handler')
+    const { handleGetClubEditData } =
+      await import('../handlers/getClubEditData.handler')
     hoisted.getUserIdFromCookieHeader.mockResolvedValueOnce(null)
     const response = await handleGetClubEditData(getRequest('5', null))
     expect(response.status).toBe(401)
@@ -45,7 +55,8 @@ describe('handleGetClubEditData', () => {
   })
 
   it('propagates a 403 from the service', async () => {
-    const { handleGetClubEditData } = await import('../handlers/getClubEditData.handler')
+    const { handleGetClubEditData } =
+      await import('../handlers/getClubEditData.handler')
     hoisted.getUserIdFromCookieHeader.mockResolvedValueOnce(9)
     hoisted.getClubEditData.mockRejectedValueOnce(
       new ApiError(403, 'MASAIVERSE_ADMIN_FORBIDDEN'),
@@ -55,7 +66,8 @@ describe('handleGetClubEditData', () => {
   })
 
   it('maps unexpected failures to a 500 error', async () => {
-    const { handleGetClubEditData } = await import('../handlers/getClubEditData.handler')
+    const { handleGetClubEditData } =
+      await import('../handlers/getClubEditData.handler')
     hoisted.getUserIdFromCookieHeader.mockResolvedValueOnce(9)
     hoisted.getClubEditData.mockRejectedValueOnce(new Error('boom'))
     const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})

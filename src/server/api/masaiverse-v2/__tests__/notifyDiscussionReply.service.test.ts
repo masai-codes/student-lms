@@ -14,7 +14,9 @@ vi.mock('@/server/masaiverse/triggerExperienceApiCommunityNotify', () => ({
 }))
 
 const postChain = (row: unknown) => ({
-  from: () => ({ where: () => ({ limit: () => Promise.resolve(row ? [row] : []) }) }),
+  from: () => ({
+    where: () => ({ limit: () => Promise.resolve(row ? [row] : []) }),
+  }),
 })
 
 beforeEach(() => {
@@ -27,7 +29,11 @@ describe('notifyDiscussionReply', () => {
       await import('../services/notifyDiscussionReply.service')
     hoisted.dbSelect.mockReturnValueOnce(postChain({ authorId: 9, clubId: 4 }))
 
-    await notifyDiscussionReply({ postId: 7, replierId: 1, replyPreview: 'Nice' })
+    await notifyDiscussionReply({
+      postId: 7,
+      replierId: 1,
+      replyPreview: 'Nice',
+    })
 
     expect(hoisted.notify).toHaveBeenCalledWith({
       postId: 7,
@@ -40,10 +46,11 @@ describe('notifyDiscussionReply', () => {
   })
 
   it('sends clubId null for a public (community) post', async () => {
-    const { notifyDiscussionReply } = await import(
-      '../services/notifyDiscussionReply.service'
+    const { notifyDiscussionReply } =
+      await import('../services/notifyDiscussionReply.service')
+    hoisted.dbSelect.mockReturnValueOnce(
+      postChain({ authorId: 9, clubId: null }),
     )
-    hoisted.dbSelect.mockReturnValueOnce(postChain({ authorId: 9, clubId: null }))
 
     await notifyDiscussionReply({ postId: 7, replierId: 1, replyPreview: 'Hi' })
 
@@ -53,10 +60,11 @@ describe('notifyDiscussionReply', () => {
   })
 
   it('skips self-replies', async () => {
-    const { notifyDiscussionReply } = await import(
-      '../services/notifyDiscussionReply.service'
+    const { notifyDiscussionReply } =
+      await import('../services/notifyDiscussionReply.service')
+    hoisted.dbSelect.mockReturnValueOnce(
+      postChain({ authorId: 1, clubId: null }),
     )
-    hoisted.dbSelect.mockReturnValueOnce(postChain({ authorId: 1, clubId: null }))
 
     await notifyDiscussionReply({ postId: 7, replierId: 1, replyPreview: 'Hi' })
 
@@ -64,9 +72,8 @@ describe('notifyDiscussionReply', () => {
   })
 
   it('skips when the post no longer exists', async () => {
-    const { notifyDiscussionReply } = await import(
-      '../services/notifyDiscussionReply.service'
-    )
+    const { notifyDiscussionReply } =
+      await import('../services/notifyDiscussionReply.service')
     hoisted.dbSelect.mockReturnValueOnce(postChain(null))
 
     await notifyDiscussionReply({ postId: 7, replierId: 1, replyPreview: 'Hi' })

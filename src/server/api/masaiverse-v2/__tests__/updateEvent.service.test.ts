@@ -10,7 +10,10 @@ const hoisted = vi.hoisted(() => ({
 vi.mock('@/db', () => ({
   db: { select: hoisted.dbSelect, update: hoisted.dbUpdate },
 }))
-vi.mock('@/db/schema', () => ({ events: { id: 'events.id', meta: 'events.meta' }, clubs: {} }))
+vi.mock('@/db/schema', () => ({
+  events: { id: 'events.id', meta: 'events.meta' },
+  clubs: {},
+}))
 vi.mock('@/server/api/masaiverse-v2/services/adminMode.service', () => ({
   getAdminModeState: hoisted.getAdminModeState,
 }))
@@ -36,8 +39,12 @@ beforeEach(() => {
 
 describe('updateMasaiverseEvent', () => {
   it('rejects a non-admin with a 403 and never updates', async () => {
-    const { updateMasaiverseEvent } = await import('../services/updateEvent.service')
-    hoisted.getAdminModeState.mockResolvedValueOnce({ isAdmin: false, enabled: false })
+    const { updateMasaiverseEvent } =
+      await import('../services/updateEvent.service')
+    hoisted.getAdminModeState.mockResolvedValueOnce({
+      isAdmin: false,
+      enabled: false,
+    })
 
     await expect(
       updateMasaiverseEvent(1, { eventId: 5, column: { title: 'X' } }, NOW),
@@ -46,8 +53,12 @@ describe('updateMasaiverseEvent', () => {
   })
 
   it('404s when the event does not exist', async () => {
-    const { updateMasaiverseEvent } = await import('../services/updateEvent.service')
-    hoisted.getAdminModeState.mockResolvedValueOnce({ isAdmin: true, enabled: true })
+    const { updateMasaiverseEvent } =
+      await import('../services/updateEvent.service')
+    hoisted.getAdminModeState.mockResolvedValueOnce({
+      isAdmin: true,
+      enabled: true,
+    })
     hoisted.dbSelect.mockReturnValueOnce(selectChain([]))
 
     await expect(
@@ -56,9 +67,15 @@ describe('updateMasaiverseEvent', () => {
   })
 
   it('updates whitelisted columns + merges meta, stamping the editor', async () => {
-    const { updateMasaiverseEvent } = await import('../services/updateEvent.service')
-    hoisted.getAdminModeState.mockResolvedValueOnce({ isAdmin: true, enabled: true })
-    hoisted.dbSelect.mockReturnValueOnce(selectChain([{ meta: { isPublished: true, keep: 1 } }]))
+    const { updateMasaiverseEvent } =
+      await import('../services/updateEvent.service')
+    hoisted.getAdminModeState.mockResolvedValueOnce({
+      isAdmin: true,
+      enabled: true,
+    })
+    hoisted.dbSelect.mockReturnValueOnce(
+      selectChain([{ meta: { isPublished: true, keep: 1 } }]),
+    )
     const set = captureUpdate()
 
     await expect(
@@ -87,13 +104,21 @@ describe('updateMasaiverseEvent', () => {
   })
 
   it('converts date columns to a MySQL UTC timestamp', async () => {
-    const { updateMasaiverseEvent } = await import('../services/updateEvent.service')
-    hoisted.getAdminModeState.mockResolvedValueOnce({ isAdmin: true, enabled: true })
+    const { updateMasaiverseEvent } =
+      await import('../services/updateEvent.service')
+    hoisted.getAdminModeState.mockResolvedValueOnce({
+      isAdmin: true,
+      enabled: true,
+    })
     hoisted.dbSelect.mockReturnValueOnce(selectChain([{ meta: null }]))
     const set = captureUpdate()
 
     const iso = '2026-06-10T09:00:00.000Z'
-    await updateMasaiverseEvent(9, { eventId: 5, column: { startTime: iso } }, NOW)
+    await updateMasaiverseEvent(
+      9,
+      { eventId: 5, column: { startTime: iso } },
+      NOW,
+    )
 
     const payload = set.mock.calls[0][0]
     expect(payload.startTime).toBe(toMysqlUtc(new Date(iso)))

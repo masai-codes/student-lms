@@ -44,9 +44,8 @@ beforeEach(() => {
 
 describe('voteCommunityDiscussion', () => {
   it('inserts a vote when none exists', async () => {
-    const { voteCommunityDiscussion } = await import(
-      '../services/voteCommunityDiscussion.service'
-    )
+    const { voteCommunityDiscussion } =
+      await import('../services/voteCommunityDiscussion.service')
     hoisted.dbSelect
       .mockReturnValueOnce(existingChain([]))
       .mockReturnValueOnce(countChain([{ total: 5 }]))
@@ -64,9 +63,8 @@ describe('voteCommunityDiscussion', () => {
   })
 
   it('awards nothing for a fresh downvote', async () => {
-    const { voteCommunityDiscussion } = await import(
-      '../services/voteCommunityDiscussion.service'
-    )
+    const { voteCommunityDiscussion } =
+      await import('../services/voteCommunityDiscussion.service')
     hoisted.dbSelect
       .mockReturnValueOnce(existingChain([]))
       .mockReturnValueOnce(countChain([{ total: 0 }]))
@@ -78,9 +76,8 @@ describe('voteCommunityDiscussion', () => {
   })
 
   it('removes the vote when the same vote is repeated', async () => {
-    const { voteCommunityDiscussion } = await import(
-      '../services/voteCommunityDiscussion.service'
-    )
+    const { voteCommunityDiscussion } =
+      await import('../services/voteCommunityDiscussion.service')
     hoisted.dbSelect
       .mockReturnValueOnce(existingChain([{ id: 9, vote: 'upvote' }]))
       .mockReturnValueOnce(countChain([{ total: 4 }]))
@@ -98,9 +95,8 @@ describe('voteCommunityDiscussion', () => {
   })
 
   it('switches the vote when the opposite is cast', async () => {
-    const { voteCommunityDiscussion } = await import(
-      '../services/voteCommunityDiscussion.service'
-    )
+    const { voteCommunityDiscussion } =
+      await import('../services/voteCommunityDiscussion.service')
     hoisted.dbSelect
       .mockReturnValueOnce(existingChain([{ id: 9, vote: 'downvote' }]))
       .mockReturnValueOnce(countChain([{ total: 6 }]))
@@ -121,9 +117,8 @@ describe('voteCommunityDiscussion', () => {
   })
 
   it('revokes points when switching an upvote to a downvote', async () => {
-    const { voteCommunityDiscussion } = await import(
-      '../services/voteCommunityDiscussion.service'
-    )
+    const { voteCommunityDiscussion } =
+      await import('../services/voteCommunityDiscussion.service')
     hoisted.dbSelect
       .mockReturnValueOnce(existingChain([{ id: 9, vote: 'upvote' }]))
       .mockReturnValueOnce(countChain([{ total: 1 }]))
@@ -140,9 +135,8 @@ describe('voteCommunityDiscussion', () => {
   })
 
   it('votes on a reply via replyId', async () => {
-    const { voteDiscussionReply } = await import(
-      '../services/voteCommunityDiscussion.service'
-    )
+    const { voteDiscussionReply } =
+      await import('../services/voteCommunityDiscussion.service')
     const captured: Array<unknown> = []
     hoisted.dbSelect
       .mockReturnValueOnce(existingChain([]))
@@ -166,13 +160,14 @@ describe('voteCommunityDiscussion', () => {
   })
 
   it('rejects an invalid post id or vote', async () => {
-    const { voteCommunityDiscussion } = await import(
-      '../services/voteCommunityDiscussion.service'
+    const { voteCommunityDiscussion } =
+      await import('../services/voteCommunityDiscussion.service')
+    await expect(voteCommunityDiscussion(1, 0, 'upvote')).rejects.toMatchObject(
+      {
+        status: 400,
+        code: 'INVALID_POST_ID',
+      },
     )
-    await expect(voteCommunityDiscussion(1, 0, 'upvote')).rejects.toMatchObject({
-      status: 400,
-      code: 'INVALID_POST_ID',
-    })
     await expect(
       voteCommunityDiscussion(1, 7, 'sideways'),
     ).rejects.toMatchObject({ status: 400, code: 'INVALID_VOTE' })

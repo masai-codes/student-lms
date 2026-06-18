@@ -117,7 +117,9 @@ export async function getClubLeaderboard({
     await db
       .select({ id: clubs.id })
       .from(clubs)
-      .where(and(eq(clubs.id, clubId), publishedClubCondition(canSeeUnpublished)))
+      .where(
+        and(eq(clubs.id, clubId), publishedClubCondition(canSeeUnpublished)),
+      )
       .limit(1)
   ).at(0)
   if (!club) return null

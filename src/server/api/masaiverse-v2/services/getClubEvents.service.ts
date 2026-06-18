@@ -36,15 +36,26 @@ export async function getClubEvents(
     await db
       .select({ id: clubs.id })
       .from(clubs)
-      .where(and(eq(clubs.id, clubId), publishedClubCondition(canSeeUnpublished)))
+      .where(
+        and(eq(clubs.id, clubId), publishedClubCondition(canSeeUnpublished)),
+      )
       .limit(1)
   ).at(0)
   if (!club) return null
 
   const [weeklyConnects, upcoming, past] = await Promise.all([
     getClubWeeklyConnects(clubId, canSeeUnpublished),
-    getHomeEvents(now, { clubId, weeklyConnect: 'exclude' }, undefined, canSeeUnpublished),
-    getHomeHighlights(now, { clubId, weeklyConnect: 'exclude' }, canSeeUnpublished),
+    getHomeEvents(
+      now,
+      { clubId, weeklyConnect: 'exclude' },
+      undefined,
+      canSeeUnpublished,
+    ),
+    getHomeHighlights(
+      now,
+      { clubId, weeklyConnect: 'exclude' },
+      canSeeUnpublished,
+    ),
   ])
 
   return { weeklyConnects, upcoming, past }

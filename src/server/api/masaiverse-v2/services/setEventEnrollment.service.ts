@@ -2,7 +2,7 @@ import { and, count, eq } from 'drizzle-orm'
 import { awardEventRegistrationPoints } from './awardLeaderboardPoints.service'
 import { db } from '@/db'
 import { ApiError } from '@/server/api/http/apiError'
-import { eventEnrollments, events } from '@/db/schema'
+import { clubMembers, eventEnrollments, events } from '@/db/schema'
 
 export interface EventEnrollmentState {
   isEnrolled: boolean
@@ -59,6 +59,29 @@ export async function setEventEnrollment(
   ).at(0)
   if (!event) {
     throw new ApiError(404, 'EVENT_NOT_FOUND')
+  }
+
+  // Registration is members-only for club events: the UI shows a "Join club"
+  // CTA instead of "Register" until the user joins, so enforce the same rule
+  // here to keep the gate from being bypassed via a direct API call.
+  // Community-wide events (no club) have nothing to join and stay open.
+  if (event.clubId != null) {
+    const isClubMember =
+      (
+        await db
+          .select({ id: clubMembers.id })
+          .from(clubMembers)
+          .where(
+            and(
+              eq(clubMembers.clubId, event.clubId),
+              eq(clubMembers.userId, userId),
+            ),
+          )
+          .limit(1)
+      ).length > 0
+    if (!isClubMember) {
+      throw new ApiError(403, 'CLUB_MEMBERSHIP_REQUIRED')
+    }
   }
 
   // Whether they were already enrolled decides if registration points are due:

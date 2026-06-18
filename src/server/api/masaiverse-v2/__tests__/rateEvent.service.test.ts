@@ -59,8 +59,12 @@ describe('rateEvent', () => {
 
   it('rejects an out-of-range or non-integer rating', async () => {
     const { rateEvent } = await import('../services/rateEvent.service')
-    await expect(rateEvent(1, 5, 0, null, NOW)).rejects.toThrow('INVALID_RATING')
-    await expect(rateEvent(1, 5, 6, null, NOW)).rejects.toThrow('INVALID_RATING')
+    await expect(rateEvent(1, 5, 0, null, NOW)).rejects.toThrow(
+      'INVALID_RATING',
+    )
+    await expect(rateEvent(1, 5, 6, null, NOW)).rejects.toThrow(
+      'INVALID_RATING',
+    )
     await expect(rateEvent(1, 5, 3.5, null, NOW)).rejects.toThrow(
       'INVALID_RATING',
     )
@@ -78,10 +82,16 @@ describe('rateEvent', () => {
     const { rateEvent } = await import('../services/rateEvent.service')
     hoisted.dbSelect.mockReturnValueOnce(
       limitChain([
-        { id: 5, startTime: '2026-07-01 09:00:00', endTime: '2026-07-01 11:00:00' },
+        {
+          id: 5,
+          startTime: '2026-07-01 09:00:00',
+          endTime: '2026-07-01 11:00:00',
+        },
       ]),
     )
-    await expect(rateEvent(1, 5, 4, null, NOW)).rejects.toThrow('EVENT_NOT_ENDED')
+    await expect(rateEvent(1, 5, 4, null, NOW)).rejects.toThrow(
+      'EVENT_NOT_ENDED',
+    )
   })
 
   it('rejects when the user was not enrolled', async () => {
@@ -107,9 +117,10 @@ describe('rateEvent', () => {
       .mockReturnValueOnce(limitChain([ENDED_EVENT]))
       .mockReturnValueOnce(limitChain([{ id: 9, meta: { source: 'qr' } }]))
 
-    await expect(
-      rateEvent(1, 5, 4, '  Great talks!  ', NOW),
-    ).resolves.toEqual({ rating: 4, feedback: 'Great talks!' })
+    await expect(rateEvent(1, 5, 4, '  Great talks!  ', NOW)).resolves.toEqual({
+      rating: 4,
+      feedback: 'Great talks!',
+    })
 
     expect(set).toHaveBeenCalledWith({
       meta: {

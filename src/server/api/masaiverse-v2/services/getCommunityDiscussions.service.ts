@@ -47,6 +47,11 @@ export interface MasaiverseV2Discussion {
   replyCount: number
   /** The signed-in user's vote on this post, or null. */
   myVote: DiscussionVote | null
+  /**
+   * Whether an admin has banned this post. Only ever `true` for admins viewing
+   * in admin mode — banned posts are filtered out for everyone else.
+   */
+  isBanned: boolean
   /** UTC ISO so the client can render relative time in IST. */
   createdAt: string | null
 }
@@ -63,7 +68,9 @@ function toUtcIso(value: string | null): string | null {
 
 /**
  * A page of discussions, newest first, with author, tags, upvote/reply counts
- * and the signed-in user's vote. Banned posts are excluded.
+ * and the signed-in user's vote. Banned posts are excluded unless `canSeeBanned`
+ * is set (admins in admin mode), in which case they are returned flagged as
+ * `isBanned` so the UI can mark them.
  *
  * When `clubId` is null the result is the club-less community feed
  * (`club_id IS NULL`); when a `clubId` is given it is scoped to that club's
@@ -75,11 +82,13 @@ export async function getCommunityDiscussions(
   limit = 5,
   search = '',
   clubId: string | null = null,
+  canSeeBanned = false,
 ): Promise<CommunityDiscussionsPage> {
   const clubScope =
-    clubId === null
-      ? isNull(posts.clubId)
-      : eq(posts.clubId, Number(clubId))
+    clubId === null ? isNull(posts.clubId) : eq(posts.clubId, Number(clubId))
+  // Banned posts stay hidden for students (and admins outside admin mode); only
+  // admins in admin mode see them, so they can review/unban.
+  const banScope = canSeeBanned ? undefined : eq(posts.isBanned, 0)
   // Fetch one extra row to detect whether another page exists.
   const postRows = await db
     .select({
@@ -87,13 +96,12 @@ export async function getCommunityDiscussions(
       title: posts.title,
       content: posts.content,
       createdAt: posts.createdAt,
+      isBanned: posts.isBanned,
       authorName: users.name,
     })
     .from(posts)
     .innerJoin(users, eq(users.id, posts.userId))
-    .where(
-      and(clubScope, eq(posts.isBanned, 0), buildSearchCondition(search)),
-    )
+    .where(and(clubScope, banScope, buildSearchCondition(search)))
     .orderBy(desc(posts.createdAt))
     .limit(limit + 1)
     .offset(offset)
@@ -109,7 +117,9 @@ export async function getCommunityDiscussions(
     .from(votes)
     .where(and(inArray(votes.postId, postIds), eq(votes.vote, 'upvote')))
     .groupBy(votes.postId)
-  const upvotesByPost = new Map(upvoteRows.map((row) => [row.postId, row.total]))
+  const upvotesByPost = new Map(
+    upvoteRows.map((row) => [row.postId, row.total]),
+  )
 
   const replyRows = await db
     .select({ postId: replies.postId, total: count() })
@@ -135,6 +145,7 @@ export async function getCommunityDiscussions(
       upvotes: upvotesByPost.get(post.id) ?? 0,
       replyCount: repliesByPost.get(post.id) ?? 0,
       myVote: myVoteByPost.get(post.id) ?? null,
+      isBanned: post.isBanned === 1,
       createdAt: toUtcIso(post.createdAt),
     }
   })

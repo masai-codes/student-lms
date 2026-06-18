@@ -8,23 +8,39 @@ const hoisted = vi.hoisted(() => ({
   createReply: vi.fn(),
   listDiscussions: vi.fn(),
   getUserIdFromCookieHeader: vi.fn(),
+  canSeeUnpublished: vi.fn(),
 }))
 
-vi.mock('@/server/api/masaiverse-v2/services/voteCommunityDiscussion.service', () => ({
-  voteCommunityDiscussion: hoisted.vote,
-  voteDiscussionReply: hoisted.voteReply,
-}))
-vi.mock('@/server/api/masaiverse-v2/services/getCommunityDiscussions.service', () => ({
-  getCommunityDiscussions: hoisted.listDiscussions,
-}))
-vi.mock('@/server/api/masaiverse-v2/services/getDiscussionReplies.service', () => ({
-  getDiscussionReplies: hoisted.listReplies,
-}))
-vi.mock('@/server/api/masaiverse-v2/services/createDiscussionReply.service', () => ({
-  createDiscussionReply: hoisted.createReply,
-}))
+vi.mock(
+  '@/server/api/masaiverse-v2/services/voteCommunityDiscussion.service',
+  () => ({
+    voteCommunityDiscussion: hoisted.vote,
+    voteDiscussionReply: hoisted.voteReply,
+  }),
+)
+vi.mock(
+  '@/server/api/masaiverse-v2/services/getCommunityDiscussions.service',
+  () => ({
+    getCommunityDiscussions: hoisted.listDiscussions,
+  }),
+)
+vi.mock(
+  '@/server/api/masaiverse-v2/services/getDiscussionReplies.service',
+  () => ({
+    getDiscussionReplies: hoisted.listReplies,
+  }),
+)
+vi.mock(
+  '@/server/api/masaiverse-v2/services/createDiscussionReply.service',
+  () => ({
+    createDiscussionReply: hoisted.createReply,
+  }),
+)
 vi.mock('@/server/auth/getCurrentSessionUserId', () => ({
   getUserIdFromCookieHeader: hoisted.getUserIdFromCookieHeader,
+}))
+vi.mock('@/server/api/masaiverse-v2/services/publishVisibility', () => ({
+  canSeeUnpublished: hoisted.canSeeUnpublished,
 }))
 
 const cookie = { cookie: 'session=abc' }
@@ -32,13 +48,13 @@ const cookie = { cookie: 'session=abc' }
 beforeEach(() => {
   vi.clearAllMocks()
   hoisted.getUserIdFromCookieHeader.mockResolvedValue(5)
+  hoisted.canSeeUnpublished.mockResolvedValue(false)
 })
 
 describe('handleVoteCommunityDiscussion', () => {
   it('returns the new vote state', async () => {
-    const { handleVoteCommunityDiscussion } = await import(
-      '../handlers/voteCommunityDiscussion.handler'
-    )
+    const { handleVoteCommunityDiscussion } =
+      await import('../handlers/voteCommunityDiscussion.handler')
     hoisted.vote.mockResolvedValueOnce({ upvotes: 25, myVote: 'upvote' })
 
     const res = await handleVoteCommunityDiscussion(
@@ -55,9 +71,8 @@ describe('handleVoteCommunityDiscussion', () => {
   })
 
   it('votes on a reply when replyId is present', async () => {
-    const { handleVoteCommunityDiscussion } = await import(
-      '../handlers/voteCommunityDiscussion.handler'
-    )
+    const { handleVoteCommunityDiscussion } =
+      await import('../handlers/voteCommunityDiscussion.handler')
     hoisted.voteReply.mockResolvedValueOnce({ upvotes: 3, myVote: 'upvote' })
 
     const res = await handleVoteCommunityDiscussion(
@@ -73,9 +88,8 @@ describe('handleVoteCommunityDiscussion', () => {
   })
 
   it('maps an ApiError to its status', async () => {
-    const { handleVoteCommunityDiscussion } = await import(
-      '../handlers/voteCommunityDiscussion.handler'
-    )
+    const { handleVoteCommunityDiscussion } =
+      await import('../handlers/voteCommunityDiscussion.handler')
     hoisted.vote.mockRejectedValueOnce(new ApiError(400, 'INVALID_VOTE'))
 
     const res = await handleVoteCommunityDiscussion(
@@ -91,9 +105,8 @@ describe('handleVoteCommunityDiscussion', () => {
 
 describe('handleListCommunityDiscussions', () => {
   it('parses offset/limit and returns the page', async () => {
-    const { handleListCommunityDiscussions } = await import(
-      '../handlers/listCommunityDiscussions.handler'
-    )
+    const { handleListCommunityDiscussions } =
+      await import('../handlers/listCommunityDiscussions.handler')
     hoisted.listDiscussions.mockResolvedValueOnce({
       discussions: [{ id: '7' }],
       hasMore: true,
@@ -111,13 +124,19 @@ describe('handleListCommunityDiscussions', () => {
       hasMore: true,
     })
     // No clubId in the query string → community feed (clubId null).
-    expect(hoisted.listDiscussions).toHaveBeenCalledWith(5, 5, 5, 'react', null)
+    expect(hoisted.listDiscussions).toHaveBeenCalledWith(
+      5,
+      5,
+      5,
+      'react',
+      null,
+      false,
+    )
   })
 
   it('forwards a clubId from the query string to scope the feed', async () => {
-    const { handleListCommunityDiscussions } = await import(
-      '../handlers/listCommunityDiscussions.handler'
-    )
+    const { handleListCommunityDiscussions } =
+      await import('../handlers/listCommunityDiscussions.handler')
     hoisted.listDiscussions.mockResolvedValueOnce({
       discussions: [],
       hasMore: false,
@@ -130,15 +149,21 @@ describe('handleListCommunityDiscussions', () => {
       ),
     )
     expect(res.status).toBe(200)
-    expect(hoisted.listDiscussions).toHaveBeenCalledWith(5, 0, 5, '', '81910')
+    expect(hoisted.listDiscussions).toHaveBeenCalledWith(
+      5,
+      0,
+      5,
+      '',
+      '81910',
+      false,
+    )
   })
 })
 
 describe('discussion replies handlers', () => {
   it('lists replies for a post id from the query string', async () => {
-    const { handleListDiscussionReplies } = await import(
-      '../handlers/discussionReplies.handler'
-    )
+    const { handleListDiscussionReplies } =
+      await import('../handlers/discussionReplies.handler')
     hoisted.listReplies.mockResolvedValueOnce([{ id: '3' }])
 
     const res = await handleListDiscussionReplies(
@@ -149,13 +174,12 @@ describe('discussion replies handlers', () => {
     )
     expect(res.status).toBe(200)
     await expect(res.json()).resolves.toEqual({ replies: [{ id: '3' }] })
-    expect(hoisted.listReplies).toHaveBeenCalledWith(7, 5)
+    expect(hoisted.listReplies).toHaveBeenCalledWith(7, 5, false)
   })
 
   it('creates a reply and returns 201', async () => {
-    const { handleCreateDiscussionReply } = await import(
-      '../handlers/discussionReplies.handler'
-    )
+    const { handleCreateDiscussionReply } =
+      await import('../handlers/discussionReplies.handler')
     hoisted.createReply.mockResolvedValueOnce({ id: '55' })
 
     const res = await handleCreateDiscussionReply(
@@ -171,9 +195,8 @@ describe('discussion replies handlers', () => {
   })
 
   it('returns 401 when not signed in', async () => {
-    const { handleCreateDiscussionReply } = await import(
-      '../handlers/discussionReplies.handler'
-    )
+    const { handleCreateDiscussionReply } =
+      await import('../handlers/discussionReplies.handler')
     hoisted.getUserIdFromCookieHeader.mockResolvedValueOnce(null)
 
     const res = await handleCreateDiscussionReply(

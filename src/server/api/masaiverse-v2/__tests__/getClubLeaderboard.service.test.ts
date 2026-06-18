@@ -56,7 +56,9 @@ function topChain(rows: unknown, onLimit?: (value: number) => void) {
 const meChain = (rows: unknown) => ({
   from: () => ({
     innerJoin: () => ({
-      innerJoin: () => ({ where: () => ({ groupBy: () => Promise.resolve(rows) }) }),
+      innerJoin: () => ({
+        where: () => ({ groupBy: () => Promise.resolve(rows) }),
+      }),
     }),
   }),
 })
@@ -65,7 +67,9 @@ const meChain = (rows: unknown) => ({
 const aboveChain = (rows: unknown) => ({
   from: () => ({
     innerJoin: () => ({
-      where: () => ({ groupBy: () => ({ having: () => Promise.resolve(rows) }) }),
+      where: () => ({
+        groupBy: () => ({ having: () => Promise.resolve(rows) }),
+      }),
     }),
   }),
 })
@@ -75,7 +79,8 @@ beforeEach(() => {
 })
 
 async function load() {
-  return (await import('../services/getClubLeaderboard.service')).getClubLeaderboard
+  return (await import('../services/getClubLeaderboard.service'))
+    .getClubLeaderboard
 }
 
 describe('getClubLeaderboard', () => {
@@ -114,7 +119,13 @@ describe('getClubLeaderboard', () => {
       getClubLeaderboard({ clubId: 5, currentUserId: 99 }),
     ).resolves.toEqual({
       entries: [
-        { rank: 1, userId: '10', name: 'Priya', avatarUrl: 'p.jpg', points: 940 },
+        {
+          rank: 1,
+          userId: '10',
+          name: 'Priya',
+          avatarUrl: 'p.jpg',
+          points: 940,
+        },
         { rank: 2, userId: '20', name: 'Arjun', avatarUrl: null, points: 0 },
       ],
       currentUser: {

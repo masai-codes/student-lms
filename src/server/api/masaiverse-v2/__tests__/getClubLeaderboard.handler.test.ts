@@ -32,7 +32,13 @@ const RESULT = {
   entries: [
     { rank: 1, userId: '10', name: 'Priya', avatarUrl: null, points: 940 },
   ],
-  currentUser: { rank: 3, userId: '99', name: 'Vidit', avatarUrl: null, points: 300 },
+  currentUser: {
+    rank: 3,
+    userId: '99',
+    name: 'Vidit',
+    avatarUrl: null,
+    points: 300,
+  },
 }
 
 describe('handleGetClubLeaderboard', () => {

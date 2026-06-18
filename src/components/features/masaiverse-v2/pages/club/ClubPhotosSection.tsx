@@ -38,6 +38,7 @@ export default function ClubPhotosSection({ club }: ClubPhotosSectionProps) {
   const [first, ...rest] = photos
   const smallPhotos = rest.slice(0, MOSAIC_SIZE - 1)
   const remaining = photos.length - MOSAIC_SIZE
+  const hasMosaic = smallPhotos.length > 0
 
   return (
     <section>
@@ -61,12 +62,16 @@ export default function ClubPhotosSection({ club }: ClubPhotosSectionProps) {
           </Link>
         }
       />
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+      <div
+        className={`grid grid-cols-1 gap-3 ${hasMosaic ? 'sm:grid-cols-2' : ''}`}
+      >
         <PhotoTile
           src={first}
-          className="aspect-[16/10] sm:aspect-auto sm:h-full"
+          className={
+            hasMosaic ? 'aspect-[16/10] sm:aspect-auto sm:h-full' : 'aspect-[16/10]'
+          }
         />
-        {smallPhotos.length > 0 ? (
+        {hasMosaic ? (
           <div className="grid grid-cols-2 gap-3">
             {smallPhotos.map((src, index) => {
               const isLast = index === smallPhotos.length - 1

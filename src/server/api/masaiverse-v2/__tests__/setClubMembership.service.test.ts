@@ -7,7 +7,11 @@ const hoisted = vi.hoisted(() => ({
 }))
 
 vi.mock('@/db', () => ({
-  db: { select: hoisted.dbSelect, insert: hoisted.dbInsert, delete: hoisted.dbDelete },
+  db: {
+    select: hoisted.dbSelect,
+    insert: hoisted.dbInsert,
+    delete: hoisted.dbDelete,
+  },
 }))
 
 vi.mock('@/db/schema', () => ({
@@ -20,7 +24,9 @@ vi.mock('@/db/schema', () => ({
 
 /** `db.select().from().where().limit()` */
 function limitChain(rows: unknown) {
-  return { from: () => ({ where: () => ({ limit: () => Promise.resolve(rows) }) }) }
+  return {
+    from: () => ({ where: () => ({ limit: () => Promise.resolve(rows) }) }),
+  }
 }
 /** `db.select().from().where()` */
 function whereChain(rows: unknown) {
@@ -33,20 +39,25 @@ beforeEach(() => {
 
 describe('setClubMembership', () => {
   it('rejects a non-finite club id', async () => {
-    const { setClubMembership } = await import('../services/setClubMembership.service')
+    const { setClubMembership } =
+      await import('../services/setClubMembership.service')
     await expect(setClubMembership(1, Number.NaN, true)).rejects.toThrow(
       'INVALID_CLUB_ID',
     )
   })
 
   it('rejects when the club does not exist', async () => {
-    const { setClubMembership } = await import('../services/setClubMembership.service')
+    const { setClubMembership } =
+      await import('../services/setClubMembership.service')
     hoisted.dbSelect.mockReturnValueOnce(limitChain([]))
-    await expect(setClubMembership(1, 5, true)).rejects.toThrow('CLUB_NOT_FOUND')
+    await expect(setClubMembership(1, 5, true)).rejects.toThrow(
+      'CLUB_NOT_FOUND',
+    )
   })
 
   it('joins idempotently, stamps lastVisitedAt and returns the new count', async () => {
-    const { setClubMembership } = await import('../services/setClubMembership.service')
+    const { setClubMembership } =
+      await import('../services/setClubMembership.service')
     const onDuplicateKeyUpdate = vi.fn().mockResolvedValue(undefined)
     const values = vi.fn().mockReturnValue({ onDuplicateKeyUpdate })
     hoisted.dbInsert.mockReturnValue({ values })
@@ -69,7 +80,8 @@ describe('setClubMembership', () => {
   })
 
   it('leaves the club and returns the decremented count', async () => {
-    const { setClubMembership } = await import('../services/setClubMembership.service')
+    const { setClubMembership } =
+      await import('../services/setClubMembership.service')
     const where = vi.fn().mockResolvedValue(undefined)
     hoisted.dbDelete.mockReturnValue({ where })
     hoisted.dbSelect

@@ -26,7 +26,10 @@ export function readEnrollmentRating(meta: unknown): EventRatingState | null {
   if (!meta || typeof meta !== 'object') return null
   const rating = (meta as Record<string, unknown>).rating
   if (typeof rating !== 'number' || !Number.isFinite(rating)) return null
-  return { rating, feedback: normalizeFeedback((meta as Record<string, unknown>).feedback) }
+  return {
+    rating,
+    feedback: normalizeFeedback((meta as Record<string, unknown>).feedback),
+  }
 }
 
 /**

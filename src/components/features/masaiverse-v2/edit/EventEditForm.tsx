@@ -158,6 +158,7 @@ export default function EventEditForm({ eventId, onClose }: EventEditFormProps) 
             <option value="session">Session</option>
             <option value="challenge">Challenge</option>
             <option value="contest">Contest</option>
+            <option value="workshop">Workshop</option>
             <option value="offline_meetup">Offline Meetup</option>
           </select>
         </div>

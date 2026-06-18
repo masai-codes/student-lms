@@ -12,7 +12,9 @@ export async function handleGetMyClubs(request: Request): Promise<Response> {
   } catch (error) {
     if (!isApiError(error)) {
       console.error('Failed to fetch my clubs', error)
-      return mapThrownErrorToResponse(new Error('SERVER_ERROR_FETCHING_MY_CLUBS'))
+      return mapThrownErrorToResponse(
+        new Error('SERVER_ERROR_FETCHING_MY_CLUBS'),
+      )
     }
     return mapThrownErrorToResponse(error)
   }

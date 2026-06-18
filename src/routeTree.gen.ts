@@ -76,6 +76,7 @@ import { Route as ApiMasaiverseV2EventsCreateRouteImport } from './routes/api/ma
 import { Route as ApiMasaiverseV2EventsCloneRouteImport } from './routes/api/masaiverse-v2/events/clone'
 import { Route as ApiMasaiverseV2DiscussionsVoteRouteImport } from './routes/api/masaiverse-v2/discussions/vote'
 import { Route as ApiMasaiverseV2DiscussionsRepliesRouteImport } from './routes/api/masaiverse-v2/discussions/replies'
+import { Route as ApiMasaiverseV2DiscussionsBanRouteImport } from './routes/api/masaiverse-v2/discussions/ban'
 import { Route as ApiMasaiverseV2ClubsVisitRouteImport } from './routes/api/masaiverse-v2/clubs/visit'
 import { Route as ApiMasaiverseV2ClubsUpdateRouteImport } from './routes/api/masaiverse-v2/clubs/update'
 import { Route as ApiMasaiverseV2ClubsStatsRouteImport } from './routes/api/masaiverse-v2/clubs/stats'
@@ -517,6 +518,12 @@ const ApiMasaiverseV2DiscussionsRepliesRoute =
   ApiMasaiverseV2DiscussionsRepliesRouteImport.update({
     id: '/replies',
     path: '/replies',
+    getParentRoute: () => ApiMasaiverseV2DiscussionsRoute,
+  } as any)
+const ApiMasaiverseV2DiscussionsBanRoute =
+  ApiMasaiverseV2DiscussionsBanRouteImport.update({
+    id: '/ban',
+    path: '/ban',
     getParentRoute: () => ApiMasaiverseV2DiscussionsRoute,
   } as any)
 const ApiMasaiverseV2ClubsVisitRoute =
@@ -1033,6 +1040,7 @@ export interface FileRoutesByFullPath {
   '/api/masaiverse-v2/clubs/stats': typeof ApiMasaiverseV2ClubsStatsRoute
   '/api/masaiverse-v2/clubs/update': typeof ApiMasaiverseV2ClubsUpdateRoute
   '/api/masaiverse-v2/clubs/visit': typeof ApiMasaiverseV2ClubsVisitRoute
+  '/api/masaiverse-v2/discussions/ban': typeof ApiMasaiverseV2DiscussionsBanRoute
   '/api/masaiverse-v2/discussions/replies': typeof ApiMasaiverseV2DiscussionsRepliesRoute
   '/api/masaiverse-v2/discussions/vote': typeof ApiMasaiverseV2DiscussionsVoteRoute
   '/api/masaiverse-v2/events/clone': typeof ApiMasaiverseV2EventsCloneRoute
@@ -1172,6 +1180,7 @@ export interface FileRoutesByTo {
   '/api/masaiverse-v2/clubs/stats': typeof ApiMasaiverseV2ClubsStatsRoute
   '/api/masaiverse-v2/clubs/update': typeof ApiMasaiverseV2ClubsUpdateRoute
   '/api/masaiverse-v2/clubs/visit': typeof ApiMasaiverseV2ClubsVisitRoute
+  '/api/masaiverse-v2/discussions/ban': typeof ApiMasaiverseV2DiscussionsBanRoute
   '/api/masaiverse-v2/discussions/replies': typeof ApiMasaiverseV2DiscussionsRepliesRoute
   '/api/masaiverse-v2/discussions/vote': typeof ApiMasaiverseV2DiscussionsVoteRoute
   '/api/masaiverse-v2/events/clone': typeof ApiMasaiverseV2EventsCloneRoute
@@ -1314,6 +1323,7 @@ export interface FileRoutesById {
   '/api/masaiverse-v2/clubs/stats': typeof ApiMasaiverseV2ClubsStatsRoute
   '/api/masaiverse-v2/clubs/update': typeof ApiMasaiverseV2ClubsUpdateRoute
   '/api/masaiverse-v2/clubs/visit': typeof ApiMasaiverseV2ClubsVisitRoute
+  '/api/masaiverse-v2/discussions/ban': typeof ApiMasaiverseV2DiscussionsBanRoute
   '/api/masaiverse-v2/discussions/replies': typeof ApiMasaiverseV2DiscussionsRepliesRoute
   '/api/masaiverse-v2/discussions/vote': typeof ApiMasaiverseV2DiscussionsVoteRoute
   '/api/masaiverse-v2/events/clone': typeof ApiMasaiverseV2EventsCloneRoute
@@ -1456,6 +1466,7 @@ export interface FileRouteTypes {
     | '/api/masaiverse-v2/clubs/stats'
     | '/api/masaiverse-v2/clubs/update'
     | '/api/masaiverse-v2/clubs/visit'
+    | '/api/masaiverse-v2/discussions/ban'
     | '/api/masaiverse-v2/discussions/replies'
     | '/api/masaiverse-v2/discussions/vote'
     | '/api/masaiverse-v2/events/clone'
@@ -1595,6 +1606,7 @@ export interface FileRouteTypes {
     | '/api/masaiverse-v2/clubs/stats'
     | '/api/masaiverse-v2/clubs/update'
     | '/api/masaiverse-v2/clubs/visit'
+    | '/api/masaiverse-v2/discussions/ban'
     | '/api/masaiverse-v2/discussions/replies'
     | '/api/masaiverse-v2/discussions/vote'
     | '/api/masaiverse-v2/events/clone'
@@ -1736,6 +1748,7 @@ export interface FileRouteTypes {
     | '/api/masaiverse-v2/clubs/stats'
     | '/api/masaiverse-v2/clubs/update'
     | '/api/masaiverse-v2/clubs/visit'
+    | '/api/masaiverse-v2/discussions/ban'
     | '/api/masaiverse-v2/discussions/replies'
     | '/api/masaiverse-v2/discussions/vote'
     | '/api/masaiverse-v2/events/clone'
@@ -2366,6 +2379,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiMasaiverseV2DiscussionsRepliesRouteImport
       parentRoute: typeof ApiMasaiverseV2DiscussionsRoute
     }
+    '/api/masaiverse-v2/discussions/ban': {
+      id: '/api/masaiverse-v2/discussions/ban'
+      path: '/ban'
+      fullPath: '/api/masaiverse-v2/discussions/ban'
+      preLoaderRoute: typeof ApiMasaiverseV2DiscussionsBanRouteImport
+      parentRoute: typeof ApiMasaiverseV2DiscussionsRoute
+    }
     '/api/masaiverse-v2/clubs/visit': {
       id: '/api/masaiverse-v2/clubs/visit'
       path: '/api/masaiverse-v2/clubs/visit'
@@ -2955,12 +2975,14 @@ const protectedLayoutRouteRouteWithChildren =
   protectedLayoutRouteRoute._addFileChildren(protectedLayoutRouteRouteChildren)
 
 interface ApiMasaiverseV2DiscussionsRouteChildren {
+  ApiMasaiverseV2DiscussionsBanRoute: typeof ApiMasaiverseV2DiscussionsBanRoute
   ApiMasaiverseV2DiscussionsRepliesRoute: typeof ApiMasaiverseV2DiscussionsRepliesRoute
   ApiMasaiverseV2DiscussionsVoteRoute: typeof ApiMasaiverseV2DiscussionsVoteRoute
 }
 
 const ApiMasaiverseV2DiscussionsRouteChildren: ApiMasaiverseV2DiscussionsRouteChildren =
   {
+    ApiMasaiverseV2DiscussionsBanRoute: ApiMasaiverseV2DiscussionsBanRoute,
     ApiMasaiverseV2DiscussionsRepliesRoute:
       ApiMasaiverseV2DiscussionsRepliesRoute,
     ApiMasaiverseV2DiscussionsVoteRoute: ApiMasaiverseV2DiscussionsVoteRoute,

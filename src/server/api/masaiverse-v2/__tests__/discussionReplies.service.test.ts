@@ -17,6 +17,7 @@ vi.mock('../services/notifyDiscussionReply.service', () => ({
   notifyDiscussionReply: hoisted.notifyDiscussionReply,
 }))
 vi.mock('@/db/schema', () => ({
+  posts: { id: 'posts.id', meta: 'posts.meta' },
   replies: {
     id: 'replies.id',
     content: 'replies.content',
@@ -32,6 +33,10 @@ vi.mock('@/db/schema', () => ({
   },
 }))
 
+const limitChain = (rows: unknown) => ({
+  from: () => ({ where: () => ({ limit: () => Promise.resolve(rows) }) }),
+})
+
 const groupedChain = (rows: unknown) => ({
   from: () => ({ where: () => ({ groupBy: () => Promise.resolve(rows) }) }),
 })
@@ -44,28 +49,31 @@ beforeEach(() => {
 })
 
 describe('getDiscussionReplies', () => {
+  const repliesChain = (rows: unknown) => ({
+    from: () => ({
+      innerJoin: () => ({
+        where: () => ({ orderBy: () => Promise.resolve(rows) }),
+      }),
+    }),
+  })
+
   it('maps replies with author and UTC ISO timestamps', async () => {
-    const { getDiscussionReplies } = await import(
-      '../services/getDiscussionReplies.service'
-    )
+    const { getDiscussionReplies } =
+      await import('../services/getDiscussionReplies.service')
     hoisted.dbSelect
-      .mockReturnValueOnce({
-        from: () => ({
-          innerJoin: () => ({
-            where: () => ({
-              orderBy: () =>
-                Promise.resolve([
-                  {
-                    id: 3,
-                    content: 'Great question!',
-                    createdAt: '2026-06-03 09:30:00',
-                    authorName: 'Sneha Rao',
-                  },
-                ]),
-            }),
-          }),
-        }),
-      })
+      // 1) parent post meta (no banned replies)
+      .mockReturnValueOnce(limitChain([{ meta: null }]))
+      // 2) replies
+      .mockReturnValueOnce(
+        repliesChain([
+          {
+            id: 3,
+            content: 'Great question!',
+            createdAt: '2026-06-03 09:30:00',
+            authorName: 'Sneha Rao',
+          },
+        ]),
+      )
       .mockReturnValueOnce(groupedChain([{ replyId: 3, total: 2 }]))
       .mockReturnValueOnce(whereChain([{ replyId: 3, vote: 'upvote' }]))
 
@@ -76,17 +84,59 @@ describe('getDiscussionReplies', () => {
         content: 'Great question!',
         upvotes: 2,
         myVote: 'upvote',
+        isBanned: false,
         createdAt: '2026-06-03T09:30:00.000Z',
       },
+    ])
+  })
+
+  it('hides banned replies from non-admins but keeps them flagged for admins', async () => {
+    const { getDiscussionReplies } =
+      await import('../services/getDiscussionReplies.service')
+    const replyRows = [
+      {
+        id: 3,
+        content: 'Visible',
+        createdAt: '2026-06-03 09:30:00',
+        authorName: 'Sneha Rao',
+      },
+      {
+        id: 4,
+        content: 'Banned one',
+        createdAt: '2026-06-03 09:31:00',
+        authorName: 'Mod Target',
+      },
+    ]
+
+    // Non-admin: reply 4 (in meta.bannedReplyIds) is filtered out entirely.
+    hoisted.dbSelect
+      .mockReturnValueOnce(limitChain([{ meta: { bannedReplyIds: [4] } }]))
+      .mockReturnValueOnce(repliesChain(replyRows))
+      .mockReturnValueOnce(groupedChain([]))
+      .mockReturnValueOnce(whereChain([]))
+
+    const forStudent = await getDiscussionReplies(7, 12)
+    expect(forStudent.map((r) => r.id)).toEqual(['3'])
+
+    // Admin (canSeeBanned): reply 4 stays, flagged isBanned.
+    hoisted.dbSelect
+      .mockReturnValueOnce(limitChain([{ meta: { bannedReplyIds: [4] } }]))
+      .mockReturnValueOnce(repliesChain(replyRows))
+      .mockReturnValueOnce(groupedChain([]))
+      .mockReturnValueOnce(whereChain([]))
+
+    const forAdmin = await getDiscussionReplies(7, 12, true)
+    expect(forAdmin.map((r) => [r.id, r.isBanned])).toEqual([
+      ['3', false],
+      ['4', true],
     ])
   })
 })
 
 describe('createDiscussionReply', () => {
   it('inserts a reply and returns its id', async () => {
-    const { createDiscussionReply } = await import(
-      '../services/createDiscussionReply.service'
-    )
+    const { createDiscussionReply } =
+      await import('../services/createDiscussionReply.service')
     const captured: Array<unknown> = []
     hoisted.dbInsert.mockReturnValueOnce({
       values: (value: unknown) => {
@@ -114,9 +164,8 @@ describe('createDiscussionReply', () => {
   })
 
   it('rejects empty content and invalid post id', async () => {
-    const { createDiscussionReply } = await import(
-      '../services/createDiscussionReply.service'
-    )
+    const { createDiscussionReply } =
+      await import('../services/createDiscussionReply.service')
     await expect(createDiscussionReply(1, 7, '   ')).rejects.toMatchObject({
       status: 400,
       code: 'REPLY_CONTENT_REQUIRED',

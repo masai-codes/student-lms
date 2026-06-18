@@ -3,7 +3,9 @@ import { jsonOk, mapThrownErrorToResponse } from '@/server/api/http/responses'
 import { requireSessionUserId } from '@/server/api/http/requireSessionUser'
 import { getEventEditData } from '@/server/api/masaiverse-v2/services/getEventEditData.service'
 
-export async function handleGetEventEditData(request: Request): Promise<Response> {
+export async function handleGetEventEditData(
+  request: Request,
+): Promise<Response> {
   try {
     const userId = await requireSessionUserId(request)
     const eventId = Number(new URL(request.url).searchParams.get('eventId'))

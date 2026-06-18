@@ -10,9 +10,7 @@ export async function getCommunityLearnerCount(): Promise<number> {
   const rows = await db
     .select({ count: sql<number>`cast(count(*) as unsigned)` })
     .from(users)
-    .where(
-      sql`JSON_EXTRACT(${users.meta}, '$.isMasaiverseVisitedOnce') = true`,
-    )
+    .where(sql`JSON_EXTRACT(${users.meta}, '$.isMasaiverseVisitedOnce') = true`)
 
   return rows.at(0)?.count ?? 0
 }

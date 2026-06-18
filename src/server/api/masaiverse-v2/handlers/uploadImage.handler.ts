@@ -26,11 +26,12 @@ export async function handleUploadImage(request: Request): Promise<Response> {
 
     const buffer = Buffer.from(await file.arrayBuffer())
     if (buffer.length === 0) throw new ApiError(400, 'UPLOAD_NO_FILE')
-    if (buffer.length > MAX_BYTES) throw new ApiError(400, 'UPLOAD_FILE_TOO_LARGE')
+    if (buffer.length > MAX_BYTES)
+      throw new ApiError(400, 'UPLOAD_FILE_TOO_LARGE')
 
     const ext = file.name.includes('.')
       ? (file.name.split('.').pop() ?? '')
-      : contentType.split('/')[1] ?? 'png'
+      : (contentType.split('/')[1] ?? 'png')
 
     const url = await uploadImageToS3({ buffer, contentType, ext })
     return jsonOk({ url }, { status: 201 })

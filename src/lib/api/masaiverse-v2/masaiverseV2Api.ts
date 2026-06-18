@@ -16,6 +16,7 @@ import type { MasaiverseV2EventDetail } from '@/server/api/masaiverse-v2/service
 import type { EventEnrollmentState } from '@/server/api/masaiverse-v2/services/setEventEnrollment.service'
 import type { EventRatingState } from '@/server/api/masaiverse-v2/services/rateEvent.service'
 import type { MasaiverseV2AdminModeState } from '@/server/api/masaiverse-v2/services/adminMode.service'
+import type { DiscussionBanState } from '@/server/api/masaiverse-v2/services/moderateDiscussion.service'
 import type { MasaiverseV2Banner } from '@/server/api/masaiverse-v2/services/getBanners.service'
 import { fetchJson } from '@/lib/api/fetchJson'
 import { MASAIVERSE_V2_API } from '@/lib/api/masaiverse-v2/masaiverseV2Paths'
@@ -115,6 +116,38 @@ export async function createMasaiverseV2DiscussionReply(input: {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(input),
+  })
+}
+
+/**
+ * Admin-only: bans or unbans a discussion post. A banned post stays visible to
+ * admins in admin mode (flagged) but is hidden from everyone else.
+ */
+export async function banMasaiverseV2Post(input: {
+  postId: string
+  banned: boolean
+}): Promise<DiscussionBanState> {
+  return fetchJson<DiscussionBanState>(MASAIVERSE_V2_API.discussionBan, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ target: 'post', ...input }),
+  })
+}
+
+/**
+ * Admin-only: bans or unbans a reply. The banned reply id is tracked on the
+ * parent post's meta; a banned reply stays visible to admins in admin mode
+ * (flagged) but is hidden from everyone else.
+ */
+export async function banMasaiverseV2Reply(input: {
+  postId: string
+  replyId: string
+  banned: boolean
+}): Promise<DiscussionBanState> {
+  return fetchJson<DiscussionBanState>(MASAIVERSE_V2_API.discussionBan, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ target: 'reply', ...input }),
   })
 }
 
@@ -337,7 +370,9 @@ export async function createMasaiverseV2Club(): Promise<{ id: string }> {
 }
 
 /** Home-page banners (published only, unless the admin is in admin mode). */
-export async function fetchMasaiverseV2Banners(): Promise<Array<MasaiverseV2Banner>> {
+export async function fetchMasaiverseV2Banners(): Promise<
+  Array<MasaiverseV2Banner>
+> {
   const { banners } = await fetchJson<{ banners: Array<MasaiverseV2Banner> }>(
     MASAIVERSE_V2_API.banners,
   )
@@ -422,7 +457,9 @@ export async function fetchMasaiverseV2EventEditData(
  * Uploads an image file to S3 and resolves with its public URL. Reusable for
  * any image field; the file rides in a multipart `file` field.
  */
-export async function uploadMasaiverseV2Image(file: File): Promise<{ url: string }> {
+export async function uploadMasaiverseV2Image(
+  file: File,
+): Promise<{ url: string }> {
   const body = new FormData()
   body.append('file', file)
   return fetchJson<{ url: string }>(MASAIVERSE_V2_API.uploadImage, {

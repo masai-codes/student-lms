@@ -58,7 +58,8 @@ export async function createMasaiverseEvent(
   const [header] = await db.insert(events).values({
     clubId: null,
     title: 'New Event (Draft)',
-    description: 'Event description goes here. Edit this draft before publishing.',
+    description:
+      'Event description goes here. Edit this draft before publishing.',
     category: 'meetup',
     mode: 'online',
     locationTitle: 'Masai HQ, Bengaluru',

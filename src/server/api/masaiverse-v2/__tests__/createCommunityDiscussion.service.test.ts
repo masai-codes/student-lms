@@ -27,9 +27,8 @@ beforeEach(() => {
 
 describe('createCommunityDiscussion', () => {
   it('inserts a club-less post for the user and returns its id', async () => {
-    const { createCommunityDiscussion } = await import(
-      '../services/createCommunityDiscussion.service'
-    )
+    const { createCommunityDiscussion } =
+      await import('../services/createCommunityDiscussion.service')
     const captured: Array<Record<string, unknown>> = []
     mockInsert(captured)
 
@@ -57,9 +56,8 @@ describe('createCommunityDiscussion', () => {
   })
 
   it('inserts a club-scoped post when a clubId is given', async () => {
-    const { createCommunityDiscussion } = await import(
-      '../services/createCommunityDiscussion.service'
-    )
+    const { createCommunityDiscussion } =
+      await import('../services/createCommunityDiscussion.service')
     const captured: Array<Record<string, unknown>> = []
     mockInsert(captured)
 
@@ -82,9 +80,8 @@ describe('createCommunityDiscussion', () => {
   })
 
   it('rejects an empty title without inserting', async () => {
-    const { createCommunityDiscussion } = await import(
-      '../services/createCommunityDiscussion.service'
-    )
+    const { createCommunityDiscussion } =
+      await import('../services/createCommunityDiscussion.service')
     await expect(
       createCommunityDiscussion(5, {
         title: '   ',
@@ -96,12 +93,14 @@ describe('createCommunityDiscussion', () => {
   })
 
   it('rejects empty content without inserting', async () => {
-    const { createCommunityDiscussion } = await import(
-      '../services/createCommunityDiscussion.service'
-    )
+    const { createCommunityDiscussion } =
+      await import('../services/createCommunityDiscussion.service')
     await expect(
       createCommunityDiscussion(5, { title: 'Hi', content: '   ', tags: [] }),
-    ).rejects.toMatchObject({ status: 400, code: 'DISCUSSION_CONTENT_REQUIRED' })
+    ).rejects.toMatchObject({
+      status: 400,
+      code: 'DISCUSSION_CONTENT_REQUIRED',
+    })
     expect(hoisted.dbInsert).not.toHaveBeenCalled()
   })
 })

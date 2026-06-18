@@ -27,7 +27,8 @@ beforeEach(() => {
 
 describe('handleUpdateEvent', () => {
   it('forwards the parsed patch to the service and returns success', async () => {
-    const { handleUpdateEvent } = await import('../handlers/updateEvent.handler')
+    const { handleUpdateEvent } =
+      await import('../handlers/updateEvent.handler')
     hoisted.getUserIdFromCookieHeader.mockResolvedValueOnce(9)
     hoisted.updateMasaiverseEvent.mockResolvedValueOnce({ success: true })
 
@@ -48,7 +49,8 @@ describe('handleUpdateEvent', () => {
   })
 
   it('returns 401 without a session', async () => {
-    const { handleUpdateEvent } = await import('../handlers/updateEvent.handler')
+    const { handleUpdateEvent } =
+      await import('../handlers/updateEvent.handler')
     hoisted.getUserIdFromCookieHeader.mockResolvedValueOnce(null)
 
     const response = await handleUpdateEvent(postRequest({ eventId: 5 }, null))
@@ -57,7 +59,8 @@ describe('handleUpdateEvent', () => {
   })
 
   it('propagates a 403 from the service', async () => {
-    const { handleUpdateEvent } = await import('../handlers/updateEvent.handler')
+    const { handleUpdateEvent } =
+      await import('../handlers/updateEvent.handler')
     hoisted.getUserIdFromCookieHeader.mockResolvedValueOnce(9)
     hoisted.updateMasaiverseEvent.mockRejectedValueOnce(
       new ApiError(403, 'MASAIVERSE_ADMIN_FORBIDDEN'),
@@ -70,7 +73,8 @@ describe('handleUpdateEvent', () => {
   })
 
   it('maps unexpected failures to a 500 error', async () => {
-    const { handleUpdateEvent } = await import('../handlers/updateEvent.handler')
+    const { handleUpdateEvent } =
+      await import('../handlers/updateEvent.handler')
     hoisted.getUserIdFromCookieHeader.mockResolvedValueOnce(9)
     hoisted.updateMasaiverseEvent.mockRejectedValueOnce(new Error('boom'))
     const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
