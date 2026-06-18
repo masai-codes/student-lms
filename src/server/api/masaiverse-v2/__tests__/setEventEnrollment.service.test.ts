@@ -26,6 +26,11 @@ vi.mock('@/db/schema', () => ({
     eventId: 'event_enrollments.event_id',
     userId: 'event_enrollments.user_id',
   },
+  clubMembers: {
+    id: 'club_members.id',
+    clubId: 'club_members.club_id',
+    userId: 'club_members.user_id',
+  },
 }))
 
 /** `db.select().from().where().limit()` */
@@ -47,7 +52,10 @@ function mockInsert() {
 }
 
 beforeEach(() => {
-  vi.clearAllMocks()
+  // resetAllMocks (not clearAllMocks) so the `mockReturnValueOnce` queue is
+  // drained between tests — otherwise an early-throwing test leaks leftover
+  // mock values into the next one.
+  vi.resetAllMocks()
 })
 
 describe('setEventEnrollment', () => {
@@ -86,6 +94,7 @@ describe('setEventEnrollment', () => {
           },
         ]),
       )
+      .mockReturnValueOnce(limitChain([{ id: 1 }])) // is a club member
       .mockReturnValueOnce(limitChain([])) // not yet enrolled
       .mockReturnValueOnce(whereChain([{ enrolledCount: 9 }]))
 
@@ -175,5 +184,29 @@ describe('setEventEnrollment', () => {
     await expect(setEventEnrollment(1, 5)).resolves.toMatchObject({
       redirectUrl: null,
     })
+  })
+
+  it('rejects registration for a club event when the user is not a member', async () => {
+    const { setEventEnrollment } = await import(
+      '../services/setEventEnrollment.service'
+    )
+    hoisted.dbSelect
+      .mockReturnValueOnce(
+        limitChain([
+          {
+            id: 5,
+            mode: 'online',
+            eventLink: 'https://meet.example/x',
+            locationMapLink: null,
+            clubId: 8,
+          },
+        ]),
+      )
+      .mockReturnValueOnce(limitChain([])) // not a club member
+    await expect(setEventEnrollment(1, 5)).rejects.toThrow(
+      'CLUB_MEMBERSHIP_REQUIRED',
+    )
+    expect(hoisted.dbInsert).not.toHaveBeenCalled()
+    expect(hoisted.awardEventRegistrationPoints).not.toHaveBeenCalled()
   })
 })
