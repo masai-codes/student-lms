@@ -30,6 +30,7 @@ const CATEGORY_LABEL: Record<string, string> = {
   session: 'Session',
   challenge: 'Challenge',
   contest: 'Contest',
+  workshop: 'Workshop',
   offline_meetup: 'Offline Meetup',
 }
 
