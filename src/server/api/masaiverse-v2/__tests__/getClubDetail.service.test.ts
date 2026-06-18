@@ -175,15 +175,16 @@ describe('getClubDetail', () => {
 
     expect(detail).toMatchObject({
       isJoined: false,
-      // Stats stay visible to everyone…
+      // Stats and events stay visible to everyone…
       stats: MOCK_STATS,
-      // …but the gated sections come back empty.
       events: { weeklyConnects: [], upcoming: [], past: [] },
+      // …but the members-only sections come back empty.
       leaderboard: EMPTY_LEADERBOARD,
       discussions: [],
     })
-    // Their services are never even invoked for a non-member.
-    expect(hoisted.getClubEvents).not.toHaveBeenCalled()
+    // Events are public, so that service still runs; the members-only
+    // leaderboard/discussions services are never invoked for a non-member.
+    expect(hoisted.getClubEvents).toHaveBeenCalledTimes(1)
     expect(hoisted.getClubLeaderboard).not.toHaveBeenCalled()
     expect(hoisted.getCommunityDiscussions).not.toHaveBeenCalled()
   })

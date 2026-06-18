@@ -27,6 +27,11 @@ vi.mock('@/db/schema', () => ({
     userId: 'event_enrollments.user_id',
     meta: 'event_enrollments.meta',
   },
+  clubMembers: {
+    id: 'club_members.id',
+    clubId: 'club_members.club_id',
+    userId: 'club_members.user_id',
+  },
 }))
 
 /** `db.select().from().leftJoin().where().limit()` */
@@ -84,7 +89,10 @@ function eventRow(overrides: Record<string, unknown> = {}) {
 }
 
 beforeEach(() => {
-  vi.clearAllMocks()
+  // resetAllMocks (not clearAllMocks) so the `mockReturnValueOnce` queue is
+  // drained between tests — otherwise an early-throwing test leaks leftover
+  // mock values into the next one.
+  vi.resetAllMocks()
 })
 
 describe('getEventDetail', () => {
@@ -108,6 +116,7 @@ describe('getEventDetail', () => {
       .mockReturnValueOnce(rowChain([eventRow()]))
       .mockReturnValueOnce(countChain([{ enrolledCount: 12 }]))
       .mockReturnValueOnce(limitChain([{ id: 1, meta: null }]))
+      .mockReturnValueOnce(limitChain([{ id: 1 }])) // is a club member
 
     await expect(getEventDetail(7, 1, NOW)).resolves.toEqual({
       id: '7',
@@ -129,6 +138,8 @@ describe('getEventDetail', () => {
       eventSummary: null,
       clubId: '3',
       clubName: 'Programming Club',
+      isClubMember: true,
+      clubConfirmationModalText: null,
       hostedBy: [
         { name: 'Aman Kumar', imageUrl: 'https://cdn/aman.png' },
         { name: 'Priya Rao', imageUrl: null },
@@ -153,6 +164,7 @@ describe('getEventDetail', () => {
       )
       .mockReturnValueOnce(countChain([{ enrolledCount: 0 }]))
       .mockReturnValueOnce(limitChain([]))
+      .mockReturnValueOnce(limitChain([{ id: 1 }])) // is a club member
 
     await expect(getEventDetail(7, 1, NOW)).resolves.toMatchObject({
       confirmationModalText: '**Please note** the rules.',
@@ -169,6 +181,7 @@ describe('getEventDetail', () => {
           { id: 1, meta: { rating: 4, feedback: 'Loved the energy!' } },
         ]),
       )
+      .mockReturnValueOnce(limitChain([{ id: 1 }])) // is a club member
 
     await expect(getEventDetail(7, 1, NOW)).resolves.toMatchObject({
       isEnrolled: true,
@@ -244,6 +257,7 @@ describe('getEventDetail', () => {
       )
       .mockReturnValueOnce(countChain([{ enrolledCount: 0 }]))
       .mockReturnValueOnce(limitChain([]))
+      .mockReturnValueOnce(limitChain([{ id: 1 }])) // is a club member
 
     await expect(getEventDetail(7, 1, NOW)).resolves.toMatchObject({
       hostedBy: [{ name: 'Sam Niko', imageUrl: 'https://cdn/sam.png' }],
