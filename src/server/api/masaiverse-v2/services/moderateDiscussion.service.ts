@@ -1,6 +1,7 @@
 import { eq } from 'drizzle-orm'
 import { db } from '@/db'
 import { posts } from '@/db/schema'
+import { toMysqlUtc } from '@/lib/dateRanges'
 import { ApiError } from '@/server/api/http/apiError'
 import { getAdminModeState } from '@/server/api/masaiverse-v2/services/adminMode.service'
 import {
@@ -47,7 +48,7 @@ export async function setPostBanned(
     .set({
       isBanned: banned ? 1 : 0,
       bannedBy: banned ? adminUserId : null,
-      bannedDate: banned ? new Date().toISOString() : null,
+      bannedDate: banned ? toMysqlUtc(new Date()) : null,
     })
     .where(eq(posts.id, postId))
 
