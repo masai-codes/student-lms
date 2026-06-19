@@ -6,11 +6,13 @@ import { SwitchAccountFlow } from '@/components/features/sign-in/SwitchAccountFl
 const {
   navigateMock,
   redirectToOldStudentUiMock,
+  isLegacyStudentRedirectEnabledMock,
   getRedirectToSearchParamMock,
   redirectToResolvedUrlMock,
 } = vi.hoisted(() => ({
   navigateMock: vi.fn(),
   redirectToOldStudentUiMock: vi.fn(),
+  isLegacyStudentRedirectEnabledMock: vi.fn(),
   getRedirectToSearchParamMock: vi.fn(),
   redirectToResolvedUrlMock: vi.fn(),
 }))
@@ -25,6 +27,7 @@ vi.mock('@tanstack/react-router', async (importOriginal) => {
 
 vi.mock('@/utils/authRedirect', () => ({
   redirectToOldStudentUi: redirectToOldStudentUiMock,
+  isLegacyStudentRedirectEnabled: isLegacyStudentRedirectEnabledMock,
 }))
 
 vi.mock('@/components/features/sign-in/signInRouting', () => ({
@@ -45,6 +48,7 @@ describe('SwitchAccountFlow', () => {
     vi.restoreAllMocks()
     navigateMock.mockReset()
     redirectToOldStudentUiMock.mockReset()
+    isLegacyStudentRedirectEnabledMock.mockReset()
     getRedirectToSearchParamMock.mockReset()
     redirectToResolvedUrlMock.mockReset()
     window.sessionStorage.clear()
@@ -53,6 +57,7 @@ describe('SwitchAccountFlow', () => {
 
   beforeEach(() => {
     getRedirectToSearchParamMock.mockReturnValue(null)
+    isLegacyStudentRedirectEnabledMock.mockReturnValue(true)
     stubFetchJson(async (url) => {
       if (url.includes('/v2/auth/linked-accounts')) {
         return new Response(
@@ -188,6 +193,23 @@ describe('SwitchAccountFlow', () => {
 
     await waitFor(() => {
       expect(redirectToResolvedUrlMock).toHaveBeenCalledWith('https://example.com/final-target')
+    })
+    expect(redirectToOldStudentUiMock).not.toHaveBeenCalled()
+  })
+
+  it('navigates within the new app after account selection when legacy redirect is disabled', async () => {
+    isLegacyStudentRedirectEnabledMock.mockReturnValue(false)
+
+    render(<SwitchAccountFlow />)
+
+    await waitFor(() => {
+      expect(screen.getAllByRole('button', { name: /login with this account/i })).toHaveLength(2)
+    })
+
+    fireEvent.click(screen.getAllByRole('button', { name: /login with this account/i })[1])
+
+    await waitFor(() => {
+      expect(navigateMock).toHaveBeenCalledWith({ to: '/' })
     })
     expect(redirectToOldStudentUiMock).not.toHaveBeenCalled()
   })

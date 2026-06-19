@@ -1,4 +1,5 @@
 import { useCallback, useReducer, useState } from 'react'
+import { useNavigate } from '@tanstack/react-router'
 import type { VerifyOtpResult } from '@/components/features/sign-in/v2AuthClient'
 import { EmailAuthStepView } from '@/components/features/sign-in/EmailAuthStepView'
 import { ForgotPasswordStepView } from '@/components/features/sign-in/ForgotPasswordStepView'
@@ -34,7 +35,10 @@ import {
   v2RequestOtp,
   v2VerifyOtp,
 } from '@/components/features/sign-in/v2AuthClient'
-import { redirectToOldStudentUi } from '@/utils/authRedirect'
+import {
+  isLegacyStudentRedirectEnabled,
+  redirectToOldStudentUi,
+} from '@/utils/authRedirect'
 
 const FORGOT_GENERIC_OK =
   'If an account exists for that email, we have sent a reset link. Check your inbox and spam folder.'
@@ -50,6 +54,7 @@ function formatAuthError(err: unknown): string {
 }
 
 export function SignInFlow() {
+  const navigate = useNavigate()
   const [state, dispatch] = useReducer(signInReducer, initialSignInState)
   const [identifierBusy, setIdentifierBusy] = useState(false)
   const [emailOtpBusy, setEmailOtpBusy] = useState(false)
@@ -64,11 +69,16 @@ export function SignInFlow() {
       redirectToResolvedUrl(redirectTo)
       return
     }
-    redirectToOldStudentUi({
-      source: 'SignInFlow',
-      reason: 'Email sign-in completed',
-    })
-  }, [])
+    if (isLegacyStudentRedirectEnabled()) {
+      redirectToOldStudentUi({
+        source: 'SignInFlow',
+        reason: 'Email sign-in completed',
+      })
+      return
+    }
+    // Legacy redirect disabled: stay in this (new) app.
+    void navigate({ to: '/' })
+  }, [navigate])
 
   const completePhoneRedirect = useCallback(
     (method: 'phone-otp' | 'phone-use-account', response: VerifyOtpResult) => {
@@ -78,13 +88,18 @@ export function SignInFlow() {
         redirectToResolvedUrl(redirectTo)
         return
       }
-      redirectToOldStudentUi({
-        source: 'SignInFlow',
-        reason: 'Phone sign-in completed',
-        extra: { method, userId: response.user.id },
-      })
+      if (isLegacyStudentRedirectEnabled()) {
+        redirectToOldStudentUi({
+          source: 'SignInFlow',
+          reason: 'Phone sign-in completed',
+          extra: { method, userId: response.user.id },
+        })
+        return
+      }
+      // Legacy redirect disabled: stay in this (new) app.
+      void navigate({ to: '/' })
     },
-    [],
+    [navigate],
   )
 
   const onIdentifierSubmit = useCallback(async () => {
