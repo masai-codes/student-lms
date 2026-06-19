@@ -111,7 +111,7 @@ export async function getAssessLink(formId: number, userId: number): Promise<Ass
   // Call Assess Platform to generate link
   const platformUrl = process.env['ASSESS_PLATFORM_URL']
   const authToken = process.env['ASSESS_PLATFORM_AUTH_TOKEN']
-  const appBaseUrl = (process.env['VITE_NEW_STUDENT_UI_URL'] ?? 'https://df21-180-151-45-54.ngrok-free.app').replace(/\/$/, '')
+  const appBaseUrl = (process.env['VITE_NEW_STUDENT_UI_URL'] ?? 'https://students-demo-v2.masaischool.com/').replace(/\/$/, '')
   const callbackUrl = `${appBaseUrl}/api/assess-nps-callback`
   const assessRedirectURI = process.env['ASSESS_REDIRECT_URI']
 

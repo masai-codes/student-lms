@@ -19,7 +19,7 @@ export async function handleAssessNpsCallbackRequest(request: Request): Promise<
       return new Response('invalid uniqueID', { status: 400 })
     }
     const eventType = typeof body['eventType'] === 'string' ? body['eventType'] : undefined
-    await handleAssessNpsCallback(submissionId, eventType, body)
+    await handleAssessNpsCallback(submissionId, eventType)
     return new Response('ok', { status: 200 })
   } catch (error) {
     console.error('Assess NPS callback error', error)

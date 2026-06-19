@@ -9,7 +9,6 @@ function nowMysql() {
 export async function handleAssessNpsCallback(
   submissionId: number,
   eventType: string | undefined,
-  body: Record<string, unknown>,
 ): Promise<void> {
   const now = nowMysql()
 
