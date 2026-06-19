@@ -3407,3 +3407,35 @@ export const masaiverseLeaderboard = mysqlTable("masaiverse_leaderboard", {
 	index("masaiverse_leaderboard_reason_index").on(table.reason),
 	primaryKey({ columns: [table.id], name: "masaiverse_leaderboard_id"}),
 ]);
+
+// Support module — "request a callback" records. Lighter-weight than a ticket:
+// the student picks a reason + preferred time slot and the ops team calls back.
+// One pending callback per (user, batch) is enforced in the service layer.
+//
+// This is the Drizzle BINDING for the table that ALREADY EXISTS in MySQL (it was
+// not previously declared in this schema). Columns mirror the live table exactly,
+// so NO migration is required.
+export const userCallbackTickets = mysqlTable("user_callback_tickets", {
+	id: int({ unsigned: true }).autoincrement().notNull(),
+	userId: bigint("user_id", { mode: "number", unsigned: true }).notNull().references(() => users.id),
+	resolvedBy: bigint("resolved_by", { mode: "number", unsigned: true }).references(() => users.id),
+	batchId: int("batch_id", { unsigned: true }).notNull().references(() => batches.id),
+	category: varchar({ length: 255 }).notNull(),
+	status: varchar({ length: 255 }).default("pending").notNull(),
+	meta: json('meta').$type<Record<string, any>>(),
+	assignedTo: bigint("assigned_to", { mode: "number", unsigned: true }).references(() => users.id),
+	preferredTimeSlot: varchar("preferred_time_slot", { length: 255 }),
+	createdAt: timestamp("created_at", { mode: 'string' }),
+	updatedAt: timestamp("updated_at", { mode: 'string' }),
+	adminComment: text("admin_comment"),
+	resolvedAt: timestamp("resolved_at", { mode: 'string' }),
+	commentUpdatedAt: timestamp("comment_updated_at", { mode: 'string' }),
+	logs: json(),
+},
+// Indexes mirror the live DB exactly (verified via `drizzle-kit pull`): only the
+// status index + primary key. Don't add the FK indexes here — they aren't on the
+// live table, and declaring them would make `drizzle-kit generate` try to add them.
+(table) => [
+	index("user_callback_tickets_status_index").on(table.status),
+	primaryKey({ columns: [table.id], name: "user_callback_tickets_id"}),
+]);

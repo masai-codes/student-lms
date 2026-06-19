@@ -27,7 +27,7 @@ function normalizeRows(result: unknown): Array<Record<string, unknown>> {
     if (Array.isArray(first)) return first as Array<Record<string, unknown>>
     return result as Array<Record<string, unknown>>
   }
-  if (result && typeof result === 'object' && 'rows' in result && Array.isArray((result as { rows: unknown }).rows)) {
+  if (result && typeof result === 'object' && 'rows' in result && Array.isArray((result).rows)) {
     return (result as { rows: Array<Record<string, unknown>> }).rows
   }
   return []
@@ -63,7 +63,7 @@ function hasValidAgreementSubKey(agreementsJson: Record<string, unknown>): boole
  * from its first valid agreement sub-key (grading_policy, posh_compliance, …).
  * Returns an empty array when no banners are needed.
  */
-async function checkAgreementRequired(userId: number): Promise<Array<PendingAgreementSection>> {
+export async function checkAgreementRequired(userId: number): Promise<Array<PendingAgreementSection>> {
   const sectionRows = await db
     .select({ sectionId: sectionUser.sectionId })
     .from(sectionUser)
@@ -206,7 +206,7 @@ async function checkFeedbackPending(userId: number): Promise<Array<PendingFeedba
     .map((f) => ({ id: f.id, title: f.title, source: 'nps' as const }))
 
   // ── assess_nps_form ────────────────────────────────────────────────────────
-  const sectionOrBatchClause = ([] as ReturnType<typeof sql>[]).concat(
+  const sectionOrBatchClause = ([] as Array<ReturnType<typeof sql>>).concat(
     sectionIdList ? [sql`${assessNpsForm.sectionId} IN (${sectionIdList})`] : [],
     batchIdList ? [sql`${assessNpsForm.batchId} IN (${batchIdList})`] : [],
   )
