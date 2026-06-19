@@ -86,9 +86,8 @@ export async function createNpsSubmission(
   const nextAttempt = lastAttempt ? lastAttempt.attemptNumber + 1 : 1
   const now = nowMysql()
 
-  const insertResult = await db
-    .insert(npsSubmissions)
-    .values({
+  try {
+    await db.insert(npsSubmissions).values({
       npsFormId: formId,
       userId,
       attemptNumber: nextAttempt,
@@ -97,9 +96,28 @@ export async function createNpsSubmission(
       startedAt: now,
       updatedAt: now,
     })
-    .$returningId() as Array<{ id: number }>
+  } catch (err) {
+    // Two concurrent requests (e.g. React Strict Mode double-invoke) can race on
+    // the same (npsFormId, userId, attemptNumber) unique key. If that happens,
+    // fall through and select the row the other request just inserted.
+    const isDuplicate =
+      err != null && typeof err === 'object' && 'code' in err && err.code === 'ER_DUP_ENTRY'
+    if (!isDuplicate) throw err
+  }
 
-  const newRow = insertResult[0]
+  const [newRow] = await db
+    .select({ id: npsSubmissions.id })
+    .from(npsSubmissions)
+    .where(
+      and(
+        eq(npsSubmissions.npsFormId, formId),
+        eq(npsSubmissions.userId, userId),
+        eq(npsSubmissions.attemptNumber, nextAttempt),
+        isNull(npsSubmissions.deletedAt),
+      ),
+    )
+    .limit(1)
+
   if (!newRow) throw new Error('NPS_SUBMISSION_CREATE_FAILED')
 
   return { submissionId: newRow.id, status: 'DRAFT', existingResponses: [] }

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import {
   Camera,
   CheckCircle2,
@@ -238,6 +238,8 @@ export function OnboardingModal({
   feedbackForms = [],
   onPhotoSaved,
   onAgreementSubmitted,
+  onFeedbackSubmitted,
+  onAssessCompleted,
 }: {
   onClose: () => void
   initialStep?: string
@@ -246,8 +248,12 @@ export function OnboardingModal({
   feedbackForms?: Array<PendingFeedbackForm>
   onPhotoSaved?: () => void
   onAgreementSubmitted?: () => void
+  onFeedbackSubmitted?: () => void
+  onAssessCompleted?: () => void
 }) {
-  const steps: Array<Step> = useMemo(() => [
+  // Freeze steps on mount so completed items don't vanish when the parent
+  // re-fetches and removes them from the pending lists.
+  const [steps] = useState<Array<Step>>(() => [
     ...(showProfilePhoto ? [{ id: 'photo', label: 'Profile Photo', Icon: Camera }] : []),
     ...agreementSections.map((s) => ({
       id: `agreement-${s.sectionId}`,
@@ -264,9 +270,12 @@ export function OnboardingModal({
       label: `Feedback - ${f.title}`,
       Icon: StickyNote,
     })),
-  ], [showProfilePhoto, agreementSections, feedbackForms])
+  ])
 
-  const defaultStep = initialStep ?? steps[0].id
+  // Keep a stable copy of feedbackForms for title lookups after prop updates
+  const initialFeedbackForms = useRef(feedbackForms)
+
+  const defaultStep = initialStep ?? steps[0]?.id ?? ''
   const [activeStep, setActiveStep] = useState(defaultStep)
   const [completedSteps, setCompletedSteps] = useState<Set<string>>(new Set())
   const [photoSnapshot, setPhotoSnapshot] = useState<string | null>(null)
@@ -319,7 +328,7 @@ export function OnboardingModal({
             </div>
 
             {/* Step cards */}
-            <div className="mt-4 flex flex-col">
+            <div className="mt-4 flex flex-col overflow-y-auto min-h-0 flex-1">
               {steps.map((step, i) => {
                 const isCompleted = completedSteps.has(step.id)
                 const isActive = activeStep === step.id
@@ -375,7 +384,7 @@ export function OnboardingModal({
           </div>
 
           {/* ── Right panel ── */}
-          <div className="flex-1 bg-white rounded-2xl overflow-auto flex flex-col">
+          <div className="flex-1 bg-white rounded-2xl overflow-hidden flex flex-col">
             {showProfilePhoto && (
               <div className={activeStep === 'photo' ? 'contents' : 'hidden'}>
                 <PhotoContent
@@ -408,7 +417,7 @@ export function OnboardingModal({
                     </p>
                   </div>
                 ) : (
-                  <div key={step.id} className="min-w-[1200px] h-full">
+                  <div key={step.id} className="flex-1 min-h-0">
                     <AgreementFlow
                       onSubmit={() => {
                         markDone(step.id)
@@ -431,6 +440,7 @@ export function OnboardingModal({
                     formId={formId}
                     isOnlyStep={steps.length === 1}
                     onSubmitted={() => {
+                      onFeedbackSubmitted?.()
                       markDone(step.id)
                       if (steps.length === 1) onClose()
                     }}
@@ -443,12 +453,16 @@ export function OnboardingModal({
               .map((step) => {
                 const formId = parseInt(step.id.replace('assess-', ''), 10)
                 if (activeStep !== step.id) return null
-                const form = feedbackForms.find((f) => f.source === 'assess_nps' && f.id === formId)
+                const form = initialFeedbackForms.current.find((f) => f.source === 'assess_nps' && f.id === formId)
                 return (
                   <AssessNpsContent
                     key={step.id}
                     formId={formId}
                     title={form?.title ?? 'Assessment'}
+                    onDone={() => {
+                      markDone(step.id)
+                      onAssessCompleted?.()
+                    }}
                   />
                 )
               })}

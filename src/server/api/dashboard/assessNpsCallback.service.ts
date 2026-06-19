@@ -9,13 +9,14 @@ function nowMysql() {
 export async function handleAssessNpsCallback(
   submissionId: number,
   eventType: string | undefined,
+  body: Record<string, unknown>,
 ): Promise<void> {
   const now = nowMysql()
 
   if (eventType === 'endAssessment') {
     await db
       .update(assessNpsSubmissions)
-      .set({ assessCallback: 'true', completedAt: now, updatedAt: now })
+      .set({ completedAt: now, updatedAt: now })
       .where(eq(assessNpsSubmissions.id, submissionId))
   } else {
     await db

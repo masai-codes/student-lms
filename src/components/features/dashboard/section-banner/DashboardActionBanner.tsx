@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
 import { useRouter } from '@tanstack/react-router'
-import { Camera, ChevronLeft, ChevronRight, CircleUserRound, Download, FileText, Monitor, Smartphone, ThumbsUp } from 'lucide-react'
+import { Camera, ChevronLeft, ChevronRight, CircleUserRound, Download, FileText, Smartphone, ThumbsUp } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import type { DashboardActionBannersResult, PendingAgreementSection, PendingFeedbackForm } from '@/server/api/dashboard/getDashboardActionBanners.service'
 import { OnboardingModal } from '@/components/modals/onboarding/OnboardingModal'
@@ -21,12 +21,6 @@ interface ActionSlide {
 }
 
 const STATIC_SLIDES: Array<ActionSlide> = [
-  {
-    id: 'zoom',
-    Icon: Monitor,
-    text: 'Complete your Zoom authentication',
-    cta: 'Start',
-  },
   {
     id: 'appDownload',
     Icon: Smartphone,
@@ -75,7 +69,7 @@ export function DashboardActionBanner({ actionBanners: data }: { actionBanners: 
   const staticSlides = STATIC_SLIDES.filter((slide) => {
     if (slide.id === 'appDownload') return data.showDownloadApp
     if (slide.id === 'profilePicture') return data.showProfilePicture
-    return data.showZoom
+    return false
   })
 
   // Agreement first, then feedback, then zoom/download/profile
@@ -191,6 +185,9 @@ export function DashboardActionBanner({ actionBanners: data }: { actionBanners: 
           void router.invalidate()
         }}
         onAgreementSubmitted={() => {
+          void queryClient.invalidateQueries({ queryKey: ['dashboard-left-section'] })
+        }}
+        onFeedbackSubmitted={() => {
           void queryClient.invalidateQueries({ queryKey: ['dashboard-left-section'] })
         }}
       />

@@ -125,32 +125,45 @@ function StepTab({
   status: 'completed' | 'active' | 'upcoming'
   onClick?: () => void
 }) {
+  const isActive = status === 'active'
+  const displayLabel = isActive ? label : label.length > 10 ? `${label.slice(0, 10)}…` : label
+
   return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={`flex flex-col gap-2 focus-visible:outline-none ${status === 'completed' ? 'cursor-pointer' : 'cursor-default'}`}
-      style={{ width: 190 }}
-    >
-      <div className="flex items-center gap-2">
-        <span
-          className="flex items-center justify-center size-6 rounded-full text-sm font-medium shrink-0"
-          style={{
-            backgroundColor: status === 'completed' ? '#16A34A' : status === 'active' ? '#6962AC' : '#E5E7EB',
-            color: status === 'upcoming' ? '#6B7280' : '#FFFFFF',
-          }}
-        >
-          {status === 'completed' ? <Check size={12} strokeWidth={2.5} /> : index + 1}
-        </span>
-        <span className="text-sm font-medium" style={{ color: status === 'active' ? '#1F2A37' : '#6B7280' }}>
-          {label}
-        </span>
-      </div>
-      <div
-        className="w-full rounded-full"
-        style={{ height: 4, backgroundColor: status === 'active' ? '#6962AC' : '#E5E7EB' }}
-      />
-    </button>
+    <div className="relative group/steptab" style={{ width: 190 }}>
+      <button
+        type="button"
+        onClick={onClick}
+        className={`w-full flex flex-col gap-2 focus-visible:outline-none ${status === 'completed' ? 'cursor-pointer' : 'cursor-default'}`}
+      >
+        <div className="flex items-center gap-2">
+          <span
+            className="flex items-center justify-center size-6 rounded-full text-sm font-medium shrink-0"
+            style={{
+              backgroundColor: status === 'completed' ? '#16A34A' : isActive ? '#6962AC' : '#E5E7EB',
+              color: status === 'upcoming' ? '#6B7280' : '#FFFFFF',
+            }}
+          >
+            {status === 'completed' ? <Check size={12} strokeWidth={2.5} /> : index + 1}
+          </span>
+          <span className="text-sm font-medium truncate" style={{ color: isActive ? '#1F2A37' : '#6B7280' }}>
+            {displayLabel}
+          </span>
+        </div>
+        <div
+          className="w-full rounded-full"
+          style={{ height: 4, backgroundColor: isActive ? '#6962AC' : '#E5E7EB' }}
+        />
+      </button>
+
+      {!isActive && label.length > 5 && (
+        <div className="pointer-events-none absolute bottom-full left-1/2 -translate-x-1/2 mb-2 z-50 invisible group-hover/steptab:visible opacity-0 group-hover/steptab:opacity-100 transition-opacity duration-150">
+          <div className="bg-gray-900 text-white text-xs rounded-lg px-3 py-1.5 shadow-lg whitespace-nowrap">
+            {label}
+          </div>
+          <div className="absolute left-1/2 -translate-x-1/2 top-full border-[5px] border-transparent border-t-gray-900" />
+        </div>
+      )}
+    </div>
   )
 }
 

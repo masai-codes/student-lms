@@ -44,7 +44,7 @@ export function DashboardScheduleSection({
   const scheduleItems = items.filter((i) => !spanningIds.has(i.id))
   const effectivePendingItems = [...(pendingTasksData ?? []), ...spanningItems]
 
-  const badgeCount = pendingTabActivated
+  const badgeCount = pendingTabActivated && !isPendingLoading
     ? effectivePendingItems.length
     : pendingTasksCount + spanningItems.length
 

@@ -187,7 +187,7 @@ export async function getDashboardPendingTasks(
     })
   )
 
-  // ── Merge, sort by deadline ASC, cap at 5 ─────────────────────────────────
+  // ── Merge, sort by deadline ASC ───────────────────────────────────────────
   return [...assignments, ...lectureCatchUps]
     .sort((a, b) => {
       if (!a.concludes && !b.concludes) return 0
@@ -195,5 +195,4 @@ export async function getDashboardPendingTasks(
       if (!b.concludes) return -1
       return a.concludes.localeCompare(b.concludes)
     })
-    .slice(0, 5)
 }
