@@ -127,6 +127,12 @@ export function DashboardLayout() {
           onAgreementSubmitted={() => {
             void queryClient.invalidateQueries({ queryKey: ['dashboard-left-section'] })
           }}
+          onFeedbackSubmitted={() => {
+            void queryClient.invalidateQueries({ queryKey: ['dashboard-left-section'] })
+          }}
+          onAssessCompleted={() => {
+            void queryClient.invalidateQueries({ queryKey: ['dashboard-left-section'] })
+          }}
         />
       )}
     </>

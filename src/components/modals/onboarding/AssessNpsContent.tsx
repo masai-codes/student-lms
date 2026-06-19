@@ -1,27 +1,49 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { CheckCircle2, Loader2 } from 'lucide-react'
 import { fetchAssessLink } from '@/lib/api/dashboard/dashboardApi'
 
 interface AssessNpsContentProps {
   formId: number
   title: string
+  onDone?: () => void
 }
 
-export function AssessNpsContent({ formId, title }: AssessNpsContentProps) {
+export function AssessNpsContent({ formId, title, onDone }: AssessNpsContentProps) {
   const [loading, setLoading] = useState(true)
   const [url, setUrl] = useState<string | null>(null)
   const [completed, setCompleted] = useState(false)
   const [error, setError] = useState('')
+  const onDoneRef = useRef(onDone)
+  onDoneRef.current = onDone
 
   useEffect(() => {
     fetchAssessLink(formId)
       .then((result) => {
         setUrl(result.url)
         setCompleted(result.completed)
+        if (result.completed) onDoneRef.current?.()
       })
       .catch(() => setError('Failed to load assessment. Please try again.'))
       .finally(() => setLoading(false))
   }, [formId])
+
+  // Poll for completion once the iframe is open (callback is server-side)
+  useEffect(() => {
+    if (!url || completed) return
+    const interval = setInterval(() => {
+      fetchAssessLink(formId)
+        .then((result) => {
+          if (result.completed) {
+            setCompleted(true)
+            setUrl(null)
+            onDoneRef.current?.()
+            clearInterval(interval)
+          }
+        })
+        .catch(() => undefined)
+    }, 5000)
+    return () => clearInterval(interval)
+  }, [formId, url, completed])
 
   if (loading) {
     return (
