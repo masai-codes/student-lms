@@ -35,7 +35,7 @@ describe('ChatbotAssistantMessage', () => {
   it('applies assistant bubble styling', () => {
     const { container } = render(<ChatbotAssistantMessage content="Styled reply" />)
     const bubble = container.firstChild as HTMLElement
-    expect(bubble.className).toContain('bg-gray-100')
+    expect(bubble.className).toContain('text-gray-900')
     expect(bubble.className).toContain('w-full')
   })
 })
