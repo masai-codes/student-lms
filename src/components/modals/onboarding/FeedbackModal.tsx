@@ -322,8 +322,13 @@ export function FeedbackFormContent({ formId, isOnlyStep = false, onSubmitted }:
   onSubmittedRef.current = onSubmitted
 
   useEffect(() => {
+    let cancelled = false
+    setError('')
+    setLoading(true)
     Promise.all([fetchNpsForm(formId), startNpsSubmission(formId)])
       .then(([formData, submission]) => {
+        if (cancelled) return
+        setError('')
         setForm(formData)
         setSubmissionId(submission.submissionId)
         if (submission.existingResponses.length > 0) {
@@ -335,8 +340,9 @@ export function FeedbackFormContent({ formId, isOnlyStep = false, onSubmitted }:
         }
         if (submission.status === 'SUBMITTED') setSubmitted(true)
       })
-      .catch(() => setError('Failed to load feedback form.'))
-      .finally(() => setLoading(false))
+      .catch(() => { if (!cancelled) setError('Failed to load feedback form.') })
+      .finally(() => { if (!cancelled) setLoading(false) })
+    return () => { cancelled = true }
   }, [formId])
 
   // Start countdown when only step and submitted

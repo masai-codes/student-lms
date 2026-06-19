@@ -67,23 +67,36 @@ export async function getAssessLink(formId: number, userId: number): Promise<Ass
     }
   } else {
     const now = nowMysql()
-    const inserted = await db
-      .insert(assessNpsSubmissions)
-      .values({
-        npsFormId: formId,
-        userId,
-        batchId: form.batchId ?? null,
-        sectionId: form.sectionId ?? null,
-        templateId: form.templateId ?? null,
-        clientId: form.clientId ?? null,
-        startsAt: now,
-        createdAt: now,
-        updatedAt: now,
-      })
-      .$returningId() as Array<{ id: number }>
-    const row = inserted[0]
-    if (!row) throw new Error('ASSESS_SUBMISSION_CREATE_FAILED')
-    submissionId = row.id
+    try {
+      await db
+        .insert(assessNpsSubmissions)
+        .values({
+          npsFormId: formId,
+          userId,
+          batchId: form.batchId ?? null,
+          sectionId: form.sectionId ?? null,
+          templateId: form.templateId ?? null,
+          clientId: form.clientId ?? null,
+          startsAt: now,
+          createdAt: now,
+          updatedAt: now,
+        })
+    } catch (err) {
+      // Ignore duplicate key — concurrent request already inserted the row
+      const isDuplicate =
+        err != null && typeof err === 'object' && 'code' in err && err.code === 'ER_DUP_ENTRY'
+      if (!isDuplicate) throw err
+    }
+    // Always SELECT after insert — $returningId() is unreliable with this driver
+    const [newRow] = await db
+      .select({ id: assessNpsSubmissions.id, assessLink: assessNpsSubmissions.assessLink })
+      .from(assessNpsSubmissions)
+      .where(and(eq(assessNpsSubmissions.npsFormId, formId), eq(assessNpsSubmissions.userId, userId)))
+      .orderBy(desc(assessNpsSubmissions.id))
+      .limit(1)
+    if (!newRow) throw new Error('ASSESS_SUBMISSION_CREATE_FAILED')
+    if (newRow.assessLink) return { url: newRow.assessLink, completed: false }
+    submissionId = newRow.id
   }
 
   // Fetch user email for the API call
@@ -96,22 +109,25 @@ export async function getAssessLink(formId: number, userId: number): Promise<Ass
   if (!user?.email) throw new Error('USER_EMAIL_NOT_FOUND')
 
   // Call Assess Platform to generate link
-  const platformUrl = process.env['ASSESS_PLATFORM_URL'] ?? 'https://assess-api.masaischool.com'
-  const authToken = process.env['ASSESS_PLATFORM_AUTH_TOKEN'] ?? 'EUcNc3uLeCTtqaz1vE1Ae1sKgjEuR0U5'
-  const appBaseUrl = (process.env['APP_BASE_URL'] ?? 'http://localhost:3002').replace(/\/$/, '')
+  const platformUrl = process.env['ASSESS_PLATFORM_URL']
+  const authToken = process.env['ASSESS_PLATFORM_AUTH_TOKEN']
+  const appBaseUrl = (process.env['VITE_NEW_STUDENT_UI_URL'] ?? 'https://students-demo-v2.masaischool.com/').replace(/\/$/, '')
   const callbackUrl = `${appBaseUrl}/api/assess-nps-callback`
+  const assessRedirectURI = process.env['ASSESS_REDIRECT_URI']
+
+  console.log('[assess-link] callbackUrl being sent to Assess:', callbackUrl)
 
   const apiRes = await fetch(`${platformUrl}/student/assessments/generate-test`, {
     method: 'POST',
     headers: {
-      'adminauthtoken': authToken,
+      'adminauthtoken': authToken ?? '',
       'clientid': form.clientId ?? '',
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
       uniqueID: String(submissionId),
       assessmentTemplateId: form.templateId ?? '',
-      redirectClientUrl: 'https://experience-demo.masaischool.com/',
+      redirectClientUrl: assessRedirectURI,
       email: user.email,
       client_id: form.clientId ?? '',
       callback_url: callbackUrl,
@@ -121,14 +137,14 @@ export async function getAssessLink(formId: number, userId: number): Promise<Ass
 
   if (!apiRes.ok) throw new Error(`ASSESS_API_ERROR:${apiRes.status}`)
 
-  const apiData = await apiRes.json() as { url?: string }
+  const apiData = await apiRes.json() as { url?: string; [key: string]: unknown }
   const url = apiData.url
   if (!url) throw new Error('ASSESS_API_NO_URL')
 
-  // Persist link
+  // Persist link and full API response in assess_callback
   await db
     .update(assessNpsSubmissions)
-    .set({ assessLink: url, updatedAt: nowMysql() })
+    .set({ assessLink: url, assessCallback: JSON.stringify(apiData), updatedAt: nowMysql() })
     .where(eq(assessNpsSubmissions.id, submissionId))
 
   return { url, completed: false }
