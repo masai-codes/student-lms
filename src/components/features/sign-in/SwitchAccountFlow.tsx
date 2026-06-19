@@ -16,7 +16,10 @@ import {
   v2FetchLinkedAccounts,
   v2UseAccount,
 } from '@/components/features/sign-in/v2AuthClient'
-import { redirectToOldStudentUi } from '@/utils/authRedirect'
+import {
+  isLegacyStudentRedirectEnabled,
+  redirectToOldStudentUi,
+} from '@/utils/authRedirect'
 
 function formatSwitchAccountError(err: unknown): string {
   if (err instanceof V2AuthRequestError) {
@@ -44,13 +47,19 @@ export function SwitchAccountFlow() {
         return
       }
 
-      redirectToOldStudentUi({
-        source: 'SwitchAccountFlow',
-        reason: context.reason,
-        extra: context.extra,
-      })
+      if (isLegacyStudentRedirectEnabled()) {
+        redirectToOldStudentUi({
+          source: 'SwitchAccountFlow',
+          reason: context.reason,
+          extra: context.extra,
+        })
+        return
+      }
+
+      // Legacy redirect disabled: stay in this (new) app.
+      void navigate({ to: '/' })
     },
-    [],
+    [navigate],
   )
 
   useEffect(() => {

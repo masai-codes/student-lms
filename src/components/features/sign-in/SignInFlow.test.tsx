@@ -6,12 +6,14 @@ import { SignInFlow } from '@/components/features/sign-in/SignInFlow'
 const {
   navigateMock,
   redirectToOldStudentUiMock,
+  isLegacyStudentRedirectEnabledMock,
   getRedirectToSearchParamMock,
   redirectToResolvedUrlMock,
   redirectToSwitchAccountPageMock,
 } = vi.hoisted(() => ({
   navigateMock: vi.fn(),
   redirectToOldStudentUiMock: vi.fn(),
+  isLegacyStudentRedirectEnabledMock: vi.fn(),
   getRedirectToSearchParamMock: vi.fn(),
   redirectToResolvedUrlMock: vi.fn(),
   redirectToSwitchAccountPageMock: vi.fn(),
@@ -27,6 +29,7 @@ vi.mock('@tanstack/react-router', async (importOriginal) => {
 
 vi.mock('@/utils/authRedirect', () => ({
   redirectToOldStudentUi: redirectToOldStudentUiMock,
+  isLegacyStudentRedirectEnabled: isLegacyStudentRedirectEnabledMock,
 }))
 
 vi.mock('@/components/features/sign-in/signInRouting', () => ({
@@ -48,6 +51,7 @@ describe('SignInFlow', () => {
     vi.restoreAllMocks()
     navigateMock.mockReset()
     redirectToOldStudentUiMock.mockReset()
+    isLegacyStudentRedirectEnabledMock.mockReset()
     getRedirectToSearchParamMock.mockReset()
     redirectToResolvedUrlMock.mockReset()
     redirectToSwitchAccountPageMock.mockReset()
@@ -57,6 +61,7 @@ describe('SignInFlow', () => {
 
   beforeEach(() => {
     getRedirectToSearchParamMock.mockReturnValue(null)
+    isLegacyStudentRedirectEnabledMock.mockReturnValue(true)
     stubFetchJson(async (url) => {
       if (url.includes('/v2/login/request-otp')) {
         return new Response(JSON.stringify({ channel: 'sms', otpSessionId: 'otp-session-1' }), {
@@ -199,6 +204,28 @@ describe('SignInFlow', () => {
       expect(redirectToResolvedUrlMock).toHaveBeenCalledWith('https://example.com/after-login')
     })
     expect(navigateMock).not.toHaveBeenCalled()
+  })
+
+  it('navigates within the new app after email sign-in when legacy redirect is disabled', async () => {
+    isLegacyStudentRedirectEnabledMock.mockReturnValue(false)
+
+    render(<SignInFlow />)
+
+    fireEvent.change(screen.getByLabelText(/email or mobile/i), {
+      target: { value: 'demo@example.com' },
+    })
+    fireEvent.click(screen.getByRole('button', { name: /next/i }))
+    expect(await screen.findByText('demo@example.com')).toBeTruthy()
+
+    fireEvent.change(screen.getByLabelText(/^password$/i), {
+      target: { value: 'hunter2' },
+    })
+    fireEvent.click(screen.getByRole('button', { name: /^sign in$/i }))
+
+    await waitFor(() => {
+      expect(navigateMock).toHaveBeenCalledWith({ to: '/' })
+    })
+    expect(redirectToOldStudentUiMock).not.toHaveBeenCalled()
   })
 
   it('dispatches failure event for password login failure', async () => {
