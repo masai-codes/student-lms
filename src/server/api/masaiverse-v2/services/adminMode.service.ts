@@ -23,7 +23,9 @@ type UserRoleAndMeta = {
   meta: Record<string, unknown>
 }
 
-async function fetchRoleAndMeta(userId: number): Promise<UserRoleAndMeta | null> {
+async function fetchRoleAndMeta(
+  userId: number,
+): Promise<UserRoleAndMeta | null> {
   const rows = await db
     .select({ role: users.role, meta: users.meta })
     .from(users)

@@ -30,7 +30,9 @@ function countsChain(rows: unknown) {
 }
 function membersChain(rows: unknown) {
   return {
-    from: () => ({ innerJoin: () => ({ orderBy: () => Promise.resolve(rows) }) }),
+    from: () => ({
+      innerJoin: () => ({ orderBy: () => Promise.resolve(rows) }),
+    }),
   }
 }
 

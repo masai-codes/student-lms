@@ -29,9 +29,8 @@ describe('handleGetEventsList', () => {
   })
 
   it('wraps the events list under an `events` key', async () => {
-    const { handleGetEventsList } = await import(
-      '../handlers/getEventsList.handler'
-    )
+    const { handleGetEventsList } =
+      await import('../handlers/getEventsList.handler')
     hoisted.getUserIdFromCookieHeader.mockResolvedValueOnce(1)
     hoisted.getEventsList.mockResolvedValueOnce([{ id: '1', title: 'Demo' }])
 
@@ -46,9 +45,8 @@ describe('handleGetEventsList', () => {
   })
 
   it('returns 401 when there is no session user', async () => {
-    const { handleGetEventsList } = await import(
-      '../handlers/getEventsList.handler'
-    )
+    const { handleGetEventsList } =
+      await import('../handlers/getEventsList.handler')
     hoisted.getUserIdFromCookieHeader.mockResolvedValueOnce(null)
 
     const response = await handleGetEventsList(getRequest(null))
@@ -58,9 +56,8 @@ describe('handleGetEventsList', () => {
   })
 
   it('maps unexpected service failures to a 500 error', async () => {
-    const { handleGetEventsList } = await import(
-      '../handlers/getEventsList.handler'
-    )
+    const { handleGetEventsList } =
+      await import('../handlers/getEventsList.handler')
     hoisted.getUserIdFromCookieHeader.mockResolvedValueOnce(1)
     hoisted.getEventsList.mockRejectedValueOnce(new Error('boom'))
     const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})

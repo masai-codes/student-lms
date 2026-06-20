@@ -27,6 +27,11 @@ const CATEGORY_LABEL: Record<string, string> = {
   hackathon: 'Hackathon',
   meetup: 'Meetup',
   webinar: 'Webinar',
+  session: 'Session',
+  challenge: 'Challenge',
+  contest: 'Contest',
+  workshop: 'Workshop',
+  offline_meetup: 'Offline Meetup',
 }
 
 export default function EventListCard({

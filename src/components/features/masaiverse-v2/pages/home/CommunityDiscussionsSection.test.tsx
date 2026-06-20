@@ -20,6 +20,11 @@ vi.mock('@/lib/api/masaiverse-v2/masaiverseV2Api', () => ({
   voteMasaiverseV2Reply: vi.fn(),
   fetchMasaiverseV2DiscussionReplies: vi.fn().mockResolvedValue([]),
   createMasaiverseV2DiscussionReply: vi.fn(),
+  banMasaiverseV2Post: vi.fn(),
+  banMasaiverseV2Reply: vi.fn(),
+  fetchMasaiverseV2AdminMode: vi
+    .fn()
+    .mockResolvedValue({ isAdmin: false, enabled: false }),
 }))
 vi.mock('@tanstack/react-router', () => ({
   Link: ({ children }: { children: ReactNode }) => children,

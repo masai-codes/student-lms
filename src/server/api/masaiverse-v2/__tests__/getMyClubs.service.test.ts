@@ -21,7 +21,9 @@ vi.mock('@/db/schema', () => ({
 function myClubsChain(rows: unknown) {
   return {
     from: () => ({
-      innerJoin: () => ({ where: () => ({ orderBy: () => Promise.resolve(rows) }) }),
+      innerJoin: () => ({
+        where: () => ({ orderBy: () => Promise.resolve(rows) }),
+      }),
     }),
   }
 }
@@ -40,9 +42,24 @@ describe('getMyClubs', () => {
     const { getMyClubs } = await import('../services/getMyClubs.service')
     hoisted.dbSelect.mockReturnValueOnce(
       myClubsChain([
-        { id: 1, name: 'Programming Club', image: 'img', meta: { cardImageLink: 'https://cdn/c.png' } },
-        { id: 2, name: 'Design Circle', image: 'https://cdn/fallback.png', meta: null },
-        { id: 3, name: 'Robotics Lab', image: null, meta: { cardImageLink: '   ' } },
+        {
+          id: 1,
+          name: 'Programming Club',
+          image: 'img',
+          meta: { cardImageLink: 'https://cdn/c.png' },
+        },
+        {
+          id: 2,
+          name: 'Design Circle',
+          image: 'https://cdn/fallback.png',
+          meta: null,
+        },
+        {
+          id: 3,
+          name: 'Robotics Lab',
+          image: null,
+          meta: { cardImageLink: '   ' },
+        },
       ]),
     )
 
@@ -64,7 +81,12 @@ describe('getMyClubs', () => {
     const { getMyClubs } = await import('../services/getMyClubs.service')
     hoisted.dbSelect.mockReturnValueOnce(
       allClubsChain([
-        { id: 5, name: 'Unjoined Club', image: null, meta: { cardImageLink: 'https://cdn/a.png' } },
+        {
+          id: 5,
+          name: 'Unjoined Club',
+          image: null,
+          meta: { cardImageLink: 'https://cdn/a.png' },
+        },
         { id: 6, name: 'Draft Club', image: null, meta: null },
       ]),
     )

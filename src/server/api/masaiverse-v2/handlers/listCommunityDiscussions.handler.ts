@@ -2,6 +2,7 @@ import { isApiError } from '@/server/api/http/apiError'
 import { jsonOk, mapThrownErrorToResponse } from '@/server/api/http/responses'
 import { requireSessionUserId } from '@/server/api/http/requireSessionUser'
 import { getCommunityDiscussions } from '@/server/api/masaiverse-v2/services/getCommunityDiscussions.service'
+import { canSeeUnpublished } from '@/server/api/masaiverse-v2/services/publishVisibility'
 
 const DEFAULT_LIMIT = 5
 const MAX_LIMIT = 20
@@ -26,6 +27,7 @@ export async function handleListCommunityDiscussions(
       limit,
       search,
       clubId,
+      await canSeeUnpublished(userId),
     )
     return jsonOk(page)
   } catch (error) {

@@ -47,7 +47,8 @@ export async function updateMasaiverseClub(
 ): Promise<{ success: true }> {
   const state = await getAdminModeState(userId)
   if (!state.isAdmin) throw new ApiError(403, 'MASAIVERSE_ADMIN_FORBIDDEN')
-  if (!Number.isFinite(input.clubId)) throw new ApiError(400, 'INVALID_UPDATE_PAYLOAD')
+  if (!Number.isFinite(input.clubId))
+    throw new ApiError(400, 'INVALID_UPDATE_PAYLOAD')
 
   const rows = await db
     .select({ meta: clubs.meta })
@@ -74,10 +75,7 @@ export async function updateMasaiverseClub(
   setPayload.meta = meta
   setPayload.updatedAt = toMysqlUtc(now)
 
-  await db
-    .update(clubs)
-    .set(setPayload)
-    .where(eq(clubs.id, input.clubId))
+  await db.update(clubs).set(setPayload).where(eq(clubs.id, input.clubId))
 
   return { success: true }
 }

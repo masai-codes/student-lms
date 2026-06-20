@@ -34,6 +34,7 @@ export const MASAIVERSE_EVENTS = {
 
   // Events
   eventCreateClick: 'masaiverse_event_create_click',
+  eventCloneClick: 'masaiverse_event_clone_click',
   eventEditClick: 'masaiverse_event_edit_click',
   eventUpdate: 'masaiverse_event_update',
   eventsTabChange: 'masaiverse_events_tab_change',
@@ -54,6 +55,8 @@ export const MASAIVERSE_EVENTS = {
   discussionVote: 'masaiverse_discussion_vote',
   discussionExpandToggle: 'masaiverse_discussion_expand_toggle',
   discussionLoadMore: 'masaiverse_discussion_load_more',
+  discussionPostBan: 'masaiverse_discussion_post_ban',
+  discussionReplyBan: 'masaiverse_discussion_reply_ban',
 
   // Leaderboard
   leaderboardTabChange: 'masaiverse_leaderboard_tab_change',

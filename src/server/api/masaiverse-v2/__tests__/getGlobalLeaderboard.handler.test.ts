@@ -25,7 +25,13 @@ const ENTRIES = [
 
 const RESULT = {
   entries: ENTRIES,
-  currentUser: { rank: 4, userId: '99', name: 'Vidit', avatarUrl: null, points: 120 },
+  currentUser: {
+    rank: 4,
+    userId: '99',
+    name: 'Vidit',
+    avatarUrl: null,
+    points: 120,
+  },
 }
 
 describe('handleGetGlobalLeaderboard', () => {
@@ -34,9 +40,8 @@ describe('handleGetGlobalLeaderboard', () => {
   })
 
   it('returns the leaderboard result, parsing the limit and month period', async () => {
-    const { handleGetGlobalLeaderboard } = await import(
-      '../handlers/getGlobalLeaderboard.handler'
-    )
+    const { handleGetGlobalLeaderboard } =
+      await import('../handlers/getGlobalLeaderboard.handler')
     hoisted.getUserIdFromCookieHeader.mockResolvedValueOnce(7)
     hoisted.getGlobalLeaderboard.mockResolvedValueOnce(RESULT)
 
@@ -54,9 +59,8 @@ describe('handleGetGlobalLeaderboard', () => {
   })
 
   it('defaults to the overall period and undefined limit when omitted', async () => {
-    const { handleGetGlobalLeaderboard } = await import(
-      '../handlers/getGlobalLeaderboard.handler'
-    )
+    const { handleGetGlobalLeaderboard } =
+      await import('../handlers/getGlobalLeaderboard.handler')
     hoisted.getUserIdFromCookieHeader.mockResolvedValueOnce(7)
     hoisted.getGlobalLeaderboard.mockResolvedValueOnce(RESULT)
 
@@ -69,9 +73,8 @@ describe('handleGetGlobalLeaderboard', () => {
   })
 
   it('returns 401 when there is no session', async () => {
-    const { handleGetGlobalLeaderboard } = await import(
-      '../handlers/getGlobalLeaderboard.handler'
-    )
+    const { handleGetGlobalLeaderboard } =
+      await import('../handlers/getGlobalLeaderboard.handler')
     hoisted.getUserIdFromCookieHeader.mockResolvedValueOnce(null)
 
     const response = await handleGetGlobalLeaderboard(getRequest('', null))
@@ -80,9 +83,8 @@ describe('handleGetGlobalLeaderboard', () => {
   })
 
   it('maps an unexpected service error to 500', async () => {
-    const { handleGetGlobalLeaderboard } = await import(
-      '../handlers/getGlobalLeaderboard.handler'
-    )
+    const { handleGetGlobalLeaderboard } =
+      await import('../handlers/getGlobalLeaderboard.handler')
     hoisted.getUserIdFromCookieHeader.mockResolvedValueOnce(1)
     hoisted.getGlobalLeaderboard.mockRejectedValueOnce(new Error('boom'))
     const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})

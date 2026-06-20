@@ -48,7 +48,9 @@ describe('banner handlers', () => {
     hoisted.canSeeUnpublished.mockResolvedValueOnce(true)
     hoisted.getBanners.mockResolvedValueOnce([{ id: '1' }])
 
-    const response = await handleGetBanners(req('GET', undefined, 'session=abc'))
+    const response = await handleGetBanners(
+      req('GET', undefined, 'session=abc'),
+    )
     expect(response.status).toBe(200)
     await expect(response.json()).resolves.toEqual({ banners: [{ id: '1' }] })
     expect(hoisted.getBanners).toHaveBeenCalledWith(true)
@@ -63,20 +65,28 @@ describe('banner handlers', () => {
   })
 
   it('POST create returns 201 with the new id', async () => {
-    const { handleCreateBanner } = await import('../handlers/createBanner.handler')
+    const { handleCreateBanner } =
+      await import('../handlers/createBanner.handler')
     hoisted.getUserIdFromCookieHeader.mockResolvedValueOnce(9)
     hoisted.createBanner.mockResolvedValueOnce({ id: '12' })
-    const response = await handleCreateBanner(req('POST', undefined, 'session=abc'))
+    const response = await handleCreateBanner(
+      req('POST', undefined, 'session=abc'),
+    )
     expect(response.status).toBe(201)
     await expect(response.json()).resolves.toEqual({ id: '12' })
   })
 
   it('POST update forwards the parsed patch', async () => {
-    const { handleUpdateBanner } = await import('../handlers/updateBanner.handler')
+    const { handleUpdateBanner } =
+      await import('../handlers/updateBanner.handler')
     hoisted.getUserIdFromCookieHeader.mockResolvedValueOnce(9)
     hoisted.updateBanner.mockResolvedValueOnce({ success: true })
     const response = await handleUpdateBanner(
-      req('POST', { bannerId: '5', meta: { isPublished: true } }, 'session=abc'),
+      req(
+        'POST',
+        { bannerId: '5', meta: { isPublished: true } },
+        'session=abc',
+      ),
     )
     expect(response.status).toBe(200)
     expect(hoisted.updateBanner).toHaveBeenCalledWith(9, {
@@ -87,7 +97,8 @@ describe('banner handlers', () => {
   })
 
   it('POST update propagates the service 403', async () => {
-    const { handleUpdateBanner } = await import('../handlers/updateBanner.handler')
+    const { handleUpdateBanner } =
+      await import('../handlers/updateBanner.handler')
     hoisted.getUserIdFromCookieHeader.mockResolvedValueOnce(9)
     hoisted.updateBanner.mockRejectedValueOnce(
       new ApiError(403, 'MASAIVERSE_ADMIN_FORBIDDEN'),
@@ -99,7 +110,8 @@ describe('banner handlers', () => {
   })
 
   it('POST delete forwards the banner id', async () => {
-    const { handleDeleteBanner } = await import('../handlers/deleteBanner.handler')
+    const { handleDeleteBanner } =
+      await import('../handlers/deleteBanner.handler')
     hoisted.getUserIdFromCookieHeader.mockResolvedValueOnce(9)
     hoisted.deleteBanner.mockResolvedValueOnce({ success: true })
     const response = await handleDeleteBanner(
@@ -110,11 +122,14 @@ describe('banner handlers', () => {
   })
 
   it('maps an unexpected delete failure to a 500', async () => {
-    const { handleDeleteBanner } = await import('../handlers/deleteBanner.handler')
+    const { handleDeleteBanner } =
+      await import('../handlers/deleteBanner.handler')
     hoisted.getUserIdFromCookieHeader.mockResolvedValueOnce(9)
     hoisted.deleteBanner.mockRejectedValueOnce(new Error('boom'))
     const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
-    const response = await handleDeleteBanner(req('POST', { bannerId: 5 }, 'session=abc'))
+    const response = await handleDeleteBanner(
+      req('POST', { bannerId: 5 }, 'session=abc'),
+    )
     expect(response.status).toBe(500)
     await expect(response.json()).resolves.toMatchObject({
       code: 'SERVER_ERROR_DELETING_BANNER',

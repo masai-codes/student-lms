@@ -26,19 +26,27 @@ beforeEach(() => {
 
 describe('handleGetAdminMode', () => {
   it('returns the admin-mode state for the session user', async () => {
-    const { handleGetAdminMode } = await import('../handlers/getAdminMode.handler')
+    const { handleGetAdminMode } =
+      await import('../handlers/getAdminMode.handler')
     hoisted.getUserIdFromCookieHeader.mockResolvedValueOnce(42)
-    hoisted.getAdminModeState.mockResolvedValueOnce({ isAdmin: true, enabled: true })
+    hoisted.getAdminModeState.mockResolvedValueOnce({
+      isAdmin: true,
+      enabled: true,
+    })
 
     const response = await handleGetAdminMode(getRequest('session=abc'))
 
     expect(response.status).toBe(200)
-    await expect(response.json()).resolves.toEqual({ isAdmin: true, enabled: true })
+    await expect(response.json()).resolves.toEqual({
+      isAdmin: true,
+      enabled: true,
+    })
     expect(hoisted.getAdminModeState).toHaveBeenCalledWith(42)
   })
 
   it('returns 401 when there is no session user', async () => {
-    const { handleGetAdminMode } = await import('../handlers/getAdminMode.handler')
+    const { handleGetAdminMode } =
+      await import('../handlers/getAdminMode.handler')
     hoisted.getUserIdFromCookieHeader.mockResolvedValueOnce(null)
 
     const response = await handleGetAdminMode(getRequest(null))
@@ -48,7 +56,8 @@ describe('handleGetAdminMode', () => {
   })
 
   it('maps unexpected failures to a 500 error', async () => {
-    const { handleGetAdminMode } = await import('../handlers/getAdminMode.handler')
+    const { handleGetAdminMode } =
+      await import('../handlers/getAdminMode.handler')
     hoisted.getUserIdFromCookieHeader.mockResolvedValueOnce(42)
     hoisted.getAdminModeState.mockRejectedValueOnce(new Error('boom'))
     const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})

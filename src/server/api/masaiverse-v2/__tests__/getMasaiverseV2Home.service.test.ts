@@ -46,9 +46,8 @@ describe('getMasaiverseV2Home', () => {
   })
 
   it('composes section-one stats and section-two events', async () => {
-    const { getMasaiverseV2Home } = await import(
-      '../getMasaiverseV2Home.service'
-    )
+    const { getMasaiverseV2Home } =
+      await import('../getMasaiverseV2Home.service')
     hoisted.learners.mockResolvedValueOnce(2841)
     hoisted.discussions.mockResolvedValueOnce(38)
     hoisted.events.mockResolvedValueOnce(6)
@@ -77,9 +76,8 @@ describe('getMasaiverseV2Home', () => {
   })
 
   it('passes the same `now` to every time-bounded service', async () => {
-    const { getMasaiverseV2Home } = await import(
-      '../getMasaiverseV2Home.service'
-    )
+    const { getMasaiverseV2Home } =
+      await import('../getMasaiverseV2Home.service')
     hoisted.learners.mockResolvedValueOnce(0)
     hoisted.discussions.mockResolvedValueOnce(0)
     hoisted.events.mockResolvedValueOnce(0)

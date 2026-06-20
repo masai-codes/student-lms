@@ -155,6 +155,11 @@ export default function EventEditForm({ eventId, onClose }: EventEditFormProps) 
             <option value="hackathon">Hackathon</option>
             <option value="meetup">Meetup</option>
             <option value="webinar">Webinar</option>
+            <option value="session">Session</option>
+            <option value="challenge">Challenge</option>
+            <option value="contest">Contest</option>
+            <option value="workshop">Workshop</option>
+            <option value="offline_meetup">Offline Meetup</option>
           </select>
         </div>
         <div className="w-1/2">

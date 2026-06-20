@@ -20,7 +20,8 @@ export async function createMasaiverseBanner(
   const nowUtc = toMysqlUtc(now)
   const [header] = await db.insert(masaiverseBanners).values({
     title: 'New banner',
-    description: 'Banner description goes here. Edit this draft before publishing.',
+    description:
+      'Banner description goes here. Edit this draft before publishing.',
     ctaText: '',
     ctaUrl: '',
     meta: { [PUBLISHED_META_KEY]: false },

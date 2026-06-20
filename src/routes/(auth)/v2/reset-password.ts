@@ -1,9 +1,9 @@
 import { createFileRoute } from '@tanstack/react-router'
 import {
-  BadRequestError,
   errorResponse,
   jsonResponse,
   readJsonBody,
+  withAuthErrorHandling,
 } from '@/server/auth/v2/httpHelpers'
 import { ResetPasswordError, resetPassword } from '@/server/auth/v2/resetPassword'
 
@@ -24,13 +24,7 @@ function statusForResetError(code: ResetPasswordError['code']): number {
 }
 
 async function handleResetPassword(request: Request): Promise<Response> {
-  let body: ResetPasswordBody
-  try {
-    body = await readJsonBody<ResetPasswordBody>(request)
-  } catch (err) {
-    if (err instanceof BadRequestError) return errorResponse(400, err.code, err.message)
-    throw err
-  }
+  const body = await readJsonBody<ResetPasswordBody>(request)
 
   const token = typeof body.token === 'string' ? body.token : ''
   const password = typeof body.password === 'string' ? body.password : ''
@@ -53,7 +47,7 @@ async function handleResetPassword(request: Request): Promise<Response> {
 export const Route = createFileRoute('/(auth)/v2/reset-password')({
   server: {
     handlers: {
-      POST: async ({ request }) => handleResetPassword(request),
+      POST: withAuthErrorHandling('reset-password', handleResetPassword),
     },
   },
 })

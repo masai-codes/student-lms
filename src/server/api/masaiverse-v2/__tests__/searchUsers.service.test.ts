@@ -35,7 +35,10 @@ async function load() {
 describe('searchUsers', () => {
   it('rejects a non-admin with 403', async () => {
     const searchUsers = await load()
-    hoisted.getAdminModeState.mockResolvedValueOnce({ isAdmin: false, enabled: false })
+    hoisted.getAdminModeState.mockResolvedValueOnce({
+      isAdmin: false,
+      enabled: false,
+    })
     await expect(searchUsers(1, 'priya')).rejects.toMatchObject({ status: 403 })
     expect(hoisted.dbSelect).not.toHaveBeenCalled()
   })

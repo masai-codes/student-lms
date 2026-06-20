@@ -2,12 +2,13 @@ import { and, count, eq } from 'drizzle-orm'
 import { publishedEventCondition } from './publishVisibility'
 import type { EventStatus } from '@/lib/masaiverseEventCard'
 import { db } from '@/db'
-import { clubs, eventEnrollments, events } from '@/db/schema'
+import { clubMembers, clubs, eventEnrollments, events } from '@/db/schema'
 import { parseMasaiverseEventDbTimestamp } from '@/lib/eventTimestamps'
 import { getEventStatus } from '@/lib/masaiverseEventCard'
 import { readEnrollmentRating } from '@/server/api/masaiverse-v2/services/rateEvent.service'
 
-export type EventCategory = 'hackathon' | 'meetup' | 'webinar'
+/** Free-form `events.category` string (e.g. "hackathon", "offline_meetup"). */
+export type EventCategory = string
 export type EventMode = 'online' | 'offline'
 
 export interface EventHost {
@@ -56,6 +57,19 @@ export interface MasaiverseV2EventDetail {
   clubId: string | null
   /** Hosting club name (via join); null for community-wide events. */
   clubName: string | null
+  /**
+   * Whether the requesting user is a member of the hosting club. Registration
+   * is gated behind club membership, so the event page shows a "Join club" CTA
+   * instead of "Register" when this is false. Always true for community-wide
+   * events (no club to join).
+   */
+  isClubMember: boolean
+  /**
+   * The hosting club's `meta.confirmationModalText` — markdown shown in a
+   * confirm dialog before joining the club from the event page. Null when the
+   * club sets none, or for community-wide events.
+   */
+  clubConfirmationModalText: string | null
   /** `events.meta.hostedBy` — named hosts (with optional avatars) for the event. */
   hostedBy: Array<EventHost>
   /** Lifecycle status derived from the timestamps (live / upcoming / completed). */
@@ -128,10 +142,13 @@ export async function getEventDetail(
         endTime: events.endTime,
         meta: events.meta,
         clubName: clubs.name,
+        clubMeta: clubs.meta,
       })
       .from(events)
       .leftJoin(clubs, eq(events.clubId, clubs.id))
-      .where(and(eq(events.id, eventId), publishedEventCondition(canSeeUnpublished)))
+      .where(
+        and(eq(events.id, eventId), publishedEventCondition(canSeeUnpublished)),
+      )
       .limit(1)
   ).at(0)
 
@@ -157,6 +174,25 @@ export async function getEventDetail(
   const isEnrolled = enrollment != null
   const rating = readEnrollmentRating(enrollment?.meta)
 
+  // Registration is members-only, so the event page needs to know whether the
+  // viewer belongs to the hosting club. Community-wide events (no club) have
+  // nothing to join, so they're treated as "member" and register directly.
+  const isClubMember =
+    row.clubId == null
+      ? true
+      : (
+          await db
+            .select({ id: clubMembers.id })
+            .from(clubMembers)
+            .where(
+              and(
+                eq(clubMembers.clubId, row.clubId),
+                eq(clubMembers.userId, userId),
+              ),
+            )
+            .limit(1)
+        ).length > 0
+
   const startTime = toUtcIso(row.startTime)
   const endTime = toUtcIso(row.endTime)
 
@@ -180,6 +216,10 @@ export async function getEventDetail(
     eventSummary: toStringOrNull(row.meta?.eventSummary),
     clubId: row.clubId != null ? String(row.clubId) : null,
     clubName: toStringOrNull(row.clubName),
+    isClubMember,
+    clubConfirmationModalText: toStringOrNull(
+      row.clubMeta?.confirmationModalText,
+    ),
     hostedBy: toHostedBy(row.meta?.hostedBy),
     status: getEventStatus({ startTime, endTime }, now),
     isEnrolled,

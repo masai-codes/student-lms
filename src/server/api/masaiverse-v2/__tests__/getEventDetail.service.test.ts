@@ -27,6 +27,11 @@ vi.mock('@/db/schema', () => ({
     userId: 'event_enrollments.user_id',
     meta: 'event_enrollments.meta',
   },
+  clubMembers: {
+    id: 'club_members.id',
+    clubId: 'club_members.club_id',
+    userId: 'club_members.user_id',
+  },
 }))
 
 /** `db.select().from().leftJoin().where().limit()` */
@@ -84,18 +89,23 @@ function eventRow(overrides: Record<string, unknown> = {}) {
 }
 
 beforeEach(() => {
-  vi.clearAllMocks()
+  // resetAllMocks (not clearAllMocks) so the `mockReturnValueOnce` queue is
+  // drained between tests — otherwise an early-throwing test leaks leftover
+  // mock values into the next one.
+  vi.resetAllMocks()
 })
 
 describe('getEventDetail', () => {
   it('returns null for a non-finite event id without touching the db', async () => {
-    const { getEventDetail } = await import('../services/getEventDetail.service')
+    const { getEventDetail } =
+      await import('../services/getEventDetail.service')
     await expect(getEventDetail(Number.NaN, 1, NOW)).resolves.toBeNull()
     expect(hoisted.dbSelect).not.toHaveBeenCalled()
   })
 
   it('returns null when no event matches the id', async () => {
-    const { getEventDetail } = await import('../services/getEventDetail.service')
+    const { getEventDetail } =
+      await import('../services/getEventDetail.service')
     hoisted.dbSelect.mockReturnValueOnce(rowChain([]))
     await expect(getEventDetail(99, 1, NOW)).resolves.toBeNull()
     // Only the row lookup runs; count/enrollment are skipped.
@@ -103,11 +113,13 @@ describe('getEventDetail', () => {
   })
 
   it('maps a full event row, including meta, club name and enrollment', async () => {
-    const { getEventDetail } = await import('../services/getEventDetail.service')
+    const { getEventDetail } =
+      await import('../services/getEventDetail.service')
     hoisted.dbSelect
       .mockReturnValueOnce(rowChain([eventRow()]))
       .mockReturnValueOnce(countChain([{ enrolledCount: 12 }]))
       .mockReturnValueOnce(limitChain([{ id: 1, meta: null }]))
+      .mockReturnValueOnce(limitChain([{ id: 1 }])) // is a club member
 
     await expect(getEventDetail(7, 1, NOW)).resolves.toEqual({
       id: '7',
@@ -129,6 +141,8 @@ describe('getEventDetail', () => {
       eventSummary: null,
       clubId: '3',
       clubName: 'Programming Club',
+      isClubMember: true,
+      clubConfirmationModalText: null,
       hostedBy: [
         { name: 'Aman Kumar', imageUrl: 'https://cdn/aman.png' },
         { name: 'Priya Rao', imageUrl: null },
@@ -142,7 +156,8 @@ describe('getEventDetail', () => {
   })
 
   it('surfaces meta.confirmationModalText, trimmed, when present', async () => {
-    const { getEventDetail } = await import('../services/getEventDetail.service')
+    const { getEventDetail } =
+      await import('../services/getEventDetail.service')
     hoisted.dbSelect
       .mockReturnValueOnce(
         rowChain([
@@ -153,6 +168,7 @@ describe('getEventDetail', () => {
       )
       .mockReturnValueOnce(countChain([{ enrolledCount: 0 }]))
       .mockReturnValueOnce(limitChain([]))
+      .mockReturnValueOnce(limitChain([{ id: 1 }])) // is a club member
 
     await expect(getEventDetail(7, 1, NOW)).resolves.toMatchObject({
       confirmationModalText: '**Please note** the rules.',
@@ -160,7 +176,8 @@ describe('getEventDetail', () => {
   })
 
   it("surfaces the user's stored rating and feedback from the enrollment meta", async () => {
-    const { getEventDetail } = await import('../services/getEventDetail.service')
+    const { getEventDetail } =
+      await import('../services/getEventDetail.service')
     hoisted.dbSelect
       .mockReturnValueOnce(rowChain([eventRow()]))
       .mockReturnValueOnce(countChain([{ enrolledCount: 12 }]))
@@ -169,6 +186,7 @@ describe('getEventDetail', () => {
           { id: 1, meta: { rating: 4, feedback: 'Loved the energy!' } },
         ]),
       )
+      .mockReturnValueOnce(limitChain([{ id: 1 }])) // is a club member
 
     await expect(getEventDetail(7, 1, NOW)).resolves.toMatchObject({
       isEnrolled: true,
@@ -178,7 +196,8 @@ describe('getEventDetail', () => {
   })
 
   it('falls back to nulls for blank/absent optional fields and an empty meta', async () => {
-    const { getEventDetail } = await import('../services/getEventDetail.service')
+    const { getEventDetail } =
+      await import('../services/getEventDetail.service')
     hoisted.dbSelect
       .mockReturnValueOnce(
         rowChain([
@@ -225,7 +244,8 @@ describe('getEventDetail', () => {
   })
 
   it('drops malformed hostedBy entries and those without a host name', async () => {
-    const { getEventDetail } = await import('../services/getEventDetail.service')
+    const { getEventDetail } =
+      await import('../services/getEventDetail.service')
     hoisted.dbSelect
       .mockReturnValueOnce(
         rowChain([
@@ -244,6 +264,7 @@ describe('getEventDetail', () => {
       )
       .mockReturnValueOnce(countChain([{ enrolledCount: 0 }]))
       .mockReturnValueOnce(limitChain([]))
+      .mockReturnValueOnce(limitChain([{ id: 1 }])) // is a club member
 
     await expect(getEventDetail(7, 1, NOW)).resolves.toMatchObject({
       hostedBy: [{ name: 'Sam Niko', imageUrl: 'https://cdn/sam.png' }],

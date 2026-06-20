@@ -17,7 +17,10 @@ vi.mock('@/db', () => ({
   },
 }))
 vi.mock('@/db/schema', () => ({
-  masaiverseBanners: { id: 'masaiverse_banners.id', meta: 'masaiverse_banners.meta' },
+  masaiverseBanners: {
+    id: 'masaiverse_banners.id',
+    meta: 'masaiverse_banners.meta',
+  },
   clubs: { meta: 'clubs.meta' },
   events: { meta: 'events.meta' },
 }))
@@ -39,15 +42,25 @@ beforeEach(() => {
 
 describe('createMasaiverseBanner', () => {
   it('rejects a non-admin with a 403', async () => {
-    const { createMasaiverseBanner } = await import('../services/createBanner.service')
-    hoisted.getAdminModeState.mockResolvedValueOnce({ isAdmin: false, enabled: false })
-    await expect(createMasaiverseBanner(1, NOW)).rejects.toMatchObject({ status: 403 })
+    const { createMasaiverseBanner } =
+      await import('../services/createBanner.service')
+    hoisted.getAdminModeState.mockResolvedValueOnce({
+      isAdmin: false,
+      enabled: false,
+    })
+    await expect(createMasaiverseBanner(1, NOW)).rejects.toMatchObject({
+      status: 403,
+    })
     expect(hoisted.dbInsert).not.toHaveBeenCalled()
   })
 
   it('inserts an unpublished draft owned by the admin', async () => {
-    const { createMasaiverseBanner } = await import('../services/createBanner.service')
-    hoisted.getAdminModeState.mockResolvedValueOnce({ isAdmin: true, enabled: true })
+    const { createMasaiverseBanner } =
+      await import('../services/createBanner.service')
+    hoisted.getAdminModeState.mockResolvedValueOnce({
+      isAdmin: true,
+      enabled: true,
+    })
     const values = vi.fn().mockResolvedValue([{ insertId: 12 }])
     hoisted.dbInsert.mockReturnValue({ values })
 
@@ -61,16 +74,24 @@ describe('createMasaiverseBanner', () => {
 
 describe('updateMasaiverseBanner', () => {
   it('rejects a non-admin with a 403', async () => {
-    const { updateMasaiverseBanner } = await import('../services/updateBanner.service')
-    hoisted.getAdminModeState.mockResolvedValueOnce({ isAdmin: false, enabled: false })
+    const { updateMasaiverseBanner } =
+      await import('../services/updateBanner.service')
+    hoisted.getAdminModeState.mockResolvedValueOnce({
+      isAdmin: false,
+      enabled: false,
+    })
     await expect(
       updateMasaiverseBanner(1, { bannerId: 5, column: { title: 'X' } }, NOW),
     ).rejects.toMatchObject({ status: 403 })
   })
 
   it('404s when the banner is missing', async () => {
-    const { updateMasaiverseBanner } = await import('../services/updateBanner.service')
-    hoisted.getAdminModeState.mockResolvedValueOnce({ isAdmin: true, enabled: true })
+    const { updateMasaiverseBanner } =
+      await import('../services/updateBanner.service')
+    hoisted.getAdminModeState.mockResolvedValueOnce({
+      isAdmin: true,
+      enabled: true,
+    })
     hoisted.dbSelect.mockReturnValueOnce(selectChain([]))
     await expect(
       updateMasaiverseBanner(1, { bannerId: 99, column: { title: 'X' } }, NOW),
@@ -78,8 +99,12 @@ describe('updateMasaiverseBanner', () => {
   })
 
   it('whitelists columns + meta, merges meta and stamps the editor', async () => {
-    const { updateMasaiverseBanner } = await import('../services/updateBanner.service')
-    hoisted.getAdminModeState.mockResolvedValueOnce({ isAdmin: true, enabled: true })
+    const { updateMasaiverseBanner } =
+      await import('../services/updateBanner.service')
+    hoisted.getAdminModeState.mockResolvedValueOnce({
+      isAdmin: true,
+      enabled: true,
+    })
     hoisted.dbSelect.mockReturnValueOnce(selectChain([{ meta: { keep: 1 } }]))
     const where = vi.fn().mockResolvedValue(undefined)
     const set = vi.fn().mockReturnValue({ where })
@@ -107,18 +132,30 @@ describe('updateMasaiverseBanner', () => {
 
 describe('deleteMasaiverseBanner', () => {
   it('rejects a non-admin with a 403', async () => {
-    const { deleteMasaiverseBanner } = await import('../services/deleteBanner.service')
-    hoisted.getAdminModeState.mockResolvedValueOnce({ isAdmin: false, enabled: false })
-    await expect(deleteMasaiverseBanner(1, 5)).rejects.toMatchObject({ status: 403 })
+    const { deleteMasaiverseBanner } =
+      await import('../services/deleteBanner.service')
+    hoisted.getAdminModeState.mockResolvedValueOnce({
+      isAdmin: false,
+      enabled: false,
+    })
+    await expect(deleteMasaiverseBanner(1, 5)).rejects.toMatchObject({
+      status: 403,
+    })
     expect(hoisted.dbDelete).not.toHaveBeenCalled()
   })
 
   it('deletes the banner for an admin', async () => {
-    const { deleteMasaiverseBanner } = await import('../services/deleteBanner.service')
-    hoisted.getAdminModeState.mockResolvedValueOnce({ isAdmin: true, enabled: true })
+    const { deleteMasaiverseBanner } =
+      await import('../services/deleteBanner.service')
+    hoisted.getAdminModeState.mockResolvedValueOnce({
+      isAdmin: true,
+      enabled: true,
+    })
     const where = vi.fn().mockResolvedValue(undefined)
     hoisted.dbDelete.mockReturnValue({ where })
-    await expect(deleteMasaiverseBanner(1, 5)).resolves.toEqual({ success: true })
+    await expect(deleteMasaiverseBanner(1, 5)).resolves.toEqual({
+      success: true,
+    })
     expect(hoisted.dbDelete).toHaveBeenCalledTimes(1)
   })
 })

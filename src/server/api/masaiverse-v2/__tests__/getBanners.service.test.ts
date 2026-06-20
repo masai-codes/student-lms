@@ -32,7 +32,8 @@ beforeEach(() => {
 
 describe('getMasaiverseBanners', () => {
   it('maps rows to the banner shape and reads isPublished from meta', async () => {
-    const { getMasaiverseBanners } = await import('../services/getBanners.service')
+    const { getMasaiverseBanners } =
+      await import('../services/getBanners.service')
     hoisted.dbSelect.mockReturnValueOnce(
       selectChain([
         {
@@ -51,7 +52,14 @@ describe('getMasaiverseBanners', () => {
           ctaUrl: null,
           meta: { isPublished: false },
         },
-        { id: 3, title: 'No meta', description: null, ctaText: null, ctaUrl: null, meta: null },
+        {
+          id: 3,
+          title: 'No meta',
+          description: null,
+          ctaText: null,
+          ctaUrl: null,
+          meta: null,
+        },
       ]),
     )
 
@@ -84,7 +92,8 @@ describe('getMasaiverseBanners', () => {
   })
 
   it('returns an empty list when there are no banners', async () => {
-    const { getMasaiverseBanners } = await import('../services/getBanners.service')
+    const { getMasaiverseBanners } =
+      await import('../services/getBanners.service')
     hoisted.dbSelect.mockReturnValueOnce(selectChain([]))
     await expect(getMasaiverseBanners(false)).resolves.toEqual([])
   })

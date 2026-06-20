@@ -32,17 +32,15 @@ beforeEach(() => {
 
 describe('getClubWeeklyConnects', () => {
   it('returns an empty list for a non-finite club id without touching the db', async () => {
-    const { getClubWeeklyConnects } = await import(
-      '../services/getClubWeeklyConnects.service'
-    )
+    const { getClubWeeklyConnects } =
+      await import('../services/getClubWeeklyConnects.service')
     await expect(getClubWeeklyConnects(Number.NaN)).resolves.toEqual([])
     expect(hoisted.dbSelect).not.toHaveBeenCalled()
   })
 
   it('maps rows into weekly-connect items with subtitle + UTC ISO times', async () => {
-    const { getClubWeeklyConnects } = await import(
-      '../services/getClubWeeklyConnects.service'
-    )
+    const { getClubWeeklyConnects } =
+      await import('../services/getClubWeeklyConnects.service')
     hoisted.dbSelect.mockReturnValueOnce(
       selectChain([
         {

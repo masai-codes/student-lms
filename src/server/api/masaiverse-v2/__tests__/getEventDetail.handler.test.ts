@@ -32,9 +32,8 @@ describe('handleGetEventDetail', () => {
   })
 
   it('returns the event detail for the requested id', async () => {
-    const { handleGetEventDetail } = await import(
-      '../handlers/getEventDetail.handler'
-    )
+    const { handleGetEventDetail } =
+      await import('../handlers/getEventDetail.handler')
     hoisted.getUserIdFromCookieHeader.mockResolvedValueOnce(1)
     hoisted.getEventDetail.mockResolvedValueOnce(PAYLOAD)
 
@@ -46,9 +45,8 @@ describe('handleGetEventDetail', () => {
   })
 
   it('returns 404 when the event is missing', async () => {
-    const { handleGetEventDetail } = await import(
-      '../handlers/getEventDetail.handler'
-    )
+    const { handleGetEventDetail } =
+      await import('../handlers/getEventDetail.handler')
     hoisted.getUserIdFromCookieHeader.mockResolvedValueOnce(1)
     hoisted.getEventDetail.mockResolvedValueOnce(null)
 
@@ -62,9 +60,8 @@ describe('handleGetEventDetail', () => {
   })
 
   it('returns 401 when there is no session user', async () => {
-    const { handleGetEventDetail } = await import(
-      '../handlers/getEventDetail.handler'
-    )
+    const { handleGetEventDetail } =
+      await import('../handlers/getEventDetail.handler')
     hoisted.getUserIdFromCookieHeader.mockResolvedValueOnce(null)
 
     const response = await handleGetEventDetail(getRequest('7', null))
@@ -74,9 +71,8 @@ describe('handleGetEventDetail', () => {
   })
 
   it('maps unexpected service failures to a 500 error', async () => {
-    const { handleGetEventDetail } = await import(
-      '../handlers/getEventDetail.handler'
-    )
+    const { handleGetEventDetail } =
+      await import('../handlers/getEventDetail.handler')
     hoisted.getUserIdFromCookieHeader.mockResolvedValueOnce(1)
     hoisted.getEventDetail.mockRejectedValueOnce(new Error('boom'))
     const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})

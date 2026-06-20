@@ -43,7 +43,9 @@ describe('getAdminModeState', () => {
   it('returns not-admin/disabled for a student role', async () => {
     const { getAdminModeState } = await import('../services/adminMode.service')
     hoisted.dbSelect.mockReturnValueOnce(
-      selectChain([{ role: 'student', meta: { isMasaiverseAdminModeEnabled: true } }]),
+      selectChain([
+        { role: 'student', meta: { isMasaiverseAdminModeEnabled: true } },
+      ]),
     )
 
     await expect(getAdminModeState(1)).resolves.toEqual({
@@ -55,7 +57,9 @@ describe('getAdminModeState', () => {
   it('returns enabled:true for an admin who has switched it on', async () => {
     const { getAdminModeState } = await import('../services/adminMode.service')
     hoisted.dbSelect.mockReturnValueOnce(
-      selectChain([{ role: 'admin', meta: { isMasaiverseAdminModeEnabled: true } }]),
+      selectChain([
+        { role: 'admin', meta: { isMasaiverseAdminModeEnabled: true } },
+      ]),
     )
 
     await expect(getAdminModeState(1)).resolves.toEqual({
@@ -91,7 +95,9 @@ describe('setAdminModeState', () => {
 
   it('rejects a non-admin with a 403', async () => {
     const { setAdminModeState } = await import('../services/adminMode.service')
-    hoisted.dbSelect.mockReturnValueOnce(selectChain([{ role: 'student', meta: {} }]))
+    hoisted.dbSelect.mockReturnValueOnce(
+      selectChain([{ role: 'student', meta: {} }]),
+    )
 
     await expect(setAdminModeState(1, true)).rejects.toMatchObject({
       status: 403,
@@ -104,7 +110,10 @@ describe('setAdminModeState', () => {
     const { setAdminModeState } = await import('../services/adminMode.service')
     hoisted.dbSelect.mockReturnValueOnce(
       selectChain([
-        { role: 'admin', meta: { profile_pic: 'x.png', isMasaiverseVisitedOnce: true } },
+        {
+          role: 'admin',
+          meta: { profile_pic: 'x.png', isMasaiverseVisitedOnce: true },
+        },
       ]),
     )
     const where = vi.fn().mockResolvedValue(undefined)
@@ -126,7 +135,9 @@ describe('setAdminModeState', () => {
 
   it('disables admin mode for an admin with null meta', async () => {
     const { setAdminModeState } = await import('../services/adminMode.service')
-    hoisted.dbSelect.mockReturnValueOnce(selectChain([{ role: 'admin', meta: null }]))
+    hoisted.dbSelect.mockReturnValueOnce(
+      selectChain([{ role: 'admin', meta: null }]),
+    )
     const where = vi.fn().mockResolvedValue(undefined)
     const set = vi.fn().mockReturnValue({ where })
     hoisted.dbUpdate.mockReturnValue({ set })

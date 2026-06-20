@@ -17,6 +17,9 @@ vi.mock('@tanstack/react-query', () => ({
 }))
 vi.mock('@tanstack/react-router', () => ({
   Link: ({ children }: { children: ReactNode }) => <a>{children}</a>,
+  useNavigate: () => vi.fn(),
+  useRouter: () => ({ history: { back: vi.fn() } }),
+  useCanGoBack: () => false,
 }))
 vi.mock('./club/ClubDetailBanner', () => ({
   default: ({ club }: { club: { name: string } }) => (
@@ -128,7 +131,7 @@ describe('ClubDetailPage', () => {
     expect(screen.getByTestId('stats').textContent).toBe('5')
   })
 
-  it('blurs the member-only sections for a non-member', () => {
+  it('shows event sections but blurs leaderboard + discussion for a non-member', () => {
     useQuery.mockReturnValue({
       isPending: false,
       error: null,
@@ -136,18 +139,14 @@ describe('ClubDetailPage', () => {
     })
     render(<ClubDetailPage clubId="5" />)
 
+    // Events are visible to everyone so non-members can browse the schedule.
+    expect(screen.getByTestId('weekly').textContent).toBe('5')
+    expect(screen.getByTestId('upcoming').textContent).toBe('5')
+    expect(screen.getByTestId('past').textContent).toBe('5')
+
+    // Only the leaderboard and discussion stay locked behind membership.
     const locked = screen.getAllByTestId('locked').map((el) => el.textContent)
-    expect(locked).toEqual([
-      'Weekly Connects',
-      'Live & Upcoming Events',
-      'Past Events',
-      'Club Leaderboard',
-      'Club Discussion',
-    ])
-    // None of the real member-only sections are mounted.
-    expect(screen.queryByTestId('weekly')).toBeNull()
-    expect(screen.queryByTestId('upcoming')).toBeNull()
-    expect(screen.queryByTestId('past')).toBeNull()
+    expect(locked).toEqual(['Club Leaderboard', 'Club Discussion'])
     expect(screen.queryByTestId('leaderboard')).toBeNull()
     expect(screen.queryByTestId('discussions')).toBeNull()
   })

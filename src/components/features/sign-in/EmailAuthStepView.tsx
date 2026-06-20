@@ -6,6 +6,7 @@ import { PasswordInput } from '@/components/ui/password-input'
 import { Label } from '@/components/ui/label'
 import { RememberMeField } from '@/components/features/sign-in/RememberMeField'
 import { SignInNotice } from '@/components/features/sign-in/SignInNotice'
+import { useAutoFocus } from '@/hooks/useAutoFocus'
 
 const RESEND_OTP_COOLDOWN_SEC = 30
 
@@ -55,6 +56,9 @@ export function EmailAuthStepView({
   resendBusy = false,
 }: Props) {
   const [resendSecondsLeft, setResendSecondsLeft] = useState(RESEND_OTP_COOLDOWN_SEC)
+  // Focus the active field on mount and whenever the mode flips between
+  // password and OTP (React reuses the DOM node, so re-focus explicitly).
+  const inputRef = useAutoFocus<HTMLInputElement>([authMode])
 
   useEffect(() => {
     if (authMode !== 'otp') return
@@ -127,6 +131,7 @@ export function EmailAuthStepView({
             </div>
           </div>
           <PasswordInput
+            ref={inputRef}
             id="signin-email-password"
             name="password"
             autoComplete="current-password"
@@ -153,6 +158,7 @@ export function EmailAuthStepView({
             </Button>
           </div>
           <Input
+            ref={inputRef}
             id="signin-email-otp"
             name="one-time-code"
             type="text"

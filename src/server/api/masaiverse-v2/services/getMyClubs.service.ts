@@ -67,7 +67,12 @@ export async function getMyClubs(
     })
     .from(clubMembers)
     .innerJoin(clubs, eq(clubs.id, clubMembers.clubId))
-    .where(and(eq(clubMembers.userId, userId), publishedClubCondition(canSeeUnpublished)))
+    .where(
+      and(
+        eq(clubMembers.userId, userId),
+        publishedClubCondition(canSeeUnpublished),
+      ),
+    )
     .orderBy(asc(clubMembers.joinedAt))
 
   return rows.map(toSidebarClub)

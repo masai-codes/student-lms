@@ -1,5 +1,6 @@
 import { and, desc, eq, gt, sql } from 'drizzle-orm'
 import { leaderboardPeriodCondition } from './leaderboardPeriod'
+import { rankableMemberCondition } from './leaderboardEligibility'
 import type { SQL } from 'drizzle-orm'
 import type { LeaderboardPeriod } from './leaderboardPeriod'
 import { db } from '@/db'
@@ -60,17 +61,25 @@ async function getCurrentUserEntry(
     })
     .from(masaiverseLeaderboard)
     .innerJoin(users, eq(users.id, masaiverseLeaderboard.userId))
-    .where(and(eq(masaiverseLeaderboard.userId, currentUserId), where))
+    .where(
+      and(
+        eq(masaiverseLeaderboard.userId, currentUserId),
+        rankableMemberCondition,
+        where,
+      ),
+    )
     .groupBy(users.name, users.profilePhotoPath)
   const me = meRows.at(0)
   if (!me) return null
 
   const points = Number(me.points ?? 0)
   // Members ranked strictly higher decide the placement; ties share a rank.
+  // Admins are excluded so they never count as ranked above a member.
   const above = await db
     .select({ userId: masaiverseLeaderboard.userId })
     .from(masaiverseLeaderboard)
-    .where(where)
+    .innerJoin(users, eq(users.id, masaiverseLeaderboard.userId))
+    .where(and(rankableMemberCondition, where))
     .groupBy(masaiverseLeaderboard.userId)
     .having(gt(POINTS_SUM, points))
 
@@ -105,7 +114,7 @@ export async function getGlobalLeaderboard({
     })
     .from(masaiverseLeaderboard)
     .innerJoin(users, eq(users.id, masaiverseLeaderboard.userId))
-    .where(where)
+    .where(and(rankableMemberCondition, where))
     .groupBy(masaiverseLeaderboard.userId, users.name, users.profilePhotoPath)
     .orderBy(desc(POINTS_SUM))
     .limit(safeLimit)

@@ -163,7 +163,9 @@ export async function getClubDetail(
         meta: clubs.meta,
       })
       .from(clubs)
-      .where(and(eq(clubs.id, clubId), publishedClubCondition(canSeeUnpublished)))
+      .where(
+        and(eq(clubs.id, clubId), publishedClubCondition(canSeeUnpublished)),
+      )
       .limit(1)
   ).at(0)
 
@@ -190,28 +192,33 @@ export async function getClubDetail(
   const memberCount = memberCountRows.at(0)?.memberCount ?? 0
   const isJoined = membership.length > 0
 
-  // Members-only sections (weekly connects, live/upcoming + past events,
-  // leaderboard, discussions). Non-members get empty payloads so the page can
-  // blur these segments as a "join to unlock" teaser without ever shipping
-  // their contents to the client.
-  const [events, leaderboard, discussions] = isJoined
-    ? await Promise.all([
-        getClubEvents(clubId, now, canSeeUnpublished),
-        getClubLeaderboard({
+  // Events (weekly connects, live/upcoming + past) stay visible to everyone so
+  // non-members can browse the club's schedule and open an event; registration
+  // itself is gated to members on the event page. The leaderboard and
+  // discussions remain members-only — non-members get empty payloads so the
+  // page can blur those segments as a "join to unlock" teaser without ever
+  // shipping their contents to the client.
+  const [events, leaderboard, discussions] = await Promise.all([
+    getClubEvents(clubId, now, canSeeUnpublished),
+    isJoined
+      ? getClubLeaderboard({
           clubId,
           currentUserId: userId,
           limit: CLUB_LEADERBOARD_LIMIT,
           canSeeUnpublished,
-        }),
-        getCommunityDiscussions(
+        })
+      : null,
+    isJoined
+      ? getCommunityDiscussions(
           userId,
           0,
           CLUB_DISCUSSIONS_LIMIT,
           '',
           String(clubId),
-        ),
-      ])
-    : [null, null, { discussions: [], hasMore: false }]
+          canSeeUnpublished,
+        )
+      : { discussions: [], hasMore: false },
+  ])
 
   return {
     id: String(club.id),

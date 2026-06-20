@@ -32,7 +32,10 @@ describe('handleUpdateClub', () => {
     hoisted.updateMasaiverseClub.mockResolvedValueOnce({ success: true })
 
     const response = await handleUpdateClub(
-      postRequest({ clubId: '5', meta: { description: 'About' } }, 'session=abc'),
+      postRequest(
+        { clubId: '5', meta: { description: 'About' } },
+        'session=abc',
+      ),
     )
 
     expect(response.status).toBe(200)

@@ -27,7 +27,8 @@ beforeEach(() => {
 
 describe('handleCreateEvent', () => {
   it('creates an event for the admin and returns 201 with the id', async () => {
-    const { handleCreateEvent } = await import('../handlers/createEvent.handler')
+    const { handleCreateEvent } =
+      await import('../handlers/createEvent.handler')
     hoisted.getUserIdFromCookieHeader.mockResolvedValueOnce(9)
     hoisted.createMasaiverseEvent.mockResolvedValueOnce({ id: '77' })
 
@@ -39,7 +40,8 @@ describe('handleCreateEvent', () => {
   })
 
   it('returns 401 when there is no session user', async () => {
-    const { handleCreateEvent } = await import('../handlers/createEvent.handler')
+    const { handleCreateEvent } =
+      await import('../handlers/createEvent.handler')
     hoisted.getUserIdFromCookieHeader.mockResolvedValueOnce(null)
 
     const response = await handleCreateEvent(postRequest(null))
@@ -49,7 +51,8 @@ describe('handleCreateEvent', () => {
   })
 
   it('propagates a 403 from the service for non-admins', async () => {
-    const { handleCreateEvent } = await import('../handlers/createEvent.handler')
+    const { handleCreateEvent } =
+      await import('../handlers/createEvent.handler')
     hoisted.getUserIdFromCookieHeader.mockResolvedValueOnce(9)
     hoisted.createMasaiverseEvent.mockRejectedValueOnce(
       new ApiError(403, 'MASAIVERSE_ADMIN_FORBIDDEN'),
@@ -65,7 +68,8 @@ describe('handleCreateEvent', () => {
   })
 
   it('maps unexpected service failures to a 500 error', async () => {
-    const { handleCreateEvent } = await import('../handlers/createEvent.handler')
+    const { handleCreateEvent } =
+      await import('../handlers/createEvent.handler')
     hoisted.getUserIdFromCookieHeader.mockResolvedValueOnce(9)
     hoisted.createMasaiverseEvent.mockRejectedValueOnce(new Error('boom'))
     const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import InlineDrawer from '../InlineDrawer'
 import BannersSection from '../banners/BannersSection'
@@ -17,6 +17,14 @@ import { masaiverseV2HomeQuery } from '@/query/masaiverse-v2/homeQuery'
  */
 export default function HomePage() {
   const [isCalendarOpen, setIsCalendarOpen] = useState(false)
+  // Open the calendar by default on desktop only. On mobile the panel is a
+  // bottom sheet that would cover the content, so it must start closed. Runs
+  // once on mount (after hydration) to avoid an SSR/client mismatch.
+  useEffect(() => {
+    if (window.matchMedia('(min-width: 768px)').matches) {
+      setIsCalendarOpen(true)
+    }
+  }, [])
   // The home payload carries the latest discussions, so the section renders
   // from this one request rather than fetching its own paginated feed.
   const { data: home, isPending: isHomePending } = useQuery(
@@ -36,6 +44,7 @@ export default function HomePage() {
         <StatsSection />
         <ThisWeekSection
           onViewCalendar={() => setIsCalendarOpen((open) => !open)}
+          calendarOpen={isCalendarOpen}
         />
         <HighlightsSection />
         <ActiveClubsSection />

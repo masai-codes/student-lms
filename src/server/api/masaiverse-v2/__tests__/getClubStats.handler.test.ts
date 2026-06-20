@@ -37,9 +37,8 @@ describe('handleGetClubStats', () => {
   })
 
   it('returns the stats for the requested club', async () => {
-    const { handleGetClubStats } = await import(
-      '../handlers/getClubStats.handler'
-    )
+    const { handleGetClubStats } =
+      await import('../handlers/getClubStats.handler')
     hoisted.getUserIdFromCookieHeader.mockResolvedValueOnce(1)
     hoisted.getClubStats.mockResolvedValueOnce(STATS)
 
@@ -51,9 +50,8 @@ describe('handleGetClubStats', () => {
   })
 
   it('returns 404 when the club is missing', async () => {
-    const { handleGetClubStats } = await import(
-      '../handlers/getClubStats.handler'
-    )
+    const { handleGetClubStats } =
+      await import('../handlers/getClubStats.handler')
     hoisted.getUserIdFromCookieHeader.mockResolvedValueOnce(1)
     hoisted.getClubStats.mockResolvedValueOnce(null)
 
@@ -67,9 +65,8 @@ describe('handleGetClubStats', () => {
   })
 
   it('returns 401 when there is no session user', async () => {
-    const { handleGetClubStats } = await import(
-      '../handlers/getClubStats.handler'
-    )
+    const { handleGetClubStats } =
+      await import('../handlers/getClubStats.handler')
     hoisted.getUserIdFromCookieHeader.mockResolvedValueOnce(null)
 
     const response = await handleGetClubStats(getRequest('5', null))
@@ -79,9 +76,8 @@ describe('handleGetClubStats', () => {
   })
 
   it('maps unexpected service failures to a 500 error', async () => {
-    const { handleGetClubStats } = await import(
-      '../handlers/getClubStats.handler'
-    )
+    const { handleGetClubStats } =
+      await import('../handlers/getClubStats.handler')
     hoisted.getUserIdFromCookieHeader.mockResolvedValueOnce(1)
     hoisted.getClubStats.mockRejectedValueOnce(new Error('boom'))
     const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})

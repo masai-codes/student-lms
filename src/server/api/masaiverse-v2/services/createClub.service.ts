@@ -30,11 +30,13 @@ export async function createMasaiverseClub(
   const nowUtc = toMysqlUtc(now)
   const gallery = Array.from(
     { length: 4 },
-    (_unused, index) => `https://picsum.photos/seed/club-${seed}-${index}/800/600`,
+    (_unused, index) =>
+      `https://picsum.photos/seed/club-${seed}-${index}/800/600`,
   )
 
   const meta = {
-    description: 'Club description goes here. Edit this draft before publishing.',
+    description:
+      'Club description goes here. Edit this draft before publishing.',
     cardImageLink: `https://picsum.photos/seed/club-${seed}/600/400`,
     galleryImages: gallery,
     projectsBuild: 0,
@@ -47,8 +49,18 @@ export async function createMasaiverseClub(
     detail_description:
       'Tell members what this club is about. Edit this draft before publishing.',
     learningTenureData: [
-      { tags: ['12 sessions'], text: 'Text 1', emoji: '⚡', heading: 'Heading 1' },
-      { tags: ['2 sessions'], text: 'Text 2', emoji: '🌐', heading: 'Heading 2' },
+      {
+        tags: ['12 sessions'],
+        text: 'Text 1',
+        emoji: '⚡',
+        heading: 'Heading 1',
+      },
+      {
+        tags: ['2 sessions'],
+        text: 'Text 2',
+        emoji: '🌐',
+        heading: 'Heading 2',
+      },
     ],
     clubDetailBannerTags: ['tag1', 'tag2', 'tag3'],
     confirmationModalText:

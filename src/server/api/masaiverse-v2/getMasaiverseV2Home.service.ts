@@ -75,10 +75,26 @@ export async function getMasaiverseV2Home(
     getDiscussionsThisMonthCount(now),
     getEventsThisYearCount(now, canSeeUnpublished),
     getEventRegistrationsThisYearCount(now),
-    getHomeEvents(now, { visibleClubIds: memberClubIds }, userId, canSeeUnpublished),
-    getHomeHighlights(now, { visibleClubIds: memberClubIds }, canSeeUnpublished),
+    getHomeEvents(
+      now,
+      { visibleClubIds: memberClubIds },
+      userId,
+      canSeeUnpublished,
+    ),
+    getHomeHighlights(
+      now,
+      { visibleClubIds: memberClubIds },
+      canSeeUnpublished,
+    ),
     getHomeClubs(canSeeUnpublished),
-    getCommunityDiscussions(userId, 0, HOME_DISCUSSIONS_LIMIT),
+    getCommunityDiscussions(
+      userId,
+      0,
+      HOME_DISCUSSIONS_LIMIT,
+      '',
+      null,
+      canSeeUnpublished,
+    ),
   ])
 
   return {

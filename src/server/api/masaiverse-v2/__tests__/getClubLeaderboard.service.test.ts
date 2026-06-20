@@ -22,6 +22,7 @@ vi.mock('@/db/schema', () => ({
     id: 'users.id',
     name: 'users.name',
     profilePhotoPath: 'users.photo',
+    role: 'users.role',
   },
 }))
 
@@ -56,16 +57,25 @@ function topChain(rows: unknown, onLimit?: (value: number) => void) {
 const meChain = (rows: unknown) => ({
   from: () => ({
     innerJoin: () => ({
-      innerJoin: () => ({ where: () => ({ groupBy: () => Promise.resolve(rows) }) }),
+      innerJoin: () => ({
+        where: () => ({ groupBy: () => Promise.resolve(rows) }),
+      }),
     }),
   }),
 })
 
-/** from().innerJoin().where().groupBy().having() — members ranked above. */
+/**
+ * from().innerJoin().innerJoin().where().groupBy().having() — members ranked
+ * above. Joins `clubMembers` and `users` so admins are excluded from the count.
+ */
 const aboveChain = (rows: unknown) => ({
   from: () => ({
     innerJoin: () => ({
-      where: () => ({ groupBy: () => ({ having: () => Promise.resolve(rows) }) }),
+      innerJoin: () => ({
+        where: () => ({
+          groupBy: () => ({ having: () => Promise.resolve(rows) }),
+        }),
+      }),
     }),
   }),
 })
@@ -75,7 +85,8 @@ beforeEach(() => {
 })
 
 async function load() {
-  return (await import('../services/getClubLeaderboard.service')).getClubLeaderboard
+  return (await import('../services/getClubLeaderboard.service'))
+    .getClubLeaderboard
 }
 
 describe('getClubLeaderboard', () => {
@@ -114,7 +125,13 @@ describe('getClubLeaderboard', () => {
       getClubLeaderboard({ clubId: 5, currentUserId: 99 }),
     ).resolves.toEqual({
       entries: [
-        { rank: 1, userId: '10', name: 'Priya', avatarUrl: 'p.jpg', points: 940 },
+        {
+          rank: 1,
+          userId: '10',
+          name: 'Priya',
+          avatarUrl: 'p.jpg',
+          points: 940,
+        },
         { rank: 2, userId: '20', name: 'Arjun', avatarUrl: null, points: 0 },
       ],
       currentUser: {

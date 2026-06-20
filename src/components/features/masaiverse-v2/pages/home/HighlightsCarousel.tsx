@@ -65,9 +65,11 @@ export default function HighlightsCarousel({
         modules={[Navigation]}
         navigation={{ prevEl: `.${navKey}-prev`, nextEl: `.${navKey}-next` }}
         spaceBetween={16}
-        slidesPerView={1.05}
-        breakpoints={{ 640: { slidesPerView: 1.5 }, 1024: { slidesPerView: 2 } }}
-        className="[&_.swiper-slide]:!h-auto [&_.swiper-wrapper]:items-stretch"
+        // Fixed-width cards (capped) so recaps don't sprawl on wide screens; the
+        // track packs in as many as fit and scrolls the rest. `watchOverflow`
+        // (default) hides the nav when everything fits.
+        slidesPerView="auto"
+        className="[&_.swiper-slide]:!h-auto [&_.swiper-slide]:!w-[320px] sm:[&_.swiper-slide]:!w-[380px] [&_.swiper-wrapper]:items-stretch"
       >
         {highlights.map((highlight, index) => (
           <SwiperSlide key={highlight.id} className="!h-auto">

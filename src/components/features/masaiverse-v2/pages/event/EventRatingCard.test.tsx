@@ -39,6 +39,8 @@ function makeEvent(
     isWeeklyConnect: false,
     clubId: null,
     clubName: null,
+    isClubMember: true,
+    clubConfirmationModalText: null,
     status: 'completed',
     isEnrolled: true,
     enrolledCount: 10,

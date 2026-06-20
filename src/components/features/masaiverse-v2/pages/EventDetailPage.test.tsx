@@ -23,10 +23,14 @@ vi.mock('@/lib/api/masaiverse-v2/masaiverseV2Api', () => ({
   }),
   updateMasaiverseV2Event: vi.fn(),
   updateMasaiverseV2Club: vi.fn(),
+  cloneMasaiverseV2Event: vi.fn(),
 }))
 
 vi.mock('@tanstack/react-router', () => ({
   Link: ({ children }: { children: ReactNode }) => <a>{children}</a>,
+  useNavigate: () => vi.fn(),
+  useRouter: () => ({ history: { back: vi.fn() } }),
+  useCanGoBack: () => false,
 }))
 
 function makeEvent(
@@ -52,6 +56,8 @@ function makeEvent(
     eventSummary: null,
     clubId: '3',
     clubName: 'Programming Club',
+    isClubMember: true,
+    clubConfirmationModalText: null,
     status: 'upcoming',
     isEnrolled: false,
     enrolledCount: 4,

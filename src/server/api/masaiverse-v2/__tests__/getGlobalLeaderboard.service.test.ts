@@ -9,7 +9,12 @@ vi.mock('@/db/schema', () => ({
     points: 'ml.points',
     createdAt: 'ml.created_at',
   },
-  users: { id: 'users.id', name: 'users.name', profilePhotoPath: 'users.photo' },
+  users: {
+    id: 'users.id',
+    name: 'users.name',
+    profilePhotoPath: 'users.photo',
+    role: 'users.role',
+  },
 }))
 
 /** select().from().innerJoin().where().groupBy().orderBy().limit() — top board. */
@@ -35,14 +40,23 @@ function topChain(rows: unknown, onLimit?: (value: number) => void) {
 /** select().from().innerJoin().where().groupBy() — the signed-in member's row. */
 const meChain = (rows: unknown) => ({
   from: () => ({
-    innerJoin: () => ({ where: () => ({ groupBy: () => Promise.resolve(rows) }) }),
+    innerJoin: () => ({
+      where: () => ({ groupBy: () => Promise.resolve(rows) }),
+    }),
   }),
 })
 
-/** select().from().where().groupBy().having() — members ranked above. */
+/**
+ * select().from().innerJoin().where().groupBy().having() — members ranked
+ * above. Joins `users` so admins are excluded from the count.
+ */
 const aboveChain = (rows: unknown) => ({
   from: () => ({
-    where: () => ({ groupBy: () => ({ having: () => Promise.resolve(rows) }) }),
+    innerJoin: () => ({
+      where: () => ({
+        groupBy: () => ({ having: () => Promise.resolve(rows) }),
+      }),
+    }),
   }),
 })
 
@@ -69,11 +83,19 @@ describe('getGlobalLeaderboard', () => {
         meChain([{ name: 'Vidit', avatarUrl: 'v.jpg', points: '120' }]),
       )
       // Three members rank strictly above the current user → rank 4.
-      .mockReturnValueOnce(aboveChain([{ userId: 10 }, { userId: 20 }, { userId: 30 }]))
+      .mockReturnValueOnce(
+        aboveChain([{ userId: 10 }, { userId: 20 }, { userId: 30 }]),
+      )
 
     await expect(getGlobalLeaderboard({ currentUserId: 99 })).resolves.toEqual({
       entries: [
-        { rank: 1, userId: '10', name: 'Priya', avatarUrl: 'p.jpg', points: 940 },
+        {
+          rank: 1,
+          userId: '10',
+          name: 'Priya',
+          avatarUrl: 'p.jpg',
+          points: 940,
+        },
         { rank: 2, userId: '20', name: 'Arjun', avatarUrl: null, points: 0 },
       ],
       currentUser: {
@@ -102,7 +124,9 @@ describe('getGlobalLeaderboard', () => {
     const getGlobalLeaderboard = await load()
     hoisted.dbSelect
       .mockReturnValueOnce(topChain([]))
-      .mockReturnValueOnce(meChain([{ name: 'Vidit', avatarUrl: null, points: null }]))
+      .mockReturnValueOnce(
+        meChain([{ name: 'Vidit', avatarUrl: null, points: null }]),
+      )
       .mockReturnValueOnce(aboveChain([]))
 
     const result = await getGlobalLeaderboard({ currentUserId: 99 })

@@ -138,7 +138,12 @@ export async function sendOtp({
 
   const user = userRows[0]
   if (!user) {
-    throw new SendOtpError('USER_NOT_FOUND', 'User not found')
+    throw new SendOtpError(
+      'USER_NOT_FOUND',
+      isEmail
+        ? "We couldn't find an account with that email address. Please check it and try again, or sign up."
+        : "We couldn't find an account with that mobile number. Please check it and try again, or sign up.",
+    )
   }
 
   // OTP routing follows the user's portal (user.client), not the request portal.

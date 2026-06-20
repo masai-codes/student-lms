@@ -37,7 +37,10 @@ describe('handleRateEvent', () => {
     hoisted.rateEvent.mockResolvedValueOnce(STATE)
 
     const response = await handleRateEvent(
-      postRequest({ eventId: '7', rating: 4, feedback: 'Great event' }, 'session=abc'),
+      postRequest(
+        { eventId: '7', rating: 4, feedback: 'Great event' },
+        'session=abc',
+      ),
     )
 
     expect(response.status).toBe(200)

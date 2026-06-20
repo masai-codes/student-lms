@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
-import { Link } from '@tanstack/react-router'
+import { useCanGoBack, useNavigate, useRouter } from '@tanstack/react-router'
 import { ArrowLeft, PencilSimple } from '@phosphor-icons/react'
 import InlineDrawer from '../InlineDrawer'
+import { MASAIVERSE_EVENTS, trackMasaiverse } from '../tracking'
 import AboutClubSection from './club/AboutClubSection'
 import ClubDetailBanner from './club/ClubDetailBanner'
 import ClubDiscussionsSection from './club/ClubDiscussionsSection'
@@ -20,25 +21,39 @@ import { recordMasaiverseV2ClubVisit } from '@/lib/api/masaiverse-v2/masaiverseV
 import { masaiverseV2ClubDetailQuery } from '@/query/masaiverse-v2/clubsQuery'
 import { masaiverseV2AdminModeQuery } from '@/query/masaiverse-v2/adminModeQuery'
 import ClubEditForm from '@/components/features/masaiverse-v2/edit/ClubEditForm'
-import { MASAIVERSE_EVENTS, trackMasaiverse } from '../tracking'
 
 type ClubDetailPageProps = {
   clubId: string
 }
 
+/**
+ * Returns the user to wherever they opened this club from (home, the sidebar,
+ * the clubs list, …) via the router history. Falls back to the clubs list when
+ * there's no in-app history — e.g. on a direct/shared link.
+ */
 function BackToClubsLink() {
+  const router = useRouter()
+  const navigate = useNavigate()
+  const canGoBack = useCanGoBack()
+
+  const handleBack = () => {
+    trackMasaiverse(MASAIVERSE_EVENTS.backClick, { to: 'clubs' })
+    if (canGoBack) {
+      router.history.back()
+    } else {
+      void navigate({ to: '/masaiverse/clubs', search: (prev) => prev })
+    }
+  }
+
   return (
-    <Link
-      to="/masaiverse/clubs"
-      search={(prev) => prev}
-      onClick={() =>
-        trackMasaiverse(MASAIVERSE_EVENTS.backClick, { to: 'clubs' })
-      }
+    <button
+      type="button"
+      onClick={handleBack}
       className="inline-flex items-center gap-1 text-[14px] font-medium text-[#6B7280] hover:text-[#111827]"
     >
       <ArrowLeft size={16} />
       Back to clubs
-    </Link>
+    </button>
   )
 }
 
@@ -54,6 +69,15 @@ export default function ClubDetailPage({ clubId }: ClubDetailPageProps) {
   const canEdit = adminMode?.enabled ?? false
   const [isCalendarOpen, setIsCalendarOpen] = useState(false)
   const [isEditOpen, setIsEditOpen] = useState(false)
+
+  // Open the schedule panel by default on desktop only. On mobile it's a bottom
+  // sheet that would cover the content, so it must start closed. Runs once on
+  // mount (after hydration) to avoid an SSR/client mismatch.
+  useEffect(() => {
+    if (window.matchMedia('(min-width: 768px)').matches) {
+      setIsCalendarOpen(true)
+    }
+  }, [])
 
   // Members get their `lastVisitedAt` stamped on each visit. Non-members never
   // hit the endpoint. Best-effort: failures must not affect the page.
@@ -143,49 +167,24 @@ export default function ClubDetailPage({ clubId }: ClubDetailPageProps) {
         <ClubStatsSection clubId={clubId} initialStats={club.stats} />
         <AboutClubSection club={club} />
         <LearningTenureSection club={club} />
-        {/* The sections below are member-only: non-members see a blurred
-            "join to unlock" teaser, and the server withholds their data. */}
-        {isMember ? (
-          <WeeklyConnectsSection
-            clubId={clubId}
-            onViewSchedule={toggleCalendar}
-            initialEvents={club.events}
-          />
-        ) : (
-          <LockedSection
-            clubId={clubId}
-            title="Weekly Connects"
-            variant="list"
-            teaser="Join to see the club's recurring weekly sessions and never miss a connect."
-            confirmationModalText={club.confirmationModalText}
-          />
-        )}
-        {isMember ? (
-          <ClubUpcomingSection
-            clubId={clubId}
-            onViewCalendar={toggleCalendar}
-            initialEvents={club.events}
-          />
-        ) : (
-          <LockedSection
-            clubId={clubId}
-            title="Live & Upcoming Events"
-            variant="cards"
-            teaser="Join to discover live and upcoming events happening in this club."
-            confirmationModalText={club.confirmationModalText}
-          />
-        )}
-        {isMember ? (
-          <ClubPastSection clubId={clubId} initialEvents={club.events} />
-        ) : (
-          <LockedSection
-            clubId={clubId}
-            title="Past Events"
-            variant="cards"
-            teaser="Join to catch recaps and replays from the club's past events."
-            confirmationModalText={club.confirmationModalText}
-          />
-        )}
+        {/* Event sections are visible to everyone — non-members can browse the
+            club's schedule and open an event. Registration is gated to members
+            on the event page itself. The leaderboard and discussions below stay
+            member-only: non-members see a blurred "join to unlock" teaser and
+            the server withholds their data. */}
+        <WeeklyConnectsSection
+          clubId={clubId}
+          onViewSchedule={toggleCalendar}
+          scheduleOpen={isCalendarOpen}
+          initialEvents={club.events}
+        />
+        <ClubUpcomingSection
+          clubId={clubId}
+          onViewCalendar={toggleCalendar}
+          calendarOpen={isCalendarOpen}
+          initialEvents={club.events}
+        />
+        <ClubPastSection clubId={clubId} initialEvents={club.events} />
         {isMember ? (
           <ClubLeaderboardSection
             clubId={clubId}

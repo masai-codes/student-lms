@@ -86,7 +86,9 @@ export async function getClubStats(
     await db
       .select({ meta: clubs.meta })
       .from(clubs)
-      .where(and(eq(clubs.id, clubId), publishedClubCondition(canSeeUnpublished)))
+      .where(
+        and(eq(clubs.id, clubId), publishedClubCondition(canSeeUnpublished)),
+      )
       .limit(1)
   ).at(0)
 
