@@ -3,6 +3,8 @@
  * is stored by the browser. (JSON `createServerFn` responses do not forward Set-Cookie.)
  */
 
+import { resolveTrueStatus } from '@/lib/api/cloudFrontSafeStatus'
+
 export type AuthenticatedUser = {
   id: number
   name: string
@@ -66,7 +68,7 @@ async function postJson<T>(path: string, body: unknown): Promise<T> {
   if (!res.ok) {
     const code = getErrorCode(parsed) ?? 'REQUEST_FAILED'
     const message = getErrorMessage(parsed) ?? (res.statusText || 'Request failed')
-    throw new V2AuthRequestError(res.status, code, message)
+    throw new V2AuthRequestError(resolveTrueStatus(res), code, message)
   }
   return parsed as T
 }
@@ -80,7 +82,7 @@ async function getJson<T>(path: string): Promise<T> {
   if (!res.ok) {
     const code = getErrorCode(parsed) ?? 'REQUEST_FAILED'
     const message = getErrorMessage(parsed) ?? (res.statusText || 'Request failed')
-    throw new V2AuthRequestError(res.status, code, message)
+    throw new V2AuthRequestError(resolveTrueStatus(res), code, message)
   }
   return parsed as T
 }

@@ -57,7 +57,8 @@ describe('handleGetClubStats', () => {
 
     const response = await handleGetClubStats(getRequest('99', 'session=abc'))
 
-    expect(response.status).toBe(404)
+    expect(response.status).toBe(422)
+    expect(response.headers.get('x-true-status')).toBe('404')
     await expect(response.json()).resolves.toEqual({
       code: 'CLUB_NOT_FOUND',
       message: 'CLUB_NOT_FOUND',

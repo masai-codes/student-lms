@@ -1,4 +1,5 @@
 import { isApiError } from '@/server/api/http/apiError'
+import { cloudFrontSafeResponseInit } from '@/lib/api/cloudFrontSafeStatus'
 
 export type ApiErrorBody = {
   code: string
@@ -14,7 +15,8 @@ export function jsonError(status: number, code: string, message?: string): Respo
     code,
     message: message ?? code,
   }
-  return Response.json(body, { status })
+  // Remap CloudFront-intercepted statuses (403/404) so the JSON body survives.
+  return Response.json(body, cloudFrontSafeResponseInit(status))
 }
 
 export function mapThrownErrorToResponse(error: unknown): Response {
