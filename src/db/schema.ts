@@ -1826,6 +1826,25 @@ export const otpCodes = mysqlTable("otp_codes", {
 	primaryKey({ columns: [table.id], name: "otp_codes_id"}),
 ]);
 
+// Failed password-login attempts, used for DB-backed rate limiting.
+// Mirrors the OTP throttling approach (a windowed row count) because the app
+// runs in PM2 cluster mode with no shared Redis — in-memory counters would be
+// per-worker and trivially bypassed. `attempted_at` is written by the app in
+// UTC (not the DB clock) so window comparisons are timezone-safe.
+export const loginAttempts = mysqlTable("login_attempts", {
+	id: bigint({ mode: "number", unsigned: true }).autoincrement().notNull(),
+	identifier: varchar({ length: 255 }).notNull(),
+	ipAddress: varchar("ip_address", { length: 45 }),
+	attemptedAt: datetime("attempted_at", { mode: 'string' }).notNull(),
+	createdAt: timestamp("created_at", { mode: 'string' }).defaultNow().notNull(),
+},
+(table) => [
+	index("login_attempts_identifier_index").on(table.identifier),
+	index("login_attempts_ip_address_index").on(table.ipAddress),
+	index("login_attempts_attempted_at_index").on(table.attemptedAt),
+	primaryKey({ columns: [table.id], name: "login_attempts_id"}),
+]);
+
 export const pages = mysqlTable("pages", {
 	id: bigint({ mode: "number", unsigned: true }).autoincrement().notNull(),
 	title: varchar({ length: 255 }).notNull(),
