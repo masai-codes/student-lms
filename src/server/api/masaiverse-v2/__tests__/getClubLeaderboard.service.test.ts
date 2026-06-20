@@ -22,6 +22,7 @@ vi.mock('@/db/schema', () => ({
     id: 'users.id',
     name: 'users.name',
     profilePhotoPath: 'users.photo',
+    role: 'users.role',
   },
 }))
 
@@ -63,12 +64,17 @@ const meChain = (rows: unknown) => ({
   }),
 })
 
-/** from().innerJoin().where().groupBy().having() — members ranked above. */
+/**
+ * from().innerJoin().innerJoin().where().groupBy().having() — members ranked
+ * above. Joins `clubMembers` and `users` so admins are excluded from the count.
+ */
 const aboveChain = (rows: unknown) => ({
   from: () => ({
     innerJoin: () => ({
-      where: () => ({
-        groupBy: () => ({ having: () => Promise.resolve(rows) }),
+      innerJoin: () => ({
+        where: () => ({
+          groupBy: () => ({ having: () => Promise.resolve(rows) }),
+        }),
       }),
     }),
   }),
