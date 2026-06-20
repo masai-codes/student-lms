@@ -280,19 +280,6 @@ export default function AppNavbar() {
         href: '/bookmarks',
         openInNewTab: false,
       },
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
-      {
-        id: 'masaiverse-menu',
-        label: 'MasaiVerse Community',
-        icon: <Users className="size-4" />,
-        href: '/masaiverse',
-        openInNewTab: false,
-        isActive: activeNavId === 'masaiverse',
-      },
-=======
->>>>>>> feat/lms-revamp
       showMasaiverseCta
         ? {
             id: 'refer-menu',
@@ -309,10 +296,6 @@ export default function AppNavbar() {
             href: '/masaiverse',
             openInNewTab: false,
           },
-<<<<<<< HEAD
-=======
->>>>>>> pre-prod-cloudformation
->>>>>>> feat/lms-revamp
       {
         id: 'practice-interview',
         label: 'Practice Interviews',
