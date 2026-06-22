@@ -100,7 +100,7 @@ export async function getDashboardAnnouncements(
       -- ── Messages (personal, unread) ─────────────────────────────────────────
       SELECT
         m.id,
-        m.subject                    AS title,
+        COALESCE(JSON_UNQUOTE(JSON_EXTRACT(m.meta, '$.title')), m.subject) AS title,
         u.name                       AS authorName,
         1                            AS isForYou,
         COALESCE(m.schedule, m.created_at) AS sortedAt

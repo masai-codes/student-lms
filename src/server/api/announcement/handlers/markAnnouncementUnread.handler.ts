@@ -6,6 +6,7 @@ import { markAnnouncementAsUnread, markMessageAsUnread } from '@/server/api/anno
 export async function handleMarkAnnouncementUnread(
   request: Request,
   rawId: string,
+  source: 'a' | 'm' = 'a',
 ): Promise<Response> {
   try {
     const numericId = parseInt(rawId, 10)
@@ -13,10 +14,9 @@ export async function handleMarkAnnouncementUnread(
       return jsonError(400, 'INVALID_ID')
     }
 
-    const src = new URL(request.url).searchParams.get('src')
     const userId = await requireSessionUserId(request)
 
-    if (src === 'm') {
+    if (source === 'm') {
       await markMessageAsUnread(userId, numericId)
     } else {
       await markAnnouncementAsUnread(userId, numericId)

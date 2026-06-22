@@ -3,6 +3,8 @@ import type { Components } from 'react-markdown'
 
 export type MarkdownContentVariant = 'card' | 'detail'
 
+const AUDIO_EXTENSIONS = /\.(mp3|wav|ogg|m4a|aac|flac|webm)(\?.*)?$/i
+
 function externalLinkProps() {
   return { target: '_blank' as const, rel: 'noopener noreferrer' }
 }
@@ -21,15 +23,22 @@ function createSharedBodyComponents(): Pick<
     strong: ({ children }: { children?: ReactNode }) => (
       <strong className="font-semibold text-gray-900">{children}</strong>
     ),
-    a: ({ children, href }: { children?: ReactNode; href?: string }) => (
-      <a
-        href={href}
-        className="text-primary-500 underline underline-offset-2 hover:text-primary-600"
-        {...externalLinkProps()}
-      >
-        {children}
-      </a>
-    ),
+    a: ({ children, href }: { children?: ReactNode; href?: string }) => {
+      if (href && AUDIO_EXTENSIONS.test(href)) {
+        return (
+          <audio controls src={href} className="w-full min-w-[300px] rounded-lg mt-1" />
+        )
+      }
+      return (
+        <a
+          href={href}
+          className="text-primary-500 underline underline-offset-2 hover:text-primary-600"
+          {...externalLinkProps()}
+        >
+          {children}
+        </a>
+      )
+    },
     blockquote: ({ children }: { children?: ReactNode }) => (
       <blockquote>{children}</blockquote>
     ),

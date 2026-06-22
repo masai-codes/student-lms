@@ -2,7 +2,7 @@
 
 import { useCallback, useMemo, useRef, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
-import { getRouteApi, useNavigate, useRouterState } from '@tanstack/react-router'
+import { getRouteApi, useNavigate } from '@tanstack/react-router'
 import {
   Book,
   Bookmark,
@@ -39,7 +39,6 @@ import {
   getPostLogoutRedirectUrl,
 } from '@/utils/authRedirect'
 import { fetchLevelupSso } from '@/utils/levelupSso'
-import { activeAppNavIdForPathname } from '@/lib/appNavActiveItem'
 import { fetchReferralLmsLoginRedirectUrl } from '@/utils/referralLmsLogin'
 
 const layoutRouteApi = getRouteApi('/(protected)/_layout')
@@ -78,8 +77,6 @@ function oldStudentUiLink(
 export default function AppNavbar() {
   const { user } = layoutRouteApi.useRouteContext()
   const navigate = useNavigate()
-  const pathname = useRouterState({ select: (s) => s.location.pathname })
-  const activeNavId = activeAppNavIdForPathname(pathname)
   const [downloadAppOpen, setDownloadAppOpen] = useState(false)
   const [isLevelupLoading, setIsLevelupLoading] = useState(false)
   const levelupLoadingRef = useRef(false)
