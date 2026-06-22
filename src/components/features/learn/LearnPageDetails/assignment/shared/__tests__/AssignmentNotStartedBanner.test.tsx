@@ -37,6 +37,11 @@ const baseDetail = {
     notices: [],
     actions: [],
   },
+  completedDetails: null,
+  headerBadges: [],
+  liveAnalytics: null,
+  requiresPledge: false,
+  problems: [],
 } satisfies AssignmentDetailPayload
 
 describe('AssignmentNotStartedBanner', () => {

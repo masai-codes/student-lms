@@ -1,6 +1,6 @@
 # Feature Test Matrix
 
-Last updated: 2026-06-17
+Last updated: 2026-06-22
 
 ## Chatbot (text + voice mode)
 - Area: `MessageList` turn scroll (`useChatTurnScroll`, `chatScroll` utils, `ChatbotUserMessage`, `ChatbotAssistantMessage` markdown); shared by `ChatPanel` (text + voice) and `ChatbotPreSessionView` via `ChatbotConversationLayout`; voice footer in `ChatbotVoiceControls` + `AIAvatar` speaking pulse; mobile composer-only + bottom drawer (`ChatbotMobileShell`, `useIsMobileViewport`); `POST /api/chatbot/:lectureId/token` loads lecture transcript via `resolveAiTutorLectureContext` and forwards it to the LiveKit agent metadata
@@ -40,9 +40,9 @@ Last updated: 2026-06-17
 - Notes: See `docs/testing/features/resource-detail.md`
 
 ## Assignment detail (`/assignments/:id`)
-- Area: Single `getAssignmentLearningDetail` loader; assignment kind/phase/instructions/phase copy, server-driven sticky footer (status, score, CTAs), discussions with threads on server
-- Status: Covered (server utils + footer builder + sticky footer UI; CTA click handlers / assess-platform APIs pending)
-- Test files: `src/server/learn/utils/__tests__/resolveAssignmentPhase.test.ts`, `src/server/learn/utils/__tests__/calculateAssignmentProgressStatus.test.ts`, `src/server/learn/utils/__tests__/buildAssignmentDetailFooter.test.ts`, `src/server/learn/utils/__tests__/buildAssignmentDetailPayload.test.ts`, `src/components/features/learn/LearnPageDetails/assignment/shared/__tests__/AssignmentDetailStickyFooter.test.tsx`, `src/components/shared/markdown-content/__tests__/*`
+- Area: Single `getAssignmentLearningDetail` loader; assignment kind/phase/instructions/phase copy, server-driven sticky footer (status, score, CTAs), completed-details banner (auto-graded/manual), header badges (deadline-enforced + weightage), Assessment Platform live analytics, evaluation pledge gate, problems list (per-problem solution status), discussions with threads on server
+- Status: Covered (server utils + footer builder + completed-details/header-badge builders + sticky footer/completed-banner/header-badge UI; CTA click handlers / assess-platform APIs pending)
+- Test files: `src/server/learn/utils/__tests__/resolveAssignmentPhase.test.ts`, `src/server/learn/utils/__tests__/calculateAssignmentProgressStatus.test.ts`, `src/server/learn/utils/__tests__/buildAssignmentDetailFooter.test.ts`, `src/server/learn/utils/__tests__/buildAssignmentDetailPayload.test.ts`, `src/server/learn/utils/__tests__/buildAssignmentCompletedDetails.test.ts`, `src/server/learn/utils/__tests__/buildAssignmentHeaderBadges.test.ts`, `src/server/learn/utils/__tests__/buildAssignmentLiveAnalytics.test.ts`, `src/server/learn/utils/__tests__/resolveAssignmentRequiresPledge.test.ts`, `src/components/features/learn/LearnPageDetails/assignment/shared/__tests__/AssignmentPledgeGate.test.tsx`, `src/server/learn/queries/__tests__/fetchAssignmentProblems.test.ts`, `src/server/learn/utils/__tests__/buildAssignmentProblemListItems.test.ts`, `src/components/features/learn/LearnPageDetails/assignment/shared/__tests__/AssignmentProblemList.test.tsx`, `src/components/features/learn/LearnPageDetails/assignment/shared/__tests__/AssignmentDetailStickyFooter.test.tsx`, `src/components/features/learn/LearnPageDetails/assignment/shared/__tests__/AssignmentCompletedBanner.test.tsx`, `src/components/features/learn/LearnPageDetails/assignment/shared/__tests__/AssignmentHeaderBadges.test.tsx`, `src/components/features/learn/LearnPageDetails/assignment/shared/__tests__/AssignmentLiveAnalytics.test.tsx`, `src/components/shared/markdown-content/__tests__/*`
 - Notes: See `docs/testing/features/assignment-detail.md`
 
 ## Lecture detail (`/lectures/:id`)

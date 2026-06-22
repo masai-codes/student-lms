@@ -1,8 +1,11 @@
 'use client'
 
-import { MarkdownContent } from '@/components/shared/markdown-content'
 import { AssociatedContentEntryCta } from '../../common/associated/AssociatedContentEntryCta'
 import { LearnEntityDetailLayout } from '../../common/layout/LearnEntityDetailLayout'
+import { AssignmentCompletedBanner } from './AssignmentCompletedBanner'
+import { AssignmentHeaderBadges } from './AssignmentHeaderBadges'
+import { AssignmentLiveAnalytics } from './AssignmentLiveAnalytics'
+import { AssignmentProblemList } from './AssignmentProblemList'
 import {
   ASSIGNMENT_DETAIL_STICKY_FOOTER_SELECTOR,
   AssignmentDetailFooterInlineNotices,
@@ -12,6 +15,7 @@ import { AssignmentNotStartedBanner } from './AssignmentNotStartedBanner'
 
 import type { AssignmentDetailPayload } from '@/server/learn/assignmentDetailTypes'
 import type { ReactNode } from 'react'
+import { MarkdownContent } from '@/components/shared/markdown-content'
 
 type AssignmentDetailLayoutProps = {
   detail: AssignmentDetailPayload
@@ -31,11 +35,15 @@ export function AssignmentDetailLayout({ detail, main }: AssignmentDetailLayoutP
           main={
             <>
               <AssignmentDetailFooterInlineNotices footer={detail.footer} />
+              <AssignmentCompletedBanner completedDetails={detail.completedDetails} />
+              <AssignmentLiveAnalytics liveAnalytics={detail.liveAnalytics} />
               {main}
+              <AssignmentProblemList problems={detail.problems} />
             </>
           }
           discussionEntityKind="assignment"
           emptyStateContext="assignment"
+          overviewTrailingChips={<AssignmentHeaderBadges badges={detail.headerBadges} />}
           fullWidthBanner={
             <div className="flex flex-col gap-4">
               {detail.phase === 'before' ? (

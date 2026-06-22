@@ -1,15 +1,20 @@
-import { and, count, desc, eq, isNull } from 'drizzle-orm'
+import { and, desc, eq, isNull } from 'drizzle-orm'
 
 import type { AssignmentDetailPayload } from '@/server/learn/assignmentDetailTypes'
 
 import { db } from '@/db'
-import { assignmentProblem, assignments, submissions, users } from '@/db/schema'
+import { assignments, submissions, users } from '@/db/schema'
 import { DISCUSSION_ENTITY_ASSIGNMENT } from '@/server/new-discussions/discussionEntityTypes'
 import { listDiscussionsWithThreadsForLearnEntity } from '@/server/new-discussions/services/listDiscussionsWithThreadsForLearnEntity'
+import {
+  fetchAssignmentProblemRows,
+  fetchSolutionStatusesBySubmission,
+} from '@/server/learn/queries/fetchAssignmentProblems'
 import {
   buildAssignmentDetailPayload,
   isSupportedAssignmentDetailType,
 } from '@/server/learn/utils/buildAssignmentDetailPayload'
+import { buildAssignmentProblemListItems } from '@/server/learn/utils/buildAssignmentProblemListItems'
 import { buildLearnDetailPresentation } from '@/server/learn/utils/buildLearnDetailPresentation'
 import { getAssignmentAssociatedContent } from '@/server/learn/services/getAssignmentAssociatedContent.service'
 import { ensureUserCanAccessLearnHubEntity } from '@/server/learn/utils/ensureLearnEntityAccess'
@@ -68,7 +73,7 @@ export async function getAssignmentLearningDetailForUser(
     throw new Error('LEARN_DETAIL_NOT_FOUND')
   }
 
-  const [submissionRows, problemCountRows, discussions, associatedItems] =
+  const [submissionRows, problemRows, discussions, associatedItems] =
     await Promise.all([
     db
       .select({
@@ -91,10 +96,7 @@ export async function getAssignmentLearningDetailForUser(
       )
       .orderBy(desc(submissions.createdAt))
       .limit(1),
-    db
-      .select({ count: count() })
-      .from(assignmentProblem)
-      .where(eq(assignmentProblem.assignmentId, assignmentId)),
+    fetchAssignmentProblemRows(assignmentId),
     listDiscussionsWithThreadsForLearnEntity(
       userId,
       DISCUSSION_ENTITY_ASSIGNMENT,
@@ -107,8 +109,19 @@ export async function getAssignmentLearningDetailForUser(
     }),
   ])
 
-  const submissionRow = submissionRows[0] ?? null
-  const problemCount = Number(problemCountRows[0]?.count ?? 0)
+  const submissionRow = submissionRows.length > 0 ? submissionRows[0] : null
+
+  const solutionStatusByProblemId = new Map<number, string | null>()
+  if (submissionRow != null && problemRows.length > 0) {
+    const solutionRows = await fetchSolutionStatusesBySubmission(submissionRow.id)
+    for (const solution of solutionRows) {
+      solutionStatusByProblemId.set(solution.problemId, solution.status)
+    }
+  }
+  const problems = buildAssignmentProblemListItems(
+    problemRows,
+    solutionStatusByProblemId,
+  )
 
   const core = buildLearnDetailPresentation(row)
 
@@ -129,7 +142,6 @@ export async function getAssignmentLearningDetailForUser(
     },
     nowMs,
     {
-      problemCount,
       submission:
         submissionRow == null
           ? null
@@ -148,5 +160,6 @@ export async function getAssignmentLearningDetailForUser(
             },
     },
     associatedItems,
+    problems,
   )
 }

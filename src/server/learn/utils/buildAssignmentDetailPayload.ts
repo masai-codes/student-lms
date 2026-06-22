@@ -4,10 +4,13 @@ import type {
 } from '@/server/learn/assignmentDetailTypes'
 import type { LearnAssociatedListItem } from '@/server/learn/learnAssociatedTypes'
 import type { LearnHubDetailPayload } from '@/server/learn/types'
-import {
-  buildAssignmentDetailFooter,
-  type AssignmentDetailFooterContext,
-} from '@/server/learn/utils/buildAssignmentDetailFooter'
+import type { AssignmentProblemListItem } from '@/server/learn/utils/buildAssignmentProblemListItems'
+import type { AssignmentDetailFooterContext } from '@/server/learn/utils/buildAssignmentDetailFooter'
+import { buildAssignmentDetailFooter } from '@/server/learn/utils/buildAssignmentDetailFooter'
+import { buildAssignmentCompletedDetails } from '@/server/learn/utils/buildAssignmentCompletedDetails'
+import { buildAssignmentHeaderBadges } from '@/server/learn/utils/buildAssignmentHeaderBadges'
+import { buildAssignmentLiveAnalytics } from '@/server/learn/utils/buildAssignmentLiveAnalytics'
+import { resolveAssignmentRequiresPledge } from '@/server/learn/utils/resolveAssignmentRequiresPledge'
 import { formatLectureScheduleRange } from '@/server/learn/utils/formatLectureScheduleRange'
 import { buildAssignmentPhaseContent } from '@/server/learn/utils/buildLearnPhaseContent'
 import { resolveAssignmentPhase } from '@/server/learn/utils/resolveAssignmentPhase'
@@ -46,7 +49,7 @@ function normalizeAssignmentKind(type: string): AssignmentKind | null {
 
 export type AssignmentDetailFooterInput = Pick<
   AssignmentDetailFooterContext,
-  'problemCount' | 'submission'
+  'submission'
 >
 
 export function buildAssignmentDetailPayload(
@@ -55,6 +58,7 @@ export function buildAssignmentDetailPayload(
   nowMs: number,
   footerInput: AssignmentDetailFooterInput,
   associatedItems: Array<LearnAssociatedListItem>,
+  problems: Array<AssignmentProblemListItem>,
 ): AssignmentDetailPayload {
   const assignmentKind = normalizeAssignmentKind(row.type)
   if (assignmentKind == null) {
@@ -82,8 +86,20 @@ export function buildAssignmentDetailPayload(
     schedule: row.schedule,
     concludes: row.concludes,
     nowMs,
-    problemCount: footerInput.problemCount,
+    problemCount: problems.length,
     submission: footerInput.submission,
+  })
+
+  const completedDetails = buildAssignmentCompletedDetails({
+    submission:
+      footerInput.submission == null
+        ? null
+        : {
+            completed: footerInput.submission.completed,
+            completedAt: footerInput.submission.completedAt,
+            data: footerInput.submission.data,
+          },
+    concludes: row.concludes,
   })
 
   return {
@@ -99,6 +115,27 @@ export function buildAssignmentDetailPayload(
     enforceDeadline: row.enforceDeadline === 1,
     phaseContent: buildAssignmentPhaseContent(assignmentKind, phase, row.schedule),
     footer,
+    completedDetails,
+    headerBadges: buildAssignmentHeaderBadges({
+      assignmentKind,
+      enforceDeadline: row.enforceDeadline === 1,
+      settings: row.settings,
+    }),
+    liveAnalytics: buildAssignmentLiveAnalytics({
+      platform: row.platform,
+      settings: row.settings,
+      submission:
+        footerInput.submission == null
+          ? null
+          : { data: footerInput.submission.data },
+    }),
+    requiresPledge: resolveAssignmentRequiresPledge({
+      assignmentKind,
+      schedule: row.schedule,
+      nowMs,
+      hasSubmission: footerInput.submission != null,
+    }),
+    problems,
   }
 }
 
