@@ -41,10 +41,13 @@ function parseStreamChatBody(body: StreamChatBody | null): {
   }
 
   const rawChatId = body?.chatID ?? body?.chatId
-  const chatId =
-    rawChatId == null || rawChatId === '' ? undefined : parsePositiveInt(rawChatId)
-  if (rawChatId != null && rawChatId !== '' && chatId == null) {
-    throw new ApiError(400, 'AI_TUTOR_CHAT_ID_INVALID')
+  let chatId: number | undefined
+  if (rawChatId != null && rawChatId !== '') {
+    const parsedChatId = parsePositiveInt(rawChatId)
+    if (parsedChatId == null) {
+      throw new ApiError(400, 'AI_TUTOR_CHAT_ID_INVALID')
+    }
+    chatId = parsedChatId
   }
 
   return { lectureId, chat, chatId }

@@ -1,4 +1,4 @@
-import { anthropic } from '@ai-sdk/anthropic'
+import { createAnthropic } from '@ai-sdk/anthropic'
 import { ApiError } from '@/server/api/http/apiError'
 import { AI_TUTOR_CHAT_DEFAULT_MODEL } from '@/server/api/ai-tutor/constants'
 
@@ -17,5 +17,6 @@ export function ensureAnthropicConfigured(): void {
 export function getAiTutorChatModel() {
   const modelId =
     process.env.ANTHROPIC_MODEL?.trim() || AI_TUTOR_CHAT_DEFAULT_MODEL
-  return anthropic(modelId, { apiKey: getAnthropicApiKey() })
+  const provider = createAnthropic({ apiKey: getAnthropicApiKey() })
+  return provider(modelId)
 }
