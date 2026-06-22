@@ -67,6 +67,7 @@ import { Route as ApiMasaiverseV2BannersUpdateRouteImport } from './routes/api/m
 import { Route as ApiMasaiverseV2BannersListRouteImport } from './routes/api/masaiverse-v2/banners/list'
 import { Route as ApiMasaiverseV2BannersDeleteRouteImport } from './routes/api/masaiverse-v2/banners/delete'
 import { Route as ApiMasaiverseV2BannersCreateRouteImport } from './routes/api/masaiverse-v2/banners/create'
+import { Route as ApiAiTutorChatStreamRouteImport } from './routes/api/ai-tutor/chat/stream'
 import { Route as protectedLayoutMasaiverseLeaderboardRouteImport } from './routes/(protected)/_layout/masaiverse/leaderboard'
 import { Route as protectedLayoutMasaiverseHomeRouteImport } from './routes/(protected)/_layout/masaiverse/home'
 import { Route as protectedLayoutMasaiverseEventsRouteImport } from './routes/(protected)/_layout/masaiverse/events'
@@ -436,6 +437,11 @@ const ApiMasaiverseV2BannersCreateRoute =
     path: '/api/masaiverse-v2/banners/create',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiAiTutorChatStreamRoute = ApiAiTutorChatStreamRouteImport.update({
+  id: '/api/ai-tutor/chat/stream',
+  path: '/api/ai-tutor/chat/stream',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const protectedLayoutMasaiverseLeaderboardRoute =
   protectedLayoutMasaiverseLeaderboardRouteImport.update({
     id: '/leaderboard',
@@ -710,6 +716,7 @@ export interface FileRoutesByFullPath {
   '/masaiverse/events': typeof protectedLayoutMasaiverseEventsRoute
   '/masaiverse/home': typeof protectedLayoutMasaiverseHomeRoute
   '/masaiverse/leaderboard': typeof protectedLayoutMasaiverseLeaderboardRoute
+  '/api/ai-tutor/chat/stream': typeof ApiAiTutorChatStreamRoute
   '/api/masaiverse-v2/banners/create': typeof ApiMasaiverseV2BannersCreateRoute
   '/api/masaiverse-v2/banners/delete': typeof ApiMasaiverseV2BannersDeleteRoute
   '/api/masaiverse-v2/banners/list': typeof ApiMasaiverseV2BannersListRoute
@@ -803,6 +810,7 @@ export interface FileRoutesByTo {
   '/masaiverse/events': typeof protectedLayoutMasaiverseEventsRoute
   '/masaiverse/home': typeof protectedLayoutMasaiverseHomeRoute
   '/masaiverse/leaderboard': typeof protectedLayoutMasaiverseLeaderboardRoute
+  '/api/ai-tutor/chat/stream': typeof ApiAiTutorChatStreamRoute
   '/api/masaiverse-v2/banners/create': typeof ApiMasaiverseV2BannersCreateRoute
   '/api/masaiverse-v2/banners/delete': typeof ApiMasaiverseV2BannersDeleteRoute
   '/api/masaiverse-v2/banners/list': typeof ApiMasaiverseV2BannersListRoute
@@ -896,6 +904,7 @@ export interface FileRoutesById {
   '/(protected)/_layout/masaiverse/events': typeof protectedLayoutMasaiverseEventsRoute
   '/(protected)/_layout/masaiverse/home': typeof protectedLayoutMasaiverseHomeRoute
   '/(protected)/_layout/masaiverse/leaderboard': typeof protectedLayoutMasaiverseLeaderboardRoute
+  '/api/ai-tutor/chat/stream': typeof ApiAiTutorChatStreamRoute
   '/api/masaiverse-v2/banners/create': typeof ApiMasaiverseV2BannersCreateRoute
   '/api/masaiverse-v2/banners/delete': typeof ApiMasaiverseV2BannersDeleteRoute
   '/api/masaiverse-v2/banners/list': typeof ApiMasaiverseV2BannersListRoute
@@ -992,6 +1001,7 @@ export interface FileRouteTypes {
     | '/masaiverse/events'
     | '/masaiverse/home'
     | '/masaiverse/leaderboard'
+    | '/api/ai-tutor/chat/stream'
     | '/api/masaiverse-v2/banners/create'
     | '/api/masaiverse-v2/banners/delete'
     | '/api/masaiverse-v2/banners/list'
@@ -1085,6 +1095,7 @@ export interface FileRouteTypes {
     | '/masaiverse/events'
     | '/masaiverse/home'
     | '/masaiverse/leaderboard'
+    | '/api/ai-tutor/chat/stream'
     | '/api/masaiverse-v2/banners/create'
     | '/api/masaiverse-v2/banners/delete'
     | '/api/masaiverse-v2/banners/list'
@@ -1177,6 +1188,7 @@ export interface FileRouteTypes {
     | '/(protected)/_layout/masaiverse/events'
     | '/(protected)/_layout/masaiverse/home'
     | '/(protected)/_layout/masaiverse/leaderboard'
+    | '/api/ai-tutor/chat/stream'
     | '/api/masaiverse-v2/banners/create'
     | '/api/masaiverse-v2/banners/delete'
     | '/api/masaiverse-v2/banners/list'
@@ -1266,6 +1278,7 @@ export interface RootRouteChildren {
   authV2AuthUseAccountRoute: typeof authV2AuthUseAccountRoute
   authV2LoginRequestOtpRoute: typeof authV2LoginRequestOtpRoute
   authV2LoginVerifyOtpRoute: typeof authV2LoginVerifyOtpRoute
+  ApiAiTutorChatStreamRoute: typeof ApiAiTutorChatStreamRoute
   ApiMasaiverseV2BannersCreateRoute: typeof ApiMasaiverseV2BannersCreateRoute
   ApiMasaiverseV2BannersDeleteRoute: typeof ApiMasaiverseV2BannersDeleteRoute
   ApiMasaiverseV2BannersListRoute: typeof ApiMasaiverseV2BannersListRoute
@@ -1700,6 +1713,13 @@ declare module '@tanstack/react-router' {
       path: '/api/masaiverse-v2/banners/create'
       fullPath: '/api/masaiverse-v2/banners/create'
       preLoaderRoute: typeof ApiMasaiverseV2BannersCreateRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/ai-tutor/chat/stream': {
+      id: '/api/ai-tutor/chat/stream'
+      path: '/api/ai-tutor/chat/stream'
+      fullPath: '/api/ai-tutor/chat/stream'
+      preLoaderRoute: typeof ApiAiTutorChatStreamRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/(protected)/_layout/masaiverse/leaderboard': {
@@ -2178,6 +2198,7 @@ const rootRouteChildren: RootRouteChildren = {
   authV2AuthUseAccountRoute: authV2AuthUseAccountRoute,
   authV2LoginRequestOtpRoute: authV2LoginRequestOtpRoute,
   authV2LoginVerifyOtpRoute: authV2LoginVerifyOtpRoute,
+  ApiAiTutorChatStreamRoute: ApiAiTutorChatStreamRoute,
   ApiMasaiverseV2BannersCreateRoute: ApiMasaiverseV2BannersCreateRoute,
   ApiMasaiverseV2BannersDeleteRoute: ApiMasaiverseV2BannersDeleteRoute,
   ApiMasaiverseV2BannersListRoute: ApiMasaiverseV2BannersListRoute,
