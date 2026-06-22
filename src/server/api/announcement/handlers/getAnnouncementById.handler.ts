@@ -6,15 +6,13 @@ import { getAnnouncementById } from '@/server/api/announcement/getAnnouncementBy
 export async function handleGetAnnouncementById(
   request: Request,
   announcementId: string,
+  source: 'a' | 'm' = 'a',
 ): Promise<Response> {
   try {
     const numericId = parseInt(announcementId, 10)
     if (!Number.isFinite(numericId) || numericId <= 0) {
       return jsonError(404, 'ANNOUNCEMENT_NOT_FOUND')
     }
-
-    const src = new URL(request.url).searchParams.get('src')
-    const source: 'a' | 'm' = src === 'm' ? 'm' : 'a'
 
     const userId = await requireSessionUserId(request)
     const announcement = await getAnnouncementById(userId, numericId, source)

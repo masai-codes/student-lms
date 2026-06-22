@@ -10,9 +10,17 @@ import {
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb'
 import type { AnnouncementDetail } from '@/server/api/announcement/getAnnouncementById.service'
-import { markAnnouncementRead, markAnnouncementUnread, addBookmark, removeBookmark } from '@/lib/api/announcement/announcementApi'
+import {
+  markAnnouncementRead,
+  markAnnouncementUnread,
+  markMessageRead,
+  markMessageUnread,
+  addBookmark,
+  removeBookmark,
+} from '@/lib/api/announcement/announcementApi'
 import { toast } from '@/lib/toast'
 import { formatTimestampLocal, formatTimestampIST } from '@/utils/timeZoneHandler'
+import { MarkdownContent } from '@/components/shared/markdown-content/MarkdownContent'
 
 interface AnnouncementDetailPageProps {
   detail: AnnouncementDetail
@@ -32,7 +40,8 @@ export function AnnouncementDetailPage({ detail }: AnnouncementDetailPageProps) 
   useEffect(() => {
     if (markedReadRef.current || !Number.isFinite(numericId)) return
     markedReadRef.current = true
-    markAnnouncementRead(numericId, source)
+    const markRead = source === 'm' ? markMessageRead : markAnnouncementRead
+    markRead(numericId)
       .then(() => {
         toast.success('Marked as read')
         void queryClient.invalidateQueries({ queryKey: ['announcements'] })
@@ -45,13 +54,15 @@ export function AnnouncementDetailPage({ detail }: AnnouncementDetailPageProps) 
   // ── Toggle mark as read / unread ──────────────────────────────────────────
   async function handleToggleUnread() {
     if (!Number.isFinite(numericId)) return
+    const markRead = source === 'm' ? markMessageRead : markAnnouncementRead
+    const markUnread = source === 'm' ? markMessageUnread : markAnnouncementUnread
     try {
       if (isUnread) {
-        await markAnnouncementRead(numericId, source)
+        await markRead(numericId)
         setIsUnread(false)
         toast.success('Marked as read')
       } else {
-        await markAnnouncementUnread(numericId, source)
+        await markUnread(numericId)
         setIsUnread(true)
         toast.success('Marked as unread')
       }
@@ -186,13 +197,19 @@ export function AnnouncementDetailPage({ detail }: AnnouncementDetailPageProps) 
       </div>
 
       {/* Body content card */}
-      <div className="rounded-2xl border border-gray-200 bg-white p-6 md:p-8">
-        <div
-          className="prose prose-sm md:prose-base max-w-none text-gray-800 leading-relaxed
-            prose-a:text-blue-600 prose-a:underline
-            prose-p:my-3 prose-ul:my-3 prose-ol:my-3 prose-li:my-1"
-          dangerouslySetInnerHTML={{ __html: detail.body }}
-        />
+      <div className="rounded-2xl border border-gray-200 bg-white p-6 md:p-8 flex flex-col gap-6">
+        <MarkdownContent value={detail.body} />
+        {detail.ctaName && detail.ctaLink && (
+          <a
+            href={detail.ctaLink}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="self-start inline-flex items-center justify-center rounded-lg px-8 py-3 text-sm font-semibold text-white transition-opacity hover:opacity-90 focus-visible:outline-none"
+            style={{ background: '#6962AC', fontFamily: 'Poppins' }}
+          >
+            {detail.ctaName.length > 50 ? `${detail.ctaName.slice(0, 50)}…` : detail.ctaName}
+          </a>
+        )}
       </div>
 
     </div>

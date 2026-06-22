@@ -15,11 +15,11 @@ const routeApi = getRouteApi('/(protected)/_layout/announcements/')
 // ── Announcement Card ──────────────────────────────────────────────────────────
 
 function AnnouncementCard({ item }: { item: AnnouncementItem }) {
+  const isMessage = item.source === 'm'
   return (
     <Link
-      to="/announcements/$id"
+      to={isMessage ? '/messages/$id' : '/announcements/$id'}
       params={{ id: item.id }}
-      search={{ src: item.source }}
       className={`p-[10px] md:p-[12px] rounded-[8px] flex items-center gap-[10px] border bg-white transition-shadow shadow-sm hover:shadow-md cursor-pointer no-underline ${item.isForYou ? 'border-[#fad1e8]' : 'border-[#E5E7EB]'}`}
     >
       {/* Icon — hidden on mobile; red tint for critical announcements */}
