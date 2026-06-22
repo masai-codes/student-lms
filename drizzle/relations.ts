@@ -1034,11 +1034,6 @@ export const certificatesTemplateBatchRelations = relations(certificatesTemplate
 		references: [users.id],
 		relationName: "certificatesTemplateBatch_createdBy_users_id"
 	}),
-
-  certificateTemplate: one(certificateTemplates, {
-		fields: [certificatesTemplateBatch.templateId],
-		references: [certificateTemplates.id]
-	}),
 	user_updatedBy: one(users, {
 		fields: [certificatesTemplateBatch.updatedBy],
 		references: [users.id],

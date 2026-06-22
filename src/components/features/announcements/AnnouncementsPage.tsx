@@ -1,4 +1,5 @@
 import { Search } from 'lucide-react'
+import { useState, useEffect, useRef } from 'react'
 import { getRouteApi, useNavigate, Link } from '@tanstack/react-router'
 import { useQuery, keepPreviousData } from '@tanstack/react-query'
 import { MasaiInput } from '@/components/ui/masai-input'
@@ -15,11 +16,11 @@ const routeApi = getRouteApi('/(protected)/_layout/announcements/')
 // ── Announcement Card ──────────────────────────────────────────────────────────
 
 function AnnouncementCard({ item }: { item: AnnouncementItem }) {
+  const isMessage = item.source === 'm'
   return (
     <Link
-      to="/announcements/$id"
+      to={isMessage ? '/messages/$id' : '/announcements/$id'}
       params={{ id: item.id }}
-      search={{ src: item.source }}
       className={`p-[10px] md:p-[12px] rounded-[8px] flex items-center gap-[10px] border bg-white transition-shadow shadow-sm hover:shadow-md cursor-pointer no-underline ${item.isForYou ? 'border-[#fad1e8]' : 'border-[#E5E7EB]'}`}
     >
       {/* Icon — hidden on mobile; red tint for critical announcements */}
@@ -86,6 +87,25 @@ export function AnnouncementsPage() {
   const navigate = useNavigate()
   const messagesOnly = message === true
 
+  const [searchInput, setSearchInput] = useState(q ?? '')
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  // Keep local input in sync if q changes externally (e.g. browser back/forward)
+  useEffect(() => {
+    setSearchInput(q ?? '')
+  }, [q])
+
+  function handleSearch(value: string) {
+    setSearchInput(value)
+    if (debounceRef.current) clearTimeout(debounceRef.current)
+    debounceRef.current = setTimeout(() => {
+      void navigate({
+        to: '/announcements',
+        search: { q: value || undefined, page: 1, message: message },
+      })
+    }, 300)
+  }
+
   const { data, isLoading, isFetching } = useQuery({
     queryKey: ['announcements', { page, q: q ?? '', message: messagesOnly }],
     queryFn: () =>
@@ -98,13 +118,6 @@ export function AnnouncementsPage() {
   const total = data?.total ?? 0
   const totalPages = Math.max(1, Math.ceil(total / ANNOUNCEMENTS_PER_PAGE))
   const safePage = Math.min(page, totalPages)
-
-  function handleSearch(value: string) {
-    void navigate({
-      to: '/announcements',
-      search: { q: value || undefined, page: 1, message: message },
-    })
-  }
 
   function handlePageChange(newPage: number) {
     void navigate({
@@ -129,7 +142,7 @@ export function AnnouncementsPage() {
         <div className="flex items-center gap-2 shrink-0">
           <MasaiInput
             placeholder="Search Announcements"
-            value={q ?? ''}
+            value={searchInput}
             onChange={(e) => handleSearch(e.target.value)}
             iconLeft={<Search size={15} className="text-gray-400" />}
             className="w-[28rem]"

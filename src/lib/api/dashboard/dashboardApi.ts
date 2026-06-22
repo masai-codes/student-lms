@@ -22,6 +22,7 @@ export interface DashboardRightSectionData {
   lmsSupport: LmsSupportInfo
   attendance: Array<BatchAttendance>
   batches: Array<EnrolledBatch>
+  announcementUnreadCount: number
 }
 
 export async function fetchDashboardRightSection(): Promise<DashboardRightSectionData> {

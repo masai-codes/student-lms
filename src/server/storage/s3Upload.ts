@@ -29,23 +29,26 @@ export interface UploadImageInput {
   contentType: string
   /** File extension without the dot, e.g. "png". */
   ext: string
+  /** Override the S3 key prefix. Defaults to the env-configured upload prefix. */
+  keyPrefix?: string
 }
 
 /**
- * Uploads an image buffer to S3 under a random key and returns its public URL.
- * Throws `S3_NOT_CONFIGURED` when the bucket env var is missing. Reusable for
- * any image upload (clubs, events, …).
+ * Uploads a buffer to S3 under a random key and returns its public URL.
+ * Pass `keyPrefix` to override the default folder (e.g. `dev/lms/tickets/{uuid}`).
  */
 export async function uploadImageToS3({
   buffer,
   contentType,
   ext,
+  keyPrefix,
 }: UploadImageInput): Promise<string> {
   const bucket = process.env.AWS_S3_BUCKET_NAME?.trim()
   if (!bucket) throw new ApiError(500, 'S3_NOT_CONFIGURED')
 
-  const safeExt = ext.toLowerCase().replace(/[^a-z0-9]/g, '') || 'png'
-  const key = `${getUploadPrefix()}/${randomUUID()}.${safeExt}`
+  const safeExt = ext.toLowerCase().replace(/[^a-z0-9]/g, '') || 'bin'
+  const prefix = keyPrefix ?? getUploadPrefix()
+  const key = `${prefix}/${randomUUID()}.${safeExt}`
 
   await getClient().send(
     new PutObjectCommand({

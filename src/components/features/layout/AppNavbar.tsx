@@ -2,6 +2,7 @@
 
 import { useCallback, useMemo, useRef, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
+import { fetchAnnouncementUnreadCount } from '@/lib/api/announcement/announcementApi'
 import { getRouteApi, useNavigate, useRouterState } from '@tanstack/react-router'
 import {
   Book,
@@ -85,6 +86,13 @@ export default function AppNavbar() {
   const levelupLoadingRef = useRef(false)
   const REFERRAL_URL_REFETCH_INTERVAL = 5 * 60 * 1000
 
+  const { data: unreadCount = 0 } = useQuery({
+    queryKey: ['announcement-unread-count'],
+    queryFn: fetchAnnouncementUnreadCount,
+    staleTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: false,
+  })
+
   const { data: referralUrl, isFetching: isReferralUrlLoading } = useQuery({
     queryKey: ['referral-lms-login-url'],
     queryFn: fetchReferralLmsLoginRedirectUrl,
@@ -152,6 +160,14 @@ export default function AppNavbar() {
     [],
   )
 
+  const handleHomeClick = useCallback(
+    (e: React.MouseEvent<HTMLAnchorElement>) => {
+      e.preventDefault()
+      void navigate({ to: '/' })
+    },
+    [navigate],
+  )
+
   const handleAnnouncementsClick = useCallback(
     (e: React.MouseEvent<HTMLAnchorElement>) => {
       e.preventDefault()
@@ -185,7 +201,9 @@ export default function AppNavbar() {
     {
       id: 'home',
       label: 'Home',
-      ...oldStudentUiLink(OLD_STUDENT_UI_NAV_PATHS.home),
+      href: '/',
+      openInNewTab: false,
+      onClick: handleHomeClick,
     },
     {
       id: 'learn',
@@ -254,10 +272,11 @@ export default function AppNavbar() {
         ariaLabel: 'Announcements',
         href: '/announcements',
         openInNewTab: false,
+        notificationCount: unreadCount,
         onClick: handleAnnouncementsClick,
       },
     ],
-    [handleAnnouncementsClick],
+    [handleAnnouncementsClick, unreadCount],
   )
 
   const profileMenuItems: Array<NavbarProfileMenuItem> = useMemo(
@@ -375,6 +394,7 @@ export default function AppNavbar() {
           alt: 'Masai Logo',
           href: '/',
           openInNewTab: false,
+          onClick: handleHomeClick,
         }}
         navItems={navItems}
         centerSlot={<UpcomingLecturePill />}
