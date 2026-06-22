@@ -35,8 +35,7 @@ import { Route as ApiMasaiverseV2HomeRouteImport } from './routes/api/masaiverse
 import { Route as ApiMasaiverseV2DiscussionsRouteImport } from './routes/api/masaiverse-v2/discussions'
 import { Route as ApiMasaiverseV2AwardPointsRouteImport } from './routes/api/masaiverse-v2/award-points'
 import { Route as ApiMasaiverseV2AdminModeRouteImport } from './routes/api/masaiverse-v2/admin-mode'
-import { Route as ApiLearnBatchesRouteImport } from './routes/api/learn/batches'
-import { Route as ApiLearnBatchDataRouteImport } from './routes/api/learn/batch-data'
+import { Route as ApiLearnPageRouteImport } from './routes/api/learn/page'
 import { Route as ApiDashboardScheduleRouteImport } from './routes/api/dashboard/schedule'
 import { Route as ApiDashboardRightSectionRouteImport } from './routes/api/dashboard/right-section'
 import { Route as ApiDashboardProductUpdatesRouteImport } from './routes/api/dashboard/product-updates'
@@ -299,14 +298,9 @@ const ApiMasaiverseV2AdminModeRoute =
     path: '/api/masaiverse-v2/admin-mode',
     getParentRoute: () => rootRouteImport,
   } as any)
-const ApiLearnBatchesRoute = ApiLearnBatchesRouteImport.update({
-  id: '/api/learn/batches',
-  path: '/api/learn/batches',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiLearnBatchDataRoute = ApiLearnBatchDataRouteImport.update({
-  id: '/api/learn/batch-data',
-  path: '/api/learn/batch-data',
+const ApiLearnPageRoute = ApiLearnPageRouteImport.update({
+  id: '/api/learn/page',
+  path: '/api/learn/page',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiDashboardScheduleRoute = ApiDashboardScheduleRouteImport.update({
@@ -1061,8 +1055,7 @@ export interface FileRoutesByFullPath {
   '/api/dashboard/product-updates': typeof ApiDashboardProductUpdatesRoute
   '/api/dashboard/right-section': typeof ApiDashboardRightSectionRoute
   '/api/dashboard/schedule': typeof ApiDashboardScheduleRoute
-  '/api/learn/batch-data': typeof ApiLearnBatchDataRoute
-  '/api/learn/batches': typeof ApiLearnBatchesRoute
+  '/api/learn/page': typeof ApiLearnPageRoute
   '/api/masaiverse-v2/admin-mode': typeof ApiMasaiverseV2AdminModeRoute
   '/api/masaiverse-v2/award-points': typeof ApiMasaiverseV2AwardPointsRoute
   '/api/masaiverse-v2/discussions': typeof ApiMasaiverseV2DiscussionsRouteWithChildren
@@ -1215,8 +1208,7 @@ export interface FileRoutesByTo {
   '/api/dashboard/product-updates': typeof ApiDashboardProductUpdatesRoute
   '/api/dashboard/right-section': typeof ApiDashboardRightSectionRoute
   '/api/dashboard/schedule': typeof ApiDashboardScheduleRoute
-  '/api/learn/batch-data': typeof ApiLearnBatchDataRoute
-  '/api/learn/batches': typeof ApiLearnBatchesRoute
+  '/api/learn/page': typeof ApiLearnPageRoute
   '/api/masaiverse-v2/admin-mode': typeof ApiMasaiverseV2AdminModeRoute
   '/api/masaiverse-v2/award-points': typeof ApiMasaiverseV2AwardPointsRoute
   '/api/masaiverse-v2/discussions': typeof ApiMasaiverseV2DiscussionsRouteWithChildren
@@ -1372,8 +1364,7 @@ export interface FileRoutesById {
   '/api/dashboard/product-updates': typeof ApiDashboardProductUpdatesRoute
   '/api/dashboard/right-section': typeof ApiDashboardRightSectionRoute
   '/api/dashboard/schedule': typeof ApiDashboardScheduleRoute
-  '/api/learn/batch-data': typeof ApiLearnBatchDataRoute
-  '/api/learn/batches': typeof ApiLearnBatchesRoute
+  '/api/learn/page': typeof ApiLearnPageRoute
   '/api/masaiverse-v2/admin-mode': typeof ApiMasaiverseV2AdminModeRoute
   '/api/masaiverse-v2/award-points': typeof ApiMasaiverseV2AwardPointsRoute
   '/api/masaiverse-v2/discussions': typeof ApiMasaiverseV2DiscussionsRouteWithChildren
@@ -1529,8 +1520,7 @@ export interface FileRouteTypes {
     | '/api/dashboard/product-updates'
     | '/api/dashboard/right-section'
     | '/api/dashboard/schedule'
-    | '/api/learn/batch-data'
-    | '/api/learn/batches'
+    | '/api/learn/page'
     | '/api/masaiverse-v2/admin-mode'
     | '/api/masaiverse-v2/award-points'
     | '/api/masaiverse-v2/discussions'
@@ -1683,8 +1673,7 @@ export interface FileRouteTypes {
     | '/api/dashboard/product-updates'
     | '/api/dashboard/right-section'
     | '/api/dashboard/schedule'
-    | '/api/learn/batch-data'
-    | '/api/learn/batches'
+    | '/api/learn/page'
     | '/api/masaiverse-v2/admin-mode'
     | '/api/masaiverse-v2/award-points'
     | '/api/masaiverse-v2/discussions'
@@ -1839,8 +1828,7 @@ export interface FileRouteTypes {
     | '/api/dashboard/product-updates'
     | '/api/dashboard/right-section'
     | '/api/dashboard/schedule'
-    | '/api/learn/batch-data'
-    | '/api/learn/batches'
+    | '/api/learn/page'
     | '/api/masaiverse-v2/admin-mode'
     | '/api/masaiverse-v2/award-points'
     | '/api/masaiverse-v2/discussions'
@@ -1994,8 +1982,7 @@ export interface RootRouteChildren {
   ApiDashboardProductUpdatesRoute: typeof ApiDashboardProductUpdatesRoute
   ApiDashboardRightSectionRoute: typeof ApiDashboardRightSectionRoute
   ApiDashboardScheduleRoute: typeof ApiDashboardScheduleRoute
-  ApiLearnBatchDataRoute: typeof ApiLearnBatchDataRoute
-  ApiLearnBatchesRoute: typeof ApiLearnBatchesRoute
+  ApiLearnPageRoute: typeof ApiLearnPageRoute
   ApiMasaiverseV2AdminModeRoute: typeof ApiMasaiverseV2AdminModeRoute
   ApiMasaiverseV2AwardPointsRoute: typeof ApiMasaiverseV2AwardPointsRoute
   ApiMasaiverseV2DiscussionsRoute: typeof ApiMasaiverseV2DiscussionsRouteWithChildren
@@ -2269,18 +2256,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiMasaiverseV2AdminModeRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/learn/batches': {
-      id: '/api/learn/batches'
-      path: '/api/learn/batches'
-      fullPath: '/api/learn/batches'
-      preLoaderRoute: typeof ApiLearnBatchesRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/learn/batch-data': {
-      id: '/api/learn/batch-data'
-      path: '/api/learn/batch-data'
-      fullPath: '/api/learn/batch-data'
-      preLoaderRoute: typeof ApiLearnBatchDataRouteImport
+    '/api/learn/page': {
+      id: '/api/learn/page'
+      path: '/api/learn/page'
+      fullPath: '/api/learn/page'
+      preLoaderRoute: typeof ApiLearnPageRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/dashboard/schedule': {
@@ -3405,8 +3385,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiDashboardProductUpdatesRoute: ApiDashboardProductUpdatesRoute,
   ApiDashboardRightSectionRoute: ApiDashboardRightSectionRoute,
   ApiDashboardScheduleRoute: ApiDashboardScheduleRoute,
-  ApiLearnBatchDataRoute: ApiLearnBatchDataRoute,
-  ApiLearnBatchesRoute: ApiLearnBatchesRoute,
+  ApiLearnPageRoute: ApiLearnPageRoute,
   ApiMasaiverseV2AdminModeRoute: ApiMasaiverseV2AdminModeRoute,
   ApiMasaiverseV2AwardPointsRoute: ApiMasaiverseV2AwardPointsRoute,
   ApiMasaiverseV2DiscussionsRoute: ApiMasaiverseV2DiscussionsRouteWithChildren,

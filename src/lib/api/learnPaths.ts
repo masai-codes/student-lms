@@ -1,6 +1,5 @@
 export const LEARN_API = {
-  batches: '/api/learn/batches',
-  batchData: '/api/learn/batch-data',
+  page: '/api/learn/page',
   lecture: (lectureId: number) => `/api/learn/lectures/${lectureId}`,
   assignment: (assignmentId: number) => `/api/learn/assignments/${assignmentId}`,
   resource: (resourceId: number) => `/api/learn/resources/${resourceId}`,

@@ -22,10 +22,16 @@ Last updated: 2026-06-17
 - Notes: Optional (recommended) lectures omit `attendance` on both APIs
 
 ## Learn REST APIs (`/api/learn/*`)
-- Area: HTTP routes for batches, batch-data, lecture/assignment/resource detail; client `learnApi.ts`; handlers + services split
+- Area: HTTP routes for the single learn-page endpoint + lecture/assignment/resource detail; client `learnApi.ts`; handlers + services split
 - Status: Partial (handler + query parser tests; route integration tests pending)
 - Test files: `src/server/api/learn/**/__tests__/*`
 - Notes: See `docs/api-responses/learn/rest-endpoints.md`
+
+## Learn listing (`/learn` → single `GET /api/learn/page`)
+- Area: One endpoint returns `{ batches, selectedBatchId, filterValues, learningItems, pagination }` (folds the former `batches` + `batch-data` calls); the `/learn` route loader is the sole fetch. `getBatchLearningData` does SQL-side filtering + pagination (legacy `PAGE_SIZE = 25`); visibility cap (past + next-24h / IST cutoff), date-range cap-at-today, attendance-forces-mandatory; split into `queries/*` + `utils/buildLearn*`
+- Status: Covered (unit tests for window/conditions/facets/pagination/queries/service orchestration + combined service/parser/handler); SQL + timezone correctness needs a live-DB smoke test
+- Test files: `src/server/learn/utils/__tests__/buildLearnScheduleWindow.test.ts`, `src/server/learn/utils/__tests__/buildModuleFilterCondition.test.ts`, `src/server/learn/utils/__tests__/buildLearnListingConditions.test.ts`, `src/server/learn/utils/__tests__/resolveListingPagination.test.ts`, `src/server/learn/queries/__tests__/*`, `src/server/learn/__tests__/getBatchLearningData.service.test.ts`, `src/server/learn/__tests__/getLearnPageData.service.test.ts`, `src/server/api/learn/utils/__tests__/parseLearnPageQuery.test.ts`, `src/server/api/learn/handlers/__tests__/getLearnPageData.handler.test.ts`
+- Notes: See `docs/testing/features/learn-listing.md`
 
 ## Resource detail (`/resources/:id`)
 - Area: `GET /api/learn/resources/:id` + loader via `fetchResourceLearningDetailFromApi`; resource kind/phase/body/phase copy + discussions with threads on server

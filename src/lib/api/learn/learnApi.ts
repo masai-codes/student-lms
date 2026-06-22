@@ -1,25 +1,41 @@
-import { ApiClientError } from '@/lib/api/apiClientError'
-import { fetchJson } from '@/lib/api/fetchJson'
-import { LEARN_API } from '@/lib/api/learnPaths'
 import type { AssignmentDetailPayload } from '@/server/learn/assignmentDetailTypes'
 import type { LectureDetailPayload } from '@/server/learn/lectureDetailTypes'
 import type { ResourceDetailPayload } from '@/server/learn/resourceDetailTypes'
 import type {
-  EnrolledBatch,
-  GetBatchLearningDataInput,
-  GetBatchLearningDataResponse,
+  BatchLearningFiltersInput,
+  GetLearnPageDataInput,
+  GetLearnPageDataResponse,
 } from '@/server/learn/types'
+import { LEARN_API } from '@/lib/api/learnPaths'
+import { fetchJson } from '@/lib/api/fetchJson'
+import { ApiClientError } from '@/lib/api/apiClientError'
 
-function buildBatchLearningQuery(input: GetBatchLearningDataInput): string {
+function appendCsv(params: URLSearchParams, key: string, values?: Array<string>): void {
+  if (values && values.length > 0) params.set(key, values.join(','))
+}
+
+function appendFilters(params: URLSearchParams, filters?: BatchLearningFiltersInput): void {
+  if (!filters) return
+  appendCsv(params, 'modules', filters.modules)
+  appendCsv(params, 'categories', filters.categories)
+  appendCsv(params, 'types', filters.types)
+  appendCsv(params, 'priorities', filters.priorities)
+  appendCsv(params, 'instructors', filters.instructors)
+  if (filters.scheduleStartDate) params.set('scheduleStartDate', filters.scheduleStartDate)
+  if (filters.scheduleEndDate) params.set('scheduleEndDate', filters.scheduleEndDate)
+  if (filters.schedulePhase) params.set('schedulePhase', filters.schedulePhase)
+  if (filters.attendanceStatus) params.set('attendanceStatus', filters.attendanceStatus)
+  appendCsv(params, 'assignmentProgress', filters.assignmentProgressStatuses)
+}
+
+function buildLearnPageQuery(input: GetLearnPageDataInput): string {
   const params = new URLSearchParams()
-  params.set('batchId', String(input.batchId))
   params.set('learningType', input.learningType)
-
+  if (input.batchId != null) params.set('batchId', String(input.batchId))
   if (input.search) params.set('search', input.search)
   if (input.page) params.set('page', String(input.page))
   if (input.pageSize) params.set('pageSize', String(input.pageSize))
-  if (input.filters) params.set('filters', JSON.stringify(input.filters))
-
+  appendFilters(params, input.filters)
   return params.toString()
 }
 
@@ -34,18 +50,10 @@ async function fetchLearnApi<T>(path: string): Promise<T> {
   }
 }
 
-type EnrolledBatchesResponse = { batches: Array<EnrolledBatch> }
-
-export async function fetchEnrolledBatchesFromApi(): Promise<Array<EnrolledBatch>> {
-  const { batches } = await fetchJson<EnrolledBatchesResponse>(LEARN_API.batches)
-  return batches
-}
-
-export async function fetchBatchLearningDataFromApi(
-  input: GetBatchLearningDataInput,
-): Promise<GetBatchLearningDataResponse> {
-  const query = buildBatchLearningQuery(input)
-  return fetchJson<GetBatchLearningDataResponse>(`${LEARN_API.batchData}?${query}`)
+export async function fetchLearnPageDataFromApi(
+  input: GetLearnPageDataInput,
+): Promise<GetLearnPageDataResponse> {
+  return fetchLearnApi<GetLearnPageDataResponse>(`${LEARN_API.page}?${buildLearnPageQuery(input)}`)
 }
 
 export async function fetchLectureLearningDetailFromApi(

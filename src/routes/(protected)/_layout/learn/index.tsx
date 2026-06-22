@@ -1,13 +1,18 @@
 import { createFileRoute, getRouteApi } from '@tanstack/react-router'
 import { useEffect } from 'react'
-import { LearnLayout } from '@/components/features/learn'
 import type { LearnTab } from '@/components/features/learn/shared/types'
+import type { LearningType } from '@/server/learn/types'
+import { LearnLayout } from '@/components/features/learn'
 import {
   getLastSelectedBatchIdForUser,
   setLastSelectedBatchIdForUser,
 } from '@/lib/learnBatchSelection'
-import { parseLearnPageSearch } from '@/lib/learn/learnPageSearch'
-import { fetchEnrolledBatchesFromApi } from '@/lib/api/learn/learnApi'
+import {
+  learnModalFiltersFromSearch,
+  modalFiltersToApiFilters,
+  parseLearnPageSearch,
+} from '@/lib/learn/learnPageSearch'
+import { fetchLearnPageDataFromApi } from '@/lib/api/learn/learnApi'
 
 const layoutRouteApi = getRouteApi('/(protected)/_layout')
 
@@ -15,6 +20,12 @@ const LEARN_TABS = new Set<LearnTab>(['lectures', 'assignments', 'resources'])
 
 function optionalString(value: unknown): string | undefined {
   return typeof value === 'string' && value.trim() !== '' ? value : undefined
+}
+
+function toLearningType(tab: LearnTab): LearningType {
+  if (tab === 'assignments') return 'assignment'
+  if (tab === 'resources') return 'resource'
+  return 'lecture'
 }
 
 export type LearnRouteSearch = {
@@ -70,20 +81,38 @@ export const Route = createFileRoute('/(protected)/_layout/learn/')({
 
     return result
   },
-  loader: async () => {
-    const enrolledBatches = await fetchEnrolledBatchesFromApi()
-    return { enrolledBatches }
+  loaderDeps: ({ search }) => search,
+  loader: async ({ deps }) => {
+    const tab: LearnTab = deps.tab ?? 'lectures'
+    const modalFilters = learnModalFiltersFromSearch(deps, tab)
+    const apiFilters = modalFiltersToApiFilters(tab, modalFilters)
+    const hasFilters = Object.values(apiFilters).some(
+      (value) => value != null && (!Array.isArray(value) || value.length > 0),
+    )
+
+    return fetchLearnPageDataFromApi({
+      batchId: deps.batchId,
+      learningType: toLearningType(tab),
+      search: deps.search?.trim() || undefined,
+      page: deps.page ?? 1,
+      filters: hasFilters ? apiFilters : undefined,
+    })
   },
   component: LearnPage,
 })
 
 function LearnPage() {
-  const { batchId } = Route.useSearch()
   const navigate = Route.useNavigate()
-  const { enrolledBatches } = Route.useLoaderData()
+  const pageData = Route.useLoaderData()
   const { user } = layoutRouteApi.useRouteContext()
-
-  const { tab = 'lectures', lectureTab, assignmentTab, page = 1 } = Route.useSearch()
+  const {
+    batchId,
+    tab = 'lectures',
+    lectureTab,
+    assignmentTab,
+    page = 1,
+  } = Route.useSearch()
+  const enrolledBatches = pageData.batches
 
   useEffect(() => {
     const needsLectureTab =
@@ -98,7 +127,7 @@ function LearnPage() {
         ...prev,
         lectureTab: needsLectureTab ? 'all' : prev.lectureTab,
         assignmentTab: needsAssignmentTab ? 'all' : prev.assignmentTab,
-        page: page ?? 1,
+        page,
       }),
       replace: true,
     })
@@ -144,8 +173,7 @@ function LearnPage() {
 
   return (
     <LearnLayout
-      enrolledBatches={enrolledBatches}
-      selectedBatchId={batchId}
+      pageData={pageData}
       onBatchChange={(nextBatchId) => {
         setLastSelectedBatchIdForUser(user.id, nextBatchId)
         navigate({
