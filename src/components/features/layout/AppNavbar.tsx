@@ -295,6 +295,7 @@ export default function AppNavbar() {
             icon: <Users className="size-4" />,
             href: '/masaiverse',
             openInNewTab: false,
+            isActive: activeNavId === 'masaiverse',
           },
       {
         id: 'practice-interview',
