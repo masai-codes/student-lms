@@ -108,7 +108,7 @@ async function getMessagesOnly(
             AND m.message_id IS NULL
             AND m.deleted_at IS NULL
             AND (m.schedule IS NULL OR m.schedule <= CONVERT_TZ(NOW(), '+00:00', '+05:30'))
-            AND (m.subject LIKE ${searchTerm} OR u.name LIKE ${searchTerm})
+            AND (COALESCE(JSON_UNQUOTE(JSON_EXTRACT(m.meta, '$.title')), m.subject) LIKE ${searchTerm} OR u.name LIKE ${searchTerm})
         `
       : sql`
           SELECT COUNT(*) AS total
@@ -141,7 +141,7 @@ async function getMessagesOnly(
             AND m.message_id IS NULL
             AND m.deleted_at IS NULL
             AND (m.schedule IS NULL OR m.schedule <= CONVERT_TZ(NOW(), '+00:00', '+05:30'))
-            AND (m.subject LIKE ${searchTerm} OR u.name LIKE ${searchTerm})
+            AND (COALESCE(JSON_UNQUOTE(JSON_EXTRACT(m.meta, '$.title')), m.subject) LIKE ${searchTerm} OR u.name LIKE ${searchTerm})
           ORDER BY m.created_at DESC
           LIMIT ${limit} OFFSET ${offset}
         `
@@ -231,7 +231,7 @@ export async function getAnnouncements(
               AND m.message_id IS NULL
               AND m.deleted_at IS NULL
               AND (m.schedule IS NULL OR m.schedule <= CONVERT_TZ(NOW(), '+00:00', '+05:30'))
-              AND (m.subject LIKE ${searchTerm} OR u.name LIKE ${searchTerm})
+              AND (COALESCE(JSON_UNQUOTE(JSON_EXTRACT(m.meta, '$.title')), m.subject) LIKE ${searchTerm} OR u.name LIKE ${searchTerm})
           ) combined
         `
       : sql`
@@ -306,7 +306,7 @@ export async function getAnnouncements(
               AND m.message_id IS NULL
               AND m.deleted_at IS NULL
               AND (m.schedule IS NULL OR m.schedule <= CONVERT_TZ(NOW(), '+00:00', '+05:30'))
-              AND (m.subject LIKE ${searchTerm} OR u.name LIKE ${searchTerm})
+              AND (COALESCE(JSON_UNQUOTE(JSON_EXTRACT(m.meta, '$.title')), m.subject) LIKE ${searchTerm} OR u.name LIKE ${searchTerm})
           ) combined
           ORDER BY createdAt DESC
           LIMIT ${limit} OFFSET ${offset}

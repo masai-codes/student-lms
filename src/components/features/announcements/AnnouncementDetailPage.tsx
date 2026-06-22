@@ -10,6 +10,7 @@ import {
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb'
 import type { AnnouncementDetail } from '@/server/api/announcement/getAnnouncementById.service'
+
 import {
   markAnnouncementRead,
   markAnnouncementUnread,
@@ -45,6 +46,13 @@ export function AnnouncementDetailPage({ detail }: AnnouncementDetailPageProps) 
       .then(() => {
         toast.success('Marked as read')
         void queryClient.invalidateQueries({ queryKey: ['announcements'] })
+        if (!detail.isRead) {
+          queryClient.setQueryData<number>(
+            ['announcement-unread-count'],
+            (old = 0) => Math.max(0, old - 1),
+          )
+        }
+        void queryClient.invalidateQueries({ queryKey: ['announcement-unread-count'] })
       })
       .catch(() => {
         // silent — read-tracking failure is non-critical
@@ -61,12 +69,21 @@ export function AnnouncementDetailPage({ detail }: AnnouncementDetailPageProps) 
         await markRead(numericId)
         setIsUnread(false)
         toast.success('Marked as read')
+        queryClient.setQueryData<number>(
+          ['announcement-unread-count'],
+          (old = 0) => Math.max(0, old - 1),
+        )
       } else {
         await markUnread(numericId)
         setIsUnread(true)
         toast.success('Marked as unread')
+        queryClient.setQueryData<number>(
+          ['announcement-unread-count'],
+          (old = 0) => old + 1,
+        )
       }
       void queryClient.invalidateQueries({ queryKey: ['announcements'] })
+      void queryClient.invalidateQueries({ queryKey: ['announcement-unread-count'] })
     } catch {
       toast.error('Something went wrong. Please try again.')
     }
@@ -204,7 +221,7 @@ export function AnnouncementDetailPage({ detail }: AnnouncementDetailPageProps) 
             href={detail.ctaLink}
             target="_blank"
             rel="noopener noreferrer"
-            className="self-start inline-flex items-center justify-center rounded-lg px-8 py-3 text-sm font-semibold text-white transition-opacity hover:opacity-90 focus-visible:outline-none"
+            className="flex w-full items-center justify-center rounded-lg py-3 text-sm font-semibold text-white transition-opacity hover:opacity-90 focus-visible:outline-none"
             style={{ background: '#6962AC', fontFamily: 'Poppins' }}
           >
             {detail.ctaName.length > 50 ? `${detail.ctaName.slice(0, 50)}…` : detail.ctaName}

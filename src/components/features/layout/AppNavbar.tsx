@@ -2,7 +2,8 @@
 
 import { useCallback, useMemo, useRef, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
-import { getRouteApi, useNavigate } from '@tanstack/react-router'
+import { fetchAnnouncementUnreadCount } from '@/lib/api/announcement/announcementApi'
+import { getRouteApi, useNavigate, useRouterState } from '@tanstack/react-router'
 import {
   Book,
   Bookmark,
@@ -77,10 +78,18 @@ function oldStudentUiLink(
 export default function AppNavbar() {
   const { user } = layoutRouteApi.useRouteContext()
   const navigate = useNavigate()
+  const pathname = useRouterState({ select: (s) => s.location.pathname })
   const [downloadAppOpen, setDownloadAppOpen] = useState(false)
   const [isLevelupLoading, setIsLevelupLoading] = useState(false)
   const levelupLoadingRef = useRef(false)
   const REFERRAL_URL_REFETCH_INTERVAL = 5 * 60 * 1000
+
+  const { data: unreadCount = 0 } = useQuery({
+    queryKey: ['announcement-unread-count'],
+    queryFn: fetchAnnouncementUnreadCount,
+    staleTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: false,
+  })
 
   const { data: referralUrl, isFetching: isReferralUrlLoading } = useQuery({
     queryKey: ['referral-lms-login-url'],
@@ -149,6 +158,14 @@ export default function AppNavbar() {
     [],
   )
 
+  const handleHomeClick = useCallback(
+    (e: React.MouseEvent<HTMLAnchorElement>) => {
+      e.preventDefault()
+      void navigate({ to: '/' })
+    },
+    [navigate],
+  )
+
   const handleAnnouncementsClick = useCallback(
     (e: React.MouseEvent<HTMLAnchorElement>) => {
       e.preventDefault()
@@ -182,7 +199,9 @@ export default function AppNavbar() {
     {
       id: 'home',
       label: 'Home',
-      ...oldStudentUiLink(OLD_STUDENT_UI_NAV_PATHS.home),
+      href: '/',
+      openInNewTab: false,
+      onClick: handleHomeClick,
     },
     {
       id: 'learn',
@@ -251,10 +270,11 @@ export default function AppNavbar() {
         ariaLabel: 'Announcements',
         href: '/announcements',
         openInNewTab: false,
+        notificationCount: unreadCount,
         onClick: handleAnnouncementsClick,
       },
     ],
-    [handleAnnouncementsClick],
+    [handleAnnouncementsClick, unreadCount],
   )
 
   const profileMenuItems: Array<NavbarProfileMenuItem> = useMemo(
@@ -295,7 +315,7 @@ export default function AppNavbar() {
             icon: <Users className="size-4" />,
             href: '/masaiverse',
             openInNewTab: false,
-            isActive: activeNavId === 'masaiverse',
+            isActive: pathname.startsWith('/masaiverse'),
           },
       {
         id: 'practice-interview',
@@ -371,6 +391,7 @@ export default function AppNavbar() {
           alt: 'Masai Logo',
           href: '/',
           openInNewTab: false,
+          onClick: handleHomeClick,
         }}
         navItems={navItems}
         centerSlot={<UpcomingLecturePill />}

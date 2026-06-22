@@ -6,6 +6,7 @@ import { useQueryClient } from '@tanstack/react-query'
 import MDEditor, { commands } from '@uiw/react-md-editor'
 import { Paperclip, Send, ArrowLeft, Mic, MicOff, X, Play, Pause, Check } from 'lucide-react'
 import type { AnnouncementDetail } from '@/server/api/announcement/getAnnouncementById.service'
+
 import { markMessageRead, markMessageUnread } from '@/lib/api/announcement/announcementApi'
 import { toast } from '@/lib/toast'
 import { formatTimestampIST } from '@/utils/timeZoneHandler'
@@ -79,9 +80,18 @@ export function MessageDetailPage({ detail }: MessageDetailPageProps) {
     if (markedReadRef.current || !Number.isFinite(numericId)) return
     markedReadRef.current = true
     markMessageRead(numericId)
-      .then(() => void queryClient.invalidateQueries({ queryKey: ['announcements'] }))
+      .then(() => {
+        void queryClient.invalidateQueries({ queryKey: ['announcements'] })
+        if (!detail.isRead) {
+          queryClient.setQueryData<number>(
+            ['announcement-unread-count'],
+            (old = 0) => Math.max(0, old - 1),
+          )
+        }
+        void queryClient.invalidateQueries({ queryKey: ['announcement-unread-count'] })
+      })
       .catch(() => {})
-  }, [numericId, queryClient])
+  }, [numericId, queryClient, detail.isRead])
 
   // WaveSurfer init when audioBlob is ready
   useEffect(() => {
@@ -128,12 +138,21 @@ export function MessageDetailPage({ detail }: MessageDetailPageProps) {
         await markMessageRead(numericId)
         setIsUnread(false)
         toast.success('Marked as read')
+        queryClient.setQueryData<number>(
+          ['announcement-unread-count'],
+          (old = 0) => Math.max(0, old - 1),
+        )
       } else {
         await markMessageUnread(numericId)
         setIsUnread(true)
         toast.success('Marked as unread')
+        queryClient.setQueryData<number>(
+          ['announcement-unread-count'],
+          (old = 0) => old + 1,
+        )
       }
       void queryClient.invalidateQueries({ queryKey: ['announcements'] })
+      void queryClient.invalidateQueries({ queryKey: ['announcement-unread-count'] })
     } catch {
       toast.error('Something went wrong. Please try again.')
     }

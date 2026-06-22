@@ -1,5 +1,7 @@
 export const ANNOUNCEMENT_API = {
   list: '/api/announcement',
+  popups: '/api/announcement/popups',
+  unreadCount: '/api/announcement/unread-count',
   detail: (id: number | string) => `/api/announcement/${id}`,
   markRead: (id: number | string) => `/api/announcement/${id}/mark-read`,
   markUnread: (id: number | string) => `/api/announcement/${id}/mark-unread`,
