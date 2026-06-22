@@ -4,7 +4,7 @@ import type {
 } from '@/server/learn/types'
 import { getBatchLearningData as getBatchLearningDataService } from '@/server/learn/services/getBatchLearningData.service'
 
-/** @deprecated Use GET `/api/learn/batch-data` via `fetchBatchLearningDataFromApi`. */
+/** @deprecated Use GET `/api/learn/page` via `fetchLearnPageDataFromApi`. */
 export async function getBatchLearningDataHandler({
   data,
   userId,

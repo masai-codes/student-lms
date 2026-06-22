@@ -2,11 +2,11 @@
 
 import { learnDetailChipPalette } from './learnDetailChipPalette'
 import type { LearningPriority } from '@/server/learn/types'
+import type { ReactNode } from 'react'
 import { formatLearnDetailPriorityLabel } from '@/server/learn/utils/formatLearnDetailDisplay'
 
 import { MasaiChips } from '@/components/ui/masai-chips'
 import { cn } from '@/lib/utils'
-
 
 type LearnDetailMetaCardProps = {
   hostName: string
@@ -14,6 +14,8 @@ type LearnDetailMetaCardProps = {
   priority: LearningPriority
   tags: Array<string>
   className?: string
+  /** Extra chips rendered after the priority chip. */
+  trailingChips?: ReactNode
 }
 
 /** Single row (wraps): host • date alongside tag chips — no border/card. */
@@ -23,6 +25,7 @@ export function LearnDetailMetaCard({
   priority,
   tags,
   className,
+  trailingChips,
 }: LearnDetailMetaCardProps) {
   return (
     <div
@@ -58,6 +61,7 @@ export function LearnDetailMetaCard({
         className="cursor-default"
         {...learnDetailChipPalette}
       />
+      {trailingChips}
     </div>
   )
 }

@@ -68,3 +68,31 @@ export function fetchAssessPlatformViewUrl(submissionId: number) {
     {},
   )
 }
+
+export type SubmitSolutionResult = { status: string; submissionLink: string }
+
+export function submitSolutionLink(solutionId: number, submissionLink: string) {
+  return patchLearnApi<SubmitSolutionResult>(
+    `/api/learn/solutions/${solutionId}`,
+    { submissionLink },
+  )
+}
+
+export async function uploadSolutionFile(
+  solutionId: number,
+  file: File,
+): Promise<SubmitSolutionResult> {
+  const body = new FormData()
+  body.append('file', file)
+  try {
+    return await fetchJson<SubmitSolutionResult>(
+      `/api/learn/solutions/${solutionId}/file`,
+      { method: 'POST', body },
+    )
+  } catch (error) {
+    if (error instanceof ApiClientError) {
+      throw new Error(error.message || error.code)
+    }
+    throw error
+  }
+}

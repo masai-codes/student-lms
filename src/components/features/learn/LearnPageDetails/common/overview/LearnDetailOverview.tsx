@@ -15,6 +15,7 @@ export function LearnDetailOverview({
   priority,
   tags,
   actions,
+  trailingChips,
 }: LearnDetailOverviewProps) {
   return (
     <div className="w-full">
@@ -24,6 +25,7 @@ export function LearnDetailOverview({
         displayDate={displayDate}
         priority={priority}
         tags={tags}
+        trailingChips={trailingChips}
       />
     </div>
   )

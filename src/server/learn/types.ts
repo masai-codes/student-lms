@@ -2,6 +2,8 @@ import type { LectureAttendanceSummary } from '@/server/attendance/types'
 import type { AssignmentProgressStatus } from '@/server/learn/utils/calculateAssignmentProgressStatus'
 import type { ResourcePhase } from '@/server/learn/resourceDetailTypes'
 
+import type { LearnDiscussionThreadItem } from '@/server/new-discussions/types/learnDiscussionDetail'
+
 export type { LectureAttendanceSummary }
 
 export interface EnrolledBatch {
@@ -110,12 +112,26 @@ export interface GetBatchLearningDataResponse {
   pagination: LearningPagination
 }
 
+/** Single learn-page request: `batchId` optional (server defaults to the first enrolled batch). */
+export interface GetLearnPageDataInput {
+  batchId?: number
+  learningType: LearningType
+  search?: string
+  page?: number
+  pageSize?: number
+  filters?: BatchLearningFiltersInput
+}
+
+/** Everything the `/learn` page renders in one response: batch selector + listing. */
+export interface GetLearnPageDataResponse extends GetBatchLearningDataResponse {
+  batches: Array<EnrolledBatch>
+  selectedBatchId: number | null
+}
+
 export interface DiscussionAuthorPreview {
   id: number
   name: string | null
 }
-
-import type { LearnDiscussionThreadItem } from '@/server/new-discussions/types/learnDiscussionDetail'
 
 /** Discussion rows scoped to the learn entity (assignment or lecture/resource); visibility enforced server-side. */
 export interface DiscussionListItem {

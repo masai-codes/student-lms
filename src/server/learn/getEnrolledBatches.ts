@@ -1,7 +1,7 @@
 import { getCurrentSessionUserId } from '@/server/auth/getCurrentSessionUserId'
 import { getEnrolledBatchesForUser } from '@/server/learn/services/getEnrolledBatches.service'
 
-/** @deprecated Use GET `/api/learn/batches` via `fetchEnrolledBatchesFromApi`. */
+/** @deprecated Use GET `/api/learn/page` via `fetchLearnPageDataFromApi` (returns `batches`). */
 export async function getEnrolledBatchesHandler() {
   const userId = await getCurrentSessionUserId()
 
