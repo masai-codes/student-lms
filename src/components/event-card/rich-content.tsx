@@ -6,9 +6,7 @@ type RichContentProps = {
 }
 
 export function RichContent({ value, className }: RichContentProps) {
-  if (!value.trim()) return null
-
-  return <MarkdownContent value={value} className={className} />
+  return <MarkdownContent value={value} className={className} variant="card" />
 }
 
 export { toMarkdownPreviewText as toRichPreviewText }
