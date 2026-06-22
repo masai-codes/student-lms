@@ -1,5 +1,6 @@
 import type { AssignmentDetailPayload } from '@/server/learn/assignmentDetailTypes'
 import type { LectureDetailPayload } from '@/server/learn/lectureDetailTypes'
+import type { ProblemDetailPayload } from '@/server/learn/utils/buildProblemDetailPayload'
 import type { ResourceDetailPayload } from '@/server/learn/resourceDetailTypes'
 import type {
   BatchLearningFiltersInput,
@@ -66,6 +67,15 @@ export async function fetchAssignmentLearningDetailFromApi(
   assignmentId: number,
 ): Promise<AssignmentDetailPayload> {
   return fetchLearnApi<AssignmentDetailPayload>(LEARN_API.assignment(assignmentId))
+}
+
+export async function fetchProblemDetailFromApi(
+  assignmentId: number,
+  problemId: number,
+): Promise<ProblemDetailPayload> {
+  return fetchLearnApi<ProblemDetailPayload>(
+    LEARN_API.problem(assignmentId, problemId),
+  )
 }
 
 export async function fetchResourceLearningDetailFromApi(

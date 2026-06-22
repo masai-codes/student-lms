@@ -1,19 +1,41 @@
 // @vitest-environment jsdom
 import { render, within } from '@testing-library/react'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 
 import { AssignmentProblemList } from '../AssignmentProblemList'
 
+vi.mock('@tanstack/react-router', () => ({
+  Link: ({
+    children,
+    params,
+    ...props
+  }: {
+    children: React.ReactNode
+    params?: { assignmentId: string; problemId: string }
+    [key: string]: unknown
+  }) => (
+    <a
+      href={`/assignments/${params?.assignmentId}/problems/${params?.problemId}`}
+      {...props}
+    >
+      {children}
+    </a>
+  ),
+}))
+
 describe('AssignmentProblemList', () => {
   it('renders nothing when there are no problems', () => {
-    const { container } = render(<AssignmentProblemList problems={[]} />)
+    const { container } = render(
+      <AssignmentProblemList assignmentId={99} problems={[]} />,
+    )
 
     expect(container.firstChild).toBeNull()
   })
 
-  it('renders a card per problem with its status chip', () => {
+  it('renders a linked card per problem with its status chip', () => {
     const { container } = render(
       <AssignmentProblemList
+        assignmentId={99}
         problems={[
           {
             elementId: 1,
@@ -32,12 +54,12 @@ describe('AssignmentProblemList', () => {
     )
     const scope = within(container)
 
-    expect(scope.getByText('Two Sum')).toBeTruthy()
+    const firstCard = scope.getByTestId('assignment-problem-1')
+    expect(firstCard.getAttribute('href')).toBe('/assignments/99/problems/11')
+    expect(within(firstCard).getByText('Two Sum')).toBeTruthy()
     expect(scope.getByTestId('assignment-problem-1-status').textContent).toContain(
       'Completed',
     )
-    expect(scope.getByText('Reverse List')).toBeTruthy()
-    // No status chip rendered for the problem without a status.
     expect(scope.queryByTestId('assignment-problem-2-status')).toBeNull()
   })
 })

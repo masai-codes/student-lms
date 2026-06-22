@@ -47,4 +47,4 @@ npm run typecheck
 - Confirm the completed-details banner appears in the main body once a submission is completed (auto-graded wording) or manually marked complete (`data.marked_completed_at` wording), and the displayed time never exceeds the deadline.
 - Confirm header badges (Deadline Enforced, weightage on evaluations) render in the meta row, and the Assessment Platform live-analytics widget renders with a working Refetch once the test is launched.
 - Confirm an unlocked evaluation with no submission shows the pledge gate; accepting + confirming creates the submission and reveals the normal evaluation content.
-- Confirm assignments with problems render the Problems list (each card showing the per-problem solution status) and hide the sticky footer. (Problem detail navigation is a deferred follow-up.)
+- Confirm assignments with problems render the Problems list (each card showing the per-problem solution status), hide the sticky footer, and link to the problem detail page (see `problem-detail.md`).

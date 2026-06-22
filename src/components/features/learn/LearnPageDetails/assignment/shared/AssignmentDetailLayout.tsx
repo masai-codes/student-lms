@@ -38,7 +38,10 @@ export function AssignmentDetailLayout({ detail, main }: AssignmentDetailLayoutP
               <AssignmentCompletedBanner completedDetails={detail.completedDetails} />
               <AssignmentLiveAnalytics liveAnalytics={detail.liveAnalytics} />
               {main}
-              <AssignmentProblemList problems={detail.problems} />
+              <AssignmentProblemList
+                assignmentId={detail.id}
+                problems={detail.problems}
+              />
             </>
           }
           discussionEntityKind="assignment"
