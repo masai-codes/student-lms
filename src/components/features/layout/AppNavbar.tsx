@@ -152,22 +152,6 @@ export default function AppNavbar() {
     [],
   )
 
-  const handleHomeClick = useCallback(
-    (e: React.MouseEvent<HTMLAnchorElement>) => {
-      e.preventDefault()
-      void navigate({ to: '/' })
-    },
-    [navigate],
-  )
-
-  const handleLearnClick = useCallback(
-    (e: React.MouseEvent<HTMLAnchorElement>) => {
-      e.preventDefault()
-      void navigate({ to: '/learn', search: { batchId: undefined } })
-    },
-    [navigate],
-  )
-
   const handleAnnouncementsClick = useCallback(
     (e: React.MouseEvent<HTMLAnchorElement>) => {
       e.preventDefault()
@@ -299,16 +283,6 @@ export default function AppNavbar() {
         href: '/bookmarks',
         openInNewTab: false,
       },
-<<<<<<< HEAD
-      {
-        id: 'masaiverse-menu',
-        label: 'MasaiVerse Community',
-        icon: <Users className="size-4" />,
-        href: '/masaiverse',
-        openInNewTab: false,
-        isActive: activeNavId === 'masaiverse',
-      },
-=======
       showMasaiverseCta
         ? {
             id: 'refer-menu',
@@ -324,8 +298,8 @@ export default function AppNavbar() {
             icon: <Users className="size-4" />,
             href: '/masaiverse',
             openInNewTab: false,
+            isActive: activeNavId === 'masaiverse',
           },
->>>>>>> pre-prod-cloudformation
       {
         id: 'practice-interview',
         label: 'Practice Interviews',
