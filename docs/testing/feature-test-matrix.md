@@ -1,6 +1,6 @@
 # Feature Test Matrix
 
-Last updated: 2026-06-17
+Last updated: 2026-06-22
 
 ## Chatbot (text + voice mode)
 - Area: `MessageList` turn scroll (`useChatTurnScroll`, `chatScroll` utils, `ChatbotUserMessage`, `ChatbotAssistantMessage` markdown); shared by `ChatPanel` (text + voice) and `ChatbotPreSessionView` via `ChatbotConversationLayout`; voice footer in `ChatbotVoiceControls` + `AIAvatar` speaking pulse; mobile composer-only + bottom drawer (`ChatbotMobileShell`, `useIsMobileViewport`); `POST /api/chatbot/:lectureId/token` loads lecture transcript via `resolveAiTutorLectureContext` and forwards it to the LiveKit agent metadata
@@ -22,10 +22,16 @@ Last updated: 2026-06-17
 - Notes: Optional (recommended) lectures omit `attendance` on both APIs
 
 ## Learn REST APIs (`/api/learn/*`)
-- Area: HTTP routes for batches, batch-data, lecture/assignment/resource detail; client `learnApi.ts`; handlers + services split
+- Area: HTTP routes for the single learn-page endpoint + lecture/assignment/resource detail; client `learnApi.ts`; handlers + services split
 - Status: Partial (handler + query parser tests; route integration tests pending)
 - Test files: `src/server/api/learn/**/__tests__/*`
 - Notes: See `docs/api-responses/learn/rest-endpoints.md`
+
+## Learn listing (`/learn` → single `GET /api/learn/page`)
+- Area: One endpoint returns `{ batches, selectedBatchId, filterValues, learningItems, pagination }` (folds the former `batches` + `batch-data` calls); the `/learn` route loader is the sole fetch. `getBatchLearningData` does SQL-side filtering + pagination (legacy `PAGE_SIZE = 25`); visibility cap (past + next-24h / IST cutoff), date-range cap-at-today, attendance-forces-mandatory; split into `queries/*` + `utils/buildLearn*`
+- Status: Covered (unit tests for window/conditions/facets/pagination/queries/service orchestration + combined service/parser/handler); SQL + timezone correctness needs a live-DB smoke test
+- Test files: `src/server/learn/utils/__tests__/buildLearnScheduleWindow.test.ts`, `src/server/learn/utils/__tests__/buildModuleFilterCondition.test.ts`, `src/server/learn/utils/__tests__/buildLearnListingConditions.test.ts`, `src/server/learn/utils/__tests__/resolveListingPagination.test.ts`, `src/server/learn/queries/__tests__/*`, `src/server/learn/__tests__/getBatchLearningData.service.test.ts`, `src/server/learn/__tests__/getLearnPageData.service.test.ts`, `src/server/api/learn/utils/__tests__/parseLearnPageQuery.test.ts`, `src/server/api/learn/handlers/__tests__/getLearnPageData.handler.test.ts`
+- Notes: See `docs/testing/features/learn-listing.md`
 
 ## Resource detail (`/resources/:id`)
 - Area: `GET /api/learn/resources/:id` + loader via `fetchResourceLearningDetailFromApi`; resource kind/phase/body/phase copy + discussions with threads on server
@@ -34,10 +40,16 @@ Last updated: 2026-06-17
 - Notes: See `docs/testing/features/resource-detail.md`
 
 ## Assignment detail (`/assignments/:id`)
-- Area: Single `getAssignmentLearningDetail` loader; assignment kind/phase/instructions/phase copy, server-driven sticky footer (status, score, CTAs), discussions with threads on server
-- Status: Covered (server utils + footer builder + sticky footer UI; CTA click handlers / assess-platform APIs pending)
-- Test files: `src/server/learn/utils/__tests__/resolveAssignmentPhase.test.ts`, `src/server/learn/utils/__tests__/calculateAssignmentProgressStatus.test.ts`, `src/server/learn/utils/__tests__/buildAssignmentDetailFooter.test.ts`, `src/server/learn/utils/__tests__/buildAssignmentDetailPayload.test.ts`, `src/components/features/learn/LearnPageDetails/assignment/shared/__tests__/AssignmentDetailStickyFooter.test.tsx`, `src/components/shared/markdown-content/__tests__/*`
+- Area: Single `getAssignmentLearningDetail` loader; assignment kind/phase/instructions/phase copy, server-driven sticky footer (status, score, CTAs), completed-details banner (auto-graded/manual), header badges (deadline-enforced + weightage), Assessment Platform live analytics, evaluation pledge gate, problems list (per-problem solution status), discussions with threads on server
+- Status: Covered (server utils + footer builder + completed-details/header-badge builders + sticky footer/completed-banner/header-badge UI; CTA click handlers / assess-platform APIs pending)
+- Test files: `src/server/learn/utils/__tests__/resolveAssignmentPhase.test.ts`, `src/server/learn/utils/__tests__/calculateAssignmentProgressStatus.test.ts`, `src/server/learn/utils/__tests__/buildAssignmentDetailFooter.test.ts`, `src/server/learn/utils/__tests__/buildAssignmentDetailPayload.test.ts`, `src/server/learn/utils/__tests__/buildAssignmentCompletedDetails.test.ts`, `src/server/learn/utils/__tests__/buildAssignmentHeaderBadges.test.ts`, `src/server/learn/utils/__tests__/buildAssignmentLiveAnalytics.test.ts`, `src/server/learn/utils/__tests__/resolveAssignmentRequiresPledge.test.ts`, `src/components/features/learn/LearnPageDetails/assignment/shared/__tests__/AssignmentPledgeGate.test.tsx`, `src/server/learn/queries/__tests__/fetchAssignmentProblems.test.ts`, `src/server/learn/utils/__tests__/buildAssignmentProblemListItems.test.ts`, `src/components/features/learn/LearnPageDetails/assignment/shared/__tests__/AssignmentProblemList.test.tsx`, `src/components/features/learn/LearnPageDetails/assignment/shared/__tests__/AssignmentDetailStickyFooter.test.tsx`, `src/components/features/learn/LearnPageDetails/assignment/shared/__tests__/AssignmentCompletedBanner.test.tsx`, `src/components/features/learn/LearnPageDetails/assignment/shared/__tests__/AssignmentHeaderBadges.test.tsx`, `src/components/features/learn/LearnPageDetails/assignment/shared/__tests__/AssignmentLiveAnalytics.test.tsx`, `src/components/shared/markdown-content/__tests__/*`
 - Notes: See `docs/testing/features/assignment-detail.md`
+
+## Problem detail (`/assignments/:assignmentId/problems/:problemId`)
+- Area: Single `GET /api/learn/assignments/:aId/problems/:pId` (problem statement + type, assignment title, user's solution); LINK (`PATCH /api/learn/solutions/:id`) + FILE (`POST /api/learn/solutions/:id/file`, reuses `uploadImageToS3`) submission actions via shared `submitSolutionForUser`; page with per-type submission UI (LINK/FILE/BUTTON) linked from the assignment Problems list
+- Status: Covered (queries + payload builder + GET handler; submit service + both action handlers; URL validation; form + page + link-out UI)
+- Test files: `src/server/learn/queries/__tests__/fetchProblemDetail.test.ts`, `src/server/learn/utils/__tests__/buildProblemDetailPayload.test.ts`, `src/server/api/learn/handlers/__tests__/getProblemDetail.handler.test.ts`, `src/server/assignments/services/__tests__/submitSolution.service.test.ts`, `src/server/api/learn/handlers/__tests__/solutionSubmissionActions.handler.test.ts`, `src/lib/learn/isValidSubmissionUrl.test.ts`, `src/components/features/learn/LearnPageDetails/problem/__tests__/ProblemSolutionForm.test.tsx`, `src/components/features/learn/LearnPageDetails/problem/__tests__/ProblemDetailPage.test.tsx`
+- Notes: See `docs/testing/features/problem-detail.md`. BUTTON problems have no submission; `type === null` is not in the schema.
 
 ## Lecture detail (`/lectures/:id`)
 - Area: Single `getLectureLearningDetail` loader (tabs, AI, associated, discussions+threads, video attendance, join button state); video save still POST-only

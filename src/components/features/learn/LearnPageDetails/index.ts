@@ -11,4 +11,5 @@ export {
 } from './common'
 export type { LearnDetailOverviewProps } from './common'
 export { LectureDetailPage } from './lecture'
+export { ProblemDetailPage } from './problem/ProblemDetailPage'
 export { ResourceDetailPage } from './resource'

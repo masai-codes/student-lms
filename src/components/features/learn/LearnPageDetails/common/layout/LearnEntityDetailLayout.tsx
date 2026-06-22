@@ -15,6 +15,8 @@ type LearnEntityDetailLayoutProps = {
   mainFooter?: ReactNode
   /** Renders full width above the main/aside grid (e.g. locked-state banner). */
   fullWidthBanner?: ReactNode
+  /** Extra chips appended to the overview meta row (e.g. assignment header badges). */
+  overviewTrailingChips?: ReactNode
 }
 
 export function LearnEntityDetailLayout({
@@ -24,6 +26,7 @@ export function LearnEntityDetailLayout({
   emptyStateContext,
   mainFooter,
   fullWidthBanner,
+  overviewTrailingChips,
 }: LearnEntityDetailLayoutProps) {
   const displayDate =
     detail.scheduleDisplayRange.trim() !== ''
@@ -39,6 +42,7 @@ export function LearnEntityDetailLayout({
         priority={detail.priority}
         tags={detail.tags}
         actions={<LearnDetailDefaultActions />}
+        trailingChips={overviewTrailingChips}
       />
       {fullWidthBanner}
       <LearnDetailBodyGrid

@@ -23,6 +23,11 @@ const baseDetail = {
   instructions: null,
   enforceDeadline: true,
   phaseContent: { title: 'Open', description: 'Desc', scheduleHint: null },
+  completedDetails: null,
+  headerBadges: [],
+  liveAnalytics: null,
+  requiresPledge: false,
+  problems: [],
 } satisfies Omit<AssignmentDetailPayload, 'footer'>
 
 describe('AssignmentDetailStickyFooter', () => {

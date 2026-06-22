@@ -10,4 +10,6 @@ export type LearnDetailOverviewProps = {
   tags: Array<string>
   /** Right-aligned actions (Raise ticket, bookmark, etc.). */
   actions?: ReactNode
+  /** Extra chips rendered after the priority chip in the meta row. */
+  trailingChips?: ReactNode
 }

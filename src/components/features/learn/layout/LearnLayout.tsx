@@ -1,39 +1,27 @@
 import { useMemo } from 'react'
-import { useQuery } from '@tanstack/react-query'
+import { useRouterState } from '@tanstack/react-router'
 import { LearnHeaderSection } from '../section-one/LearnHeaderSection'
 import { LearnControlsSection } from '../section-two/LearnControlsSection'
 import { LearnContentListSection } from '../section-three/LearnContentListSection'
 import { LearnPaginationSection } from '../section-four/LearnPaginationSection'
-import type { LearnContentItem } from '../shared/types'
 import { useLearnPageState } from './useLearnPageState'
+import type { LearnContentItem } from '../shared/types'
+import type { GetLearnPageDataResponse } from '@/server/learn/types'
 import { AppLoading } from '@/components/common'
-import { fetchBatchLearningDataFromApi } from '@/lib/api/learn/learnApi'
 import { LAYOUT_MAIN_PADDING_X, LAYOUT_MAX_WIDTH_CLASS } from '@/lib/layout'
 
-interface EnrolledBatchOption {
-  batchId: number
-  courseTitle: string
-  courseLogo: string | null
-}
-
 interface LearnLayoutProps {
-  enrolledBatches: Array<EnrolledBatchOption>
-  selectedBatchId?: number
+  pageData: GetLearnPageDataResponse
   onBatchChange: (batchId: number) => void
 }
 
-export function LearnLayout({
-  enrolledBatches,
-  selectedBatchId,
-  onBatchChange,
-}: LearnLayoutProps) {
+export function LearnLayout({ pageData, onBatchChange }: LearnLayoutProps) {
   const {
     activeTab,
     currentPage,
     searchValue,
     modalFilters,
     filterCount,
-    apiFilters,
     setActiveTab,
     setSearchValue,
     setCurrentPage,
@@ -41,53 +29,15 @@ export function LearnLayout({
     setModules,
   } = useLearnPageState()
 
-  const resolvedBatchId = useMemo(() => {
-    if (selectedBatchId != null) {
-      return selectedBatchId
-    }
+  // The route loader is the single source of page data; reflect its refetches.
+  const isFetching = useRouterState({ select: (state) => state.isLoading })
 
-    return enrolledBatches[0]?.batchId ?? null
-  }, [enrolledBatches, selectedBatchId])
-
-  const learningType = useMemo(() => {
-    if (activeTab === 'lectures') return 'lecture' as const
-    if (activeTab === 'assignments') return 'assignment' as const
-    return 'resource' as const
-  }, [activeTab])
-
-  const hasActiveApiFilters = Object.values(apiFilters).some(
-    (value) => value != null && (!(Array.isArray(value)) || value.length > 0),
-  )
-
-  const { data, isLoading, isFetching } = useQuery({
-    queryKey: [
-      'learn-batch-learning-data',
-      resolvedBatchId,
-      learningType,
-      searchValue,
-      currentPage,
-      apiFilters,
-    ],
-    enabled: typeof resolvedBatchId === 'number',
-    queryFn: async () => {
-      const batchId = resolvedBatchId
-      if (typeof batchId !== 'number') {
-        throw new Error('MISSING_BATCH_ID_FOR_LEARN_QUERY')
-      }
-      return fetchBatchLearningDataFromApi({
-        batchId,
-        learningType,
-        search: searchValue.trim() || undefined,
-        page: currentPage,
-        pageSize: 15,
-        filters: hasActiveApiFilters ? apiFilters : undefined,
-      })
-    },
-  })
+  const enrolledBatches = pageData.batches
+  const selectedBatchId = pageData.selectedBatchId
 
   const learningItems: Array<LearnContentItem> = useMemo(
     () =>
-      (data?.learningItems ?? []).map((item) => ({
+      pageData.learningItems.map((item) => ({
         id: item.id,
         type: item.learningType,
         title: item.title,
@@ -103,13 +53,10 @@ export function LearnLayout({
         listingCtas: item.listingCtas,
         assignmentStatusChip: item.listingCtas.assignmentStatusChip,
       })),
-    [data?.learningItems],
+    [pageData.learningItems],
   )
 
-  const moduleFilterNames = data?.filterValues.moduleFilterValues ?? []
-  const totalPages = data?.pagination.totalPages ?? 1
-
-  if (resolvedBatchId == null) {
+  if (selectedBatchId == null) {
     return null
   }
 
@@ -120,7 +67,7 @@ export function LearnLayout({
           className={`pt-[20px]  mx-auto w-full ${LAYOUT_MAX_WIDTH_CLASS} ${LAYOUT_MAIN_PADDING_X}`}
         >
           <LearnHeaderSection
-            selectedBatch={resolvedBatchId.toString()}
+            selectedBatch={selectedBatchId.toString()}
             batches={enrolledBatches.map((batch) => ({
               value: batch.batchId.toString(),
               label: batch.courseTitle,
@@ -138,30 +85,25 @@ export function LearnLayout({
             searchValue={searchValue}
             onSearchChange={setSearchValue}
             onModulesChange={setModules}
-            moduleFilterOptions={moduleFilterNames}
-            categoryFilterOptions={
-              data?.filterValues.categoryFilterValues ?? []
-            }
-            typeFilterOptions={data?.filterValues.typeFilterValues ?? []}
-            instructorFilterOptions={
-              data?.filterValues.instructorFilterValues ?? []
-            }
+            moduleFilterOptions={pageData.filterValues.moduleFilterValues}
+            categoryFilterOptions={pageData.filterValues.categoryFilterValues}
+            typeFilterOptions={pageData.filterValues.typeFilterValues}
+            instructorFilterOptions={pageData.filterValues.instructorFilterValues}
             modalFilters={modalFilters}
             onApplyModalFilters={setModalFilters}
           />
         </div>
       </div>
 
-      {isLoading ? <AppLoading label="Loading learning items..." /> : null}
-      {!isLoading ? <LearnContentListSection items={learningItems} /> : null}
+      <LearnContentListSection items={learningItems} />
 
       <LearnPaginationSection
         currentPage={currentPage}
-        totalPages={totalPages}
+        totalPages={pageData.pagination.totalPages}
         onPageChange={setCurrentPage}
       />
 
-      {isFetching && !isLoading ? <AppLoading label="Refreshing..." /> : null}
+      {isFetching ? <AppLoading label="Refreshing..." /> : null}
     </div>
   )
 }

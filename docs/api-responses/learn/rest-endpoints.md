@@ -2,56 +2,46 @@
 
 Base path: `/api/learn` (same origin as the student LMS app). All endpoints require a valid session cookie unless noted.
 
-## GET `/api/learn/batches`
+## GET `/api/learn/page`
 
-Enrolled batches for the current user (learn page header).
-
-### Success `200`
-```json
-{
-  "batches": [
-    {
-      "batchId": 133,
-      "courseTitle": "Full Stack Web",
-      "courseLogo": "https://example.com/logo.png"
-    }
-  ]
-}
-```
-
-### Errors
-| Status | code |
-|--------|------|
-| 401 | `UNAUTHORIZED` |
-| 500 | `SERVER_ERROR_FETCHING_ENROLLED_BATCHES` |
-
----
-
-## GET `/api/learn/batch-data`
-
-Paginated learn listing for a batch (lectures, assignments, or resources tab).
+Single endpoint backing the `/learn` page — returns the enrolled batches **and** the
+paginated listing for the resolved batch in one response (folds the former
+`/api/learn/batches` + `/api/learn/batch-data`).
 
 ### Query
 | Param | Required | Description |
 |-------|----------|-------------|
-| `batchId` | yes | Batch id |
 | `learningType` | yes | `lecture` \| `assignment` \| `resource` |
-| `search` | no | Title/host search |
+| `batchId` | no | Batch id; defaults to the first enrolled batch when omitted/not enrolled |
+| `search` | no | Title search |
 | `page` | no | Page number (default 1) |
-| `pageSize` | no | Page size (default 10, max 50) |
-| `filters` | no | JSON string of `BatchLearningFiltersInput` |
+| `pageSize` | no | Page size (default 25, max 50) |
 | `modules`, `categories`, `types`, `priorities`, `instructors` | no | Comma-separated filter lists |
-| `scheduleStartDate`, `scheduleEndDate` | no | `yyyy-mm-dd` |
+| `scheduleStartDate`, `scheduleEndDate` | no | `yyyy-mm-dd` (end capped at today) |
+| `schedulePhase` / `lectureTab` | no | `all` \| `upcoming` \| `past` (lectures/resources) |
+| `attendanceStatus` | no | `present` \| `absent` (mandatory lectures only) |
+| `assignmentProgress` / `assignmentTab` | no | `new,in-progress,completed,overdue` |
+| `optional` | no | `yes` (recommended) / `no` (mandatory) — legacy alias |
 
 ### Success `200`
-Same shape as `GetBatchLearningDataResponse` in `src/server/learn/types.ts`.
+`GetLearnPageDataResponse` in `src/server/learn/types.ts`:
+```jsonc
+{
+  "batches": [{ "batchId": 133, "courseTitle": "Full Stack Web", "courseLogo": null, "showAttendanceReport": false, "showEvaluationReport": false }],
+  "selectedBatchId": 133,
+  "filterValues": { "moduleFilterValues": [], "categoryFilterValues": [], "typeFilterValues": [], "priorityFilterValues": [], "instructorFilterValues": [] },
+  "learningItems": [],
+  "pagination": { "page": 1, "pageSize": 25, "totalItems": 0, "totalPages": 1, "hasNextPage": false, "hasPreviousPage": false }
+}
+```
+When the user has no enrolled batches, `selectedBatchId` is `null` and the listing is empty.
 
 ### Errors
 | Status | code |
 |--------|------|
-| 400 | `MISSING_BATCH_ID`, `INVALID_LEARNING_TYPE`, `INVALID_FILTERS_JSON` |
+| 400 | `INVALID_LEARNING_TYPE` |
 | 401 | `UNAUTHORIZED` |
-| 500 | `SERVER_ERROR_FETCHING_BATCH_LEARNING_DATA` |
+| 500 | `SERVER_ERROR_FETCHING_LEARN_PAGE_DATA` |
 
 ---
 

@@ -19,8 +19,8 @@ describe('resolveApiFetchUrl', () => {
     // @ts-expect-error simulate SSR
     delete globalThis.window
 
-    expect(resolveApiFetchUrl('/api/learn/batches')).toBe(
-      'http://localhost:3002/api/learn/batches',
+    expect(resolveApiFetchUrl('/api/learn/page')).toBe(
+      'http://localhost:3002/api/learn/page',
     )
 
     globalThis.window = originalWindow
