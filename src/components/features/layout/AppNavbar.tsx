@@ -32,6 +32,7 @@ import { DownloadAppModal } from '@/components/features/layout/DownloadAppModal'
 import { UpcomingLecturePill } from '@/components/features/layout/UpcomingLecturePill'
 import { LEGACY_STUDENT_LMS_URL } from '@/constants/legacyStudentUi'
 import { OLD_STUDENT_UI_NAV_PATHS } from '@/constants/oldStudentUiNavPaths'
+import { activeAppNavIdForPathname } from '@/lib/appNavActiveItem'
 import { getBugReportFormUrl } from '@/utils/bugReportFormUrl'
 import { logout } from '@/server/auth/logout'
 import { getMasaiverseAccessDebugServer } from '@/server/masaiverse/getMasaiverseAccessDebugServer'
@@ -79,6 +80,7 @@ export default function AppNavbar() {
   const { user } = layoutRouteApi.useRouteContext()
   const navigate = useNavigate()
   const pathname = useRouterState({ select: (s) => s.location.pathname })
+  const activeNavId = activeAppNavIdForPathname(pathname)
   const [downloadAppOpen, setDownloadAppOpen] = useState(false)
   const [isLevelupLoading, setIsLevelupLoading] = useState(false)
   const levelupLoadingRef = useRef(false)
@@ -315,7 +317,7 @@ export default function AppNavbar() {
             icon: <Users className="size-4" />,
             href: '/masaiverse',
             openInNewTab: false,
-            isActive: pathname.startsWith('/masaiverse'),
+            isActive: activeNavId === 'masaiverse',
           },
       {
         id: 'practice-interview',
@@ -363,6 +365,7 @@ export default function AppNavbar() {
       },
     ],
     [
+      activeNavId,
       handleLevelupClick,
       handleReferAndEarnClick,
       handleSignOut,
