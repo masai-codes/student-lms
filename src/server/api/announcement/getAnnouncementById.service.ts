@@ -25,6 +25,8 @@ export interface AnnouncementDetail {
   ctaLink: string | null
   /** For messages: sender name from meta.from */
   from: string | null
+  /** true when the item was already read before opening (no badge decrement needed) */
+  isRead: boolean
   /** For messages: all thread messages ordered by createdAt */
   thread: Array<{ id: string; body: string; scheduledAt: string; isSentByUser: boolean }>
 }
@@ -45,6 +47,7 @@ type RawRow = {
   from: string | null
   metaTitle: string | null
   authorId: number | string | null
+  isRead: number | string | null
 }
 
 function normalizeRows(result: unknown): Array<RawRow> {
@@ -85,9 +88,11 @@ async function getAnnouncementDetail(
       u.name        AS authorName,
       a.track_read  AS trackRead,
       a.cta_name    AS ctaName,
-      a.cta_link    AS ctaLink
+      a.cta_link    AS ctaLink,
+      CASE WHEN ar.id IS NOT NULL AND ar.is_unread = 0 THEN 1 ELSE 0 END AS isRead
     FROM announcements a
     LEFT JOIN users u ON u.id = a.user_id
+    LEFT JOIN announcement_reads ar ON ar.announcement_id = a.id AND ar.user_id = ${userId}
     WHERE a.id = ${announcementId}
       AND a.deleted_at IS NULL
     LIMIT 1
@@ -134,6 +139,7 @@ async function getAnnouncementDetail(
     type: row.type ? String(row.type) : null,
     isForYou: false,
     trackRead: Number(row.trackRead) === 1,
+    isRead: Number(row.isRead) === 1,
     isBookmarked,
     bookmarkId,
     ctaName: row.ctaName ? String(row.ctaName) : null,
@@ -156,6 +162,7 @@ async function getMessageDetail(
       m.body,
       m.schedule,
       m.created_at AS createdAt,
+      m.read_at    AS isRead,
       u.name       AS authorName,
       JSON_UNQUOTE(JSON_EXTRACT(m.meta, '$.message_type')) AS type,
       JSON_UNQUOTE(JSON_EXTRACT(m.meta, '$.category'))     AS category,
@@ -197,6 +204,7 @@ async function getMessageDetail(
     type: root.type ? String(root.type) : null,
     isForYou: true,
     trackRead: true,
+    isRead: root.isRead != null,
     isBookmarked,
     bookmarkId,
     ctaName: root.ctaName ? String(root.ctaName) : null,

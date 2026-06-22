@@ -49,6 +49,8 @@ import { Route as ApiDashboardBannersRouteImport } from './routes/api/dashboard/
 import { Route as ApiDashboardAttendanceRouteImport } from './routes/api/dashboard/attendance'
 import { Route as ApiDashboardAnnouncementsRouteImport } from './routes/api/dashboard/announcements'
 import { Route as ApiDashboardActionBannersRouteImport } from './routes/api/dashboard/action-banners'
+import { Route as ApiAnnouncementUnreadCountRouteImport } from './routes/api/announcement/unread-count'
+import { Route as ApiAnnouncementPopupsRouteImport } from './routes/api/announcement/popups'
 import { Route as protectedLayoutMyCoursesRouteImport } from './routes/(protected)/_layout/my-courses'
 import { Route as authV2ResetPasswordRouteImport } from './routes/(auth)/v2/reset-password'
 import { Route as authV2MeRouteImport } from './routes/(auth)/v2/me'
@@ -380,6 +382,17 @@ const ApiDashboardActionBannersRoute =
     path: '/api/dashboard/action-banners',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiAnnouncementUnreadCountRoute =
+  ApiAnnouncementUnreadCountRouteImport.update({
+    id: '/api/announcement/unread-count',
+    path: '/api/announcement/unread-count',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiAnnouncementPopupsRoute = ApiAnnouncementPopupsRouteImport.update({
+  id: '/api/announcement/popups',
+  path: '/api/announcement/popups',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const protectedLayoutMyCoursesRoute =
   protectedLayoutMyCoursesRouteImport.update({
     id: '/my-courses',
@@ -1087,6 +1100,8 @@ export interface FileRoutesByFullPath {
   '/v2/me': typeof authV2MeRoute
   '/v2/reset-password': typeof authV2ResetPasswordRoute
   '/my-courses': typeof protectedLayoutMyCoursesRoute
+  '/api/announcement/popups': typeof ApiAnnouncementPopupsRoute
+  '/api/announcement/unread-count': typeof ApiAnnouncementUnreadCountRoute
   '/api/dashboard/action-banners': typeof ApiDashboardActionBannersRoute
   '/api/dashboard/announcements': typeof ApiDashboardAnnouncementsRoute
   '/api/dashboard/attendance': typeof ApiDashboardAttendanceRoute
@@ -1247,6 +1262,8 @@ export interface FileRoutesByTo {
   '/v2/me': typeof authV2MeRoute
   '/v2/reset-password': typeof authV2ResetPasswordRoute
   '/my-courses': typeof protectedLayoutMyCoursesRoute
+  '/api/announcement/popups': typeof ApiAnnouncementPopupsRoute
+  '/api/announcement/unread-count': typeof ApiAnnouncementUnreadCountRoute
   '/api/dashboard/action-banners': typeof ApiDashboardActionBannersRoute
   '/api/dashboard/announcements': typeof ApiDashboardAnnouncementsRoute
   '/api/dashboard/attendance': typeof ApiDashboardAttendanceRoute
@@ -1410,6 +1427,8 @@ export interface FileRoutesById {
   '/(auth)/v2/me': typeof authV2MeRoute
   '/(auth)/v2/reset-password': typeof authV2ResetPasswordRoute
   '/(protected)/_layout/my-courses': typeof protectedLayoutMyCoursesRoute
+  '/api/announcement/popups': typeof ApiAnnouncementPopupsRoute
+  '/api/announcement/unread-count': typeof ApiAnnouncementUnreadCountRoute
   '/api/dashboard/action-banners': typeof ApiDashboardActionBannersRoute
   '/api/dashboard/announcements': typeof ApiDashboardAnnouncementsRoute
   '/api/dashboard/attendance': typeof ApiDashboardAttendanceRoute
@@ -1573,6 +1592,8 @@ export interface FileRouteTypes {
     | '/v2/me'
     | '/v2/reset-password'
     | '/my-courses'
+    | '/api/announcement/popups'
+    | '/api/announcement/unread-count'
     | '/api/dashboard/action-banners'
     | '/api/dashboard/announcements'
     | '/api/dashboard/attendance'
@@ -1733,6 +1754,8 @@ export interface FileRouteTypes {
     | '/v2/me'
     | '/v2/reset-password'
     | '/my-courses'
+    | '/api/announcement/popups'
+    | '/api/announcement/unread-count'
     | '/api/dashboard/action-banners'
     | '/api/dashboard/announcements'
     | '/api/dashboard/attendance'
@@ -1895,6 +1918,8 @@ export interface FileRouteTypes {
     | '/(auth)/v2/me'
     | '/(auth)/v2/reset-password'
     | '/(protected)/_layout/my-courses'
+    | '/api/announcement/popups'
+    | '/api/announcement/unread-count'
     | '/api/dashboard/action-banners'
     | '/api/dashboard/announcements'
     | '/api/dashboard/attendance'
@@ -2056,6 +2081,8 @@ export interface RootRouteChildren {
   authV2ForgotPasswordRoute: typeof authV2ForgotPasswordRoute
   authV2MeRoute: typeof authV2MeRoute
   authV2ResetPasswordRoute: typeof authV2ResetPasswordRoute
+  ApiAnnouncementPopupsRoute: typeof ApiAnnouncementPopupsRoute
+  ApiAnnouncementUnreadCountRoute: typeof ApiAnnouncementUnreadCountRoute
   ApiDashboardActionBannersRoute: typeof ApiDashboardActionBannersRoute
   ApiDashboardAnnouncementsRoute: typeof ApiDashboardAnnouncementsRoute
   ApiDashboardAttendanceRoute: typeof ApiDashboardAttendanceRoute
@@ -2443,6 +2470,20 @@ declare module '@tanstack/react-router' {
       path: '/api/dashboard/action-banners'
       fullPath: '/api/dashboard/action-banners'
       preLoaderRoute: typeof ApiDashboardActionBannersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/announcement/unread-count': {
+      id: '/api/announcement/unread-count'
+      path: '/api/announcement/unread-count'
+      fullPath: '/api/announcement/unread-count'
+      preLoaderRoute: typeof ApiAnnouncementUnreadCountRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/announcement/popups': {
+      id: '/api/announcement/popups'
+      path: '/api/announcement/popups'
+      fullPath: '/api/announcement/popups'
+      preLoaderRoute: typeof ApiAnnouncementPopupsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/(protected)/_layout/my-courses': {
@@ -3516,6 +3557,8 @@ const rootRouteChildren: RootRouteChildren = {
   authV2ForgotPasswordRoute: authV2ForgotPasswordRoute,
   authV2MeRoute: authV2MeRoute,
   authV2ResetPasswordRoute: authV2ResetPasswordRoute,
+  ApiAnnouncementPopupsRoute: ApiAnnouncementPopupsRoute,
+  ApiAnnouncementUnreadCountRoute: ApiAnnouncementUnreadCountRoute,
   ApiDashboardActionBannersRoute: ApiDashboardActionBannersRoute,
   ApiDashboardAnnouncementsRoute: ApiDashboardAnnouncementsRoute,
   ApiDashboardAttendanceRoute: ApiDashboardAttendanceRoute,

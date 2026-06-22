@@ -1,7 +1,8 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { getRouteApi, useRouter } from '@tanstack/react-router'
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { OnboardingModal } from '@/components/modals/onboarding/OnboardingModal'
+import { AnnouncementPopupModal, filterUnshownPopups } from '@/components/modals/AnnouncementPopupModal'
 import { DashboardWelcomeSection } from '../section-welcome/DashboardWelcomeSection'
 import { DashboardActionBanner } from '../section-banner/DashboardActionBanner'
 import { DashboardBannerSection } from '../section-banner/DashboardBannerSection'
@@ -16,8 +17,6 @@ import {
   fetchDashboardRightSection,
 } from '@/lib/api/dashboard/dashboardApi'
 
-const AUTO_ONBOARDING_KEY = 'onboarding_modal_shown'
-
 const layoutRouteApi = getRouteApi('/(protected)/_layout')
 
 export function DashboardLayout() {
@@ -25,6 +24,7 @@ export function DashboardLayout() {
   const router = useRouter()
   const queryClient = useQueryClient()
   const [onboardingOpen, setOnboardingOpen] = useState(false)
+  const [showPopups, setShowPopups] = useState(false)
 
   const { data: rightSectionData } = useQuery({
     queryKey: ['dashboard-right-section'],
@@ -40,11 +40,12 @@ export function DashboardLayout() {
 
   useEffect(() => {
     if (!leftSectionData) return
-    if (sessionStorage.getItem(AUTO_ONBOARDING_KEY)) return
     const { pendingAgreementSections, pendingFeedbackForms } = leftSectionData.actionBanners
-    if (pendingAgreementSections.length === 0 && pendingFeedbackForms.length === 0) return
-    sessionStorage.setItem(AUTO_ONBOARDING_KEY, '1')
-    setOnboardingOpen(true)
+    if (pendingAgreementSections.length > 0 || pendingFeedbackForms.length > 0) {
+      setOnboardingOpen(true)
+    } else {
+      setShowPopups(true)
+    }
   }, [leftSectionData])
 
   const actionBanners = leftSectionData?.actionBanners
@@ -54,6 +55,20 @@ export function DashboardLayout() {
       actionBanners.pendingFeedbackForms.length > 0 ||
       actionBanners.showZoom ||
       actionBanners.showDownloadApp)
+
+  const pendingPopups = useMemo(
+    () => filterUnshownPopups(
+      (rightSectionData?.announcements ?? []).map((item) => ({
+        id: String(item.id),
+        source: item.source,
+        title: item.title,
+        body: item.body,
+        ctaName: item.ctaName,
+        ctaLink: item.ctaLink,
+      })),
+    ),
+    [rightSectionData?.announcements],
+  )
 
   const announcements = (rightSectionData?.announcements ?? []).map((item) => ({
     id: String(item.id),
@@ -114,9 +129,17 @@ export function DashboardLayout() {
         </div>
       </div>
 
+      {showPopups && pendingPopups.length > 0 && (
+        <AnnouncementPopupModal
+          popups={pendingPopups}
+          onDone={() => setShowPopups(false)}
+          onMarkedRead={() => void queryClient.invalidateQueries({ queryKey: ['dashboard-right-section'] })}
+        />
+      )}
+
       {onboardingOpen && leftSectionData && (
         <OnboardingModal
-          onClose={() => setOnboardingOpen(false)}
+          onClose={() => { setOnboardingOpen(false); setShowPopups(true) }}
           showProfilePhoto={leftSectionData.actionBanners.showProfilePicture}
           agreementSections={leftSectionData.actionBanners.pendingAgreementSections}
           feedbackForms={leftSectionData.actionBanners.pendingFeedbackForms}
