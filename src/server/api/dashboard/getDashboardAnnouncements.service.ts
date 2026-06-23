@@ -129,7 +129,7 @@ export async function getDashboardAnnouncements(
 
     ) combined
     ORDER BY sortedAt DESC
-    LIMIT 2
+    LIMIT 5
   `)
 
   return normalizeRows(result).map((row) => ({

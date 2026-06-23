@@ -100,19 +100,15 @@ export function ScheduleCard({ item, dayLabel, isToday }: ScheduleCardProps) {
 
 
   return (
-    <div className="flex items-stretch gap-3">
+    <div className="flex items-start gap-3">
       {/* Day label column */}
-      <div className="w-[52px] shrink-0 flex flex-col items-center pt-3">
+      <div className="w-8 shrink-0 flex flex-col items-center">
         {dayLabel ? (
-          <div
-            className={`flex flex-col items-center justify-center rounded-[8px] px-1 py-1.5 min-w-[44px] ${
-              isToday ? 'bg-[#3F83F8]' : ''
-            }`}
-          >
-            <span className={`type-t2 font-semibold leading-none ${isToday ? 'text-white' : 'text-[#1F2A37]'}`}>
+          <div className={`flex flex-col items-center justify-center rounded-[6px] p-1 w-8 h-8 ${isToday ? 'bg-[#3F83F8]' : ''}`}>
+            <span className={`text-xs font-medium leading-none ${isToday ? 'text-white' : 'text-[#374151]'}`}>
               {dayLabel.split(' ')[0]}
             </span>
-            <span className={`type-b1-md font-bold leading-none mt-0.5 ${isToday ? 'text-white' : 'text-[#1F2A37]'}`}>
+            <span className={`text-xs font-semibold leading-none mt-0.5 ${isToday ? 'text-white' : 'text-[#1F2A37]'}`}>
               {dayLabel.split(' ')[1]}
             </span>
           </div>
@@ -122,66 +118,72 @@ export function ScheduleCard({ item, dayLabel, isToday }: ScheduleCardProps) {
       {/* Card */}
       <Link
         {...linkProps}
-        className="flex-1 min-w-0 bg-white rounded-[8px] border border-gray-200 p-3 block shadow-sm hover:shadow-md transition-shadow focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        className="flex-1 min-w-0 bg-white rounded-[8px] border border-gray-200 px-2 py-2.5 block shadow-sm hover:shadow-md transition-shadow focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
       >
-        <div className="flex items-center gap-3">
+        <div className="flex items-start gap-2">
           <img
             src={TYPE_ICON_SRC[item.learningType]}
             alt={TYPE_ICON_ALT[item.learningType]}
-            width={40}
-            height={40}
-            className="size-10 shrink-0 object-contain"
+            width={24}
+            height={24}
+            className="size-6 shrink-0 object-contain"
             loading="lazy"
             decoding="async"
           />
 
           <div className="min-w-0 flex flex-col gap-1.5 flex-1">
-            <p className="type-b1-md truncate">{item.title}</p>
-            <div className="flex items-center flex-wrap gap-x-3 gap-y-1">
-              {timeDisplay ? (
-                <span className="relative group/time shrink-0">
-                  <p className="type-t1 text-gray-500 cursor-default">{timeDisplay}{item.batchName ? ` • ${item.batchName}` : ''}</p>
-                  {/* IST tooltip */}
+            <p className="text-[14px] font-medium text-[#1F2A37] truncate leading-5">{item.title}</p>
+
+            {/* Mobile: time and chips in separate rows */}
+            <div className="flex lg:hidden flex-col gap-1.5">
+              {(timeDisplay || item.batchName) && (
+                <span className="relative group/time">
+                  <p className="text-xs font-medium text-gray-500 cursor-default leading-4">
+                    {timeDisplay}{item.batchName ? ` • ${item.batchName}` : ''}
+                  </p>
                   <span className="pointer-events-none absolute bottom-full left-0 mb-1.5 z-20
                     opacity-0 group-hover/time:opacity-100 transition-opacity duration-150
                     whitespace-nowrap rounded-md bg-gray-900 px-2.5 py-1.5
                     text-xs font-medium text-white shadow-lg">
                     {timeDisplayIST}
-                    {/* Arrow */}
                     <span className="absolute top-full left-4 -translate-x-1/2 border-4 border-transparent border-t-gray-900" />
                   </span>
                 </span>
-              ) : item.batchName ? (
-                <p className="type-t1 text-gray-500 shrink-0">{item.batchName}</p>
-              ) : null}
+              )}
+              <div className="flex flex-wrap gap-x-2 gap-y-1">
+                {item.subType ? (
+                  <MasaiChips type="default" size="regular" label={item.subType} tabIndex={-1} className="cursor-default border border-grey-200" {...tagChipPalette} />
+                ) : null}
+                {item.moduleName ? (
+                  <MasaiChips type="default" size="regular" label={item.moduleName} tabIndex={-1} className="cursor-default border border-grey-200" {...tagChipPalette} />
+                ) : null}
+                <MasaiChips type="default" size="regular" label={item.optional === 1 ? 'Recommended' : 'Mandatory'} tabIndex={-1} className="cursor-default border border-grey-200" {...tagChipPalette} />
+              </div>
+            </div>
+
+            {/* Desktop: time and chips inline on the same row */}
+            <div className="hidden lg:flex flex-wrap items-center gap-x-2 gap-y-1">
+              {(timeDisplay || item.batchName) && (
+                <span className="relative group/time">
+                  <p className="text-xs font-medium text-gray-500 cursor-default leading-4">
+                    {timeDisplay}{item.batchName ? ` • ${item.batchName}` : ''}
+                  </p>
+                  <span className="pointer-events-none absolute bottom-full left-0 mb-1.5 z-20
+                    opacity-0 group-hover/time:opacity-100 transition-opacity duration-150
+                    whitespace-nowrap rounded-md bg-gray-900 px-2.5 py-1.5
+                    text-xs font-medium text-white shadow-lg">
+                    {timeDisplayIST}
+                    <span className="absolute top-full left-4 -translate-x-1/2 border-4 border-transparent border-t-gray-900" />
+                  </span>
+                </span>
+              )}
               {item.subType ? (
-                <MasaiChips
-                  type="default"
-                  size="regular"
-                  label={item.subType}
-                  tabIndex={-1}
-                  className="cursor-default border border-grey-200"
-                  {...tagChipPalette}
-                />
+                <MasaiChips type="default" size="regular" label={item.subType} tabIndex={-1} className="cursor-default border border-grey-200" {...tagChipPalette} />
               ) : null}
               {item.moduleName ? (
-                <MasaiChips
-                  type="default"
-                  size="regular"
-                  label={item.moduleName}
-                  tabIndex={-1}
-                  className="cursor-default border border-grey-200"
-                  {...tagChipPalette}
-                />
+                <MasaiChips type="default" size="regular" label={item.moduleName} tabIndex={-1} className="cursor-default border border-grey-200" {...tagChipPalette} />
               ) : null}
-              <MasaiChips
-                type="default"
-                size="regular"
-                label={item.optional === 1 ? 'Recommended' : 'Mandatory'}
-                tabIndex={-1}
-                className="cursor-default border border-grey-200"
-                {...tagChipPalette}
-              />
+              <MasaiChips type="default" size="regular" label={item.optional === 1 ? 'Recommended' : 'Mandatory'} tabIndex={-1} className="cursor-default border border-grey-200" {...tagChipPalette} />
             </div>
           </div>
 

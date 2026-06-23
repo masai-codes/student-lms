@@ -58,7 +58,7 @@ function useCardState(info: LmsSupportInfo | undefined, nowMs: number): CardStat
 function GenericCard() {
   return (
     <div className="rounded-[16px] border border-gray-200 bg-[#F9FAFB] overflow-hidden flex items-center gap-0">
-      <div className="shrink-0 w-[120px]">
+      <div className="shrink-0 w-1/3">
         <img
           src="/SupportDashboard.svg"
           alt="LMS Support"
@@ -83,7 +83,7 @@ function GenericCard() {
 function JoinCard({ zoomLink }: { zoomLink: string | null }) {
   return (
     <div className="rounded-[16px] border border-gray-200 bg-blue-50 overflow-hidden flex items-center gap-0">
-      <div className="shrink-0 w-[120px]">
+      <div className="shrink-0 w-1/3">
         <img
           src="/SupportDashboard.svg"
           alt="LMS Support"
@@ -118,7 +118,7 @@ function ScheduledTodayCard({ schedule }: { schedule: string | null }) {
   const label = formatNextSession(schedule)
   return (
     <div className="rounded-[16px] border border-gray-200 bg-[#F9FAFB] overflow-hidden flex items-center gap-0">
-      <div className="shrink-0 w-[120px]">
+      <div className="shrink-0 w-1/3">
         <img
           src="/SupportDashboard.svg"
           alt="LMS Support"
@@ -144,7 +144,7 @@ function NextSessionCard({ nextSchedule }: { nextSchedule: string | null }) {
   const label = formatNextSession(nextSchedule)
   return (
     <div className="rounded-[16px] border border-gray-200 bg-white overflow-hidden flex items-center gap-0">
-      <div className="shrink-0 w-[120px]">
+      <div className="shrink-0 w-1/3">
         <img
           src="/SupportDashboard.svg"
           alt="LMS Support"
