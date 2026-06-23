@@ -13,7 +13,7 @@ interface AnnouncementsPanelProps {
 
 export function AnnouncementsPanel({ announcements }: AnnouncementsPanelProps) {
   return (
-    <div className="bg-[#F9FAFB] rounded-[16px] border border-gray-200 p-4 flex flex-col gap-3">
+    <div className="bg-[#F9FAFB] rounded-t-xl rounded-b-[20px] border border-gray-200 p-5 flex flex-col gap-3">
       <div className="flex items-center justify-between">
         <h3 className="type-b1-md font-semibold text-gray-900">Announcements</h3>
         <Link

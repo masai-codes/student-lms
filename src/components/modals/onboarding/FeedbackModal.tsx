@@ -16,7 +16,7 @@ function McqSingleInput({
 }) {
   const options = question.config?.options ?? []
   return (
-    <div className="relative mt-3">
+    <div className="relative mt-0 lg:mt-3">
       <select
         value={value}
         onChange={(e) => onChange(e.target.value)}
@@ -47,7 +47,7 @@ function McqMultipleInput({
     onChange(value.includes(opt) ? value.filter((v) => v !== opt) : [...value, opt])
   }
   return (
-    <div className="mt-3 flex flex-col gap-2">
+    <div className="mt-0 lg:mt-3 flex flex-col gap-2">
       {options.map((opt) => {
         const checked = value.includes(opt)
         return (
@@ -85,7 +85,7 @@ function DescriptionInput({ value, onChange }: { value: string; onChange: (v: st
       onChange={(e) => onChange(e.target.value)}
       placeholder="Enter Your Feedback here."
       rows={4}
-      className="mt-3 w-full bg-white border border-[#E5E7EB] rounded-lg px-4 py-3 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:border-[#6962AC] focus:ring-1 focus:ring-[#6962AC] transition-colors resize-none"
+      className="mt-0 lg:mt-3 w-full bg-white border border-[#E5E7EB] rounded-lg px-4 py-3 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:border-[#6962AC] focus:ring-1 focus:ring-[#6962AC] transition-colors resize-none"
     />
   )
 }
@@ -152,7 +152,7 @@ function RatingScaleInput({
 
     if (isStacked) {
       return (
-        <div className="mt-3 rounded-2xl bg-[#F3F4F6] px-5 py-4 flex flex-col gap-3">
+        <div className="mt-0 lg:mt-3 lg:rounded-2xl lg:bg-[#F3F4F6] px-5 py-4 flex flex-col gap-3">
           {emojiSteps.map(({ n, emoji }) => {
             const selected = value === n
             return (
@@ -175,8 +175,8 @@ function RatingScaleInput({
     }
 
     return (
-      <div className="mt-3 rounded-2xl bg-[#F3F4F6] px-6 py-5">
-        <div className="flex gap-6 justify-center">
+      <div className="mt-0 lg:mt-3 lg:rounded-2xl lg:bg-[#F3F4F6] px-0 lg:px-6 py-0 lg:py-5">
+        <div className="flex gap-3 lg:gap-6 justify-center">
           {emojiSteps.map(({ n, emoji }, idx) => {
             const label = EMOJI_LABEL_MAP[emoji] ?? emojiLabels[idx] ?? String(n)
             const selected = value === n
@@ -188,11 +188,11 @@ function RatingScaleInput({
                 className="flex flex-col items-center gap-2 focus-visible:outline-none"
               >
                 <span
-                  className="text-5xl leading-none"
+                  className="text-4xl lg:text-5xl leading-none"
                   style={{
                     display: 'inline-block',
                     filter: selected ? 'none' : 'grayscale(70%)',
-                    opacity: selected ? 1 : 0.55,
+                    opacity: selected ? 1 : 0.25,
                     transform: selected ? 'scale(1.2)' : 'scale(1)',
                     transition: 'transform 0.15s, opacity 0.15s, filter 0.15s',
                   }}
@@ -222,7 +222,7 @@ function RatingScaleInput({
   // ── Numeric scale ─────────────────────────────────────────────────────────────
   const steps = Array.from({ length: max - min + 1 }, (_, i) => min + i)
   return (
-    <div className="mt-3">
+    <div className="mt-0 lg:mt-3">
       <div className="flex gap-2 flex-wrap justify-center">
         {steps.map((n) => {
           const ratio = steps.length === 1 ? 1 : (n - min) / (max - min)
@@ -262,7 +262,7 @@ function DatePickerInput({ value, onChange }: { value: string; onChange: (v: str
       type="date"
       value={value}
       onChange={(e) => onChange(e.target.value)}
-      className="mt-3 w-full bg-white border border-[#E5E7EB] rounded-lg px-4 py-3 text-sm text-gray-900 focus:outline-none focus:border-[#6962AC] focus:ring-1 focus:ring-[#6962AC] transition-colors"
+      className="mt-0 lg:mt-3 w-full bg-white border border-[#E5E7EB] rounded-lg px-4 py-3 text-sm text-gray-900 focus:outline-none focus:border-[#6962AC] focus:ring-1 focus:ring-[#6962AC] transition-colors"
     />
   )
 }
@@ -275,7 +275,7 @@ function TrueFalseInput({
   onChange: (v: boolean) => void
 }) {
   return (
-    <div className="mt-3 flex gap-3">
+    <div className="mt-0 lg:mt-3 flex gap-3">
       {([true, false] as const).map((opt) => (
         <button
           key={String(opt)}
@@ -421,10 +421,13 @@ export function FeedbackFormContent({ formId, isOnlyStep = false, onSubmitted }:
   return (
     <div className="flex flex-col h-full">
       {/* Body */}
-      <div className="flex-1 overflow-y-auto px-8 py-4">
+      <div className="flex-1 overflow-y-auto px-4 lg:px-8 py-4">
         {form?.title && (
-          <div className="mb-6">
-            <h3 className="text-lg font-semibold text-gray-900" style={{ fontFamily: 'Poppins' }}>
+          <div className="mb-4 lg:mb-6">
+            <h3
+              className="font-bold text-base lg:text-lg text-gray-900"
+              style={{ fontFamily: 'Poppins' }}
+            >
               {form.title}
             </h3>
             {form.description && (
@@ -434,7 +437,7 @@ export function FeedbackFormContent({ formId, isOnlyStep = false, onSubmitted }:
         )}
 
         {validationBanner && (
-          <div className="flex items-center gap-3 mb-5 px-4 py-3 rounded-lg border border-orange-200 bg-orange-50">
+          <div className="flex items-center gap-3 mb-4 px-4 py-3 rounded-lg border border-orange-200 bg-orange-50">
             <AlertCircle size={18} className="text-orange-500 shrink-0" />
             <p className="text-sm text-orange-700 leading-snug">
               Please fill in all required fields before submitting.
@@ -451,7 +454,7 @@ export function FeedbackFormContent({ formId, isOnlyStep = false, onSubmitted }:
         )}
 
         {error && (
-          <div className="flex items-center gap-3 mb-5 px-4 py-3 rounded-lg border border-red-200 bg-red-50">
+          <div className="flex items-center gap-3 mb-4 px-4 py-3 rounded-lg border border-red-200 bg-red-50">
             <AlertCircle size={18} className="text-red-500 shrink-0" />
             <p className="text-sm text-red-700 leading-snug">{error}</p>
           </div>
@@ -461,45 +464,57 @@ export function FeedbackFormContent({ formId, isOnlyStep = false, onSubmitted }:
           <div className="flex items-center justify-center h-40 text-gray-400 text-sm">Loading questions…</div>
         )}
 
-        {!loading && !submitted && form && questions.map((q, idx) => (
-          <div key={q.id} className="mb-7">
-            <p className="text-sm text-gray-800 leading-relaxed">
-              {idx + 1}. {q.questionText}
-              {q.isRequired && <span className="text-red-500 ml-1">*</span>}
-            </p>
-            {q.questionType === 'MCQ_SINGLE' && (
-              <McqSingleInput question={q} value={(answers[q.id] as string | undefined) ?? ''} onChange={(v) => setAnswer(q.id, v)} />
-            )}
-            {q.questionType === 'MCQ_MULTIPLE' && (
-              <McqMultipleInput question={q} value={(answers[q.id] as Array<string> | undefined) ?? []} onChange={(v) => setAnswer(q.id, v)} />
-            )}
-            {q.questionType === 'DESCRIPTION' && (
-              <DescriptionInput value={(answers[q.id] as string | undefined) ?? ''} onChange={(v) => setAnswer(q.id, v)} />
-            )}
-            {q.questionType === 'RATING_SCALE' && (
-              <RatingScaleInput question={q} value={(answers[q.id] as number | null) ?? null} onChange={(v) => setAnswer(q.id, v)} />
-            )}
-            {q.questionType === 'DATE_PICKER' && (
-              <DatePickerInput value={(answers[q.id] as string | undefined) ?? ''} onChange={(v) => setAnswer(q.id, v)} />
-            )}
-            {q.questionType === 'TRUE_FALSE' && (
-              <TrueFalseInput value={(answers[q.id] as boolean | null) ?? null} onChange={(v) => setAnswer(q.id, v)} />
-            )}
+        {!loading && !submitted && form && (
+          <div className="flex flex-col gap-3 lg:gap-0">
+            {questions.map((q, idx) => (
+              <div
+                key={q.id}
+                className="bg-[#F9FAFB] rounded-xl p-3 flex flex-col gap-3 lg:bg-transparent lg:rounded-none lg:p-0 lg:mb-7 lg:gap-0"
+              >
+                <p className="text-sm font-medium text-[#1F2A37] leading-relaxed lg:font-normal lg:text-gray-800">
+                  {idx + 1}. {q.questionText}
+                  {q.isRequired && <span className="text-red-500 ml-1">*</span>}
+                </p>
+                {q.questionType === 'MCQ_SINGLE' && (
+                  <McqSingleInput question={q} value={(answers[q.id] as string | undefined) ?? ''} onChange={(v) => setAnswer(q.id, v)} />
+                )}
+                {q.questionType === 'MCQ_MULTIPLE' && (
+                  <McqMultipleInput question={q} value={(answers[q.id] as Array<string> | undefined) ?? []} onChange={(v) => setAnswer(q.id, v)} />
+                )}
+                {q.questionType === 'DESCRIPTION' && (
+                  <DescriptionInput value={(answers[q.id] as string | undefined) ?? ''} onChange={(v) => setAnswer(q.id, v)} />
+                )}
+                {q.questionType === 'RATING_SCALE' && (
+                  <RatingScaleInput question={q} value={(answers[q.id] as number | null) ?? null} onChange={(v) => setAnswer(q.id, v)} />
+                )}
+                {q.questionType === 'DATE_PICKER' && (
+                  <DatePickerInput value={(answers[q.id] as string | undefined) ?? ''} onChange={(v) => setAnswer(q.id, v)} />
+                )}
+                {q.questionType === 'TRUE_FALSE' && (
+                  <TrueFalseInput value={(answers[q.id] as boolean | null) ?? null} onChange={(v) => setAnswer(q.id, v)} />
+                )}
+              </div>
+            ))}
           </div>
-        ))}
+        )}
       </div>
 
       {/* Footer */}
       {!submitted && (
-        <div className="shrink-0 flex items-center justify-between px-8 py-4 border-t border-gray-100">
-          <div className="flex items-center gap-3">
-            <div className="w-36 h-2 rounded-full bg-gray-200 overflow-hidden">
+        <div className="shrink-0 flex items-center justify-between px-4 lg:px-8 py-3 lg:py-4 border-t border-[#F3F4F6] shadow-[0_1px_4px_rgba(0,0,0,0.12)] lg:shadow-none">
+          <div className="flex items-center gap-1.5 lg:gap-3">
+            <div className="w-24 lg:w-36 h-2 rounded-full overflow-hidden" style={{ background: '#EDEBFE' }}>
               <div
                 className="h-full rounded-full transition-all"
                 style={{ width: total > 0 ? `${(answered / total) * 100}%` : '0%', background: '#6962AC' }}
               />
             </div>
-            <span className="text-sm font-medium text-gray-500">{answered}/{total} Completed</span>
+            <span
+              className="text-xs lg:text-sm font-medium"
+              style={{ fontFamily: 'Poppins', color: '#1F2A37' }}
+            >
+              {answered}/{total} Completed
+            </span>
           </div>
           <button
             type="button"
@@ -508,7 +523,7 @@ export function FeedbackFormContent({ formId, isOnlyStep = false, onSubmitted }:
             className="flex items-center justify-center text-white font-medium rounded-lg hover:opacity-90 transition-opacity focus-visible:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
             style={{ height: 40, padding: '0 24px', background: '#6962AC', fontFamily: 'Poppins', fontSize: 16 }}
           >
-            {submitting ? 'Submitting…' : 'SUBMIT'}
+            {submitting ? 'Submitting…' : 'Submit'}
           </button>
         </div>
       )}

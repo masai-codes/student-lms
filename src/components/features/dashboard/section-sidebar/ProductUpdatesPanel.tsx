@@ -13,7 +13,7 @@ interface ProductUpdatesPanelProps {
 
 export function ProductUpdatesPanel({ updates }: ProductUpdatesPanelProps) {
   return (
-    <div className="bg-[#F9FAFB] rounded-[16px] border border-gray-200 p-4 flex flex-col gap-3">
+    <div className="bg-[#F9FAFB] rounded-xl border border-[#EDEBFE] p-5 flex flex-col gap-3">
       <div className="flex items-center justify-between">
         <h3 className="type-b1-md font-semibold text-gray-900">Product Updates</h3>
         <Link

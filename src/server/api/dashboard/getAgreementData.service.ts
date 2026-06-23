@@ -158,9 +158,9 @@ export async function getAgreementData(
   if (!firstViewTime) {
     daysLeft = 7
   } else {
-    const daysSinceFirstView = Math.floor(
+    const daysSinceFirstView = Math.max(0, Math.floor(
       (Date.now() - new Date(firstViewTime).getTime()) / (1000 * 60 * 60 * 24),
-    )
+    ))
     daysLeft = Math.max(0, 7 - daysSinceFirstView)
   }
 
@@ -201,7 +201,7 @@ export async function getAgreementData(
     batchName: batch?.name ?? '',
     userEmail: userRow?.email ?? '',
     studentCode: userRow?.username ?? '',
-    viewTime: legalData?.viewTime ?? null,
+    viewTime: (sectionAgreement as Record<string, unknown> | null)?.['viewTime'] as string | null ?? null,
     daysLeft,
     alreadyAccepted,
     agreementSteps,

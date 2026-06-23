@@ -11,14 +11,14 @@ export async function dismissAgreement(userId: number, sectionId: number): Promi
 
   if (!profile) return
 
-  const now = new Date().toISOString()
+  const now = new Date(Date.now() + 5.5 * 60 * 60 * 1000).toISOString()
   const legalData = (profile.legalData ?? {}) as Record<string, unknown>
   const agreements = (legalData.agreements ?? {}) as Record<string, unknown>
   const sectionKey = `section_${sectionId}`
   const existing = (agreements[sectionKey] ?? {}) as Record<string, unknown>
 
-  const modalCloseCount = typeof legalData.modalCloseCount === 'number'
-    ? legalData.modalCloseCount + 1
+  const modalCloseCount = typeof existing.modalCloseCount === 'number'
+    ? existing.modalCloseCount + 1
     : 1
 
   await db
@@ -26,11 +26,13 @@ export async function dismissAgreement(userId: number, sectionId: number): Promi
     .set({
       legalData: {
         ...legalData,
-        lastModalCloseTime: now,
-        modalCloseCount,
         agreements: {
           ...agreements,
-          [sectionKey]: { ...existing, lastShownTime: now },
+          [sectionKey]: {
+            ...existing,
+            modalCloseCount,
+            lastModalCloseTime: now,
+          },
         },
       },
     })

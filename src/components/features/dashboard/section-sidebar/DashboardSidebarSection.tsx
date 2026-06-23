@@ -24,20 +24,15 @@ export function DashboardSidebarSection({
   lmsSupport,
 }: DashboardSidebarSectionProps) {
   const hasAnnouncements = announcements.length > 0
+  const hasProductUpdates = productUpdates.length > 0
+  // Announcements goes first when it has items, or when both are empty
+  const announcementsFirst = hasAnnouncements || !hasProductUpdates
 
   return (
-    <div className="flex flex-col gap-4">
-      {hasAnnouncements ? (
-        <>
-          <AnnouncementsPanel announcements={announcements} />
-          <ProductUpdatesPanel updates={productUpdates} />
-        </>
-      ) : (
-        <>
-          <ProductUpdatesPanel updates={productUpdates} />
-          <AnnouncementsPanel announcements={announcements} />
-        </>
-      )}
+    <div className="flex flex-col gap-6">
+      {announcementsFirst && <AnnouncementsPanel announcements={announcements} />}
+      <ProductUpdatesPanel updates={productUpdates} />
+      {!announcementsFirst && <AnnouncementsPanel announcements={announcements} />}
       <YourProgressPanel enrolledBatches={enrolledBatches} attendanceData={attendanceData} />
       <LmsSupportPanel info={lmsSupport} />
     </div>

@@ -98,15 +98,6 @@ export async function checkAgreementRequired(userId: number): Promise<Array<Pend
   const legalData = profileRows[0]?.legalData as Record<string, unknown> | null | undefined
   const userAgreements = (legalData?.['agreements'] ?? {}) as Record<string, unknown>
 
-  // If the user first opened the agreement modal more than 7 days ago, the window has closed
-  const viewTime = legalData?.['viewTime'] as string | null | undefined
-  if (viewTime) {
-    const daysSinceFirstView = Math.floor(
-      (Date.now() - new Date(viewTime).getTime()) / (1000 * 60 * 60 * 24),
-    )
-    if (daysSinceFirstView >= 7) return []
-  }
-
   const pending: Array<PendingAgreementSection> = []
 
   for (const row of sectionResult) {
@@ -116,6 +107,15 @@ export async function checkAgreementRequired(userId: number): Promise<Array<Pend
     const sectionKey = `section_${sectionId}`
     const sectionAgreement = userAgreements[sectionKey] as Record<string, unknown> | undefined
     if (sectionAgreement?.['haveAcceptedLegalAgreement'] === true) continue
+
+    // If the user first opened this section's agreement modal more than 7 days ago, the window has closed
+    const sectionViewTime = sectionAgreement?.['viewTime'] as string | null | undefined
+    if (sectionViewTime) {
+      const daysSinceFirstView = Math.floor(
+        (Date.now() - new Date(sectionViewTime).getTime()) / (1000 * 60 * 60 * 24),
+      )
+      if (daysSinceFirstView >= 7) continue
+    }
 
     // Parse agreements JSON and find first valid sub-key
     let agreementsJson: Record<string, unknown> | null = null

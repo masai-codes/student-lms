@@ -666,6 +666,55 @@ function SignatureCertificate({
   )
 }
 
+// ── Mobile placeholder (agreement is desktop-only) ────────────────────────────
+
+export function MobileAgreementPlaceholder({ sectionId }: { sectionId?: number }) {
+  const [meta, setMeta] = useState<{ daysLeft: number; title: string } | null>(null)
+
+  useEffect(() => {
+    if (!sectionId) return
+    fetchAgreementData(sectionId)
+      .then((data) => setMeta({ daysLeft: data.daysLeft, title: data.sectionName ?? 'Program Agreement' }))
+      .catch(() => {})
+  }, [sectionId])
+
+  const title = meta?.title ?? 'Program Agreement'
+  const daysLeft = meta?.daysLeft
+
+  return (
+    <div className="flex-1 flex flex-col items-center justify-start gap-4 px-4 pt-10 pb-8 mb-8">
+      {/* Illustration */}
+      <img src="/agreementIcon.svg" alt="" width={120} height={120} className="shrink-0" />
+
+      <div className="flex flex-col items-center gap-3 text-center">
+        <h3 className="font-bold text-base" style={{ fontFamily: 'Poppins', color: '#111928' }}>
+          {title}
+        </h3>
+        <p className="text-sm leading-5" style={{ fontFamily: 'Poppins', color: '#4B5563' }}>
+          This agreement can only be viewed &amp; signed on a desktop. Please switch to a computer to complete the agreement.
+        </p>
+
+        {daysLeft != null && (
+          <div
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-full border"
+            style={{ background: '#FFF8F1', borderColor: '#FCD9BD' }}
+          >
+            <span
+              className="text-sm font-medium text-white px-3 py-0.5 rounded-full"
+              style={{ background: '#FF5A1F', fontFamily: 'Poppins' }}
+            >
+              {daysLeft} {daysLeft === 1 ? 'day' : 'days'}
+            </span>
+            <span className="text-xs font-medium" style={{ color: '#374151', fontFamily: 'Poppins' }}>
+              left to complete your agreement
+            </span>
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
 // ── AgreementFlow ──────────────────────────────────────────────────────────────
 
 export function AgreementFlow({
