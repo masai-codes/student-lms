@@ -3,6 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { handleGetAiChatHistory } from '../getHistory.handler'
 import { requireSessionUserId } from '@/server/api/http/requireSessionUser'
 import { getAiChatHistory } from '@/server/ai-chat/services/getAiChatHistory'
+import { resolveTrueStatus } from '@/lib/api/cloudFrontSafeStatus'
 
 vi.mock('@/server/api/http/requireSessionUser', () => ({
   requireSessionUserId: vi.fn(),
@@ -69,6 +70,7 @@ describe('handleGetAiChatHistory', () => {
       new Error('AI_TUTOR_LECTURE_FORBIDDEN'),
     )
     const res = await handleGetAiChatHistory(makeRequest(), '5')
-    expect(res.status).toBe(403)
+    // 403 ships on the CloudFront-safe wire status; the true status is in the header.
+    expect(resolveTrueStatus(res)).toBe(403)
   })
 })
