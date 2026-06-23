@@ -47,7 +47,7 @@ export function NavbarProfileMenu({
         <DropdownMenu.Trigger asChild>
           <button
             type="button"
-            className="inline-flex size-10 cursor-pointer items-center justify-center rounded-full border border-border bg-background text-sm font-medium text-foreground shadow-none outline-none ring-offset-background transition-colors hover:bg-accent hover:shadow-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-0 data-[state=open]:ring-2 data-[state=open]:ring-ring data-[state=open]:ring-offset-0"
+            className="inline-flex size-9 cursor-pointer items-center justify-center rounded-full border border-[#E4E4E4] bg-white text-sm font-medium text-foreground shadow-none outline-none ring-offset-background transition-colors hover:bg-accent hover:shadow-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-0 data-[state=open]:ring-2 data-[state=open]:ring-ring data-[state=open]:ring-offset-0"
             aria-label={label}
             suppressHydrationWarning
           >

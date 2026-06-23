@@ -259,7 +259,7 @@ export async function submitAgreement(
         address: String(sectionData.address ?? ''),
         program: String(batchRow?.program ?? ''),
         section: String(sectionRow?.name ?? ''),
-        viewTime: String(freshLegal.viewTime ?? ''),
+        viewTime: String(sectionData.viewTime ?? ''),
         signedAt: String(sectionData.finalSignTime ?? now),
         ipAddress: String(sectionData.ipAddress ?? ''),
         location: String(sectionData.location ?? ''),

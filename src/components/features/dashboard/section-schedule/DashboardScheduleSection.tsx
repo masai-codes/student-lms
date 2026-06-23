@@ -52,43 +52,43 @@ export function DashboardScheduleSection({
     activeTab === 'schedule' ? groupItemsByWeek(scheduleItems, now) : []
 
   return (
-    <div className="bg-[#F9FAFB] rounded-[16px] border border-gray-200 overflow-hidden">
-      <div className="flex items-center gap-2 px-4 pt-4 pb-0">
+    <div className="lg:bg-[#F9FAFB] lg:rounded-t-xl lg:rounded-b-[20px] lg:border lg:border-gray-200 lg:overflow-hidden">
+      <div className="flex items-center gap-3 lg:px-5 lg:pt-5 pb-0">
         <button
           type="button"
           onClick={() => setActiveTab('schedule')}
-          className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400 ${
+          className={`flex flex-1 lg:flex-none justify-center items-center gap-1.5 px-3 py-2 h-10 rounded-[8px] text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400 ${
             activeTab === 'schedule'
-              ? 'bg-[#EBF5FF] border border-primary-700 text-primary-700'
-              : 'bg-white border border-grey-200 text-[#6C7280] hover:bg-gray-50'
+              ? 'bg-[#EBF5FF] border border-[#6962AC] text-[#6962AC]'
+              : 'bg-white border border-gray-200 text-gray-500 hover:bg-gray-50'
           }`}
         >
-          <CalendarDays size={16} />
+          <CalendarDays size={20} />
           My Schedule
         </button>
 
         <button
           type="button"
           onClick={handlePendingTabClick}
-          className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400 ${
+          className={`flex flex-1 lg:flex-none justify-center items-center gap-1.5 px-3 py-2 h-10 rounded-[8px] text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400 ${
             activeTab === 'pending'
-              ? 'bg-[#EBF5FF] border border-primary-700 text-primary-700'
-              : 'bg-white border border-grey-200 text-[#6C7280] hover:bg-gray-50'
+              ? 'bg-[#EBF5FF] border border-[#6962AC] text-[#6962AC]'
+              : 'bg-white border border-gray-200 text-gray-500 hover:bg-gray-50'
           }`}
         >
-          <Clock size={16} />
+          <Clock size={20} />
           Pending Tasks
           {badgeCount > 0 ? (
-            <span className="inline-flex items-center justify-center size-5 rounded-full bg-red-500 text-white text-xs font-semibold">
+            <span className="inline-flex items-center justify-center size-5 rounded-full bg-[#F05252] text-white text-[11px] font-medium">
               {badgeCount}
             </span>
           ) : null}
         </button>
       </div>
 
-      <div className="h-px bg-gray-100 mt-3" />
+      <div className="hidden lg:block h-px bg-gray-200 mt-5" />
 
-      <div className="p-4 max-h-[560px] overflow-y-auto">
+      <div className="lg:px-5 lg:pb-5 pt-4 lg:max-h-[496px] lg:overflow-y-auto">
         {/* Schedule tab */}
         {isLoading && activeTab === 'schedule' ? (
           <AppLoading label="Loading schedule..." />
@@ -100,7 +100,7 @@ export function DashboardScheduleSection({
               No sessions scheduled this week.
             </p>
           ) : (
-            <div className="flex flex-col gap-6">
+            <div className="flex flex-col gap-4">
               {weekGroups.map((group) => (
                 <ScheduleWeekGroupSection key={group.weekLabel} group={group} />
               ))}

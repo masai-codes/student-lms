@@ -204,10 +204,12 @@ export default function AppNavbar() {
       href: '/',
       openInNewTab: false,
       onClick: handleHomeClick,
+      isActive: activeNavId === 'home',
     },
     {
       id: 'learn',
       label: 'Learn',
+      isActive: activeNavId === 'learn',
       ...oldStudentUiLink(OLD_STUDENT_UI_NAV_PATHS.learn),
     },
     {
@@ -226,6 +228,7 @@ export default function AppNavbar() {
           label: 'MasaiVerse Community',
           href: '/masaiverse',
           openInNewTab: false,
+          isActive: activeNavId === 'masaiverse',
         }
       : {
           id: 'refer',
@@ -254,21 +257,21 @@ export default function AppNavbar() {
       {
         id: 'calendar',
         type: 'icon',
-        icon: <CalendarDays className="size-5" />,
+        icon: <CalendarDays className="size-7" />,
         ariaLabel: 'Calendar',
         ...oldStudentUiLink(OLD_STUDENT_UI_NAV_PATHS.calendar),
       },
       {
         id: 'chat',
         type: 'icon',
-        icon: <MessagesSquare className="size-5" />,
+        icon: <MessagesSquare className="size-7" />,
         ariaLabel: 'Chat',
         ...oldStudentUiLink(OLD_STUDENT_UI_NAV_PATHS.chat),
       },
       {
         id: 'announcements',
         type: 'icon',
-        icon: <Megaphone className="size-5 -scale-x-100" />,
+        icon: <Megaphone className="size-7 -scale-x-100" />,
         ariaLabel: 'Announcements',
         href: '/announcements',
         openInNewTab: false,
@@ -388,7 +391,7 @@ export default function AppNavbar() {
   return (
     <>
       <Navbar
-        className="z-40 max-md:hidden"
+        className="z-40 max-lg:hidden"
         logo={{
           src: MASAI_LOGO,
           alt: 'Masai Logo',

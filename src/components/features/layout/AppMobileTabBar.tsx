@@ -2,10 +2,17 @@
 
 import { useMemo } from 'react'
 import { useNavigate, useRouterState } from '@tanstack/react-router'
-import { Home, LayoutGrid, Users } from 'lucide-react'
+import { Headphones, Home, LayoutGrid, MessageSquare, MonitorPlay, Users } from 'lucide-react'
 
 import { TabNavbar } from '@/components/tab-navbar'
 import { activeAppNavIdForPathname } from '@/lib/appNavActiveItem'
+import { OLD_STUDENT_UI_NAV_PATHS } from '@/constants/oldStudentUiNavPaths'
+import { getOldStudentUiUrlForPath } from '@/utils/authRedirect'
+
+function oldUiNavigate(path: string) {
+  const url = getOldStudentUiUrlForPath(path)
+  if (url) window.location.assign(url)
+}
 
 export default function AppMobileTabBar() {
   const pathname = useRouterState({ select: (s) => s.location.pathname })
@@ -17,38 +24,44 @@ export default function AppMobileTabBar() {
       {
         id: 'home',
         label: 'Home',
-        icon: (
-          <Home strokeWidth={1.75} className="size-6 shrink-0 text-current" />
-        ),
+        icon: <Home strokeWidth={1.75} className="size-6 shrink-0 text-current" />,
         isActive: activeId === 'home',
-        onClick: () => {
-          void navigate({ to: '/' })
-        },
+        onClick: () => { void navigate({ to: '/' }) },
       },
       {
         id: 'learn',
         label: 'Learn',
-        icon: (
-          <LayoutGrid
-            strokeWidth={1.75}
-            className="size-6 shrink-0 text-current"
-          />
-        ),
+        icon: <MonitorPlay strokeWidth={1.75} className="size-6 shrink-0 text-current" />,
         isActive: activeId === 'learn',
-        onClick: () => {
-          void navigate({ to: '/learn', search: { batchId: undefined } })
-        },
+        onClick: () => oldUiNavigate(OLD_STUDENT_UI_NAV_PATHS.learn),
       },
       {
-        id: 'masaiverse',
-        label: 'MasaiVerse',
-        icon: (
-          <Users strokeWidth={1.75} className="size-6 shrink-0 text-current" />
-        ),
-        isActive: activeId === 'masaiverse',
-        onClick: () => {
-          void navigate({ to: '/masaiverse/home' })
-        },
+        id: 'support',
+        label: 'Support',
+        icon: <Headphones strokeWidth={1.75} className="size-6 shrink-0 text-current" />,
+        isActive: false,
+        onClick: () => oldUiNavigate(OLD_STUDENT_UI_NAV_PATHS.support),
+      },
+      {
+        id: 'chat',
+        label: 'Chat',
+        icon: <MessageSquare strokeWidth={1.75} className="size-6 shrink-0 text-current" />,
+        isActive: false,
+        onClick: () => oldUiNavigate(OLD_STUDENT_UI_NAV_PATHS.chat),
+      },
+      {
+        id: 'forum',
+        label: 'Forum',
+        icon: <Users strokeWidth={1.75} className="size-6 shrink-0 text-current" />,
+        isActive: false,
+        onClick: () => oldUiNavigate(OLD_STUDENT_UI_NAV_PATHS.discussions),
+      },
+      {
+        id: 'more',
+        label: 'More',
+        icon: <LayoutGrid strokeWidth={1.75} className="size-6 shrink-0 text-current" />,
+        isActive: false,
+        onClick: () => oldUiNavigate(OLD_STUDENT_UI_NAV_PATHS.profileSettings),
       },
     ],
     [activeId, navigate],
@@ -56,14 +69,14 @@ export default function AppMobileTabBar() {
 
   return (
     <div
-      className="fixed bottom-0 left-0 right-0 z-[200] md:hidden"
+      className="fixed bottom-0 left-0 right-0 z-[200] lg:hidden"
       data-app-mobile-tab-bar
     >
       <TabNavbar
         items={items}
         ariaLabel="Primary navigation"
         labelClassName="text-xs"
-        className="shadow-[0_-4px_24px_rgba(0,0,0,0.08)] pb-[max(0.5rem,env(safe-area-inset-bottom))]"
+        className="shadow-[0_-4px_24px_rgba(0,0,0,0.08)] pb-[max(1.25rem,env(safe-area-inset-bottom))]"
       />
     </div>
   )

@@ -76,7 +76,11 @@ export async function getLmsSupportInfo(): Promise<LmsSupportInfo> {
   const todayRow = allRows.find((r) => String(r.schedule ?? '').slice(0, 10) === todayDateIST)
 
   if (todayRow) {
-    if (isActive(todayRow)) {
+    const sessionOver = nowIST && todayRow.concludes
+      ? nowIST > String(todayRow.concludes)
+      : false
+
+    if (isActive(todayRow) && !sessionOver) {
       return {
         visible: true,
         todaySchedule: todayRow.schedule ? String(todayRow.schedule) : null,
@@ -86,16 +90,17 @@ export async function getLmsSupportInfo(): Promise<LmsSupportInfo> {
       }
     }
 
-    // Today's lecture exists but has no zoom_link — treat as cancelled
+    // Today's session is over or has no zoom_link — show next upcoming active session
     const nextActiveRow = allRows.find((r) =>
       String(r.schedule ?? '').slice(0, 10) !== todayDateIST && isActive(r)
     )
+    if (!nextActiveRow) return NOT_VISIBLE
     return {
       visible: true,
       todaySchedule: null,
       todayConcludes: null,
       todayZoomLink: null,
-      nextSchedule: nextActiveRow?.schedule ? String(nextActiveRow.schedule) : null,
+      nextSchedule: String(nextActiveRow.schedule),
     }
   }
 

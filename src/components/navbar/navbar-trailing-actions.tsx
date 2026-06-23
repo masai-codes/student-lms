@@ -69,7 +69,7 @@ export function NavbarTrailingActions({
             : 0;
         const badge =
           count > 0 ? (
-            <span className="pointer-events-none absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-0.5 font-poppins text-[10px] leading-none font-medium text-white">
+            <span className="pointer-events-none absolute right-0 top-0.5 flex size-5 items-center justify-center rounded-full bg-[#F05252] font-poppins text-[11px] leading-none font-medium text-white">
               {count > 9 ? "9+" : count}
             </span>
           ) : null;
@@ -82,7 +82,7 @@ export function NavbarTrailingActions({
             onClick={item.onClick}
             aria-label={item.ariaLabel}
             title={item.tooltip}
-            className="relative inline-flex size-9 cursor-pointer items-center justify-center rounded-full text-gray-600 shadow-none transition-colors hover:text-[#6962AC] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-0"
+            className="relative inline-flex size-10 cursor-pointer items-center justify-center rounded-[8px] text-gray-500 shadow-none transition-colors hover:text-[#6962AC] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-0"
           >
             {item.icon}
             {badge}

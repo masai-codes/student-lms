@@ -9,6 +9,8 @@ type RawRow = {
   title: string
   schedule: string | null
   concludes: string | null
+  startDate: string | null
+  endDate: string | null
   subType: string | null
   moduleName: string | null
   optional: number | string
@@ -21,6 +23,7 @@ type RawLectureCatchUpRow = {
   title: string
   schedule: string | null
   concludes: string | null
+  startDate: string | null
   catchUpDeadline: string | null
   lectureType: string | null
   moduleName: string | null
@@ -100,6 +103,8 @@ export async function getDashboardPendingTasks(
       a.title,
       a.schedule,
       a.concludes,
+      DATE(CONVERT_TZ(a.schedule,  '+00:00', '+05:30')) AS startDate,
+      DATE(CONVERT_TZ(a.concludes, '+00:00', '+05:30')) AS endDate,
       a.category  AS subType,
       a.module    AS moduleName,
       a.optional,
@@ -130,8 +135,8 @@ export async function getDashboardPendingTasks(
       title: String(row.title ?? ''),
       schedule: row.schedule ?? null,
       concludes: row.concludes ?? null,
-      startDate: null,
-      endDate: null,
+      startDate: row.startDate ?? null,
+      endDate: row.endDate ?? null,
       subType: row.subType ? String(row.subType) : null,
       lectureType: null,
       hasZoomLink: false,
@@ -148,23 +153,23 @@ export async function getDashboardPendingTasks(
       l.title,
       l.schedule,
       l.concludes,
-      DATE_ADD(l.concludes, INTERVAL sa.catch_up_days DAY) AS catchUpDeadline,
+      DATE(CONVERT_TZ(l.schedule, '+00:00', '+05:30'))                        AS startDate,
+      DATE_ADD(l.concludes, INTERVAL COALESCE(sa.catch_up_days, 7) DAY)      AS catchUpDeadline,
       l.type    AS lectureType,
       l.module  AS moduleName,
       l.optional,
       b.id      AS batchId,
       b.name    AS batchName
     FROM lectures l
-    INNER JOIN student_attendances sa ON sa.lecture_id = l.id
-                                     AND sa.user_id    = ${userId}
+    LEFT JOIN student_attendances sa ON sa.lecture_id = l.id
+                                    AND sa.user_id    = ${userId}
     INNER JOIN batches b ON b.id = l.batch_id
     WHERE l.section_id IN (${sql.raw(sectionIdList)})
       AND l.deleted_at  IS NULL
       AND l.optional    = 0
-      AND sa.status     = 0
-      AND sa.catch_up_days IS NOT NULL
+      AND (sa.status = 0 OR sa.id IS NULL)
       AND l.concludes   < CONVERT_TZ(NOW(), '+00:00', '+05:30')
-      AND DATE_ADD(l.concludes, INTERVAL sa.catch_up_days DAY) > CONVERT_TZ(NOW(), '+00:00', '+05:30')
+      AND DATE_ADD(l.concludes, INTERVAL COALESCE(sa.catch_up_days, 7) DAY) > CONVERT_TZ(NOW(), '+00:00', '+05:30')
     ORDER BY catchUpDeadline ASC
   `)
 
@@ -176,8 +181,8 @@ export async function getDashboardPendingTasks(
       schedule: row.schedule ?? null,
       // concludes = catch-up deadline so the UI can show the correct urgency
       concludes: row.catchUpDeadline ?? null,
-      startDate: null,
-      endDate: null,
+      startDate: row.startDate ?? null,
+      endDate: row.catchUpDeadline ? String(row.catchUpDeadline).slice(0, 10) : null,
       subType: null,
       lectureType: row.lectureType ? String(row.lectureType) : null,
       hasZoomLink: false,

@@ -33,20 +33,22 @@ export function TabNavbar({
             onClick={item.onClick}
             aria-current={isActive ? "page" : undefined}
             className={cn(
-              "group flex min-w-0 basis-0 flex-1 flex-col items-center justify-center gap-1 px-1 py-1 transition-colors",
+              "group relative flex min-w-0 basis-0 flex-1 flex-col items-center justify-center gap-1 px-1 pt-4 pb-1 transition-colors",
               "cursor-pointer border-0 bg-transparent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-0",
               isActive
                 ? activeClassName
                 : "text-[#6B7280] hover:text-[#4B5563]",
             )}
           >
+            {/* Top indicator bar */}
+            {isActive && !accent && (
+              <span className="absolute top-0 left-1/2 -translate-x-1/2 h-[3px] w-8 rounded-b-full bg-[#6962AC]" />
+            )}
+
             {accent ? (
               <span
                 className={cn(
                   "-mt-1 flex size-7 shrink-0 items-center justify-center rounded-full",
-                  // Concrete Masai-indigo gradient — the `primary-500/700` scale
-                  // isn't defined in this app's theme, so those utilities emitted
-                  // no background and the white icon sat invisibly on a bare ring.
                   "bg-gradient-to-br from-[#7B73B8] to-[#564E97] text-white",
                   "shadow-[0_4px_12px_-2px_rgba(96,89,157,0.55)] ring-[3px] ring-white",
                   "transition-transform duration-200 group-hover:scale-105 group-active:scale-95",

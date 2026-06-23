@@ -68,9 +68,9 @@ function isEnterDetailsValid(v: FormValues): boolean {
   if (!base) return false
   if (v.currentStatus === 'studying' && v.studyYear === '') return false
   if (v.currentStatus === 'working' && v.workDomain.trim() === '') return false
+  if (v.parentsEmail.trim() === '' || !isValidEmail(v.parentsEmail)) return false
+  if (v.parentsMobile.trim() === '' || !isValidPhone(v.parentsMobile)) return false
   if (v.panNumber.trim() !== '' && !isValidPan(v.panNumber)) return false
-  if (v.parentsEmail.trim() !== '' && !isValidEmail(v.parentsEmail)) return false
-  if (v.parentsMobile.trim() !== '' && !isValidPhone(v.parentsMobile)) return false
   return true
 }
 
@@ -398,7 +398,7 @@ function EnterDetailsStep({
       </Field>
 
       {/* Parent's Email */}
-      <Field label="Parent's Email">
+      <Field label="Parent's Email" required>
         <input
           type="email"
           placeholder="Enter parent's email"
@@ -407,13 +407,15 @@ function EnterDetailsStep({
           onBlur={() => setParentEmailTouched(true)}
           className={inputClass}
         />
-        {parentEmailTouched && values.parentsEmail.trim() !== '' && !isValidEmail(values.parentsEmail) && (
+        {parentEmailTouched && (values.parentsEmail.trim() === '' ? (
+          <p className="mt-1.5 text-xs text-red-500">Parent&apos;s email is required</p>
+        ) : !isValidEmail(values.parentsEmail) ? (
           <p className="mt-1.5 text-xs text-red-500">Please enter a valid email address</p>
-        )}
+        ) : null)}
       </Field>
 
       {/* Parent's Mobile */}
-      <Field label="Parent's Mobile">
+      <Field label="Parent's Mobile" required>
         <div className="flex gap-2">
           <div className="relative" style={{ width: 100 }}>
             <select
@@ -438,9 +440,11 @@ function EnterDetailsStep({
             className={`${inputClass} flex-1`}
           />
         </div>
-        {parentPhoneTouched && values.parentsMobile.trim() !== '' && !isValidPhone(values.parentsMobile) && (
+        {parentPhoneTouched && (values.parentsMobile.trim() === '' ? (
+          <p className="mt-1.5 text-xs text-red-500">Parent&apos;s mobile number is required</p>
+        ) : !isValidPhone(values.parentsMobile) ? (
           <p className="mt-1.5 text-xs text-red-500">Please enter a valid 10-digit mobile number</p>
-        )}
+        ) : null)}
       </Field>
 
       <SectionHeading>Education &amp; Career</SectionHeading>
@@ -592,10 +596,10 @@ function EnterDetailsStep({
 
 // ── Signature Certificate ──────────────────────────────────────────────────────
 
-function SigRow({ label, value }: { label: string; value: string }) {
+function SigRow({ label, value, labelWidth = 110 }: { label: string; value: string; labelWidth?: number }) {
   return (
     <div className="flex items-baseline gap-3 text-sm">
-      <span className="text-gray-500 shrink-0" style={{ width: 80 }}>{label}</span>
+      <span className="text-gray-500 shrink-0" style={{ width: labelWidth }}>{label}</span>
       <span className="text-gray-400 shrink-0">:</span>
       <span className="text-gray-700">{value || '—'}</span>
     </div>
@@ -635,16 +639,17 @@ function SignatureCertificate({
 
   return (
     <div className="flex flex-col rounded-xl bg-white border border-gray-100 overflow-hidden" style={{ boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
-      {/* Name + email block */}
-      <div className="px-8 pt-7 pb-5 border-b border-gray-100">
-        <p className="text-base font-semibold text-gray-900">{form.name || '—'}</p>
-        <p className="text-sm text-gray-500 mt-0.5">Email : <span className="font-medium text-gray-700">{apiData?.userEmail || '—'}</span></p>
-      </div>
-
-      {/* Timestamp + Signature sections */}
+      {/* All sections */}
       <div className="px-8 py-6 flex flex-col gap-7">
+        <SigSection title="Details">
+          <SigRow label="Name" value={form.name || '—'} />
+          <SigRow label="Email" value={apiData?.userEmail || '—'} />
+          <SigRow label="Student Code" value={apiData?.studentCode || '—'} />
+          <SigRow label="Program" value={apiData?.programName || '—'} />
+          <SigRow label="Batch" value={apiData?.batchName || '—'} />
+        </SigSection>
+
         <SigSection title="Timestamp">
-          <SigRow label="Sent" value={formatDateDisplay(viewTime)} />
           <SigRow label="Viewed" value={formatDateDisplay(viewTime)} />
           <SigRow label="Signed" value={formatDateDisplay(signedAt)} />
         </SigSection>
@@ -657,6 +662,55 @@ function SignatureCertificate({
 
       {/* Hidden cert info used internally for PDF — not shown in UI */}
       <input type="hidden" value={referenceNumber} />
+    </div>
+  )
+}
+
+// ── Mobile placeholder (agreement is desktop-only) ────────────────────────────
+
+export function MobileAgreementPlaceholder({ sectionId }: { sectionId?: number }) {
+  const [meta, setMeta] = useState<{ daysLeft: number; title: string } | null>(null)
+
+  useEffect(() => {
+    if (!sectionId) return
+    fetchAgreementData(sectionId)
+      .then((data) => setMeta({ daysLeft: data.daysLeft, title: data.sectionName ?? 'Program Agreement' }))
+      .catch(() => {})
+  }, [sectionId])
+
+  const title = meta?.title ?? 'Program Agreement'
+  const daysLeft = meta?.daysLeft
+
+  return (
+    <div className="flex-1 flex flex-col items-center justify-start gap-4 px-4 pt-10 pb-8 mb-8">
+      {/* Illustration */}
+      <img src="/agreementIcon.svg" alt="" width={120} height={120} className="shrink-0" />
+
+      <div className="flex flex-col items-center gap-3 text-center">
+        <h3 className="font-bold text-base" style={{ fontFamily: 'Poppins', color: '#111928' }}>
+          {title}
+        </h3>
+        <p className="text-sm leading-5" style={{ fontFamily: 'Poppins', color: '#4B5563' }}>
+          This agreement can only be viewed &amp; signed on a desktop. Please switch to a computer to complete the agreement.
+        </p>
+
+        {daysLeft != null && (
+          <div
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-full border"
+            style={{ background: '#FFF8F1', borderColor: '#FCD9BD' }}
+          >
+            <span
+              className="text-sm font-medium text-white px-3 py-0.5 rounded-full"
+              style={{ background: '#FF5A1F', fontFamily: 'Poppins' }}
+            >
+              {daysLeft} {daysLeft === 1 ? 'day' : 'days'}
+            </span>
+            <span className="text-xs font-medium" style={{ color: '#374151', fontFamily: 'Poppins' }}>
+              left to complete your agreement
+            </span>
+          </div>
+        )}
+      </div>
     </div>
   )
 }
@@ -711,7 +765,26 @@ export function AgreementFlow({
     fetchAgreementData(sectionId)
       .then((data) => {
         setApiData(data)
-        setAgreementChecks(new Array(data.agreementSteps.length).fill(false))
+        // Pre-tick accepted agreement checkboxes
+        const checks = data.agreementSteps.map((s) => data.acceptedStepKeys.includes(s.key))
+        setAgreementChecks(checks)
+
+        // Resume from the first uncompleted step
+        const detailsDone = !!(data.prefill?.name)
+        if (detailsDone) {
+          let resumeStep = 1
+          for (let i = 0; i < data.agreementSteps.length; i++) {
+            if (data.acceptedStepKeys.includes(data.agreementSteps[i].key)) {
+              resumeStep = i + 2
+            } else {
+              break
+            }
+          }
+          // Cap at last step index (signature)
+          const lastStep = data.agreementSteps.length + 1
+          setActiveStep(Math.min(resumeStep, lastStep))
+        }
+
         if (data.prefill) {
           setForm((prev) => ({
             ...prev,
@@ -929,7 +1002,7 @@ export function AgreementFlow({
               <div className="flex flex-col gap-5 pb-6">
                 <div className="rounded-xl border border-gray-200 overflow-hidden" style={{ height: 480 }}>
                   <iframe
-                    src={apiAgreementSteps[activeStep - 1].pdfUrl}
+                    src={`${apiAgreementSteps[activeStep - 1].pdfUrl}#toolbar=0`}
                     title={STEPS[activeStep].label}
                     className="w-full h-full"
                   />
