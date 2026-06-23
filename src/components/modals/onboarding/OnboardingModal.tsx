@@ -291,6 +291,9 @@ export function OnboardingModal({
     const idx = steps.findIndex((s) => s.id === stepId)
     if (idx !== -1 && idx < steps.length - 1) {
       setActiveStep(steps[idx + 1].id)
+    } else {
+      // All steps done — close after a brief moment so the success state is visible
+      setTimeout(() => onClose(), 1500)
     }
   }
 

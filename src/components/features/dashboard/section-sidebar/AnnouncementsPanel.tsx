@@ -25,7 +25,7 @@ export function AnnouncementsPanel({ announcements }: AnnouncementsPanelProps) {
         </Link>
       </div>
 
-      <div className="flex flex-col gap-2 max-h-[144px] overflow-y-auto px-0.5 py-0.5 -mx-0.5 -my-0.5">
+      <div className="flex flex-col gap-2 px-0.5 py-0.5 -mx-0.5 -my-0.5">
         {announcements.map((item) => (
           <Link
             key={item.id}

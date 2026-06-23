@@ -51,9 +51,9 @@ function toLearningType(raw: string): DashboardScheduleItem['learningType'] {
  *
  * Combines lectures, assignments, and quizzes — each scoped by section_id.
  * An event is included when ANY of these hold:
- *   - start_date falls within the window
- *   - end_date falls within the window
- *   - event spans the ENTIRE window (start_date < today AND end_date > today+6)
+ *   - schedule (IST date) falls within the window
+ *   - concludes (IST date) falls within the window
+ *   - event spans the ENTIRE window (schedule < today AND concludes > today+6)
  *     — these spanning items are excluded from My Schedule display and surfaced
  *       in the Pending Tasks tab instead (handled client-side by extractSpanningItems).
  *
@@ -74,8 +74,8 @@ export async function getDashboardSchedule(
   const sectionIdList = sectionIds.map(Number).filter(Number.isFinite).join(', ')
   const showBatchName = batchIds.length > 1
 
-  // Rolling 7-day window: CURDATE() … CURDATE() + 6 days
-  // An event qualifies when its start_date OR end_date falls in the window.
+  // Rolling 7-day window: CURDATE() … CURDATE() + 6 days (all times in IST)
+  // An event qualifies when its schedule OR concludes (IST date) falls in the window.
   const result = await db.execute(sql`
     SELECT
       l.id,
@@ -83,8 +83,8 @@ export async function getDashboardSchedule(
       l.title,
       l.schedule,
       l.concludes,
-      DATE_FORMAT(l.start_date, '%Y-%m-%d') AS startDate,
-      DATE_FORMAT(l.end_date,   '%Y-%m-%d') AS endDate,
+      DATE(CONVERT_TZ(l.schedule,  '+00:00', '+05:30')) AS startDate,
+      DATE(CONVERT_TZ(l.concludes, '+00:00', '+05:30')) AS endDate,
       l.category          AS subType,
       l.module            AS moduleName,
       l.optional,
@@ -97,9 +97,9 @@ export async function getDashboardSchedule(
     WHERE l.section_id IN (${sql.raw(sectionIdList)})
       AND l.deleted_at IS NULL
       AND (
-        l.start_date BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL 6 DAY)
-        OR l.end_date BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL 6 DAY)
-        OR (l.start_date < CURDATE() AND l.end_date > DATE_ADD(CURDATE(), INTERVAL 6 DAY))
+        DATE(CONVERT_TZ(l.schedule,  '+00:00', '+05:30')) BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL 6 DAY)
+        OR DATE(CONVERT_TZ(l.concludes, '+00:00', '+05:30')) BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL 6 DAY)
+        OR (DATE(CONVERT_TZ(l.schedule,  '+00:00', '+05:30')) < CURDATE() AND DATE(CONVERT_TZ(l.concludes, '+00:00', '+05:30')) > DATE_ADD(CURDATE(), INTERVAL 6 DAY))
       )
 
     UNION ALL
@@ -110,8 +110,8 @@ export async function getDashboardSchedule(
       a.title,
       a.schedule,
       a.concludes,
-      DATE_FORMAT(a.start_date, '%Y-%m-%d') AS startDate,
-      DATE_FORMAT(a.end_date,   '%Y-%m-%d') AS endDate,
+      DATE(CONVERT_TZ(a.schedule,  '+00:00', '+05:30')) AS startDate,
+      DATE(CONVERT_TZ(a.concludes, '+00:00', '+05:30')) AS endDate,
       a.category          AS subType,
       a.module            AS moduleName,
       a.optional,
@@ -124,9 +124,9 @@ export async function getDashboardSchedule(
     WHERE a.section_id IN (${sql.raw(sectionIdList)})
       AND a.deleted_at IS NULL
       AND (
-        a.start_date BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL 6 DAY)
-        OR a.end_date BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL 6 DAY)
-        OR (a.start_date < CURDATE() AND a.end_date > DATE_ADD(CURDATE(), INTERVAL 6 DAY))
+        DATE(CONVERT_TZ(a.schedule,  '+00:00', '+05:30')) BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL 6 DAY)
+        OR DATE(CONVERT_TZ(a.concludes, '+00:00', '+05:30')) BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL 6 DAY)
+        OR (DATE(CONVERT_TZ(a.schedule,  '+00:00', '+05:30')) < CURDATE() AND DATE(CONVERT_TZ(a.concludes, '+00:00', '+05:30')) > DATE_ADD(CURDATE(), INTERVAL 6 DAY))
       )
 
     UNION ALL
@@ -137,8 +137,8 @@ export async function getDashboardSchedule(
       q.title,
       q.schedule,
       q.concludes,
-      DATE_FORMAT(q.start_date, '%Y-%m-%d') AS startDate,
-      DATE_FORMAT(q.end_date,   '%Y-%m-%d') AS endDate,
+      DATE(CONVERT_TZ(q.schedule,  '+00:00', '+05:30')) AS startDate,
+      DATE(CONVERT_TZ(q.concludes, '+00:00', '+05:30')) AS endDate,
       q.category          AS subType,
       NULL                AS moduleName,
       q.optional,
@@ -151,12 +151,12 @@ export async function getDashboardSchedule(
     WHERE q.section_id IN (${sql.raw(sectionIdList)})
       AND q.deleted_at IS NULL
       AND (
-        q.start_date BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL 6 DAY)
-        OR q.end_date BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL 6 DAY)
-        OR (q.start_date < CURDATE() AND q.end_date > DATE_ADD(CURDATE(), INTERVAL 6 DAY))
+        DATE(CONVERT_TZ(q.schedule,  '+00:00', '+05:30')) BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL 6 DAY)
+        OR DATE(CONVERT_TZ(q.concludes, '+00:00', '+05:30')) BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL 6 DAY)
+        OR (DATE(CONVERT_TZ(q.schedule,  '+00:00', '+05:30')) < CURDATE() AND DATE(CONVERT_TZ(q.concludes, '+00:00', '+05:30')) > DATE_ADD(CURDATE(), INTERVAL 6 DAY))
       )
 
-    ORDER BY startDate ASC, schedule ASC, id ASC
+    ORDER BY schedule ASC, id ASC
   `)
 
   return normalizeRows(result).map((row): DashboardScheduleItem => ({

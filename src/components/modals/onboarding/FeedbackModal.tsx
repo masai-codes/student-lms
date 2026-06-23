@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { CheckCircle2, ChevronDown, X } from 'lucide-react'
+import { AlertCircle, CheckCircle2, ChevronDown, X } from 'lucide-react'
 import type { NpsFormData, NpsQuestion } from '@/server/api/dashboard/getNpsForm.service'
 import { fetchNpsForm, startNpsSubmission, saveNpsResponse, completeNpsSubmission } from '@/lib/api/dashboard/dashboardApi'
 
@@ -124,11 +124,16 @@ function RatingScaleInput({
   const emojis = cfg?.emojis ?? []
 
   const EMOJI_LABEL_MAP: Record<string, string | undefined> = {
-    '😠': 'Poor',
-    '😞': 'Below Average',
-    '😐': 'Average',
-    '🙂': 'Good',
-    '😄': 'Excellent',
+    // Poor
+    '😠': 'Poor', '😤': 'Poor', '😡': 'Poor', '🤬': 'Poor',
+    // Below Average
+    '😞': 'Below Average', '😔': 'Below Average', '😕': 'Below Average', '🙁': 'Below Average',
+    // Average
+    '😐': 'Average', '😑': 'Average', '😶': 'Average',
+    // Good
+    '🙂': 'Good', '😊': 'Good',
+    // Excellent
+    '😄': 'Excellent', '🤩': 'Excellent', '😁': 'Excellent', '🌟': 'Excellent', '⭐': 'Excellent',
   }
 
   // labels: hardcoded map first, then emojiLabels, then options
@@ -318,6 +323,7 @@ export function FeedbackFormContent({ formId, isOnlyStep = false, onSubmitted }:
   const [submitting, setSubmitting] = useState(false)
   const [submitted, setSubmitted] = useState(false)
   const [countdown, setCountdown] = useState<number | null>(null)
+  const [validationBanner, setValidationBanner] = useState(false)
   const onSubmittedRef = useRef(onSubmitted)
   onSubmittedRef.current = onSubmitted
 
@@ -363,6 +369,7 @@ export function FeedbackFormContent({ formId, isOnlyStep = false, onSubmitted }:
 
   function setAnswer(questionId: number, value: AnswerValue) {
     setAnswers((prev) => ({ ...prev, [questionId]: value }))
+    setValidationBanner(false)
     if (submissionId !== null) {
       void saveNpsResponse(formId, submissionId, questionId, value).catch(() => undefined)
     }
@@ -374,6 +381,12 @@ export function FeedbackFormContent({ formId, isOnlyStep = false, onSubmitted }:
 
   async function handleSubmit() {
     if (!form || submissionId === null) return
+    const unansweredRequired = questions.filter((q) => q.isRequired && !isAnswered(q, answers[q.id] ?? null))
+    if (unansweredRequired.length > 0) {
+      setValidationBanner(true)
+      return
+    }
+    setValidationBanner(false)
     setSubmitting(true)
     try {
       await completeNpsSubmission(formId, submissionId)
@@ -420,12 +433,32 @@ export function FeedbackFormContent({ formId, isOnlyStep = false, onSubmitted }:
           </div>
         )}
 
-        {loading && (
-          <div className="flex items-center justify-center h-40 text-gray-400 text-sm">Loading questions…</div>
+        {validationBanner && (
+          <div className="flex items-center gap-3 mb-5 px-4 py-3 rounded-lg border border-orange-200 bg-orange-50">
+            <AlertCircle size={18} className="text-orange-500 shrink-0" />
+            <p className="text-sm text-orange-700 leading-snug">
+              Please fill in all required fields before submitting.
+            </p>
+            <button
+              type="button"
+              onClick={() => setValidationBanner(false)}
+              className="ml-auto text-orange-400 hover:text-orange-600 transition-colors focus-visible:outline-none shrink-0"
+              aria-label="Dismiss"
+            >
+              <X size={16} />
+            </button>
+          </div>
         )}
 
-        {!loading && error && (
-          <div className="flex items-center justify-center h-40 text-red-500 text-sm">{error}</div>
+        {error && (
+          <div className="flex items-center gap-3 mb-5 px-4 py-3 rounded-lg border border-red-200 bg-red-50">
+            <AlertCircle size={18} className="text-red-500 shrink-0" />
+            <p className="text-sm text-red-700 leading-snug">{error}</p>
+          </div>
+        )}
+
+        {loading && (
+          <div className="flex items-center justify-center h-40 text-gray-400 text-sm">Loading questions…</div>
         )}
 
         {!loading && !submitted && form && questions.map((q, idx) => (

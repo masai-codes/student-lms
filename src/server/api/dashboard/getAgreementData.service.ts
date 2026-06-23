@@ -12,6 +12,7 @@ export interface AgreementStep {
 export interface AgreementDataResponse {
   sectionName: string
   programName: string
+  batchName: string
   userId: number
   userEmail: string
   studentCode: string
@@ -20,6 +21,8 @@ export interface AgreementDataResponse {
   alreadyAccepted: boolean
   agreementSteps: Array<AgreementStep>
   prefill: Partial<AgreementFormPrefill> | null
+  /** Keys of agreement steps that have already been accepted by the user */
+  acceptedStepKeys: Array<string>
 }
 
 export interface AgreementFormPrefill {
@@ -45,6 +48,15 @@ export interface AgreementFormPrefill {
   location: string
   ipAddress: string
   referenceNumber: string
+}
+
+function getAgreementFieldName(stepKey: string): string {
+  switch (stepKey) {
+    case 'program_agreement': return 'programAgreement'
+    case 'grading_policy': return 'criteriaAgreement'
+    case 'posh_compliance': return 'poshAgreement'
+    default: return stepKey
+  }
 }
 
 interface AgreementEntry {
@@ -97,7 +109,7 @@ export async function getAgreementData(
   if (!section) throw new Error('AGREEMENT_SECTION_NOT_FOUND')
 
   const [batch] = await db
-    .select({ program: batches.program, name: batches.name })
+    .select({ program: batches.program, name: batches.name, batchName: batches.name })
     .from(batches)
     .where(eq(batches.id, section.batchId))
     .limit(1)
@@ -141,15 +153,15 @@ export async function getAgreementData(
 
   const alreadyAccepted = sectionAgreement?.haveAcceptedLegalAgreement === true
 
-  const lastClose = legalData?.lastModalCloseTime ?? null
+  const firstViewTime = (sectionAgreement as Record<string, unknown> | null)?.['viewTime'] as string | null ?? null
   let daysLeft: number
-  if (!lastClose) {
+  if (!firstViewTime) {
     daysLeft = 7
   } else {
-    const daysSince = Math.floor(
-      (Date.now() - new Date(lastClose).getTime()) / (1000 * 60 * 60 * 24),
+    const daysSinceFirstView = Math.floor(
+      (Date.now() - new Date(firstViewTime).getTime()) / (1000 * 60 * 60 * 24),
     )
-    daysLeft = Math.max(0, 7 - daysSince)
+    daysLeft = Math.max(0, 7 - daysSinceFirstView)
   }
 
   const prefill: Partial<AgreementFormPrefill> | null = sectionAgreement ? {
@@ -177,10 +189,16 @@ export async function getAgreementData(
     referenceNumber: sectionAgreement.referenceNumber,
   } : null
 
+  const sectionRaw = sectionAgreement as Record<string, unknown> | null
+  const acceptedStepKeys = agreementSteps
+    .filter((step) => !!sectionRaw?.[getAgreementFieldName(step.key)])
+    .map((step) => step.key)
+
   return {
     userId,
     sectionName: section.name,
     programName: batch?.program ?? '',
+    batchName: batch?.name ?? '',
     userEmail: userRow?.email ?? '',
     studentCode: userRow?.username ?? '',
     viewTime: legalData?.viewTime ?? null,
@@ -188,5 +206,6 @@ export async function getAgreementData(
     alreadyAccepted,
     agreementSteps,
     prefill,
+    acceptedStepKeys,
   }
 }

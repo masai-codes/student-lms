@@ -98,6 +98,15 @@ export async function checkAgreementRequired(userId: number): Promise<Array<Pend
   const legalData = profileRows[0]?.legalData as Record<string, unknown> | null | undefined
   const userAgreements = (legalData?.['agreements'] ?? {}) as Record<string, unknown>
 
+  // If the user first opened the agreement modal more than 7 days ago, the window has closed
+  const viewTime = legalData?.['viewTime'] as string | null | undefined
+  if (viewTime) {
+    const daysSinceFirstView = Math.floor(
+      (Date.now() - new Date(viewTime).getTime()) / (1000 * 60 * 60 * 24),
+    )
+    if (daysSinceFirstView >= 7) return []
+  }
+
   const pending: Array<PendingAgreementSection> = []
 
   for (const row of sectionResult) {
