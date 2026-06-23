@@ -27,6 +27,7 @@ vi.mock('@/server/api/masaiverse-v2/services/publishVisibility', () => ({
 }))
 vi.mock('@/server/auth/getCurrentSessionUserId', () => ({
   getUserIdFromCookieHeader: hoisted.getUserIdFromCookieHeader,
+  getUserIdFromRequest: hoisted.getUserIdFromCookieHeader,
 }))
 
 function req(method: string, body: unknown, cookie: string | null): Request {
