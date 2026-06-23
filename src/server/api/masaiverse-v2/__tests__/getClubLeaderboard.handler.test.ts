@@ -90,7 +90,8 @@ describe('handleGetClubLeaderboard', () => {
     const response = await handleGetClubLeaderboard(
       getRequest('?clubId=99', 'session=abc'),
     )
-    expect(response.status).toBe(404)
+    expect(response.status).toBe(422)
+    expect(response.headers.get('x-true-status')).toBe('404')
     await expect(response.json()).resolves.toMatchObject({
       code: 'CLUB_NOT_FOUND',
     })

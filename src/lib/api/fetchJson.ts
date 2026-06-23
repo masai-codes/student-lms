@@ -1,8 +1,9 @@
 import { createIsomorphicFn } from '@tanstack/react-start'
 
-import { ApiClientError } from '@/lib/api/apiClientError'
-import { resolveApiFetchUrl } from '@/lib/api/resolveApiFetchUrl'
 import type { ApiErrorBody } from '@/server/api/http/responses'
+import { ApiClientError } from '@/lib/api/apiClientError'
+import { resolveTrueStatus } from '@/lib/api/cloudFrontSafeStatus'
+import { resolveApiFetchUrl } from '@/lib/api/resolveApiFetchUrl'
 
 export type FetchJsonOptions = RequestInit & {
   cookieHeader?: string | null
@@ -11,7 +12,8 @@ export type FetchJsonOptions = RequestInit & {
 async function parseJsonResponse<T>(response: Response): Promise<T> {
   if (!response.ok) {
     const body = (await response.json().catch(() => ({}))) as Partial<ApiErrorBody>
-    throw new ApiClientError(response.status, body)
+    // Restore the true status (403/404) the server remapped past CloudFront.
+    throw new ApiClientError(resolveTrueStatus(response), body)
   }
   return (await response.json()) as T
 }

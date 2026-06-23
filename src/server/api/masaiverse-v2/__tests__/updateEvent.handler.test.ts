@@ -69,7 +69,8 @@ describe('handleUpdateEvent', () => {
     const response = await handleUpdateEvent(
       postRequest({ eventId: 5 }, 'session=abc'),
     )
-    expect(response.status).toBe(403)
+    expect(response.status).toBe(422)
+    expect(response.headers.get('x-true-status')).toBe('403')
   })
 
   it('maps unexpected failures to a 500 error', async () => {

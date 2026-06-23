@@ -94,7 +94,8 @@ describe('handleAwardManualPoints', () => {
     const response = await handle(
       postRequest({ targetUserId: '2', points: 5 }, 'session=abc'),
     )
-    expect(response.status).toBe(403)
+    expect(response.status).toBe(422)
+    expect(response.headers.get('x-true-status')).toBe('403')
   })
 
   it('maps an unexpected error to 500', async () => {
