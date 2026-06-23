@@ -13,6 +13,7 @@ vi.mock(
 )
 vi.mock('@/server/auth/getCurrentSessionUserId', () => ({
   getUserIdFromCookieHeader: hoisted.getUserIdFromCookieHeader,
+  getUserIdFromRequest: hoisted.getUserIdFromCookieHeader,
 }))
 
 vi.mock('@/server/api/masaiverse-v2/services/publishVisibility', () => ({

@@ -1,8 +1,8 @@
 import { ApiError } from '@/server/api/http/apiError'
-import { getUserIdFromCookieHeader } from '@/server/auth/getCurrentSessionUserId'
+import { getUserIdFromRequest } from '@/server/auth/getCurrentSessionUserId'
 
 export async function requireSessionUserId(request: Request): Promise<number> {
-  const userId = await getUserIdFromCookieHeader(request.headers.get('cookie'))
+  const userId = await getUserIdFromRequest(request)
 
   if (!userId) {
     throw new ApiError(401, 'UNAUTHORIZED')
