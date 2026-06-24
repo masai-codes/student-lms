@@ -39,13 +39,15 @@ export async function getDashboardAttendance(userId: number): Promise<Array<Batc
   const results: Array<BatchAttendance> = []
 
   for (const batchId of batchIds) {
-    // Step 1: enrolled section IDs
+    // Step 1: enrolled section IDs scoped to this batch
     const sectionRows = normalizeRows<{ section_id: number | string }>(
       await db.execute(sql`
-        SELECT section_id
-        FROM section_user
-        WHERE user_id = ${userId}
-          AND deleted_at IS NULL
+        SELECT su.section_id
+        FROM section_user su
+        JOIN sections s ON s.id = su.section_id
+        WHERE su.user_id = ${userId}
+          AND su.deleted_at IS NULL
+          AND s.batch_id = ${batchId}
       `)
     )
 

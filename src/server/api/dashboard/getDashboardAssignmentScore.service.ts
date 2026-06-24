@@ -61,5 +61,5 @@ export async function getDashboardAssignmentScore(
   const raw = scoreRows[0]?.totalScore
   if (raw === null || raw === undefined) return null
 
-  return Math.round((Number(raw) / assignmentIds.length) * 100) / 100
+  return Math.round((Number(raw) / (assignmentIds.length * 10)) * 100) / 100
 }
