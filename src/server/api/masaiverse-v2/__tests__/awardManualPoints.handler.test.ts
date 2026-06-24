@@ -14,6 +14,7 @@ vi.mock(
 )
 vi.mock('@/server/auth/getCurrentSessionUserId', () => ({
   getUserIdFromCookieHeader: hoisted.getUserIdFromCookieHeader,
+  getUserIdFromRequest: hoisted.getUserIdFromCookieHeader,
 }))
 
 function postRequest(body: unknown, cookie: string | null): Request {

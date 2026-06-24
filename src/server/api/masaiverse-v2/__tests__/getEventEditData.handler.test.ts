@@ -11,6 +11,7 @@ vi.mock('@/server/api/masaiverse-v2/services/getEventEditData.service', () => ({
 }))
 vi.mock('@/server/auth/getCurrentSessionUserId', () => ({
   getUserIdFromCookieHeader: hoisted.getUserIdFromCookieHeader,
+  getUserIdFromRequest: hoisted.getUserIdFromCookieHeader,
 }))
 
 function getRequest(eventId: string, cookie: string | null): Request {

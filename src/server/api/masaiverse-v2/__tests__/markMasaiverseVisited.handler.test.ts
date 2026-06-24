@@ -11,6 +11,7 @@ vi.mock('@/server/api/masaiverse-v2/markMasaiverseVisited.service', () => ({
 
 vi.mock('@/server/auth/getCurrentSessionUserId', () => ({
   getUserIdFromCookieHeader: hoisted.getUserIdFromCookieHeader,
+  getUserIdFromRequest: hoisted.getUserIdFromCookieHeader,
 }))
 
 function requestWithCookie(cookie: string | null): Request {
