@@ -1,6 +1,12 @@
 /** Max user message length accepted by the streaming chat endpoint. */
 export const AI_TUTOR_CHAT_MAX_MESSAGE_LENGTH = 4_000
 
+/** Fallback title when a conversation has no user messages yet. */
+export const AI_TUTOR_DEFAULT_CONVERSATION_TITLE = 'New chat'
+
+/** Max characters shown in conversation list titles. */
+export const AI_TUTOR_CONVERSATION_TITLE_MAX_LENGTH = 50
+
 /** Default Claude model; override with `ANTHROPIC_MODEL`. */
 export const AI_TUTOR_CHAT_DEFAULT_MODEL = 'claude-opus-4-8'
 

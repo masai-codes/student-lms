@@ -147,6 +147,8 @@ export function mapThrownErrorToResponse(error: unknown): Response {
         return jsonError(404, error.message)
       case 'SERVER_ERROR_STREAMING_AI_TUTOR_CHAT':
       case 'SERVER_ERROR_CREATING_AI_TUTOR_CHAT':
+      case 'SERVER_ERROR_FETCHING_AI_TUTOR_CONVERSATIONS':
+      case 'SERVER_ERROR_FETCHING_AI_TUTOR_CONVERSATION':
         return jsonError(500, error.message)
       case 'AI_TUTOR_ANTHROPIC_NOT_CONFIGURED':
         return jsonError(503, error.message)
