@@ -7,6 +7,7 @@ const hoisted = vi.hoisted(() => ({
 
 vi.mock('@/server/auth/getCurrentSessionUserId', () => ({
   getUserIdFromCookieHeader: hoisted.getUserIdFromCookieHeader,
+  getUserIdFromRequest: hoisted.getUserIdFromCookieHeader,
 }))
 
 vi.mock('@/server/api/ai-tutor/getAiTutorConversation.service', () => ({
