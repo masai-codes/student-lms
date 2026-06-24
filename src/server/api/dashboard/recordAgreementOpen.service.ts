@@ -3,7 +3,7 @@ import { db } from '@/db'
 import { profiles } from '@/db/schema'
 
 export async function recordAgreementOpen(userId: number, sectionId: number): Promise<void> {
-  const nowIst = new Date(Date.now() + 5.5 * 60 * 60 * 1000).toISOString()
+  const now = new Date().toISOString()
 
   let [profile] = await db
     .select({ id: profiles.id, legalData: profiles.legalData })
@@ -28,11 +28,11 @@ export async function recordAgreementOpen(userId: number, sectionId: number): Pr
 
   const sectionUpdate: Record<string, unknown> = {
     ...existing,
-    lastShownTime: nowIst,
+    lastShownTime: now,
   }
   // viewTime is set only once — on first open
   if (!existing.viewTime) {
-    sectionUpdate.viewTime = nowIst
+    sectionUpdate.viewTime = now
   }
 
   await db
