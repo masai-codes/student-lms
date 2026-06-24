@@ -19,6 +19,8 @@ phases:
       # Sync static assets to S3 — additive only (default; no --delete flag)
       - echo "Uploading static assets to S3..."
       - aws s3 sync .output/public/assets/ "s3://${STATIC_ASSETS_BUCKET}/assets/" --cache-control "max-age=31536000,immutable"
+      - echo "Uploading CloudWatch agent config to S3..."
+      - aws s3 cp config/cloudwatch/amazon-cloudwatch-agent.json "s3://${STATIC_ASSETS_BUCKET}/config/cloudwatch/amazon-cloudwatch-agent.json" --cache-control "max-age=300"
 
   post_build:
     commands:
