@@ -103,3 +103,23 @@ export async function removeResourceBookmarkViaApi(
     method: 'DELETE',
   })
 }
+
+export interface LectureBookmarkResult {
+  isBookmarked: boolean
+}
+
+export async function addLectureBookmarkViaApi(
+  lectureId: number,
+): Promise<LectureBookmarkResult> {
+  return fetchJson<LectureBookmarkResult>(LEARN_API.lectureBookmark(lectureId), {
+    method: 'POST',
+  })
+}
+
+export async function removeLectureBookmarkViaApi(
+  lectureId: number,
+): Promise<LectureBookmarkResult> {
+  return fetchJson<LectureBookmarkResult>(LEARN_API.lectureBookmark(lectureId), {
+    method: 'DELETE',
+  })
+}

@@ -7,6 +7,8 @@ const hoisted = vi.hoisted(() => ({
   associatedContent: vi.fn(),
   videoAttendance: vi.fn(),
   fetchAttendance: vi.fn(),
+  bookmarkState: vi.fn(),
+  feedbackRecord: vi.fn(),
 }))
 
 vi.mock('@/db', () => ({
@@ -36,6 +38,14 @@ vi.mock('@/server/attendance/services/fetchLectureAttendanceSummaries', () => ({
   fetchLectureAttendanceSummaries: hoisted.fetchAttendance,
 }))
 
+vi.mock('@/server/learn/services/learnEntityBookmark.service', () => ({
+  getLearnEntityBookmarkState: hoisted.bookmarkState,
+}))
+
+vi.mock('@/server/learn/services/lectureFeedback.service', () => ({
+  getLectureFeedbackRecord: hoisted.feedbackRecord,
+}))
+
 describe('getLectureLearningDetailForUser', () => {
   beforeEach(() => {
     vi.clearAllMocks()
@@ -44,6 +54,8 @@ describe('getLectureLearningDetailForUser', () => {
     hoisted.associatedContent.mockResolvedValue([])
     hoisted.videoAttendance.mockResolvedValue(null)
     hoisted.fetchAttendance.mockResolvedValue(new Map())
+    hoisted.bookmarkState.mockResolvedValue(false)
+    hoisted.feedbackRecord.mockResolvedValue({ rating: null, text: null })
   })
 
   it('returns lecture detail payload for supported live lectures', async () => {
@@ -78,7 +90,6 @@ describe('getLectureLearningDetailForUser', () => {
                     vimeoPlayerEmbedUrl: null,
                     settings: { hide_notes: 0 },
                     notes: '# Session notes',
-                    description: 'DB description',
                     data: null,
                   },
                 ]),
@@ -98,12 +109,14 @@ describe('getLectureLearningDetailForUser', () => {
 
     expect(result.id).toBe(227)
     expect(result.notes).toBe('# Session notes')
-    expect(result.tabs.description).toBe('DB description')
+    expect(result.tabs.notes).toBe('# Session notes')
     expect(result.hideNotes).toBe(false)
     expect(result.lectureKind).toBe('live')
     expect(result.livePhase).toBe('after')
     expect(result.discussions).toEqual([])
     expect(result.attendance).toBeNull()
+    expect(result.isBookmarked).toBe(false)
+    expect(hoisted.bookmarkState).toHaveBeenCalledWith(9, 'lecture', 227)
   })
 
   it('throws when lecture type is unsupported', async () => {
@@ -137,7 +150,6 @@ describe('getLectureLearningDetailForUser', () => {
                   vimeoPlayerEmbedUrl: null,
                   settings: null,
                   notes: null,
-                  description: null,
                   data: null,
                 },
               ]),

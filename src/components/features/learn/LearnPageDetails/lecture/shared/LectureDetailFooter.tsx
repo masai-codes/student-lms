@@ -3,21 +3,26 @@
 import { useEffect, useState } from 'react'
 
 import { LectureDiscussionsSection } from '../discussions'
+import { LectureFeedbackForm } from '../feedback/LectureFeedbackForm'
 import {
-  DEFAULT_LECTURE_TAB_ID,
   LectureTabBar,
   LectureTabContentSection,
+  resolveDefaultLectureTabId,
 } from '../tabs'
 import type { LectureDetailTabId } from '../tabs'
 
 import type { DiscussionListItem } from '@/server/learn/types'
-import type { LectureDetailTabContent } from '@/server/learn/lectureDetailTypes'
+import type {
+  LectureDetailTabContent,
+  LectureFeedbackState,
+} from '@/server/learn/lectureDetailTypes'
 
 type LectureDetailFooterProps = {
   entityId: number
   discussions: Array<DiscussionListItem>
   hideNotes: boolean
   tabs: LectureDetailTabContent
+  feedback: LectureFeedbackState
 }
 
 export function LectureDetailFooter({
@@ -25,18 +30,25 @@ export function LectureDetailFooter({
   discussions,
   hideNotes,
   tabs,
+  feedback,
 }: LectureDetailFooterProps) {
-  const [activeTabId, setActiveTabId] =
-    useState<LectureDetailTabId>(DEFAULT_LECTURE_TAB_ID)
+  const [activeTabId, setActiveTabId] = useState<LectureDetailTabId>(() =>
+    resolveDefaultLectureTabId(hideNotes),
+  )
 
   useEffect(() => {
-    if (hideNotes && activeTabId === 'notes') {
-      setActiveTabId(DEFAULT_LECTURE_TAB_ID)
+    // The Description tab is hidden when notes are hidden; fall back to the first
+    // visible tab so we never land on a tab that isn't rendered.
+    if (hideNotes && activeTabId === 'description') {
+      setActiveTabId(resolveDefaultLectureTabId(true))
     }
   }, [activeTabId, hideNotes])
 
   return (
     <>
+      <div className="shrink-0 pb-4">
+        <LectureFeedbackForm lectureId={entityId} feedback={feedback} />
+      </div>
       <div data-lecture-viewport-chrome className="shrink-0">
         <LectureTabBar
           activeTabId={activeTabId}

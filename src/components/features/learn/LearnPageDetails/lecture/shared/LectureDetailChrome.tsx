@@ -17,6 +17,8 @@ type LectureDetailChromeProps = {
   scheduleDisplayRange: string
   attendance: LectureAttendanceSummary | null
   watchPercentage?: number | null
+  /** Header CTAs (Raise Ticket + bookmark) rendered in the overview header. */
+  actions?: ReactNode
   hero: ReactNode
   belowHero?: ReactNode
   footer?: ReactNode
@@ -31,6 +33,7 @@ export function LectureDetailChrome({
   scheduleDisplayRange,
   attendance,
   watchPercentage,
+  actions,
   hero,
   belowHero,
   footer,
@@ -52,6 +55,7 @@ export function LectureDetailChrome({
             dateRange={scheduleDisplayRange}
             attendance={attendance}
             watchPercentage={watchPercentage}
+            actions={actions}
           />
           {belowHero}
         </div>

@@ -24,8 +24,17 @@ export type LectureTranscriptSegment = {
   text: string
 }
 
+export type LectureFeedbackState = {
+  /** Whether the feedback form is open for submission (show_feedback + within window). */
+  canSubmit: boolean
+  /** Existing rating 1–5, or null when not yet submitted. */
+  rating: number | null
+  /** Existing free-text feedback, or null. */
+  text: string | null
+}
+
 export type LectureDetailTabContent = {
-  description: string | null
+  /** Rendered under the single "Description" tab (legacy LMS used `lectures.notes`). */
   notes: string | null
   aiSummary: string | null
   /** Plain-text fallback (used when no segments are available). */
@@ -54,4 +63,8 @@ export type LectureDetailPayload = LearnHubDetailPayload & {
   videoAttendance: LectureVideoAttendanceState | null
   /** Null for recommended (optional) lectures. */
   attendance: LectureAttendanceSummary | null
+  /** Whether the current user has bookmarked this lecture. */
+  isBookmarked: boolean
+  /** Lecture feedback window + the user's existing rating/text. */
+  feedback: LectureFeedbackState
 }

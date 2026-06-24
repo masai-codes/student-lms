@@ -1,6 +1,12 @@
 export const LEARN_API = {
   page: '/api/learn/page',
   lecture: (lectureId: number) => `/api/learn/lectures/${lectureId}`,
+  lectureVideoProgress: (lectureId: number) =>
+    `/api/learn/lectures/${lectureId}/video-progress`,
+  lectureBookmark: (lectureId: number) =>
+    `/api/learn/lectures/${lectureId}/bookmark`,
+  lectureFeedback: (lectureId: number) =>
+    `/api/learn/lectures/${lectureId}/feedback`,
   assignment: (assignmentId: number) => `/api/learn/assignments/${assignmentId}`,
   problem: (assignmentId: number, problemId: number) =>
     `/api/learn/assignments/${assignmentId}/problems/${problemId}`,
@@ -21,4 +27,7 @@ export const LEARN_API = {
     `/api/learn/ai-chat/${lectureId}/send`,
   aiChatHistory: (lectureId: number) =>
     `/api/learn/ai-chat/${lectureId}/history`,
+  discussions: '/api/learn/discussions',
+  discussionReplies: (discussionId: number) =>
+    `/api/learn/discussions/${discussionId}/replies`,
 } as const

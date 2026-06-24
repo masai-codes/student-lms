@@ -3,10 +3,9 @@ import { describe, expect, it } from 'vitest'
 import { buildLectureTabContent } from '../buildLectureTabContent'
 
 describe('buildLectureTabContent', () => {
-  it('maps lecture fields and AI summary', () => {
+  it('maps lecture notes and AI summary', () => {
     const tabs = buildLectureTabContent({
-      description: '  About this lecture  ',
-      notes: 'Instructor notes',
+      notes: '  Instructor notes  ',
       lecturesAi: {
         summary: 'Key points',
         transcript: null,
@@ -17,7 +16,6 @@ describe('buildLectureTabContent', () => {
       ],
     })
 
-    expect(tabs.description).toBe('About this lecture')
     expect(tabs.notes).toBe('Instructor notes')
     expect(tabs.aiSummary).toBe('Key points')
     expect(tabs.transcriptSegments).toEqual([])
@@ -27,12 +25,12 @@ describe('buildLectureTabContent', () => {
 
   it('returns null AI summary when row is missing', () => {
     const tabs = buildLectureTabContent({
-      description: null,
       notes: null,
       lecturesAi: null,
       associatedItems: [],
     })
 
+    expect(tabs.notes).toBeNull()
     expect(tabs.aiSummary).toBeNull()
     expect(tabs.transcript).toBeNull()
     expect(tabs.transcriptSegments).toEqual([])
@@ -40,7 +38,6 @@ describe('buildLectureTabContent', () => {
 
   it('treats blank summary text as missing', () => {
     const tabs = buildLectureTabContent({
-      description: null,
       notes: null,
       lecturesAi: {
         summary: '   ',
@@ -58,7 +55,6 @@ describe('buildLectureTabContent', () => {
 
   it('parses structured transcript segments from JSON string', () => {
     const tabs = buildLectureTabContent({
-      description: null,
       notes: null,
       lecturesAi: {
         summary: null,
@@ -80,7 +76,6 @@ describe('buildLectureTabContent', () => {
 
   it('parses transcript segments whose start/end are stored as numeric strings', () => {
     const tabs = buildLectureTabContent({
-      description: null,
       notes: null,
       lecturesAi: {
         summary: null,
