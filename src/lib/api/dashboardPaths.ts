@@ -23,4 +23,7 @@ export const DASHBOARD_API = {
   agreementDetails: (sectionId: number) => `/api/dashboard/agreement/${sectionId}/details`,
   agreementSubmit: (sectionId: number) => `/api/dashboard/agreement/${sectionId}/submit`,
   agreementDismiss: (sectionId: number) => `/api/dashboard/agreement/${sectionId}/dismiss`,
+  t0FlowStatus: '/api/dashboard/t0-flow-status',
+  t0FlowLectures: '/api/dashboard/t0-flow-lectures',
+  t0FlowStepComplete: '/api/dashboard/t0-flow-step-complete',
 } as const

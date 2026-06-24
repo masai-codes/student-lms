@@ -1,5 +1,7 @@
 import { fetchJson } from '@/lib/api/fetchJson'
 import { DASHBOARD_API } from '@/lib/api/dashboardPaths'
+import type { T0FlowStatus } from '@/server/api/dashboard/getT0FlowStatus.service'
+import type { T0FlowLecturesResult } from '@/server/api/dashboard/getT0FlowLectures.service'
 import type { NpsFormData } from '@/server/api/dashboard/getNpsForm.service'
 import type { NpsSubmissionResult } from '@/server/api/dashboard/createNpsSubmission.service'
 import type { AssessLinkResult } from '@/server/api/dashboard/getAssessLink.service'
@@ -209,5 +211,27 @@ export async function submitNpsFormAnswers(
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ answers }),
+  })
+}
+
+export async function fetchT0FlowStatus(): Promise<T0FlowStatus> {
+  return fetchJson<T0FlowStatus>(DASHBOARD_API.t0FlowStatus)
+}
+
+export async function fetchT0FlowLectures(batchId?: number): Promise<T0FlowLecturesResult> {
+  const url = batchId ? `${DASHBOARD_API.t0FlowLectures}?batchId=${batchId}` : DASHBOARD_API.t0FlowLectures
+  return fetchJson<T0FlowLecturesResult>(url)
+}
+
+export async function recordT0FlowStepComplete(
+  lectureId: number,
+  batchId: number,
+  tab: 'lms' | 'program',
+  watchedSeconds: number,
+): Promise<void> {
+  await fetchJson<{ success: boolean }>(DASHBOARD_API.t0FlowStepComplete, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ lectureId, batchId, tab, watchedSeconds }),
   })
 }

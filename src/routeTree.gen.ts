@@ -37,6 +37,9 @@ import { Route as ApiMasaiverseV2DiscussionsRouteImport } from './routes/api/mas
 import { Route as ApiMasaiverseV2AwardPointsRouteImport } from './routes/api/masaiverse-v2/award-points'
 import { Route as ApiMasaiverseV2AdminModeRouteImport } from './routes/api/masaiverse-v2/admin-mode'
 import { Route as ApiLearnPageRouteImport } from './routes/api/learn/page'
+import { Route as ApiDashboardT0FlowStepCompleteRouteImport } from './routes/api/dashboard/t0-flow-step-complete'
+import { Route as ApiDashboardT0FlowStatusRouteImport } from './routes/api/dashboard/t0-flow-status'
+import { Route as ApiDashboardT0FlowLecturesRouteImport } from './routes/api/dashboard/t0-flow-lectures'
 import { Route as ApiDashboardScheduleRouteImport } from './routes/api/dashboard/schedule'
 import { Route as ApiDashboardRightSectionRouteImport } from './routes/api/dashboard/right-section'
 import { Route as ApiDashboardProductUpdatesRouteImport } from './routes/api/dashboard/product-updates'
@@ -320,6 +323,24 @@ const ApiLearnPageRoute = ApiLearnPageRouteImport.update({
   path: '/api/learn/page',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiDashboardT0FlowStepCompleteRoute =
+  ApiDashboardT0FlowStepCompleteRouteImport.update({
+    id: '/api/dashboard/t0-flow-step-complete',
+    path: '/api/dashboard/t0-flow-step-complete',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiDashboardT0FlowStatusRoute =
+  ApiDashboardT0FlowStatusRouteImport.update({
+    id: '/api/dashboard/t0-flow-status',
+    path: '/api/dashboard/t0-flow-status',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiDashboardT0FlowLecturesRoute =
+  ApiDashboardT0FlowLecturesRouteImport.update({
+    id: '/api/dashboard/t0-flow-lectures',
+    path: '/api/dashboard/t0-flow-lectures',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiDashboardScheduleRoute = ApiDashboardScheduleRouteImport.update({
   id: '/api/dashboard/schedule',
   path: '/api/dashboard/schedule',
@@ -1137,6 +1158,9 @@ export interface FileRoutesByFullPath {
   '/api/dashboard/product-updates': typeof ApiDashboardProductUpdatesRoute
   '/api/dashboard/right-section': typeof ApiDashboardRightSectionRoute
   '/api/dashboard/schedule': typeof ApiDashboardScheduleRoute
+  '/api/dashboard/t0-flow-lectures': typeof ApiDashboardT0FlowLecturesRoute
+  '/api/dashboard/t0-flow-status': typeof ApiDashboardT0FlowStatusRoute
+  '/api/dashboard/t0-flow-step-complete': typeof ApiDashboardT0FlowStepCompleteRoute
   '/api/learn/page': typeof ApiLearnPageRoute
   '/api/masaiverse-v2/admin-mode': typeof ApiMasaiverseV2AdminModeRoute
   '/api/masaiverse-v2/award-points': typeof ApiMasaiverseV2AwardPointsRoute
@@ -1302,6 +1326,9 @@ export interface FileRoutesByTo {
   '/api/dashboard/product-updates': typeof ApiDashboardProductUpdatesRoute
   '/api/dashboard/right-section': typeof ApiDashboardRightSectionRoute
   '/api/dashboard/schedule': typeof ApiDashboardScheduleRoute
+  '/api/dashboard/t0-flow-lectures': typeof ApiDashboardT0FlowLecturesRoute
+  '/api/dashboard/t0-flow-status': typeof ApiDashboardT0FlowStatusRoute
+  '/api/dashboard/t0-flow-step-complete': typeof ApiDashboardT0FlowStepCompleteRoute
   '/api/learn/page': typeof ApiLearnPageRoute
   '/api/masaiverse-v2/admin-mode': typeof ApiMasaiverseV2AdminModeRoute
   '/api/masaiverse-v2/award-points': typeof ApiMasaiverseV2AwardPointsRoute
@@ -1470,6 +1497,9 @@ export interface FileRoutesById {
   '/api/dashboard/product-updates': typeof ApiDashboardProductUpdatesRoute
   '/api/dashboard/right-section': typeof ApiDashboardRightSectionRoute
   '/api/dashboard/schedule': typeof ApiDashboardScheduleRoute
+  '/api/dashboard/t0-flow-lectures': typeof ApiDashboardT0FlowLecturesRoute
+  '/api/dashboard/t0-flow-status': typeof ApiDashboardT0FlowStatusRoute
+  '/api/dashboard/t0-flow-step-complete': typeof ApiDashboardT0FlowStepCompleteRoute
   '/api/learn/page': typeof ApiLearnPageRoute
   '/api/masaiverse-v2/admin-mode': typeof ApiMasaiverseV2AdminModeRoute
   '/api/masaiverse-v2/award-points': typeof ApiMasaiverseV2AwardPointsRoute
@@ -1638,6 +1668,9 @@ export interface FileRouteTypes {
     | '/api/dashboard/product-updates'
     | '/api/dashboard/right-section'
     | '/api/dashboard/schedule'
+    | '/api/dashboard/t0-flow-lectures'
+    | '/api/dashboard/t0-flow-status'
+    | '/api/dashboard/t0-flow-step-complete'
     | '/api/learn/page'
     | '/api/masaiverse-v2/admin-mode'
     | '/api/masaiverse-v2/award-points'
@@ -1803,6 +1836,9 @@ export interface FileRouteTypes {
     | '/api/dashboard/product-updates'
     | '/api/dashboard/right-section'
     | '/api/dashboard/schedule'
+    | '/api/dashboard/t0-flow-lectures'
+    | '/api/dashboard/t0-flow-status'
+    | '/api/dashboard/t0-flow-step-complete'
     | '/api/learn/page'
     | '/api/masaiverse-v2/admin-mode'
     | '/api/masaiverse-v2/award-points'
@@ -1970,6 +2006,9 @@ export interface FileRouteTypes {
     | '/api/dashboard/product-updates'
     | '/api/dashboard/right-section'
     | '/api/dashboard/schedule'
+    | '/api/dashboard/t0-flow-lectures'
+    | '/api/dashboard/t0-flow-status'
+    | '/api/dashboard/t0-flow-step-complete'
     | '/api/learn/page'
     | '/api/masaiverse-v2/admin-mode'
     | '/api/masaiverse-v2/award-points'
@@ -2136,6 +2175,9 @@ export interface RootRouteChildren {
   ApiDashboardProductUpdatesRoute: typeof ApiDashboardProductUpdatesRoute
   ApiDashboardRightSectionRoute: typeof ApiDashboardRightSectionRoute
   ApiDashboardScheduleRoute: typeof ApiDashboardScheduleRoute
+  ApiDashboardT0FlowLecturesRoute: typeof ApiDashboardT0FlowLecturesRoute
+  ApiDashboardT0FlowStatusRoute: typeof ApiDashboardT0FlowStatusRoute
+  ApiDashboardT0FlowStepCompleteRoute: typeof ApiDashboardT0FlowStepCompleteRoute
   ApiLearnPageRoute: typeof ApiLearnPageRoute
   ApiMasaiverseV2AdminModeRoute: typeof ApiMasaiverseV2AdminModeRoute
   ApiMasaiverseV2AwardPointsRoute: typeof ApiMasaiverseV2AwardPointsRoute
@@ -2428,6 +2470,27 @@ declare module '@tanstack/react-router' {
       path: '/api/learn/page'
       fullPath: '/api/learn/page'
       preLoaderRoute: typeof ApiLearnPageRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/dashboard/t0-flow-step-complete': {
+      id: '/api/dashboard/t0-flow-step-complete'
+      path: '/api/dashboard/t0-flow-step-complete'
+      fullPath: '/api/dashboard/t0-flow-step-complete'
+      preLoaderRoute: typeof ApiDashboardT0FlowStepCompleteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/dashboard/t0-flow-status': {
+      id: '/api/dashboard/t0-flow-status'
+      path: '/api/dashboard/t0-flow-status'
+      fullPath: '/api/dashboard/t0-flow-status'
+      preLoaderRoute: typeof ApiDashboardT0FlowStatusRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/dashboard/t0-flow-lectures': {
+      id: '/api/dashboard/t0-flow-lectures'
+      path: '/api/dashboard/t0-flow-lectures'
+      fullPath: '/api/dashboard/t0-flow-lectures'
+      preLoaderRoute: typeof ApiDashboardT0FlowLecturesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/dashboard/schedule': {
@@ -3665,6 +3728,9 @@ const rootRouteChildren: RootRouteChildren = {
   ApiDashboardProductUpdatesRoute: ApiDashboardProductUpdatesRoute,
   ApiDashboardRightSectionRoute: ApiDashboardRightSectionRoute,
   ApiDashboardScheduleRoute: ApiDashboardScheduleRoute,
+  ApiDashboardT0FlowLecturesRoute: ApiDashboardT0FlowLecturesRoute,
+  ApiDashboardT0FlowStatusRoute: ApiDashboardT0FlowStatusRoute,
+  ApiDashboardT0FlowStepCompleteRoute: ApiDashboardT0FlowStepCompleteRoute,
   ApiLearnPageRoute: ApiLearnPageRoute,
   ApiMasaiverseV2AdminModeRoute: ApiMasaiverseV2AdminModeRoute,
   ApiMasaiverseV2AwardPointsRoute: ApiMasaiverseV2AwardPointsRoute,
