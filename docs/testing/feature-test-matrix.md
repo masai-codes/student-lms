@@ -34,9 +34,9 @@ Last updated: 2026-06-22
 - Notes: See `docs/testing/features/learn-listing.md`
 
 ## Resource detail (`/resources/:id`)
-- Area: `GET /api/learn/resources/:id` + loader via `fetchResourceLearningDetailFromApi`; resource kind/phase/body/phase copy + discussions with threads on server
-- Status: Covered (server utils + phase content + associated content drawer)
-- Test files: `src/server/learn/utils/__tests__/normalizeResourceKind.test.ts`, `src/server/learn/utils/__tests__/buildResourceDetailPayload.test.ts`, `src/server/learn/utils/__tests__/buildLearnPhaseContent.test.ts`, `src/components/shared/markdown-content/__tests__/*`
+- Area: `GET /api/learn/resources/:id` (single page payload incl. per-user `isBookmarked`) + loader via `fetchResourceLearningDetailFromApi`; resource kind/phase/body/phase copy + discussions with threads on server; bookmark toggle via `POST`/`DELETE /api/learn/resources/:id/bookmark`
+- Status: Covered (server utils + detail service + phase content + associated content drawer + bookmark service/handler/UI)
+- Test files: `src/server/learn/utils/__tests__/normalizeResourceKind.test.ts`, `src/server/learn/utils/__tests__/buildResourceDetailPayload.test.ts`, `src/server/learn/utils/__tests__/buildLearnPhaseContent.test.ts`, `src/server/learn/__tests__/getResourceLearningDetail.service.test.ts`, `src/server/learn/services/__tests__/learnEntityBookmark.service.test.ts`, `src/server/api/learn/handlers/__tests__/resourceBookmark.handler.test.ts`, `src/components/features/learn/LearnPageDetails/resource/shared/__tests__/ResourceDetailActions.test.tsx`, `src/components/shared/markdown-content/__tests__/*`
 - Notes: See `docs/testing/features/resource-detail.md`
 
 ## Assignment detail (`/assignments/:id`)

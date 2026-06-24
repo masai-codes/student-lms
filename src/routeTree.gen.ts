@@ -141,6 +141,7 @@ import { Route as ApiChatbotLectureIdSessionsIndexRouteImport } from './routes/a
 import { Route as protectedLayoutSupportSupportIdIndexRouteImport } from './routes/(protected)/_layout/support/$supportId/index'
 import { Route as ApiLearnSubmissionsSubmissionIdViewOnPlatformRouteImport } from './routes/api/learn/submissions/$submissionId/view-on-platform'
 import { Route as ApiLearnSolutionsSolutionIdFileRouteImport } from './routes/api/learn/solutions/$solutionId/file'
+import { Route as ApiLearnResourcesResourceIdBookmarkRouteImport } from './routes/api/learn/resources/$resourceId/bookmark'
 import { Route as ApiLearnAssignmentsAssignmentIdSubmissionsRouteImport } from './routes/api/learn/assignments/$assignmentId/submissions'
 import { Route as ApiLearnAssignmentsAssignmentIdAssessPlatformUrlRouteImport } from './routes/api/learn/assignments/$assignmentId/assess-platform-url'
 import { Route as ApiLearnAiTutorLectureIdTranscriptRouteImport } from './routes/api/learn/ai-tutor/$lectureId/transcript'
@@ -912,6 +913,12 @@ const ApiLearnSolutionsSolutionIdFileRoute =
     path: '/file',
     getParentRoute: () => ApiLearnSolutionsSolutionIdRoute,
   } as any)
+const ApiLearnResourcesResourceIdBookmarkRoute =
+  ApiLearnResourcesResourceIdBookmarkRouteImport.update({
+    id: '/bookmark',
+    path: '/bookmark',
+    getParentRoute: () => ApiLearnResourcesResourceIdRoute,
+  } as any)
 const ApiLearnAssignmentsAssignmentIdSubmissionsRoute =
   ApiLearnAssignmentsAssignmentIdSubmissionsRouteImport.update({
     id: '/submissions',
@@ -1139,7 +1146,7 @@ export interface FileRoutesByFullPath {
   '/api/learn/ai-tutor/limit': typeof ApiLearnAiTutorLimitRoute
   '/api/learn/assignments/$assignmentId': typeof ApiLearnAssignmentsAssignmentIdRouteWithChildren
   '/api/learn/lectures/$lectureId': typeof ApiLearnLecturesLectureIdRoute
-  '/api/learn/resources/$resourceId': typeof ApiLearnResourcesResourceIdRoute
+  '/api/learn/resources/$resourceId': typeof ApiLearnResourcesResourceIdRouteWithChildren
   '/api/learn/solutions/$solutionId': typeof ApiLearnSolutionsSolutionIdRouteWithChildren
   '/api/learn/submissions/$submissionId': typeof ApiLearnSubmissionsSubmissionIdRouteWithChildren
   '/api/masaiverse-v2/banners/create': typeof ApiMasaiverseV2BannersCreateRoute
@@ -1212,6 +1219,7 @@ export interface FileRoutesByFullPath {
   '/api/learn/ai-tutor/$lectureId/transcript': typeof ApiLearnAiTutorLectureIdTranscriptRoute
   '/api/learn/assignments/$assignmentId/assess-platform-url': typeof ApiLearnAssignmentsAssignmentIdAssessPlatformUrlRoute
   '/api/learn/assignments/$assignmentId/submissions': typeof ApiLearnAssignmentsAssignmentIdSubmissionsRoute
+  '/api/learn/resources/$resourceId/bookmark': typeof ApiLearnResourcesResourceIdBookmarkRoute
   '/api/learn/solutions/$solutionId/file': typeof ApiLearnSolutionsSolutionIdFileRoute
   '/api/learn/submissions/$submissionId/view-on-platform': typeof ApiLearnSubmissionsSubmissionIdViewOnPlatformRoute
   '/support/$supportId/': typeof protectedLayoutSupportSupportIdIndexRoute
@@ -1296,7 +1304,7 @@ export interface FileRoutesByTo {
   '/api/learn/ai-tutor/limit': typeof ApiLearnAiTutorLimitRoute
   '/api/learn/assignments/$assignmentId': typeof ApiLearnAssignmentsAssignmentIdRouteWithChildren
   '/api/learn/lectures/$lectureId': typeof ApiLearnLecturesLectureIdRoute
-  '/api/learn/resources/$resourceId': typeof ApiLearnResourcesResourceIdRoute
+  '/api/learn/resources/$resourceId': typeof ApiLearnResourcesResourceIdRouteWithChildren
   '/api/learn/solutions/$solutionId': typeof ApiLearnSolutionsSolutionIdRouteWithChildren
   '/api/learn/submissions/$submissionId': typeof ApiLearnSubmissionsSubmissionIdRouteWithChildren
   '/api/masaiverse-v2/banners/create': typeof ApiMasaiverseV2BannersCreateRoute
@@ -1369,6 +1377,7 @@ export interface FileRoutesByTo {
   '/api/learn/ai-tutor/$lectureId/transcript': typeof ApiLearnAiTutorLectureIdTranscriptRoute
   '/api/learn/assignments/$assignmentId/assess-platform-url': typeof ApiLearnAssignmentsAssignmentIdAssessPlatformUrlRoute
   '/api/learn/assignments/$assignmentId/submissions': typeof ApiLearnAssignmentsAssignmentIdSubmissionsRoute
+  '/api/learn/resources/$resourceId/bookmark': typeof ApiLearnResourcesResourceIdBookmarkRoute
   '/api/learn/solutions/$solutionId/file': typeof ApiLearnSolutionsSolutionIdFileRoute
   '/api/learn/submissions/$submissionId/view-on-platform': typeof ApiLearnSubmissionsSubmissionIdViewOnPlatformRoute
   '/support/$supportId': typeof protectedLayoutSupportSupportIdIndexRoute
@@ -1456,7 +1465,7 @@ export interface FileRoutesById {
   '/api/learn/ai-tutor/limit': typeof ApiLearnAiTutorLimitRoute
   '/api/learn/assignments/$assignmentId': typeof ApiLearnAssignmentsAssignmentIdRouteWithChildren
   '/api/learn/lectures/$lectureId': typeof ApiLearnLecturesLectureIdRoute
-  '/api/learn/resources/$resourceId': typeof ApiLearnResourcesResourceIdRoute
+  '/api/learn/resources/$resourceId': typeof ApiLearnResourcesResourceIdRouteWithChildren
   '/api/learn/solutions/$solutionId': typeof ApiLearnSolutionsSolutionIdRouteWithChildren
   '/api/learn/submissions/$submissionId': typeof ApiLearnSubmissionsSubmissionIdRouteWithChildren
   '/api/masaiverse-v2/banners/create': typeof ApiMasaiverseV2BannersCreateRoute
@@ -1529,6 +1538,7 @@ export interface FileRoutesById {
   '/api/learn/ai-tutor/$lectureId/transcript': typeof ApiLearnAiTutorLectureIdTranscriptRoute
   '/api/learn/assignments/$assignmentId/assess-platform-url': typeof ApiLearnAssignmentsAssignmentIdAssessPlatformUrlRoute
   '/api/learn/assignments/$assignmentId/submissions': typeof ApiLearnAssignmentsAssignmentIdSubmissionsRoute
+  '/api/learn/resources/$resourceId/bookmark': typeof ApiLearnResourcesResourceIdBookmarkRoute
   '/api/learn/solutions/$solutionId/file': typeof ApiLearnSolutionsSolutionIdFileRoute
   '/api/learn/submissions/$submissionId/view-on-platform': typeof ApiLearnSubmissionsSubmissionIdViewOnPlatformRoute
   '/(protected)/_layout/support/$supportId/': typeof protectedLayoutSupportSupportIdIndexRoute
@@ -1689,6 +1699,7 @@ export interface FileRouteTypes {
     | '/api/learn/ai-tutor/$lectureId/transcript'
     | '/api/learn/assignments/$assignmentId/assess-platform-url'
     | '/api/learn/assignments/$assignmentId/submissions'
+    | '/api/learn/resources/$resourceId/bookmark'
     | '/api/learn/solutions/$solutionId/file'
     | '/api/learn/submissions/$submissionId/view-on-platform'
     | '/support/$supportId/'
@@ -1846,6 +1857,7 @@ export interface FileRouteTypes {
     | '/api/learn/ai-tutor/$lectureId/transcript'
     | '/api/learn/assignments/$assignmentId/assess-platform-url'
     | '/api/learn/assignments/$assignmentId/submissions'
+    | '/api/learn/resources/$resourceId/bookmark'
     | '/api/learn/solutions/$solutionId/file'
     | '/api/learn/submissions/$submissionId/view-on-platform'
     | '/support/$supportId'
@@ -2005,6 +2017,7 @@ export interface FileRouteTypes {
     | '/api/learn/ai-tutor/$lectureId/transcript'
     | '/api/learn/assignments/$assignmentId/assess-platform-url'
     | '/api/learn/assignments/$assignmentId/submissions'
+    | '/api/learn/resources/$resourceId/bookmark'
     | '/api/learn/solutions/$solutionId/file'
     | '/api/learn/submissions/$submissionId/view-on-platform'
     | '/(protected)/_layout/support/$supportId/'
@@ -2077,7 +2090,7 @@ export interface RootRouteChildren {
   ApiLearnAiTutorLimitRoute: typeof ApiLearnAiTutorLimitRoute
   ApiLearnAssignmentsAssignmentIdRoute: typeof ApiLearnAssignmentsAssignmentIdRouteWithChildren
   ApiLearnLecturesLectureIdRoute: typeof ApiLearnLecturesLectureIdRoute
-  ApiLearnResourcesResourceIdRoute: typeof ApiLearnResourcesResourceIdRoute
+  ApiLearnResourcesResourceIdRoute: typeof ApiLearnResourcesResourceIdRouteWithChildren
   ApiLearnSolutionsSolutionIdRoute: typeof ApiLearnSolutionsSolutionIdRouteWithChildren
   ApiLearnSubmissionsSubmissionIdRoute: typeof ApiLearnSubmissionsSubmissionIdRouteWithChildren
   ApiMasaiverseV2BannersCreateRoute: typeof ApiMasaiverseV2BannersCreateRoute
@@ -3053,6 +3066,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiLearnSolutionsSolutionIdFileRouteImport
       parentRoute: typeof ApiLearnSolutionsSolutionIdRoute
     }
+    '/api/learn/resources/$resourceId/bookmark': {
+      id: '/api/learn/resources/$resourceId/bookmark'
+      path: '/bookmark'
+      fullPath: '/api/learn/resources/$resourceId/bookmark'
+      preLoaderRoute: typeof ApiLearnResourcesResourceIdBookmarkRouteImport
+      parentRoute: typeof ApiLearnResourcesResourceIdRoute
+    }
     '/api/learn/assignments/$assignmentId/submissions': {
       id: '/api/learn/assignments/$assignmentId/submissions'
       path: '/submissions'
@@ -3452,6 +3472,21 @@ const ApiLearnAssignmentsAssignmentIdRouteWithChildren =
     ApiLearnAssignmentsAssignmentIdRouteChildren,
   )
 
+interface ApiLearnResourcesResourceIdRouteChildren {
+  ApiLearnResourcesResourceIdBookmarkRoute: typeof ApiLearnResourcesResourceIdBookmarkRoute
+}
+
+const ApiLearnResourcesResourceIdRouteChildren: ApiLearnResourcesResourceIdRouteChildren =
+  {
+    ApiLearnResourcesResourceIdBookmarkRoute:
+      ApiLearnResourcesResourceIdBookmarkRoute,
+  }
+
+const ApiLearnResourcesResourceIdRouteWithChildren =
+  ApiLearnResourcesResourceIdRoute._addFileChildren(
+    ApiLearnResourcesResourceIdRouteChildren,
+  )
+
 interface ApiLearnSolutionsSolutionIdRouteChildren {
   ApiLearnSolutionsSolutionIdFileRoute: typeof ApiLearnSolutionsSolutionIdFileRoute
 }
@@ -3543,7 +3578,8 @@ const rootRouteChildren: RootRouteChildren = {
   ApiLearnAssignmentsAssignmentIdRoute:
     ApiLearnAssignmentsAssignmentIdRouteWithChildren,
   ApiLearnLecturesLectureIdRoute: ApiLearnLecturesLectureIdRoute,
-  ApiLearnResourcesResourceIdRoute: ApiLearnResourcesResourceIdRoute,
+  ApiLearnResourcesResourceIdRoute:
+    ApiLearnResourcesResourceIdRouteWithChildren,
   ApiLearnSolutionsSolutionIdRoute:
     ApiLearnSolutionsSolutionIdRouteWithChildren,
   ApiLearnSubmissionsSubmissionIdRoute:

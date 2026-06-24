@@ -17,6 +17,8 @@ type LearnEntityDetailLayoutProps = {
   fullWidthBanner?: ReactNode
   /** Extra chips appended to the overview meta row (e.g. assignment header badges). */
   overviewTrailingChips?: ReactNode
+  /** Overrides the default header actions (Raise Ticket + bookmark). */
+  headerActions?: ReactNode
 }
 
 export function LearnEntityDetailLayout({
@@ -27,6 +29,7 @@ export function LearnEntityDetailLayout({
   mainFooter,
   fullWidthBanner,
   overviewTrailingChips,
+  headerActions,
 }: LearnEntityDetailLayoutProps) {
   const displayDate =
     detail.scheduleDisplayRange.trim() !== ''
@@ -41,7 +44,7 @@ export function LearnEntityDetailLayout({
         displayDate={displayDate}
         priority={detail.priority}
         tags={detail.tags}
-        actions={<LearnDetailDefaultActions />}
+        actions={headerActions ?? <LearnDetailDefaultActions />}
         trailingChips={overviewTrailingChips}
       />
       {fullWidthBanner}

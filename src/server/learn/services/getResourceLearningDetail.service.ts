@@ -13,6 +13,7 @@ import {
   isSupportedResourceLectureType,
 } from '@/server/learn/utils/normalizeResourceKind'
 import { getLectureAssociatedContent } from '@/server/learn/services/getLectureAssociatedContent.service'
+import { getLearnEntityBookmarkState } from '@/server/learn/services/learnEntityBookmark.service'
 import { dedupeLearnAssociatedItems } from '@/server/learn/utils/dedupeLearnAssociatedItems'
 import { LECTURE_RESOURCE_TYPE } from '@/server/learn/utils/resolveLectureLearningType'
 
@@ -71,7 +72,7 @@ export async function getResourceLearningDetailForUser(
     throw new Error('LEARN_DETAIL_NOT_FOUND')
   }
 
-  const [discussions, associatedItems] = await Promise.all([
+  const [discussions, associatedItems, isBookmarked] = await Promise.all([
     listDiscussionsWithThreadsForLearnEntity(
       userId,
       DISCUSSION_ENTITY_LECTURE,
@@ -82,6 +83,7 @@ export async function getResourceLearningDetailForUser(
       sectionId: row.sectionId,
       lectureData: row.data,
     }),
+    getLearnEntityBookmarkState(userId, 'resource', resourceId),
   ])
 
   const core = buildLearnDetailPresentation(row)
@@ -102,5 +104,6 @@ export async function getResourceLearningDetailForUser(
       kind: 'resource',
       id: resourceId,
     }),
+    isBookmarked,
   )
 }

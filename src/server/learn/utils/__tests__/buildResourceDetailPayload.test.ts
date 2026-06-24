@@ -32,12 +32,14 @@ describe('buildResourceDetailPayload', () => {
       },
       scheduleMs + 60_000,
       [],
+      true,
     )
 
     expect(payload.resourceKind).toBe('pre-read')
     expect(payload.phase).toBe('during')
     expect(payload.body).toBe('Read chapter 2')
     expect(payload.hideNotes).toBe(false)
+    expect(payload.isBookmarked).toBe(true)
   })
 
   it('respects hide_notes setting', () => {
@@ -55,11 +57,13 @@ describe('buildResourceDetailPayload', () => {
       },
       scheduleMs + 60_000,
       [],
+      false,
     )
 
     expect(payload.resourceKind).toBe('notes')
     expect(payload.hideNotes).toBe(true)
     expect(payload.body).toBe('Hidden notes')
+    expect(payload.isBookmarked).toBe(false)
   })
 
   it('builds material resource in before phase', () => {
@@ -77,6 +81,7 @@ describe('buildResourceDetailPayload', () => {
       },
       scheduleMs - 60_000,
       [],
+      false,
     )
 
     expect(payload.resourceKind).toBe('material')

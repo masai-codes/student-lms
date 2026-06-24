@@ -5,6 +5,8 @@ export const LEARN_API = {
   problem: (assignmentId: number, problemId: number) =>
     `/api/learn/assignments/${assignmentId}/problems/${problemId}`,
   resource: (resourceId: number) => `/api/learn/resources/${resourceId}`,
+  resourceBookmark: (resourceId: number) =>
+    `/api/learn/resources/${resourceId}/bookmark`,
   aiTutorSession: (lectureId: number) =>
     `/api/learn/ai-tutor/${lectureId}/session`,
   aiTutorDispatch: (lectureId: number) =>
