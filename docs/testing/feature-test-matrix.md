@@ -125,6 +125,12 @@ Last updated: 2026-06-07
 - Test files: `src/server/api/ai-tutor/__tests__/stream*.test.ts`, `src/server/api/http/__tests__/sse.test.ts`
 - Notes: `POST /api/ai-tutor/chat/stream` requires a session cookie, accepts `{ lectureId, chat, chatID? }`, reads/writes `ai_chat_practice_questions`, loads lecture summary from `lectures_ai`, streams Claude output as SSE token events, and returns `{ type: "done", chatId }`.
 
+## AI Tutor chat conversations
+- Area: Authenticated lecture chat history (`src/routes/api/ai-tutor/chat/conversations/**`, `src/server/api/ai-tutor/**`, `src/lib/api/ai-tutor/aiTutorChatApi.ts`)
+- Status: Covered
+- Test files: `src/server/api/ai-tutor/__tests__/{chatTurns,listConversations.handler,getConversation.handler,conversationServices}.test.ts`
+- Notes: `GET /api/ai-tutor/chat/conversations?lectureId=` lists the user's threads for a lecture (title from first user message, `updatedAt` desc). `GET /api/ai-tutor/chat/conversations/:chatId` returns ordered user/assistant turns from stored `chatHistory`.
+
 ## Status Meaning
 
 - `Covered`: key behavior and edge paths are fully tested for current scope.
