@@ -7,7 +7,7 @@
 - Server payload: `getLectureLearningDetail` → `LectureDetailPayload` (all tab bodies from DB; no static lecture copy)
 - Tabs: single **Description** tab renders `lectures.notes` (legacy parity — no separate Notes tab, and `lectures.description` is not surfaced). `settings.hide_notes` hides the Description tab; the active tab falls back to the first visible tab.
 - Mutations are REST (no `createServerFn`): video progress `POST /api/learn/lectures/:id/video-progress`; create discussion `POST /api/learn/discussions`; add reply `POST /api/learn/discussions/:id/replies`; bookmark `POST`/`DELETE /api/learn/lectures/:id/bookmark`; feedback `POST /api/learn/lectures/:id/feedback`.
-- Live join: `zoomLink` is schedule-scrubbed, then adaptive ("SAL") links are rewritten to the lecture-scoped form via `toLectureScopedAdaptiveLink` (parity with legacy). **Known gap:** `is_new_zoom_redirection` (ZEF) is NOT implemented — the new LMS has no ZEF token server / zoom-web-view infra, so ZEF live lectures open the raw link. Needs an infra decision before enabling ZEF.
+- Live join: `zoomLink` is schedule-scrubbed, then adaptive ("SAL") links are rewritten to the lecture-scoped form via `toLectureScopedAdaptiveLink` (parity with legacy). ZEF (`is_new_zoom_redirection`): payload carries `isNewZoomRedirection`; when set, the active join button calls `POST /api/learn/lectures/:id/zoom-redirect` and opens the returned ZEF URL, falling back to the raw link on failure. The ZEF token is **minted locally in the new LMS** (`zoomRedirectionToken` — groupLectureIdentifier resolution, admin host-email mapping, HS256 signing) and the base host (`zoom.masaischool.com` vs `zoom.ihubiitrcourses.org`) is chosen from the batch duration. Requires env `ZOOM_REDIRECTION_JWT_SECRET`. New schema columns mapped: `lectures.is_new_zoom_redirection`, `lectures.zoom_details`.
 - Header actions: `LectureDetailActions` (Raise Ticket → legacy support redirect + optimistic bookmark toggle) rendered in the overview header via the `actions` slot; payload carries `isBookmarked`.
 - Feedback: `LectureFeedbackForm` (1–5 stars + text) rendered above the tabs. Payload carries `feedback: { canSubmit, rating, text }`. Window opens `schedule + 15min`, closes `concludes + 24h`, gated by `settings.show_feedback`; enforced again server-side on submit. Closed window with an existing rating shows a read-only summary; closed + unrated renders nothing.
 
@@ -24,6 +24,11 @@
 - `src/server/learn/utils/__tests__/resolveLiveLecturePhase.test.ts`
 - `src/server/learn/utils/__tests__/resolveVideoLecturePhase.test.ts`
 - `src/server/learn/utils/__tests__/toLectureScopedAdaptiveLink.test.ts` — adaptive (SAL) link lecture-scoping rewrite + passthrough
+- `src/server/learn/utils/__tests__/zoomRedirectionToken.test.ts` — local ZEF token minting (group resolution, admin email mapping, validation, secret)
+- `src/server/learn/services/__tests__/zoomRedirect.service.test.ts` — ZEF url build (Masai/iHub host, user/token failure mapping)
+- `src/server/api/learn/handlers/__tests__/zoomRedirect.handler.test.ts` — ZEF REST handler (auth, id, 503)
+- `src/lib/api/learn/__tests__/zoomRedirectApi.test.ts` — ZEF client wrapper
+- `src/components/features/learn/LearnPageDetails/lecture/live/__tests__/JoinLiveSessionCard.test.tsx` — join button: direct anchor vs ZEF fetch+open, fallback, hidden/disabled states
 - `src/server/learn/utils/__tests__/scrubZoomLinkForSchedule.test.ts`
 - `src/server/learn/utils/__tests__/buildLectureDetailPayload.test.ts`
 - `src/server/learn/utils/__tests__/buildLectureTabContent.test.ts` — AI summary surfacing + transcript JSON parsing (incl. numeric strings)

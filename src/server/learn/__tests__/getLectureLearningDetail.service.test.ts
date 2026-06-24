@@ -90,6 +90,7 @@ describe('getLectureLearningDetailForUser', () => {
                     vimeoPlayerEmbedUrl: null,
                     settings: { hide_notes: 0 },
                     notes: '# Session notes',
+                    isNewZoomRedirection: 1,
                     data: null,
                   },
                 ]),
@@ -116,6 +117,7 @@ describe('getLectureLearningDetailForUser', () => {
     expect(result.discussions).toEqual([])
     expect(result.attendance).toBeNull()
     expect(result.isBookmarked).toBe(false)
+    expect(result.isNewZoomRedirection).toBe(true)
     expect(hoisted.bookmarkState).toHaveBeenCalledWith(9, 'lecture', 227)
   })
 

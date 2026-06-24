@@ -65,6 +65,8 @@ export type LectureDetailPayload = LearnHubDetailPayload & {
   attendance: LectureAttendanceSummary | null
   /** Whether the current user has bookmarked this lecture. */
   isBookmarked: boolean
+  /** When true, live join uses the ZEF redirect flow instead of the raw zoom link. */
+  isNewZoomRedirection: boolean
   /** Lecture feedback window + the user's existing rating/text. */
   feedback: LectureFeedbackState
 }

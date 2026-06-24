@@ -143,6 +143,7 @@ import { Route as protectedLayoutSupportSupportIdIndexRouteImport } from './rout
 import { Route as ApiLearnSubmissionsSubmissionIdViewOnPlatformRouteImport } from './routes/api/learn/submissions/$submissionId/view-on-platform'
 import { Route as ApiLearnSolutionsSolutionIdFileRouteImport } from './routes/api/learn/solutions/$solutionId/file'
 import { Route as ApiLearnResourcesResourceIdBookmarkRouteImport } from './routes/api/learn/resources/$resourceId/bookmark'
+import { Route as ApiLearnLecturesLectureIdZoomRedirectRouteImport } from './routes/api/learn/lectures/$lectureId/zoom-redirect'
 import { Route as ApiLearnLecturesLectureIdVideoProgressRouteImport } from './routes/api/learn/lectures/$lectureId/video-progress'
 import { Route as ApiLearnLecturesLectureIdFeedbackRouteImport } from './routes/api/learn/lectures/$lectureId/feedback'
 import { Route as ApiLearnLecturesLectureIdBookmarkRouteImport } from './routes/api/learn/lectures/$lectureId/bookmark'
@@ -929,6 +930,12 @@ const ApiLearnResourcesResourceIdBookmarkRoute =
     path: '/bookmark',
     getParentRoute: () => ApiLearnResourcesResourceIdRoute,
   } as any)
+const ApiLearnLecturesLectureIdZoomRedirectRoute =
+  ApiLearnLecturesLectureIdZoomRedirectRouteImport.update({
+    id: '/zoom-redirect',
+    path: '/zoom-redirect',
+    getParentRoute: () => ApiLearnLecturesLectureIdRoute,
+  } as any)
 const ApiLearnLecturesLectureIdVideoProgressRoute =
   ApiLearnLecturesLectureIdVideoProgressRouteImport.update({
     id: '/video-progress',
@@ -1258,6 +1265,7 @@ export interface FileRoutesByFullPath {
   '/api/learn/lectures/$lectureId/bookmark': typeof ApiLearnLecturesLectureIdBookmarkRoute
   '/api/learn/lectures/$lectureId/feedback': typeof ApiLearnLecturesLectureIdFeedbackRoute
   '/api/learn/lectures/$lectureId/video-progress': typeof ApiLearnLecturesLectureIdVideoProgressRoute
+  '/api/learn/lectures/$lectureId/zoom-redirect': typeof ApiLearnLecturesLectureIdZoomRedirectRoute
   '/api/learn/resources/$resourceId/bookmark': typeof ApiLearnResourcesResourceIdBookmarkRoute
   '/api/learn/solutions/$solutionId/file': typeof ApiLearnSolutionsSolutionIdFileRoute
   '/api/learn/submissions/$submissionId/view-on-platform': typeof ApiLearnSubmissionsSubmissionIdViewOnPlatformRoute
@@ -1421,6 +1429,7 @@ export interface FileRoutesByTo {
   '/api/learn/lectures/$lectureId/bookmark': typeof ApiLearnLecturesLectureIdBookmarkRoute
   '/api/learn/lectures/$lectureId/feedback': typeof ApiLearnLecturesLectureIdFeedbackRoute
   '/api/learn/lectures/$lectureId/video-progress': typeof ApiLearnLecturesLectureIdVideoProgressRoute
+  '/api/learn/lectures/$lectureId/zoom-redirect': typeof ApiLearnLecturesLectureIdZoomRedirectRoute
   '/api/learn/resources/$resourceId/bookmark': typeof ApiLearnResourcesResourceIdBookmarkRoute
   '/api/learn/solutions/$solutionId/file': typeof ApiLearnSolutionsSolutionIdFileRoute
   '/api/learn/submissions/$submissionId/view-on-platform': typeof ApiLearnSubmissionsSubmissionIdViewOnPlatformRoute
@@ -1587,6 +1596,7 @@ export interface FileRoutesById {
   '/api/learn/lectures/$lectureId/bookmark': typeof ApiLearnLecturesLectureIdBookmarkRoute
   '/api/learn/lectures/$lectureId/feedback': typeof ApiLearnLecturesLectureIdFeedbackRoute
   '/api/learn/lectures/$lectureId/video-progress': typeof ApiLearnLecturesLectureIdVideoProgressRoute
+  '/api/learn/lectures/$lectureId/zoom-redirect': typeof ApiLearnLecturesLectureIdZoomRedirectRoute
   '/api/learn/resources/$resourceId/bookmark': typeof ApiLearnResourcesResourceIdBookmarkRoute
   '/api/learn/solutions/$solutionId/file': typeof ApiLearnSolutionsSolutionIdFileRoute
   '/api/learn/submissions/$submissionId/view-on-platform': typeof ApiLearnSubmissionsSubmissionIdViewOnPlatformRoute
@@ -1753,6 +1763,7 @@ export interface FileRouteTypes {
     | '/api/learn/lectures/$lectureId/bookmark'
     | '/api/learn/lectures/$lectureId/feedback'
     | '/api/learn/lectures/$lectureId/video-progress'
+    | '/api/learn/lectures/$lectureId/zoom-redirect'
     | '/api/learn/resources/$resourceId/bookmark'
     | '/api/learn/solutions/$solutionId/file'
     | '/api/learn/submissions/$submissionId/view-on-platform'
@@ -1916,6 +1927,7 @@ export interface FileRouteTypes {
     | '/api/learn/lectures/$lectureId/bookmark'
     | '/api/learn/lectures/$lectureId/feedback'
     | '/api/learn/lectures/$lectureId/video-progress'
+    | '/api/learn/lectures/$lectureId/zoom-redirect'
     | '/api/learn/resources/$resourceId/bookmark'
     | '/api/learn/solutions/$solutionId/file'
     | '/api/learn/submissions/$submissionId/view-on-platform'
@@ -2081,6 +2093,7 @@ export interface FileRouteTypes {
     | '/api/learn/lectures/$lectureId/bookmark'
     | '/api/learn/lectures/$lectureId/feedback'
     | '/api/learn/lectures/$lectureId/video-progress'
+    | '/api/learn/lectures/$lectureId/zoom-redirect'
     | '/api/learn/resources/$resourceId/bookmark'
     | '/api/learn/solutions/$solutionId/file'
     | '/api/learn/submissions/$submissionId/view-on-platform'
@@ -3145,6 +3158,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiLearnResourcesResourceIdBookmarkRouteImport
       parentRoute: typeof ApiLearnResourcesResourceIdRoute
     }
+    '/api/learn/lectures/$lectureId/zoom-redirect': {
+      id: '/api/learn/lectures/$lectureId/zoom-redirect'
+      path: '/zoom-redirect'
+      fullPath: '/api/learn/lectures/$lectureId/zoom-redirect'
+      preLoaderRoute: typeof ApiLearnLecturesLectureIdZoomRedirectRouteImport
+      parentRoute: typeof ApiLearnLecturesLectureIdRoute
+    }
     '/api/learn/lectures/$lectureId/video-progress': {
       id: '/api/learn/lectures/$lectureId/video-progress'
       path: '/video-progress'
@@ -3588,6 +3608,7 @@ interface ApiLearnLecturesLectureIdRouteChildren {
   ApiLearnLecturesLectureIdBookmarkRoute: typeof ApiLearnLecturesLectureIdBookmarkRoute
   ApiLearnLecturesLectureIdFeedbackRoute: typeof ApiLearnLecturesLectureIdFeedbackRoute
   ApiLearnLecturesLectureIdVideoProgressRoute: typeof ApiLearnLecturesLectureIdVideoProgressRoute
+  ApiLearnLecturesLectureIdZoomRedirectRoute: typeof ApiLearnLecturesLectureIdZoomRedirectRoute
 }
 
 const ApiLearnLecturesLectureIdRouteChildren: ApiLearnLecturesLectureIdRouteChildren =
@@ -3598,6 +3619,8 @@ const ApiLearnLecturesLectureIdRouteChildren: ApiLearnLecturesLectureIdRouteChil
       ApiLearnLecturesLectureIdFeedbackRoute,
     ApiLearnLecturesLectureIdVideoProgressRoute:
       ApiLearnLecturesLectureIdVideoProgressRoute,
+    ApiLearnLecturesLectureIdZoomRedirectRoute:
+      ApiLearnLecturesLectureIdZoomRedirectRoute,
   }
 
 const ApiLearnLecturesLectureIdRouteWithChildren =

@@ -48,6 +48,7 @@ export async function getLectureLearningDetailForUser(
       vimeoPlayerEmbedUrl: lectures.vimeoPlayerEmbedUrl,
       settings: lectures.settings,
       notes: lectures.notes,
+      isNewZoomRedirection: lectures.isNewZoomRedirection,
       data: lectures.data,
     })
     .from(lectures)
@@ -158,5 +159,9 @@ export async function getLectureLearningDetailForUser(
     feedbackRecord,
   )
 
-  return { ...payload, isBookmarked }
+  return {
+    ...payload,
+    isBookmarked,
+    isNewZoomRedirection: row.isNewZoomRedirection === 1,
+  }
 }

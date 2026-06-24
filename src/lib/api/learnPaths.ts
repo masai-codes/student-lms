@@ -7,6 +7,8 @@ export const LEARN_API = {
     `/api/learn/lectures/${lectureId}/bookmark`,
   lectureFeedback: (lectureId: number) =>
     `/api/learn/lectures/${lectureId}/feedback`,
+  lectureZoomRedirect: (lectureId: number) =>
+    `/api/learn/lectures/${lectureId}/zoom-redirect`,
   assignment: (assignmentId: number) => `/api/learn/assignments/${assignmentId}`,
   problem: (assignmentId: number, problemId: number) =>
     `/api/learn/assignments/${assignmentId}/problems/${problemId}`,
