@@ -1,6 +1,8 @@
 'use client'
 
 import { lectureDetailTagChipPalette } from './lectureDetailTagChips'
+import type { ReactNode } from 'react'
+
 
 import type { LectureAttendanceSummary } from '@/server/attendance/types'
 import type { LearningPriority } from '@/server/learn/types'
@@ -20,6 +22,8 @@ type LectureDetailOverviewHeaderProps = {
   dateRange: string
   attendance: LectureAttendanceSummary | null
   watchPercentage?: number | null
+  /** Header CTAs (Raise Ticket + bookmark) rendered top-right. */
+  actions?: ReactNode
   className?: string
 }
 
@@ -41,6 +45,7 @@ export function LectureDetailOverviewHeader({
   dateRange,
   attendance,
   watchPercentage,
+  actions,
   className,
 }: LectureDetailOverviewHeaderProps) {
   const attendancePresentation = useListingAttendancePresentation(
@@ -90,18 +95,23 @@ export function LectureDetailOverviewHeader({
         </div>
       </div>
 
-      <div className="flex shrink-0 items-start gap-3 md:max-w-[min(100%,280px)] md:justify-end">
-        <Avatar size="lg" className="size-10 shrink-0">
-          {avatarUrl ? <AvatarImage src={avatarUrl} alt={hostName} /> : null}
-          <AvatarFallback className="type-b2-md bg-muted text-gray-700">
-            {hostInitials(hostName)}
-          </AvatarFallback>
-        </Avatar>
-        <div className="min-w-0 pt-0.5 text-left">
-          <p className="type-b1-md text-gray-900">{hostName}</p>
-          {dateRange ? (
-            <p className="type-b2-regular mt-0.5 text-gray-600">{dateRange}</p>
-          ) : null}
+      <div className="flex shrink-0 flex-col gap-3 md:max-w-[min(100%,280px)] md:items-end">
+        {actions ? (
+          <div className="flex items-center gap-2">{actions}</div>
+        ) : null}
+        <div className="flex items-start gap-3 md:justify-end">
+          <Avatar size="lg" className="size-10 shrink-0">
+            {avatarUrl ? <AvatarImage src={avatarUrl} alt={hostName} /> : null}
+            <AvatarFallback className="type-b2-md bg-muted text-gray-700">
+              {hostInitials(hostName)}
+            </AvatarFallback>
+          </Avatar>
+          <div className="min-w-0 pt-0.5 text-left">
+            <p className="type-b1-md text-gray-900">{hostName}</p>
+            {dateRange ? (
+              <p className="type-b2-regular mt-0.5 text-gray-600">{dateRange}</p>
+            ) : null}
+          </div>
         </div>
       </div>
     </section>

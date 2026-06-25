@@ -10,7 +10,7 @@ import { LectureDiscussionReplyItem } from './LectureDiscussionReplyItem'
 
 import type { DiscussionListItem } from '@/server/learn/types'
 import { DiscussionSummaryCard } from '@/components/features/new-discussions/DiscussionSummaryCard'
-import { addLearnDiscussionReply } from '@/server/new-discussions/addLearnDiscussionReply'
+import { addLearnDiscussionReplyViaApi } from '@/lib/api/learn/discussionsApi'
 import { plainTextFromHtml } from '@/lib/plainTextFromHtml'
 import { cn } from '@/lib/utils'
 
@@ -42,8 +42,9 @@ export function LectureDiscussionListItem({ discussion }: LectureDiscussionListI
     setReplyError(null)
     setReplyPending(true)
     try {
-      await addLearnDiscussionReply({
-        data: { discussionId: discussion.id, message: messageHtml },
+      await addLearnDiscussionReplyViaApi({
+        discussionId: discussion.id,
+        message: messageHtml,
       })
       await router.invalidate()
     } catch {

@@ -20,7 +20,7 @@ import {
   ModalTitle,
 } from '@/components/ui/modal'
 import { plainTextFromHtml } from '@/lib/plainTextFromHtml'
-import { createLearnDiscussion } from '@/server/new-discussions/createLearnDiscussion'
+import { createLearnDiscussionViaApi } from '@/lib/api/learn/discussionsApi'
 import { DISCUSSION_ATTACHMENT_APPEND_MARKER } from '@/server/new-discussions/utils/validateDiscussionWriteInput'
 
 export type DiscussionCreateModalProps = {
@@ -74,13 +74,11 @@ export function DiscussionCreateModal({
         const lines = files.map(f => `- ${f.name}`).join('\n')
         message = `${message}${DISCUSSION_ATTACHMENT_APPEND_MARKER}${lines}`
       }
-      await createLearnDiscussion({
-        data: {
-          kind,
-          entityId,
-          title,
-          message,
-        },
+      await createLearnDiscussionViaApi({
+        kind,
+        entityId,
+        title,
+        message,
       })
       setTitle('')
       setMessageHtml('')

@@ -1,5 +1,6 @@
 'use client'
 
+import { LectureDetailActions } from '../shared/LectureDetailActions'
 import { LectureDetailChrome } from '../shared/LectureDetailChrome'
 import { LectureDetailFooter } from '../shared/LectureDetailFooter'
 import { AfterLiveLecture } from './AfterLiveLecture'
@@ -19,8 +20,10 @@ function renderLiveHero(detail: LectureDetailPayload) {
     case 'during':
       return (
         <DuringLiveLecture
+          lectureId={detail.id}
           zoomLink={detail.zoomLink}
           joinLiveButtonState={detail.joinLiveButtonState ?? 'hidden'}
+          isNewZoomRedirection={detail.isNewZoomRedirection}
         />
       )
     case 'after':
@@ -45,6 +48,12 @@ export function LiveLectureContent({ detail }: LiveLectureContentProps) {
       scheduleDisplayRange={detail.scheduleDisplayRange}
       attendance={detail.attendance}
       watchPercentage={detail.videoAttendance?.watchPercentage}
+      actions={
+        <LectureDetailActions
+          lectureId={detail.id}
+          initialIsBookmarked={detail.isBookmarked}
+        />
+      }
       hero={renderLiveHero(detail)}
       footer={
         <LectureDetailFooter
@@ -52,6 +61,7 @@ export function LiveLectureContent({ detail }: LiveLectureContentProps) {
           discussions={detail.discussions}
           hideNotes={detail.hideNotes}
           tabs={detail.tabs}
+          feedback={detail.feedback}
         />
       }
     />

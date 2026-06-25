@@ -1,18 +1,20 @@
 import type {
   LectureDetailPayload,
   LectureDetailTabContent,
-  LectureKind,
+  LectureFeedbackState,
+  LectureKind, LectureVideoAttendanceState 
 } from '@/server/learn/lectureDetailTypes'
 import type { LearnHubDetailPayload } from '@/server/learn/types'
+import type { LectureAttendanceSummary } from '@/server/attendance/types'
 import { formatLectureScheduleRange } from '@/server/learn/utils/formatLectureScheduleRange'
 import { parseLectureSettings } from '@/server/learn/utils/parseLectureSettings'
+import { resolveLectureFeedbackWindow } from '@/server/learn/utils/resolveLectureFeedbackWindow'
 import { resolveLiveLecturePhase } from '@/server/learn/utils/resolveLiveLecturePhase'
 import { resolveLectureVideoUrl } from '@/server/learn/utils/resolveLectureVideoUrl'
 import { resolveJoinLiveButtonState } from '@/server/learn/utils/resolveJoinLiveButtonState'
 import { resolveVideoLecturePhase } from '@/server/learn/utils/resolveVideoLecturePhase'
 import { scrubZoomLinkForSchedule } from '@/server/learn/utils/scrubZoomLinkForSchedule'
-import type { LectureAttendanceSummary } from '@/server/attendance/types'
-import type { LectureVideoAttendanceState } from '@/server/learn/lectureDetailTypes'
+import { toLectureScopedAdaptiveLink } from '@/server/learn/utils/toLectureScopedAdaptiveLink'
 
 type LectureDetailRow = {
   type: string
@@ -44,7 +46,8 @@ export function buildLectureDetailPayload(
   tabs: LectureDetailTabContent,
   videoAttendance: LectureVideoAttendanceState | null,
   attendance: LectureAttendanceSummary | null,
-): LectureDetailPayload {
+  feedbackRecord: { rating: number | null; text: string | null },
+): Omit<LectureDetailPayload, 'isBookmarked' | 'isNewZoomRedirection'> {
   const lectureKind = normalizeLectureKind(row.type)
   if (lectureKind == null) {
     throw new Error('LECTURE_DETAIL_UNSUPPORTED_TYPE')
@@ -76,11 +79,14 @@ export function buildLectureDetailPayload(
 
   const zoomLink =
     lectureKind === 'live' && livePhase !== 'before'
-      ? scrubZoomLinkForSchedule({
-          zoomLink: row.zoomLink,
-          schedule: row.schedule,
-          nowMs,
-        })
+      ? toLectureScopedAdaptiveLink(
+          scrubZoomLinkForSchedule({
+            zoomLink: row.zoomLink,
+            schedule: row.schedule,
+            nowMs,
+          }),
+          core.id,
+        )
       : null
 
   const joinLiveButtonState =
@@ -92,6 +98,17 @@ export function buildLectureDetailPayload(
           zoomLink: row.zoomLink,
         })
       : null
+
+  const feedback: LectureFeedbackState = {
+    canSubmit: resolveLectureFeedbackWindow({
+      schedule: row.schedule,
+      concludes: row.concludes,
+      nowMs,
+      showFeedback: settings.showFeedback,
+    }),
+    rating: feedbackRecord.rating,
+    text: feedbackRecord.text,
+  }
 
   return {
     ...core,
@@ -112,6 +129,7 @@ export function buildLectureDetailPayload(
     joinLiveButtonState,
     videoAttendance: hasRecording ? videoAttendance : null,
     attendance,
+    feedback,
   }
 }
 

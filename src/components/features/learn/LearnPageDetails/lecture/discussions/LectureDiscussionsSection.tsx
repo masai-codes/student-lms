@@ -5,15 +5,13 @@ import { useRouter } from '@tanstack/react-router'
 import { useState } from 'react'
 
 import { LectureDiscussionCreateForm } from './LectureDiscussionCreateForm'
-import {
-  learnDiscussionsEmptyStateNoun,
-  type LearnDiscussionsEmptyStateContext,
-} from './discussionsEmptyStateCopy'
+import { learnDiscussionsEmptyStateNoun } from './discussionsEmptyStateCopy'
+import { LectureDiscussionListItem } from './LectureDiscussionListItem'
+import type { LearnDiscussionsEmptyStateContext } from './discussionsEmptyStateCopy'
 
 import type { DiscussionListItem } from '@/server/learn/types'
-import { LectureDiscussionListItem } from './LectureDiscussionListItem'
-import { createLearnDiscussion } from '@/server/new-discussions/createLearnDiscussion'
 import type { CreateLearnDiscussionKind } from '@/server/new-discussions/services/createDiscussionForLearnEntity'
+import { createLearnDiscussionViaApi } from '@/lib/api/learn/discussionsApi'
 import { cn } from '@/lib/utils'
 
 type LectureDiscussionsSectionProps = {
@@ -44,17 +42,18 @@ export function LectureDiscussionsSection({
   const emptyStateNoun = learnDiscussionsEmptyStateNoun(emptyStateContext)
   const isAside = layout === 'aside'
 
-  const handlePost = async (payload: { title: string; descriptionMarkdown: string }) => {
+  const handlePost = async (payload: {
+    title: string
+    descriptionMarkdown: string
+  }) => {
     setError(null)
     setPending(true)
     try {
-      await createLearnDiscussion({
-        data: {
-          kind: entityKind,
-          entityId,
-          title: payload.title,
-          message: payload.descriptionMarkdown,
-        },
+      await createLearnDiscussionViaApi({
+        kind: entityKind,
+        entityId,
+        title: payload.title,
+        message: payload.descriptionMarkdown,
       })
       await router.invalidate()
     } catch {
@@ -67,7 +66,11 @@ export function LectureDiscussionsSection({
   const listContent =
     discussions.length === 0 ? (
       <div className="flex flex-col items-center gap-2 py-8 text-center">
-        <UsersThree className="h-16 w-16 text-gray-400" weight="bold" aria-hidden />
+        <UsersThree
+          className="h-16 w-16 text-gray-400"
+          weight="bold"
+          aria-hidden
+        />
         <h3 className="type-b2-md text-gray-900">No discussions yet</h3>
         <p className="type-b3-regular max-w-sm text-gray-500">
           Be the first to start a discussion about this {emptyStateNoun}.
@@ -78,8 +81,11 @@ export function LectureDiscussionsSection({
         <p className="type-b3-regular text-gray-600">
           Check what your peers are discussing
         </p>
-        {discussions.map(discussion => (
-          <LectureDiscussionListItem key={discussion.id} discussion={discussion} />
+        {discussions.map((discussion) => (
+          <LectureDiscussionListItem
+            key={discussion.id}
+            discussion={discussion}
+          />
         ))}
       </div>
     )
@@ -102,7 +108,7 @@ export function LectureDiscussionsSection({
         <div className="mb-4 shrink-0 rounded-lg border border-gray-200 bg-white">
           <button
             type="button"
-            onClick={() => setCreateFormExpanded(current => !current)}
+            onClick={() => setCreateFormExpanded((current) => !current)}
             aria-expanded={createFormExpanded}
             className="type-b3-md flex w-full items-center justify-between gap-2 px-3 py-2.5 text-left text-gray-900 hover:bg-gray-50"
           >
@@ -110,14 +116,23 @@ export function LectureDiscussionsSection({
             {createFormExpanded ? (
               <CaretUp className="size-4 shrink-0 text-gray-600" aria-hidden />
             ) : (
-              <CaretDown className="size-4 shrink-0 text-gray-600" aria-hidden />
+              <CaretDown
+                className="size-4 shrink-0 text-gray-600"
+                aria-hidden
+              />
             )}
           </button>
           {createFormExpanded ? (
             <div className="border-t border-gray-100 px-3 pb-3 pt-2">
-              <LectureDiscussionCreateForm disabled={pending} onSubmit={handlePost} />
+              <LectureDiscussionCreateForm
+                disabled={pending}
+                onSubmit={handlePost}
+              />
               {error ? (
-                <p className="type-b3-regular mt-3 text-destructive" role="alert">
+                <p
+                  className="type-b3-regular mt-3 text-destructive"
+                  role="alert"
+                >
                   {error}
                 </p>
               ) : null}
@@ -126,7 +141,10 @@ export function LectureDiscussionsSection({
         </div>
       ) : (
         <div className={cn('shrink-0', isAside ? 'mb-4' : 'mb-6')}>
-          <LectureDiscussionCreateForm disabled={pending} onSubmit={handlePost} />
+          <LectureDiscussionCreateForm
+            disabled={pending}
+            onSubmit={handlePost}
+          />
           {error ? (
             <p className="type-b3-regular mt-3 text-destructive" role="alert">
               {error}
@@ -135,7 +153,9 @@ export function LectureDiscussionsSection({
         </div>
       )}
 
-      <div className={cn(isAside && 'min-h-0 flex-1 overflow-y-auto')}>{listContent}</div>
+      <div className={cn(isAside && 'min-h-0 flex-1 overflow-y-auto')}>
+        {listContent}
+      </div>
     </section>
   )
 }

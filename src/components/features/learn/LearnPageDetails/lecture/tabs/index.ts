@@ -6,6 +6,7 @@ export { ExpandableTabContent } from './ExpandableTabContent'
 export {
   DEFAULT_LECTURE_TAB_ID,
   LECTURE_DETAIL_TABS,
+  resolveDefaultLectureTabId,
   resolveVisibleLectureDetailTabs,
 } from './constants/staticLectureTabContent'
 export type { LectureDetailTabId } from './constants/staticLectureTabContent'

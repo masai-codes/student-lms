@@ -26,6 +26,7 @@ export function buildResourceDetailPayload(
   row: ResourceDetailRow,
   nowMs: number,
   associatedItems: Array<LearnAssociatedListItem>,
+  isBookmarked: boolean,
 ): ResourceDetailPayload {
   const resourceKind: ResourceKind = normalizeResourceKind(row.category)
   const phase = resolveAssignmentPhase({
@@ -51,5 +52,6 @@ export function buildResourceDetailPayload(
     body,
     hideNotes: settings.hideNotes,
     phaseContent: buildResourcePhaseContent(resourceKind, phase, row.schedule),
+    isBookmarked,
   }
 }

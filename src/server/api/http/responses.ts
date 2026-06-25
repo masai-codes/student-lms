@@ -167,6 +167,29 @@ export function mapThrownErrorToResponse(error: unknown): Response {
       case 'CHATBOT_LIVEKIT_URL_NOT_CONFIGURED':
       case 'CHATBOT_SESSION_CREATE_FAILED':
         return jsonError(503, error.message)
+      case 'INVALID_DISCUSSION_PAYLOAD':
+      case 'INVALID_DISCUSSION_TITLE':
+      case 'INVALID_DISCUSSION_MESSAGE':
+      case 'INVALID_REPLY_MESSAGE':
+      case 'INVALID_ENTITY_ID':
+      case 'INVALID_DISCUSSION_ID':
+        return jsonError(400, error.message)
+      case 'DISCUSSION_FORBIDDEN':
+        return jsonError(403, error.message)
+      case 'DISCUSSION_NOT_FOUND':
+        return jsonError(404, error.message)
+      case 'DISCUSSION_CLOSED':
+        return jsonError(409, error.message)
+      case 'DISCUSSION_CREATE_FAILED':
+        return jsonError(500, error.message)
+      case 'INVALID_FEEDBACK_PAYLOAD':
+        return jsonError(400, error.message)
+      case 'FEEDBACK_WINDOW_CLOSED':
+        return jsonError(409, error.message)
+      case 'ZOOM_REDIRECT_FORBIDDEN':
+        return jsonError(403, error.message)
+      case 'ZOOM_REDIRECT_FAILED':
+        return jsonError(503, error.message)
       default:
         break
     }

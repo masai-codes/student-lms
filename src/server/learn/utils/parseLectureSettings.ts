@@ -1,6 +1,7 @@
 export type ParsedLectureSettings = {
   hideVideo: boolean
   hideNotes: boolean
+  showFeedback: boolean
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -13,10 +14,11 @@ function isTruthySettingFlag(value: unknown): boolean {
 
 export function parseLectureSettings(raw: unknown): ParsedLectureSettings {
   if (!isRecord(raw)) {
-    return { hideVideo: false, hideNotes: false }
+    return { hideVideo: false, hideNotes: false, showFeedback: false }
   }
   return {
     hideVideo: raw.hide_video === true,
     hideNotes: isTruthySettingFlag(raw.hide_notes),
+    showFeedback: isTruthySettingFlag(raw.show_feedback),
   }
 }
