@@ -22,6 +22,9 @@ export interface T0FlowLecturesResult {
   programLectures: Array<T0FlowLectureItem>
   completedLectureIds: Array<number>
   legalAgreementSections: Array<LegalAgreementSection>
+  isDocumentsRequired: boolean
+  isStudentKitApplicable: boolean
+  idCardUrl: string | null
 }
 
 function normalizeRows<T>(result: unknown): Array<T> {
@@ -56,17 +59,13 @@ function expandLectures(rows: Array<LectureRow>): Array<T0FlowLectureItem> {
       }
     }
 
-    if (urls.length === 0) {
-      // No video URL — skip this lecture entirely
-    } else {
-      urls.forEach((url, i) => {
-        items.push({
-          id: urls.length === 1 ? String(row.id) : `${row.id}-${i}`,
-          lectureId: row.id,
-          title: row.title,
-          videoUrl: url,
-          lectureType: row.type,
-        })
+    if (urls.length > 0) {
+      items.push({
+        id: String(row.id),
+        lectureId: row.id,
+        title: row.title,
+        videoUrl: urls[0],
+        lectureType: row.type,
       })
     }
   }
@@ -155,6 +154,26 @@ async function getLegalAgreementSections(userId: number, batchId: number): Promi
   return result
 }
 
+async function getBatchInfoFlags(batchId: number): Promise<{ isDocumentsRequired: boolean; isStudentKitApplicable: boolean }> {
+  const rows = normalizeRows<{ item: string; value: string | null }>(
+    await db.execute(sql`
+      SELECT item, value FROM batch_info
+      WHERE batch_id = ${batchId}
+        AND item IN ('Documents required', 'Is Student Kit applicable?')
+    `)
+  )
+  let isDocumentsRequired = false
+  let isStudentKitApplicable = false
+  for (const row of rows) {
+    if (row.item === 'Documents required') {
+      isDocumentsRequired = row.value != null && String(row.value).trim() !== ''
+    } else if (row.item === 'Is Student Kit applicable?') {
+      isStudentKitApplicable = String(row.value ?? '').trim().toLowerCase() === 'true'
+    }
+  }
+  return { isDocumentsRequired, isStudentKitApplicable }
+}
+
 async function getSectionId(batchId: number, sectionType: string): Promise<number | null> {
   const rows = normalizeRows<{ id: number }>(
     await db.execute(sql`
@@ -171,24 +190,28 @@ async function getSectionId(batchId: number, sectionType: string): Promise<numbe
 }
 
 export async function getT0FlowLectures(userId: number, batchId?: number): Promise<T0FlowLecturesResult> {
-  const empty = { lmsLectures: [], programLectures: [], completedLectureIds: [], legalAgreementSections: [] }
+  const empty = { lmsLectures: [], programLectures: [], completedLectureIds: [], legalAgreementSections: [], isDocumentsRequired: false, isStudentKitApplicable: false, idCardUrl: null }
 
   // Validate: user must have an admission row for the requested batch
   if (!batchId) return empty
-  const admissionRows = normalizeRows<{ batch_id: number }>(
+  const admissionRows = normalizeRows<{ batch_id: number; id_card_url: string | null }>(
     await db.execute(sql`
-      SELECT batch_id FROM user_batch_admission_data
+      SELECT batch_id, id_card_url FROM user_batch_admission_data
       WHERE user_id = ${userId} AND batch_id = ${batchId}
       LIMIT 1
     `)
   )
   if (!admissionRows.length) return empty
 
+  const rawIdCardUrl = admissionRows[0]?.id_card_url ?? null
+  const idCardUrl = typeof rawIdCardUrl === 'string' && /^https?:\/\/.+/.test(rawIdCardUrl.trim()) ? rawIdCardUrl.trim() : null
+
   // Find the most recently created lms-walkthrough-web and program-onboarding-web section for this batch
-  const [lmsSectionId, programSectionId, legalAgreementSections] = await Promise.all([
+  const [lmsSectionId, programSectionId, legalAgreementSections, batchInfoFlags] = await Promise.all([
     getSectionId(batchId, 'lms-walkthrough-web'),
     getSectionId(batchId, 'program-onboarding-web'),
     getLegalAgreementSections(userId, batchId),
+    getBatchInfoFlags(batchId),
   ])
 
   const [lmsLectures, programLectures] = await Promise.all([
@@ -215,5 +238,5 @@ export async function getT0FlowLectures(userId: number, batchId?: number): Promi
     completedLectureIds = rows.map((r) => Number(r.lecture_id))
   }
 
-  return { lmsLectures, programLectures, completedLectureIds, legalAgreementSections }
+  return { lmsLectures, programLectures, completedLectureIds, legalAgreementSections, ...batchInfoFlags, idCardUrl }
 }

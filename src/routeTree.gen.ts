@@ -37,6 +37,7 @@ import { Route as ApiMasaiverseV2DiscussionsRouteImport } from './routes/api/mas
 import { Route as ApiMasaiverseV2AwardPointsRouteImport } from './routes/api/masaiverse-v2/award-points'
 import { Route as ApiMasaiverseV2AdminModeRouteImport } from './routes/api/masaiverse-v2/admin-mode'
 import { Route as ApiLearnPageRouteImport } from './routes/api/learn/page'
+import { Route as ApiDashboardT0FlowStudentStatusRouteImport } from './routes/api/dashboard/t0-flow-student-status'
 import { Route as ApiDashboardT0FlowStepCompleteRouteImport } from './routes/api/dashboard/t0-flow-step-complete'
 import { Route as ApiDashboardT0FlowStatusRouteImport } from './routes/api/dashboard/t0-flow-status'
 import { Route as ApiDashboardT0FlowLecturesRouteImport } from './routes/api/dashboard/t0-flow-lectures'
@@ -323,6 +324,12 @@ const ApiLearnPageRoute = ApiLearnPageRouteImport.update({
   path: '/api/learn/page',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiDashboardT0FlowStudentStatusRoute =
+  ApiDashboardT0FlowStudentStatusRouteImport.update({
+    id: '/api/dashboard/t0-flow-student-status',
+    path: '/api/dashboard/t0-flow-student-status',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiDashboardT0FlowStepCompleteRoute =
   ApiDashboardT0FlowStepCompleteRouteImport.update({
     id: '/api/dashboard/t0-flow-step-complete',
@@ -1161,6 +1168,7 @@ export interface FileRoutesByFullPath {
   '/api/dashboard/t0-flow-lectures': typeof ApiDashboardT0FlowLecturesRoute
   '/api/dashboard/t0-flow-status': typeof ApiDashboardT0FlowStatusRoute
   '/api/dashboard/t0-flow-step-complete': typeof ApiDashboardT0FlowStepCompleteRoute
+  '/api/dashboard/t0-flow-student-status': typeof ApiDashboardT0FlowStudentStatusRoute
   '/api/learn/page': typeof ApiLearnPageRoute
   '/api/masaiverse-v2/admin-mode': typeof ApiMasaiverseV2AdminModeRoute
   '/api/masaiverse-v2/award-points': typeof ApiMasaiverseV2AwardPointsRoute
@@ -1329,6 +1337,7 @@ export interface FileRoutesByTo {
   '/api/dashboard/t0-flow-lectures': typeof ApiDashboardT0FlowLecturesRoute
   '/api/dashboard/t0-flow-status': typeof ApiDashboardT0FlowStatusRoute
   '/api/dashboard/t0-flow-step-complete': typeof ApiDashboardT0FlowStepCompleteRoute
+  '/api/dashboard/t0-flow-student-status': typeof ApiDashboardT0FlowStudentStatusRoute
   '/api/learn/page': typeof ApiLearnPageRoute
   '/api/masaiverse-v2/admin-mode': typeof ApiMasaiverseV2AdminModeRoute
   '/api/masaiverse-v2/award-points': typeof ApiMasaiverseV2AwardPointsRoute
@@ -1500,6 +1509,7 @@ export interface FileRoutesById {
   '/api/dashboard/t0-flow-lectures': typeof ApiDashboardT0FlowLecturesRoute
   '/api/dashboard/t0-flow-status': typeof ApiDashboardT0FlowStatusRoute
   '/api/dashboard/t0-flow-step-complete': typeof ApiDashboardT0FlowStepCompleteRoute
+  '/api/dashboard/t0-flow-student-status': typeof ApiDashboardT0FlowStudentStatusRoute
   '/api/learn/page': typeof ApiLearnPageRoute
   '/api/masaiverse-v2/admin-mode': typeof ApiMasaiverseV2AdminModeRoute
   '/api/masaiverse-v2/award-points': typeof ApiMasaiverseV2AwardPointsRoute
@@ -1671,6 +1681,7 @@ export interface FileRouteTypes {
     | '/api/dashboard/t0-flow-lectures'
     | '/api/dashboard/t0-flow-status'
     | '/api/dashboard/t0-flow-step-complete'
+    | '/api/dashboard/t0-flow-student-status'
     | '/api/learn/page'
     | '/api/masaiverse-v2/admin-mode'
     | '/api/masaiverse-v2/award-points'
@@ -1839,6 +1850,7 @@ export interface FileRouteTypes {
     | '/api/dashboard/t0-flow-lectures'
     | '/api/dashboard/t0-flow-status'
     | '/api/dashboard/t0-flow-step-complete'
+    | '/api/dashboard/t0-flow-student-status'
     | '/api/learn/page'
     | '/api/masaiverse-v2/admin-mode'
     | '/api/masaiverse-v2/award-points'
@@ -2009,6 +2021,7 @@ export interface FileRouteTypes {
     | '/api/dashboard/t0-flow-lectures'
     | '/api/dashboard/t0-flow-status'
     | '/api/dashboard/t0-flow-step-complete'
+    | '/api/dashboard/t0-flow-student-status'
     | '/api/learn/page'
     | '/api/masaiverse-v2/admin-mode'
     | '/api/masaiverse-v2/award-points'
@@ -2178,6 +2191,7 @@ export interface RootRouteChildren {
   ApiDashboardT0FlowLecturesRoute: typeof ApiDashboardT0FlowLecturesRoute
   ApiDashboardT0FlowStatusRoute: typeof ApiDashboardT0FlowStatusRoute
   ApiDashboardT0FlowStepCompleteRoute: typeof ApiDashboardT0FlowStepCompleteRoute
+  ApiDashboardT0FlowStudentStatusRoute: typeof ApiDashboardT0FlowStudentStatusRoute
   ApiLearnPageRoute: typeof ApiLearnPageRoute
   ApiMasaiverseV2AdminModeRoute: typeof ApiMasaiverseV2AdminModeRoute
   ApiMasaiverseV2AwardPointsRoute: typeof ApiMasaiverseV2AwardPointsRoute
@@ -2470,6 +2484,13 @@ declare module '@tanstack/react-router' {
       path: '/api/learn/page'
       fullPath: '/api/learn/page'
       preLoaderRoute: typeof ApiLearnPageRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/dashboard/t0-flow-student-status': {
+      id: '/api/dashboard/t0-flow-student-status'
+      path: '/api/dashboard/t0-flow-student-status'
+      fullPath: '/api/dashboard/t0-flow-student-status'
+      preLoaderRoute: typeof ApiDashboardT0FlowStudentStatusRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/dashboard/t0-flow-step-complete': {
@@ -3731,6 +3752,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiDashboardT0FlowLecturesRoute: ApiDashboardT0FlowLecturesRoute,
   ApiDashboardT0FlowStatusRoute: ApiDashboardT0FlowStatusRoute,
   ApiDashboardT0FlowStepCompleteRoute: ApiDashboardT0FlowStepCompleteRoute,
+  ApiDashboardT0FlowStudentStatusRoute: ApiDashboardT0FlowStudentStatusRoute,
   ApiLearnPageRoute: ApiLearnPageRoute,
   ApiMasaiverseV2AdminModeRoute: ApiMasaiverseV2AdminModeRoute,
   ApiMasaiverseV2AwardPointsRoute: ApiMasaiverseV2AwardPointsRoute,

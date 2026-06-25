@@ -67,6 +67,7 @@ export async function getT0FlowStatus(userId: number): Promise<T0FlowStatus> {
         FROM user_batch_admission_data
         WHERE user_id = ${userId}
           AND batch_id IN (${sql.raw(batchIdList)})
+        ORDER BY batch_id ASC
       `)
     ),
     db.select({ id: batches.id, name: batches.name })

@@ -144,130 +144,153 @@ async function countSectionCompletions(
   return { total: lecs.length, completed: done.length }
 }
 
+function hasValidAgreementSubKey(agreementsJson: Record<string, unknown>): boolean {
+  const RESERVED = new Set(['shouldModalBeVisible'])
+  return Object.entries(agreementsJson).some(([key, value]) => {
+    if (RESERVED.has(key)) return false
+    const entry = value as Record<string, unknown> | null | undefined
+    if (!entry || typeof entry !== 'object') return false
+    const pdfUrl = entry['pdfUrl']
+    const heading = entry['heading']
+    const hidePolicy = entry['hidePolicy']
+    return (
+      typeof pdfUrl === 'string' && pdfUrl.trim() !== '' &&
+      typeof heading === 'string' && heading.trim() !== '' &&
+      hidePolicy !== true && hidePolicy !== 'true'
+    )
+  })
+}
+
 async function updateProgressMeta(
   userId: number,
   admissionBatchId: number,
-  enrolledBatchIds: Array<number>,
 ): Promise<void> {
-  const batchIdList = enrolledBatchIds.join(', ')
+  // Read admission row (full_fees_paid + existing meta) and profile (meta + legal_data) in parallel
+  interface AdmRow { full_fees_paid: number | boolean; meta: unknown }
+  interface ProfileRow { meta: unknown; legal_data: unknown }
 
-  // Find first section of each relevant type
-  interface SectionRow { id: number; type: string }
-  const sectionRows = normalizeRows<SectionRow>(
-    await db.execute(sql`
-      SELECT id, type FROM sections
-      WHERE batch_id IN (${sql.raw(batchIdList)})
-        AND type IN ('lms-walkthrough-web', 'lms-walkthrough-app', 'program-onboarding-web', 'program-onboarding-app')
-        AND active = 1
-        AND deleted_at IS NULL
-      ORDER BY batch_id DESC, id ASC
-    `)
-  )
+  const [admRows, profileRows, tokenRows] = await Promise.all([
+    normalizeRows<AdmRow>(
+      await db.execute(sql`
+        SELECT full_fees_paid, meta FROM user_batch_admission_data
+        WHERE user_id = ${userId} AND batch_id = ${admissionBatchId}
+        LIMIT 1
+      `)
+    ),
+    normalizeRows<ProfileRow>(
+      await db.execute(sql`
+        SELECT meta, legal_data FROM profiles
+        WHERE user_id = ${userId} AND deleted_at IS NULL LIMIT 1
+      `)
+    ),
+    normalizeRows<{ id: number }>(
+      await db.execute(sql`SELECT id FROM user_device_tokens WHERE user_id = ${userId} LIMIT 1`)
+    ),
+  ])
 
-  const sectionByType: Record<string, number> = {}
-  for (const row of sectionRows) {
-    if (!sectionByType[row.type]) sectionByType[row.type] = row.id
-  }
+  if (!admRows.length) return
 
-  // Extra steps completion
-  interface ProfileRow { meta: unknown }
-  const profileRows = normalizeRows<ProfileRow>(
-    await db.execute(sql`
-      SELECT meta FROM profiles WHERE user_id = ${userId} AND deleted_at IS NULL LIMIT 1
-    `)
-  )
+  const existingMeta = parseMeta(admRows[0].meta)
+  const metaUpdate: Record<string, string> = {}
+
+  // ── LMS extra steps ──────────────────────────────────────────────────────────
   const profileMeta = parseMeta(profileRows[0]?.meta)
   const pic = profileMeta['profile_pic']
   const hasProfilePhoto = typeof pic === 'string' && pic.trim().length > 0 &&
     (() => { try { const u = new URL(pic.trim()); return u.protocol === 'http:' || u.protocol === 'https:' } catch { return false } })()
-
-  const tokenRows = normalizeRows<{ id: number }>(
-    await db.execute(sql`SELECT id FROM user_device_tokens WHERE user_id = ${userId} LIMIT 1`)
-  )
   const hasDevice = tokenRows.length > 0
   const lmsExtraCompleted = (hasProfilePhoto ? 1 : 0) + (hasDevice ? 1 : 0)
 
-  const metaUpdate: Record<string, string> = {}
-
-  // LMS web fraction
-  const lmsWebId = sectionByType['lms-walkthrough-web']
+  // ── LMS web fraction ─────────────────────────────────────────────────────────
+  const lmsSectionRows = normalizeRows<{ id: number }>(
+    await db.execute(sql`
+      SELECT id FROM sections
+      WHERE batch_id = ${admissionBatchId}
+        AND type = 'lms-walkthrough-web'
+        AND active = 1 AND deleted_at IS NULL
+      ORDER BY id DESC LIMIT 1
+    `)
+  )
+  const lmsWebId = lmsSectionRows[0]?.id
   if (lmsWebId) {
     const { total, completed } = await countSectionCompletions(userId, lmsWebId)
     const denom = total + LMS_WALKTHROUGH_EXTRA_STEPS
-    metaUpdate['lms_walkthrough_web'] = `${completed + lmsExtraCompleted}/${denom}`
+    const numer = Math.min(completed + lmsExtraCompleted, denom)
+    const newWebFrac = `${numer}/${denom}`
+    metaUpdate['lms_walkthrough_web'] = newWebFrac
+
+    // Aggregate = MAX(new web, existing app fraction already in meta)
+    const existingAppFrac = existingMeta['lms_walkthrough_app'] as string | undefined
+    metaUpdate['lms_walkthrough'] = fracValue(newWebFrac) >= fracValue(existingAppFrac)
+      ? newWebFrac
+      : (existingAppFrac ?? newWebFrac)
   }
 
-  // LMS app fraction
-  const lmsAppId = sectionByType['lms-walkthrough-app']
-  if (lmsAppId) {
-    const { total, completed } = await countSectionCompletions(userId, lmsAppId)
-    const denom = total + LMS_WALKTHROUGH_EXTRA_STEPS
-    metaUpdate['lms_walkthrough_app'] = `${completed + lmsExtraCompleted}/${denom}`
-  }
-
-  // lms_walkthrough = max of web/app
-  const bestLms =
-    fracValue(metaUpdate['lms_walkthrough_web']) >= fracValue(metaUpdate['lms_walkthrough_app'])
-      ? (metaUpdate['lms_walkthrough_web'] ?? metaUpdate['lms_walkthrough_app'])
-      : (metaUpdate['lms_walkthrough_app'] ?? metaUpdate['lms_walkthrough_web'])
-  if (bestLms) metaUpdate['lms_walkthrough'] = bestLms
-
-  // Read admission row for full_fees_paid + existing meta
-  interface AdmRow { full_fees_paid: number | boolean; meta: unknown }
-  const admRows = normalizeRows<AdmRow>(
-    await db.execute(sql`
-      SELECT full_fees_paid, meta FROM user_batch_admission_data
-      WHERE user_id = ${userId} AND batch_id = ${admissionBatchId}
-      LIMIT 1
-    `)
-  )
-
-  if (admRows.length && Boolean(admRows[0].full_fees_paid)) {
-    // Check for legal sections (sections with shouldModalBeVisible = true in enrolled batches)
-    const legalRows = normalizeRows<{ id: number }>(
+  // ── Program fraction (only when full_fees_paid) ───────────────────────────────
+  if (Boolean(admRows[0].full_fees_paid)) {
+    // Find which enrolled sections for this user/batch have a valid agreement
+    const enrolledSectionRows = normalizeRows<{ id: number; agreements: string | null }>(
       await db.execute(sql`
-        SELECT id FROM sections
-        WHERE batch_id IN (${sql.raw(batchIdList)})
-          AND active = 1
-          AND deleted_at IS NULL
-          AND JSON_EXTRACT(settings, '$.agreements.shouldModalBeVisible') = 'true'
-        LIMIT 1
+        SELECT s.id, s.settings->>'$.agreements' AS agreements
+        FROM section_user su
+        JOIN sections s ON s.id = su.section_id
+        WHERE su.user_id = ${userId}
+          AND su.deleted_at IS NULL
+          AND s.batch_id = ${admissionBatchId}
+          AND s.active = 1
+          AND s.deleted_at IS NULL
+          AND s.settings->>'$.agreements.shouldModalBeVisible' = 'true'
       `)
     )
-    const hasLegal = legalRows.length > 0
 
-    // Check if user has completed legal agreements (no pending sections)
-    let legalDone = 0
-    if (hasLegal) {
-      interface LegalRow { legal_data: unknown }
-      const legalProfileRows = normalizeRows<LegalRow>(
-        await db.execute(sql`
-          SELECT legal_data FROM profiles WHERE user_id = ${userId} AND deleted_at IS NULL LIMIT 1
-        `)
-      )
-      const legalData = parseMeta(legalProfileRows[0]?.legal_data)
-      const agreements = legalData['agreements']
-      // If user has signed any agreement, count legal as done (simplified check)
-      legalDone = agreements && typeof agreements === 'object' && Object.keys(agreements as object).length > 0 ? 1 : 0
+    let hasAgreement = false
+    let agreementSectionId: number | null = null
+    for (const row of enrolledSectionRows) {
+      let agreementsJson: Record<string, unknown> | null = null
+      try { agreementsJson = (typeof row.agreements === 'string' ? JSON.parse(row.agreements) : row.agreements) as Record<string, unknown> | null } catch { continue }
+      if (agreementsJson && hasValidAgreementSubKey(agreementsJson)) {
+        hasAgreement = true
+        agreementSectionId = Number(row.id)
+        break
+      }
     }
 
-    const progWebId = sectionByType['program-onboarding-web']
+    // Check if user has signed the agreement for the specific section
+    let agreementDone = 0
+    if (hasAgreement && agreementSectionId) {
+      const legalData = (parseMeta(profileRows[0]?.legal_data)['agreements'] ?? {}) as Record<string, unknown>
+      const sectionAgreement = legalData[`section_${agreementSectionId}`] as Record<string, unknown> | undefined
+      agreementDone = sectionAgreement?.['haveAcceptedLegalAgreement'] === true ? 1 : 0
+    }
+
+    const progSectionRows = normalizeRows<{ id: number }>(
+      await db.execute(sql`
+        SELECT id FROM sections
+        WHERE batch_id = ${admissionBatchId}
+          AND type = 'program-onboarding-web'
+          AND active = 1 AND deleted_at IS NULL
+        ORDER BY id DESC LIMIT 1
+      `)
+    )
+    const progWebId = progSectionRows[0]?.id
     if (progWebId) {
       const { total, completed } = await countSectionCompletions(userId, progWebId)
-      const denom = total + (hasLegal ? 1 : 0)
-      const numer = completed + legalDone
-      const fraction = `${numer}/${denom}`
-      metaUpdate['program_onboarding_web'] = fraction
-      metaUpdate['program_onboarding_app'] = fraction
-      metaUpdate['program_onboarding'] = fraction
+      const denom = total + (hasAgreement ? 1 : 0)
+      const numer = Math.min(completed + agreementDone, denom)
+      const newWebFrac = `${numer}/${denom}`
+      metaUpdate['program_onboarding_web'] = newWebFrac
+
+      // Aggregate = MAX(new web, existing app fraction already in meta)
+      const existingAppFrac = existingMeta['program_onboarding_app'] as string | undefined
+      metaUpdate['program_onboarding'] = fracValue(newWebFrac) >= fracValue(existingAppFrac)
+        ? newWebFrac
+        : (existingAppFrac ?? newWebFrac)
     }
   }
 
   if (!Object.keys(metaUpdate).length) return
 
-  const existingMeta = admRows.length ? parseMeta(admRows[0].meta) : {}
   const merged = { ...existingMeta, ...metaUpdate }
-
   await db.execute(sql`
     UPDATE user_batch_admission_data
     SET meta = ${JSON.stringify(merged)}
@@ -321,5 +344,5 @@ export async function recordGuidedTourStepCompleted(
   }
 
   // Recount and update meta
-  await updateProgressMeta(userId, input.batchId, enrolledBatchIds)
+  await updateProgressMeta(userId, input.batchId)
 }

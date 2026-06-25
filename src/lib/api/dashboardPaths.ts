@@ -26,4 +26,5 @@ export const DASHBOARD_API = {
   t0FlowStatus: '/api/dashboard/t0-flow-status',
   t0FlowLectures: '/api/dashboard/t0-flow-lectures',
   t0FlowStepComplete: '/api/dashboard/t0-flow-step-complete',
+  t0FlowStudentStatus: '/api/dashboard/t0-flow-student-status',
 } as const

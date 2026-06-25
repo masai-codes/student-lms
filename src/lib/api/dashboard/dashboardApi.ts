@@ -218,6 +218,12 @@ export async function fetchT0FlowStatus(): Promise<T0FlowStatus> {
   return fetchJson<T0FlowStatus>(DASHBOARD_API.t0FlowStatus)
 }
 
+export async function fetchT0FlowStudentStatus(batchId: number) {
+  return fetchJson<import('@/server/api/dashboard/getT0FlowStudentStatus.service').T0FlowStudentStatusResult>(
+    `${DASHBOARD_API.t0FlowStudentStatus}?batchId=${batchId}`
+  )
+}
+
 export async function fetchT0FlowLectures(batchId?: number): Promise<T0FlowLecturesResult> {
   const url = batchId ? `${DASHBOARD_API.t0FlowLectures}?batchId=${batchId}` : DASHBOARD_API.t0FlowLectures
   return fetchJson<T0FlowLecturesResult>(url)
