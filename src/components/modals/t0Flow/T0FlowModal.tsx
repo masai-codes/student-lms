@@ -22,7 +22,7 @@ import type { T0FlowStudentStatusResult } from '@/server/api/dashboard/getT0Flow
 import type { T0FlowLectureItem } from '@/server/api/dashboard/getT0FlowLectures.service'
 import type { BatchT0Status } from '@/server/api/dashboard/getT0FlowStatus.service'
 import { PhotoContent } from '@/components/modals/onboarding/OnboardingModal'
-import { AgreementFlow } from '@/components/modals/onboarding/AgreementFlow'
+import { AgreementFlow, MobileAgreementPlaceholder } from '@/components/modals/onboarding/AgreementFlow'
 import { DownloadAppModal } from '@/components/features/layout/DownloadAppModal'
 
 // ── Types ─────────────────────────────────────────────────────────────────────
@@ -150,12 +150,24 @@ function ProfilePhotoUploaded({ photoUrl }: { photoUrl: string }) {
 
 function IdCardModal({ idCardUrl, onClose }: { idCardUrl: string; onClose: () => void }) {
   return (
-    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4" style={{ background: 'rgba(0,0,0,0.5)' }}>
-      <div className="relative w-full max-w-md rounded-2xl bg-white p-6 flex flex-col gap-5 shadow-2xl">
+    <div
+      className="fixed inset-0 z-[9999] flex items-end lg:items-center justify-center lg:p-4"
+      style={{ background: 'rgba(0,0,0,0.5)' }}
+      onClick={onClose}
+    >
+      <div
+        className="relative w-full lg:max-w-md rounded-t-3xl lg:rounded-2xl bg-white p-6 flex flex-col gap-5 shadow-2xl max-h-[90vh] overflow-y-auto"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Drag handle — mobile/tablet only */}
+        <div className="lg:hidden flex justify-center -mt-2 mb-1">
+          <div className="w-10 h-1 rounded-full bg-gray-300" />
+        </div>
+        {/* Close button — desktop only */}
         <button
           type="button"
           onClick={onClose}
-          className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors focus-visible:outline-none"
+          className="hidden lg:flex absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors focus-visible:outline-none"
         >
           <X size={20} />
         </button>
@@ -599,15 +611,29 @@ export function T0FlowModal({
 
   // ── Shared handlers ──────────────────────────────────────────────────────────
   const [mobileDetailOpen, setMobileDetailOpen] = useState(false)
+  const [mobileSheetOpen, setMobileSheetOpen] = useState(false)
 
   function handleStepClick(i: number) {
-    if (steps[i]?.kind === 'download-app') {
+    const step = steps[i]
+    const kind = step?.kind
+    if (kind === 'download-app') {
       setDownloadModalOpen(true)
       return
     }
     setIsVideoPlaying(false)
     setActiveStepIndex(i)
-    setMobileDetailOpen(true)
+    const isCompleted = step ? completedSteps.has(step.id) : false
+    const isPhotoUploaded = kind === 'profile-photo' && !!photoSnapshot
+    if (
+      kind === 'student-kit' ||
+      kind === 'document-upload' ||
+      kind === 'legal-agreement' ||
+      (kind === 'profile-photo' && isPhotoUploaded)
+    ) {
+      setMobileSheetOpen(true)
+    } else {
+      setMobileDetailOpen(true)
+    }
   }
 
   // ── Right-panel content (shared between mobile detail + desktop right panel) ─
@@ -907,6 +933,35 @@ export function T0FlowModal({
             <div className="flex-1 overflow-y-auto px-4 py-6 bg-white flex flex-col">
               <StepContent />
             </div>
+          )}
+
+          {/* Bottom sheet drawer */}
+          {mobileSheetOpen && activeStep && (
+            <>
+              {/* Backdrop */}
+              <div
+                className="absolute inset-0 bg-black/30 z-10"
+                onClick={() => setMobileSheetOpen(false)}
+              />
+              {/* Sheet */}
+              <div className="absolute inset-x-0 bottom-0 z-20 bg-white rounded-t-3xl flex flex-col" style={{ maxHeight: '85vh' }}>
+                {/* Drag handle */}
+                <div className="flex justify-center pt-3 pb-1 shrink-0">
+                  <div className="w-10 h-1 rounded-full bg-gray-300" />
+                </div>
+                {/* Content */}
+                <div className="flex-1 overflow-y-auto px-5 pb-8">
+                  {activeStep.kind === 'student-kit'
+                    ? <StudentKitContent status={studentStatusData?.kit ?? null} />
+                    : activeStep.kind === 'document-upload'
+                    ? <DocumentUploadContent status={studentStatusData?.documents ?? null} />
+                    : activeStep.kind === 'legal-agreement' && !completedSteps.has(activeStep.id)
+                    ? <MobileAgreementPlaceholder sectionId={activeStep.sectionId} />
+                    : <StepContent />
+                  }
+                </div>
+              </div>
+            </>
           )}
         </div>
       )}

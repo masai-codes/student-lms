@@ -59,13 +59,6 @@ function toWeekLabel(start: dayjs.Dayjs, end: dayjs.Dayjs): string {
   return `${sm} ${pad(start.date())} - ${em} ${pad(end.date())}`
 }
 
-/** Parse "yyyy-mm-dd" as local midnight dayjs. */
-function parseLocalDate(dateStr: string | null): dayjs.Dayjs | null {
-  if (!dateStr) return null
-  const d = dayjs(dateStr) // local midnight
-  return d.isValid() ? d : null
-}
-
 // ── Public utilities ───────────────────────────────────────────────────────────
 
 export function groupPendingByDeadline(
@@ -107,10 +100,12 @@ export function extractSpanningItems(
 ): Array<DashboardScheduleItem> {
   const { weekStart, weekEnd } = getWeekWindow(now)
   return items.filter((item) => {
-    const sd = parseLocalDate(item.startDate)
-    const ed = parseLocalDate(item.endDate)
-    if (!sd || !ed) return false
-    return sd.isBefore(weekStart) && ed.isAfter(weekEnd)
+    const scheduleRaw = parseMysqlDatetimeIST(item.schedule)
+    const concludesRaw = parseMysqlDatetimeIST(item.concludes)
+    if (!scheduleRaw || !concludesRaw) return false
+    const sd = toLocal(scheduleRaw)
+    const ed = toLocal(concludesRaw)
+    return sd.isBefore(weekStart, 'day') && ed.isAfter(weekEnd, 'day')
   })
 }
 
@@ -128,27 +123,22 @@ export function groupItemsByWeek(
     else itemsByDay.set(key, [item])
   }
 
-  const inWindow = (d: dayjs.Dayjs) => !d.isBefore(weekStart) && !d.isAfter(weekEnd)
+  const inWindow = (d: dayjs.Dayjs) => !d.isBefore(weekStart, 'day') && !d.isAfter(weekEnd, 'day')
 
   for (const item of items) {
-    const sd = parseLocalDate(item.startDate)
-    const ed = parseLocalDate(item.endDate)
+    const scheduleRaw = parseMysqlDatetimeIST(item.schedule)
+    const concludesRaw = parseMysqlDatetimeIST(item.concludes)
 
-    if (sd && ed && sd.isBefore(weekStart) && ed.isAfter(weekEnd)) continue
+    const sd = scheduleRaw ? toLocal(scheduleRaw) : null
+    const ed = concludesRaw ? toLocal(concludesRaw) : null
+
+    if (sd && ed && sd.isBefore(weekStart, 'day') && ed.isAfter(weekEnd, 'day')) continue
 
     const sdInWindow = sd && inWindow(sd)
     const edInWindow = ed && inWindow(ed)
 
     if (sdInWindow) addToDay(sd, item)
     if (edInWindow && (!sd || toDateKey(ed) !== toDateKey(sd))) addToDay(ed, item)
-
-    if (!sdInWindow && !edInWindow) {
-      const raw = parseMysqlDatetimeIST(item.schedule)
-      if (raw) {
-        const d = toLocal(raw)
-        if (inWindow(d)) addToDay(d, item)
-      }
-    }
   }
 
   const dateGroups: Array<ScheduleDateGroup> = []

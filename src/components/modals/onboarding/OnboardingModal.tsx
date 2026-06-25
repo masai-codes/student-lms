@@ -320,21 +320,14 @@ export function OnboardingModal({
   }
 
   const [mobileView, setMobileView] = useState<'list' | 'content'>('list')
-  const [dragOffset, setDragOffset] = useState(0)
   const touchStartY = useRef(0)
 
   function handleDrawerTouchStart(e: React.TouchEvent) {
     touchStartY.current = e.touches[0].clientY
   }
-  function handleDrawerTouchMove(e: React.TouchEvent) {
-    const delta = e.touches[0].clientY - touchStartY.current
-    if (delta > 0) setDragOffset(delta)
-  }
-  function handleDrawerTouchEnd() {
-    if (dragOffset > 80) {
-      setMobileView('list')
-    }
-    setDragOffset(0)
+  function handleDrawerTouchEnd(e: React.TouchEvent) {
+    const delta = e.changedTouches[0].clientY - touchStartY.current
+    if (delta > 80) setMobileView('list')
   }
 
   // Shared step-list card renderer
@@ -524,12 +517,7 @@ export function OnboardingModal({
               {/* Drawer sheet */}
               <div
                 className={`absolute inset-x-0 bottom-0 z-20 bg-white rounded-t-[16px] flex flex-col ${isAgreement ? '' : 'top-[120px]'}`}
-                style={{
-                  transform: `translateY(${dragOffset}px)`,
-                  transition: dragOffset === 0 ? 'transform 0.3s ease' : 'none',
-                }}
                 onTouchStart={handleDrawerTouchStart}
-                onTouchMove={handleDrawerTouchMove}
                 onTouchEnd={handleDrawerTouchEnd}
               >
                 {/* Drag indicator pill */}
