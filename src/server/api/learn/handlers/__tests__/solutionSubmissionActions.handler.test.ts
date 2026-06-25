@@ -19,6 +19,7 @@ vi.mock('@/server/storage/s3Upload', () => ({
 }))
 vi.mock('@/server/auth/getCurrentSessionUserId', () => ({
   getUserIdFromCookieHeader: hoisted.getUserIdFromCookieHeader,
+  getUserIdFromRequest: hoisted.getUserIdFromCookieHeader,
 }))
 
 function linkRequest(body: unknown, cookie: string | null = 'session=abc') {

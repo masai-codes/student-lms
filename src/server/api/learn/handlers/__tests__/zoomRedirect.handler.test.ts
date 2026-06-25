@@ -10,6 +10,7 @@ vi.mock('@/server/learn/services/zoomRedirect.service', () => ({
 }))
 vi.mock('@/server/auth/getCurrentSessionUserId', () => ({
   getUserIdFromCookieHeader: hoisted.getUserIdFromCookieHeader,
+  getUserIdFromRequest: hoisted.getUserIdFromCookieHeader,
 }))
 
 function request(cookie: string | null = 'session=abc') {
