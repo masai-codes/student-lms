@@ -10,24 +10,19 @@ import type { LectureDetailTabId } from './constants/staticLectureTabContent'
 
 import type { LectureDetailTabContent } from '@/server/learn/lectureDetailTypes'
 
-type MarkdownTabId = Extract<LectureDetailTabId, 'description' | 'ai-summary'>
+type MarkdownTabId = Extract<LectureDetailTabId, 'ai-summary'>
 
 const MARKDOWN_TAB_FIELD: Record<
   MarkdownTabId,
-  keyof Pick<LectureDetailTabContent, 'description' | 'aiSummary'>
+  keyof Pick<LectureDetailTabContent, 'aiSummary'>
 > = {
-  description: 'description',
   'ai-summary': 'aiSummary',
 }
 
 const TAB_EMPTY_COPY: Record<
-  Exclude<LectureDetailTabId, 'notes'>,
+  Exclude<LectureDetailTabId, 'description'>,
   { title: string; description: string }
 > = {
-  description: {
-    title: 'No description yet',
-    description: 'A description has not been added for this lecture.',
-  },
   'ai-summary': {
     title: 'AI summary not available',
     description:
@@ -64,7 +59,7 @@ function renderMarkdownTab(tabId: MarkdownTabId, content: string | null) {
 }
 
 function renderTabBody(tabId: LectureDetailTabId, tabs: LectureDetailTabContent) {
-  if (tabId === 'notes') {
+  if (tabId === 'description') {
     return <LectureNotesTabContent notes={tabs.notes} />
   }
 

@@ -15,6 +15,8 @@ import {
 } from '@/server/learn/utils/buildLectureDetailPayload'
 import { buildLearnDetailPresentation } from '@/server/learn/utils/buildLearnDetailPresentation'
 import { buildLectureTabContent } from '@/server/learn/utils/buildLectureTabContent'
+import { getLearnEntityBookmarkState } from '@/server/learn/services/learnEntityBookmark.service'
+import { getLectureFeedbackRecord } from '@/server/learn/services/lectureFeedback.service'
 import { ensureUserCanAccessLearnHubEntity } from '@/server/learn/utils/ensureLearnEntityAccess'
 import { LECTURE_RESOURCE_TYPE } from '@/server/learn/utils/resolveLectureLearningType'
 import {
@@ -46,7 +48,7 @@ export async function getLectureLearningDetailForUser(
       vimeoPlayerEmbedUrl: lectures.vimeoPlayerEmbedUrl,
       settings: lectures.settings,
       notes: lectures.notes,
-      description: lectures.description,
+      isNewZoomRedirection: lectures.isNewZoomRedirection,
       data: lectures.data,
     })
     .from(lectures)
@@ -82,8 +84,16 @@ export async function getLectureLearningDetailForUser(
 
   const isRecommended = toLearningPriority(row.optional) === 'recommended'
 
-  const [core, discussions, aiRows, associatedItems, videoAttendance, attendanceMap] =
-    await Promise.all([
+  const [
+    core,
+    discussions,
+    aiRows,
+    associatedItems,
+    videoAttendance,
+    attendanceMap,
+    isBookmarked,
+    feedbackRecord,
+  ] = await Promise.all([
     Promise.resolve(buildLearnDetailPresentation(row)),
     listDiscussionsWithThreadsForLearnEntity(
       userId,
@@ -116,18 +126,19 @@ export async function getLectureLearningDetailForUser(
             optional: row.optional,
           },
         ]),
+    getLearnEntityBookmarkState(userId, 'lecture', lectureId),
+    getLectureFeedbackRecord(userId, lectureId),
   ])
 
   const attendance = isRecommended ? null : (attendanceMap.get(lectureId) ?? null)
 
   const tabs = buildLectureTabContent({
-    description: row.description,
     notes: row.notes,
     lecturesAi: aiRows[0] ?? null,
     associatedItems,
   })
 
-  return buildLectureDetailPayload(
+  const payload = buildLectureDetailPayload(
     { ...core, discussions },
     {
       type: row.type,
@@ -145,5 +156,12 @@ export async function getLectureLearningDetailForUser(
     tabs,
     videoAttendance,
     attendance,
+    feedbackRecord,
   )
+
+  return {
+    ...payload,
+    isBookmarked,
+    isNewZoomRedirection: row.isNewZoomRedirection === 1,
+  }
 }

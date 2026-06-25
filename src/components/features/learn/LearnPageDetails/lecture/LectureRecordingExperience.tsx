@@ -2,6 +2,7 @@
 
 import { LectureDesktopChatSidebar } from './components/LectureDesktopChatSidebar'
 import { useLectureHeroViewportHeight } from './hooks/useLectureHeroViewportHeight'
+import { LectureDetailActions } from './shared/LectureDetailActions'
 import { LectureDetailFooter } from './shared/LectureDetailFooter'
 import { LectureDetailChrome } from './shared/LectureDetailChrome'
 import { LectureVideoSection } from './video'
@@ -9,6 +10,7 @@ import type { DiscussionListItem, LearningPriority } from '@/server/learn/types'
 import type { LectureAttendanceSummary } from '@/server/attendance/types'
 import type {
   LectureDetailTabContent,
+  LectureFeedbackState,
   LectureVideoAttendanceState,
 } from '@/server/learn/lectureDetailTypes'
 import { ChatbotExperience } from '@/components/features/chatbot/ChatbotExperience'
@@ -28,6 +30,8 @@ type LectureRecordingExperienceProps = {
   tabs: LectureDetailTabContent
   videoAttendance: LectureVideoAttendanceState | null
   attendance: LectureAttendanceSummary | null
+  isBookmarked: boolean
+  feedback: LectureFeedbackState
 }
 
 const heroRowFullBleedClasses =
@@ -47,6 +51,8 @@ export function LectureRecordingExperience({
   tabs,
   videoAttendance,
   attendance,
+  isBookmarked,
+  feedback,
 }: LectureRecordingExperienceProps) {
   const { rootRef, heightPx } = useLectureHeroViewportHeight()
 
@@ -110,6 +116,12 @@ export function LectureRecordingExperience({
       scheduleDisplayRange={scheduleDisplayRange}
       attendance={attendance}
       watchPercentage={videoAttendance?.watchPercentage}
+      actions={
+        <LectureDetailActions
+          lectureId={entityId}
+          initialIsBookmarked={isBookmarked}
+        />
+      }
       hero={hero}
       belowHero={belowHero}
       footer={
@@ -118,6 +130,7 @@ export function LectureRecordingExperience({
           discussions={discussions}
           hideNotes={hideNotes}
           tabs={tabs}
+          feedback={feedback}
         />
       }
     />

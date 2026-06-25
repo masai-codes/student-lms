@@ -13,7 +13,6 @@ type LecturesAiRow = {
 } | null
 
 export function buildLectureTabContent(input: {
-  description: string | null
   notes: string | null
   lecturesAi: LecturesAiRow
   associatedItems: Array<LearnAssociatedListItem>
@@ -34,7 +33,6 @@ export function buildLectureTabContent(input: {
       : null
 
   return {
-    description: normalizeNullableText(input.description),
     notes: normalizeNullableText(input.notes),
     aiSummary,
     transcript,

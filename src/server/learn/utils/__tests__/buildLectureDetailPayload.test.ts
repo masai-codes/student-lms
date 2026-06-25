@@ -18,7 +18,6 @@ const schedule = '2026-05-20T10:00:00.000Z'
 const concludes = '2026-05-20T12:00:00.000Z'
 
 const emptyTabs: LectureDetailTabContent = {
-  description: null,
   notes: null,
   aiSummary: null,
   transcript: null,
@@ -47,9 +46,15 @@ describe('buildLectureDetailPayload', () => {
       { ...emptyTabs, notes: 'Lecture notes' },
       null,
       null,
+      { rating: null, text: null },
     )
 
     expect(payload.lectureKind).toBe('live')
+    expect(payload.feedback).toEqual({
+      canSubmit: false,
+      rating: null,
+      text: null,
+    })
     expect(payload.notes).toBe('Lecture notes')
     expect(payload.tabs.notes).toBe('Lecture notes')
     expect(payload.hideNotes).toBe(false)
@@ -81,6 +86,7 @@ describe('buildLectureDetailPayload', () => {
       emptyTabs,
       null,
       null,
+      { rating: null, text: null },
     )
 
     expect(payload.lectureKind).toBe('video')
@@ -112,6 +118,7 @@ describe('buildLectureDetailPayload', () => {
         emptyTabs,
         null,
         null,
+        { rating: null, text: null },
       ),
     ).toThrow('LECTURE_DETAIL_UNSUPPORTED_TYPE')
   })
