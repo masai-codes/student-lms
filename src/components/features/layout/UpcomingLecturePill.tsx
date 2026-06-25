@@ -5,6 +5,7 @@ import { PlayCircle } from 'lucide-react'
 import type { NavbarPillEvent } from '@/server/api/dashboard/getNavbarPill.service'
 import { fetchNavbarPillEvent } from '@/lib/api/dashboard/dashboardApi'
 import { parseMysqlDatetimeIST } from '@/utils/timeZoneHandler'
+import { cn } from '@/lib/utils'
 
 function formatMmSs(ms: number): string {
   const totalSecs = Math.max(0, Math.floor(ms / 1000))
@@ -28,7 +29,7 @@ function useServerNow(intervalMs: number): number {
   return now
 }
 
-function PillContent({ event }: { event: NavbarPillEvent }) {
+function PillContent({ event, className }: { event: NavbarPillEvent; className?: string }) {
   const now = useServerNow(event.eventType === 'evaluation' ? 1000 : 30000)
   const startMs = parseMysqlDatetimeIST(event.schedule)?.valueOf() ?? 0
   const endMs = parseMysqlDatetimeIST(event.concludes)?.valueOf() ?? 0
@@ -51,7 +52,10 @@ function PillContent({ event }: { event: NavbarPillEvent }) {
       ? formatMmSs(msUntilStart)
       : formatMins(msUntilStart)
 
-  const pillClass = "hidden lg:flex items-center gap-3 bg-[#EBF5FF] hover:bg-[#DBEAFE] transition-colors rounded-[14px] px-3 py-2 max-w-[340px] min-w-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400"
+  const pillClass = cn(
+    "flex items-center gap-3 bg-[#EBF5FF] hover:bg-[#DBEAFE] transition-colors px-3 py-2 min-w-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400",
+    className,
+  )
 
   const inner = (
     <>
@@ -89,7 +93,7 @@ function PillContent({ event }: { event: NavbarPillEvent }) {
   )
 }
 
-export function UpcomingLecturePill() {
+export function UpcomingLecturePill({ className }: { className?: string }) {
   const { data } = useQuery({
     queryKey: ['navbar-pill'],
     queryFn: fetchNavbarPillEvent,
@@ -98,5 +102,5 @@ export function UpcomingLecturePill() {
   })
 
   if (!data) return null
-  return <PillContent event={data} />
+  return <PillContent event={data} className={className} />
 }

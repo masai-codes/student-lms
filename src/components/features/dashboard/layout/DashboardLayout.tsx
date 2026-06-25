@@ -1,8 +1,9 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { getRouteApi, useNavigate, useRouter } from '@tanstack/react-router'
-import { Megaphone } from 'lucide-react'
+import { Megaphone, Play } from 'lucide-react'
 import { OnboardingModal } from '@/components/modals/onboarding/OnboardingModal'
+import { T0FlowModal } from '@/components/modals/t0Flow/T0FlowModal'
 import { AnnouncementPopupModal, filterUnshownPopups } from '@/components/modals/AnnouncementPopupModal'
 import { DashboardWelcomeSection } from '../section-welcome/DashboardWelcomeSection'
 import { DashboardActionBanner } from '../section-banner/DashboardActionBanner'
@@ -18,6 +19,7 @@ import { fetchAnnouncementUnreadCount } from '@/lib/api/announcement/announcemen
 import {
   fetchDashboardLeftSection,
   fetchDashboardRightSection,
+  fetchT0FlowStatus,
 } from '@/lib/api/dashboard/dashboardApi'
 
 const layoutRouteApi = getRouteApi('/(protected)/_layout')
@@ -27,6 +29,14 @@ export function DashboardLayout() {
   const router = useRouter()
   const navigate = useNavigate()
   const queryClient = useQueryClient()
+  const { data: t0FlowStatus } = useQuery({
+    queryKey: ['t0-flow-status'],
+    queryFn: fetchT0FlowStatus,
+    staleTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: false,
+  })
+  const [t0FlowDismissed, setT0FlowDismissed] = useState(false)
+  const t0FlowOpen = !t0FlowDismissed && (t0FlowStatus?.showT0Flow ?? false)
   const [onboardingOpen, setOnboardingOpen] = useState(false)
   const [showPopups, setShowPopups] = useState(false)
 
@@ -50,14 +60,14 @@ export function DashboardLayout() {
   })
 
   useEffect(() => {
-    if (!leftSectionData) return
+    if (!leftSectionData || t0FlowOpen || t0FlowStatus === undefined) return
     const { pendingAgreementSections, pendingFeedbackForms } = leftSectionData.actionBanners
     if (pendingAgreementSections.length > 0 || pendingFeedbackForms.length > 0) {
       setOnboardingOpen(true)
     } else {
       setShowPopups(true)
     }
-  }, [leftSectionData])
+  }, [leftSectionData, t0FlowOpen, t0FlowStatus])
 
   const handleAnnouncementsClick = useCallback(() => {
     void navigate({ to: '/announcements', search: { page: 1 } })
@@ -126,7 +136,7 @@ export function DashboardLayout() {
   return (
     <>
       {/* ── Mobile / Tablet layout (< lg) ── */}
-      <div className="lg:hidden flex flex-col pb-28 -mx-1 -mt-6">
+      <div className="lg:hidden flex flex-col pb-40 -mx-1 -mt-6">
         {/* Welcome header bar */}
         <div className="bg-white rounded-b-[24px] px-4 py-3 flex items-center justify-between min-h-[72px]">
           <div className="flex flex-col">
@@ -148,6 +158,24 @@ export function DashboardLayout() {
           </button>
         </div>
 
+        {t0FlowStatus?.showT0Flow && (
+          <button
+            type="button"
+            onClick={() => setT0FlowDismissed(false)}
+            className="mx-4 mt-3 flex items-center gap-3 rounded-2xl px-4 py-3 text-left w-[calc(100%-2rem)] focus-visible:outline-none"
+            style={{ background: '#EEF2FF' }}
+          >
+            <span className="flex items-center justify-center size-9 rounded-xl shrink-0" style={{ background: '#6962AC' }}>
+              <Play size={16} className="text-white" fill="white" />
+            </span>
+            <div className="flex flex-col min-w-0">
+              <span className="text-sm font-semibold truncate" style={{ fontFamily: 'Poppins', color: '#6962AC' }}>Walkthrough &amp; Onboarding</span>
+              <span className="text-xs truncate" style={{ fontFamily: 'Poppins', color: '#9CA3AF' }}>View your onboarding steps</span>
+            </div>
+            <svg className="ml-auto shrink-0" width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M7.5 5l5 5-5 5" stroke="#6962AC" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+          </button>
+        )}
+
         <div className="flex flex-col gap-4 px-4 mt-3">
           {actionBannerSection}
           {bannerSection}
@@ -164,10 +192,12 @@ export function DashboardLayout() {
       </div>
 
       {/* ── Desktop layout (≥ lg) ── */}
-      <div className="hidden lg:flex flex-col w-full max-w-[1440px] mx-auto mb-6 px-6">
+      <div className="hidden lg:flex flex-col w-full max-w-[1440px] mx-auto mb-6 px-6 gap-4">
+        {/* Action banner above the white card */}
         {actionBannerSection}
 
-        <div className={`relative z-10 rounded-3xl border border-gray-200 bg-white flex flex-col ${isBannerVisible || isLeftSectionLoading ? '-mt-8' : 'mt-4'}`}>
+        {/* White card */}
+        <div className="relative rounded-3xl border border-gray-200 bg-white flex flex-col">
           {/* Header row: welcome + banner */}
           <div className="flex items-start gap-4 px-8 pt-8 pb-0">
             <div className="shrink-0 mt-2">
@@ -198,7 +228,33 @@ export function DashboardLayout() {
         />
       )}
 
-      {onboardingOpen && leftSectionData && (
+      {t0FlowOpen && (
+        <T0FlowModal
+          batches={t0FlowStatus?.batches ?? []}
+          profilePhotoUrl={t0FlowStatus?.profilePhotoUrl ?? null}
+          downloadAppCompleted={t0FlowStatus?.downloadAppCompleted ?? false}
+          onPhotoSaved={() => {
+            void queryClient.invalidateQueries({ queryKey: ['dashboard-left-section'] })
+            void router.invalidate()
+          }}
+          onAgreementSubmitted={() => {
+            void queryClient.invalidateQueries({ queryKey: ['dashboard-left-section'] })
+            void queryClient.invalidateQueries({ queryKey: ['t0-flow-lectures'] })
+          }}
+          onClose={() => {
+            setT0FlowDismissed(true)
+            if (!leftSectionData) return
+            const { pendingAgreementSections, pendingFeedbackForms } = leftSectionData.actionBanners
+            if (pendingAgreementSections.length > 0 || pendingFeedbackForms.length > 0) {
+              setOnboardingOpen(true)
+            } else {
+              setShowPopups(true)
+            }
+          }}
+        />
+      )}
+
+      {!t0FlowOpen && onboardingOpen && leftSectionData && (
         <OnboardingModal
           onClose={() => { setOnboardingOpen(false); setShowPopups(true) }}
           showProfilePhoto={leftSectionData.actionBanners.showProfilePicture}

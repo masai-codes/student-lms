@@ -126,6 +126,8 @@ export async function getDashboardAnnouncements(
         AND m.message_id IS NULL
         AND m.deleted_at IS NULL
         AND m.read_at    IS NULL
+        AND (m.schedule  IS NULL OR m.schedule  <= CONVERT_TZ(NOW(), '+00:00', '+05:30'))
+        AND (m.concludes IS NULL OR m.concludes >= CONVERT_TZ(NOW(), '+00:00', '+05:30'))
 
     ) combined
     ORDER BY sortedAt DESC
