@@ -19,4 +19,6 @@ export type ResourceDetailPayload = LearnHubDetailPayload & {
   body: string | null
   hideNotes: boolean
   phaseContent: LearnPhaseContent
+  /** Whether the current user has bookmarked this resource. */
+  isBookmarked: boolean
 }

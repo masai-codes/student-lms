@@ -1490,6 +1490,8 @@ export const lectures = mysqlTable("lectures", {
 	schedule: datetime({ mode: 'string'}),
 	concludes: datetime({ mode: 'string'}),
 	zoomLink: varchar("zoom_link", { length: 255 }),
+	isNewZoomRedirection: tinyint("is_new_zoom_redirection").default(0),
+	zoomDetails: json("zoom_details").$type<Record<string, any>>(),
 	notes: text(),
 	videos: json('videos').$type<Record<string, any>>(),
 	settings: json('settings').$type<Record<string, any>>(),

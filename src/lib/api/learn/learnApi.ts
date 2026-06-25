@@ -83,3 +83,43 @@ export async function fetchResourceLearningDetailFromApi(
 ): Promise<ResourceDetailPayload> {
   return fetchLearnApi<ResourceDetailPayload>(LEARN_API.resource(resourceId))
 }
+
+export interface ResourceBookmarkResult {
+  isBookmarked: boolean
+}
+
+export async function addResourceBookmarkViaApi(
+  resourceId: number,
+): Promise<ResourceBookmarkResult> {
+  return fetchJson<ResourceBookmarkResult>(LEARN_API.resourceBookmark(resourceId), {
+    method: 'POST',
+  })
+}
+
+export async function removeResourceBookmarkViaApi(
+  resourceId: number,
+): Promise<ResourceBookmarkResult> {
+  return fetchJson<ResourceBookmarkResult>(LEARN_API.resourceBookmark(resourceId), {
+    method: 'DELETE',
+  })
+}
+
+export interface LectureBookmarkResult {
+  isBookmarked: boolean
+}
+
+export async function addLectureBookmarkViaApi(
+  lectureId: number,
+): Promise<LectureBookmarkResult> {
+  return fetchJson<LectureBookmarkResult>(LEARN_API.lectureBookmark(lectureId), {
+    method: 'POST',
+  })
+}
+
+export async function removeLectureBookmarkViaApi(
+  lectureId: number,
+): Promise<LectureBookmarkResult> {
+  return fetchJson<LectureBookmarkResult>(LEARN_API.lectureBookmark(lectureId), {
+    method: 'DELETE',
+  })
+}

@@ -14,7 +14,7 @@ import {
   nextVideoProgressRetryAt,
   shouldSaveVideoProgress,
 } from '@/lib/video-attendance/videoProgressSavePolicy'
-import { storeLectureVideoProgress } from '@/server/video-attendance/storeLectureVideoProgress'
+import { storeLectureVideoProgressViaApi } from '@/lib/api/learn/videoProgressApi'
 
 function isHlsUrl(url: string): boolean {
   return url.includes('.m3u8')
@@ -78,12 +78,10 @@ export function useLectureVideoAttendance({
     if (isUpdatingRef.current) return
     isUpdatingRef.current = true
     try {
-      const result = await storeLectureVideoProgress({
-        data: {
-          lectureId,
-          totalDuration: Math.round(totalDuration),
-          intervals: [{ start: startTimeRef.current, end: endTimeRef.current }],
-        },
+      const result = await storeLectureVideoProgressViaApi({
+        lectureId,
+        totalDuration: Math.round(totalDuration),
+        intervals: [{ start: startTimeRef.current, end: endTimeRef.current }],
       })
 
       if (result.ok) {

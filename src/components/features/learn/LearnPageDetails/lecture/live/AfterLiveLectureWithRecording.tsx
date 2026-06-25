@@ -5,6 +5,7 @@ import type { DiscussionListItem, LearningPriority } from '@/server/learn/types'
 import type { LectureAttendanceSummary } from '@/server/attendance/types'
 import type {
   LectureDetailTabContent,
+  LectureFeedbackState,
   LectureVideoAttendanceState,
 } from '@/server/learn/lectureDetailTypes'
 
@@ -22,6 +23,8 @@ type AfterLiveLectureWithRecordingProps = {
   tabs: LectureDetailTabContent
   videoAttendance: LectureVideoAttendanceState | null
   attendance: LectureAttendanceSummary | null
+  isBookmarked: boolean
+  feedback: LectureFeedbackState
 }
 
 export function AfterLiveLectureWithRecording(props: AfterLiveLectureWithRecordingProps) {

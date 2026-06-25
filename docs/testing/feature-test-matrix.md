@@ -34,9 +34,9 @@ Last updated: 2026-06-22
 - Notes: See `docs/testing/features/learn-listing.md`
 
 ## Resource detail (`/resources/:id`)
-- Area: `GET /api/learn/resources/:id` + loader via `fetchResourceLearningDetailFromApi`; resource kind/phase/body/phase copy + discussions with threads on server
-- Status: Covered (server utils + phase content + associated content drawer)
-- Test files: `src/server/learn/utils/__tests__/normalizeResourceKind.test.ts`, `src/server/learn/utils/__tests__/buildResourceDetailPayload.test.ts`, `src/server/learn/utils/__tests__/buildLearnPhaseContent.test.ts`, `src/components/shared/markdown-content/__tests__/*`
+- Area: `GET /api/learn/resources/:id` (single page payload incl. per-user `isBookmarked`) + loader via `fetchResourceLearningDetailFromApi`; resource kind/phase/body/phase copy + discussions with threads on server; bookmark toggle via `POST`/`DELETE /api/learn/resources/:id/bookmark`
+- Status: Covered (server utils + detail service + phase content + associated content drawer + bookmark service/handler/UI)
+- Test files: `src/server/learn/utils/__tests__/normalizeResourceKind.test.ts`, `src/server/learn/utils/__tests__/buildResourceDetailPayload.test.ts`, `src/server/learn/utils/__tests__/buildLearnPhaseContent.test.ts`, `src/server/learn/__tests__/getResourceLearningDetail.service.test.ts`, `src/server/learn/services/__tests__/learnEntityBookmark.service.test.ts`, `src/server/api/learn/handlers/__tests__/resourceBookmark.handler.test.ts`, `src/components/features/learn/LearnPageDetails/resource/shared/__tests__/ResourceDetailActions.test.tsx`, `src/components/shared/markdown-content/__tests__/*`
 - Notes: See `docs/testing/features/resource-detail.md`
 
 ## Assignment detail (`/assignments/:id`)
@@ -52,9 +52,9 @@ Last updated: 2026-06-22
 - Notes: See `docs/testing/features/problem-detail.md`. BUTTON problems have no submission; `type === null` is not in the schema.
 
 ## Lecture detail (`/lectures/:id`)
-- Area: Single `getLectureLearningDetail` loader (tabs, AI, associated, discussions+threads, video attendance, join button state); video save still POST-only
-- Status: Covered (server utils + service; no initial client fetch for progress/intervals/discussion threads)
-- Test files: `src/server/learn/**/__tests__/*lecture*`, `src/server/learn/utils/__tests__/resolveJoinLiveButtonState.test.ts`, `src/server/video-attendance/**/__tests__/*`, `src/components/features/learn/LearnPageDetails/lecture/video/hooks/__tests__/*`
+- Area: Single `getLectureLearningDetail` loader (tabs, AI, associated, discussions+threads, video attendance, join button state, `isBookmarked`). Mutations are REST: video progress `POST /api/learn/lectures/:id/video-progress`, discussions `POST /api/learn/discussions` + replies `POST /api/learn/discussions/:id/replies`, bookmark `POST`/`DELETE /api/learn/lectures/:id/bookmark` (all migrated off `createServerFn`). Single "Description" tab renders `lectures.notes` (no separate Notes/description-column tab). Header shows Raise Ticket + bookmark via `LectureDetailActions`. Windowed feedback form (`LectureFeedbackForm`, `POST /api/learn/lectures/:id/feedback`) gated by `settings.show_feedback` + `schedule+15m → concludes+24h`. Live join supports adaptive (SAL) link rewrite + ZEF (`is_new_zoom_redirection` → `POST /api/learn/lectures/:id/zoom-redirect`, token minted locally via `zoomRedirectionToken`, needs `ZOOM_REDIRECTION_JWT_SECRET`).
+- Status: Covered (server utils + service; no initial client fetch for progress/intervals/discussion threads; REST mutation handlers + client wrappers covered)
+- Test files: `src/server/learn/**/__tests__/*lecture*`, `src/server/learn/utils/__tests__/resolveJoinLiveButtonState.test.ts`, `src/server/video-attendance/**/__tests__/*`, `src/server/api/learn/handlers/__tests__/{storeLectureVideoProgress,createLearnDiscussion,addLearnDiscussionReply,lectureBookmark}.handler.test.ts`, `src/lib/api/learn/__tests__/{videoProgressApi,discussionsApi,learnApiBookmark}.test.ts`, `src/components/features/learn/LearnPageDetails/lecture/shared/__tests__/LectureDetailActions.test.tsx`, `src/components/features/learn/LearnPageDetails/lecture/video/hooks/__tests__/*`, `src/components/features/learn/LearnPageDetails/lecture/tabs/constants/__tests__/resolveVisibleLectureDetailTabs.test.ts`
 - Notes: See `docs/testing/features/lecture-detail.md`, `docs/testing/features/lecture-video-player.md`
 
 ## Learn hub (new-discussions)

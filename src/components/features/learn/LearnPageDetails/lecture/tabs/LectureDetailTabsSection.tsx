@@ -4,7 +4,8 @@ import { useState } from 'react'
 
 import { LectureTabBar } from './LectureTabBar'
 import { LectureTabPanel } from './LectureTabPanel'
-import { DEFAULT_LECTURE_TAB_ID, type LectureDetailTabId } from './constants/staticLectureTabContent'
+import { resolveDefaultLectureTabId } from './constants/staticLectureTabContent'
+import type { LectureDetailTabId } from './constants/staticLectureTabContent'
 
 import type { LectureDetailTabContent } from '@/server/learn/lectureDetailTypes'
 import { cn } from '@/lib/utils'
@@ -20,8 +21,9 @@ export function LectureDetailTabsSection({
   tabs,
   hideNotes = false,
 }: LectureDetailTabsSectionProps) {
-  const [activeTabId, setActiveTabId] =
-    useState<LectureDetailTabId>(DEFAULT_LECTURE_TAB_ID)
+  const [activeTabId, setActiveTabId] = useState<LectureDetailTabId>(() =>
+    resolveDefaultLectureTabId(hideNotes),
+  )
 
   return (
     <section

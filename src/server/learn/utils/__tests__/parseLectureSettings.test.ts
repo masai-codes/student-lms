@@ -7,10 +7,12 @@ describe('parseLectureSettings', () => {
     expect(parseLectureSettings(null)).toEqual({
       hideVideo: false,
       hideNotes: false,
+      showFeedback: false,
     })
     expect(parseLectureSettings('x')).toEqual({
       hideVideo: false,
       hideNotes: false,
+      showFeedback: false,
     })
   })
 
@@ -18,10 +20,12 @@ describe('parseLectureSettings', () => {
     expect(parseLectureSettings({ hide_video: true })).toEqual({
       hideVideo: true,
       hideNotes: false,
+      showFeedback: false,
     })
     expect(parseLectureSettings({ hide_video: false })).toEqual({
       hideVideo: false,
       hideNotes: false,
+      showFeedback: false,
     })
   })
 
@@ -29,14 +33,23 @@ describe('parseLectureSettings', () => {
     expect(parseLectureSettings({ hide_notes: true })).toEqual({
       hideVideo: false,
       hideNotes: true,
+      showFeedback: false,
     })
     expect(parseLectureSettings({ hide_notes: 1 })).toEqual({
       hideVideo: false,
       hideNotes: true,
+      showFeedback: false,
     })
     expect(parseLectureSettings({ hide_notes: 0 })).toEqual({
       hideVideo: false,
       hideNotes: false,
+      showFeedback: false,
     })
+  })
+
+  it('reads show_feedback from settings object', () => {
+    expect(parseLectureSettings({ show_feedback: true }).showFeedback).toBe(true)
+    expect(parseLectureSettings({ show_feedback: 1 }).showFeedback).toBe(true)
+    expect(parseLectureSettings({ show_feedback: 0 }).showFeedback).toBe(false)
   })
 })
