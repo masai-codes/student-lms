@@ -1,6 +1,9 @@
 /** Max user message length accepted by the streaming chat endpoint. */
 export const AI_TUTOR_CHAT_MAX_MESSAGE_LENGTH = 4_000
 
+/** Max feedback text length persisted on `ai_chat_practice_questions.feedback`. */
+export const AI_TUTOR_FEEDBACK_MAX_LENGTH = 191
+
 /** Fallback title when a conversation has no user messages yet. */
 export const AI_TUTOR_DEFAULT_CONVERSATION_TITLE = 'New chat'
 

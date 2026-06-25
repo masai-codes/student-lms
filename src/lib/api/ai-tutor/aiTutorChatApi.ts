@@ -4,6 +4,7 @@ import type {
   GetAiTutorConversationResponse,
   ListAiTutorConversationsResponse,
 } from '@/server/api/ai-tutor/types/conversation'
+import type { SubmitAiTutorFeedbackResponse } from '@/server/api/ai-tutor/types/feedback'
 
 export type {
   AiTutorChatTurn,
@@ -11,6 +12,7 @@ export type {
   GetAiTutorConversationResponse,
   ListAiTutorConversationsResponse,
 } from '@/server/api/ai-tutor/types/conversation'
+export type { SubmitAiTutorFeedbackResponse } from '@/server/api/ai-tutor/types/feedback'
 
 export async function listAiTutorConversations(
   lectureId: number,
@@ -27,4 +29,17 @@ export async function getAiTutorConversation(
   return fetchJson<GetAiTutorConversationResponse>(
     AI_TUTOR_API.conversation(chatId),
   )
+}
+
+export async function submitAiTutorFeedback(input: {
+  lectureId: number
+  chatId: number
+  rating: number
+  feedback?: string
+}): Promise<SubmitAiTutorFeedbackResponse> {
+  return fetchJson<SubmitAiTutorFeedbackResponse>(AI_TUTOR_API.chatFeedback, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(input),
+  })
 }
