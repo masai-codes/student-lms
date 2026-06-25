@@ -46,15 +46,14 @@ export async function getDashboardPendingTasksCount(userId: number): Promise<num
     db.execute(sql`
       SELECT COUNT(*) AS count
       FROM lectures l
-      INNER JOIN student_attendances sa ON sa.lecture_id = l.id
-                                       AND sa.user_id    = ${userId}
+      LEFT JOIN student_attendances sa ON sa.lecture_id = l.id
+                                      AND sa.user_id    = ${userId}
       WHERE l.section_id IN (${sql.raw(sectionIdList)})
-        AND l.deleted_at     IS NULL
-        AND l.optional       = 0
-        AND sa.status        = 0
-        AND sa.catch_up_days IS NOT NULL
-        AND l.concludes      < CONVERT_TZ(NOW(), '+00:00', '+05:30')
-        AND DATE_ADD(l.concludes, INTERVAL sa.catch_up_days DAY) > CONVERT_TZ(NOW(), '+00:00', '+05:30')
+        AND l.deleted_at IS NULL
+        AND l.optional   = 0
+        AND (sa.status = 0 OR sa.id IS NULL)
+        AND l.concludes  < CONVERT_TZ(NOW(), '+00:00', '+05:30')
+        AND DATE_ADD(l.concludes, INTERVAL COALESCE(sa.catch_up_days, 7) DAY) > CONVERT_TZ(NOW(), '+00:00', '+05:30')
     `),
   ])
 

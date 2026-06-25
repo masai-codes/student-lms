@@ -9,8 +9,6 @@ type RawRow = {
   title: string
   schedule: string | null
   concludes: string | null
-  startDate: string | null
-  endDate: string | null
   subType: string | null
   moduleName: string | null
   optional: number | string
@@ -23,7 +21,6 @@ type RawLectureCatchUpRow = {
   title: string
   schedule: string | null
   concludes: string | null
-  startDate: string | null
   catchUpDeadline: string | null
   lectureType: string | null
   moduleName: string | null
@@ -103,8 +100,6 @@ export async function getDashboardPendingTasks(
       a.title,
       a.schedule,
       a.concludes,
-      DATE(CONVERT_TZ(a.schedule,  '+00:00', '+05:30')) AS startDate,
-      DATE(CONVERT_TZ(a.concludes, '+00:00', '+05:30')) AS endDate,
       a.category  AS subType,
       a.module    AS moduleName,
       a.optional,
@@ -135,8 +130,6 @@ export async function getDashboardPendingTasks(
       title: String(row.title ?? ''),
       schedule: row.schedule ?? null,
       concludes: row.concludes ?? null,
-      startDate: row.startDate ?? null,
-      endDate: row.endDate ?? null,
       subType: row.subType ? String(row.subType) : null,
       lectureType: null,
       hasZoomLink: false,
@@ -153,8 +146,7 @@ export async function getDashboardPendingTasks(
       l.title,
       l.schedule,
       l.concludes,
-      DATE(CONVERT_TZ(l.schedule, '+00:00', '+05:30'))                        AS startDate,
-      DATE_ADD(l.concludes, INTERVAL COALESCE(sa.catch_up_days, 7) DAY)      AS catchUpDeadline,
+      DATE_ADD(l.concludes, INTERVAL COALESCE(sa.catch_up_days, 7) DAY) AS catchUpDeadline,
       l.type    AS lectureType,
       l.module  AS moduleName,
       l.optional,
@@ -181,8 +173,6 @@ export async function getDashboardPendingTasks(
       schedule: row.schedule ?? null,
       // concludes = catch-up deadline so the UI can show the correct urgency
       concludes: row.catchUpDeadline ?? null,
-      startDate: row.startDate ?? null,
-      endDate: row.catchUpDeadline ? String(row.catchUpDeadline).slice(0, 10) : null,
       subType: null,
       lectureType: row.lectureType ? String(row.lectureType) : null,
       hasZoomLink: false,
