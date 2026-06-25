@@ -131,6 +131,12 @@ Last updated: 2026-06-07
 - Test files: `src/server/api/ai-tutor/__tests__/{chatTurns,listConversations.handler,getConversation.handler,conversationServices}.test.ts`
 - Notes: `GET /api/ai-tutor/chat/conversations?lectureId=` lists the user's threads for a lecture (title from first user message, `updatedAt` desc). `GET /api/ai-tutor/chat/conversations/:chatId` returns ordered user/assistant turns from stored `chatHistory`.
 
+## AI Tutor chat feedback
+- Area: Authenticated chat feedback (`src/routes/api/ai-tutor/chat/feedback.ts`, `src/server/api/ai-tutor/**`, `src/lib/api/ai-tutor/aiTutorChatApi.ts`)
+- Status: Covered
+- Test files: `src/server/api/ai-tutor/__tests__/{submitFeedback.handler,submitChatPracticeFeedback.service}.test.ts`
+- Notes: `POST /api/ai-tutor/chat/feedback` accepts `{ lectureId, chatId, rating, feedback? }`, validates ownership of the chat thread, and persists `rating`, `feedback`, and `feedbackTime` on `ai_chat_practice_questions`.
+
 ## Status Meaning
 
 - `Covered`: key behavior and edge paths are fully tested for current scope.
