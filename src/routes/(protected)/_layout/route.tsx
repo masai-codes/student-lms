@@ -5,7 +5,7 @@ import {
   useRouterState,
 } from '@tanstack/react-router'
 import { useEffect } from 'react'
-import { AppLoading } from '@/components/common'
+import { AppLoading, FloatingChatSphere } from '@/components/common'
 import { AppMobileTabBar, AppNavbar } from '@/components/features/layout'
 import MasaiverseMobileTabBar from '@/components/features/masaiverse-v2/MasaiverseMobileTabBar'
 import { isMasaiverseApp } from '@/constants/masaiverseDrawerUi'
@@ -121,6 +121,7 @@ function RouteComponent() {
       ) : !isApp ? (
         <AppMobileTabBar />
       ) : null}
+      {!isMasaiverseRoute && <FloatingChatSphere />}
     </div>
   )
 }

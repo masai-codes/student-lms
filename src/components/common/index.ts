@@ -5,3 +5,4 @@ export { statusConfig } from "./CardStatus";
 export { default as Pagination } from "./Pagination";
 export { default as SkeletonCommon } from "./SkeletonCommon";
 export { TagChip } from "./TagChip";
+export { FloatingChatSphere } from "./floating-chat/FloatingChatSphere";
