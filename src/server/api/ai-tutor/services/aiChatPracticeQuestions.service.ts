@@ -1,4 +1,4 @@
-import { and, eq } from 'drizzle-orm'
+import { and, desc, eq } from 'drizzle-orm'
 import type { AiChatHistoryEntry } from '@/server/api/ai-tutor/types/chatHistory'
 import { db } from '@/db'
 import { aiChatPracticeQuestions } from '@/db/schema'
@@ -62,6 +62,68 @@ export async function findOrCreateChatPracticeRow(input: {
   }
 
   return { id: insertId, chatHistory: [] }
+}
+
+export async function listChatPracticeConversations(input: {
+  userId: number
+  lectureId: number
+}): Promise<
+  Array<{
+    id: number
+    chatHistory: Array<AiChatHistoryEntry>
+    updatedAt: string
+  }>
+> {
+  const rows = await db
+    .select({
+      id: aiChatPracticeQuestions.id,
+      chatHistory: aiChatPracticeQuestions.chatHistory,
+      updatedAt: aiChatPracticeQuestions.updatedAt,
+    })
+    .from(aiChatPracticeQuestions)
+    .where(
+      and(
+        eq(aiChatPracticeQuestions.userId, input.userId),
+        eq(aiChatPracticeQuestions.lectureId, input.lectureId),
+      ),
+    )
+    .orderBy(desc(aiChatPracticeQuestions.updatedAt))
+
+  return rows.map((row) => ({
+    id: row.id,
+    chatHistory: parseChatHistory(row.chatHistory),
+    updatedAt: row.updatedAt ?? '',
+  }))
+}
+
+export async function getChatPracticeConversation(input: {
+  userId: number
+  chatId: number
+}): Promise<ChatPracticeRow> {
+  const rows = await db
+    .select({
+      id: aiChatPracticeQuestions.id,
+      chatHistory: aiChatPracticeQuestions.chatHistory,
+    })
+    .from(aiChatPracticeQuestions)
+    .where(
+      and(
+        eq(aiChatPracticeQuestions.id, input.chatId),
+        eq(aiChatPracticeQuestions.userId, input.userId),
+      ),
+    )
+    .limit(1)
+
+  if (rows.length === 0) {
+    throw new ApiError(404, 'AI_TUTOR_CHAT_NOT_FOUND')
+  }
+
+  const [row] = rows
+
+  return {
+    id: row.id,
+    chatHistory: parseChatHistory(row.chatHistory),
+  }
 }
 
 export async function appendChatPracticeHistory(input: {

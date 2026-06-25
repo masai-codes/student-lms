@@ -148,6 +148,7 @@ import { Route as protectedLayoutCourseBatchIdRouteRouteImport } from './routes/
 import { Route as protectedLayoutAssignmentsAssignmentIdRouteRouteImport } from './routes/(protected)/_layout/assignments_/$assignmentId/route'
 import { Route as protectedLayoutAnnouncementsIdRouteRouteImport } from './routes/(protected)/_layout/announcements_/$id/route'
 import { Route as ApiChatbotLectureIdSessionsIndexRouteImport } from './routes/api/chatbot/$lectureId/sessions/index'
+import { Route as ApiAiTutorChatConversationsIndexRouteImport } from './routes/api/ai-tutor/chat/conversations/index'
 import { Route as protectedLayoutSupportSupportIdIndexRouteImport } from './routes/(protected)/_layout/support/$supportId/index'
 import { Route as ApiLearnSubmissionsSubmissionIdViewOnPlatformRouteImport } from './routes/api/learn/submissions/$submissionId/view-on-platform'
 import { Route as ApiLearnSolutionsSolutionIdFileRouteImport } from './routes/api/learn/solutions/$solutionId/file'
@@ -174,6 +175,7 @@ import { Route as ApiDashboardAgreementSectionIdStepRouteImport } from './routes
 import { Route as ApiDashboardAgreementSectionIdOpenRouteImport } from './routes/api/dashboard/agreement/$sectionId/open'
 import { Route as ApiDashboardAgreementSectionIdDismissRouteImport } from './routes/api/dashboard/agreement/$sectionId/dismiss'
 import { Route as ApiDashboardAgreementSectionIdDetailsRouteImport } from './routes/api/dashboard/agreement/$sectionId/details'
+import { Route as ApiAiTutorChatConversationsChatIdRouteImport } from './routes/api/ai-tutor/chat/conversations/$chatId'
 import { Route as protectedLayoutMasaiverseEventEventIdRouteImport } from './routes/(protected)/_layout/masaiverse/event.$eventId'
 import { Route as protectedLayoutMasaiverseClubClubIdRouteImport } from './routes/(protected)/_layout/masaiverse/club.$clubId'
 import { Route as ApiChatbotLectureIdSessionsSessionIdIndexRouteImport } from './routes/api/chatbot/$lectureId/sessions/$sessionId/index'
@@ -962,6 +964,12 @@ const ApiChatbotLectureIdSessionsIndexRoute =
     path: '/api/chatbot/$lectureId/sessions/',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiAiTutorChatConversationsIndexRoute =
+  ApiAiTutorChatConversationsIndexRouteImport.update({
+    id: '/api/ai-tutor/chat/conversations/',
+    path: '/api/ai-tutor/chat/conversations/',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const protectedLayoutSupportSupportIdIndexRoute =
   protectedLayoutSupportSupportIdIndexRouteImport.update({
     id: '/support/$supportId/',
@@ -1117,6 +1125,12 @@ const ApiDashboardAgreementSectionIdDetailsRoute =
     id: '/details',
     path: '/details',
     getParentRoute: () => ApiDashboardAgreementSectionIdRoute,
+  } as any)
+const ApiAiTutorChatConversationsChatIdRoute =
+  ApiAiTutorChatConversationsChatIdRouteImport.update({
+    id: '/api/ai-tutor/chat/conversations/$chatId',
+    path: '/api/ai-tutor/chat/conversations/$chatId',
+    getParentRoute: () => rootRouteImport,
   } as any)
 const protectedLayoutMasaiverseEventEventIdRoute =
   protectedLayoutMasaiverseEventEventIdRouteImport.update({
@@ -1309,6 +1323,7 @@ export interface FileRoutesByFullPath {
   '/api/whats-new/$id/': typeof ApiWhatsNewIdIndexRoute
   '/masaiverse/club/$clubId': typeof protectedLayoutMasaiverseClubClubIdRoute
   '/masaiverse/event/$eventId': typeof protectedLayoutMasaiverseEventEventIdRoute
+  '/api/ai-tutor/chat/conversations/$chatId': typeof ApiAiTutorChatConversationsChatIdRoute
   '/api/dashboard/agreement/$sectionId/details': typeof ApiDashboardAgreementSectionIdDetailsRoute
   '/api/dashboard/agreement/$sectionId/dismiss': typeof ApiDashboardAgreementSectionIdDismissRoute
   '/api/dashboard/agreement/$sectionId/open': typeof ApiDashboardAgreementSectionIdOpenRoute
@@ -1335,6 +1350,7 @@ export interface FileRoutesByFullPath {
   '/api/learn/solutions/$solutionId/file': typeof ApiLearnSolutionsSolutionIdFileRoute
   '/api/learn/submissions/$submissionId/view-on-platform': typeof ApiLearnSubmissionsSubmissionIdViewOnPlatformRoute
   '/support/$supportId/': typeof protectedLayoutSupportSupportIdIndexRoute
+  '/api/ai-tutor/chat/conversations/': typeof ApiAiTutorChatConversationsIndexRoute
   '/api/chatbot/$lectureId/sessions/': typeof ApiChatbotLectureIdSessionsIndexRoute
   '/assignments/$assignmentId/problems/$problemId': typeof protectedLayoutAssignmentsAssignmentIdProblemsProblemIdRouteRoute
   '/masaiverse/club/$clubId/gallery': typeof protectedLayoutMasaiverseClubClubIdGalleryRoute
@@ -1482,6 +1498,7 @@ export interface FileRoutesByTo {
   '/api/whats-new/$id': typeof ApiWhatsNewIdIndexRoute
   '/masaiverse/club/$clubId': typeof protectedLayoutMasaiverseClubClubIdRoute
   '/masaiverse/event/$eventId': typeof protectedLayoutMasaiverseEventEventIdRoute
+  '/api/ai-tutor/chat/conversations/$chatId': typeof ApiAiTutorChatConversationsChatIdRoute
   '/api/dashboard/agreement/$sectionId/details': typeof ApiDashboardAgreementSectionIdDetailsRoute
   '/api/dashboard/agreement/$sectionId/dismiss': typeof ApiDashboardAgreementSectionIdDismissRoute
   '/api/dashboard/agreement/$sectionId/open': typeof ApiDashboardAgreementSectionIdOpenRoute
@@ -1508,6 +1525,7 @@ export interface FileRoutesByTo {
   '/api/learn/solutions/$solutionId/file': typeof ApiLearnSolutionsSolutionIdFileRoute
   '/api/learn/submissions/$submissionId/view-on-platform': typeof ApiLearnSubmissionsSubmissionIdViewOnPlatformRoute
   '/support/$supportId': typeof protectedLayoutSupportSupportIdIndexRoute
+  '/api/ai-tutor/chat/conversations': typeof ApiAiTutorChatConversationsIndexRoute
   '/api/chatbot/$lectureId/sessions': typeof ApiChatbotLectureIdSessionsIndexRoute
   '/assignments/$assignmentId/problems/$problemId': typeof protectedLayoutAssignmentsAssignmentIdProblemsProblemIdRouteRoute
   '/masaiverse/club/$clubId/gallery': typeof protectedLayoutMasaiverseClubClubIdGalleryRoute
@@ -1658,6 +1676,7 @@ export interface FileRoutesById {
   '/api/whats-new/$id/': typeof ApiWhatsNewIdIndexRoute
   '/(protected)/_layout/masaiverse/club/$clubId': typeof protectedLayoutMasaiverseClubClubIdRoute
   '/(protected)/_layout/masaiverse/event/$eventId': typeof protectedLayoutMasaiverseEventEventIdRoute
+  '/api/ai-tutor/chat/conversations/$chatId': typeof ApiAiTutorChatConversationsChatIdRoute
   '/api/dashboard/agreement/$sectionId/details': typeof ApiDashboardAgreementSectionIdDetailsRoute
   '/api/dashboard/agreement/$sectionId/dismiss': typeof ApiDashboardAgreementSectionIdDismissRoute
   '/api/dashboard/agreement/$sectionId/open': typeof ApiDashboardAgreementSectionIdOpenRoute
@@ -1684,6 +1703,7 @@ export interface FileRoutesById {
   '/api/learn/solutions/$solutionId/file': typeof ApiLearnSolutionsSolutionIdFileRoute
   '/api/learn/submissions/$submissionId/view-on-platform': typeof ApiLearnSubmissionsSubmissionIdViewOnPlatformRoute
   '/(protected)/_layout/support/$supportId/': typeof protectedLayoutSupportSupportIdIndexRoute
+  '/api/ai-tutor/chat/conversations/': typeof ApiAiTutorChatConversationsIndexRoute
   '/api/chatbot/$lectureId/sessions/': typeof ApiChatbotLectureIdSessionsIndexRoute
   '/(protected)/_layout/assignments_/$assignmentId/problems/$problemId': typeof protectedLayoutAssignmentsAssignmentIdProblemsProblemIdRouteRoute
   '/(protected)/_layout/masaiverse/club/$clubId_/gallery': typeof protectedLayoutMasaiverseClubClubIdGalleryRoute
@@ -1834,6 +1854,7 @@ export interface FileRouteTypes {
     | '/api/whats-new/$id/'
     | '/masaiverse/club/$clubId'
     | '/masaiverse/event/$eventId'
+    | '/api/ai-tutor/chat/conversations/$chatId'
     | '/api/dashboard/agreement/$sectionId/details'
     | '/api/dashboard/agreement/$sectionId/dismiss'
     | '/api/dashboard/agreement/$sectionId/open'
@@ -1860,6 +1881,7 @@ export interface FileRouteTypes {
     | '/api/learn/solutions/$solutionId/file'
     | '/api/learn/submissions/$submissionId/view-on-platform'
     | '/support/$supportId/'
+    | '/api/ai-tutor/chat/conversations/'
     | '/api/chatbot/$lectureId/sessions/'
     | '/assignments/$assignmentId/problems/$problemId'
     | '/masaiverse/club/$clubId/gallery'
@@ -2007,6 +2029,7 @@ export interface FileRouteTypes {
     | '/api/whats-new/$id'
     | '/masaiverse/club/$clubId'
     | '/masaiverse/event/$eventId'
+    | '/api/ai-tutor/chat/conversations/$chatId'
     | '/api/dashboard/agreement/$sectionId/details'
     | '/api/dashboard/agreement/$sectionId/dismiss'
     | '/api/dashboard/agreement/$sectionId/open'
@@ -2033,6 +2056,7 @@ export interface FileRouteTypes {
     | '/api/learn/solutions/$solutionId/file'
     | '/api/learn/submissions/$submissionId/view-on-platform'
     | '/support/$supportId'
+    | '/api/ai-tutor/chat/conversations'
     | '/api/chatbot/$lectureId/sessions'
     | '/assignments/$assignmentId/problems/$problemId'
     | '/masaiverse/club/$clubId/gallery'
@@ -2182,6 +2206,7 @@ export interface FileRouteTypes {
     | '/api/whats-new/$id/'
     | '/(protected)/_layout/masaiverse/club/$clubId'
     | '/(protected)/_layout/masaiverse/event/$eventId'
+    | '/api/ai-tutor/chat/conversations/$chatId'
     | '/api/dashboard/agreement/$sectionId/details'
     | '/api/dashboard/agreement/$sectionId/dismiss'
     | '/api/dashboard/agreement/$sectionId/open'
@@ -2208,6 +2233,7 @@ export interface FileRouteTypes {
     | '/api/learn/solutions/$solutionId/file'
     | '/api/learn/submissions/$submissionId/view-on-platform'
     | '/(protected)/_layout/support/$supportId/'
+    | '/api/ai-tutor/chat/conversations/'
     | '/api/chatbot/$lectureId/sessions/'
     | '/(protected)/_layout/assignments_/$assignmentId/problems/$problemId'
     | '/(protected)/_layout/masaiverse/club/$clubId_/gallery'
@@ -2323,6 +2349,7 @@ export interface RootRouteChildren {
   ApiProfileCertificatesIndexRoute: typeof ApiProfileCertificatesIndexRoute
   ApiProfileEmailPreferencesIndexRoute: typeof ApiProfileEmailPreferencesIndexRoute
   ApiWhatsNewIdIndexRoute: typeof ApiWhatsNewIdIndexRoute
+  ApiAiTutorChatConversationsChatIdRoute: typeof ApiAiTutorChatConversationsChatIdRoute
   ApiDashboardAssessNpsFormIdLinkRoute: typeof ApiDashboardAssessNpsFormIdLinkRoute
   ApiLearnAiChatLectureIdHistoryRoute: typeof ApiLearnAiChatLectureIdHistoryRoute
   ApiLearnAiChatLectureIdSendRoute: typeof ApiLearnAiChatLectureIdSendRoute
@@ -2330,6 +2357,7 @@ export interface RootRouteChildren {
   ApiLearnAiTutorLectureIdFeedbackRoute: typeof ApiLearnAiTutorLectureIdFeedbackRoute
   ApiLearnAiTutorLectureIdSessionRoute: typeof ApiLearnAiTutorLectureIdSessionRoute
   ApiLearnAiTutorLectureIdTranscriptRoute: typeof ApiLearnAiTutorLectureIdTranscriptRoute
+  ApiAiTutorChatConversationsIndexRoute: typeof ApiAiTutorChatConversationsIndexRoute
   ApiChatbotLectureIdSessionsIndexRoute: typeof ApiChatbotLectureIdSessionsIndexRoute
   ApiChatbotLectureIdSessionsSessionIdMessagesRoute: typeof ApiChatbotLectureIdSessionsSessionIdMessagesRoute
   ApiChatbotInternalSessionsSessionIdMessagesRoute: typeof ApiChatbotInternalSessionsSessionIdMessagesRoute
@@ -3311,6 +3339,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiChatbotLectureIdSessionsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/ai-tutor/chat/conversations/': {
+      id: '/api/ai-tutor/chat/conversations/'
+      path: '/api/ai-tutor/chat/conversations'
+      fullPath: '/api/ai-tutor/chat/conversations/'
+      preLoaderRoute: typeof ApiAiTutorChatConversationsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/(protected)/_layout/support/$supportId/': {
       id: '/(protected)/_layout/support/$supportId/'
       path: '/support/$supportId'
@@ -3492,6 +3527,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/api/dashboard/agreement/$sectionId/details'
       preLoaderRoute: typeof ApiDashboardAgreementSectionIdDetailsRouteImport
       parentRoute: typeof ApiDashboardAgreementSectionIdRoute
+    }
+    '/api/ai-tutor/chat/conversations/$chatId': {
+      id: '/api/ai-tutor/chat/conversations/$chatId'
+      path: '/api/ai-tutor/chat/conversations/$chatId'
+      fullPath: '/api/ai-tutor/chat/conversations/$chatId'
+      preLoaderRoute: typeof ApiAiTutorChatConversationsChatIdRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/(protected)/_layout/masaiverse/event/$eventId': {
       id: '/(protected)/_layout/masaiverse/event/$eventId'
@@ -3967,6 +4009,8 @@ const rootRouteChildren: RootRouteChildren = {
   ApiProfileCertificatesIndexRoute: ApiProfileCertificatesIndexRoute,
   ApiProfileEmailPreferencesIndexRoute: ApiProfileEmailPreferencesIndexRoute,
   ApiWhatsNewIdIndexRoute: ApiWhatsNewIdIndexRoute,
+  ApiAiTutorChatConversationsChatIdRoute:
+    ApiAiTutorChatConversationsChatIdRoute,
   ApiDashboardAssessNpsFormIdLinkRoute: ApiDashboardAssessNpsFormIdLinkRoute,
   ApiLearnAiChatLectureIdHistoryRoute: ApiLearnAiChatLectureIdHistoryRoute,
   ApiLearnAiChatLectureIdSendRoute: ApiLearnAiChatLectureIdSendRoute,
@@ -3975,6 +4019,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiLearnAiTutorLectureIdSessionRoute: ApiLearnAiTutorLectureIdSessionRoute,
   ApiLearnAiTutorLectureIdTranscriptRoute:
     ApiLearnAiTutorLectureIdTranscriptRoute,
+  ApiAiTutorChatConversationsIndexRoute: ApiAiTutorChatConversationsIndexRoute,
   ApiChatbotLectureIdSessionsIndexRoute: ApiChatbotLectureIdSessionsIndexRoute,
   ApiChatbotLectureIdSessionsSessionIdMessagesRoute:
     ApiChatbotLectureIdSessionsSessionIdMessagesRoute,
