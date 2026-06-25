@@ -400,7 +400,7 @@ export default function AppNavbar() {
           onClick: handleHomeClick,
         }}
         navItems={navItems}
-        centerSlot={<UpcomingLecturePill />}
+        centerSlot={<UpcomingLecturePill className="max-w-[340px] rounded-[14px]" />}
         trailingActions={trailingActions}
         profile={profile}
       />

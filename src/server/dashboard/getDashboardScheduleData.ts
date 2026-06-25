@@ -4,14 +4,10 @@ export interface DashboardScheduleItem {
   id: number
   learningType: DashboardLearningType
   title: string
-  /** Datetime string — start time of the event. */
+  /** Datetime string (IST) — start time of the event. */
   schedule: string | null
-  /** Datetime string — end time of the event. */
+  /** Datetime string (IST) — end time of the event. */
   concludes: string | null
-  /** Date string (yyyy-mm-dd) — first day of the event. Used for grouping and multi-day detection. */
-  startDate: string | null
-  /** Date string (yyyy-mm-dd) — last day of the event. When != startDate the event is multi-day. */
-  endDate: string | null
   batchName: string | null
   /** Category / subType chip label. */
   subType: string | null

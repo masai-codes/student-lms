@@ -10,8 +10,6 @@ type RawRow = {
   title: string
   schedule: string | null
   concludes: string | null
-  startDate: string | null
-  endDate: string | null
   subType: string | null
   moduleName: string | null
   optional: number | string
@@ -83,8 +81,6 @@ export async function getDashboardSchedule(
       l.title,
       l.schedule,
       l.concludes,
-      DATE(CONVERT_TZ(l.schedule,  '+00:00', '+05:30')) AS startDate,
-      DATE(CONVERT_TZ(l.concludes, '+00:00', '+05:30')) AS endDate,
       l.category          AS subType,
       l.module            AS moduleName,
       l.optional,
@@ -97,9 +93,9 @@ export async function getDashboardSchedule(
     WHERE l.section_id IN (${sql.raw(sectionIdList)})
       AND l.deleted_at IS NULL
       AND (
-        DATE(CONVERT_TZ(l.schedule,  '+00:00', '+05:30')) BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL 6 DAY)
-        OR DATE(CONVERT_TZ(l.concludes, '+00:00', '+05:30')) BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL 6 DAY)
-        OR (DATE(CONVERT_TZ(l.schedule,  '+00:00', '+05:30')) < CURDATE() AND DATE(CONVERT_TZ(l.concludes, '+00:00', '+05:30')) > DATE_ADD(CURDATE(), INTERVAL 6 DAY))
+        DATE(l.schedule)  BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL 6 DAY)
+        OR DATE(l.concludes) BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL 6 DAY)
+        OR (DATE(l.schedule) < CURDATE() AND DATE(l.concludes) > DATE_ADD(CURDATE(), INTERVAL 6 DAY))
       )
 
     UNION ALL
@@ -110,8 +106,6 @@ export async function getDashboardSchedule(
       a.title,
       a.schedule,
       a.concludes,
-      DATE(CONVERT_TZ(a.schedule,  '+00:00', '+05:30')) AS startDate,
-      DATE(CONVERT_TZ(a.concludes, '+00:00', '+05:30')) AS endDate,
       a.category          AS subType,
       a.module            AS moduleName,
       a.optional,
@@ -124,9 +118,9 @@ export async function getDashboardSchedule(
     WHERE a.section_id IN (${sql.raw(sectionIdList)})
       AND a.deleted_at IS NULL
       AND (
-        DATE(CONVERT_TZ(a.schedule,  '+00:00', '+05:30')) BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL 6 DAY)
-        OR DATE(CONVERT_TZ(a.concludes, '+00:00', '+05:30')) BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL 6 DAY)
-        OR (DATE(CONVERT_TZ(a.schedule,  '+00:00', '+05:30')) < CURDATE() AND DATE(CONVERT_TZ(a.concludes, '+00:00', '+05:30')) > DATE_ADD(CURDATE(), INTERVAL 6 DAY))
+        DATE(a.schedule)  BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL 6 DAY)
+        OR DATE(a.concludes) BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL 6 DAY)
+        OR (DATE(a.schedule) < CURDATE() AND DATE(a.concludes) > DATE_ADD(CURDATE(), INTERVAL 6 DAY))
       )
 
     UNION ALL
@@ -137,8 +131,6 @@ export async function getDashboardSchedule(
       q.title,
       q.schedule,
       q.concludes,
-      DATE(CONVERT_TZ(q.schedule,  '+00:00', '+05:30')) AS startDate,
-      DATE(CONVERT_TZ(q.concludes, '+00:00', '+05:30')) AS endDate,
       q.category          AS subType,
       NULL                AS moduleName,
       q.optional,
@@ -151,9 +143,9 @@ export async function getDashboardSchedule(
     WHERE q.section_id IN (${sql.raw(sectionIdList)})
       AND q.deleted_at IS NULL
       AND (
-        DATE(CONVERT_TZ(q.schedule,  '+00:00', '+05:30')) BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL 6 DAY)
-        OR DATE(CONVERT_TZ(q.concludes, '+00:00', '+05:30')) BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL 6 DAY)
-        OR (DATE(CONVERT_TZ(q.schedule,  '+00:00', '+05:30')) < CURDATE() AND DATE(CONVERT_TZ(q.concludes, '+00:00', '+05:30')) > DATE_ADD(CURDATE(), INTERVAL 6 DAY))
+        DATE(q.schedule)  BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL 6 DAY)
+        OR DATE(q.concludes) BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL 6 DAY)
+        OR (DATE(q.schedule) < CURDATE() AND DATE(q.concludes) > DATE_ADD(CURDATE(), INTERVAL 6 DAY))
       )
 
     ORDER BY schedule ASC, id ASC
@@ -165,8 +157,6 @@ export async function getDashboardSchedule(
     title: String(row.title),
     schedule: row.schedule ?? null,
     concludes: row.concludes ?? null,
-    startDate: row.startDate ?? null,
-    endDate: row.endDate ?? null,
     subType: row.subType ? String(row.subType) : null,
     moduleName: row.moduleName ? String(row.moduleName) : null,
     optional: Number(row.optional) === 1 ? 1 : 0,

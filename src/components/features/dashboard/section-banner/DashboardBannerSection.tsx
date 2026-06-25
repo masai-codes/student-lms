@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import type { DashboardBannerItem } from '@/server/api/dashboard/getDashboardBanners.service'
 
@@ -53,40 +53,68 @@ function BannerSlideCard({ banner }: { banner: DashboardBannerItem }) {
 
 export function DashboardBannerSection({ banners }: { banners: Array<DashboardBannerItem> }) {
   const [current, setCurrent] = useState(0)
+  const [slideDir, setSlideDir] = useState<'left' | 'right'>('right')
 
   if (banners.length === 0) return null
 
   const count = banners.length
   const slide = banners[current % count]
 
-  const prev = () => setCurrent((c) => (c - 1 + count) % count)
-  const next = () => setCurrent((c) => (c + 1) % count)
+  const touchStartX = useRef<number | null>(null)
+
+  const prev = () => { setSlideDir('left'); setCurrent((c) => (c - 1 + count) % count) }
+  const next = () => { setSlideDir('right'); setCurrent((c) => (c + 1) % count) }
+
+  function handleTouchStart(e: React.TouchEvent) {
+    touchStartX.current = e.touches[0].clientX
+  }
+
+  function handleTouchEnd(e: React.TouchEvent) {
+    if (touchStartX.current === null || count <= 1) return
+    const diff = touchStartX.current - e.changedTouches[0].clientX
+    if (Math.abs(diff) < 40) return
+    if (diff > 0) next(); else prev()
+    touchStartX.current = null
+  }
 
   return (
     <div className="flex flex-col items-center gap-2">
-      {/* Banner card with arrows sitting on the border */}
+      {/* Desktop: arrows sit on the card border; mobile: swipe only */}
       <div className="relative w-full">
-        {/* Left arrow — centred vertically on the card border */}
-        <button
-          type="button"
-          onClick={prev}
-          aria-label="Previous banner"
-          className="absolute left-0 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10 flex items-center justify-center size-8 rounded-full bg-white border border-gray-200 text-gray-500 shadow-sm hover:bg-gray-50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400"
-        >
-          <ChevronLeft size={16} />
-        </button>
+        {count > 1 && (
+          <button
+            type="button"
+            onClick={prev}
+            aria-label="Previous banner"
+            className="hidden md:flex absolute left-0 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10 items-center justify-center size-8 rounded-full bg-white border border-gray-200 text-gray-500 shadow-sm hover:bg-gray-50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400"
+          >
+            <ChevronLeft size={16} />
+          </button>
+        )}
 
-        <BannerSlideCard banner={slide} />
-
-        {/* Right arrow — centred vertically on the card border */}
-        <button
-          type="button"
-          onClick={next}
-          aria-label="Next banner"
-          className="absolute right-0 top-1/2 translate-x-1/2 -translate-y-1/2 z-10 flex items-center justify-center size-8 rounded-full bg-white border border-gray-200 text-gray-500 shadow-sm hover:bg-gray-50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400"
+        <div
+          className="w-full overflow-hidden rounded-[16px]"
+          onTouchStart={handleTouchStart}
+          onTouchEnd={handleTouchEnd}
         >
-          <ChevronRight size={16} />
-        </button>
+          <div
+            key={slide.id}
+            className={slideDir === 'right' ? 'animate-banner-slide-in-right' : 'animate-banner-slide-in-left'}
+          >
+            <BannerSlideCard banner={slide} />
+          </div>
+        </div>
+
+        {count > 1 && (
+          <button
+            type="button"
+            onClick={next}
+            aria-label="Next banner"
+            className="hidden md:flex absolute right-0 top-1/2 translate-x-1/2 -translate-y-1/2 z-10 items-center justify-center size-8 rounded-full bg-white border border-gray-200 text-gray-500 shadow-sm hover:bg-gray-50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400"
+          >
+            <ChevronRight size={16} />
+          </button>
+        )}
       </div>
 
       {/* Dots below the banner */}
