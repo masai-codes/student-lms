@@ -794,8 +794,6 @@ export function T0FlowModal({
           {(['lms', 'program'] as const).map((tab) => {
             const active = activeTab === tab
             const locked = tab === 'program' && !showProgramTab
-            const lmsProgressSteps = lmsSteps.filter((s) => s.kind !== 'document-upload' && s.kind !== 'student-kit')
-            const lmsDoneCount = lmsProgressSteps.filter((s) => completedSteps.has(s.id)).length
             const btn = (
               <button
                 key={tab}
