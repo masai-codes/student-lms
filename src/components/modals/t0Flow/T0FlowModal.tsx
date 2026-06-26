@@ -622,7 +622,7 @@ export function T0FlowModal({
     }
     setIsVideoPlaying(false)
     setActiveStepIndex(i)
-    const isCompleted = step ? completedSteps.has(step.id) : false
+    // const isCompleted = step ? completedSteps.has(step.id) : false
     const isPhotoUploaded = kind === 'profile-photo' && !!photoSnapshot
     if (
       kind === 'student-kit' ||
