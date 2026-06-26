@@ -54,7 +54,12 @@ describe('prepareLectureChatContext', () => {
         id: 12,
         chatHistory: [{ userMessage: 'Earlier', aiMessage: 'Sure' }],
       },
-      userPrompt: expect.stringContaining('Lecture summary text'),
+      systemPrompt: expect.stringContaining('Lecture summary text'),
+      messages: [
+        { role: 'user', content: 'Earlier' },
+        { role: 'assistant', content: 'Sure' },
+        { role: 'user', content: 'Explain hooks' },
+      ],
       chat: 'Explain hooks',
     })
   })
@@ -97,7 +102,12 @@ describe('streamLectureChatEventsFromContext', () => {
         id: 12,
         chatHistory: [{ userMessage: 'Earlier', aiMessage: 'Sure' }],
       },
-      userPrompt: 'Lecture summary text and question',
+      systemPrompt: 'System prompt with lecture summary',
+      messages: [
+        { role: 'user', content: 'Earlier' },
+        { role: 'assistant', content: 'Sure' },
+        { role: 'user', content: 'Explain hooks' },
+      ],
       chat: 'Explain hooks',
     })) {
       events.push(event)
@@ -108,7 +118,12 @@ describe('streamLectureChatEventsFromContext', () => {
     expect(hoisted.streamText).toHaveBeenCalledWith(
       expect.objectContaining({
         model: 'mock-model',
-        prompt: 'Lecture summary text and question',
+        system: 'System prompt with lecture summary',
+        messages: [
+          { role: 'user', content: 'Earlier' },
+          { role: 'assistant', content: 'Sure' },
+          { role: 'user', content: 'Explain hooks' },
+        ],
       }),
     )
     expect(hoisted.appendChatPracticeHistory).toHaveBeenCalledWith({

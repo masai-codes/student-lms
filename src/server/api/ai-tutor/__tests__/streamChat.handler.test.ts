@@ -162,7 +162,8 @@ describe('handleStreamChat', () => {
     hoisted.getUserIdFromCookieHeader.mockResolvedValueOnce(7)
     hoisted.prepareLectureChatContext.mockResolvedValueOnce({
       chatRow: { id: 12, chatHistory: [] },
-      userPrompt: 'prompt',
+      systemPrompt: 'system prompt',
+      messages: [{ role: 'user', content: 'explain hooks' }],
       chat: 'explain hooks',
     })
 
@@ -185,7 +186,8 @@ describe('handleStreamChat', () => {
     })
     expect(hoisted.streamLectureChatEventsFromContext).toHaveBeenCalledWith({
       chatRow: { id: 12, chatHistory: [] },
-      userPrompt: 'prompt',
+      systemPrompt: 'system prompt',
+      messages: [{ role: 'user', content: 'explain hooks' }],
       chat: 'explain hooks',
     })
     expect(res.status).toBe(200)

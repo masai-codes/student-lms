@@ -1,7 +1,7 @@
 import { and, desc, eq } from 'drizzle-orm'
 import type { AiChatHistoryEntry } from '@/server/api/ai-tutor/types/chatHistory'
-import { AI_TUTOR_FEEDBACK_MAX_LENGTH } from '@/server/api/ai-tutor/constants'
 import type { SubmitAiTutorFeedbackResponse } from '@/server/api/ai-tutor/types/feedback'
+import { AI_TUTOR_FEEDBACK_MAX_LENGTH } from '@/server/api/ai-tutor/constants'
 import { db } from '@/db'
 import { aiChatPracticeQuestions } from '@/db/schema'
 import { ApiError } from '@/server/api/http/apiError'

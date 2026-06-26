@@ -1,11 +1,14 @@
 import { streamText } from 'ai'
+import type { LectureChatMessage } from '@/server/api/ai-tutor/services/buildLectureChatPrompt'
 import { getAiTutorChatModel } from '@/server/api/ai-tutor/clients/anthropicModel'
-import { AI_TUTOR_LECTURE_CHAT_SYSTEM_PROMPT } from '@/server/api/ai-tutor/constants'
 import {
   appendChatPracticeHistory,
   findOrCreateChatPracticeRow,
 } from '@/server/api/ai-tutor/services/aiChatPracticeQuestions.service'
-import { buildLectureChatUserPrompt } from '@/server/api/ai-tutor/services/buildLectureChatPrompt'
+import {
+  buildLectureChatMessages,
+  buildLectureChatSystemPrompt,
+} from '@/server/api/ai-tutor/services/buildLectureChatPrompt'
 import { getLectureSummaryForChat } from '@/server/api/ai-tutor/services/lecturesAi.service'
 
 export type ChatStreamEvent =
@@ -21,7 +24,8 @@ export type StreamLectureChatInput = {
 
 export type LectureChatStreamContext = {
   chatRow: Awaited<ReturnType<typeof findOrCreateChatPracticeRow>>
-  userPrompt: string
+  systemPrompt: string
+  messages: Array<LectureChatMessage>
   chat: string
 }
 
@@ -36,13 +40,13 @@ export async function prepareLectureChatContext(
 
   const summary = await getLectureSummaryForChat(input.lectureId)
 
-  const userPrompt = buildLectureChatUserPrompt({
-    summary,
+  const systemPrompt = buildLectureChatSystemPrompt(summary)
+  const messages = buildLectureChatMessages({
     chatHistory: chatRow.chatHistory,
     question: input.chat,
   })
 
-  return { chatRow, userPrompt, chat: input.chat }
+  return { chatRow, systemPrompt, messages, chat: input.chat }
 }
 
 export async function* streamLectureChatEventsFromContext(
@@ -50,8 +54,8 @@ export async function* streamLectureChatEventsFromContext(
 ): AsyncGenerator<ChatStreamEvent> {
   const result = streamText({
     model: getAiTutorChatModel(),
-    system: AI_TUTOR_LECTURE_CHAT_SYSTEM_PROMPT,
-    prompt: context.userPrompt,
+    system: context.systemPrompt,
+    messages: context.messages,
     onError({ error }) {
       console.error('AI tutor Claude stream error', error)
     },
