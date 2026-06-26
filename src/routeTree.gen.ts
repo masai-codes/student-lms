@@ -37,11 +37,11 @@ import { Route as ApiMasaiverseV2DiscussionsRouteImport } from './routes/api/mas
 import { Route as ApiMasaiverseV2AwardPointsRouteImport } from './routes/api/masaiverse-v2/award-points'
 import { Route as ApiMasaiverseV2AdminModeRouteImport } from './routes/api/masaiverse-v2/admin-mode'
 import { Route as ApiLearnPageRouteImport } from './routes/api/learn/page'
+import { Route as ApiLearnDiscussionsRouteImport } from './routes/api/learn/discussions'
 import { Route as ApiDashboardT0FlowStudentStatusRouteImport } from './routes/api/dashboard/t0-flow-student-status'
 import { Route as ApiDashboardT0FlowStepCompleteRouteImport } from './routes/api/dashboard/t0-flow-step-complete'
 import { Route as ApiDashboardT0FlowStatusRouteImport } from './routes/api/dashboard/t0-flow-status'
 import { Route as ApiDashboardT0FlowLecturesRouteImport } from './routes/api/dashboard/t0-flow-lectures'
-import { Route as ApiLearnDiscussionsRouteImport } from './routes/api/learn/discussions'
 import { Route as ApiDashboardScheduleRouteImport } from './routes/api/dashboard/schedule'
 import { Route as ApiDashboardRightSectionRouteImport } from './routes/api/dashboard/right-section'
 import { Route as ApiDashboardProductUpdatesRouteImport } from './routes/api/dashboard/product-updates'
@@ -334,6 +334,11 @@ const ApiLearnPageRoute = ApiLearnPageRouteImport.update({
   path: '/api/learn/page',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiLearnDiscussionsRoute = ApiLearnDiscussionsRouteImport.update({
+  id: '/api/learn/discussions',
+  path: '/api/learn/discussions',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiDashboardT0FlowStudentStatusRoute =
   ApiDashboardT0FlowStudentStatusRouteImport.update({
     id: '/api/dashboard/t0-flow-student-status',
@@ -358,11 +363,6 @@ const ApiDashboardT0FlowLecturesRoute =
     path: '/api/dashboard/t0-flow-lectures',
     getParentRoute: () => rootRouteImport,
   } as any)
-const ApiLearnDiscussionsRoute = ApiLearnDiscussionsRouteImport.update({
-  id: '/api/learn/discussions',
-  path: '/api/learn/discussions',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const ApiDashboardScheduleRoute = ApiDashboardScheduleRouteImport.update({
   id: '/api/dashboard/schedule',
   path: '/api/dashboard/schedule',
@@ -2618,6 +2618,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiLearnPageRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/learn/discussions': {
+      id: '/api/learn/discussions'
+      path: '/api/learn/discussions'
+      fullPath: '/api/learn/discussions'
+      preLoaderRoute: typeof ApiLearnDiscussionsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/dashboard/t0-flow-student-status': {
       id: '/api/dashboard/t0-flow-student-status'
       path: '/api/dashboard/t0-flow-student-status'
@@ -2644,11 +2651,6 @@ declare module '@tanstack/react-router' {
       path: '/api/dashboard/t0-flow-lectures'
       fullPath: '/api/dashboard/t0-flow-lectures'
       preLoaderRoute: typeof ApiDashboardT0FlowLecturesRouteImport
-    '/api/learn/discussions': {
-      id: '/api/learn/discussions'
-      path: '/api/learn/discussions'
-      fullPath: '/api/learn/discussions'
-      preLoaderRoute: typeof ApiLearnDiscussionsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/dashboard/schedule': {

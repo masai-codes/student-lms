@@ -78,8 +78,8 @@ export function DashboardLayout() {
     actionBanners != null &&
     (actionBanners.pendingAgreementSections.length > 0 ||
       actionBanners.pendingFeedbackForms.length > 0 ||
-      actionBanners.showZoom ||
-      actionBanners.showDownloadApp)
+      actionBanners.showDownloadApp ||
+      actionBanners.showProfilePicture)
 
   const pendingPopups = useMemo(
     () => filterUnshownPopups(
@@ -192,12 +192,12 @@ export function DashboardLayout() {
       </div>
 
       {/* ── Desktop layout (≥ lg) ── */}
-      <div className="hidden lg:flex flex-col w-full max-w-[1440px] mx-auto mb-6 px-6 gap-4">
-        {/* Action banner above the white card */}
+      <div className="hidden lg:flex flex-col w-full max-w-[1440px] mx-auto mb-6 px-6">
+        {/* Action banner — sits behind the white card */}
         {actionBannerSection}
 
-        {/* White card */}
-        <div className="relative rounded-3xl border border-gray-200 bg-white flex flex-col">
+        {/* White card — z-10 places it on top of the banner */}
+        <div className={`relative z-10 rounded-3xl border border-gray-200 bg-white flex flex-col ${isBannerVisible || isLeftSectionLoading ? '-mt-10' : 'mt-4'}`}>
           {/* Header row: welcome + banner */}
           <div className="flex items-start gap-4 px-8 pt-8 pb-0">
             <div className="shrink-0 mt-2">
