@@ -787,21 +787,25 @@ export function T0FlowModal({
 
         {/* Tabs */}
         <div className="flex gap-2 mt-4">
-          {(['lms', ...(showProgramTab ? ['program' as const] : [])] as const).map((tab) => {
+          {(['lms', 'program'] as const).map((tab) => {
             const active = activeTab === tab
+            const locked = tab === 'program' && !showProgramTab
             return (
               <button
                 key={tab}
                 type="button"
-                onClick={() => setActiveTab(tab)}
-                className="flex-1 py-2 rounded-lg text-sm font-medium transition-colors focus-visible:outline-none"
+                onClick={() => { if (!locked) setActiveTab(tab) }}
+                disabled={locked}
+                className="flex-1 py-2 rounded-lg text-sm font-medium transition-colors focus-visible:outline-none flex items-center justify-center gap-1.5"
                 style={{
                   fontFamily: 'Poppins',
                   background: active ? '#EBF5FF' : '#FFFFFF',
                   color: active ? '#6962AC' : '#9CA3AF',
                   border: `1.5px solid ${active ? '#6962AC' : '#E5E7EB'}`,
+                  cursor: locked ? 'default' : 'pointer',
                 }}
               >
+                {locked && <Lock size={13} style={{ color: '#9CA3AF' }} />}
                 {tab === 'lms' ? 'LMS Walkthrough' : 'Program Onboarding'}
               </button>
             )
