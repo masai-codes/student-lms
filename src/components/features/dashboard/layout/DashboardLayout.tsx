@@ -5,9 +5,11 @@ import { Megaphone, Play } from 'lucide-react'
 import { OnboardingModal } from '@/components/modals/onboarding/OnboardingModal'
 import { T0FlowModal } from '@/components/modals/t0Flow/T0FlowModal'
 import { AnnouncementPopupModal, filterUnshownPopups } from '@/components/modals/AnnouncementPopupModal'
+import { WelcomeModal } from '@/components/modals/WelcomeModal'
 import { DashboardWelcomeSection } from '../section-welcome/DashboardWelcomeSection'
 import { DashboardActionBanner } from '../section-banner/DashboardActionBanner'
 import { DashboardBannerSection } from '../section-banner/DashboardBannerSection'
+import { PaymentBanner } from '../section-banner/PaymentBanner'
 import { DashboardScheduleSection } from '../section-schedule/DashboardScheduleSection'
 import { DashboardSidebarSection } from '../section-sidebar/DashboardSidebarSection'
 import { LmsSupportPanel } from '../section-sidebar/LmsSupportPanel'
@@ -20,6 +22,9 @@ import {
   fetchDashboardLeftSection,
   fetchDashboardRightSection,
   fetchT0FlowStatus,
+  fetchWelcomeModalStatus,
+  dismissWelcomeModalApi,
+  fetchPaymentBannerInfo,
 } from '@/lib/api/dashboard/dashboardApi'
 
 const layoutRouteApi = getRouteApi('/(protected)/_layout')
@@ -29,15 +34,39 @@ export function DashboardLayout() {
   const router = useRouter()
   const navigate = useNavigate()
   const queryClient = useQueryClient()
+
+  // Payment banner fetched first — all other dashboard queries wait for this to resolve.
+  // If banned, every subsequent query stays disabled permanently.
+  const { data: paymentBanner, isSuccess: paymentBannerResolved } = useQuery({
+    queryKey: ['payment-banner'],
+    queryFn: fetchPaymentBannerInfo,
+    staleTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: false,
+  })
+  const isBanned = paymentBanner?.type === 'banned'
+  const dashboardEnabled = paymentBannerResolved && !isBanned
+
   const { data: t0FlowStatus } = useQuery({
     queryKey: ['t0-flow-status'],
     queryFn: fetchT0FlowStatus,
     staleTime: 5 * 60 * 1000,
     refetchOnWindowFocus: false,
+    enabled: dashboardEnabled,
   })
+
+  const { data: welcomeModalStatus } = useQuery({
+    queryKey: ['welcome-modal-status'],
+    queryFn: fetchWelcomeModalStatus,
+    staleTime: Infinity,
+    refetchOnWindowFocus: false,
+    enabled: dashboardEnabled,
+  })
+
   const [t0FlowDismissed, setT0FlowDismissed] = useState(false)
   const t0FlowOpen = !t0FlowDismissed && (t0FlowStatus?.showT0Flow ?? false)
+
   const [onboardingOpen, setOnboardingOpen] = useState(false)
+  const [welcomeOpen, setWelcomeOpen] = useState(false)
   const [showPopups, setShowPopups] = useState(false)
 
   const { data: unreadCount = 0 } = useQuery({
@@ -45,29 +74,46 @@ export function DashboardLayout() {
     queryFn: fetchAnnouncementUnreadCount,
     staleTime: 5 * 60 * 1000,
     refetchOnWindowFocus: false,
+    enabled: dashboardEnabled,
   })
 
   const { data: rightSectionData } = useQuery({
     queryKey: ['dashboard-right-section'],
     queryFn: fetchDashboardRightSection,
     staleTime: 5 * 60 * 1000,
+    enabled: dashboardEnabled,
   })
 
   const { data: leftSectionData, isLoading: isLeftSectionLoading } = useQuery({
     queryKey: ['dashboard-left-section'],
     queryFn: fetchDashboardLeftSection,
     staleTime: 5 * 60 * 1000,
+    enabled: dashboardEnabled,
   })
 
-  useEffect(() => {
-    if (!leftSectionData || t0FlowOpen || t0FlowStatus === undefined) return
-    const { pendingAgreementSections, pendingFeedbackForms } = leftSectionData.actionBanners
-    if (pendingAgreementSections.length > 0 || pendingFeedbackForms.length > 0) {
-      setOnboardingOpen(true)
+  // Opens welcome modal if eligible, otherwise falls through to announcement popups.
+  // Called after T0Flow (when no onboarding) and after Onboarding closes.
+  function openWelcomeOrPopups() {
+    if (welcomeModalStatus?.showWelcomeModal) {
+      setWelcomeOpen(true)
     } else {
       setShowPopups(true)
     }
-  }, [leftSectionData, t0FlowOpen, t0FlowStatus])
+  }
+
+  // Initial trigger when T0Flow is not shown — waits for all status data to load.
+  useEffect(() => {
+    if (!leftSectionData || t0FlowOpen || t0FlowStatus === undefined || welcomeModalStatus === undefined) return
+    const { pendingAgreementSections, pendingFeedbackForms } = leftSectionData.actionBanners
+    if (pendingAgreementSections.length > 0 || pendingFeedbackForms.length > 0) {
+      setOnboardingOpen(true)
+    } else if (welcomeModalStatus.showWelcomeModal) {
+      setWelcomeOpen(true)
+    } else {
+      setShowPopups(true)
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [leftSectionData, t0FlowOpen, t0FlowStatus, welcomeModalStatus])
 
   const handleAnnouncementsClick = useCallback(() => {
     void navigate({ to: '/announcements', search: { page: 1 } })
@@ -113,6 +159,7 @@ export function DashboardLayout() {
         items={leftSectionData?.schedule ?? []}
         isLoading={false}
         pendingTasksCount={leftSectionData?.pendingTasksCount ?? 0}
+        queryEnabled={dashboardEnabled}
       />
 
   const bannerSection = isLeftSectionLoading
@@ -123,14 +170,15 @@ export function DashboardLayout() {
     ? <DashboardActionBannerSkeleton />
     : <DashboardActionBanner actionBanners={leftSectionData?.actionBanners} />
 
-  const sidebarSection = rightSectionData == null
+  const sidebarSection = !isBanned && rightSectionData == null
     ? <DashboardSidebarSectionSkeleton />
     : <DashboardSidebarSection
         announcements={announcements}
         productUpdates={productUpdates}
-        enrolledBatches={rightSectionData.batches}
-        attendanceData={rightSectionData.attendance}
-        lmsSupport={rightSectionData.lmsSupport}
+        enrolledBatches={rightSectionData?.batches ?? []}
+        attendanceData={rightSectionData?.attendance ?? []}
+        lmsSupport={rightSectionData?.lmsSupport}
+        showLmsSupport={!isBanned}
       />
 
   return (
@@ -177,10 +225,13 @@ export function DashboardLayout() {
         )}
 
         <div className="flex flex-col gap-4 px-4 mt-3">
+          {paymentBanner && (
+            <PaymentBanner info={paymentBanner} />
+          )}
           {actionBannerSection}
           {bannerSection}
           {scheduleSection}
-          <LmsSupportPanel info={rightSectionData?.lmsSupport} />
+          {!isBanned && <LmsSupportPanel info={rightSectionData?.lmsSupport} />}
         </div>
 
         {/* Footer */}
@@ -193,6 +244,13 @@ export function DashboardLayout() {
 
       {/* ── Desktop layout (≥ lg) ── */}
       <div className="hidden lg:flex flex-col w-full max-w-[1440px] mx-auto mb-6 px-6">
+        {/* Payment banner — above the action banner */}
+        {paymentBanner && (
+          <div className="mb-3">
+            <PaymentBanner info={paymentBanner} />
+          </div>
+        )}
+
         {/* Action banner — sits behind the white card */}
         {actionBannerSection}
 
@@ -220,19 +278,14 @@ export function DashboardLayout() {
         </div>
       </div>
 
-      {showPopups && pendingPopups.length > 0 && (
-        <AnnouncementPopupModal
-          popups={pendingPopups}
-          onDone={() => setShowPopups(false)}
-          onMarkedRead={() => void queryClient.invalidateQueries({ queryKey: ['dashboard-right-section'] })}
-        />
-      )}
+      {/* Modal stack: T0Flow → Onboarding → Welcome → Popups */}
 
       {t0FlowOpen && (
         <T0FlowModal
           batches={t0FlowStatus?.batches ?? []}
           profilePhotoUrl={t0FlowStatus?.profilePhotoUrl ?? null}
           downloadAppCompleted={t0FlowStatus?.downloadAppCompleted ?? false}
+          paymentBanner={paymentBanner}
           onPhotoSaved={() => {
             void queryClient.invalidateQueries({ queryKey: ['dashboard-left-section'] })
             void router.invalidate()
@@ -248,7 +301,7 @@ export function DashboardLayout() {
             if (pendingAgreementSections.length > 0 || pendingFeedbackForms.length > 0) {
               setOnboardingOpen(true)
             } else {
-              setShowPopups(true)
+              openWelcomeOrPopups()
             }
           }}
         />
@@ -256,7 +309,7 @@ export function DashboardLayout() {
 
       {!t0FlowOpen && onboardingOpen && leftSectionData && (
         <OnboardingModal
-          onClose={() => { setOnboardingOpen(false); setShowPopups(true) }}
+          onClose={() => { setOnboardingOpen(false); openWelcomeOrPopups() }}
           showProfilePhoto={leftSectionData.actionBanners.showProfilePicture}
           agreementSections={leftSectionData.actionBanners.pendingAgreementSections}
           feedbackForms={leftSectionData.actionBanners.pendingFeedbackForms}
@@ -273,6 +326,24 @@ export function DashboardLayout() {
           onAssessCompleted={() => {
             void queryClient.invalidateQueries({ queryKey: ['dashboard-left-section'] })
           }}
+        />
+      )}
+
+      {!t0FlowOpen && !onboardingOpen && welcomeOpen && (
+        <WelcomeModal
+          onClose={() => {
+            setWelcomeOpen(false)
+            void dismissWelcomeModalApi()
+            setShowPopups(true)
+          }}
+        />
+      )}
+
+      {showPopups && pendingPopups.length > 0 && (
+        <AnnouncementPopupModal
+          popups={pendingPopups}
+          onDone={() => setShowPopups(false)}
+          onMarkedRead={() => void queryClient.invalidateQueries({ queryKey: ['dashboard-right-section'] })}
         />
       )}
     </>
