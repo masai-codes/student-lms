@@ -38,6 +38,8 @@ import { Route as ApiMasaiverseV2AwardPointsRouteImport } from './routes/api/mas
 import { Route as ApiMasaiverseV2AdminModeRouteImport } from './routes/api/masaiverse-v2/admin-mode'
 import { Route as ApiLearnPageRouteImport } from './routes/api/learn/page'
 import { Route as ApiLearnDiscussionsRouteImport } from './routes/api/learn/discussions'
+import { Route as ApiDashboardWelcomeModalStatusRouteImport } from './routes/api/dashboard/welcome-modal-status'
+import { Route as ApiDashboardWelcomeModalDismissRouteImport } from './routes/api/dashboard/welcome-modal-dismiss'
 import { Route as ApiDashboardT0FlowStudentStatusRouteImport } from './routes/api/dashboard/t0-flow-student-status'
 import { Route as ApiDashboardT0FlowStepCompleteRouteImport } from './routes/api/dashboard/t0-flow-step-complete'
 import { Route as ApiDashboardT0FlowStatusRouteImport } from './routes/api/dashboard/t0-flow-status'
@@ -46,6 +48,7 @@ import { Route as ApiDashboardScheduleRouteImport } from './routes/api/dashboard
 import { Route as ApiDashboardRightSectionRouteImport } from './routes/api/dashboard/right-section'
 import { Route as ApiDashboardProductUpdatesRouteImport } from './routes/api/dashboard/product-updates'
 import { Route as ApiDashboardPendingTasksRouteImport } from './routes/api/dashboard/pending-tasks'
+import { Route as ApiDashboardPaymentBannerRouteImport } from './routes/api/dashboard/payment-banner'
 import { Route as ApiDashboardNavbarPillRouteImport } from './routes/api/dashboard/navbar-pill'
 import { Route as ApiDashboardLmsSupportRouteImport } from './routes/api/dashboard/lms-support'
 import { Route as ApiDashboardLeftSectionRouteImport } from './routes/api/dashboard/left-section'
@@ -339,6 +342,18 @@ const ApiLearnDiscussionsRoute = ApiLearnDiscussionsRouteImport.update({
   path: '/api/learn/discussions',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiDashboardWelcomeModalStatusRoute =
+  ApiDashboardWelcomeModalStatusRouteImport.update({
+    id: '/api/dashboard/welcome-modal-status',
+    path: '/api/dashboard/welcome-modal-status',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiDashboardWelcomeModalDismissRoute =
+  ApiDashboardWelcomeModalDismissRouteImport.update({
+    id: '/api/dashboard/welcome-modal-dismiss',
+    path: '/api/dashboard/welcome-modal-dismiss',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiDashboardT0FlowStudentStatusRoute =
   ApiDashboardT0FlowStudentStatusRouteImport.update({
     id: '/api/dashboard/t0-flow-student-status',
@@ -384,6 +399,12 @@ const ApiDashboardPendingTasksRoute =
   ApiDashboardPendingTasksRouteImport.update({
     id: '/api/dashboard/pending-tasks',
     path: '/api/dashboard/pending-tasks',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiDashboardPaymentBannerRoute =
+  ApiDashboardPaymentBannerRouteImport.update({
+    id: '/api/dashboard/payment-banner',
+    path: '/api/dashboard/payment-banner',
     getParentRoute: () => rootRouteImport,
   } as any)
 const ApiDashboardNavbarPillRoute = ApiDashboardNavbarPillRouteImport.update({
@@ -1229,6 +1250,7 @@ export interface FileRoutesByFullPath {
   '/api/dashboard/left-section': typeof ApiDashboardLeftSectionRoute
   '/api/dashboard/lms-support': typeof ApiDashboardLmsSupportRoute
   '/api/dashboard/navbar-pill': typeof ApiDashboardNavbarPillRoute
+  '/api/dashboard/payment-banner': typeof ApiDashboardPaymentBannerRoute
   '/api/dashboard/pending-tasks': typeof ApiDashboardPendingTasksRoute
   '/api/dashboard/product-updates': typeof ApiDashboardProductUpdatesRoute
   '/api/dashboard/right-section': typeof ApiDashboardRightSectionRoute
@@ -1237,6 +1259,8 @@ export interface FileRoutesByFullPath {
   '/api/dashboard/t0-flow-status': typeof ApiDashboardT0FlowStatusRoute
   '/api/dashboard/t0-flow-step-complete': typeof ApiDashboardT0FlowStepCompleteRoute
   '/api/dashboard/t0-flow-student-status': typeof ApiDashboardT0FlowStudentStatusRoute
+  '/api/dashboard/welcome-modal-dismiss': typeof ApiDashboardWelcomeModalDismissRoute
+  '/api/dashboard/welcome-modal-status': typeof ApiDashboardWelcomeModalStatusRoute
   '/api/learn/discussions': typeof ApiLearnDiscussionsRouteWithChildren
   '/api/learn/page': typeof ApiLearnPageRoute
   '/api/masaiverse-v2/admin-mode': typeof ApiMasaiverseV2AdminModeRoute
@@ -1408,6 +1432,7 @@ export interface FileRoutesByTo {
   '/api/dashboard/left-section': typeof ApiDashboardLeftSectionRoute
   '/api/dashboard/lms-support': typeof ApiDashboardLmsSupportRoute
   '/api/dashboard/navbar-pill': typeof ApiDashboardNavbarPillRoute
+  '/api/dashboard/payment-banner': typeof ApiDashboardPaymentBannerRoute
   '/api/dashboard/pending-tasks': typeof ApiDashboardPendingTasksRoute
   '/api/dashboard/product-updates': typeof ApiDashboardProductUpdatesRoute
   '/api/dashboard/right-section': typeof ApiDashboardRightSectionRoute
@@ -1416,6 +1441,8 @@ export interface FileRoutesByTo {
   '/api/dashboard/t0-flow-status': typeof ApiDashboardT0FlowStatusRoute
   '/api/dashboard/t0-flow-step-complete': typeof ApiDashboardT0FlowStepCompleteRoute
   '/api/dashboard/t0-flow-student-status': typeof ApiDashboardT0FlowStudentStatusRoute
+  '/api/dashboard/welcome-modal-dismiss': typeof ApiDashboardWelcomeModalDismissRoute
+  '/api/dashboard/welcome-modal-status': typeof ApiDashboardWelcomeModalStatusRoute
   '/api/learn/discussions': typeof ApiLearnDiscussionsRouteWithChildren
   '/api/learn/page': typeof ApiLearnPageRoute
   '/api/masaiverse-v2/admin-mode': typeof ApiMasaiverseV2AdminModeRoute
@@ -1590,6 +1617,7 @@ export interface FileRoutesById {
   '/api/dashboard/left-section': typeof ApiDashboardLeftSectionRoute
   '/api/dashboard/lms-support': typeof ApiDashboardLmsSupportRoute
   '/api/dashboard/navbar-pill': typeof ApiDashboardNavbarPillRoute
+  '/api/dashboard/payment-banner': typeof ApiDashboardPaymentBannerRoute
   '/api/dashboard/pending-tasks': typeof ApiDashboardPendingTasksRoute
   '/api/dashboard/product-updates': typeof ApiDashboardProductUpdatesRoute
   '/api/dashboard/right-section': typeof ApiDashboardRightSectionRoute
@@ -1598,6 +1626,8 @@ export interface FileRoutesById {
   '/api/dashboard/t0-flow-status': typeof ApiDashboardT0FlowStatusRoute
   '/api/dashboard/t0-flow-step-complete': typeof ApiDashboardT0FlowStepCompleteRoute
   '/api/dashboard/t0-flow-student-status': typeof ApiDashboardT0FlowStudentStatusRoute
+  '/api/dashboard/welcome-modal-dismiss': typeof ApiDashboardWelcomeModalDismissRoute
+  '/api/dashboard/welcome-modal-status': typeof ApiDashboardWelcomeModalStatusRoute
   '/api/learn/discussions': typeof ApiLearnDiscussionsRouteWithChildren
   '/api/learn/page': typeof ApiLearnPageRoute
   '/api/masaiverse-v2/admin-mode': typeof ApiMasaiverseV2AdminModeRoute
@@ -1772,6 +1802,7 @@ export interface FileRouteTypes {
     | '/api/dashboard/left-section'
     | '/api/dashboard/lms-support'
     | '/api/dashboard/navbar-pill'
+    | '/api/dashboard/payment-banner'
     | '/api/dashboard/pending-tasks'
     | '/api/dashboard/product-updates'
     | '/api/dashboard/right-section'
@@ -1780,6 +1811,8 @@ export interface FileRouteTypes {
     | '/api/dashboard/t0-flow-status'
     | '/api/dashboard/t0-flow-step-complete'
     | '/api/dashboard/t0-flow-student-status'
+    | '/api/dashboard/welcome-modal-dismiss'
+    | '/api/dashboard/welcome-modal-status'
     | '/api/learn/discussions'
     | '/api/learn/page'
     | '/api/masaiverse-v2/admin-mode'
@@ -1951,6 +1984,7 @@ export interface FileRouteTypes {
     | '/api/dashboard/left-section'
     | '/api/dashboard/lms-support'
     | '/api/dashboard/navbar-pill'
+    | '/api/dashboard/payment-banner'
     | '/api/dashboard/pending-tasks'
     | '/api/dashboard/product-updates'
     | '/api/dashboard/right-section'
@@ -1959,6 +1993,8 @@ export interface FileRouteTypes {
     | '/api/dashboard/t0-flow-status'
     | '/api/dashboard/t0-flow-step-complete'
     | '/api/dashboard/t0-flow-student-status'
+    | '/api/dashboard/welcome-modal-dismiss'
+    | '/api/dashboard/welcome-modal-status'
     | '/api/learn/discussions'
     | '/api/learn/page'
     | '/api/masaiverse-v2/admin-mode'
@@ -2132,6 +2168,7 @@ export interface FileRouteTypes {
     | '/api/dashboard/left-section'
     | '/api/dashboard/lms-support'
     | '/api/dashboard/navbar-pill'
+    | '/api/dashboard/payment-banner'
     | '/api/dashboard/pending-tasks'
     | '/api/dashboard/product-updates'
     | '/api/dashboard/right-section'
@@ -2140,6 +2177,8 @@ export interface FileRouteTypes {
     | '/api/dashboard/t0-flow-status'
     | '/api/dashboard/t0-flow-step-complete'
     | '/api/dashboard/t0-flow-student-status'
+    | '/api/dashboard/welcome-modal-dismiss'
+    | '/api/dashboard/welcome-modal-status'
     | '/api/learn/discussions'
     | '/api/learn/page'
     | '/api/masaiverse-v2/admin-mode'
@@ -2312,6 +2351,7 @@ export interface RootRouteChildren {
   ApiDashboardLeftSectionRoute: typeof ApiDashboardLeftSectionRoute
   ApiDashboardLmsSupportRoute: typeof ApiDashboardLmsSupportRoute
   ApiDashboardNavbarPillRoute: typeof ApiDashboardNavbarPillRoute
+  ApiDashboardPaymentBannerRoute: typeof ApiDashboardPaymentBannerRoute
   ApiDashboardPendingTasksRoute: typeof ApiDashboardPendingTasksRoute
   ApiDashboardProductUpdatesRoute: typeof ApiDashboardProductUpdatesRoute
   ApiDashboardRightSectionRoute: typeof ApiDashboardRightSectionRoute
@@ -2320,6 +2360,8 @@ export interface RootRouteChildren {
   ApiDashboardT0FlowStatusRoute: typeof ApiDashboardT0FlowStatusRoute
   ApiDashboardT0FlowStepCompleteRoute: typeof ApiDashboardT0FlowStepCompleteRoute
   ApiDashboardT0FlowStudentStatusRoute: typeof ApiDashboardT0FlowStudentStatusRoute
+  ApiDashboardWelcomeModalDismissRoute: typeof ApiDashboardWelcomeModalDismissRoute
+  ApiDashboardWelcomeModalStatusRoute: typeof ApiDashboardWelcomeModalStatusRoute
   ApiLearnDiscussionsRoute: typeof ApiLearnDiscussionsRouteWithChildren
   ApiLearnPageRoute: typeof ApiLearnPageRoute
   ApiMasaiverseV2AdminModeRoute: typeof ApiMasaiverseV2AdminModeRoute
@@ -2625,6 +2667,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiLearnDiscussionsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/dashboard/welcome-modal-status': {
+      id: '/api/dashboard/welcome-modal-status'
+      path: '/api/dashboard/welcome-modal-status'
+      fullPath: '/api/dashboard/welcome-modal-status'
+      preLoaderRoute: typeof ApiDashboardWelcomeModalStatusRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/dashboard/welcome-modal-dismiss': {
+      id: '/api/dashboard/welcome-modal-dismiss'
+      path: '/api/dashboard/welcome-modal-dismiss'
+      fullPath: '/api/dashboard/welcome-modal-dismiss'
+      preLoaderRoute: typeof ApiDashboardWelcomeModalDismissRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/dashboard/t0-flow-student-status': {
       id: '/api/dashboard/t0-flow-student-status'
       path: '/api/dashboard/t0-flow-student-status'
@@ -2679,6 +2735,13 @@ declare module '@tanstack/react-router' {
       path: '/api/dashboard/pending-tasks'
       fullPath: '/api/dashboard/pending-tasks'
       preLoaderRoute: typeof ApiDashboardPendingTasksRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/dashboard/payment-banner': {
+      id: '/api/dashboard/payment-banner'
+      path: '/api/dashboard/payment-banner'
+      fullPath: '/api/dashboard/payment-banner'
+      preLoaderRoute: typeof ApiDashboardPaymentBannerRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/dashboard/navbar-pill': {
@@ -3998,6 +4061,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiDashboardLeftSectionRoute: ApiDashboardLeftSectionRoute,
   ApiDashboardLmsSupportRoute: ApiDashboardLmsSupportRoute,
   ApiDashboardNavbarPillRoute: ApiDashboardNavbarPillRoute,
+  ApiDashboardPaymentBannerRoute: ApiDashboardPaymentBannerRoute,
   ApiDashboardPendingTasksRoute: ApiDashboardPendingTasksRoute,
   ApiDashboardProductUpdatesRoute: ApiDashboardProductUpdatesRoute,
   ApiDashboardRightSectionRoute: ApiDashboardRightSectionRoute,
@@ -4006,6 +4070,8 @@ const rootRouteChildren: RootRouteChildren = {
   ApiDashboardT0FlowStatusRoute: ApiDashboardT0FlowStatusRoute,
   ApiDashboardT0FlowStepCompleteRoute: ApiDashboardT0FlowStepCompleteRoute,
   ApiDashboardT0FlowStudentStatusRoute: ApiDashboardT0FlowStudentStatusRoute,
+  ApiDashboardWelcomeModalDismissRoute: ApiDashboardWelcomeModalDismissRoute,
+  ApiDashboardWelcomeModalStatusRoute: ApiDashboardWelcomeModalStatusRoute,
   ApiLearnDiscussionsRoute: ApiLearnDiscussionsRouteWithChildren,
   ApiLearnPageRoute: ApiLearnPageRoute,
   ApiMasaiverseV2AdminModeRoute: ApiMasaiverseV2AdminModeRoute,

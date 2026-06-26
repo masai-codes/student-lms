@@ -14,6 +14,7 @@ interface DashboardSidebarSectionProps {
   enrolledBatches: Array<EnrolledBatch>
   attendanceData: Array<BatchAttendance>
   lmsSupport: LmsSupportInfo | undefined
+  showLmsSupport?: boolean
 }
 
 export function DashboardSidebarSection({
@@ -22,6 +23,7 @@ export function DashboardSidebarSection({
   enrolledBatches,
   attendanceData,
   lmsSupport,
+  showLmsSupport = true,
 }: DashboardSidebarSectionProps) {
   const hasAnnouncements = announcements.length > 0
   const hasProductUpdates = productUpdates.length > 0
@@ -34,7 +36,7 @@ export function DashboardSidebarSection({
       <ProductUpdatesPanel updates={productUpdates} />
       {!announcementsFirst && <AnnouncementsPanel announcements={announcements} />}
       <YourProgressPanel enrolledBatches={enrolledBatches} attendanceData={attendanceData} />
-      <LmsSupportPanel info={lmsSupport} />
+      {showLmsSupport && <LmsSupportPanel info={lmsSupport} />}
     </div>
   )
 }
