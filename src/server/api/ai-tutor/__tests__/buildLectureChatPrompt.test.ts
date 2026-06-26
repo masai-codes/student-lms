@@ -1,28 +1,53 @@
 import { describe, expect, it } from 'vitest'
-import { buildLectureChatUserPrompt } from '@/server/api/ai-tutor/services/buildLectureChatPrompt'
+import { AI_TUTOR_LECTURE_CHAT_SYSTEM_PROMPT } from '@/server/api/ai-tutor/constants'
+import {
+  buildLectureChatMessages,
+  buildLectureChatSystemPrompt,
+} from '@/server/api/ai-tutor/services/buildLectureChatPrompt'
 
-describe('buildLectureChatUserPrompt', () => {
-  it('includes summary and the student question', () => {
+describe('buildLectureChatSystemPrompt', () => {
+  it('appends the lecture summary to the base system prompt', () => {
+    expect(buildLectureChatSystemPrompt('Hooks let you reuse state.')).toBe(
+      `${AI_TUTOR_LECTURE_CHAT_SYSTEM_PROMPT}
+
+## Lecture content (summary)
+Hooks let you reuse state.`,
+    )
+  })
+})
+
+describe('buildLectureChatMessages', () => {
+  it('returns only the current question when history is empty', () => {
     expect(
-      buildLectureChatUserPrompt({
-        summary: 'Hooks let you reuse state.',
+      buildLectureChatMessages({
         chatHistory: [],
         question: 'What is useState?',
       }),
-    ).toBe(
-      'Lecture Summary:\nHooks let you reuse state.\n\nStudent\'s Question:\nWhat is useState?',
-    )
+    ).toEqual([{ role: 'user', content: 'What is useState?' }])
   })
 
-  it('includes serialized chat history when present', () => {
-    const prompt = buildLectureChatUserPrompt({
-      summary: 'Summary text',
-      chatHistory: [{ userMessage: 'Hi', aiMessage: 'Hello' }],
-      question: 'Next question',
-    })
+  it('maps prior turns to user and assistant messages before the question', () => {
+    expect(
+      buildLectureChatMessages({
+        chatHistory: [{ userMessage: 'Hi', aiMessage: 'Hello' }],
+        question: 'Next question',
+      }),
+    ).toEqual([
+      { role: 'user', content: 'Hi' },
+      { role: 'assistant', content: 'Hello' },
+      { role: 'user', content: 'Next question' },
+    ])
+  })
 
-    expect(prompt).toContain('Student bot chat history:')
-    expect(prompt).toContain('"userMessage":"Hi"')
-    expect(prompt).toContain('Student\'s Question:\nNext question')
+  it('skips empty history entries', () => {
+    expect(
+      buildLectureChatMessages({
+        chatHistory: [{ userMessage: '', aiMessage: 'Hello' }],
+        question: 'Next question',
+      }),
+    ).toEqual([
+      { role: 'assistant', content: 'Hello' },
+      { role: 'user', content: 'Next question' },
+    ])
   })
 })
