@@ -99,11 +99,11 @@ function VideoPlayer({
   onVideoEnded?: (durationSeconds: number) => void
 }) {
   return (
-    <div className="flex flex-col">
-      <h2 className="text-center font-bold mb-6" style={{ fontFamily: 'Poppins', fontSize: 20, color: '#111928' }}>
+    <div className="flex flex-col w-full max-w-[720px] mx-auto">
+      <h2 className="text-center font-bold mb-4" style={{ fontFamily: 'Poppins', fontSize: 18, color: '#111928' }}>
         {title}
       </h2>
-      <div className="w-full rounded-2xl bg-black overflow-hidden flex items-center justify-center" style={{ aspectRatio: '16/9' }}>
+      <div className="w-full rounded-xl bg-black overflow-hidden flex items-center justify-center" style={{ aspectRatio: '16/9' }}>
         {videoUrl ? (
           <video
             key={videoUrl}
@@ -153,7 +153,7 @@ function ProfilePhotoUploaded({ photoUrl }: { photoUrl: string }) {
 function IdCardModal({ idCardUrl, onClose }: { idCardUrl: string; onClose: () => void }) {
   return (
     <div
-      className="fixed inset-0 z-[9999] flex items-end lg:items-center justify-center lg:p-4"
+      className="fixed inset-0 z-[300] flex items-end lg:items-center justify-center lg:p-4"
       style={{ background: 'rgba(0,0,0,0.5)' }}
       onClick={onClose}
     >

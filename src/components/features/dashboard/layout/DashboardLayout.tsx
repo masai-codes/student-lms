@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { getRouteApi, useNavigate, useRouter } from '@tanstack/react-router'
-import { Megaphone, Play } from 'lucide-react'
+import { ArrowRight, ListChecks, Megaphone } from 'lucide-react'
 import { OnboardingModal } from '@/components/modals/onboarding/OnboardingModal'
 import { T0FlowModal } from '@/components/modals/t0Flow/T0FlowModal'
 import { AnnouncementPopupModal, filterUnshownPopups } from '@/components/modals/AnnouncementPopupModal'
@@ -206,25 +206,8 @@ export function DashboardLayout() {
           </button>
         </div>
 
-        {t0FlowStatus?.showT0Flow && (
-          <button
-            type="button"
-            onClick={() => setT0FlowDismissed(false)}
-            className="mx-4 mt-3 flex items-center gap-3 rounded-2xl px-4 py-3 text-left w-[calc(100%-2rem)] focus-visible:outline-none"
-            style={{ background: '#EEF2FF' }}
-          >
-            <span className="flex items-center justify-center size-9 rounded-xl shrink-0" style={{ background: '#6962AC' }}>
-              <Play size={16} className="text-white" fill="white" />
-            </span>
-            <div className="flex flex-col min-w-0">
-              <span className="text-sm font-semibold truncate" style={{ fontFamily: 'Poppins', color: '#6962AC' }}>Walkthrough &amp; Onboarding</span>
-              <span className="text-xs truncate" style={{ fontFamily: 'Poppins', color: '#9CA3AF' }}>View your onboarding steps</span>
-            </div>
-            <svg className="ml-auto shrink-0" width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M7.5 5l5 5-5 5" stroke="#6962AC" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
-          </button>
-        )}
 
-        <div className="flex flex-col gap-4 px-4 mt-3">
+<div className="flex flex-col gap-4 px-4 mt-3">
           {paymentBanner && (
             <PaymentBanner info={paymentBanner} />
           )}
@@ -271,7 +254,25 @@ export function DashboardLayout() {
             <div className="flex-1 min-w-0">
               {scheduleSection}
             </div>
-            <div className="w-full lg:w-1/3 shrink-0">
+            <div className="w-full lg:w-1/3 shrink-0 flex flex-col gap-4">
+              {t0FlowStatus?.showT0Flow && !t0FlowOpen && (
+                <button
+                  type="button"
+                  onClick={() => setT0FlowDismissed(false)}
+                  className="flex items-center gap-3 px-4 py-3 rounded-2xl w-full text-left focus-visible:outline-none hover:opacity-90 transition-opacity"
+                  style={{ background: '#EBF5FF', border: '1px solid #C3DDFD' }}
+                >
+                  <span className="flex items-center justify-center size-8 rounded-lg shrink-0" style={{ background: '#BFDBFE' }}>
+                    <ListChecks size={16} style={{ color: '#6962AC' }} />
+                  </span>
+                  <span className="flex-1 text-sm font-semibold text-[#1E429F]" style={{ fontFamily: 'Poppins' }}>
+                    Complete program onboarding
+                  </span>
+                  <span className="flex items-center gap-1 px-3 py-1.5 rounded-xl text-sm font-semibold" style={{ background: '#fff', color: '#6962AC', border: '1px solid #C3DDFD', fontFamily: 'Poppins' }}>
+                    Continue <ArrowRight size={14} />
+                  </span>
+                </button>
+              )}
               {sidebarSection}
             </div>
           </div>
@@ -345,6 +346,34 @@ export function DashboardLayout() {
           onDone={() => setShowPopups(false)}
           onMarkedRead={() => void queryClient.invalidateQueries({ queryKey: ['dashboard-right-section'] })}
         />
+      )}
+
+      {/* Sticky bottom banner — shown when T0Flow tasks are pending and modal is closed */}
+      {t0FlowStatus?.showT0Flow && !t0FlowOpen && (
+        <div className="fixed bottom-24 lg:bottom-0 inset-x-0 z-[201] pointer-events-none">
+          <div className="max-w-[1440px] mx-auto px-4 lg:px-6 pb-3 lg:pb-4">
+            <div
+              className="pointer-events-auto flex items-center gap-3 px-4 py-3 rounded-2xl shadow-lg"
+              style={{ background: '#EBF5FF', border: '1px solid #C3DDFD' }}
+            >
+              <span className="flex items-center justify-center size-8 rounded-lg shrink-0" style={{ background: '#BFDBFE' }}>
+                <ListChecks size={16} style={{ color: '#6962AC' }} />
+              </span>
+              <span className="flex-1 text-sm font-semibold text-[#1E429F]" style={{ fontFamily: 'Poppins' }}>
+                Complete program onboarding
+              </span>
+              <button
+                type="button"
+                onClick={() => setT0FlowDismissed(false)}
+                className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-opacity hover:opacity-90 focus-visible:outline-none"
+                style={{ background: '#fff', color: '#6962AC', fontFamily: 'Poppins', border: '1px solid #C3DDFD' }}
+              >
+                Continue
+                <ArrowRight size={15} />
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </>
   )
