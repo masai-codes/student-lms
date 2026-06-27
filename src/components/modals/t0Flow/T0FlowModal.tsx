@@ -24,6 +24,8 @@ import type { BatchT0Status } from '@/server/api/dashboard/getT0FlowStatus.servi
 import { PhotoContent } from '@/components/modals/onboarding/OnboardingModal'
 import { AgreementFlow, MobileAgreementPlaceholder } from '@/components/modals/onboarding/AgreementFlow'
 import { DownloadAppModal } from '@/components/features/layout/DownloadAppModal'
+import { PaymentBanner } from '@/components/features/dashboard/section-banner/PaymentBanner'
+import type { PaymentBannerInfo } from '@/server/api/dashboard/getPaymentBannerInfo.service'
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -97,11 +99,11 @@ function VideoPlayer({
   onVideoEnded?: (durationSeconds: number) => void
 }) {
   return (
-    <div className="flex flex-col">
-      <h2 className="text-center font-bold mb-6" style={{ fontFamily: 'Poppins', fontSize: 20, color: '#111928' }}>
+    <div className="flex flex-col w-full max-w-[720px] mx-auto">
+      <h2 className="text-center font-bold mb-4" style={{ fontFamily: 'Poppins', fontSize: 18, color: '#111928' }}>
         {title}
       </h2>
-      <div className="w-full rounded-2xl bg-black overflow-hidden flex items-center justify-center" style={{ aspectRatio: '16/9' }}>
+      <div className="w-full rounded-xl bg-black overflow-hidden flex items-center justify-center" style={{ aspectRatio: '16/9' }}>
         {videoUrl ? (
           <video
             key={videoUrl}
@@ -109,7 +111,7 @@ function VideoPlayer({
             controls
             className="w-full h-full object-contain"
             onPlay={() => onPlayingChange?.(true)}
-            onPause={() => onPlayingChange?.(false)}
+            onPause={(e) => { if (!e.currentTarget.seeking) onPlayingChange?.(false) }}
             onEnded={(e) => {
               onPlayingChange?.(false)
               onVideoEnded?.(e.currentTarget.duration)
@@ -151,7 +153,7 @@ function ProfilePhotoUploaded({ photoUrl }: { photoUrl: string }) {
 function IdCardModal({ idCardUrl, onClose }: { idCardUrl: string; onClose: () => void }) {
   return (
     <div
-      className="fixed inset-0 z-[9999] flex items-end lg:items-center justify-center lg:p-4"
+      className="fixed inset-0 z-[300] flex items-end lg:items-center justify-center lg:p-4"
       style={{ background: 'rgba(0,0,0,0.5)' }}
       onClick={onClose}
     >
@@ -496,6 +498,7 @@ export function T0FlowModal({
   downloadAppCompleted,
   onPhotoSaved,
   onAgreementSubmitted,
+  paymentBanner,
 }: {
   onClose: () => void
   batches: Array<BatchT0Status>
@@ -503,6 +506,7 @@ export function T0FlowModal({
   downloadAppCompleted: boolean
   onPhotoSaved?: () => void
   onAgreementSubmitted?: () => void
+  paymentBanner?: PaymentBannerInfo | null
 }) {
   const [selectedBatchId, setSelectedBatchId] = useState<number | undefined>(batches[0]?.batchId)
   const [activeTab, setActiveTab] = useState<'lms' | 'program'>('lms')
@@ -622,7 +626,7 @@ export function T0FlowModal({
     }
     setIsVideoPlaying(false)
     setActiveStepIndex(i)
-    const isCompleted = step ? completedSteps.has(step.id) : false
+    // const isCompleted = step ? completedSteps.has(step.id) : false
     const isPhotoUploaded = kind === 'profile-photo' && !!photoSnapshot
     if (
       kind === 'student-kit' ||
@@ -787,23 +791,39 @@ export function T0FlowModal({
 
         {/* Tabs */}
         <div className="flex gap-2 mt-4">
-          {(['lms', ...(showProgramTab ? ['program' as const] : [])] as const).map((tab) => {
+          {(['lms', 'program'] as const).map((tab) => {
             const active = activeTab === tab
-            return (
+            const locked = tab === 'program' && !showProgramTab
+            const btn = (
               <button
                 key={tab}
                 type="button"
-                onClick={() => setActiveTab(tab)}
-                className="flex-1 py-2 rounded-lg text-sm font-medium transition-colors focus-visible:outline-none"
+                onClick={() => { if (!locked) setActiveTab(tab) }}
+                disabled={locked}
+                className="w-full py-2 rounded-lg text-sm font-medium transition-colors focus-visible:outline-none flex items-center justify-center gap-1.5"
                 style={{
                   fontFamily: 'Poppins',
                   background: active ? '#EBF5FF' : '#FFFFFF',
                   color: active ? '#6962AC' : '#9CA3AF',
                   border: `1.5px solid ${active ? '#6962AC' : '#E5E7EB'}`,
+                  cursor: locked ? 'default' : 'pointer',
                 }}
               >
+                {locked && <Lock size={13} style={{ color: '#9CA3AF' }} />}
                 {tab === 'lms' ? 'LMS Walkthrough' : 'Program Onboarding'}
               </button>
+            )
+            if (!locked) return <div key={tab} className="flex-1">{btn}</div>
+            return (
+              <div key={tab} className="flex-1 relative group">
+                {btn}
+                {/* Tooltip */}
+                <div className="pointer-events-none absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-56 rounded-xl bg-[#1F2937] px-4 py-3 text-center text-sm font-medium text-white shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-150 z-50" style={{ fontFamily: 'Poppins' }}>
+                  Complete your program fee payment to unlock this section
+                  {/* Caret */}
+                  <div className="absolute left-1/2 -translate-x-1/2 top-full w-0 h-0" style={{ borderLeft: '6px solid transparent', borderRight: '6px solid transparent', borderTop: '6px solid #1F2937' }} />
+                </div>
+              </div>
             )
           })}
         </div>
@@ -916,13 +936,20 @@ export function T0FlowModal({
                 <StepListSection />
               </div>
               {isLms && (
-                <div className="mt-4 shrink-0 flex items-start gap-2 px-3 py-2.5 rounded-lg" style={{ background: '#EBF5FF' }}>
-                  <span className="shrink-0 flex items-center justify-center size-5 rounded-full mt-0.5" style={{ background: '#3B82F6' }}>
-                    <span className="text-white font-bold" style={{ fontSize: 11 }}>i</span>
-                  </span>
-                  <p className="text-xs leading-5" style={{ fontFamily: 'Poppins', color: '#1E429F' }}>
-                    Make sure to watch the complete video to update your progress
-                  </p>
+                <div className="mt-4 shrink-0">
+                  {paymentBanner && paymentBanner.type !== 'banned'
+                    ? <PaymentBanner info={paymentBanner} />
+                    : (
+                      <div className="flex items-start gap-2 px-3 py-2.5 rounded-lg" style={{ background: '#EBF5FF' }}>
+                        <span className="shrink-0 flex items-center justify-center size-5 rounded-full mt-0.5" style={{ background: '#3B82F6' }}>
+                          <span className="text-white font-bold" style={{ fontSize: 11 }}>i</span>
+                        </span>
+                        <p className="text-xs leading-5" style={{ fontFamily: 'Poppins', color: '#1E429F' }}>
+                          Make sure to watch the complete video to update your progress
+                        </p>
+                      </div>
+                    )
+                  }
                 </div>
               )}
             </div>
@@ -931,7 +958,7 @@ export function T0FlowModal({
           {/* Detail view (non-video steps) */}
           {mobileDetailOpen && (
             <div className="flex-1 overflow-y-auto px-4 py-6 bg-white flex flex-col">
-              <StepContent />
+              {StepContent()}
             </div>
           )}
 
@@ -957,7 +984,7 @@ export function T0FlowModal({
                     ? <DocumentUploadContent status={studentStatusData?.documents ?? null} />
                     : activeStep.kind === 'legal-agreement' && !completedSteps.has(activeStep.id)
                     ? <MobileAgreementPlaceholder sectionId={activeStep.sectionId} />
-                    : <StepContent />
+                    : StepContent()
                   }
                 </div>
               </div>
@@ -992,20 +1019,27 @@ export function T0FlowModal({
             </div>
 
             {isLms && (
-              <div className="mt-4 shrink-0 flex items-start gap-2 px-3 py-2.5 rounded-lg" style={{ background: '#EBF5FF' }}>
-                <span className="shrink-0 flex items-center justify-center size-5 rounded-full mt-0.5" style={{ background: '#3B82F6' }}>
-                  <span className="text-white font-bold" style={{ fontSize: 11 }}>i</span>
-                </span>
-                <p className="text-xs leading-5" style={{ fontFamily: 'Poppins', color: '#1E429F' }}>
-                  Make sure to watch the complete video to update your progress
-                </p>
+              <div className="mt-4 shrink-0">
+                {paymentBanner && paymentBanner.type !== 'banned'
+                  ? <PaymentBanner info={paymentBanner} />
+                  : (
+                    <div className="flex items-start gap-2 px-3 py-2.5 rounded-lg" style={{ background: '#EBF5FF' }}>
+                      <span className="shrink-0 flex items-center justify-center size-5 rounded-full mt-0.5" style={{ background: '#3B82F6' }}>
+                        <span className="text-white font-bold" style={{ fontSize: 11 }}>i</span>
+                      </span>
+                      <p className="text-xs leading-5" style={{ fontFamily: 'Poppins', color: '#1E429F' }}>
+                        Make sure to watch the complete video to update your progress
+                      </p>
+                    </div>
+                  )
+                }
               </div>
             )}
           </div>
 
           {/* Right panel */}
           <div className="flex-1 bg-white rounded-2xl overflow-hidden flex flex-col justify-center px-10 py-8">
-            <StepContent />
+            {StepContent()}
           </div>
 
         </div>

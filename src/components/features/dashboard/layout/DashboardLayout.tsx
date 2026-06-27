@@ -1,13 +1,15 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { getRouteApi, useNavigate, useRouter } from '@tanstack/react-router'
-import { Megaphone, Play } from 'lucide-react'
+import { ArrowRight, ListChecks, Megaphone } from 'lucide-react'
 import { OnboardingModal } from '@/components/modals/onboarding/OnboardingModal'
 import { T0FlowModal } from '@/components/modals/t0Flow/T0FlowModal'
 import { AnnouncementPopupModal, filterUnshownPopups } from '@/components/modals/AnnouncementPopupModal'
+import { WelcomeModal } from '@/components/modals/WelcomeModal'
 import { DashboardWelcomeSection } from '../section-welcome/DashboardWelcomeSection'
 import { DashboardActionBanner } from '../section-banner/DashboardActionBanner'
 import { DashboardBannerSection } from '../section-banner/DashboardBannerSection'
+import { PaymentBanner } from '../section-banner/PaymentBanner'
 import { DashboardScheduleSection } from '../section-schedule/DashboardScheduleSection'
 import { DashboardSidebarSection } from '../section-sidebar/DashboardSidebarSection'
 import { LmsSupportPanel } from '../section-sidebar/LmsSupportPanel'
@@ -20,6 +22,9 @@ import {
   fetchDashboardLeftSection,
   fetchDashboardRightSection,
   fetchT0FlowStatus,
+  fetchWelcomeModalStatus,
+  dismissWelcomeModalApi,
+  fetchPaymentBannerInfo,
 } from '@/lib/api/dashboard/dashboardApi'
 
 const layoutRouteApi = getRouteApi('/(protected)/_layout')
@@ -29,15 +34,39 @@ export function DashboardLayout() {
   const router = useRouter()
   const navigate = useNavigate()
   const queryClient = useQueryClient()
+
+  // Payment banner fetched first — all other dashboard queries wait for this to resolve.
+  // If banned, every subsequent query stays disabled permanently.
+  const { data: paymentBanner, isSuccess: paymentBannerResolved } = useQuery({
+    queryKey: ['payment-banner'],
+    queryFn: fetchPaymentBannerInfo,
+    staleTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: false,
+  })
+  const isBanned = paymentBanner?.type === 'banned'
+  const dashboardEnabled = paymentBannerResolved && !isBanned
+
   const { data: t0FlowStatus } = useQuery({
     queryKey: ['t0-flow-status'],
     queryFn: fetchT0FlowStatus,
     staleTime: 5 * 60 * 1000,
     refetchOnWindowFocus: false,
+    enabled: dashboardEnabled,
   })
+
+  const { data: welcomeModalStatus } = useQuery({
+    queryKey: ['welcome-modal-status'],
+    queryFn: fetchWelcomeModalStatus,
+    staleTime: Infinity,
+    refetchOnWindowFocus: false,
+    enabled: dashboardEnabled,
+  })
+
   const [t0FlowDismissed, setT0FlowDismissed] = useState(false)
   const t0FlowOpen = !t0FlowDismissed && (t0FlowStatus?.showT0Flow ?? false)
+
   const [onboardingOpen, setOnboardingOpen] = useState(false)
+  const [welcomeOpen, setWelcomeOpen] = useState(false)
   const [showPopups, setShowPopups] = useState(false)
 
   const { data: unreadCount = 0 } = useQuery({
@@ -45,29 +74,46 @@ export function DashboardLayout() {
     queryFn: fetchAnnouncementUnreadCount,
     staleTime: 5 * 60 * 1000,
     refetchOnWindowFocus: false,
+    enabled: dashboardEnabled,
   })
 
   const { data: rightSectionData } = useQuery({
     queryKey: ['dashboard-right-section'],
     queryFn: fetchDashboardRightSection,
     staleTime: 5 * 60 * 1000,
+    enabled: dashboardEnabled,
   })
 
   const { data: leftSectionData, isLoading: isLeftSectionLoading } = useQuery({
     queryKey: ['dashboard-left-section'],
     queryFn: fetchDashboardLeftSection,
     staleTime: 5 * 60 * 1000,
+    enabled: dashboardEnabled,
   })
 
-  useEffect(() => {
-    if (!leftSectionData || t0FlowOpen || t0FlowStatus === undefined) return
-    const { pendingAgreementSections, pendingFeedbackForms } = leftSectionData.actionBanners
-    if (pendingAgreementSections.length > 0 || pendingFeedbackForms.length > 0) {
-      setOnboardingOpen(true)
+  // Opens welcome modal if eligible, otherwise falls through to announcement popups.
+  // Called after T0Flow (when no onboarding) and after Onboarding closes.
+  function openWelcomeOrPopups() {
+    if (welcomeModalStatus?.showWelcomeModal) {
+      setWelcomeOpen(true)
     } else {
       setShowPopups(true)
     }
-  }, [leftSectionData, t0FlowOpen, t0FlowStatus])
+  }
+
+  // Initial trigger when T0Flow is not shown — waits for all status data to load.
+  useEffect(() => {
+    if (!leftSectionData || t0FlowOpen || t0FlowStatus === undefined || welcomeModalStatus === undefined) return
+    const { pendingAgreementSections, pendingFeedbackForms } = leftSectionData.actionBanners
+    if (pendingAgreementSections.length > 0 || pendingFeedbackForms.length > 0) {
+      setOnboardingOpen(true)
+    } else if (welcomeModalStatus.showWelcomeModal) {
+      setWelcomeOpen(true)
+    } else {
+      setShowPopups(true)
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [leftSectionData, t0FlowOpen, t0FlowStatus, welcomeModalStatus])
 
   const handleAnnouncementsClick = useCallback(() => {
     void navigate({ to: '/announcements', search: { page: 1 } })
@@ -78,8 +124,8 @@ export function DashboardLayout() {
     actionBanners != null &&
     (actionBanners.pendingAgreementSections.length > 0 ||
       actionBanners.pendingFeedbackForms.length > 0 ||
-      actionBanners.showZoom ||
-      actionBanners.showDownloadApp)
+      actionBanners.showDownloadApp ||
+      actionBanners.showProfilePicture)
 
   const pendingPopups = useMemo(
     () => filterUnshownPopups(
@@ -113,6 +159,7 @@ export function DashboardLayout() {
         items={leftSectionData?.schedule ?? []}
         isLoading={false}
         pendingTasksCount={leftSectionData?.pendingTasksCount ?? 0}
+        queryEnabled={dashboardEnabled}
       />
 
   const bannerSection = isLeftSectionLoading
@@ -123,14 +170,15 @@ export function DashboardLayout() {
     ? <DashboardActionBannerSkeleton />
     : <DashboardActionBanner actionBanners={leftSectionData?.actionBanners} />
 
-  const sidebarSection = rightSectionData == null
+  const sidebarSection = !isBanned && rightSectionData == null
     ? <DashboardSidebarSectionSkeleton />
     : <DashboardSidebarSection
         announcements={announcements}
         productUpdates={productUpdates}
-        enrolledBatches={rightSectionData.batches}
-        attendanceData={rightSectionData.attendance}
-        lmsSupport={rightSectionData.lmsSupport}
+        enrolledBatches={rightSectionData?.batches ?? []}
+        attendanceData={rightSectionData?.attendance ?? []}
+        lmsSupport={rightSectionData?.lmsSupport}
+        showLmsSupport={!isBanned}
       />
 
   return (
@@ -158,29 +206,15 @@ export function DashboardLayout() {
           </button>
         </div>
 
-        {t0FlowStatus?.showT0Flow && (
-          <button
-            type="button"
-            onClick={() => setT0FlowDismissed(false)}
-            className="mx-4 mt-3 flex items-center gap-3 rounded-2xl px-4 py-3 text-left w-[calc(100%-2rem)] focus-visible:outline-none"
-            style={{ background: '#EEF2FF' }}
-          >
-            <span className="flex items-center justify-center size-9 rounded-xl shrink-0" style={{ background: '#6962AC' }}>
-              <Play size={16} className="text-white" fill="white" />
-            </span>
-            <div className="flex flex-col min-w-0">
-              <span className="text-sm font-semibold truncate" style={{ fontFamily: 'Poppins', color: '#6962AC' }}>Walkthrough &amp; Onboarding</span>
-              <span className="text-xs truncate" style={{ fontFamily: 'Poppins', color: '#9CA3AF' }}>View your onboarding steps</span>
-            </div>
-            <svg className="ml-auto shrink-0" width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M7.5 5l5 5-5 5" stroke="#6962AC" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
-          </button>
-        )}
 
-        <div className="flex flex-col gap-4 px-4 mt-3">
+<div className="flex flex-col gap-4 px-4 mt-3">
+          {paymentBanner && (
+            <PaymentBanner info={paymentBanner} />
+          )}
           {actionBannerSection}
           {bannerSection}
           {scheduleSection}
-          <LmsSupportPanel info={rightSectionData?.lmsSupport} />
+          {!isBanned && <LmsSupportPanel info={rightSectionData?.lmsSupport} />}
         </div>
 
         {/* Footer */}
@@ -192,12 +226,19 @@ export function DashboardLayout() {
       </div>
 
       {/* ── Desktop layout (≥ lg) ── */}
-      <div className="hidden lg:flex flex-col w-full max-w-[1440px] mx-auto mb-6 px-6 gap-4">
-        {/* Action banner above the white card */}
+      <div className="hidden lg:flex flex-col w-full max-w-[1440px] mx-auto mb-6 px-6">
+        {/* Payment banner — above the action banner */}
+        {paymentBanner && (
+          <div className="mb-3">
+            <PaymentBanner info={paymentBanner} />
+          </div>
+        )}
+
+        {/* Action banner — sits behind the white card */}
         {actionBannerSection}
 
-        {/* White card */}
-        <div className="relative rounded-3xl border border-gray-200 bg-white flex flex-col">
+        {/* White card — z-10 places it on top of the banner */}
+        <div className={`relative z-10 rounded-3xl border border-gray-200 bg-white flex flex-col ${isBannerVisible || isLeftSectionLoading ? '-mt-10' : 'mt-4'}`}>
           {/* Header row: welcome + banner */}
           <div className="flex items-start gap-4 px-8 pt-8 pb-0">
             <div className="shrink-0 mt-2">
@@ -213,26 +254,39 @@ export function DashboardLayout() {
             <div className="flex-1 min-w-0">
               {scheduleSection}
             </div>
-            <div className="w-full lg:w-1/3 shrink-0">
+            <div className="w-full lg:w-1/3 shrink-0 flex flex-col gap-4">
+              {t0FlowStatus?.showT0Flow && !t0FlowOpen && (
+                <button
+                  type="button"
+                  onClick={() => setT0FlowDismissed(false)}
+                  className="flex items-center gap-3 px-4 py-3 rounded-2xl w-full text-left focus-visible:outline-none hover:opacity-90 transition-opacity"
+                  style={{ background: '#EBF5FF', border: '1px solid #C3DDFD' }}
+                >
+                  <span className="flex items-center justify-center size-8 rounded-lg shrink-0" style={{ background: '#BFDBFE' }}>
+                    <ListChecks size={16} style={{ color: '#6962AC' }} />
+                  </span>
+                  <span className="flex-1 text-sm font-semibold text-[#1E429F]" style={{ fontFamily: 'Poppins' }}>
+                    Complete program onboarding
+                  </span>
+                  <span className="flex items-center gap-1 px-3 py-1.5 rounded-xl text-sm font-semibold" style={{ background: '#fff', color: '#6962AC', border: '1px solid #C3DDFD', fontFamily: 'Poppins' }}>
+                    Continue <ArrowRight size={14} />
+                  </span>
+                </button>
+              )}
               {sidebarSection}
             </div>
           </div>
         </div>
       </div>
 
-      {showPopups && pendingPopups.length > 0 && (
-        <AnnouncementPopupModal
-          popups={pendingPopups}
-          onDone={() => setShowPopups(false)}
-          onMarkedRead={() => void queryClient.invalidateQueries({ queryKey: ['dashboard-right-section'] })}
-        />
-      )}
+      {/* Modal stack: T0Flow → Onboarding → Welcome → Popups */}
 
       {t0FlowOpen && (
         <T0FlowModal
           batches={t0FlowStatus?.batches ?? []}
           profilePhotoUrl={t0FlowStatus?.profilePhotoUrl ?? null}
           downloadAppCompleted={t0FlowStatus?.downloadAppCompleted ?? false}
+          paymentBanner={paymentBanner}
           onPhotoSaved={() => {
             void queryClient.invalidateQueries({ queryKey: ['dashboard-left-section'] })
             void router.invalidate()
@@ -248,7 +302,7 @@ export function DashboardLayout() {
             if (pendingAgreementSections.length > 0 || pendingFeedbackForms.length > 0) {
               setOnboardingOpen(true)
             } else {
-              setShowPopups(true)
+              openWelcomeOrPopups()
             }
           }}
         />
@@ -256,7 +310,7 @@ export function DashboardLayout() {
 
       {!t0FlowOpen && onboardingOpen && leftSectionData && (
         <OnboardingModal
-          onClose={() => { setOnboardingOpen(false); setShowPopups(true) }}
+          onClose={() => { setOnboardingOpen(false); openWelcomeOrPopups() }}
           showProfilePhoto={leftSectionData.actionBanners.showProfilePicture}
           agreementSections={leftSectionData.actionBanners.pendingAgreementSections}
           feedbackForms={leftSectionData.actionBanners.pendingFeedbackForms}
@@ -274,6 +328,52 @@ export function DashboardLayout() {
             void queryClient.invalidateQueries({ queryKey: ['dashboard-left-section'] })
           }}
         />
+      )}
+
+      {!t0FlowOpen && !onboardingOpen && welcomeOpen && (
+        <WelcomeModal
+          onClose={() => {
+            setWelcomeOpen(false)
+            void dismissWelcomeModalApi()
+            setShowPopups(true)
+          }}
+        />
+      )}
+
+      {showPopups && pendingPopups.length > 0 && (
+        <AnnouncementPopupModal
+          popups={pendingPopups}
+          onDone={() => setShowPopups(false)}
+          onMarkedRead={() => void queryClient.invalidateQueries({ queryKey: ['dashboard-right-section'] })}
+        />
+      )}
+
+      {/* Sticky bottom banner — shown when T0Flow tasks are pending and modal is closed */}
+      {t0FlowStatus?.showT0Flow && !t0FlowOpen && (
+        <div className="fixed bottom-24 lg:bottom-0 inset-x-0 z-[201] pointer-events-none">
+          <div className="max-w-[1440px] mx-auto px-4 lg:px-6 pb-3 lg:pb-4">
+            <div
+              className="pointer-events-auto flex items-center gap-3 px-4 py-3 rounded-2xl shadow-lg"
+              style={{ background: '#EBF5FF', border: '1px solid #C3DDFD' }}
+            >
+              <span className="flex items-center justify-center size-8 rounded-lg shrink-0" style={{ background: '#BFDBFE' }}>
+                <ListChecks size={16} style={{ color: '#6962AC' }} />
+              </span>
+              <span className="flex-1 text-sm font-semibold text-[#1E429F]" style={{ fontFamily: 'Poppins' }}>
+                Complete program onboarding
+              </span>
+              <button
+                type="button"
+                onClick={() => setT0FlowDismissed(false)}
+                className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-opacity hover:opacity-90 focus-visible:outline-none"
+                style={{ background: '#fff', color: '#6962AC', fontFamily: 'Poppins', border: '1px solid #C3DDFD' }}
+              >
+                Continue
+                <ArrowRight size={15} />
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </>
   )

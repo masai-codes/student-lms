@@ -131,7 +131,7 @@ export function DashboardActionBanner({ actionBanners: data }: { actionBanners: 
       <div>
         {/* Banner card */}
         <div
-          className="rounded-xl px-4 py-3 lg:px-5 lg:py-4 flex flex-row items-center gap-3 lg:gap-4"
+          className="rounded-2xl px-4 py-3 lg:px-5 lg:pt-4 lg:pb-12 flex flex-row items-center gap-3 lg:gap-4 min-h-[64px]"
           style={cardStyle}
           onTouchStart={handleTouchStart}
           onTouchEnd={handleTouchEnd}
@@ -174,7 +174,7 @@ export function DashboardActionBanner({ actionBanners: data }: { actionBanners: 
           </div>
 
           {/* Tablet + desktop: prev / dots / next */}
-          {count > 1 && (
+          {count > 1 ? (
             <div className="hidden md:flex items-center gap-1.5 shrink-0">
               <button
                 type="button"
@@ -205,6 +205,16 @@ export function DashboardActionBanner({ actionBanners: data }: { actionBanners: 
               >
                 <ChevronRight size={16} />
               </button>
+            </div>
+          ) : (
+            // Fixed-width invisible spacer so single-item layout matches multi-item
+            <div className="hidden md:flex items-center gap-1.5 shrink-0 invisible" aria-hidden="true">
+              <div className="w-8 h-8" />
+              <div className="flex items-center gap-1.5 px-1">
+                <div className="size-2" />
+                <div className="size-1.5" />
+              </div>
+              <div className="w-8 h-8" />
             </div>
           )}
         </div>
