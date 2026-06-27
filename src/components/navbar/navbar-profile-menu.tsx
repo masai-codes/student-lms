@@ -29,7 +29,7 @@ const menuItemClassName =
   "flex cursor-pointer select-none items-center gap-2 rounded-sm px-3 py-2 font-poppins text-[14px] font-medium leading-6 shadow-none outline-none transition-colors text-gray-700 hover:text-[#6962AC] data-[highlighted]:text-[#6962AC] data-[highlighted]:shadow-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50"
 
 const menuContentClassName =
-  "z-[220] min-w-[200px] overflow-hidden rounded-md border border-border bg-popover p-1 text-popover-foreground shadow-md";
+  "z-[400] min-w-[200px] overflow-hidden rounded-md border border-border bg-popover p-1 text-popover-foreground shadow-md";
 
 export function NavbarProfileMenu({
   profile,
