@@ -12,6 +12,7 @@ vi.mock('@/server/api/masaiverse-v2/services/createClub.service', () => ({
 
 vi.mock('@/server/auth/getCurrentSessionUserId', () => ({
   getUserIdFromCookieHeader: hoisted.getUserIdFromCookieHeader,
+  getUserIdFromRequest: hoisted.getUserIdFromCookieHeader,
 }))
 
 function postRequest(cookie: string | null): Request {
@@ -57,7 +58,8 @@ describe('handleCreateClub', () => {
 
     const response = await handleCreateClub(postRequest('session=abc'))
 
-    expect(response.status).toBe(403)
+    expect(response.status).toBe(422)
+    expect(response.headers.get('x-true-status')).toBe('403')
     await expect(response.json()).resolves.toEqual({
       code: 'MASAIVERSE_ADMIN_FORBIDDEN',
       message: 'MASAIVERSE_ADMIN_FORBIDDEN',

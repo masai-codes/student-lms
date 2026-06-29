@@ -173,6 +173,18 @@ Last updated: 2026-06-22
 - Test files: `pages/home/calendar/{calendarUtils,ReadOnlyCalendar,CalendarDayEvents,UpcomingEvents,GlobalLeaders,CalendarPanel}.test.ts(x)`
 - Notes: The "View calendar" drawer now renders real data (no dummy fixtures). `CalendarPanel` pulls the member-visible events feed (`GET /events/list` — public + the member's clubs) and buckets them by **IST** day (`buildEventsByDate`/`istDateKey`) so `ReadOnlyCalendar` shows a white dot on each day that has events. The calendar is interactive: every day is a button; clicking one selects it and `CalendarDayEvents` lists that day's events (title, IST date-time, club badge for club events) or a gentle "No events on this day." Today stays highlighted, the selected day gets a ring, and the month arrows browse. "Upcoming events" reuses the home `events` feed (`masaiverseV2HomeQuery`) so its listing matches the home "Live & Upcoming" exactly (public + member clubs), with day/month date box, RSVP/Join/Going CTA, and a `belowTitle` subtitle. "Global leaderboard" renders `GET /leaderboard` (see the leaderboard row). `calendarUtils` keeps the pure month-grid/date-key helpers (`getMonthGrid`, `toDateKey`, `istDateKey`, `buildEventsByDate`).
 
+## AI Tutor streaming chat
+- Area: Authenticated SSE chat stub (`src/routes/api/ai-tutor/chat/stream.ts`, `src/server/api/ai-tutor/**`, `src/server/api/http/sse.ts`)
+- Status: Covered
+- Test files: `src/server/api/ai-tutor/__tests__/stream*.test.ts`, `src/server/api/http/__tests__/sse.test.ts`
+- Notes: `POST /api/ai-tutor/chat/stream` requires a session cookie, accepts `{ lectureId, chat, chatID? }`, reads/writes `ai_chat_practice_questions`, loads lecture summary from `lectures_ai`, streams Claude output as SSE token events, and returns `{ type: "done", chatId }`.
+
+## AI Tutor chat conversations
+- Area: Authenticated lecture chat history (`src/routes/api/ai-tutor/chat/conversations/**`, `src/server/api/ai-tutor/**`, `src/lib/api/ai-tutor/aiTutorChatApi.ts`)
+- Status: Covered
+- Test files: `src/server/api/ai-tutor/__tests__/{chatTurns,listConversations.handler,getConversation.handler,conversationServices}.test.ts`
+- Notes: `GET /api/ai-tutor/chat/conversations?lectureId=` lists the user's threads for a lecture (title from first user message, `updatedAt` desc). `GET /api/ai-tutor/chat/conversations/:chatId` returns ordered user/assistant turns from stored `chatHistory`.
+
 ## Status Meaning
 
 - `Covered`: key behavior and edge paths are fully tested for current scope.

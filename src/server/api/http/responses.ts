@@ -1,4 +1,5 @@
 import { isApiError } from '@/server/api/http/apiError'
+import { cloudFrontSafeResponseInit } from '@/lib/api/cloudFrontSafeStatus'
 
 export type ApiErrorBody = {
   code: string
@@ -18,7 +19,8 @@ export function jsonError(
     code,
     message: message ?? code,
   }
-  return Response.json(body, { status })
+  // Remap CloudFront-intercepted statuses (403/404) so the JSON body survives.
+  return Response.json(body, cloudFrontSafeResponseInit(status))
 }
 
 export function mapThrownErrorToResponse(error: unknown): Response {
@@ -144,6 +146,23 @@ export function mapThrownErrorToResponse(error: unknown): Response {
       case 'AI_CHAT_MESSAGE_EMPTY':
       case 'AI_CHAT_MESSAGE_TOO_LONG':
         return jsonError(400, error.message)
+      case 'AI_TUTOR_CHAT_PROMPT_EMPTY':
+      case 'AI_TUTOR_CHAT_PROMPT_TOO_LONG':
+      case 'AI_TUTOR_CHAT_MESSAGE_EMPTY':
+      case 'AI_TUTOR_CHAT_MESSAGE_TOO_LONG':
+      case 'AI_TUTOR_LECTURE_ID_INVALID':
+      case 'AI_TUTOR_CHAT_ID_INVALID':
+        return jsonError(400, error.message)
+      case 'AI_TUTOR_CHAT_NOT_FOUND':
+      case 'AI_TUTOR_LECTURE_SUMMARY_NOT_FOUND':
+        return jsonError(404, error.message)
+      case 'SERVER_ERROR_STREAMING_AI_TUTOR_CHAT':
+      case 'SERVER_ERROR_CREATING_AI_TUTOR_CHAT':
+      case 'SERVER_ERROR_FETCHING_AI_TUTOR_CONVERSATIONS':
+      case 'SERVER_ERROR_FETCHING_AI_TUTOR_CONVERSATION':
+        return jsonError(500, error.message)
+      case 'AI_TUTOR_ANTHROPIC_NOT_CONFIGURED':
+        return jsonError(503, error.message)
       case 'AI_CHAT_OPENAI_NOT_CONFIGURED':
       case 'AI_CHAT_OPENAI_REQUEST_FAILED':
       case 'AI_CHAT_OPENAI_EMPTY_RESPONSE':

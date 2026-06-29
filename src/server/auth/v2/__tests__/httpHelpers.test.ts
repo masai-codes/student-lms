@@ -5,6 +5,7 @@ import {
   readJsonBody,
   withAuthErrorHandling,
 } from '../httpHelpers'
+import { resolveTrueStatus } from '@/lib/api/cloudFrontSafeStatus'
 
 async function readBody(res: Response): Promise<{ error: { code: string; message: string } }> {
   return (await res.json()) as { error: { code: string; message: string } }
@@ -14,7 +15,10 @@ describe('errorResponse', () => {
   it('builds a structured JSON error body with the given status', async () => {
     const res = errorResponse(404, 'USER_NOT_FOUND', 'No account here')
 
-    expect(res.status).toBe(404)
+    // 404 is CloudFront-intercepted, so it ships on the safe wire status (422)
+    // with the true status restored from the header.
+    expect(res.status).toBe(422)
+    expect(resolveTrueStatus(res)).toBe(404)
     expect(res.headers.get('Content-Type')).toBe('application/json')
     await expect(readBody(res)).resolves.toEqual({
       error: { code: 'USER_NOT_FOUND', message: 'No account here' },

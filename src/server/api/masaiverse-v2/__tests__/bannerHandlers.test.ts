@@ -27,6 +27,7 @@ vi.mock('@/server/api/masaiverse-v2/services/publishVisibility', () => ({
 }))
 vi.mock('@/server/auth/getCurrentSessionUserId', () => ({
   getUserIdFromCookieHeader: hoisted.getUserIdFromCookieHeader,
+  getUserIdFromRequest: hoisted.getUserIdFromCookieHeader,
 }))
 
 function req(method: string, body: unknown, cookie: string | null): Request {
@@ -106,7 +107,8 @@ describe('banner handlers', () => {
     const response = await handleUpdateBanner(
       req('POST', { bannerId: 5 }, 'session=abc'),
     )
-    expect(response.status).toBe(403)
+    expect(response.status).toBe(422)
+    expect(response.headers.get('x-true-status')).toBe('403')
   })
 
   it('POST delete forwards the banner id', async () => {

@@ -10,6 +10,7 @@ vi.mock('@/server/learn/services/lectureFeedback.service', () => ({
 }))
 vi.mock('@/server/auth/getCurrentSessionUserId', () => ({
   getUserIdFromCookieHeader: hoisted.getUserIdFromCookieHeader,
+  getUserIdFromRequest: hoisted.getUserIdFromCookieHeader,
 }))
 
 function request(body: unknown, cookie: string | null = 'session=abc') {

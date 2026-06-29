@@ -12,6 +12,7 @@ vi.mock('@/server/api/masaiverse-v2/services/createEvent.service', () => ({
 
 vi.mock('@/server/auth/getCurrentSessionUserId', () => ({
   getUserIdFromCookieHeader: hoisted.getUserIdFromCookieHeader,
+  getUserIdFromRequest: hoisted.getUserIdFromCookieHeader,
 }))
 
 function postRequest(cookie: string | null): Request {
@@ -60,7 +61,8 @@ describe('handleCreateEvent', () => {
 
     const response = await handleCreateEvent(postRequest('session=abc'))
 
-    expect(response.status).toBe(403)
+    expect(response.status).toBe(422)
+    expect(response.headers.get('x-true-status')).toBe('403')
     await expect(response.json()).resolves.toEqual({
       code: 'MASAIVERSE_ADMIN_FORBIDDEN',
       message: 'MASAIVERSE_ADMIN_FORBIDDEN',

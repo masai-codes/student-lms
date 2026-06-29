@@ -11,6 +11,7 @@ vi.mock('@/server/api/masaiverse-v2/services/getEventDetail.service', () => ({
 
 vi.mock('@/server/auth/getCurrentSessionUserId', () => ({
   getUserIdFromCookieHeader: hoisted.getUserIdFromCookieHeader,
+  getUserIdFromRequest: hoisted.getUserIdFromCookieHeader,
 }))
 
 vi.mock('@/server/api/masaiverse-v2/services/publishVisibility', () => ({
@@ -52,7 +53,8 @@ describe('handleGetEventDetail', () => {
 
     const response = await handleGetEventDetail(getRequest('99', 'session=abc'))
 
-    expect(response.status).toBe(404)
+    expect(response.status).toBe(422)
+    expect(response.headers.get('x-true-status')).toBe('404')
     await expect(response.json()).resolves.toEqual({
       code: 'EVENT_NOT_FOUND',
       message: 'EVENT_NOT_FOUND',

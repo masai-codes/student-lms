@@ -10,6 +10,7 @@ vi.mock('@/server/new-discussions/services/createDiscussionForLearnEntity', () =
 }))
 vi.mock('@/server/auth/getCurrentSessionUserId', () => ({
   getUserIdFromCookieHeader: hoisted.getUserIdFromCookieHeader,
+  getUserIdFromRequest: hoisted.getUserIdFromCookieHeader,
 }))
 
 const validBody = {
@@ -107,6 +108,7 @@ describe('createLearnDiscussion.handler', () => {
 
     const res = await handle(request(validBody))
 
-    expect(res.status).toBe(403)
+    expect(res.status).toBe(422)
+    expect(res.headers.get('x-true-status')).toBe('403')
   })
 })

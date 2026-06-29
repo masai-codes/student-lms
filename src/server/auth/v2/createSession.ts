@@ -40,7 +40,7 @@ function getJwtSecret(): string {
   return secret
 }
 
-function extractClientIp(request: Request): string {
+export function extractClientIp(request: Request): string {
   const xff = request.headers.get('x-forwarded-for')
   if (xff) return xff.split(',')[0].trim()
   return request.headers.get('x-real-ip') ?? ''

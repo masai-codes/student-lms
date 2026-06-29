@@ -1,5 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { resolveTrueStatus } from '@/lib/api/cloudFrontSafeStatus'
+
 const hoisted = vi.hoisted(() => ({
   getAssignmentProblemDetailForUser: vi.fn(),
   getUserIdFromCookieHeader: vi.fn(),
@@ -10,6 +12,7 @@ vi.mock('@/server/learn/services/getProblemDetail.service', () => ({
 }))
 vi.mock('@/server/auth/getCurrentSessionUserId', () => ({
   getUserIdFromCookieHeader: hoisted.getUserIdFromCookieHeader,
+  getUserIdFromRequest: hoisted.getUserIdFromCookieHeader,
 }))
 
 function request(cookie: string | null = 'session=abc') {
@@ -63,6 +66,7 @@ describe('handleGetProblemDetail', () => {
 
     const response = await handleGetProblemDetail(request(), '99', '12')
 
-    expect(response.status).toBe(404)
+    // 404 ships on the CloudFront-safe wire status with the true status in a header.
+    expect(resolveTrueStatus(response)).toBe(404)
   })
 })

@@ -16,6 +16,7 @@ vi.mock(
 )
 vi.mock('@/server/auth/getCurrentSessionUserId', () => ({
   getUserIdFromCookieHeader: hoisted.getUserIdFromCookieHeader,
+  getUserIdFromRequest: hoisted.getUserIdFromCookieHeader,
 }))
 
 const cookie = { cookie: 'session=abc' }
@@ -89,7 +90,8 @@ describe('handleModerateDiscussion', () => {
     const res = await handleModerateDiscussion(
       post({ target: 'post', postId: '7', banned: true }),
     )
-    expect(res.status).toBe(403)
+    expect(res.status).toBe(422)
+    expect(res.headers.get('x-true-status')).toBe('403')
   })
 
   it('401s when not signed in', async () => {
