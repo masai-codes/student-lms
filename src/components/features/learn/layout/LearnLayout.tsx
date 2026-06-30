@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { useRouterState } from '@tanstack/react-router'
+import { keepPreviousData, useQuery } from '@tanstack/react-query'
 import { LearnHeaderSection } from '../section-one/LearnHeaderSection'
 import { LearnAppliedFilters } from '../section-two/LearnAppliedFilters'
 import { LearnControlsSection } from '../section-two/LearnControlsSection'
@@ -7,13 +7,24 @@ import { LearnContentListSection } from '../section-three/LearnContentListSectio
 import { LearnContentListSkeleton } from '../section-three/LearnContentListSkeleton'
 import { LearnPaginationSection } from '../section-four/LearnPaginationSection'
 import { useLearnPageState } from './useLearnPageState'
-import type { LearnContentItem } from '../shared/types'
-import type { GetLearnPageDataResponse } from '@/server/learn/types'
+import type { LearnContentItem, LearnTab } from '../shared/types'
+import type {
+  GetLearnPageDataResponse,
+  LearningType,
+} from '@/server/learn/types'
+import { fetchLearnPageDataFromApi } from '@/lib/api/learn/learnApi'
 import { LAYOUT_MAIN_PADDING_X, LAYOUT_MAX_WIDTH_CLASS } from '@/lib/layout'
 
 interface LearnLayoutProps {
+  /** Loader-seeded initial page data; React Query takes over for interactive updates. */
   pageData: GetLearnPageDataResponse
   onBatchChange: (batchId: number) => void
+}
+
+function toLearningType(tab: LearnTab): LearningType {
+  if (tab === 'assignments') return 'assignment'
+  if (tab === 'resources') return 'resource'
+  return 'lecture'
 }
 
 export function LearnLayout({ pageData, onBatchChange }: LearnLayoutProps) {
@@ -23,6 +34,8 @@ export function LearnLayout({ pageData, onBatchChange }: LearnLayoutProps) {
     searchValue,
     modalFilters,
     filterCount,
+    apiFilters,
+    batchId,
     setActiveTab,
     setSearchValue,
     setCurrentPage,
@@ -31,15 +44,41 @@ export function LearnLayout({ pageData, onBatchChange }: LearnLayoutProps) {
     clearAllFilters,
   } = useLearnPageState()
 
-  // The route loader is the single source of page data; reflect its refetches.
-  const isFetching = useRouterState({ select: (state) => state.isLoading })
+  const learningType = toLearningType(activeTab)
+  const hasActiveApiFilters = Object.values(apiFilters).some(
+    (value) => value != null && (!Array.isArray(value) || value.length > 0),
+  )
 
-  const enrolledBatches = pageData.batches
-  const selectedBatchId = pageData.selectedBatchId
+  // Interactive updates fetch here (not via the route loader), so search / filters /
+  // pagination never block the route — the header & search stay live and only the
+  // list shows a skeleton while refetching.
+  const { data, isFetching } = useQuery({
+    queryKey: [
+      'learn-page-data',
+      batchId ?? null,
+      learningType,
+      searchValue,
+      currentPage,
+      hasActiveApiFilters ? apiFilters : null,
+    ],
+    queryFn: () =>
+      fetchLearnPageDataFromApi({
+        batchId,
+        learningType,
+        search: searchValue.trim() || undefined,
+        page: currentPage,
+        filters: hasActiveApiFilters ? apiFilters : undefined,
+      }),
+    initialData: pageData,
+    placeholderData: keepPreviousData,
+  })
+
+  const enrolledBatches = data.batches
+  const selectedBatchId = data.selectedBatchId
 
   const learningItems: Array<LearnContentItem> = useMemo(
     () =>
-      pageData.learningItems.map((item) => ({
+      data.learningItems.map((item) => ({
         id: item.id,
         type: item.learningType,
         title: item.title,
@@ -55,7 +94,7 @@ export function LearnLayout({ pageData, onBatchChange }: LearnLayoutProps) {
         listingCtas: item.listingCtas,
         assignmentStatusChip: item.listingCtas.assignmentStatusChip,
       })),
-    [pageData.learningItems],
+    [data.learningItems],
   )
 
   if (selectedBatchId == null) {
@@ -88,12 +127,10 @@ export function LearnLayout({ pageData, onBatchChange }: LearnLayoutProps) {
             searchValue={searchValue}
             onSearchChange={setSearchValue}
             onModulesChange={setModules}
-            moduleFilterOptions={pageData.filterValues.moduleFilterValues}
-            categoryFilterOptions={pageData.filterValues.categoryFilterValues}
-            typeFilterOptions={pageData.filterValues.typeFilterValues}
-            instructorFilterOptions={
-              pageData.filterValues.instructorFilterValues
-            }
+            moduleFilterOptions={data.filterValues.moduleFilterValues}
+            categoryFilterOptions={data.filterValues.categoryFilterValues}
+            typeFilterOptions={data.filterValues.typeFilterValues}
+            instructorFilterOptions={data.filterValues.instructorFilterValues}
             modalFilters={modalFilters}
             onApplyModalFilters={setModalFilters}
           />
@@ -115,7 +152,7 @@ export function LearnLayout({ pageData, onBatchChange }: LearnLayoutProps) {
 
           <LearnPaginationSection
             currentPage={currentPage}
-            totalPages={pageData.pagination.totalPages}
+            totalPages={data.pagination.totalPages}
             onPageChange={setCurrentPage}
           />
         </>

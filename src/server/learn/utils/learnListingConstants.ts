@@ -1,5 +1,5 @@
 /** Learn listing page size — matches legacy LMS (`experience-api` `PAGE_SIZE = 25`). */
-export const LEARN_LISTING_PAGE_SIZE = 25
+export const LEARN_LISTING_PAGE_SIZE = 15
 
 /** Hard cap so a crafted `pageSize` query param cannot request unbounded rows. */
 export const LEARN_LISTING_MAX_PAGE_SIZE = 50
