@@ -4,7 +4,6 @@ import {
   exists,
   gte,
   inArray,
-  isNotNull,
   isNull,
   like,
   lt,
@@ -82,9 +81,11 @@ export function lectureTypeCondition(
  */
 export function buildLectureContentGate(nowMs: number): SQL {
   const recentConcludeFloor = toMysqlUtc(nowMs - LECTURE_RECENT_CONCLUDE_MS)
+  // Legacy gate is NULL-inclusive: Prisma `not: ''` and `not: { equals: [] }` both
+  // match rows where the column is NULL, so mirror that or the counts undershoot.
   return or(
-    and(isNotNull(lectures.notes), ne(lectures.notes, '')),
-    sql`JSON_LENGTH(${lectures.videos}) > 0`,
+    or(isNull(lectures.notes), ne(lectures.notes, '')),
+    or(isNull(lectures.videos), sql`JSON_LENGTH(${lectures.videos}) <> 0`),
     eq(lectures.type, 'blended-learning'),
     gte(lectures.concludes, recentConcludeFloor),
     like(lectures.zoomLink, '%adaptive-lecture%'),
@@ -120,8 +121,8 @@ export function buildLectureListingConditions(
   input: LearnListingConditionsInput,
 ): Array<SQL> {
   const { filters } = input
+  // Legacy LMS scopes lectures by section_id only (no batch_id on the lectures table).
   const conditions: Array<SQL | undefined> = [
-    eq(lectures.batchId, input.batchId),
     inArray(lectures.sectionId, input.sectionIds),
     lectureTypeCondition(input),
     isNull(lectures.deletedAt),
@@ -159,8 +160,8 @@ export function buildAssignmentListingConditions(
   input: LearnListingConditionsInput,
 ): Array<SQL> {
   const { filters } = input
+  // Legacy LMS scopes assignments by section_id only (no batch_id on the table).
   const conditions: Array<SQL | undefined> = [
-    eq(assignments.batchId, input.batchId),
     inArray(assignments.sectionId, input.sectionIds),
     isNull(assignments.deletedAt),
     input.search ? like(assignments.title, `%${input.search}%`) : undefined,

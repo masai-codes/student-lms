@@ -21,6 +21,7 @@ import {
   ladderFromBatchSettings,
   nextEscalation,
 } from '@/server/api/support/services/resolveAssignees'
+import { buildFirstTemplateResponse } from '@/server/api/support/services/ticketReplyTemplate'
 import { normalizeStatus } from '@/server/api/support/services/serialize'
 import { getTicketCapabilities } from '@/server/api/support/ticketCapabilities'
 
@@ -99,8 +100,33 @@ export async function createTicket(input: {
     logstamps: { L1_assigned_at: new Date().toISOString() },
   })
 
+  const ticketId = Number(result.insertId)
+
+  // Post the tailored first-template reply as a real coordinator comment, exactly
+  // like the legacy flow. Best-effort: a failure here must not fail ticket
+  // creation (the ticket already exists and is owned by an assignee).
+  try {
+    const { message } = await buildFirstTemplateResponse({
+      batchId: input.batchId,
+      category: input.category,
+      assigneeId,
+    })
+    const now = new Date().toISOString()
+    await db.insert(comments).values({
+      ticketId,
+      userId: assigneeId,
+      message,
+      public: 1,
+      createdAt: now,
+      updatedAt: now,
+      data: { firstTemplateResponse: true, ticket_level: 'l1' },
+    })
+  } catch (error) {
+    console.error(`[support] first-template reply failed for ticket ${ticketId}`, error)
+  }
+
   // TODO(workflow): kick off the background workflow (TAT, notifications) here.
-  return { id: Number(result.insertId) }
+  return { id: ticketId }
 }
 
 /**

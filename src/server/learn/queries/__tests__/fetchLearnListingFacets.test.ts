@@ -18,7 +18,7 @@ describe('fetchLearnListingFacets', () => {
   it('returns empty facets when the user has no sections', async () => {
     const { fetchLearnListingFacets } =
       await import('../fetchLearnListingFacets')
-    const result = await fetchLearnListingFacets('lecture', 10, [], NOW_MS)
+    const result = await fetchLearnListingFacets('lecture', [], NOW_MS)
     expect(result).toEqual({
       moduleFilterValues: [],
       categoryFilterValues: [],
@@ -51,7 +51,7 @@ describe('fetchLearnListingFacets', () => {
       },
     ])
 
-    const result = await fetchLearnListingFacets('lecture', 10, [9], NOW_MS)
+    const result = await fetchLearnListingFacets('lecture', [9], NOW_MS)
     expect(result.categoryFilterValues).toEqual(['coding'])
     expect(result.typeFilterValues).toEqual(['live', 'recorded'])
     expect(result.priorityFilterValues).toEqual(['mandatory', 'recommended'])
@@ -76,7 +76,7 @@ describe('fetchLearnListingFacets', () => {
       },
     ])
 
-    const result = await fetchLearnListingFacets('assignment', 10, [9], NOW_MS)
+    const result = await fetchLearnListingFacets('assignment', [9], NOW_MS)
     expect(result.typeFilterValues).toEqual(['evaluation'])
     expect(result.moduleFilterValues).toEqual(['Capstone'])
   })
@@ -95,7 +95,7 @@ describe('fetchLearnListingFacets', () => {
       },
     ])
 
-    const result = await fetchLearnListingFacets('resource', 10, [9], NOW_MS)
+    const result = await fetchLearnListingFacets('resource', [9], NOW_MS)
     expect(result.typeFilterValues).toEqual(['reading'])
     expect(result.moduleFilterValues).toEqual(['Module 3'])
   })

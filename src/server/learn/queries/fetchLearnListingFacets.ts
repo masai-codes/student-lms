@@ -53,7 +53,6 @@ function emptyFilterValues(): LearningFilterValues {
  */
 async function fetchFacetRows(
   learningType: LearningType,
-  batchId: number,
   sectionIds: Array<number>,
   window: LearnScheduleWindow,
   nowMs: number,
@@ -72,7 +71,7 @@ async function fetchFacetRows(
       .leftJoin(users, eq(assignments.userId, users.id))
       .where(
         and(
-          eq(assignments.batchId, batchId),
+          // Legacy LMS scopes by section_id only (no batch_id on the table).
           inArray(assignments.sectionId, sectionIds),
           isNull(assignments.deletedAt),
           ...scheduleWindowConditions(assignments.schedule, window),
@@ -93,7 +92,6 @@ async function fetchFacetRows(
     .leftJoin(users, eq(lectures.hostId, users.id))
     .where(
       and(
-        eq(lectures.batchId, batchId),
         inArray(lectures.sectionId, sectionIds),
         lectureTypeCondition({ learningType }),
         isNull(lectures.deletedAt),
@@ -108,7 +106,6 @@ async function fetchFacetRows(
 /** Stable filter facets (legacy LMS surfaces all options, not just the filtered subset). */
 export async function fetchLearnListingFacets(
   learningType: LearningType,
-  batchId: number,
   sectionIds: Array<number>,
   nowMs: number,
 ): Promise<LearningFilterValues> {
@@ -118,13 +115,7 @@ export async function fetchLearnListingFacets(
 
   // The base (no schedulePhase / no date) window — the default landing view for the tab.
   const window = buildLearnScheduleWindow({ learningType, nowMs })
-  const rows = await fetchFacetRows(
-    learningType,
-    batchId,
-    sectionIds,
-    window,
-    nowMs,
-  )
+  const rows = await fetchFacetRows(learningType, sectionIds, window, nowMs)
 
   return {
     moduleFilterValues: buildModuleFilterValuesFromModuleWeekRows(rows),

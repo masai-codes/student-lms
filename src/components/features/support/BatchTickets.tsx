@@ -148,8 +148,14 @@ export function BatchTickets() {
 
   const contact = overview?.contact
   const showContact = Boolean(contact?.text || contact?.phone)
+  // Legacy gate: the CTA shows only for new-user-journey students with an
+  // active batch (NOT merely when reasons exist).
   const showCallbackButton = Boolean(
-    effectiveBatchId && (overview?.callback.reasons.length ?? 0) > 0,
+    effectiveBatchId && overview?.isNewUserJourney,
+  )
+  // Legacy filter: hide the "Student-Kit" reason unless full fees are paid.
+  const callbackReasons = (overview?.callback.reasons ?? []).filter(
+    (r) => overview?.hasFullFees || r.value !== 'Student-Kit',
   )
   // The modal stays mounted across create → details (after creating, the step
   // flips to 'ticketdetails' and the same modal shows the new conversation).
@@ -315,7 +321,7 @@ export function BatchTickets() {
       {callbackStep && (
         <CallbackFlow
           step={callbackStep}
-          reasons={(overview?.callback.reasons ?? []).map((r) => r.value)}
+          reasons={callbackReasons.map((r) => r.value)}
           timeslots={(overview?.callback.timeslots ?? []).map((t) => t.value)}
           selectedTimeslot={selectedTimeslot}
           onClose={() => setCallbackStep(null)}

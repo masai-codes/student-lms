@@ -16,7 +16,8 @@ export async function getSectionIdsForUserInBatch(
       and(
         eq(sectionUser.userId, userId),
         eq(sections.batchId, batchId),
-        isNull(sectionUser.deletedAt),
+        // Legacy LMS scopes by section_user.user_id only (no deleted_at on the
+        // enrolment row); only sections.deleted_at is checked.
         isNull(sections.deletedAt),
       ),
     )
@@ -38,7 +39,8 @@ export async function getSectionIdsForUserInBatches(
       and(
         eq(sectionUser.userId, userId),
         inArray(sections.batchId, batchIds),
-        isNull(sectionUser.deletedAt),
+        // Legacy LMS scopes by section_user.user_id only (no deleted_at on the
+        // enrolment row); only sections.deleted_at is checked.
         isNull(sections.deletedAt),
       ),
     )

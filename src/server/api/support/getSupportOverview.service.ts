@@ -26,6 +26,7 @@ import {
   getUserSupportBatches,
 } from '@/server/api/support/services/directory.service'
 import {
+  getCallbackEligibility,
   getCallbackOptions,
   listCallbacks,
 } from '@/server/api/support/services/callback.service'
@@ -61,6 +62,8 @@ export async function getSupportOverview(
       faqs: [],
       tickets: [],
       openTicketCount: 0,
+      isNewUserJourney: false,
+      hasFullFees: false,
       callback: { reasons: [], timeslots: [] },
       callbackTickets: [],
       oneOnOne: [],
@@ -94,6 +97,7 @@ export async function getSupportOverview(
     callback,
     callbackTickets,
     oneOnOne,
+    eligibility,
   ] = await Promise.all([
     safe('gate', () => getSupportGate({ userId, batchId }), null),
     safe('contact', () => getBatchContact(batchId), { text: null, phone: null }),
@@ -104,6 +108,10 @@ export async function getSupportOverview(
     safe('callbackOptions', () => getCallbackOptions(), { reasons: [], timeslots: [] }),
     safe('callbackTickets', () => listCallbacks(userId), []),
     safe('oneOnOne', () => getOneOnOneGroups(userId), []),
+    safe('eligibility', () => getCallbackEligibility({ userId, batchId }), {
+      isNewUserJourney: false,
+      hasFullFees: false,
+    }),
   ])
 
   return {
@@ -114,6 +122,8 @@ export async function getSupportOverview(
     faqs,
     tickets,
     openTicketCount,
+    isNewUserJourney: eligibility.isNewUserJourney,
+    hasFullFees: eligibility.hasFullFees,
     callback,
     callbackTickets,
     oneOnOne,
