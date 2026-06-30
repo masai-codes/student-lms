@@ -1,6 +1,7 @@
 import { useMemo } from 'react'
 import { useRouterState } from '@tanstack/react-router'
 import { LearnHeaderSection } from '../section-one/LearnHeaderSection'
+import { LearnAppliedFilters } from '../section-two/LearnAppliedFilters'
 import { LearnControlsSection } from '../section-two/LearnControlsSection'
 import { LearnContentListSection } from '../section-three/LearnContentListSection'
 import { LearnContentListSkeleton } from '../section-three/LearnContentListSkeleton'
@@ -27,6 +28,7 @@ export function LearnLayout({ pageData, onBatchChange }: LearnLayoutProps) {
     setCurrentPage,
     setModalFilters,
     setModules,
+    clearAllFilters,
   } = useLearnPageState()
 
   // The route loader is the single source of page data; reflect its refetches.
@@ -97,6 +99,12 @@ export function LearnLayout({ pageData, onBatchChange }: LearnLayoutProps) {
           />
         </div>
       </div>
+
+      <LearnAppliedFilters
+        filters={modalFilters}
+        onChange={setModalFilters}
+        onClearAll={clearAllFilters}
+      />
 
       {/* Only the content list reflects loading — header, tabs and search stay put. */}
       {isFetching ? (

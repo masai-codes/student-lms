@@ -361,3 +361,120 @@ export function modalFiltersToApiFilters(
 
   return api
 }
+
+const PRIORITY_CHIP_LABELS: Record<'recommended' | 'mandatory', string> = {
+  recommended: 'Recommended',
+  mandatory: 'Mandatory',
+}
+const ATTENDANCE_CHIP_LABELS: Record<'present' | 'absent', string> = {
+  present: 'Present',
+  absent: 'Absent',
+}
+const PROGRESS_CHIP_LABELS: Record<AssignmentProgressStatus, string> = {
+  new: 'New',
+  'in-progress': 'In Progress',
+  completed: 'Completed',
+  overdue: 'Overdue',
+}
+const PHASE_CHIP_LABELS: Record<'upcoming' | 'past', string> = {
+  upcoming: 'Upcoming',
+  past: 'Past',
+}
+
+function dateRangeChipLabel(start: string | null, end: string | null): string {
+  if (start && end) return `${start} – ${end}`
+  if (start) return `From ${start}`
+  return `Until ${end}`
+}
+
+/** One removable chip per applied filter; `next` is the filter state with it removed. */
+export interface AppliedLearnFilterChip {
+  id: string
+  label: string
+  next: LearnModalFiltersState
+}
+
+/** Applied-filter chips for the row under the controls (tab-appropriate values only). */
+export function buildAppliedLearnFilterChips(
+  filters: LearnModalFiltersState,
+): Array<AppliedLearnFilterChip> {
+  const chips: Array<AppliedLearnFilterChip> = []
+
+  for (const value of filters.modules) {
+    chips.push({
+      id: `module:${value}`,
+      label: value,
+      next: { ...filters, modules: filters.modules.filter((v) => v !== value) },
+    })
+  }
+  for (const value of filters.categories) {
+    chips.push({
+      id: `category:${value}`,
+      label: value,
+      next: {
+        ...filters,
+        categories: filters.categories.filter((v) => v !== value),
+      },
+    })
+  }
+  for (const value of filters.types) {
+    chips.push({
+      id: `type:${value}`,
+      label: value,
+      next: { ...filters, types: filters.types.filter((v) => v !== value) },
+    })
+  }
+  for (const value of filters.instructors) {
+    chips.push({
+      id: `instructor:${value}`,
+      label: value,
+      next: {
+        ...filters,
+        instructors: filters.instructors.filter((v) => v !== value),
+      },
+    })
+  }
+  for (const value of filters.priorities) {
+    chips.push({
+      id: `priority:${value}`,
+      label: PRIORITY_CHIP_LABELS[value],
+      next: {
+        ...filters,
+        priorities: filters.priorities.filter((v) => v !== value),
+      },
+    })
+  }
+  if (filters.scheduleStartDate || filters.scheduleEndDate) {
+    chips.push({
+      id: 'date',
+      label: dateRangeChipLabel(
+        filters.scheduleStartDate,
+        filters.scheduleEndDate,
+      ),
+      next: { ...filters, scheduleStartDate: null, scheduleEndDate: null },
+    })
+  }
+  if (filters.schedulePhase !== 'all') {
+    chips.push({
+      id: 'phase',
+      label: PHASE_CHIP_LABELS[filters.schedulePhase],
+      next: { ...filters, schedulePhase: 'all' },
+    })
+  }
+  if (filters.attendanceStatus != null) {
+    chips.push({
+      id: 'attendance',
+      label: ATTENDANCE_CHIP_LABELS[filters.attendanceStatus],
+      next: { ...filters, attendanceStatus: null },
+    })
+  }
+  if (filters.assignmentProgress !== 'all') {
+    chips.push({
+      id: 'progress',
+      label: PROGRESS_CHIP_LABELS[filters.assignmentProgress],
+      next: { ...filters, assignmentProgress: 'all' },
+    })
+  }
+
+  return chips
+}

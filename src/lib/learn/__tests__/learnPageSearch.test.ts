@@ -2,12 +2,60 @@ import { describe, expect, it } from 'vitest'
 
 import { createEmptyLearnModalFilters } from '@/components/features/learn/shared/types'
 import {
+  buildAppliedLearnFilterChips,
   countActiveLearnFilters,
   learnModalFiltersFromSearch,
   mergeLearnSearch,
   modalFiltersToApiFilters,
   pickLearnTabSnapshotFilters,
 } from '@/lib/learn/learnPageSearch'
+
+describe('buildAppliedLearnFilterChips', () => {
+  it('returns no chips when nothing is applied', () => {
+    expect(
+      buildAppliedLearnFilterChips(createEmptyLearnModalFilters()),
+    ).toEqual([])
+  })
+
+  it('builds one chip per active value with human labels', () => {
+    const chips = buildAppliedLearnFilterChips({
+      ...createEmptyLearnModalFilters(),
+      modules: ['Module 1'],
+      categories: ['coding'],
+      priorities: ['recommended'],
+      schedulePhase: 'upcoming',
+      attendanceStatus: 'present',
+    })
+    expect(chips.map((c) => c.label)).toEqual([
+      'Module 1',
+      'coding',
+      'Recommended',
+      'Upcoming',
+      'Present',
+    ])
+  })
+
+  it('removes only the targeted value in the chip’s `next` state', () => {
+    const chips = buildAppliedLearnFilterChips({
+      ...createEmptyLearnModalFilters(),
+      modules: ['A', 'B'],
+    })
+    const removeA = chips.find((c) => c.id === 'module:A')
+    expect(removeA?.next.modules).toEqual(['B'])
+  })
+
+  it('clears the whole range for the date chip', () => {
+    const chips = buildAppliedLearnFilterChips({
+      ...createEmptyLearnModalFilters(),
+      scheduleStartDate: '2026-06-01',
+      scheduleEndDate: '2026-06-10',
+    })
+    const dateChip = chips.find((c) => c.id === 'date')
+    expect(dateChip?.label).toBe('2026-06-01 – 2026-06-10')
+    expect(dateChip?.next.scheduleStartDate).toBeNull()
+    expect(dateChip?.next.scheduleEndDate).toBeNull()
+  })
+})
 
 describe('mergeLearnSearch', () => {
   it('removes the search param when the cleared box omits it', () => {

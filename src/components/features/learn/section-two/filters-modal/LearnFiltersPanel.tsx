@@ -3,20 +3,18 @@
 import { Search } from 'lucide-react'
 import { useEffect, useMemo, useRef, useState } from 'react'
 
+import { createEmptyLearnModalFilters } from '../../shared/types'
 import {
-  
-  
-  
-  createEmptyLearnModalFilters
-} from '../../shared/types'
-import {
-  
   getDefaultLearnFilterNav,
-  getLearnFilterNavItems
+  getLearnFilterNavItems,
 } from './learnFilterNavConfig'
-import type {LearnModalFiltersState, LearnPriority, LearnTab} from '../../shared/types';
+import type {
+  LearnModalFiltersState,
+  LearnPriority,
+  LearnTab,
+} from '../../shared/types'
 
-import type {FilterNavKey} from './learnFilterNavConfig';
+import type { FilterNavKey } from './learnFilterNavConfig'
 
 import { MasaiButton } from '@/components/masai-button'
 import { MasaiCheckbox } from '@/components/ui/masai-checkbox'
@@ -42,8 +40,8 @@ export interface LearnFiltersPanelProps {
   typeOptions: Array<string>
   instructorOptions: Array<string>
   selectedFilters: LearnModalFiltersState
+  /** Stages the filters and closes the drawer; the parent commits once it has closed. */
   onApply: (next: LearnModalFiltersState) => void
-  onRequestClose: () => void
 }
 
 export function LearnFiltersPanel({
@@ -55,7 +53,6 @@ export function LearnFiltersPanel({
   instructorOptions,
   selectedFilters,
   onApply,
-  onRequestClose,
 }: LearnFiltersPanelProps) {
   const navItems = useMemo(() => getLearnFilterNavItems(activeTab), [activeTab])
   const [draft, setDraft] = useState<LearnModalFiltersState>(selectedFilters)
@@ -77,13 +74,6 @@ export function LearnFiltersPanel({
   useEffect(() => {
     setListSearch('')
   }, [activeNav])
-
-  // Close the drawer first, then commit on the next frame so the close render
-  // settles before the navigation re-render (avoids the modal flashing on apply).
-  function applyAndClose(next: LearnModalFiltersState) {
-    onRequestClose()
-    requestAnimationFrame(() => onApply(next))
-  }
 
   const activeNavLabel = useMemo(
     () => navItems.find((n) => n.key === activeNav)?.label ?? '',
@@ -370,7 +360,7 @@ export function LearnFiltersPanel({
           onClick={() => {
             const cleared = createEmptyLearnModalFilters()
             setDraft(cleared)
-            applyAndClose(cleared)
+            onApply(cleared)
           }}
         />
         <MasaiButton
@@ -378,7 +368,7 @@ export function LearnFiltersPanel({
           size="md"
           htmlType="button"
           ctaText="Apply"
-          onClick={() => applyAndClose(draft)}
+          onClick={() => onApply(draft)}
         />
       </div>
     </div>
