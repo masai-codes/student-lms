@@ -223,6 +223,17 @@ export interface SupportOverview {
   tickets: Array<TicketListItem>
   /** Count of not-yet-resolved tickets (drives the header badge). */
   openTicketCount: number
+  /**
+   * Whether the student is on the "new user journey" (has a
+   * `user_batch_admission_data` row). Gates the "Request a Callback" CTA — the
+   * legacy `is_new_user_journey` flag.
+   */
+  isNewUserJourney: boolean
+  /**
+   * Whether the active batch's admission has full fees paid. Controls the
+   * "Student-Kit" callback reason (legacy `hasFullFees`).
+   */
+  hasFullFees: boolean
   /** Options for the "request a callback" flow. */
   callback: { reasons: Array<CallbackOption>; timeslots: Array<CallbackOption> }
   /** Callback requests the student has already raised (shown in Raised Tickets). */

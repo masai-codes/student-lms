@@ -52,6 +52,15 @@ export async function fetchSupportFaqs(input: {
   return fetchJson(`${SUPPORT_API.faqs}?${params.toString()}`)
 }
 
+/** GET the subcategories for a single (context) category — e.g. "lecture". */
+export async function fetchSubcategoriesByCategory(
+  category: string,
+): Promise<{ subcategories: Array<{ value: string; label: string }> }> {
+  return fetchJson(
+    `${SUPPORT_API.subcategories}?category=${encodeURIComponent(category)}`,
+  )
+}
+
 /** POST an FAQ vote; returns the new aggregate counts. */
 export async function voteSupportFaq(input: {
   faqId: number

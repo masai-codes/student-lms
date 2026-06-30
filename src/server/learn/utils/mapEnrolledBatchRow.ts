@@ -3,9 +3,10 @@ import type { EnrolledBatch, EnrolledBatchRow } from '@/server/learn/types'
 export function mapEnrolledBatchRow(row: EnrolledBatchRow): EnrolledBatch {
   const courseTitle = extractCourseTitle(row.meta) ?? row.name
   const courseLogo = extractCourseLogo(row.meta)
-  const settings = (row.settings != null && typeof row.settings === 'object')
-    ? row.settings as Record<string, unknown>
-    : {}
+  const settings =
+    row.settings != null && typeof row.settings === 'object'
+      ? (row.settings as Record<string, unknown>)
+      : {}
 
   return {
     batchId: row.id,
@@ -13,6 +14,7 @@ export function mapEnrolledBatchRow(row: EnrolledBatchRow): EnrolledBatch {
     courseLogo,
     showAttendanceReport: settings.showAttendanceReport === true,
     showEvaluationReport: settings.showEvaluationReport === true,
+    showBatchDetails: settings.showBatchDetails === true,
   }
 }
 

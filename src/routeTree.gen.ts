@@ -25,6 +25,7 @@ import { Route as authSigninIndexRouteImport } from './routes/(auth)/signin/inde
 import { Route as authLoginIndexRouteImport } from './routes/(auth)/login/index'
 import { Route as ApiSupportUploadRouteImport } from './routes/api/support/upload'
 import { Route as ApiSupportTicketsRouteImport } from './routes/api/support/tickets'
+import { Route as ApiSupportSubcategoriesRouteImport } from './routes/api/support/subcategories'
 import { Route as ApiSupportOverviewRouteImport } from './routes/api/support/overview'
 import { Route as ApiSupportFaqsRouteImport } from './routes/api/support/faqs'
 import { Route as ApiProfilePhotoUploadUrlRouteImport } from './routes/api/profile/photo-upload-url'
@@ -271,6 +272,11 @@ const ApiSupportUploadRoute = ApiSupportUploadRouteImport.update({
 const ApiSupportTicketsRoute = ApiSupportTicketsRouteImport.update({
   id: '/api/support/tickets',
   path: '/api/support/tickets',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiSupportSubcategoriesRoute = ApiSupportSubcategoriesRouteImport.update({
+  id: '/api/support/subcategories',
+  path: '/api/support/subcategories',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiSupportOverviewRoute = ApiSupportOverviewRouteImport.update({
@@ -1282,6 +1288,7 @@ export interface FileRoutesByFullPath {
   '/api/profile/photo-upload-url': typeof ApiProfilePhotoUploadUrlRoute
   '/api/support/faqs': typeof ApiSupportFaqsRouteWithChildren
   '/api/support/overview': typeof ApiSupportOverviewRoute
+  '/api/support/subcategories': typeof ApiSupportSubcategoriesRoute
   '/api/support/tickets': typeof ApiSupportTicketsRouteWithChildren
   '/api/support/upload': typeof ApiSupportUploadRoute
   '/login/': typeof authLoginIndexRoute
@@ -1465,6 +1472,7 @@ export interface FileRoutesByTo {
   '/api/profile/photo-upload-url': typeof ApiProfilePhotoUploadUrlRoute
   '/api/support/faqs': typeof ApiSupportFaqsRouteWithChildren
   '/api/support/overview': typeof ApiSupportOverviewRoute
+  '/api/support/subcategories': typeof ApiSupportSubcategoriesRoute
   '/api/support/tickets': typeof ApiSupportTicketsRouteWithChildren
   '/api/support/upload': typeof ApiSupportUploadRoute
   '/login': typeof authLoginIndexRoute
@@ -1651,6 +1659,7 @@ export interface FileRoutesById {
   '/api/profile/photo-upload-url': typeof ApiProfilePhotoUploadUrlRoute
   '/api/support/faqs': typeof ApiSupportFaqsRouteWithChildren
   '/api/support/overview': typeof ApiSupportOverviewRoute
+  '/api/support/subcategories': typeof ApiSupportSubcategoriesRoute
   '/api/support/tickets': typeof ApiSupportTicketsRouteWithChildren
   '/api/support/upload': typeof ApiSupportUploadRoute
   '/(auth)/login/': typeof authLoginIndexRoute
@@ -1837,6 +1846,7 @@ export interface FileRouteTypes {
     | '/api/profile/photo-upload-url'
     | '/api/support/faqs'
     | '/api/support/overview'
+    | '/api/support/subcategories'
     | '/api/support/tickets'
     | '/api/support/upload'
     | '/login/'
@@ -2020,6 +2030,7 @@ export interface FileRouteTypes {
     | '/api/profile/photo-upload-url'
     | '/api/support/faqs'
     | '/api/support/overview'
+    | '/api/support/subcategories'
     | '/api/support/tickets'
     | '/api/support/upload'
     | '/login'
@@ -2205,6 +2216,7 @@ export interface FileRouteTypes {
     | '/api/profile/photo-upload-url'
     | '/api/support/faqs'
     | '/api/support/overview'
+    | '/api/support/subcategories'
     | '/api/support/tickets'
     | '/api/support/upload'
     | '/(auth)/login/'
@@ -2389,6 +2401,7 @@ export interface RootRouteChildren {
   ApiProfilePhotoUploadUrlRoute: typeof ApiProfilePhotoUploadUrlRoute
   ApiSupportFaqsRoute: typeof ApiSupportFaqsRouteWithChildren
   ApiSupportOverviewRoute: typeof ApiSupportOverviewRoute
+  ApiSupportSubcategoriesRoute: typeof ApiSupportSubcategoriesRoute
   ApiSupportTicketsRoute: typeof ApiSupportTicketsRouteWithChildren
   ApiSupportUploadRoute: typeof ApiSupportUploadRoute
   authLoginIndexRoute: typeof authLoginIndexRoute
@@ -2587,6 +2600,13 @@ declare module '@tanstack/react-router' {
       path: '/api/support/tickets'
       fullPath: '/api/support/tickets'
       preLoaderRoute: typeof ApiSupportTicketsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/support/subcategories': {
+      id: '/api/support/subcategories'
+      path: '/api/support/subcategories'
+      fullPath: '/api/support/subcategories'
+      preLoaderRoute: typeof ApiSupportSubcategoriesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/support/overview': {
@@ -4107,6 +4127,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiProfilePhotoUploadUrlRoute: ApiProfilePhotoUploadUrlRoute,
   ApiSupportFaqsRoute: ApiSupportFaqsRouteWithChildren,
   ApiSupportOverviewRoute: ApiSupportOverviewRoute,
+  ApiSupportSubcategoriesRoute: ApiSupportSubcategoriesRoute,
   ApiSupportTicketsRoute: ApiSupportTicketsRouteWithChildren,
   ApiSupportUploadRoute: ApiSupportUploadRoute,
   authLoginIndexRoute: authLoginIndexRoute,

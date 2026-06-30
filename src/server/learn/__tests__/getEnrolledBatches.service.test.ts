@@ -21,7 +21,8 @@ describe('getEnrolledBatchesForUser service', () => {
   })
 
   it('returns empty list when user has no enrolled batch ids', async () => {
-    const { getEnrolledBatchesForUser } = await import('../services/getEnrolledBatches.service')
+    const { getEnrolledBatchesForUser } =
+      await import('../services/getEnrolledBatches.service')
     hoisted.getBatchIdsForEnrolledUser.mockResolvedValueOnce([])
 
     await expect(getEnrolledBatchesForUser(77)).resolves.toEqual([])
@@ -29,7 +30,8 @@ describe('getEnrolledBatchesForUser service', () => {
   })
 
   it('maps db rows to {batchId, courseTitle} and preserves enrollment order', async () => {
-    const { getEnrolledBatchesForUser } = await import('../services/getEnrolledBatches.service')
+    const { getEnrolledBatchesForUser } =
+      await import('../services/getEnrolledBatches.service')
     hoisted.getBatchIdsForEnrolledUser.mockResolvedValueOnce([1, 2])
     hoisted.dbSelect.mockReturnValueOnce({
       from: () => ({
@@ -48,6 +50,7 @@ describe('getEnrolledBatchesForUser service', () => {
         courseLogo: null,
         showAttendanceReport: false,
         showEvaluationReport: false,
+        showBatchDetails: false,
       },
       {
         batchId: 2,
@@ -55,12 +58,14 @@ describe('getEnrolledBatchesForUser service', () => {
         courseLogo: null,
         showAttendanceReport: false,
         showEvaluationReport: false,
+        showBatchDetails: false,
       },
     ])
   })
 
   it('reads courseLogo from batch meta when present', async () => {
-    const { getEnrolledBatchesForUser } = await import('../services/getEnrolledBatches.service')
+    const { getEnrolledBatchesForUser } =
+      await import('../services/getEnrolledBatches.service')
     hoisted.getBatchIdsForEnrolledUser.mockResolvedValueOnce([9])
     hoisted.dbSelect.mockReturnValueOnce({
       from: () => ({
@@ -85,6 +90,32 @@ describe('getEnrolledBatchesForUser service', () => {
         courseLogo: 'https://cdn.example/logo.png',
         showAttendanceReport: false,
         showEvaluationReport: false,
+        showBatchDetails: false,
+      },
+    ])
+  })
+
+  it('flags showBatchDetails from batch settings', async () => {
+    const { getEnrolledBatchesForUser } =
+      await import('../services/getEnrolledBatches.service')
+    hoisted.getBatchIdsForEnrolledUser.mockResolvedValueOnce([3])
+    hoisted.dbSelect.mockReturnValueOnce({
+      from: () => ({
+        where: () =>
+          Promise.resolve([
+            { id: 3, name: 'Cohort C', settings: { showBatchDetails: true } },
+          ]),
+      }),
+    })
+
+    await expect(getEnrolledBatchesForUser(77)).resolves.toEqual([
+      {
+        batchId: 3,
+        courseTitle: 'Cohort C',
+        courseLogo: null,
+        showAttendanceReport: false,
+        showEvaluationReport: false,
+        showBatchDetails: true,
       },
     ])
   })

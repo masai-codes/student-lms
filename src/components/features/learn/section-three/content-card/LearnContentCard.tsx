@@ -64,7 +64,10 @@ export function LearnContentCard({ item }: { item: LearnContentItem }) {
             to: '/assignments/$assignmentId',
             params: { assignmentId: id },
           } as const)
-        : ({ to: '/resources/$resourceId', params: { resourceId: id } } as const)
+        : ({
+            to: '/resources/$resourceId',
+            params: { resourceId: id },
+          } as const)
 
   return (
     <Link
@@ -118,6 +121,16 @@ export function LearnContentCard({ item }: { item: LearnContentItem }) {
             event.stopPropagation()
           }}
         >
+          {item.type === 'lecture' && item.priority === 'recommended' ? (
+            <MasaiChips
+              label="Optional session"
+              size="regular"
+              backgroundClassName="bg-yellow-50 border border-yellow-100"
+              textClassName="!text-yellow-600"
+              className="pointer-events-none"
+              tabIndex={-1}
+            />
+          ) : null}
           {item.type === 'lecture' && attendancePresentation ? (
             <LectureAttendanceInline {...attendancePresentation} />
           ) : null}

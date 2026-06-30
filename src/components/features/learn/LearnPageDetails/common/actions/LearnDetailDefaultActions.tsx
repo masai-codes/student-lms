@@ -1,10 +1,10 @@
 'use client'
 
+import { useState } from 'react'
 import { Bookmark } from 'lucide-react'
 
 import { MasaiButton } from '@/components/ui/masai-button'
-import { OLD_STUDENT_UI_NAV_PATHS } from '@/constants/oldStudentUiNavPaths'
-import { getOldStudentUiUrlForPath } from '@/utils/authRedirect'
+import { RaiseTicketDrawer } from '@/components/features/support/RaiseTicketDrawer'
 
 export interface LearnDetailBookmarkControls {
   isBookmarked: boolean
@@ -15,20 +15,16 @@ export interface LearnDetailBookmarkControls {
 type LearnDetailDefaultActionsProps = {
   /** When provided, renders a wired bookmark toggle; otherwise the button is inert. */
   bookmark?: LearnDetailBookmarkControls
+  /** Page context category that scopes the Raise Ticket subcategory list. */
+  ticketCategory?: string
 }
 
 /** Default CTAs for lecture / assignment / resource detail headers. */
 export function LearnDetailDefaultActions({
   bookmark,
+  ticketCategory,
 }: LearnDetailDefaultActionsProps = {}) {
-  const openLegacySupport = () => {
-    const url = getOldStudentUiUrlForPath(OLD_STUDENT_UI_NAV_PATHS.support)
-    if (url) {
-      window.location.assign(url)
-      return
-    }
-    window.alert('Support is not available (legacy LMS URL is not configured).')
-  }
+  const [drawerOpen, setDrawerOpen] = useState(false)
 
   return (
     <>
@@ -37,7 +33,7 @@ export function LearnDetailDefaultActions({
         size="md"
         ctaText="Raise Ticket"
         htmlType="button"
-        onClick={openLegacySupport}
+        onClick={() => setDrawerOpen(true)}
       />
       <MasaiButton
         type="tertiary"
@@ -55,6 +51,11 @@ export function LearnDetailDefaultActions({
         aria-pressed={bookmark ? bookmark.isBookmarked : undefined}
         disabled={bookmark?.pending}
         onClick={bookmark ? bookmark.toggle : () => undefined}
+      />
+      <RaiseTicketDrawer
+        open={drawerOpen}
+        onOpenChange={setDrawerOpen}
+        contextCategory={ticketCategory}
       />
     </>
   )

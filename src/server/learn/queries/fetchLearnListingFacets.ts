@@ -1,13 +1,31 @@
-import { and, eq, inArray, isNull, ne } from 'drizzle-orm'
+import { and, eq, gte, inArray, isNull, lt } from 'drizzle-orm'
+import type { SQL } from 'drizzle-orm'
+import type { AnyMySqlColumn } from 'drizzle-orm/mysql-core'
 
 import type { LearningFilterValues, LearningType } from '@/server/learn/types'
+import type { LearnScheduleWindow } from '@/server/learn/utils/buildLearnScheduleWindow'
 import { db } from '@/db'
 import { assignments, lectures, users } from '@/db/schema'
 import { buildModuleFilterValuesFromModuleWeekRows } from '@/server/learn/utils/buildLearningFilterValues'
+import { buildLearnScheduleWindow } from '@/server/learn/utils/buildLearnScheduleWindow'
+import {
+  buildLectureContentGate,
+  lectureTypeCondition,
+} from '@/server/learn/utils/buildLearnListingConditions'
 import { toLearningPriority } from '@/server/learn/utils/learningDataMappers'
-import { LECTURE_RESOURCE_TYPE } from '@/server/learn/utils/resolveLectureLearningType'
 
 const UNKNOWN_INSTRUCTOR = 'Unknown Instructor'
+
+/** Same bounds the unfiltered listing applies, so facets never surface hidden content. */
+function scheduleWindowConditions(
+  scheduleColumn: AnyMySqlColumn,
+  window: LearnScheduleWindow,
+): Array<SQL> {
+  const out: Array<SQL> = []
+  if (window.gte != null) out.push(gte(scheduleColumn, window.gte))
+  if (window.lt != null) out.push(lt(scheduleColumn, window.lt))
+  return out
+}
 
 interface FacetRow {
   category: string
@@ -28,11 +46,16 @@ function emptyFilterValues(): LearningFilterValues {
   }
 }
 
-/** Distinct facet rows scoped to the batch + sections + tab — independent of active filters. */
+/**
+ * Distinct facet rows over the batch + sections + tab, constrained to the same
+ * base visibility window the unfiltered listing uses (no search/active filters),
+ * so every facet value maps to a lecture/assignment actually shown on that tab.
+ */
 async function fetchFacetRows(
   learningType: LearningType,
-  batchId: number,
   sectionIds: Array<number>,
+  window: LearnScheduleWindow,
+  nowMs: number,
 ): Promise<Array<FacetRow>> {
   if (learningType === 'assignment') {
     return db
@@ -48,9 +71,10 @@ async function fetchFacetRows(
       .leftJoin(users, eq(assignments.userId, users.id))
       .where(
         and(
-          eq(assignments.batchId, batchId),
+          // Legacy LMS scopes by section_id only (no batch_id on the table).
           inArray(assignments.sectionId, sectionIds),
           isNull(assignments.deletedAt),
+          ...scheduleWindowConditions(assignments.schedule, window),
         ),
       )
   }
@@ -68,12 +92,13 @@ async function fetchFacetRows(
     .leftJoin(users, eq(lectures.hostId, users.id))
     .where(
       and(
-        eq(lectures.batchId, batchId),
         inArray(lectures.sectionId, sectionIds),
-        learningType === 'resource'
-          ? eq(lectures.type, LECTURE_RESOURCE_TYPE)
-          : ne(lectures.type, LECTURE_RESOURCE_TYPE),
+        lectureTypeCondition({ learningType }),
         isNull(lectures.deletedAt),
+        learningType === 'resource'
+          ? undefined
+          : buildLectureContentGate(nowMs),
+        ...scheduleWindowConditions(lectures.schedule, window),
       ),
     )
 }
@@ -81,14 +106,16 @@ async function fetchFacetRows(
 /** Stable filter facets (legacy LMS surfaces all options, not just the filtered subset). */
 export async function fetchLearnListingFacets(
   learningType: LearningType,
-  batchId: number,
   sectionIds: Array<number>,
+  nowMs: number,
 ): Promise<LearningFilterValues> {
   if (sectionIds.length === 0) {
     return emptyFilterValues()
   }
 
-  const rows = await fetchFacetRows(learningType, batchId, sectionIds)
+  // The base (no schedulePhase / no date) window — the default landing view for the tab.
+  const window = buildLearnScheduleWindow({ learningType, nowMs })
+  const rows = await fetchFacetRows(learningType, sectionIds, window, nowMs)
 
   return {
     moduleFilterValues: buildModuleFilterValuesFromModuleWeekRows(rows),

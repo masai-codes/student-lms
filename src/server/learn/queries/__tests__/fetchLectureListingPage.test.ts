@@ -15,6 +15,7 @@ function baseInput(
     sectionIds: [9],
     userId: 7,
     window: { gte: null, lt: '2026-06-23 12:00:00' },
+    nowMs: Date.UTC(2026, 5, 22, 12, 0, 0),
     page: 1,
     pageSize: 25,
     ...overrides,

@@ -8,7 +8,11 @@
 import { z } from 'zod'
 import { jsonOk } from '@/server/api/http/responses'
 import { requireSessionUserId } from '@/server/api/http/requireSessionUser'
-import { searchFaqs, voteFaq } from '@/server/api/support/services/faqs.service'
+import {
+  getSubcategoriesByCategory,
+  searchFaqs,
+  voteFaq,
+} from '@/server/api/support/services/faqs.service'
 import {
   mapSupportError,
   optionalIntParam,
@@ -30,6 +34,20 @@ export async function handleSearchFaqs(request: Request): Promise<Response> {
       limit: optionalIntParam(url, 'limit'),
     })
     return jsonOk({ faqs })
+  } catch (error) {
+    return mapSupportError(error)
+  }
+}
+
+/** GET /api/support/subcategories?category= — subcategories for one category. */
+export async function handleGetSubcategories(request: Request): Promise<Response> {
+  try {
+    await requireSessionUserId(request)
+    const url = new URL(request.url)
+    const category = url.searchParams.get('category')?.trim()
+    if (!category) throw new Error('SUPPORT_CATEGORY_REQUIRED')
+    const subcategories = await getSubcategoriesByCategory(category)
+    return jsonOk({ subcategories })
   } catch (error) {
     return mapSupportError(error)
   }

@@ -3,18 +3,18 @@
 import { Search } from 'lucide-react'
 import { useEffect, useMemo, useRef, useState } from 'react'
 
-import {
-  createEmptyLearnModalFilters,
-  type LearnModalFiltersState,
-  type LearnPriority,
-  type LearnTab,
-} from '../../shared/types'
-
+import { createEmptyLearnModalFilters } from '../../shared/types'
 import {
   getDefaultLearnFilterNav,
   getLearnFilterNavItems,
-  type FilterNavKey,
 } from './learnFilterNavConfig'
+import type {
+  LearnModalFiltersState,
+  LearnPriority,
+  LearnTab,
+} from '../../shared/types'
+
+import type { FilterNavKey } from './learnFilterNavConfig'
 
 import { MasaiButton } from '@/components/masai-button'
 import { MasaiCheckbox } from '@/components/ui/masai-checkbox'
@@ -40,8 +40,8 @@ export interface LearnFiltersPanelProps {
   typeOptions: Array<string>
   instructorOptions: Array<string>
   selectedFilters: LearnModalFiltersState
+  /** Stages the filters and closes the drawer; the parent commits once it has closed. */
   onApply: (next: LearnModalFiltersState) => void
-  onRequestClose: () => void
 }
 
 export function LearnFiltersPanel({
@@ -53,7 +53,6 @@ export function LearnFiltersPanel({
   instructorOptions,
   selectedFilters,
   onApply,
-  onRequestClose,
 }: LearnFiltersPanelProps) {
   const navItems = useMemo(() => getLearnFilterNavItems(activeTab), [activeTab])
   const [draft, setDraft] = useState<LearnModalFiltersState>(selectedFilters)
@@ -245,9 +244,7 @@ export function LearnFiltersPanel({
                   setDraft((prev) => ({
                     ...prev,
                     schedulePhase:
-                      value === 'upcoming' || value === 'past'
-                        ? value
-                        : 'all',
+                      value === 'upcoming' || value === 'past' ? value : 'all',
                   }))
                 }
                 options={[
@@ -364,7 +361,6 @@ export function LearnFiltersPanel({
             const cleared = createEmptyLearnModalFilters()
             setDraft(cleared)
             onApply(cleared)
-            onRequestClose()
           }}
         />
         <MasaiButton
@@ -372,10 +368,7 @@ export function LearnFiltersPanel({
           size="md"
           htmlType="button"
           ctaText="Apply"
-          onClick={() => {
-            onApply(draft)
-            onRequestClose()
-          }}
+          onClick={() => onApply(draft)}
         />
       </div>
     </div>

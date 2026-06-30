@@ -3,6 +3,7 @@ import { useEffect } from 'react'
 import type { LearnTab } from '@/components/features/learn/shared/types'
 import type { LearningType } from '@/server/learn/types'
 import { LearnLayout } from '@/components/features/learn'
+import { LearnPageSkeleton } from '@/components/features/learn/LearnPageSkeleton'
 import {
   getLastSelectedBatchIdForUser,
   setLastSelectedBatchIdForUser,
@@ -81,23 +82,29 @@ export const Route = createFileRoute('/(protected)/_layout/learn/')({
 
     return result
   },
-  loaderDeps: ({ search }) => search,
-  loader: async ({ deps }) => {
-    const tab: LearnTab = deps.tab ?? 'lectures'
-    const modalFilters = learnModalFiltersFromSearch(deps, tab)
+  // The loader seeds the page once (initial paint / deep links). In-page filter,
+  // search and pagination changes are served by React Query in LearnLayout, so they
+  // never re-run this loader, never block the route, and never replace the live
+  // header/search with a full-page spinner — only the list shows a skeleton.
+  loaderDeps: () => ({}),
+  loader: async ({ location }) => {
+    const search = location.search as LearnRouteSearch
+    const tab: LearnTab = search.tab ?? 'lectures'
+    const modalFilters = learnModalFiltersFromSearch(search, tab)
     const apiFilters = modalFiltersToApiFilters(tab, modalFilters)
     const hasFilters = Object.values(apiFilters).some(
       (value) => value != null && (!Array.isArray(value) || value.length > 0),
     )
 
     return fetchLearnPageDataFromApi({
-      batchId: deps.batchId,
+      batchId: search.batchId,
       learningType: toLearningType(tab),
-      search: deps.search?.trim() || undefined,
-      page: deps.page ?? 1,
+      search: search.search?.trim() || undefined,
+      page: search.page ?? 1,
       filters: hasFilters ? apiFilters : undefined,
     })
   },
+  pendingComponent: () => <LearnPageSkeleton />,
   component: LearnPage,
 })
 
@@ -163,7 +170,9 @@ function LearnPage() {
       return
     }
 
-    const isEnrolled = enrolledBatches.some((batch) => batch.batchId === batchId)
+    const isEnrolled = enrolledBatches.some(
+      (batch) => batch.batchId === batchId,
+    )
     if (!isEnrolled) {
       return
     }
