@@ -1,6 +1,12 @@
 # Feature Test Matrix
 
-Last updated: 2026-06-22
+Last updated: 2026-06-30
+
+## Support / Raise Ticket (`/support` + detail-page drawer)
+- Area: `RaiseTicketDrawer` opened from lecture/assignment/resource headers (no redirect); context-scoped `ContextSubcategoryList` via `GET /api/support/subcategories?category=` (legacy `SubcategoryTicketModal` flow); `TicketConversationPanel`/`useTicketComposer` create/reply/rate/escalate; first-template coordinator comment on creation (`buildFirstTemplateResponse`, exact legacy body + signature) with the synthetic open/re-opened banner suppressed; `SupportMarkdown` renders inline HTML (`rehype-raw` → `rehype-sanitize`) so legacy `<br/>`/signature comments display correctly; "Request a Callback" gated on `isNewUserJourney` (a `user_batch_admission_data` row) + active batch, "Student-Kit" reason hidden unless `hasFullFees`.
+- Status: Covered (subcategory service + list UI, first-template reply, callback eligibility, markdown HTML rendering, CTA-opens-drawer); drawer step machine + `useTicketComposer` covered indirectly.
+- Test files: `src/server/api/support/services/__tests__/getSubcategoriesByCategory.test.ts`, `src/server/api/support/services/__tests__/ticketReplyTemplate.test.ts`, `src/server/api/support/services/__tests__/getCallbackEligibility.test.ts`, `src/components/features/support/__tests__/ContextSubcategoryList.test.tsx`, `src/components/features/support/__tests__/SupportMarkdown.test.tsx`
+- Notes: See `docs/testing/features/support.md`
 
 ## Chatbot (text + voice mode)
 - Area: `MessageList` turn scroll (`useChatTurnScroll`, `chatScroll` utils, `ChatbotUserMessage`, `ChatbotAssistantMessage` markdown); shared by `ChatPanel` (text + voice) and `ChatbotPreSessionView` via `ChatbotConversationLayout`; voice footer in `ChatbotVoiceControls` + `AIAvatar` speaking pulse; mobile composer-only + bottom drawer (`ChatbotMobileShell`, `useIsMobileViewport`); `POST /api/chatbot/:lectureId/token` loads lecture transcript via `resolveAiTutorLectureContext` and forwards it to the LiveKit agent metadata
