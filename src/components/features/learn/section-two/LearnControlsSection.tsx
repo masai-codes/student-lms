@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 
 import { Filter, Search } from 'lucide-react'
 
@@ -13,6 +13,9 @@ import { MasaiButton } from '@/components/masai-button'
 import { MasaiDrawer } from '@/components/ui/masai-drawer'
 import { MasaiInput } from '@/components/ui/masai-input'
 import { MasaiTab } from '@/components/ui/masai-tab'
+
+/** Debounce before committing the search term to the URL (keeps typing smooth). */
+const SEARCH_DEBOUNCE_MS = 1000
 
 const LEARN_TAB_ICON_URL =
   'https://s3.ap-south-1.amazonaws.com/static.masaischool.com/tab-icon.svg'
@@ -60,6 +63,32 @@ export function LearnControlsSection({
 }: LearnControlsSectionProps) {
   const [filtersOpen, setFiltersOpen] = useState(false)
 
+  // Local input mirrors `searchValue` but is debounced before committing to the URL,
+  // so typing/backspace stay responsive and don't trigger a fetch on every keystroke.
+  const [searchInput, setSearchInput] = useState(searchValue)
+  const searchDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  // Keep the local input in sync when the committed value changes externally
+  // (tab switch, clear filters, back/forward).
+  useEffect(() => {
+    setSearchInput(searchValue)
+  }, [searchValue])
+
+  useEffect(() => {
+    return () => {
+      if (searchDebounceRef.current) clearTimeout(searchDebounceRef.current)
+    }
+  }, [])
+
+  const handleSearchInputChange = (value: string) => {
+    setSearchInput(value)
+    if (searchDebounceRef.current) clearTimeout(searchDebounceRef.current)
+    searchDebounceRef.current = setTimeout(
+      () => onSearchChange(value),
+      SEARCH_DEBOUNCE_MS,
+    )
+  }
+
   const moduleDropdownOptions: Array<MasaiDropdownCheckboxFilterOption> =
     useMemo(
       () =>
@@ -100,8 +129,8 @@ export function LearnControlsSection({
       <div className="ml-auto flex flex-wrap items-center justify-end gap-3">
         <MasaiInput
           type="search"
-          value={searchValue}
-          onChange={(event) => onSearchChange(event.target.value)}
+          value={searchInput}
+          onChange={(event) => handleSearchInputChange(event.target.value)}
           placeholder={SEARCH_PLACEHOLDER_BY_TAB[activeTab]}
           iconLeft={<Search className="size-4 shrink-0" strokeWidth={2} />}
           className="w-[300px]"

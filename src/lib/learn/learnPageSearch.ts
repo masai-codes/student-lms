@@ -1,7 +1,10 @@
-import type { LearnModalFiltersState, LearnTab } from '@/components/features/learn/shared/types'
-import { createEmptyLearnModalFilters } from '@/components/features/learn/shared/types'
+import type {
+  LearnModalFiltersState,
+  LearnTab,
+} from '@/components/features/learn/shared/types'
 import type { BatchLearningFiltersInput } from '@/server/learn/types'
 import type { AssignmentProgressStatus } from '@/server/learn/utils/calculateAssignmentProgressStatus'
+import { createEmptyLearnModalFilters } from '@/components/features/learn/shared/types'
 
 export type LearnPageSearchParams = {
   batchId?: number
@@ -33,7 +36,8 @@ function parsePositiveInt(value: unknown): number | undefined {
 }
 
 function parseTab(value: unknown): LearnTab | undefined {
-  if (typeof value !== 'string' || !LEARN_TABS.has(value as LearnTab)) return undefined
+  if (typeof value !== 'string' || !LEARN_TABS.has(value as LearnTab))
+    return undefined
   return value as LearnTab
 }
 
@@ -47,7 +51,10 @@ function parseSchedulePhase(
 function parseAssignmentProgress(
   value: unknown,
 ): LearnModalFiltersState['assignmentProgress'] {
-  if (typeof value === 'string' && ASSIGNMENT_PROGRESS.has(value as AssignmentProgressStatus)) {
+  if (
+    typeof value === 'string' &&
+    ASSIGNMENT_PROGRESS.has(value as AssignmentProgressStatus)
+  ) {
     return value as AssignmentProgressStatus
   }
   return 'all'
@@ -60,13 +67,17 @@ function parseAttendance(
   return null
 }
 
-function parsePrioritiesFromOptional(value: unknown): Array<'recommended' | 'mandatory'> {
+function parsePrioritiesFromOptional(
+  value: unknown,
+): Array<'recommended' | 'mandatory'> {
   if (value === 'yes' || value === 'true') return ['recommended']
   if (value === 'no' || value === 'false') return ['mandatory']
   return []
 }
 
-export function parseLearnPageSearch(search: Record<string, unknown>): LearnPageSearchParams {
+export function parseLearnPageSearch(
+  search: Record<string, unknown>,
+): LearnPageSearchParams {
   const batchId = parsePositiveInt(search.batchId)
   const tab = parseTab(search.tab)
   const page = parsePositiveInt(search.page)
@@ -93,10 +104,7 @@ export function learnModalFiltersFromSearch(
 ): LearnModalFiltersState {
   const modules = splitCsv(search.module ?? search.modules)
   const categories = splitCsv(search.category ?? search.categories)
-  const types =
-    tab === 'resources'
-      ? []
-      : splitCsv(search.type ?? search.types)
+  const types = tab === 'resources' ? [] : splitCsv(search.type ?? search.types)
   const instructors = splitCsv(search.instructor ?? search.instructors)
   const prioritiesFromList = splitCsv(search.priorities).filter(
     (value): value is 'recommended' | 'mandatory' =>
@@ -136,7 +144,9 @@ export function learnModalFiltersFromSearch(
       tab === 'lectures' ? parseAttendance(search.attendanceStatus) : null,
     assignmentProgress:
       tab === 'assignments'
-        ? parseAssignmentProgress(search.assignmentTab ?? search.assignmentProgress)
+        ? parseAssignmentProgress(
+            search.assignmentTab ?? search.assignmentProgress,
+          )
         : 'all',
   }
 }
@@ -209,7 +219,8 @@ export function learnSearchFromModalFilters(
   }
 
   if (tab === 'lectures' || tab === 'resources') {
-    next.lectureTab = filters.schedulePhase === 'all' ? 'all' : filters.schedulePhase
+    next.lectureTab =
+      filters.schedulePhase === 'all' ? 'all' : filters.schedulePhase
     if (tab === 'lectures' && filters.attendanceStatus != null) {
       next.attendanceStatus = filters.attendanceStatus
     }
@@ -253,6 +264,33 @@ export function stripLearnFilterSearchKeys(
     delete next[key]
   }
   return next
+}
+
+/**
+ * Commits a freshly-built search update (`nextSearch`) onto the current URL search.
+ * Fully owns the filter + `search`/`title` keys: any of them absent from `nextSearch`
+ * (e.g. a cleared search box, which `buildLearnNavigateSearch` omits) is removed
+ * rather than carried over from `prev`. `batchId` is always preserved.
+ */
+export function mergeLearnSearch(
+  prev: Record<string, unknown>,
+  nextSearch: Record<string, string | number | undefined>,
+): Record<string, unknown> {
+  const base = stripLearnFilterSearchKeys(prev)
+  // `search` and its legacy aliases are managed here too, so a cleared box removes them.
+  delete base.search
+  delete base.title
+  delete base.titleContains
+  const merged: Record<string, unknown> = { ...base, batchId: prev.batchId }
+  for (const [key, value] of Object.entries(nextSearch)) {
+    if (key === 'batchId') continue
+    if (value == null || value === '') {
+      delete merged[key]
+    } else {
+      merged[key] = value
+    }
+  }
+  return merged
 }
 
 /** Picks only tab-specific filter params (excludes batchId, tab, page, search). */
@@ -303,7 +341,8 @@ export function modalFiltersToApiFilters(
     categories: filters.categories.length > 0 ? filters.categories : undefined,
     types: filters.types.length > 0 ? filters.types : undefined,
     priorities: filters.priorities.length > 0 ? filters.priorities : undefined,
-    instructors: filters.instructors.length > 0 ? filters.instructors : undefined,
+    instructors:
+      filters.instructors.length > 0 ? filters.instructors : undefined,
     scheduleStartDate: filters.scheduleStartDate ?? undefined,
     scheduleEndDate: filters.scheduleEndDate ?? undefined,
   }

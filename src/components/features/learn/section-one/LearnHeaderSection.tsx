@@ -11,6 +11,7 @@ interface LearnBatchOption {
   value: string
   label: string
   courseLogo: string | null
+  showBatchDetails: boolean
 }
 
 interface LearnHeaderSectionProps {
@@ -35,19 +36,19 @@ export function LearnHeaderSection({
     return () => mediaQuery.removeEventListener('change', syncViewport)
   }, [])
 
-  const selectedBatchLabel = useMemo(
-    () =>
-      batches.find((batch) => batch.value === selectedBatch)?.label ??
-      'Select batch',
+  const selectedBatchOption = useMemo(
+    () => batches.find((batch) => batch.value === selectedBatch),
     [batches, selectedBatch],
   )
+  const selectedBatchLabel = selectedBatchOption?.label ?? 'Select batch'
 
   const drawerDirection: DrawerDirection = isDesktop ? 'right' : 'bottom'
 
-  // Course details still lives in the legacy student app; resolve its URL per origin.
-  const courseDetailsHref = getOldStudentUiUrlForPath(
-    `/new-courses/${selectedBatch}`,
-  )
+  // Course details still lives in the legacy student app (resolve URL per origin),
+  // and is only surfaced when the batch opts in via `showBatchDetails` (legacy LMS).
+  const courseDetailsHref = selectedBatchOption?.showBatchDetails
+    ? getOldStudentUiUrlForPath(`/new-courses/${selectedBatch}`)
+    : undefined
 
   return (
     <section className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">

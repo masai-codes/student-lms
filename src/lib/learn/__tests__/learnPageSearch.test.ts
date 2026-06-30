@@ -4,9 +4,47 @@ import { createEmptyLearnModalFilters } from '@/components/features/learn/shared
 import {
   countActiveLearnFilters,
   learnModalFiltersFromSearch,
+  mergeLearnSearch,
   modalFiltersToApiFilters,
   pickLearnTabSnapshotFilters,
 } from '@/lib/learn/learnPageSearch'
+
+describe('mergeLearnSearch', () => {
+  it('removes the search param when the cleared box omits it', () => {
+    const merged = mergeLearnSearch(
+      { batchId: 9, tab: 'lectures', page: 2, search: 'react' },
+      // buildLearnNavigateSearch omits empty search, so nextSearch has no `search`.
+      { tab: 'lectures', page: 1 },
+    )
+    expect(merged.search).toBeUndefined()
+    expect(merged).toMatchObject({ batchId: 9, tab: 'lectures', page: 1 })
+  })
+
+  it('sets the search param when supplied', () => {
+    const merged = mergeLearnSearch(
+      { batchId: 9, tab: 'lectures' },
+      { tab: 'lectures', page: 1, search: 'node' },
+    )
+    expect(merged.search).toBe('node')
+  })
+
+  it('drops a filter that is no longer supplied and preserves batchId', () => {
+    const merged = mergeLearnSearch(
+      { batchId: 9, tab: 'lectures', category: 'coding' },
+      { tab: 'lectures', page: 1 },
+    )
+    expect(merged.category).toBeUndefined()
+    expect(merged.batchId).toBe(9)
+  })
+
+  it('clears the legacy title alias as well', () => {
+    const merged = mergeLearnSearch(
+      { batchId: 9, tab: 'lectures', title: 'old' },
+      { tab: 'lectures', page: 1 },
+    )
+    expect(merged.title).toBeUndefined()
+  })
+})
 
 describe('learnPageSearch', () => {
   it('parses lecture filters from URL search', () => {
@@ -55,7 +93,9 @@ describe('learnPageSearch', () => {
     }
 
     expect(countActiveLearnFilters('lectures', filters)).toBe(5)
-    expect(countActiveLearnFilters('resources', { ...filters, types: [] })).toBe(3)
+    expect(
+      countActiveLearnFilters('resources', { ...filters, types: [] }),
+    ).toBe(3)
   })
 
   it('picks only filter fields for tab snapshots (never batchId)', () => {

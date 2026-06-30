@@ -13,16 +13,25 @@ vi.mock('@/components/ui/masai-drawer', () => ({
   MasaiDrawer: () => null,
 }))
 
-const BATCHES = [{ value: '133', label: 'Full Stack Web', courseLogo: null }]
-
-function renderHeader() {
-  return render(
+function renderHeader(showBatchDetails: boolean) {
+  render(
     <LearnHeaderSection
       selectedBatch="133"
-      batches={BATCHES}
+      batches={[
+        {
+          value: '133',
+          label: 'Full Stack Web',
+          courseLogo: null,
+          showBatchDetails,
+        },
+      ]}
       onBatchChange={() => {}}
     />,
   )
+}
+
+function courseDetailsLink() {
+  return screen.queryByRole('link', { name: /course details/i })
 }
 
 describe('LearnHeaderSection — Course Details link', () => {
@@ -31,27 +40,38 @@ describe('LearnHeaderSection — Course Details link', () => {
     vi.clearAllMocks()
   })
 
-  it('links Course Details to the resolved legacy course page for the batch in a new tab', () => {
+  it('links to the resolved legacy course page (new tab) when the batch opts in', () => {
     hoisted.getOldStudentUiUrlForPath.mockReturnValue(
       'https://old.example.com/new-courses/133',
     )
-    renderHeader()
+    renderHeader(true)
 
     expect(hoisted.getOldStudentUiUrlForPath).toHaveBeenCalledWith(
       '/new-courses/133',
     )
-    const link = screen.getByRole('link', { name: /course details/i })
-    expect(link.getAttribute('href')).toBe(
+    const link = courseDetailsLink()
+    expect(link?.getAttribute('href')).toBe(
       'https://old.example.com/new-courses/133',
     )
-    expect(link.getAttribute('target')).toBe('_blank')
-    expect(link.getAttribute('rel')).toBe('noopener noreferrer')
+    expect(link?.getAttribute('target')).toBe('_blank')
+    expect(link?.getAttribute('rel')).toBe('noopener noreferrer')
+  })
+
+  it('hides Course Details when the batch has showBatchDetails = false', () => {
+    hoisted.getOldStudentUiUrlForPath.mockReturnValue(
+      'https://old.example.com/new-courses/133',
+    )
+    renderHeader(false)
+
+    expect(courseDetailsLink()).toBeNull()
+    // Gated before resolving the URL — the resolver is never consulted.
+    expect(hoisted.getOldStudentUiUrlForPath).not.toHaveBeenCalled()
   })
 
   it('hides Course Details when the legacy URL is not configured', () => {
     hoisted.getOldStudentUiUrlForPath.mockReturnValue(undefined)
-    renderHeader()
+    renderHeader(true)
 
-    expect(screen.queryByRole('link', { name: /course details/i })).toBeNull()
+    expect(courseDetailsLink()).toBeNull()
   })
 })

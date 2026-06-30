@@ -72,6 +72,7 @@ export function LearnLayout({ pageData, onBatchChange }: LearnLayoutProps) {
               value: batch.batchId.toString(),
               label: batch.courseTitle,
               courseLogo: batch.courseLogo,
+              showBatchDetails: batch.showBatchDetails,
             }))}
             onBatchChange={(value) => {
               onBatchChange(Number(value))
@@ -88,7 +89,9 @@ export function LearnLayout({ pageData, onBatchChange }: LearnLayoutProps) {
             moduleFilterOptions={pageData.filterValues.moduleFilterValues}
             categoryFilterOptions={pageData.filterValues.categoryFilterValues}
             typeFilterOptions={pageData.filterValues.typeFilterValues}
-            instructorFilterOptions={pageData.filterValues.instructorFilterValues}
+            instructorFilterOptions={
+              pageData.filterValues.instructorFilterValues
+            }
             modalFilters={modalFilters}
             onApplyModalFilters={setModalFilters}
           />

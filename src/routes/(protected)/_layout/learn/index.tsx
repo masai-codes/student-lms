@@ -18,6 +18,13 @@ const layoutRouteApi = getRouteApi('/(protected)/_layout')
 
 const LEARN_TABS = new Set<LearnTab>(['lectures', 'assignments', 'resources'])
 
+/**
+ * Effectively disables the route's timed full-page pending component so in-place
+ * refetches (search / filter / pagination) keep the current list visible. Stays
+ * well under the 32-bit `setTimeout` ceiling.
+ */
+const LEARN_LISTING_PENDING_MS = 600_000
+
 function optionalString(value: unknown): string | undefined {
   return typeof value === 'string' && value.trim() !== '' ? value : undefined
 }
@@ -98,6 +105,10 @@ export const Route = createFileRoute('/(protected)/_layout/learn/')({
       filters: hasFilters ? apiFilters : undefined,
     })
   },
+  // Search / filter / pagination re-run this loader. Keep the current results on
+  // screen during the refetch (LearnLayout shows its own "Refreshing…" indicator)
+  // instead of flashing the app-wide full-page pending component.
+  pendingMs: LEARN_LISTING_PENDING_MS,
   component: LearnPage,
 })
 
@@ -163,7 +174,9 @@ function LearnPage() {
       return
     }
 
-    const isEnrolled = enrolledBatches.some((batch) => batch.batchId === batchId)
+    const isEnrolled = enrolledBatches.some(
+      (batch) => batch.batchId === batchId,
+    )
     if (!isEnrolled) {
       return
     }

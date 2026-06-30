@@ -2,7 +2,6 @@
 
 import { useCallback, useMemo, useRef, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
-import { fetchAnnouncementUnreadCount } from '@/lib/api/announcement/announcementApi'
 import {
   getRouteApi,
   useNavigate,
@@ -29,6 +28,7 @@ import type {
   NavbarProfile,
   NavbarProfileMenuItem,
 } from '@/components/navbar'
+import { fetchAnnouncementUnreadCount } from '@/lib/api/announcement/announcementApi'
 import { Navbar } from '@/components/navbar'
 import { LevelUpIcon } from '@/components/common/LevelUpIcon'
 import { DownloadAppModal } from '@/components/features/layout/DownloadAppModal'
