@@ -10,6 +10,8 @@ export const SUPPORT_API = {
   overview: '/api/support/overview',
   /** GET — search/list FAQs for a batch. */
   faqs: '/api/support/faqs',
+  /** GET — subcategories for a single (context) category. */
+  subcategories: '/api/support/subcategories',
   /** POST — vote on an FAQ. */
   faqVote: '/api/support/faqs/vote',
   /** GET — the student's tickets for a tab. */

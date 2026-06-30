@@ -1,4 +1,4 @@
-import { and, eq, gte, inArray, isNull, lt, ne } from 'drizzle-orm'
+import { and, eq, gte, inArray, isNull, lt } from 'drizzle-orm'
 import type { SQL } from 'drizzle-orm'
 import type { AnyMySqlColumn } from 'drizzle-orm/mysql-core'
 
@@ -8,8 +8,11 @@ import { db } from '@/db'
 import { assignments, lectures, users } from '@/db/schema'
 import { buildModuleFilterValuesFromModuleWeekRows } from '@/server/learn/utils/buildLearningFilterValues'
 import { buildLearnScheduleWindow } from '@/server/learn/utils/buildLearnScheduleWindow'
+import {
+  buildLectureContentGate,
+  lectureTypeCondition,
+} from '@/server/learn/utils/buildLearnListingConditions'
 import { toLearningPriority } from '@/server/learn/utils/learningDataMappers'
-import { LECTURE_RESOURCE_TYPE } from '@/server/learn/utils/resolveLectureLearningType'
 
 const UNKNOWN_INSTRUCTOR = 'Unknown Instructor'
 
@@ -53,6 +56,7 @@ async function fetchFacetRows(
   batchId: number,
   sectionIds: Array<number>,
   window: LearnScheduleWindow,
+  nowMs: number,
 ): Promise<Array<FacetRow>> {
   if (learningType === 'assignment') {
     return db
@@ -91,10 +95,11 @@ async function fetchFacetRows(
       and(
         eq(lectures.batchId, batchId),
         inArray(lectures.sectionId, sectionIds),
-        learningType === 'resource'
-          ? eq(lectures.type, LECTURE_RESOURCE_TYPE)
-          : ne(lectures.type, LECTURE_RESOURCE_TYPE),
+        lectureTypeCondition({ learningType }),
         isNull(lectures.deletedAt),
+        learningType === 'resource'
+          ? undefined
+          : buildLectureContentGate(nowMs),
         ...scheduleWindowConditions(lectures.schedule, window),
       ),
     )
@@ -113,7 +118,13 @@ export async function fetchLearnListingFacets(
 
   // The base (no schedulePhase / no date) window — the default landing view for the tab.
   const window = buildLearnScheduleWindow({ learningType, nowMs })
-  const rows = await fetchFacetRows(learningType, batchId, sectionIds, window)
+  const rows = await fetchFacetRows(
+    learningType,
+    batchId,
+    sectionIds,
+    window,
+    nowMs,
+  )
 
   return {
     moduleFilterValues: buildModuleFilterValuesFromModuleWeekRows(rows),

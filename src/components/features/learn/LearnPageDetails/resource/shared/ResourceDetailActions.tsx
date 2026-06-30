@@ -17,5 +17,5 @@ export function ResourceDetailActions({
 }: ResourceDetailActionsProps) {
   const bookmark = useResourceBookmark(resourceId, initialIsBookmarked)
 
-  return <LearnDetailDefaultActions bookmark={bookmark} />
+  return <LearnDetailDefaultActions bookmark={bookmark} ticketCategory="resource" />
 }

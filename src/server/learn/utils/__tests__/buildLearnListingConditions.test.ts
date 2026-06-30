@@ -28,23 +28,33 @@ const ALL_FILTERS: BatchLearningFiltersInput = {
   priorities: ['recommended'],
 }
 
+const NOW_MS = Date.UTC(2026, 5, 22, 12, 0, 0)
+
 function baseInput(learningType: LearningType, window: LearnScheduleWindow) {
-  return { learningType, batchId: 10, sectionIds: [9], userId: 7, window }
+  return {
+    learningType,
+    batchId: 10,
+    sectionIds: [9],
+    userId: 7,
+    window,
+    nowMs: NOW_MS,
+  }
 }
 
 describe('buildLectureListingConditions', () => {
   it('builds the minimal scoped conditions with an open window', async () => {
     const { buildLectureListingConditions } =
       await import('@/server/learn/utils/buildLearnListingConditions')
-    // batchId, sectionId, type, deletedAt, lt(schedule)
+    // batchId, sectionId, type, deletedAt, content-gate, lt(schedule)
     expect(
       buildLectureListingConditions(baseInput('lecture', OPEN_WINDOW)),
-    ).toHaveLength(5)
+    ).toHaveLength(6)
   })
 
-  it('matches resources via the reading type without changing the count', async () => {
+  it('matches resources via the reading type and skips the content gate', async () => {
     const { buildLectureListingConditions } =
       await import('@/server/learn/utils/buildLearnListingConditions')
+    // batchId, sectionId, type=reading, deletedAt, lt(schedule) — no content gate
     expect(
       buildLectureListingConditions(baseInput('resource', OPEN_WINDOW)),
     ).toHaveLength(5)
@@ -58,19 +68,20 @@ describe('buildLectureListingConditions', () => {
       search: 'react',
       filters: { ...ALL_FILTERS, attendanceStatus: 'present' },
     })
-    // 4 scope + search + gte + lt + 5 filters + (optional + exists) = 14
+    // batchId, sectionId, type, deletedAt, content-gate, search, gte, lt,
+    // categories, instructors, modules, priorities, (optional + exists) = 14
     expect(conditions).toHaveLength(14)
   })
 
   it('emits only the lower schedule bound when there is no upper bound', async () => {
     const { buildLectureListingConditions } =
       await import('@/server/learn/utils/buildLearnListingConditions')
-    // 4 scope + gte (no lt) = 5
+    // batchId, sectionId, type, deletedAt, content-gate, gte (no lt) = 6
     expect(
       buildLectureListingConditions(
         baseInput('lecture', { gte: '2026-06-01 00:00:00', lt: null }),
       ),
-    ).toHaveLength(5)
+    ).toHaveLength(6)
   })
 
   it('handles the absent attendance status branch', async () => {
@@ -80,8 +91,8 @@ describe('buildLectureListingConditions', () => {
       ...baseInput('lecture', OPEN_WINDOW),
       filters: { attendanceStatus: 'absent' },
     })
-    // 4 scope + lt + (optional + exists) = 7
-    expect(conditions).toHaveLength(7)
+    // batchId, sectionId, type, deletedAt, content-gate, lt, (optional + exists) = 8
+    expect(conditions).toHaveLength(8)
   })
 })
 

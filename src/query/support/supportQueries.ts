@@ -14,6 +14,7 @@
 
 import type { TicketTab } from '@/server/api/support/support.types'
 import {
+  fetchSubcategoriesByCategory,
   fetchSupportFaqs,
   fetchSupportOverview,
   fetchSupportTickets,
@@ -29,6 +30,8 @@ export const SUPPORT_KEYS = {
   tickets: (tab: TicketTab, page: number) =>
     ['support', 'tickets', tab, page] as const,
   thread: (ticketId: number) => ['support', 'thread', ticketId] as const,
+  subcategories: (category: string) =>
+    ['support', 'subcategories', category] as const,
 }
 
 const REFETCH_ON_NAV = { refetchOnMount: 'always' } as const
@@ -63,6 +66,13 @@ export const supportTicketsQuery = (tab: TicketTab, page = 1) => ({
   queryFn: () => fetchSupportTickets({ tab, page }),
   staleTime: 30 * 1000,
   ...REFETCH_ON_NAV,
+})
+
+/** Subcategories for a single context category (lecture / resource / assignment). */
+export const supportSubcategoriesQuery = (category: string) => ({
+  queryKey: SUPPORT_KEYS.subcategories(category),
+  queryFn: () => fetchSubcategoriesByCategory(category),
+  staleTime: 5 * 60 * 1000,
 })
 
 /** One ticket's conversation. */

@@ -189,7 +189,7 @@ describe('getBatchLearningData service (orchestration)', () => {
     await getBatchLearningData({ batchId: 10, learningType: 'lecture' }, 7)
 
     expect(hoisted.fetchLecturePage).toHaveBeenCalledWith(
-      expect.objectContaining({ page: 1, pageSize: 25 }),
+      expect.objectContaining({ page: 1, pageSize: 15 }),
     )
   })
 

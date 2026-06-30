@@ -120,6 +120,33 @@ export async function getTicketCategories(): Promise<Array<SupportCategory>> {
 }
 
 /**
+ * The subcategories for a **single** category, read straight from the `menus`
+ * table — mirrors the legacy `getSubcategoriesByCategory` resolver.
+ *
+ * Used by the context-scoped "Raise Ticket" flow on lecture / resource /
+ * assignment pages, where the category is fixed by the page and the student only
+ * picks a subcategory. These context categories (e.g. `lecture`, `resource`)
+ * are NOT part of the `tickets-category` help tree, so they would never appear
+ * in {@link getTicketCategories} — hence this dedicated lookup.
+ */
+export async function getSubcategoriesByCategory(
+  categoryValue: string,
+): Promise<Array<{ value: string; label: string }>> {
+  const rows = await db
+    .select({ value: menus.value, ordering: menus.ordering })
+    .from(menus)
+    .where(
+      and(
+        eq(menus.category, `${categoryValue}${SUBCATEGORY_SUFFIX}`),
+        eq(menus.deprecated, 0),
+      ),
+    )
+    .orderBy(asc(menus.ordering))
+
+  return rows.map((row) => ({ value: row.value, label: toLabel(row.value) }))
+}
+
+/**
  * Record a helpfulness vote for an FAQ.
  *
  * Votes are aggregated into `help_faqs.meta.votes = { upvotes, downvotes }`
