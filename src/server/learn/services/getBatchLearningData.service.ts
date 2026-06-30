@@ -116,7 +116,7 @@ export async function getBatchLearningData(
   }
 
   const [filterValues, pageResult] = await Promise.all([
-    fetchLearnListingFacets(input.learningType, input.batchId, sectionIds),
+    fetchLearnListingFacets(input.learningType, input.batchId, sectionIds, nowMs),
     input.learningType === 'assignment'
       ? fetchAssignmentListingPage({ ...conditions, page, pageSize, nowMs })
       : fetchLectureListingPage({ ...conditions, page, pageSize }),

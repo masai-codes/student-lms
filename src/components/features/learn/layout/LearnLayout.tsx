@@ -3,11 +3,11 @@ import { useRouterState } from '@tanstack/react-router'
 import { LearnHeaderSection } from '../section-one/LearnHeaderSection'
 import { LearnControlsSection } from '../section-two/LearnControlsSection'
 import { LearnContentListSection } from '../section-three/LearnContentListSection'
+import { LearnContentListSkeleton } from '../section-three/LearnContentListSkeleton'
 import { LearnPaginationSection } from '../section-four/LearnPaginationSection'
 import { useLearnPageState } from './useLearnPageState'
 import type { LearnContentItem } from '../shared/types'
 import type { GetLearnPageDataResponse } from '@/server/learn/types'
-import { AppLoading } from '@/components/common'
 import { LAYOUT_MAIN_PADDING_X, LAYOUT_MAX_WIDTH_CLASS } from '@/lib/layout'
 
 interface LearnLayoutProps {
@@ -98,15 +98,20 @@ export function LearnLayout({ pageData, onBatchChange }: LearnLayoutProps) {
         </div>
       </div>
 
-      <LearnContentListSection items={learningItems} />
+      {/* Only the content list reflects loading — header, tabs and search stay put. */}
+      {isFetching ? (
+        <LearnContentListSkeleton />
+      ) : (
+        <>
+          <LearnContentListSection items={learningItems} />
 
-      <LearnPaginationSection
-        currentPage={currentPage}
-        totalPages={pageData.pagination.totalPages}
-        onPageChange={setCurrentPage}
-      />
-
-      {isFetching ? <AppLoading label="Refreshing..." /> : null}
+          <LearnPaginationSection
+            currentPage={currentPage}
+            totalPages={pageData.pagination.totalPages}
+            onPageChange={setCurrentPage}
+          />
+        </>
+      )}
     </div>
   )
 }

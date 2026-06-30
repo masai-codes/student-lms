@@ -1,10 +1,11 @@
 'use client'
 
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useMemo, useState } from 'react'
 
 import { Filter, Search } from 'lucide-react'
 
 import { LearnFiltersPanel } from './filters-modal/LearnFiltersPanel'
+import { useDebouncedCommit } from './useDebouncedCommit'
 import type { LearnModalFiltersState, LearnTab } from '../shared/types'
 
 import type { MasaiDropdownCheckboxFilterOption } from '@/components/ui/masai-dropdown-checkbox-filter'
@@ -16,6 +17,9 @@ import { MasaiTab } from '@/components/ui/masai-tab'
 
 /** Debounce before committing the search term to the URL (keeps typing smooth). */
 const SEARCH_DEBOUNCE_MS = 1000
+
+/** Shorter debounce for module checkboxes — ticks apply optimistically, fetch follows. */
+const MODULE_DEBOUNCE_MS = 400
 
 const LEARN_TAB_ICON_URL =
   'https://s3.ap-south-1.amazonaws.com/static.masaischool.com/tab-icon.svg'
@@ -63,31 +67,18 @@ export function LearnControlsSection({
 }: LearnControlsSectionProps) {
   const [filtersOpen, setFiltersOpen] = useState(false)
 
-  // Local input mirrors `searchValue` but is debounced before committing to the URL,
-  // so typing/backspace stay responsive and don't trigger a fetch on every keystroke.
-  const [searchInput, setSearchInput] = useState(searchValue)
-  const searchDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
-
-  // Keep the local input in sync when the committed value changes externally
-  // (tab switch, clear filters, back/forward).
-  useEffect(() => {
-    setSearchInput(searchValue)
-  }, [searchValue])
-
-  useEffect(() => {
-    return () => {
-      if (searchDebounceRef.current) clearTimeout(searchDebounceRef.current)
-    }
-  }, [])
-
-  const handleSearchInputChange = (value: string) => {
-    setSearchInput(value)
-    if (searchDebounceRef.current) clearTimeout(searchDebounceRef.current)
-    searchDebounceRef.current = setTimeout(
-      () => onSearchChange(value),
-      SEARCH_DEBOUNCE_MS,
-    )
-  }
+  // Local drafts so typing and checkbox ticks reflect instantly; the actual fetch
+  // (URL commit) is debounced rather than firing on every keystroke/click.
+  const [searchInput, setSearchInput] = useDebouncedCommit(
+    searchValue,
+    onSearchChange,
+    SEARCH_DEBOUNCE_MS,
+  )
+  const [selectedModules, setSelectedModules] = useDebouncedCommit(
+    modalFilters.modules,
+    onModulesChange,
+    MODULE_DEBOUNCE_MS,
+  )
 
   const moduleDropdownOptions: Array<MasaiDropdownCheckboxFilterOption> =
     useMemo(
@@ -130,7 +121,7 @@ export function LearnControlsSection({
         <MasaiInput
           type="search"
           value={searchInput}
-          onChange={(event) => handleSearchInputChange(event.target.value)}
+          onChange={(event) => setSearchInput(event.target.value)}
           placeholder={SEARCH_PLACEHOLDER_BY_TAB[activeTab]}
           iconLeft={<Search className="size-4 shrink-0" strokeWidth={2} />}
           className="w-[300px]"
@@ -139,8 +130,8 @@ export function LearnControlsSection({
         <MasaiDropdownCheckboxFilter
           triggerLabel="Module"
           options={moduleDropdownOptions}
-          value={modalFilters.modules}
-          onValueChange={onModulesChange}
+          value={selectedModules}
+          onValueChange={setSelectedModules}
           disabled={!hasModuleChoices}
           className="w-[170px]"
           triggerClassName="min-w-0 w-full"

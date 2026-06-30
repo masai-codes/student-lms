@@ -4,6 +4,8 @@ const hoisted = vi.hoisted(() => ({ dbSelectDistinct: vi.fn() }))
 
 vi.mock('@/db', () => ({ db: { selectDistinct: hoisted.dbSelectDistinct } }))
 
+const NOW_MS = Date.UTC(2026, 5, 22, 12, 0, 0)
+
 function mockFacetRows(rows: Array<unknown>) {
   hoisted.dbSelectDistinct.mockReturnValueOnce({
     from: () => ({ leftJoin: () => ({ where: () => Promise.resolve(rows) }) }),
@@ -16,7 +18,7 @@ describe('fetchLearnListingFacets', () => {
   it('returns empty facets when the user has no sections', async () => {
     const { fetchLearnListingFacets } =
       await import('../fetchLearnListingFacets')
-    const result = await fetchLearnListingFacets('lecture', 10, [])
+    const result = await fetchLearnListingFacets('lecture', 10, [], NOW_MS)
     expect(result).toEqual({
       moduleFilterValues: [],
       categoryFilterValues: [],
@@ -49,7 +51,7 @@ describe('fetchLearnListingFacets', () => {
       },
     ])
 
-    const result = await fetchLearnListingFacets('lecture', 10, [9])
+    const result = await fetchLearnListingFacets('lecture', 10, [9], NOW_MS)
     expect(result.categoryFilterValues).toEqual(['coding'])
     expect(result.typeFilterValues).toEqual(['live', 'recorded'])
     expect(result.priorityFilterValues).toEqual(['mandatory', 'recommended'])
@@ -74,7 +76,7 @@ describe('fetchLearnListingFacets', () => {
       },
     ])
 
-    const result = await fetchLearnListingFacets('assignment', 10, [9])
+    const result = await fetchLearnListingFacets('assignment', 10, [9], NOW_MS)
     expect(result.typeFilterValues).toEqual(['evaluation'])
     expect(result.moduleFilterValues).toEqual(['Capstone'])
   })
@@ -93,7 +95,7 @@ describe('fetchLearnListingFacets', () => {
       },
     ])
 
-    const result = await fetchLearnListingFacets('resource', 10, [9])
+    const result = await fetchLearnListingFacets('resource', 10, [9], NOW_MS)
     expect(result.typeFilterValues).toEqual(['reading'])
     expect(result.moduleFilterValues).toEqual(['Module 3'])
   })
