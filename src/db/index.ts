@@ -28,5 +28,5 @@ const pool =
 globalForDb.__dbPool = pool
 
 export const db = drizzle(pool, {
-  logger: !isProduction,
+  logger: false,
 })
