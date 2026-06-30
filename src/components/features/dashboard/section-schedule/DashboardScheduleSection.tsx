@@ -15,12 +15,14 @@ interface DashboardScheduleSectionProps {
   items: Array<DashboardScheduleItem>
   isLoading: boolean
   pendingTasksCount: number
+  queryEnabled?: boolean
 }
 
 export function DashboardScheduleSection({
   items,
   isLoading,
   pendingTasksCount,
+  queryEnabled = true,
 }: DashboardScheduleSectionProps) {
   const [activeTab, setActiveTab] = useState<ScheduleTab>('schedule')
   const [pendingTabActivated, setPendingTabActivated] = useState(false)
@@ -29,7 +31,7 @@ export function DashboardScheduleSection({
   const { data: pendingTasksData, isLoading: isPendingLoading } = useQuery({
     queryKey: ['dashboard-pending-tasks'],
     queryFn: fetchDashboardPendingTasks,
-    enabled: pendingTabActivated,
+    enabled: pendingTabActivated && queryEnabled,
   })
 
   function handlePendingTabClick() {
@@ -88,7 +90,7 @@ export function DashboardScheduleSection({
 
       <div className="hidden lg:block h-px bg-gray-200 mt-5" />
 
-      <div className="lg:px-5 lg:pb-5 pt-4 lg:max-h-[496px] lg:overflow-y-auto">
+      <div className="lg:px-5 lg:pb-5 pt-4">
         {/* Schedule tab */}
         {isLoading && activeTab === 'schedule' ? (
           <AppLoading label="Loading schedule..." />

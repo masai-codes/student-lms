@@ -8,6 +8,8 @@ dayjs.extend(timezone)
 /** IST timezone constant — DB values are stored in this timezone. */
 const IST = 'Asia/Kolkata'
 
+const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+
 /**
  * Parse a naive MySQL datetime string stored in IST.
  * Returns a dayjs Dayjs at the correct UTC moment.
@@ -32,35 +34,36 @@ export function getAdjustedNow(serverTimeISO: string, fetchedAt: number): dayjs.
   return dayjs(serverTimeISO).add(elapsed, 'millisecond')
 }
 
-// ── Display helpers (use device-local time — no IANA override) ────────────────
+// ── Local timezone helpers (dayjs local mode) ─────────────────────────────────
 
 function pad(n: number): string {
   return String(n).padStart(2, '0')
 }
 
-/** "7AM" or "7:30 AM" from a JS Date using device local time. */
-function formatHourLocal(d: Date): string {
-  const h = d.getHours() % 12 || 12
-  const min = d.getMinutes()
-  const ampm = d.getHours() >= 12 ? 'PM' : 'AM'
+/**
+ * Convert any dayjs moment to a local-mode dayjs (device timezone).
+ * dayjs(timestamp) interprets the epoch in the device's local timezone.
+ */
+function toLocalDayjs(d: dayjs.Dayjs): dayjs.Dayjs {
+  return dayjs(d.valueOf())
+}
+
+/** "7AM" or "7:30 AM" from a local-mode dayjs. */
+function formatHourLocal(d: dayjs.Dayjs): string {
+  const h = d.hour() % 12 || 12
+  const min = d.minute()
+  const ampm = d.hour() >= 12 ? 'PM' : 'AM'
   return min === 0 ? `${h}${ampm}` : `${h}:${pad(min)} ${ampm}`
 }
 
-/** "6 Jun" from a JS Date using device local time. */
-function formatShortDateLocal(d: Date): string {
-  const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
-  return `${d.getDate()} ${MONTHS[d.getMonth()]}`
-}
-
-function isSameDayLocal(a: Date, b: Date): boolean {
-  return a.getFullYear() === b.getFullYear()
-    && a.getMonth() === b.getMonth()
-    && a.getDate() === b.getDate()
+/** "6 Jun" from a local-mode dayjs. */
+function formatShortDateLocal(d: dayjs.Dayjs): string {
+  return `${d.date()} ${MONTHS[d.month()]}`
 }
 
 /**
- * Device local timezone abbreviation — e.g. "BST", "EDT", "IST".
- * Uses Intl without a timeZone override so it reflects whatever the device is set to.
+ * Device timezone abbreviation — e.g. "BST", "EDT", "IST".
+ * Uses Intl since dayjs doesn't expose an abbreviated timezone name.
  */
 export function getTzLabel(): string {
   const now = new Date()
@@ -78,9 +81,8 @@ export function getTzLabel(): string {
 // ── Formatted strings for UI ──────────────────────────────────────────────────
 
 /**
- * Format a time range matching what the user's device clock actually shows.
- * UTC timestamps from the server displayed via native browser Date APIs
- * already show in the user's local timezone correctly.
+ * Format a time range in the user's device-local timezone.
+ * IST DB values are parsed to the correct UTC moment, then displayed in local time.
  */
 export function formatTimeRangeLocal(
   scheduleIST: string | null,
@@ -88,20 +90,20 @@ export function formatTimeRangeLocal(
 ): string {
   const start = parseMysqlDatetimeIST(scheduleIST)
   if (!start) return ''
-  const startDate = new Date(start.valueOf())
+  const startLocal = toLocalDayjs(start)
   const tzLabel = getTzLabel()
 
   const end = concludesIST ? parseMysqlDatetimeIST(concludesIST) : null
-  if (!end) return `${formatHourLocal(startDate)} (${tzLabel})`
+  if (!end) return `${formatHourLocal(startLocal)} (${tzLabel})`
 
-  const endDate = new Date(end.valueOf())
-  if (isSameDayLocal(startDate, endDate)) {
-    return `${formatHourLocal(startDate)} - ${formatHourLocal(endDate)} (${tzLabel})`
+  const endLocal = toLocalDayjs(end)
+  if (startLocal.isSame(endLocal, 'day')) {
+    return `${formatHourLocal(startLocal)} - ${formatHourLocal(endLocal)} (${tzLabel})`
   }
-  return `${formatShortDateLocal(startDate)}, ${formatHourLocal(startDate)} - ${formatShortDateLocal(endDate)}, ${formatHourLocal(endDate)} (${tzLabel})`
+  return `${formatShortDateLocal(startLocal)}, ${formatHourLocal(startLocal)} - ${formatShortDateLocal(endLocal)}, ${formatHourLocal(endLocal)} (${tzLabel})`
 }
 
-// ── IST formatting helpers (used internally for IST-pinned display) ───────────
+// ── IST formatting helpers ────────────────────────────────────────────────────
 
 function formatHourIST(d: dayjs.Dayjs): string {
   const h = d.hour() % 12 || 12
@@ -111,7 +113,6 @@ function formatHourIST(d: dayjs.Dayjs): string {
 }
 
 function formatShortDateIST(d: dayjs.Dayjs): string {
-  const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
   return `${d.date()} ${MONTHS[d.month()]}`
 }
 
@@ -134,13 +135,13 @@ export function formatTimeRangeIST(
 }
 
 /**
- * Format a single timestamp matching what the user's device clock shows.
+ * Format a single timestamp in the user's device-local timezone.
  */
 export function formatTimestampLocal(raw: string): string {
   const d = parseMysqlDatetimeIST(raw)
   if (!d) return ''
-  const date = new Date(d.valueOf())
-  return `${formatShortDateLocal(date)}, ${formatHourLocal(date)} (${getTzLabel()})`
+  const local = toLocalDayjs(d)
+  return `${formatShortDateLocal(local)}, ${formatHourLocal(local)} (${getTzLabel()})`
 }
 
 /**
@@ -153,14 +154,14 @@ export function formatTimestampIST(raw: string): string {
   return `${formatShortDateIST(d)}, ${formatHourIST(d)} (IST)`
 }
 
-// ── Date-key helpers (use server time + device local timezone) ────────────────
+// ── Date-key helpers ──────────────────────────────────────────────────────────
 
 /**
  * "YYYY-MM-DD" date key for today using server-adjusted time and device local timezone.
  */
 export function getTodayDateKeyTz(now: dayjs.Dayjs): string {
-  const d = new Date(now.valueOf())
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`
+  const local = dayjs(now.valueOf())
+  return `${local.year()}-${pad(local.month() + 1)}-${pad(local.date())}`
 }
 
 /**

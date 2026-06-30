@@ -7,9 +7,9 @@ import {
   clearLearnFilterSearch,
   countActiveLearnFilters,
   learnModalFiltersFromSearch,
+  mergeLearnSearch,
   modalFiltersToApiFilters,
   parseLearnPageSearch,
-  stripLearnFilterSearchKeys,
   pickLearnTabSnapshotFilters,
 } from '@/lib/learn/learnPageSearch'
 
@@ -72,19 +72,11 @@ export function useLearnPageState() {
   const pushSearch = useCallback(
     (nextSearch: Record<string, string | number | undefined>) => {
       navigate({
-        search: (prev) => {
-          const base = stripLearnFilterSearchKeys(prev as Record<string, unknown>)
-          const merged: Record<string, unknown> = { ...base, batchId: prev.batchId }
-          for (const [key, value] of Object.entries(nextSearch)) {
-            if (key === 'batchId') continue
-            if (value == null || value === '') {
-              delete merged[key]
-            } else {
-              merged[key] = value
-            }
-          }
-          return merged as typeof prev
-        },
+        search: (prev) =>
+          mergeLearnSearch(
+            prev as Record<string, unknown>,
+            nextSearch,
+          ) as typeof prev,
         replace: true,
       })
     },

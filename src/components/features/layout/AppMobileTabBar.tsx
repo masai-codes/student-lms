@@ -5,6 +5,7 @@ import { useNavigate, useRouterState } from '@tanstack/react-router'
 import { Headphones, Home, LayoutGrid, MessageSquare, MonitorPlay, Users } from 'lucide-react'
 
 import { TabNavbar } from '@/components/tab-navbar'
+import { UpcomingLecturePill } from '@/components/features/layout/UpcomingLecturePill'
 import { activeAppNavIdForPathname } from '@/lib/appNavActiveItem'
 import { OLD_STUDENT_UI_NAV_PATHS } from '@/constants/oldStudentUiNavPaths'
 import { getOldStudentUiUrlForPath } from '@/utils/authRedirect'
@@ -72,6 +73,9 @@ export default function AppMobileTabBar() {
       className="fixed bottom-0 left-0 right-0 z-[200] lg:hidden"
       data-app-mobile-tab-bar
     >
+      <div>
+        <UpcomingLecturePill className="w-full rounded-t-[14px]" />
+      </div>
       <TabNavbar
         items={items}
         ariaLabel="Primary navigation"

@@ -8,6 +8,7 @@ import {
   AiTutorLectureAccessError,
   resolveAiTutorLectureContext,
 } from '@/server/ai-tutor/services/aiTutorLectureAccess'
+import { resolveTrueStatus } from '@/lib/api/cloudFrontSafeStatus'
 
 vi.mock('@/server/api/http/requireSessionUser', () => ({
   requireSessionUserId: vi.fn(),
@@ -109,7 +110,8 @@ describe('handleCreateChatbotToken', () => {
     )
 
     const res = await handleCreateChatbotToken(makeRequest({ sessionId: 'session-1' }), '5')
-    expect(res.status).toBe(403)
+    // 403 ships on the CloudFront-safe wire status; the true status is in the header.
+    expect(resolveTrueStatus(res)).toBe(403)
     const body = (await res.json()) as { code: string }
     expect(body.code).toBe('AI_TUTOR_LECTURE_FORBIDDEN')
     expect(createChatbotToken).not.toHaveBeenCalled()

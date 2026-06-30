@@ -12,6 +12,7 @@ vi.mock('@/server/api/masaiverse-v2/services/adminMode.service', () => ({
 
 vi.mock('@/server/auth/getCurrentSessionUserId', () => ({
   getUserIdFromCookieHeader: hoisted.getUserIdFromCookieHeader,
+  getUserIdFromRequest: hoisted.getUserIdFromCookieHeader,
 }))
 
 function postRequest(body: unknown, cookie: string | null): Request {
@@ -103,7 +104,8 @@ describe('handleSetAdminMode', () => {
       postRequest({ enabled: true }, 'session=abc'),
     )
 
-    expect(response.status).toBe(403)
+    expect(response.status).toBe(422)
+    expect(response.headers.get('x-true-status')).toBe('403')
     await expect(response.json()).resolves.toEqual({
       code: 'MASAIVERSE_ADMIN_FORBIDDEN',
       message: 'MASAIVERSE_ADMIN_FORBIDDEN',

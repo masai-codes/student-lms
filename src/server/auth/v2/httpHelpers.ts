@@ -1,3 +1,5 @@
+import { cloudFrontSafeResponseInit } from '@/lib/api/cloudFrontSafeStatus'
+
 export type ErrorBody = {
   error: {
     code: string
@@ -17,7 +19,8 @@ export function jsonResponse(body: unknown, init?: ResponseInit): Response {
 
 export function errorResponse(status: number, code: string, message: string): Response {
   const body: ErrorBody = { error: { code, message } }
-  return jsonResponse(body, { status })
+  // Remap CloudFront-intercepted statuses (403/404) so the JSON body survives.
+  return jsonResponse(body, cloudFrontSafeResponseInit(status))
 }
 
 export async function readJsonBody<T = unknown>(request: Request): Promise<T> {

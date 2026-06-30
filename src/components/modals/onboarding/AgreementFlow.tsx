@@ -110,7 +110,7 @@ const CURRENT_STATUS_OPTIONS = [
   { value: 'working', label: 'Working' },
 ]
 
-const STUDY_YEAR_OPTIONS = ['1st Year', '2nd Year', '3rd Year', '4th Year', '5th Year']
+const STUDY_YEAR_OPTIONS = ['I Year', 'II Year', 'Pre-final Year', 'Final Year']
 
 // ── Step tab ───────────────────────────────────────────────────────────────────
 
@@ -474,12 +474,11 @@ function EnterDetailsStep({
       {/* Work Domain — conditional */}
       {values.currentStatus === 'working' && (
         <Field label="Work Domain" required>
-          <input
-            type="text"
-            placeholder="Enter your work domain"
+          <SelectInput
             value={values.workDomain}
-            onChange={(e) => onChange('workDomain', e.target.value)}
-            className={inputClass}
+            onChange={(v) => onChange('workDomain', v)}
+            placeholder="Select work domain"
+            options={['Tech Domain', 'Non-tech Domain']}
           />
         </Field>
       )}
@@ -502,7 +501,7 @@ function EnterDetailsStep({
       >
         <input
           type="text"
-          placeholder="YYYY"
+          placeholder="If you have not completed graduation or are a college dropout, mention the year of completion of your college"
           value={values.yearOfGraduation}
           onChange={(e) => onChange('yearOfGraduation', e.target.value.replace(/\D/g, '').slice(0, 4))}
           onBlur={() => setYearTouched(true)}
@@ -521,7 +520,7 @@ function EnterDetailsStep({
       >
         <input
           type="text"
-          placeholder="Enter college name"
+          placeholder="If not currently studying, mention the last studied college. For 12th completions, mention school name."
           value={values.collegeName}
           onChange={(e) => onChange('collegeName', e.target.value)}
           className={inputClass}

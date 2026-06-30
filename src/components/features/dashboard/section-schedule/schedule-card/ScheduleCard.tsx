@@ -120,7 +120,7 @@ export function ScheduleCard({ item, dayLabel, isToday }: ScheduleCardProps) {
         {...linkProps}
         className="flex-1 min-w-0 bg-white rounded-[8px] border border-gray-200 px-2 py-2.5 block shadow-sm hover:shadow-md transition-shadow focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
       >
-        <div className="flex items-start gap-2">
+        <div className="flex items-center gap-2">
           <img
             src={TYPE_ICON_SRC[item.learningType]}
             alt={TYPE_ICON_ALT[item.learningType]}
@@ -189,7 +189,7 @@ export function ScheduleCard({ item, dayLabel, isToday }: ScheduleCardProps) {
 
           {/* Join Live / Starts Soon button */}
           {joinState === 'live' ? (
-            <span className="shrink-0 inline-flex items-center px-4 py-1.5 rounded-full bg-[#4B44A8] text-white text-sm font-semibold whitespace-nowrap">
+            <span className="shrink-0 inline-flex items-center px-4 py-1.5 rounded-full bg-[#6962AC] text-white text-sm font-semibold whitespace-nowrap">
               Join Live
             </span>
           ) : joinState === 'soon' ? (

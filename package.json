@@ -24,6 +24,7 @@
     "prepare": "husky"
   },
   "dependencies": {
+    "@ai-sdk/anthropic": "^3.0.85",
     "@aws-sdk/client-s3": "^3.1063.0",
     "@aws-sdk/client-sesv2": "^3.1045.0",
     "@aws-sdk/client-ssm": "^3.1034.0",
@@ -58,6 +59,7 @@
     "@uiw/react-md-editor": "^4.1.1",
     "@zoom/meetingsdk": "^5.1.0",
     "2factor": "^1.0.6",
+    "ai": "^6.0.208",
     "bcryptjs": "^3.0.3",
     "canvas-confetti": "^1.9.4",
     "class-variance-authority": "^0.7.1",

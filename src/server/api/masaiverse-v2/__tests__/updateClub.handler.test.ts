@@ -11,6 +11,7 @@ vi.mock('@/server/api/masaiverse-v2/services/updateClub.service', () => ({
 }))
 vi.mock('@/server/auth/getCurrentSessionUserId', () => ({
   getUserIdFromCookieHeader: hoisted.getUserIdFromCookieHeader,
+  getUserIdFromRequest: hoisted.getUserIdFromCookieHeader,
 }))
 
 function postRequest(body: unknown, cookie: string | null): Request {
@@ -66,7 +67,8 @@ describe('handleUpdateClub', () => {
     const response = await handleUpdateClub(
       postRequest({ clubId: 5 }, 'session=abc'),
     )
-    expect(response.status).toBe(403)
+    expect(response.status).toBe(422)
+    expect(response.headers.get('x-true-status')).toBe('403')
   })
 
   it('maps unexpected failures to a 500 error', async () => {

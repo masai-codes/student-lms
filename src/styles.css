@@ -213,3 +213,22 @@ code {
   animation: ai-avatar-speak 1.4s ease-in-out infinite;
   transform-origin: center center;
 }
+
+/* Action banner slide transitions */
+@keyframes banner-slide-in-right {
+  from { opacity: 0; transform: translateX(32px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes banner-slide-in-left {
+  from { opacity: 0; transform: translateX(-32px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+.animate-banner-slide-in-right {
+  animation: banner-slide-in-right 0.25s ease-out both;
+}
+
+.animate-banner-slide-in-left {
+  animation: banner-slide-in-left 0.25s ease-out both;
+}

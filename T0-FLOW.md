@@ -343,7 +343,7 @@ Both render only when `isNewUserJourney && !loading && !onboardingComplete`.
 
 ### 11.4 Payment banners (`newDashboard/index.tsx`, partial-fee only)
 Backend types map to two UI states:
-- **`TIMER_BANNER`/`PAYMENT_BANNER` → "trial"** (orange `#FFF5EE`/`#E76E4B`): *"Pay your remaining
+- **`TIMER_BANNER`/`PAYMENT_BANNER` → "trial"** (orange `#FFF5EE`/`#E76E4B`): *" program
   program fee to avoid interruption and unlock full access."*
 - **`WARNING_BANNER` → "overdue"** (red `#FDF4F6`/`#DC3545`, warning icon): *"Payment Overdue!
   Complete the payment to avoid course deactivation."*

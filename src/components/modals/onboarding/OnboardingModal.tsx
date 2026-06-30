@@ -24,7 +24,7 @@ interface Step {
 
 // ── Step right-panel: Profile Photo ───────────────────────────────────────────
 
-function PhotoContent({ initialSnapshot, onSave, onPhotoSaved, isActive }: { initialSnapshot: string | null; onSave: (snap: string) => void; onPhotoSaved?: () => void; isActive: boolean }) {
+export function PhotoContent({ initialSnapshot, onSave, onPhotoSaved, isActive }: { initialSnapshot: string | null; onSave: (snap: string) => void; onPhotoSaved?: () => void; isActive: boolean }) {
   const videoRef = useRef<HTMLVideoElement>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const streamRef = useRef<MediaStream | null>(null)
@@ -295,13 +295,16 @@ export function OnboardingModal({
   }, [])
 
   function markDone(stepId: string) {
-    setCompletedSteps((prev) => new Set([...prev, stepId]))
+    setCompletedSteps((prev) => {
+      const next = new Set([...prev, stepId])
+      if (next.size === steps.length) {
+        setTimeout(() => onClose(), 1500)
+      }
+      return next
+    })
     const idx = steps.findIndex((s) => s.id === stepId)
     if (idx !== -1 && idx < steps.length - 1) {
       setActiveStep(steps[idx + 1].id)
-    } else {
-      // All steps done — close after a brief moment so the success state is visible
-      setTimeout(() => onClose(), 1500)
     }
   }
 
@@ -317,21 +320,14 @@ export function OnboardingModal({
   }
 
   const [mobileView, setMobileView] = useState<'list' | 'content'>('list')
-  const [dragOffset, setDragOffset] = useState(0)
   const touchStartY = useRef(0)
 
   function handleDrawerTouchStart(e: React.TouchEvent) {
     touchStartY.current = e.touches[0].clientY
   }
-  function handleDrawerTouchMove(e: React.TouchEvent) {
-    const delta = e.touches[0].clientY - touchStartY.current
-    if (delta > 0) setDragOffset(delta)
-  }
-  function handleDrawerTouchEnd() {
-    if (dragOffset > 80) {
-      setMobileView('list')
-    }
-    setDragOffset(0)
+  function handleDrawerTouchEnd(e: React.TouchEvent) {
+    const delta = e.changedTouches[0].clientY - touchStartY.current
+    if (delta > 80) setMobileView('list')
   }
 
   // Shared step-list card renderer
@@ -409,12 +405,25 @@ export function OnboardingModal({
         {steps.filter((s) => s.id.startsWith('feedback-')).map((step) => {
           const formId = parseInt(step.id.replace('feedback-', ''), 10)
           if (activeStep !== step.id) return null
+          if (completedSteps.has(step.id)) {
+            return (
+              <div key={step.id} className="flex-1 flex flex-col items-center justify-center gap-4 p-10">
+                <div className="size-16 rounded-full bg-green-50 flex items-center justify-center">
+                  <CheckCircle2 size={32} className="text-green-500" strokeWidth={2} />
+                </div>
+                <h3 className="text-xl font-semibold text-gray-900" style={{ fontFamily: 'Poppins' }}>Feedback Submitted</h3>
+                <p className="text-sm text-gray-500 text-center max-w-sm leading-relaxed">
+                  Thank you! Your feedback has been successfully recorded.
+                </p>
+              </div>
+            )
+          }
           return (
             <FeedbackFormContent
               key={step.id}
               formId={formId}
               isOnlyStep={steps.length === 1}
-              onSubmitted={() => { onFeedbackSubmitted?.(); markDone(step.id); if (steps.length === 1) onClose() }}
+              onSubmitted={() => { onFeedbackSubmitted?.(); markDone(step.id) }}
             />
           )
         })}
@@ -423,6 +432,19 @@ export function OnboardingModal({
           const formId = parseInt(step.id.replace('assess-', ''), 10)
           if (activeStep !== step.id) return null
           const form = initialFeedbackForms.current.find((f) => f.source === 'assess_nps' && f.id === formId)
+          if (completedSteps.has(step.id)) {
+            return (
+              <div key={step.id} className="flex-1 flex flex-col items-center justify-center gap-4 p-10">
+                <div className="size-16 rounded-full bg-green-50 flex items-center justify-center">
+                  <CheckCircle2 size={32} className="text-green-500" strokeWidth={2} />
+                </div>
+                <h3 className="text-xl font-semibold text-gray-900" style={{ fontFamily: 'Poppins' }}>Assessment Submitted</h3>
+                <p className="text-sm text-gray-500 text-center max-w-sm leading-relaxed">
+                  Thank you! Your assessment has been successfully recorded.
+                </p>
+              </div>
+            )
+          }
           return (
             <AssessNpsContent
               key={step.id}
@@ -495,12 +517,7 @@ export function OnboardingModal({
               {/* Drawer sheet */}
               <div
                 className={`absolute inset-x-0 bottom-0 z-20 bg-white rounded-t-[16px] flex flex-col ${isAgreement ? '' : 'top-[120px]'}`}
-                style={{
-                  transform: `translateY(${dragOffset}px)`,
-                  transition: dragOffset === 0 ? 'transform 0.3s ease' : 'none',
-                }}
                 onTouchStart={handleDrawerTouchStart}
-                onTouchMove={handleDrawerTouchMove}
                 onTouchEnd={handleDrawerTouchEnd}
               >
                 {/* Drag indicator pill */}

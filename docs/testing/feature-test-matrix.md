@@ -1,6 +1,12 @@
 # Feature Test Matrix
 
-Last updated: 2026-06-22
+Last updated: 2026-06-30
+
+## Support / Raise Ticket (`/support` + detail-page drawer)
+- Area: `RaiseTicketDrawer` opened from lecture/assignment/resource headers (no redirect); context-scoped `ContextSubcategoryList` via `GET /api/support/subcategories?category=` (legacy `SubcategoryTicketModal` flow); `TicketConversationPanel`/`useTicketComposer` create/reply/rate/escalate; first-template coordinator comment on creation (`buildFirstTemplateResponse`, exact legacy body + signature) with the synthetic open/re-opened banner suppressed; `SupportMarkdown` renders inline HTML (`rehype-raw` → `rehype-sanitize`) so legacy `<br/>`/signature comments display correctly; "Request a Callback" gated on `isNewUserJourney` (a `user_batch_admission_data` row) + active batch, "Student-Kit" reason hidden unless `hasFullFees`.
+- Status: Covered (subcategory service + list UI, first-template reply, callback eligibility, markdown HTML rendering, CTA-opens-drawer); drawer step machine + `useTicketComposer` covered indirectly.
+- Test files: `src/server/api/support/services/__tests__/getSubcategoriesByCategory.test.ts`, `src/server/api/support/services/__tests__/ticketReplyTemplate.test.ts`, `src/server/api/support/services/__tests__/getCallbackEligibility.test.ts`, `src/components/features/support/__tests__/ContextSubcategoryList.test.tsx`, `src/components/features/support/__tests__/SupportMarkdown.test.tsx`
+- Notes: See `docs/testing/features/support.md`
 
 ## Chatbot (text + voice mode)
 - Area: `MessageList` turn scroll (`useChatTurnScroll`, `chatScroll` utils, `ChatbotUserMessage`, `ChatbotAssistantMessage` markdown); shared by `ChatPanel` (text + voice) and `ChatbotPreSessionView` via `ChatbotConversationLayout`; voice footer in `ChatbotVoiceControls` + `AIAvatar` speaking pulse; mobile composer-only + bottom drawer (`ChatbotMobileShell`, `useIsMobileViewport`); `POST /api/chatbot/:lectureId/token` loads lecture transcript via `resolveAiTutorLectureContext` and forwards it to the LiveKit agent metadata
@@ -172,6 +178,18 @@ Last updated: 2026-06-22
 - Status: Covered
 - Test files: `pages/home/calendar/{calendarUtils,ReadOnlyCalendar,CalendarDayEvents,UpcomingEvents,GlobalLeaders,CalendarPanel}.test.ts(x)`
 - Notes: The "View calendar" drawer now renders real data (no dummy fixtures). `CalendarPanel` pulls the member-visible events feed (`GET /events/list` — public + the member's clubs) and buckets them by **IST** day (`buildEventsByDate`/`istDateKey`) so `ReadOnlyCalendar` shows a white dot on each day that has events. The calendar is interactive: every day is a button; clicking one selects it and `CalendarDayEvents` lists that day's events (title, IST date-time, club badge for club events) or a gentle "No events on this day." Today stays highlighted, the selected day gets a ring, and the month arrows browse. "Upcoming events" reuses the home `events` feed (`masaiverseV2HomeQuery`) so its listing matches the home "Live & Upcoming" exactly (public + member clubs), with day/month date box, RSVP/Join/Going CTA, and a `belowTitle` subtitle. "Global leaderboard" renders `GET /leaderboard` (see the leaderboard row). `calendarUtils` keeps the pure month-grid/date-key helpers (`getMonthGrid`, `toDateKey`, `istDateKey`, `buildEventsByDate`).
+
+## AI Tutor streaming chat
+- Area: Authenticated SSE chat stub (`src/routes/api/ai-tutor/chat/stream.ts`, `src/server/api/ai-tutor/**`, `src/server/api/http/sse.ts`)
+- Status: Covered
+- Test files: `src/server/api/ai-tutor/__tests__/stream*.test.ts`, `src/server/api/http/__tests__/sse.test.ts`
+- Notes: `POST /api/ai-tutor/chat/stream` requires a session cookie, accepts `{ lectureId, chat, chatID? }`, reads/writes `ai_chat_practice_questions`, loads lecture summary from `lectures_ai`, streams Claude output as SSE token events, and returns `{ type: "done", chatId }`.
+
+## AI Tutor chat conversations
+- Area: Authenticated lecture chat history (`src/routes/api/ai-tutor/chat/conversations/**`, `src/server/api/ai-tutor/**`, `src/lib/api/ai-tutor/aiTutorChatApi.ts`)
+- Status: Covered
+- Test files: `src/server/api/ai-tutor/__tests__/{chatTurns,listConversations.handler,getConversation.handler,conversationServices}.test.ts`
+- Notes: `GET /api/ai-tutor/chat/conversations?lectureId=` lists the user's threads for a lecture (title from first user message, `updatedAt` desc). `GET /api/ai-tutor/chat/conversations/:chatId` returns ordered user/assistant turns from stored `chatHistory`.
 
 ## Status Meaning
 

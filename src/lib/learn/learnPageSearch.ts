@@ -1,7 +1,10 @@
-import type { LearnModalFiltersState, LearnTab } from '@/components/features/learn/shared/types'
-import { createEmptyLearnModalFilters } from '@/components/features/learn/shared/types'
+import type {
+  LearnModalFiltersState,
+  LearnTab,
+} from '@/components/features/learn/shared/types'
 import type { BatchLearningFiltersInput } from '@/server/learn/types'
 import type { AssignmentProgressStatus } from '@/server/learn/utils/calculateAssignmentProgressStatus'
+import { createEmptyLearnModalFilters } from '@/components/features/learn/shared/types'
 
 export type LearnPageSearchParams = {
   batchId?: number
@@ -33,7 +36,8 @@ function parsePositiveInt(value: unknown): number | undefined {
 }
 
 function parseTab(value: unknown): LearnTab | undefined {
-  if (typeof value !== 'string' || !LEARN_TABS.has(value as LearnTab)) return undefined
+  if (typeof value !== 'string' || !LEARN_TABS.has(value as LearnTab))
+    return undefined
   return value as LearnTab
 }
 
@@ -47,7 +51,10 @@ function parseSchedulePhase(
 function parseAssignmentProgress(
   value: unknown,
 ): LearnModalFiltersState['assignmentProgress'] {
-  if (typeof value === 'string' && ASSIGNMENT_PROGRESS.has(value as AssignmentProgressStatus)) {
+  if (
+    typeof value === 'string' &&
+    ASSIGNMENT_PROGRESS.has(value as AssignmentProgressStatus)
+  ) {
     return value as AssignmentProgressStatus
   }
   return 'all'
@@ -60,13 +67,17 @@ function parseAttendance(
   return null
 }
 
-function parsePrioritiesFromOptional(value: unknown): Array<'recommended' | 'mandatory'> {
+function parsePrioritiesFromOptional(
+  value: unknown,
+): Array<'recommended' | 'mandatory'> {
   if (value === 'yes' || value === 'true') return ['recommended']
   if (value === 'no' || value === 'false') return ['mandatory']
   return []
 }
 
-export function parseLearnPageSearch(search: Record<string, unknown>): LearnPageSearchParams {
+export function parseLearnPageSearch(
+  search: Record<string, unknown>,
+): LearnPageSearchParams {
   const batchId = parsePositiveInt(search.batchId)
   const tab = parseTab(search.tab)
   const page = parsePositiveInt(search.page)
@@ -93,10 +104,7 @@ export function learnModalFiltersFromSearch(
 ): LearnModalFiltersState {
   const modules = splitCsv(search.module ?? search.modules)
   const categories = splitCsv(search.category ?? search.categories)
-  const types =
-    tab === 'resources'
-      ? []
-      : splitCsv(search.type ?? search.types)
+  const types = tab === 'resources' ? [] : splitCsv(search.type ?? search.types)
   const instructors = splitCsv(search.instructor ?? search.instructors)
   const prioritiesFromList = splitCsv(search.priorities).filter(
     (value): value is 'recommended' | 'mandatory' =>
@@ -136,7 +144,9 @@ export function learnModalFiltersFromSearch(
       tab === 'lectures' ? parseAttendance(search.attendanceStatus) : null,
     assignmentProgress:
       tab === 'assignments'
-        ? parseAssignmentProgress(search.assignmentTab ?? search.assignmentProgress)
+        ? parseAssignmentProgress(
+            search.assignmentTab ?? search.assignmentProgress,
+          )
         : 'all',
   }
 }
@@ -209,7 +219,8 @@ export function learnSearchFromModalFilters(
   }
 
   if (tab === 'lectures' || tab === 'resources') {
-    next.lectureTab = filters.schedulePhase === 'all' ? 'all' : filters.schedulePhase
+    next.lectureTab =
+      filters.schedulePhase === 'all' ? 'all' : filters.schedulePhase
     if (tab === 'lectures' && filters.attendanceStatus != null) {
       next.attendanceStatus = filters.attendanceStatus
     }
@@ -253,6 +264,33 @@ export function stripLearnFilterSearchKeys(
     delete next[key]
   }
   return next
+}
+
+/**
+ * Commits a freshly-built search update (`nextSearch`) onto the current URL search.
+ * Fully owns the filter + `search`/`title` keys: any of them absent from `nextSearch`
+ * (e.g. a cleared search box, which `buildLearnNavigateSearch` omits) is removed
+ * rather than carried over from `prev`. `batchId` is always preserved.
+ */
+export function mergeLearnSearch(
+  prev: Record<string, unknown>,
+  nextSearch: Record<string, string | number | undefined>,
+): Record<string, unknown> {
+  const base = stripLearnFilterSearchKeys(prev)
+  // `search` and its legacy aliases are managed here too, so a cleared box removes them.
+  delete base.search
+  delete base.title
+  delete base.titleContains
+  const merged: Record<string, unknown> = { ...base, batchId: prev.batchId }
+  for (const [key, value] of Object.entries(nextSearch)) {
+    if (key === 'batchId') continue
+    if (value == null || value === '') {
+      delete merged[key]
+    } else {
+      merged[key] = value
+    }
+  }
+  return merged
 }
 
 /** Picks only tab-specific filter params (excludes batchId, tab, page, search). */
@@ -303,7 +341,8 @@ export function modalFiltersToApiFilters(
     categories: filters.categories.length > 0 ? filters.categories : undefined,
     types: filters.types.length > 0 ? filters.types : undefined,
     priorities: filters.priorities.length > 0 ? filters.priorities : undefined,
-    instructors: filters.instructors.length > 0 ? filters.instructors : undefined,
+    instructors:
+      filters.instructors.length > 0 ? filters.instructors : undefined,
     scheduleStartDate: filters.scheduleStartDate ?? undefined,
     scheduleEndDate: filters.scheduleEndDate ?? undefined,
   }
@@ -321,4 +360,121 @@ export function modalFiltersToApiFilters(
   }
 
   return api
+}
+
+const PRIORITY_CHIP_LABELS: Record<'recommended' | 'mandatory', string> = {
+  recommended: 'Recommended',
+  mandatory: 'Mandatory',
+}
+const ATTENDANCE_CHIP_LABELS: Record<'present' | 'absent', string> = {
+  present: 'Present',
+  absent: 'Absent',
+}
+const PROGRESS_CHIP_LABELS: Record<AssignmentProgressStatus, string> = {
+  new: 'New',
+  'in-progress': 'In Progress',
+  completed: 'Completed',
+  overdue: 'Overdue',
+}
+const PHASE_CHIP_LABELS: Record<'upcoming' | 'past', string> = {
+  upcoming: 'Upcoming',
+  past: 'Past',
+}
+
+function dateRangeChipLabel(start: string | null, end: string | null): string {
+  if (start && end) return `${start} – ${end}`
+  if (start) return `From ${start}`
+  return `Until ${end}`
+}
+
+/** One removable chip per applied filter; `next` is the filter state with it removed. */
+export interface AppliedLearnFilterChip {
+  id: string
+  label: string
+  next: LearnModalFiltersState
+}
+
+/** Applied-filter chips for the row under the controls (tab-appropriate values only). */
+export function buildAppliedLearnFilterChips(
+  filters: LearnModalFiltersState,
+): Array<AppliedLearnFilterChip> {
+  const chips: Array<AppliedLearnFilterChip> = []
+
+  for (const value of filters.modules) {
+    chips.push({
+      id: `module:${value}`,
+      label: value,
+      next: { ...filters, modules: filters.modules.filter((v) => v !== value) },
+    })
+  }
+  for (const value of filters.categories) {
+    chips.push({
+      id: `category:${value}`,
+      label: value,
+      next: {
+        ...filters,
+        categories: filters.categories.filter((v) => v !== value),
+      },
+    })
+  }
+  for (const value of filters.types) {
+    chips.push({
+      id: `type:${value}`,
+      label: value,
+      next: { ...filters, types: filters.types.filter((v) => v !== value) },
+    })
+  }
+  for (const value of filters.instructors) {
+    chips.push({
+      id: `instructor:${value}`,
+      label: value,
+      next: {
+        ...filters,
+        instructors: filters.instructors.filter((v) => v !== value),
+      },
+    })
+  }
+  for (const value of filters.priorities) {
+    chips.push({
+      id: `priority:${value}`,
+      label: PRIORITY_CHIP_LABELS[value],
+      next: {
+        ...filters,
+        priorities: filters.priorities.filter((v) => v !== value),
+      },
+    })
+  }
+  if (filters.scheduleStartDate || filters.scheduleEndDate) {
+    chips.push({
+      id: 'date',
+      label: dateRangeChipLabel(
+        filters.scheduleStartDate,
+        filters.scheduleEndDate,
+      ),
+      next: { ...filters, scheduleStartDate: null, scheduleEndDate: null },
+    })
+  }
+  if (filters.schedulePhase !== 'all') {
+    chips.push({
+      id: 'phase',
+      label: PHASE_CHIP_LABELS[filters.schedulePhase],
+      next: { ...filters, schedulePhase: 'all' },
+    })
+  }
+  if (filters.attendanceStatus != null) {
+    chips.push({
+      id: 'attendance',
+      label: ATTENDANCE_CHIP_LABELS[filters.attendanceStatus],
+      next: { ...filters, attendanceStatus: null },
+    })
+  }
+  if (filters.assignmentProgress !== 'all') {
+    chips.push({
+      id: 'progress',
+      label: PROGRESS_CHIP_LABELS[filters.assignmentProgress],
+      next: { ...filters, assignmentProgress: 'all' },
+    })
+  }
+
+  return chips
 }

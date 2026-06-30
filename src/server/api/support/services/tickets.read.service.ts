@@ -235,7 +235,7 @@ export async function getTicketThread(input: {
 
   return {
     ticket,
-    statusResponse: buildStatusResponse(status, ticket.tatHours),
+    statusResponse: buildStatusResponse(status),
     messages,
     capabilities,
   }
@@ -244,17 +244,14 @@ export async function getTicketThread(input: {
 /** The status banner copy shown at the top of a conversation. */
 function buildStatusResponse(
   status: ReturnType<typeof normalizeStatus>,
-  tatHours: number | null,
 ): TicketThread['statusResponse'] {
   switch (status) {
     case 'open':
     case 're-opened':
-      return {
-        heading: 'We’re on it',
-        message: tatHours
-          ? `A coordinator usually replies within ${tatHours} hours.`
-          : 'A coordinator will reply here soon.',
-      }
+      // No synthetic banner: open/re-opened tickets carry the real, tailored
+      // "first template response" coordinator comment (see ticketReplyTemplate),
+      // exactly like the legacy flow.
+      return null
     case 'resolved':
       return {
         heading: 'Marked as resolved',

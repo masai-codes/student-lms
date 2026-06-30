@@ -10,6 +10,7 @@ vi.mock('@/server/video-attendance/services/storeVideoProgress', () => ({
 }))
 vi.mock('@/server/auth/getCurrentSessionUserId', () => ({
   getUserIdFromCookieHeader: hoisted.getUserIdFromCookieHeader,
+  getUserIdFromRequest: hoisted.getUserIdFromCookieHeader,
 }))
 
 const validBody = {

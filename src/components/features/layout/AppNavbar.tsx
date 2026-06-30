@@ -2,8 +2,11 @@
 
 import { useCallback, useMemo, useRef, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
-import { fetchAnnouncementUnreadCount } from '@/lib/api/announcement/announcementApi'
-import { getRouteApi, useNavigate, useRouterState } from '@tanstack/react-router'
+import {
+  getRouteApi,
+  useNavigate,
+  useRouterState,
+} from '@tanstack/react-router'
 import {
   Book,
   Bookmark,
@@ -14,7 +17,6 @@ import {
   LogOutIcon,
   Megaphone,
   MessagesSquare,
-  ToggleLeft,
   UserCircle,
   Users,
 } from 'lucide-react'
@@ -26,11 +28,11 @@ import type {
   NavbarProfile,
   NavbarProfileMenuItem,
 } from '@/components/navbar'
+import { fetchAnnouncementUnreadCount } from '@/lib/api/announcement/announcementApi'
 import { Navbar } from '@/components/navbar'
 import { LevelUpIcon } from '@/components/common/LevelUpIcon'
 import { DownloadAppModal } from '@/components/features/layout/DownloadAppModal'
 import { UpcomingLecturePill } from '@/components/features/layout/UpcomingLecturePill'
-import { LEGACY_STUDENT_LMS_URL } from '@/constants/legacyStudentUi'
 import { OLD_STUDENT_UI_NAV_PATHS } from '@/constants/oldStudentUiNavPaths'
 import { activeAppNavIdForPathname } from '@/lib/appNavActiveItem'
 import { getBugReportFormUrl } from '@/utils/bugReportFormUrl'
@@ -60,7 +62,7 @@ const MASAI_LOGO =
  * `src/utils/route.utils.ts` and top nav `src/components/NewLayout/DesktopNavbar.tsx`.
  *
  * Profile dropdown labels/order match `profileMenuOptions.ts` + `DesktopNavbar` extras
- * (Report a Bug, Level up, Switch to OLD LMS, Sign out). In-app links use this app’s routes.
+ * (Report a Bug, Level up, Sign out). In-app links use this app’s routes.
  *
  * MasaiVerse lives at `/masaiverse` here (not the legacy Discord route).
  *
@@ -106,7 +108,8 @@ export default function AppNavbar() {
   // it the same way the masaiverse route loader does. Admins always have access.
   const { data: masaiverseAccess } = useQuery({
     queryKey: ['masaiverse-access', user.id],
-    queryFn: () => getMasaiverseAccessDebugServer({ data: { userId: user.id } }),
+    queryFn: () =>
+      getMasaiverseAccessDebugServer({ data: { userId: user.id } }),
     staleTime: 5 * 60 * 1000,
     enabled: user.role !== 'admin',
   })
@@ -351,13 +354,6 @@ export default function AppNavbar() {
         disabled: isLevelupLoading,
       },
       {
-        id: 'old-lms',
-        label: 'Switch to OLD LMS',
-        href: LEGACY_STUDENT_LMS_URL,
-        openInNewTab: true,
-        icon: <ToggleLeft className="size-4" />,
-      },
-      {
         id: 'sign-out',
         label: 'Sign out',
         href: '#',
@@ -400,7 +396,9 @@ export default function AppNavbar() {
           onClick: handleHomeClick,
         }}
         navItems={navItems}
-        centerSlot={<UpcomingLecturePill />}
+        centerSlot={
+          <UpcomingLecturePill className="max-w-[340px] rounded-[14px]" />
+        }
         trailingActions={trailingActions}
         profile={profile}
       />

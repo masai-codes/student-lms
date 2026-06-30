@@ -8,13 +8,52 @@
  * keys the legacy system uses), so ops can edit them without a deploy.
  */
 
-import { and, asc, desc, eq } from 'drizzle-orm'
+import { and, asc, desc, eq, sql } from 'drizzle-orm'
 import type {
   CallbackOption,
   CallbackTicketItem,
 } from '@/server/api/support/support.types'
 import { db } from '@/db'
 import { menus, userCallbackTickets } from '@/db/schema'
+
+/** Coerce a `db.execute` result into a flat array of rows (driver-agnostic). */
+function rowsOf<T>(result: unknown): Array<T> {
+  if (Array.isArray(result)) {
+    return Array.isArray(result[0]) ? (result[0] as Array<T>) : (result as Array<T>)
+  }
+  if (result && typeof result === 'object' && 'rows' in result) {
+    const { rows } = result
+    if (Array.isArray(rows)) return rows as Array<T>
+  }
+  return []
+}
+
+/**
+ * Callback eligibility — mirrors the legacy gate for the "Request a Callback"
+ * CTA, which only shows for students on the **new user journey** (i.e. with a
+ * `user_batch_admission_data` row). The same table's `full_fees_paid` drives
+ * whether the "Student-Kit" reason is offered (legacy `hasFullFees`).
+ *
+ * @returns `isNewUserJourney` (any admission row for the user) and `hasFullFees`
+ *          (admission row for the active batch with `full_fees_paid` set).
+ */
+export async function getCallbackEligibility(input: {
+  userId: number
+  batchId: number
+}): Promise<{ isNewUserJourney: boolean; hasFullFees: boolean }> {
+  const result = await db.execute(sql`
+    SELECT batch_id, full_fees_paid
+    FROM user_batch_admission_data
+    WHERE user_id = ${input.userId}
+  `)
+  const rows = rowsOf<{ batch_id: number; full_fees_paid: number | boolean }>(result)
+
+  const isNewUserJourney = rows.length > 0
+  const hasFullFees = rows.some(
+    (r) => Number(r.batch_id) === input.batchId && Boolean(r.full_fees_paid),
+  )
+  return { isNewUserJourney, hasFullFees }
+}
 
 /** `menus.category` value holding callback *reasons*. */
 const REASON_CATEGORY = 'call-backrequest-reason'

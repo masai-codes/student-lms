@@ -1,10 +1,11 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { Filter, Search } from 'lucide-react'
 
 import { LearnFiltersPanel } from './filters-modal/LearnFiltersPanel'
+import { useDebouncedCommit } from './useDebouncedCommit'
 import type { LearnModalFiltersState, LearnTab } from '../shared/types'
 
 import type { MasaiDropdownCheckboxFilterOption } from '@/components/ui/masai-dropdown-checkbox-filter'
@@ -13,6 +14,12 @@ import { MasaiButton } from '@/components/masai-button'
 import { MasaiDrawer } from '@/components/ui/masai-drawer'
 import { MasaiInput } from '@/components/ui/masai-input'
 import { MasaiTab } from '@/components/ui/masai-tab'
+
+/** Debounce before committing the search term to the URL (keeps typing smooth). */
+const SEARCH_DEBOUNCE_MS = 1000
+
+/** Shorter debounce for module checkboxes — ticks apply optimistically, fetch follows. */
+const MODULE_DEBOUNCE_MS = 400
 
 const LEARN_TAB_ICON_URL =
   'https://s3.ap-south-1.amazonaws.com/static.masaischool.com/tab-icon.svg'
@@ -60,6 +67,54 @@ export function LearnControlsSection({
 }: LearnControlsSectionProps) {
   const [filtersOpen, setFiltersOpen] = useState(false)
 
+  // Local drafts so typing and checkbox ticks reflect instantly; the actual fetch
+  // (URL commit) is debounced rather than firing on every keystroke/click.
+  const [searchInput, setSearchInput] = useDebouncedCommit(
+    searchValue,
+    onSearchChange,
+    SEARCH_DEBOUNCE_MS,
+  )
+  const [selectedModules, setSelectedModules] = useDebouncedCommit(
+    modalFilters.modules,
+    onModulesChange,
+    MODULE_DEBOUNCE_MS,
+  )
+
+  // Modal "Apply" stages the filters and closes the drawer; the actual commit
+  // (which navigates + refetches) runs only once the close animation finishes, so
+  // the refetch re-render can't interrupt the closing drawer (no flash).
+  const pendingApplyRef = useRef<LearnModalFiltersState | null>(null)
+  const applyFallbackRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  const flushPendingApply = useCallback(() => {
+    if (applyFallbackRef.current) {
+      clearTimeout(applyFallbackRef.current)
+      applyFallbackRef.current = null
+    }
+    const pending = pendingApplyRef.current
+    if (pending) {
+      pendingApplyRef.current = null
+      onApplyModalFilters(pending)
+    }
+  }, [onApplyModalFilters])
+
+  const handleApplyFilters = useCallback(
+    (next: LearnModalFiltersState) => {
+      pendingApplyRef.current = next
+      setFiltersOpen(false)
+      // Safety net in case the drawer's close animation never reports completion.
+      if (applyFallbackRef.current) clearTimeout(applyFallbackRef.current)
+      applyFallbackRef.current = setTimeout(flushPendingApply, 600)
+    },
+    [flushPendingApply],
+  )
+
+  useEffect(() => {
+    return () => {
+      if (applyFallbackRef.current) clearTimeout(applyFallbackRef.current)
+    }
+  }, [])
+
   const moduleDropdownOptions: Array<MasaiDropdownCheckboxFilterOption> =
     useMemo(
       () =>
@@ -100,8 +155,8 @@ export function LearnControlsSection({
       <div className="ml-auto flex flex-wrap items-center justify-end gap-3">
         <MasaiInput
           type="search"
-          value={searchValue}
-          onChange={(event) => onSearchChange(event.target.value)}
+          value={searchInput}
+          onChange={(event) => setSearchInput(event.target.value)}
           placeholder={SEARCH_PLACEHOLDER_BY_TAB[activeTab]}
           iconLeft={<Search className="size-4 shrink-0" strokeWidth={2} />}
           className="w-[300px]"
@@ -110,8 +165,8 @@ export function LearnControlsSection({
         <MasaiDropdownCheckboxFilter
           triggerLabel="Module"
           options={moduleDropdownOptions}
-          value={modalFilters.modules}
-          onValueChange={onModulesChange}
+          value={selectedModules}
+          onValueChange={setSelectedModules}
           disabled={!hasModuleChoices}
           className="w-[170px]"
           triggerClassName="min-w-0 w-full"
@@ -146,6 +201,7 @@ export function LearnControlsSection({
       <MasaiDrawer
         isOpen={filtersOpen}
         onOpenChange={setFiltersOpen}
+        onClosed={flushPendingApply}
         direction="right"
         sideMarginInPx={16}
         title="Filters"
@@ -158,8 +214,7 @@ export function LearnControlsSection({
             typeOptions={typeFilterOptions}
             instructorOptions={instructorFilterOptions}
             selectedFilters={modalFilters}
-            onApply={onApplyModalFilters}
-            onRequestClose={() => setFiltersOpen(false)}
+            onApply={handleApplyFilters}
           />
         }
       />

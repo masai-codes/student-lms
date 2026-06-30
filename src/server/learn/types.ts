@@ -13,6 +13,8 @@ export interface EnrolledBatch {
   courseLogo: string | null
   showAttendanceReport: boolean
   showEvaluationReport: boolean
+  /** `batches.settings.showBatchDetails` — gates the "Course Details" link (legacy LMS). */
+  showBatchDetails: boolean
 }
 
 export interface EnrolledBatchRow {

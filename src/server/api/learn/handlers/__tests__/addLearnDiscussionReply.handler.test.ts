@@ -10,6 +10,7 @@ vi.mock('@/server/new-discussions/services/addReplyToLearnDiscussion', () => ({
 }))
 vi.mock('@/server/auth/getCurrentSessionUserId', () => ({
   getUserIdFromCookieHeader: hoisted.getUserIdFromCookieHeader,
+  getUserIdFromRequest: hoisted.getUserIdFromCookieHeader,
 }))
 
 function request(body: unknown, cookie: string | null = 'session=abc') {
@@ -88,7 +89,8 @@ describe('addLearnDiscussionReply.handler', () => {
 
     const res = await handle(request({ message: 'Thanks!' }), '12')
 
-    expect(res.status).toBe(404)
+    expect(res.status).toBe(422)
+    expect(res.headers.get('x-true-status')).toBe('404')
   })
 
   it('maps a closed-discussion service error to 409', async () => {
