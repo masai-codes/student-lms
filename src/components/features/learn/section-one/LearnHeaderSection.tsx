@@ -1,10 +1,11 @@
 import { useEffect, useMemo, useState } from 'react'
 
-import { ChevronDown, ChevronRight } from 'lucide-react'
+import { ChevronDown, ChevronRight, ExternalLink } from 'lucide-react'
 
 import type { DrawerDirection } from '@/components/ui/masai-drawer'
 import { MasaiChips } from '@/components/ui/masai-chips'
 import { MasaiDrawer } from '@/components/ui/masai-drawer'
+import { getOldStudentUiUrlForPath } from '@/utils/authRedirect'
 
 interface LearnBatchOption {
   value: string
@@ -16,18 +17,12 @@ interface LearnHeaderSectionProps {
   selectedBatch: string
   batches: Array<LearnBatchOption>
   onBatchChange: (batch: string) => void
-  // TODO: Re-enable when Attendance Report and Course Details pages are ready.
-  // attendanceReportHref?: string
-  // courseDetailsHref?: string
 }
 
 export function LearnHeaderSection({
   selectedBatch,
   batches,
   onBatchChange,
-  // TODO: Re-enable when Attendance Report and Course Details pages are ready.
-  // attendanceReportHref = '#',
-  // courseDetailsHref = '#',
 }: LearnHeaderSectionProps) {
   const [isBatchDrawerOpen, setIsBatchDrawerOpen] = useState(false)
   const [isDesktop, setIsDesktop] = useState(false)
@@ -48,6 +43,11 @@ export function LearnHeaderSection({
   )
 
   const drawerDirection: DrawerDirection = isDesktop ? 'right' : 'bottom'
+
+  // Course details still lives in the legacy student app; resolve its URL per origin.
+  const courseDetailsHref = getOldStudentUiUrlForPath(
+    `/new-courses/${selectedBatch}`,
+  )
 
   return (
     <section className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
@@ -96,7 +96,9 @@ export function LearnHeaderSection({
                         className="h-10 w-auto max-w-[140px] object-contain object-left"
                       />
                     ) : null}
-                    <span className="type-b1-md font-semibold text-slate-900">{batch.label}</span>
+                    <span className="type-b1-md font-semibold text-slate-900">
+                      {batch.label}
+                    </span>
                   </div>
                   <ChevronRight
                     className="size-5 shrink-0 text-gray-500"
@@ -110,24 +112,17 @@ export function LearnHeaderSection({
         }
       />
 
-      {/*
-        TODO: Re-enable when Attendance Report and Course Details pages are ready.
-        <div className="flex items-center gap-4">
-          <a
-            href={attendanceReportHref}
-            className="type-b1-md text-primary-500 hover:underline"
-          >
-            Attendance Report
-          </a>
-          <div className="h-4 w-[1px] bg-gray-300" />
-          <a
-            href={courseDetailsHref}
-            className="type-b1-md text-primary-500 hover:underline"
-          >
-            Course Details
-          </a>
-        </div>
-      */}
+      {courseDetailsHref ? (
+        <a
+          href={courseDetailsHref}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="type-b1-md flex items-center gap-1 self-start text-primary-500 hover:underline md:self-auto"
+        >
+          <span>Course Details</span>
+          <ExternalLink className="size-4" aria-hidden />
+        </a>
+      ) : null}
     </section>
   )
 }
