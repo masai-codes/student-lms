@@ -4,7 +4,6 @@ import { getRequest } from '@tanstack/react-start/server'
 import { db } from '@/db'
 import { sessions } from '@/db/schema'
 
-
 type SessionTokenPayload = {
   sessionId?: string
 }
@@ -31,14 +30,19 @@ function parseCookieHeader(cookieHeader: string | null) {
 
 function verifyJwtAndGetSessionId(token: string | undefined): string | null {
   if (!token) return null
-
+  console.log('verifyJwtAndGetSessionId token', token)
   const jwtSecret = process.env.JWT_SECRET_KEY
   if (!jwtSecret) return null
 
   try {
+    console.log('Before verifyJwtAndGetSessionId Payload', token, jwtSecret)
     const payload = jwt.verify(token, jwtSecret) as SessionTokenPayload
+    console.log('After verifyJwtAndGetSessionId Payload', token, jwtSecret, {
+      payload,
+    })
     return payload.sessionId ?? null
-  } catch {
+  } catch (err) {
+    console.log('err', err)
     return null
   }
 }
@@ -49,15 +53,26 @@ function extractBearerToken(authHeader: string | null): string | undefined {
   return match ? match[1].trim() : undefined
 }
 
+/** Session id from a raw session JWT (e.g. a `?token=` query param on redirect). */
+export function readSessionIdFromToken(
+  token: string | null | undefined,
+): string | null {
+  return verifyJwtAndGetSessionId(token ?? undefined)
+}
+
 /** Session id from raw `Cookie` header (for Nitro routes, tests, etc.). */
-export function readSessionIdFromCookieHeader(cookieHeader: string | null): string | null {
+export function readSessionIdFromCookieHeader(
+  cookieHeader: string | null,
+): string | null {
   const cookieName = process.env.COOKIE_NAME || DEFAULT_COOKIE_NAME
   const cookies = parseCookieHeader(cookieHeader)
   return verifyJwtAndGetSessionId(cookies[cookieName])
 }
 
 /** Session id from raw `Authorization: Bearer <jwt>` header. */
-export function readSessionIdFromAuthHeader(authHeader: string | null): string | null {
+export function readSessionIdFromAuthHeader(
+  authHeader: string | null,
+): string | null {
   return verifyJwtAndGetSessionId(extractBearerToken(authHeader))
 }
 
@@ -67,7 +82,10 @@ export function readSessionIdFromCookie(): string | null {
   return readSessionIdFromCookieHeader(request.headers.get('cookie'))
 }
 
-async function lookupUserIdBySessionId(sessionId: string | null): Promise<number | null> {
+/** User id for a session id (matches `sessions.userId`), or null if the session is gone. */
+export async function lookupUserIdBySessionId(
+  sessionId: string | null,
+): Promise<number | null> {
   if (!sessionId) return null
 
   const sessionRecord = await db
@@ -79,7 +97,9 @@ async function lookupUserIdBySessionId(sessionId: string | null): Promise<number
   return sessionRecord[0]?.userId ?? null
 }
 
-export function getUserIdFromCookieHeader(cookieHeader: string | null): Promise<number | null> {
+export function getUserIdFromCookieHeader(
+  cookieHeader: string | null,
+): Promise<number | null> {
   const sessionId = readSessionIdFromCookieHeader(cookieHeader)
   return lookupUserIdBySessionId(sessionId)
 }
@@ -89,7 +109,9 @@ export function getUserIdFromCookieHeader(cookieHeader: string | null): Promise<
  * (preferred — used by mobile clients) or the session cookie (used by browsers).
  */
 export function getUserIdFromRequest(request: Request): Promise<number | null> {
-  const authSessionId = readSessionIdFromAuthHeader(request.headers.get('authorization'))
+  const authSessionId = readSessionIdFromAuthHeader(
+    request.headers.get('authorization'),
+  )
   if (authSessionId) {
     return lookupUserIdBySessionId(authSessionId)
   }
