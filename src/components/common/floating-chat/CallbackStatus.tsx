@@ -1,5 +1,4 @@
 import { CheckCircle, Info } from '@phosphor-icons/react'
-import { cn } from '@/lib/utils'
 
 interface CallbackStatusProps {
   status: 'success' | 'already_requested'

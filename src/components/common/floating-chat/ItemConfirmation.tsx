@@ -1,4 +1,4 @@
-import { ArrowUpRight, ChatCircle, VideoCamera, Timer, Notepad, UserCheck, Target, Info, PaperPlaneRight, PencilSimple, Star } from '@phosphor-icons/react'
+import { ArrowUpRight, ChatCircle, VideoCamera, Timer, Notepad, UserCheck, Target, Info, PencilSimple, Star } from '@phosphor-icons/react'
 import type { Category, Item } from './types'
 
 interface ItemConfirmationProps {

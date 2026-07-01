@@ -1,4 +1,4 @@
-import { CaretRight, Question, CurrencyInr, Books, PhoneCall, Lightning } from '@phosphor-icons/react'
+import { CaretRight, Question, CurrencyInr, Books, PhoneCall } from '@phosphor-icons/react'
 
 interface CallbackReasonSelectorProps {
   onSelect: (reason: string) => void

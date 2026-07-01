@@ -235,6 +235,10 @@ export interface SupportOverview {
   tickets: Array<TicketListItem>
   /** Count of not-yet-resolved tickets (drives the header badge). */
   openTicketCount: number
+  /** Whether the student is on the new-user journey (gates "Request a Callback" CTA). */
+  isNewUserJourney: boolean
+  /** Whether full fees are paid for the active batch (gates "Student-Kit" callback reason). */
+  hasFullFees: boolean
   /** Options for the "request a callback" flow. */
   callback: { reasons: Array<CallbackOption>; timeslots: Array<CallbackOption> }
   /** Callback requests the student has already raised (shown in Raised Tickets). */
