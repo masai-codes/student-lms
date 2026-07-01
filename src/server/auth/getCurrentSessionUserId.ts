@@ -30,19 +30,13 @@ function parseCookieHeader(cookieHeader: string | null) {
 
 function verifyJwtAndGetSessionId(token: string | undefined): string | null {
   if (!token) return null
-  console.log('verifyJwtAndGetSessionId token', token)
   const jwtSecret = process.env.JWT_SECRET_KEY
   if (!jwtSecret) return null
 
   try {
-    console.log('Before verifyJwtAndGetSessionId Payload', token, jwtSecret)
     const payload = jwt.verify(token, jwtSecret) as SessionTokenPayload
-    console.log('After verifyJwtAndGetSessionId Payload', token, jwtSecret, {
-      payload,
-    })
     return payload.sessionId ?? null
-  } catch (err) {
-    console.log('err', err)
+  } catch {
     return null
   }
 }

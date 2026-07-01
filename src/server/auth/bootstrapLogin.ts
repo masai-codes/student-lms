@@ -22,11 +22,9 @@ export const bootstrapLoginWithToken = createServerFn({ method: 'GET' })
     typeof token === 'string' ? token : '',
   )
   .handler(async ({ data: token }) => {
-    console.log('bootstrapLoginWithToken token in ', token)
     if (!token) return null
 
     const sessionId = readSessionIdFromToken(token)
-    console.log('bootstrapLoginWithToken Sesion id', sessionId)
     if (!sessionId) return null
 
     const userId = await lookupUserIdBySessionId(sessionId)
