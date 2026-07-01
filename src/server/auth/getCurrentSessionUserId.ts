@@ -47,13 +47,6 @@ function extractBearerToken(authHeader: string | null): string | undefined {
   return match ? match[1].trim() : undefined
 }
 
-/** Session id from a raw session JWT (e.g. a `?token=` query param on redirect). */
-export function readSessionIdFromToken(
-  token: string | null | undefined,
-): string | null {
-  return verifyJwtAndGetSessionId(token ?? undefined)
-}
-
 /** Session id from raw `Cookie` header (for Nitro routes, tests, etc.). */
 export function readSessionIdFromCookieHeader(
   cookieHeader: string | null,
@@ -76,8 +69,7 @@ export function readSessionIdFromCookie(): string | null {
   return readSessionIdFromCookieHeader(request.headers.get('cookie'))
 }
 
-/** User id for a session id (matches `sessions.userId`), or null if the session is gone. */
-export async function lookupUserIdBySessionId(
+async function lookupUserIdBySessionId(
   sessionId: string | null,
 ): Promise<number | null> {
   if (!sessionId) return null
