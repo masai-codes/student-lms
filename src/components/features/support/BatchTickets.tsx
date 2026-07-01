@@ -179,11 +179,10 @@ export function BatchTickets() {
                         key={t.value}
                         type="button"
                         onClick={() => handleTabChange(t.value)}
-                        className={`font-poppins rounded-t-lg px-4 py-2.5 text-[14px] font-[500] transition-colors ${
-                          active
-                            ? 'bg-white text-[#6962AC] border border-b-0 border-gray-200'
-                            : 'text-gray-600 hover:text-gray-900'
-                        }`}
+                        className={`font-poppins rounded-t-lg px-4 py-2.5 text-[14px] font-[500] transition-colors ${active
+                          ? 'bg-white text-[#6962AC] border border-b-0 border-gray-200'
+                          : 'text-gray-600 hover:text-gray-900'
+                          }`}
                       >
                         {t.label}
                       </button>
@@ -233,11 +232,10 @@ export function BatchTickets() {
 
           {/* Tab body */}
           <div
-            className={`relative z-0 min-h-[320px] bg-white border border-gray-200 ${
-              activeTab === 'support-tickets'
-                ? 'rounded-xl'
-                : 'rounded-b-xl rounded-tr-xl sm:rounded-tl-xl'
-            }`}
+            className={`relative z-0 min-h-[320px] bg-white border border-gray-200 ${activeTab === 'support-tickets'
+              ? 'rounded-xl'
+              : 'rounded-b-xl rounded-tr-xl sm:rounded-tl-xl'
+              }`}
           >
             {activeTab === 'support-tickets' ? (
               <div className="p-4 md:p-6">
@@ -629,7 +627,7 @@ function CallbackFlow(props: {
   const isReason = step === 'reason'
   const options = isReason ? reasons : timeslots
   const title = isReason
-    ? 'Select the reason for call back'
+    ? 'Select a reason for the callback.'
     : 'Select a preferred time slot for callback'
 
   return (

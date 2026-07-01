@@ -1,14 +1,15 @@
-import { CaretRight } from '@phosphor-icons/react'
+import { CaretRight, PhoneCall } from '@phosphor-icons/react'
 import type { Category } from './types'
 
 interface CategorySelectorProps {
   categories: Category[]
   onSelect: (categoryId: string) => void
+  onRequestCallback?: () => void
 }
 
-export function CategorySelector({ categories, onSelect }: CategorySelectorProps) {
+export function CategorySelector({ categories, onSelect, onRequestCallback }: CategorySelectorProps) {
   return (
-    <>
+    <div className="flex flex-col gap-[9px]">
       {categories.map(cat => (
         <div
           key={cat.id}
@@ -27,6 +28,24 @@ export function CategorySelector({ categories, onSelect }: CategorySelectorProps
           </div>
         </div>
       ))}
-    </>
+
+      {onRequestCallback && (
+        <div
+          onClick={onRequestCallback}
+          className="group flex shrink-0 items-center gap-[13px] p-[14px_12px] mt-1 rounded-[14px] border-[1.5px] border-dashed border-[#4b4396]/30 bg-[#f8f8fc] cursor-pointer transition-all duration-150 ease-out hover:bg-[rgba(75,67,150,0.05)] hover:border-[#4b4396]/60 hover:translate-y-[-1px] shadow-sm"
+        >
+          <div className="flex items-center justify-center shrink-0 size-[38px] rounded-full bg-gradient-to-br from-[#4b4396] to-[#6962ac] text-white shadow-md">
+            <PhoneCall weight="fill" className="size-[18px]" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <strong className="block text-[14.5px] font-bold text-[#4b4396] leading-tight mb-0.5">Request a Callback</strong>
+            <small className="block text-[12.3px] text-[#62647d] leading-tight">Speak directly with our support team</small>
+          </div>
+          <div className="shrink-0 text-[#4b4396] opacity-70 group-hover:opacity-100 transition-opacity">
+            <CaretRight weight="bold" className="size-4" />
+          </div>
+        </div>
+      )}
+    </div>
   )
 }

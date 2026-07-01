@@ -67,9 +67,12 @@ export async function listTickets(input: {
   userId: number
   tab?: TicketTab
   page?: number
+  /** Override page size (e.g. floating-chat session payload). */
+  limit?: number
 }): Promise<Array<TicketListItem>> {
   const tab = input.tab ?? 'unresolved'
   const page = input.page ?? 1
+  const limit = input.limit ?? PAGE_SIZE
 
   const conditions = tabConditions(input.userId, tab)
 
@@ -85,7 +88,7 @@ export async function listTickets(input: {
     .from(tickets)
     .where(and(...conditions))
     .orderBy(desc(tickets.id))
-    .limit(PAGE_SIZE)
+    .limit(limit)
     .offset((page - 1) * PAGE_SIZE)
 
   if (rows.length === 0) return []
@@ -235,7 +238,7 @@ export async function getTicketThread(input: {
 
   return {
     ticket,
-    statusResponse: buildStatusResponse(status),
+    statusResponse: buildStatusResponse(status, ticket.tatHours),
     messages,
     capabilities,
   }
@@ -244,14 +247,17 @@ export async function getTicketThread(input: {
 /** The status banner copy shown at the top of a conversation. */
 function buildStatusResponse(
   status: ReturnType<typeof normalizeStatus>,
+  tatHours: number | null,
 ): TicketThread['statusResponse'] {
   switch (status) {
     case 'open':
     case 're-opened':
-      // No synthetic banner: open/re-opened tickets carry the real, tailored
-      // "first template response" coordinator comment (see ticketReplyTemplate),
-      // exactly like the legacy flow.
-      return null
+      return {
+        heading: 'We’re on it',
+        message: tatHours
+          ? `A coordinator usually replies within ${tatHours} hours.`
+          : 'A coordinator will reply here soon.',
+      }
     case 'resolved':
       return {
         heading: 'Marked as resolved',

@@ -1,10 +1,3 @@
-export interface Course {
-  id: string
-  batch: string
-  name: string
-  lang: string | null
-}
-
 export interface Category {
   id: string
   label: string
@@ -13,9 +6,12 @@ export interface Category {
 }
 
 export interface Item {
+  id?: number
   title: string
   meta: string
   date: string
+  type?: 'live' | 'recorded'
+  startTime?: string
 }
 
 export interface Message {
@@ -24,7 +20,7 @@ export interface Message {
   name?: string
 }
 
-export type TicketFilter = 'all' | 'open' | 'in_progress' | 'resolved'
+export type TicketFilter = 'all' | 'open' | 're-opened' | 'resolved'
 
 export interface Ticket {
   id: string

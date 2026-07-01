@@ -23,7 +23,7 @@ import { Route as protectedLayoutIndexRouteImport } from './routes/(protected)/_
 import { Route as authSwitchAccountIndexRouteImport } from './routes/(auth)/switch-account/index'
 import { Route as authSigninIndexRouteImport } from './routes/(auth)/signin/index'
 import { Route as authLoginIndexRouteImport } from './routes/(auth)/login/index'
-import { Route as ApiSupportUploadRouteImport } from './routes/api/support/upload'
+import { Route as ApiUploadsPresignRouteImport } from './routes/api/uploads/presign'
 import { Route as ApiSupportTicketsRouteImport } from './routes/api/support/tickets'
 import { Route as ApiSupportSubcategoriesRouteImport } from './routes/api/support/subcategories'
 import { Route as ApiSupportOverviewRouteImport } from './routes/api/support/overview'
@@ -87,6 +87,7 @@ import { Route as ApiSupportTicketsReopenRouteImport } from './routes/api/suppor
 import { Route as ApiSupportTicketsRateRouteImport } from './routes/api/support/tickets/rate'
 import { Route as ApiSupportTicketsEscalateRouteImport } from './routes/api/support/tickets/escalate'
 import { Route as ApiSupportTicketsCreateRouteImport } from './routes/api/support/tickets/create'
+import { Route as ApiSupportFloatingChatInboxRouteImport } from './routes/api/support/floating-chat/inbox'
 import { Route as ApiSupportFaqsVoteRouteImport } from './routes/api/support/faqs/vote'
 import { Route as ApiSupportCallbackCreateRouteImport } from './routes/api/support/callback/create'
 import { Route as ApiProfileAccountActivitySignOutAllRouteImport } from './routes/api/profile/account-activity/sign-out-all'
@@ -264,9 +265,9 @@ const authLoginIndexRoute = authLoginIndexRouteImport.update({
   path: '/login/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiSupportUploadRoute = ApiSupportUploadRouteImport.update({
-  id: '/api/support/upload',
-  path: '/api/support/upload',
+const ApiUploadsPresignRoute = ApiUploadsPresignRouteImport.update({
+  id: '/api/uploads/presign',
+  path: '/api/uploads/presign',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiSupportTicketsRoute = ApiSupportTicketsRouteImport.update({
@@ -616,6 +617,12 @@ const ApiSupportTicketsCreateRoute = ApiSupportTicketsCreateRouteImport.update({
   path: '/create',
   getParentRoute: () => ApiSupportTicketsRoute,
 } as any)
+const ApiSupportFloatingChatInboxRoute =
+  ApiSupportFloatingChatInboxRouteImport.update({
+    id: '/api/support/floating-chat/inbox',
+    path: '/api/support/floating-chat/inbox',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiSupportFaqsVoteRoute = ApiSupportFaqsVoteRouteImport.update({
   id: '/vote',
   path: '/vote',
@@ -1290,7 +1297,7 @@ export interface FileRoutesByFullPath {
   '/api/support/overview': typeof ApiSupportOverviewRoute
   '/api/support/subcategories': typeof ApiSupportSubcategoriesRoute
   '/api/support/tickets': typeof ApiSupportTicketsRouteWithChildren
-  '/api/support/upload': typeof ApiSupportUploadRoute
+  '/api/uploads/presign': typeof ApiUploadsPresignRoute
   '/login/': typeof authLoginIndexRoute
   '/signin/': typeof authSigninIndexRoute
   '/switch-account/': typeof authSwitchAccountIndexRoute
@@ -1369,6 +1376,7 @@ export interface FileRoutesByFullPath {
   '/api/profile/account-activity/sign-out-all': typeof ApiProfileAccountActivitySignOutAllRoute
   '/api/support/callback/create': typeof ApiSupportCallbackCreateRoute
   '/api/support/faqs/vote': typeof ApiSupportFaqsVoteRoute
+  '/api/support/floating-chat/inbox': typeof ApiSupportFloatingChatInboxRoute
   '/api/support/tickets/create': typeof ApiSupportTicketsCreateRoute
   '/api/support/tickets/escalate': typeof ApiSupportTicketsEscalateRoute
   '/api/support/tickets/rate': typeof ApiSupportTicketsRateRoute
@@ -1474,7 +1482,7 @@ export interface FileRoutesByTo {
   '/api/support/overview': typeof ApiSupportOverviewRoute
   '/api/support/subcategories': typeof ApiSupportSubcategoriesRoute
   '/api/support/tickets': typeof ApiSupportTicketsRouteWithChildren
-  '/api/support/upload': typeof ApiSupportUploadRoute
+  '/api/uploads/presign': typeof ApiUploadsPresignRoute
   '/login': typeof authLoginIndexRoute
   '/signin': typeof authSigninIndexRoute
   '/switch-account': typeof authSwitchAccountIndexRoute
@@ -1553,6 +1561,7 @@ export interface FileRoutesByTo {
   '/api/profile/account-activity/sign-out-all': typeof ApiProfileAccountActivitySignOutAllRoute
   '/api/support/callback/create': typeof ApiSupportCallbackCreateRoute
   '/api/support/faqs/vote': typeof ApiSupportFaqsVoteRoute
+  '/api/support/floating-chat/inbox': typeof ApiSupportFloatingChatInboxRoute
   '/api/support/tickets/create': typeof ApiSupportTicketsCreateRoute
   '/api/support/tickets/escalate': typeof ApiSupportTicketsEscalateRoute
   '/api/support/tickets/rate': typeof ApiSupportTicketsRateRoute
@@ -1661,7 +1670,7 @@ export interface FileRoutesById {
   '/api/support/overview': typeof ApiSupportOverviewRoute
   '/api/support/subcategories': typeof ApiSupportSubcategoriesRoute
   '/api/support/tickets': typeof ApiSupportTicketsRouteWithChildren
-  '/api/support/upload': typeof ApiSupportUploadRoute
+  '/api/uploads/presign': typeof ApiUploadsPresignRoute
   '/(auth)/login/': typeof authLoginIndexRoute
   '/(auth)/signin/': typeof authSigninIndexRoute
   '/(auth)/switch-account/': typeof authSwitchAccountIndexRoute
@@ -1740,6 +1749,7 @@ export interface FileRoutesById {
   '/api/profile/account-activity/sign-out-all': typeof ApiProfileAccountActivitySignOutAllRoute
   '/api/support/callback/create': typeof ApiSupportCallbackCreateRoute
   '/api/support/faqs/vote': typeof ApiSupportFaqsVoteRoute
+  '/api/support/floating-chat/inbox': typeof ApiSupportFloatingChatInboxRoute
   '/api/support/tickets/create': typeof ApiSupportTicketsCreateRoute
   '/api/support/tickets/escalate': typeof ApiSupportTicketsEscalateRoute
   '/api/support/tickets/rate': typeof ApiSupportTicketsRateRoute
@@ -1848,7 +1858,7 @@ export interface FileRouteTypes {
     | '/api/support/overview'
     | '/api/support/subcategories'
     | '/api/support/tickets'
-    | '/api/support/upload'
+    | '/api/uploads/presign'
     | '/login/'
     | '/signin/'
     | '/switch-account/'
@@ -1927,6 +1937,7 @@ export interface FileRouteTypes {
     | '/api/profile/account-activity/sign-out-all'
     | '/api/support/callback/create'
     | '/api/support/faqs/vote'
+    | '/api/support/floating-chat/inbox'
     | '/api/support/tickets/create'
     | '/api/support/tickets/escalate'
     | '/api/support/tickets/rate'
@@ -2032,7 +2043,7 @@ export interface FileRouteTypes {
     | '/api/support/overview'
     | '/api/support/subcategories'
     | '/api/support/tickets'
-    | '/api/support/upload'
+    | '/api/uploads/presign'
     | '/login'
     | '/signin'
     | '/switch-account'
@@ -2111,6 +2122,7 @@ export interface FileRouteTypes {
     | '/api/profile/account-activity/sign-out-all'
     | '/api/support/callback/create'
     | '/api/support/faqs/vote'
+    | '/api/support/floating-chat/inbox'
     | '/api/support/tickets/create'
     | '/api/support/tickets/escalate'
     | '/api/support/tickets/rate'
@@ -2218,7 +2230,7 @@ export interface FileRouteTypes {
     | '/api/support/overview'
     | '/api/support/subcategories'
     | '/api/support/tickets'
-    | '/api/support/upload'
+    | '/api/uploads/presign'
     | '/(auth)/login/'
     | '/(auth)/signin/'
     | '/(auth)/switch-account/'
@@ -2297,6 +2309,7 @@ export interface FileRouteTypes {
     | '/api/profile/account-activity/sign-out-all'
     | '/api/support/callback/create'
     | '/api/support/faqs/vote'
+    | '/api/support/floating-chat/inbox'
     | '/api/support/tickets/create'
     | '/api/support/tickets/escalate'
     | '/api/support/tickets/rate'
@@ -2403,7 +2416,7 @@ export interface RootRouteChildren {
   ApiSupportOverviewRoute: typeof ApiSupportOverviewRoute
   ApiSupportSubcategoriesRoute: typeof ApiSupportSubcategoriesRoute
   ApiSupportTicketsRoute: typeof ApiSupportTicketsRouteWithChildren
-  ApiSupportUploadRoute: typeof ApiSupportUploadRoute
+  ApiUploadsPresignRoute: typeof ApiUploadsPresignRoute
   authLoginIndexRoute: typeof authLoginIndexRoute
   authSigninIndexRoute: typeof authSigninIndexRoute
   authSwitchAccountIndexRoute: typeof authSwitchAccountIndexRoute
@@ -2464,6 +2477,7 @@ export interface RootRouteChildren {
   ApiMessageIdReplyRoute: typeof ApiMessageIdReplyRoute
   ApiProfileAccountActivitySignOutAllRoute: typeof ApiProfileAccountActivitySignOutAllRoute
   ApiSupportCallbackCreateRoute: typeof ApiSupportCallbackCreateRoute
+  ApiSupportFloatingChatInboxRoute: typeof ApiSupportFloatingChatInboxRoute
   authResetPasswordTokenIndexRoute: typeof authResetPasswordTokenIndexRoute
   authV2LoginIndexRoute: typeof authV2LoginIndexRoute
   ApiAnnouncementIdIndexRoute: typeof ApiAnnouncementIdIndexRoute
@@ -2588,11 +2602,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof authLoginIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/support/upload': {
-      id: '/api/support/upload'
-      path: '/api/support/upload'
-      fullPath: '/api/support/upload'
-      preLoaderRoute: typeof ApiSupportUploadRouteImport
+    '/api/uploads/presign': {
+      id: '/api/uploads/presign'
+      path: '/api/uploads/presign'
+      fullPath: '/api/uploads/presign'
+      preLoaderRoute: typeof ApiUploadsPresignRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/support/tickets': {
@@ -3035,6 +3049,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/api/support/tickets/create'
       preLoaderRoute: typeof ApiSupportTicketsCreateRouteImport
       parentRoute: typeof ApiSupportTicketsRoute
+    }
+    '/api/support/floating-chat/inbox': {
+      id: '/api/support/floating-chat/inbox'
+      path: '/api/support/floating-chat/inbox'
+      fullPath: '/api/support/floating-chat/inbox'
+      preLoaderRoute: typeof ApiSupportFloatingChatInboxRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/api/support/faqs/vote': {
       id: '/api/support/faqs/vote'
@@ -4129,7 +4150,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiSupportOverviewRoute: ApiSupportOverviewRoute,
   ApiSupportSubcategoriesRoute: ApiSupportSubcategoriesRoute,
   ApiSupportTicketsRoute: ApiSupportTicketsRouteWithChildren,
-  ApiSupportUploadRoute: ApiSupportUploadRoute,
+  ApiUploadsPresignRoute: ApiUploadsPresignRoute,
   authLoginIndexRoute: authLoginIndexRoute,
   authSigninIndexRoute: authSigninIndexRoute,
   authSwitchAccountIndexRoute: authSwitchAccountIndexRoute,
@@ -4196,6 +4217,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiProfileAccountActivitySignOutAllRoute:
     ApiProfileAccountActivitySignOutAllRoute,
   ApiSupportCallbackCreateRoute: ApiSupportCallbackCreateRoute,
+  ApiSupportFloatingChatInboxRoute: ApiSupportFloatingChatInboxRoute,
   authResetPasswordTokenIndexRoute: authResetPasswordTokenIndexRoute,
   authV2LoginIndexRoute: authV2LoginIndexRoute,
   ApiAnnouncementIdIndexRoute: ApiAnnouncementIdIndexRoute,

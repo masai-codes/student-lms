@@ -1,32 +1,84 @@
 import { cn } from '@/lib/utils'
-import type { Ticket, Category, TicketFilter } from './types'
+import { Phone, Ticket } from '@phosphor-icons/react'
+import type {
+  CallbackTicketItem,
+  TicketListItem,
+  TicketStatus,
+} from '@/server/api/support/support.types'
+import { formatSocialPostTime } from '@/lib/socialRelativeTime'
+import type { TicketFilter } from './types'
+import { isResolvedTicketStatus } from './ticketStatus'
 
 interface TicketListProps {
-  tickets: Ticket[]
-  categories: Category[]
+  tickets: TicketListItem[]
+  callbackTickets: CallbackTicketItem[]
   filter: TicketFilter
   onFilterChange: (filter: TicketFilter) => void
-  onTicketSelect: (ticketId: string) => void
+  onTicketSelect: (ticketId: number) => void
 }
 
-export function TicketList({ tickets, categories, filter, onFilterChange, onTicketSelect }: TicketListProps) {
-  const filteredTickets = tickets.filter(t => filter === 'all' || t.status === filter)
+function matchesFilter(status: TicketStatus, filter: TicketFilter): boolean {
+  if (filter === 'all') return true
+  if (filter === 'open') return status === 'open'
+  if (filter === 're-opened') return status === 're-opened'
+  return isResolvedTicketStatus(status)
+}
+
+function statusChip(status: TicketStatus): { label: string; className: string } {
+  if (status === 're-opened') {
+    return { label: 'Reopened', className: 'bg-[#fef3e2] text-[#b45309]' }
+  }
+  if (isResolvedTicketStatus(status)) {
+    return { label: 'Resolved', className: 'bg-[#e8f7ee] text-[#0E9F6E]' }
+  }
+  return { label: 'Open', className: 'bg-[#f0f0fd] text-[#4338ca]' }
+}
+
+function callbackStatusChip(status: string): { label: string; className: string } {
+  if (status.toLowerCase() === 'resolved') {
+    return { label: 'Resolved', className: 'bg-[#e8f7ee] text-[#0E9F6E]' }
+  }
+  return { label: status, className: 'bg-[#fef3e2] text-[#b45309]' }
+}
+
+export function TicketList({
+  tickets,
+  callbackTickets,
+  filter,
+  onFilterChange,
+  onTicketSelect,
+}: TicketListProps) {
+  const filteredTickets = tickets.filter((t) => matchesFilter(t.status, filter))
+  const filteredCallbacks = callbackTickets.filter((cb) => {
+    if (filter === 'all') return true
+    const resolved = cb.status.toLowerCase() === 'resolved'
+    if (filter === 'resolved') return resolved
+    return !resolved
+  })
+
+  const isEmpty = filteredTickets.length === 0 && filteredCallbacks.length === 0
 
   return (
     <>
       <div className="flex items-center gap-2 mb-2 shrink-0 overflow-x-auto pb-1 [&::-webkit-scrollbar]:hidden">
-        {(['all', 'open', 'in_progress', 'resolved'] as TicketFilter[]).map(f => {
+        {(['all', 'open', 're-opened', 'resolved'] as TicketFilter[]).map((f) => {
           const labels: Record<TicketFilter, string> = {
-            all: 'All', open: 'Open', in_progress: 'In progress', resolved: 'Resolved'
+            all: 'All',
+            open: 'Open',
+            're-opened': 'Reopened',
+            resolved: 'Resolved',
           }
           const isActive = filter === f
           return (
             <button
               key={f}
+              type="button"
               onClick={() => onFilterChange(f)}
               className={cn(
-                "px-[13px] py-[6px] rounded-full text-[12px] font-bold whitespace-nowrap transition-all",
-                isActive ? "bg-[#4b4396] text-white shadow-sm" : "bg-[#f1f1f7] text-[#62647d] hover:bg-[#e3e3fb] hover:text-[#4b4396]"
+                'px-[13px] py-[6px] rounded-full text-[12px] font-bold whitespace-nowrap transition-all',
+                isActive
+                  ? 'bg-[#4b4396] text-white shadow-sm'
+                  : 'bg-[#f1f1f7] text-[#62647d] hover:bg-[#e3e3fb] hover:text-[#4b4396]',
               )}
             >
               {labels[f]}
@@ -35,45 +87,83 @@ export function TicketList({ tickets, categories, filter, onFilterChange, onTick
         })}
       </div>
 
-      {filteredTickets.map(t => {
-        const cat = categories.find(c => c.id === t.category)
-        
-        let statusClasses = "bg-[#f0f0fd] text-[#4338ca]"
-        let statusLabel = "Open"
-        if (t.status === 'in_progress') {
-          statusClasses = "bg-[#fef3e2] text-[#b45309]"
-          statusLabel = "In progress"
-        } else if (t.status === 'resolved') {
-          statusClasses = "bg-[#e8f7ee] text-[#15803d]"
-          statusLabel = "Resolved"
-        }
-
-        const lastMessage = t.messages[t.messages.length - 1]
-        const prefix = lastMessage.role === 'agent' ? `${lastMessage.name}: ` : (lastMessage.role === 'user' ? 'You: ' : '')
-
+      {filteredTickets.map((ticket) => {
+        const chip = statusChip(ticket.status)
         return (
-          <div key={t.id} onClick={() => onTicketSelect(t.id)} className="p-[13px_12px] border border-[#e9e9f3] rounded-[14px] shrink-0 cursor-pointer transition-colors hover:bg-[#f0f0fd] hover:border-[#e3e3fb]">
+          <button
+            key={ticket.id}
+            type="button"
+            onClick={() => onTicketSelect(ticket.id)}
+            className="w-full text-left p-[13px_12px] border border-[#e9e9f3] rounded-[14px] shrink-0 cursor-pointer transition-colors hover:bg-[#f0f0fd] hover:border-[#e3e3fb]"
+          >
             <div className="flex items-center justify-between gap-2 mb-[7px]">
-              <div className="flex items-center gap-1.5 text-[#62647d] text-[11.8px] font-bold">
-                {cat && <cat.icon className="size-[14px] text-[#4b4396] shrink-0" />}
-                <span>{t.itemTitle ? cat?.label : 'General Query'}</span>
+              <div className="flex items-center gap-1.5 text-[#62647d] text-[11.8px] font-bold min-w-0">
+                <Ticket weight="fill" className="size-[14px] text-[#4b4396] shrink-0" />
+                <span className="truncate capitalize">{ticket.category.replace(/[-_]/g, ' ')}</span>
               </div>
-              <span className={cn("text-[11px] font-bold px-[9px] py-[3px] rounded-full shrink-0 whitespace-nowrap", statusClasses)}>
-                {statusLabel}
+              <span
+                className={cn(
+                  'text-[11px] font-bold px-[9px] py-[3px] rounded-full shrink-0 whitespace-nowrap',
+                  chip.className,
+                )}
+              >
+                {chip.label}
               </span>
             </div>
-            <div className="text-[13.8px] font-bold text-[#15162c] mb-1 truncate">
-              {t.itemTitle || 'General Query'}
+            <div className="text-[13.8px] font-bold text-[#15162c] mb-1 truncate">{ticket.title}</div>
+            <div className="text-[11.2px] text-[#9496ab]">
+              #{ticket.id}
+              {ticket.updatedAt ? ` · updated ${formatSocialPostTime(ticket.updatedAt)}` : ''}
+              {ticket.hasUnread ? ' · New reply' : ''}
+            </div>
+          </button>
+        )
+      })}
+
+      {filteredCallbacks.map((cb) => {
+        const chip = callbackStatusChip(cb.status)
+        const timestamp = cb.updatedAt || cb.createdAt
+        return (
+          <div
+            key={`callback-${cb.id}`}
+            className="p-[13px_12px] border border-[#e3e3fb] rounded-[14px] shrink-0 bg-[#fafaff]"
+          >
+            <div className="flex items-center justify-between gap-2 mb-[7px]">
+              <div className="flex items-center gap-1.5 text-[#62647d] text-[11.8px] font-bold min-w-0">
+                <Phone weight="fill" className="size-[14px] text-[#4b4396] shrink-0" />
+                <span>Callback request</span>
+              </div>
+              <span
+                className={cn(
+                  'text-[11px] font-bold px-[9px] py-[3px] rounded-full shrink-0 whitespace-nowrap capitalize',
+                  chip.className,
+                )}
+              >
+                {chip.label}
+              </span>
+            </div>
+            <div className="text-[13.8px] font-bold text-[#15162c] mb-1 truncate capitalize">
+              {cb.category.replace(/[-_]/g, ' ')}
             </div>
             <div className="text-[12.4px] text-[#62647d] mb-[7px] truncate">
-              {prefix}{lastMessage.text}
+              {cb.preferredTimeSlot ? `Preferred slot: ${cb.preferredTimeSlot}` : 'Callback scheduled'}
             </div>
             <div className="text-[11.2px] text-[#9496ab]">
-              {t.id} · updated {t.updated}
+              #{cb.id}
+              {timestamp ? ` · ${formatSocialPostTime(timestamp)}` : ''}
             </div>
           </div>
         )
       })}
+
+      {isEmpty && (
+        <div className="flex flex-1 flex-col items-center justify-center gap-2 py-10 text-center">
+          <p className="text-[14px] font-bold text-[#15162c]">No tickets yet</p>
+          <p className="text-[12.5px] text-[#62647d]">
+            Raise a ticket from Help and it&apos;ll show up here.
+          </p>
+        </div>
+      )}
     </>
   )
 }

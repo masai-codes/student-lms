@@ -17,3 +17,8 @@ todos.json
 
 # Reference files temporarily copied for inspection
 otp.ts
+
+knowcode.md
+knowcode.log
+.knowcode/
+.agent/

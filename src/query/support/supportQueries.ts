@@ -14,6 +14,7 @@
 
 import type { TicketTab } from '@/server/api/support/support.types'
 import {
+  fetchFloatingChatInbox,
   fetchSubcategoriesByCategory,
   fetchSupportFaqs,
   fetchSupportOverview,
@@ -25,6 +26,7 @@ import {
 export const SUPPORT_KEYS = {
   all: ['support'] as const,
   overview: (batchId?: number) => ['support', 'overview', batchId ?? 'default'] as const,
+  floatingChatInbox: ['support', 'floating-chat', 'inbox'] as const,
   faqs: (batchId: number, search: string, category?: string) =>
     ['support', 'faqs', batchId, search, category ?? null] as const,
   tickets: (tab: TicketTab, page: number) =>
@@ -42,6 +44,19 @@ export const supportOverviewQuery = (batchId?: number) => ({
   queryFn: () => fetchSupportOverview(batchId),
   staleTime: 60 * 1000,
   ...REFETCH_ON_NAV,
+})
+
+/**
+ * Floating support modal — fetched once on first open, cached until page reload.
+ */
+export const floatingChatInboxQuery = () => ({
+  queryKey: SUPPORT_KEYS.floatingChatInbox,
+  queryFn: () => fetchFloatingChatInbox(),
+  staleTime: Number.POSITIVE_INFINITY,
+  gcTime: Number.POSITIVE_INFINITY,
+  refetchOnMount: false,
+  refetchOnWindowFocus: false,
+  refetchOnReconnect: false,
 })
 
 /** Live FAQ search for a batch (enabled by the caller while searching). */

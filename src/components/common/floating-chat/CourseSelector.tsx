@@ -1,22 +1,22 @@
 import { cn } from '@/lib/utils'
 import { CaretRight } from '@phosphor-icons/react'
-import type { Course } from './types'
+import type { SupportBatch } from '@/server/api/support/support.types'
 
 interface CourseSelectorProps {
-  courses: Course[]
-  selectedCourse: string | null
-  onSelect: (courseId: string) => void
+  batches: SupportBatch[]
+  selectedBatchId: number | null
+  onSelect: (batchId: number) => void
 }
 
-export function CourseSelector({ courses, selectedCourse, onSelect }: CourseSelectorProps) {
+export function CourseSelector({ batches, selectedBatchId, onSelect }: CourseSelectorProps) {
   return (
     <>
-      {courses.map(course => {
-        const isSelected = selectedCourse === course.id
+      {batches.map(batch => {
+        const isSelected = selectedBatchId === batch.id
         return (
           <div
-            key={course.id}
-            onClick={() => onSelect(course.id)}
+            key={batch.id}
+            onClick={() => onSelect(batch.id)}
             className={cn(
               "group relative flex items-center shrink-0 gap-[13px] p-[14px_14px_14px_16px] border-[1.5px] rounded-[14px] bg-white cursor-pointer transition-all duration-150 ease-out",
               isSelected 
@@ -25,9 +25,10 @@ export function CourseSelector({ courses, selectedCourse, onSelect }: CourseSele
             )}
           >
             <div className="flex-1 min-w-0">
-              <div className="text-[10.8px] font-bold text-[#9496ab] uppercase tracking-wider mb-0.5">Batch · {course.batch}</div>
-              <div className="text-[14px] font-extrabold text-[#15162c] leading-tight truncate">{course.name}</div>
-              {course.lang && <div className="text-[12px] text-[#62647d] mt-0.5 truncate">{course.lang}</div>}
+              <div className="text-[10.8px] font-bold text-[#9496ab] uppercase tracking-wider mb-0.5">Batch</div>
+              <div className="text-[14px] font-extrabold text-[#15162c] leading-tight truncate">
+                {batch.name || `Batch ${batch.id}`}
+              </div>
             </div>
             <div className={cn("shrink-0 transition-colors duration-150", isSelected ? "text-[#4b4396]" : "text-[#9496ab] group-hover:text-[#4b4396]")}>
               <CaretRight weight="bold" className="size-4" />
