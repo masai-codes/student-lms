@@ -1,0 +1,42 @@
+# Local development database for student-lms.
+# Pinned to the same MySQL version we run in RDS so local behaviour matches prod.
+#
+# Usage:
+#   npm run db:setup   # start MySQL + download & import the seed dump
+#   npm run db:up      # just start MySQL
+#   npm run db:down    # stop MySQL (keeps data)
+#   npm run db:reset   # wipe the volume and re-seed from scratch
+#
+# All values below can be overridden from your .env file (see .env.example).
+
+services:
+  mysql:
+    image: mysql:8.0.42
+    container_name: student-lms-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-lms_dev_db}
+    ports:
+      - '${MYSQL_PORT:-3306}:3306'
+    volumes:
+      - student_lms_mysql_data:/var/lib/mysql
+    healthcheck:
+      test:
+        [
+          'CMD',
+          'mysqladmin',
+          'ping',
+          '-h',
+          'localhost',
+          '-uroot',
+          '-p${MYSQL_ROOT_PASSWORD:-root}',
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+      start_period: 20s
+
+volumes:
+  student_lms_mysql_data:
+    name: student_lms_mysql_data
