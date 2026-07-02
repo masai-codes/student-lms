@@ -1,56 +1,39 @@
-import { ChevronRight } from 'lucide-react'
-import { Link } from '@tanstack/react-router'
-
-export interface ProductUpdateItem {
-  id: string
-  description: string
-  href?: string
-}
+import { CaretRight, SealCheck } from '@phosphor-icons/react'
+import { SidebarPanel, SidebarPanelLink } from './SidebarPanel'
+import type { ProductUpdate } from '../shared/types'
 
 interface ProductUpdatesPanelProps {
-  updates: Array<ProductUpdateItem>
+  updates: Array<ProductUpdate>
 }
 
+// Sidebar panel highlighting recent LMS product updates.
 export function ProductUpdatesPanel({ updates }: ProductUpdatesPanelProps) {
   return (
-    <div className="bg-[#F9FAFB] rounded-xl border border-[#EDEBFE] p-5 flex flex-col gap-3">
-      <div className="flex items-center justify-between">
-        <h3 className="type-b1-md font-semibold text-gray-900">Product Updates</h3>
-        <Link
-          to="/whats-new"
-          search={{ page: 1 }}
-          className="text-sm font-medium text-[#6962AC] hover:underline focus-visible:outline-none"
-        >
-          View All
-        </Link>
-      </div>
+    <SidebarPanel title="Product Updates" action={<SidebarPanelLink label="View all" />}>
+      {updates.length === 0 ? (
+        <p className="text-sm text-gray-400">No updates right now.</p>
+      ) : (
+        <div className="flex flex-col gap-3">
+          {updates.map((update) => (
+            <ProductUpdateRow key={update.id} update={update} />
+          ))}
+        </div>
+      )}
+    </SidebarPanel>
+  )
+}
 
-      <div className="flex flex-col gap-2">
-        {updates.map((item) => (
-          <Link
-            key={item.id}
-            to="/whats-new/$id"
-            params={{ id: item.id }}
-            className="rounded-[8px] border border-gray-200 bg-white px-3 py-2.5 flex items-center gap-3 shadow-sm hover:shadow-md hover:border-gray-300 transition-all focus-visible:outline-none"
-          >
-            <img
-              src="/CheckerDashboard.svg"
-              alt="Update"
-              width={20}
-              height={20}
-              className="size-5 shrink-0"
-              loading="lazy"
-              decoding="async"
-            />
-            <p className="type-b2 text-gray-700 flex-1 min-w-0">{item.description}</p>
-            <ChevronRight size={16} className="shrink-0 text-gray-400" />
-          </Link>
-        ))}
-
-        {updates.length === 0 ? (
-          <p className="type-t1 text-gray-400 text-center py-2">No updates yet.</p>
-        ) : null}
-      </div>
-    </div>
+function ProductUpdateRow({ update }: { update: ProductUpdate }) {
+  return (
+    <button
+      type="button"
+      className="flex w-full items-center gap-3 rounded-xl border border-gray-200 p-3.5 text-left transition-shadow hover:shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6962AC]"
+    >
+      <SealCheck size={22} weight="fill" className="shrink-0 text-[#6962AC]" />
+      <span className="min-w-0 flex-1 text-sm font-semibold text-gray-900">
+        {update.title}
+      </span>
+      <CaretRight size={16} weight="bold" className="shrink-0 text-gray-400" />
+    </button>
   )
 }

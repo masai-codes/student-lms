@@ -1,6 +1,6 @@
 # Feature Test Matrix
 
-Last updated: 2026-06-30
+Last updated: 2026-07-02
 
 ## Support / Raise Ticket (`/support` + detail-page drawer)
 - Area: `RaiseTicketDrawer` opened from lecture/assignment/resource headers (no redirect); context-scoped `ContextSubcategoryList` via `GET /api/support/subcategories?category=` (legacy `SubcategoryTicketModal` flow); `TicketConversationPanel`/`useTicketComposer` create/reply/rate/escalate; first-template coordinator comment on creation (`buildFirstTemplateResponse`, exact legacy body + signature) with the synthetic open/re-opened banner suppressed; `SupportMarkdown` renders inline HTML (`rehype-raw` → `rehype-sanitize`) so legacy `<br/>`/signature comments display correctly; "Request a Callback" gated on `isNewUserJourney` (a `user_batch_admission_data` row) + active batch, "Student-Kit" reason hidden unless `hasFullFees`.
@@ -190,6 +190,12 @@ Last updated: 2026-06-30
 - Status: Covered
 - Test files: `src/server/api/ai-tutor/__tests__/{chatTurns,listConversations.handler,getConversation.handler,conversationServices}.test.ts`
 - Notes: `GET /api/ai-tutor/chat/conversations?lectureId=` lists the user's threads for a lecture (title from first user message, `updatedAt` desc). `GET /api/ai-tutor/chat/conversations/:chatId` returns ordered user/assistant turns from stored `chatHistory`.
+
+## Dashboard (protected home)
+- Area: Static dashboard UI at `/(protected)/_layout/` (`src/components/features/dashboard/**`): purple `ProfileActionBanner`, `WelcomeSection` + `WelcomeBannerCarousel`, `ScheduleSection` (My Schedule / Pending Tasks tabs → `ScheduleWeekGroup` → `ScheduleCard`), and the sidebar panels (`AnnouncementsPanel`, `ProductUpdatesPanel`, `LmsSupportPanel` via `DashboardSidebar`), composed in `DashboardLayout`/`DashboardPage`.
+- Status: Covered
+- Test files: `src/components/features/dashboard/**/*.test.tsx`
+- Notes: Presentational-only for now — `MOCK_DASHBOARD_DATA` (`shared/mockData.ts`) drives `DashboardPage`; components take typed props (`shared/types.ts`) so real API data can be swapped in without UI changes. `getScheduleTypeVisual` maps a schedule item type → phosphor icon + accent colour. Tabs toggle between the schedule feed and a pending-tasks empty state; empty lists render explicit empty states across schedule, announcements and product updates. Carousel tests polyfill `ResizeObserver`/`IntersectionObserver` for embla. See `docs/testing/features/dashboard.md`.
 
 ## Status Meaning
 
