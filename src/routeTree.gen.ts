@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as ApiServerTimeRouteImport } from './routes/api/server-time'
 import { Route as ApiSecretLoginRouteImport } from './routes/api/secret-login'
+import { Route as ApiMeRouteImport } from './routes/api/me'
 import { Route as ApiHealthRouteImport } from './routes/api/health'
 import { Route as ApiAssessNpsCallbackRouteRouteImport } from './routes/api/assess-nps-callback/route'
 import { Route as protectedLayoutRouteRouteImport } from './routes/(protected)/_layout/route'
@@ -203,6 +204,11 @@ const ApiServerTimeRoute = ApiServerTimeRouteImport.update({
 const ApiSecretLoginRoute = ApiSecretLoginRouteImport.update({
   id: '/api/secret-login',
   path: '/api/secret-login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiMeRoute = ApiMeRouteImport.update({
+  id: '/api/me',
+  path: '/api/me',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiHealthRoute = ApiHealthRouteImport.update({
@@ -1253,6 +1259,7 @@ const protectedLayoutAssignmentsAssignmentIdProblemsProblemIdRouteRoute =
 export interface FileRoutesByFullPath {
   '/api/assess-nps-callback': typeof ApiAssessNpsCallbackRouteRoute
   '/api/health': typeof ApiHealthRoute
+  '/api/me': typeof ApiMeRoute
   '/api/secret-login': typeof ApiSecretLoginRoute
   '/api/server-time': typeof ApiServerTimeRoute
   '/masaiverse': typeof protectedLayoutMasaiverseRouteRouteWithChildren
@@ -1439,6 +1446,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/api/assess-nps-callback': typeof ApiAssessNpsCallbackRouteRoute
   '/api/health': typeof ApiHealthRoute
+  '/api/me': typeof ApiMeRoute
   '/api/secret-login': typeof ApiSecretLoginRoute
   '/api/server-time': typeof ApiServerTimeRoute
   '/v2/forgot-password': typeof authV2ForgotPasswordRoute
@@ -1626,6 +1634,7 @@ export interface FileRoutesById {
   '/(protected)/_layout': typeof protectedLayoutRouteRouteWithChildren
   '/api/assess-nps-callback': typeof ApiAssessNpsCallbackRouteRoute
   '/api/health': typeof ApiHealthRoute
+  '/api/me': typeof ApiMeRoute
   '/api/secret-login': typeof ApiSecretLoginRoute
   '/api/server-time': typeof ApiServerTimeRoute
   '/(protected)/_layout/masaiverse': typeof protectedLayoutMasaiverseRouteRouteWithChildren
@@ -1814,6 +1823,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/api/assess-nps-callback'
     | '/api/health'
+    | '/api/me'
     | '/api/secret-login'
     | '/api/server-time'
     | '/masaiverse'
@@ -2000,6 +2010,7 @@ export interface FileRouteTypes {
   to:
     | '/api/assess-nps-callback'
     | '/api/health'
+    | '/api/me'
     | '/api/secret-login'
     | '/api/server-time'
     | '/v2/forgot-password'
@@ -2186,6 +2197,7 @@ export interface FileRouteTypes {
     | '/(protected)/_layout'
     | '/api/assess-nps-callback'
     | '/api/health'
+    | '/api/me'
     | '/api/secret-login'
     | '/api/server-time'
     | '/(protected)/_layout/masaiverse'
@@ -2374,6 +2386,7 @@ export interface RootRouteChildren {
   protectedLayoutRouteRoute: typeof protectedLayoutRouteRouteWithChildren
   ApiAssessNpsCallbackRouteRoute: typeof ApiAssessNpsCallbackRouteRoute
   ApiHealthRoute: typeof ApiHealthRoute
+  ApiMeRoute: typeof ApiMeRoute
   ApiSecretLoginRoute: typeof ApiSecretLoginRoute
   ApiServerTimeRoute: typeof ApiServerTimeRoute
   authV2ForgotPasswordRoute: typeof authV2ForgotPasswordRoute
@@ -2515,6 +2528,13 @@ declare module '@tanstack/react-router' {
       path: '/api/secret-login'
       fullPath: '/api/secret-login'
       preLoaderRoute: typeof ApiSecretLoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/me': {
+      id: '/api/me'
+      path: '/api/me'
+      fullPath: '/api/me'
+      preLoaderRoute: typeof ApiMeRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/health': {
@@ -4108,6 +4128,7 @@ const rootRouteChildren: RootRouteChildren = {
   protectedLayoutRouteRoute: protectedLayoutRouteRouteWithChildren,
   ApiAssessNpsCallbackRouteRoute: ApiAssessNpsCallbackRouteRoute,
   ApiHealthRoute: ApiHealthRoute,
+  ApiMeRoute: ApiMeRoute,
   ApiSecretLoginRoute: ApiSecretLoginRoute,
   ApiServerTimeRoute: ApiServerTimeRoute,
   authV2ForgotPasswordRoute: authV2ForgotPasswordRoute,

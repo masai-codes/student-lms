@@ -16,16 +16,21 @@ beforeAll(() => {
 afterEach(cleanup)
 
 describe('WelcomeSection', () => {
-  it('renders the greeting and student name', () => {
-    render(<WelcomeSection studentName="Suryakumar" banners={[]} />)
+  it('greets the user by name when provided', () => {
+    render(<WelcomeSection name="Suryakumar" banners={[]} />)
     expect(screen.getByText('Welcome')).toBeTruthy()
     expect(screen.getByText(/Suryakumar/)).toBeTruthy()
+  })
+
+  it('falls back to a plain "Welcome!" when there is no name', () => {
+    render(<WelcomeSection name={null} banners={[]} />)
+    expect(screen.getByTestId('dashboard-welcome-name').textContent).toContain('Welcome!')
   })
 
   it('renders the banner carousel when banners are provided', () => {
     render(
       <WelcomeSection
-        studentName="Suryakumar"
+        name="Suryakumar"
         banners={[
           { id: 1, title: 'Refer a friend', description: null, imageUrl: null, ctaUrl: null, analyticsKey: 'referral' },
         ]}

@@ -1,17 +1,35 @@
 import { useState } from 'react'
 import { CalendarBlank, ClockCounterClockwise } from '@phosphor-icons/react'
-import { ScheduleWeekGroup } from './ScheduleWeekGroup'
-import type { ScheduleWeek } from '../shared/types'
+import {
+  buildScheduleWeek,
+  scheduleItemToLearnContent,
+} from '../shared/scheduleMapping'
+import type { ScheduleDayRow } from '../shared/scheduleMapping'
+import type { DashboardScheduleItem } from '@/server/api/dashboard/schedule/scheduleTypes'
+import { LearnContentCard } from '@/components/features/learn/section-three/content-card/LearnContentCard'
 
 type ScheduleTab = 'schedule' | 'tasks'
 
 interface ScheduleSectionProps {
-  weeks: Array<ScheduleWeek>
-  pendingTaskCount: number
+  schedule: Array<DashboardScheduleItem>
+  pendingTasks: Array<DashboardScheduleItem>
+  isLoading: boolean
+  isError: boolean
+  /** Injectable for deterministic tests; defaults to the current time. */
+  now?: Date
 }
 
-// Card containing the schedule / pending-tasks tab switch and the schedule feed.
-export function ScheduleSection({ weeks, pendingTaskCount }: ScheduleSectionProps) {
+// Schedule / pending-tasks tab switch. Both tabs render the reused `/learn`
+// `LearnContentCard`: "My Schedule" is the 7-day feed (a row per day, empty days
+// included); "Pending Tasks" is the not-begun assignments + catch-up lectures.
+// The tab badge counts pending items.
+export function ScheduleSection({
+  schedule,
+  pendingTasks,
+  isLoading,
+  isError,
+  now = new Date(),
+}: ScheduleSectionProps) {
   const [activeTab, setActiveTab] = useState<ScheduleTab>('schedule')
 
   return (
@@ -35,53 +53,157 @@ export function ScheduleSection({ weeks, pendingTaskCount }: ScheduleSectionProp
         >
           <ClockCounterClockwise size={18} weight="bold" />
           Pending Tasks
-          <span
-            data-testid="dashboard-pending-tasks-count"
-            className="inline-flex size-5 items-center justify-center rounded-full bg-[#ED0331] text-[11px] font-semibold text-white"
-          >
-            {pendingTaskCount}
-          </span>
+          {pendingTasks.length > 0 && (
+            <span
+              data-testid="dashboard-pending-tasks-count"
+              className="inline-flex size-5 items-center justify-center rounded-full bg-[#ED0331] text-[11px] font-semibold text-white"
+            >
+              {pendingTasks.length}
+            </span>
+          )}
         </TabButton>
       </div>
 
       {activeTab === 'schedule' ? (
-        <ScheduleFeed weeks={weeks} />
+        <ScheduleFeed schedule={schedule} isLoading={isLoading} isError={isError} now={now} />
       ) : (
-        <EmptyTasksState />
+        <PendingTasksFeed tasks={pendingTasks} isLoading={isLoading} isError={isError} />
       )}
     </section>
   )
 }
 
-function ScheduleFeed({ weeks }: { weeks: Array<ScheduleWeek> }) {
-  if (weeks.length === 0) {
+function ScheduleFeed({
+  schedule,
+  isLoading,
+  isError,
+  now,
+}: {
+  schedule: Array<DashboardScheduleItem>
+  isLoading: boolean
+  isError: boolean
+  now: Date
+}) {
+  if (isLoading) {
     return (
-      <p
-        data-testid="dashboard-schedule-empty"
-        className="py-10 text-center text-sm text-gray-400"
-      >
-        Nothing scheduled right now.
+      <p data-testid="dashboard-schedule-loading" className="py-10 text-center text-sm text-gray-400">
+        Loading…
+      </p>
+    )
+  }
+  if (isError) {
+    return (
+      <p data-testid="dashboard-schedule-error" className="py-10 text-center text-sm text-gray-400">
+        Failed to load content
       </p>
     )
   }
 
+  const week = buildScheduleWeek(schedule, now)
+
   return (
-    <div data-testid="dashboard-schedule-feed" className="flex flex-col gap-6">
-      {weeks.map((week) => (
-        <ScheduleWeekGroup key={week.id} week={week} />
+    <div data-testid="dashboard-schedule-feed" className="flex flex-col gap-4">
+      <div className="flex items-center gap-3">
+        <span
+          data-testid="dashboard-schedule-range"
+          className="shrink-0 text-sm font-semibold text-gray-800"
+        >
+          {week.rangeLabel}
+        </span>
+        <span className="h-px flex-1 bg-gray-200" aria-hidden />
+      </div>
+
+      {week.days.map((day) => (
+        <ScheduleDay key={day.key} day={day} />
       ))}
     </div>
   )
 }
 
-function EmptyTasksState() {
+function ScheduleDay({ day }: { day: ScheduleDayRow }) {
   return (
-    <p
-      data-testid="dashboard-pending-tasks-empty"
-      className="py-10 text-center text-sm text-gray-400"
+    <div data-testid={`dashboard-schedule-day-${day.key}`} className="flex items-stretch gap-3">
+      <DayBadge day={day} />
+      <div className="flex min-w-0 flex-1 flex-col gap-3">
+        {day.items.length === 0 ? (
+          <div className="flex items-center rounded-xl border border-gray-200 bg-white px-4 py-4 text-sm text-gray-400">
+            No sessions scheduled for the day
+          </div>
+        ) : (
+          day.items.map((item) => (
+            <LearnContentCard
+              key={`${item.learningType}-${item.id}`}
+              item={scheduleItemToLearnContent(item)}
+              fromDashboard
+            />
+          ))
+        )}
+      </div>
+    </div>
+  )
+}
+
+function DayBadge({ day }: { day: ScheduleDayRow }) {
+  return (
+    <div
+      className={`flex h-fit w-11 shrink-0 flex-col items-center rounded-lg py-1.5 ${
+        day.isToday ? 'bg-[#4F6BED] text-white' : 'text-gray-500'
+      }`}
     >
-      You&apos;re all caught up on tasks.
-    </p>
+      <span className="text-[11px] font-semibold uppercase leading-none">{day.weekday}</span>
+      <span
+        className={`text-base font-bold leading-tight ${day.isToday ? '' : 'text-gray-700'}`}
+      >
+        {day.dayOfMonth}
+      </span>
+    </div>
+  )
+}
+
+function PendingTasksFeed({
+  tasks,
+  isLoading,
+  isError,
+}: {
+  tasks: Array<DashboardScheduleItem>
+  isLoading: boolean
+  isError: boolean
+}) {
+  if (isLoading) {
+    return (
+      <p data-testid="dashboard-pending-tasks-loading" className="py-10 text-center text-sm text-gray-400">
+        Loading…
+      </p>
+    )
+  }
+  if (isError) {
+    return (
+      <p data-testid="dashboard-pending-tasks-error" className="py-10 text-center text-sm text-gray-400">
+        Failed to load content
+      </p>
+    )
+  }
+  if (tasks.length === 0) {
+    return (
+      <p
+        data-testid="dashboard-pending-tasks-empty"
+        className="py-10 text-center text-sm text-gray-400"
+      >
+        You&apos;re all caught up on tasks.
+      </p>
+    )
+  }
+
+  return (
+    <div data-testid="dashboard-pending-tasks-feed" className="flex flex-col gap-3">
+      {tasks.map((item) => (
+        <LearnContentCard
+          key={`${item.learningType}-${item.id}`}
+          item={scheduleItemToLearnContent(item)}
+          fromDashboard
+        />
+      ))}
+    </div>
   )
 }
 

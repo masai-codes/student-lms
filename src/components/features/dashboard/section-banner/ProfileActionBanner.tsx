@@ -1,4 +1,9 @@
-import { Camera, CaretLeft, CaretRight, UserCircle } from '@phosphor-icons/react'
+import {
+  Camera,
+  CaretLeft,
+  CaretRight,
+  UserCircle,
+} from '@phosphor-icons/react'
 
 interface ProfileActionBannerProps {
   label: string
@@ -40,7 +45,10 @@ export function ProfileActionBanner({
       </div>
 
       <div className="flex shrink-0 items-center gap-3">
-        <span className="hidden items-center gap-1.5 md:flex" aria-hidden="true">
+        <span
+          className="hidden items-center gap-1.5 md:flex"
+          aria-hidden="true"
+        >
           <span className="size-1.5 rounded-full bg-white" />
           <span className="size-1.5 rounded-full bg-white/40" />
           <span className="size-1.5 rounded-full bg-white/40" />

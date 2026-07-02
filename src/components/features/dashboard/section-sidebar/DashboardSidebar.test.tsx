@@ -29,6 +29,8 @@ const overview: DashboardOverviewState = {
     zoomLink: 'https://zoom.us/j/1',
     status: 'live',
   },
+  schedule: [],
+  pendingTasks: [],
 }
 
 describe('DashboardSidebar', () => {

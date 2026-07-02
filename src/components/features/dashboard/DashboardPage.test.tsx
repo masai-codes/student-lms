@@ -5,10 +5,13 @@ import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vite
 import { DashboardPage } from './DashboardPage'
 import type * as TanstackRouter from '@tanstack/react-router'
 
-const hoisted = vi.hoisted(() => ({ fetchOverview: vi.fn() }))
+const hoisted = vi.hoisted(() => ({ fetchOverview: vi.fn(), fetchCurrentUser: vi.fn() }))
 
 vi.mock('@/lib/api/dashboard/dashboardApi', () => ({
   fetchDashboardOverview: hoisted.fetchOverview,
+}))
+vi.mock('@/lib/api/me/meApi', () => ({
+  fetchCurrentUser: hoisted.fetchCurrentUser,
 }))
 vi.mock('@tanstack/react-router', async (importOriginal) => {
   const actual = await importOriginal<typeof TanstackRouter>()
@@ -32,7 +35,10 @@ beforeAll(() => {
 })
 
 afterEach(cleanup)
-beforeEach(() => vi.clearAllMocks())
+beforeEach(() => {
+  vi.clearAllMocks()
+  hoisted.fetchCurrentUser.mockResolvedValue({ name: 'Suryakumar' })
+})
 
 function renderPage() {
   const client = new QueryClient({ defaultOptions: { queries: { retry: false } } })
@@ -62,12 +68,14 @@ const overview = {
 }
 
 describe('DashboardPage', () => {
-  it('renders the static sections plus API-driven banner, announcements, updates + support', async () => {
+  it('greets the user and renders the API-driven banner, announcements, updates + support', async () => {
     hoisted.fetchOverview.mockResolvedValueOnce(overview)
     renderPage()
 
-    expect(screen.getByText('Welcome')).toBeTruthy()
-    expect(screen.getByRole('button', { name: 'Take Photo' })).toBeTruthy()
+    // Greeting comes from the `me` API.
+    await waitFor(() =>
+      expect(screen.getByTestId('dashboard-welcome-name').textContent).toContain('Suryakumar'),
+    )
 
     await waitFor(() => expect(screen.getByText('Live referral banner')).toBeTruthy())
     expect(screen.getByText('Personal notice')).toBeTruthy()
@@ -93,7 +101,6 @@ describe('DashboardPage', () => {
     renderPage()
     for (const testId of [
       'dashboard-root',
-      'dashboard-profile-action-banner',
       'dashboard-welcome-section',
       'dashboard-schedule-section',
       'dashboard-sidebar',

@@ -5,6 +5,8 @@ const hoisted = vi.hoisted(() => ({
   getAnnouncementsFeed: vi.fn(),
   getProductUpdates: vi.fn(),
   getSupportSessions: vi.fn(),
+  getDashboardSchedule: vi.fn(),
+  getDashboardPendingTasks: vi.fn(),
 }))
 
 vi.mock('../banners/getWelcomeBanners.service', () => ({
@@ -19,6 +21,12 @@ vi.mock('../product-updates/getProductUpdates.service', () => ({
 }))
 vi.mock('../support/getSupportSessions.service', () => ({
   getSupportSessions: hoisted.getSupportSessions,
+}))
+vi.mock('../schedule/getDashboardSchedule.service', () => ({
+  getDashboardSchedule: hoisted.getDashboardSchedule,
+}))
+vi.mock('../pending/getDashboardPendingTasks.service', () => ({
+  getDashboardPendingTasks: hoisted.getDashboardPendingTasks,
 }))
 
 const banners = [{ id: 1, title: 'B', description: null, imageUrl: null, ctaUrl: null }]
@@ -40,11 +48,17 @@ describe('getDashboardOverview', () => {
     hoisted.getWelcomeBanners.mockResolvedValue(banners)
     hoisted.getAnnouncementsFeed.mockResolvedValue(announcements)
     hoisted.getSupportSessions.mockResolvedValue([liveSession])
+    hoisted.getDashboardSchedule.mockResolvedValue([])
+    hoisted.getDashboardPendingTasks.mockResolvedValue([])
   })
 
   it('composes every section and features the selected support session', async () => {
     const productUpdates = [{ id: 9, title: 'Update', imageUrl: null }]
+    const schedule = [{ id: 4, learningType: 'lecture', title: 'Workshop' }]
+    const pendingTasks = [{ id: 5, learningType: 'assignment', title: 'Worksheet' }]
     hoisted.getProductUpdates.mockResolvedValueOnce(productUpdates)
+    hoisted.getDashboardSchedule.mockResolvedValueOnce(schedule)
+    hoisted.getDashboardPendingTasks.mockResolvedValueOnce(pendingTasks)
     const { getDashboardOverview } = await import('../getDashboardOverview.service')
 
     const now = new Date('2026-07-02T00:00:00Z')
@@ -54,7 +68,16 @@ describe('getDashboardOverview', () => {
     expect(hoisted.getAnnouncementsFeed).toHaveBeenCalledWith(7, now)
     expect(hoisted.getProductUpdates).toHaveBeenCalledWith(7)
     expect(hoisted.getSupportSessions).toHaveBeenCalledWith(7, now)
-    expect(result).toEqual({ banners, announcements, productUpdates, supportSession: liveSession })
+    expect(hoisted.getDashboardSchedule).toHaveBeenCalledWith(7, now)
+    expect(hoisted.getDashboardPendingTasks).toHaveBeenCalledWith(7, now)
+    expect(result).toEqual({
+      banners,
+      announcements,
+      productUpdates,
+      supportSession: liveSession,
+      schedule,
+      pendingTasks,
+    })
   })
 
   it('caps product updates at the dashboard limit of 5', async () => {

@@ -4,6 +4,7 @@ import type { AssignmentProgressStatus } from '@/server/learn/utils/calculateAss
 import { isLectureSessionEnded } from '@/server/learn/utils/isLectureSessionEnded'
 import { resolveJoinLiveButtonState } from '@/server/learn/utils/resolveJoinLiveButtonState'
 import { resolveAssignmentListingStatusChip } from '@/server/learn/utils/resolveAssignmentListingStatusChip'
+import { computeDeadlineCountdown } from '@/server/learn/utils/computeDeadlineCountdown'
 
 export function buildLearnListingCardCtas(input: {
   learningType: 'lecture' | 'assignment' | 'resource'
@@ -24,6 +25,8 @@ export function buildLearnListingCardCtas(input: {
         input.assignmentProgressStatus,
         input.itemType,
       ),
+      assignmentDeadlineLabel:
+        computeDeadlineCountdown(input.concludes, input.nowMs)?.label ?? null,
     }
   }
 
@@ -32,6 +35,7 @@ export function buildLearnListingCardCtas(input: {
       joinLive: 'hidden',
       showAttendance: false,
       assignmentStatusChip: null,
+      assignmentDeadlineLabel: null,
     }
   }
 
@@ -57,5 +61,6 @@ export function buildLearnListingCardCtas(input: {
     joinLive,
     showAttendance,
     assignmentStatusChip: null,
+    assignmentDeadlineLabel: null,
   }
 }

@@ -36,11 +36,22 @@ route: src/routes/api/dashboard/overview.ts
             │    └─ announcementFeed.ts              (pure combine/sort/cap)
             ├─ getProductUpdates.service.ts          (newest whatsnew, 25/page → top 5)
             │    └─ getBannedContentCutoffForUser()  (reusable: ban cutoff)
-            └─ getSupportSessions.service.ts         (help sessions, next ~8 days)
-                 ├─ getBannedContentCutoffForUser()  (reusable: ban cutoff)
-                 ├─ getIstDayWindow() / formatIstWallClock()  (reusable: IST clock)
-                 ├─ supportSessionStatus.ts          (pure live/today/upcoming)
-                 └─ featuredSupportSession.ts        (pure: pick the one card)
+            ├─ getSupportSessions.service.ts         (help sessions, next ~8 days)
+            │    ├─ getBannedContentCutoffForUser()  (reusable: ban cutoff)
+            │    ├─ getIstDayWindow() / formatIstWallClock()  (reusable: IST clock)
+            │    ├─ supportSessionStatus.ts          (pure live/today/upcoming)
+            │    └─ featuredSupportSession.ts        (pure: pick the one card)
+            ├─ getDashboardSchedule.service.ts       (lectures + assignments, next 7 days)
+            │    ├─ fetchScheduleLectures / fetchScheduleAssignments (start/end-date window)
+            │    └─ buildDashboardScheduleItem  (shared mapper → reused learn card)
+            └─ getDashboardPendingTasks.service.ts   (not-begun assignments + catch-up lectures)
+                 ├─ fetchPendingAssignments / fetchAssignmentStartState (deadline + begun check)
+                 ├─ fetchPendingLectures + fetchLectureAttendanceSummaries (catch-up window open)
+                 └─ buildDashboardScheduleItem  (same shared mapper / reused card)
+
+  Shared reuse across schedule + pending: getSectionIdsForUser, getBatchIdsForEnrolledUser,
+  getBannedContentCutoffForUser, buildLearnListingCardCtas, mapLearningEntityRow,
+  calculateAssignmentProgressStatus, fetchLatestSubmissionByAssignment.
 ```
 
 Response shape (grows as sections are migrated):
@@ -60,7 +71,16 @@ Response shape (grows as sections are migrated):
   "supportSession": {
     "id": 4, "title": "…", "schedule": "2026-07-02T15:00:00+05:30",
     "concludes": "2026-07-02T16:00:00+05:30", "zoomLink": "…", "status": "live"
-  }
+  },
+  "schedule": [
+    { "id": 5, "learningType": "lecture", "title": "…", "scheduleDate": "…",
+      "listingCtas": { "joinLive": "active", "…": "…" },
+      "courseName": null, "enableZoomWebView": false }
+  ],
+  "pendingTasks": [
+    { "id": 6, "learningType": "assignment", "title": "…",
+      "assignmentProgressStatus": "new", "…": "…" }
+  ]
 }
 ```
 
@@ -68,6 +88,14 @@ Response shape (grows as sections are migrated):
 
 Client access: `fetchDashboardOverview()` in
 `src/lib/api/dashboard/dashboardApi.ts`.
+
+## The `me` endpoint (greeting)
+
+`GET /api/me` is a small, reusable current-user endpoint returning only what the
+client needs today (`{ name }`). The dashboard greeting uses it —
+`name ? "Welcome {name}!" : "Welcome!"`. Layering: `routes/api/me.ts` → handler
+→ `getCurrentUser.service` (`users.name` by session id). Client:
+`fetchCurrentUser()` in `src/lib/api/me/meApi.ts`.
 
 ## Migration status
 
@@ -77,9 +105,10 @@ Client access: `fetchDashboardOverview()` in
 | Announcements        | ✅ Live  | See [announcements.md](./announcements.md)     |
 | Product updates      | ✅ Live  | See [product-updates.md](./product-updates.md) |
 | Support sessions     | ✅ Live  | See [support-sessions.md](./support-sessions.md) |
-| Schedule             | ⬜ Mock  | Static in `shared/mockData.ts`                |
-| Pending tasks        | ⬜ Mock  | Static                                        |
-| Profile action banner| ⬜ Mock  | Static                                        |
+| Schedule             | ✅ Live  | Reuses the `/learn` card (see [schedule.md](./schedule.md)) |
+| Pending tasks        | ✅ Live  | Not-begun assignments + catch-up lectures (see [schedule.md](./schedule.md)) |
+| Welcome greeting     | ✅ Live  | Name from `GET /api/me` ("Welcome {name}!" / "Welcome!"); long names shortened to first name / ellipsis (`formatGreetingName`), full name on hover |
+| Profile action banner| 🚫 Hidden | Component kept; not rendered — will be shown conditionally later |
 
 The frontend `DashboardPage` merges live data over the mock defaults, so a
 section keeps rendering from mock data until its API field lands.
@@ -94,10 +123,7 @@ where one exists. Current catalog:
 | `data-testid`                          | Element                                   |
 | -------------------------------------- | ----------------------------------------- |
 | `dashboard-root` / `dashboard-content` | Page wrapper / white content card         |
-| `dashboard-profile-action-banner`      | Purple profile banner root                |
-| `dashboard-profile-action-label`       | Banner prompt text                         |
-| `dashboard-profile-action-button`      | "Take Photo" button                       |
-| `dashboard-profile-banner-prev/next`   | Banner nav arrows                         |
+| `dashboard-profile-action-banner` (+ `-label`, `-button`, `-prev/next`) | Purple profile banner — **not rendered for now** (component kept for later) |
 | `dashboard-welcome-section`            | Welcome greeting + carousel row           |
 | `dashboard-welcome-name`               | Student name heading                      |
 | `dashboard-welcome-banner-carousel`    | Promotional carousel container (absent with 0 banners) |
