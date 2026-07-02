@@ -8,8 +8,11 @@ interface ScheduleWeekGroupProps {
 // Renders one week: a range label followed by each day's date badge and cards.
 export function ScheduleWeekGroup({ week }: ScheduleWeekGroupProps) {
   return (
-    <div className="flex flex-col gap-4">
-      <p className="border-b border-gray-100 pb-2 text-sm font-semibold text-gray-800">
+    <div data-testid={`dashboard-schedule-week-${week.id}`} className="flex flex-col gap-4">
+      <p
+        data-testid="dashboard-schedule-week-label"
+        className="border-b border-gray-100 pb-2 text-sm font-semibold text-gray-800"
+      >
         {week.label}
       </p>
 
@@ -22,7 +25,7 @@ export function ScheduleWeekGroup({ week }: ScheduleWeekGroupProps) {
 
 function ScheduleDayRow({ day }: { day: ScheduleDay }) {
   return (
-    <div className="flex gap-3">
+    <div data-testid={`dashboard-schedule-day-${day.id}`} className="flex gap-3">
       <DayBadge day={day} />
       <div className="flex min-w-0 flex-1 flex-col gap-3">
         {day.items.map((item) => (
@@ -36,7 +39,10 @@ function ScheduleDayRow({ day }: { day: ScheduleDay }) {
 function DayBadge({ day }: { day: ScheduleDay }) {
   if (day.isActive) {
     return (
-      <div className="flex h-fit shrink-0 flex-col items-center rounded-lg bg-[#4F46E5] px-2.5 py-1.5 text-white">
+      <div
+        data-testid="dashboard-schedule-day-badge"
+        className="flex h-fit shrink-0 flex-col items-center rounded-lg bg-[#4F46E5] px-2.5 py-1.5 text-white"
+      >
         <span className="text-[10px] font-semibold uppercase leading-none">
           {day.weekday}
         </span>
@@ -46,7 +52,10 @@ function DayBadge({ day }: { day: ScheduleDay }) {
   }
 
   return (
-    <div className="flex h-fit w-10 shrink-0 flex-col items-center text-gray-500">
+    <div
+      data-testid="dashboard-schedule-day-badge"
+      className="flex h-fit w-10 shrink-0 flex-col items-center text-gray-500"
+    >
       <span className="text-[10px] font-semibold uppercase leading-none">
         {day.weekday}
       </span>

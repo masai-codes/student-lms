@@ -51,6 +51,7 @@ import { Route as ApiDashboardRightSectionRouteImport } from './routes/api/dashb
 import { Route as ApiDashboardProductUpdatesRouteImport } from './routes/api/dashboard/product-updates'
 import { Route as ApiDashboardPendingTasksRouteImport } from './routes/api/dashboard/pending-tasks'
 import { Route as ApiDashboardPaymentBannerRouteImport } from './routes/api/dashboard/payment-banner'
+import { Route as ApiDashboardOverviewRouteImport } from './routes/api/dashboard/overview'
 import { Route as ApiDashboardNavbarPillRouteImport } from './routes/api/dashboard/navbar-pill'
 import { Route as ApiDashboardLmsSupportRouteImport } from './routes/api/dashboard/lms-support'
 import { Route as ApiDashboardLeftSectionRouteImport } from './routes/api/dashboard/left-section'
@@ -419,6 +420,11 @@ const ApiDashboardPaymentBannerRoute =
     path: '/api/dashboard/payment-banner',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiDashboardOverviewRoute = ApiDashboardOverviewRouteImport.update({
+  id: '/api/dashboard/overview',
+  path: '/api/dashboard/overview',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiDashboardNavbarPillRoute = ApiDashboardNavbarPillRouteImport.update({
   id: '/api/dashboard/navbar-pill',
   path: '/api/dashboard/navbar-pill',
@@ -1263,6 +1269,7 @@ export interface FileRoutesByFullPath {
   '/api/dashboard/left-section': typeof ApiDashboardLeftSectionRoute
   '/api/dashboard/lms-support': typeof ApiDashboardLmsSupportRoute
   '/api/dashboard/navbar-pill': typeof ApiDashboardNavbarPillRoute
+  '/api/dashboard/overview': typeof ApiDashboardOverviewRoute
   '/api/dashboard/payment-banner': typeof ApiDashboardPaymentBannerRoute
   '/api/dashboard/pending-tasks': typeof ApiDashboardPendingTasksRoute
   '/api/dashboard/product-updates': typeof ApiDashboardProductUpdatesRoute
@@ -1447,6 +1454,7 @@ export interface FileRoutesByTo {
   '/api/dashboard/left-section': typeof ApiDashboardLeftSectionRoute
   '/api/dashboard/lms-support': typeof ApiDashboardLmsSupportRoute
   '/api/dashboard/navbar-pill': typeof ApiDashboardNavbarPillRoute
+  '/api/dashboard/overview': typeof ApiDashboardOverviewRoute
   '/api/dashboard/payment-banner': typeof ApiDashboardPaymentBannerRoute
   '/api/dashboard/pending-tasks': typeof ApiDashboardPendingTasksRoute
   '/api/dashboard/product-updates': typeof ApiDashboardProductUpdatesRoute
@@ -1634,6 +1642,7 @@ export interface FileRoutesById {
   '/api/dashboard/left-section': typeof ApiDashboardLeftSectionRoute
   '/api/dashboard/lms-support': typeof ApiDashboardLmsSupportRoute
   '/api/dashboard/navbar-pill': typeof ApiDashboardNavbarPillRoute
+  '/api/dashboard/overview': typeof ApiDashboardOverviewRoute
   '/api/dashboard/payment-banner': typeof ApiDashboardPaymentBannerRoute
   '/api/dashboard/pending-tasks': typeof ApiDashboardPendingTasksRoute
   '/api/dashboard/product-updates': typeof ApiDashboardProductUpdatesRoute
@@ -1821,6 +1830,7 @@ export interface FileRouteTypes {
     | '/api/dashboard/left-section'
     | '/api/dashboard/lms-support'
     | '/api/dashboard/navbar-pill'
+    | '/api/dashboard/overview'
     | '/api/dashboard/payment-banner'
     | '/api/dashboard/pending-tasks'
     | '/api/dashboard/product-updates'
@@ -2005,6 +2015,7 @@ export interface FileRouteTypes {
     | '/api/dashboard/left-section'
     | '/api/dashboard/lms-support'
     | '/api/dashboard/navbar-pill'
+    | '/api/dashboard/overview'
     | '/api/dashboard/payment-banner'
     | '/api/dashboard/pending-tasks'
     | '/api/dashboard/product-updates'
@@ -2191,6 +2202,7 @@ export interface FileRouteTypes {
     | '/api/dashboard/left-section'
     | '/api/dashboard/lms-support'
     | '/api/dashboard/navbar-pill'
+    | '/api/dashboard/overview'
     | '/api/dashboard/payment-banner'
     | '/api/dashboard/pending-tasks'
     | '/api/dashboard/product-updates'
@@ -2376,6 +2388,7 @@ export interface RootRouteChildren {
   ApiDashboardLeftSectionRoute: typeof ApiDashboardLeftSectionRoute
   ApiDashboardLmsSupportRoute: typeof ApiDashboardLmsSupportRoute
   ApiDashboardNavbarPillRoute: typeof ApiDashboardNavbarPillRoute
+  ApiDashboardOverviewRoute: typeof ApiDashboardOverviewRoute
   ApiDashboardPaymentBannerRoute: typeof ApiDashboardPaymentBannerRoute
   ApiDashboardPendingTasksRoute: typeof ApiDashboardPendingTasksRoute
   ApiDashboardProductUpdatesRoute: typeof ApiDashboardProductUpdatesRoute
@@ -2782,6 +2795,13 @@ declare module '@tanstack/react-router' {
       path: '/api/dashboard/payment-banner'
       fullPath: '/api/dashboard/payment-banner'
       preLoaderRoute: typeof ApiDashboardPaymentBannerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/dashboard/overview': {
+      id: '/api/dashboard/overview'
+      path: '/api/dashboard/overview'
+      fullPath: '/api/dashboard/overview'
+      preLoaderRoute: typeof ApiDashboardOverviewRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/dashboard/navbar-pill': {
@@ -4102,6 +4122,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiDashboardLeftSectionRoute: ApiDashboardLeftSectionRoute,
   ApiDashboardLmsSupportRoute: ApiDashboardLmsSupportRoute,
   ApiDashboardNavbarPillRoute: ApiDashboardNavbarPillRoute,
+  ApiDashboardOverviewRoute: ApiDashboardOverviewRoute,
   ApiDashboardPaymentBannerRoute: ApiDashboardPaymentBannerRoute,
   ApiDashboardPendingTasksRoute: ApiDashboardPendingTasksRoute,
   ApiDashboardProductUpdatesRoute: ApiDashboardProductUpdatesRoute,

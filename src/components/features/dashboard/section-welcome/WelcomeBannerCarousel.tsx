@@ -1,3 +1,5 @@
+import { useState } from 'react'
+import { nextRotatedBannerIndex } from '../shared/bannerRotation'
 import type { WelcomeBanner } from '../shared/types'
 import {
   Carousel,
@@ -12,17 +14,27 @@ interface WelcomeBannerCarouselProps {
 }
 
 // Light-blue promotional carousel that sits beside the welcome greeting.
-// Renders nothing when there are no banners to show.
+// Renders nothing when there are no banners to show. The starting banner
+// advances one step per page load (persisted in localStorage) so users see
+// different banners over time.
 export function WelcomeBannerCarousel({ banners }: WelcomeBannerCarouselProps) {
+  const [startIndex] = useState(() => nextRotatedBannerIndex(banners.length))
+
   if (banners.length === 0) return null
 
   return (
-    <Carousel className="w-full" opts={{ loop: true }}>
-      <div className="relative rounded-2xl bg-[#EBF3FE] px-12 py-5">
+    <Carousel className="w-full" opts={{ loop: true, startIndex }}>
+      <div
+        data-testid="dashboard-welcome-banner-carousel"
+        className="relative rounded-2xl bg-[#EBF3FE] px-12 py-5"
+      >
         <CarouselContent>
           {banners.map((banner) => (
             <CarouselItem key={banner.id}>
-              <div className="flex items-center gap-4">
+              <div
+                data-testid="dashboard-welcome-banner-item"
+                className="flex items-center gap-4"
+              >
                 <div className="flex size-11 shrink-0 items-center justify-center rounded-full bg-white text-2xl">
                   🪙
                 </div>

@@ -11,11 +11,17 @@ export function ScheduleCard({ item }: ScheduleCardProps) {
   const { Icon, colorClass } = getScheduleTypeVisual(item.type)
 
   return (
-    <div className="flex items-start gap-3 rounded-xl border border-gray-200 bg-white p-4 transition-shadow hover:shadow-md">
+    <div
+      data-testid={`dashboard-schedule-card-${item.id}`}
+      className="flex items-start gap-3 rounded-xl border border-gray-200 bg-white p-4 transition-shadow hover:shadow-md"
+    >
       <Icon size={20} weight="regular" className={`mt-0.5 shrink-0 ${colorClass}`} />
 
       <div className="min-w-0 flex-1">
-        <h4 className="truncate text-sm font-semibold text-gray-900 md:text-base">
+        <h4
+          data-testid="dashboard-schedule-card-title"
+          className="truncate text-sm font-semibold text-gray-900 md:text-base"
+        >
           {item.title}
         </h4>
 

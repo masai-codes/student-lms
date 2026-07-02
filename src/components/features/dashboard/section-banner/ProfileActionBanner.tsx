@@ -6,22 +6,32 @@ interface ProfileActionBannerProps {
   onAction?: () => void
 }
 
-// Purple pill-shaped banner at the top of the dashboard prompting the student
-// to complete a profile action. Navigation arrows are static placeholders for
-// the eventual multi-banner carousel.
+// Purple banner at the top of the dashboard prompting the student to complete
+// a profile action. Only its top corners are rounded so it sits flush against
+// the white content card below it. Navigation arrows are static placeholders
+// for the eventual multi-banner carousel.
 export function ProfileActionBanner({
   label,
   actionLabel = 'Take Photo',
   onAction,
 }: ProfileActionBannerProps) {
   return (
-    <div className="flex items-center justify-between gap-4 rounded-2xl bg-gradient-to-r from-[#5B52A3] to-[#6E66B8] px-6 py-4 text-white">
+    <div
+      data-testid="dashboard-profile-action-banner"
+      className="flex items-center justify-between gap-4 rounded-t-2xl bg-gradient-to-r from-[#5B52A3] to-[#6E66B8] px-6 pt-6 pb-10 text-white"
+    >
       <div className="flex min-w-0 items-center gap-3">
         <UserCircle size={22} weight="bold" className="shrink-0" />
-        <span className="truncate text-sm font-semibold md:text-base">{label}</span>
+        <span
+          data-testid="dashboard-profile-action-label"
+          className="truncate text-sm font-semibold md:text-base"
+        >
+          {label}
+        </span>
         <button
           type="button"
           onClick={onAction}
+          data-testid="dashboard-profile-action-button"
           className="inline-flex shrink-0 items-center gap-2 rounded-lg bg-white px-4 py-2 text-sm font-semibold text-[#5B52A3] transition-colors hover:bg-white/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
         >
           <Camera size={16} weight="bold" />
@@ -35,10 +45,10 @@ export function ProfileActionBanner({
           <span className="size-1.5 rounded-full bg-white/40" />
           <span className="size-1.5 rounded-full bg-white/40" />
         </span>
-        <BannerNavButton label="Previous banner">
+        <BannerNavButton label="Previous banner" testId="dashboard-profile-banner-prev">
           <CaretLeft size={16} weight="bold" />
         </BannerNavButton>
-        <BannerNavButton label="Next banner">
+        <BannerNavButton label="Next banner" testId="dashboard-profile-banner-next">
           <CaretRight size={16} weight="bold" />
         </BannerNavButton>
       </div>
@@ -48,15 +58,18 @@ export function ProfileActionBanner({
 
 function BannerNavButton({
   label,
+  testId,
   children,
 }: {
   label: string
+  testId: string
   children: React.ReactNode
 }) {
   return (
     <button
       type="button"
       aria-label={label}
+      data-testid={testId}
       className="inline-flex size-8 items-center justify-center rounded-lg bg-white/20 text-white transition-colors hover:bg-white/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
     >
       {children}

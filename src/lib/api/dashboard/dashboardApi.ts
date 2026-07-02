@@ -3,6 +3,12 @@ import { DASHBOARD_API } from '@/lib/api/dashboardPaths'
 import type { T0FlowStatus } from '@/server/api/dashboard/getT0FlowStatus.service'
 import type { WelcomeModalStatus } from '@/server/api/dashboard/getWelcomeModalStatus.service'
 import type { PaymentBannerInfo } from '@/server/api/dashboard/getPaymentBannerInfo.service'
+import type { DashboardOverview } from '@/server/api/dashboard/getDashboardOverview.service'
+
+/** Single consolidated payload for the dashboard (banners for now). */
+export async function fetchDashboardOverview(): Promise<DashboardOverview> {
+  return fetchJson<DashboardOverview>(DASHBOARD_API.overview)
+}
 
 export async function fetchPaymentBannerInfo(): Promise<PaymentBannerInfo | null> {
   const { paymentBanner } = await fetchJson<{ paymentBanner: PaymentBannerInfo | null }>(DASHBOARD_API.paymentBanner)

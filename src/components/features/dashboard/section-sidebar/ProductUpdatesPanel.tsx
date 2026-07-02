@@ -9,9 +9,15 @@ interface ProductUpdatesPanelProps {
 // Sidebar panel highlighting recent LMS product updates.
 export function ProductUpdatesPanel({ updates }: ProductUpdatesPanelProps) {
   return (
-    <SidebarPanel title="Product Updates" action={<SidebarPanelLink label="View all" />}>
+    <SidebarPanel
+      title="Product Updates"
+      testId="dashboard-product-updates-panel"
+      action={<SidebarPanelLink label="View all" testId="dashboard-product-updates-view-all" />}
+    >
       {updates.length === 0 ? (
-        <p className="text-sm text-gray-400">No updates right now.</p>
+        <p data-testid="dashboard-product-updates-empty" className="text-sm text-gray-400">
+          No updates right now.
+        </p>
       ) : (
         <div className="flex flex-col gap-3">
           {updates.map((update) => (
@@ -27,6 +33,7 @@ function ProductUpdateRow({ update }: { update: ProductUpdate }) {
   return (
     <button
       type="button"
+      data-testid={`dashboard-product-update-item-${update.id}`}
       className="flex w-full items-center gap-3 rounded-xl border border-gray-200 p-3.5 text-left transition-shadow hover:shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6962AC]"
     >
       <SealCheck size={22} weight="fill" className="shrink-0 text-[#6962AC]" />

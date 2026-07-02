@@ -14,7 +14,7 @@ export function DashboardSidebar({
   productUpdates,
 }: DashboardSidebarProps) {
   return (
-    <aside className="flex flex-col gap-5">
+    <aside data-testid="dashboard-sidebar" className="flex flex-col gap-5">
       <AnnouncementsPanel announcements={announcements} />
       <ProductUpdatesPanel updates={productUpdates} />
       <LmsSupportPanel />
