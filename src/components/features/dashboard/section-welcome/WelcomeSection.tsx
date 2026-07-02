@@ -24,9 +24,11 @@ export function WelcomeSection({ studentName, banners }: WelcomeSectionProps) {
         </h1>
       </div>
 
-      <div className="w-full md:max-w-lg">
-        <WelcomeBannerCarousel banners={banners} />
-      </div>
+      {banners.length > 0 && (
+        <div className="w-full min-w-0 md:flex-1">
+          <WelcomeBannerCarousel banners={banners} />
+        </div>
+      )}
     </div>
   )
 }

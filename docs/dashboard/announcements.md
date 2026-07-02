@@ -60,8 +60,9 @@ candidates.
   announcement row (`source === 'a'`) links to `/announcements/$id` and pushes
   the GTM event `l_announcement`.
 - **States** (from the shared overview query): loading → spinner + "Loading…";
-  error → "Failed to load content"; empty → header + View All + "No
-  announcements yet".
+  error → "Failed to load content"; empty (fetch succeeded, 0 items) → the whole
+  section is **hidden** (returns null), so the sidebar collapses to the other
+  cards.
 
 ## Banned cutoff
 

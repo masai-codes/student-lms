@@ -126,17 +126,15 @@ where one exists. Current catalog:
 When adding UI, follow the convention in `.cursor/rules/project-coding-guidelines.mdc`
 (Automation Test Hooks) and extend this table.
 
-## Pending assets
+## Assets
 
-These `public/` SVGs are referenced but not yet added (placeholders resolve to a
-broken image until supplied):
+- `/lmssupportsession.svg` — support session card illustration (copied from
+  `experience-ui`).
+- Welcome-banner icon fallback (when a banner has no `image_url`) is the shared
+  remote asset `…/Group_f647b8c854.svg`, matching `experience-ui`.
 
-- `/lmssupportsession.svg` — support session card illustration.
-- `/DashboardBannerFallback.svg` — welcome-banner icon fallback (when a banner
-  has no `image_url`).
-
-Also note `/changemakers-circle` (banner no-`cta_url` fallback) has **no route**
-in this app yet.
+Note `/changemakers-circle` (banner no-`cta_url` fallback) has **no route** in
+this app yet.
 
 ## Reusable building blocks (shared beyond the dashboard)
 

@@ -39,11 +39,11 @@ describe('AnnouncementsPanel', () => {
     expect(screen.getByText('Failed to load content')).toBeTruthy()
   })
 
-  it('shows the empty state (with header + View All) when there are no items', () => {
-    render(<AnnouncementsPanel announcements={[]} isLoading={false} isError={false} />)
-    expect(screen.getByText('Announcements')).toBeTruthy()
-    expect(screen.getByTestId('dashboard-announcements-view-all')).toBeTruthy()
-    expect(screen.getByText('No announcements yet')).toBeTruthy()
+  it('hides the whole section when the fetch succeeded with no announcements', () => {
+    const { container } = render(
+      <AnnouncementsPanel announcements={[]} isLoading={false} isError={false} />,
+    )
+    expect(container.firstChild).toBeNull()
   })
 
   it('renders rows, the "For you" badge only on messages, and correct links', () => {

@@ -39,13 +39,15 @@ Matching banners are returned **newest-first** (`created_at DESC`).
 
 ## Card UI (`WelcomeBannerCarousel`)
 
-- **Icon** — circular white chip showing `imageUrl`, or a fallback SVG
-  (`/DashboardBannerFallback.svg`) when null.
+- **Icon** — circular white chip showing `imageUrl`, or the shared remote
+  fallback SVG (`…/Group_f647b8c854.svg`) when null.
 - **Title** — bold. **Description** — desktop only (`hidden md:block`); mobile
   shows just the title.
+- **Swipe** — the carousel uses **embla** for smooth mouse/touch drag-to-swipe.
+  A drag never triggers the banner link (the trailing click is swallowed).
 - **Controls** — with >1 banner, bounded prev/next arrows (prev disabled on the
   first, next on the last — no wraparound) and a row of dot indicators
-  (`data-active`). With exactly 1 banner there are no arrows/dots.
+  (`data-active`, clickable). With exactly 1 banner there are no arrows/dots.
 - **Click** — the whole banner is a link whose destination comes from `cta_url`:
   `/…` → internal (same tab); a full URL → new tab (`noopener noreferrer`); none
   → the Changemakers Circle route (`/changemakers-circle`). Every click pushes

@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { cleanup, render, screen, waitFor } from '@testing-library/react'
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
 import { DashboardPage } from './DashboardPage'
 import type * as TanstackRouter from '@tanstack/react-router'
 
@@ -19,6 +19,16 @@ vi.mock('@tanstack/react-router', async (importOriginal) => {
     ),
     useNavigate: () => vi.fn(),
   }
+})
+
+beforeAll(() => {
+  const NoopObserver = class {
+    observe() {}
+    unobserve() {}
+    disconnect() {}
+  }
+  globalThis.ResizeObserver = NoopObserver
+  globalThis.IntersectionObserver = NoopObserver as unknown as typeof IntersectionObserver
 })
 
 afterEach(cleanup)

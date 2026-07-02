@@ -19,6 +19,10 @@ export function AnnouncementsPanel({
 }: AnnouncementsPanelProps) {
   const navigate = useNavigate()
 
+  // Hide the whole section when the fetch succeeded with no announcements.
+  // (Loading / error still render so the state is never silently swallowed.)
+  if (!isLoading && !isError && announcements.length === 0) return null
+
   return (
     <SidebarPanel
       title="Announcements"
@@ -32,8 +36,6 @@ export function AnnouncementsPanel({
       }
       isLoading={isLoading}
       isError={isError}
-      isEmpty={announcements.length === 0}
-      emptyText="No announcements yet"
     >
       <div className="flex max-h-72 flex-col gap-3 overflow-y-auto">
         {announcements.map((announcement) => (
