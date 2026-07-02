@@ -1,9 +1,9 @@
 import { WelcomeBannerCarousel } from './WelcomeBannerCarousel'
-import type { WelcomeBanner } from '../shared/types'
+import type { DashboardBanner } from '@/server/api/dashboard/banners/getWelcomeBanners.service'
 
 interface WelcomeSectionProps {
   studentName: string
-  banners: Array<WelcomeBanner>
+  banners: Array<DashboardBanner>
 }
 
 // Greeting header paired with the promotional banner carousel. Stacks on

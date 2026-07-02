@@ -50,6 +50,19 @@ is individually pre-limited to 5 in the DB (ordered by the same
 `COALESCE(schedule, created_at)`), so the merge only ever considers real
 candidates.
 
+## Card UI (`AnnouncementsPanel`)
+
+- Header **"Announcements"** + a **"View All"** button (→ `/announcements`, the
+  full feed).
+- Up to 5 rows in a fixed-height **scrollable** body. Each row: title (truncated),
+  author name (if present), and a blue **"For you"** badge on message rows only.
+- **Click** — a message row (`source === 'm'`) links to `/messages/$id`; an
+  announcement row (`source === 'a'`) links to `/announcements/$id` and pushes
+  the GTM event `l_announcement`.
+- **States** (from the shared overview query): loading → spinner + "Loading…";
+  error → "Failed to load content"; empty → header + View All + "No
+  announcements yet".
+
 ## Banned cutoff
 
 Reused from the banner work: `getBannedContentCutoffForUser(userId)` loads the

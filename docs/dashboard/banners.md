@@ -37,17 +37,35 @@ A banner is shown only if **all** of these pass, evaluated in order:
 
 Matching banners are returned **newest-first** (`created_at DESC`).
 
+## Card UI (`WelcomeBannerCarousel`)
+
+- **Icon** — circular white chip showing `imageUrl`, or a fallback SVG
+  (`/DashboardBannerFallback.svg`) when null.
+- **Title** — bold. **Description** — desktop only (`hidden md:block`); mobile
+  shows just the title.
+- **Controls** — with >1 banner, bounded prev/next arrows (prev disabled on the
+  first, next on the last — no wraparound) and a row of dot indicators
+  (`data-active`). With exactly 1 banner there are no arrows/dots.
+- **Click** — the whole banner is a link whose destination comes from `cta_url`:
+  `/…` → internal (same tab); a full URL → new tab (`noopener noreferrer`); none
+  → the Changemakers Circle route (`/changemakers-circle`). Every click pushes
+  the GTM event `l_dashboard_banner_carousel_<analyticsKey>_id_<id>`, where
+  `analyticsKey` is computed on the backend (group name, else `type_variant`).
+
 ## Rotation (client-side)
 
 The API returns the full ordered list; it does **not** decide which banner shows
-first. The UI remembers the last banner index in `localStorage`
-(`dashboard:welcomeBannerIndex`) and advances one step on every page load, so a
-returning user sees a different banner over time. Wrapping is handled by
-`computeNextBannerIndex`; the starting index feeds the carousel's `startIndex`.
+first. The UI remembers the last banner **id** in `localStorage`
+(`dashboard_last_banner_id`) and starts one past it on each page load, so a
+returning user sees a different banner over time (wrapping around). Manual
+arrows override for the session and update the stored id. An unknown/missing id
+starts at 0.
 
 - Util: `src/components/features/dashboard/shared/bannerRotation.ts`
+  (`computeNextBannerIndex`, `nextRotatedBannerIndex`, `rememberBannerId`).
 - Consumed by: `WelcomeBannerCarousel` (lazy `useState` initializer, so rotation
-  advances exactly once per mount). Storage failures fall back to index 0.
+  advances once per mount; persists the shown id via an effect). Storage
+  failures fall back to index 0.
 
 ## `visible_to` JSON shape
 

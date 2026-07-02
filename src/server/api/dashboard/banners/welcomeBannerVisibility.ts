@@ -21,6 +21,24 @@ export function getUserBannerGroup(userId: number): string {
   return GROUP_LETTERS[userId % GROUP_LETTERS.length]
 }
 
+/**
+ * The `<group/type_variant>` segment for a banner's GTM event name
+ * (`l_dashboard_banner_carousel_<key>_id_<id>`): the group name when set,
+ * otherwise `type_variant`.
+ */
+export function buildBannerAnalyticsKey(
+  groupName: string | null,
+  type: string | null,
+  variant: string | null,
+): string {
+  const group = groupName?.trim()
+  if (group) return group
+  return [type, variant]
+    .map((part) => part?.trim() ?? '')
+    .filter(Boolean)
+    .join('_')
+}
+
 export function parseBannerVisibility(
   raw: string | Record<string, unknown> | null | undefined,
 ): BannerVisibility {

@@ -1,26 +1,72 @@
 // @vitest-environment jsdom
 import { cleanup, render, screen } from '@testing-library/react'
-import { afterEach, describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import { AnnouncementsPanel } from './AnnouncementsPanel'
-import type { Announcement } from '../shared/types'
+import type { DashboardAnnouncement } from '@/server/api/dashboard/announcements/announcementFeed'
+
+const navigate = vi.fn()
+vi.mock('@tanstack/react-router', () => ({
+  Link: ({ children, params, ...props }: Record<string, unknown>) => (
+    <a data-params={JSON.stringify(params)} {...props}>
+      {children as React.ReactNode}
+    </a>
+  ),
+  useNavigate: () => navigate,
+}))
 
 afterEach(cleanup)
 
-const announcements: Array<Announcement> = [
-  { id: '1', title: 'For you notice', author: 'Prof. A', isForYou: true },
-  { id: '2', title: 'General notice', author: 'Prof. B', isForYou: false },
-]
+const item = (over: Partial<DashboardAnnouncement>): DashboardAnnouncement => ({
+  id: 1,
+  source: 'a',
+  title: 'Notice',
+  body: '',
+  authorName: 'Prof. A',
+  isForYou: false,
+  ctaName: null,
+  ctaLink: null,
+  ...over,
+})
 
 describe('AnnouncementsPanel', () => {
-  it('renders each announcement and the "For You" tag only when flagged', () => {
-    render(<AnnouncementsPanel announcements={announcements} />)
-    expect(screen.getByText('For you notice')).toBeTruthy()
-    expect(screen.getByText('General notice')).toBeTruthy()
-    expect(screen.getAllByText('For You')).toHaveLength(1)
+  it('shows a spinner while loading and the failure message on error', () => {
+    const { rerender } = render(
+      <AnnouncementsPanel announcements={[]} isLoading isError={false} />,
+    )
+    expect(screen.getByText('Loading…')).toBeTruthy()
+
+    rerender(<AnnouncementsPanel announcements={[]} isLoading={false} isError />)
+    expect(screen.getByText('Failed to load content')).toBeTruthy()
   })
 
-  it('renders the empty state when there are no announcements', () => {
-    render(<AnnouncementsPanel announcements={[]} />)
-    expect(screen.getByText(/no announcements yet/i)).toBeTruthy()
+  it('shows the empty state (with header + View All) when there are no items', () => {
+    render(<AnnouncementsPanel announcements={[]} isLoading={false} isError={false} />)
+    expect(screen.getByText('Announcements')).toBeTruthy()
+    expect(screen.getByTestId('dashboard-announcements-view-all')).toBeTruthy()
+    expect(screen.getByText('No announcements yet')).toBeTruthy()
+  })
+
+  it('renders rows, the "For you" badge only on messages, and correct links', () => {
+    render(
+      <AnnouncementsPanel
+        isLoading={false}
+        isError={false}
+        announcements={[
+          item({ id: 5, source: 'a', title: 'Announcement' }),
+          item({ id: 6, source: 'm', title: 'Message', isForYou: true }),
+        ]}
+      />,
+    )
+    expect(screen.getByText('Announcement')).toBeTruthy()
+    expect(screen.getByText('Message')).toBeTruthy()
+    expect(screen.getAllByText('For you')).toHaveLength(1)
+
+    // Announcement → /announcements/$id ; message → /messages/$id
+    expect(screen.getByTestId('dashboard-announcement-item-a-5').getAttribute('to')).toBe(
+      '/announcements/$id',
+    )
+    expect(screen.getByTestId('dashboard-announcement-item-m-6').getAttribute('to')).toBe(
+      '/messages/$id',
+    )
   })
 })

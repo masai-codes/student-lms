@@ -1,23 +1,78 @@
-import { Question } from '@phosphor-icons/react'
+import type { DashboardSupportSession } from '@/server/api/dashboard/support/getSupportSessions.service'
+import type { SupportSessionStatus } from '@/server/api/dashboard/support/supportSessionStatus'
 
-// Compact call-to-action card inviting students to join the daily LMS support
-// session. Static content for now.
-export function LmsSupportPanel() {
+interface LmsSupportPanelProps {
+  /** The single featured session, or null to hide the card entirely. */
+  session: DashboardSupportSession | null
+}
+
+const SUPPORT_ILLUSTRATION = '/lmssupportsession.svg'
+
+const SUBTEXT: Record<SupportSessionStatus, string> = {
+  live: "We're live now to help you",
+  today: 'Join our daily session to get your questions answered',
+  upcoming: 'No session today, the next session is scheduled for',
+}
+
+// The one support-session card the backend selected. Hidden entirely when there
+// is no session (and while loading, the parent passes null). The backend
+// decides live/today/upcoming; this only renders. The card body is never
+// clickable — the only interactive element is the live "Join Now" button.
+export function LmsSupportPanel({ session }: LmsSupportPanelProps) {
+  if (!session) return null
+
+  const isLive = session.status === 'live'
+
   return (
-    <button
-      type="button"
+    <section
       data-testid="dashboard-lms-support-panel"
-      className="flex w-full items-center gap-3 rounded-2xl border border-gray-200 bg-white p-4 text-left transition-shadow hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6962AC]"
+      data-status={session.status}
+      className={`flex items-center gap-3 rounded-2xl border p-4 ${
+        isLive ? 'border-[#C3DDFD] bg-[#E1EFFE]' : 'border-[#E5E7EB] bg-[#F9FAFB]'
+      }`}
     >
-      <div className="flex size-12 shrink-0 items-center justify-center rounded-full bg-[#6962AC]/10 text-[#6962AC]">
-        <Question size={26} weight="fill" />
+      <img src={SUPPORT_ILLUSTRATION} alt="" className="size-12 shrink-0" />
+
+      <div className="min-w-0 flex-1">
+        <h4 className="text-sm font-semibold text-gray-900">LMS Support Session</h4>
+        <p className="mt-0.5 text-xs text-gray-600">{SUBTEXT[session.status]}</p>
+        {!isLive && session.schedule && (
+          <span
+            data-testid="dashboard-support-session-time"
+            className="mt-1.5 inline-block rounded-md bg-[#FDF6B2] px-2 py-0.5 text-xs font-semibold text-gray-800"
+          >
+            {formatSessionPill(session.schedule)}
+          </span>
+        )}
       </div>
-      <div className="min-w-0">
-        <h4 className="text-sm font-bold text-gray-900">LMS Support Session</h4>
-        <p className="mt-0.5 truncate text-xs text-gray-600">
-          Join our daily session to get help
-        </p>
-      </div>
-    </button>
+
+      {isLive && session.zoomLink && (
+        <a
+          href={session.zoomLink}
+          target="_blank"
+          rel="noopener noreferrer"
+          data-testid="dashboard-support-session-join"
+          className="inline-flex shrink-0 items-center rounded-lg bg-[#3F83F8] px-3.5 py-2 text-xs font-semibold text-white transition-colors hover:bg-[#3576e0] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#3F83F8]"
+        >
+          Join Now
+        </a>
+      )}
+    </section>
   )
+}
+
+/** Renders an IST ISO timestamp as e.g. "2 Jul, 6:30 PM (IST)". */
+function formatSessionPill(iso: string): string {
+  const at = new Date(iso)
+  const date = new Intl.DateTimeFormat('en-GB', {
+    day: 'numeric',
+    month: 'short',
+    timeZone: 'Asia/Kolkata',
+  }).format(at)
+  const time = new Intl.DateTimeFormat('en-US', {
+    hour: 'numeric',
+    minute: '2-digit',
+    timeZone: 'Asia/Kolkata',
+  }).format(at)
+  return `${date}, ${time} (IST)`
 }

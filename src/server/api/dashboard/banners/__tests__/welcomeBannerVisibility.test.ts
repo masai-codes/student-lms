@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import {
+  buildBannerAnalyticsKey,
   getIstNowMs,
   getUserBannerGroup,
   isBannerVisibleToBatches,
@@ -8,6 +9,18 @@ import {
   parseBannerVisibility,
   parseIstWallClock,
 } from '../welcomeBannerVisibility'
+
+describe('buildBannerAnalyticsKey', () => {
+  it('prefers the group name', () => {
+    expect(buildBannerAnalyticsKey('referral', 'promo', 'v1')).toBe('referral')
+  })
+
+  it('falls back to type_variant when there is no group', () => {
+    expect(buildBannerAnalyticsKey(null, 'promo', 'v1')).toBe('promo_v1')
+    expect(buildBannerAnalyticsKey('  ', 'promo', null)).toBe('promo')
+    expect(buildBannerAnalyticsKey(null, null, null)).toBe('')
+  })
+})
 
 describe('getUserBannerGroup', () => {
   it('maps userId % 4 to A/B/C/D', () => {

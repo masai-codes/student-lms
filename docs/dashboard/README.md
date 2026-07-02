@@ -29,11 +29,18 @@ route: src/routes/api/dashboard/overview.ts
             │    ├─ getBatchIdsForEnrolledUser()     (reusable: user → batches)
             │    ├─ getBannedContentCutoffForUser()  (reusable: ban cutoff)
             │    └─ welcomeBannerVisibility.ts       (pure visibility rules)
-            └─ getAnnouncementsFeed.service.ts       (Feed A + Feed B → top 5)
-                 ├─ getSectionIdsForUser()           (reusable: user → sections)
+            ├─ getAnnouncementsFeed.service.ts       (Feed A + Feed B → top 5)
+            │    ├─ getSectionIdsForUser()           (reusable: user → sections)
+            │    ├─ getBannedContentCutoffForUser()  (reusable: ban cutoff)
+            │    ├─ getIstNowSqlDatetime()           (reusable: IST clock)
+            │    └─ announcementFeed.ts              (pure combine/sort/cap)
+            ├─ getProductUpdates.service.ts          (newest whatsnew, 25/page → top 5)
+            │    └─ getBannedContentCutoffForUser()  (reusable: ban cutoff)
+            └─ getSupportSessions.service.ts         (help sessions, next ~8 days)
                  ├─ getBannedContentCutoffForUser()  (reusable: ban cutoff)
-                 ├─ getIstNowSqlDatetime()           (reusable: IST clock)
-                 └─ announcementFeed.ts              (pure combine/sort/cap)
+                 ├─ getIstDayWindow() / formatIstWallClock()  (reusable: IST clock)
+                 ├─ supportSessionStatus.ts          (pure live/today/upcoming)
+                 └─ featuredSupportSession.ts        (pure: pick the one card)
 ```
 
 Response shape (grows as sections are migrated):
@@ -46,9 +53,18 @@ Response shape (grows as sections are migrated):
   "announcements": [
     { "id": 2, "source": "a", "title": "…", "body": "…", "authorName": "…",
       "isForYou": false, "ctaName": null, "ctaLink": null }
-  ]
+  ],
+  "productUpdates": [
+    { "id": 3, "title": "…", "imageUrl": null }
+  ],
+  "supportSession": {
+    "id": 4, "title": "…", "schedule": "2026-07-02T15:00:00+05:30",
+    "concludes": "2026-07-02T16:00:00+05:30", "zoomLink": "…", "status": "live"
+  }
 }
 ```
+
+`supportSession` is a single featured session or `null` (card hidden).
 
 Client access: `fetchDashboardOverview()` in
 `src/lib/api/dashboard/dashboardApi.ts`.
@@ -59,9 +75,10 @@ Client access: `fetchDashboardOverview()` in
 | -------------------- | ------- | --------------------------------------------- |
 | Welcome banners      | ✅ Live  | See [banners.md](./banners.md)                |
 | Announcements        | ✅ Live  | See [announcements.md](./announcements.md)     |
+| Product updates      | ✅ Live  | See [product-updates.md](./product-updates.md) |
+| Support sessions     | ✅ Live  | See [support-sessions.md](./support-sessions.md) |
 | Schedule             | ⬜ Mock  | Static in `shared/mockData.ts`                |
 | Pending tasks        | ⬜ Mock  | Static                                        |
-| Product updates      | ⬜ Mock  | Static                                        |
 | Profile action banner| ⬜ Mock  | Static                                        |
 
 The frontend `DashboardPage` merges live data over the mock defaults, so a
@@ -83,8 +100,10 @@ where one exists. Current catalog:
 | `dashboard-profile-banner-prev/next`   | Banner nav arrows                         |
 | `dashboard-welcome-section`            | Welcome greeting + carousel row           |
 | `dashboard-welcome-name`               | Student name heading                      |
-| `dashboard-welcome-banner-carousel`    | Promotional carousel container            |
-| `dashboard-welcome-banner-item`        | Each carousel banner (query all)          |
+| `dashboard-welcome-banner-carousel`    | Promotional carousel container (absent with 0 banners) |
+| `dashboard-welcome-banner-item`        | The shown banner (the clickable link)     |
+| `dashboard-welcome-banner-prev/next`   | Bounded carousel arrows (>1 banner)       |
+| `dashboard-welcome-banner-dot`         | Dot indicators (`data-active`; >1 banner) |
 | `dashboard-schedule-section`           | Schedule card root                        |
 | `dashboard-schedule-tab`               | "My Schedule" tab                         |
 | `dashboard-pending-tasks-tab`          | "Pending Tasks" tab                       |
@@ -96,14 +115,28 @@ where one exists. Current catalog:
 | `dashboard-schedule-day-<id>`          | A day row (`-badge` for the date badge)   |
 | `dashboard-schedule-card-<id>`         | A schedule card (`-title` for its title)  |
 | `dashboard-sidebar`                    | Right-hand sidebar column                 |
-| `dashboard-announcements-panel`        | Announcements panel (`-title`, `-view-all`, `-empty`) |
-| `dashboard-announcement-item-<id>`     | An announcement (`dashboard-announcement-for-you` badge) |
-| `dashboard-product-updates-panel`      | Product updates panel (`-title`, `-view-all`, `-empty`) |
+| `dashboard-announcements-panel`        | Announcements panel (`-title`, `-view-all`, `-loading`, `-error`, `-empty`) |
+| `dashboard-announcement-item-<source>-<id>` | An announcement/message row (`dashboard-announcement-for-you` badge on messages) |
+| `dashboard-product-updates-panel`      | Product updates panel (`-title`, `-view-all`, `-loading`, `-error`, `-empty`) |
 | `dashboard-product-update-item-<id>`   | A product update row                      |
-| `dashboard-lms-support-panel`          | LMS support CTA card                      |
+| `dashboard-lms-support-panel`          | Support session card (hidden while loading / when none; `data-status` = live/today/upcoming) |
+| `dashboard-support-session-time`       | Yellow IST time pill (today / upcoming)   |
+| `dashboard-support-session-join`       | "Join Now" button (live sessions only)    |
 
 When adding UI, follow the convention in `.cursor/rules/project-coding-guidelines.mdc`
 (Automation Test Hooks) and extend this table.
+
+## Pending assets
+
+These `public/` SVGs are referenced but not yet added (placeholders resolve to a
+broken image until supplied):
+
+- `/lmssupportsession.svg` — support session card illustration.
+- `/DashboardBannerFallback.svg` — welcome-banner icon fallback (when a banner
+  has no `image_url`).
+
+Also note `/changemakers-circle` (banner no-`cta_url` fallback) has **no route**
+in this app yet.
 
 ## Reusable building blocks (shared beyond the dashboard)
 
@@ -121,6 +154,8 @@ When adding UI, follow the convention in `.cursor/rules/project-coding-guideline
 - **`getBannedContentCutoffForUser(userId)`** — `src/server/users/`. Loads a
   user's status and returns their ban cutoff (or `null`) in one call. Used by
   both the banner and announcement feeds.
-- **`getIstNowSqlDatetime(now)`** — `src/server/time/istClock.ts`. "Now" as an
-  IST wall-clock `YYYY-MM-DD HH:MM:SS` string for comparing IST-stored DATETIME
-  columns in the query builder (no raw `CONVERT_TZ`).
+- **`istClock.ts`** — `src/server/time/`. IST (UTC+5:30) helpers for IST-stored
+  DATETIME columns: `getIstNowSqlDatetime(now)` ("now" as a comparable wall-clock
+  string), `getIstDayWindow(now, days)` (start-of-today → end-of-day-N range),
+  and `formatIstWallClock(value)` (wall-clock → `…+05:30` ISO). No raw
+  `CONVERT_TZ`.

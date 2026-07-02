@@ -30,6 +30,9 @@ const bannerRow = (over: Record<string, unknown> = {}) => ({
   description: 'Earn rewards',
   imageUrl: '/coin.png',
   ctaUrl: '/refer',
+  type: 'promo',
+  variant: 'v1',
+  groupName: 'referral',
   visibleTo: { batches: [], random_group: [] },
   startDate: '2026-07-01 00:00:00',
   endDate: '2026-07-10 00:00:00',
@@ -51,7 +54,14 @@ describe('getWelcomeBanners', () => {
     const result = await getWelcomeBanners(42, NOW)
 
     expect(result).toEqual([
-      { id: 1, title: 'Refer a friend', description: 'Earn rewards', imageUrl: '/coin.png', ctaUrl: '/refer' },
+      {
+        id: 1,
+        title: 'Refer a friend',
+        description: 'Earn rewards',
+        imageUrl: '/coin.png',
+        ctaUrl: '/refer',
+        analyticsKey: 'referral',
+      },
     ])
   })
 

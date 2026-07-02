@@ -1,5 +1,6 @@
 import { and, desc, eq, isNull } from 'drizzle-orm'
 import {
+  buildBannerAnalyticsKey,
   getIstNowMs,
   getUserBannerGroup,
   isBannerVisibleToBatches,
@@ -20,6 +21,8 @@ export interface DashboardBanner {
   description: string | null
   imageUrl: string | null
   ctaUrl: string | null
+  /** `<group/type_variant>` segment for the GTM click event. */
+  analyticsKey: string
 }
 
 /**
@@ -53,6 +56,9 @@ export async function getWelcomeBanners(
       description: banners.description,
       imageUrl: banners.imageUrl,
       ctaUrl: banners.ctaUrl,
+      type: banners.type,
+      variant: banners.variant,
+      groupName: banners.groupName,
       visibleTo: banners.visibleTo,
       startDate: banners.startDate,
       endDate: banners.endDate,
@@ -87,5 +93,6 @@ export async function getWelcomeBanners(
       description: row.description,
       imageUrl: row.imageUrl,
       ctaUrl: row.ctaUrl,
+      analyticsKey: buildBannerAnalyticsKey(row.groupName, row.type, row.variant),
     }))
 }

@@ -1,5 +1,14 @@
-// Shared types for the dashboard feature. Kept UI-only for now (static data);
-// these mirror the shapes we expect the API to eventually return.
+// Shared types for the dashboard feature.
+//
+// The live sections (welcome banners, announcements, product updates, support
+// session) are driven by the consolidated overview query and use the server
+// DTOs directly (see `DashboardOverviewState`). Only the still-static sections
+// (profile banner, welcome name, schedule) live in `DashboardData`.
+
+import type { DashboardBanner } from '@/server/api/dashboard/banners/getWelcomeBanners.service'
+import type { DashboardAnnouncement } from '@/server/api/dashboard/announcements/announcementFeed'
+import type { DashboardProductUpdate } from '@/server/api/dashboard/product-updates/getProductUpdates.service'
+import type { DashboardSupportSession } from '@/server/api/dashboard/support/getSupportSessions.service'
 
 export type ScheduleItemType = 'lecture' | 'assignment' | 'notes'
 
@@ -33,30 +42,23 @@ export interface ScheduleWeek {
   days: Array<ScheduleDay>
 }
 
-export interface WelcomeBanner {
-  id: string
-  title: string
-  subtitle: string
-}
-
-export interface Announcement {
-  id: string
-  title: string
-  author: string
-  isForYou: boolean
-}
-
-export interface ProductUpdate {
-  id: string
-  title: string
-}
-
+/** Still-static dashboard sections (mock-driven). */
 export interface DashboardData {
   studentName: string
   profileActionLabel: string
-  welcomeBanners: Array<WelcomeBanner>
   pendingTaskCount: number
   scheduleWeeks: Array<ScheduleWeek>
-  announcements: Array<Announcement>
-  productUpdates: Array<ProductUpdate>
+}
+
+/**
+ * Live overview sections + the shared query state. Cards render their own
+ * loading / error / empty states from this.
+ */
+export interface DashboardOverviewState {
+  isPending: boolean
+  isError: boolean
+  banners: Array<DashboardBanner>
+  announcements: Array<DashboardAnnouncement>
+  productUpdates: Array<DashboardProductUpdate>
+  supportSession: DashboardSupportSession | null
 }

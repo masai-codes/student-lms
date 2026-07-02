@@ -1,23 +1,11 @@
 import type { DashboardData } from './types'
 
-// Static placeholder data used to render the dashboard skeleton UI.
-// Swap this for API-driven data once the endpoints are wired up.
+// Static placeholder data for the still-mock dashboard sections (profile
+// banner, welcome name, schedule). The live sections are API-driven.
 
 export const MOCK_DASHBOARD_DATA: DashboardData = {
   studentName: 'Suryakumar',
   profileActionLabel: 'Complete your profile by adding a profile picture',
-  welcomeBanners: [
-    {
-      id: 'banner-referral',
-      title: 'Be the friend who brings opportunities, not just memes.',
-      subtitle: 'Help a friend start learning and earn rewards',
-    },
-    {
-      id: 'banner-community',
-      title: 'Join the conversation in your batch community.',
-      subtitle: 'Connect with peers and mentors in real time',
-    },
-  ],
   pendingTaskCount: 3,
   scheduleWeeks: [
     {
@@ -87,23 +75,5 @@ export const MOCK_DASHBOARD_DATA: DashboardData = {
         },
       ],
     },
-  ],
-  announcements: [
-    {
-      id: 'ann-1',
-      title: 'Important Announcements for Students',
-      author: 'Prof. Anvesh Jain',
-      isForYou: true,
-    },
-    {
-      id: 'ann-2',
-      title: 'Important Announcements for Students',
-      author: 'Prof. Anvesh Jain',
-      isForYou: false,
-    },
-  ],
-  productUpdates: [
-    { id: 'pu-1', title: "Discover what's new and improved in the LMS." },
-    { id: 'pu-2', title: "Discover what's new and improved in the LMS." },
   ],
 }

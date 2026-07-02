@@ -1,41 +1,44 @@
 // @vitest-environment jsdom
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { computeNextBannerIndex, nextRotatedBannerIndex } from './bannerRotation'
+import {
+  computeNextBannerIndex,
+  nextRotatedBannerIndex,
+  rememberBannerId,
+} from './bannerRotation'
 
 describe('computeNextBannerIndex', () => {
-  it('starts at 0 for a null/invalid last index or empty list', () => {
-    expect(computeNextBannerIndex(null, 3)).toBe(0)
-    expect(computeNextBannerIndex(-1, 3)).toBe(0)
-    expect(computeNextBannerIndex(1.5, 3)).toBe(0)
-    expect(computeNextBannerIndex(2, 0)).toBe(0)
+  it('starts at 0 for a null/unknown last id or empty list', () => {
+    expect(computeNextBannerIndex(null, [10, 20, 30])).toBe(0)
+    expect(computeNextBannerIndex(99, [10, 20, 30])).toBe(0)
+    expect(computeNextBannerIndex(10, [])).toBe(0)
   })
 
-  it('advances one step and wraps around', () => {
-    expect(computeNextBannerIndex(0, 3)).toBe(1)
-    expect(computeNextBannerIndex(1, 3)).toBe(2)
-    expect(computeNextBannerIndex(2, 3)).toBe(0)
+  it('advances one past the last shown id and wraps around', () => {
+    expect(computeNextBannerIndex(10, [10, 20, 30])).toBe(1)
+    expect(computeNextBannerIndex(20, [10, 20, 30])).toBe(2)
+    expect(computeNextBannerIndex(30, [10, 20, 30])).toBe(0)
   })
 })
 
-describe('nextRotatedBannerIndex', () => {
+describe('nextRotatedBannerIndex / rememberBannerId', () => {
   beforeEach(() => window.localStorage.clear())
   afterEach(() => vi.restoreAllMocks())
 
-  it('advances and persists the index across calls', () => {
-    expect(nextRotatedBannerIndex(3)).toBe(0)
-    expect(nextRotatedBannerIndex(3)).toBe(1)
-    expect(nextRotatedBannerIndex(3)).toBe(2)
-    expect(nextRotatedBannerIndex(3)).toBe(0)
+  it('advances one past the remembered banner id', () => {
+    rememberBannerId(20)
+    expect(nextRotatedBannerIndex([10, 20, 30])).toBe(2)
   })
 
-  it('returns 0 without touching storage for an empty list', () => {
-    expect(nextRotatedBannerIndex(0)).toBe(0)
+  it('starts at 0 with no stored id and for an empty list', () => {
+    expect(nextRotatedBannerIndex([10, 20, 30])).toBe(0)
+    rememberBannerId(20)
+    expect(nextRotatedBannerIndex([])).toBe(0)
   })
 
   it('falls back to 0 when storage reads throw', () => {
     vi.spyOn(window.localStorage, 'getItem').mockImplementation(() => {
       throw new Error('blocked')
     })
-    expect(nextRotatedBannerIndex(3)).toBe(0)
+    expect(nextRotatedBannerIndex([10, 20, 30])).toBe(0)
   })
 })
