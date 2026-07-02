@@ -47,7 +47,7 @@ Parameters:
     Default: 'arn:aws:codestar-connections:ap-south-1:016530944324:connection/71493bbf-615c-48c1-adc5-fbb0e15ecffa'
     Description: >
       ARN of an existing CodeStar/CodeConnections GitHub connection used by CodePipeline.
-    AllowedPattern: '^arn:aws:codestar-connections:[a-z0-9-]+:[0-9]+:connection/.+$'
+    AllowedPattern: '^arn:aws:(codestar-connections|codeconnections):[a-z0-9-]+:[0-9]+:connection/.+$'
 
   ACMCertificateARNRegional:
     Type: String
@@ -1264,7 +1264,13 @@ Resources:
                   "stacked": false,
                   "period": 300,
                   "metrics": [
-                    [ "StudentLMS/EC2", "mem_used_percent", "AutoScalingGroupName", "${ASGName}" ]
+                    [
+                      {
+                        "expression": "SEARCH('{StudentLMS/EC2,InstanceId,AutoScalingGroupName} MetricName=\"mem_used_percent\" AND AutoScalingGroupName=\"${ASGName}\"', 'Average', 300)",
+                        "label": "Memory %",
+                        "id": "mem1"
+                      }
+                    ]
                   ]
                 }
               },
@@ -1281,7 +1287,13 @@ Resources:
                   "stacked": false,
                   "period": 300,
                   "metrics": [
-                    [ "StudentLMS/EC2", "disk_used_percent", "AutoScalingGroupName", "${ASGName}", { "stat": "Average" } ]
+                    [
+                      {
+                        "expression": "SEARCH('{StudentLMS/EC2,InstanceId,AutoScalingGroupName} MetricName=\"disk_used_percent\" AND AutoScalingGroupName=\"${ASGName}\"', 'Average', 300)",
+                        "label": "Disk %",
+                        "id": "disk1"
+                      }
+                    ]
                   ]
                 }
               },
@@ -1420,17 +1432,15 @@ Resources:
     Properties:
       AlarmName: student-lms-memory-high
       AlarmDescription: EC2 average memory utilization exceeded 85%
-      Namespace: StudentLMS/EC2
-      MetricName: mem_used_percent
-      Dimensions:
-        - Name: AutoScalingGroupName
-          Value: !Ref AutoScalingGroup
-      Statistic: Average
-      Period: 300
       EvaluationPeriods: 2
       Threshold: 85
       ComparisonOperator: GreaterThanThreshold
       TreatMissingData: notBreaching
+      Metrics:
+        - Id: mem
+          Expression: !Sub 'SELECT AVG(mem_used_percent) FROM "StudentLMS/EC2" WHERE AutoScalingGroupName = ''${AutoScalingGroup}'''
+          Period: 300
+          ReturnData: true
       AlarmActions:
         - !Ref SNSTopicARN
       OKActions:

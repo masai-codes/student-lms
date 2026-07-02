@@ -1,6 +1,12 @@
 # Feature Test Matrix
 
-Last updated: 2026-06-07
+Last updated: 2026-07-02
+
+## Structured logging
+- Area: Server logging utility (`src/lib/logger.ts`)
+- Status: Covered
+- Test files: `src/lib/logger.test.ts`
+- Notes: JSON structured logs for PM2/CloudWatch (`level`, `time`, `msg`, optional `fn`/`requestId`/`userId`/`err`). Production emits compact single-line JSON; non-production pretty-prints. `warn`/`error` route to stderr; `debug`/`info` to stdout.
 
 ## Sign-in (student UI)
 
