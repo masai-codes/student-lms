@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { DashboardLayout } from './layout/DashboardLayout'
+import { WelcomeModalGate } from './t0/WelcomeModalGate'
 import type { DashboardOverviewState } from './shared/types'
 import { fetchDashboardOverview } from '@/lib/api/dashboard/dashboardApi'
 import { fetchCurrentUser } from '@/lib/api/me/meApi'
@@ -34,5 +35,10 @@ export function DashboardPage() {
     pendingTasks: data?.pendingTasks ?? [],
   }
 
-  return <DashboardLayout userName={currentUser?.name ?? null} overview={overview} />
+  return (
+    <>
+      <DashboardLayout userName={currentUser?.name ?? null} overview={overview} />
+      <WelcomeModalGate />
+    </>
+  )
 }

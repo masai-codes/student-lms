@@ -5,10 +5,17 @@ import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vite
 import { DashboardPage } from './DashboardPage'
 import type * as TanstackRouter from '@tanstack/react-router'
 
-const hoisted = vi.hoisted(() => ({ fetchOverview: vi.fn(), fetchCurrentUser: vi.fn() }))
+const hoisted = vi.hoisted(() => ({
+  fetchOverview: vi.fn(),
+  fetchCurrentUser: vi.fn(),
+  fetchWelcomeModalStatus: vi.fn(),
+  dismissWelcomeModalApi: vi.fn(),
+}))
 
 vi.mock('@/lib/api/dashboard/dashboardApi', () => ({
   fetchDashboardOverview: hoisted.fetchOverview,
+  fetchWelcomeModalStatus: hoisted.fetchWelcomeModalStatus,
+  dismissWelcomeModalApi: hoisted.dismissWelcomeModalApi,
 }))
 vi.mock('@/lib/api/me/meApi', () => ({
   fetchCurrentUser: hoisted.fetchCurrentUser,
@@ -38,6 +45,7 @@ afterEach(cleanup)
 beforeEach(() => {
   vi.clearAllMocks()
   hoisted.fetchCurrentUser.mockResolvedValue({ name: 'Suryakumar' })
+  hoisted.fetchWelcomeModalStatus.mockResolvedValue({ showWelcomeModal: false })
 })
 
 function renderPage() {

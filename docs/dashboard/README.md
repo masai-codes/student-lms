@@ -109,6 +109,7 @@ client needs today (`{ name }`). The dashboard greeting uses it —
 | Pending tasks        | ✅ Live  | Not-begun assignments + catch-up lectures (see [schedule.md](./schedule.md)) |
 | Welcome greeting     | ✅ Live  | Name from `GET /api/me` ("Welcome {name}!" / "Welcome!"); long names shortened to first name / ellipsis (`formatGreetingName`), full name on hover |
 | Profile action banner| 🚫 Hidden | Component kept; not rendered — will be shown conditionally later |
+| T0 welcome modal     | ✅ Live  | Onboarding Phase 1 — one-time welcome (see [t0-welcome-modal.md](./t0-welcome-modal.md)); rest of the T0 flow still to come |
 
 The frontend `DashboardPage` merges live data over the mock defaults, so a
 section keeps rendering from mock data until its API field lands.
