@@ -112,7 +112,7 @@ export function RichContent({ value, className }: RichContentProps) {
   return (
     <div
       className={cn(
-        "min-w-0 max-w-full break-words [&_a]:break-all [&_a]:text-masaiverse-orange [&_a]:underline [&_code]:break-all [&_li]:min-w-0 [&_li]:whitespace-pre-wrap [&_ol]:min-w-0 [&_p]:my-0 [&_p]:min-w-0 [&_p]:whitespace-pre-wrap [&_p+p]:mt-3 [&_ul]:min-w-0",
+        "min-w-0 max-w-full break-words [&_a]:break-all [&_a]:text-masaiverse-orange [&_a]:underline [&_code]:break-all [&_li]:my-1 [&_li]:min-w-0 [&_li]:whitespace-pre-wrap [&_ol]:my-2 [&_ol]:min-w-0 [&_ol]:list-decimal [&_ol]:pl-5 [&_p]:my-0 [&_p]:min-w-0 [&_p]:whitespace-pre-wrap [&_p+p]:mt-3 [&_ul]:my-2 [&_ul]:min-w-0 [&_ul]:list-disc [&_ul]:pl-5",
         className,
       )}
     >
