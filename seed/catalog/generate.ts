@@ -5,7 +5,7 @@ import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 import { renderCatalogHtml } from './renderPage'
-import { readSeedState, SEED_STATE_PATH } from './seedState'
+import { SEED_STATE_PATH } from './seedState'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const outputPath = join(__dirname, 'index.html')

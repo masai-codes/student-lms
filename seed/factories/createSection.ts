@@ -13,7 +13,8 @@ export type CreateSectionOverrides = Partial<Omit<SectionInsert, 'id'>>
 export async function createSection(
   overrides: CreateSectionOverrides = {},
 ): Promise<SectionSelect> {
-  if (overrides.batchId == null) {
+  const { batchId } = overrides
+  if (batchId == null) {
     throw new Error('createSection requires batchId (pass via overrides)')
   }
 
@@ -25,6 +26,7 @@ export async function createSection(
     assignmentPercentageWeightage: 0,
     attendancePercentageWeightage: 0,
     ...overrides,
+    batchId,
   }
 
   const [result] = await db.insert(sections).values(values)

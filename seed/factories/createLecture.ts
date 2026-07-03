@@ -14,7 +14,8 @@ export type CreateLectureOverrides = Partial<Omit<LectureInsert, 'id'>>
 export async function createLecture(
   overrides: CreateLectureOverrides = {},
 ): Promise<LectureSelect> {
-  if (overrides.batchId == null || overrides.sectionId == null || overrides.userId == null) {
+  const { batchId, sectionId, userId } = overrides
+  if (batchId == null || sectionId == null || userId == null) {
     throw new Error('createLecture requires batchId, sectionId, and userId')
   }
 
@@ -31,6 +32,9 @@ export async function createLecture(
     schedule,
     zoomLink: DEFAULT_ZOOM_LINK,
     ...overrides,
+    batchId,
+    sectionId,
+    userId,
   }
 
   const [result] = await db.insert(lectures).values(values)

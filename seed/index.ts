@@ -1,6 +1,6 @@
 import './utils/loadEnv'
 
-import { getFlow, listFlows } from './registry'
+import { getFlow } from './registry'
 import { resetDatabase } from './resetDatabase'
 import type { SeedFlowResult } from './types'
 

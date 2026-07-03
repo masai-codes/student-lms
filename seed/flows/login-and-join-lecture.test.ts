@@ -115,7 +115,7 @@ describe('loginAndJoinLecture integration', () => {
   it.skipIf(!shouldRun)(
     'seeds a lecture with an active join button',
     async () => {
-      const { seedFlow } = await import('../../index')
+      const { seedFlow } = await import('../index')
       const result = await seedFlow('login-and-join-lecture')
 
       const state = resolveJoinLiveButtonState({

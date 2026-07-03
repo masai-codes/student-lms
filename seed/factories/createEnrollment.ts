@@ -11,13 +11,16 @@ export type CreateEnrollmentOverrides = Partial<Omit<EnrollmentInsert, 'id'>>
 export async function createEnrollment(
   overrides: CreateEnrollmentOverrides = {},
 ): Promise<EnrollmentSelect> {
-  if (overrides.sectionId == null || overrides.userId == null) {
+  const { sectionId, userId } = overrides
+  if (sectionId == null || userId == null) {
     throw new Error('createEnrollment requires sectionId and userId')
   }
 
   const values: EnrollmentInsert = {
     role: 'student',
     ...overrides,
+    sectionId,
+    userId,
   }
 
   const [result] = await db.insert(sectionUser).values(values)
