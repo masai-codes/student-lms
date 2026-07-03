@@ -16,15 +16,14 @@ if (typeof window !== 'undefined' && !window.matchMedia) {
     if (max && width > Number(max[1])) return false
     return Boolean(min || max)
   }
-  window.matchMedia = (query: string) =>
-    ({
-      matches: evaluate(query),
-      media: query,
-      onchange: null,
-      addEventListener: () => {},
-      removeEventListener: () => {},
-      addListener: () => {},
-      removeListener: () => {},
-      dispatchEvent: () => false,
-    }) as unknown as MediaQueryList
+  window.matchMedia = (query: string) => ({
+    matches: evaluate(query),
+    media: query,
+    onchange: null,
+    addEventListener: () => {},
+    removeEventListener: () => {},
+    addListener: () => {},
+    removeListener: () => {},
+    dispatchEvent: () => false,
+  })
 }
