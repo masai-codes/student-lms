@@ -18,4 +18,12 @@ describe('parseChatHistory', () => {
       { userMessage: 'More', aiMessage: 'Sure' },
     ])
   })
+
+  it('preserves platform on stored chat history entries', () => {
+    expect(
+      parseChatHistory([
+        { userMessage: 'Hi', aiMessage: 'Hello', platform: 'ios' },
+      ]),
+    ).toEqual([{ userMessage: 'Hi', aiMessage: 'Hello', platform: 'ios' }])
+  })
 })

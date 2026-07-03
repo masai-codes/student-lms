@@ -141,6 +141,7 @@ export function mapThrownErrorToResponse(error: unknown): Response {
       case 'AI_TUTOR_CHAT_MESSAGE_TOO_LONG':
       case 'AI_TUTOR_LECTURE_ID_INVALID':
       case 'AI_TUTOR_CHAT_ID_INVALID':
+      case 'AI_TUTOR_PLATFORM_INVALID':
       case 'AI_TUTOR_RATING_INVALID':
         return jsonError(400, error.message)
       case 'AI_TUTOR_CHAT_NOT_FOUND':

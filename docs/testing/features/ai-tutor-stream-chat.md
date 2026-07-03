@@ -17,11 +17,13 @@ Last updated: 2026-06-22
 {
   "lectureId": 123,
   "chat": "What is useState?",
-  "chatID": 45
+  "chatID": 45,
+  "platform": "ios"
 }
 ```
 
 `chatID` / `chatId` is optional; omit to start a new thread.
+`platform` is optional (`ios` | `android` | `web`); defaults to `web` and is stored on each persisted `chatHistory` turn.
 
 ## Environment
 
@@ -38,6 +40,8 @@ Last updated: 2026-06-22
 | AT-SSE-004 | Chat over max length | `400 AI_TUTOR_CHAT_MESSAGE_TOO_LONG` |
 | AT-SSE-005 | Missing Anthropic config | `503 AI_TUTOR_ANTHROPIC_NOT_CONFIGURED` |
 | AT-SSE-006 | Authenticated request | SSE token chunks + `{ type: "done", chatId }` |
+| AT-SSE-006b | Invalid platform | `400 AI_TUTOR_PLATFORM_INVALID` |
+| AT-SSE-006c | Mobile platform | Persists `platform` on the new `chatHistory` turn |
 | AT-SSE-007 | Stream service | Loads summary/history, persists turn after stream |
 | AT-SSE-008 | Prompt builder | Summary + optional history + question |
 | AT-SSE-009 | Chat history parser | Parses stored JSON safely |

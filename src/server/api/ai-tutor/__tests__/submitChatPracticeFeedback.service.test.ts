@@ -49,10 +49,50 @@ describe('submitChatPracticeFeedback', () => {
         userId: 1,
         lectureId: 9,
         chatId: 4,
-        rating: 0,
+        rating: 7,
         feedback: null,
       }),
     ).rejects.toMatchObject({ code: 'AI_TUTOR_RATING_INVALID' })
+  })
+
+  it('accepts stored web and mobile rating ranges', async () => {
+    const { submitChatPracticeFeedback } =
+      await import('../services/aiChatPracticeQuestions.service')
+    hoisted.dbSelect.mockReturnValueOnce(limitChain([{ id: 4 }]))
+    const webUpdate = mockUpdate()
+
+    await submitChatPracticeFeedback({
+      userId: 1,
+      lectureId: 9,
+      chatId: 4,
+      rating: 0,
+      feedback: 'web',
+    })
+
+    expect(webUpdate.set).toHaveBeenCalledWith(
+      expect.objectContaining({
+        rating: 0,
+        feedback: 'web',
+      }),
+    )
+
+    hoisted.dbSelect.mockReturnValueOnce(limitChain([{ id: 4 }]))
+    const mobileUpdate = mockUpdate()
+
+    await submitChatPracticeFeedback({
+      userId: 1,
+      lectureId: 9,
+      chatId: 4,
+      rating: 6,
+      feedback: 'ios-Great',
+    })
+
+    expect(mobileUpdate.set).toHaveBeenCalledWith(
+      expect.objectContaining({
+        rating: 6,
+        feedback: 'ios-Great',
+      }),
+    )
   })
 
   it('returns 404 when the chat thread is not found', async () => {
@@ -125,6 +165,33 @@ describe('submitChatPracticeFeedback', () => {
       expect.objectContaining({
         rating: 3,
         feedback: null,
+      }),
+    )
+  })
+
+  it('stores platform-only feedback without trimming it away', async () => {
+    const { submitChatPracticeFeedback } =
+      await import('../services/aiChatPracticeQuestions.service')
+    hoisted.dbSelect.mockReturnValueOnce(limitChain([{ id: 4 }]))
+    const { set } = mockUpdate()
+
+    const result = await submitChatPracticeFeedback({
+      userId: 1,
+      lectureId: 9,
+      chatId: 4,
+      rating: 1,
+      feedback: 'web',
+    })
+
+    expect(result).toEqual({
+      chatId: 4,
+      rating: 1,
+      feedback: 'web',
+    })
+    expect(set).toHaveBeenCalledWith(
+      expect.objectContaining({
+        rating: 1,
+        feedback: 'web',
       }),
     )
   })

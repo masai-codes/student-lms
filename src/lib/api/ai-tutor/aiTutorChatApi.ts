@@ -36,6 +36,7 @@ export async function submitAiTutorFeedback(input: {
   chatId: number
   rating: number
   feedback?: string
+  platform?: 'ios' | 'android' | 'web'
 }): Promise<SubmitAiTutorFeedbackResponse> {
   return fetchJson<SubmitAiTutorFeedbackResponse>(AI_TUTOR_API.chatFeedback, {
     method: 'POST',

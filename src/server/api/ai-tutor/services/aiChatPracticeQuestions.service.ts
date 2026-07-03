@@ -1,4 +1,5 @@
 import { and, desc, eq } from 'drizzle-orm'
+import type { AiTutorFeedbackPlatform } from '@/server/api/ai-tutor/feedbackPlatform'
 import type { AiChatHistoryEntry } from '@/server/api/ai-tutor/types/chatHistory'
 import type { SubmitAiTutorFeedbackResponse } from '@/server/api/ai-tutor/types/feedback'
 import { AI_TUTOR_FEEDBACK_MAX_LENGTH } from '@/server/api/ai-tutor/constants'
@@ -142,7 +143,7 @@ export async function submitChatPracticeFeedback(input: {
   rating: number
   feedback: string | null
 }): Promise<SubmitAiTutorFeedbackResponse> {
-  if (!Number.isInteger(input.rating) || input.rating < 1 || input.rating > 5) {
+  if (!Number.isInteger(input.rating) || input.rating < 0 || input.rating > 6) {
     throw new ApiError(400, 'AI_TUTOR_RATING_INVALID')
   }
 
@@ -186,11 +187,16 @@ export async function appendChatPracticeHistory(input: {
   rowId: number
   userMessage: string
   aiMessage: string
+  platform: AiTutorFeedbackPlatform
   existingHistory: Array<AiChatHistoryEntry>
 }): Promise<void> {
   const nextHistory: Array<AiChatHistoryEntry> = [
     ...input.existingHistory,
-    { userMessage: input.userMessage, aiMessage: input.aiMessage },
+    {
+      userMessage: input.userMessage,
+      aiMessage: input.aiMessage,
+      platform: input.platform,
+    },
   ]
 
   await db
