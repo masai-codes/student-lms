@@ -89,17 +89,23 @@ Response shape (grows as sections are migrated):
 Client access: `fetchDashboardOverview()` in
 `src/lib/api/dashboard/dashboardApi.ts`.
 
-> **One endpoint, not many.** An earlier attempt exposed a **per-section
-> endpoint** for each card (`/left-section`, `/right-section`, `/banners`,
-> `/announcements`, `/action-banners`, `/schedule`, `/pending-tasks`,
-> `/product-updates`, `/lms-support`, `/attendance`) plus the flat services
-> behind them. The consolidated `/overview` replaced all of them, so those
-> routes/handlers/flat-services and their client helpers were **removed** — the
-> live logic now lives only in the `overview` composition (subfolders
-> `banners/`, `announcements/`, `product-updates/`, `support/`, `schedule/`,
-> `pending/`). Kept alongside `overview`: `/navbar-pill` (used by the layout's
-> upcoming-lecture pill) and the T0-onboarding endpoints (`/welcome-modal-*`,
-> `/t0-flow-*`, `/agreement/*`, `/payment-banner`).
+> **Only what the frontend actually calls.** The dashboard is a clean-slate
+> rewrite, so any dashboard API **not wired to the frontend** was removed rather
+> than kept as dead scaffolding. Two waves:
+>
+> 1. The old **per-section endpoints** (`/left-section`, `/right-section`,
+>    `/banners`, `/announcements`, `/action-banners`, `/schedule`,
+>    `/pending-tasks`, `/product-updates`, `/lms-support`, `/attendance`) +
+>    their flat services — all superseded by the consolidated `/overview`.
+> 2. **Frontend-unused** endpoints: `/agreement/*`, `/payment-banner`,
+>    `/nps-form/*` + `/assess-nps/:id/link`, and `/t0-flow-student-status`.
+>    They'll be re-added when a frontend feature actually needs them.
+>
+> **Kept** (all frontend-wired): `/overview`, `/navbar-pill` (layout's
+> upcoming-lecture pill), `/welcome-modal-*`, and `/t0-flow-status` /
+> `/t0-flow-lectures` / `/t0-flow-step-complete`. Also kept: the external
+> **`/api/assess-nps-callback`** webhook (a live server endpoint an external
+> system calls — not a frontend API).
 
 ## The `me` endpoint (greeting)
 

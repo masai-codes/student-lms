@@ -1,9 +1,14 @@
 # T0 Onboarding — Guided Tour + gating (Phase 2)
 
 For an eligible T0 user, the **Guided Tour** replaces the dashboard until
-onboarding is complete. It has two tabs — **LMS Walkthrough** (always unlocked)
-and **Program Onboarding** (unlocked once full fees are paid) — each a progress
+onboarding is complete. It has two tabs, **both always visible**: **LMS
+Walkthrough** (always unlocked) and **Program Onboarding** (rendered but
+**locked**, with a lock icon, until full fees are paid). Each tab is a progress
 bar over an ordered list of steps.
+
+**Multi-batch:** for users in more than one admission batch, a **batch
+dropdown** sits above the two tabs. Selecting a batch re-drives the tabs,
+progress, and steps for that batch (single-batch users see no dropdown).
 
 ## Who sees it, and when (the gate)
 
@@ -68,7 +73,9 @@ DashboardPage
   `status.downloadAppCompleted`).
 - **Program:** onboarding videos → agreement(s) (`legalAgreementSections`) →
   the non-counted extras when applicable: document upload, student kit, and the
-  ID-card reveal (`idCardUrl`).
+  ID-card reveal (`idCardUrl`). The **agreement step** appears only when
+  eligible; its panel is a **placeholder** ("The agreement form will come
+  here") — the form itself is a later slice.
 
 ## Automation test hooks
 
@@ -76,18 +83,20 @@ DashboardPage
 | ----------------------------------- | --------------------------------------------- |
 | `guided-tour-overlay`               | Full-screen tour container                    |
 | `guided-tour-see-dashboard`         | "See dashboard" escape                        |
-| `guided-tour-tabs` / `-tab-lms` / `-tab-program` | Tab bar + tabs (program only when unlocked) |
+| `guided-tour-tabs` / `-tab-lms` / `-tab-program` | Tab bar + tabs (program always shown; `data-locked` + `-tab-program-lock` icon when locked) |
+| `guided-tour-batch-select` / `-batch-option-<id>` | Batch dropdown (multi-batch only) + options |
 | `guided-tour-progress` / `-label`   | Progress bar + "n/total" label                |
 | `guided-tour-step-list`             | Ordered step list                             |
 | `guided-tour-step-<key>` (+ `-done`)| A step row (`-done` marker when complete)     |
 | `guided-tour-video` / `-video-missing` | Video player / no-video placeholder        |
-| `guided-tour-panel-profile-photo` / `-download-app` / `-id-card` / `-pending` | Fixed-step panels |
+| `guided-tour-panel-profile-photo` / `-download-app` / `-id-card` / `-agreement` / `-pending` | Fixed-step panels |
 | `guided-tour-profile-photo-cta` / `-download-app-cta` | Fixed-step CTAs             |
 
 ## Open follow-ups
 
 - Agreement signing form, document upload, and student-kit flows (rows exist;
-  full UIs pending — panels currently link out / show a placeholder).
-- Multi-batch: the tour currently drives the **first** admission batch.
+  full UIs pending — panels currently link out / show a placeholder). Their
+  backend APIs were removed in the frontend-unused cleanup and will be re-added
+  with the form.
 - Confirm the final destinations in `t0Config.ts` (`APP_DOWNLOAD_URL`,
   `PROFILE_PHOTO_PATH`).

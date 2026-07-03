@@ -51,7 +51,16 @@ export function GuidedTourStepPanel({ step, idCardUrl }: GuidedTourStepPanelProp
     )
   }
 
-  // agreement / documents / student-kit — full flows arrive in a later slice.
+  if (step.action === 'agreement') {
+    return (
+      <div className={CARD} data-testid="guided-tour-panel-agreement">
+        <p className="text-sm font-medium text-gray-900">{step.title}</p>
+        <p className="text-sm text-gray-500">The agreement form will come here.</p>
+      </div>
+    )
+  }
+
+  // documents / student-kit — full flows arrive in a later slice.
   return (
     <div className={CARD} data-testid="guided-tour-panel-pending">
       <p className="text-sm font-medium text-gray-900">{step.title}</p>

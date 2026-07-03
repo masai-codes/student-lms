@@ -70,8 +70,10 @@ describe('T0FlowGate', () => {
     expect(screen.getByTestId('guided-tour-progress-label').textContent).toBe('1/4')
     await waitFor(() => expect(screen.getByTestId('guided-tour-step-lecture-1')).toBeTruthy())
     expect(screen.getByTestId('guided-tour-step-profile-photo')).toBeTruthy()
-    // Program tab hidden when full fees unpaid.
-    expect(screen.queryByTestId('guided-tour-tab-program')).toBeNull()
+    // Program tab is always visible but locked when full fees are unpaid.
+    const programTab = screen.getByTestId('guided-tour-tab-program')
+    expect(programTab.getAttribute('data-locked')).toBe('true')
+    expect(screen.getByTestId('guided-tour-tab-program-lock')).toBeTruthy()
   })
 
   it('hides the tour after "See dashboard"', async () => {
@@ -92,5 +94,21 @@ describe('T0FlowGate', () => {
     )
     renderGate()
     await waitFor(() => expect(screen.getByTestId('guided-tour-tab-program')).toBeTruthy())
+    expect(screen.getByTestId('guided-tour-tab-program').getAttribute('data-locked')).toBe('false')
+    expect(screen.queryByTestId('guided-tour-tab-program-lock')).toBeNull()
+  })
+
+  it('shows a batch dropdown only for multi-batch users', async () => {
+    hoisted.fetchStatus.mockResolvedValue(
+      baseStatus({
+        batches: [
+          { batchId: 5, batchName: 'MERN', showProgramTab: false, lms: { completed: 1, total: 4, complete: false }, program: null },
+          { batchId: 6, batchName: 'Data Analytics', showProgramTab: true, lms: { completed: 0, total: 3, complete: false }, program: { completed: 0, total: 2, complete: false } },
+        ],
+      }),
+    )
+    renderGate()
+    await waitFor(() => expect(screen.getByTestId('guided-tour-batch-select')).toBeTruthy())
+    expect(screen.getByTestId('guided-tour-overlay')).toBeTruthy()
   })
 })
