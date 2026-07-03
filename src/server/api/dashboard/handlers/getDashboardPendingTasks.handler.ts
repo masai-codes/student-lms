@@ -3,9 +3,7 @@ import { jsonOk, mapThrownErrorToResponse } from '@/server/api/http/responses'
 import { requireSessionUserId } from '@/server/api/http/requireSessionUser'
 import { getDashboardPendingTasks } from '@/server/api/dashboard/getDashboardPendingTasks.service'
 
-export async function handleGetDashboardPendingTasks(
-  request: Request,
-): Promise<Response> {
+export async function handleGetDashboardPendingTasks(): Promise<Response> {
   try {
     const userId = await requireSessionUserId()
     const pendingTasks = await getDashboardPendingTasks(userId)

@@ -21,7 +21,7 @@ type UseAccountBody = {
 }
 
 async function handleUseAccount(request: Request): Promise<Response> {
-  const currentSessionId = getCurrentUserSessionId(request)
+  const currentSessionId = getCurrentUserSessionId()
   if (!currentSessionId) {
     return errorResponse(401, 'UNAUTHENTICATED', 'Not signed in')
   }

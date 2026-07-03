@@ -4,7 +4,7 @@ import { handleGetEventsList } from '@/server/api/masaiverse-v2/handlers/getEven
 export const Route = createFileRoute('/api/masaiverse-v2/events/list')({
   server: {
     handlers: {
-      GET: ({ request }) => handleGetEventsList(request),
+      GET: () => handleGetEventsList(),
     },
   },
 })

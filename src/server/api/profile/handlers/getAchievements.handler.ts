@@ -3,9 +3,7 @@ import { jsonOk, mapThrownErrorToResponse } from '@/server/api/http/responses'
 import { requireSessionUserId } from '@/server/api/http/requireSessionUser'
 import { getAchievements } from '@/server/api/profile/achievements.service'
 
-export async function handleGetAchievements(
-  request: Request,
-): Promise<Response> {
+export async function handleGetAchievements(): Promise<Response> {
   try {
     const userId = await requireSessionUserId()
     const achievements = await getAchievements(userId)

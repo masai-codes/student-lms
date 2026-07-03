@@ -4,7 +4,6 @@ import { requireSessionUserId } from '@/server/api/http/requireSessionUser'
 import { submitAgreement } from '@/server/api/dashboard/submitAgreement.service'
 
 export async function handleSubmitAgreement(
-  request: Request,
   sectionId: string,
 ): Promise<Response> {
   try {

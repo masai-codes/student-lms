@@ -10,10 +10,7 @@ import {
   removeAnnouncementBookmark,
 } from '@/server/api/announcement/announcementBookmark.service'
 
-export async function handleAddBookmark(
-  request: Request,
-  rawId: string,
-): Promise<Response> {
+export async function handleAddBookmark(rawId: string): Promise<Response> {
   try {
     const entityId = parseInt(rawId, 10)
     if (!Number.isFinite(entityId) || entityId <= 0)
@@ -31,10 +28,7 @@ export async function handleAddBookmark(
   }
 }
 
-export async function handleRemoveBookmark(
-  request: Request,
-  rawId: string,
-): Promise<Response> {
+export async function handleRemoveBookmark(rawId: string): Promise<Response> {
   try {
     const bookmarkId = parseInt(rawId, 10)
     if (!Number.isFinite(bookmarkId) || bookmarkId <= 0)

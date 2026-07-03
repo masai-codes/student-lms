@@ -7,10 +7,7 @@ import {
 import { requireSessionUserId } from '@/server/api/http/requireSessionUser'
 import { getNpsForm } from '@/server/api/dashboard/getNpsForm.service'
 
-export async function handleGetNpsForm(
-  request: Request,
-  formId: string,
-): Promise<Response> {
+export async function handleGetNpsForm(formId: string): Promise<Response> {
   try {
     await requireSessionUserId()
     const id = Number(formId)

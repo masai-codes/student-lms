@@ -4,7 +4,6 @@ import { requireSessionUserId } from '@/server/api/http/requireSessionUser'
 import { dismissAgreement } from '@/server/api/dashboard/dismissAgreement.service'
 
 export async function handleDismissAgreement(
-  request: Request,
   sectionId: string,
 ): Promise<Response> {
   try {

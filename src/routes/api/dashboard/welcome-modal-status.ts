@@ -4,7 +4,7 @@ import { handleGetWelcomeModalStatus } from '@/server/api/dashboard/handlers/get
 export const Route = createFileRoute('/api/dashboard/welcome-modal-status')({
   server: {
     handlers: {
-      GET: ({ request }) => handleGetWelcomeModalStatus(request),
+      GET: () => handleGetWelcomeModalStatus(),
     },
   },
 })

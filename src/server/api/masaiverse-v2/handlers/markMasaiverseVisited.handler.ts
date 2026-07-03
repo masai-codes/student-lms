@@ -3,9 +3,7 @@ import { jsonOk, mapThrownErrorToResponse } from '@/server/api/http/responses'
 import { requireSessionUserId } from '@/server/api/http/requireSessionUser'
 import { markMasaiverseVisited } from '@/server/api/masaiverse-v2/markMasaiverseVisited.service'
 
-export async function handleMarkMasaiverseVisited(
-  request: Request,
-): Promise<Response> {
+export async function handleMarkMasaiverseVisited(): Promise<Response> {
   try {
     const userId = await requireSessionUserId()
     await markMasaiverseVisited(userId)

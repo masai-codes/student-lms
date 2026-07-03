@@ -1,10 +1,6 @@
 import { eq } from 'drizzle-orm'
 import jwt from 'jsonwebtoken'
-import {
-  getCookie,
-  getRequest,
-  getRequestHeader,
-} from '@tanstack/react-start/server'
+import { getCookie, getRequestHeader } from '@tanstack/react-start/server'
 import { db } from '@/db'
 import { sessions } from '@/db/schema'
 import { getCookieName, getJwtSecret } from '@/server/auth/v2/sessionConfig'

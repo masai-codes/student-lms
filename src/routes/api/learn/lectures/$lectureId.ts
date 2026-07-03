@@ -5,8 +5,7 @@ import { handleGetLectureLearningDetail } from '@/server/api/learn/handlers/getL
 export const Route = createFileRoute('/api/learn/lectures/$lectureId')({
   server: {
     handlers: {
-      GET: ({ request, params }) =>
-        handleGetLectureLearningDetail(request, params.lectureId),
+      GET: ({ params }) => handleGetLectureLearningDetail(params.lectureId),
     },
   },
 })

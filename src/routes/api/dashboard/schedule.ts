@@ -4,7 +4,7 @@ import { handleGetDashboardSchedule } from '@/server/api/dashboard/handlers/getD
 export const Route = createFileRoute('/api/dashboard/schedule')({
   server: {
     handlers: {
-      GET: ({ request }) => handleGetDashboardSchedule(request),
+      GET: () => handleGetDashboardSchedule(),
     },
   },
 })

@@ -3,9 +3,7 @@ import { jsonOk, mapThrownErrorToResponse } from '@/server/api/http/responses'
 import { requireSessionUserId } from '@/server/api/http/requireSessionUser'
 import { getT0FlowStatus } from '@/server/api/dashboard/getT0FlowStatus.service'
 
-export async function handleGetT0FlowStatus(
-  request: Request,
-): Promise<Response> {
+export async function handleGetT0FlowStatus(): Promise<Response> {
   try {
     const userId = await requireSessionUserId()
     const status = await getT0FlowStatus(userId)

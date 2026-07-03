@@ -4,7 +4,6 @@ import { requireSessionUserId } from '@/server/api/http/requireSessionUser'
 import { recordAgreementOpen } from '@/server/api/dashboard/recordAgreementOpen.service'
 
 export async function handleRecordAgreementOpen(
-  request: Request,
   sectionId: string,
 ): Promise<Response> {
   try {

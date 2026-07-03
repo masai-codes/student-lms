@@ -4,7 +4,7 @@ import { handleMarkMasaiverseVisited } from '@/server/api/masaiverse-v2/handlers
 export const Route = createFileRoute('/api/masaiverse-v2/visited')({
   server: {
     handlers: {
-      POST: ({ request }) => handleMarkMasaiverseVisited(request),
+      POST: () => handleMarkMasaiverseVisited(),
     },
   },
 })

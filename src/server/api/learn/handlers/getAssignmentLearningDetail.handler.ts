@@ -4,7 +4,6 @@ import { parsePositiveIdParam } from '@/server/api/learn/utils/parsePositiveIdPa
 import { getAssignmentLearningDetailForUser } from '@/server/learn/services/getAssignmentLearningDetail.service'
 
 export async function handleGetAssignmentLearningDetail(
-  request: Request,
   assignmentIdParam: string,
 ): Promise<Response> {
   try {

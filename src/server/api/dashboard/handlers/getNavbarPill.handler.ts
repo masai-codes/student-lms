@@ -3,7 +3,7 @@ import { jsonOk, mapThrownErrorToResponse } from '@/server/api/http/responses'
 import { requireSessionUserId } from '@/server/api/http/requireSessionUser'
 import { getNavbarPillEvent } from '@/server/api/dashboard/getNavbarPill.service'
 
-export async function handleGetNavbarPill(request: Request): Promise<Response> {
+export async function handleGetNavbarPill(): Promise<Response> {
   try {
     const userId = await requireSessionUserId()
     const event = await getNavbarPillEvent(userId)

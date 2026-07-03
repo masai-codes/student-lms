@@ -11,7 +11,6 @@ import {
 } from '@/server/api/announcement/markAnnouncementUnread.service'
 
 export async function handleMarkAnnouncementUnread(
-  request: Request,
   rawId: string,
   source: 'a' | 'm' = 'a',
 ): Promise<Response> {

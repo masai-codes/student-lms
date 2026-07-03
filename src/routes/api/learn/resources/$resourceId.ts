@@ -5,8 +5,7 @@ import { handleGetResourceLearningDetail } from '@/server/api/learn/handlers/get
 export const Route = createFileRoute('/api/learn/resources/$resourceId')({
   server: {
     handlers: {
-      GET: ({ request, params }) =>
-        handleGetResourceLearningDetail(request, params.resourceId),
+      GET: ({ params }) => handleGetResourceLearningDetail(params.resourceId),
     },
   },
 })

@@ -3,9 +3,7 @@ import { jsonOk, mapThrownErrorToResponse } from '@/server/api/http/responses'
 import { requireSessionUserId } from '@/server/api/http/requireSessionUser'
 import { getCertificates } from '@/server/api/profile/certificates.service'
 
-export async function handleGetCertificates(
-  request: Request,
-): Promise<Response> {
+export async function handleGetCertificates(): Promise<Response> {
   try {
     const userId = await requireSessionUserId()
     const certificates = await getCertificates(userId)

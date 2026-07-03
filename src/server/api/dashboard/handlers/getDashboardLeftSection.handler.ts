@@ -6,9 +6,7 @@ import { getDashboardBanners } from '@/server/api/dashboard/getDashboardBanners.
 import { getDashboardActionBanners } from '@/server/api/dashboard/getDashboardActionBanners.service'
 import { getDashboardPendingTasksCount } from '@/server/api/dashboard/getDashboardPendingTasksCount.service'
 
-export async function handleGetDashboardLeftSection(
-  request: Request,
-): Promise<Response> {
+export async function handleGetDashboardLeftSection(): Promise<Response> {
   try {
     const userId = await requireSessionUserId()
 

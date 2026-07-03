@@ -4,7 +4,6 @@ import { requireSessionUserId } from '@/server/api/http/requireSessionUser'
 import { getCourseCertificates } from '@/server/api/course/getCourseCertificates.service'
 
 export async function handleGetCourseCertificates(
-  request: Request,
   batchId: number,
 ): Promise<Response> {
   try {

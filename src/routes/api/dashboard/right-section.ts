@@ -4,7 +4,7 @@ import { handleGetDashboardRightSection } from '@/server/api/dashboard/handlers/
 export const Route = createFileRoute('/api/dashboard/right-section')({
   server: {
     handlers: {
-      GET: ({ request }) => handleGetDashboardRightSection(request),
+      GET: () => handleGetDashboardRightSection(),
     },
   },
 })

@@ -3,10 +3,7 @@ import { jsonOk, mapThrownErrorToResponse } from '@/server/api/http/responses'
 import { requireSessionUserId } from '@/server/api/http/requireSessionUser'
 import { getAssessLink } from '@/server/api/dashboard/getAssessLink.service'
 
-export async function handleGetAssessLink(
-  request: Request,
-  formId: string,
-): Promise<Response> {
+export async function handleGetAssessLink(formId: string): Promise<Response> {
   try {
     const userId = await requireSessionUserId()
     const id = Number(formId)

@@ -4,7 +4,6 @@ import { parsePositiveIdParam } from '@/server/api/learn/utils/parsePositiveIdPa
 import { getZoomRedirectUrl } from '@/server/learn/services/zoomRedirect.service'
 
 export async function handleGetZoomRedirect(
-  request: Request,
   lectureIdParam: string,
 ): Promise<Response> {
   try {

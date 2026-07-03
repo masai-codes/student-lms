@@ -3,9 +3,7 @@ import { jsonOk, mapThrownErrorToResponse } from '@/server/api/http/responses'
 import { requireSessionUserId } from '@/server/api/http/requireSessionUser'
 import { getDashboardAttendance } from '@/server/api/dashboard/getDashboardAttendance.service'
 
-export async function handleGetDashboardAttendance(
-  request: Request,
-): Promise<Response> {
+export async function handleGetDashboardAttendance(): Promise<Response> {
   try {
     const userId = await requireSessionUserId()
     const attendance = await getDashboardAttendance(userId)

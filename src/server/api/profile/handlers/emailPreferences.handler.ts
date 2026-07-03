@@ -6,9 +6,7 @@ import {
   updateEmailPreferences,
 } from '@/server/api/profile/emailPreferences.service'
 
-export async function handleGetEmailPreferences(
-  request: Request,
-): Promise<Response> {
+export async function handleGetEmailPreferences(): Promise<Response> {
   try {
     const userId = await requireSessionUserId()
     const preferences = await getEmailPreferences(userId)

@@ -7,7 +7,6 @@ import { getCourseAttendance } from '@/server/api/course/getCourseAttendance.ser
 import { getCourseCertificates } from '@/server/api/course/getCourseCertificates.service'
 
 export async function handleGetCourseDetails(
-  request: Request,
   batchId: number,
 ): Promise<Response> {
   try {

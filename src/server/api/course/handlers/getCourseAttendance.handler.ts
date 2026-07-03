@@ -4,7 +4,6 @@ import { requireSessionUserId } from '@/server/api/http/requireSessionUser'
 import { getCourseAttendance } from '@/server/api/course/getCourseAttendance.service'
 
 export async function handleGetCourseAttendance(
-  request: Request,
   batchId: number,
 ): Promise<Response> {
   try {

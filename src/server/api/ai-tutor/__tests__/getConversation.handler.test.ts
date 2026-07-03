@@ -14,19 +14,6 @@ vi.mock('@/server/api/ai-tutor/getAiTutorConversation.service', () => ({
   getAiTutorConversation: hoisted.getAiTutorConversation,
 }))
 
-function getRequest(
-  chatId: string,
-  cookie: string | null = 'session=abc',
-): Request {
-  return new Request(
-    `http://localhost/api/ai-tutor/chat/conversations/${chatId}`,
-    {
-      method: 'GET',
-      headers: cookie ? { cookie } : {},
-    },
-  )
-}
-
 beforeEach(() => {
   vi.clearAllMocks()
 })
@@ -41,7 +28,7 @@ describe('handleGetConversation', () => {
       await import('../handlers/getConversation.handler')
     hoisted.getUserIdFromCookieHeader.mockResolvedValueOnce(null)
 
-    const res = await handleGetConversation(getRequest('12', null), '12')
+    const res = await handleGetConversation('12')
 
     expect(res.status).toBe(401)
   })
@@ -51,7 +38,7 @@ describe('handleGetConversation', () => {
       await import('../handlers/getConversation.handler')
     hoisted.getUserIdFromCookieHeader.mockResolvedValueOnce(7)
 
-    const res = await handleGetConversation(getRequest('0'), '0')
+    const res = await handleGetConversation('0')
 
     expect(res.status).toBe(400)
     await expect(res.json()).resolves.toMatchObject({
@@ -71,7 +58,7 @@ describe('handleGetConversation', () => {
       ],
     })
 
-    const res = await handleGetConversation(getRequest('12'), '12')
+    const res = await handleGetConversation('12')
 
     expect(res.status).toBe(200)
     expect(hoisted.getAiTutorConversation).toHaveBeenCalledWith({

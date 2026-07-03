@@ -4,7 +4,7 @@ import { handleGetDashboardAnnouncements } from '@/server/api/dashboard/handlers
 export const Route = createFileRoute('/api/dashboard/announcements')({
   server: {
     handlers: {
-      GET: ({ request }) => handleGetDashboardAnnouncements(request),
+      GET: () => handleGetDashboardAnnouncements(),
     },
   },
 })

@@ -15,12 +15,6 @@ vi.mock('@/server/auth/getCurrentSessionUserId', () => ({
   getUserIdFromRequest: hoisted.getUserIdFromCookieHeader,
 }))
 
-function request(cookie: string | null = 'session=abc') {
-  return new Request('http://localhost/api/learn/resources/515/bookmark', {
-    headers: cookie ? { cookie } : {},
-  })
-}
-
 describe('resourceBookmark.handler', () => {
   beforeEach(() => {
     vi.clearAllMocks()
@@ -31,9 +25,10 @@ describe('resourceBookmark.handler', () => {
 
   describe('handleAddResourceBookmark', () => {
     it('adds a bookmark and returns isBookmarked: true', async () => {
-      const { handleAddResourceBookmark } = await import('../resourceBookmark.handler')
+      const { handleAddResourceBookmark } =
+        await import('../resourceBookmark.handler')
 
-      const response = await handleAddResourceBookmark(request(), '515')
+      const response = await handleAddResourceBookmark('515')
 
       expect(response.status).toBe(200)
       await expect(response.json()).resolves.toEqual({ isBookmarked: true })
@@ -41,19 +36,21 @@ describe('resourceBookmark.handler', () => {
     })
 
     it('returns 401 when unauthenticated', async () => {
-      const { handleAddResourceBookmark } = await import('../resourceBookmark.handler')
+      const { handleAddResourceBookmark } =
+        await import('../resourceBookmark.handler')
       hoisted.getUserIdFromCookieHeader.mockResolvedValueOnce(null)
 
-      const response = await handleAddResourceBookmark(request(null), '515')
+      const response = await handleAddResourceBookmark('515')
 
       expect(response.status).toBe(401)
       expect(hoisted.add).not.toHaveBeenCalled()
     })
 
     it('returns 400 for an invalid resource id', async () => {
-      const { handleAddResourceBookmark } = await import('../resourceBookmark.handler')
+      const { handleAddResourceBookmark } =
+        await import('../resourceBookmark.handler')
 
-      const response = await handleAddResourceBookmark(request(), '0')
+      const response = await handleAddResourceBookmark('0')
 
       expect(response.status).toBe(400)
       await expect(response.json()).resolves.toMatchObject({
@@ -63,10 +60,11 @@ describe('resourceBookmark.handler', () => {
     })
 
     it('maps a service failure to 500', async () => {
-      const { handleAddResourceBookmark } = await import('../resourceBookmark.handler')
+      const { handleAddResourceBookmark } =
+        await import('../resourceBookmark.handler')
       hoisted.add.mockRejectedValueOnce(new Error('boom'))
 
-      const response = await handleAddResourceBookmark(request(), '515')
+      const response = await handleAddResourceBookmark('515')
 
       expect(response.status).toBe(500)
     })
@@ -74,9 +72,10 @@ describe('resourceBookmark.handler', () => {
 
   describe('handleRemoveResourceBookmark', () => {
     it('removes a bookmark and returns isBookmarked: false', async () => {
-      const { handleRemoveResourceBookmark } = await import('../resourceBookmark.handler')
+      const { handleRemoveResourceBookmark } =
+        await import('../resourceBookmark.handler')
 
-      const response = await handleRemoveResourceBookmark(request(), '515')
+      const response = await handleRemoveResourceBookmark('515')
 
       expect(response.status).toBe(200)
       await expect(response.json()).resolves.toEqual({ isBookmarked: false })
@@ -84,10 +83,11 @@ describe('resourceBookmark.handler', () => {
     })
 
     it('returns 401 when unauthenticated', async () => {
-      const { handleRemoveResourceBookmark } = await import('../resourceBookmark.handler')
+      const { handleRemoveResourceBookmark } =
+        await import('../resourceBookmark.handler')
       hoisted.getUserIdFromCookieHeader.mockResolvedValueOnce(null)
 
-      const response = await handleRemoveResourceBookmark(request(null), '515')
+      const response = await handleRemoveResourceBookmark('515')
 
       expect(response.status).toBe(401)
       expect(hoisted.remove).not.toHaveBeenCalled()

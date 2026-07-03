@@ -4,7 +4,7 @@ import { handleGetPaymentBannerInfo } from '@/server/api/dashboard/handlers/getP
 export const Route = createFileRoute('/api/dashboard/payment-banner')({
   server: {
     handlers: {
-      GET: ({ request }) => handleGetPaymentBannerInfo(request),
+      GET: () => handleGetPaymentBannerInfo(),
     },
   },
 })

@@ -4,7 +4,7 @@ import { handleGetAssessLink } from '@/server/api/dashboard/handlers/getAssessLi
 export const Route = createFileRoute('/api/dashboard/assess-nps/$formId/link')({
   server: {
     handlers: {
-      GET: ({ request, params }) => handleGetAssessLink(request, params.formId),
+      GET: ({ params }) => handleGetAssessLink(params.formId),
     },
   },
 })

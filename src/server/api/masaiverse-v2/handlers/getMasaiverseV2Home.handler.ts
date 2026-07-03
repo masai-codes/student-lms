@@ -4,9 +4,7 @@ import { requireSessionUserId } from '@/server/api/http/requireSessionUser'
 import { getMasaiverseV2Home } from '@/server/api/masaiverse-v2/getMasaiverseV2Home.service'
 import { canSeeUnpublished } from '@/server/api/masaiverse-v2/services/publishVisibility'
 
-export async function handleGetMasaiverseV2Home(
-  request: Request,
-): Promise<Response> {
+export async function handleGetMasaiverseV2Home(): Promise<Response> {
   try {
     const userId = await requireSessionUserId()
     const home = await getMasaiverseV2Home(

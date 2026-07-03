@@ -7,11 +7,9 @@ import {
 export const Route = createFileRoute('/api/chatbot/$lectureId/sessions/')({
   server: {
     handlers: {
-      GET: ({ request, params }) =>
-        handleListChatbotSessions(request, params.lectureId),
+      GET: ({ params }) => handleListChatbotSessions(params.lectureId),
       POST: ({ request, params }) =>
         handleCreateChatbotSession(request, params.lectureId),
     },
   },
 })
-

@@ -8,7 +8,6 @@ import { requireSessionUserId } from '@/server/api/http/requireSessionUser'
 import { getAnnouncementById } from '@/server/api/announcement/getAnnouncementById.service'
 
 export async function handleGetAnnouncementById(
-  request: Request,
   announcementId: string,
   source: 'a' | 'm' = 'a',
 ): Promise<Response> {

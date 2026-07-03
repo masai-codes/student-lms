@@ -4,7 +4,7 @@ import { handleCreateNpsSubmission } from '@/server/api/dashboard/handlers/creat
 export const Route = createFileRoute('/api/dashboard/nps-form/$formId/start')({
   server: {
     handlers: {
-      POST: ({ request, params }) => handleCreateNpsSubmission(request, params.formId),
+      POST: ({ params }) => handleCreateNpsSubmission(params.formId),
     },
   },
 })

@@ -7,7 +7,7 @@ import {
 import { requireSessionUserId } from '@/server/api/http/requireSessionUser'
 import { getProfile } from '@/server/api/profile/getProfile.service'
 
-export async function handleGetProfile(request: Request): Promise<Response> {
+export async function handleGetProfile(): Promise<Response> {
   try {
     const userId = await requireSessionUserId()
     const profile = await getProfile(userId)

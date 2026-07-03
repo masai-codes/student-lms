@@ -16,7 +16,6 @@ function isAiInterviewPlatform(platform: string | null | undefined): boolean {
 }
 
 export async function handleCreateAssignmentSubmission(
-  request: Request,
   assignmentIdParam: string,
 ): Promise<Response> {
   try {
@@ -92,7 +91,6 @@ export async function handleUpdateSubmissionCompletion(
 }
 
 export async function handleViewSubmissionOnAssessPlatform(
-  request: Request,
   submissionIdParam: string,
 ): Promise<Response> {
   try {

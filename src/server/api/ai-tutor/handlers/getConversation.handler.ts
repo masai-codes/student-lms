@@ -10,7 +10,6 @@ function parsePositiveInt(value: string): number | null {
 }
 
 export async function handleGetConversation(
-  request: Request,
   chatIdParam: string,
 ): Promise<Response> {
   try {

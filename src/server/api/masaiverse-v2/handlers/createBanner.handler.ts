@@ -3,7 +3,7 @@ import { jsonOk, mapThrownErrorToResponse } from '@/server/api/http/responses'
 import { requireSessionUserId } from '@/server/api/http/requireSessionUser'
 import { createMasaiverseBanner } from '@/server/api/masaiverse-v2/services/createBanner.service'
 
-export async function handleCreateBanner(request: Request): Promise<Response> {
+export async function handleCreateBanner(): Promise<Response> {
   try {
     const userId = await requireSessionUserId()
     const created = await createMasaiverseBanner(userId)

@@ -8,7 +8,6 @@ import { requireSessionUserId } from '@/server/api/http/requireSessionUser'
 import { getAgreementData } from '@/server/api/dashboard/getAgreementData.service'
 
 export async function handleGetAgreementData(
-  request: Request,
   sectionId: string,
 ): Promise<Response> {
   try {

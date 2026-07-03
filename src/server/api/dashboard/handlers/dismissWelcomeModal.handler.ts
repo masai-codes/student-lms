@@ -3,9 +3,7 @@ import { jsonOk, mapThrownErrorToResponse } from '@/server/api/http/responses'
 import { requireSessionUserId } from '@/server/api/http/requireSessionUser'
 import { dismissWelcomeModal } from '@/server/api/dashboard/dismissWelcomeModal.service'
 
-export async function handleDismissWelcomeModal(
-  request: Request,
-): Promise<Response> {
+export async function handleDismissWelcomeModal(): Promise<Response> {
   try {
     const userId = await requireSessionUserId()
     await dismissWelcomeModal(userId)

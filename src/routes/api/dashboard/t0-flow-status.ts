@@ -4,7 +4,7 @@ import { handleGetT0FlowStatus } from '@/server/api/dashboard/handlers/getT0Flow
 export const Route = createFileRoute('/api/dashboard/t0-flow-status')({
   server: {
     handlers: {
-      GET: ({ request }) => handleGetT0FlowStatus(request),
+      GET: () => handleGetT0FlowStatus(),
     },
   },
 })

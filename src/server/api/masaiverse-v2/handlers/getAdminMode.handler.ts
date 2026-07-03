@@ -3,7 +3,7 @@ import { jsonOk, mapThrownErrorToResponse } from '@/server/api/http/responses'
 import { requireSessionUserId } from '@/server/api/http/requireSessionUser'
 import { getAdminModeState } from '@/server/api/masaiverse-v2/services/adminMode.service'
 
-export async function handleGetAdminMode(request: Request): Promise<Response> {
+export async function handleGetAdminMode(): Promise<Response> {
   try {
     const userId = await requireSessionUserId()
     const state = await getAdminModeState(userId)

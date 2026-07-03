@@ -7,7 +7,6 @@ import {
 } from '@/server/learn/services/learnEntityBookmark.service'
 
 export async function handleAddResourceBookmark(
-  request: Request,
   resourceIdParam: string,
 ): Promise<Response> {
   try {
@@ -24,7 +23,6 @@ export async function handleAddResourceBookmark(
 }
 
 export async function handleRemoveResourceBookmark(
-  request: Request,
   resourceIdParam: string,
 ): Promise<Response> {
   try {

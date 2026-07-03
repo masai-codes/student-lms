@@ -8,7 +8,6 @@ import { requireSessionUserId } from '@/server/api/http/requireSessionUser'
 import { createNpsSubmission } from '@/server/api/dashboard/createNpsSubmission.service'
 
 export async function handleCreateNpsSubmission(
-  request: Request,
   formId: string,
 ): Promise<Response> {
   try {

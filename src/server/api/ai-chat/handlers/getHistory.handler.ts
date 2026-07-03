@@ -4,7 +4,6 @@ import { parsePositiveIdParam } from '@/server/api/learn/utils/parsePositiveIdPa
 import { getAiChatHistory } from '@/server/ai-chat/services/getAiChatHistory'
 
 export async function handleGetAiChatHistory(
-  request: Request,
   lectureIdParam: string,
 ): Promise<Response> {
   try {

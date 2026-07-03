@@ -8,9 +8,7 @@ import { getDashboardAttendance } from '@/server/api/dashboard/getDashboardAtten
 import { getEnrolledBatchesForUser } from '@/server/learn/services/getEnrolledBatches.service'
 import { getAnnouncementUnreadCount } from '@/server/api/announcement/getAnnouncementUnreadCount.service'
 
-export async function handleGetDashboardRightSection(
-  request: Request,
-): Promise<Response> {
+export async function handleGetDashboardRightSection(): Promise<Response> {
   try {
     const userId = await requireSessionUserId()
 

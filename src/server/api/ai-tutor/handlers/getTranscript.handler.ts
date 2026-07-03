@@ -4,7 +4,6 @@ import { parsePositiveIdParam } from '@/server/api/learn/utils/parsePositiveIdPa
 import { fetchAiTutorTranscript } from '@/server/ai-tutor/services/aiTutorSession.service'
 
 export async function handleGetAiTutorTranscript(
-  request: Request,
   lectureIdParam: string,
 ): Promise<Response> {
   try {

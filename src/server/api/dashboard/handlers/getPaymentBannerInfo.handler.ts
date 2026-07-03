@@ -3,9 +3,7 @@ import { jsonOk, mapThrownErrorToResponse } from '@/server/api/http/responses'
 import { requireSessionUserId } from '@/server/api/http/requireSessionUser'
 import { getPaymentBannerInfo } from '@/server/api/dashboard/getPaymentBannerInfo.service'
 
-export async function handleGetPaymentBannerInfo(
-  request: Request,
-): Promise<Response> {
+export async function handleGetPaymentBannerInfo(): Promise<Response> {
   try {
     const userId = await requireSessionUserId()
     const paymentBanner = await getPaymentBannerInfo(userId)

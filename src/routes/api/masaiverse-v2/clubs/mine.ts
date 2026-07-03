@@ -4,7 +4,7 @@ import { handleGetMyClubs } from '@/server/api/masaiverse-v2/handlers/getMyClubs
 export const Route = createFileRoute('/api/masaiverse-v2/clubs/mine')({
   server: {
     handlers: {
-      GET: ({ request }) => handleGetMyClubs(request),
+      GET: () => handleGetMyClubs(),
     },
   },
 })

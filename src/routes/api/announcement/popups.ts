@@ -4,7 +4,7 @@ import { handleGetAnnouncementPopups } from '@/server/api/announcement/handlers/
 export const Route = createFileRoute('/api/announcement/popups')({
   server: {
     handlers: {
-      GET: ({ request }) => handleGetAnnouncementPopups(request),
+      GET: () => handleGetAnnouncementPopups(),
     },
   },
 })

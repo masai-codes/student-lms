@@ -4,7 +4,7 @@ import { handleGetNavbarPill } from '@/server/api/dashboard/handlers/getNavbarPi
 export const Route = createFileRoute('/api/dashboard/navbar-pill')({
   server: {
     handlers: {
-      GET: ({ request }) => handleGetNavbarPill(request),
+      GET: () => handleGetNavbarPill(),
     },
   },
 })

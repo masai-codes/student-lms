@@ -2,9 +2,7 @@ import { jsonOk, mapThrownErrorToResponse } from '@/server/api/http/responses'
 import { requireSessionUserId } from '@/server/api/http/requireSessionUser'
 import { getAnnouncementPopups } from '@/server/api/announcement/getAnnouncementPopups.service'
 
-export async function handleGetAnnouncementPopups(
-  request: Request,
-): Promise<Response> {
+export async function handleGetAnnouncementPopups(): Promise<Response> {
   try {
     const userId = await requireSessionUserId()
     const popups = await getAnnouncementPopups(userId)

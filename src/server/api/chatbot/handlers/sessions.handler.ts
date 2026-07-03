@@ -21,7 +21,6 @@ const patchSessionBodySchema = z.object({
 })
 
 export async function handleListChatbotSessions(
-  request: Request,
   lectureIdParam: string,
 ): Promise<Response> {
   try {

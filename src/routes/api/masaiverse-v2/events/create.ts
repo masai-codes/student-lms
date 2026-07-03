@@ -4,7 +4,7 @@ import { handleCreateEvent } from '@/server/api/masaiverse-v2/handlers/createEve
 export const Route = createFileRoute('/api/masaiverse-v2/events/create')({
   server: {
     handlers: {
-      POST: ({ request }) => handleCreateEvent(request),
+      POST: () => handleCreateEvent(),
     },
   },
 })

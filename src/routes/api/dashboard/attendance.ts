@@ -4,7 +4,7 @@ import { handleGetDashboardAttendance } from '@/server/api/dashboard/handlers/ge
 export const Route = createFileRoute('/api/dashboard/attendance')({
   server: {
     handlers: {
-      GET: ({ request }) => handleGetDashboardAttendance(request),
+      GET: () => handleGetDashboardAttendance(),
     },
   },
 })

@@ -4,7 +4,7 @@ import { handleDismissWelcomeModal } from '@/server/api/dashboard/handlers/dismi
 export const Route = createFileRoute('/api/dashboard/welcome-modal-dismiss')({
   server: {
     handlers: {
-      POST: ({ request }) => handleDismissWelcomeModal(request),
+      POST: () => handleDismissWelcomeModal(),
     },
   },
 })

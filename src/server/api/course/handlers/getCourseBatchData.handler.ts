@@ -5,7 +5,6 @@ import { getCourseBatchData } from '@/server/api/course/getCourseBatchData.servi
 import { getCourseAgreements } from '@/server/api/course/getCourseAgreements.service'
 
 export async function handleGetCourseBatchData(
-  request: Request,
   batchId: number,
 ): Promise<Response> {
   try {
