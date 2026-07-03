@@ -23,7 +23,7 @@ import {
 /** GET /api/support/faqs?batchId=&search=&category=&subCategory=&limit= */
 export async function handleSearchFaqs(request: Request): Promise<Response> {
   try {
-    await requireSessionUserId(request)
+    await requireSessionUserId()
     const url = new URL(request.url)
     const batchId = requireIntParam(url, 'batchId', 'SUPPORT_BATCH_REQUIRED')
     const faqs = await searchFaqs({
@@ -40,9 +40,11 @@ export async function handleSearchFaqs(request: Request): Promise<Response> {
 }
 
 /** GET /api/support/subcategories?category= — subcategories for one category. */
-export async function handleGetSubcategories(request: Request): Promise<Response> {
+export async function handleGetSubcategories(
+  request: Request,
+): Promise<Response> {
   try {
-    await requireSessionUserId(request)
+    await requireSessionUserId()
     const url = new URL(request.url)
     const category = url.searchParams.get('category')?.trim()
     if (!category) throw new Error('SUPPORT_CATEGORY_REQUIRED')
@@ -61,7 +63,7 @@ const voteSchema = z.object({
 /** POST /api/support/faqs/vote { faqId, vote } */
 export async function handleVoteFaq(request: Request): Promise<Response> {
   try {
-    await requireSessionUserId(request)
+    await requireSessionUserId()
     const body = await readJsonBody(request, voteSchema)
     const result = await voteFaq(body)
     return jsonOk(result)

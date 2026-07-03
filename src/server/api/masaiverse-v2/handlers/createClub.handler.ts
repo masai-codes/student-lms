@@ -5,7 +5,7 @@ import { createMasaiverseClub } from '@/server/api/masaiverse-v2/services/create
 
 export async function handleCreateClub(request: Request): Promise<Response> {
   try {
-    const userId = await requireSessionUserId(request)
+    const userId = await requireSessionUserId()
     const created = await createMasaiverseClub(userId)
     return jsonOk(created, { status: 201 })
   } catch (error) {

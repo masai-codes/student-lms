@@ -8,7 +8,7 @@ export async function handleGetLectureLearningDetail(
   lectureIdParam: string,
 ): Promise<Response> {
   try {
-    const userId = await requireSessionUserId(request)
+    const userId = await requireSessionUserId()
     const lectureId = parsePositiveIdParam(lectureIdParam, 'INVALID_LECTURE_ID')
     const detail = await getLectureLearningDetailForUser(userId, lectureId)
     return jsonOk(detail)

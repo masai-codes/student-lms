@@ -7,7 +7,7 @@ export async function handleGetDashboardAnnouncements(
   request: Request,
 ): Promise<Response> {
   try {
-    const userId = await requireSessionUserId(request)
+    const userId = await requireSessionUserId()
     const announcements = await getDashboardAnnouncements(userId)
     return jsonOk({ announcements })
   } catch (error) {

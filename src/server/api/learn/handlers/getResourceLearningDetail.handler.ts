@@ -8,8 +8,11 @@ export async function handleGetResourceLearningDetail(
   resourceIdParam: string,
 ): Promise<Response> {
   try {
-    const userId = await requireSessionUserId(request)
-    const resourceId = parsePositiveIdParam(resourceIdParam, 'INVALID_RESOURCE_ID')
+    const userId = await requireSessionUserId()
+    const resourceId = parsePositiveIdParam(
+      resourceIdParam,
+      'INVALID_RESOURCE_ID',
+    )
     const detail = await getResourceLearningDetailForUser(userId, resourceId)
     return jsonOk(detail)
   } catch (error) {

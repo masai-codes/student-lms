@@ -20,8 +20,11 @@ export async function handleCreateAssignmentSubmission(
   assignmentIdParam: string,
 ): Promise<Response> {
   try {
-    await requireSessionUserId(request)
-    const assignmentId = parsePositiveIdParam(assignmentIdParam, 'INVALID_ASSIGNMENT_ID')
+    await requireSessionUserId()
+    const assignmentId = parsePositiveIdParam(
+      assignmentIdParam,
+      'INVALID_ASSIGNMENT_ID',
+    )
     const data = await createSubmissionViaExperienceApi(assignmentId)
     return jsonOk(data)
   } catch (error) {
@@ -34,8 +37,11 @@ export async function handleCreateAssessPlatformUrl(
   assignmentIdParam: string,
 ): Promise<Response> {
   try {
-    await requireSessionUserId(request)
-    const assignmentId = parsePositiveIdParam(assignmentIdParam, 'INVALID_ASSIGNMENT_ID')
+    await requireSessionUserId()
+    const assignmentId = parsePositiveIdParam(
+      assignmentIdParam,
+      'INVALID_ASSIGNMENT_ID',
+    )
     const body = (await request.json()) as {
       submissionId?: number
       platform?: string | null
@@ -62,8 +68,11 @@ export async function handleUpdateSubmissionCompletion(
   submissionIdParam: string,
 ): Promise<Response> {
   try {
-    const userId = await requireSessionUserId(request)
-    const submissionId = parsePositiveIdParam(submissionIdParam, 'INVALID_SUBMISSION_ID')
+    const userId = await requireSessionUserId()
+    const submissionId = parsePositiveIdParam(
+      submissionIdParam,
+      'INVALID_SUBMISSION_ID',
+    )
     const body = (await request.json()) as { completed?: boolean }
 
     if (typeof body.completed !== 'boolean') {
@@ -87,8 +96,11 @@ export async function handleViewSubmissionOnAssessPlatform(
   submissionIdParam: string,
 ): Promise<Response> {
   try {
-    const userId = await requireSessionUserId(request)
-    const submissionId = parsePositiveIdParam(submissionIdParam, 'INVALID_SUBMISSION_ID')
+    const userId = await requireSessionUserId()
+    const submissionId = parsePositiveIdParam(
+      submissionIdParam,
+      'INVALID_SUBMISSION_ID',
+    )
     const url = await getAssessPlatformSubmissionViewUrlForUser({
       userId,
       submissionId,
@@ -99,6 +111,8 @@ export async function handleViewSubmissionOnAssessPlatform(
   }
 }
 
-export function assignmentUsesAssessmentPlatform(platform: string | null): boolean {
+export function assignmentUsesAssessmentPlatform(
+  platform: string | null,
+): boolean {
   return isAssessmentPlatform(platform)
 }

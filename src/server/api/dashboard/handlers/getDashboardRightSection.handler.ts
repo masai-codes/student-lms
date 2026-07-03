@@ -8,11 +8,20 @@ import { getDashboardAttendance } from '@/server/api/dashboard/getDashboardAtten
 import { getEnrolledBatchesForUser } from '@/server/learn/services/getEnrolledBatches.service'
 import { getAnnouncementUnreadCount } from '@/server/api/announcement/getAnnouncementUnreadCount.service'
 
-export async function handleGetDashboardRightSection(request: Request): Promise<Response> {
+export async function handleGetDashboardRightSection(
+  request: Request,
+): Promise<Response> {
   try {
-    const userId = await requireSessionUserId(request)
+    const userId = await requireSessionUserId()
 
-    const [announcements, productUpdates, lmsSupport, attendance, batches, announcementUnreadCount] = await Promise.all([
+    const [
+      announcements,
+      productUpdates,
+      lmsSupport,
+      attendance,
+      batches,
+      announcementUnreadCount,
+    ] = await Promise.all([
       getDashboardAnnouncements(userId),
       getProductUpdates(),
       getLmsSupportInfo(),
@@ -21,11 +30,20 @@ export async function handleGetDashboardRightSection(request: Request): Promise<
       getAnnouncementUnreadCount(userId),
     ])
 
-    return jsonOk({ announcements, productUpdates, lmsSupport, attendance, batches, announcementUnreadCount })
+    return jsonOk({
+      announcements,
+      productUpdates,
+      lmsSupport,
+      attendance,
+      batches,
+      announcementUnreadCount,
+    })
   } catch (error) {
     if (!isApiError(error)) {
       console.error('Failed to fetch dashboard right section data', error)
-      return mapThrownErrorToResponse(new Error('SERVER_ERROR_FETCHING_DASHBOARD_RIGHT_SECTION'))
+      return mapThrownErrorToResponse(
+        new Error('SERVER_ERROR_FETCHING_DASHBOARD_RIGHT_SECTION'),
+      )
     }
     return mapThrownErrorToResponse(error)
   }

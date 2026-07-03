@@ -8,7 +8,7 @@ export async function handleSubmitAgreement(
   sectionId: string,
 ): Promise<Response> {
   try {
-    const userId = await requireSessionUserId(request)
+    const userId = await requireSessionUserId()
     const id = Number(sectionId)
     if (!Number.isInteger(id) || id <= 0) return jsonOk({ success: false })
 

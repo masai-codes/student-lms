@@ -7,7 +7,7 @@ export async function handleGetDashboardPendingTasks(
   request: Request,
 ): Promise<Response> {
   try {
-    const userId = await requireSessionUserId(request)
+    const userId = await requireSessionUserId()
     const pendingTasks = await getDashboardPendingTasks(userId)
     return jsonOk({ pendingTasks })
   } catch (error) {

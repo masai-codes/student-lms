@@ -8,13 +8,15 @@ export async function handleGetCourseEvaluations(
   batchId: number,
 ): Promise<Response> {
   try {
-    const userId = await requireSessionUserId(request)
+    const userId = await requireSessionUserId()
     const evaluations = await getCourseEvaluations(batchId, userId)
     return jsonOk({ evaluations })
   } catch (error) {
     if (!isApiError(error)) {
       console.error('Failed to fetch course evaluations', batchId, error)
-      return mapThrownErrorToResponse(new Error('SERVER_ERROR_FETCHING_COURSE_EVALUATIONS'))
+      return mapThrownErrorToResponse(
+        new Error('SERVER_ERROR_FETCHING_COURSE_EVALUATIONS'),
+      )
     }
     return mapThrownErrorToResponse(error)
   }

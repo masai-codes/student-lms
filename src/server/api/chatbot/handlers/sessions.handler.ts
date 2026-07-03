@@ -25,7 +25,7 @@ export async function handleListChatbotSessions(
   lectureIdParam: string,
 ): Promise<Response> {
   try {
-    const userId = await requireSessionUserId(request)
+    const userId = await requireSessionUserId()
     console.log('userId', userId)
     const lectureId = parseLectureId(lectureIdParam)
     console.log('lectureId', lectureId)
@@ -43,7 +43,7 @@ export async function handleCreateChatbotSession(
   lectureIdParam: string,
 ): Promise<Response> {
   try {
-    const userId = await requireSessionUserId(request)
+    const userId = await requireSessionUserId()
     const lectureId = parseLectureId(lectureIdParam)
     const body = await request.json().catch(() => ({}))
     const parsed = createSessionBodySchema.safeParse(body)
@@ -67,7 +67,7 @@ export async function handlePatchChatbotSession(
   sessionId: string,
 ): Promise<Response> {
   try {
-    const userId = await requireSessionUserId(request)
+    const userId = await requireSessionUserId()
     const lectureId = parseLectureId(lectureIdParam)
     const body = await request.json().catch(() => ({}))
     const parsed = patchSessionBodySchema.safeParse(body)
@@ -75,7 +75,11 @@ export async function handlePatchChatbotSession(
       throw new ApiError(400, 'CHATBOT_INVALID_SESSION_PATCH')
     }
 
-    const existing = await getOwnedChatbotSessionById({ userId, lectureId, sessionId })
+    const existing = await getOwnedChatbotSessionById({
+      userId,
+      lectureId,
+      sessionId,
+    })
     if (!existing) {
       throw new ApiError(404, 'CHATBOT_SESSION_NOT_FOUND')
     }
@@ -86,7 +90,9 @@ export async function handlePatchChatbotSession(
       sessionId,
       patch: {
         title: parsed.data.title,
-        lastMode: parsed.data.lastMode ? parseMode(parsed.data.lastMode) : undefined,
+        lastMode: parsed.data.lastMode
+          ? parseMode(parsed.data.lastMode)
+          : undefined,
       },
     })
 
@@ -98,4 +104,3 @@ export async function handlePatchChatbotSession(
     return mapThrownErrorToResponse(error)
   }
 }
-

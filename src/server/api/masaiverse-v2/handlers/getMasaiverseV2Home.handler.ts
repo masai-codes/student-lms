@@ -8,7 +8,7 @@ export async function handleGetMasaiverseV2Home(
   request: Request,
 ): Promise<Response> {
   try {
-    const userId = await requireSessionUserId(request)
+    const userId = await requireSessionUserId()
     const home = await getMasaiverseV2Home(
       userId,
       undefined,

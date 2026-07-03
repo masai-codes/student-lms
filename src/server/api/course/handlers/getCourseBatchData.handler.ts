@@ -9,7 +9,7 @@ export async function handleGetCourseBatchData(
   batchId: number,
 ): Promise<Response> {
   try {
-    const userId = await requireSessionUserId(request)
+    const userId = await requireSessionUserId()
     const [batchData, agreements] = await Promise.all([
       getCourseBatchData(batchId, userId),
       getCourseAgreements(batchId, userId),
@@ -19,7 +19,9 @@ export async function handleGetCourseBatchData(
   } catch (error) {
     if (!isApiError(error)) {
       console.error('Failed to fetch course batch data', batchId, error)
-      return mapThrownErrorToResponse(new Error('SERVER_ERROR_FETCHING_COURSE_BATCH_DATA'))
+      return mapThrownErrorToResponse(
+        new Error('SERVER_ERROR_FETCHING_COURSE_BATCH_DATA'),
+      )
     }
     return mapThrownErrorToResponse(error)
   }

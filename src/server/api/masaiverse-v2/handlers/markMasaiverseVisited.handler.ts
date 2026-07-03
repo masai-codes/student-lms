@@ -7,7 +7,7 @@ export async function handleMarkMasaiverseVisited(
   request: Request,
 ): Promise<Response> {
   try {
-    const userId = await requireSessionUserId(request)
+    const userId = await requireSessionUserId()
     await markMasaiverseVisited(userId)
     return jsonOk({ success: true })
   } catch (error) {

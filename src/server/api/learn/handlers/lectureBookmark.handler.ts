@@ -11,7 +11,7 @@ export async function handleAddLectureBookmark(
   lectureIdParam: string,
 ): Promise<Response> {
   try {
-    const userId = await requireSessionUserId(request)
+    const userId = await requireSessionUserId()
     const lectureId = parsePositiveIdParam(lectureIdParam, 'INVALID_LECTURE_ID')
     await addLearnEntityBookmark(userId, 'lecture', lectureId)
     return jsonOk({ isBookmarked: true })
@@ -25,7 +25,7 @@ export async function handleRemoveLectureBookmark(
   lectureIdParam: string,
 ): Promise<Response> {
   try {
-    const userId = await requireSessionUserId(request)
+    const userId = await requireSessionUserId()
     const lectureId = parsePositiveIdParam(lectureIdParam, 'INVALID_LECTURE_ID')
     await removeLearnEntityBookmark(userId, 'lecture', lectureId)
     return jsonOk({ isBookmarked: false })

@@ -17,7 +17,7 @@ export async function handleCreateLearnDiscussion(
   request: Request,
 ): Promise<Response> {
   try {
-    const userId = await requireSessionUserId(request)
+    const userId = await requireSessionUserId()
 
     const rawBody = await request.json().catch(() => ({}))
     const parsed = bodySchema.safeParse(rawBody)

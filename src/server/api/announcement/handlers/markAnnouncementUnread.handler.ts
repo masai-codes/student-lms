@@ -1,7 +1,14 @@
 import { isApiError } from '@/server/api/http/apiError'
-import { jsonOk, jsonError, mapThrownErrorToResponse } from '@/server/api/http/responses'
+import {
+  jsonOk,
+  jsonError,
+  mapThrownErrorToResponse,
+} from '@/server/api/http/responses'
 import { requireSessionUserId } from '@/server/api/http/requireSessionUser'
-import { markAnnouncementAsUnread, markMessageAsUnread } from '@/server/api/announcement/markAnnouncementUnread.service'
+import {
+  markAnnouncementAsUnread,
+  markMessageAsUnread,
+} from '@/server/api/announcement/markAnnouncementUnread.service'
 
 export async function handleMarkAnnouncementUnread(
   request: Request,
@@ -14,7 +21,7 @@ export async function handleMarkAnnouncementUnread(
       return jsonError(400, 'INVALID_ID')
     }
 
-    const userId = await requireSessionUserId(request)
+    const userId = await requireSessionUserId()
 
     if (source === 'm') {
       await markMessageAsUnread(userId, numericId)

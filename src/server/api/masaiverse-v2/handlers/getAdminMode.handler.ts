@@ -5,7 +5,7 @@ import { getAdminModeState } from '@/server/api/masaiverse-v2/services/adminMode
 
 export async function handleGetAdminMode(request: Request): Promise<Response> {
   try {
-    const userId = await requireSessionUserId(request)
+    const userId = await requireSessionUserId()
     const state = await getAdminModeState(userId)
     return jsonOk(state)
   } catch (error) {

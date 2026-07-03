@@ -11,7 +11,7 @@ export async function handleListCommunityDiscussions(
   request: Request,
 ): Promise<Response> {
   try {
-    const userId = await requireSessionUserId(request)
+    const userId = await requireSessionUserId()
     const params = new URL(request.url).searchParams
     const offset = Math.max(0, Number(params.get('offset')) || 0)
     const limit = Math.min(

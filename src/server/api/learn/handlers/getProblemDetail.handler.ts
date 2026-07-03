@@ -9,8 +9,11 @@ export async function handleGetProblemDetail(
   problemIdParam: string,
 ): Promise<Response> {
   try {
-    const userId = await requireSessionUserId(request)
-    const assignmentId = parsePositiveIdParam(assignmentIdParam, 'INVALID_ASSIGNMENT_ID')
+    const userId = await requireSessionUserId()
+    const assignmentId = parsePositiveIdParam(
+      assignmentIdParam,
+      'INVALID_ASSIGNMENT_ID',
+    )
     const problemId = parsePositiveIdParam(problemIdParam, 'INVALID_PROBLEM_ID')
     const detail = await getAssignmentProblemDetailForUser(
       userId,

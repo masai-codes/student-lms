@@ -5,7 +5,7 @@ import { createMasaiverseBanner } from '@/server/api/masaiverse-v2/services/crea
 
 export async function handleCreateBanner(request: Request): Promise<Response> {
   try {
-    const userId = await requireSessionUserId(request)
+    const userId = await requireSessionUserId()
     const created = await createMasaiverseBanner(userId)
     return jsonOk(created, { status: 201 })
   } catch (error) {

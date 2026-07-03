@@ -6,8 +6,10 @@ import { uploadImageToS3 } from '@/server/storage/s3Upload'
 
 const MAX_BYTES = 10 * 1024 * 1024 // 10 MB
 
-export async function handleUploadMessageAttachment(request: Request): Promise<Response> {
-  await requireSessionUserId(request)
+export async function handleUploadMessageAttachment(
+  request: Request,
+): Promise<Response> {
+  await requireSessionUserId()
 
   const form = await request.formData().catch(() => null)
   const file = form?.get('file')

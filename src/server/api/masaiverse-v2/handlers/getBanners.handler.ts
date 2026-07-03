@@ -6,7 +6,7 @@ import { canSeeUnpublished } from '@/server/api/masaiverse-v2/services/publishVi
 
 export async function handleGetBanners(request: Request): Promise<Response> {
   try {
-    const userId = await requireSessionUserId(request)
+    const userId = await requireSessionUserId()
     const banners = await getMasaiverseBanners(await canSeeUnpublished(userId))
     return jsonOk({ banners })
   } catch (error) {

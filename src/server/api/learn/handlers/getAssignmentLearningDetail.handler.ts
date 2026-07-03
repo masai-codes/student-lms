@@ -8,9 +8,15 @@ export async function handleGetAssignmentLearningDetail(
   assignmentIdParam: string,
 ): Promise<Response> {
   try {
-    const userId = await requireSessionUserId(request)
-    const assignmentId = parsePositiveIdParam(assignmentIdParam, 'INVALID_ASSIGNMENT_ID')
-    const detail = await getAssignmentLearningDetailForUser(userId, assignmentId)
+    const userId = await requireSessionUserId()
+    const assignmentId = parsePositiveIdParam(
+      assignmentIdParam,
+      'INVALID_ASSIGNMENT_ID',
+    )
+    const detail = await getAssignmentLearningDetailForUser(
+      userId,
+      assignmentId,
+    )
     return jsonOk(detail)
   } catch (error) {
     return mapThrownErrorToResponse(error)

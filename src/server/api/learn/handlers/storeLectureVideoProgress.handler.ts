@@ -18,7 +18,7 @@ export async function handleStoreLectureVideoProgress(
 ): Promise<Response> {
   try {
     // Auth gate only; the upstream experience API is called with the session cookie.
-    await requireSessionUserId(request)
+    await requireSessionUserId()
     const lectureId = parsePositiveIdParam(lectureIdParam, 'INVALID_LECTURE_ID')
 
     const rawBody = await request.json().catch(() => ({}))

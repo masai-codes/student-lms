@@ -5,7 +5,7 @@ import { rateEvent } from '@/server/api/masaiverse-v2/services/rateEvent.service
 
 export async function handleRateEvent(request: Request): Promise<Response> {
   try {
-    const userId = await requireSessionUserId(request)
+    const userId = await requireSessionUserId()
     const body = (await request.json().catch(() => null)) as {
       eventId?: unknown
       rating?: unknown

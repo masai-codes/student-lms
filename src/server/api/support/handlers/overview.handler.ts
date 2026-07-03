@@ -11,9 +11,11 @@ import { requireSessionUserId } from '@/server/api/http/requireSessionUser'
 import { getSupportOverview } from '@/server/api/support/getSupportOverview.service'
 import { mapSupportError, optionalIntParam } from '@/server/api/support/http'
 
-export async function handleGetSupportOverview(request: Request): Promise<Response> {
+export async function handleGetSupportOverview(
+  request: Request,
+): Promise<Response> {
   try {
-    const userId = await requireSessionUserId(request)
+    const userId = await requireSessionUserId()
     const batchId = optionalIntParam(new URL(request.url), 'batchId')
     const overview = await getSupportOverview(userId, batchId)
     return jsonOk(overview)

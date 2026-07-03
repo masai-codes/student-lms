@@ -7,7 +7,7 @@ export async function handleGetDashboardBanners(
   request: Request,
 ): Promise<Response> {
   try {
-    const userId = await requireSessionUserId(request)
+    const userId = await requireSessionUserId()
     const banners = await getDashboardBanners(userId)
     return jsonOk({ banners })
   } catch (error) {

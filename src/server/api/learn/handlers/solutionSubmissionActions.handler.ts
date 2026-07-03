@@ -15,8 +15,11 @@ export async function handleSubmitSolutionLink(
   solutionIdParam: string,
 ): Promise<Response> {
   try {
-    const userId = await requireSessionUserId(request)
-    const solutionId = parsePositiveIdParam(solutionIdParam, 'INVALID_SOLUTION_ID')
+    const userId = await requireSessionUserId()
+    const solutionId = parsePositiveIdParam(
+      solutionIdParam,
+      'INVALID_SOLUTION_ID',
+    )
     const body = (await request.json().catch(() => ({}))) as {
       submissionLink?: unknown
     }
@@ -25,7 +28,11 @@ export async function handleSubmitSolutionLink(
     if (!isValidSubmissionUrl(submissionLink)) {
       throw new ApiError(400, 'INVALID_SOLUTION_PAYLOAD')
     }
-    const data = await submitSolutionForUser({ userId, solutionId, submissionLink })
+    const data = await submitSolutionForUser({
+      userId,
+      solutionId,
+      submissionLink,
+    })
     return jsonOk(data)
   } catch (error) {
     return mapThrownErrorToResponse(error)
@@ -38,8 +45,11 @@ export async function handleUploadSolutionFile(
   solutionIdParam: string,
 ): Promise<Response> {
   try {
-    const userId = await requireSessionUserId(request)
-    const solutionId = parsePositiveIdParam(solutionIdParam, 'INVALID_SOLUTION_ID')
+    const userId = await requireSessionUserId()
+    const solutionId = parsePositiveIdParam(
+      solutionIdParam,
+      'INVALID_SOLUTION_ID',
+    )
 
     const form = await request.formData().catch(() => null)
     const file = form?.get('file')
@@ -49,7 +59,8 @@ export async function handleUploadSolutionFile(
 
     const buffer = Buffer.from(await file.arrayBuffer())
     if (buffer.length === 0) throw new ApiError(400, 'SOLUTION_UPLOAD_NO_FILE')
-    if (buffer.length > MAX_BYTES) throw new ApiError(400, 'SOLUTION_UPLOAD_TOO_LARGE')
+    if (buffer.length > MAX_BYTES)
+      throw new ApiError(400, 'SOLUTION_UPLOAD_TOO_LARGE')
 
     const contentType = file.type || 'application/octet-stream'
     const ext = file.name.includes('.')
@@ -57,7 +68,11 @@ export async function handleUploadSolutionFile(
       : (contentType.split('/')[1] ?? 'bin')
 
     const submissionLink = await uploadImageToS3({ buffer, contentType, ext })
-    const data = await submitSolutionForUser({ userId, solutionId, submissionLink })
+    const data = await submitSolutionForUser({
+      userId,
+      solutionId,
+      submissionLink,
+    })
     return jsonOk(data)
   } catch (error) {
     return mapThrownErrorToResponse(error)

@@ -5,13 +5,15 @@ import { getNavbarPillEvent } from '@/server/api/dashboard/getNavbarPill.service
 
 export async function handleGetNavbarPill(request: Request): Promise<Response> {
   try {
-    const userId = await requireSessionUserId(request)
+    const userId = await requireSessionUserId()
     const event = await getNavbarPillEvent(userId)
     return jsonOk({ event })
   } catch (error) {
     if (!isApiError(error)) {
       console.error('Failed to fetch navbar pill event', error)
-      return mapThrownErrorToResponse(new Error('SERVER_ERROR_FETCHING_NAVBAR_PILL'))
+      return mapThrownErrorToResponse(
+        new Error('SERVER_ERROR_FETCHING_NAVBAR_PILL'),
+      )
     }
     return mapThrownErrorToResponse(error)
   }

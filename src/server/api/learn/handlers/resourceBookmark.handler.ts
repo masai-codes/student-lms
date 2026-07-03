@@ -11,8 +11,11 @@ export async function handleAddResourceBookmark(
   resourceIdParam: string,
 ): Promise<Response> {
   try {
-    const userId = await requireSessionUserId(request)
-    const resourceId = parsePositiveIdParam(resourceIdParam, 'INVALID_RESOURCE_ID')
+    const userId = await requireSessionUserId()
+    const resourceId = parsePositiveIdParam(
+      resourceIdParam,
+      'INVALID_RESOURCE_ID',
+    )
     await addLearnEntityBookmark(userId, 'resource', resourceId)
     return jsonOk({ isBookmarked: true })
   } catch (error) {
@@ -25,8 +28,11 @@ export async function handleRemoveResourceBookmark(
   resourceIdParam: string,
 ): Promise<Response> {
   try {
-    const userId = await requireSessionUserId(request)
-    const resourceId = parsePositiveIdParam(resourceIdParam, 'INVALID_RESOURCE_ID')
+    const userId = await requireSessionUserId()
+    const resourceId = parsePositiveIdParam(
+      resourceIdParam,
+      'INVALID_RESOURCE_ID',
+    )
     await removeLearnEntityBookmark(userId, 'resource', resourceId)
     return jsonOk({ isBookmarked: false })
   } catch (error) {

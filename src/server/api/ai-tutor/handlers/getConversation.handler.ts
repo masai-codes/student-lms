@@ -14,7 +14,7 @@ export async function handleGetConversation(
   chatIdParam: string,
 ): Promise<Response> {
   try {
-    const userId = await requireSessionUserId(request)
+    const userId = await requireSessionUserId()
     const chatId = parsePositiveInt(chatIdParam)
 
     if (!chatId) {

@@ -15,7 +15,7 @@ export async function handleModerateDiscussion(
   request: Request,
 ): Promise<Response> {
   try {
-    const userId = await requireSessionUserId(request)
+    const userId = await requireSessionUserId()
     const body = (await request.json().catch(() => null)) as {
       target?: unknown
       postId?: unknown

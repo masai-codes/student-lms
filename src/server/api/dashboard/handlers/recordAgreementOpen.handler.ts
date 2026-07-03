@@ -8,13 +8,14 @@ export async function handleRecordAgreementOpen(
   sectionId: string,
 ): Promise<Response> {
   try {
-    const userId = await requireSessionUserId(request)
+    const userId = await requireSessionUserId()
     const id = Number(sectionId)
     if (!Number.isInteger(id) || id <= 0) return jsonOk({ success: false })
     await recordAgreementOpen(userId, id)
     return jsonOk({ success: true })
   } catch (error) {
-    if (!isApiError(error)) console.error('Failed to record agreement open', error)
+    if (!isApiError(error))
+      console.error('Failed to record agreement open', error)
     return mapThrownErrorToResponse(error)
   }
 }

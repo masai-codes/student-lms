@@ -1,5 +1,4 @@
 import { createServerFn } from '@tanstack/react-start'
-import { getRequest } from '@tanstack/react-start/server'
 
 import type { ReferralLmsLoginUrlSuccessBody } from '@/server/referral/getReferralLmsLoginUrlResponse'
 import { getReferralLmsLoginUrlResult } from '@/server/referral/getReferralLmsLoginUrlResponse'

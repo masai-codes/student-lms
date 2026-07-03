@@ -1,10 +1,7 @@
 import { z } from 'zod'
 
 import { ApiError } from '@/server/api/http/apiError'
-import {
-  jsonOk,
-  mapThrownErrorToResponse,
-} from '@/server/api/http/responses'
+import { jsonOk, mapThrownErrorToResponse } from '@/server/api/http/responses'
 import { requireSessionUserId } from '@/server/api/http/requireSessionUser'
 import { parsePositiveIdParam } from '@/server/api/learn/utils/parsePositiveIdParam'
 import {
@@ -21,12 +18,12 @@ export async function handleSendAiChatMessage(
   lectureIdParam: string,
 ): Promise<Response> {
   try {
-    const userId = await requireSessionUserId(request)
+    const userId = await requireSessionUserId()
     const lectureId = parsePositiveIdParam(lectureIdParam, 'INVALID_LECTURE_ID')
 
     const rawBody = await request.json().catch(() => ({}))
     const parsed = sendMessageBodySchema.safeParse(rawBody)
-   
+
     if (!parsed.success) {
       throw new ApiError(400, 'INVALID_AI_CHAT_PAYLOAD')
     }
