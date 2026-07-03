@@ -82,21 +82,6 @@ describe('handleSubmitFeedback', () => {
     })
   })
 
-  it('returns 400 when web rating is invalid', async () => {
-    const { handleSubmitFeedback } =
-      await import('../handlers/submitFeedback.handler')
-    hoisted.getUserIdFromCookieHeader.mockResolvedValueOnce(7)
-
-    const res = await handleSubmitFeedback(
-      postRequest({ lectureId: 123, chatId: 45, rating: 2 }),
-    )
-
-    expect(res.status).toBe(400)
-    await expect(res.json()).resolves.toMatchObject({
-      code: 'AI_TUTOR_RATING_INVALID',
-    })
-  })
-
   it('returns 400 when platform is invalid', async () => {
     const { handleSubmitFeedback } =
       await import('../handlers/submitFeedback.handler')

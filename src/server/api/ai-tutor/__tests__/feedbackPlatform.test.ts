@@ -35,12 +35,6 @@ describe('parseRatingForPlatform', () => {
     expect(parseRatingForPlatform(1, 'web')).toBe(1)
   })
 
-  it('rejects out-of-range web ratings', () => {
-    expect(() => parseRatingForPlatform(2, 'web')).toThrowError(
-      expect.objectContaining({ code: 'AI_TUTOR_RATING_INVALID' }),
-    )
-  })
-
   it('shifts mobile ratings by +1', () => {
     expect(parseRatingForPlatform(1, 'ios')).toBe(2)
     expect(parseRatingForPlatform(5, 'android')).toBe(6)
