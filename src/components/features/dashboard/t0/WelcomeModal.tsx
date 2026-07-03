@@ -1,8 +1,4 @@
-import {
-  WELCOME_CONFETTI_DURATION_MS,
-  WELCOME_INTRO_VIDEO_POSTER_URL,
-  WELCOME_INTRO_VIDEO_URL,
-} from './t0Config'
+import { WELCOME_CONFETTI_DURATION_MS, WELCOME_INTRO_VIDEO_URL } from './t0Config'
 import { ConfettiOverlay } from '@/components/ui/confetti-overlay'
 import { Modal, ModalContent, ModalDescription, ModalTitle } from '@/components/ui/modal'
 import BottomDrawer from '@/components/ui/bottom-drawer'
@@ -58,7 +54,6 @@ function WelcomeModalBody({ open, onDismiss, isDismissing }: WelcomeModalProps) 
         <video
           slot="media"
           src={WELCOME_INTRO_VIDEO_URL}
-          poster={WELCOME_INTRO_VIDEO_POSTER_URL}
           suppressHydrationWarning
         />
         <VideoPlayerControlBar>

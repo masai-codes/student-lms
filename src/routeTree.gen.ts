@@ -47,19 +47,9 @@ import { Route as ApiDashboardT0FlowStudentStatusRouteImport } from './routes/ap
 import { Route as ApiDashboardT0FlowStepCompleteRouteImport } from './routes/api/dashboard/t0-flow-step-complete'
 import { Route as ApiDashboardT0FlowStatusRouteImport } from './routes/api/dashboard/t0-flow-status'
 import { Route as ApiDashboardT0FlowLecturesRouteImport } from './routes/api/dashboard/t0-flow-lectures'
-import { Route as ApiDashboardScheduleRouteImport } from './routes/api/dashboard/schedule'
-import { Route as ApiDashboardRightSectionRouteImport } from './routes/api/dashboard/right-section'
-import { Route as ApiDashboardProductUpdatesRouteImport } from './routes/api/dashboard/product-updates'
-import { Route as ApiDashboardPendingTasksRouteImport } from './routes/api/dashboard/pending-tasks'
 import { Route as ApiDashboardPaymentBannerRouteImport } from './routes/api/dashboard/payment-banner'
 import { Route as ApiDashboardOverviewRouteImport } from './routes/api/dashboard/overview'
 import { Route as ApiDashboardNavbarPillRouteImport } from './routes/api/dashboard/navbar-pill'
-import { Route as ApiDashboardLmsSupportRouteImport } from './routes/api/dashboard/lms-support'
-import { Route as ApiDashboardLeftSectionRouteImport } from './routes/api/dashboard/left-section'
-import { Route as ApiDashboardBannersRouteImport } from './routes/api/dashboard/banners'
-import { Route as ApiDashboardAttendanceRouteImport } from './routes/api/dashboard/attendance'
-import { Route as ApiDashboardAnnouncementsRouteImport } from './routes/api/dashboard/announcements'
-import { Route as ApiDashboardActionBannersRouteImport } from './routes/api/dashboard/action-banners'
 import { Route as ApiAnnouncementUnreadCountRouteImport } from './routes/api/announcement/unread-count'
 import { Route as ApiAnnouncementPopupsRouteImport } from './routes/api/announcement/popups'
 import { Route as protectedLayoutMyCoursesRouteImport } from './routes/(protected)/_layout/my-courses'
@@ -397,29 +387,6 @@ const ApiDashboardT0FlowLecturesRoute =
     path: '/api/dashboard/t0-flow-lectures',
     getParentRoute: () => rootRouteImport,
   } as any)
-const ApiDashboardScheduleRoute = ApiDashboardScheduleRouteImport.update({
-  id: '/api/dashboard/schedule',
-  path: '/api/dashboard/schedule',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiDashboardRightSectionRoute =
-  ApiDashboardRightSectionRouteImport.update({
-    id: '/api/dashboard/right-section',
-    path: '/api/dashboard/right-section',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const ApiDashboardProductUpdatesRoute =
-  ApiDashboardProductUpdatesRouteImport.update({
-    id: '/api/dashboard/product-updates',
-    path: '/api/dashboard/product-updates',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const ApiDashboardPendingTasksRoute =
-  ApiDashboardPendingTasksRouteImport.update({
-    id: '/api/dashboard/pending-tasks',
-    path: '/api/dashboard/pending-tasks',
-    getParentRoute: () => rootRouteImport,
-  } as any)
 const ApiDashboardPaymentBannerRoute =
   ApiDashboardPaymentBannerRouteImport.update({
     id: '/api/dashboard/payment-banner',
@@ -436,38 +403,6 @@ const ApiDashboardNavbarPillRoute = ApiDashboardNavbarPillRouteImport.update({
   path: '/api/dashboard/navbar-pill',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiDashboardLmsSupportRoute = ApiDashboardLmsSupportRouteImport.update({
-  id: '/api/dashboard/lms-support',
-  path: '/api/dashboard/lms-support',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiDashboardLeftSectionRoute = ApiDashboardLeftSectionRouteImport.update({
-  id: '/api/dashboard/left-section',
-  path: '/api/dashboard/left-section',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiDashboardBannersRoute = ApiDashboardBannersRouteImport.update({
-  id: '/api/dashboard/banners',
-  path: '/api/dashboard/banners',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiDashboardAttendanceRoute = ApiDashboardAttendanceRouteImport.update({
-  id: '/api/dashboard/attendance',
-  path: '/api/dashboard/attendance',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiDashboardAnnouncementsRoute =
-  ApiDashboardAnnouncementsRouteImport.update({
-    id: '/api/dashboard/announcements',
-    path: '/api/dashboard/announcements',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const ApiDashboardActionBannersRoute =
-  ApiDashboardActionBannersRouteImport.update({
-    id: '/api/dashboard/action-banners',
-    path: '/api/dashboard/action-banners',
-    getParentRoute: () => rootRouteImport,
-  } as any)
 const ApiAnnouncementUnreadCountRoute =
   ApiAnnouncementUnreadCountRouteImport.update({
     id: '/api/announcement/unread-count',
@@ -1269,19 +1204,9 @@ export interface FileRoutesByFullPath {
   '/my-courses': typeof protectedLayoutMyCoursesRoute
   '/api/announcement/popups': typeof ApiAnnouncementPopupsRoute
   '/api/announcement/unread-count': typeof ApiAnnouncementUnreadCountRoute
-  '/api/dashboard/action-banners': typeof ApiDashboardActionBannersRoute
-  '/api/dashboard/announcements': typeof ApiDashboardAnnouncementsRoute
-  '/api/dashboard/attendance': typeof ApiDashboardAttendanceRoute
-  '/api/dashboard/banners': typeof ApiDashboardBannersRoute
-  '/api/dashboard/left-section': typeof ApiDashboardLeftSectionRoute
-  '/api/dashboard/lms-support': typeof ApiDashboardLmsSupportRoute
   '/api/dashboard/navbar-pill': typeof ApiDashboardNavbarPillRoute
   '/api/dashboard/overview': typeof ApiDashboardOverviewRoute
   '/api/dashboard/payment-banner': typeof ApiDashboardPaymentBannerRoute
-  '/api/dashboard/pending-tasks': typeof ApiDashboardPendingTasksRoute
-  '/api/dashboard/product-updates': typeof ApiDashboardProductUpdatesRoute
-  '/api/dashboard/right-section': typeof ApiDashboardRightSectionRoute
-  '/api/dashboard/schedule': typeof ApiDashboardScheduleRoute
   '/api/dashboard/t0-flow-lectures': typeof ApiDashboardT0FlowLecturesRoute
   '/api/dashboard/t0-flow-status': typeof ApiDashboardT0FlowStatusRoute
   '/api/dashboard/t0-flow-step-complete': typeof ApiDashboardT0FlowStepCompleteRoute
@@ -1455,19 +1380,9 @@ export interface FileRoutesByTo {
   '/my-courses': typeof protectedLayoutMyCoursesRoute
   '/api/announcement/popups': typeof ApiAnnouncementPopupsRoute
   '/api/announcement/unread-count': typeof ApiAnnouncementUnreadCountRoute
-  '/api/dashboard/action-banners': typeof ApiDashboardActionBannersRoute
-  '/api/dashboard/announcements': typeof ApiDashboardAnnouncementsRoute
-  '/api/dashboard/attendance': typeof ApiDashboardAttendanceRoute
-  '/api/dashboard/banners': typeof ApiDashboardBannersRoute
-  '/api/dashboard/left-section': typeof ApiDashboardLeftSectionRoute
-  '/api/dashboard/lms-support': typeof ApiDashboardLmsSupportRoute
   '/api/dashboard/navbar-pill': typeof ApiDashboardNavbarPillRoute
   '/api/dashboard/overview': typeof ApiDashboardOverviewRoute
   '/api/dashboard/payment-banner': typeof ApiDashboardPaymentBannerRoute
-  '/api/dashboard/pending-tasks': typeof ApiDashboardPendingTasksRoute
-  '/api/dashboard/product-updates': typeof ApiDashboardProductUpdatesRoute
-  '/api/dashboard/right-section': typeof ApiDashboardRightSectionRoute
-  '/api/dashboard/schedule': typeof ApiDashboardScheduleRoute
   '/api/dashboard/t0-flow-lectures': typeof ApiDashboardT0FlowLecturesRoute
   '/api/dashboard/t0-flow-status': typeof ApiDashboardT0FlowStatusRoute
   '/api/dashboard/t0-flow-step-complete': typeof ApiDashboardT0FlowStepCompleteRoute
@@ -1644,19 +1559,9 @@ export interface FileRoutesById {
   '/(protected)/_layout/my-courses': typeof protectedLayoutMyCoursesRoute
   '/api/announcement/popups': typeof ApiAnnouncementPopupsRoute
   '/api/announcement/unread-count': typeof ApiAnnouncementUnreadCountRoute
-  '/api/dashboard/action-banners': typeof ApiDashboardActionBannersRoute
-  '/api/dashboard/announcements': typeof ApiDashboardAnnouncementsRoute
-  '/api/dashboard/attendance': typeof ApiDashboardAttendanceRoute
-  '/api/dashboard/banners': typeof ApiDashboardBannersRoute
-  '/api/dashboard/left-section': typeof ApiDashboardLeftSectionRoute
-  '/api/dashboard/lms-support': typeof ApiDashboardLmsSupportRoute
   '/api/dashboard/navbar-pill': typeof ApiDashboardNavbarPillRoute
   '/api/dashboard/overview': typeof ApiDashboardOverviewRoute
   '/api/dashboard/payment-banner': typeof ApiDashboardPaymentBannerRoute
-  '/api/dashboard/pending-tasks': typeof ApiDashboardPendingTasksRoute
-  '/api/dashboard/product-updates': typeof ApiDashboardProductUpdatesRoute
-  '/api/dashboard/right-section': typeof ApiDashboardRightSectionRoute
-  '/api/dashboard/schedule': typeof ApiDashboardScheduleRoute
   '/api/dashboard/t0-flow-lectures': typeof ApiDashboardT0FlowLecturesRoute
   '/api/dashboard/t0-flow-status': typeof ApiDashboardT0FlowStatusRoute
   '/api/dashboard/t0-flow-step-complete': typeof ApiDashboardT0FlowStepCompleteRoute
@@ -1833,19 +1738,9 @@ export interface FileRouteTypes {
     | '/my-courses'
     | '/api/announcement/popups'
     | '/api/announcement/unread-count'
-    | '/api/dashboard/action-banners'
-    | '/api/dashboard/announcements'
-    | '/api/dashboard/attendance'
-    | '/api/dashboard/banners'
-    | '/api/dashboard/left-section'
-    | '/api/dashboard/lms-support'
     | '/api/dashboard/navbar-pill'
     | '/api/dashboard/overview'
     | '/api/dashboard/payment-banner'
-    | '/api/dashboard/pending-tasks'
-    | '/api/dashboard/product-updates'
-    | '/api/dashboard/right-section'
-    | '/api/dashboard/schedule'
     | '/api/dashboard/t0-flow-lectures'
     | '/api/dashboard/t0-flow-status'
     | '/api/dashboard/t0-flow-step-complete'
@@ -2019,19 +1914,9 @@ export interface FileRouteTypes {
     | '/my-courses'
     | '/api/announcement/popups'
     | '/api/announcement/unread-count'
-    | '/api/dashboard/action-banners'
-    | '/api/dashboard/announcements'
-    | '/api/dashboard/attendance'
-    | '/api/dashboard/banners'
-    | '/api/dashboard/left-section'
-    | '/api/dashboard/lms-support'
     | '/api/dashboard/navbar-pill'
     | '/api/dashboard/overview'
     | '/api/dashboard/payment-banner'
-    | '/api/dashboard/pending-tasks'
-    | '/api/dashboard/product-updates'
-    | '/api/dashboard/right-section'
-    | '/api/dashboard/schedule'
     | '/api/dashboard/t0-flow-lectures'
     | '/api/dashboard/t0-flow-status'
     | '/api/dashboard/t0-flow-step-complete'
@@ -2207,19 +2092,9 @@ export interface FileRouteTypes {
     | '/(protected)/_layout/my-courses'
     | '/api/announcement/popups'
     | '/api/announcement/unread-count'
-    | '/api/dashboard/action-banners'
-    | '/api/dashboard/announcements'
-    | '/api/dashboard/attendance'
-    | '/api/dashboard/banners'
-    | '/api/dashboard/left-section'
-    | '/api/dashboard/lms-support'
     | '/api/dashboard/navbar-pill'
     | '/api/dashboard/overview'
     | '/api/dashboard/payment-banner'
-    | '/api/dashboard/pending-tasks'
-    | '/api/dashboard/product-updates'
-    | '/api/dashboard/right-section'
-    | '/api/dashboard/schedule'
     | '/api/dashboard/t0-flow-lectures'
     | '/api/dashboard/t0-flow-status'
     | '/api/dashboard/t0-flow-step-complete'
@@ -2394,19 +2269,9 @@ export interface RootRouteChildren {
   authV2ResetPasswordRoute: typeof authV2ResetPasswordRoute
   ApiAnnouncementPopupsRoute: typeof ApiAnnouncementPopupsRoute
   ApiAnnouncementUnreadCountRoute: typeof ApiAnnouncementUnreadCountRoute
-  ApiDashboardActionBannersRoute: typeof ApiDashboardActionBannersRoute
-  ApiDashboardAnnouncementsRoute: typeof ApiDashboardAnnouncementsRoute
-  ApiDashboardAttendanceRoute: typeof ApiDashboardAttendanceRoute
-  ApiDashboardBannersRoute: typeof ApiDashboardBannersRoute
-  ApiDashboardLeftSectionRoute: typeof ApiDashboardLeftSectionRoute
-  ApiDashboardLmsSupportRoute: typeof ApiDashboardLmsSupportRoute
   ApiDashboardNavbarPillRoute: typeof ApiDashboardNavbarPillRoute
   ApiDashboardOverviewRoute: typeof ApiDashboardOverviewRoute
   ApiDashboardPaymentBannerRoute: typeof ApiDashboardPaymentBannerRoute
-  ApiDashboardPendingTasksRoute: typeof ApiDashboardPendingTasksRoute
-  ApiDashboardProductUpdatesRoute: typeof ApiDashboardProductUpdatesRoute
-  ApiDashboardRightSectionRoute: typeof ApiDashboardRightSectionRoute
-  ApiDashboardScheduleRoute: typeof ApiDashboardScheduleRoute
   ApiDashboardT0FlowLecturesRoute: typeof ApiDashboardT0FlowLecturesRoute
   ApiDashboardT0FlowStatusRoute: typeof ApiDashboardT0FlowStatusRoute
   ApiDashboardT0FlowStepCompleteRoute: typeof ApiDashboardT0FlowStepCompleteRoute
@@ -2782,34 +2647,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiDashboardT0FlowLecturesRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/dashboard/schedule': {
-      id: '/api/dashboard/schedule'
-      path: '/api/dashboard/schedule'
-      fullPath: '/api/dashboard/schedule'
-      preLoaderRoute: typeof ApiDashboardScheduleRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/dashboard/right-section': {
-      id: '/api/dashboard/right-section'
-      path: '/api/dashboard/right-section'
-      fullPath: '/api/dashboard/right-section'
-      preLoaderRoute: typeof ApiDashboardRightSectionRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/dashboard/product-updates': {
-      id: '/api/dashboard/product-updates'
-      path: '/api/dashboard/product-updates'
-      fullPath: '/api/dashboard/product-updates'
-      preLoaderRoute: typeof ApiDashboardProductUpdatesRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/dashboard/pending-tasks': {
-      id: '/api/dashboard/pending-tasks'
-      path: '/api/dashboard/pending-tasks'
-      fullPath: '/api/dashboard/pending-tasks'
-      preLoaderRoute: typeof ApiDashboardPendingTasksRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/api/dashboard/payment-banner': {
       id: '/api/dashboard/payment-banner'
       path: '/api/dashboard/payment-banner'
@@ -2829,48 +2666,6 @@ declare module '@tanstack/react-router' {
       path: '/api/dashboard/navbar-pill'
       fullPath: '/api/dashboard/navbar-pill'
       preLoaderRoute: typeof ApiDashboardNavbarPillRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/dashboard/lms-support': {
-      id: '/api/dashboard/lms-support'
-      path: '/api/dashboard/lms-support'
-      fullPath: '/api/dashboard/lms-support'
-      preLoaderRoute: typeof ApiDashboardLmsSupportRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/dashboard/left-section': {
-      id: '/api/dashboard/left-section'
-      path: '/api/dashboard/left-section'
-      fullPath: '/api/dashboard/left-section'
-      preLoaderRoute: typeof ApiDashboardLeftSectionRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/dashboard/banners': {
-      id: '/api/dashboard/banners'
-      path: '/api/dashboard/banners'
-      fullPath: '/api/dashboard/banners'
-      preLoaderRoute: typeof ApiDashboardBannersRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/dashboard/attendance': {
-      id: '/api/dashboard/attendance'
-      path: '/api/dashboard/attendance'
-      fullPath: '/api/dashboard/attendance'
-      preLoaderRoute: typeof ApiDashboardAttendanceRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/dashboard/announcements': {
-      id: '/api/dashboard/announcements'
-      path: '/api/dashboard/announcements'
-      fullPath: '/api/dashboard/announcements'
-      preLoaderRoute: typeof ApiDashboardAnnouncementsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/dashboard/action-banners': {
-      id: '/api/dashboard/action-banners'
-      path: '/api/dashboard/action-banners'
-      fullPath: '/api/dashboard/action-banners'
-      preLoaderRoute: typeof ApiDashboardActionBannersRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/announcement/unread-count': {
@@ -4136,19 +3931,9 @@ const rootRouteChildren: RootRouteChildren = {
   authV2ResetPasswordRoute: authV2ResetPasswordRoute,
   ApiAnnouncementPopupsRoute: ApiAnnouncementPopupsRoute,
   ApiAnnouncementUnreadCountRoute: ApiAnnouncementUnreadCountRoute,
-  ApiDashboardActionBannersRoute: ApiDashboardActionBannersRoute,
-  ApiDashboardAnnouncementsRoute: ApiDashboardAnnouncementsRoute,
-  ApiDashboardAttendanceRoute: ApiDashboardAttendanceRoute,
-  ApiDashboardBannersRoute: ApiDashboardBannersRoute,
-  ApiDashboardLeftSectionRoute: ApiDashboardLeftSectionRoute,
-  ApiDashboardLmsSupportRoute: ApiDashboardLmsSupportRoute,
   ApiDashboardNavbarPillRoute: ApiDashboardNavbarPillRoute,
   ApiDashboardOverviewRoute: ApiDashboardOverviewRoute,
   ApiDashboardPaymentBannerRoute: ApiDashboardPaymentBannerRoute,
-  ApiDashboardPendingTasksRoute: ApiDashboardPendingTasksRoute,
-  ApiDashboardProductUpdatesRoute: ApiDashboardProductUpdatesRoute,
-  ApiDashboardRightSectionRoute: ApiDashboardRightSectionRoute,
-  ApiDashboardScheduleRoute: ApiDashboardScheduleRoute,
   ApiDashboardT0FlowLecturesRoute: ApiDashboardT0FlowLecturesRoute,
   ApiDashboardT0FlowStatusRoute: ApiDashboardT0FlowStatusRoute,
   ApiDashboardT0FlowStepCompleteRoute: ApiDashboardT0FlowStepCompleteRoute,

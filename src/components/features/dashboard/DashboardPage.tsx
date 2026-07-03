@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { DashboardLayout } from './layout/DashboardLayout'
 import { WelcomeModalGate } from './t0/WelcomeModalGate'
+import { T0FlowGate } from './t0/T0FlowGate'
 import type { DashboardOverviewState } from './shared/types'
 import { fetchDashboardOverview } from '@/lib/api/dashboard/dashboardApi'
 import { fetchCurrentUser } from '@/lib/api/me/meApi'
@@ -38,6 +39,7 @@ export function DashboardPage() {
   return (
     <>
       <DashboardLayout userName={currentUser?.name ?? null} overview={overview} />
+      <T0FlowGate />
       <WelcomeModalGate />
     </>
   )

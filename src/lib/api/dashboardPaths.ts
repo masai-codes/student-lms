@@ -2,16 +2,6 @@ export const SERVER_TIME_API = '/api/server-time'
 
 export const DASHBOARD_API = {
   overview: '/api/dashboard/overview',
-  leftSection: '/api/dashboard/left-section',
-  rightSection: '/api/dashboard/right-section',
-  announcements: '/api/dashboard/announcements',
-  productUpdates: '/api/dashboard/product-updates',
-  schedule: '/api/dashboard/schedule',
-  banners: '/api/dashboard/banners',
-  actionBanners: '/api/dashboard/action-banners',
-  pendingTasks: '/api/dashboard/pending-tasks',
-  lmsSupport: '/api/dashboard/lms-support',
-  attendance: '/api/dashboard/attendance',
   navbarPill: '/api/dashboard/navbar-pill',
   npsForm: (formId: number) => `/api/dashboard/nps-form/${formId}`,
   npsFormStart: (formId: number) => `/api/dashboard/nps-form/${formId}/start`,

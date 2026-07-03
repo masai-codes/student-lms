@@ -10,12 +10,14 @@ const hoisted = vi.hoisted(() => ({
   fetchCurrentUser: vi.fn(),
   fetchWelcomeModalStatus: vi.fn(),
   dismissWelcomeModalApi: vi.fn(),
+  fetchT0FlowStatus: vi.fn(),
 }))
 
 vi.mock('@/lib/api/dashboard/dashboardApi', () => ({
   fetchDashboardOverview: hoisted.fetchOverview,
   fetchWelcomeModalStatus: hoisted.fetchWelcomeModalStatus,
   dismissWelcomeModalApi: hoisted.dismissWelcomeModalApi,
+  fetchT0FlowStatus: hoisted.fetchT0FlowStatus,
 }))
 vi.mock('@/lib/api/me/meApi', () => ({
   fetchCurrentUser: hoisted.fetchCurrentUser,
@@ -46,6 +48,13 @@ beforeEach(() => {
   vi.clearAllMocks()
   hoisted.fetchCurrentUser.mockResolvedValue({ name: 'Suryakumar' })
   hoisted.fetchWelcomeModalStatus.mockResolvedValue({ showWelcomeModal: false })
+  hoisted.fetchT0FlowStatus.mockResolvedValue({
+    showT0Flow: false,
+    batches: [],
+    profilePhotoUrl: null,
+    downloadAppCompleted: false,
+    showGuidedTour: false,
+  })
 })
 
 function renderPage() {

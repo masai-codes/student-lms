@@ -75,12 +75,15 @@ DashboardPage
 | `welcome-modal-get-started`      | "Get Started" CTA (disabled while saving)|
 | `welcome-modal-confetti`         | Confetti canvas                          |
 
+## Guided Tour + dashboard gating (Phase 2)
+
+When a T0 user is eligible, the **Guided Tour** is shown *instead of* the
+dashboard. See [t0-guided-tour.md](./t0-guided-tour.md).
+
 ## Not yet built (later T0 slices)
 
-Guided Tour (LMS Walkthrough / Program Onboarding tabs), fixed steps (Profile
-Photo, Zoom Auth, Download App), agreement signing, document upload, student
-kit, ID-card reveal, payment/onboarding banners, and the full **dashboard
-gating** that renders the Guided Tour *instead of* the dashboard for eligible
-users. The backend for most of these already exists (see `T0-FLOW.md` and the
-`getT0Flow*` / `recordGuidedTourStepCompleted` / agreement / payment-banner
-services).
+The Program Onboarding **agreement signing** form, **document upload**, and
+**student kit** flows (their rows appear in the tour but link out / show a
+placeholder for now), plus the **payment / onboarding nudge banners**. The
+backend for these already exists (see `T0-FLOW.md` and the agreement /
+payment-banner services).

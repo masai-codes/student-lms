@@ -89,6 +89,18 @@ Response shape (grows as sections are migrated):
 Client access: `fetchDashboardOverview()` in
 `src/lib/api/dashboard/dashboardApi.ts`.
 
+> **One endpoint, not many.** An earlier attempt exposed a **per-section
+> endpoint** for each card (`/left-section`, `/right-section`, `/banners`,
+> `/announcements`, `/action-banners`, `/schedule`, `/pending-tasks`,
+> `/product-updates`, `/lms-support`, `/attendance`) plus the flat services
+> behind them. The consolidated `/overview` replaced all of them, so those
+> routes/handlers/flat-services and their client helpers were **removed** — the
+> live logic now lives only in the `overview` composition (subfolders
+> `banners/`, `announcements/`, `product-updates/`, `support/`, `schedule/`,
+> `pending/`). Kept alongside `overview`: `/navbar-pill` (used by the layout's
+> upcoming-lecture pill) and the T0-onboarding endpoints (`/welcome-modal-*`,
+> `/t0-flow-*`, `/agreement/*`, `/payment-banner`).
+
 ## The `me` endpoint (greeting)
 
 `GET /api/me` is a small, reusable current-user endpoint returning only what the
@@ -109,7 +121,8 @@ client needs today (`{ name }`). The dashboard greeting uses it —
 | Pending tasks        | ✅ Live  | Not-begun assignments + catch-up lectures (see [schedule.md](./schedule.md)) |
 | Welcome greeting     | ✅ Live  | Name from `GET /api/me` ("Welcome {name}!" / "Welcome!"); long names shortened to first name / ellipsis (`formatGreetingName`), full name on hover |
 | Profile action banner| 🚫 Hidden | Component kept; not rendered — will be shown conditionally later |
-| T0 welcome modal     | ✅ Live  | Onboarding Phase 1 — one-time welcome (see [t0-welcome-modal.md](./t0-welcome-modal.md)); rest of the T0 flow still to come |
+| T0 welcome modal     | ✅ Live  | Onboarding Phase 1 — one-time welcome (see [t0-welcome-modal.md](./t0-welcome-modal.md)) |
+| T0 guided tour       | ✅ Live  | Onboarding Phase 2 — tour shown instead of dashboard when eligible; LMS Walkthrough fully wired, Program agreement/docs/kit pending (see [t0-guided-tour.md](./t0-guided-tour.md)) |
 
 The frontend `DashboardPage` merges live data over the mock defaults, so a
 section keeps rendering from mock data until its API field lands.
