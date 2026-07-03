@@ -7,6 +7,7 @@ import { fileURLToPath } from 'node:url'
 import { generateCatalogHtml } from '../catalog/generate'
 import { SEED_STATE_PATH, writeSeedState } from '../catalog/seedState'
 import { listFlows, seedFlow } from '../index'
+import { isLoginAndJoinLectureEntities } from '../types'
 
 const catalogDir = join(dirname(fileURLToPath(import.meta.url)), '../catalog')
 const catalogHtmlPath = join(catalogDir, 'index.html')
@@ -43,8 +44,10 @@ function printResult(result: Awaited<ReturnType<typeof seedFlow>>): void {
 
   console.log('\nCreated entities:')
   console.log(`  batch id:    ${result.entities.batch.id}`)
-  console.log(`  section id:  ${result.entities.section.id}`)
-  console.log(`  lecture id:  ${result.entities.lecture.id}`)
+  if (isLoginAndJoinLectureEntities(result.entities)) {
+    console.log(`  section id:  ${result.entities.section.id}`)
+    console.log(`  lecture id:  ${result.entities.lecture.id}`)
+  }
   console.log('\nTiming:')
   for (const [key, value] of Object.entries(result.timing)) {
     console.log(`  ${key}: ${value}`)

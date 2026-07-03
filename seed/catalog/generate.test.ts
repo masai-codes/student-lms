@@ -52,7 +52,7 @@ describe('renderCatalogHtml', () => {
     const html = renderCatalogHtml({ secretLoginToken: '12345', seedState: {} })
     expect(html).toContain('btn-login-flow')
     expect(html).not.toMatch(/btn-login-flow[^>]*disabled/)
-    expect(html).toContain('data-user-email="student@example.com"')
+    expect(html).toContain('data-user-email="login-and-join-lecture.student@example.com"')
   })
 })
 

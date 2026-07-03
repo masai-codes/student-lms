@@ -1,6 +1,6 @@
 # Feature Test Matrix
 
-Last updated: 2026-07-02
+Last updated: 2026-07-03
 
 ## Support / Raise Ticket (`/support` + detail-page drawer)
 - Area: `RaiseTicketDrawer` opened from lecture/assignment/resource headers (no redirect); context-scoped `ContextSubcategoryList` via `GET /api/support/subcategories?category=` (legacy `SubcategoryTicketModal` flow); `TicketConversationPanel`/`useTicketComposer` create/reply/rate/escalate; first-template coordinator comment on creation (`buildFirstTemplateResponse`, exact legacy body + signature) with the synthetic open/re-opened banner suppressed; `SupportMarkdown` renders inline HTML (`rehype-raw` → `rehype-sanitize`) so legacy `<br/>`/signature comments display correctly; "Request a Callback" gated on `isNewUserJourney` (a `user_batch_admission_data` row) + active batch, "Student-Kit" reason hidden unless `hasFullFees`.
@@ -192,10 +192,10 @@ Last updated: 2026-07-02
 - Notes: `GET /api/ai-tutor/chat/conversations?lectureId=` lists the user's threads for a lecture (title from first user message, `updatedAt` desc). `GET /api/ai-tutor/chat/conversations/:chatId` returns ordered user/assistant turns from stored `chatHistory`.
 
 ## Seed framework (test-data)
-- Area: Layered seed infrastructure (`seed/factories`, `seed/flows`, `seed/registry`, `seed/index.ts`, CLI, catalog generator); first flow `login-and-join-lecture`
-- Status: Covered (unit tests for time, registry, catalog, flow composition, reset guard); integration opt-in via `SEED_INTEGRATION=1`
-- Test files: `seed/utils/time.test.ts`, `seed/registry.test.ts`, `seed/catalog/generate.test.ts`, `seed/flows/login-and-join-lecture.test.ts`, `seed/resetDatabase.test.ts`
-- Notes: See `docs/testing/features/seed-framework.md`. Commands: `npm run seed`, `npm run seed:catalog`. Programmatic: `seedFlow('login-and-join-lecture')`.
+- Area: Layered seed infrastructure (`seed/factories`, `seed/flows`, `seed/registry`, `seed/index.ts`, CLI, catalog generator); flows include `login-and-join-lecture` and ten T0 onboarding branches (`onboarding-*`)
+- Status: Covered (unit tests for time, registry, catalog, flow composition, onboarding builder/scenarios, reset guard); integration opt-in via `SEED_INTEGRATION=1`
+- Test files: `seed/utils/time.test.ts`, `seed/registry.test.ts`, `seed/catalog/generate.test.ts`, `seed/flows/login-and-join-lecture.test.ts`, `seed/flows/onboarding-shared/*.test.ts`, `seed/flows/onboarding.integration.test.ts`, `seed/resetDatabase.test.ts`
+- Notes: See `docs/testing/features/seed-framework.md`. Each flow uses isolated seed data (flow-scoped emails/batches) so flows compose with `--no-reset`. Commands: `npm run seed`, `npm run seed onboarding-welcome-modal`, `npm run seed:catalog`.
 
 ## Status Meaning
 

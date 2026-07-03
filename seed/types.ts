@@ -1,4 +1,12 @@
-import type { batches, lectures, sectionUser, sections, users } from '@/db/schema'
+import type {
+  batches,
+  lectures,
+  profiles,
+  sectionUser,
+  sections,
+  userBatchAdmissionData,
+  users,
+} from '@/db/schema'
 
 export type TestUser = {
   role: string
@@ -29,9 +37,28 @@ export type LoginAndJoinLectureEntities = {
   lecture: typeof lectures.$inferSelect
 }
 
+export type OnboardingSectionKey =
+  | 'lmsWalkthroughWeb'
+  | 'lmsWalkthroughApp'
+  | 'programOnboardingWeb'
+  | 'programOnboardingApp'
+
+export type OnboardingEntities = {
+  admin: typeof users.$inferSelect
+  student: typeof users.$inferSelect
+  batch: typeof batches.$inferSelect
+  sections: Record<OnboardingSectionKey, typeof sections.$inferSelect>
+  lectures: Record<OnboardingSectionKey, Array<typeof lectures.$inferSelect>>
+  enrollments: Array<typeof sectionUser.$inferSelect>
+  admission: typeof userBatchAdmissionData.$inferSelect | null
+  profile: typeof profiles.$inferSelect | null
+}
+
+export type SeedFlowEntities = LoginAndJoinLectureEntities | OnboardingEntities
+
 export type SeedFlowResult = {
   flowId: string
-  entities: LoginAndJoinLectureEntities
+  entities: SeedFlowEntities
   testUsers: TestUser[]
   timing: Record<string, string>
 }
@@ -39,4 +66,14 @@ export type SeedFlowResult = {
 export type SeedFlowModule = {
   meta: SeedFlowMeta
   seed: () => Promise<SeedFlowResult>
+}
+
+export function isLoginAndJoinLectureEntities(
+  entities: SeedFlowEntities,
+): entities is LoginAndJoinLectureEntities {
+  return 'section' in entities && 'lecture' in entities
+}
+
+export function isOnboardingEntities(entities: SeedFlowEntities): entities is OnboardingEntities {
+  return 'sections' in entities
 }

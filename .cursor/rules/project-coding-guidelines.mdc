@@ -49,3 +49,9 @@ alwaysApply: true
 - Ensure `npm run test` and `npm run lint` pass for touched code.
 - Keep changes scoped to the request; do not refactor unrelated areas.
 - Add concise code comments only where logic is non-obvious.
+
+## Seed Framework
+- Each seed flow under `seed/flows/` must create **its own** users, batch, sections, and lectures.
+- Namespace human-readable identifiers by flow id (for example `{flowId}.student@example.com`, `SDE Batch 42 [{flowId}]`).
+- Flows must not assume exclusive ownership of shared rows; all flows must work when seeded back-to-back with `--no-reset`.
+- Reuse factories from `seed/factories/` and shared builders — never duplicate raw insert logic inside flow seeders.

@@ -2975,6 +2975,36 @@ export const userBlockEmails = mysqlTable("user_block_emails", {
 	primaryKey({ columns: [table.id], name: "user_block_emails_id"}),
 ]);
 
+export const userBatchAdmissionData = mysqlTable("user_batch_admission_data", {
+	id: int({ unsigned: true }).autoincrement().notNull(),
+	userId: bigint("user_id", { mode: "number", unsigned: true }).notNull().references(() => users.id, { onDelete: "cascade" } ),
+	batchId: int("batch_id", { unsigned: true }).notNull().references(() => batches.id, { onDelete: "cascade" } ),
+	idCardUrl: varchar("id_card_url", { length: 500 }),
+	seatBlockingFeesPaid: tinyint("seat_blocking_fees_paid").default(0).notNull(),
+	seatBlockingFeesAmount: decimal("seat_blocking_fees_amount", { precision: 10, scale: 2 }),
+	seatBlockingFeesPaidDate: datetime("seat_blocking_fees_paid_date", { mode: 'string'}),
+	seatBlockingFeesInvoice: varchar("seat_blocking_fees_invoice", { length: 500 }),
+	fullFeesPaid: tinyint("full_fees_paid").default(0).notNull(),
+	fullFeesAmount: decimal("full_fees_amount", { precision: 10, scale: 2 }),
+	fullFeesPaidDate: datetime("full_fees_paid_date", { mode: 'string'}),
+	fullFeesPaidInvoice: varchar("full_fees_paid_invoice", { length: 500 }),
+	studentKitExists: tinyint("student_kit_exists").default(0).notNull(),
+	studentKitDetailsFilled: tinyint("student_kit_details_filled").default(0).notNull(),
+	studentKitTrackingUrl: varchar("student_kit_tracking_url", { length: 500 }),
+	courseFeeDeadline: datetime("course_fee_deadline", { mode: 'string'}),
+	lmsAccessDate: datetime("lms_access_date", { mode: 'string'}).notNull(),
+	createdAt: timestamp("created_at", { mode: 'string' }).defaultNow().notNull(),
+	updatedAt: timestamp("updated_at", { mode: 'string' }).notNull(),
+	paymentUrl: varchar("payment_url", { length: 500 }),
+	meta: json(),
+},
+(table) => [
+	index("user_batch_admission_data_batch_id_index").on(table.batchId),
+	index("user_batch_admission_data_user_id_index").on(table.userId),
+	primaryKey({ columns: [table.id], name: "user_batch_admission_data_id"}),
+	unique("user_batch_admission_data_user_id_batch_id_unique").on(table.userId, table.batchId),
+]);
+
 export const userDeviceTokens = mysqlTable("user_device_tokens", {
 	id: int({ unsigned: true }).autoincrement().notNull(),
 	userId: bigint("user_id", { mode: "number", unsigned: true }).notNull().references(() => users.id, { onDelete: "cascade" } ),

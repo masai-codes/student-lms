@@ -9,6 +9,8 @@ vi.mock('@/db', () => ({
 
 import { resolveJoinLiveButtonState } from '@/server/learn/utils/resolveJoinLiveButtonState'
 
+import { isLoginAndJoinLectureEntities } from '../types'
+
 const hoisted = vi.hoisted(() => ({
   createUser: vi.fn(),
   createBatch: vi.fn(),
@@ -117,6 +119,10 @@ describe('loginAndJoinLecture integration', () => {
     async () => {
       const { seedFlow } = await import('../index')
       const result = await seedFlow('login-and-join-lecture')
+
+      if (!isLoginAndJoinLectureEntities(result.entities)) {
+        throw new Error('Expected login-and-join-lecture entities')
+      }
 
       const state = resolveJoinLiveButtonState({
         schedule: result.entities.lecture.schedule,

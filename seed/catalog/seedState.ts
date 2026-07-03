@@ -3,6 +3,7 @@ import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 import type { SeedFlowResult, TestUser } from '../types'
+import { isLoginAndJoinLectureEntities } from '../types'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 export const SEED_STATE_PATH = join(__dirname, 'seed-state.json')
@@ -22,11 +23,14 @@ export type CatalogSeedState = Record<string, FlowSeedState>
 
 function extractEntityIds(result: SeedFlowResult): FlowSeedState['entityIds'] {
   const { entities } = result
-  return {
-    batchId: entities.batch?.id,
-    sectionId: entities.section?.id,
-    lectureId: entities.lecture?.id,
+  const ids: FlowSeedState['entityIds'] = { batchId: entities.batch?.id }
+
+  if (isLoginAndJoinLectureEntities(entities)) {
+    ids.sectionId = entities.section.id
+    ids.lectureId = entities.lecture.id
   }
+
+  return ids
 }
 
 export function readSeedState(): CatalogSeedState {

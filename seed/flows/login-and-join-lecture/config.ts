@@ -1,8 +1,7 @@
-import {
-  DEFAULT_ADMIN_EMAIL,
-  DEFAULT_STUDENT_EMAIL,
-} from '../../utils/constants'
 import type { SeedFlowMeta } from '../../types'
+import { flowScopedEmail } from '../onboarding-shared/constants'
+
+const FLOW_ID = 'login-and-join-lecture'
 
 const TIMING = {
   batchStartedDaysAgo: 0,
@@ -17,8 +16,8 @@ export const loginAndJoinLectureConfig: SeedFlowMeta = {
   timing: { ...TIMING },
   seedCommand: 'npm run seed login-and-join-lecture',
   defaultCredentialEmails: [
-    { role: 'admin', email: DEFAULT_ADMIN_EMAIL },
-    { role: 'student', email: DEFAULT_STUDENT_EMAIL },
+    { role: 'admin', email: flowScopedEmail(FLOW_ID, 'admin') },
+    { role: 'student', email: flowScopedEmail(FLOW_ID, 'student') },
   ],
   primaryLoginRole: 'student',
 }

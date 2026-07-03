@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
 import {
+  addDays,
   addMinutes,
   formatMysqlDate,
   formatMysqlDatetime,
@@ -46,5 +47,12 @@ describe('addMinutes', () => {
   it('adds minutes to a date', () => {
     const start = new Date('2026-03-01T10:00:00.000Z')
     expect(addMinutes(start, 120).toISOString()).toBe('2026-03-01T12:00:00.000Z')
+  })
+})
+
+describe('addDays', () => {
+  it('adds days to a date', () => {
+    const start = new Date('2026-03-01T10:00:00.000Z')
+    expect(addDays(start, 7).toISOString()).toBe('2026-03-08T10:00:00.000Z')
   })
 })

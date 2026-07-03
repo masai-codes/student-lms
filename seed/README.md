@@ -23,7 +23,32 @@ Skip database reset (append-only seed):
 
 ```bash
 npm run seed login-and-join-lecture -- --no-reset
+npm run seed onboarding-welcome-modal -- --no-reset
+npm run seed onboarding-fees-unpaid -- --no-reset
 ```
+
+Compose every flow in one database — each flow uses **its own users, batch, sections, and lectures** (flow-scoped emails like `onboarding-welcome-modal.student@example.com`), so they never collide.
+
+## Onboarding (T0) flows
+
+| Flow ID | Starting UI state |
+|---------|-------------------|
+| `onboarding-legacy-user` | No T0 UI (no admission row) |
+| `onboarding-welcome-modal` | Welcome modal on first login |
+| `onboarding-welcome-seen` | Welcome modal already dismissed |
+| `onboarding-fees-unpaid` | LMS walkthrough + payment countdown |
+| `onboarding-fees-paid` | Program onboarding unlocked, steps pending |
+| `onboarding-kit-waiting` | Kit filled, no tracking yet |
+| `onboarding-kit-tracking` | Kit tracking URL visible |
+| `onboarding-agreement-pending` | Agreement modal still open |
+| `onboarding-complete` | All steps done, ID card unlocked |
+| `onboarding-fees-overdue` | Fee deadline passed, still unpaid |
+
+```bash
+npm run seed onboarding-welcome-modal
+```
+
+LMS walkthrough lectures use real S3 recordings mapped by section name (`LMS Walkthrough - Web` / `LMS Walkthrough - App`).
 
 ## Catalog page
 
@@ -77,6 +102,8 @@ Datetime fields use naive **IST** (`Asia/Kolkata`) strings via `formatMysqlDatet
 2. Create `seed/flows/my-flow/seed.ts` composing factories; return `SeedFlowResult` with `testUsers` from inserted rows.
 3. Register the config in `seed/registry.ts` and add a case to `loadFlowModule`.
 4. Run `npm run seed:catalog` to refresh the catalog.
+
+**Isolation rule:** every flow must create its own users, batch, sections, and lectures. Use flow-scoped emails (`{flowId}.student@example.com`) and batch names. Flows must work when every command is run with `--no-reset` in sequence — never reuse hardcoded shared rows across flows.
 
 ## Database reset
 

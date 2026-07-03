@@ -35,6 +35,10 @@ export function addMinutes(date: Date, minutes: number): Date {
   return new Date(date.getTime() + minutes * 60 * 1000)
 }
 
+export function addDays(date: Date, days: number): Date {
+  return new Date(date.getTime() + days * 24 * 60 * 60 * 1000)
+}
+
 export function formatMysqlDate(date: Date): string {
   return dayjs(date).tz(SEED_TIMEZONE).format('YYYY-MM-DD')
 }

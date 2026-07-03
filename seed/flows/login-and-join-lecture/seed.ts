@@ -7,8 +7,6 @@ import {
 } from '../../factories'
 import type { SeedFlowResult, TestUser } from '../../types'
 import {
-  DEFAULT_ADMIN_EMAIL,
-  DEFAULT_STUDENT_EMAIL,
   DEFAULT_ZOOM_LINK,
   DEV_PASSWORD_PLAINTEXT,
 } from '../../utils/constants'
@@ -18,7 +16,10 @@ import {
   formatMysqlDatetime,
   offsetFromNow,
 } from '../../utils/time'
+import { flowScopedEmail } from '../onboarding-shared/constants'
 import { loginAndJoinLectureConfig, loginAndJoinLectureTiming } from './config'
+
+const FLOW_ID = loginAndJoinLectureConfig.id
 
 function buildTestUsers(
   admin: SeedFlowResult['entities']['admin'],
@@ -56,17 +57,18 @@ export async function seedLoginAndJoinLecture(): Promise<SeedFlowResult> {
 
   const admin = await createUser({
     name: 'Admin User',
-    email: DEFAULT_ADMIN_EMAIL,
+    email: flowScopedEmail(FLOW_ID, 'admin'),
     role: 'admin',
   })
 
   const student = await createUser({
     name: 'Student User',
-    email: DEFAULT_STUDENT_EMAIL,
+    email: flowScopedEmail(FLOW_ID, 'student'),
     role: 'student',
   })
 
   const batch = await createBatch({
+    name: `FT-MOCK-1 [${FLOW_ID}]`,
     starting: formatMysqlDate(batchStart),
   })
 

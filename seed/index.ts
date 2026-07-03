@@ -8,6 +8,9 @@ export { resetDatabase } from './resetDatabase'
 export { getFlow, listFlows, seedFlowIds } from './registry'
 export type {
   LoginAndJoinLectureEntities,
+  OnboardingEntities,
+  OnboardingSectionKey,
+  SeedFlowEntities,
   SeedFlowMeta,
   SeedFlowModule,
   SeedFlowResult,
