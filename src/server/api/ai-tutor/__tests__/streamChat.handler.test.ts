@@ -118,6 +118,23 @@ describe('handleStreamChat', () => {
     })
   })
 
+  it('returns 400 when platform is invalid', async () => {
+    const { handleStreamChat } =
+      await import('../handlers/streamChat.handler')
+    hoisted.getUserIdFromCookieHeader.mockResolvedValueOnce(7)
+
+    const res = await handleStreamChat(
+      postRequest({ lectureId: 1, chat: 'hello', platform: 'windows' }),
+    )
+
+    expect(res.status).toBe(400)
+    await expect(res.json()).resolves.toEqual({
+      code: 'AI_TUTOR_PLATFORM_INVALID',
+      message: 'AI_TUTOR_PLATFORM_INVALID',
+    })
+    expect(hoisted.prepareLectureChatContext).not.toHaveBeenCalled()
+  })
+
   it('returns 503 when Anthropic is not configured', async () => {
     const { ApiError } = await import('@/server/api/http/apiError')
     const { handleStreamChat } =
@@ -165,6 +182,7 @@ describe('handleStreamChat', () => {
       systemPrompt: 'system prompt',
       messages: [{ role: 'user', content: 'explain hooks' }],
       chat: 'explain hooks',
+      platform: 'ios',
     })
 
     function* events() {
@@ -175,7 +193,12 @@ describe('handleStreamChat', () => {
     hoisted.streamLectureChatEventsFromContext.mockImplementationOnce(() => events())
 
     const res = await handleStreamChat(
-      postRequest({ lectureId: 99, chat: 'explain hooks', chatID: 12 }),
+      postRequest({
+        lectureId: 99,
+        chat: 'explain hooks',
+        chatID: 12,
+        platform: 'ios',
+      }),
     )
 
     expect(hoisted.prepareLectureChatContext).toHaveBeenCalledWith({
@@ -183,12 +206,14 @@ describe('handleStreamChat', () => {
       lectureId: 99,
       chat: 'explain hooks',
       chatId: 12,
+      platform: 'ios',
     })
     expect(hoisted.streamLectureChatEventsFromContext).toHaveBeenCalledWith({
       chatRow: { id: 12, chatHistory: [] },
       systemPrompt: 'system prompt',
       messages: [{ role: 'user', content: 'explain hooks' }],
       chat: 'explain hooks',
+      platform: 'ios',
     })
     expect(res.status).toBe(200)
 

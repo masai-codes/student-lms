@@ -44,7 +44,7 @@ describe('handleSubmitFeedback', () => {
 
     const res = await handleSubmitFeedback(
       postRequest(
-        { lectureId: 123, chatId: 45, rating: 4, feedback: 'Great' },
+        { lectureId: 123, chatId: 45, rating: 1, feedback: 'Great' },
         null,
       ),
     )
@@ -58,7 +58,7 @@ describe('handleSubmitFeedback', () => {
     hoisted.getUserIdFromCookieHeader.mockResolvedValueOnce(7)
 
     const res = await handleSubmitFeedback(
-      postRequest({ lectureId: 0, chatId: 45, rating: 4 }),
+      postRequest({ lectureId: 0, chatId: 45, rating: 1 }),
     )
 
     expect(res.status).toBe(400)
@@ -73,7 +73,7 @@ describe('handleSubmitFeedback', () => {
     hoisted.getUserIdFromCookieHeader.mockResolvedValueOnce(7)
 
     const res = await handleSubmitFeedback(
-      postRequest({ lectureId: 123, chatId: 0, rating: 4 }),
+      postRequest({ lectureId: 123, chatId: 0, rating: 1 }),
     )
 
     expect(res.status).toBe(400)
@@ -82,13 +82,13 @@ describe('handleSubmitFeedback', () => {
     })
   })
 
-  it('returns 400 when rating is invalid', async () => {
+  it('returns 400 when web rating is invalid', async () => {
     const { handleSubmitFeedback } =
       await import('../handlers/submitFeedback.handler')
     hoisted.getUserIdFromCookieHeader.mockResolvedValueOnce(7)
 
     const res = await handleSubmitFeedback(
-      postRequest({ lectureId: 123, chatId: 45, rating: 0 }),
+      postRequest({ lectureId: 123, chatId: 45, rating: 2 }),
     )
 
     expect(res.status).toBe(400)
@@ -97,21 +97,41 @@ describe('handleSubmitFeedback', () => {
     })
   })
 
-  it('submits feedback for a valid request', async () => {
+  it('returns 400 when platform is invalid', async () => {
     const { handleSubmitFeedback } =
       await import('../handlers/submitFeedback.handler')
     hoisted.getUserIdFromCookieHeader.mockResolvedValueOnce(7)
-    hoisted.submitAiTutorFeedback.mockResolvedValueOnce({
-      chatId: 45,
-      rating: 4,
-      feedback: 'Helpful',
-    })
 
     const res = await handleSubmitFeedback(
       postRequest({
         lectureId: 123,
         chatId: 45,
         rating: 4,
+        platform: 'windows',
+      }),
+    )
+
+    expect(res.status).toBe(400)
+    await expect(res.json()).resolves.toMatchObject({
+      code: 'AI_TUTOR_PLATFORM_INVALID',
+    })
+  })
+
+  it('submits web feedback with a 0/1 rating and platform prefix', async () => {
+    const { handleSubmitFeedback } =
+      await import('../handlers/submitFeedback.handler')
+    hoisted.getUserIdFromCookieHeader.mockResolvedValueOnce(7)
+    hoisted.submitAiTutorFeedback.mockResolvedValueOnce({
+      chatId: 45,
+      rating: 1,
+      feedback: 'web-Helpful',
+    })
+
+    const res = await handleSubmitFeedback(
+      postRequest({
+        lectureId: 123,
+        chatId: 45,
+        rating: 1,
         feedback: 'Helpful',
       }),
     )
@@ -121,13 +141,72 @@ describe('handleSubmitFeedback', () => {
       userId: 7,
       lectureId: 123,
       chatId: 45,
-      rating: 4,
-      feedback: 'Helpful',
+      rating: 1,
+      feedback: 'web-Helpful',
     })
     await expect(res.json()).resolves.toEqual({
       chatId: 45,
-      rating: 4,
-      feedback: 'Helpful',
+      rating: 1,
+      feedback: 'web-Helpful',
+    })
+  })
+
+  it('shifts mobile ratings by +1 and prefixes feedback with platform', async () => {
+    const { handleSubmitFeedback } =
+      await import('../handlers/submitFeedback.handler')
+    hoisted.getUserIdFromCookieHeader.mockResolvedValueOnce(7)
+    hoisted.submitAiTutorFeedback.mockResolvedValueOnce({
+      chatId: 45,
+      rating: 5,
+      feedback: 'ios-Helpful',
+    })
+
+    const res = await handleSubmitFeedback(
+      postRequest({
+        lectureId: 123,
+        chatId: 45,
+        rating: 4,
+        feedback: 'Helpful',
+        platform: 'ios',
+      }),
+    )
+
+    expect(res.status).toBe(200)
+    expect(hoisted.submitAiTutorFeedback).toHaveBeenCalledWith({
+      userId: 7,
+      lectureId: 123,
+      chatId: 45,
+      rating: 5,
+      feedback: 'ios-Helpful',
+    })
+  })
+
+  it('stores only the platform when feedback text is blank', async () => {
+    const { handleSubmitFeedback } =
+      await import('../handlers/submitFeedback.handler')
+    hoisted.getUserIdFromCookieHeader.mockResolvedValueOnce(7)
+    hoisted.submitAiTutorFeedback.mockResolvedValueOnce({
+      chatId: 45,
+      rating: 2,
+      feedback: 'android',
+    })
+
+    const res = await handleSubmitFeedback(
+      postRequest({
+        lectureId: 123,
+        chatId: 45,
+        rating: 1,
+        platform: 'android',
+      }),
+    )
+
+    expect(res.status).toBe(200)
+    expect(hoisted.submitAiTutorFeedback).toHaveBeenCalledWith({
+      userId: 7,
+      lectureId: 123,
+      chatId: 45,
+      rating: 2,
+      feedback: 'android',
     })
   })
 })

@@ -4,6 +4,8 @@ import { requireSessionUserId } from '@/server/api/http/requireSessionUser'
 import { createSseResponse, createSseStreamFromEvents } from '@/server/api/http/sse'
 import { ensureAnthropicConfigured } from '@/server/api/ai-tutor/clients/anthropicModel'
 import { AI_TUTOR_CHAT_MAX_MESSAGE_LENGTH } from '@/server/api/ai-tutor/constants'
+import { parsePlatform } from '@/server/api/ai-tutor/feedbackPlatform'
+import type { AiTutorFeedbackPlatform } from '@/server/api/ai-tutor/feedbackPlatform'
 import {
   prepareLectureChatContext,
   streamLectureChatEventsFromContext,
@@ -14,6 +16,7 @@ type StreamChatBody = {
   chat?: unknown
   chatID?: unknown
   chatId?: unknown
+  platform?: unknown
 }
 
 function parsePositiveInt(value: unknown): number | null {
@@ -26,6 +29,7 @@ function parseStreamChatBody(body: StreamChatBody | null): {
   lectureId: number
   chat: string
   chatId?: number
+  platform: AiTutorFeedbackPlatform
 } {
   const lectureId = parsePositiveInt(body?.lectureId)
   if (!lectureId) {
@@ -50,7 +54,9 @@ function parseStreamChatBody(body: StreamChatBody | null): {
     chatId = parsedChatId
   }
 
-  return { lectureId, chat, chatId }
+  const platform = parsePlatform(body?.platform)
+
+  return { lectureId, chat, chatId, platform }
 }
 
 export async function handleStreamChat(request: Request): Promise<Response> {
@@ -65,6 +71,7 @@ export async function handleStreamChat(request: Request): Promise<Response> {
       lectureId: parsed.lectureId,
       chat: parsed.chat,
       chatId: parsed.chatId,
+      platform: parsed.platform,
     })
 
     const stream = createSseStreamFromEvents(

@@ -9,6 +9,7 @@ import {
   buildLectureChatMessages,
   buildLectureChatSystemPrompt,
 } from '@/server/api/ai-tutor/services/buildLectureChatPrompt'
+import type { AiTutorFeedbackPlatform } from '@/server/api/ai-tutor/feedbackPlatform'
 import { getLectureSummaryForChat } from '@/server/api/ai-tutor/services/lecturesAi.service'
 
 export type ChatStreamEvent =
@@ -20,6 +21,7 @@ export type StreamLectureChatInput = {
   lectureId: number
   chat: string
   chatId?: number
+  platform: AiTutorFeedbackPlatform
 }
 
 export type LectureChatStreamContext = {
@@ -27,6 +29,7 @@ export type LectureChatStreamContext = {
   systemPrompt: string
   messages: Array<LectureChatMessage>
   chat: string
+  platform: AiTutorFeedbackPlatform
 }
 
 export async function prepareLectureChatContext(
@@ -46,7 +49,13 @@ export async function prepareLectureChatContext(
     question: input.chat,
   })
 
-  return { chatRow, systemPrompt, messages, chat: input.chat }
+  return {
+    chatRow,
+    systemPrompt,
+    messages,
+    chat: input.chat,
+    platform: input.platform,
+  }
 }
 
 export async function* streamLectureChatEventsFromContext(
@@ -72,6 +81,7 @@ export async function* streamLectureChatEventsFromContext(
     rowId: context.chatRow.id,
     userMessage: context.chat,
     aiMessage,
+    platform: context.platform,
     existingHistory: context.chatRow.chatHistory,
   })
 
