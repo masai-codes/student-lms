@@ -3,11 +3,9 @@ import { jsonOk, mapThrownErrorToResponse } from '@/server/api/http/responses'
 import { requireSessionUserId } from '@/server/api/http/requireSessionUser'
 import { getDashboardSchedule } from '@/server/api/dashboard/getDashboardSchedule.service'
 
-export async function handleGetDashboardSchedule(
-  request: Request,
-): Promise<Response> {
+export async function handleGetDashboardSchedule(): Promise<Response> {
   try {
-    const userId = await requireSessionUserId(request)
+    const userId = await requireSessionUserId()
     const schedule = await getDashboardSchedule(userId)
     return jsonOk({ schedule })
   } catch (error) {

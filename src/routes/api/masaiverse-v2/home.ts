@@ -4,7 +4,7 @@ import { handleGetMasaiverseV2Home } from '@/server/api/masaiverse-v2/handlers/g
 export const Route = createFileRoute('/api/masaiverse-v2/home')({
   server: {
     handlers: {
-      GET: ({ request }) => handleGetMasaiverseV2Home(request),
+      GET: () => handleGetMasaiverseV2Home(),
     },
   },
 })

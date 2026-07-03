@@ -38,7 +38,7 @@ import {
 /** GET /api/support/tickets?tab=&page= */
 export async function handleListTickets(request: Request): Promise<Response> {
   try {
-    const userId = await requireSessionUserId(request)
+    const userId = await requireSessionUserId()
     const url = new URL(request.url)
     const tabRaw = url.searchParams.get('tab')
     const tab =
@@ -54,9 +54,11 @@ export async function handleListTickets(request: Request): Promise<Response> {
 }
 
 /** GET /api/support/tickets/thread?ticketId= */
-export async function handleGetTicketThread(request: Request): Promise<Response> {
+export async function handleGetTicketThread(
+  request: Request,
+): Promise<Response> {
   try {
-    const userId = await requireSessionUserId(request)
+    const userId = await requireSessionUserId()
     const ticketId = requireIntParam(
       new URL(request.url),
       'ticketId',
@@ -80,7 +82,7 @@ const createSchema = z.object({
 /** POST /api/support/tickets/create */
 export async function handleCreateTicket(request: Request): Promise<Response> {
   try {
-    const userId = await requireSessionUserId(request)
+    const userId = await requireSessionUserId()
     const body = await readJsonBody(request, createSchema)
     const result = await createTicket({ userId, ...body })
     return jsonOk(result)
@@ -97,7 +99,7 @@ const replySchema = z.object({
 /** POST /api/support/tickets/reply */
 export async function handleAddReply(request: Request): Promise<Response> {
   try {
-    const userId = await requireSessionUserId(request)
+    const userId = await requireSessionUserId()
     const body = await readJsonBody(request, replySchema)
     const result = await addReply({ userId, ...body })
     return jsonOk(result)
@@ -114,7 +116,7 @@ const rateSchema = z.object({
 /** POST /api/support/tickets/rate */
 export async function handleRateTicket(request: Request): Promise<Response> {
   try {
-    const userId = await requireSessionUserId(request)
+    const userId = await requireSessionUserId()
     const body = await readJsonBody(request, rateSchema)
     const result = await rateTicket({ userId, ...body })
     return jsonOk(result)
@@ -128,7 +130,7 @@ const ticketIdSchema = z.object({ ticketId: z.number().int().positive() })
 /** POST /api/support/tickets/reopen */
 export async function handleReopenTicket(request: Request): Promise<Response> {
   try {
-    const userId = await requireSessionUserId(request)
+    const userId = await requireSessionUserId()
     const body = await readJsonBody(request, ticketIdSchema)
     const result = await reopenTicket({ userId, ...body })
     return jsonOk(result)
@@ -138,9 +140,11 @@ export async function handleReopenTicket(request: Request): Promise<Response> {
 }
 
 /** POST /api/support/tickets/escalate */
-export async function handleEscalateTicket(request: Request): Promise<Response> {
+export async function handleEscalateTicket(
+  request: Request,
+): Promise<Response> {
   try {
-    const userId = await requireSessionUserId(request)
+    const userId = await requireSessionUserId()
     const body = await readJsonBody(request, ticketIdSchema)
     const result = await escalateTicket({ userId, ...body })
     return jsonOk(result)

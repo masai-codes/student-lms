@@ -1,13 +1,18 @@
 import { isApiError } from '@/server/api/http/apiError'
-import { jsonError, jsonOk, mapThrownErrorToResponse } from '@/server/api/http/responses'
+import {
+  jsonError,
+  jsonOk,
+  mapThrownErrorToResponse,
+} from '@/server/api/http/responses'
 import { requireSessionUserId } from '@/server/api/http/requireSessionUser'
 import { getNpsForm } from '@/server/api/dashboard/getNpsForm.service'
 
-export async function handleGetNpsForm(request: Request, formId: string): Promise<Response> {
+export async function handleGetNpsForm(formId: string): Promise<Response> {
   try {
-    await requireSessionUserId(request)
+    await requireSessionUserId()
     const id = Number(formId)
-    if (!Number.isInteger(id) || id <= 0) return jsonError(400, 'INVALID_FORM_ID')
+    if (!Number.isInteger(id) || id <= 0)
+      return jsonError(400, 'INVALID_FORM_ID')
 
     const form = await getNpsForm(id)
     if (!form) return jsonError(404, 'NPS_FORM_NOT_FOUND')

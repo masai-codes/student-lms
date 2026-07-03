@@ -4,7 +4,7 @@ import { handleGetAnnouncementUnreadCount } from '@/server/api/announcement/hand
 export const Route = createFileRoute('/api/announcement/unread-count')({
   server: {
     handlers: {
-      GET: ({ request }) => handleGetAnnouncementUnreadCount(request),
+      GET: () => handleGetAnnouncementUnreadCount(),
     },
   },
 })

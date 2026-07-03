@@ -21,7 +21,7 @@ async function requireOwnedSession(params: {
   lectureIdParam: string
   sessionId: string
 }) {
-  const userId = await requireSessionUserId(params.request)
+  const userId = await requireSessionUserId()
   const lectureId = parseLectureId(params.lectureIdParam)
   const session = await getOwnedChatbotSessionById({
     sessionId: params.sessionId,
@@ -54,7 +54,11 @@ export async function handleAppendChatbotMessage(
   sessionId: string,
 ): Promise<Response> {
   try {
-    const { userId, lectureId } = await requireOwnedSession({ request, lectureIdParam, sessionId })
+    const { userId, lectureId } = await requireOwnedSession({
+      request,
+      lectureIdParam,
+      sessionId,
+    })
     const body = await request.json().catch(() => ({}))
     const parsed = appendMessageBodySchema.safeParse(body)
     if (!parsed.success) {
@@ -77,4 +81,3 @@ export async function handleAppendChatbotMessage(
     return mapThrownErrorToResponse(error)
   }
 }
-

@@ -3,7 +3,7 @@ import { buildLevelupSsoRedirectUrl } from './buildLevelupSsoRedirectUrl'
 
 import { db } from '@/db'
 import { users } from '@/db/schema'
-import { getUserIdFromCookieHeader } from '@/server/auth/getCurrentSessionUserId'
+import { getCurrentUserId } from '@/server/auth/getCurrentSessionUserId'
 
 /** Same JSON shape as `experience-api` `GET /levelup-sso`. */
 export type LevelupSsoSuccessBody = {
@@ -24,9 +24,9 @@ export type LevelupSsoResult =
 /**
  * Shared by TanStack `createServerFn` and Nitro `GET /levelup-sso`.
  */
-export async function getLevelupSsoResult(cookieHeader: string | null): Promise<LevelupSsoResult> {
+export async function getLevelupSsoResult(): Promise<LevelupSsoResult> {
   try {
-    const userId = await getUserIdFromCookieHeader(cookieHeader)
+    const userId = await getCurrentUserId()
     if (!userId) {
       return { status: 401, body: { error: 'Unauthorized' } }
     }
@@ -61,7 +61,9 @@ export async function getLevelupSsoResult(cookieHeader: string | null): Promise<
     }
   } catch (err) {
     const message =
-      err instanceof Error ? err.message : 'Something went wrong while redirecting to Levelup'
+      err instanceof Error
+        ? err.message
+        : 'Something went wrong while redirecting to Levelup'
     return {
       status: 500,
       body: {

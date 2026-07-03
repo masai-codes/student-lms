@@ -5,13 +5,13 @@ import {
   handleRemoveResourceBookmark,
 } from '@/server/api/learn/handlers/resourceBookmark.handler'
 
-export const Route = createFileRoute('/api/learn/resources/$resourceId/bookmark')({
+export const Route = createFileRoute(
+  '/api/learn/resources/$resourceId/bookmark',
+)({
   server: {
     handlers: {
-      POST: ({ request, params }) =>
-        handleAddResourceBookmark(request, params.resourceId),
-      DELETE: ({ request, params }) =>
-        handleRemoveResourceBookmark(request, params.resourceId),
+      POST: ({ params }) => handleAddResourceBookmark(params.resourceId),
+      DELETE: ({ params }) => handleRemoveResourceBookmark(params.resourceId),
     },
   },
 })

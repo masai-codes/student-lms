@@ -4,8 +4,7 @@ import { handleGetAnnouncementById } from '@/server/api/announcement/handlers/ge
 export const Route = createFileRoute('/api/announcement/$id/')({
   server: {
     handlers: {
-      GET: ({ request, params }) =>
-        handleGetAnnouncementById(request, params.id, 'a'),
+      GET: ({ params }) => handleGetAnnouncementById(params.id, 'a'),
     },
   },
 })

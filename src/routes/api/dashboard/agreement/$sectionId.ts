@@ -4,7 +4,7 @@ import { handleGetAgreementData } from '@/server/api/dashboard/handlers/getAgree
 export const Route = createFileRoute('/api/dashboard/agreement/$sectionId')({
   server: {
     handlers: {
-      GET: ({ request, params }) => handleGetAgreementData(request, params.sectionId),
+      GET: ({ params }) => handleGetAgreementData(params.sectionId),
     },
   },
 })

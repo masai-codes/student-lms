@@ -7,7 +7,7 @@ export async function handleGetClubEditData(
   request: Request,
 ): Promise<Response> {
   try {
-    const userId = await requireSessionUserId(request)
+    const userId = await requireSessionUserId()
     const clubId = Number(new URL(request.url).searchParams.get('clubId'))
     const data = await getClubEditData(userId, clubId)
     return jsonOk(data)

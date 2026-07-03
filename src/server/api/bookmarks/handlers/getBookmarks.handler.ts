@@ -4,11 +4,9 @@ import { requireSessionUserId } from '@/server/api/http/requireSessionUser'
 import { getBookmarks } from '@/server/api/bookmarks/getBookmarks.service'
 import { parseBookmarksQuery } from '@/server/api/bookmarks/utils/parseBookmarksQuery'
 
-export async function handleGetBookmarks(
-  request: Request,
-): Promise<Response> {
+export async function handleGetBookmarks(request: Request): Promise<Response> {
   try {
-    const userId = await requireSessionUserId(request)
+    const userId = await requireSessionUserId()
     const params = parseBookmarksQuery(new URL(request.url))
     const { items, total } = await getBookmarks(userId, params)
     return jsonOk({ bookmarks: items, total })

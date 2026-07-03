@@ -3,9 +3,11 @@ import { jsonOk, mapThrownErrorToResponse } from '@/server/api/http/responses'
 import { requireSessionUserId } from '@/server/api/http/requireSessionUser'
 import { getT0FlowStudentStatus } from '@/server/api/dashboard/getT0FlowStudentStatus.service'
 
-export async function handleGetT0FlowStudentStatus(request: Request): Promise<Response> {
+export async function handleGetT0FlowStudentStatus(
+  request: Request,
+): Promise<Response> {
   try {
-    const userId = await requireSessionUserId(request)
+    const userId = await requireSessionUserId()
     const url = new URL(request.url)
     const batchId = Number(url.searchParams.get('batchId'))
     if (!batchId) return jsonOk({ documents: null, kit: null })
@@ -14,7 +16,9 @@ export async function handleGetT0FlowStudentStatus(request: Request): Promise<Re
   } catch (error) {
     if (!isApiError(error)) {
       console.error('Failed to fetch T0 flow student status', error)
-      return mapThrownErrorToResponse(new Error('SERVER_ERROR_FETCHING_T0_FLOW_STUDENT_STATUS'))
+      return mapThrownErrorToResponse(
+        new Error('SERVER_ERROR_FETCHING_T0_FLOW_STUDENT_STATUS'),
+      )
     }
     return mapThrownErrorToResponse(error)
   }

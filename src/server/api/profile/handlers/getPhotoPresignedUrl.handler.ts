@@ -1,17 +1,27 @@
 import { generatePresignedUploadUrl } from '@/server/storage/s3Upload'
 import { requireSessionUserId } from '@/server/api/http/requireSessionUser'
-import { jsonError, jsonOk, mapThrownErrorToResponse } from '@/server/api/http/responses'
+import {
+  jsonError,
+  jsonOk,
+  mapThrownErrorToResponse,
+} from '@/server/api/http/responses'
 import { isApiError } from '@/server/api/http/apiError'
 
-export async function handleGetPhotoPresignedUrl(request: Request): Promise<Response> {
+export async function handleGetPhotoPresignedUrl(
+  request: Request,
+): Promise<Response> {
   try {
-    await requireSessionUserId(request)
+    await requireSessionUserId()
 
     const url = new URL(request.url)
     const contentType = url.searchParams.get('contentType') ?? 'image/jpeg'
 
     if (!contentType.startsWith('image/')) {
-      return jsonError(400, 'INVALID_CONTENT_TYPE', 'Only image uploads are allowed')
+      return jsonError(
+        400,
+        'INVALID_CONTENT_TYPE',
+        'Only image uploads are allowed',
+      )
     }
 
     const ext = contentType.split('/')[1] ?? 'jpg'

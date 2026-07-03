@@ -7,8 +7,8 @@ export const Route = createFileRoute(
 )({
   server: {
     handlers: {
-      POST: ({ request, params }) =>
-        handleCreateAssignmentSubmission(request, params.assignmentId),
+      POST: ({ params }) =>
+        handleCreateAssignmentSubmission(params.assignmentId),
     },
   },
 })

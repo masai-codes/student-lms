@@ -2,7 +2,10 @@ import { z } from 'zod'
 import { ApiError } from '@/server/api/http/apiError'
 import { jsonOk, mapThrownErrorToResponse } from '@/server/api/http/responses'
 import { requireSessionUserId } from '@/server/api/http/requireSessionUser'
-import { parseMode, resolveSessionForToken } from '@/server/api/chatbot/sessions.service'
+import {
+  parseMode,
+  resolveSessionForToken,
+} from '@/server/api/chatbot/sessions.service'
 import { createChatbotToken } from '@/server/api/chatbot/token.service'
 import { parseLectureId } from '@/server/api/chatbot/utils'
 import {
@@ -20,7 +23,7 @@ export async function handleCreateChatbotToken(
   lectureIdParam: string,
 ): Promise<Response> {
   try {
-    const userId = await requireSessionUserId(request)
+    const userId = await requireSessionUserId()
     const lectureId = parseLectureId(lectureIdParam)
     const body = await request.json().catch(() => ({}))
     const parsed = tokenBodySchema.safeParse(body)
@@ -56,4 +59,3 @@ export async function handleCreateChatbotToken(
     return mapThrownErrorToResponse(error)
   }
 }
-

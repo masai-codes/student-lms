@@ -8,7 +8,7 @@ export async function handleGetGlobalLeaderboard(
   request: Request,
 ): Promise<Response> {
   try {
-    const userId = await requireSessionUserId(request)
+    const userId = await requireSessionUserId()
     const params = new URL(request.url).searchParams
     const limitRaw = params.get('limit')
     const result = await getGlobalLeaderboard({

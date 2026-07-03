@@ -1,16 +1,26 @@
 import { isApiError } from '@/server/api/http/apiError'
-import { jsonError, jsonOk, mapThrownErrorToResponse } from '@/server/api/http/responses'
+import {
+  jsonError,
+  jsonOk,
+  mapThrownErrorToResponse,
+} from '@/server/api/http/responses'
 import { requireSessionUserId } from '@/server/api/http/requireSessionUser'
 import { submitNpsForm } from '@/server/api/dashboard/submitNpsForm.service'
 import type { NpsQuestionAnswer } from '@/server/api/dashboard/submitNpsForm.service'
 
-export async function handleSubmitNpsForm(request: Request, formId: string): Promise<Response> {
+export async function handleSubmitNpsForm(
+  request: Request,
+  formId: string,
+): Promise<Response> {
   try {
-    const userId = await requireSessionUserId(request)
+    const userId = await requireSessionUserId()
     const id = Number(formId)
-    if (!Number.isInteger(id) || id <= 0) return jsonError(400, 'INVALID_FORM_ID')
+    if (!Number.isInteger(id) || id <= 0)
+      return jsonError(400, 'INVALID_FORM_ID')
 
-    const body = await request.json() as { answers?: Array<NpsQuestionAnswer> }
+    const body = (await request.json()) as {
+      answers?: Array<NpsQuestionAnswer>
+    }
     const answers = Array.isArray(body?.answers) ? body.answers : []
 
     const result = await submitNpsForm(id, userId, answers)

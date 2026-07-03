@@ -1,12 +1,16 @@
 import { isApiError } from '@/server/api/http/apiError'
-import { jsonOk, jsonError, mapThrownErrorToResponse } from '@/server/api/http/responses'
+import {
+  jsonOk,
+  jsonError,
+  mapThrownErrorToResponse,
+} from '@/server/api/http/responses'
 import { requireSessionUserId } from '@/server/api/http/requireSessionUser'
 import { updateProfile } from '@/server/api/profile/updateProfile.service'
 import { getProfile } from '@/server/api/profile/getProfile.service'
 
 export async function handleUpdateProfile(request: Request): Promise<Response> {
   try {
-    const userId = await requireSessionUserId(request)
+    const userId = await requireSessionUserId()
     const body = (await request.json()) as Record<string, unknown>
 
     const payload: { name?: string; mobile?: string } = {}
@@ -25,7 +29,9 @@ export async function handleUpdateProfile(request: Request): Promise<Response> {
     }
     if (!isApiError(error)) {
       console.error('Failed to update profile', error)
-      return mapThrownErrorToResponse(new Error('SERVER_ERROR_UPDATING_PROFILE'))
+      return mapThrownErrorToResponse(
+        new Error('SERVER_ERROR_UPDATING_PROFILE'),
+      )
     }
     return mapThrownErrorToResponse(error)
   }

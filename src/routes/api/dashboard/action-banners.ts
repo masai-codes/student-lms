@@ -4,7 +4,7 @@ import { handleGetDashboardActionBanners } from '@/server/api/dashboard/handlers
 export const Route = createFileRoute('/api/dashboard/action-banners')({
   server: {
     handlers: {
-      GET: ({ request }) => handleGetDashboardActionBanners(request),
+      GET: () => handleGetDashboardActionBanners(),
     },
   },
 })

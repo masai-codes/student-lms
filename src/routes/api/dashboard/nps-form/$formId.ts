@@ -5,8 +5,9 @@ import { handleSubmitNpsForm } from '@/server/api/dashboard/handlers/submitNpsFo
 export const Route = createFileRoute('/api/dashboard/nps-form/$formId')({
   server: {
     handlers: {
-      GET: ({ request, params }) => handleGetNpsForm(request, params.formId),
-      POST: ({ request, params }) => handleSubmitNpsForm(request, params.formId),
+      GET: ({ params }) => handleGetNpsForm(params.formId),
+      POST: ({ request, params }) =>
+        handleSubmitNpsForm(request, params.formId),
     },
   },
 })

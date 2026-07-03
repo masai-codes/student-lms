@@ -8,7 +8,7 @@ export async function handleGetAnnouncements(
   request: Request,
 ): Promise<Response> {
   try {
-    const userId = await requireSessionUserId(request)
+    const userId = await requireSessionUserId()
     const params = parseAnnouncementsQuery(new URL(request.url))
     const { announcements, total } = await getAnnouncements(userId, params)
     return jsonOk({ announcements, total })

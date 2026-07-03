@@ -4,7 +4,7 @@ import { handleGetBanners } from '@/server/api/masaiverse-v2/handlers/getBanners
 export const Route = createFileRoute('/api/masaiverse-v2/banners/list')({
   server: {
     handlers: {
-      GET: ({ request }) => handleGetBanners(request),
+      GET: () => handleGetBanners(),
     },
   },
 })
