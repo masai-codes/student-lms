@@ -1,24 +1,23 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { resolveTrueStatus } from '@/lib/api/cloudFrontSafeStatus'
+import { requireSessionUserId } from '@/server/api/http/requireSessionUser'
 
 const hoisted = vi.hoisted(() => ({
   getAssignmentProblemDetailForUser: vi.fn(),
-  getUserIdFromCookieHeader: vi.fn(),
 }))
 
 vi.mock('@/server/learn/services/getProblemDetail.service', () => ({
   getAssignmentProblemDetailForUser: hoisted.getAssignmentProblemDetailForUser,
 }))
-vi.mock('@/server/auth/getCurrentSessionUserId', () => ({
-  getUserIdFromCookieHeader: hoisted.getUserIdFromCookieHeader,
-  getUserIdFromRequest: hoisted.getUserIdFromCookieHeader,
+vi.mock('@/server/api/http/requireSessionUser', () => ({
+  requireSessionUserId: vi.fn(),
 }))
 
 describe('handleGetProblemDetail', () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    hoisted.getUserIdFromCookieHeader.mockResolvedValue(7)
+    vi.mocked(requireSessionUserId).mockResolvedValue(7)
   })
 
   it('returns the problem detail payload for an authenticated user', async () => {
@@ -41,7 +40,10 @@ describe('handleGetProblemDetail', () => {
   it('returns 401 when unauthenticated', async () => {
     const { handleGetProblemDetail } =
       await import('../getProblemDetail.handler')
-    hoisted.getUserIdFromCookieHeader.mockResolvedValueOnce(null)
+    const { ApiError } = await import('@/server/api/http/apiError')
+    vi.mocked(requireSessionUserId).mockRejectedValueOnce(
+      new ApiError(401, 'UNAUTHORIZED'),
+    )
 
     const response = await handleGetProblemDetail('99', '12')
 

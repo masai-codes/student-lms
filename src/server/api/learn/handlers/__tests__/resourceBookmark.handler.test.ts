@@ -1,24 +1,24 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { requireSessionUserId } from '@/server/api/http/requireSessionUser'
+
 const hoisted = vi.hoisted(() => ({
   add: vi.fn(),
   remove: vi.fn(),
-  getUserIdFromCookieHeader: vi.fn(),
 }))
 
 vi.mock('@/server/learn/services/learnEntityBookmark.service', () => ({
   addLearnEntityBookmark: hoisted.add,
   removeLearnEntityBookmark: hoisted.remove,
 }))
-vi.mock('@/server/auth/getCurrentSessionUserId', () => ({
-  getUserIdFromCookieHeader: hoisted.getUserIdFromCookieHeader,
-  getUserIdFromRequest: hoisted.getUserIdFromCookieHeader,
+vi.mock('@/server/api/http/requireSessionUser', () => ({
+  requireSessionUserId: vi.fn(),
 }))
 
 describe('resourceBookmark.handler', () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    hoisted.getUserIdFromCookieHeader.mockResolvedValue(7)
+    vi.mocked(requireSessionUserId).mockResolvedValue(7)
     hoisted.add.mockResolvedValue(undefined)
     hoisted.remove.mockResolvedValue(undefined)
   })
@@ -38,7 +38,10 @@ describe('resourceBookmark.handler', () => {
     it('returns 401 when unauthenticated', async () => {
       const { handleAddResourceBookmark } =
         await import('../resourceBookmark.handler')
-      hoisted.getUserIdFromCookieHeader.mockResolvedValueOnce(null)
+      const { ApiError } = await import('@/server/api/http/apiError')
+      vi.mocked(requireSessionUserId).mockRejectedValueOnce(
+        new ApiError(401, 'UNAUTHORIZED'),
+      )
 
       const response = await handleAddResourceBookmark('515')
 
@@ -85,7 +88,10 @@ describe('resourceBookmark.handler', () => {
     it('returns 401 when unauthenticated', async () => {
       const { handleRemoveResourceBookmark } =
         await import('../resourceBookmark.handler')
-      hoisted.getUserIdFromCookieHeader.mockResolvedValueOnce(null)
+      const { ApiError } = await import('@/server/api/http/apiError')
+      vi.mocked(requireSessionUserId).mockRejectedValueOnce(
+        new ApiError(401, 'UNAUTHORIZED'),
+      )
 
       const response = await handleRemoveResourceBookmark('515')
 

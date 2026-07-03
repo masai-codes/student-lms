@@ -1,16 +1,19 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { requireSessionUserId } from '@/server/api/http/requireSessionUser'
+
 const hoisted = vi.hoisted(() => ({
   create: vi.fn(),
-  getUserIdFromCookieHeader: vi.fn(),
 }))
 
-vi.mock('@/server/new-discussions/services/createDiscussionForLearnEntity', () => ({
-  createDiscussionForLearnEntity: hoisted.create,
-}))
-vi.mock('@/server/auth/getCurrentSessionUserId', () => ({
-  getUserIdFromCookieHeader: hoisted.getUserIdFromCookieHeader,
-  getUserIdFromRequest: hoisted.getUserIdFromCookieHeader,
+vi.mock(
+  '@/server/new-discussions/services/createDiscussionForLearnEntity',
+  () => ({
+    createDiscussionForLearnEntity: hoisted.create,
+  }),
+)
+vi.mock('@/server/api/http/requireSessionUser', () => ({
+  requireSessionUserId: vi.fn(),
 }))
 
 const validBody = {
@@ -39,7 +42,8 @@ async function loadHandler() {
 describe('createLearnDiscussion.handler', () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    hoisted.getUserIdFromCookieHeader.mockResolvedValue(7)
+    vi.mocked(requireSessionUserId).mockReset()
+    vi.mocked(requireSessionUserId).mockResolvedValue(7)
     hoisted.create.mockResolvedValue({ discussionId: 99 })
   })
 
@@ -60,7 +64,10 @@ describe('createLearnDiscussion.handler', () => {
 
   it('returns 401 when unauthenticated', async () => {
     const handle = await loadHandler()
-    hoisted.getUserIdFromCookieHeader.mockResolvedValueOnce(null)
+    const { ApiError } = await import('@/server/api/http/apiError')
+    vi.mocked(requireSessionUserId).mockRejectedValueOnce(
+      new ApiError(401, 'UNAUTHORIZED'),
+    )
 
     const res = await handle(request(validBody, null))
 
@@ -88,7 +95,9 @@ describe('createLearnDiscussion.handler', () => {
     const res = await handle(request({ ...validBody, entityId: 0 }))
 
     expect(res.status).toBe(400)
-    await expect(res.json()).resolves.toMatchObject({ code: 'INVALID_ENTITY_ID' })
+    await expect(res.json()).resolves.toMatchObject({
+      code: 'INVALID_ENTITY_ID',
+    })
   })
 
   it('returns 400 for an empty title', async () => {

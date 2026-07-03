@@ -1,13 +1,13 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { requireSessionUserId } from '@/server/api/http/requireSessionUser'
+
 const hoisted = vi.hoisted(() => ({
-  getUserIdFromCookieHeader: vi.fn(),
   getAiTutorConversation: vi.fn(),
 }))
 
-vi.mock('@/server/auth/getCurrentSessionUserId', () => ({
-  getUserIdFromCookieHeader: hoisted.getUserIdFromCookieHeader,
-  getUserIdFromRequest: hoisted.getUserIdFromCookieHeader,
+vi.mock('@/server/api/http/requireSessionUser', () => ({
+  requireSessionUserId: vi.fn(),
 }))
 
 vi.mock('@/server/api/ai-tutor/getAiTutorConversation.service', () => ({
@@ -16,6 +16,7 @@ vi.mock('@/server/api/ai-tutor/getAiTutorConversation.service', () => ({
 
 beforeEach(() => {
   vi.clearAllMocks()
+  vi.mocked(requireSessionUserId).mockReset()
 })
 
 afterEach(() => {
@@ -26,7 +27,10 @@ describe('handleGetConversation', () => {
   it('returns 401 when the session cookie is missing', async () => {
     const { handleGetConversation } =
       await import('../handlers/getConversation.handler')
-    hoisted.getUserIdFromCookieHeader.mockResolvedValueOnce(null)
+    const { ApiError } = await import('@/server/api/http/apiError')
+    vi.mocked(requireSessionUserId).mockRejectedValueOnce(
+      new ApiError(401, 'UNAUTHORIZED'),
+    )
 
     const res = await handleGetConversation('12')
 
@@ -36,7 +40,7 @@ describe('handleGetConversation', () => {
   it('returns 400 when chatId is invalid', async () => {
     const { handleGetConversation } =
       await import('../handlers/getConversation.handler')
-    hoisted.getUserIdFromCookieHeader.mockResolvedValueOnce(7)
+    vi.mocked(requireSessionUserId).mockResolvedValueOnce(7)
 
     const res = await handleGetConversation('0')
 
@@ -49,7 +53,7 @@ describe('handleGetConversation', () => {
   it('returns conversation turns for a valid chatId', async () => {
     const { handleGetConversation } =
       await import('../handlers/getConversation.handler')
-    hoisted.getUserIdFromCookieHeader.mockResolvedValueOnce(7)
+    vi.mocked(requireSessionUserId).mockResolvedValueOnce(7)
     hoisted.getAiTutorConversation.mockResolvedValueOnce({
       chatId: 12,
       chat: [

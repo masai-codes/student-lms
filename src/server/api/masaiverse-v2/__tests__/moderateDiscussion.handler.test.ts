@@ -1,10 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { ApiError } from '@/server/api/http/apiError'
+import { requireSessionUserId } from '@/server/api/http/requireSessionUser'
 
 const hoisted = vi.hoisted(() => ({
   setPostBanned: vi.fn(),
   setReplyBanned: vi.fn(),
-  getUserIdFromCookieHeader: vi.fn(),
 }))
 
 vi.mock(
@@ -14,9 +14,8 @@ vi.mock(
     setReplyBanned: hoisted.setReplyBanned,
   }),
 )
-vi.mock('@/server/auth/getCurrentSessionUserId', () => ({
-  getUserIdFromCookieHeader: hoisted.getUserIdFromCookieHeader,
-  getUserIdFromRequest: hoisted.getUserIdFromCookieHeader,
+vi.mock('@/server/api/http/requireSessionUser', () => ({
+  requireSessionUserId: vi.fn(),
 }))
 
 const cookie = { cookie: 'session=abc' }
@@ -32,7 +31,7 @@ function post(body: unknown): Request {
 
 beforeEach(() => {
   vi.clearAllMocks()
-  hoisted.getUserIdFromCookieHeader.mockResolvedValue(5)
+  vi.mocked(requireSessionUserId).mockResolvedValue(5)
 })
 
 describe('handleModerateDiscussion', () => {
@@ -97,7 +96,9 @@ describe('handleModerateDiscussion', () => {
   it('401s when not signed in', async () => {
     const { handleModerateDiscussion } =
       await import('../handlers/moderateDiscussion.handler')
-    hoisted.getUserIdFromCookieHeader.mockResolvedValueOnce(null)
+    vi.mocked(requireSessionUserId).mockRejectedValueOnce(
+      new ApiError(401, 'UNAUTHORIZED'),
+    )
 
     const res = await handleModerateDiscussion(
       post({ target: 'post', postId: '7', banned: true }),

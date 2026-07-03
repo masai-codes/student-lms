@@ -4,11 +4,11 @@ import {
   handleSubmitSolutionLink,
   handleUploadSolutionFile,
 } from '../solutionSubmissionActions.handler'
+import { requireSessionUserId } from '@/server/api/http/requireSessionUser'
 
 const hoisted = vi.hoisted(() => ({
   submitSolutionForUser: vi.fn(),
   uploadImageToS3: vi.fn(),
-  getUserIdFromCookieHeader: vi.fn(),
 }))
 
 vi.mock('@/server/assignments/services/submitSolution.service', () => ({
@@ -17,9 +17,8 @@ vi.mock('@/server/assignments/services/submitSolution.service', () => ({
 vi.mock('@/server/storage/s3Upload', () => ({
   uploadImageToS3: hoisted.uploadImageToS3,
 }))
-vi.mock('@/server/auth/getCurrentSessionUserId', () => ({
-  getUserIdFromCookieHeader: hoisted.getUserIdFromCookieHeader,
-  getUserIdFromRequest: hoisted.getUserIdFromCookieHeader,
+vi.mock('@/server/api/http/requireSessionUser', () => ({
+  requireSessionUserId: vi.fn(),
 }))
 
 function linkRequest(body: unknown, cookie: string | null = 'session=abc') {
@@ -43,7 +42,7 @@ function fileRequest(file: File | null, cookie: string | null = 'session=abc') {
 describe('solution submission handlers', () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    hoisted.getUserIdFromCookieHeader.mockResolvedValue(5)
+    vi.mocked(requireSessionUserId).mockResolvedValue(5)
     hoisted.submitSolutionForUser.mockResolvedValue({
       status: 'submitted',
       submissionLink: 'https://x.test',
@@ -78,7 +77,10 @@ describe('solution submission handlers', () => {
   })
 
   it('returns 401 for an unauthenticated LINK submit', async () => {
-    hoisted.getUserIdFromCookieHeader.mockResolvedValueOnce(null)
+    const { ApiError } = await import('@/server/api/http/apiError')
+    vi.mocked(requireSessionUserId).mockRejectedValueOnce(
+      new ApiError(401, 'UNAUTHORIZED'),
+    )
 
     const response = await handleSubmitSolutionLink(
       linkRequest({ submissionLink: 'https://x.test' }, null),
