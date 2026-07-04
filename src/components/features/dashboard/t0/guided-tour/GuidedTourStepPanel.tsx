@@ -1,5 +1,5 @@
 import { ProfilePhotoStep } from './ProfilePhotoStep'
-import { APP_DOWNLOAD_URL } from '../t0Config'
+import { DownloadAppContent } from '@/components/features/layout/DownloadAppContent'
 import type { GuidedTourStep } from './steps'
 
 interface GuidedTourStepPanelProps {
@@ -10,13 +10,12 @@ interface GuidedTourStepPanelProps {
 }
 
 const CARD = 'flex flex-col items-start gap-4 rounded-xl border border-gray-200 p-6'
-const CTA = 'inline-flex h-11 items-center justify-center rounded-lg bg-[#6962AC] px-5 text-sm font-semibold text-white hover:opacity-90'
 
 /**
- * Renders the active fixed (non-video) guided-tour step. Profile photo and app
- * download link out to their destinations; the ID card reveals the issued card.
- * Agreement / documents / student-kit are shown as forthcoming — their full
- * flows land in a later slice.
+ * Renders the active fixed (non-video) guided-tour step. Profile photo captures
+ * via webcam; download-app shows the reusable app QR content (informational —
+ * it completes only when the mobile app registers a device); the ID card reveals
+ * the issued card. Agreement / documents / student-kit are forthcoming.
  */
 export function GuidedTourStepPanel({ step, idCardUrl, onCompleted }: GuidedTourStepPanelProps) {
   if (step.action === 'profile-photo') {
@@ -24,14 +23,14 @@ export function GuidedTourStepPanel({ step, idCardUrl, onCompleted }: GuidedTour
   }
 
   if (step.action === 'download-app') {
+    // Informational only — this step completes when the mobile app creates a
+    // `user_device_tokens` row (drives `downloadAppCompleted`), never by a click.
     return (
-      <div className={CARD} data-testid="guided-tour-panel-download-app">
-        <p className="text-sm text-gray-600">
-          Install the mobile app to get live-session reminders and learn on the go.
-        </p>
-        <a href={APP_DOWNLOAD_URL} target="_blank" rel="noreferrer" className={CTA} data-testid="guided-tour-download-app-cta">
-          {step.completed ? 'Open app' : 'Download app'}
-        </a>
+      <div
+        className="flex h-full items-center justify-center rounded-xl border border-gray-200 p-6"
+        data-testid="guided-tour-panel-download-app"
+      >
+        <DownloadAppContent className="mx-auto w-full max-w-[600px]" />
       </div>
     )
   }

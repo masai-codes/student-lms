@@ -76,7 +76,8 @@ DashboardPage
             └─ GuidedTourActivePanel (right: title + content + Back/Next)
                  ├─ GuidedTourVideoStep  (video + ≥10s completion reporting)
                  └─ GuidedTourStepPanel  (fixed steps)
-                      └─ ProfilePhotoStep (webcam capture → S3 → profile/user)
+                      ├─ ProfilePhotoStep  (webcam capture → S3 → profile/user)
+                      └─ DownloadAppContent (shared w/ navbar DownloadAppModal)
 ```
 
 ## Profile photo capture
@@ -91,16 +92,22 @@ The **Profile Photo** step (`ProfilePhotoStep`) is a real capture flow:
    (`uploadProfilePhoto` service): the backend decodes it, uploads to S3
    (`uploadImageToS3`), then writes the URL to **`profiles.meta.profile_pic`**
    (upserting the profile row — this is what the progress check reads) and
-   **`users.profile_photo_path`**. On success the tour refetches, so the step
-   flips to complete. Mirrors experience-api's student `uploadProfilePicture`.
-   *(Supabase avatar sync — experience-api's `update_profile_avatar_by_email`
-   RPC — is a TODO; student-lms has no Supabase client yet.)*
+   **`users.profile_photo_path`**, then best-effort syncs the Supabase avatar
+   via `updateProfileAvatarByEmail` (the `update_profile_avatar_by_email` RPC —
+   never blocks the upload). On success the tour refetches, so the step flips to
+   complete. Mirrors experience-api's student `uploadProfilePicture`. The
+   reusable Supabase admin client lives at `src/server/supabase/client.ts`
+   (`SUPABASE_URL` + `SUPABASE_SERVICE_ROLE_KEY` — server-only secrets, no
+   `VITE_`/`NEXT_PUBLIC_` prefix).
 
 ## Step sources
 
 - **LMS:** walkthrough videos → profile-photo (a capture flow; complete when
-  `status.profilePhotoUrl`) → download-app (complete when
-  `status.downloadAppCompleted`).
+  `status.profilePhotoUrl`) → download-app. The download-app panel is
+  **informational** — it renders the shared `DownloadAppContent` (app QR codes +
+  store badges, reused from the navbar's `DownloadAppModal`, no modal here).
+  Clicking it never completes the step; it completes only when the **mobile
+  app** creates a `user_device_tokens` row (`status.downloadAppCompleted`).
 - **Program:** onboarding videos → agreement(s) (`legalAgreementSections`) →
   the non-counted extras when applicable: document upload, student kit, and the
   ID-card reveal (`idCardUrl`). The **agreement step** appears only when
@@ -126,7 +133,7 @@ The **Profile Photo** step (`ProfilePhotoStep`) is a real capture flow:
 | `guided-tour-profile-photo-{placeholder,webcam,preview}` | Capture states                |
 | `guided-tour-profile-photo-{enable,capture,retake,submit}` | Capture buttons             |
 | `guided-tour-profile-photo-{done,error}` | Capture result states                       |
-| `guided-tour-download-app-cta`      | Download-app CTA                              |
+| `download-app-content` (+ `-google-play` / `-app-store`) | Reused app QR content (informational) |
 
 ## Open follow-ups
 
@@ -134,6 +141,3 @@ The **Profile Photo** step (`ProfilePhotoStep`) is a real capture flow:
   full UIs pending — panels currently link out / show a placeholder). Their
   backend APIs were removed in the frontend-unused cleanup and will be re-added
   with the form.
-- Profile photo: mirror the uploaded URL to the Supabase avatar (needs a
-  Supabase client + creds in student-lms).
-- Confirm the final destination in `t0Config.ts` (`APP_DOWNLOAD_URL`).
