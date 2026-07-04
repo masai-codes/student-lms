@@ -5,6 +5,8 @@ import type { GuidedTourStep } from './steps'
 interface GuidedTourStepPanelProps {
   step: GuidedTourStep
   idCardUrl: string | null
+  /** The already-saved profile photo, if any (for the profile-photo step). */
+  profilePhotoUrl: string | null
   /** Called when a step's action completes, so the tour can refetch progress. */
   onCompleted: () => void
 }
@@ -17,9 +19,9 @@ const CARD = 'flex flex-col items-start gap-4 rounded-xl border border-gray-200 
  * it completes only when the mobile app registers a device); the ID card reveals
  * the issued card. Agreement / documents / student-kit are forthcoming.
  */
-export function GuidedTourStepPanel({ step, idCardUrl, onCompleted }: GuidedTourStepPanelProps) {
+export function GuidedTourStepPanel({ step, idCardUrl, profilePhotoUrl, onCompleted }: GuidedTourStepPanelProps) {
   if (step.action === 'profile-photo') {
-    return <ProfilePhotoStep onCompleted={onCompleted} />
+    return <ProfilePhotoStep existingPhotoUrl={profilePhotoUrl} onCompleted={onCompleted} />
   }
 
   if (step.action === 'download-app') {

@@ -5,6 +5,8 @@ import Webcam from 'react-webcam'
 import { uploadProfilePhoto } from '@/lib/api/dashboard/dashboardApi'
 
 interface ProfilePhotoStepProps {
+  /** The already-saved profile photo, if any — shown with a Retake option. */
+  existingPhotoUrl: string | null
   /** Called after the photo is stored, so the tour can refetch progress. */
   onCompleted: () => void
 }
@@ -19,7 +21,7 @@ const BTN_OUTLINE = 'inline-flex h-11 items-center justify-center rounded-lg bor
  * submit it. The image is uploaded (as a base64 data URL) to the backend, which
  * stores it in S3 + `profiles.meta.profile_pic` / `users.profile_photo_path`.
  */
-export function ProfilePhotoStep({ onCompleted }: ProfilePhotoStepProps) {
+export function ProfilePhotoStep({ existingPhotoUrl, onCompleted }: ProfilePhotoStepProps) {
   const webcamRef = useRef<Webcam>(null)
   const [cameraEnabled, setCameraEnabled] = useState(false)
   const [captureImage, setCaptureImage] = useState<string | null>(null)
@@ -82,6 +84,13 @@ export function ProfilePhotoStep({ onCompleted }: ProfilePhotoStepProps) {
               data-testid="guided-tour-profile-photo-webcam"
             />
           </div>
+        ) : existingPhotoUrl ? (
+          <img
+            src={existingPhotoUrl}
+            alt="Your profile photo"
+            className={`${CIRCLE} object-cover`}
+            data-testid="guided-tour-profile-photo-existing"
+          />
         ) : (
           <div className={CIRCLE} data-testid="guided-tour-profile-photo-placeholder">
             <Camera className="size-16 text-gray-400" aria-hidden />
@@ -112,6 +121,16 @@ export function ProfilePhotoStep({ onCompleted }: ProfilePhotoStepProps) {
           <button type="button" onClick={capture} className={BTN_SOLID} data-testid="guided-tour-profile-photo-capture">
             Capture Photo
           </button>
+        ) : existingPhotoUrl ? (
+          <div className="flex flex-col items-center gap-2">
+            <p className="inline-flex items-center gap-1.5 text-sm font-medium text-green-600" data-testid="guided-tour-profile-photo-done">
+              <CheckCircle weight="fill" className="size-5" aria-hidden />
+              Photo added
+            </p>
+            <button type="button" onClick={retake} className={BTN_OUTLINE} data-testid="guided-tour-profile-photo-retake">
+              Retake
+            </button>
+          </div>
         ) : (
           <button
             type="button"

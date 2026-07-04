@@ -24,11 +24,11 @@ beforeEach(() => {
   hoisted.upload.mockResolvedValue({ url: 'https://s3/pic.jpg' })
 })
 
-function renderStep(onCompleted = vi.fn()) {
+function renderStep(onCompleted = vi.fn(), existingPhotoUrl: string | null = null) {
   const client = new QueryClient({ defaultOptions: { mutations: { retry: false } } })
   render(
     <QueryClientProvider client={client}>
-      <ProfilePhotoStep onCompleted={onCompleted} />
+      <ProfilePhotoStep existingPhotoUrl={existingPhotoUrl} onCompleted={onCompleted} />
     </QueryClientProvider>,
   )
   return { onCompleted }
@@ -62,6 +62,17 @@ describe('ProfilePhotoStep', () => {
     await waitFor(() => expect(hoisted.upload).toHaveBeenCalledWith(SHOT))
     await waitFor(() => expect(onCompleted).toHaveBeenCalled())
     expect(screen.getByTestId('guided-tour-profile-photo-done')).toBeTruthy()
+  })
+
+  it('shows the existing photo with a Retake option when one already exists', () => {
+    renderStep(vi.fn(), 'https://s3/existing.jpg')
+    const existing = screen.getByTestId<HTMLImageElement>('guided-tour-profile-photo-existing')
+    expect(existing.getAttribute('src')).toBe('https://s3/existing.jpg')
+    expect(screen.getByTestId('guided-tour-profile-photo-done')).toBeTruthy() // step already complete
+    expect(screen.queryByTestId('guided-tour-profile-photo-placeholder')).toBeNull()
+    // Retaking opens the camera to change it.
+    fireEvent.click(screen.getByTestId('guided-tour-profile-photo-retake'))
+    expect(screen.getByTestId('guided-tour-profile-photo-webcam')).toBeTruthy()
   })
 
   it('retake clears the capture and re-enables the camera', () => {

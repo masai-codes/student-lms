@@ -84,6 +84,9 @@ DashboardPage
 
 The **Profile Photo** step (`ProfilePhotoStep`) is a real capture flow:
 
+0. If a photo **already exists** (`status.profilePhotoUrl`), it's shown in the
+   circle with a "Photo added" ✓ and a **Retake** button — the step is already
+   complete; Retake opens the camera to change it.
 1. **Enable Camera** mounts `react-webcam` (front camera, `facingMode: 'user'`,
    no audio) — which is what prompts for the camera permission.
 2. **Capture Photo** calls `getScreenshot()` → a base64 JPEG data URL, shown as
@@ -130,7 +133,7 @@ The **Profile Photo** step (`ProfilePhotoStep`) is a real capture flow:
 | `guided-tour-back` / `-next`        | Step navigation buttons                       |
 | `guided-tour-video` / `-video-missing` | Video player / no-video placeholder        |
 | `guided-tour-panel-profile-photo` / `-download-app` / `-id-card` / `-agreement` / `-pending` | Fixed-step panels |
-| `guided-tour-profile-photo-{placeholder,webcam,preview}` | Capture states                |
+| `guided-tour-profile-photo-{placeholder,webcam,preview,existing}` | Capture / existing-photo states |
 | `guided-tour-profile-photo-{enable,capture,retake,submit}` | Capture buttons             |
 | `guided-tour-profile-photo-{done,error}` | Capture result states                       |
 | `download-app-content` (+ `-google-play` / `-app-store`) | Reused app QR content (informational) |

@@ -8,6 +8,7 @@ interface GuidedTourActivePanelProps {
   batchId: number
   tab: 'lms' | 'program'
   idCardUrl: string | null
+  profilePhotoUrl: string | null
   onReported: () => void
   onBack: () => void
   onNext: () => void
@@ -25,6 +26,7 @@ export function GuidedTourActivePanel({
   batchId,
   tab,
   idCardUrl,
+  profilePhotoUrl,
   onReported,
   onBack,
   onNext,
@@ -50,7 +52,7 @@ export function GuidedTourActivePanel({
             onReported={onReported}
           />
         ) : (
-          <GuidedTourStepPanel step={step} idCardUrl={idCardUrl} onCompleted={onReported} />
+          <GuidedTourStepPanel step={step} idCardUrl={idCardUrl} profilePhotoUrl={profilePhotoUrl} onCompleted={onReported} />
         )}
       </div>
 

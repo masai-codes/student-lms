@@ -157,6 +157,7 @@ export function GuidedTourOverlay({ status, onSeeDashboard }: GuidedTourOverlayP
             batchId={selectedBatch.batchId}
             tab={effectiveTab}
             idCardUrl={lectures?.idCardUrl ?? null}
+            profilePhotoUrl={status.profilePhotoUrl}
             onReported={refetchProgress}
             onBack={() => goToIndex(activeIndex - 1)}
             onNext={() => goToIndex(activeIndex + 1)}
