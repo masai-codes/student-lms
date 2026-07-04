@@ -102,14 +102,14 @@ describe('handleSubmitFeedback', () => {
     })
   })
 
-  it('submits web feedback with a 0/1 rating and platform prefix', async () => {
+  it('defaults to app feedback with a 0/1 rating and platform prefix', async () => {
     const { handleSubmitFeedback } =
       await import('../handlers/submitFeedback.handler')
     hoisted.getUserIdFromCookieHeader.mockResolvedValueOnce(7)
     hoisted.submitAiTutorFeedback.mockResolvedValueOnce({
       chatId: 45,
       rating: 1,
-      feedback: 'web-Helpful',
+      feedback: 'app-Helpful',
     })
 
     const res = await handleSubmitFeedback(
@@ -127,12 +127,12 @@ describe('handleSubmitFeedback', () => {
       lectureId: 123,
       chatId: 45,
       rating: 1,
-      feedback: 'web-Helpful',
+      feedback: 'app-Helpful',
     })
     await expect(res.json()).resolves.toEqual({
       chatId: 45,
       rating: 1,
-      feedback: 'web-Helpful',
+      feedback: 'app-Helpful',
     })
   })
 

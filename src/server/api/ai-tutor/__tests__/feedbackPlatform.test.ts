@@ -6,17 +6,19 @@ import {
 } from '@/server/api/ai-tutor/feedbackPlatform'
 
 describe('parsePlatform', () => {
-  it('defaults to web when platform is omitted', () => {
-    expect(parsePlatform(undefined)).toBe('web')
-    expect(parsePlatform(null)).toBe('web')
-    expect(parsePlatform('')).toBe('web')
+  it('defaults to app when platform is omitted', () => {
+    expect(parsePlatform(undefined)).toBe('app')
+    expect(parsePlatform(null)).toBe('app')
+    expect(parsePlatform('')).toBe('app')
   })
 
-  it('accepts ios, android, and web case-insensitively', () => {
+  it('accepts ios, android, web, and app case-insensitively', () => {
     expect(parsePlatform('ios')).toBe('ios')
     expect(parsePlatform('IOS')).toBe('ios')
     expect(parsePlatform('android')).toBe('android')
     expect(parsePlatform('web')).toBe('web')
+    expect(parsePlatform('app')).toBe('app')
+    expect(parsePlatform('APP')).toBe('app')
   })
 
   it('rejects unknown platform values', () => {
@@ -30,9 +32,11 @@ describe('parsePlatform', () => {
 })
 
 describe('parseRatingForPlatform', () => {
-  it('accepts 0 or 1 for web', () => {
+  it('accepts 0 or 1 for web and app', () => {
     expect(parseRatingForPlatform(0, 'web')).toBe(0)
     expect(parseRatingForPlatform(1, 'web')).toBe(1)
+    expect(parseRatingForPlatform(0, 'app')).toBe(0)
+    expect(parseRatingForPlatform(1, 'app')).toBe(1)
   })
 
   it('shifts mobile ratings by +1', () => {
