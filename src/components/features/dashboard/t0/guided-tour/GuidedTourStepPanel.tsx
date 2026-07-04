@@ -1,13 +1,16 @@
-import { APP_DOWNLOAD_URL, PROFILE_PHOTO_PATH } from '../t0Config'
+import { ProfilePhotoStep } from './ProfilePhotoStep'
+import { APP_DOWNLOAD_URL } from '../t0Config'
 import type { GuidedTourStep } from './steps'
 
 interface GuidedTourStepPanelProps {
   step: GuidedTourStep
   idCardUrl: string | null
+  /** Called when a step's action completes, so the tour can refetch progress. */
+  onCompleted: () => void
 }
 
 const CARD = 'flex flex-col items-start gap-4 rounded-xl border border-gray-200 p-6'
-const CTA = 'inline-flex h-11 items-center justify-center rounded-lg bg-primary px-5 text-sm font-semibold text-white hover:opacity-90'
+const CTA = 'inline-flex h-11 items-center justify-center rounded-lg bg-[#6962AC] px-5 text-sm font-semibold text-white hover:opacity-90'
 
 /**
  * Renders the active fixed (non-video) guided-tour step. Profile photo and app
@@ -15,18 +18,9 @@ const CTA = 'inline-flex h-11 items-center justify-center rounded-lg bg-primary 
  * Agreement / documents / student-kit are shown as forthcoming — their full
  * flows land in a later slice.
  */
-export function GuidedTourStepPanel({ step, idCardUrl }: GuidedTourStepPanelProps) {
+export function GuidedTourStepPanel({ step, idCardUrl, onCompleted }: GuidedTourStepPanelProps) {
   if (step.action === 'profile-photo') {
-    return (
-      <div className={CARD} data-testid="guided-tour-panel-profile-photo">
-        <p className="text-sm text-gray-600">
-          Add a profile photo so mentors and peers can recognise you.
-        </p>
-        <a href={PROFILE_PHOTO_PATH} className={CTA} data-testid="guided-tour-profile-photo-cta">
-          {step.completed ? 'Update photo' : 'Add photo'}
-        </a>
-      </div>
-    )
+    return <ProfilePhotoStep onCompleted={onCompleted} />
   }
 
   if (step.action === 'download-app') {

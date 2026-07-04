@@ -24,7 +24,7 @@ interface GuidedTourStepListProps {
 /** The step's leading icon: done → check, active → half-ring, else its type icon. */
 function StepIcon({ step, isActive }: { step: GuidedTourStep; isActive: boolean }) {
   if (step.completed) return <CheckCircle weight="fill" className="size-5 text-green-500" />
-  if (isActive) return <CircleHalf weight="fill" className="size-5 text-primary" />
+  if (isActive) return <CircleHalf weight="fill" className="size-5 text-[#6962AC]" />
   switch (step.action) {
     case 'profile-photo':
       return <Camera className="size-5 text-gray-400" />
@@ -105,5 +105,5 @@ export function GuidedTourStepList({ steps, activeKey, onSelect, completed, tota
   )
 }
 
-const STEP_ACTIVE = 'flex w-full items-center gap-3 rounded-xl border border-primary bg-primary/5 px-4 py-3'
+const STEP_ACTIVE = 'flex w-full items-center gap-3 rounded-xl border border-[#6962AC] bg-[#6962AC]/10 px-4 py-3'
 const STEP_IDLE = 'flex w-full items-center gap-3 rounded-xl border border-gray-200 bg-white px-4 py-3 hover:border-gray-300'

@@ -78,11 +78,12 @@ export function GuidedTourOverlay({ status, onSeeDashboard }: GuidedTourOverlayP
 
   return (
     <div
-      className="fixed inset-0 z-[200] flex items-center justify-center overflow-y-auto bg-gray-100 p-4"
+      className="fixed inset-0 z-[200] flex flex-col gap-4 overflow-y-auto bg-gray-50 p-4 md:flex-row md:gap-6 md:p-6"
       data-testid="guided-tour-overlay"
     >
-      <div className="flex max-h-[92vh] w-full max-w-5xl flex-col overflow-hidden rounded-3xl bg-white shadow-xl">
-        <header className="flex items-center justify-between border-b border-gray-100 px-6 py-4">
+      {/* Left card — task list */}
+      <aside className="flex w-full flex-col overflow-hidden rounded-2xl bg-white shadow-sm md:max-w-[400px]">
+        <header className="flex items-center justify-between border-b border-gray-100 px-5 py-4">
           <h1 className="text-lg font-semibold text-gray-900">Let&apos;s get you started</h1>
           <button
             type="button"
@@ -95,80 +96,81 @@ export function GuidedTourOverlay({ status, onSeeDashboard }: GuidedTourOverlayP
           </button>
         </header>
 
-        <div className="grid min-h-0 flex-1 gap-6 overflow-y-auto p-6 md:grid-cols-2 md:gap-8 md:divide-x md:divide-gray-100">
-          <div className="flex flex-col gap-4">
-            {status.batches.length > 1 ? (
-              <Select value={selectedBatch ? String(selectedBatch.batchId) : undefined} onValueChange={selectBatch}>
-                <SelectTrigger aria-label="Batch" data-testid="guided-tour-batch-select">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent className="z-[210]">
-                  {status.batches.map((b) => (
-                    <SelectItem key={b.batchId} value={String(b.batchId)} data-testid={`guided-tour-batch-option-${b.batchId}`}>
-                      {b.batchName}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            ) : null}
+        <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto p-5">
+          {status.batches.length > 1 ? (
+            <Select value={selectedBatch ? String(selectedBatch.batchId) : undefined} onValueChange={selectBatch}>
+              <SelectTrigger aria-label="Batch" data-testid="guided-tour-batch-select">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent className="z-[210]">
+                {status.batches.map((b) => (
+                  <SelectItem key={b.batchId} value={String(b.batchId)} data-testid={`guided-tour-batch-option-${b.batchId}`}>
+                    {b.batchName}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          ) : null}
 
-            <div className="flex gap-2" role="tablist" data-testid="guided-tour-tabs">
-              <button
-                type="button"
-                role="tab"
-                aria-selected={effectiveTab === 'lms'}
-                onClick={() => selectTab('lms')}
-                className={effectiveTab === 'lms' ? TAB_ACTIVE : TAB_IDLE}
-                data-testid="guided-tour-tab-lms"
-              >
-                LMS Walkthrough
-              </button>
-              <button
-                type="button"
-                role="tab"
-                aria-selected={effectiveTab === 'program'}
-                disabled={!programUnlocked}
-                onClick={() => programUnlocked && selectTab('program')}
-                className={effectiveTab === 'program' ? TAB_ACTIVE : programUnlocked ? TAB_IDLE : TAB_LOCKED}
-                data-testid="guided-tour-tab-program"
-                data-locked={!programUnlocked}
-                title={programUnlocked ? undefined : 'Unlocks once your fees are paid'}
-              >
-                {programUnlocked ? null : <Lock className="size-4" aria-hidden data-testid="guided-tour-tab-program-lock" />}
-                Program Onboarding
-              </button>
-            </div>
-
-            <GuidedTourStepList
-              steps={steps}
-              activeKey={activeStep?.key}
-              onSelect={setActiveKey}
-              completed={tabProgress?.completed ?? 0}
-              total={tabProgress?.total ?? 0}
-            />
+          <div className="flex gap-2" role="tablist" data-testid="guided-tour-tabs">
+            <button
+              type="button"
+              role="tab"
+              aria-selected={effectiveTab === 'lms'}
+              onClick={() => selectTab('lms')}
+              className={effectiveTab === 'lms' ? TAB_ACTIVE : TAB_IDLE}
+              data-testid="guided-tour-tab-lms"
+            >
+              LMS Walkthrough
+            </button>
+            <button
+              type="button"
+              role="tab"
+              aria-selected={effectiveTab === 'program'}
+              disabled={!programUnlocked}
+              onClick={() => programUnlocked && selectTab('program')}
+              className={effectiveTab === 'program' ? TAB_ACTIVE : programUnlocked ? TAB_IDLE : TAB_LOCKED}
+              data-testid="guided-tour-tab-program"
+              data-locked={!programUnlocked}
+              title={programUnlocked ? undefined : 'Unlocks once your fees are paid'}
+            >
+              {programUnlocked ? null : <Lock className="size-4" aria-hidden data-testid="guided-tour-tab-program-lock" />}
+              Program Onboarding
+            </button>
           </div>
 
-          <div className="md:pl-8">
-            {selectedBatch ? (
-              <GuidedTourActivePanel
-                step={activeStep}
-                batchId={selectedBatch.batchId}
-                tab={effectiveTab}
-                idCardUrl={lectures?.idCardUrl ?? null}
-                onReported={refetchProgress}
-                onBack={() => goToIndex(activeIndex - 1)}
-                onNext={() => goToIndex(activeIndex + 1)}
-                canBack={activeIndex > 0}
-                canNext={activeIndex < steps.length - 1}
-              />
-            ) : null}
-          </div>
+          <GuidedTourStepList
+            steps={steps}
+            activeKey={activeStep?.key}
+            onSelect={setActiveKey}
+            completed={tabProgress?.completed ?? 0}
+            total={tabProgress?.total ?? 0}
+          />
         </div>
-      </div>
+      </aside>
+
+      {/* Right card — selected step actionables */}
+      <section className="flex flex-1 flex-col rounded-2xl bg-white p-6 shadow-sm">
+        {selectedBatch ? (
+          <GuidedTourActivePanel
+            step={activeStep}
+            batchId={selectedBatch.batchId}
+            tab={effectiveTab}
+            idCardUrl={lectures?.idCardUrl ?? null}
+            onReported={refetchProgress}
+            onBack={() => goToIndex(activeIndex - 1)}
+            onNext={() => goToIndex(activeIndex + 1)}
+            canBack={activeIndex > 0}
+            canNext={activeIndex < steps.length - 1}
+          />
+        ) : null}
+      </section>
     </div>
   )
 }
 
-const TAB_ACTIVE = 'inline-flex items-center gap-2 rounded-lg border border-primary bg-primary/5 px-4 py-2 text-sm font-semibold text-primary'
-const TAB_IDLE = 'inline-flex items-center gap-2 rounded-lg border border-transparent px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100'
-const TAB_LOCKED = 'inline-flex cursor-not-allowed items-center gap-2 rounded-lg border border-transparent px-4 py-2 text-sm font-medium text-gray-400'
+// Match the dashboard "My Schedule" / "Pending Tasks" tabs (CTA purple #6962AC).
+const TAB_BASE = 'inline-flex items-center gap-2 rounded-lg border px-4 py-2.5 text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6962AC]'
+const TAB_ACTIVE = `${TAB_BASE} border-[#6962AC] bg-[#6962AC]/10 text-[#6962AC]`
+const TAB_IDLE = `${TAB_BASE} border-gray-200 bg-white text-gray-600 hover:bg-gray-50`
+const TAB_LOCKED = `${TAB_BASE} cursor-not-allowed border-gray-200 bg-white text-gray-400`

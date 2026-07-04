@@ -3,6 +3,7 @@ import type { WelcomeModalStatus } from '@/server/api/dashboard/getWelcomeModalS
 import type { DashboardOverview } from '@/server/api/dashboard/getDashboardOverview.service'
 import type { T0FlowLecturesResult } from '@/server/api/dashboard/getT0FlowLectures.service'
 import type { NavbarPillEvent } from '@/server/api/dashboard/getNavbarPill.service'
+import type { UploadProfilePhotoResult } from '@/server/api/dashboard/uploadProfilePhoto.service'
 import { DASHBOARD_API } from '@/lib/api/dashboardPaths'
 import { fetchJson } from '@/lib/api/fetchJson'
 
@@ -35,6 +36,14 @@ export async function fetchT0FlowStatus(): Promise<T0FlowStatus> {
 export async function fetchT0FlowLectures(batchId?: number): Promise<T0FlowLecturesResult> {
   const url = batchId ? `${DASHBOARD_API.t0FlowLectures}?batchId=${batchId}` : DASHBOARD_API.t0FlowLectures
   return fetchJson<T0FlowLecturesResult>(url)
+}
+
+export async function uploadProfilePhoto(image: string): Promise<UploadProfilePhotoResult> {
+  return fetchJson<UploadProfilePhotoResult>(DASHBOARD_API.profilePhoto, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ image }),
+  })
 }
 
 export async function recordT0FlowStepComplete(

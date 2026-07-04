@@ -8,4 +8,5 @@ export const DASHBOARD_API = {
   t0FlowStepComplete: '/api/dashboard/t0-flow-step-complete',
   welcomeModalStatus: '/api/dashboard/welcome-modal-status',
   welcomeModalDismiss: '/api/dashboard/welcome-modal-dismiss',
+  profilePhoto: '/api/dashboard/profile-photo',
 } as const

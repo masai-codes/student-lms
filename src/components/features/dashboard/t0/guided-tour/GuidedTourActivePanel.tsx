@@ -50,7 +50,7 @@ export function GuidedTourActivePanel({
             onReported={onReported}
           />
         ) : (
-          <GuidedTourStepPanel step={step} idCardUrl={idCardUrl} />
+          <GuidedTourStepPanel step={step} idCardUrl={idCardUrl} onCompleted={onReported} />
         )}
       </div>
 

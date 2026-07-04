@@ -75,12 +75,30 @@ DashboardPage
             ├─ GuidedTourStepList   (left: progress + timeline step list + hint)
             └─ GuidedTourActivePanel (right: title + content + Back/Next)
                  ├─ GuidedTourVideoStep  (video + ≥10s completion reporting)
-                 └─ GuidedTourStepPanel  (fixed steps: profile photo, app, id card, …)
+                 └─ GuidedTourStepPanel  (fixed steps)
+                      └─ ProfilePhotoStep (webcam capture → S3 → profile/user)
 ```
+
+## Profile photo capture
+
+The **Profile Photo** step (`ProfilePhotoStep`) is a real capture flow:
+
+1. **Enable Camera** mounts `react-webcam` (front camera, `facingMode: 'user'`,
+   no audio) — which is what prompts for the camera permission.
+2. **Capture Photo** calls `getScreenshot()` → a base64 JPEG data URL, shown as
+   a round preview. **Retake** clears it; **Submit** uploads it.
+3. Submit POSTs the data URL to `POST /api/dashboard/profile-photo`
+   (`uploadProfilePhoto` service): the backend decodes it, uploads to S3
+   (`uploadImageToS3`), then writes the URL to **`profiles.meta.profile_pic`**
+   (upserting the profile row — this is what the progress check reads) and
+   **`users.profile_photo_path`**. On success the tour refetches, so the step
+   flips to complete. Mirrors experience-api's student `uploadProfilePicture`.
+   *(Supabase avatar sync — experience-api's `update_profile_avatar_by_email`
+   RPC — is a TODO; student-lms has no Supabase client yet.)*
 
 ## Step sources
 
-- **LMS:** walkthrough videos → profile-photo (complete when
+- **LMS:** walkthrough videos → profile-photo (a capture flow; complete when
   `status.profilePhotoUrl`) → download-app (complete when
   `status.downloadAppCompleted`).
 - **Program:** onboarding videos → agreement(s) (`legalAgreementSections`) →
@@ -105,7 +123,10 @@ DashboardPage
 | `guided-tour-back` / `-next`        | Step navigation buttons                       |
 | `guided-tour-video` / `-video-missing` | Video player / no-video placeholder        |
 | `guided-tour-panel-profile-photo` / `-download-app` / `-id-card` / `-agreement` / `-pending` | Fixed-step panels |
-| `guided-tour-profile-photo-cta` / `-download-app-cta` | Fixed-step CTAs             |
+| `guided-tour-profile-photo-{placeholder,webcam,preview}` | Capture states                |
+| `guided-tour-profile-photo-{enable,capture,retake,submit}` | Capture buttons             |
+| `guided-tour-profile-photo-{done,error}` | Capture result states                       |
+| `guided-tour-download-app-cta`      | Download-app CTA                              |
 
 ## Open follow-ups
 
@@ -113,5 +134,6 @@ DashboardPage
   full UIs pending — panels currently link out / show a placeholder). Their
   backend APIs were removed in the frontend-unused cleanup and will be re-added
   with the form.
-- Confirm the final destinations in `t0Config.ts` (`APP_DOWNLOAD_URL`,
-  `PROFILE_PHOTO_PATH`).
+- Profile photo: mirror the uploaded URL to the Supabase avatar (needs a
+  Supabase client + creds in student-lms).
+- Confirm the final destination in `t0Config.ts` (`APP_DOWNLOAD_URL`).
