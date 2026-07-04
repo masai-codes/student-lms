@@ -7,8 +7,8 @@ import {
 export const Route = createFileRoute('/api/announcement/$id/bookmark')({
   server: {
     handlers: {
-      POST: ({ request, params }) => handleAddBookmark(request, params.id),
-      DELETE: ({ request, params }) => handleRemoveBookmark(request, params.id),
+      POST: ({ params }) => handleAddBookmark(params.id),
+      DELETE: ({ params }) => handleRemoveBookmark(params.id),
     },
   },
 })

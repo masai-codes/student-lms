@@ -1,16 +1,15 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { AI_TUTOR_CHAT_MAX_MESSAGE_LENGTH } from '@/server/api/ai-tutor/constants'
+import { requireSessionUserId } from '@/server/api/http/requireSessionUser'
 
 const hoisted = vi.hoisted(() => ({
-  getUserIdFromCookieHeader: vi.fn(),
   ensureAnthropicConfigured: vi.fn(),
   prepareLectureChatContext: vi.fn(),
   streamLectureChatEventsFromContext: vi.fn(),
 }))
 
-vi.mock('@/server/auth/getCurrentSessionUserId', () => ({
-  getUserIdFromCookieHeader: hoisted.getUserIdFromCookieHeader,
-  getUserIdFromRequest: hoisted.getUserIdFromCookieHeader,
+vi.mock('@/server/api/http/requireSessionUser', () => ({
+  requireSessionUserId: vi.fn(),
 }))
 
 vi.mock('@/server/api/ai-tutor/clients/anthropicModel', () => ({
@@ -19,7 +18,8 @@ vi.mock('@/server/api/ai-tutor/clients/anthropicModel', () => ({
 
 vi.mock('@/server/api/ai-tutor/streamAiTutorChat.service', () => ({
   prepareLectureChatContext: hoisted.prepareLectureChatContext,
-  streamLectureChatEventsFromContext: hoisted.streamLectureChatEventsFromContext,
+  streamLectureChatEventsFromContext:
+    hoisted.streamLectureChatEventsFromContext,
 }))
 
 function postRequest(
@@ -52,6 +52,7 @@ async function readSseBody(response: Response): Promise<string> {
 
 beforeEach(() => {
   vi.clearAllMocks()
+  vi.mocked(requireSessionUserId).mockReset()
 })
 
 afterEach(() => {
@@ -60,9 +61,11 @@ afterEach(() => {
 
 describe('handleStreamChat', () => {
   it('returns 401 when the session cookie is missing', async () => {
-    const { handleStreamChat } =
-      await import('../handlers/streamChat.handler')
-    hoisted.getUserIdFromCookieHeader.mockResolvedValueOnce(null)
+    const { ApiError } = await import('@/server/api/http/apiError')
+    const { handleStreamChat } = await import('../handlers/streamChat.handler')
+    vi.mocked(requireSessionUserId).mockRejectedValueOnce(
+      new ApiError(401, 'UNAUTHORIZED'),
+    )
 
     const res = await handleStreamChat(
       postRequest({ lectureId: 1, chat: 'hello' }, null),
@@ -72,11 +75,12 @@ describe('handleStreamChat', () => {
   })
 
   it('returns 400 when lectureId is invalid', async () => {
-    const { handleStreamChat } =
-      await import('../handlers/streamChat.handler')
-    hoisted.getUserIdFromCookieHeader.mockResolvedValueOnce(7)
+    const { handleStreamChat } = await import('../handlers/streamChat.handler')
+    vi.mocked(requireSessionUserId).mockResolvedValueOnce(7)
 
-    const res = await handleStreamChat(postRequest({ lectureId: 0, chat: 'hi' }))
+    const res = await handleStreamChat(
+      postRequest({ lectureId: 0, chat: 'hi' }),
+    )
 
     expect(res.status).toBe(400)
     await expect(res.json()).resolves.toEqual({
@@ -86,11 +90,12 @@ describe('handleStreamChat', () => {
   })
 
   it('returns 400 when chat is empty', async () => {
-    const { handleStreamChat } =
-      await import('../handlers/streamChat.handler')
-    hoisted.getUserIdFromCookieHeader.mockResolvedValueOnce(7)
+    const { handleStreamChat } = await import('../handlers/streamChat.handler')
+    vi.mocked(requireSessionUserId).mockResolvedValueOnce(7)
 
-    const res = await handleStreamChat(postRequest({ lectureId: 1, chat: '   ' }))
+    const res = await handleStreamChat(
+      postRequest({ lectureId: 1, chat: '   ' }),
+    )
 
     expect(res.status).toBe(400)
     await expect(res.json()).resolves.toEqual({
@@ -100,9 +105,8 @@ describe('handleStreamChat', () => {
   })
 
   it('returns 400 when chat exceeds the max length', async () => {
-    const { handleStreamChat } =
-      await import('../handlers/streamChat.handler')
-    hoisted.getUserIdFromCookieHeader.mockResolvedValueOnce(7)
+    const { handleStreamChat } = await import('../handlers/streamChat.handler')
+    vi.mocked(requireSessionUserId).mockResolvedValueOnce(7)
 
     const res = await handleStreamChat(
       postRequest({
@@ -120,9 +124,8 @@ describe('handleStreamChat', () => {
 
   it('returns 503 when Anthropic is not configured', async () => {
     const { ApiError } = await import('@/server/api/http/apiError')
-    const { handleStreamChat } =
-      await import('../handlers/streamChat.handler')
-    hoisted.getUserIdFromCookieHeader.mockResolvedValueOnce(7)
+    const { handleStreamChat } = await import('../handlers/streamChat.handler')
+    vi.mocked(requireSessionUserId).mockResolvedValueOnce(7)
     hoisted.ensureAnthropicConfigured.mockImplementationOnce(() => {
       throw new ApiError(503, 'AI_TUTOR_ANTHROPIC_NOT_CONFIGURED')
     })
@@ -136,9 +139,8 @@ describe('handleStreamChat', () => {
 
   it('returns 404 when the chat id does not exist for the user and lecture', async () => {
     const { ApiError } = await import('@/server/api/http/apiError')
-    const { handleStreamChat } =
-      await import('../handlers/streamChat.handler')
-    hoisted.getUserIdFromCookieHeader.mockResolvedValueOnce(7)
+    const { handleStreamChat } = await import('../handlers/streamChat.handler')
+    vi.mocked(requireSessionUserId).mockResolvedValueOnce(7)
     hoisted.prepareLectureChatContext.mockRejectedValueOnce(
       new ApiError(404, 'AI_TUTOR_CHAT_NOT_FOUND'),
     )
@@ -157,9 +159,8 @@ describe('handleStreamChat', () => {
   })
 
   it('streams token events over SSE for an authenticated request', async () => {
-    const { handleStreamChat } =
-      await import('../handlers/streamChat.handler')
-    hoisted.getUserIdFromCookieHeader.mockResolvedValueOnce(7)
+    const { handleStreamChat } = await import('../handlers/streamChat.handler')
+    vi.mocked(requireSessionUserId).mockResolvedValueOnce(7)
     hoisted.prepareLectureChatContext.mockResolvedValueOnce({
       chatRow: { id: 12, chatHistory: [] },
       userPrompt: 'prompt',
@@ -171,7 +172,9 @@ describe('handleStreamChat', () => {
       yield { type: 'done' as const, chatId: 12 }
     }
 
-    hoisted.streamLectureChatEventsFromContext.mockImplementationOnce(() => events())
+    hoisted.streamLectureChatEventsFromContext.mockImplementationOnce(() =>
+      events(),
+    )
 
     const res = await handleStreamChat(
       postRequest({ lectureId: 99, chat: 'explain hooks', chatID: 12 }),

@@ -45,6 +45,22 @@ alwaysApply: true
 - Avoid hardcoded magic values when a project token or shared constant exists.
 - Preserve accessibility basics (semantic elements, interactive affordances, readable text).
 
+## Automation Test Hooks
+- Add a stable `data-testid` to every meaningful UI element so end-to-end /
+  automation suites can target it without depending on copy, styling, or DOM
+  structure. Cover: section/container roots, interactive controls
+  (buttons, tabs, links, inputs), repeated list items, and key text/status
+  elements.
+- Use `data-testid` for this — do not add `id`s or class names purely for
+  testing, and never key styling off the test id.
+- Naming: kebab-case, feature-prefixed — `data-testid="<feature>-<element>"`
+  (e.g. `dashboard-welcome-banner`, `dashboard-schedule-card`). For repeated
+  list items reuse one id and query all; when a stable domain id exists, suffix
+  it (e.g. `dashboard-announcement-item-<id>`).
+- Every new UI element (and any UI element you touch) must carry a
+  `data-testid`. Do not rename/remove an existing one without updating its
+  consumers.
+
 ## PR Quality Bar
 - Ensure `npm run test` and `npm run lint` pass for touched code.
 - Keep changes scoped to the request; do not refactor unrelated areas.

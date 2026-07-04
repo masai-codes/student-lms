@@ -13,7 +13,7 @@ const MAX_BYTES = 10 * 1024 * 1024
  */
 export async function handleUploadImage(request: Request): Promise<Response> {
   try {
-    await requireSessionUserId(request)
+    await requireSessionUserId()
 
     const form = await request.formData().catch(() => null)
     const file = form?.get('file')

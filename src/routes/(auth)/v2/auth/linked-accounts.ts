@@ -1,8 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router'
-import {
-  readSessionIdFromAuthHeader,
-  readSessionIdFromCookieHeader,
-} from '@/server/auth/getCurrentSessionUserId'
+import { getCurrentUserSessionId } from '@/server/auth/getCurrentSessionUserId'
 import {
   errorResponse,
   jsonResponse,
@@ -10,15 +7,8 @@ import {
 } from '@/server/auth/v2/httpHelpers'
 import { getLinkedAccountsForSession } from '@/server/auth/v2/linkedAccounts'
 
-function resolveSessionId(request: Request): string | null {
-  return (
-    readSessionIdFromAuthHeader(request.headers.get('authorization')) ??
-    readSessionIdFromCookieHeader(request.headers.get('cookie'))
-  )
-}
-
-async function handleLinkedAccounts(request: Request): Promise<Response> {
-  const sessionId = resolveSessionId(request)
+async function handleLinkedAccounts(): Promise<Response> {
+  const sessionId = getCurrentUserSessionId()
   if (!sessionId) {
     return errorResponse(401, 'UNAUTHENTICATED', 'Not signed in')
   }

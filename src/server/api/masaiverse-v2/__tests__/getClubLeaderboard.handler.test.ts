@@ -1,8 +1,9 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { ApiError } from '@/server/api/http/apiError'
+import { requireSessionUserId } from '@/server/api/http/requireSessionUser'
 
 const hoisted = vi.hoisted(() => ({
   getClubLeaderboard: vi.fn(),
-  getUserIdFromCookieHeader: vi.fn(),
 }))
 
 vi.mock(
@@ -11,9 +12,8 @@ vi.mock(
     getClubLeaderboard: hoisted.getClubLeaderboard,
   }),
 )
-vi.mock('@/server/auth/getCurrentSessionUserId', () => ({
-  getUserIdFromCookieHeader: hoisted.getUserIdFromCookieHeader,
-  getUserIdFromRequest: hoisted.getUserIdFromCookieHeader,
+vi.mock('@/server/api/http/requireSessionUser', () => ({
+  requireSessionUserId: vi.fn(),
 }))
 
 vi.mock('@/server/api/masaiverse-v2/services/publishVisibility', () => ({
@@ -45,12 +45,13 @@ const RESULT = {
 describe('handleGetClubLeaderboard', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    vi.mocked(requireSessionUserId).mockReset()
   })
 
   it('returns a leaderboard result, parsing the club id and month period', async () => {
     const { handleGetClubLeaderboard } =
       await import('../handlers/getClubLeaderboard.handler')
-    hoisted.getUserIdFromCookieHeader.mockResolvedValueOnce(7)
+    vi.mocked(requireSessionUserId).mockResolvedValueOnce(7)
     hoisted.getClubLeaderboard.mockResolvedValueOnce(RESULT)
 
     const response = await handleGetClubLeaderboard(
@@ -70,7 +71,7 @@ describe('handleGetClubLeaderboard', () => {
   it('defaults to the overall period when omitted', async () => {
     const { handleGetClubLeaderboard } =
       await import('../handlers/getClubLeaderboard.handler')
-    hoisted.getUserIdFromCookieHeader.mockResolvedValueOnce(7)
+    vi.mocked(requireSessionUserId).mockResolvedValueOnce(7)
     hoisted.getClubLeaderboard.mockResolvedValueOnce(RESULT)
 
     await handleGetClubLeaderboard(getRequest('?clubId=5', 'session=abc'))
@@ -85,7 +86,7 @@ describe('handleGetClubLeaderboard', () => {
   it('returns 404 when the club is missing', async () => {
     const { handleGetClubLeaderboard } =
       await import('../handlers/getClubLeaderboard.handler')
-    hoisted.getUserIdFromCookieHeader.mockResolvedValueOnce(1)
+    vi.mocked(requireSessionUserId).mockResolvedValueOnce(1)
     hoisted.getClubLeaderboard.mockResolvedValueOnce(null)
 
     const response = await handleGetClubLeaderboard(
@@ -101,7 +102,9 @@ describe('handleGetClubLeaderboard', () => {
   it('returns 401 when there is no session', async () => {
     const { handleGetClubLeaderboard } =
       await import('../handlers/getClubLeaderboard.handler')
-    hoisted.getUserIdFromCookieHeader.mockResolvedValueOnce(null)
+    vi.mocked(requireSessionUserId).mockRejectedValueOnce(
+      new ApiError(401, 'UNAUTHORIZED'),
+    )
 
     const response = await handleGetClubLeaderboard(
       getRequest('?clubId=5', null),
@@ -113,7 +116,7 @@ describe('handleGetClubLeaderboard', () => {
   it('maps an unexpected service error to 500', async () => {
     const { handleGetClubLeaderboard } =
       await import('../handlers/getClubLeaderboard.handler')
-    hoisted.getUserIdFromCookieHeader.mockResolvedValueOnce(1)
+    vi.mocked(requireSessionUserId).mockResolvedValueOnce(1)
     hoisted.getClubLeaderboard.mockRejectedValueOnce(new Error('boom'))
     const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
 

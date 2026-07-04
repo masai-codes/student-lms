@@ -40,6 +40,8 @@ export interface LearnListingCardCtas {
   joinLive: LearnListingJoinLiveState
   showAttendance: boolean
   assignmentStatusChip: AssignmentListingStatusChip
+  /** "N days/hours remaining" until an assignment deadline; null otherwise. */
+  assignmentDeadlineLabel: string | null
 }
 
 export type LearnSchedulePhaseFilter = 'all' | 'upcoming' | 'past'

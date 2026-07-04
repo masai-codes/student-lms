@@ -43,7 +43,14 @@ function LearnTypeIcon({ type }: Pick<LearnContentItem, 'type'>) {
   )
 }
 
-export function LearnContentCard({ item }: { item: LearnContentItem }) {
+export function LearnContentCard({
+  item,
+  fromDashboard = false,
+}: {
+  item: LearnContentItem
+  /** Compact dashboard layout: meta + tags on one row (shorter card). */
+  fromDashboard?: boolean
+}) {
   const attendancePresentation = getLearnListingAttendancePresentation(
     item.listingCtas,
     item.attendance,
@@ -79,35 +86,64 @@ export function LearnContentCard({ item }: { item: LearnContentItem }) {
           <LearnTypeIcon type={item.type} />
           <div>
             <p className="type-b1-md">{item.title}</p>
-            <p className="mt-[4px] type-t1 flex flex-wrap items-center gap-x-2 gap-y-1">
-              <span className="min-w-0">{item.hostName}</span>
-              <span
-                className="size-1 shrink-0 rounded-full bg-gray-600"
-                aria-hidden
-              />
-              <span>{item.date ?? 'No schedule'}</span>
-            </p>
-            <div className="flex flex-wrap gap-2 mt-[8px]">
-              {item.tags.map((tag, index) => (
-                <MasaiChips
-                  key={`${tag}-${index}`}
-                  type="default"
-                  size="regular"
-                  label={tag}
-                  tabIndex={-1}
-                  className="cursor-default"
-                  {...learnContentTagChipPalette}
-                />
-              ))}
-              <MasaiChips
-                type="default"
-                size="regular"
-                label={item.priority}
-                tabIndex={-1}
-                className="cursor-default"
-                {...learnContentTagChipPalette}
-              />
-            </div>
+            {fromDashboard ? (
+              <div className="mt-[4px] type-t1 flex flex-wrap items-center gap-x-2 gap-y-1">
+                <span title={item.dateTooltip ?? undefined}>
+                  {item.date ?? 'No schedule'}
+                </span>
+                {item.courseName ? (
+                  <>
+                    <span className="size-1 shrink-0 rounded-full bg-gray-600" aria-hidden />
+                    <span className="max-w-[10ch] truncate md:max-w-[15ch]">
+                      {item.courseName}
+                    </span>
+                  </>
+                ) : null}
+                {item.tags.map((tag, index) => (
+                  <MasaiChips
+                    key={`${tag}-${index}`}
+                    type="default"
+                    size="regular"
+                    label={tag}
+                    tabIndex={-1}
+                    className="cursor-default"
+                    {...learnContentTagChipPalette}
+                  />
+                ))}
+              </div>
+            ) : (
+              <>
+                <p className="mt-[4px] type-t1 flex flex-wrap items-center gap-x-2 gap-y-1">
+                  <span className="min-w-0">{item.hostName}</span>
+                  <span
+                    className="size-1 shrink-0 rounded-full bg-gray-600"
+                    aria-hidden
+                  />
+                  <span>{item.date ?? 'No schedule'}</span>
+                </p>
+                <div className="flex flex-wrap gap-2 mt-[8px]">
+                  {item.tags.map((tag, index) => (
+                    <MasaiChips
+                      key={`${tag}-${index}`}
+                      type="default"
+                      size="regular"
+                      label={tag}
+                      tabIndex={-1}
+                      className="cursor-default"
+                      {...learnContentTagChipPalette}
+                    />
+                  ))}
+                  <MasaiChips
+                    type="default"
+                    size="regular"
+                    label={item.priority}
+                    tabIndex={-1}
+                    className="cursor-default"
+                    {...learnContentTagChipPalette}
+                  />
+                </div>
+              </>
+            )}
           </div>
         </div>
 
@@ -133,6 +169,14 @@ export function LearnContentCard({ item }: { item: LearnContentItem }) {
           ) : null}
           {item.type === 'lecture' && attendancePresentation ? (
             <LectureAttendanceInline {...attendancePresentation} />
+          ) : null}
+          {item.type === 'assignment' && item.assignmentDeadlineLabel ? (
+            <span
+              data-testid="learn-assignment-deadline"
+              className="type-t1 whitespace-nowrap text-gray-500"
+            >
+              {item.assignmentDeadlineLabel}
+            </span>
           ) : null}
           {item.type === 'assignment' &&
           item.assignmentStatusChip === 'practice-mode' ? (

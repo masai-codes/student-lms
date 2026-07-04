@@ -1,13 +1,13 @@
 import { createFileRoute } from '@tanstack/react-router'
 import {
   handleDeleteSession,
-  handleGetSessions
+  handleGetSessions,
 } from '@/server/api/profile/handlers/accountActivity.handler'
 
 export const Route = createFileRoute('/api/profile/account-activity/')({
   server: {
     handlers: {
-      GET: ({ request }) => handleGetSessions(request),
+      GET: () => handleGetSessions(),
       DELETE: ({ request }) => handleDeleteSession(request),
     },
   },

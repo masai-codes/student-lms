@@ -7,7 +7,7 @@ export async function handleGetEventEditData(
   request: Request,
 ): Promise<Response> {
   try {
-    const userId = await requireSessionUserId(request)
+    const userId = await requireSessionUserId()
     const eventId = Number(new URL(request.url).searchParams.get('eventId'))
     const data = await getEventEditData(userId, eventId)
     return jsonOk(data)

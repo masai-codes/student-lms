@@ -1,54 +1,83 @@
-import { Link } from '@tanstack/react-router'
-
-export interface AnnouncementItem {
-  id: string
-  title: string
-  authorName: string
-  isForYou?: boolean
-}
+import { Link, useNavigate } from '@tanstack/react-router'
+import { pushDashboardEvent } from '../shared/dashboardAnalytics'
+import { SidebarPanel, SidebarPanelLink } from './SidebarPanel'
+import type { DashboardAnnouncement } from '@/server/api/dashboard/announcements/announcementFeed'
 
 interface AnnouncementsPanelProps {
-  announcements: Array<AnnouncementItem>
+  announcements: Array<DashboardAnnouncement>
+  isLoading: boolean
+  isError: boolean
 }
 
-export function AnnouncementsPanel({ announcements }: AnnouncementsPanelProps) {
+// Announcements + "For You" messages (merged, newest-first, up to 5). Message
+// rows link to the message thread; announcement rows to the announcement detail
+// (firing the `l_announcement` GTM event). "View All" opens the full feed.
+export function AnnouncementsPanel({
+  announcements,
+  isLoading,
+  isError,
+}: AnnouncementsPanelProps) {
+  const navigate = useNavigate()
+
+  // Hide the whole section when the fetch succeeded with no announcements.
+  // (Loading / error still render so the state is never silently swallowed.)
+  if (!isLoading && !isError && announcements.length === 0) return null
+
   return (
-    <div className="bg-[#F9FAFB] rounded-t-xl rounded-b-[20px] border border-gray-200 p-5 flex flex-col gap-3">
-      <div className="flex items-center justify-between">
-        <h3 className="type-b1-md font-semibold text-gray-900">Announcements</h3>
-        <Link
-          to="/announcements"
-          search={{ page: 1 }}
-          className="text-sm font-medium text-[#6962AC] hover:underline focus-visible:outline-none"
-        >
-          View All
-        </Link>
-      </div>
-
-      <div className="flex flex-col gap-2 px-0.5 py-0.5 -mx-0.5 -my-0.5">
-        {announcements.map((item) => (
-          <Link
-            key={item.id}
-            to={item.isForYou ? '/messages/$id' : '/announcements/$id'}
-            params={{ id: item.id }}
-            className="rounded-[8px] border border-gray-200 bg-white px-3 py-2.5 flex flex-col gap-1 shadow-sm hover:shadow-md hover:border-gray-300 transition-all focus-visible:outline-none"
-          >
-            <p className="type-b2-md font-medium text-gray-800 truncate">{item.title}</p>
-            <div className="flex items-center gap-2">
-              <span className="type-t1 text-gray-500 truncate">{item.authorName}</span>
-              {item.isForYou ? (
-                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full bg-blue-50 text-blue-500 text-[11px] font-semibold shrink-0">
-                  For You
-                </span>
-              ) : null}
-            </div>
-          </Link>
+    <SidebarPanel
+      title="Announcements"
+      testId="dashboard-announcements-panel"
+      action={
+        <SidebarPanelLink
+          label="View All"
+          testId="dashboard-announcements-view-all"
+          onClick={() => void navigate({ to: '/announcements', search: { page: 1 } })}
+        />
+      }
+      isLoading={isLoading}
+      isError={isError}
+    >
+      <div className="flex max-h-72 flex-col gap-3 overflow-y-auto">
+        {announcements.map((announcement) => (
+          <AnnouncementRow
+            key={`${announcement.source}-${announcement.id}`}
+            announcement={announcement}
+          />
         ))}
-
-        {announcements.length === 0 ? (
-          <p className="type-t1 text-gray-400 text-center py-2">No announcements yet.</p>
-        ) : null}
       </div>
-    </div>
+    </SidebarPanel>
+  )
+}
+
+function AnnouncementRow({ announcement }: { announcement: DashboardAnnouncement }) {
+  const isMessage = announcement.source === 'm'
+
+  return (
+    <Link
+      to={isMessage ? '/messages/$id' : '/announcements/$id'}
+      params={{ id: String(announcement.id) }}
+      onClick={() => {
+        if (!isMessage) pushDashboardEvent('l_announcement')
+      }}
+      data-testid={`dashboard-announcement-item-${announcement.source}-${announcement.id}`}
+      className="rounded-xl border border-gray-200 p-3.5 no-underline transition-shadow hover:shadow-sm"
+    >
+      <h4 className="truncate text-sm font-semibold text-gray-900">
+        {announcement.title}
+      </h4>
+      <div className="mt-1.5 flex items-center gap-2">
+        {announcement.authorName && (
+          <span className="truncate text-xs text-gray-600">{announcement.authorName}</span>
+        )}
+        {announcement.isForYou && (
+          <span
+            data-testid="dashboard-announcement-for-you"
+            className="rounded-md bg-[#EBF5FF] px-2 py-0.5 text-xs font-semibold text-[#3F83F8]"
+          >
+            For you
+          </span>
+        )}
+      </div>
+    </Link>
   )
 }

@@ -1,16 +1,14 @@
-import { and, desc, eq, inArray, isNull } from 'drizzle-orm'
+import { and, desc, eq } from 'drizzle-orm'
 
 import type { LearningPagination } from '@/server/learn/types'
 import type { LearningEntityRow } from '@/server/learn/utils/learningDataMappers'
 import type { LearnListingConditionsInput } from '@/server/learn/utils/buildLearnListingConditions'
-import type {
-  AssignmentProgressStatus,
-  AssignmentSubmissionProgress,
-} from '@/server/learn/utils/calculateAssignmentProgressStatus'
+import type { AssignmentProgressStatus } from '@/server/learn/utils/calculateAssignmentProgressStatus'
 import { db } from '@/db'
-import { assignments, submissions, users } from '@/db/schema'
+import { assignments, users } from '@/db/schema'
 import { buildAssignmentListingConditions } from '@/server/learn/utils/buildLearnListingConditions'
 import { calculateAssignmentProgressStatus } from '@/server/learn/utils/calculateAssignmentProgressStatus'
+import { fetchLatestSubmissionByAssignment } from '@/server/learn/queries/fetchLatestSubmissionByAssignment'
 import { resolveListingPagination } from '@/server/learn/utils/resolveListingPagination'
 
 export interface AssignmentListingPage {
@@ -23,43 +21,6 @@ export interface FetchAssignmentListingPageInput extends LearnListingConditionsI
   page: number
   pageSize: number
   nowMs: number
-}
-
-/** Latest submission flags per assignment for this user (first row wins — newest by createdAt). */
-async function fetchLatestSubmissionByAssignment(
-  userId: number,
-  assignmentIds: Array<number>,
-): Promise<Map<number, AssignmentSubmissionProgress>> {
-  if (assignmentIds.length === 0) return new Map()
-
-  const rows = await db
-    .select({
-      assignmentId: submissions.assignmentId,
-      completed: submissions.completed,
-      status: submissions.status,
-      markAsCompleted: submissions.markAsCompleted,
-    })
-    .from(submissions)
-    .where(
-      and(
-        eq(submissions.userId, userId),
-        isNull(submissions.deletedAt),
-        inArray(submissions.assignmentId, assignmentIds),
-      ),
-    )
-    .orderBy(desc(submissions.createdAt))
-
-  const byAssignment = new Map<number, AssignmentSubmissionProgress>()
-  for (const row of rows) {
-    if (!byAssignment.has(row.assignmentId)) {
-      byAssignment.set(row.assignmentId, {
-        completed: row.completed === 1,
-        status: row.status ?? null,
-        markAsCompleted: row.markAsCompleted === 1,
-      })
-    }
-  }
-  return byAssignment
 }
 
 /**

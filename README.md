@@ -15,6 +15,53 @@ npm install
 npm run dev
 ```
 
+# Local Database Setup
+
+The app talks to MySQL **8.0.42** via `DATABASE_URL` (see `src/db/index.ts`).
+A reproducible local setup is provided so every dev gets the same DB quickly.
+
+### Prerequisites
+
+- [Docker](https://docs.docker.com/get-docker/) (Desktop or engine) with the
+  `docker compose` CLI.
+
+### One-time setup
+
+```bash
+cp .env.example .env        # DATABASE_URL + MYSQL_* defaults live here
+npm run db:setup            # starts MySQL 8.0.42 and imports the seed dump
+```
+
+`npm run db:setup` will:
+
+1. Start the `mysql:8.0.42` container defined in `docker-compose.yml` and wait
+   until it is healthy.
+2. Download the shared dev dump from S3 (cached under `scripts/db/.cache`, which
+   is gitignored) and import it into the `lms_dev_db` database.
+
+The default connection string is:
+
+```
+DATABASE_URL="mysql://root:root@localhost:3306/lms_dev_db"
+```
+
+### Everyday commands
+
+| Command | What it does |
+| --- | --- |
+| `npm run db:up` | Start the MySQL container (keeps existing data). |
+| `npm run db:down` | Stop the container (data is preserved in the volume). |
+| `npm run db:seed` | Re-import the cached dump into the running container. |
+| `npm run db:seed -- --refresh` | Re-download the latest dump, then import it. |
+| `npm run db:reset` | Wipe the data volume and re-seed from scratch. |
+
+### Notes
+
+- MySQL runs on port `3306` by default. If that clashes with a local MySQL,
+  set `MYSQL_PORT` in `.env` (e.g. `3307`) and update `DATABASE_URL` to match.
+- Data persists in the `student_lms_mysql_data` Docker volume across restarts.
+  Use `npm run db:reset` for a clean slate.
+
 # Building For Production
 
 To build this application for production:

@@ -17,3 +17,6 @@ todos.json
 
 # Reference files temporarily copied for inspection
 otp.ts
+
+# Cached local DB seed dumps
+scripts/db/.cache

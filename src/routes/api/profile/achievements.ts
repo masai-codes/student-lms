@@ -4,7 +4,7 @@ import { handleGetAchievements } from '@/server/api/profile/handlers/getAchievem
 export const Route = createFileRoute('/api/profile/achievements')({
   server: {
     handlers: {
-      GET: ({ request }) => handleGetAchievements(request),
+      GET: () => handleGetAchievements(),
     },
   },
 })

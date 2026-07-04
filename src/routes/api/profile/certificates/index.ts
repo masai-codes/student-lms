@@ -4,7 +4,7 @@ import { handleGetCertificates } from '@/server/api/profile/handlers/certificate
 export const Route = createFileRoute('/api/profile/certificates/')({
   server: {
     handlers: {
-      GET: ({ request }) => handleGetCertificates(request),
+      GET: () => handleGetCertificates(),
     },
   },
 })

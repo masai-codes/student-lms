@@ -2,12 +2,12 @@ import { createFileRoute, notFound } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
 import { MessageDetailPage } from '@/components/features/announcements/MessageDetailPage'
 import { getAnnouncementById } from '@/server/api/announcement/getAnnouncementById.service'
-import { getCurrentSessionUserId } from '@/server/auth/getCurrentSessionUserId'
+import { getCurrentUserId } from '@/server/auth/getCurrentSessionUserId'
 
 const fetchMessageDetail = createServerFn({ method: 'GET' })
   .inputValidator((data: { id: number }) => data)
   .handler(async ({ data }) => {
-    const userId = await getCurrentSessionUserId()
+    const userId = await getCurrentUserId()
     if (!userId) throw new Error('UNAUTHORIZED')
     const detail = await getAnnouncementById(userId, data.id, 'm')
     if (!detail) throw new Error('NOT_FOUND')

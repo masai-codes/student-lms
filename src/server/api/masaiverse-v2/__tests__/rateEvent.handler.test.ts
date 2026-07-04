@@ -1,17 +1,17 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { requireSessionUserId } from '@/server/api/http/requireSessionUser'
+
 const hoisted = vi.hoisted(() => ({
   rateEvent: vi.fn(),
-  getUserIdFromCookieHeader: vi.fn(),
 }))
 
 vi.mock('@/server/api/masaiverse-v2/services/rateEvent.service', () => ({
   rateEvent: hoisted.rateEvent,
 }))
 
-vi.mock('@/server/auth/getCurrentSessionUserId', () => ({
-  getUserIdFromCookieHeader: hoisted.getUserIdFromCookieHeader,
-  getUserIdFromRequest: hoisted.getUserIdFromCookieHeader,
+vi.mock('@/server/api/http/requireSessionUser', () => ({
+  requireSessionUserId: vi.fn(),
 }))
 
 function postRequest(body: unknown, cookie: string | null): Request {
@@ -34,7 +34,7 @@ describe('handleRateEvent', () => {
 
   it('rates the event and returns the rating state', async () => {
     const { handleRateEvent } = await import('../handlers/rateEvent.handler')
-    hoisted.getUserIdFromCookieHeader.mockResolvedValueOnce(1)
+    vi.mocked(requireSessionUserId).mockResolvedValueOnce(1)
     hoisted.rateEvent.mockResolvedValueOnce(STATE)
 
     const response = await handleRateEvent(
@@ -51,7 +51,10 @@ describe('handleRateEvent', () => {
 
   it('returns 401 when there is no session user', async () => {
     const { handleRateEvent } = await import('../handlers/rateEvent.handler')
-    hoisted.getUserIdFromCookieHeader.mockResolvedValueOnce(null)
+    const { ApiError } = await import('@/server/api/http/apiError')
+    vi.mocked(requireSessionUserId).mockRejectedValueOnce(
+      new ApiError(401, 'UNAUTHORIZED'),
+    )
 
     const response = await handleRateEvent(
       postRequest({ eventId: '7', rating: 4 }, null),
@@ -64,7 +67,7 @@ describe('handleRateEvent', () => {
   it('propagates a service ApiError (e.g. already rated)', async () => {
     const { handleRateEvent } = await import('../handlers/rateEvent.handler')
     const { ApiError } = await import('@/server/api/http/apiError')
-    hoisted.getUserIdFromCookieHeader.mockResolvedValueOnce(1)
+    vi.mocked(requireSessionUserId).mockResolvedValueOnce(1)
     hoisted.rateEvent.mockRejectedValueOnce(new ApiError(409, 'ALREADY_RATED'))
 
     const response = await handleRateEvent(
@@ -80,7 +83,7 @@ describe('handleRateEvent', () => {
 
   it('maps unexpected service failures to a 500 error', async () => {
     const { handleRateEvent } = await import('../handlers/rateEvent.handler')
-    hoisted.getUserIdFromCookieHeader.mockResolvedValueOnce(1)
+    vi.mocked(requireSessionUserId).mockResolvedValueOnce(1)
     hoisted.rateEvent.mockRejectedValueOnce(new Error('boom'))
     const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
 

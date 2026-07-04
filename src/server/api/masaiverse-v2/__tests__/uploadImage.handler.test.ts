@@ -1,16 +1,15 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { requireSessionUserId } from '@/server/api/http/requireSessionUser'
 
 const hoisted = vi.hoisted(() => ({
   uploadImageToS3: vi.fn(),
-  getUserIdFromCookieHeader: vi.fn(),
 }))
 
 vi.mock('@/server/storage/s3Upload', () => ({
   uploadImageToS3: hoisted.uploadImageToS3,
 }))
-vi.mock('@/server/auth/getCurrentSessionUserId', () => ({
-  getUserIdFromCookieHeader: hoisted.getUserIdFromCookieHeader,
-  getUserIdFromRequest: hoisted.getUserIdFromCookieHeader,
+vi.mock('@/server/api/http/requireSessionUser', () => ({
+  requireSessionUserId: vi.fn(),
 }))
 
 function uploadRequest(
@@ -32,13 +31,14 @@ function formWith(file: File): FormData {
 
 beforeEach(() => {
   vi.clearAllMocks()
+  vi.mocked(requireSessionUserId).mockReset()
 })
 
 describe('handleUploadImage', () => {
   it('uploads a valid image and returns its url (201)', async () => {
     const { handleUploadImage } =
       await import('../handlers/uploadImage.handler')
-    hoisted.getUserIdFromCookieHeader.mockResolvedValueOnce(9)
+    vi.mocked(requireSessionUserId).mockResolvedValueOnce(9)
     hoisted.uploadImageToS3.mockResolvedValueOnce(
       'https://bucket.s3.amazonaws.com/x.png',
     )
@@ -62,7 +62,10 @@ describe('handleUploadImage', () => {
   it('returns 401 without a session', async () => {
     const { handleUploadImage } =
       await import('../handlers/uploadImage.handler')
-    hoisted.getUserIdFromCookieHeader.mockResolvedValueOnce(null)
+    const { ApiError } = await import('@/server/api/http/apiError')
+    vi.mocked(requireSessionUserId).mockRejectedValueOnce(
+      new ApiError(401, 'UNAUTHORIZED'),
+    )
     const file = new File([new Uint8Array([1])], 'a.png', { type: 'image/png' })
 
     const response = await handleUploadImage(
@@ -75,7 +78,7 @@ describe('handleUploadImage', () => {
   it('400s when no file is present', async () => {
     const { handleUploadImage } =
       await import('../handlers/uploadImage.handler')
-    hoisted.getUserIdFromCookieHeader.mockResolvedValueOnce(9)
+    vi.mocked(requireSessionUserId).mockResolvedValueOnce(9)
 
     const response = await handleUploadImage(
       uploadRequest(new FormData(), 'session=abc'),
@@ -89,7 +92,7 @@ describe('handleUploadImage', () => {
   it('400s for a non-image file', async () => {
     const { handleUploadImage } =
       await import('../handlers/uploadImage.handler')
-    hoisted.getUserIdFromCookieHeader.mockResolvedValueOnce(9)
+    vi.mocked(requireSessionUserId).mockResolvedValueOnce(9)
     const file = new File([new Uint8Array([1])], 'a.txt', {
       type: 'text/plain',
     })
@@ -106,7 +109,7 @@ describe('handleUploadImage', () => {
   it('400s for a file over the size limit', async () => {
     const { handleUploadImage } =
       await import('../handlers/uploadImage.handler')
-    hoisted.getUserIdFromCookieHeader.mockResolvedValueOnce(9)
+    vi.mocked(requireSessionUserId).mockResolvedValueOnce(9)
     const big = new File([new Uint8Array(11 * 1024 * 1024)], 'big.png', {
       type: 'image/png',
     })
@@ -123,7 +126,7 @@ describe('handleUploadImage', () => {
   it('maps an unexpected upload failure to a 500 error', async () => {
     const { handleUploadImage } =
       await import('../handlers/uploadImage.handler')
-    hoisted.getUserIdFromCookieHeader.mockResolvedValueOnce(9)
+    vi.mocked(requireSessionUserId).mockResolvedValueOnce(9)
     hoisted.uploadImageToS3.mockRejectedValueOnce(new Error('boom'))
     const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
     const file = new File([new Uint8Array([1])], 'a.png', { type: 'image/png' })

@@ -13,10 +13,6 @@ vi.mock('@/server/ai-chat/services/getAiChatHistory', () => ({
   getAiChatHistory: vi.fn(),
 }))
 
-function makeRequest(): Request {
-  return new Request('http://localhost/api/learn/ai-chat/5/history')
-}
-
 beforeEach(() => {
   vi.mocked(requireSessionUserId).mockReset()
   vi.mocked(getAiChatHistory).mockReset()
@@ -39,7 +35,7 @@ describe('handleGetAiChatHistory', () => {
       },
     ])
 
-    const res = await handleGetAiChatHistory(makeRequest(), '5')
+    const res = await handleGetAiChatHistory('5')
     expect(res.status).toBe(200)
     const body = (await res.json()) as { messages: Array<{ content: string }> }
     expect(body.messages).toHaveLength(1)
@@ -53,14 +49,14 @@ describe('handleGetAiChatHistory', () => {
       new ApiError(401, 'UNAUTHORIZED'),
     )
 
-    const res = await handleGetAiChatHistory(makeRequest(), '5')
+    const res = await handleGetAiChatHistory('5')
     expect(res.status).toBe(401)
     expect(getAiChatHistory).not.toHaveBeenCalled()
   })
 
   it('returns 400 for an invalid lecture id', async () => {
     vi.mocked(requireSessionUserId).mockResolvedValueOnce(7)
-    const res = await handleGetAiChatHistory(makeRequest(), 'abc')
+    const res = await handleGetAiChatHistory('abc')
     expect(res.status).toBe(400)
   })
 
@@ -69,7 +65,7 @@ describe('handleGetAiChatHistory', () => {
     vi.mocked(getAiChatHistory).mockRejectedValueOnce(
       new Error('AI_TUTOR_LECTURE_FORBIDDEN'),
     )
-    const res = await handleGetAiChatHistory(makeRequest(), '5')
+    const res = await handleGetAiChatHistory('5')
     // 403 ships on the CloudFront-safe wire status; the true status is in the header.
     expect(resolveTrueStatus(res)).toBe(403)
   })

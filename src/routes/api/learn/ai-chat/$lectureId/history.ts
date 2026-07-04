@@ -5,8 +5,7 @@ import { handleGetAiChatHistory } from '@/server/api/ai-chat/handlers/getHistory
 export const Route = createFileRoute('/api/learn/ai-chat/$lectureId/history')({
   server: {
     handlers: {
-      GET: ({ request, params }) =>
-        handleGetAiChatHistory(request, params.lectureId),
+      GET: ({ params }) => handleGetAiChatHistory(params.lectureId),
     },
   },
 })

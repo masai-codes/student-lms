@@ -7,8 +7,7 @@ export const Route = createFileRoute(
 )({
   server: {
     handlers: {
-      POST: ({ request, params }) =>
-        handleGetZoomRedirect(request, params.lectureId),
+      POST: ({ params }) => handleGetZoomRedirect(params.lectureId),
     },
   },
 })
