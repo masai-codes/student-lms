@@ -1,11 +1,16 @@
 import { ApiError } from '@/server/api/http/apiError'
 
-export type AiTutorFeedbackPlatform = 'ios' | 'android' | 'web'
+export type AiTutorFeedbackPlatform = 'ios' | 'android' | 'web' | 'app'
 
-const PLATFORMS: readonly AiTutorFeedbackPlatform[] = ['ios', 'android', 'web']
+const PLATFORMS: readonly AiTutorFeedbackPlatform[] = [
+  'ios',
+  'android',
+  'web',
+  'app',
+]
 
 export function parsePlatform(value: unknown): AiTutorFeedbackPlatform {
-  if (value == null || value === '') return 'web'
+  if (value == null || value === '') return 'app'
   if (typeof value !== 'string') {
     throw new ApiError(400, 'AI_TUTOR_PLATFORM_INVALID')
   }
@@ -25,7 +30,7 @@ export function parseRatingForPlatform(
     throw new ApiError(400, 'AI_TUTOR_RATING_INVALID')
   }
 
-  if (platform === 'web') {
+  if (platform === 'web' || platform === 'app') {
     // if (parsed !== 0 && parsed !== 1) {
     //   throw new ApiError(400, 'AI_TUTOR_RATING_INVALID')
     // }
