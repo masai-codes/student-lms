@@ -7,7 +7,6 @@ import { WelcomeModalGate } from './WelcomeModalGate'
 const hoisted = vi.hoisted(() => {
   const create = vi.fn(() => Object.assign(vi.fn(), { reset: vi.fn() }))
   return {
-    fetchStatus: vi.fn(),
     dismiss: vi.fn(),
     confetti: Object.assign(vi.fn(), { create }),
     isMobile: vi.fn(),
@@ -18,10 +17,7 @@ vi.mock('canvas-confetti', () => ({ default: hoisted.confetti }))
 vi.mock('@/components/features/chatbot/hooks/useIsMobileViewport', () => ({
   useIsMobileViewport: () => hoisted.isMobile(),
 }))
-vi.mock('@/lib/api/dashboard/dashboardApi', () => ({
-  fetchWelcomeModalStatus: hoisted.fetchStatus,
-  dismissWelcomeModalApi: hoisted.dismiss,
-}))
+vi.mock('@/lib/api/dashboard/dashboardApi', () => ({ dismissWelcomeModalApi: hoisted.dismiss }))
 
 afterEach(() => {
   cleanup()
@@ -32,34 +28,28 @@ beforeEach(() => {
   hoisted.dismiss.mockResolvedValue(undefined)
 })
 
-function renderGate() {
+function renderGate(showWelcomeModal: boolean) {
   const client = new QueryClient({ defaultOptions: { queries: { retry: false } } })
   return render(
     <QueryClientProvider client={client}>
-      <WelcomeModalGate />
+      <WelcomeModalGate showWelcomeModal={showWelcomeModal} />
     </QueryClientProvider>,
   )
 }
 
 describe('WelcomeModalGate', () => {
-  it('renders nothing when the backend says not to show the modal', async () => {
-    hoisted.fetchStatus.mockResolvedValue({ showWelcomeModal: false })
-    renderGate()
-    await waitFor(() => expect(hoisted.fetchStatus).toHaveBeenCalled())
+  it('renders nothing when not eligible', () => {
+    renderGate(false)
     expect(screen.queryByTestId('welcome-modal-title')).toBeNull()
   })
 
-  it('shows the modal when eligible', async () => {
-    hoisted.fetchStatus.mockResolvedValue({ showWelcomeModal: true })
-    renderGate()
-    await waitFor(() => expect(screen.getByTestId('welcome-modal-title')).toBeTruthy())
+  it('shows the modal when eligible', () => {
+    renderGate(true)
+    expect(screen.getByTestId('welcome-modal-title')).toBeTruthy()
   })
 
   it('persists dismissal and hides the modal on Get Started', async () => {
-    hoisted.fetchStatus.mockResolvedValue({ showWelcomeModal: true })
-    renderGate()
-    await waitFor(() => expect(screen.getByTestId('welcome-modal-get-started')).toBeTruthy())
-
+    renderGate(true)
     fireEvent.click(screen.getByTestId('welcome-modal-get-started'))
 
     await waitFor(() => expect(hoisted.dismiss).toHaveBeenCalledTimes(1))

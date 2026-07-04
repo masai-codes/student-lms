@@ -12,18 +12,26 @@ progress, and steps for that batch (single-batch users see no dropdown).
 
 ## Who sees it, and when (the gate)
 
-The backend owns the decision. `GET /api/dashboard/t0-flow-status` returns
-`showGuidedTour`, computed per the spec:
+The backend owns the decision. It arrives in the **consolidated
+`GET /api/dashboard/overview`** payload (`overview.t0Flow`) — no separate call —
+which returns `showGuidedTour`, computed per the spec:
 
 - **Partial fees** → show while the **LMS walkthrough** is incomplete.
 - **Full fees** → show while the **LMS walkthrough OR program onboarding** is
   incomplete.
 
-`T0FlowGate` renders `GuidedTourOverlay` (a full-screen overlay) when
+`DashboardPage` passes `overview.t0Flow` + `overview.t0FlowLectures` to
+`T0FlowGate`, which renders `GuidedTourOverlay` (a full-screen overlay) when
 `showGuidedTour` is true. "See dashboard" hides it for the visit; on reload the
-status refetches and the tour returns while onboarding is incomplete. Rendering
+overview refetches and the tour returns while onboarding is incomplete. Rendering
 as an overlay (rather than branching the route) means the common non-T0 case
 never flickers through a loading state.
+
+**One dashboard GET.** The primary (first) batch's tour lectures come from
+`overview.t0FlowLectures`; only when the learner switches to a *non-primary*
+batch does the overlay fetch `/t0-flow-lectures?batchId=…` on demand. Completing
+a step invalidates `['dashboard','overview']` (progress + primary lectures) and
+`['dashboard','t0-flow-lectures']` (any open non-primary batch).
 
 ## Progress — one source of truth
 
@@ -69,7 +77,7 @@ the current tab's steps.
 
 ```
 DashboardPage
-  └─ T0FlowGate                     (query t0-flow-status; decide tour vs dashboard)
+  └─ T0FlowGate                     (props from overview.t0Flow; decide tour vs dashboard)
        └─ GuidedTourOverlay         (card shell, batch dropdown, tabs, composes the two panels)
             ├─ steps.ts             (pure: build LMS / Program step models)
             ├─ GuidedTourStepList   (left: progress + timeline step list + hint)

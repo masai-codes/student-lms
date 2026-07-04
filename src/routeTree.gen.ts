@@ -41,12 +41,9 @@ import { Route as ApiMasaiverseV2AwardPointsRouteImport } from './routes/api/mas
 import { Route as ApiMasaiverseV2AdminModeRouteImport } from './routes/api/masaiverse-v2/admin-mode'
 import { Route as ApiLearnPageRouteImport } from './routes/api/learn/page'
 import { Route as ApiLearnDiscussionsRouteImport } from './routes/api/learn/discussions'
-import { Route as ApiDashboardWelcomeModalStatusRouteImport } from './routes/api/dashboard/welcome-modal-status'
 import { Route as ApiDashboardWelcomeModalDismissRouteImport } from './routes/api/dashboard/welcome-modal-dismiss'
 import { Route as ApiDashboardT0FlowStepCompleteRouteImport } from './routes/api/dashboard/t0-flow-step-complete'
-import { Route as ApiDashboardT0FlowStatusRouteImport } from './routes/api/dashboard/t0-flow-status'
 import { Route as ApiDashboardT0FlowLecturesRouteImport } from './routes/api/dashboard/t0-flow-lectures'
-import { Route as ApiDashboardScheduleRouteImport } from './routes/api/dashboard/schedule'
 import { Route as ApiDashboardProfilePhotoRouteImport } from './routes/api/dashboard/profile-photo'
 import { Route as ApiDashboardOverviewRouteImport } from './routes/api/dashboard/overview'
 import { Route as ApiDashboardNavbarPillRouteImport } from './routes/api/dashboard/navbar-pill'
@@ -340,12 +337,6 @@ const ApiLearnDiscussionsRoute = ApiLearnDiscussionsRouteImport.update({
   path: '/api/learn/discussions',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiDashboardWelcomeModalStatusRoute =
-  ApiDashboardWelcomeModalStatusRouteImport.update({
-    id: '/api/dashboard/welcome-modal-status',
-    path: '/api/dashboard/welcome-modal-status',
-    getParentRoute: () => rootRouteImport,
-  } as any)
 const ApiDashboardWelcomeModalDismissRoute =
   ApiDashboardWelcomeModalDismissRouteImport.update({
     id: '/api/dashboard/welcome-modal-dismiss',
@@ -358,23 +349,12 @@ const ApiDashboardT0FlowStepCompleteRoute =
     path: '/api/dashboard/t0-flow-step-complete',
     getParentRoute: () => rootRouteImport,
   } as any)
-const ApiDashboardT0FlowStatusRoute =
-  ApiDashboardT0FlowStatusRouteImport.update({
-    id: '/api/dashboard/t0-flow-status',
-    path: '/api/dashboard/t0-flow-status',
-    getParentRoute: () => rootRouteImport,
-  } as any)
 const ApiDashboardT0FlowLecturesRoute =
   ApiDashboardT0FlowLecturesRouteImport.update({
     id: '/api/dashboard/t0-flow-lectures',
     path: '/api/dashboard/t0-flow-lectures',
     getParentRoute: () => rootRouteImport,
   } as any)
-const ApiDashboardScheduleRoute = ApiDashboardScheduleRouteImport.update({
-  id: '/api/dashboard/schedule',
-  path: '/api/dashboard/schedule',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const ApiDashboardProfilePhotoRoute =
   ApiDashboardProfilePhotoRouteImport.update({
     id: '/api/dashboard/profile-photo',
@@ -1129,12 +1109,9 @@ export interface FileRoutesByFullPath {
   '/api/dashboard/navbar-pill': typeof ApiDashboardNavbarPillRoute
   '/api/dashboard/overview': typeof ApiDashboardOverviewRoute
   '/api/dashboard/profile-photo': typeof ApiDashboardProfilePhotoRoute
-  '/api/dashboard/schedule': typeof ApiDashboardScheduleRoute
   '/api/dashboard/t0-flow-lectures': typeof ApiDashboardT0FlowLecturesRoute
-  '/api/dashboard/t0-flow-status': typeof ApiDashboardT0FlowStatusRoute
   '/api/dashboard/t0-flow-step-complete': typeof ApiDashboardT0FlowStepCompleteRoute
   '/api/dashboard/welcome-modal-dismiss': typeof ApiDashboardWelcomeModalDismissRoute
-  '/api/dashboard/welcome-modal-status': typeof ApiDashboardWelcomeModalStatusRoute
   '/api/learn/discussions': typeof ApiLearnDiscussionsRouteWithChildren
   '/api/learn/page': typeof ApiLearnPageRoute
   '/api/masaiverse-v2/admin-mode': typeof ApiMasaiverseV2AdminModeRoute
@@ -1294,12 +1271,9 @@ export interface FileRoutesByTo {
   '/api/dashboard/navbar-pill': typeof ApiDashboardNavbarPillRoute
   '/api/dashboard/overview': typeof ApiDashboardOverviewRoute
   '/api/dashboard/profile-photo': typeof ApiDashboardProfilePhotoRoute
-  '/api/dashboard/schedule': typeof ApiDashboardScheduleRoute
   '/api/dashboard/t0-flow-lectures': typeof ApiDashboardT0FlowLecturesRoute
-  '/api/dashboard/t0-flow-status': typeof ApiDashboardT0FlowStatusRoute
   '/api/dashboard/t0-flow-step-complete': typeof ApiDashboardT0FlowStepCompleteRoute
   '/api/dashboard/welcome-modal-dismiss': typeof ApiDashboardWelcomeModalDismissRoute
-  '/api/dashboard/welcome-modal-status': typeof ApiDashboardWelcomeModalStatusRoute
   '/api/learn/discussions': typeof ApiLearnDiscussionsRouteWithChildren
   '/api/learn/page': typeof ApiLearnPageRoute
   '/api/masaiverse-v2/admin-mode': typeof ApiMasaiverseV2AdminModeRoute
@@ -1462,12 +1436,9 @@ export interface FileRoutesById {
   '/api/dashboard/navbar-pill': typeof ApiDashboardNavbarPillRoute
   '/api/dashboard/overview': typeof ApiDashboardOverviewRoute
   '/api/dashboard/profile-photo': typeof ApiDashboardProfilePhotoRoute
-  '/api/dashboard/schedule': typeof ApiDashboardScheduleRoute
   '/api/dashboard/t0-flow-lectures': typeof ApiDashboardT0FlowLecturesRoute
-  '/api/dashboard/t0-flow-status': typeof ApiDashboardT0FlowStatusRoute
   '/api/dashboard/t0-flow-step-complete': typeof ApiDashboardT0FlowStepCompleteRoute
   '/api/dashboard/welcome-modal-dismiss': typeof ApiDashboardWelcomeModalDismissRoute
-  '/api/dashboard/welcome-modal-status': typeof ApiDashboardWelcomeModalStatusRoute
   '/api/learn/discussions': typeof ApiLearnDiscussionsRouteWithChildren
   '/api/learn/page': typeof ApiLearnPageRoute
   '/api/masaiverse-v2/admin-mode': typeof ApiMasaiverseV2AdminModeRoute
@@ -1630,12 +1601,9 @@ export interface FileRouteTypes {
     | '/api/dashboard/navbar-pill'
     | '/api/dashboard/overview'
     | '/api/dashboard/profile-photo'
-    | '/api/dashboard/schedule'
     | '/api/dashboard/t0-flow-lectures'
-    | '/api/dashboard/t0-flow-status'
     | '/api/dashboard/t0-flow-step-complete'
     | '/api/dashboard/welcome-modal-dismiss'
-    | '/api/dashboard/welcome-modal-status'
     | '/api/learn/discussions'
     | '/api/learn/page'
     | '/api/masaiverse-v2/admin-mode'
@@ -1795,12 +1763,9 @@ export interface FileRouteTypes {
     | '/api/dashboard/navbar-pill'
     | '/api/dashboard/overview'
     | '/api/dashboard/profile-photo'
-    | '/api/dashboard/schedule'
     | '/api/dashboard/t0-flow-lectures'
-    | '/api/dashboard/t0-flow-status'
     | '/api/dashboard/t0-flow-step-complete'
     | '/api/dashboard/welcome-modal-dismiss'
-    | '/api/dashboard/welcome-modal-status'
     | '/api/learn/discussions'
     | '/api/learn/page'
     | '/api/masaiverse-v2/admin-mode'
@@ -1962,12 +1927,9 @@ export interface FileRouteTypes {
     | '/api/dashboard/navbar-pill'
     | '/api/dashboard/overview'
     | '/api/dashboard/profile-photo'
-    | '/api/dashboard/schedule'
     | '/api/dashboard/t0-flow-lectures'
-    | '/api/dashboard/t0-flow-status'
     | '/api/dashboard/t0-flow-step-complete'
     | '/api/dashboard/welcome-modal-dismiss'
-    | '/api/dashboard/welcome-modal-status'
     | '/api/learn/discussions'
     | '/api/learn/page'
     | '/api/masaiverse-v2/admin-mode'
@@ -2128,12 +2090,9 @@ export interface RootRouteChildren {
   ApiDashboardNavbarPillRoute: typeof ApiDashboardNavbarPillRoute
   ApiDashboardOverviewRoute: typeof ApiDashboardOverviewRoute
   ApiDashboardProfilePhotoRoute: typeof ApiDashboardProfilePhotoRoute
-  ApiDashboardScheduleRoute: typeof ApiDashboardScheduleRoute
   ApiDashboardT0FlowLecturesRoute: typeof ApiDashboardT0FlowLecturesRoute
-  ApiDashboardT0FlowStatusRoute: typeof ApiDashboardT0FlowStatusRoute
   ApiDashboardT0FlowStepCompleteRoute: typeof ApiDashboardT0FlowStepCompleteRoute
   ApiDashboardWelcomeModalDismissRoute: typeof ApiDashboardWelcomeModalDismissRoute
-  ApiDashboardWelcomeModalStatusRoute: typeof ApiDashboardWelcomeModalStatusRoute
   ApiLearnDiscussionsRoute: typeof ApiLearnDiscussionsRouteWithChildren
   ApiLearnPageRoute: typeof ApiLearnPageRoute
   ApiMasaiverseV2AdminModeRoute: typeof ApiMasaiverseV2AdminModeRoute
@@ -2458,13 +2417,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiLearnDiscussionsRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/dashboard/welcome-modal-status': {
-      id: '/api/dashboard/welcome-modal-status'
-      path: '/api/dashboard/welcome-modal-status'
-      fullPath: '/api/dashboard/welcome-modal-status'
-      preLoaderRoute: typeof ApiDashboardWelcomeModalStatusRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/api/dashboard/welcome-modal-dismiss': {
       id: '/api/dashboard/welcome-modal-dismiss'
       path: '/api/dashboard/welcome-modal-dismiss'
@@ -2479,25 +2431,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiDashboardT0FlowStepCompleteRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/dashboard/t0-flow-status': {
-      id: '/api/dashboard/t0-flow-status'
-      path: '/api/dashboard/t0-flow-status'
-      fullPath: '/api/dashboard/t0-flow-status'
-      preLoaderRoute: typeof ApiDashboardT0FlowStatusRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/api/dashboard/t0-flow-lectures': {
       id: '/api/dashboard/t0-flow-lectures'
       path: '/api/dashboard/t0-flow-lectures'
       fullPath: '/api/dashboard/t0-flow-lectures'
       preLoaderRoute: typeof ApiDashboardT0FlowLecturesRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/dashboard/schedule': {
-      id: '/api/dashboard/schedule'
-      path: '/api/dashboard/schedule'
-      fullPath: '/api/dashboard/schedule'
-      preLoaderRoute: typeof ApiDashboardScheduleRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/dashboard/profile-photo': {
@@ -3663,12 +3601,9 @@ const rootRouteChildren: RootRouteChildren = {
   ApiDashboardNavbarPillRoute: ApiDashboardNavbarPillRoute,
   ApiDashboardOverviewRoute: ApiDashboardOverviewRoute,
   ApiDashboardProfilePhotoRoute: ApiDashboardProfilePhotoRoute,
-  ApiDashboardScheduleRoute: ApiDashboardScheduleRoute,
   ApiDashboardT0FlowLecturesRoute: ApiDashboardT0FlowLecturesRoute,
-  ApiDashboardT0FlowStatusRoute: ApiDashboardT0FlowStatusRoute,
   ApiDashboardT0FlowStepCompleteRoute: ApiDashboardT0FlowStepCompleteRoute,
   ApiDashboardWelcomeModalDismissRoute: ApiDashboardWelcomeModalDismissRoute,
-  ApiDashboardWelcomeModalStatusRoute: ApiDashboardWelcomeModalStatusRoute,
   ApiLearnDiscussionsRoute: ApiLearnDiscussionsRouteWithChildren,
   ApiLearnPageRoute: ApiLearnPageRoute,
   ApiMasaiverseV2AdminModeRoute: ApiMasaiverseV2AdminModeRoute,

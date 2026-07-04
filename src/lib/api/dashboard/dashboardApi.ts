@@ -1,5 +1,3 @@
-import type { T0FlowStatus } from '@/server/api/dashboard/getT0FlowStatus.service'
-import type { WelcomeModalStatus } from '@/server/api/dashboard/getWelcomeModalStatus.service'
 import type { DashboardOverview } from '@/server/api/dashboard/getDashboardOverview.service'
 import type { T0FlowLecturesResult } from '@/server/api/dashboard/getT0FlowLectures.service'
 import type { NavbarPillEvent } from '@/server/api/dashboard/getNavbarPill.service'
@@ -7,7 +5,11 @@ import type { UploadProfilePhotoResult } from '@/server/api/dashboard/uploadProf
 import { DASHBOARD_API } from '@/lib/api/dashboardPaths'
 import { fetchJson } from '@/lib/api/fetchJson'
 
-/** Single consolidated payload for the dashboard. */
+/**
+ * Single consolidated payload for the dashboard — includes the T0 welcome-modal
+ * status, guided-tour status, and the primary batch's tour lectures, so the
+ * dashboard loads with one GET instead of several.
+ */
 export async function fetchDashboardOverview(): Promise<DashboardOverview> {
   return fetchJson<DashboardOverview>(DASHBOARD_API.overview)
 }
@@ -15,10 +17,6 @@ export async function fetchDashboardOverview(): Promise<DashboardOverview> {
 export async function fetchNavbarPillEvent(): Promise<NavbarPillEvent | null> {
   const { event } = await fetchJson<{ event: NavbarPillEvent | null }>(DASHBOARD_API.navbarPill)
   return event
-}
-
-export async function fetchWelcomeModalStatus(): Promise<WelcomeModalStatus> {
-  return fetchJson<WelcomeModalStatus>(DASHBOARD_API.welcomeModalStatus)
 }
 
 export async function dismissWelcomeModalApi(): Promise<void> {
@@ -29,10 +27,7 @@ export async function dismissWelcomeModalApi(): Promise<void> {
   })
 }
 
-export async function fetchT0FlowStatus(): Promise<T0FlowStatus> {
-  return fetchJson<T0FlowStatus>(DASHBOARD_API.t0FlowStatus)
-}
-
+/** Fetches a non-primary batch's guided-tour lectures (the primary batch's come from the overview). */
 export async function fetchT0FlowLectures(batchId?: number): Promise<T0FlowLecturesResult> {
   const url = batchId ? `${DASHBOARD_API.t0FlowLectures}?batchId=${batchId}` : DASHBOARD_API.t0FlowLectures
   return fetchJson<T0FlowLecturesResult>(url)

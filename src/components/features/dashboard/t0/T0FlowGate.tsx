@@ -1,26 +1,32 @@
 import { useState } from 'react'
-import { useQuery } from '@tanstack/react-query'
 import { GuidedTourOverlay } from './guided-tour/GuidedTourOverlay'
-import { fetchT0FlowStatus } from '@/lib/api/dashboard/dashboardApi'
+import type { T0FlowLecturesResult } from '@/server/api/dashboard/getT0FlowLectures.service'
+import type { T0FlowStatus } from '@/server/api/dashboard/getT0FlowStatus.service'
 
-const T0_STATUS_STALE_TIME_MS = 60 * 1000 // 1 minute
+interface T0FlowGateProps {
+  /** From the consolidated overview payload (`overview.t0Flow`). */
+  status: T0FlowStatus
+  /** Primary-batch guided-tour lectures from the overview (`overview.t0FlowLectures`). */
+  primaryLectures: T0FlowLecturesResult | null
+}
 
 /**
  * Decides whether an eligible T0 user sees the guided tour instead of the
- * dashboard. The backend owns the rule (`showGuidedTour`); here we render the
- * tour as a full-screen overlay when eligible. "See dashboard" hides it for this
- * visit; on reload the status refetches and the tour returns while incomplete.
+ * dashboard. Eligibility (`showGuidedTour`) is owned by the backend and arrives
+ * via the consolidated overview. The tour renders as a full-screen overlay;
+ * "See dashboard" hides it for this visit, and on reload the overview refetches
+ * so the tour returns while onboarding is incomplete.
  */
-export function T0FlowGate() {
+export function T0FlowGate({ status, primaryLectures }: T0FlowGateProps) {
   const [dismissed, setDismissed] = useState(false)
 
-  const { data } = useQuery({
-    queryKey: ['dashboard', 't0-flow-status'],
-    queryFn: fetchT0FlowStatus,
-    staleTime: T0_STATUS_STALE_TIME_MS,
-  })
+  if (dismissed || !status.showGuidedTour) return null
 
-  if (dismissed || !data?.showGuidedTour) return null
-
-  return <GuidedTourOverlay status={data} onSeeDashboard={() => setDismissed(true)} />
+  return (
+    <GuidedTourOverlay
+      status={status}
+      primaryLectures={primaryLectures}
+      onSeeDashboard={() => setDismissed(true)}
+    />
+  )
 }

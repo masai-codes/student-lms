@@ -7,6 +7,9 @@ const hoisted = vi.hoisted(() => ({
   getSupportSessions: vi.fn(),
   getDashboardSchedule: vi.fn(),
   getDashboardPendingTasks: vi.fn(),
+  getWelcomeModalStatus: vi.fn(),
+  getT0FlowStatus: vi.fn(),
+  getT0FlowLectures: vi.fn(),
 }))
 
 vi.mock('../banners/getWelcomeBanners.service', () => ({
@@ -28,6 +31,11 @@ vi.mock('../schedule/getDashboardSchedule.service', () => ({
 vi.mock('../pending/getDashboardPendingTasks.service', () => ({
   getDashboardPendingTasks: hoisted.getDashboardPendingTasks,
 }))
+vi.mock('../getWelcomeModalStatus.service', () => ({
+  getWelcomeModalStatus: hoisted.getWelcomeModalStatus,
+}))
+vi.mock('../getT0FlowStatus.service', () => ({ getT0FlowStatus: hoisted.getT0FlowStatus }))
+vi.mock('../getT0FlowLectures.service', () => ({ getT0FlowLectures: hoisted.getT0FlowLectures }))
 
 const banners = [{ id: 1, title: 'B', description: null, imageUrl: null, ctaUrl: null }]
 const announcements = [
@@ -41,6 +49,8 @@ const liveSession = {
   zoomLink: 'https://zoom.us/j/1',
   status: 'live',
 }
+const welcomeModal = { showWelcomeModal: false }
+const t0FlowOff = { showT0Flow: false, batches: [], profilePhotoUrl: null, downloadAppCompleted: false, showGuidedTour: false }
 
 describe('getDashboardOverview', () => {
   beforeEach(() => {
@@ -50,6 +60,8 @@ describe('getDashboardOverview', () => {
     hoisted.getSupportSessions.mockResolvedValue([liveSession])
     hoisted.getDashboardSchedule.mockResolvedValue([])
     hoisted.getDashboardPendingTasks.mockResolvedValue([])
+    hoisted.getWelcomeModalStatus.mockResolvedValue(welcomeModal)
+    hoisted.getT0FlowStatus.mockResolvedValue(t0FlowOff)
   })
 
   it('composes every section and features the selected support session', async () => {
@@ -77,7 +89,39 @@ describe('getDashboardOverview', () => {
       supportSession: liveSession,
       schedule,
       pendingTasks,
+      welcomeModal,
+      t0Flow: t0FlowOff,
+      t0FlowLectures: null,
     })
+    // Non-T0 user: lectures are not computed.
+    expect(hoisted.getT0FlowLectures).not.toHaveBeenCalled()
+  })
+
+  it('includes the primary batch guided-tour lectures for a T0 user', async () => {
+    const t0FlowOn = {
+      showT0Flow: true,
+      batches: [
+        { batchId: 42, batchName: 'MERN', showProgramTab: false, lms: { completed: 0, total: 3, complete: false }, program: null },
+      ],
+      profilePhotoUrl: null,
+      downloadAppCompleted: false,
+      showGuidedTour: true,
+    }
+    const lectures = {
+      lmsLectures: [], programLectures: [], completedLectureIds: [],
+      legalAgreementSections: [], isDocumentsRequired: false, isStudentKitApplicable: false, idCardUrl: null,
+    }
+    hoisted.getProductUpdates.mockResolvedValueOnce([])
+    hoisted.getT0FlowStatus.mockResolvedValueOnce(t0FlowOn)
+    hoisted.getT0FlowLectures.mockResolvedValueOnce(lectures)
+    const { getDashboardOverview } = await import('../getDashboardOverview.service')
+
+    const result = await getDashboardOverview(7, new Date('2026-07-02T00:00:00Z'))
+
+    // Computed for the primary (first) batch.
+    expect(hoisted.getT0FlowLectures).toHaveBeenCalledWith(7, 42)
+    expect(result.t0Flow).toEqual(t0FlowOn)
+    expect(result.t0FlowLectures).toEqual(lectures)
   })
 
   it('caps product updates at the dashboard limit of 5', async () => {

@@ -1,16 +1,15 @@
 // @vitest-environment jsdom
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import { T0FlowGate } from './T0FlowGate'
+import type { T0FlowLecturesResult } from '@/server/api/dashboard/getT0FlowLectures.service'
 import type { T0FlowStatus } from '@/server/api/dashboard/getT0FlowStatus.service'
 
-const hoisted = vi.hoisted(() => ({ fetchStatus: vi.fn(), fetchLectures: vi.fn() }))
+const hoisted = vi.hoisted(() => ({ fetchLectures: vi.fn() }))
 
-vi.mock('@/lib/api/dashboard/dashboardApi', () => ({
-  fetchT0FlowStatus: hoisted.fetchStatus,
-  fetchT0FlowLectures: hoisted.fetchLectures,
-}))
+// Non-primary batches fetch lectures here; the primary batch's come via props.
+vi.mock('@/lib/api/dashboard/dashboardApi', () => ({ fetchT0FlowLectures: hoisted.fetchLectures }))
 // The media-chrome player isn't the unit under test — stub it.
 vi.mock('./guided-tour/GuidedTourVideoStep', () => ({
   GuidedTourVideoStep: () => <div data-testid="guided-tour-video-stub" />,
@@ -32,7 +31,7 @@ const baseStatus = (over: Partial<T0FlowStatus> = {}): T0FlowStatus => ({
   ...over,
 })
 
-const lectures = {
+const lectures: T0FlowLecturesResult = {
   lmsLectures: [{ id: 'a', lectureId: 1, title: 'Intro', videoUrl: 'v', lectureType: 'video' }],
   programLectures: [],
   completedLectureIds: [],
@@ -42,67 +41,55 @@ const lectures = {
   idCardUrl: null,
 }
 
-beforeEach(() => {
-  hoisted.fetchLectures.mockResolvedValue(lectures)
-})
-
-function renderGate() {
+function renderGate(status: T0FlowStatus, primaryLectures: T0FlowLecturesResult | null = lectures) {
   const client = new QueryClient({ defaultOptions: { queries: { retry: false } } })
   return render(
     <QueryClientProvider client={client}>
-      <T0FlowGate />
+      <T0FlowGate status={status} primaryLectures={primaryLectures} />
     </QueryClientProvider>,
   )
 }
 
 describe('T0FlowGate', () => {
-  it('renders nothing when the backend says not to show the tour', async () => {
-    hoisted.fetchStatus.mockResolvedValue(baseStatus({ showGuidedTour: false }))
-    renderGate()
-    await waitFor(() => expect(hoisted.fetchStatus).toHaveBeenCalled())
+  it('renders nothing when the backend says not to show the tour', () => {
+    renderGate(baseStatus({ showGuidedTour: false }))
     expect(screen.queryByTestId('guided-tour-overlay')).toBeNull()
   })
 
-  it('shows the tour with progress + steps when eligible', async () => {
-    hoisted.fetchStatus.mockResolvedValue(baseStatus())
-    renderGate()
-    await waitFor(() => expect(screen.getByTestId('guided-tour-overlay')).toBeTruthy())
+  it('shows the tour with progress + steps when eligible (primary lectures from props, no fetch)', () => {
+    renderGate(baseStatus())
+    expect(screen.getByTestId('guided-tour-overlay')).toBeTruthy()
     expect(screen.getByTestId('guided-tour-progress-label').textContent).toBe('1 of 4 done')
-    await waitFor(() => expect(screen.getByTestId('guided-tour-step-lecture-1')).toBeTruthy())
+    expect(screen.getByTestId('guided-tour-step-lecture-1')).toBeTruthy()
     expect(screen.getByTestId('guided-tour-step-profile-photo')).toBeTruthy()
     // Program tab is always visible but locked when full fees are unpaid.
-    const programTab = screen.getByTestId('guided-tour-tab-program')
-    expect(programTab.getAttribute('data-locked')).toBe('true')
+    expect(screen.getByTestId('guided-tour-tab-program').getAttribute('data-locked')).toBe('true')
     expect(screen.getByTestId('guided-tour-tab-program-lock')).toBeTruthy()
+    // Primary-batch lectures came from props — no on-demand fetch.
+    expect(hoisted.fetchLectures).not.toHaveBeenCalled()
   })
 
-  it('hides the tour after "See dashboard"', async () => {
-    hoisted.fetchStatus.mockResolvedValue(baseStatus())
-    renderGate()
-    await waitFor(() => expect(screen.getByTestId('guided-tour-overlay')).toBeTruthy())
+  it('hides the tour after "See dashboard"', () => {
+    renderGate(baseStatus())
+    expect(screen.getByTestId('guided-tour-overlay')).toBeTruthy()
     fireEvent.click(screen.getByTestId('guided-tour-see-dashboard'))
     expect(screen.queryByTestId('guided-tour-overlay')).toBeNull()
   })
 
-  it('unlocks the Program Onboarding tab when full fees are paid', async () => {
-    hoisted.fetchStatus.mockResolvedValue(
+  it('unlocks the Program Onboarding tab when full fees are paid', () => {
+    renderGate(
       baseStatus({
         batches: [
           { batchId: 5, batchName: 'MERN', showProgramTab: true, lms: { completed: 4, total: 4, complete: true }, program: { completed: 0, total: 2, complete: false } },
         ],
       }),
     )
-    renderGate()
-    await waitFor(() => expect(screen.getByTestId('guided-tour-tab-program')).toBeTruthy())
     expect(screen.getByTestId('guided-tour-tab-program').getAttribute('data-locked')).toBe('false')
     expect(screen.queryByTestId('guided-tour-tab-program-lock')).toBeNull()
   })
 
-  it('navigates steps with Back / Next', async () => {
-    hoisted.fetchStatus.mockResolvedValue(baseStatus())
-    renderGate()
-    await waitFor(() => expect(screen.getByTestId('guided-tour-active-title')).toBeTruthy())
-    // First step (a video) is active; Back is disabled.
+  it('navigates steps with Back / Next', () => {
+    renderGate(baseStatus())
     expect(screen.getByTestId('guided-tour-active-title').textContent).toBe('Intro')
     expect(screen.getByTestId<HTMLButtonElement>('guided-tour-back').disabled).toBe(true)
 
@@ -111,7 +98,7 @@ describe('T0FlowGate', () => {
   })
 
   it('shows a batch dropdown only for multi-batch users', async () => {
-    hoisted.fetchStatus.mockResolvedValue(
+    renderGate(
       baseStatus({
         batches: [
           { batchId: 5, batchName: 'MERN', showProgramTab: false, lms: { completed: 1, total: 4, complete: false }, program: null },
@@ -119,7 +106,6 @@ describe('T0FlowGate', () => {
         ],
       }),
     )
-    renderGate()
     await waitFor(() => expect(screen.getByTestId('guided-tour-batch-select')).toBeTruthy())
     expect(screen.getByTestId('guided-tour-overlay')).toBeTruthy()
   })
