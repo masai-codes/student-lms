@@ -88,11 +88,11 @@ export function GuidedTourOverlay({ status, primaryLectures, onSeeDashboard }: G
 
   return (
     <div
-      className="fixed inset-0 z-[200] flex flex-col gap-4 overflow-y-auto bg-gray-50 p-4 md:flex-row md:gap-6 md:p-6"
+      className="fixed inset-0 z-[200] flex flex-col gap-4 overflow-y-auto bg-gray-50 p-4 md:flex-row md:gap-6 md:overflow-hidden md:p-6"
       data-testid="guided-tour-overlay"
     >
       {/* Left card — task list */}
-      <aside className="flex w-full flex-col overflow-hidden rounded-2xl bg-white shadow-sm md:max-w-[400px]">
+      <aside className="flex w-full flex-col overflow-hidden rounded-2xl bg-white shadow-sm md:min-h-0 md:max-w-[400px]">
         <header className="flex items-center justify-between border-b border-gray-100 px-5 py-4">
           <h1 className="text-lg font-semibold text-gray-900">Let&apos;s get you started</h1>
           <button
@@ -159,8 +159,8 @@ export function GuidedTourOverlay({ status, primaryLectures, onSeeDashboard }: G
         </div>
       </aside>
 
-      {/* Right card — selected step actionables */}
-      <section className="flex flex-1 flex-col rounded-2xl bg-white p-6 shadow-sm">
+      {/* Right card — selected step actionables (its content scrolls internally on desktop) */}
+      <section className="flex min-w-0 flex-1 flex-col rounded-2xl bg-white shadow-sm md:min-h-0 md:overflow-hidden">
         {selectedBatch ? (
           <GuidedTourActivePanel
             step={activeStep}

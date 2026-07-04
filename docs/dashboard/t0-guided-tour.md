@@ -85,7 +85,9 @@ DashboardPage
                  ├─ GuidedTourVideoStep  (video + ≥10s completion reporting)
                  └─ GuidedTourStepPanel  (fixed steps)
                       ├─ ProfilePhotoStep  (webcam capture → S3 → profile/user)
-                      └─ DownloadAppContent (shared w/ navbar DownloadAppModal)
+                      ├─ DownloadAppContent (shared w/ navbar DownloadAppModal)
+                      └─ AgreementStep      (config-driven form → PDFs → submit;
+                                             dumb fields from components/ui/form-fields)
 ```
 
 ## Profile photo capture
@@ -121,9 +123,57 @@ The **Profile Photo** step (`ProfilePhotoStep`) is a real capture flow:
   app** creates a `user_device_tokens` row (`status.downloadAppCompleted`).
 - **Program:** onboarding videos → agreement(s) (`legalAgreementSections`) →
   the non-counted extras when applicable: document upload, student kit, and the
-  ID-card reveal (`idCardUrl`). The **agreement step** appears only when
-  eligible; its panel is a **placeholder** ("The agreement form will come
-  here") — the form itself is a later slice.
+  ID-card reveal (`idCardUrl`). The **agreement step** is a full inline flow —
+  see [Legal agreement](#legal-agreement) below.
+
+## Legal agreement
+
+The agreement step (`agreement/AgreementStep`) renders **inline in the tour's
+right panel — no modal**, mirroring the old LMS's form but rebuilt cleanly.
+
+**Read (via overview):** each eligible section's full render detail is folded
+into `overview.t0FlowLectures.legalAgreementSections[]` by
+`agreement/getAgreementRenderData.service.ts` — ordered signable `steps`
+(heading + `pdfUrl`, `hidePolicy`/`shouldModalBeVisible` stripped, ordered by
+`order` with a legacy fallback), `savedValues` (prefill: profile scalars +
+prior saves), `acceptedStepKeys`, `completed`, `referenceNumber`,
+`agreementPdfUrl`.
+
+A **horizontal stepper** (`AgreementStepper`) shows all sub-steps — Enter
+Details → one per document (Program Agreement, Grading Policy, POSH Compliance,
+Placement COC, … however many the section defines) → Signature Certificate —
+with the current one highlighted and completed ones clickable to jump back.
+
+**Flow:** a **config-driven detail form** (`agreementFormConfig.ts` +
+`agreementValidation.ts`, rendered with the shared dumb
+`components/ui/form-fields/*`) — **one field per row**, labels/placeholders
+matching the old LMS → one embedded **PDF + consent checkbox** per document → a
+**signature summary** that submits. The Back/Continue/Submit controls live in a
+**sticky floating action bar** pinned to the bottom of the panel.
+
+**Location** is a **consent checkbox** ("Allow location access to auto-fill your
+current location") — not an editable field; checking it auto-detects via
+`useAutoDetectLocation` (browser GPS → OpenStreetMap Nominatim) and shows the
+address read-only below.
+
+On **mobile** it shows the desktop-only notice (old-LMS behaviour). If already
+signed, it shows the completed summary + a link to the generated PDF.
+
+> The shared `SelectField`/`PhoneField` take a `contentClassName` so their
+> dropdown panels can be lifted above the `z-[200]` tour overlay (`z-[210]`) —
+> without it the dropdowns open *behind* the overlay and appear to do nothing.
+> The tour panels use `min-w-0` so the stepper scrolls horizontally instead of
+> compressing the left card on small (≈13") screens.
+
+**Write (two POSTs):**
+- `POST /api/dashboard/agreement/save` — autosaves the detail form into
+  `profiles.legal_data.agreements.section_<id>` (idempotent merge).
+- `POST /api/dashboard/agreement/submit` — marks every step accepted
+  (`haveAcceptedLegalAgreement`), captures the client IP, and generates the
+  signed PDF (`buildAgreementPdf` — each doc's pages + a SIGNATURE CERTIFICATE
+  page with a details table) → S3, storing `agreementPdfUrl`. Reference number:
+  `TC-<userId>-section_<id>`. Non-blocking: no deadline / access-pause (a later
+  decision).
 
 ## Automation test hooks
 
@@ -141,6 +191,14 @@ The **Profile Photo** step (`ProfilePhotoStep`) is a real capture flow:
 | `guided-tour-back` / `-next`        | Step navigation buttons                       |
 | `guided-tour-video` / `-video-missing` | Video player / no-video placeholder        |
 | `guided-tour-panel-profile-photo` / `-download-app` / `-id-card` / `-agreement` / `-pending` | Fixed-step panels |
+| `agreement-step` / `-mobile-notice` / `-completed` | Agreement root / mobile notice / signed state |
+| `agreement-stepper` / `agreement-step-tab-<i>` | Horizontal sub-step tabs (Enter Details → each doc → Signature Certificate) |
+| `agreement-details-form` / `agreement-field-<key>` | Detail form + each field |
+| `agreement-location` / `-location-consent` / `-location-value` | Location consent checkbox + detected address |
+| `agreement-action-bar` | Sticky Back / Continue / Submit bar |
+| `agreement-pdf-viewer` / `-pdf-iframe` / `-accept` | Per-document PDF + consent |
+| `agreement-certificate` / `agreement-view-pdf` | Signature summary / signed-PDF link |
+| `agreement-back` / `-continue` / `-submit` | Agreement sub-step navigation |
 | `guided-tour-profile-photo-{placeholder,webcam,preview,existing}` | Capture / existing-photo states |
 | `guided-tour-profile-photo-{enable,capture,retake,submit}` | Capture buttons             |
 | `guided-tour-profile-photo-{done,error}` | Capture result states                       |
@@ -148,7 +206,6 @@ The **Profile Photo** step (`ProfilePhotoStep`) is a real capture flow:
 
 ## Open follow-ups
 
-- Agreement signing form, document upload, and student-kit flows (rows exist;
-  full UIs pending — panels currently link out / show a placeholder). Their
-  backend APIs were removed in the frontend-unused cleanup and will be re-added
-  with the form.
+- Document upload and student-kit flows (rows exist; full UIs pending).
+- Agreement: blocking / deadline behaviour is intentionally deferred (currently
+  non-blocking); the 7-day access-pause from the old LMS is a later decision.

@@ -2,6 +2,9 @@ import type { DashboardOverview } from '@/server/api/dashboard/getDashboardOverv
 import type { T0FlowLecturesResult } from '@/server/api/dashboard/getT0FlowLectures.service'
 import type { NavbarPillEvent } from '@/server/api/dashboard/getNavbarPill.service'
 import type { UploadProfilePhotoResult } from '@/server/api/dashboard/uploadProfilePhoto.service'
+import type { AgreementFormValues } from '@/server/api/dashboard/agreement/agreementShared'
+import type { SaveAgreementResult } from '@/server/api/dashboard/agreement/saveAgreementDetails.service'
+import type { SubmitAgreementResult } from '@/server/api/dashboard/agreement/submitAgreement.service'
 import { DASHBOARD_API } from '@/lib/api/dashboardPaths'
 import { fetchJson } from '@/lib/api/fetchJson'
 
@@ -38,6 +41,25 @@ export async function uploadProfilePhoto(image: string): Promise<UploadProfilePh
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ image }),
+  })
+}
+
+export async function saveAgreementDetailsApi(
+  sectionId: number,
+  values: AgreementFormValues,
+): Promise<SaveAgreementResult> {
+  return fetchJson<SaveAgreementResult>(DASHBOARD_API.agreementSave, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ sectionId, values }),
+  })
+}
+
+export async function submitAgreementApi(sectionId: number): Promise<SubmitAgreementResult> {
+  return fetchJson<SubmitAgreementResult>(DASHBOARD_API.agreementSubmit, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ sectionId }),
   })
 }
 

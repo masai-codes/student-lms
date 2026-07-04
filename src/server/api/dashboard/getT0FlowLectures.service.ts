@@ -1,7 +1,7 @@
-import { and, eq, isNull } from 'drizzle-orm'
 import { sql } from 'drizzle-orm'
+import { getAgreementRenderData } from './agreement/getAgreementRenderData.service'
+import type { AgreementSection } from './agreement/getAgreementRenderData.service'
 import { db } from '@/db'
-import { profiles, sectionUser } from '@/db/schema'
 
 export interface T0FlowLectureItem {
   id: string
@@ -11,17 +11,12 @@ export interface T0FlowLectureItem {
   lectureType: string
 }
 
-export interface LegalAgreementSection {
-  sectionId: number
-  name: string
-  completed: boolean
-}
-
 export interface T0FlowLecturesResult {
   lmsLectures: Array<T0FlowLectureItem>
   programLectures: Array<T0FlowLectureItem>
   completedLectureIds: Array<number>
-  legalAgreementSections: Array<LegalAgreementSection>
+  /** Full agreement render detail per eligible section (steps, prefill, status). */
+  legalAgreementSections: Array<AgreementSection>
   isDocumentsRequired: boolean
   isStudentKitApplicable: boolean
   idCardUrl: string | null
@@ -33,7 +28,7 @@ function normalizeRows<T>(result: unknown): Array<T> {
     if (Array.isArray(first)) return first as Array<T>
     return result as Array<T>
   }
-  if (result && typeof result === 'object' && 'rows' in result && Array.isArray((result as { rows: unknown }).rows)) {
+  if (result && typeof result === 'object' && 'rows' in result && Array.isArray((result).rows)) {
     return (result as { rows: Array<T> }).rows
   }
   return []
@@ -85,73 +80,6 @@ async function getLecturesForSection(sectionId: number): Promise<Array<T0FlowLec
     `)
   )
   return expandLectures(rows)
-}
-
-function hasValidAgreementSubKey(agreementsJson: Record<string, unknown>): boolean {
-  const RESERVED = new Set(['shouldModalBeVisible'])
-  return Object.entries(agreementsJson).some(([key, value]) => {
-    if (RESERVED.has(key)) return false
-    const entry = value as Record<string, unknown> | null | undefined
-    if (!entry || typeof entry !== 'object') return false
-    const pdfUrl = entry['pdfUrl']
-    const heading = entry['heading']
-    const hidePolicy = entry['hidePolicy']
-    return (
-      typeof pdfUrl === 'string' && pdfUrl.trim() !== '' &&
-      typeof heading === 'string' && heading.trim() !== '' &&
-      hidePolicy !== true && hidePolicy !== 'true'
-    )
-  })
-}
-
-async function getLegalAgreementSections(userId: number, batchId: number): Promise<Array<LegalAgreementSection>> {
-  // Get sections the user is enrolled in that belong to this batch
-  const enrolledRows = await db
-    .select({ sectionId: sectionUser.sectionId })
-    .from(sectionUser)
-    .where(and(eq(sectionUser.userId, userId), isNull(sectionUser.deletedAt)))
-
-  const allSectionIds = [...new Set(enrolledRows.map((r) => r.sectionId))].filter(Number.isFinite)
-  if (!allSectionIds.length) return []
-
-  // Filter to sections in this batch that have shouldModalBeVisible = true
-  const sectionRows = normalizeRows<{ id: number; name: string; agreements: string | null }>(
-    await db.execute(sql`
-      SELECT id, name, settings->>'$.agreements' AS agreements
-      FROM sections
-      WHERE id IN (${sql.raw(allSectionIds.join(', '))})
-        AND batch_id = ${batchId}
-        AND active = 1
-        AND settings->>'$.agreements.shouldModalBeVisible' = 'true'
-    `)
-  )
-  if (!sectionRows.length) return []
-
-  // Check which ones the user has already accepted
-  const profileRows = await db
-    .select({ legalData: profiles.legalData })
-    .from(profiles)
-    .where(eq(profiles.userId, userId))
-    .limit(1)
-
-  const legalData = (profileRows[0]?.legalData ?? {}) as Record<string, unknown>
-  const userAgreements = (legalData['agreements'] ?? {}) as Record<string, unknown>
-
-  const result: Array<LegalAgreementSection> = []
-  for (const row of sectionRows) {
-    let agreementsJson: Record<string, unknown> | null = null
-    try {
-      agreementsJson = (typeof row.agreements === 'string' ? JSON.parse(row.agreements) : row.agreements) as Record<string, unknown> | null
-    } catch { continue }
-    if (!agreementsJson || !hasValidAgreementSubKey(agreementsJson)) continue
-
-    const sectionKey = `section_${row.id}`
-    const sectionAgreement = userAgreements[sectionKey] as Record<string, unknown> | undefined
-    const completed = sectionAgreement?.['haveAcceptedLegalAgreement'] === true
-
-    result.push({ sectionId: Number(row.id), name: String(row.name ?? ''), completed })
-  }
-  return result
 }
 
 async function getBatchInfoFlags(batchId: number): Promise<{ isDocumentsRequired: boolean; isStudentKitApplicable: boolean }> {
@@ -210,7 +138,7 @@ export async function getT0FlowLectures(userId: number, batchId?: number): Promi
   const [lmsSectionId, programSectionId, legalAgreementSections, batchInfoFlags] = await Promise.all([
     getSectionId(batchId, 'lms-walkthrough-web'),
     getSectionId(batchId, 'program-onboarding-web'),
-    getLegalAgreementSections(userId, batchId),
+    getAgreementRenderData(userId, batchId),
     getBatchInfoFlags(batchId),
   ])
 

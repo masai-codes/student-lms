@@ -7,4 +7,6 @@ export const DASHBOARD_API = {
   t0FlowStepComplete: '/api/dashboard/t0-flow-step-complete',
   welcomeModalDismiss: '/api/dashboard/welcome-modal-dismiss',
   profilePhoto: '/api/dashboard/profile-photo',
+  agreementSave: '/api/dashboard/agreement/save',
+  agreementSubmit: '/api/dashboard/agreement/submit',
 } as const

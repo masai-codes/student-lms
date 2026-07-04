@@ -1,4 +1,5 @@
 import { ProfilePhotoStep } from './ProfilePhotoStep'
+import { AgreementStep } from './agreement/AgreementStep'
 import { DownloadAppContent } from '@/components/features/layout/DownloadAppContent'
 import type { GuidedTourStep } from './steps'
 
@@ -46,11 +47,10 @@ export function GuidedTourStepPanel({ step, idCardUrl, profilePhotoUrl, onComple
     )
   }
 
-  if (step.action === 'agreement') {
+  if (step.action === 'agreement' && step.agreement) {
     return (
-      <div className={CARD} data-testid="guided-tour-panel-agreement">
-        <p className="text-sm font-medium text-gray-900">{step.title}</p>
-        <p className="text-sm text-gray-500">The agreement form will come here.</p>
+      <div data-testid="guided-tour-panel-agreement">
+        <AgreementStep section={step.agreement} onCompleted={onCompleted} />
       </div>
     )
   }

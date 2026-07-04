@@ -115,9 +115,11 @@ Client access: `fetchDashboardOverview()` in
 > **Kept** (all frontend-wired): `/overview` (the single dashboard GET),
 > `/navbar-pill` (layout's upcoming-lecture pill), `/welcome-modal-dismiss`
 > (POST), `/t0-flow-lectures` (on-demand for non-primary batches),
-> `/t0-flow-step-complete` (POST), `/profile-photo` (POST). Also kept: the
-> external **`/api/assess-nps-callback`** webhook (a live server endpoint an
-> external system calls — not a frontend API).
+> `/t0-flow-step-complete` (POST), `/profile-photo` (POST), and the agreement
+> writes `/agreement/save` + `/agreement/submit` (POST; the agreement *read*
+> detail is folded into `overview`). Also kept: the external
+> **`/api/assess-nps-callback`** webhook (a live server endpoint an external
+> system calls — not a frontend API).
 
 ## The `me` endpoint (greeting)
 

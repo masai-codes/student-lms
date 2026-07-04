@@ -1,3 +1,4 @@
+import type { AgreementSection } from '@/server/api/dashboard/agreement/getAgreementRenderData.service'
 import type { T0FlowLectureItem, T0FlowLecturesResult } from '@/server/api/dashboard/getT0FlowLectures.service'
 import type { T0FlowStatus } from '@/server/api/dashboard/getT0FlowStatus.service'
 
@@ -20,8 +21,8 @@ export interface GuidedTourStep {
   video?: { lectureId: number; videoUrl: string | null }
   /** Present for fixed steps — what kind of action row to render. */
   action?: 'profile-photo' | 'download-app' | 'agreement' | 'documents' | 'student-kit' | 'id-card'
-  /** For the agreement action — which section to open. */
-  sectionId?: number
+  /** Present for the agreement action — the full render detail for that section. */
+  agreement?: AgreementSection
 }
 
 function videoStep(item: T0FlowLectureItem, completedIds: ReadonlySet<number>): GuidedTourStep {
@@ -77,10 +78,10 @@ export function buildProgramSteps(lectures: T0FlowLecturesResult): Array<GuidedT
   const agreementSteps: Array<GuidedTourStep> = lectures.legalAgreementSections.map((a) => ({
     key: `agreement-${a.sectionId}`,
     kind: 'fixed',
-    title: a.name || 'Sign your agreement',
+    title: a.sectionName || 'Sign your agreement',
     completed: a.completed,
     action: 'agreement',
-    sectionId: a.sectionId,
+    agreement: a,
   }))
 
   const extraSteps: Array<GuidedTourStep> = []
