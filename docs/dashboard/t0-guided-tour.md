@@ -55,15 +55,27 @@ A video step is complete once watched for **≥ 10s** (matches the backend's
 invalidates the status + lectures queries so the bar advances live. The platform
 sent is **web**.
 
+## Layout
+
+A centred two-panel card ("Let's get you started" header + close X). **Left
+panel:** batch dropdown (multi-batch) → both tabs → "Your Progress" + "N of M
+done" with a green bar → the timeline step list (each step a card with a
+state/type icon — check / half-ring / play / camera / download / … — a chevron,
+and vertical connectors) → a blue completion hint. **Right panel:** the active
+step's centred title, its video/content, and **Back / Next** navigation across
+the current tab's steps.
+
 ## Frontend layering
 
 ```
 DashboardPage
   └─ T0FlowGate                     (query t0-flow-status; decide tour vs dashboard)
-       └─ GuidedTourOverlay         (tabs, progress bar, step list, active panel)
+       └─ GuidedTourOverlay         (card shell, batch dropdown, tabs, composes the two panels)
             ├─ steps.ts             (pure: build LMS / Program step models)
-            ├─ GuidedTourVideoStep  (video + ≥10s completion reporting)
-            └─ GuidedTourStepPanel  (fixed steps: profile photo, app, id card, …)
+            ├─ GuidedTourStepList   (left: progress + timeline step list + hint)
+            └─ GuidedTourActivePanel (right: title + content + Back/Next)
+                 ├─ GuidedTourVideoStep  (video + ≥10s completion reporting)
+                 └─ GuidedTourStepPanel  (fixed steps: profile photo, app, id card, …)
 ```
 
 ## Step sources
@@ -85,9 +97,12 @@ DashboardPage
 | `guided-tour-see-dashboard`         | "See dashboard" escape                        |
 | `guided-tour-tabs` / `-tab-lms` / `-tab-program` | Tab bar + tabs (program always shown; `data-locked` + `-tab-program-lock` icon when locked) |
 | `guided-tour-batch-select` / `-batch-option-<id>` | Batch dropdown (multi-batch only) + options |
-| `guided-tour-progress` / `-label`   | Progress bar + "n/total" label                |
-| `guided-tour-step-list`             | Ordered step list                             |
+| `guided-tour-progress` / `-label`   | Progress bar + "N of M done" label            |
+| `guided-tour-step-list`             | Ordered timeline step list                    |
 | `guided-tour-step-<key>` (+ `-done`)| A step row (`-done` marker when complete)     |
+| `guided-tour-hint`                  | Blue "watch the complete video" hint          |
+| `guided-tour-active-panel` / `-active-title` | Right panel + active step title      |
+| `guided-tour-back` / `-next`        | Step navigation buttons                       |
 | `guided-tour-video` / `-video-missing` | Video player / no-video placeholder        |
 | `guided-tour-panel-profile-photo` / `-download-app` / `-id-card` / `-agreement` / `-pending` | Fixed-step panels |
 | `guided-tour-profile-photo-cta` / `-download-app-cta` | Fixed-step CTAs             |

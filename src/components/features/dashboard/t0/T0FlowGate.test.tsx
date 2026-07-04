@@ -67,7 +67,7 @@ describe('T0FlowGate', () => {
     hoisted.fetchStatus.mockResolvedValue(baseStatus())
     renderGate()
     await waitFor(() => expect(screen.getByTestId('guided-tour-overlay')).toBeTruthy())
-    expect(screen.getByTestId('guided-tour-progress-label').textContent).toBe('1/4')
+    expect(screen.getByTestId('guided-tour-progress-label').textContent).toBe('1 of 4 done')
     await waitFor(() => expect(screen.getByTestId('guided-tour-step-lecture-1')).toBeTruthy())
     expect(screen.getByTestId('guided-tour-step-profile-photo')).toBeTruthy()
     // Program tab is always visible but locked when full fees are unpaid.
@@ -96,6 +96,18 @@ describe('T0FlowGate', () => {
     await waitFor(() => expect(screen.getByTestId('guided-tour-tab-program')).toBeTruthy())
     expect(screen.getByTestId('guided-tour-tab-program').getAttribute('data-locked')).toBe('false')
     expect(screen.queryByTestId('guided-tour-tab-program-lock')).toBeNull()
+  })
+
+  it('navigates steps with Back / Next', async () => {
+    hoisted.fetchStatus.mockResolvedValue(baseStatus())
+    renderGate()
+    await waitFor(() => expect(screen.getByTestId('guided-tour-active-title')).toBeTruthy())
+    // First step (a video) is active; Back is disabled.
+    expect(screen.getByTestId('guided-tour-active-title').textContent).toBe('Intro')
+    expect(screen.getByTestId<HTMLButtonElement>('guided-tour-back').disabled).toBe(true)
+
+    fireEvent.click(screen.getByTestId('guided-tour-next'))
+    expect(screen.getByTestId('guided-tour-active-title').textContent).toBe('Add your profile photo')
   })
 
   it('shows a batch dropdown only for multi-batch users', async () => {
