@@ -40,6 +40,7 @@ function makeItem(
       joinLive: 'hidden',
       showAttendance: false,
       assignmentStatusChip: null,
+      assignmentDeadlineLabel: null,
     },
     assignmentStatusChip: null,
   }
@@ -61,5 +62,16 @@ describe('LearnContentCard — Optional session tag', () => {
   it('hides the tag for an optional resource (lectures only)', () => {
     render(<LearnContentCard item={makeItem('resource', 'recommended')} />)
     expect(screen.queryByText('Optional session')).toBeNull()
+  })
+
+  it('shows the assignment deadline label when present', () => {
+    const item = { ...makeItem('assignment', 'mandatory'), assignmentDeadlineLabel: '2 days remaining' }
+    render(<LearnContentCard item={item} />)
+    expect(screen.getByTestId('learn-assignment-deadline').textContent).toBe('2 days remaining')
+  })
+
+  it('renders no deadline label for lectures / when absent', () => {
+    render(<LearnContentCard item={makeItem('assignment', 'mandatory')} />)
+    expect(screen.queryByTestId('learn-assignment-deadline')).toBeNull()
   })
 })
