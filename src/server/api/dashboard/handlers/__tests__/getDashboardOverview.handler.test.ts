@@ -9,14 +9,8 @@ vi.mock('@/server/api/dashboard/getDashboardOverview.service', () => ({
   getDashboardOverview: hoisted.getDashboardOverview,
 }))
 vi.mock('@/server/auth/getCurrentSessionUserId', () => ({
-  getUserIdFromCookieHeader: hoisted.getUserId,
-  getUserIdFromRequest: hoisted.getUserId,
+  getCurrentUserId: hoisted.getUserId,
 }))
-
-const request = (cookie = 'session=abc') =>
-  new Request('http://localhost/api/dashboard/overview', {
-    headers: cookie ? { cookie } : {},
-  })
 
 describe('handleGetDashboardOverview', () => {
   beforeEach(() => {
@@ -29,7 +23,7 @@ describe('handleGetDashboardOverview', () => {
     hoisted.getDashboardOverview.mockResolvedValueOnce(overview)
     const { handleGetDashboardOverview } = await import('../getDashboardOverview.handler')
 
-    const response = await handleGetDashboardOverview(request())
+    const response = await handleGetDashboardOverview()
 
     expect(response.status).toBe(200)
     await expect(response.json()).resolves.toEqual(overview)
@@ -40,7 +34,7 @@ describe('handleGetDashboardOverview', () => {
     hoisted.getUserId.mockResolvedValueOnce(null)
     const { handleGetDashboardOverview } = await import('../getDashboardOverview.handler')
 
-    const response = await handleGetDashboardOverview(request(''))
+    const response = await handleGetDashboardOverview()
     expect(response.status).toBe(401)
   })
 
@@ -48,7 +42,7 @@ describe('handleGetDashboardOverview', () => {
     hoisted.getDashboardOverview.mockRejectedValueOnce(new Error('boom'))
     const { handleGetDashboardOverview } = await import('../getDashboardOverview.handler')
 
-    const response = await handleGetDashboardOverview(request())
+    const response = await handleGetDashboardOverview()
     expect(response.status).toBe(500)
   })
 })

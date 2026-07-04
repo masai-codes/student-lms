@@ -4,7 +4,7 @@ import { handleGetDashboardOverview } from '@/server/api/dashboard/handlers/getD
 export const Route = createFileRoute('/api/dashboard/overview')({
   server: {
     handlers: {
-      GET: ({ request }) => handleGetDashboardOverview(request),
+      GET: () => handleGetDashboardOverview(),
     },
   },
 })

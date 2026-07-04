@@ -4,7 +4,7 @@ import { handleGetCurrentUser } from '@/server/api/me/handlers/getCurrentUser.ha
 export const Route = createFileRoute('/api/me')({
   server: {
     handlers: {
-      GET: ({ request }) => handleGetCurrentUser(request),
+      GET: () => handleGetCurrentUser(),
     },
   },
 })

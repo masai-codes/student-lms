@@ -6,12 +6,8 @@ vi.mock('@/server/api/me/getCurrentUser.service', () => ({
   getCurrentUser: hoisted.getCurrentUser,
 }))
 vi.mock('@/server/auth/getCurrentSessionUserId', () => ({
-  getUserIdFromCookieHeader: hoisted.getUserId,
-  getUserIdFromRequest: hoisted.getUserId,
+  getCurrentUserId: hoisted.getUserId,
 }))
-
-const request = (cookie = 'session=abc') =>
-  new Request('http://localhost/api/me', { headers: cookie ? { cookie } : {} })
 
 describe('handleGetCurrentUser', () => {
   beforeEach(() => {
@@ -23,7 +19,7 @@ describe('handleGetCurrentUser', () => {
     hoisted.getCurrentUser.mockResolvedValueOnce({ name: 'Suryakumar' })
     const { handleGetCurrentUser } = await import('../getCurrentUser.handler')
 
-    const response = await handleGetCurrentUser(request())
+    const response = await handleGetCurrentUser()
     expect(response.status).toBe(200)
     await expect(response.json()).resolves.toEqual({ user: { name: 'Suryakumar' } })
   })
@@ -31,14 +27,14 @@ describe('handleGetCurrentUser', () => {
   it('returns 401 when unauthenticated', async () => {
     hoisted.getUserId.mockResolvedValueOnce(null)
     const { handleGetCurrentUser } = await import('../getCurrentUser.handler')
-    expect((await handleGetCurrentUser(request(''))).status).toBe(401)
+    expect((await handleGetCurrentUser()).status).toBe(401)
   })
 
   it('returns a USER_NOT_FOUND error when the user is missing', async () => {
     hoisted.getCurrentUser.mockResolvedValueOnce(null)
     const { handleGetCurrentUser } = await import('../getCurrentUser.handler')
     // 404 is remapped to a CloudFront-safe status; the body carries the code.
-    await expect((await handleGetCurrentUser(request())).json()).resolves.toEqual(
+    await expect((await handleGetCurrentUser()).json()).resolves.toEqual(
       expect.objectContaining({ code: 'USER_NOT_FOUND' }),
     )
   })

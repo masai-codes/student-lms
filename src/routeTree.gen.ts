@@ -46,6 +46,7 @@ import { Route as ApiDashboardWelcomeModalDismissRouteImport } from './routes/ap
 import { Route as ApiDashboardT0FlowStepCompleteRouteImport } from './routes/api/dashboard/t0-flow-step-complete'
 import { Route as ApiDashboardT0FlowStatusRouteImport } from './routes/api/dashboard/t0-flow-status'
 import { Route as ApiDashboardT0FlowLecturesRouteImport } from './routes/api/dashboard/t0-flow-lectures'
+import { Route as ApiDashboardScheduleRouteImport } from './routes/api/dashboard/schedule'
 import { Route as ApiDashboardOverviewRouteImport } from './routes/api/dashboard/overview'
 import { Route as ApiDashboardNavbarPillRouteImport } from './routes/api/dashboard/navbar-pill'
 import { Route as ApiAnnouncementUnreadCountRouteImport } from './routes/api/announcement/unread-count'
@@ -368,6 +369,11 @@ const ApiDashboardT0FlowLecturesRoute =
     path: '/api/dashboard/t0-flow-lectures',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiDashboardScheduleRoute = ApiDashboardScheduleRouteImport.update({
+  id: '/api/dashboard/schedule',
+  path: '/api/dashboard/schedule',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiDashboardOverviewRoute = ApiDashboardOverviewRouteImport.update({
   id: '/api/dashboard/overview',
   path: '/api/dashboard/overview',
@@ -1115,6 +1121,7 @@ export interface FileRoutesByFullPath {
   '/api/announcement/unread-count': typeof ApiAnnouncementUnreadCountRoute
   '/api/dashboard/navbar-pill': typeof ApiDashboardNavbarPillRoute
   '/api/dashboard/overview': typeof ApiDashboardOverviewRoute
+  '/api/dashboard/schedule': typeof ApiDashboardScheduleRoute
   '/api/dashboard/t0-flow-lectures': typeof ApiDashboardT0FlowLecturesRoute
   '/api/dashboard/t0-flow-status': typeof ApiDashboardT0FlowStatusRoute
   '/api/dashboard/t0-flow-step-complete': typeof ApiDashboardT0FlowStepCompleteRoute
@@ -1278,6 +1285,7 @@ export interface FileRoutesByTo {
   '/api/announcement/unread-count': typeof ApiAnnouncementUnreadCountRoute
   '/api/dashboard/navbar-pill': typeof ApiDashboardNavbarPillRoute
   '/api/dashboard/overview': typeof ApiDashboardOverviewRoute
+  '/api/dashboard/schedule': typeof ApiDashboardScheduleRoute
   '/api/dashboard/t0-flow-lectures': typeof ApiDashboardT0FlowLecturesRoute
   '/api/dashboard/t0-flow-status': typeof ApiDashboardT0FlowStatusRoute
   '/api/dashboard/t0-flow-step-complete': typeof ApiDashboardT0FlowStepCompleteRoute
@@ -1444,6 +1452,7 @@ export interface FileRoutesById {
   '/api/announcement/unread-count': typeof ApiAnnouncementUnreadCountRoute
   '/api/dashboard/navbar-pill': typeof ApiDashboardNavbarPillRoute
   '/api/dashboard/overview': typeof ApiDashboardOverviewRoute
+  '/api/dashboard/schedule': typeof ApiDashboardScheduleRoute
   '/api/dashboard/t0-flow-lectures': typeof ApiDashboardT0FlowLecturesRoute
   '/api/dashboard/t0-flow-status': typeof ApiDashboardT0FlowStatusRoute
   '/api/dashboard/t0-flow-step-complete': typeof ApiDashboardT0FlowStepCompleteRoute
@@ -1610,6 +1619,7 @@ export interface FileRouteTypes {
     | '/api/announcement/unread-count'
     | '/api/dashboard/navbar-pill'
     | '/api/dashboard/overview'
+    | '/api/dashboard/schedule'
     | '/api/dashboard/t0-flow-lectures'
     | '/api/dashboard/t0-flow-status'
     | '/api/dashboard/t0-flow-step-complete'
@@ -1773,6 +1783,7 @@ export interface FileRouteTypes {
     | '/api/announcement/unread-count'
     | '/api/dashboard/navbar-pill'
     | '/api/dashboard/overview'
+    | '/api/dashboard/schedule'
     | '/api/dashboard/t0-flow-lectures'
     | '/api/dashboard/t0-flow-status'
     | '/api/dashboard/t0-flow-step-complete'
@@ -1938,6 +1949,7 @@ export interface FileRouteTypes {
     | '/api/announcement/unread-count'
     | '/api/dashboard/navbar-pill'
     | '/api/dashboard/overview'
+    | '/api/dashboard/schedule'
     | '/api/dashboard/t0-flow-lectures'
     | '/api/dashboard/t0-flow-status'
     | '/api/dashboard/t0-flow-step-complete'
@@ -2102,6 +2114,7 @@ export interface RootRouteChildren {
   ApiAnnouncementUnreadCountRoute: typeof ApiAnnouncementUnreadCountRoute
   ApiDashboardNavbarPillRoute: typeof ApiDashboardNavbarPillRoute
   ApiDashboardOverviewRoute: typeof ApiDashboardOverviewRoute
+  ApiDashboardScheduleRoute: typeof ApiDashboardScheduleRoute
   ApiDashboardT0FlowLecturesRoute: typeof ApiDashboardT0FlowLecturesRoute
   ApiDashboardT0FlowStatusRoute: typeof ApiDashboardT0FlowStatusRoute
   ApiDashboardT0FlowStepCompleteRoute: typeof ApiDashboardT0FlowStepCompleteRoute
@@ -2464,6 +2477,13 @@ declare module '@tanstack/react-router' {
       path: '/api/dashboard/t0-flow-lectures'
       fullPath: '/api/dashboard/t0-flow-lectures'
       preLoaderRoute: typeof ApiDashboardT0FlowLecturesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/dashboard/schedule': {
+      id: '/api/dashboard/schedule'
+      path: '/api/dashboard/schedule'
+      fullPath: '/api/dashboard/schedule'
+      preLoaderRoute: typeof ApiDashboardScheduleRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/dashboard/overview': {
@@ -3621,6 +3641,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiAnnouncementUnreadCountRoute: ApiAnnouncementUnreadCountRoute,
   ApiDashboardNavbarPillRoute: ApiDashboardNavbarPillRoute,
   ApiDashboardOverviewRoute: ApiDashboardOverviewRoute,
+  ApiDashboardScheduleRoute: ApiDashboardScheduleRoute,
   ApiDashboardT0FlowLecturesRoute: ApiDashboardT0FlowLecturesRoute,
   ApiDashboardT0FlowStatusRoute: ApiDashboardT0FlowStatusRoute,
   ApiDashboardT0FlowStepCompleteRoute: ApiDashboardT0FlowStepCompleteRoute,

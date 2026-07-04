@@ -3,9 +3,9 @@ import { jsonError, jsonOk, mapThrownErrorToResponse } from '@/server/api/http/r
 import { requireSessionUserId } from '@/server/api/http/requireSessionUser'
 import { getCurrentUser } from '@/server/api/me/getCurrentUser.service'
 
-export async function handleGetCurrentUser(request: Request): Promise<Response> {
+export async function handleGetCurrentUser(): Promise<Response> {
   try {
-    const userId = await requireSessionUserId(request)
+    const userId = await requireSessionUserId()
     const user = await getCurrentUser(userId)
     if (!user) return jsonError(404, 'USER_NOT_FOUND')
     return jsonOk({ user })
