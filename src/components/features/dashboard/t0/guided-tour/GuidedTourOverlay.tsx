@@ -99,7 +99,7 @@ export function GuidedTourOverlay({ status, onSeeDashboard }: GuidedTourOverlayP
         <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto p-5">
           {status.batches.length > 1 ? (
             <Select value={selectedBatch ? String(selectedBatch.batchId) : undefined} onValueChange={selectBatch}>
-              <SelectTrigger aria-label="Batch" data-testid="guided-tour-batch-select">
+              <SelectTrigger aria-label="Batch" className="w-full" data-testid="guided-tour-batch-select">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent className="z-[210]">
