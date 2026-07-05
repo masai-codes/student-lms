@@ -7,6 +7,7 @@ import {
 import { db } from '@/db'
 import { batches, userDeviceTokens } from '@/db/schema'
 import { getBatchIdsForEnrolledUser } from '@/server/batches/getBatchIdsForEnrolledUser'
+import type { T0FlowLecturesResult } from './getT0FlowLectures.service'
 
 export interface GuidedTourTabProgress {
   completed: number
@@ -22,6 +23,13 @@ export interface BatchT0Status {
   lms: GuidedTourTabProgress
   /** `null` when the program tab is locked (full fees unpaid). */
   program: GuidedTourTabProgress | null
+  /**
+   * The batch's guided-tour lectures (walkthrough/onboarding videos, agreement,
+   * flags). Populated by the overview composer for the primary batch only;
+   * `null` for others (fetched on demand when the learner switches batch).
+   * `getT0FlowStatus` itself always leaves this `null`.
+   */
+  lectures: T0FlowLecturesResult | null
 }
 
 export interface T0FlowStatus {
@@ -124,6 +132,7 @@ export async function getT0FlowStatus(userId: number): Promise<T0FlowStatus> {
         showProgramTab: fullFeesPaid,
         lms: toTabProgress(web.lms, meta['lms_walkthrough_app']),
         program: web.program ? toTabProgress(web.program, meta['program_onboarding_app']) : null,
+        lectures: null, // filled by the overview composer for the primary batch
       }
     }),
   )

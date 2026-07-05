@@ -1,6 +1,7 @@
 import type { AgreementSection } from '@/server/api/dashboard/agreement/getAgreementRenderData.service'
 import type { T0FlowLectureItem, T0FlowLecturesResult } from '@/server/api/dashboard/getT0FlowLectures.service'
 import type { T0FlowStatus } from '@/server/api/dashboard/getT0FlowStatus.service'
+import type { StudentKitStatus } from '@/server/api/dashboard/t0/getStudentKitStatus.service'
 
 /**
  * Pure step-model builders for the guided tour. Each tab is a list of steps the
@@ -23,6 +24,12 @@ export interface GuidedTourStep {
   action?: 'profile-photo' | 'download-app' | 'agreement' | 'documents' | 'student-kit' | 'id-card'
   /** Present for the agreement action — the full render detail for that section. */
   agreement?: AgreementSection
+  /** Present for the student-kit action. */
+  studentKit?: StudentKitStatus
+  /** Present for the id-card action — the card URL + whether it's unlocked. */
+  idCard?: { url: string | null; unlocked: boolean }
+  /** Gated behind an earlier step (e.g. documents/kit locked until agreement signed). */
+  locked?: boolean
 }
 
 function videoStep(item: T0FlowLectureItem, completedIds: ReadonlySet<number>): GuidedTourStep {
@@ -84,16 +91,37 @@ export function buildProgramSteps(lectures: T0FlowLecturesResult): Array<GuidedT
     agreement: a,
   }))
 
+  // Documents + student kit are locked until every agreement is signed.
+  const agreementsSigned = lectures.legalAgreementSections.every((a) => a.completed)
+
   const extraSteps: Array<GuidedTourStep> = []
   if (lectures.isDocumentsRequired) {
-    extraSteps.push({ key: 'documents', kind: 'fixed', title: 'Upload your documents', completed: false, action: 'documents' })
+    // Completion comes from the on-demand documents status the step fetches.
+    extraSteps.push({ key: 'documents', kind: 'fixed', title: 'Upload your documents', completed: false, action: 'documents', locked: !agreementsSigned })
   }
-  if (lectures.isStudentKitApplicable) {
-    extraSteps.push({ key: 'student-kit', kind: 'fixed', title: 'Track your student kit', completed: false, action: 'student-kit' })
+  if (lectures.studentKit.applicable) {
+    extraSteps.push({
+      key: 'student-kit',
+      kind: 'fixed',
+      title: 'Track your student kit',
+      completed: lectures.studentKit.detailsFilled,
+      action: 'student-kit',
+      studentKit: lectures.studentKit,
+      locked: !agreementsSigned,
+    })
   }
-  if (lectures.idCardUrl) {
-    extraSteps.push({ key: 'id-card', kind: 'fixed', title: 'Your student ID card', completed: true, action: 'id-card' })
-  }
+
+  // The ID card is the capstone reveal: unlocked once every program video is
+  // watched and every agreement signed.
+  const idCardUnlocked = videoSteps.every((s) => s.completed) && agreementsSigned
+  extraSteps.push({
+    key: 'id-card',
+    kind: 'fixed',
+    title: 'Your student ID card',
+    completed: idCardUnlocked && lectures.idCardUrl !== null,
+    action: 'id-card',
+    idCard: { url: lectures.idCardUrl, unlocked: idCardUnlocked },
+  })
 
   return [...videoSteps, ...agreementSteps, ...extraSteps]
 }

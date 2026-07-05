@@ -1,6 +1,8 @@
 import { sql } from 'drizzle-orm'
 import { getAgreementRenderData } from './agreement/getAgreementRenderData.service'
 import type { AgreementSection } from './agreement/getAgreementRenderData.service'
+import { getStudentKitStatus } from './t0/getStudentKitStatus.service'
+import type { StudentKitStatus } from './t0/getStudentKitStatus.service'
 import { db } from '@/db'
 
 export interface T0FlowLectureItem {
@@ -18,7 +20,8 @@ export interface T0FlowLecturesResult {
   /** Full agreement render detail per eligible section (steps, prefill, status). */
   legalAgreementSections: Array<AgreementSection>
   isDocumentsRequired: boolean
-  isStudentKitApplicable: boolean
+  /** Student-kit status (applicability + fill/tracking state) from the admission row. */
+  studentKit: StudentKitStatus
   idCardUrl: string | null
 }
 
@@ -82,24 +85,21 @@ async function getLecturesForSection(sectionId: number): Promise<Array<T0FlowLec
   return expandLectures(rows)
 }
 
-async function getBatchInfoFlags(batchId: number): Promise<{ isDocumentsRequired: boolean; isStudentKitApplicable: boolean }> {
+async function getBatchInfoFlags(batchId: number): Promise<{ isDocumentsRequired: boolean }> {
   const rows = normalizeRows<{ item: string; value: string | null }>(
     await db.execute(sql`
       SELECT item, value FROM batch_info
       WHERE batch_id = ${batchId}
-        AND item IN ('Documents required', 'Is Student Kit applicable?')
+        AND item = 'Documents required'
     `)
   )
   let isDocumentsRequired = false
-  let isStudentKitApplicable = false
   for (const row of rows) {
     if (row.item === 'Documents required') {
       isDocumentsRequired = row.value != null && String(row.value).trim() !== ''
-    } else if (row.item === 'Is Student Kit applicable?') {
-      isStudentKitApplicable = String(row.value ?? '').trim().toLowerCase() === 'true'
     }
   }
-  return { isDocumentsRequired, isStudentKitApplicable }
+  return { isDocumentsRequired }
 }
 
 async function getSectionId(batchId: number, sectionType: string): Promise<number | null> {
@@ -118,7 +118,8 @@ async function getSectionId(batchId: number, sectionType: string): Promise<numbe
 }
 
 export async function getT0FlowLectures(userId: number, batchId?: number): Promise<T0FlowLecturesResult> {
-  const empty = { lmsLectures: [], programLectures: [], completedLectureIds: [], legalAgreementSections: [], isDocumentsRequired: false, isStudentKitApplicable: false, idCardUrl: null }
+  const emptyKit: StudentKitStatus = { applicable: false, detailsFilled: false, trackingUrl: null, trackingId: null, admissionsFormUrl: null }
+  const empty: T0FlowLecturesResult = { lmsLectures: [], programLectures: [], completedLectureIds: [], legalAgreementSections: [], isDocumentsRequired: false, studentKit: emptyKit, idCardUrl: null }
 
   // Validate: user must have an admission row for the requested batch
   if (!batchId) return empty
@@ -135,11 +136,12 @@ export async function getT0FlowLectures(userId: number, batchId?: number): Promi
   const idCardUrl = typeof rawIdCardUrl === 'string' && /^https?:\/\/.+/.test(rawIdCardUrl.trim()) ? rawIdCardUrl.trim() : null
 
   // Find the most recently created lms-walkthrough-web and program-onboarding-web section for this batch
-  const [lmsSectionId, programSectionId, legalAgreementSections, batchInfoFlags] = await Promise.all([
+  const [lmsSectionId, programSectionId, legalAgreementSections, batchInfoFlags, studentKit] = await Promise.all([
     getSectionId(batchId, 'lms-walkthrough-web'),
     getSectionId(batchId, 'program-onboarding-web'),
     getAgreementRenderData(userId, batchId),
     getBatchInfoFlags(batchId),
+    getStudentKitStatus(userId, batchId),
   ])
 
   const [lmsLectures, programLectures] = await Promise.all([
@@ -166,5 +168,5 @@ export async function getT0FlowLectures(userId: number, batchId?: number): Promi
     completedLectureIds = rows.map((r) => Number(r.lecture_id))
   }
 
-  return { lmsLectures, programLectures, completedLectureIds, legalAgreementSections, ...batchInfoFlags, idCardUrl }
+  return { lmsLectures, programLectures, completedLectureIds, legalAgreementSections, ...batchInfoFlags, studentKit, idCardUrl }
 }

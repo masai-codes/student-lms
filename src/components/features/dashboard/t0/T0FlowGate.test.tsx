@@ -20,10 +20,20 @@ afterEach(() => {
   vi.clearAllMocks()
 })
 
+const lectures: T0FlowLecturesResult = {
+  lmsLectures: [{ id: 'a', lectureId: 1, title: 'Intro', videoUrl: 'v', lectureType: 'video' }],
+  programLectures: [],
+  completedLectureIds: [],
+  legalAgreementSections: [],
+  isDocumentsRequired: false,
+  studentKit: { applicable: false, detailsFilled: false, trackingUrl: null, trackingId: null, admissionsFormUrl: null },
+  idCardUrl: null,
+}
+
 const baseStatus = (over: Partial<T0FlowStatus> = {}): T0FlowStatus => ({
   showT0Flow: true,
   batches: [
-    { batchId: 5, batchName: 'MERN', showProgramTab: false, lms: { completed: 1, total: 4, complete: false }, program: null },
+    { batchId: 5, batchName: 'MERN', showProgramTab: false, lms: { completed: 1, total: 4, complete: false }, program: null, lectures },
   ],
   profilePhotoUrl: null,
   downloadAppCompleted: false,
@@ -31,21 +41,11 @@ const baseStatus = (over: Partial<T0FlowStatus> = {}): T0FlowStatus => ({
   ...over,
 })
 
-const lectures: T0FlowLecturesResult = {
-  lmsLectures: [{ id: 'a', lectureId: 1, title: 'Intro', videoUrl: 'v', lectureType: 'video' }],
-  programLectures: [],
-  completedLectureIds: [],
-  legalAgreementSections: [],
-  isDocumentsRequired: false,
-  isStudentKitApplicable: false,
-  idCardUrl: null,
-}
-
-function renderGate(status: T0FlowStatus, primaryLectures: T0FlowLecturesResult | null = lectures) {
+function renderGate(status: T0FlowStatus) {
   const client = new QueryClient({ defaultOptions: { queries: { retry: false } } })
   return render(
     <QueryClientProvider client={client}>
-      <T0FlowGate status={status} primaryLectures={primaryLectures} />
+      <T0FlowGate status={status} />
     </QueryClientProvider>,
   )
 }
@@ -80,7 +80,7 @@ describe('T0FlowGate', () => {
     renderGate(
       baseStatus({
         batches: [
-          { batchId: 5, batchName: 'MERN', showProgramTab: true, lms: { completed: 4, total: 4, complete: true }, program: { completed: 0, total: 2, complete: false } },
+          { batchId: 5, batchName: 'MERN', showProgramTab: true, lms: { completed: 4, total: 4, complete: true }, program: { completed: 0, total: 2, complete: false }, lectures },
         ],
       }),
     )
@@ -101,8 +101,8 @@ describe('T0FlowGate', () => {
     renderGate(
       baseStatus({
         batches: [
-          { batchId: 5, batchName: 'MERN', showProgramTab: false, lms: { completed: 1, total: 4, complete: false }, program: null },
-          { batchId: 6, batchName: 'Data Analytics', showProgramTab: true, lms: { completed: 0, total: 3, complete: false }, program: { completed: 0, total: 2, complete: false } },
+          { batchId: 5, batchName: 'MERN', showProgramTab: false, lms: { completed: 1, total: 4, complete: false }, program: null, lectures },
+          { batchId: 6, batchName: 'Data Analytics', showProgramTab: true, lms: { completed: 0, total: 3, complete: false }, program: { completed: 0, total: 2, complete: false }, lectures: null },
         ],
       }),
     )

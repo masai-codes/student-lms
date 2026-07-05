@@ -1,6 +1,7 @@
 import type { DashboardOverview } from '@/server/api/dashboard/getDashboardOverview.service'
 import type { T0FlowLecturesResult } from '@/server/api/dashboard/getT0FlowLectures.service'
 import type { NavbarPillEvent } from '@/server/api/dashboard/getNavbarPill.service'
+import type { T0FlowDocumentsStatus } from '@/server/api/dashboard/getT0FlowDocuments.service'
 import type { UploadProfilePhotoResult } from '@/server/api/dashboard/uploadProfilePhoto.service'
 import type { AgreementFormValues } from '@/server/api/dashboard/agreement/agreementShared'
 import type { SaveAgreementResult } from '@/server/api/dashboard/agreement/saveAgreementDetails.service'
@@ -28,6 +29,11 @@ export async function dismissWelcomeModalApi(): Promise<void> {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({}),
   })
+}
+
+/** On-demand document-upload status for a batch (hits the external admissions API). */
+export async function fetchT0FlowDocuments(batchId: number): Promise<T0FlowDocumentsStatus> {
+  return fetchJson<T0FlowDocumentsStatus>(`${DASHBOARD_API.t0FlowDocuments}?batchId=${batchId}`)
 }
 
 /** Fetches a non-primary batch's guided-tour lectures (the primary batch's come from the overview). */

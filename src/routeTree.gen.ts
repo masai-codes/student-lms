@@ -44,6 +44,7 @@ import { Route as ApiLearnDiscussionsRouteImport } from './routes/api/learn/disc
 import { Route as ApiDashboardWelcomeModalDismissRouteImport } from './routes/api/dashboard/welcome-modal-dismiss'
 import { Route as ApiDashboardT0FlowStepCompleteRouteImport } from './routes/api/dashboard/t0-flow-step-complete'
 import { Route as ApiDashboardT0FlowLecturesRouteImport } from './routes/api/dashboard/t0-flow-lectures'
+import { Route as ApiDashboardT0FlowDocumentsRouteImport } from './routes/api/dashboard/t0-flow-documents'
 import { Route as ApiDashboardProfilePhotoRouteImport } from './routes/api/dashboard/profile-photo'
 import { Route as ApiDashboardOverviewRouteImport } from './routes/api/dashboard/overview'
 import { Route as ApiDashboardNavbarPillRouteImport } from './routes/api/dashboard/navbar-pill'
@@ -355,6 +356,12 @@ const ApiDashboardT0FlowLecturesRoute =
   ApiDashboardT0FlowLecturesRouteImport.update({
     id: '/api/dashboard/t0-flow-lectures',
     path: '/api/dashboard/t0-flow-lectures',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiDashboardT0FlowDocumentsRoute =
+  ApiDashboardT0FlowDocumentsRouteImport.update({
+    id: '/api/dashboard/t0-flow-documents',
+    path: '/api/dashboard/t0-flow-documents',
     getParentRoute: () => rootRouteImport,
   } as any)
 const ApiDashboardProfilePhotoRoute =
@@ -1123,6 +1130,7 @@ export interface FileRoutesByFullPath {
   '/api/dashboard/navbar-pill': typeof ApiDashboardNavbarPillRoute
   '/api/dashboard/overview': typeof ApiDashboardOverviewRoute
   '/api/dashboard/profile-photo': typeof ApiDashboardProfilePhotoRoute
+  '/api/dashboard/t0-flow-documents': typeof ApiDashboardT0FlowDocumentsRoute
   '/api/dashboard/t0-flow-lectures': typeof ApiDashboardT0FlowLecturesRoute
   '/api/dashboard/t0-flow-step-complete': typeof ApiDashboardT0FlowStepCompleteRoute
   '/api/dashboard/welcome-modal-dismiss': typeof ApiDashboardWelcomeModalDismissRoute
@@ -1287,6 +1295,7 @@ export interface FileRoutesByTo {
   '/api/dashboard/navbar-pill': typeof ApiDashboardNavbarPillRoute
   '/api/dashboard/overview': typeof ApiDashboardOverviewRoute
   '/api/dashboard/profile-photo': typeof ApiDashboardProfilePhotoRoute
+  '/api/dashboard/t0-flow-documents': typeof ApiDashboardT0FlowDocumentsRoute
   '/api/dashboard/t0-flow-lectures': typeof ApiDashboardT0FlowLecturesRoute
   '/api/dashboard/t0-flow-step-complete': typeof ApiDashboardT0FlowStepCompleteRoute
   '/api/dashboard/welcome-modal-dismiss': typeof ApiDashboardWelcomeModalDismissRoute
@@ -1454,6 +1463,7 @@ export interface FileRoutesById {
   '/api/dashboard/navbar-pill': typeof ApiDashboardNavbarPillRoute
   '/api/dashboard/overview': typeof ApiDashboardOverviewRoute
   '/api/dashboard/profile-photo': typeof ApiDashboardProfilePhotoRoute
+  '/api/dashboard/t0-flow-documents': typeof ApiDashboardT0FlowDocumentsRoute
   '/api/dashboard/t0-flow-lectures': typeof ApiDashboardT0FlowLecturesRoute
   '/api/dashboard/t0-flow-step-complete': typeof ApiDashboardT0FlowStepCompleteRoute
   '/api/dashboard/welcome-modal-dismiss': typeof ApiDashboardWelcomeModalDismissRoute
@@ -1621,6 +1631,7 @@ export interface FileRouteTypes {
     | '/api/dashboard/navbar-pill'
     | '/api/dashboard/overview'
     | '/api/dashboard/profile-photo'
+    | '/api/dashboard/t0-flow-documents'
     | '/api/dashboard/t0-flow-lectures'
     | '/api/dashboard/t0-flow-step-complete'
     | '/api/dashboard/welcome-modal-dismiss'
@@ -1785,6 +1796,7 @@ export interface FileRouteTypes {
     | '/api/dashboard/navbar-pill'
     | '/api/dashboard/overview'
     | '/api/dashboard/profile-photo'
+    | '/api/dashboard/t0-flow-documents'
     | '/api/dashboard/t0-flow-lectures'
     | '/api/dashboard/t0-flow-step-complete'
     | '/api/dashboard/welcome-modal-dismiss'
@@ -1951,6 +1963,7 @@ export interface FileRouteTypes {
     | '/api/dashboard/navbar-pill'
     | '/api/dashboard/overview'
     | '/api/dashboard/profile-photo'
+    | '/api/dashboard/t0-flow-documents'
     | '/api/dashboard/t0-flow-lectures'
     | '/api/dashboard/t0-flow-step-complete'
     | '/api/dashboard/welcome-modal-dismiss'
@@ -2116,6 +2129,7 @@ export interface RootRouteChildren {
   ApiDashboardNavbarPillRoute: typeof ApiDashboardNavbarPillRoute
   ApiDashboardOverviewRoute: typeof ApiDashboardOverviewRoute
   ApiDashboardProfilePhotoRoute: typeof ApiDashboardProfilePhotoRoute
+  ApiDashboardT0FlowDocumentsRoute: typeof ApiDashboardT0FlowDocumentsRoute
   ApiDashboardT0FlowLecturesRoute: typeof ApiDashboardT0FlowLecturesRoute
   ApiDashboardT0FlowStepCompleteRoute: typeof ApiDashboardT0FlowStepCompleteRoute
   ApiDashboardWelcomeModalDismissRoute: typeof ApiDashboardWelcomeModalDismissRoute
@@ -2464,6 +2478,13 @@ declare module '@tanstack/react-router' {
       path: '/api/dashboard/t0-flow-lectures'
       fullPath: '/api/dashboard/t0-flow-lectures'
       preLoaderRoute: typeof ApiDashboardT0FlowLecturesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/dashboard/t0-flow-documents': {
+      id: '/api/dashboard/t0-flow-documents'
+      path: '/api/dashboard/t0-flow-documents'
+      fullPath: '/api/dashboard/t0-flow-documents'
+      preLoaderRoute: typeof ApiDashboardT0FlowDocumentsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/dashboard/profile-photo': {
@@ -3643,6 +3664,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiDashboardNavbarPillRoute: ApiDashboardNavbarPillRoute,
   ApiDashboardOverviewRoute: ApiDashboardOverviewRoute,
   ApiDashboardProfilePhotoRoute: ApiDashboardProfilePhotoRoute,
+  ApiDashboardT0FlowDocumentsRoute: ApiDashboardT0FlowDocumentsRoute,
   ApiDashboardT0FlowLecturesRoute: ApiDashboardT0FlowLecturesRoute,
   ApiDashboardT0FlowStepCompleteRoute: ApiDashboardT0FlowStepCompleteRoute,
   ApiDashboardWelcomeModalDismissRoute: ApiDashboardWelcomeModalDismissRoute,

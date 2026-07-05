@@ -20,17 +20,19 @@ which returns `showGuidedTour`, computed per the spec:
 - **Full fees** → show while the **LMS walkthrough OR program onboarding** is
   incomplete.
 
-`DashboardPage` passes `overview.t0Flow` + `overview.t0FlowLectures` to
-`T0FlowGate`, which renders `GuidedTourOverlay` (a full-screen overlay) when
-`showGuidedTour` is true. "See dashboard" hides it for the visit; on reload the
-overview refetches and the tour returns while onboarding is incomplete. Rendering
-as an overlay (rather than branching the route) means the common non-T0 case
-never flickers through a loading state.
+`DashboardPage` passes `overview.t0Flow` to `T0FlowGate`, which renders
+`GuidedTourOverlay` (a full-screen overlay) when `showGuidedTour` is true. "See
+dashboard" hides it for the visit; on reload the overview refetches and the tour
+returns while onboarding is incomplete. Rendering as an overlay (rather than
+branching the route) means the common non-T0 case never flickers through a
+loading state.
 
-**One dashboard GET.** The primary (first) batch's tour lectures come from
-`overview.t0FlowLectures`; only when the learner switches to a *non-primary*
-batch does the overlay fetch `/t0-flow-lectures?batchId=…` on demand. Completing
-a step invalidates `['dashboard','overview']` (progress + primary lectures) and
+**One dashboard GET — lectures are batch-level.** `t0Flow` is per-batch, so each
+`t0Flow.batches[i]` carries its own `lectures` (walkthrough/onboarding videos,
+agreement, flags). The **primary (first) batch's** lectures are populated inline
+by the overview; other batches have `lectures: null` and the overlay fetches
+`/t0-flow-lectures?batchId=…` on demand only when the learner switches to them.
+Completing a step invalidates `['dashboard','overview']` (progress + primary lectures) and
 `['dashboard','t0-flow-lectures']` (any open non-primary batch).
 
 ## Progress — one source of truth
@@ -86,8 +88,10 @@ DashboardPage
                  └─ GuidedTourStepPanel  (fixed steps)
                       ├─ ProfilePhotoStep  (webcam capture → S3 → profile/user)
                       ├─ DownloadAppContent (shared w/ navbar DownloadAppModal)
-                      └─ AgreementStep      (config-driven form → PDFs → submit;
-                                             dumb fields from components/ui/form-fields)
+                      ├─ AgreementStep      (config-driven form → PDFs → submit)
+                      ├─ StudentKitStep     (admission-row states + SSO form link)
+                      ├─ DocumentUploadStep (on-demand external status + SSO upload)
+                      └─ IdCardStep         (locked → reveal image + download)
 ```
 
 ## Profile photo capture
@@ -122,9 +126,9 @@ The **Profile Photo** step (`ProfilePhotoStep`) is a real capture flow:
   Clicking it never completes the step; it completes only when the **mobile
   app** creates a `user_device_tokens` row (`status.downloadAppCompleted`).
 - **Program:** onboarding videos → agreement(s) (`legalAgreementSections`) →
-  the non-counted extras when applicable: document upload, student kit, and the
-  ID-card reveal (`idCardUrl`). The **agreement step** is a full inline flow —
-  see [Legal agreement](#legal-agreement) below.
+  document upload → student kit → the ID-card reveal (capstone). The
+  **agreement step** is a full inline flow — see [Legal agreement](#legal-agreement);
+  the last three — see [Documents, kit & ID card](#documents-kit--id-card).
 
 ## Legal agreement
 
@@ -132,7 +136,7 @@ The agreement step (`agreement/AgreementStep`) renders **inline in the tour's
 right panel — no modal**, mirroring the old LMS's form but rebuilt cleanly.
 
 **Read (via overview):** each eligible section's full render detail is folded
-into `overview.t0FlowLectures.legalAgreementSections[]` by
+into `overview.t0Flow.batches[i].lectures.legalAgreementSections[]` by
 `agreement/getAgreementRenderData.service.ts` — ordered signable `steps`
 (heading + `pdfUrl`, `hidePolicy`/`shouldModalBeVisible` stripped, ordered by
 `order` with a legacy fallback), `savedValues` (prefill: profile scalars +
@@ -175,6 +179,38 @@ signed, it shows the completed summary + a link to the generated PDF.
   `TC-<userId>-section_<id>`. Non-blocking: no deadline / access-pause (a later
   decision).
 
+## Documents, kit & ID card
+
+The last three program steps. External admissions integration is segregated in
+`src/server/admissions/` (`buildAdmissionsRedirectForUser` mints the SSO
+redirect; `getAdmissionsStudentStatus` fetches external document status).
+
+**Document upload and student kit are locked until every agreement is signed**
+(`GuidedTourLockedNotice` shown in place of their content); the ID card is
+locked until videos + agreements are complete.
+
+- **Document upload** (`DocumentUploadStep`): uploads happen **externally** on
+  the admissions portal. Completion (`documentsUploaded`) is the external system
+  of record, so it's fetched **on demand** — `GET /api/dashboard/t0-flow-documents`
+  (`getT0FlowDocuments`) → external status + an SSO upload link. Not in the
+  overview (avoids a slow call on dashboard load).
+- **Student kit** (`StudentKitStep`): DB-derived from the admission row (four
+  states: not-applicable / not-filled → SSO form / filled-pending / tracking).
+  Cheap, so `studentKit` rides in `overview.…batches[i].lectures.studentKit`.
+  Details are filled externally; there's no LMS mutation. (Tracking id/courier
+  are placeholders in the old LMS — surfaced as `null` here until admissions
+  provides them.)
+- **ID card** (`IdCardStep`): the capstone. Locked until every program video is
+  watched **and** every agreement signed (frontend gate, from step completion);
+  then reveals the image + download, or a "being generated" notice if
+  `idCardUrl` isn't set yet. The URL comes from the admission row (set by
+  admissions, not generated by the LMS).
+
+**Env:** `ADMISSIONS_SSO_BASE_URL` + `ADMISSIONS_SSO_SECRET` (SSO redirects,
+already used by referral); `ADMISSIONS_API_BASE_URL` + `ADMISSIONS_API_KEY`
+(external document status — degrades gracefully if unset: the upload link still
+works, status just shows not-uploaded).
+
 ## Automation test hooks
 
 | `data-testid`                       | Element                                       |
@@ -190,7 +226,11 @@ signed, it shows the completed summary + a link to the generated PDF.
 | `guided-tour-active-panel` / `-active-title` | Right panel + active step title      |
 | `guided-tour-back` / `-next`        | Step navigation buttons                       |
 | `guided-tour-video` / `-video-missing` | Video player / no-video placeholder        |
-| `guided-tour-panel-profile-photo` / `-download-app` / `-id-card` / `-agreement` / `-pending` | Fixed-step panels |
+| `guided-tour-panel-profile-photo` / `-download-app` / `-id-card` / `-agreement` / `-student-kit` / `-documents` / `-pending` | Fixed-step panels |
+| `student-kit-step` / `-fill` / `-pending` / `-track` | Kit states (fill redirect / pending / tracking link) |
+| `document-upload-step` / `-continue` / `-done` | Document upload redirect / uploaded state |
+| `id-card-step` / `-locked` / `-generating` / `-image` / `-download` | ID-card locked / generating / revealed |
+| `guided-tour-locked-notice` | Documents/kit locked-until-agreement notice |
 | `agreement-step` / `-mobile-notice` / `-completed` | Agreement root / mobile notice / signed state |
 | `agreement-stepper` / `agreement-step-tab-<i>` | Horizontal sub-step tabs (Enter Details → each doc → Signature Certificate) |
 | `agreement-details-form` / `agreement-field-<key>` | Detail form + each field |
@@ -206,6 +246,7 @@ signed, it shows the completed summary + a link to the generated PDF.
 
 ## Open follow-ups
 
-- Document upload and student-kit flows (rows exist; full UIs pending).
 - Agreement: blocking / deadline behaviour is intentionally deferred (currently
   non-blocking); the 7-day access-pause from the old LMS is a later decision.
+- Student-kit tracking id / courier / status come back as placeholders in the
+  old LMS; surfaced as `null` here until admissions exposes them.

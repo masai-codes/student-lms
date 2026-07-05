@@ -4,6 +4,7 @@ export const DASHBOARD_API = {
   overview: '/api/dashboard/overview',
   navbarPill: '/api/dashboard/navbar-pill',
   t0FlowLectures: '/api/dashboard/t0-flow-lectures',
+  t0FlowDocuments: '/api/dashboard/t0-flow-documents',
   t0FlowStepComplete: '/api/dashboard/t0-flow-step-complete',
   welcomeModalDismiss: '/api/dashboard/welcome-modal-dismiss',
   profilePhoto: '/api/dashboard/profile-photo',

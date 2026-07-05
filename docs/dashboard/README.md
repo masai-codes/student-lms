@@ -86,8 +86,12 @@ Response shape (grows as sections are migrated):
   ],
   // T0 onboarding (folded in so the dashboard needs one GET):
   "welcomeModal": { "showWelcomeModal": false },
-  "t0Flow": { "showT0Flow": false, "showGuidedTour": false, "batches": [], "…": "…" },
-  "t0FlowLectures": null   // primary batch's guided-tour lectures, only when in T0
+  // t0Flow is batch-level; each batch carries its own guided-tour `lectures`
+  // (populated inline for the primary/first batch, null for others → fetched on demand).
+  "t0Flow": {
+    "showT0Flow": false, "showGuidedTour": false, "profilePhotoUrl": null, "downloadAppCompleted": false,
+    "batches": [ { "batchId": 1, "showProgramTab": true, "lms": {}, "program": {}, "lectures": {} } ]
+  }
 }
 ```
 
@@ -115,9 +119,10 @@ Client access: `fetchDashboardOverview()` in
 > **Kept** (all frontend-wired): `/overview` (the single dashboard GET),
 > `/navbar-pill` (layout's upcoming-lecture pill), `/welcome-modal-dismiss`
 > (POST), `/t0-flow-lectures` (on-demand for non-primary batches),
-> `/t0-flow-step-complete` (POST), `/profile-photo` (POST), and the agreement
+> `/t0-flow-step-complete` (POST), `/profile-photo` (POST), the agreement
 > writes `/agreement/save` + `/agreement/submit` (POST; the agreement *read*
-> detail is folded into `overview`). Also kept: the external
+> detail is folded into `overview`), and `/t0-flow-documents` (GET; on-demand
+> external document status — kit/ID-card status ride in `overview`). Also kept: the external
 > **`/api/assess-nps-callback`** webhook (a live server endpoint an external
 > system calls — not a frontend API).
 

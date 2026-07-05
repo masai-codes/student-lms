@@ -50,7 +50,6 @@ beforeEach(() => {
 const T0_DEFAULTS = {
   welcomeModal: { showWelcomeModal: false },
   t0Flow: { showT0Flow: false, batches: [], profilePhotoUrl: null, downloadAppCompleted: false, showGuidedTour: false },
-  t0FlowLectures: null,
 }
 
 function renderPage() {

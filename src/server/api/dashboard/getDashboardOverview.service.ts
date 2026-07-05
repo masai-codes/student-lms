@@ -18,7 +18,6 @@ import type { DashboardSupportSession } from './support/getSupportSessions.servi
 import type { DashboardScheduleItem } from './schedule/scheduleTypes'
 import type { WelcomeModalStatus } from './getWelcomeModalStatus.service'
 import type { T0FlowStatus } from './getT0FlowStatus.service'
-import type { T0FlowLecturesResult } from './getT0FlowLectures.service'
 
 /**
  * Everything the dashboard needs in a single payload. Each field is produced by
@@ -38,14 +37,13 @@ export interface DashboardOverview {
   pendingTasks: Array<DashboardScheduleItem>
   /** Whether to show the one-time welcome modal. */
   welcomeModal: WelcomeModalStatus
-  /** T0 onboarding gate + per-batch progress. */
-  t0Flow: T0FlowStatus
   /**
-   * Guided-tour lectures for the primary (first) batch — only when the user is
-   * in the T0 flow, else null. Other batches are fetched on demand when the
-   * learner switches batch in the tour.
+   * T0 onboarding gate + per-batch progress. The primary (first) batch also
+   * carries its guided-tour `lectures` inline (`batches[0].lectures`); other
+   * batches have `lectures: null` and are fetched on demand when the learner
+   * switches batch in the tour.
    */
-  t0FlowLectures: T0FlowLecturesResult | null
+  t0Flow: T0FlowStatus
 }
 
 export async function getDashboardOverview(
@@ -64,10 +62,15 @@ export async function getDashboardOverview(
       getT0FlowStatus(userId),
     ])
 
-  // Only compute lectures for T0 users, for their primary (first) batch.
+  // Only compute lectures for T0 users, for their primary (first) batch, and
+  // nest them onto that batch so lectures live in the batch hierarchy.
   const primaryBatchId = t0Flow.batches.at(0)?.batchId
-  const t0FlowLectures =
+  const primaryLectures =
     t0Flow.showT0Flow && primaryBatchId !== undefined ? await getT0FlowLectures(userId, primaryBatchId) : null
+  const t0FlowWithLectures: T0FlowStatus = {
+    ...t0Flow,
+    batches: t0Flow.batches.map((batch, index) => ({ ...batch, lectures: index === 0 ? primaryLectures : null })),
+  }
 
   return {
     banners,
@@ -79,7 +82,6 @@ export async function getDashboardOverview(
     schedule,
     pendingTasks,
     welcomeModal,
-    t0Flow,
-    t0FlowLectures,
+    t0Flow: t0FlowWithLectures,
   }
 }

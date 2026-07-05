@@ -39,7 +39,7 @@ export function DashboardPage() {
   return (
     <>
       <DashboardLayout userName={currentUser?.name ?? null} overview={overview} />
-      {data ? <T0FlowGate status={data.t0Flow} primaryLectures={data.t0FlowLectures} /> : null}
+      {data ? <T0FlowGate status={data.t0Flow} /> : null}
       {data ? <WelcomeModalGate showWelcomeModal={data.welcomeModal.showWelcomeModal} /> : null}
     </>
   )

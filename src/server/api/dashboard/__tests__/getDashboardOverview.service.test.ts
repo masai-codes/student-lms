@@ -91,17 +91,17 @@ describe('getDashboardOverview', () => {
       pendingTasks,
       welcomeModal,
       t0Flow: t0FlowOff,
-      t0FlowLectures: null,
     })
     // Non-T0 user: lectures are not computed.
     expect(hoisted.getT0FlowLectures).not.toHaveBeenCalled()
   })
 
-  it('includes the primary batch guided-tour lectures for a T0 user', async () => {
+  it('nests the primary batch guided-tour lectures under t0Flow.batches for a T0 user', async () => {
     const t0FlowOn = {
       showT0Flow: true,
       batches: [
-        { batchId: 42, batchName: 'MERN', showProgramTab: false, lms: { completed: 0, total: 3, complete: false }, program: null },
+        { batchId: 42, batchName: 'MERN', showProgramTab: false, lms: { completed: 0, total: 3, complete: false }, program: null, lectures: null },
+        { batchId: 43, batchName: 'DA', showProgramTab: true, lms: { completed: 0, total: 2, complete: false }, program: null, lectures: null },
       ],
       profilePhotoUrl: null,
       downloadAppCompleted: false,
@@ -118,10 +118,12 @@ describe('getDashboardOverview', () => {
 
     const result = await getDashboardOverview(7, new Date('2026-07-02T00:00:00Z'))
 
-    // Computed for the primary (first) batch.
+    // Computed for the primary (first) batch and nested onto it; others stay null.
     expect(hoisted.getT0FlowLectures).toHaveBeenCalledWith(7, 42)
-    expect(result.t0Flow).toEqual(t0FlowOn)
-    expect(result.t0FlowLectures).toEqual(lectures)
+    expect(result.t0Flow.batches[0].lectures).toEqual(lectures)
+    expect(result.t0Flow.batches[1].lectures).toBeNull()
+    // No top-level sibling field anymore.
+    expect('t0FlowLectures' in result).toBe(false)
   })
 
   it('caps product updates at the dashboard limit of 5', async () => {

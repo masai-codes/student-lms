@@ -10,7 +10,7 @@ function lectures(over: Partial<T0FlowLecturesResult> = {}): T0FlowLecturesResul
     completedLectureIds: [],
     legalAgreementSections: [],
     isDocumentsRequired: false,
-    isStudentKitApplicable: false,
+    studentKit: { applicable: false, detailsFilled: false, trackingUrl: null, trackingId: null, admissionsFormUrl: null },
     idCardUrl: null,
     ...over,
   }
@@ -69,7 +69,7 @@ describe('buildProgramSteps', () => {
           },
         ],
         isDocumentsRequired: true,
-        isStudentKitApplicable: true,
+        studentKit: { applicable: true, detailsFilled: false, trackingUrl: null, trackingId: null, admissionsFormUrl: 'https://sso/kit' },
         idCardUrl: 'https://x/id.png',
       }),
     )
@@ -78,11 +78,44 @@ describe('buildProgramSteps', () => {
     expect(steps[0].completed).toBe(true)
     expect(steps[1]).toMatchObject({ action: 'agreement', completed: false })
     expect(steps[1].agreement?.sectionId).toBe(7)
-    expect(steps.at(-1)).toMatchObject({ action: 'id-card', completed: true })
+    // ID card is locked (agreement not yet signed), so not complete.
+    expect(steps.at(-1)).toMatchObject({ action: 'id-card', completed: false })
+    expect(steps.at(-1)?.idCard).toEqual({ url: 'https://x/id.png', unlocked: false })
+    // Documents + kit are locked until the agreement is signed.
+    expect(steps.find((s) => s.action === 'documents')?.locked).toBe(true)
+    expect(steps.find((s) => s.action === 'student-kit')?.locked).toBe(true)
   })
 
-  it('omits extras that are not applicable', () => {
+  it('unlocks documents + kit once every agreement is signed', () => {
+    const steps = buildProgramSteps(
+      lectures({
+        legalAgreementSections: [
+          { sectionId: 7, sectionName: 'A', programName: 'M', batchName: 'B', steps: [], savedValues: {}, acceptedStepKeys: [], completed: true, referenceNumber: 'r', agreementPdfUrl: null },
+        ],
+        isDocumentsRequired: true,
+        studentKit: { applicable: true, detailsFilled: false, trackingUrl: null, trackingId: null, admissionsFormUrl: 'https://sso/kit' },
+      }),
+    )
+    expect(steps.find((s) => s.action === 'documents')?.locked).toBe(false)
+    expect(steps.find((s) => s.action === 'student-kit')?.locked).toBe(false)
+  })
+
+  it('unlocks the ID card once videos + agreements are complete', () => {
+    const steps = buildProgramSteps(
+      lectures({
+        programLectures: [{ id: 'p', lectureId: 9, title: 'Intro', videoUrl: 'v', lectureType: 'video' }],
+        completedLectureIds: [9],
+        idCardUrl: 'https://x/id.png',
+      }),
+    )
+    // Only the id-card step (no docs/kit/agreement); unlocked since the video is done.
+    expect(steps.map((s) => s.key)).toEqual(['lecture-9', 'id-card'])
+    expect(steps.at(-1)).toMatchObject({ action: 'id-card', completed: true })
+    expect(steps.at(-1)?.idCard?.unlocked).toBe(true)
+  })
+
+  it('always appends the ID-card capstone step in the program tab', () => {
     const steps = buildProgramSteps(lectures({ programLectures: [], legalAgreementSections: [] }))
-    expect(steps).toEqual([])
+    expect(steps.map((s) => s.key)).toEqual(['id-card'])
   })
 })

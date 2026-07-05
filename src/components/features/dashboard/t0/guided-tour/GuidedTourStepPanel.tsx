@@ -1,11 +1,16 @@
 import { ProfilePhotoStep } from './ProfilePhotoStep'
 import { AgreementStep } from './agreement/AgreementStep'
+import { StudentKitStep } from './StudentKitStep'
+import { DocumentUploadStep } from './DocumentUploadStep'
+import { IdCardStep } from './IdCardStep'
+import { GuidedTourLockedNotice } from './GuidedTourLockedNotice'
 import { DownloadAppContent } from '@/components/features/layout/DownloadAppContent'
 import type { GuidedTourStep } from './steps'
 
 interface GuidedTourStepPanelProps {
   step: GuidedTourStep
-  idCardUrl: string | null
+  /** The active batch — needed for the on-demand document-status fetch. */
+  batchId: number
   /** The already-saved profile photo, if any (for the profile-photo step). */
   profilePhotoUrl: string | null
   /** Called when a step's action completes, so the tour can refetch progress. */
@@ -15,12 +20,12 @@ interface GuidedTourStepPanelProps {
 const CARD = 'flex flex-col items-start gap-4 rounded-xl border border-gray-200 p-6'
 
 /**
- * Renders the active fixed (non-video) guided-tour step. Profile photo captures
- * via webcam; download-app shows the reusable app QR content (informational —
- * it completes only when the mobile app registers a device); the ID card reveals
- * the issued card. Agreement / documents / student-kit are forthcoming.
+ * Renders the active fixed (non-video) guided-tour step by dispatching to its
+ * dedicated component: profile-photo (webcam), download-app (QR content),
+ * agreement (multi-step form), student-kit, document-upload, and the ID-card
+ * reveal.
  */
-export function GuidedTourStepPanel({ step, idCardUrl, profilePhotoUrl, onCompleted }: GuidedTourStepPanelProps) {
+export function GuidedTourStepPanel({ step, batchId, profilePhotoUrl, onCompleted }: GuidedTourStepPanelProps) {
   if (step.action === 'profile-photo') {
     return <ProfilePhotoStep existingPhotoUrl={profilePhotoUrl} onCompleted={onCompleted} />
   }
@@ -38,15 +43,6 @@ export function GuidedTourStepPanel({ step, idCardUrl, profilePhotoUrl, onComple
     )
   }
 
-  if (step.action === 'id-card' && idCardUrl) {
-    return (
-      <div className={CARD} data-testid="guided-tour-panel-id-card">
-        <p className="text-sm text-gray-600">Your student ID card is ready.</p>
-        <img src={idCardUrl} alt="Student ID card" className="w-full max-w-sm rounded-lg border border-gray-200" />
-      </div>
-    )
-  }
-
   if (step.action === 'agreement' && step.agreement) {
     return (
       <div data-testid="guided-tour-panel-agreement">
@@ -55,7 +51,41 @@ export function GuidedTourStepPanel({ step, idCardUrl, profilePhotoUrl, onComple
     )
   }
 
-  // documents / student-kit — full flows arrive in a later slice.
+  // Documents + student kit are locked until the agreement is signed.
+  const lockedMessage = 'Sign your agreement first to unlock this step.'
+
+  if (step.action === 'student-kit' && step.studentKit) {
+    return (
+      <div data-testid="guided-tour-panel-student-kit">
+        {step.locked ? (
+          <GuidedTourLockedNotice title={step.title} message={lockedMessage} />
+        ) : (
+          <StudentKitStep kit={step.studentKit} />
+        )}
+      </div>
+    )
+  }
+
+  if (step.action === 'documents') {
+    return (
+      <div data-testid="guided-tour-panel-documents">
+        {step.locked ? (
+          <GuidedTourLockedNotice title={step.title} message={lockedMessage} />
+        ) : (
+          <DocumentUploadStep batchId={batchId} onCompleted={onCompleted} />
+        )}
+      </div>
+    )
+  }
+
+  if (step.action === 'id-card' && step.idCard) {
+    return (
+      <div data-testid="guided-tour-panel-id-card">
+        <IdCardStep url={step.idCard.url} unlocked={step.idCard.unlocked} />
+      </div>
+    )
+  }
+
   return (
     <div className={CARD} data-testid="guided-tour-panel-pending">
       <p className="text-sm font-medium text-gray-900">{step.title}</p>

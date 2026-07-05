@@ -13,13 +13,10 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { fetchT0FlowLectures } from '@/lib/api/dashboard/dashboardApi'
-import type { T0FlowLecturesResult } from '@/server/api/dashboard/getT0FlowLectures.service'
 import type { BatchT0Status, T0FlowStatus } from '@/server/api/dashboard/getT0FlowStatus.service'
 
 interface GuidedTourOverlayProps {
   status: T0FlowStatus
-  /** Primary-batch lectures from the overview; other batches are fetched here. */
-  primaryLectures: T0FlowLecturesResult | null
   onSeeDashboard: () => void
 }
 
@@ -32,10 +29,9 @@ type TabKey = 'lms' | 'program'
  * until full fees are paid), progress, and the step list; the right panel shows
  * the active step's video/content with Back / Next navigation.
  */
-export function GuidedTourOverlay({ status, primaryLectures, onSeeDashboard }: GuidedTourOverlayProps) {
+export function GuidedTourOverlay({ status, onSeeDashboard }: GuidedTourOverlayProps) {
   const queryClient = useQueryClient()
-  const primaryBatchId = status.batches.at(0)?.batchId
-  const [selectedBatchId, setSelectedBatchId] = useState<number | undefined>(primaryBatchId)
+  const [selectedBatchId, setSelectedBatchId] = useState<number | undefined>(status.batches.at(0)?.batchId)
   const [tab, setTab] = useState<TabKey>('lms')
   const [activeKey, setActiveKey] = useState<string | null>(null)
 
@@ -45,15 +41,15 @@ export function GuidedTourOverlay({ status, primaryLectures, onSeeDashboard }: G
   // The program tab is always visible but locked; never render its content when locked.
   const effectiveTab: TabKey = tab === 'program' && !programUnlocked ? 'lms' : tab
 
-  // The primary batch's lectures come from the consolidated overview (no extra
-  // call); only other batches are fetched on demand when the learner switches.
-  const isPrimaryBatch = selectedBatch?.batchId === primaryBatchId
+  // Lectures live on the batch: the primary batch's arrive inline via the
+  // overview; other batches are fetched on demand when the learner switches.
+  const inlineLectures = selectedBatch?.lectures ?? null
   const { data: fetchedLectures } = useQuery({
     queryKey: ['dashboard', 't0-flow-lectures', selectedBatch?.batchId ?? null],
     queryFn: () => fetchT0FlowLectures(selectedBatch?.batchId),
-    enabled: selectedBatch !== undefined && !isPrimaryBatch,
+    enabled: selectedBatch !== undefined && inlineLectures === null,
   })
-  const lectures = isPrimaryBatch ? primaryLectures : fetchedLectures
+  const lectures = inlineLectures ?? fetchedLectures
 
   const steps: Array<GuidedTourStep> = useMemo(() => {
     if (!lectures) return []
@@ -166,7 +162,6 @@ export function GuidedTourOverlay({ status, primaryLectures, onSeeDashboard }: G
             step={activeStep}
             batchId={selectedBatch.batchId}
             tab={effectiveTab}
-            idCardUrl={lectures?.idCardUrl ?? null}
             profilePhotoUrl={status.profilePhotoUrl}
             onReported={refetchProgress}
             onBack={() => goToIndex(activeIndex - 1)}
