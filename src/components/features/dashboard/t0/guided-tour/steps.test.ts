@@ -23,6 +23,7 @@ function status(over: Partial<T0FlowStatus> = {}): T0FlowStatus {
     profilePhotoUrl: null,
     downloadAppCompleted: false,
     showGuidedTour: true,
+    flowVariant: 'full',
     ...over,
   }
 }
@@ -72,6 +73,7 @@ describe('buildProgramSteps', () => {
         studentKit: { applicable: true, detailsFilled: false, trackingUrl: null, trackingId: null, admissionsFormUrl: 'https://sso/kit' },
         idCardUrl: 'https://x/id.png',
       }),
+      status(),
     )
 
     expect(steps.map((s) => s.key)).toEqual(['lecture-9', 'agreement-7', 'documents', 'student-kit', 'id-card'])
@@ -95,6 +97,7 @@ describe('buildProgramSteps', () => {
         isDocumentsRequired: true,
         studentKit: { applicable: true, detailsFilled: false, trackingUrl: null, trackingId: null, admissionsFormUrl: 'https://sso/kit' },
       }),
+      status(),
     )
     expect(steps.find((s) => s.action === 'documents')?.locked).toBe(false)
     expect(steps.find((s) => s.action === 'student-kit')?.locked).toBe(false)
@@ -107,6 +110,7 @@ describe('buildProgramSteps', () => {
         completedLectureIds: [9],
         idCardUrl: 'https://x/id.png',
       }),
+      status(),
     )
     // Only the id-card step (no docs/kit/agreement); unlocked since the video is done.
     expect(steps.map((s) => s.key)).toEqual(['lecture-9', 'id-card'])
@@ -114,8 +118,29 @@ describe('buildProgramSteps', () => {
     expect(steps.at(-1)?.idCard?.unlocked).toBe(true)
   })
 
-  it('always appends the ID-card capstone step in the program tab', () => {
-    const steps = buildProgramSteps(lectures({ programLectures: [], legalAgreementSections: [] }))
+  it('always appends the ID-card capstone step in the program tab (full flow)', () => {
+    const steps = buildProgramSteps(lectures({ programLectures: [], legalAgreementSections: [] }), status())
     expect(steps.map((s) => s.key)).toEqual(['id-card'])
+  })
+
+  it('lite flow: only the agreement step — no videos, documents, kit, or ID card', () => {
+    const steps = buildProgramSteps(
+      lectures({
+        legalAgreementSections: [
+          { sectionId: 7, sectionName: 'Enrolment agreement', programName: 'MERN', batchName: 'B1', steps: [], savedValues: {}, acceptedStepKeys: [], completed: false, referenceNumber: 'r', agreementPdfUrl: null },
+        ],
+        // These would add steps in the full flow but must be ignored in lite.
+        isDocumentsRequired: true,
+        studentKit: { applicable: true, detailsFilled: false, trackingUrl: null, trackingId: null, admissionsFormUrl: 'https://sso/kit' },
+        idCardUrl: 'https://x/id.png',
+      }),
+      status({ flowVariant: 'lite' }),
+    )
+    expect(steps.map((s) => s.key)).toEqual(['agreement-7'])
+  })
+
+  it('lite flow: an empty program tab when the batch has no agreement', () => {
+    const steps = buildProgramSteps(lectures({ legalAgreementSections: [] }), status({ flowVariant: 'lite' }))
+    expect(steps).toEqual([])
   })
 })

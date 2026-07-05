@@ -18,6 +18,10 @@ import type { BatchT0Status, T0FlowStatus } from '@/server/api/dashboard/getT0Fl
 interface GuidedTourOverlayProps {
   status: T0FlowStatus
   onSeeDashboard: () => void
+  /** Course to open on mount (from the dashboard onboarding banner); defaults to the first batch. */
+  initialBatchId?: number
+  /** Tab to open on mount; defaults to the LMS walkthrough. */
+  initialTab?: 'lms' | 'program'
 }
 
 type TabKey = 'lms' | 'program'
@@ -29,10 +33,17 @@ type TabKey = 'lms' | 'program'
  * until full fees are paid), progress, and the step list; the right panel shows
  * the active step's video/content with Back / Next navigation.
  */
-export function GuidedTourOverlay({ status, onSeeDashboard }: GuidedTourOverlayProps) {
+export function GuidedTourOverlay({
+  status,
+  onSeeDashboard,
+  initialBatchId,
+  initialTab,
+}: GuidedTourOverlayProps) {
   const queryClient = useQueryClient()
-  const [selectedBatchId, setSelectedBatchId] = useState<number | undefined>(status.batches.at(0)?.batchId)
-  const [tab, setTab] = useState<TabKey>('lms')
+  const [selectedBatchId, setSelectedBatchId] = useState<number | undefined>(
+    initialBatchId ?? status.batches.at(0)?.batchId,
+  )
+  const [tab, setTab] = useState<TabKey>(initialTab ?? 'lms')
   const [activeKey, setActiveKey] = useState<string | null>(null)
 
   const selectedBatch: BatchT0Status | undefined =
@@ -53,7 +64,7 @@ export function GuidedTourOverlay({ status, onSeeDashboard }: GuidedTourOverlayP
 
   const steps: Array<GuidedTourStep> = useMemo(() => {
     if (!lectures) return []
-    return effectiveTab === 'lms' ? buildLmsSteps(lectures, status) : buildProgramSteps(lectures)
+    return effectiveTab === 'lms' ? buildLmsSteps(lectures, status) : buildProgramSteps(lectures, status)
   }, [lectures, status, effectiveTab])
 
   const activeIndex = Math.max(0, steps.findIndex((s) => s.key === activeKey))

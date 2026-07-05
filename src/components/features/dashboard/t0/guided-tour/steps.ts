@@ -45,14 +45,15 @@ function videoStep(item: T0FlowLectureItem, completedIds: ReadonlySet<number>): 
 /**
  * LMS Walkthrough steps: the walkthrough videos followed by the two fixed
  * steps (profile photo, download app). Completion of the fixed steps mirrors the
- * backend denominator (`+2`).
+ * backend denominator (`+2`). The lite (non-T0) flow has no walkthrough videos —
+ * strictly the two fixed steps.
  */
 export function buildLmsSteps(
   lectures: T0FlowLecturesResult,
   status: T0FlowStatus,
 ): Array<GuidedTourStep> {
   const completedIds = new Set(lectures.completedLectureIds)
-  const videoSteps = lectures.lmsLectures.map((l) => videoStep(l, completedIds))
+  const videoSteps = status.flowVariant === 'lite' ? [] : lectures.lmsLectures.map((l) => videoStep(l, completedIds))
 
   return [
     ...videoSteps,
@@ -74,13 +75,20 @@ export function buildLmsSteps(
 }
 
 /**
- * Program Onboarding steps: the onboarding videos, the agreement (if the batch
- * has one), plus the non-counted extras — document upload, student kit, and the
- * ID-card reveal — shown when applicable.
+ * Program Onboarding steps.
+ * - **Full (T0):** the onboarding videos, the agreement (if the batch has one),
+ *   plus the non-counted extras — document upload, student kit, and the ID-card
+ *   reveal — shown when applicable.
+ * - **Lite (non-T0):** strictly the agreement step. All video / documents /
+ *   student-kit / ID-card extras are suppressed.
  */
-export function buildProgramSteps(lectures: T0FlowLecturesResult): Array<GuidedTourStep> {
+export function buildProgramSteps(
+  lectures: T0FlowLecturesResult,
+  status: T0FlowStatus,
+): Array<GuidedTourStep> {
   const completedIds = new Set(lectures.completedLectureIds)
-  const videoSteps = lectures.programLectures.map((l) => videoStep(l, completedIds))
+  const isLite = status.flowVariant === 'lite'
+  const videoSteps = isLite ? [] : lectures.programLectures.map((l) => videoStep(l, completedIds))
 
   const agreementSteps: Array<GuidedTourStep> = lectures.legalAgreementSections.map((a) => ({
     key: `agreement-${a.sectionId}`,
@@ -90,6 +98,9 @@ export function buildProgramSteps(lectures: T0FlowLecturesResult): Array<GuidedT
     action: 'agreement',
     agreement: a,
   }))
+
+  // Lite is agreement-only — no documents / kit / ID-card capstone.
+  if (isLite) return [...agreementSteps]
 
   // Documents + student kit are locked until every agreement is signed.
   const agreementsSigned = lectures.legalAgreementSections.every((a) => a.completed)

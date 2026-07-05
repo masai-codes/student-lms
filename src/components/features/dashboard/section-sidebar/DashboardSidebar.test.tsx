@@ -31,6 +31,8 @@ const overview: DashboardOverviewState = {
   },
   schedule: [],
   pendingTasks: [],
+  feePaymentBanners: [],
+  batchStartBanners: [],
 }
 
 describe('DashboardSidebar', () => {

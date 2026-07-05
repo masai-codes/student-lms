@@ -1,4 +1,5 @@
 // @vitest-environment jsdom
+import { useState } from 'react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
@@ -38,14 +39,30 @@ const baseStatus = (over: Partial<T0FlowStatus> = {}): T0FlowStatus => ({
   profilePhotoUrl: null,
   downloadAppCompleted: false,
   showGuidedTour: true,
+  flowVariant: 'full',
   ...over,
 })
 
-function renderGate(status: T0FlowStatus) {
+// Mirrors the dashboard page: dismissed state is lifted above the gate, so
+// "See dashboard" (onDismiss) actually hides the overlay.
+function StatefulGate({ status, forceOpen = false }: { status: T0FlowStatus; forceOpen?: boolean }) {
+  const [dismissed, setDismissed] = useState(false)
+  return (
+    <T0FlowGate
+      status={status}
+      dismissed={dismissed}
+      onDismiss={() => setDismissed(true)}
+      target={null}
+      forceOpen={forceOpen}
+    />
+  )
+}
+
+function renderGate(status: T0FlowStatus, forceOpen = false) {
   const client = new QueryClient({ defaultOptions: { queries: { retry: false } } })
   return render(
     <QueryClientProvider client={client}>
-      <T0FlowGate status={status} />
+      <StatefulGate status={status} forceOpen={forceOpen} />
     </QueryClientProvider>,
   )
 }
@@ -53,6 +70,25 @@ function renderGate(status: T0FlowStatus) {
 describe('T0FlowGate', () => {
   it('renders nothing when the backend says not to show the tour', () => {
     renderGate(baseStatus({ showGuidedTour: false }))
+    expect(screen.queryByTestId('guided-tour-overlay')).toBeNull()
+  })
+
+  it('force-opens the tour even when onboarding is complete (navbar "?")', () => {
+    // Completed onboarding: showGuidedTour is false, but forceOpen wins.
+    renderGate(
+      baseStatus({
+        showGuidedTour: false,
+        batches: [
+          { batchId: 5, batchName: 'MERN', showProgramTab: false, lms: { completed: 4, total: 4, complete: true }, program: null, lectures },
+        ],
+      }),
+      true,
+    )
+    expect(screen.getByTestId('guided-tour-overlay')).toBeTruthy()
+  })
+
+  it('force-open still shows nothing when the user has no onboarding flow', () => {
+    renderGate(baseStatus({ showT0Flow: false }), true)
     expect(screen.queryByTestId('guided-tour-overlay')).toBeNull()
   })
 

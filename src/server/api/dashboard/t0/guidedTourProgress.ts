@@ -10,11 +10,21 @@ import { db } from '@/db'
  * **web** platform fractions live (self-healing) from the current profile /
  * device / lecture / agreement state:
  *
- * - **LMS walkthrough:** `lms-walkthrough-web` lectures + 2 fixed steps
+ * - **LMS walkthrough:** `lms-walkthrough-{platform}` lectures + 2 fixed steps
  *   (profile photo, download app).
- * - **Program onboarding:** `program-onboarding-web` lectures + 1 if the batch
- *   has a valid signable agreement. Only meaningful when full fees are paid.
+ * - **Program onboarding:** `program-onboarding-{platform}` lectures + 1 if the
+ *   batch has a valid signable agreement. Only meaningful when full fees are paid.
+ *
+ * `platform` is `'web'` by default and `'app'` when the request comes from the
+ * mobile app (`X-App-Mobile` header) — the app has its own `-app` sections.
  */
+
+/**
+ * Which platform's onboarding sections to read/write. `'web'` uses the
+ * `-web` sections; `'app'` uses `-app` (served to the mobile app, detected via
+ * the `X-App-Mobile` request header).
+ */
+export type GuidedTourPlatform = 'web' | 'app'
 
 export interface ProgressCount {
   completed: number
@@ -116,7 +126,7 @@ async function countSectionCompletions(userId: number, sectionId: number): Promi
   return { total: lecs.length, completed: done.length }
 }
 
-async function latestWebSectionId(batchId: number, type: string): Promise<number | undefined> {
+async function latestSectionId(batchId: number, type: string): Promise<number | undefined> {
   const rows = normalizeRows<{ id: number }>(
     await db.execute(sql`
       SELECT id FROM sections
@@ -163,24 +173,27 @@ async function computeAgreementState(
 }
 
 /**
- * Computes the live web-platform guided-tour progress for one admission batch.
+ * Computes the live guided-tour progress for one admission batch on a given
+ * platform (`'web'` → `-web` sections, `'app'` → `-app` sections).
  * `profileMeta` / `legalData` are the profile's `meta` / `legal_data`, and
  * `hasDeviceToken` whether the user has registered a device — passed in so
- * callers that already loaded them don't re-query.
+ * callers that already loaded them don't re-query. The two fixed LMS steps
+ * (profile photo, download app) are platform-independent.
  */
-export async function computeGuidedTourWebProgress(
+export async function computeGuidedTourProgress(
   userId: number,
   batchId: number,
   fullFeesPaid: boolean,
   profileMeta: unknown,
   legalData: unknown,
   hasDeviceToken: boolean,
+  platform: GuidedTourPlatform = 'web',
 ): Promise<GuidedTourWebProgress> {
   const hasPhoto = hasHttpUrl(parseMeta(profileMeta)['profile_pic'])
   const lmsExtraCompleted = (hasPhoto ? 1 : 0) + (hasDeviceToken ? 1 : 0)
 
-  const lmsWebId = await latestWebSectionId(batchId, 'lms-walkthrough-web')
-  const lmsBase = lmsWebId ? await countSectionCompletions(userId, lmsWebId) : { total: 0, completed: 0 }
+  const lmsSectionId = await latestSectionId(batchId, `lms-walkthrough-${platform}`)
+  const lmsBase = lmsSectionId ? await countSectionCompletions(userId, lmsSectionId) : { total: 0, completed: 0 }
   const lmsTotal = lmsBase.total + LMS_WALKTHROUGH_EXTRA_STEPS
   const lms: ProgressCount = {
     total: lmsTotal,
@@ -190,12 +203,41 @@ export async function computeGuidedTourWebProgress(
   if (!fullFeesPaid) return { lms, program: null }
 
   const { hasAgreement, signed } = await computeAgreementState(userId, batchId, legalData)
-  const progWebId = await latestWebSectionId(batchId, 'program-onboarding-web')
-  const progBase = progWebId ? await countSectionCompletions(userId, progWebId) : { total: 0, completed: 0 }
+  const progSectionId = await latestSectionId(batchId, `program-onboarding-${platform}`)
+  const progBase = progSectionId ? await countSectionCompletions(userId, progSectionId) : { total: 0, completed: 0 }
   const progTotal = progBase.total + (hasAgreement ? 1 : 0)
   const program: ProgressCount = {
     total: progTotal,
     completed: Math.min(progBase.completed + (signed ? 1 : 0), progTotal),
+  }
+
+  return { lms, program }
+}
+
+/**
+ * Progress for the trimmed **lite** tour shown to non-T0 (no admission row)
+ * enrolled users. Strictly three hard-coded steps, both tabs unlocked:
+ * - **LMS Walkthrough:** profile photo + download app (no videos).
+ * - **Program Onboarding:** the batch's agreement (0 steps when the batch has no
+ *   signable agreement).
+ */
+export async function computeLiteGuidedTourProgress(
+  userId: number,
+  batchId: number,
+  profileMeta: unknown,
+  legalData: unknown,
+  hasDeviceToken: boolean,
+): Promise<{ lms: ProgressCount; program: ProgressCount }> {
+  const hasPhoto = hasHttpUrl(parseMeta(profileMeta)['profile_pic'])
+  const lms: ProgressCount = {
+    total: LMS_WALKTHROUGH_EXTRA_STEPS,
+    completed: (hasPhoto ? 1 : 0) + (hasDeviceToken ? 1 : 0),
+  }
+
+  const { hasAgreement, signed } = await computeAgreementState(userId, batchId, legalData)
+  const program: ProgressCount = {
+    total: hasAgreement ? 1 : 0,
+    completed: hasAgreement && signed ? 1 : 0,
   }
 
   return { lms, program }

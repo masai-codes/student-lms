@@ -3,15 +3,13 @@ import { getAgreementRenderData } from './agreement/getAgreementRenderData.servi
 import type { AgreementSection } from './agreement/getAgreementRenderData.service'
 import { getStudentKitStatus } from './t0/getStudentKitStatus.service'
 import type { StudentKitStatus } from './t0/getStudentKitStatus.service'
+import { expandLectures } from './lectureExpansion'
+import type { LectureRow, T0FlowLectureItem } from './lectureExpansion'
+import { getBatchIdsForEnrolledUser } from '@/server/batches/getBatchIdsForEnrolledUser'
+import type { GuidedTourPlatform } from './t0/guidedTourProgress'
 import { db } from '@/db'
 
-export interface T0FlowLectureItem {
-  id: string
-  lectureId: number
-  title: string
-  videoUrl: string | null
-  lectureType: string
-}
+export type { T0FlowLectureItem } from './lectureExpansion'
 
 export interface T0FlowLecturesResult {
   lmsLectures: Array<T0FlowLectureItem>
@@ -37,43 +35,10 @@ function normalizeRows<T>(result: unknown): Array<T> {
   return []
 }
 
-interface LectureRow {
-  id: number
-  title: string
-  type: string
-  videos: string | Array<string> | null
-}
-
-function expandLectures(rows: Array<LectureRow>): Array<T0FlowLectureItem> {
-  const items: Array<T0FlowLectureItem> = []
-  for (const row of rows) {
-    let urls: Array<string> = []
-    if (row.videos) {
-      try {
-        const parsed = typeof row.videos === 'string' ? JSON.parse(row.videos) : row.videos
-        if (Array.isArray(parsed)) urls = parsed.filter((u) => typeof u === 'string')
-      } catch {
-        // videos field not valid JSON — skip
-      }
-    }
-
-    if (urls.length > 0) {
-      items.push({
-        id: String(row.id),
-        lectureId: row.id,
-        title: row.title,
-        videoUrl: urls[0],
-        lectureType: row.type,
-      })
-    }
-  }
-  return items
-}
-
 async function getLecturesForSection(sectionId: number): Promise<Array<T0FlowLectureItem>> {
   const rows = normalizeRows<LectureRow>(
     await db.execute(sql`
-      SELECT id, title, type, videos
+      SELECT id, title, type, videos, zoom_link
       FROM lectures
       WHERE section_id = ${sectionId}
         AND deleted_at IS NULL
@@ -117,11 +82,14 @@ async function getSectionId(batchId: number, sectionType: string): Promise<numbe
   return rows[0]?.id ?? null
 }
 
-export async function getT0FlowLectures(userId: number, batchId?: number): Promise<T0FlowLecturesResult> {
+export async function getT0FlowLectures(
+  userId: number,
+  batchId?: number,
+  platform: GuidedTourPlatform = 'web',
+): Promise<T0FlowLecturesResult> {
   const emptyKit: StudentKitStatus = { applicable: false, detailsFilled: false, trackingUrl: null, trackingId: null, admissionsFormUrl: null }
   const empty: T0FlowLecturesResult = { lmsLectures: [], programLectures: [], completedLectureIds: [], legalAgreementSections: [], isDocumentsRequired: false, studentKit: emptyKit, idCardUrl: null }
 
-  // Validate: user must have an admission row for the requested batch
   if (!batchId) return empty
   const admissionRows = normalizeRows<{ batch_id: number; id_card_url: string | null }>(
     await db.execute(sql`
@@ -130,15 +98,26 @@ export async function getT0FlowLectures(userId: number, batchId?: number): Promi
       LIMIT 1
     `)
   )
-  if (!admissionRows.length) return empty
+
+  // Non-T0 (lite) flow: no admission row, but enrolled users get the trimmed
+  // 3-step tour. Only the agreement (Program Onboarding) needs render data —
+  // the LMS steps (photo, app) are user-level and come from the status payload.
+  // No videos / documents / student kit / ID card.
+  if (!admissionRows.length) {
+    const enrolledBatchIds = await getBatchIdsForEnrolledUser(userId)
+    if (!enrolledBatchIds.includes(batchId)) return empty
+    const legalAgreementSections = await getAgreementRenderData(userId, batchId)
+    return { ...empty, legalAgreementSections }
+  }
 
   const rawIdCardUrl = admissionRows[0]?.id_card_url ?? null
   const idCardUrl = typeof rawIdCardUrl === 'string' && /^https?:\/\/.+/.test(rawIdCardUrl.trim()) ? rawIdCardUrl.trim() : null
 
-  // Find the most recently created lms-walkthrough-web and program-onboarding-web section for this batch
+  // Find the most recently created walkthrough / onboarding section for this
+  // batch, on the requested platform (`-web` by default, `-app` for the mobile app).
   const [lmsSectionId, programSectionId, legalAgreementSections, batchInfoFlags, studentKit] = await Promise.all([
-    getSectionId(batchId, 'lms-walkthrough-web'),
-    getSectionId(batchId, 'program-onboarding-web'),
+    getSectionId(batchId, `lms-walkthrough-${platform}`),
+    getSectionId(batchId, `program-onboarding-${platform}`),
     getAgreementRenderData(userId, batchId),
     getBatchInfoFlags(batchId),
     getStudentKitStatus(userId, batchId),

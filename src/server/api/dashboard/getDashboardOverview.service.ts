@@ -11,6 +11,10 @@ import { getDashboardPendingTasks } from './pending/getDashboardPendingTasks.ser
 import { getWelcomeModalStatus } from './getWelcomeModalStatus.service'
 import { getT0FlowStatus } from './getT0FlowStatus.service'
 import { getT0FlowLectures } from './getT0FlowLectures.service'
+import { getFeePaymentBanners } from './t0/getFeePaymentBanner.service'
+import type { FeePaymentBanner } from './t0/getFeePaymentBanner.service'
+import { getBatchStartBanners } from './getBatchStartBanners.service'
+import type { BatchStartBanner } from './getBatchStartBanners.service'
 import type { DashboardBanner } from './banners/getWelcomeBanners.service'
 import type { DashboardAnnouncement } from './announcements/announcementFeed'
 import type { DashboardProductUpdate } from './product-updates/getProductUpdates.service'
@@ -18,6 +22,7 @@ import type { DashboardSupportSession } from './support/getSupportSessions.servi
 import type { DashboardScheduleItem } from './schedule/scheduleTypes'
 import type { WelcomeModalStatus } from './getWelcomeModalStatus.service'
 import type { T0FlowStatus } from './getT0FlowStatus.service'
+import type { GuidedTourPlatform } from './t0/guidedTourProgress'
 
 /**
  * Everything the dashboard needs in a single payload. Each field is produced by
@@ -44,13 +49,25 @@ export interface DashboardOverview {
    * switches batch in the tour.
    */
   t0Flow: T0FlowStatus
+  /**
+   * One fee-payment banner per partial-fee batch (timer before its deadline,
+   * overdue after), each tagged with the course name — rendered as a swipable
+   * carousel. Empty for full-fee / non-T0 users.
+   */
+  feePaymentBanners: Array<FeePaymentBanner>
+  /**
+   * Banners for enrolled batches with an upcoming start date ("Your course …
+   * will start on {date}"), soonest-first. Empty when none are upcoming.
+   */
+  batchStartBanners: Array<BatchStartBanner>
 }
 
 export async function getDashboardOverview(
   userId: number,
   now: Date = new Date(),
+  platform: GuidedTourPlatform = 'web',
 ): Promise<DashboardOverview> {
-  const [banners, announcements, productUpdates, supportSessions, schedule, pendingTasks, welcomeModal, t0Flow] =
+  const [banners, announcements, productUpdates, supportSessions, schedule, pendingTasks, welcomeModal, t0Flow, feePaymentBanners, batchStartBanners] =
     await Promise.all([
       getWelcomeBanners(userId, now),
       getAnnouncementsFeed(userId, now),
@@ -59,14 +76,16 @@ export async function getDashboardOverview(
       getDashboardSchedule(userId, now),
       getDashboardPendingTasks(userId, now),
       getWelcomeModalStatus(userId),
-      getT0FlowStatus(userId),
+      getT0FlowStatus(userId, platform),
+      getFeePaymentBanners(userId, now),
+      getBatchStartBanners(userId, now),
     ])
 
   // Only compute lectures for T0 users, for their primary (first) batch, and
   // nest them onto that batch so lectures live in the batch hierarchy.
   const primaryBatchId = t0Flow.batches.at(0)?.batchId
   const primaryLectures =
-    t0Flow.showT0Flow && primaryBatchId !== undefined ? await getT0FlowLectures(userId, primaryBatchId) : null
+    t0Flow.showT0Flow && primaryBatchId !== undefined ? await getT0FlowLectures(userId, primaryBatchId, platform) : null
   const t0FlowWithLectures: T0FlowStatus = {
     ...t0Flow,
     batches: t0Flow.batches.map((batch, index) => ({ ...batch, lectures: index === 0 ? primaryLectures : null })),
@@ -83,5 +102,7 @@ export async function getDashboardOverview(
     pendingTasks,
     welcomeModal,
     t0Flow: t0FlowWithLectures,
+    feePaymentBanners,
+    batchStartBanners,
   }
 }

@@ -10,6 +10,8 @@ const hoisted = vi.hoisted(() => ({
   getWelcomeModalStatus: vi.fn(),
   getT0FlowStatus: vi.fn(),
   getT0FlowLectures: vi.fn(),
+  getFeePaymentBanners: vi.fn(),
+  getBatchStartBanners: vi.fn(),
 }))
 
 vi.mock('../banners/getWelcomeBanners.service', () => ({
@@ -36,6 +38,8 @@ vi.mock('../getWelcomeModalStatus.service', () => ({
 }))
 vi.mock('../getT0FlowStatus.service', () => ({ getT0FlowStatus: hoisted.getT0FlowStatus }))
 vi.mock('../getT0FlowLectures.service', () => ({ getT0FlowLectures: hoisted.getT0FlowLectures }))
+vi.mock('../t0/getFeePaymentBanner.service', () => ({ getFeePaymentBanners: hoisted.getFeePaymentBanners }))
+vi.mock('../getBatchStartBanners.service', () => ({ getBatchStartBanners: hoisted.getBatchStartBanners }))
 
 const banners = [{ id: 1, title: 'B', description: null, imageUrl: null, ctaUrl: null }]
 const announcements = [
@@ -62,6 +66,8 @@ describe('getDashboardOverview', () => {
     hoisted.getDashboardPendingTasks.mockResolvedValue([])
     hoisted.getWelcomeModalStatus.mockResolvedValue(welcomeModal)
     hoisted.getT0FlowStatus.mockResolvedValue(t0FlowOff)
+    hoisted.getFeePaymentBanners.mockResolvedValue([])
+    hoisted.getBatchStartBanners.mockResolvedValue([])
   })
 
   it('composes every section and features the selected support session', async () => {
@@ -91,7 +97,11 @@ describe('getDashboardOverview', () => {
       pendingTasks,
       welcomeModal,
       t0Flow: t0FlowOff,
+      feePaymentBanners: [],
+      batchStartBanners: [],
     })
+    expect(hoisted.getFeePaymentBanners).toHaveBeenCalledWith(7, now)
+    expect(hoisted.getBatchStartBanners).toHaveBeenCalledWith(7, now)
     // Non-T0 user: lectures are not computed.
     expect(hoisted.getT0FlowLectures).not.toHaveBeenCalled()
   })
@@ -119,7 +129,7 @@ describe('getDashboardOverview', () => {
     const result = await getDashboardOverview(7, new Date('2026-07-02T00:00:00Z'))
 
     // Computed for the primary (first) batch and nested onto it; others stay null.
-    expect(hoisted.getT0FlowLectures).toHaveBeenCalledWith(7, 42)
+    expect(hoisted.getT0FlowLectures).toHaveBeenCalledWith(7, 42, 'web')
     expect(result.t0Flow.batches[0].lectures).toEqual(lectures)
     expect(result.t0Flow.batches[1].lectures).toBeNull()
     // No top-level sibling field anymore.
