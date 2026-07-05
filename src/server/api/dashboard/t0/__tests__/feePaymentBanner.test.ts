@@ -21,19 +21,28 @@ describe('computeFeePaymentBanner', () => {
     ).toBeNull()
   })
 
-  it('shows a timer banner with a whole-day countdown before the deadline', () => {
+  it('shows a timer banner with a whole-day countdown when a day or more remains', () => {
     // deadline 07-15, now 07-08 → 7 days remaining
     const banner = computeFeePaymentBanner({ ...base, now: day('2026-07-08T00:00:00Z') })
-    expect(banner).toEqual({ type: 'timer', daysRemaining: 7, paymentUrl: 'https://pay.test/x' })
+    expect(banner).toEqual({ type: 'timer', daysRemaining: 7, hoursRemaining: null, paymentUrl: 'https://pay.test/x' })
   })
 
-  it('rounds partial days up and never below 1', () => {
-    // 12 hours before the deadline → still "1 day remaining"
+  it('switches to an hour countdown when less than a day remains', () => {
+    // 12 hours before the deadline → 12 hours remaining (not "1 day")
     const banner = computeFeePaymentBanner({
       ...base,
       now: new Date(day('2026-07-15T00:00:00Z').getTime() - DAY_MS / 2),
     })
-    expect(banner).toEqual({ type: 'timer', daysRemaining: 1, paymentUrl: 'https://pay.test/x' })
+    expect(banner).toEqual({ type: 'timer', daysRemaining: 0, hoursRemaining: 12, paymentUrl: 'https://pay.test/x' })
+  })
+
+  it('rounds partial hours up and never below 1', () => {
+    // 30 minutes before the deadline → "1 hour remaining"
+    const banner = computeFeePaymentBanner({
+      ...base,
+      now: new Date(day('2026-07-15T00:00:00Z').getTime() - 30 * 60 * 1000),
+    })
+    expect(banner).toEqual({ type: 'timer', daysRemaining: 0, hoursRemaining: 1, paymentUrl: 'https://pay.test/x' })
   })
 
   it('shows the overdue banner with a days-overdue count once the deadline has passed', () => {

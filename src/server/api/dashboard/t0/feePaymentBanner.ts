@@ -7,11 +7,16 @@
  * - **on/after** it → `overdue` banner counting the days overdue.
  */
 
-const DAY_MS = 24 * 60 * 60 * 1000
+const HOUR_MS = 60 * 60 * 1000
+const DAY_MS = 24 * HOUR_MS
 
-/** The per-batch banner state (before batch identity is attached). */
+/**
+ * The per-batch banner state (before batch identity is attached). A `timer` with
+ * more than a day left counts down in days (`hoursRemaining: null`); with under
+ * a day left it counts down in hours (`daysRemaining: 0`).
+ */
 export type FeePaymentBannerState =
-  | { type: 'timer'; daysRemaining: number; paymentUrl: string | null }
+  | { type: 'timer'; daysRemaining: number; hoursRemaining: number | null; paymentUrl: string | null }
   | { type: 'overdue'; daysOverdue: number; paymentUrl: string | null }
 
 export interface FeePaymentBannerInput {
@@ -38,7 +43,11 @@ export function computeFeePaymentBanner(input: FeePaymentBannerInput): FeePaymen
     return { type: 'overdue', daysOverdue, paymentUrl }
   }
 
-  // Still before the deadline → timer with a whole-day countdown (min 1).
-  const daysRemaining = Math.max(1, Math.ceil((courseFeeDeadline.getTime() - now.getTime()) / DAY_MS))
-  return { type: 'timer', daysRemaining, paymentUrl }
+  // Still before the deadline → timer. Count down in days while a full day or
+  // more remains, otherwise switch to an hour countdown (min 1) for urgency.
+  const remainingMs = courseFeeDeadline.getTime() - now.getTime()
+  if (remainingMs >= DAY_MS) {
+    return { type: 'timer', daysRemaining: Math.ceil(remainingMs / DAY_MS), hoursRemaining: null, paymentUrl }
+  }
+  return { type: 'timer', daysRemaining: 0, hoursRemaining: Math.max(1, Math.ceil(remainingMs / HOUR_MS)), paymentUrl }
 }

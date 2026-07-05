@@ -75,6 +75,14 @@ export function FeePaymentBanners({ banners }: FeePaymentBannersProps) {
   )
 }
 
+/** Countdown label for a timer banner: hours when under a day left, else days. */
+function timerLabel(banner: Extract<FeePaymentBanner, { type: 'timer' }>): string {
+  if (banner.hoursRemaining !== null) {
+    return `${banner.hoursRemaining} ${banner.hoursRemaining === 1 ? 'hour' : 'hours'} remaining`
+  }
+  return `${banner.daysRemaining} ${banner.daysRemaining === 1 ? 'day' : 'days'} remaining`
+}
+
 function FeePaymentSlide({ banner, reserveDotSpace }: { banner: FeePaymentBanner; reserveDotSpace: boolean }) {
   const isOverdue = banner.type === 'overdue'
 
@@ -117,9 +125,7 @@ function FeePaymentSlide({ banner, reserveDotSpace }: { banner: FeePaymentBanner
           <span className="absolute inline-flex size-full animate-ping rounded-full bg-white opacity-75" />
           <span className="relative inline-flex size-1.5 rounded-full bg-white" />
         </span>
-        {banner.type === 'timer'
-          ? `${banner.daysRemaining} ${banner.daysRemaining === 1 ? 'day' : 'days'} remaining`
-          : `${banner.daysOverdue} ${banner.daysOverdue === 1 ? 'day' : 'days'} overdue`}
+        {banner.type === 'timer' ? timerLabel(banner) : `${banner.daysOverdue} ${banner.daysOverdue === 1 ? 'day' : 'days'} overdue`}
       </span>
 
       <a

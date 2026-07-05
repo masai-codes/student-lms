@@ -18,10 +18,17 @@ beforeAll(() => {
 afterEach(cleanup)
 
 const timer = (
-  over: { daysRemaining?: number; paymentUrl?: string | null; batchId?: number; courseTitle?: string } = {},
+  over: {
+    daysRemaining?: number
+    hoursRemaining?: number | null
+    paymentUrl?: string | null
+    batchId?: number
+    courseTitle?: string
+  } = {},
 ): FeePaymentBanner => ({
   type: 'timer',
   daysRemaining: over.daysRemaining ?? 7,
+  hoursRemaining: over.hoursRemaining ?? null,
   paymentUrl: over.paymentUrl === undefined ? 'https://pay.test/x' : over.paymentUrl,
   batchId: over.batchId ?? 5,
   courseTitle: over.courseTitle ?? 'MERN',
@@ -41,6 +48,11 @@ describe('FeePaymentBanners', () => {
     expect(screen.getByTestId('dashboard-fee-payment-days').textContent).toBe('7 days remaining')
     expect(screen.getByTestId('dashboard-fee-payment-cta').getAttribute('href')).toBe('https://pay.test/x')
     expect(screen.queryByTestId('dashboard-fee-payment-dots')).toBeNull()
+  })
+
+  it('timer: shows hours remaining when less than a day is left', () => {
+    render(<FeePaymentBanners banners={[timer({ daysRemaining: 0, hoursRemaining: 5 })]} />)
+    expect(screen.getByTestId('dashboard-fee-payment-days').textContent).toBe('5 hours remaining')
   })
 
   it('overdue: shows the overdue message, course name, and a days-overdue pill', () => {
