@@ -1,5 +1,6 @@
 import { GuidedTourOverlay } from './guided-tour/GuidedTourOverlay'
 import type { T0FlowStatus } from '@/server/api/dashboard/getT0FlowStatus.service'
+import type { FeePaymentBanner } from '@/server/api/dashboard/t0/getFeePaymentBanner.service'
 
 /** Which course + tab the guided tour should open on (from the onboarding banner). */
 export interface GuidedTourTarget {
@@ -20,6 +21,22 @@ interface T0FlowGateProps {
    * navbar "?" so learners can revisit the steps at any time.
    */
   forceOpen?: boolean
+  /** Fee-payment banners (same as the dashboard); shown under the LMS-walkthrough steps. */
+  feePaymentBanners: Array<FeePaymentBanner>
+}
+
+/**
+ * Whether the guided tour should be shown right now — the dashboard page renders
+ * the tour *in place of* the dashboard content (so the navbar stays visible)
+ * when this is true. Shown when the user has an onboarding flow and it's either
+ * forced (navbar "?") or auto-eligible (incomplete + not dismissed this visit).
+ */
+export function isGuidedTourVisible(
+  status: T0FlowStatus,
+  { dismissed, forceOpen }: { dismissed: boolean; forceOpen: boolean },
+): boolean {
+  if (!status.showT0Flow) return false
+  return forceOpen || (!dismissed && status.showGuidedTour)
 }
 
 /**
@@ -27,17 +44,19 @@ interface T0FlowGateProps {
  * dashboard. Eligibility (`showGuidedTour`) is owned by the backend and arrives
  * via the consolidated overview; open/dismiss state is lifted to the dashboard
  * page so the onboarding banner (and the navbar "?") can (re)open the tour. The
- * tour renders as a full-screen overlay; "See dashboard" hides it for this
- * visit, and on reload the overview refetches so the tour returns while
- * onboarding is incomplete.
+ * tour renders below the navbar in the dashboard's content area; "See dashboard"
+ * hides it for this visit, and on reload the overview refetches so the tour
+ * returns while onboarding is incomplete.
  */
-export function T0FlowGate({ status, dismissed, onDismiss, target, forceOpen = false }: T0FlowGateProps) {
-  // Nothing to show unless the user actually has an onboarding flow.
-  if (!status.showT0Flow) return null
-  // Open when forced (navbar "?"), or auto while onboarding is incomplete and
-  // hasn't been dismissed this visit.
-  const open = forceOpen || (!dismissed && status.showGuidedTour)
-  if (!open) return null
+export function T0FlowGate({
+  status,
+  dismissed,
+  onDismiss,
+  target,
+  forceOpen = false,
+  feePaymentBanners,
+}: T0FlowGateProps) {
+  if (!isGuidedTourVisible(status, { dismissed, forceOpen })) return null
 
   return (
     <GuidedTourOverlay
@@ -45,6 +64,7 @@ export function T0FlowGate({ status, dismissed, onDismiss, target, forceOpen = f
       onSeeDashboard={onDismiss}
       initialBatchId={target?.batchId}
       initialTab={target?.tab}
+      feePaymentBanners={feePaymentBanners}
     />
   )
 }

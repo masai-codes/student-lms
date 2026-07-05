@@ -122,17 +122,29 @@ export function buildProgramSteps(
     })
   }
 
-  // The ID card is the capstone reveal: unlocked once every program video is
-  // watched and every agreement signed.
-  const idCardUnlocked = videoSteps.every((s) => s.completed) && agreementsSigned
-  extraSteps.push({
-    key: 'id-card',
-    kind: 'fixed',
-    title: 'Your student ID card',
-    completed: idCardUnlocked && lectures.idCardUrl !== null,
-    action: 'id-card',
-    idCard: { url: lectures.idCardUrl, unlocked: idCardUnlocked },
-  })
-
+  // The ID card is NOT a step — it's rendered as a capstone card below the step
+  // list (see `getIdCardState`).
   return [...videoSteps, ...agreementSteps, ...extraSteps]
+}
+
+export interface IdCardState {
+  /** Whether to render the ID-card capstone at all (full flow only). */
+  show: boolean
+  url: string | null
+  /** Unlocked once every program video is watched and every agreement signed. */
+  unlocked: boolean
+}
+
+/**
+ * State for the ID-card capstone shown beneath the Program Onboarding steps
+ * (not a step itself). Hidden for the lite (non-T0) flow.
+ */
+export function getIdCardState(lectures: T0FlowLecturesResult, status: T0FlowStatus): IdCardState {
+  if (status.flowVariant === 'lite') return { show: false, url: null, unlocked: false }
+
+  const completedIds = new Set(lectures.completedLectureIds)
+  const videosComplete = lectures.programLectures.every((l) => completedIds.has(l.lectureId))
+  const agreementsSigned = lectures.legalAgreementSections.every((a) => a.completed)
+
+  return { show: true, url: lectures.idCardUrl, unlocked: videosComplete && agreementsSigned }
 }

@@ -11,7 +11,7 @@ const hoisted = vi.hoisted(() => ({ fetchLectures: vi.fn() }))
 
 // Non-primary batches fetch lectures here; the primary batch's come via props.
 vi.mock('@/lib/api/dashboard/dashboardApi', () => ({ fetchT0FlowLectures: hoisted.fetchLectures }))
-// The media-chrome player isn't the unit under test — stub it.
+// The player isn't the unit under test — stub it.
 vi.mock('./guided-tour/GuidedTourVideoStep', () => ({
   GuidedTourVideoStep: () => <div data-testid="guided-tour-video-stub" />,
 }))
@@ -54,6 +54,7 @@ function StatefulGate({ status, forceOpen = false }: { status: T0FlowStatus; for
       onDismiss={() => setDismissed(true)}
       target={null}
       forceOpen={forceOpen}
+      feePaymentBanners={[]}
     />
   )
 }
@@ -124,12 +125,14 @@ describe('T0FlowGate', () => {
     expect(screen.queryByTestId('guided-tour-tab-program-lock')).toBeNull()
   })
 
-  it('navigates steps with Back / Next', () => {
+  it('navigates steps via the step list (no Back/Next CTAs)', () => {
     renderGate(baseStatus())
     expect(screen.getByTestId('guided-tour-active-title').textContent).toBe('Intro')
-    expect(screen.getByTestId<HTMLButtonElement>('guided-tour-back').disabled).toBe(true)
+    // Navigation is via the step list, not bottom Back/Next.
+    expect(screen.queryByTestId('guided-tour-back')).toBeNull()
+    expect(screen.queryByTestId('guided-tour-next')).toBeNull()
 
-    fireEvent.click(screen.getByTestId('guided-tour-next'))
+    fireEvent.click(screen.getByTestId('guided-tour-step-profile-photo'))
     expect(screen.getByTestId('guided-tour-active-title').textContent).toBe('Add your profile photo')
   })
 

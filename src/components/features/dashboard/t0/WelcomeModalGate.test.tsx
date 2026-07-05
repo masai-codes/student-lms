@@ -4,16 +4,15 @@ import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/re
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { WelcomeModalGate } from './WelcomeModalGate'
 
-const hoisted = vi.hoisted(() => {
-  const create = vi.fn(() => Object.assign(vi.fn(), { reset: vi.fn() }))
-  return {
-    dismiss: vi.fn(),
-    confetti: Object.assign(vi.fn(), { create }),
-    isMobile: vi.fn(),
-  }
-})
+const hoisted = vi.hoisted(() => ({
+  dismiss: vi.fn(),
+  isMobile: vi.fn(),
+}))
 
-vi.mock('canvas-confetti', () => ({ default: hoisted.confetti }))
+// Confetti pulls in lottie-web (needs a real canvas) — stub it out.
+vi.mock('@/components/ui/lottie-confetti', () => ({
+  LottieConfetti: () => <div data-testid="welcome-modal-confetti" />,
+}))
 vi.mock('@/components/features/chatbot/hooks/useIsMobileViewport', () => ({
   useIsMobileViewport: () => hoisted.isMobile(),
 }))

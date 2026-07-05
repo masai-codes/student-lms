@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { buildLmsSteps, buildProgramSteps } from './steps'
+import { buildLmsSteps, buildProgramSteps, getIdCardState } from './steps'
 import type { T0FlowLecturesResult } from '@/server/api/dashboard/getT0FlowLectures.service'
 import type { T0FlowStatus } from '@/server/api/dashboard/getT0FlowStatus.service'
 
@@ -67,6 +67,10 @@ describe('buildProgramSteps', () => {
             completed: false,
             referenceNumber: 'TC-1-section_7',
             agreementPdfUrl: null,
+            viewTime: null,
+            daysSinceFirstView: 0,
+            daysLeft: 7,
+            isClosable: true,
           },
         ],
         isDocumentsRequired: true,
@@ -76,13 +80,12 @@ describe('buildProgramSteps', () => {
       status(),
     )
 
-    expect(steps.map((s) => s.key)).toEqual(['lecture-9', 'agreement-7', 'documents', 'student-kit', 'id-card'])
+    // No id-card step — it's a capstone rendered below the list (getIdCardState).
+    expect(steps.map((s) => s.key)).toEqual(['lecture-9', 'agreement-7', 'documents', 'student-kit'])
     expect(steps[0].completed).toBe(true)
     expect(steps[1]).toMatchObject({ action: 'agreement', completed: false })
     expect(steps[1].agreement?.sectionId).toBe(7)
-    // ID card is locked (agreement not yet signed), so not complete.
-    expect(steps.at(-1)).toMatchObject({ action: 'id-card', completed: false })
-    expect(steps.at(-1)?.idCard).toEqual({ url: 'https://x/id.png', unlocked: false })
+    expect(steps.some((s) => s.action === 'id-card')).toBe(false)
     // Documents + kit are locked until the agreement is signed.
     expect(steps.find((s) => s.action === 'documents')?.locked).toBe(true)
     expect(steps.find((s) => s.action === 'student-kit')?.locked).toBe(true)
@@ -92,7 +95,7 @@ describe('buildProgramSteps', () => {
     const steps = buildProgramSteps(
       lectures({
         legalAgreementSections: [
-          { sectionId: 7, sectionName: 'A', programName: 'M', batchName: 'B', steps: [], savedValues: {}, acceptedStepKeys: [], completed: true, referenceNumber: 'r', agreementPdfUrl: null },
+          { sectionId: 7, sectionName: 'A', programName: 'M', batchName: 'B', steps: [], savedValues: {}, acceptedStepKeys: [], completed: true, referenceNumber: 'r', agreementPdfUrl: null, viewTime: null, daysSinceFirstView: 0, daysLeft: 7, isClosable: true },
         ],
         isDocumentsRequired: true,
         studentKit: { applicable: true, detailsFilled: false, trackingUrl: null, trackingId: null, admissionsFormUrl: 'https://sso/kit' },
@@ -103,31 +106,17 @@ describe('buildProgramSteps', () => {
     expect(steps.find((s) => s.action === 'student-kit')?.locked).toBe(false)
   })
 
-  it('unlocks the ID card once videos + agreements are complete', () => {
-    const steps = buildProgramSteps(
-      lectures({
-        programLectures: [{ id: 'p', lectureId: 9, title: 'Intro', videoUrl: 'v', lectureType: 'video' }],
-        completedLectureIds: [9],
-        idCardUrl: 'https://x/id.png',
-      }),
-      status(),
-    )
-    // Only the id-card step (no docs/kit/agreement); unlocked since the video is done.
-    expect(steps.map((s) => s.key)).toEqual(['lecture-9', 'id-card'])
-    expect(steps.at(-1)).toMatchObject({ action: 'id-card', completed: true })
-    expect(steps.at(-1)?.idCard?.unlocked).toBe(true)
-  })
-
-  it('always appends the ID-card capstone step in the program tab (full flow)', () => {
+  it('never includes the ID card as a step (full flow)', () => {
     const steps = buildProgramSteps(lectures({ programLectures: [], legalAgreementSections: [] }), status())
-    expect(steps.map((s) => s.key)).toEqual(['id-card'])
+    expect(steps.map((s) => s.key)).toEqual([])
+    expect(steps.some((s) => s.action === 'id-card')).toBe(false)
   })
 
   it('lite flow: only the agreement step — no videos, documents, kit, or ID card', () => {
     const steps = buildProgramSteps(
       lectures({
         legalAgreementSections: [
-          { sectionId: 7, sectionName: 'Enrolment agreement', programName: 'MERN', batchName: 'B1', steps: [], savedValues: {}, acceptedStepKeys: [], completed: false, referenceNumber: 'r', agreementPdfUrl: null },
+          { sectionId: 7, sectionName: 'Enrolment agreement', programName: 'MERN', batchName: 'B1', steps: [], savedValues: {}, acceptedStepKeys: [], completed: false, referenceNumber: 'r', agreementPdfUrl: null, viewTime: null, daysSinceFirstView: 0, daysLeft: 7, isClosable: true },
         ],
         // These would add steps in the full flow but must be ignored in lite.
         isDocumentsRequired: true,
@@ -142,5 +131,39 @@ describe('buildProgramSteps', () => {
   it('lite flow: an empty program tab when the batch has no agreement', () => {
     const steps = buildProgramSteps(lectures({ legalAgreementSections: [] }), status({ flowVariant: 'lite' }))
     expect(steps).toEqual([])
+  })
+})
+
+describe('getIdCardState', () => {
+  it('is shown but locked until every program video + agreement is done', () => {
+    const state = getIdCardState(
+      lectures({
+        programLectures: [{ id: 'p', lectureId: 9, title: 'Intro', videoUrl: 'v', lectureType: 'video' }],
+        completedLectureIds: [],
+        idCardUrl: 'https://x/id.png',
+      }),
+      status(),
+    )
+    expect(state).toEqual({ show: true, url: 'https://x/id.png', unlocked: false })
+  })
+
+  it('unlocks once every program video is watched and every agreement signed', () => {
+    const state = getIdCardState(
+      lectures({
+        programLectures: [{ id: 'p', lectureId: 9, title: 'Intro', videoUrl: 'v', lectureType: 'video' }],
+        completedLectureIds: [9],
+        idCardUrl: 'https://x/id.png',
+      }),
+      status(),
+    )
+    expect(state).toEqual({ show: true, url: 'https://x/id.png', unlocked: true })
+  })
+
+  it('is hidden for the lite (non-T0) flow', () => {
+    expect(getIdCardState(lectures({ idCardUrl: 'https://x/id.png' }), status({ flowVariant: 'lite' }))).toEqual({
+      show: false,
+      url: null,
+      unlocked: false,
+    })
   })
 })

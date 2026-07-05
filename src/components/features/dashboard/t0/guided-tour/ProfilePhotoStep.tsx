@@ -47,7 +47,7 @@ export function ProfilePhotoStep({ existingPhotoUrl, onCompleted }: ProfilePhoto
 
   return (
     <div
-      className="flex flex-col gap-6 rounded-xl border border-gray-200 p-6 md:flex-row md:items-start md:justify-between"
+      className="flex flex-col gap-6 rounded-xl border border-gray-200 bg-white p-6 md:flex-row md:items-start md:justify-between"
       data-testid="guided-tour-panel-profile-photo"
     >
       <div className="flex flex-col gap-3">

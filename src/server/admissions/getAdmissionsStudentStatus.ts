@@ -31,7 +31,12 @@ export async function getAdmissionsStudentStatus(
   try {
     const controller = new AbortController()
     const timeout = setTimeout(() => controller.abort(), 15000)
-    const res = await fetch(url, { headers: { 'x-api-key': apiKey }, signal: controller.signal })
+    console.log('url', url)
+    const res = await fetch(url, {
+      headers: { 'x-api-key': apiKey },
+      signal: controller.signal,
+    })
+    console.log('res', res)
     clearTimeout(timeout)
     if (!res.ok) return null
     return (await res.json()) as AdmissionsStudentStatus

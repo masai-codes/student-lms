@@ -2,7 +2,6 @@ import { ProfilePhotoStep } from './ProfilePhotoStep'
 import { AgreementStep } from './agreement/AgreementStep'
 import { StudentKitStep } from './StudentKitStep'
 import { DocumentUploadStep } from './DocumentUploadStep'
-import { IdCardStep } from './IdCardStep'
 import { GuidedTourLockedNotice } from './GuidedTourLockedNotice'
 import { DownloadAppContent } from '@/components/features/layout/DownloadAppContent'
 import type { GuidedTourStep } from './steps'
@@ -17,13 +16,13 @@ interface GuidedTourStepPanelProps {
   onCompleted: () => void
 }
 
-const CARD = 'flex flex-col items-start gap-4 rounded-xl border border-gray-200 p-6'
+const CARD = 'flex flex-col items-start gap-4 rounded-xl border border-gray-200 bg-white p-6'
 
 /**
  * Renders the active fixed (non-video) guided-tour step by dispatching to its
  * dedicated component: profile-photo (webcam), download-app (QR content),
- * agreement (multi-step form), student-kit, document-upload, and the ID-card
- * reveal.
+ * agreement (multi-step form), student-kit, and document-upload. (The ID card
+ * is a capstone rendered below the step list, not a step here.)
  */
 export function GuidedTourStepPanel({ step, batchId, profilePhotoUrl, onCompleted }: GuidedTourStepPanelProps) {
   if (step.action === 'profile-photo') {
@@ -35,7 +34,7 @@ export function GuidedTourStepPanel({ step, batchId, profilePhotoUrl, onComplete
     // `user_device_tokens` row (drives `downloadAppCompleted`), never by a click.
     return (
       <div
-        className="flex h-full items-center justify-center rounded-xl border border-gray-200 p-6"
+        className="flex h-full items-center justify-center rounded-xl border border-gray-200 bg-white p-6"
         data-testid="guided-tour-panel-download-app"
       >
         <DownloadAppContent className="mx-auto w-full max-w-[600px]" />
@@ -45,7 +44,7 @@ export function GuidedTourStepPanel({ step, batchId, profilePhotoUrl, onComplete
 
   if (step.action === 'agreement' && step.agreement) {
     return (
-      <div data-testid="guided-tour-panel-agreement">
+      <div className="h-full min-h-0" data-testid="guided-tour-panel-agreement">
         <AgreementStep section={step.agreement} onCompleted={onCompleted} />
       </div>
     )
@@ -74,14 +73,6 @@ export function GuidedTourStepPanel({ step, batchId, profilePhotoUrl, onComplete
         ) : (
           <DocumentUploadStep batchId={batchId} onCompleted={onCompleted} />
         )}
-      </div>
-    )
-  }
-
-  if (step.action === 'id-card' && step.idCard) {
-    return (
-      <div data-testid="guided-tour-panel-id-card">
-        <IdCardStep url={step.idCard.url} unlocked={step.idCard.unlocked} />
       </div>
     )
   }

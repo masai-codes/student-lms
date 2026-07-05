@@ -19,6 +19,8 @@ interface GuidedTourStepListProps {
   onSelect: (key: string) => void
   completed: number
   total: number
+  /** Show the "watch the complete video" hint (hidden once the ID card unlocks). */
+  showHint?: boolean
 }
 
 /** The step's leading icon: done → check, active → half-ring, else its type icon. */
@@ -48,7 +50,7 @@ function StepIcon({ step, isActive }: { step: GuidedTourStep; isActive: boolean 
  * step list (each step a card with its state/type icon, connected vertically),
  * and the completion hint. Presentation-only — selection is owned by the caller.
  */
-export function GuidedTourStepList({ steps, activeKey, onSelect, completed, total }: GuidedTourStepListProps) {
+export function GuidedTourStepList({ steps, activeKey, onSelect, completed, total, showHint = true }: GuidedTourStepListProps) {
   const shown = Math.min(completed, total)
   const pct = total > 0 ? Math.round((shown / total) * 100) : 100
 
@@ -94,13 +96,15 @@ export function GuidedTourStepList({ steps, activeKey, onSelect, completed, tota
         })}
       </ol>
 
-      <div
-        className="flex items-start gap-2 rounded-xl bg-blue-50 p-3 text-xs text-blue-700"
-        data-testid="guided-tour-hint"
-      >
-        <Info className="mt-0.5 size-4 shrink-0" weight="fill" aria-hidden />
-        <span>Make sure to watch the complete video to update your progress.</span>
-      </div>
+      {showHint ? (
+        <div
+          className="flex items-start gap-2 rounded-xl bg-blue-50 p-3 text-xs text-blue-700"
+          data-testid="guided-tour-hint"
+        >
+          <Info className="mt-0.5 size-4 shrink-0" weight="fill" aria-hidden />
+          <span>Make sure to watch the complete video to update your progress.</span>
+        </div>
+      ) : null}
     </div>
   )
 }

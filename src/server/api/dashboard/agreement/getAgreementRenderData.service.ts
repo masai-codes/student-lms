@@ -1,7 +1,9 @@
 import { and, eq, isNull, sql } from 'drizzle-orm'
 import {
+  AGREEMENT_REVIEW_DAYS,
   buildAgreementSteps,
   buildReferenceNumber,
+  daysSinceAgreementView,
   pickAgreementFormValues,
   sectionAgreementKey,
 } from './agreementShared'
@@ -23,6 +25,14 @@ export interface AgreementSection {
   completed: boolean
   referenceNumber: string
   agreementPdfUrl: string | null
+  /** ISO time the agreement was first viewed (starts the review countdown); null until viewed. */
+  viewTime: string | null
+  /** Whole days elapsed since first view. */
+  daysSinceFirstView: number
+  /** Days left in the {@link AGREEMENT_REVIEW_DAYS}-day review window. */
+  daysLeft: number
+  /** False once the window elapses — LMS access is paused until signed. */
+  isClosable: boolean
 }
 
 function normalizeRows<T>(result: unknown): Array<T> {
@@ -96,6 +106,12 @@ export async function getAgreementRenderData(userId: number, batchId: number): P
       ? steps.map((s) => s.key)
       : steps.filter((s) => acceptedSteps[s.key] === true).map((s) => s.key)
 
+    // Review countdown, keyed off the first-view timestamp.
+    const viewTime = typeof stored['viewTime'] === 'string' ? stored['viewTime'] : null
+    const daysSinceFirstView = daysSinceAgreementView(viewTime)
+    const daysLeft = Math.max(0, AGREEMENT_REVIEW_DAYS - daysSinceFirstView)
+    const isClosable = viewTime ? daysSinceFirstView < AGREEMENT_REVIEW_DAYS : true
+
     sections.push({
       sectionId: Number(row.id),
       sectionName: String(row.name ?? ''),
@@ -107,6 +123,10 @@ export async function getAgreementRenderData(userId: number, batchId: number): P
       completed,
       referenceNumber: (stored['referenceNumber'] as string | undefined) ?? buildReferenceNumber(userId, Number(row.id)),
       agreementPdfUrl: (stored['agreementPdfUrl'] as string | undefined) ?? null,
+      viewTime,
+      daysSinceFirstView,
+      daysLeft,
+      isClosable,
     })
   }
   return sections

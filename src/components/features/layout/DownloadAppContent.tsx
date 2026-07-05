@@ -40,7 +40,7 @@ export function DownloadAppContent({
         Get your LMS on mobile and continue learning wherever you are.
       </p>
 
-      <div className="mt-8 flex flex-col items-center justify-center gap-8 rounded-[24px] bg-gray-100 px-6 py-7 md:flex-row md:justify-between md:px-12 md:py-7">
+      <div className="mt-8 flex flex-col items-center justify-center gap-8 rounded-[24px] bg-gray-100 px-6 py-7 md:flex-row md:gap-12 md:px-12 md:py-7">
         <div className="flex w-full max-w-[220px] flex-col items-center gap-4">
           <a
             href={GOOGLE_PLAY_LINK}

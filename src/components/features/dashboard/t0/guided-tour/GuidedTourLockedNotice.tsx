@@ -11,7 +11,7 @@ interface GuidedTourLockedNoticeProps {
  */
 export function GuidedTourLockedNotice({ title, message }: GuidedTourLockedNoticeProps) {
   return (
-    <div className="flex flex-col items-start gap-4 rounded-xl border border-gray-200 p-6" data-testid="guided-tour-locked-notice">
+    <div className="flex flex-col items-start gap-4 rounded-xl border border-gray-200 bg-white p-6" data-testid="guided-tour-locked-notice">
       <Lock className="size-8 text-gray-400" aria-hidden />
       <p className="text-sm font-medium text-gray-900">{title}</p>
       <p className="text-sm text-gray-600">{message}</p>

@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { DashboardLayout } from './layout/DashboardLayout'
 import { WelcomeModalGate } from './t0/WelcomeModalGate'
-import { T0FlowGate } from './t0/T0FlowGate'
+import { T0FlowGate, isGuidedTourVisible } from './t0/T0FlowGate'
 import type { GuidedTourTarget } from './t0/T0FlowGate'
 import type { DashboardOverviewState } from './shared/types'
 import { fetchDashboardOverview } from '@/lib/api/dashboard/dashboardApi'
@@ -70,14 +70,22 @@ export function DashboardPage({ openGuidedTourSignal = false }: DashboardPagePro
     batchStartBanners: data?.batchStartBanners ?? [],
   }
 
+  // When the guided tour is showing it takes over the content area (below the
+  // navbar), so the dashboard itself is hidden.
+  const tourVisible = data
+    ? isGuidedTourVisible(data.t0Flow, { dismissed: tourDismissed, forceOpen: tourForced })
+    : false
+
   return (
     <>
-      <DashboardLayout
-        userName={currentUser?.name ?? null}
-        overview={overview}
-        t0Flow={data?.t0Flow ?? null}
-        onResumeOnboarding={resumeOnboarding}
-      />
+      {tourVisible ? null : (
+        <DashboardLayout
+          userName={currentUser?.name ?? null}
+          overview={overview}
+          t0Flow={data?.t0Flow ?? null}
+          onResumeOnboarding={resumeOnboarding}
+        />
+      )}
       {data ? (
         <T0FlowGate
           status={data.t0Flow}
@@ -88,6 +96,7 @@ export function DashboardPage({ openGuidedTourSignal = false }: DashboardPagePro
           }}
           target={tourTarget}
           forceOpen={tourForced}
+          feePaymentBanners={data.feePaymentBanners}
         />
       ) : null}
       {data ? <WelcomeModalGate showWelcomeModal={data.welcomeModal.showWelcomeModal} /> : null}

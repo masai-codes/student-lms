@@ -5,11 +5,12 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { AgreementStep } from './AgreementStep'
 import type { AgreementSection } from '@/server/api/dashboard/agreement/getAgreementRenderData.service'
 
-const hoisted = vi.hoisted(() => ({ save: vi.fn(), submit: vi.fn(), isMobile: vi.fn() }))
+const hoisted = vi.hoisted(() => ({ save: vi.fn(), submit: vi.fn(), recordView: vi.fn(), isMobile: vi.fn() }))
 
 vi.mock('@/lib/api/dashboard/dashboardApi', () => ({
   saveAgreementDetailsApi: hoisted.save,
   submitAgreementApi: hoisted.submit,
+  recordAgreementViewedApi: hoisted.recordView,
 }))
 vi.mock('@/components/features/chatbot/hooks/useIsMobileViewport', () => ({
   useIsMobileViewport: () => hoisted.isMobile(),
@@ -30,6 +31,7 @@ function section(over: Partial<AgreementSection> = {}): AgreementSection {
     steps: [{ key: 'program_agreement', heading: 'Program', pdfUrl: 'https://x/p.pdf', order: null }],
     savedValues: VALID_VALUES, acceptedStepKeys: [], completed: false,
     referenceNumber: 'TC-1-section_7', agreementPdfUrl: null,
+    viewTime: null, daysSinceFirstView: 0, daysLeft: 7, isClosable: true,
     ...over,
   }
 }
@@ -52,6 +54,7 @@ beforeEach(() => {
   hoisted.isMobile.mockReturnValue(false)
   hoisted.save.mockResolvedValue({ savedValues: VALID_VALUES, referenceNumber: 'TC-1-section_7' })
   hoisted.submit.mockResolvedValue({ agreementPdfUrl: 'https://s3/a.pdf' })
+  hoisted.recordView.mockResolvedValue({ viewTime: '2026-01-01T00:00:00.000Z' })
 })
 
 describe('AgreementStep', () => {
@@ -66,6 +69,18 @@ describe('AgreementStep', () => {
     renderStep(section({ completed: true, agreementPdfUrl: 'https://s3/a.pdf' }))
     expect(screen.getByTestId('agreement-completed')).toBeTruthy()
     expect(screen.getByTestId('agreement-view-pdf').getAttribute('href')).toBe('https://s3/a.pdf')
+  })
+
+  it('records the first view and shows the days-remaining countdown', async () => {
+    renderStep(section({ viewTime: null, daysLeft: 7 }))
+    expect(screen.getByTestId('agreement-countdown').textContent).toContain('7 days remaining')
+    await waitFor(() => expect(hoisted.recordView).toHaveBeenCalledWith(7))
+  })
+
+  it('shows the paused message (and does not re-record) once the window has elapsed', () => {
+    renderStep(section({ viewTime: '2026-01-01T00:00:00.000Z', daysLeft: 0, daysSinceFirstView: 8, isClosable: false }))
+    expect(screen.getByTestId('agreement-countdown').textContent).toContain('paused')
+    expect(hoisted.recordView).not.toHaveBeenCalled()
   })
 
   it('renders a horizontal tab per sub-step and lets you jump back to a completed one', async () => {
@@ -97,10 +112,11 @@ describe('AgreementStep', () => {
     expect(screen.getByTestId('agreement-location-value').textContent).toContain('Bengaluru')
   })
 
-  it('blocks Continue while location is missing', () => {
+  it('does not block Continue when location is missing (best-effort auto-fill only)', () => {
     renderStep(section({ savedValues: { ...VALID_VALUES, location: undefined } }))
     expect(screen.queryByTestId('agreement-location-value')).toBeNull()
-    expect(screen.getByTestId<HTMLButtonElement>('agreement-continue').disabled).toBe(true)
+    // Location is optional — the other required details are filled, so Continue is enabled.
+    expect(screen.getByTestId<HTMLButtonElement>('agreement-continue').disabled).toBe(false)
   })
 
   it('walks details → document → certificate → submit', async () => {

@@ -10,4 +10,5 @@ export const DASHBOARD_API = {
   profilePhoto: '/api/dashboard/profile-photo',
   agreementSave: '/api/dashboard/agreement/save',
   agreementSubmit: '/api/dashboard/agreement/submit',
+  agreementView: '/api/dashboard/agreement/view',
 } as const

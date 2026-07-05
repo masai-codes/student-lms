@@ -69,6 +69,15 @@ export async function submitAgreementApi(sectionId: number): Promise<SubmitAgree
   })
 }
 
+/** Stamps the agreement's first-view time (starts the review countdown). Idempotent. */
+export async function recordAgreementViewedApi(sectionId: number): Promise<{ viewTime: string }> {
+  return fetchJson<{ viewTime: string }>(DASHBOARD_API.agreementView, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ sectionId }),
+  })
+}
+
 export async function recordT0FlowStepComplete(
   lectureId: number,
   batchId: number,

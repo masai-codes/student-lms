@@ -3,12 +3,12 @@ import { cleanup, fireEvent, render, screen } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { WelcomeModal } from './WelcomeModal'
 
-const hoisted = vi.hoisted(() => {
-  const create = vi.fn(() => Object.assign(vi.fn(), { reset: vi.fn() }))
-  return { isMobile: vi.fn(), confetti: Object.assign(vi.fn(), { create }) }
-})
+const hoisted = vi.hoisted(() => ({ isMobile: vi.fn() }))
 
-vi.mock('canvas-confetti', () => ({ default: hoisted.confetti }))
+// Confetti pulls in lottie-web (needs a real canvas) — stub it out for the modal test.
+vi.mock('@/components/ui/lottie-confetti', () => ({
+  LottieConfetti: () => <div data-testid="welcome-modal-confetti" />,
+}))
 vi.mock('@/components/features/chatbot/hooks/useIsMobileViewport', () => ({
   useIsMobileViewport: () => hoisted.isMobile(),
 }))
@@ -42,6 +42,21 @@ describe('WelcomeModal', () => {
     const cta = screen.getByTestId<HTMLButtonElement>('welcome-modal-get-started')
     expect(cta.disabled).toBe(true)
     expect(cta.textContent).toContain('moment')
+  })
+
+  it('shows the playful message only after the celebrate button is clicked 3 times', () => {
+    render(<WelcomeModal open onDismiss={vi.fn()} />)
+    const celebrate = screen.getByTestId('welcome-modal-celebrate')
+    expect(screen.queryByTestId('welcome-modal-celebrate-message')).toBeNull()
+
+    fireEvent.click(celebrate)
+    fireEvent.click(celebrate)
+    expect(screen.queryByTestId('welcome-modal-celebrate-message')).toBeNull()
+
+    fireEvent.click(celebrate)
+    expect(screen.getByTestId('welcome-modal-celebrate-message').textContent).toContain(
+      'We love celebrating wins',
+    )
   })
 
   it('renders the body content in the mobile bottom drawer', () => {

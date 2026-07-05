@@ -13,8 +13,10 @@ export interface T0FlowDocumentsStatus {
 }
 
 function normalizeRows<T>(result: unknown): Array<T> {
-  if (Array.isArray(result)) return (Array.isArray(result[0]) ? result[0] : result) as Array<T>
-  if (result && typeof result === 'object' && 'rows' in result) return (result as { rows: Array<T> }).rows
+  if (Array.isArray(result))
+    return (Array.isArray(result[0]) ? result[0] : result) as Array<T>
+  if (result && typeof result === 'object' && 'rows' in result)
+    return (result as { rows: Array<T> }).rows
   return []
 }
 
@@ -24,9 +26,16 @@ function normalizeRows<T>(result: unknown): Array<T> {
  * state comes from admissions (the LMS doesn't store it); the SSO upload link is
  * always built so the redirect works even when the status API is unconfigured.
  */
-export async function getT0FlowDocuments(userId: number, batchId: number): Promise<T0FlowDocumentsStatus> {
+export async function getT0FlowDocuments(
+  userId: number,
+  batchId: number,
+): Promise<T0FlowDocumentsStatus> {
   const [[user], admissionRows] = await Promise.all([
-    db.select({ username: users.username }).from(users).where(eq(users.id, userId)).limit(1),
+    db
+      .select({ username: users.username })
+      .from(users)
+      .where(eq(users.id, userId))
+      .limit(1),
     normalizeRows<{ payment_url: string | null }>(
       await db.execute(sql`
         SELECT payment_url FROM user_batch_admission_data
@@ -35,8 +44,15 @@ export async function getT0FlowDocuments(userId: number, batchId: number): Promi
     ),
   ])
 
-  const status = await getAdmissionsStudentStatus(user?.username ?? '', 'documents')
-  const redirect = admissionRows[0]?.payment_url?.trim() || process.env.ADMISSIONS_SSO_BASE_URL || ''
+  const status = await getAdmissionsStudentStatus(
+    user?.username ?? '',
+    'documents',
+  )
+  console.log('Status', status)
+  const redirect =
+    admissionRows[0]?.payment_url?.trim() ||
+    process.env.ADMISSIONS_SSO_BASE_URL ||
+    ''
 
   return {
     documentsUploaded: status?.documents?.documentsUploaded === true,

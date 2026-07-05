@@ -14,6 +14,20 @@ export const RESERVED_AGREEMENT_KEYS = new Set(['shouldModalBeVisible'])
 /** Fallback ordering when steps have no explicit `order` (legacy). */
 export const DEFAULT_AGREEMENT_ORDER = ['program_agreement', 'grading_policy', 'posh_compliance']
 
+/**
+ * Days a learner has to review + sign an agreement after first viewing it,
+ * before LMS access is paused (matches the old LMS's 7-day countdown).
+ */
+export const AGREEMENT_REVIEW_DAYS = 7
+
+/** Whole days elapsed since `viewTime` (0 when never viewed). */
+export function daysSinceAgreementView(viewTime: string | null): number {
+  if (!viewTime) return 0
+  const viewed = new Date(viewTime).getTime()
+  if (Number.isNaN(viewed)) return 0
+  return Math.max(0, Math.floor((istNow().getTime() - viewed) / (24 * 60 * 60 * 1000)))
+}
+
 /** Logo drawn on the generated signature-certificate page (same asset as the old LMS). */
 export const AGREEMENT_LOGO_URL =
   'https://coding-platform.s3.amazonaws.com/dev/lms/tickets/34e1ca27-70cf-42fc-b2df-3eb7a8f3f5fa/JeIdQtdjGnEcUh3S.png'

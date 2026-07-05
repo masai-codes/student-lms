@@ -39,10 +39,8 @@ export function validateAgreementDetails(values: AgreementFormValues): Partial<R
     }
   }
 
-  // Location isn't a config field — it's captured via consent + auto-detect.
-  if (!trimmed(values, 'location')) {
-    errors.location = 'Allow location access to auto-fill your current location.'
-  }
+  // `location` is best-effort auto-fill (geolocation consent) — NOT required, so
+  // it never blocks Continue when the browser denies / can't provide a location.
 
   if (values.parentsEmail && !EMAIL_RE.test(values.parentsEmail.trim())) {
     errors.parentsEmail = 'Enter a valid email address.'

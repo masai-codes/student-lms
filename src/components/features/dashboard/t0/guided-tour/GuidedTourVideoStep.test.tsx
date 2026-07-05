@@ -16,11 +16,13 @@ beforeEach(() => {
   hoisted.record.mockResolvedValue(undefined)
 })
 
+const navProps = { videoCount: 1, videoIndex: 0, onEnded: vi.fn() }
+
 function renderStep(onReported = vi.fn()) {
   const client = new QueryClient({ defaultOptions: { queries: { retry: false }, mutations: { retry: false } } })
   render(
     <QueryClientProvider client={client}>
-      <GuidedTourVideoStep lectureId={1} videoUrl="https://x/v.mp4" batchId={5} tab="lms" onReported={onReported} />
+      <GuidedTourVideoStep lectureId={1} videoUrl="https://x/v.mp4" batchId={5} tab="lms" onReported={onReported} {...navProps} />
     </QueryClientProvider>,
   )
   return { onReported }
@@ -40,7 +42,7 @@ describe('GuidedTourVideoStep', () => {
     const client = new QueryClient()
     render(
       <QueryClientProvider client={client}>
-        <GuidedTourVideoStep lectureId={1} videoUrl={null} batchId={5} tab="lms" onReported={vi.fn()} />
+        <GuidedTourVideoStep lectureId={1} videoUrl={null} batchId={5} tab="lms" onReported={vi.fn()} {...navProps} />
       </QueryClientProvider>,
     )
     expect(screen.getByTestId('guided-tour-video-missing')).toBeTruthy()

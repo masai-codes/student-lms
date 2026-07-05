@@ -55,6 +55,14 @@ describe('FeePaymentBanners', () => {
     expect(screen.getByTestId('dashboard-fee-payment-days').textContent).toBe('5 hours remaining')
   })
 
+  it('compact: keeps course, days pill, message, and CTA (stacked for narrow panels)', () => {
+    render(<FeePaymentBanners banners={[timer()]} compact />)
+    expect(screen.getByTestId('dashboard-fee-payment-course').textContent).toBe('MERN')
+    expect(screen.getByTestId('dashboard-fee-payment-days').textContent).toBe('7 days remaining')
+    expect(screen.getByText(/Pay your remaining program fee/)).toBeTruthy()
+    expect(screen.getByTestId('dashboard-fee-payment-cta').getAttribute('href')).toBe('https://pay.test/x')
+  })
+
   it('overdue: shows the overdue message, course name, and a days-overdue pill', () => {
     render(
       <FeePaymentBanners
