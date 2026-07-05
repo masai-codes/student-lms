@@ -28,7 +28,8 @@ describe('GuidedTourStepPanel — agreement lock', () => {
 
   it('renders the kit step when unlocked', () => {
     renderPanel({ key: 'student-kit', kind: 'fixed', title: 'Track your student kit', completed: false, action: 'student-kit', studentKit: kit, locked: false })
-    expect(screen.getByTestId('student-kit-step')).toBeTruthy()
+    // Details not filled → the shared "Redirecting you to Admissions" card.
+    expect(screen.getByTestId('admissions-redirect-card')).toBeTruthy()
     expect(screen.queryByTestId('guided-tour-locked-notice')).toBeNull()
   })
 })

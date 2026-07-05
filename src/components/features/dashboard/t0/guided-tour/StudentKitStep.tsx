@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { ArrowSquareOut, CheckCircle, CopySimple } from '@phosphor-icons/react'
+import { AdmissionsRedirectCard } from './AdmissionsRedirectCard'
 import type { StudentKitStatus } from '@/server/api/dashboard/t0/getStudentKitStatus.service'
 
 interface StudentKitStepProps {
@@ -12,7 +13,6 @@ const KIT_TRACKING_IMAGE =
 
 const CARD_CENTER =
   'flex min-h-[360px] w-full flex-col items-center justify-center rounded-2xl border border-gray-100 bg-white p-10 text-center shadow-sm'
-const CTA = 'inline-flex h-11 items-center justify-center rounded-lg bg-[#6962AC] px-8 text-sm font-semibold text-white transition-colors hover:bg-[#5a4f96]'
 
 /**
  * Student-kit step, mirroring the legacy LMS: submit shipping details (redirect
@@ -37,27 +37,15 @@ export function StudentKitStep({ kit }: StudentKitStepProps) {
     }
   }
 
-  // 1. Details not filled → redirect to admissions to upload welcome-kit details.
+  // 1. Details not filled → redirect to admissions (shared redirect card).
   if (!kit.detailsFilled) {
     return (
-      <div className={CARD_CENTER} data-testid="student-kit-step">
-        <h2 className="mb-3 text-2xl font-bold text-gray-900">Redirecting you to Admissions</h2>
-        <p className="mb-8 max-w-sm text-sm text-gray-600">
-          You&apos;ll now be redirected to the Admissions platform to upload your Welcome Kit details.
-        </p>
-        {kit.admissionsFormUrl ? (
-          <button
-            type="button"
-            onClick={() => window.open(kit.admissionsFormUrl!, '_blank', 'noopener,noreferrer')}
-            className={CTA}
-            data-testid="student-kit-fill"
-          >
-            Continue
-          </button>
-        ) : (
-          <p className="text-sm text-gray-500">Please contact support to submit your kit details.</p>
-        )}
-      </div>
+      <AdmissionsRedirectCard
+        message="You'll now be redirected to the Admissions platform to upload your Welcome Kit details."
+        url={kit.admissionsFormUrl}
+        ctaTestId="student-kit-fill"
+        fallback="Please contact support to submit your kit details."
+      />
     )
   }
 

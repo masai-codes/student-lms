@@ -11,7 +11,6 @@ interface DocumentUploadStepProps {
 
 const CARD_CENTER =
   'flex min-h-[360px] w-full flex-col items-center justify-center rounded-2xl border border-gray-100 bg-white p-10 text-center shadow-sm'
-const CTA = 'inline-flex h-11 items-center justify-center rounded-lg bg-[#6962AC] px-8 text-sm font-semibold text-white transition-colors hover:bg-[#5a4f96]'
 
 /**
  * Document-upload step, mirroring the legacy LMS: fetches the (external)
@@ -48,31 +47,13 @@ export function DocumentUploadStep({ batchId, onCompleted }: DocumentUploadStepP
     )
   }
 
-  // Not uploaded → redirect to admissions.
+  // Not uploaded → redirect to admissions (shared redirect card).
   return (
-    <div className={CARD_CENTER} data-testid="document-upload-step">
-      <div className="mb-6">
-        <Shuffle size={56} weight="bold" className="text-[#DF3841]" aria-hidden />
-      </div>
-      <h2 className="mb-3 text-2xl font-bold text-gray-900">Redirecting you to Admissions</h2>
-      <p className="mb-8 max-w-sm text-sm text-gray-600">
-        You&apos;ll now be redirected to the Admissions platform to upload your documents.
-      </p>
-      {data?.admissionsFormUrl ? (
-        <button
-          type="button"
-          onClick={() => {
-            window.open(data.admissionsFormUrl!, '_blank', 'noopener,noreferrer')
-            onCompleted() // refetch so the step reflects the upload when they return
-          }}
-          className={CTA}
-          data-testid="document-upload-continue"
-        >
-          Continue
-        </button>
-      ) : (
-        <p className="text-sm text-gray-500">Contact support if you need the Admissions portal link.</p>
-      )}
-    </div>
+    <AdmissionsRedirectCard
+      message="You'll now be redirected to the Admissions platform to upload your documents."
+      url={data?.admissionsFormUrl ?? null}
+      onContinue={onCompleted} // refetch so the step reflects the upload when they return
+      ctaTestId="document-upload-continue"
+    />
   )
 }
