@@ -16,7 +16,7 @@ import type { LectureChromePlayerRef } from './controls/lectureVideoChrome.utils
 import './lectureReactPlayer.css'
 
 import type { LectureVideoAttendanceState } from '@/server/learn/lectureDetailTypes'
-import { ChatbotExperience } from '@/components/features/chatbot/ChatbotExperience'
+import { LectureAiChatExperience } from '@/components/features/lecture-ai-chat/LectureAiChatExperience'
 import { cn } from '@/lib/utils'
 
 type LectureReactPlayerProps = {
@@ -156,7 +156,7 @@ export function LectureReactPlayer({
             className="absolute inset-y-0 right-0 z-[55] flex min-h-0 flex-col border-l border-gray-200 bg-white shadow-2xl"
             style={{ width: getLectureSplitChatOpenWidthCss() }}
           >
-            <ChatbotExperience
+            <LectureAiChatExperience
               lectureId={lectureId}
               onCloseSidebar={splitChat.close}
             />

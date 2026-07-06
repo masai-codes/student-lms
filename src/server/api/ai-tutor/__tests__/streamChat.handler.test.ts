@@ -65,7 +65,7 @@ describe('handleStreamChat', () => {
     hoisted.getUserIdFromCookieHeader.mockResolvedValueOnce(null)
 
     const res = await handleStreamChat(
-      postRequest({ lectureId: 1, chat: 'hello' }, null),
+      postRequest({ lectureId: 1, chat: 'hello', platform: 'web-desktop' }, null),
     )
 
     expect(res.status).toBe(401)
@@ -76,7 +76,9 @@ describe('handleStreamChat', () => {
       await import('../handlers/streamChat.handler')
     hoisted.getUserIdFromCookieHeader.mockResolvedValueOnce(7)
 
-    const res = await handleStreamChat(postRequest({ lectureId: 0, chat: 'hi' }))
+    const res = await handleStreamChat(
+      postRequest({ lectureId: 0, chat: 'hi', platform: 'web-desktop' }),
+    )
 
     expect(res.status).toBe(400)
     await expect(res.json()).resolves.toEqual({
@@ -90,7 +92,9 @@ describe('handleStreamChat', () => {
       await import('../handlers/streamChat.handler')
     hoisted.getUserIdFromCookieHeader.mockResolvedValueOnce(7)
 
-    const res = await handleStreamChat(postRequest({ lectureId: 1, chat: '   ' }))
+    const res = await handleStreamChat(
+      postRequest({ lectureId: 1, chat: '   ', platform: 'web-desktop' }),
+    )
 
     expect(res.status).toBe(400)
     await expect(res.json()).resolves.toEqual({
@@ -108,6 +112,7 @@ describe('handleStreamChat', () => {
       postRequest({
         lectureId: 1,
         chat: 'a'.repeat(AI_TUTOR_CHAT_MAX_MESSAGE_LENGTH + 1),
+        platform: 'web-desktop',
       }),
     )
 
@@ -128,7 +133,11 @@ describe('handleStreamChat', () => {
     })
 
     const res = await handleStreamChat(
-      postRequest({ lectureId: 1, chat: 'explain hooks' }),
+      postRequest({
+        lectureId: 1,
+        chat: 'explain hooks',
+        platform: 'web-desktop',
+      }),
     )
 
     expect(res.status).toBe(503)
@@ -144,7 +153,12 @@ describe('handleStreamChat', () => {
     )
 
     const res = await handleStreamChat(
-      postRequest({ lectureId: 99, chat: 'hello', chatID: 2 }),
+      postRequest({
+        lectureId: 99,
+        chat: 'hello',
+        platform: 'web-desktop',
+        chatID: 2,
+      }),
     )
 
     expect(res.status).toBe(422)
@@ -154,6 +168,22 @@ describe('handleStreamChat', () => {
       message: 'AI_TUTOR_CHAT_NOT_FOUND',
     })
     expect(hoisted.streamLectureChatEventsFromContext).not.toHaveBeenCalled()
+  })
+
+  it('returns 400 when platform is invalid', async () => {
+    const { handleStreamChat } =
+      await import('../handlers/streamChat.handler')
+    hoisted.getUserIdFromCookieHeader.mockResolvedValueOnce(7)
+
+    const res = await handleStreamChat(
+      postRequest({ lectureId: 1, chat: 'hi', platform: 'ios' }),
+    )
+
+    expect(res.status).toBe(400)
+    await expect(res.json()).resolves.toEqual({
+      code: 'AI_TUTOR_PLATFORM_INVALID',
+      message: 'AI_TUTOR_PLATFORM_INVALID',
+    })
   })
 
   it('streams token events over SSE for an authenticated request', async () => {
@@ -174,13 +204,19 @@ describe('handleStreamChat', () => {
     hoisted.streamLectureChatEventsFromContext.mockImplementationOnce(() => events())
 
     const res = await handleStreamChat(
-      postRequest({ lectureId: 99, chat: 'explain hooks', chatID: 12 }),
+      postRequest({
+        lectureId: 99,
+        chat: 'explain hooks',
+        platform: 'web-mobile',
+        chatID: 12,
+      }),
     )
 
     expect(hoisted.prepareLectureChatContext).toHaveBeenCalledWith({
       userId: 7,
       lectureId: 99,
       chat: 'explain hooks',
+      platform: 'web-mobile',
       chatId: 12,
     })
     expect(hoisted.streamLectureChatEventsFromContext).toHaveBeenCalledWith({

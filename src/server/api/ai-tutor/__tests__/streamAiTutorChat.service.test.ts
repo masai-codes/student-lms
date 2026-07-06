@@ -42,6 +42,7 @@ describe('prepareLectureChatContext', () => {
       userId: 7,
       lectureId: 99,
       chat: 'Explain hooks',
+      platform: 'web-desktop',
     })
 
     expect(hoisted.findOrCreateChatPracticeRow).toHaveBeenCalledWith({
@@ -73,6 +74,7 @@ describe('prepareLectureChatContext', () => {
         userId: 7,
         lectureId: 99,
         chat: 'Explain hooks',
+        platform: 'web-desktop',
         chatId: 2,
       }),
     ).rejects.toMatchObject({ status: 404, code: 'AI_TUTOR_CHAT_NOT_FOUND' })

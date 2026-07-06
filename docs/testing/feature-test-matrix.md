@@ -183,7 +183,7 @@ Last updated: 2026-06-30
 - Area: Authenticated SSE chat stub (`src/routes/api/ai-tutor/chat/stream.ts`, `src/server/api/ai-tutor/**`, `src/server/api/http/sse.ts`)
 - Status: Covered
 - Test files: `src/server/api/ai-tutor/__tests__/stream*.test.ts`, `src/server/api/http/__tests__/sse.test.ts`
-- Notes: `POST /api/ai-tutor/chat/stream` requires a session cookie, accepts `{ lectureId, chat, chatID? }`, reads/writes `ai_chat_practice_questions`, loads lecture summary from `lectures_ai`, streams Claude output as SSE token events, and returns `{ type: "done", chatId }`.
+- Notes: `POST /api/ai-tutor/chat/stream` requires a session cookie, accepts `{ lectureId, chat, platform, chatID? }` (`platform`: `web-desktop` | `web-mobile`), reads/writes `ai_chat_practice_questions`, loads lecture summary from `lectures_ai`, streams Claude output as SSE token events, and returns `{ type: "done", chatId }`.
 
 ## AI Tutor chat conversations
 - Area: Authenticated lecture chat history (`src/routes/api/ai-tutor/chat/conversations/**`, `src/server/api/ai-tutor/**`, `src/lib/api/ai-tutor/aiTutorChatApi.ts`)

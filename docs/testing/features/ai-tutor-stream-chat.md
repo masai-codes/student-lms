@@ -17,9 +17,12 @@ Last updated: 2026-06-22
 {
   "lectureId": 123,
   "chat": "What is useState?",
+  "platform": "web-desktop",
   "chatID": 45
 }
 ```
+
+`platform` is required: `web-desktop` or `web-mobile`.
 
 `chatID` / `chatId` is optional; omit to start a new thread.
 

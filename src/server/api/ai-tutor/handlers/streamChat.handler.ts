@@ -9,9 +9,12 @@ import {
   streamLectureChatEventsFromContext,
 } from '@/server/api/ai-tutor/streamAiTutorChat.service'
 
+type LectureAiChatPlatform = 'web-desktop' | 'web-mobile'
+
 type StreamChatBody = {
   lectureId?: unknown
   chat?: unknown
+  platform?: unknown
   chatID?: unknown
   chatId?: unknown
 }
@@ -22,9 +25,15 @@ function parsePositiveInt(value: unknown): number | null {
   return parsed
 }
 
+function parsePlatform(value: unknown): LectureAiChatPlatform {
+  if (value === 'web-desktop' || value === 'web-mobile') return value
+  throw new ApiError(400, 'AI_TUTOR_PLATFORM_INVALID')
+}
+
 function parseStreamChatBody(body: StreamChatBody | null): {
   lectureId: number
   chat: string
+  platform: LectureAiChatPlatform
   chatId?: number
 } {
   const lectureId = parsePositiveInt(body?.lectureId)
@@ -50,7 +59,9 @@ function parseStreamChatBody(body: StreamChatBody | null): {
     chatId = parsedChatId
   }
 
-  return { lectureId, chat, chatId }
+  const platform = parsePlatform(body?.platform)
+
+  return { lectureId, chat, platform, chatId }
 }
 
 export async function handleStreamChat(request: Request): Promise<Response> {
@@ -64,6 +75,7 @@ export async function handleStreamChat(request: Request): Promise<Response> {
       userId,
       lectureId: parsed.lectureId,
       chat: parsed.chat,
+      platform: parsed.platform,
       chatId: parsed.chatId,
     })
 
