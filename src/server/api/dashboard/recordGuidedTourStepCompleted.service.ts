@@ -1,7 +1,13 @@
 import { sql } from 'drizzle-orm'
-import { computeGuidedTourWebProgress, fracValue } from './t0/guidedTourProgress'
+import { computeGuidedTourProgress, fracValue } from './t0/guidedTourProgress'
+import type { GuidedTourPlatform } from './t0/guidedTourProgress'
 import { db } from '@/db'
 import { getBatchIdsForEnrolledUser } from '@/server/batches/getBatchIdsForEnrolledUser'
+
+/** The platform a section belongs to, from its `-web` / `-app` type suffix. */
+function platformFromSectionType(sectionType: string): GuidedTourPlatform {
+  return sectionType.endsWith('-app') ? 'app' : 'web'
+}
 
 export interface RecordGuidedTourStepInput {
   lectureId: number
@@ -106,13 +112,18 @@ async function syncSibling(
 }
 
 /**
- * Recomputes both walkthrough fractions for the batch and stores them in
- * `user_batch_admission_data.meta`. The web fractions come from the shared
- * live computation; the aggregate keys (`lms_walkthrough`,
- * `program_onboarding`) are `MAX(web, stored app)` so cross-platform progress
- * is preserved.
+ * Recomputes the walkthrough fractions for the batch on the platform of the
+ * lecture that was just completed and stores them in
+ * `user_batch_admission_data.meta`. The live fraction is written to
+ * `lms_walkthrough_{platform}` / `program_onboarding_{platform}`; the aggregate
+ * keys (`lms_walkthrough`, `program_onboarding`) are `MAX(this platform, stored
+ * other platform)` so cross-platform progress is preserved.
  */
-async function updateProgressMeta(userId: number, batchId: number): Promise<void> {
+async function updateProgressMeta(
+  userId: number,
+  batchId: number,
+  platform: GuidedTourPlatform,
+): Promise<void> {
   interface AdmRow { full_fees_paid: number | boolean; meta: unknown }
   interface ProfileRow { meta: unknown; legal_data: unknown }
 
@@ -139,27 +150,29 @@ async function updateProgressMeta(userId: number, batchId: number): Promise<void
   const existingMeta = parseMeta(admRows[0].meta)
   const fullFeesPaid = Boolean(admRows[0].full_fees_paid)
 
-  const { lms, program } = await computeGuidedTourWebProgress(
+  const other: GuidedTourPlatform = platform === 'web' ? 'app' : 'web'
+  const { lms, program } = await computeGuidedTourProgress(
     userId,
     batchId,
     fullFeesPaid,
     profileRows[0]?.meta,
     profileRows[0]?.legal_data,
     tokenRows.length > 0,
+    platform,
   )
 
   const metaUpdate: Record<string, string> = {}
 
-  const lmsWebFrac = `${lms.completed}/${lms.total}`
-  metaUpdate['lms_walkthrough_web'] = lmsWebFrac
-  const lmsAppFrac = existingMeta['lms_walkthrough_app'] as string | undefined
-  metaUpdate['lms_walkthrough'] = fracValue(lmsWebFrac) >= fracValue(lmsAppFrac) ? lmsWebFrac : (lmsAppFrac ?? lmsWebFrac)
+  const lmsFrac = `${lms.completed}/${lms.total}`
+  metaUpdate[`lms_walkthrough_${platform}`] = lmsFrac
+  const lmsOtherFrac = existingMeta[`lms_walkthrough_${other}`] as string | undefined
+  metaUpdate['lms_walkthrough'] = fracValue(lmsFrac) >= fracValue(lmsOtherFrac) ? lmsFrac : (lmsOtherFrac ?? lmsFrac)
 
   if (program) {
-    const progWebFrac = `${program.completed}/${program.total}`
-    metaUpdate['program_onboarding_web'] = progWebFrac
-    const progAppFrac = existingMeta['program_onboarding_app'] as string | undefined
-    metaUpdate['program_onboarding'] = fracValue(progWebFrac) >= fracValue(progAppFrac) ? progWebFrac : (progAppFrac ?? progWebFrac)
+    const progFrac = `${program.completed}/${program.total}`
+    metaUpdate[`program_onboarding_${platform}`] = progFrac
+    const progOtherFrac = existingMeta[`program_onboarding_${other}`] as string | undefined
+    metaUpdate['program_onboarding'] = fracValue(progFrac) >= fracValue(progOtherFrac) ? progFrac : (progOtherFrac ?? progFrac)
   }
 
   const merged = { ...existingMeta, ...metaUpdate }
@@ -203,5 +216,6 @@ export async function recordGuidedTourStepCompleted(
     await syncSibling(userId, lecture.title, siblingType, enrolledBatchIds, input.batchId, input.watchedSeconds)
   }
 
-  await updateProgressMeta(userId, input.batchId)
+  // Store progress against the platform of the section the lecture belongs to.
+  await updateProgressMeta(userId, input.batchId, platformFromSectionType(lecture.section_type))
 }

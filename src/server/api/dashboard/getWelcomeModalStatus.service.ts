@@ -1,5 +1,4 @@
-import { eq } from 'drizzle-orm'
-import { sql } from 'drizzle-orm'
+import { eq, sql  } from 'drizzle-orm'
 import { db } from '@/db'
 import { users } from '@/db/schema'
 
@@ -13,7 +12,7 @@ function normalizeRows<T>(result: unknown): Array<T> {
     if (Array.isArray(first)) return first as Array<T>
     return result as Array<T>
   }
-  if (result && typeof result === 'object' && 'rows' in result && Array.isArray((result as { rows: unknown }).rows)) {
+  if (result && typeof result === 'object' && 'rows' in result && Array.isArray((result).rows)) {
     return (result as { rows: Array<T> }).rows
   }
   return []

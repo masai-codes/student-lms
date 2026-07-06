@@ -1,5 +1,7 @@
+import type { AgreementSection } from '@/server/api/dashboard/agreement/getAgreementRenderData.service'
 import type { T0FlowLectureItem, T0FlowLecturesResult } from '@/server/api/dashboard/getT0FlowLectures.service'
 import type { T0FlowStatus } from '@/server/api/dashboard/getT0FlowStatus.service'
+import type { StudentKitStatus } from '@/server/api/dashboard/t0/getStudentKitStatus.service'
 
 /**
  * Pure step-model builders for the guided tour. Each tab is a list of steps the
@@ -20,8 +22,14 @@ export interface GuidedTourStep {
   video?: { lectureId: number; videoUrl: string | null }
   /** Present for fixed steps — what kind of action row to render. */
   action?: 'profile-photo' | 'download-app' | 'agreement' | 'documents' | 'student-kit' | 'id-card'
-  /** For the agreement action — which section to open. */
-  sectionId?: number
+  /** Present for the agreement action — the full render detail for that section. */
+  agreement?: AgreementSection
+  /** Present for the student-kit action. */
+  studentKit?: StudentKitStatus
+  /** Present for the id-card action — the card URL + whether it's unlocked. */
+  idCard?: { url: string | null; unlocked: boolean }
+  /** Gated behind an earlier step (e.g. documents/kit locked until agreement signed). */
+  locked?: boolean
 }
 
 function videoStep(item: T0FlowLectureItem, completedIds: ReadonlySet<number>): GuidedTourStep {
@@ -37,14 +45,15 @@ function videoStep(item: T0FlowLectureItem, completedIds: ReadonlySet<number>): 
 /**
  * LMS Walkthrough steps: the walkthrough videos followed by the two fixed
  * steps (profile photo, download app). Completion of the fixed steps mirrors the
- * backend denominator (`+2`).
+ * backend denominator (`+2`). The lite (non-T0) flow has no walkthrough videos —
+ * strictly the two fixed steps.
  */
 export function buildLmsSteps(
   lectures: T0FlowLecturesResult,
   status: T0FlowStatus,
 ): Array<GuidedTourStep> {
   const completedIds = new Set(lectures.completedLectureIds)
-  const videoSteps = lectures.lmsLectures.map((l) => videoStep(l, completedIds))
+  const videoSteps = status.flowVariant === 'lite' ? [] : lectures.lmsLectures.map((l) => videoStep(l, completedIds))
 
   return [
     ...videoSteps,
@@ -66,33 +75,76 @@ export function buildLmsSteps(
 }
 
 /**
- * Program Onboarding steps: the onboarding videos, the agreement (if the batch
- * has one), plus the non-counted extras — document upload, student kit, and the
- * ID-card reveal — shown when applicable.
+ * Program Onboarding steps.
+ * - **Full (T0):** the onboarding videos, the agreement (if the batch has one),
+ *   plus the non-counted extras — document upload, student kit, and the ID-card
+ *   reveal — shown when applicable.
+ * - **Lite (non-T0):** strictly the agreement step. All video / documents /
+ *   student-kit / ID-card extras are suppressed.
  */
-export function buildProgramSteps(lectures: T0FlowLecturesResult): Array<GuidedTourStep> {
+export function buildProgramSteps(
+  lectures: T0FlowLecturesResult,
+  status: T0FlowStatus,
+): Array<GuidedTourStep> {
   const completedIds = new Set(lectures.completedLectureIds)
-  const videoSteps = lectures.programLectures.map((l) => videoStep(l, completedIds))
+  const isLite = status.flowVariant === 'lite'
+  const videoSteps = isLite ? [] : lectures.programLectures.map((l) => videoStep(l, completedIds))
 
   const agreementSteps: Array<GuidedTourStep> = lectures.legalAgreementSections.map((a) => ({
     key: `agreement-${a.sectionId}`,
     kind: 'fixed',
-    title: a.name || 'Sign your agreement',
+    title: a.sectionName || 'Sign your agreement',
     completed: a.completed,
     action: 'agreement',
-    sectionId: a.sectionId,
+    agreement: a,
   }))
+
+  // Lite is agreement-only — no documents / kit / ID-card capstone.
+  if (isLite) return [...agreementSteps]
+
+  // Documents + student kit are locked until every agreement is signed.
+  const agreementsSigned = lectures.legalAgreementSections.every((a) => a.completed)
 
   const extraSteps: Array<GuidedTourStep> = []
   if (lectures.isDocumentsRequired) {
-    extraSteps.push({ key: 'documents', kind: 'fixed', title: 'Upload your documents', completed: false, action: 'documents' })
+    // Completion comes from the on-demand documents status the step fetches.
+    extraSteps.push({ key: 'documents', kind: 'fixed', title: 'Upload your documents', completed: false, action: 'documents', locked: !agreementsSigned })
   }
-  if (lectures.isStudentKitApplicable) {
-    extraSteps.push({ key: 'student-kit', kind: 'fixed', title: 'Track your student kit', completed: false, action: 'student-kit' })
-  }
-  if (lectures.idCardUrl) {
-    extraSteps.push({ key: 'id-card', kind: 'fixed', title: 'Your student ID card', completed: true, action: 'id-card' })
+  if (lectures.studentKit.applicable) {
+    extraSteps.push({
+      key: 'student-kit',
+      kind: 'fixed',
+      title: 'Track your student kit',
+      completed: lectures.studentKit.detailsFilled,
+      action: 'student-kit',
+      studentKit: lectures.studentKit,
+      locked: !agreementsSigned,
+    })
   }
 
+  // The ID card is NOT a step — it's rendered as a capstone card below the step
+  // list (see `getIdCardState`).
   return [...videoSteps, ...agreementSteps, ...extraSteps]
+}
+
+export interface IdCardState {
+  /** Whether to render the ID-card capstone at all (full flow only). */
+  show: boolean
+  url: string | null
+  /** Unlocked once every program video is watched and every agreement signed. */
+  unlocked: boolean
+}
+
+/**
+ * State for the ID-card capstone shown beneath the Program Onboarding steps
+ * (not a step itself). Hidden for the lite (non-T0) flow.
+ */
+export function getIdCardState(lectures: T0FlowLecturesResult, status: T0FlowStatus): IdCardState {
+  if (status.flowVariant === 'lite') return { show: false, url: null, unlocked: false }
+
+  const completedIds = new Set(lectures.completedLectureIds)
+  const videosComplete = lectures.programLectures.every((l) => completedIds.has(l.lectureId))
+  const agreementsSigned = lectures.legalAgreementSections.every((a) => a.completed)
+
+  return { show: true, url: lectures.idCardUrl, unlocked: videosComplete && agreementsSigned }
 }

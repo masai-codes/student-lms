@@ -24,16 +24,19 @@ The backend already owns the "should this show?" decision — the frontend only
 renders and reports dismissal.
 
 ```
-GET  /api/dashboard/welcome-modal-status   → { showWelcomeModal: boolean }
+GET  /api/dashboard/overview               → { …, welcomeModal: { showWelcomeModal } }
 POST /api/dashboard/welcome-modal-dismiss  → marks users.meta.showWelcomeModal = true
 ```
 
-- **Status:** `getWelcomeModalStatus.service.ts` — `false` when the user has no
-  admission row **or** `users.meta.showWelcomeModal === true`; otherwise `true`.
+- **Status:** `getWelcomeModalStatus.service.ts` — composed into the
+  consolidated `overview` payload (`overview.welcomeModal`). `false` when the
+  user has no admission row **or** `users.meta.showWelcomeModal === true`;
+  otherwise `true`. (The standalone `/welcome-modal-status` GET was removed once
+  the dashboard consolidated onto one call.)
 - **Dismiss:** `dismissWelcomeModal.service.ts` — sets
   `users.meta.showWelcomeModal = true` (idempotent).
-- **Client:** `fetchWelcomeModalStatus()` / `dismissWelcomeModalApi()` in
-  `src/lib/api/dashboard/dashboardApi.ts`.
+- **Client:** eligibility comes from `fetchDashboardOverview()`; dismissal via
+  `dismissWelcomeModalApi()` — both in `src/lib/api/dashboard/dashboardApi.ts`.
 
 ## Frontend layering
 

@@ -44,10 +44,13 @@ route: src/routes/api/dashboard/overview.ts
             ├─ getDashboardSchedule.service.ts       (lectures + assignments, next 7 days)
             │    ├─ fetchScheduleLectures / fetchScheduleAssignments (start/end-date window)
             │    └─ buildDashboardScheduleItem  (shared mapper → reused learn card)
-            └─ getDashboardPendingTasks.service.ts   (not-begun assignments + catch-up lectures)
-                 ├─ fetchPendingAssignments / fetchAssignmentStartState (deadline + begun check)
-                 ├─ fetchPendingLectures + fetchLectureAttendanceSummaries (catch-up window open)
-                 └─ buildDashboardScheduleItem  (same shared mapper / reused card)
+            ├─ getDashboardPendingTasks.service.ts   (not-begun assignments + catch-up lectures)
+            │    ├─ fetchPendingAssignments / fetchAssignmentStartState (deadline + begun check)
+            │    ├─ fetchPendingLectures + fetchLectureAttendanceSummaries (catch-up window open)
+            │    └─ buildDashboardScheduleItem  (same shared mapper / reused card)
+            ├─ getWelcomeModalStatus.service.ts      (T0: one-time welcome eligibility)
+            ├─ getT0FlowStatus.service.ts            (T0: guided-tour gate + per-batch progress)
+            └─ getT0FlowLectures.service.ts          (T0: primary batch's tour lectures, only when in T0)
 
   Shared reuse across schedule + pending: getSectionIdsForUser, getBatchIdsForEnrolledUser,
   getBannedContentCutoffForUser, buildLearnListingCardCtas, mapLearningEntityRow,
@@ -80,7 +83,15 @@ Response shape (grows as sections are migrated):
   "pendingTasks": [
     { "id": 6, "learningType": "assignment", "title": "…",
       "assignmentProgressStatus": "new", "…": "…" }
-  ]
+  ],
+  // T0 onboarding (folded in so the dashboard needs one GET):
+  "welcomeModal": { "showWelcomeModal": false },
+  // t0Flow is batch-level; each batch carries its own guided-tour `lectures`
+  // (populated inline for the primary/first batch, null for others → fetched on demand).
+  "t0Flow": {
+    "showT0Flow": false, "showGuidedTour": false, "profilePhotoUrl": null, "downloadAppCompleted": false,
+    "batches": [ { "batchId": 1, "showProgramTab": true, "lms": {}, "program": {}, "lectures": {} } ]
+  }
 }
 ```
 
@@ -100,10 +111,18 @@ Client access: `fetchDashboardOverview()` in
 > 2. **Frontend-unused** endpoints: `/agreement/*`, `/payment-banner`,
 >    `/nps-form/*` + `/assess-nps/:id/link`, and `/t0-flow-student-status`.
 >    They'll be re-added when a frontend feature actually needs them.
+> 3. **Folded into `/overview`** so the dashboard loads with one GET:
+>    `/welcome-modal-status` and `/t0-flow-status` (routes removed, but their
+>    **services are still composed** by `overview`). The overview now also
+>    carries the primary batch's `t0-flow-lectures`.
 >
-> **Kept** (all frontend-wired): `/overview`, `/navbar-pill` (layout's
-> upcoming-lecture pill), `/welcome-modal-*`, and `/t0-flow-status` /
-> `/t0-flow-lectures` / `/t0-flow-step-complete`. Also kept: the external
+> **Kept** (all frontend-wired): `/overview` (the single dashboard GET),
+> `/navbar-pill` (layout's upcoming-lecture pill), `/welcome-modal-dismiss`
+> (POST), `/t0-flow-lectures` (on-demand for non-primary batches),
+> `/t0-flow-step-complete` (POST), `/profile-photo` (POST), the agreement
+> writes `/agreement/save` + `/agreement/submit` (POST; the agreement *read*
+> detail is folded into `overview`), and `/t0-flow-documents` (GET; on-demand
+> external document status — kit/ID-card status ride in `overview`). Also kept: the external
 > **`/api/assess-nps-callback`** webhook (a live server endpoint an external
 > system calls — not a frontend API).
 

@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import {
-  computeGuidedTourWebProgress,
+  computeGuidedTourProgress,
   fracValue,
   isProgressComplete,
 } from '../guidedTourProgress'
@@ -35,7 +35,7 @@ describe('isProgressComplete', () => {
   })
 })
 
-describe('computeGuidedTourWebProgress', () => {
+describe('computeGuidedTourProgress', () => {
   it('LMS-only (partial fees): total = lectures + 2 fixed steps, program is null', async () => {
     queue(
       [{ id: 100 }],                     // latest lms-walkthrough-web section
@@ -43,7 +43,7 @@ describe('computeGuidedTourWebProgress', () => {
       [{ lecture_id: 1 }],               // completed lms lectures
     )
 
-    const result = await computeGuidedTourWebProgress(
+    const result = await computeGuidedTourProgress(
       42, 7, false,
       { profile_pic: 'https://cdn.example.com/me.jpg' }, // photo → +1
       null,
@@ -58,7 +58,7 @@ describe('computeGuidedTourWebProgress', () => {
   it('counts neither fixed step when there is no photo and no device', async () => {
     queue([{ id: 100 }], [{ id: 1 }, { id: 2 }], [{ lecture_id: 1 }, { lecture_id: 2 }])
 
-    const result = await computeGuidedTourWebProgress(42, 7, false, {}, null, false)
+    const result = await computeGuidedTourProgress(42, 7, false, {}, null, false)
 
     expect(result.lms).toEqual({ completed: 2, total: 4 })
   })
@@ -74,7 +74,7 @@ describe('computeGuidedTourWebProgress', () => {
       [{ lecture_id: 5 }],               // program done
     )
 
-    const result = await computeGuidedTourWebProgress(
+    const result = await computeGuidedTourProgress(
       42, 7, true,
       { profile_pic: 'https://cdn.example.com/me.jpg' },
       { agreements: { section_7: { haveAcceptedLegalAgreement: true } } },

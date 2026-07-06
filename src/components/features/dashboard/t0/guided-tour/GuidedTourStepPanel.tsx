@@ -1,66 +1,82 @@
-import { APP_DOWNLOAD_URL, PROFILE_PHOTO_PATH } from '../t0Config'
+import { ProfilePhotoStep } from './ProfilePhotoStep'
+import { AgreementStep } from './agreement/AgreementStep'
+import { StudentKitStep } from './StudentKitStep'
+import { DocumentUploadStep } from './DocumentUploadStep'
+import { GuidedTourLockedNotice } from './GuidedTourLockedNotice'
+import { DownloadAppContent } from '@/components/features/layout/DownloadAppContent'
 import type { GuidedTourStep } from './steps'
 
 interface GuidedTourStepPanelProps {
   step: GuidedTourStep
-  idCardUrl: string | null
+  /** The active batch — needed for the on-demand document-status fetch. */
+  batchId: number
+  /** The already-saved profile photo, if any (for the profile-photo step). */
+  profilePhotoUrl: string | null
+  /** Called when a step's action completes, so the tour can refetch progress. */
+  onCompleted: () => void
 }
 
-const CARD = 'flex flex-col items-start gap-4 rounded-xl border border-gray-200 p-6'
-const CTA = 'inline-flex h-11 items-center justify-center rounded-lg bg-primary px-5 text-sm font-semibold text-white hover:opacity-90'
+const CARD = 'flex flex-col items-start gap-4 rounded-xl border border-gray-200 bg-white p-6'
 
 /**
- * Renders the active fixed (non-video) guided-tour step. Profile photo and app
- * download link out to their destinations; the ID card reveals the issued card.
- * Agreement / documents / student-kit are shown as forthcoming — their full
- * flows land in a later slice.
+ * Renders the active fixed (non-video) guided-tour step by dispatching to its
+ * dedicated component: profile-photo (webcam), download-app (QR content),
+ * agreement (multi-step form), student-kit, and document-upload. (The ID card
+ * is a capstone rendered below the step list, not a step here.)
  */
-export function GuidedTourStepPanel({ step, idCardUrl }: GuidedTourStepPanelProps) {
+export function GuidedTourStepPanel({ step, batchId, profilePhotoUrl, onCompleted }: GuidedTourStepPanelProps) {
   if (step.action === 'profile-photo') {
-    return (
-      <div className={CARD} data-testid="guided-tour-panel-profile-photo">
-        <p className="text-sm text-gray-600">
-          Add a profile photo so mentors and peers can recognise you.
-        </p>
-        <a href={PROFILE_PHOTO_PATH} className={CTA} data-testid="guided-tour-profile-photo-cta">
-          {step.completed ? 'Update photo' : 'Add photo'}
-        </a>
-      </div>
-    )
+    return <ProfilePhotoStep existingPhotoUrl={profilePhotoUrl} onCompleted={onCompleted} />
   }
 
   if (step.action === 'download-app') {
+    // Informational only — this step completes when the mobile app creates a
+    // `user_device_tokens` row (drives `downloadAppCompleted`), never by a click.
     return (
-      <div className={CARD} data-testid="guided-tour-panel-download-app">
-        <p className="text-sm text-gray-600">
-          Install the mobile app to get live-session reminders and learn on the go.
-        </p>
-        <a href={APP_DOWNLOAD_URL} target="_blank" rel="noreferrer" className={CTA} data-testid="guided-tour-download-app-cta">
-          {step.completed ? 'Open app' : 'Download app'}
-        </a>
+      <div
+        className="flex h-full items-center justify-center rounded-xl border border-gray-200 bg-white p-6"
+        data-testid="guided-tour-panel-download-app"
+      >
+        <DownloadAppContent className="mx-auto w-full max-w-[600px]" />
       </div>
     )
   }
 
-  if (step.action === 'id-card' && idCardUrl) {
+  if (step.action === 'agreement' && step.agreement) {
     return (
-      <div className={CARD} data-testid="guided-tour-panel-id-card">
-        <p className="text-sm text-gray-600">Your student ID card is ready.</p>
-        <img src={idCardUrl} alt="Student ID card" className="w-full max-w-sm rounded-lg border border-gray-200" />
+      <div className="h-full min-h-0" data-testid="guided-tour-panel-agreement">
+        <AgreementStep section={step.agreement} onCompleted={onCompleted} />
       </div>
     )
   }
 
-  if (step.action === 'agreement') {
+  // Documents + student kit are locked until the agreement is signed.
+  const lockedMessage = 'Sign your agreement first to unlock this step.'
+
+  if (step.action === 'student-kit' && step.studentKit) {
     return (
-      <div className={CARD} data-testid="guided-tour-panel-agreement">
-        <p className="text-sm font-medium text-gray-900">{step.title}</p>
-        <p className="text-sm text-gray-500">The agreement form will come here.</p>
+      <div data-testid="guided-tour-panel-student-kit">
+        {step.locked ? (
+          <GuidedTourLockedNotice title={step.title} message={lockedMessage} />
+        ) : (
+          <StudentKitStep kit={step.studentKit} />
+        )}
       </div>
     )
   }
 
-  // documents / student-kit — full flows arrive in a later slice.
+  if (step.action === 'documents') {
+    return (
+      <div data-testid="guided-tour-panel-documents">
+        {step.locked ? (
+          <GuidedTourLockedNotice title={step.title} message={lockedMessage} />
+        ) : (
+          <DocumentUploadStep batchId={batchId} onCompleted={onCompleted} />
+        )}
+      </div>
+    )
+  }
+
   return (
     <div className={CARD} data-testid="guided-tour-panel-pending">
       <p className="text-sm font-medium text-gray-900">{step.title}</p>

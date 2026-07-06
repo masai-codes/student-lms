@@ -41,12 +41,11 @@ import { Route as ApiMasaiverseV2AwardPointsRouteImport } from './routes/api/mas
 import { Route as ApiMasaiverseV2AdminModeRouteImport } from './routes/api/masaiverse-v2/admin-mode'
 import { Route as ApiLearnPageRouteImport } from './routes/api/learn/page'
 import { Route as ApiLearnDiscussionsRouteImport } from './routes/api/learn/discussions'
-import { Route as ApiDashboardWelcomeModalStatusRouteImport } from './routes/api/dashboard/welcome-modal-status'
 import { Route as ApiDashboardWelcomeModalDismissRouteImport } from './routes/api/dashboard/welcome-modal-dismiss'
 import { Route as ApiDashboardT0FlowStepCompleteRouteImport } from './routes/api/dashboard/t0-flow-step-complete'
-import { Route as ApiDashboardT0FlowStatusRouteImport } from './routes/api/dashboard/t0-flow-status'
 import { Route as ApiDashboardT0FlowLecturesRouteImport } from './routes/api/dashboard/t0-flow-lectures'
-import { Route as ApiDashboardScheduleRouteImport } from './routes/api/dashboard/schedule'
+import { Route as ApiDashboardT0FlowDocumentsRouteImport } from './routes/api/dashboard/t0-flow-documents'
+import { Route as ApiDashboardProfilePhotoRouteImport } from './routes/api/dashboard/profile-photo'
 import { Route as ApiDashboardOverviewRouteImport } from './routes/api/dashboard/overview'
 import { Route as ApiDashboardNavbarPillRouteImport } from './routes/api/dashboard/navbar-pill'
 import { Route as ApiAnnouncementUnreadCountRouteImport } from './routes/api/announcement/unread-count'
@@ -118,6 +117,9 @@ import { Route as ApiLearnLecturesLectureIdRouteImport } from './routes/api/lear
 import { Route as ApiLearnAssignmentsAssignmentIdRouteImport } from './routes/api/learn/assignments/$assignmentId'
 import { Route as ApiLearnAiTutorLimitRouteImport } from './routes/api/learn/ai-tutor/limit'
 import { Route as ApiLearnAiTutorEndRouteImport } from './routes/api/learn/ai-tutor/end'
+import { Route as ApiDashboardAgreementViewRouteImport } from './routes/api/dashboard/agreement/view'
+import { Route as ApiDashboardAgreementSubmitRouteImport } from './routes/api/dashboard/agreement/submit'
+import { Route as ApiDashboardAgreementSaveRouteImport } from './routes/api/dashboard/agreement/save'
 import { Route as ApiCourseBatchIdEvaluationsRouteImport } from './routes/api/course/$batchId/evaluations'
 import { Route as ApiCourseBatchIdDetailsRouteImport } from './routes/api/course/$batchId/details'
 import { Route as ApiCourseBatchIdCertificatesRouteImport } from './routes/api/course/$batchId/certificates'
@@ -339,12 +341,6 @@ const ApiLearnDiscussionsRoute = ApiLearnDiscussionsRouteImport.update({
   path: '/api/learn/discussions',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiDashboardWelcomeModalStatusRoute =
-  ApiDashboardWelcomeModalStatusRouteImport.update({
-    id: '/api/dashboard/welcome-modal-status',
-    path: '/api/dashboard/welcome-modal-status',
-    getParentRoute: () => rootRouteImport,
-  } as any)
 const ApiDashboardWelcomeModalDismissRoute =
   ApiDashboardWelcomeModalDismissRouteImport.update({
     id: '/api/dashboard/welcome-modal-dismiss',
@@ -357,23 +353,24 @@ const ApiDashboardT0FlowStepCompleteRoute =
     path: '/api/dashboard/t0-flow-step-complete',
     getParentRoute: () => rootRouteImport,
   } as any)
-const ApiDashboardT0FlowStatusRoute =
-  ApiDashboardT0FlowStatusRouteImport.update({
-    id: '/api/dashboard/t0-flow-status',
-    path: '/api/dashboard/t0-flow-status',
-    getParentRoute: () => rootRouteImport,
-  } as any)
 const ApiDashboardT0FlowLecturesRoute =
   ApiDashboardT0FlowLecturesRouteImport.update({
     id: '/api/dashboard/t0-flow-lectures',
     path: '/api/dashboard/t0-flow-lectures',
     getParentRoute: () => rootRouteImport,
   } as any)
-const ApiDashboardScheduleRoute = ApiDashboardScheduleRouteImport.update({
-  id: '/api/dashboard/schedule',
-  path: '/api/dashboard/schedule',
-  getParentRoute: () => rootRouteImport,
-} as any)
+const ApiDashboardT0FlowDocumentsRoute =
+  ApiDashboardT0FlowDocumentsRouteImport.update({
+    id: '/api/dashboard/t0-flow-documents',
+    path: '/api/dashboard/t0-flow-documents',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiDashboardProfilePhotoRoute =
+  ApiDashboardProfilePhotoRouteImport.update({
+    id: '/api/dashboard/profile-photo',
+    path: '/api/dashboard/profile-photo',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiDashboardOverviewRoute = ApiDashboardOverviewRouteImport.update({
   id: '/api/dashboard/overview',
   path: '/api/dashboard/overview',
@@ -778,6 +775,24 @@ const ApiLearnAiTutorEndRoute = ApiLearnAiTutorEndRouteImport.update({
   path: '/api/learn/ai-tutor/end',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiDashboardAgreementViewRoute =
+  ApiDashboardAgreementViewRouteImport.update({
+    id: '/api/dashboard/agreement/view',
+    path: '/api/dashboard/agreement/view',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiDashboardAgreementSubmitRoute =
+  ApiDashboardAgreementSubmitRouteImport.update({
+    id: '/api/dashboard/agreement/submit',
+    path: '/api/dashboard/agreement/submit',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiDashboardAgreementSaveRoute =
+  ApiDashboardAgreementSaveRouteImport.update({
+    id: '/api/dashboard/agreement/save',
+    path: '/api/dashboard/agreement/save',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiCourseBatchIdEvaluationsRoute =
   ApiCourseBatchIdEvaluationsRouteImport.update({
     id: '/api/course/$batchId/evaluations',
@@ -1121,12 +1136,11 @@ export interface FileRoutesByFullPath {
   '/api/announcement/unread-count': typeof ApiAnnouncementUnreadCountRoute
   '/api/dashboard/navbar-pill': typeof ApiDashboardNavbarPillRoute
   '/api/dashboard/overview': typeof ApiDashboardOverviewRoute
-  '/api/dashboard/schedule': typeof ApiDashboardScheduleRoute
+  '/api/dashboard/profile-photo': typeof ApiDashboardProfilePhotoRoute
+  '/api/dashboard/t0-flow-documents': typeof ApiDashboardT0FlowDocumentsRoute
   '/api/dashboard/t0-flow-lectures': typeof ApiDashboardT0FlowLecturesRoute
-  '/api/dashboard/t0-flow-status': typeof ApiDashboardT0FlowStatusRoute
   '/api/dashboard/t0-flow-step-complete': typeof ApiDashboardT0FlowStepCompleteRoute
   '/api/dashboard/welcome-modal-dismiss': typeof ApiDashboardWelcomeModalDismissRoute
-  '/api/dashboard/welcome-modal-status': typeof ApiDashboardWelcomeModalStatusRoute
   '/api/learn/discussions': typeof ApiLearnDiscussionsRouteWithChildren
   '/api/learn/page': typeof ApiLearnPageRoute
   '/api/masaiverse-v2/admin-mode': typeof ApiMasaiverseV2AdminModeRoute
@@ -1180,6 +1194,9 @@ export interface FileRoutesByFullPath {
   '/api/course/$batchId/certificates': typeof ApiCourseBatchIdCertificatesRoute
   '/api/course/$batchId/details': typeof ApiCourseBatchIdDetailsRoute
   '/api/course/$batchId/evaluations': typeof ApiCourseBatchIdEvaluationsRoute
+  '/api/dashboard/agreement/save': typeof ApiDashboardAgreementSaveRoute
+  '/api/dashboard/agreement/submit': typeof ApiDashboardAgreementSubmitRoute
+  '/api/dashboard/agreement/view': typeof ApiDashboardAgreementViewRoute
   '/api/learn/ai-tutor/end': typeof ApiLearnAiTutorEndRoute
   '/api/learn/ai-tutor/limit': typeof ApiLearnAiTutorLimitRoute
   '/api/learn/assignments/$assignmentId': typeof ApiLearnAssignmentsAssignmentIdRouteWithChildren
@@ -1285,12 +1302,11 @@ export interface FileRoutesByTo {
   '/api/announcement/unread-count': typeof ApiAnnouncementUnreadCountRoute
   '/api/dashboard/navbar-pill': typeof ApiDashboardNavbarPillRoute
   '/api/dashboard/overview': typeof ApiDashboardOverviewRoute
-  '/api/dashboard/schedule': typeof ApiDashboardScheduleRoute
+  '/api/dashboard/profile-photo': typeof ApiDashboardProfilePhotoRoute
+  '/api/dashboard/t0-flow-documents': typeof ApiDashboardT0FlowDocumentsRoute
   '/api/dashboard/t0-flow-lectures': typeof ApiDashboardT0FlowLecturesRoute
-  '/api/dashboard/t0-flow-status': typeof ApiDashboardT0FlowStatusRoute
   '/api/dashboard/t0-flow-step-complete': typeof ApiDashboardT0FlowStepCompleteRoute
   '/api/dashboard/welcome-modal-dismiss': typeof ApiDashboardWelcomeModalDismissRoute
-  '/api/dashboard/welcome-modal-status': typeof ApiDashboardWelcomeModalStatusRoute
   '/api/learn/discussions': typeof ApiLearnDiscussionsRouteWithChildren
   '/api/learn/page': typeof ApiLearnPageRoute
   '/api/masaiverse-v2/admin-mode': typeof ApiMasaiverseV2AdminModeRoute
@@ -1344,6 +1360,9 @@ export interface FileRoutesByTo {
   '/api/course/$batchId/certificates': typeof ApiCourseBatchIdCertificatesRoute
   '/api/course/$batchId/details': typeof ApiCourseBatchIdDetailsRoute
   '/api/course/$batchId/evaluations': typeof ApiCourseBatchIdEvaluationsRoute
+  '/api/dashboard/agreement/save': typeof ApiDashboardAgreementSaveRoute
+  '/api/dashboard/agreement/submit': typeof ApiDashboardAgreementSubmitRoute
+  '/api/dashboard/agreement/view': typeof ApiDashboardAgreementViewRoute
   '/api/learn/ai-tutor/end': typeof ApiLearnAiTutorEndRoute
   '/api/learn/ai-tutor/limit': typeof ApiLearnAiTutorLimitRoute
   '/api/learn/assignments/$assignmentId': typeof ApiLearnAssignmentsAssignmentIdRouteWithChildren
@@ -1452,12 +1471,11 @@ export interface FileRoutesById {
   '/api/announcement/unread-count': typeof ApiAnnouncementUnreadCountRoute
   '/api/dashboard/navbar-pill': typeof ApiDashboardNavbarPillRoute
   '/api/dashboard/overview': typeof ApiDashboardOverviewRoute
-  '/api/dashboard/schedule': typeof ApiDashboardScheduleRoute
+  '/api/dashboard/profile-photo': typeof ApiDashboardProfilePhotoRoute
+  '/api/dashboard/t0-flow-documents': typeof ApiDashboardT0FlowDocumentsRoute
   '/api/dashboard/t0-flow-lectures': typeof ApiDashboardT0FlowLecturesRoute
-  '/api/dashboard/t0-flow-status': typeof ApiDashboardT0FlowStatusRoute
   '/api/dashboard/t0-flow-step-complete': typeof ApiDashboardT0FlowStepCompleteRoute
   '/api/dashboard/welcome-modal-dismiss': typeof ApiDashboardWelcomeModalDismissRoute
-  '/api/dashboard/welcome-modal-status': typeof ApiDashboardWelcomeModalStatusRoute
   '/api/learn/discussions': typeof ApiLearnDiscussionsRouteWithChildren
   '/api/learn/page': typeof ApiLearnPageRoute
   '/api/masaiverse-v2/admin-mode': typeof ApiMasaiverseV2AdminModeRoute
@@ -1511,6 +1529,9 @@ export interface FileRoutesById {
   '/api/course/$batchId/certificates': typeof ApiCourseBatchIdCertificatesRoute
   '/api/course/$batchId/details': typeof ApiCourseBatchIdDetailsRoute
   '/api/course/$batchId/evaluations': typeof ApiCourseBatchIdEvaluationsRoute
+  '/api/dashboard/agreement/save': typeof ApiDashboardAgreementSaveRoute
+  '/api/dashboard/agreement/submit': typeof ApiDashboardAgreementSubmitRoute
+  '/api/dashboard/agreement/view': typeof ApiDashboardAgreementViewRoute
   '/api/learn/ai-tutor/end': typeof ApiLearnAiTutorEndRoute
   '/api/learn/ai-tutor/limit': typeof ApiLearnAiTutorLimitRoute
   '/api/learn/assignments/$assignmentId': typeof ApiLearnAssignmentsAssignmentIdRouteWithChildren
@@ -1619,12 +1640,11 @@ export interface FileRouteTypes {
     | '/api/announcement/unread-count'
     | '/api/dashboard/navbar-pill'
     | '/api/dashboard/overview'
-    | '/api/dashboard/schedule'
+    | '/api/dashboard/profile-photo'
+    | '/api/dashboard/t0-flow-documents'
     | '/api/dashboard/t0-flow-lectures'
-    | '/api/dashboard/t0-flow-status'
     | '/api/dashboard/t0-flow-step-complete'
     | '/api/dashboard/welcome-modal-dismiss'
-    | '/api/dashboard/welcome-modal-status'
     | '/api/learn/discussions'
     | '/api/learn/page'
     | '/api/masaiverse-v2/admin-mode'
@@ -1678,6 +1698,9 @@ export interface FileRouteTypes {
     | '/api/course/$batchId/certificates'
     | '/api/course/$batchId/details'
     | '/api/course/$batchId/evaluations'
+    | '/api/dashboard/agreement/save'
+    | '/api/dashboard/agreement/submit'
+    | '/api/dashboard/agreement/view'
     | '/api/learn/ai-tutor/end'
     | '/api/learn/ai-tutor/limit'
     | '/api/learn/assignments/$assignmentId'
@@ -1783,12 +1806,11 @@ export interface FileRouteTypes {
     | '/api/announcement/unread-count'
     | '/api/dashboard/navbar-pill'
     | '/api/dashboard/overview'
-    | '/api/dashboard/schedule'
+    | '/api/dashboard/profile-photo'
+    | '/api/dashboard/t0-flow-documents'
     | '/api/dashboard/t0-flow-lectures'
-    | '/api/dashboard/t0-flow-status'
     | '/api/dashboard/t0-flow-step-complete'
     | '/api/dashboard/welcome-modal-dismiss'
-    | '/api/dashboard/welcome-modal-status'
     | '/api/learn/discussions'
     | '/api/learn/page'
     | '/api/masaiverse-v2/admin-mode'
@@ -1842,6 +1864,9 @@ export interface FileRouteTypes {
     | '/api/course/$batchId/certificates'
     | '/api/course/$batchId/details'
     | '/api/course/$batchId/evaluations'
+    | '/api/dashboard/agreement/save'
+    | '/api/dashboard/agreement/submit'
+    | '/api/dashboard/agreement/view'
     | '/api/learn/ai-tutor/end'
     | '/api/learn/ai-tutor/limit'
     | '/api/learn/assignments/$assignmentId'
@@ -1949,12 +1974,11 @@ export interface FileRouteTypes {
     | '/api/announcement/unread-count'
     | '/api/dashboard/navbar-pill'
     | '/api/dashboard/overview'
-    | '/api/dashboard/schedule'
+    | '/api/dashboard/profile-photo'
+    | '/api/dashboard/t0-flow-documents'
     | '/api/dashboard/t0-flow-lectures'
-    | '/api/dashboard/t0-flow-status'
     | '/api/dashboard/t0-flow-step-complete'
     | '/api/dashboard/welcome-modal-dismiss'
-    | '/api/dashboard/welcome-modal-status'
     | '/api/learn/discussions'
     | '/api/learn/page'
     | '/api/masaiverse-v2/admin-mode'
@@ -2008,6 +2032,9 @@ export interface FileRouteTypes {
     | '/api/course/$batchId/certificates'
     | '/api/course/$batchId/details'
     | '/api/course/$batchId/evaluations'
+    | '/api/dashboard/agreement/save'
+    | '/api/dashboard/agreement/submit'
+    | '/api/dashboard/agreement/view'
     | '/api/learn/ai-tutor/end'
     | '/api/learn/ai-tutor/limit'
     | '/api/learn/assignments/$assignmentId'
@@ -2114,12 +2141,11 @@ export interface RootRouteChildren {
   ApiAnnouncementUnreadCountRoute: typeof ApiAnnouncementUnreadCountRoute
   ApiDashboardNavbarPillRoute: typeof ApiDashboardNavbarPillRoute
   ApiDashboardOverviewRoute: typeof ApiDashboardOverviewRoute
-  ApiDashboardScheduleRoute: typeof ApiDashboardScheduleRoute
+  ApiDashboardProfilePhotoRoute: typeof ApiDashboardProfilePhotoRoute
+  ApiDashboardT0FlowDocumentsRoute: typeof ApiDashboardT0FlowDocumentsRoute
   ApiDashboardT0FlowLecturesRoute: typeof ApiDashboardT0FlowLecturesRoute
-  ApiDashboardT0FlowStatusRoute: typeof ApiDashboardT0FlowStatusRoute
   ApiDashboardT0FlowStepCompleteRoute: typeof ApiDashboardT0FlowStepCompleteRoute
   ApiDashboardWelcomeModalDismissRoute: typeof ApiDashboardWelcomeModalDismissRoute
-  ApiDashboardWelcomeModalStatusRoute: typeof ApiDashboardWelcomeModalStatusRoute
   ApiLearnDiscussionsRoute: typeof ApiLearnDiscussionsRouteWithChildren
   ApiLearnPageRoute: typeof ApiLearnPageRoute
   ApiMasaiverseV2AdminModeRoute: typeof ApiMasaiverseV2AdminModeRoute
@@ -2159,6 +2185,9 @@ export interface RootRouteChildren {
   ApiCourseBatchIdCertificatesRoute: typeof ApiCourseBatchIdCertificatesRoute
   ApiCourseBatchIdDetailsRoute: typeof ApiCourseBatchIdDetailsRoute
   ApiCourseBatchIdEvaluationsRoute: typeof ApiCourseBatchIdEvaluationsRoute
+  ApiDashboardAgreementSaveRoute: typeof ApiDashboardAgreementSaveRoute
+  ApiDashboardAgreementSubmitRoute: typeof ApiDashboardAgreementSubmitRoute
+  ApiDashboardAgreementViewRoute: typeof ApiDashboardAgreementViewRoute
   ApiLearnAiTutorEndRoute: typeof ApiLearnAiTutorEndRoute
   ApiLearnAiTutorLimitRoute: typeof ApiLearnAiTutorLimitRoute
   ApiLearnAssignmentsAssignmentIdRoute: typeof ApiLearnAssignmentsAssignmentIdRouteWithChildren
@@ -2444,13 +2473,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiLearnDiscussionsRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/dashboard/welcome-modal-status': {
-      id: '/api/dashboard/welcome-modal-status'
-      path: '/api/dashboard/welcome-modal-status'
-      fullPath: '/api/dashboard/welcome-modal-status'
-      preLoaderRoute: typeof ApiDashboardWelcomeModalStatusRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/api/dashboard/welcome-modal-dismiss': {
       id: '/api/dashboard/welcome-modal-dismiss'
       path: '/api/dashboard/welcome-modal-dismiss'
@@ -2465,13 +2487,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiDashboardT0FlowStepCompleteRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/dashboard/t0-flow-status': {
-      id: '/api/dashboard/t0-flow-status'
-      path: '/api/dashboard/t0-flow-status'
-      fullPath: '/api/dashboard/t0-flow-status'
-      preLoaderRoute: typeof ApiDashboardT0FlowStatusRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/api/dashboard/t0-flow-lectures': {
       id: '/api/dashboard/t0-flow-lectures'
       path: '/api/dashboard/t0-flow-lectures'
@@ -2479,11 +2494,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiDashboardT0FlowLecturesRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/dashboard/schedule': {
-      id: '/api/dashboard/schedule'
-      path: '/api/dashboard/schedule'
-      fullPath: '/api/dashboard/schedule'
-      preLoaderRoute: typeof ApiDashboardScheduleRouteImport
+    '/api/dashboard/t0-flow-documents': {
+      id: '/api/dashboard/t0-flow-documents'
+      path: '/api/dashboard/t0-flow-documents'
+      fullPath: '/api/dashboard/t0-flow-documents'
+      preLoaderRoute: typeof ApiDashboardT0FlowDocumentsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/dashboard/profile-photo': {
+      id: '/api/dashboard/profile-photo'
+      path: '/api/dashboard/profile-photo'
+      fullPath: '/api/dashboard/profile-photo'
+      preLoaderRoute: typeof ApiDashboardProfilePhotoRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/dashboard/overview': {
@@ -2981,6 +3003,27 @@ declare module '@tanstack/react-router' {
       path: '/api/learn/ai-tutor/end'
       fullPath: '/api/learn/ai-tutor/end'
       preLoaderRoute: typeof ApiLearnAiTutorEndRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/dashboard/agreement/view': {
+      id: '/api/dashboard/agreement/view'
+      path: '/api/dashboard/agreement/view'
+      fullPath: '/api/dashboard/agreement/view'
+      preLoaderRoute: typeof ApiDashboardAgreementViewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/dashboard/agreement/submit': {
+      id: '/api/dashboard/agreement/submit'
+      path: '/api/dashboard/agreement/submit'
+      fullPath: '/api/dashboard/agreement/submit'
+      preLoaderRoute: typeof ApiDashboardAgreementSubmitRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/dashboard/agreement/save': {
+      id: '/api/dashboard/agreement/save'
+      path: '/api/dashboard/agreement/save'
+      fullPath: '/api/dashboard/agreement/save'
+      preLoaderRoute: typeof ApiDashboardAgreementSaveRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/course/$batchId/evaluations': {
@@ -3641,12 +3684,11 @@ const rootRouteChildren: RootRouteChildren = {
   ApiAnnouncementUnreadCountRoute: ApiAnnouncementUnreadCountRoute,
   ApiDashboardNavbarPillRoute: ApiDashboardNavbarPillRoute,
   ApiDashboardOverviewRoute: ApiDashboardOverviewRoute,
-  ApiDashboardScheduleRoute: ApiDashboardScheduleRoute,
+  ApiDashboardProfilePhotoRoute: ApiDashboardProfilePhotoRoute,
+  ApiDashboardT0FlowDocumentsRoute: ApiDashboardT0FlowDocumentsRoute,
   ApiDashboardT0FlowLecturesRoute: ApiDashboardT0FlowLecturesRoute,
-  ApiDashboardT0FlowStatusRoute: ApiDashboardT0FlowStatusRoute,
   ApiDashboardT0FlowStepCompleteRoute: ApiDashboardT0FlowStepCompleteRoute,
   ApiDashboardWelcomeModalDismissRoute: ApiDashboardWelcomeModalDismissRoute,
-  ApiDashboardWelcomeModalStatusRoute: ApiDashboardWelcomeModalStatusRoute,
   ApiLearnDiscussionsRoute: ApiLearnDiscussionsRouteWithChildren,
   ApiLearnPageRoute: ApiLearnPageRoute,
   ApiMasaiverseV2AdminModeRoute: ApiMasaiverseV2AdminModeRoute,
@@ -3686,6 +3728,9 @@ const rootRouteChildren: RootRouteChildren = {
   ApiCourseBatchIdCertificatesRoute: ApiCourseBatchIdCertificatesRoute,
   ApiCourseBatchIdDetailsRoute: ApiCourseBatchIdDetailsRoute,
   ApiCourseBatchIdEvaluationsRoute: ApiCourseBatchIdEvaluationsRoute,
+  ApiDashboardAgreementSaveRoute: ApiDashboardAgreementSaveRoute,
+  ApiDashboardAgreementSubmitRoute: ApiDashboardAgreementSubmitRoute,
+  ApiDashboardAgreementViewRoute: ApiDashboardAgreementViewRoute,
   ApiLearnAiTutorEndRoute: ApiLearnAiTutorEndRoute,
   ApiLearnAiTutorLimitRoute: ApiLearnAiTutorLimitRoute,
   ApiLearnAssignmentsAssignmentIdRoute:

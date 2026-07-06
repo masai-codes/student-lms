@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { buildLmsSteps, buildProgramSteps } from './steps'
+import { buildLmsSteps, buildProgramSteps, getIdCardState } from './steps'
 import type { T0FlowLecturesResult } from '@/server/api/dashboard/getT0FlowLectures.service'
 import type { T0FlowStatus } from '@/server/api/dashboard/getT0FlowStatus.service'
 
@@ -10,7 +10,7 @@ function lectures(over: Partial<T0FlowLecturesResult> = {}): T0FlowLecturesResul
     completedLectureIds: [],
     legalAgreementSections: [],
     isDocumentsRequired: false,
-    isStudentKitApplicable: false,
+    studentKit: { applicable: false, detailsFilled: false, trackingUrl: null, trackingId: null, admissionsFormUrl: null },
     idCardUrl: null,
     ...over,
   }
@@ -23,6 +23,7 @@ function status(over: Partial<T0FlowStatus> = {}): T0FlowStatus {
     profilePhotoUrl: null,
     downloadAppCompleted: false,
     showGuidedTour: true,
+    flowVariant: 'full',
     ...over,
   }
 }
@@ -54,21 +55,115 @@ describe('buildProgramSteps', () => {
       lectures({
         programLectures: [{ id: 'p', lectureId: 9, title: 'Program intro', videoUrl: 'v', lectureType: 'video' }],
         completedLectureIds: [9],
-        legalAgreementSections: [{ sectionId: 7, name: 'Enrolment agreement', completed: false }],
+        legalAgreementSections: [
+          {
+            sectionId: 7,
+            sectionName: 'Enrolment agreement',
+            programName: 'MERN',
+            batchName: 'B1',
+            steps: [{ key: 'program_agreement', heading: 'Program Agreement', pdfUrl: 'https://x/a.pdf', order: null }],
+            savedValues: {},
+            acceptedStepKeys: [],
+            completed: false,
+            referenceNumber: 'TC-1-section_7',
+            agreementPdfUrl: null,
+            viewTime: null,
+            daysSinceFirstView: 0,
+            daysLeft: 7,
+            isClosable: true,
+          },
+        ],
         isDocumentsRequired: true,
-        isStudentKitApplicable: true,
+        studentKit: { applicable: true, detailsFilled: false, trackingUrl: null, trackingId: null, admissionsFormUrl: 'https://sso/kit' },
         idCardUrl: 'https://x/id.png',
       }),
+      status(),
     )
 
-    expect(steps.map((s) => s.key)).toEqual(['lecture-9', 'agreement-7', 'documents', 'student-kit', 'id-card'])
+    // No id-card step — it's a capstone rendered below the list (getIdCardState).
+    expect(steps.map((s) => s.key)).toEqual(['lecture-9', 'agreement-7', 'documents', 'student-kit'])
     expect(steps[0].completed).toBe(true)
-    expect(steps[1]).toMatchObject({ action: 'agreement', sectionId: 7, completed: false })
-    expect(steps.at(-1)).toMatchObject({ action: 'id-card', completed: true })
+    expect(steps[1]).toMatchObject({ action: 'agreement', completed: false })
+    expect(steps[1].agreement?.sectionId).toBe(7)
+    expect(steps.some((s) => s.action === 'id-card')).toBe(false)
+    // Documents + kit are locked until the agreement is signed.
+    expect(steps.find((s) => s.action === 'documents')?.locked).toBe(true)
+    expect(steps.find((s) => s.action === 'student-kit')?.locked).toBe(true)
   })
 
-  it('omits extras that are not applicable', () => {
-    const steps = buildProgramSteps(lectures({ programLectures: [], legalAgreementSections: [] }))
+  it('unlocks documents + kit once every agreement is signed', () => {
+    const steps = buildProgramSteps(
+      lectures({
+        legalAgreementSections: [
+          { sectionId: 7, sectionName: 'A', programName: 'M', batchName: 'B', steps: [], savedValues: {}, acceptedStepKeys: [], completed: true, referenceNumber: 'r', agreementPdfUrl: null, viewTime: null, daysSinceFirstView: 0, daysLeft: 7, isClosable: true },
+        ],
+        isDocumentsRequired: true,
+        studentKit: { applicable: true, detailsFilled: false, trackingUrl: null, trackingId: null, admissionsFormUrl: 'https://sso/kit' },
+      }),
+      status(),
+    )
+    expect(steps.find((s) => s.action === 'documents')?.locked).toBe(false)
+    expect(steps.find((s) => s.action === 'student-kit')?.locked).toBe(false)
+  })
+
+  it('never includes the ID card as a step (full flow)', () => {
+    const steps = buildProgramSteps(lectures({ programLectures: [], legalAgreementSections: [] }), status())
+    expect(steps.map((s) => s.key)).toEqual([])
+    expect(steps.some((s) => s.action === 'id-card')).toBe(false)
+  })
+
+  it('lite flow: only the agreement step — no videos, documents, kit, or ID card', () => {
+    const steps = buildProgramSteps(
+      lectures({
+        legalAgreementSections: [
+          { sectionId: 7, sectionName: 'Enrolment agreement', programName: 'MERN', batchName: 'B1', steps: [], savedValues: {}, acceptedStepKeys: [], completed: false, referenceNumber: 'r', agreementPdfUrl: null, viewTime: null, daysSinceFirstView: 0, daysLeft: 7, isClosable: true },
+        ],
+        // These would add steps in the full flow but must be ignored in lite.
+        isDocumentsRequired: true,
+        studentKit: { applicable: true, detailsFilled: false, trackingUrl: null, trackingId: null, admissionsFormUrl: 'https://sso/kit' },
+        idCardUrl: 'https://x/id.png',
+      }),
+      status({ flowVariant: 'lite' }),
+    )
+    expect(steps.map((s) => s.key)).toEqual(['agreement-7'])
+  })
+
+  it('lite flow: an empty program tab when the batch has no agreement', () => {
+    const steps = buildProgramSteps(lectures({ legalAgreementSections: [] }), status({ flowVariant: 'lite' }))
     expect(steps).toEqual([])
+  })
+})
+
+describe('getIdCardState', () => {
+  it('is shown but locked until every program video + agreement is done', () => {
+    const state = getIdCardState(
+      lectures({
+        programLectures: [{ id: 'p', lectureId: 9, title: 'Intro', videoUrl: 'v', lectureType: 'video' }],
+        completedLectureIds: [],
+        idCardUrl: 'https://x/id.png',
+      }),
+      status(),
+    )
+    expect(state).toEqual({ show: true, url: 'https://x/id.png', unlocked: false })
+  })
+
+  it('unlocks once every program video is watched and every agreement signed', () => {
+    const state = getIdCardState(
+      lectures({
+        programLectures: [{ id: 'p', lectureId: 9, title: 'Intro', videoUrl: 'v', lectureType: 'video' }],
+        completedLectureIds: [9],
+        idCardUrl: 'https://x/id.png',
+      }),
+      status(),
+    )
+    expect(state).toEqual({ show: true, url: 'https://x/id.png', unlocked: true })
+  })
+
+  it('is hidden for the lite (non-T0) flow', () => {
+    expect(getIdCardState(lectures({ idCardUrl: 'https://x/id.png' }), status({ flowVariant: 'lite' }))).toEqual({
+      show: false,
+      url: null,
+      unlocked: false,
+    })
   })
 })

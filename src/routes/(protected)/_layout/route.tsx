@@ -7,6 +7,7 @@ import {
 import { useEffect } from 'react'
 import { AppLoading } from '@/components/common'
 import { AppMobileTabBar, AppNavbar } from '@/components/features/layout'
+import { AnnouncementModalController, ModalProvider } from '@/components/modals'
 import MasaiverseMobileTabBar from '@/components/features/masaiverse-v2/MasaiverseMobileTabBar'
 import { isMasaiverseApp } from '@/constants/masaiverseDrawerUi'
 import { layoutMainClasses, layoutMainClassesFullWidth } from '@/lib/layout'
@@ -109,18 +110,22 @@ function RouteComponent() {
   }, [user])
 
   return (
-    <div className="min-h-dvh bg-[#FAF9F9] flex flex-col">
-      <AppNavbar />
-      <main
-        className={`${mainClasses} ${isApp && !isMasaiverseRoute ? 'pb-0' : 'pb-[calc(4.5rem+env(safe-area-inset-bottom))]'} md:pb-0`}
-      >
-        <Outlet />
-      </main>
-      {isMasaiverseRoute ? (
-        <MasaiverseMobileTabBar />
-      ) : !isApp ? (
-        <AppMobileTabBar />
-      ) : null}
-    </div>
+    <ModalProvider>
+      <div className="min-h-dvh bg-[#FAF9F9] flex flex-col">
+        <AppNavbar />
+        <main
+          className={`${mainClasses} ${isApp && !isMasaiverseRoute ? 'pb-0' : 'pb-[calc(4.5rem+env(safe-area-inset-bottom))]'} md:pb-0`}
+        >
+          <Outlet />
+        </main>
+        {isMasaiverseRoute ? (
+          <MasaiverseMobileTabBar />
+        ) : !isApp ? (
+          <AppMobileTabBar />
+        ) : null}
+        {/* Central modal system — announcement popups check on every page. */}
+        <AnnouncementModalController />
+      </div>
+    </ModalProvider>
   )
 }

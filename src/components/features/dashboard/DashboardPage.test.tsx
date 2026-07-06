@@ -8,16 +8,14 @@ import type * as TanstackRouter from '@tanstack/react-router'
 const hoisted = vi.hoisted(() => ({
   fetchOverview: vi.fn(),
   fetchCurrentUser: vi.fn(),
-  fetchWelcomeModalStatus: vi.fn(),
   dismissWelcomeModalApi: vi.fn(),
-  fetchT0FlowStatus: vi.fn(),
+  fetchT0FlowLectures: vi.fn(),
 }))
 
 vi.mock('@/lib/api/dashboard/dashboardApi', () => ({
   fetchDashboardOverview: hoisted.fetchOverview,
-  fetchWelcomeModalStatus: hoisted.fetchWelcomeModalStatus,
   dismissWelcomeModalApi: hoisted.dismissWelcomeModalApi,
-  fetchT0FlowStatus: hoisted.fetchT0FlowStatus,
+  fetchT0FlowLectures: hoisted.fetchT0FlowLectures,
 }))
 vi.mock('@/lib/api/me/meApi', () => ({
   fetchCurrentUser: hoisted.fetchCurrentUser,
@@ -47,15 +45,12 @@ afterEach(cleanup)
 beforeEach(() => {
   vi.clearAllMocks()
   hoisted.fetchCurrentUser.mockResolvedValue({ name: 'Suryakumar' })
-  hoisted.fetchWelcomeModalStatus.mockResolvedValue({ showWelcomeModal: false })
-  hoisted.fetchT0FlowStatus.mockResolvedValue({
-    showT0Flow: false,
-    batches: [],
-    profilePhotoUrl: null,
-    downloadAppCompleted: false,
-    showGuidedTour: false,
-  })
 })
+
+const T0_DEFAULTS = {
+  welcomeModal: { showWelcomeModal: false },
+  t0Flow: { showT0Flow: false, batches: [], profilePhotoUrl: null, downloadAppCompleted: false, showGuidedTour: false },
+}
 
 function renderPage() {
   const client = new QueryClient({ defaultOptions: { queries: { retry: false } } })
@@ -82,6 +77,7 @@ const overview = {
     zoomLink: 'https://zoom.us/j/support',
     status: 'live',
   },
+  ...T0_DEFAULTS,
 }
 
 describe('DashboardPage', () => {

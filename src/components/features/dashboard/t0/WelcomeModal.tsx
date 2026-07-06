@@ -1,16 +1,9 @@
-import { WELCOME_CONFETTI_DURATION_MS, WELCOME_INTRO_VIDEO_URL } from './t0Config'
-import { ConfettiOverlay } from '@/components/ui/confetti-overlay'
+import { useState } from 'react'
+import { Confetti } from '@phosphor-icons/react'
+import { WELCOME_INTRO_VIDEO_URL } from './t0Config'
+import { LottieConfetti } from '@/components/ui/lottie-confetti'
 import { Modal, ModalContent, ModalDescription, ModalTitle } from '@/components/ui/modal'
 import BottomDrawer from '@/components/ui/bottom-drawer'
-import {
-  VideoPlayer,
-  VideoPlayerControlBar,
-  VideoPlayerMuteButton,
-  VideoPlayerPlayButton,
-  VideoPlayerTimeDisplay,
-  VideoPlayerTimeRange,
-  VideoPlayerVolumeRange,
-} from '@/components/ui/video-player'
 import { useIsMobileViewport } from '@/components/features/chatbot/hooks/useIsMobileViewport'
 
 interface WelcomeModalProps {
@@ -24,52 +17,75 @@ interface WelcomeModalProps {
 
 const TITLE = 'Welcome to Masai!'
 const BODY =
-  'Your registration is confirmed and your LMS is now active. Watch this quick intro to see how everything works, then jump right in.'
+  'Your registration is confirmed and your LMS access is now active. Let’s take a quick walkthrough to help you get started.'
 
 /** The shared inner content: confetti, intro video, copy, and the CTA. */
 function WelcomeModalBody({ open, onDismiss, isDismissing }: WelcomeModalProps) {
+  // Each celebrate-button click re-fires the one-shot confetti (remount via key).
+  const [celebrateCount, setCelebrateCount] = useState(0)
+
   return (
-    <div className="relative flex flex-col gap-5" data-testid="welcome-modal-body">
-      <ConfettiOverlay
-        active={open}
-        durationMs={WELCOME_CONFETTI_DURATION_MS}
-        data-testid="welcome-modal-confetti"
-      />
+    <div
+      className="relative flex flex-col items-center gap-5 text-center md:gap-6"
+      data-testid="welcome-modal-body"
+    >
+      <LottieConfetti key={celebrateCount} active={open} data-testid="welcome-modal-confetti" />
+
+      <button
+        type="button"
+        onClick={() => setCelebrateCount((count) => count + 1)}
+        title="Woohoo!"
+        aria-label="Celebrate again"
+        data-testid="welcome-modal-celebrate"
+        // Sits in the modal's top-left corner (mirroring the close X on the
+        // right); the negative offsets pull it out past the modal's padding.
+        className="absolute left-0 top-0 z-20 inline-flex size-9 items-center justify-center rounded-full text-[#F59E0B] transition-colors hover:bg-[#FEF3C7] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F59E0B] md:-left-6 md:-top-6"
+      >
+        <Confetti size={24} weight="fill" aria-hidden />
+      </button>
+
       <div className="flex flex-col gap-2">
         <h2
-          className="text-2xl font-semibold text-gray-900"
+          className="text-2xl font-bold text-[#111827] md:text-3xl"
           data-testid="welcome-modal-title"
         >
           {TITLE}
         </h2>
-        <p className="text-sm text-gray-600" data-testid="welcome-modal-body-text">
+        <p className="text-sm text-gray-600 md:text-base" data-testid="welcome-modal-body-text">
           {BODY}
         </p>
       </div>
 
-      <VideoPlayer
-        className="overflow-hidden rounded-2xl border border-gray-200"
+      {celebrateCount > 2 ? (
+        <p
+          className="animate-bounce text-sm font-semibold text-[#EC4899]"
+          data-testid="welcome-modal-celebrate-message"
+        >
+          Okay, okay! We love celebrating wins as much as you do!
+        </p>
+      ) : null}
+
+      {/* Native player (same as the guided-tour videos). No autoplay — the
+          learner taps play (autoplay would be muted, and the intro is worth
+          hearing). */}
+      <div
+        className="aspect-video w-full overflow-hidden rounded-2xl bg-black shadow-md"
         data-testid="welcome-modal-video"
       >
         <video
-          slot="media"
           src={WELCOME_INTRO_VIDEO_URL}
+          className="h-full w-full object-contain"
+          controls
+          playsInline
           suppressHydrationWarning
         />
-        <VideoPlayerControlBar>
-          <VideoPlayerPlayButton />
-          <VideoPlayerTimeRange />
-          <VideoPlayerTimeDisplay showDuration />
-          <VideoPlayerMuteButton />
-          <VideoPlayerVolumeRange />
-        </VideoPlayerControlBar>
-      </VideoPlayer>
+      </div>
 
       <button
         type="button"
         onClick={onDismiss}
         disabled={isDismissing}
-        className="inline-flex h-12 w-full items-center justify-center rounded-xl bg-primary text-base font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-60"
+        className="inline-flex h-12 w-52 items-center justify-center rounded-lg bg-[#6962AC] text-base font-semibold text-white transition-colors hover:bg-[#554f8b] disabled:opacity-60"
         data-testid="welcome-modal-get-started"
       >
         {isDismissing ? 'Just a moment…' : 'Get Started'}
@@ -99,7 +115,7 @@ export function WelcomeModal(props: WelcomeModalProps) {
 
   return (
     <Modal open={open} onOpenChange={(next) => !next && onDismiss()}>
-      <ModalContent className="max-w-xl" data-testid="welcome-modal">
+      <ModalContent className="max-w-[1000px] p-8 md:p-10" data-testid="welcome-modal">
         {/* Screen-reader-only labels: the visible title/body inside the body
             are styled headings, so Radix needs an explicit accessible name. */}
         <ModalTitle className="sr-only">{TITLE}</ModalTitle>
