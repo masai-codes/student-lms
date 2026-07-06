@@ -189,7 +189,7 @@ export async function appendChatPracticeHistory(input: {
   userMessage: string
   aiMessage: string
   platform: AiTutorFeedbackPlatform
-  language?: AiTutorChatLanguage
+  language: AiTutorChatLanguage
   existingHistory: Array<AiChatHistoryEntry>
 }): Promise<void> {
   const nextHistory: Array<AiChatHistoryEntry> = [
@@ -198,7 +198,7 @@ export async function appendChatPracticeHistory(input: {
       userMessage: input.userMessage,
       aiMessage: input.aiMessage,
       platform: input.platform,
-      ...(input.language ? { language: input.language } : {}),
+      language: input.language,
     },
   ]
 

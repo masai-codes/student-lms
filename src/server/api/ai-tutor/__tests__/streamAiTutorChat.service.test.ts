@@ -43,6 +43,7 @@ describe('prepareLectureChatContext', () => {
       lectureId: 99,
       chat: 'Explain hooks',
       platform: 'web',
+      language: 'English',
     })
 
     expect(hoisted.findOrCreateChatPracticeRow).toHaveBeenCalledWith({
@@ -55,7 +56,9 @@ describe('prepareLectureChatContext', () => {
         id: 12,
         chatHistory: [{ userMessage: 'Earlier', aiMessage: 'Sure' }],
       },
-      systemPrompt: expect.stringContaining('Lecture summary text'),
+      systemPrompt: expect.stringMatching(
+        /Lecture summary text|You MUST respond ONLY in English/,
+      ),
       messages: [
         { role: 'user', content: 'Earlier' },
         { role: 'assistant', content: 'Sure' },
@@ -63,6 +66,7 @@ describe('prepareLectureChatContext', () => {
       ],
       chat: 'Explain hooks',
       platform: 'web',
+      language: 'English',
     })
   })
 
@@ -101,6 +105,7 @@ describe('prepareLectureChatContext', () => {
         chat: 'Explain hooks',
         chatId: 2,
         platform: 'web',
+        language: 'English',
       }),
     ).rejects.toMatchObject({ status: 404, code: 'AI_TUTOR_CHAT_NOT_FOUND' })
   })

@@ -19,11 +19,6 @@ export const AI_TUTOR_LECTURE_CHAT_SYSTEM_PROMPT_BASE = `You are an AI tutor for
 ## Your job
 Help students clear doubts about THIS lecture's content. You are a tutor, not a lecture recorder. Teach concepts; do not merely list what was covered.`
 
-export const AI_TUTOR_LECTURE_CHAT_DEFAULT_LANGUAGE_INSTRUCTION = `## Language
-Start by asking which language they prefer (e.g. English, Hindi, Kannada). Use that language for explanations, but keep ALL technical terms, code, keywords, and formulas in English.
-Example (Hindi): "Is function ko call karne ke liye Python mein yeh syntax use hota hai…"
-If you cannot teach well in their language, say so once and continue in English.`
-
 export function buildEnforcedChatLanguageInstruction(language: string): string {
   return `## Language
 The student has selected **${language}** as their preferred language.
@@ -76,6 +71,6 @@ Always prioritize answering what the student actually asked over describing what
 /** @deprecated Use buildLectureChatSystemPrompt instead. */
 export const AI_TUTOR_LECTURE_CHAT_SYSTEM_PROMPT = `${AI_TUTOR_LECTURE_CHAT_SYSTEM_PROMPT_BASE}
 
-${AI_TUTOR_LECTURE_CHAT_DEFAULT_LANGUAGE_INSTRUCTION}
+${buildEnforcedChatLanguageInstruction('English')}
 
 ${AI_TUTOR_LECTURE_CHAT_RESPONSE_GUIDANCE}`
