@@ -71,8 +71,8 @@ export async function getDashboardOverview(
     await Promise.all([
       getWelcomeBanners(userId, now),
       getAnnouncementsFeed(userId, now),
-      getProductUpdates(userId),
-      getSupportSessions(userId, now),
+      getProductUpdates(),
+      getSupportSessions(now),
       getDashboardSchedule(userId, now),
       getDashboardPendingTasks(userId, now),
       getWelcomeModalStatus(userId),

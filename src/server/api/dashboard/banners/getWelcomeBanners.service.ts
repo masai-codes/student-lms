@@ -11,8 +11,6 @@ import {
 import { db } from '@/db'
 import { banners } from '@/db/schema'
 import { getBatchIdsForEnrolledUser } from '@/server/batches/getBatchIdsForEnrolledUser'
-import { isContentWithinBannedCutoff } from '@/server/users/bannedContent'
-import { getBannedContentCutoffForUser } from '@/server/users/getBannedContentCutoffForUser'
 
 /** A banner as consumed by the dashboard welcome carousel. */
 export interface DashboardBanner {
@@ -35,8 +33,6 @@ export interface DashboardBanner {
  *    enrolled batches (resolved via {@link getBatchIdsForEnrolledUser}).
  * 4. Group targeting — `visible_to.random_group` empty, or contains the user's
  *    A/B/C/D bucket.
- * 5. Banned cutoff — for banned users, banners created/started after their ban
- *    time are hidden.
  *
  * Ordering is newest-first; the UI handles per-refresh rotation client-side.
  */
@@ -44,10 +40,7 @@ export async function getWelcomeBanners(
   userId: number,
   now: Date = new Date(),
 ): Promise<Array<DashboardBanner>> {
-  const [batchIds, cutoff] = await Promise.all([
-    getBatchIdsForEnrolledUser(userId),
-    getBannedContentCutoffForUser(userId),
-  ])
+  const batchIds = await getBatchIdsForEnrolledUser(userId)
 
   const rows = await db
     .select({
@@ -62,7 +55,6 @@ export async function getWelcomeBanners(
       visibleTo: banners.visibleTo,
       startDate: banners.startDate,
       endDate: banners.endDate,
-      createdAt: banners.createdAt,
     })
     .from(banners)
     .where(and(eq(banners.isActive, 1), isNull(banners.deletedAt)))
@@ -82,10 +74,7 @@ export async function getWelcomeBanners(
       if (!isBannerVisibleToBatches(visibility, userBatchIds)) return false
       if (!isBannerVisibleToGroup(visibility, userGroup)) return false
 
-      return isContentWithinBannedCutoff(
-        { createdAt: row.createdAt, startDate: row.startDate },
-        cutoff,
-      )
+      return true
     })
     .map((row) => ({
       id: row.id,

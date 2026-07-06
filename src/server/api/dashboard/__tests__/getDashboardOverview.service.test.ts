@@ -84,8 +84,8 @@ describe('getDashboardOverview', () => {
 
     expect(hoisted.getWelcomeBanners).toHaveBeenCalledWith(7, now)
     expect(hoisted.getAnnouncementsFeed).toHaveBeenCalledWith(7, now)
-    expect(hoisted.getProductUpdates).toHaveBeenCalledWith(7)
-    expect(hoisted.getSupportSessions).toHaveBeenCalledWith(7, now)
+    expect(hoisted.getProductUpdates).toHaveBeenCalledWith()
+    expect(hoisted.getSupportSessions).toHaveBeenCalledWith(now)
     expect(hoisted.getDashboardSchedule).toHaveBeenCalledWith(7, now)
     expect(hoisted.getDashboardPendingTasks).toHaveBeenCalledWith(7, now)
     expect(result).toEqual({

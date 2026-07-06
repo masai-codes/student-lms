@@ -4,7 +4,6 @@ import type { ScheduleEntityRow } from '../../schedule/scheduleTypes'
 const hoisted = vi.hoisted(() => ({
   getSectionIds: vi.fn(),
   getBatchIds: vi.fn(),
-  getCutoff: vi.fn(),
   fetchAssignments: vi.fn(),
   fetchLectures: vi.fn(),
   fetchStartState: vi.fn(),
@@ -14,7 +13,6 @@ const hoisted = vi.hoisted(() => ({
 
 vi.mock('@/server/batches/getSectionIdsForUser', () => ({ getSectionIdsForUser: hoisted.getSectionIds }))
 vi.mock('@/server/batches/getBatchIdsForEnrolledUser', () => ({ getBatchIdsForEnrolledUser: hoisted.getBatchIds }))
-vi.mock('@/server/users/getBannedContentCutoffForUser', () => ({ getBannedContentCutoffForUser: hoisted.getCutoff }))
 vi.mock('../fetchPendingAssignments', () => ({ fetchPendingAssignments: hoisted.fetchAssignments }))
 vi.mock('../fetchPendingLectures', () => ({ fetchPendingLectures: hoisted.fetchLectures }))
 vi.mock('../fetchAssignmentStartState', () => ({ fetchAssignmentStartState: hoisted.fetchStartState }))
@@ -51,7 +49,6 @@ describe('getDashboardPendingTasks', () => {
     vi.clearAllMocks()
     hoisted.getSectionIds.mockResolvedValue([5])
     hoisted.getBatchIds.mockResolvedValue([1])
-    hoisted.getCutoff.mockResolvedValue(null)
     hoisted.fetchAssignments.mockResolvedValue([])
     hoisted.fetchLectures.mockResolvedValue([])
     hoisted.fetchStartState.mockResolvedValue(new Set())
@@ -115,17 +112,5 @@ describe('getDashboardPendingTasks', () => {
       ['lecture', 10],
       ['assignment', 1],
     ])
-  })
-
-  it('drops rows scheduled after a banned cutoff', async () => {
-    hoisted.getCutoff.mockResolvedValue(new Date('2026-07-01T12:00:00+05:30'))
-    hoisted.fetchAssignments.mockResolvedValue([
-      row({ id: 1, type: 'assignment', schedule: '2026-06-20 09:00:00' }),
-      row({ id: 2, type: 'assignment', schedule: '2026-07-05 09:00:00' }),
-    ])
-    const { getDashboardPendingTasks } = await import('../getDashboardPendingTasks.service')
-
-    const result = await getDashboardPendingTasks(42, NOW)
-    expect(result.map((i) => i.id)).toEqual([1])
   })
 })

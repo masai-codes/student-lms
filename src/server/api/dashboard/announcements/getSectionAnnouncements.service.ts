@@ -3,7 +3,6 @@ import { DASHBOARD_ANNOUNCEMENTS_LIMIT } from './announcementFeed'
 import type { RankedAnnouncement } from './announcementFeed'
 import { db } from '@/db'
 import { announcementReads, announcements, users } from '@/db/schema'
-import { isContentWithinBannedCutoff } from '@/server/users/bannedContent'
 
 /**
  * Feed A — batch/section announcements still unread by the user.
@@ -11,14 +10,12 @@ import { isContentWithinBannedCutoff } from '@/server/users/bannedContent'
  * A row qualifies when it belongs to one of the user's sections, is not
  * deleted, is inside its release window (`schedule <= now <= concludes`, IST),
  * has `track_read = true`, and is still unread — meaning no read record, a read
- * record flagged `is_unread`, or an undisplayed popup. Banned users only see
- * items available on/before their ban cutoff.
+ * record flagged `is_unread`, or an undisplayed popup.
  */
 export async function getSectionAnnouncements(
   sectionIds: Array<number>,
   userId: number,
   istNow: string,
-  cutoff: Date | null,
 ): Promise<Array<RankedAnnouncement>> {
   if (sectionIds.length === 0) return []
 
@@ -68,14 +65,7 @@ export async function getSectionAnnouncements(
     .orderBy(desc(sql`COALESCE(${announcements.schedule}, ${announcements.createdAt})`))
     .limit(DASHBOARD_ANNOUNCEMENTS_LIMIT)
 
-  return rows
-    .filter((row) =>
-      isContentWithinBannedCutoff(
-        { createdAt: row.createdAt, startDate: row.schedule },
-        cutoff,
-      ),
-    )
-    .map((row) => ({
+  return rows.map((row) => ({
       sortedAt: row.schedule ?? row.createdAt,
       item: {
         id: row.id,

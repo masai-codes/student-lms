@@ -3,7 +3,6 @@ import { DASHBOARD_ANNOUNCEMENTS_LIMIT } from './announcementFeed'
 import type { RankedAnnouncement } from './announcementFeed'
 import { db } from '@/db'
 import { messages, users } from '@/db/schema'
-import { isContentWithinBannedCutoff } from '@/server/users/bannedContent'
 
 /**
  * Feed B — personal "For You" messages addressed directly to the user.
@@ -11,13 +10,11 @@ import { isContentWithinBannedCutoff } from '@/server/users/bannedContent'
  * A row qualifies when it is a top-level bulk message for the user
  * (`message_id IS NULL`, `user_id = me`), not deleted, unread (`read_at IS
  * NULL`), and inside its active window (no `schedule`, or `schedule <= now <=
- * concludes`, IST). Banned users only see items available on/before their ban
- * cutoff. Title prefers `meta.title`, falling back to `subject`.
+ * concludes`, IST). Title prefers `meta.title`, falling back to `subject`.
  */
 export async function getForYouMessages(
   userId: number,
   istNow: string,
-  cutoff: Date | null,
 ): Promise<Array<RankedAnnouncement>> {
   const rows = await db
     .select({
@@ -54,14 +51,7 @@ export async function getForYouMessages(
     .orderBy(desc(sql`COALESCE(${messages.schedule}, ${messages.createdAt})`))
     .limit(DASHBOARD_ANNOUNCEMENTS_LIMIT)
 
-  return rows
-    .filter((row) =>
-      isContentWithinBannedCutoff(
-        { createdAt: row.createdAt, startDate: row.schedule },
-        cutoff,
-      ),
-    )
-    .map((row) => ({
+  return rows.map((row) => ({
       sortedAt: row.schedule ?? row.createdAt,
       item: {
         id: row.id,
