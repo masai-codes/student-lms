@@ -12,7 +12,7 @@ type LectureAiChatComposerProps = {
   onSend: () => void
   onStop: () => void
   isSending: boolean
-  platform: 'mobile' | 'desktop'
+  platform?: 'mobile' | 'desktop'
 }
 
 export function LectureAiChatComposer({
@@ -21,7 +21,7 @@ export function LectureAiChatComposer({
   onSend,
   onStop,
   isSending,
-  platform,
+  platform = 'desktop',
 }: LectureAiChatComposerProps) {
   const canSend = value.trim().length > 0 && !isSending
 
