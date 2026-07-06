@@ -1,5 +1,6 @@
 import { and, desc, eq } from 'drizzle-orm'
 import type { AiTutorFeedbackPlatform } from '@/server/api/ai-tutor/feedbackPlatform'
+import type { AiTutorChatLanguage } from '@/server/api/ai-tutor/chatLanguage'
 import type { AiChatHistoryEntry } from '@/server/api/ai-tutor/types/chatHistory'
 import type { SubmitAiTutorFeedbackResponse } from '@/server/api/ai-tutor/types/feedback'
 import { AI_TUTOR_FEEDBACK_MAX_LENGTH } from '@/server/api/ai-tutor/constants'
@@ -188,6 +189,7 @@ export async function appendChatPracticeHistory(input: {
   userMessage: string
   aiMessage: string
   platform: AiTutorFeedbackPlatform
+  language?: AiTutorChatLanguage
   existingHistory: Array<AiChatHistoryEntry>
 }): Promise<void> {
   const nextHistory: Array<AiChatHistoryEntry> = [
@@ -196,6 +198,7 @@ export async function appendChatPracticeHistory(input: {
       userMessage: input.userMessage,
       aiMessage: input.aiMessage,
       platform: input.platform,
+      ...(input.language ? { language: input.language } : {}),
     },
   ]
 

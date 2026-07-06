@@ -1,13 +1,30 @@
 import type { AiChatHistoryEntry } from '@/server/api/ai-tutor/types/chatHistory'
-import { AI_TUTOR_LECTURE_CHAT_SYSTEM_PROMPT } from '@/server/api/ai-tutor/constants'
+import type { AiTutorChatLanguage } from '@/server/api/ai-tutor/chatLanguage'
+import {
+  AI_TUTOR_LECTURE_CHAT_DEFAULT_LANGUAGE_INSTRUCTION,
+  AI_TUTOR_LECTURE_CHAT_RESPONSE_GUIDANCE,
+  AI_TUTOR_LECTURE_CHAT_SYSTEM_PROMPT_BASE,
+  buildEnforcedChatLanguageInstruction,
+} from '@/server/api/ai-tutor/constants'
 
 export type LectureChatMessage = {
   role: 'user' | 'assistant'
   content: string
 }
 
-export function buildLectureChatSystemPrompt(summary: string): string {
-  return `${AI_TUTOR_LECTURE_CHAT_SYSTEM_PROMPT}
+export function buildLectureChatSystemPrompt(
+  summary: string,
+  language?: AiTutorChatLanguage,
+): string {
+  const languageInstruction = language
+    ? buildEnforcedChatLanguageInstruction(language)
+    : AI_TUTOR_LECTURE_CHAT_DEFAULT_LANGUAGE_INSTRUCTION
+
+  return `${AI_TUTOR_LECTURE_CHAT_SYSTEM_PROMPT_BASE}
+
+${languageInstruction}
+
+${AI_TUTOR_LECTURE_CHAT_RESPONSE_GUIDANCE}
 
 ## Lecture content (summary)
 ${summary}`

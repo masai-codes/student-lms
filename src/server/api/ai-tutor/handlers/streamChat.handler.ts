@@ -1,11 +1,13 @@
+import type { AiTutorChatLanguage } from '@/server/api/ai-tutor/chatLanguage'
+import type { AiTutorFeedbackPlatform } from '@/server/api/ai-tutor/feedbackPlatform'
 import { ApiError, isApiError } from '@/server/api/http/apiError'
 import { mapThrownErrorToResponse } from '@/server/api/http/responses'
 import { requireSessionUserId } from '@/server/api/http/requireSessionUser'
 import { createSseResponse, createSseStreamFromEvents } from '@/server/api/http/sse'
 import { ensureAnthropicConfigured } from '@/server/api/ai-tutor/clients/anthropicModel'
 import { AI_TUTOR_CHAT_MAX_MESSAGE_LENGTH } from '@/server/api/ai-tutor/constants'
+import { parseChatLanguage } from '@/server/api/ai-tutor/chatLanguage'
 import { parsePlatform } from '@/server/api/ai-tutor/feedbackPlatform'
-import type { AiTutorFeedbackPlatform } from '@/server/api/ai-tutor/feedbackPlatform'
 import {
   prepareLectureChatContext,
   streamLectureChatEventsFromContext,
@@ -17,6 +19,7 @@ type StreamChatBody = {
   chatID?: unknown
   chatId?: unknown
   platform?: unknown
+  language?: unknown
 }
 
 function parsePositiveInt(value: unknown): number | null {
@@ -30,6 +33,7 @@ function parseStreamChatBody(body: StreamChatBody | null): {
   chat: string
   chatId?: number
   platform: AiTutorFeedbackPlatform
+  language?: AiTutorChatLanguage
 } {
   const lectureId = parsePositiveInt(body?.lectureId)
   if (!lectureId) {
@@ -55,8 +59,9 @@ function parseStreamChatBody(body: StreamChatBody | null): {
   }
 
   const platform = parsePlatform(body?.platform)
+  const language = parseChatLanguage(body?.language)
 
-  return { lectureId, chat, chatId, platform }
+  return { lectureId, chat, chatId, platform, language }
 }
 
 export async function handleStreamChat(request: Request): Promise<Response> {
@@ -72,6 +77,7 @@ export async function handleStreamChat(request: Request): Promise<Response> {
       chat: parsed.chat,
       chatId: parsed.chatId,
       platform: parsed.platform,
+      language: parsed.language,
     })
 
     const stream = createSseStreamFromEvents(
