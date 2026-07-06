@@ -1,16 +1,46 @@
-# Local development database for student-lms.
-# Pinned to the same MySQL version we run in RDS so local behaviour matches prod.
+# student-lms Docker Compose — app + optional bundled MySQL.
 #
-# Usage:
-#   npm run db:setup   # start MySQL + download & import the seed dump
-#   npm run db:up      # just start MySQL
-#   npm run db:down    # stop MySQL (keeps data)
-#   npm run db:reset   # wipe the volume and re-seed from scratch
+# Modes:
+#   Full stack (app + MySQL):       npm run docker:up
+#   App only (external / host DB):  npm run docker:up:app
+#   MySQL only (native app dev):    npm run db:up
 #
-# All values below can be overridden from your .env file (see .env.example).
+# DB_HOST (.env) controls where the app container connects:
+#   mysql                  — bundled mysql service (set automatically by docker:up)
+#   host.docker.internal   — MySQL on the host machine (default for docker:up:app)
+#   <remote-host>          — centralized / RDS database
 
 services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: student-lms-app
+    restart: unless-stopped
+    ports:
+      - '${APP_PORT:-3000}:${PORT:-3000}'
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'
+    env_file:
+      - path: .env
+        required: false
+      - path: .env.local
+        required: false
+    environment:
+      NODE_ENV: production
+      PORT: ${PORT:-3000}
+      # Overrides env_file when set — keeps Docker DB host logic separate from native .env.local.
+      DATABASE_URL: ${DOCKER_DATABASE_URL:-mysql://root:${MYSQL_ROOT_PASSWORD:-root}@${DB_HOST:-host.docker.internal}:${DB_PORT:-${MYSQL_PORT:-3306}}/${MYSQL_DATABASE:-lms_dev_db}}
+      # COOKIE_NAME, JWT_SECRET_KEY, VITE_* etc. come from env_file above — do not
+      # list them here with empty defaults; that would override env_file values.
+    depends_on:
+      mysql:
+        condition: service_healthy
+        required: false
+
   mysql:
+    profiles:
+      - db
     image: mysql:8.0.42
     container_name: student-lms-mysql
     restart: unless-stopped

@@ -24,7 +24,7 @@ fi
 
 echo "==> Starting MySQL 8.0.42 container..."
 # --wait blocks until the service reports healthy via its healthcheck.
-docker compose up -d --wait mysql
+docker compose --profile db up -d --wait mysql
 
 bash "$SCRIPT_DIR/seed-db.sh" "$@"
 

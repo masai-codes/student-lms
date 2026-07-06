@@ -1,0 +1,48 @@
+# Dependencies and package manager caches
+node_modules
+npm-debug.log*
+.pnpm-store
+
+# Version control
+.git
+.gitignore
+.github
+
+# Local environment and secrets — never ship these into the image
+.env
+.env.*
+!.env.example
+
+# Build output (rebuilt inside the image)
+.output
+dist
+.vite
+.tanstack
+
+# Tests, docs, and dev tooling not needed for production image
+coverage
+**/*.test.ts
+**/*.test.tsx
+**/__tests__
+docs
+seed
+scripts/db/.cache
+
+# Editor and OS noise
+.DS_Store
+.idea
+.vscode
+*.swp
+*.swo
+.cursor
+
+# Logs and temp files
+logs
+*.log
+tmp
+temp
+
+# Docker files (not needed in build context)
+Dockerfile*
+docker-compose*.yml
+.dockerignore

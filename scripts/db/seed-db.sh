@@ -31,6 +31,7 @@ DUMP_FILE="$CACHE_DIR/lms_dev_db.sql.gz"
 
 MYSQL_ROOT_PASSWORD="${MYSQL_ROOT_PASSWORD:-root}"
 MYSQL_DATABASE="${MYSQL_DATABASE:-lms_dev_db}"
+COMPOSE_DB=(docker compose --profile db)
 
 REFRESH=false
 if [ "${1:-}" = "--refresh" ]; then
@@ -56,7 +57,7 @@ else
 fi
 
 echo "==> Verifying the container is up..."
-if ! docker compose ps --status running --services | grep -q '^mysql$'; then
+if ! "${COMPOSE_DB[@]}" ps --status running --services | grep -q '^mysql$'; then
   echo "MySQL container is not running. Start it first with: npm run db:up" >&2
   exit 1
 fi
@@ -65,10 +66,10 @@ echo "==> Importing dump into database '$MYSQL_DATABASE' (this can take a while)
 # Ensure the target database exists, then stream the (gzipped) dump straight
 # into the mysql client inside the container. -T disables the pseudo-tty so the
 # pipe works correctly.
-docker compose exec -T mysql sh -c \
+"${COMPOSE_DB[@]}" exec -T mysql sh -c \
   "exec mysql -uroot -p\"$MYSQL_ROOT_PASSWORD\" -e 'CREATE DATABASE IF NOT EXISTS \`$MYSQL_DATABASE\`;'"
 
-gunzip -c "$DUMP_FILE" | docker compose exec -T mysql sh -c \
+gunzip -c "$DUMP_FILE" | "${COMPOSE_DB[@]}" exec -T mysql sh -c \
   "exec mysql -uroot -p\"$MYSQL_ROOT_PASSWORD\" \"$MYSQL_DATABASE\""
 
 echo "==> Done. Database '$MYSQL_DATABASE' is seeded and ready."
