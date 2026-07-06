@@ -26,4 +26,24 @@ describe('parseChatHistory', () => {
       ]),
     ).toEqual([{ userMessage: 'Hi', aiMessage: 'Hello', platform: 'ios' }])
   })
+
+  it('preserves language on stored chat history entries', () => {
+    expect(
+      parseChatHistory([
+        { userMessage: 'Hi', aiMessage: 'Hello', language: 'Hindi' },
+        { userMessage: 'More', aiMessage: 'Sure', language: 'hi' },
+      ]),
+    ).toEqual([
+      { userMessage: 'Hi', aiMessage: 'Hello', language: 'Hindi' },
+      { userMessage: 'More', aiMessage: 'Sure', language: 'Hindi' },
+    ])
+  })
+
+  it('ignores invalid language values', () => {
+    expect(
+      parseChatHistory([
+        { userMessage: 'Hi', aiMessage: 'Hello', language: 'spanish' },
+      ]),
+    ).toEqual([{ userMessage: 'Hi', aiMessage: 'Hello' }])
+  })
 })

@@ -1,19 +1,5 @@
 import { ApiError } from '@/server/api/http/apiError'
 
-export type AiTutorChatLanguage =
-  | 'English'
-  | 'Hindi'
-  | 'Tamil'
-  | 'Telugu'
-  | 'Kannada'
-  | 'Malayalam'
-  | 'Bengali'
-  | 'Marathi'
-  | 'Gujarati'
-  | 'Punjabi'
-  | 'Odia'
-  | 'Assamese'
-
 const LANGUAGE_ALIASES: Record<string, AiTutorChatLanguage> = {
   en: 'English',
   english: 'English',
@@ -41,6 +27,37 @@ const LANGUAGE_ALIASES: Record<string, AiTutorChatLanguage> = {
   oriya: 'Odia',
   as: 'Assamese',
   assamese: 'Assamese',
+}
+
+const VALID_LANGUAGES: ReadonlySet<AiTutorChatLanguage> = new Set(
+  Object.values(LANGUAGE_ALIASES),
+)
+
+export type AiTutorChatLanguage =
+  | 'English'
+  | 'Hindi'
+  | 'Tamil'
+  | 'Telugu'
+  | 'Kannada'
+  | 'Malayalam'
+  | 'Bengali'
+  | 'Marathi'
+  | 'Gujarati'
+  | 'Punjabi'
+  | 'Odia'
+  | 'Assamese'
+
+export function parseStoredChatLanguage(
+  value: unknown,
+): AiTutorChatLanguage | undefined {
+  if (typeof value !== 'string') return undefined
+
+  const trimmed = value.trim()
+  if (VALID_LANGUAGES.has(trimmed as AiTutorChatLanguage)) {
+    return trimmed as AiTutorChatLanguage
+  }
+
+  return LANGUAGE_ALIASES[trimmed.toLowerCase()]
 }
 
 export function parseChatLanguage(value: unknown): AiTutorChatLanguage | undefined {

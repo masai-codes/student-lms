@@ -82,6 +82,7 @@ describe('prepareLectureChatContext', () => {
     expect(context.systemPrompt).not.toContain(
       'Start by asking which language they prefer',
     )
+    expect(context.language).toBe('Tamil')
   })
 
   it('throws when the chat id is not found', async () => {
@@ -131,6 +132,7 @@ describe('streamLectureChatEventsFromContext', () => {
       ],
       chat: 'Explain hooks',
       platform: 'web',
+      language: 'Hindi',
     })) {
       events.push(event)
     }
@@ -153,6 +155,7 @@ describe('streamLectureChatEventsFromContext', () => {
       userMessage: 'Explain hooks',
       aiMessage: 'Hello there',
       platform: 'web',
+      language: 'Hindi',
       existingHistory: [{ userMessage: 'Earlier', aiMessage: 'Sure' }],
     })
     expect(events).toEqual([

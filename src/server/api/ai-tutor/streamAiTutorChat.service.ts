@@ -32,6 +32,7 @@ export type LectureChatStreamContext = {
   messages: Array<LectureChatMessage>
   chat: string
   platform: AiTutorFeedbackPlatform
+  language?: AiTutorChatLanguage
 }
 
 export async function prepareLectureChatContext(
@@ -57,6 +58,7 @@ export async function prepareLectureChatContext(
     messages,
     chat: input.chat,
     platform: input.platform,
+    language: input.language,
   }
 }
 
@@ -84,6 +86,7 @@ export async function* streamLectureChatEventsFromContext(
     userMessage: context.chat,
     aiMessage,
     platform: context.platform,
+    language: context.language,
     existingHistory: context.chatRow.chatHistory,
   })
 

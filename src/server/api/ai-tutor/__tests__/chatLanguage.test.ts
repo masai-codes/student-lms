@@ -1,5 +1,8 @@
 import { describe, expect, it } from 'vitest'
-import { parseChatLanguage } from '@/server/api/ai-tutor/chatLanguage'
+import {
+  parseChatLanguage,
+  parseStoredChatLanguage,
+} from '@/server/api/ai-tutor/chatLanguage'
 
 describe('parseChatLanguage', () => {
   it('returns undefined when language is omitted', () => {
@@ -49,5 +52,19 @@ describe('parseChatLanguage', () => {
     expect(() => parseChatLanguage(42)).toThrowError(
       expect.objectContaining({ code: 'AI_TUTOR_LANGUAGE_INVALID' }),
     )
+  })
+})
+
+describe('parseStoredChatLanguage', () => {
+  it('returns undefined for invalid stored values', () => {
+    expect(parseStoredChatLanguage(undefined)).toBeUndefined()
+    expect(parseStoredChatLanguage('spanish')).toBeUndefined()
+    expect(parseStoredChatLanguage(42)).toBeUndefined()
+  })
+
+  it('accepts canonical and alias stored values', () => {
+    expect(parseStoredChatLanguage('Hindi')).toBe('Hindi')
+    expect(parseStoredChatLanguage('hi')).toBe('Hindi')
+    expect(parseStoredChatLanguage('tamil')).toBe('Tamil')
   })
 })
