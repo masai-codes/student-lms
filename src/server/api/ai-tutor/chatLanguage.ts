@@ -47,6 +47,8 @@ export type AiTutorChatLanguage =
   | 'Odia'
   | 'Assamese'
 
+export const AI_TUTOR_DEFAULT_CHAT_LANGUAGE: AiTutorChatLanguage = 'English'
+
 export function parseStoredChatLanguage(
   value: unknown,
 ): AiTutorChatLanguage | undefined {
@@ -60,8 +62,8 @@ export function parseStoredChatLanguage(
   return LANGUAGE_ALIASES[trimmed.toLowerCase()]
 }
 
-export function parseChatLanguage(value: unknown): AiTutorChatLanguage | undefined {
-  if (value == null || value === '') return undefined
+export function parseChatLanguage(value: unknown): AiTutorChatLanguage {
+  if (value == null || value === '') return AI_TUTOR_DEFAULT_CHAT_LANGUAGE
   if (typeof value !== 'string') {
     throw new ApiError(400, 'AI_TUTOR_LANGUAGE_INVALID')
   }

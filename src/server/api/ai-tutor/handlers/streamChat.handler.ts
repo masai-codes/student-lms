@@ -33,7 +33,7 @@ function parseStreamChatBody(body: StreamChatBody | null): {
   chat: string
   chatId?: number
   platform: AiTutorFeedbackPlatform
-  language?: AiTutorChatLanguage
+  language: AiTutorChatLanguage
 } {
   const lectureId = parsePositiveInt(body?.lectureId)
   if (!lectureId) {

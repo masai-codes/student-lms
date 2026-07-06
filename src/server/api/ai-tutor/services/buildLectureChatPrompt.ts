@@ -1,7 +1,6 @@
 import type { AiChatHistoryEntry } from '@/server/api/ai-tutor/types/chatHistory'
 import type { AiTutorChatLanguage } from '@/server/api/ai-tutor/chatLanguage'
 import {
-  AI_TUTOR_LECTURE_CHAT_DEFAULT_LANGUAGE_INSTRUCTION,
   AI_TUTOR_LECTURE_CHAT_RESPONSE_GUIDANCE,
   AI_TUTOR_LECTURE_CHAT_SYSTEM_PROMPT_BASE,
   buildEnforcedChatLanguageInstruction,
@@ -14,15 +13,11 @@ export type LectureChatMessage = {
 
 export function buildLectureChatSystemPrompt(
   summary: string,
-  language?: AiTutorChatLanguage,
+  language: AiTutorChatLanguage,
 ): string {
-  const languageInstruction = language
-    ? buildEnforcedChatLanguageInstruction(language)
-    : AI_TUTOR_LECTURE_CHAT_DEFAULT_LANGUAGE_INSTRUCTION
-
   return `${AI_TUTOR_LECTURE_CHAT_SYSTEM_PROMPT_BASE}
 
-${languageInstruction}
+${buildEnforcedChatLanguageInstruction(language)}
 
 ${AI_TUTOR_LECTURE_CHAT_RESPONSE_GUIDANCE}
 

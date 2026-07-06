@@ -23,7 +23,7 @@ export type StreamLectureChatInput = {
   chat: string
   chatId?: number
   platform: AiTutorFeedbackPlatform
-  language?: AiTutorChatLanguage
+  language: AiTutorChatLanguage
 }
 
 export type LectureChatStreamContext = {
@@ -32,7 +32,7 @@ export type LectureChatStreamContext = {
   messages: Array<LectureChatMessage>
   chat: string
   platform: AiTutorFeedbackPlatform
-  language?: AiTutorChatLanguage
+  language: AiTutorChatLanguage
 }
 
 export async function prepareLectureChatContext(

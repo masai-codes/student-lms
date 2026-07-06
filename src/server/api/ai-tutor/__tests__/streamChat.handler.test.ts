@@ -190,6 +190,36 @@ describe('handleStreamChat', () => {
     expect(hoisted.streamLectureChatEventsFromContext).not.toHaveBeenCalled()
   })
 
+  it('defaults language to English when omitted from the request', async () => {
+    const { handleStreamChat } =
+      await import('../handlers/streamChat.handler')
+    hoisted.getUserIdFromCookieHeader.mockResolvedValueOnce(7)
+    hoisted.prepareLectureChatContext.mockResolvedValueOnce({
+      chatRow: { id: 12, chatHistory: [] },
+      systemPrompt: 'system prompt',
+      messages: [{ role: 'user', content: 'explain hooks' }],
+      chat: 'explain hooks',
+      platform: 'app',
+      language: 'English',
+    })
+    hoisted.streamLectureChatEventsFromContext.mockImplementationOnce(function* () {
+      yield { type: 'done' as const, chatId: 12 }
+    })
+
+    await handleStreamChat(
+      postRequest({ lectureId: 99, chat: 'explain hooks' }),
+    )
+
+    expect(hoisted.prepareLectureChatContext).toHaveBeenCalledWith({
+      userId: 7,
+      lectureId: 99,
+      chat: 'explain hooks',
+      chatId: undefined,
+      platform: 'app',
+      language: 'English',
+    })
+  })
+
   it('streams token events over SSE for an authenticated request', async () => {
     const { handleStreamChat } =
       await import('../handlers/streamChat.handler')
@@ -200,6 +230,7 @@ describe('handleStreamChat', () => {
       messages: [{ role: 'user', content: 'explain hooks' }],
       chat: 'explain hooks',
       platform: 'ios',
+      language: 'Hindi',
     })
 
     function* events() {
@@ -233,6 +264,7 @@ describe('handleStreamChat', () => {
       messages: [{ role: 'user', content: 'explain hooks' }],
       chat: 'explain hooks',
       platform: 'ios',
+      language: 'Hindi',
     })
     expect(res.status).toBe(200)
 

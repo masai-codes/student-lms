@@ -25,7 +25,7 @@ Last updated: 2026-07-06
 
 `chatID` / `chatId` is optional; omit to start a new thread.
 `platform` is optional (`ios` | `android` | `web` | `app`); defaults to `app` and is stored on each persisted `chatHistory` turn.
-`language` is optional. When provided, the tutor must reply only in that language (technical terms stay in English). Accepts English and major Indian languages by name or ISO code (`en`, `hi`, `ta`, `te`, `kn`, `ml`, `bn`, `mr`, `gu`, `pa`, `or`, `as`). Omit to let the tutor ask the student which language they prefer. When provided, the canonical language name (e.g. `Hindi`) is stored on that `chatHistory` turn alongside `platform`.
+`language` is optional and defaults to `English`. When provided, the tutor must reply only in that language (technical terms stay in English). Accepts English and major Indian languages by name or ISO code (`en`, `hi`, `ta`, `te`, `kn`, `ml`, `bn`, `mr`, `gu`, `pa`, `or`, `as`). The canonical language name (e.g. `Hindi`) is stored on each `chatHistory` turn alongside `platform`.
 
 ## Environment
 
@@ -44,7 +44,8 @@ Last updated: 2026-07-06
 | AT-SSE-006 | Authenticated request | SSE token chunks + `{ type: "done", chatId }` |
 | AT-SSE-006b | Invalid platform | `400 AI_TUTOR_PLATFORM_INVALID` |
 | AT-SSE-006c | Invalid language | `400 AI_TUTOR_LANGUAGE_INVALID` |
-| AT-SSE-006d | Language provided | System prompt enforces selected language only; `language` stored on turn |
+| AT-SSE-006d | Language provided | System prompt enforces selected language; `language` stored on turn |
+| AT-SSE-006d2 | Language omitted | Defaults to English in prompt and stored history |
 | AT-SSE-006e | Mobile platform | Persists `platform` on the new `chatHistory` turn |
 | AT-SSE-007 | Stream service | Loads summary/history, persists turn after stream |
 | AT-SSE-008 | Prompt builder | Summary + optional history + question |

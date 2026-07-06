@@ -1,22 +1,22 @@
 import { describe, expect, it } from 'vitest'
 import {
-  AI_TUTOR_LECTURE_CHAT_DEFAULT_LANGUAGE_INSTRUCTION,
   AI_TUTOR_LECTURE_CHAT_RESPONSE_GUIDANCE,
   AI_TUTOR_LECTURE_CHAT_SYSTEM_PROMPT,
   AI_TUTOR_LECTURE_CHAT_SYSTEM_PROMPT_BASE,
   buildEnforcedChatLanguageInstruction,
 } from '@/server/api/ai-tutor/constants'
+import { AI_TUTOR_DEFAULT_CHAT_LANGUAGE } from '@/server/api/ai-tutor/chatLanguage'
 import {
   buildLectureChatMessages,
   buildLectureChatSystemPrompt,
 } from '@/server/api/ai-tutor/services/buildLectureChatPrompt'
 
 describe('buildLectureChatSystemPrompt', () => {
-  it('appends the lecture summary to the base system prompt', () => {
-    expect(buildLectureChatSystemPrompt('Hooks let you reuse state.')).toBe(
+  it('defaults to English and appends the lecture summary', () => {
+    expect(buildLectureChatSystemPrompt('Hooks let you reuse state.', 'English')).toBe(
       `${AI_TUTOR_LECTURE_CHAT_SYSTEM_PROMPT_BASE}
 
-${AI_TUTOR_LECTURE_CHAT_DEFAULT_LANGUAGE_INSTRUCTION}
+${buildEnforcedChatLanguageInstruction('English')}
 
 ${AI_TUTOR_LECTURE_CHAT_RESPONSE_GUIDANCE}
 
@@ -25,8 +25,10 @@ Hooks let you reuse state.`,
     )
   })
 
-  it('matches the legacy full prompt when language is omitted', () => {
-    expect(buildLectureChatSystemPrompt('Hooks let you reuse state.')).toContain(
+  it('matches the legacy full prompt for English', () => {
+    expect(
+      buildLectureChatSystemPrompt('Hooks let you reuse state.', AI_TUTOR_DEFAULT_CHAT_LANGUAGE),
+    ).toContain(
       AI_TUTOR_LECTURE_CHAT_SYSTEM_PROMPT.split('## Lecture content')[0].trim(),
     )
   })

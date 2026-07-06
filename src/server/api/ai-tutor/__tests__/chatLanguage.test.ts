@@ -5,10 +5,10 @@ import {
 } from '@/server/api/ai-tutor/chatLanguage'
 
 describe('parseChatLanguage', () => {
-  it('returns undefined when language is omitted', () => {
-    expect(parseChatLanguage(undefined)).toBeUndefined()
-    expect(parseChatLanguage(null)).toBeUndefined()
-    expect(parseChatLanguage('')).toBeUndefined()
+  it('defaults to English when language is omitted', () => {
+    expect(parseChatLanguage(undefined)).toBe('English')
+    expect(parseChatLanguage(null)).toBe('English')
+    expect(parseChatLanguage('')).toBe('English')
   })
 
   it('accepts English and Indian language names case-insensitively', () => {
