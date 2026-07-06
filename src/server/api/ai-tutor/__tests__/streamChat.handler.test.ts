@@ -118,6 +118,23 @@ describe('handleStreamChat', () => {
     })
   })
 
+  it('returns 400 when language is invalid', async () => {
+    const { handleStreamChat } =
+      await import('../handlers/streamChat.handler')
+    hoisted.getUserIdFromCookieHeader.mockResolvedValueOnce(7)
+
+    const res = await handleStreamChat(
+      postRequest({ lectureId: 1, chat: 'hello', language: 'spanish' }),
+    )
+
+    expect(res.status).toBe(400)
+    await expect(res.json()).resolves.toEqual({
+      code: 'AI_TUTOR_LANGUAGE_INVALID',
+      message: 'AI_TUTOR_LANGUAGE_INVALID',
+    })
+    expect(hoisted.prepareLectureChatContext).not.toHaveBeenCalled()
+  })
+
   it('returns 400 when platform is invalid', async () => {
     const { handleStreamChat } =
       await import('../handlers/streamChat.handler')
@@ -198,6 +215,7 @@ describe('handleStreamChat', () => {
         chat: 'explain hooks',
         chatID: 12,
         platform: 'ios',
+        language: 'hi',
       }),
     )
 
@@ -207,6 +225,7 @@ describe('handleStreamChat', () => {
       chat: 'explain hooks',
       chatId: 12,
       platform: 'ios',
+      language: 'Hindi',
     })
     expect(hoisted.streamLectureChatEventsFromContext).toHaveBeenCalledWith({
       chatRow: { id: 12, chatHistory: [] },

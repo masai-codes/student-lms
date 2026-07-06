@@ -1,6 +1,6 @@
 # AI Tutor streaming chat
 
-Last updated: 2026-06-22
+Last updated: 2026-07-06
 
 ## Scope
 
@@ -18,12 +18,14 @@ Last updated: 2026-06-22
   "lectureId": 123,
   "chat": "What is useState?",
   "chatID": 45,
-  "platform": "ios"
+  "platform": "ios",
+  "language": "hi"
 }
 ```
 
 `chatID` / `chatId` is optional; omit to start a new thread.
-`platform` is optional (`ios` | `android` | `web`); defaults to `web` and is stored on each persisted `chatHistory` turn.
+`platform` is optional (`ios` | `android` | `web` | `app`); defaults to `app` and is stored on each persisted `chatHistory` turn.
+`language` is optional. When provided, the tutor must reply only in that language (technical terms stay in English). Accepts English and major Indian languages by name or ISO code (`en`, `hi`, `ta`, `te`, `kn`, `ml`, `bn`, `mr`, `gu`, `pa`, `or`, `as`). Omit to let the tutor ask the student which language they prefer.
 
 ## Environment
 
@@ -41,7 +43,9 @@ Last updated: 2026-06-22
 | AT-SSE-005 | Missing Anthropic config | `503 AI_TUTOR_ANTHROPIC_NOT_CONFIGURED` |
 | AT-SSE-006 | Authenticated request | SSE token chunks + `{ type: "done", chatId }` |
 | AT-SSE-006b | Invalid platform | `400 AI_TUTOR_PLATFORM_INVALID` |
-| AT-SSE-006c | Mobile platform | Persists `platform` on the new `chatHistory` turn |
+| AT-SSE-006c | Invalid language | `400 AI_TUTOR_LANGUAGE_INVALID` |
+| AT-SSE-006d | Language provided | System prompt enforces selected language only |
+| AT-SSE-006e | Mobile platform | Persists `platform` on the new `chatHistory` turn |
 | AT-SSE-007 | Stream service | Loads summary/history, persists turn after stream |
 | AT-SSE-008 | Prompt builder | Summary + optional history + question |
 | AT-SSE-009 | Chat history parser | Parses stored JSON safely |

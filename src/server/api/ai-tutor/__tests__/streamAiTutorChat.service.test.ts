@@ -66,6 +66,24 @@ describe('prepareLectureChatContext', () => {
     })
   })
 
+  it('includes enforced language instructions when language is provided', async () => {
+    const { prepareLectureChatContext } =
+      await import('../streamAiTutorChat.service')
+
+    const context = await prepareLectureChatContext({
+      userId: 7,
+      lectureId: 99,
+      chat: 'Explain hooks',
+      platform: 'web',
+      language: 'Tamil',
+    })
+
+    expect(context.systemPrompt).toContain('You MUST respond ONLY in Tamil')
+    expect(context.systemPrompt).not.toContain(
+      'Start by asking which language they prefer',
+    )
+  })
+
   it('throws when the chat id is not found', async () => {
     const { ApiError } = await import('@/server/api/http/apiError')
     hoisted.findOrCreateChatPracticeRow.mockRejectedValueOnce(
