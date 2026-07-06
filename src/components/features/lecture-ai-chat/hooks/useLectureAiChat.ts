@@ -3,7 +3,12 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
 
+import {
+  readStoredAiLectureChatLanguage,
+  writeStoredAiLectureChatLanguage,
+} from '../languages'
 import { lectureAiConversationsKey } from './useLectureAiConversations'
+import type { AiLectureChatLanguage } from '../languages'
 import type { LectureAiChatMessage } from '../types'
 import type {
   LectureAiChatPlatform,
@@ -29,6 +34,9 @@ export type UseLectureAiChatResult = {
   isLoadingConversation: boolean
   activeChatId: number | null
   errorCode: string | null
+  /** Language the assistant is asked to reply in; sent with each stream. */
+  language: AiLectureChatLanguage
+  setLanguage: (language: AiLectureChatLanguage) => void
   setInput: (value: string) => void
   /** Sends `text` if provided, otherwise the current input. */
   sendMessage: (text?: string) => void
@@ -58,6 +66,11 @@ export function useLectureAiChat(
   const [isLoadingConversation, setIsLoadingConversation] = useState(false)
   const [activeChatId, setActiveChatId] = useState<number | null>(null)
   const [errorCode, setErrorCode] = useState<string | null>(null)
+  // Lazy init from localStorage so a returning learner keeps their last choice
+  // (SSR-safe: falls back to the English default when window is unavailable).
+  const [language, setLanguageState] = useState<AiLectureChatLanguage>(
+    readStoredAiLectureChatLanguage,
+  )
 
   const chatIdRef = useRef<number | null>(null)
   const cancelStreamRef = useRef<(() => void) | null>(null)
@@ -82,6 +95,11 @@ export function useLectureAiChat(
     },
     [],
   )
+
+  const setLanguage = useCallback((next: AiLectureChatLanguage) => {
+    setLanguageState(next)
+    writeStoredAiLectureChatLanguage(next)
+  }, [])
 
   const runStream = useCallback(
     (request: StreamLectureAiChatRequest, assistantId: string) => {
@@ -172,12 +190,13 @@ export function useLectureAiChat(
           lectureId,
           chat: value,
           platform,
+          language,
           ...(chatIdRef.current != null ? { chatId: chatIdRef.current } : {}),
         },
         assistantMessage.id,
       )
     },
-    [input, isSending, lectureId, platform, runStream],
+    [input, isSending, language, lectureId, platform, runStream],
   )
 
   const retryLast = useCallback(() => {
@@ -189,11 +208,12 @@ export function useLectureAiChat(
     runStream(
       {
         ...request,
+        language,
         ...(chatIdRef.current != null ? { chatId: chatIdRef.current } : {}),
       },
       assistantId,
     )
-  }, [isSending, patchMessage, runStream])
+  }, [isSending, language, patchMessage, runStream])
 
   const stop = useCallback(() => {
     cancelStreamRef.current?.()
@@ -278,6 +298,8 @@ export function useLectureAiChat(
     isLoadingConversation,
     activeChatId,
     errorCode,
+    language,
+    setLanguage,
     setInput,
     sendMessage,
     retryLast,

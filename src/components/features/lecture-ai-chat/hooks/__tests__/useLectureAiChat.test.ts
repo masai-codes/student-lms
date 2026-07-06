@@ -55,6 +55,7 @@ function renderChat(
 
 beforeEach(() => {
   vi.clearAllMocks()
+  window.localStorage.clear()
   lastHandlers = null
   lastRequest = null
   hoisted.streamLectureAiChat.mockImplementation(
@@ -89,6 +90,7 @@ describe('useLectureAiChat', () => {
       lectureId: 42,
       chat: 'hello',
       platform: 'web-desktop',
+      language: 'English',
     })
 
     act(() => lastHandlers!.onFirstChunk?.())
@@ -118,7 +120,41 @@ describe('useLectureAiChat', () => {
       lectureId: 1,
       chat: 'hello',
       platform: 'web-mobile',
+      language: 'English',
     })
+  })
+
+  it('defaults to English, sends, and persists the selected reply language', () => {
+    const { result } = renderChat()
+
+    expect(result.current.language).toBe('English')
+
+    act(() => result.current.setLanguage('Hindi'))
+    expect(result.current.language).toBe('Hindi')
+    expect(window.localStorage.getItem('lecture-ai-chat:language')).toBe('Hindi')
+
+    act(() => result.current.sendMessage('hello'))
+
+    expect(lastRequest).toMatchObject({ language: 'Hindi' })
+  })
+
+  it('initializes the reply language from a persisted value', () => {
+    window.localStorage.setItem('lecture-ai-chat:language', 'Tamil')
+
+    const { result } = renderChat()
+
+    expect(result.current.language).toBe('Tamil')
+
+    act(() => result.current.sendMessage('hello'))
+    expect(lastRequest).toMatchObject({ language: 'Tamil' })
+  })
+
+  it('falls back to English when the persisted language is unknown', () => {
+    window.localStorage.setItem('lecture-ai-chat:language', 'Klingon')
+
+    const { result } = renderChat()
+
+    expect(result.current.language).toBe('English')
   })
 
   it('reuses the returned chatId on the next message', () => {
@@ -132,6 +168,7 @@ describe('useLectureAiChat', () => {
       lectureId: 1,
       chat: 'second',
       platform: 'web-desktop',
+      language: 'English',
       chatId: 99,
     })
   })
@@ -211,6 +248,7 @@ describe('useLectureAiChat', () => {
       lectureId: 1,
       chat: 'follow up',
       platform: 'web-desktop',
+      language: 'English',
       chatId: 5,
     })
   })

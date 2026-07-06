@@ -54,6 +54,8 @@ export function LectureAiChatMobileDock({
         onSend={handleSend}
         onStop={chat.stop}
         isSending={chat.isSending}
+        language={chat.language}
+        onLanguageChange={chat.setLanguage}
         platform="mobile"
       />
 

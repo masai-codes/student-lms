@@ -148,6 +148,8 @@ export function LectureAiChatPanel({
           onSend={() => chat.sendMessage()}
           onStop={chat.stop}
           isSending={chat.isSending}
+          language={chat.language}
+          onLanguageChange={chat.setLanguage}
         />
       ) : null}
     </div>

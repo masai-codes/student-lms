@@ -13,6 +13,8 @@ export type StreamLectureAiChatRequest = {
   platform: LectureAiChatPlatform
   /** Omitted on the first message; echoed back on every follow-up. */
   chatId?: number
+  /** Language the assistant should reply in (e.g. "English", "Hindi"). */
+  language?: string
 }
 
 export type StreamLectureAiChatHandlers = {
@@ -137,6 +139,7 @@ async function runStream(
         chat: request.chat,
         platform: request.platform,
         ...(request.chatId != null ? { chatId: request.chatId } : {}),
+        ...(request.language != null ? { language: request.language } : {}),
       }),
       signal,
     })
