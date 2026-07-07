@@ -76,6 +76,10 @@ describe('WelcomeBannerCarousel', () => {
     render(<WelcomeBannerCarousel banners={[banner({ id: 7, analyticsKey: 'promo_v1' })]} />)
 
     fireEvent.click(screen.getByTestId('dashboard-welcome-banner-item'))
-    expect(dataLayer).toContainEqual({ event: 'l_dashboard_banner_carousel_promo_v1_id_7' })
+    // The event carries extra analytics fields (analytics_key, banner_id, title)
+    // alongside `event`, so match on the event name rather than the whole object.
+    expect(dataLayer).toContainEqual(
+      expect.objectContaining({ event: 'l_dashboard_banner_carousel_promo_v1_id_7' }),
+    )
   })
 })
