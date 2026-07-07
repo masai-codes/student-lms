@@ -1,6 +1,6 @@
 # AI Tutor streaming chat
 
-Last updated: 2026-07-06
+Last updated: 2026-07-07
 
 ## Scope
 
@@ -19,14 +19,13 @@ Last updated: 2026-07-06
   "chat": "What is useState?",
   "platform": "web-desktop",
   "chatID": 45,
-  "platform": "ios",
+  "language": "English"
 }
 ```
 
-`platform` is required: `web-desktop` or `web-mobile`.
+`platform` is required for web clients: `web-desktop` or `web-mobile`. Mobile native apps send `ios` or `android`. Legacy values `web` and `app` are still accepted.
 
 `chatID` / `chatId` is optional; omit to start a new thread.
-`platform` is optional (`ios` | `android` | `web` | `app`); defaults to `app` and is stored on each persisted `chatHistory` turn.
 `language` is optional and defaults to `English`. When provided, the tutor must reply only in that language (technical terms stay in English). Accepts English and major Indian languages by name or ISO code (`en`, `hi`, `ta`, `te`, `kn`, `ml`, `bn`, `mr`, `gu`, `pa`, `or`, `as`). The canonical language name (e.g. `Hindi`) is stored on each `chatHistory` turn alongside `platform`.
 
 ## Environment

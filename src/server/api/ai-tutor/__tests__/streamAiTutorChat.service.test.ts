@@ -136,7 +136,7 @@ describe('streamLectureChatEventsFromContext', () => {
         { role: 'user', content: 'Explain hooks' },
       ],
       chat: 'Explain hooks',
-      platform: 'web',
+      platform: 'web-desktop',
       language: 'Hindi',
     })) {
       events.push(event)
@@ -159,7 +159,7 @@ describe('streamLectureChatEventsFromContext', () => {
       rowId: 12,
       userMessage: 'Explain hooks',
       aiMessage: 'Hello there',
-      platform: 'web',
+      platform: 'web-desktop',
       language: 'Hindi',
       existingHistory: [{ userMessage: 'Earlier', aiMessage: 'Sure' }],
     })
