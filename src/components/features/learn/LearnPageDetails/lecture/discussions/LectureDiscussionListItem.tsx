@@ -13,6 +13,7 @@ import { DiscussionSummaryCard } from '@/components/features/new-discussions/Dis
 import { addLearnDiscussionReplyViaApi } from '@/lib/api/learn/discussionsApi'
 import { plainTextFromHtml } from '@/lib/plainTextFromHtml'
 import { cn } from '@/lib/utils'
+import { pushLearnEvent } from '@/components/features/learn/shared/learnAnalytics'
 
 type LectureDiscussionListItemProps = {
   discussion: DiscussionListItem
@@ -26,6 +27,9 @@ export function LectureDiscussionListItem({ discussion }: LectureDiscussionListI
   const [replyError, setReplyError] = React.useState<string | null>(null)
 
   const toggleReplies = () => {
+    pushLearnEvent('l_learn_discussion_replies_toggle_id_' + discussion.id, {
+      discussion_id: discussion.id,
+    })
     setExpanded(current => {
       const next = !current
       if (!next) {
@@ -39,6 +43,9 @@ export function LectureDiscussionListItem({ discussion }: LectureDiscussionListI
     const plain = plainTextFromHtml(messageHtml)
     if (!plain.trim() || replyPending || discussion.isClosed) return
 
+    pushLearnEvent('l_learn_discussion_reply_id_' + discussion.id, {
+      discussion_id: discussion.id,
+    })
     setReplyError(null)
     setReplyPending(true)
     try {

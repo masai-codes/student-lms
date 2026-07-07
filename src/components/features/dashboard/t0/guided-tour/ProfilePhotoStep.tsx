@@ -3,6 +3,7 @@ import { useMutation } from '@tanstack/react-query'
 import { Camera, CheckCircle } from '@phosphor-icons/react'
 import Webcam from 'react-webcam'
 import { uploadProfilePhoto } from '@/lib/api/dashboard/dashboardApi'
+import { pushDashboardEvent } from '../../shared/dashboardAnalytics'
 
 interface ProfilePhotoStepProps {
   /** The already-saved profile photo, if any — shown with a Retake option. */
@@ -109,7 +110,10 @@ export function ProfilePhotoStep({ existingPhotoUrl, onCompleted }: ProfilePhoto
             </button>
             <button
               type="button"
-              onClick={() => mutation.mutate(captureImage)}
+              onClick={() => {
+                pushDashboardEvent('l_dashboard_guided_tour_profile_photo_submit')
+                mutation.mutate(captureImage)
+              }}
               disabled={mutation.isPending}
               className={BTN_SOLID}
               data-testid="guided-tour-profile-photo-submit"
@@ -118,7 +122,15 @@ export function ProfilePhotoStep({ existingPhotoUrl, onCompleted }: ProfilePhoto
             </button>
           </div>
         ) : cameraEnabled ? (
-          <button type="button" onClick={capture} className={BTN_SOLID} data-testid="guided-tour-profile-photo-capture">
+          <button
+            type="button"
+            onClick={() => {
+              pushDashboardEvent('l_dashboard_guided_tour_profile_photo_capture')
+              capture()
+            }}
+            className={BTN_SOLID}
+            data-testid="guided-tour-profile-photo-capture"
+          >
             Capture Photo
           </button>
         ) : existingPhotoUrl ? (

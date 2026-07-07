@@ -10,6 +10,10 @@ import {
 
 import type { LearnAssociatedListItem } from '@/server/learn/learnAssociatedTypes'
 import { cn } from '@/lib/utils'
+import {
+  learnEntityEvent,
+  pushLearnEvent,
+} from '@/components/features/learn/shared/learnAnalytics'
 
 type AssociatedContentListProps = {
   items: Array<LearnAssociatedListItem>
@@ -43,7 +47,17 @@ export function AssociatedContentList({
                 <li key={`${item.kind}-${item.id}`}>
                   <button
                     type="button"
-                    onClick={() => openAssociatedItem(item)}
+                    onClick={() => {
+                      pushLearnEvent(
+                        learnEntityEvent(item.kind, 'associated_open', item.id),
+                        {
+                          content_id: item.id,
+                          content_type: item.kind,
+                          title: item.title,
+                        },
+                      )
+                      openAssociatedItem(item)
+                    }}
                     className="group flex w-full items-center justify-between gap-3 rounded-xl border border-gray-200 bg-white p-3 text-left transition-colors hover:bg-gray-50"
                   >
                     <div className="min-w-0">

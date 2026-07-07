@@ -5,6 +5,7 @@ import { Bookmark } from 'lucide-react'
 
 import { MasaiButton } from '@/components/ui/masai-button'
 import { RaiseTicketDrawer } from '@/components/features/support/RaiseTicketDrawer'
+import { pushLearnEvent } from '@/components/features/learn/shared/learnAnalytics'
 
 export interface LearnDetailBookmarkControls {
   isBookmarked: boolean
@@ -33,7 +34,12 @@ export function LearnDetailDefaultActions({
         size="md"
         ctaText="Raise Ticket"
         htmlType="button"
-        onClick={() => setDrawerOpen(true)}
+        onClick={() => {
+          pushLearnEvent('l_learn_raise_ticket_open', {
+            category: ticketCategory,
+          })
+          setDrawerOpen(true)
+        }}
       />
       <MasaiButton
         type="tertiary"

@@ -10,6 +10,7 @@ import { useAutoDetectLocation } from './useAutoDetectLocation'
 import { isAgreementDetailsValid, validateAgreementDetails } from './agreementValidation'
 import { useIsMobileViewport } from '@/components/features/chatbot/hooks/useIsMobileViewport'
 import { recordAgreementViewedApi, saveAgreementDetailsApi, submitAgreementApi } from '@/lib/api/dashboard/dashboardApi'
+import { pushDashboardEvent } from '../../../shared/dashboardAnalytics'
 import type { AgreementSection } from '@/server/api/dashboard/agreement/getAgreementRenderData.service'
 import type { AgreementFieldKey, AgreementFormValues } from '@/server/api/dashboard/agreement/agreementShared'
 
@@ -199,11 +200,33 @@ export function AgreementStep({ section, onCompleted }: AgreementStepProps) {
           Back
         </button>
         {onCertificate ? (
-          <button type="button" onClick={() => submitMutation.mutate()} disabled={submitMutation.isPending} className={BTN_SOLID} data-testid="agreement-submit">
+          <button
+            type="button"
+            onClick={() => {
+              pushDashboardEvent('l_dashboard_guided_tour_agreement_submit_id_' + section.sectionId, {
+                section_id: section.sectionId,
+              })
+              submitMutation.mutate()
+            }}
+            disabled={submitMutation.isPending}
+            className={BTN_SOLID}
+            data-testid="agreement-submit"
+          >
             {submitMutation.isPending ? 'Submitting…' : 'Submit & Sign'}
           </button>
         ) : (
-          <button type="button" onClick={goNext} disabled={!canContinue} className={BTN_SOLID} data-testid="agreement-continue">
+          <button
+            type="button"
+            onClick={() => {
+              pushDashboardEvent('l_dashboard_guided_tour_agreement_continue_id_' + section.sectionId, {
+                section_id: section.sectionId,
+              })
+              goNext()
+            }}
+            disabled={!canContinue}
+            className={BTN_SOLID}
+            data-testid="agreement-continue"
+          >
             Continue
           </button>
         )}

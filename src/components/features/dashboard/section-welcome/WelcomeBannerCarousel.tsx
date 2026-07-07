@@ -138,7 +138,11 @@ function BannerLink({
       event.preventDefault()
       return
     }
-    pushDashboardEvent(bannerClickEvent(banner.analyticsKey, banner.id))
+    pushDashboardEvent(bannerClickEvent(banner.analyticsKey, banner.id), {
+      banner_id: banner.id,
+      analytics_key: banner.analyticsKey,
+      title: banner.title,
+    })
   }
 
   return (

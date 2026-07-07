@@ -11,6 +11,10 @@ import { useAssignmentFooterActions } from './useAssignmentFooterActions'
 
 import type { AssignmentDetailFooter } from '@/server/learn/assignmentDetailFooterTypes'
 import type { AssignmentDetailPayload } from '@/server/learn/assignmentDetailTypes'
+import {
+  learnEntityEvent,
+  pushLearnEvent,
+} from '@/components/features/learn/shared/learnAnalytics'
 
 export const ASSIGNMENT_DETAIL_STICKY_FOOTER_SELECTOR =
   '[data-testid="assignment-detail-sticky-footer"]'
@@ -168,7 +172,13 @@ export function AssignmentDetailStickyFooter({
                   htmlType="button"
                   disabled={!action.enabled || loading}
                   data-testid={`assignment-footer-action-${action.kind}`}
-                  onClick={() => void handleAction(action.kind)}
+                  onClick={() => {
+                    pushLearnEvent(
+                      learnEntityEvent('assignment', 'footer_action', detail.id),
+                      { assignment_id: detail.id, action: action.kind },
+                    )
+                    void handleAction(action.kind)
+                  }}
                 />
               ))}
             </div>

@@ -28,7 +28,10 @@ export function ProductUpdatesPanel({
         <SidebarPanelLink
           label="View All"
           testId="dashboard-product-updates-view-all"
-          onClick={() => void navigate({ to: '/whats-new', search: { page: 1 } })}
+          onClick={() => {
+            pushDashboardEvent('l_dashboard_product_updates_view_all')
+            void navigate({ to: '/whats-new', search: { page: 1 } })
+          }}
         />
       }
       isLoading={isLoading}
@@ -50,7 +53,12 @@ function ProductUpdateRow({ update }: { update: DashboardProductUpdate }) {
     <Link
       to="/whats-new/$id"
       params={{ id: String(update.id) }}
-      onClick={() => pushDashboardEvent('l_whats_new')}
+      onClick={() =>
+        pushDashboardEvent('l_dashboard_product_update_click_id_' + update.id, {
+          update_id: update.id,
+          title: update.title,
+        })
+      }
       data-testid={`dashboard-product-update-item-${update.id}`}
       className="flex items-center gap-3 rounded-xl border border-gray-200 p-3.5 no-underline transition-shadow hover:shadow-sm"
     >

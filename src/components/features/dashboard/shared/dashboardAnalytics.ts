@@ -1,19 +1,15 @@
-// Thin GTM helper for dashboard click events. Pushes a named event onto the
-// GTM dataLayer (initialised in the app root); safe no-op on the server or when
-// the dataLayer is absent.
+// Dashboard GTM click events. Thin wrapper over the shared `pushGtmEvent`
+// helper. Every dashboard event name contains the word `dashboard` so triggers
+// can be scoped to the dashboard surface, and relevant DB row ids are embedded
+// in the event name (`_id_<id>`) with extra context passed as params.
 
-type WindowWithDataLayer = Window & {
-  dataLayer?: Array<Record<string, unknown>>
+import { type GtmEventParams, pushGtmEvent } from '@/utils/gtm'
+
+export function pushDashboardEvent(event: string, params: GtmEventParams = {}): void {
+  pushGtmEvent(event, params)
 }
 
-export function pushDashboardEvent(event: string): void {
-  if (typeof window === 'undefined') return
-  const win = window as WindowWithDataLayer
-  win.dataLayer = win.dataLayer ?? []
-  win.dataLayer.push({ event })
-}
-
-/** GTM event for a banner click: `l_dashboard_banner_carousel_<key>_id_<id>`. */
+/** GTM event for a welcome-banner click: `l_dashboard_banner_carousel_<key>_id_<id>`. */
 export function bannerClickEvent(analyticsKey: string, id: number): string {
   return `l_dashboard_banner_carousel_${analyticsKey}_id_${id}`
 }

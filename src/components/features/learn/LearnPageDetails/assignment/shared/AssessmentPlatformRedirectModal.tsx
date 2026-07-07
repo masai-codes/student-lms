@@ -9,6 +9,7 @@ import {
   ModalDescription,
   ModalTitle,
 } from '@/components/ui/modal'
+import { pushLearnEvent } from '@/components/features/learn/shared/learnAnalytics'
 
 type AssessmentPlatformRedirectModalProps = {
   open: boolean
@@ -46,7 +47,10 @@ export function AssessmentPlatformRedirectModal({
               ctaText="Cancel"
               htmlType="button"
               disabled={loading}
-              onClick={() => onOpenChange(false)}
+              onClick={() => {
+                pushLearnEvent('l_learn_assignment_assessment_redirect_cancel')
+                onOpenChange(false)
+              }}
             />
             <MasaiButton
               type="primary"
@@ -54,7 +58,10 @@ export function AssessmentPlatformRedirectModal({
               ctaText={loading ? 'Please wait…' : 'Okay'}
               htmlType="button"
               disabled={loading}
-              onClick={onConfirm}
+              onClick={() => {
+                pushLearnEvent('l_learn_assignment_assessment_redirect_confirm')
+                onConfirm()
+              }}
             />
           </div>
         </div>

@@ -11,6 +11,7 @@ import {
   Play,
   UploadSimple,
 } from '@phosphor-icons/react'
+import { pushDashboardEvent } from '../../shared/dashboardAnalytics'
 import type { GuidedTourStep } from './steps'
 
 interface GuidedTourStepListProps {
@@ -75,7 +76,14 @@ export function GuidedTourStepList({ steps, activeKey, onSelect, completed, tota
             <li key={step.key}>
               <button
                 type="button"
-                onClick={() => onSelect(step.key)}
+                onClick={() => {
+                  pushDashboardEvent('l_dashboard_guided_tour_step_select', {
+                    step_key: step.key,
+                    step_action: step.action,
+                    completed: step.completed,
+                  })
+                  onSelect(step.key)
+                }}
                 aria-current={isActive}
                 className={isActive ? STEP_ACTIVE : STEP_IDLE}
                 data-testid={`guided-tour-step-${step.key}`}

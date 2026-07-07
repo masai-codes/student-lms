@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Confetti } from '@phosphor-icons/react'
 import { WELCOME_INTRO_VIDEO_URL } from './t0Config'
+import { pushDashboardEvent } from '../shared/dashboardAnalytics'
 import { LottieConfetti } from '@/components/ui/lottie-confetti'
 import { Modal, ModalContent, ModalDescription, ModalTitle } from '@/components/ui/modal'
 import BottomDrawer from '@/components/ui/bottom-drawer'
@@ -83,7 +84,10 @@ function WelcomeModalBody({ open, onDismiss, isDismissing }: WelcomeModalProps) 
 
       <button
         type="button"
-        onClick={onDismiss}
+        onClick={() => {
+          pushDashboardEvent('l_dashboard_welcome_modal_get_started')
+          onDismiss()
+        }}
         disabled={isDismissing}
         className="inline-flex h-12 w-52 items-center justify-center rounded-lg bg-[#6962AC] text-base font-semibold text-white transition-colors hover:bg-[#554f8b] disabled:opacity-60"
         data-testid="welcome-modal-get-started"

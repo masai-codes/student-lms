@@ -1,4 +1,5 @@
 import { DownloadSimple, IdentificationCard, Lock } from '@phosphor-icons/react'
+import { pushDashboardEvent } from '../../shared/dashboardAnalytics'
 
 interface IdCardStepProps {
   url: string | null
@@ -77,6 +78,7 @@ export function IdCardStep({ url, unlocked }: IdCardStepProps) {
         download="masai-id-card.png"
         target="_blank"
         rel="noopener noreferrer"
+        onClick={() => pushDashboardEvent('l_dashboard_guided_tour_id_card_download')}
         className="inline-flex h-11 items-center justify-center gap-2 rounded-lg bg-[#6962AC] px-5 text-sm font-semibold text-white hover:opacity-90"
         data-testid="id-card-download"
       >

@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { ArrowSquareOut, CheckCircle, CopySimple } from '@phosphor-icons/react'
 import { AdmissionsRedirectCard } from './AdmissionsRedirectCard'
+import { pushDashboardEvent } from '../../shared/dashboardAnalytics'
 import type { StudentKitStatus } from '@/server/api/dashboard/t0/getStudentKitStatus.service'
 
 interface StudentKitStepProps {
@@ -28,6 +29,7 @@ export function StudentKitStep({ kit }: StudentKitStepProps) {
 
   const copyTrackingId = async () => {
     if (!trackingId) return
+    pushDashboardEvent('l_dashboard_guided_tour_student_kit_copy_id')
     try {
       await navigator.clipboard.writeText(trackingId)
       setCopied(true)
@@ -96,6 +98,7 @@ export function StudentKitStep({ kit }: StudentKitStepProps) {
               target="_blank"
               rel="noopener noreferrer"
               data-testid="student-kit-track"
+              onClick={() => pushDashboardEvent('l_dashboard_guided_tour_student_kit_track')}
               className="flex items-center justify-between rounded-lg border border-gray-200 bg-white px-4 py-3 transition-colors hover:border-gray-300"
             >
               <span className="mr-2 truncate text-sm text-[#2563EB]">{trackingUrl}</span>

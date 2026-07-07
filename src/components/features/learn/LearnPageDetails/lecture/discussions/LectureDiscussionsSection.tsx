@@ -13,6 +13,10 @@ import type { DiscussionListItem } from '@/server/learn/types'
 import type { CreateLearnDiscussionKind } from '@/server/new-discussions/services/createDiscussionForLearnEntity'
 import { createLearnDiscussionViaApi } from '@/lib/api/learn/discussionsApi'
 import { cn } from '@/lib/utils'
+import {
+  learnEntityEvent,
+  pushLearnEvent,
+} from '@/components/features/learn/shared/learnAnalytics'
 
 type LectureDiscussionsSectionProps = {
   entityId: number
@@ -46,6 +50,10 @@ export function LectureDiscussionsSection({
     title: string
     descriptionMarkdown: string
   }) => {
+    pushLearnEvent(
+      learnEntityEvent(entityKind, 'discussion_create', entityId),
+      { entity_id: entityId, entity_kind: entityKind },
+    )
     setError(null)
     setPending(true)
     try {
@@ -108,7 +116,13 @@ export function LectureDiscussionsSection({
         <div className="mb-4 shrink-0 rounded-lg border border-gray-200 bg-white">
           <button
             type="button"
-            onClick={() => setCreateFormExpanded((current) => !current)}
+            onClick={() => {
+              pushLearnEvent('l_learn_discussion_create_form_toggle', {
+                entity_id: entityId,
+                entity_kind: entityKind,
+              })
+              setCreateFormExpanded((current) => !current)
+            }}
             aria-expanded={createFormExpanded}
             className="type-b3-md flex w-full items-center justify-between gap-2 px-3 py-2.5 text-left text-gray-900 hover:bg-gray-50"
           >

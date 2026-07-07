@@ -11,6 +11,10 @@ import {
 import { isValidSubmissionUrl } from '@/lib/learn/isValidSubmissionUrl'
 import { MasaiButton } from '@/components/ui/masai-button'
 import { MasaiInput } from '@/components/ui/masai-input'
+import {
+  learnEntityEvent,
+  pushLearnEvent,
+} from '@/components/features/learn/shared/learnAnalytics'
 
 type ProblemSolutionFormProps = {
   detail: ProblemDetailPayload
@@ -48,6 +52,14 @@ export function ProblemSolutionForm({ detail }: ProblemSolutionFormProps) {
       setErrorMessage('Please enter a valid link.')
       return
     }
+    pushLearnEvent(
+      learnEntityEvent('assignment', 'problem_solution_submit_link', detail.problemId),
+      {
+        problem_id: detail.problemId,
+        assignment_id: detail.assignmentId,
+        solution_id: solutionId,
+      },
+    )
     void runSubmit(() => submitSolutionLink(solutionId, link.trim()))
   }
 
@@ -56,6 +68,14 @@ export function ProblemSolutionForm({ detail }: ProblemSolutionFormProps) {
       setErrorMessage('Please choose a file to upload.')
       return
     }
+    pushLearnEvent(
+      learnEntityEvent('assignment', 'problem_solution_submit_file', detail.problemId),
+      {
+        problem_id: detail.problemId,
+        assignment_id: detail.assignmentId,
+        solution_id: solutionId,
+      },
+    )
     void runSubmit(() => uploadSolutionFile(solutionId, file))
   }
 

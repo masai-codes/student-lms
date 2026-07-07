@@ -4,6 +4,7 @@ import {
   buildScheduleWeek,
   scheduleItemToLearnContent,
 } from '../shared/scheduleMapping'
+import { pushDashboardEvent } from '../shared/dashboardAnalytics'
 import type { ScheduleDayRow } from '../shared/scheduleMapping'
 import type { DashboardScheduleItem } from '@/server/api/dashboard/schedule/scheduleTypes'
 import { LearnContentCard } from '@/components/features/learn/section-three/content-card/LearnContentCard'
@@ -40,7 +41,10 @@ export function ScheduleSection({
       <div className="flex items-center gap-3">
         <TabButton
           isActive={activeTab === 'schedule'}
-          onClick={() => setActiveTab('schedule')}
+          onClick={() => {
+            pushDashboardEvent('l_dashboard_schedule_tab', { tab: 'schedule' })
+            setActiveTab('schedule')
+          }}
           testId="dashboard-schedule-tab"
         >
           <CalendarBlank size={18} weight="bold" />
@@ -48,7 +52,13 @@ export function ScheduleSection({
         </TabButton>
         <TabButton
           isActive={activeTab === 'tasks'}
-          onClick={() => setActiveTab('tasks')}
+          onClick={() => {
+            pushDashboardEvent('l_dashboard_pending_tasks_tab', {
+              tab: 'tasks',
+              pending_count: pendingTasks.length,
+            })
+            setActiveTab('tasks')
+          }}
           testId="dashboard-pending-tasks-tab"
         >
           <ClockCounterClockwise size={18} weight="bold" />

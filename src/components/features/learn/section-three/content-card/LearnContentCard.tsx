@@ -1,5 +1,6 @@
 import { Link } from '@tanstack/react-router'
 import type { LearnContentItem, LearnContentType } from '../../shared/types'
+import { learnEntityEvent, pushLearnEvent } from '../../shared/learnAnalytics'
 import { LectureAttendanceInline } from '@/components/features/learn/attendance/LectureAttendanceInline'
 import { getAssignmentStatusChipStyles } from '@/components/features/learn/LearnPageDetails/assignment/shared/getAssignmentStatusChipStyles'
 import { LearnListingJoinLiveCta } from '@/components/features/learn/section-three/content-card/LearnListingJoinLiveCta'
@@ -79,6 +80,16 @@ export function LearnContentCard({
   return (
     <Link
       {...linkProps}
+      onClick={() =>
+        pushLearnEvent(learnEntityEvent(item.type, 'card_click', item.id), {
+          content_id: item.id,
+          content_type: item.type,
+          title: item.title,
+          category: item.category,
+          priority: item.priority,
+          source: fromDashboard ? 'dashboard' : 'learn_listing',
+        })
+      }
       className="bg-white rounded-[8px] border border-gray-200 p-3 block transition-colors hover:bg-gray-50/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
     >
       <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
@@ -200,7 +211,11 @@ export function LearnContentCard({
             />
           ) : null}
           {item.type === 'lecture' ? (
-            <LearnListingJoinLiveCta joinLive={item.listingCtas.joinLive} />
+            <LearnListingJoinLiveCta
+              joinLive={item.listingCtas.joinLive}
+              lectureId={item.id}
+              title={item.title}
+            />
           ) : null}
         </div>
       </div>
