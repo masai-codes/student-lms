@@ -5,8 +5,6 @@ import { fetchAssignmentStartState } from './fetchAssignmentStartState'
 import type { DashboardScheduleItem, ScheduleEntityRow } from '../schedule/scheduleTypes'
 import { getSectionIdsForUser } from '@/server/batches/getSectionIdsForUser'
 import { getBatchIdsForEnrolledUser } from '@/server/batches/getBatchIdsForEnrolledUser'
-import { getBannedContentCutoffForUser } from '@/server/users/getBannedContentCutoffForUser'
-import { isContentWithinBannedCutoff } from '@/server/users/bannedContent'
 import { fetchLectureAttendanceSummaries } from '@/server/attendance/services/fetchLectureAttendanceSummaries'
 import { calculateAssignmentProgressStatus } from '@/server/learn/utils/calculateAssignmentProgressStatus'
 import { computeDeadlineCountdown } from '@/server/learn/utils/computeDeadlineCountdown'
@@ -18,8 +16,8 @@ const DAY_MS = 24 * 60 * 60 * 1000
 /**
  * The "Pending Tasks" feed: open assignments the user hasn't begun, plus
  * mandatory lectures they still have an open catch-up window to watch. Both are
- * scoped to the user's sections, banned-cutoff gated, and rendered by the reused
- * learn card. Assignments come first (soonest deadline), then catch-up lectures.
+ * scoped to the user's sections and rendered by the reused learn card.
+ * Assignments come first (soonest deadline), then catch-up lectures.
  */
 export async function getDashboardPendingTasks(
   userId: number,
@@ -28,15 +26,12 @@ export async function getDashboardPendingTasks(
   const nowMs = now.getTime()
   const istNow = getIstNowSqlDatetime(now)
 
-  const [sectionIds, batchIds, cutoff] = await Promise.all([
+  const [sectionIds, batchIds] = await Promise.all([
     getSectionIdsForUser(userId),
     getBatchIdsForEnrolledUser(userId),
-    getBannedContentCutoffForUser(userId),
   ])
   if (sectionIds.length === 0) return []
 
-  const withinCutoff = (row: ScheduleEntityRow) =>
-    isContentWithinBannedCutoff({ createdAt: null, startDate: row.schedule }, cutoff)
   const showCourseName = batchIds.length > 1
 
   const [assignmentCandidates, lectureCandidates] = await Promise.all([
@@ -46,13 +41,13 @@ export async function getDashboardPendingTasks(
 
   const assignmentItems = await resolvePendingAssignments(
     userId,
-    assignmentCandidates.filter(withinCutoff),
+    assignmentCandidates,
     nowMs,
     showCourseName,
   )
   const lectureItems = await resolvePendingLectures(
     userId,
-    lectureCandidates.filter(withinCutoff),
+    lectureCandidates,
     nowMs,
     showCourseName,
   )

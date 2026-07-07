@@ -2,7 +2,6 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 const hoisted = vi.hoisted(() => ({
   bannerRows: [] as Array<Record<string, unknown>>,
-  userRows: [] as Array<Record<string, unknown>>,
   getBatchIds: vi.fn(),
 }))
 
@@ -12,7 +11,6 @@ vi.mock('@/db', () => {
     from: () => chain,
     where: () => chain,
     orderBy: () => Promise.resolve(hoisted.bannerRows),
-    limit: () => Promise.resolve(hoisted.userRows),
   }
   return { db: chain }
 })
@@ -44,7 +42,6 @@ describe('getWelcomeBanners', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     hoisted.getBatchIds.mockResolvedValue([5])
-    hoisted.userRows = [{ status: 'active', statusTime: null }]
   })
 
   it('returns in-window banners mapped to the DTO', async () => {
@@ -77,19 +74,6 @@ describe('getWelcomeBanners', () => {
     hoisted.bannerRows = [
       bannerRow({ id: 1, visibleTo: { batches: [9] } }),
       bannerRow({ id: 2, visibleTo: { batches: [5] } }),
-    ]
-    const { getWelcomeBanners } = await import('../getWelcomeBanners.service')
-
-    const result = await getWelcomeBanners(42, NOW)
-    expect(result.map((b) => b.id)).toEqual([1])
-  })
-
-  it('hides banners created after a banned user cutoff', async () => {
-    hoisted.userRows = [{ status: 'banned', statusTime: '2026-06-15T00:00:00Z' }]
-    // startDate cleared so this case isolates the created-at cutoff.
-    hoisted.bannerRows = [
-      bannerRow({ id: 1, startDate: null, createdAt: '2026-06-01 00:00:00' }),
-      bannerRow({ id: 2, startDate: null, createdAt: '2026-07-01 00:00:00' }),
     ]
     const { getWelcomeBanners } = await import('../getWelcomeBanners.service')
 

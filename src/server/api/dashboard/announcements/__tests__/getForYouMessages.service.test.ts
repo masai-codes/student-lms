@@ -34,7 +34,7 @@ describe('getForYouMessages', () => {
     hoisted.rows = [row()]
     const { getForYouMessages } = await import('../getForYouMessages.service')
 
-    const [ranked] = await getForYouMessages(42, '2026-07-02 12:00:00', null)
+    const [ranked] = await getForYouMessages(42, '2026-07-02 12:00:00')
     expect(ranked.item).toMatchObject({ id: 10, source: 'm', isForYou: true, title: 'Subject line' })
   })
 
@@ -42,7 +42,7 @@ describe('getForYouMessages', () => {
     hoisted.rows = [row({ meta: { title: 'Meta title' } })]
     const { getForYouMessages } = await import('../getForYouMessages.service')
 
-    const [ranked] = await getForYouMessages(42, '2026-07-02 12:00:00', null)
+    const [ranked] = await getForYouMessages(42, '2026-07-02 12:00:00')
     expect(ranked.item.title).toBe('Meta title')
   })
 
@@ -50,18 +50,7 @@ describe('getForYouMessages', () => {
     hoisted.rows = [row({ meta: { title: '' } }), row({ id: 11, meta: { title: 5 } })]
     const { getForYouMessages } = await import('../getForYouMessages.service')
 
-    const result = await getForYouMessages(42, '2026-07-02 12:00:00', null)
+    const result = await getForYouMessages(42, '2026-07-02 12:00:00')
     expect(result.map((r) => r.item.title)).toEqual(['Subject line', 'Subject line'])
-  })
-
-  it('drops messages created/scheduled after a banned cutoff', async () => {
-    hoisted.rows = [
-      row({ id: 10, schedule: '2026-06-01 10:00:00', createdAt: '2026-06-01 10:00:00' }),
-      row({ id: 11, schedule: '2026-07-01 10:00:00', createdAt: '2026-07-01 10:00:00' }),
-    ]
-    const { getForYouMessages } = await import('../getForYouMessages.service')
-
-    const result = await getForYouMessages(42, '2026-07-02 12:00:00', new Date('2026-06-15T00:00:00Z'))
-    expect(result.map((r) => r.item.id)).toEqual([10])
   })
 })

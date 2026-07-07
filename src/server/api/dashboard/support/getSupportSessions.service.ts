@@ -3,8 +3,6 @@ import { resolveSupportSessionStatus } from './supportSessionStatus'
 import type { SupportSessionStatus } from './supportSessionStatus'
 import { db } from '@/db'
 import { lectures } from '@/db/schema'
-import { isContentWithinBannedCutoff } from '@/server/users/bannedContent'
-import { getBannedContentCutoffForUser } from '@/server/users/getBannedContentCutoffForUser'
 import {
   formatIstWallClock,
   getIstDayWindow,
@@ -34,43 +32,34 @@ export interface DashboardSupportSession {
  * — so the frontend only renders.
  *
  * Rows are `lectures` in the help-session section, scheduled between the start
- * of today and the end of the 8th day out, not deleted, and (for banned users)
- * only sessions available on/before their ban cutoff.
+ * of today and the end of the 8th day out, and not deleted.
  */
 export async function getSupportSessions(
-  userId: number,
   now: Date = new Date(),
 ): Promise<Array<DashboardSupportSession>> {
   const { start, end } = getIstDayWindow(now, SUPPORT_SESSION_WINDOW_DAYS)
   const istNow = getIstNowSqlDatetime(now)
 
-  const [cutoff, rows] = await Promise.all([
-    getBannedContentCutoffForUser(userId),
-    db
-      .select({
-        id: lectures.id,
-        title: lectures.title,
-        schedule: lectures.schedule,
-        concludes: lectures.concludes,
-        zoomLink: lectures.zoomLink,
-      })
-      .from(lectures)
-      .where(
-        and(
-          eq(lectures.sectionId, HELP_SESSION_SECTION_ID),
-          gte(lectures.schedule, start),
-          lte(lectures.schedule, end),
-          isNull(lectures.deletedAt),
-        ),
-      )
-      .orderBy(asc(lectures.schedule)),
-  ])
-
-  return rows
-    .filter((row) =>
-      isContentWithinBannedCutoff({ createdAt: null, startDate: row.schedule }, cutoff),
+  const rows = await db
+    .select({
+      id: lectures.id,
+      title: lectures.title,
+      schedule: lectures.schedule,
+      concludes: lectures.concludes,
+      zoomLink: lectures.zoomLink,
+    })
+    .from(lectures)
+    .where(
+      and(
+        eq(lectures.sectionId, HELP_SESSION_SECTION_ID),
+        gte(lectures.schedule, start),
+        lte(lectures.schedule, end),
+        isNull(lectures.deletedAt),
+      ),
     )
-    .map((row) => ({
+    .orderBy(asc(lectures.schedule))
+
+  return rows.map((row) => ({
       id: row.id,
       title: row.title,
       schedule: formatIstWallClock(row.schedule),

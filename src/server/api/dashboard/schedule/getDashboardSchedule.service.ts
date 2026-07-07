@@ -6,8 +6,6 @@ import type { AssignmentProgressStatus } from '@/server/learn/utils/calculateAss
 import type { DashboardScheduleItem, ScheduleEntityRow } from './scheduleTypes'
 import { getSectionIdsForUser } from '@/server/batches/getSectionIdsForUser'
 import { getBatchIdsForEnrolledUser } from '@/server/batches/getBatchIdsForEnrolledUser'
-import { getBannedContentCutoffForUser } from '@/server/users/getBannedContentCutoffForUser'
-import { isContentWithinBannedCutoff } from '@/server/users/bannedContent'
 import { fetchLectureAttendanceSummaries } from '@/server/attendance/services/fetchLectureAttendanceSummaries'
 import { calculateAssignmentProgressStatus } from '@/server/learn/utils/calculateAssignmentProgressStatus'
 import { fetchLatestSubmissionByAssignment } from '@/server/learn/queries/fetchLatestSubmissionByAssignment'
@@ -17,8 +15,7 @@ import { fetchLatestSubmissionByAssignment } from '@/server/learn/queries/fetchL
  * assignments merged into one schedule feed, newest-scheduled first excluded
  * (soonest first). Reuses the learn listing mappers/CTA builder/attendance so
  * the same card renders these rows. Filters on `start_date`/`end_date`, returns
- * `schedule`/`concludes` for display. Banned users only see rows scheduled
- * on/before their ban cutoff.
+ * `schedule`/`concludes` for display.
  */
 export async function getDashboardSchedule(
   userId: number,
@@ -27,22 +24,16 @@ export async function getDashboardSchedule(
   const nowMs = now.getTime()
   const { start, end } = getScheduleDateWindow(now)
 
-  const [sectionIds, batchIds, cutoff] = await Promise.all([
+  const [sectionIds, batchIds] = await Promise.all([
     getSectionIdsForUser(userId),
     getBatchIdsForEnrolledUser(userId),
-    getBannedContentCutoffForUser(userId),
   ])
   if (sectionIds.length === 0) return []
 
-  const [lectureRows, assignmentRows] = await Promise.all([
+  const [visibleLectures, visibleAssignments] = await Promise.all([
     fetchScheduleLectures(sectionIds, start, end),
     fetchScheduleAssignments(sectionIds, start, end),
   ])
-
-  const withinCutoff = (row: ScheduleEntityRow) =>
-    isContentWithinBannedCutoff({ createdAt: null, startDate: row.schedule }, cutoff)
-  const visibleLectures = lectureRows.filter(withinCutoff)
-  const visibleAssignments = assignmentRows.filter(withinCutoff)
 
   const attendance = await fetchLectureAttendanceSummaries(
     userId,

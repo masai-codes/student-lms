@@ -4,7 +4,6 @@ import type { ScheduleEntityRow } from '../scheduleTypes'
 const hoisted = vi.hoisted(() => ({
   getSectionIds: vi.fn(),
   getBatchIds: vi.fn(),
-  getCutoff: vi.fn(),
   fetchLectures: vi.fn(),
   fetchAssignments: vi.fn(),
   fetchAttendance: vi.fn(),
@@ -16,9 +15,6 @@ vi.mock('@/server/batches/getSectionIdsForUser', () => ({
 }))
 vi.mock('@/server/batches/getBatchIdsForEnrolledUser', () => ({
   getBatchIdsForEnrolledUser: hoisted.getBatchIds,
-}))
-vi.mock('@/server/users/getBannedContentCutoffForUser', () => ({
-  getBannedContentCutoffForUser: hoisted.getCutoff,
 }))
 vi.mock('../fetchScheduleLectures.service', () => ({
   fetchScheduleLectures: hoisted.fetchLectures,
@@ -59,7 +55,6 @@ describe('getDashboardSchedule', () => {
     vi.clearAllMocks()
     hoisted.getSectionIds.mockResolvedValue([5])
     hoisted.getBatchIds.mockResolvedValue([1])
-    hoisted.getCutoff.mockResolvedValue(null)
     hoisted.fetchAttendance.mockResolvedValue(new Map())
     hoisted.fetchSubmissions.mockResolvedValue(new Map())
     hoisted.fetchLectures.mockResolvedValue([])
@@ -133,17 +128,5 @@ describe('getDashboardSchedule', () => {
     const [assignment] = await getDashboardSchedule(42, NOW)
     expect(assignment.assignmentProgressStatus).toBe('overdue')
     expect(hoisted.fetchSubmissions).toHaveBeenCalledWith(42, [2])
-  })
-
-  it('drops rows scheduled after a banned user cutoff', async () => {
-    hoisted.getCutoff.mockResolvedValue(new Date('2026-07-02T12:00:00+05:30'))
-    hoisted.fetchLectures.mockResolvedValue([
-      row({ id: 1, schedule: '2026-07-02 09:00:00' }),
-      row({ id: 2, schedule: '2026-07-05 09:00:00' }),
-    ])
-    const { getDashboardSchedule } = await import('../getDashboardSchedule.service')
-
-    const result = await getDashboardSchedule(42, NOW)
-    expect(result.map((i) => i.id)).toEqual([1])
   })
 })
