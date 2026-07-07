@@ -1,15 +1,41 @@
 import { ApiError } from '@/server/api/http/apiError'
 
-export type AiTutorFeedbackPlatform = 'ios' | 'android' | 'web' | 'app' | 'web-desktop' | 'web-mobile'
+export type AiTutorFeedbackPlatform =
+  | 'ios'
+  | 'android'
+  | 'web'
+  | 'web-mobile'
+  | 'web-desktop'
+  | 'app'
 
 const PLATFORMS: readonly AiTutorFeedbackPlatform[] = [
   'ios',
   'android',
   'web',
+  'web-mobile',
+  'web-desktop',
   'app',
   'web-desktop',
   'web-mobile',
 ]
+
+function isWebLikePlatform(platform: AiTutorFeedbackPlatform): boolean {
+  return (
+    platform === 'web' ||
+    platform === 'web-mobile' ||
+    platform === 'web-desktop' ||
+    platform === 'app'
+  )
+}
+
+export function isAiTutorFeedbackPlatform(
+  value: unknown,
+): value is AiTutorFeedbackPlatform {
+  return (
+    typeof value === 'string' &&
+    PLATFORMS.includes(value as AiTutorFeedbackPlatform)
+  )
+}
 
 export function parsePlatform(value: unknown): AiTutorFeedbackPlatform {
   if (value == null || value === '') return 'app'
@@ -32,12 +58,7 @@ export function parseRatingForPlatform(
     throw new ApiError(400, 'AI_TUTOR_RATING_INVALID')
   }
 
-  if (
-    platform === 'web' ||
-    platform === 'app' ||
-    platform === 'web-desktop' ||
-    platform === 'web-mobile'
-  ) {
+  if (isWebLikePlatform(platform)) {
     // if (parsed !== 0 && parsed !== 1) {
     //   throw new ApiError(400, 'AI_TUTOR_RATING_INVALID')
     // }

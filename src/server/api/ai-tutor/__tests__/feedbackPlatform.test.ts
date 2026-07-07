@@ -12,11 +12,15 @@ describe('parsePlatform', () => {
     expect(parsePlatform('')).toBe('app')
   })
 
-  it('accepts ios, android, web, app, web-desktop, and web-mobile case-insensitively', () => {
+  it('accepts ios, android, web, web-mobile, web-desktop, and app case-insensitively', () => {
     expect(parsePlatform('ios')).toBe('ios')
     expect(parsePlatform('IOS')).toBe('ios')
     expect(parsePlatform('android')).toBe('android')
     expect(parsePlatform('web')).toBe('web')
+    expect(parsePlatform('web-mobile')).toBe('web-mobile')
+    expect(parsePlatform('WEB-MOBILE')).toBe('web-mobile')
+    expect(parsePlatform('web-desktop')).toBe('web-desktop')
+    expect(parsePlatform('WEB-DESKTOP')).toBe('web-desktop')
     expect(parsePlatform('app')).toBe('app')
     expect(parsePlatform('APP')).toBe('app')
     expect(parsePlatform('web-desktop')).toBe('web-desktop')
@@ -36,9 +40,11 @@ describe('parsePlatform', () => {
 })
 
 describe('parseRatingForPlatform', () => {
-  it('accepts 0 or 1 for web, app, web-desktop, and web-mobile', () => {
+  it('accepts 0 or 1 for web-like platforms', () => {
     expect(parseRatingForPlatform(0, 'web')).toBe(0)
     expect(parseRatingForPlatform(1, 'web')).toBe(1)
+    expect(parseRatingForPlatform(0, 'web-mobile')).toBe(0)
+    expect(parseRatingForPlatform(1, 'web-desktop')).toBe(1)
     expect(parseRatingForPlatform(0, 'app')).toBe(0)
     expect(parseRatingForPlatform(1, 'app')).toBe(1)
     expect(parseRatingForPlatform(4, 'web-desktop')).toBe(4)

@@ -183,7 +183,7 @@ Last updated: 2026-07-02
 - Area: Authenticated SSE chat stub (`src/routes/api/ai-tutor/chat/stream.ts`, `src/server/api/ai-tutor/**`, `src/server/api/http/sse.ts`)
 - Status: Covered
 - Test files: `src/server/api/ai-tutor/__tests__/stream*.test.ts`, `src/server/api/http/__tests__/sse.test.ts`
-- Notes: `POST /api/ai-tutor/chat/stream` requires a session cookie, accepts `{ lectureId, chat, chatID?, platform?, language? }`, reads/writes `ai_chat_practice_questions`, loads lecture summary from `lectures_ai`, streams Claude output as SSE token events, persists each turn with optional `platform` and `language` on `chatHistory`, enforces reply language when `language` is set, and returns `{ type: "done", chatId }`.
+- Notes: `POST /api/ai-tutor/chat/stream` requires a session cookie, accepts `{ lectureId, chat, chatID?, platform?, language? }` (`platform`: `ios` | `android` | `web` | `web-mobile` | `web-desktop` | `app`), reads/writes `ai_chat_practice_questions`, loads lecture summary from `lectures_ai`, streams Claude output as SSE token events, persists each turn with optional `platform` and `language` on `chatHistory`, enforces reply language when `language` is set, and returns `{ type: "done", chatId }`.
 
 ## AI Tutor chat conversations
 - Area: Authenticated lecture chat history (`src/routes/api/ai-tutor/chat/conversations/**`, `src/server/api/ai-tutor/**`, `src/lib/api/ai-tutor/aiTutorChatApi.ts`)
@@ -200,7 +200,7 @@ Last updated: 2026-07-02
 - Area: Authenticated chat feedback (`src/routes/api/ai-tutor/chat/feedback.ts`, `src/server/api/ai-tutor/**`, `src/lib/api/ai-tutor/aiTutorChatApi.ts`)
 - Status: Covered
 - Test files: `src/server/api/ai-tutor/__tests__/{submitFeedback.handler,submitChatPracticeFeedback.service,feedbackPlatform}.test.ts`
-- Notes: `POST /api/ai-tutor/chat/feedback` accepts `{ lectureId, chatId, rating, feedback?, platform? }`, validates ownership of the chat thread, normalizes ratings by platform (`web`: `0`/`1`; `ios`/`android`: stored as `rating + 1`), prefixes `feedback` with `platform-` (or stores platform alone when text is blank), and persists `rating`, `feedback`, and `feedbackTime` on `ai_chat_practice_questions`.
+- Notes: `POST /api/ai-tutor/chat/feedback` accepts `{ lectureId, chatId, rating, feedback?, platform? }`, validates ownership of the chat thread, normalizes ratings by platform (`web` / `web-mobile` / `web-desktop` / `app`: `0`/`1`; `ios`/`android`: stored as `rating + 1`), prefixes `feedback` with `platform-` (or stores platform alone when text is blank), and persists `rating`, `feedback`, and `feedbackTime` on `ai_chat_practice_questions`.
 
 ## Status Meaning
 
