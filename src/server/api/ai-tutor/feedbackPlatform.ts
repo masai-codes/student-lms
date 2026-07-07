@@ -1,12 +1,14 @@
 import { ApiError } from '@/server/api/http/apiError'
 
-export type AiTutorFeedbackPlatform = 'ios' | 'android' | 'web' | 'app'
+export type AiTutorFeedbackPlatform = 'ios' | 'android' | 'web' | 'app' | 'web-desktop' | 'web-mobile'
 
 const PLATFORMS: readonly AiTutorFeedbackPlatform[] = [
   'ios',
   'android',
   'web',
   'app',
+  'web-desktop',
+  'web-mobile',
 ]
 
 export function parsePlatform(value: unknown): AiTutorFeedbackPlatform {

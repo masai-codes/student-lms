@@ -21,7 +21,6 @@ export type StreamLectureChatInput = {
   userId: number
   lectureId: number
   chat: string
-  platform: 'web-desktop' | 'web-mobile'
   chatId?: number
   platform: AiTutorFeedbackPlatform
   language: AiTutorChatLanguage
