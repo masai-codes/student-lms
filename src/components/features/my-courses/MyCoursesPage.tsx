@@ -3,6 +3,8 @@ import { useNavigate } from '@tanstack/react-router'
 import { fetchMyCourses } from '@/lib/api/my-courses/myCoursesApi'
 import { MyCoursesPageSkeleton } from '@/components/skeleton/my-courses/MyCoursesPageSkeleton'
 import type { MyCoursesItem } from '@/server/api/my-courses/getMyLectures.service'
+import { getAuthBranding } from '@/utils/authBranding'
+import { getPortal } from '@/utils/portal'
 
 function CourseCard({ course }: { course: MyCoursesItem }) {
   const navigate = useNavigate()
@@ -14,7 +16,10 @@ function CourseCard({ course }: { course: MyCoursesItem }) {
       style={{ border: '1px solid #E5E7EB', minHeight: 294 }}
     >
       {/* Logo */}
-      <div className="absolute" style={{ left: 16, top: 16, height: 56, maxWidth: 120 }}>
+      <div
+        className="absolute"
+        style={{ left: 16, top: 16, height: 56, maxWidth: 120 }}
+      >
         {course.courseLogo ? (
           <img
             src={course.courseLogo}
@@ -22,7 +27,11 @@ function CourseCard({ course }: { course: MyCoursesItem }) {
             className="h-full w-auto object-contain"
           />
         ) : (
-          <img src="/masai-logo.svg" alt="Masai" className="h-full w-auto object-contain" />
+          <img
+            src={getAuthBranding(getPortal()).logoSrc}
+            alt={getAuthBranding(getPortal()).logoAlt}
+            className="h-full w-auto object-contain"
+          />
         )}
       </div>
 
@@ -35,43 +44,103 @@ function CourseCard({ course }: { course: MyCoursesItem }) {
           {course.courseTitle}
         </h3>
         {course.instituteName && (
-          <p className="mt-1.5" style={{ fontWeight: 500, fontSize: 14, lineHeight: '20px', color: '#4B5563' }}>
+          <p
+            className="mt-1.5"
+            style={{
+              fontWeight: 500,
+              fontSize: 14,
+              lineHeight: '20px',
+              color: '#4B5563',
+            }}
+          >
             By {course.instituteName}
           </p>
         )}
       </div>
 
       {/* Progress */}
-      <div className="absolute flex flex-col gap-1.5" style={{ left: 16, right: 16, top: 182 }}>
-        <div className="relative h-2.5 rounded-full" style={{ background: '#DEF7EC' }}>
+      <div
+        className="absolute flex flex-col gap-1.5"
+        style={{ left: 16, right: 16, top: 182 }}
+      >
+        <div
+          className="relative h-2.5 rounded-full"
+          style={{ background: '#DEF7EC' }}
+        >
           <div
             className="absolute left-0 top-0 h-full rounded-full"
-            style={{ width: `${course.courseProgress}%`, background: '#31C48D' }}
+            style={{
+              width: `${course.courseProgress}%`,
+              background: '#31C48D',
+            }}
           />
         </div>
         <div className="flex justify-between">
-          <span style={{ fontWeight: 500, fontSize: 12, lineHeight: '16px', color: '#4B5563' }}>
+          <span
+            style={{
+              fontWeight: 500,
+              fontSize: 12,
+              lineHeight: '16px',
+              color: '#4B5563',
+            }}
+          >
             Course Progress
           </span>
-          <span style={{ fontWeight: 500, fontSize: 12, lineHeight: '16px', color: '#1F2A37' }}>
+          <span
+            style={{
+              fontWeight: 500,
+              fontSize: 12,
+              lineHeight: '16px',
+              color: '#1F2A37',
+            }}
+          >
             {course.courseProgress}%
           </span>
         </div>
       </div>
 
       {/* CTA */}
-      <div className="absolute flex items-center gap-4" style={{ right: 16, bottom: 16 }}>
+      <div
+        className="absolute flex items-center gap-4"
+        style={{ right: 16, bottom: 16 }}
+      >
         <button
-          onClick={() => navigate({ to: '/course/$batchId', params: { batchId: String(course.batchId) } })}
+          onClick={() =>
+            navigate({
+              to: '/course/$batchId',
+              params: { batchId: String(course.batchId) },
+            })
+          }
           className="cursor-pointer hover:underline"
-          style={{ fontWeight: 500, fontSize: 14, lineHeight: '20px', color: '#6962AC', background: 'none', border: 'none', padding: 0 }}
+          style={{
+            fontWeight: 500,
+            fontSize: 14,
+            lineHeight: '20px',
+            color: '#6962AC',
+            background: 'none',
+            border: 'none',
+            padding: 0,
+          }}
         >
           Course Details
         </button>
         <button
-          onClick={() => navigate({ to: '/course/$batchId', params: { batchId: String(course.batchId) } })}
+          onClick={() =>
+            navigate({
+              to: '/course/$batchId',
+              params: { batchId: String(course.batchId) },
+            })
+          }
           className="flex items-center justify-center rounded-lg cursor-pointer text-white"
-          style={{ background: '#6962AC', fontWeight: 500, fontSize: 14, lineHeight: '20px', padding: '10px 16px', height: 40, width: 154 }}
+          style={{
+            background: '#6962AC',
+            fontWeight: 500,
+            fontSize: 14,
+            lineHeight: '20px',
+            padding: '10px 16px',
+            height: 40,
+            width: 154,
+          }}
         >
           {hasStarted ? 'Resume Learning' : 'Start Learning'}
         </button>
@@ -81,7 +150,11 @@ function CourseCard({ course }: { course: MyCoursesItem }) {
 }
 
 export function MyCoursesPage() {
-  const { data: courses = [], isLoading, isError } = useQuery({
+  const {
+    data: courses = [],
+    isLoading,
+    isError,
+  } = useQuery({
     queryKey: ['my-courses'],
     queryFn: fetchMyCourses,
   })
@@ -97,8 +170,20 @@ export function MyCoursesPage() {
   }
 
   return (
-    <div className="flex flex-col gap-4 px-2 py-2" style={{ background: '#FAF9F9', minHeight: '100vh' }}>
-      <h1 style={{ fontWeight: 700, fontSize: 20, lineHeight: '30px', color: '#111928' }}>My Courses</h1>
+    <div
+      className="flex flex-col gap-4 px-2 py-2"
+      style={{ background: '#FAF9F9', minHeight: '100vh' }}
+    >
+      <h1
+        style={{
+          fontWeight: 700,
+          fontSize: 20,
+          lineHeight: '30px',
+          color: '#111928',
+        }}
+      >
+        My Courses
+      </h1>
       {courses.length === 0 ? (
         <p className="text-sm text-gray-500">No courses found.</p>
       ) : (

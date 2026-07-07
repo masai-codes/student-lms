@@ -1,5 +1,6 @@
 import { sql } from 'drizzle-orm'
 import { db } from '@/db'
+import { isIHubPortalRequest } from '@/server/auth/v2/portalContext'
 
 /**
  * Shared "how far through the guided tour is this user?" computation.
@@ -37,10 +38,25 @@ export interface GuidedTourWebProgress {
   program: ProgressCount | null
 }
 
-/** The two non-video LMS steps: profile photo + download app. */
-export const LMS_WALKTHROUGH_EXTRA_STEPS = 2
+/**
+ * The non-video LMS steps: profile photo (always) + download app. The
+ * download-app step is Masai-only — iHub has no mobile app, so it is dropped
+ * from the tour and, critically, from the denominator (otherwise the tour could
+ * never reach 100% on iHub). Keep this in sync with the frontend step builder
+ * (`guided-tour/steps.ts`) which reads `lmsExtraSteps` from the same intent.
+ */
+export function lmsWalkthroughExtraSteps(isIHub: boolean): number {
+  // profile photo + (download app unless iHub)
+  return 1 + (isIHub ? 0 : 1)
+}
 
-const LECTURE_TYPES_COUNTED = ['live', 'recorded', 'scrum', 'video', 'interactive-video']
+const LECTURE_TYPES_COUNTED = [
+  'live',
+  'recorded',
+  'scrum',
+  'video',
+  'interactive-video',
+]
 
 function normalizeRows<T>(result: unknown): Array<T> {
   if (Array.isArray(result)) {
@@ -48,7 +64,12 @@ function normalizeRows<T>(result: unknown): Array<T> {
     if (Array.isArray(first)) return first as Array<T>
     return result as Array<T>
   }
-  if (result && typeof result === 'object' && 'rows' in result && Array.isArray((result).rows)) {
+  if (
+    result &&
+    typeof result === 'object' &&
+    'rows' in result &&
+    Array.isArray(result.rows)
+  ) {
     return (result as { rows: Array<T> }).rows
   }
   return []
@@ -57,7 +78,11 @@ function normalizeRows<T>(result: unknown): Array<T> {
 function parseMeta(raw: unknown): Record<string, unknown> {
   if (!raw) return {}
   if (typeof raw === 'object') return raw as Record<string, unknown>
-  try { return JSON.parse(String(raw)) as Record<string, unknown> } catch { return {} }
+  try {
+    return JSON.parse(String(raw)) as Record<string, unknown>
+  } catch {
+    return {}
+  }
 }
 
 /** Fraction ("n/d") → ratio in [0, 1]. Empty / malformed → 0. */
@@ -84,7 +109,9 @@ function hasHttpUrl(value: unknown): boolean {
   }
 }
 
-function hasValidAgreementSubKey(agreementsJson: Record<string, unknown>): boolean {
+function hasValidAgreementSubKey(
+  agreementsJson: Record<string, unknown>,
+): boolean {
   const RESERVED = new Set(['shouldModalBeVisible'])
   return Object.entries(agreementsJson).some(([key, value]) => {
     if (RESERVED.has(key)) return false
@@ -94,14 +121,20 @@ function hasValidAgreementSubKey(agreementsJson: Record<string, unknown>): boole
     const heading = entry['heading']
     const hidePolicy = entry['hidePolicy']
     return (
-      typeof pdfUrl === 'string' && pdfUrl.trim() !== '' &&
-      typeof heading === 'string' && heading.trim() !== '' &&
-      hidePolicy !== true && hidePolicy !== 'true'
+      typeof pdfUrl === 'string' &&
+      pdfUrl.trim() !== '' &&
+      typeof heading === 'string' &&
+      heading.trim() !== '' &&
+      hidePolicy !== true &&
+      hidePolicy !== 'true'
     )
   })
 }
 
-async function countSectionCompletions(userId: number, sectionId: number): Promise<ProgressCount> {
+async function countSectionCompletions(
+  userId: number,
+  sectionId: number,
+): Promise<ProgressCount> {
   const typeList = LECTURE_TYPES_COUNTED.map((t) => `'${t}'`).join(', ')
   const lecs = normalizeRows<{ id: number }>(
     await db.execute(sql`
@@ -110,7 +143,7 @@ async function countSectionCompletions(userId: number, sectionId: number): Promi
         AND deleted_at IS NULL
         AND type IN (${sql.raw(typeList)})
       LIMIT 200
-    `)
+    `),
   )
   if (!lecs.length) return { total: 0, completed: 0 }
 
@@ -121,19 +154,22 @@ async function countSectionCompletions(userId: number, sectionId: number): Promi
       WHERE user_id = ${userId}
         AND lecture_id IN (${sql.raw(idList)})
         AND duration >= 10
-    `)
+    `),
   )
   return { total: lecs.length, completed: done.length }
 }
 
-async function latestSectionId(batchId: number, type: string): Promise<number | undefined> {
+async function latestSectionId(
+  batchId: number,
+  type: string,
+): Promise<number | undefined> {
   const rows = normalizeRows<{ id: number }>(
     await db.execute(sql`
       SELECT id FROM sections
       WHERE batch_id = ${batchId} AND type = ${type}
         AND active = 1 AND deleted_at IS NULL
       ORDER BY id DESC LIMIT 1
-    `)
+    `),
   )
   return rows[0]?.id
 }
@@ -144,7 +180,10 @@ async function computeAgreementState(
   batchId: number,
   legalData: unknown,
 ): Promise<{ hasAgreement: boolean; signed: boolean }> {
-  const enrolledSectionRows = normalizeRows<{ id: number; agreements: string | null }>(
+  const enrolledSectionRows = normalizeRows<{
+    id: number
+    agreements: string | null
+  }>(
     await db.execute(sql`
       SELECT s.id, s.settings->>'$.agreements' AS agreements
       FROM section_user su
@@ -155,18 +194,31 @@ async function computeAgreementState(
         AND s.active = 1
         AND s.deleted_at IS NULL
         AND s.settings->>'$.agreements.shouldModalBeVisible' = 'true'
-    `)
+    `),
   )
 
   for (const row of enrolledSectionRows) {
     let agreementsJson: Record<string, unknown> | null = null
     try {
-      agreementsJson = (typeof row.agreements === 'string' ? JSON.parse(row.agreements) : row.agreements) as Record<string, unknown> | null
-    } catch { continue }
+      agreementsJson = (
+        typeof row.agreements === 'string'
+          ? JSON.parse(row.agreements)
+          : row.agreements
+      ) as Record<string, unknown> | null
+    } catch {
+      continue
+    }
     if (agreementsJson && hasValidAgreementSubKey(agreementsJson)) {
-      const legal = (parseMeta(legalData)['agreements'] ?? {}) as Record<string, unknown>
-      const sectionAgreement = legal[`section_${Number(row.id)}`] as Record<string, unknown> | undefined
-      return { hasAgreement: true, signed: sectionAgreement?.['haveAcceptedLegalAgreement'] === true }
+      const legal = (parseMeta(legalData)['agreements'] ?? {}) as Record<
+        string,
+        unknown
+      >
+      const sectionAgreement = legal[`section_${Number(row.id)}`] as
+        Record<string, unknown> | undefined
+      return {
+        hasAgreement: true,
+        signed: sectionAgreement?.['haveAcceptedLegalAgreement'] === true,
+      }
     }
   }
   return { hasAgreement: false, signed: false }
@@ -189,12 +241,20 @@ export async function computeGuidedTourProgress(
   hasDeviceToken: boolean,
   platform: GuidedTourPlatform = 'web',
 ): Promise<GuidedTourWebProgress> {
+  const isIHub = isIHubPortalRequest()
   const hasPhoto = hasHttpUrl(parseMeta(profileMeta)['profile_pic'])
-  const lmsExtraCompleted = (hasPhoto ? 1 : 0) + (hasDeviceToken ? 1 : 0)
+  // iHub omits the download-app step from both numerator and denominator.
+  const lmsExtraCompleted =
+    (hasPhoto ? 1 : 0) + (!isIHub && hasDeviceToken ? 1 : 0)
 
-  const lmsSectionId = await latestSectionId(batchId, `lms-walkthrough-${platform}`)
-  const lmsBase = lmsSectionId ? await countSectionCompletions(userId, lmsSectionId) : { total: 0, completed: 0 }
-  const lmsTotal = lmsBase.total + LMS_WALKTHROUGH_EXTRA_STEPS
+  const lmsSectionId = await latestSectionId(
+    batchId,
+    `lms-walkthrough-${platform}`,
+  )
+  const lmsBase = lmsSectionId
+    ? await countSectionCompletions(userId, lmsSectionId)
+    : { total: 0, completed: 0 }
+  const lmsTotal = lmsBase.total + lmsWalkthroughExtraSteps(isIHub)
   const lms: ProgressCount = {
     total: lmsTotal,
     completed: Math.min(lmsBase.completed + lmsExtraCompleted, lmsTotal),
@@ -202,9 +262,18 @@ export async function computeGuidedTourProgress(
 
   if (!fullFeesPaid) return { lms, program: null }
 
-  const { hasAgreement, signed } = await computeAgreementState(userId, batchId, legalData)
-  const progSectionId = await latestSectionId(batchId, `program-onboarding-${platform}`)
-  const progBase = progSectionId ? await countSectionCompletions(userId, progSectionId) : { total: 0, completed: 0 }
+  const { hasAgreement, signed } = await computeAgreementState(
+    userId,
+    batchId,
+    legalData,
+  )
+  const progSectionId = await latestSectionId(
+    batchId,
+    `program-onboarding-${platform}`,
+  )
+  const progBase = progSectionId
+    ? await countSectionCompletions(userId, progSectionId)
+    : { total: 0, completed: 0 }
   const progTotal = progBase.total + (hasAgreement ? 1 : 0)
   const program: ProgressCount = {
     total: progTotal,
@@ -228,13 +297,18 @@ export async function computeLiteGuidedTourProgress(
   legalData: unknown,
   hasDeviceToken: boolean,
 ): Promise<{ lms: ProgressCount; program: ProgressCount }> {
+  const isIHub = isIHubPortalRequest()
   const hasPhoto = hasHttpUrl(parseMeta(profileMeta)['profile_pic'])
   const lms: ProgressCount = {
-    total: LMS_WALKTHROUGH_EXTRA_STEPS,
-    completed: (hasPhoto ? 1 : 0) + (hasDeviceToken ? 1 : 0),
+    total: lmsWalkthroughExtraSteps(isIHub),
+    completed: (hasPhoto ? 1 : 0) + (!isIHub && hasDeviceToken ? 1 : 0),
   }
 
-  const { hasAgreement, signed } = await computeAgreementState(userId, batchId, legalData)
+  const { hasAgreement, signed } = await computeAgreementState(
+    userId,
+    batchId,
+    legalData,
+  )
   const program: ProgressCount = {
     total: hasAgreement ? 1 : 0,
     completed: hasAgreement && signed ? 1 : 0,

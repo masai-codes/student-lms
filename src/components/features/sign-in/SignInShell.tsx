@@ -8,7 +8,10 @@ type Props = {
   widthClassName?: string
 }
 
-export function SignInShell({ children, widthClassName = 'sm:max-w-lg' }: Props) {
+export function SignInShell({
+  children,
+  widthClassName = 'sm:max-w-lg',
+}: Props) {
   const branding = getAuthBranding()
 
   return (
@@ -19,7 +22,10 @@ export function SignInShell({ children, widthClassName = 'sm:max-w-lg' }: Props)
       />
       <div className="relative z-50 px-2 sm:px-0">
         <div className={cn('sm:mx-auto sm:w-full', widthClassName)}>
-          <Link to="/signin" className="mx-auto block w-fit rounded-md ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
+          <Link
+            to="/signin"
+            className="mx-auto block w-fit rounded-md ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+          >
             <img
               className={branding.logoClassName}
               src={branding.logoSrc}
@@ -72,6 +78,9 @@ export function SignInShell({ children, widthClassName = 'sm:max-w-lg' }: Props)
             >
               {branding.footerLabel}
             </a>
+          </p>
+          <p className="mt-1 text-[11px] text-muted-foreground md:text-xs">
+            Crafted by {branding.craftedBy}
           </p>
         </div>
       </footer>

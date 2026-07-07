@@ -1,9 +1,14 @@
 import { and, eq, inArray, isNull } from 'drizzle-orm'
 
 import { db } from '@/db'
-import { sectionUser, sections } from '@/db/schema'
+import { batches, sectionUser, sections } from '@/db/schema'
+import { batchScopeForPortal } from '@/server/batches/portalBatchScope'
 
-/** Section IDs the user is enrolled in for a given batch (legacy lectures/assignments API scope). */
+/**
+ * Section IDs the user is enrolled in for a given batch (legacy lectures/assignments API scope).
+ * Scoped to the current request's portal via {@link batchScopeForPortal}, so a
+ * cross-portal `batchId` yields no sections.
+ */
 export async function getSectionIdsForUserInBatch(
   userId: number,
   batchId: number,
@@ -12,6 +17,7 @@ export async function getSectionIdsForUserInBatch(
     .select({ sectionId: sections.id })
     .from(sectionUser)
     .innerJoin(sections, eq(sectionUser.sectionId, sections.id))
+    .innerJoin(batches, eq(sections.batchId, batches.id))
     .where(
       and(
         eq(sectionUser.userId, userId),
@@ -19,6 +25,7 @@ export async function getSectionIdsForUserInBatch(
         // Legacy LMS scopes by section_user.user_id only (no deleted_at on the
         // enrolment row); only sections.deleted_at is checked.
         isNull(sections.deletedAt),
+        batchScopeForPortal(),
       ),
     )
 
@@ -35,6 +42,7 @@ export async function getSectionIdsForUserInBatches(
     .select({ sectionId: sections.id })
     .from(sectionUser)
     .innerJoin(sections, eq(sectionUser.sectionId, sections.id))
+    .innerJoin(batches, eq(sections.batchId, batches.id))
     .where(
       and(
         eq(sectionUser.userId, userId),
@@ -42,6 +50,7 @@ export async function getSectionIdsForUserInBatches(
         // Legacy LMS scopes by section_user.user_id only (no deleted_at on the
         // enrolment row); only sections.deleted_at is checked.
         isNull(sections.deletedAt),
+        batchScopeForPortal(),
       ),
     )
 

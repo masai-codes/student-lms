@@ -1,6 +1,7 @@
 import { pushDashboardEvent } from '../shared/dashboardAnalytics'
 import type { DashboardSupportSession } from '@/server/api/dashboard/support/getSupportSessions.service'
 import type { SupportSessionStatus } from '@/server/api/dashboard/support/supportSessionStatus'
+import { isIHubPortal } from '@/utils/portal'
 
 interface LmsSupportPanelProps {
   /** The single featured session, or null to hide the card entirely. */
@@ -20,6 +21,8 @@ const SUBTEXT: Record<SupportSessionStatus, string> = {
 // decides live/today/upcoming; this only renders. The card body is never
 // clickable — the only interactive element is the live "Join Now" button.
 export function LmsSupportPanel({ session }: LmsSupportPanelProps) {
+  // The LMS support-session card is a Masai-only surface — hidden on iHub.
+  if (isIHubPortal()) return null
   if (!session) return null
 
   const isLive = session.status === 'live'
@@ -29,14 +32,20 @@ export function LmsSupportPanel({ session }: LmsSupportPanelProps) {
       data-testid="dashboard-lms-support-panel"
       data-status={session.status}
       className={`flex items-center gap-3 rounded-2xl border p-4 ${
-        isLive ? 'border-[#C3DDFD] bg-[#E1EFFE]' : 'border-[#E5E7EB] bg-[#F9FAFB]'
+        isLive
+          ? 'border-[#C3DDFD] bg-[#E1EFFE]'
+          : 'border-[#E5E7EB] bg-[#F9FAFB]'
       }`}
     >
       <img src={SUPPORT_ILLUSTRATION} alt="" className="size-12 shrink-0" />
 
       <div className="min-w-0 flex-1">
-        <h4 className="text-sm font-semibold text-gray-900">LMS Support Session</h4>
-        <p className="mt-0.5 text-xs text-gray-600">{SUBTEXT[session.status]}</p>
+        <h4 className="text-sm font-semibold text-gray-900">
+          LMS Support Session
+        </h4>
+        <p className="mt-0.5 text-xs text-gray-600">
+          {SUBTEXT[session.status]}
+        </p>
         {!isLive && session.schedule && (
           <span
             data-testid="dashboard-support-session-time"
