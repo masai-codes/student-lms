@@ -125,7 +125,7 @@ describe('handleStreamChat', () => {
   it('returns 400 when language is invalid', async () => {
     const { handleStreamChat } =
       await import('../handlers/streamChat.handler')
-    hoisted.getUserIdFromCookieHeader.mockResolvedValueOnce(7)
+    vi.mocked(requireSessionUserId).mockResolvedValueOnce(7)
 
     const res = await handleStreamChat(
       postRequest({ lectureId: 1, chat: 'hello', language: 'spanish' }),
@@ -142,7 +142,7 @@ describe('handleStreamChat', () => {
   it('returns 400 when platform is invalid', async () => {
     const { handleStreamChat } =
       await import('../handlers/streamChat.handler')
-    hoisted.getUserIdFromCookieHeader.mockResolvedValueOnce(7)
+    vi.mocked(requireSessionUserId).mockResolvedValueOnce(7)
 
     const res = await handleStreamChat(
       postRequest({ lectureId: 1, chat: 'hello', platform: 'windows' }),
@@ -195,7 +195,7 @@ describe('handleStreamChat', () => {
   it('defaults language to English when omitted from the request', async () => {
     const { handleStreamChat } =
       await import('../handlers/streamChat.handler')
-    hoisted.getUserIdFromCookieHeader.mockResolvedValueOnce(7)
+    vi.mocked(requireSessionUserId).mockResolvedValueOnce(7)
     hoisted.prepareLectureChatContext.mockResolvedValueOnce({
       chatRow: { id: 12, chatHistory: [] },
       systemPrompt: 'system prompt',

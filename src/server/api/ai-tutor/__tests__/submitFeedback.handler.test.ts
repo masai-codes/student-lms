@@ -1,13 +1,12 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { requireSessionUserId } from '@/server/api/http/requireSessionUser'
 
 const hoisted = vi.hoisted(() => ({
-  getUserIdFromCookieHeader: vi.fn(),
   submitAiTutorFeedback: vi.fn(),
 }))
 
-vi.mock('@/server/auth/getCurrentSessionUserId', () => ({
-  getUserIdFromCookieHeader: hoisted.getUserIdFromCookieHeader,
-  getUserIdFromRequest: hoisted.getUserIdFromCookieHeader,
+vi.mock('@/server/api/http/requireSessionUser', () => ({
+  requireSessionUserId: vi.fn(),
 }))
 
 vi.mock('@/server/api/ai-tutor/submitAiTutorFeedback.service', () => ({
@@ -30,6 +29,7 @@ function postRequest(
 
 beforeEach(() => {
   vi.clearAllMocks()
+  vi.mocked(requireSessionUserId).mockReset()
 })
 
 afterEach(() => {
@@ -38,9 +38,12 @@ afterEach(() => {
 
 describe('handleSubmitFeedback', () => {
   it('returns 401 when the session cookie is missing', async () => {
+    const { ApiError } = await import('@/server/api/http/apiError')
     const { handleSubmitFeedback } =
       await import('../handlers/submitFeedback.handler')
-    hoisted.getUserIdFromCookieHeader.mockResolvedValueOnce(null)
+    vi.mocked(requireSessionUserId).mockRejectedValueOnce(
+      new ApiError(401, 'UNAUTHORIZED'),
+    )
 
     const res = await handleSubmitFeedback(
       postRequest(
@@ -55,7 +58,7 @@ describe('handleSubmitFeedback', () => {
   it('returns 400 when lectureId is invalid', async () => {
     const { handleSubmitFeedback } =
       await import('../handlers/submitFeedback.handler')
-    hoisted.getUserIdFromCookieHeader.mockResolvedValueOnce(7)
+    vi.mocked(requireSessionUserId).mockResolvedValueOnce(7)
 
     const res = await handleSubmitFeedback(
       postRequest({ lectureId: 0, chatId: 45, rating: 1 }),
@@ -70,7 +73,7 @@ describe('handleSubmitFeedback', () => {
   it('returns 400 when chatId is invalid', async () => {
     const { handleSubmitFeedback } =
       await import('../handlers/submitFeedback.handler')
-    hoisted.getUserIdFromCookieHeader.mockResolvedValueOnce(7)
+    vi.mocked(requireSessionUserId).mockResolvedValueOnce(7)
 
     const res = await handleSubmitFeedback(
       postRequest({ lectureId: 123, chatId: 0, rating: 1 }),
@@ -85,7 +88,7 @@ describe('handleSubmitFeedback', () => {
   it('returns 400 when platform is invalid', async () => {
     const { handleSubmitFeedback } =
       await import('../handlers/submitFeedback.handler')
-    hoisted.getUserIdFromCookieHeader.mockResolvedValueOnce(7)
+    vi.mocked(requireSessionUserId).mockResolvedValueOnce(7)
 
     const res = await handleSubmitFeedback(
       postRequest({
@@ -105,7 +108,7 @@ describe('handleSubmitFeedback', () => {
   it('defaults to app feedback with a 0/1 rating and platform prefix', async () => {
     const { handleSubmitFeedback } =
       await import('../handlers/submitFeedback.handler')
-    hoisted.getUserIdFromCookieHeader.mockResolvedValueOnce(7)
+    vi.mocked(requireSessionUserId).mockResolvedValueOnce(7)
     hoisted.submitAiTutorFeedback.mockResolvedValueOnce({
       chatId: 45,
       rating: 1,
@@ -139,7 +142,7 @@ describe('handleSubmitFeedback', () => {
   it('shifts mobile ratings by +1 and prefixes feedback with platform', async () => {
     const { handleSubmitFeedback } =
       await import('../handlers/submitFeedback.handler')
-    hoisted.getUserIdFromCookieHeader.mockResolvedValueOnce(7)
+    vi.mocked(requireSessionUserId).mockResolvedValueOnce(7)
     hoisted.submitAiTutorFeedback.mockResolvedValueOnce({
       chatId: 45,
       rating: 5,
@@ -169,7 +172,7 @@ describe('handleSubmitFeedback', () => {
   it('stores only the platform when feedback text is blank', async () => {
     const { handleSubmitFeedback } =
       await import('../handlers/submitFeedback.handler')
-    hoisted.getUserIdFromCookieHeader.mockResolvedValueOnce(7)
+    vi.mocked(requireSessionUserId).mockResolvedValueOnce(7)
     hoisted.submitAiTutorFeedback.mockResolvedValueOnce({
       chatId: 45,
       rating: 2,

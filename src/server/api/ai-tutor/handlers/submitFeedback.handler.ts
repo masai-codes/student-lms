@@ -49,7 +49,7 @@ function parseFeedbackBody(body: SubmitFeedbackBody | null): {
 
 export async function handleSubmitFeedback(request: Request): Promise<Response> {
   try {
-    const userId = await requireSessionUserId(request)
+    const userId = await requireSessionUserId()
     const body = (await request.json().catch(() => null)) as
       | SubmitFeedbackBody
       | null
