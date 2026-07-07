@@ -22,17 +22,11 @@ services:
     extra_hosts:
       - 'host.docker.internal:host-gateway'
     env_file:
-      - path: .env
-        required: false
       - path: .env.local
         required: false
     environment:
       NODE_ENV: production
       PORT: ${PORT:-3000}
-      # Overrides env_file when set — keeps Docker DB host logic separate from native .env.local.
-      DATABASE_URL: ${DOCKER_DATABASE_URL:-mysql://root:${MYSQL_ROOT_PASSWORD:-root}@${DB_HOST:-host.docker.internal}:${DB_PORT:-${MYSQL_PORT:-3306}}/${MYSQL_DATABASE:-lms_dev_db}}
-      # COOKIE_NAME, JWT_SECRET_KEY, VITE_* etc. come from env_file above — do not
-      # list them here with empty defaults; that would override env_file values.
     depends_on:
       mysql:
         condition: service_healthy

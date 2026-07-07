@@ -79,7 +79,7 @@ npm start   # serves .output/server/index.mjs on PORT (default 3000)
 | Command | What runs | Database |
 | --- | --- | --- |
 | `npm run docker:up` | App + MySQL containers | Bundled `mysql` service |
-| `npm run docker:up:app` | App container only | Your host / centralized DB via `DB_HOST` |
+| `npm run docker:up:app` | App container only | MySQL on your host (via `host.docker.internal`) |
 | `npm run db:up` | MySQL container only | For native `npm run dev` |
 | `npm run docker:down` | Stops all compose services | — |
 
@@ -90,42 +90,57 @@ npm start   # serves .output/server/index.mjs on PORT (default 3000)
 | Runtime | Node.js 22 + TanStack Start / Nitro (`node-server` preset) |
 | Build output | `.output/server/index.mjs` |
 | Default port | `3000` (override with `PORT` / `APP_PORT`) |
-| DB config | `DATABASE_URL` (native) or `DB_HOST` + `DOCKER_DATABASE_URL` (Docker) |
+| DB config | `DATABASE_URL` in `.env.local` (see below) |
 
-### Database addressing
+### `DATABASE_URL` and `.env.local`
 
-| How you run the app | DB host in connection string |
+The app reads `DATABASE_URL` from the environment (see `src/db/index.ts`). When
+running in Docker, Compose injects **`.env.local`** into the container via
+`env_file` — nothing is baked into the image (see `.dockerignore`).
+
+Use the same variable everywhere; only the **host** changes:
+
+| How you run the app | `DATABASE_URL` host |
 | --- | --- |
-| `npm run dev` / `npm start` on host | `localhost` |
-| `npm run docker:up` (full stack) | `mysql` (Docker service name) |
-| `npm run docker:up:app` + host MySQL | `host.docker.internal` |
-| `npm run docker:up:app` + remote DB | RDS / shared hostname |
+| `npm run dev` / `npm start` on your Mac | `localhost` |
+| `npm run docker:up:app` (app container, DB on host) | `host.docker.internal` |
+| `npm run docker:up` (full stack, bundled MySQL) | `mysql` |
+
+Example `.env.local` for Docker with a MySQL instance on your Mac:
+
+```env
+DATABASE_URL=mysql://root@host.docker.internal:3306/lms_local_temp
+```
+
+For native dev, swap the host back to `localhost`:
+
+```env
+DATABASE_URL=mysql://root@localhost:3306/lms_local_temp
+```
 
 Inside a container, `localhost` is the container itself — not your machine.
-`docker:up:app` defaults `DB_HOST` to `host.docker.internal` (with
-`extra_hosts` for Linux). Override `DB_HOST` or set `DOCKER_DATABASE_URL`
-for a centralized database.
+`docker-compose.yml` sets `extra_hosts: host.docker.internal:host-gateway` so
+the app container can reach MySQL listening on the host (Mac/Windows work out of
+the box; Linux needs this mapping).
 
-**Environment files:** secrets are **not baked into the image**. At runtime,
-Compose injects `.env` and `.env.local` via `env_file`. Your `.env.local`
-(e.g. `COOKIE_NAME`, `JWT_SECRET_KEY`) is read when the container starts —
-it is excluded from the Docker build by `.dockerignore`.
+Do **not** list `DATABASE_URL` under `environment:` in compose — that would
+override the value from `.env.local`.
 
-### Quick start — full stack (app + MySQL)
+### Quick start — app + host MySQL
 
 ```bash
-cp .env.example .env
-npm run docker:up
+# .env.local — DATABASE_URL with host.docker.internal (see above)
+npm run docker:up:app
 ```
 
 Open `http://localhost:3000` (or `${APP_PORT}` if set).
 
-### Quick start — app only + host / centralized DB
+### Quick start — full stack (app + MySQL in Docker)
 
 ```bash
-cp .env.example .env
-# Ensure DB_HOST / DOCKER_DATABASE_URL point at your database (see .env.example)
-npm run docker:up:app
+# .env.local — point DATABASE_URL at the compose service name:
+# DATABASE_URL=mysql://root:root@mysql:3306/lms_dev_db
+npm run docker:up
 ```
 
 ### Equivalent `docker run`
@@ -134,32 +149,25 @@ npm run docker:up:app
 docker build -t student-lms .
 docker run --rm -p 3000:3000 \
   --add-host=host.docker.internal:host-gateway \
-  -e PORT=3000 \
-  -e DATABASE_URL='mysql://root:root@host.docker.internal:3306/lms_dev_db' \
+  --env-file .env.local \
   -e NODE_ENV=production \
   student-lms
 ```
 
 ### Verify the container
 
-With MySQL running on the host (`npm run db:up`) and the app container up:
+With MySQL on the host and the app container up:
 
 ```bash
-# Boot / HTTP
+docker exec student-lms-app printenv DATABASE_URL
 curl -s http://localhost:3000/api/health
 curl -s http://localhost:3000/api/server-time
-
-# DB connectivity (hits MySQL via DATABASE_URL)
-curl -s 'http://localhost:3000/api/whats-new/?page=1'
 ```
 
-A JSON response from `/api/whats-new/` confirms the container can reach the
-host database. Connection errors in the response or container logs usually mean
-`DATABASE_URL` still points at `localhost` instead of `host.docker.internal`.
-
-If port `3306` on the host is already used by a native MySQL install, either
-stop that service or publish the Docker MySQL container on a different port
-(`MYSQL_PORT=3307` in `.env`) and set `DOCKER_DATABASE_URL` accordingly.
+If the DB connection fails, confirm `DATABASE_URL` inside the container uses
+`host.docker.internal` (not `localhost`). If port `3306` on the host is already
+used by another MySQL instance, use the port your database actually listens on
+in the connection string.
 
 ## Testing
 
