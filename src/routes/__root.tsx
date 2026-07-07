@@ -1,5 +1,9 @@
 import { useState } from 'react'
-import { HeadContent, Scripts, createRootRouteWithContext } from '@tanstack/react-router'
+import {
+  HeadContent,
+  Scripts,
+  createRootRouteWithContext,
+} from '@tanstack/react-router'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { Toaster } from 'sonner'
 import appCss from '../styles.css?url'
@@ -13,7 +17,6 @@ const GA_MEASUREMENT_ID = 'G-R3MQZK6LM6'
 captureAppMobileContextFromUrl()
 installAppOriginFetchHeader()
 
-
 export const Route = createRootRouteWithContext<RouterContext>()({
   head: () => ({
     meta: [
@@ -26,6 +29,10 @@ export const Route = createRootRouteWithContext<RouterContext>()({
       },
       {
         title: getAuthBranding().pageTitle,
+      },
+      {
+        name: 'description',
+        content: getAuthBranding().metaDescription,
       },
     ],
     links: [
@@ -64,7 +71,10 @@ function RootDocument({ children }: { children: React.ReactNode }) {
     <html lang="en">
       <head>
         <HeadContent />
-        <script async src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`} />
+        <script
+          async
+          src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`}
+        />
         <script
           dangerouslySetInnerHTML={{
             __html: `window.dataLayer = window.dataLayer || [];

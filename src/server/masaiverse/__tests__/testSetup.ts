@@ -30,7 +30,8 @@ vi.mock('@/server/pushNotifications/pushNotification.service', () => ({
 }))
 
 vi.mock('@/lib/parseServerTimestamp', () => ({
-  parseServerTimestamp: (value: string | null) => (value ? new Date(value) : null),
+  parseServerTimestamp: (value: string | null) =>
+    value ? new Date(value) : null,
 }))
 
 vi.mock('@/db/schema', () => ({
@@ -92,14 +93,16 @@ export function mockSelectWhereChain(result: unknown) {
 
 /** For queries using `.from(x).innerJoin(y, ...).where(...).orderBy(...)` */
 export function mockSelectInnerJoinWhereChain(result: unknown) {
-  return {
-    from: () => ({
-      innerJoin: () => ({
-        where: () => ({
-          orderBy: () => Promise.resolve(result),
-        }),
-      }),
+  // getBatchIdsForEnrolledUser joins section_user -> sections -> batches, so the
+  // chain has two innerJoin() calls before where().orderBy().
+  const tail = {
+    where: () => ({
+      orderBy: () => Promise.resolve(result),
     }),
+  }
+  const withJoins = { innerJoin: () => withJoins, ...tail }
+  return {
+    from: () => withJoins,
   }
 }
 

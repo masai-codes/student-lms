@@ -202,6 +202,12 @@ Last updated: 2026-07-02
 - Test files: `src/server/api/ai-tutor/__tests__/{submitFeedback.handler,submitChatPracticeFeedback.service,feedbackPlatform}.test.ts`
 - Notes: `POST /api/ai-tutor/chat/feedback` accepts `{ lectureId, chatId, rating, feedback?, platform? }`, validates ownership of the chat thread, normalizes ratings by platform (`web` / `web-mobile` / `web-desktop` / `app`: `0`/`1`; `ios`/`android`: stored as `rating + 1`), prefixes `feedback` with `platform-` (or stores platform alone when text is blank), and persists `rating`, `feedback`, and `feedbackTime` on `ai_chat_practice_questions`.
 
+## Announcement popups (global queued modal)
+- Area: Global announcement popups on every authenticated page. Frontend (`src/components/modals/**`): `AnnouncementModalController` (mounted in `(protected)/_layout/route.tsx`), `useAnnouncementPopups` (queue hook), `AnnouncementPopupModal` (UI), `ModalContext` (central stack). Backend read endpoints reused from announcements (`markAnnouncementRead` / `markMessageRead`).
+- Status: Covered
+- Test files: `src/components/modals/useAnnouncementPopups.test.tsx`, `src/components/modals/AnnouncementPopupModal.test.tsx`, `src/components/modals/ModalContext.test.tsx`
+- Notes: Popups show strictly one at a time. The hook exposes `current` (item being displayed, kept during the exit animation) and `open` (visibility). Actioning a popup (Mark as read / CTA / Show me later) sets `open=false` to play the modal exit animation, then after `CLOSE_ANIMATION_MS` (300ms, matching the modal overlay `duration-300`) clears `current`, letting the effect pick and open the next queued popup — so popups never appear together / never instant-swap. Mark read + CTA mark server-side read (`markAnnouncementRead` for `source: 'a'`, `markMessageRead` for `source: 'm'`) and permanently dismiss; CTA opens its link first; "Show me later" (backdrop/escape too) dismisses for the session only (reappears on reload). The central `ModalContext` stack keeps the announcement popup suppressed under any higher-priority modal until that closes. Test docs: `docs/testing/features/announcement-popups.md`.
+
 ## Status Meaning
 
 - `Covered`: key behavior and edge paths are fully tested for current scope.

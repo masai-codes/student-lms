@@ -8,10 +8,20 @@ import { useAnnouncementPopups } from './useAnnouncementPopups'
  * whenever one is queued, registers `'announcement'` with the central modal
  * system and renders it — but only while it's the topmost modal, so a
  * higher-priority modal opened elsewhere suppresses it until that one closes.
+ *
+ * Popups are shown strictly one at a time: `open` drives the close animation of
+ * the current popup, and the next queued popup only appears once that finishes.
  */
 export function AnnouncementModalController() {
   const { activeModal, openModal, closeModal } = useModals()
-  const { current, isSubmitting, handleMarkRead, handleCta, handleShowLater } = useAnnouncementPopups()
+  const {
+    current,
+    open,
+    isSubmitting,
+    handleMarkRead,
+    handleCta,
+    handleShowLater,
+  } = useAnnouncementPopups()
 
   useEffect(() => {
     if (current) openModal('announcement')
@@ -20,7 +30,7 @@ export function AnnouncementModalController() {
 
   return (
     <AnnouncementPopupModal
-      open={current !== null && activeModal === 'announcement'}
+      open={open && current !== null && activeModal === 'announcement'}
       item={current}
       isSubmitting={isSubmitting}
       onShowLater={handleShowLater}
