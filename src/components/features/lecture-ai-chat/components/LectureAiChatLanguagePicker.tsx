@@ -1,11 +1,10 @@
 'use client'
 
-import { Check, ChevronDown, Languages } from 'lucide-react'
+import { Check, ChevronDown, Globe } from 'lucide-react'
 
 import {
   AI_LECTURE_CHAT_LANGUAGES,
-  AI_LECTURE_CHAT_LANGUAGE_NATIVE_LABELS
-  
+  AI_LECTURE_CHAT_LANGUAGE_NATIVE_LABELS,
 } from '../languages'
 import type {AiLectureChatLanguage} from '../languages';
 import {
@@ -24,7 +23,8 @@ type LectureAiChatLanguagePickerProps = {
 
 /**
  * Compact reply-language selector shown in the composer's action row. Renders a
- * pill trigger (globe + English name) and a scrollable menu of every language
+ * pill trigger (globe icon + English name) and a scrollable menu of
+ * every language
  * in {@link AI_LECTURE_CHAT_LANGUAGES}, each showing its native script.
  */
 export function LectureAiChatLanguagePicker({
@@ -44,7 +44,7 @@ export function LectureAiChatLanguagePicker({
           'disabled:pointer-events-none disabled:opacity-50 data-[state=open]:bg-accent',
         )}
       >
-        <Languages className="size-3.5 text-muted-foreground" />
+        <Globe className="size-3.5 text-muted-foreground" aria-hidden />
         <span className="max-w-24 truncate">{value}</span>
         <ChevronDown className="size-3 text-muted-foreground" />
       </DropdownMenuTrigger>
