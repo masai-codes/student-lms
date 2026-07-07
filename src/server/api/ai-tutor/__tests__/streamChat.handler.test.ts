@@ -68,7 +68,7 @@ describe('handleStreamChat', () => {
     )
 
     const res = await handleStreamChat(
-      postRequest({ lectureId: 1, chat: 'hello' }, null),
+      postRequest({ lectureId: 1, chat: 'hello', platform: 'web-desktop' }, null),
     )
 
     expect(res.status).toBe(401)
@@ -79,7 +79,7 @@ describe('handleStreamChat', () => {
     vi.mocked(requireSessionUserId).mockResolvedValueOnce(7)
 
     const res = await handleStreamChat(
-      postRequest({ lectureId: 0, chat: 'hi' }),
+      postRequest({ lectureId: 0, chat: 'hi', platform: 'web-desktop' }),
     )
 
     expect(res.status).toBe(400)
@@ -94,7 +94,7 @@ describe('handleStreamChat', () => {
     vi.mocked(requireSessionUserId).mockResolvedValueOnce(7)
 
     const res = await handleStreamChat(
-      postRequest({ lectureId: 1, chat: '   ' }),
+      postRequest({ lectureId: 1, chat: '   ', platform: 'web-desktop' }),
     )
 
     expect(res.status).toBe(400)
@@ -112,6 +112,7 @@ describe('handleStreamChat', () => {
       postRequest({
         lectureId: 1,
         chat: 'a'.repeat(AI_TUTOR_CHAT_MAX_MESSAGE_LENGTH + 1),
+        platform: 'web-desktop',
       }),
     )
 
@@ -128,7 +129,12 @@ describe('handleStreamChat', () => {
     vi.mocked(requireSessionUserId).mockResolvedValueOnce(7)
 
     const res = await handleStreamChat(
-      postRequest({ lectureId: 1, chat: 'hello', language: 'spanish' }),
+      postRequest({
+        lectureId: 1,
+        chat: 'hello',
+        platform: 'web-desktop',
+        language: 'spanish',
+      }),
     )
 
     expect(res.status).toBe(400)
@@ -165,7 +171,11 @@ describe('handleStreamChat', () => {
     })
 
     const res = await handleStreamChat(
-      postRequest({ lectureId: 1, chat: 'explain hooks' }),
+      postRequest({
+        lectureId: 1,
+        chat: 'explain hooks',
+        platform: 'web-desktop',
+      }),
     )
 
     expect(res.status).toBe(503)
@@ -180,7 +190,12 @@ describe('handleStreamChat', () => {
     )
 
     const res = await handleStreamChat(
-      postRequest({ lectureId: 99, chat: 'hello', chatID: 2 }),
+      postRequest({
+        lectureId: 99,
+        chat: 'hello',
+        platform: 'web-desktop',
+        chatID: 2,
+      }),
     )
 
     expect(res.status).toBe(422)
@@ -230,7 +245,7 @@ describe('handleStreamChat', () => {
       systemPrompt: 'system prompt',
       messages: [{ role: 'user', content: 'explain hooks' }],
       chat: 'explain hooks',
-      platform: 'ios',
+      platform: 'web-mobile',
       language: 'Hindi',
     })
 
@@ -248,7 +263,7 @@ describe('handleStreamChat', () => {
         lectureId: 99,
         chat: 'explain hooks',
         chatID: 12,
-        platform: 'ios',
+        platform: 'web-mobile',
         language: 'hi',
       }),
     )
@@ -258,7 +273,7 @@ describe('handleStreamChat', () => {
       lectureId: 99,
       chat: 'explain hooks',
       chatId: 12,
-      platform: 'ios',
+      platform: 'web-mobile',
       language: 'Hindi',
     })
     expect(hoisted.streamLectureChatEventsFromContext).toHaveBeenCalledWith({
@@ -266,7 +281,7 @@ describe('handleStreamChat', () => {
       systemPrompt: 'system prompt',
       messages: [{ role: 'user', content: 'explain hooks' }],
       chat: 'explain hooks',
-      platform: 'ios',
+      platform: 'web-mobile',
       language: 'Hindi',
     })
     expect(res.status).toBe(200)

@@ -13,7 +13,7 @@ import type {
   LectureFeedbackState,
   LectureVideoAttendanceState,
 } from '@/server/learn/lectureDetailTypes'
-import { ChatbotExperience } from '@/components/features/chatbot/ChatbotExperience'
+import { LectureAiChatExperience } from '@/components/features/lecture-ai-chat/LectureAiChatExperience'
 import { cn } from '@/lib/utils'
 
 type LectureRecordingExperienceProps = {
@@ -102,7 +102,7 @@ export function LectureRecordingExperience({
 
   const belowHero = (
     <div className="shrink-0 border-t border-gray-200 bg-white md:hidden">
-      <ChatbotExperience lectureId={entityId} />
+      <LectureAiChatExperience lectureId={entityId} variant="mobile-dock" />
     </div>
   )
 

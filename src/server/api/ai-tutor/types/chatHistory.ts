@@ -26,7 +26,9 @@ export function parseChatHistory(value: unknown): Array<AiChatHistoryEntry> {
       platformValue === 'ios' ||
       platformValue === 'android' ||
       platformValue === 'web' ||
-      platformValue === 'app'
+      platformValue === 'app' ||
+      platformValue === 'web-desktop' ||
+      platformValue === 'web-mobile'
         ? platformValue
         : undefined
 
