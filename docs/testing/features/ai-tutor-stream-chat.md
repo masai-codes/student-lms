@@ -24,7 +24,7 @@ Last updated: 2026-07-06
 ```
 
 `chatID` / `chatId` is optional; omit to start a new thread.
-`platform` is optional (`ios` | `android` | `web` | `app`); defaults to `app` and is stored on each persisted `chatHistory` turn.
+`platform` is optional (`ios` | `android` | `web` | `web-mobile` | `web-desktop` | `app`); defaults to `app` and is stored on each persisted `chatHistory` turn.
 `language` is optional and defaults to `English`. When provided, the tutor must reply only in that language (technical terms stay in English). Accepts English and major Indian languages by name or ISO code (`en`, `hi`, `ta`, `te`, `kn`, `ml`, `bn`, `mr`, `gu`, `pa`, `or`, `as`). The canonical language name (e.g. `Hindi`) is stored on each `chatHistory` turn alongside `platform`.
 
 ## Environment
