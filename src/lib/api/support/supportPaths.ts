@@ -10,6 +10,9 @@ export const SUPPORT_API = {
   overview: '/api/support/overview',
   /** GET — floating support modal inbox (batches, tickets, callbacks). */
   floatingChatInbox: '/api/support/floating-chat/inbox',
+  /** GET — lecture snapshot for floating support item confirmation. */
+  floatingChatLectureSnapshot: (lectureId: number) =>
+    `/api/support/floating-chat/lectures/${lectureId}`,
   /** GET — search/list FAQs for a batch. */
   faqs: '/api/support/faqs',
   /** GET — subcategories for a single (context) category. */

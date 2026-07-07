@@ -16,6 +16,9 @@
  * (POST) invalidate the relevant query so the UI re-fetches just what changed.
  */
 
+import type { LectureAttendanceSummary } from '@/server/attendance/types'
+import type { JoinLiveButtonState } from '@/server/learn/utils/resolveJoinLiveButtonState'
+
 /**
  * The lifecycle state of a ticket. Mirrors the `tickets.status` column values
  * used by the legacy system so existing rows render correctly.
@@ -212,6 +215,36 @@ export interface FloatingChatInbox {
   callbackTickets: Array<CallbackTicketItem>
   /** Count of open + re-opened tickets (drives the My Tickets badge). */
   openTicketCount: number
+}
+
+export type LectureRecordingStatus =
+  | 'pending'
+  | 'available'
+  | 'not_available'
+  | 'processing'
+
+export type LectureDurationSource = 'hls' | 'transcript' | 'schedule' | 'video_progress'
+
+export type AiSummaryStatus = 'generated' | 'processing' | 'not_available'
+
+/**
+ * Lean lecture snapshot for floating support item confirmation (`GET /api/support/floating-chat/lectures/:lectureId`).
+ * Probes Gumlet HLS availability server-side — does not bloat the learn lecture detail API.
+ */
+export interface LectureSupportSnapshot {
+  lectureId: number
+  lectureKind: 'live' | 'video'
+  livePhase: 'before' | 'during' | 'after' | null
+  videoPhase: 'before' | 'during_after' | null
+  joinLiveButtonState: JoinLiveButtonState | null
+  isSessionPending: boolean
+  recordingStatus: LectureRecordingStatus
+  recordingUrl: string | null
+  durationSeconds: number | null
+  durationSource: LectureDurationSource | null
+  aiSummaryStatus: AiSummaryStatus
+  attendance: LectureAttendanceSummary | null
+  showAttendance: boolean
 }
 
 /**

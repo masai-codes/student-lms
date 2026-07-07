@@ -13,6 +13,7 @@
 import type {
   FaqVote,
   FloatingChatInbox,
+  LectureSupportSnapshot,
   SupportFaq,
   SupportOverview,
   TicketListItem,
@@ -41,6 +42,13 @@ export async function fetchSupportOverview(
 /** GET the floating support modal inbox payload. */
 export async function fetchFloatingChatInbox(): Promise<FloatingChatInbox> {
   return fetchJson<FloatingChatInbox>(SUPPORT_API.floatingChatInbox)
+}
+
+/** GET lecture recording / duration / AI summary / attendance for support modal. */
+export async function fetchLectureSupportSnapshot(
+  lectureId: number,
+): Promise<LectureSupportSnapshot> {
+  return fetchJson<LectureSupportSnapshot>(SUPPORT_API.floatingChatLectureSnapshot(lectureId))
 }
 
 /** GET a page of FAQs for a batch (live search). */

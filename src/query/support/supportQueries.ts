@@ -15,6 +15,7 @@
 import type { TicketTab } from '@/server/api/support/support.types'
 import {
   fetchFloatingChatInbox,
+  fetchLectureSupportSnapshot,
   fetchSubcategoriesByCategory,
   fetchSupportFaqs,
   fetchSupportOverview,
@@ -27,6 +28,8 @@ export const SUPPORT_KEYS = {
   all: ['support'] as const,
   overview: (batchId?: number) => ['support', 'overview', batchId ?? 'default'] as const,
   floatingChatInbox: ['support', 'floating-chat', 'inbox'] as const,
+  lectureSnapshot: (lectureId: number) =>
+    ['support', 'floating-chat', 'lecture', lectureId] as const,
   faqs: (batchId: number, search: string, category?: string) =>
     ['support', 'faqs', batchId, search, category ?? null] as const,
   tickets: (tab: TicketTab, page: number) =>
@@ -57,6 +60,13 @@ export const floatingChatInboxQuery = () => ({
   refetchOnMount: false,
   refetchOnWindowFocus: false,
   refetchOnReconnect: false,
+})
+
+/** Lecture snapshot for floating support item confirmation (probes CDN server-side). */
+export const lectureSupportSnapshotQuery = (lectureId: number) => ({
+  queryKey: SUPPORT_KEYS.lectureSnapshot(lectureId),
+  queryFn: () => fetchLectureSupportSnapshot(lectureId),
+  staleTime: 2 * 60 * 1000,
 })
 
 /** Live FAQ search for a batch (enabled by the caller while searching). */
