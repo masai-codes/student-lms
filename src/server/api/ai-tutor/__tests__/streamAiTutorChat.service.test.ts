@@ -65,7 +65,7 @@ describe('prepareLectureChatContext', () => {
         { role: 'user', content: 'Explain hooks' },
       ],
       chat: 'Explain hooks',
-      platform: 'web',
+      platform: 'web-desktop',
       language: 'English',
     })
   })
