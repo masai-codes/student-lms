@@ -42,6 +42,8 @@ describe('prepareLectureChatContext', () => {
       userId: 7,
       lectureId: 99,
       chat: 'Explain hooks',
+      platform: 'web',
+      language: 'English',
     })
 
     expect(hoisted.findOrCreateChatPracticeRow).toHaveBeenCalledWith({
@@ -54,9 +56,37 @@ describe('prepareLectureChatContext', () => {
         id: 12,
         chatHistory: [{ userMessage: 'Earlier', aiMessage: 'Sure' }],
       },
-      userPrompt: expect.stringContaining('Lecture summary text'),
+      systemPrompt: expect.stringMatching(
+        /Lecture summary text|You MUST respond ONLY in English/,
+      ),
+      messages: [
+        { role: 'user', content: 'Earlier' },
+        { role: 'assistant', content: 'Sure' },
+        { role: 'user', content: 'Explain hooks' },
+      ],
       chat: 'Explain hooks',
+      platform: 'web',
+      language: 'English',
     })
+  })
+
+  it('includes enforced language instructions when language is provided', async () => {
+    const { prepareLectureChatContext } =
+      await import('../streamAiTutorChat.service')
+
+    const context = await prepareLectureChatContext({
+      userId: 7,
+      lectureId: 99,
+      chat: 'Explain hooks',
+      platform: 'web',
+      language: 'Tamil',
+    })
+
+    expect(context.systemPrompt).toContain('You MUST respond ONLY in Tamil')
+    expect(context.systemPrompt).not.toContain(
+      'Start by asking which language they prefer',
+    )
+    expect(context.language).toBe('Tamil')
   })
 
   it('throws when the chat id is not found', async () => {
@@ -74,6 +104,8 @@ describe('prepareLectureChatContext', () => {
         lectureId: 99,
         chat: 'Explain hooks',
         chatId: 2,
+        platform: 'web',
+        language: 'English',
       }),
     ).rejects.toMatchObject({ status: 404, code: 'AI_TUTOR_CHAT_NOT_FOUND' })
   })
@@ -97,8 +129,15 @@ describe('streamLectureChatEventsFromContext', () => {
         id: 12,
         chatHistory: [{ userMessage: 'Earlier', aiMessage: 'Sure' }],
       },
-      userPrompt: 'Lecture summary text and question',
+      systemPrompt: 'System prompt with lecture summary',
+      messages: [
+        { role: 'user', content: 'Earlier' },
+        { role: 'assistant', content: 'Sure' },
+        { role: 'user', content: 'Explain hooks' },
+      ],
       chat: 'Explain hooks',
+      platform: 'web',
+      language: 'Hindi',
     })) {
       events.push(event)
     }
@@ -108,13 +147,20 @@ describe('streamLectureChatEventsFromContext', () => {
     expect(hoisted.streamText).toHaveBeenCalledWith(
       expect.objectContaining({
         model: 'mock-model',
-        prompt: 'Lecture summary text and question',
+        system: 'System prompt with lecture summary',
+        messages: [
+          { role: 'user', content: 'Earlier' },
+          { role: 'assistant', content: 'Sure' },
+          { role: 'user', content: 'Explain hooks' },
+        ],
       }),
     )
     expect(hoisted.appendChatPracticeHistory).toHaveBeenCalledWith({
       rowId: 12,
       userMessage: 'Explain hooks',
       aiMessage: 'Hello there',
+      platform: 'web',
+      language: 'Hindi',
       existingHistory: [{ userMessage: 'Earlier', aiMessage: 'Sure' }],
     })
     expect(events).toEqual([

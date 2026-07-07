@@ -30,7 +30,6 @@ function pickProfileImageUrl(value: unknown): string | null {
 
 /**
  * Current session user for layouts and client calls.
- * Profile image: latest `profiles.meta.profile_pic`, then `users.meta.profile_pic`, then `users.profile_photo_path`.
  */
 export const fetchCurrentUser = createServerFn({ method: 'GET' }).handler(
   async () => {

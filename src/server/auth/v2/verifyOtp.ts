@@ -1,8 +1,9 @@
 import { compare } from 'bcryptjs'
-import { and, eq, isNull } from 'drizzle-orm'
+import { and, eq, inArray, isNull } from 'drizzle-orm'
 import { db } from '@/db'
 import { otpCodes, users } from '@/db/schema'
 import type { AuthenticatedUser } from '@/server/auth/v2/loginWithPassword'
+import { mobileLookupCandidates } from '@/server/auth/v2/mobileLookup'
 
 const MAX_ATTEMPTS = 5
 
@@ -113,7 +114,11 @@ export async function verifyOtp({
       client: users.client,
     })
     .from(users)
-    .where(eq(isEmailChannel ? users.email : users.mobile, record.identifier))
+    .where(
+      isEmailChannel
+        ? eq(users.email, record.identifier)
+        : inArray(users.mobile, mobileLookupCandidates(record.identifier)),
+    )
 
   if (userRows.length === 0) {
     throw new VerifyOtpError(

@@ -1,9 +1,10 @@
 import { randomInt, randomUUID } from 'node:crypto'
 import { hash } from 'bcryptjs'
-import { and, eq, gte } from 'drizzle-orm'
+import { and, eq, gte, inArray } from 'drizzle-orm'
 import { db } from '@/db'
 import { otpCodes, users } from '@/db/schema'
 import { toEmailPortal, type EmailPortal } from '@/server/auth/v2/isRequestFromIHub'
+import { mobileLookupCandidates } from '@/server/auth/v2/mobileLookup'
 import { sendOtpEmail } from '@/server/auth/v2/otpEmail'
 import { sendOtpSms } from '@/server/auth/v2/otpSms'
 import { sendOtpWhatsapp } from '@/server/auth/v2/otpWhatsapp'
@@ -133,7 +134,11 @@ export async function sendOtp({
       client: users.client,
     })
     .from(users)
-    .where(eq(isEmail ? users.email : users.mobile, normalized))
+    .where(
+      isEmail
+        ? eq(users.email, normalized)
+        : inArray(users.mobile, mobileLookupCandidates(normalized)),
+    )
     .limit(1)
 
   const user = userRows[0]
