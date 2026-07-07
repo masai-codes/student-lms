@@ -23,8 +23,12 @@ describe('parseChatHistory', () => {
     expect(
       parseChatHistory([
         { userMessage: 'Hi', aiMessage: 'Hello', platform: 'ios' },
+        { userMessage: 'More', aiMessage: 'Sure', platform: 'web-mobile' },
       ]),
-    ).toEqual([{ userMessage: 'Hi', aiMessage: 'Hello', platform: 'ios' }])
+    ).toEqual([
+      { userMessage: 'Hi', aiMessage: 'Hello', platform: 'ios' },
+      { userMessage: 'More', aiMessage: 'Sure', platform: 'web-mobile' },
+    ])
   })
 
   it('preserves language on stored chat history entries', () => {

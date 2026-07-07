@@ -1,4 +1,7 @@
-import type { AiTutorFeedbackPlatform } from '@/server/api/ai-tutor/feedbackPlatform'
+import {
+  type AiTutorFeedbackPlatform,
+  isAiTutorFeedbackPlatform,
+} from '@/server/api/ai-tutor/feedbackPlatform'
 import type { AiTutorChatLanguage } from '@/server/api/ai-tutor/chatLanguage'
 import { parseStoredChatLanguage } from '@/server/api/ai-tutor/chatLanguage'
 
@@ -22,13 +25,9 @@ export function parseChatHistory(value: unknown): Array<AiChatHistoryEntry> {
     if (!userMessage && !aiMessage) return []
 
     const platformValue = row.platform
-    const platform =
-      platformValue === 'ios' ||
-      platformValue === 'android' ||
-      platformValue === 'web' ||
-      platformValue === 'app'
-        ? platformValue
-        : undefined
+    const platform = isAiTutorFeedbackPlatform(platformValue)
+      ? platformValue
+      : undefined
 
     const language = parseStoredChatLanguage(row.language)
 

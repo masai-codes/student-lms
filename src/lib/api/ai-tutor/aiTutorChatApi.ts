@@ -4,6 +4,7 @@ import type {
   GetAiTutorConversationResponse,
   ListAiTutorConversationsResponse,
 } from '@/server/api/ai-tutor/types/conversation'
+import type { AiTutorFeedbackPlatform } from '@/server/api/ai-tutor/feedbackPlatform'
 import type { SubmitAiTutorFeedbackResponse } from '@/server/api/ai-tutor/types/feedback'
 
 export type {
@@ -36,7 +37,7 @@ export async function submitAiTutorFeedback(input: {
   chatId: number
   rating: number
   feedback?: string
-  platform?: 'ios' | 'android' | 'web' | 'app'
+  platform?: AiTutorFeedbackPlatform
 }): Promise<SubmitAiTutorFeedbackResponse> {
   return fetchJson<SubmitAiTutorFeedbackResponse>(AI_TUTOR_API.chatFeedback, {
     method: 'POST',
