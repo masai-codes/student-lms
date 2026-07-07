@@ -13,6 +13,8 @@ source "$SCRIPT_DIR/lib/db.sh"
 source "$SCRIPT_DIR/lib/docker.sh"
 # shellcheck source=./lib/alb.sh
 source "$SCRIPT_DIR/lib/alb.sh"
+# shellcheck source=./lib/ecr.sh
+source "$SCRIPT_DIR/lib/ecr.sh"
 
 require_env BRANCH APP_DB_USER APP_DB_PASS MYSQL_ADMIN_USER MYSQL_ADMIN_PASS ALB_LISTENER_ARN ECR_REPO PORT_RANGE_START PORT_RANGE_END VPC_ID EC2_INSTANCE_ID BASE_DOMAIN
 
@@ -35,8 +37,11 @@ log "SAFE_BRANCH=$SAFE_BRANCH PORT=$PORT DB_NAME=$DB_NAME"
 
 # Optional build/push hook so teams can skip this if image is already built.
 if [[ "${SKIP_IMAGE_BUILD:-0}" != "1" ]]; then
-  run_maybe docker build -t "$IMAGE_TAG" .
-  run_maybe docker push "$IMAGE_TAG"
+  REPO_URI="$(ecr_normalize_repo_uri "$ECR_REPO")"
+  REGION="$(ecr_resolve_region "$REPO_URI")"
+  ACCOUNT_ID="$(ecr_account_from_uri "$REPO_URI")"
+  run_maybe ecr_login "$REGION" "$ACCOUNT_ID"
+  IMAGE_TAG="$(ecr_build_and_push "$REPO_URI" "$SAFE_BRANCH" Dockerfile "$(cd "$SCRIPT_DIR/../.." && pwd)")"
 fi
 
 # Detect first create by checking table count before CREATE DATABASE IF NOT EXISTS.

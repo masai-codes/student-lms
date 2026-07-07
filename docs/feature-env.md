@@ -3,6 +3,7 @@
 The repo includes CI-friendly scripts to provision and teardown per-branch preview
 environments on a shared EC2 host + shared MySQL server:
 
+- `scripts/feature-env/push-ecr-image.sh`
 - `scripts/feature-env/create-feature-env.sh`
 - `scripts/feature-env/teardown-feature-env.sh`
 - `scripts/feature-env/cleanup-orphans.sh`
@@ -22,6 +23,23 @@ environments on a shared EC2 host + shared MySQL server:
   `DRY_RUN=1`
 
 ## Manual debugging commands
+
+Push image to ECR (build + login + push):
+
+```bash
+BRANCH=feature-login-flow \
+ECR_REPO=123456789012.dkr.ecr.ap-south-1.amazonaws.com/student-lms \
+bash scripts/feature-env/push-ecr-image.sh
+```
+
+Push an existing local tag without rebuilding:
+
+```bash
+IMAGE_TAG=feature-login-flow \
+ECR_REPO=123456789012.dkr.ecr.ap-south-1.amazonaws.com/student-lms \
+SKIP_BUILD=1 \
+bash scripts/feature-env/push-ecr-image.sh
+```
 
 Create/update environment:
 

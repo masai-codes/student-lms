@@ -13,6 +13,8 @@ source "$SCRIPT_DIR/lib/db.sh"
 source "$SCRIPT_DIR/lib/docker.sh"
 # shellcheck source=./lib/alb.sh
 source "$SCRIPT_DIR/lib/alb.sh"
+# shellcheck source=./lib/ecr.sh
+source "$SCRIPT_DIR/lib/ecr.sh"
 
 require_env BRANCH BASE_DOMAIN ALB_LISTENER_ARN
 
@@ -41,7 +43,8 @@ run_step "drop database" db_drop_if_exists "$DB_NAME"
 run_step "remove port map" port_mapping_delete "$PORT_MAP_FILE" "$SAFE_BRANCH"
 
 if [[ -n "${ECR_REPO:-}" ]]; then
-  run_step "optional ecr tag delete" aws ecr batch-delete-image --repository-name "$ECR_REPO" --image-ids "imageTag=${SAFE_BRANCH}" >/dev/null
+  ECR_REPOSITORY_NAME="$(ecr_repository_name "$ECR_REPO")"
+  run_step "optional ecr tag delete" aws ecr batch-delete-image --repository-name "$ECR_REPOSITORY_NAME" --image-ids "imageTag=${SAFE_BRANCH}" >/dev/null
 else
   log "Skipping ECR deletion. Prefer lifecycle policies for registry cleanup."
 fi
