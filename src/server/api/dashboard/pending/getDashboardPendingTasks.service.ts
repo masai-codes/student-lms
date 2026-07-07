@@ -5,6 +5,8 @@ import { fetchAssignmentStartState } from './fetchAssignmentStartState'
 import type { DashboardScheduleItem, ScheduleEntityRow } from '../schedule/scheduleTypes'
 import { getSectionIdsForUser } from '@/server/batches/getSectionIdsForUser'
 import { getBatchIdsForEnrolledUser } from '@/server/batches/getBatchIdsForEnrolledUser'
+import { getBatchIdsForSections } from '@/server/batches/getBatchIdsForSections'
+import { getUserBatchBans, makeNormalBanScheduleFilter } from '@/server/users/batchBan'
 import { fetchLectureAttendanceSummaries } from '@/server/attendance/services/fetchLectureAttendanceSummaries'
 import { calculateAssignmentProgressStatus } from '@/server/learn/utils/calculateAssignmentProgressStatus'
 import { computeDeadlineCountdown } from '@/server/learn/utils/computeDeadlineCountdown'
@@ -17,7 +19,8 @@ const DAY_MS = 24 * 60 * 60 * 1000
  * The "Pending Tasks" feed: open assignments the user hasn't begun, plus
  * mandatory lectures they still have an open catch-up window to watch. Both are
  * scoped to the user's sections and rendered by the reused learn card.
- * Assignments come first (soonest deadline), then catch-up lectures.
+ * Assignments come first (soonest deadline), then catch-up lectures. Normal-ban:
+ * candidates scheduled after the user's ban date in a banned batch are dropped.
  */
 export async function getDashboardPendingTasks(
   userId: number,
@@ -26,18 +29,28 @@ export async function getDashboardPendingTasks(
   const nowMs = now.getTime()
   const istNow = getIstNowSqlDatetime(now)
 
-  const [sectionIds, batchIds] = await Promise.all([
+  const [sectionIds, batchIds, bans] = await Promise.all([
     getSectionIdsForUser(userId),
     getBatchIdsForEnrolledUser(userId),
+    getUserBatchBans(userId),
   ])
   if (sectionIds.length === 0) return []
 
   const showCourseName = batchIds.length > 1
 
-  const [assignmentCandidates, lectureCandidates] = await Promise.all([
+  const [assignmentCandidatesRaw, lectureCandidatesRaw] = await Promise.all([
     fetchPendingAssignments(sectionIds, istNow),
     fetchPendingLectures(sectionIds, istNow),
   ])
+
+  let assignmentCandidates = assignmentCandidatesRaw
+  let lectureCandidates = lectureCandidatesRaw
+  if (bans.normalByBatch.size > 0) {
+    const sectionToBatch = await getBatchIdsForSections(sectionIds)
+    const keep = makeNormalBanScheduleFilter(bans.normalByBatch, sectionToBatch)
+    assignmentCandidates = assignmentCandidatesRaw.filter(keep)
+    lectureCandidates = lectureCandidatesRaw.filter(keep)
+  }
 
   const assignmentItems = await resolvePendingAssignments(
     userId,

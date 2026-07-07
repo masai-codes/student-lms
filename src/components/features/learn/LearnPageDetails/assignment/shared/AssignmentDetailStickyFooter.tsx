@@ -1,9 +1,10 @@
 'use client'
 
-import { ClipboardText, WarningCircle } from '@phosphor-icons/react'
+import { ClipboardText, Prohibit, WarningCircle } from '@phosphor-icons/react'
 
 import { MasaiButton } from '@/components/ui/masai-button'
 import { MasaiChips } from '@/components/ui/masai-chips'
+import { ContactSupportButton } from '../../common/ban/LearnBanNotice'
 import { AssessmentPlatformRedirectModal } from './AssessmentPlatformRedirectModal'
 import { getAssignmentStatusChipStyles } from './getAssignmentStatusChipStyles'
 import { useAssignmentFooterActions } from './useAssignmentFooterActions'
@@ -35,6 +36,24 @@ function ScorePolicyNotice({ message }: { message: string }) {
   )
 }
 
+/** Replaces the start/attempt controls when the learner is agreement-banned from practice. */
+function AssignmentPracticeBanFooter() {
+  return (
+    <footer
+      data-testid="assignment-detail-sticky-footer"
+      className="fixed bottom-[calc(4.5rem+env(safe-area-inset-bottom))] left-0 right-0 z-[80] flex flex-col gap-3 border-t border-gray-100 bg-white px-4 py-3 shadow-[0_1px_4px_0_rgba(0,0,0,0.20)] md:bottom-0 md:flex-row md:items-center md:justify-between"
+    >
+      <div className="flex min-w-0 flex-1 items-center gap-2">
+        <Prohibit className="size-5 shrink-0 text-red-500" weight="duotone" aria-hidden />
+        <p className="type-b3-md text-gray-700">
+          You are not allowed to attempt this practice as you are banned.
+        </p>
+      </div>
+      <ContactSupportButton className="shrink-0" />
+    </footer>
+  )
+}
+
 function PracticeModeChip() {
   return (
     <MasaiChips
@@ -61,6 +80,10 @@ export function AssignmentDetailStickyFooter({
     handleAction,
     confirmModal,
   } = useAssignmentFooterActions(detail)
+
+  if (detail.banRestriction?.kind === 'practice') {
+    return <AssignmentPracticeBanFooter />
+  }
 
   if (!footer.visible) {
     return null

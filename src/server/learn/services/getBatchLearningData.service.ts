@@ -8,6 +8,7 @@ import type { LearningEntityRow } from '@/server/learn/utils/learningDataMappers
 import type { AssignmentProgressStatus } from '@/server/learn/utils/calculateAssignmentProgressStatus'
 import type { AssignmentListingPage } from '@/server/learn/queries/fetchAssignmentListingPage'
 import { getSectionIdsForUserInBatch } from '@/server/batches/getSectionIdsForUserInBatch'
+import { getUserBatchBans } from '@/server/users/batchBan'
 import { fetchLectureAttendanceSummaries } from '@/server/attendance/services/fetchLectureAttendanceSummaries'
 import { buildLearnListingCardCtas } from '@/server/learn/utils/buildLearnListingCardCtas'
 import { buildLearnScheduleWindow } from '@/server/learn/utils/buildLearnScheduleWindow'
@@ -95,7 +96,10 @@ export async function getBatchLearningData(
 ): Promise<GetBatchLearningDataResponse> {
   const { page, pageSize } = normalizePagination(input.page, input.pageSize)
   const nowMs = Date.now()
-  const sectionIds = await getSectionIdsForUserInBatch(userId, input.batchId)
+  const [sectionIds, bans] = await Promise.all([
+    getSectionIdsForUserInBatch(userId, input.batchId),
+    getUserBatchBans(userId),
+  ])
 
   const window = buildLearnScheduleWindow({
     learningType: input.learningType,
@@ -114,6 +118,8 @@ export async function getBatchLearningData(
     window,
     search: input.search,
     nowMs,
+    // Normal-ban: hide items scheduled after the ban date in this banned batch.
+    bannedScheduleCutoff: bans.normalByBatch.get(input.batchId),
   }
 
   const [filterValues, pageResult] = await Promise.all([

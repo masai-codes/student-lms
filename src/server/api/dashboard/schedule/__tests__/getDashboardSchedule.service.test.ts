@@ -16,6 +16,17 @@ vi.mock('@/server/batches/getSectionIdsForUser', () => ({
 vi.mock('@/server/batches/getBatchIdsForEnrolledUser', () => ({
   getBatchIdsForEnrolledUser: hoisted.getBatchIds,
 }))
+vi.mock('@/server/users/batchBan', () => ({
+  getUserBatchBans: vi.fn(async () => ({
+    normalByBatch: new Map(),
+    agreementByBatch: new Map(),
+  })),
+  makeNormalBanScheduleFilter: () => () => true,
+}))
+vi.mock('@/server/batches/getBatchIdsForSections', () => ({
+  getBatchIdsForSections: vi.fn(async () => new Map()),
+  getBatchIdForSection: vi.fn(async () => null),
+}))
 vi.mock('../fetchScheduleLectures.service', () => ({
   fetchScheduleLectures: hoisted.fetchLectures,
 }))

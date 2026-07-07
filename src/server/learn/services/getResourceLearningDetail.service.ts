@@ -9,6 +9,9 @@ import { listDiscussionsWithThreadsForLearnEntity } from '@/server/new-discussio
 import { buildLearnDetailPresentation } from '@/server/learn/utils/buildLearnDetailPresentation'
 import { buildResourceDetailPayload } from '@/server/learn/utils/buildResourceDetailPayload'
 import { ensureUserCanAccessLearnHubEntity } from '@/server/learn/utils/ensureLearnEntityAccess'
+import { resolveLearnDetailBanRestriction } from '@/server/learn/utils/resolveLearnDetailBanRestriction'
+import { getBatchIdForSection } from '@/server/batches/getBatchIdsForSections'
+import { getUserBatchBans } from '@/server/users/batchBan'
 import {
   isSupportedResourceLectureType,
 } from '@/server/learn/utils/normalizeResourceKind'
@@ -88,7 +91,7 @@ export async function getResourceLearningDetailForUser(
 
   const core = buildLearnDetailPresentation(row)
 
-  return buildResourceDetailPayload(
+  const payload = buildResourceDetailPayload(
     { ...core, discussions },
     {
       category: row.category,
@@ -106,4 +109,18 @@ export async function getResourceLearningDetailForUser(
     }),
     isBookmarked,
   )
+
+  const [bans, sectionBatchId] = await Promise.all([
+    getUserBatchBans(userId),
+    getBatchIdForSection(row.sectionId),
+  ])
+  // Agreement ban never restricts resources — only the normal-ban page block applies.
+  const banRestriction = resolveLearnDetailBanRestriction({
+    contentBatchId: sectionBatchId ?? row.batchId,
+    schedule: row.schedule,
+    bans,
+    agreementRestrictionKind: null,
+  })
+
+  return { ...payload, banRestriction }
 }
