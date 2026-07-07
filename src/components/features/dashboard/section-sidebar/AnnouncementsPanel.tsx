@@ -31,7 +31,10 @@ export function AnnouncementsPanel({
         <SidebarPanelLink
           label="View All"
           testId="dashboard-announcements-view-all"
-          onClick={() => void navigate({ to: '/announcements', search: { page: 1 } })}
+          onClick={() => {
+            pushDashboardEvent('l_dashboard_announcements_view_all')
+            void navigate({ to: '/announcements', search: { page: 1 } })
+          }}
         />
       }
       isLoading={isLoading}
@@ -57,7 +60,12 @@ function AnnouncementRow({ announcement }: { announcement: DashboardAnnouncement
       to={isMessage ? '/messages/$id' : '/announcements/$id'}
       params={{ id: String(announcement.id) }}
       onClick={() => {
-        if (!isMessage) pushDashboardEvent('l_announcement')
+        pushDashboardEvent('l_dashboard_announcement_click_id_' + announcement.id, {
+          announcement_id: announcement.id,
+          source: announcement.source,
+          is_message: isMessage,
+          title: announcement.title,
+        })
       }}
       data-testid={`dashboard-announcement-item-${announcement.source}-${announcement.id}`}
       className="rounded-xl border border-gray-200 p-3.5 no-underline transition-shadow hover:shadow-sm"

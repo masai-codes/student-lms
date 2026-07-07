@@ -1,4 +1,5 @@
 import { CheckCircle, FilePdf } from '@phosphor-icons/react'
+import { pushDashboardEvent } from '../../../shared/dashboardAnalytics'
 import type { AgreementFormValues } from '@/server/api/dashboard/agreement/agreementShared'
 
 interface AgreementCertificateProps {
@@ -53,6 +54,11 @@ export function AgreementCertificate({ values, referenceNumber, completed, agree
           href={agreementPdfUrl}
           target="_blank"
           rel="noreferrer"
+          onClick={() =>
+            pushDashboardEvent('l_dashboard_guided_tour_agreement_view_pdf', {
+              reference_number: referenceNumber,
+            })
+          }
           className="inline-flex w-fit items-center gap-2 rounded-lg border border-[#6962AC] px-4 py-2 text-sm font-semibold text-[#6962AC] hover:bg-[#6962AC]/5"
           data-testid="agreement-view-pdf"
         >

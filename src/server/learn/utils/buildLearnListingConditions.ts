@@ -7,6 +7,7 @@ import {
   isNull,
   like,
   lt,
+  lte,
   ne,
   or,
   sql,
@@ -39,6 +40,12 @@ export interface LearnListingConditionsInput {
   window: LearnScheduleWindow
   search?: string
   nowMs: number
+  /**
+   * Normal-ban cutoff for this batch (normalised `"YYYY-MM-DD HH:MM:SS"`, or `''`
+   * to restrict everything scheduled). When set, only items scheduled on/before it
+   * (or with no schedule) are listed. Absent when the user isn't normal-banned here.
+   */
+  bannedScheduleCutoff?: string
 }
 
 function priorityToOptional(
@@ -55,6 +62,20 @@ function scheduleConditions(
   if (window.gte != null) out.push(gte(scheduleColumn, window.gte))
   if (window.lt != null) out.push(lt(scheduleColumn, window.lt))
   return out
+}
+
+/**
+ * Normal-ban schedule gate: keep only rows scheduled on/before the ban cutoff (plus
+ * rows with no schedule). An empty cutoff means "restrict everything scheduled", so
+ * only null-schedule rows survive. Returns `undefined` when no ban applies.
+ */
+function bannedScheduleCondition(
+  scheduleColumn: AnyMySqlColumn,
+  cutoff: string | undefined,
+): SQL | undefined {
+  if (cutoff == null) return undefined
+  if (cutoff === '') return isNull(scheduleColumn)
+  return or(isNull(scheduleColumn), lte(scheduleColumn, cutoff)) as SQL
 }
 
 /**
@@ -131,6 +152,7 @@ export function buildLectureListingConditions(
       : buildLectureContentGate(input.nowMs),
     input.search ? like(lectures.title, `%${input.search}%`) : undefined,
     ...scheduleConditions(lectures.schedule, input.window),
+    bannedScheduleCondition(lectures.schedule, input.bannedScheduleCutoff),
     filters?.categories?.length
       ? inArray(lectures.category, filters.categories)
       : undefined,
@@ -166,6 +188,7 @@ export function buildAssignmentListingConditions(
     isNull(assignments.deletedAt),
     input.search ? like(assignments.title, `%${input.search}%`) : undefined,
     ...scheduleConditions(assignments.schedule, input.window),
+    bannedScheduleCondition(assignments.schedule, input.bannedScheduleCutoff),
     filters?.categories?.length
       ? inArray(assignments.category, filters.categories)
       : undefined,

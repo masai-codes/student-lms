@@ -1,10 +1,12 @@
 import { useMemo, useState } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
-import { Lock, X } from '@phosphor-icons/react'
+import { ListChecks, Lock, X } from '@phosphor-icons/react'
 import { GuidedTourStepList } from './GuidedTourStepList'
 import { IdCardStep } from './IdCardStep'
 import { GuidedTourActivePanel } from './GuidedTourActivePanel'
 import { buildLmsSteps, buildProgramSteps, getIdCardState } from './steps'
+import BottomDrawer from '@/components/ui/bottom-drawer'
+import { useIsMobileViewport } from '@/components/features/chatbot/hooks/useIsMobileViewport'
 import type { GuidedTourStep } from './steps'
 import {
   Select,
@@ -14,6 +16,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { FeePaymentBanners } from '../../section-banner/FeePaymentBanners'
+import { pushDashboardEvent } from '../../shared/dashboardAnalytics'
 import { fetchT0FlowLectures } from '@/lib/api/dashboard/dashboardApi'
 import type { BatchT0Status, T0FlowStatus } from '@/server/api/dashboard/getT0FlowStatus.service'
 import type { FeePaymentBanner } from '@/server/api/dashboard/t0/getFeePaymentBanner.service'
@@ -70,6 +73,9 @@ export function GuidedTourOverlay({
   // True only when we auto-advance after a video ends, so the next video plays
   // itself; manual navigation always leaves the next video paused.
   const [autoPlayNext, setAutoPlayNext] = useState(false)
+  // Mobile only: the step list lives in a bottom sheet (no room for the side rail).
+  const [stepsDrawerOpen, setStepsDrawerOpen] = useState(false)
+  const isMobile = useIsMobileViewport()
 
   const selectedBatch: BatchT0Status | undefined =
     status.batches.find((b) => b.batchId === selectedBatchId) ?? status.batches.at(0)
@@ -121,6 +127,9 @@ export function GuidedTourOverlay({
   }
 
   const selectBatch = (value: string) => {
+    pushDashboardEvent('l_dashboard_guided_tour_batch_select_id_' + Number(value), {
+      batch_id: Number(value),
+    })
     setAutoPlayNext(false)
     setSelectedBatchId(Number(value))
     setActiveKey(null)
@@ -143,6 +152,90 @@ export function GuidedTourOverlay({
     }
   }
 
+  const handleClose = () => {
+    pushDashboardEvent('l_dashboard_guided_tour_see_dashboard')
+    onSeeDashboard()
+  }
+
+  const batchSelect =
+    status.batches.length > 1 ? (
+      <Select value={selectedBatch ? String(selectedBatch.batchId) : undefined} onValueChange={selectBatch}>
+        <SelectTrigger aria-label="Batch" className="w-full" data-testid="guided-tour-batch-select">
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent className="z-[210]">
+          {status.batches.map((b) => (
+            <SelectItem key={b.batchId} value={String(b.batchId)} data-testid={`guided-tour-batch-option-${b.batchId}`}>
+              {b.batchName}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+    ) : null
+
+  const tabsRow = (
+    <div className="flex gap-2" role="tablist" data-testid="guided-tour-tabs">
+      <button
+        type="button"
+        role="tab"
+        aria-selected={effectiveTab === 'lms'}
+        onClick={() => {
+          pushDashboardEvent('l_dashboard_guided_tour_tab', { tab: 'lms' })
+          selectTab('lms')
+        }}
+        className={effectiveTab === 'lms' ? TAB_ACTIVE : TAB_IDLE}
+        data-testid="guided-tour-tab-lms"
+      >
+        LMS Walkthrough
+      </button>
+      <button
+        type="button"
+        role="tab"
+        aria-selected={effectiveTab === 'program'}
+        disabled={!programUnlocked}
+        onClick={() => {
+          if (!programUnlocked) return
+          pushDashboardEvent('l_dashboard_guided_tour_tab', { tab: 'program' })
+          selectTab('program')
+        }}
+        className={effectiveTab === 'program' ? TAB_ACTIVE : programUnlocked ? TAB_IDLE : TAB_LOCKED}
+        data-testid="guided-tour-tab-program"
+        data-locked={!programUnlocked}
+        title={programUnlocked ? undefined : 'Unlocks once your fees are paid'}
+      >
+        {programUnlocked ? null : <Lock className="size-4" aria-hidden data-testid="guided-tour-tab-program-lock" />}
+        Program Onboarding
+      </button>
+    </div>
+  )
+
+  // Progress + step list + ID-card capstone (Program Onboarding only). Shared
+  // between the desktop rail and the mobile bottom sheet (each passes its own
+  // select handler); the hint hides once the ID card unlocks.
+  const renderStepList = (onSelectStep: (key: string) => void) => (
+    <>
+      <GuidedTourStepList
+        steps={steps}
+        activeKey={activeStep?.key}
+        onSelect={onSelectStep}
+        completed={tabProgress?.completed ?? 0}
+        total={tabProgress?.total ?? 0}
+        showHint={!idCard?.unlocked}
+      />
+      {showIdCard ? (
+        <div className="mt-4">
+          <IdCardStep url={idCard?.url ?? null} unlocked={idCard?.unlocked ?? false} />
+        </div>
+      ) : null}
+    </>
+  )
+
+  // Payment-pending / overdue nudge (LMS-walkthrough only) — reuses the dashboard banner.
+  const feeBanner =
+    effectiveTab === 'lms' && feePaymentBanners.length > 0 ? (
+      <FeePaymentBanners banners={feePaymentBanners} compact />
+    ) : null
+
   return (
     <div
       // Full-bleed to the viewport: the app's <main> is capped at max-w-1440 and
@@ -150,92 +243,62 @@ export function GuidedTourOverlay({
       className="relative left-1/2 mb-6 mt-2 flex w-screen -translate-x-1/2 flex-col gap-4 px-3 md:flex-row md:items-start md:gap-5 md:px-5"
       data-testid="guided-tour-overlay"
     >
-      {/* Left card — task list. Fills the viewport height and scrolls internally on desktop. */}
-      <aside className="flex w-full flex-col overflow-hidden rounded-2xl bg-white shadow-sm md:sticky md:top-4 md:h-[calc(100dvh-6rem)] md:max-w-[440px] md:self-start">
-        <header className="flex shrink-0 items-center justify-between border-b border-gray-100 px-5 py-4">
-          <h1 className="text-lg font-semibold text-gray-900">Let&apos;s get you started</h1>
+      {isMobile ? (
+        // Mobile: a compact header (title + close + tabs + a "steps" trigger). The
+        // step list moves into a bottom sheet so the active content stays primary.
+        <div className="flex w-full flex-col gap-3 rounded-2xl bg-white p-4 shadow-sm">
+          <div className="flex items-center justify-between">
+            <h1 className="text-base font-semibold text-gray-900">Let&apos;s get you started</h1>
+            <button
+              type="button"
+              onClick={handleClose}
+              aria-label="Close and see dashboard"
+              className="rounded-lg p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-600"
+              data-testid="guided-tour-see-dashboard"
+            >
+              <X className="size-5" aria-hidden />
+            </button>
+          </div>
+          {batchSelect}
+          {tabsRow}
           <button
             type="button"
-            onClick={onSeeDashboard}
-            aria-label="Close and see dashboard"
-            className="rounded-lg p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-600"
-            data-testid="guided-tour-see-dashboard"
+            onClick={() => setStepsDrawerOpen(true)}
+            className="flex items-center justify-center gap-2 rounded-lg border border-[#6962AC] bg-[#6962AC]/5 px-4 py-2.5 text-sm font-semibold text-[#6962AC]"
+            data-testid="guided-tour-open-steps"
           >
-            <X className="size-5" aria-hidden />
+            <ListChecks className="size-4" aria-hidden />
+            View steps ({tabProgress?.completed ?? 0}/{tabProgress?.total ?? 0})
           </button>
-        </header>
-
-        {/* Fixed: batch selector + tabs (never scroll away). */}
-        <div className="flex shrink-0 flex-col gap-4 border-b border-gray-100 px-5 py-4">
-          {status.batches.length > 1 ? (
-            <Select value={selectedBatch ? String(selectedBatch.batchId) : undefined} onValueChange={selectBatch}>
-              <SelectTrigger aria-label="Batch" className="w-full" data-testid="guided-tour-batch-select">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent className="z-[210]">
-                {status.batches.map((b) => (
-                  <SelectItem key={b.batchId} value={String(b.batchId)} data-testid={`guided-tour-batch-option-${b.batchId}`}>
-                    {b.batchName}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          ) : null}
-
-          <div className="flex gap-2" role="tablist" data-testid="guided-tour-tabs">
+        </div>
+      ) : (
+        // Desktop: the task-list side rail (fills the viewport height, scrolls internally).
+        <aside className="flex w-full flex-col overflow-hidden rounded-2xl bg-white shadow-sm md:sticky md:top-4 md:h-[calc(100dvh-6rem)] md:max-w-[440px] md:self-start">
+          <header className="flex shrink-0 items-center justify-between border-b border-gray-100 px-5 py-4">
+            <h1 className="text-lg font-semibold text-gray-900">Let&apos;s get you started</h1>
             <button
               type="button"
-              role="tab"
-              aria-selected={effectiveTab === 'lms'}
-              onClick={() => selectTab('lms')}
-              className={effectiveTab === 'lms' ? TAB_ACTIVE : TAB_IDLE}
-              data-testid="guided-tour-tab-lms"
+              onClick={handleClose}
+              aria-label="Close and see dashboard"
+              className="rounded-lg p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-600"
+              data-testid="guided-tour-see-dashboard"
             >
-              LMS Walkthrough
+              <X className="size-5" aria-hidden />
             </button>
-            <button
-              type="button"
-              role="tab"
-              aria-selected={effectiveTab === 'program'}
-              disabled={!programUnlocked}
-              onClick={() => programUnlocked && selectTab('program')}
-              className={effectiveTab === 'program' ? TAB_ACTIVE : programUnlocked ? TAB_IDLE : TAB_LOCKED}
-              data-testid="guided-tour-tab-program"
-              data-locked={!programUnlocked}
-              title={programUnlocked ? undefined : 'Unlocks once your fees are paid'}
-            >
-              {programUnlocked ? null : <Lock className="size-4" aria-hidden data-testid="guided-tour-tab-program-lock" />}
-              Program Onboarding
-            </button>
-          </div>
-        </div>
+          </header>
 
-        {/* Scrollable: progress + step list, then the ID-card capstone (Program
-            Onboarding only) below the hint. The hint hides once the card unlocks. */}
-        <div className="min-h-0 flex-1 overflow-y-auto px-5 py-4">
-          <GuidedTourStepList
-            steps={steps}
-            activeKey={activeStep?.key}
-            onSelect={selectStep}
-            completed={tabProgress?.completed ?? 0}
-            total={tabProgress?.total ?? 0}
-            showHint={!idCard?.unlocked}
-          />
-          {showIdCard ? (
-            <div className="mt-4">
-              <IdCardStep url={idCard?.url ?? null} unlocked={idCard?.unlocked ?? false} />
-            </div>
-          ) : null}
-        </div>
-
-        {/* Pinned bottom: payment-pending / overdue nudge under the LMS-walkthrough
-            steps — reuses the dashboard banner (compact so it fits the panel). */}
-        {effectiveTab === 'lms' && feePaymentBanners.length > 0 ? (
-          <div className="shrink-0 border-t border-gray-100 p-4">
-            <FeePaymentBanners banners={feePaymentBanners} compact />
+          {/* Fixed: batch selector + tabs (never scroll away). */}
+          <div className="flex shrink-0 flex-col gap-4 border-b border-gray-100 px-5 py-4">
+            {batchSelect}
+            {tabsRow}
           </div>
-        ) : null}
-      </aside>
+
+          {/* Scrollable: progress + step list + ID-card capstone. */}
+          <div className="min-h-0 flex-1 overflow-y-auto px-5 py-4">{renderStepList(selectStep)}</div>
+
+          {feeBanner ? <div className="shrink-0 border-t border-gray-100 p-4">{feeBanner}</div> : null}
+        </aside>
+      )}
 
       {/* Right side — selected step actionables. Bounded to the viewport height so
           long steps (the agreement) scroll internally with a pinned footer. */}
@@ -254,6 +317,22 @@ export function GuidedTourOverlay({
           />
         ) : null}
       </section>
+
+      {/* Mobile: the step list in a swipeable bottom sheet. Selecting a step closes it. */}
+      {isMobile ? (
+        <BottomDrawer
+          open={stepsDrawerOpen}
+          onClose={() => setStepsDrawerOpen(false)}
+          title="Let's get you started"
+          bodyClassName="px-4 pb-6"
+        >
+          {renderStepList((key) => {
+            selectStep(key)
+            setStepsDrawerOpen(false)
+          })}
+          {feeBanner ? <div className="mt-4">{feeBanner}</div> : null}
+        </BottomDrawer>
+      ) : null}
     </div>
   )
 }

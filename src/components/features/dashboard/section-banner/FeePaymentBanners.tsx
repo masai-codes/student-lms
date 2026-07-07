@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 import useEmblaCarousel from 'embla-carousel-react'
 import { ArrowRight, Warning, WarningCircle } from '@phosphor-icons/react'
 import { useCarouselAutoplay } from './useCarouselAutoplay'
+import { pushDashboardEvent } from '../shared/dashboardAnalytics'
 import type { FeePaymentBanner } from '@/server/api/dashboard/t0/getFeePaymentBanner.service'
 import type { EmblaCarouselType } from 'embla-carousel'
 
@@ -145,6 +146,13 @@ function FeePaymentSlide({
       target="_blank"
       rel="noopener noreferrer"
       data-testid="dashboard-fee-payment-cta"
+      onClick={() =>
+        pushDashboardEvent('l_dashboard_fee_payment_cta_id_' + banner.batchId, {
+          batch_id: banner.batchId,
+          banner_type: banner.type,
+          course_title: banner.courseTitle,
+        })
+      }
       aria-disabled={banner.paymentUrl === null}
       className={`inline-flex items-center justify-center gap-2 rounded-lg bg-[#5B478B] px-4 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-[#4d3b77] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#5B478B] ${
         compact ? 'w-full' : 'shrink-0'

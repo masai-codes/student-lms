@@ -2,6 +2,7 @@
 
 import { MasaiTab } from '@/components/ui/masai-tab'
 import { cn } from '@/lib/utils'
+import { pushLearnEvent } from '@/components/features/learn/shared/learnAnalytics'
 
 import {
   resolveVisibleLectureDetailTabs,
@@ -37,7 +38,10 @@ export function LectureTabBar({
           key={tab.id}
           label={tab.label}
           selected={activeTabId === tab.id}
-          onClick={() => onTabChange(tab.id)}
+          onClick={() => {
+            pushLearnEvent('l_learn_lecture_tab_change', { tab: tab.id })
+            onTabChange(tab.id)
+          }}
           className="shrink-0 whitespace-nowrap"
         />
       ))}

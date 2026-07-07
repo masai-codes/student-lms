@@ -7,6 +7,10 @@ import { useState } from 'react'
 import { MasaiButton } from '@/components/ui/masai-button'
 import { MasaiCheckbox } from '@/components/ui/masai-checkbox'
 import { createAssignmentSubmission } from '@/lib/api/learn/assignmentDetailActionsApi'
+import {
+  learnEntityEvent,
+  pushLearnEvent,
+} from '@/components/features/learn/shared/learnAnalytics'
 
 type AssignmentPledgeGateProps = {
   assignmentId: number
@@ -26,6 +30,9 @@ export function AssignmentPledgeGate({ assignmentId }: AssignmentPledgeGateProps
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
 
   const handleConfirm = async () => {
+    pushLearnEvent(learnEntityEvent('assignment', 'pledge_confirm', assignmentId), {
+      assignment_id: assignmentId,
+    })
     setLoading(true)
     setErrorMessage(null)
     try {

@@ -1,4 +1,5 @@
 import { ArrowSquareOut } from '@phosphor-icons/react'
+import { pushDashboardEvent } from '../../../shared/dashboardAnalytics'
 import { CheckboxField } from '@/components/ui/form-fields'
 
 interface AgreementPdfViewerProps {
@@ -19,6 +20,9 @@ export function AgreementPdfViewer({ heading, pdfUrl, accepted, onAcceptChange, 
           href={pdfUrl}
           target="_blank"
           rel="noreferrer"
+          onClick={() =>
+            pushDashboardEvent('l_dashboard_guided_tour_agreement_pdf_open', { heading })
+          }
           className="inline-flex items-center gap-1 text-sm font-medium text-[#6962AC] hover:underline"
           data-testid="agreement-pdf-open"
         >

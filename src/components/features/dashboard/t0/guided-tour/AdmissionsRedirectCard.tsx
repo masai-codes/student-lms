@@ -1,4 +1,5 @@
 import { Shuffle } from '@phosphor-icons/react'
+import { pushDashboardEvent } from '../../shared/dashboardAnalytics'
 
 interface AdmissionsRedirectCardProps {
   /** What the learner will upload on the admissions platform. */
@@ -40,6 +41,7 @@ export function AdmissionsRedirectCard({
         <button
           type="button"
           onClick={() => {
+            pushDashboardEvent('l_dashboard_guided_tour_admissions_continue', { cta: ctaTestId })
             window.open(url, '_blank', 'noopener,noreferrer')
             onContinue?.()
           }}

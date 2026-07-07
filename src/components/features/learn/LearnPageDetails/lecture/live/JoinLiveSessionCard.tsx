@@ -7,6 +7,10 @@ import type { JoinLiveButtonState } from '@/server/learn/utils/resolveJoinLiveBu
 import { fetchZoomRedirectUrlViaApi } from '@/lib/api/learn/zoomRedirectApi'
 import { Button } from '@/components/ui/button'
 import { toast } from '@/lib/toast'
+import {
+  learnEntityEvent,
+  pushLearnEvent,
+} from '@/components/features/learn/shared/learnAnalytics'
 
 type JoinLiveSessionCardProps = {
   lectureId: number
@@ -36,6 +40,9 @@ export function JoinLiveSessionCard({
 
   const handleZefJoin = async () => {
     if (pending) return
+    pushLearnEvent(learnEntityEvent('lecture', 'join_live_click', lectureId), {
+      lecture_id: lectureId,
+    })
     setPending(true)
     try {
       openInNewTab(await fetchZoomRedirectUrlViaApi(lectureId))
@@ -73,7 +80,17 @@ export function JoinLiveSessionCard({
           disabled={!isActive}
         >
           {isActive ? (
-            <a href={zoomLink} target="_blank" rel="noopener noreferrer">
+            <a
+              href={zoomLink}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() =>
+                pushLearnEvent(
+                  learnEntityEvent('lecture', 'join_live_click', lectureId),
+                  { lecture_id: lectureId },
+                )
+              }
+            >
               Join live session
               <ArrowSquareOut className="ml-2 size-4" aria-hidden />
             </a>

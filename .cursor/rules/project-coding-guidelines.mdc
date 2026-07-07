@@ -61,6 +61,36 @@ alwaysApply: true
   `data-testid`. Do not rename/remove an existing one without updating its
   consumers.
 
+## Analytics / Event Tracking (GA / GTM)
+- Every new interactive element (CTA, button, tab, link, card, filter, menu
+  item, etc.) must fire a GA/GTM event so nothing ships untracked. Adding a
+  clickable without an event is incomplete work — treat it like a missing
+  `data-testid`.
+- Fire events by pushing to the GTM `dataLayer` via the shared helper
+  `pushGtmEvent(event, params)` in `src/utils/gtm.ts`. Do not call
+  `window.dataLayer.push` / `window.gtag` directly and do not add new
+  ad-hoc helpers.
+  - Dashboard surfaces: use `pushDashboardEvent(event, params)` from
+    `src/components/features/dashboard/shared/dashboardAnalytics.ts`; every
+    dashboard event name must contain the word `dashboard`
+    (prefix `l_dashboard_`).
+  - Learn surfaces: use `pushLearnEvent(event, params)` /
+    `learnEntityEvent(type, action, id)` from
+    `src/components/features/learn/shared/learnAnalytics.ts`
+    (prefix `l_learn_`).
+- Embed the relevant DB row id in the event name (`..._id_<id>`) whenever the
+  click targets a specific entity, and use the entity type in the name (e.g.
+  `l_learn_lecture_card_click_id_42`, `l_dashboard_fee_payment_cta_id_7`). If
+  the id is not already in scope, plumb it through — do not drop it.
+- Pass identifying context (ids, entity type, title, tab, page, filter key,
+  source surface, etc.) as the `params` object so events are useful for
+  segmentation. Fire the event synchronously at click time, before any
+  navigation/await, and keep it additive — never change existing
+  navigation/mutation behavior.
+- Do not track noisy, high-frequency, non-intent signals (e.g. video
+  scrubbing, per-keystroke input, volume drags); track the meaningful,
+  debounced/committed action instead.
+
 ## PR Quality Bar
 - Ensure `npm run test` and `npm run lint` pass for touched code.
 - Keep changes scoped to the request; do not refactor unrelated areas.

@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import useEmblaCarousel from 'embla-carousel-react'
 import { ArrowRight } from '@phosphor-icons/react'
 import { useCarouselAutoplay } from './useCarouselAutoplay'
+import { pushDashboardEvent } from '../shared/dashboardAnalytics'
 import type { OnboardingBanner } from './onboardingBanners'
 import type { EmblaCarouselType } from 'embla-carousel'
 
@@ -73,6 +74,12 @@ export function OnboardingStepsBanner({ banners, onResume }: OnboardingStepsBann
                 banner={banner}
                 onResume={() => {
                   if (draggedRef.current) return
+                  pushDashboardEvent('l_dashboard_onboarding_resume_id_' + banner.batchId, {
+                    batch_id: banner.batchId,
+                    target_tab: banner.targetTab,
+                    completed: banner.completed,
+                    total: banner.total,
+                  })
                   onResume(banner.batchId, banner.targetTab)
                 }}
               />

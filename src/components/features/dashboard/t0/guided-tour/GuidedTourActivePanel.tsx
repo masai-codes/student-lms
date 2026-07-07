@@ -50,13 +50,13 @@ export function GuidedTourActivePanel({
 
   return (
     <div className="flex h-full w-full min-w-0 flex-col" data-testid="guided-tour-active-panel">
-      <h2 className="shrink-0 px-6 pt-6 text-center text-lg font-semibold text-gray-900" data-testid="guided-tour-active-title">
+      <h2 className="shrink-0 px-4 pt-4 text-center text-base font-semibold text-gray-900 md:px-6 md:pt-6 md:text-lg" data-testid="guided-tour-active-title">
         {step.title}
       </h2>
 
       {/* On desktop only this region scrolls, so the panel never overflows its
           card; on mobile the page scrolls naturally. */}
-      <div className="mt-4 min-w-0 flex-1 px-6 pb-6 md:min-h-0 md:overflow-y-auto">
+      <div className="mt-3 min-w-0 flex-1 px-4 pb-6 md:mt-4 md:px-6 md:min-h-0 md:overflow-y-auto">
         {isVideo && step.video ? (
           <GuidedTourVideoStep
             key={step.key}

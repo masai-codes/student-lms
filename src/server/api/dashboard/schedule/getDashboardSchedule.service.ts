@@ -6,6 +6,8 @@ import type { AssignmentProgressStatus } from '@/server/learn/utils/calculateAss
 import type { DashboardScheduleItem, ScheduleEntityRow } from './scheduleTypes'
 import { getSectionIdsForUser } from '@/server/batches/getSectionIdsForUser'
 import { getBatchIdsForEnrolledUser } from '@/server/batches/getBatchIdsForEnrolledUser'
+import { getBatchIdsForSections } from '@/server/batches/getBatchIdsForSections'
+import { getUserBatchBans, makeNormalBanScheduleFilter } from '@/server/users/batchBan'
 import { fetchLectureAttendanceSummaries } from '@/server/attendance/services/fetchLectureAttendanceSummaries'
 import { calculateAssignmentProgressStatus } from '@/server/learn/utils/calculateAssignmentProgressStatus'
 import { fetchLatestSubmissionByAssignment } from '@/server/learn/queries/fetchLatestSubmissionByAssignment'
@@ -15,7 +17,8 @@ import { fetchLatestSubmissionByAssignment } from '@/server/learn/queries/fetchL
  * assignments merged into one schedule feed, newest-scheduled first excluded
  * (soonest first). Reuses the learn listing mappers/CTA builder/attendance so
  * the same card renders these rows. Filters on `start_date`/`end_date`, returns
- * `schedule`/`concludes` for display.
+ * `schedule`/`concludes` for display. Normal-ban: rows scheduled after the user's
+ * ban date in a banned batch are dropped.
  */
 export async function getDashboardSchedule(
   userId: number,
@@ -24,16 +27,26 @@ export async function getDashboardSchedule(
   const nowMs = now.getTime()
   const { start, end } = getScheduleDateWindow(now)
 
-  const [sectionIds, batchIds] = await Promise.all([
+  const [sectionIds, batchIds, bans] = await Promise.all([
     getSectionIdsForUser(userId),
     getBatchIdsForEnrolledUser(userId),
+    getUserBatchBans(userId),
   ])
   if (sectionIds.length === 0) return []
 
-  const [visibleLectures, visibleAssignments] = await Promise.all([
+  const [lectureRows, assignmentRows] = await Promise.all([
     fetchScheduleLectures(sectionIds, start, end),
     fetchScheduleAssignments(sectionIds, start, end),
   ])
+
+  let visibleLectures = lectureRows
+  let visibleAssignments = assignmentRows
+  if (bans.normalByBatch.size > 0) {
+    const sectionToBatch = await getBatchIdsForSections(sectionIds)
+    const keep = makeNormalBanScheduleFilter(bans.normalByBatch, sectionToBatch)
+    visibleLectures = lectureRows.filter(keep)
+    visibleAssignments = assignmentRows.filter(keep)
+  }
 
   const attendance = await fetchLectureAttendanceSummaries(
     userId,

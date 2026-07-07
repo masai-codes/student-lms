@@ -5,6 +5,7 @@ import { ChevronDown, ChevronRight, ExternalLink } from 'lucide-react'
 import type { DrawerDirection } from '@/components/ui/masai-drawer'
 import { MasaiChips } from '@/components/ui/masai-chips'
 import { MasaiDrawer } from '@/components/ui/masai-drawer'
+import { pushLearnEvent } from '../shared/learnAnalytics'
 import { getOldStudentUiUrlForPath } from '@/utils/authRedirect'
 
 interface LearnBatchOption {
@@ -80,6 +81,10 @@ export function LearnHeaderSection({
                   key={batch.value}
                   type="button"
                   onClick={() => {
+                    pushLearnEvent('l_learn_batch_change_id_' + batch.value, {
+                      batch_id: batch.value,
+                      batch_label: batch.label,
+                    })
                     onBatchChange(batch.value)
                     setIsBatchDrawerOpen(false)
                   }}
@@ -118,6 +123,11 @@ export function LearnHeaderSection({
           href={courseDetailsHref}
           target="_blank"
           rel="noopener noreferrer"
+          onClick={() =>
+            pushLearnEvent('l_learn_course_details_click_id_' + selectedBatch, {
+              batch_id: selectedBatch,
+            })
+          }
           className="type-b1-md flex items-center gap-1 self-start text-primary-500 hover:underline md:self-auto"
         >
           <span>Course Details</span>

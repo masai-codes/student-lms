@@ -3,6 +3,7 @@
 import { MaterialResourceContent } from './material/MaterialResourceContent'
 import { NotesResourceContent } from './notes/NotesResourceContent'
 import { PreReadResourceContent } from './pre-read/PreReadResourceContent'
+import { LearnBanPage } from '../common/ban/LearnBanNotice'
 
 import type { ResourceDetailPayload } from '@/server/learn/resourceDetailTypes'
 
@@ -11,6 +12,10 @@ type ResourceDetailPageProps = {
 }
 
 export function ResourceDetailPage({ detail }: ResourceDetailPageProps) {
+  if (detail.banRestriction?.kind === 'page') {
+    return <LearnBanPage />
+  }
+
   switch (detail.resourceKind) {
     case 'pre-read':
       return <PreReadResourceContent detail={detail} />

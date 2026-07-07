@@ -6,6 +6,7 @@ import { Filter, Search } from 'lucide-react'
 
 import { LearnFiltersPanel } from './filters-modal/LearnFiltersPanel'
 import { useDebouncedCommit } from './useDebouncedCommit'
+import { pushLearnEvent } from '../shared/learnAnalytics'
 import type { LearnModalFiltersState, LearnTab } from '../shared/types'
 
 import type { MasaiDropdownCheckboxFilterOption } from '@/components/ui/masai-dropdown-checkbox-filter'
@@ -67,11 +68,24 @@ export function LearnControlsSection({
 }: LearnControlsSectionProps) {
   const [filtersOpen, setFiltersOpen] = useState(false)
 
+  // Fire the search event only on the committed (debounced) value, not per
+  // keystroke, and only when the query is non-empty.
+  const handleSearchCommit = useCallback(
+    (value: string) => {
+      const query = value.trim()
+      if (query) {
+        pushLearnEvent('l_learn_search', { query, tab: activeTab })
+      }
+      onSearchChange(value)
+    },
+    [activeTab, onSearchChange],
+  )
+
   // Local drafts so typing and checkbox ticks reflect instantly; the actual fetch
   // (URL commit) is debounced rather than firing on every keystroke/click.
   const [searchInput, setSearchInput] = useDebouncedCommit(
     searchValue,
-    onSearchChange,
+    handleSearchCommit,
     SEARCH_DEBOUNCE_MS,
   )
   const [selectedModules, setSelectedModules] = useDebouncedCommit(
@@ -138,7 +152,10 @@ export function LearnControlsSection({
             key={tab.value}
             label={tab.label}
             selected={activeTab === tab.value}
-            onClick={() => onTabChange(tab.value)}
+            onClick={() => {
+              pushLearnEvent('l_learn_tab_change', { tab: tab.value })
+              onTabChange(tab.value)
+            }}
             iconLeft={
               <img
                 src={LEARN_TAB_ICON_URL}
@@ -179,7 +196,13 @@ export function LearnControlsSection({
             iconOnly
             icon={<Filter className="size-6" strokeWidth={2} />}
             htmlType="button"
-            onClick={() => setFiltersOpen(true)}
+            onClick={() => {
+              pushLearnEvent('l_learn_filters_open', {
+                tab: activeTab,
+                active_filter_count: filterCount,
+              })
+              setFiltersOpen(true)
+            }}
             aria-label={
               filterCount > 0
                 ? `Open filters, ${filterCount} active`

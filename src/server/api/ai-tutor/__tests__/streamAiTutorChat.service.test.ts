@@ -42,7 +42,7 @@ describe('prepareLectureChatContext', () => {
       userId: 7,
       lectureId: 99,
       chat: 'Explain hooks',
-      platform: 'web',
+      platform: 'web-desktop',
       language: 'English',
     })
 
@@ -65,7 +65,7 @@ describe('prepareLectureChatContext', () => {
         { role: 'user', content: 'Explain hooks' },
       ],
       chat: 'Explain hooks',
-      platform: 'web',
+      platform: 'web-desktop',
       language: 'English',
     })
   })
@@ -78,7 +78,7 @@ describe('prepareLectureChatContext', () => {
       userId: 7,
       lectureId: 99,
       chat: 'Explain hooks',
-      platform: 'web',
+      platform: 'web-desktop',
       language: 'Tamil',
     })
 
@@ -103,8 +103,8 @@ describe('prepareLectureChatContext', () => {
         userId: 7,
         lectureId: 99,
         chat: 'Explain hooks',
+        platform: 'web-desktop',
         chatId: 2,
-        platform: 'web',
         language: 'English',
       }),
     ).rejects.toMatchObject({ status: 404, code: 'AI_TUTOR_CHAT_NOT_FOUND' })
@@ -136,7 +136,7 @@ describe('streamLectureChatEventsFromContext', () => {
         { role: 'user', content: 'Explain hooks' },
       ],
       chat: 'Explain hooks',
-      platform: 'web',
+      platform: 'web-desktop',
       language: 'Hindi',
     })) {
       events.push(event)
@@ -159,7 +159,7 @@ describe('streamLectureChatEventsFromContext', () => {
       rowId: 12,
       userMessage: 'Explain hooks',
       aiMessage: 'Hello there',
-      platform: 'web',
+      platform: 'web-desktop',
       language: 'Hindi',
       existingHistory: [{ userMessage: 'Earlier', aiMessage: 'Sure' }],
     })

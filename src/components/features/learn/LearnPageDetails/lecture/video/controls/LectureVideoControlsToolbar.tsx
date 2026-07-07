@@ -25,6 +25,7 @@ import {
 import { LectureVideoAskAiPill } from './LectureVideoAskAiPill'
 import type { LectureChromePlayerRef } from './lectureVideoChrome.utils'
 import { useLectureSplitChatOptional } from '../../hooks/LectureSplitChatContext'
+import { pushLearnEvent } from '@/components/features/learn/shared/learnAnalytics'
 
 type LectureVideoControlsToolbarProps = {
   videoRef: React.MutableRefObject<LectureChromePlayerRef>
@@ -176,6 +177,7 @@ export function LectureVideoControlsToolbar({
 
   const toggleFullscreen = () => {
     onActivity()
+    pushLearnEvent('l_learn_lecture_video_fullscreen_toggle')
     const element = fullscreenContainerRef.current
     if (!element) return
     if (!document.fullscreenElement) {
@@ -187,6 +189,7 @@ export function LectureVideoControlsToolbar({
 
   const openAssistant = () => {
     onActivity()
+    pushLearnEvent('l_learn_lecture_ask_ai_open')
     splitChat?.open()
   }
 

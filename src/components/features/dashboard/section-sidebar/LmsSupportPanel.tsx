@@ -1,3 +1,4 @@
+import { pushDashboardEvent } from '../shared/dashboardAnalytics'
 import type { DashboardSupportSession } from '@/server/api/dashboard/support/getSupportSessions.service'
 import type { SupportSessionStatus } from '@/server/api/dashboard/support/supportSessionStatus'
 
@@ -52,6 +53,12 @@ export function LmsSupportPanel({ session }: LmsSupportPanelProps) {
           target="_blank"
           rel="noopener noreferrer"
           data-testid="dashboard-support-session-join"
+          onClick={() =>
+            pushDashboardEvent('l_dashboard_support_join_id_' + session.id, {
+              session_id: session.id,
+              status: session.status,
+            })
+          }
           className="inline-flex shrink-0 items-center rounded-lg bg-[#3F83F8] px-3.5 py-2 text-xs font-semibold text-white transition-colors hover:bg-[#3576e0] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#3F83F8]"
         >
           Join Now

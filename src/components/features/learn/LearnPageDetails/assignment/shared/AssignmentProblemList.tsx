@@ -8,6 +8,10 @@ import type {
   AssignmentProblemStatusTone,
 } from '@/server/learn/utils/buildAssignmentProblemListItems'
 import { MasaiChips } from '@/components/ui/masai-chips'
+import {
+  learnEntityEvent,
+  pushLearnEvent,
+} from '@/components/features/learn/shared/learnAnalytics'
 
 type AssignmentProblemListProps = {
   assignmentId: number
@@ -44,6 +48,16 @@ export function AssignmentProblemList({
                 assignmentId: String(assignmentId),
                 problemId: String(problem.problemId),
               }}
+              onClick={() =>
+                pushLearnEvent(
+                  learnEntityEvent('assignment', 'problem_open', problem.problemId),
+                  {
+                    assignment_id: assignmentId,
+                    problem_id: problem.problemId,
+                    element_id: problem.elementId,
+                  },
+                )
+              }
               className="flex items-center justify-between gap-3 rounded-xl border border-gray-100 bg-white px-4 py-4 transition-colors hover:border-gray-200 hover:bg-gray-50"
               data-testid={`assignment-problem-${problem.elementId}`}
             >

@@ -7,6 +7,10 @@ import {
   removeResourceBookmarkViaApi,
 } from '@/lib/api/learn/learnApi'
 import { toast } from '@/lib/toast'
+import {
+  learnEntityEvent,
+  pushLearnEvent,
+} from '@/components/features/learn/shared/learnAnalytics'
 
 export interface ResourceBookmarkControls {
   isBookmarked: boolean
@@ -30,6 +34,14 @@ export function useResourceBookmark(
     if (pending) return
 
     const next = !isBookmarked
+    pushLearnEvent(
+      learnEntityEvent(
+        'resource',
+        isBookmarked ? 'bookmark_remove' : 'bookmark_add',
+        resourceId,
+      ),
+      { resource_id: resourceId },
+    )
     setIsBookmarked(next)
     setPending(true)
 
