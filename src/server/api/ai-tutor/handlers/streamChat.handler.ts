@@ -16,8 +16,6 @@ import {
   streamLectureChatEventsFromContext,
 } from '@/server/api/ai-tutor/streamAiTutorChat.service'
 
-type LectureAiChatPlatform = 'web-desktop' | 'web-mobile'
-
 type StreamChatBody = {
   lectureId?: unknown
   chat?: unknown
