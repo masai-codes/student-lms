@@ -152,6 +152,8 @@ export function mapThrownErrorToResponse(error: unknown): Response {
       case 'AI_TUTOR_CHAT_MESSAGE_TOO_LONG':
       case 'AI_TUTOR_LECTURE_ID_INVALID':
       case 'AI_TUTOR_CHAT_ID_INVALID':
+      case 'AI_TUTOR_PLATFORM_INVALID':
+      case 'AI_TUTOR_RATING_INVALID':
         return jsonError(400, error.message)
       case 'AI_TUTOR_CHAT_NOT_FOUND':
       case 'AI_TUTOR_LECTURE_SUMMARY_NOT_FOUND':
@@ -160,6 +162,7 @@ export function mapThrownErrorToResponse(error: unknown): Response {
       case 'SERVER_ERROR_CREATING_AI_TUTOR_CHAT':
       case 'SERVER_ERROR_FETCHING_AI_TUTOR_CONVERSATIONS':
       case 'SERVER_ERROR_FETCHING_AI_TUTOR_CONVERSATION':
+      case 'SERVER_ERROR_SUBMITTING_AI_TUTOR_FEEDBACK':
         return jsonError(500, error.message)
       case 'AI_TUTOR_ANTHROPIC_NOT_CONFIGURED':
         return jsonError(503, error.message)

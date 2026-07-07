@@ -11,6 +11,7 @@ import { AnnouncementModalController, ModalProvider } from '@/components/modals'
 import MasaiverseMobileTabBar from '@/components/features/masaiverse-v2/MasaiverseMobileTabBar'
 import { isMasaiverseApp } from '@/constants/masaiverseDrawerUi'
 import { layoutMainClasses, layoutMainClassesFullWidth } from '@/lib/layout'
+import { bootstrapLoginWithToken } from '@/server/auth/bootstrapLogin'
 import { fetchCurrentUser } from '@/server/auth/fetchCurrentUser'
 import {
   getOldStudentUiUrlForPath,
@@ -46,7 +47,15 @@ export const Route = createFileRoute('/(protected)/_layout')({
     const requestUrl = new URL(location.href, 'http://localhost')
     const token = requestUrl.searchParams.get('token')
 
-    const user = await fetchCurrentUser()
+    let user = await fetchCurrentUser()
+
+    // Auto-login fallback: only when there's no session yet but the request
+    // carries a `?token=` (legacy/app hands the session off via the URL).
+    // Verifying it persists the session cookie so later requests are authed.
+    if (!user && token && isMasaiverseRoute) {
+      console.log('Masaiverse:', isMasaiverseRoute, token)
+      user = await bootstrapLoginWithToken({ data: token })
+    }
 
     if (!user) {
       throw redirect({ to: '/signin' })
@@ -59,8 +68,10 @@ export const Route = createFileRoute('/(protected)/_layout')({
       // Token is only needed for legacy app redirect auth flow.
       redirectSearchParams.delete('token')
       redirectSearchParams.set('isApp', 'true')
+      // The app handoff always lands on masaiverse home, regardless of which
+      // masaiverse path the token arrived on.
       const redirectTarget = newStudentUiBase
-        ? `${newStudentUiBase}${location.pathname}?${redirectSearchParams.toString()}`
+        ? `${newStudentUiBase}/masaiverse/home?${redirectSearchParams.toString()}`
         : null
 
       if (redirectTarget) {

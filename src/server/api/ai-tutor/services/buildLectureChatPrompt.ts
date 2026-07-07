@@ -1,14 +1,46 @@
 import type { AiChatHistoryEntry } from '@/server/api/ai-tutor/types/chatHistory'
+import type { AiTutorChatLanguage } from '@/server/api/ai-tutor/chatLanguage'
+import {
+  AI_TUTOR_LECTURE_CHAT_RESPONSE_GUIDANCE,
+  AI_TUTOR_LECTURE_CHAT_SYSTEM_PROMPT_BASE,
+  buildEnforcedChatLanguageInstruction,
+} from '@/server/api/ai-tutor/constants'
 
-export function buildLectureChatUserPrompt(input: {
-  summary: string
+export type LectureChatMessage = {
+  role: 'user' | 'assistant'
+  content: string
+}
+
+export function buildLectureChatSystemPrompt(
+  summary: string,
+  language: AiTutorChatLanguage,
+): string {
+  return `${AI_TUTOR_LECTURE_CHAT_SYSTEM_PROMPT_BASE}
+
+${buildEnforcedChatLanguageInstruction(language)}
+
+${AI_TUTOR_LECTURE_CHAT_RESPONSE_GUIDANCE}
+
+## Lecture content (summary)
+${summary}`
+}
+
+export function buildLectureChatMessages(input: {
   chatHistory: Array<AiChatHistoryEntry>
   question: string
-}): string {
-  const historyBlock =
-    input.chatHistory.length > 0
-      ? `Student bot chat history:\n${JSON.stringify(input.chatHistory)}\n`
-      : ''
+}): Array<LectureChatMessage> {
+  const messages: Array<LectureChatMessage> = []
 
-  return `${historyBlock}Lecture Summary:\n${input.summary}\n\nStudent's Question:\n${input.question}`
+  for (const entry of input.chatHistory) {
+    if (entry.userMessage) {
+      messages.push({ role: 'user', content: entry.userMessage })
+    }
+    if (entry.aiMessage) {
+      messages.push({ role: 'assistant', content: entry.aiMessage })
+    }
+  }
+
+  messages.push({ role: 'user', content: input.question })
+
+  return messages
 }

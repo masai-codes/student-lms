@@ -130,6 +130,7 @@ import { Route as ApiAnnouncementIdMarkUnreadRouteImport } from './routes/api/an
 import { Route as ApiAnnouncementIdMarkReadRouteImport } from './routes/api/announcement/$id/mark-read'
 import { Route as ApiAnnouncementIdBookmarkRouteImport } from './routes/api/announcement/$id/bookmark'
 import { Route as ApiAiTutorChatStreamRouteImport } from './routes/api/ai-tutor/chat/stream'
+import { Route as ApiAiTutorChatFeedbackRouteImport } from './routes/api/ai-tutor/chat/feedback'
 import { Route as protectedLayoutMasaiverseLeaderboardRouteImport } from './routes/(protected)/_layout/masaiverse/leaderboard'
 import { Route as protectedLayoutMasaiverseHomeRouteImport } from './routes/(protected)/_layout/masaiverse/home'
 import { Route as protectedLayoutMasaiverseEventsRouteImport } from './routes/(protected)/_layout/masaiverse/events'
@@ -851,6 +852,11 @@ const ApiAiTutorChatStreamRoute = ApiAiTutorChatStreamRouteImport.update({
   path: '/api/ai-tutor/chat/stream',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiAiTutorChatFeedbackRoute = ApiAiTutorChatFeedbackRouteImport.update({
+  id: '/api/ai-tutor/chat/feedback',
+  path: '/api/ai-tutor/chat/feedback',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const protectedLayoutMasaiverseLeaderboardRoute =
   protectedLayoutMasaiverseLeaderboardRouteImport.update({
     id: '/leaderboard',
@@ -1184,6 +1190,7 @@ export interface FileRoutesByFullPath {
   '/masaiverse/events': typeof protectedLayoutMasaiverseEventsRoute
   '/masaiverse/home': typeof protectedLayoutMasaiverseHomeRoute
   '/masaiverse/leaderboard': typeof protectedLayoutMasaiverseLeaderboardRoute
+  '/api/ai-tutor/chat/feedback': typeof ApiAiTutorChatFeedbackRoute
   '/api/ai-tutor/chat/stream': typeof ApiAiTutorChatStreamRoute
   '/api/announcement/$id/bookmark': typeof ApiAnnouncementIdBookmarkRoute
   '/api/announcement/$id/mark-read': typeof ApiAnnouncementIdMarkReadRoute
@@ -1350,6 +1357,7 @@ export interface FileRoutesByTo {
   '/masaiverse/events': typeof protectedLayoutMasaiverseEventsRoute
   '/masaiverse/home': typeof protectedLayoutMasaiverseHomeRoute
   '/masaiverse/leaderboard': typeof protectedLayoutMasaiverseLeaderboardRoute
+  '/api/ai-tutor/chat/feedback': typeof ApiAiTutorChatFeedbackRoute
   '/api/ai-tutor/chat/stream': typeof ApiAiTutorChatStreamRoute
   '/api/announcement/$id/bookmark': typeof ApiAnnouncementIdBookmarkRoute
   '/api/announcement/$id/mark-read': typeof ApiAnnouncementIdMarkReadRoute
@@ -1519,6 +1527,7 @@ export interface FileRoutesById {
   '/(protected)/_layout/masaiverse/events': typeof protectedLayoutMasaiverseEventsRoute
   '/(protected)/_layout/masaiverse/home': typeof protectedLayoutMasaiverseHomeRoute
   '/(protected)/_layout/masaiverse/leaderboard': typeof protectedLayoutMasaiverseLeaderboardRoute
+  '/api/ai-tutor/chat/feedback': typeof ApiAiTutorChatFeedbackRoute
   '/api/ai-tutor/chat/stream': typeof ApiAiTutorChatStreamRoute
   '/api/announcement/$id/bookmark': typeof ApiAnnouncementIdBookmarkRoute
   '/api/announcement/$id/mark-read': typeof ApiAnnouncementIdMarkReadRoute
@@ -1688,6 +1697,7 @@ export interface FileRouteTypes {
     | '/masaiverse/events'
     | '/masaiverse/home'
     | '/masaiverse/leaderboard'
+    | '/api/ai-tutor/chat/feedback'
     | '/api/ai-tutor/chat/stream'
     | '/api/announcement/$id/bookmark'
     | '/api/announcement/$id/mark-read'
@@ -1854,6 +1864,7 @@ export interface FileRouteTypes {
     | '/masaiverse/events'
     | '/masaiverse/home'
     | '/masaiverse/leaderboard'
+    | '/api/ai-tutor/chat/feedback'
     | '/api/ai-tutor/chat/stream'
     | '/api/announcement/$id/bookmark'
     | '/api/announcement/$id/mark-read'
@@ -2022,6 +2033,7 @@ export interface FileRouteTypes {
     | '/(protected)/_layout/masaiverse/events'
     | '/(protected)/_layout/masaiverse/home'
     | '/(protected)/_layout/masaiverse/leaderboard'
+    | '/api/ai-tutor/chat/feedback'
     | '/api/ai-tutor/chat/stream'
     | '/api/announcement/$id/bookmark'
     | '/api/announcement/$id/mark-read'
@@ -2175,6 +2187,7 @@ export interface RootRouteChildren {
   authV2AuthUseAccountRoute: typeof authV2AuthUseAccountRoute
   authV2LoginRequestOtpRoute: typeof authV2LoginRequestOtpRoute
   authV2LoginVerifyOtpRoute: typeof authV2LoginVerifyOtpRoute
+  ApiAiTutorChatFeedbackRoute: typeof ApiAiTutorChatFeedbackRoute
   ApiAiTutorChatStreamRoute: typeof ApiAiTutorChatStreamRoute
   ApiAnnouncementIdBookmarkRoute: typeof ApiAnnouncementIdBookmarkRoute
   ApiAnnouncementIdMarkReadRoute: typeof ApiAnnouncementIdMarkReadRoute
@@ -3096,6 +3109,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAiTutorChatStreamRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/ai-tutor/chat/feedback': {
+      id: '/api/ai-tutor/chat/feedback'
+      path: '/api/ai-tutor/chat/feedback'
+      fullPath: '/api/ai-tutor/chat/feedback'
+      preLoaderRoute: typeof ApiAiTutorChatFeedbackRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/(protected)/_layout/masaiverse/leaderboard': {
       id: '/(protected)/_layout/masaiverse/leaderboard'
       path: '/leaderboard'
@@ -3718,6 +3738,7 @@ const rootRouteChildren: RootRouteChildren = {
   authV2AuthUseAccountRoute: authV2AuthUseAccountRoute,
   authV2LoginRequestOtpRoute: authV2LoginRequestOtpRoute,
   authV2LoginVerifyOtpRoute: authV2LoginVerifyOtpRoute,
+  ApiAiTutorChatFeedbackRoute: ApiAiTutorChatFeedbackRoute,
   ApiAiTutorChatStreamRoute: ApiAiTutorChatStreamRoute,
   ApiAnnouncementIdBookmarkRoute: ApiAnnouncementIdBookmarkRoute,
   ApiAnnouncementIdMarkReadRoute: ApiAnnouncementIdMarkReadRoute,

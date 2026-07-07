@@ -122,6 +122,40 @@ describe('handleStreamChat', () => {
     })
   })
 
+  it('returns 400 when language is invalid', async () => {
+    const { handleStreamChat } =
+      await import('../handlers/streamChat.handler')
+    vi.mocked(requireSessionUserId).mockResolvedValueOnce(7)
+
+    const res = await handleStreamChat(
+      postRequest({ lectureId: 1, chat: 'hello', language: 'spanish' }),
+    )
+
+    expect(res.status).toBe(400)
+    await expect(res.json()).resolves.toEqual({
+      code: 'AI_TUTOR_LANGUAGE_INVALID',
+      message: 'AI_TUTOR_LANGUAGE_INVALID',
+    })
+    expect(hoisted.prepareLectureChatContext).not.toHaveBeenCalled()
+  })
+
+  it('returns 400 when platform is invalid', async () => {
+    const { handleStreamChat } =
+      await import('../handlers/streamChat.handler')
+    vi.mocked(requireSessionUserId).mockResolvedValueOnce(7)
+
+    const res = await handleStreamChat(
+      postRequest({ lectureId: 1, chat: 'hello', platform: 'windows' }),
+    )
+
+    expect(res.status).toBe(400)
+    await expect(res.json()).resolves.toEqual({
+      code: 'AI_TUTOR_PLATFORM_INVALID',
+      message: 'AI_TUTOR_PLATFORM_INVALID',
+    })
+    expect(hoisted.prepareLectureChatContext).not.toHaveBeenCalled()
+  })
+
   it('returns 503 when Anthropic is not configured', async () => {
     const { ApiError } = await import('@/server/api/http/apiError')
     const { handleStreamChat } = await import('../handlers/streamChat.handler')
@@ -158,13 +192,46 @@ describe('handleStreamChat', () => {
     expect(hoisted.streamLectureChatEventsFromContext).not.toHaveBeenCalled()
   })
 
+  it('defaults language to English when omitted from the request', async () => {
+    const { handleStreamChat } =
+      await import('../handlers/streamChat.handler')
+    vi.mocked(requireSessionUserId).mockResolvedValueOnce(7)
+    hoisted.prepareLectureChatContext.mockResolvedValueOnce({
+      chatRow: { id: 12, chatHistory: [] },
+      systemPrompt: 'system prompt',
+      messages: [{ role: 'user', content: 'explain hooks' }],
+      chat: 'explain hooks',
+      platform: 'app',
+      language: 'English',
+    })
+    hoisted.streamLectureChatEventsFromContext.mockImplementationOnce(function* () {
+      yield { type: 'done' as const, chatId: 12 }
+    })
+
+    await handleStreamChat(
+      postRequest({ lectureId: 99, chat: 'explain hooks' }),
+    )
+
+    expect(hoisted.prepareLectureChatContext).toHaveBeenCalledWith({
+      userId: 7,
+      lectureId: 99,
+      chat: 'explain hooks',
+      chatId: undefined,
+      platform: 'app',
+      language: 'English',
+    })
+  })
+
   it('streams token events over SSE for an authenticated request', async () => {
     const { handleStreamChat } = await import('../handlers/streamChat.handler')
     vi.mocked(requireSessionUserId).mockResolvedValueOnce(7)
     hoisted.prepareLectureChatContext.mockResolvedValueOnce({
       chatRow: { id: 12, chatHistory: [] },
-      userPrompt: 'prompt',
+      systemPrompt: 'system prompt',
+      messages: [{ role: 'user', content: 'explain hooks' }],
       chat: 'explain hooks',
+      platform: 'ios',
+      language: 'Hindi',
     })
 
     function* events() {
@@ -177,7 +244,13 @@ describe('handleStreamChat', () => {
     )
 
     const res = await handleStreamChat(
-      postRequest({ lectureId: 99, chat: 'explain hooks', chatID: 12 }),
+      postRequest({
+        lectureId: 99,
+        chat: 'explain hooks',
+        chatID: 12,
+        platform: 'ios',
+        language: 'hi',
+      }),
     )
 
     expect(hoisted.prepareLectureChatContext).toHaveBeenCalledWith({
@@ -185,11 +258,16 @@ describe('handleStreamChat', () => {
       lectureId: 99,
       chat: 'explain hooks',
       chatId: 12,
+      platform: 'ios',
+      language: 'Hindi',
     })
     expect(hoisted.streamLectureChatEventsFromContext).toHaveBeenCalledWith({
       chatRow: { id: 12, chatHistory: [] },
-      userPrompt: 'prompt',
+      systemPrompt: 'system prompt',
+      messages: [{ role: 'user', content: 'explain hooks' }],
       chat: 'explain hooks',
+      platform: 'ios',
+      language: 'Hindi',
     })
     expect(res.status).toBe(200)
 
