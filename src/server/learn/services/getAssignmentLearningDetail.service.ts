@@ -18,6 +18,9 @@ import { buildAssignmentProblemListItems } from '@/server/learn/utils/buildAssig
 import { buildLearnDetailPresentation } from '@/server/learn/utils/buildLearnDetailPresentation'
 import { getAssignmentAssociatedContent } from '@/server/learn/services/getAssignmentAssociatedContent.service'
 import { ensureUserCanAccessLearnHubEntity } from '@/server/learn/utils/ensureLearnEntityAccess'
+import { resolveLearnDetailBanRestriction } from '@/server/learn/utils/resolveLearnDetailBanRestriction'
+import { getBatchIdForSection } from '@/server/batches/getBatchIdsForSections'
+import { getUserBatchBans } from '@/server/users/batchBan'
 
 export async function getAssignmentLearningDetailForUser(
   userId: number,
@@ -125,7 +128,7 @@ export async function getAssignmentLearningDetailForUser(
 
   const core = buildLearnDetailPresentation(row)
 
-  return buildAssignmentDetailPayload(
+  const payload = buildAssignmentDetailPayload(
     { ...core, discussions },
     {
       type: row.type,
@@ -162,4 +165,28 @@ export async function getAssignmentLearningDetailForUser(
     associatedItems,
     problems,
   )
+
+  const [bans, sectionBatchId] = await Promise.all([
+    getUserBatchBans(userId),
+    getBatchIdForSection(row.sectionId),
+  ])
+  const isPractice = row.type.trim().toLowerCase() === 'practice'
+  const banRestriction = resolveLearnDetailBanRestriction({
+    contentBatchId: sectionBatchId ?? row.batchId,
+    schedule: row.schedule,
+    bans,
+    agreementRestrictionKind: isPractice ? 'practice' : null,
+  })
+
+  if (banRestriction?.kind === 'practice') {
+    // Agreement ban: strip the practice attempt so it can't be started; the
+    // frontend renders a ban notice in the footer's place.
+    return {
+      ...payload,
+      banRestriction,
+      footer: { ...payload.footer, visible: false, actions: [] },
+    }
+  }
+
+  return { ...payload, banRestriction }
 }

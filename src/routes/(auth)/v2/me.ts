@@ -2,15 +2,15 @@ import { eq } from 'drizzle-orm'
 import { createFileRoute } from '@tanstack/react-router'
 import { db } from '@/db'
 import { users } from '@/db/schema'
-import { getUserIdFromRequest } from '@/server/auth/getCurrentSessionUserId'
+import { getCurrentUserId } from '@/server/auth/getCurrentSessionUserId'
 import {
   errorResponse,
   jsonResponse,
   withAuthErrorHandling,
 } from '@/server/auth/v2/httpHelpers'
 
-async function handleMe(request: Request): Promise<Response> {
-  const userId = await getUserIdFromRequest(request)
+async function handleMe(): Promise<Response> {
+  const userId = await getCurrentUserId()
   if (!userId) {
     return errorResponse(401, 'UNAUTHENTICATED', 'Not signed in')
   }
@@ -29,7 +29,11 @@ async function handleMe(request: Request): Promise<Response> {
 
   const user = rows[0]
   if (!user) {
-    return errorResponse(401, 'UNAUTHENTICATED', 'Session user no longer exists')
+    return errorResponse(
+      401,
+      'UNAUTHENTICATED',
+      'Session user no longer exists',
+    )
   }
 
   return jsonResponse({ user })

@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as ApiServerTimeRouteImport } from './routes/api/server-time'
 import { Route as ApiSecretLoginRouteImport } from './routes/api/secret-login'
+import { Route as ApiMeRouteImport } from './routes/api/me'
 import { Route as ApiHealthRouteImport } from './routes/api/health'
 import { Route as ApiAssessNpsCallbackRouteRouteImport } from './routes/api/assess-nps-callback/route'
 import { Route as protectedLayoutRouteRouteImport } from './routes/(protected)/_layout/route'
@@ -40,24 +41,13 @@ import { Route as ApiMasaiverseV2AwardPointsRouteImport } from './routes/api/mas
 import { Route as ApiMasaiverseV2AdminModeRouteImport } from './routes/api/masaiverse-v2/admin-mode'
 import { Route as ApiLearnPageRouteImport } from './routes/api/learn/page'
 import { Route as ApiLearnDiscussionsRouteImport } from './routes/api/learn/discussions'
-import { Route as ApiDashboardWelcomeModalStatusRouteImport } from './routes/api/dashboard/welcome-modal-status'
 import { Route as ApiDashboardWelcomeModalDismissRouteImport } from './routes/api/dashboard/welcome-modal-dismiss'
-import { Route as ApiDashboardT0FlowStudentStatusRouteImport } from './routes/api/dashboard/t0-flow-student-status'
 import { Route as ApiDashboardT0FlowStepCompleteRouteImport } from './routes/api/dashboard/t0-flow-step-complete'
-import { Route as ApiDashboardT0FlowStatusRouteImport } from './routes/api/dashboard/t0-flow-status'
 import { Route as ApiDashboardT0FlowLecturesRouteImport } from './routes/api/dashboard/t0-flow-lectures'
-import { Route as ApiDashboardScheduleRouteImport } from './routes/api/dashboard/schedule'
-import { Route as ApiDashboardRightSectionRouteImport } from './routes/api/dashboard/right-section'
-import { Route as ApiDashboardProductUpdatesRouteImport } from './routes/api/dashboard/product-updates'
-import { Route as ApiDashboardPendingTasksRouteImport } from './routes/api/dashboard/pending-tasks'
-import { Route as ApiDashboardPaymentBannerRouteImport } from './routes/api/dashboard/payment-banner'
+import { Route as ApiDashboardT0FlowDocumentsRouteImport } from './routes/api/dashboard/t0-flow-documents'
+import { Route as ApiDashboardProfilePhotoRouteImport } from './routes/api/dashboard/profile-photo'
+import { Route as ApiDashboardOverviewRouteImport } from './routes/api/dashboard/overview'
 import { Route as ApiDashboardNavbarPillRouteImport } from './routes/api/dashboard/navbar-pill'
-import { Route as ApiDashboardLmsSupportRouteImport } from './routes/api/dashboard/lms-support'
-import { Route as ApiDashboardLeftSectionRouteImport } from './routes/api/dashboard/left-section'
-import { Route as ApiDashboardBannersRouteImport } from './routes/api/dashboard/banners'
-import { Route as ApiDashboardAttendanceRouteImport } from './routes/api/dashboard/attendance'
-import { Route as ApiDashboardAnnouncementsRouteImport } from './routes/api/dashboard/announcements'
-import { Route as ApiDashboardActionBannersRouteImport } from './routes/api/dashboard/action-banners'
 import { Route as ApiAnnouncementUnreadCountRouteImport } from './routes/api/announcement/unread-count'
 import { Route as ApiAnnouncementPopupsRouteImport } from './routes/api/announcement/popups'
 import { Route as protectedLayoutMyCoursesRouteImport } from './routes/(protected)/_layout/my-courses'
@@ -127,8 +117,9 @@ import { Route as ApiLearnLecturesLectureIdRouteImport } from './routes/api/lear
 import { Route as ApiLearnAssignmentsAssignmentIdRouteImport } from './routes/api/learn/assignments/$assignmentId'
 import { Route as ApiLearnAiTutorLimitRouteImport } from './routes/api/learn/ai-tutor/limit'
 import { Route as ApiLearnAiTutorEndRouteImport } from './routes/api/learn/ai-tutor/end'
-import { Route as ApiDashboardNpsFormFormIdRouteImport } from './routes/api/dashboard/nps-form/$formId'
-import { Route as ApiDashboardAgreementSectionIdRouteImport } from './routes/api/dashboard/agreement/$sectionId'
+import { Route as ApiDashboardAgreementViewRouteImport } from './routes/api/dashboard/agreement/view'
+import { Route as ApiDashboardAgreementSubmitRouteImport } from './routes/api/dashboard/agreement/submit'
+import { Route as ApiDashboardAgreementSaveRouteImport } from './routes/api/dashboard/agreement/save'
 import { Route as ApiCourseBatchIdEvaluationsRouteImport } from './routes/api/course/$batchId/evaluations'
 import { Route as ApiCourseBatchIdDetailsRouteImport } from './routes/api/course/$batchId/details'
 import { Route as ApiCourseBatchIdCertificatesRouteImport } from './routes/api/course/$batchId/certificates'
@@ -139,6 +130,7 @@ import { Route as ApiAnnouncementIdMarkUnreadRouteImport } from './routes/api/an
 import { Route as ApiAnnouncementIdMarkReadRouteImport } from './routes/api/announcement/$id/mark-read'
 import { Route as ApiAnnouncementIdBookmarkRouteImport } from './routes/api/announcement/$id/bookmark'
 import { Route as ApiAiTutorChatStreamRouteImport } from './routes/api/ai-tutor/chat/stream'
+import { Route as ApiAiTutorChatFeedbackRouteImport } from './routes/api/ai-tutor/chat/feedback'
 import { Route as protectedLayoutMasaiverseLeaderboardRouteImport } from './routes/(protected)/_layout/masaiverse/leaderboard'
 import { Route as protectedLayoutMasaiverseHomeRouteImport } from './routes/(protected)/_layout/masaiverse/home'
 import { Route as protectedLayoutMasaiverseEventsRouteImport } from './routes/(protected)/_layout/masaiverse/events'
@@ -175,15 +167,6 @@ import { Route as ApiLearnAiTutorLectureIdFeedbackRouteImport } from './routes/a
 import { Route as ApiLearnAiTutorLectureIdDispatchRouteImport } from './routes/api/learn/ai-tutor/$lectureId/dispatch'
 import { Route as ApiLearnAiChatLectureIdSendRouteImport } from './routes/api/learn/ai-chat/$lectureId/send'
 import { Route as ApiLearnAiChatLectureIdHistoryRouteImport } from './routes/api/learn/ai-chat/$lectureId/history'
-import { Route as ApiDashboardNpsFormFormIdStartRouteImport } from './routes/api/dashboard/nps-form/$formId/start'
-import { Route as ApiDashboardNpsFormFormIdResponseRouteImport } from './routes/api/dashboard/nps-form/$formId/response'
-import { Route as ApiDashboardNpsFormFormIdCompleteRouteImport } from './routes/api/dashboard/nps-form/$formId/complete'
-import { Route as ApiDashboardAssessNpsFormIdLinkRouteImport } from './routes/api/dashboard/assess-nps/$formId/link'
-import { Route as ApiDashboardAgreementSectionIdSubmitRouteImport } from './routes/api/dashboard/agreement/$sectionId/submit'
-import { Route as ApiDashboardAgreementSectionIdStepRouteImport } from './routes/api/dashboard/agreement/$sectionId/step'
-import { Route as ApiDashboardAgreementSectionIdOpenRouteImport } from './routes/api/dashboard/agreement/$sectionId/open'
-import { Route as ApiDashboardAgreementSectionIdDismissRouteImport } from './routes/api/dashboard/agreement/$sectionId/dismiss'
-import { Route as ApiDashboardAgreementSectionIdDetailsRouteImport } from './routes/api/dashboard/agreement/$sectionId/details'
 import { Route as ApiAiTutorChatConversationsChatIdRouteImport } from './routes/api/ai-tutor/chat/conversations/$chatId'
 import { Route as protectedLayoutMasaiverseEventEventIdRouteImport } from './routes/(protected)/_layout/masaiverse/event.$eventId'
 import { Route as protectedLayoutMasaiverseClubClubIdRouteImport } from './routes/(protected)/_layout/masaiverse/club.$clubId'
@@ -202,6 +185,11 @@ const ApiServerTimeRoute = ApiServerTimeRouteImport.update({
 const ApiSecretLoginRoute = ApiSecretLoginRouteImport.update({
   id: '/api/secret-login',
   path: '/api/secret-login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiMeRoute = ApiMeRouteImport.update({
+  id: '/api/me',
+  path: '/api/me',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiHealthRoute = ApiHealthRouteImport.update({
@@ -354,22 +342,10 @@ const ApiLearnDiscussionsRoute = ApiLearnDiscussionsRouteImport.update({
   path: '/api/learn/discussions',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiDashboardWelcomeModalStatusRoute =
-  ApiDashboardWelcomeModalStatusRouteImport.update({
-    id: '/api/dashboard/welcome-modal-status',
-    path: '/api/dashboard/welcome-modal-status',
-    getParentRoute: () => rootRouteImport,
-  } as any)
 const ApiDashboardWelcomeModalDismissRoute =
   ApiDashboardWelcomeModalDismissRouteImport.update({
     id: '/api/dashboard/welcome-modal-dismiss',
     path: '/api/dashboard/welcome-modal-dismiss',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const ApiDashboardT0FlowStudentStatusRoute =
-  ApiDashboardT0FlowStudentStatusRouteImport.update({
-    id: '/api/dashboard/t0-flow-student-status',
-    path: '/api/dashboard/t0-flow-student-status',
     getParentRoute: () => rootRouteImport,
   } as any)
 const ApiDashboardT0FlowStepCompleteRoute =
@@ -378,84 +354,34 @@ const ApiDashboardT0FlowStepCompleteRoute =
     path: '/api/dashboard/t0-flow-step-complete',
     getParentRoute: () => rootRouteImport,
   } as any)
-const ApiDashboardT0FlowStatusRoute =
-  ApiDashboardT0FlowStatusRouteImport.update({
-    id: '/api/dashboard/t0-flow-status',
-    path: '/api/dashboard/t0-flow-status',
-    getParentRoute: () => rootRouteImport,
-  } as any)
 const ApiDashboardT0FlowLecturesRoute =
   ApiDashboardT0FlowLecturesRouteImport.update({
     id: '/api/dashboard/t0-flow-lectures',
     path: '/api/dashboard/t0-flow-lectures',
     getParentRoute: () => rootRouteImport,
   } as any)
-const ApiDashboardScheduleRoute = ApiDashboardScheduleRouteImport.update({
-  id: '/api/dashboard/schedule',
-  path: '/api/dashboard/schedule',
+const ApiDashboardT0FlowDocumentsRoute =
+  ApiDashboardT0FlowDocumentsRouteImport.update({
+    id: '/api/dashboard/t0-flow-documents',
+    path: '/api/dashboard/t0-flow-documents',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiDashboardProfilePhotoRoute =
+  ApiDashboardProfilePhotoRouteImport.update({
+    id: '/api/dashboard/profile-photo',
+    path: '/api/dashboard/profile-photo',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiDashboardOverviewRoute = ApiDashboardOverviewRouteImport.update({
+  id: '/api/dashboard/overview',
+  path: '/api/dashboard/overview',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiDashboardRightSectionRoute =
-  ApiDashboardRightSectionRouteImport.update({
-    id: '/api/dashboard/right-section',
-    path: '/api/dashboard/right-section',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const ApiDashboardProductUpdatesRoute =
-  ApiDashboardProductUpdatesRouteImport.update({
-    id: '/api/dashboard/product-updates',
-    path: '/api/dashboard/product-updates',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const ApiDashboardPendingTasksRoute =
-  ApiDashboardPendingTasksRouteImport.update({
-    id: '/api/dashboard/pending-tasks',
-    path: '/api/dashboard/pending-tasks',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const ApiDashboardPaymentBannerRoute =
-  ApiDashboardPaymentBannerRouteImport.update({
-    id: '/api/dashboard/payment-banner',
-    path: '/api/dashboard/payment-banner',
-    getParentRoute: () => rootRouteImport,
-  } as any)
 const ApiDashboardNavbarPillRoute = ApiDashboardNavbarPillRouteImport.update({
   id: '/api/dashboard/navbar-pill',
   path: '/api/dashboard/navbar-pill',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiDashboardLmsSupportRoute = ApiDashboardLmsSupportRouteImport.update({
-  id: '/api/dashboard/lms-support',
-  path: '/api/dashboard/lms-support',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiDashboardLeftSectionRoute = ApiDashboardLeftSectionRouteImport.update({
-  id: '/api/dashboard/left-section',
-  path: '/api/dashboard/left-section',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiDashboardBannersRoute = ApiDashboardBannersRouteImport.update({
-  id: '/api/dashboard/banners',
-  path: '/api/dashboard/banners',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiDashboardAttendanceRoute = ApiDashboardAttendanceRouteImport.update({
-  id: '/api/dashboard/attendance',
-  path: '/api/dashboard/attendance',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiDashboardAnnouncementsRoute =
-  ApiDashboardAnnouncementsRouteImport.update({
-    id: '/api/dashboard/announcements',
-    path: '/api/dashboard/announcements',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const ApiDashboardActionBannersRoute =
-  ApiDashboardActionBannersRouteImport.update({
-    id: '/api/dashboard/action-banners',
-    path: '/api/dashboard/action-banners',
-    getParentRoute: () => rootRouteImport,
-  } as any)
 const ApiAnnouncementUnreadCountRoute =
   ApiAnnouncementUnreadCountRouteImport.update({
     id: '/api/announcement/unread-count',
@@ -850,16 +776,22 @@ const ApiLearnAiTutorEndRoute = ApiLearnAiTutorEndRouteImport.update({
   path: '/api/learn/ai-tutor/end',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiDashboardNpsFormFormIdRoute =
-  ApiDashboardNpsFormFormIdRouteImport.update({
-    id: '/api/dashboard/nps-form/$formId',
-    path: '/api/dashboard/nps-form/$formId',
+const ApiDashboardAgreementViewRoute =
+  ApiDashboardAgreementViewRouteImport.update({
+    id: '/api/dashboard/agreement/view',
+    path: '/api/dashboard/agreement/view',
     getParentRoute: () => rootRouteImport,
   } as any)
-const ApiDashboardAgreementSectionIdRoute =
-  ApiDashboardAgreementSectionIdRouteImport.update({
-    id: '/api/dashboard/agreement/$sectionId',
-    path: '/api/dashboard/agreement/$sectionId',
+const ApiDashboardAgreementSubmitRoute =
+  ApiDashboardAgreementSubmitRouteImport.update({
+    id: '/api/dashboard/agreement/submit',
+    path: '/api/dashboard/agreement/submit',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiDashboardAgreementSaveRoute =
+  ApiDashboardAgreementSaveRouteImport.update({
+    id: '/api/dashboard/agreement/save',
+    path: '/api/dashboard/agreement/save',
     getParentRoute: () => rootRouteImport,
   } as any)
 const ApiCourseBatchIdEvaluationsRoute =
@@ -918,6 +850,11 @@ const ApiAnnouncementIdBookmarkRoute =
 const ApiAiTutorChatStreamRoute = ApiAiTutorChatStreamRouteImport.update({
   id: '/api/ai-tutor/chat/stream',
   path: '/api/ai-tutor/chat/stream',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAiTutorChatFeedbackRoute = ApiAiTutorChatFeedbackRouteImport.update({
+  id: '/api/ai-tutor/chat/feedback',
+  path: '/api/ai-tutor/chat/feedback',
   getParentRoute: () => rootRouteImport,
 } as any)
 const protectedLayoutMasaiverseLeaderboardRoute =
@@ -1133,60 +1070,6 @@ const ApiLearnAiChatLectureIdHistoryRoute =
     path: '/api/learn/ai-chat/$lectureId/history',
     getParentRoute: () => rootRouteImport,
   } as any)
-const ApiDashboardNpsFormFormIdStartRoute =
-  ApiDashboardNpsFormFormIdStartRouteImport.update({
-    id: '/start',
-    path: '/start',
-    getParentRoute: () => ApiDashboardNpsFormFormIdRoute,
-  } as any)
-const ApiDashboardNpsFormFormIdResponseRoute =
-  ApiDashboardNpsFormFormIdResponseRouteImport.update({
-    id: '/response',
-    path: '/response',
-    getParentRoute: () => ApiDashboardNpsFormFormIdRoute,
-  } as any)
-const ApiDashboardNpsFormFormIdCompleteRoute =
-  ApiDashboardNpsFormFormIdCompleteRouteImport.update({
-    id: '/complete',
-    path: '/complete',
-    getParentRoute: () => ApiDashboardNpsFormFormIdRoute,
-  } as any)
-const ApiDashboardAssessNpsFormIdLinkRoute =
-  ApiDashboardAssessNpsFormIdLinkRouteImport.update({
-    id: '/api/dashboard/assess-nps/$formId/link',
-    path: '/api/dashboard/assess-nps/$formId/link',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const ApiDashboardAgreementSectionIdSubmitRoute =
-  ApiDashboardAgreementSectionIdSubmitRouteImport.update({
-    id: '/submit',
-    path: '/submit',
-    getParentRoute: () => ApiDashboardAgreementSectionIdRoute,
-  } as any)
-const ApiDashboardAgreementSectionIdStepRoute =
-  ApiDashboardAgreementSectionIdStepRouteImport.update({
-    id: '/step',
-    path: '/step',
-    getParentRoute: () => ApiDashboardAgreementSectionIdRoute,
-  } as any)
-const ApiDashboardAgreementSectionIdOpenRoute =
-  ApiDashboardAgreementSectionIdOpenRouteImport.update({
-    id: '/open',
-    path: '/open',
-    getParentRoute: () => ApiDashboardAgreementSectionIdRoute,
-  } as any)
-const ApiDashboardAgreementSectionIdDismissRoute =
-  ApiDashboardAgreementSectionIdDismissRouteImport.update({
-    id: '/dismiss',
-    path: '/dismiss',
-    getParentRoute: () => ApiDashboardAgreementSectionIdRoute,
-  } as any)
-const ApiDashboardAgreementSectionIdDetailsRoute =
-  ApiDashboardAgreementSectionIdDetailsRouteImport.update({
-    id: '/details',
-    path: '/details',
-    getParentRoute: () => ApiDashboardAgreementSectionIdRoute,
-  } as any)
 const ApiAiTutorChatConversationsChatIdRoute =
   ApiAiTutorChatConversationsChatIdRouteImport.update({
     id: '/api/ai-tutor/chat/conversations/$chatId',
@@ -1247,6 +1130,7 @@ const protectedLayoutAssignmentsAssignmentIdProblemsProblemIdRouteRoute =
 export interface FileRoutesByFullPath {
   '/api/assess-nps-callback': typeof ApiAssessNpsCallbackRouteRoute
   '/api/health': typeof ApiHealthRoute
+  '/api/me': typeof ApiMeRoute
   '/api/secret-login': typeof ApiSecretLoginRoute
   '/api/server-time': typeof ApiServerTimeRoute
   '/masaiverse': typeof protectedLayoutMasaiverseRouteRouteWithChildren
@@ -1256,24 +1140,13 @@ export interface FileRoutesByFullPath {
   '/my-courses': typeof protectedLayoutMyCoursesRoute
   '/api/announcement/popups': typeof ApiAnnouncementPopupsRoute
   '/api/announcement/unread-count': typeof ApiAnnouncementUnreadCountRoute
-  '/api/dashboard/action-banners': typeof ApiDashboardActionBannersRoute
-  '/api/dashboard/announcements': typeof ApiDashboardAnnouncementsRoute
-  '/api/dashboard/attendance': typeof ApiDashboardAttendanceRoute
-  '/api/dashboard/banners': typeof ApiDashboardBannersRoute
-  '/api/dashboard/left-section': typeof ApiDashboardLeftSectionRoute
-  '/api/dashboard/lms-support': typeof ApiDashboardLmsSupportRoute
   '/api/dashboard/navbar-pill': typeof ApiDashboardNavbarPillRoute
-  '/api/dashboard/payment-banner': typeof ApiDashboardPaymentBannerRoute
-  '/api/dashboard/pending-tasks': typeof ApiDashboardPendingTasksRoute
-  '/api/dashboard/product-updates': typeof ApiDashboardProductUpdatesRoute
-  '/api/dashboard/right-section': typeof ApiDashboardRightSectionRoute
-  '/api/dashboard/schedule': typeof ApiDashboardScheduleRoute
+  '/api/dashboard/overview': typeof ApiDashboardOverviewRoute
+  '/api/dashboard/profile-photo': typeof ApiDashboardProfilePhotoRoute
+  '/api/dashboard/t0-flow-documents': typeof ApiDashboardT0FlowDocumentsRoute
   '/api/dashboard/t0-flow-lectures': typeof ApiDashboardT0FlowLecturesRoute
-  '/api/dashboard/t0-flow-status': typeof ApiDashboardT0FlowStatusRoute
   '/api/dashboard/t0-flow-step-complete': typeof ApiDashboardT0FlowStepCompleteRoute
-  '/api/dashboard/t0-flow-student-status': typeof ApiDashboardT0FlowStudentStatusRoute
   '/api/dashboard/welcome-modal-dismiss': typeof ApiDashboardWelcomeModalDismissRoute
-  '/api/dashboard/welcome-modal-status': typeof ApiDashboardWelcomeModalStatusRoute
   '/api/learn/discussions': typeof ApiLearnDiscussionsRouteWithChildren
   '/api/learn/page': typeof ApiLearnPageRoute
   '/api/masaiverse-v2/admin-mode': typeof ApiMasaiverseV2AdminModeRoute
@@ -1317,6 +1190,7 @@ export interface FileRoutesByFullPath {
   '/masaiverse/events': typeof protectedLayoutMasaiverseEventsRoute
   '/masaiverse/home': typeof protectedLayoutMasaiverseHomeRoute
   '/masaiverse/leaderboard': typeof protectedLayoutMasaiverseLeaderboardRoute
+  '/api/ai-tutor/chat/feedback': typeof ApiAiTutorChatFeedbackRoute
   '/api/ai-tutor/chat/stream': typeof ApiAiTutorChatStreamRoute
   '/api/announcement/$id/bookmark': typeof ApiAnnouncementIdBookmarkRoute
   '/api/announcement/$id/mark-read': typeof ApiAnnouncementIdMarkReadRoute
@@ -1327,8 +1201,9 @@ export interface FileRoutesByFullPath {
   '/api/course/$batchId/certificates': typeof ApiCourseBatchIdCertificatesRoute
   '/api/course/$batchId/details': typeof ApiCourseBatchIdDetailsRoute
   '/api/course/$batchId/evaluations': typeof ApiCourseBatchIdEvaluationsRoute
-  '/api/dashboard/agreement/$sectionId': typeof ApiDashboardAgreementSectionIdRouteWithChildren
-  '/api/dashboard/nps-form/$formId': typeof ApiDashboardNpsFormFormIdRouteWithChildren
+  '/api/dashboard/agreement/save': typeof ApiDashboardAgreementSaveRoute
+  '/api/dashboard/agreement/submit': typeof ApiDashboardAgreementSubmitRoute
+  '/api/dashboard/agreement/view': typeof ApiDashboardAgreementViewRoute
   '/api/learn/ai-tutor/end': typeof ApiLearnAiTutorEndRoute
   '/api/learn/ai-tutor/limit': typeof ApiLearnAiTutorLimitRoute
   '/api/learn/assignments/$assignmentId': typeof ApiLearnAssignmentsAssignmentIdRouteWithChildren
@@ -1394,15 +1269,6 @@ export interface FileRoutesByFullPath {
   '/masaiverse/club/$clubId': typeof protectedLayoutMasaiverseClubClubIdRoute
   '/masaiverse/event/$eventId': typeof protectedLayoutMasaiverseEventEventIdRoute
   '/api/ai-tutor/chat/conversations/$chatId': typeof ApiAiTutorChatConversationsChatIdRoute
-  '/api/dashboard/agreement/$sectionId/details': typeof ApiDashboardAgreementSectionIdDetailsRoute
-  '/api/dashboard/agreement/$sectionId/dismiss': typeof ApiDashboardAgreementSectionIdDismissRoute
-  '/api/dashboard/agreement/$sectionId/open': typeof ApiDashboardAgreementSectionIdOpenRoute
-  '/api/dashboard/agreement/$sectionId/step': typeof ApiDashboardAgreementSectionIdStepRoute
-  '/api/dashboard/agreement/$sectionId/submit': typeof ApiDashboardAgreementSectionIdSubmitRoute
-  '/api/dashboard/assess-nps/$formId/link': typeof ApiDashboardAssessNpsFormIdLinkRoute
-  '/api/dashboard/nps-form/$formId/complete': typeof ApiDashboardNpsFormFormIdCompleteRoute
-  '/api/dashboard/nps-form/$formId/response': typeof ApiDashboardNpsFormFormIdResponseRoute
-  '/api/dashboard/nps-form/$formId/start': typeof ApiDashboardNpsFormFormIdStartRoute
   '/api/learn/ai-chat/$lectureId/history': typeof ApiLearnAiChatLectureIdHistoryRoute
   '/api/learn/ai-chat/$lectureId/send': typeof ApiLearnAiChatLectureIdSendRoute
   '/api/learn/ai-tutor/$lectureId/dispatch': typeof ApiLearnAiTutorLectureIdDispatchRoute
@@ -1432,6 +1298,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/api/assess-nps-callback': typeof ApiAssessNpsCallbackRouteRoute
   '/api/health': typeof ApiHealthRoute
+  '/api/me': typeof ApiMeRoute
   '/api/secret-login': typeof ApiSecretLoginRoute
   '/api/server-time': typeof ApiServerTimeRoute
   '/v2/forgot-password': typeof authV2ForgotPasswordRoute
@@ -1440,24 +1307,13 @@ export interface FileRoutesByTo {
   '/my-courses': typeof protectedLayoutMyCoursesRoute
   '/api/announcement/popups': typeof ApiAnnouncementPopupsRoute
   '/api/announcement/unread-count': typeof ApiAnnouncementUnreadCountRoute
-  '/api/dashboard/action-banners': typeof ApiDashboardActionBannersRoute
-  '/api/dashboard/announcements': typeof ApiDashboardAnnouncementsRoute
-  '/api/dashboard/attendance': typeof ApiDashboardAttendanceRoute
-  '/api/dashboard/banners': typeof ApiDashboardBannersRoute
-  '/api/dashboard/left-section': typeof ApiDashboardLeftSectionRoute
-  '/api/dashboard/lms-support': typeof ApiDashboardLmsSupportRoute
   '/api/dashboard/navbar-pill': typeof ApiDashboardNavbarPillRoute
-  '/api/dashboard/payment-banner': typeof ApiDashboardPaymentBannerRoute
-  '/api/dashboard/pending-tasks': typeof ApiDashboardPendingTasksRoute
-  '/api/dashboard/product-updates': typeof ApiDashboardProductUpdatesRoute
-  '/api/dashboard/right-section': typeof ApiDashboardRightSectionRoute
-  '/api/dashboard/schedule': typeof ApiDashboardScheduleRoute
+  '/api/dashboard/overview': typeof ApiDashboardOverviewRoute
+  '/api/dashboard/profile-photo': typeof ApiDashboardProfilePhotoRoute
+  '/api/dashboard/t0-flow-documents': typeof ApiDashboardT0FlowDocumentsRoute
   '/api/dashboard/t0-flow-lectures': typeof ApiDashboardT0FlowLecturesRoute
-  '/api/dashboard/t0-flow-status': typeof ApiDashboardT0FlowStatusRoute
   '/api/dashboard/t0-flow-step-complete': typeof ApiDashboardT0FlowStepCompleteRoute
-  '/api/dashboard/t0-flow-student-status': typeof ApiDashboardT0FlowStudentStatusRoute
   '/api/dashboard/welcome-modal-dismiss': typeof ApiDashboardWelcomeModalDismissRoute
-  '/api/dashboard/welcome-modal-status': typeof ApiDashboardWelcomeModalStatusRoute
   '/api/learn/discussions': typeof ApiLearnDiscussionsRouteWithChildren
   '/api/learn/page': typeof ApiLearnPageRoute
   '/api/masaiverse-v2/admin-mode': typeof ApiMasaiverseV2AdminModeRoute
@@ -1501,6 +1357,7 @@ export interface FileRoutesByTo {
   '/masaiverse/events': typeof protectedLayoutMasaiverseEventsRoute
   '/masaiverse/home': typeof protectedLayoutMasaiverseHomeRoute
   '/masaiverse/leaderboard': typeof protectedLayoutMasaiverseLeaderboardRoute
+  '/api/ai-tutor/chat/feedback': typeof ApiAiTutorChatFeedbackRoute
   '/api/ai-tutor/chat/stream': typeof ApiAiTutorChatStreamRoute
   '/api/announcement/$id/bookmark': typeof ApiAnnouncementIdBookmarkRoute
   '/api/announcement/$id/mark-read': typeof ApiAnnouncementIdMarkReadRoute
@@ -1511,8 +1368,9 @@ export interface FileRoutesByTo {
   '/api/course/$batchId/certificates': typeof ApiCourseBatchIdCertificatesRoute
   '/api/course/$batchId/details': typeof ApiCourseBatchIdDetailsRoute
   '/api/course/$batchId/evaluations': typeof ApiCourseBatchIdEvaluationsRoute
-  '/api/dashboard/agreement/$sectionId': typeof ApiDashboardAgreementSectionIdRouteWithChildren
-  '/api/dashboard/nps-form/$formId': typeof ApiDashboardNpsFormFormIdRouteWithChildren
+  '/api/dashboard/agreement/save': typeof ApiDashboardAgreementSaveRoute
+  '/api/dashboard/agreement/submit': typeof ApiDashboardAgreementSubmitRoute
+  '/api/dashboard/agreement/view': typeof ApiDashboardAgreementViewRoute
   '/api/learn/ai-tutor/end': typeof ApiLearnAiTutorEndRoute
   '/api/learn/ai-tutor/limit': typeof ApiLearnAiTutorLimitRoute
   '/api/learn/assignments/$assignmentId': typeof ApiLearnAssignmentsAssignmentIdRouteWithChildren
@@ -1578,15 +1436,6 @@ export interface FileRoutesByTo {
   '/masaiverse/club/$clubId': typeof protectedLayoutMasaiverseClubClubIdRoute
   '/masaiverse/event/$eventId': typeof protectedLayoutMasaiverseEventEventIdRoute
   '/api/ai-tutor/chat/conversations/$chatId': typeof ApiAiTutorChatConversationsChatIdRoute
-  '/api/dashboard/agreement/$sectionId/details': typeof ApiDashboardAgreementSectionIdDetailsRoute
-  '/api/dashboard/agreement/$sectionId/dismiss': typeof ApiDashboardAgreementSectionIdDismissRoute
-  '/api/dashboard/agreement/$sectionId/open': typeof ApiDashboardAgreementSectionIdOpenRoute
-  '/api/dashboard/agreement/$sectionId/step': typeof ApiDashboardAgreementSectionIdStepRoute
-  '/api/dashboard/agreement/$sectionId/submit': typeof ApiDashboardAgreementSectionIdSubmitRoute
-  '/api/dashboard/assess-nps/$formId/link': typeof ApiDashboardAssessNpsFormIdLinkRoute
-  '/api/dashboard/nps-form/$formId/complete': typeof ApiDashboardNpsFormFormIdCompleteRoute
-  '/api/dashboard/nps-form/$formId/response': typeof ApiDashboardNpsFormFormIdResponseRoute
-  '/api/dashboard/nps-form/$formId/start': typeof ApiDashboardNpsFormFormIdStartRoute
   '/api/learn/ai-chat/$lectureId/history': typeof ApiLearnAiChatLectureIdHistoryRoute
   '/api/learn/ai-chat/$lectureId/send': typeof ApiLearnAiChatLectureIdSendRoute
   '/api/learn/ai-tutor/$lectureId/dispatch': typeof ApiLearnAiTutorLectureIdDispatchRoute
@@ -1618,6 +1467,7 @@ export interface FileRoutesById {
   '/(protected)/_layout': typeof protectedLayoutRouteRouteWithChildren
   '/api/assess-nps-callback': typeof ApiAssessNpsCallbackRouteRoute
   '/api/health': typeof ApiHealthRoute
+  '/api/me': typeof ApiMeRoute
   '/api/secret-login': typeof ApiSecretLoginRoute
   '/api/server-time': typeof ApiServerTimeRoute
   '/(protected)/_layout/masaiverse': typeof protectedLayoutMasaiverseRouteRouteWithChildren
@@ -1627,24 +1477,13 @@ export interface FileRoutesById {
   '/(protected)/_layout/my-courses': typeof protectedLayoutMyCoursesRoute
   '/api/announcement/popups': typeof ApiAnnouncementPopupsRoute
   '/api/announcement/unread-count': typeof ApiAnnouncementUnreadCountRoute
-  '/api/dashboard/action-banners': typeof ApiDashboardActionBannersRoute
-  '/api/dashboard/announcements': typeof ApiDashboardAnnouncementsRoute
-  '/api/dashboard/attendance': typeof ApiDashboardAttendanceRoute
-  '/api/dashboard/banners': typeof ApiDashboardBannersRoute
-  '/api/dashboard/left-section': typeof ApiDashboardLeftSectionRoute
-  '/api/dashboard/lms-support': typeof ApiDashboardLmsSupportRoute
   '/api/dashboard/navbar-pill': typeof ApiDashboardNavbarPillRoute
-  '/api/dashboard/payment-banner': typeof ApiDashboardPaymentBannerRoute
-  '/api/dashboard/pending-tasks': typeof ApiDashboardPendingTasksRoute
-  '/api/dashboard/product-updates': typeof ApiDashboardProductUpdatesRoute
-  '/api/dashboard/right-section': typeof ApiDashboardRightSectionRoute
-  '/api/dashboard/schedule': typeof ApiDashboardScheduleRoute
+  '/api/dashboard/overview': typeof ApiDashboardOverviewRoute
+  '/api/dashboard/profile-photo': typeof ApiDashboardProfilePhotoRoute
+  '/api/dashboard/t0-flow-documents': typeof ApiDashboardT0FlowDocumentsRoute
   '/api/dashboard/t0-flow-lectures': typeof ApiDashboardT0FlowLecturesRoute
-  '/api/dashboard/t0-flow-status': typeof ApiDashboardT0FlowStatusRoute
   '/api/dashboard/t0-flow-step-complete': typeof ApiDashboardT0FlowStepCompleteRoute
-  '/api/dashboard/t0-flow-student-status': typeof ApiDashboardT0FlowStudentStatusRoute
   '/api/dashboard/welcome-modal-dismiss': typeof ApiDashboardWelcomeModalDismissRoute
-  '/api/dashboard/welcome-modal-status': typeof ApiDashboardWelcomeModalStatusRoute
   '/api/learn/discussions': typeof ApiLearnDiscussionsRouteWithChildren
   '/api/learn/page': typeof ApiLearnPageRoute
   '/api/masaiverse-v2/admin-mode': typeof ApiMasaiverseV2AdminModeRoute
@@ -1688,6 +1527,7 @@ export interface FileRoutesById {
   '/(protected)/_layout/masaiverse/events': typeof protectedLayoutMasaiverseEventsRoute
   '/(protected)/_layout/masaiverse/home': typeof protectedLayoutMasaiverseHomeRoute
   '/(protected)/_layout/masaiverse/leaderboard': typeof protectedLayoutMasaiverseLeaderboardRoute
+  '/api/ai-tutor/chat/feedback': typeof ApiAiTutorChatFeedbackRoute
   '/api/ai-tutor/chat/stream': typeof ApiAiTutorChatStreamRoute
   '/api/announcement/$id/bookmark': typeof ApiAnnouncementIdBookmarkRoute
   '/api/announcement/$id/mark-read': typeof ApiAnnouncementIdMarkReadRoute
@@ -1698,8 +1538,9 @@ export interface FileRoutesById {
   '/api/course/$batchId/certificates': typeof ApiCourseBatchIdCertificatesRoute
   '/api/course/$batchId/details': typeof ApiCourseBatchIdDetailsRoute
   '/api/course/$batchId/evaluations': typeof ApiCourseBatchIdEvaluationsRoute
-  '/api/dashboard/agreement/$sectionId': typeof ApiDashboardAgreementSectionIdRouteWithChildren
-  '/api/dashboard/nps-form/$formId': typeof ApiDashboardNpsFormFormIdRouteWithChildren
+  '/api/dashboard/agreement/save': typeof ApiDashboardAgreementSaveRoute
+  '/api/dashboard/agreement/submit': typeof ApiDashboardAgreementSubmitRoute
+  '/api/dashboard/agreement/view': typeof ApiDashboardAgreementViewRoute
   '/api/learn/ai-tutor/end': typeof ApiLearnAiTutorEndRoute
   '/api/learn/ai-tutor/limit': typeof ApiLearnAiTutorLimitRoute
   '/api/learn/assignments/$assignmentId': typeof ApiLearnAssignmentsAssignmentIdRouteWithChildren
@@ -1765,15 +1606,6 @@ export interface FileRoutesById {
   '/(protected)/_layout/masaiverse/club/$clubId': typeof protectedLayoutMasaiverseClubClubIdRoute
   '/(protected)/_layout/masaiverse/event/$eventId': typeof protectedLayoutMasaiverseEventEventIdRoute
   '/api/ai-tutor/chat/conversations/$chatId': typeof ApiAiTutorChatConversationsChatIdRoute
-  '/api/dashboard/agreement/$sectionId/details': typeof ApiDashboardAgreementSectionIdDetailsRoute
-  '/api/dashboard/agreement/$sectionId/dismiss': typeof ApiDashboardAgreementSectionIdDismissRoute
-  '/api/dashboard/agreement/$sectionId/open': typeof ApiDashboardAgreementSectionIdOpenRoute
-  '/api/dashboard/agreement/$sectionId/step': typeof ApiDashboardAgreementSectionIdStepRoute
-  '/api/dashboard/agreement/$sectionId/submit': typeof ApiDashboardAgreementSectionIdSubmitRoute
-  '/api/dashboard/assess-nps/$formId/link': typeof ApiDashboardAssessNpsFormIdLinkRoute
-  '/api/dashboard/nps-form/$formId/complete': typeof ApiDashboardNpsFormFormIdCompleteRoute
-  '/api/dashboard/nps-form/$formId/response': typeof ApiDashboardNpsFormFormIdResponseRoute
-  '/api/dashboard/nps-form/$formId/start': typeof ApiDashboardNpsFormFormIdStartRoute
   '/api/learn/ai-chat/$lectureId/history': typeof ApiLearnAiChatLectureIdHistoryRoute
   '/api/learn/ai-chat/$lectureId/send': typeof ApiLearnAiChatLectureIdSendRoute
   '/api/learn/ai-tutor/$lectureId/dispatch': typeof ApiLearnAiTutorLectureIdDispatchRoute
@@ -1805,6 +1637,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/api/assess-nps-callback'
     | '/api/health'
+    | '/api/me'
     | '/api/secret-login'
     | '/api/server-time'
     | '/masaiverse'
@@ -1814,24 +1647,13 @@ export interface FileRouteTypes {
     | '/my-courses'
     | '/api/announcement/popups'
     | '/api/announcement/unread-count'
-    | '/api/dashboard/action-banners'
-    | '/api/dashboard/announcements'
-    | '/api/dashboard/attendance'
-    | '/api/dashboard/banners'
-    | '/api/dashboard/left-section'
-    | '/api/dashboard/lms-support'
     | '/api/dashboard/navbar-pill'
-    | '/api/dashboard/payment-banner'
-    | '/api/dashboard/pending-tasks'
-    | '/api/dashboard/product-updates'
-    | '/api/dashboard/right-section'
-    | '/api/dashboard/schedule'
+    | '/api/dashboard/overview'
+    | '/api/dashboard/profile-photo'
+    | '/api/dashboard/t0-flow-documents'
     | '/api/dashboard/t0-flow-lectures'
-    | '/api/dashboard/t0-flow-status'
     | '/api/dashboard/t0-flow-step-complete'
-    | '/api/dashboard/t0-flow-student-status'
     | '/api/dashboard/welcome-modal-dismiss'
-    | '/api/dashboard/welcome-modal-status'
     | '/api/learn/discussions'
     | '/api/learn/page'
     | '/api/masaiverse-v2/admin-mode'
@@ -1875,6 +1697,7 @@ export interface FileRouteTypes {
     | '/masaiverse/events'
     | '/masaiverse/home'
     | '/masaiverse/leaderboard'
+    | '/api/ai-tutor/chat/feedback'
     | '/api/ai-tutor/chat/stream'
     | '/api/announcement/$id/bookmark'
     | '/api/announcement/$id/mark-read'
@@ -1885,8 +1708,9 @@ export interface FileRouteTypes {
     | '/api/course/$batchId/certificates'
     | '/api/course/$batchId/details'
     | '/api/course/$batchId/evaluations'
-    | '/api/dashboard/agreement/$sectionId'
-    | '/api/dashboard/nps-form/$formId'
+    | '/api/dashboard/agreement/save'
+    | '/api/dashboard/agreement/submit'
+    | '/api/dashboard/agreement/view'
     | '/api/learn/ai-tutor/end'
     | '/api/learn/ai-tutor/limit'
     | '/api/learn/assignments/$assignmentId'
@@ -1952,15 +1776,6 @@ export interface FileRouteTypes {
     | '/masaiverse/club/$clubId'
     | '/masaiverse/event/$eventId'
     | '/api/ai-tutor/chat/conversations/$chatId'
-    | '/api/dashboard/agreement/$sectionId/details'
-    | '/api/dashboard/agreement/$sectionId/dismiss'
-    | '/api/dashboard/agreement/$sectionId/open'
-    | '/api/dashboard/agreement/$sectionId/step'
-    | '/api/dashboard/agreement/$sectionId/submit'
-    | '/api/dashboard/assess-nps/$formId/link'
-    | '/api/dashboard/nps-form/$formId/complete'
-    | '/api/dashboard/nps-form/$formId/response'
-    | '/api/dashboard/nps-form/$formId/start'
     | '/api/learn/ai-chat/$lectureId/history'
     | '/api/learn/ai-chat/$lectureId/send'
     | '/api/learn/ai-tutor/$lectureId/dispatch'
@@ -1990,6 +1805,7 @@ export interface FileRouteTypes {
   to:
     | '/api/assess-nps-callback'
     | '/api/health'
+    | '/api/me'
     | '/api/secret-login'
     | '/api/server-time'
     | '/v2/forgot-password'
@@ -1998,24 +1814,13 @@ export interface FileRouteTypes {
     | '/my-courses'
     | '/api/announcement/popups'
     | '/api/announcement/unread-count'
-    | '/api/dashboard/action-banners'
-    | '/api/dashboard/announcements'
-    | '/api/dashboard/attendance'
-    | '/api/dashboard/banners'
-    | '/api/dashboard/left-section'
-    | '/api/dashboard/lms-support'
     | '/api/dashboard/navbar-pill'
-    | '/api/dashboard/payment-banner'
-    | '/api/dashboard/pending-tasks'
-    | '/api/dashboard/product-updates'
-    | '/api/dashboard/right-section'
-    | '/api/dashboard/schedule'
+    | '/api/dashboard/overview'
+    | '/api/dashboard/profile-photo'
+    | '/api/dashboard/t0-flow-documents'
     | '/api/dashboard/t0-flow-lectures'
-    | '/api/dashboard/t0-flow-status'
     | '/api/dashboard/t0-flow-step-complete'
-    | '/api/dashboard/t0-flow-student-status'
     | '/api/dashboard/welcome-modal-dismiss'
-    | '/api/dashboard/welcome-modal-status'
     | '/api/learn/discussions'
     | '/api/learn/page'
     | '/api/masaiverse-v2/admin-mode'
@@ -2059,6 +1864,7 @@ export interface FileRouteTypes {
     | '/masaiverse/events'
     | '/masaiverse/home'
     | '/masaiverse/leaderboard'
+    | '/api/ai-tutor/chat/feedback'
     | '/api/ai-tutor/chat/stream'
     | '/api/announcement/$id/bookmark'
     | '/api/announcement/$id/mark-read'
@@ -2069,8 +1875,9 @@ export interface FileRouteTypes {
     | '/api/course/$batchId/certificates'
     | '/api/course/$batchId/details'
     | '/api/course/$batchId/evaluations'
-    | '/api/dashboard/agreement/$sectionId'
-    | '/api/dashboard/nps-form/$formId'
+    | '/api/dashboard/agreement/save'
+    | '/api/dashboard/agreement/submit'
+    | '/api/dashboard/agreement/view'
     | '/api/learn/ai-tutor/end'
     | '/api/learn/ai-tutor/limit'
     | '/api/learn/assignments/$assignmentId'
@@ -2136,15 +1943,6 @@ export interface FileRouteTypes {
     | '/masaiverse/club/$clubId'
     | '/masaiverse/event/$eventId'
     | '/api/ai-tutor/chat/conversations/$chatId'
-    | '/api/dashboard/agreement/$sectionId/details'
-    | '/api/dashboard/agreement/$sectionId/dismiss'
-    | '/api/dashboard/agreement/$sectionId/open'
-    | '/api/dashboard/agreement/$sectionId/step'
-    | '/api/dashboard/agreement/$sectionId/submit'
-    | '/api/dashboard/assess-nps/$formId/link'
-    | '/api/dashboard/nps-form/$formId/complete'
-    | '/api/dashboard/nps-form/$formId/response'
-    | '/api/dashboard/nps-form/$formId/start'
     | '/api/learn/ai-chat/$lectureId/history'
     | '/api/learn/ai-chat/$lectureId/send'
     | '/api/learn/ai-tutor/$lectureId/dispatch'
@@ -2175,6 +1973,7 @@ export interface FileRouteTypes {
     | '/(protected)/_layout'
     | '/api/assess-nps-callback'
     | '/api/health'
+    | '/api/me'
     | '/api/secret-login'
     | '/api/server-time'
     | '/(protected)/_layout/masaiverse'
@@ -2184,24 +1983,13 @@ export interface FileRouteTypes {
     | '/(protected)/_layout/my-courses'
     | '/api/announcement/popups'
     | '/api/announcement/unread-count'
-    | '/api/dashboard/action-banners'
-    | '/api/dashboard/announcements'
-    | '/api/dashboard/attendance'
-    | '/api/dashboard/banners'
-    | '/api/dashboard/left-section'
-    | '/api/dashboard/lms-support'
     | '/api/dashboard/navbar-pill'
-    | '/api/dashboard/payment-banner'
-    | '/api/dashboard/pending-tasks'
-    | '/api/dashboard/product-updates'
-    | '/api/dashboard/right-section'
-    | '/api/dashboard/schedule'
+    | '/api/dashboard/overview'
+    | '/api/dashboard/profile-photo'
+    | '/api/dashboard/t0-flow-documents'
     | '/api/dashboard/t0-flow-lectures'
-    | '/api/dashboard/t0-flow-status'
     | '/api/dashboard/t0-flow-step-complete'
-    | '/api/dashboard/t0-flow-student-status'
     | '/api/dashboard/welcome-modal-dismiss'
-    | '/api/dashboard/welcome-modal-status'
     | '/api/learn/discussions'
     | '/api/learn/page'
     | '/api/masaiverse-v2/admin-mode'
@@ -2245,6 +2033,7 @@ export interface FileRouteTypes {
     | '/(protected)/_layout/masaiverse/events'
     | '/(protected)/_layout/masaiverse/home'
     | '/(protected)/_layout/masaiverse/leaderboard'
+    | '/api/ai-tutor/chat/feedback'
     | '/api/ai-tutor/chat/stream'
     | '/api/announcement/$id/bookmark'
     | '/api/announcement/$id/mark-read'
@@ -2255,8 +2044,9 @@ export interface FileRouteTypes {
     | '/api/course/$batchId/certificates'
     | '/api/course/$batchId/details'
     | '/api/course/$batchId/evaluations'
-    | '/api/dashboard/agreement/$sectionId'
-    | '/api/dashboard/nps-form/$formId'
+    | '/api/dashboard/agreement/save'
+    | '/api/dashboard/agreement/submit'
+    | '/api/dashboard/agreement/view'
     | '/api/learn/ai-tutor/end'
     | '/api/learn/ai-tutor/limit'
     | '/api/learn/assignments/$assignmentId'
@@ -2322,15 +2112,6 @@ export interface FileRouteTypes {
     | '/(protected)/_layout/masaiverse/club/$clubId'
     | '/(protected)/_layout/masaiverse/event/$eventId'
     | '/api/ai-tutor/chat/conversations/$chatId'
-    | '/api/dashboard/agreement/$sectionId/details'
-    | '/api/dashboard/agreement/$sectionId/dismiss'
-    | '/api/dashboard/agreement/$sectionId/open'
-    | '/api/dashboard/agreement/$sectionId/step'
-    | '/api/dashboard/agreement/$sectionId/submit'
-    | '/api/dashboard/assess-nps/$formId/link'
-    | '/api/dashboard/nps-form/$formId/complete'
-    | '/api/dashboard/nps-form/$formId/response'
-    | '/api/dashboard/nps-form/$formId/start'
     | '/api/learn/ai-chat/$lectureId/history'
     | '/api/learn/ai-chat/$lectureId/send'
     | '/api/learn/ai-tutor/$lectureId/dispatch'
@@ -2362,6 +2143,7 @@ export interface RootRouteChildren {
   protectedLayoutRouteRoute: typeof protectedLayoutRouteRouteWithChildren
   ApiAssessNpsCallbackRouteRoute: typeof ApiAssessNpsCallbackRouteRoute
   ApiHealthRoute: typeof ApiHealthRoute
+  ApiMeRoute: typeof ApiMeRoute
   ApiSecretLoginRoute: typeof ApiSecretLoginRoute
   ApiServerTimeRoute: typeof ApiServerTimeRoute
   authV2ForgotPasswordRoute: typeof authV2ForgotPasswordRoute
@@ -2369,24 +2151,13 @@ export interface RootRouteChildren {
   authV2ResetPasswordRoute: typeof authV2ResetPasswordRoute
   ApiAnnouncementPopupsRoute: typeof ApiAnnouncementPopupsRoute
   ApiAnnouncementUnreadCountRoute: typeof ApiAnnouncementUnreadCountRoute
-  ApiDashboardActionBannersRoute: typeof ApiDashboardActionBannersRoute
-  ApiDashboardAnnouncementsRoute: typeof ApiDashboardAnnouncementsRoute
-  ApiDashboardAttendanceRoute: typeof ApiDashboardAttendanceRoute
-  ApiDashboardBannersRoute: typeof ApiDashboardBannersRoute
-  ApiDashboardLeftSectionRoute: typeof ApiDashboardLeftSectionRoute
-  ApiDashboardLmsSupportRoute: typeof ApiDashboardLmsSupportRoute
   ApiDashboardNavbarPillRoute: typeof ApiDashboardNavbarPillRoute
-  ApiDashboardPaymentBannerRoute: typeof ApiDashboardPaymentBannerRoute
-  ApiDashboardPendingTasksRoute: typeof ApiDashboardPendingTasksRoute
-  ApiDashboardProductUpdatesRoute: typeof ApiDashboardProductUpdatesRoute
-  ApiDashboardRightSectionRoute: typeof ApiDashboardRightSectionRoute
-  ApiDashboardScheduleRoute: typeof ApiDashboardScheduleRoute
+  ApiDashboardOverviewRoute: typeof ApiDashboardOverviewRoute
+  ApiDashboardProfilePhotoRoute: typeof ApiDashboardProfilePhotoRoute
+  ApiDashboardT0FlowDocumentsRoute: typeof ApiDashboardT0FlowDocumentsRoute
   ApiDashboardT0FlowLecturesRoute: typeof ApiDashboardT0FlowLecturesRoute
-  ApiDashboardT0FlowStatusRoute: typeof ApiDashboardT0FlowStatusRoute
   ApiDashboardT0FlowStepCompleteRoute: typeof ApiDashboardT0FlowStepCompleteRoute
-  ApiDashboardT0FlowStudentStatusRoute: typeof ApiDashboardT0FlowStudentStatusRoute
   ApiDashboardWelcomeModalDismissRoute: typeof ApiDashboardWelcomeModalDismissRoute
-  ApiDashboardWelcomeModalStatusRoute: typeof ApiDashboardWelcomeModalStatusRoute
   ApiLearnDiscussionsRoute: typeof ApiLearnDiscussionsRouteWithChildren
   ApiLearnPageRoute: typeof ApiLearnPageRoute
   ApiMasaiverseV2AdminModeRoute: typeof ApiMasaiverseV2AdminModeRoute
@@ -2416,6 +2187,7 @@ export interface RootRouteChildren {
   authV2AuthUseAccountRoute: typeof authV2AuthUseAccountRoute
   authV2LoginRequestOtpRoute: typeof authV2LoginRequestOtpRoute
   authV2LoginVerifyOtpRoute: typeof authV2LoginVerifyOtpRoute
+  ApiAiTutorChatFeedbackRoute: typeof ApiAiTutorChatFeedbackRoute
   ApiAiTutorChatStreamRoute: typeof ApiAiTutorChatStreamRoute
   ApiAnnouncementIdBookmarkRoute: typeof ApiAnnouncementIdBookmarkRoute
   ApiAnnouncementIdMarkReadRoute: typeof ApiAnnouncementIdMarkReadRoute
@@ -2426,8 +2198,9 @@ export interface RootRouteChildren {
   ApiCourseBatchIdCertificatesRoute: typeof ApiCourseBatchIdCertificatesRoute
   ApiCourseBatchIdDetailsRoute: typeof ApiCourseBatchIdDetailsRoute
   ApiCourseBatchIdEvaluationsRoute: typeof ApiCourseBatchIdEvaluationsRoute
-  ApiDashboardAgreementSectionIdRoute: typeof ApiDashboardAgreementSectionIdRouteWithChildren
-  ApiDashboardNpsFormFormIdRoute: typeof ApiDashboardNpsFormFormIdRouteWithChildren
+  ApiDashboardAgreementSaveRoute: typeof ApiDashboardAgreementSaveRoute
+  ApiDashboardAgreementSubmitRoute: typeof ApiDashboardAgreementSubmitRoute
+  ApiDashboardAgreementViewRoute: typeof ApiDashboardAgreementViewRoute
   ApiLearnAiTutorEndRoute: typeof ApiLearnAiTutorEndRoute
   ApiLearnAiTutorLimitRoute: typeof ApiLearnAiTutorLimitRoute
   ApiLearnAssignmentsAssignmentIdRoute: typeof ApiLearnAssignmentsAssignmentIdRouteWithChildren
@@ -2474,7 +2247,6 @@ export interface RootRouteChildren {
   ApiProfileEmailPreferencesIndexRoute: typeof ApiProfileEmailPreferencesIndexRoute
   ApiWhatsNewIdIndexRoute: typeof ApiWhatsNewIdIndexRoute
   ApiAiTutorChatConversationsChatIdRoute: typeof ApiAiTutorChatConversationsChatIdRoute
-  ApiDashboardAssessNpsFormIdLinkRoute: typeof ApiDashboardAssessNpsFormIdLinkRoute
   ApiLearnAiChatLectureIdHistoryRoute: typeof ApiLearnAiChatLectureIdHistoryRoute
   ApiLearnAiChatLectureIdSendRoute: typeof ApiLearnAiChatLectureIdSendRoute
   ApiLearnAiTutorLectureIdDispatchRoute: typeof ApiLearnAiTutorLectureIdDispatchRoute
@@ -2502,6 +2274,13 @@ declare module '@tanstack/react-router' {
       path: '/api/secret-login'
       fullPath: '/api/secret-login'
       preLoaderRoute: typeof ApiSecretLoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/me': {
+      id: '/api/me'
+      path: '/api/me'
+      fullPath: '/api/me'
+      preLoaderRoute: typeof ApiMeRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/health': {
@@ -2707,25 +2486,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiLearnDiscussionsRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/dashboard/welcome-modal-status': {
-      id: '/api/dashboard/welcome-modal-status'
-      path: '/api/dashboard/welcome-modal-status'
-      fullPath: '/api/dashboard/welcome-modal-status'
-      preLoaderRoute: typeof ApiDashboardWelcomeModalStatusRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/api/dashboard/welcome-modal-dismiss': {
       id: '/api/dashboard/welcome-modal-dismiss'
       path: '/api/dashboard/welcome-modal-dismiss'
       fullPath: '/api/dashboard/welcome-modal-dismiss'
       preLoaderRoute: typeof ApiDashboardWelcomeModalDismissRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/dashboard/t0-flow-student-status': {
-      id: '/api/dashboard/t0-flow-student-status'
-      path: '/api/dashboard/t0-flow-student-status'
-      fullPath: '/api/dashboard/t0-flow-student-status'
-      preLoaderRoute: typeof ApiDashboardT0FlowStudentStatusRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/dashboard/t0-flow-step-complete': {
@@ -2735,13 +2500,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiDashboardT0FlowStepCompleteRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/dashboard/t0-flow-status': {
-      id: '/api/dashboard/t0-flow-status'
-      path: '/api/dashboard/t0-flow-status'
-      fullPath: '/api/dashboard/t0-flow-status'
-      preLoaderRoute: typeof ApiDashboardT0FlowStatusRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/api/dashboard/t0-flow-lectures': {
       id: '/api/dashboard/t0-flow-lectures'
       path: '/api/dashboard/t0-flow-lectures'
@@ -2749,39 +2507,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiDashboardT0FlowLecturesRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/dashboard/schedule': {
-      id: '/api/dashboard/schedule'
-      path: '/api/dashboard/schedule'
-      fullPath: '/api/dashboard/schedule'
-      preLoaderRoute: typeof ApiDashboardScheduleRouteImport
+    '/api/dashboard/t0-flow-documents': {
+      id: '/api/dashboard/t0-flow-documents'
+      path: '/api/dashboard/t0-flow-documents'
+      fullPath: '/api/dashboard/t0-flow-documents'
+      preLoaderRoute: typeof ApiDashboardT0FlowDocumentsRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/dashboard/right-section': {
-      id: '/api/dashboard/right-section'
-      path: '/api/dashboard/right-section'
-      fullPath: '/api/dashboard/right-section'
-      preLoaderRoute: typeof ApiDashboardRightSectionRouteImport
+    '/api/dashboard/profile-photo': {
+      id: '/api/dashboard/profile-photo'
+      path: '/api/dashboard/profile-photo'
+      fullPath: '/api/dashboard/profile-photo'
+      preLoaderRoute: typeof ApiDashboardProfilePhotoRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/dashboard/product-updates': {
-      id: '/api/dashboard/product-updates'
-      path: '/api/dashboard/product-updates'
-      fullPath: '/api/dashboard/product-updates'
-      preLoaderRoute: typeof ApiDashboardProductUpdatesRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/dashboard/pending-tasks': {
-      id: '/api/dashboard/pending-tasks'
-      path: '/api/dashboard/pending-tasks'
-      fullPath: '/api/dashboard/pending-tasks'
-      preLoaderRoute: typeof ApiDashboardPendingTasksRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/dashboard/payment-banner': {
-      id: '/api/dashboard/payment-banner'
-      path: '/api/dashboard/payment-banner'
-      fullPath: '/api/dashboard/payment-banner'
-      preLoaderRoute: typeof ApiDashboardPaymentBannerRouteImport
+    '/api/dashboard/overview': {
+      id: '/api/dashboard/overview'
+      path: '/api/dashboard/overview'
+      fullPath: '/api/dashboard/overview'
+      preLoaderRoute: typeof ApiDashboardOverviewRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/dashboard/navbar-pill': {
@@ -2789,48 +2533,6 @@ declare module '@tanstack/react-router' {
       path: '/api/dashboard/navbar-pill'
       fullPath: '/api/dashboard/navbar-pill'
       preLoaderRoute: typeof ApiDashboardNavbarPillRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/dashboard/lms-support': {
-      id: '/api/dashboard/lms-support'
-      path: '/api/dashboard/lms-support'
-      fullPath: '/api/dashboard/lms-support'
-      preLoaderRoute: typeof ApiDashboardLmsSupportRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/dashboard/left-section': {
-      id: '/api/dashboard/left-section'
-      path: '/api/dashboard/left-section'
-      fullPath: '/api/dashboard/left-section'
-      preLoaderRoute: typeof ApiDashboardLeftSectionRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/dashboard/banners': {
-      id: '/api/dashboard/banners'
-      path: '/api/dashboard/banners'
-      fullPath: '/api/dashboard/banners'
-      preLoaderRoute: typeof ApiDashboardBannersRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/dashboard/attendance': {
-      id: '/api/dashboard/attendance'
-      path: '/api/dashboard/attendance'
-      fullPath: '/api/dashboard/attendance'
-      preLoaderRoute: typeof ApiDashboardAttendanceRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/dashboard/announcements': {
-      id: '/api/dashboard/announcements'
-      path: '/api/dashboard/announcements'
-      fullPath: '/api/dashboard/announcements'
-      preLoaderRoute: typeof ApiDashboardAnnouncementsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/dashboard/action-banners': {
-      id: '/api/dashboard/action-banners'
-      path: '/api/dashboard/action-banners'
-      fullPath: '/api/dashboard/action-banners'
-      preLoaderRoute: typeof ApiDashboardActionBannersRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/announcement/unread-count': {
@@ -3316,18 +3018,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiLearnAiTutorEndRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/dashboard/nps-form/$formId': {
-      id: '/api/dashboard/nps-form/$formId'
-      path: '/api/dashboard/nps-form/$formId'
-      fullPath: '/api/dashboard/nps-form/$formId'
-      preLoaderRoute: typeof ApiDashboardNpsFormFormIdRouteImport
+    '/api/dashboard/agreement/view': {
+      id: '/api/dashboard/agreement/view'
+      path: '/api/dashboard/agreement/view'
+      fullPath: '/api/dashboard/agreement/view'
+      preLoaderRoute: typeof ApiDashboardAgreementViewRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/dashboard/agreement/$sectionId': {
-      id: '/api/dashboard/agreement/$sectionId'
-      path: '/api/dashboard/agreement/$sectionId'
-      fullPath: '/api/dashboard/agreement/$sectionId'
-      preLoaderRoute: typeof ApiDashboardAgreementSectionIdRouteImport
+    '/api/dashboard/agreement/submit': {
+      id: '/api/dashboard/agreement/submit'
+      path: '/api/dashboard/agreement/submit'
+      fullPath: '/api/dashboard/agreement/submit'
+      preLoaderRoute: typeof ApiDashboardAgreementSubmitRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/dashboard/agreement/save': {
+      id: '/api/dashboard/agreement/save'
+      path: '/api/dashboard/agreement/save'
+      fullPath: '/api/dashboard/agreement/save'
+      preLoaderRoute: typeof ApiDashboardAgreementSaveRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/course/$batchId/evaluations': {
@@ -3398,6 +3107,13 @@ declare module '@tanstack/react-router' {
       path: '/api/ai-tutor/chat/stream'
       fullPath: '/api/ai-tutor/chat/stream'
       preLoaderRoute: typeof ApiAiTutorChatStreamRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/ai-tutor/chat/feedback': {
+      id: '/api/ai-tutor/chat/feedback'
+      path: '/api/ai-tutor/chat/feedback'
+      fullPath: '/api/ai-tutor/chat/feedback'
+      preLoaderRoute: typeof ApiAiTutorChatFeedbackRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/(protected)/_layout/masaiverse/leaderboard': {
@@ -3652,69 +3368,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiLearnAiChatLectureIdHistoryRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/dashboard/nps-form/$formId/start': {
-      id: '/api/dashboard/nps-form/$formId/start'
-      path: '/start'
-      fullPath: '/api/dashboard/nps-form/$formId/start'
-      preLoaderRoute: typeof ApiDashboardNpsFormFormIdStartRouteImport
-      parentRoute: typeof ApiDashboardNpsFormFormIdRoute
-    }
-    '/api/dashboard/nps-form/$formId/response': {
-      id: '/api/dashboard/nps-form/$formId/response'
-      path: '/response'
-      fullPath: '/api/dashboard/nps-form/$formId/response'
-      preLoaderRoute: typeof ApiDashboardNpsFormFormIdResponseRouteImport
-      parentRoute: typeof ApiDashboardNpsFormFormIdRoute
-    }
-    '/api/dashboard/nps-form/$formId/complete': {
-      id: '/api/dashboard/nps-form/$formId/complete'
-      path: '/complete'
-      fullPath: '/api/dashboard/nps-form/$formId/complete'
-      preLoaderRoute: typeof ApiDashboardNpsFormFormIdCompleteRouteImport
-      parentRoute: typeof ApiDashboardNpsFormFormIdRoute
-    }
-    '/api/dashboard/assess-nps/$formId/link': {
-      id: '/api/dashboard/assess-nps/$formId/link'
-      path: '/api/dashboard/assess-nps/$formId/link'
-      fullPath: '/api/dashboard/assess-nps/$formId/link'
-      preLoaderRoute: typeof ApiDashboardAssessNpsFormIdLinkRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/dashboard/agreement/$sectionId/submit': {
-      id: '/api/dashboard/agreement/$sectionId/submit'
-      path: '/submit'
-      fullPath: '/api/dashboard/agreement/$sectionId/submit'
-      preLoaderRoute: typeof ApiDashboardAgreementSectionIdSubmitRouteImport
-      parentRoute: typeof ApiDashboardAgreementSectionIdRoute
-    }
-    '/api/dashboard/agreement/$sectionId/step': {
-      id: '/api/dashboard/agreement/$sectionId/step'
-      path: '/step'
-      fullPath: '/api/dashboard/agreement/$sectionId/step'
-      preLoaderRoute: typeof ApiDashboardAgreementSectionIdStepRouteImport
-      parentRoute: typeof ApiDashboardAgreementSectionIdRoute
-    }
-    '/api/dashboard/agreement/$sectionId/open': {
-      id: '/api/dashboard/agreement/$sectionId/open'
-      path: '/open'
-      fullPath: '/api/dashboard/agreement/$sectionId/open'
-      preLoaderRoute: typeof ApiDashboardAgreementSectionIdOpenRouteImport
-      parentRoute: typeof ApiDashboardAgreementSectionIdRoute
-    }
-    '/api/dashboard/agreement/$sectionId/dismiss': {
-      id: '/api/dashboard/agreement/$sectionId/dismiss'
-      path: '/dismiss'
-      fullPath: '/api/dashboard/agreement/$sectionId/dismiss'
-      preLoaderRoute: typeof ApiDashboardAgreementSectionIdDismissRouteImport
-      parentRoute: typeof ApiDashboardAgreementSectionIdRoute
-    }
-    '/api/dashboard/agreement/$sectionId/details': {
-      id: '/api/dashboard/agreement/$sectionId/details'
-      path: '/details'
-      fullPath: '/api/dashboard/agreement/$sectionId/details'
-      preLoaderRoute: typeof ApiDashboardAgreementSectionIdDetailsRouteImport
-      parentRoute: typeof ApiDashboardAgreementSectionIdRoute
-    }
     '/api/ai-tutor/chat/conversations/$chatId': {
       id: '/api/ai-tutor/chat/conversations/$chatId'
       path: '/api/ai-tutor/chat/conversations/$chatId'
@@ -3948,53 +3601,6 @@ const ApiSupportTicketsRouteChildren: ApiSupportTicketsRouteChildren = {
 const ApiSupportTicketsRouteWithChildren =
   ApiSupportTicketsRoute._addFileChildren(ApiSupportTicketsRouteChildren)
 
-interface ApiDashboardAgreementSectionIdRouteChildren {
-  ApiDashboardAgreementSectionIdDetailsRoute: typeof ApiDashboardAgreementSectionIdDetailsRoute
-  ApiDashboardAgreementSectionIdDismissRoute: typeof ApiDashboardAgreementSectionIdDismissRoute
-  ApiDashboardAgreementSectionIdOpenRoute: typeof ApiDashboardAgreementSectionIdOpenRoute
-  ApiDashboardAgreementSectionIdStepRoute: typeof ApiDashboardAgreementSectionIdStepRoute
-  ApiDashboardAgreementSectionIdSubmitRoute: typeof ApiDashboardAgreementSectionIdSubmitRoute
-}
-
-const ApiDashboardAgreementSectionIdRouteChildren: ApiDashboardAgreementSectionIdRouteChildren =
-  {
-    ApiDashboardAgreementSectionIdDetailsRoute:
-      ApiDashboardAgreementSectionIdDetailsRoute,
-    ApiDashboardAgreementSectionIdDismissRoute:
-      ApiDashboardAgreementSectionIdDismissRoute,
-    ApiDashboardAgreementSectionIdOpenRoute:
-      ApiDashboardAgreementSectionIdOpenRoute,
-    ApiDashboardAgreementSectionIdStepRoute:
-      ApiDashboardAgreementSectionIdStepRoute,
-    ApiDashboardAgreementSectionIdSubmitRoute:
-      ApiDashboardAgreementSectionIdSubmitRoute,
-  }
-
-const ApiDashboardAgreementSectionIdRouteWithChildren =
-  ApiDashboardAgreementSectionIdRoute._addFileChildren(
-    ApiDashboardAgreementSectionIdRouteChildren,
-  )
-
-interface ApiDashboardNpsFormFormIdRouteChildren {
-  ApiDashboardNpsFormFormIdCompleteRoute: typeof ApiDashboardNpsFormFormIdCompleteRoute
-  ApiDashboardNpsFormFormIdResponseRoute: typeof ApiDashboardNpsFormFormIdResponseRoute
-  ApiDashboardNpsFormFormIdStartRoute: typeof ApiDashboardNpsFormFormIdStartRoute
-}
-
-const ApiDashboardNpsFormFormIdRouteChildren: ApiDashboardNpsFormFormIdRouteChildren =
-  {
-    ApiDashboardNpsFormFormIdCompleteRoute:
-      ApiDashboardNpsFormFormIdCompleteRoute,
-    ApiDashboardNpsFormFormIdResponseRoute:
-      ApiDashboardNpsFormFormIdResponseRoute,
-    ApiDashboardNpsFormFormIdStartRoute: ApiDashboardNpsFormFormIdStartRoute,
-  }
-
-const ApiDashboardNpsFormFormIdRouteWithChildren =
-  ApiDashboardNpsFormFormIdRoute._addFileChildren(
-    ApiDashboardNpsFormFormIdRouteChildren,
-  )
-
 interface ApiLearnAssignmentsAssignmentIdRouteChildren {
   ApiLearnAssignmentsAssignmentIdAssessPlatformUrlRoute: typeof ApiLearnAssignmentsAssignmentIdAssessPlatformUrlRoute
   ApiLearnAssignmentsAssignmentIdSubmissionsRoute: typeof ApiLearnAssignmentsAssignmentIdSubmissionsRoute
@@ -4088,6 +3694,7 @@ const rootRouteChildren: RootRouteChildren = {
   protectedLayoutRouteRoute: protectedLayoutRouteRouteWithChildren,
   ApiAssessNpsCallbackRouteRoute: ApiAssessNpsCallbackRouteRoute,
   ApiHealthRoute: ApiHealthRoute,
+  ApiMeRoute: ApiMeRoute,
   ApiSecretLoginRoute: ApiSecretLoginRoute,
   ApiServerTimeRoute: ApiServerTimeRoute,
   authV2ForgotPasswordRoute: authV2ForgotPasswordRoute,
@@ -4095,24 +3702,13 @@ const rootRouteChildren: RootRouteChildren = {
   authV2ResetPasswordRoute: authV2ResetPasswordRoute,
   ApiAnnouncementPopupsRoute: ApiAnnouncementPopupsRoute,
   ApiAnnouncementUnreadCountRoute: ApiAnnouncementUnreadCountRoute,
-  ApiDashboardActionBannersRoute: ApiDashboardActionBannersRoute,
-  ApiDashboardAnnouncementsRoute: ApiDashboardAnnouncementsRoute,
-  ApiDashboardAttendanceRoute: ApiDashboardAttendanceRoute,
-  ApiDashboardBannersRoute: ApiDashboardBannersRoute,
-  ApiDashboardLeftSectionRoute: ApiDashboardLeftSectionRoute,
-  ApiDashboardLmsSupportRoute: ApiDashboardLmsSupportRoute,
   ApiDashboardNavbarPillRoute: ApiDashboardNavbarPillRoute,
-  ApiDashboardPaymentBannerRoute: ApiDashboardPaymentBannerRoute,
-  ApiDashboardPendingTasksRoute: ApiDashboardPendingTasksRoute,
-  ApiDashboardProductUpdatesRoute: ApiDashboardProductUpdatesRoute,
-  ApiDashboardRightSectionRoute: ApiDashboardRightSectionRoute,
-  ApiDashboardScheduleRoute: ApiDashboardScheduleRoute,
+  ApiDashboardOverviewRoute: ApiDashboardOverviewRoute,
+  ApiDashboardProfilePhotoRoute: ApiDashboardProfilePhotoRoute,
+  ApiDashboardT0FlowDocumentsRoute: ApiDashboardT0FlowDocumentsRoute,
   ApiDashboardT0FlowLecturesRoute: ApiDashboardT0FlowLecturesRoute,
-  ApiDashboardT0FlowStatusRoute: ApiDashboardT0FlowStatusRoute,
   ApiDashboardT0FlowStepCompleteRoute: ApiDashboardT0FlowStepCompleteRoute,
-  ApiDashboardT0FlowStudentStatusRoute: ApiDashboardT0FlowStudentStatusRoute,
   ApiDashboardWelcomeModalDismissRoute: ApiDashboardWelcomeModalDismissRoute,
-  ApiDashboardWelcomeModalStatusRoute: ApiDashboardWelcomeModalStatusRoute,
   ApiLearnDiscussionsRoute: ApiLearnDiscussionsRouteWithChildren,
   ApiLearnPageRoute: ApiLearnPageRoute,
   ApiMasaiverseV2AdminModeRoute: ApiMasaiverseV2AdminModeRoute,
@@ -4142,6 +3738,7 @@ const rootRouteChildren: RootRouteChildren = {
   authV2AuthUseAccountRoute: authV2AuthUseAccountRoute,
   authV2LoginRequestOtpRoute: authV2LoginRequestOtpRoute,
   authV2LoginVerifyOtpRoute: authV2LoginVerifyOtpRoute,
+  ApiAiTutorChatFeedbackRoute: ApiAiTutorChatFeedbackRoute,
   ApiAiTutorChatStreamRoute: ApiAiTutorChatStreamRoute,
   ApiAnnouncementIdBookmarkRoute: ApiAnnouncementIdBookmarkRoute,
   ApiAnnouncementIdMarkReadRoute: ApiAnnouncementIdMarkReadRoute,
@@ -4152,9 +3749,9 @@ const rootRouteChildren: RootRouteChildren = {
   ApiCourseBatchIdCertificatesRoute: ApiCourseBatchIdCertificatesRoute,
   ApiCourseBatchIdDetailsRoute: ApiCourseBatchIdDetailsRoute,
   ApiCourseBatchIdEvaluationsRoute: ApiCourseBatchIdEvaluationsRoute,
-  ApiDashboardAgreementSectionIdRoute:
-    ApiDashboardAgreementSectionIdRouteWithChildren,
-  ApiDashboardNpsFormFormIdRoute: ApiDashboardNpsFormFormIdRouteWithChildren,
+  ApiDashboardAgreementSaveRoute: ApiDashboardAgreementSaveRoute,
+  ApiDashboardAgreementSubmitRoute: ApiDashboardAgreementSubmitRoute,
+  ApiDashboardAgreementViewRoute: ApiDashboardAgreementViewRoute,
   ApiLearnAiTutorEndRoute: ApiLearnAiTutorEndRoute,
   ApiLearnAiTutorLimitRoute: ApiLearnAiTutorLimitRoute,
   ApiLearnAssignmentsAssignmentIdRoute:
@@ -4207,7 +3804,6 @@ const rootRouteChildren: RootRouteChildren = {
   ApiWhatsNewIdIndexRoute: ApiWhatsNewIdIndexRoute,
   ApiAiTutorChatConversationsChatIdRoute:
     ApiAiTutorChatConversationsChatIdRoute,
-  ApiDashboardAssessNpsFormIdLinkRoute: ApiDashboardAssessNpsFormIdLinkRoute,
   ApiLearnAiChatLectureIdHistoryRoute: ApiLearnAiChatLectureIdHistoryRoute,
   ApiLearnAiChatLectureIdSendRoute: ApiLearnAiChatLectureIdSendRoute,
   ApiLearnAiTutorLectureIdDispatchRoute: ApiLearnAiTutorLectureIdDispatchRoute,
@@ -4229,10 +3825,11 @@ export const routeTree = rootRouteImport
   ._addFileTypes<FileRouteTypes>()
 
 import type { getRouter } from './router.tsx'
-import type { createStart } from '@tanstack/react-start'
+import type { startInstance } from './start.ts'
 declare module '@tanstack/react-start' {
   interface Register {
     ssr: true
     router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
   }
 }

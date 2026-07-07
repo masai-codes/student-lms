@@ -8,7 +8,7 @@ export async function handleGetEventDetail(
   request: Request,
 ): Promise<Response> {
   try {
-    const userId = await requireSessionUserId(request)
+    const userId = await requireSessionUserId()
     const eventId = Number(new URL(request.url).searchParams.get('eventId'))
     const event = await getEventDetail(
       eventId,

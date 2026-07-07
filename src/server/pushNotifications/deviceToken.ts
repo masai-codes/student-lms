@@ -1,13 +1,17 @@
 import { createServerFn } from '@tanstack/react-start'
 import { pushNotificationService } from './pushNotification.service'
-import { getCurrentSessionUserId } from '@/server/auth/getCurrentSessionUserId'
+import { getCurrentUserId } from '@/server/auth/getCurrentSessionUserId'
 
 export const registerDeviceToken = createServerFn({ method: 'POST' })
   .inputValidator(
-    (data: { token: string; deviceType?: 'ios' | 'android' | 'web'; deviceName?: string }) => data,
+    (data: {
+      token: string
+      deviceType?: 'ios' | 'android' | 'web'
+      deviceName?: string
+    }) => data,
   )
   .handler(async ({ data }) => {
-    const userId = await getCurrentSessionUserId()
+    const userId = await getCurrentUserId()
     if (!userId) {
       throw new Error('UNAUTHORIZED')
     }
@@ -23,7 +27,7 @@ export const registerDeviceToken = createServerFn({ method: 'POST' })
 export const removeDeviceToken = createServerFn({ method: 'POST' })
   .inputValidator((data: { token: string }) => data)
   .handler(async ({ data }) => {
-    const userId = await getCurrentSessionUserId()
+    const userId = await getCurrentUserId()
     if (!userId) {
       throw new Error('UNAUTHORIZED')
     }
@@ -34,11 +38,13 @@ export const removeDeviceToken = createServerFn({ method: 'POST' })
     })
   })
 
-export const fetchUserDevices = createServerFn({ method: 'GET' }).handler(async () => {
-  const userId = await getCurrentSessionUserId()
-  if (!userId) {
-    throw new Error('UNAUTHORIZED')
-  }
+export const fetchUserDevices = createServerFn({ method: 'GET' }).handler(
+  async () => {
+    const userId = await getCurrentUserId()
+    if (!userId) {
+      throw new Error('UNAUTHORIZED')
+    }
 
-  return pushNotificationService.getUserDevices(userId)
-})
+    return pushNotificationService.getUserDevices(userId)
+  },
+)

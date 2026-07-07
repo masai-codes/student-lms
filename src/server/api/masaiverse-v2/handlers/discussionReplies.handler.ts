@@ -9,7 +9,7 @@ export async function handleListDiscussionReplies(
   request: Request,
 ): Promise<Response> {
   try {
-    const userId = await requireSessionUserId(request)
+    const userId = await requireSessionUserId()
     const postId = Number(new URL(request.url).searchParams.get('postId'))
     const replies = await getDiscussionReplies(
       postId,
@@ -32,7 +32,7 @@ export async function handleCreateDiscussionReply(
   request: Request,
 ): Promise<Response> {
   try {
-    const userId = await requireSessionUserId(request)
+    const userId = await requireSessionUserId()
     const body = (await request.json().catch(() => null)) as {
       postId?: unknown
       content?: unknown

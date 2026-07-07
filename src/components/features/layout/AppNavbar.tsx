@@ -13,6 +13,7 @@ import {
   BriefcaseBusiness,
   Bug,
   CalendarDays,
+  CircleHelp,
   Gift,
   LogOutIcon,
   Megaphone,
@@ -171,6 +172,16 @@ export default function AppNavbar() {
     [navigate],
   )
 
+  // Opens the onboarding guided tour on the dashboard — works from any page and
+  // regardless of whether onboarding is already complete.
+  const handleGuidedTourClick = useCallback(
+    (e: React.MouseEvent<HTMLAnchorElement>) => {
+      e.preventDefault()
+      void navigate({ to: '/', search: { guidedTour: 'open' } })
+    },
+    [navigate],
+  )
+
   const handleAnnouncementsClick = useCallback(
     (e: React.MouseEvent<HTMLAnchorElement>) => {
       e.preventDefault()
@@ -272,6 +283,16 @@ export default function AppNavbar() {
         ...oldStudentUiLink(OLD_STUDENT_UI_NAV_PATHS.chat),
       },
       {
+        id: 'guided-tour',
+        type: 'icon',
+        icon: <CircleHelp className="size-7" />,
+        ariaLabel: 'Onboarding steps',
+        tooltip: 'Onboarding steps',
+        href: '/',
+        openInNewTab: false,
+        onClick: handleGuidedTourClick,
+      },
+      {
         id: 'announcements',
         type: 'icon',
         icon: <Megaphone className="size-7 -scale-x-100" />,
@@ -282,7 +303,7 @@ export default function AppNavbar() {
         onClick: handleAnnouncementsClick,
       },
     ],
-    [handleAnnouncementsClick, unreadCount],
+    [handleAnnouncementsClick, handleGuidedTourClick, unreadCount],
   )
 
   const profileMenuItems: Array<NavbarProfileMenuItem> = useMemo(

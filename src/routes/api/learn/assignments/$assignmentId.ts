@@ -5,8 +5,8 @@ import { handleGetAssignmentLearningDetail } from '@/server/api/learn/handlers/g
 export const Route = createFileRoute('/api/learn/assignments/$assignmentId')({
   server: {
     handlers: {
-      GET: ({ request, params }) =>
-        handleGetAssignmentLearningDetail(request, params.assignmentId),
+      GET: ({ params }) =>
+        handleGetAssignmentLearningDetail(params.assignmentId),
     },
   },
 })

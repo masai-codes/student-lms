@@ -1,11 +1,17 @@
 import { requireSessionUserId } from '@/server/api/http/requireSessionUser'
-import { jsonError, jsonOk, mapThrownErrorToResponse } from '@/server/api/http/responses'
+import {
+  jsonError,
+  jsonOk,
+  mapThrownErrorToResponse,
+} from '@/server/api/http/responses'
 import { isApiError } from '@/server/api/http/apiError'
 import { saveProfilePicUrl } from '@/server/api/profile/saveProfilePic.service'
 
-export async function handleSaveProfilePic(request: Request): Promise<Response> {
+export async function handleSaveProfilePic(
+  request: Request,
+): Promise<Response> {
   try {
-    const userId = await requireSessionUserId(request)
+    const userId = await requireSessionUserId()
     const body = (await request.json()) as Record<string, unknown>
 
     const s3Url = body.s3Url

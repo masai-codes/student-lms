@@ -16,6 +16,7 @@ import type {
 
 import type { FilterNavKey } from './learnFilterNavConfig'
 
+import { pushLearnEvent } from '../../shared/learnAnalytics'
 import { MasaiButton } from '@/components/masai-button'
 import { MasaiCheckbox } from '@/components/ui/masai-checkbox'
 import { MasaiDateSelection } from '@/components/ui/masai-date-selection'
@@ -358,6 +359,7 @@ export function LearnFiltersPanel({
           htmlType="button"
           ctaText="Clear filters"
           onClick={() => {
+            pushLearnEvent('l_learn_filters_panel_clear', { tab: activeTab })
             const cleared = createEmptyLearnModalFilters()
             setDraft(cleared)
             onApply(cleared)
@@ -368,7 +370,16 @@ export function LearnFiltersPanel({
           size="md"
           htmlType="button"
           ctaText="Apply"
-          onClick={() => onApply(draft)}
+          onClick={() => {
+            pushLearnEvent('l_learn_filters_apply', {
+              tab: activeTab,
+              modules_count: draft.modules.length,
+              categories_count: draft.categories.length,
+              types_count: draft.types.length,
+              instructors_count: draft.instructors.length,
+            })
+            onApply(draft)
+          }}
         />
       </div>
     </div>

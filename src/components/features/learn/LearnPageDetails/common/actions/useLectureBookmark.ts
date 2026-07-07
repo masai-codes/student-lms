@@ -7,6 +7,10 @@ import {
   removeLectureBookmarkViaApi,
 } from '@/lib/api/learn/learnApi'
 import { toast } from '@/lib/toast'
+import {
+  learnEntityEvent,
+  pushLearnEvent,
+} from '@/components/features/learn/shared/learnAnalytics'
 
 export interface LectureBookmarkControls {
   isBookmarked: boolean
@@ -30,6 +34,14 @@ export function useLectureBookmark(
     if (pending) return
 
     const next = !isBookmarked
+    pushLearnEvent(
+      learnEntityEvent(
+        'lecture',
+        isBookmarked ? 'bookmark_remove' : 'bookmark_add',
+        lectureId,
+      ),
+      { lecture_id: lectureId },
+    )
     setIsBookmarked(next)
     setPending(true)
 

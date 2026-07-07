@@ -18,6 +18,9 @@ import { buildLectureTabContent } from '@/server/learn/utils/buildLectureTabCont
 import { getLearnEntityBookmarkState } from '@/server/learn/services/learnEntityBookmark.service'
 import { getLectureFeedbackRecord } from '@/server/learn/services/lectureFeedback.service'
 import { ensureUserCanAccessLearnHubEntity } from '@/server/learn/utils/ensureLearnEntityAccess'
+import { resolveLearnDetailBanRestriction } from '@/server/learn/utils/resolveLearnDetailBanRestriction'
+import { getBatchIdForSection } from '@/server/batches/getBatchIdsForSections'
+import { getUserBatchBans } from '@/server/users/batchBan'
 import { LECTURE_RESOURCE_TYPE } from '@/server/learn/utils/resolveLectureLearningType'
 import {
   getLectureAssociatedContent,
@@ -159,9 +162,26 @@ export async function getLectureLearningDetailForUser(
     feedbackRecord,
   )
 
+  const [bans, sectionBatchId] = await Promise.all([
+    getUserBatchBans(userId),
+    getBatchIdForSection(row.sectionId),
+  ])
+  const banRestriction = resolveLearnDetailBanRestriction({
+    contentBatchId: sectionBatchId ?? row.batchId,
+    schedule: row.schedule,
+    bans,
+    agreementRestrictionKind: 'recording',
+  })
+
   return {
     ...payload,
     isBookmarked,
     isNewZoomRedirection: row.isNewZoomRedirection === 1,
+    banRestriction,
+    // Agreement ban: don't leak the recording URL — the frontend shows a ban panel
+    // in the player region based on `banRestriction`.
+    ...(banRestriction?.kind === 'recording'
+      ? { videoUrl: null, hasRecording: false }
+      : {}),
   }
 }

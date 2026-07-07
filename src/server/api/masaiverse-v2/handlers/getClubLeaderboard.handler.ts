@@ -9,7 +9,7 @@ export async function handleGetClubLeaderboard(
   request: Request,
 ): Promise<Response> {
   try {
-    const userId = await requireSessionUserId(request)
+    const userId = await requireSessionUserId()
     const params = new URL(request.url).searchParams
     const clubId = Number(params.get('clubId'))
 

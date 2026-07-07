@@ -4,7 +4,7 @@ import { handleMarkAnnouncementUnread } from '@/server/api/announcement/handlers
 export const Route = createFileRoute('/api/announcement/$id/mark-unread')({
   server: {
     handlers: {
-      POST: ({ request, params }) => handleMarkAnnouncementUnread(request, params.id, 'a'),
+      POST: ({ params }) => handleMarkAnnouncementUnread(params.id, 'a'),
     },
   },
 })

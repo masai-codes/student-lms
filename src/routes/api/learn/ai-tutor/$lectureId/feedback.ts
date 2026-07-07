@@ -1,12 +1,11 @@
 import { createFileRoute } from '@tanstack/react-router'
 
-import { handleSubmitAiTutorFeedback } from '@/server/api/ai-tutor/handlers/submitFeedback.handler'
+import { handleSubmitFeedback } from '@/server/api/ai-tutor/handlers/submitFeedback.handler'
 
 export const Route = createFileRoute('/api/learn/ai-tutor/$lectureId/feedback')({
   server: {
     handlers: {
-      POST: ({ request, params }) =>
-        handleSubmitAiTutorFeedback(request, params.lectureId),
+      POST: ({ request }) => handleSubmitFeedback(request),
     },
   },
 })

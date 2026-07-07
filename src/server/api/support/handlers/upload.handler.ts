@@ -15,17 +15,21 @@ import { mapSupportError } from '@/server/api/support/http'
 /** Max attachment size (10 MB), matching the image-upload limit. */
 const MAX_BYTES = 10 * 1024 * 1024
 
-export async function handleUploadAttachment(request: Request): Promise<Response> {
+export async function handleUploadAttachment(
+  request: Request,
+): Promise<Response> {
   try {
-    await requireSessionUserId(request)
+    await requireSessionUserId()
 
     const form = await request.formData().catch(() => null)
     const file = form?.get('file')
-    if (!(file instanceof File)) throw new ApiError(400, 'SUPPORT_UPLOAD_NO_FILE')
+    if (!(file instanceof File))
+      throw new ApiError(400, 'SUPPORT_UPLOAD_NO_FILE')
 
     const buffer = Buffer.from(await file.arrayBuffer())
     if (buffer.length === 0) throw new ApiError(400, 'SUPPORT_UPLOAD_NO_FILE')
-    if (buffer.length > MAX_BYTES) throw new ApiError(400, 'SUPPORT_UPLOAD_TOO_LARGE')
+    if (buffer.length > MAX_BYTES)
+      throw new ApiError(400, 'SUPPORT_UPLOAD_TOO_LARGE')
 
     const contentType = file.type || 'application/octet-stream'
     const ext = file.name.includes('.')

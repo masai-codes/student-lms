@@ -1,6 +1,6 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState } from 'react'
 import { Share2, X } from 'lucide-react'
-import confetti from 'canvas-confetti'
+import { ConfettiOverlay } from '@/components/ui/confetti-overlay'
 import { Modal, ModalContent } from '@/components/ui/modal'
 
 export interface CertificateCardData {
@@ -31,65 +31,6 @@ function formatDate(iso: string | null): string {
   }
 }
 
-function ConfettiCanvas({ open }: { open: boolean }) {
-  const canvasRef = useRef<HTMLCanvasElement>(null)
-  const animFrameRef = useRef<number | null>(null)
-  const instanceRef = useRef<ReturnType<typeof confetti.create> | null>(null)
-
-  useEffect(() => {
-    const canvas = canvasRef.current
-    if (!canvas || !open) return
-
-    // Create a confetti instance bound to this canvas
-    const fire = confetti.create(canvas, { resize: true, useWorker: false })
-    instanceRef.current = fire
-
-    const duration = 3000
-    const end = Date.now() + duration
-
-    function frame() {
-      void fire({
-        particleCount: 6,
-        angle: 60,
-        spread: 55,
-        origin: { x: 0, y: 0.4 },
-        gravity: 1.2,
-        scalar: 0.9,
-        ticks: 150,
-      })
-      void fire({
-        particleCount: 6,
-        angle: 120,
-        spread: 55,
-        origin: { x: 1, y: 0.4 },
-        gravity: 1.2,
-        scalar: 0.9,
-        ticks: 150,
-      })
-
-      if (Date.now() < end) {
-        animFrameRef.current = requestAnimationFrame(frame)
-      } else {
-        void fire({ particleCount: 40, spread: 90, origin: { x: 0.5, y: 0.3 }, ticks: 250, decay: 0.88 })
-      }
-    }
-
-    animFrameRef.current = requestAnimationFrame(frame)
-
-    return () => {
-      if (animFrameRef.current !== null) cancelAnimationFrame(animFrameRef.current)
-      instanceRef.current?.reset()
-    }
-  }, [open])
-
-  return (
-    <canvas
-      ref={canvasRef}
-      className="pointer-events-none absolute inset-0 w-full h-full z-10"
-    />
-  )
-}
-
 export function CertificateViewModal({
   open,
   onClose,
@@ -106,7 +47,7 @@ export function CertificateViewModal({
         showCloseButton={false}
       >
         {/* Confetti canvas — covers the entire modal */}
-        <ConfettiCanvas open={open} />
+        <ConfettiOverlay active={open} />
 
         <div className="relative z-20 flex flex-col gap-4">
           {/* Header */}

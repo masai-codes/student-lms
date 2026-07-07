@@ -5,7 +5,7 @@ import { searchUsers } from '@/server/api/masaiverse-v2/services/searchUsers.ser
 
 export async function handleSearchUsers(request: Request): Promise<Response> {
   try {
-    const userId = await requireSessionUserId(request)
+    const userId = await requireSessionUserId()
     const query = new URL(request.url).searchParams.get('q') ?? ''
     const users = await searchUsers(userId, query)
     return jsonOk({ users })

@@ -6,6 +6,7 @@ import { LectureDetailFooter } from '../shared/LectureDetailFooter'
 import { AfterLiveLecture } from './AfterLiveLecture'
 import { BeforeStartingLiveLecture } from './BeforeStartingLiveLecture'
 import { DuringLiveLecture } from './DuringLiveLecture'
+import { LectureRecordingBanPanel } from '../shared/LectureRecordingBanPanel'
 
 import type { LectureDetailPayload } from '@/server/learn/lectureDetailTypes'
 
@@ -27,6 +28,10 @@ function renderLiveHero(detail: LectureDetailPayload) {
         />
       )
     case 'after':
+      // Agreement ban: block the recording, keep the rest of the page.
+      if (detail.banRestriction?.kind === 'recording') {
+        return <LectureRecordingBanPanel />
+      }
       return <AfterLiveLecture detail={detail} />
     default:
       return <BeforeStartingLiveLecture schedule={detail.schedule} />

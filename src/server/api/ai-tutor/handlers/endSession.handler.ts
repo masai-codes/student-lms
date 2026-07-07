@@ -1,10 +1,7 @@
 import { z } from 'zod'
 
 import { ApiError } from '@/server/api/http/apiError'
-import {
-  jsonOk,
-  mapThrownErrorToResponse,
-} from '@/server/api/http/responses'
+import { jsonOk, mapThrownErrorToResponse } from '@/server/api/http/responses'
 import { requireSessionUserId } from '@/server/api/http/requireSessionUser'
 import { endAiTutorSession } from '@/server/ai-tutor/services/aiTutorSession.service'
 
@@ -16,7 +13,7 @@ export async function handleEndAiTutorSession(
   request: Request,
 ): Promise<Response> {
   try {
-    const userId = await requireSessionUserId(request)
+    const userId = await requireSessionUserId()
 
     const rawBody = await request.json().catch(() => ({}))
     const parsed = endSessionBodySchema.safeParse(rawBody)

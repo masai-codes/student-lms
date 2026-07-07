@@ -93,6 +93,7 @@ export function LearnLayout({ pageData, onBatchChange }: LearnLayoutProps) {
         resourcePhase: item.resourcePhase,
         listingCtas: item.listingCtas,
         assignmentStatusChip: item.listingCtas.assignmentStatusChip,
+        assignmentDeadlineLabel: item.listingCtas.assignmentDeadlineLabel,
       })),
     [data.learningItems],
   )

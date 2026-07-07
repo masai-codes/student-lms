@@ -7,8 +7,8 @@ export const Route = createFileRoute(
 )({
   server: {
     handlers: {
-      POST: ({ request, params }) =>
-        handleViewSubmissionOnAssessPlatform(request, params.submissionId),
+      POST: ({ params }) =>
+        handleViewSubmissionOnAssessPlatform(params.submissionId),
     },
   },
 })

@@ -1,183 +1,85 @@
-import { useState, useEffect } from 'react'
-import type { LmsSupportInfo } from '@/server/api/dashboard/getLmsSupportInfo.service'
-import { parseMysqlDatetimeIST, getTzLabel } from '@/utils/timeZoneHandler'
-import { useServerTime } from '@/hooks/useServerTime'
+import { pushDashboardEvent } from '../shared/dashboardAnalytics'
+import type { DashboardSupportSession } from '@/server/api/dashboard/support/getSupportSessions.service'
+import type { SupportSessionStatus } from '@/server/api/dashboard/support/supportSessionStatus'
 
-function formatNextSession(raw: string | null): string {
-  if (!raw) return ''
-  const parsed = parseMysqlDatetimeIST(raw)
-  if (!parsed) return ''
-  const date = new Date(parsed.valueOf())
-  const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
-  const day = date.getDate()
-  const month = MONTHS[date.getMonth()]
-  const h = date.getHours() % 12 || 12
-  const min = date.getMinutes()
-  const ampm = date.getHours() >= 12 ? 'PM' : 'AM'
-  const timePart = min === 0 ? `${h} ${ampm}` : `${h}:${String(min).padStart(2, '0')} ${ampm}`
-  return `${day} ${month} at ${timePart} (${getTzLabel()})`
+interface LmsSupportPanelProps {
+  /** The single featured session, or null to hide the card entirely. */
+  session: DashboardSupportSession | null
 }
 
-// ── Join-state computation ─────────────────────────────────────────────────────
+const SUPPORT_ILLUSTRATION = '/lmssupportsession.svg'
 
-type CardState = 'generic' | 'scheduled-today' | 'join' | 'next-session'
-
-function computeCardState(info: LmsSupportInfo, nowMs: number): CardState {
-  const start = parseMysqlDatetimeIST(info.todaySchedule)
-
-  if (start) {
-    const end = parseMysqlDatetimeIST(info.todayConcludes)
-    const startMs = start.valueOf()
-    const endMs = end?.valueOf() ?? startMs + 60 * 60 * 1000
-
-    if (nowMs >= startMs - 5 * 60 * 1000 && nowMs <= endMs) return 'join'
-    return 'scheduled-today'
-  }
-
-  if (info.nextSchedule) return 'next-session'
-  return 'generic'
+const SUBTEXT: Record<SupportSessionStatus, string> = {
+  live: "We're live now to help you",
+  today: 'Join our daily session to get your questions answered',
+  upcoming: 'No session today, the next session is scheduled for',
 }
 
-function useCardState(info: LmsSupportInfo | undefined, nowMs: number): CardState {
-  const [state, setState] = useState<CardState>(() =>
-    info ? computeCardState(info, nowMs) : 'generic',
-  )
+// The one support-session card the backend selected. Hidden entirely when there
+// is no session (and while loading, the parent passes null). The backend
+// decides live/today/upcoming; this only renders. The card body is never
+// clickable — the only interactive element is the live "Join Now" button.
+export function LmsSupportPanel({ session }: LmsSupportPanelProps) {
+  if (!session) return null
 
-  useEffect(() => {
-    if (!info) return
-    setState(computeCardState(info, Date.now()))
-    const id = setInterval(() => setState(computeCardState(info, Date.now())), 30_000)
-    return () => clearInterval(id)
-  }, [info])
+  const isLive = session.status === 'live'
 
-  return state
-}
-
-// ── Sub-components ─────────────────────────────────────────────────────────────
-
-function GenericCard() {
   return (
-    <div className="rounded-[16px] border border-gray-200 bg-[#F9FAFB] overflow-hidden flex items-center gap-0">
-      <div className="shrink-0 w-1/3">
-        <img
-          src="/SupportDashboard.svg"
-          alt="LMS Support"
-          className="w-full h-full object-contain"
-          loading="lazy"
-          decoding="async"
-        />
-      </div>
-      <div className="flex flex-col gap-2 px-3 py-4 flex-1 min-w-0">
-        <p className="text-base font-bold text-gray-900 leading-snug">LMS Support Session</p>
-        <p className="text-sm text-gray-500 leading-snug">
-          Join our daily session to get your questions answered
-        </p>
-        <span className="inline-flex self-start items-center px-3 py-1 rounded-full bg-[#FEF9C3] text-sm font-semibold text-[#713F12]">
-          Everyday at 6:30 PM
-        </span>
-      </div>
-    </div>
-  )
-}
+    <section
+      data-testid="dashboard-lms-support-panel"
+      data-status={session.status}
+      className={`flex items-center gap-3 rounded-2xl border p-4 ${
+        isLive ? 'border-[#C3DDFD] bg-[#E1EFFE]' : 'border-[#E5E7EB] bg-[#F9FAFB]'
+      }`}
+    >
+      <img src={SUPPORT_ILLUSTRATION} alt="" className="size-12 shrink-0" />
 
-function JoinCard({ zoomLink }: { zoomLink: string | null }) {
-  return (
-    <div className="rounded-[16px] border border-gray-200 bg-blue-50 overflow-hidden flex items-center gap-0">
-      <div className="shrink-0 w-1/3">
-        <img
-          src="/SupportDashboard.svg"
-          alt="LMS Support"
-          className="w-full h-full object-contain"
-          loading="lazy"
-          decoding="async"
-        />
-      </div>
-      <div className="flex flex-col gap-2.5 px-3 py-4 flex-1 min-w-0">
-        <p className="text-base font-bold text-gray-900 leading-snug">LMS Support Session</p>
-        <p className="text-sm text-gray-600 leading-snug">We're live now to help you</p>
-        {zoomLink ? (
-          <a
-            href={zoomLink}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex self-start items-center px-5 py-1.5 rounded-md bg-[#6962AC] text-white text-sm font-semibold hover:bg-[#5a54a0] transition-colors"
+      <div className="min-w-0 flex-1">
+        <h4 className="text-sm font-semibold text-gray-900">LMS Support Session</h4>
+        <p className="mt-0.5 text-xs text-gray-600">{SUBTEXT[session.status]}</p>
+        {!isLive && session.schedule && (
+          <span
+            data-testid="dashboard-support-session-time"
+            className="mt-1.5 inline-block rounded-md bg-[#FDF6B2] px-2 py-0.5 text-xs font-semibold text-gray-800"
           >
-            Join Now
-          </a>
-        ) : (
-          <span className="inline-flex self-start items-center px-5 py-1.5 rounded-md bg-[#6962AC] text-white text-sm font-semibold opacity-70 cursor-not-allowed">
-            Join Now
+            {formatSessionPill(session.schedule)}
           </span>
         )}
       </div>
-    </div>
+
+      {isLive && session.zoomLink && (
+        <a
+          href={session.zoomLink}
+          target="_blank"
+          rel="noopener noreferrer"
+          data-testid="dashboard-support-session-join"
+          onClick={() =>
+            pushDashboardEvent('l_dashboard_support_join_id_' + session.id, {
+              session_id: session.id,
+              status: session.status,
+            })
+          }
+          className="inline-flex shrink-0 items-center rounded-lg bg-[#3F83F8] px-3.5 py-2 text-xs font-semibold text-white transition-colors hover:bg-[#3576e0] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#3F83F8]"
+        >
+          Join Now
+        </a>
+      )}
+    </section>
   )
 }
 
-function ScheduledTodayCard({ schedule }: { schedule: string | null }) {
-  const label = formatNextSession(schedule)
-  return (
-    <div className="rounded-[16px] border border-gray-200 bg-[#F9FAFB] overflow-hidden flex items-center gap-0">
-      <div className="shrink-0 w-1/3">
-        <img
-          src="/SupportDashboard.svg"
-          alt="LMS Support"
-          className="w-full h-full object-contain"
-          loading="lazy"
-          decoding="async"
-        />
-      </div>
-      <div className="flex flex-col gap-2 px-3 py-4 flex-1 min-w-0">
-        <p className="text-base font-bold text-gray-900 leading-snug">LMS Support Session</p>
-        <p className="text-sm text-gray-500 leading-snug">Today's session is scheduled at</p>
-        {label ? (
-          <span className="inline-flex self-start items-center px-3 py-1 rounded-full bg-[#FEF9C3] text-sm font-semibold text-[#713F12]">
-            {label}
-          </span>
-        ) : null}
-      </div>
-    </div>
-  )
-}
-
-function NextSessionCard({ nextSchedule }: { nextSchedule: string | null }) {
-  const label = formatNextSession(nextSchedule)
-  return (
-    <div className="rounded-[16px] border border-gray-200 bg-white overflow-hidden flex items-center gap-0">
-      <div className="shrink-0 w-1/3">
-        <img
-          src="/SupportDashboard.svg"
-          alt="LMS Support"
-          className="w-full h-full object-contain"
-          loading="lazy"
-          decoding="async"
-        />
-      </div>
-      <div className="flex flex-col gap-2 px-3 py-4 flex-1 min-w-0">
-        <p className="text-base font-bold text-gray-900 leading-snug">LMS Support Session</p>
-        <p className="text-sm text-gray-500 leading-snug">
-          No session today, the next session is scheduled for
-        </p>
-        {label ? (
-          <span className="inline-flex self-start items-center px-3 py-1 rounded-full bg-[#FEF9C3] text-sm font-semibold text-[#713F12]">
-            {label}
-          </span>
-        ) : null}
-      </div>
-    </div>
-  )
-}
-
-// ── Main panel ─────────────────────────────────────────────────────────────────
-
-export function LmsSupportPanel({ info }: { info: LmsSupportInfo | undefined }) {
-  const { now } = useServerTime()
-  const cardState = useCardState(info, now.valueOf())
-
-  if (info && !info.visible) return null
-
-  if (!info || cardState === 'generic') return <GenericCard />
-  if (cardState === 'join') return <JoinCard zoomLink={info.todayZoomLink} />
-  if (cardState === 'scheduled-today') return <ScheduledTodayCard schedule={info.todaySchedule} />
-  return <NextSessionCard nextSchedule={info.nextSchedule} />
+/** Renders an IST ISO timestamp as e.g. "2 Jul, 6:30 PM (IST)". */
+function formatSessionPill(iso: string): string {
+  const at = new Date(iso)
+  const date = new Intl.DateTimeFormat('en-GB', {
+    day: 'numeric',
+    month: 'short',
+    timeZone: 'Asia/Kolkata',
+  }).format(at)
+  const time = new Intl.DateTimeFormat('en-US', {
+    hour: 'numeric',
+    minute: '2-digit',
+    timeZone: 'Asia/Kolkata',
+  }).format(at)
+  return `${date}, ${time} (IST)`
 }

@@ -5,7 +5,7 @@ import { setAdminModeState } from '@/server/api/masaiverse-v2/services/adminMode
 
 export async function handleSetAdminMode(request: Request): Promise<Response> {
   try {
-    const userId = await requireSessionUserId(request)
+    const userId = await requireSessionUserId()
     const body = (await request.json().catch(() => null)) as {
       enabled?: unknown
     } | null

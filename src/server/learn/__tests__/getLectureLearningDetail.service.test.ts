@@ -15,6 +15,17 @@ vi.mock('@/db', () => ({
   db: { select: hoisted.dbSelect },
 }))
 
+vi.mock('@/server/users/batchBan', () => ({
+  getUserBatchBans: vi.fn(async () => ({
+    normalByBatch: new Map(),
+    agreementByBatch: new Map(),
+  })),
+}))
+vi.mock('@/server/batches/getBatchIdsForSections', () => ({
+  getBatchIdForSection: vi.fn(async () => null),
+  getBatchIdsForSections: vi.fn(async () => new Map()),
+}))
+
 vi.mock('@/server/learn/utils/ensureLearnEntityAccess', () => ({
   ensureUserCanAccessLearnHubEntity: hoisted.ensureAccess,
 }))
