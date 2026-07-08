@@ -96,7 +96,7 @@ export function useAnnouncementPopups(): AnnouncementPopupQueue {
     mutationFn: (item: PopupItem) =>
       item.source === 'a'
         ? markAnnouncementRead(Number(item.id))
-        : markMessageRead(Number(item.id)),
+        : markMessageRead(item.id),
     onSettled: () =>
       queryClient.invalidateQueries({ queryKey: ['announcement'] }),
   })
