@@ -63,6 +63,7 @@ export function mapLearningEntityRow(
     title: row.title,
     hostName: row.hostName ?? 'Unknown Instructor',
     scheduleDate: row.schedule,
+    concludes: row.concludes ?? null,
     type: row.type,
     category: row.category,
     isOptional: toLearningPriority(row.optional),

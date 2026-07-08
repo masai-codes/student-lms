@@ -62,6 +62,18 @@ function formatShortDateLocal(d: dayjs.Dayjs): string {
 }
 
 /**
+ * Whether the viewer's device timezone is effectively IST (UTC+5:30).
+ * DB times are IST wall-clock, so when the device is already at the IST offset
+ * the local rendering equals the IST rendering and no IST tooltip is needed.
+ * `getTimezoneOffset()` returns minutes behind UTC (negative when ahead), so IST
+ * is `-330`. This intentionally treats any +5:30 zone (e.g. Colombo) as IST,
+ * since the displayed clock time is identical.
+ */
+export function isIstTimezone(): boolean {
+  return new Date().getTimezoneOffset() === -330
+}
+
+/**
  * Device timezone abbreviation — e.g. "BST", "EDT", "IST".
  * Uses Intl since dayjs doesn't expose an abbreviated timezone name.
  */

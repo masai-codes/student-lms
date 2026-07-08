@@ -51,6 +51,40 @@ export function formatIstWallClock(value: string | null): string | null {
   return `${value.replace(' ', 'T')}+05:30`
 }
 
+/**
+ * Parses a DB datetime value into an absolute epoch-ms instant, treating
+ * timezone-less values as IST wall-clock (`+05:30`).
+ *
+ * Our DATETIME/DATE columns are stored as IST wall-clock strings with no
+ * timezone (e.g. `"2026-07-08 17:15:00"`). Parsing them with a bare
+ * `new Date(value)` interprets them in the *process* timezone — correct on an
+ * IST laptop, but 5h30m off on a UTC server (EC2). Always route DB datetimes
+ * through this so the result is the same absolute instant everywhere.
+ *
+ * - `"YYYY-MM-DD HH:MM:SS"` / `"YYYY-MM-DDTHH:MM:SS"` → interpreted as IST.
+ * - `"YYYY-MM-DD"` (date-only) → IST midnight.
+ * - Values that already carry an explicit zone (`…Z` or `±HH:MM`) are trusted
+ *   as-is (already an absolute instant).
+ * - `null` / empty / unparseable → `null`.
+ */
+export function parseIstToMs(value: string | null | undefined): number | null {
+  if (value == null) return null
+  const trimmed = value.trim()
+  if (trimmed === '') return null
+
+  // Already has an explicit timezone -> it's already an absolute instant.
+  if (/[zZ]$/.test(trimmed) || /[+-]\d{2}:?\d{2}$/.test(trimmed)) {
+    const ms = new Date(trimmed.replace(' ', 'T')).getTime()
+    return Number.isFinite(ms) ? ms : null
+  }
+
+  // Date-only value -> treat as IST midnight.
+  const withTime = /\d{1,2}:\d{2}/.test(trimmed) ? trimmed : `${trimmed} 00:00:00`
+
+  const ms = new Date(`${withTime.replace(' ', 'T')}+05:30`).getTime()
+  return Number.isFinite(ms) ? ms : null
+}
+
 function isoDate(year: number, monthIndex: number, day: number): string {
   return `${year}-${pad(monthIndex + 1)}-${pad(day)}`
 }

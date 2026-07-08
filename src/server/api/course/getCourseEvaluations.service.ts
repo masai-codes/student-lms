@@ -2,6 +2,7 @@ import { sql } from 'drizzle-orm'
 import { db } from '@/db'
 import { batches } from '@/db/schema'
 import { eq, isNull, and } from 'drizzle-orm'
+import { parseIstToMs } from '@/server/time/istClock'
 
 export type EvaluationStatus = 'UPCOMING' | 'COMPLETED' | 'SCORE_PENDING' | 'NOT_ATTEMPTED'
 
@@ -28,15 +29,20 @@ function normalizeRows<T>(result: unknown): T[] {
 
 function formatScheduleDisplay(schedule: string): string {
   try {
-    const d = new Date(schedule)
-    if (isNaN(d.getTime())) return schedule
-    const day = d.getDate()
-    const month = d.toLocaleString('en-US', { month: 'short' })
-    const hours = d.getHours()
-    const minutes = d.getMinutes().toString().padStart(2, '0')
-    const ampm = hours >= 12 ? 'PM' : 'AM'
-    const h = hours % 12 || 12
-    return `${day} ${month} at ${h}.${minutes} ${ampm}`
+    const ms = parseIstToMs(schedule)
+    if (ms == null) return schedule
+    const d = new Date(ms)
+    // Read the wall-clock parts in IST so display is correct on any server tz.
+    const parts = new Intl.DateTimeFormat('en-US', {
+      timeZone: 'Asia/Kolkata',
+      day: 'numeric',
+      month: 'short',
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true,
+    }).formatToParts(d)
+    const get = (type: string) => parts.find((p) => p.type === type)?.value ?? ''
+    return `${get('day')} ${get('month')} at ${get('hour')}.${get('minute')} ${get('dayPeriod').toUpperCase()}`
   } catch {
     return schedule
   }
@@ -66,8 +72,8 @@ async function resolveEvaluationStatus(
   const assignment = assignmentRows[0]
   if (!assignment) return { status: 'UPCOMING', score: null }
 
-  const scheduleTs = assignment.schedule ? new Date(assignment.schedule).getTime() : null
-  const concludesTs = assignment.concludes ? new Date(assignment.concludes).getTime() : null
+  const scheduleTs = parseIstToMs(assignment.schedule)
+  const concludesTs = parseIstToMs(assignment.concludes)
 
   if (scheduleTs && now < scheduleTs) {
     return { status: 'UPCOMING', score: null }

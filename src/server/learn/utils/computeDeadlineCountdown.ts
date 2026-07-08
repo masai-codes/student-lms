@@ -1,3 +1,5 @@
+import { parseIstToMs } from '@/server/time/istClock'
+
 const DAY_MS = 24 * 60 * 60 * 1000
 const HOUR_MS = 60 * 60 * 1000
 
@@ -11,16 +13,15 @@ export interface DeadlineCountdown {
 /**
  * Time remaining until an assignment deadline (`concludes`). Returns `null` when
  * there's no deadline or it has already passed (an overdue chip covers that).
- * Under a day, it counts down in hours. Mirrors the naive parse the rest of the
- * learn time logic uses (`new Date(value)` vs `nowMs`).
+ * Under a day, it counts down in hours. `concludes` is an IST wall-clock DB
+ * value, parsed to an absolute instant to compare against `nowMs`.
  */
 export function computeDeadlineCountdown(
   concludes: string | null,
   nowMs: number,
 ): DeadlineCountdown | null {
-  if (!concludes) return null
-  const deadlineMs = new Date(concludes).getTime()
-  if (Number.isNaN(deadlineMs)) return null
+  const deadlineMs = parseIstToMs(concludes)
+  if (deadlineMs == null) return null
 
   const totalMs = deadlineMs - nowMs
   if (totalMs <= 0) return null

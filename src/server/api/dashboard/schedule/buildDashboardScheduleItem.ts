@@ -46,7 +46,6 @@ export function buildDashboardScheduleItem(input: {
 
   return {
     ...item,
-    concludes: row.concludes ?? null,
     courseName: input.showCourseName ? resolveCourseName(row) : null,
     enableZoomWebView: resolveEnableZoomWebView(row.sectionSettings),
   }

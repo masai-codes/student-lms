@@ -79,6 +79,8 @@ export interface LearningItem {
   title: string
   hostName: string
   scheduleDate: string | null
+  /** End time (IST wall-clock); pairs with `scheduleDate` for a display range. */
+  concludes: string | null
   type: string
   category: string
   isOptional: LearningPriority

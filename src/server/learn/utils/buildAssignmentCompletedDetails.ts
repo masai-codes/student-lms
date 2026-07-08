@@ -1,4 +1,5 @@
 import { formatSqlDate } from '@/utils/generics'
+import { parseIstToMs } from '@/server/time/istClock'
 
 /**
  * "Completed on …" banner shown on the assignment detail page.
@@ -20,16 +21,10 @@ export type AssignmentCompletedDetailsInput = {
   concludes: string | null
 }
 
-function toTimestamp(value: string | null): number | null {
-  if (value == null || value.trim() === '') return null
-  const ms = new Date(value).getTime()
-  return Number.isFinite(ms) ? ms : null
-}
-
 /** Clamp the completion timestamp so it never displays later than the deadline. */
 function clampCompletedAt(completedAt: string, concludes: string | null): string {
-  const concludesMs = toTimestamp(concludes)
-  const completedMs = toTimestamp(completedAt)
+  const concludesMs = parseIstToMs(concludes)
+  const completedMs = parseIstToMs(completedAt)
   if (concludesMs != null && completedMs != null && completedMs > concludesMs) {
     return concludes as string
   }
