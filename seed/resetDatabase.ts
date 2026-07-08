@@ -4,6 +4,7 @@ import { sql } from 'drizzle-orm'
 
 import { db } from '@/db'
 
+import { assertLocalSeedDatabase } from './utils/assertLocalSeedDatabase'
 import { PRESERVED_TABLES } from './utils/constants'
 
 function assertNotProduction(): void {
@@ -37,6 +38,7 @@ function normalizeRows(result: unknown): Array<SchemaRow> {
  */
 export async function resetDatabase(): Promise<{ truncatedTables: string[] }> {
   assertNotProduction()
+  assertLocalSeedDatabase()
 
   const result = await db.execute(sql`
     SELECT TABLE_NAME

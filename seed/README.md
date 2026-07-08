@@ -13,6 +13,14 @@ Layered seed infrastructure for local development and future integration/e2e tes
 npm run seed login-and-join-lecture
 ```
 
+Run every registered flow in one command (resets once, then appends each flow):
+
+```bash
+npm run seed:all
+# equivalent:
+npm run seed all
+```
+
 List available flows:
 
 ```bash
@@ -25,6 +33,7 @@ Skip database reset (append-only seed):
 npm run seed login-and-join-lecture -- --no-reset
 npm run seed onboarding-welcome-modal -- --no-reset
 npm run seed onboarding-fees-unpaid -- --no-reset
+npm run seed:all -- --no-reset
 ```
 
 Compose every flow in one database — each flow uses **its own users, batch, sections, and lectures** (flow-scoped emails like `onboarding-welcome-modal.student@example.com`), so they never collide.

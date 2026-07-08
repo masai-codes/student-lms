@@ -23,6 +23,7 @@
     "sync:masai-styles": "node ./scripts/sync-masai-styles.mjs",
     "prepare": "husky",
     "seed": "tsx seed/runner/cli.ts",
+    "seed:all": "tsx seed/runner/cli.ts all",
     "seed:catalog": "tsx seed/catalog/generate.ts"
   },
   "dependencies": {

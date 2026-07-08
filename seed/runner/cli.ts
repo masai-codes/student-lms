@@ -6,7 +6,7 @@ import { fileURLToPath } from 'node:url'
 
 import { generateCatalogHtml } from '../catalog/generate'
 import { SEED_STATE_PATH, writeSeedState } from '../catalog/seedState'
-import { listFlows, seedFlow } from '../index'
+import { listFlows, seedAllFlows, seedFlow } from '../index'
 import { isLoginAndJoinLectureEntities } from '../types'
 
 const catalogDir = join(dirname(fileURLToPath(import.meta.url)), '../catalog')
@@ -23,7 +23,9 @@ function publishCatalog(html: string): void {
 }
 
 function printUsage(): void {
-  console.log('Usage: npm run seed [flow-id] [--no-reset]\n')
+  console.log('Usage: npm run seed [flow-id|all] [--no-reset]\n')
+  console.log('  npm run seed all          — run every flow (reset once, then append)')
+  console.log('  npm run seed:all          — same as above\n')
   console.log('Available flows:')
   for (const flow of listFlows()) {
     console.log(`  ${flow.id} — ${flow.description}`)
@@ -54,6 +56,21 @@ function printResult(result: Awaited<ReturnType<typeof seedFlow>>): void {
   }
 }
 
+function printAllResults(results: Awaited<ReturnType<typeof seedAllFlows>>): void {
+  console.log(`\nSeeding completed — ${results.length} flows.\n`)
+  console.table(
+    results.map((result) => {
+      const student = result.testUsers.find((user) => user.role === 'student') ?? result.testUsers[0]
+      return {
+        flowId: result.flowId,
+        studentEmail: student?.email ?? '',
+        studentUserId: student?.userId ?? '',
+        batchId: result.entities.batch.id,
+      }
+    }),
+  )
+}
+
 async function main(): Promise<void> {
   const args = process.argv.slice(2)
   const flowId = args.find((arg) => !arg.startsWith('--'))
@@ -61,6 +78,19 @@ async function main(): Promise<void> {
 
   if (!flowId) {
     printUsage()
+    return
+  }
+
+  if (flowId === 'all') {
+    console.log(`Seeding all flows${noReset ? ' (no reset)' : ''}...`)
+
+    const results = await seedAllFlows({ reset: !noReset })
+    for (let index = 0; index < results.length; index++) {
+      writeSeedState(results[index], { replaceAll: !noReset && index === 0 })
+    }
+    publishCatalog(generateCatalogHtml())
+    printAllResults(results)
+    console.log('\nCatalog updated — open http://localhost:3002/seed-catalog/')
     return
   }
 

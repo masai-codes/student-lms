@@ -25,6 +25,8 @@ Area: layered test-data seeding (`seed/factories`, `seed/flows`, `seed/registry`
 | SEED-FLOW-003 | Onboarding constants map section names to video URLs | Covered |
 | SEED-RESET-001 | resetDatabase blocked in production | Covered |
 | SEED-RESET-002 | resetDatabase excludes `_prisma_migrations` | Covered |
+| SEED-SAFETY-001 | Seed entrypoints require `DATABASE_URL` contains `localhost` | Covered |
+| SEED-SAFETY-002 | resetDatabase requires `DATABASE_URL` contains `localhost` | Covered |
 | SEED-ISOLATION-001 | Two onboarding flows coexist with distinct user/batch ids | Planned (opt-in via `SEED_INTEGRATION=1`) |
 | SEED-INT-001 | Seeded lecture has active join button (integration) | Planned (opt-in via `SEED_INTEGRATION=1`) |
 | SEED-INT-002 | onboarding-fees-paid exposes program onboarding lectures | Planned (opt-in via `SEED_INTEGRATION=1`) |
@@ -32,5 +34,6 @@ Area: layered test-data seeding (`seed/factories`, `seed/flows`, `seed/registry`
 ## Notes
 
 - `resetDatabase()` truncates all app-data tables; use only on local/dev databases.
+- Seeding now hard-fails unless `DATABASE_URL` includes `localhost`.
 - Programmatic API: `import { seedFlow } from '../seed'`.
 - Every flow creates isolated seed data (flow-scoped emails and batch names) so multiple flows can coexist after `--no-reset`.
