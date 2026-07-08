@@ -119,6 +119,40 @@ describe('AgreementStep', () => {
     expect(screen.getByTestId<HTMLButtonElement>('agreement-continue').disabled).toBe(false)
   })
 
+  it('keeps Continue clickable on the details step and shows a live count of fields needing attention', () => {
+    renderStep(section({ savedValues: { ...VALID_VALUES, name: '', parentsEmail: 'not-an-email' } }))
+    // Continue stays enabled so it can surface the errors (instead of a dead disabled button).
+    expect(screen.getByTestId<HTMLButtonElement>('agreement-continue').disabled).toBe(false)
+    // The learner is told up front how many fields need fixing.
+    expect(screen.getByTestId('agreement-continue-hint').textContent).toContain('2 fields need')
+    // Errors aren't shown until they attempt to continue.
+    expect(screen.queryByTestId('agreement-validation-summary')).toBeNull()
+  })
+
+  it('reveals a detailed, labelled summary of every invalid field when Continue is pressed', () => {
+    renderStep(section({ savedValues: { ...VALID_VALUES, name: '', parentsEmail: 'not-an-email' } }))
+    fireEvent.click(screen.getByTestId('agreement-continue'))
+
+    const summary = screen.getByTestId('agreement-validation-summary')
+    expect(summary.textContent).toContain('Please fix 2 fields')
+    // Each issue is listed by its human-readable label + reason.
+    expect(screen.getByTestId('agreement-validation-summary-item-name').textContent).toContain('Name')
+    expect(screen.getByTestId('agreement-validation-summary-item-name').textContent).toContain('required')
+    expect(screen.getByTestId('agreement-validation-summary-item-parentsEmail').textContent).toContain("Parent's Email ID")
+    expect(screen.getByTestId('agreement-validation-summary-item-parentsEmail').textContent).toContain('valid email')
+    // It did not advance to the document step.
+    expect(screen.queryByTestId('agreement-pdf-viewer')).toBeNull()
+    expect(hoisted.save).not.toHaveBeenCalled()
+  })
+
+  it('tells the learner to accept the document when Continue is disabled on a document step', async () => {
+    renderStep(section())
+    fireEvent.click(screen.getByTestId('agreement-continue'))
+    await waitFor(() => expect(screen.getByTestId('agreement-pdf-viewer')).toBeTruthy())
+    expect(screen.getByTestId('agreement-continue').getAttribute('disabled')).not.toBeNull()
+    expect(screen.getByTestId('agreement-continue-hint').textContent).toContain('accept the document')
+  })
+
   it('walks details → document → certificate → submit', async () => {
     const { onCompleted } = renderStep(section())
     // Details are prefilled + valid → Continue autosaves and advances.
