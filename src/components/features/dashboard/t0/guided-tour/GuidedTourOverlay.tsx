@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { ListChecks, Lock, X } from '@phosphor-icons/react'
 import { GuidedTourStepList } from './GuidedTourStepList'
@@ -102,6 +102,17 @@ export function GuidedTourOverlay({
   // (chronological), falling back to the first step when all are done.
   const activeStep =
     steps.find((s) => s.key === activeKey) ?? steps.find((s) => !s.completed) ?? steps.at(0)
+
+  // Pin the active step once steps load. Without this the fallback above would
+  // re-resolve on every progress refetch: reporting the current video complete
+  // at the 10s watch mark rebuilds `steps` with it now marked completed, so
+  // `find((s) => !s.completed)` would jump the panel to the next step mid-play.
+  // The video only advances on its `ended` event (see handleVideoEnded).
+  useEffect(() => {
+    if (activeKey === null && steps.length > 0) {
+      setActiveKey((steps.find((s) => !s.completed) ?? steps[0]).key)
+    }
+  }, [activeKey, steps])
   const activeIndex = activeStep ? Math.max(0, steps.findIndex((s) => s.key === activeStep.key)) : 0
   const tabProgress = effectiveTab === 'lms' ? selectedBatch?.lms : selectedBatch?.program
 
