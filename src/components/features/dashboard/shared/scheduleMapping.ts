@@ -10,8 +10,14 @@ import {
  * same mapping the learn page uses), plus dashboard-only bits: the `courseName`
  * label and a formatted date **range** (viewer-local, with an IST hover
  * tooltip). Tags are trimmed to category + module for the compact card.
+ *
+ * `includeDeadlineLabel` controls the assignment "N days/hours remaining"
+ * countdown: it's shown only on the Pending Tasks tab, never on My Schedule.
  */
-export function scheduleItemToLearnContent(item: DashboardScheduleItem): LearnContentItem {
+export function scheduleItemToLearnContent(
+  item: DashboardScheduleItem,
+  { includeDeadlineLabel = true }: { includeDeadlineLabel?: boolean } = {},
+): LearnContentItem {
   return {
     id: item.id,
     type: item.learningType,
@@ -27,9 +33,12 @@ export function scheduleItemToLearnContent(item: DashboardScheduleItem): LearnCo
     resourcePhase: item.resourcePhase,
     listingCtas: item.listingCtas,
     assignmentStatusChip: item.listingCtas.assignmentStatusChip,
-    assignmentDeadlineLabel: item.listingCtas.assignmentDeadlineLabel,
+    assignmentDeadlineLabel: includeDeadlineLabel
+      ? item.listingCtas.assignmentDeadlineLabel
+      : null,
     courseName: item.courseName,
-    dateTooltip: formatScheduleRangeIST(item.scheduleDate, item.concludes) || null,
+    dateTooltip:
+      formatScheduleRangeIST(item.scheduleDate, item.concludes) || null,
   }
 }
 
@@ -55,9 +64,20 @@ const IST_OFFSET_MS = (5 * 60 + 30) * 60_000
 const SCHEDULE_WEEK_DAYS = 7
 
 /**
- * Builds the fixed 7-day window (today … today + 6 in IST), placing each
- * schedule item on its IST day. Every day appears — empty ones included — so
- * the UI can render a "No sessions" row per day.
+ * Builds the fixed 7-day window (today … today + 6 in IST). Every day appears —
+ * empty ones included — so the UI can render a "No sessions" row per day.
+ *
+ * Each item lands on exactly **one** day, never duplicated across the week:
+ * - Point-in-time items (lectures/resources): their scheduled day.
+ * - Assignments run over a window (`schedule`→`concludes`); while active they
+ *   pin to **today**, not every day in between. So a 27 Mar → 10 Apr assignment
+ *   shows only on today's row on the 27th, the 28th, … through the 10th — one
+ *   day at a time as "today" advances.
+ *
+ * Concretely each item's target day is `max(today, scheduleDay)`, shown only if
+ * that day still falls within the item's span (i.e. not past `concludes`):
+ * active items surface on today, not-yet-started ones on their start day, and
+ * concluded ones drop off.
  */
 export function buildScheduleWeek(
   items: Array<DashboardScheduleItem>,
@@ -69,29 +89,52 @@ export function buildScheduleWeek(
   const baseM = ist.getUTCMonth()
   const baseD = ist.getUTCDate()
 
-  const itemsByKey = new Map<string, Array<DashboardScheduleItem>>()
-  for (const item of items) {
-    const key = istDayKey(item.scheduleDate)
-    if (!key) continue
-    const bucket = itemsByKey.get(key)
-    if (bucket) bucket.push(item)
-    else itemsByKey.set(key, [item])
-  }
-
   const days: Array<ScheduleDayRow> = []
   for (let i = 0; i < dayCount; i += 1) {
     const date = new Date(Date.UTC(baseY, baseM, baseD + i))
-    const key = date.toISOString().slice(0, 10)
     days.push({
-      key,
+      key: date.toISOString().slice(0, 10),
       weekday: format(date, { weekday: 'short' }),
       dayOfMonth: String(date.getUTCDate()).padStart(2, '0'),
       isToday: i === 0,
-      items: itemsByKey.get(key) ?? [],
+      items: [],
     })
   }
 
+  const todayKey = days[0]?.key ?? ''
+  const dayByKey = new Map(days.map((day) => [day.key, day]))
+
+  for (const item of items) {
+    const span = itemDaySpan(item)
+    if (!span) continue
+    // `YYYY-MM-DD` strings compare chronologically as plain strings.
+    const targetKey = span.start > todayKey ? span.start : todayKey
+    if (targetKey > span.end) continue // already concluded — drop it
+    dayByKey.get(targetKey)?.items.push(item)
+  }
+
   return { rangeLabel: buildRangeLabel(days), days }
+}
+
+interface DaySpan {
+  /** First IST day the item occupies (`YYYY-MM-DD`). */
+  start: string
+  /** Last IST day the item occupies (`YYYY-MM-DD`), inclusive. */
+  end: string
+}
+
+/**
+ * The inclusive IST-day span an item occupies. Returns `null` when the item has
+ * no parseable schedule day. Assignments span `schedule`→`concludes`;
+ * everything else is a single day (`schedule`).
+ */
+function itemDaySpan(item: DashboardScheduleItem): DaySpan | null {
+  const start = istDayKey(item.scheduleDate)
+  if (!start) return null
+  if (item.learningType !== 'assignment') return { start, end: start }
+  const end = istDayKey(item.concludes)
+  if (!end || end < start) return { start, end: start }
+  return { start, end }
 }
 
 function buildRangeLabel(days: Array<ScheduleDayRow>): string {
@@ -107,7 +150,10 @@ function buildRangeLabel(days: Array<ScheduleDayRow>): string {
 }
 
 function format(date: Date, options: Intl.DateTimeFormatOptions): string {
-  return new Intl.DateTimeFormat('en-GB', { ...options, timeZone: 'UTC' }).format(date)
+  return new Intl.DateTimeFormat('en-GB', {
+    ...options,
+    timeZone: 'UTC',
+  }).format(date)
 }
 
 /**

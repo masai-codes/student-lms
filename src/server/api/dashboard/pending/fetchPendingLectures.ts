@@ -32,6 +32,7 @@ export async function fetchPendingLectures(
       module: lectures.module,
       hostName: users.name,
       zoomLink: lectures.zoomLink,
+      isNewZoomRedirection: lectures.isNewZoomRedirection,
       sectionName: sections.name,
       batchName: batches.name,
       sectionSettings: sections.settings,

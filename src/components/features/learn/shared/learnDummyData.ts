@@ -42,6 +42,8 @@ function createDummyItems(
       resourcePhase: null,
       listingCtas: {
         joinLive: 'hidden',
+        joinZoomLink: null,
+        isNewZoomRedirection: false,
         showAttendance: false,
         assignmentStatusChip: null,
         assignmentDeadlineLabel: null,

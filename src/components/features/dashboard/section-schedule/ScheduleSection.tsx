@@ -75,9 +75,18 @@ export function ScheduleSection({
       </div>
 
       {activeTab === 'schedule' ? (
-        <ScheduleFeed schedule={schedule} isLoading={isLoading} isError={isError} now={now} />
+        <ScheduleFeed
+          schedule={schedule}
+          isLoading={isLoading}
+          isError={isError}
+          now={now}
+        />
       ) : (
-        <PendingTasksFeed tasks={pendingTasks} isLoading={isLoading} isError={isError} />
+        <PendingTasksFeed
+          tasks={pendingTasks}
+          isLoading={isLoading}
+          isError={isError}
+        />
       )}
     </section>
   )
@@ -96,14 +105,20 @@ function ScheduleFeed({
 }) {
   if (isLoading) {
     return (
-      <p data-testid="dashboard-schedule-loading" className="py-10 text-center text-sm text-gray-400">
+      <p
+        data-testid="dashboard-schedule-loading"
+        className="py-10 text-center text-sm text-gray-400"
+      >
         Loading…
       </p>
     )
   }
   if (isError) {
     return (
-      <p data-testid="dashboard-schedule-error" className="py-10 text-center text-sm text-gray-400">
+      <p
+        data-testid="dashboard-schedule-error"
+        className="py-10 text-center text-sm text-gray-400"
+      >
         Failed to load content
       </p>
     )
@@ -132,7 +147,10 @@ function ScheduleFeed({
 
 function ScheduleDay({ day }: { day: ScheduleDayRow }) {
   return (
-    <div data-testid={`dashboard-schedule-day-${day.key}`} className="flex items-stretch gap-3">
+    <div
+      data-testid={`dashboard-schedule-day-${day.key}`}
+      className="flex items-stretch gap-3"
+    >
       <DayBadge day={day} />
       <div className="flex min-w-0 flex-1 flex-col gap-3">
         {day.items.length === 0 ? (
@@ -143,7 +161,9 @@ function ScheduleDay({ day }: { day: ScheduleDayRow }) {
           day.items.map((item) => (
             <LearnContentCard
               key={`${item.learningType}-${item.id}`}
-              item={scheduleItemToLearnContent(item)}
+              item={scheduleItemToLearnContent(item, {
+                includeDeadlineLabel: false,
+              })}
               fromDashboard
             />
           ))
@@ -160,7 +180,9 @@ function DayBadge({ day }: { day: ScheduleDayRow }) {
         day.isToday ? 'bg-[#4F6BED] text-white' : 'text-gray-500'
       }`}
     >
-      <span className="text-[11px] font-semibold uppercase leading-none">{day.weekday}</span>
+      <span className="text-[11px] font-semibold uppercase leading-none">
+        {day.weekday}
+      </span>
       <span
         className={`text-base font-bold leading-tight ${day.isToday ? '' : 'text-gray-700'}`}
       >
@@ -181,14 +203,20 @@ function PendingTasksFeed({
 }) {
   if (isLoading) {
     return (
-      <p data-testid="dashboard-pending-tasks-loading" className="py-10 text-center text-sm text-gray-400">
+      <p
+        data-testid="dashboard-pending-tasks-loading"
+        className="py-10 text-center text-sm text-gray-400"
+      >
         Loading…
       </p>
     )
   }
   if (isError) {
     return (
-      <p data-testid="dashboard-pending-tasks-error" className="py-10 text-center text-sm text-gray-400">
+      <p
+        data-testid="dashboard-pending-tasks-error"
+        className="py-10 text-center text-sm text-gray-400"
+      >
         Failed to load content
       </p>
     )
@@ -205,11 +233,16 @@ function PendingTasksFeed({
   }
 
   return (
-    <div data-testid="dashboard-pending-tasks-feed" className="flex flex-col gap-3">
+    <div
+      data-testid="dashboard-pending-tasks-feed"
+      className="flex flex-col gap-3"
+    >
       {tasks.map((item) => (
         <LearnContentCard
           key={`${item.learningType}-${item.id}`}
-          item={scheduleItemToLearnContent(item)}
+          item={scheduleItemToLearnContent(item, {
+            includeDeadlineLabel: true,
+          })}
           fromDashboard
         />
       ))}

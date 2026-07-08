@@ -1,6 +1,12 @@
 # Feature Test Matrix
 
-Last updated: 2026-07-08
+Last updated: 2026-07-09
+
+## Next-action pill (navbar top-right + mobile tab bar)
+- Area: `NextActionBanner` (in `AppNavbar` `centerSlot` and above `AppMobileTabBar`) surfaces the single next action from `GET /api/dashboard/navbar-pill` (`getNavbarPillEvent`: evaluation > live > scrum, `schedule−5min → concludes` window); pure view logic in `src/lib/nextActionBanner.ts` (`resolveNextActionBannerView` + `formatCountdown`). Replaces the deleted `UpcomingLecturePill`.
+- Status: Covered (pure resolver + countdown formatting: null/empty/concluded, lecture vs evaluation labels + countdown, start-boundary clamp, MM:SS vs "N mins").
+- Test files: `src/lib/nextActionBanner.test.ts`
+- Notes: See `docs/testing/features/next-action-banner.md`
 
 ## Support / Raise Ticket (`/support` + detail-page drawer)
 - Area: `RaiseTicketDrawer` opened from lecture/assignment/resource headers (no redirect); context-scoped `ContextSubcategoryList` via `GET /api/support/subcategories?category=` (legacy `SubcategoryTicketModal` flow); `TicketConversationPanel`/`useTicketComposer` create/reply/rate/escalate; first-template coordinator comment on creation (`buildFirstTemplateResponse`, exact legacy body + signature) with the synthetic open/re-opened banner suppressed; `SupportMarkdown` renders inline HTML (`rehype-raw` → `rehype-sanitize`) so legacy `<br/>`/signature comments display correctly; "Request a Callback" gated on `isNewUserJourney` (a `user_batch_admission_data` row) + active batch, "Student-Kit" reason hidden unless `hasFullFees`.

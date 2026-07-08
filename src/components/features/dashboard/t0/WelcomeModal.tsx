@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Confetti } from '@phosphor-icons/react'
 import { WELCOME_INTRO_VIDEO_URL } from './t0Config'
 import { pushDashboardEvent } from '../shared/dashboardAnalytics'
@@ -24,6 +24,34 @@ const BODY =
 function WelcomeModalBody({ open, onDismiss, isDismissing }: WelcomeModalProps) {
   // Each celebrate-button click re-fires the one-shot confetti (remount via key).
   const [celebrateCount, setCelebrateCount] = useState(0)
+
+  const videoRef = useRef<HTMLVideoElement>(null)
+
+  // Hard-stop the intro video whenever the modal is closed or unmounted.
+  // Unmounting the <video> alone does NOT reliably stop audio: a played-then-
+  // paused media element stays alive as the browser's active media session, so
+  // the OS/hardware "play" control (lock screen, headphones, media notification)
+  // could resume it with no visible player. Pausing + detaching the source and
+  // calling load() tears the element down so no audio can leak after close.
+  useEffect(() => {
+    if (open) return
+    const video = videoRef.current
+    if (!video) return
+    video.pause()
+    video.removeAttribute('src')
+    video.load()
+  }, [open])
+
+  useEffect(
+    () => () => {
+      const video = videoRef.current
+      if (!video) return
+      video.pause()
+      video.removeAttribute('src')
+      video.load()
+    },
+    [],
+  )
 
   return (
     <div
@@ -68,12 +96,19 @@ function WelcomeModalBody({ open, onDismiss, isDismissing }: WelcomeModalProps) 
 
       {/* Native player (same as the guided-tour videos). No autoplay — the
           learner taps play (autoplay would be muted, and the intro is worth
-          hearing). */}
+          hearing).
+
+          Width is derived from a viewport-height cap (width = cap * 16/9,
+          clamped to the container), so `aspect-video` yields a height that can
+          never exceed the cap. On short screens the video shrinks to fit
+          instead of pushing content past the viewport and triggering a scroll,
+          while the 16:9 ratio stays intact (no letterboxing) in both axes. */}
       <div
-        className="aspect-video w-full overflow-hidden rounded-2xl bg-black shadow-md"
+        className="mx-auto aspect-video w-[min(100%,calc(38svh_*_16_/_9))] max-w-full overflow-hidden rounded-2xl bg-black shadow-md md:w-[min(100%,calc(52vh_*_16_/_9))]"
         data-testid="welcome-modal-video"
       >
         <video
+          ref={videoRef}
           src={WELCOME_INTRO_VIDEO_URL}
           className="h-full w-full object-contain"
           controls

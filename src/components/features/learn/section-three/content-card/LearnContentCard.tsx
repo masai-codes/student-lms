@@ -4,6 +4,7 @@ import { learnEntityEvent, pushLearnEvent } from '../../shared/learnAnalytics'
 import { LectureAttendanceInline } from '@/components/features/learn/attendance/LectureAttendanceInline'
 import { getAssignmentStatusChipStyles } from '@/components/features/learn/LearnPageDetails/assignment/shared/getAssignmentStatusChipStyles'
 import { LearnListingJoinLiveCta } from '@/components/features/learn/section-three/content-card/LearnListingJoinLiveCta'
+import { LocalTimeWithIstTooltip } from '@/components/shared/local-time-with-ist-tooltip'
 import { MasaiChips } from '@/components/ui/masai-chips'
 import {
   getLearnListingAttendancePresentation,
@@ -99,9 +100,10 @@ export function LearnContentCard({
             <p className="type-b1-md">{item.title}</p>
             {fromDashboard ? (
               <div className="mt-[4px] type-t1 flex flex-wrap items-center gap-x-2 gap-y-1">
-                <span title={item.dateTooltip ?? undefined}>
-                  {item.date ?? 'No schedule'}
-                </span>
+                <LocalTimeWithIstTooltip
+                  local={item.date}
+                  ist={item.dateTooltip}
+                />
                 {item.courseName ? (
                   <>
                     <span className="size-1 shrink-0 rounded-full bg-gray-600" aria-hidden />
@@ -130,7 +132,10 @@ export function LearnContentCard({
                     className="size-1 shrink-0 rounded-full bg-gray-600"
                     aria-hidden
                   />
-                  <span>{item.date ?? 'No schedule'}</span>
+                  <LocalTimeWithIstTooltip
+                    local={item.date}
+                    ist={item.dateTooltip}
+                  />
                 </p>
                 <div className="flex flex-wrap gap-2 mt-[8px]">
                   {item.tags.map((tag, index) => (
@@ -213,6 +218,8 @@ export function LearnContentCard({
           {item.type === 'lecture' ? (
             <LearnListingJoinLiveCta
               joinLive={item.listingCtas.joinLive}
+              joinZoomLink={item.listingCtas.joinZoomLink}
+              isNewZoomRedirection={item.listingCtas.isNewZoomRedirection}
               lectureId={item.id}
               title={item.title}
             />

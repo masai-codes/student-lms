@@ -42,7 +42,7 @@ export async function markAnnouncementAsUnread(
  */
 export async function markMessageAsUnread(
   _userId: number,
-  messageId: number,
+  messageId: string,
 ): Promise<void> {
   await db.execute(sql`
     UPDATE messages

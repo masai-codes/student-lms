@@ -19,8 +19,6 @@ export interface ScheduleEntityRow extends LearningEntityRow {
  * the dashboard-only course label + the lecture web-view flag.
  */
 export interface DashboardScheduleItem extends LearningItem {
-  /** End time (IST wall-clock) for the display range; `scheduleDate` is the start. */
-  concludes: string | null
   /** Course/section label, only when the user is in more than one batch. */
   courseName: string | null
   /** `sections.settings.enableZoomWebView` (lectures only). */

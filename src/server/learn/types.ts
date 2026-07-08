@@ -38,6 +38,14 @@ export type AssignmentListingStatusChip =
 /** Server-resolved CTA visibility for learn listing cards — see `buildLearnListingCardCtas`. */
 export interface LearnListingCardCtas {
   joinLive: LearnListingJoinLiveState
+  /**
+   * Join URL for the live session (scrubbed + lecture-scoped), or null. For
+   * `isNewZoomRedirection` lectures this is only a fallback — the real URL is
+   * minted at click time via the zoom-redirect API.
+   */
+  joinZoomLink: string | null
+  /** When true, join via the ZEF redirect flow instead of the raw zoom link. */
+  isNewZoomRedirection: boolean
   showAttendance: boolean
   assignmentStatusChip: AssignmentListingStatusChip
   /** "N days/hours remaining" until an assignment deadline; null otherwise. */
@@ -79,6 +87,8 @@ export interface LearningItem {
   title: string
   hostName: string
   scheduleDate: string | null
+  /** End time (IST wall-clock); pairs with `scheduleDate` for a display range. */
+  concludes: string | null
   type: string
   category: string
   isOptional: LearningPriority

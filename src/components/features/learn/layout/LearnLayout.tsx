@@ -14,6 +14,10 @@ import type {
 } from '@/server/learn/types'
 import { fetchLearnPageDataFromApi } from '@/lib/api/learn/learnApi'
 import { LAYOUT_MAIN_PADDING_X, LAYOUT_MAX_WIDTH_CLASS } from '@/lib/layout'
+import {
+  formatScheduleRangeIST,
+  formatScheduleRangeLocal,
+} from '@/utils/timeZoneHandler'
 
 interface LearnLayoutProps {
   /** Loader-seeded initial page data; React Query takes over for interactive updates. */
@@ -83,7 +87,9 @@ export function LearnLayout({ pageData, onBatchChange }: LearnLayoutProps) {
         type: item.learningType,
         title: item.title,
         hostName: item.hostName,
-        date: item.scheduleDate,
+        date: formatScheduleRangeLocal(item.scheduleDate, item.concludes) || null,
+        dateTooltip:
+          formatScheduleRangeIST(item.scheduleDate, item.concludes) || null,
         category: item.category,
         learningSubType: item.type,
         priority: item.isOptional,

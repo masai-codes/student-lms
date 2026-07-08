@@ -3,6 +3,7 @@ import {
   formatIstWallClock,
   getIstDayWindow,
   getIstNowSqlDatetime,
+  parseIstToMs,
 } from '../istClock'
 
 describe('getIstNowSqlDatetime', () => {
@@ -41,5 +42,40 @@ describe('formatIstWallClock', () => {
   it('returns null for null/empty input', () => {
     expect(formatIstWallClock(null)).toBeNull()
     expect(formatIstWallClock('')).toBeNull()
+  })
+})
+
+describe('parseIstToMs', () => {
+  // 2026-07-08 17:15:00 IST == 2026-07-08 11:45:00 UTC. Expected value is
+  // computed from an absolute UTC instant, so this assertion is independent of
+  // the machine/CI timezone — which is exactly the property being guarded.
+  const istWallClockMs = Date.UTC(2026, 6, 8, 11, 45, 0)
+
+  it('treats a timezone-less MySQL datetime as IST wall-clock', () => {
+    expect(parseIstToMs('2026-07-08 17:15:00')).toBe(istWallClockMs)
+  })
+
+  it('treats the ISO "T" form the same as the space form', () => {
+    expect(parseIstToMs('2026-07-08T17:15:00')).toBe(istWallClockMs)
+  })
+
+  it('treats a date-only value as IST midnight', () => {
+    expect(parseIstToMs('2026-07-08')).toBe(Date.UTC(2026, 6, 7, 18, 30, 0))
+  })
+
+  it('trusts an explicit UTC (Z) instant as-is', () => {
+    expect(parseIstToMs('2026-07-08T11:45:00.000Z')).toBe(istWallClockMs)
+  })
+
+  it('trusts an explicit +05:30 offset as-is', () => {
+    expect(parseIstToMs('2026-07-08T17:15:00+05:30')).toBe(istWallClockMs)
+  })
+
+  it('returns null for null/empty/unparseable input', () => {
+    expect(parseIstToMs(null)).toBeNull()
+    expect(parseIstToMs(undefined)).toBeNull()
+    expect(parseIstToMs('')).toBeNull()
+    expect(parseIstToMs('   ')).toBeNull()
+    expect(parseIstToMs('not-a-date')).toBeNull()
   })
 })

@@ -5,14 +5,18 @@ import { isLectureSessionEnded } from '@/server/learn/utils/isLectureSessionEnde
 import { resolveJoinLiveButtonState } from '@/server/learn/utils/resolveJoinLiveButtonState'
 import { resolveAssignmentListingStatusChip } from '@/server/learn/utils/resolveAssignmentListingStatusChip'
 import { computeDeadlineCountdown } from '@/server/learn/utils/computeDeadlineCountdown'
+import { scrubZoomLinkForSchedule } from '@/server/learn/utils/scrubZoomLinkForSchedule'
+import { toLectureScopedAdaptiveLink } from '@/server/learn/utils/toLectureScopedAdaptiveLink'
 
 export function buildLearnListingCardCtas(input: {
   learningType: 'lecture' | 'assignment' | 'resource'
+  lectureId: number
   itemType: string
   schedule: string | null
   concludes: string | null
   isMandatory: boolean
   zoomLink: string | null
+  isNewZoomRedirection: boolean
   nowMs: number
   attendance: LectureAttendanceSummary | null
   assignmentProgressStatus: AssignmentProgressStatus | null
@@ -20,6 +24,8 @@ export function buildLearnListingCardCtas(input: {
   if (input.learningType === 'assignment') {
     return {
       joinLive: 'hidden',
+      joinZoomLink: null,
+      isNewZoomRedirection: false,
       showAttendance: false,
       assignmentStatusChip: resolveAssignmentListingStatusChip(
         input.assignmentProgressStatus,
@@ -33,6 +39,8 @@ export function buildLearnListingCardCtas(input: {
   if (input.learningType === 'resource') {
     return {
       joinLive: 'hidden',
+      joinZoomLink: null,
+      isNewZoomRedirection: false,
       showAttendance: false,
       assignmentStatusChip: null,
       assignmentDeadlineLabel: null,
@@ -49,6 +57,20 @@ export function buildLearnListingCardCtas(input: {
       })
     : 'hidden'
 
+  // The clickable join URL (scrubbed until the session is near, lecture-scoped),
+  // mirroring the lecture detail page. Only surfaced when the button shows.
+  const scrubbedLink =
+    joinLive === 'hidden'
+      ? null
+      : scrubZoomLinkForSchedule({
+          zoomLink: input.zoomLink,
+          schedule: input.schedule,
+          nowMs: input.nowMs,
+        })
+  const joinZoomLink = scrubbedLink
+    ? toLectureScopedAdaptiveLink(scrubbedLink, input.lectureId)
+    : null
+
   const showAttendance =
     input.isMandatory &&
     isLectureSessionEnded({
@@ -59,6 +81,8 @@ export function buildLearnListingCardCtas(input: {
 
   return {
     joinLive,
+    joinZoomLink,
+    isNewZoomRedirection: input.isNewZoomRedirection,
     showAttendance,
     assignmentStatusChip: null,
     assignmentDeadlineLabel: null,

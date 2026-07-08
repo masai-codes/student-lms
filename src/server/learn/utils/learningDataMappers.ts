@@ -23,6 +23,8 @@ export interface LearningEntityRow {
   module: string | null
   hostName: string | null
   zoomLink?: string | null
+  /** `lectures.is_new_zoom_redirection` (tinyint 0/1); ZEF join flow when 1. */
+  isNewZoomRedirection?: number | null
 }
 
 export function toLearningPriority(optional: number | null): LearningPriority {
@@ -63,6 +65,7 @@ export function mapLearningEntityRow(
     title: row.title,
     hostName: row.hostName ?? 'Unknown Instructor',
     scheduleDate: row.schedule,
+    concludes: row.concludes ?? null,
     type: row.type,
     category: row.category,
     isOptional: toLearningPriority(row.optional),

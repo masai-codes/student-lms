@@ -12,7 +12,7 @@ import {
 } from 'lucide-react'
 
 import { TabNavbar } from '@/components/tab-navbar'
-import { UpcomingLecturePill } from '@/components/features/layout/UpcomingLecturePill'
+import { NextActionBanner } from '@/components/features/layout/NextActionBanner'
 import { activeAppNavIdForPathname } from '@/lib/appNavActiveItem'
 import { OLD_STUDENT_UI_NAV_PATHS } from '@/constants/oldStudentUiNavPaths'
 import { getOldStudentUiUrlForPath } from '@/utils/authRedirect'
@@ -114,7 +114,7 @@ export default function AppMobileTabBar() {
       data-app-mobile-tab-bar
     >
       <div>
-        <UpcomingLecturePill className="w-full rounded-t-[14px]" />
+        <NextActionBanner className="w-full rounded-t-[14px]" />
       </div>
       <TabNavbar
         items={items}

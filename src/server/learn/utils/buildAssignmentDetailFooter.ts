@@ -13,6 +13,7 @@ import {
   readAssignmentSettingsCase,
   readAssignmentSettingsFlag,
 } from '@/server/learn/utils/assignmentPlatform'
+import { parseIstToMs } from '@/server/time/istClock'
 
 export type AssignmentDetailFooterContext = {
   assignmentKind: AssignmentKind
@@ -44,14 +45,8 @@ const STATUS_LABELS: Record<AssignmentProgressStatus, string> = {
   completed: 'Complete',
 }
 
-function toTimestamp(value: string | null): number | null {
-  if (value == null || value.trim() === '') return null
-  const ms = new Date(value).getTime()
-  return Number.isFinite(ms) ? ms : null
-}
-
 function isAssignmentUnlocked(schedule: string | null, nowMs: number): boolean {
-  const scheduleMs = toTimestamp(schedule)
+  const scheduleMs = parseIstToMs(schedule)
   if (scheduleMs == null) return true
   return nowMs >= scheduleMs
 }
@@ -62,7 +57,7 @@ function isAssignmentExpired(
   nowMs: number,
 ): boolean {
   if (readAssignmentSettingsCase(settings) === 'case1') return false
-  const concludesMs = toTimestamp(concludes)
+  const concludesMs = parseIstToMs(concludes)
   if (concludesMs == null) return false
   return nowMs > concludesMs
 }
@@ -142,8 +137,8 @@ function buildNotices(
 
   const startedAfterDeadline =
     context.submission?.startedAt != null &&
-    toTimestamp(context.concludes) != null &&
-    toTimestamp(context.submission.startedAt)! > toTimestamp(context.concludes)!
+    parseIstToMs(context.concludes) != null &&
+    parseIstToMs(context.submission.startedAt)! > parseIstToMs(context.concludes)!
 
   if (
     showPractice &&

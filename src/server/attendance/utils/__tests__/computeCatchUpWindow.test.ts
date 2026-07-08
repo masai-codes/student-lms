@@ -16,7 +16,7 @@ describe('computeCatchUpWindow', () => {
         isAbsent: false,
         nowMs,
       }),
-    ).toEqual({ daysRemaining: null, isCatchupWindowOver: null })
+    ).toEqual({ daysRemaining: null, isCatchupWindowOver: null, remainingLabel: null })
   })
 
   it('computes remaining catch-up days for absent students', () => {
@@ -29,7 +29,11 @@ describe('computeCatchUpWindow', () => {
         isAbsent: true,
         nowMs,
       }),
-    ).toEqual({ daysRemaining: 2, isCatchupWindowOver: false })
+    ).toEqual({
+      daysRemaining: 2,
+      isCatchupWindowOver: false,
+      remainingLabel: '2 days remaining',
+    })
   })
 
   it('marks window over when elapsed days exceed catch-up allowance', () => {
@@ -43,6 +47,6 @@ describe('computeCatchUpWindow', () => {
         isAbsent: true,
         nowMs: lateNow,
       }),
-    ).toEqual({ daysRemaining: 0, isCatchupWindowOver: true })
+    ).toEqual({ daysRemaining: 0, isCatchupWindowOver: true, remainingLabel: null })
   })
 })

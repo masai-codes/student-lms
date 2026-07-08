@@ -7,6 +7,7 @@ type LectureAttendanceInlineProps = ListingAttendanceRender
 export function LectureAttendanceInline({
   uiState,
   daysRemaining,
+  remainingLabel,
   showBadge = true,
 }: LectureAttendanceInlineProps) {
   if (uiState == null) {
@@ -19,7 +20,7 @@ export function LectureAttendanceInline({
     <div className="flex min-w-0 flex-row items-center gap-2">
       {showDays ? (
         <span className="type-t1 whitespace-nowrap text-gray-500">
-          {daysRemaining} days remaining
+          {remainingLabel ?? `${daysRemaining} days remaining`}
         </span>
       ) : null}
       {showBadge ? (
