@@ -1,4 +1,5 @@
 import { loginAndJoinLectureConfig } from './flows/login-and-join-lecture/config'
+import { dashboardHomeConfig } from './flows/dashboard-home/config'
 import {
   createOnboardingFlowMeta,
   ONBOARDING_FLOW_IDS,
@@ -8,7 +9,11 @@ import type { SeedFlowMeta, SeedFlowModule } from './types'
 
 const onboardingConfigs = ONBOARDING_FLOW_IDS.map((id) => createOnboardingFlowMeta(id))
 
-const flowConfigs: SeedFlowMeta[] = [loginAndJoinLectureConfig, ...onboardingConfigs]
+const flowConfigs: SeedFlowMeta[] = [
+  loginAndJoinLectureConfig,
+  dashboardHomeConfig,
+  ...onboardingConfigs,
+]
 
 function isOnboardingFlowId(id: string): id is OnboardingFlowId {
   return (ONBOARDING_FLOW_IDS as Array<string>).includes(id)
@@ -29,6 +34,10 @@ async function loadFlowModule(id: string): Promise<SeedFlowModule> {
         './flows/login-and-join-lecture/seed'
       )
       return { meta: loginAndJoinLectureConfig, seed: seedLoginAndJoinLecture }
+    }
+    case dashboardHomeConfig.id: {
+      const { seedDashboardHome } = await import('./flows/dashboard-home/seed')
+      return { meta: dashboardHomeConfig, seed: seedDashboardHome }
     }
     default: {
       const known = flowConfigs.map((flow) => flow.id).join(', ')

@@ -74,11 +74,11 @@
         <button
           type="button"
           class="btn btn-login btn-login-flow"
-          data-user-id="2"
+          data-user-id=""
           data-user-email="login-and-join-lecture.student@example.com"
           data-user-role="student"
           
-          title="Secret-login as student (userId 2)"
+          title="Secret-login as student (login-and-join-lecture.student@example.com) — run seed to resolve userId"
         >Login</button>
       </div>
       <div class="flow-panel" hidden>
@@ -86,6 +86,9 @@
           <h3>Seed command</h3>
           <pre><code>npm run seed login-and-join-lecture</code></pre>
         </div>
+        
+        
+        
         <div class="panel-grid">
           <div class="panel-section">
             <h3>Timing offsets</h3>
@@ -94,22 +97,9 @@
               <tbody><tr><td><code>batchStartedDaysAgo</code></td><td>0</td></tr><tr><td><code>lectureScheduledMinutesAgo</code></td><td>0</td></tr><tr><td><code>lectureDurationMinutes</code></td><td>120</td></tr></tbody>
             </table>
           </div>
-          <div class="panel-section">
-            <h3>Last seeded timestamps</h3>
-            <p class="note">Seeded 2026-07-08T09:28:55.335Z</p>
-            <table>
-              <thead><tr><th>Key</th><th>Value</th></tr></thead>
-              <tbody><tr><td><code>batchStarting</code></td><td>2026-07-08</td></tr><tr><td><code>lectureSchedule</code></td><td>2026-07-08 14:58:55</td></tr><tr><td><code>lectureConcludes</code></td><td>2026-07-08 16:58:55</td></tr></tbody>
-            </table>
-          </div>
+          
         </div>
-        <div class="panel-section">
-          <h3>Entity IDs</h3>
-          <table>
-            <thead><tr><th>Entity</th><th>ID</th></tr></thead>
-            <tbody><tr><td><code>batchId</code></td><td>1</td></tr><tr><td><code>sectionId</code></td><td>1</td></tr><tr><td><code>lectureId</code></td><td>1</td></tr></tbody>
-          </table>
-        </div>
+        
         <div class="panel-section">
           <h3>Test users</h3>
           <p class="note">Password: <code>password</code>. Primary login role: <code>student</code>.</p>
@@ -119,14 +109,99 @@
         <td>admin</td>
         <td>login-and-join-lecture.admin@example.com</td>
         <td><code>password</code></td>
-        <td class="user-id-cell">1</td>
-        <td><button type="button" class="btn btn-login btn-login-user" data-user-id="1" data-user-email="login-and-join-lecture.admin@example.com" data-user-role="admin">Login</button></td>
+        <td class="user-id-cell muted">—</td>
+        <td><button type="button" class="btn btn-login btn-login-user" data-user-id="" data-user-email="login-and-join-lecture.admin@example.com" data-user-role="admin">Login</button></td>
       </tr><tr data-user-role="student">
         <td>student</td>
         <td>login-and-join-lecture.student@example.com</td>
         <td><code>password</code></td>
+        <td class="user-id-cell muted">—</td>
+        <td><button type="button" class="btn btn-login btn-login-user" data-user-id="" data-user-email="login-and-join-lecture.student@example.com" data-user-role="student">Login</button></td>
+      </tr></tbody>
+          </table>
+        </div>
+      </div>
+    </article>
+
+    <article class="flow-item" data-flow-id="dashboard-home" data-search="dashboard-home dashboard home test bed: my schedule (7-day window + empty days), pending tasks (catch-up lecture + open assignment), announcements (feed a + for you, cap 5), product updates (top 5 of 7). no t0 overlay.">
+      <div class="flow-row">
+        <button type="button" class="flow-toggle" aria-expanded="false">
+          <span class="flow-badge">FLOW</span>
+          <span class="flow-id">dashboard-home</span>
+          <span class="flow-summary">Dashboard home test bed: My Schedule (7-day window + empty days), Pending Tasks (catch-up lecture + open assignment), Announcements (Feed A + For You, cap 5), Product Updates (top 5 of 7). No T0 overlay.</span>
+          <span class="chevron" aria-hidden="true">▸</span>
+        </button>
+        <button
+          type="button"
+          class="btn btn-login btn-login-flow"
+          data-user-id="2"
+          data-user-email="dashboard-home.student@example.com"
+          data-user-role="student"
+          
+          title="Secret-login as student (userId 2)"
+        >Login</button>
+      </div>
+      <div class="flow-panel" hidden>
+        <div class="panel-section">
+          <h3>Seed command</h3>
+          <pre><code>npm run seed dashboard-home</code></pre>
+        </div>
+        
+        
+        <div class="panel-section">
+          <h3>Components in the flow</h3>
+          <table>
+            <thead><tr><th>Component</th><th>What to expect</th></tr></thead>
+            <tbody>
+              <tr><td><code>1. My Schedule</code></td><td>7-day IST window (today→+6): 2 lectures (today + day 3) + 1 assignment (day 5); other days show empty placeholders.</td></tr>
+              <tr><td><code>2. Pending Tasks</code></td><td>Badge <code>2</code>: 1 catch-up lecture (ended yesterday, 7-day catch-up window) + 1 open assignment (not begun). Excluded rows seeded but hidden: started assignment, overdue assignment, optional catch-up lecture.</td></tr>
+              <tr><td><code>3. Announcements</code></td><td>Exactly <code>5</code> visible (3 section + 2 For You). Excluded: read, expired, future announcements.</td></tr>
+              <tr><td><code>4. Product Updates</code></td><td><code>7</code> global <code>whatsnew</code> rows seeded; dashboard shows newest <code>5</code>.</td></tr>
+            </tbody>
+          </table>
+          <p class="note">Student has no admission row — no T0 guided-tour overlay on the dashboard.</p>
+        </div>
+        <div class="panel-grid">
+          <div class="panel-section">
+            <h3>Timing offsets</h3>
+            <table>
+              <thead><tr><th>Key</th><th>Offset</th></tr></thead>
+              <tbody></tbody>
+            </table>
+          </div>
+          <div class="panel-section">
+            <h3>Last seeded timestamps</h3>
+            <p class="note">Seeded 2026-07-08T20:36:54.749Z</p>
+            <table>
+              <thead><tr><th>Key</th><th>Value</th></tr></thead>
+              <tbody><tr><td><code>scheduleWindowStart</code></td><td>today (IST)</td></tr><tr><td><code>scheduleWindowEnd</code></td><td>today + 6 days (IST)</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+        <div class="panel-section">
+          <h3>Entity IDs</h3>
+          <table>
+            <thead><tr><th>Entity</th><th>ID</th></tr></thead>
+            <tbody><tr><td><code>batchId</code></td><td>1</td></tr></tbody>
+          </table>
+        </div>
+        <div class="panel-section">
+          <h3>Test users</h3>
+          <p class="note">Password: <code>password</code>. Primary login role: <code>student</code>.</p>
+          <table>
+            <thead><tr><th>Role</th><th>Email</th><th>Password</th><th>User ID</th><th></th></tr></thead>
+            <tbody><tr data-user-role="admin">
+        <td>admin</td>
+        <td>dashboard-home.admin@example.com</td>
+        <td><code>password</code></td>
+        <td class="user-id-cell">1</td>
+        <td><button type="button" class="btn btn-login btn-login-user" data-user-id="1" data-user-email="dashboard-home.admin@example.com" data-user-role="admin">Login</button></td>
+      </tr><tr data-user-role="student">
+        <td>student</td>
+        <td>dashboard-home.student@example.com</td>
+        <td><code>password</code></td>
         <td class="user-id-cell">2</td>
-        <td><button type="button" class="btn btn-login btn-login-user" data-user-id="2" data-user-email="login-and-join-lecture.student@example.com" data-user-role="student">Login</button></td>
+        <td><button type="button" class="btn btn-login btn-login-user" data-user-id="2" data-user-email="dashboard-home.student@example.com" data-user-role="student">Login</button></td>
       </tr></tbody>
           </table>
         </div>
@@ -144,11 +219,11 @@
         <button
           type="button"
           class="btn btn-login btn-login-flow"
-          data-user-id="4"
+          data-user-id=""
           data-user-email="onboarding-legacy-user.student@example.com"
           data-user-role="student"
           
-          title="Secret-login as student (userId 4)"
+          title="Secret-login as student (onboarding-legacy-user.student@example.com) — run seed to resolve userId"
         >Login</button>
       </div>
       <div class="flow-panel" hidden>
@@ -156,6 +231,9 @@
           <h3>Seed command</h3>
           <pre><code>npm run seed onboarding-legacy-user</code></pre>
         </div>
+        
+        
+        
         <div class="panel-grid">
           <div class="panel-section">
             <h3>Timing offsets</h3>
@@ -164,22 +242,9 @@
               <tbody></tbody>
             </table>
           </div>
-          <div class="panel-section">
-            <h3>Last seeded timestamps</h3>
-            <p class="note">Seeded 2026-07-08T09:28:55.335Z</p>
-            <table>
-              <thead><tr><th>Key</th><th>Value</th></tr></thead>
-              <tbody><tr><td><code>batchStarting</code></td><td>2026-07-08</td></tr><tr><td><code>lmsAccessDate</code></td><td></td></tr><tr><td><code>courseFeeDeadline</code></td><td></td></tr></tbody>
-            </table>
-          </div>
+          
         </div>
-        <div class="panel-section">
-          <h3>Entity IDs</h3>
-          <table>
-            <thead><tr><th>Entity</th><th>ID</th></tr></thead>
-            <tbody><tr><td><code>batchId</code></td><td>2</td></tr></tbody>
-          </table>
-        </div>
+        
         <div class="panel-section">
           <h3>Test users</h3>
           <p class="note">Password: <code>password</code>. Primary login role: <code>student</code>.</p>
@@ -189,14 +254,14 @@
         <td>admin</td>
         <td>onboarding-legacy-user.admin@example.com</td>
         <td><code>password</code></td>
-        <td class="user-id-cell">3</td>
-        <td><button type="button" class="btn btn-login btn-login-user" data-user-id="3" data-user-email="onboarding-legacy-user.admin@example.com" data-user-role="admin">Login</button></td>
+        <td class="user-id-cell muted">—</td>
+        <td><button type="button" class="btn btn-login btn-login-user" data-user-id="" data-user-email="onboarding-legacy-user.admin@example.com" data-user-role="admin">Login</button></td>
       </tr><tr data-user-role="student">
         <td>student</td>
         <td>onboarding-legacy-user.student@example.com</td>
         <td><code>password</code></td>
-        <td class="user-id-cell">4</td>
-        <td><button type="button" class="btn btn-login btn-login-user" data-user-id="4" data-user-email="onboarding-legacy-user.student@example.com" data-user-role="student">Login</button></td>
+        <td class="user-id-cell muted">—</td>
+        <td><button type="button" class="btn btn-login btn-login-user" data-user-id="" data-user-email="onboarding-legacy-user.student@example.com" data-user-role="student">Login</button></td>
       </tr></tbody>
           </table>
         </div>
@@ -214,11 +279,11 @@
         <button
           type="button"
           class="btn btn-login btn-login-flow"
-          data-user-id="6"
+          data-user-id=""
           data-user-email="onboarding-welcome-modal.student@example.com"
           data-user-role="student"
           
-          title="Secret-login as student (userId 6)"
+          title="Secret-login as student (onboarding-welcome-modal.student@example.com) — run seed to resolve userId"
         >Login</button>
       </div>
       <div class="flow-panel" hidden>
@@ -226,6 +291,9 @@
           <h3>Seed command</h3>
           <pre><code>npm run seed onboarding-welcome-modal</code></pre>
         </div>
+        
+        
+        
         <div class="panel-grid">
           <div class="panel-section">
             <h3>Timing offsets</h3>
@@ -234,22 +302,9 @@
               <tbody></tbody>
             </table>
           </div>
-          <div class="panel-section">
-            <h3>Last seeded timestamps</h3>
-            <p class="note">Seeded 2026-07-08T09:28:55.336Z</p>
-            <table>
-              <thead><tr><th>Key</th><th>Value</th></tr></thead>
-              <tbody><tr><td><code>batchStarting</code></td><td>2026-07-08</td></tr><tr><td><code>lmsAccessDate</code></td><td>2026-07-08 14:58:55</td></tr><tr><td><code>courseFeeDeadline</code></td><td>2026-07-15 14:58:55</td></tr></tbody>
-            </table>
-          </div>
+          
         </div>
-        <div class="panel-section">
-          <h3>Entity IDs</h3>
-          <table>
-            <thead><tr><th>Entity</th><th>ID</th></tr></thead>
-            <tbody><tr><td><code>batchId</code></td><td>3</td></tr></tbody>
-          </table>
-        </div>
+        
         <div class="panel-section">
           <h3>Test users</h3>
           <p class="note">Password: <code>password</code>. Primary login role: <code>student</code>.</p>
@@ -259,14 +314,14 @@
         <td>admin</td>
         <td>onboarding-welcome-modal.admin@example.com</td>
         <td><code>password</code></td>
-        <td class="user-id-cell">5</td>
-        <td><button type="button" class="btn btn-login btn-login-user" data-user-id="5" data-user-email="onboarding-welcome-modal.admin@example.com" data-user-role="admin">Login</button></td>
+        <td class="user-id-cell muted">—</td>
+        <td><button type="button" class="btn btn-login btn-login-user" data-user-id="" data-user-email="onboarding-welcome-modal.admin@example.com" data-user-role="admin">Login</button></td>
       </tr><tr data-user-role="student">
         <td>student</td>
         <td>onboarding-welcome-modal.student@example.com</td>
         <td><code>password</code></td>
-        <td class="user-id-cell">6</td>
-        <td><button type="button" class="btn btn-login btn-login-user" data-user-id="6" data-user-email="onboarding-welcome-modal.student@example.com" data-user-role="student">Login</button></td>
+        <td class="user-id-cell muted">—</td>
+        <td><button type="button" class="btn btn-login btn-login-user" data-user-id="" data-user-email="onboarding-welcome-modal.student@example.com" data-user-role="student">Login</button></td>
       </tr></tbody>
           </table>
         </div>
@@ -284,11 +339,11 @@
         <button
           type="button"
           class="btn btn-login btn-login-flow"
-          data-user-id="8"
+          data-user-id=""
           data-user-email="onboarding-welcome-seen.student@example.com"
           data-user-role="student"
           
-          title="Secret-login as student (userId 8)"
+          title="Secret-login as student (onboarding-welcome-seen.student@example.com) — run seed to resolve userId"
         >Login</button>
       </div>
       <div class="flow-panel" hidden>
@@ -296,6 +351,9 @@
           <h3>Seed command</h3>
           <pre><code>npm run seed onboarding-welcome-seen</code></pre>
         </div>
+        
+        
+        
         <div class="panel-grid">
           <div class="panel-section">
             <h3>Timing offsets</h3>
@@ -304,22 +362,9 @@
               <tbody></tbody>
             </table>
           </div>
-          <div class="panel-section">
-            <h3>Last seeded timestamps</h3>
-            <p class="note">Seeded 2026-07-08T09:28:55.336Z</p>
-            <table>
-              <thead><tr><th>Key</th><th>Value</th></tr></thead>
-              <tbody><tr><td><code>batchStarting</code></td><td>2026-07-08</td></tr><tr><td><code>lmsAccessDate</code></td><td>2026-07-08 14:58:55</td></tr><tr><td><code>courseFeeDeadline</code></td><td>2026-07-15 14:58:55</td></tr></tbody>
-            </table>
-          </div>
+          
         </div>
-        <div class="panel-section">
-          <h3>Entity IDs</h3>
-          <table>
-            <thead><tr><th>Entity</th><th>ID</th></tr></thead>
-            <tbody><tr><td><code>batchId</code></td><td>4</td></tr></tbody>
-          </table>
-        </div>
+        
         <div class="panel-section">
           <h3>Test users</h3>
           <p class="note">Password: <code>password</code>. Primary login role: <code>student</code>.</p>
@@ -329,43 +374,60 @@
         <td>admin</td>
         <td>onboarding-welcome-seen.admin@example.com</td>
         <td><code>password</code></td>
-        <td class="user-id-cell">7</td>
-        <td><button type="button" class="btn btn-login btn-login-user" data-user-id="7" data-user-email="onboarding-welcome-seen.admin@example.com" data-user-role="admin">Login</button></td>
+        <td class="user-id-cell muted">—</td>
+        <td><button type="button" class="btn btn-login btn-login-user" data-user-id="" data-user-email="onboarding-welcome-seen.admin@example.com" data-user-role="admin">Login</button></td>
       </tr><tr data-user-role="student">
         <td>student</td>
         <td>onboarding-welcome-seen.student@example.com</td>
         <td><code>password</code></td>
-        <td class="user-id-cell">8</td>
-        <td><button type="button" class="btn btn-login btn-login-user" data-user-id="8" data-user-email="onboarding-welcome-seen.student@example.com" data-user-role="student">Login</button></td>
+        <td class="user-id-cell muted">—</td>
+        <td><button type="button" class="btn btn-login btn-login-user" data-user-id="" data-user-email="onboarding-welcome-seen.student@example.com" data-user-role="student">Login</button></td>
       </tr></tbody>
           </table>
         </div>
       </div>
     </article>
 
-    <article class="flow-item" data-flow-id="onboarding-fees-unpaid" data-search="onboarding-fees-unpaid lms walkthrough only with an active payment countdown banner.">
+    <article class="flow-item" data-flow-id="onboarding-fees-unpaid" data-search="onboarding-fees-unpaid lms walkthrough test bed (videos + auto-next + profile photo + download app) with payment countdown; program tab locked.">
       <div class="flow-row">
         <button type="button" class="flow-toggle" aria-expanded="false">
           <span class="flow-badge">FLOW</span>
           <span class="flow-id">onboarding-fees-unpaid</span>
-          <span class="flow-summary">LMS walkthrough only with an active payment countdown banner.</span>
+          <span class="flow-summary">LMS Walkthrough test bed (videos + auto-next + profile photo + download app) with payment countdown; program tab locked.</span>
           <span class="chevron" aria-hidden="true">▸</span>
         </button>
         <button
           type="button"
           class="btn btn-login btn-login-flow"
-          data-user-id="10"
+          data-user-id=""
           data-user-email="onboarding-fees-unpaid.student@example.com"
           data-user-role="student"
           
-          title="Secret-login as student (userId 10)"
+          title="Secret-login as student (onboarding-fees-unpaid.student@example.com) — run seed to resolve userId"
         >Login</button>
       </div>
       <div class="flow-panel" hidden>
         <div class="panel-section">
           <h3>Seed command</h3>
-          <pre><code>npm run seed onboarding-fees-unpaid</code></pre>
+          <pre><code>npm run seed onboarding-fees-unpaid
+# Optional (pre-complete download-app by seeding a user_device_tokens row):
+npm run seed onboarding-fees-unpaid -- --with-app-download</code></pre>
         </div>
+        <div class="panel-section">
+          <h3>Components in the flow</h3>
+          <table>
+            <thead><tr><th>Component</th><th>What to expect</th></tr></thead>
+            <tbody>
+              <tr><td><code>1. LMS Walkthrough Videos</code></td><td>3 walkthrough videos; watch ≥10s to tick, then the next video auto-plays.</td></tr>
+              <tr><td><code>2. Profile Photo</code></td><td>Capture/retake photo; completion when <code>profiles.meta.profile_pic</code> is a valid http(s) URL.</td></tr>
+              <tr><td><code>3. Download App</code></td><td>QR-only step; completion when a <code>user_device_tokens</code> row exists for the student. (Pre-complete via <code>-- --with-app-download</code>.)</td></tr>
+              <tr><td><code>4. Payment pending banners</code></td><td>Fee countdown appears in the onboarding modal and dashboard while <code>full_fees_paid = 0</code>.</td></tr>
+              <tr><td><code>5. Purple Finish CTA</code></td><td>Purple banner: “Finish onboarding … <code>completed/total</code> steps completed” (total is <code>5</code> for this flow; e.g. <code>4/5</code> when all but one step is done).</td></tr>
+            </tbody>
+          </table>
+        </div>
+        
+        
         <div class="panel-grid">
           <div class="panel-section">
             <h3>Timing offsets</h3>
@@ -374,22 +436,9 @@
               <tbody></tbody>
             </table>
           </div>
-          <div class="panel-section">
-            <h3>Last seeded timestamps</h3>
-            <p class="note">Seeded 2026-07-08T09:28:55.336Z</p>
-            <table>
-              <thead><tr><th>Key</th><th>Value</th></tr></thead>
-              <tbody><tr><td><code>batchStarting</code></td><td>2026-07-08</td></tr><tr><td><code>lmsAccessDate</code></td><td>2026-07-08 14:58:55</td></tr><tr><td><code>courseFeeDeadline</code></td><td>2026-07-15 14:58:55</td></tr></tbody>
-            </table>
-          </div>
+          
         </div>
-        <div class="panel-section">
-          <h3>Entity IDs</h3>
-          <table>
-            <thead><tr><th>Entity</th><th>ID</th></tr></thead>
-            <tbody><tr><td><code>batchId</code></td><td>5</td></tr></tbody>
-          </table>
-        </div>
+        
         <div class="panel-section">
           <h3>Test users</h3>
           <p class="note">Password: <code>password</code>. Primary login role: <code>student</code>.</p>
@@ -399,43 +448,69 @@
         <td>admin</td>
         <td>onboarding-fees-unpaid.admin@example.com</td>
         <td><code>password</code></td>
-        <td class="user-id-cell">9</td>
-        <td><button type="button" class="btn btn-login btn-login-user" data-user-id="9" data-user-email="onboarding-fees-unpaid.admin@example.com" data-user-role="admin">Login</button></td>
+        <td class="user-id-cell muted">—</td>
+        <td><button type="button" class="btn btn-login btn-login-user" data-user-id="" data-user-email="onboarding-fees-unpaid.admin@example.com" data-user-role="admin">Login</button></td>
       </tr><tr data-user-role="student">
         <td>student</td>
         <td>onboarding-fees-unpaid.student@example.com</td>
         <td><code>password</code></td>
-        <td class="user-id-cell">10</td>
-        <td><button type="button" class="btn btn-login btn-login-user" data-user-id="10" data-user-email="onboarding-fees-unpaid.student@example.com" data-user-role="student">Login</button></td>
+        <td class="user-id-cell muted">—</td>
+        <td><button type="button" class="btn btn-login btn-login-user" data-user-id="" data-user-email="onboarding-fees-unpaid.student@example.com" data-user-role="student">Login</button></td>
       </tr></tbody>
           </table>
         </div>
       </div>
     </article>
 
-    <article class="flow-item" data-flow-id="onboarding-fees-paid" data-search="onboarding-fees-paid full fees paid — program onboarding tab unlocked, steps pending.">
+    <article class="flow-item" data-flow-id="onboarding-fees-paid" data-search="onboarding-fees-paid full fees paid — program onboarding tab unlocked. documents + student kit driven by a simulated onward response (see flags); agreement pending; id card unlock unchanged.">
       <div class="flow-row">
         <button type="button" class="flow-toggle" aria-expanded="false">
           <span class="flow-badge">FLOW</span>
           <span class="flow-id">onboarding-fees-paid</span>
-          <span class="flow-summary">Full fees paid — program onboarding tab unlocked, steps pending.</span>
+          <span class="flow-summary">Full fees paid — Program Onboarding tab unlocked. Documents + Student Kit driven by a simulated onward response (see flags); agreement pending; ID card unlock unchanged.</span>
           <span class="chevron" aria-hidden="true">▸</span>
         </button>
         <button
           type="button"
           class="btn btn-login btn-login-flow"
-          data-user-id="12"
+          data-user-id=""
           data-user-email="onboarding-fees-paid.student@example.com"
           data-user-role="student"
           
-          title="Secret-login as student (userId 12)"
+          title="Secret-login as student (onboarding-fees-paid.student@example.com) — run seed to resolve userId"
         >Login</button>
       </div>
       <div class="flow-panel" hidden>
         <div class="panel-section">
           <h3>Seed command</h3>
-          <pre><code>npm run seed onboarding-fees-paid</code></pre>
+          <pre><code>npm run seed onboarding-fees-paid
+# Default: agreement pending, docs + kit visible but incomplete
+# Agreement pending (default — no extra flags needed)
+# Kit filled, no tracking:
+npm run seed onboarding-fees-paid -- --agreement-signed --kit-shown --kit-filled
+# Kit with tracking URL:
+npm run seed onboarding-fees-paid -- --agreement-signed --kit-shown --kit-filled --kit-tracking
+# Documents uploaded:
+npm run seed onboarding-fees-paid -- --agreement-signed --docs-required --docs-uploaded
+# Serve the simulated documents endpoint (point ADMISSIONS_API_BASE_URL at it):
+npx tsx seed/onward-simulation/onwardMockServer.ts</code></pre>
         </div>
+        
+        <div class="panel-section">
+          <h3>Components in the flow</h3>
+          <table>
+            <thead><tr><th>Component</th><th>What to expect</th></tr></thead>
+            <tbody>
+              <tr><td><code>1. LMS Walkthrough Videos</code></td><td>Same auto-next walkthrough as onboarding-fees-unpaid.</td></tr>
+              <tr><td><code>2. Program Onboarding Videos</code></td><td>"Upload your documents" / "Complete your student kit" walkthrough videos, auto-next.</td></tr>
+              <tr><td><code>3. Agreement signing</code></td><td>POSH policy agreement modal; pending until signed. Pre-sign via <code>-- --agreement-signed</code>.</td></tr>
+              <tr><td><code>4. Upload Documents</code></td><td>Driven by a <b>simulated onward</b> response (<code>documents.required</code> / <code>documents.documentsUploaded</code>) — see <code>seed/onward-simulation/</code>. Toggle via <code>-- --docs-required --docs-uploaded</code>; run <code>npx tsx seed/onward-simulation/onwardMockServer.ts</code> and point <code>ADMISSIONS_API_BASE_URL</code> at it to serve the response live.</td></tr>
+              <tr><td><code>5. Student Kit</code></td><td>Same simulated onward shape (<code>kit.showKit</code> / <code>kit.detailsFilled</code> / <code>kit.tracking</code>), mirrored into <code>user_batch_admission_data</code> so it renders today. Toggle via <code>-- --kit-shown --kit-filled --kit-tracking</code>.</td></tr>
+              <tr><td><code>6. ID card</code></td><td>Unlock logic unchanged: still just videos watched + agreement signed (Documents/Kit completion is not required).</td></tr>
+            </tbody>
+          </table>
+        </div>
+        
         <div class="panel-grid">
           <div class="panel-section">
             <h3>Timing offsets</h3>
@@ -444,22 +519,9 @@
               <tbody></tbody>
             </table>
           </div>
-          <div class="panel-section">
-            <h3>Last seeded timestamps</h3>
-            <p class="note">Seeded 2026-07-08T09:28:55.336Z</p>
-            <table>
-              <thead><tr><th>Key</th><th>Value</th></tr></thead>
-              <tbody><tr><td><code>batchStarting</code></td><td>2026-07-08</td></tr><tr><td><code>lmsAccessDate</code></td><td>2026-07-08 14:58:55</td></tr><tr><td><code>courseFeeDeadline</code></td><td></td></tr></tbody>
-            </table>
-          </div>
+          
         </div>
-        <div class="panel-section">
-          <h3>Entity IDs</h3>
-          <table>
-            <thead><tr><th>Entity</th><th>ID</th></tr></thead>
-            <tbody><tr><td><code>batchId</code></td><td>6</td></tr></tbody>
-          </table>
-        </div>
+        
         <div class="panel-section">
           <h3>Test users</h3>
           <p class="note">Password: <code>password</code>. Primary login role: <code>student</code>.</p>
@@ -469,224 +531,14 @@
         <td>admin</td>
         <td>onboarding-fees-paid.admin@example.com</td>
         <td><code>password</code></td>
-        <td class="user-id-cell">11</td>
-        <td><button type="button" class="btn btn-login btn-login-user" data-user-id="11" data-user-email="onboarding-fees-paid.admin@example.com" data-user-role="admin">Login</button></td>
+        <td class="user-id-cell muted">—</td>
+        <td><button type="button" class="btn btn-login btn-login-user" data-user-id="" data-user-email="onboarding-fees-paid.admin@example.com" data-user-role="admin">Login</button></td>
       </tr><tr data-user-role="student">
         <td>student</td>
         <td>onboarding-fees-paid.student@example.com</td>
         <td><code>password</code></td>
-        <td class="user-id-cell">12</td>
-        <td><button type="button" class="btn btn-login btn-login-user" data-user-id="12" data-user-email="onboarding-fees-paid.student@example.com" data-user-role="student">Login</button></td>
-      </tr></tbody>
-          </table>
-        </div>
-      </div>
-    </article>
-
-    <article class="flow-item" data-flow-id="onboarding-kit-waiting" data-search="onboarding-kit-waiting student kit details filled; waiting for admin tracking upload.">
-      <div class="flow-row">
-        <button type="button" class="flow-toggle" aria-expanded="false">
-          <span class="flow-badge">FLOW</span>
-          <span class="flow-id">onboarding-kit-waiting</span>
-          <span class="flow-summary">Student kit details filled; waiting for admin tracking upload.</span>
-          <span class="chevron" aria-hidden="true">▸</span>
-        </button>
-        <button
-          type="button"
-          class="btn btn-login btn-login-flow"
-          data-user-id="14"
-          data-user-email="onboarding-kit-waiting.student@example.com"
-          data-user-role="student"
-          
-          title="Secret-login as student (userId 14)"
-        >Login</button>
-      </div>
-      <div class="flow-panel" hidden>
-        <div class="panel-section">
-          <h3>Seed command</h3>
-          <pre><code>npm run seed onboarding-kit-waiting</code></pre>
-        </div>
-        <div class="panel-grid">
-          <div class="panel-section">
-            <h3>Timing offsets</h3>
-            <table>
-              <thead><tr><th>Key</th><th>Offset</th></tr></thead>
-              <tbody></tbody>
-            </table>
-          </div>
-          <div class="panel-section">
-            <h3>Last seeded timestamps</h3>
-            <p class="note">Seeded 2026-07-08T09:28:55.336Z</p>
-            <table>
-              <thead><tr><th>Key</th><th>Value</th></tr></thead>
-              <tbody><tr><td><code>batchStarting</code></td><td>2026-07-08</td></tr><tr><td><code>lmsAccessDate</code></td><td>2026-07-08 14:58:55</td></tr><tr><td><code>courseFeeDeadline</code></td><td></td></tr></tbody>
-            </table>
-          </div>
-        </div>
-        <div class="panel-section">
-          <h3>Entity IDs</h3>
-          <table>
-            <thead><tr><th>Entity</th><th>ID</th></tr></thead>
-            <tbody><tr><td><code>batchId</code></td><td>7</td></tr></tbody>
-          </table>
-        </div>
-        <div class="panel-section">
-          <h3>Test users</h3>
-          <p class="note">Password: <code>password</code>. Primary login role: <code>student</code>.</p>
-          <table>
-            <thead><tr><th>Role</th><th>Email</th><th>Password</th><th>User ID</th><th></th></tr></thead>
-            <tbody><tr data-user-role="admin">
-        <td>admin</td>
-        <td>onboarding-kit-waiting.admin@example.com</td>
-        <td><code>password</code></td>
-        <td class="user-id-cell">13</td>
-        <td><button type="button" class="btn btn-login btn-login-user" data-user-id="13" data-user-email="onboarding-kit-waiting.admin@example.com" data-user-role="admin">Login</button></td>
-      </tr><tr data-user-role="student">
-        <td>student</td>
-        <td>onboarding-kit-waiting.student@example.com</td>
-        <td><code>password</code></td>
-        <td class="user-id-cell">14</td>
-        <td><button type="button" class="btn btn-login btn-login-user" data-user-id="14" data-user-email="onboarding-kit-waiting.student@example.com" data-user-role="student">Login</button></td>
-      </tr></tbody>
-          </table>
-        </div>
-      </div>
-    </article>
-
-    <article class="flow-item" data-flow-id="onboarding-kit-tracking" data-search="onboarding-kit-tracking student kit tracking url available for display.">
-      <div class="flow-row">
-        <button type="button" class="flow-toggle" aria-expanded="false">
-          <span class="flow-badge">FLOW</span>
-          <span class="flow-id">onboarding-kit-tracking</span>
-          <span class="flow-summary">Student kit tracking URL available for display.</span>
-          <span class="chevron" aria-hidden="true">▸</span>
-        </button>
-        <button
-          type="button"
-          class="btn btn-login btn-login-flow"
-          data-user-id="16"
-          data-user-email="onboarding-kit-tracking.student@example.com"
-          data-user-role="student"
-          
-          title="Secret-login as student (userId 16)"
-        >Login</button>
-      </div>
-      <div class="flow-panel" hidden>
-        <div class="panel-section">
-          <h3>Seed command</h3>
-          <pre><code>npm run seed onboarding-kit-tracking</code></pre>
-        </div>
-        <div class="panel-grid">
-          <div class="panel-section">
-            <h3>Timing offsets</h3>
-            <table>
-              <thead><tr><th>Key</th><th>Offset</th></tr></thead>
-              <tbody></tbody>
-            </table>
-          </div>
-          <div class="panel-section">
-            <h3>Last seeded timestamps</h3>
-            <p class="note">Seeded 2026-07-08T09:28:55.336Z</p>
-            <table>
-              <thead><tr><th>Key</th><th>Value</th></tr></thead>
-              <tbody><tr><td><code>batchStarting</code></td><td>2026-07-08</td></tr><tr><td><code>lmsAccessDate</code></td><td>2026-07-08 14:58:55</td></tr><tr><td><code>courseFeeDeadline</code></td><td></td></tr></tbody>
-            </table>
-          </div>
-        </div>
-        <div class="panel-section">
-          <h3>Entity IDs</h3>
-          <table>
-            <thead><tr><th>Entity</th><th>ID</th></tr></thead>
-            <tbody><tr><td><code>batchId</code></td><td>8</td></tr></tbody>
-          </table>
-        </div>
-        <div class="panel-section">
-          <h3>Test users</h3>
-          <p class="note">Password: <code>password</code>. Primary login role: <code>student</code>.</p>
-          <table>
-            <thead><tr><th>Role</th><th>Email</th><th>Password</th><th>User ID</th><th></th></tr></thead>
-            <tbody><tr data-user-role="admin">
-        <td>admin</td>
-        <td>onboarding-kit-tracking.admin@example.com</td>
-        <td><code>password</code></td>
-        <td class="user-id-cell">15</td>
-        <td><button type="button" class="btn btn-login btn-login-user" data-user-id="15" data-user-email="onboarding-kit-tracking.admin@example.com" data-user-role="admin">Login</button></td>
-      </tr><tr data-user-role="student">
-        <td>student</td>
-        <td>onboarding-kit-tracking.student@example.com</td>
-        <td><code>password</code></td>
-        <td class="user-id-cell">16</td>
-        <td><button type="button" class="btn btn-login btn-login-user" data-user-id="16" data-user-email="onboarding-kit-tracking.student@example.com" data-user-role="student">Login</button></td>
-      </tr></tbody>
-          </table>
-        </div>
-      </div>
-    </article>
-
-    <article class="flow-item" data-flow-id="onboarding-agreement-pending" data-search="onboarding-agreement-pending program onboarding with agreement modal still pending.">
-      <div class="flow-row">
-        <button type="button" class="flow-toggle" aria-expanded="false">
-          <span class="flow-badge">FLOW</span>
-          <span class="flow-id">onboarding-agreement-pending</span>
-          <span class="flow-summary">Program onboarding with agreement modal still pending.</span>
-          <span class="chevron" aria-hidden="true">▸</span>
-        </button>
-        <button
-          type="button"
-          class="btn btn-login btn-login-flow"
-          data-user-id="18"
-          data-user-email="onboarding-agreement-pending.student@example.com"
-          data-user-role="student"
-          
-          title="Secret-login as student (userId 18)"
-        >Login</button>
-      </div>
-      <div class="flow-panel" hidden>
-        <div class="panel-section">
-          <h3>Seed command</h3>
-          <pre><code>npm run seed onboarding-agreement-pending</code></pre>
-        </div>
-        <div class="panel-grid">
-          <div class="panel-section">
-            <h3>Timing offsets</h3>
-            <table>
-              <thead><tr><th>Key</th><th>Offset</th></tr></thead>
-              <tbody></tbody>
-            </table>
-          </div>
-          <div class="panel-section">
-            <h3>Last seeded timestamps</h3>
-            <p class="note">Seeded 2026-07-08T09:28:55.336Z</p>
-            <table>
-              <thead><tr><th>Key</th><th>Value</th></tr></thead>
-              <tbody><tr><td><code>batchStarting</code></td><td>2026-07-08</td></tr><tr><td><code>lmsAccessDate</code></td><td>2026-07-08 14:58:55</td></tr><tr><td><code>courseFeeDeadline</code></td><td></td></tr></tbody>
-            </table>
-          </div>
-        </div>
-        <div class="panel-section">
-          <h3>Entity IDs</h3>
-          <table>
-            <thead><tr><th>Entity</th><th>ID</th></tr></thead>
-            <tbody><tr><td><code>batchId</code></td><td>9</td></tr></tbody>
-          </table>
-        </div>
-        <div class="panel-section">
-          <h3>Test users</h3>
-          <p class="note">Password: <code>password</code>. Primary login role: <code>student</code>.</p>
-          <table>
-            <thead><tr><th>Role</th><th>Email</th><th>Password</th><th>User ID</th><th></th></tr></thead>
-            <tbody><tr data-user-role="admin">
-        <td>admin</td>
-        <td>onboarding-agreement-pending.admin@example.com</td>
-        <td><code>password</code></td>
-        <td class="user-id-cell">17</td>
-        <td><button type="button" class="btn btn-login btn-login-user" data-user-id="17" data-user-email="onboarding-agreement-pending.admin@example.com" data-user-role="admin">Login</button></td>
-      </tr><tr data-user-role="student">
-        <td>student</td>
-        <td>onboarding-agreement-pending.student@example.com</td>
-        <td><code>password</code></td>
-        <td class="user-id-cell">18</td>
-        <td><button type="button" class="btn btn-login btn-login-user" data-user-id="18" data-user-email="onboarding-agreement-pending.student@example.com" data-user-role="student">Login</button></td>
+        <td class="user-id-cell muted">—</td>
+        <td><button type="button" class="btn btn-login btn-login-user" data-user-id="" data-user-email="onboarding-fees-paid.student@example.com" data-user-role="student">Login</button></td>
       </tr></tbody>
           </table>
         </div>
@@ -704,11 +556,11 @@
         <button
           type="button"
           class="btn btn-login btn-login-flow"
-          data-user-id="20"
+          data-user-id=""
           data-user-email="onboarding-complete.student@example.com"
           data-user-role="student"
           
-          title="Secret-login as student (userId 20)"
+          title="Secret-login as student (onboarding-complete.student@example.com) — run seed to resolve userId"
         >Login</button>
       </div>
       <div class="flow-panel" hidden>
@@ -716,6 +568,9 @@
           <h3>Seed command</h3>
           <pre><code>npm run seed onboarding-complete</code></pre>
         </div>
+        
+        
+        
         <div class="panel-grid">
           <div class="panel-section">
             <h3>Timing offsets</h3>
@@ -724,22 +579,9 @@
               <tbody></tbody>
             </table>
           </div>
-          <div class="panel-section">
-            <h3>Last seeded timestamps</h3>
-            <p class="note">Seeded 2026-07-08T09:28:55.337Z</p>
-            <table>
-              <thead><tr><th>Key</th><th>Value</th></tr></thead>
-              <tbody><tr><td><code>batchStarting</code></td><td>2026-07-08</td></tr><tr><td><code>lmsAccessDate</code></td><td>2026-07-08 14:58:55</td></tr><tr><td><code>courseFeeDeadline</code></td><td></td></tr></tbody>
-            </table>
-          </div>
+          
         </div>
-        <div class="panel-section">
-          <h3>Entity IDs</h3>
-          <table>
-            <thead><tr><th>Entity</th><th>ID</th></tr></thead>
-            <tbody><tr><td><code>batchId</code></td><td>10</td></tr></tbody>
-          </table>
-        </div>
+        
         <div class="panel-section">
           <h3>Test users</h3>
           <p class="note">Password: <code>password</code>. Primary login role: <code>student</code>.</p>
@@ -749,14 +591,14 @@
         <td>admin</td>
         <td>onboarding-complete.admin@example.com</td>
         <td><code>password</code></td>
-        <td class="user-id-cell">19</td>
-        <td><button type="button" class="btn btn-login btn-login-user" data-user-id="19" data-user-email="onboarding-complete.admin@example.com" data-user-role="admin">Login</button></td>
+        <td class="user-id-cell muted">—</td>
+        <td><button type="button" class="btn btn-login btn-login-user" data-user-id="" data-user-email="onboarding-complete.admin@example.com" data-user-role="admin">Login</button></td>
       </tr><tr data-user-role="student">
         <td>student</td>
         <td>onboarding-complete.student@example.com</td>
         <td><code>password</code></td>
-        <td class="user-id-cell">20</td>
-        <td><button type="button" class="btn btn-login btn-login-user" data-user-id="20" data-user-email="onboarding-complete.student@example.com" data-user-role="student">Login</button></td>
+        <td class="user-id-cell muted">—</td>
+        <td><button type="button" class="btn btn-login btn-login-user" data-user-id="" data-user-email="onboarding-complete.student@example.com" data-user-role="student">Login</button></td>
       </tr></tbody>
           </table>
         </div>
@@ -774,11 +616,11 @@
         <button
           type="button"
           class="btn btn-login btn-login-flow"
-          data-user-id="22"
+          data-user-id=""
           data-user-email="onboarding-fees-overdue.student@example.com"
           data-user-role="student"
           
-          title="Secret-login as student (userId 22)"
+          title="Secret-login as student (onboarding-fees-overdue.student@example.com) — run seed to resolve userId"
         >Login</button>
       </div>
       <div class="flow-panel" hidden>
@@ -786,6 +628,9 @@
           <h3>Seed command</h3>
           <pre><code>npm run seed onboarding-fees-overdue</code></pre>
         </div>
+        
+        
+        
         <div class="panel-grid">
           <div class="panel-section">
             <h3>Timing offsets</h3>
@@ -794,22 +639,9 @@
               <tbody></tbody>
             </table>
           </div>
-          <div class="panel-section">
-            <h3>Last seeded timestamps</h3>
-            <p class="note">Seeded 2026-07-08T09:28:55.337Z</p>
-            <table>
-              <thead><tr><th>Key</th><th>Value</th></tr></thead>
-              <tbody><tr><td><code>batchStarting</code></td><td>2026-07-08</td></tr><tr><td><code>lmsAccessDate</code></td><td>2026-06-08 14:58:55</td></tr><tr><td><code>courseFeeDeadline</code></td><td>2026-07-01 14:58:55</td></tr></tbody>
-            </table>
-          </div>
+          
         </div>
-        <div class="panel-section">
-          <h3>Entity IDs</h3>
-          <table>
-            <thead><tr><th>Entity</th><th>ID</th></tr></thead>
-            <tbody><tr><td><code>batchId</code></td><td>11</td></tr></tbody>
-          </table>
-        </div>
+        
         <div class="panel-section">
           <h3>Test users</h3>
           <p class="note">Password: <code>password</code>. Primary login role: <code>student</code>.</p>
@@ -819,14 +651,14 @@
         <td>admin</td>
         <td>onboarding-fees-overdue.admin@example.com</td>
         <td><code>password</code></td>
-        <td class="user-id-cell">21</td>
-        <td><button type="button" class="btn btn-login btn-login-user" data-user-id="21" data-user-email="onboarding-fees-overdue.admin@example.com" data-user-role="admin">Login</button></td>
+        <td class="user-id-cell muted">—</td>
+        <td><button type="button" class="btn btn-login btn-login-user" data-user-id="" data-user-email="onboarding-fees-overdue.admin@example.com" data-user-role="admin">Login</button></td>
       </tr><tr data-user-role="student">
         <td>student</td>
         <td>onboarding-fees-overdue.student@example.com</td>
         <td><code>password</code></td>
-        <td class="user-id-cell">22</td>
-        <td><button type="button" class="btn btn-login btn-login-user" data-user-id="22" data-user-email="onboarding-fees-overdue.student@example.com" data-user-role="student">Login</button></td>
+        <td class="user-id-cell muted">—</td>
+        <td><button type="button" class="btn btn-login btn-login-user" data-user-id="" data-user-email="onboarding-fees-overdue.student@example.com" data-user-role="student">Login</button></td>
       </tr></tbody>
           </table>
         </div>
@@ -834,7 +666,7 @@
     </article>
     </div>
   </main>
-  <script>window.__SEED_CATALOG__ = {"secretLoginToken":"12345"};</script>
+  <script>window.__SEED_CATALOG__ = {"secretLoginToken":"local-dev-only"};</script>
   <script>
   const TOKEN = window.__SEED_CATALOG__.secretLoginToken;
   const API_BASE = window.__SEED_CATALOG__.apiBase || '';

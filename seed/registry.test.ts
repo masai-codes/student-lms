@@ -14,6 +14,7 @@ describe('seed registry', () => {
   it('lists login-and-join-lecture flow', () => {
     const flows = listFlows()
     expect(flows.some((flow) => flow.id === 'login-and-join-lecture')).toBe(true)
+    expect(flows.some((flow) => flow.id === 'dashboard-home')).toBe(true)
   })
 
   it('lists all onboarding flows', () => {
@@ -33,6 +34,14 @@ describe('seed registry', () => {
     expect(flow.meta.primaryLoginRole).toBe('student')
     expect(flow.meta.defaultCredentialEmails?.[1]?.email).toBe(
       'onboarding-welcome-modal.student@example.com',
+    )
+  })
+
+  it('returns dashboard-home flow module by id', async () => {
+    const flow = await getFlow('dashboard-home')
+    expect(flow.meta.id).toBe('dashboard-home')
+    expect(flow.meta.defaultCredentialEmails?.[1]?.email).toBe(
+      'dashboard-home.student@example.com',
     )
   })
 
