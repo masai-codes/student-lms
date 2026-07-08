@@ -18,6 +18,7 @@ import {
   LogOutIcon,
   Megaphone,
   MessagesSquare,
+  Sparkles,
   UserCircle,
   Users,
 } from 'lucide-react'
@@ -197,6 +198,14 @@ export default function AppNavbar() {
     (e: React.MouseEvent<HTMLAnchorElement>) => {
       e.preventDefault()
       void navigate({ to: '/announcements', search: { page: 1 } })
+    },
+    [navigate],
+  )
+
+  const handleProductUpdatesClick = useCallback(
+    (e: React.MouseEvent<HTMLAnchorElement>) => {
+      e.preventDefault()
+      void navigate({ to: '/whats-new', search: { page: 1 } })
     },
     [navigate],
   )
@@ -412,6 +421,14 @@ export default function AppNavbar() {
             },
           ]),
       {
+        id: 'product-updates',
+        label: 'Product Updates',
+        icon: <Sparkles className="size-4" />,
+        href: '/whats-new',
+        openInNewTab: false,
+        onClick: handleProductUpdatesClick,
+      },
+      {
         id: 'sign-out',
         label: 'Sign out',
         href: '#',
@@ -424,6 +441,7 @@ export default function AppNavbar() {
     [
       activeNavId,
       handleLevelupClick,
+      handleProductUpdatesClick,
       handleReferAndEarnClick,
       handleSignOut,
       isIHub,

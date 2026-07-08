@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Confetti } from '@phosphor-icons/react'
 import { WELCOME_INTRO_VIDEO_URL } from './t0Config'
 import { pushDashboardEvent } from '../shared/dashboardAnalytics'
@@ -24,6 +24,34 @@ const BODY =
 function WelcomeModalBody({ open, onDismiss, isDismissing }: WelcomeModalProps) {
   // Each celebrate-button click re-fires the one-shot confetti (remount via key).
   const [celebrateCount, setCelebrateCount] = useState(0)
+
+  const videoRef = useRef<HTMLVideoElement>(null)
+
+  // Hard-stop the intro video whenever the modal is closed or unmounted.
+  // Unmounting the <video> alone does NOT reliably stop audio: a played-then-
+  // paused media element stays alive as the browser's active media session, so
+  // the OS/hardware "play" control (lock screen, headphones, media notification)
+  // could resume it with no visible player. Pausing + detaching the source and
+  // calling load() tears the element down so no audio can leak after close.
+  useEffect(() => {
+    if (open) return
+    const video = videoRef.current
+    if (!video) return
+    video.pause()
+    video.removeAttribute('src')
+    video.load()
+  }, [open])
+
+  useEffect(
+    () => () => {
+      const video = videoRef.current
+      if (!video) return
+      video.pause()
+      video.removeAttribute('src')
+      video.load()
+    },
+    [],
+  )
 
   return (
     <div
@@ -80,6 +108,7 @@ function WelcomeModalBody({ open, onDismiss, isDismissing }: WelcomeModalProps) 
         data-testid="welcome-modal-video"
       >
         <video
+          ref={videoRef}
           src={WELCOME_INTRO_VIDEO_URL}
           className="h-full w-full object-contain"
           controls
