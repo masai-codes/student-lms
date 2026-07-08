@@ -43,7 +43,10 @@ export async function getSectionAnnouncements(
       and(
         inArray(announcements.sectionId, sectionIds),
         isNull(announcements.deletedAt),
-        sql`${announcements.schedule} <= ${istNow}`,
+        or(
+          isNull(announcements.schedule),
+          sql`${announcements.schedule} <= ${istNow}`,
+        ),
         or(
           isNull(announcements.concludes),
           sql`${announcements.concludes} >= ${istNow}`,

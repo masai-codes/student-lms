@@ -13,7 +13,7 @@ interface ProfilePhotoStepProps {
 }
 
 const VIDEO_CONSTRAINTS: MediaTrackConstraints = { facingMode: 'user' }
-const CIRCLE = 'flex size-48 shrink-0 items-center justify-center overflow-hidden rounded-full bg-gray-100'
+const CIRCLE = 'flex size-64 shrink-0 items-center justify-center overflow-hidden rounded-full bg-gray-100 sm:size-72 md:size-80'
 const BTN_SOLID = 'inline-flex h-11 items-center justify-center rounded-lg bg-[#6962AC] px-5 text-sm font-semibold text-white hover:opacity-90 disabled:opacity-60'
 const BTN_OUTLINE = 'inline-flex h-11 items-center justify-center rounded-lg border border-[#6962AC] px-5 text-sm font-semibold text-[#6962AC] hover:bg-[#6962AC]/5'
 
@@ -94,7 +94,7 @@ export function ProfilePhotoStep({ existingPhotoUrl, onCompleted }: ProfilePhoto
           />
         ) : (
           <div className={CIRCLE} data-testid="guided-tour-profile-photo-placeholder">
-            <Camera className="size-16 text-gray-400" aria-hidden />
+            <Camera className="size-20 text-gray-400" aria-hidden />
           </div>
         )}
 

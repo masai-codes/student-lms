@@ -41,8 +41,10 @@ export function AnnouncementDetailPage({ detail }: AnnouncementDetailPageProps) 
   useEffect(() => {
     if (markedReadRef.current || !Number.isFinite(numericId)) return
     markedReadRef.current = true
-    const markRead = source === 'm' ? markMessageRead : markAnnouncementRead
-    markRead(numericId)
+    // Message ids are BigInt — pass as a string to avoid Number precision loss.
+    const markReadPromise =
+      source === 'm' ? markMessageRead(detail.id) : markAnnouncementRead(numericId)
+    markReadPromise
       .then(() => {
         toast.success('Marked as read')
         void queryClient.invalidateQueries({ queryKey: ['announcements'] })
@@ -62,11 +64,11 @@ export function AnnouncementDetailPage({ detail }: AnnouncementDetailPageProps) 
   // ── Toggle mark as read / unread ──────────────────────────────────────────
   async function handleToggleUnread() {
     if (!Number.isFinite(numericId)) return
-    const markRead = source === 'm' ? markMessageRead : markAnnouncementRead
-    const markUnread = source === 'm' ? markMessageUnread : markAnnouncementUnread
     try {
       if (isUnread) {
-        await markRead(numericId)
+        await (source === 'm'
+          ? markMessageRead(detail.id)
+          : markAnnouncementRead(numericId))
         setIsUnread(false)
         toast.success('Marked as read')
         queryClient.setQueryData<number>(
@@ -74,7 +76,9 @@ export function AnnouncementDetailPage({ detail }: AnnouncementDetailPageProps) 
           (old = 0) => Math.max(0, old - 1),
         )
       } else {
-        await markUnread(numericId)
+        await (source === 'm'
+          ? markMessageUnread(detail.id)
+          : markAnnouncementUnread(numericId))
         setIsUnread(true)
         toast.success('Marked as unread')
         queryClient.setQueryData<number>(

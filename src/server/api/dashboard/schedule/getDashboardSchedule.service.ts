@@ -11,6 +11,7 @@ import { getUserBatchBans, makeNormalBanScheduleFilter } from '@/server/users/ba
 import { fetchLectureAttendanceSummaries } from '@/server/attendance/services/fetchLectureAttendanceSummaries'
 import { calculateAssignmentProgressStatus } from '@/server/learn/utils/calculateAssignmentProgressStatus'
 import { fetchLatestSubmissionByAssignment } from '@/server/learn/queries/fetchLatestSubmissionByAssignment'
+import { parseIstToMs } from '@/server/time/istClock'
 
 /**
  * Everything happening in the user's sections over the next 7 days — lectures +
@@ -107,7 +108,5 @@ function bySoonestSchedule(a: DashboardScheduleItem, b: DashboardScheduleItem): 
 }
 
 function toTime(value: string | null): number {
-  if (!value) return Number.POSITIVE_INFINITY
-  const time = new Date(value.includes('T') ? value : value.replace(' ', 'T')).getTime()
-  return Number.isNaN(time) ? Number.POSITIVE_INFINITY : time
+  return parseIstToMs(value) ?? Number.POSITIVE_INFINITY
 }

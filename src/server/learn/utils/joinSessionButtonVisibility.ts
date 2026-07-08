@@ -2,6 +2,7 @@ import {
   JOIN_UI_ACTIVE_MINUTES_BEFORE_START,
   JOIN_UI_VISIBLE_MINUTES_BEFORE_START,
 } from '@/server/learn/utils/lectureScheduleConstants'
+import { parseIstToMs } from '@/server/time/istClock'
 
 /**
  * Legacy LMS join-session visibility (`experience-ui` `LectureButtonVisibility.ts`).
@@ -14,8 +15,8 @@ export function joinSessionButtonVisible(
 ): 'active' | 'visible' | 'ended' | '' {
   const beforeLectureButtonVisibilityTime =
     JOIN_UI_VISIBLE_MINUTES_BEFORE_START * 60 * 1000
-  const lectureScheduledTime = new Date(scheduledTime).getTime()
-  const lectureConcludedTime = new Date(concludedTime).getTime()
+  const lectureScheduledTime = parseIstToMs(scheduledTime) ?? Number.NaN
+  const lectureConcludedTime = parseIstToMs(concludedTime) ?? Number.NaN
 
   if (lectureConcludedTime >= serverTimeMs) {
     if (

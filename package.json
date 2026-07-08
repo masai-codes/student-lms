@@ -21,12 +21,10 @@
     "check": "prettier --write . && eslint --fix",
     "typecheck": "tsc --noEmit",
     "sync:masai-styles": "node ./scripts/sync-masai-styles.mjs",
-    "db:setup": "bash scripts/db/setup-db.sh",
-    "db:seed": "bash scripts/db/seed-db.sh",
-    "db:up": "docker compose up -d --wait mysql",
-    "db:down": "docker compose down",
-    "db:reset": "docker compose down -v && bash scripts/db/setup-db.sh",
-    "prepare": "husky"
+    "prepare": "husky",
+    "seed": "tsx seed/runner/cli.ts",
+    "seed:all": "tsx seed/runner/cli.ts all",
+    "seed:catalog": "tsx seed/catalog/generate.ts"
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^3.0.85",

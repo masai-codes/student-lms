@@ -42,7 +42,8 @@ describe('buildLectureDetailPayload', () => {
         hostAvatarUrl: null,
         notes: '  Lecture notes  ',
       },
-      concludesMs + 60_000,
+      // Past the 30-min post-conclude Join Now grace window.
+      concludesMs + 31 * 60 * 1000,
       { ...emptyTabs, notes: 'Lecture notes' },
       null,
       null,

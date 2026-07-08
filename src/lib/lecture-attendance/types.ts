@@ -20,5 +20,6 @@ export type ListingAttendanceVisibleState = Exclude<LectureAttendanceUiState, 'h
 export type ListingAttendanceRender = {
   uiState: ListingAttendanceVisibleState | null
   daysRemaining: number | null
+  remainingLabel: string | null
   showBadge: boolean
 }

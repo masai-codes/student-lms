@@ -1,4 +1,5 @@
 import type { DashboardSupportSession } from './getSupportSessions.service'
+import { parseIstToMs } from '@/server/time/istClock'
 
 /**
  * Picks the single support session the dashboard card should feature, from the
@@ -19,8 +20,9 @@ export function selectFeaturedSupportSession(
   if (live) return live
 
   const nowMs = now.getTime()
-  const nextUpcoming = sessions.find(
-    (session) => session.schedule !== null && new Date(session.schedule).getTime() > nowMs,
-  )
+  const nextUpcoming = sessions.find((session) => {
+    const scheduleMs = parseIstToMs(session.schedule)
+    return scheduleMs != null && scheduleMs > nowMs
+  })
   return nextUpcoming ?? null
 }

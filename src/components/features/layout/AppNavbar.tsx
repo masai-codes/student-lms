@@ -18,6 +18,7 @@ import {
   LogOutIcon,
   Megaphone,
   MessagesSquare,
+  Sparkles,
   UserCircle,
   Users,
 } from 'lucide-react'
@@ -33,7 +34,7 @@ import { fetchAnnouncementUnreadCount } from '@/lib/api/announcement/announcemen
 import { Navbar } from '@/components/navbar'
 import { LevelUpIcon } from '@/components/common/LevelUpIcon'
 import { DownloadAppModal } from '@/components/features/layout/DownloadAppModal'
-import { UpcomingLecturePill } from '@/components/features/layout/UpcomingLecturePill'
+import { NextActionBanner } from '@/components/features/layout/NextActionBanner'
 import { OLD_STUDENT_UI_NAV_PATHS } from '@/constants/oldStudentUiNavPaths'
 import { activeAppNavIdForPathname } from '@/lib/appNavActiveItem'
 import { getBugReportFormUrl } from '@/utils/bugReportFormUrl'
@@ -197,6 +198,14 @@ export default function AppNavbar() {
     (e: React.MouseEvent<HTMLAnchorElement>) => {
       e.preventDefault()
       void navigate({ to: '/announcements', search: { page: 1 } })
+    },
+    [navigate],
+  )
+
+  const handleProductUpdatesClick = useCallback(
+    (e: React.MouseEvent<HTMLAnchorElement>) => {
+      e.preventDefault()
+      void navigate({ to: '/whats-new', search: { page: 1 } })
     },
     [navigate],
   )
@@ -412,6 +421,14 @@ export default function AppNavbar() {
             },
           ]),
       {
+        id: 'product-updates',
+        label: 'Product Updates',
+        icon: <Sparkles className="size-4" />,
+        href: '/whats-new',
+        openInNewTab: false,
+        onClick: handleProductUpdatesClick,
+      },
+      {
         id: 'sign-out',
         label: 'Sign out',
         href: '#',
@@ -424,6 +441,7 @@ export default function AppNavbar() {
     [
       activeNavId,
       handleLevelupClick,
+      handleProductUpdatesClick,
       handleReferAndEarnClick,
       handleSignOut,
       isIHub,
@@ -455,9 +473,7 @@ export default function AppNavbar() {
           onClick: handleHomeClick,
         }}
         navItems={navItems}
-        centerSlot={
-          <UpcomingLecturePill className="max-w-[340px] rounded-[14px]" />
-        }
+        centerSlot={<NextActionBanner className="max-w-[340px]" />}
         trailingActions={trailingActions}
         profile={profile}
       />

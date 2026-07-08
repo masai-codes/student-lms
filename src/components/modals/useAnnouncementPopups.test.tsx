@@ -69,26 +69,55 @@ describe('useAnnouncementPopups', () => {
     expect(hoisted.markAnnouncementRead).not.toHaveBeenCalled()
   })
 
-  it('CTA opens the link and marks read', async () => {
+  it('CTA marks read and closes first, then opens the link', async () => {
+    vi.useFakeTimers()
     const openSpy = vi.spyOn(window, 'open').mockImplementation(() => null)
+    try {
+      hoisted.fetchPopups.mockResolvedValue([
+        ann('9', { ctaName: 'Open', ctaLink: 'https://x.test' }),
+      ])
+      const { result } = renderHook(() => useAnnouncementPopups(), {
+        wrapper: makeWrapper(),
+      })
+
+      await vi.waitFor(() => expect(result.current.current?.id).toBe('9'))
+      act(() => result.current.handleCta())
+
+      // Marks read and starts closing immediately — but does NOT open the link yet.
+      await vi.waitFor(() =>
+        expect(hoisted.markAnnouncementRead).toHaveBeenCalledWith(9),
+      )
+      expect(result.current.open).toBe(false)
+      expect(openSpy).not.toHaveBeenCalled()
+
+      // The link opens only after the close-animation window elapses.
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(300)
+      })
+      expect(openSpy).toHaveBeenCalledWith(
+        'https://x.test',
+        '_blank',
+        'noopener,noreferrer',
+      )
+    } finally {
+      openSpy.mockRestore()
+      vi.useRealTimers()
+    }
+  })
+
+  it('mark-read works for popups that have a link CTA', async () => {
     hoisted.fetchPopups.mockResolvedValue([
-      ann('9', { ctaName: 'Open', ctaLink: 'https://x.test' }),
+      ann('7', { ctaName: 'Open', ctaLink: 'https://x.test' }),
     ])
     const { result } = renderHook(() => useAnnouncementPopups(), {
       wrapper: makeWrapper(),
     })
 
-    await waitFor(() => expect(result.current.current?.id).toBe('9'))
-    act(() => result.current.handleCta())
-    expect(openSpy).toHaveBeenCalledWith(
-      'https://x.test',
-      '_blank',
-      'noopener,noreferrer',
-    )
+    await waitFor(() => expect(result.current.current?.id).toBe('7'))
+    act(() => result.current.handleMarkRead())
     await waitFor(() =>
-      expect(hoisted.markAnnouncementRead).toHaveBeenCalledWith(9),
+      expect(hoisted.markAnnouncementRead).toHaveBeenCalledWith(7),
     )
-    openSpy.mockRestore()
   })
 
   it('marks message popups read via the message endpoint', async () => {
@@ -99,7 +128,7 @@ describe('useAnnouncementPopups', () => {
 
     await waitFor(() => expect(result.current.current?.id).toBe('5'))
     act(() => result.current.handleMarkRead())
-    await waitFor(() => expect(hoisted.markMessageRead).toHaveBeenCalledWith(5))
+    await waitFor(() => expect(hoisted.markMessageRead).toHaveBeenCalledWith('5'))
     expect(hoisted.markAnnouncementRead).not.toHaveBeenCalled()
   })
 

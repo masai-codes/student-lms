@@ -35,7 +35,7 @@ describe('AnnouncementPopupModal', () => {
     expect(h.onMarkRead).toHaveBeenCalledTimes(1)
   })
 
-  it('shows the CTA (not Mark as read) when the popup has a link, and fires onCta', () => {
+  it('shows the CTA alongside "Mark as read" when the popup has a link', () => {
     const h = handlers()
     render(
       <AnnouncementPopupModal
@@ -45,9 +45,24 @@ describe('AnnouncementPopupModal', () => {
         {...h}
       />,
     )
-    expect(screen.queryByTestId('announcement-popup-mark-read')).toBeNull()
+    // Both actions are present: the CTA and an always-available "Mark as read".
+    expect(screen.getByTestId('announcement-popup-mark-read')).toBeTruthy()
     fireEvent.click(screen.getByTestId('announcement-popup-cta'))
     expect(h.onCta).toHaveBeenCalledTimes(1)
+  })
+
+  it('"Mark as read" is still present and fires onMarkRead even with a link CTA', () => {
+    const h = handlers()
+    render(
+      <AnnouncementPopupModal
+        open
+        item={item({ ctaName: 'Open', ctaLink: 'https://x.test' })}
+        isSubmitting={false}
+        {...h}
+      />,
+    )
+    fireEvent.click(screen.getByTestId('announcement-popup-mark-read'))
+    expect(h.onMarkRead).toHaveBeenCalledTimes(1)
   })
 
   it('"Show me later" fires onShowLater', () => {

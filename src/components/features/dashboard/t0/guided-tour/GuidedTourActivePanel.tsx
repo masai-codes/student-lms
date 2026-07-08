@@ -1,3 +1,4 @@
+import { ArrowLeft, ArrowRight } from '@phosphor-icons/react'
 import { GuidedTourVideoStep } from './GuidedTourVideoStep'
 import { GuidedTourStepPanel } from './GuidedTourStepPanel'
 import type { GuidedTourStep } from './steps'
@@ -15,13 +16,18 @@ interface GuidedTourActivePanelProps {
   autoPlayVideo: boolean
   /** Fired when the active video ends (drives auto-advance to the next video). */
   onVideoEnded: () => void
+  /** Back / Next through the step list; disabled at the respective ends. */
+  hasPrev: boolean
+  hasNext: boolean
+  onPrev: () => void
+  onNext: () => void
 }
 
 /**
- * Right panel of the guided tour: the active step's centred title and its
- * content (video player for video steps, else the fixed-step panel). There's no
- * Back/Next here — steps are navigated from the left step list (and videos
- * auto-advance); the agreement runs its own multi-step flow.
+ * Right panel of the guided tour: the active step's centred title, its content
+ * (video player for video steps, else the fixed-step panel), and a pinned
+ * Back / Next footer to move through the step list (videos also auto-advance).
+ * The agreement runs its own multi-step flow with its own footer.
  */
 export function GuidedTourActivePanel({
   step,
@@ -33,6 +39,10 @@ export function GuidedTourActivePanel({
   videoIndex,
   autoPlayVideo,
   onVideoEnded,
+  hasPrev,
+  hasNext,
+  onPrev,
+  onNext,
 }: GuidedTourActivePanelProps) {
   if (!step) return null
 
@@ -73,7 +83,38 @@ export function GuidedTourActivePanel({
         ) : (
           <GuidedTourStepPanel step={step} batchId={batchId} profilePhotoUrl={profilePhotoUrl} onCompleted={onReported} />
         )}
+
+        {/* Back / Next directly below the content; both stay visible, each disables at its end. */}
+        <div
+          className="mt-4 flex items-center justify-between gap-3"
+          data-testid="guided-tour-step-nav"
+        >
+          <button
+            type="button"
+            onClick={onPrev}
+            disabled={!hasPrev}
+            className={NAV_BTN}
+            data-testid="guided-tour-step-prev"
+          >
+            <ArrowLeft className="size-4" aria-hidden />
+            Back
+          </button>
+          <button
+            type="button"
+            onClick={onNext}
+            disabled={!hasNext}
+            className={NAV_BTN}
+            data-testid="guided-tour-step-next"
+          >
+            Next
+            <ArrowRight className="size-4" aria-hidden />
+          </button>
+        </div>
       </div>
     </div>
   )
 }
+
+// Light-lavender CTA matching the guided tour's #6962AC accent.
+const NAV_BTN =
+  'inline-flex items-center gap-2 rounded-lg bg-[#6962AC]/5 px-5 py-2.5 text-sm font-semibold text-[#6962AC] transition-colors hover:bg-[#6962AC]/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6962AC] disabled:cursor-not-allowed disabled:opacity-40'

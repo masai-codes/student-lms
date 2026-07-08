@@ -52,6 +52,7 @@ export async function getAnnouncementPopups(userId: number): Promise<PopupItem[]
       AND a.deleted_at IS NULL
       AND a.track_read = 1
       AND (a.schedule IS NULL OR a.schedule <= CONVERT_TZ(NOW(), '+00:00', '+05:30'))
+      AND (a.concludes IS NULL OR a.concludes >= CONVERT_TZ(NOW(), '+00:00', '+05:30'))
       AND (ar.id IS NULL OR ar.read_at IS NULL)
     ORDER BY a.created_at DESC
   `)
@@ -68,7 +69,9 @@ export async function getAnnouncementPopups(userId: number): Promise<PopupItem[]
       AND m.message_id IS NULL
       AND m.deleted_at IS NULL
       AND m.read_at IS NULL
-      AND JSON_UNQUOTE(JSON_EXTRACT(m.meta, '$.show_as_popup')) = '1'
+      AND m.show_as_popup = 1
+      AND (m.schedule IS NULL OR m.schedule <= CONVERT_TZ(NOW(), '+00:00', '+05:30'))
+      AND (m.concludes IS NULL OR m.concludes >= CONVERT_TZ(NOW(), '+00:00', '+05:30'))
     ORDER BY m.created_at DESC
   `)
 

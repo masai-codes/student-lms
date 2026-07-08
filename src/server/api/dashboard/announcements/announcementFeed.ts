@@ -3,6 +3,8 @@
  * the DB services so the combine/sort/cap logic is trivially unit-testable.
  */
 
+import { parseIstToMs } from '@/server/time/istClock'
+
 /** A single card in the dashboard announcements list. */
 export interface DashboardAnnouncement {
   id: number
@@ -43,7 +45,5 @@ export function combineAnnouncementFeeds(
 }
 
 function toTime(value: string | null): number {
-  if (!value) return Number.NEGATIVE_INFINITY
-  const time = new Date(value.includes('T') ? value : value.replace(' ', 'T')).getTime()
-  return Number.isNaN(time) ? Number.NEGATIVE_INFINITY : time
+  return parseIstToMs(value) ?? Number.NEGATIVE_INFINITY
 }

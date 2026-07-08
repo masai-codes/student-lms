@@ -1,0 +1,301 @@
+{
+  "login-and-join-lecture": {
+    "seededAt": "2026-07-08T09:28:55.335Z",
+    "testUsers": [
+      {
+        "role": "admin",
+        "email": "login-and-join-lecture.admin@example.com",
+        "password": "password",
+        "userId": 1,
+        "name": "Admin User"
+      },
+      {
+        "role": "student",
+        "email": "login-and-join-lecture.student@example.com",
+        "password": "password",
+        "userId": 2,
+        "name": "Student User"
+      }
+    ],
+    "timing": {
+      "batchStarting": "2026-07-08",
+      "lectureSchedule": "2026-07-08 14:58:55",
+      "lectureConcludes": "2026-07-08 16:58:55"
+    },
+    "entityIds": {
+      "batchId": 1,
+      "sectionId": 1,
+      "lectureId": 1
+    }
+  },
+  "onboarding-legacy-user": {
+    "seededAt": "2026-07-08T09:28:55.335Z",
+    "testUsers": [
+      {
+        "role": "admin",
+        "email": "onboarding-legacy-user.admin@example.com",
+        "password": "password",
+        "userId": 3,
+        "name": "Admin [onboarding-legacy-user]"
+      },
+      {
+        "role": "student",
+        "email": "onboarding-legacy-user.student@example.com",
+        "password": "password",
+        "userId": 4,
+        "name": "Student [onboarding-legacy-user]"
+      }
+    ],
+    "timing": {
+      "batchStarting": "2026-07-08",
+      "lmsAccessDate": "",
+      "courseFeeDeadline": ""
+    },
+    "entityIds": {
+      "batchId": 2
+    }
+  },
+  "onboarding-welcome-modal": {
+    "seededAt": "2026-07-08T09:28:55.336Z",
+    "testUsers": [
+      {
+        "role": "admin",
+        "email": "onboarding-welcome-modal.admin@example.com",
+        "password": "password",
+        "userId": 5,
+        "name": "Admin [onboarding-welcome-modal]"
+      },
+      {
+        "role": "student",
+        "email": "onboarding-welcome-modal.student@example.com",
+        "password": "password",
+        "userId": 6,
+        "name": "Student [onboarding-welcome-modal]"
+      }
+    ],
+    "timing": {
+      "batchStarting": "2026-07-08",
+      "lmsAccessDate": "2026-07-08 14:58:55",
+      "courseFeeDeadline": "2026-07-15 14:58:55"
+    },
+    "entityIds": {
+      "batchId": 3
+    }
+  },
+  "onboarding-welcome-seen": {
+    "seededAt": "2026-07-08T09:28:55.336Z",
+    "testUsers": [
+      {
+        "role": "admin",
+        "email": "onboarding-welcome-seen.admin@example.com",
+        "password": "password",
+        "userId": 7,
+        "name": "Admin [onboarding-welcome-seen]"
+      },
+      {
+        "role": "student",
+        "email": "onboarding-welcome-seen.student@example.com",
+        "password": "password",
+        "userId": 8,
+        "name": "Student [onboarding-welcome-seen]"
+      }
+    ],
+    "timing": {
+      "batchStarting": "2026-07-08",
+      "lmsAccessDate": "2026-07-08 14:58:55",
+      "courseFeeDeadline": "2026-07-15 14:58:55"
+    },
+    "entityIds": {
+      "batchId": 4
+    }
+  },
+  "onboarding-fees-unpaid": {
+    "seededAt": "2026-07-08T09:28:55.336Z",
+    "testUsers": [
+      {
+        "role": "admin",
+        "email": "onboarding-fees-unpaid.admin@example.com",
+        "password": "password",
+        "userId": 9,
+        "name": "Admin [onboarding-fees-unpaid]"
+      },
+      {
+        "role": "student",
+        "email": "onboarding-fees-unpaid.student@example.com",
+        "password": "password",
+        "userId": 10,
+        "name": "Student [onboarding-fees-unpaid]"
+      }
+    ],
+    "timing": {
+      "batchStarting": "2026-07-08",
+      "lmsAccessDate": "2026-07-08 14:58:55",
+      "courseFeeDeadline": "2026-07-15 14:58:55"
+    },
+    "entityIds": {
+      "batchId": 5
+    }
+  },
+  "onboarding-fees-paid": {
+    "seededAt": "2026-07-08T09:28:55.336Z",
+    "testUsers": [
+      {
+        "role": "admin",
+        "email": "onboarding-fees-paid.admin@example.com",
+        "password": "password",
+        "userId": 11,
+        "name": "Admin [onboarding-fees-paid]"
+      },
+      {
+        "role": "student",
+        "email": "onboarding-fees-paid.student@example.com",
+        "password": "password",
+        "userId": 12,
+        "name": "Student [onboarding-fees-paid]"
+      }
+    ],
+    "timing": {
+      "batchStarting": "2026-07-08",
+      "lmsAccessDate": "2026-07-08 14:58:55",
+      "courseFeeDeadline": ""
+    },
+    "entityIds": {
+      "batchId": 6
+    }
+  },
+  "onboarding-kit-waiting": {
+    "seededAt": "2026-07-08T09:28:55.336Z",
+    "testUsers": [
+      {
+        "role": "admin",
+        "email": "onboarding-kit-waiting.admin@example.com",
+        "password": "password",
+        "userId": 13,
+        "name": "Admin [onboarding-kit-waiting]"
+      },
+      {
+        "role": "student",
+        "email": "onboarding-kit-waiting.student@example.com",
+        "password": "password",
+        "userId": 14,
+        "name": "Student [onboarding-kit-waiting]"
+      }
+    ],
+    "timing": {
+      "batchStarting": "2026-07-08",
+      "lmsAccessDate": "2026-07-08 14:58:55",
+      "courseFeeDeadline": ""
+    },
+    "entityIds": {
+      "batchId": 7
+    }
+  },
+  "onboarding-kit-tracking": {
+    "seededAt": "2026-07-08T09:28:55.336Z",
+    "testUsers": [
+      {
+        "role": "admin",
+        "email": "onboarding-kit-tracking.admin@example.com",
+        "password": "password",
+        "userId": 15,
+        "name": "Admin [onboarding-kit-tracking]"
+      },
+      {
+        "role": "student",
+        "email": "onboarding-kit-tracking.student@example.com",
+        "password": "password",
+        "userId": 16,
+        "name": "Student [onboarding-kit-tracking]"
+      }
+    ],
+    "timing": {
+      "batchStarting": "2026-07-08",
+      "lmsAccessDate": "2026-07-08 14:58:55",
+      "courseFeeDeadline": ""
+    },
+    "entityIds": {
+      "batchId": 8
+    }
+  },
+  "onboarding-agreement-pending": {
+    "seededAt": "2026-07-08T09:28:55.336Z",
+    "testUsers": [
+      {
+        "role": "admin",
+        "email": "onboarding-agreement-pending.admin@example.com",
+        "password": "password",
+        "userId": 17,
+        "name": "Admin [onboarding-agreement-pending]"
+      },
+      {
+        "role": "student",
+        "email": "onboarding-agreement-pending.student@example.com",
+        "password": "password",
+        "userId": 18,
+        "name": "Student [onboarding-agreement-pending]"
+      }
+    ],
+    "timing": {
+      "batchStarting": "2026-07-08",
+      "lmsAccessDate": "2026-07-08 14:58:55",
+      "courseFeeDeadline": ""
+    },
+    "entityIds": {
+      "batchId": 9
+    }
+  },
+  "onboarding-complete": {
+    "seededAt": "2026-07-08T09:28:55.337Z",
+    "testUsers": [
+      {
+        "role": "admin",
+        "email": "onboarding-complete.admin@example.com",
+        "password": "password",
+        "userId": 19,
+        "name": "Admin [onboarding-complete]"
+      },
+      {
+        "role": "student",
+        "email": "onboarding-complete.student@example.com",
+        "password": "password",
+        "userId": 20,
+        "name": "Student [onboarding-complete]"
+      }
+    ],
+    "timing": {
+      "batchStarting": "2026-07-08",
+      "lmsAccessDate": "2026-07-08 14:58:55",
+      "courseFeeDeadline": ""
+    },
+    "entityIds": {
+      "batchId": 10
+    }
+  },
+  "onboarding-fees-overdue": {
+    "seededAt": "2026-07-08T09:28:55.337Z",
+    "testUsers": [
+      {
+        "role": "admin",
+        "email": "onboarding-fees-overdue.admin@example.com",
+        "password": "password",
+        "userId": 21,
+        "name": "Admin [onboarding-fees-overdue]"
+      },
+      {
+        "role": "student",
+        "email": "onboarding-fees-overdue.student@example.com",
+        "password": "password",
+        "userId": 22,
+        "name": "Student [onboarding-fees-overdue]"
+      }
+    ],
+    "timing": {
+      "batchStarting": "2026-07-08",
+      "lmsAccessDate": "2026-06-08 14:58:55",
+      "courseFeeDeadline": "2026-07-01 14:58:55"
+    },
+    "entityIds": {
+      "batchId": 11
+    }
+  }
+}

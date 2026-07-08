@@ -25,11 +25,13 @@ export function buildDashboardScheduleItem(input: {
 
   const listingCtas = buildLearnListingCardCtas({
     learningType,
+    lectureId: row.id,
     itemType: row.type,
     schedule: row.schedule,
     concludes: row.concludes ?? null,
     isMandatory: toLearningPriority(row.optional) === 'mandatory',
     zoomLink: row.zoomLink ?? null,
+    isNewZoomRedirection: row.isNewZoomRedirection === 1,
     nowMs,
     attendance,
     assignmentProgressStatus,
@@ -46,7 +48,6 @@ export function buildDashboardScheduleItem(input: {
 
   return {
     ...item,
-    concludes: row.concludes ?? null,
     courseName: input.showCourseName ? resolveCourseName(row) : null,
     enableZoomWebView: resolveEnableZoomWebView(row.sectionSettings),
   }

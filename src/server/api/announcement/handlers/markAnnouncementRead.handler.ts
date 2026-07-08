@@ -15,17 +15,19 @@ export async function handleMarkAnnouncementRead(
   source: 'a' | 'm' = 'a',
 ): Promise<Response> {
   try {
-    const numericId = parseInt(rawId, 10)
-    if (!Number.isFinite(numericId) || numericId <= 0) {
+    // Validate as a positive integer string. Messages use BigInt ids that can
+    // exceed Number.MAX_SAFE_INTEGER, so keep the id as a string rather than
+    // parseInt-ing it and losing precision.
+    if (!/^\d+$/.test(rawId) || /^0+$/.test(rawId)) {
       return jsonError(400, 'INVALID_ID')
     }
 
     const userId = await requireSessionUserId()
 
     if (source === 'm') {
-      await markMessageAsRead(userId, numericId)
+      await markMessageAsRead(userId, rawId)
     } else {
-      await markAnnouncementAsRead(userId, numericId)
+      await markAnnouncementAsRead(userId, parseInt(rawId, 10))
     }
 
     return jsonOk({ ok: true })

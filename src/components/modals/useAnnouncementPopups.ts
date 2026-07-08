@@ -21,10 +21,6 @@ function popupKey(item: Pick<PopupItem, 'source' | 'id'>): string {
   return `${item.source}:${item.id}`
 }
 
-function hasCta(item: PopupItem): boolean {
-  return Boolean(item.ctaName?.trim() && item.ctaLink?.trim())
-}
-
 export interface AnnouncementPopupQueue {
   /** The popup to show right now, or null when the queue is drained. */
   current: PopupItem | null
@@ -32,9 +28,9 @@ export interface AnnouncementPopupQueue {
   open: boolean
   /** Whether a mark-read request is in flight (disable the primary CTA). */
   isSubmitting: boolean
-  /** Primary CTA — mark read + advance (only for popups without a link CTA). */
+  /** Mark read + advance. Always available (independent of the link CTA). */
   handleMarkRead: () => void
-  /** Link CTA — open the link, mark read, advance. */
+  /** Link CTA — mark read, close the modal, then open the link. */
   handleCta: () => void
   /** "Show me later" / backdrop / escape — close without marking read. */
   handleShowLater: () => void
@@ -71,6 +67,9 @@ export function useAnnouncementPopups(): AnnouncementPopupQueue {
   const dismissedRef = useRef(new Set<string>())
   // Pending "advance to next" timer, so we can clean it up on unmount.
   const advanceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  // Pending "open CTA link" timer — fires after the modal has closed so opening
+  // the new tab doesn't freeze the exit animation and leave a stuck overlay.
+  const ctaTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   // Pick the next unhandled popup whenever we're idle (no current on screen).
   useEffect(() => {
@@ -89,6 +88,7 @@ export function useAnnouncementPopups(): AnnouncementPopupQueue {
   useEffect(() => {
     return () => {
       if (advanceTimerRef.current) clearTimeout(advanceTimerRef.current)
+      if (ctaTimerRef.current) clearTimeout(ctaTimerRef.current)
     }
   }, [])
 
@@ -96,7 +96,7 @@ export function useAnnouncementPopups(): AnnouncementPopupQueue {
     mutationFn: (item: PopupItem) =>
       item.source === 'a'
         ? markAnnouncementRead(Number(item.id))
-        : markMessageRead(Number(item.id)),
+        : markMessageRead(item.id),
     onSettled: () =>
       queryClient.invalidateQueries({ queryKey: ['announcement'] }),
   })
@@ -122,15 +122,26 @@ export function useAnnouncementPopups(): AnnouncementPopupQueue {
   )
 
   const handleMarkRead = useCallback(() => {
-    if (!current || hasCta(current)) return
+    if (!current) return
     completeAsRead(current)
   }, [current, completeAsRead])
 
   const handleCta = useCallback(() => {
     const link = current?.ctaLink?.trim()
-    if (!current || !link) return
-    window.open(link, '_blank', 'noopener,noreferrer')
+    if (!current) return
+    // Mark read and close first; only open the link once the modal has fully
+    // animated out. Opening it immediately would switch focus to the new tab
+    // mid-animation, freezing the exit transition and leaving a faint, stuck
+    // overlay behind when the user returns. The short delay stays well within
+    // the browser's user-activation window, so the new tab isn't blocked.
     completeAsRead(current)
+    if (link) {
+      if (ctaTimerRef.current) clearTimeout(ctaTimerRef.current)
+      ctaTimerRef.current = setTimeout(() => {
+        window.open(link, '_blank', 'noopener,noreferrer')
+        ctaTimerRef.current = null
+      }, CLOSE_ANIMATION_MS)
+    }
   }, [current, completeAsRead])
 
   const handleShowLater = useCallback(() => {

@@ -31,7 +31,7 @@ export function buildLectureAttendanceSummary(
     Boolean(record?.includeVideoAttendance) || sectionSettings.enableVideoAttendance
 
   const isAbsent = record != null ? record.status === 0 : true
-  const { daysRemaining, isCatchupWindowOver } = computeCatchUpWindow({
+  const { daysRemaining, isCatchupWindowOver, remainingLabel } = computeCatchUpWindow({
     schedule: context.schedule,
     concludes: context.concludes,
     catchUpDays,
@@ -51,6 +51,7 @@ export function buildLectureAttendanceSummary(
     isCatchupWindowOver,
     videoPercentage: record?.videoPercentage ?? 0,
     daysRemaining,
+    remainingLabel,
     lateByMinutes: record?.lateByMinutes ?? null,
   }
 }

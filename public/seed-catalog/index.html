@@ -1,0 +1,935 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Seed Flow Catalog</title>
+  <style>
+  :root {
+    --bg: #fafafa;
+    --surface: #fff;
+    --border: #e3e8ee;
+    --text: #1b1f23;
+    --muted: #6b7280;
+    --accent: #49cc90;
+    --accent-text: #1b4332;
+    --primary: #3b82f6;
+    --primary-hover: #2563eb;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: system-ui, sans-serif; background: var(--bg); color: var(--text); }
+  .topbar { background: #1b1b1b; color: #fff; padding: 1rem 1.5rem; }
+  .topbar h1 { margin: 0; font-size: 1.35rem; font-weight: 600; }
+  .topbar p { margin: 0.35rem 0 0; color: #b0b0b0; font-size: 0.9rem; }
+  .layout { max-width: 1100px; margin: 0 auto; padding: 1.25rem 1.5rem 2rem; }
+  .toolbar { display: flex; gap: 0.75rem; margin-bottom: 1rem; align-items: center; }
+  .toolbar input { flex: 1; padding: 0.55rem 0.75rem; border: 1px solid var(--border); border-radius: 6px; font-size: 0.95rem; }
+  .flow-list { display: flex; flex-direction: column; gap: 0.65rem; }
+  .flow-item { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+  .flow-row { display: flex; align-items: stretch; border-bottom: 1px solid transparent; }
+  .flow-item.is-open .flow-row { border-bottom-color: var(--border); }
+  .flow-toggle { flex: 1; display: grid; grid-template-columns: auto auto 1fr auto; gap: 0.75rem; align-items: center; padding: 0.85rem 1rem; background: none; border: none; text-align: left; cursor: pointer; font: inherit; color: inherit; }
+  .flow-toggle:hover { background: #f6f8fa; }
+  .flow-badge { background: var(--accent); color: var(--accent-text); font-size: 0.7rem; font-weight: 700; padding: 0.2rem 0.45rem; border-radius: 4px; letter-spacing: 0.04em; }
+  .flow-id { font-family: ui-monospace, monospace; font-size: 0.95rem; font-weight: 600; white-space: nowrap; }
+  .flow-summary { color: var(--muted); font-size: 0.9rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .chevron { color: var(--muted); transition: transform 0.15s ease; }
+  .flow-item.is-open .chevron { transform: rotate(90deg); }
+  .btn { border: none; border-radius: 6px; font: inherit; cursor: pointer; font-size: 0.85rem; font-weight: 600; }
+  .btn-login { margin: 0.55rem 0.75rem 0.55rem 0; padding: 0.45rem 0.9rem; background: var(--primary); color: #fff; align-self: center; white-space: nowrap; }
+  .btn-login:hover:not(:disabled) { background: var(--primary-hover); }
+  .btn-login:disabled { background: #cbd5e1; cursor: not-allowed; }
+  .btn-login-user { padding: 0.25rem 0.55rem; font-size: 0.78rem; }
+  .flow-panel { padding: 1rem 1.1rem 1.15rem; background: #fcfcfd; }
+  .panel-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem; }
+  .panel-section { margin-bottom: 1rem; }
+  .panel-section h3 { margin: 0 0 0.5rem; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted); }
+  .panel-section pre { margin: 0; padding: 0.65rem 0.75rem; background: #f3f4f6; border-radius: 6px; overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+  th, td { border: 1px solid var(--border); padding: 0.45rem 0.55rem; text-align: left; }
+  th { background: #f3f4f6; font-weight: 600; }
+  code { font-family: ui-monospace, monospace; font-size: 0.85em; }
+  .note { font-size: 0.85rem; color: var(--muted); margin: 0 0 0.5rem; }
+  .muted { color: var(--muted); }
+  .empty { text-align: center; color: var(--muted); padding: 2rem; }
+  .warn { background: #fff7ed; border: 1px solid #fed7aa; color: #9a3412; padding: 0.65rem 0.85rem; border-radius: 6px; margin-bottom: 1rem; font-size: 0.88rem; }
+</style>
+</head>
+<body>
+  <main class="layout">
+    
+    <div class="toolbar">
+      <input id="flow-search" type="search" placeholder="Filter flows by id or description…" aria-label="Filter flows" />
+    </div>
+    <div class="flow-list" id="flow-list">
+      
+    <article class="flow-item" data-flow-id="login-and-join-lecture" data-search="login-and-join-lecture student can log in and join a live lecture with an active join button.">
+      <div class="flow-row">
+        <button type="button" class="flow-toggle" aria-expanded="false">
+          <span class="flow-badge">FLOW</span>
+          <span class="flow-id">login-and-join-lecture</span>
+          <span class="flow-summary">Student can log in and join a live lecture with an active join button.</span>
+          <span class="chevron" aria-hidden="true">▸</span>
+        </button>
+        <button
+          type="button"
+          class="btn btn-login btn-login-flow"
+          data-user-id="2"
+          data-user-email="login-and-join-lecture.student@example.com"
+          data-user-role="student"
+          
+          title="Secret-login as student (userId 2)"
+        >Login</button>
+      </div>
+      <div class="flow-panel" hidden>
+        <div class="panel-section">
+          <h3>Seed command</h3>
+          <pre><code>npm run seed login-and-join-lecture</code></pre>
+        </div>
+        <div class="panel-grid">
+          <div class="panel-section">
+            <h3>Timing offsets</h3>
+            <table>
+              <thead><tr><th>Key</th><th>Offset</th></tr></thead>
+              <tbody><tr><td><code>batchStartedDaysAgo</code></td><td>0</td></tr><tr><td><code>lectureScheduledMinutesAgo</code></td><td>0</td></tr><tr><td><code>lectureDurationMinutes</code></td><td>120</td></tr></tbody>
+            </table>
+          </div>
+          <div class="panel-section">
+            <h3>Last seeded timestamps</h3>
+            <p class="note">Seeded 2026-07-08T09:28:55.335Z</p>
+            <table>
+              <thead><tr><th>Key</th><th>Value</th></tr></thead>
+              <tbody><tr><td><code>batchStarting</code></td><td>2026-07-08</td></tr><tr><td><code>lectureSchedule</code></td><td>2026-07-08 14:58:55</td></tr><tr><td><code>lectureConcludes</code></td><td>2026-07-08 16:58:55</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+        <div class="panel-section">
+          <h3>Entity IDs</h3>
+          <table>
+            <thead><tr><th>Entity</th><th>ID</th></tr></thead>
+            <tbody><tr><td><code>batchId</code></td><td>1</td></tr><tr><td><code>sectionId</code></td><td>1</td></tr><tr><td><code>lectureId</code></td><td>1</td></tr></tbody>
+          </table>
+        </div>
+        <div class="panel-section">
+          <h3>Test users</h3>
+          <p class="note">Password: <code>password</code>. Primary login role: <code>student</code>.</p>
+          <table>
+            <thead><tr><th>Role</th><th>Email</th><th>Password</th><th>User ID</th><th></th></tr></thead>
+            <tbody><tr data-user-role="admin">
+        <td>admin</td>
+        <td>login-and-join-lecture.admin@example.com</td>
+        <td><code>password</code></td>
+        <td class="user-id-cell">1</td>
+        <td><button type="button" class="btn btn-login btn-login-user" data-user-id="1" data-user-email="login-and-join-lecture.admin@example.com" data-user-role="admin">Login</button></td>
+      </tr><tr data-user-role="student">
+        <td>student</td>
+        <td>login-and-join-lecture.student@example.com</td>
+        <td><code>password</code></td>
+        <td class="user-id-cell">2</td>
+        <td><button type="button" class="btn btn-login btn-login-user" data-user-id="2" data-user-email="login-and-join-lecture.student@example.com" data-user-role="student">Login</button></td>
+      </tr></tbody>
+          </table>
+        </div>
+      </div>
+    </article>
+
+    <article class="flow-item" data-flow-id="onboarding-legacy-user" data-search="onboarding-legacy-user enrolled student with no admission row — legacy user, no t0 ui.">
+      <div class="flow-row">
+        <button type="button" class="flow-toggle" aria-expanded="false">
+          <span class="flow-badge">FLOW</span>
+          <span class="flow-id">onboarding-legacy-user</span>
+          <span class="flow-summary">Enrolled student with no admission row — legacy user, no T0 UI.</span>
+          <span class="chevron" aria-hidden="true">▸</span>
+        </button>
+        <button
+          type="button"
+          class="btn btn-login btn-login-flow"
+          data-user-id="4"
+          data-user-email="onboarding-legacy-user.student@example.com"
+          data-user-role="student"
+          
+          title="Secret-login as student (userId 4)"
+        >Login</button>
+      </div>
+      <div class="flow-panel" hidden>
+        <div class="panel-section">
+          <h3>Seed command</h3>
+          <pre><code>npm run seed onboarding-legacy-user</code></pre>
+        </div>
+        <div class="panel-grid">
+          <div class="panel-section">
+            <h3>Timing offsets</h3>
+            <table>
+              <thead><tr><th>Key</th><th>Offset</th></tr></thead>
+              <tbody></tbody>
+            </table>
+          </div>
+          <div class="panel-section">
+            <h3>Last seeded timestamps</h3>
+            <p class="note">Seeded 2026-07-08T09:28:55.335Z</p>
+            <table>
+              <thead><tr><th>Key</th><th>Value</th></tr></thead>
+              <tbody><tr><td><code>batchStarting</code></td><td>2026-07-08</td></tr><tr><td><code>lmsAccessDate</code></td><td></td></tr><tr><td><code>courseFeeDeadline</code></td><td></td></tr></tbody>
+            </table>
+          </div>
+        </div>
+        <div class="panel-section">
+          <h3>Entity IDs</h3>
+          <table>
+            <thead><tr><th>Entity</th><th>ID</th></tr></thead>
+            <tbody><tr><td><code>batchId</code></td><td>2</td></tr></tbody>
+          </table>
+        </div>
+        <div class="panel-section">
+          <h3>Test users</h3>
+          <p class="note">Password: <code>password</code>. Primary login role: <code>student</code>.</p>
+          <table>
+            <thead><tr><th>Role</th><th>Email</th><th>Password</th><th>User ID</th><th></th></tr></thead>
+            <tbody><tr data-user-role="admin">
+        <td>admin</td>
+        <td>onboarding-legacy-user.admin@example.com</td>
+        <td><code>password</code></td>
+        <td class="user-id-cell">3</td>
+        <td><button type="button" class="btn btn-login btn-login-user" data-user-id="3" data-user-email="onboarding-legacy-user.admin@example.com" data-user-role="admin">Login</button></td>
+      </tr><tr data-user-role="student">
+        <td>student</td>
+        <td>onboarding-legacy-user.student@example.com</td>
+        <td><code>password</code></td>
+        <td class="user-id-cell">4</td>
+        <td><button type="button" class="btn btn-login btn-login-user" data-user-id="4" data-user-email="onboarding-legacy-user.student@example.com" data-user-role="student">Login</button></td>
+      </tr></tbody>
+          </table>
+        </div>
+      </div>
+    </article>
+
+    <article class="flow-item" data-flow-id="onboarding-welcome-modal" data-search="onboarding-welcome-modal new-journey student who has not seen the welcome modal yet.">
+      <div class="flow-row">
+        <button type="button" class="flow-toggle" aria-expanded="false">
+          <span class="flow-badge">FLOW</span>
+          <span class="flow-id">onboarding-welcome-modal</span>
+          <span class="flow-summary">New-journey student who has not seen the welcome modal yet.</span>
+          <span class="chevron" aria-hidden="true">▸</span>
+        </button>
+        <button
+          type="button"
+          class="btn btn-login btn-login-flow"
+          data-user-id="6"
+          data-user-email="onboarding-welcome-modal.student@example.com"
+          data-user-role="student"
+          
+          title="Secret-login as student (userId 6)"
+        >Login</button>
+      </div>
+      <div class="flow-panel" hidden>
+        <div class="panel-section">
+          <h3>Seed command</h3>
+          <pre><code>npm run seed onboarding-welcome-modal</code></pre>
+        </div>
+        <div class="panel-grid">
+          <div class="panel-section">
+            <h3>Timing offsets</h3>
+            <table>
+              <thead><tr><th>Key</th><th>Offset</th></tr></thead>
+              <tbody></tbody>
+            </table>
+          </div>
+          <div class="panel-section">
+            <h3>Last seeded timestamps</h3>
+            <p class="note">Seeded 2026-07-08T09:28:55.336Z</p>
+            <table>
+              <thead><tr><th>Key</th><th>Value</th></tr></thead>
+              <tbody><tr><td><code>batchStarting</code></td><td>2026-07-08</td></tr><tr><td><code>lmsAccessDate</code></td><td>2026-07-08 14:58:55</td></tr><tr><td><code>courseFeeDeadline</code></td><td>2026-07-15 14:58:55</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+        <div class="panel-section">
+          <h3>Entity IDs</h3>
+          <table>
+            <thead><tr><th>Entity</th><th>ID</th></tr></thead>
+            <tbody><tr><td><code>batchId</code></td><td>3</td></tr></tbody>
+          </table>
+        </div>
+        <div class="panel-section">
+          <h3>Test users</h3>
+          <p class="note">Password: <code>password</code>. Primary login role: <code>student</code>.</p>
+          <table>
+            <thead><tr><th>Role</th><th>Email</th><th>Password</th><th>User ID</th><th></th></tr></thead>
+            <tbody><tr data-user-role="admin">
+        <td>admin</td>
+        <td>onboarding-welcome-modal.admin@example.com</td>
+        <td><code>password</code></td>
+        <td class="user-id-cell">5</td>
+        <td><button type="button" class="btn btn-login btn-login-user" data-user-id="5" data-user-email="onboarding-welcome-modal.admin@example.com" data-user-role="admin">Login</button></td>
+      </tr><tr data-user-role="student">
+        <td>student</td>
+        <td>onboarding-welcome-modal.student@example.com</td>
+        <td><code>password</code></td>
+        <td class="user-id-cell">6</td>
+        <td><button type="button" class="btn btn-login btn-login-user" data-user-id="6" data-user-email="onboarding-welcome-modal.student@example.com" data-user-role="student">Login</button></td>
+      </tr></tbody>
+          </table>
+        </div>
+      </div>
+    </article>
+
+    <article class="flow-item" data-flow-id="onboarding-welcome-seen" data-search="onboarding-welcome-seen new-journey student who already dismissed the welcome modal.">
+      <div class="flow-row">
+        <button type="button" class="flow-toggle" aria-expanded="false">
+          <span class="flow-badge">FLOW</span>
+          <span class="flow-id">onboarding-welcome-seen</span>
+          <span class="flow-summary">New-journey student who already dismissed the welcome modal.</span>
+          <span class="chevron" aria-hidden="true">▸</span>
+        </button>
+        <button
+          type="button"
+          class="btn btn-login btn-login-flow"
+          data-user-id="8"
+          data-user-email="onboarding-welcome-seen.student@example.com"
+          data-user-role="student"
+          
+          title="Secret-login as student (userId 8)"
+        >Login</button>
+      </div>
+      <div class="flow-panel" hidden>
+        <div class="panel-section">
+          <h3>Seed command</h3>
+          <pre><code>npm run seed onboarding-welcome-seen</code></pre>
+        </div>
+        <div class="panel-grid">
+          <div class="panel-section">
+            <h3>Timing offsets</h3>
+            <table>
+              <thead><tr><th>Key</th><th>Offset</th></tr></thead>
+              <tbody></tbody>
+            </table>
+          </div>
+          <div class="panel-section">
+            <h3>Last seeded timestamps</h3>
+            <p class="note">Seeded 2026-07-08T09:28:55.336Z</p>
+            <table>
+              <thead><tr><th>Key</th><th>Value</th></tr></thead>
+              <tbody><tr><td><code>batchStarting</code></td><td>2026-07-08</td></tr><tr><td><code>lmsAccessDate</code></td><td>2026-07-08 14:58:55</td></tr><tr><td><code>courseFeeDeadline</code></td><td>2026-07-15 14:58:55</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+        <div class="panel-section">
+          <h3>Entity IDs</h3>
+          <table>
+            <thead><tr><th>Entity</th><th>ID</th></tr></thead>
+            <tbody><tr><td><code>batchId</code></td><td>4</td></tr></tbody>
+          </table>
+        </div>
+        <div class="panel-section">
+          <h3>Test users</h3>
+          <p class="note">Password: <code>password</code>. Primary login role: <code>student</code>.</p>
+          <table>
+            <thead><tr><th>Role</th><th>Email</th><th>Password</th><th>User ID</th><th></th></tr></thead>
+            <tbody><tr data-user-role="admin">
+        <td>admin</td>
+        <td>onboarding-welcome-seen.admin@example.com</td>
+        <td><code>password</code></td>
+        <td class="user-id-cell">7</td>
+        <td><button type="button" class="btn btn-login btn-login-user" data-user-id="7" data-user-email="onboarding-welcome-seen.admin@example.com" data-user-role="admin">Login</button></td>
+      </tr><tr data-user-role="student">
+        <td>student</td>
+        <td>onboarding-welcome-seen.student@example.com</td>
+        <td><code>password</code></td>
+        <td class="user-id-cell">8</td>
+        <td><button type="button" class="btn btn-login btn-login-user" data-user-id="8" data-user-email="onboarding-welcome-seen.student@example.com" data-user-role="student">Login</button></td>
+      </tr></tbody>
+          </table>
+        </div>
+      </div>
+    </article>
+
+    <article class="flow-item" data-flow-id="onboarding-fees-unpaid" data-search="onboarding-fees-unpaid lms walkthrough only with an active payment countdown banner.">
+      <div class="flow-row">
+        <button type="button" class="flow-toggle" aria-expanded="false">
+          <span class="flow-badge">FLOW</span>
+          <span class="flow-id">onboarding-fees-unpaid</span>
+          <span class="flow-summary">LMS walkthrough only with an active payment countdown banner.</span>
+          <span class="chevron" aria-hidden="true">▸</span>
+        </button>
+        <button
+          type="button"
+          class="btn btn-login btn-login-flow"
+          data-user-id="10"
+          data-user-email="onboarding-fees-unpaid.student@example.com"
+          data-user-role="student"
+          
+          title="Secret-login as student (userId 10)"
+        >Login</button>
+      </div>
+      <div class="flow-panel" hidden>
+        <div class="panel-section">
+          <h3>Seed command</h3>
+          <pre><code>npm run seed onboarding-fees-unpaid</code></pre>
+        </div>
+        <div class="panel-grid">
+          <div class="panel-section">
+            <h3>Timing offsets</h3>
+            <table>
+              <thead><tr><th>Key</th><th>Offset</th></tr></thead>
+              <tbody></tbody>
+            </table>
+          </div>
+          <div class="panel-section">
+            <h3>Last seeded timestamps</h3>
+            <p class="note">Seeded 2026-07-08T09:28:55.336Z</p>
+            <table>
+              <thead><tr><th>Key</th><th>Value</th></tr></thead>
+              <tbody><tr><td><code>batchStarting</code></td><td>2026-07-08</td></tr><tr><td><code>lmsAccessDate</code></td><td>2026-07-08 14:58:55</td></tr><tr><td><code>courseFeeDeadline</code></td><td>2026-07-15 14:58:55</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+        <div class="panel-section">
+          <h3>Entity IDs</h3>
+          <table>
+            <thead><tr><th>Entity</th><th>ID</th></tr></thead>
+            <tbody><tr><td><code>batchId</code></td><td>5</td></tr></tbody>
+          </table>
+        </div>
+        <div class="panel-section">
+          <h3>Test users</h3>
+          <p class="note">Password: <code>password</code>. Primary login role: <code>student</code>.</p>
+          <table>
+            <thead><tr><th>Role</th><th>Email</th><th>Password</th><th>User ID</th><th></th></tr></thead>
+            <tbody><tr data-user-role="admin">
+        <td>admin</td>
+        <td>onboarding-fees-unpaid.admin@example.com</td>
+        <td><code>password</code></td>
+        <td class="user-id-cell">9</td>
+        <td><button type="button" class="btn btn-login btn-login-user" data-user-id="9" data-user-email="onboarding-fees-unpaid.admin@example.com" data-user-role="admin">Login</button></td>
+      </tr><tr data-user-role="student">
+        <td>student</td>
+        <td>onboarding-fees-unpaid.student@example.com</td>
+        <td><code>password</code></td>
+        <td class="user-id-cell">10</td>
+        <td><button type="button" class="btn btn-login btn-login-user" data-user-id="10" data-user-email="onboarding-fees-unpaid.student@example.com" data-user-role="student">Login</button></td>
+      </tr></tbody>
+          </table>
+        </div>
+      </div>
+    </article>
+
+    <article class="flow-item" data-flow-id="onboarding-fees-paid" data-search="onboarding-fees-paid full fees paid — program onboarding tab unlocked, steps pending.">
+      <div class="flow-row">
+        <button type="button" class="flow-toggle" aria-expanded="false">
+          <span class="flow-badge">FLOW</span>
+          <span class="flow-id">onboarding-fees-paid</span>
+          <span class="flow-summary">Full fees paid — program onboarding tab unlocked, steps pending.</span>
+          <span class="chevron" aria-hidden="true">▸</span>
+        </button>
+        <button
+          type="button"
+          class="btn btn-login btn-login-flow"
+          data-user-id="12"
+          data-user-email="onboarding-fees-paid.student@example.com"
+          data-user-role="student"
+          
+          title="Secret-login as student (userId 12)"
+        >Login</button>
+      </div>
+      <div class="flow-panel" hidden>
+        <div class="panel-section">
+          <h3>Seed command</h3>
+          <pre><code>npm run seed onboarding-fees-paid</code></pre>
+        </div>
+        <div class="panel-grid">
+          <div class="panel-section">
+            <h3>Timing offsets</h3>
+            <table>
+              <thead><tr><th>Key</th><th>Offset</th></tr></thead>
+              <tbody></tbody>
+            </table>
+          </div>
+          <div class="panel-section">
+            <h3>Last seeded timestamps</h3>
+            <p class="note">Seeded 2026-07-08T09:28:55.336Z</p>
+            <table>
+              <thead><tr><th>Key</th><th>Value</th></tr></thead>
+              <tbody><tr><td><code>batchStarting</code></td><td>2026-07-08</td></tr><tr><td><code>lmsAccessDate</code></td><td>2026-07-08 14:58:55</td></tr><tr><td><code>courseFeeDeadline</code></td><td></td></tr></tbody>
+            </table>
+          </div>
+        </div>
+        <div class="panel-section">
+          <h3>Entity IDs</h3>
+          <table>
+            <thead><tr><th>Entity</th><th>ID</th></tr></thead>
+            <tbody><tr><td><code>batchId</code></td><td>6</td></tr></tbody>
+          </table>
+        </div>
+        <div class="panel-section">
+          <h3>Test users</h3>
+          <p class="note">Password: <code>password</code>. Primary login role: <code>student</code>.</p>
+          <table>
+            <thead><tr><th>Role</th><th>Email</th><th>Password</th><th>User ID</th><th></th></tr></thead>
+            <tbody><tr data-user-role="admin">
+        <td>admin</td>
+        <td>onboarding-fees-paid.admin@example.com</td>
+        <td><code>password</code></td>
+        <td class="user-id-cell">11</td>
+        <td><button type="button" class="btn btn-login btn-login-user" data-user-id="11" data-user-email="onboarding-fees-paid.admin@example.com" data-user-role="admin">Login</button></td>
+      </tr><tr data-user-role="student">
+        <td>student</td>
+        <td>onboarding-fees-paid.student@example.com</td>
+        <td><code>password</code></td>
+        <td class="user-id-cell">12</td>
+        <td><button type="button" class="btn btn-login btn-login-user" data-user-id="12" data-user-email="onboarding-fees-paid.student@example.com" data-user-role="student">Login</button></td>
+      </tr></tbody>
+          </table>
+        </div>
+      </div>
+    </article>
+
+    <article class="flow-item" data-flow-id="onboarding-kit-waiting" data-search="onboarding-kit-waiting student kit details filled; waiting for admin tracking upload.">
+      <div class="flow-row">
+        <button type="button" class="flow-toggle" aria-expanded="false">
+          <span class="flow-badge">FLOW</span>
+          <span class="flow-id">onboarding-kit-waiting</span>
+          <span class="flow-summary">Student kit details filled; waiting for admin tracking upload.</span>
+          <span class="chevron" aria-hidden="true">▸</span>
+        </button>
+        <button
+          type="button"
+          class="btn btn-login btn-login-flow"
+          data-user-id="14"
+          data-user-email="onboarding-kit-waiting.student@example.com"
+          data-user-role="student"
+          
+          title="Secret-login as student (userId 14)"
+        >Login</button>
+      </div>
+      <div class="flow-panel" hidden>
+        <div class="panel-section">
+          <h3>Seed command</h3>
+          <pre><code>npm run seed onboarding-kit-waiting</code></pre>
+        </div>
+        <div class="panel-grid">
+          <div class="panel-section">
+            <h3>Timing offsets</h3>
+            <table>
+              <thead><tr><th>Key</th><th>Offset</th></tr></thead>
+              <tbody></tbody>
+            </table>
+          </div>
+          <div class="panel-section">
+            <h3>Last seeded timestamps</h3>
+            <p class="note">Seeded 2026-07-08T09:28:55.336Z</p>
+            <table>
+              <thead><tr><th>Key</th><th>Value</th></tr></thead>
+              <tbody><tr><td><code>batchStarting</code></td><td>2026-07-08</td></tr><tr><td><code>lmsAccessDate</code></td><td>2026-07-08 14:58:55</td></tr><tr><td><code>courseFeeDeadline</code></td><td></td></tr></tbody>
+            </table>
+          </div>
+        </div>
+        <div class="panel-section">
+          <h3>Entity IDs</h3>
+          <table>
+            <thead><tr><th>Entity</th><th>ID</th></tr></thead>
+            <tbody><tr><td><code>batchId</code></td><td>7</td></tr></tbody>
+          </table>
+        </div>
+        <div class="panel-section">
+          <h3>Test users</h3>
+          <p class="note">Password: <code>password</code>. Primary login role: <code>student</code>.</p>
+          <table>
+            <thead><tr><th>Role</th><th>Email</th><th>Password</th><th>User ID</th><th></th></tr></thead>
+            <tbody><tr data-user-role="admin">
+        <td>admin</td>
+        <td>onboarding-kit-waiting.admin@example.com</td>
+        <td><code>password</code></td>
+        <td class="user-id-cell">13</td>
+        <td><button type="button" class="btn btn-login btn-login-user" data-user-id="13" data-user-email="onboarding-kit-waiting.admin@example.com" data-user-role="admin">Login</button></td>
+      </tr><tr data-user-role="student">
+        <td>student</td>
+        <td>onboarding-kit-waiting.student@example.com</td>
+        <td><code>password</code></td>
+        <td class="user-id-cell">14</td>
+        <td><button type="button" class="btn btn-login btn-login-user" data-user-id="14" data-user-email="onboarding-kit-waiting.student@example.com" data-user-role="student">Login</button></td>
+      </tr></tbody>
+          </table>
+        </div>
+      </div>
+    </article>
+
+    <article class="flow-item" data-flow-id="onboarding-kit-tracking" data-search="onboarding-kit-tracking student kit tracking url available for display.">
+      <div class="flow-row">
+        <button type="button" class="flow-toggle" aria-expanded="false">
+          <span class="flow-badge">FLOW</span>
+          <span class="flow-id">onboarding-kit-tracking</span>
+          <span class="flow-summary">Student kit tracking URL available for display.</span>
+          <span class="chevron" aria-hidden="true">▸</span>
+        </button>
+        <button
+          type="button"
+          class="btn btn-login btn-login-flow"
+          data-user-id="16"
+          data-user-email="onboarding-kit-tracking.student@example.com"
+          data-user-role="student"
+          
+          title="Secret-login as student (userId 16)"
+        >Login</button>
+      </div>
+      <div class="flow-panel" hidden>
+        <div class="panel-section">
+          <h3>Seed command</h3>
+          <pre><code>npm run seed onboarding-kit-tracking</code></pre>
+        </div>
+        <div class="panel-grid">
+          <div class="panel-section">
+            <h3>Timing offsets</h3>
+            <table>
+              <thead><tr><th>Key</th><th>Offset</th></tr></thead>
+              <tbody></tbody>
+            </table>
+          </div>
+          <div class="panel-section">
+            <h3>Last seeded timestamps</h3>
+            <p class="note">Seeded 2026-07-08T09:28:55.336Z</p>
+            <table>
+              <thead><tr><th>Key</th><th>Value</th></tr></thead>
+              <tbody><tr><td><code>batchStarting</code></td><td>2026-07-08</td></tr><tr><td><code>lmsAccessDate</code></td><td>2026-07-08 14:58:55</td></tr><tr><td><code>courseFeeDeadline</code></td><td></td></tr></tbody>
+            </table>
+          </div>
+        </div>
+        <div class="panel-section">
+          <h3>Entity IDs</h3>
+          <table>
+            <thead><tr><th>Entity</th><th>ID</th></tr></thead>
+            <tbody><tr><td><code>batchId</code></td><td>8</td></tr></tbody>
+          </table>
+        </div>
+        <div class="panel-section">
+          <h3>Test users</h3>
+          <p class="note">Password: <code>password</code>. Primary login role: <code>student</code>.</p>
+          <table>
+            <thead><tr><th>Role</th><th>Email</th><th>Password</th><th>User ID</th><th></th></tr></thead>
+            <tbody><tr data-user-role="admin">
+        <td>admin</td>
+        <td>onboarding-kit-tracking.admin@example.com</td>
+        <td><code>password</code></td>
+        <td class="user-id-cell">15</td>
+        <td><button type="button" class="btn btn-login btn-login-user" data-user-id="15" data-user-email="onboarding-kit-tracking.admin@example.com" data-user-role="admin">Login</button></td>
+      </tr><tr data-user-role="student">
+        <td>student</td>
+        <td>onboarding-kit-tracking.student@example.com</td>
+        <td><code>password</code></td>
+        <td class="user-id-cell">16</td>
+        <td><button type="button" class="btn btn-login btn-login-user" data-user-id="16" data-user-email="onboarding-kit-tracking.student@example.com" data-user-role="student">Login</button></td>
+      </tr></tbody>
+          </table>
+        </div>
+      </div>
+    </article>
+
+    <article class="flow-item" data-flow-id="onboarding-agreement-pending" data-search="onboarding-agreement-pending program onboarding with agreement modal still pending.">
+      <div class="flow-row">
+        <button type="button" class="flow-toggle" aria-expanded="false">
+          <span class="flow-badge">FLOW</span>
+          <span class="flow-id">onboarding-agreement-pending</span>
+          <span class="flow-summary">Program onboarding with agreement modal still pending.</span>
+          <span class="chevron" aria-hidden="true">▸</span>
+        </button>
+        <button
+          type="button"
+          class="btn btn-login btn-login-flow"
+          data-user-id="18"
+          data-user-email="onboarding-agreement-pending.student@example.com"
+          data-user-role="student"
+          
+          title="Secret-login as student (userId 18)"
+        >Login</button>
+      </div>
+      <div class="flow-panel" hidden>
+        <div class="panel-section">
+          <h3>Seed command</h3>
+          <pre><code>npm run seed onboarding-agreement-pending</code></pre>
+        </div>
+        <div class="panel-grid">
+          <div class="panel-section">
+            <h3>Timing offsets</h3>
+            <table>
+              <thead><tr><th>Key</th><th>Offset</th></tr></thead>
+              <tbody></tbody>
+            </table>
+          </div>
+          <div class="panel-section">
+            <h3>Last seeded timestamps</h3>
+            <p class="note">Seeded 2026-07-08T09:28:55.336Z</p>
+            <table>
+              <thead><tr><th>Key</th><th>Value</th></tr></thead>
+              <tbody><tr><td><code>batchStarting</code></td><td>2026-07-08</td></tr><tr><td><code>lmsAccessDate</code></td><td>2026-07-08 14:58:55</td></tr><tr><td><code>courseFeeDeadline</code></td><td></td></tr></tbody>
+            </table>
+          </div>
+        </div>
+        <div class="panel-section">
+          <h3>Entity IDs</h3>
+          <table>
+            <thead><tr><th>Entity</th><th>ID</th></tr></thead>
+            <tbody><tr><td><code>batchId</code></td><td>9</td></tr></tbody>
+          </table>
+        </div>
+        <div class="panel-section">
+          <h3>Test users</h3>
+          <p class="note">Password: <code>password</code>. Primary login role: <code>student</code>.</p>
+          <table>
+            <thead><tr><th>Role</th><th>Email</th><th>Password</th><th>User ID</th><th></th></tr></thead>
+            <tbody><tr data-user-role="admin">
+        <td>admin</td>
+        <td>onboarding-agreement-pending.admin@example.com</td>
+        <td><code>password</code></td>
+        <td class="user-id-cell">17</td>
+        <td><button type="button" class="btn btn-login btn-login-user" data-user-id="17" data-user-email="onboarding-agreement-pending.admin@example.com" data-user-role="admin">Login</button></td>
+      </tr><tr data-user-role="student">
+        <td>student</td>
+        <td>onboarding-agreement-pending.student@example.com</td>
+        <td><code>password</code></td>
+        <td class="user-id-cell">18</td>
+        <td><button type="button" class="btn btn-login btn-login-user" data-user-id="18" data-user-email="onboarding-agreement-pending.student@example.com" data-user-role="student">Login</button></td>
+      </tr></tbody>
+          </table>
+        </div>
+      </div>
+    </article>
+
+    <article class="flow-item" data-flow-id="onboarding-complete" data-search="onboarding-complete all onboarding steps complete — id card unlocked.">
+      <div class="flow-row">
+        <button type="button" class="flow-toggle" aria-expanded="false">
+          <span class="flow-badge">FLOW</span>
+          <span class="flow-id">onboarding-complete</span>
+          <span class="flow-summary">All onboarding steps complete — ID card unlocked.</span>
+          <span class="chevron" aria-hidden="true">▸</span>
+        </button>
+        <button
+          type="button"
+          class="btn btn-login btn-login-flow"
+          data-user-id="20"
+          data-user-email="onboarding-complete.student@example.com"
+          data-user-role="student"
+          
+          title="Secret-login as student (userId 20)"
+        >Login</button>
+      </div>
+      <div class="flow-panel" hidden>
+        <div class="panel-section">
+          <h3>Seed command</h3>
+          <pre><code>npm run seed onboarding-complete</code></pre>
+        </div>
+        <div class="panel-grid">
+          <div class="panel-section">
+            <h3>Timing offsets</h3>
+            <table>
+              <thead><tr><th>Key</th><th>Offset</th></tr></thead>
+              <tbody></tbody>
+            </table>
+          </div>
+          <div class="panel-section">
+            <h3>Last seeded timestamps</h3>
+            <p class="note">Seeded 2026-07-08T09:28:55.337Z</p>
+            <table>
+              <thead><tr><th>Key</th><th>Value</th></tr></thead>
+              <tbody><tr><td><code>batchStarting</code></td><td>2026-07-08</td></tr><tr><td><code>lmsAccessDate</code></td><td>2026-07-08 14:58:55</td></tr><tr><td><code>courseFeeDeadline</code></td><td></td></tr></tbody>
+            </table>
+          </div>
+        </div>
+        <div class="panel-section">
+          <h3>Entity IDs</h3>
+          <table>
+            <thead><tr><th>Entity</th><th>ID</th></tr></thead>
+            <tbody><tr><td><code>batchId</code></td><td>10</td></tr></tbody>
+          </table>
+        </div>
+        <div class="panel-section">
+          <h3>Test users</h3>
+          <p class="note">Password: <code>password</code>. Primary login role: <code>student</code>.</p>
+          <table>
+            <thead><tr><th>Role</th><th>Email</th><th>Password</th><th>User ID</th><th></th></tr></thead>
+            <tbody><tr data-user-role="admin">
+        <td>admin</td>
+        <td>onboarding-complete.admin@example.com</td>
+        <td><code>password</code></td>
+        <td class="user-id-cell">19</td>
+        <td><button type="button" class="btn btn-login btn-login-user" data-user-id="19" data-user-email="onboarding-complete.admin@example.com" data-user-role="admin">Login</button></td>
+      </tr><tr data-user-role="student">
+        <td>student</td>
+        <td>onboarding-complete.student@example.com</td>
+        <td><code>password</code></td>
+        <td class="user-id-cell">20</td>
+        <td><button type="button" class="btn btn-login btn-login-user" data-user-id="20" data-user-email="onboarding-complete.student@example.com" data-user-role="student">Login</button></td>
+      </tr></tbody>
+          </table>
+        </div>
+      </div>
+    </article>
+
+    <article class="flow-item" data-flow-id="onboarding-fees-overdue" data-search="onboarding-fees-overdue course fee deadline passed without full payment.">
+      <div class="flow-row">
+        <button type="button" class="flow-toggle" aria-expanded="false">
+          <span class="flow-badge">FLOW</span>
+          <span class="flow-id">onboarding-fees-overdue</span>
+          <span class="flow-summary">Course fee deadline passed without full payment.</span>
+          <span class="chevron" aria-hidden="true">▸</span>
+        </button>
+        <button
+          type="button"
+          class="btn btn-login btn-login-flow"
+          data-user-id="22"
+          data-user-email="onboarding-fees-overdue.student@example.com"
+          data-user-role="student"
+          
+          title="Secret-login as student (userId 22)"
+        >Login</button>
+      </div>
+      <div class="flow-panel" hidden>
+        <div class="panel-section">
+          <h3>Seed command</h3>
+          <pre><code>npm run seed onboarding-fees-overdue</code></pre>
+        </div>
+        <div class="panel-grid">
+          <div class="panel-section">
+            <h3>Timing offsets</h3>
+            <table>
+              <thead><tr><th>Key</th><th>Offset</th></tr></thead>
+              <tbody></tbody>
+            </table>
+          </div>
+          <div class="panel-section">
+            <h3>Last seeded timestamps</h3>
+            <p class="note">Seeded 2026-07-08T09:28:55.337Z</p>
+            <table>
+              <thead><tr><th>Key</th><th>Value</th></tr></thead>
+              <tbody><tr><td><code>batchStarting</code></td><td>2026-07-08</td></tr><tr><td><code>lmsAccessDate</code></td><td>2026-06-08 14:58:55</td></tr><tr><td><code>courseFeeDeadline</code></td><td>2026-07-01 14:58:55</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+        <div class="panel-section">
+          <h3>Entity IDs</h3>
+          <table>
+            <thead><tr><th>Entity</th><th>ID</th></tr></thead>
+            <tbody><tr><td><code>batchId</code></td><td>11</td></tr></tbody>
+          </table>
+        </div>
+        <div class="panel-section">
+          <h3>Test users</h3>
+          <p class="note">Password: <code>password</code>. Primary login role: <code>student</code>.</p>
+          <table>
+            <thead><tr><th>Role</th><th>Email</th><th>Password</th><th>User ID</th><th></th></tr></thead>
+            <tbody><tr data-user-role="admin">
+        <td>admin</td>
+        <td>onboarding-fees-overdue.admin@example.com</td>
+        <td><code>password</code></td>
+        <td class="user-id-cell">21</td>
+        <td><button type="button" class="btn btn-login btn-login-user" data-user-id="21" data-user-email="onboarding-fees-overdue.admin@example.com" data-user-role="admin">Login</button></td>
+      </tr><tr data-user-role="student">
+        <td>student</td>
+        <td>onboarding-fees-overdue.student@example.com</td>
+        <td><code>password</code></td>
+        <td class="user-id-cell">22</td>
+        <td><button type="button" class="btn btn-login btn-login-user" data-user-id="22" data-user-email="onboarding-fees-overdue.student@example.com" data-user-role="student">Login</button></td>
+      </tr></tbody>
+          </table>
+        </div>
+      </div>
+    </article>
+    </div>
+  </main>
+  <script>window.__SEED_CATALOG__ = {"secretLoginToken":"12345"};</script>
+  <script>
+  const TOKEN = window.__SEED_CATALOG__.secretLoginToken;
+  const API_BASE = window.__SEED_CATALOG__.apiBase || '';
+
+  function secretLoginUrl(userId, email) {
+    if (!TOKEN) return null;
+    const params = new URLSearchParams({ token: TOKEN });
+    const id = String(userId || '').trim();
+    const mail = String(email || '').trim();
+    if (id) params.set('userId', id);
+    else if (mail) params.set('email', mail);
+    else return null;
+    return API_BASE + '/api/secret-login?' + params.toString();
+  }
+
+  function handleLogin(btn) {
+    const url = secretLoginUrl(btn.getAttribute('data-user-id'), btn.getAttribute('data-user-email'));
+    if (!url) return;
+    window.location.href = url;
+  }
+
+  function wireLoginButtons(root) {
+    root.querySelectorAll('.btn-login').forEach((btn) => {
+      if (btn.dataset.wired === '1') return;
+      btn.dataset.wired = '1';
+      btn.addEventListener('click', (event) => {
+        event.stopPropagation();
+        handleLogin(btn);
+      });
+    });
+  }
+
+  function applySeedState(state) {
+    if (!state || typeof state !== 'object') return;
+    document.querySelectorAll('.flow-item').forEach((item) => {
+      const flowId = item.getAttribute('data-flow-id');
+      const flowState = state[flowId];
+      if (!flowState || !Array.isArray(flowState.testUsers)) return;
+
+      const byRole = new Map(flowState.testUsers.map((user) => [user.role, user]));
+      item.querySelectorAll('[data-user-role]').forEach((el) => {
+        const role = el.getAttribute('data-user-role');
+        const user = byRole.get(role);
+        if (!user) return;
+        if (el.classList.contains('btn-login')) {
+          el.setAttribute('data-user-id', String(user.userId));
+          el.disabled = !TOKEN;
+        }
+        const row = el.closest('tr');
+        const idCell = row && row.querySelector('.user-id-cell');
+        if (idCell) {
+          idCell.textContent = String(user.userId);
+          idCell.classList.remove('muted');
+        }
+      });
+    });
+  }
+
+  async function hydrateFromSeedState() {
+    try {
+      const res = await fetch('seed-state.json', { cache: 'no-store' });
+      if (!res.ok) return;
+      applySeedState(await res.json());
+    } catch {
+      // seed-state.json is optional until first seed run
+    }
+  }
+
+  wireLoginButtons(document);
+  document.querySelectorAll('.flow-toggle').forEach((toggle) => {
+    toggle.addEventListener('click', () => {
+      const item = toggle.closest('.flow-item');
+      const panel = item.querySelector('.flow-panel');
+      const open = item.classList.toggle('is-open');
+      toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+      panel.hidden = !open;
+    });
+  });
+  const search = document.getElementById('flow-search');
+  search.addEventListener('input', () => {
+    const q = search.value.trim().toLowerCase();
+    document.querySelectorAll('.flow-item').forEach((item) => {
+      const hay = item.getAttribute('data-search') || '';
+      item.style.display = !q || hay.includes(q) ? '' : 'none';
+    });
+  });
+
+  if (window.location.protocol === 'file:') {
+    const warn = document.createElement('div');
+    warn.className = 'warn';
+    warn.innerHTML = 'Opened as a local file — Login will not work. Use <code>http://localhost:3002/seed-catalog/</code> while the dev server is running.';
+    document.querySelector('.layout')?.prepend(warn);
+  }
+
+  hydrateFromSeedState();
+</script>
+</body>
+</html>

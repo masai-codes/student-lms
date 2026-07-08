@@ -61,11 +61,13 @@ function mapRowToItem(
 ): LearningItem {
   const listingCtas = buildLearnListingCardCtas({
     learningType: input.learningType,
+    lectureId: row.id,
     itemType: row.type,
     schedule: row.schedule,
     concludes: row.concludes ?? null,
     isMandatory: toLearningPriority(row.optional) === 'mandatory',
     zoomLink: row.zoomLink ?? null,
+    isNewZoomRedirection: row.isNewZoomRedirection === 1,
     nowMs,
     attendance,
     assignmentProgressStatus,

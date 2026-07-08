@@ -71,15 +71,17 @@ export function MessageDetailPage({ detail }: MessageDetailPageProps) {
   const audioBlobUrlRef = useRef<string | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
-  const numericId = parseInt(detail.id, 10)
+  // Message ids are BigInt — keep as a string to avoid Number precision loss.
+  const messageId = detail.id
+  const isValidId = /^\d+$/.test(messageId)
   const senderName = detail.from ?? detail.authorName
   const metaChips = [detail.category, detail.type].filter(Boolean).map(capitalize)
 
   // Auto-mark as read
   useEffect(() => {
-    if (markedReadRef.current || !Number.isFinite(numericId)) return
+    if (markedReadRef.current || !isValidId) return
     markedReadRef.current = true
-    markMessageRead(numericId)
+    markMessageRead(messageId)
       .then(() => {
         void queryClient.invalidateQueries({ queryKey: ['announcements'] })
         if (!detail.isRead) {
@@ -91,7 +93,7 @@ export function MessageDetailPage({ detail }: MessageDetailPageProps) {
         void queryClient.invalidateQueries({ queryKey: ['announcement-unread-count'] })
       })
       .catch(() => {})
-  }, [numericId, queryClient, detail.isRead])
+  }, [messageId, queryClient, detail.isRead])
 
   // WaveSurfer init when audioBlob is ready
   useEffect(() => {
@@ -132,10 +134,10 @@ export function MessageDetailPage({ detail }: MessageDetailPageProps) {
   }, [])
 
   async function handleToggleUnread() {
-    if (!Number.isFinite(numericId)) return
+    if (!isValidId) return
     try {
       if (isUnread) {
-        await markMessageRead(numericId)
+        await markMessageRead(messageId)
         setIsUnread(false)
         toast.success('Marked as read')
         queryClient.setQueryData<number>(
@@ -143,7 +145,7 @@ export function MessageDetailPage({ detail }: MessageDetailPageProps) {
           (old = 0) => Math.max(0, old - 1),
         )
       } else {
-        await markMessageUnread(numericId)
+        await markMessageUnread(messageId)
         setIsUnread(true)
         toast.success('Marked as unread')
         queryClient.setQueryData<number>(
@@ -258,7 +260,7 @@ export function MessageDetailPage({ detail }: MessageDetailPageProps) {
     if (!body.trim()) return
 
     try {
-      const res = await fetch(`/api/message/${numericId}/reply`, {
+      const res = await fetch(`/api/message/${messageId}/reply`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ body }),

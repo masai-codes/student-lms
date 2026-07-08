@@ -1,6 +1,12 @@
 # Feature Test Matrix
 
-Last updated: 2026-07-02
+Last updated: 2026-07-09
+
+## Next-action pill (navbar top-right + mobile tab bar)
+- Area: `NextActionBanner` (in `AppNavbar` `centerSlot` and above `AppMobileTabBar`) surfaces the single next action from `GET /api/dashboard/navbar-pill` (`getNavbarPillEvent`: evaluation > live > scrum, `schedule−5min → concludes` window); pure view logic in `src/lib/nextActionBanner.ts` (`resolveNextActionBannerView` + `formatCountdown`). Replaces the deleted `UpcomingLecturePill`.
+- Status: Covered (pure resolver + countdown formatting: null/empty/concluded, lecture vs evaluation labels + countdown, start-boundary clamp, MM:SS vs "N mins").
+- Test files: `src/lib/nextActionBanner.test.ts`
+- Notes: See `docs/testing/features/next-action-banner.md`
 
 ## Support / Raise Ticket (`/support` + detail-page drawer)
 - Area: `RaiseTicketDrawer` opened from lecture/assignment/resource headers (no redirect); context-scoped `ContextSubcategoryList` via `GET /api/support/subcategories?category=` (legacy `SubcategoryTicketModal` flow); `TicketConversationPanel`/`useTicketComposer` create/reply/rate/escalate; first-template coordinator comment on creation (`buildFirstTemplateResponse`, exact legacy body + signature) with the synthetic open/re-opened banner suppressed; `SupportMarkdown` renders inline HTML (`rehype-raw` → `rehype-sanitize`) so legacy `<br/>`/signature comments display correctly; "Request a Callback" gated on `isNewUserJourney` (a `user_batch_admission_data` row) + active batch, "Student-Kit" reason hidden unless `hasFullFees`.
@@ -191,6 +197,11 @@ Last updated: 2026-07-02
 - Test files: `src/server/api/ai-tutor/__tests__/{chatTurns,listConversations.handler,getConversation.handler,conversationServices}.test.ts`
 - Notes: `GET /api/ai-tutor/chat/conversations?lectureId=` lists the user's threads for a lecture (title from first user message, `updatedAt` desc). `GET /api/ai-tutor/chat/conversations/:chatId` returns ordered user/assistant turns from stored `chatHistory`.
 
+## Seed framework (test-data)
+- Area: Layered seed infrastructure (`seed/factories`, `seed/flows`, `seed/registry`, `seed/index.ts`, CLI, catalog generator); flows include `login-and-join-lecture` and ten T0 onboarding branches (`onboarding-*`)
+- Status: Covered (unit tests for time, registry, catalog, flow composition, onboarding builder/scenarios, reset guard, localhost DB safety guard); integration opt-in via `SEED_INTEGRATION=1`
+- Test files: `seed/utils/time.test.ts`, `seed/registry.test.ts`, `seed/catalog/generate.test.ts`, `seed/flows/login-and-join-lecture.test.ts`, `seed/flows/onboarding-shared/*.test.ts`, `seed/flows/onboarding.integration.test.ts`, `seed/resetDatabase.test.ts`, `seed/utils/assertLocalSeedDatabase.test.ts`
+- Notes: See `docs/testing/features/seed-framework.md`. Each flow uses isolated seed data (flow-scoped emails/batches) so flows compose with `--no-reset`. Seeding/reset now fail unless `DATABASE_URL` includes `localhost`. Commands: `npm run seed`, `npm run seed onboarding-welcome-modal`, `npm run seed:catalog`.
 ## Dashboard (protected home)
 - Area: Dashboard at `/(protected)/_layout/` migrating section-by-section from static UI to live data. Frontend (`src/components/features/dashboard/**`): `ProfileActionBanner`, `WelcomeSection` + `WelcomeBannerCarousel` (per-load `bannerRotation`), `ScheduleSection` (My Schedule / Pending Tasks tabs → `ScheduleWeekGroup` → `ScheduleCard`), sidebar panels (`AnnouncementsPanel`, `ProductUpdatesPanel`, `LmsSupportPanel` via `DashboardSidebar`), composed in `DashboardLayout`/`DashboardPage`. Backend: consolidated `GET /api/dashboard/overview` (`getDashboardOverview` service/handler) composing `getWelcomeBanners`, `getAnnouncementsFeed` (Feed A `getSectionAnnouncements` + Feed B `getForYouMessages` → combine/sort/cap 5), `getProductUpdates` (newest `whatsnew`, 25/page → top 5), and `getSupportSessions` (help-session lectures for the next ~8 days, backend-decided live/today/upcoming status) over reusable helpers: `getBatchIdsForEnrolledUser`, `getSectionIdsForUser`, `bannedContent` + `getBannedContentCutoffForUser`, `istClock` (`getIstNowSqlDatetime` / `getIstDayWindow` / `formatIstWallClock`), and pure `welcomeBannerVisibility` / `announcementFeed` / `supportSessionStatus` rules.
 - Status: Covered

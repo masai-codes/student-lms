@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { ListChecks, Lock, X } from '@phosphor-icons/react'
 import { GuidedTourStepList } from './GuidedTourStepList'
@@ -102,6 +102,17 @@ export function GuidedTourOverlay({
   // (chronological), falling back to the first step when all are done.
   const activeStep =
     steps.find((s) => s.key === activeKey) ?? steps.find((s) => !s.completed) ?? steps.at(0)
+
+  // Pin the active step once steps load. Without this the fallback above would
+  // re-resolve on every progress refetch: reporting the current video complete
+  // at the 10s watch mark rebuilds `steps` with it now marked completed, so
+  // `find((s) => !s.completed)` would jump the panel to the next step mid-play.
+  // The video only advances on its `ended` event (see handleVideoEnded).
+  useEffect(() => {
+    if (activeKey === null && steps.length > 0) {
+      setActiveKey((steps.find((s) => !s.completed) ?? steps[0]).key)
+    }
+  }, [activeKey, steps])
   const activeIndex = activeStep ? Math.max(0, steps.findIndex((s) => s.key === activeStep.key)) : 0
   const tabProgress = effectiveTab === 'lms' ? selectedBatch?.lms : selectedBatch?.program
 
@@ -138,6 +149,19 @@ export function GuidedTourOverlay({
   const selectStep = (key: string) => {
     setAutoPlayNext(false)
     setActiveKey(key)
+  }
+
+  // Manual Back / Next through the step list (below the active step's content).
+  // Never autoplays the target video — manual navigation always leaves it paused.
+  const goToStep = (index: number) => {
+    const target = steps.at(index)
+    if (!target) return
+    pushDashboardEvent('l_dashboard_guided_tour_step_nav', {
+      step_key: target.key,
+      step_action: target.action,
+      direction: index > activeIndex ? 'next' : 'back',
+    })
+    selectStep(target.key)
   }
 
   // When a walkthrough video ends, auto-advance to the next step if it's also a
@@ -314,6 +338,10 @@ export function GuidedTourOverlay({
             videoIndex={videoIndex}
             autoPlayVideo={autoPlayNext}
             onVideoEnded={handleVideoEnded}
+            hasPrev={activeIndex > 0}
+            hasNext={activeIndex < steps.length - 1}
+            onPrev={() => goToStep(activeIndex - 1)}
+            onNext={() => goToStep(activeIndex + 1)}
           />
         ) : null}
       </section>

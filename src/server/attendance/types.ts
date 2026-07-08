@@ -7,6 +7,8 @@ export type LectureAttendanceSummary = {
   isCatchupWindowOver: boolean | null
   videoPercentage: number
   daysRemaining: number | null
+  /** Granular "time left" label for the catch-up window, e.g. "2 days 3 hours remaining". */
+  remainingLabel: string | null
   lateByMinutes: number | null
 }
 
