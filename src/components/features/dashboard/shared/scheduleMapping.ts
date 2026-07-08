@@ -64,15 +64,20 @@ const IST_OFFSET_MS = (5 * 60 + 30) * 60_000
 const SCHEDULE_WEEK_DAYS = 7
 
 /**
- * Builds the fixed 7-day window (today … today + 6 in IST), placing each
- * schedule item on the IST day(s) it is active. Every day appears — empty ones
- * included — so the UI can render a "No sessions" row per day.
+ * Builds the fixed 7-day window (today … today + 6 in IST). Every day appears —
+ * empty ones included — so the UI can render a "No sessions" row per day.
  *
- * Point-in-time items (lectures/resources) appear on their scheduled day only.
- * Assignments run over a window, so they appear on **every** day from their
- * `schedule` day through their `concludes` day (inclusive) — e.g. an assignment
- * from 27 Mar to 10 Apr shows on 27, 28, … 10 (whichever of those fall in the
- * visible week).
+ * Each item lands on exactly **one** day, never duplicated across the week:
+ * - Point-in-time items (lectures/resources): their scheduled day.
+ * - Assignments run over a window (`schedule`→`concludes`); while active they
+ *   pin to **today**, not every day in between. So a 27 Mar → 10 Apr assignment
+ *   shows only on today's row on the 27th, the 28th, … through the 10th — one
+ *   day at a time as "today" advances.
+ *
+ * Concretely each item's target day is `max(today, scheduleDay)`, shown only if
+ * that day still falls within the item's span (i.e. not past `concludes`):
+ * active items surface on today, not-yet-started ones on their start day, and
+ * concluded ones drop off.
  */
 export function buildScheduleWeek(
   items: Array<DashboardScheduleItem>,
@@ -84,27 +89,28 @@ export function buildScheduleWeek(
   const baseM = ist.getUTCMonth()
   const baseD = ist.getUTCDate()
 
-  const spans = items
-    .map((item) => ({ item, span: itemDaySpan(item) }))
-    .filter(
-      (entry): entry is { item: DashboardScheduleItem; span: DaySpan } =>
-        entry.span !== null,
-    )
-
   const days: Array<ScheduleDayRow> = []
   for (let i = 0; i < dayCount; i += 1) {
     const date = new Date(Date.UTC(baseY, baseM, baseD + i))
-    const key = date.toISOString().slice(0, 10)
     days.push({
-      key,
+      key: date.toISOString().slice(0, 10),
       weekday: format(date, { weekday: 'short' }),
       dayOfMonth: String(date.getUTCDate()).padStart(2, '0'),
       isToday: i === 0,
-      // `YYYY-MM-DD` strings compare chronologically as plain strings.
-      items: spans
-        .filter(({ span }) => key >= span.start && key <= span.end)
-        .map(({ item }) => item),
+      items: [],
     })
+  }
+
+  const todayKey = days[0]?.key ?? ''
+  const dayByKey = new Map(days.map((day) => [day.key, day]))
+
+  for (const item of items) {
+    const span = itemDaySpan(item)
+    if (!span) continue
+    // `YYYY-MM-DD` strings compare chronologically as plain strings.
+    const targetKey = span.start > todayKey ? span.start : todayKey
+    if (targetKey > span.end) continue // already concluded — drop it
+    dayByKey.get(targetKey)?.items.push(item)
   }
 
   return { rangeLabel: buildRangeLabel(days), days }
@@ -118,9 +124,9 @@ interface DaySpan {
 }
 
 /**
- * The inclusive IST-day span an item occupies on the schedule calendar. Returns
- * `null` when the item has no parseable schedule day. Assignments span
- * `schedule`→`concludes`; everything else is a single day (`schedule`).
+ * The inclusive IST-day span an item occupies. Returns `null` when the item has
+ * no parseable schedule day. Assignments span `schedule`→`concludes`;
+ * everything else is a single day (`schedule`).
  */
 function itemDaySpan(item: DashboardScheduleItem): DaySpan | null {
   const start = istDayKey(item.scheduleDate)

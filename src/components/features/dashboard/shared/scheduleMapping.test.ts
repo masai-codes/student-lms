@@ -91,45 +91,58 @@ describe('buildScheduleWeek', () => {
     expect(byKey['2026-07-06']).toEqual([])
   })
 
-  it('shows a multi-day assignment on every day in [schedule, concludes] within the window', () => {
-    // Assignment runs 2026-07-03 → 2026-07-06; window is Jul 02 - 08.
+  it('pins an active multi-day assignment to today only, not every day in its span', () => {
+    // Assignment already running (2026-06-20 → 2026-07-10); today is 2026-07-02.
     const week = buildScheduleWeek(
       [
         item({
           id: 7,
           learningType: 'assignment',
-          scheduleDate: '2026-07-03 13:00:00',
-          concludes: '2026-07-06 13:00:00',
+          scheduleDate: '2026-06-20 13:00:00',
+          concludes: '2026-07-10 13:00:00',
         }),
       ],
       NOW,
     )
     const byKey = Object.fromEntries(week.days.map((d) => [d.key, d.items.map((i) => i.id)]))
-    expect(byKey['2026-07-02']).toEqual([]) // before schedule
-    expect(byKey['2026-07-03']).toEqual([7])
-    expect(byKey['2026-07-04']).toEqual([7])
-    expect(byKey['2026-07-05']).toEqual([7])
-    expect(byKey['2026-07-06']).toEqual([7])
-    expect(byKey['2026-07-07']).toEqual([]) // after concludes
+    expect(byKey['2026-07-02']).toEqual([7]) // today only
+    expect(byKey['2026-07-03']).toEqual([])
+    expect(byKey['2026-07-08']).toEqual([])
   })
 
-  it('clamps a multi-day assignment that started before the window to the visible days', () => {
-    // Assignment 2026-06-20 → 2026-07-04; window is Jul 02 - 08.
+  it('shows a not-yet-started assignment on its start day', () => {
+    // Assignment starts in the future (2026-07-05 → 2026-07-09); today is 07-02.
+    const week = buildScheduleWeek(
+      [
+        item({
+          id: 8,
+          learningType: 'assignment',
+          scheduleDate: '2026-07-05 13:00:00',
+          concludes: '2026-07-09 13:00:00',
+        }),
+      ],
+      NOW,
+    )
+    const byKey = Object.fromEntries(week.days.map((d) => [d.key, d.items.map((i) => i.id)]))
+    expect(byKey['2026-07-02']).toEqual([]) // not started yet
+    expect(byKey['2026-07-05']).toEqual([8]) // start day
+    expect(byKey['2026-07-06']).toEqual([])
+  })
+
+  it('drops an assignment whose deadline has already passed', () => {
+    // Assignment concluded before today (2026-06-20 → 2026-06-30); today 07-02.
     const week = buildScheduleWeek(
       [
         item({
           id: 9,
           learningType: 'assignment',
           scheduleDate: '2026-06-20 13:00:00',
-          concludes: '2026-07-04 13:00:00',
+          concludes: '2026-06-30 13:00:00',
         }),
       ],
       NOW,
     )
-    const byKey = Object.fromEntries(week.days.map((d) => [d.key, d.items.map((i) => i.id)]))
-    expect(byKey['2026-07-02']).toEqual([9])
-    expect(byKey['2026-07-03']).toEqual([9])
-    expect(byKey['2026-07-04']).toEqual([9])
-    expect(byKey['2026-07-05']).toEqual([])
+    const shown = week.days.flatMap((d) => d.items.map((i) => i.id))
+    expect(shown).toEqual([])
   })
 })
