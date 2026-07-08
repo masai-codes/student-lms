@@ -1,0 +1,29 @@
+{
+  "onboarding-welcome-modal": {
+    "seededAt": "2026-07-03T12:43:14.752Z",
+    "testUsers": [
+      {
+        "role": "admin",
+        "email": "onboarding-welcome-modal.admin@example.com",
+        "password": "password",
+        "userId": 1,
+        "name": "Admin [onboarding-welcome-modal]"
+      },
+      {
+        "role": "student",
+        "email": "onboarding-welcome-modal.student@example.com",
+        "password": "password",
+        "userId": 2,
+        "name": "Student [onboarding-welcome-modal]"
+      }
+    ],
+    "timing": {
+      "batchStarting": "2026-07-03",
+      "lmsAccessDate": "2026-07-03 18:13:14",
+      "courseFeeDeadline": "2026-07-10 18:13:14"
+    },
+    "entityIds": {
+      "batchId": 1
+    }
+  }
+}
