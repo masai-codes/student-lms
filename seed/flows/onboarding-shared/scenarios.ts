@@ -1,5 +1,5 @@
 import { addDays, formatMysqlDatetime, offsetFromNow } from '../../utils/time'
-import { ONBOARDING_ID_CARD_URL, ONBOARDING_KIT_TRACKING_URL, ONBOARDING_PAYMENT_URL } from './constants'
+import { ONBOARDING_ID_CARD_URL, ONBOARDING_KIT_TRACKING_URL, ONBOARDING_PAYMENT_URL, ONBOARDING_PROFILE_PHOTO_URL } from './constants'
 import type { OnboardingFlowId, OnboardingScenario } from './types'
 
 const now = () => formatMysqlDatetime(offsetFromNow({ minutesAgo: 0 }))
@@ -33,9 +33,17 @@ export const ONBOARDING_SCENARIOS: Record<OnboardingFlowId, OnboardingScenario> 
       courseFeeDeadline: inDays(7),
     },
   },
+  /**
+   * Interactive LMS Walkthrough test bed (program tab locked):
+   * - welcome already dismissed → lands in guided tour
+   * - 3 playable LMS videos (auto-next) + profile photo + download-app where
+   *   none of photo / device token / video_attendances are pre-completed
+   * - payment countdown banner still visible
+   */
   'onboarding-fees-unpaid': {
     includeAdmission: true,
     userMeta: { showWelcomeModal: true },
+    videoAttendances: 'none',
     admission: {
       lmsAccessDate: now(),
       courseFeeDeadline: inDays(7),
@@ -43,39 +51,26 @@ export const ONBOARDING_SCENARIOS: Record<OnboardingFlowId, OnboardingScenario> 
       paymentUrl: ONBOARDING_PAYMENT_URL,
     },
   },
+  /**
+   * Program Onboarding test bed (program tab unlocked): agreement pending,
+   * Upload Documents + Student Kit both visible-but-incomplete via a
+   * simulated onward `/lms/student-status` response — see
+   * `seed/onward-simulation/`. ID card unlock is untouched (still just
+   * videos watched + agreement signed).
+   */
   'onboarding-fees-paid': {
     includeAdmission: true,
     userMeta: { showWelcomeModal: true },
     admission: { ...paidAdmissionBase, lmsAccessDate: now() },
     profile: {},
-  },
-  'onboarding-kit-waiting': {
-    includeAdmission: true,
-    userMeta: { showWelcomeModal: true },
-    admission: {
-      ...paidAdmissionBase,
-      lmsAccessDate: now(),
-      studentKitExists: 1,
-      studentKitDetailsFilled: 1,
+    agreementSigned: false,
+    simulatedOnward: {
+      documentsRequired: true,
+      documentsUploaded: false,
+      kitShowKit: true,
+      kitDetailsFilled: false,
+      kitTrackingUrl: null,
     },
-    profile: {},
-  },
-  'onboarding-kit-tracking': {
-    includeAdmission: true,
-    userMeta: { showWelcomeModal: true },
-    admission: {
-      ...paidAdmissionBase,
-      lmsAccessDate: now(),
-      studentKitExists: 1,
-      studentKitDetailsFilled: 1,
-      studentKitTrackingUrl: ONBOARDING_KIT_TRACKING_URL,
-    },
-    profile: {},
-  },
-  'onboarding-agreement-pending': {
-    includeAdmission: true,
-    userMeta: { showWelcomeModal: true },
-    admission: { ...paidAdmissionBase, lmsAccessDate: now() },
   },
   'onboarding-complete': {
     includeAdmission: true,
@@ -90,6 +85,7 @@ export const ONBOARDING_SCENARIOS: Record<OnboardingFlowId, OnboardingScenario> 
     },
     deviceToken: true,
     videoAttendances: 'all',
+    profile: { meta: { profile_pic: ONBOARDING_PROFILE_PHOTO_URL } },
   },
   'onboarding-fees-overdue': {
     includeAdmission: true,
