@@ -6,8 +6,9 @@ import { AgreementPdfViewer } from './AgreementPdfViewer'
 import { AgreementCertificate } from './AgreementCertificate'
 import { AgreementStepper } from './AgreementStepper'
 import { AgreementLocationField } from './AgreementLocationField'
+import { AgreementValidationSummary } from './AgreementValidationSummary'
 import { useAutoDetectLocation } from './useAutoDetectLocation'
-import { isAgreementDetailsValid, validateAgreementDetails } from './agreementValidation'
+import { getAgreementFieldIssues, isAgreementDetailsValid, validateAgreementDetails } from './agreementValidation'
 import { useIsMobileViewport } from '@/components/features/chatbot/hooks/useIsMobileViewport'
 import { recordAgreementViewedApi, saveAgreementDetailsApi, submitAgreementApi } from '@/lib/api/dashboard/dashboardApi'
 import { pushDashboardEvent } from '../../../shared/dashboardAnalytics'
@@ -42,6 +43,7 @@ export function AgreementStep({ section, onCompleted }: AgreementStepProps) {
   const stepKeys = section.steps.map((s) => s.key)
   const subStepLabels = ['Enter Details', ...section.steps.map((s) => s.heading), 'Signature Certificate']
   const errors = useMemo(() => validateAgreementDetails(values), [values])
+  const detailIssues = useMemo(() => getAgreementFieldIssues(values), [values])
 
   const saveMutation = useMutation({ mutationFn: () => saveAgreementDetailsApi(section.sectionId, values) })
   const submitMutation = useMutation({
@@ -102,7 +104,15 @@ export function AgreementStep({ section, onCompleted }: AgreementStepProps) {
   const goNext = () => {
     if (onDetails) {
       if (!isAgreementDetailsValid(values)) {
+        // Reveal every field error + the summary, then jump to the first one so
+        // the learner sees exactly what's blocking Continue.
         setShowDetailErrors(true)
+        const first = detailIssues[0]
+        if (first) {
+          const el = document.getElementById(`agreement-${first.key}`)
+          el?.scrollIntoView?.({ behavior: 'smooth', block: 'center' })
+          window.setTimeout(() => (el as HTMLElement | null)?.focus?.(), 150)
+        }
         return
       }
       saveMutation.mutate() // autosave in the background
@@ -158,6 +168,9 @@ export function AgreementStep({ section, onCompleted }: AgreementStepProps) {
       <div className="min-h-0 flex-1 overflow-y-auto px-6 py-5">
         {onDetails ? (
           <div className="flex flex-col gap-4">
+            {/* Tells the learner exactly what's incomplete before they hit a
+                disabled/blocked Continue. Only after a Continue attempt. */}
+            {showDetailErrors ? <AgreementValidationSummary issues={detailIssues} /> : null}
             {/* Location first — matches the reference form ordering. */}
             <AgreementLocationField
               consent={locationConsent}
@@ -215,20 +228,35 @@ export function AgreementStep({ section, onCompleted }: AgreementStepProps) {
             {submitMutation.isPending ? 'Submitting…' : 'Submit & Sign'}
           </button>
         ) : (
-          <button
-            type="button"
-            onClick={() => {
-              pushDashboardEvent('l_dashboard_guided_tour_agreement_continue_id_' + section.sectionId, {
-                section_id: section.sectionId,
-              })
-              goNext()
-            }}
-            disabled={!canContinue}
-            className={BTN_SOLID}
-            data-testid="agreement-continue"
-          >
-            Continue
-          </button>
+          <div className="flex items-center gap-3">
+            {/* Always tell the learner why they can't move on. On the details
+                step we keep Continue clickable so it can reveal the errors. */}
+            {onDetails ? (
+              detailIssues.length > 0 ? (
+                <span className="text-xs font-medium text-[#B71C2B]" data-testid="agreement-continue-hint">
+                  {detailIssues.length} {detailIssues.length === 1 ? 'field needs' : 'fields need'} your attention
+                </span>
+              ) : null
+            ) : !canContinue ? (
+              <span className="text-xs font-medium text-gray-500" data-testid="agreement-continue-hint">
+                Read and accept the document above to continue
+              </span>
+            ) : null}
+            <button
+              type="button"
+              onClick={() => {
+                pushDashboardEvent('l_dashboard_guided_tour_agreement_continue_id_' + section.sectionId, {
+                  section_id: section.sectionId,
+                })
+                goNext()
+              }}
+              disabled={onDetails ? false : !canContinue}
+              className={BTN_SOLID}
+              data-testid="agreement-continue"
+            >
+              Continue
+            </button>
+          </div>
         )}
       </div>
     </div>

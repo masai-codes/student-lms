@@ -37,3 +37,4 @@ Area: layered test-data seeding (`seed/factories`, `seed/flows`, `seed/registry`
 - Seeding now hard-fails unless `DATABASE_URL` includes `localhost`.
 - Programmatic API: `import { seedFlow } from '../seed'`.
 - Every flow creates isolated seed data (flow-scoped emails and batch names) so multiple flows can coexist after `--no-reset`.
+- `onboarding-fees-unpaid` is the interactive LMS Walkthrough test bed: videos + auto-next + profile photo + download-app all start unticked (welcome dismissed, program tab locked).

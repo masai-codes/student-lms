@@ -24,7 +24,6 @@ export async function seedOnboardingSectionsAndLectures(
 }> {
   const sections = {} as Record<OnboardingSectionKey, SectionSelect>
   const lecturesBySection = {} as Record<OnboardingSectionKey, Array<LectureSelect>>
-  const schedule = formatMysqlDatetime(offsetFromNow({ minutesAgo: 0 }))
 
   for (const def of ONBOARDING_SECTION_DEFS) {
     const section = await createSection({
@@ -32,12 +31,18 @@ export async function seedOnboardingSectionsAndLectures(
       name: def.name,
       description: `${def.name} for ${flowId}`,
       type: def.type,
-      settings: def.isProgram ? { ...PROGRAM_AGREEMENT_SETTINGS } : undefined,
+      settings: def.key === 'programOnboardingWeb' ? { ...PROGRAM_AGREEMENT_SETTINGS } : undefined,
     })
     sections[def.key] = section
 
+    // Lectures are loaded with ORDER BY schedule DESC. Stagger so title order in
+    // LMS_LECTURE_TITLES / PROGRAM_LECTURE_TITLES appears first→last in the tour
+    // (first title = newest schedule). Clear zoomLink so the player uses `videos`
+    // only — otherwise the zoom fallback can replace a missing/broken recording.
     const sectionLectures: Array<LectureSelect> = []
-    for (const baseTitle of def.lectureTitles) {
+    for (let i = 0; i < def.lectureTitles.length; i++) {
+      const baseTitle = def.lectureTitles[i]
+      const minutesAgo = def.lectureTitles.length - 1 - i
       sectionLectures.push(
         await createLecture({
           batchId,
@@ -46,7 +51,8 @@ export async function seedOnboardingSectionsAndLectures(
           title: flowScopedLectureTitle(flowId, baseTitle),
           type: 'video',
           videos: resolveSectionVideos(def.name),
-          schedule,
+          zoomLink: null,
+          schedule: formatMysqlDatetime(offsetFromNow({ minutesAgo })),
         }),
       )
     }

@@ -75,3 +75,25 @@ export function validateAgreementDetails(values: AgreementFormValues): Partial<R
 export function isAgreementDetailsValid(values: AgreementFormValues): boolean {
   return Object.keys(validateAgreementDetails(values)).length === 0
 }
+
+export interface AgreementFieldIssue {
+  key: AgreementFieldKey
+  label: string
+  message: string
+}
+
+/**
+ * Turns the raw error map into an ordered, human-readable list of issues — one
+ * per invalid *visible* field, in the form's own top-to-bottom order — so the UI
+ * can tell the learner exactly what to fix and why "Continue" is blocked.
+ */
+export function getAgreementFieldIssues(values: AgreementFormValues): Array<AgreementFieldIssue> {
+  const errors = validateAgreementDetails(values)
+  const issues: Array<AgreementFieldIssue> = []
+  for (const field of AGREEMENT_FIELDS) {
+    if (!isFieldVisible(field, values)) continue
+    const message = errors[field.key]
+    if (message) issues.push({ key: field.key, label: field.label, message })
+  }
+  return issues
+}

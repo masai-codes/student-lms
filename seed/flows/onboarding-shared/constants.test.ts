@@ -4,6 +4,7 @@ import {
   flowScopedBatchName,
   flowScopedEmail,
   flowScopedLectureTitle,
+  flowScopedUsername,
   ONBOARDING_LMS_APP_VIDEO_URL,
   ONBOARDING_LMS_WEB_VIDEO_URL,
   resolveSectionVideos,
@@ -21,6 +22,9 @@ describe('onboarding constants', () => {
     )
     expect(flowScopedLectureTitle('onboarding-complete', 'Intro')).toBe(
       'Intro [onboarding-complete]',
+    )
+    expect(flowScopedUsername('onboarding-fees-paid', 'student')).toBe(
+      'onboarding-fees-paid-student',
     )
   })
 
