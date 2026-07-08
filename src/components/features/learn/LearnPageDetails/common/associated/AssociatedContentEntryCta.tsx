@@ -10,6 +10,7 @@ import { useViewportBottomInset } from './useViewportBottomInset'
 
 import type { LearnAssociatedListItem } from '@/server/learn/learnAssociatedTypes'
 import { cn } from '@/lib/utils'
+import { pushLearnEvent } from '@/components/features/learn/shared/learnAnalytics'
 
 type AssociatedContentEntryCtaProps = {
   items: Array<LearnAssociatedListItem>
@@ -38,7 +39,12 @@ export function AssociatedContentEntryCta({
     <>
       <button
         type="button"
-        onClick={() => setDrawerOpen(true)}
+        onClick={() => {
+          pushLearnEvent('l_learn_associated_drawer_open', {
+            item_count: items.length,
+          })
+          setDrawerOpen(true)
+        }}
         className={cn(
           'flex w-full items-center justify-between gap-3 rounded-xl border border-gray-200 bg-white p-4 text-left shadow-sm transition-colors hover:bg-gray-50',
           className,

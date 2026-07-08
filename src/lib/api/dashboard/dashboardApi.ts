@@ -1,113 +1,21 @@
-import { fetchJson } from '@/lib/api/fetchJson'
-import { DASHBOARD_API } from '@/lib/api/dashboardPaths'
-import type { T0FlowStatus } from '@/server/api/dashboard/getT0FlowStatus.service'
-import type { WelcomeModalStatus } from '@/server/api/dashboard/getWelcomeModalStatus.service'
-import type { PaymentBannerInfo } from '@/server/api/dashboard/getPaymentBannerInfo.service'
-
-export async function fetchPaymentBannerInfo(): Promise<PaymentBannerInfo | null> {
-  const { paymentBanner } = await fetchJson<{ paymentBanner: PaymentBannerInfo | null }>(DASHBOARD_API.paymentBanner)
-  return paymentBanner
-}
+import type { DashboardOverview } from '@/server/api/dashboard/getDashboardOverview.service'
 import type { T0FlowLecturesResult } from '@/server/api/dashboard/getT0FlowLectures.service'
-import type { NpsFormData } from '@/server/api/dashboard/getNpsForm.service'
-import type { NpsSubmissionResult } from '@/server/api/dashboard/createNpsSubmission.service'
-import type { AssessLinkResult } from '@/server/api/dashboard/getAssessLink.service'
-import type { AgreementDataResponse } from '@/server/api/dashboard/getAgreementData.service'
-import type { NpsQuestionAnswer } from '@/server/api/dashboard/submitNpsForm.service'
-import type { AgreementDetailsData } from '@/server/api/dashboard/saveAgreementDetails.service'
-import type { DashboardAnnouncementItem } from '@/server/api/dashboard/getDashboardAnnouncements.service'
-import type { DashboardProductUpdateItem } from '@/server/api/dashboard/getProductUpdates.service'
-import type { DashboardScheduleItem } from '@/server/dashboard/getDashboardScheduleData'
-import type { DashboardBannerItem } from '@/server/api/dashboard/getDashboardBanners.service'
-import type { DashboardActionBannersResult } from '@/server/api/dashboard/getDashboardActionBanners.service'
-import type { LmsSupportInfo } from '@/server/api/dashboard/getLmsSupportInfo.service'
-import type { BatchAttendance } from '@/server/api/dashboard/getDashboardAttendance.service'
 import type { NavbarPillEvent } from '@/server/api/dashboard/getNavbarPill.service'
-import type { EnrolledBatch } from '@/server/learn/types'
+import type { T0FlowDocumentsStatus } from '@/server/api/dashboard/getT0FlowDocuments.service'
+import type { UploadProfilePhotoResult } from '@/server/api/dashboard/uploadProfilePhoto.service'
+import type { AgreementFormValues } from '@/server/api/dashboard/agreement/agreementShared'
+import type { SaveAgreementResult } from '@/server/api/dashboard/agreement/saveAgreementDetails.service'
+import type { SubmitAgreementResult } from '@/server/api/dashboard/agreement/submitAgreement.service'
+import { DASHBOARD_API } from '@/lib/api/dashboardPaths'
+import { fetchJson } from '@/lib/api/fetchJson'
 
-export interface DashboardRightSectionData {
-  announcements: Array<DashboardAnnouncementItem>
-  productUpdates: Array<DashboardProductUpdateItem>
-  lmsSupport: LmsSupportInfo
-  attendance: Array<BatchAttendance>
-  batches: Array<EnrolledBatch>
-  announcementUnreadCount: number
-}
-
-export async function fetchDashboardRightSection(): Promise<DashboardRightSectionData> {
-  return fetchJson<DashboardRightSectionData>(DASHBOARD_API.rightSection)
-}
-
-export interface DashboardLeftSectionData {
-  schedule: Array<DashboardScheduleItem>
-  banners: Array<DashboardBannerItem>
-  actionBanners: DashboardActionBannersResult
-  pendingTasksCount: number
-}
-
-export async function fetchDashboardLeftSection(): Promise<DashboardLeftSectionData> {
-  return fetchJson<DashboardLeftSectionData>(DASHBOARD_API.leftSection)
-}
-
-type GetAnnouncementsResponse = { announcements: Array<DashboardAnnouncementItem> }
-type GetProductUpdatesResponse = { productUpdates: Array<DashboardProductUpdateItem> }
-type GetScheduleResponse = { schedule: Array<DashboardScheduleItem> }
-type GetBannersResponse = { banners: Array<DashboardBannerItem> }
-
-export async function fetchDashboardAnnouncements(): Promise<
-  Array<DashboardAnnouncementItem>
-> {
-  const { announcements } = await fetchJson<GetAnnouncementsResponse>(
-    DASHBOARD_API.announcements,
-  )
-  return announcements
-}
-
-export async function fetchProductUpdates(): Promise<
-  Array<DashboardProductUpdateItem>
-> {
-  const { productUpdates } = await fetchJson<GetProductUpdatesResponse>(
-    DASHBOARD_API.productUpdates,
-  )
-  return productUpdates
-}
-
-export async function fetchDashboardSchedule(): Promise<
-  Array<DashboardScheduleItem>
-> {
-  const { schedule } = await fetchJson<GetScheduleResponse>(
-    DASHBOARD_API.schedule,
-  )
-  return schedule
-}
-
-export async function fetchDashboardBanners(): Promise<
-  Array<DashboardBannerItem>
-> {
-  const { banners } = await fetchJson<GetBannersResponse>(
-    DASHBOARD_API.banners,
-  )
-  return banners
-}
-
-export async function fetchDashboardActionBanners(): Promise<DashboardActionBannersResult> {
-  return fetchJson<DashboardActionBannersResult>(DASHBOARD_API.actionBanners)
-}
-
-export async function fetchDashboardPendingTasks(): Promise<
-  Array<DashboardScheduleItem>
-> {
-  const { pendingTasks } = await fetchJson<{ pendingTasks: Array<DashboardScheduleItem> }>(
-    DASHBOARD_API.pendingTasks,
-  )
-  return pendingTasks
-}
-
-export async function fetchDashboardAttendance(): Promise<Array<BatchAttendance>> {
-  const { attendance } = await fetchJson<{ attendance: Array<BatchAttendance> }>(
-    DASHBOARD_API.attendance,
-  )
-  return attendance
+/**
+ * Single consolidated payload for the dashboard — includes the T0 welcome-modal
+ * status, guided-tour status, and the primary batch's tour lectures, so the
+ * dashboard loads with one GET instead of several.
+ */
+export async function fetchDashboardOverview(): Promise<DashboardOverview> {
+  return fetchJson<DashboardOverview>(DASHBOARD_API.overview)
 }
 
 export async function fetchNavbarPillEvent(): Promise<NavbarPillEvent | null> {
@@ -115,136 +23,58 @@ export async function fetchNavbarPillEvent(): Promise<NavbarPillEvent | null> {
   return event
 }
 
-export async function fetchLmsSupportInfo(): Promise<LmsSupportInfo> {
-  const { lmsSupport } = await fetchJson<{ lmsSupport: LmsSupportInfo }>(
-    DASHBOARD_API.lmsSupport,
-  )
-  return lmsSupport
-}
-
-export async function fetchNpsForm(formId: number): Promise<NpsFormData> {
-  return fetchJson<NpsFormData>(DASHBOARD_API.npsForm(formId))
-}
-
-export async function startNpsSubmission(formId: number): Promise<NpsSubmissionResult> {
-  return fetchJson<NpsSubmissionResult>(DASHBOARD_API.npsFormStart(formId), {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({}),
-  })
-}
-
-export async function saveNpsResponse(
-  formId: number,
-  submissionId: number,
-  questionId: number,
-  response: unknown,
-): Promise<void> {
-  await fetchJson<{ success: boolean }>(DASHBOARD_API.npsFormResponse(formId), {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ submissionId, questionId, response }),
-  })
-}
-
-export async function completeNpsSubmission(formId: number, submissionId: number): Promise<void> {
-  await fetchJson<{ success: boolean }>(DASHBOARD_API.npsFormComplete(formId), {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ submissionId }),
-  })
-}
-
-export async function fetchAssessLink(formId: number): Promise<AssessLinkResult> {
-  return fetchJson<AssessLinkResult>(DASHBOARD_API.assessNpsLink(formId))
-}
-
-export async function fetchAgreementData(sectionId: number): Promise<AgreementDataResponse> {
-  return fetchJson<AgreementDataResponse>(DASHBOARD_API.agreement(sectionId))
-}
-
-export async function recordAgreementOpen(sectionId: number): Promise<void> {
-  await fetchJson<{ success: boolean }>(DASHBOARD_API.agreementOpen(sectionId), {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({}),
-  })
-}
-
-export async function saveAgreementDetails(
-  sectionId: number,
-  data: AgreementDetailsData,
-): Promise<{ ipAddress: string; referenceNumber: string }> {
-  const res = await fetchJson<{ success: boolean; ipAddress: string; referenceNumber: string }>(
-    DASHBOARD_API.agreementDetails(sectionId),
-    {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ data }),
-    },
-  )
-  return { ipAddress: res.ipAddress, referenceNumber: res.referenceNumber }
-}
-
-export async function recordAgreementStep(sectionId: number, stepKey: string): Promise<void> {
-  await fetchJson<{ success: boolean }>(DASHBOARD_API.agreementStep(sectionId), {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ stepKey }),
-  })
-}
-
-export async function submitAgreement(sectionId: number): Promise<void> {
-  await fetchJson<{ success: boolean }>(DASHBOARD_API.agreementSubmit(sectionId), {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({}),
-  })
-}
-
-export async function dismissAgreement(sectionId: number): Promise<void> {
-  await fetchJson<{ success: boolean }>(DASHBOARD_API.agreementDismiss(sectionId), {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({}),
-  })
-}
-
-export async function submitNpsFormAnswers(
-  formId: number,
-  answers: Array<NpsQuestionAnswer>,
-): Promise<{ submissionId: number }> {
-  return fetchJson<{ submissionId: number }>(DASHBOARD_API.npsForm(formId), {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ answers }),
-  })
-}
-
-export async function fetchT0FlowStatus(): Promise<T0FlowStatus> {
-  return fetchJson<T0FlowStatus>(DASHBOARD_API.t0FlowStatus)
-}
-
-export async function fetchT0FlowStudentStatus(batchId: number) {
-  return fetchJson<import('@/server/api/dashboard/getT0FlowStudentStatus.service').T0FlowStudentStatusResult>(
-    `${DASHBOARD_API.t0FlowStudentStatus}?batchId=${batchId}`
-  )
-}
-
-export async function fetchT0FlowLectures(batchId?: number): Promise<T0FlowLecturesResult> {
-  const url = batchId ? `${DASHBOARD_API.t0FlowLectures}?batchId=${batchId}` : DASHBOARD_API.t0FlowLectures
-  return fetchJson<T0FlowLecturesResult>(url)
-}
-
-export async function fetchWelcomeModalStatus(): Promise<WelcomeModalStatus> {
-  return fetchJson<WelcomeModalStatus>(DASHBOARD_API.welcomeModalStatus)
-}
-
 export async function dismissWelcomeModalApi(): Promise<void> {
   await fetchJson<{ success: boolean }>(DASHBOARD_API.welcomeModalDismiss, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({}),
+  })
+}
+
+/** On-demand document-upload status for a batch (hits the external admissions API). */
+export async function fetchT0FlowDocuments(batchId: number): Promise<T0FlowDocumentsStatus> {
+  return fetchJson<T0FlowDocumentsStatus>(`${DASHBOARD_API.t0FlowDocuments}?batchId=${batchId}`)
+}
+
+/** Fetches a non-primary batch's guided-tour lectures (the primary batch's come from the overview). */
+export async function fetchT0FlowLectures(batchId?: number): Promise<T0FlowLecturesResult> {
+  const url = batchId ? `${DASHBOARD_API.t0FlowLectures}?batchId=${batchId}` : DASHBOARD_API.t0FlowLectures
+  return fetchJson<T0FlowLecturesResult>(url)
+}
+
+export async function uploadProfilePhoto(image: string): Promise<UploadProfilePhotoResult> {
+  return fetchJson<UploadProfilePhotoResult>(DASHBOARD_API.profilePhoto, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ image }),
+  })
+}
+
+export async function saveAgreementDetailsApi(
+  sectionId: number,
+  values: AgreementFormValues,
+): Promise<SaveAgreementResult> {
+  return fetchJson<SaveAgreementResult>(DASHBOARD_API.agreementSave, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ sectionId, values }),
+  })
+}
+
+export async function submitAgreementApi(sectionId: number): Promise<SubmitAgreementResult> {
+  return fetchJson<SubmitAgreementResult>(DASHBOARD_API.agreementSubmit, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ sectionId }),
+  })
+}
+
+/** Stamps the agreement's first-view time (starts the review countdown). Idempotent. */
+export async function recordAgreementViewedApi(sectionId: number): Promise<{ viewTime: string }> {
+  return fetchJson<{ viewTime: string }>(DASHBOARD_API.agreementView, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ sectionId }),
   })
 }
 

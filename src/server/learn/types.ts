@@ -40,6 +40,8 @@ export interface LearnListingCardCtas {
   joinLive: LearnListingJoinLiveState
   showAttendance: boolean
   assignmentStatusChip: AssignmentListingStatusChip
+  /** "N days/hours remaining" until an assignment deadline; null otherwise. */
+  assignmentDeadlineLabel: string | null
 }
 
 export type LearnSchedulePhaseFilter = 'all' | 'upcoming' | 'past'
@@ -174,6 +176,19 @@ export type {
   VideoLecturePhase,
 } from '@/server/learn/lectureDetailTypes'
 
+/**
+ * Backend-computed ban restriction for a detail page. The frontend renders the
+ * matching gated UI purely from this flag — it never derives the ban itself.
+ * - `page`: normal batch ban — block the whole page (content scheduled after the
+ *   ban date in a batch the user is normal-banned in).
+ * - `recording`: agreement ban — block only the lecture recording player.
+ * - `practice`: agreement ban — block only the practice-assignment attempt.
+ */
+export type LearnBanRestriction =
+  | { kind: 'page' }
+  | { kind: 'recording' }
+  | { kind: 'practice' }
+
 export interface LearnHubDetailPayload {
   id: number
   title: string
@@ -184,4 +199,6 @@ export interface LearnHubDetailPayload {
   tags: Array<string>
   /** Loaded with the detail response (student-visible discussions only). */
   discussions: Array<DiscussionListItem>
+  /** Set when the signed-in user is batch-banned from (part of) this content. */
+  banRestriction?: LearnBanRestriction | null
 }

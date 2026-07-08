@@ -135,6 +135,46 @@ export function formatTimeRangeIST(
 }
 
 /**
+ * Schedule range for a card: the viewer's local time with a leading start date,
+ * e.g. "2 Jul, 6:30 PM - 7:30 PM (IST)" (an IST device shows "(IST)"; others
+ * show their own tz). Pair with {@link formatScheduleRangeIST} for the hover
+ * tooltip. Cross-day ranges include the end date too.
+ */
+export function formatScheduleRangeLocal(
+  scheduleIST: string | null,
+  concludesIST: string | null | undefined,
+): string {
+  const start = parseMysqlDatetimeIST(scheduleIST)
+  if (!start) return ''
+  const startLocal = toLocalDayjs(start)
+  const tz = getTzLabel()
+  const end = concludesIST ? parseMysqlDatetimeIST(concludesIST) : null
+  const startLabel = `${formatShortDateLocal(startLocal)}, ${formatHourLocal(startLocal)}`
+  if (!end) return `${startLabel} (${tz})`
+  const endLocal = toLocalDayjs(end)
+  if (startLocal.isSame(endLocal, 'day')) {
+    return `${startLabel} - ${formatHourLocal(endLocal)} (${tz})`
+  }
+  return `${startLabel} - ${formatShortDateLocal(endLocal)}, ${formatHourLocal(endLocal)} (${tz})`
+}
+
+/** Same as {@link formatScheduleRangeLocal} but always in IST — for tooltips. */
+export function formatScheduleRangeIST(
+  scheduleIST: string | null,
+  concludesIST: string | null | undefined,
+): string {
+  const start = parseMysqlDatetimeIST(scheduleIST)
+  if (!start) return ''
+  const end = concludesIST ? parseMysqlDatetimeIST(concludesIST) : null
+  const startLabel = `${formatShortDateIST(start)}, ${formatHourIST(start)}`
+  if (!end) return `${startLabel} (IST)`
+  if (start.isSame(end, 'day')) {
+    return `${startLabel} - ${formatHourIST(end)} (IST)`
+  }
+  return `${startLabel} - ${formatShortDateIST(end)}, ${formatHourIST(end)} (IST)`
+}
+
+/**
  * Format a single timestamp in the user's device-local timezone.
  */
 export function formatTimestampLocal(raw: string): string {

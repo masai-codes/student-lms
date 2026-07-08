@@ -2,6 +2,7 @@ import { X } from 'lucide-react'
 
 import type { LearnModalFiltersState } from '../shared/types'
 
+import { pushLearnEvent } from '../shared/learnAnalytics'
 import { MasaiChips } from '@/components/ui/masai-chips'
 import { buildAppliedLearnFilterChips } from '@/lib/learn/learnPageSearch'
 
@@ -35,7 +36,10 @@ export function LearnAppliedFilters({
           size="regular"
           label={chip.label}
           icon={<X className="size-3.5" aria-hidden />}
-          onClick={() => onChange(chip.next)}
+          onClick={() => {
+            pushLearnEvent('l_learn_filter_remove', { filter: chip.id })
+            onChange(chip.next)
+          }}
           aria-label={`Remove filter: ${chip.label}`}
           backgroundClassName="bg-gray-50 border border-gray-200 hover:bg-gray-100"
           textClassName="!text-gray-700"
@@ -44,7 +48,10 @@ export function LearnAppliedFilters({
 
       <button
         type="button"
-        onClick={onClearAll}
+        onClick={() => {
+          pushLearnEvent('l_learn_filters_clear_all')
+          onClearAll()
+        }}
         className="type-b3-md px-1 text-primary-500 hover:underline"
       >
         Clear all

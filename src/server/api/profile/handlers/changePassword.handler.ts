@@ -1,5 +1,9 @@
 import { isApiError } from '@/server/api/http/apiError'
-import { jsonOk, jsonError, mapThrownErrorToResponse } from '@/server/api/http/responses'
+import {
+  jsonOk,
+  jsonError,
+  mapThrownErrorToResponse,
+} from '@/server/api/http/responses'
 import { requireSessionUserId } from '@/server/api/http/requireSessionUser'
 import { changePassword } from '@/server/api/profile/changePassword.service'
 
@@ -11,16 +15,25 @@ const ERROR_MAP: Record<string, [number, string]> = {
   USER_NOT_FOUND: [404, 'User not found.'],
 }
 
-export async function handleChangePassword(request: Request): Promise<Response> {
+export async function handleChangePassword(
+  request: Request,
+): Promise<Response> {
   try {
-    const userId = await requireSessionUserId(request)
+    const userId = await requireSessionUserId()
     const body = (await request.json()) as Record<string, unknown>
 
-    const currentPassword = typeof body.currentPassword === 'string' ? body.currentPassword : ''
-    const newPassword = typeof body.newPassword === 'string' ? body.newPassword : ''
-    const confirmPassword = typeof body.confirmPassword === 'string' ? body.confirmPassword : ''
+    const currentPassword =
+      typeof body.currentPassword === 'string' ? body.currentPassword : ''
+    const newPassword =
+      typeof body.newPassword === 'string' ? body.newPassword : ''
+    const confirmPassword =
+      typeof body.confirmPassword === 'string' ? body.confirmPassword : ''
 
-    await changePassword(userId, { currentPassword, newPassword, confirmPassword })
+    await changePassword(userId, {
+      currentPassword,
+      newPassword,
+      confirmPassword,
+    })
     return jsonOk({ success: true })
   } catch (error) {
     if (error instanceof Error) {
@@ -29,7 +42,9 @@ export async function handleChangePassword(request: Request): Promise<Response> 
     }
     if (!isApiError(error)) {
       console.error('Failed to change password', error)
-      return mapThrownErrorToResponse(new Error('SERVER_ERROR_CHANGING_PASSWORD'))
+      return mapThrownErrorToResponse(
+        new Error('SERVER_ERROR_CHANGING_PASSWORD'),
+      )
     }
     return mapThrownErrorToResponse(error)
   }

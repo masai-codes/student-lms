@@ -1,6 +1,7 @@
 # Lecture detail page
 
 ## Scope
+
 - Route: `/lectures/$lectureId`
 - Live lecture phases: before start, during live, after live (with / without recording)
 - Video lecture phases: `before`, `during_after` (with / without recording)
@@ -12,6 +13,7 @@
 - Feedback: `LectureFeedbackForm` (1–5 stars + text) rendered above the tabs. Payload carries `feedback: { canSubmit, rating, text }`. Window opens `schedule + 15min`, closes `concludes + 24h`, gated by `settings.show_feedback`; enforced again server-side on submit. Closed window with an existing rating shows a read-only summary; closed + unrated renders nothing.
 
 ## Test files
+
 - `src/components/features/learn/LearnPageDetails/lecture/constants/__tests__/lectureSplitLayout.test.ts` — desktop chat opens at clamped width; collapsed by default
 - `src/components/features/learn/LearnPageDetails/lecture/hooks/__tests__/useLectureSplitChatOpen.test.ts` — nudge/sidebar open state + localStorage persistence
 - `src/components/features/learn/LearnPageDetails/lecture/video/controls/__tests__/LectureVideoAskAiPill.test.tsx` — Ask pill in video controls
@@ -52,6 +54,7 @@
 - `src/components/features/learn/LearnPageDetails/lecture/live/utils/__tests__/resolveJoinLiveButtonState.test.ts`
 
 ## Lecture discussions UI
+
 - `LectureDiscussionsSection` — title + description composer, inline discussion list with expand/collapse replies
 - `LectureDiscussionCreateForm`, `LectureDiscussionListItem`, `LectureDiscussionReplyForm`
 - Mutations call REST clients `createLearnDiscussionViaApi` / `addLearnDiscussionReplyViaApi` (`src/lib/api/learn/discussionsApi.ts`)
@@ -63,5 +66,6 @@
 - `src/lib/api/learn/__tests__/discussionsApi.test.ts` — discussion REST client wrappers
 
 ## Commands
+
 - `npm run test -- src/server/learn`
 - `npm run test -- src/components/features/learn/LearnPageDetails/lecture/live/utils`

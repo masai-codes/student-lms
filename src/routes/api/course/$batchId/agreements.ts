@@ -4,7 +4,7 @@ import { handleGetCourseAgreements } from '@/server/api/course/handlers/getCours
 export const Route = createFileRoute('/api/course/$batchId/agreements')({
   server: {
     handlers: {
-      GET: ({ request, params }) => handleGetCourseAgreements(request, Number(params.batchId)),
+      GET: ({ params }) => handleGetCourseAgreements(Number(params.batchId)),
     },
   },
 })

@@ -1,13 +1,15 @@
 import { createServerFn } from '@tanstack/react-start'
 
 import type { VideoAttendanceIntervalsData } from '@/server/video-attendance/types'
-import { getCurrentSessionUserId } from '@/server/auth/getCurrentSessionUserId'
+import { getCurrentUserId } from '@/server/auth/getCurrentSessionUserId'
 import { fetchVideoAttendanceIntervals } from '@/server/video-attendance/services/fetchVideoAttendanceIntervals'
 
-export const getLectureVideoAttendanceIntervals = createServerFn({ method: 'GET' })
+export const getLectureVideoAttendanceIntervals = createServerFn({
+  method: 'GET',
+})
   .inputValidator((data: { lectureId: number }) => data)
   .handler(async ({ data }): Promise<VideoAttendanceIntervalsData | null> => {
-    const userId = await getCurrentSessionUserId()
+    const userId = await getCurrentUserId()
     if (!userId) throw new Error('UNAUTHORIZED')
     return fetchVideoAttendanceIntervals(data.lectureId)
   })

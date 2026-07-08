@@ -5,7 +5,7 @@ import { handleGetAiTutorLimit } from '@/server/api/ai-tutor/handlers/getLimit.h
 export const Route = createFileRoute('/api/learn/ai-tutor/limit')({
   server: {
     handlers: {
-      GET: ({ request }) => handleGetAiTutorLimit(request),
+      GET: () => handleGetAiTutorLimit(),
     },
   },
 })

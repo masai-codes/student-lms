@@ -7,11 +7,10 @@ import {
 } from '@/server/learn/services/learnEntityBookmark.service'
 
 export async function handleAddLectureBookmark(
-  request: Request,
   lectureIdParam: string,
 ): Promise<Response> {
   try {
-    const userId = await requireSessionUserId(request)
+    const userId = await requireSessionUserId()
     const lectureId = parsePositiveIdParam(lectureIdParam, 'INVALID_LECTURE_ID')
     await addLearnEntityBookmark(userId, 'lecture', lectureId)
     return jsonOk({ isBookmarked: true })
@@ -21,11 +20,10 @@ export async function handleAddLectureBookmark(
 }
 
 export async function handleRemoveLectureBookmark(
-  request: Request,
   lectureIdParam: string,
 ): Promise<Response> {
   try {
-    const userId = await requireSessionUserId(request)
+    const userId = await requireSessionUserId()
     const lectureId = parsePositiveIdParam(lectureIdParam, 'INVALID_LECTURE_ID')
     await removeLearnEntityBookmark(userId, 'lecture', lectureId)
     return jsonOk({ isBookmarked: false })

@@ -143,8 +143,7 @@ function buildNotices(
   const startedAfterDeadline =
     context.submission?.startedAt != null &&
     toTimestamp(context.concludes) != null &&
-    toTimestamp(context.submission.startedAt)! >
-      toTimestamp(context.concludes)!
+    toTimestamp(context.submission.startedAt)! > toTimestamp(context.concludes)!
 
   if (
     showPractice &&
@@ -211,9 +210,7 @@ export function buildAssignmentDetailFooter(
   }
 
   const actions =
-    context.problemCount === 0
-      ? buildAssignmentFooterActions(actionsInput)
-      : []
+    context.problemCount === 0 ? buildAssignmentFooterActions(actionsInput) : []
 
   const assessPlatformLink = readAssessPlatformLink(
     context.submission?.data ?? null,

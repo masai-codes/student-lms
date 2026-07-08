@@ -44,6 +44,7 @@ function createDummyItems(
         joinLive: 'hidden',
         showAttendance: false,
         assignmentStatusChip: null,
+        assignmentDeadlineLabel: null,
       },
       assignmentStatusChip: null,
     }

@@ -4,9 +4,9 @@ import { requireSessionUserId } from '@/server/api/http/requireSessionUser'
 import { getMyClubs } from '@/server/api/masaiverse-v2/services/getMyClubs.service'
 import { canSeeUnpublished } from '@/server/api/masaiverse-v2/services/publishVisibility'
 
-export async function handleGetMyClubs(request: Request): Promise<Response> {
+export async function handleGetMyClubs(): Promise<Response> {
   try {
-    const userId = await requireSessionUserId(request)
+    const userId = await requireSessionUserId()
     const clubs = await getMyClubs(userId, await canSeeUnpublished(userId))
     return jsonOk({ clubs })
   } catch (error) {

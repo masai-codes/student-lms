@@ -6,7 +6,7 @@ import { handleChangePassword } from '@/server/api/profile/handlers/changePasswo
 export const Route = createFileRoute('/api/profile/')({
   server: {
     handlers: {
-      GET: ({ request }) => handleGetProfile(request),
+      GET: () => handleGetProfile(),
       PATCH: ({ request }) => handleUpdateProfile(request),
       POST: ({ request }) => handleChangePassword(request),
     },

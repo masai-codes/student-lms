@@ -9,6 +9,10 @@ import { MasaiButton } from '@/components/ui/masai-button'
 import { Textarea } from '@/components/ui/textarea'
 import { toast } from '@/lib/toast'
 import { cn } from '@/lib/utils'
+import {
+  learnEntityEvent,
+  pushLearnEvent,
+} from '@/components/features/learn/shared/learnAnalytics'
 
 const STARS = [1, 2, 3, 4, 5]
 const MAX_FEEDBACK_LENGTH = 191
@@ -68,6 +72,10 @@ export function LectureFeedbackForm({
 
   const handleSubmit = async () => {
     if (rating < 1 || submitting) return
+    pushLearnEvent(learnEntityEvent('lecture', 'feedback_submit', lectureId), {
+      lecture_id: lectureId,
+      rating,
+    })
     setSubmitting(true)
     try {
       const trimmed = text.trim()

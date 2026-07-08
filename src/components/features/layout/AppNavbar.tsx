@@ -13,6 +13,7 @@ import {
   BriefcaseBusiness,
   Bug,
   CalendarDays,
+  CircleHelp,
   Gift,
   LogOutIcon,
   Megaphone,
@@ -44,6 +45,8 @@ import {
 } from '@/utils/authRedirect'
 import { fetchLevelupSso } from '@/utils/levelupSso'
 import { fetchReferralLmsLoginRedirectUrl } from '@/utils/referralLmsLogin'
+import { getAuthBranding } from '@/utils/authBranding'
+import { isIHubPortal } from '@/utils/portal'
 
 const layoutRouteApi = getRouteApi('/(protected)/_layout')
 
@@ -56,6 +59,11 @@ function profileInitials(name: string) {
 
 const MASAI_LOGO =
   'https://students.masaischool.com/static/media/masai-logo.e5c8801d4f26d2da036ec9e4b93cb202.svg'
+
+/** Portal-aware navbar logo: iHub gets its own mark, everyone else Masai. */
+function navbarLogoSrc(): string {
+  return isIHubPortal() ? getAuthBranding('ihub').logoSrc : MASAI_LOGO
+}
 
 /**
  * Legacy student app (`experience-ui/apps/student-experience`) routes — keep in sync with
@@ -80,6 +88,9 @@ function oldStudentUiLink(
 
 export default function AppNavbar() {
   const { user } = layoutRouteApi.useRouteContext()
+  // iHub portal hides Masai-only surfaces (MasaiVerse, Refer & Earn, Practice
+  // Interviews, LevelUp, Download App, chat + guided-tour icons).
+  const isIHub = isIHubPortal()
   const navigate = useNavigate()
   const pathname = useRouterState({ select: (s) => s.location.pathname })
   const activeNavId = activeAppNavIdForPathname(pathname)
@@ -119,7 +130,8 @@ export default function AppNavbar() {
   // dropdown. Otherwise the nav keeps "Refer & Earn" and the dropdown keeps
   // "MasaiVerse Community" as-is.
   const showMasaiverseCta =
-    user.role === 'admin' || masaiverseAccess?.canShowMasaiverse === true
+    !isIHub &&
+    (user.role === 'admin' || masaiverseAccess?.canShowMasaiverse === true)
 
   const handleLevelupClick = useCallback(
     async (e: React.MouseEvent<HTMLAnchorElement>) => {
@@ -167,6 +179,16 @@ export default function AppNavbar() {
     (e: React.MouseEvent<HTMLAnchorElement>) => {
       e.preventDefault()
       void navigate({ to: '/' })
+    },
+    [navigate],
+  )
+
+  // Opens the onboarding guided tour on the dashboard — works from any page and
+  // regardless of whether onboarding is already complete.
+  const handleGuidedTourClick = useCallback(
+    (e: React.MouseEvent<HTMLAnchorElement>) => {
+      e.preventDefault()
+      void navigate({ to: '/', search: { guidedTour: 'open' } })
     },
     [navigate],
   )
@@ -225,38 +247,49 @@ export default function AppNavbar() {
       label: 'Discussions',
       ...oldStudentUiLink(OLD_STUDENT_UI_NAV_PATHS.discussions),
     },
-    showMasaiverseCta
-      ? {
-          id: 'masaiverse-nav',
-          label: 'MasaiVerse Community',
-          href: '/masaiverse',
-          openInNewTab: false,
-          isActive: activeNavId === 'masaiverse',
-        }
-      : {
-          id: 'refer',
-          label: 'Refer & Earn',
-          href: '#',
-          openInNewTab: false,
-          onClick: handleReferAndEarnClick,
-        },
+    // iHub hides the MasaiVerse CTA and the Refer & Earn (changemakers) link
+    // entirely; Masai keeps the existing either/or behaviour.
+    ...(isIHub
+      ? []
+      : [
+          showMasaiverseCta
+            ? {
+                id: 'masaiverse-nav',
+                label: 'MasaiVerse Community',
+                href: '/masaiverse',
+                openInNewTab: false,
+                isActive: activeNavId === 'masaiverse',
+              }
+            : {
+                id: 'refer',
+                label: 'Refer & Earn',
+                href: '#',
+                openInNewTab: false,
+                onClick: handleReferAndEarnClick,
+              },
+        ]),
   ]
 
   const trailingActions: Array<NavbarActionItem> = useMemo(
     () => [
-      {
-        id: 'download-app',
-        type: 'image',
-        src: 'https://students.masaischool.com/static/media/download-app.394dce64e9e436e88052.png',
-        alt: 'Download app',
-        tooltip: 'Download App',
-        href: '#',
-        imageClassName: 'h-[40px]',
-        onClick: (e) => {
-          e.preventDefault()
-          setDownloadAppOpen(true)
-        },
-      },
+      // Download App, Chat and the guided-tour icon are Masai-only.
+      ...(isIHub
+        ? []
+        : [
+            {
+              id: 'download-app',
+              type: 'image' as const,
+              src: 'https://students.masaischool.com/static/media/download-app.394dce64e9e436e88052.png',
+              alt: 'Download app',
+              tooltip: 'Download App',
+              href: '#',
+              imageClassName: 'h-[40px]',
+              onClick: (e: React.MouseEvent<HTMLAnchorElement>) => {
+                e.preventDefault()
+                setDownloadAppOpen(true)
+              },
+            },
+          ]),
       {
         id: 'calendar',
         type: 'icon',
@@ -264,13 +297,27 @@ export default function AppNavbar() {
         ariaLabel: 'Calendar',
         ...oldStudentUiLink(OLD_STUDENT_UI_NAV_PATHS.calendar),
       },
-      {
-        id: 'chat',
-        type: 'icon',
-        icon: <MessagesSquare className="size-7" />,
-        ariaLabel: 'Chat',
-        ...oldStudentUiLink(OLD_STUDENT_UI_NAV_PATHS.chat),
-      },
+      ...(isIHub
+        ? []
+        : [
+            {
+              id: 'chat',
+              type: 'icon' as const,
+              icon: <MessagesSquare className="size-7" />,
+              ariaLabel: 'Chat',
+              ...oldStudentUiLink(OLD_STUDENT_UI_NAV_PATHS.chat),
+            },
+            {
+              id: 'guided-tour',
+              type: 'icon' as const,
+              icon: <CircleHelp className="size-7" />,
+              ariaLabel: 'Onboarding steps',
+              tooltip: 'Onboarding steps',
+              href: '/',
+              openInNewTab: false,
+              onClick: handleGuidedTourClick,
+            },
+          ]),
       {
         id: 'announcements',
         type: 'icon',
@@ -282,7 +329,7 @@ export default function AppNavbar() {
         onClick: handleAnnouncementsClick,
       },
     ],
-    [handleAnnouncementsClick, unreadCount],
+    [handleAnnouncementsClick, handleGuidedTourClick, isIHub, unreadCount],
   )
 
   const profileMenuItems: Array<NavbarProfileMenuItem> = useMemo(
@@ -308,29 +355,35 @@ export default function AppNavbar() {
         href: '/bookmarks',
         openInNewTab: false,
       },
-      showMasaiverseCta
-        ? {
-            id: 'refer-menu',
-            label: 'Refer & Earn',
-            icon: <Gift className="size-4" />,
-            href: '#',
-            openInNewTab: false,
-            onClick: handleReferAndEarnClick,
-          }
-        : {
-            id: 'masaiverse-menu',
-            label: 'MasaiVerse Community',
-            icon: <Users className="size-4" />,
-            href: '/masaiverse',
-            openInNewTab: false,
-            isActive: activeNavId === 'masaiverse',
-          },
-      {
-        id: 'practice-interview',
-        label: 'Practice Interviews',
-        icon: <BriefcaseBusiness className="size-4" />,
-        ...oldStudentUiLink('/practice-interview'),
-      },
+      // MasaiVerse Community / Refer & Earn and Practice Interviews are
+      // Masai-only and dropped from the iHub profile menu.
+      ...(isIHub
+        ? []
+        : [
+            showMasaiverseCta
+              ? {
+                  id: 'refer-menu',
+                  label: 'Refer & Earn',
+                  icon: <Gift className="size-4" />,
+                  href: '#',
+                  openInNewTab: false,
+                  onClick: handleReferAndEarnClick,
+                }
+              : {
+                  id: 'masaiverse-menu',
+                  label: 'MasaiVerse Community',
+                  icon: <Users className="size-4" />,
+                  href: '/masaiverse',
+                  openInNewTab: false,
+                  isActive: activeNavId === 'masaiverse',
+                },
+            {
+              id: 'practice-interview',
+              label: 'Practice Interviews',
+              icon: <BriefcaseBusiness className="size-4" />,
+              ...oldStudentUiLink('/practice-interview'),
+            },
+          ]),
       {
         id: 'report-bug',
         label: 'Report a Bug',
@@ -338,21 +391,26 @@ export default function AppNavbar() {
         openInNewTab: true,
         icon: <Bug className="size-4" />,
       },
-      {
-        id: 'levelup',
-        label: isLevelupLoading ? 'Opening Level up...' : 'Level up',
-        icon: (
-          <span className="flex size-4 shrink-0 items-center justify-center text-[#6B7280]">
-            <LevelUpIcon width={18} height={14} color="currentColor" />
-          </span>
-        ),
-        href: '#',
-        openInNewTab: false,
-        title:
-          'LevelUp - Is our placement platform. You can only access this if you are onboarded in Masai Placement Process',
-        onClick: handleLevelupClick,
-        disabled: isLevelupLoading,
-      },
+      // LevelUp is the Masai placement platform — hidden on iHub.
+      ...(isIHub
+        ? []
+        : [
+            {
+              id: 'levelup',
+              label: isLevelupLoading ? 'Opening Level up...' : 'Level up',
+              icon: (
+                <span className="flex size-4 shrink-0 items-center justify-center text-[#6B7280]">
+                  <LevelUpIcon width={18} height={14} color="currentColor" />
+                </span>
+              ),
+              href: '#',
+              openInNewTab: false,
+              title:
+                'LevelUp - Is our placement platform. You can only access this if you are onboarded in Masai Placement Process',
+              onClick: handleLevelupClick,
+              disabled: isLevelupLoading,
+            },
+          ]),
       {
         id: 'sign-out',
         label: 'Sign out',
@@ -368,6 +426,7 @@ export default function AppNavbar() {
       handleLevelupClick,
       handleReferAndEarnClick,
       handleSignOut,
+      isIHub,
       isLevelupLoading,
       showMasaiverseCta,
     ],
@@ -389,8 +448,8 @@ export default function AppNavbar() {
       <Navbar
         className="z-40 max-lg:hidden"
         logo={{
-          src: MASAI_LOGO,
-          alt: 'Masai Logo',
+          src: navbarLogoSrc(),
+          alt: isIHub ? 'iHub Logo' : 'Masai Logo',
           href: '/',
           openInNewTab: false,
           onClick: handleHomeClick,

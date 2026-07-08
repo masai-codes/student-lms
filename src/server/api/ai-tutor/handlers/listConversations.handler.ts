@@ -13,7 +13,7 @@ export async function handleListConversations(
   request: Request,
 ): Promise<Response> {
   try {
-    const userId = await requireSessionUserId(request)
+    const userId = await requireSessionUserId()
     const lectureId = parsePositiveInt(
       new URL(request.url).searchParams.get('lectureId'),
     )

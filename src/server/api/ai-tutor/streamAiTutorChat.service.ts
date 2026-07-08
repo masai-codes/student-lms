@@ -1,11 +1,16 @@
 import { streamText } from 'ai'
+import type { LectureChatMessage } from '@/server/api/ai-tutor/services/buildLectureChatPrompt'
+import type { AiTutorFeedbackPlatform } from '@/server/api/ai-tutor/feedbackPlatform'
+import type { AiTutorChatLanguage } from '@/server/api/ai-tutor/chatLanguage'
 import { getAiTutorChatModel } from '@/server/api/ai-tutor/clients/anthropicModel'
-import { AI_TUTOR_LECTURE_CHAT_SYSTEM_PROMPT } from '@/server/api/ai-tutor/constants'
 import {
   appendChatPracticeHistory,
   findOrCreateChatPracticeRow,
 } from '@/server/api/ai-tutor/services/aiChatPracticeQuestions.service'
-import { buildLectureChatUserPrompt } from '@/server/api/ai-tutor/services/buildLectureChatPrompt'
+import {
+  buildLectureChatMessages,
+  buildLectureChatSystemPrompt,
+} from '@/server/api/ai-tutor/services/buildLectureChatPrompt'
 import { getLectureSummaryForChat } from '@/server/api/ai-tutor/services/lecturesAi.service'
 
 export type ChatStreamEvent =
@@ -17,12 +22,17 @@ export type StreamLectureChatInput = {
   lectureId: number
   chat: string
   chatId?: number
+  platform: AiTutorFeedbackPlatform
+  language: AiTutorChatLanguage
 }
 
 export type LectureChatStreamContext = {
   chatRow: Awaited<ReturnType<typeof findOrCreateChatPracticeRow>>
-  userPrompt: string
+  systemPrompt: string
+  messages: Array<LectureChatMessage>
   chat: string
+  platform: AiTutorFeedbackPlatform
+  language: AiTutorChatLanguage
 }
 
 export async function prepareLectureChatContext(
@@ -36,13 +46,20 @@ export async function prepareLectureChatContext(
 
   const summary = await getLectureSummaryForChat(input.lectureId)
 
-  const userPrompt = buildLectureChatUserPrompt({
-    summary,
+  const systemPrompt = buildLectureChatSystemPrompt(summary, input.language)
+  const messages = buildLectureChatMessages({
     chatHistory: chatRow.chatHistory,
     question: input.chat,
   })
 
-  return { chatRow, userPrompt, chat: input.chat }
+  return {
+    chatRow,
+    systemPrompt,
+    messages,
+    chat: input.chat,
+    platform: input.platform,
+    language: input.language,
+  }
 }
 
 export async function* streamLectureChatEventsFromContext(
@@ -50,8 +67,8 @@ export async function* streamLectureChatEventsFromContext(
 ): AsyncGenerator<ChatStreamEvent> {
   const result = streamText({
     model: getAiTutorChatModel(),
-    system: AI_TUTOR_LECTURE_CHAT_SYSTEM_PROMPT,
-    prompt: context.userPrompt,
+    system: context.systemPrompt,
+    messages: context.messages,
     onError({ error }) {
       console.error('AI tutor Claude stream error', error)
     },
@@ -68,6 +85,8 @@ export async function* streamLectureChatEventsFromContext(
     rowId: context.chatRow.id,
     userMessage: context.chat,
     aiMessage,
+    platform: context.platform,
+    language: context.language,
     existingHistory: context.chatRow.chatHistory,
   })
 

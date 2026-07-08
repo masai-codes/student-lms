@@ -5,7 +5,7 @@ import { deleteMasaiverseBanner } from '@/server/api/masaiverse-v2/services/dele
 
 export async function handleDeleteBanner(request: Request): Promise<Response> {
   try {
-    const userId = await requireSessionUserId(request)
+    const userId = await requireSessionUserId()
     const body = (await request.json().catch(() => null)) as {
       bannerId?: unknown
     } | null

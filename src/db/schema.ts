@@ -39,6 +39,34 @@ export const prismaMigrations = mysqlTable("_prisma_migrations", {
 	primaryKey({ columns: [table.id], name: "_prisma_migrations_id"}),
 ]);
 
+export const banners = mysqlTable("banners", {
+	id: int({ unsigned: true }).autoincrement().notNull(),
+	type: varchar({ length: 100 }).notNull(),
+	variant: varchar({ length: 100 }),
+	groupName: varchar("group_name", { length: 150 }),
+	title: varchar({ length: 255 }).notNull(),
+	description: text().notNull(),
+	imageUrl: varchar("image_url", { length: 500 }).notNull(),
+	ctaUrl: varchar("cta_url", { length: 500 }).notNull(),
+	visibleTo: json("visible_to").notNull(),
+	isActive: tinyint("is_active").default(1).notNull(),
+	startDate: datetime("start_date", { mode: 'string' }),
+	endDate: datetime("end_date", { mode: 'string' }),
+	data: json(),
+	settings: json(),
+	deletedAt: timestamp("deleted_at", { mode: 'string' }),
+	createdAt: timestamp("created_at", { mode: 'string' }),
+	updatedAt: timestamp("updated_at", { mode: 'string' }),
+},
+(table) => [
+	index("idx_banners_type").on(table.type),
+	index("idx_banners_variant").on(table.variant),
+	index("idx_banners_group_name").on(table.groupName),
+	index("idx_banners_is_active").on(table.isActive),
+	unique("banners_group_name_key").on(table.groupName),
+	primaryKey({ columns: [table.id], name: "banners_id"}),
+]);
+
 export const accessLogs = mysqlTable("access_logs", {
 	id: bigint({ mode: "number", unsigned: true }).autoincrement().notNull(),
 	userId: bigint("user_id", { mode: "number", unsigned: true }).notNull().references(() => users.id),
@@ -270,12 +298,36 @@ export const announcements = mysqlTable("announcements", {
 	schedule: datetime({ mode: 'string'}),
 	concludes: datetime({ mode: 'string'}),
 	settings: json('settings').$type<Record<string, any>>(),
+	trackRead: tinyint("track_read"),
+	showAsPopup: tinyint("show_as_popup").default(0).notNull(),
+	ctaName: varchar("cta_name", { length: 255 }),
+	ctaLink: varchar("cta_link", { length: 255 }),
+	meta: json('meta').$type<Record<string, any>>(),
 	deletedAt: timestamp("deleted_at", { mode: 'string' }),
 	createdAt: timestamp("created_at", { mode: 'string' }),
 	updatedAt: timestamp("updated_at", { mode: 'string' }),
 },
 (table) => [
 	primaryKey({ columns: [table.id], name: "announcements_id"}),
+]);
+
+export const announcementReads = mysqlTable("announcement_reads", {
+	id: bigint({ mode: "number", unsigned: true }).autoincrement().notNull(),
+	announcementId: int("announcement_id", { unsigned: true }).notNull().references(() => announcements.id),
+	userId: bigint("user_id", { mode: "number", unsigned: true }).notNull().references(() => users.id),
+	readAt: datetime("read_at", { mode: 'string'}),
+	isUnread: tinyint("is_unread").default(0).notNull(),
+	popupDisplay: tinyint("popup_display"),
+	meta: json(),
+	createdAt: timestamp("created_at", { mode: 'string' }),
+	updatedAt: timestamp("updated_at", { mode: 'string' }),
+},
+(table) => [
+	index("announcement_reads_user_id_foreign").on(table.userId),
+	index("announcement_reads_announcement_id_foreign").on(table.announcementId),
+	index("announcement_reads_user_id_is_unread_index").on(table.userId, table.isUnread),
+	unique("announcement_reads_announcement_id_user_id_unique").on(table.announcementId, table.userId),
+	primaryKey({ columns: [table.id], name: "announcement_reads_id"}),
 ]);
 
 export const answers = mysqlTable("answers", {
@@ -1645,10 +1697,15 @@ export const messages = mysqlTable("messages", {
 	priority: varchar({ length: 255 }),
 	readAt: datetime("read_at", { mode: 'string'}),
 	meta: json(),
+	showAsPopup: tinyint("show_as_popup").default(0).notNull(),
+	ctaName: varchar("cta_name", { length: 255 }),
+	ctaLink: varchar("cta_link", { length: 255 }),
 	messageId: bigint("message_id", { mode: "number", unsigned: true }),
 	deletedAt: timestamp("deleted_at", { mode: 'string' }),
 	createdAt: timestamp("created_at", { mode: 'string' }),
 	updatedAt: timestamp("updated_at", { mode: 'string' }),
+	schedule: datetime({ mode: 'string'}),
+	concludes: datetime({ mode: 'string'}),
 },
 (table) => [
 	foreignKey({
