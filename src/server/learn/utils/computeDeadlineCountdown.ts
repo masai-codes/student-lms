@@ -4,7 +4,7 @@ import { parseIstToMs } from '@/server/time/istClock'
 export interface DeadlineCountdown {
   /** Milliseconds until the deadline (always > 0 here). Used for urgency sort. */
   totalMs: number
-  /** Display label, e.g. "2 days 3 hours remaining" / "20 minutes remaining". */
+  /** Display label, e.g. "2 days remaining" / "3 hr 20 min remaining". */
   label: string
 }
 

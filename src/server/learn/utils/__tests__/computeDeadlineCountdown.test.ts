@@ -23,12 +23,12 @@ describe('computeDeadlineCountdown', () => {
     )
   })
 
-  it('counts (ceil) hours when under a day', () => {
+  it('shows hr + min when under a day', () => {
     const deadline = at(0)
     expect(
       computeDeadlineCountdown(deadline, new Date(deadline).getTime() - (2 * HOUR + 30 * 60 * 1000))
         ?.label,
-    ).toBe('3 hours remaining')
+    ).toBe('2 hr 30 min remaining')
   })
 
   it('returns null with no deadline or once it has passed', () => {

@@ -38,4 +38,25 @@ describe('resolveJoinLiveButtonState', () => {
       }),
     ).toBe('active')
   })
+
+  it('stays active for 30 minutes after the lecture concludes, then hides', () => {
+    const concludesMs = new Date(concludes).getTime()
+    expect(
+      resolveJoinLiveButtonState({
+        schedule,
+        concludes,
+        nowMs: concludesMs + 20 * 60 * 1000,
+        zoomLink,
+      }),
+    ).toBe('active')
+
+    expect(
+      resolveJoinLiveButtonState({
+        schedule,
+        concludes,
+        nowMs: concludesMs + 31 * 60 * 1000,
+        zoomLink,
+      }),
+    ).toBe('hidden')
+  })
 })

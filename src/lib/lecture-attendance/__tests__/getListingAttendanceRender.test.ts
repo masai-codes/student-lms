@@ -7,6 +7,7 @@ describe('getListingAttendanceRender', () => {
     expect(getListingAttendanceRender(null)).toEqual({
       uiState: null,
       daysRemaining: null,
+      remainingLabel: null,
       showBadge: false,
     })
   })
@@ -20,11 +21,13 @@ describe('getListingAttendanceRender', () => {
         isCatchupWindowOver: true,
         videoPercentage: 0,
         daysRemaining: 0,
+        remainingLabel: null,
         lateByMinutes: null,
       }),
     ).toEqual({
       uiState: 'att_window_over',
       daysRemaining: null,
+      remainingLabel: null,
       showBadge: true,
     })
   })
@@ -38,11 +41,13 @@ describe('getListingAttendanceRender', () => {
         isCatchupWindowOver: null,
         videoPercentage: 100,
         daysRemaining: null,
+        remainingLabel: null,
         lateByMinutes: null,
       }),
     ).toEqual({
       uiState: 'present',
       daysRemaining: null,
+      remainingLabel: null,
       showBadge: true,
     })
   })
