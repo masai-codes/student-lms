@@ -8,17 +8,18 @@ interface AnnouncementPopupModalProps {
   isSubmitting: boolean
   /** "Show me later" / backdrop / escape — close without marking read. */
   onShowLater: () => void
-  /** Primary CTA for popups without a link — mark read. */
+  /** "Mark as read" — always shown; marks the popup read. */
   onMarkRead: () => void
-  /** Link CTA — open the link + mark read. */
+  /** Link CTA — mark read + close, then open the link. */
   onCta: () => void
 }
 
 /**
  * Announcement popup. There's no close (X) — instead a "Show me later" action
  * sits where the close icon would be, and backdrop / escape behave the same:
- * they dismiss without marking read. The single bottom CTA marks the popup read
- * (opening its link first when it has one).
+ * they dismiss without marking read. "Mark as read" is always present so the
+ * popup can always be cleared; when the announcement has a link CTA, that CTA
+ * is shown as well and also marks the popup read.
  */
 export function AnnouncementPopupModal({
   open,
@@ -66,7 +67,7 @@ export function AnnouncementPopupModal({
               <MarkdownContent value={item.body} />
             </div>
 
-            <div className="shrink-0 border-t border-gray-100 px-6 py-4">
+            <div className="flex shrink-0 flex-col gap-2 border-t border-gray-100 px-6 py-4">
               {hasCta ? (
                 <button
                   type="button"
@@ -77,17 +78,16 @@ export function AnnouncementPopupModal({
                 >
                   {item.ctaName}
                 </button>
-              ) : (
-                <button
-                  type="button"
-                  onClick={onMarkRead}
-                  disabled={isSubmitting}
-                  data-testid="announcement-popup-mark-read"
-                  className="flex w-full items-center justify-center rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm font-semibold text-gray-700 transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60"
-                >
-                  Mark as read
-                </button>
-              )}
+              ) : null}
+              <button
+                type="button"
+                onClick={onMarkRead}
+                disabled={isSubmitting}
+                data-testid="announcement-popup-mark-read"
+                className="flex w-full items-center justify-center rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm font-semibold text-gray-700 transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                Mark as read
+              </button>
             </div>
           </>
         ) : null}
