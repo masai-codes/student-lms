@@ -66,6 +66,7 @@ export async function fetchLectureListingPage(
       module: lectures.module,
       hostName: users.name,
       zoomLink: lectures.zoomLink,
+      isNewZoomRedirection: lectures.isNewZoomRedirection,
     })
     .from(lectures)
     .leftJoin(users, eq(lectures.hostId, users.id))

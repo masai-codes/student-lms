@@ -34,7 +34,7 @@ import { fetchAnnouncementUnreadCount } from '@/lib/api/announcement/announcemen
 import { Navbar } from '@/components/navbar'
 import { LevelUpIcon } from '@/components/common/LevelUpIcon'
 import { DownloadAppModal } from '@/components/features/layout/DownloadAppModal'
-import { UpcomingLecturePill } from '@/components/features/layout/UpcomingLecturePill'
+import { NextActionBanner } from '@/components/features/layout/NextActionBanner'
 import { OLD_STUDENT_UI_NAV_PATHS } from '@/constants/oldStudentUiNavPaths'
 import { activeAppNavIdForPathname } from '@/lib/appNavActiveItem'
 import { getBugReportFormUrl } from '@/utils/bugReportFormUrl'
@@ -473,9 +473,7 @@ export default function AppNavbar() {
           onClick: handleHomeClick,
         }}
         navItems={navItems}
-        centerSlot={
-          <UpcomingLecturePill className="max-w-[340px] rounded-[14px]" />
-        }
+        centerSlot={<NextActionBanner className="max-w-[340px]" />}
         trailingActions={trailingActions}
         profile={profile}
       />

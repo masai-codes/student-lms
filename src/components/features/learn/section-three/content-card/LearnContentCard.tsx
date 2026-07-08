@@ -218,6 +218,8 @@ export function LearnContentCard({
           {item.type === 'lecture' ? (
             <LearnListingJoinLiveCta
               joinLive={item.listingCtas.joinLive}
+              joinZoomLink={item.listingCtas.joinZoomLink}
+              isNewZoomRedirection={item.listingCtas.isNewZoomRedirection}
               lectureId={item.id}
               title={item.title}
             />
