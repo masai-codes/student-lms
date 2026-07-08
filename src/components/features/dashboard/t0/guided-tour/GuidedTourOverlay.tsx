@@ -151,6 +151,19 @@ export function GuidedTourOverlay({
     setActiveKey(key)
   }
 
+  // Manual Back / Next through the step list (below the active step's content).
+  // Never autoplays the target video — manual navigation always leaves it paused.
+  const goToStep = (index: number) => {
+    const target = steps.at(index)
+    if (!target) return
+    pushDashboardEvent('l_dashboard_guided_tour_step_nav', {
+      step_key: target.key,
+      step_action: target.action,
+      direction: index > activeIndex ? 'next' : 'back',
+    })
+    selectStep(target.key)
+  }
+
   // When a walkthrough video ends, auto-advance to the next step if it's also a
   // video and let it play itself.
   const handleVideoEnded = () => {
@@ -325,6 +338,10 @@ export function GuidedTourOverlay({
             videoIndex={videoIndex}
             autoPlayVideo={autoPlayNext}
             onVideoEnded={handleVideoEnded}
+            hasPrev={activeIndex > 0}
+            hasNext={activeIndex < steps.length - 1}
+            onPrev={() => goToStep(activeIndex - 1)}
+            onNext={() => goToStep(activeIndex + 1)}
           />
         ) : null}
       </section>

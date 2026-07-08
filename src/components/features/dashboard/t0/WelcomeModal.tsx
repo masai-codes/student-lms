@@ -68,9 +68,15 @@ function WelcomeModalBody({ open, onDismiss, isDismissing }: WelcomeModalProps) 
 
       {/* Native player (same as the guided-tour videos). No autoplay — the
           learner taps play (autoplay would be muted, and the intro is worth
-          hearing). */}
+          hearing).
+
+          Width is derived from a viewport-height cap (width = cap * 16/9,
+          clamped to the container), so `aspect-video` yields a height that can
+          never exceed the cap. On short screens the video shrinks to fit
+          instead of pushing content past the viewport and triggering a scroll,
+          while the 16:9 ratio stays intact (no letterboxing) in both axes. */}
       <div
-        className="aspect-video w-full overflow-hidden rounded-2xl bg-black shadow-md"
+        className="mx-auto aspect-video w-[min(100%,calc(38svh_*_16_/_9))] max-w-full overflow-hidden rounded-2xl bg-black shadow-md md:w-[min(100%,calc(52vh_*_16_/_9))]"
         data-testid="welcome-modal-video"
       >
         <video
