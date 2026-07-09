@@ -1,8 +1,10 @@
+import dayjs from 'dayjs'
 import type { LearnContentItem } from '@/components/features/learn/shared/types'
 import type { DashboardScheduleItem } from '@/server/api/dashboard/schedule/scheduleTypes'
 import {
   formatScheduleRangeIST,
   formatScheduleRangeLocal,
+  parseMysqlDatetimeIST,
 } from '@/utils/timeZoneHandler'
 
 /**
@@ -43,7 +45,7 @@ export function scheduleItemToLearnContent(
 }
 
 export interface ScheduleDayRow {
-  /** IST calendar-day key `YYYY-MM-DD`. */
+  /** Viewer-local calendar-day key `YYYY-MM-DD`. */
   key: string
   /** Short weekday, e.g. "Thu". */
   weekday: string
@@ -60,12 +62,12 @@ export interface ScheduleWeek {
   days: Array<ScheduleDayRow>
 }
 
-const IST_OFFSET_MS = (5 * 60 + 30) * 60_000
 const SCHEDULE_WEEK_DAYS = 7
 
 /**
- * Builds the fixed 7-day window (today … today + 6 in IST). Every day appears —
- * empty ones included — so the UI can render a "No sessions" row per day.
+ * Builds the fixed 7-day window (today … today + 6 in the viewer's local
+ * timezone). Every day appears — empty ones included — so the UI can render a
+ * "No sessions" row per day.
  *
  * Each item lands on exactly **one** day, never duplicated across the week:
  * - Point-in-time items (lectures/resources): their scheduled day.
@@ -78,16 +80,20 @@ const SCHEDULE_WEEK_DAYS = 7
  * that day still falls within the item's span (i.e. not past `concludes`):
  * active items surface on today, not-yet-started ones on their start day, and
  * concluded ones drop off.
+ *
+ * The grid and item bucketing both use the viewer's **local** calendar day so
+ * that each item's row matches the local date its card renders (via
+ * {@link formatScheduleRangeLocal}). DB values are IST wall-clock, so they're
+ * parsed to the true instant and re-read in local time before bucketing.
  */
 export function buildScheduleWeek(
   items: Array<DashboardScheduleItem>,
   now: Date,
   dayCount: number = SCHEDULE_WEEK_DAYS,
 ): ScheduleWeek {
-  const ist = new Date(now.getTime() + IST_OFFSET_MS)
-  const baseY = ist.getUTCFullYear()
-  const baseM = ist.getUTCMonth()
-  const baseD = ist.getUTCDate()
+  const baseY = now.getFullYear()
+  const baseM = now.getMonth()
+  const baseD = now.getDate()
 
   const days: Array<ScheduleDayRow> = []
   for (let i = 0; i < dayCount; i += 1) {
@@ -117,22 +123,22 @@ export function buildScheduleWeek(
 }
 
 interface DaySpan {
-  /** First IST day the item occupies (`YYYY-MM-DD`). */
+  /** First local day the item occupies (`YYYY-MM-DD`). */
   start: string
-  /** Last IST day the item occupies (`YYYY-MM-DD`), inclusive. */
+  /** Last local day the item occupies (`YYYY-MM-DD`), inclusive. */
   end: string
 }
 
 /**
- * The inclusive IST-day span an item occupies. Returns `null` when the item has
- * no parseable schedule day. Assignments span `schedule`→`concludes`;
+ * The inclusive local-day span an item occupies. Returns `null` when the item
+ * has no parseable schedule day. Assignments span `schedule`→`concludes`;
  * everything else is a single day (`schedule`).
  */
 function itemDaySpan(item: DashboardScheduleItem): DaySpan | null {
-  const start = istDayKey(item.scheduleDate)
+  const start = localDayKey(item.scheduleDate)
   if (!start) return null
   if (item.learningType !== 'assignment') return { start, end: start }
-  const end = istDayKey(item.concludes)
+  const end = localDayKey(item.concludes)
   if (!end || end < start) return { start, end: start }
   return { start, end }
 }
@@ -157,11 +163,18 @@ function format(date: Date, options: Intl.DateTimeFormatOptions): string {
 }
 
 /**
- * IST calendar day `YYYY-MM-DD` for a schedule value. DB datetimes are stored as
- * IST wall-clock, so the date component IS the IST day — no timezone shift.
+ * Viewer-local calendar day `YYYY-MM-DD` for a schedule value. DB datetimes are
+ * stored as IST wall-clock, so they're parsed to the true instant and re-read in
+ * the device timezone — matching the date the card renders via
+ * {@link formatScheduleRangeLocal}.
  */
-function istDayKey(value: string | null): string {
-  if (!value) return ''
-  const match = /^(\d{4}-\d{2}-\d{2})/.exec(value.trim())
-  return match ? match[1] : ''
+function localDayKey(value: string | null): string {
+  const parsed = parseMysqlDatetimeIST(value)
+  if (!parsed) return ''
+  const local = dayjs(parsed.valueOf())
+  return `${local.year()}-${pad(local.month() + 1)}-${pad(local.date())}`
+}
+
+function pad(n: number): string {
+  return String(n).padStart(2, '0')
 }
