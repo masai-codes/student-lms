@@ -24,12 +24,27 @@ interface AgreementCertificateProps {
 }
 
 const PLACEHOLDER = '--'
+const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
 
-/** Render a timestamp the same way the reference (experience) certificate does. */
+/**
+ * Agreement timestamps are stored as IST wall-clock time but carry a misleading
+ * `Z` suffix (e.g. "2026-07-10T00:28:36.076Z" means 12:28 AM IST, NOT UTC).
+ * We intentionally read the UTC components — which hold those IST digits — so the
+ * value is shown verbatim as IST regardless of the viewer's browser timezone
+ * (no double-shift), formatted in 12-hour am/pm. Displays as "10 Jul 2026, 12:28 AM".
+ */
 function formatTimestamp(value: string | null): string {
   if (!value) return PLACEHOLDER
   const date = new Date(value)
-  return Number.isNaN(date.getTime()) ? value : date.toLocaleString()
+  if (Number.isNaN(date.getTime())) return value
+  const day = String(date.getUTCDate()).padStart(2, '0')
+  const month = MONTHS[date.getUTCMonth()]
+  const year = date.getUTCFullYear()
+  const hours24 = date.getUTCHours()
+  const minutes = String(date.getUTCMinutes()).padStart(2, '0')
+  const meridiem = hours24 >= 12 ? 'PM' : 'AM'
+  const hours12 = hours24 % 12 || 12
+  return `${day} ${month} ${year}, ${hours12}:${minutes} ${meridiem}`
 }
 
 /**
