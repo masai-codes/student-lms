@@ -5,7 +5,7 @@ import type { MasaiverseEventScope } from './eventScope'
 import { db } from '@/db'
 import { eventEnrollments, events } from '@/db/schema'
 import { toMysqlUtc } from '@/lib/dateRanges'
-import { parseMasaiverseEventDbTimestamp } from '@/lib/eventTimestamps'
+import { parseMasaiverseEventDbTimestamp } from '@/utils/timeZoneHandler'
 
 /** Max events shown in the home "Live & Upcoming" carousel. */
 const HOME_EVENTS_LIMIT = 20

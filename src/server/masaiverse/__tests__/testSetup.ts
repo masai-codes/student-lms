@@ -29,7 +29,8 @@ vi.mock('@/server/pushNotifications/pushNotification.service', () => ({
   },
 }))
 
-vi.mock('@/lib/parseServerTimestamp', () => ({
+vi.mock('@/utils/timeZoneHandler', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('@/utils/timeZoneHandler')>()),
   parseServerTimestamp: (value: string | null) =>
     value ? new Date(value) : null,
 }))

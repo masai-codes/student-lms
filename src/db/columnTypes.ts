@@ -96,10 +96,10 @@ const _istDatetime = customType<{ data: string; driverData: string }>({
     return 'datetime'
   },
   fromDriver(value) {
-    return `${driverWallClock(value as unknown as string | Date)}${offsetSuffix(IST_OFFSET_MIN)}`
+    return `${driverWallClock(value)}${offsetSuffix(IST_OFFSET_MIN)}`
   },
   toDriver(value) {
-    return toDbWallClock(toEpochMs(value as unknown as string | Date, IST_OFFSET_MIN), IST_OFFSET_MIN)
+    return toDbWallClock(toEpochMs(value, IST_OFFSET_MIN), IST_OFFSET_MIN)
   },
 })
 
@@ -108,10 +108,10 @@ const _utcTimestamp = customType<{ data: string; driverData: string }>({
     return 'timestamp'
   },
   fromDriver(value) {
-    return `${driverWallClock(value as unknown as string | Date)}Z`
+    return `${driverWallClock(value)}Z`
   },
   toDriver(value) {
-    return toDbWallClock(toEpochMs(value as unknown as string | Date, 0), 0)
+    return toDbWallClock(toEpochMs(value, 0), 0)
   },
 })
 
