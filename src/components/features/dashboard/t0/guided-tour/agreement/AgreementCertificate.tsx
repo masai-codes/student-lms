@@ -1,28 +1,59 @@
 import { CheckCircle, FilePdf } from '@phosphor-icons/react'
 import { pushDashboardEvent } from '../../../shared/dashboardAnalytics'
-import type { AgreementFormValues } from '@/server/api/dashboard/agreement/agreementShared'
 
 interface AgreementCertificateProps {
-  values: AgreementFormValues
   referenceNumber: string
+  /** Section this agreement belongs to — shown in the certificate header. */
+  sectionName: string
+  /** Learner name as entered on the agreement form (falls back to profile name). */
+  name: string
+  email: string
+  studentCode: string
+  program: string
+  batchName: string
+  /** ISO first-view time; null until viewed. */
+  viewTime: string | null
+  /** ISO signed time; null until signed. */
+  signedTime: string | null
+  /** IP captured at submit; null until signed. */
+  ipAddress: string | null
+  location: string
   /** When signed, shows the completed state + a link to the generated PDF. */
   completed?: boolean
   agreementPdfUrl?: string | null
 }
 
-const SUMMARY_ROWS: Array<{ key: keyof AgreementFormValues; label: string }> = [
-  { key: 'name', label: 'Name' },
-  { key: 'dateOfBirth', label: 'Date of birth' },
-  { key: 'address', label: 'Address' },
-  { key: 'location', label: 'Location' },
-  { key: 'parentsName', label: "Parent's name" },
-]
+const PLACEHOLDER = '--'
+
+/** Render a timestamp the same way the reference (experience) certificate does. */
+function formatTimestamp(value: string | null): string {
+  if (!value) return PLACEHOLDER
+  const date = new Date(value)
+  return Number.isNaN(date.getTime()) ? value : date.toLocaleString()
+}
 
 /**
- * Signature-summary panel: shows the key details + reference number before
- * submit, and once signed, a success banner + a link to the generated PDF.
+ * Signature certificate — mirrors the reference (experience-ui) signing flow so
+ * the legally-recorded details shown on screen match one-for-one: the issuing
+ * entity, then Details (Name, Email, Student Code, Program, Batch),
+ * Timestamp (Viewed, Signed), and Signature (IP Address, Location). Shown before
+ * submit as a review, and once signed with a link to the generated PDF.
  */
-export function AgreementCertificate({ values, referenceNumber, completed, agreementPdfUrl }: AgreementCertificateProps) {
+export function AgreementCertificate({
+  referenceNumber,
+  sectionName,
+  name,
+  email,
+  studentCode,
+  program,
+  batchName,
+  viewTime,
+  signedTime,
+  ipAddress,
+  location,
+  completed,
+  agreementPdfUrl,
+}: AgreementCertificateProps) {
   return (
     <div className="flex flex-col gap-4" data-testid="agreement-certificate">
       {completed ? (
@@ -34,20 +65,36 @@ export function AgreementCertificate({ values, referenceNumber, completed, agree
         <p className="text-sm text-gray-600">Review your details, then submit to sign the agreement.</p>
       )}
 
-      <dl className="divide-y divide-gray-100 rounded-xl border border-gray-200">
-        <div className="flex justify-between gap-4 px-4 py-2.5 text-sm">
-          <dt className="text-gray-500">Reference number</dt>
-          <dd className="text-right font-medium text-gray-900">{referenceNumber}</dd>
-        </div>
-        {SUMMARY_ROWS.map((row) =>
-          values[row.key] ? (
-            <div key={row.key} className="flex justify-between gap-4 px-4 py-2.5 text-sm">
-              <dt className="text-gray-500">{row.label}</dt>
-              <dd className="text-right font-medium text-gray-900">{values[row.key]}</dd>
-            </div>
-          ) : null,
-        )}
-      </dl>
+      {/* Issuing entity — matches the reference certificate header verbatim. */}
+      <div className="rounded-xl border border-gray-200 px-4 py-3">
+        {sectionName ? <h4 className="text-base font-bold text-gray-900">{sectionName}</h4> : null}
+        <p className="mt-1 text-sm font-medium text-gray-700">
+          Nolan Edutech Private Limited
+          <br />
+          Incubex HSR21, 5th Main Rd, Sector 6, HSR Layout, Bengaluru, Karnataka 560068
+        </p>
+        <p className="mt-2 text-sm text-gray-600">
+          Reference number : <span className="font-medium text-gray-900">{referenceNumber || PLACEHOLDER}</span>
+        </p>
+      </div>
+
+      <Section title="Details">
+        <InfoRow label="Name" value={name} />
+        <InfoRow label="Email" value={email} />
+        <InfoRow label="Student Code" value={studentCode} />
+        <InfoRow label="Program" value={program} />
+        <InfoRow label="Batch" value={batchName} />
+      </Section>
+
+      <Section title="Timestamp">
+        <InfoRow label="Viewed" value={formatTimestamp(viewTime)} />
+        <InfoRow label="Signed" value={formatTimestamp(signedTime)} />
+      </Section>
+
+      <Section title="Signature">
+        <InfoRow label="IP Address" value={ipAddress} />
+        <InfoRow label="Location" value={location} />
+      </Section>
 
       {completed && agreementPdfUrl ? (
         <a
@@ -66,6 +113,24 @@ export function AgreementCertificate({ values, referenceNumber, completed, agree
           View signed agreement
         </a>
       ) : null}
+    </div>
+  )
+}
+
+function Section({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <div className="rounded-xl border border-gray-200">
+      <h3 className="border-b border-gray-100 px-4 py-2 text-sm font-bold text-gray-800">{title}</h3>
+      <dl className="divide-y divide-gray-100">{children}</dl>
+    </div>
+  )
+}
+
+function InfoRow({ label, value }: { label: string; value: string | null | undefined }) {
+  return (
+    <div className="flex justify-between gap-4 px-4 py-2.5 text-sm">
+      <dt className="text-gray-500">{label}</dt>
+      <dd className="text-right font-medium text-gray-900">{value || PLACEHOLDER}</dd>
     </div>
   )
 }

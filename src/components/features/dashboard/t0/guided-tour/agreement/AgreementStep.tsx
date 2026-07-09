@@ -92,7 +92,21 @@ export function AgreementStep({ section, onCompleted }: AgreementStepProps) {
         data-testid="agreement-completed"
       >
         <div className="min-h-0 flex-1 overflow-y-auto p-6">
-          <AgreementCertificate values={values} referenceNumber={section.referenceNumber} completed agreementPdfUrl={section.agreementPdfUrl} />
+          <AgreementCertificate
+            referenceNumber={section.referenceNumber}
+            sectionName={section.sectionName}
+            name={values.name ?? section.savedValues.name ?? ''}
+            email={section.email}
+            studentCode={section.studentCode}
+            program={section.programName}
+            batchName={section.batchName}
+            viewTime={section.viewTime}
+            signedTime={section.signedTime}
+            ipAddress={section.ipAddress}
+            location={values.location ?? ''}
+            completed
+            agreementPdfUrl={section.agreementPdfUrl}
+          />
         </div>
       </div>
     )
@@ -202,7 +216,19 @@ export function AgreementStep({ section, onCompleted }: AgreementStepProps) {
             onAcceptChange={(v) => setAccepted((a) => ({ ...a, [currentDoc.key]: v }))}
           />
         ) : (
-          <AgreementCertificate values={values} referenceNumber={section.referenceNumber} />
+          <AgreementCertificate
+            referenceNumber={section.referenceNumber}
+            sectionName={section.sectionName}
+            name={values.name ?? ''}
+            email={section.email}
+            studentCode={section.studentCode}
+            program={section.programName}
+            batchName={section.batchName}
+            viewTime={section.viewTime}
+            signedTime={section.signedTime}
+            ipAddress={section.ipAddress}
+            location={values.location ?? ''}
+          />
         )}
 
         {submitMutation.isError ? (
