@@ -55,7 +55,10 @@ describe('getAgreementRenderData', () => {
     expect(section.steps.map((s) => s.key)).toEqual(['program_agreement', 'grading_policy'])
     // Prior save overrides the profile scalar; profile fills the rest.
     expect(section.savedValues.name).toBe('Riya Saved')
-    expect(section.savedValues.gender).toBe('female')
+    // Gender is never prefilled — the learner must pick it themselves.
+    expect(section.savedValues.gender).toBeUndefined()
+    // Phone country defaults to +91.
+    expect(section.savedValues.parentsMobileCountry).toBe('+91')
     expect(section.savedValues.dateOfBirth).toBe('2000-01-01')
     expect(section.savedValues.panNumber).toBe('ABCDE1234F')
     expect(section.acceptedStepKeys).toEqual(['program_agreement'])

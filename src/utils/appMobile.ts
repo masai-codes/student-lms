@@ -3,6 +3,14 @@ export type AppMobilePlatform = 'ios' | 'android'
 const APP_MOBILE_HEADER = 'X-App-Mobile'
 const APP_MOBILE_PLATFORM_HEADER = 'X-App-Mobile-Platform'
 
+/**
+ * Set by a mobile-viewport browser (narrow screen). Distinct from
+ * `X-App-Mobile`, which flags the native app and also gates auth
+ * (`portalGate.isMobileRequest`). This one only tells the guided tour to serve
+ * the `-app` walkthrough / program-onboarding sections on mobile web too.
+ */
+export const MOBILE_VIEWPORT_HEADER = 'X-Client-Mobile-Viewport'
+
 const APP_MOBILE_STORAGE_KEY = 'lms.appMobile'
 const APP_MOBILE_PLATFORM_STORAGE_KEY = 'lms.appMobilePlatform'
 

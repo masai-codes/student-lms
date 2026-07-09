@@ -24,6 +24,14 @@ interface AgreementStepProps {
 const BTN_SOLID = 'inline-flex h-11 items-center justify-center rounded-lg bg-[#6962AC] px-5 text-sm font-semibold text-white hover:opacity-90 disabled:opacity-50'
 const BTN_OUTLINE = 'inline-flex h-11 items-center justify-center rounded-lg border border-gray-200 px-5 text-sm font-medium text-gray-700 hover:bg-gray-50'
 
+/** Review-window countdown label: hours when under a day left, else days. */
+function countdownLabel(section: AgreementSection): string {
+  if (section.hoursLeft !== null) {
+    return `${section.hoursLeft} ${section.hoursLeft === 1 ? 'hour' : 'hours'} remaining`
+  }
+  return `${section.daysLeft} ${section.daysLeft === 1 ? 'day' : 'days'} remaining`
+}
+
 /**
  * The full agreement flow, rendered inline in the guided tour (no modal): a
  * detail form (autosaved) → one embedded PDF + consent per document → a
@@ -95,24 +103,26 @@ export function AgreementStep({ section, onCompleted }: AgreementStepProps) {
   const currentStepKey = !onDetails && !onCertificate ? stepKeys[subIndex - 1] : null
   const currentDoc = currentStepKey ? section.steps.find((s) => s.key === currentStepKey) : null
 
+  // Location is mandatory: the consent box must be checked AND a location captured.
+  const locationReady = locationConsent && (values.location ?? '').trim() !== ''
   const canContinue = onDetails
-    ? isAgreementDetailsValid(values)
+    ? isAgreementDetailsValid(values) && locationReady
     : currentStepKey
       ? accepted[currentStepKey] === true
       : true
 
   const goNext = () => {
     if (onDetails) {
-      if (!isAgreementDetailsValid(values)) {
-        // Reveal every field error + the summary, then jump to the first one so
-        // the learner sees exactly what's blocking Continue.
+      if (!isAgreementDetailsValid(values) || !locationReady) {
+        // Reveal every field error + the summary, then jump to the first problem
+        // (a field, or the location box) so the learner sees what's blocking Continue.
         setShowDetailErrors(true)
         const first = detailIssues[0]
-        if (first) {
-          const el = document.getElementById(`agreement-${first.key}`)
-          el?.scrollIntoView?.({ behavior: 'smooth', block: 'center' })
-          window.setTimeout(() => (el as HTMLElement | null)?.focus?.(), 150)
-        }
+        const el = first
+          ? document.getElementById(`agreement-${first.key}`)
+          : document.getElementById('agreement-location-consent')
+        el?.scrollIntoView?.({ behavior: 'smooth', block: 'center' })
+        window.setTimeout(() => (el as HTMLElement | null)?.focus?.(), 150)
         return
       }
       saveMutation.mutate() // autosave in the background
@@ -135,9 +145,7 @@ export function AgreementStep({ section, onCompleted }: AgreementStepProps) {
             >
               <HourglassMedium size={18} weight="fill" className="shrink-0 text-[#E76E4B]" aria-hidden />
               <span>
-                <b>
-                  {section.daysLeft} {section.daysLeft === 1 ? 'day' : 'days'} remaining
-                </b>{' '}
+                <b>{countdownLabel(section)}</b>{' '}
                 to review and sign before your LMS is paused
               </span>
             </div>
@@ -177,7 +185,7 @@ export function AgreementStep({ section, onCompleted }: AgreementStepProps) {
               onConsentChange={setLocationConsent}
               status={locationStatus}
               location={values.location ?? ''}
-              error={showDetailErrors ? (errors.location ?? null) : null}
+              showError={showDetailErrors}
             />
             <AgreementDetailsForm
               values={values}
@@ -235,6 +243,10 @@ export function AgreementStep({ section, onCompleted }: AgreementStepProps) {
               detailIssues.length > 0 ? (
                 <span className="text-xs font-medium text-[#B71C2B]" data-testid="agreement-continue-hint">
                   {detailIssues.length} {detailIssues.length === 1 ? 'field needs' : 'fields need'} your attention
+                </span>
+              ) : !locationReady ? (
+                <span className="text-xs font-medium text-[#B71C2B]" data-testid="agreement-continue-hint">
+                  Location access is required to continue
                 </span>
               ) : null
             ) : !canContinue ? (

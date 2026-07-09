@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useState } from 'react'
 import useEmblaCarousel from 'embla-carousel-react'
 import { ArrowRight, Warning, WarningCircle } from '@phosphor-icons/react'
-import { useCarouselAutoplay } from './useCarouselAutoplay'
+import { BannerArrow } from './BannerArrow'
+import { FEE_PAYMENT_AUTOPLAY_MS, useCarouselAutoplay } from './useCarouselAutoplay'
 import { pushDashboardEvent } from '../shared/dashboardAnalytics'
 import type { FeePaymentBanner } from '@/server/api/dashboard/t0/getFeePaymentBanner.service'
 import type { EmblaCarouselType } from 'embla-carousel'
@@ -39,7 +40,7 @@ export function FeePaymentBanners({ banners, compact = false }: FeePaymentBanner
     }
   }, [emblaApi, onSelect])
 
-  const autoplay = useCarouselAutoplay(emblaApi, banners.length)
+  const autoplay = useCarouselAutoplay(emblaApi, banners.length, FEE_PAYMENT_AUTOPLAY_MS)
 
   if (banners.length === 0) return null
 
@@ -58,22 +59,35 @@ export function FeePaymentBanners({ banners, compact = false }: FeePaymentBanner
       </div>
 
       {hasMultiple && (
-        <div
-          className="absolute inset-x-0 bottom-2.5 flex justify-center gap-1.5"
-          data-testid="dashboard-fee-payment-dots"
-        >
-          {banners.map((b, i) => (
-            <button
-              key={b.batchId}
-              type="button"
-              aria-label={`Go to ${b.courseTitle}`}
-              data-active={i === selected}
-              onClick={() => emblaApi?.scrollTo(i)}
-              className={`size-1.5 rounded-full transition-colors ${
-                i === selected ? 'bg-[#5B478B]' : 'bg-[#5B478B]/30'
-              }`}
-            />
-          ))}
+        <div className="absolute inset-x-0 bottom-2.5 flex items-center justify-center gap-2">
+          <BannerArrow
+            direction="prev"
+            tone="light"
+            label="payment banner"
+            testIdBase="dashboard-fee-payment"
+            onClick={() => emblaApi?.scrollPrev()}
+          />
+          <div className="flex justify-center gap-1.5" data-testid="dashboard-fee-payment-dots">
+            {banners.map((b, i) => (
+              <button
+                key={b.batchId}
+                type="button"
+                aria-label={`Go to ${b.courseTitle}`}
+                data-active={i === selected}
+                onClick={() => emblaApi?.scrollTo(i)}
+                className={`size-1.5 rounded-full transition-colors ${
+                  i === selected ? 'bg-[#5B478B]' : 'bg-[#5B478B]/30'
+                }`}
+              />
+            ))}
+          </div>
+          <BannerArrow
+            direction="next"
+            tone="light"
+            label="payment banner"
+            testIdBase="dashboard-fee-payment"
+            onClick={() => emblaApi?.scrollNext()}
+          />
         </div>
       )}
     </div>

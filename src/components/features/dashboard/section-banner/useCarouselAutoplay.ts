@@ -4,6 +4,14 @@ import type { EmblaCarouselType } from 'embla-carousel'
 /** Default auto-advance interval (ms) for the dashboard banner carousels. */
 export const BANNER_AUTOPLAY_MS = 5000
 
+/**
+ * Per-banner intervals, intentionally staggered so stacked carousels don't all
+ * flip at the same moment (each changes at a different time).
+ */
+export const ONBOARDING_AUTOPLAY_MS = 4000
+export const FEE_PAYMENT_AUTOPLAY_MS = 5000
+export const BATCH_START_AUTOPLAY_MS = 6000
+
 export interface CarouselAutoplayHandlers {
   /** Spread onto the carousel root so hovering pauses auto-advance. */
   onMouseEnter: () => void

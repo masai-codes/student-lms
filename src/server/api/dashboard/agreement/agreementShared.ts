@@ -20,12 +20,51 @@ export const DEFAULT_AGREEMENT_ORDER = ['program_agreement', 'grading_policy', '
  */
 export const AGREEMENT_REVIEW_DAYS = 7
 
+const HOUR_MS = 60 * 60 * 1000
+const DAY_MS = 24 * HOUR_MS
+
 /** Whole days elapsed since `viewTime` (0 when never viewed). */
 export function daysSinceAgreementView(viewTime: string | null): number {
   if (!viewTime) return 0
   const viewed = new Date(viewTime).getTime()
   if (Number.isNaN(viewed)) return 0
-  return Math.max(0, Math.floor((istNow().getTime() - viewed) / (24 * 60 * 60 * 1000)))
+  return Math.max(0, Math.floor((istNow().getTime() - viewed) / DAY_MS))
+}
+
+/**
+ * State of the {@link AGREEMENT_REVIEW_DAYS}-day review window, keyed off the
+ * first-view time. Counts down in days while a full day or more remains; under
+ * a day it switches to an hours count (`daysLeft: 0`, `hoursLeft` min 1) for
+ * urgency, matching the fee-payment banner. `isClosable` is false once the
+ * window has elapsed (LMS access is paused until signed).
+ */
+export interface AgreementCountdown {
+  daysSinceFirstView: number
+  daysLeft: number
+  hoursLeft: number | null
+  isClosable: boolean
+}
+
+export function computeAgreementCountdown(viewTime: string | null): AgreementCountdown {
+  // Never viewed → the full window hasn't started; show it in days.
+  const viewed = viewTime ? new Date(viewTime).getTime() : NaN
+  if (!viewTime || Number.isNaN(viewed)) {
+    return { daysSinceFirstView: 0, daysLeft: AGREEMENT_REVIEW_DAYS, hoursLeft: null, isClosable: true }
+  }
+
+  const now = istNow().getTime()
+  const daysSinceFirstView = Math.max(0, Math.floor((now - viewed) / DAY_MS))
+  const remainingMs = viewed + AGREEMENT_REVIEW_DAYS * DAY_MS - now
+
+  // Window elapsed → paused, no countdown.
+  if (remainingMs <= 0) {
+    return { daysSinceFirstView, daysLeft: 0, hoursLeft: null, isClosable: false }
+  }
+  // A full day or more left → count in days; otherwise switch to hours (min 1).
+  if (remainingMs >= DAY_MS) {
+    return { daysSinceFirstView, daysLeft: Math.ceil(remainingMs / DAY_MS), hoursLeft: null, isClosable: true }
+  }
+  return { daysSinceFirstView, daysLeft: 0, hoursLeft: Math.max(1, Math.ceil(remainingMs / HOUR_MS)), isClosable: true }
 }
 
 /** Logo drawn on the generated signature-certificate page (same asset as the old LMS). */
