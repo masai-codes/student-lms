@@ -59,7 +59,7 @@ export function FeePaymentBanners({ banners, compact = false }: FeePaymentBanner
       </div>
 
       {hasMultiple && (
-        <div className="absolute inset-x-0 bottom-2.5 flex items-center justify-center gap-2">
+        <div className="absolute inset-x-0 bottom-1 flex items-center justify-center gap-2">
           <BannerArrow
             direction="prev"
             tone="light"
@@ -183,7 +183,7 @@ function FeePaymentSlide({
       <div
         data-testid="dashboard-fee-payment-banner"
         data-variant={banner.type}
-        className={`flex flex-col gap-2 rounded-xl border-l-4 px-3 pt-3 shadow-sm ${reserveDotSpace ? 'pb-6' : 'pb-3'} ${surface}`}
+        className={`flex flex-col gap-2 rounded-xl border-l-4 px-3 pt-3 shadow-sm ${reserveDotSpace ? 'pb-9' : 'pb-3'} ${surface}`}
       >
         <div className="flex items-center gap-2">
           {icon}
@@ -202,7 +202,7 @@ function FeePaymentSlide({
       data-testid="dashboard-fee-payment-banner"
       data-variant={banner.type}
       className={`flex flex-wrap items-center gap-3 rounded-xl border-l-4 px-4 pt-3 shadow-sm md:flex-nowrap ${
-        reserveDotSpace ? 'pb-6' : 'pb-3'
+        reserveDotSpace ? 'pb-9' : 'pb-3'
       } ${surface}`}
     >
       {icon}
