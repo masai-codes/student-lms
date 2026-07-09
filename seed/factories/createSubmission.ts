@@ -18,6 +18,7 @@ export async function createSubmission(
 
   const values: SubmissionInsert = {
     score: 0,
+    oldScore: 0,
     started: 0,
     completed: 0,
     ...overrides,
