@@ -94,7 +94,6 @@ export function AgreementStep({ section, onCompleted }: AgreementStepProps) {
         <div className="min-h-0 flex-1 overflow-y-auto p-6">
           <AgreementCertificate
             referenceNumber={section.referenceNumber}
-            sectionName={section.sectionName}
             name={values.name ?? section.savedValues.name ?? ''}
             email={section.email}
             studentCode={section.studentCode}
@@ -218,7 +217,6 @@ export function AgreementStep({ section, onCompleted }: AgreementStepProps) {
         ) : (
           <AgreementCertificate
             referenceNumber={section.referenceNumber}
-            sectionName={section.sectionName}
             name={values.name ?? ''}
             email={section.email}
             studentCode={section.studentCode}

@@ -3,8 +3,6 @@ import { pushDashboardEvent } from '../../../shared/dashboardAnalytics'
 
 interface AgreementCertificateProps {
   referenceNumber: string
-  /** Section this agreement belongs to — shown in the certificate header. */
-  sectionName: string
   /** Learner name as entered on the agreement form (falls back to profile name). */
   name: string
   email: string
@@ -56,7 +54,6 @@ function formatTimestamp(value: string | null): string {
  */
 export function AgreementCertificate({
   referenceNumber,
-  sectionName,
   name,
   email,
   studentCode,
@@ -80,18 +77,11 @@ export function AgreementCertificate({
         <p className="text-sm text-gray-600">Review your details, then submit to sign the agreement.</p>
       )}
 
-      {/* Issuing entity — matches the reference certificate header verbatim. */}
-      <div className="rounded-xl border border-gray-200 px-4 py-3">
-        {sectionName ? <h4 className="text-base font-bold text-gray-900">{sectionName}</h4> : null}
-        <p className="mt-1 text-sm font-medium text-gray-700">
-          Nolan Edutech Private Limited
-          <br />
-          Incubex HSR21, 5th Main Rd, Sector 6, HSR Layout, Bengaluru, Karnataka 560068
-        </p>
-        <p className="mt-2 text-sm text-gray-600">
-          Reference number : <span className="font-medium text-gray-900">{referenceNumber || PLACEHOLDER}</span>
-        </p>
-      </div>
+      {/* On the certificate step the reference number is shown (the issuing-entity
+          block appears only on the earlier agreement-reading steps). */}
+      <p className="text-sm text-gray-700">
+        Reference number :- <span className="font-medium text-gray-900">{referenceNumber || PLACEHOLDER}</span>
+      </p>
 
       <Section title="Details">
         <InfoRow label="Name" value={name} />
