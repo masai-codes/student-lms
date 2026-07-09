@@ -48,6 +48,9 @@ describe('FeePaymentBanners', () => {
     expect(screen.getByTestId('dashboard-fee-payment-days').textContent).toBe('7 days remaining')
     expect(screen.getByTestId('dashboard-fee-payment-cta').getAttribute('href')).toBe('https://pay.test/x')
     expect(screen.queryByTestId('dashboard-fee-payment-dots')).toBeNull()
+    // No prev/next arrows for a single banner.
+    expect(screen.queryByTestId('dashboard-fee-payment-prev')).toBeNull()
+    expect(screen.queryByTestId('dashboard-fee-payment-next')).toBeNull()
   })
 
   it('timer: shows hours remaining when less than a day is left', () => {
@@ -86,6 +89,9 @@ describe('FeePaymentBanners', () => {
     )
     expect(screen.getAllByTestId('dashboard-fee-payment-banner')).toHaveLength(2)
     expect(screen.getByTestId('dashboard-fee-payment-dots').querySelectorAll('button')).toHaveLength(2)
+    // Prev/next arrows appear alongside the dots for multiple banners.
+    expect(screen.getByTestId('dashboard-fee-payment-prev')).toBeTruthy()
+    expect(screen.getByTestId('dashboard-fee-payment-next')).toBeTruthy()
   })
 
   it('disables the CTA when a batch has no payment URL', () => {

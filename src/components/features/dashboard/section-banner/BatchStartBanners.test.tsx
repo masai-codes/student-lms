@@ -38,6 +38,8 @@ describe('BatchStartBanners', () => {
     expect(text).toContain('will start on')
     expect(text).toContain('12 Aug 2026')
     expect(screen.queryByTestId('dashboard-batch-start-dots')).toBeNull()
+    expect(screen.queryByTestId('dashboard-batch-start-prev')).toBeNull()
+    expect(screen.queryByTestId('dashboard-batch-start-next')).toBeNull()
   })
 
   it('renders one slide + one dot per batch when there are multiple', () => {
@@ -51,5 +53,7 @@ describe('BatchStartBanners', () => {
     )
     expect(screen.getAllByTestId('dashboard-batch-start-text')).toHaveLength(2)
     expect(screen.getByTestId('dashboard-batch-start-dots').querySelectorAll('button')).toHaveLength(2)
+    expect(screen.getByTestId('dashboard-batch-start-prev')).toBeTruthy()
+    expect(screen.getByTestId('dashboard-batch-start-next')).toBeTruthy()
   })
 })
