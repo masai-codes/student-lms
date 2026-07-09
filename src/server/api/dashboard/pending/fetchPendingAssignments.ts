@@ -1,13 +1,14 @@
-import { and, asc, eq, gt, inArray, isNull } from 'drizzle-orm'
+import { and, asc, eq, gt, inArray, isNull, lte } from 'drizzle-orm'
 import type { ScheduleEntityRow } from '../schedule/scheduleTypes'
 import { db } from '@/db'
 import { assignments, batches, sections, users } from '@/db/schema'
 
 /**
- * Open assignments in the user's sections whose deadline hasn't passed
- * (`concludes > istNow`) and that are not deleted. Ordered by `concludes`
- * ascending (soonest deadline first). "Started/not-started" filtering happens
- * in the orchestrator against submission state.
+ * Open assignments in the user's sections that are within their active window —
+ * already started (`schedule <= istNow`) and deadline not yet passed
+ * (`concludes > istNow`) — and not deleted. Ordered by `concludes` ascending
+ * (soonest deadline first). "Has the user begun it" filtering happens in the
+ * orchestrator against submission state.
  */
 export async function fetchPendingAssignments(
   sectionIds: Array<number>,
@@ -39,6 +40,7 @@ export async function fetchPendingAssignments(
       and(
         inArray(assignments.sectionId, sectionIds),
         isNull(assignments.deletedAt),
+        lte(assignments.schedule, istNow),
         gt(assignments.concludes, istNow),
       ),
     )
