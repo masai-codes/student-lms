@@ -28,10 +28,11 @@ const VALID_VALUES = {
 function section(over: Partial<AgreementSection> = {}): AgreementSection {
   return {
     sectionId: 7, sectionName: 'Enrolment', programName: 'MERN', batchName: 'B1',
+    email: 'riya@example.com', studentCode: 'MSN-001',
     steps: [{ key: 'program_agreement', heading: 'Program', pdfUrl: 'https://x/p.pdf', order: null }],
     savedValues: VALID_VALUES, acceptedStepKeys: [], completed: false,
     referenceNumber: 'TC-1-section_7', agreementPdfUrl: null,
-    viewTime: null, daysSinceFirstView: 0, daysLeft: 7, hoursLeft: null, isClosable: true,
+    viewTime: null, signedTime: null, ipAddress: null, daysSinceFirstView: 0, daysLeft: 7, hoursLeft: null, isClosable: true,
     ...over,
   }
 }
