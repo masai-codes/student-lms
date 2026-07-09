@@ -90,7 +90,24 @@ describe('seedLoginAndJoinLecture', () => {
       userId: 2,
       managerId: 1,
     })
-    expect(hoisted.createLecture).toHaveBeenCalledOnce()
+    expect(hoisted.createLecture).toHaveBeenCalledWith(
+      expect.objectContaining({
+        schedule: expect.stringMatching(/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/),
+        concludes: expect.stringMatching(/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/),
+        startDate: expect.stringMatching(/^\d{4}-\d{2}-\d{2}$/),
+        endDate: expect.stringMatching(/^\d{4}-\d{2}-\d{2}$/),
+        zoomLink: expect.any(String),
+      }),
+    )
+
+    const lectureArgs = hoisted.createLecture.mock.calls[0][0] as {
+      schedule: string
+      concludes: string
+      startDate: string
+      endDate: string
+    }
+    expect(lectureArgs.startDate).toBe(lectureArgs.schedule.slice(0, 10))
+    expect(lectureArgs.endDate).toBe(lectureArgs.concludes.slice(0, 10))
 
     expect(result.flowId).toBe('login-and-join-lecture')
     expect(result.testUsers).toHaveLength(2)

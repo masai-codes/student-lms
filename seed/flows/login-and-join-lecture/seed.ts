@@ -54,6 +54,8 @@ export async function seedLoginAndJoinLecture(): Promise<SeedFlowResult> {
     lectureSchedule,
     loginAndJoinLectureTiming.lectureDurationMinutes,
   )
+  const schedule = formatMysqlDatetime(lectureSchedule)
+  const concludes = formatMysqlDatetime(lectureConcludes)
 
   const admin = await createUser({
     name: 'Admin User',
@@ -84,8 +86,10 @@ export async function seedLoginAndJoinLecture(): Promise<SeedFlowResult> {
     batchId: batch.id,
     sectionId: section.id,
     userId: admin.id,
-    schedule: formatMysqlDatetime(lectureSchedule),
-    concludes: formatMysqlDatetime(lectureConcludes),
+    schedule,
+    concludes,
+    startDate: formatMysqlDate(lectureSchedule),
+    endDate: formatMysqlDate(lectureConcludes),
     zoomLink: DEFAULT_ZOOM_LINK,
   })
 
