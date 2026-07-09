@@ -13,7 +13,7 @@ const hoisted = vi.hoisted(() => ({
 vi.mock('@/components/ui/lottie-confetti', () => ({
   LottieConfetti: () => <div data-testid="welcome-modal-confetti" />,
 }))
-vi.mock('@/components/features/chatbot/hooks/useIsMobileViewport', () => ({
+vi.mock('@/hooks/useIsMobileViewport', () => ({
   useIsMobileViewport: () => hoisted.isMobile(),
 }))
 vi.mock('@/lib/api/dashboard/dashboardApi', () => ({ dismissWelcomeModalApi: hoisted.dismiss }))

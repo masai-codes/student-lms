@@ -124,7 +124,7 @@ export async function getAchievements(userId: number): Promise<Array<Achievement
       count: earned?.count ?? 0,
       releaseDate: earned?.releaseDate ?? null,
       courseTitle: batchMetaMap.get(row.batchId) ?? null,
-      sectionModuleName: sectionModuleMap.get(row.sectionId) ?? null,
+      sectionModuleName: row.sectionId != null ? sectionModuleMap.get(row.sectionId) ?? null : null,
       badge: {
         title: row.badgeTitle,
         description: row.badgeDescription ?? null,

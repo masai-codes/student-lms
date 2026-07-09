@@ -9,7 +9,7 @@ const hoisted = vi.hoisted(() => ({ isMobile: vi.fn() }))
 vi.mock('@/components/ui/lottie-confetti', () => ({
   LottieConfetti: () => <div data-testid="welcome-modal-confetti" />,
 }))
-vi.mock('@/components/features/chatbot/hooks/useIsMobileViewport', () => ({
+vi.mock('@/hooks/useIsMobileViewport', () => ({
   useIsMobileViewport: () => hoisted.isMobile(),
 }))
 

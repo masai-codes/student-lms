@@ -5,7 +5,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import {
   getIsMobileViewport,
   useIsMobileViewport,
-} from '@/components/features/chatbot/hooks/useIsMobileViewport'
+} from '@/hooks/useIsMobileViewport'
 
 function mockMatchMedia(matches: boolean) {
   const listeners = new Set<() => void>()

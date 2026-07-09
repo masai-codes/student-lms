@@ -12,7 +12,7 @@ vi.mock('@/lib/api/dashboard/dashboardApi', () => ({
   submitAgreementApi: hoisted.submit,
   recordAgreementViewedApi: hoisted.recordView,
 }))
-vi.mock('@/components/features/chatbot/hooks/useIsMobileViewport', () => ({
+vi.mock('@/hooks/useIsMobileViewport', () => ({
   useIsMobileViewport: () => hoisted.isMobile(),
 }))
 vi.mock('./useAutoDetectLocation', () => ({
