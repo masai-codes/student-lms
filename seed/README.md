@@ -150,7 +150,7 @@ npm run seed dashboard-home
 
 | Area | Visible on dashboard | Also seeded but hidden (edge-case exclusions) |
 |------|---------------------|-----------------------------------------------|
-| **My Schedule** | 2 lectures (today + day 3), 1 assignment (day 5); empty days in between | Catch-up lecture (past, pending-only) |
+| **My Schedule** | 2 lectures (today + day 3), 2 assignments (yesterday incomplete + day 5); empty days in between | Catch-up lecture (past, pending-only) |
 | **Pending Tasks** | Catch-up lecture + open assignment (badge `2`) | Started assignment, overdue assignment, optional catch-up lecture |
 | **Announcements** | 3 section + 2 For You (= cap of 5) | Read, expired, future announcements |
 | **Product Updates** | Newest 5 of 7 `whatsnew` rows | — |

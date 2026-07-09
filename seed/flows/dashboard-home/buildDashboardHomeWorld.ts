@@ -47,6 +47,7 @@ export type DashboardHomeWorld = {
   enrollment: typeof sectionUser.$inferSelect
   scheduleLectures: Array<LectureRow>
   scheduleAssignment: AssignmentRow
+  pastIncompleteScheduleAssignment: AssignmentRow
   pendingCatchupLecture: LectureRow
   pendingAssignment: AssignmentRow
   visibleAnnouncements: Array<AnnouncementRow>
@@ -102,6 +103,7 @@ export async function buildDashboardHomeWorld(
   })
 
   const today = offsetFromNow({ daysAgo: 0 })
+  const yesterday = offsetFromNow({ daysAgo: 1 })
   const day2 = addDays(today, 2)
   const day4 = addDays(today, 4)
 
@@ -146,6 +148,17 @@ export async function buildDashboardHomeWorld(
     concludes: formatMysqlDatetime(addDays(day4, 2)),
     startDate: formatMysqlDate(day4),
     endDate: formatMysqlDate(day4),
+  })
+
+  const pastIncompleteScheduleAssignment = await createAssignment({
+    batchId: batch.id,
+    sectionId: section.id,
+    userId: admin.id,
+    title: `[${flowId}] Past incomplete assignment (schedule)`,
+    schedule: formatMysqlDatetime(yesterday),
+    concludes: formatMysqlDatetime(addDays(today, 3)),
+    startDate: formatMysqlDate(yesterday),
+    endDate: formatMysqlDate(addDays(today, 3)),
   })
 
   const catchupStart = offsetFromNow({ daysAgo: 1, minutesAgo: 120 })
@@ -310,6 +323,7 @@ export async function buildDashboardHomeWorld(
     enrollment,
     scheduleLectures,
     scheduleAssignment,
+    pastIncompleteScheduleAssignment,
     pendingCatchupLecture,
     pendingAssignment,
     visibleAnnouncements,

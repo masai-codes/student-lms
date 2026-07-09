@@ -134,7 +134,7 @@ export function renderFlowItem(
           <table>
             <thead><tr><th>Component</th><th>What to expect</th></tr></thead>
             <tbody>
-              <tr><td><code>1. My Schedule</code></td><td>7-day IST window (today→+6): 2 lectures (today + day 3) + 1 assignment (day 5); other days show empty placeholders.</td></tr>
+              <tr><td><code>1. My Schedule</code></td><td>7-day IST window (today→+6): 2 lectures (today + day 3) + 2 assignments (yesterday incomplete + day 5); other days show empty placeholders.</td></tr>
               <tr><td><code>2. Pending Tasks</code></td><td>Badge <code>2</code>: 1 catch-up lecture (ended yesterday, 7-day catch-up window) + 1 open assignment (not begun). Excluded rows seeded but hidden: started assignment, overdue assignment, optional catch-up lecture.</td></tr>
               <tr><td><code>3. Announcements</code></td><td>Exactly <code>5</code> visible (3 section + 2 For You). Excluded: read, expired, future announcements.</td></tr>
               <tr><td><code>4. Product Updates</code></td><td><code>7</code> global <code>whatsnew</code> rows seeded; dashboard shows newest <code>5</code>.</td></tr>

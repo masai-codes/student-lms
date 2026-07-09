@@ -83,7 +83,7 @@ describe('buildDashboardHomeWorld', () => {
     const world = await buildDashboardHomeWorld('dashboard-home')
 
     expect(hoisted.createLecture).toHaveBeenCalledTimes(4)
-    expect(hoisted.createAssignment).toHaveBeenCalledTimes(4)
+    expect(hoisted.createAssignment).toHaveBeenCalledTimes(5)
     expect(hoisted.createAnnouncement).toHaveBeenCalledTimes(6)
     expect(hoisted.createMessage).toHaveBeenCalledTimes(2)
     expect(hoisted.createWhatsnew).toHaveBeenCalledTimes(7)
