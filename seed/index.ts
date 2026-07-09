@@ -8,6 +8,7 @@ import type { SeedFlowResult } from './types'
 export { resetDatabase } from './resetDatabase'
 export { getFlow, listFlows, seedFlowIds } from './registry'
 export type {
+  DashboardHomeEntities,
   LoginAndJoinLectureEntities,
   OnboardingEntities,
   OnboardingSectionKey,

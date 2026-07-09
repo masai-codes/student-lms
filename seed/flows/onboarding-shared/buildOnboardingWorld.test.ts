@@ -10,6 +10,7 @@ const hoisted = vi.hoisted(() => ({
   createProfile: vi.fn(),
   createUserDeviceToken: vi.fn(),
   createVideoAttendance: vi.fn(),
+  writeOnwardFixture: vi.fn(),
 }))
 
 vi.mock('../../factories/index.ts', () => ({
@@ -24,19 +25,33 @@ vi.mock('../../factories/index.ts', () => ({
   createVideoAttendance: hoisted.createVideoAttendance,
 }))
 
+vi.mock('../../onward-simulation/onwardFixtureStore', () => ({
+  writeOnwardFixture: hoisted.writeOnwardFixture,
+}))
+
 import { buildOnboardingWorld } from './buildOnboardingWorld'
 import { getOnboardingScenario } from './scenarios'
 
 describe('buildOnboardingWorld', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    delete process.env.SEED_WITH_APP_DOWNLOAD
+    delete process.env.SEED_DOCS_REQUIRED
+    delete process.env.SEED_DOCS_UPLOADED
+    delete process.env.SEED_KIT_SHOWN
+    delete process.env.SEED_KIT_FILLED
+    delete process.env.SEED_KIT_TRACKING
+    delete process.env.SEED_AGREEMENT_SIGNED
 
-    hoisted.createUser
-      .mockResolvedValueOnce({ id: 1, email: 'onboarding-welcome-modal.admin@example.com' })
-      .mockResolvedValueOnce({
-        id: 2,
-        email: 'onboarding-welcome-modal.student@example.com',
-      })
+    // Default return shapes — flow-specific emails come from the call args, not these stubs.
+    hoisted.createUser.mockImplementation(
+      async (input: { email?: string; name?: string; username?: string }) => ({
+        id: input.email?.includes('admin') ? 1 : 2,
+        email: input.email,
+        username: input.username,
+        name: input.name ?? 'Test',
+      }),
+    )
 
     hoisted.createBatch.mockResolvedValue({ id: 10, starting: '2026-07-03' })
 
@@ -87,6 +102,122 @@ describe('buildOnboardingWorld', () => {
     expect(hoisted.createEnrollment).toHaveBeenCalledTimes(4)
     expect(hoisted.createUserBatchAdmissionData).toHaveBeenCalledOnce()
     expect(world.admission).not.toBeNull()
+
+    // First LMS title gets the newest schedule so ORDER BY schedule DESC matches tour order;
+    // zoomLink is cleared so the player uses the recording URL only.
+    expect(hoisted.createLecture).toHaveBeenCalledWith(
+      expect.objectContaining({
+        title: 'How to navigate the dashboard [onboarding-welcome-modal]',
+        zoomLink: null,
+        type: 'video',
+      }),
+    )
+  })
+
+  it('fees-unpaid leaves LMS steps incomplete for interactive testing', async () => {
+    await buildOnboardingWorld(
+      'onboarding-fees-unpaid',
+      getOnboardingScenario('onboarding-fees-unpaid'),
+    )
+
+    expect(hoisted.createVideoAttendance).not.toHaveBeenCalled()
+    expect(hoisted.createUserDeviceToken).not.toHaveBeenCalled()
+    // Profile row exists for admission users, but no profile_pic → photo step unticked.
+    expect(hoisted.createProfile).toHaveBeenCalledWith(
+      expect.objectContaining({ userId: 2, legalData: undefined }),
+    )
+    expect(hoisted.createUser).toHaveBeenCalledWith(
+      expect.objectContaining({
+        email: 'onboarding-fees-unpaid.student@example.com',
+        meta: { showWelcomeModal: true },
+      }),
+    )
+  })
+
+  it('fees-unpaid can be forced to pre-complete download-app', async () => {
+    process.env.SEED_WITH_APP_DOWNLOAD = '1'
+
+    await buildOnboardingWorld(
+      'onboarding-fees-unpaid',
+      getOnboardingScenario('onboarding-fees-unpaid'),
+    )
+
+    expect(hoisted.createUserDeviceToken).toHaveBeenCalledWith(
+      expect.objectContaining({
+        userId: 2,
+        token: 'seed-device-onboarding-fees-unpaid',
+        deviceType: 'ios',
+      }),
+    )
+  })
+
+  it('fees-paid writes a simulated onward fixture and mirrors kit fields into admission data', async () => {
+    await buildOnboardingWorld('onboarding-fees-paid', getOnboardingScenario('onboarding-fees-paid'))
+
+    expect(hoisted.writeOnwardFixture).toHaveBeenCalledWith('onboarding-fees-paid-student', {
+      documents: {
+        required: true,
+        instituteSideUpload: false,
+        documentsUploaded: false,
+        documentsVerified: false,
+        documentsPendingVerification: false,
+      },
+      kit: {
+        showKit: true,
+        welcomeKitUrl: null,
+        detailsFilled: false,
+        details: null,
+        tracking: null,
+      },
+    })
+
+    expect(hoisted.createUserBatchAdmissionData).toHaveBeenCalledWith(
+      expect.objectContaining({
+        studentKitExists: 1,
+        studentKitDetailsFilled: 0,
+        studentKitTrackingUrl: null,
+      }),
+    )
+
+    // Agreement starts pending — no legalData is written until signed.
+    expect(hoisted.createProfile).toHaveBeenCalledWith(
+      expect.objectContaining({ legalData: undefined }),
+    )
+  })
+
+  it('fees-paid flags fully complete documents/kit/agreement via env overrides', async () => {
+    process.env.SEED_DOCS_UPLOADED = '1'
+    process.env.SEED_KIT_FILLED = '1'
+    process.env.SEED_KIT_TRACKING = '1'
+    process.env.SEED_AGREEMENT_SIGNED = '1'
+
+    await buildOnboardingWorld('onboarding-fees-paid', getOnboardingScenario('onboarding-fees-paid'))
+
+    expect(hoisted.writeOnwardFixture).toHaveBeenCalledWith(
+      'onboarding-fees-paid-student',
+      expect.objectContaining({
+        documents: expect.objectContaining({ required: true, documentsUploaded: true }),
+        kit: expect.objectContaining({ showKit: true, detailsFilled: true, tracking: expect.any(String) }),
+      }),
+    )
+    expect(hoisted.createUserBatchAdmissionData).toHaveBeenCalledWith(
+      expect.objectContaining({ studentKitDetailsFilled: 1, studentKitTrackingUrl: expect.any(String) }),
+    )
+    expect(hoisted.createProfile).toHaveBeenCalledWith(
+      expect.objectContaining({
+        legalData: expect.objectContaining({ agreements: expect.anything() }),
+      }),
+    )
+  })
+
+  it('complete seeds profile photo for the LMS walkthrough step', async () => {
+    await buildOnboardingWorld('onboarding-complete', getOnboardingScenario('onboarding-complete'))
+
+    expect(hoisted.createProfile).toHaveBeenCalledWith(
+      expect.objectContaining({
+        meta: { profile_pic: 'https://example.com/profile-photo.jpg' },
+      }),
+    )
   })
 
   it('skips admission data for legacy users', async () => {

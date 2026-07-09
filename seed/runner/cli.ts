@@ -23,9 +23,16 @@ function publishCatalog(html: string): void {
 }
 
 function printUsage(): void {
-  console.log('Usage: npm run seed [flow-id|all] [--no-reset]\n')
+  console.log('Usage: npm run seed [flow-id|all] [--no-reset] [flags]\n')
   console.log('  npm run seed all          — run every flow (reset once, then append)')
   console.log('  npm run seed:all          — same as above\n')
+  console.log('  --with-app-download       — for onboarding-fees-unpaid, pre-seeds a device token')
+  console.log('  --docs-required           — for onboarding-fees-paid, simulated onward: documents.required = true')
+  console.log('  --docs-uploaded           — for onboarding-fees-paid, simulated onward: documents.documentsUploaded = true')
+  console.log('  --kit-shown               — for onboarding-fees-paid, simulated onward: kit.showKit = true')
+  console.log('  --kit-filled              — for onboarding-fees-paid, simulated onward: kit.detailsFilled = true')
+  console.log('  --kit-tracking            — for onboarding-fees-paid, simulated onward: kit.tracking = <url>')
+  console.log('  --agreement-signed        — for onboarding-fees-paid, pre-signs the Program Onboarding agreement')
   console.log('Available flows:')
   for (const flow of listFlows()) {
     console.log(`  ${flow.id} — ${flow.description}`)
@@ -75,6 +82,13 @@ async function main(): Promise<void> {
   const args = process.argv.slice(2)
   const flowId = args.find((arg) => !arg.startsWith('--'))
   const noReset = args.includes('--no-reset')
+  const withAppDownload = args.includes('--with-app-download')
+  const docsRequired = args.includes('--docs-required')
+  const docsUploaded = args.includes('--docs-uploaded')
+  const kitShown = args.includes('--kit-shown')
+  const kitFilled = args.includes('--kit-filled')
+  const kitTracking = args.includes('--kit-tracking')
+  const agreementSigned = args.includes('--agreement-signed')
 
   if (!flowId) {
     printUsage()
@@ -95,6 +109,31 @@ async function main(): Promise<void> {
   }
 
   console.log(`Seeding flow "${flowId}"${noReset ? ' (no reset)' : ''}...`)
+
+  // Optional test-mode flags.
+  // Keep this as process-level env so we don't have to thread new options
+  // through every seedFlow signature.
+  if (withAppDownload) {
+    process.env.SEED_WITH_APP_DOWNLOAD = '1'
+  }
+  if (docsRequired) {
+    process.env.SEED_DOCS_REQUIRED = '1'
+  }
+  if (docsUploaded) {
+    process.env.SEED_DOCS_UPLOADED = '1'
+  }
+  if (kitShown) {
+    process.env.SEED_KIT_SHOWN = '1'
+  }
+  if (kitFilled) {
+    process.env.SEED_KIT_FILLED = '1'
+  }
+  if (kitTracking) {
+    process.env.SEED_KIT_TRACKING = '1'
+  }
+  if (agreementSigned) {
+    process.env.SEED_AGREEMENT_SIGNED = '1'
+  }
 
   const result = await seedFlow(flowId, { reset: !noReset })
   writeSeedState(result, { replaceAll: !noReset })

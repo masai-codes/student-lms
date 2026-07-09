@@ -5,6 +5,7 @@ export const ONBOARDING_LMS_APP_VIDEO_URL =
   'https://coding-platform.s3.amazonaws.com/dev/lms/tickets/1bf6eecd-adba-4ff4-8a7c-8918d19995a6/kjfYWNpFgLfFSVyI.mp4'
 
 export const ONBOARDING_ID_CARD_URL = 'https://example.com/id-card.pdf'
+export const ONBOARDING_PROFILE_PHOTO_URL = 'https://example.com/profile-photo.jpg'
 export const ONBOARDING_PAYMENT_URL = 'https://example.com/pay-fees'
 export const ONBOARDING_KIT_TRACKING_URL = 'https://tracking.example.com/ABC123'
 
@@ -31,6 +32,11 @@ export const PROGRAM_LECTURE_TITLES = [
 
 export function flowScopedEmail(flowId: string, role: 'admin' | 'student'): string {
   return `${flowId}.${role}@example.com`
+}
+
+/** `users.username` — the `student_code` sent to the onward admissions API. */
+export function flowScopedUsername(flowId: string, role: 'admin' | 'student'): string {
+  return `${flowId}-${role}`
 }
 
 export function flowScopedBatchName(flowId: string): string {

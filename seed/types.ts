@@ -37,6 +37,29 @@ export type LoginAndJoinLectureEntities = {
   lecture: typeof lectures.$inferSelect
 }
 
+export type DashboardHomeEntities = {
+  admin: typeof users.$inferSelect
+  student: typeof users.$inferSelect
+  batch: typeof batches.$inferSelect
+  section: typeof sections.$inferSelect
+  enrollment: typeof sectionUser.$inferSelect
+  scheduleLectures: Array<typeof lectures.$inferSelect>
+  scheduleAssignment: typeof import('@/db/schema').assignments.$inferSelect
+  pendingCatchupLecture: typeof lectures.$inferSelect
+  pendingAssignment: typeof import('@/db/schema').assignments.$inferSelect
+  visibleAnnouncements: Array<typeof import('@/db/schema').announcements.$inferSelect>
+  visibleMessages: Array<typeof import('@/db/schema').messages.$inferSelect>
+  productUpdates: Array<typeof import('@/db/schema').whatsnew.$inferSelect>
+  exclusions: {
+    readAnnouncementId: number
+    expiredAnnouncementId: number
+    futureAnnouncementId: number
+    startedAssignmentId: number
+    overdueAssignmentId: number
+    optionalCatchupLectureId: number
+  }
+}
+
 export type OnboardingSectionKey =
   | 'lmsWalkthroughWeb'
   | 'lmsWalkthroughApp'
@@ -54,7 +77,7 @@ export type OnboardingEntities = {
   profile: typeof profiles.$inferSelect | null
 }
 
-export type SeedFlowEntities = LoginAndJoinLectureEntities | OnboardingEntities
+export type SeedFlowEntities = LoginAndJoinLectureEntities | OnboardingEntities | DashboardHomeEntities
 
 export type SeedFlowResult = {
   flowId: string
@@ -71,9 +94,13 @@ export type SeedFlowModule = {
 export function isLoginAndJoinLectureEntities(
   entities: SeedFlowEntities,
 ): entities is LoginAndJoinLectureEntities {
-  return 'section' in entities && 'lecture' in entities
+  return 'lecture' in entities && !('scheduleLectures' in entities)
 }
 
 export function isOnboardingEntities(entities: SeedFlowEntities): entities is OnboardingEntities {
   return 'sections' in entities
+}
+
+export function isDashboardHomeEntities(entities: SeedFlowEntities): entities is DashboardHomeEntities {
+  return 'scheduleLectures' in entities && 'visibleAnnouncements' in entities
 }

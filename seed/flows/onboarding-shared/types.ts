@@ -1,5 +1,6 @@
 import type { userBatchAdmissionData } from '@/db/schema'
 
+import type { SimulatedOnwardOverrides } from '../../onward-simulation/buildSimulatedOnwardStatus'
 import {
   LMS_LECTURE_TITLES,
   PROGRAM_LECTURE_TITLES,
@@ -60,9 +61,18 @@ export type OnboardingScenario = {
   includeAdmission: boolean
   userMeta?: Record<string, unknown>
   admission?: AdmissionOverrides
-  profile?: { legalData?: Record<string, unknown> }
+  profile?: { legalData?: Record<string, unknown>; meta?: Record<string, unknown> }
   deviceToken?: boolean
   videoAttendances?: 'none' | 'all-lms' | 'all'
+  /** Sign the Program Onboarding agreement outright, independent of `videoAttendances`. */
+  agreementSigned?: boolean
+  /**
+   * Base values for a simulated onward `/lms/student-status` response (see
+   * `seed/onward-simulation/`). Presence of this field opts the flow into the
+   * simulated-onward model for Documents + Student Kit instead of raw
+   * `admission` DB overrides.
+   */
+  simulatedOnward?: SimulatedOnwardOverrides
 }
 
 export type OnboardingFlowId =
@@ -71,8 +81,5 @@ export type OnboardingFlowId =
   | 'onboarding-welcome-seen'
   | 'onboarding-fees-unpaid'
   | 'onboarding-fees-paid'
-  | 'onboarding-kit-waiting'
-  | 'onboarding-kit-tracking'
-  | 'onboarding-agreement-pending'
   | 'onboarding-complete'
   | 'onboarding-fees-overdue'
