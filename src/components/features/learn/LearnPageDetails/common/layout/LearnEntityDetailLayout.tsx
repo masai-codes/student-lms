@@ -6,9 +6,15 @@ import { LearnDetailOverview } from '../overview'
 import { LearnDetailBodyGrid } from './LearnDetailBodyGrid'
 import type { LearnHubDetailPayload } from '@/server/learn/types'
 import type { ReactNode } from 'react'
+import { formatLectureRangeLocal } from '@/utils/timeZoneHandler'
 
 type LearnEntityDetailLayoutProps = {
-  detail: LearnHubDetailPayload & { scheduleDisplayRange: string }
+  detail: LearnHubDetailPayload & {
+    scheduleDisplayRange: string
+    /** IST wall-clock DB values, localized client-side for the header date. */
+    schedule: string | null
+    concludes: string | null
+  }
   main: ReactNode
   discussionEntityKind: 'assignment' | 'lecture'
   emptyStateContext: 'assignment' | 'resource' | 'lecture'
@@ -31,10 +37,16 @@ export function LearnEntityDetailLayout({
   overviewTrailingChips,
   headerActions,
 }: LearnEntityDetailLayoutProps) {
+  // The server builds `scheduleDisplayRange` in IST; re-derive it in the viewer's
+  // local timezone so the header date matches their device clock. Fall back to
+  // the server string, then to `displayDate`, when values are missing.
+  const localRange = formatLectureRangeLocal(detail.schedule, detail.concludes)
   const displayDate =
-    detail.scheduleDisplayRange.trim() !== ''
-      ? detail.scheduleDisplayRange
-      : detail.displayDate
+    localRange !== ''
+      ? localRange
+      : detail.scheduleDisplayRange.trim() !== ''
+        ? detail.scheduleDisplayRange
+        : detail.displayDate
 
   return (
     <div className="w-full space-y-6 pb-12">
