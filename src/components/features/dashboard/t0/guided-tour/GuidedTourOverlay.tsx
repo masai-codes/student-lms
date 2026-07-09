@@ -6,7 +6,7 @@ import { IdCardStep } from './IdCardStep'
 import { GuidedTourActivePanel } from './GuidedTourActivePanel'
 import { buildLmsSteps, buildProgramSteps, getIdCardState } from './steps'
 import BottomDrawer from '@/components/ui/bottom-drawer'
-import { useIsMobileViewport } from '@/components/features/chatbot/hooks/useIsMobileViewport'
+import { useIsMobileViewport } from '@/hooks/useIsMobileViewport'
 import type { GuidedTourStep } from './steps'
 import {
   Select,

@@ -5,7 +5,7 @@ import { pushDashboardEvent } from '../shared/dashboardAnalytics'
 import { LottieConfetti } from '@/components/ui/lottie-confetti'
 import { Modal, ModalContent, ModalDescription, ModalTitle } from '@/components/ui/modal'
 import BottomDrawer from '@/components/ui/bottom-drawer'
-import { useIsMobileViewport } from '@/components/features/chatbot/hooks/useIsMobileViewport'
+import { useIsMobileViewport } from '@/hooks/useIsMobileViewport'
 
 interface WelcomeModalProps {
   /** Whether the modal/drawer is visible. */
