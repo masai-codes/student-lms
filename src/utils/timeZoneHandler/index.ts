@@ -197,42 +197,7 @@ function formatDate(d: dayjs.Dayjs, withYear: boolean): string {
   return d.format(withYear ? 'D MMM YYYY' : 'D MMM')
 }
 
-// ── 3a. Time-only ranges ("5:13 PM - 6:12 PM") ──────────────────────────────────
-
-/** Time range in the viewer's local zone, e.g. "5:13 PM - 6:12 PM (EDT)". */
-export function formatTimeRangeLocal(
-  scheduleIST: string | null,
-  concludesIST: string | null | undefined,
-): string {
-  const start = parseMysqlDatetimeIST(scheduleIST)
-  if (!start) return ''
-  const startLocal = toLocal(start)
-  const tz = getTzLabel()
-  const end = concludesIST ? parseMysqlDatetimeIST(concludesIST) : null
-  if (!end) return `${formatHour(startLocal)} (${tz})`
-  const endLocal = toLocal(end)
-  if (startLocal.isSame(endLocal, 'day')) {
-    return `${formatHour(startLocal)} - ${formatHour(endLocal)} (${tz})`
-  }
-  return `${formatDate(startLocal, false)}, ${formatHour(startLocal)} - ${formatDate(endLocal, false)}, ${formatHour(endLocal)} (${tz})`
-}
-
-/** Time range always in IST — for tooltips. e.g. "5:13 PM - 6:12 PM (IST)". */
-export function formatTimeRangeIST(
-  scheduleIST: string | null,
-  concludesIST: string | null | undefined,
-): string {
-  const start = parseMysqlDatetimeIST(scheduleIST)
-  if (!start) return ''
-  const end = concludesIST ? parseMysqlDatetimeIST(concludesIST) : null
-  if (!end) return `${formatHour(start)} (IST)`
-  if (start.isSame(end, 'day')) {
-    return `${formatHour(start)} - ${formatHour(end)} (IST)`
-  }
-  return `${formatDate(start, false)}, ${formatHour(start)} - ${formatDate(end, false)}, ${formatHour(end)} (IST)`
-}
-
-// ── 3b. Schedule ranges (leading date, no year) ─────────────────────────────────
+// ── 3a. Schedule ranges (leading date, no year) ─────────────────────────────────
 
 /** Local schedule range, e.g. "2 Jul, 6:30 PM - 7:30 PM (IST)". */
 export function formatScheduleRangeLocal(
@@ -292,7 +257,7 @@ export function formatLectureRangeLocal(
   return `${startLabel} - ${formatDate(endLocal, true)}, ${formatHour(endLocal)} (${tz})`
 }
 
-// ── 3c. Single timestamps ────────────────────────────────────────────────────────
+// ── 3b. Single timestamps ────────────────────────────────────────────────────────
 
 /** Single timestamp in the viewer's local zone, e.g. "6 Jun, 9:54 AM (EDT)". */
 export function formatTimestampLocal(raw: string): string {
@@ -309,7 +274,7 @@ export function formatTimestampIST(raw: string): string {
   return `${formatDate(d, false)}, ${formatHour(d)} (IST)`
 }
 
-// ── 3d. Calendar-day / window helpers (viewer-local) ─────────────────────────────
+// ── 3c. Calendar-day helper (viewer-local) ──────────────────────────────────────
 
 /**
  * Whether an IST DB/ISO datetime falls on the viewer's local calendar day as of
@@ -320,18 +285,4 @@ export function isTodayLocal(raw: string | null | undefined, now: Date = new Dat
   const d = parseMysqlDatetimeIST(raw ?? null)
   if (!d) return false
   return toLocal(d).isSame(dayjs(now.valueOf()), 'day')
-}
-
-/** "YYYY-MM-DD" key for today, in the viewer's local zone. */
-export function getTodayDateKeyTz(now: dayjs.Dayjs): string {
-  return dayjs(now.valueOf()).format('YYYY-MM-DD')
-}
-
-/** Rolling 7-day window [today, today+6] in the viewer's local zone. */
-export function getWeekWindowTz(now: dayjs.Dayjs): {
-  weekStart: dayjs.Dayjs
-  weekEnd: dayjs.Dayjs
-} {
-  const local = dayjs(now.valueOf()).startOf('day')
-  return { weekStart: local, weekEnd: local.add(6, 'day') }
 }
