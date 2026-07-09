@@ -47,13 +47,18 @@ export function AgreementStep({ section, onCompleted }: AgreementStepProps) {
   const [subIndex, setSubIndex] = useState(0)
   const [showDetailErrors, setShowDetailErrors] = useState(false)
   const [locationConsent, setLocationConsent] = useState(false)
+  // IP stamped by the save call, shown on the certificate before submit refetches.
+  const [savedIp, setSavedIp] = useState<string | null>(section.ipAddress)
 
   const stepKeys = section.steps.map((s) => s.key)
   const subStepLabels = ['Enter Details', ...section.steps.map((s) => s.heading), 'Signature Certificate']
   const errors = useMemo(() => validateAgreementDetails(values), [values])
   const detailIssues = useMemo(() => getAgreementFieldIssues(values), [values])
 
-  const saveMutation = useMutation({ mutationFn: () => saveAgreementDetailsApi(section.sectionId, values) })
+  const saveMutation = useMutation({
+    mutationFn: () => saveAgreementDetailsApi(section.sectionId, values),
+    onSuccess: (result) => setSavedIp(result.ipAddress ?? savedIp),
+  })
   const submitMutation = useMutation({
     mutationFn: () => submitAgreementApi(section.sectionId),
     onSuccess: onCompleted,
@@ -101,7 +106,7 @@ export function AgreementStep({ section, onCompleted }: AgreementStepProps) {
             batchName={section.batchName}
             viewTime={section.viewTime}
             signedTime={section.signedTime}
-            ipAddress={section.ipAddress}
+            ipAddress={savedIp}
             location={values.location ?? ''}
             completed
             agreementPdfUrl={section.agreementPdfUrl}
@@ -224,7 +229,7 @@ export function AgreementStep({ section, onCompleted }: AgreementStepProps) {
             batchName={section.batchName}
             viewTime={section.viewTime}
             signedTime={section.signedTime}
-            ipAddress={section.ipAddress}
+            ipAddress={savedIp}
             location={values.location ?? ''}
           />
         )}
