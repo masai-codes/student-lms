@@ -24,7 +24,8 @@ describe('getAdmissionsStudentStatus', () => {
 
   it('calls the admissions endpoint with the api key and returns the payload', async () => {
     const fetchSpy = vi.fn((_url: string, _opts: { headers: Record<string, string> }) =>
-      Promise.resolve({ ok: true, json: () => Promise.resolve({ documents: { documentsUploaded: true } }) }),
+      // The endpoint wraps its payload as `{ success, data }`; the client unwraps `data`.
+      Promise.resolve({ ok: true, json: () => Promise.resolve({ success: true, data: { documents: { documentsUploaded: true } } }) }),
     )
     vi.stubGlobal('fetch', fetchSpy)
 
