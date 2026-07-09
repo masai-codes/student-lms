@@ -136,13 +136,13 @@ describe('handleSubmitFeedback', () => {
     })
   })
 
-  it('shifts mobile ratings by +1 and prefixes feedback with platform', async () => {
+  it('passes through mobile ratings and prefixes feedback with platform', async () => {
     const { handleSubmitFeedback } =
       await import('../handlers/submitFeedback.handler')
     hoisted.getUserIdFromCookieHeader.mockResolvedValueOnce(7)
     hoisted.submitAiTutorFeedback.mockResolvedValueOnce({
       chatId: 45,
-      rating: 5,
+      rating: 4,
       feedback: 'ios-Helpful',
     })
 
@@ -161,7 +161,7 @@ describe('handleSubmitFeedback', () => {
       userId: 7,
       lectureId: 123,
       chatId: 45,
-      rating: 5,
+      rating: 4,
       feedback: 'ios-Helpful',
     })
   })
@@ -172,7 +172,7 @@ describe('handleSubmitFeedback', () => {
     hoisted.getUserIdFromCookieHeader.mockResolvedValueOnce(7)
     hoisted.submitAiTutorFeedback.mockResolvedValueOnce({
       chatId: 45,
-      rating: 2,
+      rating: 1,
       feedback: 'android',
     })
 
@@ -190,7 +190,7 @@ describe('handleSubmitFeedback', () => {
       userId: 7,
       lectureId: 123,
       chatId: 45,
-      rating: 2,
+      rating: 1,
       feedback: 'android',
     })
   })
