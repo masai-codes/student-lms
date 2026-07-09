@@ -8,6 +8,7 @@ export async function handleGetT0FlowLectures(
   request: Request,
 ): Promise<Response> {
   try {
+    console.log('[student-status] /t0-flow-lectures endpoint hit', request.url)
     const userId = await requireSessionUserId()
     const url = new URL(request.url)
     const batchIdParam = url.searchParams.get('batchId')

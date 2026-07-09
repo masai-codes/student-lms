@@ -25,7 +25,7 @@ describe('getT0FlowDocuments', () => {
     hoisted.status.mockResolvedValue({ documents: { documentsUploaded: true, documentsVerified: false } })
     const result = await getT0FlowDocuments(1, 5)
     expect(result).toEqual({ documentsUploaded: true, documentsVerified: false, admissionsFormUrl: 'https://sso/docs' })
-    expect(hoisted.status).toHaveBeenCalledWith('riya1', 'documents')
+    expect(hoisted.status).toHaveBeenCalledWith('riya1', 'documents,kit,id_card')
     expect(hoisted.buildRedirect).toHaveBeenCalledWith(1, 'https://pay/x')
   })
 

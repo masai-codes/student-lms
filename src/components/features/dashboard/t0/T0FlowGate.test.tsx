@@ -27,6 +27,7 @@ const lectures: T0FlowLecturesResult = {
   completedLectureIds: [],
   legalAgreementSections: [],
   isDocumentsRequired: false,
+  documentsUploaded: false,
   studentKit: { applicable: false, detailsFilled: false, trackingUrl: null, trackingId: null, admissionsFormUrl: null },
   idCardUrl: null,
 }

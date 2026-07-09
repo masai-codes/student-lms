@@ -13,7 +13,7 @@ interface ProfilePhotoStepProps {
 }
 
 const VIDEO_CONSTRAINTS: MediaTrackConstraints = { facingMode: 'user' }
-const CIRCLE = 'flex size-64 shrink-0 items-center justify-center overflow-hidden rounded-full bg-gray-100 sm:size-72 md:size-80'
+const CIRCLE = 'flex aspect-square w-48 max-w-full shrink-0 items-center justify-center overflow-hidden rounded-full bg-gray-100 sm:w-64 lg:w-72'
 const BTN_SOLID = 'inline-flex h-11 items-center justify-center rounded-lg bg-[#6962AC] px-5 text-sm font-semibold text-white hover:opacity-90 disabled:opacity-60'
 const BTN_OUTLINE = 'inline-flex h-11 items-center justify-center rounded-lg border border-[#6962AC] px-5 text-sm font-semibold text-[#6962AC] hover:bg-[#6962AC]/5'
 
@@ -48,10 +48,10 @@ export function ProfilePhotoStep({ existingPhotoUrl, onCompleted }: ProfilePhoto
 
   return (
     <div
-      className="flex flex-col gap-6 rounded-xl border border-gray-200 bg-white p-6 md:flex-row md:items-start md:justify-between"
+      className="flex flex-col gap-6 rounded-xl border border-gray-200 bg-white p-4 sm:p-6 lg:flex-row lg:items-start lg:justify-between"
       data-testid="guided-tour-panel-profile-photo"
     >
-      <div className="flex flex-col gap-3">
+      <div className="flex min-w-0 flex-col gap-3 lg:flex-1">
         <h3 className="text-lg font-semibold text-gray-900">Update your profile photo</h3>
         <ol className="flex flex-col gap-3 text-sm text-gray-600">
           <li>1. Click on <strong>ENABLE CAMERA</strong> to start your device camera.</li>
@@ -65,7 +65,7 @@ export function ProfilePhotoStep({ existingPhotoUrl, onCompleted }: ProfilePhoto
         ) : null}
       </div>
 
-      <div className="flex flex-col items-center gap-4">
+      <div className="flex w-full flex-col items-center gap-4 lg:w-auto lg:shrink-0">
         {captureImage ? (
           <img
             src={captureImage}
