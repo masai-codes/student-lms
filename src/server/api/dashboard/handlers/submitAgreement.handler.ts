@@ -1,14 +1,8 @@
 import { ApiError, isApiError } from '@/server/api/http/apiError'
 import { jsonOk, mapThrownErrorToResponse } from '@/server/api/http/responses'
 import { requireSessionUserId } from '@/server/api/http/requireSessionUser'
+import { getClientIp } from '@/server/api/http/clientIp'
 import { submitAgreement } from '@/server/api/dashboard/agreement/submitAgreement.service'
-
-/** Best-effort client IP for the certificate's legal record. */
-function getClientIp(request: Request): string {
-  const forwarded = request.headers.get('x-forwarded-for')
-  if (forwarded) return forwarded.split(',')[0]?.trim() ?? ''
-  return request.headers.get('x-real-ip')?.trim() ?? ''
-}
 
 export async function handleSubmitAgreement(request: Request): Promise<Response> {
   try {

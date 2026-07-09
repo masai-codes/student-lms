@@ -15,6 +15,10 @@ export interface AgreementSection {
   sectionName: string
   programName: string
   batchName: string
+  /** Learner's registered email — shown on the signature certificate. */
+  email: string
+  /** Learner's student code (username) — shown on the signature certificate. */
+  studentCode: string
   steps: Array<AgreementStepDoc>
   /** Prefill: user's profile defaults merged with any previously-saved values. */
   savedValues: AgreementFormValues
@@ -26,6 +30,10 @@ export interface AgreementSection {
   agreementPdfUrl: string | null
   /** ISO time the agreement was first viewed (starts the review countdown); null until viewed. */
   viewTime: string | null
+  /** ISO time the agreement was signed (`finalSignTime`); null until signed. */
+  signedTime: string | null
+  /** IP address captured at submit; null until signed. */
+  ipAddress: string | null
   /** Whole days elapsed since first view. */
   daysSinceFirstView: number
   /** Days left in the {@link AGREEMENT_REVIEW_DAYS}-day review window (0 when under a day remains). */
@@ -88,7 +96,7 @@ export async function getAgreementRenderData(userId: number, batchId: number): P
 
   const [[batch], [user], [profile]] = await Promise.all([
     db.select({ name: batches.name, program: batches.program }).from(batches).where(eq(batches.id, batchId)).limit(1),
-    db.select({ name: users.name }).from(users).where(eq(users.id, userId)).limit(1),
+    db.select({ name: users.name, email: users.email, username: users.username }).from(users).where(eq(users.id, userId)).limit(1),
     db.select({ birthDate: profiles.birthDate, legalData: profiles.legalData })
       .from(profiles).where(and(eq(profiles.userId, userId), isNull(profiles.deletedAt))).limit(1),
   ])
@@ -112,11 +120,16 @@ export async function getAgreementRenderData(userId: number, batchId: number): P
     const viewTime = typeof stored['viewTime'] === 'string' ? stored['viewTime'] : null
     const { daysSinceFirstView, daysLeft, hoursLeft, isClosable } = computeAgreementCountdown(viewTime)
 
+    const signedTime = typeof stored['finalSignTime'] === 'string' ? stored['finalSignTime'] : null
+    const ipAddress = typeof stored['ipAddress'] === 'string' ? stored['ipAddress'] : null
+
     sections.push({
       sectionId: Number(row.id),
       sectionName: String(row.name ?? ''),
       programName: batch?.program ?? '',
       batchName: batch?.name ?? '',
+      email: user?.email ?? '',
+      studentCode: user?.username ?? '',
       steps,
       savedValues: { ...baseValues, ...pickAgreementFormValues(stored) },
       acceptedStepKeys,
@@ -124,6 +137,8 @@ export async function getAgreementRenderData(userId: number, batchId: number): P
       referenceNumber: (stored['referenceNumber'] as string | undefined) ?? buildReferenceNumber(userId, Number(row.id)),
       agreementPdfUrl: (stored['agreementPdfUrl'] as string | undefined) ?? null,
       viewTime,
+      signedTime,
+      ipAddress,
       daysSinceFirstView,
       daysLeft,
       hoursLeft,
