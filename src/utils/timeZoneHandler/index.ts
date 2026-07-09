@@ -61,6 +61,11 @@ function formatShortDateLocal(d: dayjs.Dayjs): string {
   return `${d.date()} ${MONTHS[d.month()]}`
 }
 
+/** "6 Jun 2026" from a local-mode dayjs. */
+function formatLongDateLocal(d: dayjs.Dayjs): string {
+  return `${d.date()} ${MONTHS[d.month()]} ${d.year()}`
+}
+
 /**
  * Whether the viewer's device timezone is effectively IST (UTC+5:30).
  * DB times are IST wall-clock, so when the device is already at the IST offset
@@ -170,6 +175,32 @@ export function formatScheduleRangeLocal(
   return `${startLabel} - ${formatShortDateLocal(endLocal)}, ${formatHourLocal(endLocal)} (${tz})`
 }
 
+/**
+ * Full schedule range for a detail page: viewer-local date + time WITH the year
+ * and a trailing timezone label, e.g. "10 May 2026, 3:30 PM - 5:30 PM (IST)".
+ * Cross-day ranges include the end date. This is the localized counterpart of
+ * the server-side IST-only formatter (`formatLectureScheduleRange`), so non-IST
+ * viewers see their own clock time — and the tz label makes it unambiguous.
+ * Must run client-side (reads the device timezone).
+ */
+export function formatLectureRangeLocal(
+  scheduleIST: string | null,
+  concludesIST: string | null | undefined,
+): string {
+  const start = parseMysqlDatetimeIST(scheduleIST)
+  if (!start) return ''
+  const startLocal = toLocalDayjs(start)
+  const tz = getTzLabel()
+  const end = concludesIST ? parseMysqlDatetimeIST(concludesIST) : null
+  const startLabel = `${formatLongDateLocal(startLocal)}, ${formatHourLocal(startLocal)}`
+  if (!end) return `${startLabel} (${tz})`
+  const endLocal = toLocalDayjs(end)
+  if (startLocal.isSame(endLocal, 'day')) {
+    return `${startLabel} - ${formatHourLocal(endLocal)} (${tz})`
+  }
+  return `${startLabel} - ${formatLongDateLocal(endLocal)}, ${formatHourLocal(endLocal)} (${tz})`
+}
+
 /** Same as {@link formatScheduleRangeLocal} but always in IST — for tooltips. */
 export function formatScheduleRangeIST(
   scheduleIST: string | null,
@@ -194,6 +225,21 @@ export function formatTimestampLocal(raw: string): string {
   if (!d) return ''
   const local = toLocalDayjs(d)
   return `${formatShortDateLocal(local)}, ${formatHourLocal(local)} (${getTzLabel()})`
+}
+
+/**
+ * Whether an IST DB/ISO datetime falls on the viewer's local calendar day as of
+ * `now`. Used to decide "today vs upcoming" in the viewer's timezone rather than
+ * IST — a session at IST early-morning may be the prior/next local day abroad.
+ * Must run client-side (reads the device timezone).
+ */
+export function isTodayLocal(
+  raw: string | null | undefined,
+  now: Date = new Date(),
+): boolean {
+  const d = parseMysqlDatetimeIST(raw ?? null)
+  if (!d) return false
+  return toLocalDayjs(d).isSame(dayjs(now.valueOf()), 'day')
 }
 
 /**

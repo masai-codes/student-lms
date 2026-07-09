@@ -2,10 +2,13 @@ import { pushDashboardEvent } from '../shared/dashboardAnalytics'
 import type { DashboardSupportSession } from '@/server/api/dashboard/support/getSupportSessions.service'
 import type { SupportSessionStatus } from '@/server/api/dashboard/support/supportSessionStatus'
 import { isIHubPortal } from '@/utils/portal'
+import { formatTimestampLocal, isTodayLocal } from '@/utils/timeZoneHandler'
 
 interface LmsSupportPanelProps {
   /** The single featured session, or null to hide the card entirely. */
   session: DashboardSupportSession | null
+  /** Injectable for deterministic tests; defaults to the current time. */
+  now?: Date
 }
 
 const SUPPORT_ILLUSTRATION = '/lmssupportsession.svg'
@@ -20,17 +23,27 @@ const SUBTEXT: Record<SupportSessionStatus, string> = {
 // is no session (and while loading, the parent passes null). The backend
 // decides live/today/upcoming; this only renders. The card body is never
 // clickable — the only interactive element is the live "Join Now" button.
-export function LmsSupportPanel({ session }: LmsSupportPanelProps) {
+export function LmsSupportPanel({ session, now = new Date() }: LmsSupportPanelProps) {
   // The LMS support-session card is a Masai-only surface — hidden on iHub.
   if (isIHubPortal()) return null
   if (!session) return null
 
-  const isLive = session.status === 'live'
+  // `session.status` is computed server-side in IST. Trust it for the real-time
+  // "live" check, but re-decide today/upcoming in the viewer's LOCAL timezone so
+  // a non-IST viewer near midnight sees the correct day bucket (and the pill
+  // below renders the same instant in their local time).
+  const status: SupportSessionStatus =
+    session.status === 'live'
+      ? 'live'
+      : session.schedule && isTodayLocal(session.schedule, now)
+        ? 'today'
+        : 'upcoming'
+  const isLive = status === 'live'
 
   return (
     <section
       data-testid="dashboard-lms-support-panel"
-      data-status={session.status}
+      data-status={status}
       className={`flex items-center gap-3 rounded-2xl border p-4 ${
         isLive
           ? 'border-[#C3DDFD] bg-[#E1EFFE]'
@@ -44,14 +57,14 @@ export function LmsSupportPanel({ session }: LmsSupportPanelProps) {
           LMS Support Session
         </h4>
         <p className="mt-0.5 text-xs text-gray-600">
-          {SUBTEXT[session.status]}
+          {SUBTEXT[status]}
         </p>
         {!isLive && session.schedule && (
           <span
             data-testid="dashboard-support-session-time"
             className="mt-1.5 inline-block rounded-md bg-[#FDF6B2] px-2 py-0.5 text-xs font-semibold text-gray-800"
           >
-            {formatSessionPill(session.schedule)}
+            {formatTimestampLocal(session.schedule)}
           </span>
         )}
       </div>
@@ -75,20 +88,4 @@ export function LmsSupportPanel({ session }: LmsSupportPanelProps) {
       )}
     </section>
   )
-}
-
-/** Renders an IST ISO timestamp as e.g. "2 Jul, 6:30 PM (IST)". */
-function formatSessionPill(iso: string): string {
-  const at = new Date(iso)
-  const date = new Intl.DateTimeFormat('en-GB', {
-    day: 'numeric',
-    month: 'short',
-    timeZone: 'Asia/Kolkata',
-  }).format(at)
-  const time = new Intl.DateTimeFormat('en-US', {
-    hour: 'numeric',
-    minute: '2-digit',
-    timeZone: 'Asia/Kolkata',
-  }).format(at)
-  return `${date}, ${time} (IST)`
 }
