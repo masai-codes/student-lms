@@ -16,6 +16,8 @@ const hoisted = vi.hoisted(() => ({
   createBatch: vi.fn(),
   createSection: vi.fn(),
   createEnrollment: vi.fn(),
+  createProfile: vi.fn(),
+  createUserDeviceToken: vi.fn(),
   createLecture: vi.fn(),
 }))
 
@@ -24,9 +26,12 @@ vi.mock('../factories/index.ts', () => ({
   createBatch: hoisted.createBatch,
   createSection: hoisted.createSection,
   createEnrollment: hoisted.createEnrollment,
+  createProfile: hoisted.createProfile,
+  createUserDeviceToken: hoisted.createUserDeviceToken,
   createLecture: hoisted.createLecture,
 }))
 
+import { ONBOARDING_PROFILE_PHOTO_URL } from './onboarding-shared/constants'
 import { loginAndJoinLectureConfig } from './login-and-join-lecture/config'
 import { seedLoginAndJoinLecture } from './login-and-join-lecture/seed'
 
@@ -68,6 +73,9 @@ describe('seedLoginAndJoinLecture', () => {
       role: 'student',
     })
 
+    hoisted.createProfile.mockResolvedValue({ id: 50, userId: 2 })
+    hoisted.createUserDeviceToken.mockResolvedValue({ id: 60, userId: 2 })
+
     hoisted.createLecture.mockResolvedValue({
       id: 40,
       batchId: 10,
@@ -89,6 +97,15 @@ describe('seedLoginAndJoinLecture', () => {
       sectionId: 20,
       userId: 2,
       managerId: 1,
+    })
+    expect(hoisted.createProfile).toHaveBeenCalledWith({
+      userId: 2,
+      meta: { profile_pic: ONBOARDING_PROFILE_PHOTO_URL },
+    })
+    expect(hoisted.createUserDeviceToken).toHaveBeenCalledWith({
+      userId: 2,
+      token: 'seed-device-login-and-join-lecture',
+      deviceType: 'ios',
     })
     expect(hoisted.createLecture).toHaveBeenCalledWith(
       expect.objectContaining({

@@ -2,8 +2,10 @@ import {
   createBatch,
   createEnrollment,
   createLecture,
+  createProfile,
   createSection,
   createUser,
+  createUserDeviceToken,
 } from '../../factories'
 import type { SeedFlowResult, TestUser } from '../../types'
 import {
@@ -16,7 +18,10 @@ import {
   formatMysqlDatetime,
   offsetFromNow,
 } from '../../utils/time'
-import { flowScopedEmail } from '../onboarding-shared/constants'
+import {
+  flowScopedEmail,
+  ONBOARDING_PROFILE_PHOTO_URL,
+} from '../onboarding-shared/constants'
 import { loginAndJoinLectureConfig, loginAndJoinLectureTiming } from './config'
 
 const FLOW_ID = loginAndJoinLectureConfig.id
@@ -80,6 +85,17 @@ export async function seedLoginAndJoinLecture(): Promise<SeedFlowResult> {
     sectionId: section.id,
     userId: student.id,
     managerId: admin.id,
+  })
+
+  await createProfile({
+    userId: student.id,
+    meta: { profile_pic: ONBOARDING_PROFILE_PHOTO_URL },
+  })
+
+  await createUserDeviceToken({
+    userId: student.id,
+    token: `seed-device-${FLOW_ID}`,
+    deviceType: 'ios',
   })
 
   const lecture = await createLecture({
