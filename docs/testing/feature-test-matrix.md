@@ -122,8 +122,8 @@ Last updated: 2026-06-07
 ## AI Tutor streaming chat
 - Area: Authenticated SSE chat stub (`src/routes/api/ai-tutor/chat/stream.ts`, `src/server/api/ai-tutor/**`, `src/server/api/http/sse.ts`)
 - Status: Covered
-- Test files: `src/server/api/ai-tutor/__tests__/stream*.test.ts`, `src/server/api/http/__tests__/sse.test.ts`
-- Notes: `POST /api/ai-tutor/chat/stream` requires a session cookie, accepts `{ lectureId, chat, chatID?, platform?, language? }` (`platform`: `ios` | `android` | `web` | `web-mobile` | `web-desktop` | `app`), reads/writes `ai_chat_practice_questions`, loads lecture summary from `lectures_ai`, streams Claude output as SSE token events, persists each turn with optional `platform` and `language` on `chatHistory`, enforces reply language when `language` is set, and returns `{ type: "done", chatId }`.
+- Test files: `src/server/api/ai-tutor/__tests__/stream*.test.ts`, `src/server/api/http/__tests__/sse.test.ts`, `src/server/api/ai-tutor/__tests__/{buildLectureChatPrompt,buildNotesOutline,getLectureChatMaterials.service,retrieveLectureRagChunks.service,retrieveLectureContent.tool}.test.ts`
+- Notes: `POST /api/ai-tutor/chat/stream` requires a session cookie, accepts `{ lectureId, chat, chatID?, platform?, language? }`, reads/writes `ai_chat_practice_questions`, loads `lectures_ai.summary` plus instructor notes into the system prompt (inline when `<= 10k` chars, outline when longer), exposes a `retrieveLectureContent` tool (`query`, `top_k`) for LLM-driven RAG retrieval from ingested notes/transcript, streams Claude output as SSE token events, persists each turn with optional `platform` and `language` on `chatHistory`, enforces reply language when `language` is set, and returns `{ type: "done", chatId }`.
 
 ## AI Tutor chat conversations
 - Area: Authenticated lecture chat history (`src/routes/api/ai-tutor/chat/conversations/**`, `src/server/api/ai-tutor/**`, `src/lib/api/ai-tutor/aiTutorChatApi.ts`)
@@ -142,6 +142,12 @@ Last updated: 2026-06-07
 - Status: Covered
 - Test files: `src/server/api/ai-tutor/__tests__/{migrateFeedbackRating,migrateAiTutorFeedbackRatings.service,migrateFeedbackRatings.handler}.test.ts`
 - Notes: `POST /api/ai-tutor/chat/feedback/migrate-ratings` is admin-gated and backfills legacy `ai_chat_practice_questions.rating` values: subtract `1` for `ios`/`android` feedback prefixes (skip when result would be `< 1`), otherwise convert unprefixed binary `0`/`1` ratings to `1`/`5`. Supports `{ dryRun: true }`.
+
+## AI Tutor RAG lecture ingestion
+- Area: Internal lecture notes preparation (`src/routes/api/ai-tutor/lectures/$lectureId/ingest.ts`, `src/server/api/ai-tutor/**`)
+- Status: Covered
+- Test files: `src/server/api/ai-tutor/__tests__/{ragPlatform,lectureRagContent.service,ingestLectureRag.service,ingestLectureRag.handler,generateLectureNotesTocFromMarkdown,lectureNotesTocData}.test.ts`
+- Notes: `GET /api/ai-tutor/lectures/:lectureId/ingest` is protected by `x-ai-tutor-rag-ingest-secret`. For notes above 10,000 characters it generates a Claude TOC, stores `lectures.data.notesRagged = true` and `lectures.data.aiTutorNotesToc`, and enqueues RAG ingestion. For shorter notes it stores `lectures.data.notesRagged = false` and skips TOC/RAG.
 
 ## Status Meaning
 
