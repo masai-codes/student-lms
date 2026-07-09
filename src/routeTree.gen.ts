@@ -82,6 +82,7 @@ import { Route as ApiAiTutorChatConversationsIndexRouteImport } from './routes/a
 import { Route as protectedLayoutSupportSupportIdIndexRouteImport } from './routes/(protected)/_layout/support/$supportId/index'
 import { Route as protectedLayoutDiscussionsCreateIndexRouteImport } from './routes/(protected)/_layout/discussions/create/index'
 import { Route as protectedLayoutDiscussionsDiscussionIdIndexRouteImport } from './routes/(protected)/_layout/discussions/$discussionId/index'
+import { Route as ApiAiTutorChatFeedbackMigrateRatingsRouteImport } from './routes/api/ai-tutor/chat/feedback/migrate-ratings'
 import { Route as ApiAiTutorChatConversationsChatIdRouteImport } from './routes/api/ai-tutor/chat/conversations/$chatId'
 import { Route as protectedLayoutMasaiverseEventEventIdRouteImport } from './routes/(protected)/_layout/masaiverse/event.$eventId'
 import { Route as protectedLayoutMasaiverseClubClubIdRouteImport } from './routes/(protected)/_layout/masaiverse/club.$clubId'
@@ -525,6 +526,12 @@ const protectedLayoutDiscussionsDiscussionIdIndexRoute =
     path: '/discussions/$discussionId/',
     getParentRoute: () => protectedLayoutRouteRoute,
   } as any)
+const ApiAiTutorChatFeedbackMigrateRatingsRoute =
+  ApiAiTutorChatFeedbackMigrateRatingsRouteImport.update({
+    id: '/migrate-ratings',
+    path: '/migrate-ratings',
+    getParentRoute: () => ApiAiTutorChatFeedbackRoute,
+  } as any)
 const ApiAiTutorChatConversationsChatIdRoute =
   ApiAiTutorChatConversationsChatIdRouteImport.update({
     id: '/api/ai-tutor/chat/conversations/$chatId',
@@ -736,7 +743,7 @@ export interface FileRoutesByFullPath {
   '/masaiverse/events': typeof protectedLayoutMasaiverseEventsRoute
   '/masaiverse/home': typeof protectedLayoutMasaiverseHomeRoute
   '/masaiverse/leaderboard': typeof protectedLayoutMasaiverseLeaderboardRoute
-  '/api/ai-tutor/chat/feedback': typeof ApiAiTutorChatFeedbackRoute
+  '/api/ai-tutor/chat/feedback': typeof ApiAiTutorChatFeedbackRouteWithChildren
   '/api/ai-tutor/chat/stream': typeof ApiAiTutorChatStreamRoute
   '/api/masaiverse-v2/banners/create': typeof ApiMasaiverseV2BannersCreateRoute
   '/api/masaiverse-v2/banners/delete': typeof ApiMasaiverseV2BannersDeleteRoute
@@ -782,6 +789,7 @@ export interface FileRoutesByFullPath {
   '/masaiverse/club/$clubId': typeof protectedLayoutMasaiverseClubClubIdRoute
   '/masaiverse/event/$eventId': typeof protectedLayoutMasaiverseEventEventIdRoute
   '/api/ai-tutor/chat/conversations/$chatId': typeof ApiAiTutorChatConversationsChatIdRoute
+  '/api/ai-tutor/chat/feedback/migrate-ratings': typeof ApiAiTutorChatFeedbackMigrateRatingsRoute
   '/discussions/$discussionId/': typeof protectedLayoutDiscussionsDiscussionIdIndexRoute
   '/discussions/create/': typeof protectedLayoutDiscussionsCreateIndexRoute
   '/support/$supportId/': typeof protectedLayoutSupportSupportIdIndexRoute
@@ -833,7 +841,7 @@ export interface FileRoutesByTo {
   '/masaiverse/events': typeof protectedLayoutMasaiverseEventsRoute
   '/masaiverse/home': typeof protectedLayoutMasaiverseHomeRoute
   '/masaiverse/leaderboard': typeof protectedLayoutMasaiverseLeaderboardRoute
-  '/api/ai-tutor/chat/feedback': typeof ApiAiTutorChatFeedbackRoute
+  '/api/ai-tutor/chat/feedback': typeof ApiAiTutorChatFeedbackRouteWithChildren
   '/api/ai-tutor/chat/stream': typeof ApiAiTutorChatStreamRoute
   '/api/masaiverse-v2/banners/create': typeof ApiMasaiverseV2BannersCreateRoute
   '/api/masaiverse-v2/banners/delete': typeof ApiMasaiverseV2BannersDeleteRoute
@@ -878,6 +886,7 @@ export interface FileRoutesByTo {
   '/masaiverse/club/$clubId': typeof protectedLayoutMasaiverseClubClubIdRoute
   '/masaiverse/event/$eventId': typeof protectedLayoutMasaiverseEventEventIdRoute
   '/api/ai-tutor/chat/conversations/$chatId': typeof ApiAiTutorChatConversationsChatIdRoute
+  '/api/ai-tutor/chat/feedback/migrate-ratings': typeof ApiAiTutorChatFeedbackMigrateRatingsRoute
   '/discussions/$discussionId': typeof protectedLayoutDiscussionsDiscussionIdIndexRoute
   '/discussions/create': typeof protectedLayoutDiscussionsCreateIndexRoute
   '/support/$supportId': typeof protectedLayoutSupportSupportIdIndexRoute
@@ -930,7 +939,7 @@ export interface FileRoutesById {
   '/(protected)/_layout/masaiverse/events': typeof protectedLayoutMasaiverseEventsRoute
   '/(protected)/_layout/masaiverse/home': typeof protectedLayoutMasaiverseHomeRoute
   '/(protected)/_layout/masaiverse/leaderboard': typeof protectedLayoutMasaiverseLeaderboardRoute
-  '/api/ai-tutor/chat/feedback': typeof ApiAiTutorChatFeedbackRoute
+  '/api/ai-tutor/chat/feedback': typeof ApiAiTutorChatFeedbackRouteWithChildren
   '/api/ai-tutor/chat/stream': typeof ApiAiTutorChatStreamRoute
   '/api/masaiverse-v2/banners/create': typeof ApiMasaiverseV2BannersCreateRoute
   '/api/masaiverse-v2/banners/delete': typeof ApiMasaiverseV2BannersDeleteRoute
@@ -976,6 +985,7 @@ export interface FileRoutesById {
   '/(protected)/_layout/masaiverse/club/$clubId': typeof protectedLayoutMasaiverseClubClubIdRoute
   '/(protected)/_layout/masaiverse/event/$eventId': typeof protectedLayoutMasaiverseEventEventIdRoute
   '/api/ai-tutor/chat/conversations/$chatId': typeof ApiAiTutorChatConversationsChatIdRoute
+  '/api/ai-tutor/chat/feedback/migrate-ratings': typeof ApiAiTutorChatFeedbackMigrateRatingsRoute
   '/(protected)/_layout/discussions/$discussionId/': typeof protectedLayoutDiscussionsDiscussionIdIndexRoute
   '/(protected)/_layout/discussions/create/': typeof protectedLayoutDiscussionsCreateIndexRoute
   '/(protected)/_layout/support/$supportId/': typeof protectedLayoutSupportSupportIdIndexRoute
@@ -1076,6 +1086,7 @@ export interface FileRouteTypes {
     | '/masaiverse/club/$clubId'
     | '/masaiverse/event/$eventId'
     | '/api/ai-tutor/chat/conversations/$chatId'
+    | '/api/ai-tutor/chat/feedback/migrate-ratings'
     | '/discussions/$discussionId/'
     | '/discussions/create/'
     | '/support/$supportId/'
@@ -1172,6 +1183,7 @@ export interface FileRouteTypes {
     | '/masaiverse/club/$clubId'
     | '/masaiverse/event/$eventId'
     | '/api/ai-tutor/chat/conversations/$chatId'
+    | '/api/ai-tutor/chat/feedback/migrate-ratings'
     | '/discussions/$discussionId'
     | '/discussions/create'
     | '/support/$supportId'
@@ -1269,6 +1281,7 @@ export interface FileRouteTypes {
     | '/(protected)/_layout/masaiverse/club/$clubId'
     | '/(protected)/_layout/masaiverse/event/$eventId'
     | '/api/ai-tutor/chat/conversations/$chatId'
+    | '/api/ai-tutor/chat/feedback/migrate-ratings'
     | '/(protected)/_layout/discussions/$discussionId/'
     | '/(protected)/_layout/discussions/create/'
     | '/(protected)/_layout/support/$supportId/'
@@ -1316,7 +1329,7 @@ export interface RootRouteChildren {
   authV2AuthUseAccountRoute: typeof authV2AuthUseAccountRoute
   authV2LoginRequestOtpRoute: typeof authV2LoginRequestOtpRoute
   authV2LoginVerifyOtpRoute: typeof authV2LoginVerifyOtpRoute
-  ApiAiTutorChatFeedbackRoute: typeof ApiAiTutorChatFeedbackRoute
+  ApiAiTutorChatFeedbackRoute: typeof ApiAiTutorChatFeedbackRouteWithChildren
   ApiAiTutorChatStreamRoute: typeof ApiAiTutorChatStreamRoute
   ApiMasaiverseV2BannersCreateRoute: typeof ApiMasaiverseV2BannersCreateRoute
   ApiMasaiverseV2BannersDeleteRoute: typeof ApiMasaiverseV2BannersDeleteRoute
@@ -1861,6 +1874,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof protectedLayoutDiscussionsDiscussionIdIndexRouteImport
       parentRoute: typeof protectedLayoutRouteRoute
     }
+    '/api/ai-tutor/chat/feedback/migrate-ratings': {
+      id: '/api/ai-tutor/chat/feedback/migrate-ratings'
+      path: '/migrate-ratings'
+      fullPath: '/api/ai-tutor/chat/feedback/migrate-ratings'
+      preLoaderRoute: typeof ApiAiTutorChatFeedbackMigrateRatingsRouteImport
+      parentRoute: typeof ApiAiTutorChatFeedbackRoute
+    }
     '/api/ai-tutor/chat/conversations/$chatId': {
       id: '/api/ai-tutor/chat/conversations/$chatId'
       path: '/api/ai-tutor/chat/conversations/$chatId'
@@ -2239,6 +2259,21 @@ const ApiMasaiverseV2DiscussionsRouteWithChildren =
     ApiMasaiverseV2DiscussionsRouteChildren,
   )
 
+interface ApiAiTutorChatFeedbackRouteChildren {
+  ApiAiTutorChatFeedbackMigrateRatingsRoute: typeof ApiAiTutorChatFeedbackMigrateRatingsRoute
+}
+
+const ApiAiTutorChatFeedbackRouteChildren: ApiAiTutorChatFeedbackRouteChildren =
+  {
+    ApiAiTutorChatFeedbackMigrateRatingsRoute:
+      ApiAiTutorChatFeedbackMigrateRatingsRoute,
+  }
+
+const ApiAiTutorChatFeedbackRouteWithChildren =
+  ApiAiTutorChatFeedbackRoute._addFileChildren(
+    ApiAiTutorChatFeedbackRouteChildren,
+  )
+
 const rootRouteChildren: RootRouteChildren = {
   protectedLayoutRouteRoute: protectedLayoutRouteRouteWithChildren,
   ApiHealthRoute: ApiHealthRoute,
@@ -2260,7 +2295,7 @@ const rootRouteChildren: RootRouteChildren = {
   authV2AuthUseAccountRoute: authV2AuthUseAccountRoute,
   authV2LoginRequestOtpRoute: authV2LoginRequestOtpRoute,
   authV2LoginVerifyOtpRoute: authV2LoginVerifyOtpRoute,
-  ApiAiTutorChatFeedbackRoute: ApiAiTutorChatFeedbackRoute,
+  ApiAiTutorChatFeedbackRoute: ApiAiTutorChatFeedbackRouteWithChildren,
   ApiAiTutorChatStreamRoute: ApiAiTutorChatStreamRoute,
   ApiMasaiverseV2BannersCreateRoute: ApiMasaiverseV2BannersCreateRoute,
   ApiMasaiverseV2BannersDeleteRoute: ApiMasaiverseV2BannersDeleteRoute,
@@ -2297,10 +2332,11 @@ export const routeTree = rootRouteImport
   ._addFileTypes<FileRouteTypes>()
 
 import type { getRouter } from './router.tsx'
-import type { createStart } from '@tanstack/react-start'
+import type { startInstance } from './start.ts'
 declare module '@tanstack/react-start' {
   interface Register {
     ssr: true
     router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
   }
 }

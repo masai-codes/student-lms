@@ -135,7 +135,13 @@ Last updated: 2026-06-07
 - Area: Authenticated chat feedback (`src/routes/api/ai-tutor/chat/feedback.ts`, `src/server/api/ai-tutor/**`, `src/lib/api/ai-tutor/aiTutorChatApi.ts`)
 - Status: Covered
 - Test files: `src/server/api/ai-tutor/__tests__/{submitFeedback.handler,submitChatPracticeFeedback.service,feedbackPlatform}.test.ts`
-- Notes: `POST /api/ai-tutor/chat/feedback` accepts `{ lectureId, chatId, rating, feedback?, platform? }`, validates ownership of the chat thread, normalizes ratings by platform (`web` / `web-mobile` / `web-desktop` / `app`: `0`/`1`; `ios`/`android`: stored as `rating + 1`), prefixes `feedback` with `platform-` (or stores platform alone when text is blank), and persists `rating`, `feedback`, and `feedbackTime` on `ai_chat_practice_questions`.
+- Notes: `POST /api/ai-tutor/chat/feedback` accepts `{ lectureId, chatId, rating, feedback?, platform? }`, validates ownership of the chat thread, normalizes ratings by platform (`web` / `web-mobile` / `web-desktop` / `app`: `0`/`1`; `ios`/`android`: `1`–`5`), prefixes `feedback` with `platform-` (or stores platform alone when text is blank), and persists `rating`, `feedback`, and `feedbackTime` on `ai_chat_practice_questions`.
+
+## AI Tutor chat feedback rating migration
+- Area: Admin one-off rating backfill (`src/routes/api/ai-tutor/chat/feedback/migrate-ratings.ts`, `src/server/api/ai-tutor/migrateAiTutorFeedbackRatings.service.ts`)
+- Status: Covered
+- Test files: `src/server/api/ai-tutor/__tests__/{migrateFeedbackRating,migrateAiTutorFeedbackRatings.service,migrateFeedbackRatings.handler}.test.ts`
+- Notes: `POST /api/ai-tutor/chat/feedback/migrate-ratings` is admin-gated and backfills legacy `ai_chat_practice_questions.rating` values: subtract `1` for `ios`/`android` feedback prefixes (skip when result would be `< 1`), otherwise convert unprefixed binary `0`/`1` ratings to `1`/`5`. Supports `{ dryRun: true }`.
 
 ## Status Meaning
 
