@@ -1,5 +1,5 @@
 import { relations } from "drizzle-orm/relations";
-import { users, accessLogs, adhocSessions, adhocSessionApprovers, adhocSessionBatches, batches, adhocSessionBlocks, blocks, adhocSessionSections, sections, adhocSessionUsers, adhocSessionBlueprints, lectures, aiChatPracticeQuestions, aiFeedback, aiPracticeQuestions, aiTutorSessions, announcements, announcementReads, attempts, answers, questions, applications, applicationComments, applicationHistories, positions, assessNpsForm, assessNpsSubmissions, assignments, assignmentBlueprints, blueprints, assignmentBlueprintsProblems, problems, assignmentProblem, quizzes, attendances, badges, badgeConfigs, batchInfo, batchInfoStages, batchInfoApprovers, batchInfoHistory, batchInfoTemplates, batchInfoTemplateItems, meetings, batchParticipants, batchUser, blockDraftUnitMovements, draftUnitMovements, blockUnitMovementEmails, bookmarks, certificateTemplates, certificateTemplateConfig, certificateUserRelation, certificatesBatchStudents, certificates, certificatesTemplateBatch, certificatesEmailTemplates, clubs, clubMembers, posts, clubPostBookmarks, tickets, comments, disbursalStatuses, discussions, unitMovementRules, payoutCycles, eeCycleRecords, externalEmployees, eeEngagementCosts, eeLeaveRequests, eeOnboardingForm, eePayoutHistories, eeSectionMapping, electives, electiveEntity, electiveProgress, electiveUser, electiveSection, emailNotificationLogs, events, eventEnrollments, companies, externalOffers, leads, feedbackBlueprints, feedback, feedbackQuestionBlueprints, feedbackQuestions, feedbackResponses, flags, flagQuery, queries, githubs, guardian, helpFaqs, instituteBatches, institutes, interactions, interactionMessages, interviews, topicObjectives, learningObjectives, lectureAiGeneratedContent, lectureBlueprints, sectionFeedbackBlueprints, lectureFeedback, lectureInteractions, lectureParticipants, lectureZoomChat, lecturesAi, masaiverseBanners, masaiverseLeaderboard, replies, messages, notes, notificationLogs, npsForms, npsQuestions, npsQuestionResponses, npsSubmissions, oldCertsDumpBatches, oldCertsDumpCertificates, optInChoices, participantMetrics, participants, placementStatuses, placementTags, portfolioSubmissions, portfolioFeedback, portfolioStudentIas, positionParams, eligibilities, positionsHistories, practiceInterviews, practiceQuizResponses, practiceTestSubTopics, practiceTestQuestions, practiceTestQuestionsUsersAttempted, practiceTestTopics, problemLinks, profileVerifies, profiles, queryComments, questionQuiz, quizBlueprints, quizBlueprintsQuestions, rbacPermissions, rbacRolePermissions, rbacRoles, rbacUserRoles, scenes, sectionUser, segments, solutions, submissions, studentAttendances, studentTagCategories, studentTagRelation, studentTagNames, studentTagTypes, tasks, teams, teamInvitations, threads, ticketTemplates, menus, unitMovementUserDetails, userBadges, userBatchAdmissionData, userBlockEmails, userCallbackTickets, userCertificates, userDeviceTokens, userDocuments, userGuardian, userRelation, userRelationHistory, userScenes, userSegments, videoAttendances, votes, zefMetaData, zefFeedbackRating, zefLo, zefPoll, zefQuiz } from "./schema";
+import { users, accessLogs, adhocSessions, adhocSessionApprovers, adhocSessionBatches, batches, adhocSessionBlocks, blocks, adhocSessionSections, sections, adhocSessionUsers, adhocSessionBlueprints, lectures, aiChatPracticeQuestions, aiFeedback, aiPracticeQuestions, aiTutorSessions, announcements, announcementReads, attempts, answers, questions, applications, applicationComments, applicationHistories, positions, assessNpsForm, assessNpsSubmissions, assignments, assignmentBlueprints, blueprints, assignmentBlueprintsProblems, problems, assignmentProblem, quizzes, attendances, badges, badgeConfigs, batchInfo, batchInfoStages, batchInfoApprovers, batchInfoHistory, batchInfoTemplates, batchInfoTemplateItems, meetings, batchParticipants, batchUser, blockDraftUnitMovements, draftUnitMovements, blockUnitMovementEmails, bookmarks, certificateTemplates, certificateTemplateConfig, certificateUserRelation, certificatesBatchStudents, certificates, certificatesTemplateBatch, certificatesEmailTemplates, clubs, clubMembers, posts, clubPostBookmarks, tickets, comments, disbursalStatuses, discussions, unitMovementRules, externalEmployees, eeEngagementCosts, eeOnboardingForm, eePayoutHistories, electives, electiveEntity, electiveProgress, electiveUser, electiveSection, emailNotificationLogs, events, eventEnrollments, companies, externalOffers, leads, feedbackBlueprints, feedback, feedbackQuestionBlueprints, feedbackQuestions, feedbackResponses, flags, flagQuery, queries, githubs, guardian, helpFaqs, instituteBatches, institutes, interactions, interactionMessages, interviews, topicObjectives, learningObjectives, lectureAiGeneratedContent, lectureBlueprints, sectionFeedbackBlueprints, lectureFeedback, lectureInteractions, lectureParticipants, lectureZoomChat, lecturesAi, masaiverseBanners, masaiverseLeaderboard, replies, messages, notes, notificationLogs, npsForms, npsQuestions, npsQuestionResponses, npsSubmissions, oldCertsDumpBatches, oldCertsDumpCertificates, optInChoices, participantMetrics, participants, placementStatuses, placementTags, portfolioSubmissions, portfolioFeedback, portfolioStudentIas, positionParams, eligibilities, positionsHistories, practiceInterviews, practiceQuizResponses, practiceTestSubTopics, practiceTestQuestions, practiceTestQuestionsUsersAttempted, practiceTestTopics, problemLinks, profileVerifies, profiles, queryComments, questionQuiz, quizBlueprints, quizBlueprintsQuestions, rbacPermissions, rbacRolePermissions, rbacRoles, rbacUserRoles, scenes, sectionUser, segments, solutions, submissions, studentAttendances, studentTagCategories, studentTagRelation, studentTagNames, studentTagTypes, tasks, teams, teamInvitations, threads, ticketTemplates, menus, unitMovementUserDetails, userBadges, userBatchAdmissionData, userBlockEmails, userCallbackTickets, userCertificates, userDeviceTokens, userDocuments, userGuardian, userRelation, userRelationHistory, userScenes, userSegments, videoAttendances, votes, zefMetaData, zefFeedbackRating, zefLo, zefPoll, zefQuiz } from "./schema";
 
 export const accessLogsRelations = relations(accessLogs, ({one}) => ({
 	user: one(users, {
@@ -78,16 +78,13 @@ export const usersRelations = relations(users, ({many}) => ({
 	}),
 	draftUnitMovements: many(draftUnitMovements),
 	eeEngagementCosts: many(eeEngagementCosts),
-	eeLeaveRequests: many(eeLeaveRequests),
 	eeOnboardingForms: many(eeOnboardingForm),
 	eePayoutHistories: many(eePayoutHistories),
-	eeSectionMappings: many(eeSectionMapping),
 	electiveUsers: many(electiveUser),
 	electives: many(electives),
 	emailNotificationLogs: many(emailNotificationLogs),
 	eventEnrollments: many(eventEnrollments),
 	events: many(events),
-	externalEmployees: many(externalEmployees),
 	externalOffers: many(externalOffers),
 	feedbackResponses: many(feedbackResponses),
 	flags: many(flags),
@@ -135,7 +132,6 @@ export const usersRelations = relations(users, ({many}) => ({
 	notificationLogs: many(notificationLogs),
 	npsForms: many(npsForms),
 	npsSubmissions: many(npsSubmissions),
-	payoutCycles: many(payoutCycles),
 	placementStatuses: many(placementStatuses),
 	placementTags: many(placementTags),
 	portfolioFeedbacks: many(portfolioFeedback),
@@ -296,7 +292,6 @@ export const batchesRelations = relations(batches, ({many}) => ({
 	batchInfoStages: many(batchInfoStages),
 	batchUsers: many(batchUser),
 	certificateUserRelations: many(certificateUserRelation),
-	eeSectionMappings: many(eeSectionMapping),
 	electiveSections: many(electiveSection),
 	flags: many(flags),
 	helpFaqs: many(helpFaqs),
@@ -366,7 +361,6 @@ export const sectionsRelations = relations(sections, ({one, many}) => ({
 	draftUnitMovements_sectionId: many(draftUnitMovements, {
 		relationName: "draftUnitMovements_sectionId_sections_id"
 	}),
-	eeSectionMappings: many(eeSectionMapping),
 	electiveSections: many(electiveSection),
 	flags: many(flags),
 	lectures: many(lectures),
@@ -795,7 +789,7 @@ export const badgesRelations = relations(badges, ({many}) => ({
 	userBadges: many(userBadges),
 }));
 
-export const batchInfoRelations = relations(batchInfo, ({one, many}) => ({
+export const batchInfoRelations = relations(batchInfo, ({one}) => ({
 	batch: one(batches, {
 		fields: [batchInfo.batchId],
 		references: [batches.id]
@@ -804,14 +798,6 @@ export const batchInfoRelations = relations(batchInfo, ({one, many}) => ({
 		fields: [batchInfo.checkerId],
 		references: [users.id],
 		relationName: "batchInfo_checkerId_users_id"
-	}),
-	batchInfo: one(batchInfo, {
-		fields: [batchInfo.dependsOnItemId],
-		references: [batchInfo.id],
-		relationName: "batchInfo_dependsOnItemId_batchInfo_id"
-	}),
-	batchInfos: many(batchInfo, {
-		relationName: "batchInfo_dependsOnItemId_batchInfo_id"
 	}),
 	user_makerId: one(users, {
 		fields: [batchInfo.makerId],
@@ -855,18 +841,10 @@ export const batchInfoHistoryRelations = relations(batchInfoHistory, ({one}) => 
 	}),
 }));
 
-export const batchInfoTemplateItemsRelations = relations(batchInfoTemplateItems, ({one, many}) => ({
+export const batchInfoTemplateItemsRelations = relations(batchInfoTemplateItems, ({one}) => ({
 	batchInfoTemplate: one(batchInfoTemplates, {
 		fields: [batchInfoTemplateItems.batchInfoTemplateId],
 		references: [batchInfoTemplates.id]
-	}),
-	batchInfoTemplateItem: one(batchInfoTemplateItems, {
-		fields: [batchInfoTemplateItems.dependsOnTemplateItemId],
-		references: [batchInfoTemplateItems.id],
-		relationName: "batchInfoTemplateItems_dependsOnTemplateItemId_batchInfoTemplateItems_id"
-	}),
-	batchInfoTemplateItems: many(batchInfoTemplateItems, {
-		relationName: "batchInfoTemplateItems_dependsOnTemplateItemId_batchInfoTemplateItems_id"
 	}),
 }));
 
@@ -1017,13 +995,6 @@ export const certificatesRelations = relations(certificates, ({one}) => ({
 	user: one(users, {
 		fields: [certificates.userId],
 		references: [users.id]
-	}),
-}));
-
-export const certificatesBatchStudentsRelations = relations(certificatesBatchStudents, ({one}) => ({
-	certificatesTemplateBatch: one(certificatesTemplateBatch, {
-		fields: [certificatesBatchStudents.batchId],
-		references: [certificatesTemplateBatch.id]
 	}),
 }));
 
@@ -1182,39 +1153,6 @@ export const unitMovementRulesRelations = relations(unitMovementRules, ({one, ma
 	}),
 }));
 
-export const eeCycleRecordsRelations = relations(eeCycleRecords, ({one}) => ({
-	payoutCycle: one(payoutCycles, {
-		fields: [eeCycleRecords.cycleId],
-		references: [payoutCycles.id]
-	}),
-	externalEmployee: one(externalEmployees, {
-		fields: [eeCycleRecords.eeId],
-		references: [externalEmployees.id]
-	}),
-}));
-
-export const payoutCyclesRelations = relations(payoutCycles, ({one, many}) => ({
-	eeCycleRecords: many(eeCycleRecords),
-	user: one(users, {
-		fields: [payoutCycles.createdBy],
-		references: [users.id]
-	}),
-}));
-
-export const externalEmployeesRelations = relations(externalEmployees, ({one, many}) => ({
-	eeCycleRecords: many(eeCycleRecords),
-	eeEngagementCosts: many(eeEngagementCosts),
-	eeLeaveRequests: many(eeLeaveRequests),
-	eeOnboardingForms: many(eeOnboardingForm),
-	eePayoutHistories: many(eePayoutHistories),
-	eeSectionMappings: many(eeSectionMapping),
-	user: one(users, {
-		fields: [externalEmployees.userId],
-		references: [users.id]
-	}),
-	lectureParticipants: many(lectureParticipants),
-}));
-
 export const eeEngagementCostsRelations = relations(eeEngagementCosts, ({one}) => ({
 	externalEmployee: one(externalEmployees, {
 		fields: [eeEngagementCosts.eeId],
@@ -1226,15 +1164,11 @@ export const eeEngagementCostsRelations = relations(eeEngagementCosts, ({one}) =
 	}),
 }));
 
-export const eeLeaveRequestsRelations = relations(eeLeaveRequests, ({one}) => ({
-	user: one(users, {
-		fields: [eeLeaveRequests.approvedBy],
-		references: [users.id]
-	}),
-	externalEmployee: one(externalEmployees, {
-		fields: [eeLeaveRequests.eeId],
-		references: [externalEmployees.id]
-	}),
+export const externalEmployeesRelations = relations(externalEmployees, ({many}) => ({
+	eeEngagementCosts: many(eeEngagementCosts),
+	eeOnboardingForms: many(eeOnboardingForm),
+	eePayoutHistories: many(eePayoutHistories),
+	lectureParticipants: many(lectureParticipants),
 }));
 
 export const eeOnboardingFormRelations = relations(eeOnboardingForm, ({one}) => ({
@@ -1260,25 +1194,6 @@ export const eePayoutHistoriesRelations = relations(eePayoutHistories, ({one}) =
 	user: one(users, {
 		fields: [eePayoutHistories.userId],
 		references: [users.id]
-	}),
-}));
-
-export const eeSectionMappingRelations = relations(eeSectionMapping, ({one}) => ({
-	batch: one(batches, {
-		fields: [eeSectionMapping.batchId],
-		references: [batches.id]
-	}),
-	user: one(users, {
-		fields: [eeSectionMapping.createdBy],
-		references: [users.id]
-	}),
-	externalEmployee: one(externalEmployees, {
-		fields: [eeSectionMapping.eeId],
-		references: [externalEmployees.id]
-	}),
-	section: one(sections, {
-		fields: [eeSectionMapping.sectionId],
-		references: [sections.id]
 	}),
 }));
 
