@@ -87,12 +87,15 @@ async function dumpAdmissionResponse(
       SET meta = JSON_SET(COALESCE(meta, JSON_OBJECT()), '$.admissionResponse', CAST(${json} AS JSON))
       WHERE user_id = ${userId} AND batch_id = ${batchId}
     `)
-  } catch {
+    console.log('[student-status] dumped raw response into meta.admissionResponse', { userId, batchId })
+  } catch (error) {
     // The dump is a mirror — a failed write must not break the flow.
+    console.error('[student-status] failed to dump response into meta', { userId, batchId }, error)
   }
 }
 
 export async function getT0AdmissionsStatus(userId: number, batchId: number): Promise<T0AdmissionsStatus> {
+  console.log('[student-status] getT0AdmissionsStatus called', { userId, batchId })
   const [[user], admissionRows] = await Promise.all([
     db.select({ username: users.username }).from(users).where(eq(users.id, userId)).limit(1),
     normalizeRows<{ payment_url: string | null }>(
@@ -108,8 +111,20 @@ export async function getT0AdmissionsStatus(userId: number, batchId: number): Pr
   // Built regardless of the status call so the redirect works even if the API is down.
   const admissionsFormUrl = await buildAdmissionsRedirectForUser(userId, redirect)
 
+  console.log('[student-status] resolved studentCode (username) for user', { userId, batchId, username })
   const status = await getAdmissionsStudentStatus(username, 'documents,kit,id_card')
-  if (!status) return { ...EMPTY_T0_ADMISSIONS_STATUS, admissionsFormUrl }
+  if (!status) {
+    console.log('[student-status] no status returned — using EMPTY status', { userId, batchId, username })
+    return { ...EMPTY_T0_ADMISSIONS_STATUS, admissionsFormUrl }
+  }
+  console.log('[student-status] derived T0 flags from response', {
+    userId,
+    batchId,
+    documentsRequired: status.documents?.required === true,
+    documentsUploaded: status.documents?.documentsUploaded === true,
+    kitApplicable: status.kit?.showKit === true,
+    idCardUrl: status.idCard?.url ?? null,
+  })
 
   const documentsRequired = status.documents?.required === true
   const documentsUploaded = status.documents?.documentsUploaded === true

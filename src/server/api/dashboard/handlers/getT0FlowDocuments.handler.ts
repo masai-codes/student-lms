@@ -5,6 +5,7 @@ import { getT0FlowDocuments } from '@/server/api/dashboard/getT0FlowDocuments.se
 
 export async function handleGetT0FlowDocuments(request: Request): Promise<Response> {
   try {
+    console.log('[student-status] /t0-flow-documents endpoint hit', request.url)
     const userId = await requireSessionUserId()
     const batchId = Number(new URL(request.url).searchParams.get('batchId'))
     if (!Number.isFinite(batchId) || batchId <= 0) throw new ApiError(400, 'INVALID_BATCH_ID')

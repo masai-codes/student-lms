@@ -109,6 +109,14 @@ export async function getT0FlowLectures(
   const documentsUploaded = admissionsStatus.documentsUploaded
   const studentKit = toStudentKitStatus(admissionsStatus)
   const idCardUrl = admissionsStatus.idCardUrl
+  console.log('[student-status] getT0FlowLectures applied admissions status', {
+    userId,
+    batchId,
+    isDocumentsRequired,
+    documentsUploaded,
+    kitApplicable: studentKit.applicable,
+    idCardUrl,
+  })
 
   const [lmsLectures, programLectures] = await Promise.all([
     lmsSectionId ? getLecturesForSection(lmsSectionId) : Promise.resolve([]),
