@@ -20,6 +20,20 @@ const TITLE = 'Welcome to Masai!'
 const BODY =
   'Your registration is confirmed and your LMS access is now active. Let’s take a quick walkthrough to help you get started.'
 
+/**
+ * Hard-stops the intro video. Pausing alone is not enough: a played-then-paused
+ * media element stays alive as the browser's active media session, so the
+ * OS/hardware "play" control (lock screen, headphones, media notification) could
+ * resume it with no visible player. Detaching the source and calling load()
+ * tears the element down so no audio can leak after close.
+ */
+function stopVideo(video: HTMLVideoElement | null) {
+  if (!video) return
+  video.pause()
+  video.removeAttribute('src')
+  video.load()
+}
+
 /** The shared inner content: confetti, intro video, copy, and the CTA. */
 function WelcomeModalBody({ open, onDismiss, isDismissing }: WelcomeModalProps) {
   // Each celebrate-button click re-fires the one-shot confetti (remount via key).
@@ -27,31 +41,32 @@ function WelcomeModalBody({ open, onDismiss, isDismissing }: WelcomeModalProps) 
 
   const videoRef = useRef<HTMLVideoElement>(null)
 
-  // Hard-stop the intro video whenever the modal is closed or unmounted.
-  // Unmounting the <video> alone does NOT reliably stop audio: a played-then-
-  // paused media element stays alive as the browser's active media session, so
-  // the OS/hardware "play" control (lock screen, headphones, media notification)
-  // could resume it with no visible player. Pausing + detaching the source and
-  // calling load() tears the element down so no audio can leak after close.
+  // Stop the intro video whenever the modal is closed in place.
   useEffect(() => {
     if (open) return
-    const video = videoRef.current
-    if (!video) return
-    video.pause()
-    video.removeAttribute('src')
-    video.load()
+    stopVideo(videoRef.current)
   }, [open])
 
-  useEffect(
-    () => () => {
-      const video = videoRef.current
-      if (!video) return
-      video.pause()
-      video.removeAttribute('src')
+  // Stop it on unmount too. The gate unmounts this tree the moment the modal is
+  // dismissed, so this is the primary teardown path. We capture the element here
+  // (on mount) rather than reading videoRef.current inside the cleanup: React
+  // nulls the ref before passive-effect cleanups run on unmount, so reading it
+  // there would find null and skip the teardown — the media session would
+  // survive and the OS "play" control could resume audio with the modal gone.
+  //
+  // Because teardown strips the source, we (re)attach it here on mount. React
+  // won't re-apply the unchanged `src` prop after we removed the attribute
+  // (notably across StrictMode's dev setup→cleanup→setup remount), so reattaching
+  // imperatively keeps the player playable.
+  useEffect(() => {
+    const video = videoRef.current
+    if (!video) return
+    if (video.getAttribute('src') !== WELCOME_INTRO_VIDEO_URL) {
+      video.setAttribute('src', WELCOME_INTRO_VIDEO_URL)
       video.load()
-    },
-    [],
-  )
+    }
+    return () => stopVideo(video)
+  }, [])
 
   return (
     <div
