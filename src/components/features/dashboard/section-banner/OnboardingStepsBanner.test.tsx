@@ -39,6 +39,8 @@ describe('OnboardingStepsBanner', () => {
     expect(screen.getByTestId('dashboard-onboarding-banner-count').textContent).toBe('3steps left')
     expect(screen.getByTestId('dashboard-onboarding-banner-progress').textContent).toContain('2/5')
     expect(screen.queryByTestId('dashboard-onboarding-banner-dots')).toBeNull()
+    expect(screen.queryByTestId('dashboard-onboarding-banner-prev')).toBeNull()
+    expect(screen.queryByTestId('dashboard-onboarding-banner-next')).toBeNull()
   })
 
   it('singularizes the count when only one step is left', () => {
@@ -62,5 +64,7 @@ describe('OnboardingStepsBanner', () => {
     )
     const dots = screen.getByTestId('dashboard-onboarding-banner-dots')
     expect(dots.querySelectorAll('button')).toHaveLength(2)
+    expect(screen.getByTestId('dashboard-onboarding-banner-prev')).toBeTruthy()
+    expect(screen.getByTestId('dashboard-onboarding-banner-next')).toBeTruthy()
   })
 })

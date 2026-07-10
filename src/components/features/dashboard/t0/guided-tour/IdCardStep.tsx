@@ -29,10 +29,15 @@ function BlurredCardPreview() {
   )
 }
 
+/** The admissions URL can be a PDF admit card or an image ID card — render each accordingly. */
+function isPdfUrl(url: string): boolean {
+  return /\.pdf(?:[?#]|$)/i.test(url)
+}
+
 /**
  * ID-card capstone: locked until onboarding is complete (a blurred card preview
- * behind a lock), then reveals the real card from the DB — image + download —
- * or a "being generated" notice while admissions produces it.
+ * behind a lock), then reveals the real card from the DB — image or embedded PDF,
+ * plus a download — or a "being generated" notice while admissions produces it.
  */
 export function IdCardStep({ url, unlocked }: IdCardStepProps) {
   if (!unlocked) {
@@ -69,17 +74,28 @@ export function IdCardStep({ url, unlocked }: IdCardStepProps) {
     )
   }
 
+  const isPdf = isPdfUrl(url)
+
   return (
     <div className={CARD} data-testid="id-card-step">
       <p className="text-sm font-medium text-gray-900">Your student ID card is ready</p>
-      <img src={url} alt="Student ID card" className="w-full max-w-sm rounded-lg border border-gray-200" data-testid="id-card-image" />
+      {isPdf ? (
+        <iframe
+          src={`${url}#toolbar=0`}
+          title="Student ID card"
+          className="h-[420px] w-full max-w-sm rounded-lg border border-gray-200"
+          data-testid="id-card-pdf"
+        />
+      ) : (
+        <img src={url} alt="Student ID card" className="w-full max-w-sm rounded-lg border border-gray-200" data-testid="id-card-image" />
+      )}
       <a
         href={url}
-        download="masai-id-card.png"
+        download={isPdf ? 'masai-id-card.pdf' : 'masai-id-card.png'}
         target="_blank"
         rel="noopener noreferrer"
         onClick={() => pushDashboardEvent('l_dashboard_guided_tour_id_card_download')}
-        className="inline-flex h-11 items-center justify-center gap-2 rounded-lg bg-[#6962AC] px-5 text-sm font-semibold text-white hover:opacity-90"
+        className="inline-flex h-11 items-center justify-center gap-2 self-center rounded-lg bg-[#6962AC] px-5 text-sm font-semibold text-white hover:opacity-90"
         data-testid="id-card-download"
       >
         <DownloadSimple className="size-4" aria-hidden />

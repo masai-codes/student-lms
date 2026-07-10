@@ -15,6 +15,10 @@ vi.mock('@/server/auth/getCurrentSessionUserId', () => ({
 const webRequest = () => new Request('http://localhost/api/dashboard/overview')
 const appRequest = () =>
   new Request('http://localhost/api/dashboard/overview', { headers: { 'X-App-Mobile': 'true' } })
+const mobileViewportRequest = () =>
+  new Request('http://localhost/api/dashboard/overview', {
+    headers: { 'X-Client-Mobile-Viewport': 'true' },
+  })
 
 describe('handleGetDashboardOverview', () => {
   beforeEach(() => {
@@ -39,6 +43,15 @@ describe('handleGetDashboardOverview', () => {
     const { handleGetDashboardOverview } = await import('../getDashboardOverview.handler')
 
     await handleGetDashboardOverview(appRequest())
+
+    expect(hoisted.getDashboardOverview).toHaveBeenCalledWith(101, expect.any(Date), 'app')
+  })
+
+  it('uses platform "app" on a mobile-viewport browser (X-Client-Mobile-Viewport)', async () => {
+    hoisted.getDashboardOverview.mockResolvedValueOnce({ banners: [] })
+    const { handleGetDashboardOverview } = await import('../getDashboardOverview.handler')
+
+    await handleGetDashboardOverview(mobileViewportRequest())
 
     expect(hoisted.getDashboardOverview).toHaveBeenCalledWith(101, expect.any(Date), 'app')
   })

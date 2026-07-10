@@ -28,10 +28,11 @@ const VALID_VALUES = {
 function section(over: Partial<AgreementSection> = {}): AgreementSection {
   return {
     sectionId: 7, sectionName: 'Enrolment', programName: 'MERN', batchName: 'B1',
+    email: 'riya@example.com', studentCode: 'MSN-001',
     steps: [{ key: 'program_agreement', heading: 'Program', pdfUrl: 'https://x/p.pdf', order: null }],
     savedValues: VALID_VALUES, acceptedStepKeys: [], completed: false,
     referenceNumber: 'TC-1-section_7', agreementPdfUrl: null,
-    viewTime: null, daysSinceFirstView: 0, daysLeft: 7, isClosable: true,
+    viewTime: null, signedTime: null, ipAddress: null, daysSinceFirstView: 0, daysLeft: 7, hoursLeft: null, isClosable: true,
     ...over,
   }
 }
@@ -77,6 +78,13 @@ describe('AgreementStep', () => {
     await waitFor(() => expect(hoisted.recordView).toHaveBeenCalledWith(7))
   })
 
+  it('counts down in hours when under a day remains in the review window', () => {
+    renderStep(section({ viewTime: '2026-01-01T00:00:00.000Z', daysLeft: 0, hoursLeft: 5, daysSinceFirstView: 6, isClosable: true }))
+    const text = screen.getByTestId('agreement-countdown').textContent
+    expect(text).toContain('5 hours remaining')
+    expect(text).not.toContain('day')
+  })
+
   it('shows the paused message (and does not re-record) once the window has elapsed', () => {
     renderStep(section({ viewTime: '2026-01-01T00:00:00.000Z', daysLeft: 0, daysSinceFirstView: 8, isClosable: false }))
     expect(screen.getByTestId('agreement-countdown').textContent).toContain('paused')
@@ -99,7 +107,9 @@ describe('AgreementStep', () => {
     expect(screen.getByText('Enter Details')).toBeTruthy()
     expect(screen.getByText('Placement COC')).toBeTruthy()
 
-    // Advance off details, then click the first tab to jump back.
+    // Advance off details (location is mandatory → check the box first), then
+    // click the first tab to jump back.
+    fireEvent.click(screen.getByTestId('agreement-location-consent-input'))
     fireEvent.click(screen.getByTestId('agreement-continue'))
     await waitFor(() => expect(screen.getByTestId('agreement-pdf-viewer')).toBeTruthy())
     fireEvent.click(screen.getByTestId('agreement-step-tab-0'))
@@ -112,11 +122,24 @@ describe('AgreementStep', () => {
     expect(screen.getByTestId('agreement-location-value').textContent).toContain('Bengaluru')
   })
 
-  it('does not block Continue when location is missing (best-effort auto-fill only)', () => {
+  it('blocks Continue and points to the enable-location guide until the box is checked', () => {
     renderStep(section({ savedValues: { ...VALID_VALUES, location: undefined } }))
     expect(screen.queryByTestId('agreement-location-value')).toBeNull()
-    // Location is optional — the other required details are filled, so Continue is enabled.
-    expect(screen.getByTestId<HTMLButtonElement>('agreement-continue').disabled).toBe(false)
+    // The "how to enable location" guide is offered while the box is unchecked.
+    expect(screen.getByTestId('agreement-location-guide')).toBeTruthy()
+    // Location is mandatory, so Continue tells the learner it's required and blocks.
+    expect(screen.getByTestId('agreement-continue-hint').textContent).toContain('Location access is required')
+    fireEvent.click(screen.getByTestId('agreement-continue'))
+    expect(screen.queryByTestId('agreement-pdf-viewer')).toBeNull()
+    expect(screen.getByTestId('agreement-location-error').textContent).toContain('Please select the checkbox to fetch location')
+  })
+
+  it('still blocks when the box is checked but no location could be captured', () => {
+    renderStep(section({ savedValues: { ...VALID_VALUES, location: undefined } }))
+    fireEvent.click(screen.getByTestId('agreement-location-consent-input'))
+    fireEvent.click(screen.getByTestId('agreement-continue'))
+    expect(screen.queryByTestId('agreement-pdf-viewer')).toBeNull()
+    expect(screen.getByTestId('agreement-location-error').textContent).toContain('Location is required')
   })
 
   it('keeps Continue clickable on the details step and shows a live count of fields needing attention', () => {
@@ -147,6 +170,7 @@ describe('AgreementStep', () => {
 
   it('tells the learner to accept the document when Continue is disabled on a document step', async () => {
     renderStep(section())
+    fireEvent.click(screen.getByTestId('agreement-location-consent-input'))
     fireEvent.click(screen.getByTestId('agreement-continue'))
     await waitFor(() => expect(screen.getByTestId('agreement-pdf-viewer')).toBeTruthy())
     expect(screen.getByTestId('agreement-continue').getAttribute('disabled')).not.toBeNull()
@@ -155,6 +179,8 @@ describe('AgreementStep', () => {
 
   it('walks details → document → certificate → submit', async () => {
     const { onCompleted } = renderStep(section())
+    // Location is mandatory: check the consent box (a location is already prefilled).
+    fireEvent.click(screen.getByTestId('agreement-location-consent-input'))
     // Details are prefilled + valid → Continue autosaves and advances.
     fireEvent.click(screen.getByTestId('agreement-continue'))
     await waitFor(() => expect(hoisted.save).toHaveBeenCalledWith(7, expect.objectContaining({ name: 'Riya' })))

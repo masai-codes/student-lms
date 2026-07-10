@@ -127,21 +127,17 @@ export function buildProgramSteps(
   // Lite is agreement-only — no documents / kit / ID-card capstone.
   if (isLite) return [...agreementSteps]
 
-  // Documents + student kit are locked until every agreement is signed.
-  const agreementsSigned = lectures.legalAgreementSections.every(
-    (a) => a.completed,
-  )
-
+  // Documents + student kit are optional steps — always available (not gated on
+  // the agreement). Visibility is decided solely by the admissions API.
   const extraSteps: Array<GuidedTourStep> = []
   if (lectures.isDocumentsRequired) {
-    // Completion comes from the on-demand documents status the step fetches.
+    // Green-checked once the admissions API reports the documents as uploaded.
     extraSteps.push({
       key: 'documents',
       kind: 'fixed',
       title: 'Upload your documents',
-      completed: false,
+      completed: lectures.documentsUploaded,
       action: 'documents',
-      locked: !agreementsSigned,
     })
   }
   if (lectures.studentKit.applicable) {
@@ -152,7 +148,6 @@ export function buildProgramSteps(
       completed: lectures.studentKit.detailsFilled,
       action: 'student-kit',
       studentKit: lectures.studentKit,
-      locked: !agreementsSigned,
     })
   }
 

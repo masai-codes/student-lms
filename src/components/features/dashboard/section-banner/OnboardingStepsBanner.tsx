@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import useEmblaCarousel from 'embla-carousel-react'
 import { ArrowRight } from '@phosphor-icons/react'
-import { useCarouselAutoplay } from './useCarouselAutoplay'
+import { BannerArrow } from './BannerArrow'
+import { ONBOARDING_AUTOPLAY_MS, useCarouselAutoplay } from './useCarouselAutoplay'
 import { pushDashboardEvent } from '../shared/dashboardAnalytics'
 import type { OnboardingBanner } from './onboardingBanners'
 import type { EmblaCarouselType } from 'embla-carousel'
@@ -54,7 +55,7 @@ export function OnboardingStepsBanner({ banners, onResume }: OnboardingStepsBann
     }
   }, [emblaApi, onSelect])
 
-  const autoplay = useCarouselAutoplay(emblaApi, banners.length)
+  const autoplay = useCarouselAutoplay(emblaApi, banners.length, ONBOARDING_AUTOPLAY_MS)
 
   if (banners.length === 0) return null
 
@@ -89,19 +90,35 @@ export function OnboardingStepsBanner({ banners, onResume }: OnboardingStepsBann
       </div>
 
       {hasMultiple && (
-        <div className="mt-2.5 flex justify-center gap-1.5" data-testid="dashboard-onboarding-banner-dots">
-          {banners.map((b, i) => (
-            <button
-              key={b.batchId}
-              type="button"
-              aria-label={`Go to ${b.courseTitle}`}
-              data-active={i === selected}
-              onClick={() => emblaApi?.scrollTo(i)}
-              className={`size-1.5 rounded-full transition-colors ${
-                i === selected ? 'bg-white' : 'bg-white/40'
-              }`}
-            />
-          ))}
+        <div className="mt-2.5 flex items-center justify-center gap-2">
+          <BannerArrow
+            direction="prev"
+            tone="dark"
+            label="onboarding banner"
+            testIdBase="dashboard-onboarding-banner"
+            onClick={() => emblaApi?.scrollPrev()}
+          />
+          <div className="flex justify-center gap-1.5" data-testid="dashboard-onboarding-banner-dots">
+            {banners.map((b, i) => (
+              <button
+                key={b.batchId}
+                type="button"
+                aria-label={`Go to ${b.courseTitle}`}
+                data-active={i === selected}
+                onClick={() => emblaApi?.scrollTo(i)}
+                className={`size-1.5 rounded-full transition-colors ${
+                  i === selected ? 'bg-white' : 'bg-white/40'
+                }`}
+              />
+            ))}
+          </div>
+          <BannerArrow
+            direction="next"
+            tone="dark"
+            label="onboarding banner"
+            testIdBase="dashboard-onboarding-banner"
+            onClick={() => emblaApi?.scrollNext()}
+          />
         </div>
       )}
     </div>

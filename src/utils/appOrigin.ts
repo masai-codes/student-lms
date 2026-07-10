@@ -1,6 +1,7 @@
 import { createIsomorphicFn } from '@tanstack/react-start'
 import { getRequestHost } from '@tanstack/react-start/server'
-import { withAppMobileHeaders } from '@/utils/appMobile'
+import { MOBILE_VIEWPORT_HEADER, withAppMobileHeaders } from '@/utils/appMobile'
+import { getIsMobileViewport } from '@/hooks/useIsMobileViewport'
 
 export type AppOrigin = 'masai' | 'ihub'
 
@@ -51,8 +52,21 @@ export function withAppOriginHeader(headers?: HeadersInit): Headers {
   return nextHeaders
 }
 
+/**
+ * Flags a mobile-viewport browser so guided-tour content resolves to the `-app`
+ * sections outside the native app. Kept separate from `X-App-Mobile` on purpose
+ * (that header also gates auth).
+ */
+function withMobileViewportHeader(headers?: HeadersInit): Headers {
+  const nextHeaders = new Headers(headers)
+  if (getIsMobileViewport()) {
+    nextHeaders.set(MOBILE_VIEWPORT_HEADER, 'true')
+  }
+  return nextHeaders
+}
+
 function withClientContextHeaders(headers?: HeadersInit): Headers {
-  return withAppMobileHeaders(withAppOriginHeader(headers))
+  return withMobileViewportHeader(withAppMobileHeaders(withAppOriginHeader(headers)))
 }
 
 function isSameOriginRequest(input: RequestInfo | URL): boolean {

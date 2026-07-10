@@ -24,6 +24,14 @@ interface AgreementStepProps {
 const BTN_SOLID = 'inline-flex h-11 items-center justify-center rounded-lg bg-[#6962AC] px-5 text-sm font-semibold text-white hover:opacity-90 disabled:opacity-50'
 const BTN_OUTLINE = 'inline-flex h-11 items-center justify-center rounded-lg border border-gray-200 px-5 text-sm font-medium text-gray-700 hover:bg-gray-50'
 
+/** Review-window countdown label: hours when under a day left, else days. */
+function countdownLabel(section: AgreementSection): string {
+  if (section.hoursLeft !== null) {
+    return `${section.hoursLeft} ${section.hoursLeft === 1 ? 'hour' : 'hours'} remaining`
+  }
+  return `${section.daysLeft} ${section.daysLeft === 1 ? 'day' : 'days'} remaining`
+}
+
 /**
  * The full agreement flow, rendered inline in the guided tour (no modal): a
  * detail form (autosaved) → one embedded PDF + consent per document → a
@@ -39,13 +47,18 @@ export function AgreementStep({ section, onCompleted }: AgreementStepProps) {
   const [subIndex, setSubIndex] = useState(0)
   const [showDetailErrors, setShowDetailErrors] = useState(false)
   const [locationConsent, setLocationConsent] = useState(false)
+  // IP stamped by the save call, shown on the certificate before submit refetches.
+  const [savedIp, setSavedIp] = useState<string | null>(section.ipAddress)
 
   const stepKeys = section.steps.map((s) => s.key)
   const subStepLabels = ['Enter Details', ...section.steps.map((s) => s.heading), 'Signature Certificate']
   const errors = useMemo(() => validateAgreementDetails(values), [values])
   const detailIssues = useMemo(() => getAgreementFieldIssues(values), [values])
 
-  const saveMutation = useMutation({ mutationFn: () => saveAgreementDetailsApi(section.sectionId, values) })
+  const saveMutation = useMutation({
+    mutationFn: () => saveAgreementDetailsApi(section.sectionId, values),
+    onSuccess: (result) => setSavedIp(result.ipAddress ?? savedIp),
+  })
   const submitMutation = useMutation({
     mutationFn: () => submitAgreementApi(section.sectionId),
     onSuccess: onCompleted,
@@ -84,7 +97,20 @@ export function AgreementStep({ section, onCompleted }: AgreementStepProps) {
         data-testid="agreement-completed"
       >
         <div className="min-h-0 flex-1 overflow-y-auto p-6">
-          <AgreementCertificate values={values} referenceNumber={section.referenceNumber} completed agreementPdfUrl={section.agreementPdfUrl} />
+          <AgreementCertificate
+            referenceNumber={section.referenceNumber}
+            name={values.name ?? section.savedValues.name ?? ''}
+            email={section.email}
+            studentCode={section.studentCode}
+            program={section.programName}
+            batchName={section.batchName}
+            viewTime={section.viewTime}
+            signedTime={section.signedTime}
+            ipAddress={savedIp}
+            location={values.location ?? ''}
+            completed
+            agreementPdfUrl={section.agreementPdfUrl}
+          />
         </div>
       </div>
     )
@@ -95,24 +121,26 @@ export function AgreementStep({ section, onCompleted }: AgreementStepProps) {
   const currentStepKey = !onDetails && !onCertificate ? stepKeys[subIndex - 1] : null
   const currentDoc = currentStepKey ? section.steps.find((s) => s.key === currentStepKey) : null
 
+  // Location is mandatory: the consent box must be checked AND a location captured.
+  const locationReady = locationConsent && (values.location ?? '').trim() !== ''
   const canContinue = onDetails
-    ? isAgreementDetailsValid(values)
+    ? isAgreementDetailsValid(values) && locationReady
     : currentStepKey
       ? accepted[currentStepKey] === true
       : true
 
   const goNext = () => {
     if (onDetails) {
-      if (!isAgreementDetailsValid(values)) {
-        // Reveal every field error + the summary, then jump to the first one so
-        // the learner sees exactly what's blocking Continue.
+      if (!isAgreementDetailsValid(values) || !locationReady) {
+        // Reveal every field error + the summary, then jump to the first problem
+        // (a field, or the location box) so the learner sees what's blocking Continue.
         setShowDetailErrors(true)
         const first = detailIssues[0]
-        if (first) {
-          const el = document.getElementById(`agreement-${first.key}`)
-          el?.scrollIntoView?.({ behavior: 'smooth', block: 'center' })
-          window.setTimeout(() => (el as HTMLElement | null)?.focus?.(), 150)
-        }
+        const el = first
+          ? document.getElementById(`agreement-${first.key}`)
+          : document.getElementById('agreement-location-consent')
+        el?.scrollIntoView?.({ behavior: 'smooth', block: 'center' })
+        window.setTimeout(() => (el as HTMLElement | null)?.focus?.(), 150)
         return
       }
       saveMutation.mutate() // autosave in the background
@@ -135,9 +163,7 @@ export function AgreementStep({ section, onCompleted }: AgreementStepProps) {
             >
               <HourglassMedium size={18} weight="fill" className="shrink-0 text-[#E76E4B]" aria-hidden />
               <span>
-                <b>
-                  {section.daysLeft} {section.daysLeft === 1 ? 'day' : 'days'} remaining
-                </b>{' '}
+                <b>{countdownLabel(section)}</b>{' '}
                 to review and sign before your LMS is paused
               </span>
             </div>
@@ -177,7 +203,7 @@ export function AgreementStep({ section, onCompleted }: AgreementStepProps) {
               onConsentChange={setLocationConsent}
               status={locationStatus}
               location={values.location ?? ''}
-              error={showDetailErrors ? (errors.location ?? null) : null}
+              showError={showDetailErrors}
             />
             <AgreementDetailsForm
               values={values}
@@ -194,7 +220,18 @@ export function AgreementStep({ section, onCompleted }: AgreementStepProps) {
             onAcceptChange={(v) => setAccepted((a) => ({ ...a, [currentDoc.key]: v }))}
           />
         ) : (
-          <AgreementCertificate values={values} referenceNumber={section.referenceNumber} />
+          <AgreementCertificate
+            referenceNumber={section.referenceNumber}
+            name={values.name ?? ''}
+            email={section.email}
+            studentCode={section.studentCode}
+            program={section.programName}
+            batchName={section.batchName}
+            viewTime={section.viewTime}
+            signedTime={section.signedTime}
+            ipAddress={savedIp}
+            location={values.location ?? ''}
+          />
         )}
 
         {submitMutation.isError ? (
@@ -235,6 +272,10 @@ export function AgreementStep({ section, onCompleted }: AgreementStepProps) {
               detailIssues.length > 0 ? (
                 <span className="text-xs font-medium text-[#B71C2B]" data-testid="agreement-continue-hint">
                   {detailIssues.length} {detailIssues.length === 1 ? 'field needs' : 'fields need'} your attention
+                </span>
+              ) : !locationReady ? (
+                <span className="text-xs font-medium text-[#B71C2B]" data-testid="agreement-continue-hint">
+                  Location access is required to continue
                 </span>
               ) : null
             ) : !canContinue ? (

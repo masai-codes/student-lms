@@ -21,6 +21,7 @@ function lectures(
     completedLectureIds: [],
     legalAgreementSections: [],
     isDocumentsRequired: false,
+    documentsUploaded: false,
     studentKit: {
       applicable: false,
       detailsFilled: false,
@@ -128,6 +129,8 @@ describe('buildProgramSteps', () => {
             sectionName: 'Enrolment agreement',
             programName: 'MERN',
             batchName: 'B1',
+            email: 'riya@example.com',
+            studentCode: 'MSN-001',
             steps: [
               {
                 key: 'program_agreement',
@@ -142,8 +145,11 @@ describe('buildProgramSteps', () => {
             referenceNumber: 'TC-1-section_7',
             agreementPdfUrl: null,
             viewTime: null,
+            signedTime: null,
+            ipAddress: null,
             daysSinceFirstView: 0,
             daysLeft: 7,
+            hoursLeft: null,
             isClosable: true,
           },
         ],
@@ -171,45 +177,29 @@ describe('buildProgramSteps', () => {
     expect(steps[1]).toMatchObject({ action: 'agreement', completed: false })
     expect(steps[1].agreement?.sectionId).toBe(7)
     expect(steps.some((s) => s.action === 'id-card')).toBe(false)
-    // Documents + kit are locked until the agreement is signed.
-    expect(steps.find((s) => s.action === 'documents')?.locked).toBe(true)
-    expect(steps.find((s) => s.action === 'student-kit')?.locked).toBe(true)
+    // Documents + kit are always available (no per-step lock); completion tracks
+    // the admissions state, so with nothing uploaded/filled they're not done.
+    expect(steps.find((s) => s.action === 'documents')?.completed).toBe(false)
+    expect(steps.find((s) => s.action === 'student-kit')?.completed).toBe(false)
   })
 
-  it('unlocks documents + kit once every agreement is signed', () => {
+  it('green-checks the documents step once the admissions API reports it uploaded', () => {
     const steps = buildProgramSteps(
       lectures({
-        legalAgreementSections: [
-          {
-            sectionId: 7,
-            sectionName: 'A',
-            programName: 'M',
-            batchName: 'B',
-            steps: [],
-            savedValues: {},
-            acceptedStepKeys: [],
-            completed: true,
-            referenceNumber: 'r',
-            agreementPdfUrl: null,
-            viewTime: null,
-            daysSinceFirstView: 0,
-            daysLeft: 7,
-            isClosable: true,
-          },
-        ],
         isDocumentsRequired: true,
+        documentsUploaded: true,
         studentKit: {
           applicable: true,
-          detailsFilled: false,
+          detailsFilled: true,
           trackingUrl: null,
           trackingId: null,
-          admissionsFormUrl: 'https://sso/kit',
+          admissionsFormUrl: null,
         },
       }),
       status(),
     )
-    expect(steps.find((s) => s.action === 'documents')?.locked).toBe(false)
-    expect(steps.find((s) => s.action === 'student-kit')?.locked).toBe(false)
+    expect(steps.find((s) => s.action === 'documents')?.completed).toBe(true)
+    expect(steps.find((s) => s.action === 'student-kit')?.completed).toBe(true)
   })
 
   it('never includes the ID card as a step (full flow)', () => {
@@ -230,6 +220,8 @@ describe('buildProgramSteps', () => {
             sectionName: 'Enrolment agreement',
             programName: 'MERN',
             batchName: 'B1',
+            email: 'riya@example.com',
+            studentCode: 'MSN-001',
             steps: [],
             savedValues: {},
             acceptedStepKeys: [],
@@ -237,8 +229,11 @@ describe('buildProgramSteps', () => {
             referenceNumber: 'r',
             agreementPdfUrl: null,
             viewTime: null,
+            signedTime: null,
+            ipAddress: null,
             daysSinceFirstView: 0,
             daysLeft: 7,
+            hoursLeft: null,
             isClosable: true,
           },
         ],
