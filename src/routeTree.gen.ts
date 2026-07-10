@@ -164,8 +164,6 @@ import { Route as ApiLearnAiTutorLectureIdFeedbackRouteImport } from './routes/a
 import { Route as ApiLearnAiTutorLectureIdDispatchRouteImport } from './routes/api/learn/ai-tutor/$lectureId/dispatch'
 import { Route as ApiLearnAiChatLectureIdSendRouteImport } from './routes/api/learn/ai-chat/$lectureId/send'
 import { Route as ApiLearnAiChatLectureIdHistoryRouteImport } from './routes/api/learn/ai-chat/$lectureId/history'
-import { Route as protectedLayoutDiscussionsCreateIndexRouteImport } from './routes/(protected)/_layout/discussions/create/index'
-import { Route as protectedLayoutDiscussionsDiscussionIdIndexRouteImport } from './routes/(protected)/_layout/discussions/$discussionId/index'
 import { Route as ApiAiTutorChatFeedbackMigrateRatingsRouteImport } from './routes/api/ai-tutor/chat/feedback/migrate-ratings'
 import { Route as ApiAiTutorChatConversationsChatIdRouteImport } from './routes/api/ai-tutor/chat/conversations/$chatId'
 import { Route as protectedLayoutMasaiverseEventEventIdRouteImport } from './routes/(protected)/_layout/masaiverse/event.$eventId'
@@ -1234,6 +1232,7 @@ export interface FileRoutesByFullPath {
   '/masaiverse/club/$clubId': typeof protectedLayoutMasaiverseClubClubIdRoute
   '/masaiverse/event/$eventId': typeof protectedLayoutMasaiverseEventEventIdRoute
   '/api/ai-tutor/chat/conversations/$chatId': typeof ApiAiTutorChatConversationsChatIdRoute
+  '/api/ai-tutor/chat/feedback/migrate-ratings': typeof ApiAiTutorChatFeedbackMigrateRatingsRoute
   '/api/learn/ai-chat/$lectureId/history': typeof ApiLearnAiChatLectureIdHistoryRoute
   '/api/learn/ai-chat/$lectureId/send': typeof ApiLearnAiChatLectureIdSendRoute
   '/api/learn/ai-tutor/$lectureId/dispatch': typeof ApiLearnAiTutorLectureIdDispatchRoute
@@ -1250,9 +1249,6 @@ export interface FileRoutesByFullPath {
   '/api/learn/resources/$resourceId/bookmark': typeof ApiLearnResourcesResourceIdBookmarkRoute
   '/api/learn/solutions/$solutionId/file': typeof ApiLearnSolutionsSolutionIdFileRoute
   '/api/learn/submissions/$submissionId/view-on-platform': typeof ApiLearnSubmissionsSubmissionIdViewOnPlatformRoute
-  '/api/ai-tutor/chat/feedback/migrate-ratings': typeof ApiAiTutorChatFeedbackMigrateRatingsRoute
-  '/discussions/$discussionId/': typeof protectedLayoutDiscussionsDiscussionIdIndexRoute
-  '/discussions/create/': typeof protectedLayoutDiscussionsCreateIndexRoute
   '/support/$supportId/': typeof protectedLayoutSupportSupportIdIndexRoute
   '/api/ai-tutor/chat/conversations/': typeof ApiAiTutorChatConversationsIndexRoute
   '/assignments/$assignmentId/problems/$problemId': typeof protectedLayoutAssignmentsAssignmentIdProblemsProblemIdRouteRoute
@@ -1398,6 +1394,7 @@ export interface FileRoutesByTo {
   '/masaiverse/club/$clubId': typeof protectedLayoutMasaiverseClubClubIdRoute
   '/masaiverse/event/$eventId': typeof protectedLayoutMasaiverseEventEventIdRoute
   '/api/ai-tutor/chat/conversations/$chatId': typeof ApiAiTutorChatConversationsChatIdRoute
+  '/api/ai-tutor/chat/feedback/migrate-ratings': typeof ApiAiTutorChatFeedbackMigrateRatingsRoute
   '/api/learn/ai-chat/$lectureId/history': typeof ApiLearnAiChatLectureIdHistoryRoute
   '/api/learn/ai-chat/$lectureId/send': typeof ApiLearnAiChatLectureIdSendRoute
   '/api/learn/ai-tutor/$lectureId/dispatch': typeof ApiLearnAiTutorLectureIdDispatchRoute
@@ -1414,9 +1411,6 @@ export interface FileRoutesByTo {
   '/api/learn/resources/$resourceId/bookmark': typeof ApiLearnResourcesResourceIdBookmarkRoute
   '/api/learn/solutions/$solutionId/file': typeof ApiLearnSolutionsSolutionIdFileRoute
   '/api/learn/submissions/$submissionId/view-on-platform': typeof ApiLearnSubmissionsSubmissionIdViewOnPlatformRoute
-  '/api/ai-tutor/chat/feedback/migrate-ratings': typeof ApiAiTutorChatFeedbackMigrateRatingsRoute
-  '/discussions/$discussionId': typeof protectedLayoutDiscussionsDiscussionIdIndexRoute
-  '/discussions/create': typeof protectedLayoutDiscussionsCreateIndexRoute
   '/support/$supportId': typeof protectedLayoutSupportSupportIdIndexRoute
   '/api/ai-tutor/chat/conversations': typeof ApiAiTutorChatConversationsIndexRoute
   '/assignments/$assignmentId/problems/$problemId': typeof protectedLayoutAssignmentsAssignmentIdProblemsProblemIdRouteRoute
@@ -1565,6 +1559,7 @@ export interface FileRoutesById {
   '/(protected)/_layout/masaiverse/club/$clubId': typeof protectedLayoutMasaiverseClubClubIdRoute
   '/(protected)/_layout/masaiverse/event/$eventId': typeof protectedLayoutMasaiverseEventEventIdRoute
   '/api/ai-tutor/chat/conversations/$chatId': typeof ApiAiTutorChatConversationsChatIdRoute
+  '/api/ai-tutor/chat/feedback/migrate-ratings': typeof ApiAiTutorChatFeedbackMigrateRatingsRoute
   '/api/learn/ai-chat/$lectureId/history': typeof ApiLearnAiChatLectureIdHistoryRoute
   '/api/learn/ai-chat/$lectureId/send': typeof ApiLearnAiChatLectureIdSendRoute
   '/api/learn/ai-tutor/$lectureId/dispatch': typeof ApiLearnAiTutorLectureIdDispatchRoute
@@ -1581,9 +1576,6 @@ export interface FileRoutesById {
   '/api/learn/resources/$resourceId/bookmark': typeof ApiLearnResourcesResourceIdBookmarkRoute
   '/api/learn/solutions/$solutionId/file': typeof ApiLearnSolutionsSolutionIdFileRoute
   '/api/learn/submissions/$submissionId/view-on-platform': typeof ApiLearnSubmissionsSubmissionIdViewOnPlatformRoute
-  '/api/ai-tutor/chat/feedback/migrate-ratings': typeof ApiAiTutorChatFeedbackMigrateRatingsRoute
-  '/(protected)/_layout/discussions/$discussionId/': typeof protectedLayoutDiscussionsDiscussionIdIndexRoute
-  '/(protected)/_layout/discussions/create/': typeof protectedLayoutDiscussionsCreateIndexRoute
   '/(protected)/_layout/support/$supportId/': typeof protectedLayoutSupportSupportIdIndexRoute
   '/api/ai-tutor/chat/conversations/': typeof ApiAiTutorChatConversationsIndexRoute
   '/(protected)/_layout/assignments_/$assignmentId/problems/$problemId': typeof protectedLayoutAssignmentsAssignmentIdProblemsProblemIdRouteRoute
@@ -1732,6 +1724,7 @@ export interface FileRouteTypes {
     | '/masaiverse/club/$clubId'
     | '/masaiverse/event/$eventId'
     | '/api/ai-tutor/chat/conversations/$chatId'
+    | '/api/ai-tutor/chat/feedback/migrate-ratings'
     | '/api/learn/ai-chat/$lectureId/history'
     | '/api/learn/ai-chat/$lectureId/send'
     | '/api/learn/ai-tutor/$lectureId/dispatch'
@@ -1748,9 +1741,6 @@ export interface FileRouteTypes {
     | '/api/learn/resources/$resourceId/bookmark'
     | '/api/learn/solutions/$solutionId/file'
     | '/api/learn/submissions/$submissionId/view-on-platform'
-    | '/api/ai-tutor/chat/feedback/migrate-ratings'
-    | '/discussions/$discussionId/'
-    | '/discussions/create/'
     | '/support/$supportId/'
     | '/api/ai-tutor/chat/conversations/'
     | '/assignments/$assignmentId/problems/$problemId'
@@ -1896,6 +1886,7 @@ export interface FileRouteTypes {
     | '/masaiverse/club/$clubId'
     | '/masaiverse/event/$eventId'
     | '/api/ai-tutor/chat/conversations/$chatId'
+    | '/api/ai-tutor/chat/feedback/migrate-ratings'
     | '/api/learn/ai-chat/$lectureId/history'
     | '/api/learn/ai-chat/$lectureId/send'
     | '/api/learn/ai-tutor/$lectureId/dispatch'
@@ -1912,9 +1903,6 @@ export interface FileRouteTypes {
     | '/api/learn/resources/$resourceId/bookmark'
     | '/api/learn/solutions/$solutionId/file'
     | '/api/learn/submissions/$submissionId/view-on-platform'
-    | '/api/ai-tutor/chat/feedback/migrate-ratings'
-    | '/discussions/$discussionId'
-    | '/discussions/create'
     | '/support/$supportId'
     | '/api/ai-tutor/chat/conversations'
     | '/assignments/$assignmentId/problems/$problemId'
@@ -2062,6 +2050,7 @@ export interface FileRouteTypes {
     | '/(protected)/_layout/masaiverse/club/$clubId'
     | '/(protected)/_layout/masaiverse/event/$eventId'
     | '/api/ai-tutor/chat/conversations/$chatId'
+    | '/api/ai-tutor/chat/feedback/migrate-ratings'
     | '/api/learn/ai-chat/$lectureId/history'
     | '/api/learn/ai-chat/$lectureId/send'
     | '/api/learn/ai-tutor/$lectureId/dispatch'
@@ -2078,9 +2067,6 @@ export interface FileRouteTypes {
     | '/api/learn/resources/$resourceId/bookmark'
     | '/api/learn/solutions/$solutionId/file'
     | '/api/learn/submissions/$submissionId/view-on-platform'
-    | '/api/ai-tutor/chat/feedback/migrate-ratings'
-    | '/(protected)/_layout/discussions/$discussionId/'
-    | '/(protected)/_layout/discussions/create/'
     | '/(protected)/_layout/support/$supportId/'
     | '/api/ai-tutor/chat/conversations/'
     | '/(protected)/_layout/assignments_/$assignmentId/problems/$problemId'
@@ -3508,6 +3494,21 @@ const ApiSupportTicketsRouteChildren: ApiSupportTicketsRouteChildren = {
 const ApiSupportTicketsRouteWithChildren =
   ApiSupportTicketsRoute._addFileChildren(ApiSupportTicketsRouteChildren)
 
+interface ApiAiTutorChatFeedbackRouteChildren {
+  ApiAiTutorChatFeedbackMigrateRatingsRoute: typeof ApiAiTutorChatFeedbackMigrateRatingsRoute
+}
+
+const ApiAiTutorChatFeedbackRouteChildren: ApiAiTutorChatFeedbackRouteChildren =
+  {
+    ApiAiTutorChatFeedbackMigrateRatingsRoute:
+      ApiAiTutorChatFeedbackMigrateRatingsRoute,
+  }
+
+const ApiAiTutorChatFeedbackRouteWithChildren =
+  ApiAiTutorChatFeedbackRoute._addFileChildren(
+    ApiAiTutorChatFeedbackRouteChildren,
+  )
+
 interface ApiLearnAssignmentsAssignmentIdRouteChildren {
   ApiLearnAssignmentsAssignmentIdAssessPlatformUrlRoute: typeof ApiLearnAssignmentsAssignmentIdAssessPlatformUrlRoute
   ApiLearnAssignmentsAssignmentIdSubmissionsRoute: typeof ApiLearnAssignmentsAssignmentIdSubmissionsRoute
@@ -3595,21 +3596,6 @@ const ApiLearnSubmissionsSubmissionIdRouteChildren: ApiLearnSubmissionsSubmissio
 const ApiLearnSubmissionsSubmissionIdRouteWithChildren =
   ApiLearnSubmissionsSubmissionIdRoute._addFileChildren(
     ApiLearnSubmissionsSubmissionIdRouteChildren,
-  )
-
-interface ApiAiTutorChatFeedbackRouteChildren {
-  ApiAiTutorChatFeedbackMigrateRatingsRoute: typeof ApiAiTutorChatFeedbackMigrateRatingsRoute
-}
-
-const ApiAiTutorChatFeedbackRouteChildren: ApiAiTutorChatFeedbackRouteChildren =
-  {
-    ApiAiTutorChatFeedbackMigrateRatingsRoute:
-      ApiAiTutorChatFeedbackMigrateRatingsRoute,
-  }
-
-const ApiAiTutorChatFeedbackRouteWithChildren =
-  ApiAiTutorChatFeedbackRoute._addFileChildren(
-    ApiAiTutorChatFeedbackRouteChildren,
   )
 
 const rootRouteChildren: RootRouteChildren = {

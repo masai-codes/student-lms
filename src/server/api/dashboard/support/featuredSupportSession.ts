@@ -24,5 +24,6 @@ export function selectFeaturedSupportSession(
     const scheduleMs = parseIstToMs(session.schedule)
     return scheduleMs != null && scheduleMs > nowMs
   })
+
   return nextUpcoming ?? null
 }
