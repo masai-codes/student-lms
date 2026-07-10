@@ -19,6 +19,8 @@ const PLATFORMS: readonly AiTutorFeedbackPlatform[] = [
   'web-mobile',
 ]
 
+export const AI_TUTOR_FEEDBACK_PLATFORMS = PLATFORMS
+
 function isWebLikePlatform(platform: AiTutorFeedbackPlatform): boolean {
   return (
     platform === 'web' ||
@@ -68,7 +70,7 @@ export function parseRatingForPlatform(
   if (parsed < 1 || parsed > 5) {
     throw new ApiError(400, 'AI_TUTOR_RATING_INVALID')
   }
-  return parsed + 1
+  return parsed
 }
 
 export function encodeFeedbackWithPlatform(
@@ -79,4 +81,44 @@ export function encodeFeedbackWithPlatform(
     return platform
   }
   return `${platform}-${feedback}`
+}
+
+export function feedbackHasPlatformPrefix(
+  feedback: string | null | undefined,
+  platform: AiTutorFeedbackPlatform,
+): boolean {
+  if (feedback == null || feedback.length === 0) return false
+  if (feedback === platform) return true
+  if (!feedback.startsWith(`${platform}-`)) return false
+
+  if (platform === 'web') {
+    return !(
+      feedback === 'web-mobile' ||
+      feedback.startsWith('web-mobile-') ||
+      feedback === 'web-desktop' ||
+      feedback.startsWith('web-desktop-')
+    )
+  }
+
+  return true
+}
+
+export function feedbackHasIosOrAndroidPrefix(
+  feedback: string | null | undefined,
+): boolean {
+  return (
+    feedbackHasPlatformPrefix(feedback, 'ios') ||
+    feedbackHasPlatformPrefix(feedback, 'android')
+  )
+}
+
+export function feedbackHasAnyPlatformPrefix(
+  feedback: string | null | undefined,
+): boolean {
+  const sortedPlatforms = [...PLATFORMS].sort(
+    (left, right) => right.length - left.length,
+  )
+  return sortedPlatforms.some((platform) =>
+    feedbackHasPlatformPrefix(feedback, platform),
+  )
 }

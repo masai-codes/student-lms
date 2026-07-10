@@ -1,6 +1,9 @@
 import { describe, expect, it } from 'vitest'
 import {
   encodeFeedbackWithPlatform,
+  feedbackHasAnyPlatformPrefix,
+  feedbackHasIosOrAndroidPrefix,
+  feedbackHasPlatformPrefix,
   parsePlatform,
   parseRatingForPlatform,
 } from '@/server/api/ai-tutor/feedbackPlatform'
@@ -51,9 +54,9 @@ describe('parseRatingForPlatform', () => {
     expect(parseRatingForPlatform(5, 'web-mobile')).toBe(5)
   })
 
-  it('shifts mobile ratings by +1', () => {
-    expect(parseRatingForPlatform(1, 'ios')).toBe(2)
-    expect(parseRatingForPlatform(5, 'android')).toBe(6)
+  it('accepts 1 through 5 for ios and android', () => {
+    expect(parseRatingForPlatform(1, 'ios')).toBe(1)
+    expect(parseRatingForPlatform(5, 'android')).toBe(5)
   })
 
   it('rejects out-of-range mobile ratings', () => {
@@ -76,5 +79,17 @@ describe('encodeFeedbackWithPlatform', () => {
   it('stores only the platform when feedback is blank', () => {
     expect(encodeFeedbackWithPlatform('web', null)).toBe('web')
     expect(encodeFeedbackWithPlatform('android', '   ')).toBe('android')
+  })
+})
+
+describe('feedback platform prefixes', () => {
+  it('detects exact and dashed platform prefixes', () => {
+    expect(feedbackHasPlatformPrefix('ios', 'ios')).toBe(true)
+    expect(feedbackHasPlatformPrefix('ios-Great', 'ios')).toBe(true)
+    expect(feedbackHasPlatformPrefix('web-mobile', 'web-mobile')).toBe(true)
+    expect(feedbackHasPlatformPrefix('web-mobile', 'web')).toBe(false)
+    expect(feedbackHasIosOrAndroidPrefix('android')).toBe(true)
+    expect(feedbackHasAnyPlatformPrefix('app-Helpful')).toBe(true)
+    expect(feedbackHasAnyPlatformPrefix('legacy')).toBe(false)
   })
 })

@@ -163,6 +163,7 @@ export function mapThrownErrorToResponse(error: unknown): Response {
       case 'SERVER_ERROR_FETCHING_AI_TUTOR_CONVERSATIONS':
       case 'SERVER_ERROR_FETCHING_AI_TUTOR_CONVERSATION':
       case 'SERVER_ERROR_SUBMITTING_AI_TUTOR_FEEDBACK':
+      case 'SERVER_ERROR_MIGRATING_AI_TUTOR_FEEDBACK_RATINGS':
         return jsonError(500, error.message)
       case 'AI_TUTOR_ANTHROPIC_NOT_CONFIGURED':
         return jsonError(503, error.message)
