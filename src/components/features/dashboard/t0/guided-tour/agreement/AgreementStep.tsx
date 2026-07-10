@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useMutation } from '@tanstack/react-query'
-import { HourglassMedium, Warning } from '@phosphor-icons/react'
+import { CircleNotch, HourglassMedium, Warning } from '@phosphor-icons/react'
 import { AgreementDetailsForm } from './AgreementDetailsForm'
 import { AgreementPdfViewer } from './AgreementPdfViewer'
 import { AgreementCertificate } from './AgreementCertificate'
+import { AgreementSignedSuccess } from './AgreementSignedSuccess'
 import { AgreementStepper } from './AgreementStepper'
 import { AgreementLocationField } from './AgreementLocationField'
 import { AgreementValidationSummary } from './AgreementValidationSummary'
@@ -91,29 +92,7 @@ export function AgreementStep({ section, onCompleted }: AgreementStepProps) {
   }
 
   if (section.completed) {
-    return (
-      <div
-        className="flex h-full min-h-0 flex-col overflow-hidden rounded-2xl border border-gray-200 bg-white"
-        data-testid="agreement-completed"
-      >
-        <div className="min-h-0 flex-1 overflow-y-auto p-6">
-          <AgreementCertificate
-            referenceNumber={section.referenceNumber}
-            name={values.name ?? section.savedValues.name ?? ''}
-            email={section.email}
-            studentCode={section.studentCode}
-            program={section.programName}
-            batchName={section.batchName}
-            viewTime={section.viewTime}
-            signedTime={section.signedTime}
-            ipAddress={savedIp}
-            location={values.location ?? ''}
-            completed
-            agreementPdfUrl={section.agreementPdfUrl}
-          />
-        </div>
-      </div>
-    )
+    return <AgreementSignedSuccess />
   }
 
   const onDetails = subIndex === 0
@@ -259,10 +238,17 @@ export function AgreementStep({ section, onCompleted }: AgreementStepProps) {
               submitMutation.mutate()
             }}
             disabled={submitMutation.isPending}
-            className={BTN_SOLID}
+            className={`${BTN_SOLID} gap-2`}
             data-testid="agreement-submit"
           >
-            {submitMutation.isPending ? 'Submitting…' : 'Submit & Sign'}
+            {submitMutation.isPending ? (
+              <>
+                <CircleNotch className="size-4 animate-spin" weight="bold" aria-hidden />
+                Signing…
+              </>
+            ) : (
+              'Submit & Sign'
+            )}
           </button>
         ) : (
           <div className="flex items-center gap-3">

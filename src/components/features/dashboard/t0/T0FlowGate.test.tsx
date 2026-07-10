@@ -35,7 +35,7 @@ const lectures: T0FlowLecturesResult = {
 const baseStatus = (over: Partial<T0FlowStatus> = {}): T0FlowStatus => ({
   showT0Flow: true,
   batches: [
-    { batchId: 5, batchName: 'MERN', showProgramTab: false, lms: { completed: 1, total: 4, complete: false }, program: null, lectures },
+    { batchId: 5, batchName: 'MERN', showProgramTab: false, lms: { completed: 1, total: 4, complete: false }, program: null, lectures, flowVariant: 'full' },
   ],
   profilePhotoUrl: null,
   downloadAppCompleted: false,
@@ -81,7 +81,7 @@ describe('T0FlowGate', () => {
       baseStatus({
         showGuidedTour: false,
         batches: [
-          { batchId: 5, batchName: 'MERN', showProgramTab: false, lms: { completed: 4, total: 4, complete: true }, program: null, lectures },
+          { batchId: 5, batchName: 'MERN', showProgramTab: false, lms: { completed: 4, total: 4, complete: true }, program: null, lectures, flowVariant: 'full' },
         ],
       }),
       true,
@@ -118,7 +118,7 @@ describe('T0FlowGate', () => {
     renderGate(
       baseStatus({
         batches: [
-          { batchId: 5, batchName: 'MERN', showProgramTab: true, lms: { completed: 4, total: 4, complete: true }, program: { completed: 0, total: 2, complete: false }, lectures },
+          { batchId: 5, batchName: 'MERN', showProgramTab: true, lms: { completed: 4, total: 4, complete: true }, program: { completed: 0, total: 2, complete: false }, lectures, flowVariant: 'full' },
         ],
       }),
     )
@@ -141,8 +141,8 @@ describe('T0FlowGate', () => {
     renderGate(
       baseStatus({
         batches: [
-          { batchId: 5, batchName: 'MERN', showProgramTab: false, lms: { completed: 1, total: 4, complete: false }, program: null, lectures },
-          { batchId: 6, batchName: 'Data Analytics', showProgramTab: true, lms: { completed: 0, total: 3, complete: false }, program: { completed: 0, total: 2, complete: false }, lectures: null },
+          { batchId: 5, batchName: 'MERN', showProgramTab: false, lms: { completed: 1, total: 4, complete: false }, program: null, lectures, flowVariant: 'full' },
+          { batchId: 6, batchName: 'Data Analytics', showProgramTab: true, lms: { completed: 0, total: 3, complete: false }, program: { completed: 0, total: 2, complete: false }, lectures: null, flowVariant: 'full' },
         ],
       }),
     )

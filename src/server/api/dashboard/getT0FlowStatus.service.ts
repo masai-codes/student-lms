@@ -202,7 +202,7 @@ export async function getT0FlowStatus(
   const liteBatchIds = batchIds.filter((id) => !admissionBatchIds.has(id))
   const liteStatuses: Array<BatchT0Status> = (
     await Promise.all(
-      liteBatchIds.map(async (batchId) => {
+      liteBatchIds.map(async (batchId): Promise<BatchT0Status | null> => {
         const web = await computeLiteGuidedTourProgress(userId, batchId, profileMeta, legalData, hasDeviceToken)
         if (web.program.total <= 0) return null // no signable agreement → nothing batch-specific to onboard
         return {
