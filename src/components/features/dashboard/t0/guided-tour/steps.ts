@@ -66,10 +66,11 @@ function videoStep(
 export function buildLmsSteps(
   lectures: T0FlowLecturesResult,
   status: T0FlowStatus,
+  flowVariant: 'full' | 'lite',
 ): Array<GuidedTourStep> {
   const completedIds = new Set(lectures.completedLectureIds)
   const videoSteps =
-    status.flowVariant === 'lite'
+    flowVariant === 'lite'
       ? []
       : lectures.lmsLectures.map((l) => videoStep(l, completedIds))
 
@@ -106,10 +107,10 @@ export function buildLmsSteps(
  */
 export function buildProgramSteps(
   lectures: T0FlowLecturesResult,
-  status: T0FlowStatus,
+  flowVariant: 'full' | 'lite',
 ): Array<GuidedTourStep> {
   const completedIds = new Set(lectures.completedLectureIds)
-  const isLite = status.flowVariant === 'lite'
+  const isLite = flowVariant === 'lite'
   const videoSteps = isLite
     ? []
     : lectures.programLectures.map((l) => videoStep(l, completedIds))
@@ -170,9 +171,9 @@ export interface IdCardState {
  */
 export function getIdCardState(
   lectures: T0FlowLecturesResult,
-  status: T0FlowStatus,
+  flowVariant: 'full' | 'lite',
 ): IdCardState {
-  if (status.flowVariant === 'lite')
+  if (flowVariant === 'lite')
     return { show: false, url: null, unlocked: false }
 
   const completedIds = new Set(lectures.completedLectureIds)

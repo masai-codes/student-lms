@@ -2,7 +2,8 @@ import { eq } from 'drizzle-orm'
 import jwt from 'jsonwebtoken'
 import { getCookie, getRequestHeader } from '@tanstack/react-start/server'
 import { db } from '@/db'
-import { sessions } from '@/db/schema'
+import { sessions, users } from '@/db/schema'
+import { isUserDeactivated } from '@/server/restrictions/deactivatedUser'
 import { getCookieName, getJwtSecret } from '@/server/auth/v2/sessionConfig'
 
 type SessionTokenPayload = {
@@ -34,12 +35,18 @@ async function lookupUserIdBySessionId(
   if (!sessionId) return null
 
   const rows = await db
-    .select({ userId: sessions.userId })
+    .select({ userId: sessions.userId, status: users.status })
     .from(sessions)
+    .innerJoin(users, eq(sessions.userId, users.id))
     .where(eq(sessions.id, sessionId))
     .limit(1)
 
-  return rows[0]?.userId ?? null
+  const row = rows[0]
+  if (!row) return null
+  // Deactivated mid-session: resolve to no user so every session-gated request
+  // (REST APIs and layout loaders alike) is cut off on its next call.
+  if (isUserDeactivated(row.status)) return null
+  return row.userId
 }
 
 /**

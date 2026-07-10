@@ -18,9 +18,9 @@ import { buildLectureTabContent } from '@/server/learn/utils/buildLectureTabCont
 import { getLearnEntityBookmarkState } from '@/server/learn/services/learnEntityBookmark.service'
 import { getLectureFeedbackRecord } from '@/server/learn/services/lectureFeedback.service'
 import { ensureUserCanAccessLearnHubEntity } from '@/server/learn/utils/ensureLearnEntityAccess'
-import { resolveLearnDetailBanRestriction } from '@/server/learn/utils/resolveLearnDetailBanRestriction'
+import { resolveLearnDetailRestriction } from '@/server/restrictions/resolveLearnDetailRestriction'
 import { getBatchIdForSection } from '@/server/batches/getBatchIdsForSections'
-import { getUserBatchBans } from '@/server/users/batchBan'
+import { getUserBatchRestrictions } from '@/server/restrictions/getUserBatchRestrictions'
 import { LECTURE_RESOURCE_TYPE } from '@/server/learn/utils/resolveLectureLearningType'
 import {
   getLectureAssociatedContent,
@@ -162,26 +162,26 @@ export async function getLectureLearningDetailForUser(
     feedbackRecord,
   )
 
-  const [bans, sectionBatchId] = await Promise.all([
-    getUserBatchBans(userId),
+  const [restrictions, sectionBatchId] = await Promise.all([
+    getUserBatchRestrictions(userId),
     getBatchIdForSection(row.sectionId),
   ])
-  const banRestriction = resolveLearnDetailBanRestriction({
+  // Agreement ban restricts a lecture only when the page would show a recording;
+  // live lectures without a recording stay accessible.
+  const restriction = resolveLearnDetailRestriction({
     contentBatchId: sectionBatchId ?? row.batchId,
     schedule: row.schedule,
-    bans,
-    agreementRestrictionKind: 'recording',
+    restrictions,
+    agreementScope: payload.hasRecording ? 'recording' : null,
   })
 
   return {
     ...payload,
     isBookmarked,
     isNewZoomRedirection: row.isNewZoomRedirection === 1,
-    banRestriction,
-    // Agreement ban: don't leak the recording URL — the frontend shows a ban panel
-    // in the player region based on `banRestriction`.
-    ...(banRestriction?.kind === 'recording'
-      ? { videoUrl: null, hasRecording: false }
-      : {}),
+    restriction,
+    // When restricted the whole page is blocked client-side; don't leak the
+    // recording URL either way.
+    ...(restriction != null ? { videoUrl: null, hasRecording: false } : {}),
   }
 }

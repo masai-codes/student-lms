@@ -3,6 +3,7 @@ import { hash } from 'bcryptjs'
 import { and, eq, gte, inArray } from 'drizzle-orm'
 import { db } from '@/db'
 import { otpCodes, users } from '@/db/schema'
+import { isUserDeactivated } from '@/server/restrictions/deactivatedUser'
 import { toEmailPortal, type EmailPortal } from '@/server/auth/v2/isRequestFromIHub'
 import { mobileLookupCandidates } from '@/server/auth/v2/mobileLookup'
 import { sendOtpEmail } from '@/server/auth/v2/otpEmail'
@@ -31,12 +32,15 @@ export type SendOtpResult = {
 
 export class SendOtpError extends Error {
   constructor(
-    public code: 'USER_NOT_FOUND' | 'RATE_LIMITED',
+    public code: 'USER_NOT_FOUND' | 'RATE_LIMITED' | 'ACCOUNT_DEACTIVATED',
     message: string,
   ) {
     super(message)
   }
 }
+
+const ACCOUNT_DEACTIVATED_MESSAGE =
+  'Your account has been deactivated. Please contact support if you think this is a mistake.'
 
 function isEmailIdentifier(value: string): boolean {
   return value.includes('@')
@@ -132,6 +136,7 @@ export async function sendOtp({
       email: users.email,
       mobile: users.mobile,
       client: users.client,
+      status: users.status,
     })
     .from(users)
     .where(
@@ -149,6 +154,10 @@ export async function sendOtp({
         ? "We couldn't find an account with that email address. Please check it and try again, or sign up."
         : "We couldn't find an account with that mobile number. Please check it and try again, or sign up.",
     )
+  }
+
+  if (isUserDeactivated(user.status)) {
+    throw new SendOtpError('ACCOUNT_DEACTIVATED', ACCOUNT_DEACTIVATED_MESSAGE)
   }
 
   // OTP routing follows the user's portal (user.client), not the request portal.

@@ -1,5 +1,11 @@
-import { sql } from 'drizzle-orm'
+import { sql, type SQL } from 'drizzle-orm'
 import { db } from '@/db'
+import { getBatchIdsForSections } from '@/server/batches/getBatchIdsForSections'
+import {
+  getCancelledBatchIds,
+  getPausedCutoff,
+} from '@/server/restrictions/enrollmentRestrictionScope'
+import { getUserBatchRestrictions } from '@/server/restrictions/getUserBatchRestrictions'
 
 export interface PopupItem {
   id: string
@@ -35,7 +41,36 @@ export async function getAnnouncementPopups(userId: number): Promise<PopupItem[]
   const sectionIds = normalizeRows(sectionResult)
     .map((r) => Number(r.section_id))
     .filter(Number.isFinite)
-  const sectionIdList = sectionIds.length > 0 ? sectionIds.join(', ') : '0'
+
+  // Drop sections of enrolment-cancelled batches; exclude paused batches'
+  // announcements scheduled after their cutoff.
+  const restrictions = await getUserBatchRestrictions(userId)
+  let effectiveSectionIds = sectionIds
+  let pausedClause: SQL = sql``
+  if (restrictions.size > 0 && sectionIds.length > 0) {
+    const sectionToBatch = await getBatchIdsForSections(sectionIds)
+    const cancelled = getCancelledBatchIds(restrictions)
+    effectiveSectionIds = sectionIds.filter((sid) => {
+      const batchId = sectionToBatch.get(sid)
+      return batchId == null || !cancelled.has(batchId)
+    })
+    const pausedGroups = new Map<number, Array<number>>()
+    for (const sid of effectiveSectionIds) {
+      const batchId = sectionToBatch.get(sid)
+      if (batchId != null && getPausedCutoff(restrictions, batchId) != null) {
+        const arr = pausedGroups.get(batchId) ?? []
+        arr.push(sid)
+        pausedGroups.set(batchId, arr)
+      }
+    }
+    for (const [batchId, secs] of pausedGroups) {
+      const cutoff = getPausedCutoff(restrictions, batchId)
+      if (cutoff == null) continue
+      pausedClause = sql`${pausedClause} AND NOT (a.section_id IN (${sql.raw(secs.join(', '))}) AND a.schedule > ${cutoff})`
+    }
+  }
+  const sectionIdList =
+    effectiveSectionIds.length > 0 ? effectiveSectionIds.join(', ') : '0'
 
   const annResult = await db.execute(sql`
     SELECT
@@ -51,7 +86,7 @@ export async function getAnnouncementPopups(userId: number): Promise<PopupItem[]
       AND a.show_as_popup = 1
       AND a.deleted_at IS NULL
       AND a.track_read = 1
-      AND (a.schedule IS NULL OR a.schedule <= CONVERT_TZ(NOW(), '+00:00', '+05:30'))
+      AND (a.schedule IS NULL OR a.schedule <= CONVERT_TZ(NOW(), '+00:00', '+05:30'))${pausedClause}
       AND (a.concludes IS NULL OR a.concludes >= CONVERT_TZ(NOW(), '+00:00', '+05:30'))
       AND (ar.id IS NULL OR ar.read_at IS NULL)
     ORDER BY a.created_at DESC

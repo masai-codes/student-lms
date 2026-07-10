@@ -1,6 +1,8 @@
-import { sql } from 'drizzle-orm'
+import { and, gte, inArray, isNotNull, isNull, asc } from 'drizzle-orm'
 import { resolveCourseTitle } from './courseTitle'
 import { db } from '@/db'
+import { batches } from '@/db/schema'
+import { getBatchIdsForEnrolledUser } from '@/server/batches/getBatchIdsForEnrolledUser'
 import { getIstNowSqlDatetime } from '@/server/time/istClock'
 
 /** An upcoming-batch banner: which course starts, and when (IST). */
@@ -11,18 +13,6 @@ export interface BatchStartBanner {
   startDate: string
   /** Display label, e.g. `12 Aug 2026`. */
   startDateLabel: string
-}
-
-function normalizeRows<T>(result: unknown): Array<T> {
-  if (Array.isArray(result)) {
-    const first = result[0]
-    if (Array.isArray(first)) return first as Array<T>
-    return result as Array<T>
-  }
-  if (result && typeof result === 'object' && 'rows' in result && Array.isArray((result).rows)) {
-    return (result as { rows: Array<T> }).rows
-  }
-  return []
 }
 
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
@@ -40,20 +30,15 @@ function formatStartDate(date: string): string {
   return `${Number(day)} ${monthName} ${year}`
 }
 
-interface BatchStartRow {
-  batch_id: number
-  batch_name: string | null
-  batch_meta: unknown
-  starting: string | null
-}
-
 /**
- * Banners for batches the learner is enrolled in (via `batch_user`) whose start
- * date is today or later (IST) — "Your course … will start on {date}". Sorted
- * soonest-first; deduped to one banner per batch. `[]` when none are upcoming.
+ * Banners for batches the learner is enrolled in whose start date is today or later
+ * (IST) — "Your course … will start on {date}". Sorted soonest-first; deduped to one
+ * banner per batch. `[]` when none are upcoming.
  *
- * `batches.starting` is a DATE stored as IST wall-clock, so it's compared
- * against today's IST date and formatted from its parts directly.
+ * Enrollment comes from {@link getBatchIdsForEnrolledUser} (the single source of
+ * truth — section-based, portal-scoped, and with cancelled batches already excluded).
+ * `batches.starting` is a DATE stored as IST wall-clock, so it's compared against
+ * today's IST date and formatted from its parts directly.
  */
 export async function getBatchStartBanners(
   userId: number,
@@ -61,30 +46,36 @@ export async function getBatchStartBanners(
 ): Promise<Array<BatchStartBanner>> {
   const istToday = getIstNowSqlDatetime(now).slice(0, 10) // YYYY-MM-DD (IST)
 
-  const rows = normalizeRows<BatchStartRow>(
-    await db.execute(sql`
-      SELECT b.id AS batch_id, b.name AS batch_name, b.meta AS batch_meta, b.starting
-      FROM batch_user bu
-      JOIN batches b ON b.id = bu.batch_id
-      WHERE bu.user_id = ${userId}
-        AND bu.deleted_at IS NULL
-        AND b.deleted_at IS NULL
-        AND b.starting IS NOT NULL
-        AND b.starting >= ${istToday}
-      ORDER BY b.starting ASC
-    `)
-  )
+  const enrolledBatchIds = await getBatchIdsForEnrolledUser(userId)
+  if (enrolledBatchIds.length === 0) return []
+
+  const rows = await db
+    .select({
+      id: batches.id,
+      name: batches.name,
+      meta: batches.meta,
+      starting: batches.starting,
+    })
+    .from(batches)
+    .where(
+      and(
+        inArray(batches.id, enrolledBatchIds),
+        isNull(batches.deletedAt),
+        isNotNull(batches.starting),
+        gte(batches.starting, istToday),
+      ),
+    )
+    .orderBy(asc(batches.starting))
 
   const seen = new Set<number>()
   const banners: Array<BatchStartBanner> = []
   for (const row of rows) {
-    const batchId = Number(row.batch_id)
-    if (seen.has(batchId) || typeof row.starting !== 'string') continue
-    seen.add(batchId)
+    if (seen.has(row.id) || typeof row.starting !== 'string') continue
+    seen.add(row.id)
     const startDate = row.starting.slice(0, 10)
     banners.push({
-      batchId,
-      courseTitle: resolveCourseTitle(row.batch_meta, row.batch_name) || String(batchId),
+      batchId: row.id,
+      courseTitle: resolveCourseTitle(row.meta, row.name) || String(row.id),
       startDate,
       startDateLabel: formatStartDate(startDate),
     })

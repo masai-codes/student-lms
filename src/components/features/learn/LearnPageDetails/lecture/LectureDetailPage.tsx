@@ -2,7 +2,7 @@
 
 import { LiveLectureContent } from './live/LiveLectureContent'
 import { VideoLectureContent } from './video/VideoLectureContent'
-import { LearnBanPage } from '../common/ban/LearnBanNotice'
+import { LearnRestrictionPage } from '../common/ban/LearnBanNotice'
 import type { LectureDetailPayload } from '@/server/learn/lectureDetailTypes'
 import { formatLectureRangeLocal } from '@/utils/timeZoneHandler'
 
@@ -11,8 +11,8 @@ type LectureDetailPageProps = {
 }
 
 export function LectureDetailPage({ detail }: LectureDetailPageProps) {
-  if (detail.banRestriction?.kind === 'page') {
-    return <LearnBanPage />
+  if (detail.restriction) {
+    return <LearnRestrictionPage restriction={detail.restriction} />
   }
 
   // `scheduleDisplayRange` arrives from the server formatted in IST; re-derive it

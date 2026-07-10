@@ -9,6 +9,7 @@ const batch = (over: Partial<BatchT0Status> = {}): BatchT0Status => ({
   lms: { completed: 1, total: 4, complete: false },
   program: null,
   lectures: null,
+  flowVariant: 'full',
   ...over,
 })
 
@@ -101,5 +102,33 @@ describe('buildOnboardingBanners', () => {
     )
     // Batch 6 is complete (walkthrough done, program locked) → excluded.
     expect(banners.map((b) => b.courseTitle)).toEqual(['MERN', 'Cybersecurity'])
+  })
+
+  it('emits a banner for both a full admission batch and a lite agreement-only batch', () => {
+    const banners = buildOnboardingBanners(
+      status({
+        batches: [
+          batch({
+            batchId: 348,
+            batchName: 'BITSoM PM',
+            flowVariant: 'full',
+            showProgramTab: true,
+            lms: { completed: 1, total: 3, complete: false },
+            program: { completed: 0, total: 4, complete: false },
+          }),
+          batch({
+            batchId: 354,
+            batchName: 'IITP BuildStack AI',
+            flowVariant: 'lite',
+            showProgramTab: true,
+            lms: { completed: 2, total: 2, complete: true },
+            program: { completed: 0, total: 1, complete: false },
+          }),
+        ],
+      }),
+    )
+    expect(banners.map((b) => b.courseTitle)).toEqual(['BITSoM PM', 'IITP BuildStack AI'])
+    // Full batch: walkthrough pending → LMS tab. Lite batch: agreement only → program tab.
+    expect(banners.map((b) => b.targetTab)).toEqual(['lms', 'program'])
   })
 })

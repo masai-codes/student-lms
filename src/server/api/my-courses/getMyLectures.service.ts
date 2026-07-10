@@ -1,6 +1,7 @@
-import { and, desc, eq, inArray, isNull } from 'drizzle-orm'
+import { and, inArray, isNull } from 'drizzle-orm'
 import { db } from '@/db'
-import { batches, sectionUser, sections } from '@/db/schema'
+import { batches } from '@/db/schema'
+import { getBatchIdsForEnrolledUser } from '@/server/batches/getBatchIdsForEnrolledUser'
 
 export interface MyCoursesItem {
   batchId: number
@@ -22,29 +23,9 @@ function computeProgress(timeline: unknown[]): number {
 }
 
 export async function getMyCourses(userId: number): Promise<MyCoursesItem[]> {
-  // Order by section_user.id DESC — most-recently-enrolled section first
-  const enrolledSections = await db
-    .select({ batchId: sections.batchId })
-    .from(sectionUser)
-    .innerJoin(sections, eq(sectionUser.sectionId, sections.id))
-    .where(
-      and(
-        eq(sectionUser.userId, userId),
-        isNull(sectionUser.deletedAt),
-        isNull(sections.deletedAt),
-      ),
-    )
-    .orderBy(desc(sectionUser.id))
-
-  // Deduplicate keeping first occurrence (= highest section_user.id per batch)
-  const seen = new Set<number>()
-  const orderedBatchIds: number[] = []
-  for (const row of enrolledSections) {
-    if (row.batchId != null && !seen.has(row.batchId)) {
-      seen.add(row.batchId)
-      orderedBatchIds.push(row.batchId)
-    }
-  }
+  // Single source of truth for enrolled batches (section-based, portal-scoped,
+  // cancelled batches already excluded).
+  const orderedBatchIds = await getBatchIdsForEnrolledUser(userId)
 
   if (orderedBatchIds.length === 0) return []
 

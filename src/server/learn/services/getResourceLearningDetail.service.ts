@@ -9,9 +9,9 @@ import { listDiscussionsWithThreadsForLearnEntity } from '@/server/new-discussio
 import { buildLearnDetailPresentation } from '@/server/learn/utils/buildLearnDetailPresentation'
 import { buildResourceDetailPayload } from '@/server/learn/utils/buildResourceDetailPayload'
 import { ensureUserCanAccessLearnHubEntity } from '@/server/learn/utils/ensureLearnEntityAccess'
-import { resolveLearnDetailBanRestriction } from '@/server/learn/utils/resolveLearnDetailBanRestriction'
+import { resolveLearnDetailRestriction } from '@/server/restrictions/resolveLearnDetailRestriction'
 import { getBatchIdForSection } from '@/server/batches/getBatchIdsForSections'
-import { getUserBatchBans } from '@/server/users/batchBan'
+import { getUserBatchRestrictions } from '@/server/restrictions/getUserBatchRestrictions'
 import {
   isSupportedResourceLectureType,
 } from '@/server/learn/utils/normalizeResourceKind'
@@ -110,17 +110,17 @@ export async function getResourceLearningDetailForUser(
     isBookmarked,
   )
 
-  const [bans, sectionBatchId] = await Promise.all([
-    getUserBatchBans(userId),
+  const [restrictions, sectionBatchId] = await Promise.all([
+    getUserBatchRestrictions(userId),
     getBatchIdForSection(row.sectionId),
   ])
-  // Agreement ban never restricts resources — only the normal-ban page block applies.
-  const banRestriction = resolveLearnDetailBanRestriction({
+  // Agreement ban never restricts resources — only enrolment-cancelled / paused apply.
+  const restriction = resolveLearnDetailRestriction({
     contentBatchId: sectionBatchId ?? row.batchId,
     schedule: row.schedule,
-    bans,
-    agreementRestrictionKind: null,
+    restrictions,
+    agreementScope: null,
   })
 
-  return { ...payload, banRestriction }
+  return { ...payload, restriction }
 }

@@ -32,6 +32,8 @@ function statusForLoginError(code: LoginError['code']): number {
       return 403
     case 'INCORRECT_CREDENTIALS':
       return 401
+    case 'ACCOUNT_DEACTIVATED':
+      return 403
   }
 }
 

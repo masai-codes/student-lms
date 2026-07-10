@@ -3,7 +3,7 @@
 import { EvaluationAssignmentContent } from './evaluation/EvaluationAssignmentContent'
 import { PracticeAssignmentContent } from './practice/PracticeAssignmentContent'
 import { RegularAssignmentContent } from './regular/RegularAssignmentContent'
-import { LearnBanPage } from '../common/ban/LearnBanNotice'
+import { LearnRestrictionPage } from '../common/ban/LearnBanNotice'
 
 import type { AssignmentDetailPayload } from '@/server/learn/assignmentDetailTypes'
 
@@ -12,8 +12,8 @@ type AssignmentDetailPageProps = {
 }
 
 export function AssignmentDetailPage({ detail }: AssignmentDetailPageProps) {
-  if (detail.banRestriction?.kind === 'page') {
-    return <LearnBanPage />
+  if (detail.restriction) {
+    return <LearnRestrictionPage restriction={detail.restriction} />
   }
 
   switch (detail.assignmentKind) {

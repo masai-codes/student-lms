@@ -29,6 +29,8 @@ function statusForVerifyOtpError(code: VerifyOtpError['code']): number {
       return 429
     case 'INVALID_OTP':
       return 401
+    case 'ACCOUNT_DEACTIVATED':
+      return 403
   }
 }
 
