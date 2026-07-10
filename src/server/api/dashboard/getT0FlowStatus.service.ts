@@ -33,6 +33,13 @@ export interface BatchT0Status {
    * `getT0FlowStatus` itself always leaves this `null`.
    */
   lectures: T0FlowLecturesResult | null
+  /**
+   * Which tour this batch shows: `'full'` when the batch has a
+   * `user_batch_admission_data` row (walkthrough + program videos, agreement,
+   * documents, kit, ID card), `'lite'` when the learner is enrolled but the
+   * batch has no admission row (photo + download app + agreement only).
+   */
+  flowVariant: 'full' | 'lite'
 }
 
 export interface T0FlowStatus {
@@ -157,6 +164,7 @@ export async function getT0FlowStatus(
           lms,
           program,
           lectures: null,
+          flowVariant: 'lite',
         },
       ],
       profilePhotoUrl,
@@ -166,7 +174,7 @@ export async function getT0FlowStatus(
     }
   }
 
-  const batchStatuses: Array<BatchT0Status> = await Promise.all(
+  const fullStatuses: Array<BatchT0Status> = await Promise.all(
     admissionRows.map(async (row) => {
       const batchId = Number(row.batch_id)
       const fullFeesPaid = Boolean(row.full_fees_paid)
@@ -180,8 +188,38 @@ export async function getT0FlowStatus(
         lms: toTabProgress(live.lms, meta[`lms_walkthrough_${otherPlatform}`]),
         program: live.program ? toTabProgress(live.program, meta[`program_onboarding_${otherPlatform}`]) : null,
         lectures: null, // filled by the overview composer for the primary batch
+        flowVariant: 'full' as const,
       }
     }),
+  )
+
+  // Enrolled batches with NO admission row still need onboarding for their
+  // agreement — surface them as trimmed "lite" batches alongside the full ones.
+  // Photo/download-app are user-level and already covered by the full batches, so
+  // we only include a lite batch when it has a signable agreement (its only
+  // batch-specific step) to avoid redundant photo/app-only banners.
+  const admissionBatchIds = new Set(admissionRows.map((r) => Number(r.batch_id)))
+  const liteBatchIds = batchIds.filter((id) => !admissionBatchIds.has(id))
+  const liteStatuses: Array<BatchT0Status> = (
+    await Promise.all(
+      liteBatchIds.map(async (batchId) => {
+        const web = await computeLiteGuidedTourProgress(userId, batchId, profileMeta, legalData, hasDeviceToken)
+        if (web.program.total <= 0) return null // no signable agreement → nothing batch-specific to onboard
+        return {
+          batchId,
+          batchName: batchNameMap.get(batchId) ?? String(batchId),
+          showProgramTab: true,
+          lms: { ...web.lms, complete: isProgressComplete(web.lms) },
+          program: { ...web.program, complete: isProgressComplete(web.program) },
+          lectures: null,
+          flowVariant: 'lite' as const,
+        }
+      }),
+    )
+  ).filter((b): b is BatchT0Status => b !== null)
+
+  const batchStatuses: Array<BatchT0Status> = [...fullStatuses, ...liteStatuses].sort(
+    (a, b) => a.batchId - b.batchId,
   )
 
   const showGuidedTour = batchStatuses.some(
@@ -194,6 +232,6 @@ export async function getT0FlowStatus(
     profilePhotoUrl,
     downloadAppCompleted: hasDeviceToken,
     showGuidedTour,
-    flowVariant: 'full',
+    flowVariant: fullStatuses.length > 0 ? 'full' : 'lite',
   }
 }

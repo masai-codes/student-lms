@@ -96,10 +96,13 @@ export function GuidedTourOverlay({
   })
   const lectures = inlineLectures ?? fetchedLectures
 
+  const batchFlowVariant = selectedBatch?.flowVariant ?? 'full'
   const steps: Array<GuidedTourStep> = useMemo(() => {
     if (!lectures) return []
-    return effectiveTab === 'lms' ? buildLmsSteps(lectures, status) : buildProgramSteps(lectures, status)
-  }, [lectures, status, effectiveTab])
+    return effectiveTab === 'lms'
+      ? buildLmsSteps(lectures, status, batchFlowVariant)
+      : buildProgramSteps(lectures, batchFlowVariant)
+  }, [lectures, status, effectiveTab, batchFlowVariant])
 
   // With nothing explicitly selected, land on the first incomplete step
   // (chronological), falling back to the first step when all are done.
@@ -132,7 +135,7 @@ export function GuidedTourOverlay({
   const videoIndex = activeStep ? videoStepKeys.indexOf(activeStep.key) : -1
 
   // ID-card capstone: rendered below the Program Onboarding steps (not a step).
-  const idCard = lectures && effectiveTab === 'program' ? getIdCardState(lectures, status) : null
+  const idCard = lectures && effectiveTab === 'program' ? getIdCardState(lectures, batchFlowVariant) : null
   const showIdCard = idCard?.show ?? false
 
   const refetchProgress = () => {
