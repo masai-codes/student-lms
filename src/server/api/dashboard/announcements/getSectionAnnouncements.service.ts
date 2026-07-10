@@ -10,7 +10,8 @@ import { announcementReads, announcements, users } from '@/db/schema'
  * A row qualifies when it belongs to one of the user's sections, is not
  * deleted, is inside its release window (`schedule <= now <= concludes`, IST),
  * has `track_read = true`, and is still unread — meaning no read record, a read
- * record flagged `is_unread`, or an undisplayed popup.
+ * record flagged `is_unread`, or a displayed-but-unread popup (`popup_display`
+ * set with `read_at` still null).
  */
 export async function getSectionAnnouncements(
   sectionIds: Array<number>,
@@ -57,10 +58,8 @@ export async function getSectionAnnouncements(
           eq(announcementReads.isUnread, 1),
           and(
             eq(announcements.showAsPopup, 1),
-            or(
-              isNull(announcementReads.popupDisplay),
-              eq(announcementReads.popupDisplay, 0),
-            ),
+            eq(announcementReads.popupDisplay, 1),
+            isNull(announcementReads.readAt),
           ),
         ),
       ),

@@ -93,11 +93,20 @@ export function LearnContentCard({
       }
       className="bg-white rounded-[8px] border border-gray-200 p-3 block transition-colors hover:bg-gray-50/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
     >
-      <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
-        <div className="flex items-start gap-3">
+      <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+        <div className="flex min-w-0 items-start gap-3">
           <LearnTypeIcon type={item.type} />
-          <div>
-            <p className="type-b1-md">{item.title}</p>
+          <div className="min-w-0 flex-1">
+            <p
+              title={item.title}
+              className={
+                fromDashboard
+                  ? 'line-clamp-2 break-words text-sm font-medium leading-snug text-gray-900 md:text-base'
+                  : 'type-b1-md break-words'
+              }
+            >
+              {item.title}
+            </p>
             {fromDashboard ? (
               <div className="mt-[4px] type-t1 flex flex-wrap items-center gap-x-2 gap-y-1">
                 <LocalTimeWithIstTooltip
@@ -164,7 +173,7 @@ export function LearnContentCard({
         </div>
 
         <div
-          className="flex shrink-0 flex-wrap items-center justify-end gap-2"
+          className="flex shrink-0 flex-wrap items-center gap-2 md:justify-end"
           onClick={(event) => {
             event.preventDefault()
             event.stopPropagation()

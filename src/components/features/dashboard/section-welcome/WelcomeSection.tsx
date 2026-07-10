@@ -17,7 +17,10 @@ export function WelcomeSection({ name, banners }: WelcomeSectionProps) {
       data-testid="dashboard-welcome-section"
       className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between"
     >
-      <div className="shrink-0">
+      {/* The greeting is shown in the mobile sticky header (AppMobileHeader)
+          below the `lg` breakpoint, so only render it inline on desktop to
+          avoid duplication. */}
+      <div className="hidden shrink-0 lg:block">
         {name ? (
           <>
             <p className="text-2xl font-medium text-gray-500 md:text-3xl">Welcome</p>

@@ -17,11 +17,14 @@ vi.mock('@/db', () => {
 // 06:30 UTC = 12:00 IST on 2026-07-02
 const NOW = new Date('2026-07-02T06:30:00Z')
 
+// The `istDatetime` column type stamps rows with an explicit `+05:30` offset on
+// read (see src/db/columnTypes.ts), so the service receives offset-bearing ISO
+// strings — mirror that here rather than the naive DB wall-clock shape.
 const row = (over: Record<string, unknown> = {}) => ({
   id: 1,
   title: 'LMS Support Session',
-  schedule: '2026-07-02 11:00:00',
-  concludes: '2026-07-02 13:00:00',
+  schedule: '2026-07-02T11:00:00+05:30',
+  concludes: '2026-07-02T13:00:00+05:30',
   zoomLink: 'https://zoom.us/j/1',
   ...over,
 })
@@ -49,7 +52,7 @@ describe('getSupportSessions', () => {
   })
 
   it('marks a future-day session as upcoming and null concludes as null', async () => {
-    hoisted.rows = [row({ schedule: '2026-07-06 10:00:00', concludes: null })]
+    hoisted.rows = [row({ schedule: '2026-07-06T10:00:00+05:30', concludes: null })]
     const { getSupportSessions } = await import('../getSupportSessions.service')
 
     const [session] = await getSupportSessions(NOW)

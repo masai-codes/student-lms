@@ -19,9 +19,10 @@ export function AnnouncementsPanel({
 }: AnnouncementsPanelProps) {
   const navigate = useNavigate()
 
-  // Hide the whole section when the fetch succeeded with no announcements.
-  // (Loading / error still render so the state is never silently swallowed.)
-  if (!isLoading && !isError && announcements.length === 0) return null
+  // When the fetch succeeded with no announcements we keep the card and show a
+  // "No announcements yet" body (the parent moves this empty card to the bottom
+  // of the sidebar). Loading / error still render their own states.
+  const isEmpty = !isLoading && !isError && announcements.length === 0
 
   return (
     <SidebarPanel
@@ -39,6 +40,8 @@ export function AnnouncementsPanel({
       }
       isLoading={isLoading}
       isError={isError}
+      isEmpty={isEmpty}
+      emptyText="No announcements yet"
     >
       <div className="flex max-h-72 flex-col gap-3 overflow-y-auto">
         {announcements.map((announcement) => (

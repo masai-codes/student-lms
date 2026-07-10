@@ -7,6 +7,7 @@ import { DashboardSidebar } from '../section-sidebar/DashboardSidebar'
 import { WelcomeSection } from '../section-welcome/WelcomeSection'
 import type { DashboardOverviewState } from '../shared/types'
 import type { T0FlowStatus } from '@/server/api/dashboard/getT0FlowStatus.service'
+import { useServerTime } from '@/hooks/useServerTime'
 import { cn } from '@/lib/utils'
 
 interface DashboardLayoutProps {
@@ -25,6 +26,12 @@ interface DashboardLayoutProps {
 export function DashboardLayout({ userName, overview, t0Flow, onResumeOnboarding }: DashboardLayoutProps) {
   const onboardingBanners = buildOnboardingBanners(t0Flow)
   const showOnboardingBanner = onboardingBanners.length > 0
+
+  // "Today" for the schedule strip comes from the server so the visible date
+  // can't be shifted by changing the device clock. The user's own timezone is
+  // still respected because `buildScheduleWeek` reads the Date with local
+  // (machine-timezone) getters — we only take the *instant* from the server.
+  const { now } = useServerTime()
 
   return (
     <div data-testid="dashboard-root" className="mx-4 mb-8 mt-4 md:mx-8">
@@ -57,6 +64,7 @@ export function DashboardLayout({ userName, overview, t0Flow, onResumeOnboarding
             pendingTasks={overview.pendingTasks}
             isLoading={overview.isPending}
             isError={overview.isError}
+            now={now.toDate()}
           />
           <DashboardSidebar overview={overview} />
         </div>
