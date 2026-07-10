@@ -1,7 +1,10 @@
-import { sql } from 'drizzle-orm'
+import { sql, type SQL } from 'drizzle-orm'
 import { db } from '@/db'
 import { getBatchIdsForEnrolledUser } from '@/server/batches/getBatchIdsForEnrolledUser'
+import { getBatchIdsForSections } from '@/server/batches/getBatchIdsForSections'
 import { getSectionIdsForUserInBatches } from '@/server/batches/getSectionIdsForUserInBatch'
+import { getPausedCutoff } from '@/server/restrictions/enrollmentRestrictionScope'
+import { getUserBatchRestrictions } from '@/server/restrictions/getUserBatchRestrictions'
 
 function normalizeCount(result: unknown): number {
   let rows: Array<Record<string, unknown>> = []
@@ -25,6 +28,27 @@ export async function getAnnouncementUnreadCount(userId: number): Promise<number
 
   const sectionIdList = sectionIds.map(Number).filter(Number.isFinite).join(', ')
 
+  // Cancelled batches are already excluded (batchIds omit them). Exclude paused
+  // batches' announcements scheduled after their cutoff.
+  const restrictions = await getUserBatchRestrictions(userId)
+  let pausedClause: SQL = sql``
+  if (restrictions.size > 0) {
+    const sectionToBatch = await getBatchIdsForSections(sectionIds.map(Number))
+    const pausedGroups = new Map<number, Array<number>>()
+    for (const [sid, batchId] of sectionToBatch) {
+      if (getPausedCutoff(restrictions, batchId) != null) {
+        const arr = pausedGroups.get(batchId) ?? []
+        arr.push(sid)
+        pausedGroups.set(batchId, arr)
+      }
+    }
+    for (const [batchId, secs] of pausedGroups) {
+      const cutoff = getPausedCutoff(restrictions, batchId)
+      if (cutoff == null) continue
+      pausedClause = sql`${pausedClause} AND NOT (a.section_id IN (${sql.raw(secs.join(', '))}) AND a.schedule > ${cutoff})`
+    }
+  }
+
   const result = await db.execute(sql`
     SELECT COUNT(*) AS total FROM (
       SELECT a.id
@@ -34,7 +58,7 @@ export async function getAnnouncementUnreadCount(userId: number): Promise<number
       WHERE a.section_id IN (${sql.raw(sectionIdList)})
         AND a.deleted_at IS NULL
         AND a.track_read = 1
-        AND (a.schedule IS NULL OR a.schedule <= CONVERT_TZ(NOW(), '+00:00', '+05:30'))
+        AND (a.schedule IS NULL OR a.schedule <= CONVERT_TZ(NOW(), '+00:00', '+05:30'))${pausedClause}
         AND (ar.id IS NULL OR ar.is_unread = 1)
 
       UNION ALL

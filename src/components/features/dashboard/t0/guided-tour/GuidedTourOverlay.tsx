@@ -28,6 +28,8 @@ interface GuidedTourOverlayProps {
   initialBatchId?: number
   /** Tab to open on mount; defaults to the LMS walkthrough. */
   initialTab?: 'lms' | 'program'
+  /** When set, preselect the first step with this action on mount (e.g. `agreement`). */
+  initialStepAction?: 'agreement'
   /** Fee-payment banners (same as the dashboard); shown under the LMS-walkthrough steps. */
   feePaymentBanners: Array<FeePaymentBanner>
 }
@@ -57,6 +59,7 @@ export function GuidedTourOverlay({
   onSeeDashboard,
   initialBatchId,
   initialTab,
+  initialStepAction,
   feePaymentBanners,
 }: GuidedTourOverlayProps) {
   const queryClient = useQueryClient()
@@ -110,9 +113,17 @@ export function GuidedTourOverlay({
   // The video only advances on its `ended` event (see handleVideoEnded).
   useEffect(() => {
     if (activeKey === null && steps.length > 0) {
-      setActiveKey((steps.find((s) => !s.completed) ?? steps[0]).key)
+      // A deep-link (e.g. "sign agreement" from a restricted lecture) preselects
+      // the first step with the requested action; otherwise land on the first
+      // incomplete step.
+      const preferred = initialStepAction
+        ? steps.find((s) => s.action === initialStepAction)
+        : undefined
+      setActiveKey(
+        (preferred ?? steps.find((s) => !s.completed) ?? steps[0]).key,
+      )
     }
-  }, [activeKey, steps])
+  }, [activeKey, steps, initialStepAction])
   const activeIndex = activeStep ? Math.max(0, steps.findIndex((s) => s.key === activeStep.key)) : 0
   const tabProgress = effectiveTab === 'lms' ? selectedBatch?.lms : selectedBatch?.program
 

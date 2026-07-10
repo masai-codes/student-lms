@@ -18,9 +18,9 @@ import { buildAssignmentProblemListItems } from '@/server/learn/utils/buildAssig
 import { buildLearnDetailPresentation } from '@/server/learn/utils/buildLearnDetailPresentation'
 import { getAssignmentAssociatedContent } from '@/server/learn/services/getAssignmentAssociatedContent.service'
 import { ensureUserCanAccessLearnHubEntity } from '@/server/learn/utils/ensureLearnEntityAccess'
-import { resolveLearnDetailBanRestriction } from '@/server/learn/utils/resolveLearnDetailBanRestriction'
+import { resolveLearnDetailRestriction } from '@/server/restrictions/resolveLearnDetailRestriction'
 import { getBatchIdForSection } from '@/server/batches/getBatchIdsForSections'
-import { getUserBatchBans } from '@/server/users/batchBan'
+import { getUserBatchRestrictions } from '@/server/restrictions/getUserBatchRestrictions'
 
 export async function getAssignmentLearningDetailForUser(
   userId: number,
@@ -166,27 +166,28 @@ export async function getAssignmentLearningDetailForUser(
     problems,
   )
 
-  const [bans, sectionBatchId] = await Promise.all([
-    getUserBatchBans(userId),
+  const [restrictions, sectionBatchId] = await Promise.all([
+    getUserBatchRestrictions(userId),
     getBatchIdForSection(row.sectionId),
   ])
+  // Agreement ban restricts only practice (proactive) assignments.
   const isPractice = row.type.trim().toLowerCase() === 'practice'
-  const banRestriction = resolveLearnDetailBanRestriction({
+  const restriction = resolveLearnDetailRestriction({
     contentBatchId: sectionBatchId ?? row.batchId,
     schedule: row.schedule,
-    bans,
-    agreementRestrictionKind: isPractice ? 'practice' : null,
+    restrictions,
+    agreementScope: isPractice ? 'practice' : null,
   })
 
-  if (banRestriction?.kind === 'practice') {
-    // Agreement ban: strip the practice attempt so it can't be started; the
-    // frontend renders a ban notice in the footer's place.
+  if (restriction != null) {
+    // Whole page is blocked client-side; strip the footer actions defensively so
+    // the attempt can't be started via the API either.
     return {
       ...payload,
-      banRestriction,
+      restriction,
       footer: { ...payload.footer, visible: false, actions: [] },
     }
   }
 
-  return { ...payload, banRestriction }
+  return { ...payload, restriction }
 }

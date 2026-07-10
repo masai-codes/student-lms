@@ -3,6 +3,7 @@ import { createServerFn } from '@tanstack/react-start'
 import { db } from '@/db'
 import { clubMembers } from '@/db/schema'
 import { getCurrentUserId } from '@/server/auth/getCurrentSessionUserId'
+import { isUserDeactivated } from '@/server/restrictions/deactivatedUser'
 
 function normalizeRows<T>(result: unknown): Array<T> {
   if (Array.isArray(result)) {
@@ -42,6 +43,7 @@ export const fetchCurrentUser = createServerFn({ method: 'GET' }).handler(
       email: string
       mobile: string | null
       role: string | null
+      status: string | null
       profileImage: string | null
     }>(
       await db.execute(sql`
@@ -51,6 +53,7 @@ export const fetchCurrentUser = createServerFn({ method: 'GET' }).handler(
         u.email,
         u.mobile,
         u.role,
+        u.status,
         COALESCE(
           JSON_UNQUOTE(JSON_EXTRACT(pr.meta, '$.profile_pic')),
           JSON_UNQUOTE(JSON_EXTRACT(u.meta, '$.profile_pic')),
@@ -74,6 +77,10 @@ export const fetchCurrentUser = createServerFn({ method: 'GET' }).handler(
 
     const row = rows.at(0)
     if (row === undefined) return null
+
+    // Deactivated mid-session: treat as logged-out so the layout redirects to
+    // login (where sign-in is also blocked), cutting off the active session.
+    if (isUserDeactivated(row.status)) return null
 
     const membershipRows = await db
       .select({ clubId: clubMembers.clubId })
