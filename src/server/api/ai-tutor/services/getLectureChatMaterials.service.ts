@@ -1,25 +1,64 @@
 import { eq } from 'drizzle-orm'
 import type { LectureChatMaterials } from '@/server/api/ai-tutor/types/lectureChatMaterials'
 import { db } from '@/db'
-import { lectures, lecturesAi } from '@/db/schema'
+import { lectureZoomChat, lectures, lecturesAi } from '@/db/schema'
 import { ApiError } from '@/server/api/http/apiError'
 import { isRagPlatformConfigured } from '@/server/api/ai-tutor/clients/ragPlatform'
 import {
   readNotesRaggedFromLectureData,
   readNotesTocFromLectureData,
 } from '@/server/api/ai-tutor/services/lectureNotesTocData'
+import { parseLectureZoomChatResources } from '@/server/api/ai-tutor/services/parseLectureZoomChatResources'
 
 function trimOrNull(value: string | null | undefined): string | null {
   const trimmed = value?.trim()
   return trimmed ? trimmed : null
 }
 
+function buildMaterials(input: {
+  lectureId: number
+  title: string
+  summary: string | null
+  resourcesShared: LectureChatMaterials['resourcesShared']
+  notes: string | null
+  notesRagged: boolean
+  notesOutline: string | null
+}): LectureChatMaterials {
+  const notesCharacterCount = input.notes?.length ?? 0
+
+  if (input.notesRagged) {
+    return {
+      lectureId: input.lectureId,
+      title: input.title,
+      summary: input.summary,
+      resourcesShared: input.resourcesShared,
+      notesRagged: true,
+      notesInline: null,
+      notesOutline: input.notesOutline,
+      notesCharacterCount,
+      ragRetrievalAvailable: isRagPlatformConfigured(),
+    }
+  }
+
+  return {
+    lectureId: input.lectureId,
+    title: input.title,
+    summary: input.summary,
+    resourcesShared: input.resourcesShared,
+    notesRagged: false,
+    notesInline: input.notes,
+    notesOutline: null,
+    notesCharacterCount,
+    ragRetrievalAvailable: false,
+  }
+}
+
 export async function getLectureChatMaterials(
   lectureId: number,
 ): Promise<LectureChatMaterials> {
-  const [lectureRows, aiRows] = await Promise.all([
+  const [lectureRows, aiRows, zoomChatRows] = await Promise.all([
     db
-      .select({ notes: lectures.notes, data: lectures.data })
+      .select({ title: lectures.title, notes: lectures.notes, data: lectures.data })
       .from(lectures)
       .where(eq(lectures.id, lectureId))
       .limit(1),
@@ -27,6 +66,11 @@ export async function getLectureChatMaterials(
       .select({ summary: lecturesAi.summary })
       .from(lecturesAi)
       .where(eq(lecturesAi.lectureId, lectureId))
+      .limit(1),
+    db
+      .select({ finalChat: lectureZoomChat.finalChat })
+      .from(lectureZoomChat)
+      .where(eq(lectureZoomChat.lectureId, lectureId))
       .limit(1),
   ])
 
@@ -36,28 +80,19 @@ export async function getLectureChatMaterials(
 
   const notes = trimOrNull(lectureRows[0].notes)
   const summary = trimOrNull(aiRows[0]?.summary)
-  const notesCharacterCount = notes?.length ?? 0
+  const title = lectureRows[0].title.trim()
+  const resourcesShared = parseLectureZoomChatResources(
+    zoomChatRows[0]?.finalChat ?? null,
+  )
   const notesRagged = readNotesRaggedFromLectureData(lectureRows[0].data) === true
 
-  if (notesRagged) {
-    return {
-      lectureId,
-      summary,
-      notesRagged: true,
-      notesInline: null,
-      notesOutline: readNotesTocFromLectureData(lectureRows[0].data),
-      notesCharacterCount,
-      ragRetrievalAvailable: isRagPlatformConfigured(),
-    }
-  }
-
-  return {
+  return buildMaterials({
     lectureId,
+    title,
     summary,
-    notesRagged: false,
-    notesInline: notes,
-    notesOutline: null,
-    notesCharacterCount,
-    ragRetrievalAvailable: false,
-  }
+    resourcesShared,
+    notes,
+    notesRagged,
+    notesOutline: readNotesTocFromLectureData(lectureRows[0].data),
+  })
 }

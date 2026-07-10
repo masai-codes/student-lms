@@ -1,6 +1,6 @@
 # AI Tutor streaming chat
 
-Last updated: 2026-07-09
+Last updated: 2026-07-10
 
 ## Scope
 
@@ -9,8 +9,10 @@ Last updated: 2026-07-09
 ## Data sources
 
 - `ai_chat_practice_questions` — per-user lecture chat thread + `chatHistory` JSON
+- `lectures.title` — included in the system prompt
 - `lectures_ai.summary` — always included in the system prompt
 - `lectures.notes` — inlined when `<= 10,000` chars; otherwise only an outline is shown
+- `lecture_zoom_chat.final_chat` — parsed defensively into **Resources shared** in the system prompt
 - External RAG platform — ingested notes/transcript; retrieved on demand via `retrieveLectureContent` tool
 
 ## Request body
