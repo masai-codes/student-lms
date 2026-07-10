@@ -97,7 +97,16 @@ export function LearnContentCard({
         <div className="flex min-w-0 items-start gap-3">
           <LearnTypeIcon type={item.type} />
           <div className="min-w-0 flex-1">
-            <p className="type-b1-md break-words">{item.title}</p>
+            <p
+              title={item.title}
+              className={
+                fromDashboard
+                  ? 'line-clamp-2 break-words text-sm font-medium leading-snug text-gray-900 md:text-base'
+                  : 'type-b1-md break-words'
+              }
+            >
+              {item.title}
+            </p>
             {fromDashboard ? (
               <div className="mt-[4px] type-t1 flex flex-wrap items-center gap-x-2 gap-y-1">
                 <LocalTimeWithIstTooltip
