@@ -29,7 +29,9 @@ vi.mock('@/server/api/ai-tutor/services/getLectureChatMaterials.service', () => 
 
 const materials = {
   lectureId: 99,
+  title: 'Hooks Overview',
   summary: 'Lecture summary text',
+  resourcesShared: [],
   notesRagged: true,
   notesInline: null,
   notesOutline: '- Hooks',

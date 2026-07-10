@@ -15,7 +15,17 @@ import {
 
 const inlineMaterials: LectureChatMaterials = {
   lectureId: 12,
+  title: 'React Hooks Deep Dive',
   summary: 'The lecture covered React hooks.',
+  resourcesShared: [
+    {
+      url: 'https://example.com/hooks-cheatsheet',
+      count: 1,
+      postedBy: 'Instructor',
+      timestamp: '00:12:00',
+      resolvedTo: null,
+    },
+  ],
   notesRagged: false,
   notesInline: 'useState stores component state.',
   notesOutline: null,
@@ -25,7 +35,9 @@ const inlineMaterials: LectureChatMaterials = {
 
 const raggedMaterials: LectureChatMaterials = {
   lectureId: 12,
+  title: 'Sorting Algorithms',
   summary: 'The lecture covered sorting algorithms.',
+  resourcesShared: [],
   notesRagged: true,
   notesInline: null,
   notesOutline: '## Bubble sort\n## Insertion sort',
@@ -37,12 +49,22 @@ describe('buildLectureChatSystemPrompt', () => {
   it('includes summary and inline notes when notes are not ragged', () => {
     const prompt = buildLectureChatSystemPrompt(inlineMaterials, 'English')
 
+    expect(prompt).toContain('## Lecture')
+    expect(prompt).toContain('Title: React Hooks Deep Dive')
+    expect(prompt).toContain('## Resources shared')
+    expect(prompt).toContain('https://example.com/hooks-cheatsheet')
     expect(prompt).toContain('## Lecture content (summary)')
     expect(prompt).toContain('The lecture covered React hooks.')
     expect(prompt).toContain('## Instructor notes')
     expect(prompt).toContain('useState stores component state.')
     expect(prompt).not.toContain(AI_TUTOR_LECTURE_RAG_TOOL_NAME)
     expect(prompt).not.toContain(AI_TUTOR_LECTURE_CHAT_RAG_GUIDANCE)
+  })
+
+  it('shows the empty resources message when none were shared', () => {
+    const prompt = buildLectureChatSystemPrompt(raggedMaterials, 'English')
+
+    expect(prompt).toContain('No resources were shared during the lecture.')
   })
 
   it('includes notesToc and tool guidance when notes are ragged', () => {

@@ -1522,6 +1522,21 @@ export const lecturesAi = mysqlTable("lectures_ai", {
 	unique("lectures_ai_lectureId_key").on(table.lectureId),
 ]);
 
+export const lectureZoomChat = mysqlTable("lecture_zoom_chat", {
+	id: bigint({ mode: "number", unsigned: true }).autoincrement().notNull(),
+	lectureId: int("lecture_id", { unsigned: true }).notNull().references(() => lectures.id),
+	meetingId: varchar("meeting_id", { length: 255 }),
+	originalChat: json('original_chat').notNull(),
+	finalChat: json('final_chat'),
+	lastEditedBy: bigint("last_edited_by", { mode: "number", unsigned: true }).references(() => users.id),
+	createdAt: timestamp("created_at", { mode: 'string' }).defaultNow().notNull(),
+	updatedAt: timestamp("updated_at", { mode: 'string' }).notNull(),
+},
+(table) => [
+	primaryKey({ columns: [table.id], name: "lecture_zoom_chat_id"}),
+	unique("lecture_zoom_chat_lecture_id_unique").on(table.lectureId),
+]);
+
 export const lecturesCourse = mysqlTable("lectures_course", {
 	id: int({ unsigned: true }).autoincrement().notNull(),
 	title: varchar({ length: 255 }).notNull(),

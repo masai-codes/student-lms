@@ -8,6 +8,7 @@ import {
   AI_TUTOR_LECTURE_RAG_TOOL_NAME,
   buildEnforcedChatLanguageInstruction,
 } from '@/server/api/ai-tutor/constants'
+import { formatLectureSharedResourcesForPrompt } from '@/server/api/ai-tutor/services/formatLectureSharedResources'
 
 export type LectureChatMessage = {
   role: 'user' | 'assistant'
@@ -53,6 +54,12 @@ export function buildLectureChatSystemPrompt(
 ${buildEnforcedChatLanguageInstruction(language)}
 
 ${AI_TUTOR_LECTURE_CHAT_RESPONSE_GUIDANCE}${formatRagGuidance(materials)}
+
+## Lecture
+Title: ${materials.title}
+
+## Resources shared
+${formatLectureSharedResourcesForPrompt(materials.resourcesShared)}
 
 ## Lecture content (summary)
 ${formatSummarySection(materials.summary)}
