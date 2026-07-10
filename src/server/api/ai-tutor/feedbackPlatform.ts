@@ -8,7 +8,7 @@ export type AiTutorFeedbackPlatform =
   | 'web-desktop'
   | 'app'
 
-const PLATFORMS: readonly AiTutorFeedbackPlatform[] = [
+const PLATFORMS: ReadonlyArray<AiTutorFeedbackPlatform> = [
   'ios',
   'android',
   'web',

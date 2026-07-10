@@ -1,7 +1,8 @@
-import { streamText } from 'ai'
+import { stepCountIs, streamText } from 'ai'
 import type { LectureChatMessage } from '@/server/api/ai-tutor/services/buildLectureChatPrompt'
 import type { AiTutorFeedbackPlatform } from '@/server/api/ai-tutor/feedbackPlatform'
 import type { AiTutorChatLanguage } from '@/server/api/ai-tutor/chatLanguage'
+import type { LectureChatMaterials } from '@/server/api/ai-tutor/types/lectureChatMaterials'
 import { getAiTutorChatModel } from '@/server/api/ai-tutor/clients/anthropicModel'
 import {
   appendChatPracticeHistory,
@@ -11,7 +12,8 @@ import {
   buildLectureChatMessages,
   buildLectureChatSystemPrompt,
 } from '@/server/api/ai-tutor/services/buildLectureChatPrompt'
-import { getLectureSummaryForChat } from '@/server/api/ai-tutor/services/lecturesAi.service'
+import { getLectureChatMaterials } from '@/server/api/ai-tutor/services/getLectureChatMaterials.service'
+import { createRetrieveLectureContentTool } from '@/server/api/ai-tutor/tools/retrieveLectureContent.tool'
 
 export type ChatStreamEvent =
   | { type: 'token'; content: string }
@@ -28,6 +30,7 @@ export type StreamLectureChatInput = {
 
 export type LectureChatStreamContext = {
   chatRow: Awaited<ReturnType<typeof findOrCreateChatPracticeRow>>
+  materials: LectureChatMaterials
   systemPrompt: string
   messages: Array<LectureChatMessage>
   chat: string
@@ -44,9 +47,8 @@ export async function prepareLectureChatContext(
     chatId: input.chatId,
   })
 
-  const summary = await getLectureSummaryForChat(input.lectureId)
-
-  const systemPrompt = buildLectureChatSystemPrompt(summary, input.language)
+  const materials = await getLectureChatMaterials(input.lectureId)
+  const systemPrompt = buildLectureChatSystemPrompt(materials, input.language)
   const messages = buildLectureChatMessages({
     chatHistory: chatRow.chatHistory,
     question: input.chat,
@@ -54,6 +56,7 @@ export async function prepareLectureChatContext(
 
   return {
     chatRow,
+    materials,
     systemPrompt,
     messages,
     chat: input.chat,
@@ -69,6 +72,10 @@ export async function* streamLectureChatEventsFromContext(
     model: getAiTutorChatModel(),
     system: context.systemPrompt,
     messages: context.messages,
+    tools: context.materials.ragRetrievalAvailable
+      ? createRetrieveLectureContentTool(context.materials.lectureId)
+      : undefined,
+    stopWhen: stepCountIs(2),
     onError({ error }) {
       console.error('AI tutor Claude stream error', error)
     },
