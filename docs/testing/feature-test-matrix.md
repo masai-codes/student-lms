@@ -189,7 +189,7 @@ Last updated: 2026-07-09
 - Area: Authenticated SSE chat stub (`src/routes/api/ai-tutor/chat/stream.ts`, `src/server/api/ai-tutor/**`, `src/server/api/http/sse.ts`)
 - Status: Covered
 - Test files: `src/server/api/ai-tutor/__tests__/stream*.test.ts`, `src/server/api/http/__tests__/sse.test.ts`
-- Notes: `POST /api/ai-tutor/chat/stream` requires a session cookie, accepts `{ lectureId, chat, chatID?, platform?, language? }`, reads/writes `ai_chat_practice_questions`, loads lecture summary from `lectures_ai`, streams Claude output as SSE token events, persists each turn with optional `platform` and `language` on `chatHistory`, enforces reply language when `language` is set, and returns `{ type: "done", chatId }`.
+- Notes: `POST /api/ai-tutor/chat/stream` requires a session cookie, accepts `{ lectureId, chat, chatID?, platform?, language? }` (`platform`: `ios` | `android` | `web` | `web-mobile` | `web-desktop` | `app`), reads/writes `ai_chat_practice_questions`, loads lecture summary from `lectures_ai`, streams Claude output as SSE token events, persists each turn with optional `platform` and `language` on `chatHistory`, enforces reply language when `language` is set, and returns `{ type: "done", chatId }`.
 
 ## AI Tutor chat conversations
 - Area: Authenticated lecture chat history (`src/routes/api/ai-tutor/chat/conversations/**`, `src/server/api/ai-tutor/**`, `src/lib/api/ai-tutor/aiTutorChatApi.ts`)
@@ -211,7 +211,13 @@ Last updated: 2026-07-09
 - Area: Authenticated chat feedback (`src/routes/api/ai-tutor/chat/feedback.ts`, `src/server/api/ai-tutor/**`, `src/lib/api/ai-tutor/aiTutorChatApi.ts`)
 - Status: Covered
 - Test files: `src/server/api/ai-tutor/__tests__/{submitFeedback.handler,submitChatPracticeFeedback.service,feedbackPlatform}.test.ts`
-- Notes: `POST /api/ai-tutor/chat/feedback` accepts `{ lectureId, chatId, rating, feedback?, platform? }`, validates ownership of the chat thread, normalizes ratings by platform (`web`: `0`/`1`; `ios`/`android`: stored as `rating + 1`), prefixes `feedback` with `platform-` (or stores platform alone when text is blank), and persists `rating`, `feedback`, and `feedbackTime` on `ai_chat_practice_questions`.
+- Notes: `POST /api/ai-tutor/chat/feedback` accepts `{ lectureId, chatId, rating, feedback?, platform? }`, validates ownership of the chat thread, normalizes ratings by platform (`web` / `web-mobile` / `web-desktop` / `app`: `0`/`1`; `ios`/`android`: `1`–`5`), prefixes `feedback` with `platform-` (or stores platform alone when text is blank), and persists `rating`, `feedback`, and `feedbackTime` on `ai_chat_practice_questions`.
+
+## AI Tutor chat feedback rating migration
+- Area: Admin one-off rating backfill (`src/routes/api/ai-tutor/chat/feedback/migrate-ratings.ts`, `src/server/api/ai-tutor/migrateAiTutorFeedbackRatings.service.ts`)
+- Status: Covered
+- Test files: `src/server/api/ai-tutor/__tests__/{migrateFeedbackRating,migrateAiTutorFeedbackRatings.service,migrateFeedbackRatings.handler}.test.ts`
+- Notes: `POST /api/ai-tutor/chat/feedback/migrate-ratings` is admin-gated and backfills legacy `ai_chat_practice_questions.rating` values: subtract `1` for `ios`/`android` feedback prefixes (skip when result would be `< 1`), otherwise convert unprefixed binary `0`/`1` ratings to `1`/`5`. Supports `{ dryRun: true }`.
 
 ## Announcement popups (global queued modal)
 - Area: Global announcement popups on every authenticated page. Frontend (`src/components/modals/**`): `AnnouncementModalController` (mounted in `(protected)/_layout/route.tsx`), `useAnnouncementPopups` (queue hook), `AnnouncementPopupModal` (UI), `ModalContext` (central stack). Backend read endpoints reused from announcements (`markAnnouncementRead` / `markMessageRead`).
