@@ -1,14 +1,13 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 const hoisted = vi.hoisted(() => ({
-  getUserIdFromCookieHeader: vi.fn(),
+  getCurrentUserId: vi.fn(),
   dbSelect: vi.fn(),
   migrateAiTutorFeedbackRatings: vi.fn(),
 }))
 
 vi.mock('@/server/auth/getCurrentSessionUserId', () => ({
-  getUserIdFromCookieHeader: hoisted.getUserIdFromCookieHeader,
-  getUserIdFromRequest: hoisted.getUserIdFromCookieHeader,
+  getCurrentUserId: hoisted.getCurrentUserId,
 }))
 
 vi.mock('@/db', () => ({
@@ -59,7 +58,7 @@ describe('handleMigrateFeedbackRatings', () => {
   it('returns 401 when the session cookie is missing', async () => {
     const { handleMigrateFeedbackRatings } =
       await import('../handlers/migrateFeedbackRatings.handler')
-    hoisted.getUserIdFromCookieHeader.mockResolvedValueOnce(null)
+    hoisted.getCurrentUserId.mockResolvedValueOnce(null)
 
     const res = await handleMigrateFeedbackRatings(postRequest({}, null))
 
@@ -69,7 +68,7 @@ describe('handleMigrateFeedbackRatings', () => {
   it('returns 403 for non-admin users', async () => {
     const { handleMigrateFeedbackRatings } =
       await import('../handlers/migrateFeedbackRatings.handler')
-    hoisted.getUserIdFromCookieHeader.mockResolvedValueOnce(7)
+    hoisted.getCurrentUserId.mockResolvedValueOnce(7)
     hoisted.dbSelect.mockReturnValueOnce(adminSelectChain('student'))
 
     const res = await handleMigrateFeedbackRatings(postRequest({ dryRun: true }))
@@ -84,7 +83,7 @@ describe('handleMigrateFeedbackRatings', () => {
   it('runs the migration for admins', async () => {
     const { handleMigrateFeedbackRatings } =
       await import('../handlers/migrateFeedbackRatings.handler')
-    hoisted.getUserIdFromCookieHeader.mockResolvedValueOnce(7)
+    hoisted.getCurrentUserId.mockResolvedValueOnce(7)
     hoisted.dbSelect.mockReturnValueOnce(adminSelectChain('admin'))
     hoisted.migrateAiTutorFeedbackRatings.mockResolvedValueOnce({
       dryRun: true,

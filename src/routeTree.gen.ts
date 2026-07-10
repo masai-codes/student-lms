@@ -3595,6 +3595,8 @@ const ApiLearnSubmissionsSubmissionIdRouteChildren: ApiLearnSubmissionsSubmissio
 const ApiLearnSubmissionsSubmissionIdRouteWithChildren =
   ApiLearnSubmissionsSubmissionIdRoute._addFileChildren(
     ApiLearnSubmissionsSubmissionIdRouteChildren,
+  )
+
 interface ApiAiTutorChatFeedbackRouteChildren {
   ApiAiTutorChatFeedbackMigrateRatingsRoute: typeof ApiAiTutorChatFeedbackMigrateRatingsRoute
 }
