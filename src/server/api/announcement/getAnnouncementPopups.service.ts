@@ -97,8 +97,8 @@ export async function getAnnouncementPopups(userId: number): Promise<PopupItem[]
       m.id,
       COALESCE(JSON_UNQUOTE(JSON_EXTRACT(m.meta, '$.title')), m.subject) AS title,
       m.body,
-      NULL AS ctaName,
-      NULL AS ctaLink
+      m.cta_name AS ctaName,
+      m.cta_link AS ctaLink
     FROM messages m
     WHERE m.user_id = ${userId}
       AND m.message_id IS NULL
@@ -124,8 +124,8 @@ export async function getAnnouncementPopups(userId: number): Promise<PopupItem[]
     source: 'm',
     title: String(r.title ?? ''),
     body: String(r.body ?? ''),
-    ctaName: null,
-    ctaLink: null,
+    ctaName: r.ctaName ? String(r.ctaName) : null,
+    ctaLink: r.ctaLink ? String(r.ctaLink) : null,
   }))
 
   return [...annItems, ...msgItems]
