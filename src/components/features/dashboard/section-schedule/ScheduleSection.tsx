@@ -36,9 +36,9 @@ export function ScheduleSection({
   return (
     <section
       data-testid="dashboard-schedule-section"
-      className="flex flex-col gap-5 rounded-2xl border border-gray-200 bg-white p-5"
+      className="flex flex-col gap-5 rounded-2xl border border-gray-200 bg-white p-4 sm:p-5"
     >
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-2 sm:gap-3">
         <TabButton
           isActive={activeTab === 'schedule'}
           onClick={() => {
@@ -266,7 +266,7 @@ function TabButton({
       type="button"
       onClick={onClick}
       data-testid={testId}
-      className={`inline-flex items-center gap-2 rounded-lg border px-4 py-2.5 text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6962AC] ${
+      className={`inline-flex flex-1 items-center justify-center gap-2 whitespace-nowrap rounded-lg border px-3 py-2.5 text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6962AC] sm:flex-none sm:px-4 ${
         isActive
           ? 'border-[#6962AC] bg-[#6962AC]/10 text-[#6962AC]'
           : 'border-gray-200 bg-white text-gray-600 hover:bg-gray-50'
