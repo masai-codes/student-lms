@@ -35,6 +35,8 @@ export interface LearnContentItem {
   dateTooltip?: string | null
   /** "N days/hours remaining" until an assignment deadline; null otherwise. */
   assignmentDeadlineLabel?: string | null
+  /** Released score (clamped to 10) to show as a card badge; null unless `showScores` is on and the score is released. */
+  assignmentScore?: number | null
 }
 
 export interface LearnFilterValues {

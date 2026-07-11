@@ -9,12 +9,15 @@ import { assignments, users } from '@/db/schema'
 import { buildAssignmentListingConditions } from '@/server/learn/utils/buildLearnListingConditions'
 import { calculateAssignmentProgressStatus } from '@/server/learn/utils/calculateAssignmentProgressStatus'
 import { fetchLatestSubmissionByAssignment } from '@/server/learn/queries/fetchLatestSubmissionByAssignment'
+import { resolveReleasedAssignmentScore } from '@/server/learn/utils/resolveReleasedAssignmentScore'
 import { resolveListingPagination } from '@/server/learn/utils/resolveListingPagination'
 
 export interface AssignmentListingPage {
   rows: Array<LearningEntityRow>
   pagination: LearningPagination
   progressById: Map<number, AssignmentProgressStatus>
+  /** Released, `showScores`-enabled scores (clamped to 10) keyed by assignment id. */
+  scoreById: Map<number, number>
 }
 
 export interface FetchAssignmentListingPageInput extends LearnListingConditionsInput {
@@ -36,6 +39,7 @@ export async function fetchAssignmentListingPage(
       rows: [],
       pagination: resolveListingPagination(0, input.page, input.pageSize),
       progressById: new Map(),
+      scoreById: new Map(),
     }
   }
 
@@ -50,6 +54,7 @@ export async function fetchAssignmentListingPage(
       concludes: assignments.concludes,
       week: assignments.week,
       module: assignments.module,
+      showScores: assignments.showScores,
       hostName: users.name,
     })
     .from(assignments)
@@ -64,15 +69,25 @@ export async function fetchAssignmentListingPage(
 
   const requestedStatuses = input.filters?.assignmentProgressStatuses
   const progressById = new Map<number, AssignmentProgressStatus>()
+  const scoreById = new Map<number, number>()
 
   const matchedRows = narrowedRows.filter((row) => {
+    const submission = submissionByAssignment.get(row.id) ?? null
     const progress = calculateAssignmentProgressStatus({
       schedule: row.schedule,
       concludes: row.concludes ?? null,
       nowMs: input.nowMs,
-      submission: submissionByAssignment.get(row.id) ?? null,
+      submission,
     })
     progressById.set(row.id, progress)
+
+    const releasedScore = resolveReleasedAssignmentScore({
+      showScores: row.showScores === 1,
+      submission,
+    })
+    if (releasedScore != null) {
+      scoreById.set(row.id, releasedScore)
+    }
     return (
       requestedStatuses == null ||
       requestedStatuses.length === 0 ||
@@ -87,5 +102,5 @@ export async function fetchAssignmentListingPage(
   )
   const offset = (pagination.page - 1) * input.pageSize
   const pageRows = matchedRows.slice(offset, offset + input.pageSize)
-  return { rows: pageRows, pagination, progressById }
+  return { rows: pageRows, pagination, progressById, scoreById }
 }

@@ -100,6 +100,7 @@ export function LearnLayout({ pageData, onBatchChange }: LearnLayoutProps) {
         listingCtas: item.listingCtas,
         assignmentStatusChip: item.listingCtas.assignmentStatusChip,
         assignmentDeadlineLabel: item.listingCtas.assignmentDeadlineLabel,
+        assignmentScore: item.listingCtas.assignmentScore,
       })),
     [data.learningItems],
   )

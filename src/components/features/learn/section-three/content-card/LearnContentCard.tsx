@@ -229,6 +229,18 @@ export function LearnContentCard({
               tabIndex={-1}
             />
           ) : null}
+          {item.type === 'assignment' &&
+          typeof item.assignmentScore === 'number' ? (
+            <MasaiChips
+              data-testid="learn-assignment-score"
+              label={`${item.assignmentScore.toFixed(2)}/10`}
+              size="regular"
+              backgroundClassName="bg-blue-50 border border-blue-100"
+              textClassName="!text-blue-600"
+              className="pointer-events-none"
+              tabIndex={-1}
+            />
+          ) : null}
           {item.type === 'assignment' && assignmentStatusStyles ? (
             <MasaiChips
               label={assignmentStatusStyles.label}
