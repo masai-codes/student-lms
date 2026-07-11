@@ -65,6 +65,33 @@ describe('getUserBatchRestrictions', () => {
     expect(r.size).toBe(0)
   })
 
+  it('reads keys from the legacy array-of-objects meta shape', async () => {
+    hoisted.rows = [
+      {
+        batchId: 7,
+        // Real-world shape: an array whose object also carries the restriction keys.
+        meta: JSON.stringify([
+          { Student: '2022-07-25 00:00:00', batchPaused: true, batchPausedDate: '2026-07-02' },
+        ]),
+      },
+      {
+        batchId: 8,
+        // Keys added as a separate object in the array.
+        meta: JSON.stringify([
+          { Student: '2022-07-25 00:00:00' },
+          { aggrementBanned: true, aggrementBannedDate: '2026-07-03' },
+        ]),
+      },
+    ]
+
+    const r = await getUserBatchRestrictions(0)
+    expect(r.get(7)).toMatchObject({ paused: true, pausedDate: '2026-07-02' })
+    expect(r.get(8)).toMatchObject({
+      agreementBanned: true,
+      agreementBannedDate: '2026-07-03',
+    })
+  })
+
   it('merges flags across multiple batch_user rows for the same batch', async () => {
     hoisted.rows = [
       { batchId: 5, meta: JSON.stringify({ batchPaused: true, batchPausedDate: '2026-07-02' }) },
