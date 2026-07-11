@@ -17,7 +17,7 @@ export function LectureAttendanceInline({
   const showDays = daysRemaining != null && daysRemaining >= 0
 
   return (
-    <div className="flex min-w-0 flex-row items-center gap-2">
+    <div className="flex min-w-0 flex-col items-end gap-1 md:flex-row md:items-center md:gap-2">
       {showDays ? (
         <span className="type-t1 whitespace-nowrap text-gray-500">
           {remainingLabel ?? `${daysRemaining} days remaining`}

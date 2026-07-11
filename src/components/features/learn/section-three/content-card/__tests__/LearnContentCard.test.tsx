@@ -77,3 +77,26 @@ describe('LearnContentCard — Optional session tag', () => {
     expect(screen.queryByTestId('learn-assignment-deadline')).toBeNull()
   })
 })
+
+describe('LearnContentCard — dashboard compact layout', () => {
+  afterEach(() => cleanup())
+
+  it('splits time+course and tags into separate rows so tags do not stack per-line', () => {
+    render(
+      <LearnContentCard item={makeItem('lecture', 'mandatory')} fromDashboard />,
+    )
+    const tagsRow = screen.getByTestId('learn-card-dashboard-tags')
+    const metaRoot = screen.getByTestId('learn-card-dashboard-meta')
+    // Tags live in their own row, not interleaved with the time text.
+    expect(metaRoot.contains(tagsRow)).toBe(true)
+    expect(tagsRow.textContent).toContain('coding')
+    expect(tagsRow.textContent).not.toContain('12 Jun')
+  })
+
+  it('omits the tags row when there are no tags', () => {
+    const item = { ...makeItem('lecture', 'mandatory'), tags: [] }
+    render(<LearnContentCard item={item} fromDashboard />)
+    expect(screen.getByTestId('learn-card-dashboard-meta')).toBeTruthy()
+    expect(screen.queryByTestId('learn-card-dashboard-tags')).toBeNull()
+  })
+})

@@ -21,6 +21,27 @@ Dates are IST wall-clock strings. Date-only values are treated as **end of that 
 (so "after the date" excludes the date itself). Comparison is epoch-based and safe
 for both naive and `+05:30` datetime columns.
 
+### `batch_user.meta` shape
+
+`batch_user.meta` is a stringified JSON blob whose shape varies by writer — a plain
+object, **or** a legacy array of small objects like `[{"Student":"2022-07-25 00:00:00"}]`.
+The parser flattens both, so restriction keys are read wherever they were added
+(inside an existing object, or as a new object in the array). Add the keys alongside
+the existing data, e.g.:
+
+```json
+[{ "Student": "2022-07-25 00:00:00", "batchPaused": true, "batchPausedDate": "2026-07-02" }]
+```
+
+or, as a plain object:
+
+```json
+{ "batchEnrolmentCancelled": true, "batchEnrolmentCancelledDate": "2026-07-25" }
+```
+
+Only a boolean flag that is exactly `true` activates a state. `batch_user.meta` is
+`VARCHAR(300)` — keep the blob compact.
+
 ---
 
 ## 1. Deactivated user (`users.status === 'disabled'`)

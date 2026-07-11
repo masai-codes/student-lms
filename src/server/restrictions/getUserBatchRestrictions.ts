@@ -73,11 +73,27 @@ function asDateString(value: unknown): string | null {
   return typeof value === 'string' && value.trim() !== '' ? value : null
 }
 
+/**
+ * `batch_user.meta` is a stringified JSON blob whose shape varies by writer:
+ * - a plain object: `{"isiHub":true,"batchPaused":true}`, or
+ * - an array of small objects (legacy): `[{"Student":"2022-07-25 00:00:00"}]`.
+ *
+ * We flatten both into a single record so restriction keys are found wherever
+ * they were added (inside the existing object, or a new object in the array).
+ */
 function parseBatchUserMeta(meta: string | null): Record<string, unknown> {
   if (!meta) return {}
   try {
     const parsed = JSON.parse(meta)
-    return parsed && typeof parsed === 'object' && !Array.isArray(parsed)
+    if (Array.isArray(parsed)) {
+      return parsed.reduce<Record<string, unknown>>((acc, item) => {
+        if (item && typeof item === 'object' && !Array.isArray(item)) {
+          Object.assign(acc, item)
+        }
+        return acc
+      }, {})
+    }
+    return parsed && typeof parsed === 'object'
       ? (parsed as Record<string, unknown>)
       : {}
   } catch {

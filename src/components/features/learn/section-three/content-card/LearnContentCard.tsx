@@ -108,30 +108,45 @@ export function LearnContentCard({
               {item.title}
             </p>
             {fromDashboard ? (
-              <div className="mt-[4px] type-t1 flex flex-wrap items-center gap-x-2 gap-y-1">
-                <LocalTimeWithIstTooltip
-                  local={item.date}
-                  ist={item.dateTooltip}
-                />
-                {item.courseName ? (
-                  <>
-                    <span className="size-1 shrink-0 rounded-full bg-gray-600" aria-hidden />
-                    <span className="max-w-[10ch] truncate md:max-w-[15ch]">
-                      {item.courseName}
-                    </span>
-                  </>
-                ) : null}
-                {item.tags.map((tag, index) => (
-                  <MasaiChips
-                    key={`${tag}-${index}`}
-                    type="default"
-                    size="regular"
-                    label={tag}
-                    tabIndex={-1}
-                    className="cursor-default"
-                    {...learnContentTagChipPalette}
+              // Keep time+course and tags on separate rows so the compact card
+              // doesn't force each tag onto its own line on narrow mobile
+              // widths; they sit side-by-side from `md` up.
+              <div
+                data-testid="learn-card-dashboard-meta"
+                className="mt-[4px] flex flex-col gap-2 md:flex-row md:items-center"
+              >
+                <div className="type-t1 flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
+                  <LocalTimeWithIstTooltip
+                    local={item.date}
+                    ist={item.dateTooltip}
                   />
-                ))}
+                  {item.courseName ? (
+                    <>
+                      <span className="size-1 shrink-0 rounded-full bg-gray-600" aria-hidden />
+                      <span className="max-w-[10ch] truncate md:max-w-[15ch]">
+                        {item.courseName}
+                      </span>
+                    </>
+                  ) : null}
+                </div>
+                {item.tags.length > 0 ? (
+                  <div
+                    data-testid="learn-card-dashboard-tags"
+                    className="flex flex-wrap items-center gap-2"
+                  >
+                    {item.tags.map((tag, index) => (
+                      <MasaiChips
+                        key={`${tag}-${index}`}
+                        type="default"
+                        size="regular"
+                        label={tag}
+                        tabIndex={-1}
+                        className="cursor-default"
+                        {...learnContentTagChipPalette}
+                      />
+                    ))}
+                  </div>
+                ) : null}
               </div>
             ) : (
               <>
@@ -173,7 +188,7 @@ export function LearnContentCard({
         </div>
 
         <div
-          className="flex shrink-0 flex-wrap items-center gap-2 md:justify-end"
+          className="flex shrink-0 flex-wrap items-center justify-end gap-2"
           onClick={(event) => {
             event.preventDefault()
             event.stopPropagation()
