@@ -22,15 +22,18 @@ export function LectureDiscussionOwnerActions({
   const router = useRouter()
   const [pending, setPending] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [editingFeedback, setEditingFeedback] = useState(false)
 
-  const runMutation = async (mutation: () => Promise<unknown>) => {
+  const runMutation = async (mutation: () => Promise<unknown>): Promise<boolean> => {
     setError(null)
     setPending(true)
     try {
       await mutation()
       await router.invalidate()
+      return true
     } catch {
       setError('Something went wrong. Try again.')
+      return false
     } finally {
       setPending(false)
     }
@@ -61,8 +64,13 @@ export function LectureDiscussionOwnerActions({
         rating,
         comment: comment || undefined,
       }),
-    )
+    ).then((ok) => {
+      if (ok) setEditingFeedback(false)
+    })
   }
+
+  const alreadyRated = discussion.feedbackRating != null
+  const showFeedbackForm = !alreadyRated || editingFeedback
 
   return (
     <div
@@ -85,19 +93,31 @@ export function LectureDiscussionOwnerActions({
       </button>
 
       {discussion.isClosed ? (
-        discussion.feedbackRating != null ? (
-          <p
-            data-testid="discussion-feedback-summary"
-            className="type-caption-regular inline-flex items-center gap-1 text-gray-600"
-          >
-            <Star className="size-4 text-amber-500" weight="fill" aria-hidden />
-            You rated this {discussion.feedbackRating}/5
-          </p>
-        ) : (
+        showFeedbackForm ? (
           <LectureDiscussionFeedbackForm
             disabled={pending}
             onSubmit={handleFeedback}
+            initialRating={discussion.feedbackRating ?? 0}
+            submitLabel={alreadyRated ? 'Update feedback' : 'Submit feedback'}
           />
+        ) : (
+          <div className="flex flex-wrap items-center gap-2">
+            <p
+              data-testid="discussion-feedback-summary"
+              className="type-caption-regular inline-flex items-center gap-1 text-gray-600"
+            >
+              <Star className="size-4 text-amber-500" weight="fill" aria-hidden />
+              You rated this {discussion.feedbackRating}/5
+            </p>
+            <button
+              type="button"
+              data-testid="discussion-feedback-edit"
+              onClick={() => setEditingFeedback(true)}
+              className="type-caption-md text-[#6962AC] hover:underline"
+            >
+              Edit feedback
+            </button>
+          </div>
         )
       ) : null}
 

@@ -9,6 +9,10 @@ import { Textarea } from '@/components/ui/textarea'
 type LectureDiscussionFeedbackFormProps = {
   disabled?: boolean
   onSubmit: (rating: number, comment: string) => void
+  /** Prefilled rating when editing existing feedback (0 = none). */
+  initialRating?: number
+  initialComment?: string
+  submitLabel?: string
 }
 
 const RATINGS = [1, 2, 3, 4, 5]
@@ -16,9 +20,12 @@ const RATINGS = [1, 2, 3, 4, 5]
 export function LectureDiscussionFeedbackForm({
   disabled = false,
   onSubmit,
+  initialRating = 0,
+  initialComment = '',
+  submitLabel = 'Submit feedback',
 }: LectureDiscussionFeedbackFormProps) {
-  const [rating, setRating] = useState(0)
-  const [comment, setComment] = useState('')
+  const [rating, setRating] = useState(initialRating)
+  const [comment, setComment] = useState(initialComment)
 
   const canSubmit = rating >= 1 && rating <= 5 && !disabled
 
@@ -61,7 +68,7 @@ export function LectureDiscussionFeedbackForm({
         type="primary"
         size="sm"
         htmlType="button"
-        ctaText="Submit feedback"
+        ctaText={submitLabel}
         data-testid="discussion-feedback-submit"
         disabled={!canSubmit}
         onClick={() => onSubmit(rating, comment.trim())}

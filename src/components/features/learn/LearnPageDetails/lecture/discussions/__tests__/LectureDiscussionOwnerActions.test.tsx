@@ -115,6 +115,32 @@ describe('LectureDiscussionOwnerActions', () => {
     expect(scope.queryByTestId('discussion-feedback-form')).toBeNull()
   })
 
+  it('lets the owner edit existing feedback via a prefilled form', async () => {
+    const { container } = render(
+      <LectureDiscussionOwnerActions
+        discussion={makeDiscussion({ isClosed: true, feedbackRating: 4 })}
+      />,
+    )
+    const scope = within(container)
+
+    fireEvent.click(scope.getByTestId('discussion-feedback-edit'))
+    const submit = scope.getByTestId('discussion-feedback-submit')
+    // Prefilled rating means submit is enabled immediately and re-labelled.
+    expect(submit.hasAttribute('disabled')).toBe(false)
+    expect(submit.textContent).toContain('Update feedback')
+
+    fireEvent.click(scope.getByTestId('discussion-feedback-star-2'))
+    fireEvent.click(submit)
+
+    await waitFor(() => {
+      expect(hoisted.submitFeedback).toHaveBeenCalledWith({
+        discussionId: 3,
+        rating: 2,
+        comment: undefined,
+      })
+    })
+  })
+
   it('surfaces an error when the mutation fails', async () => {
     hoisted.setClosed.mockRejectedValueOnce(new Error('DISCUSSION_FORBIDDEN'))
     const { container } = render(

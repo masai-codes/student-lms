@@ -36,6 +36,25 @@ describe('LectureDiscussionFeedbackForm', () => {
     expect(onSubmit).toHaveBeenCalledWith(4, 'really helpful')
   })
 
+  it('prefills an initial rating and custom submit label', () => {
+    const onSubmit = vi.fn()
+    const { container } = render(
+      <LectureDiscussionFeedbackForm
+        onSubmit={onSubmit}
+        initialRating={3}
+        initialComment="prior note"
+        submitLabel="Update feedback"
+      />,
+    )
+    const scope = within(container)
+    const submit = scope.getByTestId('discussion-feedback-submit')
+    expect(submit.hasAttribute('disabled')).toBe(false)
+    expect(submit.textContent).toContain('Update feedback')
+
+    fireEvent.click(submit)
+    expect(onSubmit).toHaveBeenCalledWith(3, 'prior note')
+  })
+
   it('disables all controls when disabled', () => {
     const { container } = render(
       <LectureDiscussionFeedbackForm disabled onSubmit={vi.fn()} />,
