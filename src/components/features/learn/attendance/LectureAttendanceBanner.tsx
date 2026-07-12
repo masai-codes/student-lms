@@ -15,7 +15,7 @@ export function LectureAttendanceBanner({ banner }: LectureAttendanceBannerProps
   return (
     <div
       data-testid={banner.testId}
-      className="mt-4 flex items-start gap-2 rounded-lg border border-blue-200 bg-blue-50 px-3 py-2.5 text-blue-700"
+      className="mt-4 flex w-fit max-w-full items-start gap-2 rounded-lg border border-blue-200 bg-blue-50 px-3 py-2.5 text-blue-700"
     >
       <Info weight="fill" className="mt-0.5 size-4 shrink-0" aria-hidden />
       <p className="min-w-0 break-words text-sm">{banner.text}</p>
