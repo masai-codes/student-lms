@@ -65,15 +65,15 @@ export function LectureAttendanceStatusBadge({
     <span
       className={cn(
         badgeBase,
-        'gap-1.5 bg-teal-50 pr-2.5 text-teal-700',
+        'gap-1.5 bg-rose-100 pr-2.5 text-rose-600',
         className,
       )}
-      aria-label="Attendance window over"
+      aria-label="Absent and attendance window over"
     >
-      <span className="flex size-5 shrink-0 items-center justify-center rounded-full bg-teal-700">
+      <span className="flex size-5 shrink-0 items-center justify-center rounded-full bg-rose-600">
         <Timer weight="bold" className="size-3 text-white" aria-hidden />
       </span>
-      <span className="whitespace-nowrap">Att. Window Over</span>
+      <span className="whitespace-nowrap">Absent and Att. Window Over</span>
     </span>
   )
 }
