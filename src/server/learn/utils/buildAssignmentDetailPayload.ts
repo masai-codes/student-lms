@@ -89,17 +89,22 @@ export function buildAssignmentDetailPayload(
     submission: footerInput.submission,
   })
 
-  const completedDetails = buildAssignmentCompletedDetails({
-    submission:
-      footerInput.submission == null
-        ? null
-        : {
-            completed: footerInput.submission.completed,
-            completedAt: footerInput.submission.completedAt,
-            data: footerInput.submission.data,
-          },
-    concludes: row.concludes,
-  })
+  // Match old LMS: the "Completed" banner is only shown for assignments with
+  // no attached problems (problem-based/coding assignments never show it).
+  const completedDetails =
+    problems.length > 0
+      ? null
+      : buildAssignmentCompletedDetails({
+          submission:
+            footerInput.submission == null
+              ? null
+              : {
+                  completed: footerInput.submission.completed,
+                  completedAt: footerInput.submission.completedAt,
+                  data: footerInput.submission.data,
+                },
+          concludes: row.concludes,
+        })
 
   return {
     ...core,
