@@ -21,6 +21,8 @@ function makeDiscussion(id: number): DiscussionListItem {
     createdAt: null,
     updatedAt: null,
     threadCount: 0,
+    unreadReplyCount: 0,
+    feedbackRating: null,
     threads: [],
     author: { id: 1, name: 'Author' },
   }
@@ -33,6 +35,7 @@ describe('LectureDiscussionList', () => {
         discussions={[makeDiscussion(1), makeDiscussion(2)]}
         emptyStateNoun="lecture"
         hasActiveFilters={false}
+        currentUserId={1}
       />,
     )
     const scope = within(container)
@@ -47,6 +50,7 @@ describe('LectureDiscussionList', () => {
         discussions={[]}
         emptyStateNoun="assignment"
         hasActiveFilters={false}
+        currentUserId={1}
       />,
     )
     const scope = within(container)
@@ -60,6 +64,7 @@ describe('LectureDiscussionList', () => {
         discussions={[]}
         emptyStateNoun="lecture"
         hasActiveFilters
+        currentUserId={1}
       />,
     )
     expect(within(container).getByTestId('discussion-empty-filtered')).toBeTruthy()

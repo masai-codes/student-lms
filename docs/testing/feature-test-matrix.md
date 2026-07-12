@@ -70,10 +70,10 @@ Last updated: 2026-07-09
 - Notes: See `docs/testing/features/lecture-detail.md`, `docs/testing/features/lecture-video-player.md`
 
 ## Learn hub (new-discussions)
-- Area: Server + learn detail integration for entity-scoped discussions (non-admin), plus the shared detail-page list UI (`LectureDiscussionsSection`) with search, "My Discussions" toggle, 10-per-page pagination, and Ongoing/Closed tags across lecture/assignment/resource detail
-- Status: Partial (unit coverage for helpers + list controls/toolbar/pagination/tags UI; integration tests for Drizzle list/create/reply not added yet)
-- Test files: `src/server/new-discussions/**/__tests__/*.test.ts`, `src/components/features/learn/LearnPageDetails/lecture/discussions/**/__tests__/*`, `src/components/features/new-discussions/__tests__/DiscussionSummaryCard.test.tsx`
-- Notes: Filtering/search/pagination are client-side over the discussion list already embedded in the detail payload (no new list endpoint); search matches title or message preview; `Ongoing`/`Closed` tag derives from `isClosed`. Legacy `discussions` module and course discussion routes removed.
+- Area: Server + learn detail integration for entity-scoped discussions (non-admin), plus the shared detail-page list UI (`LectureDiscussionsSection`) with search, "My Discussions" toggle, 10-per-page pagination, Ongoing/Closed tags, unread-reply badges, owner close/reopen, and owner feedback/rating across lecture/assignment/resource detail
+- Status: Partial (unit coverage for helpers + list controls/toolbar/pagination/tags UI + owner read/close/feedback services, handlers & UI; integration tests for Drizzle list/create/reply not added yet)
+- Test files: `src/server/new-discussions/**/__tests__/*.test.ts`, `src/server/api/learn/handlers/__tests__/{markLearnDiscussionRead,setLearnDiscussionClosed,submitLearnDiscussionFeedback}.handler.test.ts`, `src/lib/api/learn/__tests__/discussionsApi.test.ts`, `src/components/features/learn/LearnPageDetails/lecture/discussions/**/__tests__/*`, `src/components/features/new-discussions/__tests__/DiscussionSummaryCard.test.tsx`
+- Notes: Filtering/search/pagination are client-side over the discussion list already embedded in the detail payload (no new list endpoint); search matches title or message preview; `Ongoing`/`Closed` tag derives from `isClosed`. Owner-only writes: mark-read (`POST /:id/read`, stamps thread `read_at`, feeds `unreadReplyCount`), close/reopen (`POST /:id/close`), feedback (`POST /:id/feedback`, merged into `discussions.data.learnFeedback` → `feedbackRating`). Legacy `discussions` module and course discussion routes removed.
 
 ## Masaiverse
 - Area: Server APIs (all endpoints)
@@ -224,6 +224,12 @@ Last updated: 2026-07-09
 - Status: Covered
 - Test files: `src/components/modals/useAnnouncementPopups.test.tsx`, `src/components/modals/AnnouncementPopupModal.test.tsx`, `src/components/modals/ModalContext.test.tsx`
 - Notes: Popups show strictly one at a time. The hook exposes `current` (item being displayed, kept during the exit animation) and `open` (visibility). Actioning a popup (Mark as read / CTA / Show me later) sets `open=false` to play the modal exit animation, then after `CLOSE_ANIMATION_MS` (300ms, matching the modal overlay `duration-300`) clears `current`, letting the effect pick and open the next queued popup — so popups never appear together / never instant-swap. Mark read + CTA mark server-side read (`markAnnouncementRead` for `source: 'a'`, `markMessageRead` for `source: 'm'`) and permanently dismiss; CTA opens its link first; "Show me later" (backdrop/escape too) dismisses for the session only (reappears on reload). The central `ModalContext` stack keeps the announcement popup suppressed under any higher-priority modal until that closes. Test docs: `docs/testing/features/announcement-popups.md`.
+
+## Associated content (lectures, resources & assignments)
+- Area: `getAllAssociatedEntities` resolves the full transitive closure of a lecture/resource/assignment's associations across a section, in both directions (E1↔E2↔E3), from the legacy `data.associatedLecture` JSON. Builds one undirected graph in memory from two queries (O(V + E)), replacing the prior per-link N+1 re-scan; section-less entities fall back to direct forward links. Feeds `associatedItems` into the three learn detail services.
+- Status: Covered (graph build + BFS traversal utils + node-key + meta formatter + service across all start kinds/edge cases)
+- Test files: `src/server/learn/utils/__tests__/associationGraphTypes.test.ts`, `src/server/learn/utils/__tests__/buildAssociationGraph.test.ts`, `src/server/learn/utils/__tests__/collectAssociatedNodeKeys.test.ts`, `src/server/learn/utils/__tests__/formatAssociatedMeta.test.ts`, `src/server/learn/services/__tests__/getAllAssociatedEntities.service.test.ts`
+- Notes: See `docs/testing/features/associated-content.md`
 
 ## Status Meaning
 

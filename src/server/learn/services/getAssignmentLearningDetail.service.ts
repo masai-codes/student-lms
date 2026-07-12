@@ -16,7 +16,7 @@ import {
 } from '@/server/learn/utils/buildAssignmentDetailPayload'
 import { buildAssignmentProblemListItems } from '@/server/learn/utils/buildAssignmentProblemListItems'
 import { buildLearnDetailPresentation } from '@/server/learn/utils/buildLearnDetailPresentation'
-import { getAssignmentAssociatedContent } from '@/server/learn/services/getAssignmentAssociatedContent.service'
+import { getAllAssociatedEntities } from '@/server/learn/services/getAllAssociatedEntities.service'
 import { ensureUserCanAccessLearnHubEntity } from '@/server/learn/utils/ensureLearnEntityAccess'
 import { resolveLearnDetailRestriction } from '@/server/restrictions/resolveLearnDetailRestriction'
 import { getBatchIdForSection } from '@/server/batches/getBatchIdsForSections'
@@ -105,10 +105,11 @@ export async function getAssignmentLearningDetailForUser(
       DISCUSSION_ENTITY_ASSIGNMENT,
       assignmentId,
     ),
-    getAssignmentAssociatedContent({
-      assignmentId,
+    getAllAssociatedEntities({
+      entityId: assignmentId,
+      entityKind: 'assignment',
       sectionId: row.sectionId,
-      assignmentData: row.data,
+      entityData: row.data,
     }),
   ])
 

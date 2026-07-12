@@ -31,8 +31,8 @@ vi.mock(
   }),
 )
 
-vi.mock('@/server/learn/services/getLectureAssociatedContent.service', () => ({
-  getLectureAssociatedContent: hoisted.associatedContent,
+vi.mock('@/server/learn/services/getAllAssociatedEntities.service', () => ({
+  getAllAssociatedEntities: hoisted.associatedContent,
 }))
 
 vi.mock('@/server/learn/services/learnEntityBookmark.service', () => ({

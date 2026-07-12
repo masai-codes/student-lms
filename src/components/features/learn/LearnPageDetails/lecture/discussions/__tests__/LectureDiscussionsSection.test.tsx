@@ -42,6 +42,8 @@ function makeDiscussions(count: number, authorId: number): Array<DiscussionListI
     createdAt: null,
     updatedAt: null,
     threadCount: 0,
+    unreadReplyCount: 0,
+    feedbackRating: null,
     threads: [],
     author: { id: authorId, name: 'Author' },
   }))

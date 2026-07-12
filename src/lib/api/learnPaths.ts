@@ -32,4 +32,10 @@ export const LEARN_API = {
   discussions: '/api/learn/discussions',
   discussionReplies: (discussionId: number) =>
     `/api/learn/discussions/${discussionId}/replies`,
+  discussionRead: (discussionId: number) =>
+    `/api/learn/discussions/${discussionId}/read`,
+  discussionClose: (discussionId: number) =>
+    `/api/learn/discussions/${discussionId}/close`,
+  discussionFeedback: (discussionId: number) =>
+    `/api/learn/discussions/${discussionId}/feedback`,
 } as const

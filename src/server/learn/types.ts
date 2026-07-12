@@ -159,6 +159,10 @@ export interface DiscussionListItem {
   createdAt: string | null
   updatedAt: string | null
   threadCount: number
+  /** Unread replies for the discussion owner (replies by others not yet marked read). Always 0 for non-owners. */
+  unreadReplyCount: number
+  /** Owner's 1–5 rating of how the discussion was resolved, or null when not rated. */
+  feedbackRating: number | null
   author: DiscussionAuthorPreview | null
   /** Reply threads loaded with the detail page (empty on non-detail listings). */
   threads: Array<LearnDiscussionThreadItem>

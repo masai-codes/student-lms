@@ -15,6 +15,8 @@ function makeDiscussion(overrides: Partial<DiscussionListItem> = {}): Discussion
     createdAt: '2026-01-01T00:00:00Z',
     updatedAt: '2026-01-01T00:00:00Z',
     threadCount: 2,
+    unreadReplyCount: 0,
+    feedbackRating: null,
     threads: [],
     author: { id: 5, name: 'Ada' },
     ...overrides,
@@ -52,5 +54,21 @@ describe('DiscussionSummaryCard', () => {
       <DiscussionSummaryCard discussion={makeDiscussion({ threadCount: 1 })} />,
     )
     expect(within(container).getByText(/1 reply/)).toBeTruthy()
+  })
+
+  it('shows the unread badge when there are unread replies', () => {
+    const { container } = render(
+      <DiscussionSummaryCard discussion={makeDiscussion({ unreadReplyCount: 3 })} />,
+    )
+    expect(within(container).getByTestId('discussion-unread-badge').textContent).toBe(
+      '3 new',
+    )
+  })
+
+  it('hides the unread badge when there are no unread replies', () => {
+    const { container } = render(
+      <DiscussionSummaryCard discussion={makeDiscussion({ unreadReplyCount: 0 })} />,
+    )
+    expect(within(container).queryByTestId('discussion-unread-badge')).toBeNull()
   })
 })

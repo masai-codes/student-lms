@@ -22,9 +22,7 @@ import { resolveLearnDetailRestriction } from '@/server/restrictions/resolveLear
 import { getBatchIdForSection } from '@/server/batches/getBatchIdsForSections'
 import { getUserBatchRestrictions } from '@/server/restrictions/getUserBatchRestrictions'
 import { LECTURE_RESOURCE_TYPE } from '@/server/learn/utils/resolveLectureLearningType'
-import {
-  getLectureAssociatedContent,
-} from '@/server/learn/services/getLectureAssociatedContent.service'
+import { getAllAssociatedEntities } from '@/server/learn/services/getAllAssociatedEntities.service'
 
 export async function getLectureLearningDetailForUser(
   userId: number,
@@ -118,10 +116,11 @@ export async function getLectureLearningDetailForUser(
       .from(lectureZoomChat)
       .where(eq(lectureZoomChat.lectureId, lectureId))
       .limit(1),
-    getLectureAssociatedContent({
-      lectureId,
+    getAllAssociatedEntities({
+      entityId: lectureId,
+      entityKind: 'lecture',
       sectionId: row.sectionId,
-      lectureData: row.data,
+      entityData: row.data,
     }),
     buildLectureVideoAttendanceState(lectureId),
     isRecommended || row.sectionId == null

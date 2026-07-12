@@ -120,6 +120,7 @@ export function LectureDiscussionsSection({
           discussions={controls.pageItems}
           emptyStateNoun={emptyStateNoun}
           hasActiveFilters={controls.hasActiveFilters}
+          currentUserId={user?.id ?? null}
         />
       </div>
 

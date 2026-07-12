@@ -5,38 +5,53 @@ import { CaretDown, CaretUp } from '@phosphor-icons/react'
 import { useRouter } from '@tanstack/react-router'
 
 import { getDiscussionRepliesToggleLabel } from './discussionRepliesToggleLabel'
+import { LectureDiscussionOwnerActions } from './LectureDiscussionOwnerActions'
 import { LectureDiscussionReplyForm } from './LectureDiscussionReplyForm'
 import { LectureDiscussionReplyItem } from './LectureDiscussionReplyItem'
 
 import type { DiscussionListItem } from '@/server/learn/types'
 import { DiscussionSummaryCard } from '@/components/features/new-discussions/DiscussionSummaryCard'
-import { addLearnDiscussionReplyViaApi } from '@/lib/api/learn/discussionsApi'
+import {
+  addLearnDiscussionReplyViaApi,
+  markLearnDiscussionRepliesReadViaApi,
+} from '@/lib/api/learn/discussionsApi'
 import { plainTextFromHtml } from '@/lib/plainTextFromHtml'
 import { cn } from '@/lib/utils'
 import { pushLearnEvent } from '@/components/features/learn/shared/learnAnalytics'
 
 type LectureDiscussionListItemProps = {
   discussion: DiscussionListItem
+  currentUserId: number | null
 }
 
-export function LectureDiscussionListItem({ discussion }: LectureDiscussionListItemProps) {
+export function LectureDiscussionListItem({
+  discussion,
+  currentUserId,
+}: LectureDiscussionListItemProps) {
   const router = useRouter()
 
   const [expanded, setExpanded] = React.useState(false)
   const [replyPending, setReplyPending] = React.useState(false)
   const [replyError, setReplyError] = React.useState<string | null>(null)
 
+  const isOwner =
+    currentUserId != null && discussion.author?.id === currentUserId
+
   const toggleReplies = () => {
     pushLearnEvent('l_learn_discussion_replies_toggle_id_' + discussion.id, {
       discussion_id: discussion.id,
     })
-    setExpanded(current => {
-      const next = !current
-      if (!next) {
-        setReplyError(null)
-      }
-      return next
-    })
+    const opening = !expanded
+    setExpanded(opening)
+    if (!opening) {
+      setReplyError(null)
+    }
+    // Owner opening the thread clears the unread badge.
+    if (opening && isOwner && discussion.unreadReplyCount > 0) {
+      void markLearnDiscussionRepliesReadViaApi(discussion.id)
+        .then(() => router.invalidate())
+        .catch(() => undefined)
+    }
   }
 
   const handleReplySubmit = async (messageHtml: string) => {
@@ -81,6 +96,9 @@ export function LectureDiscussionListItem({ discussion }: LectureDiscussionListI
           )}
           {toggleLabel}
         </button>
+        {isOwner ? (
+          <LectureDiscussionOwnerActions discussion={discussion} />
+        ) : null}
       </div>
 
       {expanded ? (

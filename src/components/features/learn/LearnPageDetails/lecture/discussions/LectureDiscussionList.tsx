@@ -10,12 +10,14 @@ type LectureDiscussionListProps = {
   emptyStateNoun: string
   /** True when a search/mine filter is active, so the empty copy reflects that. */
   hasActiveFilters: boolean
+  currentUserId: number | null
 }
 
 export function LectureDiscussionList({
   discussions,
   emptyStateNoun,
   hasActiveFilters,
+  currentUserId,
 }: LectureDiscussionListProps) {
   if (discussions.length === 0) {
     if (hasActiveFilters) {
@@ -57,7 +59,11 @@ export function LectureDiscussionList({
         Check what your peers are discussing
       </p>
       {discussions.map((discussion) => (
-        <LectureDiscussionListItem key={discussion.id} discussion={discussion} />
+        <LectureDiscussionListItem
+          key={discussion.id}
+          discussion={discussion}
+          currentUserId={currentUserId}
+        />
       ))}
     </div>
   )

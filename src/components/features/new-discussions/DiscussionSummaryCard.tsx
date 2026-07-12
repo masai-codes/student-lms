@@ -55,6 +55,14 @@ export function DiscussionSummaryCard({
           <ChatsCircle className="h-3.5 w-3.5" aria-hidden />
           {discussion.threadCount} {discussion.threadCount === 1 ? 'reply' : 'replies'}
         </span>
+        {discussion.unreadReplyCount > 0 ? (
+          <span
+            data-testid="discussion-unread-badge"
+            className="inline-flex items-center rounded-full bg-primary px-2 py-0.5 text-xs font-medium text-primary-foreground"
+          >
+            {discussion.unreadReplyCount} new
+          </span>
+        ) : null}
       </div>
     </article>
   )

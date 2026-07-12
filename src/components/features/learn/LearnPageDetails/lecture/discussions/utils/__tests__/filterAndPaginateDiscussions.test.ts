@@ -19,6 +19,8 @@ function makeDiscussion(
     createdAt: overrides.createdAt ?? '2026-01-01T00:00:00Z',
     updatedAt: overrides.updatedAt ?? '2026-01-01T00:00:00Z',
     threadCount: overrides.threadCount ?? 0,
+    unreadReplyCount: overrides.unreadReplyCount ?? 0,
+    feedbackRating: overrides.feedbackRating ?? null,
     threads: overrides.threads ?? [],
     author: overrides.author ?? { id: 1, name: 'Author' },
   }
