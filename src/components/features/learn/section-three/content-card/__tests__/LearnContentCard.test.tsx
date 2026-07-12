@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { cleanup, render, screen } from '@testing-library/react'
+import { cleanup, fireEvent, render, screen } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import { LearnContentCard } from '../LearnContentCard'
@@ -17,6 +17,13 @@ vi.mock('@tanstack/react-router', () => ({
     children: React.ReactNode
     [key: string]: unknown
   }) => <a {...props}>{children}</a>,
+}))
+
+const pushLearnEvent = vi.hoisted(() => vi.fn())
+vi.mock('../../../shared/learnAnalytics', () => ({
+  pushLearnEvent,
+  learnEntityEvent: (type: string, action: string, id: number) =>
+    `l_learn_${type}_${action}_id_${id}`,
 }))
 
 function makeItem(
@@ -76,6 +83,33 @@ describe('LearnContentCard — Optional session tag', () => {
   it('renders no deadline label for lectures / when absent', () => {
     render(<LearnContentCard item={makeItem('assignment', 'mandatory')} />)
     expect(screen.queryByTestId('learn-assignment-deadline')).toBeNull()
+  })
+})
+
+describe('LearnContentCard — analytics source', () => {
+  afterEach(() => {
+    cleanup()
+    pushLearnEvent.mockClear()
+  })
+
+  it('tags the click event source as "associated" when rendered in associated content', () => {
+    render(
+      <LearnContentCard item={makeItem('lecture', 'mandatory')} isAssociatedCard />,
+    )
+    fireEvent.click(screen.getByText('Intro to React'))
+    expect(pushLearnEvent).toHaveBeenCalledWith(
+      'l_learn_lecture_card_click_id_1',
+      expect.objectContaining({ source: 'associated' }),
+    )
+  })
+
+  it('defaults the source to "learn_listing"', () => {
+    render(<LearnContentCard item={makeItem('assignment', 'mandatory')} />)
+    fireEvent.click(screen.getByText('Intro to React'))
+    expect(pushLearnEvent).toHaveBeenCalledWith(
+      'l_learn_assignment_card_click_id_1',
+      expect.objectContaining({ source: 'learn_listing' }),
+    )
   })
 })
 

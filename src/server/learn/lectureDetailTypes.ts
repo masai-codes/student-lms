@@ -1,6 +1,5 @@
 import type { LectureAttendanceSummary } from '@/server/attendance/types'
-import type { LearnAssociatedListItem } from '@/server/learn/learnAssociatedTypes'
-import type { LearnHubDetailPayload } from '@/server/learn/types'
+import type { LearnHubDetailPayload, LearningItem } from '@/server/learn/types'
 import type { JoinLiveButtonState } from '@/server/learn/utils/resolveJoinLiveButtonState'
 import type { WatchIntervalSegment } from '@/server/video-attendance/types'
 
@@ -41,7 +40,7 @@ export type LectureDetailTabContent = {
   transcript: string | null
   /** Structured transcript segments preferred for timestamp rendering. */
   transcriptSegments: Array<LectureTranscriptSegment>
-  associatedItems: Array<LearnAssociatedListItem>
+  associatedItems: Array<LearningItem>
 }
 
 export type LectureDetailPayload = LearnHubDetailPayload & {

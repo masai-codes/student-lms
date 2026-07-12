@@ -1,48 +1,53 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { fetchVideoProgress } from '../fetchVideoProgress'
 
-vi.mock('@tanstack/react-start/server', () => ({
-  getRequest: () => ({ headers: { get: () => 'session=test' } }),
-}))
+const hoisted = vi.hoisted(() => ({ dbSelect: vi.fn() }))
 
-describe('fetchVideoProgress', () => {
-  const originalBase = process.env.EXPERIENCE_API_BASE_URL
+vi.mock('@/db', () => ({ db: { select: hoisted.dbSelect } }))
 
+function mockRow(row: unknown) {
+  hoisted.dbSelect.mockReturnValueOnce({
+    from: () => ({ where: () => ({ limit: () => Promise.resolve(row ? [row] : []) }) }),
+  })
+}
+
+describe('fetchVideoProgress (native)', () => {
   beforeEach(() => {
-    process.env.EXPERIENCE_API_BASE_URL = 'http://api.test'
-    vi.stubGlobal('fetch', vi.fn())
+    vi.clearAllMocks()
   })
 
-  afterEach(() => {
-    vi.unstubAllGlobals()
-    if (originalBase === undefined) {
-      delete process.env.EXPERIENCE_API_BASE_URL
-    } else {
-      process.env.EXPERIENCE_API_BASE_URL = originalBase
-    }
+  it('returns null for an invalid lecture id', async () => {
+    await expect(fetchVideoProgress(0, 7)).resolves.toBeNull()
+    expect(hoisted.dbSelect).not.toHaveBeenCalled()
   })
 
-  it('returns null for invalid lecture id', async () => {
-    await expect(fetchVideoProgress(0)).resolves.toBeNull()
-    expect(fetch).not.toHaveBeenCalled()
+  it('returns null for an invalid user id', async () => {
+    await expect(fetchVideoProgress(12, 0)).resolves.toBeNull()
+    expect(hoisted.dbSelect).not.toHaveBeenCalled()
   })
 
-  it('returns progress payload when API succeeds', async () => {
-    vi.mocked(fetch).mockResolvedValueOnce({
-      ok: true,
-      json: async () => ({
-        success: true,
-        data: {
-          lectureId: 12,
-          lastWatchedPosition: 42,
-          totalDuration: 100,
-          watchPercentage: 40,
-        },
-      }),
-    } as Response)
+  it('returns a zeroed payload when no row exists', async () => {
+    mockRow(null)
+    await expect(fetchVideoProgress(12, 7)).resolves.toEqual({
+      lectureId: 12,
+      lastWatchedPosition: 0,
+      totalDuration: null,
+      watchPercentage: 0,
+    })
+  })
 
-    await expect(fetchVideoProgress(12)).resolves.toEqual({
+  it('derives lastWatchedPosition from the max interval end', async () => {
+    mockRow({
+      intervals: [
+        { start: 0, end: 30 },
+        { start: 30, end: 42 },
+      ],
+      totalDuration: 100,
+      duration: 40,
+    })
+
+    await expect(fetchVideoProgress(12, 7)).resolves.toEqual({
       lectureId: 12,
       lastWatchedPosition: 42,
       totalDuration: 100,

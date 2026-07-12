@@ -17,7 +17,6 @@ import {
 } from '@/server/learn/utils/normalizeResourceKind'
 import { getAllAssociatedEntities } from '@/server/learn/services/getAllAssociatedEntities.service'
 import { getLearnEntityBookmarkState } from '@/server/learn/services/learnEntityBookmark.service'
-import { dedupeLearnAssociatedItems } from '@/server/learn/utils/dedupeLearnAssociatedItems'
 import { LECTURE_RESOURCE_TYPE } from '@/server/learn/utils/resolveLectureLearningType'
 
 export async function getResourceLearningDetailForUser(
@@ -86,6 +85,8 @@ export async function getResourceLearningDetailForUser(
       entityKind: 'resource',
       sectionId: row.sectionId,
       entityData: row.data,
+      userId,
+      nowMs: Date.now(),
     }),
     getLearnEntityBookmarkState(userId, 'resource', resourceId),
   ])
@@ -104,10 +105,7 @@ export async function getResourceLearningDetailForUser(
       settings: row.settings,
     },
     Date.now(),
-    dedupeLearnAssociatedItems(associatedItems, {
-      kind: 'resource',
-      id: resourceId,
-    }),
+    associatedItems,
     isBookmarked,
   )
 

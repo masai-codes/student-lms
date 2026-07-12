@@ -1,7 +1,6 @@
-import type { LearnAssociatedListItem } from '@/server/learn/learnAssociatedTypes'
 import type { AssignmentDetailFooter } from '@/server/learn/assignmentDetailFooterTypes'
 import type { LearnPhaseContent } from '@/server/learn/learnPhaseContentTypes'
-import type { LearnHubDetailPayload } from '@/server/learn/types'
+import type { LearnHubDetailPayload, LearningItem } from '@/server/learn/types'
 import type { AssignmentCompletedDetails } from '@/server/learn/utils/buildAssignmentCompletedDetails'
 import type { AssignmentHeaderBadge } from '@/server/learn/utils/buildAssignmentHeaderBadges'
 import type { AssignmentLiveAnalytics } from '@/server/learn/utils/buildAssignmentLiveAnalytics'
@@ -12,7 +11,7 @@ export type AssignmentKind = 'practice' | 'assignment' | 'evaluation'
 export type AssignmentPhase = 'before' | 'during' | 'after'
 
 export type AssignmentDetailPayload = LearnHubDetailPayload & {
-  associatedItems: Array<LearnAssociatedListItem>
+  associatedItems: Array<LearningItem>
   assignmentKind: AssignmentKind
   phase: AssignmentPhase
   schedule: string | null

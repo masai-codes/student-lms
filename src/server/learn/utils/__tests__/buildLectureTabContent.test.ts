@@ -12,7 +12,30 @@ describe('buildLectureTabContent', () => {
         transcriptSegments: null,
       },
       associatedItems: [
-        { id: 2, kind: 'assignment', title: 'Lab 1', meta: '20 May, 10:00 AM' },
+        {
+          id: 2,
+          learningType: 'assignment',
+          title: 'Lab 1',
+          hostName: 'Host',
+          scheduleDate: null,
+          concludes: null,
+          type: 'assignment',
+          category: 'coding',
+          isOptional: 'mandatory',
+          moduleName: 'Module 1',
+          attendance: null,
+          assignmentProgressStatus: null,
+          resourcePhase: null,
+          listingCtas: {
+            joinLive: 'hidden',
+            joinZoomLink: null,
+            isNewZoomRedirection: false,
+            showAttendance: false,
+            assignmentStatusChip: null,
+            assignmentDeadlineLabel: null,
+            assignmentScore: null,
+          },
+        },
       ],
     })
 

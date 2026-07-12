@@ -8,12 +8,12 @@ import { AssociatedContentDrawer } from './AssociatedContentDrawer'
 import { ASSOCIATED_CONTENT_DRAWER_TITLE } from './associatedContentLabels'
 import { useViewportBottomInset } from './useViewportBottomInset'
 
-import type { LearnAssociatedListItem } from '@/server/learn/learnAssociatedTypes'
+import type { LearningItem } from '@/server/learn/types'
 import { cn } from '@/lib/utils'
 import { pushLearnEvent } from '@/components/features/learn/shared/learnAnalytics'
 
 type AssociatedContentEntryCtaProps = {
-  items: Array<LearnAssociatedListItem>
+  items: Array<LearningItem>
   className?: string
   /**
    * When set, measures this element while the drawer is open and lifts the panel

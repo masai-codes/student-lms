@@ -4,12 +4,12 @@ import { AssociatedContentList } from './AssociatedContentList'
 import { ASSOCIATED_CONTENT_DRAWER_TITLE } from './associatedContentLabels'
 
 import { MasaiDrawer } from '@/components/ui/masai-drawer'
-import type { LearnAssociatedListItem } from '@/server/learn/learnAssociatedTypes'
+import type { LearningItem } from '@/server/learn/types'
 
 type AssociatedContentDrawerProps = {
   isOpen: boolean
   onOpenChange: (isOpen: boolean) => void
-  items: Array<LearnAssociatedListItem>
+  items: Array<LearningItem>
   bottomInsetPx?: number
 }
 

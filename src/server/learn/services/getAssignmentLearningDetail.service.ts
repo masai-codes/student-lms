@@ -116,6 +116,8 @@ export async function getAssignmentLearningDetailForUser(
       entityKind: 'assignment',
       sectionId: row.sectionId,
       entityData: row.data,
+      userId,
+      nowMs: Date.now(),
     }),
     getLearnEntityBookmarkState(userId, 'assignment', assignmentId),
   ])

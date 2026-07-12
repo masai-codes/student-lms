@@ -11,5 +11,5 @@ export const getLectureVideoAttendanceIntervals = createServerFn({
   .handler(async ({ data }): Promise<VideoAttendanceIntervalsData | null> => {
     const userId = await getCurrentUserId()
     if (!userId) throw new Error('UNAUTHORIZED')
-    return fetchVideoAttendanceIntervals(data.lectureId)
+    return fetchVideoAttendanceIntervals(data.lectureId, userId)
   })

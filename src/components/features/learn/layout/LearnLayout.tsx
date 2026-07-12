@@ -14,10 +14,7 @@ import type {
 } from '@/server/learn/types'
 import { fetchLearnPageDataFromApi } from '@/lib/api/learn/learnApi'
 import { LAYOUT_MAIN_PADDING_X, LAYOUT_MAX_WIDTH_CLASS } from '@/lib/layout'
-import {
-  formatScheduleRangeIST,
-  formatScheduleRangeLocal,
-} from '@/utils/timeZoneHandler'
+import { mapLearningItemToContent } from '../shared/mapLearningItemToContent'
 
 interface LearnLayoutProps {
   /** Loader-seeded initial page data; React Query takes over for interactive updates. */
@@ -81,27 +78,7 @@ export function LearnLayout({ pageData, onBatchChange }: LearnLayoutProps) {
   const selectedBatchId = data.selectedBatchId
 
   const learningItems: Array<LearnContentItem> = useMemo(
-    () =>
-      data.learningItems.map((item) => ({
-        id: item.id,
-        type: item.learningType,
-        title: item.title,
-        hostName: item.hostName,
-        date: formatScheduleRangeLocal(item.scheduleDate, item.concludes) || null,
-        dateTooltip:
-          formatScheduleRangeIST(item.scheduleDate, item.concludes) || null,
-        category: item.category,
-        learningSubType: item.type,
-        priority: item.isOptional,
-        tags: [item.type, item.category, item.moduleName],
-        attendance: item.attendance,
-        assignmentProgressStatus: item.assignmentProgressStatus,
-        resourcePhase: item.resourcePhase,
-        listingCtas: item.listingCtas,
-        assignmentStatusChip: item.listingCtas.assignmentStatusChip,
-        assignmentDeadlineLabel: item.listingCtas.assignmentDeadlineLabel,
-        assignmentScore: item.listingCtas.assignmentScore,
-      })),
+    () => data.learningItems.map(mapLearningItemToContent),
     [data.learningItems],
   )
 

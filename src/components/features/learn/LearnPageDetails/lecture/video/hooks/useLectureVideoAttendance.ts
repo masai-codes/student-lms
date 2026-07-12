@@ -187,11 +187,24 @@ export function useLectureVideoAttendance({
     return () => window.clearTimeout(timeoutId)
   }, [effectiveLastWatchedPosition, isHls, videoRef])
 
+  // Flush a final save when the player unmounts. Keep the action in a ref and
+  // give the effect empty deps, so it fires ONLY on real unmount. Depending on
+  // `updateIfNeeded` here would re-run the cleanup on every render (its identity
+  // changes each render), turning this into a forced save several times a
+  // second — the cause of the per-second POST + lecture-detail refetch storm.
+  const flushOnExitRef = useRef<() => void>(() => {})
+  flushOnExitRef.current = () => {
+    updateIfNeeded(
+      timerSnapshotRef.current.timer,
+      timerSnapshotRef.current.totalDuration,
+      true,
+    )
+  }
   useEffect(() => {
     return () => {
-      updateIfNeeded(timerSnapshotRef.current.timer, timerSnapshotRef.current.totalDuration, true)
+      flushOnExitRef.current()
     }
-  }, [updateIfNeeded])
+  }, [])
 
   useEffect(() => {
     return () => {

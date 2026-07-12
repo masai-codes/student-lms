@@ -48,10 +48,13 @@ function LearnTypeIcon({ type }: Pick<LearnContentItem, 'type'>) {
 export function LearnContentCard({
   item,
   fromDashboard = false,
+  isAssociatedCard = false,
 }: {
   item: LearnContentItem
   /** Compact dashboard layout: meta + tags on one row (shorter card). */
   fromDashboard?: boolean
+  /** Rendered in an associated-content surface; only tags the analytics source. */
+  isAssociatedCard?: boolean
 }) {
   const attendancePresentation = getLearnListingAttendancePresentation(
     item.listingCtas,
@@ -88,7 +91,11 @@ export function LearnContentCard({
           title: item.title,
           category: item.category,
           priority: item.priority,
-          source: fromDashboard ? 'dashboard' : 'learn_listing',
+          source: isAssociatedCard
+            ? 'associated'
+            : fromDashboard
+              ? 'dashboard'
+              : 'learn_listing',
         })
       }
       className="bg-white rounded-[8px] border border-gray-200 p-3 block transition-colors hover:bg-gray-50/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"

@@ -2,8 +2,7 @@ import type {
   AssignmentDetailPayload,
   AssignmentKind,
 } from '@/server/learn/assignmentDetailTypes'
-import type { LearnAssociatedListItem } from '@/server/learn/learnAssociatedTypes'
-import type { LearnHubDetailPayload } from '@/server/learn/types'
+import type { LearnHubDetailPayload, LearningItem } from '@/server/learn/types'
 import type { AssignmentProblemListItem } from '@/server/learn/utils/buildAssignmentProblemListItems'
 import type { AssignmentDetailFooterContext } from '@/server/learn/utils/buildAssignmentDetailFooter'
 import { buildAssignmentDetailFooter } from '@/server/learn/utils/buildAssignmentDetailFooter'
@@ -57,7 +56,7 @@ export function buildAssignmentDetailPayload(
   row: AssignmentDetailRow,
   nowMs: number,
   footerInput: AssignmentDetailFooterInput,
-  associatedItems: Array<LearnAssociatedListItem>,
+  associatedItems: Array<LearningItem>,
   problems: Array<AssignmentProblemListItem>,
 ): Omit<AssignmentDetailPayload, 'isBookmarked'> {
   const assignmentKind = normalizeAssignmentKind(row.type)

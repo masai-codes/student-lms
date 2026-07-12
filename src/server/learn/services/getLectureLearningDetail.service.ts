@@ -121,8 +121,10 @@ export async function getLectureLearningDetailForUser(
       entityKind: 'lecture',
       sectionId: row.sectionId,
       entityData: row.data,
+      userId,
+      nowMs: Date.now(),
     }),
-    buildLectureVideoAttendanceState(lectureId),
+    buildLectureVideoAttendanceState(userId, lectureId),
     isRecommended || row.sectionId == null
       ? Promise.resolve(new Map())
       : fetchLectureAttendanceSummaries(userId, [

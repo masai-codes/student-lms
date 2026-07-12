@@ -1,29 +1,87 @@
 // @vitest-environment jsdom
-import { fireEvent, render, screen } from '@testing-library/react'
-import { describe, expect, it, vi } from 'vitest'
+import { cleanup, render, screen, within } from '@testing-library/react'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import { AssociatedContentList } from '../AssociatedContentList'
+import type { LearningItem } from '@/server/learn/types'
+
+vi.mock('@tanstack/react-router', () => ({
+  Link: ({
+    children,
+    ...props
+  }: {
+    children: React.ReactNode
+    [key: string]: unknown
+  }) => <a {...props}>{children}</a>,
+}))
+
+function learningItem(
+  id: number,
+  learningType: LearningItem['learningType'],
+  title: string,
+): LearningItem {
+  return {
+    id,
+    learningType,
+    title,
+    hostName: 'Host',
+    scheduleDate: null,
+    concludes: null,
+    type: learningType === 'resource' ? 'reading' : learningType,
+    category: 'coding',
+    isOptional: 'mandatory',
+    moduleName: 'Module 1',
+    attendance: null,
+    assignmentProgressStatus: null,
+    resourcePhase: null,
+    listingCtas: {
+      joinLive: 'hidden',
+      joinZoomLink: null,
+      isNewZoomRedirection: false,
+      showAttendance: false,
+      assignmentStatusChip: null,
+      assignmentDeadlineLabel: null,
+      assignmentScore: null,
+    },
+  }
+}
 
 describe('AssociatedContentList', () => {
-  it('opens linked learn entities in a new tab', () => {
-    const openSpy = vi.spyOn(window, 'open').mockImplementation(() => null)
+  afterEach(() => cleanup())
 
+  it('renders nothing when there are no items', () => {
+    const { container } = render(<AssociatedContentList items={[]} />)
+    expect(container.firstChild).toBeNull()
+  })
+
+  it('renders the /learn card grouped into kind sections', () => {
     render(
       <AssociatedContentList
         items={[
-          { id: 10, kind: 'lecture', title: 'Intro', meta: 'Today' },
+          learningItem(2, 'lecture', 'Lecture Two'),
+          learningItem(3, 'resource', 'Reading Three'),
+          learningItem(7, 'assignment', 'Assignment Seven'),
         ]}
       />,
     )
 
-    fireEvent.click(screen.getByRole('button', { name: /intro/i }))
+    expect(screen.getByText('Lectures')).toBeTruthy()
+    expect(screen.getByText('Resources')).toBeTruthy()
+    expect(screen.getByText('Assignments')).toBeTruthy()
 
-    expect(openSpy).toHaveBeenCalledWith(
-      '/lectures/10',
-      '_blank',
-      'noopener,noreferrer',
+    // The card title renders, and its link points at the entity route.
+    const lectureSection = screen.getByTestId('learn-associated-section-lecture')
+    expect(within(lectureSection).getByText('Lecture Two')).toBeTruthy()
+    const link = within(lectureSection).getByText('Lecture Two').closest('a')
+    expect(link?.getAttribute('to')).toBe('/lectures/$lectureId')
+  })
+
+  it('omits a section with no items for that kind', () => {
+    render(
+      <AssociatedContentList items={[learningItem(7, 'assignment', 'Only Assignment')]} />,
     )
 
-    openSpy.mockRestore()
+    expect(screen.queryByTestId('learn-associated-section-lecture')).toBeNull()
+    expect(screen.getByTestId('learn-associated-section-assignment')).toBeTruthy()
   })
 })

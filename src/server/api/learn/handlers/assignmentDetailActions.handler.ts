@@ -2,9 +2,10 @@ import { jsonOk, mapThrownErrorToResponse } from '@/server/api/http/responses'
 import { requireSessionUserId } from '@/server/api/http/requireSessionUser'
 import { parsePositiveIdParam } from '@/server/api/learn/utils/parsePositiveIdParam'
 import {
-  createAssessPlatformUrlViaExperienceApi,
-  createSubmissionViaExperienceApi,
-} from '@/server/assignments/services/experienceApiSubmissionActions'
+  createAssessPlatformAiInterviewUrl,
+  createAssessPlatformUrl,
+} from '@/server/assignments/services/createAssessPlatformUrl'
+import { createAssignmentSubmission } from '@/server/assignments/services/createAssignmentSubmission'
 import { getAssessPlatformSubmissionViewUrlForUser } from '@/server/assignments/services/getAssessPlatformSubmissionViewUrl'
 import { updateSubmissionCompletionForUser } from '@/server/assignments/services/updateSubmissionCompletion'
 import { isAssessmentPlatform } from '@/server/learn/utils/assignmentPlatform'
@@ -19,12 +20,12 @@ export async function handleCreateAssignmentSubmission(
   assignmentIdParam: string,
 ): Promise<Response> {
   try {
-    await requireSessionUserId()
+    const userId = await requireSessionUserId()
     const assignmentId = parsePositiveIdParam(
       assignmentIdParam,
       'INVALID_ASSIGNMENT_ID',
     )
-    const data = await createSubmissionViaExperienceApi(assignmentId)
+    const data = await createAssignmentSubmission({ assignmentId, userId })
     return jsonOk(data)
   } catch (error) {
     return mapThrownErrorToResponse(error)
@@ -36,7 +37,7 @@ export async function handleCreateAssessPlatformUrl(
   assignmentIdParam: string,
 ): Promise<Response> {
   try {
-    await requireSessionUserId()
+    const userId = await requireSessionUserId()
     const assignmentId = parsePositiveIdParam(
       assignmentIdParam,
       'INVALID_ASSIGNMENT_ID',
@@ -50,11 +51,14 @@ export async function handleCreateAssessPlatformUrl(
       return mapThrownErrorToResponse(new Error('INVALID_SUBMISSION_ID'))
     }
 
-    const data = await createAssessPlatformUrlViaExperienceApi({
+    const params = {
       assignmentId,
       submissionId: body.submissionId!,
-      isAiInterview: isAiInterviewPlatform(body.platform ?? null),
-    })
+      userId,
+    }
+    const data = isAiInterviewPlatform(body.platform ?? null)
+      ? await createAssessPlatformAiInterviewUrl(params)
+      : await createAssessPlatformUrl(params)
 
     return jsonOk(data)
   } catch (error) {

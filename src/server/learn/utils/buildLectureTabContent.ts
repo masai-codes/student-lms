@@ -1,5 +1,5 @@
 import type { LectureDetailTabContent } from '@/server/learn/lectureDetailTypes'
-import type { LearnAssociatedListItem } from '@/server/learn/learnAssociatedTypes'
+import type { LearningItem } from '@/server/learn/types'
 import { appendZoomChatToNotes } from '@/server/learn/utils/appendZoomChatToNotes'
 import {
   buildTranscriptPlainText,
@@ -18,7 +18,7 @@ export function buildLectureTabContent(input: {
   /** `lecture_zoom_chat.final_chat` — links scraped from the Zoom chat, if any. */
   zoomChatFinalChat?: unknown
   lecturesAi: LecturesAiRow
-  associatedItems: Array<LearnAssociatedListItem>
+  associatedItems: Array<LearningItem>
 }): LectureDetailTabContent {
   const ai = input.lecturesAi
 

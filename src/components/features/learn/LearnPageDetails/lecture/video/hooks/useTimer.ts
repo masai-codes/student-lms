@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 
 export function useTimer(timeStart = 0) {
   const [isRunning, setIsRunning] = useState(false)
@@ -33,13 +33,16 @@ export function useTimer(timeStart = 0) {
     return () => cancelAnimationFrame(requestId)
   }, [isRunning, speed])
 
-  const startTimer = () => setIsRunning(true)
-  const stopTimer = () => setIsRunning(false)
-  const resetTimer = () => {
+  // Memoized so consumers' useCallback/useEffect deps stay stable across
+  // renders. Without this, every render hands out new callback identities,
+  // which churns downstream callbacks and re-fires effects that depend on them.
+  const startTimer = useCallback(() => setIsRunning(true), [])
+  const stopTimer = useCallback(() => setIsRunning(false), [])
+  const resetTimer = useCallback(() => {
     setIsRunning(false)
     setTime(0)
-  }
-  const changeSpeed = (newSpeed: number) => setSpeed(newSpeed)
+  }, [])
+  const changeSpeed = useCallback((newSpeed: number) => setSpeed(newSpeed), [])
 
   return { time, isRunning, startTimer, stopTimer, resetTimer, changeSpeed, setTime }
 }
