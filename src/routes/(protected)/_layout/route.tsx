@@ -144,9 +144,10 @@ function RouteComponent() {
         ) : !isApp ? (
           <AppMobileTabBar />
         ) : null}
-        {/* Floating support entry — hidden on the support page itself and on
-            the masaiverse app surface. */}
-        {!isMasaiverseRoute && !isSupportRoute ? <SupportChatButton /> : null}
+        {/* Floating support entry — shown only on the dashboard home for now. */}
+        {pathname === '/' && !isMasaiverseRoute && !isSupportRoute ? (
+          <SupportChatButton />
+        ) : null}
         {/* Central modal system — announcement popups check on every page. */}
         <AnnouncementModalController />
       </div>

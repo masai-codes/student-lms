@@ -32,6 +32,7 @@ function learningItem(
     isOptional: 'mandatory',
     moduleName: 'Module 1',
     attendance: null,
+    optionalAttendance: null,
     assignmentProgressStatus: null,
     resourcePhase: null,
     listingCtas: {

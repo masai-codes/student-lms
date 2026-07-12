@@ -125,22 +125,30 @@ export async function getLectureLearningDetailForUser(
       nowMs: Date.now(),
     }),
     buildLectureVideoAttendanceState(userId, lectureId),
-    isRecommended || row.sectionId == null
+    row.sectionId == null
       ? Promise.resolve(new Map())
-      : fetchLectureAttendanceSummaries(userId, [
-          {
-            lectureId,
-            sectionId: row.sectionId,
-            schedule: row.schedule,
-            concludes: row.concludes,
-            optional: row.optional,
-          },
-        ]),
+      : fetchLectureAttendanceSummaries(
+          userId,
+          [
+            {
+              lectureId,
+              sectionId: row.sectionId,
+              schedule: row.schedule,
+              concludes: row.concludes,
+              optional: row.optional,
+            },
+          ],
+          Date.now(),
+          // Compute for optional lectures too so the info tooltip has data.
+          isRecommended,
+        ),
     getLearnEntityBookmarkState(userId, 'lecture', lectureId),
     getLectureFeedbackRecord(userId, lectureId),
   ])
 
-  const attendance = isRecommended ? null : (attendanceMap.get(lectureId) ?? null)
+  const attendanceSummary = attendanceMap.get(lectureId) ?? null
+  const attendance = isRecommended ? null : attendanceSummary
+  const optionalAttendance = isRecommended ? attendanceSummary : null
 
   const tabs = buildLectureTabContent({
     notes: row.notes,
@@ -167,6 +175,7 @@ export async function getLectureLearningDetailForUser(
     tabs,
     videoAttendance,
     attendance,
+    optionalAttendance,
     feedbackRecord,
   )
 

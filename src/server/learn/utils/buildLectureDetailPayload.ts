@@ -50,6 +50,7 @@ export function buildLectureDetailPayload(
   tabs: LectureDetailTabContent,
   videoAttendance: LectureVideoAttendanceState | null,
   attendance: LectureAttendanceSummary | null,
+  optionalAttendance: LectureAttendanceSummary | null,
   feedbackRecord: { rating: number | null; text: string | null },
 ): Omit<LectureDetailPayload, 'isBookmarked' | 'isNewZoomRedirection'> {
   const lectureKind = normalizeLectureKind(row.type)
@@ -133,6 +134,7 @@ export function buildLectureDetailPayload(
     joinLiveButtonState,
     videoAttendance: hasRecording ? videoAttendance : null,
     attendance,
+    optionalAttendance,
     feedback,
   }
 }

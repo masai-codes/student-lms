@@ -47,7 +47,9 @@ export function LiveLectureContent({ detail }: LiveLectureContentProps) {
       hostName={detail.hostName}
       hostAvatarUrl={detail.hostAvatarUrl}
       scheduleDisplayRange={detail.scheduleDisplayRange}
+      scheduleDisplayRangeIst={detail.scheduleDisplayRangeIst}
       attendance={detail.attendance}
+      optionalAttendance={detail.optionalAttendance}
       watchPercentage={detail.videoAttendance?.watchPercentage}
       actions={
         <LectureDetailActions

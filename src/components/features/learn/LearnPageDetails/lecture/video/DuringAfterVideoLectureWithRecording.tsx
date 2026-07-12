@@ -17,12 +17,14 @@ type DuringAfterVideoLectureWithRecordingProps = {
   hostName: string
   hostAvatarUrl: string | null
   scheduleDisplayRange: string
+  scheduleDisplayRangeIst?: string
   entityId: number
   discussions: Array<DiscussionListItem>
   hideNotes: boolean
   tabs: LectureDetailTabContent
   videoAttendance: LectureVideoAttendanceState | null
   attendance: LectureAttendanceSummary | null
+  optionalAttendance?: LectureAttendanceSummary | null
   isBookmarked: boolean
   feedback: LectureFeedbackState
 }

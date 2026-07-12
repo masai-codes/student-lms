@@ -41,6 +41,7 @@ function makeItem(
     priority,
     tags: ['live', 'coding', 'Module 1'],
     attendance: null,
+    optionalAttendance: null,
     assignmentProgressStatus: null,
     resourcePhase: null,
     listingCtas: {
@@ -110,6 +111,27 @@ describe('LearnContentCard — analytics source', () => {
       'l_learn_assignment_card_click_id_1',
       expect.objectContaining({ source: 'learn_listing' }),
     )
+  })
+})
+
+describe('LearnContentCard — associated (drawer) layout', () => {
+  afterEach(() => cleanup())
+
+  it('stays in the stacked mobile layout so it fits a narrow drawer', () => {
+    render(
+      <LearnContentCard item={makeItem('lecture', 'mandatory')} isAssociatedCard />,
+    )
+    const outer = screen.getByText('Intro to React').closest('a')!
+      .firstElementChild as HTMLElement
+    expect(outer.className).toContain('flex-col')
+    expect(outer.className).not.toContain('md:flex-row')
+  })
+
+  it('keeps the desktop row split when not associated', () => {
+    render(<LearnContentCard item={makeItem('lecture', 'mandatory')} />)
+    const outer = screen.getByText('Intro to React').closest('a')!
+      .firstElementChild as HTMLElement
+    expect(outer.className).toContain('md:flex-row')
   })
 })
 

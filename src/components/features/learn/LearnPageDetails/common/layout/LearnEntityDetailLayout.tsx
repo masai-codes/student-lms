@@ -6,7 +6,7 @@ import { LearnDetailOverview } from '../overview'
 import { LearnDetailBodyGrid } from './LearnDetailBodyGrid'
 import type { LearnHubDetailPayload } from '@/server/learn/types'
 import type { ReactNode } from 'react'
-import { formatLectureRangeLocal } from '@/utils/timeZoneHandler'
+import { formatLectureRangeIST, formatLectureRangeLocal } from '@/utils/timeZoneHandler'
 
 type LearnEntityDetailLayoutProps = {
   detail: LearnHubDetailPayload & {
@@ -47,6 +47,11 @@ export function LearnEntityDetailLayout({
       : detail.scheduleDisplayRange.trim() !== ''
         ? detail.scheduleDisplayRange
         : detail.displayDate
+  // IST version of the localized range, for the hover tooltip when not in IST.
+  const displayDateIst =
+    localRange !== ''
+      ? formatLectureRangeIST(detail.schedule, detail.concludes)
+      : undefined
 
   return (
     <div className="w-full space-y-6 pb-12">
@@ -54,6 +59,7 @@ export function LearnEntityDetailLayout({
         title={detail.title}
         hostName={detail.hostName}
         displayDate={displayDate}
+        displayDateIst={displayDateIst}
         priority={detail.priority}
         tags={detail.tags}
         actions={headerActions ?? <LearnDetailDefaultActions />}

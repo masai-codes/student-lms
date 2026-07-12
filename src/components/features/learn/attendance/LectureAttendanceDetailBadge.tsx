@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react'
 
+import { AttendanceBreakdownContent } from './AttendanceBreakdownContent'
 import { LectureAttendanceInline } from './LectureAttendanceInline'
 
 import { formatCatchUpRemainingLabel } from '@/lib/lecture-attendance/formatCatchUpRemainingLabel'
@@ -13,41 +14,6 @@ import {
 
 type LectureAttendanceDetailBadgeProps = ListingAttendanceRender & {
   attendance: LectureAttendanceSummary
-}
-
-/** Present hover: Live / Recording / Overall attendance breakdown (mirrors old LMS). */
-function PresentTooltipContent({
-  attendance,
-}: {
-  attendance: LectureAttendanceSummary
-}) {
-  const isPresent = attendance.overallStatus === 1
-  const liveStatus =
-    attendance.liveAttendanceStatus === 1 ? 'Attended' : 'Not Attended'
-  const videoStatus =
-    attendance.videoAttendanceStatus === 1 ? 'Watched' : 'Not Watched'
-
-  if (!attendance.includeVideoAttendance) {
-    return <p className="italic">Only live class attendance is considered.</p>
-  }
-
-  return (
-    <div className="flex flex-col gap-2">
-      <div>Live - {liveStatus}</div>
-      <div>Recording - {videoStatus}</div>
-      <div>
-        <span
-          className={
-            isPresent
-              ? 'inline-flex items-center rounded-full bg-emerald-100 px-2 py-0.5 type-t1 font-medium text-emerald-700'
-              : 'inline-flex items-center rounded-full bg-rose-100 px-2 py-0.5 type-t1 font-medium text-rose-600'
-          }
-        >
-          Overall - {isPresent ? 'Present' : 'Absent'}
-        </span>
-      </div>
-    </div>
-  )
 }
 
 /** Absent hover: explains why the student was marked absent (mirrors old LMS). */
@@ -111,7 +77,7 @@ export function LectureAttendanceDetailBadge({
       renderBadge={(badge) => {
         if (render.uiState === 'present') {
           return withTooltip(
-            <PresentTooltipContent attendance={attendance} />,
+            <AttendanceBreakdownContent attendance={attendance} />,
             badge,
           )
         }

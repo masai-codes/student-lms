@@ -2,6 +2,7 @@ import { Link } from '@tanstack/react-router'
 import type { LearnContentItem, LearnContentType } from '../../shared/types'
 import { learnEntityEvent, pushLearnEvent } from '../../shared/learnAnalytics'
 import { LectureAttendanceInline } from '@/components/features/learn/attendance/LectureAttendanceInline'
+import { LectureOptionalAttendanceInfo } from '@/components/features/learn/attendance/LectureOptionalAttendanceInfo'
 import { getAssignmentStatusChipStyles } from '@/components/features/learn/LearnPageDetails/assignment/shared/getAssignmentStatusChipStyles'
 import { LearnListingJoinLiveCta } from '@/components/features/learn/section-three/content-card/LearnListingJoinLiveCta'
 import { LocalTimeWithIstTooltip } from '@/components/shared/local-time-with-ist-tooltip'
@@ -10,6 +11,7 @@ import {
   getLearnListingAttendancePresentation,
   shouldShowAssignmentStatusChip,
 } from '@/lib/learn/listingCardPresentation'
+import { cn } from '@/lib/utils'
 
 const LEARN_TYPE_ICON_SRC: Record<LearnContentType, string> = {
   lecture:
@@ -100,7 +102,16 @@ export function LearnContentCard({
       }
       className="bg-white rounded-[8px] border border-gray-200 p-3 block transition-colors hover:bg-gray-50/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
     >
-      <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+      <div
+        className={cn(
+          'flex flex-col gap-3',
+          // Associated cards render inside a narrow drawer, so they stay in the
+          // mobile stacked layout at every viewport instead of the desktop row
+          // split (which squeezes host/tags into cramped, per-word-wrapping
+          // columns).
+          !isAssociatedCard && 'md:flex-row md:items-start md:justify-between',
+        )}
+      >
         <div className="flex min-w-0 items-start gap-3">
           <LearnTypeIcon type={item.type} />
           <div className="min-w-0 flex-1">
@@ -160,7 +171,12 @@ export function LearnContentCard({
                 {/* Keep host+time and tags stacked on mobile, but sit them
                     side-by-side from `md` up so the card is 2 rows on desktop
                     instead of 3. */}
-                <div className="mt-[4px] flex flex-col gap-2 md:flex-row md:items-center">
+                <div
+                  className={cn(
+                    'mt-[4px] flex flex-col gap-2',
+                    !isAssociatedCard && 'md:flex-row md:items-center',
+                  )}
+                >
                   <p className="type-t1 flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
                     <span className="min-w-0">{item.hostName}</span>
                     <span
@@ -200,7 +216,12 @@ export function LearnContentCard({
         </div>
 
         <div
-          className="flex shrink-0 flex-wrap items-center justify-end gap-2"
+          className={cn(
+            'flex shrink-0 flex-wrap items-center gap-2',
+            // Stacked below the title on associated cards → left-align instead
+            // of hugging the right edge.
+            isAssociatedCard ? 'justify-start' : 'justify-end',
+          )}
           onClick={(event) => {
             event.preventDefault()
             event.stopPropagation()
@@ -210,14 +231,21 @@ export function LearnContentCard({
           }}
         >
           {item.type === 'lecture' && item.priority === 'recommended' ? (
-            <MasaiChips
-              label="Optional session"
-              size="regular"
-              backgroundClassName="bg-yellow-50 border border-yellow-100"
-              textClassName="!text-yellow-600"
-              className="pointer-events-none"
-              tabIndex={-1}
-            />
+            <div className="flex items-center gap-4">
+              <MasaiChips
+                label="Optional session"
+                size="regular"
+                backgroundClassName="bg-yellow-50 border border-yellow-100"
+                textClassName="!text-yellow-600"
+                className="pointer-events-none"
+                tabIndex={-1}
+              />
+              {item.optionalAttendance ? (
+                <LectureOptionalAttendanceInfo
+                  attendance={item.optionalAttendance}
+                />
+              ) : null}
+            </div>
           ) : null}
           {item.type === 'lecture' && attendancePresentation ? (
             <LectureAttendanceInline {...attendancePresentation} />

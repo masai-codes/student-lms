@@ -33,6 +33,7 @@ const item = (over: Partial<DashboardScheduleItem> = {}): DashboardScheduleItem 
   isOptional: 'mandatory',
   moduleName: 'Module 1',
   attendance: null,
+  optionalAttendance: null,
   assignmentProgressStatus: null,
   resourcePhase: null,
   listingCtas: { joinLive: 'active', joinZoomLink: null, isNewZoomRedirection: false, showAttendance: false, assignmentStatusChip: null, assignmentDeadlineLabel: null, assignmentScore: null },

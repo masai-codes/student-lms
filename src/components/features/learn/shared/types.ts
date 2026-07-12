@@ -22,6 +22,8 @@ export interface LearnContentItem {
   priority: LearnPriority
   tags: Array<string>
   attendance: LectureAttendanceSummary | null
+  /** Present for optional (recommended) lectures only; powers the info tooltip. */
+  optionalAttendance: LectureAttendanceSummary | null
   assignmentProgressStatus: AssignmentProgressStatus | null
   resourcePhase: ResourcePhase | null
   listingCtas: LearnListingCardCtas

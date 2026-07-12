@@ -24,12 +24,15 @@ type LectureRecordingExperienceProps = {
   hostName: string
   hostAvatarUrl: string | null
   scheduleDisplayRange: string
+  scheduleDisplayRangeIst?: string
   entityId: number
   discussions: Array<DiscussionListItem>
   hideNotes: boolean
   tabs: LectureDetailTabContent
   videoAttendance: LectureVideoAttendanceState | null
   attendance: LectureAttendanceSummary | null
+  /** Set only for optional (recommended) lectures; renders the info tooltip. */
+  optionalAttendance?: LectureAttendanceSummary | null
   isBookmarked: boolean
   feedback: LectureFeedbackState
 }
@@ -45,12 +48,14 @@ export function LectureRecordingExperience({
   hostName,
   hostAvatarUrl,
   scheduleDisplayRange,
+  scheduleDisplayRangeIst,
   entityId,
   discussions,
   hideNotes,
   tabs,
   videoAttendance,
   attendance,
+  optionalAttendance,
   isBookmarked,
   feedback,
 }: LectureRecordingExperienceProps) {
@@ -115,7 +120,9 @@ export function LectureRecordingExperience({
       hostName={hostName}
       hostAvatarUrl={hostAvatarUrl}
       scheduleDisplayRange={scheduleDisplayRange}
+      scheduleDisplayRangeIst={scheduleDisplayRangeIst}
       attendance={attendance}
+      optionalAttendance={optionalAttendance}
       watchPercentage={videoAttendance?.watchPercentage}
       actions={
         <LectureDetailActions

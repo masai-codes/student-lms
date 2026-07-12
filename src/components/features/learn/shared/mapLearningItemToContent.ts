@@ -24,6 +24,7 @@ export function mapLearningItemToContent(item: LearningItem): LearnContentItem {
     priority: item.isOptional,
     tags: [item.type, item.category, item.moduleName],
     attendance: item.attendance,
+    optionalAttendance: item.optionalAttendance,
     assignmentProgressStatus: item.assignmentProgressStatus,
     resourcePhase: item.resourcePhase,
     listingCtas: item.listingCtas,

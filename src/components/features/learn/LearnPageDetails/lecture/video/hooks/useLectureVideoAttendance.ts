@@ -20,6 +20,14 @@ function isHlsUrl(url: string): boolean {
   return url.includes('.m3u8')
 }
 
+/** A selectable HLS rendition, surfaced to the quality picker. */
+export type LectureVideoQualityLevel = {
+  /** Index into `hls.levels`; pass to `changeQuality`. */
+  index: number
+  height: number
+  bitrate: number
+}
+
 type UseLectureVideoAttendanceOptions = {
   lectureId: number
   src: string
@@ -40,6 +48,9 @@ export function useLectureVideoAttendance({
   const [totalDuration, setTotalDuration] = useState(0)
   const [isVideoPlaying, setIsVideoPlaying] = useState(false)
   const [playbackRate, setPlaybackRate] = useState(1)
+  const [qualityLevels, setQualityLevels] = useState<LectureVideoQualityLevel[]>([])
+  // Selected HLS rendition. -1 = Auto (hls.js adaptive bitrate).
+  const [currentQuality, setCurrentQuality] = useState(-1)
   const [playerReadyVersion, setPlayerReadyVersion] = useState(0)
   const [seekHint, setSeekHint] = useState<'forward' | 'backward' | null>(null)
   const [mergedAttendanceIntervals, setMergedAttendanceIntervals] = useState(
@@ -159,6 +170,8 @@ export function useLectureVideoAttendance({
 
   useEffect(() => {
     resumeAppliedRef.current = false
+    setQualityLevels([])
+    setCurrentQuality(-1)
     const hls = hlsRef.current
     if (hls) {
       hls.destroy()
@@ -308,6 +321,14 @@ export function useLectureVideoAttendance({
     [changeSpeed],
   )
 
+  const changeQuality = useCallback((levelIndex: number) => {
+    const hls = hlsRef.current
+    if (!hls) return
+    // -1 hands control back to hls.js adaptive bitrate (Auto).
+    hls.currentLevel = levelIndex
+    setCurrentQuality(levelIndex)
+  }, [])
+
   const handleReady = useCallback(() => {
     const player = videoRef.current
     const videoEl = player
@@ -322,6 +343,14 @@ export function useLectureVideoAttendance({
         hls.loadSource(src)
         hls.attachMedia(videoEl)
         hls.on(Hls.Events.MANIFEST_PARSED, () => {
+          setQualityLevels(
+            hls.levels.map((level, index) => ({
+              index,
+              height: level.height,
+              bitrate: level.bitrate,
+            })),
+          )
+          setCurrentQuality(hls.autoLevelEnabled ? -1 : hls.currentLevel)
           applyResumeIfNeeded({
             videoRef,
             resumeSeconds: resumeTargetSecondsRef.current,
@@ -332,6 +361,11 @@ export function useLectureVideoAttendance({
               maxPlayedSecondsRef.current = Math.max(maxPlayedSecondsRef.current, seconds)
             },
           })
+        })
+        // Keep the label in sync when ABR (Auto) switches rendition on its own.
+        hls.on(Hls.Events.LEVEL_SWITCHED, (_event, data) => {
+          if (hls.autoLevelEnabled) setCurrentQuality(-1)
+          else setCurrentQuality(data.level)
         })
       }
       setPlayerReadyVersion(version => version + 1)
@@ -393,6 +427,9 @@ export function useLectureVideoAttendance({
     totalDuration,
     isVideoPlaying,
     playbackRate,
+    qualityLevels,
+    currentQuality,
+    changeQuality,
     playerReadyVersion,
     seekHint,
     mergedAttendanceIntervals,

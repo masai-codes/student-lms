@@ -169,6 +169,9 @@ export function LectureReactPlayer({
           playerReadyVersion={attendance.playerReadyVersion}
           playbackRate={attendance.playbackRate}
           onPlaybackRateChange={attendance.handlePlayBackRateChange}
+          qualityLevels={attendance.qualityLevels}
+          currentQuality={attendance.currentQuality}
+          onQualityChange={attendance.changeQuality}
           transcriptAvailable={hasTranscript}
           captionsOn={captionsOn}
           onCaptionsToggle={() => setCaptionsOn(value => !value)}

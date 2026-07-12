@@ -53,6 +53,9 @@ async function fetchAttendanceForRows(
         concludes: row.concludes ?? null,
         optional: row.optional,
       })),
+    Date.now(),
+    // Include optional lectures so their status can populate the info tooltip.
+    true,
   )
 }
 

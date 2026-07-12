@@ -97,6 +97,12 @@ export interface LearningItem {
   moduleName: string
   /** Present for mandatory lectures only; null for assignments/resources/optional lectures. */
   attendance: LectureAttendanceSummary | null
+  /**
+   * Present for optional (recommended) lectures only; null otherwise. Powers the
+   * optional-session info tooltip on the card — optional lectures never show the
+   * regular attendance badge, so this is the only place their status surfaces.
+   */
+  optionalAttendance: LectureAttendanceSummary | null
   /** Present for assignments only. */
   assignmentProgressStatus: AssignmentProgressStatus | null
   /** Present for resources only. */

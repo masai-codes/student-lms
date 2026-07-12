@@ -1,5 +1,6 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 import {
+  formatLectureRangeIST,
   formatLectureRangeLocal,
   formatScheduleRangeIST,
   formatScheduleRangeLocal,
@@ -58,6 +59,30 @@ describe('formatScheduleRangeLocal', () => {
 
   it('returns empty string for a missing start', () => {
     expect(formatScheduleRangeLocal(null, null)).toBe('')
+  })
+})
+
+describe('formatLectureRangeIST', () => {
+  it('keeps the year and shows an IST label with a same-day time range', () => {
+    expect(formatLectureRangeIST('2026-05-10 15:30:00', '2026-05-10 17:30:00')).toBe(
+      '10 May 2026, 3:30 PM - 5:30 PM (IST)',
+    )
+  })
+
+  it('includes both dates for a cross-day range', () => {
+    expect(formatLectureRangeIST('2026-05-10 23:00:00', '2026-05-11 01:00:00')).toBe(
+      '10 May 2026, 11PM - 11 May 2026, 1AM (IST)',
+    )
+  })
+
+  it('shows just the start when there is no end', () => {
+    expect(formatLectureRangeIST('2026-05-10 15:30:00', null)).toBe(
+      '10 May 2026, 3:30 PM (IST)',
+    )
+  })
+
+  it('returns empty string for a missing start', () => {
+    expect(formatLectureRangeIST(null, null)).toBe('')
   })
 })
 

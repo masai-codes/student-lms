@@ -47,6 +47,7 @@ describe('buildLectureDetailPayload', () => {
       { ...emptyTabs, notes: 'Lecture notes' },
       null,
       null,
+      null,
       { rating: null, text: null },
     )
 
@@ -87,6 +88,7 @@ describe('buildLectureDetailPayload', () => {
       emptyTabs,
       null,
       null,
+      null,
       { rating: null, text: null },
     )
 
@@ -118,6 +120,7 @@ describe('buildLectureDetailPayload', () => {
       emptyTabs,
       null,
       null,
+      null,
       { rating: null, text: null },
     )
 
@@ -144,6 +147,7 @@ describe('buildLectureDetailPayload', () => {
         },
         Date.now(),
         emptyTabs,
+        null,
         null,
         null,
         { rating: null, text: null },

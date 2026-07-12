@@ -25,6 +25,9 @@ function ToolbarHarness({
           isPlaying={false}
           playbackRate={1}
           onPlaybackRateChange={vi.fn()}
+          qualityLevels={[]}
+          currentQuality={-1}
+          onQualityChange={vi.fn()}
           fullscreenContainerRef={fullscreenContainerRef}
           onActivity={vi.fn()}
           transcriptAvailable={false}

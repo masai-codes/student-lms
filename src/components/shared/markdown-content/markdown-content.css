@@ -164,3 +164,80 @@
   padding: 8px 12px;
   border: 1px solid #e5e7eb;
 }
+
+/* Code blocks + inline code */
+.markdown-content pre {
+  padding: 16px;
+  background: #f6f8fa;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.markdown-content pre code {
+  padding: 0;
+  background: transparent;
+  border: 0;
+  overflow-wrap: normal;
+  word-break: normal;
+  white-space: pre;
+}
+
+.markdown-content :not(pre) > code {
+  padding: 2px 6px;
+  background: #f1f0f7;
+  border-radius: 4px;
+  font-size: 0.875em;
+  color: #24292e;
+}
+
+/* Syntax highlighting (highlight.js — GitHub light theme) */
+.markdown-content .hljs {
+  color: #24292e;
+  background: transparent;
+}
+.markdown-content .hljs-comment,
+.markdown-content .hljs-quote {
+  color: #6a737d;
+}
+.markdown-content .hljs-keyword,
+.markdown-content .hljs-selector-tag,
+.markdown-content .hljs-literal,
+.markdown-content .hljs-type {
+  color: #d73a49;
+}
+.markdown-content .hljs-string,
+.markdown-content .hljs-attr,
+.markdown-content .hljs-meta-string {
+  color: #032f62;
+}
+.markdown-content .hljs-number,
+.markdown-content .hljs-symbol,
+.markdown-content .hljs-bullet,
+.markdown-content .hljs-regexp {
+  color: #005cc5;
+}
+.markdown-content .hljs-title,
+.markdown-content .hljs-section,
+.markdown-content .hljs-name {
+  color: #6f42c1;
+}
+.markdown-content .hljs-attribute,
+.markdown-content .hljs-variable,
+.markdown-content .hljs-template-variable {
+  color: #e36209;
+}
+.markdown-content .hljs-built_in,
+.markdown-content .hljs-builtin-name {
+  color: #005cc5;
+}
+.markdown-content .hljs-meta {
+  color: #6a737d;
+}
+.markdown-content .hljs-emphasis {
+  font-style: italic;
+}
+.markdown-content .hljs-strong {
+  font-weight: 600;
+}

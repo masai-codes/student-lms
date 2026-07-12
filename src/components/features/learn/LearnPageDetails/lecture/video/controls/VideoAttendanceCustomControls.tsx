@@ -11,6 +11,7 @@ import {
 } from './lectureVideoChrome.constants'
 import {  clampTime } from './lectureVideoChrome.utils'
 import type {LectureChromePlayerRef} from './lectureVideoChrome.utils';
+import type { LectureVideoQualityLevel } from '../hooks/useLectureVideoAttendance'
 import type { WatchIntervalSegment } from '@/server/video-attendance/types'
 
 type VideoAttendanceCustomControlsProps = {
@@ -25,6 +26,9 @@ type VideoAttendanceCustomControlsProps = {
   playerReadyVersion: number
   playbackRate: number
   onPlaybackRateChange: (rate: number) => void
+  qualityLevels: Array<LectureVideoQualityLevel>
+  currentQuality: number
+  onQualityChange: (levelIndex: number) => void
   transcriptAvailable: boolean
   captionsOn: boolean
   onCaptionsToggle: () => void
@@ -43,6 +47,9 @@ export function VideoAttendanceCustomControls({
   playerReadyVersion,
   playbackRate,
   onPlaybackRateChange,
+  qualityLevels,
+  currentQuality,
+  onQualityChange,
   transcriptAvailable,
   captionsOn,
   onCaptionsToggle,
@@ -190,6 +197,9 @@ export function VideoAttendanceCustomControls({
         isPlaying={isPlaying}
         playbackRate={playbackRate}
         onPlaybackRateChange={onPlaybackRateChange}
+        qualityLevels={qualityLevels}
+        currentQuality={currentQuality}
+        onQualityChange={onQualityChange}
         fullscreenContainerRef={fullscreenContainerRef}
         onActivity={bumpChromeActivity}
         transcriptAvailable={transcriptAvailable}

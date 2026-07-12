@@ -3,6 +3,7 @@ import { and, eq, inArray, sql } from 'drizzle-orm'
 import { db } from '@/db'
 import { assignments, batches, submissions, users } from '@/db/schema'
 import { ApiError } from '@/server/api/http/apiError'
+import { getExperienceApiBaseUrl } from '@/server/api/http/experienceApiFetch'
 import { getIstNowSqlDatetime } from '@/server/time/istClock'
 
 /**
@@ -21,7 +22,9 @@ import { getIstNowSqlDatetime } from '@/server/time/istClock'
  *
  * Required env: ASSESS_PLATFORM_URL, ASSESS_PLATFORM_AUTH_TOKEN,
  * ASSESS_PLATFORM_SECRET_KEY, ASSESS_PLATFORM_CALLBACK_TOKEN,
- * ASSESS_LMS_CLIENT_ID, GQL_BASE_URL, FRONTEND_URL, IHUB_STUDENT_FRONTEND_URL.
+ * ASSESS_LMS_CLIENT_ID, EXPERIENCE_API_BASE_URL, FRONTEND_URL,
+ * IHUB_STUDENT_FRONTEND_URL. The callback base is EXPERIENCE_API_BASE_URL +
+ * "/graphql" (i.e. experience-api's GQL_BASE_URL).
  */
 
 const CASE2 = 'case2'
@@ -54,10 +57,12 @@ function requireAssessEnv(): {
   return { base, adminAuthToken, secretKey }
 }
 
+// experience-api's GQL_BASE_URL == EXPERIENCE_API_BASE_URL + "/graphql", and the
+// assessment callbacks (/lms-callback, /live-progress-callback, ...) hang off it.
 function callbackBaseUrl(): string {
-  const base = process.env.GQL_BASE_URL?.trim().replace(/\/$/, '')
-  if (!base) throw new ApiError(500, 'GQL_BASE_URL_NOT_CONFIGURED')
-  return base
+  const base = getExperienceApiBaseUrl()
+  if (!base) throw new ApiError(500, 'EXPERIENCE_API_NOT_CONFIGURED')
+  return `${base}/graphql`
 }
 
 function frontendUrlFor(batchDuration: string | null | undefined): string {

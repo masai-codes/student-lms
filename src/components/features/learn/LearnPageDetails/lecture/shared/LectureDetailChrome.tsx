@@ -17,7 +17,10 @@ type LectureDetailChromeProps = {
   hostName: string
   hostAvatarUrl: string | null
   scheduleDisplayRange: string
+  scheduleDisplayRangeIst?: string
   attendance: LectureAttendanceSummary | null
+  /** Set only for optional (recommended) lectures; renders the info tooltip. */
+  optionalAttendance?: LectureAttendanceSummary | null
   watchPercentage?: number | null
   /** Header CTAs (Raise Ticket + bookmark) rendered in the overview header. */
   actions?: ReactNode
@@ -33,7 +36,9 @@ export function LectureDetailChrome({
   hostName,
   hostAvatarUrl,
   scheduleDisplayRange,
+  scheduleDisplayRangeIst,
   attendance,
+  optionalAttendance,
   watchPercentage,
   actions,
   hero,
@@ -56,7 +61,9 @@ export function LectureDetailChrome({
             hostName={hostName}
             avatarUrl={hostAvatarUrl}
             dateRange={scheduleDisplayRange}
+            dateRangeIst={scheduleDisplayRangeIst}
             attendance={attendance}
+            optionalAttendance={optionalAttendance}
             watchPercentage={watchPercentage}
             actions={actions}
           />

@@ -257,6 +257,22 @@ export function formatLectureRangeLocal(
   return `${startLabel} - ${formatDate(endLocal, true)}, ${formatHour(endLocal)} (${tz})`
 }
 
+/** Same as {@link formatLectureRangeLocal} but always IST — for tooltips. */
+export function formatLectureRangeIST(
+  scheduleIST: string | null,
+  concludesIST: string | null | undefined,
+): string {
+  const start = parseMysqlDatetimeIST(scheduleIST)
+  if (!start) return ''
+  const end = concludesIST ? parseMysqlDatetimeIST(concludesIST) : null
+  const startLabel = `${formatDate(start, true)}, ${formatHour(start)}`
+  if (!end) return `${startLabel} (IST)`
+  if (start.isSame(end, 'day')) {
+    return `${startLabel} - ${formatHour(end)} (IST)`
+  }
+  return `${startLabel} - ${formatDate(end, true)}, ${formatHour(end)} (IST)`
+}
+
 // ── 3b. Single timestamps ────────────────────────────────────────────────────────
 
 /** Single timestamp in the viewer's local zone, e.g. "6 Jun, 9:54 AM (EDT)". */

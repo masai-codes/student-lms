@@ -25,6 +25,7 @@ import {
 } from './lectureVideoChrome.utils'
 import { LectureVideoAskAiPill } from './LectureVideoAskAiPill'
 import type { LectureChromePlayerRef } from './lectureVideoChrome.utils'
+import type { LectureVideoQualityLevel } from '../hooks/useLectureVideoAttendance'
 import { useLectureSplitChatOptional } from '../../hooks/LectureSplitChatContext'
 import { pushLearnEvent } from '@/components/features/learn/shared/learnAnalytics'
 
@@ -36,6 +37,9 @@ type LectureVideoControlsToolbarProps = {
   isPlaying: boolean
   playbackRate: number
   onPlaybackRateChange: (rate: number) => void
+  qualityLevels: Array<LectureVideoQualityLevel>
+  currentQuality: number
+  onQualityChange: (levelIndex: number) => void
   fullscreenContainerRef: React.RefObject<HTMLDivElement | null>
   onActivity: () => void
   /** Whether AI transcript segments exist to power on-video captions. */
@@ -52,6 +56,9 @@ export function LectureVideoControlsToolbar({
   isPlaying,
   playbackRate,
   onPlaybackRateChange,
+  qualityLevels,
+  currentQuality,
+  onQualityChange,
   fullscreenContainerRef,
   onActivity,
   transcriptAvailable,
@@ -280,7 +287,7 @@ export function LectureVideoControlsToolbar({
                 setOverflowMenuOpen(open => !open)
               }}
               className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md text-white hover:bg-white/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/40"
-              aria-label="More: volume and playback speed"
+              aria-label="More: volume, playback speed and quality"
             >
               <DotsThreeOutlineVertical className="h-6 w-6" weight="bold" />
             </button>
@@ -353,6 +360,32 @@ export function LectureVideoControlsToolbar({
                       ))}
                     </select>
                   </div>
+                  {qualityLevels.length > 0 ? (
+                    <div>
+                      <label
+                        htmlFor="lecture-video-quality"
+                        className="mb-2 block text-xs font-medium text-white/70"
+                      >
+                        Quality
+                      </label>
+                      <select
+                        id="lecture-video-quality"
+                        value={currentQuality}
+                        onChange={event => {
+                          onActivity()
+                          onQualityChange(Number(event.target.value))
+                        }}
+                        className="h-9 w-full cursor-pointer rounded-md border border-white/15 bg-black/50 px-2 text-sm text-white outline-none hover:bg-white/10 focus-visible:ring-2 focus-visible:ring-white/40"
+                      >
+                        <option value={-1}>Auto</option>
+                        {qualityLevels.map(level => (
+                          <option key={level.index} value={level.index}>
+                            {level.height}p
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  ) : null}
                 </div>
               </div>
             ) : null}
