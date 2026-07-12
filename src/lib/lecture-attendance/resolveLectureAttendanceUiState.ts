@@ -11,6 +11,7 @@ export function resolveLectureAttendanceUiState(
     notApplicable,
     hasStudentAttendanceEntry,
     isCatchupWindowOver,
+    videoPercentage,
     localWatchPercentage,
     daysRemaining,
   } = input
@@ -26,10 +27,11 @@ export function resolveLectureAttendanceUiState(
     return null
   }
 
+  const effectiveWatchPercentage = localWatchPercentage ?? videoPercentage
   const hasWatchProgressFromVideoApi =
-    localWatchPercentage != null &&
-    localWatchPercentage > 0 &&
-    localWatchPercentage < 100
+    effectiveWatchPercentage != null &&
+    effectiveWatchPercentage > 0 &&
+    effectiveWatchPercentage < 100
   const hasDaysRemaining = (daysRemaining ?? 0) > 0
 
   if (hasWatchProgressFromVideoApi && hasDaysRemaining) {
