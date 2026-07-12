@@ -99,12 +99,39 @@ describe('buildLectureDetailPayload', () => {
     expect(payload.hostAvatarUrl).toBe('/avatar.png')
   })
 
+  it('treats scrum lectures as the live kind', () => {
+    const payload = buildLectureDetailPayload(
+      core,
+      {
+        type: 'scrum',
+        schedule,
+        concludes,
+        zoomLink: 'https://zoom.example/j/2',
+        videos: null,
+        vimeoDownloadLinks: null,
+        vimeoPlayerEmbedUrl: null,
+        settings: null,
+        hostAvatarUrl: null,
+        notes: null,
+      },
+      new Date(schedule).getTime(),
+      emptyTabs,
+      null,
+      null,
+      { rating: null, text: null },
+    )
+
+    expect(payload.lectureKind).toBe('live')
+    expect(payload.livePhase).not.toBeNull()
+    expect(payload.videoPhase).toBeNull()
+  })
+
   it('throws for unsupported lecture types', () => {
     expect(() =>
       buildLectureDetailPayload(
         core,
         {
-          type: 'scrum',
+          type: 'recorded',
           schedule,
           concludes,
           zoomLink: null,
