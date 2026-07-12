@@ -59,7 +59,7 @@ export function buildAssignmentDetailPayload(
   footerInput: AssignmentDetailFooterInput,
   associatedItems: Array<LearnAssociatedListItem>,
   problems: Array<AssignmentProblemListItem>,
-): AssignmentDetailPayload {
+): Omit<AssignmentDetailPayload, 'isBookmarked'> {
   const assignmentKind = normalizeAssignmentKind(row.type)
   if (assignmentKind == null) {
     throw new Error('ASSIGNMENT_DETAIL_UNSUPPORTED_TYPE')

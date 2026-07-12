@@ -1,8 +1,8 @@
 'use client'
 
 import { AssociatedContentEntryCta } from '../../common/associated/AssociatedContentEntryCta'
-import { LearnDetailDefaultActions } from '../../common/actions'
 import { LearnEntityDetailLayout } from '../../common/layout/LearnEntityDetailLayout'
+import { AssignmentDetailActions } from './AssignmentDetailActions'
 import { AssignmentCompletedBanner } from './AssignmentCompletedBanner'
 import { AssignmentHeaderBadges } from './AssignmentHeaderBadges'
 import { AssignmentLiveAnalytics } from './AssignmentLiveAnalytics'
@@ -47,7 +47,12 @@ export function AssignmentDetailLayout({ detail, main }: AssignmentDetailLayoutP
           }
           discussionEntityKind="assignment"
           emptyStateContext="assignment"
-          headerActions={<LearnDetailDefaultActions ticketCategory="assignment" />}
+          headerActions={
+            <AssignmentDetailActions
+              assignmentId={detail.id}
+              initialIsBookmarked={detail.isBookmarked}
+            />
+          }
           overviewTrailingChips={<AssignmentHeaderBadges badges={detail.headerBadges} />}
           fullWidthBanner={
             <div className="flex flex-col gap-4">

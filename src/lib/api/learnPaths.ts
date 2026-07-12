@@ -10,6 +10,8 @@ export const LEARN_API = {
   lectureZoomRedirect: (lectureId: number) =>
     `/api/learn/lectures/${lectureId}/zoom-redirect`,
   assignment: (assignmentId: number) => `/api/learn/assignments/${assignmentId}`,
+  assignmentBookmark: (assignmentId: number) =>
+    `/api/learn/assignments/${assignmentId}/bookmark`,
   problem: (assignmentId: number, problemId: number) =>
     `/api/learn/assignments/${assignmentId}/problems/${problemId}`,
   resource: (resourceId: number) => `/api/learn/resources/${resourceId}`,

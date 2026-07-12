@@ -28,4 +28,5 @@ export type AssignmentDetailPayload = LearnHubDetailPayload & {
   liveAnalytics: AssignmentLiveAnalytics | null
   requiresPledge: boolean
   problems: Array<AssignmentProblemListItem>
+  isBookmarked: boolean
 }

@@ -4,10 +4,15 @@ import { requireSessionUserId } from '@/server/api/http/requireSessionUser'
 
 const hoisted = vi.hoisted(() => ({
   store: vi.fn(),
+  upgrade: vi.fn(),
 }))
 
 vi.mock('@/server/video-attendance/services/storeVideoProgress', () => ({
   storeVideoProgress: hoisted.store,
+}))
+// Mocked so the handler unit test does not pull in the DB layer (`@/db`).
+vi.mock('@/server/video-attendance/services/upgradeVideoAttendanceInline', () => ({
+  upgradeVideoAttendanceInline: hoisted.upgrade,
 }))
 vi.mock('@/server/api/http/requireSessionUser', () => ({
   requireSessionUserId: vi.fn(),
@@ -39,6 +44,7 @@ describe('storeLectureVideoProgress.handler', () => {
     vi.clearAllMocks()
     vi.mocked(requireSessionUserId).mockResolvedValue(7)
     hoisted.store.mockResolvedValue(true)
+    hoisted.upgrade.mockResolvedValue(undefined)
   })
 
   it('stores progress and returns ok: true', async () => {
@@ -53,6 +59,21 @@ describe('storeLectureVideoProgress.handler', () => {
       intervals: [{ start: 0, end: 30 }],
       sessionToken: undefined,
     })
+    // On a successful save it runs the inline absent -> present upgrade.
+    expect(hoisted.upgrade).toHaveBeenCalledWith({
+      lectureId: 572,
+      userId: 7,
+      totalDuration: 600,
+    })
+  })
+
+  it('skips the inline attendance upgrade when the upstream save fails', async () => {
+    const handle = await loadHandler()
+    hoisted.store.mockResolvedValueOnce(false)
+
+    await handle(request(validBody), '572')
+
+    expect(hoisted.upgrade).not.toHaveBeenCalled()
   })
 
   it('forwards an optional sessionToken', async () => {

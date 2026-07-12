@@ -17,6 +17,7 @@ import {
 import { buildAssignmentProblemListItems } from '@/server/learn/utils/buildAssignmentProblemListItems'
 import { buildLearnDetailPresentation } from '@/server/learn/utils/buildLearnDetailPresentation'
 import { getAllAssociatedEntities } from '@/server/learn/services/getAllAssociatedEntities.service'
+import { getLearnEntityBookmarkState } from '@/server/learn/services/learnEntityBookmark.service'
 import { ensureUserCanAccessLearnHubEntity } from '@/server/learn/utils/ensureLearnEntityAccess'
 import { resolveLearnDetailRestriction } from '@/server/restrictions/resolveLearnDetailRestriction'
 import { getBatchIdForSection } from '@/server/batches/getBatchIdsForSections'
@@ -76,8 +77,13 @@ export async function getAssignmentLearningDetailForUser(
     throw new Error('LEARN_DETAIL_NOT_FOUND')
   }
 
-  const [submissionRows, problemRows, discussions, associatedItems] =
-    await Promise.all([
+  const [
+    submissionRows,
+    problemRows,
+    discussions,
+    associatedItems,
+    isBookmarked,
+  ] = await Promise.all([
     db
       .select({
         id: submissions.id,
@@ -111,6 +117,7 @@ export async function getAssignmentLearningDetailForUser(
       sectionId: row.sectionId,
       entityData: row.data,
     }),
+    getLearnEntityBookmarkState(userId, 'assignment', assignmentId),
   ])
 
   const submissionRow = submissionRows.length > 0 ? submissionRows[0] : null
@@ -185,10 +192,11 @@ export async function getAssignmentLearningDetailForUser(
     // the attempt can't be started via the API either.
     return {
       ...payload,
+      isBookmarked,
       restriction,
       footer: { ...payload.footer, visible: false, actions: [] },
     }
   }
 
-  return { ...payload, restriction }
+  return { ...payload, isBookmarked, restriction }
 }

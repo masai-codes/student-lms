@@ -160,6 +160,7 @@ import { Route as ApiLearnDiscussionsDiscussionIdReadRouteImport } from './route
 import { Route as ApiLearnDiscussionsDiscussionIdFeedbackRouteImport } from './routes/api/learn/discussions/$discussionId/feedback'
 import { Route as ApiLearnDiscussionsDiscussionIdCloseRouteImport } from './routes/api/learn/discussions/$discussionId/close'
 import { Route as ApiLearnAssignmentsAssignmentIdSubmissionsRouteImport } from './routes/api/learn/assignments/$assignmentId/submissions'
+import { Route as ApiLearnAssignmentsAssignmentIdBookmarkRouteImport } from './routes/api/learn/assignments/$assignmentId/bookmark'
 import { Route as ApiLearnAssignmentsAssignmentIdAssessPlatformUrlRouteImport } from './routes/api/learn/assignments/$assignmentId/assess-platform-url'
 import { Route as ApiLearnAiTutorLectureIdTranscriptRouteImport } from './routes/api/learn/ai-tutor/$lectureId/transcript'
 import { Route as ApiLearnAiTutorLectureIdSessionRouteImport } from './routes/api/learn/ai-tutor/$lectureId/session'
@@ -1026,6 +1027,12 @@ const ApiLearnAssignmentsAssignmentIdSubmissionsRoute =
     path: '/submissions',
     getParentRoute: () => ApiLearnAssignmentsAssignmentIdRoute,
   } as any)
+const ApiLearnAssignmentsAssignmentIdBookmarkRoute =
+  ApiLearnAssignmentsAssignmentIdBookmarkRouteImport.update({
+    id: '/bookmark',
+    path: '/bookmark',
+    getParentRoute: () => ApiLearnAssignmentsAssignmentIdRoute,
+  } as any)
 const ApiLearnAssignmentsAssignmentIdAssessPlatformUrlRoute =
   ApiLearnAssignmentsAssignmentIdAssessPlatformUrlRouteImport.update({
     id: '/assess-platform-url',
@@ -1261,6 +1268,7 @@ export interface FileRoutesByFullPath {
   '/api/learn/ai-tutor/$lectureId/session': typeof ApiLearnAiTutorLectureIdSessionRoute
   '/api/learn/ai-tutor/$lectureId/transcript': typeof ApiLearnAiTutorLectureIdTranscriptRoute
   '/api/learn/assignments/$assignmentId/assess-platform-url': typeof ApiLearnAssignmentsAssignmentIdAssessPlatformUrlRoute
+  '/api/learn/assignments/$assignmentId/bookmark': typeof ApiLearnAssignmentsAssignmentIdBookmarkRoute
   '/api/learn/assignments/$assignmentId/submissions': typeof ApiLearnAssignmentsAssignmentIdSubmissionsRoute
   '/api/learn/discussions/$discussionId/close': typeof ApiLearnDiscussionsDiscussionIdCloseRoute
   '/api/learn/discussions/$discussionId/feedback': typeof ApiLearnDiscussionsDiscussionIdFeedbackRoute
@@ -1426,6 +1434,7 @@ export interface FileRoutesByTo {
   '/api/learn/ai-tutor/$lectureId/session': typeof ApiLearnAiTutorLectureIdSessionRoute
   '/api/learn/ai-tutor/$lectureId/transcript': typeof ApiLearnAiTutorLectureIdTranscriptRoute
   '/api/learn/assignments/$assignmentId/assess-platform-url': typeof ApiLearnAssignmentsAssignmentIdAssessPlatformUrlRoute
+  '/api/learn/assignments/$assignmentId/bookmark': typeof ApiLearnAssignmentsAssignmentIdBookmarkRoute
   '/api/learn/assignments/$assignmentId/submissions': typeof ApiLearnAssignmentsAssignmentIdSubmissionsRoute
   '/api/learn/discussions/$discussionId/close': typeof ApiLearnDiscussionsDiscussionIdCloseRoute
   '/api/learn/discussions/$discussionId/feedback': typeof ApiLearnDiscussionsDiscussionIdFeedbackRoute
@@ -1594,6 +1603,7 @@ export interface FileRoutesById {
   '/api/learn/ai-tutor/$lectureId/session': typeof ApiLearnAiTutorLectureIdSessionRoute
   '/api/learn/ai-tutor/$lectureId/transcript': typeof ApiLearnAiTutorLectureIdTranscriptRoute
   '/api/learn/assignments/$assignmentId/assess-platform-url': typeof ApiLearnAssignmentsAssignmentIdAssessPlatformUrlRoute
+  '/api/learn/assignments/$assignmentId/bookmark': typeof ApiLearnAssignmentsAssignmentIdBookmarkRoute
   '/api/learn/assignments/$assignmentId/submissions': typeof ApiLearnAssignmentsAssignmentIdSubmissionsRoute
   '/api/learn/discussions/$discussionId/close': typeof ApiLearnDiscussionsDiscussionIdCloseRoute
   '/api/learn/discussions/$discussionId/feedback': typeof ApiLearnDiscussionsDiscussionIdFeedbackRoute
@@ -1762,6 +1772,7 @@ export interface FileRouteTypes {
     | '/api/learn/ai-tutor/$lectureId/session'
     | '/api/learn/ai-tutor/$lectureId/transcript'
     | '/api/learn/assignments/$assignmentId/assess-platform-url'
+    | '/api/learn/assignments/$assignmentId/bookmark'
     | '/api/learn/assignments/$assignmentId/submissions'
     | '/api/learn/discussions/$discussionId/close'
     | '/api/learn/discussions/$discussionId/feedback'
@@ -1927,6 +1938,7 @@ export interface FileRouteTypes {
     | '/api/learn/ai-tutor/$lectureId/session'
     | '/api/learn/ai-tutor/$lectureId/transcript'
     | '/api/learn/assignments/$assignmentId/assess-platform-url'
+    | '/api/learn/assignments/$assignmentId/bookmark'
     | '/api/learn/assignments/$assignmentId/submissions'
     | '/api/learn/discussions/$discussionId/close'
     | '/api/learn/discussions/$discussionId/feedback'
@@ -2094,6 +2106,7 @@ export interface FileRouteTypes {
     | '/api/learn/ai-tutor/$lectureId/session'
     | '/api/learn/ai-tutor/$lectureId/transcript'
     | '/api/learn/assignments/$assignmentId/assess-platform-url'
+    | '/api/learn/assignments/$assignmentId/bookmark'
     | '/api/learn/assignments/$assignmentId/submissions'
     | '/api/learn/discussions/$discussionId/close'
     | '/api/learn/discussions/$discussionId/feedback'
@@ -3288,6 +3301,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiLearnAssignmentsAssignmentIdSubmissionsRouteImport
       parentRoute: typeof ApiLearnAssignmentsAssignmentIdRoute
     }
+    '/api/learn/assignments/$assignmentId/bookmark': {
+      id: '/api/learn/assignments/$assignmentId/bookmark'
+      path: '/bookmark'
+      fullPath: '/api/learn/assignments/$assignmentId/bookmark'
+      preLoaderRoute: typeof ApiLearnAssignmentsAssignmentIdBookmarkRouteImport
+      parentRoute: typeof ApiLearnAssignmentsAssignmentIdRoute
+    }
     '/api/learn/assignments/$assignmentId/assess-platform-url': {
       id: '/api/learn/assignments/$assignmentId/assess-platform-url'
       path: '/assess-platform-url'
@@ -3580,6 +3600,7 @@ const ApiAiTutorChatFeedbackRouteWithChildren =
 
 interface ApiLearnAssignmentsAssignmentIdRouteChildren {
   ApiLearnAssignmentsAssignmentIdAssessPlatformUrlRoute: typeof ApiLearnAssignmentsAssignmentIdAssessPlatformUrlRoute
+  ApiLearnAssignmentsAssignmentIdBookmarkRoute: typeof ApiLearnAssignmentsAssignmentIdBookmarkRoute
   ApiLearnAssignmentsAssignmentIdSubmissionsRoute: typeof ApiLearnAssignmentsAssignmentIdSubmissionsRoute
   ApiLearnAssignmentsAssignmentIdProblemsProblemIdRoute: typeof ApiLearnAssignmentsAssignmentIdProblemsProblemIdRoute
 }
@@ -3588,6 +3609,8 @@ const ApiLearnAssignmentsAssignmentIdRouteChildren: ApiLearnAssignmentsAssignmen
   {
     ApiLearnAssignmentsAssignmentIdAssessPlatformUrlRoute:
       ApiLearnAssignmentsAssignmentIdAssessPlatformUrlRoute,
+    ApiLearnAssignmentsAssignmentIdBookmarkRoute:
+      ApiLearnAssignmentsAssignmentIdBookmarkRoute,
     ApiLearnAssignmentsAssignmentIdSubmissionsRoute:
       ApiLearnAssignmentsAssignmentIdSubmissionsRoute,
     ApiLearnAssignmentsAssignmentIdProblemsProblemIdRoute:

@@ -28,6 +28,7 @@ const baseDetail = {
   liveAnalytics: null,
   requiresPledge: false,
   problems: [],
+  isBookmarked: false,
 } satisfies Omit<AssignmentDetailPayload, 'footer'>
 
 describe('AssignmentDetailStickyFooter', () => {
