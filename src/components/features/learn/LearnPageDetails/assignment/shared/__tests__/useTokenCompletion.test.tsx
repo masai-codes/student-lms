@@ -7,11 +7,17 @@ import {
   useTokenCompletion,
 } from '../useTokenCompletion'
 
-const hoisted = vi.hoisted(() => ({
-  markSubmissionCompletedWithToken: vi.fn(),
-  invalidate: vi.fn(),
-  search: {} as Record<string, unknown>,
-}))
+const hoisted = vi.hoisted(
+  (): {
+    markSubmissionCompletedWithToken: ReturnType<typeof vi.fn>
+    invalidate: ReturnType<typeof vi.fn>
+    search: Record<string, unknown>
+  } => ({
+    markSubmissionCompletedWithToken: vi.fn(),
+    invalidate: vi.fn(),
+    search: {},
+  }),
+)
 
 vi.mock('@tanstack/react-router', () => ({
   useRouter: () => ({ invalidate: hoisted.invalidate }),
