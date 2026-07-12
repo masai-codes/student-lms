@@ -70,10 +70,10 @@ Last updated: 2026-07-09
 - Notes: See `docs/testing/features/lecture-detail.md`, `docs/testing/features/lecture-video-player.md`
 
 ## Learn hub (new-discussions)
-- Area: Server + learn detail integration for entity-scoped discussions (non-admin)
-- Status: Partial (unit coverage for helpers; integration tests for Drizzle list/create/reply not added yet)
-- Test files: `src/server/new-discussions/**/__tests__/*.test.ts`
-- Notes: UI lives under `src/components/features/new-discussions/`. Legacy `discussions` module and course discussion routes removed.
+- Area: Server + learn detail integration for entity-scoped discussions (non-admin), plus the shared detail-page list UI (`LectureDiscussionsSection`) with search, "My Discussions" toggle, 10-per-page pagination, and Ongoing/Closed tags across lecture/assignment/resource detail
+- Status: Partial (unit coverage for helpers + list controls/toolbar/pagination/tags UI; integration tests for Drizzle list/create/reply not added yet)
+- Test files: `src/server/new-discussions/**/__tests__/*.test.ts`, `src/components/features/learn/LearnPageDetails/lecture/discussions/**/__tests__/*`, `src/components/features/new-discussions/__tests__/DiscussionSummaryCard.test.tsx`
+- Notes: Filtering/search/pagination are client-side over the discussion list already embedded in the detail payload (no new list endpoint); search matches title or message preview; `Ongoing`/`Closed` tag derives from `isClosed`. Legacy `discussions` module and course discussion routes removed.
 
 ## Masaiverse
 - Area: Server APIs (all endpoints)

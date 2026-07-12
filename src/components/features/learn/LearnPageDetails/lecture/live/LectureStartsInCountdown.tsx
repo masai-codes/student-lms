@@ -107,7 +107,9 @@ export function LectureStartsInCountdown({ schedule }: LectureStartsInCountdownP
     }
   }, [remainingMs, router])
 
-  if (remainingMs == null) return null
+  // Nothing to count down to, or the start time has arrived — the lecture is
+  // now live, so the timer has served its purpose and hides itself.
+  if (remainingMs == null || remainingMs <= 0) return null
 
   const units = splitDuration(remainingMs)
   const isImminent = remainingMs <= UNLOCK_LEAD_MS

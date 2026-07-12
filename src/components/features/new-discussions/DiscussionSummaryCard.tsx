@@ -32,10 +32,20 @@ export function DiscussionSummaryCard({
           {discussion.title}
         </h3>
         {discussion.isClosed ? (
-          <span className="shrink-0 rounded-full bg-gray-100 px-2 py-0.5 text-xs text-gray-600">
+          <span
+            data-testid="discussion-status-closed"
+            className="shrink-0 rounded-full bg-gray-100 px-2 py-0.5 text-xs text-gray-600"
+          >
             Closed
           </span>
-        ) : null}
+        ) : (
+          <span
+            data-testid="discussion-status-ongoing"
+            className="shrink-0 rounded-full bg-green-50 px-2 py-0.5 text-xs text-green-700"
+          >
+            Ongoing
+          </span>
+        )}
       </div>
       <p className="type-caption-regular mt-1 line-clamp-3 text-muted-foreground">{discussion.messagePreview}</p>
       <DiscussionIstTimestamp value={discussion.createdAt} className="mt-2" />
