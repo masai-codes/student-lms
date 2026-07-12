@@ -150,37 +150,42 @@ export function LearnContentCard({
               </div>
             ) : (
               <>
-                <p className="mt-[4px] type-t1 flex flex-wrap items-center gap-x-2 gap-y-1">
-                  <span className="min-w-0">{item.hostName}</span>
-                  <span
-                    className="size-1 shrink-0 rounded-full bg-gray-600"
-                    aria-hidden
-                  />
-                  <LocalTimeWithIstTooltip
-                    local={item.date}
-                    ist={item.dateTooltip}
-                  />
-                </p>
-                <div className="flex flex-wrap gap-2 mt-[8px]">
-                  {item.tags.map((tag, index) => (
+                {/* Keep host+time and tags stacked on mobile, but sit them
+                    side-by-side from `md` up so the card is 2 rows on desktop
+                    instead of 3. */}
+                <div className="mt-[4px] flex flex-col gap-2 md:flex-row md:items-center">
+                  <p className="type-t1 flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
+                    <span className="min-w-0">{item.hostName}</span>
+                    <span
+                      className="size-1 shrink-0 rounded-full bg-gray-600"
+                      aria-hidden
+                    />
+                    <LocalTimeWithIstTooltip
+                      local={item.date}
+                      ist={item.dateTooltip}
+                    />
+                  </p>
+                  <div className="flex flex-wrap items-center gap-2">
+                    {item.tags.map((tag, index) => (
+                      <MasaiChips
+                        key={`${tag}-${index}`}
+                        type="default"
+                        size="regular"
+                        label={tag}
+                        tabIndex={-1}
+                        className="cursor-default"
+                        {...learnContentTagChipPalette}
+                      />
+                    ))}
                     <MasaiChips
-                      key={`${tag}-${index}`}
                       type="default"
                       size="regular"
-                      label={tag}
+                      label={item.priority}
                       tabIndex={-1}
                       className="cursor-default"
                       {...learnContentTagChipPalette}
                     />
-                  ))}
-                  <MasaiChips
-                    type="default"
-                    size="regular"
-                    label={item.priority}
-                    tabIndex={-1}
-                    className="cursor-default"
-                    {...learnContentTagChipPalette}
-                  />
+                  </div>
                 </div>
               </>
             )}
