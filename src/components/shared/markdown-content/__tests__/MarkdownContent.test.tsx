@@ -38,6 +38,20 @@ describe('MarkdownContent', () => {
     expect(link.getAttribute('rel')).toBe('noopener noreferrer')
   })
 
+  it('applies a variant modifier class so detail/card styling can diverge', () => {
+    const { container: detail } = render(
+      <MarkdownContent value="Body" variant="detail" />,
+    )
+    expect(
+      detail.querySelector('.markdown-content')?.classList.contains('markdown-content--detail'),
+    ).toBe(true)
+
+    const { container: card } = render(<MarkdownContent value="Body" variant="card" />)
+    expect(
+      card.querySelector('.markdown-content')?.classList.contains('markdown-content--card'),
+    ).toBe(true)
+  })
+
   it('renders bullet lists with disc styling', () => {
     const { container } = render(
       <MarkdownContent value={'- First item\n- Second item'} variant="detail" />,

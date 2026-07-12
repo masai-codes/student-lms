@@ -241,3 +241,65 @@
 .markdown-content .hljs-strong {
   font-weight: 600;
 }
+
+/*
+ * Detail variant — full-body content (assignment instructions, problem
+ * statements, resource/lecture bodies). Matches the legacy LMS `MarkDownPreview`
+ * (@uiw/react-md-editor's GitHub-flavored `wmde-markdown`): 16px base, roomy
+ * line-height, GitHub-blue links, and larger em-scaled headings. Kept scoped to
+ * `--detail` so compact card previews stay at the smaller base. Placed last so
+ * these rules win over the shared `.markdown-content` defaults by source order.
+ */
+.markdown-content--detail {
+  font-size: 16px;
+  line-height: 1.6;
+  color: #24292f;
+}
+
+.markdown-content--detail p,
+.markdown-content--detail li,
+.markdown-content--detail li > p,
+.markdown-content--detail blockquote {
+  line-height: 1.6;
+}
+
+/* GitHub-blue links, underlined only on hover (legacy wmde behaviour). */
+.markdown-content--detail a {
+  color: #0969da;
+  text-decoration: none;
+}
+
+.markdown-content--detail a:hover {
+  color: #0550ae;
+  text-decoration: underline;
+}
+
+/* Em-scaled headings so they grow with the 16px base, mirroring GitHub. */
+.markdown-content--detail h1 {
+  font-size: 2em;
+  padding-bottom: 0.3em;
+  border-bottom: 1px solid #d8dee4;
+}
+
+.markdown-content--detail h2 {
+  font-size: 1.5em;
+  padding-bottom: 0.3em;
+  border-bottom: 1px solid #d8dee4;
+}
+
+.markdown-content--detail h3 {
+  font-size: 1.25em;
+}
+
+.markdown-content--detail h4 {
+  font-size: 1em;
+}
+
+.markdown-content--detail h5 {
+  font-size: 0.875em;
+}
+
+.markdown-content--detail h6 {
+  font-size: 0.85em;
+  color: #4b5563;
+}

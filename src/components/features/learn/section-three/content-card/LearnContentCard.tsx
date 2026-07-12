@@ -216,12 +216,7 @@ export function LearnContentCard({
         </div>
 
         <div
-          className={cn(
-            'flex shrink-0 flex-wrap items-center gap-2',
-            // Stacked below the title on associated cards → left-align instead
-            // of hugging the right edge.
-            isAssociatedCard ? 'justify-start' : 'justify-end',
-          )}
+          className="flex shrink-0 flex-wrap items-center justify-end gap-2"
           onClick={(event) => {
             event.preventDefault()
             event.stopPropagation()
@@ -252,7 +247,10 @@ export function LearnContentCard({
             </div>
           ) : null}
           {item.type === 'lecture' && attendancePresentation ? (
-            <LectureAttendanceInline {...attendancePresentation} />
+            <LectureAttendanceInline
+              {...attendancePresentation}
+              forceRow={isAssociatedCard}
+            />
           ) : null}
           {item.type === 'assignment' && item.assignmentDeadlineLabel ? (
             <span

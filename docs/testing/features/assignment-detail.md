@@ -2,7 +2,7 @@
 
 ## Scope
 
-- Server: assignment kind normalization (`practice` | `assignment` | `evaluation`), phase resolution (`before` | `during` | `after`), detail payload builder, progress status + sticky footer builder (submission, platform, settings), completed-details banner builder (auto-graded vs manual, timestamp clamped to `concludes`), header badges builder (deadline-enforced + evaluation weightage), live analytics builder (Assessment Platform progress, gated on launch), pledge gate (unlocked evaluation without a submission → integrity acknowledgement that creates the submission), problems list (non-deleted `assignment_problem` rows + per-problem `solutions.status`; footer hides when problems exist), access-controlled loader.
+- Server: assignment kind normalization (`practice` | `assignment` | `evaluation`), phase resolution (`before` | `during` | `after`), detail payload builder, progress status + sticky footer builder (submission, platform, settings), completed-details banner builder (auto-graded vs manual, timestamp clamped to `concludes`), header badges builder (deadline-enforced + evaluation weightage), live analytics builder (Assessment Platform progress, gated on launch), pledge modal (unlocked evaluation without a submission → a forced, non-dismissible integrity-acknowledgement overlay over the assignment content whose "Acknowledge & Confirm" creates the submission), problems list (non-deleted `assignment_problem` rows + per-problem `solutions.status`; footer hides when problems exist), access-controlled loader.
 - Client: parent `AssignmentDetailPage` routes by kind; each kind content component routes by phase; layout (`LearnDetailOverview` + optional full-width not-started banner + associated-content CTA/drawer + `LearnDetailBodyGrid` with main left / discussions right + server-driven sticky footer).
 
 ## Test files
@@ -20,7 +20,7 @@
 | Live analytics builder | `src/server/learn/utils/__tests__/buildAssignmentLiveAnalytics.test.ts` |
 | Live analytics UI | `src/components/features/learn/LearnPageDetails/assignment/shared/__tests__/AssignmentLiveAnalytics.test.tsx` |
 | Pledge requirement resolver | `src/server/learn/utils/__tests__/resolveAssignmentRequiresPledge.test.ts` |
-| Pledge gate UI | `src/components/features/learn/LearnPageDetails/assignment/shared/__tests__/AssignmentPledgeGate.test.tsx` |
+| Pledge modal UI | `src/components/features/learn/LearnPageDetails/assignment/shared/__tests__/AssignmentPledgeModal.test.tsx` |
 | Problems + solution-status queries | `src/server/learn/queries/__tests__/fetchAssignmentProblems.test.ts` |
 | Problem list item builder | `src/server/learn/utils/__tests__/buildAssignmentProblemListItems.test.ts` |
 | Problem list UI | `src/components/features/learn/LearnPageDetails/assignment/shared/__tests__/AssignmentProblemList.test.tsx` |
@@ -46,5 +46,5 @@ npm run typecheck
 - Confirm hero state, header meta, not-started banner (full width above main/discussions) when before schedule, instructions block, discussions panel, and sticky footer (status chip, score notice, start/continue/practice CTAs) for problem-less assessment assignments.
 - Confirm the completed-details banner appears in the main body once a submission is completed (auto-graded wording) or manually marked complete (`data.marked_completed_at` wording), and the displayed time never exceeds the deadline.
 - Confirm header badges (Deadline Enforced, weightage on evaluations) render in the meta row, and the Assessment Platform live-analytics widget renders with a working Refetch once the test is launched.
-- Confirm an unlocked evaluation with no submission shows the pledge gate; accepting + confirming creates the submission and reveals the normal evaluation content.
+- Confirm an unlocked evaluation with no submission shows the pledge modal over the assignment content; the modal cannot be dismissed (no close button / escape / outside-click), and accepting + confirming creates the submission and reveals the normal evaluation content.
 - Confirm assignments with problems render the Problems list (each card showing the per-problem solution status), hide the sticky footer, and link to the problem detail page (see `problem-detail.md`).

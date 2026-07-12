@@ -29,7 +29,7 @@ export function MarkdownContent({
   if (!value.trim()) return null
 
   return (
-    <div className={cn('markdown-content', className)}>
+    <div className={cn('markdown-content', `markdown-content--${variant}`, className)}>
       <ReactMarkdown
         remarkPlugins={[remarkGfm]}
         rehypePlugins={[

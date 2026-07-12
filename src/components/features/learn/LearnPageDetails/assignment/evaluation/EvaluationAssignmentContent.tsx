@@ -2,7 +2,7 @@
 
 import { AssignmentDetailLayout } from '../shared/AssignmentDetailLayout'
 import { AssignmentPhaseContent } from '../shared/AssignmentPhaseContent'
-import { AssignmentPledgeGate } from '../shared/AssignmentPledgeGate'
+import { AssignmentPledgeModal } from '../shared/AssignmentPledgeModal'
 import { DuringEvaluationAssignment } from './DuringEvaluationAssignment'
 
 import type { AssignmentDetailPayload } from '@/server/learn/assignmentDetailTypes'
@@ -12,9 +12,6 @@ type EvaluationAssignmentContentProps = {
 }
 
 function renderEvaluationMain(detail: AssignmentDetailPayload) {
-  if (detail.requiresPledge) {
-    return <AssignmentPledgeGate assignmentId={detail.id} />
-  }
   if (detail.phase === 'during') {
     return <DuringEvaluationAssignment content={detail.phaseContent} />
   }
@@ -23,6 +20,12 @@ function renderEvaluationMain(detail: AssignmentDetailPayload) {
 
 export function EvaluationAssignmentContent({ detail }: EvaluationAssignmentContentProps) {
   return (
-    <AssignmentDetailLayout detail={detail} main={renderEvaluationMain(detail)} />
+    <>
+      <AssignmentDetailLayout detail={detail} main={renderEvaluationMain(detail)} />
+      {/* The pledge is an overlay over the assignment content (not a content
+          replacement), matching the legacy LMS: confirming creates the
+          submission, after which requiresPledge flips false and it disappears. */}
+      {detail.requiresPledge ? <AssignmentPledgeModal assignmentId={detail.id} /> : null}
+    </>
   )
 }

@@ -17,6 +17,13 @@ import { OLD_STUDENT_UI_NAV_PATHS } from '@/constants/oldStudentUiNavPaths'
 import { getOldStudentUiUrlForPath } from '@/utils/authRedirect'
 import { isIHubPortal } from '@/utils/portal'
 
+/**
+ * Selects the fixed mobile tab bar. Keep in sync with the `data-app-mobile-tab-bar`
+ * attribute below; consumers use it to reserve bottom viewport space (the bar is
+ * `lg:hidden`, so it only reserves space on mobile/tablet).
+ */
+export const APP_MOBILE_TAB_BAR_SELECTOR = '[data-app-mobile-tab-bar]'
+
 function oldUiNavigate(path: string) {
   const url = getOldStudentUiUrlForPath(path)
   if (url) window.location.assign(url)

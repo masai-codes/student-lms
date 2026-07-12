@@ -11,6 +11,7 @@ import { useViewportBottomInset } from './useViewportBottomInset'
 import type { LearningItem } from '@/server/learn/types'
 import { cn } from '@/lib/utils'
 import { pushLearnEvent } from '@/components/features/learn/shared/learnAnalytics'
+import { APP_MOBILE_TAB_BAR_SELECTOR } from '@/components/features/layout/AppMobileTabBar'
 
 type AssociatedContentEntryCtaProps = {
   items: Array<LearningItem>
@@ -28,8 +29,12 @@ export function AssociatedContentEntryCta({
   reserveViewportBottomFrom,
 }: AssociatedContentEntryCtaProps) {
   const [drawerOpen, setDrawerOpen] = useState(false)
+  // Default to reserving the fixed mobile tab bar so the drawer's scroll area
+  // isn't hidden behind it; callers with taller fixed chrome (e.g. the
+  // assignment sticky footer) pass their own selector, which already spans the
+  // tab bar below it.
   const bottomInsetPx = useViewportBottomInset(
-    reserveViewportBottomFrom,
+    reserveViewportBottomFrom ?? APP_MOBILE_TAB_BAR_SELECTOR,
     drawerOpen,
   )
 
