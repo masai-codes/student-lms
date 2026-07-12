@@ -106,6 +106,15 @@ describe('getLectureLearningDetailForUser', () => {
           }),
         }),
       })
+      // lecturesAi select
+      .mockReturnValueOnce({
+        from: () => ({
+          where: () => ({
+            limit: () => Promise.resolve([]),
+          }),
+        }),
+      })
+      // lectureZoomChat select
       .mockReturnValueOnce({
         from: () => ({
           where: () => ({
@@ -142,9 +151,9 @@ describe('getLectureLearningDetailForUser', () => {
               Promise.resolve([
                 {
                   id: 1,
-                  title: 'Scrum',
+                  title: 'Unknown type',
                   category: 'coding',
-                  type: 'scrum',
+                  type: 'unknown',
                   optional: 0,
                   schedule: null,
                   concludes: null,
