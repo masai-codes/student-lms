@@ -28,10 +28,10 @@ Last updated: 2026-07-09
 
 
 ## Lecture attendance (learn listing + detail)
-- Area: `student_attendances` summaries on `GET /api/learn/batch-data` and `GET /api/learn/lectures/:id`; shared server utils + client UI state resolver
-- Status: Covered (unit tests for catch-up + UI mapping)
-- Test files: `src/server/attendance/**/__tests__/*`, `src/lib/lecture-attendance/**/__tests__/*`
-- Notes: Optional (recommended) lectures omit `attendance` on both APIs
+- Area: `student_attendances` summaries on `GET /api/learn/batch-data` and `GET /api/learn/lectures/:id`; shared server utils + client UI state resolver; blue attendance disclaimer banner on lecture detail (`resolveLectureAttendanceBanner` + `LectureAttendanceBanner`, rendered in `LectureDetailChrome`)
+- Status: Covered (unit tests for catch-up + UI mapping; banner rule table + view)
+- Test files: `src/server/attendance/**/__tests__/*`, `src/lib/lecture-attendance/**/__tests__/*`, `src/components/features/learn/attendance/__tests__/LectureAttendanceBanner.test.tsx`
+- Notes: Optional (recommended) lectures omit `attendance` on both APIs (so no banner); banner variants = `video-counts` (recording counts) vs `live-only`; hidden mid-watch when recording counts (progress bar shown instead). See `docs/testing/features/lecture-detail.md`
 
 ## Learn REST APIs (`/api/learn/*`)
 - Area: HTTP routes for the single learn-page endpoint + lecture/assignment/resource detail; client `learnApi.ts`; handlers + services split

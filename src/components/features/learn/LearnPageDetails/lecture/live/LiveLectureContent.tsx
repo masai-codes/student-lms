@@ -21,6 +21,7 @@ function renderLiveHero(detail: LectureDetailPayload) {
       return (
         <DuringLiveLecture
           lectureId={detail.id}
+          schedule={detail.schedule}
           zoomLink={detail.zoomLink}
           joinLiveButtonState={detail.joinLiveButtonState ?? 'hidden'}
           isNewZoomRedirection={detail.isNewZoomRedirection}

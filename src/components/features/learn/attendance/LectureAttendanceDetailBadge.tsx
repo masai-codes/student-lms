@@ -1,7 +1,8 @@
 import type { ReactNode } from 'react'
 
-import { LectureAttendanceStatusBadge } from './LectureAttendanceStatusBadge'
+import { LectureAttendanceInline } from './LectureAttendanceInline'
 
+import { formatCatchUpRemainingLabel } from '@/lib/lecture-attendance/formatCatchUpRemainingLabel'
 import type { LectureAttendanceSummary } from '@/server/attendance/types'
 import type { ListingAttendanceRender } from '@/lib/lecture-attendance/types'
 import {
@@ -52,19 +53,21 @@ function PresentTooltipContent({
 /** Absent hover: explains why the student was marked absent (mirrors old LMS). */
 function AbsentTooltipContent({
   attendance,
+  remainingText,
 }: {
   attendance: LectureAttendanceSummary
+  remainingText: string | null
 }) {
   const lateMins = attendance.lateByMinutes ?? 0
-  const daysRemaining = attendance.daysRemaining ?? 0
-  const isLateWithinWindow = lateMins > 0 && daysRemaining > 0
+  const isLateWithinWindow = lateMins > 0 && remainingText != null
 
   if (isLateWithinWindow) {
+    // Reuse the exact countdown label the card shows so both surfaces agree.
     return (
       <ul className="list-outside list-disc space-y-2 pl-3.5">
         <li>
           You have joined this session late by {lateMins} mins. Yet you can
-          claim attendance if you watch this lecture within {daysRemaining} days
+          claim attendance if you watch this lecture in time — {remainingText}
         </li>
         <li>
           You need to watch Entire Recording of this session to claim your
@@ -82,53 +85,47 @@ function AbsentTooltipContent({
   )
 }
 
-export function LectureAttendanceDetailBadge({
-  uiState,
-  daysRemaining,
-  remainingLabel,
-  showBadge = true,
-  attendance,
-}: LectureAttendanceDetailBadgeProps) {
-  if (uiState == null) {
-    return null
-  }
-
-  const showDays = daysRemaining != null && daysRemaining >= 0
-
-  let badge: ReactNode = showBadge ? (
-    <div className="min-w-0 shrink">
-      <LectureAttendanceStatusBadge state={uiState} />
-    </div>
-  ) : null
-
-  if (badge && uiState === 'present') {
-    badge = (
-      <Tooltip>
-        <TooltipTrigger asChild>{badge}</TooltipTrigger>
-        <TooltipContent className="max-w-xs">
-          <PresentTooltipContent attendance={attendance} />
-        </TooltipContent>
-      </Tooltip>
-    )
-  } else if (badge && uiState === 'absent') {
-    badge = (
-      <Tooltip>
-        <TooltipTrigger asChild>{badge}</TooltipTrigger>
-        <TooltipContent className="max-w-xs">
-          <AbsentTooltipContent attendance={attendance} />
-        </TooltipContent>
-      </Tooltip>
-    )
-  }
-
+function withTooltip(content: ReactNode, badge: ReactNode): ReactNode {
   return (
-    <div className="flex min-w-0 flex-col items-end gap-1 md:flex-row md:items-center md:gap-2">
-      {showDays ? (
-        <span className="type-t1 whitespace-nowrap text-gray-500">
-          {remainingLabel ?? `${daysRemaining} days remaining`}
-        </span>
-      ) : null}
-      {badge}
-    </div>
+    <Tooltip>
+      <TooltipTrigger asChild>{badge}</TooltipTrigger>
+      <TooltipContent className="max-w-xs">{content}</TooltipContent>
+    </Tooltip>
+  )
+}
+
+export function LectureAttendanceDetailBadge({
+  attendance,
+  ...render
+}: LectureAttendanceDetailBadgeProps) {
+  const remainingText = formatCatchUpRemainingLabel(
+    render.remainingLabel,
+    render.daysRemaining,
+  )
+
+  // Reuse LectureAttendanceInline for layout/label/badge; only wrap the badge
+  // with the detail-page hover tooltips here.
+  return (
+    <LectureAttendanceInline
+      {...render}
+      renderBadge={(badge) => {
+        if (render.uiState === 'present') {
+          return withTooltip(
+            <PresentTooltipContent attendance={attendance} />,
+            badge,
+          )
+        }
+        if (render.uiState === 'absent') {
+          return withTooltip(
+            <AbsentTooltipContent
+              attendance={attendance}
+              remainingText={remainingText}
+            />,
+            badge,
+          )
+        }
+        return badge
+      }}
+    />
   )
 }

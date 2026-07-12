@@ -3,7 +3,7 @@ import { and, eq, isNull, ne } from 'drizzle-orm'
 import type { LectureDetailPayload } from '@/server/learn/lectureDetailTypes'
 
 import { db } from '@/db'
-import { lectures, lecturesAi, users } from '@/db/schema'
+import { lectures, lecturesAi, lectureZoomChat, users } from '@/db/schema'
 import { DISCUSSION_ENTITY_LECTURE } from '@/server/new-discussions/discussionEntityTypes'
 import { listDiscussionsWithThreadsForLearnEntity } from '@/server/new-discussions/services/listDiscussionsWithThreadsForLearnEntity'
 import { fetchLectureAttendanceSummaries } from '@/server/attendance/services/fetchLectureAttendanceSummaries'
@@ -91,6 +91,7 @@ export async function getLectureLearningDetailForUser(
     core,
     discussions,
     aiRows,
+    zoomChatRows,
     associatedItems,
     videoAttendance,
     attendanceMap,
@@ -111,6 +112,11 @@ export async function getLectureLearningDetailForUser(
       })
       .from(lecturesAi)
       .where(eq(lecturesAi.lectureId, lectureId))
+      .limit(1),
+    db
+      .select({ finalChat: lectureZoomChat.finalChat })
+      .from(lectureZoomChat)
+      .where(eq(lectureZoomChat.lectureId, lectureId))
       .limit(1),
     getLectureAssociatedContent({
       lectureId,
@@ -137,6 +143,7 @@ export async function getLectureLearningDetailForUser(
 
   const tabs = buildLectureTabContent({
     notes: row.notes,
+    zoomChatFinalChat: zoomChatRows[0]?.finalChat ?? null,
     lecturesAi: aiRows[0] ?? null,
     associatedItems,
   })

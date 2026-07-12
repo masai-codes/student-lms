@@ -59,7 +59,7 @@ export function JoinLiveSessionCard({
     <div className="mx-auto flex w-full max-w-lg flex-col items-center gap-3 rounded-xl border border-border bg-background p-6 shadow-sm">
       <p className="type-b2-regular text-center text-gray-600">
         {isActive
-          ? 'Your live session is ready. Join using the button below.'
+          ? 'Your live session link is ready. Join using the button below.'
           : 'The join button will activate shortly before the session starts.'}
       </p>
       {isActive && isNewZoomRedirection ? (

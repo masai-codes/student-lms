@@ -3,8 +3,10 @@
 import { LectureDetailOverviewHeader } from '../meta'
 import type { ReactNode } from 'react'
 
+import { LectureAttendanceBanner } from '@/components/features/learn/attendance/LectureAttendanceBanner'
 import type { LectureAttendanceSummary } from '@/server/attendance/types'
 import type { LearningPriority } from '@/server/learn/types'
+import { resolveLectureAttendanceBanner } from '@/lib/lecture-attendance/resolveLectureAttendanceBanner'
 import { lectureDetailContentClasses } from '@/lib/layout'
 import { cn } from '@/lib/utils'
 
@@ -38,6 +40,7 @@ export function LectureDetailChrome({
   belowHero,
   footer,
 }: LectureDetailChromeProps) {
+  const attendanceBanner = resolveLectureAttendanceBanner(attendance, watchPercentage)
   return (
     <div className="w-full pb-12">
       <section className="flex w-full shrink-0 flex-col overflow-visible bg-white">
@@ -57,6 +60,9 @@ export function LectureDetailChrome({
             watchPercentage={watchPercentage}
             actions={actions}
           />
+          {attendanceBanner ? (
+            <LectureAttendanceBanner banner={attendanceBanner} />
+          ) : null}
           {belowHero}
         </div>
       </section>
