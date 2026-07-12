@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, type MouseEvent } from 'react'
+import { useEffect, useRef, useState, type MouseEvent } from 'react'
 import ReactPlayer from 'react-player/lazy'
 
 import { VideoAttendanceCustomControls } from './controls/VideoAttendanceCustomControls'
@@ -11,11 +11,15 @@ import { seekPlayerToSeconds } from './hooks/lectureVideoResume'
 import { useLectureVideoAttendance } from './hooks/useLectureVideoAttendance'
 import { useIsElementFullscreen } from './hooks/useLectureVideoFullscreen'
 import { VideoPlaybackOverlays } from './VideoPlaybackOverlays'
+import { LectureVideoCaptionOverlay } from './LectureVideoCaptionOverlay'
 import type { LectureChromePlayerRef } from './controls/lectureVideoChrome.utils'
 
 import './lectureReactPlayer.css'
 
-import type { LectureVideoAttendanceState } from '@/server/learn/lectureDetailTypes'
+import type {
+  LectureTranscriptSegment,
+  LectureVideoAttendanceState,
+} from '@/server/learn/lectureDetailTypes'
 import { LectureAiChatExperience } from '@/components/features/lecture-ai-chat/LectureAiChatExperience'
 import { cn } from '@/lib/utils'
 
@@ -23,6 +27,7 @@ type LectureReactPlayerProps = {
   lectureId: number
   src: string
   initialAttendance: LectureVideoAttendanceState | null
+  transcriptSegments?: Array<LectureTranscriptSegment>
   className?: string
 }
 
@@ -34,12 +39,21 @@ export function LectureReactPlayer({
   lectureId,
   src,
   initialAttendance,
+  transcriptSegments,
   className,
 }: LectureReactPlayerProps) {
   const fullscreenContainerRef = useRef<HTMLDivElement>(null)
   const videoRef = useRef<LectureChromePlayerRef>(null)
   const splitChat = useLectureSplitChatOptional()
   const isFullscreen = useIsElementFullscreen(fullscreenContainerRef)
+
+  const segments = transcriptSegments ?? []
+  const hasTranscript = segments.length > 0
+  const [captionsOn, setCaptionsOn] = useState(false)
+
+  useEffect(() => {
+    if (!hasTranscript) setCaptionsOn(false)
+  }, [hasTranscript])
 
   const attendance = useLectureVideoAttendance({
     lectureId,
@@ -134,6 +148,11 @@ export function LectureReactPlayer({
             onCenterPlay={attendance.toggleVideoPlayPause}
             seekHint={attendance.seekHint}
           />
+          <LectureVideoCaptionOverlay
+            segments={segments}
+            progressSeconds={attendance.progress}
+            visible={captionsOn && hasTranscript}
+          />
         </div>
         <VideoAttendanceCustomControls
           videoRef={videoRef}
@@ -150,6 +169,9 @@ export function LectureReactPlayer({
           playerReadyVersion={attendance.playerReadyVersion}
           playbackRate={attendance.playbackRate}
           onPlaybackRateChange={attendance.handlePlayBackRateChange}
+          transcriptAvailable={hasTranscript}
+          captionsOn={captionsOn}
+          onCaptionsToggle={() => setCaptionsOn(value => !value)}
         />
         {splitChat?.isOpen && isFullscreen ? (
           <div

@@ -2,6 +2,7 @@
 
 import {  useEffect, useRef, useState } from 'react'
 import {
+  ClosedCaptioning,
   CornersIn,
   CornersOut,
   DotsThreeOutlineVertical,
@@ -37,6 +38,10 @@ type LectureVideoControlsToolbarProps = {
   onPlaybackRateChange: (rate: number) => void
   fullscreenContainerRef: React.RefObject<HTMLDivElement | null>
   onActivity: () => void
+  /** Whether AI transcript segments exist to power on-video captions. */
+  transcriptAvailable: boolean
+  captionsOn: boolean
+  onCaptionsToggle: () => void
 }
 
 export function LectureVideoControlsToolbar({
@@ -49,6 +54,9 @@ export function LectureVideoControlsToolbar({
   onPlaybackRateChange,
   fullscreenContainerRef,
   onActivity,
+  transcriptAvailable,
+  captionsOn,
+  onCaptionsToggle,
 }: LectureVideoControlsToolbarProps) {
   const splitChat = useLectureSplitChatOptional()
   const overflowMenuRef = useRef<HTMLDivElement>(null)
@@ -219,6 +227,36 @@ export function LectureVideoControlsToolbar({
           {splitChat && !splitChat.isOpen ? (
             <LectureVideoAskAiPill onClick={openAssistant} />
           ) : null}
+          {transcriptAvailable ? (
+            <button
+              type="button"
+              onClick={() => {
+                onActivity()
+                onCaptionsToggle()
+              }}
+              aria-pressed={captionsOn}
+              aria-label={captionsOn ? 'Turn off captions' : 'Turn on captions'}
+              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md text-white hover:bg-white/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/40"
+            >
+              <ClosedCaptioning
+                className="h-6 w-6"
+                weight={captionsOn ? 'fill' : 'bold'}
+              />
+            </button>
+          ) : null}
+          <button
+            type="button"
+            onClick={toggleMute}
+            disabled={!volumeUiSupported}
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md text-white hover:bg-white/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/40 disabled:pointer-events-none disabled:opacity-40"
+            aria-label={mutedUi ? 'Unmute' : 'Mute'}
+          >
+            {mutedUi || volumeUi === 0 ? (
+              <SpeakerSlash className="h-6 w-6" weight="bold" />
+            ) : (
+              <SpeakerHigh className="h-6 w-6" weight="bold" />
+            )}
+          </button>
           <button
             type="button"
             onClick={toggleFullscreen}

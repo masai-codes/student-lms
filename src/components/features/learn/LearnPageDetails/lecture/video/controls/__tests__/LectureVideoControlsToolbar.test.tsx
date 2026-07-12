@@ -27,6 +27,9 @@ function ToolbarHarness({
           onPlaybackRateChange={vi.fn()}
           fullscreenContainerRef={fullscreenContainerRef}
           onActivity={vi.fn()}
+          transcriptAvailable={false}
+          captionsOn={false}
+          onCaptionsToggle={vi.fn()}
         />
       </div>
     </LectureSplitChatProvider>

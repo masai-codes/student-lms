@@ -61,6 +61,7 @@ export function LectureRecordingExperience({
       lectureId={entityId}
       videoUrl={videoUrl}
       initialAttendance={videoAttendance}
+      transcriptSegments={tabs.transcriptSegments}
       className="min-h-0 flex-1"
       fullBleed={false}
     />

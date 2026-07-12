@@ -25,6 +25,9 @@ type VideoAttendanceCustomControlsProps = {
   playerReadyVersion: number
   playbackRate: number
   onPlaybackRateChange: (rate: number) => void
+  transcriptAvailable: boolean
+  captionsOn: boolean
+  onCaptionsToggle: () => void
   className?: string
 }
 
@@ -40,6 +43,9 @@ export function VideoAttendanceCustomControls({
   playerReadyVersion,
   playbackRate,
   onPlaybackRateChange,
+  transcriptAvailable,
+  captionsOn,
+  onCaptionsToggle,
   className = '',
 }: VideoAttendanceCustomControlsProps) {
   const [scrubPreviewSeconds, setScrubPreviewSeconds] = useState<number | null>(null)
@@ -186,6 +192,9 @@ export function VideoAttendanceCustomControls({
         onPlaybackRateChange={onPlaybackRateChange}
         fullscreenContainerRef={fullscreenContainerRef}
         onActivity={bumpChromeActivity}
+        transcriptAvailable={transcriptAvailable}
+        captionsOn={captionsOn}
+        onCaptionsToggle={onCaptionsToggle}
       />
     </div>
   )
