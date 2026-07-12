@@ -52,7 +52,9 @@ export default function AppMobileTabBar() {
           />
         ),
         isActive: activeId === 'learn',
-        onClick: () => oldUiNavigate(OLD_STUDENT_UI_NAV_PATHS.learn),
+        onClick: () => {
+          void navigate({ to: '/learn', search: {} })
+        },
       },
       {
         id: 'support',

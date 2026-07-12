@@ -6,7 +6,7 @@ import type { ReactNode } from 'react'
 
 import type { LectureAttendanceSummary } from '@/server/attendance/types'
 import type { LearningPriority } from '@/server/learn/types'
-import { LectureAttendanceInline } from '@/components/features/learn/attendance/LectureAttendanceInline'
+import { LectureAttendanceDetailBadge } from '@/components/features/learn/attendance/LectureAttendanceDetailBadge'
 import { useListingAttendancePresentation } from '@/components/features/learn/attendance/useLectureAttendancePresentation'
 import { formatLearnDetailPriorityLabel } from '@/server/learn/utils/formatLearnDetailDisplay'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
@@ -66,9 +66,12 @@ export function LectureDetailOverviewHeader({
           <h1 className="type-h5 line-clamp-3 min-w-0 flex-1 text-gray-900 md:line-clamp-2">
             {title}
           </h1>
-          {showAttendance ? (
+          {showAttendance && attendance ? (
             <div className="shrink-0">
-              <LectureAttendanceInline {...attendancePresentation} />
+              <LectureAttendanceDetailBadge
+                {...attendancePresentation}
+                attendance={attendance}
+              />
             </div>
           ) : null}
         </div>

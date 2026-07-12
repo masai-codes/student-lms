@@ -23,6 +23,9 @@ describe('getListingAttendanceRender', () => {
         daysRemaining: 0,
         remainingLabel: null,
         lateByMinutes: null,
+      liveAttendanceStatus: 0,
+      videoAttendanceStatus: 0,
+      includeVideoAttendance: false,
       }),
     ).toEqual({
       uiState: 'att_window_over',
@@ -43,6 +46,9 @@ describe('getListingAttendanceRender', () => {
         daysRemaining: null,
         remainingLabel: null,
         lateByMinutes: null,
+      liveAttendanceStatus: 0,
+      videoAttendanceStatus: 0,
+      includeVideoAttendance: false,
       }),
     ).toEqual({
       uiState: 'present',

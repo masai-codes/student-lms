@@ -21,6 +21,8 @@ describe('buildLectureAttendanceSummary', () => {
         includeVideoAttendance: 1,
         catchUpDays: 5,
         lateByMinutes: null,
+        liveAttendanceStatus: 1,
+        videoAttendanceStatus: 1,
         meta: { notApplicable: false },
       },
       Date.now(),

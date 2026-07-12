@@ -52,6 +52,8 @@ export async function fetchLectureAttendanceSummaries(
         includeVideoAttendance: studentAttendances.includeVideoAttendance,
         catchUpDays: studentAttendances.catchUpDays,
         lateByMinutes: studentAttendances.lateByMinutes,
+        liveAttendanceStatus: studentAttendances.liveAttendanceStatus,
+        videoAttendanceStatus: studentAttendances.videoAttendanceStatus,
         meta: studentAttendances.meta,
       })
       .from(studentAttendances)
