@@ -1,5 +1,7 @@
 const MIN_CUTOFF_SECONDS = 30
-const MAX_CUTOFF_SECONDS = 300
+// Capped at 30s so progress saves at most every 30s of watch time regardless of
+// video length (min == max => a fixed 30s cadence).
+const MAX_CUTOFF_SECONDS = 30
 
 export function progressUpdateCutoffSeconds(totalDuration: number): number {
   const baseCutoffSeconds = totalDuration / 20

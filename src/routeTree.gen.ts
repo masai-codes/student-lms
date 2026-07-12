@@ -156,7 +156,12 @@ import { Route as ApiLearnLecturesLectureIdVideoProgressRouteImport } from './ro
 import { Route as ApiLearnLecturesLectureIdFeedbackRouteImport } from './routes/api/learn/lectures/$lectureId/feedback'
 import { Route as ApiLearnLecturesLectureIdBookmarkRouteImport } from './routes/api/learn/lectures/$lectureId/bookmark'
 import { Route as ApiLearnDiscussionsDiscussionIdRepliesRouteImport } from './routes/api/learn/discussions/$discussionId/replies'
+import { Route as ApiLearnDiscussionsDiscussionIdReadRouteImport } from './routes/api/learn/discussions/$discussionId/read'
+import { Route as ApiLearnDiscussionsDiscussionIdFeedbackRouteImport } from './routes/api/learn/discussions/$discussionId/feedback'
+import { Route as ApiLearnDiscussionsDiscussionIdCloseRouteImport } from './routes/api/learn/discussions/$discussionId/close'
 import { Route as ApiLearnAssignmentsAssignmentIdSubmissionsRouteImport } from './routes/api/learn/assignments/$assignmentId/submissions'
+import { Route as ApiLearnAssignmentsAssignmentIdMarkCompletedWithTokenRouteImport } from './routes/api/learn/assignments/$assignmentId/mark-completed-with-token'
+import { Route as ApiLearnAssignmentsAssignmentIdBookmarkRouteImport } from './routes/api/learn/assignments/$assignmentId/bookmark'
 import { Route as ApiLearnAssignmentsAssignmentIdAssessPlatformUrlRouteImport } from './routes/api/learn/assignments/$assignmentId/assess-platform-url'
 import { Route as ApiLearnAiTutorLectureIdTranscriptRouteImport } from './routes/api/learn/ai-tutor/$lectureId/transcript'
 import { Route as ApiLearnAiTutorLectureIdSessionRouteImport } from './routes/api/learn/ai-tutor/$lectureId/session'
@@ -999,10 +1004,40 @@ const ApiLearnDiscussionsDiscussionIdRepliesRoute =
     path: '/$discussionId/replies',
     getParentRoute: () => ApiLearnDiscussionsRoute,
   } as any)
+const ApiLearnDiscussionsDiscussionIdReadRoute =
+  ApiLearnDiscussionsDiscussionIdReadRouteImport.update({
+    id: '/$discussionId/read',
+    path: '/$discussionId/read',
+    getParentRoute: () => ApiLearnDiscussionsRoute,
+  } as any)
+const ApiLearnDiscussionsDiscussionIdFeedbackRoute =
+  ApiLearnDiscussionsDiscussionIdFeedbackRouteImport.update({
+    id: '/$discussionId/feedback',
+    path: '/$discussionId/feedback',
+    getParentRoute: () => ApiLearnDiscussionsRoute,
+  } as any)
+const ApiLearnDiscussionsDiscussionIdCloseRoute =
+  ApiLearnDiscussionsDiscussionIdCloseRouteImport.update({
+    id: '/$discussionId/close',
+    path: '/$discussionId/close',
+    getParentRoute: () => ApiLearnDiscussionsRoute,
+  } as any)
 const ApiLearnAssignmentsAssignmentIdSubmissionsRoute =
   ApiLearnAssignmentsAssignmentIdSubmissionsRouteImport.update({
     id: '/submissions',
     path: '/submissions',
+    getParentRoute: () => ApiLearnAssignmentsAssignmentIdRoute,
+  } as any)
+const ApiLearnAssignmentsAssignmentIdMarkCompletedWithTokenRoute =
+  ApiLearnAssignmentsAssignmentIdMarkCompletedWithTokenRouteImport.update({
+    id: '/mark-completed-with-token',
+    path: '/mark-completed-with-token',
+    getParentRoute: () => ApiLearnAssignmentsAssignmentIdRoute,
+  } as any)
+const ApiLearnAssignmentsAssignmentIdBookmarkRoute =
+  ApiLearnAssignmentsAssignmentIdBookmarkRouteImport.update({
+    id: '/bookmark',
+    path: '/bookmark',
     getParentRoute: () => ApiLearnAssignmentsAssignmentIdRoute,
   } as any)
 const ApiLearnAssignmentsAssignmentIdAssessPlatformUrlRoute =
@@ -1240,7 +1275,12 @@ export interface FileRoutesByFullPath {
   '/api/learn/ai-tutor/$lectureId/session': typeof ApiLearnAiTutorLectureIdSessionRoute
   '/api/learn/ai-tutor/$lectureId/transcript': typeof ApiLearnAiTutorLectureIdTranscriptRoute
   '/api/learn/assignments/$assignmentId/assess-platform-url': typeof ApiLearnAssignmentsAssignmentIdAssessPlatformUrlRoute
+  '/api/learn/assignments/$assignmentId/bookmark': typeof ApiLearnAssignmentsAssignmentIdBookmarkRoute
+  '/api/learn/assignments/$assignmentId/mark-completed-with-token': typeof ApiLearnAssignmentsAssignmentIdMarkCompletedWithTokenRoute
   '/api/learn/assignments/$assignmentId/submissions': typeof ApiLearnAssignmentsAssignmentIdSubmissionsRoute
+  '/api/learn/discussions/$discussionId/close': typeof ApiLearnDiscussionsDiscussionIdCloseRoute
+  '/api/learn/discussions/$discussionId/feedback': typeof ApiLearnDiscussionsDiscussionIdFeedbackRoute
+  '/api/learn/discussions/$discussionId/read': typeof ApiLearnDiscussionsDiscussionIdReadRoute
   '/api/learn/discussions/$discussionId/replies': typeof ApiLearnDiscussionsDiscussionIdRepliesRoute
   '/api/learn/lectures/$lectureId/bookmark': typeof ApiLearnLecturesLectureIdBookmarkRoute
   '/api/learn/lectures/$lectureId/feedback': typeof ApiLearnLecturesLectureIdFeedbackRoute
@@ -1402,7 +1442,12 @@ export interface FileRoutesByTo {
   '/api/learn/ai-tutor/$lectureId/session': typeof ApiLearnAiTutorLectureIdSessionRoute
   '/api/learn/ai-tutor/$lectureId/transcript': typeof ApiLearnAiTutorLectureIdTranscriptRoute
   '/api/learn/assignments/$assignmentId/assess-platform-url': typeof ApiLearnAssignmentsAssignmentIdAssessPlatformUrlRoute
+  '/api/learn/assignments/$assignmentId/bookmark': typeof ApiLearnAssignmentsAssignmentIdBookmarkRoute
+  '/api/learn/assignments/$assignmentId/mark-completed-with-token': typeof ApiLearnAssignmentsAssignmentIdMarkCompletedWithTokenRoute
   '/api/learn/assignments/$assignmentId/submissions': typeof ApiLearnAssignmentsAssignmentIdSubmissionsRoute
+  '/api/learn/discussions/$discussionId/close': typeof ApiLearnDiscussionsDiscussionIdCloseRoute
+  '/api/learn/discussions/$discussionId/feedback': typeof ApiLearnDiscussionsDiscussionIdFeedbackRoute
+  '/api/learn/discussions/$discussionId/read': typeof ApiLearnDiscussionsDiscussionIdReadRoute
   '/api/learn/discussions/$discussionId/replies': typeof ApiLearnDiscussionsDiscussionIdRepliesRoute
   '/api/learn/lectures/$lectureId/bookmark': typeof ApiLearnLecturesLectureIdBookmarkRoute
   '/api/learn/lectures/$lectureId/feedback': typeof ApiLearnLecturesLectureIdFeedbackRoute
@@ -1567,7 +1612,12 @@ export interface FileRoutesById {
   '/api/learn/ai-tutor/$lectureId/session': typeof ApiLearnAiTutorLectureIdSessionRoute
   '/api/learn/ai-tutor/$lectureId/transcript': typeof ApiLearnAiTutorLectureIdTranscriptRoute
   '/api/learn/assignments/$assignmentId/assess-platform-url': typeof ApiLearnAssignmentsAssignmentIdAssessPlatformUrlRoute
+  '/api/learn/assignments/$assignmentId/bookmark': typeof ApiLearnAssignmentsAssignmentIdBookmarkRoute
+  '/api/learn/assignments/$assignmentId/mark-completed-with-token': typeof ApiLearnAssignmentsAssignmentIdMarkCompletedWithTokenRoute
   '/api/learn/assignments/$assignmentId/submissions': typeof ApiLearnAssignmentsAssignmentIdSubmissionsRoute
+  '/api/learn/discussions/$discussionId/close': typeof ApiLearnDiscussionsDiscussionIdCloseRoute
+  '/api/learn/discussions/$discussionId/feedback': typeof ApiLearnDiscussionsDiscussionIdFeedbackRoute
+  '/api/learn/discussions/$discussionId/read': typeof ApiLearnDiscussionsDiscussionIdReadRoute
   '/api/learn/discussions/$discussionId/replies': typeof ApiLearnDiscussionsDiscussionIdRepliesRoute
   '/api/learn/lectures/$lectureId/bookmark': typeof ApiLearnLecturesLectureIdBookmarkRoute
   '/api/learn/lectures/$lectureId/feedback': typeof ApiLearnLecturesLectureIdFeedbackRoute
@@ -1732,7 +1782,12 @@ export interface FileRouteTypes {
     | '/api/learn/ai-tutor/$lectureId/session'
     | '/api/learn/ai-tutor/$lectureId/transcript'
     | '/api/learn/assignments/$assignmentId/assess-platform-url'
+    | '/api/learn/assignments/$assignmentId/bookmark'
+    | '/api/learn/assignments/$assignmentId/mark-completed-with-token'
     | '/api/learn/assignments/$assignmentId/submissions'
+    | '/api/learn/discussions/$discussionId/close'
+    | '/api/learn/discussions/$discussionId/feedback'
+    | '/api/learn/discussions/$discussionId/read'
     | '/api/learn/discussions/$discussionId/replies'
     | '/api/learn/lectures/$lectureId/bookmark'
     | '/api/learn/lectures/$lectureId/feedback'
@@ -1894,7 +1949,12 @@ export interface FileRouteTypes {
     | '/api/learn/ai-tutor/$lectureId/session'
     | '/api/learn/ai-tutor/$lectureId/transcript'
     | '/api/learn/assignments/$assignmentId/assess-platform-url'
+    | '/api/learn/assignments/$assignmentId/bookmark'
+    | '/api/learn/assignments/$assignmentId/mark-completed-with-token'
     | '/api/learn/assignments/$assignmentId/submissions'
+    | '/api/learn/discussions/$discussionId/close'
+    | '/api/learn/discussions/$discussionId/feedback'
+    | '/api/learn/discussions/$discussionId/read'
     | '/api/learn/discussions/$discussionId/replies'
     | '/api/learn/lectures/$lectureId/bookmark'
     | '/api/learn/lectures/$lectureId/feedback'
@@ -2058,7 +2118,12 @@ export interface FileRouteTypes {
     | '/api/learn/ai-tutor/$lectureId/session'
     | '/api/learn/ai-tutor/$lectureId/transcript'
     | '/api/learn/assignments/$assignmentId/assess-platform-url'
+    | '/api/learn/assignments/$assignmentId/bookmark'
+    | '/api/learn/assignments/$assignmentId/mark-completed-with-token'
     | '/api/learn/assignments/$assignmentId/submissions'
+    | '/api/learn/discussions/$discussionId/close'
+    | '/api/learn/discussions/$discussionId/feedback'
+    | '/api/learn/discussions/$discussionId/read'
     | '/api/learn/discussions/$discussionId/replies'
     | '/api/learn/lectures/$lectureId/bookmark'
     | '/api/learn/lectures/$lectureId/feedback'
@@ -3221,11 +3286,46 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiLearnDiscussionsDiscussionIdRepliesRouteImport
       parentRoute: typeof ApiLearnDiscussionsRoute
     }
+    '/api/learn/discussions/$discussionId/read': {
+      id: '/api/learn/discussions/$discussionId/read'
+      path: '/$discussionId/read'
+      fullPath: '/api/learn/discussions/$discussionId/read'
+      preLoaderRoute: typeof ApiLearnDiscussionsDiscussionIdReadRouteImport
+      parentRoute: typeof ApiLearnDiscussionsRoute
+    }
+    '/api/learn/discussions/$discussionId/feedback': {
+      id: '/api/learn/discussions/$discussionId/feedback'
+      path: '/$discussionId/feedback'
+      fullPath: '/api/learn/discussions/$discussionId/feedback'
+      preLoaderRoute: typeof ApiLearnDiscussionsDiscussionIdFeedbackRouteImport
+      parentRoute: typeof ApiLearnDiscussionsRoute
+    }
+    '/api/learn/discussions/$discussionId/close': {
+      id: '/api/learn/discussions/$discussionId/close'
+      path: '/$discussionId/close'
+      fullPath: '/api/learn/discussions/$discussionId/close'
+      preLoaderRoute: typeof ApiLearnDiscussionsDiscussionIdCloseRouteImport
+      parentRoute: typeof ApiLearnDiscussionsRoute
+    }
     '/api/learn/assignments/$assignmentId/submissions': {
       id: '/api/learn/assignments/$assignmentId/submissions'
       path: '/submissions'
       fullPath: '/api/learn/assignments/$assignmentId/submissions'
       preLoaderRoute: typeof ApiLearnAssignmentsAssignmentIdSubmissionsRouteImport
+      parentRoute: typeof ApiLearnAssignmentsAssignmentIdRoute
+    }
+    '/api/learn/assignments/$assignmentId/mark-completed-with-token': {
+      id: '/api/learn/assignments/$assignmentId/mark-completed-with-token'
+      path: '/mark-completed-with-token'
+      fullPath: '/api/learn/assignments/$assignmentId/mark-completed-with-token'
+      preLoaderRoute: typeof ApiLearnAssignmentsAssignmentIdMarkCompletedWithTokenRouteImport
+      parentRoute: typeof ApiLearnAssignmentsAssignmentIdRoute
+    }
+    '/api/learn/assignments/$assignmentId/bookmark': {
+      id: '/api/learn/assignments/$assignmentId/bookmark'
+      path: '/bookmark'
+      fullPath: '/api/learn/assignments/$assignmentId/bookmark'
+      preLoaderRoute: typeof ApiLearnAssignmentsAssignmentIdBookmarkRouteImport
       parentRoute: typeof ApiLearnAssignmentsAssignmentIdRoute
     }
     '/api/learn/assignments/$assignmentId/assess-platform-url': {
@@ -3431,10 +3531,19 @@ const protectedLayoutRouteRouteWithChildren =
   protectedLayoutRouteRoute._addFileChildren(protectedLayoutRouteRouteChildren)
 
 interface ApiLearnDiscussionsRouteChildren {
+  ApiLearnDiscussionsDiscussionIdCloseRoute: typeof ApiLearnDiscussionsDiscussionIdCloseRoute
+  ApiLearnDiscussionsDiscussionIdFeedbackRoute: typeof ApiLearnDiscussionsDiscussionIdFeedbackRoute
+  ApiLearnDiscussionsDiscussionIdReadRoute: typeof ApiLearnDiscussionsDiscussionIdReadRoute
   ApiLearnDiscussionsDiscussionIdRepliesRoute: typeof ApiLearnDiscussionsDiscussionIdRepliesRoute
 }
 
 const ApiLearnDiscussionsRouteChildren: ApiLearnDiscussionsRouteChildren = {
+  ApiLearnDiscussionsDiscussionIdCloseRoute:
+    ApiLearnDiscussionsDiscussionIdCloseRoute,
+  ApiLearnDiscussionsDiscussionIdFeedbackRoute:
+    ApiLearnDiscussionsDiscussionIdFeedbackRoute,
+  ApiLearnDiscussionsDiscussionIdReadRoute:
+    ApiLearnDiscussionsDiscussionIdReadRoute,
   ApiLearnDiscussionsDiscussionIdRepliesRoute:
     ApiLearnDiscussionsDiscussionIdRepliesRoute,
 }
@@ -3511,6 +3620,8 @@ const ApiAiTutorChatFeedbackRouteWithChildren =
 
 interface ApiLearnAssignmentsAssignmentIdRouteChildren {
   ApiLearnAssignmentsAssignmentIdAssessPlatformUrlRoute: typeof ApiLearnAssignmentsAssignmentIdAssessPlatformUrlRoute
+  ApiLearnAssignmentsAssignmentIdBookmarkRoute: typeof ApiLearnAssignmentsAssignmentIdBookmarkRoute
+  ApiLearnAssignmentsAssignmentIdMarkCompletedWithTokenRoute: typeof ApiLearnAssignmentsAssignmentIdMarkCompletedWithTokenRoute
   ApiLearnAssignmentsAssignmentIdSubmissionsRoute: typeof ApiLearnAssignmentsAssignmentIdSubmissionsRoute
   ApiLearnAssignmentsAssignmentIdProblemsProblemIdRoute: typeof ApiLearnAssignmentsAssignmentIdProblemsProblemIdRoute
 }
@@ -3519,6 +3630,10 @@ const ApiLearnAssignmentsAssignmentIdRouteChildren: ApiLearnAssignmentsAssignmen
   {
     ApiLearnAssignmentsAssignmentIdAssessPlatformUrlRoute:
       ApiLearnAssignmentsAssignmentIdAssessPlatformUrlRoute,
+    ApiLearnAssignmentsAssignmentIdBookmarkRoute:
+      ApiLearnAssignmentsAssignmentIdBookmarkRoute,
+    ApiLearnAssignmentsAssignmentIdMarkCompletedWithTokenRoute:
+      ApiLearnAssignmentsAssignmentIdMarkCompletedWithTokenRoute,
     ApiLearnAssignmentsAssignmentIdSubmissionsRoute:
       ApiLearnAssignmentsAssignmentIdSubmissionsRoute,
     ApiLearnAssignmentsAssignmentIdProblemsProblemIdRoute:

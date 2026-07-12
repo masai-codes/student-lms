@@ -136,6 +136,7 @@ describe('getBatchLearningData service (orchestration)', () => {
       rows: [row],
       pagination: PAGINATION,
       progressById: new Map([[55, 'completed' as const]]),
+      scoreById: new Map<number, number>(),
     })
 
     const input: GetBatchLearningDataInput = {

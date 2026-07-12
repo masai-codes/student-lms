@@ -50,6 +50,8 @@ export interface LearnListingCardCtas {
   assignmentStatusChip: AssignmentListingStatusChip
   /** "N days/hours remaining" until an assignment deadline; null otherwise. */
   assignmentDeadlineLabel: string | null
+  /** Released score (clamped to 10) to show on the card; null unless `showScores` is on and the score is released. */
+  assignmentScore: number | null
 }
 
 export type LearnSchedulePhaseFilter = 'all' | 'upcoming' | 'past'
@@ -95,6 +97,12 @@ export interface LearningItem {
   moduleName: string
   /** Present for mandatory lectures only; null for assignments/resources/optional lectures. */
   attendance: LectureAttendanceSummary | null
+  /**
+   * Present for optional (recommended) lectures only; null otherwise. Powers the
+   * optional-session info tooltip on the card — optional lectures never show the
+   * regular attendance badge, so this is the only place their status surfaces.
+   */
+  optionalAttendance: LectureAttendanceSummary | null
   /** Present for assignments only. */
   assignmentProgressStatus: AssignmentProgressStatus | null
   /** Present for resources only. */
@@ -157,6 +165,10 @@ export interface DiscussionListItem {
   createdAt: string | null
   updatedAt: string | null
   threadCount: number
+  /** Unread replies for the discussion owner (replies by others not yet marked read). Always 0 for non-owners. */
+  unreadReplyCount: number
+  /** Owner's 1–5 rating of how the discussion was resolved, or null when not rated. */
+  feedbackRating: number | null
   author: DiscussionAuthorPreview | null
   /** Reply threads loaded with the detail page (empty on non-detail listings). */
   threads: Array<LearnDiscussionThreadItem>

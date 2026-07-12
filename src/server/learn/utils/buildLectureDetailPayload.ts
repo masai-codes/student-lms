@@ -29,12 +29,16 @@ type LectureDetailRow = {
   notes: string | null
 }
 
-const SUPPORTED_LECTURE_KINDS = new Set<LectureKind>(['live', 'video'])
-
 function normalizeLectureKind(type: string): LectureKind | null {
   const normalized = type.trim().toLowerCase()
-  if (normalized === 'live' || normalized === 'video') {
-    return normalized
+  // `scrum` is a live-class variant (Zoom join + optional recording), so it is
+  // treated as `live` here — mirroring the listing/dashboard `('live','scrum')`
+  // grouping and the legacy LMS `is_live` computation.
+  if (normalized === 'live' || normalized === 'scrum') {
+    return 'live'
+  }
+  if (normalized === 'video') {
+    return 'video'
   }
   return null
 }
@@ -46,6 +50,7 @@ export function buildLectureDetailPayload(
   tabs: LectureDetailTabContent,
   videoAttendance: LectureVideoAttendanceState | null,
   attendance: LectureAttendanceSummary | null,
+  optionalAttendance: LectureAttendanceSummary | null,
   feedbackRecord: { rating: number | null; text: string | null },
 ): Omit<LectureDetailPayload, 'isBookmarked' | 'isNewZoomRedirection'> {
   const lectureKind = normalizeLectureKind(row.type)
@@ -129,10 +134,11 @@ export function buildLectureDetailPayload(
     joinLiveButtonState,
     videoAttendance: hasRecording ? videoAttendance : null,
     attendance,
+    optionalAttendance,
     feedback,
   }
 }
 
 export function isSupportedLectureDetailType(type: string): boolean {
-  return SUPPORTED_LECTURE_KINDS.has(type.trim().toLowerCase() as LectureKind)
+  return normalizeLectureKind(type) != null
 }

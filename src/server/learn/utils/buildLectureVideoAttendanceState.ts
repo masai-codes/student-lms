@@ -4,11 +4,12 @@ import { fetchVideoProgress } from '@/server/video-attendance/services/fetchVide
 import { normalizeAndMergeIntervals } from '@/server/video-attendance/utils/normalizeAndMergeIntervals'
 
 export async function buildLectureVideoAttendanceState(
+  userId: number,
   lectureId: number,
 ): Promise<LectureVideoAttendanceState | null> {
   const [progress, intervals] = await Promise.all([
-    fetchVideoProgress(lectureId),
-    fetchVideoAttendanceIntervals(lectureId),
+    fetchVideoProgress(lectureId, userId),
+    fetchVideoAttendanceIntervals(lectureId, userId),
   ])
 
   if (progress == null && intervals == null) {

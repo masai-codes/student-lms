@@ -20,6 +20,14 @@ function isHlsUrl(url: string): boolean {
   return url.includes('.m3u8')
 }
 
+/** A selectable HLS rendition, surfaced to the quality picker. */
+export type LectureVideoQualityLevel = {
+  /** Index into `hls.levels`; pass to `changeQuality`. */
+  index: number
+  height: number
+  bitrate: number
+}
+
 type UseLectureVideoAttendanceOptions = {
   lectureId: number
   src: string
@@ -40,6 +48,9 @@ export function useLectureVideoAttendance({
   const [totalDuration, setTotalDuration] = useState(0)
   const [isVideoPlaying, setIsVideoPlaying] = useState(false)
   const [playbackRate, setPlaybackRate] = useState(1)
+  const [qualityLevels, setQualityLevels] = useState<LectureVideoQualityLevel[]>([])
+  // Selected HLS rendition. -1 = Auto (hls.js adaptive bitrate).
+  const [currentQuality, setCurrentQuality] = useState(-1)
   const [playerReadyVersion, setPlayerReadyVersion] = useState(0)
   const [seekHint, setSeekHint] = useState<'forward' | 'backward' | null>(null)
   const [mergedAttendanceIntervals, setMergedAttendanceIntervals] = useState(
@@ -55,6 +66,13 @@ export function useLectureVideoAttendance({
   const resumeAppliedRef = useRef(false)
   const resumeTargetSecondsRef = useRef<number | null>(null)
   const maxPlayedSecondsRef = useRef(0)
+  // Latest ACTUAL player position (seconds) — the source of truth for the end
+  // of a watched segment. Set from real onProgress events, never estimated.
+  const latestPlayedRef = useRef(0)
+  // Bumped whenever a seek starts a fresh segment. An in-flight save compares
+  // this against the value it captured to decide whether it may advance the
+  // anchor after its await (see saveProgress).
+  const segmentGenRef = useRef(0)
   const hlsRef = useRef<Hls | null>(null)
   const seekHintTimeoutRef = useRef<number | null>(null)
   const timerSnapshotRef = useRef({ timer: 0, totalDuration: 0 })
@@ -76,22 +94,42 @@ export function useLectureVideoAttendance({
 
   const saveProgress = useCallback(async () => {
     if (isUpdatingRef.current) return
+
+    // Capture the watched segment from the player's ACTUAL position, and do it
+    // synchronously BEFORE any await. The end is the real played position — not
+    // a `start + elapsed-timer` estimate — so playback-rate changes, buffering
+    // and background-tab throttling can't make it drift. Capturing before the
+    // await means a seek/play that lands mid-request can't corrupt what we send.
+    const segStart = startTimeRef.current
+    const segEnd = Math.max(segStart, Math.round(latestPlayedRef.current))
+    if (segEnd <= segStart) return
+
+    const gen = segmentGenRef.current
     isUpdatingRef.current = true
     try {
       const result = await storeLectureVideoProgressViaApi({
         lectureId,
         totalDuration: Math.round(totalDuration),
-        intervals: [{ start: startTimeRef.current, end: endTimeRef.current }],
+        intervals: [{ start: segStart, end: segEnd }],
       })
 
       if (result.ok) {
         await router.invalidate()
-        resetTimer()
-        if (isVideoPausedRef.current) stopTimer()
-        else startTimer()
         failCountRef.current = 0
-        startTimeRef.current = endTimeRef.current
         nextApiRetryAtRef.current = null
+        // Advance the anchor to what we just saved — but ONLY if no seek reset
+        // the segment while the request was in flight (generation unchanged).
+        // This kills the "green bar runs ahead / skips watched chunks" bug: the
+        // old code did `startTimeRef = endTimeRef` after the await
+        // unconditionally, so a seek mid-save re-anchored the next segment to a
+        // stale position, offsetting every interval that followed.
+        if (segmentGenRef.current === gen) {
+          startTimeRef.current = segEnd
+          endTimeRef.current = segEnd
+          resetTimer()
+          if (isVideoPausedRef.current) stopTimer()
+          else startTimer()
+        }
       } else {
         failCountRef.current += 1
         nextApiRetryAtRef.current = nextVideoProgressRetryAt(
@@ -123,13 +161,17 @@ export function useLectureVideoAttendance({
   )
 
   useEffect(() => {
-    endTimeRef.current = Math.round(timer + startTimeRef.current)
+    // `timer` (scaled watch-time) now only PACES saves; the interval end comes
+    // from the real player position at save time (see saveProgress). It no
+    // longer dead-reckons endTimeRef.
     updateIfNeeded(timer, totalDuration, false)
     timerSnapshotRef.current = { timer, totalDuration }
   }, [timer, totalDuration, updateIfNeeded])
 
   useEffect(() => {
     resumeAppliedRef.current = false
+    setQualityLevels([])
+    setCurrentQuality(-1)
     const hls = hlsRef.current
     if (hls) {
       hls.destroy()
@@ -158,11 +200,24 @@ export function useLectureVideoAttendance({
     return () => window.clearTimeout(timeoutId)
   }, [effectiveLastWatchedPosition, isHls, videoRef])
 
+  // Flush a final save when the player unmounts. Keep the action in a ref and
+  // give the effect empty deps, so it fires ONLY on real unmount. Depending on
+  // `updateIfNeeded` here would re-run the cleanup on every render (its identity
+  // changes each render), turning this into a forced save several times a
+  // second — the cause of the per-second POST + lecture-detail refetch storm.
+  const flushOnExitRef = useRef<() => void>(() => {})
+  flushOnExitRef.current = () => {
+    updateIfNeeded(
+      timerSnapshotRef.current.timer,
+      timerSnapshotRef.current.totalDuration,
+      true,
+    )
+  }
   useEffect(() => {
     return () => {
-      updateIfNeeded(timerSnapshotRef.current.timer, timerSnapshotRef.current.totalDuration, true)
+      flushOnExitRef.current()
     }
-  }, [updateIfNeeded])
+  }, [])
 
   useEffect(() => {
     return () => {
@@ -186,6 +241,7 @@ export function useLectureVideoAttendance({
     }
 
     setProgress(playedSeconds)
+    latestPlayedRef.current = playedSeconds
     maxPlayedSecondsRef.current = Math.max(maxPlayedSecondsRef.current, playedSeconds)
   }, [])
 
@@ -202,11 +258,19 @@ export function useLectureVideoAttendance({
 
       if (!isLikelyWarmupZero) resumeAppliedRef.current = true
 
-      endTimeRef.current = Math.round(timerSnapshotRef.current.timer + startTimeRef.current)
+      // Close and save the segment watched up to the CURRENT real position
+      // before jumping. saveProgress captures its segment synchronously, so
+      // this runs against the pre-seek start/position.
       updateIfNeeded(timerSnapshotRef.current.timer, timerSnapshotRef.current.totalDuration, true)
 
-      startTimeRef.current = Math.round(seekSeconds)
-      endTimeRef.current = Math.round(seekSeconds)
+      // Start a fresh segment at the seek target. Bumping the generation makes
+      // any in-flight save skip its post-await anchor advance, so it cannot
+      // re-anchor the next segment to the old (pre-seek) position.
+      segmentGenRef.current += 1
+      const rounded = Math.round(seekSeconds)
+      startTimeRef.current = rounded
+      endTimeRef.current = rounded
+      latestPlayedRef.current = seekSeconds
       setTimer(0)
       setProgress(seekSeconds)
       maxPlayedSecondsRef.current = Math.max(maxPlayedSecondsRef.current, seekSeconds)
@@ -215,11 +279,14 @@ export function useLectureVideoAttendance({
   )
 
   const handleVideoPlay = useCallback(() => {
-    startTimeRef.current = Math.round(progress)
+    // Do NOT re-anchor startTimeRef here. The open segment is
+    // [startTimeRef, latestPlayed]; resetting the start on every play would
+    // drop an as-yet-unsaved span (e.g. after a failed save). Seeks are the
+    // only thing that legitimately start a new segment (see handleSeek).
     setIsVideoPlaying(true)
     isVideoPausedRef.current = false
     startTimer()
-  }, [progress, startTimer])
+  }, [startTimer])
 
   const handleVideoPause = useCallback(() => {
     setIsVideoPlaying(false)
@@ -254,6 +321,14 @@ export function useLectureVideoAttendance({
     [changeSpeed],
   )
 
+  const changeQuality = useCallback((levelIndex: number) => {
+    const hls = hlsRef.current
+    if (!hls) return
+    // -1 hands control back to hls.js adaptive bitrate (Auto).
+    hls.currentLevel = levelIndex
+    setCurrentQuality(levelIndex)
+  }, [])
+
   const handleReady = useCallback(() => {
     const player = videoRef.current
     const videoEl = player
@@ -268,6 +343,14 @@ export function useLectureVideoAttendance({
         hls.loadSource(src)
         hls.attachMedia(videoEl)
         hls.on(Hls.Events.MANIFEST_PARSED, () => {
+          setQualityLevels(
+            hls.levels.map((level, index) => ({
+              index,
+              height: level.height,
+              bitrate: level.bitrate,
+            })),
+          )
+          setCurrentQuality(hls.autoLevelEnabled ? -1 : hls.currentLevel)
           applyResumeIfNeeded({
             videoRef,
             resumeSeconds: resumeTargetSecondsRef.current,
@@ -278,6 +361,11 @@ export function useLectureVideoAttendance({
               maxPlayedSecondsRef.current = Math.max(maxPlayedSecondsRef.current, seconds)
             },
           })
+        })
+        // Keep the label in sync when ABR (Auto) switches rendition on its own.
+        hls.on(Hls.Events.LEVEL_SWITCHED, (_event, data) => {
+          if (hls.autoLevelEnabled) setCurrentQuality(-1)
+          else setCurrentQuality(data.level)
         })
       }
       setPlayerReadyVersion(version => version + 1)
@@ -339,6 +427,9 @@ export function useLectureVideoAttendance({
     totalDuration,
     isVideoPlaying,
     playbackRate,
+    qualityLevels,
+    currentQuality,
+    changeQuality,
     playerReadyVersion,
     seekHint,
     mergedAttendanceIntervals,

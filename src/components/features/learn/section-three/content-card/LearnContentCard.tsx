@@ -2,6 +2,7 @@ import { Link } from '@tanstack/react-router'
 import type { LearnContentItem, LearnContentType } from '../../shared/types'
 import { learnEntityEvent, pushLearnEvent } from '../../shared/learnAnalytics'
 import { LectureAttendanceInline } from '@/components/features/learn/attendance/LectureAttendanceInline'
+import { LectureOptionalAttendanceInfo } from '@/components/features/learn/attendance/LectureOptionalAttendanceInfo'
 import { getAssignmentStatusChipStyles } from '@/components/features/learn/LearnPageDetails/assignment/shared/getAssignmentStatusChipStyles'
 import { LearnListingJoinLiveCta } from '@/components/features/learn/section-three/content-card/LearnListingJoinLiveCta'
 import { LocalTimeWithIstTooltip } from '@/components/shared/local-time-with-ist-tooltip'
@@ -10,6 +11,7 @@ import {
   getLearnListingAttendancePresentation,
   shouldShowAssignmentStatusChip,
 } from '@/lib/learn/listingCardPresentation'
+import { cn } from '@/lib/utils'
 
 const LEARN_TYPE_ICON_SRC: Record<LearnContentType, string> = {
   lecture:
@@ -48,10 +50,13 @@ function LearnTypeIcon({ type }: Pick<LearnContentItem, 'type'>) {
 export function LearnContentCard({
   item,
   fromDashboard = false,
+  isAssociatedCard = false,
 }: {
   item: LearnContentItem
   /** Compact dashboard layout: meta + tags on one row (shorter card). */
   fromDashboard?: boolean
+  /** Rendered in an associated-content surface; only tags the analytics source. */
+  isAssociatedCard?: boolean
 }) {
   const attendancePresentation = getLearnListingAttendancePresentation(
     item.listingCtas,
@@ -88,12 +93,25 @@ export function LearnContentCard({
           title: item.title,
           category: item.category,
           priority: item.priority,
-          source: fromDashboard ? 'dashboard' : 'learn_listing',
+          source: isAssociatedCard
+            ? 'associated'
+            : fromDashboard
+              ? 'dashboard'
+              : 'learn_listing',
         })
       }
       className="bg-white rounded-[8px] border border-gray-200 p-3 block transition-colors hover:bg-gray-50/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
     >
-      <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+      <div
+        className={cn(
+          'flex flex-col gap-3',
+          // Associated cards render inside a narrow drawer, so they stay in the
+          // mobile stacked layout at every viewport instead of the desktop row
+          // split (which squeezes host/tags into cramped, per-word-wrapping
+          // columns).
+          !isAssociatedCard && 'md:flex-row md:items-start md:justify-between',
+        )}
+      >
         <div className="flex min-w-0 items-start gap-3">
           <LearnTypeIcon type={item.type} />
           <div className="min-w-0 flex-1">
@@ -150,37 +168,47 @@ export function LearnContentCard({
               </div>
             ) : (
               <>
-                <p className="mt-[4px] type-t1 flex flex-wrap items-center gap-x-2 gap-y-1">
-                  <span className="min-w-0">{item.hostName}</span>
-                  <span
-                    className="size-1 shrink-0 rounded-full bg-gray-600"
-                    aria-hidden
-                  />
-                  <LocalTimeWithIstTooltip
-                    local={item.date}
-                    ist={item.dateTooltip}
-                  />
-                </p>
-                <div className="flex flex-wrap gap-2 mt-[8px]">
-                  {item.tags.map((tag, index) => (
+                {/* Keep host+time and tags stacked on mobile, but sit them
+                    side-by-side from `md` up so the card is 2 rows on desktop
+                    instead of 3. */}
+                <div
+                  className={cn(
+                    'mt-[4px] flex flex-col gap-2',
+                    !isAssociatedCard && 'md:flex-row md:items-center',
+                  )}
+                >
+                  <p className="type-t1 flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
+                    <span className="min-w-0">{item.hostName}</span>
+                    <span
+                      className="size-1 shrink-0 rounded-full bg-gray-600"
+                      aria-hidden
+                    />
+                    <LocalTimeWithIstTooltip
+                      local={item.date}
+                      ist={item.dateTooltip}
+                    />
+                  </p>
+                  <div className="flex flex-wrap items-center gap-2">
+                    {item.tags.map((tag, index) => (
+                      <MasaiChips
+                        key={`${tag}-${index}`}
+                        type="default"
+                        size="regular"
+                        label={tag}
+                        tabIndex={-1}
+                        className="cursor-default"
+                        {...learnContentTagChipPalette}
+                      />
+                    ))}
                     <MasaiChips
-                      key={`${tag}-${index}`}
                       type="default"
                       size="regular"
-                      label={tag}
+                      label={item.priority}
                       tabIndex={-1}
                       className="cursor-default"
                       {...learnContentTagChipPalette}
                     />
-                  ))}
-                  <MasaiChips
-                    type="default"
-                    size="regular"
-                    label={item.priority}
-                    tabIndex={-1}
-                    className="cursor-default"
-                    {...learnContentTagChipPalette}
-                  />
+                  </div>
                 </div>
               </>
             )}
@@ -198,17 +226,31 @@ export function LearnContentCard({
           }}
         >
           {item.type === 'lecture' && item.priority === 'recommended' ? (
-            <MasaiChips
-              label="Optional session"
-              size="regular"
-              backgroundClassName="bg-yellow-50 border border-yellow-100"
-              textClassName="!text-yellow-600"
-              className="pointer-events-none"
-              tabIndex={-1}
-            />
+            <div className="flex items-center gap-4">
+              <MasaiChips
+                label="Optional session"
+                size="regular"
+                backgroundClassName="bg-yellow-50 border border-yellow-100"
+                textClassName="!text-yellow-600"
+                className="pointer-events-none"
+                tabIndex={-1}
+              />
+              {item.optionalAttendance ? (
+                <LectureOptionalAttendanceInfo
+                  attendance={item.optionalAttendance}
+                  isLiveLecture={
+                    item.learningSubType === 'live' ||
+                    item.learningSubType === 'scrum'
+                  }
+                />
+              ) : null}
+            </div>
           ) : null}
           {item.type === 'lecture' && attendancePresentation ? (
-            <LectureAttendanceInline {...attendancePresentation} />
+            <LectureAttendanceInline
+              {...attendancePresentation}
+              forceRow={isAssociatedCard}
+            />
           ) : null}
           {item.type === 'assignment' && item.assignmentDeadlineLabel ? (
             <span
@@ -225,6 +267,18 @@ export function LearnContentCard({
               size="regular"
               backgroundClassName="bg-teal-50 border border-teal-100"
               textClassName="!text-teal-600"
+              className="pointer-events-none"
+              tabIndex={-1}
+            />
+          ) : null}
+          {item.type === 'assignment' &&
+          typeof item.assignmentScore === 'number' ? (
+            <MasaiChips
+              data-testid="learn-assignment-score"
+              label={`${item.assignmentScore.toFixed(2)}/10`}
+              size="regular"
+              backgroundClassName="bg-blue-50 border border-blue-100"
+              textClassName="!text-blue-600"
               className="pointer-events-none"
               tabIndex={-1}
             />

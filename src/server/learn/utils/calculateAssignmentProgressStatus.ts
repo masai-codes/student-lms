@@ -10,6 +10,10 @@ export type AssignmentSubmissionProgress = {
   completed: boolean
   status: string | null
   markAsCompleted: boolean | null
+  /** Latest submission raw score; used by the listing score badge (evaluations). */
+  score?: number
+  /** Latest submission `data` JSON; gates whether the score is released. */
+  data?: Record<string, unknown> | null
 } | null
 
 /** Mirrors legacy LMS assignment list status (`experience-api` `calculateAssignmentStatus`). */

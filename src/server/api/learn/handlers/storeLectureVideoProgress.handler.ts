@@ -17,8 +17,9 @@ export async function handleStoreLectureVideoProgress(
   lectureIdParam: string,
 ): Promise<Response> {
   try {
-    // Auth gate only; the upstream experience API is called with the session cookie.
-    await requireSessionUserId()
+    // Native write against the shared DB (no experience-api call); userId scopes
+    // the video_attendances/student_attendances rows and the inline upgrade.
+    const userId = await requireSessionUserId()
     const lectureId = parsePositiveIdParam(lectureIdParam, 'INVALID_LECTURE_ID')
 
     const rawBody = await request.json().catch(() => ({}))
@@ -27,8 +28,12 @@ export async function handleStoreLectureVideoProgress(
       throw new ApiError(400, 'INVALID_VIDEO_PROGRESS_PAYLOAD')
     }
 
+    // storeVideoProgress does the full write natively: upsert video_attendances,
+    // backfill attendances / student_attendances, and run the inline absent ->
+    // present upgrade.
     const ok = await storeVideoProgress({
       lectureId,
+      userId,
       totalDuration: parsed.data.totalDuration,
       intervals: parsed.data.intervals,
       sessionToken: parsed.data.sessionToken,

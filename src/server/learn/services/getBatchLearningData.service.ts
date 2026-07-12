@@ -53,6 +53,9 @@ async function fetchAttendanceForRows(
         concludes: row.concludes ?? null,
         optional: row.optional,
       })),
+    Date.now(),
+    // Include optional lectures so their status can populate the info tooltip.
+    true,
   )
 }
 
@@ -62,6 +65,7 @@ function mapRowToItem(
   nowMs: number,
   attendance: LectureAttendanceSummary | null,
   assignmentProgressStatus: AssignmentProgressStatus | null,
+  assignmentScore: number | null,
 ): LearningItem {
   const listingCtas = buildLearnListingCardCtas({
     learningType: input.learningType,
@@ -75,6 +79,7 @@ function mapRowToItem(
     nowMs,
     attendance,
     assignmentProgressStatus,
+    assignmentScore,
   })
 
   const resourcePhase =
@@ -168,6 +173,11 @@ export async function getBatchLearningData(
       ? (pageResult as AssignmentListingPage).progressById
       : new Map<number, AssignmentProgressStatus>()
 
+  const scoreById =
+    input.learningType === 'assignment'
+      ? (pageResult as AssignmentListingPage).scoreById
+      : new Map<number, number>()
+
   const learningItems = pageResult.rows.map((row) =>
     mapRowToItem(
       row,
@@ -175,6 +185,7 @@ export async function getBatchLearningData(
       nowMs,
       attendanceByLectureId.get(row.id) ?? null,
       progressById.get(row.id) ?? null,
+      scoreById.get(row.id) ?? null,
     ),
   )
 

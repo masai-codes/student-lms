@@ -53,5 +53,8 @@ export function buildLectureAttendanceSummary(
     daysRemaining,
     remainingLabel,
     lateByMinutes: record?.lateByMinutes ?? null,
+    liveAttendanceStatus: record?.liveAttendanceStatus ?? 0,
+    videoAttendanceStatus: record?.videoAttendanceStatus ?? 0,
+    includeVideoAttendance,
   }
 }

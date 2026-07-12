@@ -21,6 +21,7 @@ function renderLiveHero(detail: LectureDetailPayload) {
       return (
         <DuringLiveLecture
           lectureId={detail.id}
+          schedule={detail.schedule}
           zoomLink={detail.zoomLink}
           joinLiveButtonState={detail.joinLiveButtonState ?? 'hidden'}
           isNewZoomRedirection={detail.isNewZoomRedirection}
@@ -46,7 +47,10 @@ export function LiveLectureContent({ detail }: LiveLectureContentProps) {
       hostName={detail.hostName}
       hostAvatarUrl={detail.hostAvatarUrl}
       scheduleDisplayRange={detail.scheduleDisplayRange}
+      scheduleDisplayRangeIst={detail.scheduleDisplayRangeIst}
       attendance={detail.attendance}
+      optionalAttendance={detail.optionalAttendance}
+      isLiveLecture={detail.lectureKind === 'live'}
       watchPercentage={detail.videoAttendance?.watchPercentage}
       actions={
         <LectureDetailActions

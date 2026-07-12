@@ -20,6 +20,7 @@ export async function listDiscussionsWithThreadsForLearnEntity(
       message: discussions.message,
       isClosed: discussions.isClosed,
       public: discussions.public,
+      data: discussions.data,
       createdAt: discussions.createdAt,
       updatedAt: discussions.updatedAt,
       authorId: discussions.userId,
@@ -58,6 +59,7 @@ export async function listDiscussionsWithThreadsForLearnEntity(
         discussionId: threads.discussionId,
         message: threads.message,
         createdAt: threads.createdAt,
+        readAt: threads.readAt,
         authorId: threads.userId,
         authorName: users.name,
         authorProfilePhotoPath: users.profilePhotoPath,
@@ -73,11 +75,27 @@ export async function listDiscussionsWithThreadsForLearnEntity(
     countById.set(c.discussionId, Number(c.threadCount))
   }
 
+  const ownerByDiscussionId = new Map<number, number>()
+  for (const r of rows) {
+    ownerByDiscussionId.set(r.id, r.authorId)
+  }
+
   const threadsByDiscussionId = new Map<number, DiscussionListItem['threads']>()
+  const unreadByDiscussionId = new Map<number, number>()
   for (const thread of threadRows) {
     const list = threadsByDiscussionId.get(thread.discussionId) ?? []
     list.push(mapDiscussionThreadRow(thread))
     threadsByDiscussionId.set(thread.discussionId, list)
+
+    // Unread replies matter only to the discussion owner, and only for
+    // replies written by someone else that have not been marked read.
+    const isOwner = ownerByDiscussionId.get(thread.discussionId) === viewerUserId
+    if (isOwner && thread.readAt === null && thread.authorId !== viewerUserId) {
+      unreadByDiscussionId.set(
+        thread.discussionId,
+        (unreadByDiscussionId.get(thread.discussionId) ?? 0) + 1,
+      )
+    }
   }
 
   return rows.map(r =>
@@ -85,6 +103,7 @@ export async function listDiscussionsWithThreadsForLearnEntity(
       r as DiscussionRowWithAuthor,
       countById.get(r.id) ?? 0,
       threadsByDiscussionId.get(r.id) ?? [],
+      unreadByDiscussionId.get(r.id) ?? 0,
     ),
   )
 }

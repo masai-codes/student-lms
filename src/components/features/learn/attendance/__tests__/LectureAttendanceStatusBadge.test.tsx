@@ -11,7 +11,7 @@ describe('LectureAttendanceStatusBadge — always shows label text', () => {
     ['present', 'Present'],
     ['absent', 'Absent'],
     ['continue_watching', 'Continue Watching'],
-    ['att_window_over', 'Att. Window Over'],
+    ['att_window_over', 'Absent and Att. Window Over'],
   ] as const)('renders the "%s" label text (not icon-only)', (state, label) => {
     render(<LectureAttendanceStatusBadge state={state} />)
     expect(screen.getByText(label)).toBeTruthy()

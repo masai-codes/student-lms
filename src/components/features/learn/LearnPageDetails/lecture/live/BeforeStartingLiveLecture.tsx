@@ -1,5 +1,6 @@
 'use client'
 
+import { LectureStartsInCountdown } from './LectureStartsInCountdown'
 import { LectureStatePanel } from '../shared/LectureStatePanel'
 import { formatSqlDate } from '@/utils/generics'
 
@@ -23,6 +24,7 @@ export function BeforeStartingLiveLecture({ schedule }: BeforeStartingLiveLectur
           return here when it is time to join.
         </>
       }
+      action={<LectureStartsInCountdown schedule={schedule} />}
     />
   )
 }

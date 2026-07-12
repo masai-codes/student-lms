@@ -1,6 +1,6 @@
 'use client'
 
-import { ArrowSquareOut } from '@phosphor-icons/react'
+import { ArrowSquareOut, MicrophoneSlash } from '@phosphor-icons/react'
 import { useState } from 'react'
 
 import type { JoinLiveButtonState } from '@/server/learn/utils/resolveJoinLiveButtonState'
@@ -59,9 +59,21 @@ export function JoinLiveSessionCard({
     <div className="mx-auto flex w-full max-w-lg flex-col items-center gap-3 rounded-xl border border-border bg-background p-6 shadow-sm">
       <p className="type-b2-regular text-center text-gray-600">
         {isActive
-          ? 'Your live session is ready. Join using the button below.'
+          ? 'Your live session link is ready. Join using the button below.'
           : 'The join button will activate shortly before the session starts.'}
       </p>
+      {isActive && (
+        <div className="flex w-fit max-w-full items-start gap-2 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2.5 text-amber-700">
+          <MicrophoneSlash
+            weight="fill"
+            className="mt-0.5 size-4 shrink-0"
+            aria-hidden
+          />
+          <p className="min-w-0 break-words text-sm">
+            Please mute your microphone when joining the lecture.
+          </p>
+        </div>
+      )}
       {isActive && isNewZoomRedirection ? (
         <Button
           size="lg"

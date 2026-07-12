@@ -38,6 +38,7 @@ function createDummyItems(
       priority: priorities[index % priorities.length],
       tags: ['Live', 'Faculty', 'Recommended', moduleName],
       attendance: null,
+      optionalAttendance: null,
       assignmentProgressStatus: null,
       resourcePhase: null,
       listingCtas: {
@@ -47,6 +48,7 @@ function createDummyItems(
         showAttendance: false,
         assignmentStatusChip: null,
         assignmentDeadlineLabel: null,
+        assignmentScore: null,
       },
       assignmentStatusChip: null,
     }

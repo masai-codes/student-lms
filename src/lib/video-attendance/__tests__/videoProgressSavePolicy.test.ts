@@ -6,9 +6,9 @@ import {
 } from '../videoProgressSavePolicy'
 
 describe('videoProgressSavePolicy', () => {
-  it('clamps cutoff between 30 and 300 seconds', () => {
+  it('uses a fixed 30s cutoff regardless of video length', () => {
     expect(progressUpdateCutoffSeconds(100)).toBe(30)
-    expect(progressUpdateCutoffSeconds(10_000)).toBe(300)
+    expect(progressUpdateCutoffSeconds(10_000)).toBe(30)
   })
 
   it('saves when timer exceeds cutoff', () => {

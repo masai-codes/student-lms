@@ -10,6 +10,7 @@
 - Mutations are REST (no `createServerFn`): video progress `POST /api/learn/lectures/:id/video-progress`; create discussion `POST /api/learn/discussions`; add reply `POST /api/learn/discussions/:id/replies`; bookmark `POST`/`DELETE /api/learn/lectures/:id/bookmark`; feedback `POST /api/learn/lectures/:id/feedback`.
 - Live join: `zoomLink` is schedule-scrubbed, then adaptive ("SAL") links are rewritten to the lecture-scoped form via `toLectureScopedAdaptiveLink` (parity with legacy). ZEF (`is_new_zoom_redirection`): payload carries `isNewZoomRedirection`; when set, the active join button calls `POST /api/learn/lectures/:id/zoom-redirect` and opens the returned ZEF URL, falling back to the raw link on failure. The ZEF token is **minted locally in the new LMS** (`zoomRedirectionToken` — groupLectureIdentifier resolution, admin host-email mapping, HS256 signing) and the base host (`zoom.masaischool.com` vs `zoom.ihubiitrcourses.org`) is chosen from the batch duration. Requires env `ZOOM_REDIRECTION_JWT_SECRET`. New schema columns mapped: `lectures.is_new_zoom_redirection`, `lectures.zoom_details`.
 - Header actions: `LectureDetailActions` (Raise Ticket → legacy support redirect + optimistic bookmark toggle) rendered in the overview header via the `actions` slot; payload carries `isBookmarked`.
+- Attendance disclaimer banner: blue info banner rendered once in `LectureDetailChrome` (below the overview header), so it appears on every lecture detail view (live/video, before/after, with/without recording). Which variant shows is decided by the pure `resolveLectureAttendanceBanner(attendance, watchPercentage)` (`src/lib/lecture-attendance/resolveLectureAttendanceBanner.ts`) — a documented rule table ported from legacy `AttendanceDisclaimer`. Two variants: `video-counts` ("…status will change to Present after 24 hours.") when `includeVideoAttendance` is set, `live-only` ("…Only live class attendance will be counted.") otherwise. No banner when attendance is null (optional/recommended), UI state is `null`/`hidden`, or the student is mid-watch while recording counts (`continue_watching` + `includeVideoAttendance` — the catch-up progress bar shows instead). Copy + `data-testid`s live in `LECTURE_ATTENDANCE_BANNERS`; view is `LectureAttendanceBanner`.
 - Feedback: `LectureFeedbackForm` (1–5 stars + text) rendered above the tabs. Payload carries `feedback: { canSubmit, rating, text }`. Window opens `schedule + 15min`, closes `concludes + 24h`, gated by `settings.show_feedback`; enforced again server-side on submit. Closed window with an existing rating shows a read-only summary; closed + unrated renders nothing.
 
 ## Test files
@@ -51,6 +52,8 @@
 - `src/server/attendance/**/__tests__/*`
 - `src/lib/lecture-attendance/**/__tests__/*`
 - `src/components/features/learn/attendance/*`
+- `src/lib/lecture-attendance/__tests__/resolveLectureAttendanceBanner.test.ts` — banner rule table (null/hidden gating, video-counts vs live-only, mid-watch suppression, local watch % override)
+- `src/components/features/learn/attendance/__tests__/LectureAttendanceBanner.test.tsx` — banner renders variant copy + testid
 - `src/components/features/learn/LearnPageDetails/lecture/live/utils/__tests__/resolveJoinLiveButtonState.test.ts`
 
 ## Lecture discussions UI

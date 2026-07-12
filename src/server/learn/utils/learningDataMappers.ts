@@ -72,6 +72,8 @@ export function mapLearningEntityRow(
     moduleName: resolveModuleName(row.module, row.week),
     attendance:
       learningType === 'lecture' && !isRecommended ? attendance : null,
+    optionalAttendance:
+      learningType === 'lecture' && isRecommended ? attendance : null,
     assignmentProgressStatus: learningType === 'assignment' ? assignmentProgressStatus : null,
     resourcePhase: learningType === 'resource' ? resourcePhase : null,
     listingCtas,
