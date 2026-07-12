@@ -5,6 +5,9 @@ import { requireSessionUserId } from '@/server/api/http/requireSessionUser'
 
 const hoisted = vi.hoisted(() => ({ markSubmissionCompletedWithToken: vi.fn() }))
 
+// The handler module transitively imports services that open a DB connection
+// at load time; stub it so the handler unit test stays isolated.
+vi.mock('@/db', () => ({ db: {} }))
 vi.mock(
   '@/server/assignments/services/markSubmissionCompletedWithToken',
   () => ({ markSubmissionCompletedWithToken: hoisted.markSubmissionCompletedWithToken }),
