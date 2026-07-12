@@ -243,6 +243,10 @@ export function LearnContentCard({
               {item.optionalAttendance ? (
                 <LectureOptionalAttendanceInfo
                   attendance={item.optionalAttendance}
+                  isLiveLecture={
+                    item.learningSubType === 'live' ||
+                    item.learningSubType === 'scrum'
+                  }
                 />
               ) : null}
             </div>

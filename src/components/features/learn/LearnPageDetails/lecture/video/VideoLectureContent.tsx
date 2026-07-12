@@ -43,6 +43,7 @@ export function VideoLectureContent({ detail }: VideoLectureContentProps) {
       scheduleDisplayRangeIst={detail.scheduleDisplayRangeIst}
       attendance={detail.attendance}
       optionalAttendance={detail.optionalAttendance}
+      isLiveLecture={detail.lectureKind === 'live'}
       watchPercentage={detail.videoAttendance?.watchPercentage}
       actions={
         <LectureDetailActions

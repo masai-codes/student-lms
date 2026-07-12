@@ -28,6 +28,7 @@ export function AfterLiveLecture({ detail }: AfterLiveLectureProps) {
         videoAttendance={detail.videoAttendance}
         attendance={detail.attendance}
         optionalAttendance={detail.optionalAttendance}
+        isLiveLecture={detail.lectureKind === 'live'}
         isBookmarked={detail.isBookmarked}
         feedback={detail.feedback}
       />

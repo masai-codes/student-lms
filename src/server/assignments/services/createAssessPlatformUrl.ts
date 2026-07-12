@@ -5,6 +5,7 @@ import { assignments, batches, submissions, users } from '@/db/schema'
 import { ApiError } from '@/server/api/http/apiError'
 import { getExperienceApiBaseUrl } from '@/server/api/http/experienceApiFetch'
 import { getIstNowSqlDatetime } from '@/server/time/istClock'
+import { ORIGIN_URLS } from '@/utils/originUrls'
 
 /**
  * Assess Platform URL generation — native port of experience-api's
@@ -22,9 +23,10 @@ import { getIstNowSqlDatetime } from '@/server/time/istClock'
  *
  * Required env: ASSESS_PLATFORM_URL, ASSESS_PLATFORM_AUTH_TOKEN,
  * ASSESS_PLATFORM_SECRET_KEY, ASSESS_PLATFORM_CALLBACK_TOKEN,
- * ASSESS_LMS_CLIENT_ID, EXPERIENCE_API_BASE_URL, FRONTEND_URL,
- * IHUB_STUDENT_FRONTEND_URL. The callback base is EXPERIENCE_API_BASE_URL +
- * "/graphql" (i.e. experience-api's GQL_BASE_URL).
+ * ASSESS_LMS_CLIENT_ID, EXPERIENCE_API_BASE_URL. The callback base is
+ * EXPERIENCE_API_BASE_URL + "/graphql" (i.e. experience-api's GQL_BASE_URL).
+ * The post-assessment redirect base reuses VITE_NEW_STUDENT_UI_URL /
+ * VITE_NEW_STUDENT_UI_URL_IHUB via ORIGIN_URLS.
  */
 
 const CASE2 = 'case2'
@@ -65,14 +67,13 @@ function callbackBaseUrl(): string {
   return `${base}/graphql`
 }
 
+// Student app "return home" base for the post-assessment redirect. Reuses the
+// per-origin new-student-UI URLs (VITE_NEW_STUDENT_UI_URL / _IHUB) via
+// ORIGIN_URLS, which carry safe fallbacks — so no assess-specific frontend env
+// is needed. iHub batches (`duration === 'ihub'`) return to the iHub portal.
 function frontendUrlFor(batchDuration: string | null | undefined): string {
-  const url =
-    batchDuration === 'ihub'
-      ? process.env.IHUB_STUDENT_FRONTEND_URL
-      : process.env.FRONTEND_URL
-  const trimmed = url?.trim().replace(/\/$/, '')
-  if (!trimmed) throw new ApiError(500, 'FRONTEND_URL_NOT_CONFIGURED')
-  return trimmed
+  const origin = batchDuration === 'ihub' ? 'ihub' : 'masai'
+  return ORIGIN_URLS[origin].newStudentUi.replace(/\/$/, '')
 }
 
 function istNowIso(): string {

@@ -7,8 +7,14 @@ import type { LectureAttendanceSummary } from '@/server/attendance/types'
  */
 export function AttendanceBreakdownContent({
   attendance,
+  isLiveLecture,
 }: {
   attendance: LectureAttendanceSummary
+  /**
+   * `live`/`scrum` lectures show the "Live - Attended/Not Attended" line; video
+   * lectures omit it since there's no live session to attend.
+   */
+  isLiveLecture: boolean
 }) {
   const isPresent = attendance.overallStatus === 1
   const liveStatus =
@@ -22,7 +28,7 @@ export function AttendanceBreakdownContent({
 
   return (
     <div className="flex flex-col gap-2">
-      <div>Live - {liveStatus}</div>
+      {isLiveLecture ? <div>Live - {liveStatus}</div> : null}
       <div>Recording - {videoStatus}</div>
       <div>
         <span

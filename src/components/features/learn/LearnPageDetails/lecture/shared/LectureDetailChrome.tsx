@@ -21,6 +21,8 @@ type LectureDetailChromeProps = {
   attendance: LectureAttendanceSummary | null
   /** Set only for optional (recommended) lectures; renders the info tooltip. */
   optionalAttendance?: LectureAttendanceSummary | null
+  /** `live`/`scrum` lecture — shows the Live line in the attendance breakdown. */
+  isLiveLecture: boolean
   watchPercentage?: number | null
   /** Header CTAs (Raise Ticket + bookmark) rendered in the overview header. */
   actions?: ReactNode
@@ -39,6 +41,7 @@ export function LectureDetailChrome({
   scheduleDisplayRangeIst,
   attendance,
   optionalAttendance,
+  isLiveLecture,
   watchPercentage,
   actions,
   hero,
@@ -64,6 +67,7 @@ export function LectureDetailChrome({
             dateRangeIst={scheduleDisplayRangeIst}
             attendance={attendance}
             optionalAttendance={optionalAttendance}
+            isLiveLecture={isLiveLecture}
             watchPercentage={watchPercentage}
             actions={actions}
           />

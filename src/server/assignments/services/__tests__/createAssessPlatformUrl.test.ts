@@ -30,8 +30,7 @@ const ENV_KEYS = [
   'ASSESS_PLATFORM_AUTH_TOKEN',
   'ASSESS_PLATFORM_SECRET_KEY',
   'ASSESS_PLATFORM_CALLBACK_TOKEN',
-  'GQL_BASE_URL',
-  'FRONTEND_URL',
+  'EXPERIENCE_API_BASE_URL',
 ] as const
 
 describe('createAssessPlatformUrl', () => {

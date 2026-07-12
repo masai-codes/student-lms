@@ -25,6 +25,7 @@ type DuringAfterVideoLectureWithRecordingProps = {
   videoAttendance: LectureVideoAttendanceState | null
   attendance: LectureAttendanceSummary | null
   optionalAttendance?: LectureAttendanceSummary | null
+  isLiveLecture: boolean
   isBookmarked: boolean
   feedback: LectureFeedbackState
 }

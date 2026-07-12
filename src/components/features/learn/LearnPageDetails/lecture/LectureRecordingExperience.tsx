@@ -33,6 +33,8 @@ type LectureRecordingExperienceProps = {
   attendance: LectureAttendanceSummary | null
   /** Set only for optional (recommended) lectures; renders the info tooltip. */
   optionalAttendance?: LectureAttendanceSummary | null
+  /** `live`/`scrum` lecture — shows the Live line in the attendance breakdown. */
+  isLiveLecture: boolean
   isBookmarked: boolean
   feedback: LectureFeedbackState
 }
@@ -56,6 +58,7 @@ export function LectureRecordingExperience({
   videoAttendance,
   attendance,
   optionalAttendance,
+  isLiveLecture,
   isBookmarked,
   feedback,
 }: LectureRecordingExperienceProps) {
@@ -123,6 +126,7 @@ export function LectureRecordingExperience({
       scheduleDisplayRangeIst={scheduleDisplayRangeIst}
       attendance={attendance}
       optionalAttendance={optionalAttendance}
+      isLiveLecture={isLiveLecture}
       watchPercentage={videoAttendance?.watchPercentage}
       actions={
         <LectureDetailActions

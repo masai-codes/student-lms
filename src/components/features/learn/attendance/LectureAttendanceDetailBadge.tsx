@@ -14,6 +14,8 @@ import {
 
 type LectureAttendanceDetailBadgeProps = ListingAttendanceRender & {
   attendance: LectureAttendanceSummary
+  /** `live`/`scrum` lectures show the Live line in the breakdown; video omits it. */
+  isLiveLecture: boolean
 }
 
 /** Absent hover: explains why the student was marked absent (mirrors old LMS). */
@@ -62,6 +64,7 @@ function withTooltip(content: ReactNode, badge: ReactNode): ReactNode {
 
 export function LectureAttendanceDetailBadge({
   attendance,
+  isLiveLecture,
   ...render
 }: LectureAttendanceDetailBadgeProps) {
   const remainingText = formatCatchUpRemainingLabel(
@@ -77,7 +80,10 @@ export function LectureAttendanceDetailBadge({
       renderBadge={(badge) => {
         if (render.uiState === 'present') {
           return withTooltip(
-            <AttendanceBreakdownContent attendance={attendance} />,
+            <AttendanceBreakdownContent
+              attendance={attendance}
+              isLiveLecture={isLiveLecture}
+            />,
             badge,
           )
         }

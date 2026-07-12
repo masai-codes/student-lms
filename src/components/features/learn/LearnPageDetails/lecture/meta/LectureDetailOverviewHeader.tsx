@@ -27,6 +27,8 @@ type LectureDetailOverviewHeaderProps = {
   attendance: LectureAttendanceSummary | null
   /** Set only for optional (recommended) lectures; renders the info tooltip. */
   optionalAttendance?: LectureAttendanceSummary | null
+  /** `live`/`scrum` lecture — shows the Live line in the attendance breakdown. */
+  isLiveLecture: boolean
   watchPercentage?: number | null
   /** Header CTAs (Raise Ticket + bookmark) rendered top-right. */
   actions?: ReactNode
@@ -52,6 +54,7 @@ export function LectureDetailOverviewHeader({
   dateRangeIst,
   attendance,
   optionalAttendance,
+  isLiveLecture,
   watchPercentage,
   actions,
   className,
@@ -102,6 +105,7 @@ export function LectureDetailOverviewHeader({
               {optionalAttendance ? (
                 <LectureOptionalAttendanceInfo
                   attendance={optionalAttendance}
+                  isLiveLecture={isLiveLecture}
                   size="md"
                 />
               ) : null}
@@ -109,6 +113,7 @@ export function LectureDetailOverviewHeader({
                 <LectureAttendanceDetailBadge
                   {...attendancePresentation}
                   attendance={attendance}
+                  isLiveLecture={isLiveLecture}
                 />
               ) : null}
             </div>

@@ -11,6 +11,8 @@ import {
 
 type LectureOptionalAttendanceInfoProps = {
   attendance: LectureAttendanceSummary
+  /** `live`/`scrum` lectures show the Live line in the breakdown; video omits it. */
+  isLiveLecture: boolean
   /** `md` bumps the icon for the detail-page title row; `sm` (default) for cards. */
   size?: 'sm' | 'md'
 }
@@ -23,6 +25,7 @@ type LectureOptionalAttendanceInfoProps = {
  */
 export function LectureOptionalAttendanceInfo({
   attendance,
+  isLiveLecture,
   size = 'sm',
 }: LectureOptionalAttendanceInfoProps) {
   const iconSize = size === 'md' ? 18 : 16
@@ -39,7 +42,10 @@ export function LectureOptionalAttendanceInfo({
         </button>
       </TooltipTrigger>
       <TooltipContent className="max-w-xs p-3">
-        <AttendanceBreakdownContent attendance={attendance} />
+        <AttendanceBreakdownContent
+          attendance={attendance}
+          isLiveLecture={isLiveLecture}
+        />
       </TooltipContent>
     </Tooltip>
   )
