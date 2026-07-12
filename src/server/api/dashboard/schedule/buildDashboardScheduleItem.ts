@@ -35,6 +35,8 @@ export function buildDashboardScheduleItem(input: {
     nowMs,
     attendance,
     assignmentProgressStatus,
+    // Dashboard schedule/pending feeds don't surface released scores.
+    assignmentScore: null,
   })
 
   const item = mapLearningEntityRow(

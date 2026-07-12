@@ -18,6 +18,7 @@ describe('buildLearnListingCardCtas', () => {
       nowMs,
       attendance: null,
       assignmentProgressStatus: null,
+      assignmentScore: null,
     })
 
     expect(ctas.joinLive).toBe('active')
@@ -48,6 +49,7 @@ describe('buildLearnListingCardCtas', () => {
         lateByMinutes: null,
       },
       assignmentProgressStatus: null,
+      assignmentScore: null,
     })
 
     expect(ctas.joinLive).toBe('hidden')
@@ -67,6 +69,7 @@ describe('buildLearnListingCardCtas', () => {
       nowMs,
       attendance: null,
       assignmentProgressStatus: 'new',
+      assignmentScore: null,
     })
 
     expect(ctas.assignmentStatusChip).toBeNull()
@@ -85,6 +88,7 @@ describe('buildLearnListingCardCtas', () => {
       nowMs,
       attendance: null,
       assignmentProgressStatus: 'in-progress',
+      assignmentScore: null,
     })
 
     expect(ctas.assignmentDeadlineLabel).toBe('2 days remaining')
@@ -103,6 +107,7 @@ describe('buildLearnListingCardCtas', () => {
       nowMs,
       attendance: null,
       assignmentProgressStatus: null,
+      assignmentScore: null,
     })
 
     expect(ctas.assignmentDeadlineLabel).toBeNull()

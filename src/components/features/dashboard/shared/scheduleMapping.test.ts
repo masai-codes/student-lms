@@ -35,7 +35,7 @@ const item = (over: Partial<DashboardScheduleItem> = {}): DashboardScheduleItem 
   attendance: null,
   assignmentProgressStatus: null,
   resourcePhase: null,
-  listingCtas: { joinLive: 'active', joinZoomLink: null, isNewZoomRedirection: false, showAttendance: false, assignmentStatusChip: null, assignmentDeadlineLabel: null },
+  listingCtas: { joinLive: 'active', joinZoomLink: null, isNewZoomRedirection: false, showAttendance: false, assignmentStatusChip: null, assignmentDeadlineLabel: null, assignmentScore: null },
   courseName: 'Full Stack',
   enableZoomWebView: false,
   ...over,

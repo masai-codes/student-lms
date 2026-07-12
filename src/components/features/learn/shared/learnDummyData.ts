@@ -47,6 +47,7 @@ function createDummyItems(
         showAttendance: false,
         assignmentStatusChip: null,
         assignmentDeadlineLabel: null,
+        assignmentScore: null,
       },
       assignmentStatusChip: null,
     }
