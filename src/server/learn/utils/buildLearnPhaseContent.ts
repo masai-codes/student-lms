@@ -6,13 +6,29 @@ import type {
 import type { ResourceKind, ResourcePhase } from '@/server/learn/resourceDetailTypes'
 import { getAssignmentPhaseCopy } from '@/server/learn/utils/getAssignmentPhaseCopy'
 import { getResourcePhaseCopy } from '@/server/learn/utils/getResourcePhaseCopy'
-import { formatSqlDate } from '@/utils/generics'
+import { parseIstToMs } from '@/server/time/istClock'
+
+// IST-pinned formatter. The DB stores schedule as IST wall-clock time; format
+// the display in Asia/Kolkata explicitly so it does not shift with the server's
+// timezone (formatSqlDate used local getters and drifted on non-IST hosts).
+const OPENS_AT_FORMAT: Intl.DateTimeFormatOptions = {
+  day: 'numeric',
+  month: 'short',
+  hour: 'numeric',
+  minute: '2-digit',
+  hour12: true,
+  timeZone: 'Asia/Kolkata',
+}
 
 function formatOpensAtLabel(schedule: string | null): string {
   if (schedule == null || schedule.trim() === '') {
     return 'the scheduled time'
   }
-  return formatSqlDate(schedule)
+  const ms = parseIstToMs(schedule)
+  if (ms == null) {
+    return 'the scheduled time'
+  }
+  return new Intl.DateTimeFormat('en-IN', OPENS_AT_FORMAT).format(new Date(ms))
 }
 
 export function buildAssignmentPhaseContent(

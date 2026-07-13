@@ -3,17 +3,23 @@ import { describe, expect, it } from 'vitest'
 import { buildAssignmentCompletedDetails } from '../buildAssignmentCompletedDetails'
 
 const concludes = '2026-05-20T12:00:00.000Z'
+const kind = 'assignment' as const
 
 describe('buildAssignmentCompletedDetails', () => {
   it('returns null when there is no submission', () => {
     expect(
-      buildAssignmentCompletedDetails({ submission: null, concludes }),
+      buildAssignmentCompletedDetails({
+        assignmentKind: kind,
+        submission: null,
+        concludes,
+      }),
     ).toBeNull()
   })
 
   it('returns null when a submission exists but is neither completed nor marked', () => {
     expect(
       buildAssignmentCompletedDetails({
+        assignmentKind: kind,
         submission: { completed: false, completedAt: null, data: null },
         concludes,
       }),
@@ -22,6 +28,7 @@ describe('buildAssignmentCompletedDetails', () => {
 
   it('builds an auto-graded banner using the completion timestamp', () => {
     const result = buildAssignmentCompletedDetails({
+      assignmentKind: kind,
       submission: {
         completed: true,
         completedAt: '2026-05-20T11:30:00.000Z',
@@ -38,6 +45,7 @@ describe('buildAssignmentCompletedDetails', () => {
 
   it('clamps the auto-graded timestamp to the deadline when completed later', () => {
     const clamped = buildAssignmentCompletedDetails({
+      assignmentKind: kind,
       submission: {
         completed: true,
         completedAt: '2026-05-20T18:00:00.000Z',
@@ -46,6 +54,7 @@ describe('buildAssignmentCompletedDetails', () => {
       concludes,
     })
     const atDeadline = buildAssignmentCompletedDetails({
+      assignmentKind: kind,
       submission: { completed: true, completedAt: concludes, data: null },
       concludes,
     })
@@ -55,6 +64,7 @@ describe('buildAssignmentCompletedDetails', () => {
 
   it('does not clamp when there is no deadline', () => {
     const result = buildAssignmentCompletedDetails({
+      assignmentKind: kind,
       submission: {
         completed: true,
         completedAt: '2026-05-20T18:00:00.000Z',
@@ -69,6 +79,7 @@ describe('buildAssignmentCompletedDetails', () => {
   it('ignores a completed flag without a completion timestamp', () => {
     expect(
       buildAssignmentCompletedDetails({
+        assignmentKind: kind,
         submission: { completed: true, completedAt: null, data: null },
         concludes,
       }),
@@ -77,6 +88,7 @@ describe('buildAssignmentCompletedDetails', () => {
 
   it('builds a manual banner from data.marked_completed_at', () => {
     const result = buildAssignmentCompletedDetails({
+      assignmentKind: kind,
       submission: {
         completed: false,
         completedAt: null,
@@ -86,12 +98,39 @@ describe('buildAssignmentCompletedDetails', () => {
     })
 
     expect(result?.variant).toBe('manual')
-    expect(result?.message).toContain('You have marked this assignment')
+    expect(result?.message).toContain('You have marked this Assignment')
+    // Matches old LMS: the manual "Completed on …" line has no trailing period.
+    expect(result?.message.endsWith('.')).toBe(false)
+  })
+
+  it('uses the right noun per assignment kind (no generic "assignment")', () => {
+    const practice = buildAssignmentCompletedDetails({
+      assignmentKind: 'practice',
+      submission: {
+        completed: true,
+        completedAt: '2026-05-20T11:30:00.000Z',
+        data: null,
+      },
+      concludes,
+    })
+    const evaluation = buildAssignmentCompletedDetails({
+      assignmentKind: 'evaluation',
+      submission: {
+        completed: true,
+        completedAt: '2026-05-20T11:30:00.000Z',
+        data: null,
+      },
+      concludes,
+    })
+
+    expect(practice?.message).toContain('This Practice Assignment was automatically')
+    expect(evaluation?.message).toContain('This Evaluation was automatically')
   })
 
   it('ignores a non-string marked_completed_at value', () => {
     expect(
       buildAssignmentCompletedDetails({
+        assignmentKind: kind,
         submission: {
           completed: false,
           completedAt: null,

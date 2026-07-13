@@ -21,6 +21,8 @@ const baseDetail = {
   scheduleDisplayRange: 'May 20',
   hostAvatarUrl: null,
   instructions: null,
+  emptyInstructionsMessage:
+    'This Assignment does not require additional instructions.',
   enforceDeadline: true,
   phaseContent: { title: 'Open', description: 'Desc', scheduleHint: null },
   completedDetails: null,

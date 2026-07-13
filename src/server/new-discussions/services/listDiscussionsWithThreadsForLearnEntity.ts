@@ -10,7 +10,7 @@ import { mapDiscussionThreadRow } from '@/server/new-discussions/utils/mapDiscus
 
 export async function listDiscussionsWithThreadsForLearnEntity(
   viewerUserId: number,
-  entityType: DiscussionPersistedEntityType,
+  entityType: DiscussionPersistedEntityType | Array<DiscussionPersistedEntityType>,
   entityId: number,
 ): Promise<Array<DiscussionListItem>> {
   const rows = await db
@@ -30,7 +30,9 @@ export async function listDiscussionsWithThreadsForLearnEntity(
     .leftJoin(users, eq(discussions.userId, users.id))
     .where(
       and(
-        eq(discussions.entityType, entityType),
+        Array.isArray(entityType)
+          ? inArray(discussions.entityType, entityType)
+          : eq(discussions.entityType, entityType),
         eq(discussions.entityId, entityId),
         isNull(discussions.deletedAt),
         or(eq(discussions.public, 1), eq(discussions.userId, viewerUserId)),

@@ -124,6 +124,6 @@ describe('buildAssignmentDetailFooter', () => {
 
     expect(
       footer.notices.find((n) => n.variant === 'score-policy')?.message,
-    ).toBe('Evaluation score will be considered.')
+    ).toBe('Evaluation Score will be considered')
   })
 })

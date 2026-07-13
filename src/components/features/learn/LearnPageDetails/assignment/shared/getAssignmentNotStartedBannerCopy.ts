@@ -7,8 +7,8 @@ export type AssignmentNotStartedBannerCopy = {
 
 const COPY: Record<AssignmentKind, AssignmentNotStartedBannerCopy> = {
   practice: {
-    title: "Practice hasn't started yet",
-    description: 'Practice will be unlocked and available at',
+    title: "Practice Assignment hasn't started yet",
+    description: 'Practice Assignment will be unlocked and available at',
   },
   assignment: {
     title: "Assignment hasn't started yet",

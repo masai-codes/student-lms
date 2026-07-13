@@ -56,6 +56,104 @@ export function TicketConversationPanel({
     category === 'fallback-no-poc-mapped' ? 'Others' : category ? slugToLabel(category) : 'Support'
   const subcategoryLabel = subcategory ? slugToLabel(subcategory) : ''
 
+  const attachments =
+    files.length > 0 ? (
+      <div className="mt-2 flex flex-wrap gap-2">
+        {files.map((f, i) => (
+          <span
+            key={`${f.name}-${i}`}
+            className="inline-flex items-center gap-1.5 rounded-full bg-gray-100 px-3 py-1 font-poppins text-[12px] text-gray-700"
+          >
+            <Paperclip className="size-3.5" />
+            <span className="max-w-[120px] truncate">{f.name}</span>
+            <button
+              type="button"
+              aria-label={`Remove ${f.name}`}
+              onClick={() => setFiles((p) => p.filter((_, idx) => idx !== i))}
+              className="text-gray-400 hover:text-gray-700"
+            >
+              ✕
+            </button>
+          </span>
+        ))}
+      </div>
+    ) : null
+
+  const attachButton = (
+    <label className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border border-gray-200 px-3 py-2 font-poppins text-[13px] text-gray-700 hover:bg-gray-50">
+      <Paperclip className="size-4" />
+      Attach
+      <input
+        type="file"
+        multiple
+        className="hidden"
+        disabled={files.length >= MAX_FILES}
+        onChange={(e) => {
+          addFiles(e.target.files)
+          e.target.value = ''
+        }}
+      />
+    </label>
+  )
+
+  // ── Create mode ── mirror the old LMS "Raise a Ticket" modal: the editor sits
+  // at the TOP of the body and a full-width "Create Ticket" button in the footer.
+  if (!isExisting) {
+    return (
+      <div className="flex flex-col h-full overflow-hidden">
+        {/* Sub-header */}
+        <div className="flex items-center gap-3 border-b border-gray-100 px-4 py-3 shrink-0">
+          <button
+            aria-label="Back"
+            onClick={onBack}
+            className="p-1 rounded-lg hover:bg-gray-100 transition-colors"
+          >
+            <ArrowLeft className="h-4 w-4 text-gray-700" />
+          </button>
+          <p className="font-poppins font-[700] text-[18px] text-[#111928] truncate">Raise a Ticket</p>
+        </div>
+
+        {/* Body — top-aligned editor */}
+        <div className="flex-1 overflow-y-auto px-4 py-5">
+          <button
+            type="button"
+            onClick={onBack}
+            className="w-full flex items-center justify-between rounded-[12px] bg-[#EBF5FF] px-3 py-2"
+          >
+            <span className="text-[14px] text-[#1F2A37] font-[500] font-poppins text-left">
+              {subcategoryLabel || categoryLabel}
+            </span>
+            <span className="text-[12px] text-[#6C63B8] font-[500]">Change</span>
+          </button>
+
+          <p className="text-[16px] text-gray-700 mb-3 mt-6 font-poppins">Tell us more about your issue</p>
+          <label className="block text-[14px] font-[500] text-[#1F2A37] mb-2 font-poppins">
+            Describe your issue <span className="text-[#F05252]">*</span>
+          </label>
+
+          <MarkdownComposer value={message} onChange={setMessage} rows={3} placeholder="Type message here" />
+          {uploadError && <p className="mt-1 font-poppins text-[12px] text-red-600">{uploadError}</p>}
+          {attachments}
+          <div className="mt-3">{attachButton}</div>
+        </div>
+
+        {/* Footer — full-width Create Ticket */}
+        <div className="border-t border-gray-100 px-4 pb-5 pt-4 shrink-0">
+          <button
+            type="button"
+            onClick={() => void handleSubmit()}
+            disabled={submitting || (!message.trim() && files.length === 0)}
+            className="w-full rounded-[12px] bg-[#6962AC] py-3.5 text-[16px] text-white font-[600] hover:bg-[#5c56a0] transition disabled:opacity-60 disabled:cursor-not-allowed"
+          >
+            {uploading ? 'Uploading…' : submitting ? 'Creating…' : 'Create Ticket'}
+          </button>
+        </div>
+      </div>
+    )
+  }
+
+  // ── Conversation mode (existing ticket) ── chat with the reply composer pinned
+  // at the bottom.
   return (
     <div className="flex flex-col h-full overflow-hidden">
       {/* Sub-header */}
@@ -104,49 +202,16 @@ export function TicketConversationPanel({
         ))}
       </div>
 
-      {/* Composer (open tickets) */}
-      {(!isExisting || capabilities?.canReply) && (
+      {/* Composer (reply on open tickets) */}
+      {capabilities?.canReply && (
         <div className="border-t border-gray-100 px-4 py-4 shrink-0">
           <MarkdownComposer value={message} onChange={setMessage} rows={3} placeholder="Type your message…" />
           {uploadError && (
             <p className="mt-1 font-poppins text-[12px] text-red-600">{uploadError}</p>
           )}
-          {files.length > 0 && (
-            <div className="mt-2 flex flex-wrap gap-2">
-              {files.map((f, i) => (
-                <span
-                  key={`${f.name}-${i}`}
-                  className="inline-flex items-center gap-1.5 rounded-full bg-gray-100 px-3 py-1 font-poppins text-[12px] text-gray-700"
-                >
-                  <Paperclip className="size-3.5" />
-                  <span className="max-w-[120px] truncate">{f.name}</span>
-                  <button
-                    type="button"
-                    aria-label={`Remove ${f.name}`}
-                    onClick={() => setFiles((p) => p.filter((_, idx) => idx !== i))}
-                    className="text-gray-400 hover:text-gray-700"
-                  >
-                    ✕
-                  </button>
-                </span>
-              ))}
-            </div>
-          )}
+          {attachments}
           <div className="mt-3 flex items-center justify-between">
-            <label className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border border-gray-200 px-3 py-2 font-poppins text-[13px] text-gray-700 hover:bg-gray-50">
-              <Paperclip className="size-4" />
-              Attach
-              <input
-                type="file"
-                multiple
-                className="hidden"
-                disabled={files.length >= MAX_FILES}
-                onChange={(e) => {
-                  addFiles(e.target.files)
-                  e.target.value = ''
-                }}
-              />
-            </label>
+            {attachButton}
             <button
               onClick={() => void handleSubmit()}
               disabled={submitting || (!message.trim() && files.length === 0)}
