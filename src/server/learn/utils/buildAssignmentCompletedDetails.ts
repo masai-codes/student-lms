@@ -1,4 +1,6 @@
+import type { AssignmentKind } from '@/server/learn/assignmentDetailTypes'
 import { formatSqlDate } from '@/utils/generics'
+import { getAssignmentTypeNoun } from '@/server/learn/utils/getAssignmentTypeNoun'
 import { parseIstToMs } from '@/server/time/istClock'
 
 /**
@@ -13,6 +15,7 @@ export type AssignmentCompletedDetails = {
 }
 
 export type AssignmentCompletedDetailsInput = {
+  assignmentKind: AssignmentKind
   submission: {
     completed: boolean
     completedAt: string | null
@@ -39,8 +42,10 @@ function readMarkedCompletedAt(data: Record<string, unknown> | null): string | n
 export function buildAssignmentCompletedDetails(
   input: AssignmentCompletedDetailsInput,
 ): AssignmentCompletedDetails | null {
-  const { submission, concludes } = input
+  const { assignmentKind, submission, concludes } = input
   if (submission == null) return null
+
+  const noun = getAssignmentTypeNoun(assignmentKind)
 
   if (submission.completed && submission.completedAt != null) {
     const completedAtLabel = formatSqlDate(
@@ -49,7 +54,7 @@ export function buildAssignmentCompletedDetails(
     return {
       variant: 'auto-graded',
       completedAtLabel,
-      message: `This assignment was automatically marked as "Completed" on ${completedAtLabel} and graded.`,
+      message: `This ${noun} was automatically marked as "Completed" on ${completedAtLabel} and graded.`,
     }
   }
 
@@ -59,7 +64,7 @@ export function buildAssignmentCompletedDetails(
     return {
       variant: 'manual',
       completedAtLabel,
-      message: `You have marked this assignment as "Completed" on ${completedAtLabel}.`,
+      message: `You have marked this ${noun} as "Completed" on ${completedAtLabel}`,
     }
   }
 

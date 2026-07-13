@@ -97,6 +97,44 @@ describe('buildLearnListingCardCtas', () => {
     expect(ctas.assignmentDeadlineLabel).toBe('2 days remaining')
   })
 
+  it('hides the deadline label once the assignment is completed', () => {
+    const ctas = buildLearnListingCardCtas({
+      learningType: 'assignment',
+      lectureId: 6,
+      itemType: 'coding',
+      schedule: '2026-05-10T10:00:00.000Z',
+      concludes: '2026-05-13T12:00:00.000Z', // still in the future
+      isMandatory: true,
+      zoomLink: null,
+      isNewZoomRedirection: false,
+      nowMs,
+      attendance: null,
+      assignmentProgressStatus: 'completed',
+      assignmentScore: null,
+    })
+
+    expect(ctas.assignmentDeadlineLabel).toBeNull()
+  })
+
+  it('hides the deadline label before the assignment window opens', () => {
+    const ctas = buildLearnListingCardCtas({
+      learningType: 'assignment',
+      lectureId: 7,
+      itemType: 'coding',
+      schedule: '2026-05-12T10:00:00.000Z', // schedule is after nowMs
+      concludes: '2026-05-13T12:00:00.000Z',
+      isMandatory: true,
+      zoomLink: null,
+      isNewZoomRedirection: false,
+      nowMs,
+      attendance: null,
+      assignmentProgressStatus: 'new',
+      assignmentScore: null,
+    })
+
+    expect(ctas.assignmentDeadlineLabel).toBeNull()
+  })
+
   it('leaves the deadline label null for lectures', () => {
     const ctas = buildLearnListingCardCtas({
       learningType: 'lecture',
