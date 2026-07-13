@@ -44,7 +44,11 @@ export function RaiseTicketDrawer({
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent
         side="right"
-        className="flex w-full flex-col gap-0 p-0 sm:max-w-[480px]"
+        // Raise above page-level fixed bars (e.g. the assignment detail sticky
+        // footer at z-[80]) so the drawer — and its Create Ticket CTA — is never
+        // hidden behind them.
+        className="z-[100] flex w-full flex-col gap-0 p-0 sm:max-w-[480px]"
+        overlayClassName="z-[100]"
         showCloseButton={false}
       >
         {open && (

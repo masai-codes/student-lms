@@ -194,6 +194,46 @@ export function CreateTicketModal({
     if (e.target === e.currentTarget) onClose()
   }
 
+  const attachments =
+    files.length > 0 ? (
+      <div className="mt-2 flex flex-wrap gap-2">
+        {files.map((f, i) => (
+          <span
+            key={`${f.name}-${i}`}
+            className="inline-flex items-center gap-1.5 rounded-full bg-gray-100 px-3 py-1 font-poppins text-[12px] text-gray-700"
+          >
+            <Paperclip className="size-3.5" />
+            <span className="max-w-[140px] truncate">{f.name}</span>
+            <button
+              type="button"
+              aria-label={`Remove ${f.name}`}
+              onClick={() => setFiles((prev) => prev.filter((_, idx) => idx !== i))}
+              className="text-gray-400 hover:text-gray-700"
+            >
+              ✕
+            </button>
+          </span>
+        ))}
+      </div>
+    ) : null
+
+  const attachButton = (
+    <label className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border border-gray-200 px-3 py-2 font-poppins text-[13px] text-gray-700 hover:bg-gray-50">
+      <Paperclip className="size-4" />
+      Attach
+      <input
+        type="file"
+        multiple
+        className="hidden"
+        disabled={files.length >= MAX_FILES}
+        onChange={(e) => {
+          addFiles(e.target.files)
+          e.target.value = ''
+        }}
+      />
+    </label>
+  )
+
   const content = (
     <div className={wrapperClassName} onClick={handleBackdrop}>
       <div className={containerClassName} onClick={(e) => e.stopPropagation()}>
@@ -221,33 +261,79 @@ export function CreateTicketModal({
         </div>
 
         {/* Body */}
-        <div className={`flex-1 overflow-y-auto ${isDesktop ? 'px-5 py-6' : 'px-4 py-5'} space-y-4`} ref={scrollRef}>
-          <div className="rounded-3xl bg-[#F7F6FF] border border-[#E6E3FF] px-4 py-4 text-[13px] text-gray-700 font-poppins leading-relaxed">
-            <p>Share the details of your issue so our support team can reach out with the right help.</p>
-          </div>
-          {ticket?.message && (
-            <ResponseBubble isStudent author={ticket.owner.name} message={ticket.message} />
-          )}
-          {thread?.statusResponse && (
-            <ResponseBubble
-              isStudent={false}
-              author="Support Team"
-              message={`**${thread.statusResponse.heading}**\n\n${thread.statusResponse.message}`}
-            />
-          )}
-          {thread?.messages.map((m: TicketMessage) => (
-            <ResponseBubble
-              key={m.id}
-              isStudent={m.side === 'student'}
-              author={m.author.name}
-              role={m.author.role}
-              message={m.message}
-            />
-          ))}
-        </div>
+        {!isExisting ? (
+          /* Create mode — mirror the old LMS modal: editor at the TOP of the body,
+             full-width "Create Ticket" in the footer. */
+          <div className={`flex-1 overflow-y-auto ${isDesktop ? 'px-5 py-6' : 'px-4 py-5'}`}>
+            <button
+              type="button"
+              onClick={onBack}
+              className="w-full flex items-center justify-between rounded-[12px] bg-[#EBF5FF] px-3 py-2"
+            >
+              <span className="text-[14px] text-[#1F2A37] font-[500] font-poppins text-left">
+                {subcategoryDisplayName || categoryDisplayName}
+              </span>
+              <span className="text-[12px] text-[#6C63B8] font-[500]">Change</span>
+            </button>
 
-        {/* Footer: composer (open) or feedback (resolved/closed) */}
-        {(!isExisting || capabilities?.canReply) && (
+            <p className="text-[16px] text-gray-700 mb-3 mt-6 font-poppins">Tell us more about your issue</p>
+            <label className="block text-[14px] font-[500] text-[#1F2A37] mb-2 font-poppins">
+              Describe your issue <span className="text-[#F05252]">*</span>
+            </label>
+
+            <MarkdownComposer
+              value={message}
+              onChange={setMessage}
+              rows={3}
+              placeholder="Type message here"
+            />
+
+            {uploadError && <p className="mt-2 font-poppins text-[12px] text-red-600">{uploadError}</p>}
+            {attachments}
+            <div className="mt-4">{attachButton}</div>
+          </div>
+        ) : (
+          <div className={`flex-1 overflow-y-auto ${isDesktop ? 'px-5 py-6' : 'px-4 py-5'} space-y-4`} ref={scrollRef}>
+            <div className="rounded-3xl bg-[#F7F6FF] border border-[#E6E3FF] px-4 py-4 text-[13px] text-gray-700 font-poppins leading-relaxed">
+              <p>Share the details of your issue so our support team can reach out with the right help.</p>
+            </div>
+            {ticket?.message && (
+              <ResponseBubble isStudent author={ticket.owner.name} message={ticket.message} />
+            )}
+            {thread?.statusResponse && (
+              <ResponseBubble
+                isStudent={false}
+                author="Support Team"
+                message={`**${thread.statusResponse.heading}**\n\n${thread.statusResponse.message}`}
+              />
+            )}
+            {thread?.messages.map((m: TicketMessage) => (
+              <ResponseBubble
+                key={m.id}
+                isStudent={m.side === 'student'}
+                author={m.author.name}
+                role={m.author.role}
+                message={m.message}
+              />
+            ))}
+          </div>
+        )}
+
+        {/* Create footer — full-width Create Ticket */}
+        {!isExisting && (
+          <div className={`border-t border-gray-100 ${isDesktop ? 'px-5 py-4' : 'px-4 py-4'}`}>
+            <button
+              onClick={() => void handleSubmit()}
+              disabled={submitting || (!message.trim() && files.length === 0)}
+              className="w-full rounded-[12px] bg-[#6962AC] py-3.5 text-[16px] text-white font-[600] hover:bg-[#5c56a0] transition disabled:opacity-60 disabled:cursor-not-allowed"
+            >
+              {uploading ? 'Uploading…' : submitting ? 'Creating…' : 'Create Ticket'}
+            </button>
+          </div>
+        )}
+
+        {/* Reply composer (existing open ticket) */}
+        {isExisting && capabilities?.canReply && (
           <div className={`${isDesktop ? 'px-5 py-4' : 'px-4 py-4'}`}>
             <MarkdownComposer
               value={message}
@@ -260,44 +346,10 @@ export function CreateTicketModal({
               <p className="mt-2 font-poppins text-[12px] text-red-600">{uploadError}</p>
             )}
 
-            {/* Selected attachments */}
-            {files.length > 0 && (
-              <div className="mt-2 flex flex-wrap gap-2">
-                {files.map((f, i) => (
-                  <span
-                    key={`${f.name}-${i}`}
-                    className="inline-flex items-center gap-1.5 rounded-full bg-gray-100 px-3 py-1 font-poppins text-[12px] text-gray-700"
-                  >
-                    <Paperclip className="size-3.5" />
-                    <span className="max-w-[140px] truncate">{f.name}</span>
-                    <button
-                      type="button"
-                      aria-label={`Remove ${f.name}`}
-                      onClick={() => setFiles((prev) => prev.filter((_, idx) => idx !== i))}
-                      className="text-gray-400 hover:text-gray-700"
-                    >
-                      ✕
-                    </button>
-                  </span>
-                ))}
-              </div>
-            )}
+            {attachments}
 
             <div className="mt-4 flex items-center justify-between">
-              <label className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border border-gray-200 px-3 py-2 font-poppins text-[13px] text-gray-700 hover:bg-gray-50">
-                <Paperclip className="size-4" />
-                Attach
-                <input
-                  type="file"
-                  multiple
-                  className="hidden"
-                  disabled={files.length >= MAX_FILES}
-                  onChange={(e) => {
-                    addFiles(e.target.files)
-                    e.target.value = ''
-                  }}
-                />
-              </label>
+              {attachButton}
               <button
                 onClick={() => void handleSubmit()}
                 disabled={submitting || (!message.trim() && files.length === 0)}
