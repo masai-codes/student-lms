@@ -93,6 +93,10 @@ function buildScoreBlock(
   context: AssignmentDetailFooterContext,
 ): AssignmentDetailFooter['score'] {
   if (!context.showScores) return null
+  // Match old LMS: the "Score yet to be released" tag only appears once a
+  // submission exists (old LMS keys off `final_score === null`, which requires
+  // a submission row). No submission => no score chip at all.
+  if (context.submission == null) return null
   const gradedScore = resolveGradedScore(context.submission)
   if (gradedScore == null) {
     return {
