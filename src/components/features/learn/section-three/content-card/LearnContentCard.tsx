@@ -252,6 +252,14 @@ export function LearnContentCard({
               forceRow={isAssociatedCard}
             />
           ) : null}
+          {item.type === 'assignment' && item.assignmentDeadlineLabel ? (
+            <span
+              data-testid="learn-assignment-deadline"
+              className="type-t1 whitespace-nowrap text-gray-500"
+            >
+              {item.assignmentDeadlineLabel}
+            </span>
+          ) : null}
           {item.type === 'assignment' &&
           item.assignmentStatusChip === 'practice-mode' ? (
             <MasaiChips
