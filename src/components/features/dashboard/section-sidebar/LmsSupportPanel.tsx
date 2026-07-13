@@ -23,7 +23,10 @@ const SUBTEXT: Record<SupportSessionStatus, string> = {
 // is no session (and while loading, the parent passes null). The backend
 // decides live/today/upcoming; this only renders. The card body is never
 // clickable — the only interactive element is the live "Join Now" button.
-export function LmsSupportPanel({ session, now = new Date() }: LmsSupportPanelProps) {
+export function LmsSupportPanel({
+  session,
+  now = new Date(),
+}: LmsSupportPanelProps) {
   // The LMS support-session card is a Masai-only surface — hidden on iHub.
   if (isIHubPortal()) return null
   if (!session) return null
@@ -44,21 +47,29 @@ export function LmsSupportPanel({ session, now = new Date() }: LmsSupportPanelPr
     <section
       data-testid="dashboard-lms-support-panel"
       data-status={status}
-      className={`flex items-center gap-3 rounded-2xl border p-4 ${
+      className={`flex items-center gap-3 rounded-2xl border p-4 transition-shadow duration-300 ${
         isLive
-          ? 'border-[#C3DDFD] bg-[#E1EFFE]'
-          : 'border-[#E5E7EB] bg-[#F9FAFB]'
+          ? 'dash-sheen border-[#C3DDFD] bg-gradient-to-r from-[#E1EFFE] to-[#E7ECFE] shadow-[0_6px_20px_-8px_rgb(63_131_248_/_0.35)]'
+          : 'border-[#E5E7EB] bg-[#F9FAFB] hover:shadow-sm'
       }`}
     >
-      <img src={SUPPORT_ILLUSTRATION} alt="" className="size-12 shrink-0" />
+      <img
+        src={SUPPORT_ILLUSTRATION}
+        alt=""
+        className="animate-dash-float size-12 shrink-0"
+      />
 
       <div className="min-w-0 flex-1">
-        <h4 className="text-sm font-semibold text-gray-900">
+        <h4 className="flex items-center gap-1.5 text-sm font-semibold text-gray-900">
           LMS Support Session
+          {isLive && (
+            <span aria-hidden className="relative flex size-2">
+              <span className="animate-dash-ping absolute inset-0 rounded-full bg-[#ED0331]" />
+              <span className="relative size-2 rounded-full bg-[#ED0331]" />
+            </span>
+          )}
         </h4>
-        <p className="mt-0.5 text-xs text-gray-600">
-          {SUBTEXT[status]}
-        </p>
+        <p className="mt-0.5 text-xs text-gray-600">{SUBTEXT[status]}</p>
         {!isLive && session.schedule && (
           <span
             data-testid="dashboard-support-session-time"
@@ -81,7 +92,7 @@ export function LmsSupportPanel({ session, now = new Date() }: LmsSupportPanelPr
               status: session.status,
             })
           }
-          className="inline-flex shrink-0 items-center rounded-lg bg-[#3F83F8] px-3.5 py-2 text-xs font-semibold text-white transition-colors hover:bg-[#3576e0] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#3F83F8]"
+          className="inline-flex shrink-0 items-center rounded-lg bg-[#3F83F8] px-3.5 py-2 text-xs font-semibold text-white shadow-[0_4px_14px_-4px_rgb(63_131_248_/_0.6)] transition-all duration-200 ease-out hover:-translate-y-px hover:bg-[#3576e0] hover:shadow-[0_6px_18px_-4px_rgb(63_131_248_/_0.7)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#3F83F8] active:translate-y-0 active:scale-95"
         >
           Join Now
         </a>
