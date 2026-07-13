@@ -19,6 +19,7 @@ export type AssignmentDetailPayload = LearnHubDetailPayload & {
   scheduleDisplayRange: string
   hostAvatarUrl: string | null
   instructions: string | null
+  emptyInstructionsMessage: string
   enforceDeadline: boolean
   phaseContent: LearnPhaseContent
   footer: AssignmentDetailFooter

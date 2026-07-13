@@ -51,7 +51,7 @@ function isAssignmentUnlocked(schedule: string | null, nowMs: number): boolean {
   return nowMs >= scheduleMs
 }
 
-function isAssignmentExpired(
+export function isAssignmentExpired(
   settings: Record<string, unknown> | null,
   concludes: string | null,
   nowMs: number,
@@ -129,7 +129,7 @@ function buildNotices(
     if (context.assignmentKind === 'evaluation') {
       notices.push({
         variant: 'score-policy',
-        message: 'Evaluation score will be considered.',
+        message: 'Evaluation Score will be considered',
       })
     }
   }
