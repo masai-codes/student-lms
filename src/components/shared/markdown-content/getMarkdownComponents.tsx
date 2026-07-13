@@ -1,6 +1,8 @@
 import type { ReactNode } from 'react'
 import type { Components } from 'react-markdown'
 
+import { MermaidCodeComponent } from './MermaidCodeComponent'
+
 export type MarkdownContentVariant = 'card' | 'detail'
 
 const AUDIO_EXTENSIONS = /\.(mp3|wav|ogg|m4a|aac|flac|webm)(\?.*)?$/i
@@ -11,9 +13,10 @@ function externalLinkProps() {
 
 function createSharedBodyComponents(): Pick<
   Components,
-  'p' | 'ul' | 'ol' | 'li' | 'strong' | 'a' | 'blockquote' | 'br'
+  'p' | 'ul' | 'ol' | 'li' | 'strong' | 'a' | 'blockquote' | 'br' | 'code'
 > {
   return {
+    code: MermaidCodeComponent,
     p: ({ children }: { children?: ReactNode }) => <p>{children}</p>,
     ul: ({ children }: { children?: ReactNode }) => <ul>{children}</ul>,
     ol: ({ children }: { children?: ReactNode }) => <ol>{children}</ol>,

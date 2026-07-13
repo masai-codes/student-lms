@@ -2,8 +2,7 @@ import type {
   AssignmentDetailPayload,
   AssignmentKind,
 } from '@/server/learn/assignmentDetailTypes'
-import type { LearnAssociatedListItem } from '@/server/learn/learnAssociatedTypes'
-import type { LearnHubDetailPayload } from '@/server/learn/types'
+import type { LearnHubDetailPayload, LearningItem } from '@/server/learn/types'
 import type { AssignmentProblemListItem } from '@/server/learn/utils/buildAssignmentProblemListItems'
 import type { AssignmentDetailFooterContext } from '@/server/learn/utils/buildAssignmentDetailFooter'
 import { buildAssignmentDetailFooter } from '@/server/learn/utils/buildAssignmentDetailFooter'
@@ -57,9 +56,9 @@ export function buildAssignmentDetailPayload(
   row: AssignmentDetailRow,
   nowMs: number,
   footerInput: AssignmentDetailFooterInput,
-  associatedItems: Array<LearnAssociatedListItem>,
+  associatedItems: Array<LearningItem>,
   problems: Array<AssignmentProblemListItem>,
-): AssignmentDetailPayload {
+): Omit<AssignmentDetailPayload, 'isBookmarked'> {
   const assignmentKind = normalizeAssignmentKind(row.type)
   if (assignmentKind == null) {
     throw new Error('ASSIGNMENT_DETAIL_UNSUPPORTED_TYPE')
@@ -90,17 +89,22 @@ export function buildAssignmentDetailPayload(
     submission: footerInput.submission,
   })
 
-  const completedDetails = buildAssignmentCompletedDetails({
-    submission:
-      footerInput.submission == null
-        ? null
-        : {
-            completed: footerInput.submission.completed,
-            completedAt: footerInput.submission.completedAt,
-            data: footerInput.submission.data,
-          },
-    concludes: row.concludes,
-  })
+  // Match old LMS: the "Completed" banner is only shown for assignments with
+  // no attached problems (problem-based/coding assignments never show it).
+  const completedDetails =
+    problems.length > 0
+      ? null
+      : buildAssignmentCompletedDetails({
+          submission:
+            footerInput.submission == null
+              ? null
+              : {
+                  completed: footerInput.submission.completed,
+                  completedAt: footerInput.submission.completedAt,
+                  data: footerInput.submission.data,
+                },
+          concludes: row.concludes,
+        })
 
   return {
     ...core,

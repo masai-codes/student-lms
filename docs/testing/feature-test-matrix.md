@@ -28,10 +28,10 @@ Last updated: 2026-07-09
 
 
 ## Lecture attendance (learn listing + detail)
-- Area: `student_attendances` summaries on `GET /api/learn/batch-data` and `GET /api/learn/lectures/:id`; shared server utils + client UI state resolver
-- Status: Covered (unit tests for catch-up + UI mapping)
-- Test files: `src/server/attendance/**/__tests__/*`, `src/lib/lecture-attendance/**/__tests__/*`
-- Notes: Optional (recommended) lectures omit `attendance` on both APIs
+- Area: `student_attendances` summaries on `GET /api/learn/batch-data` and `GET /api/learn/lectures/:id`; shared server utils + client UI state resolver; blue attendance disclaimer banner on lecture detail (`resolveLectureAttendanceBanner` + `LectureAttendanceBanner`, rendered in `LectureDetailChrome`)
+- Status: Covered (unit tests for catch-up + UI mapping; banner rule table + view)
+- Test files: `src/server/attendance/**/__tests__/*`, `src/lib/lecture-attendance/**/__tests__/*`, `src/components/features/learn/attendance/__tests__/LectureAttendanceBanner.test.tsx`
+- Notes: Optional (recommended) lectures omit `attendance` on both APIs (so no banner); banner variants = `video-counts` (recording counts) vs `live-only`; hidden mid-watch when recording counts (progress bar shown instead). See `docs/testing/features/lecture-detail.md`
 
 ## Learn REST APIs (`/api/learn/*`)
 - Area: HTTP routes for the single learn-page endpoint + lecture/assignment/resource detail; client `learnApi.ts`; handlers + services split
@@ -52,9 +52,9 @@ Last updated: 2026-07-09
 - Notes: See `docs/testing/features/resource-detail.md`
 
 ## Assignment detail (`/assignments/:id`)
-- Area: Single `getAssignmentLearningDetail` loader; assignment kind/phase/instructions/phase copy, server-driven sticky footer (status, score, CTAs), completed-details banner (auto-graded/manual), header badges (deadline-enforced + weightage), Assessment Platform live analytics, evaluation pledge gate, problems list (per-problem solution status), discussions with threads on server
-- Status: Covered (server utils + footer builder + completed-details/header-badge builders + sticky footer/completed-banner/header-badge UI; CTA click handlers / assess-platform APIs pending)
-- Test files: `src/server/learn/utils/__tests__/resolveAssignmentPhase.test.ts`, `src/server/learn/utils/__tests__/calculateAssignmentProgressStatus.test.ts`, `src/server/learn/utils/__tests__/buildAssignmentDetailFooter.test.ts`, `src/server/learn/utils/__tests__/buildAssignmentDetailPayload.test.ts`, `src/server/learn/utils/__tests__/buildAssignmentCompletedDetails.test.ts`, `src/server/learn/utils/__tests__/buildAssignmentHeaderBadges.test.ts`, `src/server/learn/utils/__tests__/buildAssignmentLiveAnalytics.test.ts`, `src/server/learn/utils/__tests__/resolveAssignmentRequiresPledge.test.ts`, `src/components/features/learn/LearnPageDetails/assignment/shared/__tests__/AssignmentPledgeGate.test.tsx`, `src/server/learn/queries/__tests__/fetchAssignmentProblems.test.ts`, `src/server/learn/utils/__tests__/buildAssignmentProblemListItems.test.ts`, `src/components/features/learn/LearnPageDetails/assignment/shared/__tests__/AssignmentProblemList.test.tsx`, `src/components/features/learn/LearnPageDetails/assignment/shared/__tests__/AssignmentDetailStickyFooter.test.tsx`, `src/components/features/learn/LearnPageDetails/assignment/shared/__tests__/AssignmentCompletedBanner.test.tsx`, `src/components/features/learn/LearnPageDetails/assignment/shared/__tests__/AssignmentHeaderBadges.test.tsx`, `src/components/features/learn/LearnPageDetails/assignment/shared/__tests__/AssignmentLiveAnalytics.test.tsx`, `src/components/shared/markdown-content/__tests__/*`
+- Area: Single `getAssignmentLearningDetail` loader; assignment kind/phase/instructions/phase copy, server-driven sticky footer (status, score, CTAs), completed-details banner (auto-graded/manual), header badges (deadline-enforced + weightage), Assessment Platform live analytics, evaluation integrity pledge modal (forced, non-dismissible overlay that gates submission creation), problems list (per-problem solution status), discussions with threads on server; on-mount legacy side-effects — auto-create submission once window opens (non-evaluation) and Assess Platform token completion (`?sauToken=&markAsCompleted=true` → `POST /api/learn/assignments/:id/mark-completed-with-token`)
+- Status: Covered (server utils + footer builder + completed-details/header-badge builders + sticky footer/completed-banner/header-badge UI; kind routing + auto-create + token-completion effects/service/handler/client API covered; CTA click handlers / assess-platform URL APIs pending)
+- Test files: `src/server/learn/utils/__tests__/resolveAssignmentPhase.test.ts`, `src/server/learn/utils/__tests__/calculateAssignmentProgressStatus.test.ts`, `src/server/learn/utils/__tests__/buildAssignmentDetailFooter.test.ts`, `src/server/learn/utils/__tests__/buildAssignmentDetailPayload.test.ts`, `src/server/learn/utils/__tests__/buildAssignmentCompletedDetails.test.ts`, `src/server/learn/utils/__tests__/buildAssignmentHeaderBadges.test.ts`, `src/server/learn/utils/__tests__/buildAssignmentLiveAnalytics.test.ts`, `src/server/learn/utils/__tests__/resolveAssignmentRequiresPledge.test.ts`, `src/components/features/learn/LearnPageDetails/assignment/shared/__tests__/AssignmentPledgeModal.test.tsx`, `src/server/learn/queries/__tests__/fetchAssignmentProblems.test.ts`, `src/server/learn/utils/__tests__/buildAssignmentProblemListItems.test.ts`, `src/components/features/learn/LearnPageDetails/assignment/shared/__tests__/AssignmentProblemList.test.tsx`, `src/components/features/learn/LearnPageDetails/assignment/shared/__tests__/AssignmentDetailStickyFooter.test.tsx`, `src/components/features/learn/LearnPageDetails/assignment/shared/__tests__/AssignmentCompletedBanner.test.tsx`, `src/components/features/learn/LearnPageDetails/assignment/shared/__tests__/AssignmentHeaderBadges.test.tsx`, `src/components/features/learn/LearnPageDetails/assignment/shared/__tests__/AssignmentLiveAnalytics.test.tsx`, `src/components/features/learn/LearnPageDetails/assignment/__tests__/AssignmentDetailPage.test.tsx`, `src/components/features/learn/LearnPageDetails/assignment/shared/__tests__/useAutoCreateAssignmentSubmission.test.tsx`, `src/components/features/learn/LearnPageDetails/assignment/shared/__tests__/useTokenCompletion.test.tsx`, `src/server/assignments/services/__tests__/markSubmissionCompletedWithToken.test.ts`, `src/server/api/learn/handlers/__tests__/markSubmissionCompletedWithToken.handler.test.ts`, `src/lib/api/learn/__tests__/markSubmissionCompletedWithTokenApi.test.ts`, `src/components/shared/markdown-content/__tests__/*`
 - Notes: See `docs/testing/features/assignment-detail.md`
 
 ## Problem detail (`/assignments/:assignmentId/problems/:problemId`)
@@ -70,10 +70,10 @@ Last updated: 2026-07-09
 - Notes: See `docs/testing/features/lecture-detail.md`, `docs/testing/features/lecture-video-player.md`
 
 ## Learn hub (new-discussions)
-- Area: Server + learn detail integration for entity-scoped discussions (non-admin)
-- Status: Partial (unit coverage for helpers; integration tests for Drizzle list/create/reply not added yet)
-- Test files: `src/server/new-discussions/**/__tests__/*.test.ts`
-- Notes: UI lives under `src/components/features/new-discussions/`. Legacy `discussions` module and course discussion routes removed.
+- Area: Server + learn detail integration for entity-scoped discussions (non-admin), plus the shared detail-page list UI (`LectureDiscussionsSection`) with search, "My Discussions" toggle, 10-per-page pagination, Ongoing/Closed tags, unread-reply badges, owner close/reopen, and owner feedback/rating across lecture/assignment/resource detail
+- Status: Partial (unit coverage for helpers + list controls/toolbar/pagination/tags UI + owner read/close/feedback services, handlers & UI; integration tests for Drizzle list/create/reply not added yet)
+- Test files: `src/server/new-discussions/**/__tests__/*.test.ts`, `src/server/api/learn/handlers/__tests__/{markLearnDiscussionRead,setLearnDiscussionClosed,submitLearnDiscussionFeedback}.handler.test.ts`, `src/lib/api/learn/__tests__/discussionsApi.test.ts`, `src/components/features/learn/LearnPageDetails/lecture/discussions/**/__tests__/*`, `src/components/features/new-discussions/__tests__/DiscussionSummaryCard.test.tsx`
+- Notes: Filtering/search/pagination are client-side over the discussion list already embedded in the detail payload (no new list endpoint); search matches title or message preview; `Ongoing`/`Closed` tag derives from `isClosed`. Owner-only writes: mark-read (`POST /:id/read`, stamps thread `read_at`, feeds `unreadReplyCount`), close/reopen (`POST /:id/close`), feedback (`POST /:id/feedback`, merged into `discussions.data.learnFeedback` → `feedbackRating`). Legacy `discussions` module and course discussion routes removed.
 
 ## Masaiverse
 - Area: Server APIs (all endpoints)
@@ -189,7 +189,7 @@ Last updated: 2026-07-09
 - Area: Authenticated SSE chat stub (`src/routes/api/ai-tutor/chat/stream.ts`, `src/server/api/ai-tutor/**`, `src/server/api/http/sse.ts`)
 - Status: Covered
 - Test files: `src/server/api/ai-tutor/__tests__/stream*.test.ts`, `src/server/api/http/__tests__/sse.test.ts`
-- Notes: `POST /api/ai-tutor/chat/stream` requires a session cookie, accepts `{ lectureId, chat, chatID?, platform?, language? }`, reads/writes `ai_chat_practice_questions`, loads lecture summary from `lectures_ai`, streams Claude output as SSE token events, persists each turn with optional `platform` and `language` on `chatHistory`, enforces reply language when `language` is set, and returns `{ type: "done", chatId }`.
+- Notes: `POST /api/ai-tutor/chat/stream` requires a session cookie, accepts `{ lectureId, chat, chatID?, platform?, language? }` (`platform`: `ios` | `android` | `web` | `web-mobile` | `web-desktop` | `app`), reads/writes `ai_chat_practice_questions`, loads lecture summary from `lectures_ai`, streams Claude output as SSE token events, persists each turn with optional `platform` and `language` on `chatHistory`, enforces reply language when `language` is set, and returns `{ type: "done", chatId }`.
 
 ## AI Tutor chat conversations
 - Area: Authenticated lecture chat history (`src/routes/api/ai-tutor/chat/conversations/**`, `src/server/api/ai-tutor/**`, `src/lib/api/ai-tutor/aiTutorChatApi.ts`)
@@ -211,13 +211,25 @@ Last updated: 2026-07-09
 - Area: Authenticated chat feedback (`src/routes/api/ai-tutor/chat/feedback.ts`, `src/server/api/ai-tutor/**`, `src/lib/api/ai-tutor/aiTutorChatApi.ts`)
 - Status: Covered
 - Test files: `src/server/api/ai-tutor/__tests__/{submitFeedback.handler,submitChatPracticeFeedback.service,feedbackPlatform}.test.ts`
-- Notes: `POST /api/ai-tutor/chat/feedback` accepts `{ lectureId, chatId, rating, feedback?, platform? }`, validates ownership of the chat thread, normalizes ratings by platform (`web`: `0`/`1`; `ios`/`android`: stored as `rating + 1`), prefixes `feedback` with `platform-` (or stores platform alone when text is blank), and persists `rating`, `feedback`, and `feedbackTime` on `ai_chat_practice_questions`.
+- Notes: `POST /api/ai-tutor/chat/feedback` accepts `{ lectureId, chatId, rating, feedback?, platform? }`, validates ownership of the chat thread, normalizes ratings by platform (`web` / `web-mobile` / `web-desktop` / `app`: `0`/`1`; `ios`/`android`: `1`–`5`), prefixes `feedback` with `platform-` (or stores platform alone when text is blank), and persists `rating`, `feedback`, and `feedbackTime` on `ai_chat_practice_questions`.
+
+## AI Tutor chat feedback rating migration
+- Area: Admin one-off rating backfill (`src/routes/api/ai-tutor/chat/feedback/migrate-ratings.ts`, `src/server/api/ai-tutor/migrateAiTutorFeedbackRatings.service.ts`)
+- Status: Covered
+- Test files: `src/server/api/ai-tutor/__tests__/{migrateFeedbackRating,migrateAiTutorFeedbackRatings.service,migrateFeedbackRatings.handler}.test.ts`
+- Notes: `POST /api/ai-tutor/chat/feedback/migrate-ratings` is admin-gated and backfills legacy `ai_chat_practice_questions.rating` values: subtract `1` for `ios`/`android` feedback prefixes (skip when result would be `< 1`), otherwise convert unprefixed binary `0`/`1` ratings to `1`/`5`. Supports `{ dryRun: true }`.
 
 ## Announcement popups (global queued modal)
 - Area: Global announcement popups on every authenticated page. Frontend (`src/components/modals/**`): `AnnouncementModalController` (mounted in `(protected)/_layout/route.tsx`), `useAnnouncementPopups` (queue hook), `AnnouncementPopupModal` (UI), `ModalContext` (central stack). Backend read endpoints reused from announcements (`markAnnouncementRead` / `markMessageRead`).
 - Status: Covered
 - Test files: `src/components/modals/useAnnouncementPopups.test.tsx`, `src/components/modals/AnnouncementPopupModal.test.tsx`, `src/components/modals/ModalContext.test.tsx`
 - Notes: Popups show strictly one at a time. The hook exposes `current` (item being displayed, kept during the exit animation) and `open` (visibility). Actioning a popup (Mark as read / CTA / Show me later) sets `open=false` to play the modal exit animation, then after `CLOSE_ANIMATION_MS` (300ms, matching the modal overlay `duration-300`) clears `current`, letting the effect pick and open the next queued popup — so popups never appear together / never instant-swap. Mark read + CTA mark server-side read (`markAnnouncementRead` for `source: 'a'`, `markMessageRead` for `source: 'm'`) and permanently dismiss; CTA opens its link first; "Show me later" (backdrop/escape too) dismisses for the session only (reappears on reload). The central `ModalContext` stack keeps the announcement popup suppressed under any higher-priority modal until that closes. Test docs: `docs/testing/features/announcement-popups.md`.
+
+## Associated content (lectures, resources & assignments)
+- Area: `getAllAssociatedEntities` resolves the full transitive closure of a lecture/resource/assignment's associations across a section, in both directions (E1↔E2↔E3), from the legacy `data.associatedLecture` JSON. Builds one undirected graph in memory (O(V + E)), then enriches reachable rows into full `LearningItem` DTOs via the shared listing-card builders so the associated UI renders the **exact `/learn` `LearnContentCard`** (tags, chips, attendance, score, join-live), grouped by kind. Section-less entities fall back to direct forward links. Feeds `associatedItems: LearningItem[]` into the three learn detail services.
+- Status: Covered (graph build + BFS traversal + node-key utils + card-item builders + service across all start kinds/edge cases + shared item→card mapper + grouped card UI + card analytics source)
+- Test files: `src/server/learn/utils/__tests__/associationGraphTypes.test.ts`, `src/server/learn/utils/__tests__/buildAssociationGraph.test.ts`, `src/server/learn/utils/__tests__/collectAssociatedNodeKeys.test.ts`, `src/server/learn/utils/__tests__/buildAssociatedLearningItems.test.ts`, `src/server/learn/services/__tests__/getAllAssociatedEntities.service.test.ts`, `src/components/features/learn/shared/__tests__/mapLearningItemToContent.test.ts`, `src/components/features/learn/LearnPageDetails/common/associated/__tests__/AssociatedContentList.test.tsx`, `src/components/features/learn/section-three/content-card/__tests__/LearnContentCard.test.tsx`
+- Notes: See `docs/testing/features/associated-content.md`
 
 ## Status Meaning
 

@@ -104,6 +104,28 @@ export async function removeResourceBookmarkViaApi(
   })
 }
 
+export interface AssignmentBookmarkResult {
+  isBookmarked: boolean
+}
+
+export async function addAssignmentBookmarkViaApi(
+  assignmentId: number,
+): Promise<AssignmentBookmarkResult> {
+  return fetchJson<AssignmentBookmarkResult>(
+    LEARN_API.assignmentBookmark(assignmentId),
+    { method: 'POST' },
+  )
+}
+
+export async function removeAssignmentBookmarkViaApi(
+  assignmentId: number,
+): Promise<AssignmentBookmarkResult> {
+  return fetchJson<AssignmentBookmarkResult>(
+    LEARN_API.assignmentBookmark(assignmentId),
+    { method: 'DELETE' },
+  )
+}
+
 export interface LectureBookmarkResult {
   isBookmarked: boolean
 }

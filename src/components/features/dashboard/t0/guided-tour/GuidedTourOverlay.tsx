@@ -28,6 +28,8 @@ interface GuidedTourOverlayProps {
   initialBatchId?: number
   /** Tab to open on mount; defaults to the LMS walkthrough. */
   initialTab?: 'lms' | 'program'
+  /** When set, preselect the first step with this action on mount (e.g. `agreement`). */
+  initialStepAction?: 'agreement'
   /** Fee-payment banners (same as the dashboard); shown under the LMS-walkthrough steps. */
   feePaymentBanners: Array<FeePaymentBanner>
 }
@@ -57,6 +59,7 @@ export function GuidedTourOverlay({
   onSeeDashboard,
   initialBatchId,
   initialTab,
+  initialStepAction,
   feePaymentBanners,
 }: GuidedTourOverlayProps) {
   const queryClient = useQueryClient()
@@ -93,10 +96,13 @@ export function GuidedTourOverlay({
   })
   const lectures = inlineLectures ?? fetchedLectures
 
+  const batchFlowVariant = selectedBatch?.flowVariant ?? 'full'
   const steps: Array<GuidedTourStep> = useMemo(() => {
     if (!lectures) return []
-    return effectiveTab === 'lms' ? buildLmsSteps(lectures, status) : buildProgramSteps(lectures, status)
-  }, [lectures, status, effectiveTab])
+    return effectiveTab === 'lms'
+      ? buildLmsSteps(lectures, status, batchFlowVariant)
+      : buildProgramSteps(lectures, batchFlowVariant)
+  }, [lectures, status, effectiveTab, batchFlowVariant])
 
   // With nothing explicitly selected, land on the first incomplete step
   // (chronological), falling back to the first step when all are done.
@@ -110,9 +116,17 @@ export function GuidedTourOverlay({
   // The video only advances on its `ended` event (see handleVideoEnded).
   useEffect(() => {
     if (activeKey === null && steps.length > 0) {
-      setActiveKey((steps.find((s) => !s.completed) ?? steps[0]).key)
+      // A deep-link (e.g. "sign agreement" from a restricted lecture) preselects
+      // the first step with the requested action; otherwise land on the first
+      // incomplete step.
+      const preferred = initialStepAction
+        ? steps.find((s) => s.action === initialStepAction)
+        : undefined
+      setActiveKey(
+        (preferred ?? steps.find((s) => !s.completed) ?? steps[0]).key,
+      )
     }
-  }, [activeKey, steps])
+  }, [activeKey, steps, initialStepAction])
   const activeIndex = activeStep ? Math.max(0, steps.findIndex((s) => s.key === activeStep.key)) : 0
   const tabProgress = effectiveTab === 'lms' ? selectedBatch?.lms : selectedBatch?.program
 
@@ -121,7 +135,7 @@ export function GuidedTourOverlay({
   const videoIndex = activeStep ? videoStepKeys.indexOf(activeStep.key) : -1
 
   // ID-card capstone: rendered below the Program Onboarding steps (not a step).
-  const idCard = lectures && effectiveTab === 'program' ? getIdCardState(lectures, status) : null
+  const idCard = lectures && effectiveTab === 'program' ? getIdCardState(lectures, batchFlowVariant) : null
   const showIdCard = idCard?.show ?? false
 
   const refetchProgress = () => {

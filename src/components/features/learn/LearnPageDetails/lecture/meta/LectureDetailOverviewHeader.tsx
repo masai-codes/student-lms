@@ -6,10 +6,12 @@ import type { ReactNode } from 'react'
 
 import type { LectureAttendanceSummary } from '@/server/attendance/types'
 import type { LearningPriority } from '@/server/learn/types'
-import { LectureAttendanceInline } from '@/components/features/learn/attendance/LectureAttendanceInline'
+import { LectureAttendanceDetailBadge } from '@/components/features/learn/attendance/LectureAttendanceDetailBadge'
+import { LectureOptionalAttendanceInfo } from '@/components/features/learn/attendance/LectureOptionalAttendanceInfo'
 import { useListingAttendancePresentation } from '@/components/features/learn/attendance/useLectureAttendancePresentation'
 import { formatLearnDetailPriorityLabel } from '@/server/learn/utils/formatLearnDetailDisplay'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { LocalTimeWithIstTooltip } from '@/components/shared/local-time-with-ist-tooltip'
 import { MasaiChips } from '@/components/ui/masai-chips'
 import { cn } from '@/lib/utils'
 
@@ -20,7 +22,13 @@ type LectureDetailOverviewHeaderProps = {
   hostName: string
   avatarUrl: string | null
   dateRange: string
+  /** Same range in IST; shown on hover when the viewer isn't in IST. */
+  dateRangeIst?: string
   attendance: LectureAttendanceSummary | null
+  /** Set only for optional (recommended) lectures; renders the info tooltip. */
+  optionalAttendance?: LectureAttendanceSummary | null
+  /** `live`/`scrum` lecture — shows the Live line in the attendance breakdown. */
+  isLiveLecture: boolean
   watchPercentage?: number | null
   /** Header CTAs (Raise Ticket + bookmark) rendered top-right. */
   actions?: ReactNode
@@ -43,7 +51,10 @@ export function LectureDetailOverviewHeader({
   hostName,
   avatarUrl,
   dateRange,
+  dateRangeIst,
   attendance,
+  optionalAttendance,
+  isLiveLecture,
   watchPercentage,
   actions,
   className,
@@ -62,36 +73,51 @@ export function LectureDetailOverviewHeader({
       )}
     >
       <div className="flex min-w-0 flex-1 flex-col gap-2">
-        <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
-          <h1 className="type-h5 line-clamp-3 min-w-0 flex-1 text-gray-900 md:line-clamp-2">
-            {title}
-          </h1>
-          {showAttendance ? (
-            <div className="shrink-0">
-              <LectureAttendanceInline {...attendancePresentation} />
-            </div>
-          ) : null}
-        </div>
-        <div className="flex flex-wrap gap-2">
-          {tags.map((tag, index) => (
+        <h1 className="type-h5 line-clamp-3 min-w-0 text-gray-900 md:line-clamp-2">
+          {title}
+        </h1>
+        {/* Tag chips, then the status components (info button + Present badge)
+            grouped to their right with a 16px (gap-4) gap between the two. */}
+        <div className="flex flex-wrap items-center gap-4">
+          <div className="flex flex-wrap items-center gap-2">
+            {tags.map((tag, index) => (
+              <MasaiChips
+                key={`${tag}-${index}`}
+                type="default"
+                size="regular"
+                label={tag}
+                tabIndex={-1}
+                className="cursor-default"
+                {...lectureDetailTagChipPalette}
+              />
+            ))}
             <MasaiChips
-              key={`${tag}-${index}`}
               type="default"
               size="regular"
-              label={tag}
+              label={formatLearnDetailPriorityLabel(priority)}
               tabIndex={-1}
               className="cursor-default"
               {...lectureDetailTagChipPalette}
             />
-          ))}
-          <MasaiChips
-            type="default"
-            size="regular"
-            label={formatLearnDetailPriorityLabel(priority)}
-            tabIndex={-1}
-            className="cursor-default"
-            {...lectureDetailTagChipPalette}
-          />
+          </div>
+          {optionalAttendance || (showAttendance && attendance) ? (
+            <div className="flex shrink-0 items-center gap-2">
+              {optionalAttendance ? (
+                <LectureOptionalAttendanceInfo
+                  attendance={optionalAttendance}
+                  isLiveLecture={isLiveLecture}
+                  size="md"
+                />
+              ) : null}
+              {showAttendance && attendance ? (
+                <LectureAttendanceDetailBadge
+                  {...attendancePresentation}
+                  attendance={attendance}
+                  isLiveLecture={isLiveLecture}
+                />
+              ) : null}
+            </div>
+          ) : null}
         </div>
       </div>
 
@@ -109,7 +135,11 @@ export function LectureDetailOverviewHeader({
           <div className="min-w-0 pt-0.5 text-left">
             <p className="type-b1-md text-gray-900">{hostName}</p>
             {dateRange ? (
-              <p className="type-b2-regular mt-0.5 text-gray-600">{dateRange}</p>
+              <LocalTimeWithIstTooltip
+                local={dateRange}
+                ist={dateRangeIst}
+                className="type-b2-regular mt-0.5 block text-gray-600"
+              />
             ) : null}
           </div>
         </div>

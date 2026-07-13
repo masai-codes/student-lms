@@ -16,11 +16,12 @@ import {
 } from '@/server/learn/utils/buildAssignmentDetailPayload'
 import { buildAssignmentProblemListItems } from '@/server/learn/utils/buildAssignmentProblemListItems'
 import { buildLearnDetailPresentation } from '@/server/learn/utils/buildLearnDetailPresentation'
-import { getAssignmentAssociatedContent } from '@/server/learn/services/getAssignmentAssociatedContent.service'
+import { getAllAssociatedEntities } from '@/server/learn/services/getAllAssociatedEntities.service'
+import { getLearnEntityBookmarkState } from '@/server/learn/services/learnEntityBookmark.service'
 import { ensureUserCanAccessLearnHubEntity } from '@/server/learn/utils/ensureLearnEntityAccess'
-import { resolveLearnDetailBanRestriction } from '@/server/learn/utils/resolveLearnDetailBanRestriction'
+import { resolveLearnDetailRestriction } from '@/server/restrictions/resolveLearnDetailRestriction'
 import { getBatchIdForSection } from '@/server/batches/getBatchIdsForSections'
-import { getUserBatchBans } from '@/server/users/batchBan'
+import { getUserBatchRestrictions } from '@/server/restrictions/getUserBatchRestrictions'
 
 export async function getAssignmentLearningDetailForUser(
   userId: number,
@@ -76,8 +77,13 @@ export async function getAssignmentLearningDetailForUser(
     throw new Error('LEARN_DETAIL_NOT_FOUND')
   }
 
-  const [submissionRows, problemRows, discussions, associatedItems] =
-    await Promise.all([
+  const [
+    submissionRows,
+    problemRows,
+    discussions,
+    associatedItems,
+    isBookmarked,
+  ] = await Promise.all([
     db
       .select({
         id: submissions.id,
@@ -105,11 +111,15 @@ export async function getAssignmentLearningDetailForUser(
       DISCUSSION_ENTITY_ASSIGNMENT,
       assignmentId,
     ),
-    getAssignmentAssociatedContent({
-      assignmentId,
+    getAllAssociatedEntities({
+      entityId: assignmentId,
+      entityKind: 'assignment',
       sectionId: row.sectionId,
-      assignmentData: row.data,
+      entityData: row.data,
+      userId,
+      nowMs: Date.now(),
     }),
+    getLearnEntityBookmarkState(userId, 'assignment', assignmentId),
   ])
 
   const submissionRow = submissionRows.length > 0 ? submissionRows[0] : null
@@ -166,27 +176,29 @@ export async function getAssignmentLearningDetailForUser(
     problems,
   )
 
-  const [bans, sectionBatchId] = await Promise.all([
-    getUserBatchBans(userId),
+  const [restrictions, sectionBatchId] = await Promise.all([
+    getUserBatchRestrictions(userId),
     getBatchIdForSection(row.sectionId),
   ])
+  // Agreement ban restricts only practice (proactive) assignments.
   const isPractice = row.type.trim().toLowerCase() === 'practice'
-  const banRestriction = resolveLearnDetailBanRestriction({
+  const restriction = resolveLearnDetailRestriction({
     contentBatchId: sectionBatchId ?? row.batchId,
     schedule: row.schedule,
-    bans,
-    agreementRestrictionKind: isPractice ? 'practice' : null,
+    restrictions,
+    agreementScope: isPractice ? 'practice' : null,
   })
 
-  if (banRestriction?.kind === 'practice') {
-    // Agreement ban: strip the practice attempt so it can't be started; the
-    // frontend renders a ban notice in the footer's place.
+  if (restriction != null) {
+    // Whole page is blocked client-side; strip the footer actions defensively so
+    // the attempt can't be started via the API either.
     return {
       ...payload,
-      banRestriction,
+      isBookmarked,
+      restriction,
       footer: { ...payload.footer, visible: false, actions: [] },
     }
   }
 
-  return { ...payload, banRestriction }
+  return { ...payload, isBookmarked, restriction }
 }

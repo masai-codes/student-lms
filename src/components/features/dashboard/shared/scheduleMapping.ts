@@ -31,6 +31,7 @@ export function scheduleItemToLearnContent(
     priority: item.isOptional,
     tags: [item.category, item.moduleName],
     attendance: item.attendance,
+    optionalAttendance: item.optionalAttendance,
     assignmentProgressStatus: item.assignmentProgressStatus,
     resourcePhase: item.resourcePhase,
     listingCtas: item.listingCtas,

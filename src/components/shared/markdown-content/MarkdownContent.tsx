@@ -1,6 +1,7 @@
 'use client'
 
 import ReactMarkdown from 'react-markdown'
+import rehypeHighlight from 'rehype-highlight'
 import rehypeRaw from 'rehype-raw'
 import rehypeSanitize from 'rehype-sanitize'
 import remarkGfm from 'remark-gfm'
@@ -28,10 +29,14 @@ export function MarkdownContent({
   if (!value.trim()) return null
 
   return (
-    <div className={cn('markdown-content', className)}>
+    <div className={cn('markdown-content', `markdown-content--${variant}`, className)}>
       <ReactMarkdown
         remarkPlugins={[remarkGfm]}
-        rehypePlugins={[rehypeRaw, [rehypeSanitize, markdownSanitizeSchema]]}
+        rehypePlugins={[
+          rehypeRaw,
+          [rehypeSanitize, markdownSanitizeSchema],
+          [rehypeHighlight, { ignoreMissing: true }],
+        ]}
         components={getMarkdownComponents(variant)}
       >
         {normalizeMarkdownForDisplay(decodeMarkdownPayload(value))}

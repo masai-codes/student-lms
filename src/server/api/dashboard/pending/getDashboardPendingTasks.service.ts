@@ -6,7 +6,8 @@ import type { DashboardScheduleItem, ScheduleEntityRow } from '../schedule/sched
 import { getSectionIdsForUser } from '@/server/batches/getSectionIdsForUser'
 import { getBatchIdsForEnrolledUser } from '@/server/batches/getBatchIdsForEnrolledUser'
 import { getBatchIdsForSections } from '@/server/batches/getBatchIdsForSections'
-import { getUserBatchBans, makeNormalBanScheduleFilter } from '@/server/users/batchBan'
+import { getUserBatchRestrictions } from '@/server/restrictions/getUserBatchRestrictions'
+import { makePausedScheduleFilter } from '@/server/restrictions/enrollmentRestrictionScope'
 import { fetchLectureAttendanceSummaries } from '@/server/attendance/services/fetchLectureAttendanceSummaries'
 import { calculateAssignmentProgressStatus } from '@/server/learn/utils/calculateAssignmentProgressStatus'
 import { computeDeadlineCountdown } from '@/server/learn/utils/computeDeadlineCountdown'
@@ -29,10 +30,10 @@ export async function getDashboardPendingTasks(
   const nowMs = now.getTime()
   const istNow = getIstNowSqlDatetime(now)
 
-  const [sectionIds, batchIds, bans] = await Promise.all([
+  const [sectionIds, batchIds, restrictions] = await Promise.all([
     getSectionIdsForUser(userId),
     getBatchIdsForEnrolledUser(userId),
-    getUserBatchBans(userId),
+    getUserBatchRestrictions(userId),
   ])
   if (sectionIds.length === 0) return []
 
@@ -45,9 +46,11 @@ export async function getDashboardPendingTasks(
 
   let assignmentCandidates = assignmentCandidatesRaw
   let lectureCandidates = lectureCandidatesRaw
-  if (bans.normalByBatch.size > 0) {
+  // Drop candidates in enrolment-cancelled batches, and those scheduled after a
+  // paused batch's cutoff.
+  if (restrictions.size > 0) {
     const sectionToBatch = await getBatchIdsForSections(sectionIds)
-    const keep = makeNormalBanScheduleFilter(bans.normalByBatch, sectionToBatch)
+    const keep = makePausedScheduleFilter(restrictions, sectionToBatch)
     assignmentCandidates = assignmentCandidatesRaw.filter(keep)
     lectureCandidates = lectureCandidatesRaw.filter(keep)
   }

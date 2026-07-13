@@ -72,6 +72,7 @@ describe('buildLmsSteps', () => {
         profilePhotoUrl: 'https://x/p.jpg',
         downloadAppCompleted: false,
       }),
+      'full',
     )
 
     expect(steps.map((s) => s.key)).toEqual([
@@ -102,6 +103,7 @@ describe('buildLmsSteps', () => {
         completedLectureIds: [1],
       }),
       status({ profilePhotoUrl: 'https://x/p.jpg' }),
+      'full',
     )
 
     expect(steps.map((s) => s.key)).toEqual(['lecture-1', 'profile-photo'])
@@ -163,7 +165,7 @@ describe('buildProgramSteps', () => {
         },
         idCardUrl: 'https://x/id.png',
       }),
-      status(),
+      'full',
     )
 
     // No id-card step — it's a capstone rendered below the list (getIdCardState).
@@ -196,7 +198,7 @@ describe('buildProgramSteps', () => {
           admissionsFormUrl: null,
         },
       }),
-      status(),
+      'full',
     )
     expect(steps.find((s) => s.action === 'documents')?.completed).toBe(true)
     expect(steps.find((s) => s.action === 'student-kit')?.completed).toBe(true)
@@ -205,7 +207,7 @@ describe('buildProgramSteps', () => {
   it('never includes the ID card as a step (full flow)', () => {
     const steps = buildProgramSteps(
       lectures({ programLectures: [], legalAgreementSections: [] }),
-      status(),
+      'full',
     )
     expect(steps.map((s) => s.key)).toEqual([])
     expect(steps.some((s) => s.action === 'id-card')).toBe(false)
@@ -248,7 +250,7 @@ describe('buildProgramSteps', () => {
         },
         idCardUrl: 'https://x/id.png',
       }),
-      status({ flowVariant: 'lite' }),
+      'lite',
     )
     expect(steps.map((s) => s.key)).toEqual(['agreement-7'])
   })
@@ -256,7 +258,7 @@ describe('buildProgramSteps', () => {
   it('lite flow: an empty program tab when the batch has no agreement', () => {
     const steps = buildProgramSteps(
       lectures({ legalAgreementSections: [] }),
-      status({ flowVariant: 'lite' }),
+      'lite',
     )
     expect(steps).toEqual([])
   })
@@ -278,7 +280,7 @@ describe('getIdCardState', () => {
         completedLectureIds: [],
         idCardUrl: 'https://x/id.png',
       }),
-      status(),
+      'full',
     )
     expect(state).toEqual({
       show: true,
@@ -302,7 +304,7 @@ describe('getIdCardState', () => {
         completedLectureIds: [9],
         idCardUrl: 'https://x/id.png',
       }),
-      status(),
+      'full',
     )
     expect(state).toEqual({
       show: true,
@@ -315,7 +317,7 @@ describe('getIdCardState', () => {
     expect(
       getIdCardState(
         lectures({ idCardUrl: 'https://x/id.png' }),
-        status({ flowVariant: 'lite' }),
+        'lite',
       ),
     ).toEqual({
       show: false,

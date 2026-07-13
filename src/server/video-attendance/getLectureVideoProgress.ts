@@ -9,5 +9,5 @@ export const getLectureVideoProgress = createServerFn({ method: 'GET' })
   .handler(async ({ data }): Promise<VideoProgressData | null> => {
     const userId = await getCurrentUserId()
     if (!userId) throw new Error('UNAUTHORIZED')
-    return fetchVideoProgress(data.lectureId)
+    return fetchVideoProgress(data.lectureId, userId)
   })

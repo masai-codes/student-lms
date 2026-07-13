@@ -13,9 +13,8 @@ const hoisted = vi.hoisted(() => ({
 
 vi.mock('@/server/batches/getSectionIdsForUser', () => ({ getSectionIdsForUser: hoisted.getSectionIds }))
 vi.mock('@/server/batches/getBatchIdsForEnrolledUser', () => ({ getBatchIdsForEnrolledUser: hoisted.getBatchIds }))
-vi.mock('@/server/users/batchBan', () => ({
-  getUserBatchBans: vi.fn(async () => ({ normalByBatch: new Map(), agreementByBatch: new Map() })),
-  makeNormalBanScheduleFilter: () => () => true,
+vi.mock('@/server/restrictions/getUserBatchRestrictions', () => ({
+  getUserBatchRestrictions: vi.fn(async () => new Map()),
 }))
 vi.mock('@/server/batches/getBatchIdsForSections', () => ({
   getBatchIdsForSections: vi.fn(async () => new Map()),

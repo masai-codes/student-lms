@@ -6,7 +6,12 @@ import {
 } from '@tanstack/react-router'
 import { useEffect } from 'react'
 import { AppLoading } from '@/components/common'
-import { AppMobileTabBar, AppNavbar } from '@/components/features/layout'
+import {
+  AppMobileHeader,
+  AppMobileTabBar,
+  AppNavbar,
+  SupportChatButton,
+} from '@/components/features/layout'
 import { AnnouncementModalController, ModalProvider } from '@/components/modals'
 import MasaiverseMobileTabBar from '@/components/features/masaiverse-v2/MasaiverseMobileTabBar'
 import { isMasaiverseApp } from '@/constants/masaiverseDrawerUi'
@@ -108,6 +113,7 @@ function RouteComponent() {
   const { user } = Route.useRouteContext()
   const isApp = isMasaiverseApp(searchStr)
   const isMasaiverseRoute = pathname.startsWith('/masaiverse')
+  const isSupportRoute = pathname.startsWith('/support')
   const mainClasses = isMasaiverseRoute
     ? layoutMainClassesFullWidth
     : layoutMainClasses
@@ -124,6 +130,10 @@ function RouteComponent() {
     <ModalProvider>
       <div className="min-h-dvh bg-[#FAF9F9] flex flex-col">
         <AppNavbar />
+        {/* Mobile-only greeting header for the dashboard home; the desktop
+            navbar (with the same announcements + onboarding actions) is hidden
+            on mobile. */}
+        {pathname === '/' && !isApp ? <AppMobileHeader /> : null}
         <main
           className={`${mainClasses} ${isApp && !isMasaiverseRoute ? 'pb-0' : 'pb-[calc(4.5rem+env(safe-area-inset-bottom))]'} md:pb-0`}
         >
@@ -133,6 +143,10 @@ function RouteComponent() {
           <MasaiverseMobileTabBar />
         ) : !isApp ? (
           <AppMobileTabBar />
+        ) : null}
+        {/* Floating support entry — shown only on the dashboard home for now. */}
+        {pathname === '/' && !isMasaiverseRoute && !isSupportRoute ? (
+          <SupportChatButton />
         ) : null}
         {/* Central modal system — announcement popups check on every page. */}
         <AnnouncementModalController />

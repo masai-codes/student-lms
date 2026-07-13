@@ -15,11 +15,8 @@ vi.mock('@/db', () => ({
   db: { select: hoisted.dbSelect },
 }))
 
-vi.mock('@/server/users/batchBan', () => ({
-  getUserBatchBans: vi.fn(async () => ({
-    normalByBatch: new Map(),
-    agreementByBatch: new Map(),
-  })),
+vi.mock('@/server/restrictions/getUserBatchRestrictions', () => ({
+  getUserBatchRestrictions: vi.fn(async () => new Map()),
 }))
 vi.mock('@/server/batches/getBatchIdsForSections', () => ({
   getBatchIdForSection: vi.fn(async () => null),
@@ -37,8 +34,8 @@ vi.mock(
   }),
 )
 
-vi.mock('@/server/learn/services/getLectureAssociatedContent.service', () => ({
-  getLectureAssociatedContent: hoisted.associatedContent,
+vi.mock('@/server/learn/services/getAllAssociatedEntities.service', () => ({
+  getAllAssociatedEntities: hoisted.associatedContent,
 }))
 
 vi.mock('@/server/learn/utils/buildLectureVideoAttendanceState', () => ({
@@ -109,6 +106,15 @@ describe('getLectureLearningDetailForUser', () => {
           }),
         }),
       })
+      // lecturesAi select
+      .mockReturnValueOnce({
+        from: () => ({
+          where: () => ({
+            limit: () => Promise.resolve([]),
+          }),
+        }),
+      })
+      // lectureZoomChat select
       .mockReturnValueOnce({
         from: () => ({
           where: () => ({
@@ -145,9 +151,9 @@ describe('getLectureLearningDetailForUser', () => {
               Promise.resolve([
                 {
                   id: 1,
-                  title: 'Scrum',
+                  title: 'Unknown type',
                   category: 'coding',
-                  type: 'scrum',
+                  type: 'unknown',
                   optional: 0,
                   schedule: null,
                   concludes: null,

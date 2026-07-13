@@ -19,7 +19,7 @@ import type { FilterNavKey } from './learnFilterNavConfig'
 import { pushLearnEvent } from '../../shared/learnAnalytics'
 import { MasaiButton } from '@/components/masai-button'
 import { MasaiCheckbox } from '@/components/ui/masai-checkbox'
-import { MasaiDateSelection } from '@/components/ui/masai-date-selection'
+import { MasaiDateRangePicker } from '@/components/ui/masai-date-range-picker'
 import { MasaiInput } from '@/components/ui/masai-input'
 import { MasaiRadioGroup } from '@/components/ui/masai-radio-group'
 
@@ -326,23 +326,14 @@ export function LearnFiltersPanel({
                   Filter by schedule dates. Items without a scheduled date are
                   hidden when either bound is set.
                 </p>
-                <MasaiDateSelection
-                  label="Start date"
-                  value={draft.scheduleStartDate ?? ''}
-                  onChange={(event) =>
+                <MasaiDateRangePicker
+                  startDate={draft.scheduleStartDate}
+                  endDate={draft.scheduleEndDate}
+                  onChange={({ start, end }) =>
                     setDraft((prev) => ({
                       ...prev,
-                      scheduleStartDate: event.target.value || null,
-                    }))
-                  }
-                />
-                <MasaiDateSelection
-                  label="End date"
-                  value={draft.scheduleEndDate ?? ''}
-                  onChange={(event) =>
-                    setDraft((prev) => ({
-                      ...prev,
-                      scheduleEndDate: event.target.value || null,
+                      scheduleStartDate: start,
+                      scheduleEndDate: end,
                     }))
                   }
                 />
@@ -378,7 +369,13 @@ export function LearnFiltersPanel({
               types_count: draft.types.length,
               instructors_count: draft.instructors.length,
             })
-            onApply(draft)
+            // A half-open range (only one bound picked) collapses to a single
+            // day so the filter still applies instead of being ignored.
+            const scheduleStartDate =
+              draft.scheduleStartDate ?? draft.scheduleEndDate
+            const scheduleEndDate =
+              draft.scheduleEndDate ?? draft.scheduleStartDate
+            onApply({ ...draft, scheduleStartDate, scheduleEndDate })
           }}
         />
       </div>

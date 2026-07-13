@@ -21,16 +21,22 @@ export async function fetchLectureAttendanceSummaries(
   userId: number,
   lectureInputs: Array<LectureAttendanceFetchInput>,
   nowMs = Date.now(),
+  /**
+   * Optional lectures are excluded by default because their attendance is not
+   * scored into the regular badge/CTA. Pass `true` to also compute summaries
+   * for optional lectures (used to power the optional-session info tooltip).
+   */
+  includeOptional = false,
 ): Promise<Map<number, LectureAttendanceSummary>> {
-  const mandatoryLectures = lectureInputs.filter(
-    (lecture) => !isOptionalLecture(lecture.optional),
-  )
+  const eligibleLectures = includeOptional
+    ? lectureInputs
+    : lectureInputs.filter((lecture) => !isOptionalLecture(lecture.optional))
 
-  if (mandatoryLectures.length === 0) {
+  if (eligibleLectures.length === 0) {
     return new Map()
   }
 
-  const lectureIds = mandatoryLectures.map((lecture) => lecture.lectureId)
+  const lectureIds = eligibleLectures.map((lecture) => lecture.lectureId)
 
   const [sectionRows, attendanceRows] = await Promise.all([
     db
@@ -52,6 +58,8 @@ export async function fetchLectureAttendanceSummaries(
         includeVideoAttendance: studentAttendances.includeVideoAttendance,
         catchUpDays: studentAttendances.catchUpDays,
         lateByMinutes: studentAttendances.lateByMinutes,
+        liveAttendanceStatus: studentAttendances.liveAttendanceStatus,
+        videoAttendanceStatus: studentAttendances.videoAttendanceStatus,
         meta: studentAttendances.meta,
       })
       .from(studentAttendances)

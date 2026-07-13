@@ -1,7 +1,13 @@
 import { and, eq, isNull } from 'drizzle-orm'
-import { sql } from 'drizzle-orm'
+import { sql, type SQL } from 'drizzle-orm'
 import { db } from '@/db'
 import { sectionUser } from '@/db/schema'
+import { getBatchIdsForSections } from '@/server/batches/getBatchIdsForSections'
+import {
+  getCancelledBatchIds,
+  getPausedCutoff,
+} from '@/server/restrictions/enrollmentRestrictionScope'
+import { getUserBatchRestrictions } from '@/server/restrictions/getUserBatchRestrictions'
 import type { AnnouncementsQueryParams } from './utils/parseAnnouncementsQuery'
 
 export interface AnnouncementItem {
@@ -207,7 +213,37 @@ export async function getAnnouncements(
     Number.isFinite,
   )
 
-  const sectionIdList = sectionIds.length > 0 ? sectionIds.join(', ') : '0'
+  // Apply batch restrictions: drop sections of enrolment-cancelled batches, and
+  // exclude announcements scheduled after a paused batch's cutoff.
+  const restrictions = await getUserBatchRestrictions(userId)
+  let effectiveSectionIds = sectionIds
+  let pausedClause: SQL = sql``
+  if (restrictions.size > 0 && sectionIds.length > 0) {
+    const sectionToBatch = await getBatchIdsForSections(sectionIds)
+    const cancelled = getCancelledBatchIds(restrictions)
+    effectiveSectionIds = sectionIds.filter((sid) => {
+      const batchId = sectionToBatch.get(sid)
+      return batchId == null || !cancelled.has(batchId)
+    })
+
+    const pausedGroups = new Map<number, Array<number>>()
+    for (const sid of effectiveSectionIds) {
+      const batchId = sectionToBatch.get(sid)
+      if (batchId != null && getPausedCutoff(restrictions, batchId) != null) {
+        const arr = pausedGroups.get(batchId) ?? []
+        arr.push(sid)
+        pausedGroups.set(batchId, arr)
+      }
+    }
+    for (const [batchId, secs] of pausedGroups) {
+      const cutoff = getPausedCutoff(restrictions, batchId)
+      if (cutoff == null) continue
+      pausedClause = sql`${pausedClause} AND NOT (a.section_id IN (${sql.raw(secs.join(', '))}) AND a.schedule > ${cutoff})`
+    }
+  }
+
+  const sectionIdList =
+    effectiveSectionIds.length > 0 ? effectiveSectionIds.join(', ') : '0'
 
   // ── 2. COUNT — total matching rows (announcements + messages) ──────────────
   const countResult = await db.execute(
@@ -219,7 +255,7 @@ export async function getAnnouncements(
             LEFT JOIN users u ON u.id = a.user_id
             WHERE a.section_id IN (${sql.raw(sectionIdList)})
               AND a.deleted_at IS NULL
-              AND (a.schedule IS NULL OR a.schedule <= CONVERT_TZ(NOW(), '+00:00', '+05:30'))
+              AND (a.schedule IS NULL OR a.schedule <= CONVERT_TZ(NOW(), '+00:00', '+05:30'))${pausedClause}
               AND (a.subject LIKE ${searchTerm} OR u.name LIKE ${searchTerm})
 
             UNION ALL
@@ -240,7 +276,7 @@ export async function getAnnouncements(
             FROM announcements a
             WHERE a.section_id IN (${sql.raw(sectionIdList)})
               AND a.deleted_at IS NULL
-              AND (a.schedule IS NULL OR a.schedule <= CONVERT_TZ(NOW(), '+00:00', '+05:30'))
+              AND (a.schedule IS NULL OR a.schedule <= CONVERT_TZ(NOW(), '+00:00', '+05:30'))${pausedClause}
 
             UNION ALL
 
@@ -286,7 +322,7 @@ export async function getAnnouncements(
              AND ar.user_id = ${userId}
             WHERE a.section_id IN (${sql.raw(sectionIdList)})
               AND a.deleted_at IS NULL
-              AND (a.schedule IS NULL OR a.schedule <= CONVERT_TZ(NOW(), '+00:00', '+05:30'))
+              AND (a.schedule IS NULL OR a.schedule <= CONVERT_TZ(NOW(), '+00:00', '+05:30'))${pausedClause}
               AND (a.subject LIKE ${searchTerm} OR u.name LIKE ${searchTerm})
 
             UNION ALL
@@ -337,7 +373,7 @@ export async function getAnnouncements(
              AND ar.user_id = ${userId}
             WHERE a.section_id IN (${sql.raw(sectionIdList)})
               AND a.deleted_at IS NULL
-              AND (a.schedule IS NULL OR a.schedule <= CONVERT_TZ(NOW(), '+00:00', '+05:30'))
+              AND (a.schedule IS NULL OR a.schedule <= CONVERT_TZ(NOW(), '+00:00', '+05:30'))${pausedClause}
 
             UNION ALL
 

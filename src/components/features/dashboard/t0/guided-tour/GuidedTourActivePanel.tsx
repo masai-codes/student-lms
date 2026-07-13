@@ -65,8 +65,10 @@ export function GuidedTourActivePanel({
       </h2>
 
       {/* On desktop only this region scrolls, so the panel never overflows its
-          card; on mobile the page scrolls naturally. */}
-      <div className="mt-3 min-w-0 flex-1 px-4 pb-6 md:mt-4 md:px-6 md:min-h-0 md:overflow-y-auto">
+          card; on mobile the page scrolls naturally. Extra bottom padding on
+          mobile keeps the Back/Next footer clear of the fixed bottom tab bar
+          and any floating banner. */}
+      <div className="mt-3 min-w-0 flex-1 px-4 pb-28 md:mt-4 md:px-6 md:pb-6 md:min-h-0 md:overflow-y-auto">
         {isVideo && step.video ? (
           <GuidedTourVideoStep
             key={step.key}

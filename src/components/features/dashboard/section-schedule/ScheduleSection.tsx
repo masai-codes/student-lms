@@ -36,9 +36,9 @@ export function ScheduleSection({
   return (
     <section
       data-testid="dashboard-schedule-section"
-      className="flex flex-col gap-5 rounded-2xl border border-gray-200 bg-white p-5"
+      className="flex flex-col gap-5 rounded-2xl border border-gray-200 bg-white p-4 sm:p-5"
     >
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-2 sm:gap-3">
         <TabButton
           isActive={activeTab === 'schedule'}
           onClick={() => {
@@ -47,7 +47,7 @@ export function ScheduleSection({
           }}
           testId="dashboard-schedule-tab"
         >
-          <CalendarBlank size={18} weight="bold" />
+          <CalendarBlank size={18} weight="bold" className="shrink-0" />
           My Schedule
         </TabButton>
         <TabButton
@@ -61,12 +61,12 @@ export function ScheduleSection({
           }}
           testId="dashboard-pending-tasks-tab"
         >
-          <ClockCounterClockwise size={18} weight="bold" />
+          <ClockCounterClockwise size={18} weight="bold" className="shrink-0" />
           Pending Tasks
           {pendingTasks.length > 0 && (
             <span
               data-testid="dashboard-pending-tasks-count"
-              className="inline-flex size-5 items-center justify-center rounded-full bg-[#ED0331] text-[11px] font-semibold text-white"
+              className="inline-flex size-5 shrink-0 items-center justify-center rounded-full bg-[#ED0331] text-[11px] font-semibold text-white"
             >
               {pendingTasks.length}
             </span>
@@ -266,7 +266,7 @@ function TabButton({
       type="button"
       onClick={onClick}
       data-testid={testId}
-      className={`inline-flex items-center gap-2 rounded-lg border px-4 py-2.5 text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6962AC] ${
+      className={`inline-flex min-w-0 flex-1 items-center justify-center gap-1.5 rounded-lg border px-2.5 py-2.5 text-center text-sm font-semibold leading-tight transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6962AC] sm:flex-none sm:gap-2 sm:px-4 ${
         isActive
           ? 'border-[#6962AC] bg-[#6962AC]/10 text-[#6962AC]'
           : 'border-gray-200 bg-white text-gray-600 hover:bg-gray-50'

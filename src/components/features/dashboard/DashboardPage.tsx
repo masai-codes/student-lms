@@ -17,12 +17,24 @@ interface DashboardPageProps {
    * guided tour open even if onboarding is already complete.
    */
   openGuidedTourSignal?: boolean
+  /**
+   * Deep-link target for the guided tour (e.g. a "Sign agreement" CTA from a
+   * restricted lecture navigates here with a batch + agreement step preselected).
+   */
+  guidedTourTarget?: {
+    batchId?: number
+    tab?: 'lms' | 'program'
+    stepAction?: 'agreement'
+  }
 }
 
 // Feature entry point. The welcome greeting comes from the `me` API; the live
 // sections come from the consolidated overview query (each card renders its own
 // loading / error / empty state).
-export function DashboardPage({ openGuidedTourSignal = false }: DashboardPageProps = {}) {
+export function DashboardPage({
+  openGuidedTourSignal = false,
+  guidedTourTarget,
+}: DashboardPageProps = {}) {
   const { data, isPending, isError } = useQuery({
     queryKey: ['dashboard', 'overview'],
     queryFn: fetchDashboardOverview,
@@ -48,14 +60,26 @@ export function DashboardPage({ openGuidedTourSignal = false }: DashboardPagePro
   }, [])
 
   // The navbar "?" navigates here with `?guidedTour=open`; force the tour open
-  // (even when complete). The route strips the param after this fires.
+  // (even when complete). A "Sign agreement" CTA adds a batch + agreement step to
+  // deep-link into that step. The route strips the params after this fires.
+  const targetBatchId = guidedTourTarget?.batchId
+  const targetTab = guidedTourTarget?.tab
+  const targetStepAction = guidedTourTarget?.stepAction
   useEffect(() => {
     if (openGuidedTourSignal) {
       setTourForced(true)
       setTourDismissed(false)
-      setTourTarget(null)
+      setTourTarget(
+        targetBatchId != null
+          ? {
+              batchId: targetBatchId,
+              tab: targetTab ?? 'program',
+              stepAction: targetStepAction,
+            }
+          : null,
+      )
     }
-  }, [openGuidedTourSignal])
+  }, [openGuidedTourSignal, targetBatchId, targetTab, targetStepAction])
 
   const overview: DashboardOverviewState = {
     isPending,

@@ -3,8 +3,10 @@
 import { LectureDetailOverviewHeader } from '../meta'
 import type { ReactNode } from 'react'
 
+import { LectureAttendanceBanner } from '@/components/features/learn/attendance/LectureAttendanceBanner'
 import type { LectureAttendanceSummary } from '@/server/attendance/types'
 import type { LearningPriority } from '@/server/learn/types'
+import { resolveLectureAttendanceBanner } from '@/lib/lecture-attendance/resolveLectureAttendanceBanner'
 import { lectureDetailContentClasses } from '@/lib/layout'
 import { cn } from '@/lib/utils'
 
@@ -15,7 +17,12 @@ type LectureDetailChromeProps = {
   hostName: string
   hostAvatarUrl: string | null
   scheduleDisplayRange: string
+  scheduleDisplayRangeIst?: string
   attendance: LectureAttendanceSummary | null
+  /** Set only for optional (recommended) lectures; renders the info tooltip. */
+  optionalAttendance?: LectureAttendanceSummary | null
+  /** `live`/`scrum` lecture — shows the Live line in the attendance breakdown. */
+  isLiveLecture: boolean
   watchPercentage?: number | null
   /** Header CTAs (Raise Ticket + bookmark) rendered in the overview header. */
   actions?: ReactNode
@@ -31,13 +38,17 @@ export function LectureDetailChrome({
   hostName,
   hostAvatarUrl,
   scheduleDisplayRange,
+  scheduleDisplayRangeIst,
   attendance,
+  optionalAttendance,
+  isLiveLecture,
   watchPercentage,
   actions,
   hero,
   belowHero,
   footer,
 }: LectureDetailChromeProps) {
+  const attendanceBanner = resolveLectureAttendanceBanner(attendance, watchPercentage)
   return (
     <div className="w-full pb-12">
       <section className="flex w-full shrink-0 flex-col overflow-visible bg-white">
@@ -53,10 +64,16 @@ export function LectureDetailChrome({
             hostName={hostName}
             avatarUrl={hostAvatarUrl}
             dateRange={scheduleDisplayRange}
+            dateRangeIst={scheduleDisplayRangeIst}
             attendance={attendance}
+            optionalAttendance={optionalAttendance}
+            isLiveLecture={isLiveLecture}
             watchPercentage={watchPercentage}
             actions={actions}
           />
+          {attendanceBanner ? (
+            <LectureAttendanceBanner banner={attendanceBanner} />
+          ) : null}
           {belowHero}
         </div>
       </section>

@@ -9,15 +9,14 @@ import { listDiscussionsWithThreadsForLearnEntity } from '@/server/new-discussio
 import { buildLearnDetailPresentation } from '@/server/learn/utils/buildLearnDetailPresentation'
 import { buildResourceDetailPayload } from '@/server/learn/utils/buildResourceDetailPayload'
 import { ensureUserCanAccessLearnHubEntity } from '@/server/learn/utils/ensureLearnEntityAccess'
-import { resolveLearnDetailBanRestriction } from '@/server/learn/utils/resolveLearnDetailBanRestriction'
+import { resolveLearnDetailRestriction } from '@/server/restrictions/resolveLearnDetailRestriction'
 import { getBatchIdForSection } from '@/server/batches/getBatchIdsForSections'
-import { getUserBatchBans } from '@/server/users/batchBan'
+import { getUserBatchRestrictions } from '@/server/restrictions/getUserBatchRestrictions'
 import {
   isSupportedResourceLectureType,
 } from '@/server/learn/utils/normalizeResourceKind'
-import { getLectureAssociatedContent } from '@/server/learn/services/getLectureAssociatedContent.service'
+import { getAllAssociatedEntities } from '@/server/learn/services/getAllAssociatedEntities.service'
 import { getLearnEntityBookmarkState } from '@/server/learn/services/learnEntityBookmark.service'
-import { dedupeLearnAssociatedItems } from '@/server/learn/utils/dedupeLearnAssociatedItems'
 import { LECTURE_RESOURCE_TYPE } from '@/server/learn/utils/resolveLectureLearningType'
 
 export async function getResourceLearningDetailForUser(
@@ -81,10 +80,13 @@ export async function getResourceLearningDetailForUser(
       DISCUSSION_ENTITY_LECTURE,
       resourceId,
     ),
-    getLectureAssociatedContent({
-      lectureId: resourceId,
+    getAllAssociatedEntities({
+      entityId: resourceId,
+      entityKind: 'resource',
       sectionId: row.sectionId,
-      lectureData: row.data,
+      entityData: row.data,
+      userId,
+      nowMs: Date.now(),
     }),
     getLearnEntityBookmarkState(userId, 'resource', resourceId),
   ])
@@ -103,24 +105,21 @@ export async function getResourceLearningDetailForUser(
       settings: row.settings,
     },
     Date.now(),
-    dedupeLearnAssociatedItems(associatedItems, {
-      kind: 'resource',
-      id: resourceId,
-    }),
+    associatedItems,
     isBookmarked,
   )
 
-  const [bans, sectionBatchId] = await Promise.all([
-    getUserBatchBans(userId),
+  const [restrictions, sectionBatchId] = await Promise.all([
+    getUserBatchRestrictions(userId),
     getBatchIdForSection(row.sectionId),
   ])
-  // Agreement ban never restricts resources — only the normal-ban page block applies.
-  const banRestriction = resolveLearnDetailBanRestriction({
+  // Agreement ban never restricts resources — only enrolment-cancelled / paused apply.
+  const restriction = resolveLearnDetailRestriction({
     contentBatchId: sectionBatchId ?? row.batchId,
     schedule: row.schedule,
-    bans,
-    agreementRestrictionKind: null,
+    restrictions,
+    agreementScope: null,
   })
 
-  return { ...payload, banRestriction }
+  return { ...payload, restriction }
 }

@@ -87,6 +87,20 @@ function oldStudentUiLink(
   return { href, openInNewTab: false, onClick }
 }
 
+/** In-app route a primary nav tab can point to when it stays in the new LMS. */
+type InternalNavPath = '/' | '/learn'
+
+/**
+ * Declarative config for a primary nav tab. The single `stayInNew` flag decides
+ * routing: `true` → client-side navigate within this app (port 3002);
+ * `false` → full navigation to the old LMS via `oldStudentUiLink`. To migrate a
+ * tab, flip the flag and give it an in-app `to` — no new handler needed.
+ */
+type PrimaryNavTab = { id: string; label: string; isActive?: boolean } & (
+  | { stayInNew: true; to: InternalNavPath }
+  | { stayInNew: false; oldUiPath: string }
+)
+
 export default function AppNavbar() {
   const { user } = layoutRouteApi.useRouteContext()
   // iHub portal hides Masai-only surfaces (MasaiVerse, Refer & Earn, Practice
@@ -184,6 +198,34 @@ export default function AppNavbar() {
     [navigate],
   )
 
+  // Single builder for primary tabs: the `stayInNew` flag on each config decides
+  // whether it navigates in-app (port 3002) or out to the old LMS.
+  const buildPrimaryNavTab = useCallback(
+    (tab: PrimaryNavTab): NavbarLinkItem => {
+      if (!tab.stayInNew) {
+        return {
+          id: tab.id,
+          label: tab.label,
+          isActive: tab.isActive,
+          ...oldStudentUiLink(tab.oldUiPath),
+        }
+      }
+      const to = tab.to
+      return {
+        id: tab.id,
+        label: tab.label,
+        href: to,
+        openInNewTab: false,
+        isActive: tab.isActive,
+        onClick: (e) => {
+          e.preventDefault()
+          void navigate({ to, search: {} })
+        },
+      }
+    },
+    [navigate],
+  )
+
   // Opens the onboarding guided tour on the dashboard — works from any page and
   // regardless of whether onboarding is already complete.
   const handleGuidedTourClick = useCallback(
@@ -232,30 +274,32 @@ export default function AppNavbar() {
   )
 
   const navItems: Array<NavbarLinkItem> = [
-    {
+    buildPrimaryNavTab({
       id: 'home',
       label: 'Home',
-      href: '/',
-      openInNewTab: false,
-      onClick: handleHomeClick,
+      stayInNew: true,
+      to: '/',
       isActive: activeNavId === 'home',
-    },
-    {
+    }),
+    buildPrimaryNavTab({
       id: 'learn',
       label: 'Learn',
+      stayInNew: true,
+      to: '/learn',
       isActive: activeNavId === 'learn',
-      ...oldStudentUiLink(OLD_STUDENT_UI_NAV_PATHS.learn),
-    },
-    {
+    }),
+    buildPrimaryNavTab({
       id: 'support',
       label: 'Support',
-      ...oldStudentUiLink(OLD_STUDENT_UI_NAV_PATHS.support),
-    },
-    {
+      stayInNew: false,
+      oldUiPath: OLD_STUDENT_UI_NAV_PATHS.support,
+    }),
+    buildPrimaryNavTab({
       id: 'discussions',
       label: 'Discussions',
-      ...oldStudentUiLink(OLD_STUDENT_UI_NAV_PATHS.discussions),
-    },
+      stayInNew: false,
+      oldUiPath: OLD_STUDENT_UI_NAV_PATHS.discussions,
+    }),
     // iHub hides the MasaiVerse CTA and the Refer & Earn (changemakers) link
     // entirely; Masai keeps the existing either/or behaviour.
     ...(isIHub

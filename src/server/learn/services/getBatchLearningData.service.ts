@@ -8,7 +8,11 @@ import type { LearningEntityRow } from '@/server/learn/utils/learningDataMappers
 import type { AssignmentProgressStatus } from '@/server/learn/utils/calculateAssignmentProgressStatus'
 import type { AssignmentListingPage } from '@/server/learn/queries/fetchAssignmentListingPage'
 import { getSectionIdsForUserInBatch } from '@/server/batches/getSectionIdsForUserInBatch'
-import { getUserBatchBans } from '@/server/users/batchBan'
+import { getUserBatchRestrictions } from '@/server/restrictions/getUserBatchRestrictions'
+import {
+  getCancelledBatchIds,
+  getPausedCutoff,
+} from '@/server/restrictions/enrollmentRestrictionScope'
 import { fetchLectureAttendanceSummaries } from '@/server/attendance/services/fetchLectureAttendanceSummaries'
 import { buildLearnListingCardCtas } from '@/server/learn/utils/buildLearnListingCardCtas'
 import { buildLearnScheduleWindow } from '@/server/learn/utils/buildLearnScheduleWindow'
@@ -49,6 +53,9 @@ async function fetchAttendanceForRows(
         concludes: row.concludes ?? null,
         optional: row.optional,
       })),
+    Date.now(),
+    // Include optional lectures so their status can populate the info tooltip.
+    true,
   )
 }
 
@@ -58,6 +65,7 @@ function mapRowToItem(
   nowMs: number,
   attendance: LectureAttendanceSummary | null,
   assignmentProgressStatus: AssignmentProgressStatus | null,
+  assignmentScore: number | null,
 ): LearningItem {
   const listingCtas = buildLearnListingCardCtas({
     learningType: input.learningType,
@@ -71,6 +79,7 @@ function mapRowToItem(
     nowMs,
     attendance,
     assignmentProgressStatus,
+    assignmentScore,
   })
 
   const resourcePhase =
@@ -98,10 +107,33 @@ export async function getBatchLearningData(
 ): Promise<GetBatchLearningDataResponse> {
   const { page, pageSize } = normalizePagination(input.page, input.pageSize)
   const nowMs = Date.now()
-  const [sectionIds, bans] = await Promise.all([
+  const [sectionIds, restrictions] = await Promise.all([
     getSectionIdsForUserInBatch(userId, input.batchId),
-    getUserBatchBans(userId),
+    getUserBatchRestrictions(userId),
   ])
+
+  // Enrolment cancelled: the batch is hidden entirely — return an empty listing
+  // even if the batchId is passed directly.
+  if (getCancelledBatchIds(restrictions).has(input.batchId)) {
+    return {
+      filterValues: {
+        moduleFilterValues: [],
+        categoryFilterValues: [],
+        typeFilterValues: [],
+        priorityFilterValues: [],
+        instructorFilterValues: [],
+      },
+      learningItems: [],
+      pagination: {
+        page,
+        pageSize,
+        totalItems: 0,
+        totalPages: 0,
+        hasNextPage: false,
+        hasPreviousPage: false,
+      },
+    }
+  }
 
   const window = buildLearnScheduleWindow({
     learningType: input.learningType,
@@ -120,8 +152,8 @@ export async function getBatchLearningData(
     window,
     search: input.search,
     nowMs,
-    // Normal-ban: hide items scheduled after the ban date in this banned batch.
-    bannedScheduleCutoff: bans.normalByBatch.get(input.batchId),
+    // Paused batch: hide items scheduled after the pause date; earlier content stays.
+    bannedScheduleCutoff: getPausedCutoff(restrictions, input.batchId) ?? undefined,
   }
 
   const [filterValues, pageResult] = await Promise.all([
@@ -141,6 +173,11 @@ export async function getBatchLearningData(
       ? (pageResult as AssignmentListingPage).progressById
       : new Map<number, AssignmentProgressStatus>()
 
+  const scoreById =
+    input.learningType === 'assignment'
+      ? (pageResult as AssignmentListingPage).scoreById
+      : new Map<number, number>()
+
   const learningItems = pageResult.rows.map((row) =>
     mapRowToItem(
       row,
@@ -148,6 +185,7 @@ export async function getBatchLearningData(
       nowMs,
       attendanceByLectureId.get(row.id) ?? null,
       progressById.get(row.id) ?? null,
+      scoreById.get(row.id) ?? null,
     ),
   )
 

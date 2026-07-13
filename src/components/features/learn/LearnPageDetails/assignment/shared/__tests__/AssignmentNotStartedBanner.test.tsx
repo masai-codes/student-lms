@@ -42,6 +42,7 @@ const baseDetail = {
   liveAnalytics: null,
   requiresPledge: false,
   problems: [],
+  isBookmarked: false,
 } satisfies AssignmentDetailPayload
 
 describe('AssignmentNotStartedBanner', () => {

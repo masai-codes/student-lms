@@ -66,10 +66,13 @@ describe('AgreementStep', () => {
     expect(screen.queryByTestId('agreement-step')).toBeNull()
   })
 
-  it('shows the completed summary with a PDF link once signed', () => {
+  it('shows the animated success screen once signed (no details, no PDF link)', () => {
     renderStep(section({ completed: true, agreementPdfUrl: 'https://s3/a.pdf' }))
     expect(screen.getByTestId('agreement-completed')).toBeTruthy()
-    expect(screen.getByTestId('agreement-view-pdf').getAttribute('href')).toBe('https://s3/a.pdf')
+    expect(screen.getByText('Agreement signed')).toBeTruthy()
+    // The details certificate and the PDF link are intentionally not shown here.
+    expect(screen.queryByTestId('agreement-view-pdf')).toBeNull()
+    expect(screen.queryByTestId('agreement-certificate')).toBeNull()
   })
 
   it('records the first view and shows the days-remaining countdown', async () => {

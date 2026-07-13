@@ -1,13 +1,13 @@
-import { and, asc, eq, inArray, isNull, lt, ne, notInArray } from 'drizzle-orm'
+import { and, asc, eq, inArray, isNull, lt, ne } from 'drizzle-orm'
 import type { ScheduleEntityRow } from '../schedule/scheduleTypes'
 import { db } from '@/db'
 import { batches, lectures, sections, users } from '@/db/schema'
 
-/** Lecture types that never appear as catch-up pending tasks. */
-const EXCLUDED_LECTURE_TYPES = ['resource', 'scrum']
+/** Only these lecture types can appear as catch-up pending tasks. */
+const ATTENDABLE_LECTURE_TYPES = ['live', 'video']
 
 /**
- * Mandatory, non-resource/non-scrum lectures in the user's sections that have
+ * Mandatory live/video lectures in the user's sections that have
  * already concluded (`concludes < istNow`) and are not deleted. Catch-up
  * eligibility (attendance window still open) is decided in the orchestrator via
  * the attendance summary. Ordered by `concludes` ascending.
@@ -47,7 +47,7 @@ export async function fetchPendingLectures(
         isNull(lectures.deletedAt),
         lt(lectures.concludes, istNow),
         ne(lectures.optional, 1),
-        notInArray(lectures.type, EXCLUDED_LECTURE_TYPES),
+        inArray(lectures.type, ATTENDABLE_LECTURE_TYPES),
       ),
     )
     .orderBy(asc(lectures.concludes))

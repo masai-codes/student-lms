@@ -6,6 +6,8 @@ export type LearnDetailOverviewProps = {
   title: string
   hostName: string
   displayDate: string
+  /** Same date in IST; shown on hover when the viewer isn't in IST. */
+  displayDateIst?: string
   priority: LearningPriority
   tags: Array<string>
   /** Right-aligned actions (Raise ticket, bookmark, etc.). */

@@ -18,6 +18,8 @@ function statusForSendOtpError(code: SendOtpError['code']): number {
       return 404
     case 'RATE_LIMITED':
       return 429
+    case 'ACCOUNT_DEACTIVATED':
+      return 403
   }
 }
 

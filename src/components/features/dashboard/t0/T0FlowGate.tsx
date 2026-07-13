@@ -6,6 +6,8 @@ import type { FeePaymentBanner } from '@/server/api/dashboard/t0/getFeePaymentBa
 export interface GuidedTourTarget {
   batchId: number
   tab: 'lms' | 'program'
+  /** When set, preselect the first step with this action (e.g. deep-link to `agreement`). */
+  stepAction?: 'agreement'
 }
 
 interface T0FlowGateProps {
@@ -64,6 +66,7 @@ export function T0FlowGate({
       onSeeDashboard={onDismiss}
       initialBatchId={target?.batchId}
       initialTab={target?.tab}
+      initialStepAction={target?.stepAction}
       feePaymentBanners={feePaymentBanners}
     />
   )

@@ -39,11 +39,12 @@ describe('AnnouncementsPanel', () => {
     expect(screen.getByText('Failed to load content')).toBeTruthy()
   })
 
-  it('hides the whole section when the fetch succeeded with no announcements', () => {
-    const { container } = render(
+  it('keeps the card and shows "No announcements yet" when the fetch succeeded with none', () => {
+    render(
       <AnnouncementsPanel announcements={[]} isLoading={false} isError={false} />,
     )
-    expect(container.firstChild).toBeNull()
+    expect(screen.getByTestId('dashboard-announcements-panel')).toBeTruthy()
+    expect(screen.getByText('No announcements yet')).toBeTruthy()
   })
 
   it('renders rows, the "For you" badge only on messages, and correct links', () => {

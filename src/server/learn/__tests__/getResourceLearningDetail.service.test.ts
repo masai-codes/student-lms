@@ -12,11 +12,8 @@ vi.mock('@/db', () => ({
   db: { select: hoisted.dbSelect },
 }))
 
-vi.mock('@/server/users/batchBan', () => ({
-  getUserBatchBans: vi.fn(async () => ({
-    normalByBatch: new Map(),
-    agreementByBatch: new Map(),
-  })),
+vi.mock('@/server/restrictions/getUserBatchRestrictions', () => ({
+  getUserBatchRestrictions: vi.fn(async () => new Map()),
 }))
 vi.mock('@/server/batches/getBatchIdsForSections', () => ({
   getBatchIdForSection: vi.fn(async () => null),
@@ -34,8 +31,8 @@ vi.mock(
   }),
 )
 
-vi.mock('@/server/learn/services/getLectureAssociatedContent.service', () => ({
-  getLectureAssociatedContent: hoisted.associatedContent,
+vi.mock('@/server/learn/services/getAllAssociatedEntities.service', () => ({
+  getAllAssociatedEntities: hoisted.associatedContent,
 }))
 
 vi.mock('@/server/learn/services/learnEntityBookmark.service', () => ({

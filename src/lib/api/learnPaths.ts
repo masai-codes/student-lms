@@ -10,6 +10,8 @@ export const LEARN_API = {
   lectureZoomRedirect: (lectureId: number) =>
     `/api/learn/lectures/${lectureId}/zoom-redirect`,
   assignment: (assignmentId: number) => `/api/learn/assignments/${assignmentId}`,
+  assignmentBookmark: (assignmentId: number) =>
+    `/api/learn/assignments/${assignmentId}/bookmark`,
   problem: (assignmentId: number, problemId: number) =>
     `/api/learn/assignments/${assignmentId}/problems/${problemId}`,
   resource: (resourceId: number) => `/api/learn/resources/${resourceId}`,
@@ -32,4 +34,10 @@ export const LEARN_API = {
   discussions: '/api/learn/discussions',
   discussionReplies: (discussionId: number) =>
     `/api/learn/discussions/${discussionId}/replies`,
+  discussionRead: (discussionId: number) =>
+    `/api/learn/discussions/${discussionId}/read`,
+  discussionClose: (discussionId: number) =>
+    `/api/learn/discussions/${discussionId}/close`,
+  discussionFeedback: (discussionId: number) =>
+    `/api/learn/discussions/${discussionId}/feedback`,
 } as const

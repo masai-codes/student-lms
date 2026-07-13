@@ -20,6 +20,8 @@ export function buildLearnListingCardCtas(input: {
   nowMs: number
   attendance: LectureAttendanceSummary | null
   assignmentProgressStatus: AssignmentProgressStatus | null
+  /** Released score (clamped to 10); null unless `showScores` is on and the score is released. */
+  assignmentScore: number | null
 }): LearnListingCardCtas {
   if (input.learningType === 'assignment') {
     return {
@@ -33,6 +35,7 @@ export function buildLearnListingCardCtas(input: {
       ),
       assignmentDeadlineLabel:
         computeDeadlineCountdown(input.concludes, input.nowMs)?.label ?? null,
+      assignmentScore: input.assignmentScore,
     }
   }
 
@@ -44,6 +47,7 @@ export function buildLearnListingCardCtas(input: {
       showAttendance: false,
       assignmentStatusChip: null,
       assignmentDeadlineLabel: null,
+      assignmentScore: null,
     }
   }
 
@@ -86,5 +90,6 @@ export function buildLearnListingCardCtas(input: {
     showAttendance,
     assignmentStatusChip: null,
     assignmentDeadlineLabel: null,
+    assignmentScore: null,
   }
 }

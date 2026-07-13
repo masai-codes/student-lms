@@ -7,7 +7,8 @@ import type { DashboardScheduleItem, ScheduleEntityRow } from './scheduleTypes'
 import { getSectionIdsForUser } from '@/server/batches/getSectionIdsForUser'
 import { getBatchIdsForEnrolledUser } from '@/server/batches/getBatchIdsForEnrolledUser'
 import { getBatchIdsForSections } from '@/server/batches/getBatchIdsForSections'
-import { getUserBatchBans, makeNormalBanScheduleFilter } from '@/server/users/batchBan'
+import { getUserBatchRestrictions } from '@/server/restrictions/getUserBatchRestrictions'
+import { makePausedScheduleFilter } from '@/server/restrictions/enrollmentRestrictionScope'
 import { fetchLectureAttendanceSummaries } from '@/server/attendance/services/fetchLectureAttendanceSummaries'
 import { calculateAssignmentProgressStatus } from '@/server/learn/utils/calculateAssignmentProgressStatus'
 import { fetchLatestSubmissionByAssignment } from '@/server/learn/queries/fetchLatestSubmissionByAssignment'
@@ -28,10 +29,10 @@ export async function getDashboardSchedule(
   const nowMs = now.getTime()
   const { start, end } = getScheduleDateWindow(now)
 
-  const [sectionIds, batchIds, bans] = await Promise.all([
+  const [sectionIds, batchIds, restrictions] = await Promise.all([
     getSectionIdsForUser(userId),
     getBatchIdsForEnrolledUser(userId),
-    getUserBatchBans(userId),
+    getUserBatchRestrictions(userId),
   ])
   if (sectionIds.length === 0) return []
 
@@ -42,9 +43,12 @@ export async function getDashboardSchedule(
 
   let visibleLectures = lectureRows
   let visibleAssignments = assignmentRows
-  if (bans.normalByBatch.size > 0) {
+  // Drop rows in enrolment-cancelled batches, and rows scheduled after a paused
+  // batch's cutoff. (getSectionIdsForUser is section-based and doesn't itself
+  // exclude cancelled batches, so this filter is what enforces it for the feed.)
+  if (restrictions.size > 0) {
     const sectionToBatch = await getBatchIdsForSections(sectionIds)
-    const keep = makeNormalBanScheduleFilter(bans.normalByBatch, sectionToBatch)
+    const keep = makePausedScheduleFilter(restrictions, sectionToBatch)
     visibleLectures = lectureRows.filter(keep)
     visibleAssignments = assignmentRows.filter(keep)
   }

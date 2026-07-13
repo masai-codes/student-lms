@@ -50,6 +50,8 @@ export interface LearnListingCardCtas {
   assignmentStatusChip: AssignmentListingStatusChip
   /** "N days/hours remaining" until an assignment deadline; null otherwise. */
   assignmentDeadlineLabel: string | null
+  /** Released score (clamped to 10) to show on the card; null unless `showScores` is on and the score is released. */
+  assignmentScore: number | null
 }
 
 export type LearnSchedulePhaseFilter = 'all' | 'upcoming' | 'past'
@@ -95,6 +97,12 @@ export interface LearningItem {
   moduleName: string
   /** Present for mandatory lectures only; null for assignments/resources/optional lectures. */
   attendance: LectureAttendanceSummary | null
+  /**
+   * Present for optional (recommended) lectures only; null otherwise. Powers the
+   * optional-session info tooltip on the card — optional lectures never show the
+   * regular attendance badge, so this is the only place their status surfaces.
+   */
+  optionalAttendance: LectureAttendanceSummary | null
   /** Present for assignments only. */
   assignmentProgressStatus: AssignmentProgressStatus | null
   /** Present for resources only. */
@@ -157,6 +165,10 @@ export interface DiscussionListItem {
   createdAt: string | null
   updatedAt: string | null
   threadCount: number
+  /** Unread replies for the discussion owner (replies by others not yet marked read). Always 0 for non-owners. */
+  unreadReplyCount: number
+  /** Owner's 1–5 rating of how the discussion was resolved, or null when not rated. */
+  feedbackRating: number | null
   author: DiscussionAuthorPreview | null
   /** Reply threads loaded with the detail page (empty on non-detail listings). */
   threads: Array<LearnDiscussionThreadItem>
@@ -187,17 +199,12 @@ export type {
 } from '@/server/learn/lectureDetailTypes'
 
 /**
- * Backend-computed ban restriction for a detail page. The frontend renders the
- * matching gated UI purely from this flag — it never derives the ban itself.
- * - `page`: normal batch ban — block the whole page (content scheduled after the
- *   ban date in a batch the user is normal-banned in).
- * - `recording`: agreement ban — block only the lecture recording player.
- * - `practice`: agreement ban — block only the practice-assignment attempt.
+ * Backend-computed restriction for a detail page (see `@/server/restrictions`).
+ * The frontend renders the matching gated UI purely from this value — it never
+ * derives the restriction itself.
  */
-export type LearnBanRestriction =
-  | { kind: 'page' }
-  | { kind: 'recording' }
-  | { kind: 'practice' }
+export type { LearnDetailRestriction } from '@/server/restrictions/types'
+import type { LearnDetailRestriction } from '@/server/restrictions/types'
 
 export interface LearnHubDetailPayload {
   id: number
@@ -209,6 +216,6 @@ export interface LearnHubDetailPayload {
   tags: Array<string>
   /** Loaded with the detail response (student-visible discussions only). */
   discussions: Array<DiscussionListItem>
-  /** Set when the signed-in user is batch-banned from (part of) this content. */
-  banRestriction?: LearnBanRestriction | null
+  /** Set when the signed-in user is restricted from (part of) this content. */
+  restriction?: LearnDetailRestriction | null
 }

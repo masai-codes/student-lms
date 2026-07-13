@@ -136,14 +136,14 @@ function OnboardingSlide({
   const remaining = Math.max(banner.total - banner.completed, 0)
 
   return (
-    <div className="flex items-center justify-between gap-3">
+    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
       <div className="flex min-w-0 items-center gap-3">
         <StepsLeftCounter remaining={remaining} />
         <div className="min-w-0">
           <p
             data-testid="dashboard-onboarding-banner-title"
             title={banner.courseTitle}
-            className="truncate text-sm font-semibold md:text-base"
+            className="line-clamp-2 text-sm font-semibold sm:truncate md:text-base"
           >
             Finish onboarding for {banner.courseTitle}
           </p>
@@ -157,7 +157,7 @@ function OnboardingSlide({
         type="button"
         onClick={onResume}
         data-testid="dashboard-onboarding-banner-resume"
-        className="inline-flex shrink-0 items-center gap-2 rounded-lg bg-white px-4 py-2 text-sm font-semibold text-[#5B52A3] transition-colors hover:bg-white/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
+        className="inline-flex w-full shrink-0 items-center justify-center gap-2 rounded-lg bg-white px-4 py-2 text-sm font-semibold text-[#5B52A3] transition-colors hover:bg-white/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white sm:w-auto"
       >
         Finish Now
         <ArrowRight size={16} weight="bold" />

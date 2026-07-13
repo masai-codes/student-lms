@@ -108,14 +108,12 @@ function BannerContent({ view, className }: { view: NextActionBannerView; classN
 }
 
 /**
- * Compact navbar pill surfacing the student's single most relevant next action —
- * "View" for the highest-priority live lecture or "Start" an evaluation.
- * The backend picks the event (evaluation > live > scrum, within its visible
- * window); this component just renders it and keeps the countdown live. Renders
- * nothing when there is no active event. Sizing/placement is controlled by the
- * caller via `className` (e.g. `max-w-[340px]` in the navbar).
+ * Fetches the next-action event and resolves it to the live pill view (or
+ * `null` when there's nothing active), keeping the countdown ticking. Shared so
+ * callers can branch on whether a pill would render (e.g. the mobile header
+ * shows the pill in place of the greeting only when this is non-null).
  */
-export function NextActionBanner({ className }: { className?: string }) {
+export function useNextActionBannerView(): NextActionBannerView | null {
   const { data: event } = useQuery({
     queryKey: ['navbar-pill'],
     queryFn: fetchNavbarPillEvent,
@@ -127,7 +125,19 @@ export function NextActionBanner({ className }: { className?: string }) {
   useCountdownTick(tickMs)
 
   const { now } = useServerTime()
-  const view = resolveNextActionBannerView(event, now.valueOf())
+  return resolveNextActionBannerView(event, now.valueOf())
+}
+
+/**
+ * Compact navbar pill surfacing the student's single most relevant next action —
+ * "View" for the highest-priority live lecture or "Start" an evaluation.
+ * The backend picks the event (evaluation > live > scrum, within its visible
+ * window); this component just renders it and keeps the countdown live. Renders
+ * nothing when there is no active event. Sizing/placement is controlled by the
+ * caller via `className` (e.g. `max-w-[340px]` in the navbar).
+ */
+export function NextActionBanner({ className }: { className?: string }) {
+  const view = useNextActionBannerView()
   if (!view) return null
 
   return <BannerContent view={view} className={className} />

@@ -5,7 +5,6 @@ import { LectureDetailChrome } from '../shared/LectureDetailChrome'
 import { LectureDetailFooter } from '../shared/LectureDetailFooter'
 import { BeforeVideoLecture } from './BeforeVideoLecture'
 import { DuringAfterVideoLecture } from './DuringAfterVideoLecture'
-import { LectureRecordingBanPanel } from '../shared/LectureRecordingBanPanel'
 
 import type { LectureDetailPayload } from '@/server/learn/lectureDetailTypes'
 
@@ -18,10 +17,6 @@ function renderVideoHero(detail: LectureDetailPayload) {
     case 'before':
       return <BeforeVideoLecture schedule={detail.schedule} />
     case 'during_after':
-      // Agreement ban: block the recording, keep the rest of the page.
-      if (detail.banRestriction?.kind === 'recording') {
-        return <LectureRecordingBanPanel />
-      }
       return <DuringAfterVideoLecture detail={detail} />
     default:
       return <BeforeVideoLecture schedule={detail.schedule} />
@@ -45,7 +40,10 @@ export function VideoLectureContent({ detail }: VideoLectureContentProps) {
       hostName={detail.hostName}
       hostAvatarUrl={detail.hostAvatarUrl}
       scheduleDisplayRange={detail.scheduleDisplayRange}
+      scheduleDisplayRangeIst={detail.scheduleDisplayRangeIst}
       attendance={detail.attendance}
+      optionalAttendance={detail.optionalAttendance}
+      isLiveLecture={detail.lectureKind === 'live'}
       watchPercentage={detail.videoAttendance?.watchPercentage}
       actions={
         <LectureDetailActions

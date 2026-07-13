@@ -52,6 +52,16 @@ export function createAssessPlatformUrl(input: {
   )
 }
 
+export function markSubmissionCompletedWithToken(
+  assignmentId: number,
+  token: string,
+) {
+  return postLearnApi<{ markAsCompleted: boolean }>(
+    `/api/learn/assignments/${assignmentId}/mark-completed-with-token`,
+    { token },
+  )
+}
+
 export function updateSubmissionCompletion(input: {
   submissionId: number
   completed: boolean

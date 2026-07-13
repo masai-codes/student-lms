@@ -1,6 +1,5 @@
 import type { LectureAttendanceSummary } from '@/server/attendance/types'
-import type { LearnAssociatedListItem } from '@/server/learn/learnAssociatedTypes'
-import type { LearnHubDetailPayload } from '@/server/learn/types'
+import type { LearnHubDetailPayload, LearningItem } from '@/server/learn/types'
 import type { JoinLiveButtonState } from '@/server/learn/utils/resolveJoinLiveButtonState'
 import type { WatchIntervalSegment } from '@/server/video-attendance/types'
 
@@ -41,7 +40,7 @@ export type LectureDetailTabContent = {
   transcript: string | null
   /** Structured transcript segments preferred for timestamp rendering. */
   transcriptSegments: Array<LectureTranscriptSegment>
-  associatedItems: Array<LearnAssociatedListItem>
+  associatedItems: Array<LearningItem>
 }
 
 export type LectureDetailPayload = LearnHubDetailPayload & {
@@ -49,6 +48,8 @@ export type LectureDetailPayload = LearnHubDetailPayload & {
   schedule: string | null
   concludes: string | null
   scheduleDisplayRange: string
+  /** Same range forced to IST, populated client-side for the non-IST hover tooltip. */
+  scheduleDisplayRangeIst?: string
   hostAvatarUrl: string | null
   hideVideo: boolean
   hideNotes: boolean
@@ -63,6 +64,12 @@ export type LectureDetailPayload = LearnHubDetailPayload & {
   videoAttendance: LectureVideoAttendanceState | null
   /** Null for recommended (optional) lectures. */
   attendance: LectureAttendanceSummary | null
+  /**
+   * Only populated for recommended (optional) lectures; null otherwise. Powers
+   * the info tooltip next to the title, since optional lectures don't show the
+   * regular attendance badge.
+   */
+  optionalAttendance: LectureAttendanceSummary | null
   /** Whether the current user has bookmarked this lecture. */
   isBookmarked: boolean
   /** When true, live join uses the ZEF redirect flow instead of the raw zoom link. */
