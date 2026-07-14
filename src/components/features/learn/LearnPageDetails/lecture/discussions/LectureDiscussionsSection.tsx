@@ -2,6 +2,7 @@
 
 import { useRouteContext, useRouter } from '@tanstack/react-router'
 import { useState } from 'react'
+import type { CSSProperties } from 'react'
 
 import { LectureDiscussionCreatePanel } from './LectureDiscussionCreatePanel'
 import { LectureDiscussionList } from './LectureDiscussionList'
@@ -57,10 +58,13 @@ export function LectureDiscussionsSection({
     title: string
     descriptionMarkdown: string
   }) => {
-    pushLearnEvent(learnEntityEvent(entityKind, 'discussion_create', entityId), {
-      entity_id: entityId,
-      entity_kind: entityKind,
-    })
+    pushLearnEvent(
+      learnEntityEvent(entityKind, 'discussion_create', entityId),
+      {
+        entity_id: entityId,
+        entity_kind: entityKind,
+      },
+    )
     setError(null)
     setPending(true)
     try {
@@ -88,8 +92,13 @@ export function LectureDiscussionsSection({
         className,
       )}
     >
-      <h2 className="type-h4 mb-2 text-gray-900">Discussions</h2>
-      <p className="type-b3-regular mb-4 text-gray-500">
+      <h2 className="type-h4 animate-dash-rise mb-2 text-foreground">
+        Discussions
+      </h2>
+      <p
+        className="type-b3-regular animate-dash-rise mb-4 text-foreground-muted"
+        style={{ '--dash-delay': '0.05s' } as CSSProperties}
+      >
         Share course-related discussions with your peers.
       </p>
 

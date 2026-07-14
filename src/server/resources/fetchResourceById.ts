@@ -1,9 +1,9 @@
-import { createServerFn } from '@tanstack/react-start';
-import { eq } from 'drizzle-orm';
-import { db } from '@/db';
-import { lectures } from '@/db/schema';
+import { createServerFn } from '@tanstack/react-start'
+import { eq } from 'drizzle-orm'
+import { db } from '@/db'
+import { lectures } from '@/db/schema'
 
-export const fetchResourceById = createServerFn({ method: "GET" })
+export const fetchResourceById = createServerFn({ method: 'GET' })
   .inputValidator((data: { resourceId: number }) => data)
   .handler(async ({ data }) => {
     const result = await db
@@ -12,7 +12,7 @@ export const fetchResourceById = createServerFn({ method: "GET" })
       .where(eq(lectures.id, data.resourceId))
 
     if (result.length === 0) {
-      throw new Error("LECTURE_NOT_FOUND")
+      throw new Error('LECTURE_NOT_FOUND')
     }
 
     return result

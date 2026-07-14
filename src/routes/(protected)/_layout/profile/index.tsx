@@ -18,9 +18,10 @@ const VALID_TABS: Array<ProfileTab> = [
 
 export const Route = createFileRoute('/(protected)/_layout/profile/')({
   validateSearch: (raw): { tab: ProfileTab } => {
-    const tab = typeof raw.tab === 'string' && VALID_TABS.includes(raw.tab as ProfileTab)
-      ? (raw.tab as ProfileTab)
-      : 'profile-details'
+    const tab =
+      typeof raw.tab === 'string' && VALID_TABS.includes(raw.tab as ProfileTab)
+        ? (raw.tab as ProfileTab)
+        : 'profile-details'
     return { tab }
   },
   component: ProfilePage,

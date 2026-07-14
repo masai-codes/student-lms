@@ -64,7 +64,8 @@ function renderSeedCommands(seedCommand: string): string {
 
 function resolvePrimaryEmail(flow: SeedFlowMeta, primaryRole: string): string {
   return (
-    flow.defaultCredentialEmails?.find((cred) => cred.role === primaryRole)?.email ??
+    flow.defaultCredentialEmails?.find((cred) => cred.role === primaryRole)
+      ?.email ??
     flow.defaultCredentialEmails?.[0]?.email ??
     ''
   )
@@ -113,7 +114,8 @@ export function renderFlowItem(
   secretLoginToken: string,
 ): string {
   const flowState = seedState[flow.id]
-  const primaryRole = flow.primaryLoginRole ?? flowState?.testUsers[0]?.role ?? 'student'
+  const primaryRole =
+    flow.primaryLoginRole ?? flowState?.testUsers[0]?.role ?? 'student'
   const loginUserId = resolveLoginUserId(flowState, primaryRole)
   const loginEmail = resolvePrimaryEmail(flow, primaryRole)
   const loginDisabled = !secretLoginToken || (!loginUserId && !loginEmail)

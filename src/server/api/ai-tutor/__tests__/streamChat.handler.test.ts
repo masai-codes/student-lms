@@ -68,7 +68,10 @@ describe('handleStreamChat', () => {
     )
 
     const res = await handleStreamChat(
-      postRequest({ lectureId: 1, chat: 'hello', platform: 'web-desktop' }, null),
+      postRequest(
+        { lectureId: 1, chat: 'hello', platform: 'web-desktop' },
+        null,
+      ),
     )
 
     expect(res.status).toBe(401)
@@ -124,8 +127,7 @@ describe('handleStreamChat', () => {
   })
 
   it('returns 400 when language is invalid', async () => {
-    const { handleStreamChat } =
-      await import('../handlers/streamChat.handler')
+    const { handleStreamChat } = await import('../handlers/streamChat.handler')
     vi.mocked(requireSessionUserId).mockResolvedValueOnce(7)
 
     const res = await handleStreamChat(
@@ -146,8 +148,7 @@ describe('handleStreamChat', () => {
   })
 
   it('returns 400 when platform is invalid', async () => {
-    const { handleStreamChat } =
-      await import('../handlers/streamChat.handler')
+    const { handleStreamChat } = await import('../handlers/streamChat.handler')
     vi.mocked(requireSessionUserId).mockResolvedValueOnce(7)
 
     const res = await handleStreamChat(
@@ -208,8 +209,7 @@ describe('handleStreamChat', () => {
   })
 
   it('defaults language to English when omitted from the request', async () => {
-    const { handleStreamChat } =
-      await import('../handlers/streamChat.handler')
+    const { handleStreamChat } = await import('../handlers/streamChat.handler')
     vi.mocked(requireSessionUserId).mockResolvedValueOnce(7)
     hoisted.prepareLectureChatContext.mockResolvedValueOnce({
       chatRow: { id: 12, chatHistory: [] },
@@ -219,9 +219,11 @@ describe('handleStreamChat', () => {
       platform: 'app',
       language: 'English',
     })
-    hoisted.streamLectureChatEventsFromContext.mockImplementationOnce(function* () {
-      yield { type: 'done' as const, chatId: 12 }
-    })
+    hoisted.streamLectureChatEventsFromContext.mockImplementationOnce(
+      function* () {
+        yield { type: 'done' as const, chatId: 12 }
+      },
+    )
 
     await handleStreamChat(
       postRequest({ lectureId: 99, chat: 'explain hooks' }),

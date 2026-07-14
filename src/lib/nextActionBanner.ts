@@ -56,7 +56,9 @@ export function resolveNextActionBannerView(
   const isStarted = nowMs >= startMs
 
   const noun = isEvaluation ? 'Evaluation' : 'Lecture'
-  const label = isStarted ? `${noun} has started` : `Upcoming ${noun.toLowerCase()}`
+  const label = isStarted
+    ? `${noun} has started`
+    : `Upcoming ${noun.toLowerCase()}`
 
   return {
     event,

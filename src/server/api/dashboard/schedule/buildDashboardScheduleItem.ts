@@ -21,7 +21,8 @@ export function buildDashboardScheduleItem(input: {
   assignmentProgressStatus: AssignmentProgressStatus | null
   showCourseName: boolean
 }): DashboardScheduleItem {
-  const { row, learningType, nowMs, attendance, assignmentProgressStatus } = input
+  const { row, learningType, nowMs, attendance, assignmentProgressStatus } =
+    input
 
   const listingCtas = buildLearnListingCardCtas({
     learningType,
@@ -61,7 +62,11 @@ function resolveCourseName(row: ScheduleEntityRow): string | null {
 }
 
 function resolveEnableZoomWebView(settings: unknown): boolean {
-  if (settings && typeof settings === 'object' && 'enableZoomWebView' in settings) {
+  if (
+    settings &&
+    typeof settings === 'object' &&
+    'enableZoomWebView' in settings
+  ) {
     return settings.enableZoomWebView === true
   }
   return false

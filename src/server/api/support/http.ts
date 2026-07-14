@@ -33,7 +33,8 @@ const SUPPORT_ERROR_STATUS: Record<string, number> = {
  * `ApiError`s become clean client errors; everything else is logged + 500.
  */
 export function mapSupportError(error: unknown): Response {
-  if (isApiError(error)) return jsonError(error.status, error.code, error.message)
+  if (isApiError(error))
+    return jsonError(error.status, error.code, error.message)
 
   if (error instanceof Error && SUPPORT_ERROR_STATUS[error.message]) {
     return jsonError(SUPPORT_ERROR_STATUS[error.message], error.message)
@@ -55,11 +56,7 @@ export async function readJsonBody<T>(
 }
 
 /** Read a required positive integer query param, or throw `code`. */
-export function requireIntParam(
-  url: URL,
-  name: string,
-  code: string,
-): number {
+export function requireIntParam(url: URL, name: string, code: string): number {
   const value = Number(url.searchParams.get(name))
   if (!Number.isFinite(value) || value <= 0) throw new Error(code)
   return value

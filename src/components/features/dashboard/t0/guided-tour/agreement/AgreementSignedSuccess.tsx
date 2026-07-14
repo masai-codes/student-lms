@@ -19,7 +19,7 @@ export function AgreementSignedSuccess() {
 
   return (
     <div
-      className="relative flex h-full min-h-0 flex-col items-center justify-center overflow-hidden rounded-2xl border border-gray-200 bg-white p-8 text-center"
+      className="relative flex h-full min-h-0 flex-col items-center justify-center overflow-hidden rounded-2xl border border-border bg-surface p-8 text-center"
       data-testid="agreement-completed"
     >
       <ConfettiOverlay active data-testid="agreement-success-confetti" />
@@ -53,8 +53,10 @@ export function AgreementSignedSuccess() {
         </div>
 
         <div className="flex flex-col gap-2">
-          <h3 className="text-2xl font-semibold text-gray-900">Agreement signed</h3>
-          <p className="max-w-md text-sm text-gray-500">
+          <h3 className="text-2xl font-semibold text-foreground">
+            Agreement signed
+          </h3>
+          <p className="max-w-md text-sm text-foreground-muted">
             Thanks — your agreement has been signed and securely recorded.
           </p>
         </div>

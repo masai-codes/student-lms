@@ -2,7 +2,10 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import useEmblaCarousel from 'embla-carousel-react'
 import { ArrowRight } from '@phosphor-icons/react'
 import { BannerArrow } from './BannerArrow'
-import { ONBOARDING_AUTOPLAY_MS, useCarouselAutoplay } from './useCarouselAutoplay'
+import {
+  ONBOARDING_AUTOPLAY_MS,
+  useCarouselAutoplay,
+} from './useCarouselAutoplay'
 import { pushDashboardEvent } from '../shared/dashboardAnalytics'
 import type { OnboardingBanner } from './onboardingBanners'
 import type { EmblaCarouselType } from 'embla-carousel'
@@ -20,7 +23,10 @@ interface OnboardingStepsBannerProps {
  * powers drag-to-swipe, with dots centered below (multi-course only). Its bottom
  * corners are square so it sits flush against the white content card below.
  */
-export function OnboardingStepsBanner({ banners, onResume }: OnboardingStepsBannerProps) {
+export function OnboardingStepsBanner({
+  banners,
+  onResume,
+}: OnboardingStepsBannerProps) {
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true })
 
   const [selected, setSelected] = useState(0)
@@ -55,7 +61,11 @@ export function OnboardingStepsBanner({ banners, onResume }: OnboardingStepsBann
     }
   }, [emblaApi, onSelect])
 
-  const autoplay = useCarouselAutoplay(emblaApi, banners.length, ONBOARDING_AUTOPLAY_MS)
+  const autoplay = useCarouselAutoplay(
+    emblaApi,
+    banners.length,
+    ONBOARDING_AUTOPLAY_MS,
+  )
 
   if (banners.length === 0) return null
 
@@ -75,12 +85,15 @@ export function OnboardingStepsBanner({ banners, onResume }: OnboardingStepsBann
                 banner={banner}
                 onResume={() => {
                   if (draggedRef.current) return
-                  pushDashboardEvent('l_dashboard_onboarding_resume_id_' + banner.batchId, {
-                    batch_id: banner.batchId,
-                    target_tab: banner.targetTab,
-                    completed: banner.completed,
-                    total: banner.total,
-                  })
+                  pushDashboardEvent(
+                    'l_dashboard_onboarding_resume_id_' + banner.batchId,
+                    {
+                      batch_id: banner.batchId,
+                      target_tab: banner.targetTab,
+                      completed: banner.completed,
+                      total: banner.total,
+                    },
+                  )
                   onResume(banner.batchId, banner.targetTab)
                 }}
               />
@@ -98,7 +111,10 @@ export function OnboardingStepsBanner({ banners, onResume }: OnboardingStepsBann
             testIdBase="dashboard-onboarding-banner"
             onClick={() => emblaApi?.scrollPrev()}
           />
-          <div className="flex justify-center gap-1.5" data-testid="dashboard-onboarding-banner-dots">
+          <div
+            className="flex justify-center gap-1.5"
+            data-testid="dashboard-onboarding-banner-dots"
+          >
             {banners.map((b, i) => (
               <button
                 key={b.batchId}
@@ -107,7 +123,7 @@ export function OnboardingStepsBanner({ banners, onResume }: OnboardingStepsBann
                 data-active={i === selected}
                 onClick={() => emblaApi?.scrollTo(i)}
                 className={`size-1.5 rounded-full transition-colors ${
-                  i === selected ? 'bg-white' : 'bg-white/40'
+                  i === selected ? 'bg-surface' : 'bg-surface/40'
                 }`}
               />
             ))}
@@ -147,8 +163,12 @@ function OnboardingSlide({
           >
             Finish onboarding for {banner.courseTitle}
           </p>
-          <p data-testid="dashboard-onboarding-banner-progress" className="mt-0.5 truncate text-xs text-white/80">
-            {banner.completed}/{banner.total} steps completed — don&apos;t lose your spot
+          <p
+            data-testid="dashboard-onboarding-banner-progress"
+            className="mt-0.5 truncate text-xs text-white/80"
+          >
+            {banner.completed}/{banner.total} steps completed — don&apos;t lose
+            your spot
           </p>
         </div>
       </div>
@@ -157,7 +177,7 @@ function OnboardingSlide({
         type="button"
         onClick={onResume}
         data-testid="dashboard-onboarding-banner-resume"
-        className="inline-flex w-full shrink-0 items-center justify-center gap-2 rounded-lg bg-white px-4 py-2 text-sm font-semibold text-[#5B52A3] transition-colors hover:bg-white/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white sm:w-auto"
+        className="inline-flex w-full shrink-0 items-center justify-center gap-2 rounded-lg bg-surface px-4 py-2 text-sm font-semibold text-brand transition-colors hover:bg-surface/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white sm:w-auto"
       >
         Finish Now
         <ArrowRight size={16} weight="bold" />
@@ -178,8 +198,8 @@ function StepsLeftCounter({ remaining }: { remaining: number }) {
       className="flex shrink-0 items-center gap-2 rounded-xl bg-[#FFC24B] px-3 py-1.5 text-[#4A3F7A] shadow-sm"
     >
       <span className="relative flex size-2" aria-hidden>
-        <span className="absolute inline-flex size-full animate-ping rounded-full bg-[#5B52A3] opacity-70" />
-        <span className="relative inline-flex size-2 rounded-full bg-[#5B52A3]" />
+        <span className="absolute inline-flex size-full animate-ping rounded-full bg-brand opacity-70" />
+        <span className="relative inline-flex size-2 rounded-full bg-brand" />
       </span>
       <span className="whitespace-nowrap font-bold leading-none">
         <span className="text-xl">{remaining}</span>

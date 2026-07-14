@@ -4,9 +4,12 @@ import { requireSessionUserId } from '@/server/api/http/requireSessionUser'
 
 const hoisted = vi.hoisted(() => ({ submit: vi.fn() }))
 
-vi.mock('@/server/new-discussions/services/submitLearnDiscussionFeedback', () => ({
-  submitLearnDiscussionFeedback: hoisted.submit,
-}))
+vi.mock(
+  '@/server/new-discussions/services/submitLearnDiscussionFeedback',
+  () => ({
+    submitLearnDiscussionFeedback: hoisted.submit,
+  }),
+)
 vi.mock('@/server/api/http/requireSessionUser', () => ({
   requireSessionUserId: vi.fn(),
 }))

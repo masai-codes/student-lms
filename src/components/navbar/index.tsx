@@ -8,6 +8,7 @@ import type { NavbarProps } from './types'
 
 import { LAYOUT_NAVBAR_INNER_CLASSES } from '@/lib/layout'
 import { cn } from '@/lib/utils'
+import { ThemeSwitcher } from '@/components/theme/ThemeSwitcher'
 
 export function Navbar({
   logo,
@@ -21,7 +22,7 @@ export function Navbar({
     <header
       data-app-navbar
       className={cn(
-        'sticky top-0 z-[210] flex w-full flex-col bg-white shadow-[0_1px_2px_0_rgb(0_0_0/0.05)] rounded-b-[32px] lg:px-6',
+        'sticky top-0 z-[210] flex w-full flex-col bg-surface shadow-[0_1px_2px_0_rgb(0_0_0/0.05)] rounded-b-[32px] lg:px-6',
         className,
       )}
     >
@@ -39,6 +40,7 @@ export function Navbar({
         <div className="flex shrink-0 items-center gap-4">
           {centerSlot ?? null}
           <NavbarTrailingActions items={trailingActions ?? []} />
+          <ThemeSwitcher />
           <NavbarProfileMenu profile={profile} />
         </div>
       </div>

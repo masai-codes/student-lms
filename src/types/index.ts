@@ -1,5 +1,3 @@
-
-
 export interface User {
   id: number
   name: string
@@ -12,8 +10,8 @@ export interface User {
 }
 
 export interface RouterContext {
-  user: User | null,
-  login: (user: User) => void,
+  user: User | null
+  login: (user: User) => void
   logout: () => void
 }
 
@@ -22,7 +20,7 @@ export type Course = {
   title: string
   org: string
   progress: number
-  cta: "resume" | "start"
+  cta: 'resume' | 'start'
   image: string
 }
 

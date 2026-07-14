@@ -4,7 +4,10 @@
  * or an already-parsed object (Drizzle `json` column). Returns `''` when
  * neither is available — callers fall back to the batch id.
  */
-export function resolveCourseTitle(meta: unknown, name: string | null | undefined): string {
+export function resolveCourseTitle(
+  meta: unknown,
+  name: string | null | undefined,
+): string {
   const parsed =
     typeof meta === 'string'
       ? safeParse(meta)
@@ -20,7 +23,9 @@ export function resolveCourseTitle(meta: unknown, name: string | null | undefine
 function safeParse(raw: string): Record<string, unknown> | null {
   try {
     const value = JSON.parse(raw)
-    return value && typeof value === 'object' ? (value as Record<string, unknown>) : null
+    return value && typeof value === 'object'
+      ? (value as Record<string, unknown>)
+      : null
   } catch {
     return null
   }

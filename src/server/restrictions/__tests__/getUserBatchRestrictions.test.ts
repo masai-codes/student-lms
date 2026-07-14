@@ -32,11 +32,17 @@ describe('getUserBatchRestrictions', () => {
       },
       {
         batchId: 2,
-        meta: JSON.stringify({ batchPaused: true, batchPausedDate: '2026-07-02' }),
+        meta: JSON.stringify({
+          batchPaused: true,
+          batchPausedDate: '2026-07-02',
+        }),
       },
       {
         batchId: 3,
-        meta: JSON.stringify({ aggrementBanned: true, aggrementBannedDate: '2026-07-03' }),
+        meta: JSON.stringify({
+          aggrementBanned: true,
+          aggrementBannedDate: '2026-07-03',
+        }),
       },
     ]
 
@@ -71,7 +77,11 @@ describe('getUserBatchRestrictions', () => {
         batchId: 7,
         // Real-world shape: an array whose object also carries the restriction keys.
         meta: JSON.stringify([
-          { Student: '2022-07-25 00:00:00', batchPaused: true, batchPausedDate: '2026-07-02' },
+          {
+            Student: '2022-07-25 00:00:00',
+            batchPaused: true,
+            batchPausedDate: '2026-07-02',
+          },
         ]),
       },
       {
@@ -94,7 +104,13 @@ describe('getUserBatchRestrictions', () => {
 
   it('merges flags across multiple batch_user rows for the same batch', async () => {
     hoisted.rows = [
-      { batchId: 5, meta: JSON.stringify({ batchPaused: true, batchPausedDate: '2026-07-02' }) },
+      {
+        batchId: 5,
+        meta: JSON.stringify({
+          batchPaused: true,
+          batchPausedDate: '2026-07-02',
+        }),
+      },
       { batchId: 5, meta: JSON.stringify({ aggrementBanned: true }) },
     ]
 

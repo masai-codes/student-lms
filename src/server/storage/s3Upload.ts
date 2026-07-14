@@ -1,5 +1,9 @@
 import { randomUUID } from 'node:crypto'
-import { GetObjectCommand, PutObjectCommand, S3Client } from '@aws-sdk/client-s3'
+import {
+  GetObjectCommand,
+  PutObjectCommand,
+  S3Client,
+} from '@aws-sdk/client-s3'
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
 import { ApiError } from '@/server/api/http/apiError'
 
@@ -10,10 +14,9 @@ function getAwsRegion(): string {
 
 /** Key prefix (folder) uploads land under; configurable per environment. */
 function getUploadPrefix(): string {
-  return (process.env.AWS_S3_UPLOAD_PREFIX?.trim() || 'dev/lms/masaiverse').replace(
-    /\/+$/,
-    '',
-  )
+  return (
+    process.env.AWS_S3_UPLOAD_PREFIX?.trim() || 'dev/lms/masaiverse'
+  ).replace(/\/+$/, '')
 }
 
 let cachedClient: S3Client | null = null
@@ -104,7 +107,9 @@ export async function getSignedDownloadUrl(
   key: string,
   expiresIn = 3600,
 ): Promise<string> {
-  const bucket = (process.env.AWS_S3_CERTIFICATE_BUCKET_NAME || process.env.AWS_S3_BUCKET_NAME)?.trim()
+  const bucket = (
+    process.env.AWS_S3_CERTIFICATE_BUCKET_NAME || process.env.AWS_S3_BUCKET_NAME
+  )?.trim()
   if (!bucket) throw new ApiError(500, 'S3_NOT_CONFIGURED')
 
   const command = new GetObjectCommand({ Bucket: bucket, Key: key })

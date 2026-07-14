@@ -41,7 +41,7 @@ export default function ClubStatsSection({
         renderItem={(card) => {
           const accent = ACCENT_STYLES[card.accent]
           return (
-            <div className="flex h-full flex-col gap-4 rounded-[20px] border border-[#EDEAE8] bg-white p-5 sm:p-6">
+            <div className="flex h-full flex-col gap-4 rounded-[20px] border border-border bg-surface p-5 sm:p-6">
               <span
                 className="flex size-12 items-center justify-center rounded-[14px] text-[22px]"
                 style={{ backgroundColor: accent.iconBg }}
@@ -50,20 +50,20 @@ export default function ClubStatsSection({
               </span>
               {isPending ? (
                 <div
-                  className="h-9 w-16 animate-pulse rounded bg-[#EDEAE8]"
+                  className="h-9 w-16 animate-pulse rounded bg-surface-muted"
                   aria-hidden
                 />
               ) : (
-                <p className="text-[34px] font-extrabold leading-9 text-[#111827]">
+                <p className="text-[34px] font-extrabold leading-9 text-foreground">
                   {isError ? '—' : formatClubStat(card, data)}
                 </p>
               )}
               <div>
-                <p className="text-[14px] leading-5 text-[#6B7280]">
+                <p className="text-[14px] leading-5 text-foreground-muted">
                   {card.label}
                 </p>
                 {card.sublabel ? (
-                  <p className="mt-0.5 text-[12px] leading-4 text-[#9CA3AF]">
+                  <p className="mt-0.5 text-[12px] leading-4 text-foreground-subtle">
                     {card.sublabel}
                   </p>
                 ) : null}

@@ -12,8 +12,12 @@ describe('normalizeRestrictionCutoff', () => {
   })
 
   it('keeps a date-time value (adds seconds when missing)', () => {
-    expect(normalizeRestrictionCutoff('2026-07-02 10:30')).toBe('2026-07-02 10:30:00')
-    expect(normalizeRestrictionCutoff('2026-07-02T10:30:15')).toBe('2026-07-02 10:30:15')
+    expect(normalizeRestrictionCutoff('2026-07-02 10:30')).toBe(
+      '2026-07-02 10:30:00',
+    )
+    expect(normalizeRestrictionCutoff('2026-07-02T10:30:15')).toBe(
+      '2026-07-02 10:30:15',
+    )
   })
 
   it('falls back to RESTRICT_ALL for missing/invalid input', () => {
@@ -41,12 +45,18 @@ describe('isScheduledAfterCutoff', () => {
 
   it('treats naive and offset-stamped IST schedules identically', () => {
     // "2026-07-03 00:00:00" (naive IST) and "…+05:30" resolve to the same instant.
-    expect(isScheduledAfterCutoff('2026-07-03T00:00:00+05:30', cutoff)).toBe(true)
-    expect(isScheduledAfterCutoff('2026-07-02T09:00:00+05:30', cutoff)).toBe(false)
+    expect(isScheduledAfterCutoff('2026-07-03T00:00:00+05:30', cutoff)).toBe(
+      true,
+    )
+    expect(isScheduledAfterCutoff('2026-07-02T09:00:00+05:30', cutoff)).toBe(
+      false,
+    )
   })
 
   it('restricts everything when the cutoff is the RESTRICT_ALL sentinel', () => {
-    expect(isScheduledAfterCutoff('2000-01-01 00:00:00', RESTRICT_ALL_CUTOFF)).toBe(true)
+    expect(
+      isScheduledAfterCutoff('2000-01-01 00:00:00', RESTRICT_ALL_CUTOFF),
+    ).toBe(true)
     expect(isScheduledAfterCutoff(null, RESTRICT_ALL_CUTOFF)).toBe(false)
   })
 })

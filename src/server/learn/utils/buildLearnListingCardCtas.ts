@@ -7,6 +7,7 @@ import { resolveAssignmentListingStatusChip } from '@/server/learn/utils/resolve
 import { computeDeadlineCountdown } from '@/server/learn/utils/computeDeadlineCountdown'
 import { scrubZoomLinkForSchedule } from '@/server/learn/utils/scrubZoomLinkForSchedule'
 import { toLectureScopedAdaptiveLink } from '@/server/learn/utils/toLectureScopedAdaptiveLink'
+import { parseIstToMs } from '@/server/time/istClock'
 
 export function buildLearnListingCardCtas(input: {
   learningType: 'lecture' | 'assignment' | 'resource'
@@ -24,6 +25,19 @@ export function buildLearnListingCardCtas(input: {
   assignmentScore: number | null
 }): LearnListingCardCtas {
   if (input.learningType === 'assignment') {
+    // Only surface the countdown while the assignment window is open
+    // (schedule <= now < concludes) and the learner hasn't completed it.
+    // The upper bound (now < concludes) is enforced by computeDeadlineCountdown
+    // returning null once the deadline has passed.
+    const scheduleMs = parseIstToMs(input.schedule)
+    const isUnlocked = scheduleMs == null || input.nowMs >= scheduleMs
+    const isCompleted = input.assignmentProgressStatus === 'completed'
+    const assignmentDeadlineLabel =
+      isUnlocked && !isCompleted
+        ? (computeDeadlineCountdown(input.concludes, input.nowMs)?.label ??
+          null)
+        : null
+
     return {
       joinLive: 'hidden',
       joinZoomLink: null,
@@ -33,8 +47,7 @@ export function buildLearnListingCardCtas(input: {
         input.assignmentProgressStatus,
         input.itemType,
       ),
-      assignmentDeadlineLabel:
-        computeDeadlineCountdown(input.concludes, input.nowMs)?.label ?? null,
+      assignmentDeadlineLabel,
       assignmentScore: input.assignmentScore,
     }
   }

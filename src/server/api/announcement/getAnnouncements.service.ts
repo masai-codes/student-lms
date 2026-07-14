@@ -102,7 +102,12 @@ function normalizeCount(result: unknown): number {
 
 async function getMessagesOnly(
   userId: number,
-  { offset, limit, q, searchTerm }: { offset: number; limit: number; q?: string; searchTerm: string },
+  {
+    offset,
+    limit,
+    q,
+    searchTerm,
+  }: { offset: number; limit: number; q?: string; searchTerm: string },
 ): Promise<GetAnnouncementsResult> {
   const countResult = await db.execute(
     q
@@ -202,12 +207,7 @@ export async function getAnnouncements(
   const sectionRows = await db
     .select({ sectionId: sectionUser.sectionId })
     .from(sectionUser)
-    .where(
-      and(
-        eq(sectionUser.userId, userId),
-        isNull(sectionUser.deletedAt),
-      ),
-    )
+    .where(and(eq(sectionUser.userId, userId), isNull(sectionUser.deletedAt)))
 
   const sectionIds = [...new Set(sectionRows.map((r) => r.sectionId))].filter(
     Number.isFinite,
@@ -400,7 +400,7 @@ export async function getAnnouncements(
 
   const announcements = normalizeRows(dataResult).map((row) => ({
     id: String(row.id),
-    source: String(row.source) === 'm' ? 'm' as const : 'a' as const,
+    source: String(row.source) === 'm' ? ('m' as const) : ('a' as const),
     title: String(row.subject),
     authorName: row.authorName ? String(row.authorName) : '',
     createdAt: row.createdAt ?? '',

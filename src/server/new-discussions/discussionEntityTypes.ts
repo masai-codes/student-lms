@@ -3,5 +3,4 @@ export const DISCUSSION_ENTITY_ASSIGNMENT = 'App\\Models\\Assignment' as const
 export const DISCUSSION_ENTITY_LECTURE = 'App\\Models\\Lecture' as const
 
 export type DiscussionPersistedEntityType =
-  | typeof DISCUSSION_ENTITY_ASSIGNMENT
-  | typeof DISCUSSION_ENTITY_LECTURE
+  typeof DISCUSSION_ENTITY_ASSIGNMENT | typeof DISCUSSION_ENTITY_LECTURE

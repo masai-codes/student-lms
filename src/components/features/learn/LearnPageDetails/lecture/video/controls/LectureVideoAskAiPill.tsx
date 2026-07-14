@@ -18,8 +18,8 @@ export function LectureVideoAskAiPill({
       aria-label="Open lecture AI assistant"
       className={cn(
         'inline-flex h-8 shrink-0 items-center gap-1.5 rounded-full border border-white/25',
-        'bg-white/10 px-3 text-sm font-medium text-white backdrop-blur-sm',
-        'transition-colors hover:border-teal-300/60 hover:bg-white/15',
+        'bg-surface/10 px-3 text-sm font-medium text-white backdrop-blur-sm',
+        'transition-colors hover:border-teal-300/60 hover:bg-surface/15',
         'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40',
         className,
       )}

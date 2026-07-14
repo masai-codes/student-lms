@@ -15,7 +15,9 @@ export default function GalleryImagesEditor({
 }: GalleryImagesEditorProps) {
   return (
     <div>
-      <p className="mb-1 text-[12px] font-semibold text-[#6B7280]">{label}</p>
+      <p className="mb-1 text-[12px] font-semibold text-foreground-muted">
+        {label}
+      </p>
       <div className="flex flex-col gap-3">
         {value.map((url, index) => (
           <div key={index} className="flex items-start gap-2">
@@ -23,7 +25,9 @@ export default function GalleryImagesEditor({
               <ImageUploadField
                 value={url}
                 onChange={(next) =>
-                  onChange(value.map((cur, idx) => (idx === index ? next : cur)))
+                  onChange(
+                    value.map((cur, idx) => (idx === index ? next : cur)),
+                  )
                 }
               />
             </div>
@@ -31,7 +35,7 @@ export default function GalleryImagesEditor({
               type="button"
               aria-label={`Remove image ${index + 1}`}
               onClick={() => onChange(value.filter((_, idx) => idx !== index))}
-              className="shrink-0 rounded-md border border-[#E5E7EB] p-2 text-[#6B7280] hover:bg-[#F9FAFB]"
+              className="shrink-0 rounded-md border border-border p-2 text-foreground-muted hover:bg-surface-muted"
             >
               <X size={14} />
             </button>
@@ -41,7 +45,7 @@ export default function GalleryImagesEditor({
       <button
         type="button"
         onClick={() => onChange([...value, ''])}
-        className="mt-2 inline-flex items-center gap-1 text-[13px] font-semibold text-masaiverse-orange"
+        className="mt-2 inline-flex items-center gap-1 text-[13px] font-semibold text-accent-warm"
       >
         <Plus size={14} weight="bold" /> Add image
       </button>

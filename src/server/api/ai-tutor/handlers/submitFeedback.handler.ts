@@ -40,19 +40,20 @@ function parseFeedbackBody(body: SubmitFeedbackBody | null): {
 
   const platform = parsePlatform(body?.platform)
   const rating = parseRatingForPlatform(body?.rating, platform)
-  const userFeedback =
-    typeof body?.feedback === 'string' ? body.feedback : null
+  const userFeedback = typeof body?.feedback === 'string' ? body.feedback : null
   const feedback = encodeFeedbackWithPlatform(platform, userFeedback)
 
   return { lectureId, chatId, rating, feedback }
 }
 
-export async function handleSubmitFeedback(request: Request): Promise<Response> {
+export async function handleSubmitFeedback(
+  request: Request,
+): Promise<Response> {
   try {
     const userId = await requireSessionUserId()
-    const body = (await request.json().catch(() => null)) as
-      | SubmitFeedbackBody
-      | null
+    const body = (await request
+      .json()
+      .catch(() => null)) as SubmitFeedbackBody | null
     const parsed = parseFeedbackBody(body)
 
     const data = await submitAiTutorFeedback({

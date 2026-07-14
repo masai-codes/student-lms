@@ -88,9 +88,14 @@ export function LearnLayout({ pageData, onBatchChange }: LearnLayoutProps) {
 
   return (
     <div className="w-full mt-[-24px]">
-      <div className="ml-[calc(50%-50vw)] w-screen max-w-[100vw] overflow-x-clip bg-white rounded-b-[32px]">
+      <div className="relative ml-[calc(50%-50vw)] w-screen max-w-[100vw] overflow-x-clip bg-surface rounded-b-[32px]">
+        {/* Ambient aurora wash behind the hero band — pure decoration. */}
         <div
-          className={`pt-[20px]  mx-auto w-full ${LAYOUT_MAX_WIDTH_CLASS} ${LAYOUT_MAIN_PADDING_X}`}
+          aria-hidden
+          className="pointer-events-none absolute inset-x-0 top-0 h-40 bg-[radial-gradient(52rem_14rem_at_12%_-4rem,rgb(79_70_229_/_0.07),transparent_70%),radial-gradient(44rem_12rem_at_88%_-6rem,rgb(63_131_248_/_0.07),transparent_70%)]"
+        />
+        <div
+          className={`animate-dash-rise relative pt-[20px]  mx-auto w-full ${LAYOUT_MAX_WIDTH_CLASS} ${LAYOUT_MAIN_PADDING_X}`}
         >
           <LearnHeaderSection
             selectedBatch={selectedBatchId.toString()}
@@ -133,13 +138,17 @@ export function LearnLayout({ pageData, onBatchChange }: LearnLayoutProps) {
         <LearnContentListSkeleton />
       ) : (
         <>
-          <LearnContentListSection items={learningItems} />
+          <div className="animate-dash-rise [--dash-delay:0.16s]">
+            <LearnContentListSection items={learningItems} />
+          </div>
 
-          <LearnPaginationSection
-            currentPage={currentPage}
-            totalPages={data.pagination.totalPages}
-            onPageChange={setCurrentPage}
-          />
+          <div className="animate-dash-rise [--dash-delay:0.24s]">
+            <LearnPaginationSection
+              currentPage={currentPage}
+              totalPages={data.pagination.totalPages}
+              onPageChange={setCurrentPage}
+            />
+          </div>
         </>
       )}
     </div>

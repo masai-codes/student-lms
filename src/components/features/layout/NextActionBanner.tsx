@@ -14,7 +14,11 @@ import {
   type NextActionBannerView,
 } from '@/lib/nextActionBanner'
 import { pushGtmEvent } from '@/utils/gtm'
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/ui/tooltip'
 import { cn } from '@/lib/utils'
 
 const REFRESH_MS = 5 * 60 * 1000
@@ -28,7 +32,13 @@ function useCountdownTick(tickMs: number): void {
   }, [tickMs])
 }
 
-function BannerContent({ view, className }: { view: NextActionBannerView; className?: string }) {
+function BannerContent({
+  view,
+  className,
+}: {
+  view: NextActionBannerView
+  className?: string
+}) {
   const { event, label, countdownMs, precise, ctaText } = view
 
   const handleCtaClick = () => {
@@ -44,25 +54,25 @@ function BannerContent({ view, className }: { view: NextActionBannerView; classN
   // in the hover tooltip below. Default view is just: icon · label · countdown/CTA.
   const inner = (
     <>
-      <div className="flex size-7 shrink-0 items-center justify-center rounded-[8px] bg-[#3F83F8]">
-        <PlayCircle size={16} className="text-white" />
+      <div className="flex size-7 shrink-0 items-center justify-center rounded-[8px] bg-info">
+        <PlayCircle size={16} className="text-info-foreground" />
       </div>
       <span
-        className="whitespace-nowrap text-[12px] font-semibold text-gray-800"
+        className="whitespace-nowrap text-[12px] font-semibold text-foreground"
         data-testid="next-action-banner-label"
       >
         {label}
       </span>
       {countdownMs !== null ? (
         <span
-          className="shrink-0 whitespace-nowrap rounded-[8px] bg-white px-2.5 py-1 text-[12px] font-bold text-gray-800 shadow-sm"
+          className="shrink-0 whitespace-nowrap rounded-[8px] bg-surface px-2.5 py-1 text-[12px] font-bold text-foreground shadow-sm"
           data-testid="next-action-banner-countdown"
         >
           {formatCountdown(countdownMs, precise)}
         </span>
       ) : (
         <span
-          className="shrink-0 whitespace-nowrap rounded-[8px] bg-[#6962AC] px-2.5 py-1 text-[12px] font-bold text-white"
+          className="shrink-0 whitespace-nowrap rounded-[8px] bg-brand px-2.5 py-1 text-[12px] font-bold text-brand-foreground"
           data-testid="next-action-banner-cta"
         >
           {ctaText}
@@ -72,7 +82,7 @@ function BannerContent({ view, className }: { view: NextActionBannerView; classN
   )
 
   const contentClass = cn(
-    'flex w-fit items-center gap-2 rounded-[14px] bg-[#EBF5FF] px-2.5 py-1.5 transition-colors hover:bg-[#DBEAFE] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400',
+    'flex w-fit items-center gap-2 rounded-[14px] bg-[#EBF5FF] px-2.5 py-1.5 transition-colors hover:bg-[#DBEAFE] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400 dark:bg-info-subtle dark:hover:bg-info-subtle',
     className,
   )
 
@@ -102,7 +112,9 @@ function BannerContent({ view, className }: { view: NextActionBannerView; classN
   return (
     <Tooltip>
       <TooltipTrigger asChild>{trigger}</TooltipTrigger>
-      <TooltipContent data-testid="next-action-banner-title">{event.title}</TooltipContent>
+      <TooltipContent data-testid="next-action-banner-title">
+        {event.title}
+      </TooltipContent>
     </Tooltip>
   )
 }
@@ -121,7 +133,8 @@ export function useNextActionBannerView(): NextActionBannerView | null {
     refetchInterval: REFRESH_MS,
   })
 
-  const tickMs = event?.eventType === 'evaluation' ? EVALUATION_TICK_MS : LECTURE_TICK_MS
+  const tickMs =
+    event?.eventType === 'evaluation' ? EVALUATION_TICK_MS : LECTURE_TICK_MS
   useCountdownTick(tickMs)
 
   const { now } = useServerTime()

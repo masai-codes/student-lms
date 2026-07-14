@@ -23,7 +23,9 @@ describe('ReadOnlyCalendar', () => {
 
   it('marks event days in the accessible label', () => {
     const today = new Date()
-    const firstKey = toDateKey(new Date(today.getFullYear(), today.getMonth(), 1))
+    const firstKey = toDateKey(
+      new Date(today.getFullYear(), today.getMonth(), 1),
+    )
     render(<ReadOnlyCalendar eventDateKeys={new Set([firstKey])} />)
     expect(screen.getByRole('button', { name: '1, has events' })).toBeTruthy()
   })
@@ -32,7 +34,10 @@ describe('ReadOnlyCalendar', () => {
     const today = new Date()
     const onSelectDate = vi.fn()
     render(
-      <ReadOnlyCalendar eventDateKeys={new Set()} onSelectDate={onSelectDate} />,
+      <ReadOnlyCalendar
+        eventDateKeys={new Set()}
+        onSelectDate={onSelectDate}
+      />,
     )
     fireEvent.click(screen.getByRole('button', { name: '5' }))
     expect(onSelectDate).toHaveBeenCalledWith(

@@ -1,11 +1,7 @@
 export type LectureAiChatRole = 'user' | 'assistant'
 
 export type LectureAiChatMessageStatus =
-  | 'sent'
-  | 'thinking'
-  | 'streaming'
-  | 'completed'
-  | 'error'
+  'sent' | 'thinking' | 'streaming' | 'completed' | 'error'
 
 export type LectureAiChatMessage = {
   id: string

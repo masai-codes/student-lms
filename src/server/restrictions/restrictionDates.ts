@@ -45,7 +45,5 @@ export function isScheduledAfterCutoff(
 ): boolean {
   if (schedule == null || schedule === '') return false
   if (cutoff === RESTRICT_ALL_CUTOFF) return true
-  return (
-    toEpochMs(schedule, IST_OFFSET_MIN) > toEpochMs(cutoff, IST_OFFSET_MIN)
-  )
+  return toEpochMs(schedule, IST_OFFSET_MIN) > toEpochMs(cutoff, IST_OFFSET_MIN)
 }

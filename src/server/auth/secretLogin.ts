@@ -24,10 +24,13 @@ function tokensMatch(provided: string, expected: string): boolean {
 export async function handleSecretLogin(request: Request): Promise<Response> {
   const expectedToken = process.env.SECRET_LOGIN_TOKEN
   if (!expectedToken) {
-    return new Response(JSON.stringify({ error: 'Secret login is not enabled' }), {
-      status: 503,
-      headers: { 'Content-Type': 'application/json' },
-    })
+    return new Response(
+      JSON.stringify({ error: 'Secret login is not enabled' }),
+      {
+        status: 503,
+        headers: { 'Content-Type': 'application/json' },
+      },
+    )
   }
 
   const url = new URL(request.url)
@@ -43,10 +46,13 @@ export async function handleSecretLogin(request: Request): Promise<Response> {
   const emailRaw = (url.searchParams.get('email') ?? '').trim().toLowerCase()
 
   if (!userIdRaw && !emailRaw) {
-    return new Response(JSON.stringify({ error: 'userId or email is required' }), {
-      status: 400,
-      headers: { 'Content-Type': 'application/json' },
-    })
+    return new Response(
+      JSON.stringify({ error: 'userId or email is required' }),
+      {
+        status: 400,
+        headers: { 'Content-Type': 'application/json' },
+      },
+    )
   }
 
   const rows = userIdRaw
@@ -55,7 +61,11 @@ export async function handleSecretLogin(request: Request): Promise<Response> {
         .from(users)
         .where(eq(users.id, Number(userIdRaw)))
         .limit(1)
-    : await db.select({ id: users.id }).from(users).where(eq(users.email, emailRaw)).limit(1)
+    : await db
+        .select({ id: users.id })
+        .from(users)
+        .where(eq(users.email, emailRaw))
+        .limit(1)
 
   const user = rows[0]
   if (!user) {

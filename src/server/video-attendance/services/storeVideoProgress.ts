@@ -1,7 +1,12 @@
 import { and, eq } from 'drizzle-orm'
 
 import { db } from '@/db'
-import { attendances, lectures, studentAttendances, videoAttendances } from '@/db/schema'
+import {
+  attendances,
+  lectures,
+  studentAttendances,
+  videoAttendances,
+} from '@/db/schema'
 import { getIstNowSqlDatetime } from '@/server/time/istClock'
 import { upgradeVideoAttendanceInline } from '@/server/video-attendance/services/upgradeVideoAttendanceInline'
 import {
@@ -71,10 +76,16 @@ export async function storeVideoProgress(
     const existing = existingRows[0]
 
     if (existing) {
-      const combined = [...parseStoredIntervals(existing.intervals), ...intervals]
+      const combined = [
+        ...parseStoredIntervals(existing.intervals),
+        ...intervals,
+      ]
       const merged = mergeIntervals(combined)
       const totalForPct = totalDuration || existing.totalDuration || 1
-      const watchPercentage = calculateVideoWatchDurationPercentage(merged, totalForPct)
+      const watchPercentage = calculateVideoWatchDurationPercentage(
+        merged,
+        totalForPct,
+      )
 
       await db
         .update(videoAttendances)
@@ -89,7 +100,10 @@ export async function storeVideoProgress(
         .where(eq(videoAttendances.id, existing.id))
     } else {
       const merged = mergeIntervals([...intervals])
-      const watchPercentage = calculateVideoWatchDurationPercentage(merged, totalDuration)
+      const watchPercentage = calculateVideoWatchDurationPercentage(
+        merged,
+        totalDuration,
+      )
       const schedule = lecture.schedule ?? nowIst
       const batchId = lecture.batchId ?? 0
       const sectionId = lecture.sectionId ?? 0
@@ -113,25 +127,30 @@ export async function storeVideoProgress(
       })
 
       // Backfill the sibling rows — create-if-missing only, never overwrite.
-      const [existingAttendance, existingStudentAttendance] = await Promise.all([
-        db
-          .select({ id: attendances.id })
-          .from(attendances)
-          .where(
-            and(eq(attendances.lectureId, lectureId), eq(attendances.userId, userId)),
-          )
-          .limit(1),
-        db
-          .select({ id: studentAttendances.id })
-          .from(studentAttendances)
-          .where(
-            and(
-              eq(studentAttendances.lectureId, lectureId),
-              eq(studentAttendances.userId, userId),
-            ),
-          )
-          .limit(1),
-      ])
+      const [existingAttendance, existingStudentAttendance] = await Promise.all(
+        [
+          db
+            .select({ id: attendances.id })
+            .from(attendances)
+            .where(
+              and(
+                eq(attendances.lectureId, lectureId),
+                eq(attendances.userId, userId),
+              ),
+            )
+            .limit(1),
+          db
+            .select({ id: studentAttendances.id })
+            .from(studentAttendances)
+            .where(
+              and(
+                eq(studentAttendances.lectureId, lectureId),
+                eq(studentAttendances.userId, userId),
+              ),
+            )
+            .limit(1),
+        ],
+      )
 
       if (existingAttendance.length === 0) {
         await db.insert(attendances).values({

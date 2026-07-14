@@ -46,12 +46,12 @@ export function DiscussionCreateModalBody({
         <Input
           id="modal-discussion-title"
           value={title}
-          onChange={e => onTitleChange(e.target.value)}
+          onChange={(e) => onTitleChange(e.target.value)}
           placeholder="Enter the title"
           maxLength={255}
           required
           disabled={pending}
-          className="bg-gray-50"
+          className="bg-surface-muted"
         />
       </div>
 
@@ -61,7 +61,7 @@ export function DiscussionCreateModalBody({
           value={messageHtml}
           onChange={onMessageHtmlChange}
           placeholder="Type message here"
-          className="rounded-lg border border-[#E5E7EB]"
+          className="rounded-lg border border-border"
         />
         <div className="flex justify-end text-xs text-muted-foreground">
           {plainLen}/{DISCUSSION_MODAL_MAX_BODY_PLAIN}
@@ -76,7 +76,7 @@ export function DiscussionCreateModalBody({
             type="file"
             className="hidden"
             multiple
-            onChange={event => {
+            onChange={(event) => {
               const list = event.target.files
               if (list?.length) onFilesSelected(Array.from(list))
               event.target.value = ''
@@ -86,26 +86,29 @@ export function DiscussionCreateModalBody({
             type="button"
             variant="outline"
             size="icon"
-            className="shrink-0 border-[#E5E7EB]"
+            className="shrink-0 border-border"
             aria-label="Attach files"
             disabled={pending || files.length >= DISCUSSION_MODAL_MAX_FILES}
             onClick={() => fileInputRef.current?.click()}
           >
-            <Paperclip className="h-5 w-5 text-[#6962AC]" weight="bold" />
+            <Paperclip className="h-5 w-5 text-brand" weight="bold" />
           </Button>
         </div>
       </div>
 
       {files.length > 0 ? (
-        <ul className="space-y-1 text-sm text-gray-700">
+        <ul className="space-y-1 text-sm text-foreground">
           {files.map((f, i) => (
-            <li key={`${f.name}-${i}`} className="flex items-center justify-between gap-2">
+            <li
+              key={`${f.name}-${i}`}
+              className="flex items-center justify-between gap-2"
+            >
               <span className="truncate">{f.name}</span>
               <Button
                 type="button"
                 variant="ghost"
                 size="sm"
-                className="shrink-0 text-red-600"
+                className="shrink-0 text-danger"
                 onClick={() => onRemoveFile(i)}
                 disabled={pending}
               >
@@ -116,7 +119,7 @@ export function DiscussionCreateModalBody({
         </ul>
       ) : null}
 
-      {error ? <p className="text-sm text-red-600">{error}</p> : null}
+      {error ? <p className="text-sm text-danger">{error}</p> : null}
     </div>
   )
 }

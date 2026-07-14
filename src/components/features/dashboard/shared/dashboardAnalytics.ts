@@ -5,7 +5,10 @@
 
 import { type GtmEventParams, pushGtmEvent } from '@/utils/gtm'
 
-export function pushDashboardEvent(event: string, params: GtmEventParams = {}): void {
+export function pushDashboardEvent(
+  event: string,
+  params: GtmEventParams = {},
+): void {
   pushGtmEvent(event, params)
 }
 

@@ -31,18 +31,24 @@ export function FieldShell({
   'data-testid': dataTestId,
 }: FieldShellProps) {
   return (
-    <div className={cn('flex flex-col gap-1.5', className)} data-testid={dataTestId}>
-      <Label htmlFor={htmlFor} className="text-sm font-medium text-gray-700">
+    <div
+      className={cn('flex flex-col gap-1.5', className)}
+      data-testid={dataTestId}
+    >
+      <Label htmlFor={htmlFor} className="text-sm font-medium text-foreground">
         {label}
-        {required ? <span className="ml-0.5 text-red-600">*</span> : null}
+        {required ? <span className="ml-0.5 text-danger">*</span> : null}
       </Label>
       {children}
       {error ? (
-        <p className="text-xs text-red-600" data-testid={dataTestId ? `${dataTestId}-error` : undefined}>
+        <p
+          className="text-xs text-danger"
+          data-testid={dataTestId ? `${dataTestId}-error` : undefined}
+        >
           {error}
         </p>
       ) : hint ? (
-        <p className="text-xs text-gray-500">{hint}</p>
+        <p className="text-xs text-foreground-muted">{hint}</p>
       ) : null}
     </div>
   )

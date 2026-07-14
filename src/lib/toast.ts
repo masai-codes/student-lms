@@ -15,23 +15,17 @@ import { toast as sonnerToast } from 'sonner'
  *   toast.dismiss()                    // dismiss all
  */
 export const toast = {
-  success: (message: string) =>
-    sonnerToast.success(message),
+  success: (message: string) => sonnerToast.success(message),
 
-  error: (message: string) =>
-    sonnerToast.error(message),
+  error: (message: string) => sonnerToast.error(message),
 
-  info: (message: string) =>
-    sonnerToast.info(message),
+  info: (message: string) => sonnerToast.info(message),
 
-  warning: (message: string) =>
-    sonnerToast.warning(message),
+  warning: (message: string) => sonnerToast.warning(message),
 
-  loading: (message: string) =>
-    sonnerToast.loading(message),
+  loading: (message: string) => sonnerToast.loading(message),
 
-  dismiss: (id?: string | number) =>
-    sonnerToast.dismiss(id),
+  dismiss: (id?: string | number) => sonnerToast.dismiss(id),
 
   /** Replaces an existing toast (e.g. swap loading → success) */
   promise: sonnerToast.promise,

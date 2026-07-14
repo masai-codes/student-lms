@@ -17,7 +17,7 @@ describe('seed registry', () => {
     expect(flows.some((flow) => flow.id === 'live-lecture-phases')).toBe(true)
     expect(flows.some((flow) => flow.id === 'dashboard-home')).toBe(true)
   })
-
+  
   it('lists all onboarding flows', () => {
     const flows = listFlows()
     for (const id of ONBOARDING_FLOW_IDS) {

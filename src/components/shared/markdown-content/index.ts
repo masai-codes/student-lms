@@ -1,6 +1,9 @@
 export { MarkdownContent } from './MarkdownContent'
 export { decodeMarkdownPayload } from './decodeMarkdownPayload'
-export { getMarkdownComponents, type MarkdownContentVariant } from './getMarkdownComponents'
+export {
+  getMarkdownComponents,
+  type MarkdownContentVariant,
+} from './getMarkdownComponents'
 export { toMarkdownPreviewText } from './toMarkdownPreviewText'
 
 /** @deprecated Use `MarkdownContent` instead. Kept for existing event/club card imports. */

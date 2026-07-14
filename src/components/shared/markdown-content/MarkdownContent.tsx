@@ -9,7 +9,10 @@ import remarkGfm from 'remark-gfm'
 import { cn } from '@/lib/utils'
 
 import { decodeMarkdownPayload } from './decodeMarkdownPayload'
-import { getMarkdownComponents, type MarkdownContentVariant } from './getMarkdownComponents'
+import {
+  getMarkdownComponents,
+  type MarkdownContentVariant,
+} from './getMarkdownComponents'
 import { normalizeMarkdownForDisplay } from './normalizeMarkdownForDisplay'
 import { markdownSanitizeSchema } from './sanitizeSchema'
 
@@ -29,7 +32,13 @@ export function MarkdownContent({
   if (!value.trim()) return null
 
   return (
-    <div className={cn('markdown-content', `markdown-content--${variant}`, className)}>
+    <div
+      className={cn(
+        'markdown-content',
+        `markdown-content--${variant}`,
+        className,
+      )}
+    >
       <ReactMarkdown
         remarkPlugins={[remarkGfm]}
         rehypePlugins={[

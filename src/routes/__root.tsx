@@ -11,8 +11,13 @@ import type { RouterContext } from '@/types'
 import { captureAppMobileContextFromUrl } from '@/utils/appMobile'
 import { installAppOriginFetchHeader } from '@/utils/appOrigin'
 import { getAuthBranding } from '@/utils/authBranding'
+import { ThemeProvider, buildThemeInitScript } from '@/lib/theme'
 
 const GA_MEASUREMENT_ID = 'G-R3MQZK6LM6'
+
+// Computed once at module load; injected into <head> to set the theme before
+// first paint (no flash of the default theme on reload).
+const THEME_INIT_SCRIPT = buildThemeInitScript()
 
 captureAppMobileContextFromUrl()
 installAppOriginFetchHeader()
@@ -70,6 +75,9 @@ function RootDocument({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
       <head>
+        {/* Must run before first paint and before the stylesheet applies, so
+            the correct theme's tokens are present on the very first frame. */}
+        <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
         <HeadContent />
         <script
           async
@@ -87,13 +95,15 @@ gtag('config', '${GA_MEASUREMENT_ID}');`,
       </head>
       <body>
         <QueryClientProvider client={queryClient}>
-          {children}
-          <Toaster
-            position="top-center"
-            richColors
-            closeButton
-            toastOptions={{ duration: 4000 }}
-          />
+          <ThemeProvider>
+            {children}
+            <Toaster
+              position="top-center"
+              richColors
+              closeButton
+              toastOptions={{ duration: 4000 }}
+            />
+          </ThemeProvider>
         </QueryClientProvider>
         <Scripts />
       </body>

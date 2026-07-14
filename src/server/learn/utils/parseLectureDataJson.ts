@@ -2,7 +2,9 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value)
 }
 
-export function parseLectureDataJson(raw: unknown): Record<string, unknown> | null {
+export function parseLectureDataJson(
+  raw: unknown,
+): Record<string, unknown> | null {
   if (raw == null) return null
   if (isRecord(raw)) return raw
   if (typeof raw === 'string') {
@@ -18,7 +20,11 @@ export function parseLectureDataJson(raw: unknown): Record<string, unknown> | nu
 
 function readPositiveId(value: unknown): number | null {
   const numeric =
-    typeof value === 'number' ? value : typeof value === 'string' ? Number(value) : NaN
+    typeof value === 'number'
+      ? value
+      : typeof value === 'string'
+        ? Number(value)
+        : NaN
   return Number.isFinite(numeric) && numeric > 0 ? numeric : null
 }
 
@@ -60,7 +66,7 @@ export function isAssignmentLinkedToLecture(
   if (associated == null) return false
 
   if (Array.isArray(associated)) {
-    return associated.some(item => {
+    return associated.some((item) => {
       if (!isRecord(item)) return false
       const id = item.id
       const numeric =

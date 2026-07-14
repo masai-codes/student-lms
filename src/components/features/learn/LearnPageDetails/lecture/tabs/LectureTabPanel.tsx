@@ -48,7 +48,9 @@ type LectureTabPanelProps = {
 function renderMarkdownTab(tabId: MarkdownTabId, content: string | null) {
   if (!content) {
     const copy = TAB_EMPTY_COPY[tabId]
-    return <LectureTabEmptyState title={copy.title} description={copy.description} />
+    return (
+      <LectureTabEmptyState title={copy.title} description={copy.description} />
+    )
   }
 
   return (
@@ -58,7 +60,10 @@ function renderMarkdownTab(tabId: MarkdownTabId, content: string | null) {
   )
 }
 
-function renderTabBody(tabId: LectureDetailTabId, tabs: LectureDetailTabContent) {
+function renderTabBody(
+  tabId: LectureDetailTabId,
+  tabs: LectureDetailTabContent,
+) {
   if (tabId === 'description') {
     return <LectureNotesTabContent notes={tabs.notes} />
   }
@@ -101,7 +106,8 @@ export function LectureTabPanel({ tabId, tabs }: LectureTabPanelProps) {
       aria-labelledby={`lecture-tab-${tabId}`}
       className="pt-0"
     >
-      <div className="rounded-xl bg-gray-100 px-4 py-3 ring-1 ring-gray-200/80">
+      {/* Remounts per tab (keyed by tabId upstream), replaying the entrance. */}
+      <div className="animate-dash-row-in rounded-xl bg-surface-muted px-4 py-3 ring-1 ring-border/80">
         {renderTabBody(tabId, tabs)}
       </div>
     </div>

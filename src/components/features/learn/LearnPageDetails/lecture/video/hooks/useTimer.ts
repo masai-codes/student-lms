@@ -17,7 +17,7 @@ export function useTimer(timeStart = 0) {
       if (isRunning) {
         const elapsed = timestamp - lastTimeRef.current
         lastTimeRef.current = timestamp
-        setTime(previous => previous + (speed * elapsed) / 1000)
+        setTime((previous) => previous + (speed * elapsed) / 1000)
       }
 
       requestId = requestAnimationFrame(updateTimer)
@@ -44,5 +44,13 @@ export function useTimer(timeStart = 0) {
   }, [])
   const changeSpeed = useCallback((newSpeed: number) => setSpeed(newSpeed), [])
 
-  return { time, isRunning, startTimer, stopTimer, resetTimer, changeSpeed, setTime }
+  return {
+    time,
+    isRunning,
+    startTimer,
+    stopTimer,
+    resetTimer,
+    changeSpeed,
+    setTime,
+  }
 }

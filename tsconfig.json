@@ -1,5 +1,12 @@
 {
-  "include": ["**/*.ts", "**/*.tsx", "eslint.config.js", "prettier.config.js", "vite.config.js", "src/routes/(protected)/_layout"],
+  "include": [
+    "**/*.ts",
+    "**/*.tsx",
+    "eslint.config.js",
+    "prettier.config.js",
+    "vite.config.js",
+    "src/routes/(protected)/_layout"
+  ],
   "exclude": ["drizzle"],
 
   "compilerOptions": {

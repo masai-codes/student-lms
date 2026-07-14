@@ -33,7 +33,14 @@ export function NumberField({
   'data-testid': dataTestId,
 }: NumberFieldProps) {
   return (
-    <FieldShell htmlFor={id} label={label} required={required} error={error} hint={hint} data-testid={dataTestId}>
+    <FieldShell
+      htmlFor={id}
+      label={label}
+      required={required}
+      error={error}
+      hint={hint}
+      data-testid={dataTestId}
+    >
       <Input
         id={id}
         type="number"
@@ -45,7 +52,7 @@ export function NumberField({
         step={step}
         disabled={disabled}
         aria-invalid={error ? true : undefined}
-        className={cn(error && 'border-red-500 focus-visible:ring-red-500/30')}
+        className={cn(error && 'border-danger focus-visible:ring-danger/30')}
         data-testid={dataTestId ? `${dataTestId}-input` : undefined}
       />
     </FieldShell>

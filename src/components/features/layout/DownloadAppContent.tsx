@@ -3,8 +3,10 @@ const GOOGLE_PLAY_QR_URL =
 const APP_STORE_QR_URL =
   'https://coding-platform.s3.amazonaws.com/dev/lms/tickets/f043eb9b-0d02-499b-90f1-eb33940239c0/JGQKZLQoKo1qfKpj.png'
 
-const APP_STORE_LINK = 'https://apps.apple.com/sa/app/masai-learn/id6753811719?uo=2'
-const GOOGLE_PLAY_LINK = 'https://play.google.com/store/apps/details?id=com.lms.masai'
+const APP_STORE_LINK =
+  'https://apps.apple.com/sa/app/masai-learn/id6753811719?uo=2'
+const GOOGLE_PLAY_LINK =
+  'https://play.google.com/store/apps/details?id=com.lms.masai'
 
 export type DownloadAppContentProps = {
   googlePlayQRUrl?: string
@@ -33,14 +35,14 @@ export function DownloadAppContent({
         />
       </div>
 
-      <h2 className="text-balance text-center font-poppins text-base font-bold text-gray-900 md:text-xl">
+      <h2 className="text-balance text-center font-poppins text-base font-bold text-foreground md:text-xl">
         Download the Masai Learn app
       </h2>
-      <p className="mt-2 text-center font-poppins text-xs font-medium text-gray-600 md:text-sm md:font-normal md:text-gray-700">
+      <p className="mt-2 text-center font-poppins text-xs font-medium text-foreground-muted md:text-sm md:font-normal md:text-foreground">
         Get your LMS on mobile and continue learning wherever you are.
       </p>
 
-      <div className="mt-8 flex flex-col items-center justify-center gap-8 rounded-[24px] bg-gray-100 px-6 py-7 md:flex-row md:gap-12 md:px-12 md:py-7">
+      <div className="mt-8 flex flex-col items-center justify-center gap-8 rounded-[24px] bg-surface-muted px-6 py-7 md:flex-row md:gap-12 md:px-12 md:py-7">
         <div className="flex w-full max-w-[220px] flex-col items-center gap-4">
           <a
             href={GOOGLE_PLAY_LINK}

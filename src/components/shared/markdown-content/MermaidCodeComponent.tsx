@@ -22,7 +22,8 @@ const ensureMermaidInitialized = () => {
 }
 
 const readNodeText = (value: ReactNode): string => {
-  if (typeof value === 'string' || typeof value === 'number') return String(value)
+  if (typeof value === 'string' || typeof value === 'number')
+    return String(value)
   if (Array.isArray(value)) return value.map(readNodeText).join('')
   if (value && typeof value === 'object' && 'props' in value) {
     const element = value as { props?: { children?: ReactNode } }
@@ -54,7 +55,10 @@ export function MermaidCodeComponent({
     const renderMermaid = async () => {
       try {
         ensureMermaidInitialized()
-        const { svg: renderedSvg } = await mermaid.render(renderIdRef.current, codeValue)
+        const { svg: renderedSvg } = await mermaid.render(
+          renderIdRef.current,
+          codeValue,
+        )
         if (!isMounted) return
         setHasError(false)
         setSvg(renderedSvg)
@@ -79,7 +83,7 @@ export function MermaidCodeComponent({
     return (
       <div
         ref={containerRef}
-        className="my-3 overflow-x-auto rounded-md border border-gray-200 bg-white p-3"
+        className="my-3 overflow-x-auto rounded-md border border-border bg-surface p-3"
       />
     )
   }

@@ -41,7 +41,9 @@ describe('getCallbackEligibility', () => {
   })
 
   it('reads rows from a driver result that wraps them in `.rows`', async () => {
-    hoisted.dbExecute.mockResolvedValue({ rows: [{ batch_id: 10, full_fees_paid: 1 }] })
+    hoisted.dbExecute.mockResolvedValue({
+      rows: [{ batch_id: 10, full_fees_paid: 1 }],
+    })
     const { getCallbackEligibility } = await import('../callback.service')
 
     expect(await getCallbackEligibility({ userId: 1, batchId: 10 })).toEqual({

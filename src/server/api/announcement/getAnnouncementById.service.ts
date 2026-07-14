@@ -28,7 +28,12 @@ export interface AnnouncementDetail {
   /** true when the item was already read before opening (no badge decrement needed) */
   isRead: boolean
   /** For messages: all thread messages ordered by createdAt */
-  thread: Array<{ id: string; body: string; scheduledAt: string; isSentByUser: boolean }>
+  thread: Array<{
+    id: string
+    body: string
+    scheduledAt: string
+    isSentByUser: boolean
+  }>
 }
 
 type RawRow = {
@@ -66,8 +71,6 @@ function normalizeRows(result: unknown): Array<RawRow> {
   }
   return []
 }
-
-
 
 // ── Announcement detail ────────────────────────────────────────────────────────
 
@@ -125,7 +128,10 @@ async function getAnnouncementDetail(
 
   if (membership.length === 0) return null
 
-  const { isBookmarked, bookmarkId } = await getAnnouncementBookmarkState(userId, announcementId)
+  const { isBookmarked, bookmarkId } = await getAnnouncementBookmarkState(
+    userId,
+    announcementId,
+  )
 
   return {
     id: String(announcementId),
@@ -190,7 +196,10 @@ async function getMessageDetail(
   // Root row — the one whose id matches (not a reply)
   const root = rows.find((r) => String(r.id) === String(messageId)) ?? rows[0]
 
-  const { isBookmarked, bookmarkId } = await getAnnouncementBookmarkState(userId, messageId)
+  const { isBookmarked, bookmarkId } = await getAnnouncementBookmarkState(
+    userId,
+    messageId,
+  )
 
   return {
     id: String(messageId),

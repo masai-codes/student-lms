@@ -23,7 +23,12 @@ interface DashboardLayoutProps {
 // Top-level dashboard composition: an optional purple onboarding banner (T0
 // learners with pending guided-tour steps) sitting flush above the welcome
 // header + the two-column schedule / sidebar grid.
-export function DashboardLayout({ userName, overview, t0Flow, onResumeOnboarding }: DashboardLayoutProps) {
+export function DashboardLayout({
+  userName,
+  overview,
+  t0Flow,
+  onResumeOnboarding,
+}: DashboardLayoutProps) {
   const onboardingBanners = buildOnboardingBanners(t0Flow)
   const showOnboardingBanner = onboardingBanners.length > 0
 
@@ -34,7 +39,7 @@ export function DashboardLayout({ userName, overview, t0Flow, onResumeOnboarding
   const { now } = useServerTime()
 
   return (
-    <div data-testid="dashboard-root" className="mx-4 mb-8 mt-4 md:mx-8">
+    <div data-testid="dashboard-root" className="mb-8 mt-4">
       {overview.feePaymentBanners.length > 0 ? (
         <div className="mb-4">
           <FeePaymentBanners banners={overview.feePaymentBanners} />
@@ -46,27 +51,42 @@ export function DashboardLayout({ userName, overview, t0Flow, onResumeOnboarding
         </div>
       ) : null}
       {showOnboardingBanner ? (
-        <OnboardingStepsBanner banners={onboardingBanners} onResume={onResumeOnboarding} />
+        <OnboardingStepsBanner
+          banners={onboardingBanners}
+          onResume={onResumeOnboarding}
+        />
       ) : null}
       <div
         data-testid="dashboard-content"
         className={cn(
-          'flex flex-col gap-6 rounded-2xl bg-white px-4 py-6 md:px-6',
+          'relative flex flex-col gap-6 overflow-hidden rounded-2xl bg-surface px-4 py-6 md:px-6',
           // Square top so it meets the banner seamlessly when one is shown.
           showOnboardingBanner && 'rounded-t-none',
         )}
       >
-        <WelcomeSection name={userName} banners={overview.banners} />
+        {/* Ambient aurora wash behind the content — pure decoration. */}
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-x-0 top-0 h-64 bg-[radial-gradient(52rem_16rem_at_12%_-4rem,rgb(79_70_229_/_0.07),transparent_70%),radial-gradient(44rem_14rem_at_88%_-6rem,rgb(63_131_248_/_0.08),transparent_70%)]"
+        />
 
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_360px]">
-          <ScheduleSection
-            schedule={overview.schedule}
-            pendingTasks={overview.pendingTasks}
-            isLoading={overview.isPending}
-            isError={overview.isError}
-            now={now.toDate()}
-          />
-          <DashboardSidebar overview={overview} />
+        <div className="animate-dash-rise relative">
+          <WelcomeSection name={userName} banners={overview.banners} />
+        </div>
+
+        <div className="relative grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_360px]">
+          <div className="animate-dash-rise min-w-0 [--dash-delay:0.08s]">
+            <ScheduleSection
+              schedule={overview.schedule}
+              pendingTasks={overview.pendingTasks}
+              isLoading={overview.isPending}
+              isError={overview.isError}
+              now={now.toDate()}
+            />
+          </div>
+          <div className="animate-dash-rise min-w-0 [--dash-delay:0.16s]">
+            <DashboardSidebar overview={overview} />
+          </div>
         </div>
       </div>
     </div>

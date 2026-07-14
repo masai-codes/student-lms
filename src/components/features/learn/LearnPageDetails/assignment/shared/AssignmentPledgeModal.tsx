@@ -32,16 +32,21 @@ const PLEDGE_CHECKBOX_LABEL =
  * opens and no submission exists yet. The only way forward is to accept the
  * pledge and confirm, which creates the submission row.
  */
-export function AssignmentPledgeModal({ assignmentId }: AssignmentPledgeModalProps) {
+export function AssignmentPledgeModal({
+  assignmentId,
+}: AssignmentPledgeModalProps) {
   const router = useRouter()
   const [accepted, setAccepted] = useState(false)
   const [loading, setLoading] = useState(false)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
 
   const handleConfirm = async () => {
-    pushLearnEvent(learnEntityEvent('assignment', 'pledge_confirm', assignmentId), {
-      assignment_id: assignmentId,
-    })
+    pushLearnEvent(
+      learnEntityEvent('assignment', 'pledge_confirm', assignmentId),
+      {
+        assignment_id: assignmentId,
+      },
+    )
     setLoading(true)
     setErrorMessage(null)
     try {
@@ -49,7 +54,9 @@ export function AssignmentPledgeModal({ assignmentId }: AssignmentPledgeModalPro
       await router.invalidate()
     } catch (error) {
       setErrorMessage(
-        error instanceof Error ? error.message : 'Could not start the assignment',
+        error instanceof Error
+          ? error.message
+          : 'Could not start the assignment',
       )
       setLoading(false)
     }
@@ -71,17 +78,29 @@ export function AssignmentPledgeModal({ assignmentId }: AssignmentPledgeModalPro
       >
         <div className="flex flex-col items-center gap-4 text-center sm:flex-row sm:text-left">
           <span
-            className="flex w-fit shrink-0 items-center justify-center rounded-full bg-[#F7F7FF] p-2"
+            className="flex w-fit shrink-0 items-center justify-center rounded-full bg-brand-subtle p-2"
             aria-hidden
           >
-            <img src="/pledgeBoy.svg" alt="" width={100} />
-            <img src="/pledgeGirl.svg" alt="" width={90} />
+            {/* Fixed desktop widths, scaled down on small screens so the modal
+                header fits comfortably at 320px viewports. */}
+            <img
+              src="/pledgeBoy.svg"
+              alt=""
+              width={100}
+              className="w-[68px] sm:w-[100px]"
+            />
+            <img
+              src="/pledgeGirl.svg"
+              alt=""
+              width={90}
+              className="w-[60px] sm:w-[90px]"
+            />
           </span>
           <div className="self-center">
-            <ModalTitle className="text-[16px] font-bold capitalize text-gray-900 md:text-[18px] lg:text-[22px]">
-              Pledge Towards <span className="text-red-600">Integrity</span>
+            <ModalTitle className="text-[16px] font-bold capitalize text-foreground md:text-[18px] lg:text-[22px]">
+              Pledge Towards <span className="text-danger">Integrity</span>
             </ModalTitle>
-            <p className="mt-4 text-[14px] font-bold capitalize text-gray-900 md:text-[16px] lg:text-[18px]">
+            <p className="mt-4 text-[14px] font-bold capitalize text-foreground md:text-[16px] lg:text-[18px]">
               No Cheat Code To Success
             </p>
           </div>
@@ -89,7 +108,7 @@ export function AssignmentPledgeModal({ assignmentId }: AssignmentPledgeModalPro
 
         <div className="mt-6 space-y-3">
           {PLEDGE_PARAGRAPHS.map((paragraph) => (
-            <p key={paragraph} className="text-sm leading-6 text-[#3B3435]">
+            <p key={paragraph} className="text-sm leading-6 text-foreground">
               {paragraph}
             </p>
           ))}
@@ -105,7 +124,7 @@ export function AssignmentPledgeModal({ assignmentId }: AssignmentPledgeModalPro
         </div>
 
         {errorMessage ? (
-          <p className="mt-3 type-b3-md text-red-600" role="alert">
+          <p className="mt-3 type-b3-md text-danger" role="alert">
             {errorMessage}
           </p>
         ) : null}

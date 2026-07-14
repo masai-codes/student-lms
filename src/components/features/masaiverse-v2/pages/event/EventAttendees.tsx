@@ -26,7 +26,7 @@ export default function EventAttendees({ count }: EventAttendeesProps) {
   return (
     <div
       aria-label={`${formatted} ${noun} registered`}
-      className="mt-4 flex items-center gap-3 rounded-[14px] bg-gradient-to-r from-masaiverse-orange/[0.10] via-masaiverse-orange/[0.04] to-transparent px-4 py-3"
+      className="mt-4 flex items-center gap-3 rounded-[14px] bg-gradient-to-r from-accent-warm/[0.10] via-accent-warm/[0.04] to-transparent px-4 py-3"
     >
       <div className="flex -space-x-2.5" aria-hidden="true">
         {Array.from({ length: bubbles }).map((_, index) => (
@@ -39,10 +39,10 @@ export default function EventAttendees({ count }: EventAttendeesProps) {
         ))}
       </div>
       <p className="leading-none">
-        <span className="text-[24px] font-extrabold tracking-tight text-[#111827]">
+        <span className="text-[24px] font-extrabold tracking-tight text-foreground">
           {formatted}
         </span>
-        <span className="ml-1.5 text-[13px] font-medium text-[#6B7280]">
+        <span className="ml-1.5 text-[13px] font-medium text-foreground-muted">
           {noun} registered
         </span>
       </p>

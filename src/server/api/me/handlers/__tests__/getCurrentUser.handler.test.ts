@@ -1,6 +1,9 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-const hoisted = vi.hoisted(() => ({ getCurrentUser: vi.fn(), getUserId: vi.fn() }))
+const hoisted = vi.hoisted(() => ({
+  getCurrentUser: vi.fn(),
+  getUserId: vi.fn(),
+}))
 
 vi.mock('@/server/api/me/getCurrentUser.service', () => ({
   getCurrentUser: hoisted.getCurrentUser,
@@ -21,7 +24,9 @@ describe('handleGetCurrentUser', () => {
 
     const response = await handleGetCurrentUser()
     expect(response.status).toBe(200)
-    await expect(response.json()).resolves.toEqual({ user: { name: 'Suryakumar' } })
+    await expect(response.json()).resolves.toEqual({
+      user: { name: 'Suryakumar' },
+    })
   })
 
   it('returns 401 when unauthenticated', async () => {

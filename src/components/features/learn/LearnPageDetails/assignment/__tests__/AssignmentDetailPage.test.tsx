@@ -49,7 +49,9 @@ describe('AssignmentDetailPage', () => {
     const detail = buildDetail()
     render(<AssignmentDetailPage detail={detail} />)
 
-    expect(hoisted.useAutoCreateAssignmentSubmission).toHaveBeenCalledWith(detail)
+    expect(hoisted.useAutoCreateAssignmentSubmission).toHaveBeenCalledWith(
+      detail,
+    )
     expect(hoisted.useTokenCompletion).toHaveBeenCalledWith(79307)
   })
 

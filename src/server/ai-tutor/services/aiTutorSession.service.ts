@@ -121,7 +121,8 @@ export async function createAiTutorSession(input: {
       uniqueId: generated.unique_id,
     }
   } catch (error) {
-    const code = error instanceof Error ? error.message : 'AI_TUTOR_SESSION_CREATE_FAILED'
+    const code =
+      error instanceof Error ? error.message : 'AI_TUTOR_SESSION_CREATE_FAILED'
     try {
       await markRecordFailed({ recordId: record.id, errorMessage: code })
     } catch {
@@ -143,7 +144,7 @@ export async function dispatchAiTutorAgent(input: {
     userId: input.userId,
     lectureId: input.lectureId,
   })
-  const owns = sessions.some(s => s.sessionId && s.sessionId.length > 0)
+  const owns = sessions.some((s) => s.sessionId && s.sessionId.length > 0)
   if (!owns) {
     throw new Error('AI_TUTOR_SESSION_NOT_OWNED')
   }
@@ -193,11 +194,11 @@ export async function fetchAiTutorTranscript(input: {
 
   const recent = sessions.slice(-TRANSCRIPT_FETCH_LIMIT)
   const results = await Promise.allSettled(
-    recent.map(async session => {
+    recent.map(async (session) => {
       const data = await fetchTranscriptOnTokenServer(session.sessionId)
       const transcript: Array<AiTutorTranscriptEntry> = data.transcript
-        .filter(entry => entry.content && entry.timestamp)
-        .map(entry => ({
+        .filter((entry) => entry.content && entry.timestamp)
+        .map((entry) => ({
           role: entry.role === 'assistant' ? 'assistant' : 'user',
           content: entry.content,
           timestamp: entry.timestamp,
@@ -220,8 +221,8 @@ export async function fetchAiTutorTranscript(input: {
       (r): r is PromiseFulfilledResult<AiTutorTranscriptSession> =>
         r.status === 'fulfilled',
     )
-    .map(r => r.value)
-    .filter(s => s.transcript.length > 0)
+    .map((r) => r.value)
+    .filter((s) => s.transcript.length > 0)
 }
 
 export async function fetchAiTutorLimit(input: {

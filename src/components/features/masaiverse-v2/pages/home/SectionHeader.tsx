@@ -17,11 +17,11 @@ export default function SectionHeader({
     // next to a squished link. From sm up it's the original single baseline row.
     <div className="mb-4 flex items-start justify-between gap-3">
       <div className="flex min-w-0 flex-col gap-0.5 sm:flex-row sm:items-baseline sm:gap-2">
-        <h2 className="text-[18px] font-bold leading-6 text-[#111827] sm:text-[20px] sm:leading-7">
+        <h2 className="text-[18px] font-bold leading-6 text-foreground sm:text-[20px] sm:leading-7">
           {title}
         </h2>
         {subtitle ? (
-          <span className="text-[13px] text-[#9CA3AF] sm:text-[14px]">
+          <span className="text-[13px] text-foreground-subtle sm:text-[14px]">
             {subtitle}
           </span>
         ) : null}

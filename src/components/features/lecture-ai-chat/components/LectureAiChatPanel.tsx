@@ -3,7 +3,6 @@
 import { useState } from 'react'
 import { ArrowLeft, History, Loader2, PenSquare, X } from 'lucide-react'
 
-
 import { useLectureAiConversations } from '../hooks/useLectureAiConversations'
 import { LectureAiChatComposer } from './LectureAiChatComposer'
 import { LectureAiChatFeedbackBanner } from './LectureAiChatFeedbackBanner'

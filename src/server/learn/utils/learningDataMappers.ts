@@ -36,7 +36,10 @@ export function toModuleName(week: number): string {
 }
 
 /** Prefer stored `module` label; otherwise legacy `Module {week}` from week index. */
-export function resolveModuleName(module: string | null | undefined, week: number): string {
+export function resolveModuleName(
+  module: string | null | undefined,
+  week: number,
+): string {
   const label = module?.trim()
   if (label) {
     return label
@@ -74,7 +77,8 @@ export function mapLearningEntityRow(
       learningType === 'lecture' && !isRecommended ? attendance : null,
     optionalAttendance:
       learningType === 'lecture' && isRecommended ? attendance : null,
-    assignmentProgressStatus: learningType === 'assignment' ? assignmentProgressStatus : null,
+    assignmentProgressStatus:
+      learningType === 'assignment' ? assignmentProgressStatus : null,
     resourcePhase: learningType === 'resource' ? resourcePhase : null,
     listingCtas,
   }

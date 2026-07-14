@@ -17,11 +17,13 @@ export function LectureAiChatMessage({ message }: LectureAiChatMessageProps) {
   const timestampLabel = formatChatTimestamp(message.timestamp)
 
   return (
-    <div className={cn('flex w-full', isUser ? 'justify-end' : 'justify-start')}>
+    <div
+      className={cn('flex w-full', isUser ? 'justify-end' : 'justify-start')}
+    >
       <div
         className={cn(
           'max-w-[88%] rounded-2xl px-3.5 py-2.5',
-          isUser ? 'bg-[#6962AC] text-white' : 'bg-[#3a3a3a]',
+          isUser ? 'bg-brand text-white' : 'bg-[#3a3a3a]',
         )}
       >
         <div

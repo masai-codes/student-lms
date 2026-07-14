@@ -79,7 +79,10 @@ describe('createAssessPlatformUrl', () => {
 
     // loadOwnedSubmission -> row already has a stored link
     queueSelect([
-      { id: 2, data: { assess_platform_link: 'http://assess.test/?token=abc' } },
+      {
+        id: 2,
+        data: { assess_platform_link: 'http://assess.test/?token=abc' },
+      },
     ])
 
     await expect(

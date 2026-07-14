@@ -48,7 +48,12 @@ describe('buildProblemDetailPayload', () => {
   it('can submit when a solution exists with no link yet', () => {
     const payload = build({
       type: 'LINK',
-      solution: { id: 7, submissionLink: null, status: 'in-progress', submittedAt: null },
+      solution: {
+        id: 7,
+        submissionLink: null,
+        status: 'in-progress',
+        submittedAt: null,
+      },
     })
 
     expect(payload.canSubmit).toBe(true)
@@ -94,7 +99,12 @@ describe('buildProblemDetailPayload', () => {
   it('treats a blank submission link as no link', () => {
     const payload = build({
       type: 'LINK',
-      solution: { id: 7, submissionLink: '   ', status: 'in-progress', submittedAt: null },
+      solution: {
+        id: 7,
+        submissionLink: '   ',
+        status: 'in-progress',
+        submittedAt: null,
+      },
     })
 
     expect(payload.solution?.submissionLink).toBeNull()

@@ -40,17 +40,17 @@ Compose every flow in one database — each flow uses **its own users, batch, se
 
 ## Onboarding (T0) flows
 
-| Flow ID | Starting UI state |
-|---------|-------------------|
-| `login-and-join-lecture` | Student can log in and join a live lecture |
-| `dashboard-home` | Dashboard: My Schedule, Pending Tasks, Announcements, Product Updates (edge cases) |
-| `onboarding-legacy-user` | No T0 UI (no admission row) |
-| `onboarding-welcome-modal` | Welcome modal on first login |
-| `onboarding-welcome-seen` | Welcome modal already dismissed |
-| `onboarding-fees-unpaid` | LMS Walkthrough test bed: 3 videos (play + auto-next), profile photo, download app — none pre-ticked; payment countdown; program tab locked |
-| `onboarding-fees-paid` | Program Onboarding unlocked; agreement/docs/kit states toggled via CLI flags (see below) |
-| `onboarding-complete` | All steps done, ID card unlocked |
-| `onboarding-fees-overdue` | Fee deadline passed, still unpaid |
+| Flow ID                    | Starting UI state                                                                                                                           |
+| -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| `login-and-join-lecture`   | Student can log in and join a live lecture                                                                                                  |
+| `dashboard-home`           | Dashboard: My Schedule, Pending Tasks, Announcements, Product Updates (edge cases)                                                          |
+| `onboarding-legacy-user`   | No T0 UI (no admission row)                                                                                                                 |
+| `onboarding-welcome-modal` | Welcome modal on first login                                                                                                                |
+| `onboarding-welcome-seen`  | Welcome modal already dismissed                                                                                                             |
+| `onboarding-fees-unpaid`   | LMS Walkthrough test bed: 3 videos (play + auto-next), profile photo, download app — none pre-ticked; payment countdown; program tab locked |
+| `onboarding-fees-paid`     | Program Onboarding unlocked; agreement/docs/kit states toggled via CLI flags (see below)                                                    |
+| `onboarding-complete`      | All steps done, ID card unlocked                                                                                                            |
+| `onboarding-fees-overdue`  | Fee deadline passed, still unpaid                                                                                                           |
 
 ```bash
 npm run seed onboarding-welcome-modal
@@ -68,12 +68,12 @@ npm run seed onboarding-fees-unpaid
 
 What you get on this student:
 
-| Step | Seeded state | How to complete in UI |
-|------|--------------|------------------------|
-| 3 LMS videos | Not watched — playable S3 URLs, ordered for auto-next | Watch ≥10s to tick; let each video end to auto-advance to the next |
-| Profile photo | Not set | Webcam capture → writes `profiles.meta.profile_pic` |
-| Download app | No `user_device_tokens` | Step stays open until a device token exists (real app register, or insert a token + refresh) |
-| Program tab | Locked (`full_fees_paid = 0`) | Use `onboarding-fees-paid` to test that tab |
+| Step          | Seeded state                                          | How to complete in UI                                                                        |
+| ------------- | ----------------------------------------------------- | -------------------------------------------------------------------------------------------- |
+| 3 LMS videos  | Not watched — playable S3 URLs, ordered for auto-next | Watch ≥10s to tick; let each video end to auto-advance to the next                           |
+| Profile photo | Not set                                               | Webcam capture → writes `profiles.meta.profile_pic`                                          |
+| Download app  | No `user_device_tokens`                               | Step stays open until a device token exists (real app register, or insert a token + refresh) |
+| Program tab   | Locked (`full_fees_paid = 0`)                         | Use `onboarding-fees-paid` to test that tab                                                  |
 
 To pre-complete the **Download app** step (seed a `user_device_tokens` row):
 
@@ -104,21 +104,21 @@ Base state: agreement pending, `documents.required = true` (not uploaded), `kit.
 
 Common states (replaces the old `onboarding-agreement-pending`, `onboarding-kit-waiting`, and `onboarding-kit-tracking` flows):
 
-| State | Command |
-|-------|---------|
-| Agreement pending (default) | `npm run seed onboarding-fees-paid` |
-| Kit filled, no tracking | `npm run seed onboarding-fees-paid -- --agreement-signed --kit-shown --kit-filled` |
-| Kit with tracking URL | `npm run seed onboarding-fees-paid -- --agreement-signed --kit-shown --kit-filled --kit-tracking` |
+| State                       | Command                                                                                           |
+| --------------------------- | ------------------------------------------------------------------------------------------------- |
+| Agreement pending (default) | `npm run seed onboarding-fees-paid`                                                               |
+| Kit filled, no tracking     | `npm run seed onboarding-fees-paid -- --agreement-signed --kit-shown --kit-filled`                |
+| Kit with tracking URL       | `npm run seed onboarding-fees-paid -- --agreement-signed --kit-shown --kit-filled --kit-tracking` |
 
 Optional flags layer on top of that base state:
 
-| Flag | Effect |
-|------|--------|
-| `--docs-required` | Simulated onward: `documents.required = true` |
-| `--docs-uploaded` | Simulated onward: `documents.documentsUploaded = true` |
-| `--kit-shown` | Simulated onward: `kit.showKit = true` |
-| `--kit-filled` | Simulated onward: `kit.detailsFilled = true` |
-| `--kit-tracking` | Simulated onward: `kit.tracking = <example tracking URL>` |
+| Flag                 | Effect                                                                                |
+| -------------------- | ------------------------------------------------------------------------------------- |
+| `--docs-required`    | Simulated onward: `documents.required = true`                                         |
+| `--docs-uploaded`    | Simulated onward: `documents.documentsUploaded = true`                                |
+| `--kit-shown`        | Simulated onward: `kit.showKit = true`                                                |
+| `--kit-filled`       | Simulated onward: `kit.detailsFilled = true`                                          |
+| `--kit-tracking`     | Simulated onward: `kit.tracking = <example tracking URL>`                             |
 | `--agreement-signed` | Pre-signs the Program Onboarding - Web POSH agreement (unlocks Documents + Kit steps) |
 
 ```bash
@@ -138,6 +138,7 @@ npm run seed onboarding-fees-paid -- --docs-required --docs-uploaded --kit-shown
   ```
 
   Note: the running app currently decides Documents-step **visibility** from `batch_info`, not from `documents.required` — that would need a small follow-up change in `getT0FlowLectures.service.ts` to fully honor the `--docs-required` flag. This seed only writes the simulated fixture (via `seed/onward-simulation/`); it does not seed `batch_info`.
+
 - **ID card** — unlock logic is unchanged: still just LMS videos watched + agreement signed. Documents/Kit completion is not required to unlock it.
 
 ### Testing Dashboard home (schedule / pending / announcements / product updates)
@@ -148,12 +149,12 @@ npm run seed dashboard-home
 # Or open http://localhost:3002/seed-catalog/ → Login on this flow
 ```
 
-| Area | Visible on dashboard | Also seeded but hidden (edge-case exclusions) |
-|------|---------------------|-----------------------------------------------|
-| **My Schedule** | 2 lectures (today + day 3), 2 assignments (yesterday incomplete + day 5); empty days in between | Catch-up lecture (past, pending-only) |
-| **Pending Tasks** | Catch-up lecture + open assignment (badge `2`) | Started assignment, overdue assignment, optional catch-up lecture |
-| **Announcements** | 3 section + 2 For You (= cap of 5) | Read, expired, future announcements |
-| **Product Updates** | Newest 5 of 7 `whatsnew` rows | — |
+| Area                | Visible on dashboard                                                                                    | Also seeded but hidden (edge-case exclusions)                     |
+| ------------------- | ------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------- |
+| **My Schedule**     | 2 lectures (today + day 3), 2 assignments (yesterday incomplete + day 5); empty days in between       | Catch-up lecture (past, pending-only)                             |
+| **Pending Tasks**   | Catch-up lecture + open assignment (badge `2`)                                                          | Started assignment, overdue assignment, optional catch-up lecture |
+| **Announcements**   | 3 section + 2 For You (= cap of 5)                                                                      | Read, expired, future announcements                               |
+| **Product Updates** | Newest 5 of 7 `whatsnew` rows                                                                           | —                                                                 |
 
 Student has **no admission row** so the T0 guided-tour overlay does not block the dashboard.
 

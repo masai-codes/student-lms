@@ -49,7 +49,10 @@ describe('buildChatPromptMessages', () => {
 
   it('truncates oversize lecture summaries and signals truncation', () => {
     const long = 'a'.repeat(20_000)
-    const result = buildChatPromptMessages({ ...baseInput, lectureSummary: long })
+    const result = buildChatPromptMessages({
+      ...baseInput,
+      lectureSummary: long,
+    })
     expect(result[0].content).toContain('…')
     expect(result[0].content.length).toBeLessThan(long.length + 2_000)
   })

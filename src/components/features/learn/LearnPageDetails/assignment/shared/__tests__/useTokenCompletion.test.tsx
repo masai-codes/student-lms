@@ -24,7 +24,9 @@ vi.mock('@tanstack/react-router', () => ({
   useRouterState: ({
     select,
   }: {
-    select: (state: { location: { search: Record<string, unknown> } }) => unknown
+    select: (state: {
+      location: { search: Record<string, unknown> }
+    }) => unknown
   }) => select({ location: { search: hoisted.search } }),
 }))
 vi.mock('@/lib/api/learn/assignmentDetailActionsApi', () => ({

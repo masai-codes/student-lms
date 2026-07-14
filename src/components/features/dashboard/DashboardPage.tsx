@@ -54,10 +54,13 @@ export function DashboardPage({
   const [tourDismissed, setTourDismissed] = useState(false)
   const [tourTarget, setTourTarget] = useState<GuidedTourTarget | null>(null)
   const [tourForced, setTourForced] = useState(false)
-  const resumeOnboarding = useCallback((batchId: number, tab: 'lms' | 'program') => {
-    setTourTarget({ batchId, tab })
-    setTourDismissed(false)
-  }, [])
+  const resumeOnboarding = useCallback(
+    (batchId: number, tab: 'lms' | 'program') => {
+      setTourTarget({ batchId, tab })
+      setTourDismissed(false)
+    },
+    [],
+  )
 
   // The navbar "?" navigates here with `?guidedTour=open`; force the tour open
   // (even when complete). A "Sign agreement" CTA adds a batch + agreement step to
@@ -97,7 +100,10 @@ export function DashboardPage({
   // When the guided tour is showing it takes over the content area (below the
   // navbar), so the dashboard itself is hidden.
   const tourVisible = data
-    ? isGuidedTourVisible(data.t0Flow, { dismissed: tourDismissed, forceOpen: tourForced })
+    ? isGuidedTourVisible(data.t0Flow, {
+        dismissed: tourDismissed,
+        forceOpen: tourForced,
+      })
     : false
 
   return (
@@ -123,7 +129,11 @@ export function DashboardPage({
           feePaymentBanners={data.feePaymentBanners}
         />
       ) : null}
-      {data ? <WelcomeModalGate showWelcomeModal={data.welcomeModal.showWelcomeModal} /> : null}
+      {data ? (
+        <WelcomeModalGate
+          showWelcomeModal={data.welcomeModal.showWelcomeModal}
+        />
+      ) : null}
     </>
   )
 }

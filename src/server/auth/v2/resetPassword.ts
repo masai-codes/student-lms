@@ -29,10 +29,15 @@ function getJwtSecret(): string {
   return secret
 }
 
-export async function resetPassword({ token, password }: ResetPasswordInput): Promise<void> {
+export async function resetPassword({
+  token,
+  password,
+}: ResetPasswordInput): Promise<void> {
   let payload: TokenPayload
   try {
-    payload = jwt.verify(token, getJwtSecret(), { algorithms: [JWT_ALGORITHM] }) as TokenPayload
+    payload = jwt.verify(token, getJwtSecret(), {
+      algorithms: [JWT_ALGORITHM],
+    }) as TokenPayload
   } catch (err) {
     if (err instanceof jwt.TokenExpiredError) {
       throw new ResetPasswordError('TOKEN_EXPIRED', 'Reset link has expired')

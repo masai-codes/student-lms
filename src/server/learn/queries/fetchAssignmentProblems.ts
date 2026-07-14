@@ -44,6 +44,9 @@ export async function fetchSolutionStatusesBySubmission(
     .select({ problemId: solutions.problemId, status: solutions.status })
     .from(solutions)
     .where(
-      and(eq(solutions.submissionId, submissionId), isNull(solutions.deletedAt)),
+      and(
+        eq(solutions.submissionId, submissionId),
+        isNull(solutions.deletedAt),
+      ),
     )
 }

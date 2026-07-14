@@ -44,7 +44,10 @@ describe('renderCatalogHtml', () => {
   })
 
   it('disables login when secret token is missing', () => {
-    const html = renderCatalogHtml({ secretLoginToken: '', seedState: sampleState })
+    const html = renderCatalogHtml({
+      secretLoginToken: '',
+      seedState: sampleState,
+    })
     expect(html).toContain('disabled')
   })
 
@@ -52,7 +55,9 @@ describe('renderCatalogHtml', () => {
     const html = renderCatalogHtml({ secretLoginToken: '12345', seedState: {} })
     expect(html).toContain('btn-login-flow')
     expect(html).not.toMatch(/btn-login-flow[^>]*disabled/)
-    expect(html).toContain('data-user-email="login-and-join-lecture.student@example.com"')
+    expect(html).toContain(
+      'data-user-email="login-and-join-lecture.student@example.com"',
+    )
   })
 })
 

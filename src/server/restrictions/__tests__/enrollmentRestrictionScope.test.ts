@@ -42,7 +42,9 @@ describe('getPausedCutoff', () => {
   })
 
   it('returns null for a non-paused / unknown batch', () => {
-    const r: UserBatchRestrictions = new Map([[3, flags({ agreementBanned: true })]])
+    const r: UserBatchRestrictions = new Map([
+      [3, flags({ agreementBanned: true })],
+    ])
     expect(getPausedCutoff(r, 3)).toBeNull()
     expect(getPausedCutoff(r, 99)).toBeNull()
   })
@@ -71,7 +73,9 @@ describe('makePausedScheduleFilter', () => {
 
   it('keeps rows in unrestricted batches and rows with unknown sections', () => {
     expect(keep({ sectionId: 30, schedule: '2026-08-01 00:00:00' })).toBe(true)
-    expect(keep({ sectionId: null, schedule: '2026-08-01 00:00:00' })).toBe(true)
+    expect(keep({ sectionId: null, schedule: '2026-08-01 00:00:00' })).toBe(
+      true,
+    )
     expect(keep({ sectionId: 999, schedule: '2026-08-01 00:00:00' })).toBe(true)
   })
 })

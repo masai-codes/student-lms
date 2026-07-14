@@ -13,7 +13,9 @@ import {
 
 describe('buildLectureChatSystemPrompt', () => {
   it('defaults to English and appends the lecture summary', () => {
-    expect(buildLectureChatSystemPrompt('Hooks let you reuse state.', 'English')).toBe(
+    expect(
+      buildLectureChatSystemPrompt('Hooks let you reuse state.', 'English'),
+    ).toBe(
       `${AI_TUTOR_LECTURE_CHAT_SYSTEM_PROMPT_BASE}
 
 ${buildEnforcedChatLanguageInstruction('English')}
@@ -27,7 +29,10 @@ Hooks let you reuse state.`,
 
   it('matches the legacy full prompt for English', () => {
     expect(
-      buildLectureChatSystemPrompt('Hooks let you reuse state.', AI_TUTOR_DEFAULT_CHAT_LANGUAGE),
+      buildLectureChatSystemPrompt(
+        'Hooks let you reuse state.',
+        AI_TUTOR_DEFAULT_CHAT_LANGUAGE,
+      ),
     ).toContain(
       AI_TUTOR_LECTURE_CHAT_SYSTEM_PROMPT.split('## Lecture content')[0].trim(),
     )

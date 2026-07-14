@@ -78,9 +78,12 @@ function hasConfiguredAgreement(agreements: Record<string, any>): boolean {
     const e = val as Record<string, any> | null
     return (
       !!e &&
-      typeof e.heading === 'string' && e.heading.trim() !== '' &&
-      typeof e.pdfUrl === 'string' && e.pdfUrl.trim() !== '' &&
-      e.hidePolicy !== true && e.hidePolicy !== 'true'
+      typeof e.heading === 'string' &&
+      e.heading.trim() !== '' &&
+      typeof e.pdfUrl === 'string' &&
+      e.pdfUrl.trim() !== '' &&
+      e.hidePolicy !== true &&
+      e.hidePolicy !== 'true'
     )
   })
 }
@@ -112,7 +115,10 @@ async function isLegalAgreementBlocking(userId: number): Promise<boolean> {
   const enabled = rows.filter((r) => {
     const s = (r.settings as Record<string, any> | null) ?? {}
     const agreements = (s.agreements ?? {}) as Record<string, any>
-    return agreements.shouldModalBeVisible === true && hasConfiguredAgreement(agreements)
+    return (
+      agreements.shouldModalBeVisible === true &&
+      hasConfiguredAgreement(agreements)
+    )
   })
   if (enabled.length === 0) return false
 
@@ -122,16 +128,23 @@ async function isLegalAgreementBlocking(userId: number): Promise<boolean> {
     .where(eq(profiles.userId, userId))
     .limit(1)
 
-  const legalData = ((profileRows.length > 0 ? profileRows[0].legalData : null) ??
-    {}) as Record<string, any>
-  const agreementsBySection = (legalData.agreements ?? {}) as Record<string, any>
+  const legalData = ((profileRows.length > 0
+    ? profileRows[0].legalData
+    : null) ?? {}) as Record<string, any>
+  const agreementsBySection = (legalData.agreements ?? {}) as Record<
+    string,
+    any
+  >
   const nowMs = Date.now()
 
   return enabled.some((sec) => {
-    const data = (agreementsBySection[`section_${sec.sectionId}`] ?? {}) as Record<string, any>
+    const data = (agreementsBySection[`section_${sec.sectionId}`] ??
+      {}) as Record<string, any>
     if (data.haveAcceptedLegalAgreement === true) return false
     if (!data.viewTime) return false // not yet viewed → modal still closable → not blocking
-    const daysSince = Math.floor((nowMs - new Date(data.viewTime).getTime()) / 86_400_000)
+    const daysSince = Math.floor(
+      (nowMs - new Date(data.viewTime).getTime()) / 86_400_000,
+    )
     const isModalClosable = daysSince < 7
     return !isModalClosable // blocked only once the 7-day window has passed
   })
@@ -221,7 +234,9 @@ export async function getOneOnOneGroups(
   if (enabled.length === 0) return []
 
   const sectionIds = enabled.map((r) => r.sectionId)
-  const managerIds = enabled.map((r) => r.managerId).filter((id): id is number => id != null)
+  const managerIds = enabled
+    .map((r) => r.managerId)
+    .filter((id): id is number => id != null)
 
   // 2) EC/PC holders for those sections (role is lowercase 'ec'/'pc').
   const ecPcRows = await db
@@ -245,7 +260,11 @@ export async function getOneOnOneGroups(
   // 3) IA users (by manager_id).
   const iaRows = managerIds.length
     ? await db
-        .select({ id: users.id, name: users.name, profilePhotoPath: users.profilePhotoPath })
+        .select({
+          id: users.id,
+          name: users.name,
+          profilePhotoPath: users.profilePhotoPath,
+        })
         .from(users)
         .where(inArray(users.id, managerIds))
     : []
@@ -256,7 +275,13 @@ export async function getOneOnOneGroups(
     const coordinators: Array<SupportCoordinator> = []
 
     const ia = sec.managerId != null ? iaById.get(sec.managerId) : undefined
-    if (ia) coordinators.push({ id: ia.id, name: ia.name, kind: 'IA', profilePhotoPath: ia.profilePhotoPath ?? null })
+    if (ia)
+      coordinators.push({
+        id: ia.id,
+        name: ia.name,
+        kind: 'IA',
+        profilePhotoPath: ia.profilePhotoPath ?? null,
+      })
 
     for (const row of ecPcRows) {
       if (row.sectionId !== sec.sectionId) continue
@@ -314,7 +339,8 @@ export async function getBatchContact(
 
   const settings = (rows.length > 0 ? rows[0].settings : null) ?? {}
   return {
-    text: typeof settings.supportText === 'string' ? settings.supportText : null,
+    text:
+      typeof settings.supportText === 'string' ? settings.supportText : null,
     phone:
       typeof settings.supportMobileNumber === 'string'
         ? settings.supportMobileNumber

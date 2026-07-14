@@ -26,8 +26,7 @@ function computeDisplayName(input: {
   if (input.showAdminName) return (input.adminName ?? '').trim()
   if (input.isAssignmentCategory) return ASSIGNMENT_TITLE_L1
   const titles = input.batchSettings.opsRoleTitles as
-    | Record<string, string>
-    | undefined
+    Record<string, string> | undefined
   const fromBatch = titles?.l1
   if (fromBatch != null && String(fromBatch).trim() !== '') {
     return String(fromBatch).trim()
@@ -41,8 +40,7 @@ function computePhoneNumber(input: {
 }): string {
   if (input.isAssignmentCategory) return ''
   const phNumbers = input.batchSettings.phNumbers as
-    | Record<string, string | null>
-    | undefined
+    Record<string, string | null> | undefined
   const raw = phNumbers?.ph_l1
   if (raw == null || String(raw).trim() === '') return ''
   return String(raw).trim()
@@ -60,7 +58,8 @@ export async function buildFirstTemplateResponse(input: {
   category: string
   assigneeId: number
 }): Promise<{ message: string; displayName: string }> {
-  const isAssignmentCategory = trackForCategory(input.category) === 'discussionPC'
+  const isAssignmentCategory =
+    trackForCategory(input.category) === 'discussionPC'
 
   let batchSettings: Record<string, unknown> = {}
   if (input.batchId) {
@@ -87,7 +86,10 @@ export async function buildFirstTemplateResponse(input: {
     isAssignmentCategory,
     batchSettings,
   })
-  const phoneNumber = computePhoneNumber({ isAssignmentCategory, batchSettings })
+  const phoneNumber = computePhoneNumber({
+    isAssignmentCategory,
+    batchSettings,
+  })
 
   const signatureLines = ['', 'Regards,', displayName]
   if (phoneNumber) signatureLines.push(phoneNumber)

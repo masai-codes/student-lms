@@ -7,7 +7,11 @@ import {
 } from '../appendZoomChatToNotes'
 
 const links = [
-  { url: 'https://github.com/kaseradeepak/Web-Dev', count: 1, posted_by: 'Deepak' },
+  {
+    url: 'https://github.com/kaseradeepak/Web-Dev',
+    count: 1,
+    posted_by: 'Deepak',
+  },
   { url: 'https://www.menti.com/alnq8ufyou2q', count: 2, posted_by: 'Deepak' },
 ]
 

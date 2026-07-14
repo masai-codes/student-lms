@@ -4,14 +4,20 @@ import { resolveAssignmentListingStatusChip } from '../resolveAssignmentListingS
 
 describe('resolveAssignmentListingStatusChip', () => {
   it('returns practice-mode for overdue practice assignments', () => {
-    expect(resolveAssignmentListingStatusChip('overdue', 'practice')).toBe('practice-mode')
+    expect(resolveAssignmentListingStatusChip('overdue', 'practice')).toBe(
+      'practice-mode',
+    )
   })
 
   it('hides chip for overdue evaluation assignments', () => {
-    expect(resolveAssignmentListingStatusChip('overdue', 'evaluation')).toBeNull()
+    expect(
+      resolveAssignmentListingStatusChip('overdue', 'evaluation'),
+    ).toBeNull()
   })
 
   it('shows in-progress status when applicable', () => {
-    expect(resolveAssignmentListingStatusChip('in-progress', 'coding')).toBe('in-progress')
+    expect(resolveAssignmentListingStatusChip('in-progress', 'coding')).toBe(
+      'in-progress',
+    )
   })
 })

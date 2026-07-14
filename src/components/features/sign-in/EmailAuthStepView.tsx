@@ -55,7 +55,9 @@ export function EmailAuthStepView({
   sendOtpDisabled,
   resendBusy = false,
 }: Props) {
-  const [resendSecondsLeft, setResendSecondsLeft] = useState(RESEND_OTP_COOLDOWN_SEC)
+  const [resendSecondsLeft, setResendSecondsLeft] = useState(
+    RESEND_OTP_COOLDOWN_SEC,
+  )
   // Focus the active field on mount and whenever the mode flips between
   // password and OTP (React reuses the DOM node, so re-focus explicitly).
   const inputRef = useAutoFocus<HTMLInputElement>([authMode])

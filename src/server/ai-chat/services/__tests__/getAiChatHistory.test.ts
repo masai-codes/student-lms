@@ -27,7 +27,12 @@ describe('getAiChatHistory', () => {
     vi.mocked(findChatRow).mockResolvedValueOnce({
       id: 7,
       chatHistory: [
-        { type: 'text', userMessage: 'hi', aiMessage: 'hello', timestamp: 1_000 },
+        {
+          type: 'text',
+          userMessage: 'hi',
+          aiMessage: 'hello',
+          timestamp: 1_000,
+        },
       ],
     })
 
@@ -99,7 +104,7 @@ describe('getAiChatHistory', () => {
     })
 
     const result = await getAiChatHistory(baseInput)
-    expect(result.map(m => m.content)).toEqual(['q1', 'a1', 'spoken q'])
+    expect(result.map((m) => m.content)).toEqual(['q1', 'a1', 'spoken q'])
     expect(result[0].source).toBe('text')
     expect(result[2].source).toBe('voice')
   })

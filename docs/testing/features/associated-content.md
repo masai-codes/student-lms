@@ -10,17 +10,17 @@
 
 ## Test files
 
-| Area | File |
-|------|------|
-| Node key make/parse | `src/server/learn/utils/__tests__/associationGraphTypes.test.ts` |
-| Undirected graph build (edges, self/dangling ignored) | `src/server/learn/utils/__tests__/buildAssociationGraph.test.ts` |
-| BFS transitive closure (both ways, excludes start, isolated/unknown, sparse) | `src/server/learn/utils/__tests__/collectAssociatedNodeKeys.test.ts` |
-| Card-item builders (lecture/resource/assignment, attendance/score) | `src/server/learn/utils/__tests__/buildAssociatedLearningItems.test.ts` |
-| Service (full-item transitive closure, all start kinds, not-in-corpus, section-less fallback) | `src/server/learn/services/__tests__/getAllAssociatedEntities.service.test.ts` |
-| JSON pointer parsing (single & array shapes) | `src/server/learn/utils/__tests__/parseLectureDataJson.test.ts` |
-| `LearningItem → LearnContentItem` mapper (shared with /learn) | `src/components/features/learn/shared/__tests__/mapLearningItemToContent.test.ts` |
-| Associated list renders grouped `/learn` cards | `src/components/features/learn/LearnPageDetails/common/associated/__tests__/AssociatedContentList.test.tsx` |
-| Card analytics `source: 'associated'` | `src/components/features/learn/section-three/content-card/__tests__/LearnContentCard.test.tsx` |
+| Area                                                                                          | File                                                                                                        |
+| --------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| Node key make/parse                                                                           | `src/server/learn/utils/__tests__/associationGraphTypes.test.ts`                                            |
+| Undirected graph build (edges, self/dangling ignored)                                         | `src/server/learn/utils/__tests__/buildAssociationGraph.test.ts`                                            |
+| BFS transitive closure (both ways, excludes start, isolated/unknown, sparse)                  | `src/server/learn/utils/__tests__/collectAssociatedNodeKeys.test.ts`                                        |
+| Card-item builders (lecture/resource/assignment, attendance/score)                            | `src/server/learn/utils/__tests__/buildAssociatedLearningItems.test.ts`                                     |
+| Service (full-item transitive closure, all start kinds, not-in-corpus, section-less fallback) | `src/server/learn/services/__tests__/getAllAssociatedEntities.service.test.ts`                              |
+| JSON pointer parsing (single & array shapes)                                                  | `src/server/learn/utils/__tests__/parseLectureDataJson.test.ts`                                             |
+| `LearningItem → LearnContentItem` mapper (shared with /learn)                                 | `src/components/features/learn/shared/__tests__/mapLearningItemToContent.test.ts`                           |
+| Associated list renders grouped `/learn` cards                                                | `src/components/features/learn/LearnPageDetails/common/associated/__tests__/AssociatedContentList.test.tsx` |
+| Card analytics `source: 'associated'`                                                         | `src/components/features/learn/section-three/content-card/__tests__/LearnContentCard.test.tsx`              |
 
 ## Commands
 

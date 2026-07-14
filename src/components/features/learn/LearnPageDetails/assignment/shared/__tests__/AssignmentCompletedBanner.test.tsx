@@ -26,7 +26,9 @@ describe('AssignmentCompletedBanner', () => {
     const scope = within(container)
 
     expect(
-      scope.getByTestId('assignment-completed-banner').getAttribute('data-variant'),
+      scope
+        .getByTestId('assignment-completed-banner')
+        .getAttribute('data-variant'),
     ).toBe('auto-graded')
     expect(scope.getByText(/automatically marked as "Completed"/)).toBeTruthy()
   })
@@ -44,7 +46,9 @@ describe('AssignmentCompletedBanner', () => {
     const scope = within(container)
 
     expect(
-      scope.getByTestId('assignment-completed-banner').getAttribute('data-variant'),
+      scope
+        .getByTestId('assignment-completed-banner')
+        .getAttribute('data-variant'),
     ).toBe('manual')
     expect(scope.getByText(/You have marked this assignment/)).toBeTruthy()
   })

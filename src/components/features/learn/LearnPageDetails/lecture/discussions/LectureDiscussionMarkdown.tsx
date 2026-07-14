@@ -9,10 +9,10 @@ import { cn } from '@/lib/utils'
 
 const markdownComponents = {
   p: ({ children }: { children?: ReactNode }) => (
-    <p className="mb-2 last:mb-0 text-gray-700">{children}</p>
+    <p className="mb-2 last:mb-0 text-foreground">{children}</p>
   ),
   strong: ({ children }: { children?: ReactNode }) => (
-    <strong className="font-semibold text-gray-900">{children}</strong>
+    <strong className="font-semibold text-foreground">{children}</strong>
   ),
 }
 
@@ -34,7 +34,7 @@ export function LectureDiscussionMarkdown({
       <RichTextContent
         html={content}
         className={cn(
-          'type-b2-regular text-gray-700 [&_p]:my-0 [&_p+p]:mt-2',
+          'type-b2-regular text-foreground [&_p]:my-0 [&_p+p]:mt-2',
           className,
         )}
       />
@@ -43,7 +43,10 @@ export function LectureDiscussionMarkdown({
 
   return (
     <div className={cn('type-b2-regular', className)}>
-      <ReactMarkdown remarkPlugins={[remarkGfm]} components={markdownComponents}>
+      <ReactMarkdown
+        remarkPlugins={[remarkGfm]}
+        components={markdownComponents}
+      >
         {content}
       </ReactMarkdown>
     </div>

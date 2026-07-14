@@ -1,4 +1,6 @@
+import type { AssignmentKind } from '@/server/learn/assignmentDetailTypes'
 import { formatSqlDate } from '@/utils/generics'
+import { getAssignmentTypeNoun } from '@/server/learn/utils/getAssignmentTypeNoun'
 import { parseIstToMs } from '@/server/time/istClock'
 
 /**
@@ -13,6 +15,7 @@ export type AssignmentCompletedDetails = {
 }
 
 export type AssignmentCompletedDetailsInput = {
+  assignmentKind: AssignmentKind
   submission: {
     completed: boolean
     completedAt: string | null
@@ -22,7 +25,10 @@ export type AssignmentCompletedDetailsInput = {
 }
 
 /** Clamp the completion timestamp so it never displays later than the deadline. */
-function clampCompletedAt(completedAt: string, concludes: string | null): string {
+function clampCompletedAt(
+  completedAt: string,
+  concludes: string | null,
+): string {
   const concludesMs = parseIstToMs(concludes)
   const completedMs = parseIstToMs(completedAt)
   if (concludesMs != null && completedMs != null && completedMs > concludesMs) {
@@ -31,7 +37,9 @@ function clampCompletedAt(completedAt: string, concludes: string | null): string
   return completedAt
 }
 
-function readMarkedCompletedAt(data: Record<string, unknown> | null): string | null {
+function readMarkedCompletedAt(
+  data: Record<string, unknown> | null,
+): string | null {
   const value = data?.['marked_completed_at']
   return typeof value === 'string' && value.trim() !== '' ? value : null
 }
@@ -39,8 +47,10 @@ function readMarkedCompletedAt(data: Record<string, unknown> | null): string | n
 export function buildAssignmentCompletedDetails(
   input: AssignmentCompletedDetailsInput,
 ): AssignmentCompletedDetails | null {
-  const { submission, concludes } = input
+  const { assignmentKind, submission, concludes } = input
   if (submission == null) return null
+
+  const noun = getAssignmentTypeNoun(assignmentKind)
 
   if (submission.completed && submission.completedAt != null) {
     const completedAtLabel = formatSqlDate(
@@ -49,7 +59,7 @@ export function buildAssignmentCompletedDetails(
     return {
       variant: 'auto-graded',
       completedAtLabel,
-      message: `This assignment was automatically marked as "Completed" on ${completedAtLabel} and graded.`,
+      message: `This ${noun} was automatically marked as "Completed" on ${completedAtLabel} and graded.`,
     }
   }
 
@@ -59,7 +69,7 @@ export function buildAssignmentCompletedDetails(
     return {
       variant: 'manual',
       completedAtLabel,
-      message: `You have marked this assignment as "Completed" on ${completedAtLabel}.`,
+      message: `You have marked this ${noun} as "Completed" on ${completedAtLabel}`,
     }
   }
 

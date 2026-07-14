@@ -80,14 +80,14 @@ export function LectureDiscussionListItem({
   const toggleLabel = getDiscussionRepliesToggleLabel(expanded, replyCount)
 
   return (
-    <div className="rounded-lg border border-gray-200 bg-white shadow-sm">
+    <div className="animate-dash-row-in rounded-lg border border-border bg-surface shadow-sm transition-colors duration-200 hover:border-brand/35">
       <div className="p-3">
         <DiscussionSummaryCard discussion={discussion} embedded />
         <button
           type="button"
           onClick={toggleReplies}
           aria-expanded={expanded}
-          className="type-b3-md mt-2 inline-flex items-center gap-1 rounded-full px-2 py-1 text-[#6962AC] hover:bg-purple-50"
+          className="type-b3-md mt-2 inline-flex items-center gap-1 rounded-full px-2 py-1 text-brand transition duration-150 hover:bg-brand-subtle active:scale-95"
         >
           {expanded ? (
             <CaretUp className="size-4" aria-hidden />
@@ -102,21 +102,21 @@ export function LectureDiscussionListItem({
       </div>
 
       {expanded ? (
-        <div className="border-t border-gray-100 px-3 pb-3 pt-2">
+        <div className="border-t border-border px-3 pb-3 pt-2">
           {discussion.threads.length === 0 ? (
-            <p className="type-b3-regular py-3 text-gray-500">
+            <p className="type-b3-regular py-3 text-foreground-muted">
               No replies yet. Be the first to respond.
             </p>
           ) : (
             <div className={cn(discussion.isClosed ? 'pb-0' : 'pb-3')}>
-              {discussion.threads.map(thread => (
+              {discussion.threads.map((thread) => (
                 <LectureDiscussionReplyItem key={thread.id} thread={thread} />
               ))}
             </div>
           )}
 
           {discussion.isClosed ? (
-            <p className="type-caption-regular text-gray-500">
+            <p className="type-caption-regular text-foreground-muted">
               This discussion is closed. New replies are not allowed.
             </p>
           ) : (
@@ -126,7 +126,10 @@ export function LectureDiscussionListItem({
                 onSubmit={handleReplySubmit}
               />
               {replyError ? (
-                <p className="type-caption-regular mt-2 text-destructive" role="alert">
+                <p
+                  className="type-caption-regular mt-2 text-destructive"
+                  role="alert"
+                >
                   {replyError}
                 </p>
               ) : null}

@@ -14,7 +14,9 @@ describe('driverWallClock', () => {
   })
 
   it('strips an existing zone suffix', () => {
-    expect(driverWallClock('2026-07-09T03:20:00+05:30')).toBe('2026-07-09T03:20:00')
+    expect(driverWallClock('2026-07-09T03:20:00+05:30')).toBe(
+      '2026-07-09T03:20:00',
+    )
     expect(driverWallClock('2026-07-09T03:20:00Z')).toBe('2026-07-09T03:20:00')
   })
 
@@ -25,7 +27,9 @@ describe('driverWallClock', () => {
   })
 
   it('keeps fractional seconds when present', () => {
-    expect(driverWallClock(new Date('2026-07-09T03:20:00.123Z'))).toBe('2026-07-09T03:20:00.123')
+    expect(driverWallClock(new Date('2026-07-09T03:20:00.123Z'))).toBe(
+      '2026-07-09T03:20:00.123',
+    )
   })
 })
 
@@ -69,18 +73,26 @@ describe('toEpochMs', () => {
 
 describe('write path (toDriver equivalents) round-trips', () => {
   it('IST: naive wall-clock stays put', () => {
-    expect(toDbWallClock(toEpochMs(IST_WALL, IST), IST)).toBe('2026-07-09 03:20:00')
+    expect(toDbWallClock(toEpochMs(IST_WALL, IST), IST)).toBe(
+      '2026-07-09 03:20:00',
+    )
   })
 
   it('IST: a UTC instant is converted to IST wall-clock for storage', () => {
-    expect(toDbWallClock(toEpochMs('2026-07-08T21:50:00Z', IST), IST)).toBe('2026-07-09 03:20:00')
+    expect(toDbWallClock(toEpochMs('2026-07-08T21:50:00Z', IST), IST)).toBe(
+      '2026-07-09 03:20:00',
+    )
   })
 
   it('UTC: an IST-offset instant is converted to UTC wall-clock for storage', () => {
-    expect(toDbWallClock(toEpochMs('2026-07-09T03:20:00+05:30', UTC), UTC)).toBe('2026-07-08 21:50:00')
+    expect(
+      toDbWallClock(toEpochMs('2026-07-09T03:20:00+05:30', UTC), UTC),
+    ).toBe('2026-07-08 21:50:00')
   })
 
   it('UTC: a Date stores its UTC wall-clock', () => {
-    expect(toDbWallClock(new Date('2026-07-08T21:50:00Z').getTime(), UTC)).toBe('2026-07-08 21:50:00')
+    expect(toDbWallClock(new Date('2026-07-08T21:50:00Z').getTime(), UTC)).toBe(
+      '2026-07-08 21:50:00',
+    )
   })
 })

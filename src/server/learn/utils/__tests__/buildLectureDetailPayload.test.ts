@@ -36,7 +36,9 @@ describe('buildLectureDetailPayload', () => {
         concludes,
         zoomLink: 'https://zoom.example/j/1',
         videos: null,
-        vimeoDownloadLinks: { gumlet: { hls_url: 'https://cdn.example/hls.m3u8' } },
+        vimeoDownloadLinks: {
+          gumlet: { hls_url: 'https://cdn.example/hls.m3u8' },
+        },
         vimeoPlayerEmbedUrl: null,
         settings: null,
         hostAvatarUrl: null,

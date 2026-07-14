@@ -28,22 +28,31 @@ export function AssociatedContentList({
       className={cn('flex flex-col gap-6', className)}
       data-testid="learn-associated-content-list"
     >
-      {ASSOCIATED_CONTENT_KIND_ORDER.map(kind => {
-        const sectionItems = items.filter(item => item.learningType === kind)
+      {ASSOCIATED_CONTENT_KIND_ORDER.map((kind) => {
+        const sectionItems = items.filter((item) => item.learningType === kind)
         if (sectionItems.length === 0) return null
 
         return (
           <section key={kind} data-testid={`learn-associated-section-${kind}`}>
-            <h3 className="type-s1-md mb-3 text-gray-900">
+            <h3 className="type-s1-md mb-3 text-foreground">
               {ASSOCIATED_CONTENT_SECTION_LABELS[kind]}
             </h3>
             <div className="flex flex-col gap-3">
-              {sectionItems.map(item => (
-                <LearnContentCard
+              {sectionItems.map((item, index) => (
+                <div
                   key={item.id}
-                  item={mapLearningItemToContent(item)}
-                  isAssociatedCard
-                />
+                  className="animate-dash-row-in"
+                  style={
+                    {
+                      '--dash-delay': `${Math.min(index * 0.05, 0.4)}s`,
+                    } as React.CSSProperties
+                  }
+                >
+                  <LearnContentCard
+                    item={mapLearningItemToContent(item)}
+                    isAssociatedCard
+                  />
+                </div>
               ))}
             </div>
           </section>

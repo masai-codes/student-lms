@@ -32,23 +32,23 @@ export default function SidebarNavItem({
         })
       }
       className={`flex items-center gap-2.5 rounded-[10px] px-4 py-[10px] ${
-        isActive ? 'bg-masaiverse-orange' : 'hover:bg-[#FBF9F9]'
+        isActive ? 'bg-accent-warm' : 'hover:bg-surface-muted'
       }`}
     >
       <IconComponent
         size={20}
         weight={isActive ? 'fill' : 'regular'}
-        color={isActive ? '#FFFFFF' : '#111827'}
+        color={isActive ? 'var(--accent-warm-foreground)' : 'var(--foreground)'}
       />
       <span
         className={`flex-1 text-[14px] font-medium leading-5 ${
-          isActive ? 'text-white' : 'text-[#111827]'
+          isActive ? 'text-accent-warm-foreground' : 'text-foreground'
         }`}
       >
         {label}
       </span>
       {showBadge ? (
-        <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-masaiverse-orange px-1.5 text-[12px] font-semibold leading-none text-white">
+        <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-accent-warm px-1.5 text-[12px] font-semibold leading-none text-accent-warm-foreground">
           {badgeCount}
         </span>
       ) : null}

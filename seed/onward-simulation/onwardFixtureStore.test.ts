@@ -25,7 +25,10 @@ describe('onwardFixtureStore', () => {
   })
 
   it('writes and reads back a fixture keyed by student_code', () => {
-    const status = buildSimulatedOnwardStatus({ documentsRequired: true, kitShowKit: true })
+    const status = buildSimulatedOnwardStatus({
+      documentsRequired: true,
+      kitShowKit: true,
+    })
     writeOnwardFixture('onboarding-fees-paid-student', status, fixturePath)
 
     expect(readOnwardFixtures(fixturePath)).toEqual({
@@ -34,8 +37,16 @@ describe('onwardFixtureStore', () => {
   })
 
   it('upserts without clobbering other students', () => {
-    writeOnwardFixture('student-a', buildSimulatedOnwardStatus({ documentsRequired: true }), fixturePath)
-    writeOnwardFixture('student-b', buildSimulatedOnwardStatus({ kitShowKit: true }), fixturePath)
+    writeOnwardFixture(
+      'student-a',
+      buildSimulatedOnwardStatus({ documentsRequired: true }),
+      fixturePath,
+    )
+    writeOnwardFixture(
+      'student-b',
+      buildSimulatedOnwardStatus({ kitShowKit: true }),
+      fixturePath,
+    )
 
     const fixtures = readOnwardFixtures(fixturePath)
     expect(Object.keys(fixtures).sort()).toEqual(['student-a', 'student-b'])

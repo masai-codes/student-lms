@@ -8,7 +8,8 @@
 
 export function getCookieName(): string {
   const name = process.env.COOKIE_NAME || process.env.NEW_COOKIE_NAME
-  if (!name) throw new Error('COOKIE_NAME (or NEW_COOKIE_NAME) env var is not set')
+  if (!name)
+    throw new Error('COOKIE_NAME (or NEW_COOKIE_NAME) env var is not set')
   return name
 }
 

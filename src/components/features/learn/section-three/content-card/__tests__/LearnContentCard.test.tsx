@@ -76,9 +76,14 @@ describe('LearnContentCard — Optional session tag', () => {
   })
 
   it('shows the assignment deadline label when present', () => {
-    const item = { ...makeItem('assignment', 'mandatory'), assignmentDeadlineLabel: '2 days remaining' }
+    const item = {
+      ...makeItem('assignment', 'mandatory'),
+      assignmentDeadlineLabel: '2 days remaining',
+    }
     render(<LearnContentCard item={item} />)
-    expect(screen.getByTestId('learn-assignment-deadline').textContent).toBe('2 days remaining')
+    expect(screen.getByTestId('learn-assignment-deadline').textContent).toBe(
+      '2 days remaining',
+    )
   })
 
   it('renders no deadline label for lectures / when absent', () => {
@@ -95,7 +100,10 @@ describe('LearnContentCard — analytics source', () => {
 
   it('tags the click event source as "associated" when rendered in associated content', () => {
     render(
-      <LearnContentCard item={makeItem('lecture', 'mandatory')} isAssociatedCard />,
+      <LearnContentCard
+        item={makeItem('lecture', 'mandatory')}
+        isAssociatedCard
+      />,
     )
     fireEvent.click(screen.getByText('Intro to React'))
     expect(pushLearnEvent).toHaveBeenCalledWith(
@@ -119,7 +127,10 @@ describe('LearnContentCard — associated (drawer) layout', () => {
 
   it('stays in the stacked mobile layout so it fits a narrow drawer', () => {
     render(
-      <LearnContentCard item={makeItem('lecture', 'mandatory')} isAssociatedCard />,
+      <LearnContentCard
+        item={makeItem('lecture', 'mandatory')}
+        isAssociatedCard
+      />,
     )
     const outer = screen.getByText('Intro to React').closest('a')!
       .firstElementChild as HTMLElement
@@ -140,7 +151,10 @@ describe('LearnContentCard — dashboard compact layout', () => {
 
   it('splits time+course and tags into separate rows so tags do not stack per-line', () => {
     render(
-      <LearnContentCard item={makeItem('lecture', 'mandatory')} fromDashboard />,
+      <LearnContentCard
+        item={makeItem('lecture', 'mandatory')}
+        fromDashboard
+      />,
     )
     const tagsRow = screen.getByTestId('learn-card-dashboard-tags')
     const metaRoot = screen.getByTestId('learn-card-dashboard-meta')

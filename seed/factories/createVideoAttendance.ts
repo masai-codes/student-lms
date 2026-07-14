@@ -8,7 +8,9 @@ import { formatMysqlDatetime, offsetFromNow } from '../utils/time'
 type VideoAttendanceInsert = typeof videoAttendances.$inferInsert
 type VideoAttendanceSelect = typeof videoAttendances.$inferSelect
 
-export type CreateVideoAttendanceOverrides = Partial<Omit<VideoAttendanceInsert, 'id'>>
+export type CreateVideoAttendanceOverrides = Partial<
+  Omit<VideoAttendanceInsert, 'id'>
+>
 
 export async function createVideoAttendance(
   overrides: CreateVideoAttendanceOverrides = {},
@@ -26,7 +28,8 @@ export async function createVideoAttendance(
     )
   }
 
-  const schedule = overrides.schedule ?? formatMysqlDatetime(offsetFromNow({ minutesAgo: 0 }))
+  const schedule =
+    overrides.schedule ?? formatMysqlDatetime(offsetFromNow({ minutesAgo: 0 }))
   const values: VideoAttendanceInsert = {
     category: 'course',
     type: 'video',

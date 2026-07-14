@@ -14,7 +14,7 @@ export default function LeaderboardPeriodTabs({
       value={value}
       onValueChange={(next) => onChange(next as LeaderboardPeriod)}
     >
-      <TabsList className="bg-[#F1ECE8]">
+      <TabsList className="bg-surface-muted">
         <TabsTrigger value="overall" className="px-3">
           Overall
         </TabsTrigger>

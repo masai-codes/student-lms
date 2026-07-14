@@ -50,9 +50,9 @@ describe('learnEntityBookmark.service', () => {
       mockSelectOnce([])
       const { getLearnEntityBookmarkState } = await importService()
 
-      await expect(
-        getLearnEntityBookmarkState(1, 'lecture', 99),
-      ).resolves.toBe(false)
+      await expect(getLearnEntityBookmarkState(1, 'lecture', 99)).resolves.toBe(
+        false,
+      )
     })
   })
 

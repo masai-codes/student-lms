@@ -5,8 +5,12 @@ import type {
 import type { LearnHubDetailPayload, LearningItem } from '@/server/learn/types'
 import type { AssignmentProblemListItem } from '@/server/learn/utils/buildAssignmentProblemListItems'
 import type { AssignmentDetailFooterContext } from '@/server/learn/utils/buildAssignmentDetailFooter'
-import { buildAssignmentDetailFooter } from '@/server/learn/utils/buildAssignmentDetailFooter'
+import {
+  buildAssignmentDetailFooter,
+  isAssignmentExpired,
+} from '@/server/learn/utils/buildAssignmentDetailFooter'
 import { buildAssignmentCompletedDetails } from '@/server/learn/utils/buildAssignmentCompletedDetails'
+import { buildAssignmentEmptyInstructionsMessage } from '@/server/learn/utils/buildAssignmentEmptyInstructionsMessage'
 import { buildAssignmentHeaderBadges } from '@/server/learn/utils/buildAssignmentHeaderBadges'
 import { buildAssignmentLiveAnalytics } from '@/server/learn/utils/buildAssignmentLiveAnalytics'
 import { resolveAssignmentRequiresPledge } from '@/server/learn/utils/resolveAssignmentRequiresPledge'
@@ -75,6 +79,20 @@ export function buildAssignmentDetailPayload(
       ? row.instructions.trim()
       : null
 
+  const expired = isAssignmentExpired(row.settings, row.concludes, nowMs)
+  const emptyInstructionsMessage = buildAssignmentEmptyInstructionsMessage({
+    assignmentKind,
+    platform: row.platform,
+    isExpired: expired,
+    submission:
+      footerInput.submission == null
+        ? null
+        : {
+            completed: footerInput.submission.completed,
+            data: footerInput.submission.data,
+          },
+  })
+
   const footer = buildAssignmentDetailFooter({
     assignmentKind,
     category: row.category,
@@ -95,6 +113,7 @@ export function buildAssignmentDetailPayload(
     problems.length > 0
       ? null
       : buildAssignmentCompletedDetails({
+          assignmentKind,
           submission:
             footerInput.submission == null
               ? null
@@ -113,11 +132,19 @@ export function buildAssignmentDetailPayload(
     phase,
     schedule: row.schedule,
     concludes: row.concludes,
-    scheduleDisplayRange: formatLectureScheduleRange(row.schedule, row.concludes),
+    scheduleDisplayRange: formatLectureScheduleRange(
+      row.schedule,
+      row.concludes,
+    ),
     hostAvatarUrl: row.hostAvatarUrl,
     instructions,
+    emptyInstructionsMessage,
     enforceDeadline: row.enforceDeadline === 1,
-    phaseContent: buildAssignmentPhaseContent(assignmentKind, phase, row.schedule),
+    phaseContent: buildAssignmentPhaseContent(
+      assignmentKind,
+      phase,
+      row.schedule,
+    ),
     footer,
     completedDetails,
     headerBadges: buildAssignmentHeaderBadges({

@@ -1,20 +1,20 @@
-import * as React from "react"
-import { ClubCardPreview } from "./club-card-preview"
-import { ClubCardDrawer } from "./club-card-drawer"
-import type { ClubCardProps, DrawerDirection } from "./types"
+import * as React from 'react'
+import { ClubCardPreview } from './club-card-preview'
+import { ClubCardDrawer } from './club-card-drawer'
+import type { ClubCardProps, DrawerDirection } from './types'
 
 function useResolvedDirection(direction: DrawerDirection) {
   const [isDesktop, setIsDesktop] = React.useState(false)
 
   React.useEffect(() => {
-    const mediaQuery = window.matchMedia("(min-width: 768px)")
+    const mediaQuery = window.matchMedia('(min-width: 768px)')
     const sync = () => setIsDesktop(mediaQuery.matches)
     sync()
-    mediaQuery.addEventListener("change", sync)
-    return () => mediaQuery.removeEventListener("change", sync)
+    mediaQuery.addEventListener('change', sync)
+    return () => mediaQuery.removeEventListener('change', sync)
   }, [])
 
-  return direction === "auto" ? (isDesktop ? "right" : "bottom") : direction
+  return direction === 'auto' ? (isDesktop ? 'right' : 'bottom') : direction
 }
 
 export function ClubCard({
@@ -33,7 +33,7 @@ export function ClubCard({
   totalMembers,
   detailPoints,
   detailDescription,
-  drawerDirection = "auto",
+  drawerDirection = 'auto',
   ctaTheme,
   drawerBottomInsetClassName,
   drawerBodyClassName,
@@ -99,4 +99,4 @@ export function ClubCard({
   )
 }
 
-export type { ClubCardProps, DrawerDirection, CtaTheme } from "./types"
+export type { ClubCardProps, DrawerDirection, CtaTheme } from './types'

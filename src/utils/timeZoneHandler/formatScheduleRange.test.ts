@@ -25,19 +25,21 @@ function pinTimezone(tz: string) {
 
 describe('formatScheduleRangeIST', () => {
   it('shows a leading date with a same-day time range', () => {
-    expect(formatScheduleRangeIST('2026-07-02 18:30:00', '2026-07-02 19:30:00')).toBe(
-      '2 Jul, 6:30 PM - 7:30 PM (IST)',
-    )
+    expect(
+      formatScheduleRangeIST('2026-07-02 18:30:00', '2026-07-02 19:30:00'),
+    ).toBe('2 Jul, 6:30 PM - 7:30 PM (IST)')
   })
 
   it('includes both dates for a cross-day range', () => {
-    expect(formatScheduleRangeIST('2026-07-02 23:00:00', '2026-07-03 01:00:00')).toBe(
-      '2 Jul, 11PM - 3 Jul, 1AM (IST)',
-    )
+    expect(
+      formatScheduleRangeIST('2026-07-02 23:00:00', '2026-07-03 01:00:00'),
+    ).toBe('2 Jul, 11PM - 3 Jul, 1AM (IST)')
   })
 
   it('shows just the start when there is no end', () => {
-    expect(formatScheduleRangeIST('2026-07-02 18:30:00', null)).toBe('2 Jul, 6:30 PM (IST)')
+    expect(formatScheduleRangeIST('2026-07-02 18:30:00', null)).toBe(
+      '2 Jul, 6:30 PM (IST)',
+    )
   })
 
   it('returns empty string for a missing start', () => {
@@ -47,7 +49,10 @@ describe('formatScheduleRangeIST', () => {
 
 describe('formatScheduleRangeLocal', () => {
   it('renders a device-local range with a leading date and a tz suffix', () => {
-    const result = formatScheduleRangeLocal('2026-07-02 18:30:00', '2026-07-02 19:30:00')
+    const result = formatScheduleRangeLocal(
+      '2026-07-02 18:30:00',
+      '2026-07-02 19:30:00',
+    )
     expect(result).toMatch(/^2 Jul, .+ - .+ \(.+\)$/)
   })
 
@@ -64,15 +69,15 @@ describe('formatScheduleRangeLocal', () => {
 
 describe('formatLectureRangeIST', () => {
   it('keeps the year and shows an IST label with a same-day time range', () => {
-    expect(formatLectureRangeIST('2026-05-10 15:30:00', '2026-05-10 17:30:00')).toBe(
-      '10 May 2026, 3:30 PM - 5:30 PM (IST)',
-    )
+    expect(
+      formatLectureRangeIST('2026-05-10 15:30:00', '2026-05-10 17:30:00'),
+    ).toBe('10 May 2026, 3:30 PM - 5:30 PM (IST)')
   })
 
   it('includes both dates for a cross-day range', () => {
-    expect(formatLectureRangeIST('2026-05-10 23:00:00', '2026-05-11 01:00:00')).toBe(
-      '10 May 2026, 11PM - 11 May 2026, 1AM (IST)',
-    )
+    expect(
+      formatLectureRangeIST('2026-05-10 23:00:00', '2026-05-11 01:00:00'),
+    ).toBe('10 May 2026, 11PM - 11 May 2026, 1AM (IST)')
   })
 
   it('shows just the start when there is no end', () => {
@@ -132,17 +137,25 @@ describe('isTodayLocal (non-IST viewer)', () => {
   it('treats an IST-next-day early morning as today when it is today locally', () => {
     // 02:00 IST 2026-07-10 = 16:30 EDT 2026-07-09 → same local day as `now`.
     expect(
-      isTodayLocal('2026-07-10T02:00:00+05:30', new Date('2026-07-09T20:00:00-04:00')),
+      isTodayLocal(
+        '2026-07-10T02:00:00+05:30',
+        new Date('2026-07-09T20:00:00-04:00'),
+      ),
     ).toBe(true)
   })
 
   it('is false when the instant falls on a different local day', () => {
     expect(
-      isTodayLocal('2026-07-10T20:00:00+05:30', new Date('2026-07-09T20:00:00-04:00')),
+      isTodayLocal(
+        '2026-07-10T20:00:00+05:30',
+        new Date('2026-07-09T20:00:00-04:00'),
+      ),
     ).toBe(false)
   })
 
   it('is false for a missing value', () => {
-    expect(isTodayLocal(null, new Date('2026-07-09T20:00:00-04:00'))).toBe(false)
+    expect(isTodayLocal(null, new Date('2026-07-09T20:00:00-04:00'))).toBe(
+      false,
+    )
   })
 })

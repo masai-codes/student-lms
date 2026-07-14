@@ -50,7 +50,8 @@ export async function sendAiChatMessage(input: {
       lectureId: input.lectureId,
     })
   } catch (error) {
-    if (error instanceof AiTutorLectureAccessError) throw new Error(error.message)
+    if (error instanceof AiTutorLectureAccessError)
+      throw new Error(error.message)
     throw error
   }
 

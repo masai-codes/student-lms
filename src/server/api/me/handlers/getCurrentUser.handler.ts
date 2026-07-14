@@ -1,5 +1,9 @@
 import { isApiError } from '@/server/api/http/apiError'
-import { jsonError, jsonOk, mapThrownErrorToResponse } from '@/server/api/http/responses'
+import {
+  jsonError,
+  jsonOk,
+  mapThrownErrorToResponse,
+} from '@/server/api/http/responses'
 import { requireSessionUserId } from '@/server/api/http/requireSessionUser'
 import { getCurrentUser } from '@/server/api/me/getCurrentUser.service'
 
@@ -12,7 +16,9 @@ export async function handleGetCurrentUser(): Promise<Response> {
   } catch (error) {
     if (!isApiError(error)) {
       console.error('Failed to fetch current user', error)
-      return mapThrownErrorToResponse(new Error('SERVER_ERROR_FETCHING_CURRENT_USER'))
+      return mapThrownErrorToResponse(
+        new Error('SERVER_ERROR_FETCHING_CURRENT_USER'),
+      )
     }
     return mapThrownErrorToResponse(error)
   }

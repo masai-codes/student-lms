@@ -53,7 +53,7 @@ export default function ConfirmActionModal({
   return (
     <Modal open={open} onOpenChange={onOpenChange}>
       <ModalContent className="max-w-[480px]">
-        <ModalTitle className="pr-8 text-[18px] font-bold text-[#111827]">
+        <ModalTitle className="pr-8 text-[18px] font-bold text-foreground">
           {title}
         </ModalTitle>
 
@@ -65,15 +65,15 @@ export default function ConfirmActionModal({
         </ModalDescription>
         <RichContent
           value={confirmationText}
-          className="mt-3 text-[14px] leading-6 text-[#4B5563]"
+          className="mt-3 text-[14px] leading-6 text-foreground-muted"
         />
 
-        <label className="mt-4 flex cursor-pointer items-start gap-2.5 text-[14px] leading-5 text-[#374151]">
+        <label className="mt-4 flex cursor-pointer items-start gap-2.5 text-[14px] leading-5 text-foreground">
           <input
             type="checkbox"
             checked={acknowledged}
             onChange={(event) => setAcknowledged(event.target.checked)}
-            className="mt-0.5 size-4 shrink-0 accent-masaiverse-orange"
+            className="mt-0.5 size-4 shrink-0 accent-accent-warm"
           />
           <span>{checkboxLabel}</span>
         </label>
@@ -82,7 +82,7 @@ export default function ConfirmActionModal({
           <button
             type="button"
             onClick={() => onOpenChange(false)}
-            className="rounded-[12px] border border-[#E5E7EB] px-5 py-2.5 text-[14px] font-semibold text-[#374151] transition-colors hover:bg-[#F9FAFB]"
+            className="rounded-[12px] border border-border px-5 py-2.5 text-[14px] font-semibold text-foreground transition-colors hover:bg-surface-muted"
           >
             Cancel
           </button>
@@ -90,7 +90,7 @@ export default function ConfirmActionModal({
             type="button"
             onClick={onConfirm}
             disabled={!acknowledged || isPending}
-            className="rounded-[12px] bg-gradient-to-r from-masaiverse-orange to-[#FF7A29] px-5 py-2.5 text-[14px] font-bold text-white shadow-[0_8px_20px_-6px_rgba(242,92,4,0.5)] transition-all hover:shadow-[0_10px_26px_-6px_rgba(242,92,4,0.6)] active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-50 disabled:shadow-none"
+            className="rounded-[12px] bg-gradient-to-r from-masaiverse-orange to-[#FF7A29] px-5 py-2.5 text-[14px] font-bold text-accent-warm-foreground shadow-[0_8px_20px_-6px_rgba(242,92,4,0.5)] transition-all hover:shadow-[0_10px_26px_-6px_rgba(242,92,4,0.6)] active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-50 disabled:shadow-none"
           >
             {confirmLabel}
           </button>

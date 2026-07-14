@@ -29,7 +29,7 @@ export default function LeaderboardList({
       {pinnedCurrentUser ? (
         <>
           <p
-            className="text-center text-[18px] leading-none text-[#9CA3AF]"
+            className="text-center text-[18px] leading-none text-foreground-subtle"
             aria-hidden
           >
             ···

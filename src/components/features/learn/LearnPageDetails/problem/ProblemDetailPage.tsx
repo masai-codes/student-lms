@@ -20,11 +20,11 @@ function SubmittedSummary({ detail }: ProblemDetailPageProps) {
 
   return (
     <div
-      className="flex flex-col gap-1 rounded-lg bg-[#EDEBFE] p-3"
+      className="flex flex-col gap-1 rounded-lg bg-brand-subtle p-3"
       data-testid="problem-submitted-summary"
     >
-      <span className="flex items-center gap-2 type-b3-md text-gray-900">
-        <CheckCircle className="size-5 text-[#6962AC]" weight="fill" aria-hidden />
+      <span className="flex items-center gap-2 type-b3-md text-foreground">
+        <CheckCircle className="size-5 text-brand" weight="fill" aria-hidden />
         {detail.type === 'FILE' ? 'Submitted file' : 'Submitted link'}
         {detail.solution?.submittedAtLabel
           ? ` on ${detail.solution.submittedAtLabel}`
@@ -36,7 +36,11 @@ function SubmittedSummary({ detail }: ProblemDetailPageProps) {
         rel="noopener noreferrer"
         onClick={() =>
           pushLearnEvent(
-            learnEntityEvent('assignment', 'problem_solution_view', detail.problemId),
+            learnEntityEvent(
+              'assignment',
+              'problem_solution_view',
+              detail.problemId,
+            ),
             {
               assignment_id: detail.assignmentId,
               problem_id: detail.problemId,
@@ -44,7 +48,7 @@ function SubmittedSummary({ detail }: ProblemDetailPageProps) {
             },
           )
         }
-        className="type-b3-md break-all text-blue-600 underline"
+        className="type-b3-md break-all text-brand underline"
       >
         {link}
       </a>
@@ -56,13 +60,19 @@ export function ProblemDetailPage({ detail }: ProblemDetailPageProps) {
   return (
     <div className="w-full space-y-6 pb-12">
       <header className="space-y-1">
-        <p className="type-t1 text-gray-600">{detail.assignmentTitle}</p>
-        <h1 className="type-h4 text-gray-900">{detail.problemTitle}</h1>
+        <p className="type-t1 text-foreground-muted">
+          {detail.assignmentTitle}
+        </p>
+        <h1 className="type-h4 text-foreground">{detail.problemTitle}</h1>
       </header>
 
       <section data-testid="problem-statement">
-        <h2 className="type-h6 text-gray-900">Instructions</h2>
-        <MarkdownContent value={detail.statement} variant="detail" className="mt-3" />
+        <h2 className="type-h6 text-foreground">Instructions</h2>
+        <MarkdownContent
+          value={detail.statement}
+          variant="detail"
+          className="mt-3"
+        />
       </section>
 
       <SubmittedSummary detail={detail} />

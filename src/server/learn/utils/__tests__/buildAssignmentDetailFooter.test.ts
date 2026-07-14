@@ -61,9 +61,7 @@ describe('buildAssignmentDetailFooter', () => {
 
     expect(footer.showPracticeModeChip).toBe(true)
     expect(footer.statusChip).toBeNull()
-    expect(
-      footer.notices.some((n) => n.variant === 'score-policy'),
-    ).toBe(true)
+    expect(footer.notices.some((n) => n.variant === 'score-policy')).toBe(true)
     expect(footer.actions.some((a) => a.kind === 'practice-assessment')).toBe(
       true,
     )
@@ -124,6 +122,6 @@ describe('buildAssignmentDetailFooter', () => {
 
     expect(
       footer.notices.find((n) => n.variant === 'score-policy')?.message,
-    ).toBe('Evaluation score will be considered.')
+    ).toBe('Evaluation Score will be considered')
   })
 })

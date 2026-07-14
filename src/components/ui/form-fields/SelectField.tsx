@@ -48,19 +48,36 @@ export function SelectField({
   'data-testid': dataTestId,
 }: SelectFieldProps) {
   return (
-    <FieldShell htmlFor={id} label={label} required={required} error={error} hint={hint} data-testid={dataTestId}>
-      <Select value={value || undefined} onValueChange={onChange} disabled={disabled}>
+    <FieldShell
+      htmlFor={id}
+      label={label}
+      required={required}
+      error={error}
+      hint={hint}
+      data-testid={dataTestId}
+    >
+      <Select
+        value={value || undefined}
+        onValueChange={onChange}
+        disabled={disabled}
+      >
         <SelectTrigger
           id={id}
           aria-invalid={error ? true : undefined}
-          className={cn('w-full', error && 'border-red-500', triggerClassName)}
+          className={cn('w-full', error && 'border-danger', triggerClassName)}
           data-testid={dataTestId ? `${dataTestId}-trigger` : undefined}
         >
           <SelectValue placeholder={placeholder} />
         </SelectTrigger>
         <SelectContent className={contentClassName}>
           {options.map((opt) => (
-            <SelectItem key={opt.value} value={opt.value} data-testid={dataTestId ? `${dataTestId}-option-${opt.value}` : undefined}>
+            <SelectItem
+              key={opt.value}
+              value={opt.value}
+              data-testid={
+                dataTestId ? `${dataTestId}-option-${opt.value}` : undefined
+              }
+            >
               {opt.label}
             </SelectItem>
           ))}

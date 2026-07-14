@@ -67,28 +67,43 @@ export async function getDashboardOverview(
   now: Date = new Date(),
   platform: GuidedTourPlatform = 'web',
 ): Promise<DashboardOverview> {
-  const [banners, announcements, productUpdates, supportSessions, schedule, pendingTasks, welcomeModal, t0Flow, feePaymentBanners, batchStartBanners] =
-    await Promise.all([
-      getWelcomeBanners(userId, now),
-      getAnnouncementsFeed(userId, now),
-      getProductUpdates(),
-      getSupportSessions(now),
-      getDashboardSchedule(userId, now),
-      getDashboardPendingTasks(userId, now),
-      getWelcomeModalStatus(userId),
-      getT0FlowStatus(userId, platform),
-      getFeePaymentBanners(userId, now),
-      getBatchStartBanners(userId, now),
-    ])
+  const [
+    banners,
+    announcements,
+    productUpdates,
+    supportSessions,
+    schedule,
+    pendingTasks,
+    welcomeModal,
+    t0Flow,
+    feePaymentBanners,
+    batchStartBanners,
+  ] = await Promise.all([
+    getWelcomeBanners(userId, now),
+    getAnnouncementsFeed(userId, now),
+    getProductUpdates(),
+    getSupportSessions(now),
+    getDashboardSchedule(userId, now),
+    getDashboardPendingTasks(userId, now),
+    getWelcomeModalStatus(userId),
+    getT0FlowStatus(userId, platform),
+    getFeePaymentBanners(userId, now),
+    getBatchStartBanners(userId, now),
+  ])
 
   // Only compute lectures for T0 users, for their primary (first) batch, and
   // nest them onto that batch so lectures live in the batch hierarchy.
   const primaryBatchId = t0Flow.batches.at(0)?.batchId
   const primaryLectures =
-    t0Flow.showT0Flow && primaryBatchId !== undefined ? await getT0FlowLectures(userId, primaryBatchId, platform) : null
+    t0Flow.showT0Flow && primaryBatchId !== undefined
+      ? await getT0FlowLectures(userId, primaryBatchId, platform)
+      : null
   const t0FlowWithLectures: T0FlowStatus = {
     ...t0Flow,
-    batches: t0Flow.batches.map((batch, index) => ({ ...batch, lectures: index === 0 ? primaryLectures : null })),
+    batches: t0Flow.batches.map((batch, index) => ({
+      ...batch,
+      lectures: index === 0 ? primaryLectures : null,
+    })),
   }
 
   return {

@@ -73,8 +73,8 @@ starts at 0.
 
 ```jsonc
 {
-  "batches": ["101", "102"],   // empty/absent → all batches
-  "random_group": ["A", "C"]   // empty/absent → all groups
+  "batches": ["101", "102"], // empty/absent → all batches
+  "random_group": ["A", "C"], // empty/absent → all groups
 }
 ```
 

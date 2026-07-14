@@ -1,7 +1,12 @@
 import { and, eq } from 'drizzle-orm'
 
 import { db } from '@/db'
-import { lectures, sections, studentAttendances, videoAttendances } from '@/db/schema'
+import {
+  lectures,
+  sections,
+  studentAttendances,
+  videoAttendances,
+} from '@/db/schema'
 import { getIstNowSqlDatetime, parseIstToMs } from '@/server/time/istClock'
 
 /**
@@ -55,13 +60,19 @@ function parseSettings(raw: unknown): SectionSettings {
   return {}
 }
 
-export async function upgradeVideoAttendanceInline(args: UpgradeArgs): Promise<void> {
+export async function upgradeVideoAttendanceInline(
+  args: UpgradeArgs,
+): Promise<void> {
   const { lectureId, userId, totalDuration } = args
 
   try {
     // Guard against the totalDuration=0/missing case where percentage math
     // explodes and would otherwise trigger a false crossing.
-    if (totalDuration == null || !Number.isFinite(totalDuration) || totalDuration <= 0) {
+    if (
+      totalDuration == null ||
+      !Number.isFinite(totalDuration) ||
+      totalDuration <= 0
+    ) {
       return
     }
 

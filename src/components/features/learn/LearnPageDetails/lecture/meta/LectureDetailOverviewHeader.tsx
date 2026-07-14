@@ -3,7 +3,6 @@
 import { lectureDetailTagChipPalette } from './lectureDetailTagChips'
 import type { ReactNode } from 'react'
 
-
 import type { LectureAttendanceSummary } from '@/server/attendance/types'
 import type { LearningPriority } from '@/server/learn/types'
 import { LectureAttendanceDetailBadge } from '@/components/features/learn/attendance/LectureAttendanceDetailBadge'
@@ -63,7 +62,8 @@ export function LectureDetailOverviewHeader({
     attendance,
     watchPercentage,
   )
-  const showAttendance = attendance != null && attendancePresentation.uiState != null
+  const showAttendance =
+    attendance != null && attendancePresentation.uiState != null
 
   return (
     <section
@@ -73,13 +73,13 @@ export function LectureDetailOverviewHeader({
       )}
     >
       <div className="flex min-w-0 flex-1 flex-col gap-2">
-        <h1 className="type-h5 line-clamp-3 min-w-0 text-gray-900 md:line-clamp-2">
+        <h1 className="type-h5 line-clamp-3 min-w-0 text-foreground md:line-clamp-2">
           {title}
         </h1>
         {/* Tag chips, then the status components (info button + Present badge)
             grouped to their right with a 16px (gap-4) gap between the two. */}
-        <div className="flex flex-wrap items-center gap-4">
-          <div className="flex flex-wrap items-center gap-2">
+        <div className="flex min-w-0 flex-wrap items-center gap-4">
+          <div className="flex min-w-0 flex-wrap items-center gap-2">
             {tags.map((tag, index) => (
               <MasaiChips
                 key={`${tag}-${index}`}
@@ -87,7 +87,7 @@ export function LectureDetailOverviewHeader({
                 size="regular"
                 label={tag}
                 tabIndex={-1}
-                className="cursor-default"
+                className="max-w-full cursor-default truncate transition-colors duration-200 hover:border-brand/35"
                 {...lectureDetailTagChipPalette}
               />
             ))}
@@ -96,7 +96,7 @@ export function LectureDetailOverviewHeader({
               size="regular"
               label={formatLearnDetailPriorityLabel(priority)}
               tabIndex={-1}
-              className="cursor-default"
+              className="max-w-full cursor-default truncate transition-colors duration-200 hover:border-brand/35"
               {...lectureDetailTagChipPalette}
             />
           </div>
@@ -121,24 +121,30 @@ export function LectureDetailOverviewHeader({
         </div>
       </div>
 
-      <div className="flex shrink-0 flex-col gap-3 md:max-w-[min(100%,280px)] md:items-end">
+      <div className="flex min-w-0 shrink-0 flex-col gap-3 md:max-w-[min(100%,280px)] md:items-end">
         {actions ? (
-          <div className="flex items-center gap-2">{actions}</div>
+          // Press physics for the header CTAs (Raise Ticket + bookmark).
+          <div className="flex items-center gap-2 [&_a]:transition-transform [&_a]:duration-150 [&_a]:active:scale-95 [&_button]:transition-transform [&_button]:duration-150 [&_button]:active:scale-95">
+            {actions}
+          </div>
         ) : null}
-        <div className="flex items-start gap-3 md:justify-end">
-          <Avatar size="lg" className="size-10 shrink-0">
+        <div className="flex min-w-0 items-start gap-3 md:justify-end">
+          <Avatar
+            size="lg"
+            className="size-10 shrink-0 ring-2 ring-brand/15 ring-offset-2 ring-offset-background transition-transform duration-300 hover:scale-105"
+          >
             {avatarUrl ? <AvatarImage src={avatarUrl} alt={hostName} /> : null}
-            <AvatarFallback className="type-b2-md bg-muted text-gray-700">
+            <AvatarFallback className="type-b2-md bg-muted text-foreground">
               {hostInitials(hostName)}
             </AvatarFallback>
           </Avatar>
           <div className="min-w-0 pt-0.5 text-left">
-            <p className="type-b1-md text-gray-900">{hostName}</p>
+            <p className="type-b1-md break-words text-foreground">{hostName}</p>
             {dateRange ? (
               <LocalTimeWithIstTooltip
                 local={dateRange}
                 ist={dateRangeIst}
-                className="type-b2-regular mt-0.5 block text-gray-600"
+                className="type-b2-regular mt-0.5 block text-foreground-muted"
               />
             ) : null}
           </div>

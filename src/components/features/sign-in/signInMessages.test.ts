@@ -32,7 +32,9 @@ describe('signInMessages', () => {
   })
 
   it('phoneOtpResentBody names the channel', () => {
-    expect(phoneOtpResentBody('sms', '9000000000')).toMatch(/text message|SMS|Another/i)
+    expect(phoneOtpResentBody('sms', '9000000000')).toMatch(
+      /text message|SMS|Another/i,
+    )
     expect(phoneOtpResentBody('sms', '9000000000')).not.toMatch(/ends in/i)
   })
 })

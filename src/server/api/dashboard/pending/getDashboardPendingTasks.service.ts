@@ -2,7 +2,10 @@ import { buildDashboardScheduleItem } from '../schedule/buildDashboardScheduleIt
 import { fetchPendingAssignments } from './fetchPendingAssignments'
 import { fetchPendingLectures } from './fetchPendingLectures'
 import { fetchAssignmentStartState } from './fetchAssignmentStartState'
-import type { DashboardScheduleItem, ScheduleEntityRow } from '../schedule/scheduleTypes'
+import type {
+  DashboardScheduleItem,
+  ScheduleEntityRow,
+} from '../schedule/scheduleTypes'
 import { getSectionIdsForUser } from '@/server/batches/getSectionIdsForUser'
 import { getBatchIdsForEnrolledUser } from '@/server/batches/getBatchIdsForEnrolledUser'
 import { getBatchIdsForSections } from '@/server/batches/getBatchIdsForSections'
@@ -78,10 +81,15 @@ export async function getDashboardPendingTasks(
 /** Milliseconds of time left to act; smaller = more urgent. */
 function urgencyMs(item: DashboardScheduleItem, nowMs: number): number {
   if (item.learningType === 'assignment') {
-    return computeDeadlineCountdown(item.concludes, nowMs)?.totalMs ?? Number.POSITIVE_INFINITY
+    return (
+      computeDeadlineCountdown(item.concludes, nowMs)?.totalMs ??
+      Number.POSITIVE_INFINITY
+    )
   }
   const daysRemaining = item.attendance?.daysRemaining
-  return daysRemaining != null ? daysRemaining * DAY_MS : Number.POSITIVE_INFINITY
+  return daysRemaining != null
+    ? daysRemaining * DAY_MS
+    : Number.POSITIVE_INFINITY
 }
 
 /** Keep only assignments the user hasn't begun (see {@link fetchAssignmentStartState}). */
@@ -129,7 +137,10 @@ async function resolvePendingLectures(
   const attendance = await fetchLectureAttendanceSummaries(
     userId,
     candidates
-      .filter((row): row is ScheduleEntityRow & { sectionId: number } => row.sectionId != null)
+      .filter(
+        (row): row is ScheduleEntityRow & { sectionId: number } =>
+          row.sectionId != null,
+      )
       .map((row) => ({
         lectureId: row.id,
         sectionId: row.sectionId,

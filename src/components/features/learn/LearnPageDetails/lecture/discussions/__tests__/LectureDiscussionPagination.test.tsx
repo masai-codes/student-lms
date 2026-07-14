@@ -41,10 +41,12 @@ describe('LectureDiscussionPagination', () => {
       />,
     )
     expect(
-      within(container).getByTestId('discussion-pagination-summary').textContent,
+      within(container).getByTestId('discussion-pagination-summary')
+        .textContent,
     ).toContain('Showing 11')
     expect(
-      within(container).getByTestId('discussion-pagination-summary').textContent,
+      within(container).getByTestId('discussion-pagination-summary')
+        .textContent,
     ).toContain('20 of 25')
   })
 

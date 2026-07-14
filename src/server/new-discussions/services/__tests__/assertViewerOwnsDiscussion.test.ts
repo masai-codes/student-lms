@@ -36,7 +36,14 @@ describe('assertViewerOwnsDiscussion', () => {
   })
 
   it('returns a normalized row for the owner', async () => {
-    hoisted.rows = [{ id: 10, userId: 1, isClosed: 1, data: { learnFeedback: { rating: 2 } } }]
+    hoisted.rows = [
+      {
+        id: 10,
+        userId: 1,
+        isClosed: 1,
+        data: { learnFeedback: { rating: 2 } },
+      },
+    ]
     await expect(assertViewerOwnsDiscussion(1, 10)).resolves.toEqual({
       id: 10,
       userId: 1,

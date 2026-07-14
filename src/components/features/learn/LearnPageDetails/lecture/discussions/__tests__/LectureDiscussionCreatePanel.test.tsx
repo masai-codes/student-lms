@@ -41,7 +41,9 @@ describe('LectureDiscussionCreatePanel', () => {
         onSubmit={vi.fn()}
       />,
     )
-    expect(within(container).getByRole('alert').textContent).toContain('Could not post')
+    expect(within(container).getByRole('alert').textContent).toContain(
+      'Could not post',
+    )
   })
 
   it('collapses the form behind an accordion and fires a toggle event', () => {

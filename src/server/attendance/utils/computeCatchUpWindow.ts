@@ -13,7 +13,10 @@ export type CatchUpWindow = {
 
 const DAY_MS = 24 * 60 * 60 * 1000
 
-function elapsedDaysSinceConcludes(concludesAtMs: number, nowMs: number): number {
+function elapsedDaysSinceConcludes(
+  concludesAtMs: number,
+  nowMs: number,
+): number {
   return Math.max(0, Math.floor((nowMs - concludesAtMs) / DAY_MS))
 }
 
@@ -28,13 +31,22 @@ export function computeCatchUpWindow(input: {
   const { catchUpDays, includeVideoAttendance, isAbsent, nowMs } = input
 
   if (!isAbsent || !includeVideoAttendance || catchUpDays <= 0) {
-    return { daysRemaining: null, isCatchupWindowOver: null, remainingLabel: null }
+    return {
+      daysRemaining: null,
+      isCatchupWindowOver: null,
+      remainingLabel: null,
+    }
   }
 
   // IST wall-clock DB values → absolute instant, independent of server tz.
-  const concludesMs = parseIstToMs(input.concludes) ?? parseIstToMs(input.schedule)
+  const concludesMs =
+    parseIstToMs(input.concludes) ?? parseIstToMs(input.schedule)
   if (concludesMs == null) {
-    return { daysRemaining: null, isCatchupWindowOver: null, remainingLabel: null }
+    return {
+      daysRemaining: null,
+      isCatchupWindowOver: null,
+      remainingLabel: null,
+    }
   }
 
   const elapsedDays = elapsedDaysSinceConcludes(concludesMs, nowMs)

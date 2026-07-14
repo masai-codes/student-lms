@@ -34,8 +34,8 @@ export default function AdminModeToggle() {
   if (!data?.isAdmin) return null
 
   return (
-    <div className="mb-5 flex items-center justify-between gap-3 rounded-lg bg-[#F9FAFB] px-3 py-2.5">
-      <span className="text-sm font-medium text-[#374151]">Admin mode</span>
+    <div className="mb-5 flex items-center justify-between gap-3 rounded-lg bg-surface-muted px-3 py-2.5">
+      <span className="text-sm font-medium text-foreground">Admin mode</span>
       <Switch
         checked={data.enabled}
         disabled={mutation.isPending}

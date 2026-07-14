@@ -16,8 +16,12 @@ function isTruthyHeader(value: string | null): boolean {
  * lecture's own section. Kept db-free (unlike `portalGate.isMobileRequest`) so
  * handlers can use it without pulling the database module into their unit tests.
  */
-export function guidedTourPlatformFromRequest(request: Request): GuidedTourPlatform {
+export function guidedTourPlatformFromRequest(
+  request: Request,
+): GuidedTourPlatform {
   const isNativeApp = isTruthyHeader(request.headers.get('x-app-mobile'))
-  const isMobileViewport = isTruthyHeader(request.headers.get(MOBILE_VIEWPORT_HEADER))
+  const isMobileViewport = isTruthyHeader(
+    request.headers.get(MOBILE_VIEWPORT_HEADER),
+  )
   return isNativeApp || isMobileViewport ? 'app' : 'web'
 }

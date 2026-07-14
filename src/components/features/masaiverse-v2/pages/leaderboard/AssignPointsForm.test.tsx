@@ -81,7 +81,9 @@ describe('AssignPointsForm', () => {
     expect(submit).toHaveProperty('disabled', true)
 
     await pickUser()
-    fireEvent.change(screen.getByLabelText('Points'), { target: { value: '50' } })
+    fireEvent.change(screen.getByLabelText('Points'), {
+      target: { value: '50' },
+    })
     expect(submit).toHaveProperty('disabled', false)
   })
 
@@ -93,7 +95,9 @@ describe('AssignPointsForm', () => {
     renderWithClient(<AssignPointsForm onDone={onDone} />)
 
     await pickUser()
-    fireEvent.change(screen.getByLabelText('Points'), { target: { value: '50' } })
+    fireEvent.change(screen.getByLabelText('Points'), {
+      target: { value: '50' },
+    })
     fireEvent.click(screen.getByRole('button', { name: 'Assign points' }))
 
     await waitFor(() => expect(onDone).toHaveBeenCalled())
@@ -111,7 +115,9 @@ describe('AssignPointsForm', () => {
     renderWithClient(<AssignPointsForm onDone={() => {}} />)
 
     await pickUser()
-    fireEvent.change(screen.getByLabelText('Points'), { target: { value: '5' } })
+    fireEvent.change(screen.getByLabelText('Points'), {
+      target: { value: '5' },
+    })
     fireEvent.click(screen.getByRole('button', { name: 'Assign points' }))
 
     await waitFor(() =>

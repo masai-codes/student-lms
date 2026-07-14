@@ -152,7 +152,7 @@ export async function listSessionsForLecture(input: {
     .filter((row): row is typeof row & { sessionId: string } =>
       Boolean(row.sessionId),
     )
-    .map(row => ({
+    .map((row) => ({
       id: row.id,
       sessionId: row.sessionId,
       uniqueId: row.uniqueId,

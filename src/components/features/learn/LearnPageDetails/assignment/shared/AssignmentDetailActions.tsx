@@ -18,6 +18,9 @@ export function AssignmentDetailActions({
   const bookmark = useAssignmentBookmark(assignmentId, initialIsBookmarked)
 
   return (
-    <LearnDetailDefaultActions bookmark={bookmark} ticketCategory="assignment" />
+    <LearnDetailDefaultActions
+      bookmark={bookmark}
+      ticketCategory="assignment"
+    />
   )
 }

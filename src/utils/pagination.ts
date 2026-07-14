@@ -2,10 +2,7 @@ export function getCurrentPage(page?: number) {
   return page && page > 0 ? page : 1
 }
 
-export function getTotalPages(
-  totalItems: number,
-  pageSize: number,
-) {
+export function getTotalPages(totalItems: number, pageSize: number) {
   return Math.ceil(totalItems / pageSize)
 }
 

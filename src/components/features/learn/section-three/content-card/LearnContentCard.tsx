@@ -29,8 +29,8 @@ const LEARN_TYPE_ICON_ALT: Record<LearnContentType, string> = {
 }
 
 const learnContentTagChipPalette = {
-  backgroundClassName: 'bg-gray-50',
-  textClassName: '!text-gray-500',
+  backgroundClassName: 'bg-surface-muted',
+  textClassName: '!text-foreground-muted',
 }
 
 function LearnTypeIcon({ type }: Pick<LearnContentItem, 'type'>) {
@@ -40,7 +40,7 @@ function LearnTypeIcon({ type }: Pick<LearnContentItem, 'type'>) {
       alt={LEARN_TYPE_ICON_ALT[type]}
       width={40}
       height={40}
-      className="size-10 shrink-0 object-contain"
+      className="size-10 shrink-0 object-contain transition-transform duration-200 group-hover:scale-110"
       loading="lazy"
       decoding="async"
     />
@@ -100,7 +100,7 @@ export function LearnContentCard({
               : 'learn_listing',
         })
       }
-      className="bg-white rounded-[8px] border border-gray-200 p-3 block transition-colors hover:bg-gray-50/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+      className="group bg-surface rounded-[8px] border border-border p-3 block transition-colors duration-200 hover:border-brand/35 hover:bg-surface-muted/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
     >
       <div
         className={cn(
@@ -119,8 +119,8 @@ export function LearnContentCard({
               title={item.title}
               className={
                 fromDashboard
-                  ? 'line-clamp-2 break-words text-sm font-medium leading-snug text-gray-900 md:text-base'
-                  : 'type-b1-md break-words'
+                  ? 'line-clamp-2 break-words text-sm font-medium leading-snug text-foreground transition-colors duration-200 group-hover:text-brand md:text-base'
+                  : 'type-b1-md break-words transition-colors duration-200 group-hover:text-brand'
               }
             >
               {item.title}
@@ -140,7 +140,10 @@ export function LearnContentCard({
                   />
                   {item.courseName ? (
                     <>
-                      <span className="size-1 shrink-0 rounded-full bg-gray-600" aria-hidden />
+                      <span
+                        className="size-1 shrink-0 rounded-full bg-foreground-muted"
+                        aria-hidden
+                      />
                       <span className="max-w-[10ch] truncate md:max-w-[15ch]">
                         {item.courseName}
                       </span>
@@ -159,7 +162,7 @@ export function LearnContentCard({
                         size="regular"
                         label={tag}
                         tabIndex={-1}
-                        className="cursor-default"
+                        className="cursor-default transition-colors duration-200"
                         {...learnContentTagChipPalette}
                       />
                     ))}
@@ -180,7 +183,7 @@ export function LearnContentCard({
                   <p className="type-t1 flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
                     <span className="min-w-0">{item.hostName}</span>
                     <span
-                      className="size-1 shrink-0 rounded-full bg-gray-600"
+                      className="size-1 shrink-0 rounded-full bg-foreground-muted"
                       aria-hidden
                     />
                     <LocalTimeWithIstTooltip
@@ -196,7 +199,7 @@ export function LearnContentCard({
                         size="regular"
                         label={tag}
                         tabIndex={-1}
-                        className="cursor-default"
+                        className="cursor-default transition-colors duration-200"
                         {...learnContentTagChipPalette}
                       />
                     ))}
@@ -230,8 +233,8 @@ export function LearnContentCard({
               <MasaiChips
                 label="Optional session"
                 size="regular"
-                backgroundClassName="bg-yellow-50 border border-yellow-100"
-                textClassName="!text-yellow-600"
+                backgroundClassName="bg-yellow-50 border border-yellow-100 dark:bg-warning-subtle dark:border-warning-subtle"
+                textClassName="!text-yellow-600 dark:!text-warning-subtle-foreground"
                 className="pointer-events-none"
                 tabIndex={-1}
               />
@@ -255,7 +258,7 @@ export function LearnContentCard({
           {item.type === 'assignment' && item.assignmentDeadlineLabel ? (
             <span
               data-testid="learn-assignment-deadline"
-              className="type-t1 whitespace-nowrap text-gray-500"
+              className="type-t1 whitespace-nowrap text-foreground-muted"
             >
               {item.assignmentDeadlineLabel}
             </span>
@@ -265,8 +268,8 @@ export function LearnContentCard({
             <MasaiChips
               label="Practice Mode"
               size="regular"
-              backgroundClassName="bg-teal-50 border border-teal-100"
-              textClassName="!text-teal-600"
+              backgroundClassName="bg-teal-50 border border-teal-100 dark:bg-info-subtle dark:border-info-subtle"
+              textClassName="!text-teal-600 dark:!text-info-subtle-foreground"
               className="pointer-events-none"
               tabIndex={-1}
             />
@@ -277,8 +280,8 @@ export function LearnContentCard({
               data-testid="learn-assignment-score"
               label={`${item.assignmentScore.toFixed(2)}/10`}
               size="regular"
-              backgroundClassName="bg-blue-50 border border-blue-100"
-              textClassName="!text-blue-600"
+              backgroundClassName="bg-blue-50 border border-blue-100 dark:bg-info-subtle dark:border-info-subtle"
+              textClassName="!text-blue-600 dark:!text-info-subtle-foreground"
               className="pointer-events-none"
               tabIndex={-1}
             />

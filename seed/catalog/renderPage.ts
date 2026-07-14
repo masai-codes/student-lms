@@ -68,7 +68,8 @@ function renderSection(
 export function renderCatalogHtml(input: CatalogRenderInput = {}): string {
   const flows = input.flows ?? listFlows()
   const seedState = input.seedState ?? readSeedState()
-  const secretLoginToken = input.secretLoginToken ?? process.env.SECRET_LOGIN_TOKEN ?? ''
+  const secretLoginToken =
+    input.secretLoginToken ?? process.env.SECRET_LOGIN_TOKEN ?? ''
 
   const sections = groupFlowsIntoSections(flows)
   const totalFlows = flows.length

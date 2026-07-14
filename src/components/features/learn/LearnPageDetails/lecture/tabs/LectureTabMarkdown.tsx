@@ -8,7 +8,10 @@ type LectureTabMarkdownProps = {
   className?: string
 }
 
-export function LectureTabMarkdown({ content, className }: LectureTabMarkdownProps) {
+export function LectureTabMarkdown({
+  content,
+  className,
+}: LectureTabMarkdownProps) {
   return (
     <MarkdownContent
       value={content}

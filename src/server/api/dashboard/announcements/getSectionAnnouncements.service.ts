@@ -64,20 +64,24 @@ export async function getSectionAnnouncements(
         ),
       ),
     )
-    .orderBy(desc(sql`COALESCE(${announcements.schedule}, ${announcements.createdAt})`))
+    .orderBy(
+      desc(
+        sql`COALESCE(${announcements.schedule}, ${announcements.createdAt})`,
+      ),
+    )
     .limit(DASHBOARD_ANNOUNCEMENTS_LIMIT)
 
   return rows.map((row) => ({
-      sortedAt: row.schedule ?? row.createdAt,
-      item: {
-        id: row.id,
-        source: 'a' as const,
-        title: row.title,
-        body: row.body,
-        authorName: row.authorName,
-        isForYou: false,
-        ctaName: row.ctaName,
-        ctaLink: row.ctaLink,
-      },
-    }))
+    sortedAt: row.schedule ?? row.createdAt,
+    item: {
+      id: row.id,
+      source: 'a' as const,
+      title: row.title,
+      body: row.body,
+      authorName: row.authorName,
+      isForYou: false,
+      ctaName: row.ctaName,
+      ctaLink: row.ctaLink,
+    },
+  }))
 }

@@ -10,6 +10,7 @@
 ---
 
 ## Table of contents
+
 1. [TL;DR](#1-tldr)
 2. [Core data model — `user_batch_admission_data`](#2-core-data-model)
 3. [Entry & progression (the lifecycle)](#3-entry--progression)
@@ -42,7 +43,7 @@
     "Onward/Onwards" is the upstream admissions platform; the separate `/batches/import-students`
     "onward batch" feature is about progressing students to a next program and is unrelated to T0.
 - T0 students split by **`feeStatus`**:
-  - **`FULL_FEES`** — full course fee paid (also the default when there is *no* admission row).
+  - **`FULL_FEES`** — full course fee paid (also the default when there is _no_ admission row).
   - **`PARTIAL_FEES`** — only the seat-blocking / "4K" fee paid; full fee pending.
 - The flow drives, in order: a **welcome modal** → a **guided tour** (LMS walkthrough always;
   program overview only after full fee) → **onboarding progress banner/card** → **payment
@@ -59,18 +60,18 @@
 
 One row per **`(user_id, batch_id)`** (composite unique key `user_id_batch_id`).
 
-| Field | Meaning |
-|---|---|
-| `id`, `user_id`, `batch_id` | PK + composite unique key. |
-| `id_card_url` | Student ID card image (shown at end of guided tour). |
-| `seat_blocking_fees_paid` / `_amount` / `_paid_date` / `_invoice` | Partial / seat-blocking ("4K") fee info, captured at admission. |
-| `full_fees_paid` / `_amount` / `_paid_date` / `_invoice` | Full course fee — **set via the `/webhook/full-fee-payment` webhook**. Drives `feeStatus`. |
-| `student_kit_exists`, `student_kit_details_filled`, `student_kit_tracking_url` | Student-kit shipment tracking. |
-| `course_fee_deadline` | Deadline for payment-countdown banners. **Required** when `new_user_journey: true`. |
-| `lms_access_date` | When LMS access was granted (set to "now" in IST at row creation). Anchor for all banner timers. |
-| `payment_url` | Where the student pays the remaining full fee. |
-| `meta` (JSON) | Onboarding progress + call idempotency. Keys: `lms_walkthrough`, `program_onboarding` (and `_web`/`_app` variants) as `"X/Y"` fractions; `partial_onboarding_call_triggered_at`, `full_onboarding_call_triggered_at` (ISO timestamps). |
-| `created_at`, `updated_at` | Timestamps. |
+| Field                                                                          | Meaning                                                                                                                                                                                                                                |
+| ------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `id`, `user_id`, `batch_id`                                                    | PK + composite unique key.                                                                                                                                                                                                             |
+| `id_card_url`                                                                  | Student ID card image (shown at end of guided tour).                                                                                                                                                                                   |
+| `seat_blocking_fees_paid` / `_amount` / `_paid_date` / `_invoice`              | Partial / seat-blocking ("4K") fee info, captured at admission.                                                                                                                                                                        |
+| `full_fees_paid` / `_amount` / `_paid_date` / `_invoice`                       | Full course fee — **set via the `/webhook/full-fee-payment` webhook**. Drives `feeStatus`.                                                                                                                                             |
+| `student_kit_exists`, `student_kit_details_filled`, `student_kit_tracking_url` | Student-kit shipment tracking.                                                                                                                                                                                                         |
+| `course_fee_deadline`                                                          | Deadline for payment-countdown banners. **Required** when `new_user_journey: true`.                                                                                                                                                    |
+| `lms_access_date`                                                              | When LMS access was granted (set to "now" in IST at row creation). Anchor for all banner timers.                                                                                                                                       |
+| `payment_url`                                                                  | Where the student pays the remaining full fee.                                                                                                                                                                                         |
+| `meta` (JSON)                                                                  | Onboarding progress + call idempotency. Keys: `lms_walkthrough`, `program_onboarding` (and `_web`/`_app` variants) as `"X/Y"` fractions; `partial_onboarding_call_triggered_at`, `full_onboarding_call_triggered_at` (ISO timestamps). |
+| `created_at`, `updated_at`                                                     | Timestamps.                                                                                                                                                                                                                            |
 
 **Everywhere it's touched** (read/write): `apollo/server.ts` (create + webhook update),
 `features/user/resolver.ts` (4 resolvers), `features/user/user.controller.ts` (`/me`),
@@ -83,13 +84,14 @@ One row per **`(user_id, batch_id)`** (composite unique key `user_id_batch_id`).
 ## 3. Entry & progression
 
 ### 3.1 Entry — SSO registration
+
 **`apollo/server.ts` → `POST /auth/register-and-login` (~line 1808)**
 
 1. Upstream "Onwards" calls it, authenticated via `x-api-key` header == `ADMISSIONS_API_KEY`
    (401 otherwise, ~line 1823).
 2. Payload: `name, email, password, mobile, username` (all mandatory), `batch_id` (mandatory),
    plus T0 fields: `new_user_journey, id_card_url, seat_blocking_fees_*, student_kit_exists,
-   course_fee_deadline, payment_url, isiHub`.
+course_fee_deadline, payment_url, isiHub`.
 3. If `new_user_journey === true`, **`course_fee_deadline` is mandatory** (~line 1913).
 4. Inside a DB transaction: create/find user, enroll sections, optionally add to agreement
    section, then **create the admission row only if one doesn't already exist** for that
@@ -105,14 +107,17 @@ One row per **`(user_id, batch_id)`** (composite unique key `user_id_batch_id`).
 > The instant this row exists, `is_new_user_journey` is `true` for that user.
 
 ### 3.2 Progression — full-fee payment webhook
+
 **`apollo/server.ts` → `POST /webhook/full-fee-payment` (~line 2462)** (auth: `ADMISSIONS_API_KEY`)
 
 Finds the admission row by a **3-tier lookup**:
+
 - **Tier 1:** `lms_admission_user_data_id` → `findUnique({ id })`.
 - **Tier 2:** `lms_user_id` → `findFirst({ user_id }, orderBy created_at desc)` (latest row).
 - **Tier 3 (legacy):** `username` + `batch_id` → resolve user, then `findUnique(user_id_batch_id)`.
 
 Then:
+
 - Sets `full_fees_paid=true`, `full_fees_paid_date/amount/invoice` (~line 2644).
 - **Idempotent:** if already paid, returns 200 without re-updating — but still (re)triggers the call.
 - Fires **`FULL_PAYMENT`** Plivo call (`triggerOnboardingCallForUserBatch`).
@@ -127,8 +132,15 @@ the student-kit tab, and legal agreements.
 **TypeDefs:** `features/user/typeDef.graphql`. **Resolvers:** `features/user/resolver.ts`.
 
 ```graphql
-enum FeePaymentStatus { PARTIAL_FEES  FULL_FEES }
-enum PartialFeesBannerType { TIMER_BANNER  WARNING_BANNER  PAYMENT_BANNER }
+enum FeePaymentStatus {
+  PARTIAL_FEES
+  FULL_FEES
+}
+enum PartialFeesBannerType {
+  TIMER_BANNER
+  WARNING_BANNER
+  PAYMENT_BANNER
+}
 
 type PartialFeesBannerInfo {
   bannerType: PartialFeesBannerType!
@@ -139,11 +151,11 @@ type PartialFeesBannerInfo {
 }
 
 type User {
-  showWelcomeModal: Boolean          # meta.showWelcomeModal !== true  (resolver.ts:198)
-  is_new_user_journey: Boolean       # !!(admission row exists)        (resolver.ts:202)
-  feeStatus: FeePaymentStatus        # latest row → full_fees_paid?FULL:PARTIAL; none→FULL (230)
-  partialFeesBannerInfo: PartialFeesBannerInfo   # banner state machine (278)
-  idCardUrl: String                  # latest row id_card_url           (260)
+  showWelcomeModal: Boolean # meta.showWelcomeModal !== true  (resolver.ts:198)
+  is_new_user_journey: Boolean # !!(admission row exists)        (resolver.ts:202)
+  feeStatus: FeePaymentStatus # latest row → full_fees_paid?FULL:PARTIAL; none→FULL (230)
+  partialFeesBannerInfo: PartialFeesBannerInfo # banner state machine (278)
+  idCardUrl: String # latest row id_card_url           (260)
 }
 ```
 
@@ -159,13 +171,13 @@ REST mirror: `user.controller.ts` `/users/me` returns `is_new_user_journey` + st
 `partialFeesBannerInfo` resolver (`features/user/resolver.ts:278–379`), driven by
 `lms_access_date`, `course_fee_deadline`, `full_fees_paid`:
 
-| Condition | Result |
-|---|---|
-| `full_fees_paid && payment_url` present | **`PAYMENT_BANNER`**, `daysRemaining: 0` (optional extra payment). |
-| `full_fees_paid && !payment_url` | `null` (no banner). |
-| `!full_fees_paid`, within `min(lms_access_date+14d, course_fee_deadline)` | **`TIMER_BANNER`** with day countdown. |
-| `!full_fees_paid`, in the **7 days after** the timer window | **`WARNING_BANNER`** (escalation). |
-| `!full_fees_paid`, after that | `null` — comment says *"user should be banned"* but **no actual block is enforced** (see §13). |
+| Condition                                                                 | Result                                                                                         |
+| ------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
+| `full_fees_paid && payment_url` present                                   | **`PAYMENT_BANNER`**, `daysRemaining: 0` (optional extra payment).                             |
+| `full_fees_paid && !payment_url`                                          | `null` (no banner).                                                                            |
+| `!full_fees_paid`, within `min(lms_access_date+14d, course_fee_deadline)` | **`TIMER_BANNER`** with day countdown.                                                         |
+| `!full_fees_paid`, in the **7 days after** the timer window               | **`WARNING_BANNER`** (escalation).                                                             |
+| `!full_fees_paid`, after that                                             | `null` — comment says _"user should be banned"_ but **no actual block is enforced** (see §13). |
 
 So the partial-fee timeline is **~14 days timer → 7 days warning → nothing** (≈21 days total,
 possibly shorter if `course_fee_deadline` is earlier).
@@ -178,16 +190,19 @@ possibly shorter if `course_fee_deadline` is earlier).
 `features/videoAttendance/typeDef.graphql`.
 
 ### Sections → meta keys
+
 ```
 lms-walkthrough-web  ┐
 lms-walkthrough-app  ┘→ meta.lms_walkthrough
 program-onboarding-web ┐
 program-onboarding-app ┘→ meta.program_onboarding
 ```
+
 Progress is stored as `"X/Y"` fractions, per-platform (`lms_walkthrough_web`, `_app`) **and** an
 aggregate key holding `max(web, app)`. The frontend reads only the aggregate.
 
 ### How progress is computed (`recordGuidedTourStepCompleted`)
+
 - **Auto mode** (caller passes `lectureId`): counts unique lectures in the section + watched
   `video_attendances` (≥10% watch), plus **extra steps**:
   - **LMS walkthrough:** `+3` denominator (profile photo, Zoom auth, app download); `+1` numerator
@@ -199,12 +214,14 @@ aggregate key holding `max(web, app)`. The frontend reads only the aggregate.
 - **Fee gate:** writing `program_onboarding` is a **silent no-op unless `full_fees_paid === true`**.
 
 ### Read path (`getGuidedTourProgressMeta`)
+
 Reads the **primary batch** (highest `batch_id`). Returns `program_onboarding: null` unless
 `full_fees_paid`. Completion rule (`onboardingProgress.utils.ts`):
 `isOnboardingTrackedCompleteInMeta` = LMS walkthrough complete **AND** (program onboarding complete
-*if* full fees, else ignored).
+_if_ full fees, else ignored).
 
 ### API
+
 - **GraphQL Query** `getGuidedTourProgress` → `{ lms_walkthrough, program_onboarding, hasDownloadedApp }`.
 - **GraphQL Mutation** `recordGuidedTourStepCompleted(input)` → `{ success, meta }`. Input:
   `lectureId?, sectionType!, platform!, watchedSeconds!, totalStepsInSection?, completedSteps?, totalSteps?`.
@@ -222,12 +239,12 @@ Reads the **primary batch** (highest `batch_id`). Returns `program_onboarding: n
 
 Two flows; the **only** difference at the API layer is the URL, the idempotency key, and one field name:
 
-| | `PARTIAL_PAYMENT` | `FULL_PAYMENT` |
-|---|---|---|
-| Trigger | `register-and-login` when `seat_blocking_fees_paid===true` (server.ts:2422) | `/webhook/full-fee-payment` after marking paid (server.ts:2628/2659) |
-| URL env | `PLIVO_AGENTFLOW_URL_PARTIAL` | `PLIVO_AGENTFLOW_URL_FULL` |
-| Idempotency meta key | `partial_onboarding_call_triggered_at` | `full_onboarding_call_triggered_at` |
-| Identity field sent | `institute_name` | `institution_name` |
+|                      | `PARTIAL_PAYMENT`                                                           | `FULL_PAYMENT`                                                       |
+| -------------------- | --------------------------------------------------------------------------- | -------------------------------------------------------------------- |
+| Trigger              | `register-and-login` when `seat_blocking_fees_paid===true` (server.ts:2422) | `/webhook/full-fee-payment` after marking paid (server.ts:2628/2659) |
+| URL env              | `PLIVO_AGENTFLOW_URL_PARTIAL`                                               | `PLIVO_AGENTFLOW_URL_FULL`                                           |
+| Idempotency meta key | `partial_onboarding_call_triggered_at`                                      | `full_onboarding_call_triggered_at`                                  |
+| Identity field sent  | `institute_name`                                                            | `institution_name`                                                   |
 
 **Guards (in order):** user exists → batch exists → admission row exists → idempotency key not
 already set (else skip) → `user.mobile` non-empty (else skip gracefully).
@@ -256,7 +273,7 @@ normalizes Plivo HANGUP/RECORDING events and upserts an `onboarding_call_summari
   per user; kept if `lms_walkthrough` incomplete **OR** (`full_fees_paid` and `program_onboarding`
   incomplete). User must be `status='active'` with a valid email.
 - **Email** (AWS SES, from `noreply-lms@masaischool.com`): subject `"Complete Your Onboarding |
-  {batch}"`, body lists the remaining steps with a CTA to the LMS. Portal-aware (masai / ihub).
+{batch}"`, body lists the remaining steps with a CTA to the LMS. Portal-aware (masai / ihub).
 - **Push** (Expo): title `"Complete your onboarding"`, body `"Complete your onboarding – {steps}"`,
   `notification_type='onboarding_reminder'`, `entity_id = YYYYMMDD` (dedupes to one/user/day).
   Logged in `notification_logs`.
@@ -294,7 +311,7 @@ No cron.
   `batch_id` + `category`, optional `preferedtimeslot`/`meta`. Rejects a second **pending** ticket
   for the same user+batch ("Already a request is raised, we will connect with you within 48 hrs.").
 - **Team routing** from the admission row: `full_fees_paid` → **OPS**; `seat_blocking_fees_paid &&
-  !full_fees_paid` → **NBFC**. Team rows come from the `menus` table (`call-backrequest-team`).
+!full_fees_paid` → **NBFC**. Team rows come from the `menus` table (`call-backrequest-team`).
 - **Slack** (channel `CALLBACK_NBFC_OPS_SLACK_CHANNEL_ID`, default `C0ANE1ZLD0W`): posts name,
   email, mobile, batch, category, requested time, slot, and the admin link, then @-mentions —
   **OPS subteams** for full-fee, or **three NBFC individuals** for 4K (all overridable via env).
@@ -310,47 +327,54 @@ Entry orchestration lives in **`apps/student-experience/src/pages/newDashboard/i
 `partialFeesBannerInfo`, `idCardUrl`.
 
 ### 11.1 Welcome modal (`components/NewDashboard/WelcomeModal.tsx`)
+
 - **Shows when** `showWelcomeModal === true && is_new_user_journey === true`.
-- Title **"Welcome to Masai!"**, body *"Your registration is confirmed and your LMS access is now
-  active. Let's take a quick walkthrough…"*, an embedded intro video, and 5s Lottie confetti.
+- Title **"Welcome to Masai!"**, body _"Your registration is confirmed and your LMS access is now
+  active. Let's take a quick walkthrough…"_, an embedded intro video, and 5s Lottie confetti.
 - **"Get Started"** (purple `#6962AC`) → switches guided tour to the `walkthrough` tab, loads the
   first video, closes. The **X** calls `recordWelcomeModalShown` (persists dismissal). Either way
   the guided tour then auto-opens.
 
 ### 11.2 Guided tour (`context/GuidedTourContext.tsx`, `components/GuidedTour/*`)
+
 - Entry points: navbar **"Guided Tour"** (Question icon, only for new-journey users),
   auto-open on dashboard mount (once per mount, unless dismissed via sessionStorage key, or
   re-open on tab refocus), and deep links (`?guidedTourPlayer=1&guidedTourTab=…&guidedTourStep=…`).
-- **Right modal** header *"Let's get you started"*, two tabs (**LMS Walkthrough**, **Program
+- **Right modal** header _"Let's get you started"_, two tabs (**LMS Walkthrough**, **Program
   Onboarding**), green progress bar, step list (checkmark / spinner / play icons).
 - **`showOverviewTab = isNewUserJourney && feeStatus === 'FULL_FEES'`**. When **locked** (partial
-  fee), the Program Onboarding tab is greyed with a lock + tooltip *"Complete your program fee
-  payment to unlock this section"* and a locked content panel *"Program Onboarding is locked…"*.
+  fee), the Program Onboarding tab is greyed with a lock + tooltip _"Complete your program fee
+  payment to unlock this section"_ and a locked content panel _"Program Onboarding is locked…"_.
 - **Video player** plays at 1.25×; reaching **10s** fires `recordGuidedTourStepCompleted`; reaching
   end (~90%) stores full attendance and auto-advances. Non-video steps: **Profile Photo**, **Zoom
   Authentication** ("Connect Zoom to Join Classes"), **Document Upload**, **Student Kit**.
 - After all overview steps complete → **ID card** is revealed (image + "Download ID Card", or a
-  *"generated within 30 minutes"* pending message).
+  _"generated within 30 minutes"_ pending message).
 
 ### 11.3 Onboarding progress banner & card
+
 Both render only when `isNewUserJourney && !loading && !onboardingComplete`.
+
 - **Banner** (`OnboardingProgressBanner.tsx`): floating bottom bar (desktop) / inline (mobile),
-  light-blue `#D9E7F7`. Message *"Complete LMS Walkthrough"* → *"Complete program onboarding"* →
+  light-blue `#D9E7F7`. Message _"Complete LMS Walkthrough"_ → _"Complete program onboarding"_ →
   generic; badge shows e.g. **"2 of 3 done"**. Click opens the guided tour on the right tab.
-- **Card** (`OnboardingProgressCard.tsx`): right-sidebar (desktop), title *"Complete your
-  Onboarding"*, subtitle *"Next step: {LMS Walkthrough | Document Upload | Onboarding}"*.
+- **Card** (`OnboardingProgressCard.tsx`): right-sidebar (desktop), title _"Complete your
+  Onboarding"_, subtitle _"Next step: {LMS Walkthrough | Document Upload | Onboarding}"_.
 - Partial-fee students only see the **LMS-walkthrough** portion (program onboarding doesn't apply).
 
 ### 11.4 Payment banners (`newDashboard/index.tsx`, partial-fee only)
+
 Backend types map to two UI states:
-- **`TIMER_BANNER`/`PAYMENT_BANNER` → "trial"** (orange `#FFF5EE`/`#E76E4B`): *" program
-  program fee to avoid interruption and unlock full access."*
-- **`WARNING_BANNER` → "overdue"** (red `#FDF4F6`/`#DC3545`, warning icon): *"Payment Overdue!
-  Complete the payment to avoid course deactivation."*
-- Pulsing badge: *"{n} days remaining"* (or *"Complete payment"* at 0). CTA **"Unlock Full Access"**
+
+- **`TIMER_BANNER`/`PAYMENT_BANNER` → "trial"** (orange `#FFF5EE`/`#E76E4B`): _" program
+  program fee to avoid interruption and unlock full access."_
+- **`WARNING_BANNER` → "overdue"** (red `#FDF4F6`/`#DC3545`, warning icon): _"Payment Overdue!
+  Complete the payment to avoid course deactivation."_
+- Pulsing badge: _"{n} days remaining"_ (or _"Complete payment"_ at 0). CTA **"Unlock Full Access"**
   (purple `#5B478B`) opens `payment_url` in a new tab; disabled if no `payment_url`.
 
 ### 11.5 Legal agreements (`components/Dashboard/Common/Layout/index.tsx`, `LegalAggrementModal/`)
+
 - `shouldHideAgreementForUnpaidFees = isNewUserJourney && feeStatus !== 'FULL_FEES'` → for T0
   **partial-fee** students the legal modal is **force-hidden until full fee is paid**.
 - Documents: **Program Agreement**, **Grading Policy**, **POSH Compliance** (plus any dynamic
@@ -359,35 +383,37 @@ Backend types map to two UI states:
   the app **redirects to `/support`**. `window.reopenLegalAgreement()` re-opens it from the tickets page.
 
 ### 11.6 Profile & tickets
+
 - **Profile** (`profile/NewProfileMain.tsx`): a **"Student Kit"** tab appears for T0 **full-fee**
   users; a **"My Invoices"** tab for any T0 user. (`idCardUrl` is fetched but only rendered in the
   guided tour, not profile.)
 - **Tickets** (`tickets/BatchTickets.tsx`): a **"Request a Callback"** button shows for T0 users;
-  modal flow = reason → timeslot → success (*"Our team will reach out within 48 hours…"*).
+  modal flow = reason → timeslot → success (_"Our team will reach out within 48 hours…"_).
   Partial-fee students don't see the **"Student-Kit"** reason. Calls `createUserCallbackTicket`.
 
 ### 11.7 Behavior matrix
 
-| Feature | T0 Full Fee | T0 Partial Fee | Non-T0 (no row) |
-|---|---|---|---|
-| Welcome modal | ✅ | ✅ | ❌ |
-| Guided tour — LMS walkthrough | ✅ | ✅ | ❌ |
-| Guided tour — Program overview tab | ✅ unlocked | 🔒 locked | ❌ |
-| Onboarding banner/card | ✅ (both tracks) | ✅ (walkthrough only) | ❌ |
-| Payment banner | only `PAYMENT_BANNER` if `payment_url` | ✅ `TIMER`→`WARNING` | ❌ |
-| Legal agreement modal | ✅ shown | 🚫 hidden until paid | ✅ normal |
-| ID card reveal | ✅ (after overview done) | ❌ | ❌ |
-| Student Kit profile tab | ✅ | ❌ | ❌ |
-| My Invoices profile tab | ✅ | ✅ | ❌ |
-| Request-a-Callback | ✅ (incl. Student-Kit reason) | ✅ (no Student-Kit reason) | ❌ |
-| Plivo call | `FULL_PAYMENT` | `PARTIAL_PAYMENT` | ❌ |
-| Reminder email/push | ✅ | ✅ (walkthrough only) | ❌ |
+| Feature                            | T0 Full Fee                            | T0 Partial Fee             | Non-T0 (no row) |
+| ---------------------------------- | -------------------------------------- | -------------------------- | --------------- |
+| Welcome modal                      | ✅                                     | ✅                         | ❌              |
+| Guided tour — LMS walkthrough      | ✅                                     | ✅                         | ❌              |
+| Guided tour — Program overview tab | ✅ unlocked                            | 🔒 locked                  | ❌              |
+| Onboarding banner/card             | ✅ (both tracks)                       | ✅ (walkthrough only)      | ❌              |
+| Payment banner                     | only `PAYMENT_BANNER` if `payment_url` | ✅ `TIMER`→`WARNING`       | ❌              |
+| Legal agreement modal              | ✅ shown                               | 🚫 hidden until paid       | ✅ normal       |
+| ID card reveal                     | ✅ (after overview done)               | ❌                         | ❌              |
+| Student Kit profile tab            | ✅                                     | ❌                         | ❌              |
+| My Invoices profile tab            | ✅                                     | ✅                         | ❌              |
+| Request-a-Callback                 | ✅ (incl. Student-Kit reason)          | ✅ (no Student-Kit reason) | ❌              |
+| Plivo call                         | `FULL_PAYMENT`                         | `PARTIAL_PAYMENT`          | ❌              |
+| Reminder email/push                | ✅                                     | ✅ (walkthrough only)      | ❌              |
 
 ---
 
 ## 12. Admin configuration
 
 `apps/admin/components/Batches/{Create,Edit,SingleBatch}.tsx`:
+
 - **Create/Edit** store program presentation + onward data in `batch.meta`: `courseTitle`,
   `courseDetails[]`, `courseImage`, `courseLogo`, `courseTimeline[]`, `courseStructure[]`,
   `duration`, and the selected **onward batch** data. (`courseTitle`/`instituteName` here feed the
@@ -401,14 +427,15 @@ Backend types map to two UI states:
 ## 13. Access control reality check
 
 There is **no enforced content block** for partial-fee students. The `partialFeesBannerInfo`
-resolver returns `null` after the warning window with the comment *"user should be banned"*, but
+resolver returns `null` after the warning window with the comment _"user should be banned"_, but
 **no code suspends login or gates lectures** on fee status. The only real fee-based restrictions are:
+
 - **Program-onboarding progress** is not tracked/visible unless `full_fees_paid` (backend + UI).
 - **Legal-agreement modal** is hidden for partial-fee T0 students.
 - **Callback-ticket team routing** (OPS vs NBFC).
 - **Student-kit profile tab** / the **Student-Kit callback reason** are full-fee only.
 
-The legal-agreement **non-closable → redirect-to-`/support`** path *is* a real block, but it's
+The legal-agreement **non-closable → redirect-to-`/support`** path _is_ a real block, but it's
 driven by agreement acceptance state, not fee status.
 
 ---
@@ -457,6 +484,7 @@ Onwards (admissions)                experience-api                         exper
 ## 16. Quick file reference
 
 **Backend (`experience-api`)**
+
 - `prisma/schema.prisma` — `user_batch_admission_data` (~4678), `user_callback_tickets` (~3004)
 - `src/apollo/server.ts` — `/auth/register-and-login` (1808; row create 2310; partial call 2422), `/webhook/full-fee-payment` (2462)
 - `src/features/user/resolver.ts` — `is_new_user_journey`/`feeStatus`/`partialFeesBannerInfo`/`idCardUrl` (198–379)
@@ -467,6 +495,7 @@ Onwards (admissions)                experience-api                         exper
 - `src/features/userCallbackTickets/*` + `src/services/callbackTicketNbfcOpsSlack.service.ts` — tickets + Slack
 
 **Frontend (`experience-ui`)**
+
 - `apps/student-experience/src/pages/newDashboard/index.tsx` — orchestration + payment banners
 - `apps/student-experience/src/components/NewDashboard/{WelcomeModal,OnboardingProgressBanner,OnboardingProgressCard}.tsx`
 - `apps/student-experience/src/context/GuidedTourContext.tsx` + `src/components/GuidedTour/*`
@@ -488,5 +517,5 @@ Onwards (admissions)                experience-api                         exper
   Re-running requires the admissions side to re-hit the webhook or a manual mutation.
 - **Student-kit tracking id/courier/status are hardcoded** placeholders today.
 - **"Onward" is overloaded:** the upstream admissions platform ("Onwards", key `ONWARDS_LMS_API_KEY`)
-  that *drives* T0, vs. the `/batches/import-students` onward-batch progression feature, which is **not** T0.
+  that _drives_ T0, vs. the `/batches/import-students` onward-batch progression feature, which is **not** T0.
 - **The "ban" after the warning window is not implemented** — only the banner disappears.

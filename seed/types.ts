@@ -84,7 +84,9 @@ export type DashboardHomeEntities = {
   pastIncompleteScheduleAssignment: typeof import('@/db/schema').assignments.$inferSelect
   pendingCatchupLecture: typeof lectures.$inferSelect
   pendingAssignment: typeof import('@/db/schema').assignments.$inferSelect
-  visibleAnnouncements: Array<typeof import('@/db/schema').announcements.$inferSelect>
+  visibleAnnouncements: Array<
+    typeof import('@/db/schema').announcements.$inferSelect
+  >
   visibleMessages: Array<typeof import('@/db/schema').messages.$inferSelect>
   productUpdates: Array<typeof import('@/db/schema').whatsnew.$inferSelect>
   exclusions: {
@@ -148,6 +150,8 @@ export function isOnboardingEntities(entities: SeedFlowEntities): entities is On
   return 'sections' in entities
 }
 
-export function isDashboardHomeEntities(entities: SeedFlowEntities): entities is DashboardHomeEntities {
+export function isDashboardHomeEntities(
+  entities: SeedFlowEntities,
+): entities is DashboardHomeEntities {
   return 'scheduleLectures' in entities && 'visibleAnnouncements' in entities
 }

@@ -50,6 +50,7 @@ import { Route as ApiDashboardOverviewRouteImport } from './routes/api/dashboard
 import { Route as ApiDashboardNavbarPillRouteImport } from './routes/api/dashboard/navbar-pill'
 import { Route as ApiAnnouncementUnreadCountRouteImport } from './routes/api/announcement/unread-count'
 import { Route as ApiAnnouncementPopupsRouteImport } from './routes/api/announcement/popups'
+import { Route as protectedLayoutThemeLabRouteImport } from './routes/(protected)/_layout/theme-lab'
 import { Route as protectedLayoutMyCoursesRouteImport } from './routes/(protected)/_layout/my-courses'
 import { Route as authV2ResetPasswordRouteImport } from './routes/(auth)/v2/reset-password'
 import { Route as authV2MeRouteImport } from './routes/(auth)/v2/me'
@@ -392,6 +393,11 @@ const ApiAnnouncementPopupsRoute = ApiAnnouncementPopupsRouteImport.update({
   id: '/api/announcement/popups',
   path: '/api/announcement/popups',
   getParentRoute: () => rootRouteImport,
+} as any)
+const protectedLayoutThemeLabRoute = protectedLayoutThemeLabRouteImport.update({
+  id: '/theme-lab',
+  path: '/theme-lab',
+  getParentRoute: () => protectedLayoutRouteRoute,
 } as any)
 const protectedLayoutMyCoursesRoute =
   protectedLayoutMyCoursesRouteImport.update({
@@ -1138,6 +1144,7 @@ export interface FileRoutesByFullPath {
   '/v2/me': typeof authV2MeRoute
   '/v2/reset-password': typeof authV2ResetPasswordRoute
   '/my-courses': typeof protectedLayoutMyCoursesRoute
+  '/theme-lab': typeof protectedLayoutThemeLabRoute
   '/api/announcement/popups': typeof ApiAnnouncementPopupsRoute
   '/api/announcement/unread-count': typeof ApiAnnouncementUnreadCountRoute
   '/api/dashboard/navbar-pill': typeof ApiDashboardNavbarPillRoute
@@ -1305,6 +1312,7 @@ export interface FileRoutesByTo {
   '/v2/me': typeof authV2MeRoute
   '/v2/reset-password': typeof authV2ResetPasswordRoute
   '/my-courses': typeof protectedLayoutMyCoursesRoute
+  '/theme-lab': typeof protectedLayoutThemeLabRoute
   '/api/announcement/popups': typeof ApiAnnouncementPopupsRoute
   '/api/announcement/unread-count': typeof ApiAnnouncementUnreadCountRoute
   '/api/dashboard/navbar-pill': typeof ApiDashboardNavbarPillRoute
@@ -1475,6 +1483,7 @@ export interface FileRoutesById {
   '/(auth)/v2/me': typeof authV2MeRoute
   '/(auth)/v2/reset-password': typeof authV2ResetPasswordRoute
   '/(protected)/_layout/my-courses': typeof protectedLayoutMyCoursesRoute
+  '/(protected)/_layout/theme-lab': typeof protectedLayoutThemeLabRoute
   '/api/announcement/popups': typeof ApiAnnouncementPopupsRoute
   '/api/announcement/unread-count': typeof ApiAnnouncementUnreadCountRoute
   '/api/dashboard/navbar-pill': typeof ApiDashboardNavbarPillRoute
@@ -1645,6 +1654,7 @@ export interface FileRouteTypes {
     | '/v2/me'
     | '/v2/reset-password'
     | '/my-courses'
+    | '/theme-lab'
     | '/api/announcement/popups'
     | '/api/announcement/unread-count'
     | '/api/dashboard/navbar-pill'
@@ -1812,6 +1822,7 @@ export interface FileRouteTypes {
     | '/v2/me'
     | '/v2/reset-password'
     | '/my-courses'
+    | '/theme-lab'
     | '/api/announcement/popups'
     | '/api/announcement/unread-count'
     | '/api/dashboard/navbar-pill'
@@ -1981,6 +1992,7 @@ export interface FileRouteTypes {
     | '/(auth)/v2/me'
     | '/(auth)/v2/reset-password'
     | '/(protected)/_layout/my-courses'
+    | '/(protected)/_layout/theme-lab'
     | '/api/announcement/popups'
     | '/api/announcement/unread-count'
     | '/api/dashboard/navbar-pill'
@@ -2543,6 +2555,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/api/announcement/popups'
       preLoaderRoute: typeof ApiAnnouncementPopupsRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/(protected)/_layout/theme-lab': {
+      id: '/(protected)/_layout/theme-lab'
+      path: '/theme-lab'
+      fullPath: '/theme-lab'
+      preLoaderRoute: typeof protectedLayoutThemeLabRouteImport
+      parentRoute: typeof protectedLayoutRouteRoute
     }
     '/(protected)/_layout/my-courses': {
       id: '/(protected)/_layout/my-courses'
@@ -3482,6 +3501,7 @@ const protectedLayoutAssignmentsAssignmentIdRouteRouteWithChildren =
 interface protectedLayoutRouteRouteChildren {
   protectedLayoutMasaiverseRouteRoute: typeof protectedLayoutMasaiverseRouteRouteWithChildren
   protectedLayoutMyCoursesRoute: typeof protectedLayoutMyCoursesRoute
+  protectedLayoutThemeLabRoute: typeof protectedLayoutThemeLabRoute
   protectedLayoutIndexRoute: typeof protectedLayoutIndexRoute
   protectedLayoutAnnouncementsIdRouteRoute: typeof protectedLayoutAnnouncementsIdRouteRoute
   protectedLayoutAssignmentsAssignmentIdRouteRoute: typeof protectedLayoutAssignmentsAssignmentIdRouteRouteWithChildren
@@ -3503,6 +3523,7 @@ const protectedLayoutRouteRouteChildren: protectedLayoutRouteRouteChildren = {
   protectedLayoutMasaiverseRouteRoute:
     protectedLayoutMasaiverseRouteRouteWithChildren,
   protectedLayoutMyCoursesRoute: protectedLayoutMyCoursesRoute,
+  protectedLayoutThemeLabRoute: protectedLayoutThemeLabRoute,
   protectedLayoutIndexRoute: protectedLayoutIndexRoute,
   protectedLayoutAnnouncementsIdRouteRoute:
     protectedLayoutAnnouncementsIdRouteRoute,

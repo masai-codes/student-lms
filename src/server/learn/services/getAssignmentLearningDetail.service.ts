@@ -3,8 +3,11 @@ import { and, desc, eq, isNull } from 'drizzle-orm'
 import type { AssignmentDetailPayload } from '@/server/learn/assignmentDetailTypes'
 
 import { db } from '@/db'
-import { assignments, submissions, users } from '@/db/schema'
-import { DISCUSSION_ENTITY_ASSIGNMENT } from '@/server/new-discussions/discussionEntityTypes'
+import { assignments, lectures, submissions, users } from '@/db/schema'
+import {
+  DISCUSSION_ENTITY_ASSIGNMENT,
+  DISCUSSION_ENTITY_LECTURE,
+} from '@/server/new-discussions/discussionEntityTypes'
 import { listDiscussionsWithThreadsForLearnEntity } from '@/server/new-discussions/services/listDiscussionsWithThreadsForLearnEntity'
 import {
   fetchAssignmentProblemRows,
@@ -77,6 +80,25 @@ export async function getAssignmentLearningDetailForUser(
     throw new Error('LEARN_DETAIL_NOT_FOUND')
   }
 
+  // Old LMS's desktop assignment discussions tab mis-tags assignment
+  // discussions as lecture-typed (entity_type `App\Models\Lecture`) while still
+  // storing the assignment id as entity_id, so those posts would otherwise be
+  // invisible here. Recover them without a data migration: also accept
+  // lecture-typed rows for this assignment's id, but only when no lecture shares
+  // that id. When a lecture with the same id exists we cannot tell a mis-tagged
+  // assignment post from a genuine lecture post, so we skip it to avoid leaking
+  // that lecture's discussions into the assignment view.
+  const collidingLecture = await db
+    .select({ id: lectures.id })
+    .from(lectures)
+    .where(eq(lectures.id, assignmentId))
+    .limit(1)
+
+  const discussionEntityTypes =
+    collidingLecture.length === 0
+      ? [DISCUSSION_ENTITY_ASSIGNMENT, DISCUSSION_ENTITY_LECTURE]
+      : DISCUSSION_ENTITY_ASSIGNMENT
+
   const [
     submissionRows,
     problemRows,
@@ -108,7 +130,7 @@ export async function getAssignmentLearningDetailForUser(
     fetchAssignmentProblemRows(assignmentId),
     listDiscussionsWithThreadsForLearnEntity(
       userId,
-      DISCUSSION_ENTITY_ASSIGNMENT,
+      discussionEntityTypes,
       assignmentId,
     ),
     getAllAssociatedEntities({
@@ -126,7 +148,9 @@ export async function getAssignmentLearningDetailForUser(
 
   const solutionStatusByProblemId = new Map<number, string | null>()
   if (submissionRow != null && problemRows.length > 0) {
-    const solutionRows = await fetchSolutionStatusesBySubmission(submissionRow.id)
+    const solutionRows = await fetchSolutionStatusesBySubmission(
+      submissionRow.id,
+    )
     for (const solution of solutionRows) {
       solutionStatusByProblemId.set(solution.problemId, solution.status)
     }

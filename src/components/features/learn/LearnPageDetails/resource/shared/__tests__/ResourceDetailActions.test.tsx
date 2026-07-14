@@ -1,5 +1,11 @@
 // @vitest-environment jsdom
-import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
+import {
+  cleanup,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { ResourceDetailActions } from '../ResourceDetailActions'
@@ -32,7 +38,9 @@ describe('ResourceDetailActions', () => {
   })
 
   it('adds a bookmark optimistically and shows a success toast', async () => {
-    render(<ResourceDetailActions resourceId={515} initialIsBookmarked={false} />)
+    render(
+      <ResourceDetailActions resourceId={515} initialIsBookmarked={false} />,
+    )
 
     fireEvent.click(screen.getByRole('button', { name: 'Add bookmark' }))
 
@@ -46,7 +54,9 @@ describe('ResourceDetailActions', () => {
   })
 
   it('removes an existing bookmark', async () => {
-    render(<ResourceDetailActions resourceId={515} initialIsBookmarked={true} />)
+    render(
+      <ResourceDetailActions resourceId={515} initialIsBookmarked={true} />,
+    )
 
     fireEvent.click(screen.getByRole('button', { name: 'Remove bookmark' }))
 
@@ -58,7 +68,9 @@ describe('ResourceDetailActions', () => {
 
   it('reverts state and shows an error toast when the request fails', async () => {
     hoisted.add.mockRejectedValueOnce(new Error('network'))
-    render(<ResourceDetailActions resourceId={515} initialIsBookmarked={false} />)
+    render(
+      <ResourceDetailActions resourceId={515} initialIsBookmarked={false} />,
+    )
 
     fireEvent.click(screen.getByRole('button', { name: 'Add bookmark' }))
 
@@ -77,7 +89,9 @@ describe('ResourceDetailActions', () => {
         resolveAdd = resolve
       }),
     )
-    render(<ResourceDetailActions resourceId={515} initialIsBookmarked={false} />)
+    render(
+      <ResourceDetailActions resourceId={515} initialIsBookmarked={false} />,
+    )
 
     const button = screen.getByRole('button', { name: 'Add bookmark' })
     fireEvent.click(button)

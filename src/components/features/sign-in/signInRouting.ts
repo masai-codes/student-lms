@@ -13,7 +13,9 @@ function getSearchValue(search?: string): string {
 }
 
 export function getRedirectToSearchParam(search?: string): string | null {
-  const redirectTo = new URLSearchParams(getSearchValue(search)).get(REDIRECT_TO_KEY)?.trim()
+  const redirectTo = new URLSearchParams(getSearchValue(search))
+    .get(REDIRECT_TO_KEY)
+    ?.trim()
   return redirectTo ? redirectTo : null
 }
 

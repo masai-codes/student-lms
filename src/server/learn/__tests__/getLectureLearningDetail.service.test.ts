@@ -67,9 +67,8 @@ describe('getLectureLearningDetailForUser', () => {
   })
 
   it('returns lecture detail payload for supported live lectures', async () => {
-    const { getLectureLearningDetailForUser } = await import(
-      '../services/getLectureLearningDetail.service'
-    )
+    const { getLectureLearningDetailForUser } =
+      await import('../services/getLectureLearningDetail.service')
 
     hoisted.dbSelect
       .mockReturnValueOnce({
@@ -139,9 +138,8 @@ describe('getLectureLearningDetailForUser', () => {
   })
 
   it('throws when lecture type is unsupported', async () => {
-    const { getLectureLearningDetailForUser } = await import(
-      '../services/getLectureLearningDetail.service'
-    )
+    const { getLectureLearningDetailForUser } =
+      await import('../services/getLectureLearningDetail.service')
 
     hoisted.dbSelect.mockReturnValue({
       from: () => ({

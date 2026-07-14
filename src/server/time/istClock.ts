@@ -79,7 +79,9 @@ export function parseIstToMs(value: string | null | undefined): number | null {
   }
 
   // Date-only value -> treat as IST midnight.
-  const withTime = /\d{1,2}:\d{2}/.test(trimmed) ? trimmed : `${trimmed} 00:00:00`
+  const withTime = /\d{1,2}:\d{2}/.test(trimmed)
+    ? trimmed
+    : `${trimmed} 00:00:00`
 
   const ms = new Date(`${withTime.replace(' ', 'T')}+05:30`).getTime()
   return Number.isFinite(ms) ? ms : null

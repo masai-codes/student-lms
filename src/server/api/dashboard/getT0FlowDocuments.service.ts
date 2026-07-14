@@ -19,7 +19,10 @@ export async function getT0FlowDocuments(
   userId: number,
   batchId: number,
 ): Promise<T0FlowDocumentsStatus> {
-  console.log('[student-status] getT0FlowDocuments called (on-demand document step)', { userId, batchId })
+  console.log(
+    '[student-status] getT0FlowDocuments called (on-demand document step)',
+    { userId, batchId },
+  )
   const status = await getT0AdmissionsStatus(userId, batchId)
   console.log('[student-status] getT0FlowDocuments result', {
     userId,

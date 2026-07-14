@@ -45,11 +45,14 @@ export async function saveAgreementDetails(
   const legalData = asRecord(profile?.legalData)
   const agreements = asRecord(legalData['agreements'])
   const existing = asRecord(agreements[key])
-  const referenceNumber = (existing['referenceNumber'] as string | undefined) ?? buildReferenceNumber(userId, sectionId)
+  const referenceNumber =
+    (existing['referenceNumber'] as string | undefined) ??
+    buildReferenceNumber(userId, sectionId)
 
   // Stamp the client IP on first save (kept once set), so it shows on the
   // certificate before final submit — mirroring the reference (experience) flow.
-  const resolvedIp = (existing['ipAddress'] as string | undefined) || ipAddress || null
+  const resolvedIp =
+    (existing['ipAddress'] as string | undefined) || ipAddress || null
 
   const merged = {
     ...existing,
@@ -59,13 +62,23 @@ export async function saveAgreementDetails(
     formDetailCreateTime: existing['formDetailCreateTime'] ?? now,
     formDetailUpdateTime: now,
   }
-  const nextLegalData = { ...legalData, agreements: { ...agreements, [key]: merged } }
+  const nextLegalData = {
+    ...legalData,
+    agreements: { ...agreements, [key]: merged },
+  }
 
   if (profile) {
-    await db.update(profiles).set({ legalData: nextLegalData }).where(eq(profiles.id, profile.id))
+    await db
+      .update(profiles)
+      .set({ legalData: nextLegalData })
+      .where(eq(profiles.id, profile.id))
   } else {
     await db.insert(profiles).values({ userId, legalData: nextLegalData })
   }
 
-  return { savedValues: pickAgreementFormValues(merged), referenceNumber, ipAddress: resolvedIp }
+  return {
+    savedValues: pickAgreementFormValues(merged),
+    referenceNumber,
+    ipAddress: resolvedIp,
+  }
 }

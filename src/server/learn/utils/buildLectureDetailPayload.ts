@@ -2,7 +2,8 @@ import type {
   LectureDetailPayload,
   LectureDetailTabContent,
   LectureFeedbackState,
-  LectureKind, LectureVideoAttendanceState 
+  LectureKind,
+  LectureVideoAttendanceState,
 } from '@/server/learn/lectureDetailTypes'
 import type { LearnHubDetailPayload } from '@/server/learn/types'
 import type { LectureAttendanceSummary } from '@/server/attendance/types'
@@ -120,7 +121,10 @@ export function buildLectureDetailPayload(
     lectureKind,
     schedule: row.schedule,
     concludes: row.concludes,
-    scheduleDisplayRange: formatLectureScheduleRange(row.schedule, row.concludes),
+    scheduleDisplayRange: formatLectureScheduleRange(
+      row.schedule,
+      row.concludes,
+    ),
     hostAvatarUrl: row.hostAvatarUrl,
     hideVideo: settings.hideVideo,
     hideNotes: settings.hideNotes,

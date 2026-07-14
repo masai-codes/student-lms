@@ -17,7 +17,8 @@ import {
 import { SUPPORT_KEYS, ticketThreadQuery } from '@/query/support/supportQueries'
 
 const MAX_FILES = 5
-const isImageName = (name: string) => /\.(png|jpe?g|gif|webp|svg|bmp)$/i.test(name)
+const isImageName = (name: string) =>
+  /\.(png|jpe?g|gif|webp|svg|bmp)$/i.test(name)
 
 export type UseTicketComposerParams = {
   batchId: string
@@ -25,7 +26,11 @@ export type UseTicketComposerParams = {
   subcategory?: string
 }
 
-export function useTicketComposer({ batchId, category, subcategory }: UseTicketComposerParams) {
+export function useTicketComposer({
+  batchId,
+  category,
+  subcategory,
+}: UseTicketComposerParams) {
   const queryClient = useQueryClient()
   const [ticketId, setTicketId] = useState<number | null>(null)
   const [message, setMessage] = useState('')
@@ -45,7 +50,10 @@ export function useTicketComposer({ batchId, category, subcategory }: UseTicketC
   const status = ticket?.status
 
   const refresh = useCallback(() => {
-    if (ticketId) void queryClient.invalidateQueries({ queryKey: SUPPORT_KEYS.thread(ticketId) })
+    if (ticketId)
+      void queryClient.invalidateQueries({
+        queryKey: SUPPORT_KEYS.thread(ticketId),
+      })
     void queryClient.invalidateQueries({ queryKey: ['support', 'overview'] })
   }, [ticketId, queryClient])
 
@@ -66,7 +74,8 @@ export function useTicketComposer({ batchId, category, subcategory }: UseTicketC
   })
 
   const replyMutation = useMutation({
-    mutationFn: (msg: string) => replyToTicket({ ticketId: ticketId!, message: msg }),
+    mutationFn: (msg: string) =>
+      replyToTicket({ ticketId: ticketId!, message: msg }),
     onSuccess: () => {
       setMessage('')
       setFiles([])
@@ -75,7 +84,8 @@ export function useTicketComposer({ batchId, category, subcategory }: UseTicketC
   })
 
   const rateMutation = useMutation({
-    mutationFn: (rating: 1 | 5) => rateSupportTicket({ ticketId: ticketId!, rating }),
+    mutationFn: (rating: 1 | 5) =>
+      rateSupportTicket({ ticketId: ticketId!, rating }),
     onSuccess: refresh,
     onSettled: () => setPendingRating(null),
   })
@@ -86,10 +96,14 @@ export function useTicketComposer({ batchId, category, subcategory }: UseTicketC
   })
 
   const isExisting = Boolean(ticketId)
-  const submitting = createMutation.isPending || replyMutation.isPending || uploading
+  const submitting =
+    createMutation.isPending || replyMutation.isPending || uploading
 
   const scrollToBottom = useCallback(() => {
-    scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: 'smooth' })
+    scrollRef.current?.scrollTo({
+      top: scrollRef.current.scrollHeight,
+      behavior: 'smooth',
+    })
   }, [])
 
   useEffect(() => {
@@ -104,9 +118,15 @@ export function useTicketComposer({ batchId, category, subcategory }: UseTicketC
     if (files.length > 0) {
       setUploading(true)
       try {
-        const uploaded = await Promise.all(files.map((f) => uploadSupportAttachment(f)))
+        const uploaded = await Promise.all(
+          files.map((f) => uploadSupportAttachment(f)),
+        )
         const links = uploaded
-          .map((u) => (isImageName(u.name) ? `![${u.name}](${u.url})` : `[${u.name}](${u.url})`))
+          .map((u) =>
+            isImageName(u.name)
+              ? `![${u.name}](${u.url})`
+              : `[${u.name}](${u.url})`,
+          )
           .join('\n\n')
         finalMessage = finalMessage ? `${finalMessage}\n\n${links}` : links
       } catch {
@@ -133,7 +153,11 @@ export function useTicketComposer({ batchId, category, subcategory }: UseTicketC
   }
 
   const displayedRating =
-    pendingRating !== null ? null : ticket?.rating === 1 || ticket?.rating === 5 ? ticket.rating : null
+    pendingRating !== null
+      ? null
+      : ticket?.rating === 1 || ticket?.rating === 5
+        ? ticket.rating
+        : null
 
   return {
     ticketId,

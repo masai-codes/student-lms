@@ -31,10 +31,13 @@ export function LectureDesktopChatSidebar({
 
       {splitChat.isOpen && !isVideoFullscreen ? (
         <div
-          className="flex h-full min-h-0 shrink-0 flex-col border-l border-gray-200 bg-white"
+          className="flex h-full min-h-0 shrink-0 flex-col border-l border-border bg-surface"
           style={{ width: getLectureSplitChatOpenWidthCss() }}
         >
-          <LectureAiChatExperience lectureId={lectureId} onCloseSidebar={splitChat.close} />
+          <LectureAiChatExperience
+            lectureId={lectureId}
+            onCloseSidebar={splitChat.close}
+          />
         </div>
       ) : null}
     </>

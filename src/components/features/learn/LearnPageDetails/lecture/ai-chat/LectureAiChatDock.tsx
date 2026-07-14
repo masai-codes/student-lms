@@ -40,7 +40,8 @@ export function LectureAiChatDock({
   openingLoaderGif = LECTURE_CHAT_OPENING_LOADER_GIF,
 }: LectureAiChatDockProps) {
   const chat = useLectureAiChatStateContext()
-  const { anchorRef, isDocked, chatBarBlockPx } = useLectureChatDock(onDockedChange)
+  const { anchorRef, isDocked, chatBarBlockPx } =
+    useLectureChatDock(onDockedChange)
   const chatBarRef = useRef<HTMLDivElement>(null)
 
   if (!chat) return null
@@ -96,7 +97,7 @@ export function LectureAiChatDock({
         <div
           className={cn(
             'fixed inset-x-0 z-[220] flex flex-col',
-            'border-t border-gray-200/80 bg-[#FAF9F9]/95 backdrop-blur-md',
+            'border-t border-border/80 bg-[#FAF9F9]/95 backdrop-blur-md dark:bg-surface/95',
             'bottom-0 pb-[max(0.75rem,env(safe-area-inset-bottom))]',
             'max-md:bottom-[calc(4.5rem+env(safe-area-inset-bottom))]',
             'max-md:pb-[max(0.5rem,env(safe-area-inset-bottom))]',
