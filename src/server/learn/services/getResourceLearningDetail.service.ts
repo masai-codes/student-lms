@@ -62,11 +62,7 @@ export async function getResourceLearningDetailForUser(
     throw new Error('RESOURCE_DETAIL_UNSUPPORTED_TYPE')
   }
 
-  const allowed = await ensureUserCanAccessLearnHubEntity(
-    userId,
-    row.batchId,
-    row.sectionId,
-  )
+  const allowed = await ensureUserCanAccessLearnHubEntity(userId, row.sectionId)
 
   if (!allowed) {
     throw new Error('LEARN_DETAIL_NOT_FOUND')

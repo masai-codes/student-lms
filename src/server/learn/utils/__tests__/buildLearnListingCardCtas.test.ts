@@ -44,6 +44,7 @@ describe('buildLearnListingCardCtas', () => {
         hasStudentAttendanceEntry: true,
         isCatchupWindowOver: false,
         videoPercentage: 0,
+        watchPercentage: 0,
         daysRemaining: 3,
         remainingLabel: '3 days remaining',
         lateByMinutes: null,

@@ -106,7 +106,6 @@ export async function submitLectureFeedback(input: {
 
   const allowed = await ensureUserCanAccessLearnHubEntity(
     input.userId,
-    lecture.batchId,
     lecture.sectionId,
   )
   if (!allowed) {

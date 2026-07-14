@@ -15,6 +15,7 @@ function makeSummary(
     hasStudentAttendanceEntry: true,
     isCatchupWindowOver: null,
     videoPercentage: 0,
+    watchPercentage: 0,
     daysRemaining: null,
     remainingLabel: null,
     lateByMinutes: null,

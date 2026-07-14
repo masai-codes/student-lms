@@ -20,6 +20,11 @@ function elapsedDaysSinceConcludes(
   return Math.max(0, Math.floor((nowMs - concludesAtMs) / DAY_MS))
 }
 
+/**
+ * ⚠️ The `absent` learn-listing filter reproduces the window-over branch of this
+ * logic in SQL for lectures with no attendance row — see
+ * `buildAbsentWindowOverCondition`. Keep the two in sync.
+ */
 export function computeCatchUpWindow(input: {
   schedule: string | null
   concludes: string | null
