@@ -50,6 +50,15 @@ function createClient(): Redis | null {
   client.on('ready', () => {
     warned = false
   })
+  client.on('connect', () => {
+    // Never let the cache connection keep a short-lived process alive. The
+    // build prerender step, seed scripts, and tests all evaluate this module;
+    // an open (ref'd) socket would block them from exiting and hang the process.
+    // unref lets Node exit when nothing else is pending — a no-op at runtime,
+    // where the HTTP server keeps the process up on its own. Re-applied on every
+    // (re)connect because ioredis makes a fresh socket each time.
+    ;(client as unknown as { stream?: { unref?: () => void } }).stream?.unref?.()
+  })
 
   void client.connect().catch(() => {
     /* handled by the 'error' listener above */
