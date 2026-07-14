@@ -669,6 +669,63 @@ code {
   animation: masaiverse-star-pop 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) both;
 }
 
+/* A bouncy "pop" the moment an emoji rating is picked. */
+@keyframes masaiverse-emoji-pop {
+  0% {
+    transform: scale(0.5) rotate(-16deg);
+  }
+  55% {
+    transform: scale(1.4) rotate(9deg);
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+  }
+}
+
+.animate-masaiverse-emoji-pop {
+  animation: masaiverse-emoji-pop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+/* Soft coloured glow that scales in behind the active emoji. */
+@keyframes masaiverse-emoji-glow-in {
+  from {
+    opacity: 0;
+    transform: scale(0.4);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.animate-masaiverse-emoji-glow-in {
+  animation: masaiverse-emoji-glow-in 0.3s ease-out both;
+}
+
+/* The rating word rising into place as the active rating changes. */
+@keyframes masaiverse-rating-label-in {
+  from {
+    opacity: 0;
+    transform: translateY(7px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-masaiverse-rating-label-in {
+  animation: masaiverse-rating-label-in 0.28s ease-out both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-masaiverse-emoji-pop,
+  .animate-masaiverse-emoji-glow-in,
+  .animate-masaiverse-rating-label-in {
+    animation: none;
+  }
+}
+
 /* Gentle heartbeat pulse while the AI voice assistant is speaking. */
 @keyframes ai-avatar-speak {
   0%,
