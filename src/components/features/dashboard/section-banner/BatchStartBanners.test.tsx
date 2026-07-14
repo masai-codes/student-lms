@@ -12,7 +12,8 @@ beforeAll(() => {
     disconnect() {}
   }
   globalThis.ResizeObserver = NoopObserver
-  globalThis.IntersectionObserver = NoopObserver as unknown as typeof IntersectionObserver
+  globalThis.IntersectionObserver =
+    NoopObserver as unknown as typeof IntersectionObserver
 })
 
 afterEach(cleanup)
@@ -47,12 +48,20 @@ describe('BatchStartBanners', () => {
       <BatchStartBanners
         banners={[
           banner({ batchId: 5, courseTitle: 'MERN' }),
-          banner({ batchId: 6, courseTitle: 'Data Analytics', startDateLabel: '01 Sep 2026' }),
+          banner({
+            batchId: 6,
+            courseTitle: 'Data Analytics',
+            startDateLabel: '01 Sep 2026',
+          }),
         ]}
       />,
     )
     expect(screen.getAllByTestId('dashboard-batch-start-text')).toHaveLength(2)
-    expect(screen.getByTestId('dashboard-batch-start-dots').querySelectorAll('button')).toHaveLength(2)
+    expect(
+      screen
+        .getByTestId('dashboard-batch-start-dots')
+        .querySelectorAll('button'),
+    ).toHaveLength(2)
     expect(screen.getByTestId('dashboard-batch-start-prev')).toBeTruthy()
     expect(screen.getByTestId('dashboard-batch-start-next')).toBeTruthy()
   })

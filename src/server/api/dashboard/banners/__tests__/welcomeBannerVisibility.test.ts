@@ -34,7 +34,9 @@ describe('getUserBannerGroup', () => {
 
 describe('parseBannerVisibility', () => {
   it('parses a JSON string into string arrays', () => {
-    expect(parseBannerVisibility('{"batches":[1,2],"random_group":["A"]}')).toEqual({
+    expect(
+      parseBannerVisibility('{"batches":[1,2],"random_group":["A"]}'),
+    ).toEqual({
       batches: ['1', '2'],
       randomGroup: ['A'],
     })
@@ -57,23 +59,35 @@ describe('parseBannerVisibility', () => {
 
 describe('isBannerVisibleToBatches', () => {
   it('reaches nobody when no batches are targeted (old-LMS parity)', () => {
-    expect(isBannerVisibleToBatches({ batches: [], randomGroup: [] }, ['5'])).toBe(false)
+    expect(
+      isBannerVisibleToBatches({ batches: [], randomGroup: [] }, ['5']),
+    ).toBe(false)
   })
 
   it('is visible only when a targeted batch intersects the user batches', () => {
-    expect(isBannerVisibleToBatches({ batches: ['5', '6'], randomGroup: [] }, ['6'])).toBe(true)
-    expect(isBannerVisibleToBatches({ batches: ['5', '6'], randomGroup: [] }, ['9'])).toBe(false)
+    expect(
+      isBannerVisibleToBatches({ batches: ['5', '6'], randomGroup: [] }, ['6']),
+    ).toBe(true)
+    expect(
+      isBannerVisibleToBatches({ batches: ['5', '6'], randomGroup: [] }, ['9']),
+    ).toBe(false)
   })
 })
 
 describe('isBannerVisibleToGroup', () => {
   it('reaches nobody when no group is targeted (old-LMS parity)', () => {
-    expect(isBannerVisibleToGroup({ batches: [], randomGroup: [] }, 'A')).toBe(false)
+    expect(isBannerVisibleToGroup({ batches: [], randomGroup: [] }, 'A')).toBe(
+      false,
+    )
   })
 
   it('is visible only when the user group is listed', () => {
-    expect(isBannerVisibleToGroup({ batches: [], randomGroup: ['A', 'B'] }, 'B')).toBe(true)
-    expect(isBannerVisibleToGroup({ batches: [], randomGroup: ['A', 'B'] }, 'C')).toBe(false)
+    expect(
+      isBannerVisibleToGroup({ batches: [], randomGroup: ['A', 'B'] }, 'B'),
+    ).toBe(true)
+    expect(
+      isBannerVisibleToGroup({ batches: [], randomGroup: ['A', 'B'] }, 'C'),
+    ).toBe(false)
   })
 })
 
@@ -126,15 +140,25 @@ describe('isWithinBannerWindow', () => {
   })
 
   it('excludes banners before start or after end', () => {
-    expect(isWithinBannerWindow('2026-07-03T00:00:00Z', '2026-07-10T00:00:00Z', now)).toBe(false)
-    expect(isWithinBannerWindow('2026-06-01T00:00:00Z', '2026-07-01T00:00:00Z', now)).toBe(false)
-    expect(isWithinBannerWindow('2026-07-01T00:00:00Z', '2026-07-10T00:00:00Z', now)).toBe(true)
+    expect(
+      isWithinBannerWindow('2026-07-03T00:00:00Z', '2026-07-10T00:00:00Z', now),
+    ).toBe(false)
+    expect(
+      isWithinBannerWindow('2026-06-01T00:00:00Z', '2026-07-01T00:00:00Z', now),
+    ).toBe(false)
+    expect(
+      isWithinBannerWindow('2026-07-01T00:00:00Z', '2026-07-10T00:00:00Z', now),
+    ).toBe(true)
   })
 
   it('works with the zoned strings the driver actually returns', () => {
     // 2026-10-15T23:59+05:30 is still in the future relative to `now`.
     expect(
-      isWithinBannerWindow('2026-05-07T20:40:00+05:30', '2026-10-15T23:59:00+05:30', now),
+      isWithinBannerWindow(
+        '2026-05-07T20:40:00+05:30',
+        '2026-10-15T23:59:00+05:30',
+        now,
+      ),
     ).toBe(true)
   })
 })

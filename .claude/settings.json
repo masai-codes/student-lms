@@ -1,7 +1,5 @@
 {
   "permissions": {
-    "allow": [
-      "mcp__Claude_in_Chrome__*(localhost*)"
-    ]
+    "allow": ["mcp__Claude_in_Chrome__*(localhost*)"]
   }
 }

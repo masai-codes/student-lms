@@ -4,7 +4,10 @@
 // event name and params are what analytics dashboards key off, so we embed the
 // relevant DB row id in the event name and pass identifying context as params.
 
-export type GtmEventParams = Record<string, string | number | boolean | null | undefined>
+export type GtmEventParams = Record<
+  string,
+  string | number | boolean | null | undefined
+>
 
 type WindowWithDataLayer = Window & {
   dataLayer?: Array<Record<string, unknown>>

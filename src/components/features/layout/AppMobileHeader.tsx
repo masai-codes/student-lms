@@ -7,7 +7,10 @@ import { CircleHelp, Megaphone } from 'lucide-react'
 
 import { fetchAnnouncementUnreadCount } from '@/lib/api/announcement/announcementApi'
 import { formatGreetingName } from '@/components/features/dashboard/shared/greeting'
-import { NextActionBanner, useNextActionBannerView } from '@/components/features/layout/NextActionBanner'
+import {
+  NextActionBanner,
+  useNextActionBannerView,
+} from '@/components/features/layout/NextActionBanner'
 import { isIHubPortal } from '@/utils/portal'
 
 const layoutRouteApi = getRouteApi('/(protected)/_layout')
@@ -49,7 +52,7 @@ export default function AppMobileHeader() {
   return (
     <header
       data-testid="app-mobile-header"
-      className="sticky top-0 z-30 flex items-center justify-between gap-3 rounded-b-2xl bg-white px-4 py-4 shadow-sm lg:hidden"
+      className="sticky top-0 z-30 flex items-center justify-between gap-3 rounded-b-2xl bg-surface px-4 py-4 shadow-sm lg:hidden"
     >
       {nextAction ? (
         <div className="min-w-0 flex-1">
@@ -57,8 +60,11 @@ export default function AppMobileHeader() {
         </div>
       ) : (
         <div className="min-w-0">
-          <p className="text-lg font-medium text-gray-500">Welcome</p>
-          <h1 className="truncate text-2xl font-bold text-gray-900" title={user.name}>
+          <p className="text-lg font-medium text-foreground-muted">Welcome</p>
+          <h1
+            className="truncate text-2xl font-bold text-foreground"
+            title={user.name}
+          >
             {formatGreetingName(user.name)} <span aria-hidden="true">👋</span>
           </h1>
         </div>
@@ -69,13 +75,13 @@ export default function AppMobileHeader() {
           type="button"
           onClick={handleAnnouncementsClick}
           aria-label="Announcements"
-          className="relative flex size-10 items-center justify-center rounded-full text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+          className="relative flex size-10 items-center justify-center rounded-full text-foreground-muted hover:bg-surface-muted hover:text-foreground"
           data-testid="app-mobile-header-announcements"
         >
           <Megaphone className="size-7 -scale-x-100" />
           {unreadCount > 0 ? (
             <span
-              className="absolute right-1 top-1 flex min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-semibold leading-4 text-white"
+              className="absolute right-1 top-1 flex min-w-4 items-center justify-center rounded-full bg-danger px-1 text-[10px] font-semibold leading-4 text-danger-foreground"
               data-testid="app-mobile-header-unread-badge"
             >
               {unreadCount > 99 ? '99+' : unreadCount}
@@ -87,7 +93,7 @@ export default function AppMobileHeader() {
             type="button"
             onClick={handleGuidedTourClick}
             aria-label="Onboarding steps"
-            className="flex size-10 items-center justify-center rounded-full text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+            className="flex size-10 items-center justify-center rounded-full text-foreground-muted hover:bg-surface-muted hover:text-foreground"
             data-testid="app-mobile-header-guided-tour"
           >
             <CircleHelp className="size-7" />

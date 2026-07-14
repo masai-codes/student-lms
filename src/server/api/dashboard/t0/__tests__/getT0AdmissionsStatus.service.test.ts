@@ -13,7 +13,11 @@ const hoisted = vi.hoisted(() => ({
 vi.mock('@/db', () => ({
   db: {
     select: () => ({
-      from: () => ({ where: () => ({ limit: () => Promise.resolve([{ username: 'MSC2024001' }]) }) }),
+      from: () => ({
+        where: () => ({
+          limit: () => Promise.resolve([{ username: 'MSC2024001' }]),
+        }),
+      }),
     }),
     execute: hoisted.execute,
   },
@@ -41,8 +45,16 @@ const dumpCalls = () =>
 describe('getT0AdmissionsStatus', () => {
   it('projects the admissions response and dumps the raw payload into meta', async () => {
     const raw = {
-      documents: { required: true, documentsUploaded: true, documentsVerified: false },
-      kit: { showKit: true, detailsFilled: true, tracking: { trackingUrl: 'https://track/1', trackingId: 'CK1' } },
+      documents: {
+        required: true,
+        documentsUploaded: true,
+        documentsVerified: false,
+      },
+      kit: {
+        showKit: true,
+        detailsFilled: true,
+        tracking: { trackingUrl: 'https://track/1', trackingId: 'CK1' },
+      },
       idCard: { url: 'https://cdn/id-card.png' },
     }
     hoisted.getStatus.mockResolvedValue(raw)

@@ -1,52 +1,41 @@
-import { createServerFn } from '@tanstack/react-start';
+import { createServerFn } from '@tanstack/react-start'
 
-
-
-export const getCurrentTime = createServerFn()
-    .handler(() => {
-        const now = new Date()
-        return {
-            iso: now.toISOString(),
-            formatted: now.toLocaleString('en-GB', {
-                day: 'numeric',
-                month: 'short',
-                year: 'numeric',
-                hour: 'numeric',
-                minute: '2-digit',
-                hour12: true,
-            }),
-        }
-    })
-
-
-
+export const getCurrentTime = createServerFn().handler(() => {
+  const now = new Date()
+  return {
+    iso: now.toISOString(),
+    formatted: now.toLocaleString('en-GB', {
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric',
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true,
+    }),
+  }
+})
 
 export async function getWeeklyRange() {
-    const currentTime = await getCurrentTime();
+  const currentTime = await getCurrentTime()
 
-    const today = new Date(currentTime.iso);
-    const oneWeekLater = new Date(today);
-    oneWeekLater.setDate(today.getDate() + 7);
+  const today = new Date(currentTime.iso)
+  const oneWeekLater = new Date(today)
+  oneWeekLater.setDate(today.getDate() + 7)
 
-    const formatDate = (date: Date) =>
-        date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+  const formatDate = (date: Date) =>
+    date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
 
-    const dateRange = `${formatDate(today)} - ${formatDate(oneWeekLater)}`;
-    return dateRange;
+  const dateRange = `${formatDate(today)} - ${formatDate(oneWeekLater)}`
+  return dateRange
 }
 
-
-
 export const formatTimeInHHMM = (dt: string | null) =>
-    dt
-        ? `${String((+dt.slice(11, 13) % 12) || 12).padStart(2, "0")}:${dt.slice(14, 16)}${+dt.slice(11, 13) >= 12 ? "PM" : "AM"}`
-        : "12:00PM";
-
+  dt
+    ? `${String(+dt.slice(11, 13) % 12 || 12).padStart(2, '0')}:${dt.slice(14, 16)}${+dt.slice(11, 13) >= 12 ? 'PM' : 'AM'}`
+    : '12:00PM'
 
 export const capitalize = (value: string | null) =>
-  value ? value.charAt(0).toUpperCase() + value.slice(1).toLowerCase() : "";
-
-
+  value ? value.charAt(0).toUpperCase() + value.slice(1).toLowerCase() : ''
 
 export function formatSqlDate(sqlDate: string | null): string {
   const date = sqlDate ? new Date(sqlDate) : new Date()

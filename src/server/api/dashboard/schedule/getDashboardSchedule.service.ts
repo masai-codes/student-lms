@@ -56,7 +56,10 @@ export async function getDashboardSchedule(
   const attendance = await fetchLectureAttendanceSummaries(
     userId,
     visibleLectures
-      .filter((row): row is ScheduleEntityRow & { sectionId: number } => row.sectionId != null)
+      .filter(
+        (row): row is ScheduleEntityRow & { sectionId: number } =>
+          row.sectionId != null,
+      )
       .map((row) => ({
         lectureId: row.id,
         sectionId: row.sectionId,
@@ -70,7 +73,9 @@ export async function getDashboardSchedule(
     userId,
     visibleAssignments.map((row) => row.id),
   )
-  const assignmentProgress = (row: ScheduleEntityRow): AssignmentProgressStatus =>
+  const assignmentProgress = (
+    row: ScheduleEntityRow,
+  ): AssignmentProgressStatus =>
     calculateAssignmentProgressStatus({
       schedule: row.schedule,
       concludes: row.concludes ?? null,
@@ -107,7 +112,10 @@ export async function getDashboardSchedule(
 }
 
 /** Soonest schedule first; rows without a schedule sink to the end. */
-function bySoonestSchedule(a: DashboardScheduleItem, b: DashboardScheduleItem): number {
+function bySoonestSchedule(
+  a: DashboardScheduleItem,
+  b: DashboardScheduleItem,
+): number {
   return toTime(a.scheduleDate) - toTime(b.scheduleDate)
 }
 

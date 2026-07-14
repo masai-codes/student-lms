@@ -1,5 +1,11 @@
 // @vitest-environment jsdom
-import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
+import {
+  cleanup,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { AssignmentPledgeModal } from '../AssignmentPledgeModal'
@@ -35,9 +41,7 @@ describe('AssignmentPledgeModal', () => {
     expect(screen.getByTestId('assignment-pledge-modal')).toBeTruthy()
     expect(screen.getByText('Integrity')).toBeTruthy()
     expect(screen.getByText('No Cheat Code To Success')).toBeTruthy()
-    expect(
-      screen.getByText(/there is no cheat code to success/i),
-    ).toBeTruthy()
+    expect(screen.getByText(/there is no cheat code to success/i)).toBeTruthy()
   })
 
   it('cannot be dismissed with Escape (forced acknowledgement)', () => {
@@ -79,14 +83,18 @@ describe('AssignmentPledgeModal', () => {
   })
 
   it('shows an error message and does not refresh when submission creation fails', async () => {
-    hoisted.createAssignmentSubmission.mockRejectedValueOnce(new Error('SUBMISSION_EXISTS'))
+    hoisted.createAssignmentSubmission.mockRejectedValueOnce(
+      new Error('SUBMISSION_EXISTS'),
+    )
     render(<AssignmentPledgeModal assignmentId={42} />)
 
     fireEvent.click(screen.getByRole('checkbox'))
     fireEvent.click(screen.getByTestId('assignment-pledge-confirm'))
 
     await waitFor(() => {
-      expect(screen.getByRole('alert').textContent).toContain('SUBMISSION_EXISTS')
+      expect(screen.getByRole('alert').textContent).toContain(
+        'SUBMISSION_EXISTS',
+      )
     })
     expect(hoisted.invalidate).not.toHaveBeenCalled()
   })

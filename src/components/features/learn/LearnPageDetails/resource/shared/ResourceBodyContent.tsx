@@ -14,7 +14,7 @@ export function ResourceBodyContent({ detail }: ResourceBodyContentProps) {
 
   return (
     <section data-testid="resource-body" className="animate-dash-rise">
-      <h2 className="type-h6 inline-flex items-center gap-2 text-gray-900">
+      <h2 className="type-h6 inline-flex items-center gap-2 text-foreground">
         <span
           aria-hidden
           className="h-4 w-1 shrink-0 rounded-full bg-gradient-to-b from-[#4F6BED] to-[#7C3AED]"

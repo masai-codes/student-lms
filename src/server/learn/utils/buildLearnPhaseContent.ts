@@ -3,7 +3,10 @@ import type {
   AssignmentKind,
   AssignmentPhase,
 } from '@/server/learn/assignmentDetailTypes'
-import type { ResourceKind, ResourcePhase } from '@/server/learn/resourceDetailTypes'
+import type {
+  ResourceKind,
+  ResourcePhase,
+} from '@/server/learn/resourceDetailTypes'
 import { getAssignmentPhaseCopy } from '@/server/learn/utils/getAssignmentPhaseCopy'
 import { getResourcePhaseCopy } from '@/server/learn/utils/getResourcePhaseCopy'
 import { parseIstToMs } from '@/server/time/istClock'

@@ -12,7 +12,9 @@ vi.mock('@tanstack/react-router', () => ({
 
 afterEach(cleanup)
 
-const item = (over: Partial<DashboardScheduleItem> = {}): DashboardScheduleItem => ({
+const item = (
+  over: Partial<DashboardScheduleItem> = {},
+): DashboardScheduleItem => ({
   id: 1,
   learningType: 'lecture',
   title: 'Enhanced Interactive Programming Workshop',
@@ -27,7 +29,15 @@ const item = (over: Partial<DashboardScheduleItem> = {}): DashboardScheduleItem 
   optionalAttendance: null,
   assignmentProgressStatus: null,
   resourcePhase: null,
-  listingCtas: { joinLive: 'active', joinZoomLink: null, isNewZoomRedirection: false, showAttendance: false, assignmentStatusChip: null, assignmentDeadlineLabel: null, assignmentScore: null },
+  listingCtas: {
+    joinLive: 'active',
+    joinZoomLink: null,
+    isNewZoomRedirection: false,
+    showAttendance: false,
+    assignmentStatusChip: null,
+    assignmentDeadlineLabel: null,
+    assignmentScore: null,
+  },
   courseName: 'Full Stack Section A',
   enableZoomWebView: false,
   ...over,
@@ -46,18 +56,29 @@ const props = {
 describe('ScheduleSection', () => {
   it('renders the 7-day feed with a range header and the reused card on its day', () => {
     // 04:30 UTC = 10:00 IST on Fri Jul 03.
-    render(<ScheduleSection {...props} schedule={[item({ scheduleDate: '2026-07-03 04:30:00' })]} />)
+    render(
+      <ScheduleSection
+        {...props}
+        schedule={[item({ scheduleDate: '2026-07-03 04:30:00' })]}
+      />,
+    )
     expect(screen.getByTestId('dashboard-schedule-feed')).toBeTruthy()
-    expect(screen.getByTestId('dashboard-schedule-range').textContent).toBe('Jul 02 - 08')
+    expect(screen.getByTestId('dashboard-schedule-range').textContent).toBe(
+      'Jul 02 - 08',
+    )
     // Every day row is present (7 days), including the item's day.
     expect(screen.getByTestId('dashboard-schedule-day-2026-07-02')).toBeTruthy()
     expect(screen.getByTestId('dashboard-schedule-day-2026-07-08')).toBeTruthy()
-    expect(screen.getByText('Enhanced Interactive Programming Workshop')).toBeTruthy()
+    expect(
+      screen.getByText('Enhanced Interactive Programming Workshop'),
+    ).toBeTruthy()
     expect(screen.getByText('Full Stack Section A')).toBeTruthy()
   })
 
   it('shows loading and error states from the query', () => {
-    const { rerender } = render(<ScheduleSection {...props} schedule={[]} isLoading />)
+    const { rerender } = render(
+      <ScheduleSection {...props} schedule={[]} isLoading />,
+    )
     expect(screen.getByTestId('dashboard-schedule-loading')).toBeTruthy()
 
     rerender(<ScheduleSection {...props} schedule={[]} isError />)
@@ -67,7 +88,9 @@ describe('ScheduleSection', () => {
   it('renders every day with a "No sessions" placeholder when nothing is scheduled', () => {
     render(<ScheduleSection {...props} schedule={[]} />)
     expect(screen.getByTestId('dashboard-schedule-feed')).toBeTruthy()
-    expect(screen.getAllByText('No sessions scheduled for the day')).toHaveLength(7)
+    expect(
+      screen.getAllByText('No sessions scheduled for the day'),
+    ).toHaveLength(7)
   })
 
   it('badges the pending count and renders the reused cards on the tasks tab', () => {
@@ -76,12 +99,18 @@ describe('ScheduleSection', () => {
         {...props}
         schedule={[item()]}
         pendingTasks={[
-          item({ id: 10, learningType: 'assignment', title: 'Submit worksheet' }),
+          item({
+            id: 10,
+            learningType: 'assignment',
+            title: 'Submit worksheet',
+          }),
           item({ id: 11, learningType: 'lecture', title: 'Catch up lecture' }),
         ]}
       />,
     )
-    expect(screen.getByTestId('dashboard-pending-tasks-count').textContent).toBe('2')
+    expect(
+      screen.getByTestId('dashboard-pending-tasks-count').textContent,
+    ).toBe('2')
 
     fireEvent.click(screen.getByTestId('dashboard-pending-tasks-tab'))
     expect(screen.getByTestId('dashboard-pending-tasks-feed')).toBeTruthy()

@@ -3,11 +3,12 @@
 ## Scope
 
 **Single endpoint** `GET /api/learn/page` → `getLearnPageData` → `getEnrolledBatchesForUser`
-+ `getBatchLearningData`. Returns everything the page renders in one round-trip:
-`{ batches, selectedBatchId, filterValues, learningItems, pagination }`. The `/learn`
-route loader is the only fetch; it re-runs on any search-param change. `batchId` is
-optional — the server defaults to the first enrolled batch (the client still passes a
-`batchId` to honour the localStorage last-batch preference).
+
+- `getBatchLearningData`. Returns everything the page renders in one round-trip:
+  `{ batches, selectedBatchId, filterValues, learningItems, pagination }`. The `/learn`
+  route loader is the only fetch; it re-runs on any search-param change. `batchId` is
+  optional — the server defaults to the first enrolled batch (the client still passes a
+  `batchId` to honour the localStorage last-batch preference).
 
 The listing service was moved from "fetch-all + filter/paginate in memory" to
 **SQL-side filtering and pagination**, split into focused modules, with legacy-LMS
@@ -26,19 +27,19 @@ behavior restored.
 
 ## Test files
 
-| Area | File |
-|------|------|
-| Schedule window (visibility cap, date cap, IST cutoff) | `src/server/learn/utils/__tests__/buildLearnScheduleWindow.test.ts` |
-| Module label → SQL predicate (week fallback) | `src/server/learn/utils/__tests__/buildModuleFilterCondition.test.ts` |
-| WHERE condition builders (lectures/resources + assignments) | `src/server/learn/utils/__tests__/buildLearnListingConditions.test.ts` |
-| Pagination envelope + clamping | `src/server/learn/utils/__tests__/resolveListingPagination.test.ts` |
-| Lecture/resource paginated query | `src/server/learn/queries/__tests__/fetchLectureListingPage.test.ts` |
-| Assignment query (progress compute + filter + paginate) | `src/server/learn/queries/__tests__/fetchAssignmentListingPage.test.ts` |
-| Facet queries (distinct, sorted, week/unknown fallbacks) | `src/server/learn/queries/__tests__/fetchLearnListingFacets.test.ts` |
-| Service orchestration (lecture/assignment/resource mapping) | `src/server/learn/__tests__/getBatchLearningData.service.test.ts` |
-| Combined page service (batches + selected batch + listing) | `src/server/learn/__tests__/getLearnPageData.service.test.ts` |
-| Page query parser (optional batchId) | `src/server/api/learn/utils/__tests__/parseLearnPageQuery.test.ts` |
-| Page endpoint handler | `src/server/api/learn/handlers/__tests__/getLearnPageData.handler.test.ts` |
+| Area                                                        | File                                                                       |
+| ----------------------------------------------------------- | -------------------------------------------------------------------------- |
+| Schedule window (visibility cap, date cap, IST cutoff)      | `src/server/learn/utils/__tests__/buildLearnScheduleWindow.test.ts`        |
+| Module label → SQL predicate (week fallback)                | `src/server/learn/utils/__tests__/buildModuleFilterCondition.test.ts`      |
+| WHERE condition builders (lectures/resources + assignments) | `src/server/learn/utils/__tests__/buildLearnListingConditions.test.ts`     |
+| Pagination envelope + clamping                              | `src/server/learn/utils/__tests__/resolveListingPagination.test.ts`        |
+| Lecture/resource paginated query                            | `src/server/learn/queries/__tests__/fetchLectureListingPage.test.ts`       |
+| Assignment query (progress compute + filter + paginate)     | `src/server/learn/queries/__tests__/fetchAssignmentListingPage.test.ts`    |
+| Facet queries (distinct, sorted, week/unknown fallbacks)    | `src/server/learn/queries/__tests__/fetchLearnListingFacets.test.ts`       |
+| Service orchestration (lecture/assignment/resource mapping) | `src/server/learn/__tests__/getBatchLearningData.service.test.ts`          |
+| Combined page service (batches + selected batch + listing)  | `src/server/learn/__tests__/getLearnPageData.service.test.ts`              |
+| Page query parser (optional batchId)                        | `src/server/api/learn/utils/__tests__/parseLearnPageQuery.test.ts`         |
+| Page endpoint handler                                       | `src/server/api/learn/handlers/__tests__/getLearnPageData.handler.test.ts` |
 
 ## Commands
 

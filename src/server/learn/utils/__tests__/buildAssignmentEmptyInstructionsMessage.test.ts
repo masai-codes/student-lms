@@ -24,7 +24,9 @@ describe('buildAssignmentEmptyInstructionsMessage', () => {
       submission: null,
     })
 
-    expect(message).toBe('This Assignment does not require additional instructions.')
+    expect(message).toBe(
+      'This Assignment does not require additional instructions.',
+    )
   })
 
   it('drops the "start below" hint once completed', () => {
@@ -35,7 +37,9 @@ describe('buildAssignmentEmptyInstructionsMessage', () => {
       submission: { completed: true, data: null },
     })
 
-    expect(message).toBe('This Assignment does not require additional instructions.')
+    expect(message).toBe(
+      'This Assignment does not require additional instructions.',
+    )
   })
 
   it('drops the "start below" hint once a link is already generated', () => {
@@ -49,7 +53,9 @@ describe('buildAssignmentEmptyInstructionsMessage', () => {
       },
     })
 
-    expect(message).toBe('This Assignment does not require additional instructions.')
+    expect(message).toBe(
+      'This Assignment does not require additional instructions.',
+    )
   })
 
   it('never shows the "start below" hint off the Assessment Platform', () => {
@@ -60,7 +66,9 @@ describe('buildAssignmentEmptyInstructionsMessage', () => {
       submission: null,
     })
 
-    expect(message).toBe('This Assignment does not require additional instructions.')
+    expect(message).toBe(
+      'This Assignment does not require additional instructions.',
+    )
   })
 
   it('uses the right noun per kind', () => {

@@ -37,7 +37,9 @@ export function applyResumeIfNeeded(params: {
   if (!player?.seekTo) return
 
   const currentTime =
-    typeof player.getCurrentTime === 'function' ? player.getCurrentTime() || 0 : 0
+    typeof player.getCurrentTime === 'function'
+      ? player.getCurrentTime() || 0
+      : 0
   if (currentTime >= resumeSeconds - SEEK_ALIGNMENT_EPSILON) {
     resumeAppliedRef.current = true
     return

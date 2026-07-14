@@ -9,37 +9,37 @@
 
 ## Test files
 
-| Area | File |
-|------|------|
-| Phase resolution | `src/server/learn/utils/__tests__/resolveAssignmentPhase.test.ts` |
-| Progress status | `src/server/learn/utils/__tests__/calculateAssignmentProgressStatus.test.ts` |
-| Sticky footer builder | `src/server/learn/utils/__tests__/buildAssignmentDetailFooter.test.ts` |
-| Payload builder | `src/server/learn/utils/__tests__/buildAssignmentDetailPayload.test.ts` |
-| Completed-details builder | `src/server/learn/utils/__tests__/buildAssignmentCompletedDetails.test.ts` |
-| Completed-details banner UI | `src/components/features/learn/LearnPageDetails/assignment/shared/__tests__/AssignmentCompletedBanner.test.tsx` |
-| Header badges builder | `src/server/learn/utils/__tests__/buildAssignmentHeaderBadges.test.ts` |
-| Header badges UI | `src/components/features/learn/LearnPageDetails/assignment/shared/__tests__/AssignmentHeaderBadges.test.tsx` |
-| Live analytics builder | `src/server/learn/utils/__tests__/buildAssignmentLiveAnalytics.test.ts` |
-| Live analytics UI | `src/components/features/learn/LearnPageDetails/assignment/shared/__tests__/AssignmentLiveAnalytics.test.tsx` |
-| Pledge requirement resolver | `src/server/learn/utils/__tests__/resolveAssignmentRequiresPledge.test.ts` |
-| Pledge modal UI | `src/components/features/learn/LearnPageDetails/assignment/shared/__tests__/AssignmentPledgeModal.test.tsx` |
-| Problems + solution-status queries | `src/server/learn/queries/__tests__/fetchAssignmentProblems.test.ts` |
-| Problem list item builder | `src/server/learn/utils/__tests__/buildAssignmentProblemListItems.test.ts` |
-| Problem list UI | `src/components/features/learn/LearnPageDetails/assignment/shared/__tests__/AssignmentProblemList.test.tsx` |
-| Sticky footer UI | `src/components/features/learn/LearnPageDetails/assignment/shared/__tests__/AssignmentDetailStickyFooter.test.tsx` |
-| Detail page kind routing + mount effects | `src/components/features/learn/LearnPageDetails/assignment/__tests__/AssignmentDetailPage.test.tsx` |
-| Auto-create submission hook | `src/components/features/learn/LearnPageDetails/assignment/shared/__tests__/useAutoCreateAssignmentSubmission.test.tsx` |
-| Token-completion hook | `src/components/features/learn/LearnPageDetails/assignment/shared/__tests__/useTokenCompletion.test.tsx` |
-| Token-completion service | `src/server/assignments/services/__tests__/markSubmissionCompletedWithToken.test.ts` |
-| Token-completion handler | `src/server/api/learn/handlers/__tests__/markSubmissionCompletedWithToken.handler.test.ts` |
-| Token-completion client API | `src/lib/api/learn/__tests__/markSubmissionCompletedWithTokenApi.test.ts` |
-| Not-started banner copy | `src/components/features/learn/LearnPageDetails/assignment/shared/__tests__/getAssignmentNotStartedBannerCopy.test.ts` |
-| Not-started banner UI | `src/components/features/learn/LearnPageDetails/assignment/shared/__tests__/AssignmentNotStartedBanner.test.tsx` |
-| Reusable full-width banner | `src/components/features/learn/LearnPageDetails/common/layout/__tests__/LearnDetailFullWidthBanner.test.tsx` |
-| Markdown instructions rendering | `src/components/shared/markdown-content/__tests__/*` |
-| Associated content list + href | `src/components/features/learn/LearnPageDetails/common/associated/__tests__/*` |
-| Associated lecture id parsing | `src/server/learn/utils/__tests__/parseLectureDataJson.test.ts` |
-| Associated dedupe | `src/server/learn/utils/__tests__/dedupeLearnAssociatedItems.test.ts` |
+| Area                                     | File                                                                                                                    |
+| ---------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
+| Phase resolution                         | `src/server/learn/utils/__tests__/resolveAssignmentPhase.test.ts`                                                       |
+| Progress status                          | `src/server/learn/utils/__tests__/calculateAssignmentProgressStatus.test.ts`                                            |
+| Sticky footer builder                    | `src/server/learn/utils/__tests__/buildAssignmentDetailFooter.test.ts`                                                  |
+| Payload builder                          | `src/server/learn/utils/__tests__/buildAssignmentDetailPayload.test.ts`                                                 |
+| Completed-details builder                | `src/server/learn/utils/__tests__/buildAssignmentCompletedDetails.test.ts`                                              |
+| Completed-details banner UI              | `src/components/features/learn/LearnPageDetails/assignment/shared/__tests__/AssignmentCompletedBanner.test.tsx`         |
+| Header badges builder                    | `src/server/learn/utils/__tests__/buildAssignmentHeaderBadges.test.ts`                                                  |
+| Header badges UI                         | `src/components/features/learn/LearnPageDetails/assignment/shared/__tests__/AssignmentHeaderBadges.test.tsx`            |
+| Live analytics builder                   | `src/server/learn/utils/__tests__/buildAssignmentLiveAnalytics.test.ts`                                                 |
+| Live analytics UI                        | `src/components/features/learn/LearnPageDetails/assignment/shared/__tests__/AssignmentLiveAnalytics.test.tsx`           |
+| Pledge requirement resolver              | `src/server/learn/utils/__tests__/resolveAssignmentRequiresPledge.test.ts`                                              |
+| Pledge modal UI                          | `src/components/features/learn/LearnPageDetails/assignment/shared/__tests__/AssignmentPledgeModal.test.tsx`             |
+| Problems + solution-status queries       | `src/server/learn/queries/__tests__/fetchAssignmentProblems.test.ts`                                                    |
+| Problem list item builder                | `src/server/learn/utils/__tests__/buildAssignmentProblemListItems.test.ts`                                              |
+| Problem list UI                          | `src/components/features/learn/LearnPageDetails/assignment/shared/__tests__/AssignmentProblemList.test.tsx`             |
+| Sticky footer UI                         | `src/components/features/learn/LearnPageDetails/assignment/shared/__tests__/AssignmentDetailStickyFooter.test.tsx`      |
+| Detail page kind routing + mount effects | `src/components/features/learn/LearnPageDetails/assignment/__tests__/AssignmentDetailPage.test.tsx`                     |
+| Auto-create submission hook              | `src/components/features/learn/LearnPageDetails/assignment/shared/__tests__/useAutoCreateAssignmentSubmission.test.tsx` |
+| Token-completion hook                    | `src/components/features/learn/LearnPageDetails/assignment/shared/__tests__/useTokenCompletion.test.tsx`                |
+| Token-completion service                 | `src/server/assignments/services/__tests__/markSubmissionCompletedWithToken.test.ts`                                    |
+| Token-completion handler                 | `src/server/api/learn/handlers/__tests__/markSubmissionCompletedWithToken.handler.test.ts`                              |
+| Token-completion client API              | `src/lib/api/learn/__tests__/markSubmissionCompletedWithTokenApi.test.ts`                                               |
+| Not-started banner copy                  | `src/components/features/learn/LearnPageDetails/assignment/shared/__tests__/getAssignmentNotStartedBannerCopy.test.ts`  |
+| Not-started banner UI                    | `src/components/features/learn/LearnPageDetails/assignment/shared/__tests__/AssignmentNotStartedBanner.test.tsx`        |
+| Reusable full-width banner               | `src/components/features/learn/LearnPageDetails/common/layout/__tests__/LearnDetailFullWidthBanner.test.tsx`            |
+| Markdown instructions rendering          | `src/components/shared/markdown-content/__tests__/*`                                                                    |
+| Associated content list + href           | `src/components/features/learn/LearnPageDetails/common/associated/__tests__/*`                                          |
+| Associated lecture id parsing            | `src/server/learn/utils/__tests__/parseLectureDataJson.test.ts`                                                         |
+| Associated dedupe                        | `src/server/learn/utils/__tests__/dedupeLearnAssociatedItems.test.ts`                                                   |
 
 ## Commands
 

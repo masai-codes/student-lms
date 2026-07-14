@@ -37,7 +37,8 @@ const IHUB_CUSTOM_LOGO_URL =
 type JsonObject = Record<string, unknown>
 
 function asJsonObject(value: unknown): JsonObject | null {
-  if (value == null || typeof value !== 'object' || Array.isArray(value)) return null
+  if (value == null || typeof value !== 'object' || Array.isArray(value))
+    return null
   return value as JsonObject
 }
 
@@ -120,7 +121,9 @@ async function loadOwnedSubmission(
   const rows = await db
     .select({ id: submissions.id, data: submissions.data })
     .from(submissions)
-    .where(and(eq(submissions.id, submissionId), eq(submissions.userId, userId)))
+    .where(
+      and(eq(submissions.id, submissionId), eq(submissions.userId, userId)),
+    )
     .limit(1)
 
   if (rows.length === 0) throw new ApiError(404, 'SUBMISSION_NOT_FOUND')
@@ -173,7 +176,8 @@ export async function createAssessPlatformUrl(input: {
 
   const assignment = assignmentRows[0]
   if (!assignment) throw new ApiError(404, 'ASSIGNMENT_NOT_FOUND')
-  if (!assignment.concludes) throw new ApiError(400, 'ASSIGNMENT_CONCLUDES_MISSING')
+  if (!assignment.concludes)
+    throw new ApiError(400, 'ASSIGNMENT_CONCLUDES_MISSING')
 
   const settings = asJsonObject(assignment.settings) ?? {}
   const templateId = settings.assess_platform_id
@@ -208,7 +212,9 @@ export async function createAssessPlatformUrl(input: {
       .where(
         sql`JSON_EXTRACT(${assignments.settings}, '$.question_series_id') = ${String(questionSeriesId)}`,
       )
-    const seriesAssignmentIds = seriesRows.map(r => Number(r.id)).filter(Boolean)
+    const seriesAssignmentIds = seriesRows
+      .map((r) => Number(r.id))
+      .filter(Boolean)
 
     if (seriesAssignmentIds.length > 0) {
       const priorSubs = await db
@@ -222,7 +228,7 @@ export async function createAssessPlatformUrl(input: {
         )
 
       sauTokensToExcludeQuestions = priorSubs
-        .map(s => {
+        .map((s) => {
           const link = asJsonObject(s.data)?.assess_platform_link
           return typeof link === 'string' ? extractToken(link) : null
         })
@@ -281,11 +287,15 @@ export async function createAssessPlatformUrl(input: {
     ...(assignmentCase === CASE2 || assignmentCase === CASE3
       ? {
           overrideSectionTime:
-            overrideSectionTime && overrideSectionTime > 0 ? overrideSectionTime : 1,
+            overrideSectionTime && overrideSectionTime > 0
+              ? overrideSectionTime
+              : 1,
           isAllowAfterDeadline: settings.allow_practice ?? false,
         }
       : {}),
-    ...(isIhub ? { useCustomLogo: true, customLogoUrl: IHUB_CUSTOM_LOGO_URL } : {}),
+    ...(isIhub
+      ? { useCustomLogo: true, customLogoUrl: IHUB_CUSTOM_LOGO_URL }
+      : {}),
   }
 
   const response = await fetch(`${base}/student/assessments/generate-test`, {
@@ -298,7 +308,9 @@ export async function createAssessPlatformUrl(input: {
   })
 
   if (!response.ok) await parseAssessError(response)
-  const responseBody = (await response.json().catch(() => ({}))) as { url?: string }
+  const responseBody = (await response.json().catch(() => ({}))) as {
+    url?: string
+  }
   let url = responseBody.url
   if (!url) throw new ApiError(500, 'ASSESS_PLATFORM_URL_MISSING')
 
@@ -352,7 +364,11 @@ export async function createAssessPlatformAiInterviewUrl(input: {
   const { base, adminAuthToken } = requireAssessEnv()
 
   const assignmentRows = await db
-    .select({ id: assignments.id, settings: assignments.settings, batchId: assignments.batchId })
+    .select({
+      id: assignments.id,
+      settings: assignments.settings,
+      batchId: assignments.batchId,
+    })
     .from(assignments)
     .where(eq(assignments.id, assignmentId))
     .limit(1)

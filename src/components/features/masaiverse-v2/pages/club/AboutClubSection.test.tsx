@@ -68,7 +68,9 @@ describe('AboutClubSection', () => {
 
   it('renders nothing when there is no about content', () => {
     const { container } = render(
-      <AboutClubSection club={club({ aboutDescription: null, aboutDetails: [] })} />,
+      <AboutClubSection
+        club={club({ aboutDescription: null, aboutDetails: [] })}
+      />,
     )
 
     expect(container.firstChild).toBeNull()

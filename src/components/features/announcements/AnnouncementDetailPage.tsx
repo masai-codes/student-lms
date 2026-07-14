@@ -20,14 +20,19 @@ import {
   removeBookmark,
 } from '@/lib/api/announcement/announcementApi'
 import { toast } from '@/lib/toast'
-import { formatTimestampLocal, formatTimestampIST } from '@/utils/timeZoneHandler'
+import {
+  formatTimestampLocal,
+  formatTimestampIST,
+} from '@/utils/timeZoneHandler'
 import { MarkdownContent } from '@/components/shared/markdown-content/MarkdownContent'
 
 interface AnnouncementDetailPageProps {
   detail: AnnouncementDetail
 }
 
-export function AnnouncementDetailPage({ detail }: AnnouncementDetailPageProps) {
+export function AnnouncementDetailPage({
+  detail,
+}: AnnouncementDetailPageProps) {
   const [isUnread, setIsUnread] = useState(false)
   const [isBookmarked, setIsBookmarked] = useState(detail.isBookmarked)
   const [bookmarkId, setBookmarkId] = useState<number | null>(detail.bookmarkId)
@@ -43,7 +48,9 @@ export function AnnouncementDetailPage({ detail }: AnnouncementDetailPageProps) 
     markedReadRef.current = true
     // Message ids are BigInt — pass as a string to avoid Number precision loss.
     const markReadPromise =
-      source === 'm' ? markMessageRead(detail.id) : markAnnouncementRead(numericId)
+      source === 'm'
+        ? markMessageRead(detail.id)
+        : markAnnouncementRead(numericId)
     markReadPromise
       .then(() => {
         toast.success('Marked as read')
@@ -54,7 +61,9 @@ export function AnnouncementDetailPage({ detail }: AnnouncementDetailPageProps) 
             (old = 0) => Math.max(0, old - 1),
           )
         }
-        void queryClient.invalidateQueries({ queryKey: ['announcement-unread-count'] })
+        void queryClient.invalidateQueries({
+          queryKey: ['announcement-unread-count'],
+        })
       })
       .catch(() => {
         // silent — read-tracking failure is non-critical
@@ -87,7 +96,9 @@ export function AnnouncementDetailPage({ detail }: AnnouncementDetailPageProps) 
         )
       }
       void queryClient.invalidateQueries({ queryKey: ['announcements'] })
-      void queryClient.invalidateQueries({ queryKey: ['announcement-unread-count'] })
+      void queryClient.invalidateQueries({
+        queryKey: ['announcement-unread-count'],
+      })
     } catch {
       toast.error('Something went wrong. Please try again.')
     }
@@ -117,13 +128,15 @@ export function AnnouncementDetailPage({ detail }: AnnouncementDetailPageProps) 
 
   return (
     <div className="mx-4 mb-6 mt-4 md:mx-8 flex flex-col gap-5">
-
       {/* Breadcrumb */}
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>
             <BreadcrumbLink asChild>
-              <Link to="/" className="text-sm text-gray-500 hover:text-gray-700">
+              <Link
+                to="/"
+                className="text-sm text-foreground-muted hover:text-foreground"
+              >
                 Home
               </Link>
             </BreadcrumbLink>
@@ -134,7 +147,7 @@ export function AnnouncementDetailPage({ detail }: AnnouncementDetailPageProps) 
               <Link
                 to="/announcements"
                 search={{ page: 1 }}
-                className="text-sm text-gray-500 hover:text-gray-700"
+                className="text-sm text-foreground-muted hover:text-foreground"
               >
                 Announcements
               </Link>
@@ -142,7 +155,9 @@ export function AnnouncementDetailPage({ detail }: AnnouncementDetailPageProps) 
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
-            <span className="text-sm text-gray-500">{breadcrumbTitle}</span>
+            <span className="text-sm text-foreground-muted">
+              {breadcrumbTitle}
+            </span>
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
@@ -151,22 +166,26 @@ export function AnnouncementDetailPage({ detail }: AnnouncementDetailPageProps) 
       <div className="flex items-start justify-between gap-6">
         {/* Left: title + meta */}
         <div className="flex flex-col gap-1.5 min-w-0">
-          <h1 className="text-2xl font-bold text-gray-900 leading-snug break-words">
+          <h1 className="text-2xl font-bold text-foreground leading-snug break-words">
             {detail.title}
           </h1>
-          <div className="flex flex-wrap items-center gap-1.5 text-sm text-gray-500">
-            <span className="font-medium text-gray-700">{detail.authorName}</span>
+          <div className="flex flex-wrap items-center gap-1.5 text-sm text-foreground-muted">
+            <span className="font-medium text-foreground">
+              {detail.authorName}
+            </span>
             {detail.scheduledAt && (
               <>
                 <span>•</span>
                 <span className="relative group/date cursor-default">
                   {formatTimestampLocal(detail.scheduledAt)}
-                  <span className="pointer-events-none absolute bottom-full left-0 mb-1.5 z-20
+                  <span
+                    className="pointer-events-none absolute bottom-full left-0 mb-1.5 z-20
                     opacity-0 group-hover/date:opacity-100 transition-opacity duration-150
-                    whitespace-nowrap rounded-md bg-gray-900 px-2.5 py-1.5
-                    text-xs font-medium text-white shadow-lg">
+                    whitespace-nowrap rounded-md bg-foreground px-2.5 py-1.5
+                    text-xs font-medium text-background shadow-lg"
+                  >
                     {formatTimestampIST(detail.scheduledAt)}
-                    <span className="absolute top-full left-4 -translate-x-1/2 border-4 border-transparent border-t-gray-900" />
+                    <span className="absolute top-full left-4 -translate-x-1/2 border-4 border-transparent border-t-foreground" />
                   </span>
                 </span>
               </>
@@ -196,21 +215,29 @@ export function AnnouncementDetailPage({ detail }: AnnouncementDetailPageProps) 
         <div className="flex flex-col items-end gap-2 shrink-0">
           <button
             type="button"
-            onClick={() => { void handleToggleBookmark() }}
+            onClick={() => {
+              void handleToggleBookmark()
+            }}
             className={`flex items-center justify-center w-9 h-9 rounded-md border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400 cursor-pointer ${
               isBookmarked
                 ? 'border-primary-300 bg-primary-50 text-primary-600'
-                : 'border-gray-200 bg-white text-gray-500 hover:bg-gray-50'
+                : 'border-border bg-surface text-foreground-muted hover:bg-surface-muted'
             }`}
             aria-label={isBookmarked ? 'Remove bookmark' : 'Bookmark'}
           >
-            <Bookmark size={16} strokeWidth={1.75} className={isBookmarked ? 'fill-primary-500' : ''} />
+            <Bookmark
+              size={16}
+              strokeWidth={1.75}
+              className={isBookmarked ? 'fill-primary-500' : ''}
+            />
           </button>
 
           <button
             type="button"
-            onClick={() => { void handleToggleUnread() }}
-            className="text-sm font-medium text-gray-700 px-3 py-1.5 rounded-md border border-gray-200 bg-white hover:bg-gray-50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400 cursor-pointer whitespace-nowrap"
+            onClick={() => {
+              void handleToggleUnread()
+            }}
+            className="text-sm font-medium text-foreground px-3 py-1.5 rounded-md border border-border bg-surface hover:bg-surface-muted transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400 cursor-pointer whitespace-nowrap"
           >
             {isUnread ? 'Mark As Read' : 'Mark As Unread'}
           </button>
@@ -218,21 +245,22 @@ export function AnnouncementDetailPage({ detail }: AnnouncementDetailPageProps) 
       </div>
 
       {/* Body content card */}
-      <div className="rounded-2xl border border-gray-200 bg-white p-6 md:p-8 flex flex-col gap-6">
+      <div className="rounded-2xl border border-border bg-surface p-6 md:p-8 flex flex-col gap-6">
         <MarkdownContent value={detail.body} />
         {detail.ctaName && detail.ctaLink && (
           <a
             href={detail.ctaLink}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex w-full items-center justify-center rounded-lg py-3 text-sm font-semibold text-white transition-opacity hover:opacity-90 focus-visible:outline-none"
-            style={{ background: '#6962AC', fontFamily: 'Poppins' }}
+            className="flex w-full items-center justify-center rounded-lg py-3 text-sm font-semibold text-brand-foreground bg-brand transition-opacity hover:opacity-90 focus-visible:outline-none"
+            style={{ fontFamily: 'Poppins' }}
           >
-            {detail.ctaName.length > 50 ? `${detail.ctaName.slice(0, 50)}…` : detail.ctaName}
+            {detail.ctaName.length > 50
+              ? `${detail.ctaName.slice(0, 50)}…`
+              : detail.ctaName}
           </a>
         )}
       </div>
-
     </div>
   )
 }

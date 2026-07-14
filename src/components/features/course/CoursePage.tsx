@@ -1,5 +1,8 @@
 import { useQuery } from '@tanstack/react-query'
-import { fetchCoursePagePrimary, fetchCoursePageDetails } from '@/lib/api/course/courseApi'
+import {
+  fetchCoursePagePrimary,
+  fetchCoursePageDetails,
+} from '@/lib/api/course/courseApi'
 import { CourseHeroCard } from './CourseHeroCard'
 import { CourseTimeline } from './CourseTimeline'
 import { CourseAgreements } from './CourseAgreements'
@@ -18,7 +21,11 @@ interface Props {
 export function CoursePage({ batchId }: Props) {
   const id = Number(batchId)
 
-  const { data: primary, isLoading, isError } = useQuery({
+  const {
+    data: primary,
+    isLoading,
+    isError,
+  } = useQuery({
     queryKey: ['course-primary', id],
     queryFn: () => fetchCoursePagePrimary(id),
   })
@@ -33,7 +40,7 @@ export function CoursePage({ batchId }: Props) {
 
   if (isError || !primary) {
     return (
-      <div className="flex items-center justify-center min-h-96 text-gray-500 text-sm">
+      <div className="flex items-center justify-center min-h-96 text-foreground-muted text-sm">
         Course not found or you are not enrolled.
       </div>
     )
@@ -52,8 +59,12 @@ export function CoursePage({ batchId }: Props) {
       <CourseResources resources={batchData.resources} />
       <CourseCertificates certificates={certificates} />
       <CourseInstructors groups={batchData.supportGroups} />
-      {batchData.showEvaluationReport && <CourseEvaluations evaluations={evaluations} />}
-      {batchData.showAttendanceReport && attendance && <CourseAttendance data={attendance} />}
+      {batchData.showEvaluationReport && (
+        <CourseEvaluations evaluations={evaluations} />
+      )}
+      {batchData.showAttendanceReport && attendance && (
+        <CourseAttendance data={attendance} />
+      )}
       <CourseStructure modules={batchData.courseStructure} />
     </div>
   )

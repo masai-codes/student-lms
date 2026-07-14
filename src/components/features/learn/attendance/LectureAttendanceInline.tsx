@@ -33,7 +33,10 @@ export function LectureAttendanceInline({
   }
 
   const showDays = daysRemaining != null && daysRemaining >= 0
-  const remainingText = formatCatchUpRemainingLabel(remainingLabel, daysRemaining)
+  const remainingText = formatCatchUpRemainingLabel(
+    remainingLabel,
+    daysRemaining,
+  )
 
   const badge = showBadge ? (
     <div className="min-w-0 shrink">
@@ -51,7 +54,7 @@ export function LectureAttendanceInline({
       )}
     >
       {showDays ? (
-        <span className="type-t1 whitespace-nowrap text-gray-500">
+        <span className="type-t1 whitespace-nowrap text-foreground-muted">
           {remainingText}
         </span>
       ) : null}

@@ -142,7 +142,8 @@ function buildNotices(
   const startedAfterDeadline =
     context.submission?.startedAt != null &&
     parseIstToMs(context.concludes) != null &&
-    parseIstToMs(context.submission.startedAt)! > parseIstToMs(context.concludes)!
+    parseIstToMs(context.submission.startedAt)! >
+      parseIstToMs(context.concludes)!
 
   if (
     showPractice &&

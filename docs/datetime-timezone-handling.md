@@ -12,13 +12,13 @@ timestamp in the UI.
 Two MySQL column types look **byte-for-byte identical** when you `SELECT` them, but
 they denote different absolute instants:
 
-| Column type | Stores               | `"2026-07-09 03:20:00"` means |
-| ----------- | -------------------- | ----------------------------- |
-| `DATETIME`  | **IST wall-clock**   | 03:20 **IST** (`+05:30`)      |
-| `TIMESTAMP` | **UTC instant**      | 03:20 **UTC** (`Z`)           |
+| Column type | Stores             | `"2026-07-09 03:20:00"` means |
+| ----------- | ------------------ | ----------------------------- |
+| `DATETIME`  | **IST wall-clock** | 03:20 **IST** (`+05:30`)      |
+| `TIMESTAMP` | **UTC instant**    | 03:20 **UTC** (`Z`)           |
 
 The fetched string carries **no timezone**. So historically, every call site had to
-*know* which convention a given column followed and pick the right parser. That
+_know_ which convention a given column followed and pick the right parser. That
 knowledge lived only in developers' heads — a **5.5-hour silent-bug** waiting to
 happen (IST is UTC+5:30).
 
@@ -90,10 +90,9 @@ wall-clock the driver returns:
 
 ```ts
 // istDatetime.fromDriver
-`${driverWallClock(value)}${offsetSuffix(IST_OFFSET_MIN)}`   // → "…T03:20:00+05:30"
-
+;`${driverWallClock(value)}${offsetSuffix(IST_OFFSET_MIN)}` // → "…T03:20:00+05:30"
 // utcTimestamp.fromDriver
-`${driverWallClock(value)}Z`                                  // → "…T03:20:00Z"
+`${driverWallClock(value)}Z` // → "…T03:20:00Z"
 ```
 
 `driverWallClock(value)` normalizes **whatever mysql2 hands back** into zone-less
@@ -131,13 +130,13 @@ toDbWallClock(toEpochMs(value, 0), 0)
 
 ### 3.3 The helper functions (exported, unit-tested)
 
-| Function                             | Purpose                                                                     |
-| ------------------------------------ | --------------------------------------------------------------------------- |
-| `driverWallClock(value)`             | Driver value (string \| Date) → zone-less wall-clock ISO digits.            |
-| `toEpochMs(value, offsetMin)`        | Write value → epoch ms (naive strings read in `offsetMin`'s zone).          |
-| `toDbWallClock(epochMs, offsetMin)`  | Epoch ms → `YYYY-MM-DD HH:MM:SS` for `offsetMin`'s zone.                     |
-| `istDatetime(name?)`                 | Custom `DATETIME` column type (IST). Drop-in for Drizzle `datetime`.        |
-| `utcTimestamp(name?)`                | Custom `TIMESTAMP` column type (UTC). Drop-in for Drizzle `timestamp`.      |
+| Function                            | Purpose                                                                |
+| ----------------------------------- | ---------------------------------------------------------------------- |
+| `driverWallClock(value)`            | Driver value (string \| Date) → zone-less wall-clock ISO digits.       |
+| `toEpochMs(value, offsetMin)`       | Write value → epoch ms (naive strings read in `offsetMin`'s zone).     |
+| `toDbWallClock(epochMs, offsetMin)` | Epoch ms → `YYYY-MM-DD HH:MM:SS` for `offsetMin`'s zone.               |
+| `istDatetime(name?)`                | Custom `DATETIME` column type (IST). Drop-in for Drizzle `datetime`.   |
+| `utcTimestamp(name?)`               | Custom `TIMESTAMP` column type (UTC). Drop-in for Drizzle `timestamp`. |
 
 Internal helpers: `pad`, `utcWallClock` (reads a Date's UTC components),
 `offsetSuffix` (`+HH:MM` / `-HH:MM` / `Z`). `IST_OFFSET_MIN = 5*60 + 30 = 330`.
@@ -196,7 +195,10 @@ Rewrites the dump into `./src/db/schema.ts`, all mechanical and reapplied every 
 1. **Swap the import** (the key move):
 
    ```ts
-   import { istDatetime as datetime, utcTimestamp as timestamp } from "./columnTypes"
+   import {
+     istDatetime as datetime,
+     utcTimestamp as timestamp,
+   } from './columnTypes'
    ```
 
    Because the wrappers are **aliased** to `datetime` / `timestamp`, every
@@ -204,7 +206,7 @@ Rewrites the dump into `./src/db/schema.ts`, all mechanical and reapplied every 
    to the custom types **without editing a single table body**.
 
 2. **`escapeSqlTemplateBackticks()`** — `drizzle-kit pull` emits MySQL
-   backtick-quoted identifiers *inside* `` sql`...` `` templates without escaping,
+   backtick-quoted identifiers _inside_ `` sql`...` `` templates without escaping,
    which prematurely closes the JS template literal (e.g. `` votes.`voteTarget` ``).
    This escapes any backtick between the opening `` sql` `` and the final backtick on
    the same line.
@@ -233,7 +235,7 @@ Rewrites the dump into `./src/db/schema.ts`, all mechanical and reapplied every 
 good `schema.ts`), if the dump file is missing, or if it can't find the
 `drizzle-orm/mysql-core` import.
 
-> **Related script:** `npm run db:pull` runs *only* `drizzle-kit pull` (raw dump,
+> **Related script:** `npm run db:pull` runs _only_ `drizzle-kit pull` (raw dump,
 > no swap). Use `db:sync` for the full, safe regeneration.
 
 ---
@@ -253,11 +255,11 @@ were folded in here so there is a single home for time logic.
 All three sit in `timeZoneHandler/index.ts` and share a single internal
 `parseUtcDbInstant` for the zone-suffix / naive-datetime handling:
 
-| Export                             | Zone of naive strings | Far-future → local fallback | Returns        |
-| ---------------------------------- | --------------------- | --------------------------- | -------------- |
-| `parseMysqlDatetimeIST`            | **IST**               | n/a                         | `Dayjs \| null`|
-| `parseServerTimestamp`             | **UTC**               | **yes** (dev-DB safety net) | `Date \| null` |
-| `parseMasaiverseEventDbTimestamp`  | **UTC**               | no (events are future)      | `Date \| null` |
+| Export                            | Zone of naive strings | Far-future → local fallback | Returns         |
+| --------------------------------- | --------------------- | --------------------------- | --------------- |
+| `parseMysqlDatetimeIST`           | **IST**               | n/a                         | `Dayjs \| null` |
+| `parseServerTimestamp`            | **UTC**               | **yes** (dev-DB safety net) | `Date \| null`  |
+| `parseMasaiverseEventDbTimestamp` | **UTC**               | no (events are future)      | `Date \| null`  |
 
 > The old `eventDbTimestampToMs` helper was **removed** — it had zero consumers.
 
@@ -274,10 +276,10 @@ Uses `dayjs` with the `utc` and `timezone` plugins. `IST = 'Asia/Kolkata'`.
   by adding elapsed device-side ms to a server timestamp, so the UI doesn't have to
   trust the (possibly wrong) device clock.
 
-**Viewer-timezone handling** (works off the *device* timezone — there is no stored
+**Viewer-timezone handling** (works off the _device_ timezone — there is no stored
 per-user timezone preference):
 
-- `toLocalDayjs(d)` *(internal)* — render any instant in the device's local zone.
+- `toLocalDayjs(d)` _(internal)_ — render any instant in the device's local zone.
 - `isIstTimezone()` — is the device at offset `-330`? (`getTimezoneOffset()` returns
   minutes behind UTC, negative when ahead). Treats any +5:30 zone (e.g. Colombo) as
   IST since the displayed clock is identical — used to decide whether an IST tooltip
@@ -289,12 +291,12 @@ per-user timezone preference):
 viewer's clock with a tz label; the IST one (used for hover tooltips) always shows
 IST, so a non-IST viewer sees their own time **plus** an unambiguous IST tooltip:
 
-| Local (viewer tz)             | IST (tooltip)              | Shape                                        |
-| ----------------------------- | -------------------------- | -------------------------------------------- |
-| `formatTimeRangeLocal`        | `formatTimeRangeIST`       | `5:13 PM - 6:12 PM (IST)`                    |
-| `formatScheduleRangeLocal`    | `formatScheduleRangeIST`   | `2 Jul, 6:30 PM - 7:30 PM (IST)`             |
-| `formatLectureRangeLocal`     | — (server has its own)     | `10 May 2026, 3:30 PM - 5:30 PM (IST)`       |
-| `formatTimestampLocal`        | `formatTimestampIST`       | `6 Jun, 9:54 AM (IST)`                       |
+| Local (viewer tz)          | IST (tooltip)            | Shape                                  |
+| -------------------------- | ------------------------ | -------------------------------------- |
+| `formatTimeRangeLocal`     | `formatTimeRangeIST`     | `5:13 PM - 6:12 PM (IST)`              |
+| `formatScheduleRangeLocal` | `formatScheduleRangeIST` | `2 Jul, 6:30 PM - 7:30 PM (IST)`       |
+| `formatLectureRangeLocal`  | — (server has its own)   | `10 May 2026, 3:30 PM - 5:30 PM (IST)` |
+| `formatTimestampLocal`     | `formatTimestampIST`     | `6 Jun, 9:54 AM (IST)`                 |
 
 All Local formatters read the device timezone, so they **must run client-side**.
 Cross-day ranges automatically include the end date. Internally every `…Local` /
@@ -315,7 +317,7 @@ vs IST) and the trailing label. (Previously these were duplicated as
 ### 5.2 `parseServerTimestamp` — general server-timestamp parser
 
 - If the string has a zone suffix → trust it (`new Date(raw)`).
-- If it's a naive `YYYY-MM-DD HH:MM:SS` → interpret as **UTC**, *unless* that lands
+- If it's a naive `YYYY-MM-DD HH:MM:SS` → interpret as **UTC**, _unless_ that lands
   more than `futureSkewMs` (default 1h) in the future, in which case fall back to
   **local** interpretation. This guard protects dev DBs configured to local time.
 - Anything else → best-effort `new Date(raw)`.
@@ -351,9 +353,9 @@ reads would be wrong.
 **Recommended hardening** (pick one, on the pool in `src/db/index.ts`):
 
 ```ts
-mysql.createPool({ uri: databaseUrl, timezone: 'Z',        /* … */ }) // mysql2 builds Dates as UTC
+mysql.createPool({ uri: databaseUrl, timezone: 'Z' /* … */ }) // mysql2 builds Dates as UTC
 // or
-mysql.createPool({ uri: databaseUrl, dateStrings: true,    /* … */ }) // driver returns raw strings
+mysql.createPool({ uri: databaseUrl, dateStrings: true /* … */ }) // driver returns raw strings
 ```
 
 Either removes the dependence on the ambient process timezone. Until then, ensure
@@ -380,17 +382,17 @@ the runtime sets `TZ=UTC`.
 
 ## 8. File map
 
-| File                                     | Role                                                                 |
-| ---------------------------------------- | -------------------------------------------------------------------- |
-| `src/db/columnTypes.ts`                  | Custom `istDatetime`/`utcTimestamp` types + read/write helpers.      |
-| `src/db/columnTypes.test.ts`             | Unit tests for `driverWallClock`, `toEpochMs`, `toDbWallClock`.      |
-| `src/db/schema.ts`                       | Generated schema (pure derivative of the DB). **Do not edit.**       |
-| `src/db/index.ts`                        | mysql2 pool + Drizzle instance (see §6 re: session timezone).        |
-| `scripts/sync-schema.mjs`                | Reapplies the type swap + reconciliations after `drizzle-kit pull`.  |
-| `drizzle.config.ts`                      | drizzle-kit config (schema path, out dir, credentials).              |
-| `src/utils/timeZoneHandler/index.ts`     | **Single app-side home:** all 3 parsers + viewer-tz formatters (dayjs).|
-| `src/utils/timeZoneHandler/parsers.test.ts` | Tests for the UTC parsers.                                        |
-| `src/utils/timeZoneHandler/formatScheduleRange.test.ts` | Tests for the formatters.                             |
+| File                                                    | Role                                                                    |
+| ------------------------------------------------------- | ----------------------------------------------------------------------- |
+| `src/db/columnTypes.ts`                                 | Custom `istDatetime`/`utcTimestamp` types + read/write helpers.         |
+| `src/db/columnTypes.test.ts`                            | Unit tests for `driverWallClock`, `toEpochMs`, `toDbWallClock`.         |
+| `src/db/schema.ts`                                      | Generated schema (pure derivative of the DB). **Do not edit.**          |
+| `src/db/index.ts`                                       | mysql2 pool + Drizzle instance (see §6 re: session timezone).           |
+| `scripts/sync-schema.mjs`                               | Reapplies the type swap + reconciliations after `drizzle-kit pull`.     |
+| `drizzle.config.ts`                                     | drizzle-kit config (schema path, out dir, credentials).                 |
+| `src/utils/timeZoneHandler/index.ts`                    | **Single app-side home:** all 3 parsers + viewer-tz formatters (dayjs). |
+| `src/utils/timeZoneHandler/parsers.test.ts`             | Tests for the UTC parsers.                                              |
+| `src/utils/timeZoneHandler/formatScheduleRange.test.ts` | Tests for the formatters.                                               |
 
 ---
 

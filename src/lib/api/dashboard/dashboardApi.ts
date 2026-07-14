@@ -19,7 +19,9 @@ export async function fetchDashboardOverview(): Promise<DashboardOverview> {
 }
 
 export async function fetchNavbarPillEvent(): Promise<NavbarPillEvent | null> {
-  const { event } = await fetchJson<{ event: NavbarPillEvent | null }>(DASHBOARD_API.navbarPill)
+  const { event } = await fetchJson<{ event: NavbarPillEvent | null }>(
+    DASHBOARD_API.navbarPill,
+  )
   return event
 }
 
@@ -32,17 +34,27 @@ export async function dismissWelcomeModalApi(): Promise<void> {
 }
 
 /** On-demand document-upload status for a batch (hits the external admissions API). */
-export async function fetchT0FlowDocuments(batchId: number): Promise<T0FlowDocumentsStatus> {
-  return fetchJson<T0FlowDocumentsStatus>(`${DASHBOARD_API.t0FlowDocuments}?batchId=${batchId}`)
+export async function fetchT0FlowDocuments(
+  batchId: number,
+): Promise<T0FlowDocumentsStatus> {
+  return fetchJson<T0FlowDocumentsStatus>(
+    `${DASHBOARD_API.t0FlowDocuments}?batchId=${batchId}`,
+  )
 }
 
 /** Fetches a non-primary batch's guided-tour lectures (the primary batch's come from the overview). */
-export async function fetchT0FlowLectures(batchId?: number): Promise<T0FlowLecturesResult> {
-  const url = batchId ? `${DASHBOARD_API.t0FlowLectures}?batchId=${batchId}` : DASHBOARD_API.t0FlowLectures
+export async function fetchT0FlowLectures(
+  batchId?: number,
+): Promise<T0FlowLecturesResult> {
+  const url = batchId
+    ? `${DASHBOARD_API.t0FlowLectures}?batchId=${batchId}`
+    : DASHBOARD_API.t0FlowLectures
   return fetchJson<T0FlowLecturesResult>(url)
 }
 
-export async function uploadProfilePhoto(image: string): Promise<UploadProfilePhotoResult> {
+export async function uploadProfilePhoto(
+  image: string,
+): Promise<UploadProfilePhotoResult> {
   return fetchJson<UploadProfilePhotoResult>(DASHBOARD_API.profilePhoto, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -61,7 +73,9 @@ export async function saveAgreementDetailsApi(
   })
 }
 
-export async function submitAgreementApi(sectionId: number): Promise<SubmitAgreementResult> {
+export async function submitAgreementApi(
+  sectionId: number,
+): Promise<SubmitAgreementResult> {
   return fetchJson<SubmitAgreementResult>(DASHBOARD_API.agreementSubmit, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -70,7 +84,9 @@ export async function submitAgreementApi(sectionId: number): Promise<SubmitAgree
 }
 
 /** Stamps the agreement's first-view time (starts the review countdown). Idempotent. */
-export async function recordAgreementViewedApi(sectionId: number): Promise<{ viewTime: string }> {
+export async function recordAgreementViewedApi(
+  sectionId: number,
+): Promise<{ viewTime: string }> {
   return fetchJson<{ viewTime: string }>(DASHBOARD_API.agreementView, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },

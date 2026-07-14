@@ -66,7 +66,9 @@ function withMobileViewportHeader(headers?: HeadersInit): Headers {
 }
 
 function withClientContextHeaders(headers?: HeadersInit): Headers {
-  return withMobileViewportHeader(withAppMobileHeaders(withAppOriginHeader(headers)))
+  return withMobileViewportHeader(
+    withAppMobileHeaders(withAppOriginHeader(headers)),
+  )
 }
 
 function isSameOriginRequest(input: RequestInfo | URL): boolean {

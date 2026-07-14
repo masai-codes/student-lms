@@ -56,7 +56,7 @@ export default function ClubPhotosSection({ club }: ClubPhotosSectionProps) {
                 source: 'view_gallery_link',
               })
             }
-            className="text-[14px] font-medium text-masaiverse-orange hover:underline"
+            className="text-[14px] font-medium text-accent-warm hover:underline"
           >
             View gallery →
           </Link>
@@ -68,7 +68,9 @@ export default function ClubPhotosSection({ club }: ClubPhotosSectionProps) {
         <PhotoTile
           src={first}
           className={
-            hasMosaic ? 'aspect-[16/10] sm:aspect-auto sm:h-full' : 'aspect-[16/10]'
+            hasMosaic
+              ? 'aspect-[16/10] sm:aspect-auto sm:h-full'
+              : 'aspect-[16/10]'
           }
         />
         {hasMosaic ? (

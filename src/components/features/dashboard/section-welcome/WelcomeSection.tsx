@@ -23,7 +23,7 @@ export function WelcomeSection({ name, banners }: WelcomeSectionProps) {
       <div className="dash-wave-trigger hidden shrink-0 cursor-default lg:block">
         {name ? (
           <>
-            <p className="text-2xl font-medium text-gray-500 md:text-3xl">
+            <p className="text-2xl font-medium text-foreground-muted md:text-3xl">
               Welcome
             </p>
             <h1

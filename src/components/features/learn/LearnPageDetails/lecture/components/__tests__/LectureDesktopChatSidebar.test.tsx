@@ -4,19 +4,22 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import { LectureDesktopChatSidebar } from '../LectureDesktopChatSidebar'
 
-vi.mock('@/components/features/lecture-ai-chat/LectureAiChatExperience', () => ({
-  LectureAiChatExperience: ({
-    onCloseSidebar,
-  }: {
-    onCloseSidebar?: () => void
-  }) => (
-    <div>
-      <button type="button" onClick={onCloseSidebar}>
-        Close assistant
-      </button>
-    </div>
-  ),
-}))
+vi.mock(
+  '@/components/features/lecture-ai-chat/LectureAiChatExperience',
+  () => ({
+    LectureAiChatExperience: ({
+      onCloseSidebar,
+    }: {
+      onCloseSidebar?: () => void
+    }) => (
+      <div>
+        <button type="button" onClick={onCloseSidebar}>
+          Close assistant
+        </button>
+      </div>
+    ),
+  }),
+)
 
 describe('LectureDesktopChatSidebar', () => {
   afterEach(() => {

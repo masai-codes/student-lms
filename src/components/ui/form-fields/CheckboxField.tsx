@@ -27,7 +27,10 @@ export function CheckboxField({
 }: CheckboxFieldProps) {
   return (
     <div className="flex flex-col gap-1">
-      <label htmlFor={id} className="flex cursor-pointer items-start gap-2.5 text-sm text-gray-700">
+      <label
+        htmlFor={id}
+        className="flex cursor-pointer items-start gap-2.5 text-sm text-foreground"
+      >
         <input
           id={id}
           type="checkbox"
@@ -35,14 +38,14 @@ export function CheckboxField({
           disabled={disabled}
           onChange={(e) => onChange(e.target.checked)}
           className={cn(
-            'mt-0.5 size-4 shrink-0 rounded border-gray-300 text-[#6962AC] focus-visible:ring-2 focus-visible:ring-[#6962AC]',
-            error && 'border-red-500',
+            'mt-0.5 size-4 shrink-0 rounded border-border-strong text-brand focus-visible:ring-2 focus-visible:ring-brand',
+            error && 'border-danger',
           )}
           data-testid={dataTestId ? `${dataTestId}-input` : undefined}
         />
         <span>{children}</span>
       </label>
-      {error ? <p className="text-xs text-red-600">{error}</p> : null}
+      {error ? <p className="text-xs text-danger">{error}</p> : null}
     </div>
   )
 }

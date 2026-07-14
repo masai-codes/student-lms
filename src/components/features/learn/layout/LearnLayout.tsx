@@ -88,7 +88,7 @@ export function LearnLayout({ pageData, onBatchChange }: LearnLayoutProps) {
 
   return (
     <div className="w-full mt-[-24px]">
-      <div className="relative ml-[calc(50%-50vw)] w-screen max-w-[100vw] overflow-x-clip bg-white rounded-b-[32px]">
+      <div className="relative ml-[calc(50%-50vw)] w-screen max-w-[100vw] overflow-x-clip bg-surface rounded-b-[32px]">
         {/* Ambient aurora wash behind the hero band — pure decoration. */}
         <div
           aria-hidden

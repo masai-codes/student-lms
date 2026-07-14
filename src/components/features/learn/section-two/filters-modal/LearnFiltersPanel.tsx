@@ -136,7 +136,7 @@ export function LearnFiltersPanel({
       <div className="flex min-h-0 min-w-0 flex-1">
         {/* Narrower nav below `sm` so the option list keeps room in the drawer. */}
         <nav
-          className="flex w-[104px] shrink-0 flex-col gap-1 border-r border-slate-200 py-4 pl-4 pr-2 sm:w-[148px]"
+          className="flex w-[104px] shrink-0 flex-col gap-1 border-r border-border py-4 pl-4 pr-2 sm:w-[148px]"
           aria-label="Filter categories"
         >
           {navItems.map(({ key, label }) => {
@@ -146,28 +146,26 @@ export function LearnFiltersPanel({
                 key={key}
                 type="button"
                 onClick={() => setActiveNav(key)}
-                className={`relative flex items-center justify-between gap-2 rounded-lg py-2 pl-2 text-left text-sm transition-colors duration-200 hover:bg-slate-50 ${
-                  active ? 'bg-[#6962AC]/5' : ''
+                className={`relative flex items-center justify-between gap-2 rounded-lg py-2 pl-2 text-left text-sm transition-colors duration-200 hover:bg-surface-muted ${
+                  active ? 'bg-brand/5' : ''
                 }`}
               >
                 <span
                   aria-hidden
-                  className={`absolute inset-y-2 left-0 w-[3px] rounded-full bg-[#6962AC] transition-opacity duration-200 ${
+                  className={`absolute inset-y-2 left-0 w-[3px] rounded-full bg-brand transition-opacity duration-200 ${
                     active ? 'opacity-100' : 'opacity-0'
                   }`}
                 />
                 <span
                   className={`min-w-0 break-words transition-colors duration-200 ${
-                    active ? 'font-medium' : 'text-slate-800'
+                    active ? 'font-medium text-brand' : 'text-foreground'
                   }`}
-                  style={active ? { color: '#6962AC' } : undefined}
                 >
                   {label}
                 </span>
                 {active ? (
                   <span
-                    className="size-1.5 shrink-0 rounded-full"
-                    style={{ backgroundColor: '#6962AC' }}
+                    className="size-1.5 shrink-0 rounded-full bg-brand"
                     aria-hidden
                   />
                 ) : (
@@ -180,7 +178,7 @@ export function LearnFiltersPanel({
 
         <div className="min-h-0 min-w-0 flex-1 overflow-y-auto px-4 py-4">
           <div className="space-y-3">
-            <h3 className="text-base font-semibold text-slate-900">
+            <h3 className="text-base font-semibold text-foreground">
               {activeNavLabel}
             </h3>
 
@@ -333,7 +331,7 @@ export function LearnFiltersPanel({
 
             {activeNav === 'date' ? (
               <div className="space-y-4">
-                <p className="type-b2-regular text-gray-600">
+                <p className="type-b2-regular text-foreground-muted">
                   Filter by schedule dates. Items without a scheduled date are
                   hidden when either bound is set.
                 </p>
@@ -354,7 +352,7 @@ export function LearnFiltersPanel({
         </div>
       </div>
 
-      <div className="mt-auto flex shrink-0 flex-wrap items-center justify-between gap-2 border-t border-slate-200 px-4 py-3">
+      <div className="mt-auto flex shrink-0 flex-wrap items-center justify-between gap-2 border-t border-border px-4 py-3">
         <MasaiButton
           type="secondary"
           size="md"
@@ -417,7 +415,7 @@ function CheckboxColumn({
         </li>
       ))}
       {options.length === 0 ? (
-        <li className="text-sm text-slate-500">No matches.</li>
+        <li className="text-sm text-foreground-muted">No matches.</li>
       ) : null}
     </ul>
   )

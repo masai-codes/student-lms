@@ -1,5 +1,11 @@
 // @vitest-environment jsdom
-import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
+import {
+  cleanup,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import ImageUploadField from './ImageUploadField'
 
@@ -17,18 +23,26 @@ afterEach(cleanup)
 
 describe('ImageUploadField', () => {
   it('uploads a chosen file and reports the returned URL', async () => {
-    uploadImage.mockResolvedValue({ url: 'https://bucket.s3.amazonaws.com/x.png' })
+    uploadImage.mockResolvedValue({
+      url: 'https://bucket.s3.amazonaws.com/x.png',
+    })
     const onChange = vi.fn()
     const { container } = render(
       <ImageUploadField value={null} onChange={onChange} label="Banner" />,
     )
 
-    const input = container.querySelector('input[type="file"]') as HTMLInputElement
-    const file = new File([new Uint8Array([1])], 'pic.png', { type: 'image/png' })
+    const input = container.querySelector(
+      'input[type="file"]',
+    ) as HTMLInputElement
+    const file = new File([new Uint8Array([1])], 'pic.png', {
+      type: 'image/png',
+    })
     fireEvent.change(input, { target: { files: [file] } })
 
     await waitFor(() =>
-      expect(onChange).toHaveBeenCalledWith('https://bucket.s3.amazonaws.com/x.png'),
+      expect(onChange).toHaveBeenCalledWith(
+        'https://bucket.s3.amazonaws.com/x.png',
+      ),
     )
     expect(uploadImage).toHaveBeenCalledWith(file)
   })
@@ -48,9 +62,15 @@ describe('ImageUploadField', () => {
       <ImageUploadField value={null} onChange={vi.fn()} />,
     )
 
-    const input = container.querySelector('input[type="file"]') as HTMLInputElement
+    const input = container.querySelector(
+      'input[type="file"]',
+    ) as HTMLInputElement
     fireEvent.change(input, {
-      target: { files: [new File([new Uint8Array([1])], 'a.png', { type: 'image/png' })] },
+      target: {
+        files: [
+          new File([new Uint8Array([1])], 'a.png', { type: 'image/png' }),
+        ],
+      },
     })
 
     expect(await screen.findByText(/upload failed/i)).toBeTruthy()

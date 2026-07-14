@@ -16,7 +16,11 @@ describe('computeCatchUpWindow', () => {
         isAbsent: false,
         nowMs,
       }),
-    ).toEqual({ daysRemaining: null, isCatchupWindowOver: null, remainingLabel: null })
+    ).toEqual({
+      daysRemaining: null,
+      isCatchupWindowOver: null,
+      remainingLabel: null,
+    })
   })
 
   it('computes remaining catch-up days for absent students', () => {
@@ -47,6 +51,10 @@ describe('computeCatchUpWindow', () => {
         isAbsent: true,
         nowMs: lateNow,
       }),
-    ).toEqual({ daysRemaining: 0, isCatchupWindowOver: true, remainingLabel: null })
+    ).toEqual({
+      daysRemaining: 0,
+      isCatchupWindowOver: true,
+      remainingLabel: null,
+    })
   })
 })

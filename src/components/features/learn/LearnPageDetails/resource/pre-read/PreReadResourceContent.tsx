@@ -17,6 +17,10 @@ function renderPreReadMain(detail: ResourceDetailPayload) {
   return <ResourceOpenPhaseMain detail={detail} />
 }
 
-export function PreReadResourceContent({ detail }: PreReadResourceContentProps) {
-  return <ResourceDetailLayout detail={detail} main={renderPreReadMain(detail)} />
+export function PreReadResourceContent({
+  detail,
+}: PreReadResourceContentProps) {
+  return (
+    <ResourceDetailLayout detail={detail} main={renderPreReadMain(detail)} />
+  )
 }

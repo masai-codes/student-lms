@@ -8,7 +8,9 @@ import { formatMysqlDatetime, offsetFromNow } from '../utils/time'
 type AnnouncementReadInsert = typeof announcementReads.$inferInsert
 type AnnouncementReadSelect = typeof announcementReads.$inferSelect
 
-export type CreateAnnouncementReadOverrides = Partial<Omit<AnnouncementReadInsert, 'id'>>
+export type CreateAnnouncementReadOverrides = Partial<
+  Omit<AnnouncementReadInsert, 'id'>
+>
 
 export async function createAnnouncementRead(
   overrides: CreateAnnouncementReadOverrides = {},

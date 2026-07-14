@@ -11,12 +11,12 @@ Integration guide for the **per-conversation feedback** flow in Lecture AI Chat.
 
 **Mobile reference implementation:**
 
-| Area | File |
-|------|------|
-| Trigger + eligibility | `components/LectureDetails/LectureAIChat/LectureAIChatHost.tsx` |
-| Modal UI | `components/LectureDetails/LectureAIChat/LectureAIChatFeedbackModal.tsx` |
-| API client | `services/lectureAiChat/feedback.ts` |
-| Types | `services/lectureAiChat/types.ts` |
+| Area                  | File                                                                     |
+| --------------------- | ------------------------------------------------------------------------ |
+| Trigger + eligibility | `components/LectureDetails/LectureAIChat/LectureAIChatHost.tsx`          |
+| Modal UI              | `components/LectureDetails/LectureAIChat/LectureAIChatFeedbackModal.tsx` |
+| API client            | `services/lectureAiChat/feedback.ts`                                     |
+| Types                 | `services/lectureAiChat/types.ts`                                        |
 
 ---
 
@@ -28,14 +28,14 @@ After a student finishes a **new** AI chat conversation on the Lecture Details s
 
 The student rates the conversation (1–5) and can optionally leave a short text comment. Feedback is submitted **once per `chatId` per page visit** — not on every message, and not for conversations reopened from history.
 
-| Property | Value |
-|----------|-------|
-| Scope | Per **conversation** (`chatId`), not per message |
-| Trigger | User **closes/minimizes** the chat drawer/panel |
-| Eligible threads | Only threads **newly started** during the current lecture page visit |
-| Ineligible threads | Conversations loaded from **chat history** |
-| Deduping | In-memory for the current visit (submitted + skipped sets) |
-| API | `POST /api/ai-tutor/chat/feedback` |
+| Property           | Value                                                                |
+| ------------------ | -------------------------------------------------------------------- |
+| Scope              | Per **conversation** (`chatId`), not per message                     |
+| Trigger            | User **closes/minimizes** the chat drawer/panel                      |
+| Eligible threads   | Only threads **newly started** during the current lecture page visit |
+| Ineligible threads | Conversations loaded from **chat history**                           |
+| Deduping           | In-memory for the current visit (submitted + skipped sets)           |
+| API                | `POST /api/ai-tutor/chat/feedback`                                   |
 
 ---
 
@@ -80,27 +80,28 @@ Run eligibility checks **at close/minimize time**, using the current `activeChat
 
 **Show the modal only if ALL conditions are true:**
 
-| # | Condition | Reason |
-|---|-----------|--------|
-| 1 | `activeChatId` is not null | Need a persisted conversation to rate |
-| 2 | Thread was **newly initialized** this visit | History threads are excluded |
-| 3 | `isSending === false` | Do not prompt while a response is streaming |
-| 4 | At least one assistant message has `status === "completed"` | Student must have received a finished reply |
-| 5 | `chatId` not in `submittedChatIds` | Already rated this visit |
-| 6 | `chatId` not in `dismissedChatIds` | User already skipped this visit |
+| #   | Condition                                                   | Reason                                      |
+| --- | ----------------------------------------------------------- | ------------------------------------------- |
+| 1   | `activeChatId` is not null                                  | Need a persisted conversation to rate       |
+| 2   | Thread was **newly initialized** this visit                 | History threads are excluded                |
+| 3   | `isSending === false`                                       | Do not prompt while a response is streaming |
+| 4   | At least one assistant message has `status === "completed"` | Student must have received a finished reply |
+| 5   | `chatId` not in `submittedChatIds`                          | Already rated this visit                    |
+| 6   | `chatId` not in `dismissedChatIds`                          | User already skipped this visit             |
 
 ### Pseudocode
 
 ```ts
 function checkAndShowFeedback(chatId: number | null): void {
-  if (!chatId) return;
-  if (!isNewThreadThisVisit) return;
-  if (isSending) return;
-  if (!messages.some((m) => m.role === "assistant" && m.status === "completed")) return;
-  if (submittedChatIds.has(chatId)) return;
-  if (dismissedChatIds.has(chatId)) return;
+  if (!chatId) return
+  if (!isNewThreadThisVisit) return
+  if (isSending) return
+  if (!messages.some((m) => m.role === 'assistant' && m.status === 'completed'))
+    return
+  if (submittedChatIds.has(chatId)) return
+  if (dismissedChatIds.has(chatId)) return
 
-  openFeedbackModal(chatId);
+  openFeedbackModal(chatId)
 }
 ```
 
@@ -123,24 +124,24 @@ Use a boolean flag (mobile uses a ref: `isNewThreadRef`) for the **current page 
 ```ts
 // New chat
 function handleNewChat() {
-  isNewThread = true;
-  clearMessages();
-  activeChatId = null;
+  isNewThread = true
+  clearMessages()
+  activeChatId = null
 }
 
 // History selection
 async function handleSelectConversation(chatId: number) {
-  isNewThread = false; // never eligible for feedback
-  await loadConversation(chatId);
+  isNewThread = false // never eligible for feedback
+  await loadConversation(chatId)
 }
 
 // First message in a fresh thread
 function handleSend(message: string) {
   if (!activeChatId) {
-    isNewThread = true;
-    startNewConversation();
+    isNewThread = true
+    startNewConversation()
   }
-  sendMessage(message);
+  sendMessage(message)
 }
 ```
 
@@ -171,31 +172,31 @@ Capture `activeChatId` **before** any state reset that might clear it on close.
 
 ## State to maintain (per lecture page visit)
 
-| State | Type | Purpose |
-|-------|------|---------|
-| `feedbackVisible` | `boolean` | Modal open/closed |
-| `feedbackChatId` | `number \| null` | `chatId` being rated |
-| `isFeedbackSubmitting` | `boolean` | Disable actions during POST |
-| `feedbackSubmitError` | `string \| null` | Show retry message on failure |
-| `isNewThread` | `boolean` (ref recommended) | Eligibility flag for current thread |
-| `submittedChatIds` | `Set<number>` | Prevent re-prompt after submit |
-| `dismissedChatIds` | `Set<number>` | Prevent re-prompt after skip |
+| State                  | Type                        | Purpose                             |
+| ---------------------- | --------------------------- | ----------------------------------- |
+| `feedbackVisible`      | `boolean`                   | Modal open/closed                   |
+| `feedbackChatId`       | `number \| null`            | `chatId` being rated                |
+| `isFeedbackSubmitting` | `boolean`                   | Disable actions during POST         |
+| `feedbackSubmitError`  | `string \| null`            | Show retry message on failure       |
+| `isNewThread`          | `boolean` (ref recommended) | Eligibility flag for current thread |
+| `submittedChatIds`     | `Set<number>`               | Prevent re-prompt after submit      |
+| `dismissedChatIds`     | `Set<number>`               | Prevent re-prompt after skip        |
 
 Refs/sets are preferred over React state for dedupe sets so they don't cause extra re-renders.
 
 ### On submit success
 
 ```ts
-await submitFeedback({ lectureId, chatId, rating, feedback, platform });
-submittedChatIds.add(chatId);
-closeModal();
+await submitFeedback({ lectureId, chatId, rating, feedback, platform })
+submittedChatIds.add(chatId)
+closeModal()
 ```
 
 ### On skip
 
 ```ts
-dismissedChatIds.add(chatId);
-closeModal();
+dismissedChatIds.add(chatId)
+closeModal()
 ```
 
 ### On submit error
@@ -216,10 +217,10 @@ Same base URL as other AI Tutor endpoints (e.g. `EXPO_PUBLIC_STUDENTS_NEW_URL` o
 
 ### Authentication
 
-| Client | Auth |
-|--------|------|
+| Client            | Auth                                                                                                       |
+| ----------------- | ---------------------------------------------------------------------------------------------------------- |
 | **Web (browser)** | Session cookie — use `credentials: 'include'` on `fetch` (same as [stream API](./ai-tutor-chat-stream.md)) |
-| **Mobile** | `Authorization: Bearer <token>` |
+| **Mobile**        | `Authorization: Bearer <token>`                                                                            |
 
 ### Request headers
 
@@ -241,13 +242,13 @@ Authorization: Bearer ...    (mobile)
 }
 ```
 
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| `lectureId` | `number` | Yes | Lecture the chat belongs to |
-| `chatId` | `number` | Yes | Conversation ID from stream/history API |
-| `rating` | `1 \| 2 \| 3 \| 4 \| 5` | Yes | Face-rating value |
-| `platform` | `string` | Yes | Client platform — use `"web"` on web; mobile sends `"ios"` or `"android"` |
-| `feedback` | `string` | No | Optional free-text comment (omit if empty) |
+| Field       | Type                    | Required | Description                                                               |
+| ----------- | ----------------------- | -------- | ------------------------------------------------------------------------- |
+| `lectureId` | `number`                | Yes      | Lecture the chat belongs to                                               |
+| `chatId`    | `number`                | Yes      | Conversation ID from stream/history API                                   |
+| `rating`    | `1 \| 2 \| 3 \| 4 \| 5` | Yes      | Face-rating value                                                         |
+| `platform`  | `string`                | Yes      | Client platform — use `"web"` on web; mobile sends `"ios"` or `"android"` |
+| `feedback`  | `string`                | No       | Optional free-text comment (omit if empty)                                |
 
 ### Response
 
@@ -263,45 +264,45 @@ Authorization: Bearer ...    (mobile)
 }
 ```
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `success` | `boolean` | Whether submission succeeded |
-| `message` | `string?` | Optional server message |
-| `data.id` | `number \| string?` | Feedback record ID |
-| `data.chatId` | `number` | Rated conversation |
-| `data.rating` | `number` | Stored rating |
+| Field         | Type                | Description                  |
+| ------------- | ------------------- | ---------------------------- |
+| `success`     | `boolean`           | Whether submission succeeded |
+| `message`     | `string?`           | Optional server message      |
+| `data.id`     | `number \| string?` | Feedback record ID           |
+| `data.chatId` | `number`            | Rated conversation           |
+| `data.rating` | `number`            | Stored rating                |
 
 ### Example (web)
 
 ```ts
 async function submitLectureAIChatFeedback(payload: {
-  lectureId: number;
-  chatId: number;
-  rating: 1 | 2 | 3 | 4 | 5;
-  feedback?: string;
+  lectureId: number
+  chatId: number
+  rating: 1 | 2 | 3 | 4 | 5
+  feedback?: string
 }) {
   const body: Record<string, unknown> = {
     lectureId: payload.lectureId,
     chatId: payload.chatId,
     rating: payload.rating,
-    platform: "web",
-  };
+    platform: 'web',
+  }
   if (payload.feedback?.trim()) {
-    body.feedback = payload.feedback.trim();
+    body.feedback = payload.feedback.trim()
   }
 
-  const response = await fetch("/api/ai-tutor/chat/feedback", {
-    method: "POST",
-    credentials: "include",
-    headers: { "Content-Type": "application/json" },
+  const response = await fetch('/api/ai-tutor/chat/feedback', {
+    method: 'POST',
+    credentials: 'include',
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body),
-  });
+  })
 
   if (!response.ok) {
-    throw new Error(`HTTP_${response.status}`);
+    throw new Error(`HTTP_${response.status}`)
   }
 
-  return response.json();
+  return response.json()
 }
 ```
 
@@ -317,24 +318,24 @@ Bottom sheet / dialog style modal with semi-transparent backdrop (`rgba(0,0,0,0.
 
 ### Copy
 
-| Element | Text |
-|---------|------|
-| Title | How helpful was this AI chat? |
-| Subtitle | Your feedback improves the experience for everyone |
-| Skip button | Skip for now |
-| Submit button | Submit |
-| Text placeholder | Share your valuable feedback… (optional) |
-| Error | Failed to submit. Please try again or skip. |
+| Element          | Text                                               |
+| ---------------- | -------------------------------------------------- |
+| Title            | How helpful was this AI chat?                      |
+| Subtitle         | Your feedback improves the experience for everyone |
+| Skip button      | Skip for now                                       |
+| Submit button    | Submit                                             |
+| Text placeholder | Share your valuable feedback… (optional)           |
+| Error            | Failed to submit. Please try again or skip.        |
 
 ### Rating options (required before submit)
 
-| Value | Emoji | Label |
-|-------|-------|-------|
-| 1 | 😞 | Not helpful |
-| 2 | 😕 | Slightly helpful |
-| 3 | 😐 | Somewhat helpful |
-| 4 | 🙂 | Very helpful |
-| 5 | 🤩 | Extremely helpful |
+| Value | Emoji | Label             |
+| ----- | ----- | ----------------- |
+| 1     | 😞    | Not helpful       |
+| 2     | 😕    | Slightly helpful  |
+| 3     | 😐    | Somewhat helpful  |
+| 4     | 🙂    | Very helpful      |
+| 5     | 🤩    | Extremely helpful |
 
 - Five emoji buttons in a horizontal row.
 - Selecting one highlights it and shows the label in a pill below.
@@ -350,37 +351,37 @@ Bottom sheet / dialog style modal with semi-transparent backdrop (`rgba(0,0,0,0.
 
 ### Buttons
 
-| Button | Enabled when | Action |
-|--------|--------------|--------|
-| Skip for now | Not submitting | Skip (no API call) |
-| Submit | Rating selected and not submitting | POST feedback |
+| Button       | Enabled when                       | Action             |
+| ------------ | ---------------------------------- | ------------------ |
+| Skip for now | Not submitting                     | Skip (no API call) |
+| Submit       | Rating selected and not submitting | POST feedback      |
 
 Submit shows a loading spinner while the request is in flight. Both buttons disabled during submit.
 
 ### Dismiss / backdrop behavior
 
-| User action | Behavior |
-|-------------|----------|
-| Click **Skip for now** | Skip — add `chatId` to dismissed set |
-| Click **Submit** | POST with rating + optional text |
-| Click backdrop / press Escape **without** a rating | Skip (same as skip) |
-| Click backdrop / press Escape **with** a rating selected | Submit (auto-submit selected rating) |
-| Submit fails | Keep modal open, show error, allow retry or skip |
+| User action                                              | Behavior                                         |
+| -------------------------------------------------------- | ------------------------------------------------ |
+| Click **Skip for now**                                   | Skip — add `chatId` to dismissed set             |
+| Click **Submit**                                         | POST with rating + optional text                 |
+| Click backdrop / press Escape **without** a rating       | Skip (same as skip)                              |
+| Click backdrop / press Escape **with** a rating selected | Submit (auto-submit selected rating)             |
+| Submit fails                                             | Keep modal open, show error, allow retry or skip |
 
 The modal must never trap the user — always allow skip or dismiss.
 
 ### Design tokens (mobile parity)
 
-| Token | Value |
-|-------|-------|
-| Brand purple | `#6962AC` |
-| Brand purple light | `#F0EFFA` |
-| Brand purple border | `#D4D2F0` |
-| Card background | `#FFFFFF` |
-| Title color | `#111827` |
-| Subtitle / skip text | `#6B7280` |
-| Border radius (card top) | `28px` |
-| Border radius (buttons) | `14px` |
+| Token                    | Value     |
+| ------------------------ | --------- |
+| Brand purple             | `#6962AC` |
+| Brand purple light       | `#F0EFFA` |
+| Brand purple border      | `#D4D2F0` |
+| Card background          | `#FFFFFF` |
+| Title color              | `#111827` |
+| Subtitle / skip text     | `#6B7280` |
+| Border radius (card top) | `28px`    |
+| Border radius (buttons)  | `14px`    |
 
 ### Accessibility
 
@@ -428,20 +429,20 @@ The modal must never trap the user — always allow skip or dismiss.
 
 ## QA / test scenarios
 
-| Scenario | Expected |
-|----------|----------|
-| New chat, no AI reply yet, close panel | No modal |
-| New chat, AI streaming, close panel | No modal |
-| New chat, AI completed, close panel | Modal shows once |
-| Close panel again same `chatId` | No modal (already prompted) |
-| Submit feedback | API called, modal closes, no re-prompt |
-| Skip feedback | No API call, modal closes, no re-prompt |
-| Open conversation from history, close panel | No modal |
-| Start new chat after skipping previous | Modal can show for new `chatId` |
-| Submit fails | Error shown, modal stays open, retry works |
-| Backdrop click with rating selected | Submits |
-| Backdrop click without rating | Skips |
-| Navigate away from lecture page | Dedupe sets reset (new visit) |
+| Scenario                                    | Expected                                   |
+| ------------------------------------------- | ------------------------------------------ |
+| New chat, no AI reply yet, close panel      | No modal                                   |
+| New chat, AI streaming, close panel         | No modal                                   |
+| New chat, AI completed, close panel         | Modal shows once                           |
+| Close panel again same `chatId`             | No modal (already prompted)                |
+| Submit feedback                             | API called, modal closes, no re-prompt     |
+| Skip feedback                               | No API call, modal closes, no re-prompt    |
+| Open conversation from history, close panel | No modal                                   |
+| Start new chat after skipping previous      | Modal can show for new `chatId`            |
+| Submit fails                                | Error shown, modal stays open, retry works |
+| Backdrop click with rating selected         | Submits                                    |
+| Backdrop click without rating               | Skips                                      |
+| Navigate away from lecture page             | Dedupe sets reset (new visit)              |
 
 ---
 

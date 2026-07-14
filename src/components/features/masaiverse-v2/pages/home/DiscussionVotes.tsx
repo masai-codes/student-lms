@@ -54,12 +54,16 @@ export default function DiscussionVotes({
           })
           mutation.mutate('upvote')
         }}
-        className={isUp ? 'text-masaiverse-orange' : 'text-[#9CA3AF] hover:text-masaiverse-orange'}
+        className={
+          isUp
+            ? 'text-accent-warm'
+            : 'text-foreground-subtle hover:text-accent-warm'
+        }
       >
         <ArrowUp size={18} weight={isUp ? 'fill' : 'bold'} />
       </button>
       <span
-        className={`text-[14px] font-bold ${isUp ? 'text-masaiverse-orange' : 'text-[#111827]'}`}
+        className={`text-[14px] font-bold ${isUp ? 'text-accent-warm' : 'text-foreground'}`}
       >
         {upvotes}
       </span>
@@ -77,7 +81,7 @@ export default function DiscussionVotes({
           mutation.mutate('downvote')
         }}
         className={
-          isDown ? 'text-[#2563EB]' : 'text-[#9CA3AF] hover:text-[#2563EB]'
+          isDown ? 'text-info' : 'text-foreground-subtle hover:text-info'
         }
       >
         <ArrowDown size={18} weight={isDown ? 'fill' : 'bold'} />

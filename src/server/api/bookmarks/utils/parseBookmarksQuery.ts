@@ -1,4 +1,7 @@
-import { BOOKMARKS_PER_PAGE, BOOKMARK_TABS } from '@/components/features/bookmarks/bookmarksConfig'
+import {
+  BOOKMARKS_PER_PAGE,
+  BOOKMARK_TABS,
+} from '@/components/features/bookmarks/bookmarksConfig'
 import type { BookmarkTab } from '@/components/features/bookmarks/bookmarksConfig'
 
 const VALID_TABS = new Set<string>(BOOKMARK_TABS.map((t) => t.id))
@@ -22,7 +25,8 @@ export function parseBookmarksQuery(url: URL): BookmarksQueryParams {
     rawTab && VALID_TABS.has(rawTab) ? (rawTab as BookmarkTab) : 'lectures'
 
   const page = parsePositiveInt(url.searchParams.get('page')) ?? 1
-  const limit = parsePositiveInt(url.searchParams.get('limit')) ?? BOOKMARKS_PER_PAGE
+  const limit =
+    parsePositiveInt(url.searchParams.get('limit')) ?? BOOKMARKS_PER_PAGE
   const q = url.searchParams.get('q')?.trim() || undefined
 
   return { tab, page, limit, q }

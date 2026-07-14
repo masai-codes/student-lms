@@ -11,7 +11,9 @@ export type FetchJsonOptions = RequestInit & {
 
 async function parseJsonResponse<T>(response: Response): Promise<T> {
   if (!response.ok) {
-    const body = (await response.json().catch(() => ({}))) as Partial<ApiErrorBody>
+    const body = (await response
+      .json()
+      .catch(() => ({}))) as Partial<ApiErrorBody>
     // Restore the true status (403/404) the server remapped past CloudFront.
     throw new ApiClientError(resolveTrueStatus(response), body)
   }

@@ -15,7 +15,9 @@ describe('LectureAttendanceInline', () => {
   afterEach(() => cleanup())
 
   it('stacks the days label and badge by default (mobile column)', () => {
-    const { container } = render(<LectureAttendanceInline {...attendanceRender} />)
+    const { container } = render(
+      <LectureAttendanceInline {...attendanceRender} />,
+    )
     const wrapper = container.firstElementChild as HTMLElement
     expect(wrapper.className).toContain('flex-col')
     expect(wrapper.className).not.toContain('flex-row items-center')

@@ -44,7 +44,9 @@ export async function dispatchAiTutorAgentRequest(
   })
 }
 
-export async function endAiTutorSessionRequest(sessionId: string): Promise<void> {
+export async function endAiTutorSessionRequest(
+  sessionId: string,
+): Promise<void> {
   await call<{ success: boolean }>(LEARN_API.aiTutorEnd, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },

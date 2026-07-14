@@ -36,7 +36,7 @@ export function ScheduleSection({
   return (
     <section
       data-testid="dashboard-schedule-section"
-      className="flex h-full flex-col gap-5 rounded-2xl border border-gray-200 bg-white p-4 transition-colors duration-300 hover:border-[#4F6BED]/25 sm:p-5"
+      className="flex h-full flex-col gap-5 rounded-2xl border border-border bg-surface p-4 transition-colors duration-300 hover:border-[#4F6BED]/25 sm:p-5"
     >
       <div className="flex items-center gap-2 sm:gap-3">
         <TabButton
@@ -66,7 +66,7 @@ export function ScheduleSection({
           {pendingTasks.length > 0 && (
             <span
               data-testid="dashboard-pending-tasks-count"
-              className="animate-dash-pop inline-flex size-5 shrink-0 items-center justify-center rounded-full bg-[#ED0331] text-[11px] font-semibold text-white shadow-[0_0_0_3px_rgb(237_3_49_/_0.12)] [--dash-delay:0.5s]"
+              className="animate-dash-pop inline-flex size-5 shrink-0 items-center justify-center rounded-full bg-danger text-[11px] font-semibold text-danger-foreground shadow-[0_0_0_3px_rgb(237_3_49_/_0.12)] [--dash-delay:0.5s]"
             >
               {pendingTasks.length}
             </span>
@@ -129,7 +129,7 @@ function ScheduleFeed({
     return (
       <p
         data-testid="dashboard-schedule-error"
-        className="py-10 text-center text-sm text-gray-400"
+        className="py-10 text-center text-sm text-foreground-subtle"
       >
         Failed to load content
       </p>
@@ -143,7 +143,7 @@ function ScheduleFeed({
       <div className="flex items-center gap-3">
         <span
           data-testid="dashboard-schedule-range"
-          className="shrink-0 text-sm font-semibold text-gray-800"
+          className="shrink-0 text-sm font-semibold text-foreground"
         >
           {week.rangeLabel}
         </span>
@@ -170,7 +170,7 @@ function ScheduleDay({ day, index }: { day: ScheduleDayRow; index: number }) {
       <DayBadge day={day} />
       <div className="flex min-w-0 flex-1 flex-col gap-3">
         {day.items.length === 0 ? (
-          <div className="flex items-center rounded-xl border border-dashed border-gray-200 bg-gray-50/60 px-4 py-4 text-sm text-gray-400">
+          <div className="flex items-center rounded-xl border border-dashed border-border bg-surface-muted/60 px-4 py-4 text-sm text-foreground-subtle">
             No sessions scheduled for the day
           </div>
         ) : (
@@ -199,14 +199,14 @@ function DayBadge({ day }: { day: ScheduleDayRow }) {
       className={`flex h-fit w-11 shrink-0 flex-col items-center rounded-lg py-1.5 transition-transform duration-200 ${
         day.isToday
           ? 'animate-dash-glow bg-gradient-to-b from-[#5F79F2] to-[#4F6BED] text-white'
-          : 'text-gray-500 hover:bg-gray-50'
+          : 'text-foreground-muted hover:bg-surface-muted'
       }`}
     >
       <span className="text-[11px] font-semibold uppercase leading-none">
         {day.weekday}
       </span>
       <span
-        className={`text-base font-bold leading-tight ${day.isToday ? '' : 'text-gray-700'}`}
+        className={`text-base font-bold leading-tight ${day.isToday ? '' : 'text-foreground'}`}
       >
         {day.dayOfMonth}
       </span>
@@ -244,7 +244,7 @@ function PendingTasksFeed({
     return (
       <p
         data-testid="dashboard-pending-tasks-error"
-        className="py-10 text-center text-sm text-gray-400"
+        className="py-10 text-center text-sm text-foreground-subtle"
       >
         Failed to load content
       </p>
@@ -262,7 +262,7 @@ function PendingTasksFeed({
         >
           🎉
         </span>
-        <p className="text-sm font-medium text-gray-600">
+        <p className="text-sm font-medium text-foreground-muted">
           You&apos;re all caught up on tasks.
         </p>
       </div>
@@ -308,10 +308,10 @@ function TabButton({
       type="button"
       onClick={onClick}
       data-testid={testId}
-      className={`inline-flex min-w-0 flex-1 items-center justify-center gap-1.5 rounded-lg border px-2.5 py-2.5 text-center text-sm font-semibold leading-tight transition-all duration-200 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6962AC] active:scale-[0.97] sm:flex-none sm:gap-2 sm:px-4 ${
+      className={`inline-flex min-w-0 flex-1 items-center justify-center gap-1.5 rounded-lg border px-2.5 py-2.5 text-center text-sm font-semibold leading-tight transition-all duration-200 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand active:scale-[0.97] sm:flex-none sm:gap-2 sm:px-4 ${
         isActive
-          ? 'border-[#6962AC] bg-gradient-to-b from-[#6962AC]/15 to-[#6962AC]/5 text-[#6962AC] shadow-[0_2px_10px_-3px_rgb(105_98_172_/_0.35)]'
-          : 'border-gray-200 bg-white text-gray-600 hover:-translate-y-px hover:border-[#6962AC]/40 hover:bg-gray-50 hover:text-gray-800'
+          ? 'border-brand bg-gradient-to-b from-[#6962AC]/15 to-[#6962AC]/5 text-brand shadow-[0_2px_10px_-3px_rgb(105_98_172_/_0.35)]'
+          : 'border-border bg-surface text-foreground-muted hover:-translate-y-px hover:border-brand/40 hover:bg-surface-muted hover:text-foreground'
       }`}
     >
       {children}

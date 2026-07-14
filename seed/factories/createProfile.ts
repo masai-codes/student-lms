@@ -28,7 +28,11 @@ export async function createProfile(
   const [result] = await db.insert(profiles).values(values)
   const id = Number(result.insertId)
 
-  const [row] = await db.select().from(profiles).where(eq(profiles.id, id)).limit(1)
+  const [row] = await db
+    .select()
+    .from(profiles)
+    .where(eq(profiles.id, id))
+    .limit(1)
   if (!row) {
     throw new Error(`Failed to load profile after insert (id=${id})`)
   }

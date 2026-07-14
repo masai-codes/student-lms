@@ -7,5 +7,8 @@
 export const DEACTIVATED_STATUS = 'disabled'
 
 export function isUserDeactivated(status: string | null | undefined): boolean {
-  return typeof status === 'string' && status.trim().toLowerCase() === DEACTIVATED_STATUS
+  return (
+    typeof status === 'string' &&
+    status.trim().toLowerCase() === DEACTIVATED_STATUS
+  )
 }

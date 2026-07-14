@@ -85,7 +85,10 @@ export function useLectureAiChat({
 
   return {
     isExpanded,
-    isSending: chat.isSending || session.state === 'creating' || session.state === 'connecting',
+    isSending:
+      chat.isSending ||
+      session.state === 'creating' ||
+      session.state === 'connecting',
     inputValue,
     messages: chat.messages,
     sessionState: session.state,

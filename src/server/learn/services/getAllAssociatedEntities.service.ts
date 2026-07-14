@@ -56,8 +56,8 @@ const assignmentColumns = {
 
 function attendanceInputsFor(rows: Array<LectureQueryRow>) {
   return rows
-    .filter(row => row.sectionId != null)
-    .map(row => ({
+    .filter((row) => row.sectionId != null)
+    .map((row) => ({
       lectureId: row.id,
       sectionId: row.sectionId!,
       schedule: row.schedule,
@@ -97,13 +97,21 @@ export async function getAllAssociatedEntities(input: {
       .select(lectureColumns)
       .from(lectures)
       .leftJoin(users, eq(lectures.hostId, users.id))
-      .where(and(eq(lectures.sectionId, input.sectionId), isNull(lectures.deletedAt))),
+      .where(
+        and(
+          eq(lectures.sectionId, input.sectionId),
+          isNull(lectures.deletedAt),
+        ),
+      ),
     db
       .select(assignmentColumns)
       .from(assignments)
       .leftJoin(users, eq(assignments.userId, users.id))
       .where(
-        and(eq(assignments.sectionId, input.sectionId), isNull(assignments.deletedAt)),
+        and(
+          eq(assignments.sectionId, input.sectionId),
+          isNull(assignments.deletedAt),
+        ),
       ),
   ])
 
@@ -118,8 +126,8 @@ export async function getAllAssociatedEntities(input: {
     makeAssociationNodeKey(startKind, input.entityId),
   )
 
-  const lectureById = new Map(lectureRows.map(row => [row.id, row]))
-  const assignmentById = new Map(assignmentRows.map(row => [row.id, row]))
+  const lectureById = new Map(lectureRows.map((row) => [row.id, row]))
+  const assignmentById = new Map(assignmentRows.map((row) => [row.id, row]))
 
   const reachableLectureRows: Array<LectureQueryRow> = []
   const reachableAssignmentIds: Array<number> = []
@@ -193,7 +201,7 @@ async function resolveDirectForwardItems(input: {
     input.nowMs,
   )
 
-  return rows.map(row =>
+  return rows.map((row) =>
     buildAssociatedLectureItem(
       row,
       attendanceByLectureId.get(row.id) ?? null,

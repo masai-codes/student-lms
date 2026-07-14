@@ -9,7 +9,9 @@ type DuringAfterVideoLectureProps = {
   detail: LectureDetailPayload
 }
 
-export function DuringAfterVideoLecture({ detail }: DuringAfterVideoLectureProps) {
+export function DuringAfterVideoLecture({
+  detail,
+}: DuringAfterVideoLectureProps) {
   if (detail.hasRecording && detail.videoUrl) {
     return (
       <DuringAfterVideoLectureWithRecording

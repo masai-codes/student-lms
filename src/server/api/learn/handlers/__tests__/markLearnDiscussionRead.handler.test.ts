@@ -4,9 +4,12 @@ import { requireSessionUserId } from '@/server/api/http/requireSessionUser'
 
 const hoisted = vi.hoisted(() => ({ markRead: vi.fn() }))
 
-vi.mock('@/server/new-discussions/services/markLearnDiscussionRepliesRead', () => ({
-  markLearnDiscussionRepliesRead: hoisted.markRead,
-}))
+vi.mock(
+  '@/server/new-discussions/services/markLearnDiscussionRepliesRead',
+  () => ({
+    markLearnDiscussionRepliesRead: hoisted.markRead,
+  }),
+)
 vi.mock('@/server/api/http/requireSessionUser', () => ({
   requireSessionUserId: vi.fn(),
 }))
@@ -28,14 +31,19 @@ describe('markLearnDiscussionRead.handler', () => {
     const res = await handle('12')
     expect(res.status).toBe(200)
     await expect(res.json()).resolves.toEqual({ ok: true })
-    expect(hoisted.markRead).toHaveBeenCalledWith({ viewerUserId: 7, discussionId: 12 })
+    expect(hoisted.markRead).toHaveBeenCalledWith({
+      viewerUserId: 7,
+      discussionId: 12,
+    })
   })
 
   it('returns 400 for an invalid discussion id', async () => {
     const handle = await loadHandler()
     const res = await handle('0')
     expect(res.status).toBe(400)
-    await expect(res.json()).resolves.toMatchObject({ code: 'INVALID_DISCUSSION_ID' })
+    await expect(res.json()).resolves.toMatchObject({
+      code: 'INVALID_DISCUSSION_ID',
+    })
     expect(hoisted.markRead).not.toHaveBeenCalled()
   })
 

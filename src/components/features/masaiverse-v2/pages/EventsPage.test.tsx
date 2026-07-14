@@ -50,7 +50,11 @@ function event(
 }
 
 const DATASET: Array<MasaiverseV2EventListItem> = [
-  event({ id: 'public-upcoming', title: 'React Workshop', startTime: '2026-06-10T11:00:00Z' }),
+  event({
+    id: 'public-upcoming',
+    title: 'React Workshop',
+    startTime: '2026-06-10T11:00:00Z',
+  }),
   event({
     id: 'club-upcoming',
     title: 'Club Hack',

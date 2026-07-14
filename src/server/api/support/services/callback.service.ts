@@ -19,7 +19,9 @@ import { menus, userCallbackTickets } from '@/db/schema'
 /** Coerce a `db.execute` result into a flat array of rows (driver-agnostic). */
 function rowsOf<T>(result: unknown): Array<T> {
   if (Array.isArray(result)) {
-    return Array.isArray(result[0]) ? (result[0] as Array<T>) : (result as Array<T>)
+    return Array.isArray(result[0])
+      ? (result[0] as Array<T>)
+      : (result as Array<T>)
   }
   if (result && typeof result === 'object' && 'rows' in result) {
     const { rows } = result
@@ -46,7 +48,9 @@ export async function getCallbackEligibility(input: {
     FROM user_batch_admission_data
     WHERE user_id = ${input.userId}
   `)
-  const rows = rowsOf<{ batch_id: number; full_fees_paid: number | boolean }>(result)
+  const rows = rowsOf<{ batch_id: number; full_fees_paid: number | boolean }>(
+    result,
+  )
 
   const isNewUserJourney = rows.length > 0
   const hasFullFees = rows.some(

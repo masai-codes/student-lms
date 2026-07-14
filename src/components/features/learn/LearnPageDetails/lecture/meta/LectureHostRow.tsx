@@ -33,17 +33,19 @@ export function LectureHostRow({
     >
       <Avatar
         size="lg"
-        className="size-10 shrink-0 ring-2 ring-[#4F6BED]/15 ring-offset-2 ring-offset-background transition-transform duration-300 hover:scale-105"
+        className="size-10 shrink-0 ring-2 ring-brand/15 ring-offset-2 ring-offset-background transition-transform duration-300 hover:scale-105"
       >
         {avatarUrl ? <AvatarImage src={avatarUrl} alt={hostName} /> : null}
-        <AvatarFallback className="type-b2-md bg-muted text-gray-700">
+        <AvatarFallback className="type-b2-md bg-muted text-foreground">
           {hostInitials(hostName)}
         </AvatarFallback>
       </Avatar>
       <div className="min-w-0 flex-1 pt-0.5">
-        <p className="type-b1-md break-words text-gray-900">{hostName}</p>
+        <p className="type-b1-md break-words text-foreground">{hostName}</p>
         {dateRange ? (
-          <p className="type-b2-regular mt-0.5 text-gray-600">{dateRange}</p>
+          <p className="type-b2-regular mt-0.5 text-foreground-muted">
+            {dateRange}
+          </p>
         ) : null}
       </div>
     </section>

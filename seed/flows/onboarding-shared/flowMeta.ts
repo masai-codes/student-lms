@@ -3,9 +3,12 @@ import { flowScopedEmail } from './constants'
 import type { OnboardingFlowId } from './types'
 
 export const ONBOARDING_FLOW_DESCRIPTIONS: Record<OnboardingFlowId, string> = {
-  'onboarding-legacy-user': 'Enrolled student with no admission row — legacy user, no T0 UI.',
-  'onboarding-welcome-modal': 'New-journey student who has not seen the welcome modal yet.',
-  'onboarding-welcome-seen': 'New-journey student who already dismissed the welcome modal.',
+  'onboarding-legacy-user':
+    'Enrolled student with no admission row — legacy user, no T0 UI.',
+  'onboarding-welcome-modal':
+    'New-journey student who has not seen the welcome modal yet.',
+  'onboarding-welcome-seen':
+    'New-journey student who already dismissed the welcome modal.',
   'onboarding-fees-unpaid':
     'LMS Walkthrough test bed (videos + auto-next + profile photo + download app) with payment countdown; program tab locked.',
   'onboarding-fees-paid':
@@ -42,7 +45,9 @@ function buildSeedCommand(flowId: OnboardingFlowId): string {
   return `npm run seed ${flowId}`
 }
 
-export function createOnboardingFlowMeta(flowId: OnboardingFlowId): SeedFlowMeta {
+export function createOnboardingFlowMeta(
+  flowId: OnboardingFlowId,
+): SeedFlowMeta {
   const seedCommand = buildSeedCommand(flowId)
 
   return {

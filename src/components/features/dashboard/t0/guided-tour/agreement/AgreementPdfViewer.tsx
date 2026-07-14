@@ -11,19 +11,27 @@ interface AgreementPdfViewerProps {
 }
 
 /** One agreement document: an embedded PDF + an "I accept" consent checkbox. */
-export function AgreementPdfViewer({ heading, pdfUrl, accepted, onAcceptChange, error }: AgreementPdfViewerProps) {
+export function AgreementPdfViewer({
+  heading,
+  pdfUrl,
+  accepted,
+  onAcceptChange,
+  error,
+}: AgreementPdfViewerProps) {
   return (
     <div className="flex flex-col gap-3" data-testid="agreement-pdf-viewer">
       <div className="flex items-center justify-between">
-        <h4 className="text-base font-semibold text-gray-900">{heading}</h4>
+        <h4 className="text-base font-semibold text-foreground">{heading}</h4>
         <a
           href={pdfUrl}
           target="_blank"
           rel="noreferrer"
           onClick={() =>
-            pushDashboardEvent('l_dashboard_guided_tour_agreement_pdf_open', { heading })
+            pushDashboardEvent('l_dashboard_guided_tour_agreement_pdf_open', {
+              heading,
+            })
           }
-          className="inline-flex items-center gap-1 text-sm font-medium text-[#6962AC] hover:underline"
+          className="inline-flex items-center gap-1 text-sm font-medium text-brand hover:underline"
           data-testid="agreement-pdf-open"
         >
           Open <ArrowSquareOut className="size-4" aria-hidden />
@@ -32,11 +40,18 @@ export function AgreementPdfViewer({ heading, pdfUrl, accepted, onAcceptChange, 
       <iframe
         src={`${pdfUrl}#toolbar=0`}
         title={heading}
-        className="h-[55vh] min-h-[320px] w-full rounded-lg border border-gray-200"
+        className="h-[55vh] min-h-[320px] w-full rounded-lg border border-border"
         data-testid="agreement-pdf-iframe"
       />
-      <CheckboxField id={`accept-${heading}`} checked={accepted} onChange={onAcceptChange} error={error} data-testid="agreement-accept">
-        I acknowledge that I have read and accept the <strong>{heading}</strong>.
+      <CheckboxField
+        id={`accept-${heading}`}
+        checked={accepted}
+        onChange={onAcceptChange}
+        error={error}
+        data-testid="agreement-accept"
+      >
+        I acknowledge that I have read and accept the <strong>{heading}</strong>
+        .
       </CheckboxField>
     </div>
   )

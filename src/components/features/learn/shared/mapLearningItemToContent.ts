@@ -18,7 +18,8 @@ export function mapLearningItemToContent(item: LearningItem): LearnContentItem {
     title: item.title,
     hostName: item.hostName,
     date: formatScheduleRangeLocal(item.scheduleDate, item.concludes) || null,
-    dateTooltip: formatScheduleRangeIST(item.scheduleDate, item.concludes) || null,
+    dateTooltip:
+      formatScheduleRangeIST(item.scheduleDate, item.concludes) || null,
     category: item.category,
     learningSubType: item.type,
     priority: item.isOptional,

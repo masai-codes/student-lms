@@ -25,7 +25,10 @@ export type AssignmentCompletedDetailsInput = {
 }
 
 /** Clamp the completion timestamp so it never displays later than the deadline. */
-function clampCompletedAt(completedAt: string, concludes: string | null): string {
+function clampCompletedAt(
+  completedAt: string,
+  concludes: string | null,
+): string {
   const concludesMs = parseIstToMs(concludes)
   const completedMs = parseIstToMs(completedAt)
   if (concludesMs != null && completedMs != null && completedMs > concludesMs) {
@@ -34,7 +37,9 @@ function clampCompletedAt(completedAt: string, concludes: string | null): string
   return completedAt
 }
 
-function readMarkedCompletedAt(data: Record<string, unknown> | null): string | null {
+function readMarkedCompletedAt(
+  data: Record<string, unknown> | null,
+): string | null {
   const value = data?.['marked_completed_at']
   return typeof value === 'string' && value.trim() !== '' ? value : null
 }

@@ -47,11 +47,15 @@ export async function removeBookmark(bookmarkId: number): Promise<void> {
 }
 
 export async function markAnnouncementRead(id: number): Promise<void> {
-  await fetchJson<{ ok: boolean }>(ANNOUNCEMENT_API.markRead(id), { method: 'POST' })
+  await fetchJson<{ ok: boolean }>(ANNOUNCEMENT_API.markRead(id), {
+    method: 'POST',
+  })
 }
 
 export async function markAnnouncementUnread(id: number): Promise<void> {
-  await fetchJson<{ ok: boolean }>(ANNOUNCEMENT_API.markUnread(id), { method: 'POST' })
+  await fetchJson<{ ok: boolean }>(ANNOUNCEMENT_API.markUnread(id), {
+    method: 'POST',
+  })
 }
 
 // Message ids are BigInt and can exceed Number.MAX_SAFE_INTEGER — keep them as
@@ -61,22 +65,30 @@ export async function markMessageRead(id: string): Promise<void> {
 }
 
 export async function markMessageUnread(id: string): Promise<void> {
-  await fetchJson<{ ok: boolean }>(MESSAGE_API.markUnread(id), { method: 'POST' })
+  await fetchJson<{ ok: boolean }>(MESSAGE_API.markUnread(id), {
+    method: 'POST',
+  })
 }
 
 export async function fetchAnnouncementUnreadCount(): Promise<number> {
-  const { count } = await fetchJson<{ count: number }>(ANNOUNCEMENT_API.unreadCount)
+  const { count } = await fetchJson<{ count: number }>(
+    ANNOUNCEMENT_API.unreadCount,
+  )
   return count
 }
 
 export async function fetchAnnouncementPopups(): Promise<PopupItem[]> {
-  const { popups } = await fetchJson<{ popups: PopupItem[] }>(ANNOUNCEMENT_API.popups)
+  const { popups } = await fetchJson<{ popups: PopupItem[] }>(
+    ANNOUNCEMENT_API.popups,
+  )
   return popups
 }
 
-export async function fetchAnnouncementById(id: number | string): Promise<AnnouncementDetail> {
-  const { announcement } = await fetchJson<{ announcement: AnnouncementDetail }>(
-    ANNOUNCEMENT_API.detail(id),
-  )
+export async function fetchAnnouncementById(
+  id: number | string,
+): Promise<AnnouncementDetail> {
+  const { announcement } = await fetchJson<{
+    announcement: AnnouncementDetail
+  }>(ANNOUNCEMENT_API.detail(id))
   return announcement
 }

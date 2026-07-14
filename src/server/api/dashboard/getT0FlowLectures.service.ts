@@ -33,13 +33,20 @@ function normalizeRows<T>(result: unknown): Array<T> {
     if (Array.isArray(first)) return first as Array<T>
     return result as Array<T>
   }
-  if (result && typeof result === 'object' && 'rows' in result && Array.isArray((result).rows)) {
+  if (
+    result &&
+    typeof result === 'object' &&
+    'rows' in result &&
+    Array.isArray(result.rows)
+  ) {
     return (result as { rows: Array<T> }).rows
   }
   return []
 }
 
-async function getLecturesForSection(sectionId: number): Promise<Array<T0FlowLectureItem>> {
+async function getLecturesForSection(
+  sectionId: number,
+): Promise<Array<T0FlowLectureItem>> {
   const rows = normalizeRows<LectureRow>(
     await db.execute(sql`
       SELECT id, title, type, videos, zoom_link
@@ -49,12 +56,15 @@ async function getLecturesForSection(sectionId: number): Promise<Array<T0FlowLec
         AND type IN ('live', 'recorded', 'scrum', 'video', 'interactive-video')
       ORDER BY schedule DESC
       LIMIT 100
-    `)
+    `),
   )
   return expandLectures(rows)
 }
 
-async function getSectionId(batchId: number, sectionType: string): Promise<number | null> {
+async function getSectionId(
+  batchId: number,
+  sectionType: string,
+): Promise<number | null> {
   const rows = normalizeRows<{ id: number }>(
     await db.execute(sql`
       SELECT id FROM sections
@@ -64,7 +74,7 @@ async function getSectionId(batchId: number, sectionType: string): Promise<numbe
         AND deleted_at IS NULL
       ORDER BY id DESC
       LIMIT 1
-    `)
+    `),
   )
   return rows[0]?.id ?? null
 }
@@ -74,8 +84,23 @@ export async function getT0FlowLectures(
   batchId?: number,
   platform: GuidedTourPlatform = 'web',
 ): Promise<T0FlowLecturesResult> {
-  const emptyKit: StudentKitStatus = { applicable: false, detailsFilled: false, trackingUrl: null, trackingId: null, admissionsFormUrl: null }
-  const empty: T0FlowLecturesResult = { lmsLectures: [], programLectures: [], completedLectureIds: [], legalAgreementSections: [], isDocumentsRequired: false, documentsUploaded: false, studentKit: emptyKit, idCardUrl: null }
+  const emptyKit: StudentKitStatus = {
+    applicable: false,
+    detailsFilled: false,
+    trackingUrl: null,
+    trackingId: null,
+    admissionsFormUrl: null,
+  }
+  const empty: T0FlowLecturesResult = {
+    lmsLectures: [],
+    programLectures: [],
+    completedLectureIds: [],
+    legalAgreementSections: [],
+    isDocumentsRequired: false,
+    documentsUploaded: false,
+    studentKit: emptyKit,
+    idCardUrl: null,
+  }
 
   if (!batchId) return empty
   const admissionRows = normalizeRows<{ batch_id: number }>(
@@ -83,7 +108,7 @@ export async function getT0FlowLectures(
       SELECT batch_id FROM user_batch_admission_data
       WHERE user_id = ${userId} AND batch_id = ${batchId}
       LIMIT 1
-    `)
+    `),
   )
 
   // Non-T0 (lite) flow: no admission row, but enrolled users get the trimmed
@@ -99,7 +124,12 @@ export async function getT0FlowLectures(
 
   // Documents / student kit / ID card are decided solely by the admissions API
   // (single call, write-through persisted to our columns).
-  const [lmsSectionId, programSectionId, legalAgreementSections, admissionsStatus] = await Promise.all([
+  const [
+    lmsSectionId,
+    programSectionId,
+    legalAgreementSections,
+    admissionsStatus,
+  ] = await Promise.all([
     getSectionId(batchId, `lms-walkthrough-${platform}`),
     getSectionId(batchId, `program-onboarding-${platform}`),
     getAgreementRenderData(userId, batchId),
@@ -120,13 +150,17 @@ export async function getT0FlowLectures(
 
   const [lmsLectures, programLectures] = await Promise.all([
     lmsSectionId ? getLecturesForSection(lmsSectionId) : Promise.resolve([]),
-    programSectionId ? getLecturesForSection(programSectionId) : Promise.resolve([]),
+    programSectionId
+      ? getLecturesForSection(programSectionId)
+      : Promise.resolve([]),
   ])
 
-  const allLectureIds = [...new Set([
-    ...lmsLectures.map((l) => l.lectureId),
-    ...programLectures.map((l) => l.lectureId),
-  ])]
+  const allLectureIds = [
+    ...new Set([
+      ...lmsLectures.map((l) => l.lectureId),
+      ...programLectures.map((l) => l.lectureId),
+    ]),
+  ]
 
   let completedLectureIds: Array<number> = []
   if (allLectureIds.length > 0) {
@@ -137,10 +171,19 @@ export async function getT0FlowLectures(
         WHERE user_id = ${userId}
           AND lecture_id IN (${sql.raw(idList)})
           AND duration >= 10
-      `)
+      `),
     )
     completedLectureIds = rows.map((r) => Number(r.lecture_id))
   }
 
-  return { lmsLectures, programLectures, completedLectureIds, legalAgreementSections, isDocumentsRequired, documentsUploaded, studentKit, idCardUrl }
+  return {
+    lmsLectures,
+    programLectures,
+    completedLectureIds,
+    legalAgreementSections,
+    isDocumentsRequired,
+    documentsUploaded,
+    studentKit,
+    idCardUrl,
+  }
 }

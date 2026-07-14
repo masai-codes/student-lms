@@ -17,15 +17,19 @@ export async function updateProfileAvatarByEmail(
 ): Promise<SupabaseRpcResult> {
   try {
     const supabase = createClientForServer()
-    const { data, error } = await supabase.rpc('update_profile_avatar_by_email', {
-      p_user_email,
-      p_avatar_url,
-    })
+    const { data, error } = await supabase.rpc(
+      'update_profile_avatar_by_email',
+      {
+        p_user_email,
+        p_avatar_url,
+      },
+    )
     return { data, error }
   } catch (error) {
     return {
       data: null,
-      error: error instanceof Error ? error : new Error('Unknown error occurred'),
+      error:
+        error instanceof Error ? error : new Error('Unknown error occurred'),
     }
   }
 }

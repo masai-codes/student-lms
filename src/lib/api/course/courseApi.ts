@@ -17,10 +17,14 @@ export interface CoursePageDetails {
   certificates: CertificateItem[]
 }
 
-export async function fetchCoursePagePrimary(batchId: number): Promise<CoursePagePrimary> {
+export async function fetchCoursePagePrimary(
+  batchId: number,
+): Promise<CoursePagePrimary> {
   return fetchJson<CoursePagePrimary>(COURSE_API.primary(batchId))
 }
 
-export async function fetchCoursePageDetails(batchId: number): Promise<CoursePageDetails> {
+export async function fetchCoursePageDetails(
+  batchId: number,
+): Promise<CoursePageDetails> {
   return fetchJson<CoursePageDetails>(COURSE_API.details(batchId))
 }

@@ -15,8 +15,9 @@ interface AdmissionsRedirectCardProps {
 }
 
 const CARD_CENTER =
-  'flex min-h-[360px] w-full flex-col items-center justify-center rounded-2xl border border-gray-100 bg-white p-10 text-center shadow-sm'
-const CTA = 'inline-flex h-11 items-center justify-center rounded-lg bg-[#6962AC] px-8 text-sm font-semibold text-white transition-colors hover:bg-[#5a4f96]'
+  'flex min-h-[360px] w-full flex-col items-center justify-center rounded-2xl border border-border bg-surface p-10 text-center shadow-sm'
+const CTA =
+  'inline-flex h-11 items-center justify-center rounded-lg bg-brand px-8 text-sm font-semibold text-brand-foreground transition-colors hover:bg-[#5a4f96]'
 
 /**
  * Shared "Redirecting you to Admissions" card — reused by the document-upload
@@ -33,15 +34,24 @@ export function AdmissionsRedirectCard({
   return (
     <div className={CARD_CENTER} data-testid="admissions-redirect-card">
       <div className="mb-6">
-        <Shuffle size={56} weight="bold" className="text-[#DF3841]" aria-hidden />
+        <Shuffle
+          size={56}
+          weight="bold"
+          className="text-[#DF3841]"
+          aria-hidden
+        />
       </div>
-      <h2 className="mb-3 text-2xl font-bold text-gray-900">Redirecting you to Admissions</h2>
-      <p className="mb-8 max-w-sm text-sm text-gray-600">{message}</p>
+      <h2 className="mb-3 text-2xl font-bold text-foreground">
+        Redirecting you to Admissions
+      </h2>
+      <p className="mb-8 max-w-sm text-sm text-foreground-muted">{message}</p>
       {url ? (
         <button
           type="button"
           onClick={() => {
-            pushDashboardEvent('l_dashboard_guided_tour_admissions_continue', { cta: ctaTestId })
+            pushDashboardEvent('l_dashboard_guided_tour_admissions_continue', {
+              cta: ctaTestId,
+            })
             window.open(url, '_blank', 'noopener,noreferrer')
             onContinue?.()
           }}
@@ -51,7 +61,7 @@ export function AdmissionsRedirectCard({
           Continue
         </button>
       ) : (
-        <p className="text-sm text-gray-500">{fallback}</p>
+        <p className="text-sm text-foreground-muted">{fallback}</p>
       )}
     </div>
   )

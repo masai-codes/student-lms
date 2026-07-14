@@ -1,6 +1,12 @@
 // @vitest-environment jsdom
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
+import {
+  cleanup,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { WelcomeModalGate } from './WelcomeModalGate'
 
@@ -16,7 +22,9 @@ vi.mock('@/components/ui/lottie-confetti', () => ({
 vi.mock('@/hooks/useIsMobileViewport', () => ({
   useIsMobileViewport: () => hoisted.isMobile(),
 }))
-vi.mock('@/lib/api/dashboard/dashboardApi', () => ({ dismissWelcomeModalApi: hoisted.dismiss }))
+vi.mock('@/lib/api/dashboard/dashboardApi', () => ({
+  dismissWelcomeModalApi: hoisted.dismiss,
+}))
 
 afterEach(() => {
   cleanup()
@@ -28,7 +36,9 @@ beforeEach(() => {
 })
 
 function renderGate(showWelcomeModal: boolean) {
-  const client = new QueryClient({ defaultOptions: { queries: { retry: false } } })
+  const client = new QueryClient({
+    defaultOptions: { queries: { retry: false } },
+  })
   return render(
     <QueryClientProvider client={client}>
       <WelcomeModalGate showWelcomeModal={showWelcomeModal} />
@@ -52,6 +62,8 @@ describe('WelcomeModalGate', () => {
     fireEvent.click(screen.getByTestId('welcome-modal-get-started'))
 
     await waitFor(() => expect(hoisted.dismiss).toHaveBeenCalledTimes(1))
-    await waitFor(() => expect(screen.queryByTestId('welcome-modal-title')).toBeNull())
+    await waitFor(() =>
+      expect(screen.queryByTestId('welcome-modal-title')).toBeNull(),
+    )
   })
 })

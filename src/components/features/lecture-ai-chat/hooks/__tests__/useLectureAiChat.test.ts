@@ -1,11 +1,11 @@
 // @vitest-environment jsdom
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { act, renderHook } from '@testing-library/react'
-import {  createElement } from 'react'
+import { createElement } from 'react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { useLectureAiChat } from '../useLectureAiChat'
-import type {ReactNode} from 'react';
+import type { ReactNode } from 'react'
 
 const hoisted = vi.hoisted(() => ({
   streamLectureAiChat: vi.fn(),
@@ -131,7 +131,9 @@ describe('useLectureAiChat', () => {
 
     act(() => result.current.setLanguage('Hindi'))
     expect(result.current.language).toBe('Hindi')
-    expect(window.localStorage.getItem('lecture-ai-chat:language')).toBe('Hindi')
+    expect(window.localStorage.getItem('lecture-ai-chat:language')).toBe(
+      'Hindi',
+    )
 
     act(() => result.current.sendMessage('hello'))
 

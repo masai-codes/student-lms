@@ -33,13 +33,17 @@ describe('useLectureSplitChatOpen', () => {
     })
 
     expect(result.current.isOpen).toBe(true)
-    expect(window.localStorage.getItem(LECTURE_SPLIT_CHAT_STORAGE_KEY)).toBe('true')
+    expect(window.localStorage.getItem(LECTURE_SPLIT_CHAT_STORAGE_KEY)).toBe(
+      'true',
+    )
 
     act(() => {
       result.current.close()
     })
 
     expect(result.current.isOpen).toBe(false)
-    expect(window.localStorage.getItem(LECTURE_SPLIT_CHAT_STORAGE_KEY)).toBe('false')
+    expect(window.localStorage.getItem(LECTURE_SPLIT_CHAT_STORAGE_KEY)).toBe(
+      'false',
+    )
   })
 })

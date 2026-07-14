@@ -50,7 +50,8 @@ describe('getLearnPageData', () => {
   })
 
   it('returns an empty listing without querying when the user has no batches', async () => {
-    const { getLearnPageData } = await import('../services/getLearnPageData.service')
+    const { getLearnPageData } =
+      await import('../services/getLearnPageData.service')
     hoisted.getEnrolledBatches.mockResolvedValueOnce([])
 
     const result = await getLearnPageData({ learningType: 'lecture' }, 7)
@@ -62,10 +63,14 @@ describe('getLearnPageData', () => {
   })
 
   it('uses the requested batch when the user is enrolled in it', async () => {
-    const { getLearnPageData } = await import('../services/getLearnPageData.service')
+    const { getLearnPageData } =
+      await import('../services/getLearnPageData.service')
     hoisted.getEnrolledBatches.mockResolvedValueOnce([batch(1), batch(2)])
 
-    const result = await getLearnPageData({ learningType: 'lecture', batchId: 2 }, 7)
+    const result = await getLearnPageData(
+      { learningType: 'lecture', batchId: 2 },
+      7,
+    )
 
     expect(result.selectedBatchId).toBe(2)
     expect(hoisted.getBatchLearningData).toHaveBeenCalledWith(
@@ -75,16 +80,21 @@ describe('getLearnPageData', () => {
   })
 
   it('falls back to the first enrolled batch when the requested one is not enrolled', async () => {
-    const { getLearnPageData } = await import('../services/getLearnPageData.service')
+    const { getLearnPageData } =
+      await import('../services/getLearnPageData.service')
     hoisted.getEnrolledBatches.mockResolvedValueOnce([batch(5), batch(6)])
 
-    const result = await getLearnPageData({ learningType: 'lecture', batchId: 999 }, 7)
+    const result = await getLearnPageData(
+      { learningType: 'lecture', batchId: 999 },
+      7,
+    )
 
     expect(result.selectedBatchId).toBe(5)
   })
 
   it('defaults to the first enrolled batch when none is requested', async () => {
-    const { getLearnPageData } = await import('../services/getLearnPageData.service')
+    const { getLearnPageData } =
+      await import('../services/getLearnPageData.service')
     hoisted.getEnrolledBatches.mockResolvedValueOnce([batch(5), batch(6)])
 
     const result = await getLearnPageData({ learningType: 'assignment' }, 7)

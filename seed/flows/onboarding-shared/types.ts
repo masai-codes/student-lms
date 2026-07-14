@@ -55,13 +55,18 @@ export const ONBOARDING_SECTION_DEFS: ReadonlyArray<SectionDef> = [
   },
 ]
 
-export type AdmissionOverrides = Partial<typeof userBatchAdmissionData.$inferInsert>
+export type AdmissionOverrides = Partial<
+  typeof userBatchAdmissionData.$inferInsert
+>
 
 export type OnboardingScenario = {
   includeAdmission: boolean
   userMeta?: Record<string, unknown>
   admission?: AdmissionOverrides
-  profile?: { legalData?: Record<string, unknown>; meta?: Record<string, unknown> }
+  profile?: {
+    legalData?: Record<string, unknown>
+    meta?: Record<string, unknown>
+  }
   deviceToken?: boolean
   videoAttendances?: 'none' | 'all-lms' | 'all'
   /** Sign the Program Onboarding agreement outright, independent of `videoAttendances`. */

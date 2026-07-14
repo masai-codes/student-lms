@@ -16,9 +16,8 @@ describe('resolveAssigneeFromSection', () => {
   })
 
   it('returns fallback when sectionId is null', async () => {
-    const { resolveAssigneeFromSection } = await import(
-      '@/server/new-discussions/services/resolveAssigneeFromSection'
-    )
+    const { resolveAssigneeFromSection } =
+      await import('@/server/new-discussions/services/resolveAssigneeFromSection')
     await expect(resolveAssigneeFromSection(10, null, 99)).resolves.toBe(99)
     expect(hoisted.dbSelect).not.toHaveBeenCalled()
   })
@@ -37,9 +36,8 @@ describe('resolveAssigneeFromSection', () => {
       }),
     })
 
-    const { resolveAssigneeFromSection } = await import(
-      '@/server/new-discussions/services/resolveAssigneeFromSection'
-    )
+    const { resolveAssigneeFromSection } =
+      await import('@/server/new-discussions/services/resolveAssigneeFromSection')
     await expect(resolveAssigneeFromSection(10, 5, 99)).resolves.toBe(77)
   })
 
@@ -57,9 +55,8 @@ describe('resolveAssigneeFromSection', () => {
       }),
     })
 
-    const { resolveAssigneeFromSection } = await import(
-      '@/server/new-discussions/services/resolveAssigneeFromSection'
-    )
+    const { resolveAssigneeFromSection } =
+      await import('@/server/new-discussions/services/resolveAssigneeFromSection')
     await expect(resolveAssigneeFromSection(10, 5, 99)).resolves.toBe(99)
   })
 })

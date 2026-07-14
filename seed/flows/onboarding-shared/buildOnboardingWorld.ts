@@ -12,7 +12,12 @@ import {
   type SimulatedOnwardOverrides,
 } from '../../onward-simulation/buildSimulatedOnwardStatus'
 import { writeOnwardFixture } from '../../onward-simulation/onwardFixtureStore'
-import { ONBOARDING_KIT_TRACKING_URL, flowScopedBatchName, flowScopedEmail, flowScopedUsername } from './constants'
+import {
+  ONBOARDING_KIT_TRACKING_URL,
+  flowScopedBatchName,
+  flowScopedEmail,
+  flowScopedUsername,
+} from './constants'
 import { seedOnboardingSectionsAndLectures } from './seedOnboardingSections'
 import { seedOnboardingVideoAttendances } from './seedOnboardingVideoAttendances'
 import type { OnboardingSectionKey } from '../../types'
@@ -32,14 +37,21 @@ type ProfileRow = typeof profiles.$inferSelect
 type LectureSelect = typeof lectures.$inferSelect
 
 /** Layers CLI-flag env overrides (additive-only, mirrors `--with-app-download`) onto the scenario's base simulated-onward values. */
-function resolveSimulatedOnwardOverrides(base: SimulatedOnwardOverrides): SimulatedOnwardOverrides {
+function resolveSimulatedOnwardOverrides(
+  base: SimulatedOnwardOverrides,
+): SimulatedOnwardOverrides {
   return {
-    documentsRequired: base.documentsRequired || process.env.SEED_DOCS_REQUIRED === '1',
-    documentsUploaded: base.documentsUploaded || process.env.SEED_DOCS_UPLOADED === '1',
+    documentsRequired:
+      base.documentsRequired || process.env.SEED_DOCS_REQUIRED === '1',
+    documentsUploaded:
+      base.documentsUploaded || process.env.SEED_DOCS_UPLOADED === '1',
     kitShowKit: base.kitShowKit || process.env.SEED_KIT_SHOWN === '1',
-    kitDetailsFilled: base.kitDetailsFilled || process.env.SEED_KIT_FILLED === '1',
+    kitDetailsFilled:
+      base.kitDetailsFilled || process.env.SEED_KIT_FILLED === '1',
     kitTrackingUrl:
-      process.env.SEED_KIT_TRACKING === '1' ? ONBOARDING_KIT_TRACKING_URL : (base.kitTrackingUrl ?? null),
+      process.env.SEED_KIT_TRACKING === '1'
+        ? ONBOARDING_KIT_TRACKING_URL
+        : (base.kitTrackingUrl ?? null),
   }
 }
 
@@ -125,8 +137,14 @@ export async function buildOnboardingWorld(
   if (scenario.profile !== undefined || scenario.includeAdmission) {
     let legalData = scenario.profile?.legalData
     const shouldAutoSignAgreement =
-      scenario.agreementSigned || process.env.SEED_AGREEMENT_SIGNED === '1' || scenario.videoAttendances === 'all'
-    if (shouldAutoSignAgreement && legalData === undefined && sections.programOnboardingWeb) {
+      scenario.agreementSigned ||
+      process.env.SEED_AGREEMENT_SIGNED === '1' ||
+      scenario.videoAttendances === 'all'
+    if (
+      shouldAutoSignAgreement &&
+      legalData === undefined &&
+      sections.programOnboardingWeb
+    ) {
       legalData = {
         agreements: {
           [`section_${sections.programOnboardingWeb.id}`]: {
@@ -144,11 +162,15 @@ export async function buildOnboardingWorld(
   }
 
   if (simulatedOnward) {
-    writeOnwardFixture(student.username ?? flowScopedUsername(flowId, 'student'), buildSimulatedOnwardStatus(simulatedOnward))
+    writeOnwardFixture(
+      student.username ?? flowScopedUsername(flowId, 'student'),
+      buildSimulatedOnwardStatus(simulatedOnward),
+    )
   }
 
   const forceAppDownload =
-    process.env.SEED_WITH_APP_DOWNLOAD === '1' && flowId === 'onboarding-fees-unpaid'
+    process.env.SEED_WITH_APP_DOWNLOAD === '1' &&
+    flowId === 'onboarding-fees-unpaid'
 
   if (scenario.deviceToken || forceAppDownload) {
     await createUserDeviceToken({

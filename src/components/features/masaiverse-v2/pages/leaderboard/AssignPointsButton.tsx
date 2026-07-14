@@ -30,7 +30,7 @@ export default function AssignPointsButton() {
           trackMasaiverse(MASAIVERSE_EVENTS.pointsAssignClick)
           setOpen(true)
         }}
-        className="inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-[#111827] px-3.5 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#1F2937]"
+        className="inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-foreground px-3.5 py-2 text-sm font-semibold text-background transition-colors hover:bg-foreground/90"
       >
         <Plus size={16} weight="bold" />
         Assign points

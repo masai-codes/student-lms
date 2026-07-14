@@ -107,7 +107,7 @@ export function LectureTabPanel({ tabId, tabs }: LectureTabPanelProps) {
       className="pt-0"
     >
       {/* Remounts per tab (keyed by tabId upstream), replaying the entrance. */}
-      <div className="animate-dash-row-in rounded-xl bg-gray-100 px-4 py-3 ring-1 ring-gray-200/80">
+      <div className="animate-dash-row-in rounded-xl bg-surface-muted px-4 py-3 ring-1 ring-border/80">
         {renderTabBody(tabId, tabs)}
       </div>
     </div>

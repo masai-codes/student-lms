@@ -84,7 +84,9 @@ describe('getWelcomeBanners', () => {
   })
 
   it('hides untargeted banners with empty visible_to (old-LMS parity)', async () => {
-    hoisted.bannerRows = [bannerRow({ visibleTo: { batches: [], random_group: [] } })]
+    hoisted.bannerRows = [
+      bannerRow({ visibleTo: { batches: [], random_group: [] } }),
+    ]
     const { getWelcomeBanners } = await import('../getWelcomeBanners.service')
 
     expect(await getWelcomeBanners(42, NOW)).toEqual([])
@@ -92,7 +94,9 @@ describe('getWelcomeBanners', () => {
 
   it('shows a group-targeted banner even when no batch matches', async () => {
     // userId 42 % 4 = 2 -> group "C"
-    hoisted.bannerRows = [bannerRow({ visibleTo: { batches: [999], random_group: ['C'] } })]
+    hoisted.bannerRows = [
+      bannerRow({ visibleTo: { batches: [999], random_group: ['C'] } }),
+    ]
     const { getWelcomeBanners } = await import('../getWelcomeBanners.service')
 
     expect((await getWelcomeBanners(42, NOW)).map((b) => b.id)).toEqual([1])
@@ -110,7 +114,10 @@ describe('getWelcomeBanners', () => {
   })
 
   it('hides banners with a missing date bound (old-LMS parity)', async () => {
-    hoisted.bannerRows = [bannerRow({ startDate: null }), bannerRow({ id: 2, endDate: null })]
+    hoisted.bannerRows = [
+      bannerRow({ startDate: null }),
+      bannerRow({ id: 2, endDate: null }),
+    ]
     const { getWelcomeBanners } = await import('../getWelcomeBanners.service')
 
     expect(await getWelcomeBanners(42, NOW)).toEqual([])

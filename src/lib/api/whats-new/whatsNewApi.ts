@@ -8,12 +8,20 @@ export interface FetchWhatsNewResult {
   total: number
 }
 
-export async function fetchWhatsNew(page: number): Promise<FetchWhatsNewResult> {
+export async function fetchWhatsNew(
+  page: number,
+): Promise<FetchWhatsNewResult> {
   const search = new URLSearchParams({ page: String(page) })
-  return fetchJson<FetchWhatsNewResult>(`${WHATS_NEW_API.list}?${search.toString()}`)
+  return fetchJson<FetchWhatsNewResult>(
+    `${WHATS_NEW_API.list}?${search.toString()}`,
+  )
 }
 
-export async function fetchWhatsNewById(id: number | string): Promise<WhatsNewDetail> {
-  const { item } = await fetchJson<{ item: WhatsNewDetail }>(WHATS_NEW_API.detail(id))
+export async function fetchWhatsNewById(
+  id: number | string,
+): Promise<WhatsNewDetail> {
+  const { item } = await fetchJson<{ item: WhatsNewDetail }>(
+    WHATS_NEW_API.detail(id),
+  )
   return item
 }

@@ -7,7 +7,11 @@ const hoisted = vi.hoisted(() => ({
 }))
 
 vi.mock('@/db', () => ({
-  db: { select: hoisted.dbSelect, insert: hoisted.dbInsert, delete: hoisted.dbDelete },
+  db: {
+    select: hoisted.dbSelect,
+    insert: hoisted.dbInsert,
+    delete: hoisted.dbDelete,
+  },
 }))
 
 vi.mock('@/db/schema', () => ({
@@ -19,7 +23,9 @@ vi.mock('@/db/schema', () => ({
 }))
 
 /** `db.select().from().where()` resolving to the windowed rows. */
-function selectRows(rows: Array<{ identifier: string; ipAddress: string | null }>) {
+function selectRows(
+  rows: Array<{ identifier: string; ipAddress: string | null }>,
+) {
   return { from: () => ({ where: () => Promise.resolve(rows) }) }
 }
 
@@ -39,19 +45,22 @@ describe('loginRateLimit', () => {
         selectRows(Array.from({ length: 4 }, () => row('a@x.com', '1.1.1.1'))),
       )
 
-      await expect(assertLoginAllowed({ identifier: 'a@x.com' })).resolves.toBeUndefined()
+      await expect(
+        assertLoginAllowed({ identifier: 'a@x.com' }),
+      ).resolves.toBeUndefined()
     })
 
     it('blocks once an account hits the per-identifier cap (5)', async () => {
-      const { assertLoginAllowed, LoginRateLimitError } = await import('../loginRateLimit')
+      const { assertLoginAllowed, LoginRateLimitError } =
+        await import('../loginRateLimit')
       // 5 failures for this identifier in the window.
       hoisted.dbSelect.mockReturnValueOnce(
         selectRows(Array.from({ length: 5 }, () => row('a@x.com', '1.1.1.1'))),
       )
 
-      await expect(assertLoginAllowed({ identifier: 'a@x.com' })).rejects.toBeInstanceOf(
-        LoginRateLimitError,
-      )
+      await expect(
+        assertLoginAllowed({ identifier: 'a@x.com' }),
+      ).rejects.toBeInstanceOf(LoginRateLimitError)
     })
   })
 
@@ -74,7 +83,9 @@ describe('loginRateLimit', () => {
 
     await recordFailedLogin({ identifier: 'a@x.com', ip: '' })
 
-    expect(values).toHaveBeenCalledWith(expect.objectContaining({ ipAddress: null }))
+    expect(values).toHaveBeenCalledWith(
+      expect.objectContaining({ ipAddress: null }),
+    )
   })
 
   it('clearLoginAttempts deletes for the identifier', async () => {

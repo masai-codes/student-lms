@@ -44,21 +44,23 @@ export default function ImageUploadField({
   return (
     <div>
       {label ? (
-        <p className="mb-1 text-[12px] font-semibold text-[#6B7280]">{label}</p>
+        <p className="mb-1 text-[12px] font-semibold text-foreground-muted">
+          {label}
+        </p>
       ) : null}
       <div className="flex items-center gap-3">
         {value ? (
           <img
             src={value}
             alt={label ?? 'Uploaded image'}
-            className="h-16 w-16 shrink-0 rounded-lg border border-[#E5E7EB] object-cover"
+            className="h-16 w-16 shrink-0 rounded-lg border border-border object-cover"
           />
         ) : (
-          <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-lg border border-dashed border-[#D1D5DB] text-[#9CA3AF]">
+          <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-lg border border-dashed border-border-strong text-foreground-subtle">
             <UploadSimple size={18} />
           </div>
         )}
-        <label className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border border-[#E5E7EB] px-3 py-2 text-[13px] font-semibold text-[#374151] hover:bg-[#F9FAFB]">
+        <label className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border border-border px-3 py-2 text-[13px] font-semibold text-foreground hover:bg-surface-muted">
           <input
             type="file"
             accept="image/*"
@@ -71,15 +73,17 @@ export default function ImageUploadField({
           {uploading ? 'Uploading…' : value ? 'Replace' : 'Upload'}
         </label>
       </div>
-      <p className="mt-1 text-[11px] text-[#9CA3AF]">Max file size: 10 MB</p>
+      <p className="mt-1 text-[11px] text-foreground-subtle">
+        Max file size: 10 MB
+      </p>
       <input
         type="text"
         value={value ?? ''}
         placeholder="or paste an image URL"
         onChange={(event) => onChange(event.target.value)}
-        className="mt-2 w-full rounded-lg border border-[#E5E7EB] px-3 py-2 text-[13px] text-[#111928] outline-none"
+        className="mt-2 w-full rounded-lg border border-border px-3 py-2 text-[13px] text-foreground outline-none"
       />
-      {error ? <p className="mt-1 text-[12px] text-[#DC2626]">{error}</p> : null}
+      {error ? <p className="mt-1 text-[12px] text-danger">{error}</p> : null}
     </div>
   )
 }

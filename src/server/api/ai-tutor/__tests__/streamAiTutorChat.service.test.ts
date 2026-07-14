@@ -15,10 +15,13 @@ vi.mock('@/server/api/ai-tutor/clients/anthropicModel', () => ({
   getAiTutorChatModel: vi.fn(() => 'mock-model'),
 }))
 
-vi.mock('@/server/api/ai-tutor/services/aiChatPracticeQuestions.service', () => ({
-  findOrCreateChatPracticeRow: hoisted.findOrCreateChatPracticeRow,
-  appendChatPracticeHistory: hoisted.appendChatPracticeHistory,
-}))
+vi.mock(
+  '@/server/api/ai-tutor/services/aiChatPracticeQuestions.service',
+  () => ({
+    findOrCreateChatPracticeRow: hoisted.findOrCreateChatPracticeRow,
+    appendChatPracticeHistory: hoisted.appendChatPracticeHistory,
+  }),
+)
 
 vi.mock('@/server/api/ai-tutor/services/lecturesAi.service', () => ({
   getLectureSummaryForChat: hoisted.getLectureSummaryForChat,

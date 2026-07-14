@@ -47,9 +47,9 @@ describe('LmsSupportPanel', () => {
     expect(
       screen.getByText('Join our daily session to get your questions answered'),
     ).toBeTruthy()
-    expect(screen.getByTestId('dashboard-support-session-time').textContent).toBe(
-      '2 Jul, 6:30 PM (IST)',
-    )
+    expect(
+      screen.getByTestId('dashboard-support-session-time').textContent,
+    ).toBe('2 Jul, 6:30 PM (IST)')
     expect(screen.queryByTestId('dashboard-support-session-join')).toBeNull()
   })
 
@@ -85,7 +85,9 @@ describe('LmsSupportPanel', () => {
         />,
       )
       expect(
-        screen.getByText('Join our daily session to get your questions answered'),
+        screen.getByText(
+          'Join our daily session to get your questions answered',
+        ),
       ).toBeTruthy()
       expect(
         screen.getByTestId('dashboard-support-session-time').textContent,

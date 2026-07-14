@@ -27,7 +27,9 @@ export function getLearnListingAttendancePresentation(
   return render
 }
 
-export function shouldShowJoinLiveCta(joinLive: LearnListingJoinLiveState): boolean {
+export function shouldShowJoinLiveCta(
+  joinLive: LearnListingJoinLiveState,
+): boolean {
   return joinLive !== 'hidden'
 }
 

@@ -57,9 +57,9 @@ describe('AssignmentProblemList', () => {
     const firstCard = scope.getByTestId('assignment-problem-1')
     expect(firstCard.getAttribute('href')).toBe('/assignments/99/problems/11')
     expect(within(firstCard).getByText('Two Sum')).toBeTruthy()
-    expect(scope.getByTestId('assignment-problem-1-status').textContent).toContain(
-      'Completed',
-    )
+    expect(
+      scope.getByTestId('assignment-problem-1-status').textContent,
+    ).toContain('Completed')
     expect(scope.queryByTestId('assignment-problem-2-status')).toBeNull()
   })
 })

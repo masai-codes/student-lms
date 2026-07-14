@@ -59,10 +59,7 @@ export function LectureAiChatTheaterSidebar({
         openingLoaderGif={openingLoaderGif}
         className="min-h-0 flex-1"
       />
-      <div
-        ref={chatBarRef}
-        className="shrink-0 border-t border-white/10 p-2"
-      >
+      <div ref={chatBarRef} className="shrink-0 border-t border-white/10 p-2">
         <LectureAiChatBar
           value={chat.inputValue}
           onChange={chat.setInputValue}

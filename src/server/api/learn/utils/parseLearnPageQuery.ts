@@ -9,10 +9,21 @@ import type {
 } from '@/server/learn/types'
 import { ApiError } from '@/server/api/http/apiError'
 
-const LEARNING_TYPES = new Set<LearningType>(['lecture', 'assignment', 'resource'])
+const LEARNING_TYPES = new Set<LearningType>([
+  'lecture',
+  'assignment',
+  'resource',
+])
 const PRIORITIES = new Set<LearningPriority>(['recommended', 'mandatory'])
-const SCHEDULE_PHASES = new Set<LearnSchedulePhaseFilter>(['all', 'upcoming', 'past'])
-const ATTENDANCE_STATUSES = new Set<LearnAttendanceStatusFilter>(['present', 'absent'])
+const SCHEDULE_PHASES = new Set<LearnSchedulePhaseFilter>([
+  'all',
+  'upcoming',
+  'past',
+])
+const ATTENDANCE_STATUSES = new Set<LearnAttendanceStatusFilter>([
+  'present',
+  'absent',
+])
 const ASSIGNMENT_PROGRESS = new Set<AssignmentProgressStatus>([
   'new',
   'in-progress',
@@ -36,7 +47,9 @@ function parseStringList(value: string | null): Array<string> | undefined {
   return items.length > 0 ? items : undefined
 }
 
-function parsePriorityList(value: string | null): Array<LearningPriority> | undefined {
+function parsePriorityList(
+  value: string | null,
+): Array<LearningPriority> | undefined {
   const items = parseStringList(value)
   if (!items) return undefined
   const priorities = items.filter((item): item is LearningPriority =>
@@ -45,14 +58,18 @@ function parsePriorityList(value: string | null): Array<LearningPriority> | unde
   return priorities.length > 0 ? priorities : undefined
 }
 
-function parseSchedulePhase(value: string | null): LearnSchedulePhaseFilter | undefined {
+function parseSchedulePhase(
+  value: string | null,
+): LearnSchedulePhaseFilter | undefined {
   if (value == null || value.trim() === '' || value === 'all') return undefined
   return SCHEDULE_PHASES.has(value as LearnSchedulePhaseFilter)
     ? (value as LearnSchedulePhaseFilter)
     : undefined
 }
 
-function parseAttendanceStatus(value: string | null): LearnAttendanceStatusFilter | undefined {
+function parseAttendanceStatus(
+  value: string | null,
+): LearnAttendanceStatusFilter | undefined {
   if (value == null || value.trim() === '') return undefined
   return ATTENDANCE_STATUSES.has(value as LearnAttendanceStatusFilter)
     ? (value as LearnAttendanceStatusFilter)
@@ -72,7 +89,9 @@ function parseAssignmentProgressList(
   return items.length > 0 ? items : undefined
 }
 
-function parseOptionalPriorities(value: string | null): Array<LearningPriority> | undefined {
+function parseOptionalPriorities(
+  value: string | null,
+): Array<LearningPriority> | undefined {
   if (value === 'yes' || value === 'true') return ['recommended']
   if (value === 'no' || value === 'false') return ['mandatory']
   return undefined
@@ -84,21 +103,32 @@ function buildFilters(url: URL): BatchLearningFiltersInput {
   const assignmentTab = params.get('assignmentTab')
 
   return {
-    modules: parseStringList(params.get('modules')) ?? parseStringList(params.get('module')),
+    modules:
+      parseStringList(params.get('modules')) ??
+      parseStringList(params.get('module')),
     categories:
-      parseStringList(params.get('categories')) ?? parseStringList(params.get('category')),
-    types: parseStringList(params.get('types')) ?? parseStringList(params.get('type')),
+      parseStringList(params.get('categories')) ??
+      parseStringList(params.get('category')),
+    types:
+      parseStringList(params.get('types')) ??
+      parseStringList(params.get('type')),
     priorities:
       parsePriorityList(params.get('priorities')) ??
       parseOptionalPriorities(params.get('optional')),
     instructors:
-      parseStringList(params.get('instructors')) ?? parseStringList(params.get('instructor')),
+      parseStringList(params.get('instructors')) ??
+      parseStringList(params.get('instructor')),
     scheduleStartDate:
-      params.get('scheduleStartDate')?.trim() || params.get('startDate')?.trim() || undefined,
+      params.get('scheduleStartDate')?.trim() ||
+      params.get('startDate')?.trim() ||
+      undefined,
     scheduleEndDate:
-      params.get('scheduleEndDate')?.trim() || params.get('endDate')?.trim() || undefined,
+      params.get('scheduleEndDate')?.trim() ||
+      params.get('endDate')?.trim() ||
+      undefined,
     schedulePhase:
-      parseSchedulePhase(params.get('schedulePhase')) ?? parseSchedulePhase(lectureTab),
+      parseSchedulePhase(params.get('schedulePhase')) ??
+      parseSchedulePhase(lectureTab),
     attendanceStatus: parseAttendanceStatus(params.get('attendanceStatus')),
     assignmentProgressStatuses:
       parseAssignmentProgressList(params.get('assignmentProgress')) ??
@@ -109,7 +139,10 @@ function buildFilters(url: URL): BatchLearningFiltersInput {
 /** Parses `/api/learn/page` query params. `batchId` is optional; `learningType` is required. */
 export function parseLearnPageQuery(url: URL): GetLearnPageDataInput {
   const learningTypeRaw = url.searchParams.get('learningType')
-  if (learningTypeRaw == null || !LEARNING_TYPES.has(learningTypeRaw as LearningType)) {
+  if (
+    learningTypeRaw == null ||
+    !LEARNING_TYPES.has(learningTypeRaw as LearningType)
+  ) {
     throw new ApiError(400, 'INVALID_LEARNING_TYPE')
   }
 

@@ -7,9 +7,14 @@ type DiscussionIstTimestampProps = {
 }
 
 /** IST posted-at line using timestamp typography (`type-t2`, 12px Inter). */
-export function DiscussionIstTimestamp({ value, className }: DiscussionIstTimestampProps) {
+export function DiscussionIstTimestamp({
+  value,
+  className,
+}: DiscussionIstTimestampProps) {
   const label = formatIstDiscussionDateTime(value)
   if (!label) return null
 
-  return <p className={cn('type-t2 text-gray-500', className)}>{label}</p>
+  return (
+    <p className={cn('type-t2 text-foreground-muted', className)}>{label}</p>
+  )
 }

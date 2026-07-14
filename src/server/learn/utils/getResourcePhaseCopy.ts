@@ -1,4 +1,7 @@
-import type { ResourceKind, ResourcePhase } from '@/server/learn/resourceDetailTypes'
+import type {
+  ResourceKind,
+  ResourcePhase,
+} from '@/server/learn/resourceDetailTypes'
 
 type ResourcePhaseCopy = {
   title: string

@@ -14,7 +14,13 @@ import {
 import { MASAIVERSE_EVENTS, trackMasaiverse } from '../../tracking'
 
 /** Avatar colors cycled per row so adjacent authors differ. */
-const AVATAR_COLORS = ['var(--color-masaiverse-orange)', '#6D28D9', '#2E7D46', '#2563EB', '#DB2777']
+const AVATAR_COLORS = [
+  'var(--color-masaiverse-orange)',
+  '#6D28D9',
+  '#2E7D46',
+  '#2563EB',
+  '#DB2777',
+]
 
 type CommunityDiscussionsSectionProps = {
   /** Scopes the feed and new posts to a single club; omit for the community feed. */
@@ -97,7 +103,7 @@ export default function CommunityDiscussionsSection({
                   club_id: clubId,
                 })
               }
-              className="text-[14px] font-medium text-masaiverse-orange hover:underline"
+              className="text-[14px] font-medium text-accent-warm hover:underline"
             >
               View all →
             </Link>
@@ -119,7 +125,7 @@ export default function CommunityDiscussionsSection({
             })
             setIsComposing(true)
           }}
-          className="w-full rounded-[14px] bg-masaiverse-orange py-3.5 text-[15px] font-semibold text-white hover:bg-masaiverse-orange-dark"
+          className="w-full rounded-[14px] bg-accent-warm py-3.5 text-[15px] font-semibold text-accent-warm-foreground hover:bg-accent-warm-hover"
         >
           + Start a discussion
         </button>
@@ -129,14 +135,14 @@ export default function CommunityDiscussionsSection({
         <div className="relative mt-3">
           <MagnifyingGlass
             size={16}
-            className="absolute left-3 top-1/2 -translate-y-1/2 text-[#9CA3AF]"
+            className="absolute left-3 top-1/2 -translate-y-1/2 text-foreground-subtle"
           />
           <input
             type="search"
             value={searchInput}
             onChange={(event) => setSearchInput(event.target.value)}
             placeholder="Search discussions by title, content or tag…"
-            className="w-full rounded-[12px] border border-[#EDEAE8] bg-white py-2 pl-9 pr-3 text-[14px] text-[#111827] outline-none placeholder:text-[#9CA3AF]"
+            className="w-full rounded-[12px] border border-border bg-surface py-2 pl-9 pr-3 text-[14px] text-foreground outline-none placeholder:text-foreground-subtle"
           />
         </div>
       )}
@@ -149,7 +155,7 @@ export default function CommunityDiscussionsSection({
           ))}
         </div>
       ) : discussions.length === 0 ? (
-        <p className="mt-4 text-[14px] text-[#6B7280]">
+        <p className="mt-4 text-[14px] text-foreground-muted">
           {search
             ? `No discussions match “${search}”.`
             : 'No discussions yet — start the first one!'}
@@ -177,7 +183,7 @@ export default function CommunityDiscussionsSection({
                   })
                   fetchNextPage()
                 }}
-                className="rounded-full border border-[#EDEAE8] bg-white px-5 py-2 text-[14px] font-medium text-masaiverse-orange hover:bg-[#FAF7F5] disabled:opacity-50"
+                className="rounded-full border border-border bg-surface px-5 py-2 text-[14px] font-medium text-accent-warm hover:bg-surface-muted disabled:opacity-50"
               >
                 {isFetchingNextPage ? 'Loading…' : 'Load more'}
               </button>

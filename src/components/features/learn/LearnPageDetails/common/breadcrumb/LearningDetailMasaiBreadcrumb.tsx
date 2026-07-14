@@ -5,7 +5,11 @@ import type { MasaiBreadcrumbRenderLinkProps } from '@/components/ui/masai-bread
 import { MasaiBreadcrumb } from '@/components/ui/masai-breadcrumb'
 import { pushLearnEvent } from '@/components/features/learn/shared/learnAnalytics'
 
-function renderSpaLink({ href, className, children }: MasaiBreadcrumbRenderLinkProps) {
+function renderSpaLink({
+  href,
+  className,
+  children,
+}: MasaiBreadcrumbRenderLinkProps) {
   return (
     <Link
       to={href}

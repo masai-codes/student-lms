@@ -20,7 +20,9 @@ interface DashboardSidebarProps {
 export function DashboardSidebar({ overview }: DashboardSidebarProps) {
   const isSupportLive = overview.supportSession?.status === 'live'
   const announcementsEmpty =
-    !overview.isPending && !overview.isError && overview.announcements.length === 0
+    !overview.isPending &&
+    !overview.isError &&
+    overview.announcements.length === 0
 
   const announcementsCard = (
     <AnnouncementsPanel

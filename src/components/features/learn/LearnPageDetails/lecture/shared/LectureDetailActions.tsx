@@ -17,5 +17,7 @@ export function LectureDetailActions({
 }: LectureDetailActionsProps) {
   const bookmark = useLectureBookmark(lectureId, initialIsBookmarked)
 
-  return <LearnDetailDefaultActions bookmark={bookmark} ticketCategory="lecture" />
+  return (
+    <LearnDetailDefaultActions bookmark={bookmark} ticketCategory="lecture" />
+  )
 }

@@ -7,7 +7,9 @@ import {
 import { lectureDetailRouteClasses } from '@/lib/layout'
 import { fetchLectureLearningDetailFromApi } from '@/lib/api/learn/learnApi'
 
-export const Route = createFileRoute('/(protected)/_layout/lectures_/$lectureId')({
+export const Route = createFileRoute(
+  '/(protected)/_layout/lectures_/$lectureId',
+)({
   component: RouteComponent,
   errorComponent: LearnPageDetailError,
   loader: async ({ params }) => {

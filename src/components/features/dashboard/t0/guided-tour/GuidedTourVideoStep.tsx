@@ -43,7 +43,8 @@ export function GuidedTourVideoStep({
   const [progress, setProgress] = useState(0)
 
   const mutation = useMutation({
-    mutationFn: (watchedSeconds: number) => recordT0FlowStepComplete(lectureId, batchId, tab, watchedSeconds),
+    mutationFn: (watchedSeconds: number) =>
+      recordT0FlowStepComplete(lectureId, batchId, tab, watchedSeconds),
     onSuccess: onReported,
   })
 
@@ -59,17 +60,19 @@ export function GuidedTourVideoStep({
   if (!videoUrl) {
     return (
       <div
-        className="flex aspect-video w-full items-center justify-center rounded-2xl bg-gray-100 text-sm text-gray-500"
+        className="flex aspect-video w-full items-center justify-center rounded-2xl bg-surface-muted text-sm text-foreground-muted"
         data-testid="guided-tour-video"
       >
-        <span data-testid="guided-tour-video-missing">This video isn’t available yet.</span>
+        <span data-testid="guided-tour-video-missing">
+          This video isn’t available yet.
+        </span>
       </div>
     )
   }
 
   return (
     <div
-      className="relative aspect-video w-full overflow-hidden rounded-2xl border border-gray-200 bg-black shadow-sm"
+      className="relative aspect-video w-full overflow-hidden rounded-2xl border border-border bg-black shadow-sm"
       data-testid="guided-tour-video"
     >
       {videoCount > 1 ? (
@@ -80,8 +83,14 @@ export function GuidedTourVideoStep({
           {Array.from({ length: videoCount }, (_, i) => {
             const fill = i < videoIndex ? 100 : i === videoIndex ? progress : 0
             return (
-              <div key={i} className="h-1.5 flex-1 overflow-hidden rounded-full bg-white/30">
-                <div className="h-full bg-white transition-all duration-100 ease-linear" style={{ width: `${fill}%` }} />
+              <div
+                key={i}
+                className="h-1.5 flex-1 overflow-hidden rounded-full bg-surface/30"
+              >
+                <div
+                  className="h-full bg-surface transition-all duration-100 ease-linear"
+                  style={{ width: `${fill}%` }}
+                />
               </div>
             )
           })}

@@ -1,6 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-const hoisted = vi.hoisted(() => ({ rows: [] as Array<Record<string, unknown>> }))
+const hoisted = vi.hoisted(() => ({
+  rows: [] as Array<Record<string, unknown>>,
+}))
 
 vi.mock('@/db', () => {
   const chain: Record<string, unknown> = {
@@ -35,7 +37,12 @@ describe('getForYouMessages', () => {
     const { getForYouMessages } = await import('../getForYouMessages.service')
 
     const [ranked] = await getForYouMessages(42, '2026-07-02 12:00:00')
-    expect(ranked.item).toMatchObject({ id: 10, source: 'm', isForYou: true, title: 'Subject line' })
+    expect(ranked.item).toMatchObject({
+      id: 10,
+      source: 'm',
+      isForYou: true,
+      title: 'Subject line',
+    })
   })
 
   it('prefers meta.title over subject when present', async () => {
@@ -47,10 +54,16 @@ describe('getForYouMessages', () => {
   })
 
   it('falls back to subject when meta.title is blank or non-string', async () => {
-    hoisted.rows = [row({ meta: { title: '' } }), row({ id: 11, meta: { title: 5 } })]
+    hoisted.rows = [
+      row({ meta: { title: '' } }),
+      row({ id: 11, meta: { title: 5 } }),
+    ]
     const { getForYouMessages } = await import('../getForYouMessages.service')
 
     const result = await getForYouMessages(42, '2026-07-02 12:00:00')
-    expect(result.map((r) => r.item.title)).toEqual(['Subject line', 'Subject line'])
+    expect(result.map((r) => r.item.title)).toEqual([
+      'Subject line',
+      'Subject line',
+    ])
   })
 })

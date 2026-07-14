@@ -5,7 +5,10 @@ import {
   readJsonBody,
   withAuthErrorHandling,
 } from '@/server/auth/v2/httpHelpers'
-import { ResetPasswordError, resetPassword } from '@/server/auth/v2/resetPassword'
+import {
+  ResetPasswordError,
+  resetPassword,
+} from '@/server/auth/v2/resetPassword'
 
 type ResetPasswordBody = {
   token?: unknown
@@ -30,7 +33,11 @@ async function handleResetPassword(request: Request): Promise<Response> {
   const password = typeof body.password === 'string' ? body.password : ''
 
   if (!token || !password) {
-    return errorResponse(400, 'MISSING_FIELDS', 'token and password are required')
+    return errorResponse(
+      400,
+      'MISSING_FIELDS',
+      'token and password are required',
+    )
   }
 
   try {

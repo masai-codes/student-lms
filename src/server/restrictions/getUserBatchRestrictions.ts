@@ -25,11 +25,7 @@ export async function getUserBatchRestrictions(
   for (const row of rows) {
     const meta = parseBatchUserMeta(row.meta)
     const flags = extractRestrictionFlags(meta)
-    if (
-      flags.enrolmentCancelled ||
-      flags.paused ||
-      flags.agreementBanned
-    ) {
+    if (flags.enrolmentCancelled || flags.paused || flags.agreementBanned) {
       // A batch can appear on multiple batch_user rows; merge so any set flag wins.
       const existing = restrictions.get(row.batchId)
       restrictions.set(row.batchId, mergeFlags(existing, flags))

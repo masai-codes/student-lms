@@ -26,7 +26,12 @@ export interface AgreementCertData {
 const A4: [number, number] = [595.276, 841.89]
 
 /** Wrap `text` to lines that fit `maxWidth` at `size` using `font`. */
-function wrapText(text: string, font: PDFFont, size: number, maxWidth: number): Array<string> {
+function wrapText(
+  text: string,
+  font: PDFFont,
+  size: number,
+  maxWidth: number,
+): Array<string> {
   const words = text.split(/\s+/)
   const lines: Array<string> = []
   let line = ''
@@ -70,9 +75,19 @@ export async function buildAgreementPdf(
       merged.addPage(page)
       if (i === pages.length - 1) {
         const { width } = page.getSize()
-        page.drawRectangle({ x: 40, y: 40, width: width - 80, height: 30, color: rgb(1, 1, 1) })
+        page.drawRectangle({
+          x: 40,
+          y: 40,
+          width: width - 80,
+          height: 30,
+          color: rgb(1, 1, 1),
+        })
         page.drawText(`${doc.heading} Signed At: ${certData.signed}`, {
-          x: 50, y: 50, size: 10, font: bold, color: rgb(0, 0, 0),
+          x: 50,
+          y: 50,
+          size: 10,
+          font: bold,
+          color: rgb(0, 0, 0),
         })
       }
     })
@@ -87,7 +102,12 @@ export async function buildAgreementPdf(
       const logo = await merged.embedPng(logoBytes)
       const logoW = 100
       logoH = (logoW * logo.height) / logo.width
-      page.drawImage(logo, { x: width - logoW - 20, y: height - logoH - 15, width: logoW, height: logoH })
+      page.drawImage(logo, {
+        x: width - logoW - 20,
+        y: height - logoH - 15,
+        width: logoW,
+        height: logoH,
+      })
     } catch {
       logoH = 0 // unusable logo — render the certificate without it
     }
@@ -95,11 +115,19 @@ export async function buildAgreementPdf(
 
   const program = certData.program.toUpperCase()
   page.drawText(program, {
-    x: (width - bold.widthOfTextAtSize(program, 14)) / 2, y: height - logoH - 35, size: 14, font: bold, color: rgb(0, 0, 0),
+    x: (width - bold.widthOfTextAtSize(program, 14)) / 2,
+    y: height - logoH - 35,
+    size: 14,
+    font: bold,
+    color: rgb(0, 0, 0),
   })
   const title = 'SIGNATURE CERTIFICATE'
   page.drawText(title, {
-    x: (width - bold.widthOfTextAtSize(title, 20)) / 2, y: height - logoH - 80, size: 20, font: bold, color: rgb(0, 0, 0),
+    x: (width - bold.widthOfTextAtSize(title, 20)) / 2,
+    y: height - logoH - 80,
+    size: 20,
+    font: bold,
+    color: rgb(0, 0, 0),
   })
 
   const labelX = 50
@@ -112,10 +140,22 @@ export async function buildAgreementPdf(
   const sanitize = (t: string) => t.replace(/[^\x00-\x7F]/g, '')
 
   const addRow = (label: string, value: string) => {
-    page.drawText(`${label}:`, { x: labelX, y, size: 12, font: bold, color: rgb(0, 0, 0) })
+    page.drawText(`${label}:`, {
+      x: labelX,
+      y,
+      size: 12,
+      font: bold,
+      color: rgb(0, 0, 0),
+    })
     const lines = wrapText(sanitize(value || ''), regular, 12, maxValueWidth)
     lines.forEach((line, i) => {
-      page.drawText(line, { x: valueX, y: y - i * 14, size: 12, font: regular, color: rgb(0, 0, 0) })
+      page.drawText(line, {
+        x: valueX,
+        y: y - i * 14,
+        size: 12,
+        font: regular,
+        color: rgb(0, 0, 0),
+      })
     })
     y -= lineHeight + Math.max(0, lines.length - 1) * 14
   }
@@ -125,7 +165,8 @@ export async function buildAgreementPdf(
   addRow('Email', certData.email)
   addRow('Student Code', certData.studentCode)
   if (certData.panNumber) addRow('PAN Number', certData.panNumber)
-  if (certData.passportNumber) addRow('Passport Number', certData.passportNumber)
+  if (certData.passportNumber)
+    addRow('Passport Number', certData.passportNumber)
   addRow('Address', certData.address)
   addRow('Program', certData.program)
   addRow('Section', certData.sectionName)

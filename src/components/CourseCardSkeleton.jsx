@@ -1,6 +1,6 @@
-import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
-import { Skeleton } from "@/components/ui/skeleton"
-import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card'
+import { Skeleton } from '@/components/ui/skeleton'
+import { Button } from '@/components/ui/button'
 
 export default function CourseCardSkeleton() {
   return (
@@ -20,14 +20,17 @@ export default function CourseCardSkeleton() {
         {/* Progress Bar Skeleton */}
         <Skeleton className="h-2 w-full rounded" />
         <div className="flex items-center justify-between text-sm text-muted-foreground">
-          <Skeleton className="h-3 w-1/4 rounded" /> {/* "Course Progress" text */}
+          <Skeleton className="h-3 w-1/4 rounded" />{' '}
+          {/* "Course Progress" text */}
           <Skeleton className="h-3 w-6 rounded" /> {/* Percentage text */}
         </div>
       </CardContent>
 
       <CardFooter className="flex gap-4">
-        <Skeleton className="h-8 w-32 rounded-lg" /> {/* Start Learning button */}
-        <Skeleton className="h-8 w-24 rounded-lg" /> {/* Course Details button */}
+        <Skeleton className="h-8 w-32 rounded-lg" />{' '}
+        {/* Start Learning button */}
+        <Skeleton className="h-8 w-24 rounded-lg" />{' '}
+        {/* Course Details button */}
       </CardFooter>
     </Card>
   )

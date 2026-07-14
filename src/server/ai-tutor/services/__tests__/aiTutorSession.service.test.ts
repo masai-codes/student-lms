@@ -29,7 +29,6 @@ import {
 import { findChatRow } from '@/server/ai-chat/services/aiChatPracticeQuestions.repo'
 import { persistVoiceTranscriptToHistory } from '@/server/ai-chat/services/persistVoiceTranscript'
 
-
 vi.mock('@/server/ai-tutor/services/aiTutorDailyLimit', () => ({
   AI_TUTOR_DAILY_LIMIT: 10,
   checkAiTutorDailyLimit: vi.fn(),
@@ -298,8 +297,18 @@ describe('endAiTutorSession', () => {
 describe('fetchAiTutorTranscript', () => {
   it('returns only sessions whose transcripts loaded successfully', async () => {
     vi.mocked(listSessionsForLecture).mockResolvedValueOnce([
-      { id: 1, sessionId: 's-1', uniqueId: 'u-1', createdAt: '2026-05-25 10:00:00' },
-      { id: 2, sessionId: 's-2', uniqueId: 'u-2', createdAt: '2026-05-25 11:00:00' },
+      {
+        id: 1,
+        sessionId: 's-1',
+        uniqueId: 'u-1',
+        createdAt: '2026-05-25 10:00:00',
+      },
+      {
+        id: 2,
+        sessionId: 's-2',
+        uniqueId: 'u-2',
+        createdAt: '2026-05-25 11:00:00',
+      },
     ])
     vi.mocked(fetchTranscriptOnTokenServer)
       .mockResolvedValueOnce({
@@ -312,7 +321,9 @@ describe('fetchAiTutorTranscript', () => {
           },
         ],
       })
-      .mockRejectedValueOnce(new Error('AI_TUTOR_TOKEN_SERVER_TRANSCRIPT_FAILED'))
+      .mockRejectedValueOnce(
+        new Error('AI_TUTOR_TOKEN_SERVER_TRANSCRIPT_FAILED'),
+      )
 
     const result = await fetchAiTutorTranscript({ userId: 1, lectureId: 5 })
     expect(result).toHaveLength(1)

@@ -46,34 +46,44 @@ describe('buildDashboardHomeWorld', () => {
     hoisted.createEnrollment.mockResolvedValue({ id: 30 })
 
     let lectureId = 100
-    hoisted.createLecture.mockImplementation(async (input: { title: string }) => ({
-      id: lectureId++,
-      title: input.title,
-    }))
+    hoisted.createLecture.mockImplementation(
+      async (input: { title: string }) => ({
+        id: lectureId++,
+        title: input.title,
+      }),
+    )
 
     let assignmentId = 200
-    hoisted.createAssignment.mockImplementation(async (input: { title: string }) => ({
-      id: assignmentId++,
-      title: input.title,
-    }))
+    hoisted.createAssignment.mockImplementation(
+      async (input: { title: string }) => ({
+        id: assignmentId++,
+        title: input.title,
+      }),
+    )
 
     let announcementId = 300
-    hoisted.createAnnouncement.mockImplementation(async (input: { subject: string }) => ({
-      id: announcementId++,
-      subject: input.subject,
-    }))
+    hoisted.createAnnouncement.mockImplementation(
+      async (input: { subject: string }) => ({
+        id: announcementId++,
+        subject: input.subject,
+      }),
+    )
 
     let messageId = 400
-    hoisted.createMessage.mockImplementation(async (input: { subject: string }) => ({
-      id: messageId++,
-      subject: input.subject,
-    }))
+    hoisted.createMessage.mockImplementation(
+      async (input: { subject: string }) => ({
+        id: messageId++,
+        subject: input.subject,
+      }),
+    )
 
     let whatsnewId = 500
-    hoisted.createWhatsnew.mockImplementation(async (input: { subject: string }) => ({
-      id: whatsnewId++,
-      subject: input.subject,
-    }))
+    hoisted.createWhatsnew.mockImplementation(
+      async (input: { subject: string }) => ({
+        id: whatsnewId++,
+        subject: input.subject,
+      }),
+    )
 
     hoisted.createAnnouncementRead.mockResolvedValue({ id: 600 })
     hoisted.createSubmission.mockResolvedValue({ id: 700 })

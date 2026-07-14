@@ -52,15 +52,17 @@ describe('AssignmentNotStartedBanner', () => {
     render(<AssignmentNotStartedBanner detail={baseDetail} />)
 
     expect(screen.getByTestId('assignment-not-started-banner')).toBeTruthy()
-    expect(screen.getByRole('heading', { name: "Assignment hasn't started yet" })).toBeTruthy()
-    expect(screen.getByText(/Assignment will be unlocked and available at/)).toBeTruthy()
+    expect(
+      screen.getByRole('heading', { name: "Assignment hasn't started yet" }),
+    ).toBeTruthy()
+    expect(
+      screen.getByText(/Assignment will be unlocked and available at/),
+    ).toBeTruthy()
   })
 
   it('falls back when schedule is missing', () => {
     render(
-      <AssignmentNotStartedBanner
-        detail={{ ...baseDetail, schedule: null }}
-      />,
+      <AssignmentNotStartedBanner detail={{ ...baseDetail, schedule: null }} />,
     )
 
     expect(screen.getByText('the scheduled time')).toBeTruthy()

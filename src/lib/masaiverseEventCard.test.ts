@@ -55,10 +55,7 @@ describe('getEventCardDisplay', () => {
   })
 
   it('handles a missing start time without a badge', () => {
-    const result = getEventCardDisplay(
-      { startTime: null, endTime: null },
-      NOW,
-    )
+    const result = getEventCardDisplay({ startTime: null, endTime: null }, NOW)
     expect(result.isLive).toBe(false)
     expect(result.badgeLabel).toBe('')
     expect(result.dateDay).toBe('')

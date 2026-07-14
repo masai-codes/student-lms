@@ -52,4 +52,3 @@ This module migrates the `livekit-chat-agent` frontend and backend into `student
    - agent audio is audible after start-audio prompt
 5. Confirm persisted transcript entries exist only in MongoDB `messages`.
 6. Confirm `/api/chatbot/internal/sessions/:sessionId/messages` returns history with valid internal key.
-

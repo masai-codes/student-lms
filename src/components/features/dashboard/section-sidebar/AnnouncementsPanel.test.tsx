@@ -35,13 +35,19 @@ describe('AnnouncementsPanel', () => {
     )
     expect(screen.getByText('Loading…')).toBeTruthy()
 
-    rerender(<AnnouncementsPanel announcements={[]} isLoading={false} isError />)
+    rerender(
+      <AnnouncementsPanel announcements={[]} isLoading={false} isError />,
+    )
     expect(screen.getByText('Failed to load content')).toBeTruthy()
   })
 
   it('keeps the card and shows "No announcements yet" when the fetch succeeded with none', () => {
     render(
-      <AnnouncementsPanel announcements={[]} isLoading={false} isError={false} />,
+      <AnnouncementsPanel
+        announcements={[]}
+        isLoading={false}
+        isError={false}
+      />,
     )
     expect(screen.getByTestId('dashboard-announcements-panel')).toBeTruthy()
     expect(screen.getByText('No announcements yet')).toBeTruthy()
@@ -63,11 +69,11 @@ describe('AnnouncementsPanel', () => {
     expect(screen.getAllByText('For you')).toHaveLength(1)
 
     // Announcement → /announcements/$id ; message → /messages/$id
-    expect(screen.getByTestId('dashboard-announcement-item-a-5').getAttribute('to')).toBe(
-      '/announcements/$id',
-    )
-    expect(screen.getByTestId('dashboard-announcement-item-m-6').getAttribute('to')).toBe(
-      '/messages/$id',
-    )
+    expect(
+      screen.getByTestId('dashboard-announcement-item-a-5').getAttribute('to'),
+    ).toBe('/announcements/$id')
+    expect(
+      screen.getByTestId('dashboard-announcement-item-m-6').getAttribute('to'),
+    ).toBe('/messages/$id')
   })
 })

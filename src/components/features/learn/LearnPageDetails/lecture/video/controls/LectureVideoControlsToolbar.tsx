@@ -225,7 +225,7 @@ export function LectureVideoControlsToolbar({
           <button
             type="button"
             onClick={togglePlay}
-            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md text-white hover:bg-white/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/40 transition duration-150 active:scale-90"
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md text-white hover:bg-surface/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/40 transition duration-150 active:scale-90"
             aria-label={isPlaying ? 'Pause' : 'Play'}
           >
             {isPlaying ? (
@@ -262,7 +262,7 @@ export function LectureVideoControlsToolbar({
               }}
               aria-pressed={captionsOn}
               aria-label={captionsOn ? 'Turn off captions' : 'Turn on captions'}
-              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md text-white hover:bg-white/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/40 transition duration-150 active:scale-90"
+              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md text-white hover:bg-surface/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/40 transition duration-150 active:scale-90"
             >
               <ClosedCaptioning
                 className="h-6 w-6"
@@ -274,7 +274,7 @@ export function LectureVideoControlsToolbar({
             type="button"
             onClick={toggleMute}
             disabled={!volumeUiSupported}
-            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md text-white hover:bg-white/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/40 transition duration-150 active:scale-90 disabled:pointer-events-none disabled:opacity-40"
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md text-white hover:bg-surface/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/40 transition duration-150 active:scale-90 disabled:pointer-events-none disabled:opacity-40"
             aria-label={mutedUi ? 'Unmute' : 'Mute'}
           >
             {mutedUi || volumeUi === 0 ? (
@@ -286,7 +286,7 @@ export function LectureVideoControlsToolbar({
           <button
             type="button"
             onClick={toggleFullscreen}
-            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md text-white hover:bg-white/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/40 transition duration-150 active:scale-90"
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md text-white hover:bg-surface/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/40 transition duration-150 active:scale-90"
             aria-label={isFullscreen ? 'Exit fullscreen' : 'Fullscreen'}
           >
             {isFullscreen ? (
@@ -305,7 +305,7 @@ export function LectureVideoControlsToolbar({
                 onActivity()
                 setOverflowMenuOpen((open) => !open)
               }}
-              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md text-white hover:bg-white/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/40 transition duration-150 active:scale-90"
+              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md text-white hover:bg-surface/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/40 transition duration-150 active:scale-90"
               aria-label="More: volume, playback speed and quality"
             >
               <DotsThreeOutlineVertical className="h-6 w-6" weight="bold" />
@@ -327,7 +327,7 @@ export function LectureVideoControlsToolbar({
                         type="button"
                         onClick={toggleMute}
                         disabled={!volumeUiSupported}
-                        className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md hover:bg-white/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/40 disabled:pointer-events-none disabled:opacity-40"
+                        className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md hover:bg-surface/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/40 disabled:pointer-events-none disabled:opacity-40"
                         aria-label={mutedUi ? 'Unmute' : 'Mute'}
                       >
                         {mutedUi || volumeUi === 0 ? (
@@ -370,7 +370,7 @@ export function LectureVideoControlsToolbar({
                         onActivity()
                         onPlaybackRateChange(Number(event.target.value))
                       }}
-                      className="h-9 w-full cursor-pointer rounded-md border border-white/15 bg-black/50 px-2 text-sm text-white outline-none hover:bg-white/10 focus-visible:ring-2 focus-visible:ring-white/40"
+                      className="h-9 w-full cursor-pointer rounded-md border border-white/15 bg-black/50 px-2 text-sm text-white outline-none hover:bg-surface/10 focus-visible:ring-2 focus-visible:ring-white/40"
                     >
                       {PLAYBACK_RATE_OPTIONS.map((rate) => (
                         <option key={rate} value={rate}>
@@ -394,7 +394,7 @@ export function LectureVideoControlsToolbar({
                           onActivity()
                           onQualityChange(Number(event.target.value))
                         }}
-                        className="h-9 w-full cursor-pointer rounded-md border border-white/15 bg-black/50 px-2 text-sm text-white outline-none hover:bg-white/10 focus-visible:ring-2 focus-visible:ring-white/40"
+                        className="h-9 w-full cursor-pointer rounded-md border border-white/15 bg-black/50 px-2 text-sm text-white outline-none hover:bg-surface/10 focus-visible:ring-2 focus-visible:ring-white/40"
                       >
                         <option value={-1}>Auto</option>
                         {qualityLevels.map((level) => (

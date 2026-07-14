@@ -8,7 +8,9 @@ export interface CurrentUser {
 }
 
 /** The signed-in user's lightweight profile (name for now). Null if missing. */
-export async function getCurrentUser(userId: number): Promise<CurrentUser | null> {
+export async function getCurrentUser(
+  userId: number,
+): Promise<CurrentUser | null> {
   const rows = await db
     .select({ name: users.name })
     .from(users)

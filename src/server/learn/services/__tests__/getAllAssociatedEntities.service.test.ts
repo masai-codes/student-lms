@@ -48,7 +48,8 @@ function lecture(id: number, type: string, associatedId: number | null) {
     hostName: 'Host',
     zoomLink: null,
     isNewZoomRedirection: 0,
-    data: associatedId == null ? null : { associatedLecture: { id: associatedId } },
+    data:
+      associatedId == null ? null : { associatedLecture: { id: associatedId } },
   }
 }
 const lectureRows = [
@@ -88,8 +89,10 @@ const assignmentRows = [
   },
 ]
 
-function shape(items: Array<{ id: number; learningType: string; title: string }>) {
-  return items.map(item => ({
+function shape(
+  items: Array<{ id: number; learningType: string; title: string }>,
+) {
+  return items.map((item) => ({
     id: item.id,
     learningType: item.learningType,
     title: item.title,
@@ -121,7 +124,10 @@ describe('getAllAssociatedEntities', () => {
       { id: 7, learningType: 'assignment', title: 'A7' },
     ])
     // full card DTO, not the old minimal shape
-    expect(result[0]).toMatchObject({ hostName: 'Host', moduleName: 'Module 1' })
+    expect(result[0]).toMatchObject({
+      hostName: 'Host',
+      moduleName: 'Module 1',
+    })
     expect(result[0].listingCtas).toBeDefined()
   })
 
@@ -190,7 +196,9 @@ describe('getAllAssociatedEntities', () => {
       nowMs: NOW,
     })
 
-    expect(shape(result)).toEqual([{ id: 5, learningType: 'lecture', title: 'L5' }])
+    expect(shape(result)).toEqual([
+      { id: 5, learningType: 'lecture', title: 'L5' },
+    ])
   })
 
   it('returns empty for a section-less entity with no forward links', async () => {

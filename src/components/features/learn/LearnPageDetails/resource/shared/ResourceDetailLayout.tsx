@@ -12,7 +12,10 @@ type ResourceDetailLayoutProps = {
   main: ReactNode
 }
 
-export function ResourceDetailLayout({ detail, main }: ResourceDetailLayoutProps) {
+export function ResourceDetailLayout({
+  detail,
+  main,
+}: ResourceDetailLayoutProps) {
   return (
     <LearnEntityDetailLayout
       detail={detail}

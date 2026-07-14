@@ -6,7 +6,8 @@ function authorFromRow(
 ): LearnDiscussionThreadItem['author'] {
   return {
     id: authorId,
-    name: authorName != null && authorName.trim() !== '' ? authorName.trim() : null,
+    name:
+      authorName != null && authorName.trim() !== '' ? authorName.trim() : null,
   }
 }
 

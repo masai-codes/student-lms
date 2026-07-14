@@ -19,7 +19,10 @@ export interface UploadProfilePhotoResult {
  * it to the Supabase avatar. Mirrors the student branch of experience-api's
  * `uploadProfilePicture` mutation.
  */
-export async function uploadProfilePhoto(userId: number, dataUrl: string): Promise<UploadProfilePhotoResult> {
+export async function uploadProfilePhoto(
+  userId: number,
+  dataUrl: string,
+): Promise<UploadProfilePhotoResult> {
   const match = DATA_URL_RE.exec(dataUrl.trim())
   if (!match) throw new ApiError(400, 'INVALID_IMAGE')
 
@@ -38,15 +41,25 @@ export async function uploadProfilePhoto(userId: number, dataUrl: string): Promi
 
   if (profile) {
     const meta = (profile.meta ?? {}) as Record<string, unknown>
-    await db.update(profiles).set({ meta: { ...meta, profile_pic: url } }).where(eq(profiles.id, profile.id))
+    await db
+      .update(profiles)
+      .set({ meta: { ...meta, profile_pic: url } })
+      .where(eq(profiles.id, profile.id))
   } else {
     await db.insert(profiles).values({ userId, meta: { profile_pic: url } })
   }
 
-  await db.update(users).set({ profilePhotoPath: url }).where(eq(users.id, userId))
+  await db
+    .update(users)
+    .set({ profilePhotoPath: url })
+    .where(eq(users.id, userId))
 
   // Best-effort Supabase avatar sync (never blocks the upload).
-  const [user] = await db.select({ email: users.email }).from(users).where(eq(users.id, userId)).limit(1)
+  const [user] = await db
+    .select({ email: users.email })
+    .from(users)
+    .where(eq(users.id, userId))
+    .limit(1)
   if (user?.email) {
     const { error } = await updateProfileAvatarByEmail(user.email, url)
     if (error) console.error('Failed to sync Supabase profile avatar', error)

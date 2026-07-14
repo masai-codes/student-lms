@@ -50,7 +50,7 @@ The denominators are computed **once**, live, by
 This guarantees the progress bar and the gate can never disagree. Denominators:
 
 - **LMS walkthrough:** `lms-walkthrough-web` lectures **+ 2** fixed steps
-  (profile photo, download app). *(Zoom authentication is not a tracked step.)*
+  (profile photo, download app). _(Zoom authentication is not a tracked step.)_
 - **Program onboarding:** `program-onboarding-web` lectures **+ 1** when the
   batch has a valid signable agreement — only when full fees are paid.
 
@@ -165,11 +165,12 @@ signed, it shows the completed summary + a link to the generated PDF.
 
 > The shared `SelectField`/`PhoneField` take a `contentClassName` so their
 > dropdown panels can be lifted above the `z-[200]` tour overlay (`z-[210]`) —
-> without it the dropdowns open *behind* the overlay and appear to do nothing.
+> without it the dropdowns open _behind_ the overlay and appear to do nothing.
 > The tour panels use `min-w-0` so the stepper scrolls horizontally instead of
 > compressing the left card on small (≈13") screens.
 
 **Write (two POSTs):**
+
 - `POST /api/dashboard/agreement/save` — autosaves the detail form into
   `profiles.legal_data.agreements.section_<id>` (idempotent merge).
 - `POST /api/dashboard/agreement/submit` — marks every step accepted
@@ -213,36 +214,36 @@ works, status just shows not-uploaded).
 
 ## Automation test hooks
 
-| `data-testid`                       | Element                                       |
-| ----------------------------------- | --------------------------------------------- |
-| `guided-tour-overlay`               | Full-screen tour container                    |
-| `guided-tour-see-dashboard`         | "See dashboard" escape                        |
-| `guided-tour-tabs` / `-tab-lms` / `-tab-program` | Tab bar + tabs (program always shown; `data-locked` + `-tab-program-lock` icon when locked) |
-| `guided-tour-batch-select` / `-batch-option-<id>` | Batch dropdown (multi-batch only) + options |
-| `guided-tour-progress` / `-label`   | Progress bar + "N of M done" label            |
-| `guided-tour-step-list`             | Ordered timeline step list                    |
-| `guided-tour-step-<key>` (+ `-done`)| A step row (`-done` marker when complete)     |
-| `guided-tour-hint`                  | Blue "watch the complete video" hint          |
-| `guided-tour-active-panel` / `-active-title` | Right panel + active step title      |
-| `guided-tour-back` / `-next`        | Step navigation buttons                       |
-| `guided-tour-video` / `-video-missing` | Video player / no-video placeholder        |
-| `guided-tour-panel-profile-photo` / `-download-app` / `-id-card` / `-agreement` / `-student-kit` / `-documents` / `-pending` | Fixed-step panels |
-| `student-kit-step` / `-fill` / `-pending` / `-track` | Kit states (fill redirect / pending / tracking link) |
-| `document-upload-step` / `-continue` / `-done` | Document upload redirect / uploaded state |
-| `id-card-step` / `-locked` / `-generating` / `-image` / `-download` | ID-card locked / generating / revealed |
-| `guided-tour-locked-notice` | Documents/kit locked-until-agreement notice |
-| `agreement-step` / `-mobile-notice` / `-completed` | Agreement root / mobile notice / signed state |
-| `agreement-stepper` / `agreement-step-tab-<i>` | Horizontal sub-step tabs (Enter Details → each doc → Signature Certificate) |
-| `agreement-details-form` / `agreement-field-<key>` | Detail form + each field |
-| `agreement-location` / `-location-consent` / `-location-value` | Location consent checkbox + detected address |
-| `agreement-action-bar` | Sticky Back / Continue / Submit bar |
-| `agreement-pdf-viewer` / `-pdf-iframe` / `-accept` | Per-document PDF + consent |
-| `agreement-certificate` / `agreement-view-pdf` | Signature summary / signed-PDF link |
-| `agreement-back` / `-continue` / `-submit` | Agreement sub-step navigation |
-| `guided-tour-profile-photo-{placeholder,webcam,preview,existing}` | Capture / existing-photo states |
-| `guided-tour-profile-photo-{enable,capture,retake,submit}` | Capture buttons             |
-| `guided-tour-profile-photo-{done,error}` | Capture result states                       |
-| `download-app-content` (+ `-google-play` / `-app-store`) | Reused app QR content (informational) |
+| `data-testid`                                                                                                                | Element                                                                                     |
+| ---------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- |
+| `guided-tour-overlay`                                                                                                        | Full-screen tour container                                                                  |
+| `guided-tour-see-dashboard`                                                                                                  | "See dashboard" escape                                                                      |
+| `guided-tour-tabs` / `-tab-lms` / `-tab-program`                                                                             | Tab bar + tabs (program always shown; `data-locked` + `-tab-program-lock` icon when locked) |
+| `guided-tour-batch-select` / `-batch-option-<id>`                                                                            | Batch dropdown (multi-batch only) + options                                                 |
+| `guided-tour-progress` / `-label`                                                                                            | Progress bar + "N of M done" label                                                          |
+| `guided-tour-step-list`                                                                                                      | Ordered timeline step list                                                                  |
+| `guided-tour-step-<key>` (+ `-done`)                                                                                         | A step row (`-done` marker when complete)                                                   |
+| `guided-tour-hint`                                                                                                           | Blue "watch the complete video" hint                                                        |
+| `guided-tour-active-panel` / `-active-title`                                                                                 | Right panel + active step title                                                             |
+| `guided-tour-back` / `-next`                                                                                                 | Step navigation buttons                                                                     |
+| `guided-tour-video` / `-video-missing`                                                                                       | Video player / no-video placeholder                                                         |
+| `guided-tour-panel-profile-photo` / `-download-app` / `-id-card` / `-agreement` / `-student-kit` / `-documents` / `-pending` | Fixed-step panels                                                                           |
+| `student-kit-step` / `-fill` / `-pending` / `-track`                                                                         | Kit states (fill redirect / pending / tracking link)                                        |
+| `document-upload-step` / `-continue` / `-done`                                                                               | Document upload redirect / uploaded state                                                   |
+| `id-card-step` / `-locked` / `-generating` / `-image` / `-download`                                                          | ID-card locked / generating / revealed                                                      |
+| `guided-tour-locked-notice`                                                                                                  | Documents/kit locked-until-agreement notice                                                 |
+| `agreement-step` / `-mobile-notice` / `-completed`                                                                           | Agreement root / mobile notice / signed state                                               |
+| `agreement-stepper` / `agreement-step-tab-<i>`                                                                               | Horizontal sub-step tabs (Enter Details → each doc → Signature Certificate)                 |
+| `agreement-details-form` / `agreement-field-<key>`                                                                           | Detail form + each field                                                                    |
+| `agreement-location` / `-location-consent` / `-location-value`                                                               | Location consent checkbox + detected address                                                |
+| `agreement-action-bar`                                                                                                       | Sticky Back / Continue / Submit bar                                                         |
+| `agreement-pdf-viewer` / `-pdf-iframe` / `-accept`                                                                           | Per-document PDF + consent                                                                  |
+| `agreement-certificate` / `agreement-view-pdf`                                                                               | Signature summary / signed-PDF link                                                         |
+| `agreement-back` / `-continue` / `-submit`                                                                                   | Agreement sub-step navigation                                                               |
+| `guided-tour-profile-photo-{placeholder,webcam,preview,existing}`                                                            | Capture / existing-photo states                                                             |
+| `guided-tour-profile-photo-{enable,capture,retake,submit}`                                                                   | Capture buttons                                                                             |
+| `guided-tour-profile-photo-{done,error}`                                                                                     | Capture result states                                                                       |
+| `download-app-content` (+ `-google-play` / `-app-store`)                                                                     | Reused app QR content (informational)                                                       |
 
 ## Open follow-ups
 

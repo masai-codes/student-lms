@@ -1,10 +1,10 @@
 # Support Feature — Product Reference (PRD-style)
 
-> **Purpose of this doc:** A fast, scannable understanding of *what* the Support
-> feature does, *who* uses it, and *how the flow works* — before you rebuild it
+> **Purpose of this doc:** A fast, scannable understanding of _what_ the Support
+> feature does, _who_ uses it, and _how the flow works_ — before you rebuild it
 > in the new repo. The companion doc
 > [`02-Codebase-Technical-Doc.md`](./02-Codebase-Technical-Doc.md) covers the
-> *how it's built* (tables, schema, API, code paths).
+> _how it's built_ (tables, schema, API, code paths).
 
 ---
 
@@ -18,6 +18,7 @@ ladder (L1 → L5)** until resolved. Admins (coordinators) work these tickets fr
 separate **admin dashboard**.
 
 There are **four supporting sub-systems** around the core ticket:
+
 1. **FAQ / Knowledge base** — searchable, votable, deflects tickets.
 2. **Callback requests** — student asks for a phone callback in a chosen time slot.
 3. **Chatbot / AI support** — conversational triage that can spin up a ticket.
@@ -27,22 +28,22 @@ There are **four supporting sub-systems** around the core ticket:
 
 ## 2. Who uses it (personas)
 
-| Persona | What they do | Where |
-|---|---|---|
-| **Student** | Searches FAQs, raises tickets, replies, rates, reopens, requests callbacks, books slots | `/support` (student React app) |
-| **Coordinator / Admin** (PC, EC, IA, Curriculum, Grievance) | Views all tickets, replies, changes status, assigns, bulk-assigns agents, resolves callbacks | Admin dashboard (`/tickets`) |
-| **Chatbot (system user)** | Triages conversations, auto-creates tickets, auto-escalates to EC/IA | Backend, triggered by `/support` chatbot UI |
-| **Temporal workflow (system)** | Background processing after ticket creation (TAT, auto-responses, notifications) | Backend |
+| Persona                                                     | What they do                                                                                 | Where                                       |
+| ----------------------------------------------------------- | -------------------------------------------------------------------------------------------- | ------------------------------------------- |
+| **Student**                                                 | Searches FAQs, raises tickets, replies, rates, reopens, requests callbacks, books slots      | `/support` (student React app)              |
+| **Coordinator / Admin** (PC, EC, IA, Curriculum, Grievance) | Views all tickets, replies, changes status, assigns, bulk-assigns agents, resolves callbacks | Admin dashboard (`/tickets`)                |
+| **Chatbot (system user)**                                   | Triages conversations, auto-creates tickets, auto-escalates to EC/IA                         | Backend, triggered by `/support` chatbot UI |
+| **Temporal workflow (system)**                              | Background processing after ticket creation (TAT, auto-responses, notifications)             | Backend                                     |
 
 **Coordinator roles map to escalation levels:**
 
 | Level | "Discussion" track (assignment / evaluation) | "Ops" track (everything else) |
-|---|---|---|
-| L1 | Curriculum Co-ordinator | Program Co-ordinator |
-| L2 | Curriculum Manager | Program Manager |
-| L3 | Curriculum Head | Program Head |
-| L4 | Grievance Officer | Grievance Officer |
-| L5 | (final escalation slot) | (final escalation slot) |
+| ----- | -------------------------------------------- | ----------------------------- |
+| L1    | Curriculum Co-ordinator                      | Program Co-ordinator          |
+| L2    | Curriculum Manager                           | Program Manager               |
+| L3    | Curriculum Head                              | Program Head                  |
+| L4    | Grievance Officer                            | Grievance Officer             |
+| L5    | (final escalation slot)                      | (final escalation slot)       |
 
 ---
 
@@ -108,11 +109,12 @@ Admin dashboard /tickets
 ## 4. Feature breakdown (the four pillars)
 
 ### 4.1 Tickets (the heart of it)
+
 - **Create:** student picks category/subcategory (or comes from an FAQ), writes a
   message, attaches up to **5 files** (S3 presigned upload), submits.
 - **Auto-assignment:** the ticket lands on an **L1** owner, chosen by:
   1. The FAQ's configured assignees (if raised from an FAQ), else
-  2. The batch's coordinator settings — **discussionPC** for *assignment/evaluation*
+  2. The batch's coordinator settings — **discussionPC** for _assignment/evaluation_
      categories, **opsPC** for everything else, else
   3. Hard-coded fallbacks.
 - **Conversation:** student and admin exchange **comments** (public vs internal).
@@ -126,12 +128,14 @@ Admin dashboard /tickets
   templated response and status `automatic`.
 
 ### 4.2 FAQ / Knowledge base
+
 - Per-batch FAQs (`help_faqs`), grouped by **category → subcategory**.
 - Full-text **search** (debounced), **upvote/downvote**, and "this didn't help → raise ticket".
 - Each FAQ carries its own **assignee ladder** (l1–l5) used for ticket routing.
 - Designed as the **first line of deflection** before a ticket is created.
 
 ### 4.3 Callback requests
+
 - A lighter-weight ask: "call me back about X at time Y."
 - Student picks a **reason** + a **preferred time slot**; one **pending** callback per
   batch at a time.
@@ -139,12 +143,14 @@ Admin dashboard /tickets
 - Stored separately from tickets (`user_callback_tickets`).
 
 ### 4.4 Chatbot / AI support
+
 - Conversational triage stored as **interactions + interaction_messages**.
 - Calls an external AI support service; the bot can **escalate to EC/IA** or
   **auto-create a ticket** and link it back to the conversation.
 - Admins can also request an **AI-suggested reply** when working a ticket.
 
 ### 4.5 Coordinator / 1:1 booking (supporting)
+
 - `SlotBook` / `PairProgramming` show section coordinators (IA, EC, PC) with contact
   info and **Calendly** links; visibility gated by section settings.
 
@@ -152,16 +158,16 @@ Admin dashboard /tickets
 
 ## 5. Key business rules & gates
 
-| Rule | Behavior |
-|---|---|
-| **Active section required** | Student can only raise tickets if they belong to an active section. |
-| **Legal agreement gate** | If the user hasn't accepted required agreements, ticket creation is blocked with a banner + "Complete Agreement" CTA. |
-| **Ownership** | Students see/act only on **their own** tickets. |
-| **Reply window** | Student can reply only while the ticket is open/re-opened; resolved/closed locks replies (until reopen/escalate). |
-| **Escalation guard** | Can only escalate if a next-level assignee exists for that batch/FAQ. |
-| **One pending callback per batch** | Prevents duplicate callback requests. |
-| **Admin-only actions** | Reassign, bulk-add agent, reply-signature preview require `role === 'admin'`. |
-| **Reply tier gate** | On resolved/closed tickets, the replying admin must be at or above the ticket's current tier (see access logic in technical doc). |
+| Rule                               | Behavior                                                                                                                          |
+| ---------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| **Active section required**        | Student can only raise tickets if they belong to an active section.                                                               |
+| **Legal agreement gate**           | If the user hasn't accepted required agreements, ticket creation is blocked with a banner + "Complete Agreement" CTA.             |
+| **Ownership**                      | Students see/act only on **their own** tickets.                                                                                   |
+| **Reply window**                   | Student can reply only while the ticket is open/re-opened; resolved/closed locks replies (until reopen/escalate).                 |
+| **Escalation guard**               | Can only escalate if a next-level assignee exists for that batch/FAQ.                                                             |
+| **One pending callback per batch** | Prevents duplicate callback requests.                                                                                             |
+| **Admin-only actions**             | Reassign, bulk-add agent, reply-signature preview require `role === 'admin'`.                                                     |
+| **Reply tier gate**                | On resolved/closed tickets, the replying admin must be at or above the ticket's current tier (see access logic in technical doc). |
 
 ---
 
@@ -183,11 +189,11 @@ Admin dashboard /tickets
 
 ## 8. There are two generations of the UI (important for the rebuild)
 
-| | **New flow** (`BatchTickets`) | **Legacy flow** (`OldTickets`) |
-|---|---|---|
-| Entry | batch-aware Help/Tickets/1:1 tabs, FAQ-first | direct `/support/create` form |
+|            | **New flow** (`BatchTickets`)                 | **Legacy flow** (`OldTickets`)                            |
+| ---------- | --------------------------------------------- | --------------------------------------------------------- |
+| Entry      | batch-aware Help/Tickets/1:1 tabs, FAQ-first  | direct `/support/create` form                             |
 | Create API | `createTicketV2` (category + message + batch) | `createTicket` (title + category + priority + department) |
-| Status | current / preferred for the rebuild | being phased out |
+| Status     | current / preferred for the rebuild           | being phased out                                          |
 
 The root `/support` page (`pages/tickets/index.tsx`) decides which to render based on
 whether the user has batch data. **For the rebuild, model the new (`V2`) flow as the
@@ -204,11 +210,11 @@ primary path** and treat the legacy form as deprecated.
 - Tickets, callbacks, and chatbot interactions are **three separate data stores** today;
   decide deliberately whether to unify them.
 - The current frontend goes through a **GraphQL layer in front of Prisma**, while REST
-  routes expose the *same* logic — the rebuild can pick one transport cleanly.
+  routes expose the _same_ logic — the rebuild can pick one transport cleanly.
 - A lot of behavior is **config-in-JSON** (`batches.settings`, `help_faqs.assignees`,
   ticket `data`/`meta`/`logstamps`) rather than typed columns — a candidate for
   proper schema in the new design.
 
 ---
 
-*Continue to the [technical / codebase document »](./02-Codebase-Technical-Doc.md)*
+_Continue to the [technical / codebase document »](./02-Codebase-Technical-Doc.md)_

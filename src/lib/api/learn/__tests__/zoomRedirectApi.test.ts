@@ -14,7 +14,9 @@ describe('fetchZoomRedirectUrlViaApi', () => {
   })
 
   it('POSTs and returns the url', async () => {
-    hoisted.fetchJson.mockResolvedValueOnce({ url: 'https://zoom.masaischool.com/?token=x' })
+    hoisted.fetchJson.mockResolvedValueOnce({
+      url: 'https://zoom.masaischool.com/?token=x',
+    })
     const { fetchZoomRedirectUrlViaApi } = await import('../zoomRedirectApi')
 
     await expect(fetchZoomRedirectUrlViaApi(572)).resolves.toBe(

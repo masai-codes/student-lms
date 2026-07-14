@@ -16,10 +16,10 @@ Discussion post and reply times on the Masaiverse home tab use `formatSocialPost
 4. **1–59 minutes**  
    **1 minute ago** or **N minutes ago**
 
-5. **Same local calendar day as “now”** and at least one hour elapsed  
+5. **Same local calendar day as “now”** and at least one hour elapsed
 
-   - If elapsed time is **1–5 hours** (inclusive): **1 hour ago** or **N hours ago**  
-   - If elapsed time is **6 hours or more** on that same day: **Today at** plus the post’s local time  
+   - If elapsed time is **1–5 hours** (inclusive): **1 hour ago** or **N hours ago**
+   - If elapsed time is **6 hours or more** on that same day: **Today at** plus the post’s local time
      - Time is formatted with `toLocaleTimeString` (12-hour, 2-digit hour and minute, e.g. `04:30 PM`), respecting the user’s locale.
 
    The **6-hour cutoff** (`SAME_DAY_HOURS_AGO_CAP`) keeps very recent same-day activity in a familiar “X hours ago” form and switches to a stable clock time for older posts from today (similar to many social feeds).
@@ -30,7 +30,7 @@ Discussion post and reply times on the Masaiverse home tab use `formatSocialPost
 7. **Any other date**  
    Local date and time via `toLocaleString`: month (short), day, **year only when it differs from the current year**, plus time in 12-hour form with minutes (e.g. `Apr 5, 10:00 AM` — exact punctuation/order follows the user’s locale).
 
-## What this does *not* do
+## What this does _not_ do
 
 - No live ticking (strings are computed at render; refreshing the page or re-fetching updates them).
 - No “2d” / “3w” ultra-short labels; this is optimized for full phrases in the LMS UI.

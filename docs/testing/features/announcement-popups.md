@@ -20,11 +20,11 @@ Last updated: 2026-07-07
 
 ## Test files
 
-| File | Covers |
-|------|--------|
-| `src/components/modals/useAnnouncementPopups.test.tsx` | Queue advances one at a time; mark-read/message-read endpoints; CTA opens link + marks read; show-later advances without marking read; `open` stays true while shown; close-animation gap (open=false, current kept) before the next popup surfaces |
-| `src/components/modals/AnnouncementPopupModal.test.tsx` | Title + "Show me later", no close (X); Mark as read vs CTA rendering + handlers; renders nothing without an item |
-| `src/components/modals/ModalContext.test.tsx` | Central modal stack: topmost renders, lower ones resume on close |
+| File                                                    | Covers                                                                                                                                                                                                                                              |
+| ------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `src/components/modals/useAnnouncementPopups.test.tsx`  | Queue advances one at a time; mark-read/message-read endpoints; CTA opens link + marks read; show-later advances without marking read; `open` stays true while shown; close-animation gap (open=false, current kept) before the next popup surfaces |
+| `src/components/modals/AnnouncementPopupModal.test.tsx` | Title + "Show me later", no close (X); Mark as read vs CTA rendering + handlers; renders nothing without an item                                                                                                                                    |
+| `src/components/modals/ModalContext.test.tsx`           | Central modal stack: topmost renders, lower ones resume on close                                                                                                                                                                                    |
 
 ## Commands
 

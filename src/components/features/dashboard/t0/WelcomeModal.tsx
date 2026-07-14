@@ -3,7 +3,12 @@ import { Confetti } from '@phosphor-icons/react'
 import { WELCOME_INTRO_VIDEO_URL } from './t0Config'
 import { pushDashboardEvent } from '../shared/dashboardAnalytics'
 import { LottieConfetti } from '@/components/ui/lottie-confetti'
-import { Modal, ModalContent, ModalDescription, ModalTitle } from '@/components/ui/modal'
+import {
+  Modal,
+  ModalContent,
+  ModalDescription,
+  ModalTitle,
+} from '@/components/ui/modal'
 import BottomDrawer from '@/components/ui/bottom-drawer'
 import { useIsMobileViewport } from '@/hooks/useIsMobileViewport'
 
@@ -35,7 +40,11 @@ function stopVideo(video: HTMLVideoElement | null) {
 }
 
 /** The shared inner content: confetti, intro video, copy, and the CTA. */
-function WelcomeModalBody({ open, onDismiss, isDismissing }: WelcomeModalProps) {
+function WelcomeModalBody({
+  open,
+  onDismiss,
+  isDismissing,
+}: WelcomeModalProps) {
   // Each celebrate-button click re-fires the one-shot confetti (remount via key).
   const [celebrateCount, setCelebrateCount] = useState(0)
 
@@ -73,7 +82,11 @@ function WelcomeModalBody({ open, onDismiss, isDismissing }: WelcomeModalProps) 
       className="relative flex flex-col items-center gap-5 text-center md:gap-6"
       data-testid="welcome-modal-body"
     >
-      <LottieConfetti key={celebrateCount} active={open} data-testid="welcome-modal-confetti" />
+      <LottieConfetti
+        key={celebrateCount}
+        active={open}
+        data-testid="welcome-modal-confetti"
+      />
 
       <button
         type="button"
@@ -83,19 +96,22 @@ function WelcomeModalBody({ open, onDismiss, isDismissing }: WelcomeModalProps) 
         data-testid="welcome-modal-celebrate"
         // Sits in the modal's top-left corner (mirroring the close X on the
         // right); the negative offsets pull it out past the modal's padding.
-        className="absolute left-0 top-0 z-20 inline-flex size-9 items-center justify-center rounded-full text-[#F59E0B] transition-colors hover:bg-[#FEF3C7] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F59E0B] md:-left-6 md:-top-6"
+        className="absolute left-0 top-0 z-20 inline-flex size-9 items-center justify-center rounded-full text-[#F59E0B] transition-colors hover:bg-[#FEF3C7] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F59E0B] dark:hover:bg-warning-subtle md:-left-6 md:-top-6"
       >
         <Confetti size={24} weight="fill" aria-hidden />
       </button>
 
       <div className="flex flex-col gap-2">
         <h2
-          className="text-2xl font-bold text-[#111827] md:text-3xl"
+          className="text-2xl font-bold text-foreground md:text-3xl"
           data-testid="welcome-modal-title"
         >
           {TITLE}
         </h2>
-        <p className="text-sm text-gray-600 md:text-base" data-testid="welcome-modal-body-text">
+        <p
+          className="text-sm text-foreground-muted md:text-base"
+          data-testid="welcome-modal-body-text"
+        >
           {BODY}
         </p>
       </div>
@@ -139,7 +155,7 @@ function WelcomeModalBody({ open, onDismiss, isDismissing }: WelcomeModalProps) 
           onDismiss()
         }}
         disabled={isDismissing}
-        className="inline-flex h-12 w-52 items-center justify-center rounded-lg bg-[#6962AC] text-base font-semibold text-white transition-colors hover:bg-[#554f8b] disabled:opacity-60"
+        className="inline-flex h-12 w-52 items-center justify-center rounded-lg bg-brand text-base font-semibold text-brand-foreground transition-colors hover:bg-brand disabled:opacity-60"
         data-testid="welcome-modal-get-started"
       >
         {isDismissing ? 'Just a moment…' : 'Get Started'}
@@ -169,7 +185,10 @@ export function WelcomeModal(props: WelcomeModalProps) {
 
   return (
     <Modal open={open} onOpenChange={(next) => !next && onDismiss()}>
-      <ModalContent className="max-w-[1000px] p-8 md:p-10" data-testid="welcome-modal">
+      <ModalContent
+        className="max-w-[1000px] p-8 md:p-10"
+        data-testid="welcome-modal"
+      >
         {/* Screen-reader-only labels: the visible title/body inside the body
             are styled headings, so Radix needs an explicit accessible name. */}
         <ModalTitle className="sr-only">{TITLE}</ModalTitle>

@@ -20,7 +20,7 @@ export function AssignmentMainContent({ detail }: AssignmentMainContentProps) {
       data-testid="assignment-empty-instructions"
       className="flex min-h-[200px] flex-col items-center justify-center md:min-h-[320px]"
     >
-      <p className="type-b2-regular max-w-md text-center text-gray-500">
+      <p className="type-b2-regular max-w-md text-center text-foreground-muted">
         {detail.emptyInstructionsMessage}
       </p>
     </section>

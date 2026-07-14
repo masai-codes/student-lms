@@ -25,24 +25,32 @@ interface GuidedTourStepListProps {
 }
 
 /** The step's leading icon: done → check, active → half-ring, else its type icon. */
-function StepIcon({ step, isActive }: { step: GuidedTourStep; isActive: boolean }) {
-  if (step.completed) return <CheckCircle weight="fill" className="size-5 text-green-500" />
-  if (isActive) return <CircleHalf weight="fill" className="size-5 text-[#6962AC]" />
+function StepIcon({
+  step,
+  isActive,
+}: {
+  step: GuidedTourStep
+  isActive: boolean
+}) {
+  if (step.completed)
+    return <CheckCircle weight="fill" className="size-5 text-green-500" />
+  if (isActive)
+    return <CircleHalf weight="fill" className="size-5 text-brand" />
   switch (step.action) {
     case 'profile-photo':
-      return <Camera className="size-5 text-gray-400" />
+      return <Camera className="size-5 text-foreground-subtle" />
     case 'download-app':
-      return <DownloadSimple className="size-5 text-gray-400" />
+      return <DownloadSimple className="size-5 text-foreground-subtle" />
     case 'agreement':
-      return <FileText className="size-5 text-gray-400" />
+      return <FileText className="size-5 text-foreground-subtle" />
     case 'documents':
-      return <UploadSimple className="size-5 text-gray-400" />
+      return <UploadSimple className="size-5 text-foreground-subtle" />
     case 'student-kit':
-      return <Package className="size-5 text-gray-400" />
+      return <Package className="size-5 text-foreground-subtle" />
     case 'id-card':
-      return <IdentificationCard className="size-5 text-gray-400" />
+      return <IdentificationCard className="size-5 text-foreground-subtle" />
     default:
-      return <Play weight="fill" className="size-4 text-gray-400" />
+      return <Play weight="fill" className="size-4 text-foreground-subtle" />
   }
 }
 
@@ -51,7 +59,14 @@ function StepIcon({ step, isActive }: { step: GuidedTourStep; isActive: boolean 
  * step list (each step a card with its state/type icon, connected vertically),
  * and the completion hint. Presentation-only — selection is owned by the caller.
  */
-export function GuidedTourStepList({ steps, activeKey, onSelect, completed, total, showHint = true }: GuidedTourStepListProps) {
+export function GuidedTourStepList({
+  steps,
+  activeKey,
+  onSelect,
+  completed,
+  total,
+  showHint = true,
+}: GuidedTourStepListProps) {
   const shown = Math.min(completed, total)
   const pct = total > 0 ? Math.round((shown / total) * 100) : 100
 
@@ -59,13 +74,22 @@ export function GuidedTourStepList({ steps, activeKey, onSelect, completed, tota
     <div className="flex flex-col gap-4">
       <div className="flex flex-col gap-2">
         <div className="flex items-center justify-between text-sm">
-          <span className="font-medium text-gray-700">Your Progress</span>
-          <span className="text-gray-500" data-testid="guided-tour-progress-label">
+          <span className="font-medium text-foreground">Your Progress</span>
+          <span
+            className="text-foreground-muted"
+            data-testid="guided-tour-progress-label"
+          >
             {shown} of {total} done
           </span>
         </div>
-        <div className="h-2 overflow-hidden rounded-full bg-gray-200" data-testid="guided-tour-progress">
-          <div className="h-full rounded-full bg-green-500 transition-all" style={{ width: `${pct}%` }} />
+        <div
+          className="h-2 overflow-hidden rounded-full bg-muted"
+          data-testid="guided-tour-progress"
+        >
+          <div
+            className="h-full rounded-full bg-green-500 transition-all"
+            style={{ width: `${pct}%` }}
+          />
         </div>
       </div>
 
@@ -90,15 +114,26 @@ export function GuidedTourStepList({ steps, activeKey, onSelect, completed, tota
               >
                 <span
                   className="shrink-0"
-                  data-testid={step.completed ? `guided-tour-step-${step.key}-done` : undefined}
+                  data-testid={
+                    step.completed
+                      ? `guided-tour-step-${step.key}-done`
+                      : undefined
+                  }
                   aria-hidden
                 >
                   <StepIcon step={step} isActive={isActive} />
                 </span>
-                <span className="flex-1 text-left text-sm text-gray-800">{step.title}</span>
-                <CaretRight className="size-4 shrink-0 text-gray-400" aria-hidden />
+                <span className="flex-1 text-left text-sm text-foreground">
+                  {step.title}
+                </span>
+                <CaretRight
+                  className="size-4 shrink-0 text-foreground-subtle"
+                  aria-hidden
+                />
               </button>
-              {index < steps.length - 1 ? <div className="ml-[27px] h-2 w-px bg-gray-200" aria-hidden /> : null}
+              {index < steps.length - 1 ? (
+                <div className="ml-[27px] h-2 w-px bg-muted" aria-hidden />
+              ) : null}
             </li>
           )
         })}
@@ -106,16 +141,20 @@ export function GuidedTourStepList({ steps, activeKey, onSelect, completed, tota
 
       {showHint ? (
         <div
-          className="flex items-start gap-2 rounded-xl bg-blue-50 p-3 text-xs text-blue-700"
+          className="flex items-start gap-2 rounded-xl bg-blue-50 p-3 text-xs text-blue-700 dark:bg-info-subtle dark:text-info-subtle-foreground"
           data-testid="guided-tour-hint"
         >
           <Info className="mt-0.5 size-4 shrink-0" weight="fill" aria-hidden />
-          <span>Make sure to watch the complete video to update your progress.</span>
+          <span>
+            Make sure to watch the complete video to update your progress.
+          </span>
         </div>
       ) : null}
     </div>
   )
 }
 
-const STEP_ACTIVE = 'flex w-full items-center gap-3 rounded-xl border border-[#6962AC] bg-[#6962AC]/10 px-4 py-3'
-const STEP_IDLE = 'flex w-full items-center gap-3 rounded-xl border border-gray-200 bg-white px-4 py-3 hover:border-gray-300'
+const STEP_ACTIVE =
+  'flex w-full items-center gap-3 rounded-xl border border-brand bg-brand/10 px-4 py-3'
+const STEP_IDLE =
+  'flex w-full items-center gap-3 rounded-xl border border-border bg-surface px-4 py-3 hover:border-border-strong'

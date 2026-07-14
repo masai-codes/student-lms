@@ -1,5 +1,11 @@
 // @vitest-environment jsdom
-import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
+import {
+  cleanup,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { SignInFlow } from '@/components/features/sign-in/SignInFlow'
 
@@ -38,9 +44,16 @@ vi.mock('@/components/features/sign-in/signInRouting', () => ({
   redirectToSwitchAccountPage: redirectToSwitchAccountPageMock,
 }))
 
-function stubFetchJson(handler: (url: string, init?: RequestInit) => Promise<Response>) {
+function stubFetchJson(
+  handler: (url: string, init?: RequestInit) => Promise<Response>,
+) {
   globalThis.fetch = vi.fn((input: RequestInfo | URL, init?: RequestInit) => {
-    const url = typeof input === 'string' ? input : input instanceof URL ? input.href : input.url
+    const url =
+      typeof input === 'string'
+        ? input
+        : input instanceof URL
+          ? input.href
+          : input.url
     return handler(url, init)
   }) as typeof fetch
 }
@@ -55,7 +68,8 @@ describe('SignInFlow', () => {
     getRedirectToSearchParamMock.mockReset()
     redirectToResolvedUrlMock.mockReset()
     redirectToSwitchAccountPageMock.mockReset()
-    delete (window as Window & { dataLayer?: Array<Record<string, unknown>> }).dataLayer
+    delete (window as Window & { dataLayer?: Array<Record<string, unknown>> })
+      .dataLayer
     window.sessionStorage.clear()
   })
 
@@ -64,15 +78,28 @@ describe('SignInFlow', () => {
     isLegacyStudentRedirectEnabledMock.mockReturnValue(true)
     stubFetchJson(async (url) => {
       if (url.includes('/v2/login/request-otp')) {
-        return new Response(JSON.stringify({ channel: 'sms', otpSessionId: 'otp-session-1' }), {
-          status: 200,
-          headers: { 'Content-Type': 'application/json' },
-        })
+        return new Response(
+          JSON.stringify({ channel: 'sms', otpSessionId: 'otp-session-1' }),
+          {
+            status: 200,
+            headers: { 'Content-Type': 'application/json' },
+          },
+        )
       }
-      if (url.includes('/v2/login/') && !url.includes('request-otp') && !url.includes('verify-otp')) {
+      if (
+        url.includes('/v2/login/') &&
+        !url.includes('request-otp') &&
+        !url.includes('verify-otp')
+      ) {
         return new Response(
           JSON.stringify({
-            user: { id: 1, name: 'Test', email: 'demo@example.com', mobile: null, role: 'student' },
+            user: {
+              id: 1,
+              name: 'Test',
+              email: 'demo@example.com',
+              mobile: null,
+              role: 'student',
+            },
             token: 'jwt',
           }),
           { status: 200, headers: { 'Content-Type': 'application/json' } },
@@ -81,7 +108,13 @@ describe('SignInFlow', () => {
       if (url.includes('/v2/login/verify-otp')) {
         return new Response(
           JSON.stringify({
-            user: { id: 1, name: 'Test', email: 'swap@example.com', mobile: null, role: 'student' },
+            user: {
+              id: 1,
+              name: 'Test',
+              email: 'swap@example.com',
+              mobile: null,
+              role: 'student',
+            },
             token: 'jwt',
           }),
           { status: 200, headers: { 'Content-Type': 'application/json' } },
@@ -92,7 +125,13 @@ describe('SignInFlow', () => {
           JSON.stringify({
             accounts: [
               {
-                user: { id: 1, name: 'Test', email: 'swap@example.com', mobile: null, role: 'student' },
+                user: {
+                  id: 1,
+                  name: 'Test',
+                  email: 'swap@example.com',
+                  mobile: null,
+                  role: 'student',
+                },
                 sessionId: 'session-1',
                 isActive: true,
               },
@@ -104,7 +143,13 @@ describe('SignInFlow', () => {
       if (url.includes('/v2/auth/use-account')) {
         return new Response(
           JSON.stringify({
-            user: { id: 2, name: 'Other', email: 'other@example.com', mobile: null, role: 'student' },
+            user: {
+              id: 2,
+              name: 'Other',
+              email: 'other@example.com',
+              mobile: null,
+              role: 'student',
+            },
             token: 'jwt-switched',
           }),
           { status: 200, headers: { 'Content-Type': 'application/json' } },
@@ -135,8 +180,17 @@ describe('SignInFlow', () => {
     })
 
     const loginCall = fetchMock.mock.calls.find(([input]) => {
-      const url = typeof input === 'string' ? input : input instanceof URL ? input.href : input.url
-      return url.includes('/v2/login/') && !url.includes('request-otp') && !url.includes('verify-otp')
+      const url =
+        typeof input === 'string'
+          ? input
+          : input instanceof URL
+            ? input.href
+            : input.url
+      return (
+        url.includes('/v2/login/') &&
+        !url.includes('request-otp') &&
+        !url.includes('verify-otp')
+      )
     })
     expect(loginCall).toBeTruthy()
     expect(JSON.parse(String(loginCall?.[1]?.body))).toMatchObject({
@@ -148,7 +202,9 @@ describe('SignInFlow', () => {
 
   it('walks through email password path and redirects to old student UI', async () => {
     const dispatchSpy = vi.spyOn(window, 'dispatchEvent')
-    ;(window as Window & { dataLayer?: Array<Record<string, unknown>> }).dataLayer = []
+    ;(
+      window as Window & { dataLayer?: Array<Record<string, unknown>> }
+    ).dataLayer = []
 
     render(<SignInFlow />)
 
@@ -173,7 +229,8 @@ describe('SignInFlow', () => {
       }),
     )
     expect(
-      (window as Window & { dataLayer?: Array<Record<string, unknown>> }).dataLayer,
+      (window as Window & { dataLayer?: Array<Record<string, unknown>> })
+        .dataLayer,
     ).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
@@ -187,7 +244,9 @@ describe('SignInFlow', () => {
   })
 
   it('redirects to redirectTo after email password success when present', async () => {
-    getRedirectToSearchParamMock.mockReturnValue('https://example.com/after-login')
+    getRedirectToSearchParamMock.mockReturnValue(
+      'https://example.com/after-login',
+    )
 
     render(<SignInFlow />)
 
@@ -201,7 +260,9 @@ describe('SignInFlow', () => {
     fireEvent.click(screen.getByRole('button', { name: /^sign in$/i }))
 
     await waitFor(() => {
-      expect(redirectToResolvedUrlMock).toHaveBeenCalledWith('https://example.com/after-login')
+      expect(redirectToResolvedUrlMock).toHaveBeenCalledWith(
+        'https://example.com/after-login',
+      )
     })
     expect(navigateMock).not.toHaveBeenCalled()
   })
@@ -230,10 +291,16 @@ describe('SignInFlow', () => {
 
   it('dispatches failure event for password login failure', async () => {
     const dispatchSpy = vi.spyOn(window, 'dispatchEvent')
-    ;(window as Window & { dataLayer?: Array<Record<string, unknown>> }).dataLayer = []
+    ;(
+      window as Window & { dataLayer?: Array<Record<string, unknown>> }
+    ).dataLayer = []
 
     stubFetchJson(async (url) => {
-      if (url.includes('/v2/login/') && !url.includes('request-otp') && !url.includes('verify-otp')) {
+      if (
+        url.includes('/v2/login/') &&
+        !url.includes('request-otp') &&
+        !url.includes('verify-otp')
+      ) {
         return new Response(
           JSON.stringify({
             error: {
@@ -268,7 +335,8 @@ describe('SignInFlow', () => {
       }),
     )
     expect(
-      (window as Window & { dataLayer?: Array<Record<string, unknown>> }).dataLayer,
+      (window as Window & { dataLayer?: Array<Record<string, unknown>> })
+        .dataLayer,
     ).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
@@ -294,7 +362,9 @@ describe('SignInFlow', () => {
     })
     expect(screen.getByRole('button', { name: /resend otp/i })).toBeTruthy()
 
-    fireEvent.click(screen.getByRole('button', { name: /login with password/i }))
+    fireEvent.click(
+      screen.getByRole('button', { name: /login with password/i }),
+    )
     expect(screen.getByLabelText(/^password$/i)).toBeTruthy()
   })
 
@@ -307,7 +377,9 @@ describe('SignInFlow', () => {
     fireEvent.click(screen.getByRole('button', { name: /send otp on email/i }))
 
     await waitFor(() => {
-      const resendButton = screen.getByRole('button', { name: /resend otp/i }) as HTMLButtonElement
+      const resendButton = screen.getByRole('button', {
+        name: /resend otp/i,
+      }) as HTMLButtonElement
       expect(resendButton.disabled).toBe(true)
       expect(resendButton.textContent).toMatch(/resend otp \(\d+s\)/i)
     })
@@ -327,19 +399,30 @@ describe('SignInFlow', () => {
   })
 
   it('redirects phone login with multiple linked accounts to switch-account page', async () => {
-    getRedirectToSearchParamMock.mockReturnValue('https://example.com/phone-target')
+    getRedirectToSearchParamMock.mockReturnValue(
+      'https://example.com/phone-target',
+    )
 
     stubFetchJson(async (url) => {
       if (url.includes('/v2/login/request-otp')) {
-        return new Response(JSON.stringify({ channel: 'sms', otpSessionId: 'otp-session-1' }), {
-          status: 200,
-          headers: { 'Content-Type': 'application/json' },
-        })
+        return new Response(
+          JSON.stringify({ channel: 'sms', otpSessionId: 'otp-session-1' }),
+          {
+            status: 200,
+            headers: { 'Content-Type': 'application/json' },
+          },
+        )
       }
       if (url.includes('/v2/login/verify-otp')) {
         return new Response(
           JSON.stringify({
-            user: { id: 1, name: 'Primary User', email: 'primary@example.com', mobile: '9000000000', role: 'student' },
+            user: {
+              id: 1,
+              name: 'Primary User',
+              email: 'primary@example.com',
+              mobile: '9000000000',
+              role: 'student',
+            },
             token: 'jwt-primary',
           }),
           { status: 200, headers: { 'Content-Type': 'application/json' } },
@@ -350,12 +433,24 @@ describe('SignInFlow', () => {
           JSON.stringify({
             accounts: [
               {
-                user: { id: 1, name: 'Primary User', email: 'primary@example.com', mobile: '9000000000', role: 'student' },
+                user: {
+                  id: 1,
+                  name: 'Primary User',
+                  email: 'primary@example.com',
+                  mobile: '9000000000',
+                  role: 'student',
+                },
                 sessionId: 'session-primary',
                 isActive: true,
               },
               {
-                user: { id: 2, name: 'Secondary User', email: 'secondary@example.com', mobile: '9000000000', role: 'student' },
+                user: {
+                  id: 2,
+                  name: 'Secondary User',
+                  email: 'secondary@example.com',
+                  mobile: '9000000000',
+                  role: 'student',
+                },
                 sessionId: 'session-secondary',
                 isActive: false,
               },
@@ -367,7 +462,13 @@ describe('SignInFlow', () => {
       if (url.includes('/v2/auth/use-account')) {
         return new Response(
           JSON.stringify({
-            user: { id: 2, name: 'Secondary User', email: 'secondary@example.com', mobile: '9000000000', role: 'student' },
+            user: {
+              id: 2,
+              name: 'Secondary User',
+              email: 'secondary@example.com',
+              mobile: '9000000000',
+              role: 'student',
+            },
             token: 'jwt-secondary',
           }),
           { status: 200, headers: { 'Content-Type': 'application/json' } },
@@ -393,10 +494,14 @@ describe('SignInFlow', () => {
     fireEvent.click(screen.getByRole('button', { name: /^sign in$/i }))
 
     await waitFor(() => {
-      expect(redirectToSwitchAccountPageMock).toHaveBeenCalledWith('https://example.com/phone-target')
+      expect(redirectToSwitchAccountPageMock).toHaveBeenCalledWith(
+        'https://example.com/phone-target',
+      )
     })
     expect(navigateMock).not.toHaveBeenCalled()
     expect(redirectToOldStudentUiMock).not.toHaveBeenCalled()
-    expect(window.sessionStorage.getItem('student-lms.pending-phone-otp-sign-in')).toBeTruthy()
+    expect(
+      window.sessionStorage.getItem('student-lms.pending-phone-otp-sign-in'),
+    ).toBeTruthy()
   })
 })

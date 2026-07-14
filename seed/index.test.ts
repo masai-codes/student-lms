@@ -42,7 +42,8 @@ describe('seedAllFlows', () => {
   const previousDatabaseUrl = process.env.DATABASE_URL
 
   beforeEach(() => {
-    process.env.DATABASE_URL = 'mysql://root:root@localhost:3306/student_lms_test'
+    process.env.DATABASE_URL =
+      'mysql://root:root@localhost:3306/student_lms_test'
     hoisted.resetDatabase.mockReset()
     hoisted.getFlow.mockReset()
     hoisted.getFlow.mockImplementation(async (flowId: string) => ({
@@ -60,7 +61,9 @@ describe('seedAllFlows', () => {
 
     expect(hoisted.resetDatabase).toHaveBeenCalledOnce()
     expect(hoisted.getFlow).toHaveBeenCalledTimes(3)
-    expect(hoisted.getFlow.mock.calls.map(([id]) => id)).toEqual(hoisted.seedFlowIds)
+    expect(hoisted.getFlow.mock.calls.map(([id]) => id)).toEqual(
+      hoisted.seedFlowIds,
+    )
     expect(results.map((result) => result.flowId)).toEqual(hoisted.seedFlowIds)
   })
 

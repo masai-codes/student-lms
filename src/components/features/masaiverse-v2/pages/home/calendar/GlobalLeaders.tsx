@@ -34,7 +34,7 @@ export default function GlobalLeaders() {
 
   return (
     <div>
-      <p className="mb-3 flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-[#9CA3AF]">
+      <p className="mb-3 flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-foreground-subtle">
         <Trophy size={14} />
         Global leaderboard
       </p>
@@ -60,12 +60,14 @@ export default function GlobalLeaders() {
           {[0, 1, 2].map((key) => (
             <div
               key={key}
-              className="h-8 animate-pulse rounded-[8px] bg-[#ECE7E2]"
+              className="h-8 animate-pulse rounded-[8px] bg-surface-muted"
             />
           ))}
         </div>
       ) : leaders.length === 0 ? (
-        <p className="text-[12px] text-[#9CA3AF]">No points earned yet.</p>
+        <p className="text-[12px] text-foreground-subtle">
+          No points earned yet.
+        </p>
       ) : (
         <div className="flex flex-col gap-3">
           {leaders.map((leader) => (
@@ -78,7 +80,7 @@ export default function GlobalLeaders() {
           {pinnedCurrentUser ? (
             <>
               <p
-                className="text-center text-[13px] leading-none text-[#9CA3AF]"
+                className="text-center text-[13px] leading-none text-foreground-subtle"
                 aria-hidden
               >
                 ···
@@ -121,15 +123,15 @@ function LeaderRow({
           getInitials(leader.name)
         )}
       </span>
-      <p className="min-w-0 flex-1 truncate text-[13px] font-semibold leading-4 text-[#111827]">
+      <p className="min-w-0 flex-1 truncate text-[13px] font-semibold leading-4 text-foreground">
         {leader.name}
         {isCurrentUser ? (
-          <span className="ml-1.5 text-[11px] font-semibold text-masaiverse-orange">
+          <span className="ml-1.5 text-[11px] font-semibold text-accent-warm">
             You
           </span>
         ) : null}
       </p>
-      <span className="text-[13px] font-bold text-masaiverse-orange">
+      <span className="text-[13px] font-bold text-accent-warm">
         {leader.points.toLocaleString()}
       </span>
     </div>

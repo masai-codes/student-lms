@@ -8,9 +8,7 @@ import {
 
 describe('parseLectureDataJson', () => {
   it('reads associated lecture id from lecture data', () => {
-    expect(
-      readAssociatedLectureId({ associatedLecture: { id: 42 } }),
-    ).toBe(42)
+    expect(readAssociatedLectureId({ associatedLecture: { id: 42 } })).toBe(42)
   })
 
   it('reads multiple associated lecture ids', () => {

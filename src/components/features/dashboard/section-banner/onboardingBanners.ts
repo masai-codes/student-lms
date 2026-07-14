@@ -28,7 +28,9 @@ export interface OnboardingBanner {
  * A course counts as pending when either tab still has a step left — the same
  * predicate that drives `showGuidedTour` on the backend.
  */
-export function buildOnboardingBanners(status: T0FlowStatus | null | undefined): Array<OnboardingBanner> {
+export function buildOnboardingBanners(
+  status: T0FlowStatus | null | undefined,
+): Array<OnboardingBanner> {
   if (!status?.showT0Flow) return []
 
   const banners: Array<OnboardingBanner> = []

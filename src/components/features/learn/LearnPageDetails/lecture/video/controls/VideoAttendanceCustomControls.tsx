@@ -9,8 +9,8 @@ import {
   POINTER_MOVE_WAKE_INTERVAL_MS,
   SEEK_ALIGNMENT_EPSILON,
 } from './lectureVideoChrome.constants'
-import {  clampTime } from './lectureVideoChrome.utils'
-import type {LectureChromePlayerRef} from './lectureVideoChrome.utils';
+import { clampTime } from './lectureVideoChrome.utils'
+import type { LectureChromePlayerRef } from './lectureVideoChrome.utils'
 import type { LectureVideoQualityLevel } from '../hooks/useLectureVideoAttendance'
 import type { WatchIntervalSegment } from '@/server/video-attendance/types'
 
@@ -55,8 +55,12 @@ export function VideoAttendanceCustomControls({
   onCaptionsToggle,
   className = '',
 }: VideoAttendanceCustomControlsProps) {
-  const [scrubPreviewSeconds, setScrubPreviewSeconds] = useState<number | null>(null)
-  const [committedSeekSeconds, setCommittedSeekSeconds] = useState<number | null>(null)
+  const [scrubPreviewSeconds, setScrubPreviewSeconds] = useState<number | null>(
+    null,
+  )
+  const [committedSeekSeconds, setCommittedSeekSeconds] = useState<
+    number | null
+  >(null)
   const [chromeVisible, setChromeVisible] = useState(true)
   const hideTimerRef = useRef<number | null>(null)
   const lastPointerMoveWakeAtRef = useRef(0)
@@ -122,7 +126,10 @@ export function VideoAttendanceCustomControls({
     const onActivity = (event: Event) => {
       if (event.type === 'pointermove') {
         const now = Date.now()
-        if (now - lastPointerMoveWakeAtRef.current < POINTER_MOVE_WAKE_INTERVAL_MS) {
+        if (
+          now - lastPointerMoveWakeAtRef.current <
+          POINTER_MOVE_WAKE_INTERVAL_MS
+        ) {
           return
         }
         lastPointerMoveWakeAtRef.current = now
@@ -156,7 +163,9 @@ export function VideoAttendanceCustomControls({
     if (committedSeekSeconds === null) return
     const committed = committedSeekSeconds
     const failSafe = window.setTimeout(() => {
-      setCommittedSeekSeconds(previous => (previous === committed ? null : previous))
+      setCommittedSeekSeconds((previous) =>
+        previous === committed ? null : previous,
+      )
     }, 3000)
     return () => window.clearTimeout(failSafe)
   }, [committedSeekSeconds])
@@ -166,9 +175,10 @@ export function VideoAttendanceCustomControls({
     setCommittedSeekSeconds(seconds)
   }
 
-  const shellClass = `pointer-events-auto absolute bottom-0 left-0 right-0 z-[45] flex w-full min-w-0 flex-col bg-gradient-to-t from-black/95 via-black/70 to-transparent px-3 pb-2 pt-10 text-white transition-opacity duration-300 ease-out ${
-    chromeVisible ? 'opacity-100' : 'pointer-events-none opacity-0'
-  } ${className}`.trim()
+  const shellClass =
+    `pointer-events-auto absolute bottom-0 left-0 right-0 z-[45] flex w-full min-w-0 flex-col bg-gradient-to-t from-black/95 via-black/70 to-transparent px-3 pb-2 pt-10 text-white transition-opacity duration-300 ease-out ${
+      chromeVisible ? 'opacity-100' : 'pointer-events-none opacity-0'
+    } ${className}`.trim()
 
   return (
     <div

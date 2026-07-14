@@ -82,21 +82,21 @@ function AnnouncementRow({
         )
       }}
       data-testid={`dashboard-announcement-item-${announcement.source}-${announcement.id}`}
-      className="dash-lift animate-dash-row-in rounded-xl border border-gray-200 p-3.5 no-underline hover:border-[#4F6BED]/35"
+      className="dash-lift animate-dash-row-in rounded-xl border border-border p-3.5 no-underline hover:border-[#4F6BED]/35"
     >
-      <h4 className="truncate text-sm font-semibold text-gray-900">
+      <h4 className="truncate text-sm font-semibold text-foreground">
         {announcement.title}
       </h4>
       <div className="mt-1.5 flex items-center gap-2">
         {announcement.authorName && (
-          <span className="truncate text-xs text-gray-600">
+          <span className="truncate text-xs text-foreground-muted">
             {announcement.authorName}
           </span>
         )}
         {announcement.isForYou && (
           <span
             data-testid="dashboard-announcement-for-you"
-            className="rounded-md bg-[#EBF5FF] px-2 py-0.5 text-xs font-semibold text-[#3F83F8]"
+            className="rounded-md bg-[#EBF5FF] px-2 py-0.5 text-xs font-semibold text-[#3F83F8] dark:bg-info-subtle dark:text-info-subtle-foreground"
           >
             For you
           </span>

@@ -22,7 +22,12 @@ function normalizeRows<T>(result: unknown): Array<T> {
     if (Array.isArray(first)) return first as Array<T>
     return result as Array<T>
   }
-  if (result && typeof result === 'object' && 'rows' in result && Array.isArray((result).rows)) {
+  if (
+    result &&
+    typeof result === 'object' &&
+    'rows' in result &&
+    Array.isArray(result.rows)
+  ) {
     return (result as { rows: Array<T> }).rows
   }
   return []
@@ -35,7 +40,11 @@ function normalizeTitle(title: string): string {
 function parseMeta(raw: unknown): Record<string, unknown> {
   if (!raw) return {}
   if (typeof raw === 'object') return raw as Record<string, unknown>
-  try { return JSON.parse(String(raw)) as Record<string, unknown> } catch { return {} }
+  try {
+    return JSON.parse(String(raw)) as Record<string, unknown>
+  } catch {
+    return {}
+  }
 }
 
 async function upsertVideoAttendance(
@@ -53,11 +62,14 @@ async function upsertVideoAttendance(
       SELECT id, totalDuration FROM video_attendances
       WHERE lecture_id = ${lectureId} AND user_id = ${userId}
       ORDER BY id DESC LIMIT 1
-    `)
+    `),
   )
 
   if (existing.length > 0) {
-    const newTotalDuration = Math.max(existing[0].totalDuration ?? 0, safeSeconds)
+    const newTotalDuration = Math.max(
+      existing[0].totalDuration ?? 0,
+      safeSeconds,
+    )
     await db.execute(sql`
       UPDATE video_attendances
       SET duration = 100, status = 1, intervals = ${intervals}, totalDuration = ${newTotalDuration}, updated_at = NOW()
@@ -91,7 +103,7 @@ async function syncSibling(
         AND deleted_at IS NULL
       ORDER BY batch_id DESC, id ASC
       LIMIT 1
-    `)
+    `),
   )
   if (!siblingRows.length) return
   const siblingSectionId = siblingRows[0].id
@@ -101,13 +113,21 @@ async function syncSibling(
       SELECT id, title FROM lectures
       WHERE section_id = ${siblingSectionId} AND deleted_at IS NULL
       LIMIT 100
-    `)
+    `),
   )
 
   const normalizedTitle = normalizeTitle(lectureTitle)
-  const match = siblingLecs.find((r) => normalizeTitle(r.title) === normalizedTitle)
+  const match = siblingLecs.find(
+    (r) => normalizeTitle(r.title) === normalizedTitle,
+  )
   if (match) {
-    await upsertVideoAttendance(userId, match.id, siblingSectionId, admissionBatchId, watchedSeconds)
+    await upsertVideoAttendance(
+      userId,
+      match.id,
+      siblingSectionId,
+      admissionBatchId,
+      watchedSeconds,
+    )
   }
 }
 
@@ -124,24 +144,32 @@ async function updateProgressMeta(
   batchId: number,
   platform: GuidedTourPlatform,
 ): Promise<void> {
-  interface AdmRow { full_fees_paid: number | boolean; meta: unknown }
-  interface ProfileRow { meta: unknown; legal_data: unknown }
+  interface AdmRow {
+    full_fees_paid: number | boolean
+    meta: unknown
+  }
+  interface ProfileRow {
+    meta: unknown
+    legal_data: unknown
+  }
 
   const [admRows, profileRows, tokenRows] = await Promise.all([
     normalizeRows<AdmRow>(
       await db.execute(sql`
         SELECT full_fees_paid, meta FROM user_batch_admission_data
         WHERE user_id = ${userId} AND batch_id = ${batchId} LIMIT 1
-      `)
+      `),
     ),
     normalizeRows<ProfileRow>(
       await db.execute(sql`
         SELECT meta, legal_data FROM profiles
         WHERE user_id = ${userId} AND deleted_at IS NULL LIMIT 1
-      `)
+      `),
     ),
     normalizeRows<{ id: number }>(
-      await db.execute(sql`SELECT id FROM user_device_tokens WHERE user_id = ${userId} LIMIT 1`)
+      await db.execute(
+        sql`SELECT id FROM user_device_tokens WHERE user_id = ${userId} LIMIT 1`,
+      ),
     ),
   ])
 
@@ -165,14 +193,22 @@ async function updateProgressMeta(
 
   const lmsFrac = `${lms.completed}/${lms.total}`
   metaUpdate[`lms_walkthrough_${platform}`] = lmsFrac
-  const lmsOtherFrac = existingMeta[`lms_walkthrough_${other}`] as string | undefined
-  metaUpdate['lms_walkthrough'] = fracValue(lmsFrac) >= fracValue(lmsOtherFrac) ? lmsFrac : (lmsOtherFrac ?? lmsFrac)
+  const lmsOtherFrac = existingMeta[`lms_walkthrough_${other}`] as
+    string | undefined
+  metaUpdate['lms_walkthrough'] =
+    fracValue(lmsFrac) >= fracValue(lmsOtherFrac)
+      ? lmsFrac
+      : (lmsOtherFrac ?? lmsFrac)
 
   if (program) {
     const progFrac = `${program.completed}/${program.total}`
     metaUpdate[`program_onboarding_${platform}`] = progFrac
-    const progOtherFrac = existingMeta[`program_onboarding_${other}`] as string | undefined
-    metaUpdate['program_onboarding'] = fracValue(progFrac) >= fracValue(progOtherFrac) ? progFrac : (progOtherFrac ?? progFrac)
+    const progOtherFrac = existingMeta[`program_onboarding_${other}`] as
+      string | undefined
+    metaUpdate['program_onboarding'] =
+      fracValue(progFrac) >= fracValue(progOtherFrac)
+        ? progFrac
+        : (progOtherFrac ?? progFrac)
   }
 
   const merged = { ...existingMeta, ...metaUpdate }
@@ -190,7 +226,12 @@ export async function recordGuidedTourStepCompleted(
   const enrolledBatchIds = await getBatchIdsForEnrolledUser(userId)
   if (!enrolledBatchIds.length) return
 
-  interface LectureInfo { id: number; title: string; section_id: number; section_type: string }
+  interface LectureInfo {
+    id: number
+    title: string
+    section_id: number
+    section_type: string
+  }
   const lectureRows = normalizeRows<LectureInfo>(
     await db.execute(sql`
       SELECT l.id, l.title, l.section_id, s.type AS section_type
@@ -198,12 +239,18 @@ export async function recordGuidedTourStepCompleted(
       JOIN sections s ON s.id = l.section_id
       WHERE l.id = ${input.lectureId} AND l.deleted_at IS NULL
       LIMIT 1
-    `)
+    `),
   )
   if (!lectureRows.length) return
   const lecture = lectureRows[0]
 
-  await upsertVideoAttendance(userId, input.lectureId, lecture.section_id, input.batchId, input.watchedSeconds)
+  await upsertVideoAttendance(
+    userId,
+    input.lectureId,
+    lecture.section_id,
+    input.batchId,
+    input.watchedSeconds,
+  )
 
   const siblingTypeMap: Record<string, string> = {
     'lms-walkthrough-web': 'lms-walkthrough-app',
@@ -213,9 +260,20 @@ export async function recordGuidedTourStepCompleted(
   }
   const siblingType = siblingTypeMap[lecture.section_type]
   if (siblingType) {
-    await syncSibling(userId, lecture.title, siblingType, enrolledBatchIds, input.batchId, input.watchedSeconds)
+    await syncSibling(
+      userId,
+      lecture.title,
+      siblingType,
+      enrolledBatchIds,
+      input.batchId,
+      input.watchedSeconds,
+    )
   }
 
   // Store progress against the platform of the section the lecture belongs to.
-  await updateProgressMeta(userId, input.batchId, platformFromSectionType(lecture.section_type))
+  await updateProgressMeta(
+    userId,
+    input.batchId,
+    platformFromSectionType(lecture.section_type),
+  )
 }

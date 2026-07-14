@@ -22,9 +22,18 @@ const TONE_CLASSES: Record<
   AssignmentProblemStatusTone,
   { background: string; text: string }
 > = {
-  completed: { background: 'bg-[#EEFFF7]', text: '!text-[#049402]' },
-  'in-progress': { background: 'bg-[#FFF9E5]', text: '!text-[#FF832B]' },
-  pending: { background: 'bg-[#F6EDE7]', text: '!text-[#CC926E]' },
+  completed: {
+    background: 'bg-success-subtle',
+    text: '!text-success-subtle-foreground',
+  },
+  'in-progress': {
+    background: 'bg-warning-subtle',
+    text: '!text-warning-subtle-foreground',
+  },
+  pending: {
+    background: 'bg-[#F6EDE7] dark:bg-warning-subtle',
+    text: '!text-[#CC926E] dark:!text-warning-subtle-foreground',
+  },
 }
 
 /** Problems belonging to an assignment, each with its per-problem solution status. */
@@ -38,7 +47,7 @@ export function AssignmentProblemList({
 
   return (
     <section data-testid="assignment-problem-list">
-      <h2 className="type-h6 text-gray-900">Problems</h2>
+      <h2 className="type-h6 text-foreground">Problems</h2>
       <ul className="mt-3 flex flex-col gap-3">
         {problems.map((problem, index) => (
           <li
@@ -70,10 +79,10 @@ export function AssignmentProblemList({
                   },
                 )
               }
-              className="dash-lift group flex items-center justify-between gap-3 rounded-xl border border-gray-100 bg-white px-4 py-4 transition-colors hover:border-[#4F6BED]/35 hover:bg-gray-50"
+              className="dash-lift group flex items-center justify-between gap-3 rounded-xl border border-border bg-surface px-4 py-4 transition-colors hover:border-brand/35 hover:bg-surface-muted"
               data-testid={`assignment-problem-${problem.elementId}`}
             >
-              <p className="type-b1-md min-w-0 break-words text-gray-900">
+              <p className="type-b1-md min-w-0 break-words text-foreground">
                 {problem.title}
               </p>
               <span className="flex shrink-0 items-center gap-3">
@@ -91,7 +100,7 @@ export function AssignmentProblemList({
                   />
                 ) : null}
                 <CaretRight
-                  className="size-4 text-gray-400 transition-transform duration-200 group-hover:translate-x-1 group-hover:text-[#4F6BED]"
+                  className="size-4 text-foreground-subtle transition-transform duration-200 group-hover:translate-x-1 group-hover:text-brand"
                   aria-hidden
                 />
               </span>

@@ -17,7 +17,9 @@ interface LottieConfettiProps {
 type LottieComponent = ComponentType<LottieComponentProps>
 
 function resolveLottieComponent(
-  module: LottieComponent | { default: LottieComponent | { default: LottieComponent } },
+  module:
+    | LottieComponent
+    | { default: LottieComponent | { default: LottieComponent } },
 ): LottieComponent {
   if (typeof module === 'function') return module
   if (typeof module.default === 'function') return module.default
@@ -30,7 +32,11 @@ function resolveLottieComponent(
  * it inside any `relative` container. `lottie-react` is loaded lazily so it
  * stays out of the SSR bundle (mirrors {@link AIAvatar}).
  */
-export function LottieConfetti({ active, className, 'data-testid': dataTestId }: LottieConfettiProps) {
+export function LottieConfetti({
+  active,
+  className,
+  'data-testid': dataTestId,
+}: LottieConfettiProps) {
   const [Lottie, setLottie] = useState<LottieComponent | null>(null)
 
   useEffect(() => {
@@ -47,7 +53,11 @@ export function LottieConfetti({ active, className, 'data-testid': dataTestId }:
       aria-hidden
       className={cn('pointer-events-none absolute inset-0 z-10', className)}
     >
-      <Lottie animationData={confettiAnimation} loop={false} className="h-full w-full" />
+      <Lottie
+        animationData={confettiAnimation}
+        loop={false}
+        className="h-full w-full"
+      />
     </div>
   )
 }

@@ -10,7 +10,7 @@ import { toDiscussionListItem } from '@/server/new-discussions/utils/discussionP
 export async function listDiscussionsForLearnEntity(
   viewerUserId: number,
   entityType: DiscussionPersistedEntityType,
-  entityId: number
+  entityId: number,
 ): Promise<Array<DiscussionListItem>> {
   const rows = await db
     .select({
@@ -32,8 +32,8 @@ export async function listDiscussionsForLearnEntity(
         eq(discussions.entityType, entityType),
         eq(discussions.entityId, entityId),
         isNull(discussions.deletedAt),
-        or(eq(discussions.public, 1), eq(discussions.userId, viewerUserId))
-      )
+        or(eq(discussions.public, 1), eq(discussions.userId, viewerUserId)),
+      ),
     )
     .orderBy(desc(discussions.updatedAt))
 
@@ -41,8 +41,10 @@ export async function listDiscussionsForLearnEntity(
     return []
   }
 
-  const ids = rows.map(r => r.id)
-  const ownedIds = rows.filter(r => r.authorId === viewerUserId).map(r => r.id)
+  const ids = rows.map((r) => r.id)
+  const ownedIds = rows
+    .filter((r) => r.authorId === viewerUserId)
+    .map((r) => r.id)
 
   const [countRows, unreadRows] = await Promise.all([
     db
@@ -82,12 +84,12 @@ export async function listDiscussionsForLearnEntity(
     unreadById.set(u.discussionId, Number(u.unread))
   }
 
-  return rows.map(r =>
+  return rows.map((r) =>
     toDiscussionListItem(
       r as DiscussionRowWithAuthor,
       countById.get(r.id) ?? 0,
       [],
       unreadById.get(r.id) ?? 0,
-    )
+    ),
   )
 }

@@ -25,7 +25,9 @@ describe('AssignmentLiveAnalytics', () => {
   })
 
   it('renders nothing when there is no analytics data', () => {
-    const { container } = render(<AssignmentLiveAnalytics liveAnalytics={null} />)
+    const { container } = render(
+      <AssignmentLiveAnalytics liveAnalytics={null} />,
+    )
 
     expect(container.firstChild).toBeNull()
   })
@@ -36,9 +38,15 @@ describe('AssignmentLiveAnalytics', () => {
     )
     const scope = within(container)
 
-    expect(scope.getByTestId('assignment-live-analytics-totalQuestions').textContent).toBe('10')
-    expect(scope.getByTestId('assignment-live-analytics-notGraded').textContent).toBe('2')
-    expect(scope.getByTestId('assignment-live-analytics-wrong').textContent).toBe('1')
+    expect(
+      scope.getByTestId('assignment-live-analytics-totalQuestions').textContent,
+    ).toBe('10')
+    expect(
+      scope.getByTestId('assignment-live-analytics-notGraded').textContent,
+    ).toBe('2')
+    expect(
+      scope.getByTestId('assignment-live-analytics-wrong').textContent,
+    ).toBe('1')
   })
 
   it('renders -- for missing metric values', () => {

@@ -48,9 +48,7 @@ describe('LectureVideoControlsToolbar Ask pill', () => {
     const open = vi.fn()
 
     render(
-      <ToolbarHarness
-        splitChat={{ isOpen: false, open, close: vi.fn() }}
-      />,
+      <ToolbarHarness splitChat={{ isOpen: false, open, close: vi.fn() }} />,
     )
 
     fireEvent.click(

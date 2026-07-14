@@ -11,7 +11,9 @@ export function getOldStudentUiUrl() {
 export function isLegacyStudentRedirectEnabled(): boolean {
   const value = (
     import.meta.env.VITE_ENABLE_LEGACY_STUDENT_REDIRECT as string | undefined
-  )?.trim().toLowerCase()
+  )
+    ?.trim()
+    .toLowerCase()
   return value === 'true' || value === '1' || value === 'yes' || value === 'on'
 }
 
@@ -60,7 +62,10 @@ export function redirectToOldStudentUi(context?: RedirectDebugContext) {
   console.info('[redirectToOldStudentUi] Redirect requested', debugInfo)
 
   if (!studentUiUrl) {
-    console.warn('[redirectToOldStudentUi] Missing legacy student app URL for this origin', debugInfo)
+    console.warn(
+      '[redirectToOldStudentUi] Missing legacy student app URL for this origin',
+      debugInfo,
+    )
     return
   }
 

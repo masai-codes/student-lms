@@ -1,6 +1,7 @@
 # Testing Coverage Hub
 
 This folder tracks test coverage by feature so anyone can quickly answer:
+
 - what is tested
 - what is pending
 - how to run tests
@@ -25,11 +26,13 @@ This folder tracks test coverage by feature so anyone can quickly answer:
 ## Required Update Workflow
 
 Update this folder in the same PR whenever:
+
 - production behavior changes
 - tests are added/removed/renamed
 - test execution commands or setup change
 
 For every feature touched:
+
 1. update `feature-test-matrix.md`
 2. update or create `docs/testing/features/<feature>.md`
 3. ensure commands in docs are still valid

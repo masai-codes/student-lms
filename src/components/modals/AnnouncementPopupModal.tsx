@@ -49,7 +49,7 @@ export function AnnouncementPopupModal({
             <div className="flex shrink-0 items-start justify-between gap-3 px-6 pt-6 pb-3">
               <ModalTitle
                 data-testid="announcement-popup-title"
-                className="pr-1 text-lg font-bold leading-snug text-gray-900"
+                className="pr-1 text-lg font-bold leading-snug text-foreground"
               >
                 {item.title}
               </ModalTitle>
@@ -57,24 +57,24 @@ export function AnnouncementPopupModal({
                 type="button"
                 onClick={onShowLater}
                 data-testid="announcement-popup-show-later"
-                className="shrink-0 whitespace-nowrap rounded-lg px-2.5 py-1 text-xs font-semibold text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6962AC]"
+                className="shrink-0 whitespace-nowrap rounded-lg px-2.5 py-1 text-xs font-semibold text-foreground-muted transition-colors hover:bg-surface-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
               >
                 Show me later
               </button>
             </div>
 
-            <div className="min-h-0 flex-1 overflow-y-auto px-6 pb-4 text-sm leading-relaxed text-gray-600">
+            <div className="min-h-0 flex-1 overflow-y-auto px-6 pb-4 text-sm leading-relaxed text-foreground-muted">
               <MarkdownContent value={item.body} />
             </div>
 
-            <div className="flex shrink-0 flex-col gap-2 border-t border-gray-100 px-6 py-4">
+            <div className="flex shrink-0 flex-col gap-2 border-t border-border px-6 py-4">
               {hasCta ? (
                 <button
                   type="button"
                   onClick={onCta}
                   disabled={isSubmitting}
                   data-testid="announcement-popup-cta"
-                  className="flex w-full items-center justify-center rounded-xl bg-[#6962AC] px-4 py-3 text-sm font-semibold text-white transition-colors hover:bg-[#554f8b] disabled:cursor-not-allowed disabled:opacity-60"
+                  className="flex w-full items-center justify-center rounded-xl bg-brand px-4 py-3 text-sm font-semibold text-brand-foreground transition-colors hover:bg-brand disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   {item.ctaName}
                 </button>
@@ -84,7 +84,7 @@ export function AnnouncementPopupModal({
                 onClick={onMarkRead}
                 disabled={isSubmitting}
                 data-testid="announcement-popup-mark-read"
-                className="flex w-full items-center justify-center rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm font-semibold text-gray-700 transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60"
+                className="flex w-full items-center justify-center rounded-xl border border-border bg-surface px-4 py-3 text-sm font-semibold text-foreground transition-colors hover:bg-surface-muted disabled:cursor-not-allowed disabled:opacity-60"
               >
                 Mark as read
               </button>

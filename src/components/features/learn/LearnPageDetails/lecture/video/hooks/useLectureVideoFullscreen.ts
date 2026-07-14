@@ -10,7 +10,9 @@ export function useIsElementFullscreen(
   useEffect(() => {
     const sync = () => {
       const element = elementRef.current
-      setIsFullscreen(Boolean(element && document.fullscreenElement === element))
+      setIsFullscreen(
+        Boolean(element && document.fullscreenElement === element),
+      )
     }
 
     document.addEventListener('fullscreenchange', sync)
@@ -29,7 +31,9 @@ export function useLectureVideoFullscreenActive(): boolean {
     const sync = () => {
       setIsActive(
         Boolean(
-          document.fullscreenElement?.classList.contains('lecture-video-fs-root'),
+          document.fullscreenElement?.classList.contains(
+            'lecture-video-fs-root',
+          ),
         ),
       )
     }

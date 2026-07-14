@@ -23,7 +23,9 @@ vi.mock('@/components/features/learn/shared/learnAnalytics', () => ({
   pushLearnEvent: hoisted.pushLearnEvent,
 }))
 
-function makeDiscussion(overrides: Partial<DiscussionListItem> = {}): DiscussionListItem {
+function makeDiscussion(
+  overrides: Partial<DiscussionListItem> = {},
+): DiscussionListItem {
   return {
     id: 3,
     title: 'T',
@@ -51,7 +53,9 @@ describe('LectureDiscussionOwnerActions', () => {
 
   it('resolves an open discussion and refreshes', async () => {
     const { container } = render(
-      <LectureDiscussionOwnerActions discussion={makeDiscussion({ isClosed: false })} />,
+      <LectureDiscussionOwnerActions
+        discussion={makeDiscussion({ isClosed: false })}
+      />,
     )
     const scope = within(container)
     expect(scope.getByTestId('discussion-close-toggle').textContent).toContain(
@@ -61,7 +65,10 @@ describe('LectureDiscussionOwnerActions', () => {
     fireEvent.click(scope.getByTestId('discussion-close-toggle'))
 
     await waitFor(() => {
-      expect(hoisted.setClosed).toHaveBeenCalledWith({ discussionId: 3, isClosed: true })
+      expect(hoisted.setClosed).toHaveBeenCalledWith({
+        discussionId: 3,
+        isClosed: true,
+      })
       expect(hoisted.invalidate).toHaveBeenCalled()
     })
     expect(hoisted.pushLearnEvent).toHaveBeenCalledWith(
@@ -109,9 +116,9 @@ describe('LectureDiscussionOwnerActions', () => {
       />,
     )
     const scope = within(container)
-    expect(scope.getByTestId('discussion-feedback-summary').textContent).toContain(
-      'You rated this 4/5',
-    )
+    expect(
+      scope.getByTestId('discussion-feedback-summary').textContent,
+    ).toContain('You rated this 4/5')
     expect(scope.queryByTestId('discussion-feedback-form')).toBeNull()
   })
 
@@ -144,12 +151,16 @@ describe('LectureDiscussionOwnerActions', () => {
   it('surfaces an error when the mutation fails', async () => {
     hoisted.setClosed.mockRejectedValueOnce(new Error('DISCUSSION_FORBIDDEN'))
     const { container } = render(
-      <LectureDiscussionOwnerActions discussion={makeDiscussion({ isClosed: false })} />,
+      <LectureDiscussionOwnerActions
+        discussion={makeDiscussion({ isClosed: false })}
+      />,
     )
     const scope = within(container)
     fireEvent.click(scope.getByTestId('discussion-close-toggle'))
     await waitFor(() => {
-      expect(scope.getByRole('alert').textContent).toContain('Something went wrong')
+      expect(scope.getByRole('alert').textContent).toContain(
+        'Something went wrong',
+      )
     })
   })
 })

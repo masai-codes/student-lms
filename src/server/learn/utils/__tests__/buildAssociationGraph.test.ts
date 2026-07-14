@@ -24,7 +24,10 @@ describe('buildAssociationGraph', () => {
     })
 
     expect(neighbours(graph, 'lecture:1')).toEqual(['lecture:2'])
-    expect(neighbours(graph, 'lecture:2')).toEqual(['assignment:7', 'lecture:1'])
+    expect(neighbours(graph, 'lecture:2')).toEqual([
+      'assignment:7',
+      'lecture:1',
+    ])
     expect(neighbours(graph, 'assignment:7')).toEqual(['lecture:2'])
   })
 

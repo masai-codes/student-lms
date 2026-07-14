@@ -52,7 +52,7 @@ export function LectureDiscussionCreatePanel({
     <div
       data-testid="discussion-create-panel"
       className={cn(
-        'shrink-0 rounded-lg border border-gray-200 bg-white transition-colors duration-200 hover:border-[#4F6BED]/35',
+        'shrink-0 rounded-lg border border-border bg-surface transition-colors duration-200 hover:border-brand/35',
         className,
       )}
     >
@@ -67,19 +67,19 @@ export function LectureDiscussionCreatePanel({
           setExpanded((current) => !current)
         }}
         aria-expanded={expanded}
-        className="type-b3-md flex w-full items-center justify-between gap-2 px-3 py-2.5 text-left text-gray-900 transition-colors duration-150 hover:bg-gray-50"
+        className="type-b3-md flex w-full items-center justify-between gap-2 px-3 py-2.5 text-left text-foreground transition-colors duration-150 hover:bg-surface-muted"
       >
         Create discussion
         <CaretDown
           className={cn(
-            'size-4 shrink-0 text-gray-600 transition-transform duration-200',
+            'size-4 shrink-0 text-foreground-muted transition-transform duration-200',
             expanded && 'rotate-180',
           )}
           aria-hidden
         />
       </button>
       {expanded ? (
-        <div className="border-t border-gray-100 px-3 pb-3 pt-2">
+        <div className="border-t border-border px-3 pb-3 pt-2">
           <LectureDiscussionCreateForm disabled={pending} onSubmit={onSubmit} />
           {errorNode}
         </div>

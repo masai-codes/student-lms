@@ -41,12 +41,12 @@ export function LocalTimeWithIstTooltip({
       <span
         role="tooltip"
         className="pointer-events-none absolute bottom-full left-0 z-20 mb-1.5
-          whitespace-nowrap rounded-md bg-gray-900 px-2.5 py-1.5 text-xs
-          font-medium text-white opacity-0 shadow-lg transition-opacity
+          whitespace-nowrap rounded-md bg-foreground px-2.5 py-1.5 text-xs
+          font-medium text-background opacity-0 shadow-lg transition-opacity
           duration-150 group-hover/ist-time:opacity-100"
       >
         {ist}
-        <span className="absolute left-4 top-full -translate-x-1/2 border-4 border-transparent border-t-gray-900" />
+        <span className="absolute left-4 top-full -translate-x-1/2 border-4 border-transparent border-t-foreground" />
       </span>
     </span>
   )

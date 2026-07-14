@@ -100,7 +100,8 @@ function normalizeHistory(value: unknown): Array<AiChatHistoryEntry> {
 function parseEntry(item: unknown): AiChatHistoryEntry | null {
   if (!item || typeof item !== 'object') return null
   const obj = item as Record<string, unknown>
-  const timestamp = typeof obj.timestamp === 'number' ? obj.timestamp : Date.now()
+  const timestamp =
+    typeof obj.timestamp === 'number' ? obj.timestamp : Date.now()
 
   if (obj.type === 'text') {
     if (typeof obj.userMessage !== 'string') return null

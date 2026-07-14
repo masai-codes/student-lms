@@ -17,10 +17,10 @@ export default function ClubsPage() {
     <div>
       <div className="flex items-start justify-between gap-4">
         <div>
-          <h2 className="text-[20px] font-bold leading-7 text-[#111827]">
+          <h2 className="text-[20px] font-bold leading-7 text-foreground">
             Explore clubs
           </h2>
-          <p className="mt-1 text-[14px] leading-5 text-[#6B7280]">
+          <p className="mt-1 text-[14px] leading-5 text-foreground-muted">
             Discover communities and join the ones that match your interests.
           </p>
         </div>
@@ -37,12 +37,12 @@ export default function ClubsPage() {
           {[0, 1, 2].map((key) => (
             <div
               key={key}
-              className="h-28 animate-pulse rounded-[12px] bg-[#ECE7E2]"
+              className="h-28 animate-pulse rounded-[12px] bg-surface-muted"
             />
           ))}
         </div>
       ) : clubs.length === 0 ? (
-        <p className="mt-6 text-[14px] text-[#6B7280]">No clubs yet.</p>
+        <p className="mt-6 text-[14px] text-foreground-muted">No clubs yet.</p>
       ) : (
         <div className="mt-6 grid grid-cols-[repeat(auto-fill,minmax(min(100%,280px),1fr))] gap-4">
           {clubs.map((club) => (

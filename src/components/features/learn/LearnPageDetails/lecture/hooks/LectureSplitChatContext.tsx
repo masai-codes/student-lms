@@ -8,9 +8,8 @@ export type LectureSplitChatContextValue = {
   close: () => void
 }
 
-const LectureSplitChatContext = createContext<LectureSplitChatContextValue | null>(
-  null,
-)
+const LectureSplitChatContext =
+  createContext<LectureSplitChatContextValue | null>(null)
 
 type LectureSplitChatProviderProps = {
   value: LectureSplitChatContextValue

@@ -1,6 +1,9 @@
 import { describe, expect, it } from 'vitest'
 
-import { normalizeListContinuations, normalizeMarkdownForDisplay } from '../normalizeMarkdownForDisplay'
+import {
+  normalizeListContinuations,
+  normalizeMarkdownForDisplay,
+} from '../normalizeMarkdownForDisplay'
 
 describe('normalizeListContinuations', () => {
   it('indents URL lines so they stay inside the list item', () => {
@@ -24,9 +27,7 @@ https://example.com
 
 - Second`
 
-    expect(normalizeListContinuations(input)).toContain(
-      '  https://example.com',
-    )
+    expect(normalizeListContinuations(input)).toContain('  https://example.com')
   })
 })
 

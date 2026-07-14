@@ -51,7 +51,7 @@ export function AssociatedContentEntryCta({
           setDrawerOpen(true)
         }}
         className={cn(
-          'dash-lift group flex w-full items-center justify-between gap-3 rounded-xl border border-gray-200 bg-white p-4 text-left shadow-sm transition-colors hover:border-[#4F6BED]/35 hover:bg-gray-50',
+          'dash-lift group flex w-full items-center justify-between gap-3 rounded-xl border border-border bg-surface p-4 text-left shadow-sm transition-colors hover:border-brand/35 hover:bg-surface-muted',
           className,
         )}
         aria-label={`Open ${ASSOCIATED_CONTENT_DRAWER_TITLE}`}
@@ -60,7 +60,7 @@ export function AssociatedContentEntryCta({
           <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-primary-50 text-primary-600 transition-transform duration-200 group-hover:scale-110">
             <Link2 className="size-5" strokeWidth={2} aria-hidden />
           </span>
-          <span className="type-b2-md text-gray-900">
+          <span className="type-b2-md text-foreground">
             {ASSOCIATED_CONTENT_DRAWER_TITLE}
           </span>
           <span className="type-t2 animate-dash-pop flex size-5 shrink-0 items-center justify-center rounded-full bg-primary-500 text-white">
@@ -68,7 +68,7 @@ export function AssociatedContentEntryCta({
           </span>
         </div>
         <ChevronRight
-          className="size-5 shrink-0 text-gray-500 transition-transform duration-200 group-hover:translate-x-1 group-hover:text-[#4F6BED]"
+          className="size-5 shrink-0 text-foreground-muted transition-transform duration-200 group-hover:translate-x-1 group-hover:text-brand"
           aria-hidden
         />
       </button>

@@ -141,7 +141,7 @@ export function MasaiDrawer({
           <div
             style={floatingPanelStyle}
             className={cn(
-              'pointer-events-auto fixed flex flex-col border bg-white font-poppins shadow-xl outline-none',
+              'pointer-events-auto fixed flex flex-col border bg-surface font-poppins shadow-xl outline-none',
               drawerLayerClass,
               hasFloatingMargin
                 ? 'rounded-2xl'
@@ -155,7 +155,7 @@ export function MasaiDrawer({
 
             {title || showCloseButton ? (
               <div className="flex items-center justify-between gap-3 border-b p-4">
-                <Drawer.Title className="text-lg font-semibold text-slate-900">
+                <Drawer.Title className="text-lg font-semibold text-foreground">
                   {title ?? 'Drawer'}
                 </Drawer.Title>
                 {showCloseButton ? (
@@ -167,7 +167,7 @@ export function MasaiDrawer({
                     htmlType="button"
                     onClick={() => onOpenChange(false)}
                     aria-label="Close drawer"
-                    className="!h-8 !w-8 !rounded-md !border !border-slate-200 !text-slate-500 hover:!bg-slate-50 hover:!text-slate-800"
+                    className="!h-8 !w-8 !rounded-md !border !border-border !text-foreground-muted hover:!bg-surface-muted hover:!text-foreground"
                   />
                 ) : null}
               </div>
