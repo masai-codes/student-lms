@@ -74,7 +74,7 @@ export const THEMES: Array<ThemeDefinition> = [
     description: 'Deep indigo dark mode. Focused and modern.',
     mode: 'dark',
     stability: 'preview',
-    swatch: ['#0b0f1a', '#131a2b', '#8da2fb', '#fb8a4c'],
+    swatch: ['#0b0f1a', '#232e48', '#8da2fb', '#fb8a4c'],
   },
   {
     id: 'cocoa',
@@ -82,7 +82,7 @@ export const THEMES: Array<ThemeDefinition> = [
     description: 'Warm brown dark mode. Rich and easy on the eyes.',
     mode: 'dark',
     stability: 'preview',
-    swatch: ['#1a1310', '#241a15', '#e8a87c', '#f2994a'],
+    swatch: ['#1a1310', '#38281e', '#e8a87c', '#f2994a'],
   },
 ]
 
