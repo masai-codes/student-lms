@@ -48,14 +48,19 @@ export const LECTURE_ATTENDANCE_BANNERS: Record<
  * | ---------- | -------------------------------------------- | ---------------------- | ------------- |
  * | null       | —                                            | —                      | none          |
  * | present    | null / 'hidden'                              | —                      | none          |
- * | present    | 'continue_watching'                          | true                   | none¹         |
- * | present    | present / absent / att_window_over / cont.²  | true                   | video-counts  |
- * | present    | present / absent / att_window_over / cont.   | false                  | live-only     |
+ * | present    | 'present'                                    | true                   | none¹         |
+ * | present    | 'att_window_over'                            | true                   | none¹         |
+ * | present    | 'continue_watching'                          | true                   | none²         |
+ * | present    | 'absent' (window open)                       | true                   | video-counts  |
+ * | present    | 'present'                                    | false                  | none³         |
+ * | present    | absent / att_window_over / continue_watching | false                  | live-only     |
  *
- * ¹ Legacy hides the blue banner here because the catch-up progress bar is
- *   shown instead when recording watch-time counts and the student is mid-watch.
- * ² 'continue_watching' still shows `live-only` when recording watch-time does
- *   not count (there is no progress bar to replace it).
+ * ¹ `video-counts` promises "watch it and you'll become Present". It is hidden
+ *   when the student is already Present (nothing to earn) or the catch-up window
+ *   is over (watching can no longer change the status) — no scope left either way.
+ * ² Mid-watch: the catch-up progress bar is shown instead of the blue banner.
+ * ³ `live-only` warns "watching won't count, only live does" — only relevant
+ *   while the student is not yet Present, so it is hidden once already Present.
  */
 export function resolveLectureAttendanceBanner(
   attendance: LectureAttendanceSummary | null | undefined,
@@ -74,11 +79,30 @@ export function resolveLectureAttendanceBanner(
 
   const { includeVideoAttendance } = attendance
 
-  if (includeVideoAttendance && uiState === 'continue_watching') {
+  // Section only counts live attendance: watching the recording can never make
+  // the student Present. The `live-only` banner warns about exactly that, so it
+  // only matters while the student is not yet Present — once Present, there is
+  // nothing left to clarify.
+  if (!includeVideoAttendance) {
+    if (uiState === 'present') {
+      return null
+    }
+    return LECTURE_ATTENDANCE_BANNERS['live-only']
+  }
+
+  // Recording watch-time counts. The `video-counts` banner promises "watch it and
+  // your status will change to Present" — only show it while that is actually
+  // achievable, i.e. the student still has scope to earn Present by watching:
+  // - 'present'          → already Present, no need to watch → hide
+  // - 'att_window_over'  → catch-up window expired, watching can no longer help → hide
+  // - 'continue_watching'→ mid-watch; the catch-up progress bar is shown instead → hide
+  if (
+    uiState === 'present' ||
+    uiState === 'att_window_over' ||
+    uiState === 'continue_watching'
+  ) {
     return null
   }
 
-  return includeVideoAttendance
-    ? LECTURE_ATTENDANCE_BANNERS['video-counts']
-    : LECTURE_ATTENDANCE_BANNERS['live-only']
+  return LECTURE_ATTENDANCE_BANNERS['video-counts']
 }
