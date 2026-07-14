@@ -47,7 +47,10 @@ export const LECTURE_ATTENDANCE_BANNERS: Record<
  * | attendance | detail UI state                              | includeVideoAttendance | banner        |
  * | ---------- | -------------------------------------------- | ---------------------- | ------------- |
  * | null       | —                                            | —                      | none          |
- * | present    | null / 'hidden'                              | —                      | none          |
+ * | present    | 'hidden'                                     | —                      | none          |
+ * | present    | null (no row / window open)                  | true                   | video-counts⁴ |
+ * | present    | null (no row / window over)                  | true                   | none          |
+ * | present    | null (no row)                                | false                  | live-only⁴    |
  * | present    | 'present'                                    | true                   | none¹         |
  * | present    | 'att_window_over'                            | true                   | none¹         |
  * | present    | 'continue_watching'                          | true                   | none²         |
@@ -61,6 +64,9 @@ export const LECTURE_ATTENDANCE_BANNERS: Record<
  * ² Mid-watch: the catch-up progress bar is shown instead of the blue banner.
  * ³ `live-only` warns "watching won't count, only live does" — only relevant
  *   while the student is not yet Present, so it is hidden once already Present.
+ * ⁴ No attendance row yet (student never marked): they are not Present, so the
+ *   banner applies as if absent — legacy-LMS parity. A genuine "not applicable"
+ *   placeholder row resolves to 'hidden' instead, so it stays suppressed.
  */
 export function resolveLectureAttendanceBanner(
   attendance: LectureAttendanceSummary | null | undefined,
@@ -73,11 +79,35 @@ export function resolveLectureAttendanceBanner(
   const uiState: LectureAttendanceUiState | null =
     mapAttendanceSummaryToDetailUiState(attendance, watchPercentage)
 
-  if (uiState == null || uiState === 'hidden') {
-    return null
+  const { includeVideoAttendance, isCatchupWindowOver } = attendance
+
+  // No resolvable UI state. The one case that still warrants a banner is a
+  // genuine "no attendance row yet" (student never marked): they are not Present,
+  // so the disclaimer applies exactly as it would for an absent student — legacy
+  // LMS showed the banner here too; only its `=== 'hidden'` guard let it fall
+  // through. Any other null (e.g. a row with an unresolvable status) stays
+  // suppressed, as does a real "not applicable" placeholder row (→ 'hidden').
+  if (uiState == null) {
+    if (attendance.hasStudentAttendanceEntry !== false) {
+      return null
+    }
+    if (!includeVideoAttendance) {
+      // Watching can never count → warn that only live attendance counts.
+      return LECTURE_ATTENDANCE_BANNERS['live-only']
+    }
+    // Recording counts: promise "watch to become Present" only while there is
+    // still scope. A no-row lecture whose window is over resolves to
+    // 'att_window_over' (not null), so reaching here normally means the window
+    // is open; guard defensively anyway.
+    if (isCatchupWindowOver === true) {
+      return null
+    }
+    return LECTURE_ATTENDANCE_BANNERS['video-counts']
   }
 
-  const { includeVideoAttendance } = attendance
+  if (uiState === 'hidden') {
+    return null
+  }
 
   // Section only counts live attendance: watching the recording can never make
   // the student Present. The `live-only` banner warns about exactly that, so it

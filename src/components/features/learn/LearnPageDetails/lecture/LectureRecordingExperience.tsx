@@ -128,6 +128,7 @@ export function LectureRecordingExperience({
       optionalAttendance={optionalAttendance}
       isLiveLecture={isLiveLecture}
       watchPercentage={videoAttendance?.watchPercentage}
+      showAttendanceBanner
       actions={
         <LectureDetailActions
           lectureId={entityId}

@@ -39,6 +39,48 @@ describe('resolveLectureAttendanceBanner', () => {
     ).toBeNull()
   })
 
+  it('shows video-counts when no attendance row exists yet, recording counts, window open', () => {
+    // No student_attendances row: never marked. Still has scope to earn Present
+    // by watching (legacy-LMS parity — new LMS previously showed nothing here).
+    expect(
+      resolveLectureAttendanceBanner(
+        makeSummary({
+          overallStatus: null,
+          hasStudentAttendanceEntry: false,
+          includeVideoAttendance: true,
+          isCatchupWindowOver: false,
+          daysRemaining: 30,
+        }),
+      ),
+    ).toBe(LECTURE_ATTENDANCE_BANNERS['video-counts'])
+  })
+
+  it('hides the banner when no attendance row exists but the catch-up window is over', () => {
+    expect(
+      resolveLectureAttendanceBanner(
+        makeSummary({
+          overallStatus: null,
+          hasStudentAttendanceEntry: false,
+          includeVideoAttendance: true,
+          isCatchupWindowOver: true,
+        }),
+      ),
+    ).toBeNull()
+  })
+
+  it('shows live-only when no attendance row exists and recording does not count', () => {
+    expect(
+      resolveLectureAttendanceBanner(
+        makeSummary({
+          overallStatus: null,
+          hasStudentAttendanceEntry: false,
+          includeVideoAttendance: false,
+          isCatchupWindowOver: null,
+        }),
+      ),
+    ).toBe(LECTURE_ATTENDANCE_BANNERS['live-only'])
+  })
+
   it('returns null when the UI state is hidden (not applicable + absent)', () => {
     expect(
       resolveLectureAttendanceBanner(
