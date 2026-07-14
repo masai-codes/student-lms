@@ -34,7 +34,6 @@ export async function getAssignmentProblemDetailForUser(
 
   const allowed = await ensureUserCanAccessLearnHubEntity(
     userId,
-    assignment.batchId,
     assignment.sectionId,
   )
   if (!allowed) {

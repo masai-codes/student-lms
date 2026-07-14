@@ -70,11 +70,7 @@ export async function getAssignmentLearningDetailForUser(
     throw new Error('ASSIGNMENT_DETAIL_UNSUPPORTED_TYPE')
   }
 
-  const allowed = await ensureUserCanAccessLearnHubEntity(
-    userId,
-    row.batchId,
-    row.sectionId,
-  )
+  const allowed = await ensureUserCanAccessLearnHubEntity(userId, row.sectionId)
 
   if (!allowed) {
     throw new Error('LEARN_DETAIL_NOT_FOUND')

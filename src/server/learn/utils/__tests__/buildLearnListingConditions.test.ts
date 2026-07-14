@@ -91,7 +91,7 @@ describe('buildLectureListingConditions', () => {
       ...baseInput('lecture', OPEN_WINDOW),
       filters: { attendanceStatus: 'absent' },
     })
-    // sectionId, type, deletedAt, content-gate, lt, (optional + exists) = 7
+    // sectionId, type, deletedAt, content-gate, lt, (optional + status-0-or-no-row) = 7
     expect(conditions).toHaveLength(7)
   })
 })

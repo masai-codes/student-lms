@@ -19,7 +19,8 @@ import { getUserBatchRestrictions } from '@/server/restrictions/getUserBatchRest
  * batch disappears from every downstream surface (dashboard, learn listing,
  * announcements, onboarding, banners) in one place. Direct URLs to a cancelled
  * batch's content still resolve to a restriction notice rather than a 404, because
- * `ensureUserCanAccessLearnHubEntity` falls back to `section_user` membership.
+ * `ensureUserCanAccessLearnHubEntity` gates purely on `section_user` membership and
+ * does not consult this batch-enrolment set.
  */
 export async function getBatchIdsForEnrolledUser(
   userId: number,

@@ -48,7 +48,6 @@ export async function assertStudentMayInteractWithDiscussion(
     if (row === undefined) throw new Error('LEARN_DETAIL_NOT_FOUND')
     const ok = await ensureUserCanAccessLearnHubEntity(
       viewerUserId,
-      row.batchId,
       row.sectionId,
     )
     if (!ok) throw new Error('DISCUSSION_FORBIDDEN')
@@ -70,7 +69,6 @@ export async function assertStudentMayInteractWithDiscussion(
     }
     const ok = await ensureUserCanAccessLearnHubEntity(
       viewerUserId,
-      row.batchId,
       row.sectionId,
     )
     if (!ok) throw new Error('DISCUSSION_FORBIDDEN')
