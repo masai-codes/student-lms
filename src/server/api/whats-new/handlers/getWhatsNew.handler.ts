@@ -15,7 +15,9 @@ export async function handleGetWhatsNew(request: Request): Promise<Response> {
   } catch (error) {
     if (!isApiError(error)) {
       console.error('Failed to fetch whats-new list', error)
-      return mapThrownErrorToResponse(new Error('SERVER_ERROR_FETCHING_WHATS_NEW'))
+      return mapThrownErrorToResponse(
+        new Error('SERVER_ERROR_FETCHING_WHATS_NEW'),
+      )
     }
     return mapThrownErrorToResponse(error)
   }

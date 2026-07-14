@@ -13,7 +13,7 @@ export function ContactSupportButton({ className }: { className?: string }) {
     <Link
       to="/support"
       className={cn(
-        'inline-flex items-center justify-center rounded-lg bg-primary px-4 py-2.5 type-b1-md text-white transition hover:-translate-y-0.5 hover:opacity-90 hover:shadow-md active:scale-95',
+        'inline-flex items-center justify-center rounded-lg bg-primary px-4 py-2.5 type-b1-md text-primary-foreground transition hover:-translate-y-0.5 hover:opacity-90 hover:shadow-md active:scale-95',
         className,
       )}
       data-testid="learn-restriction-contact-support"
@@ -44,7 +44,7 @@ export function SignAgreementButton({
         step: 'agreement',
       }}
       className={cn(
-        'inline-flex items-center justify-center rounded-lg bg-primary px-4 py-2.5 type-b1-md text-white transition hover:-translate-y-0.5 hover:opacity-90 hover:shadow-md active:scale-95',
+        'inline-flex items-center justify-center rounded-lg bg-primary px-4 py-2.5 type-b1-md text-primary-foreground transition hover:-translate-y-0.5 hover:opacity-90 hover:shadow-md active:scale-95',
         className,
       )}
       data-testid="learn-restriction-sign-agreement"
@@ -105,12 +105,12 @@ export function LearnRestrictionPage({
       data-testid="learn-restriction-page"
       data-restriction-kind={restriction.kind}
     >
-      <span className="animate-dash-float flex size-16 items-center justify-center rounded-full bg-red-50 text-red-500">
+      <span className="animate-dash-float flex size-16 items-center justify-center rounded-full bg-danger-subtle text-danger">
         <Prohibit className="size-8" weight="duotone" aria-hidden />
       </span>
       <div className="animate-dash-rise max-w-md space-y-2">
-        <h1 className="type-h5 text-gray-900">{title}</h1>
-        <p className="type-b2-regular text-gray-600">{description}</p>
+        <h1 className="type-h5 text-foreground">{title}</h1>
+        <p className="type-b2-regular text-foreground-muted">{description}</p>
       </div>
       {cta}
     </div>

@@ -4,7 +4,9 @@ import { resolveLectureAttendanceUiState } from '../resolveLectureAttendanceUiSt
 
 describe('resolveLectureAttendanceUiState', () => {
   it('returns present when overall status is 1', () => {
-    expect(resolveLectureAttendanceUiState({ overallStatus: 1 })).toBe('present')
+    expect(resolveLectureAttendanceUiState({ overallStatus: 1 })).toBe(
+      'present',
+    )
   })
 
   it('returns continue_watching when partial video progress remains', () => {

@@ -173,8 +173,7 @@ export function getIdCardState(
   lectures: T0FlowLecturesResult,
   flowVariant: 'full' | 'lite',
 ): IdCardState {
-  if (flowVariant === 'lite')
-    return { show: false, url: null, unlocked: false }
+  if (flowVariant === 'lite') return { show: false, url: null, unlocked: false }
 
   const completedIds = new Set(lectures.completedLectureIds)
   const videosComplete = lectures.programLectures.every((l) =>

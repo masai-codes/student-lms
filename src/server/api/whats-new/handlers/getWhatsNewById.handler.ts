@@ -1,5 +1,9 @@
 import { isApiError } from '@/server/api/http/apiError'
-import { jsonOk, jsonError, mapThrownErrorToResponse } from '@/server/api/http/responses'
+import {
+  jsonOk,
+  jsonError,
+  mapThrownErrorToResponse,
+} from '@/server/api/http/responses'
 import { getWhatsNewById } from '@/server/api/whats-new/getWhatsNewById.service'
 
 export async function handleGetWhatsNewById(
@@ -21,7 +25,9 @@ export async function handleGetWhatsNewById(
   } catch (error) {
     if (!isApiError(error)) {
       console.error('Failed to fetch whats-new detail', error)
-      return mapThrownErrorToResponse(new Error('SERVER_ERROR_FETCHING_WHATS_NEW_DETAIL'))
+      return mapThrownErrorToResponse(
+        new Error('SERVER_ERROR_FETCHING_WHATS_NEW_DETAIL'),
+      )
     }
     return mapThrownErrorToResponse(error)
   }

@@ -20,7 +20,10 @@ export function RememberMeField({
         onChange={(e) => onCheckedChange(e.target.checked)}
         className="size-4 shrink-0 rounded border border-input accent-primary"
       />
-      <Label htmlFor={id} className="cursor-pointer text-sm font-normal text-muted-foreground">
+      <Label
+        htmlFor={id}
+        className="cursor-pointer text-sm font-normal text-muted-foreground"
+      >
         Remember me
       </Label>
     </div>

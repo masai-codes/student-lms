@@ -42,8 +42,8 @@ export async function fetchAssignmentStartState(
 function hasAssessPlatformLinkClick(data: unknown): boolean {
   return Boolean(
     data &&
-      typeof data === 'object' &&
-      'assess_platform_link_clicked' in data &&
-      (data).assess_platform_link_clicked,
+    typeof data === 'object' &&
+    'assess_platform_link_clicked' in data &&
+    data.assess_platform_link_clicked,
   )
 }

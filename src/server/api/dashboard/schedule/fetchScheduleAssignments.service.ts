@@ -41,7 +41,10 @@ export async function fetchScheduleAssignments(
         inArray(assignments.sectionId, sectionIds),
         isNull(assignments.deletedAt),
         or(
-          and(gte(assignments.startDate, start), lte(assignments.startDate, end)),
+          and(
+            gte(assignments.startDate, start),
+            lte(assignments.startDate, end),
+          ),
           and(gte(assignments.endDate, start), lte(assignments.endDate, end)),
         ),
       ),

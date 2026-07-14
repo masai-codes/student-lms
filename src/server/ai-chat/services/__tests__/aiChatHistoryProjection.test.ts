@@ -8,9 +8,7 @@ import {
 describe('projectHistoryToMessages', () => {
   it('expands a text turn into a user + assistant pair with stable ids', () => {
     const result = projectHistoryToMessages(
-      [
-        { type: 'text', userMessage: 'hi', aiMessage: 'hello', timestamp: 100 },
-      ],
+      [{ type: 'text', userMessage: 'hi', aiMessage: 'hello', timestamp: 100 }],
       9,
     )
 

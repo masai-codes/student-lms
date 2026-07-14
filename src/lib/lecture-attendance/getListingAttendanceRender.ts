@@ -14,7 +14,12 @@ export function getListingAttendanceRender(
   videoProgressHint?: ListingVideoProgressHint | null,
 ): ListingAttendanceRender {
   if (attendance == null) {
-    return { uiState: null, daysRemaining: null, remainingLabel: null, showBadge: false }
+    return {
+      uiState: null,
+      daysRemaining: null,
+      remainingLabel: null,
+      showBadge: false,
+    }
   }
 
   if (attendance.overallStatus == null) {
@@ -36,7 +41,12 @@ export function getListingAttendanceRender(
         }
       }
     }
-    return { uiState: null, daysRemaining: null, remainingLabel: null, showBadge: false }
+    return {
+      uiState: null,
+      daysRemaining: null,
+      remainingLabel: null,
+      showBadge: false,
+    }
   }
 
   const resolved = resolveLectureAttendanceUiState({
@@ -50,7 +60,12 @@ export function getListingAttendanceRender(
   })
 
   if (resolved === null || resolved === 'hidden') {
-    return { uiState: null, daysRemaining: null, remainingLabel: null, showBadge: false }
+    return {
+      uiState: null,
+      daysRemaining: null,
+      remainingLabel: null,
+      showBadge: false,
+    }
   }
 
   const uiState: ListingAttendanceVisibleState = resolved

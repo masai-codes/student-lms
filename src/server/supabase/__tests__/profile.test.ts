@@ -22,7 +22,10 @@ describe('updateProfileAvatarByEmail', () => {
   it('calls the RPC with the email + avatar url and returns its result', async () => {
     hoisted.rpc.mockResolvedValue({ data: { ok: true }, error: null })
 
-    const result = await updateProfileAvatarByEmail('a@b.com', 'https://s3/pic.jpg')
+    const result = await updateProfileAvatarByEmail(
+      'a@b.com',
+      'https://s3/pic.jpg',
+    )
 
     expect(hoisted.rpc).toHaveBeenCalledWith('update_profile_avatar_by_email', {
       p_user_email: 'a@b.com',
@@ -35,7 +38,10 @@ describe('updateProfileAvatarByEmail', () => {
     delete process.env.SUPABASE_URL
     delete process.env.SUPABASE_SERVICE_ROLE_KEY
 
-    const result = await updateProfileAvatarByEmail('a@b.com', 'https://s3/pic.jpg')
+    const result = await updateProfileAvatarByEmail(
+      'a@b.com',
+      'https://s3/pic.jpg',
+    )
 
     expect(result.data).toBeNull()
     expect(result.error).toBeInstanceOf(Error)

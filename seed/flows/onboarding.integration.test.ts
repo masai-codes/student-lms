@@ -13,19 +13,20 @@ describe('seed flow isolation', () => {
       const first = await seedFlow('onboarding-welcome-modal', { reset: true })
       const second = await seedFlow('onboarding-fees-unpaid', { reset: false })
 
-      if (!isOnboardingEntities(first.entities) || !isOnboardingEntities(second.entities)) {
+      if (
+        !isOnboardingEntities(first.entities) ||
+        !isOnboardingEntities(second.entities)
+      ) {
         throw new Error('Expected onboarding entities')
       }
 
       expect(first.entities.student.id).not.toBe(second.entities.student.id)
       expect(first.entities.batch.id).not.toBe(second.entities.batch.id)
 
-      const { getWelcomeModalStatus } = await import(
-        '@/server/api/dashboard/getWelcomeModalStatus.service'
-      )
-      const { getT0FlowStatus } = await import(
-        '@/server/api/dashboard/getT0FlowStatus.service'
-      )
+      const { getWelcomeModalStatus } =
+        await import('@/server/api/dashboard/getWelcomeModalStatus.service')
+      const { getT0FlowStatus } =
+        await import('@/server/api/dashboard/getT0FlowStatus.service')
 
       const [welcomeStatus, unpaidStatus] = await Promise.all([
         getWelcomeModalStatus(first.entities.student.id),
@@ -52,9 +53,8 @@ describe('onboarding integration', () => {
         throw new Error('Expected onboarding entities')
       }
 
-      const { getT0FlowLectures } = await import(
-        '@/server/api/dashboard/getT0FlowLectures.service'
-      )
+      const { getT0FlowLectures } =
+        await import('@/server/api/dashboard/getT0FlowLectures.service')
 
       const lectures = await getT0FlowLectures(
         result.entities.student.id,

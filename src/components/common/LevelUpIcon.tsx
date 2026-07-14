@@ -24,7 +24,10 @@ export function LevelUpIcon({
       className={className}
       aria-hidden="true"
     >
-      <path d="M4.81569 12.6935H8.99622V15.5076H1.07422V2.28168H4.81569V12.6935Z" fill={color} />
+      <path
+        d="M4.81569 12.6935H8.99622V15.5076H1.07422V2.28168H4.81569V12.6935Z"
+        fill={color}
+      />
       <path
         fillRule="evenodd"
         clipRule="evenodd"

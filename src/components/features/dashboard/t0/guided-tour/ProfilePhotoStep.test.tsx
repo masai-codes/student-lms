@@ -1,14 +1,22 @@
 // @vitest-environment jsdom
 import { forwardRef, useImperativeHandle } from 'react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
+import {
+  cleanup,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { ProfilePhotoStep } from './ProfilePhotoStep'
 
 const SHOT = 'data:image/jpeg;base64,ZmFrZQ=='
 const hoisted = vi.hoisted(() => ({ upload: vi.fn() }))
 
-vi.mock('@/lib/api/dashboard/dashboardApi', () => ({ uploadProfilePhoto: hoisted.upload }))
+vi.mock('@/lib/api/dashboard/dashboardApi', () => ({
+  uploadProfilePhoto: hoisted.upload,
+}))
 vi.mock('react-webcam', () => ({
   default: forwardRef((props: Record<string, unknown>, ref) => {
     useImperativeHandle(ref, () => ({ getScreenshot: () => SHOT }))
@@ -24,11 +32,19 @@ beforeEach(() => {
   hoisted.upload.mockResolvedValue({ url: 'https://s3/pic.jpg' })
 })
 
-function renderStep(onCompleted = vi.fn(), existingPhotoUrl: string | null = null) {
-  const client = new QueryClient({ defaultOptions: { mutations: { retry: false } } })
+function renderStep(
+  onCompleted = vi.fn(),
+  existingPhotoUrl: string | null = null,
+) {
+  const client = new QueryClient({
+    defaultOptions: { mutations: { retry: false } },
+  })
   render(
     <QueryClientProvider client={client}>
-      <ProfilePhotoStep existingPhotoUrl={existingPhotoUrl} onCompleted={onCompleted} />
+      <ProfilePhotoStep
+        existingPhotoUrl={existingPhotoUrl}
+        onCompleted={onCompleted}
+      />
     </QueryClientProvider>,
   )
   return { onCompleted }
@@ -37,7 +53,9 @@ function renderStep(onCompleted = vi.fn(), existingPhotoUrl: string | null = nul
 describe('ProfilePhotoStep', () => {
   it('starts on the placeholder + Enable Camera, then shows the webcam', () => {
     renderStep()
-    expect(screen.getByTestId('guided-tour-profile-photo-placeholder')).toBeTruthy()
+    expect(
+      screen.getByTestId('guided-tour-profile-photo-placeholder'),
+    ).toBeTruthy()
     fireEvent.click(screen.getByTestId('guided-tour-profile-photo-enable'))
     expect(screen.getByTestId('guided-tour-profile-photo-webcam')).toBeTruthy()
     expect(screen.getByTestId('guided-tour-profile-photo-capture')).toBeTruthy()
@@ -47,7 +65,9 @@ describe('ProfilePhotoStep', () => {
     renderStep()
     fireEvent.click(screen.getByTestId('guided-tour-profile-photo-enable'))
     fireEvent.click(screen.getByTestId('guided-tour-profile-photo-capture'))
-    const preview = screen.getByTestId<HTMLImageElement>('guided-tour-profile-photo-preview')
+    const preview = screen.getByTestId<HTMLImageElement>(
+      'guided-tour-profile-photo-preview',
+    )
     expect(preview.getAttribute('src')).toBe(SHOT)
     expect(screen.getByTestId('guided-tour-profile-photo-retake')).toBeTruthy()
     expect(screen.getByTestId('guided-tour-profile-photo-submit')).toBeTruthy()
@@ -66,10 +86,14 @@ describe('ProfilePhotoStep', () => {
 
   it('shows the existing photo with a Retake option when one already exists', () => {
     renderStep(vi.fn(), 'https://s3/existing.jpg')
-    const existing = screen.getByTestId<HTMLImageElement>('guided-tour-profile-photo-existing')
+    const existing = screen.getByTestId<HTMLImageElement>(
+      'guided-tour-profile-photo-existing',
+    )
     expect(existing.getAttribute('src')).toBe('https://s3/existing.jpg')
     expect(screen.getByTestId('guided-tour-profile-photo-done')).toBeTruthy() // step already complete
-    expect(screen.queryByTestId('guided-tour-profile-photo-placeholder')).toBeNull()
+    expect(
+      screen.queryByTestId('guided-tour-profile-photo-placeholder'),
+    ).toBeNull()
     // Retaking opens the camera to change it.
     fireEvent.click(screen.getByTestId('guided-tour-profile-photo-retake'))
     expect(screen.getByTestId('guided-tour-profile-photo-webcam')).toBeTruthy()

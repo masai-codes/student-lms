@@ -70,17 +70,21 @@ describe('getDashboardSchedule', () => {
 
   it('returns [] without querying when the user has no sections', async () => {
     hoisted.getSectionIds.mockResolvedValue([])
-    const { getDashboardSchedule } = await import('../getDashboardSchedule.service')
+    const { getDashboardSchedule } =
+      await import('../getDashboardSchedule.service')
     expect(await getDashboardSchedule(42, NOW)).toEqual([])
     expect(hoisted.fetchLectures).not.toHaveBeenCalled()
   })
 
   it('merges lectures + assignments soonest-first with the right learning types', async () => {
-    hoisted.fetchLectures.mockResolvedValue([row({ id: 1, schedule: '2026-07-03 10:00:00' })])
+    hoisted.fetchLectures.mockResolvedValue([
+      row({ id: 1, schedule: '2026-07-03 10:00:00' }),
+    ])
     hoisted.fetchAssignments.mockResolvedValue([
       row({ id: 2, type: 'assignment', schedule: '2026-07-02 09:00:00' }),
     ])
-    const { getDashboardSchedule } = await import('../getDashboardSchedule.service')
+    const { getDashboardSchedule } =
+      await import('../getDashboardSchedule.service')
 
     const result = await getDashboardSchedule(42, NOW)
     expect(result.map((i) => [i.learningType, i.id])).toEqual([
@@ -91,18 +95,24 @@ describe('getDashboardSchedule', () => {
 
   it('omits the course name unless the user is in more than one batch', async () => {
     hoisted.fetchLectures.mockResolvedValue([row()])
-    const { getDashboardSchedule } = await import('../getDashboardSchedule.service')
+    const { getDashboardSchedule } =
+      await import('../getDashboardSchedule.service')
 
     expect((await getDashboardSchedule(42, NOW))[0].courseName).toBeNull()
 
     hoisted.getBatchIds.mockResolvedValue([1, 2])
-    expect((await getDashboardSchedule(42, NOW))[0].courseName).toBe('Full Stack Section A')
+    expect((await getDashboardSchedule(42, NOW))[0].courseName).toBe(
+      'Full Stack Section A',
+    )
   })
 
   it('falls back to the batch name when the section has no name', async () => {
     hoisted.getBatchIds.mockResolvedValue([1, 2])
-    hoisted.fetchLectures.mockResolvedValue([row({ sectionName: '  ', batchName: 'FS Batch' })])
-    const { getDashboardSchedule } = await import('../getDashboardSchedule.service')
+    hoisted.fetchLectures.mockResolvedValue([
+      row({ sectionName: '  ', batchName: 'FS Batch' }),
+    ])
+    const { getDashboardSchedule } =
+      await import('../getDashboardSchedule.service')
 
     expect((await getDashboardSchedule(42, NOW))[0].courseName).toBe('FS Batch')
   })
@@ -112,7 +122,8 @@ describe('getDashboardSchedule', () => {
       row({ id: 1, sectionSettings: { enableZoomWebView: true } }),
       row({ id: 2, sectionSettings: {} }),
     ])
-    const { getDashboardSchedule } = await import('../getDashboardSchedule.service')
+    const { getDashboardSchedule } =
+      await import('../getDashboardSchedule.service')
 
     const result = await getDashboardSchedule(42, NOW)
     expect(result.find((i) => i.id === 1)?.enableZoomWebView).toBe(true)
@@ -130,7 +141,8 @@ describe('getDashboardSchedule', () => {
       }),
     ])
     hoisted.fetchSubmissions.mockResolvedValue(new Map())
-    const { getDashboardSchedule } = await import('../getDashboardSchedule.service')
+    const { getDashboardSchedule } =
+      await import('../getDashboardSchedule.service')
 
     const [assignment] = await getDashboardSchedule(42, NOW)
     expect(assignment.assignmentProgressStatus).toBe('overdue')

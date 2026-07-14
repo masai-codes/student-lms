@@ -36,22 +36,22 @@ Last updated: 2026-07-07
 
 ## Test cases
 
-| ID | Case | Expected |
-|----|------|----------|
-| AT-SSE-001 | Missing session cookie | `401 UNAUTHORIZED` |
-| AT-SSE-002 | Invalid lectureId | `400 AI_TUTOR_LECTURE_ID_INVALID` |
-| AT-SSE-003 | Empty chat message | `400 AI_TUTOR_CHAT_MESSAGE_EMPTY` |
-| AT-SSE-004 | Chat over max length | `400 AI_TUTOR_CHAT_MESSAGE_TOO_LONG` |
-| AT-SSE-005 | Missing Anthropic config | `503 AI_TUTOR_ANTHROPIC_NOT_CONFIGURED` |
-| AT-SSE-006 | Authenticated request | SSE token chunks + `{ type: "done", chatId }` |
-| AT-SSE-006b | Invalid platform | `400 AI_TUTOR_PLATFORM_INVALID` |
-| AT-SSE-006c | Invalid language | `400 AI_TUTOR_LANGUAGE_INVALID` |
-| AT-SSE-006d | Language provided | System prompt enforces selected language; `language` stored on turn |
-| AT-SSE-006d2 | Language omitted | Defaults to English in prompt and stored history |
-| AT-SSE-006e | Mobile platform | Persists `platform` on the new `chatHistory` turn |
-| AT-SSE-007 | Stream service | Loads summary/history, persists turn after stream |
-| AT-SSE-008 | Prompt builder | Summary + optional history + question |
-| AT-SSE-009 | Chat history parser | Parses stored JSON safely |
+| ID           | Case                     | Expected                                                            |
+| ------------ | ------------------------ | ------------------------------------------------------------------- |
+| AT-SSE-001   | Missing session cookie   | `401 UNAUTHORIZED`                                                  |
+| AT-SSE-002   | Invalid lectureId        | `400 AI_TUTOR_LECTURE_ID_INVALID`                                   |
+| AT-SSE-003   | Empty chat message       | `400 AI_TUTOR_CHAT_MESSAGE_EMPTY`                                   |
+| AT-SSE-004   | Chat over max length     | `400 AI_TUTOR_CHAT_MESSAGE_TOO_LONG`                                |
+| AT-SSE-005   | Missing Anthropic config | `503 AI_TUTOR_ANTHROPIC_NOT_CONFIGURED`                             |
+| AT-SSE-006   | Authenticated request    | SSE token chunks + `{ type: "done", chatId }`                       |
+| AT-SSE-006b  | Invalid platform         | `400 AI_TUTOR_PLATFORM_INVALID`                                     |
+| AT-SSE-006c  | Invalid language         | `400 AI_TUTOR_LANGUAGE_INVALID`                                     |
+| AT-SSE-006d  | Language provided        | System prompt enforces selected language; `language` stored on turn |
+| AT-SSE-006d2 | Language omitted         | Defaults to English in prompt and stored history                    |
+| AT-SSE-006e  | Mobile platform          | Persists `platform` on the new `chatHistory` turn                   |
+| AT-SSE-007   | Stream service           | Loads summary/history, persists turn after stream                   |
+| AT-SSE-008   | Prompt builder           | Summary + optional history + question                               |
+| AT-SSE-009   | Chat history parser      | Parses stored JSON safely                                           |
 
 ## Commands
 

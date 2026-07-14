@@ -16,7 +16,9 @@ export default function StringListEditor({
 }: StringListEditorProps) {
   return (
     <div>
-      <p className="mb-1 text-[12px] font-semibold text-[#6B7280]">{label}</p>
+      <p className="mb-1 text-[12px] font-semibold text-foreground-muted">
+        {label}
+      </p>
       <div className="flex flex-col gap-2">
         {value.map((item, index) => (
           <div key={index} className="flex items-center gap-2">
@@ -26,16 +28,18 @@ export default function StringListEditor({
               placeholder={placeholder}
               onChange={(event) =>
                 onChange(
-                  value.map((cur, idx) => (idx === index ? event.target.value : cur)),
+                  value.map((cur, idx) =>
+                    idx === index ? event.target.value : cur,
+                  ),
                 )
               }
-              className="w-full rounded-lg border border-[#E5E7EB] px-3 py-2 text-[13px] text-[#111928] outline-none"
+              className="w-full rounded-lg border border-border px-3 py-2 text-[13px] text-foreground outline-none"
             />
             <button
               type="button"
               aria-label={`Remove ${label} ${index + 1}`}
               onClick={() => onChange(value.filter((_, idx) => idx !== index))}
-              className="shrink-0 rounded-md border border-[#E5E7EB] p-2 text-[#6B7280] hover:bg-[#F9FAFB]"
+              className="shrink-0 rounded-md border border-border p-2 text-foreground-muted hover:bg-surface-muted"
             >
               <X size={14} />
             </button>
@@ -45,7 +49,7 @@ export default function StringListEditor({
       <button
         type="button"
         onClick={() => onChange([...value, ''])}
-        className="mt-2 inline-flex items-center gap-1 text-[13px] font-semibold text-masaiverse-orange"
+        className="mt-2 inline-flex items-center gap-1 text-[13px] font-semibold text-accent-warm"
       >
         <Plus size={14} weight="bold" /> Add
       </button>

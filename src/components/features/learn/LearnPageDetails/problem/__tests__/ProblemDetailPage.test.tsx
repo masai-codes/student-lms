@@ -12,7 +12,9 @@ vi.mock('@/components/shared/markdown-content', () => ({
   MarkdownContent: ({ value }: { value: string }) => <div>{value}</div>,
 }))
 
-function detail(overrides: Partial<ProblemDetailPayload> = {}): ProblemDetailPayload {
+function detail(
+  overrides: Partial<ProblemDetailPayload> = {},
+): ProblemDetailPayload {
   return {
     assignmentId: 99,
     problemId: 11,
@@ -65,7 +67,11 @@ describe('ProblemDetailPage', () => {
   it('renders only instructions for BUTTON problems (no submission)', () => {
     const { container } = render(
       <ProblemDetailPage
-        detail={detail({ type: 'BUTTON', acceptsSubmission: false, canSubmit: false })}
+        detail={detail({
+          type: 'BUTTON',
+          acceptsSubmission: false,
+          canSubmit: false,
+        })}
       />,
     )
     const scope = within(container)

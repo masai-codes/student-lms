@@ -26,8 +26,7 @@ export function formatTimeRemaining(remainingMs: number): string | null {
   if (days >= 1) {
     parts = [`${days} day${days === 1 ? '' : 's'}`]
   } else if (hours >= 1) {
-    parts =
-      minutes > 0 ? [`${hours} hr`, `${minutes} min`] : [`${hours} hr`]
+    parts = minutes > 0 ? [`${hours} hr`, `${minutes} min`] : [`${hours} hr`]
   } else {
     // Under a minute still counts as "1 min" — never render "0 min".
     parts = [`${Math.max(1, minutes)} min`]

@@ -22,7 +22,7 @@ export function LearnDetailFullWidthBanner({
     <div
       data-testid={testId}
       className={cn(
-        'flex items-start gap-4 rounded-lg border border-gray-200 bg-white p-4 md:py-3.5',
+        'flex items-start gap-4 rounded-lg border border-border bg-surface p-4 md:py-3.5',
         className,
       )}
     >
@@ -36,8 +36,8 @@ export function LearnDetailFullWidthBanner({
         />
       </div>
       <div className="flex min-w-0 flex-col gap-2">
-        <h2 className="type-h6 text-gray-900">{title}</h2>
-        <p className="type-b2-regular text-gray-600">{children}</p>
+        <h2 className="type-h6 text-foreground">{title}</h2>
+        <p className="type-b2-regular text-foreground-muted">{children}</p>
       </div>
     </div>
   )

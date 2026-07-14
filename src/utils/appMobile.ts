@@ -22,7 +22,9 @@ export type AppMobileContext = {
   platform: AppMobilePlatform | null
 }
 
-function normalizePlatform(value: string | null | undefined): AppMobilePlatform | null {
+function normalizePlatform(
+  value: string | null | undefined,
+): AppMobilePlatform | null {
   const normalized = value?.trim().toLowerCase()
   if (normalized === 'ios') return 'ios'
   if (normalized === 'android') return 'android'
@@ -48,7 +50,9 @@ export function getAppMobileContext(): AppMobileContext {
   if (!storage) return { isMobile: false, platform: null }
 
   const isMobile = storage.getItem(APP_MOBILE_STORAGE_KEY) === 'true'
-  const platform = normalizePlatform(storage.getItem(APP_MOBILE_PLATFORM_STORAGE_KEY))
+  const platform = normalizePlatform(
+    storage.getItem(APP_MOBILE_PLATFORM_STORAGE_KEY),
+  )
   return { isMobile, platform }
 }
 

@@ -26,7 +26,11 @@ export async function createBatch(
   const [result] = await db.insert(batches).values(values)
   const id = Number(result.insertId)
 
-  const [row] = await db.select().from(batches).where(eq(batches.id, id)).limit(1)
+  const [row] = await db
+    .select()
+    .from(batches)
+    .where(eq(batches.id, id))
+    .limit(1)
   if (!row) {
     throw new Error(`Failed to load batch after insert (id=${id})`)
   }

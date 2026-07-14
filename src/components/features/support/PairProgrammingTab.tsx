@@ -37,9 +37,9 @@ function BookButton({ href, label }: { href: string; label: string }) {
 
 function SectionRow({ section }: { section: OneOnOneSection }) {
   return (
-    <div className="rounded-xl border border-gray-200 bg-white p-3">
+    <div className="rounded-xl border border-border bg-surface p-3">
       <div className="mb-2 flex items-center justify-between gap-3">
-        <h4 className="font-poppins text-[13px] font-semibold text-[#1F2A37]">
+        <h4 className="font-poppins text-[13px] font-semibold text-foreground">
           {section.sectionName}
         </h4>
         <BookButton href={section.ppLink} label="Book 1:1" />
@@ -47,13 +47,20 @@ function SectionRow({ section }: { section: OneOnOneSection }) {
       {section.coordinators.length > 0 && (
         <div className="flex flex-wrap gap-x-5 gap-y-2">
           {section.coordinators.map((c) => (
-            <div key={`${section.sectionId}-${c.kind}-${c.id}`} className="flex items-center gap-2">
-              <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-[#EBF5FF] font-poppins text-[11px] font-semibold text-[#6962AC]">
+            <div
+              key={`${section.sectionId}-${c.kind}-${c.id}`}
+              className="flex items-center gap-2"
+            >
+              <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-[#EBF5FF] font-poppins text-[11px] font-semibold text-brand dark:bg-info-subtle dark:text-info-subtle-foreground">
                 {c.name.slice(0, 2).toUpperCase()}
               </div>
               <div className="min-w-0">
-                <p className="truncate font-poppins text-[12px] font-medium text-[#1F2A37]">{c.name}</p>
-                <p className="font-poppins text-[11px] text-gray-500">{KIND_LABEL[c.kind]}</p>
+                <p className="truncate font-poppins text-[12px] font-medium text-foreground">
+                  {c.name}
+                </p>
+                <p className="font-poppins text-[11px] text-foreground-muted">
+                  {KIND_LABEL[c.kind]}
+                </p>
               </div>
             </div>
           ))}
@@ -63,11 +70,15 @@ function SectionRow({ section }: { section: OneOnOneSection }) {
   )
 }
 
-export function PairProgrammingTab({ groups }: { groups: Array<OneOnOneBatchGroup> }) {
+export function PairProgrammingTab({
+  groups,
+}: {
+  groups: Array<OneOnOneBatchGroup>
+}) {
   if (groups.length === 0) {
     return (
-      <div className="rounded-xl border border-gray-200 bg-white p-5">
-        <p className="font-poppins text-sm text-gray-700">
+      <div className="rounded-xl border border-border bg-surface p-5">
+        <p className="font-poppins text-sm text-foreground">
           1:1 Support Sessions are currently unavailable for your sections.
         </p>
       </div>
@@ -79,15 +90,21 @@ export function PairProgrammingTab({ groups }: { groups: Array<OneOnOneBatchGrou
       {groups.map((group) => (
         <div
           key={group.batchId ?? 'unknown'}
-          className="rounded-xl border border-gray-200 bg-[#F9FAFB] p-4"
+          className="rounded-xl border border-border bg-surface-muted p-4"
         >
           {/* Batch header + batch-level 1:1 link */}
           <div className="mb-3 flex items-center justify-between gap-3">
             <div>
-              <p className="font-poppins text-[11px] uppercase tracking-wide text-gray-500">Batch</p>
-              <h3 className="font-poppins text-[15px] font-semibold text-gray-900">{group.batchName}</h3>
+              <p className="font-poppins text-[11px] uppercase tracking-wide text-foreground-muted">
+                Batch
+              </p>
+              <h3 className="font-poppins text-[15px] font-semibold text-foreground">
+                {group.batchName}
+              </h3>
             </div>
-            {group.batchPpLink && <BookButton href={group.batchPpLink} label="Book 1:1 (Batch)" />}
+            {group.batchPpLink && (
+              <BookButton href={group.batchPpLink} label="Book 1:1 (Batch)" />
+            )}
           </div>
 
           {/* Sections within the batch */}

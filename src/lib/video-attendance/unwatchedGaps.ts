@@ -24,5 +24,5 @@ export function unwatchedGaps(
     gaps.push({ start: cursor, end: totalDuration })
   }
 
-  return gaps.filter(gap => gap.end > gap.start)
+  return gaps.filter((gap) => gap.end > gap.start)
 }

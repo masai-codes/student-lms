@@ -34,7 +34,7 @@ export default function ClubLeaderboardSection({
 
   return (
     <section className="flex flex-col gap-4">
-      <h2 className="text-[22px] font-extrabold leading-7 text-[#111827]">
+      <h2 className="text-[22px] font-extrabold leading-7 text-foreground">
         Club Leaderboard
       </h2>
       <LeaderboardPeriodTabs
@@ -51,15 +51,18 @@ export default function ClubLeaderboardSection({
       {isPending ? (
         <LeaderboardSkeleton />
       ) : isError ? (
-        <p className="rounded-[16px] border border-[#EDEAE8] bg-white p-6 text-[14px] text-[#6B7280]">
+        <p className="rounded-[16px] border border-border bg-surface p-6 text-[14px] text-foreground-muted">
           We couldn&apos;t load the leaderboard. Please try again.
         </p>
       ) : data.entries.length === 0 ? (
-        <p className="rounded-[16px] border border-[#EDEAE8] bg-white p-6 text-[14px] text-[#6B7280]">
+        <p className="rounded-[16px] border border-border bg-surface p-6 text-[14px] text-foreground-muted">
           No points have been earned in this club yet.
         </p>
       ) : (
-        <LeaderboardList entries={data.entries} currentUser={data.currentUser} />
+        <LeaderboardList
+          entries={data.entries}
+          currentUser={data.currentUser}
+        />
       )}
     </section>
   )
@@ -75,7 +78,7 @@ function LeaderboardSkeleton() {
       {Array.from({ length: 3 }).map((_, index) => (
         <div
           key={index}
-          className="h-[72px] animate-pulse rounded-[16px] bg-[#ECE7E2]"
+          className="h-[72px] animate-pulse rounded-[16px] bg-surface-muted"
         />
       ))}
       <span className="sr-only">Loading leaderboard…</span>

@@ -25,9 +25,8 @@ describe('assignmentBookmark.handler', () => {
 
   describe('handleAddAssignmentBookmark', () => {
     it('adds a bookmark and returns isBookmarked: true', async () => {
-      const { handleAddAssignmentBookmark } = await import(
-        '../assignmentBookmark.handler'
-      )
+      const { handleAddAssignmentBookmark } =
+        await import('../assignmentBookmark.handler')
 
       const res = await handleAddAssignmentBookmark('79293')
 
@@ -37,9 +36,8 @@ describe('assignmentBookmark.handler', () => {
     })
 
     it('returns 401 when unauthenticated', async () => {
-      const { handleAddAssignmentBookmark } = await import(
-        '../assignmentBookmark.handler'
-      )
+      const { handleAddAssignmentBookmark } =
+        await import('../assignmentBookmark.handler')
       const { ApiError } = await import('@/server/api/http/apiError')
       vi.mocked(requireSessionUserId).mockRejectedValueOnce(
         new ApiError(401, 'UNAUTHORIZED'),
@@ -52,9 +50,8 @@ describe('assignmentBookmark.handler', () => {
     })
 
     it('returns 400 for an invalid assignment id', async () => {
-      const { handleAddAssignmentBookmark } = await import(
-        '../assignmentBookmark.handler'
-      )
+      const { handleAddAssignmentBookmark } =
+        await import('../assignmentBookmark.handler')
 
       const res = await handleAddAssignmentBookmark('0')
 
@@ -66,9 +63,8 @@ describe('assignmentBookmark.handler', () => {
     })
 
     it('maps a service failure to 500', async () => {
-      const { handleAddAssignmentBookmark } = await import(
-        '../assignmentBookmark.handler'
-      )
+      const { handleAddAssignmentBookmark } =
+        await import('../assignmentBookmark.handler')
       hoisted.add.mockRejectedValueOnce(new Error('boom'))
 
       const res = await handleAddAssignmentBookmark('79293')
@@ -79,9 +75,8 @@ describe('assignmentBookmark.handler', () => {
 
   describe('handleRemoveAssignmentBookmark', () => {
     it('removes a bookmark and returns isBookmarked: false', async () => {
-      const { handleRemoveAssignmentBookmark } = await import(
-        '../assignmentBookmark.handler'
-      )
+      const { handleRemoveAssignmentBookmark } =
+        await import('../assignmentBookmark.handler')
 
       const res = await handleRemoveAssignmentBookmark('79293')
 
@@ -91,9 +86,8 @@ describe('assignmentBookmark.handler', () => {
     })
 
     it('returns 401 when unauthenticated', async () => {
-      const { handleRemoveAssignmentBookmark } = await import(
-        '../assignmentBookmark.handler'
-      )
+      const { handleRemoveAssignmentBookmark } =
+        await import('../assignmentBookmark.handler')
       const { ApiError } = await import('@/server/api/http/apiError')
       vi.mocked(requireSessionUserId).mockRejectedValueOnce(
         new ApiError(401, 'UNAUTHORIZED'),

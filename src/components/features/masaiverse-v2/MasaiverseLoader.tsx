@@ -31,10 +31,10 @@ export default function MasaiverseLoader({
         alt="Masaiverse"
         className="h-14 w-auto animate-pulse"
       />
-      <div className="h-1 w-40 overflow-hidden rounded-full bg-masaiverse-orange/15">
-        <div className="h-full w-1/2 animate-masaiverse-sweep rounded-full bg-masaiverse-orange" />
+      <div className="h-1 w-40 overflow-hidden rounded-full bg-accent-warm/15">
+        <div className="h-full w-1/2 animate-masaiverse-sweep rounded-full bg-accent-warm" />
       </div>
-      <span className="text-[13px] font-medium leading-5 text-[#6B7280]">
+      <span className="text-[13px] font-medium leading-5 text-foreground-muted">
         {label}
       </span>
     </div>

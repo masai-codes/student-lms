@@ -29,7 +29,9 @@ vi.mock('../LectureDiscussionOwnerActions', () => ({
   LectureDiscussionOwnerActions: () => <div data-testid="owner-actions" />,
 }))
 
-function makeDiscussion(overrides: Partial<DiscussionListItem> = {}): DiscussionListItem {
+function makeDiscussion(
+  overrides: Partial<DiscussionListItem> = {},
+): DiscussionListItem {
   return {
     id: 8,
     title: 'Question',
@@ -56,14 +58,20 @@ describe('LectureDiscussionListItem', () => {
 
   it('renders owner actions for the author', () => {
     const { container } = render(
-      <LectureDiscussionListItem discussion={makeDiscussion()} currentUserId={1} />,
+      <LectureDiscussionListItem
+        discussion={makeDiscussion()}
+        currentUserId={1}
+      />,
     )
     expect(within(container).getByTestId('owner-actions')).toBeTruthy()
   })
 
   it('hides owner actions for non-authors', () => {
     const { container } = render(
-      <LectureDiscussionListItem discussion={makeDiscussion()} currentUserId={2} />,
+      <LectureDiscussionListItem
+        discussion={makeDiscussion()}
+        currentUserId={2}
+      />,
     )
     expect(within(container).queryByTestId('owner-actions')).toBeNull()
   })

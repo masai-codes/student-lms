@@ -33,8 +33,10 @@ export function LectureStatePanel({
         <Icon className="size-7" weight="duotone" aria-hidden />
       </span>
       <div className="animate-dash-rise max-w-md space-y-2">
-        <h2 className="type-h5 text-gray-900">{title}</h2>
-        <div className="type-b2-regular text-gray-600">{description}</div>
+        <h2 className="type-h5 text-foreground">{title}</h2>
+        <div className="type-b2-regular text-foreground-muted">
+          {description}
+        </div>
       </div>
       {action ? (
         <div className="animate-dash-rise mt-2 [--dash-delay:0.08s]">

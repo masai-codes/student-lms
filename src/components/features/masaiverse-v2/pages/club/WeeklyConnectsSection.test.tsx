@@ -23,7 +23,13 @@ vi.mock('@/lib/api/masaiverse-v2/masaiverseV2Api', () => ({
 // Weekly-connect rows link to the event detail page; render plain anchors so
 // the section can mount its rows without a full router.
 vi.mock('@tanstack/react-router', () => ({
-  Link: ({ children, className }: { children: ReactNode; className?: string }) => (
+  Link: ({
+    children,
+    className,
+  }: {
+    children: ReactNode
+    className?: string
+  }) => (
     <a href="#" className={className}>
       {children}
     </a>
@@ -36,9 +42,7 @@ function renderWithClient(ui: ReactNode) {
   const client = new QueryClient({
     defaultOptions: { queries: { retry: false } },
   })
-  return render(
-    <QueryClientProvider client={client}>{ui}</QueryClientProvider>,
-  )
+  return render(<QueryClientProvider client={client}>{ui}</QueryClientProvider>)
 }
 
 afterEach(() => {
@@ -69,7 +73,11 @@ describe('WeeklyConnectsSection', () => {
   })
 
   it('shows the empty state when there are no weekly connects', async () => {
-    fetchEvents.mockResolvedValue({ weeklyConnects: [], upcoming: [], past: [] })
+    fetchEvents.mockResolvedValue({
+      weeklyConnects: [],
+      upcoming: [],
+      past: [],
+    })
     renderWithClient(<WeeklyConnectsSection clubId="5" now={NOW} />)
     await waitFor(() =>
       expect(
@@ -112,7 +120,9 @@ describe('WeeklyConnectsSection', () => {
 
     await waitFor(() => expect(screen.getByText('Live Circle')).toBeTruthy())
     const text = container.textContent
-    expect(text.indexOf('Live Circle')).toBeLessThan(text.indexOf('Future Build'))
+    expect(text.indexOf('Live Circle')).toBeLessThan(
+      text.indexOf('Future Build'),
+    )
     expect(text.indexOf('Future Build')).toBeLessThan(text.indexOf('Past Talk'))
   })
 })

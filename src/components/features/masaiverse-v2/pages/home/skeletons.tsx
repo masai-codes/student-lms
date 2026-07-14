@@ -4,16 +4,19 @@ import { Skeleton } from '@/components/ui/skeleton'
  * Card-shaped placeholders that mirror the real cards' dimensions so content
  * loads without a layout shift. All use the same neutral gray.
  */
-const BAR = 'bg-[#EDEAE8]'
+const BAR = 'bg-surface-muted'
 
 /** Renders `count` copies of a skeleton, for grids/rows. */
-export function repeat(count: number, render: (key: number) => React.ReactNode) {
+export function repeat(
+  count: number,
+  render: (key: number) => React.ReactNode,
+) {
   return Array.from({ length: count }, (_, index) => render(index))
 }
 
 export function EventCardSkeleton() {
   return (
-    <div className="flex h-full flex-col overflow-hidden rounded-[14px] border border-[#EDEAE8] bg-white">
+    <div className="flex h-full flex-col overflow-hidden rounded-[14px] border border-border bg-surface">
       <Skeleton className={`h-[116px] rounded-none ${BAR}`} />
       <div className="flex flex-1 flex-col gap-2 p-3">
         <Skeleton className={`h-3 w-16 ${BAR}`} />
@@ -26,7 +29,7 @@ export function EventCardSkeleton() {
 
 export function HighlightCardSkeleton() {
   return (
-    <div className="flex h-full gap-3 rounded-[14px] border border-[#EDEAE8] bg-white p-4">
+    <div className="flex h-full gap-3 rounded-[14px] border border-border bg-surface p-4">
       <Skeleton className={`size-6 rounded-md ${BAR}`} />
       <div className="flex flex-1 flex-col gap-2">
         <Skeleton className={`h-3 w-1/3 ${BAR}`} />
@@ -39,7 +42,7 @@ export function HighlightCardSkeleton() {
 
 export function HomeClubCardSkeleton() {
   return (
-    <div className="flex h-full flex-col rounded-[14px] border border-[#EDEAE8] bg-white p-4">
+    <div className="flex h-full flex-col rounded-[14px] border border-border bg-surface p-4">
       <div className="flex items-center gap-3">
         <Skeleton className={`size-11 rounded-[12px] ${BAR}`} />
         <div className="flex flex-1 flex-col gap-2">
@@ -56,7 +59,7 @@ export function HomeClubCardSkeleton() {
 
 export function DiscussionRowSkeleton() {
   return (
-    <div className="flex items-start gap-3 border-b border-[#EDEAE8] py-4 last:border-b-0">
+    <div className="flex items-start gap-3 border-b border-border py-4 last:border-b-0">
       <Skeleton className={`size-10 shrink-0 rounded-full ${BAR}`} />
       <div className="flex flex-1 flex-col gap-2">
         <Skeleton className={`h-3 w-40 ${BAR}`} />

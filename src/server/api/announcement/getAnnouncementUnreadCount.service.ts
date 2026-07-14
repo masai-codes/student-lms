@@ -13,20 +13,30 @@ function normalizeCount(result: unknown): number {
     rows = Array.isArray(first)
       ? (first as Array<Record<string, unknown>>)
       : (result as Array<Record<string, unknown>>)
-  } else if (result && typeof result === 'object' && 'rows' in result && Array.isArray((result as { rows: unknown }).rows)) {
+  } else if (
+    result &&
+    typeof result === 'object' &&
+    'rows' in result &&
+    Array.isArray((result as { rows: unknown }).rows)
+  ) {
     rows = (result as { rows: Array<Record<string, unknown>> }).rows
   }
   return Number(rows[0]?.total ?? 0)
 }
 
-export async function getAnnouncementUnreadCount(userId: number): Promise<number> {
+export async function getAnnouncementUnreadCount(
+  userId: number,
+): Promise<number> {
   const batchIds = await getBatchIdsForEnrolledUser(userId)
   if (batchIds.length === 0) return 0
 
   const sectionIds = await getSectionIdsForUserInBatches(userId, batchIds)
   if (sectionIds.length === 0) return 0
 
-  const sectionIdList = sectionIds.map(Number).filter(Number.isFinite).join(', ')
+  const sectionIdList = sectionIds
+    .map(Number)
+    .filter(Number.isFinite)
+    .join(', ')
 
   // Cancelled batches are already excluded (batchIds omit them). Exclude paused
   // batches' announcements scheduled after their cutoff.

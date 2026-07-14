@@ -1,4 +1,10 @@
-import { createContext, useCallback, useContext, useMemo, useState } from 'react'
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useMemo,
+  useState,
+} from 'react'
 
 /**
  * Every modal the app can show, by name. Add new modals here — the central
@@ -30,11 +36,17 @@ export function ModalProvider({ children }: { children: React.ReactNode }) {
 
   const openModal = useCallback((name: ModalName) => {
     // Move to the top (dedupe) so re-opening an already-stacked modal surfaces it.
-    setStack((prev) => (prev[prev.length - 1] === name ? prev : [...prev.filter((n) => n !== name), name]))
+    setStack((prev) =>
+      prev[prev.length - 1] === name
+        ? prev
+        : [...prev.filter((n) => n !== name), name],
+    )
   }, [])
 
   const closeModal = useCallback((name?: ModalName) => {
-    setStack((prev) => (name ? prev.filter((n) => n !== name) : prev.slice(0, -1)))
+    setStack((prev) =>
+      name ? prev.filter((n) => n !== name) : prev.slice(0, -1),
+    )
   }, [])
 
   const value = useMemo<ModalContextValue>(

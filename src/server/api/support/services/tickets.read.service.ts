@@ -42,13 +42,18 @@ export const TICKETS_PAGE_SIZE = PAGE_SIZE
 /** WHERE conditions for a tab (shared by list + count). */
 function tabConditions(userId: number, tab: TicketTab) {
   const conditions = [eq(tickets.userId, userId)]
-  if (tab === 'unresolved') conditions.push(inArray(tickets.status, UNRESOLVED_STATUSES))
-  if (tab === 'resolved') conditions.push(inArray(tickets.status, RESOLVED_STATUSES))
+  if (tab === 'unresolved')
+    conditions.push(inArray(tickets.status, UNRESOLVED_STATUSES))
+  if (tab === 'resolved')
+    conditions.push(inArray(tickets.status, RESOLVED_STATUSES))
   return conditions
 }
 
 /** Total tickets for a tab (for pagination). */
-export async function countTickets(userId: number, tab: TicketTab): Promise<number> {
+export async function countTickets(
+  userId: number,
+  tab: TicketTab,
+): Promise<number> {
   const [row] = await db
     .select({ count: sql<number>`count(*)` })
     .from(tickets)
@@ -165,7 +170,9 @@ export async function getTicketThread(input: {
     })
     .from(tickets)
     .innerJoin(users, eq(users.id, tickets.userId))
-    .where(and(eq(tickets.id, input.ticketId), eq(tickets.userId, input.userId)))
+    .where(
+      and(eq(tickets.id, input.ticketId), eq(tickets.userId, input.userId)),
+    )
 
   if (rows.length === 0) throw new Error('SUPPORT_TICKET_NOT_FOUND')
   const row = rows[0]
@@ -227,10 +234,15 @@ export async function getTicketThread(input: {
     subCategory,
     status,
     rating: row.rating,
-    tatHours: typeof row.data?.categoryTat === 'number' ? row.data.categoryTat : null,
+    tatHours:
+      typeof row.data?.categoryTat === 'number' ? row.data.categoryTat : null,
     createdAt: row.createdAt,
     batchId,
-    owner: toPerson({ id: row.ownerId, name: row.ownerName, profilePhotoPath: row.ownerPhoto }),
+    owner: toPerson({
+      id: row.ownerId,
+      name: row.ownerName,
+      profilePhotoPath: row.ownerPhoto,
+    }),
   }
 
   return {
@@ -255,14 +267,19 @@ function buildStatusResponse(
     case 'resolved':
       return {
         heading: 'Marked as resolved',
-        message: 'If this didn’t fully solve it, you can reopen or escalate below.',
+        message:
+          'If this didn’t fully solve it, you can reopen or escalate below.',
       }
     case 'closed':
-      return { heading: 'Ticket closed', message: 'Need more help? Reopen or escalate below.' }
+      return {
+        heading: 'Ticket closed',
+        message: 'Need more help? Reopen or escalate below.',
+      }
     case 'automatic':
       return {
         heading: 'Resolved automatically',
-        message: 'This was answered automatically. Reopen if you still need help.',
+        message:
+          'This was answered automatically. Reopen if you still need help.',
       }
     default:
       return null

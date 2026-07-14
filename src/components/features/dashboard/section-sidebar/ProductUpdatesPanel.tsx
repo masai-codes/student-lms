@@ -67,20 +67,20 @@ function ProductUpdateRow({
       }
       data-testid={`dashboard-product-update-item-${update.id}`}
       style={{ '--dash-delay': `${index * 0.05}s` } as React.CSSProperties}
-      className="dash-lift animate-dash-row-in group flex items-center gap-3 rounded-xl border border-gray-200 p-3.5 no-underline hover:border-[#6962AC]/40"
+      className="dash-lift animate-dash-row-in group flex items-center gap-3 rounded-xl border border-border p-3.5 no-underline hover:border-brand/40"
     >
       <SealCheck
         size={22}
         weight="fill"
-        className="shrink-0 text-[#6962AC] transition-transform duration-300 ease-out group-hover:scale-110 group-hover:rotate-12"
+        className="shrink-0 text-brand transition-transform duration-300 ease-out group-hover:scale-110 group-hover:rotate-12"
       />
-      <span className="min-w-0 flex-1 text-sm font-semibold text-gray-900">
+      <span className="min-w-0 flex-1 text-sm font-semibold text-foreground">
         {update.title}
       </span>
       <CaretRight
         size={16}
         weight="bold"
-        className="shrink-0 text-gray-400 transition-all duration-200 ease-out group-hover:translate-x-1 group-hover:text-[#6962AC]"
+        className="shrink-0 text-foreground-subtle transition-all duration-200 ease-out group-hover:translate-x-1 group-hover:text-brand"
       />
     </Link>
   )

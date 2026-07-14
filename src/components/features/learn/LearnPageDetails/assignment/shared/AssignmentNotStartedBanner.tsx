@@ -17,7 +17,9 @@ function formatUnlockScheduleLabel(schedule: string | null): string {
   return formatSqlDate(schedule)
 }
 
-export function AssignmentNotStartedBanner({ detail }: AssignmentNotStartedBannerProps) {
+export function AssignmentNotStartedBanner({
+  detail,
+}: AssignmentNotStartedBannerProps) {
   const copy = getAssignmentNotStartedBannerCopy(detail.assignmentKind)
   const scheduleLabel = formatUnlockScheduleLabel(detail.schedule)
 
@@ -27,7 +29,7 @@ export function AssignmentNotStartedBanner({ detail }: AssignmentNotStartedBanne
       testId="assignment-not-started-banner"
     >
       {copy.description}{' '}
-      <span className="type-b2-md text-gray-900">{scheduleLabel}</span>
+      <span className="type-b2-md text-foreground">{scheduleLabel}</span>
     </LearnDetailFullWidthBanner>
   )
 }

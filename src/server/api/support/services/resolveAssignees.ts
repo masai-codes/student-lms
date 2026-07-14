@@ -34,9 +34,7 @@ export type AssigneeLadder = Partial<Record<EscalationLevel, number>>
 const DISCUSSION_CATEGORIES = new Set(['assignment', 'evaluation'])
 
 /** Pick the discussion vs ops track for a category. */
-export function trackForCategory(
-  category: string,
-): 'discussionPC' | 'opsPC' {
+export function trackForCategory(category: string): 'discussionPC' | 'opsPC' {
   return DISCUSSION_CATEGORIES.has(category.toLowerCase())
     ? 'discussionPC'
     : 'opsPC'

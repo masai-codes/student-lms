@@ -12,7 +12,11 @@
 export const RESERVED_AGREEMENT_KEYS = new Set(['shouldModalBeVisible'])
 
 /** Fallback ordering when steps have no explicit `order` (legacy). */
-export const DEFAULT_AGREEMENT_ORDER = ['program_agreement', 'grading_policy', 'posh_compliance']
+export const DEFAULT_AGREEMENT_ORDER = [
+  'program_agreement',
+  'grading_policy',
+  'posh_compliance',
+]
 
 /**
  * Days a learner has to review + sign an agreement after first viewing it,
@@ -45,11 +49,18 @@ export interface AgreementCountdown {
   isClosable: boolean
 }
 
-export function computeAgreementCountdown(viewTime: string | null): AgreementCountdown {
+export function computeAgreementCountdown(
+  viewTime: string | null,
+): AgreementCountdown {
   // Never viewed → the full window hasn't started; show it in days.
   const viewed = viewTime ? new Date(viewTime).getTime() : NaN
   if (!viewTime || Number.isNaN(viewed)) {
-    return { daysSinceFirstView: 0, daysLeft: AGREEMENT_REVIEW_DAYS, hoursLeft: null, isClosable: true }
+    return {
+      daysSinceFirstView: 0,
+      daysLeft: AGREEMENT_REVIEW_DAYS,
+      hoursLeft: null,
+      isClosable: true,
+    }
   }
 
   const now = istNow().getTime()
@@ -58,13 +69,28 @@ export function computeAgreementCountdown(viewTime: string | null): AgreementCou
 
   // Window elapsed → paused, no countdown.
   if (remainingMs <= 0) {
-    return { daysSinceFirstView, daysLeft: 0, hoursLeft: null, isClosable: false }
+    return {
+      daysSinceFirstView,
+      daysLeft: 0,
+      hoursLeft: null,
+      isClosable: false,
+    }
   }
   // A full day or more left → count in days; otherwise switch to hours (min 1).
   if (remainingMs >= DAY_MS) {
-    return { daysSinceFirstView, daysLeft: Math.ceil(remainingMs / DAY_MS), hoursLeft: null, isClosable: true }
+    return {
+      daysSinceFirstView,
+      daysLeft: Math.ceil(remainingMs / DAY_MS),
+      hoursLeft: null,
+      isClosable: true,
+    }
   }
-  return { daysSinceFirstView, daysLeft: 0, hoursLeft: Math.max(1, Math.ceil(remainingMs / HOUR_MS)), isClosable: true }
+  return {
+    daysSinceFirstView,
+    daysLeft: 0,
+    hoursLeft: Math.max(1, Math.ceil(remainingMs / HOUR_MS)),
+    isClosable: true,
+  }
 }
 
 /** Logo drawn on the generated signature-certificate page (same asset as the old LMS). */
@@ -77,7 +103,10 @@ export function sectionAgreementKey(sectionId: number): string {
 }
 
 /** Reference number stamped on the certificate — `TC-<userId>-section_<id>` (old LMS format). */
-export function buildReferenceNumber(userId: number, sectionId: number): string {
+export function buildReferenceNumber(
+  userId: number,
+  sectionId: number,
+): string {
   return `TC-${userId}-${sectionAgreementKey(sectionId)}`
 }
 
@@ -95,18 +124,35 @@ export interface AgreementStepDoc {
 
 /** The detail form fields collected for an agreement (all stored as strings). */
 export const AGREEMENT_FORM_FIELDS = [
-  'name', 'address', 'location', 'dateOfBirth', 'gender',
-  'parentsName', 'parentsEmail', 'parentsMobileCountry', 'parentsMobile',
-  'currentStatus', 'studyYear', 'workDomain', 'educationDetails',
-  'graduationYear', 'collegeName', 'companyName', 'workExperience', 'ctc',
-  'panNumber', 'passportNumber',
+  'name',
+  'address',
+  'location',
+  'dateOfBirth',
+  'gender',
+  'parentsName',
+  'parentsEmail',
+  'parentsMobileCountry',
+  'parentsMobile',
+  'currentStatus',
+  'studyYear',
+  'workDomain',
+  'educationDetails',
+  'graduationYear',
+  'collegeName',
+  'companyName',
+  'workExperience',
+  'ctc',
+  'panNumber',
+  'passportNumber',
 ] as const
 
 export type AgreementFieldKey = (typeof AGREEMENT_FORM_FIELDS)[number]
 export type AgreementFormValues = Partial<Record<AgreementFieldKey, string>>
 
 /** Whitelists an arbitrary object down to the known agreement form fields (as strings). */
-export function pickAgreementFormValues(source: Record<string, unknown>): AgreementFormValues {
+export function pickAgreementFormValues(
+  source: Record<string, unknown>,
+): AgreementFormValues {
   const out: AgreementFormValues = {}
   for (const key of AGREEMENT_FORM_FIELDS) {
     const v = source[key]
@@ -115,13 +161,21 @@ export function pickAgreementFormValues(source: Record<string, unknown>): Agreem
   return out
 }
 
-function isSignableDoc(value: unknown): value is { heading: string; pdfUrl: string; order?: unknown; hidePolicy?: unknown } {
+function isSignableDoc(value: unknown): value is {
+  heading: string
+  pdfUrl: string
+  order?: unknown
+  hidePolicy?: unknown
+} {
   if (!value || typeof value !== 'object') return false
   const v = value as Record<string, unknown>
   return (
-    typeof v.heading === 'string' && v.heading.trim() !== '' &&
-    typeof v.pdfUrl === 'string' && v.pdfUrl.trim() !== '' &&
-    v.hidePolicy !== true && v.hidePolicy !== 'true'
+    typeof v.heading === 'string' &&
+    v.heading.trim() !== '' &&
+    typeof v.pdfUrl === 'string' &&
+    v.pdfUrl.trim() !== '' &&
+    v.hidePolicy !== true &&
+    v.hidePolicy !== 'true'
   )
 }
 
@@ -131,12 +185,19 @@ function isSignableDoc(value: unknown): value is { heading: string; pdfUrl: stri
  * unordered ones; unordered fall back to {@link DEFAULT_AGREEMENT_ORDER} then
  * insertion order (matches the old LMS).
  */
-export function buildAgreementSteps(agreementsJson: Record<string, unknown>): Array<AgreementStepDoc> {
+export function buildAgreementSteps(
+  agreementsJson: Record<string, unknown>,
+): Array<AgreementStepDoc> {
   const docs: Array<AgreementStepDoc> = []
   for (const [key, value] of Object.entries(agreementsJson)) {
     if (RESERVED_AGREEMENT_KEYS.has(key) || !isSignableDoc(value)) continue
     const rawOrder = Number((value as { order?: unknown }).order)
-    docs.push({ key, heading: value.heading, pdfUrl: value.pdfUrl, order: Number.isFinite(rawOrder) ? rawOrder : null })
+    docs.push({
+      key,
+      heading: value.heading,
+      pdfUrl: value.pdfUrl,
+      order: Number.isFinite(rawOrder) ? rawOrder : null,
+    })
   }
 
   return docs.sort((a, b) => {
@@ -153,6 +214,10 @@ export function buildAgreementSteps(agreementsJson: Record<string, unknown>): Ar
 }
 
 /** Whether the agreement config marks a section as having any signable doc. */
-export function hasSignableAgreement(agreementsJson: Record<string, unknown> | null): boolean {
-  return agreementsJson !== null && buildAgreementSteps(agreementsJson).length > 0
+export function hasSignableAgreement(
+  agreementsJson: Record<string, unknown> | null,
+): boolean {
+  return (
+    agreementsJson !== null && buildAgreementSteps(agreementsJson).length > 0
+  )
 }

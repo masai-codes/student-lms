@@ -114,7 +114,7 @@ export function LectureAiChatFeedbackBanner({
           <div
             className={cn(
               'mt-1 text-right text-xs text-muted-foreground',
-              feedback.length > 450 && 'text-red-500',
+              feedback.length > 450 && 'text-danger',
             )}
           >
             {feedback.length}/{FEEDBACK_MAX_LENGTH}
@@ -123,7 +123,7 @@ export function LectureAiChatFeedbackBanner({
       ) : null}
 
       {submitError ? (
-        <p className="mt-2 text-xs text-red-500">{submitError}</p>
+        <p className="mt-2 text-xs text-danger">{submitError}</p>
       ) : null}
 
       {rating != null ? (
@@ -133,8 +133,7 @@ export function LectureAiChatFeedbackBanner({
             aria-label="Submit feedback"
             onClick={() => onSubmit(rating, feedback)}
             disabled={isSubmitting}
-            className="flex items-center justify-center gap-2 rounded-[14px] px-4 py-1.5 text-sm font-medium text-white transition-opacity disabled:opacity-50"
-            style={{ background: '#6962AC' }}
+            className="flex items-center justify-center gap-2 rounded-[14px] bg-brand px-4 py-1.5 text-sm font-medium text-brand-foreground transition-opacity disabled:opacity-50"
           >
             {isSubmitting ? <Loader2 className="size-4 animate-spin" /> : null}
             Submit

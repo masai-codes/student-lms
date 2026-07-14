@@ -21,7 +21,7 @@ export function LearnDetailTitleRow({
     <section className="flex flex-col gap-4 justify-between sm:flex-row sm:items-start">
       <h1
         className={cn(
-          'type-h4 max-w-[min(100%,48rem)] min-w-0 pr-4 text-gray-900',
+          'type-h4 max-w-[min(100%,48rem)] min-w-0 pr-4 text-foreground',
           titleClassName,
         )}
       >

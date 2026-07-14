@@ -62,9 +62,13 @@ export function MarkdownComposer({
   React.useEffect(() => setMounted(true), [])
 
   const handleChange = (next?: string) => {
-    const wordCount = next ? next.split(/\s+/).filter((w) => w.length > 0).length : 0
+    const wordCount = next
+      ? next.split(/\s+/).filter((w) => w.length > 0).length
+      : 0
     if (wordCount > WORD_LIMIT) {
-      toast.error(`Word limit exceeded! You can only enter up to ${WORD_LIMIT} words.`)
+      toast.error(
+        `Word limit exceeded! You can only enter up to ${WORD_LIMIT} words.`,
+      )
       return
     }
     onChange(next ?? '')
@@ -72,7 +76,10 @@ export function MarkdownComposer({
 
   return (
     <div
-      className={cn('w-full overflow-hidden rounded-xl border border-gray-200 bg-white', className)}
+      className={cn(
+        'w-full overflow-hidden rounded-xl border border-border bg-surface',
+        className,
+      )}
       data-color-mode="light"
     >
       {mounted ? (
@@ -94,7 +101,7 @@ export function MarkdownComposer({
           onChange={(e) => handleChange(e.target.value)}
           placeholder={placeholder ?? 'Type message here'}
           style={{ height }}
-          className="w-full resize-none p-3 font-poppins text-[14px] text-gray-800 outline-none"
+          className="w-full resize-none p-3 font-poppins text-[14px] text-foreground outline-none"
         />
       )}
     </div>

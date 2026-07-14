@@ -23,7 +23,12 @@ function normalizeRows(result: unknown): Array<RawRow> {
     if (Array.isArray(first)) return first as Array<RawRow>
     return result as Array<RawRow>
   }
-  if (result && typeof result === 'object' && 'rows' in result && Array.isArray((result as Record<string, unknown>)['rows'])) {
+  if (
+    result &&
+    typeof result === 'object' &&
+    'rows' in result &&
+    Array.isArray((result as Record<string, unknown>)['rows'])
+  ) {
     return (result as { rows: Array<RawRow> }).rows
   }
   return []
@@ -44,7 +49,9 @@ const PRIORITY: Record<NavbarPillEventType, number> = {
  * - Events longer than 24h are excluded
  * - Tiebreaker: not-yet-started first, then soonest schedule
  */
-export async function getNavbarPillEvent(userId: number): Promise<NavbarPillEvent | null> {
+export async function getNavbarPillEvent(
+  userId: number,
+): Promise<NavbarPillEvent | null> {
   const batchIds = await getBatchIdsForEnrolledUser(userId)
   if (batchIds.length === 0) return null
 
@@ -52,7 +59,10 @@ export async function getNavbarPillEvent(userId: number): Promise<NavbarPillEven
   if (sectionIds.length === 0) return null
 
   const batchIdList = batchIds.map(Number).filter(Number.isFinite).join(', ')
-  const sectionIdList = sectionIds.map(Number).filter(Number.isFinite).join(', ')
+  const sectionIdList = sectionIds
+    .map(Number)
+    .filter(Number.isFinite)
+    .join(', ')
 
   // Query 1: live/scrum lectures
   const lectureRows = normalizeRows(
@@ -69,7 +79,7 @@ export async function getNavbarPillEvent(userId: number): Promise<NavbarPillEven
         AND schedule IS NOT NULL
         AND concludes IS NOT NULL
         AND deleted_at IS NULL
-    `)
+    `),
   )
 
   // Query 2: evaluation assignments
@@ -87,22 +97,30 @@ export async function getNavbarPillEvent(userId: number): Promise<NavbarPillEven
         AND schedule IS NOT NULL
         AND concludes IS NOT NULL
         AND deleted_at IS NULL
-    `)
+    `),
   )
 
   const now = Date.now()
   const FIVE_MINS = 5 * 60 * 1000
   const ONE_DAY = 24 * 60 * 60 * 1000
 
-  const allEvents: Array<NavbarPillEvent & { startMs: number; priority: number }> = []
+  const allEvents: Array<
+    NavbarPillEvent & { startMs: number; priority: number }
+  > = []
 
   for (const row of [...lectureRows, ...assignmentRows]) {
     const schedule = row.schedule ? String(row.schedule) : null
     const concludes = row.concludes ? String(row.concludes) : null
     if (!schedule || !concludes) continue
 
-    const startMs = new Date(schedule.includes('T') ? schedule : schedule.replace(' ', 'T') + '+05:30').getTime()
-    const endMs = new Date(concludes.includes('T') ? concludes : concludes.replace(' ', 'T') + '+05:30').getTime()
+    const startMs = new Date(
+      schedule.includes('T') ? schedule : schedule.replace(' ', 'T') + '+05:30',
+    ).getTime()
+    const endMs = new Date(
+      concludes.includes('T')
+        ? concludes
+        : concludes.replace(' ', 'T') + '+05:30',
+    ).getTime()
 
     // Exclude events longer than 24h
     if (endMs - startMs > ONE_DAY) continue

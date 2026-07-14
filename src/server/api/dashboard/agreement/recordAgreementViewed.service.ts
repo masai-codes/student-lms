@@ -14,11 +14,20 @@ function asRecord(raw: unknown): Record<string, unknown> {
  * or the agreement is already signed — it's left unchanged. Returns the
  * effective `viewTime` (ISO).
  */
-export async function recordAgreementViewed(userId: number, sectionId: number): Promise<{ viewTime: string }> {
+export async function recordAgreementViewed(
+  userId: number,
+  sectionId: number,
+): Promise<{ viewTime: string }> {
   const [enrolled] = await db
     .select({ id: sectionUser.id })
     .from(sectionUser)
-    .where(and(eq(sectionUser.userId, userId), eq(sectionUser.sectionId, sectionId), isNull(sectionUser.deletedAt)))
+    .where(
+      and(
+        eq(sectionUser.userId, userId),
+        eq(sectionUser.sectionId, sectionId),
+        isNull(sectionUser.deletedAt),
+      ),
+    )
     .limit(1)
   if (!enrolled) throw new ApiError(403, 'NOT_ENROLLED_IN_SECTION')
 
@@ -34,7 +43,8 @@ export async function recordAgreementViewed(userId: number, sectionId: number): 
   const agreements = asRecord(legalData['agreements'])
   const existing = asRecord(agreements[key])
 
-  const existingViewTime = typeof existing['viewTime'] === 'string' ? existing['viewTime'] : null
+  const existingViewTime =
+    typeof existing['viewTime'] === 'string' ? existing['viewTime'] : null
   // Don't reset the countdown once it's started or the agreement is signed.
   if (existingViewTime || existing['haveAcceptedLegalAgreement'] === true) {
     return { viewTime: existingViewTime ?? istNow().toISOString() }
@@ -43,7 +53,12 @@ export async function recordAgreementViewed(userId: number, sectionId: number): 
   const viewTime = istNow().toISOString()
   await db
     .update(profiles)
-    .set({ legalData: { ...legalData, agreements: { ...agreements, [key]: { ...existing, viewTime } } } })
+    .set({
+      legalData: {
+        ...legalData,
+        agreements: { ...agreements, [key]: { ...existing, viewTime } },
+      },
+    })
     .where(eq(profiles.id, profile.id))
 
   return { viewTime }

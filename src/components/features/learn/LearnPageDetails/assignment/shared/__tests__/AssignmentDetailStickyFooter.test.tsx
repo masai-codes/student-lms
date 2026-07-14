@@ -67,11 +67,12 @@ describe('AssignmentDetailStickyFooter', () => {
     )
 
     expect(screen.getByTestId('assignment-detail-sticky-footer')).toBeTruthy()
-    expect(screen.getByTestId('assignment-footer-status-chip').textContent).toContain(
-      'In Progress',
-    )
     expect(
-      screen.getByTestId('assignment-footer-action-start-assessment').textContent,
+      screen.getByTestId('assignment-footer-status-chip').textContent,
+    ).toContain('In Progress')
+    expect(
+      screen.getByTestId('assignment-footer-action-start-assessment')
+        .textContent,
     ).toContain('Start Assignment')
   })
 

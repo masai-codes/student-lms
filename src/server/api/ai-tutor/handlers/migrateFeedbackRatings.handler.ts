@@ -31,9 +31,9 @@ export async function handleMigrateFeedbackRatings(
 ): Promise<Response> {
   try {
     await requireAdminUserId()
-    const body = (await request.json().catch(() => null)) as
-      | MigrateFeedbackRatingsBody
-      | null
+    const body = (await request
+      .json()
+      .catch(() => null)) as MigrateFeedbackRatingsBody | null
     const dryRun = body?.dryRun === true
 
     const data = await migrateAiTutorFeedbackRatings({ dryRun })

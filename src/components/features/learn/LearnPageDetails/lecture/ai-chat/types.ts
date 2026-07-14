@@ -12,9 +12,4 @@ export type LectureChatMessage = {
 }
 
 export type AiTutorSessionState =
-  | 'idle'
-  | 'creating'
-  | 'connecting'
-  | 'connected'
-  | 'ending'
-  | 'error'
+  'idle' | 'creating' | 'connecting' | 'connected' | 'ending' | 'error'

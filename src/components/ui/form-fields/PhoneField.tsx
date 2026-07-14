@@ -51,12 +51,23 @@ export function PhoneField({
   'data-testid': dataTestId,
 }: PhoneFieldProps) {
   return (
-    <FieldShell htmlFor={id} label={label} required={required} error={error} hint={hint} data-testid={dataTestId}>
+    <FieldShell
+      htmlFor={id}
+      label={label}
+      required={required}
+      error={error}
+      hint={hint}
+      data-testid={dataTestId}
+    >
       <div className="flex gap-2">
-        <Select value={countryValue || undefined} onValueChange={onCountryChange} disabled={disabled}>
+        <Select
+          value={countryValue || undefined}
+          onValueChange={onCountryChange}
+          disabled={disabled}
+        >
           <SelectTrigger
             aria-label="Country code"
-            className={cn('w-28 shrink-0', error && 'border-red-500')}
+            className={cn('w-28 shrink-0', error && 'border-danger')}
             data-testid={dataTestId ? `${dataTestId}-country` : undefined}
           >
             <SelectValue placeholder="+" />
@@ -78,7 +89,10 @@ export function PhoneField({
           placeholder={placeholder}
           disabled={disabled}
           aria-invalid={error ? true : undefined}
-          className={cn('flex-1', error && 'border-red-500 focus-visible:ring-red-500/30')}
+          className={cn(
+            'flex-1',
+            error && 'border-danger focus-visible:ring-danger/30',
+          )}
           data-testid={dataTestId ? `${dataTestId}-input` : undefined}
         />
       </div>

@@ -5,7 +5,7 @@ import { LAYOUT_MAIN_PADDING_X, LAYOUT_MAX_WIDTH_CLASS } from '@/lib/layout'
 export function LearnPageSkeleton() {
   return (
     <div className="mt-[-24px] w-full">
-      <div className="ml-[calc(50%-50vw)] w-screen max-w-[100vw] overflow-x-clip rounded-b-[32px] bg-white">
+      <div className="ml-[calc(50%-50vw)] w-screen max-w-[100vw] overflow-x-clip rounded-b-[32px] bg-surface">
         <div
           className={`mx-auto w-full pt-[20px] ${LAYOUT_MAX_WIDTH_CLASS} ${LAYOUT_MAIN_PADDING_X}`}
         >

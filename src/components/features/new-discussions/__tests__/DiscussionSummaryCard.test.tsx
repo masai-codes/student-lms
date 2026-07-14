@@ -5,7 +5,9 @@ import { describe, expect, it } from 'vitest'
 import type { DiscussionListItem } from '@/server/learn/types'
 import { DiscussionSummaryCard } from '../DiscussionSummaryCard'
 
-function makeDiscussion(overrides: Partial<DiscussionListItem> = {}): DiscussionListItem {
+function makeDiscussion(
+  overrides: Partial<DiscussionListItem> = {},
+): DiscussionListItem {
   return {
     id: 1,
     title: 'How do React hooks work?',
@@ -26,10 +28,14 @@ function makeDiscussion(overrides: Partial<DiscussionListItem> = {}): Discussion
 describe('DiscussionSummaryCard', () => {
   it('shows an Ongoing tag for an open discussion', () => {
     const { container } = render(
-      <DiscussionSummaryCard discussion={makeDiscussion({ isClosed: false })} />,
+      <DiscussionSummaryCard
+        discussion={makeDiscussion({ isClosed: false })}
+      />,
     )
     const scope = within(container)
-    expect(scope.getByTestId('discussion-status-ongoing').textContent).toBe('Ongoing')
+    expect(scope.getByTestId('discussion-status-ongoing').textContent).toBe(
+      'Ongoing',
+    )
     expect(scope.queryByTestId('discussion-status-closed')).toBeNull()
   })
 
@@ -38,7 +44,9 @@ describe('DiscussionSummaryCard', () => {
       <DiscussionSummaryCard discussion={makeDiscussion({ isClosed: true })} />,
     )
     const scope = within(container)
-    expect(scope.getByTestId('discussion-status-closed').textContent).toBe('Closed')
+    expect(scope.getByTestId('discussion-status-closed').textContent).toBe(
+      'Closed',
+    )
     expect(scope.queryByTestId('discussion-status-ongoing')).toBeNull()
   })
 
@@ -58,17 +66,23 @@ describe('DiscussionSummaryCard', () => {
 
   it('shows the unread badge when there are unread replies', () => {
     const { container } = render(
-      <DiscussionSummaryCard discussion={makeDiscussion({ unreadReplyCount: 3 })} />,
+      <DiscussionSummaryCard
+        discussion={makeDiscussion({ unreadReplyCount: 3 })}
+      />,
     )
-    expect(within(container).getByTestId('discussion-unread-badge').textContent).toBe(
-      '3 new',
-    )
+    expect(
+      within(container).getByTestId('discussion-unread-badge').textContent,
+    ).toBe('3 new')
   })
 
   it('hides the unread badge when there are no unread replies', () => {
     const { container } = render(
-      <DiscussionSummaryCard discussion={makeDiscussion({ unreadReplyCount: 0 })} />,
+      <DiscussionSummaryCard
+        discussion={makeDiscussion({ unreadReplyCount: 0 })}
+      />,
     )
-    expect(within(container).queryByTestId('discussion-unread-badge')).toBeNull()
+    expect(
+      within(container).queryByTestId('discussion-unread-badge'),
+    ).toBeNull()
   })
 })

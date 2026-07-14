@@ -16,7 +16,9 @@ export function buildLectureAttendanceSummary(
   record: StudentAttendanceRow | null,
   nowMs: number,
 ): LectureAttendanceSummary {
-  const sectionSettings = parseSectionAttendanceSettings(context.sectionSettings)
+  const sectionSettings = parseSectionAttendanceSettings(
+    context.sectionSettings,
+  )
   const hasStudentAttendanceEntry = record != null
 
   const catchUpDaysFromRecord = Number(record?.catchUpDays)
@@ -28,17 +30,19 @@ export function buildLectureAttendanceSummary(
         : 0
 
   const includeVideoAttendance =
-    Boolean(record?.includeVideoAttendance) || sectionSettings.enableVideoAttendance
+    Boolean(record?.includeVideoAttendance) ||
+    sectionSettings.enableVideoAttendance
 
   const isAbsent = record != null ? record.status === 0 : true
-  const { daysRemaining, isCatchupWindowOver, remainingLabel } = computeCatchUpWindow({
-    schedule: context.schedule,
-    concludes: context.concludes,
-    catchUpDays,
-    includeVideoAttendance,
-    isAbsent,
-    nowMs,
-  })
+  const { daysRemaining, isCatchupWindowOver, remainingLabel } =
+    computeCatchUpWindow({
+      schedule: context.schedule,
+      concludes: context.concludes,
+      catchUpDays,
+      includeVideoAttendance,
+      isAbsent,
+      nowMs,
+    })
 
   const notApplicable = hasStudentAttendanceEntry
     ? readNotApplicable(record?.meta)

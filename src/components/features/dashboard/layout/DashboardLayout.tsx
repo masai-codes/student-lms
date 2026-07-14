@@ -59,7 +59,7 @@ export function DashboardLayout({
       <div
         data-testid="dashboard-content"
         className={cn(
-          'relative flex flex-col gap-6 overflow-hidden rounded-2xl bg-white px-4 py-6 md:px-6',
+          'relative flex flex-col gap-6 overflow-hidden rounded-2xl bg-surface px-4 py-6 md:px-6',
           // Square top so it meets the banner seamlessly when one is shown.
           showOnboardingBanner && 'rounded-t-none',
         )}

@@ -10,7 +10,6 @@ import type { CSSProperties } from 'react'
 
 import { cn } from '@/lib/utils'
 
-
 import './lectureAiChatPanelLoader.css'
 
 type LectureAiChatPanelLoaderProps = {
@@ -30,10 +29,7 @@ export function LectureAiChatPanelLoader({
   className,
 }: LectureAiChatPanelLoaderProps) {
   return (
-    <div
-      className={cn('lecture-chat-panel-loader', className)}
-      aria-hidden
-    >
+    <div className={cn('lecture-chat-panel-loader', className)} aria-hidden>
       <img
         src={lectureChatOpeningLoaderSrc(gif)}
         alt=""

@@ -3,7 +3,11 @@ import { eq } from 'drizzle-orm'
 import { db } from '@/db'
 import { assignments } from '@/db/schema'
 
-import { formatMysqlDate, formatMysqlDatetime, offsetFromNow } from '../utils/time'
+import {
+  formatMysqlDate,
+  formatMysqlDatetime,
+  offsetFromNow,
+} from '../utils/time'
 
 type AssignmentInsert = typeof assignments.$inferInsert
 type AssignmentSelect = typeof assignments.$inferSelect
@@ -18,8 +22,11 @@ export async function createAssignment(
     throw new Error('createAssignment requires userId, batchId, and sectionId')
   }
 
-  const schedule = overrides.schedule ?? formatMysqlDatetime(offsetFromNow({ minutesFromNow: 60 }))
-  const startDate = overrides.startDate ?? formatMysqlDate(offsetFromNow({ daysAgo: 0 }))
+  const schedule =
+    overrides.schedule ??
+    formatMysqlDatetime(offsetFromNow({ minutesFromNow: 60 }))
+  const startDate =
+    overrides.startDate ?? formatMysqlDate(offsetFromNow({ daysAgo: 0 }))
 
   const values: AssignmentInsert = {
     title: 'Practice Assignment',
@@ -41,7 +48,11 @@ export async function createAssignment(
   const [result] = await db.insert(assignments).values(values)
   const id = Number(result.insertId)
 
-  const [row] = await db.select().from(assignments).where(eq(assignments.id, id)).limit(1)
+  const [row] = await db
+    .select()
+    .from(assignments)
+    .where(eq(assignments.id, id))
+    .limit(1)
   if (!row) {
     throw new Error(`Failed to load assignment after insert (id=${id})`)
   }

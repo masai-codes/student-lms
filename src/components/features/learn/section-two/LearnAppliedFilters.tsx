@@ -46,8 +46,8 @@ export function LearnAppliedFilters({
               onChange(chip.next)
             }}
             aria-label={`Remove filter: ${chip.label}`}
-            backgroundClassName="bg-gray-50 border border-gray-200 hover:bg-gray-100 hover:border-[#4F6BED]/35"
-            textClassName="!text-gray-700"
+            backgroundClassName="bg-surface-muted border border-border hover:bg-surface-muted hover:border-brand/35"
+            textClassName="!text-foreground"
           />
         </span>
       ))}

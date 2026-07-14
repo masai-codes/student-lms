@@ -16,14 +16,23 @@ describe('signInReducer', () => {
   })
 
   it('ignores identifier_draft when not on identifier step', () => {
-    const emailState = signInReducer(initialSignInState, { type: 'identifier_draft', value: 'x@y.z' })
+    const emailState = signInReducer(initialSignInState, {
+      type: 'identifier_draft',
+      value: 'x@y.z',
+    })
     const after = signInReducer(emailState, { type: 'identifier_submit' })
-    const ignored = signInReducer(after, { type: 'identifier_draft', value: 'nope' })
+    const ignored = signInReducer(after, {
+      type: 'identifier_draft',
+      value: 'nope',
+    })
     expect(ignored).toEqual(after)
   })
 
   it('identifier_submit shows error for invalid input', () => {
-    const s = signInReducer({ step: 'identifier', draft: 'bad' }, { type: 'identifier_submit' })
+    const s = signInReducer(
+      { step: 'identifier', draft: 'bad' },
+      { type: 'identifier_submit' },
+    )
     expect(s.step).toBe('identifier')
     expect(s).toMatchObject({ error: expect.any(String) })
   })
@@ -44,8 +53,15 @@ describe('signInReducer', () => {
   })
 
   it('identifier_submit does not transition to phone (OTP is requested separately)', () => {
-    const s = signInReducer({ step: 'identifier', draft: '9988776655' }, { type: 'identifier_submit' })
-    expect(s).toEqual({ step: 'identifier', draft: '9988776655', error: undefined })
+    const s = signInReducer(
+      { step: 'identifier', draft: '9988776655' },
+      { type: 'identifier_submit' },
+    )
+    expect(s).toEqual({
+      step: 'identifier',
+      draft: '9988776655',
+      error: undefined,
+    })
   })
 
   it('phone_enter sets phone step', () => {
@@ -155,13 +171,19 @@ describe('signInReducer', () => {
   })
 
   it('email_set_error and phone_set_error only apply on matching step', () => {
-    const id = signInReducer(initialSignInState, { type: 'email_set_error', message: 'n' })
+    const id = signInReducer(initialSignInState, {
+      type: 'email_set_error',
+      message: 'n',
+    })
     expect(id).toEqual(initialSignInState)
     const email = signInReducer(
       { step: 'identifier', draft: 'a@b.c' },
       { type: 'identifier_submit' },
     )
-    const withErr = signInReducer(email, { type: 'email_set_error', message: 'bad' })
+    const withErr = signInReducer(email, {
+      type: 'email_set_error',
+      message: 'bad',
+    })
     expect(withErr).toMatchObject({ step: 'email', error: 'bad' })
   })
 
@@ -172,7 +194,11 @@ describe('signInReducer', () => {
     )
     if (s.step !== 'email') throw new Error('expected email')
     s = signInReducer(s, { type: 'email_go_forgot' })
-    expect(s).toMatchObject({ step: 'forgot', email: 'a@b.c', fromEmailSignIn: true })
+    expect(s).toMatchObject({
+      step: 'forgot',
+      email: 'a@b.c',
+      fromEmailSignIn: true,
+    })
     s = signInReducer(s, { type: 'forgot_back' })
     expect(s).toMatchObject({ step: 'email', email: 'a@b.c' })
   })

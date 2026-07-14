@@ -62,9 +62,7 @@ describe('checkAiTutorDailyLimit', () => {
   it('returns lastSessionHasFeedback=true when there are no sessions today', async () => {
     orderByMock.mockResolvedValueOnce([])
 
-    await expect(
-      checkAiTutorDailyLimit({ userId: 1 }),
-    ).resolves.toMatchObject({
+    await expect(checkAiTutorDailyLimit({ userId: 1 })).resolves.toMatchObject({
       todayCount: 0,
       canProceed: true,
       lastSessionHasFeedback: true,

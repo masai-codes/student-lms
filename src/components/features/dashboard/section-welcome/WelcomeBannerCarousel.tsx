@@ -80,7 +80,7 @@ export function WelcomeBannerCarousel({ banners }: WelcomeBannerCarouselProps) {
   return (
     <div
       data-testid="dashboard-welcome-banner-carousel"
-      className="dash-sheen relative rounded-2xl bg-gradient-to-r from-[#EBF3FE] via-[#EEF0FE] to-[#F3EDFE] px-12 py-5 ring-1 ring-inset ring-[#4F6BED]/10 transition-shadow duration-300 hover:shadow-[0_10px_28px_-10px_rgb(79_107_237_/_0.28)]"
+      className="dash-sheen relative rounded-2xl bg-gradient-to-r from-[#EBF3FE] via-[#EEF0FE] to-[#F3EDFE] px-12 py-5 ring-1 ring-inset ring-[#4F6BED]/10 transition-shadow duration-300 hover:shadow-[0_10px_28px_-10px_rgb(79_107_237_/_0.28)] dark:bg-none dark:bg-surface-muted"
     >
       {/* Arrows are anchored to this wrapper (the banner row) rather than the
           card, so they stay vertically centred on the content instead of being
@@ -177,7 +177,7 @@ function BannerLink({
       onClick={handleClick}
       className="group flex items-center gap-4 no-underline"
     >
-      <div className="flex size-11 shrink-0 items-center justify-center overflow-hidden rounded-full bg-white shadow-sm ring-1 ring-[#4F6BED]/10 transition-transform duration-300 ease-out group-hover:scale-110 group-hover:-rotate-6">
+      <div className="flex size-11 shrink-0 items-center justify-center overflow-hidden rounded-full bg-surface shadow-sm ring-1 ring-[#4F6BED]/10 transition-transform duration-300 ease-out group-hover:scale-110 group-hover:-rotate-6">
         <img
           src={banner.imageUrl ?? FALLBACK_ICON}
           alt=""
@@ -185,11 +185,11 @@ function BannerLink({
         />
       </div>
       <div className="min-w-0">
-        <h3 className="truncate text-sm font-bold text-gray-900 md:text-base">
+        <h3 className="truncate text-sm font-bold text-foreground md:text-base">
           {banner.title}
         </h3>
         {banner.description && (
-          <p className="mt-0.5 hidden truncate text-xs text-gray-600 md:block md:text-sm">
+          <p className="mt-0.5 hidden truncate text-xs text-foreground-muted md:block md:text-sm">
             {banner.description}
           </p>
         )}
@@ -218,7 +218,7 @@ function ArrowButton({
       data-testid={`dashboard-welcome-banner-${direction}`}
       disabled={disabled}
       onClick={onClick}
-      className={`absolute top-1/2 flex size-8 -translate-y-1/2 items-center justify-center rounded-full bg-white/70 text-gray-500 shadow-sm backdrop-blur-sm transition-all duration-200 hover:scale-110 hover:bg-white hover:text-[#3F83F8] hover:shadow-md active:scale-95 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:scale-100 disabled:hover:text-gray-500 ${
+      className={`absolute top-1/2 flex size-8 -translate-y-1/2 items-center justify-center rounded-full bg-surface/70 text-foreground-muted shadow-sm backdrop-blur-sm transition-all duration-200 hover:scale-110 hover:bg-surface hover:text-[#3F83F8] hover:shadow-md active:scale-95 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:scale-100 disabled:hover:text-foreground-muted ${
         isPrev ? '-left-10' : '-right-10'
       }`}
     >

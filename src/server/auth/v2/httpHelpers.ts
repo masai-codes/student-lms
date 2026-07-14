@@ -17,7 +17,11 @@ export function jsonResponse(body: unknown, init?: ResponseInit): Response {
   })
 }
 
-export function errorResponse(status: number, code: string, message: string): Response {
+export function errorResponse(
+  status: number,
+  code: string,
+  message: string,
+): Response {
   const body: ErrorBody = { error: { code, message } }
   // Remap CloudFront-intercepted statuses (403/404) so the JSON body survives.
   return jsonResponse(body, cloudFrontSafeResponseInit(status))

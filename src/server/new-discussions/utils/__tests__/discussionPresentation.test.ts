@@ -76,8 +76,14 @@ describe('discussionPresentation', () => {
   it('readFeedbackRating ignores malformed feedback', () => {
     expect(readFeedbackRating(null)).toBeNull()
     expect(readFeedbackRating({})).toBeNull()
-    expect(readFeedbackRating({ [DISCUSSION_FEEDBACK_DATA_KEY]: 'nope' })).toBeNull()
-    expect(readFeedbackRating({ [DISCUSSION_FEEDBACK_DATA_KEY]: { rating: 'x' } })).toBeNull()
-    expect(readFeedbackRating({ [DISCUSSION_FEEDBACK_DATA_KEY]: { rating: 5 } })).toBe(5)
+    expect(
+      readFeedbackRating({ [DISCUSSION_FEEDBACK_DATA_KEY]: 'nope' }),
+    ).toBeNull()
+    expect(
+      readFeedbackRating({ [DISCUSSION_FEEDBACK_DATA_KEY]: { rating: 'x' } }),
+    ).toBeNull()
+    expect(
+      readFeedbackRating({ [DISCUSSION_FEEDBACK_DATA_KEY]: { rating: 5 } }),
+    ).toBe(5)
   })
 })

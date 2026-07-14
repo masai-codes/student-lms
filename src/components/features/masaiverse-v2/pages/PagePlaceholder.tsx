@@ -17,9 +17,13 @@ export default function PagePlaceholder({
 }: PagePlaceholderProps) {
   return (
     <div>
-      <h2 className="text-[20px] font-bold leading-7 text-[#111827]">{title}</h2>
+      <h2 className="text-[20px] font-bold leading-7 text-foreground">
+        {title}
+      </h2>
       {description ? (
-        <p className="mt-1 text-[14px] leading-5 text-[#6B7280]">{description}</p>
+        <p className="mt-1 text-[14px] leading-5 text-foreground-muted">
+          {description}
+        </p>
       ) : null}
       {children}
     </div>

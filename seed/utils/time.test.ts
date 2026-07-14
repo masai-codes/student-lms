@@ -20,13 +20,17 @@ describe('offsetFromNow', () => {
   it('adds minutes from now', () => {
     const before = Date.now()
     const result = offsetFromNow({ minutesFromNow: 10 })
-    expect(result.getTime()).toBeGreaterThanOrEqual(before + 10 * 60 * 1000 - 100)
+    expect(result.getTime()).toBeGreaterThanOrEqual(
+      before + 10 * 60 * 1000 - 100,
+    )
   })
 })
 
 describe('formatMysqlDate', () => {
   it('formats the IST calendar date', () => {
-    expect(formatMysqlDate(new Date('2026-07-03T07:07:11.000Z'))).toBe('2026-07-03')
+    expect(formatMysqlDate(new Date('2026-07-03T07:07:11.000Z'))).toBe(
+      '2026-07-03',
+    )
   })
 })
 
@@ -46,7 +50,9 @@ describe('formatMysqlDatetime', () => {
 describe('addMinutes', () => {
   it('adds minutes to a date', () => {
     const start = new Date('2026-03-01T10:00:00.000Z')
-    expect(addMinutes(start, 120).toISOString()).toBe('2026-03-01T12:00:00.000Z')
+    expect(addMinutes(start, 120).toISOString()).toBe(
+      '2026-03-01T12:00:00.000Z',
+    )
   })
 })
 

@@ -40,6 +40,8 @@ describe('collectAssociatedNodeKeys', () => {
     const sparse: AssociationGraph = new Map([
       ['lecture:1', new Set(['lecture:2'])],
     ])
-    expect(collectAssociatedNodeKeys(sparse, 'lecture:1')).toEqual(['lecture:2'])
+    expect(collectAssociatedNodeKeys(sparse, 'lecture:1')).toEqual([
+      'lecture:2',
+    ])
   })
 })

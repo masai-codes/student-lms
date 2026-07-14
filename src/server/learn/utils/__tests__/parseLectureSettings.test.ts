@@ -53,7 +53,9 @@ describe('parseLectureSettings', () => {
   })
 
   it('reads show_feedback from settings object', () => {
-    expect(parseLectureSettings({ show_feedback: true }).showFeedback).toBe(true)
+    expect(parseLectureSettings({ show_feedback: true }).showFeedback).toBe(
+      true,
+    )
     expect(parseLectureSettings({ show_feedback: 1 }).showFeedback).toBe(true)
     expect(parseLectureSettings({ show_feedback: 0 }).showFeedback).toBe(false)
   })

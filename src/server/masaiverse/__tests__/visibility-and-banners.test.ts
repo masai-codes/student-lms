@@ -18,14 +18,18 @@ describe('masaiverse visibility', () => {
       // …then the batch-restrictions query (getUserBatchRestrictions).
       .mockReturnValueOnce(mockSelectWhereChain([]))
 
-    await expect(showMasaiversePageHandler({ data: { userId: 11 } })).resolves.toBe(false)
+    await expect(
+      showMasaiversePageHandler({ data: { userId: 11 } }),
+    ).resolves.toBe(false)
   })
 
   it('showMasaiversePage parses meta and returns true when enabled', async () => {
     const { showMasaiversePageHandler } = await import('../showMasaiversePage')
     mocks.dbSelect
       // getBatchIdsForEnrolledUser: section-enrollment query…
-      .mockReturnValueOnce(mockSelectInnerJoinWhereChain([{ batchId: 'batch-1' }]))
+      .mockReturnValueOnce(
+        mockSelectInnerJoinWhereChain([{ batchId: 'batch-1' }]),
+      )
       // …then the batch-restrictions query (getUserBatchRestrictions)…
       .mockReturnValueOnce(mockSelectWhereChain([]))
       // …then the batch-meta lookup.
@@ -36,6 +40,8 @@ describe('masaiverse visibility', () => {
         ]),
       )
 
-    await expect(showMasaiversePageHandler({ data: { userId: 11 } })).resolves.toBe(true)
+    await expect(
+      showMasaiversePageHandler({ data: { userId: 11 } }),
+    ).resolves.toBe(true)
   })
 })

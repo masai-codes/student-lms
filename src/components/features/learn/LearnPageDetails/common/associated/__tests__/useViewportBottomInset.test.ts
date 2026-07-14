@@ -29,7 +29,10 @@ describe('measureViewportBottomInset', () => {
   })
 
   it('returns viewport space below the element top edge', () => {
-    Object.defineProperty(window, 'innerHeight', { configurable: true, value: 800 })
+    Object.defineProperty(window, 'innerHeight', {
+      configurable: true,
+      value: 800,
+    })
     mountWithRect('footer', { top: 680, bottom: 800, height: 120 })
 
     expect(measureViewportBottomInset('[data-testid="chrome"]')).toBe(120)
@@ -41,7 +44,10 @@ describe('measureViewportBottomInset', () => {
 
   it('reserves nothing for a hidden (zero-height) element', () => {
     // e.g. the mobile tab bar under `lg:hidden` on desktop reports a 0x0 rect.
-    Object.defineProperty(window, 'innerHeight', { configurable: true, value: 800 })
+    Object.defineProperty(window, 'innerHeight', {
+      configurable: true,
+      value: 800,
+    })
     mountWithRect('nav', { top: 0, bottom: 0, height: 0 })
 
     expect(measureViewportBottomInset('[data-testid="chrome"]')).toBe(0)

@@ -32,7 +32,11 @@ export async function createSection(
   const [result] = await db.insert(sections).values(values)
   const id = Number(result.insertId)
 
-  const [row] = await db.select().from(sections).where(eq(sections.id, id)).limit(1)
+  const [row] = await db
+    .select()
+    .from(sections)
+    .where(eq(sections.id, id))
+    .limit(1)
   if (!row) {
     throw new Error(`Failed to load section after insert (id=${id})`)
   }

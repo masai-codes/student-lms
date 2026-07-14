@@ -34,5 +34,9 @@ export async function getProductUpdates(
     .limit(limit)
     .offset(offset)
 
-  return rows.map((row) => ({ id: row.id, title: row.title, imageUrl: row.image }))
+  return rows.map((row) => ({
+    id: row.id,
+    title: row.title,
+    imageUrl: row.image,
+  }))
 }

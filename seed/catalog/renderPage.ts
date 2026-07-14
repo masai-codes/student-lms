@@ -13,7 +13,8 @@ export type CatalogRenderInput = {
 export function renderCatalogHtml(input: CatalogRenderInput = {}): string {
   const flows = input.flows ?? listFlows()
   const seedState = input.seedState ?? readSeedState()
-  const secretLoginToken = input.secretLoginToken ?? process.env.SECRET_LOGIN_TOKEN ?? ''
+  const secretLoginToken =
+    input.secretLoginToken ?? process.env.SECRET_LOGIN_TOKEN ?? ''
 
   const flowItems = flows
     .map((flow) => renderFlowItem(flow, seedState, secretLoginToken))

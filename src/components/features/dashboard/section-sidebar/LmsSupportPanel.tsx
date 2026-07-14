@@ -49,8 +49,8 @@ export function LmsSupportPanel({
       data-status={status}
       className={`flex items-center gap-3 rounded-2xl border p-4 transition-shadow duration-300 ${
         isLive
-          ? 'dash-sheen border-[#C3DDFD] bg-gradient-to-r from-[#E1EFFE] to-[#E7ECFE] shadow-[0_6px_20px_-8px_rgb(63_131_248_/_0.35)]'
-          : 'border-[#E5E7EB] bg-[#F9FAFB] hover:shadow-sm'
+          ? 'dash-sheen border-[#C3DDFD] bg-gradient-to-r from-[#E1EFFE] to-[#E7ECFE] shadow-[0_6px_20px_-8px_rgb(63_131_248_/_0.35)] dark:border-info-subtle dark:bg-none dark:bg-info-subtle'
+          : 'border-border bg-surface-muted hover:shadow-sm'
       }`}
     >
       <img
@@ -60,20 +60,22 @@ export function LmsSupportPanel({
       />
 
       <div className="min-w-0 flex-1">
-        <h4 className="flex items-center gap-1.5 text-sm font-semibold text-gray-900">
+        <h4 className="flex items-center gap-1.5 text-sm font-semibold text-foreground">
           LMS Support Session
           {isLive && (
             <span aria-hidden className="relative flex size-2">
-              <span className="animate-dash-ping absolute inset-0 rounded-full bg-[#ED0331]" />
-              <span className="relative size-2 rounded-full bg-[#ED0331]" />
+              <span className="animate-dash-ping absolute inset-0 rounded-full bg-danger" />
+              <span className="relative size-2 rounded-full bg-danger" />
             </span>
           )}
         </h4>
-        <p className="mt-0.5 text-xs text-gray-600">{SUBTEXT[status]}</p>
+        <p className="mt-0.5 text-xs text-foreground-muted">
+          {SUBTEXT[status]}
+        </p>
         {!isLive && session.schedule && (
           <span
             data-testid="dashboard-support-session-time"
-            className="mt-1.5 inline-block rounded-md bg-[#FDF6B2] px-2 py-0.5 text-xs font-semibold text-gray-800"
+            className="mt-1.5 inline-block rounded-md bg-[#FDF6B2] px-2 py-0.5 text-xs font-semibold text-foreground dark:bg-warning-subtle dark:text-warning-subtle-foreground"
           >
             {formatTimestampLocal(session.schedule)}
           </span>

@@ -4,7 +4,10 @@ import { and, eq, gte, inArray } from 'drizzle-orm'
 import { db } from '@/db'
 import { otpCodes, users } from '@/db/schema'
 import { isUserDeactivated } from '@/server/restrictions/deactivatedUser'
-import { toEmailPortal, type EmailPortal } from '@/server/auth/v2/isRequestFromIHub'
+import {
+  toEmailPortal,
+  type EmailPortal,
+} from '@/server/auth/v2/isRequestFromIHub'
 import { mobileLookupCandidates } from '@/server/auth/v2/mobileLookup'
 import { sendOtpEmail } from '@/server/auth/v2/otpEmail'
 import { sendOtpSms } from '@/server/auth/v2/otpSms'
@@ -46,7 +49,10 @@ function isEmailIdentifier(value: string): boolean {
   return value.includes('@')
 }
 
-function pickPhoneChannel(portal: EmailPortal, isResend: boolean): 'sms' | 'whatsapp' {
+function pickPhoneChannel(
+  portal: EmailPortal,
+  isResend: boolean,
+): 'sms' | 'whatsapp' {
   if (portal === 'ihub') {
     return isResend ? 'sms' : 'whatsapp'
   }
@@ -78,7 +84,12 @@ async function assertSendAllowed(identifier: string): Promise<void> {
   const recent = await db
     .select({ expiresAt: otpCodes.expiresAt })
     .from(otpCodes)
-    .where(and(eq(otpCodes.identifier, identifier), gte(otpCodes.expiresAt, hourWindowCutoff)))
+    .where(
+      and(
+        eq(otpCodes.identifier, identifier),
+        gte(otpCodes.expiresAt, hourWindowCutoff),
+      ),
+    )
 
   if (recent.length >= HOURLY_CAP) {
     throw new SendOtpError(
@@ -87,7 +98,9 @@ async function assertSendAllowed(identifier: string): Promise<void> {
     )
   }
 
-  const lastMinuteCount = recent.filter((r) => r.expiresAt >= minuteWindowCutoff).length
+  const lastMinuteCount = recent.filter(
+    (r) => r.expiresAt >= minuteWindowCutoff,
+  ).length
   if (lastMinuteCount >= PER_MINUTE_CAP) {
     throw new SendOtpError(
       'RATE_LIMITED',
@@ -107,7 +120,9 @@ async function persistOtp({
 }): Promise<string> {
   const sessionId = randomUUID()
   const otpHash = await hash(otp, BCRYPT_COST)
-  const expiresAt = toMysqlDatetime(new Date(Date.now() + OTP_TTL_MINUTES * 60 * 1000))
+  const expiresAt = toMysqlDatetime(
+    new Date(Date.now() + OTP_TTL_MINUTES * 60 * 1000),
+  )
 
   await db.insert(otpCodes).values({
     sessionId,
@@ -179,7 +194,8 @@ export async function sendOtp({
   }
 
   const preferredChannel = pickPhoneChannel(portal, isResend === true)
-  const fallbackChannel: 'sms' | 'whatsapp' = preferredChannel === 'sms' ? 'whatsapp' : 'sms'
+  const fallbackChannel: 'sms' | 'whatsapp' =
+    preferredChannel === 'sms' ? 'whatsapp' : 'sms'
   const targetMobile = user.mobile ?? normalized
 
   const otp = generateOtp()

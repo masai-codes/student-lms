@@ -17,7 +17,12 @@ function club(
     aboutDetails: [],
     learningTenureDateText: '20-26 June',
     learningTenure: [
-      { emoji: '⚡', heading: 'Heading 1', text: 'Text 1', tags: ['12 sessions'] },
+      {
+        emoji: '⚡',
+        heading: 'Heading 1',
+        text: 'Text 1',
+        tags: ['12 sessions'],
+      },
       { emoji: null, heading: 'Heading 2', text: null, tags: [] },
     ],
     galleryImages: [],
@@ -49,7 +54,9 @@ describe('LearningTenureSection', () => {
   })
 
   it('omits the date pill when there is no date text', () => {
-    render(<LearningTenureSection club={club({ learningTenureDateText: null })} />)
+    render(
+      <LearningTenureSection club={club({ learningTenureDateText: null })} />,
+    )
     expect(screen.getByText('Learning Tenure')).toBeTruthy()
     expect(screen.queryByText('20-26 June')).toBeNull()
   })

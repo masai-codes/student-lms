@@ -92,11 +92,11 @@ export function LectureDiscussionsSection({
         className,
       )}
     >
-      <h2 className="type-h4 animate-dash-rise mb-2 text-gray-900">
+      <h2 className="type-h4 animate-dash-rise mb-2 text-foreground">
         Discussions
       </h2>
       <p
-        className="type-b3-regular animate-dash-rise mb-4 text-gray-500"
+        className="type-b3-regular animate-dash-rise mb-4 text-foreground-muted"
         style={{ '--dash-delay': '0.05s' } as CSSProperties}
       >
         Share course-related discussions with your peers.

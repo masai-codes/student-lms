@@ -19,17 +19,17 @@
 
 ## Test files
 
-| Area | File |
-|------|------|
-| Problem + solution queries | `src/server/learn/queries/__tests__/fetchProblemDetail.test.ts` |
-| Problem detail payload builder | `src/server/learn/utils/__tests__/buildProblemDetailPayload.test.ts` |
-| GET handler | `src/server/api/learn/handlers/__tests__/getProblemDetail.handler.test.ts` |
-| Submit-solution service | `src/server/assignments/services/__tests__/submitSolution.service.test.ts` |
-| Submit/upload handlers | `src/server/api/learn/handlers/__tests__/solutionSubmissionActions.handler.test.ts` |
-| URL validation | `src/lib/learn/isValidSubmissionUrl.test.ts` |
-| Solution form UI | `src/components/features/learn/LearnPageDetails/problem/__tests__/ProblemSolutionForm.test.tsx` |
-| Page UI | `src/components/features/learn/LearnPageDetails/problem/__tests__/ProblemDetailPage.test.tsx` |
-| Problems list link-out | `src/components/features/learn/LearnPageDetails/assignment/shared/__tests__/AssignmentProblemList.test.tsx` |
+| Area                           | File                                                                                                        |
+| ------------------------------ | ----------------------------------------------------------------------------------------------------------- |
+| Problem + solution queries     | `src/server/learn/queries/__tests__/fetchProblemDetail.test.ts`                                             |
+| Problem detail payload builder | `src/server/learn/utils/__tests__/buildProblemDetailPayload.test.ts`                                        |
+| GET handler                    | `src/server/api/learn/handlers/__tests__/getProblemDetail.handler.test.ts`                                  |
+| Submit-solution service        | `src/server/assignments/services/__tests__/submitSolution.service.test.ts`                                  |
+| Submit/upload handlers         | `src/server/api/learn/handlers/__tests__/solutionSubmissionActions.handler.test.ts`                         |
+| URL validation                 | `src/lib/learn/isValidSubmissionUrl.test.ts`                                                                |
+| Solution form UI               | `src/components/features/learn/LearnPageDetails/problem/__tests__/ProblemSolutionForm.test.tsx`             |
+| Page UI                        | `src/components/features/learn/LearnPageDetails/problem/__tests__/ProblemDetailPage.test.tsx`               |
+| Problems list link-out         | `src/components/features/learn/LearnPageDetails/assignment/shared/__tests__/AssignmentProblemList.test.tsx` |
 
 ## Commands
 

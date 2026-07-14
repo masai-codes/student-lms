@@ -41,7 +41,7 @@ export default function ClubDetailBanner({ club }: ClubDetailBannerProps) {
 
       <div className="relative flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between sm:gap-6">
         <div className="flex min-w-0 items-start gap-4 sm:gap-5">
-          <span className="flex size-16 shrink-0 items-center justify-center overflow-hidden rounded-[16px] bg-masaiverse-orange sm:size-[72px]">
+          <span className="flex size-16 shrink-0 items-center justify-center overflow-hidden rounded-[16px] bg-accent-warm sm:size-[72px]">
             {club.imageUrl ? (
               <img
                 src={club.imageUrl}
@@ -49,7 +49,7 @@ export default function ClubDetailBanner({ club }: ClubDetailBannerProps) {
                 className="size-full object-cover"
               />
             ) : (
-              <span className="text-[24px] font-bold text-white">
+              <span className="text-[24px] font-bold text-accent-warm-foreground">
                 {getInitials(club.name)}
               </span>
             )}
@@ -72,8 +72,8 @@ export default function ClubDetailBanner({ club }: ClubDetailBannerProps) {
                     key={`${pill.label}-${index}`}
                     className={`rounded-full px-3.5 py-1.5 text-[13px] font-semibold ${
                       pill.accent
-                        ? 'bg-masaiverse-orange/20 text-masaiverse-orange'
-                        : 'bg-white/[0.07] text-white/70'
+                        ? 'bg-accent-warm/20 text-accent-warm'
+                        : 'bg-surface/[0.07] text-white/70'
                     }`}
                   >
                     {pill.label}

@@ -34,8 +34,8 @@ export function AttendanceBreakdownContent({
         <span
           className={
             isPresent
-              ? 'inline-flex items-center rounded-full bg-emerald-100 px-2 py-0.5 type-t1 font-medium text-emerald-700'
-              : 'inline-flex items-center rounded-full bg-rose-100 px-2 py-0.5 type-t1 font-medium text-rose-600'
+              ? 'inline-flex items-center rounded-full bg-success-subtle px-2 py-0.5 type-t1 font-medium text-success-subtle-foreground'
+              : 'inline-flex items-center rounded-full bg-danger-subtle px-2 py-0.5 type-t1 font-medium text-danger-subtle-foreground'
           }
         >
           Overall - {isPresent ? 'Present' : 'Absent'}

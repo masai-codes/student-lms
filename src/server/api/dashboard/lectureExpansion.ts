@@ -35,7 +35,9 @@ function firstVideoUrl(videos: string | Array<string> | null): string | null {
   return null
 }
 
-export function expandLectures(rows: Array<LectureRow>): Array<T0FlowLectureItem> {
+export function expandLectures(
+  rows: Array<LectureRow>,
+): Array<T0FlowLectureItem> {
   const items: Array<T0FlowLectureItem> = []
   for (const row of rows) {
     // Prefer the recorded video; fall back to the `zoom_link` backup column.
@@ -43,7 +45,10 @@ export function expandLectures(rows: Array<LectureRow>): Array<T0FlowLectureItem
     // `zoom_link` and leave `videos` empty — without this fallback they were
     // dropped from the tour even though the progress denominator still counts
     // them, so the modal showed fewer lectures than the "n/m" total.
-    const zoomBackup = typeof row.zoom_link === 'string' && row.zoom_link.trim() !== '' ? row.zoom_link.trim() : null
+    const zoomBackup =
+      typeof row.zoom_link === 'string' && row.zoom_link.trim() !== ''
+        ? row.zoom_link.trim()
+        : null
     const videoUrl = firstVideoUrl(row.videos) ?? zoomBackup
     if (videoUrl === null) continue
 

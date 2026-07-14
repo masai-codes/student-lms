@@ -52,15 +52,29 @@ export function GuidedTourActivePanel({
   // pinned Back/Continue), so it skips the generic title + padded wrapper.
   if (step.action === 'agreement') {
     return (
-      <div className="flex h-full min-h-0 min-w-0 flex-col" data-testid="guided-tour-active-panel">
-        <GuidedTourStepPanel step={step} batchId={batchId} profilePhotoUrl={profilePhotoUrl} onCompleted={onReported} />
+      <div
+        className="flex h-full min-h-0 min-w-0 flex-col"
+        data-testid="guided-tour-active-panel"
+      >
+        <GuidedTourStepPanel
+          step={step}
+          batchId={batchId}
+          profilePhotoUrl={profilePhotoUrl}
+          onCompleted={onReported}
+        />
       </div>
     )
   }
 
   return (
-    <div className="flex h-full w-full min-w-0 flex-col" data-testid="guided-tour-active-panel">
-      <h2 className="shrink-0 px-4 pt-4 text-center text-base font-semibold text-gray-900 md:px-6 md:pt-6 md:text-lg" data-testid="guided-tour-active-title">
+    <div
+      className="flex h-full w-full min-w-0 flex-col"
+      data-testid="guided-tour-active-panel"
+    >
+      <h2
+        className="shrink-0 px-4 pt-4 text-center text-base font-semibold text-foreground md:px-6 md:pt-6 md:text-lg"
+        data-testid="guided-tour-active-title"
+      >
         {step.title}
       </h2>
 
@@ -83,7 +97,12 @@ export function GuidedTourActivePanel({
             onEnded={onVideoEnded}
           />
         ) : (
-          <GuidedTourStepPanel step={step} batchId={batchId} profilePhotoUrl={profilePhotoUrl} onCompleted={onReported} />
+          <GuidedTourStepPanel
+            step={step}
+            batchId={batchId}
+            profilePhotoUrl={profilePhotoUrl}
+            onCompleted={onReported}
+          />
         )}
 
         {/* Back / Next directly below the content; both stay visible, each disables at its end. */}
@@ -119,4 +138,4 @@ export function GuidedTourActivePanel({
 
 // Light-lavender CTA matching the guided tour's #6962AC accent.
 const NAV_BTN =
-  'inline-flex items-center gap-2 rounded-lg bg-[#6962AC]/5 px-5 py-2.5 text-sm font-semibold text-[#6962AC] transition-colors hover:bg-[#6962AC]/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6962AC] disabled:cursor-not-allowed disabled:opacity-40'
+  'inline-flex items-center gap-2 rounded-lg bg-brand/5 px-5 py-2.5 text-sm font-semibold text-brand transition-colors hover:bg-brand/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand disabled:cursor-not-allowed disabled:opacity-40'

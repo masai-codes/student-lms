@@ -37,12 +37,17 @@ function statusForVerifyOtpError(code: VerifyOtpError['code']): number {
 async function handleVerifyOtp(request: Request): Promise<Response> {
   const body = await readJsonBody<VerifyOtpBody>(request)
 
-  const otpSessionId = typeof body.otpSessionId === 'string' ? body.otpSessionId : ''
+  const otpSessionId =
+    typeof body.otpSessionId === 'string' ? body.otpSessionId : ''
   const otp = typeof body.otp === 'string' ? body.otp : ''
   const rememberMe = body.rememberMe === true
 
   if (!otpSessionId || !otp) {
-    return errorResponse(400, 'MISSING_FIELDS', 'otpSessionId and otp are required')
+    return errorResponse(
+      400,
+      'MISSING_FIELDS',
+      'otpSessionId and otp are required',
+    )
   }
 
   try {
@@ -88,7 +93,11 @@ async function handleVerifyOtp(request: Request): Promise<Response> {
     )
   } catch (err) {
     if (err instanceof VerifyOtpError) {
-      return errorResponse(statusForVerifyOtpError(err.code), err.code, err.message)
+      return errorResponse(
+        statusForVerifyOtpError(err.code),
+        err.code,
+        err.message,
+      )
     }
     throw err
   }

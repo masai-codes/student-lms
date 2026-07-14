@@ -1,6 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-const hoisted = vi.hoisted(() => ({ rows: [] as Array<Record<string, unknown>> }))
+const hoisted = vi.hoisted(() => ({
+  rows: [] as Array<Record<string, unknown>>,
+}))
 
 vi.mock('@/db', () => {
   const chain: Record<string, unknown> = {

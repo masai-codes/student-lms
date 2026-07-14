@@ -20,7 +20,9 @@ describe('buildAssignmentHeaderBadges', () => {
       settings: null,
     })
 
-    expect(badges).toEqual([{ kind: 'deadline-enforced', label: 'Deadline Enforced' }])
+    expect(badges).toEqual([
+      { kind: 'deadline-enforced', label: 'Deadline Enforced' },
+    ])
   })
 
   it('adds a weightage badge for evaluations with a positive percentage', () => {

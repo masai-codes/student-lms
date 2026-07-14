@@ -25,16 +25,18 @@ type AssignmentDetailStickyFooterProps = {
 function ScorePolicyNotice({ message }: { message: string }) {
   return (
     <div
-      className="flex min-w-0 items-center gap-2 rounded-full bg-[#FFF9E6] px-3 py-2 font-poppins"
+      className="flex min-w-0 items-center gap-2 rounded-full bg-warning-subtle px-3 py-2 font-poppins"
       data-testid="assignment-footer-score-policy"
     >
       <span
-        className="flex size-6 shrink-0 items-center justify-center rounded-full border-2 border-yellow-400 bg-white text-sm font-bold text-yellow-400"
+        className="flex size-6 shrink-0 items-center justify-center rounded-full border-2 border-warning bg-surface text-sm font-bold text-warning"
         aria-hidden
       >
         !
       </span>
-      <p className="type-b3-md min-w-0 break-words text-gray-700">{message}</p>
+      <p className="type-b3-md min-w-0 break-words text-foreground">
+        {message}
+      </p>
     </div>
   )
 }
@@ -44,8 +46,8 @@ function PracticeModeChip() {
     <MasaiChips
       label="Practice Mode"
       size="regular"
-      backgroundClassName="bg-teal-50 border border-teal-100"
-      textClassName="!text-teal-600"
+      backgroundClassName="bg-teal-50 border border-teal-100 dark:bg-info-subtle dark:border-info-subtle"
+      textClassName="!text-teal-600 dark:!text-info-subtle-foreground"
       className="pointer-events-none"
       tabIndex={-1}
       aria-hidden
@@ -86,7 +88,7 @@ export function AssignmentDetailStickyFooter({
     <>
       <footer
         data-testid="assignment-detail-sticky-footer"
-        className="fixed bottom-[calc(4.5rem+env(safe-area-inset-bottom))] left-0 right-0 z-[80] flex flex-col gap-3 border-t border-gray-100 bg-white px-4 py-3 shadow-[0_1px_4px_0_rgba(0,0,0,0.20)] md:bottom-0 md:flex-row md:items-center md:justify-between"
+        className="fixed bottom-[calc(4.5rem+env(safe-area-inset-bottom))] left-0 right-0 z-[80] flex flex-col gap-3 border-t border-border bg-surface px-4 py-3 shadow-[0_1px_4px_0_rgba(0,0,0,0.20)] md:bottom-0 md:flex-row md:items-center md:justify-between"
       >
         {/* Entrance animates the content, not the fixed element's position. */}
         <div className="animate-dash-rise flex min-w-0 flex-1 flex-wrap items-center gap-3">
@@ -123,15 +125,15 @@ export function AssignmentDetailStickyFooter({
             ))}
           {footer.score ? (
             <div
-              className="flex min-w-0 items-center gap-2 rounded-full border border-blue-200 bg-white px-3 py-1.5 transition-colors duration-200 hover:border-[#3F83F8]/60"
+              className="flex min-w-0 items-center gap-2 rounded-full border border-info-subtle bg-surface px-3 py-1.5 transition-colors duration-200 hover:border-info/60"
               data-testid="assignment-footer-score"
             >
               <ClipboardText
-                className="size-5 text-blue-500"
+                className="size-5 text-info"
                 aria-hidden
                 weight="duotone"
               />
-              <span className="type-b3-md text-gray-600">
+              <span className="type-b3-md text-foreground-muted">
                 {footer.score.label}
               </span>
             </div>
@@ -140,7 +142,7 @@ export function AssignmentDetailStickyFooter({
 
         <div className="animate-dash-rise flex min-w-0 flex-col items-stretch gap-2 md:items-end">
           {errorMessage ? (
-            <p className="type-b3-md text-red-600" role="alert">
+            <p className="type-b3-md text-danger" role="alert">
               {errorMessage}
             </p>
           ) : null}
@@ -208,14 +210,14 @@ export function AssignmentDetailFooterInlineNotices({
       {inlineNotices.map((notice) => (
         <div
           key={notice.message}
-          className="flex items-start gap-2 rounded-lg bg-[#FFF9E5] p-3"
+          className="flex items-start gap-2 rounded-lg bg-warning-subtle p-3"
         >
           <WarningCircle
-            className="mt-0.5 size-5 shrink-0 text-amber-600"
+            className="mt-0.5 size-5 shrink-0 text-warning"
             weight="fill"
             aria-hidden
           />
-          <p className="type-b3-md text-gray-700">{notice.message}</p>
+          <p className="type-b3-md text-foreground">{notice.message}</p>
         </div>
       ))}
     </div>

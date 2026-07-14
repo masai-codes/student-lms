@@ -13,7 +13,11 @@ function plainTextFromFirstParagraph(messageHtml: string): string {
 /** API requires a title; use the first line of the comment body when the UI has no title field. */
 export function deriveDiscussionTitleFromMessage(messageHtml: string): string {
   const plain = plainTextFromFirstParagraph(messageHtml)
-  const firstLine = plain.split(/\n/).map(s => s.trim()).find(Boolean) ?? plain
+  const firstLine =
+    plain
+      .split(/\n/)
+      .map((s) => s.trim())
+      .find(Boolean) ?? plain
   const trimmed = firstLine.trim()
   if (trimmed.length === 0) return ''
   if (trimmed.length <= MAX_TITLE_LENGTH) return trimmed

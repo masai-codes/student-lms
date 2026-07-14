@@ -132,12 +132,19 @@ export function buildAssignmentDetailPayload(
     phase,
     schedule: row.schedule,
     concludes: row.concludes,
-    scheduleDisplayRange: formatLectureScheduleRange(row.schedule, row.concludes),
+    scheduleDisplayRange: formatLectureScheduleRange(
+      row.schedule,
+      row.concludes,
+    ),
     hostAvatarUrl: row.hostAvatarUrl,
     instructions,
     emptyInstructionsMessage,
     enforceDeadline: row.enforceDeadline === 1,
-    phaseContent: buildAssignmentPhaseContent(assignmentKind, phase, row.schedule),
+    phaseContent: buildAssignmentPhaseContent(
+      assignmentKind,
+      phase,
+      row.schedule,
+    ),
     footer,
     completedDetails,
     headerBadges: buildAssignmentHeaderBadges({

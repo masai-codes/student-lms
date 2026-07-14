@@ -18,8 +18,8 @@ export function LectureNotesTabContent({ notes }: LectureNotesTabContentProps) {
           strokeWidth={1}
           aria-hidden
         />
-        <p className="type-b1-md text-gray-900">Nothing here yet</p>
-        <p className="type-b2-regular max-w-sm text-gray-500">
+        <p className="type-b1-md text-foreground">Nothing here yet</p>
+        <p className="type-b2-regular max-w-sm text-foreground-muted">
           Looks like notes are not available for this lecture at the moment.
         </p>
       </div>

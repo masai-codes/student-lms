@@ -62,7 +62,9 @@ describe('markSubmissionCompletedWithToken', () => {
   })
 
   it('is idempotent when already marked complete', async () => {
-    queueSelect([{ id: 1, data: { assess_platform_link: LINK }, markAsCompleted: 1 }])
+    queueSelect([
+      { id: 1, data: { assess_platform_link: LINK }, markAsCompleted: 1 },
+    ])
     await expect(
       markSubmissionCompletedWithToken({
         userId: 7,
@@ -98,7 +100,9 @@ describe('markSubmissionCompletedWithToken', () => {
   })
 
   it('rejects when the token does not match the stored link', async () => {
-    queueSelect([{ id: 1, data: { assess_platform_link: LINK }, markAsCompleted: 0 }])
+    queueSelect([
+      { id: 1, data: { assess_platform_link: LINK }, markAsCompleted: 0 },
+    ])
     await expectApiError(
       markSubmissionCompletedWithToken({
         userId: 7,
@@ -110,7 +114,9 @@ describe('markSubmissionCompletedWithToken', () => {
   })
 
   it('marks the submission complete when the token matches', async () => {
-    queueSelect([{ id: 55, data: { assess_platform_link: LINK }, markAsCompleted: 0 }])
+    queueSelect([
+      { id: 55, data: { assess_platform_link: LINK }, markAsCompleted: 0 },
+    ])
 
     await expect(
       markSubmissionCompletedWithToken({

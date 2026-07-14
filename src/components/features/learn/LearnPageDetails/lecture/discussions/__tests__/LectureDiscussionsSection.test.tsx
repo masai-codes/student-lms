@@ -20,19 +20,29 @@ vi.mock('@/lib/api/learn/discussionsApi', () => ({
 }))
 vi.mock('@/components/features/learn/shared/learnAnalytics', () => ({
   pushLearnEvent: vi.fn(),
-  learnEntityEvent: (t: string, a: string, id: number) => `l_learn_${t}_${a}_id_${id}`,
+  learnEntityEvent: (t: string, a: string, id: number) =>
+    `l_learn_${t}_${a}_id_${id}`,
 }))
 // Stub the create form (pulls in the rich-text editor) and the list item.
 vi.mock('../LectureDiscussionCreatePanel', () => ({
   LectureDiscussionCreatePanel: () => <div data-testid="create-panel" />,
 }))
 vi.mock('../LectureDiscussionListItem', () => ({
-  LectureDiscussionListItem: ({ discussion }: { discussion: DiscussionListItem }) => (
-    <div data-testid={`discussion-item-${discussion.id}`}>{discussion.title}</div>
+  LectureDiscussionListItem: ({
+    discussion,
+  }: {
+    discussion: DiscussionListItem
+  }) => (
+    <div data-testid={`discussion-item-${discussion.id}`}>
+      {discussion.title}
+    </div>
   ),
 }))
 
-function makeDiscussions(count: number, authorId: number): Array<DiscussionListItem> {
+function makeDiscussions(
+  count: number,
+  authorId: number,
+): Array<DiscussionListItem> {
   return Array.from({ length: count }, (_, i) => ({
     id: i + 1,
     title: `Discussion ${i + 1}`,
@@ -57,7 +67,11 @@ describe('LectureDiscussionsSection', () => {
 
   it('hides the toolbar and shows the empty state when there are no discussions', () => {
     const { container } = render(
-      <LectureDiscussionsSection entityId={1} entityKind="lecture" discussions={[]} />,
+      <LectureDiscussionsSection
+        entityId={1}
+        entityKind="lecture"
+        discussions={[]}
+      />,
     )
     const scope = within(container)
     expect(scope.queryByTestId('discussion-toolbar')).toBeNull()
@@ -105,7 +119,11 @@ describe('LectureDiscussionsSection', () => {
       ...makeDiscussions(2, 99).map((d) => ({ ...d, id: d.id + 100 })),
     ]
     const { container } = render(
-      <LectureDiscussionsSection entityId={1} entityKind="lecture" discussions={mixed} />,
+      <LectureDiscussionsSection
+        entityId={1}
+        entityKind="lecture"
+        discussions={mixed}
+      />,
     )
     const scope = within(container)
     fireEvent.click(scope.getByTestId('discussion-mine-toggle'))

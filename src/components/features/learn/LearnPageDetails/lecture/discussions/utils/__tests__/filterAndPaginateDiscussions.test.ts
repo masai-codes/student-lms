@@ -27,14 +27,22 @@ function makeDiscussion(
 }
 
 const discussions: Array<DiscussionListItem> = [
-  makeDiscussion({ id: 1, title: 'React hooks', author: { id: 10, name: 'Ann' } }),
+  makeDiscussion({
+    id: 1,
+    title: 'React hooks',
+    author: { id: 10, name: 'Ann' },
+  }),
   makeDiscussion({
     id: 2,
     title: 'CSS grid',
     messagePreview: 'flexbox vs grid',
     author: { id: 20, name: 'Bob' },
   }),
-  makeDiscussion({ id: 3, title: 'Node streams', author: { id: 10, name: 'Ann' } }),
+  makeDiscussion({
+    id: 3,
+    title: 'Node streams',
+    author: { id: 10, name: 'Ann' },
+  }),
   makeDiscussion({ id: 4, title: 'Orphan', author: null }),
 ]
 

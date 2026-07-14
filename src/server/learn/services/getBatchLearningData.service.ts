@@ -153,7 +153,8 @@ export async function getBatchLearningData(
     search: input.search,
     nowMs,
     // Paused batch: hide items scheduled after the pause date; earlier content stays.
-    bannedScheduleCutoff: getPausedCutoff(restrictions, input.batchId) ?? undefined,
+    bannedScheduleCutoff:
+      getPausedCutoff(restrictions, input.batchId) ?? undefined,
   }
 
   const [filterValues, pageResult] = await Promise.all([

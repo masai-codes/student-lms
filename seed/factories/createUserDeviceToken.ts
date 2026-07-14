@@ -8,7 +8,9 @@ import { formatMysqlDatetime, offsetFromNow } from '../utils/time'
 type DeviceTokenInsert = typeof userDeviceTokens.$inferInsert
 type DeviceTokenSelect = typeof userDeviceTokens.$inferSelect
 
-export type CreateUserDeviceTokenOverrides = Partial<Omit<DeviceTokenInsert, 'id'>>
+export type CreateUserDeviceTokenOverrides = Partial<
+  Omit<DeviceTokenInsert, 'id'>
+>
 
 export async function createUserDeviceToken(
   overrides: CreateUserDeviceTokenOverrides = {},

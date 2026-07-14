@@ -33,8 +33,12 @@ describe('resolveNextActionBannerView', () => {
   })
 
   it('returns null when a timestamp is missing', () => {
-    expect(resolveNextActionBannerView(makeEvent({ schedule: '' }), START_MS)).toBeNull()
-    expect(resolveNextActionBannerView(makeEvent({ concludes: '' }), START_MS)).toBeNull()
+    expect(
+      resolveNextActionBannerView(makeEvent({ schedule: '' }), START_MS),
+    ).toBeNull()
+    expect(
+      resolveNextActionBannerView(makeEvent({ concludes: '' }), START_MS),
+    ).toBeNull()
   })
 
   it('returns null once the event has concluded', () => {

@@ -315,10 +315,7 @@ describe('getIdCardState', () => {
 
   it('is hidden for the lite (non-T0) flow', () => {
     expect(
-      getIdCardState(
-        lectures({ idCardUrl: 'https://x/id.png' }),
-        'lite',
-      ),
+      getIdCardState(lectures({ idCardUrl: 'https://x/id.png' }), 'lite'),
     ).toEqual({
       show: false,
       url: null,

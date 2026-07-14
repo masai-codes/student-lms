@@ -8,7 +8,9 @@ vi.mock('@/db', () => ({ db: { select: hoisted.dbSelect } }))
 
 function mockRow(row: unknown) {
   hoisted.dbSelect.mockReturnValueOnce({
-    from: () => ({ where: () => ({ limit: () => Promise.resolve(row ? [row] : []) }) }),
+    from: () => ({
+      where: () => ({ limit: () => Promise.resolve(row ? [row] : []) }),
+    }),
   })
 }
 

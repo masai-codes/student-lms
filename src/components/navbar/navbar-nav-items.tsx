@@ -28,16 +28,22 @@ export function NavbarNavItems({ items, className }: NavbarNavItemsProps) {
               aria-current={item.isActive ? 'page' : undefined}
               className="flex flex-col gap-1 px-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-0"
             >
-              <span className={cn(
-                'subpixel-antialiased cursor-pointer font-poppins text-base leading-6 !font-[500] transition-colors',
-                item.isActive ? 'text-[#6962AC]' : 'text-[#6B7280] hover:text-[#6962AC]',
-              )}>
+              <span
+                className={cn(
+                  'subpixel-antialiased cursor-pointer font-poppins text-base leading-6 !font-[500] transition-colors',
+                  item.isActive
+                    ? 'text-brand'
+                    : 'text-foreground-muted hover:text-brand',
+                )}
+              >
                 {item.label}
               </span>
-              <span className={cn(
-                'h-0.5 rounded-[3px] transition-colors',
-                item.isActive ? 'bg-[#6962AC]' : 'bg-transparent',
-              )} />
+              <span
+                className={cn(
+                  'h-0.5 rounded-[3px] transition-colors',
+                  item.isActive ? 'bg-brand' : 'bg-transparent',
+                )}
+              />
             </NavbarAnchor>
           </li>
         ))}

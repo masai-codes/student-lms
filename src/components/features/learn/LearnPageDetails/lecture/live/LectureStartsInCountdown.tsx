@@ -59,18 +59,18 @@ function CountdownTile({ value, label }: { value: number; label: string }) {
     <div className="flex flex-col items-center gap-1.5">
       {/* Tiles shrink a notch below 400px so the four-tile (days) row still
           fits inside the card at 320px viewports. */}
-      <div className="relative flex h-14 w-12 items-center justify-center overflow-hidden rounded-2xl border border-white/70 bg-white/80 shadow-sm shadow-primary/5 backdrop-blur-sm min-[400px]:h-16 min-[400px]:w-14 sm:h-[4.5rem] sm:w-16">
+      <div className="relative flex h-14 w-12 items-center justify-center overflow-hidden rounded-2xl border border-white/70 bg-surface/80 shadow-sm shadow-primary/5 backdrop-blur-sm min-[400px]:h-16 min-[400px]:w-14 sm:h-[4.5rem] sm:w-16">
         {/* Faint divider that hints at a split-flap clock. */}
-        <span className="pointer-events-none absolute inset-x-0 top-1/2 h-px -translate-y-1/2 bg-gray-900/5" />
+        <span className="pointer-events-none absolute inset-x-0 top-1/2 h-px -translate-y-1/2 bg-foreground/5" />
         <span
           // Remounting on value change replays the flip animation each tick.
           key={padded}
-          className="animate-countdown-digit-in type-h4 tabular-nums font-semibold text-gray-900"
+          className="animate-countdown-digit-in type-h4 tabular-nums font-semibold text-foreground"
         >
           {padded}
         </span>
       </div>
-      <span className="type-caption uppercase tracking-[0.14em] text-gray-500">
+      <span className="type-caption uppercase tracking-[0.14em] text-foreground-muted">
         {label}
       </span>
     </div>

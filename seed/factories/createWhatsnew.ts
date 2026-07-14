@@ -21,7 +21,11 @@ export async function createWhatsnew(
   const [result] = await db.insert(whatsnew).values(values)
   const id = Number(result.insertId)
 
-  const [row] = await db.select().from(whatsnew).where(eq(whatsnew.id, id)).limit(1)
+  const [row] = await db
+    .select()
+    .from(whatsnew)
+    .where(eq(whatsnew.id, id))
+    .limit(1)
   if (!row) {
     throw new Error(`Failed to load whatsnew row after insert (id=${id})`)
   }

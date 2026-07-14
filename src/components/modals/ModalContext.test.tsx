@@ -3,7 +3,9 @@ import { act, renderHook } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
 import { ModalProvider, useModals } from './ModalContext'
 
-const wrapper = ({ children }: { children: React.ReactNode }) => <ModalProvider>{children}</ModalProvider>
+const wrapper = ({ children }: { children: React.ReactNode }) => (
+  <ModalProvider>{children}</ModalProvider>
+)
 
 describe('ModalProvider', () => {
   it('has no active modal initially', () => {

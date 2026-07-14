@@ -31,10 +31,14 @@ export function LectureDiscussionFeedbackForm({
 
   return (
     <div data-testid="discussion-feedback-form" className="space-y-2">
-      <p className="type-caption-md text-gray-700">
+      <p className="type-caption-md text-foreground">
         How helpful was this discussion?
       </p>
-      <div className="flex items-center gap-1" role="radiogroup" aria-label="Rating">
+      <div
+        className="flex items-center gap-1"
+        role="radiogroup"
+        aria-label="Rating"
+      >
         {RATINGS.map((value) => (
           <button
             key={value}

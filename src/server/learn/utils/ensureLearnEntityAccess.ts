@@ -10,7 +10,7 @@ import { getBatchIdsForEnrolledUser } from '@/server/batches/getBatchIdsForEnrol
 export async function ensureUserCanAccessLearnHubEntity(
   userId: number,
   batchId: number | null,
-  sectionId: number | null
+  sectionId: number | null,
 ): Promise<boolean> {
   const enrolledBatchIds = await getBatchIdsForEnrolledUser(userId)
   if (batchId != null && enrolledBatchIds.includes(batchId)) {
@@ -27,8 +27,8 @@ export async function ensureUserCanAccessLearnHubEntity(
       and(
         eq(sectionUser.userId, userId),
         eq(sectionUser.sectionId, sectionId),
-        isNull(sectionUser.deletedAt)
-      )
+        isNull(sectionUser.deletedAt),
+      ),
     )
     .limit(1)
 

@@ -69,7 +69,10 @@ describe('resolveLearnDetailRestriction', () => {
       resolveLearnDetailRestriction({
         contentBatchId: 1,
         schedule: '2026-07-10 10:00:00',
-        restrictions: restrictions(1, { paused: true, pausedDate: '2026-07-01' }),
+        restrictions: restrictions(1, {
+          paused: true,
+          pausedDate: '2026-07-01',
+        }),
         agreementScope: null,
       }),
     ).toEqual({ kind: 'paused' })
@@ -80,7 +83,10 @@ describe('resolveLearnDetailRestriction', () => {
       resolveLearnDetailRestriction({
         contentBatchId: 1,
         schedule: '2026-06-20 10:00:00',
-        restrictions: restrictions(1, { paused: true, pausedDate: '2026-07-01' }),
+        restrictions: restrictions(1, {
+          paused: true,
+          pausedDate: '2026-07-01',
+        }),
         agreementScope: null,
       }),
     ).toBeNull()

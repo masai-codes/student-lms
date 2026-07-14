@@ -1,8 +1,10 @@
 import { describe, expect, it, vi } from 'vitest'
 
 vi.mock('@/utils/timeZoneHandler', () => ({
-  formatScheduleRangeLocal: (start: string | null) => (start ? `local:${start}` : ''),
-  formatScheduleRangeIST: (start: string | null) => (start ? `ist:${start}` : ''),
+  formatScheduleRangeLocal: (start: string | null) =>
+    start ? `local:${start}` : '',
+  formatScheduleRangeIST: (start: string | null) =>
+    start ? `ist:${start}` : '',
 }))
 
 import { mapLearningItemToContent } from '../mapLearningItemToContent'

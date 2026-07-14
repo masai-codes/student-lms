@@ -16,7 +16,12 @@ function normalizeRows<T>(result: unknown): Array<T> {
     if (Array.isArray(first)) return first as Array<T>
     return result as Array<T>
   }
-  if (result && typeof result === 'object' && 'rows' in result && Array.isArray((result).rows)) {
+  if (
+    result &&
+    typeof result === 'object' &&
+    'rows' in result &&
+    Array.isArray(result.rows)
+  ) {
     return (result as { rows: Array<T> }).rows
   }
   return []
@@ -33,7 +38,9 @@ function httpUrlOrNull(value: unknown): string | null {
   if (typeof value !== 'string' || value.trim() === '') return null
   try {
     const url = new URL(value.trim())
-    return url.protocol === 'http:' || url.protocol === 'https:' ? url.toString() : null
+    return url.protocol === 'http:' || url.protocol === 'https:'
+      ? url.toString()
+      : null
   } catch {
     return null
   }
@@ -70,7 +77,7 @@ export async function getFeePaymentBanners(
       FROM user_batch_admission_data uba
       JOIN batches b ON b.id = uba.batch_id
       WHERE uba.user_id = ${userId}
-    `)
+    `),
   )
 
   const banners: Array<FeePaymentBanner> = []
@@ -84,7 +91,12 @@ export async function getFeePaymentBanners(
     })
     if (!state) continue
     const batchId = Number(row.batch_id)
-    banners.push({ ...state, batchId, courseTitle: resolveCourseTitle(row.batch_meta, row.batch_name) || String(batchId) })
+    banners.push({
+      ...state,
+      batchId,
+      courseTitle:
+        resolveCourseTitle(row.batch_meta, row.batch_name) || String(batchId),
+    })
   }
 
   return banners.sort((a, b) => urgency(a) - urgency(b))

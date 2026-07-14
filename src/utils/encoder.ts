@@ -2,10 +2,8 @@ export async function encoder(input: string): Promise<string> {
   const encod = new TextEncoder()
   const data = encod.encode(input)
 
-  const hashBuffer = await crypto.subtle.digest("SHA-256", data)
+  const hashBuffer = await crypto.subtle.digest('SHA-256', data)
   const hashArray = Array.from(new Uint8Array(hashBuffer))
 
-  return hashArray
-    .map((b) => b.toString(16).padStart(2, "0"))
-    .join("")
+  return hashArray.map((b) => b.toString(16).padStart(2, '0')).join('')
 }

@@ -77,14 +77,14 @@ export function LectureDiscussionOwnerActions({
   return (
     <div
       data-testid="discussion-owner-actions"
-      className="mt-2 space-y-2 border-t border-gray-100 pt-2"
+      className="mt-2 space-y-2 border-t border-border pt-2"
     >
       <button
         type="button"
         data-testid="discussion-close-toggle"
         disabled={pending}
         onClick={handleToggleClosed}
-        className="type-b3-md inline-flex items-center gap-1.5 rounded-full px-2 py-1 text-[#6962AC] transition duration-150 hover:bg-purple-50 active:scale-95 disabled:opacity-50"
+        className="type-b3-md inline-flex items-center gap-1.5 rounded-full px-2 py-1 text-brand transition duration-150 hover:bg-brand-subtle active:scale-95 disabled:opacity-50"
       >
         <CheckCircle
           className="size-4"
@@ -106,7 +106,7 @@ export function LectureDiscussionOwnerActions({
           <div className="flex flex-wrap items-center gap-2">
             <p
               data-testid="discussion-feedback-summary"
-              className="type-caption-regular inline-flex items-center gap-1 text-gray-600"
+              className="type-caption-regular inline-flex items-center gap-1 text-foreground-muted"
             >
               <Star
                 className="size-4 text-amber-500"
@@ -119,7 +119,7 @@ export function LectureDiscussionOwnerActions({
               type="button"
               data-testid="discussion-feedback-edit"
               onClick={() => setEditingFeedback(true)}
-              className="type-caption-md text-[#6962AC] transition-colors duration-150 hover:text-[#4F6BED] hover:underline"
+              className="type-caption-md text-brand transition-colors duration-150 hover:text-brand hover:underline"
             >
               Edit feedback
             </button>

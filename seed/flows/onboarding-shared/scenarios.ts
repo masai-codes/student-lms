@@ -1,10 +1,17 @@
 import { addDays, formatMysqlDatetime, offsetFromNow } from '../../utils/time'
-import { ONBOARDING_ID_CARD_URL, ONBOARDING_KIT_TRACKING_URL, ONBOARDING_PAYMENT_URL, ONBOARDING_PROFILE_PHOTO_URL } from './constants'
+import {
+  ONBOARDING_ID_CARD_URL,
+  ONBOARDING_KIT_TRACKING_URL,
+  ONBOARDING_PAYMENT_URL,
+  ONBOARDING_PROFILE_PHOTO_URL,
+} from './constants'
 import type { OnboardingFlowId, OnboardingScenario } from './types'
 
 const now = () => formatMysqlDatetime(offsetFromNow({ minutesAgo: 0 }))
-const inDays = (days: number) => formatMysqlDatetime(addDays(offsetFromNow({ minutesAgo: 0 }), days))
-const daysAgo = (days: number) => formatMysqlDatetime(offsetFromNow({ daysAgo: days }))
+const inDays = (days: number) =>
+  formatMysqlDatetime(addDays(offsetFromNow({ minutesAgo: 0 }), days))
+const daysAgo = (days: number) =>
+  formatMysqlDatetime(offsetFromNow({ daysAgo: days }))
 
 const paidAdmissionBase = {
   fullFeesPaid: 1 as const,
@@ -13,7 +20,10 @@ const paidAdmissionBase = {
   paymentUrl: ONBOARDING_PAYMENT_URL,
 }
 
-export const ONBOARDING_SCENARIOS: Record<OnboardingFlowId, OnboardingScenario> = {
+export const ONBOARDING_SCENARIOS: Record<
+  OnboardingFlowId,
+  OnboardingScenario
+> = {
   'onboarding-legacy-user': {
     includeAdmission: false,
   },
@@ -99,7 +109,9 @@ export const ONBOARDING_SCENARIOS: Record<OnboardingFlowId, OnboardingScenario> 
   },
 }
 
-export function getOnboardingScenario(flowId: OnboardingFlowId): OnboardingScenario {
+export function getOnboardingScenario(
+  flowId: OnboardingFlowId,
+): OnboardingScenario {
   const scenario = ONBOARDING_SCENARIOS[flowId]
   if (!scenario) {
     throw new Error(`Unknown onboarding flow id: ${flowId}`)

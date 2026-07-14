@@ -23,7 +23,10 @@ export async function seedOnboardingSectionsAndLectures(
   lectures: Record<OnboardingSectionKey, Array<LectureSelect>>
 }> {
   const sections = {} as Record<OnboardingSectionKey, SectionSelect>
-  const lecturesBySection = {} as Record<OnboardingSectionKey, Array<LectureSelect>>
+  const lecturesBySection = {} as Record<
+    OnboardingSectionKey,
+    Array<LectureSelect>
+  >
 
   for (const def of ONBOARDING_SECTION_DEFS) {
     const section = await createSection({
@@ -31,7 +34,10 @@ export async function seedOnboardingSectionsAndLectures(
       name: def.name,
       description: `${def.name} for ${flowId}`,
       type: def.type,
-      settings: def.key === 'programOnboardingWeb' ? { ...PROGRAM_AGREEMENT_SETTINGS } : undefined,
+      settings:
+        def.key === 'programOnboardingWeb'
+          ? { ...PROGRAM_AGREEMENT_SETTINGS }
+          : undefined,
     })
     sections[def.key] = section
 

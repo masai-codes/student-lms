@@ -61,7 +61,7 @@ export function ExpandableTabContent({
 
   const handleToggle = () => {
     preserveScrollPosition(() => {
-      setExpanded(value => !value)
+      setExpanded((value) => !value)
     })
   }
 
@@ -90,7 +90,7 @@ export function ExpandableTabContent({
       {showToggle ? (
         <button
           type="button"
-          onMouseDown={event => event.preventDefault()}
+          onMouseDown={(event) => event.preventDefault()}
           onClick={handleToggle}
           className="type-b2-md mt-3 text-primary-600 hover:underline"
         >

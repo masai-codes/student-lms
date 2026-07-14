@@ -161,7 +161,9 @@ describe('EventRegisterCard', () => {
     expect(enroll).not.toHaveBeenCalled()
 
     // The confirm action stays disabled until the checkbox is ticked.
-    const confirmButton = screen.getByRole('button', { name: 'Confirm & register' })
+    const confirmButton = screen.getByRole('button', {
+      name: 'Confirm & register',
+    })
     expect((confirmButton as HTMLButtonElement).disabled).toBe(true)
 
     fireEvent.click(screen.getByRole('checkbox'))
@@ -210,16 +212,18 @@ describe('EventRegisterCard', () => {
   })
 
   it('omits the open button for an enrolled event with no link', () => {
-    renderCard(
-      makeEvent({ isEnrolled: true, mode: 'online', eventLink: null }),
-    )
+    renderCard(makeEvent({ isEnrolled: true, mode: 'online', eventLink: null }))
     expect(screen.getByText("You're registered! 🎉")).toBeTruthy()
     expect(screen.queryByRole('button')).toBeNull()
   })
 
   it('hides Register and shows a Join club CTA for a non-member of the hosting club', () => {
     renderCard(
-      makeEvent({ clubId: '3', clubName: 'Programming Club', isClubMember: false }),
+      makeEvent({
+        clubId: '3',
+        clubName: 'Programming Club',
+        isClubMember: false,
+      }),
     )
     expect(screen.queryByRole('button', { name: 'Register' })).toBeNull()
     expect(screen.getByRole('button', { name: 'Join club' })).toBeTruthy()

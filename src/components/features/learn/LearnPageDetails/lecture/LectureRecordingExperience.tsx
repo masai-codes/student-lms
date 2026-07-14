@@ -78,7 +78,7 @@ export function LectureRecordingExperience({
   const hero = (
     <div
       ref={rootRef}
-      className="flex w-full shrink-0 flex-col overflow-visible bg-white"
+      className="flex w-full shrink-0 flex-col overflow-visible bg-surface"
       style={
         heightPx != null
           ? { height: heightPx, minHeight: heightPx, maxHeight: heightPx }
@@ -110,7 +110,7 @@ export function LectureRecordingExperience({
   )
 
   const belowHero = (
-    <div className="shrink-0 border-t border-gray-200 bg-white md:hidden">
+    <div className="shrink-0 border-t border-border bg-surface md:hidden">
       <LectureAiChatExperience lectureId={entityId} variant="mobile-dock" />
     </div>
   )

@@ -36,7 +36,9 @@ describe('LeaderboardRow', () => {
   })
 
   it('renders an avatar image when the member has a photo', () => {
-    render(<LeaderboardRow entry={{ ...base, avatarUrl: 'https://cdn/p.jpg' }} />)
+    render(
+      <LeaderboardRow entry={{ ...base, avatarUrl: 'https://cdn/p.jpg' }} />,
+    )
     expect(screen.getByText('PR')).toBeTruthy()
   })
 

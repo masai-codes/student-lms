@@ -43,7 +43,12 @@ function normalizeRows(result: unknown): Array<RawRow> {
     if (Array.isArray(first)) return first as Array<RawRow>
     return result as Array<RawRow>
   }
-  if (result && typeof result === 'object' && 'rows' in result && Array.isArray(result.rows)) {
+  if (
+    result &&
+    typeof result === 'object' &&
+    'rows' in result &&
+    Array.isArray(result.rows)
+  ) {
     return (result as { rows: Array<RawRow> }).rows
   }
   return []
@@ -53,7 +58,9 @@ function normalizeRows(result: unknown): Array<RawRow> {
  * Reads email notification preferences from the latest non-deleted profile row.
  * Stored at: profiles.meta.email_notifications
  */
-export async function getEmailPreferences(userId: number): Promise<EmailPreferences> {
+export async function getEmailPreferences(
+  userId: number,
+): Promise<EmailPreferences> {
   const result = await db.execute(sql`
     SELECT p.meta
     FROM profiles p
@@ -96,7 +103,7 @@ export async function updateEmailPreferences(
   `)
 
   const rows = normalizeRows(result)
-  const row = rows[0] as ({ id: number | string; meta: unknown } | undefined)
+  const row = rows[0] as { id: number | string; meta: unknown } | undefined
 
   if (!row) {
     // No profile row yet — nothing to update
@@ -104,13 +111,18 @@ export async function updateEmailPreferences(
   }
 
   const profileId = Number(row.id)
-  const existingMeta = (row.meta && typeof row.meta === 'object' ? row.meta : {}) as Record<string, unknown>
+  const existingMeta = (
+    row.meta && typeof row.meta === 'object' ? row.meta : {}
+  ) as Record<string, unknown>
   const newMeta = { ...existingMeta, email_notifications: merged }
 
   // 3. Write back — full JSON merge
   await db
     .update(profiles)
-    .set({ meta: newMeta, updatedAt: new Date().toISOString().slice(0, 19).replace('T', ' ') })
+    .set({
+      meta: newMeta,
+      updatedAt: new Date().toISOString().slice(0, 19).replace('T', ' '),
+    })
     .where(sql`${profiles.id} = ${profileId}`)
 
   return merged

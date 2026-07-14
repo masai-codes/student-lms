@@ -44,7 +44,7 @@ export function LectureDiscussionComposer({
         {userAvatarUrl ? (
           <AvatarImage src={userAvatarUrl} alt={userName} />
         ) : null}
-        <AvatarFallback className="type-b3-md bg-gray-100 text-gray-700">
+        <AvatarFallback className="type-b3-md bg-surface-muted text-foreground">
           {initialsFromName(userName)}
         </AvatarFallback>
       </Avatar>
@@ -52,9 +52,9 @@ export function LectureDiscussionComposer({
       <div className="min-w-0 flex-1">
         <div
           className={cn(
-            'rounded-2xl border bg-white transition-[border-color,box-shadow] duration-200',
-            'focus-within:border-[#4F6BED]/50 focus-within:ring-2 focus-within:ring-[#4F6BED]/15',
-            hasDraft ? 'border-gray-300 shadow-sm' : 'border-gray-200',
+            'rounded-2xl border bg-surface transition-[border-color,box-shadow] duration-200',
+            'focus-within:border-brand/50 focus-within:ring-2 focus-within:ring-brand/15',
+            hasDraft ? 'border-border-strong shadow-sm' : 'border-border',
           )}
         >
           <RichTextEditor

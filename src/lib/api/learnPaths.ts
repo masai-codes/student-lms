@@ -9,7 +9,8 @@ export const LEARN_API = {
     `/api/learn/lectures/${lectureId}/feedback`,
   lectureZoomRedirect: (lectureId: number) =>
     `/api/learn/lectures/${lectureId}/zoom-redirect`,
-  assignment: (assignmentId: number) => `/api/learn/assignments/${assignmentId}`,
+  assignment: (assignmentId: number) =>
+    `/api/learn/assignments/${assignmentId}`,
   assignmentBookmark: (assignmentId: number) =>
     `/api/learn/assignments/${assignmentId}/bookmark`,
   problem: (assignmentId: number, problemId: number) =>
@@ -27,8 +28,7 @@ export const LEARN_API = {
     `/api/learn/ai-tutor/${lectureId}/feedback`,
   aiTutorLimit: '/api/learn/ai-tutor/limit',
   aiTutorEnd: '/api/learn/ai-tutor/end',
-  aiChatSend: (lectureId: number) =>
-    `/api/learn/ai-chat/${lectureId}/send`,
+  aiChatSend: (lectureId: number) => `/api/learn/ai-chat/${lectureId}/send`,
   aiChatHistory: (lectureId: number) =>
     `/api/learn/ai-chat/${lectureId}/history`,
   discussions: '/api/learn/discussions',

@@ -73,7 +73,12 @@ describe('DiscussionVotes', () => {
         targetId="reply-1"
       />,
     )
-    const leaderboardKey = ['masaiverse-v2', 'global-leaderboard', 'overall', 10]
+    const leaderboardKey = [
+      'masaiverse-v2',
+      'global-leaderboard',
+      'overall',
+      10,
+    ]
     client.setQueryData(leaderboardKey, [])
 
     fireEvent.click(screen.getByLabelText('Upvote'))

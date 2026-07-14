@@ -16,7 +16,16 @@ describe('DownloadAppContent', () => {
   })
 
   it('honours overridden QR urls', () => {
-    render(<DownloadAppContent googlePlayQRUrl="https://x/g.png" appStoreQRUrl="https://x/a.png" />)
-    expect(screen.getByAltText<HTMLImageElement>('Google Play QR code').getAttribute('src')).toBe('https://x/g.png')
+    render(
+      <DownloadAppContent
+        googlePlayQRUrl="https://x/g.png"
+        appStoreQRUrl="https://x/a.png"
+      />,
+    )
+    expect(
+      screen
+        .getByAltText<HTMLImageElement>('Google Play QR code')
+        .getAttribute('src'),
+    ).toBe('https://x/g.png')
   })
 })

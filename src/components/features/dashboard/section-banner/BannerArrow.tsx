@@ -16,12 +16,18 @@ interface BannerArrowProps {
  * Placed flanking the dots (not overlaying the slide) so it never covers a
  * banner's CTA. Shown only when a carousel has more than one slide.
  */
-export function BannerArrow({ direction, onClick, label, testIdBase, tone }: BannerArrowProps) {
+export function BannerArrow({
+  direction,
+  onClick,
+  label,
+  testIdBase,
+  tone,
+}: BannerArrowProps) {
   const isPrev = direction === 'prev'
   const toneCls =
     tone === 'dark'
-      ? 'bg-white/15 text-white hover:bg-white/25'
-      : 'bg-white text-[#5B478B] shadow-sm hover:bg-white/90'
+      ? 'bg-surface/15 text-white hover:bg-surface/25'
+      : 'bg-surface text-brand shadow-sm hover:bg-surface/90'
   return (
     <button
       type="button"
@@ -30,7 +36,11 @@ export function BannerArrow({ direction, onClick, label, testIdBase, tone }: Ban
       onClick={onClick}
       className={`inline-flex size-6 shrink-0 items-center justify-center rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-current ${toneCls}`}
     >
-      {isPrev ? <CaretLeft size={14} weight="bold" aria-hidden /> : <CaretRight size={14} weight="bold" aria-hidden />}
+      {isPrev ? (
+        <CaretLeft size={14} weight="bold" aria-hidden />
+      ) : (
+        <CaretRight size={14} weight="bold" aria-hidden />
+      )}
     </button>
   )
 }

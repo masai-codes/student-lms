@@ -1,8 +1,5 @@
 export type LectureDetailTabId =
-  | 'description'
-  | 'ai-summary'
-  | 'transcript'
-  | 'associated'
+  'description' | 'ai-summary' | 'transcript' | 'associated'
 
 export const LECTURE_DETAIL_TABS: ReadonlyArray<{
   id: LectureDetailTabId
@@ -24,7 +21,7 @@ export function resolveVisibleLectureDetailTabs(
   hideNotes: boolean,
 ): ReadonlyArray<(typeof LECTURE_DETAIL_TABS)[number]> {
   if (hideNotes) {
-    return LECTURE_DETAIL_TABS.filter(tab => tab.id !== 'description')
+    return LECTURE_DETAIL_TABS.filter((tab) => tab.id !== 'description')
   }
   return LECTURE_DETAIL_TABS
 }

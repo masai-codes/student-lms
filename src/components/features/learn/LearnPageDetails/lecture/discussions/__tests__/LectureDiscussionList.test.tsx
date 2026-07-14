@@ -6,8 +6,14 @@ import type { DiscussionListItem } from '@/server/learn/types'
 import { LectureDiscussionList } from '../LectureDiscussionList'
 
 vi.mock('../LectureDiscussionListItem', () => ({
-  LectureDiscussionListItem: ({ discussion }: { discussion: DiscussionListItem }) => (
-    <div data-testid={`discussion-item-${discussion.id}`}>{discussion.title}</div>
+  LectureDiscussionListItem: ({
+    discussion,
+  }: {
+    discussion: DiscussionListItem
+  }) => (
+    <div data-testid={`discussion-item-${discussion.id}`}>
+      {discussion.title}
+    </div>
   ),
 }))
 
@@ -67,6 +73,8 @@ describe('LectureDiscussionList', () => {
         currentUserId={1}
       />,
     )
-    expect(within(container).getByTestId('discussion-empty-filtered')).toBeTruthy()
+    expect(
+      within(container).getByTestId('discussion-empty-filtered'),
+    ).toBeTruthy()
   })
 })

@@ -3,7 +3,7 @@
 > **Scope:** This document covers **only the student-facing** Support experience
 > (`/support`). Admin/coordinator tooling is intentionally **out of scope** — you are
 > rebuilding the student side only. Where admin actions affect the student (e.g. a reply
-> arrives), they're described as a *system event*, not as something you build.
+> arrives), they're described as a _system event_, not as something you build.
 >
 > Companion: [`04-Codebase-Student-Side.md`](./04-Codebase-Student-Side.md) for the
 > engineering map.
@@ -19,6 +19,7 @@ answer isn't good enough. The student can also **request a callback**, **chat wi
 assistant**, and **book 1:1 / coordinator slots**.
 
 Everything the student does maps to one of these:
+
 1. **Find an answer** (FAQ / knowledge base — searchable, votable).
 2. **Raise & track a ticket** (create, reply, attach files, rate, reopen, escalate).
 3. **Request a callback** (pick reason + time slot).
@@ -29,10 +30,10 @@ Everything the student does maps to one of these:
 
 ## 2. The student (the only persona you build for)
 
-| Persona | What they do | Where |
-|---|---|---|
-| **Student** | Search FAQs, raise tickets, reply, attach files, rate, reopen, escalate, request callbacks, book slots | `/support` |
-| *System events (not built by you)* | Coordinator replies, status changes, callback resolution arrive as updates the student sees | shown in ticket thread / via email & push |
+| Persona                            | What they do                                                                                           | Where                                     |
+| ---------------------------------- | ------------------------------------------------------------------------------------------------------ | ----------------------------------------- |
+| **Student**                        | Search FAQs, raise tickets, reply, attach files, rate, reopen, escalate, request callbacks, book slots | `/support`                                |
+| _System events (not built by you)_ | Coordinator replies, status changes, callback resolution arrive as updates the student sees            | shown in ticket thread / via email & push |
 
 ---
 
@@ -82,6 +83,7 @@ Student lands on /support
 ## 4. Feature breakdown (student capabilities)
 
 ### 4.1 Find an answer — FAQ / Knowledge base
+
 - FAQs are **per-batch**, grouped **category → subcategory**.
 - **Search** (debounced) + **upvote / downvote** on each answer.
 - If an FAQ doesn't help, a **"Raise Support Ticket"** CTA carries the
@@ -89,6 +91,7 @@ Student lands on /support
 - This is the **primary deflection path** — keep it prominent in the rebuild.
 
 ### 4.2 Raise & track a ticket
+
 - **Create:** pick category/subcategory (or arrive from an FAQ), write a message,
   attach up to **5 files** (uploaded to S3 via presigned URLs), submit.
 - **Where it goes:** the student doesn't pick an assignee — the system routes it
@@ -104,17 +107,20 @@ Student lands on /support
   support level if a higher level exists for their batch.
 
 ### 4.3 Request a callback
+
 - A lighter ask than a ticket: "call me back about X at time Y."
 - Student picks a **reason** and a **preferred time slot**.
 - **One pending callback per batch** at a time (a second request is blocked).
 - Stored separately from tickets; resolution happens behind the scenes.
 
 ### 4.4 Chat with AI support
+
 - Conversational triage. The bot can answer, or **create a ticket** on the student's
   behalf and link it to the chat.
 - From the student's view it's a chat window that may end in "a ticket has been raised."
 
 ### 4.5 Book a slot (1:1 / coordinator)
+
 - Shows section coordinators (IA / EC / PC) with contact info and **Calendly** links.
 - Visibility depends on whether the batch/section has it enabled.
 
@@ -122,15 +128,15 @@ Student lands on /support
 
 ## 5. Business rules & gates the student hits
 
-| Rule | What the student experiences |
-|---|---|
-| **Active section required** | If the student isn't in an active section, ticket creation is blocked. |
-| **Legal agreement gate** | If required agreements aren't accepted, a banner blocks ticket creation with a "Complete Agreement" CTA. |
-| **Own tickets only** | The student sees and acts on only their own tickets. |
-| **Reply window** | Replies allowed only while `open` / `re-opened`; `resolved` / `closed` locks replies until reopen/escalate. |
-| **Escalation guard** | "Escalate" only appears if a next-level coordinator exists for the batch. |
-| **One pending callback per batch** | A second callback request in the same batch is rejected. |
-| **5-file limit** | Max 5 attachments per message. |
+| Rule                               | What the student experiences                                                                                |
+| ---------------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| **Active section required**        | If the student isn't in an active section, ticket creation is blocked.                                      |
+| **Legal agreement gate**           | If required agreements aren't accepted, a banner blocks ticket creation with a "Complete Agreement" CTA.    |
+| **Own tickets only**               | The student sees and acts on only their own tickets.                                                        |
+| **Reply window**                   | Replies allowed only while `open` / `re-opened`; `resolved` / `closed` locks replies until reopen/escalate. |
+| **Escalation guard**               | "Escalate" only appears if a next-level coordinator exists for the batch.                                   |
+| **One pending callback per batch** | A second callback request in the same batch is rejected.                                                    |
+| **5-file limit**                   | Max 5 attachments per message.                                                                              |
 
 ---
 
@@ -154,11 +160,11 @@ Student lands on /support
 
 ## 8. Two UI generations exist — build only the new one
 
-| | **New flow** (`BatchTickets` / V2) | **Legacy flow** (`OldTickets` / V1) |
-|---|---|---|
-| Entry | batch-aware Help / Raised Tickets / 1:1 tabs, **FAQ-first** | direct `/support/create` form |
-| Create | category + message + batch (simple) | title + category + priority + department (heavy) |
-| Rebuild | ✅ **this is your target** | ❌ deprecated, don't carry over |
+|         | **New flow** (`BatchTickets` / V2)                          | **Legacy flow** (`OldTickets` / V1)              |
+| ------- | ----------------------------------------------------------- | ------------------------------------------------ |
+| Entry   | batch-aware Help / Raised Tickets / 1:1 tabs, **FAQ-first** | direct `/support/create` form                    |
+| Create  | category + message + batch (simple)                         | title + category + priority + department (heavy) |
+| Rebuild | ✅ **this is your target**                                  | ❌ deprecated, don't carry over                  |
 
 The root `/support` page decides which to show based on the student's batch data. In the
 rebuild, model the **new (V2) flow** as the only path.
@@ -170,7 +176,7 @@ rebuild, model the **new (V2) flow** as the only path.
 - **FAQ-first deflection** is the core product lever — make search + vote + "didn't help →
   raise ticket" the spine of the experience.
 - The student **never picks who handles the ticket** — routing/escalation is automatic.
-  Your UI only needs to *show* status, replies, and offer rate/reopen/escalate actions.
+  Your UI only needs to _show_ status, replies, and offer rate/reopen/escalate actions.
 - Keep the **ticket thread, callbacks, and chatbot** as distinct surfaces (they are
   distinct data today) unless you deliberately decide to unify them.
 - Status-driven UI: the available actions (reply vs rate vs reopen vs escalate) are fully
@@ -178,4 +184,4 @@ rebuild, model the **new (V2) flow** as the only path.
 
 ---
 
-*Continue to the [student-side technical document »](./04-Codebase-Student-Side.md)*
+_Continue to the [student-side technical document »](./04-Codebase-Student-Side.md)_

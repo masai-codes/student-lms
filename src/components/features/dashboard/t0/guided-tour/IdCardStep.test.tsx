@@ -19,7 +19,9 @@ describe('IdCardStep', () => {
 
   it('reveals the card image + download when unlocked with an image url', () => {
     render(<IdCardStep url="https://x/id.png" unlocked />)
-    expect(screen.getByTestId('id-card-image').getAttribute('src')).toBe('https://x/id.png')
+    expect(screen.getByTestId('id-card-image').getAttribute('src')).toBe(
+      'https://x/id.png',
+    )
     expect(screen.queryByTestId('id-card-pdf')).toBeNull()
     const link = screen.getByTestId<HTMLAnchorElement>('id-card-download')
     expect(link.getAttribute('href')).toBe('https://x/id.png')
@@ -30,7 +32,9 @@ describe('IdCardStep', () => {
     const url = 'https://s3/welcome-kit/admit-cards/543229-admit-card.pdf'
     render(<IdCardStep url={url} unlocked />)
     expect(screen.queryByTestId('id-card-image')).toBeNull()
-    expect(screen.getByTestId('id-card-pdf').getAttribute('src')).toBe(`${url}#toolbar=0`)
+    expect(screen.getByTestId('id-card-pdf').getAttribute('src')).toBe(
+      `${url}#toolbar=0`,
+    )
     const link = screen.getByTestId<HTMLAnchorElement>('id-card-download')
     expect(link.getAttribute('href')).toBe(url)
     expect(link.getAttribute('download')).toBe('masai-id-card.pdf')

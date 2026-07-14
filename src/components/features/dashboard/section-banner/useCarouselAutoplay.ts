@@ -48,5 +48,8 @@ export function useCarouselAutoplay(
     pausedRef.current = false
   }, [])
 
-  return useMemo(() => ({ onMouseEnter, onMouseLeave }), [onMouseEnter, onMouseLeave])
+  return useMemo(
+    () => ({ onMouseEnter, onMouseLeave }),
+    [onMouseEnter, onMouseLeave],
+  )
 }

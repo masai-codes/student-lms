@@ -20,7 +20,8 @@ describe('AssignmentHeaderBadges', () => {
     const scope = within(container)
 
     expect(
-      scope.getByTestId('assignment-header-badge-deadline-enforced').textContent,
+      scope.getByTestId('assignment-header-badge-deadline-enforced')
+        .textContent,
     ).toContain('Deadline Enforced')
   })
 
@@ -48,7 +49,9 @@ describe('AssignmentHeaderBadges', () => {
     )
     const scope = within(container)
 
-    expect(scope.getByTestId('assignment-header-badge-deadline-enforced')).toBeTruthy()
+    expect(
+      scope.getByTestId('assignment-header-badge-deadline-enforced'),
+    ).toBeTruthy()
     expect(scope.getByTestId('assignment-header-badge-weightage')).toBeTruthy()
   })
 })

@@ -29,7 +29,11 @@ export async function createSubmission(
   const [result] = await db.insert(submissions).values(values)
   const id = Number(result.insertId)
 
-  const [row] = await db.select().from(submissions).where(eq(submissions.id, id)).limit(1)
+  const [row] = await db
+    .select()
+    .from(submissions)
+    .where(eq(submissions.id, id))
+    .limit(1)
   if (!row) {
     throw new Error(`Failed to load submission after insert (id=${id})`)
   }

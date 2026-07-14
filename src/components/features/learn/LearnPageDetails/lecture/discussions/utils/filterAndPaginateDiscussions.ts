@@ -27,7 +27,8 @@ export function filterDiscussions(
     }
 
     if (query) {
-      const haystack = `${discussion.title} ${discussion.messagePreview}`.toLowerCase()
+      const haystack =
+        `${discussion.title} ${discussion.messagePreview}`.toLowerCase()
       if (!haystack.includes(query)) {
         return false
       }
@@ -38,7 +39,11 @@ export function filterDiscussions(
 }
 
 /** Return the slice of `items` for a 1-based `page` of size `pageSize`. */
-export function paginate<T>(items: Array<T>, page: number, pageSize: number): Array<T> {
+export function paginate<T>(
+  items: Array<T>,
+  page: number,
+  pageSize: number,
+): Array<T> {
   const start = Math.max(0, (page - 1) * pageSize)
   return items.slice(start, start + pageSize)
 }

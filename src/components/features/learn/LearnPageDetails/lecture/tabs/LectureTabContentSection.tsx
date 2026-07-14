@@ -20,10 +20,7 @@ export function LectureTabContentSection({
 }: LectureTabContentSectionProps) {
   return (
     <section
-      className={cn(
-        'border-b border-border bg-white py-5',
-        className,
-      )}
+      className={cn('border-b border-border bg-surface py-5', className)}
     >
       <LectureTabPanel key={tabId} tabId={tabId} tabs={tabs} />
     </section>

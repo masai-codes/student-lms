@@ -16,7 +16,6 @@ export function LearnPaginationSection({
   // (otherwise the list sits flush against the container edge).
   if (totalPages <= 1) return <div aria-hidden className="pb-8" />
 
-
   return (
     <section className="my-8 flex w-full justify-center">
       <MasaiPagination

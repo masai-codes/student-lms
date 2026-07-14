@@ -14,7 +14,9 @@ export type OnwardFixtures = Record<string, SimulatedOnwardStatus>
  * `path` is overridable for tests; defaults to the on-disk fixture file
  * seeded flows write to.
  */
-export function readOnwardFixtures(path: string = defaultFixturePath()): OnwardFixtures {
+export function readOnwardFixtures(
+  path: string = defaultFixturePath(),
+): OnwardFixtures {
   if (!existsSync(path)) return {}
   try {
     return JSON.parse(readFileSync(path, 'utf8')) as OnwardFixtures
@@ -29,7 +31,10 @@ export function writeOnwardFixture(
   status: SimulatedOnwardStatus,
   path: string = defaultFixturePath(),
 ): OnwardFixtures {
-  const next: OnwardFixtures = { ...readOnwardFixtures(path), [studentCode]: status }
+  const next: OnwardFixtures = {
+    ...readOnwardFixtures(path),
+    [studentCode]: status,
+  }
   writeFileSync(path, `${JSON.stringify(next, null, 2)}\n`, 'utf8')
   return next
 }

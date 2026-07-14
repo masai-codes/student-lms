@@ -35,15 +35,18 @@ export default function GlobalLeaderboardSection() {
       {isPending ? (
         <LeaderboardSkeleton />
       ) : isError ? (
-        <p className="rounded-[16px] border border-[#EDEAE8] bg-white p-6 text-[14px] text-[#6B7280]">
+        <p className="rounded-[16px] border border-border bg-surface p-6 text-[14px] text-foreground-muted">
           We couldn&apos;t load the leaderboard. Please try again.
         </p>
       ) : data.entries.length === 0 ? (
-        <p className="rounded-[16px] border border-[#EDEAE8] bg-white p-6 text-[14px] text-[#6B7280]">
+        <p className="rounded-[16px] border border-border bg-surface p-6 text-[14px] text-foreground-muted">
           No points have been earned yet.
         </p>
       ) : (
-        <LeaderboardList entries={data.entries} currentUser={data.currentUser} />
+        <LeaderboardList
+          entries={data.entries}
+          currentUser={data.currentUser}
+        />
       )}
     </div>
   )
@@ -59,7 +62,7 @@ function LeaderboardSkeleton() {
       {[0, 1, 2, 3, 4].map((key) => (
         <div
           key={key}
-          className="h-[72px] animate-pulse rounded-[16px] bg-[#ECE7E2]"
+          className="h-[72px] animate-pulse rounded-[16px] bg-surface-muted"
         />
       ))}
       <span className="sr-only">Loading leaderboard…</span>

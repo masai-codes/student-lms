@@ -8,7 +8,9 @@ import { formatMysqlDatetime, offsetFromNow } from '../utils/time'
 type AdmissionInsert = typeof userBatchAdmissionData.$inferInsert
 type AdmissionSelect = typeof userBatchAdmissionData.$inferSelect
 
-export type CreateUserBatchAdmissionDataOverrides = Partial<Omit<AdmissionInsert, 'id'>>
+export type CreateUserBatchAdmissionDataOverrides = Partial<
+  Omit<AdmissionInsert, 'id'>
+>
 
 export async function createUserBatchAdmissionData(
   overrides: CreateUserBatchAdmissionDataOverrides = {},

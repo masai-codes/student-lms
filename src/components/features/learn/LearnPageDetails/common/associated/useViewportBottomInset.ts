@@ -37,8 +37,7 @@ export function useViewportBottomInset(
     measure()
 
     const element = document.querySelector(selector)
-    const resizeObserver =
-      element != null ? new ResizeObserver(measure) : null
+    const resizeObserver = element != null ? new ResizeObserver(measure) : null
     if (element != null) {
       resizeObserver?.observe(element)
     }

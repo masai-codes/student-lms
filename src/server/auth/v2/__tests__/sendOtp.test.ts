@@ -38,7 +38,10 @@ describe('sendOtp — user does not exist', () => {
     mockRateLimitWindow([])
     mockUserLookup([])
 
-    const err = await sendOtp({ identifier: '9999999999', isResend: false }).catch((e) => e)
+    const err = await sendOtp({
+      identifier: '9999999999',
+      isResend: false,
+    }).catch((e) => e)
 
     expect(err).toBeInstanceOf(SendOtpError)
     expect(err.code).toBe('USER_NOT_FOUND')
@@ -56,7 +59,10 @@ describe('sendOtp — user does not exist', () => {
     mockRateLimitWindow([])
     mockUserLookup([])
 
-    const err = await sendOtp({ identifier: 'ghost@example.com', isResend: false }).catch((e) => e)
+    const err = await sendOtp({
+      identifier: 'ghost@example.com',
+      isResend: false,
+    }).catch((e) => e)
 
     expect(err).toBeInstanceOf(SendOtpError)
     expect(err.code).toBe('USER_NOT_FOUND')
@@ -67,13 +73,20 @@ describe('sendOtp — user does not exist', () => {
 
   it('rate-limits before any lookup once the hourly cap is reached', async () => {
     const { sendOtp, SendOtpError } = await import('../sendOtp')
-    mockRateLimitWindow(Array.from({ length: 10 }, () => ({ expiresAt: '2999-01-01 00:00:00' })))
+    mockRateLimitWindow(
+      Array.from({ length: 10 }, () => ({ expiresAt: '2999-01-01 00:00:00' })),
+    )
 
-    const err = await sendOtp({ identifier: '9999999999', isResend: false }).catch((e) => e)
+    const err = await sendOtp({
+      identifier: '9999999999',
+      isResend: false,
+    }).catch((e) => e)
 
     expect(err).toBeInstanceOf(SendOtpError)
     expect(err.code).toBe('RATE_LIMITED')
-    expect(err.message).toBe('Too many OTP requests. Please try again in an hour.')
+    expect(err.message).toBe(
+      'Too many OTP requests. Please try again in an hour.',
+    )
     // Only the rate-limit window was queried; the user lookup never ran.
     expect(hoisted.dbSelect).toHaveBeenCalledTimes(1)
   })

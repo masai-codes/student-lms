@@ -15,7 +15,8 @@ describe('submitLectureFeedbackViaApi', () => {
 
   it('POSTs rating + feedback to the lecture feedback endpoint', async () => {
     hoisted.fetchJson.mockResolvedValueOnce({ rating: 5, text: 'Great' })
-    const { submitLectureFeedbackViaApi } = await import('../lectureFeedbackApi')
+    const { submitLectureFeedbackViaApi } =
+      await import('../lectureFeedbackApi')
 
     const result = await submitLectureFeedbackViaApi({
       lectureId: 572,
@@ -37,7 +38,8 @@ describe('submitLectureFeedbackViaApi', () => {
     hoisted.fetchJson.mockRejectedValueOnce(
       new ApiClientError(409, { code: 'FEEDBACK_WINDOW_CLOSED' }),
     )
-    const { submitLectureFeedbackViaApi } = await import('../lectureFeedbackApi')
+    const { submitLectureFeedbackViaApi } =
+      await import('../lectureFeedbackApi')
 
     await expect(
       submitLectureFeedbackViaApi({ lectureId: 572, rating: 5 }),
@@ -46,7 +48,8 @@ describe('submitLectureFeedbackViaApi', () => {
 
   it('rethrows unexpected (non-API) errors', async () => {
     hoisted.fetchJson.mockRejectedValueOnce(new Error('offline'))
-    const { submitLectureFeedbackViaApi } = await import('../lectureFeedbackApi')
+    const { submitLectureFeedbackViaApi } =
+      await import('../lectureFeedbackApi')
 
     await expect(
       submitLectureFeedbackViaApi({ lectureId: 572, rating: 5 }),

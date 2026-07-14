@@ -3,7 +3,9 @@ import { jsonOk, mapThrownErrorToResponse } from '@/server/api/http/responses'
 import { requireSessionUserId } from '@/server/api/http/requireSessionUser'
 import { uploadProfilePhoto } from '@/server/api/dashboard/uploadProfilePhoto.service'
 
-export async function handleUploadProfilePhoto(request: Request): Promise<Response> {
+export async function handleUploadProfilePhoto(
+  request: Request,
+): Promise<Response> {
   try {
     const userId = await requireSessionUserId()
     const body = (await request.json()) as { image?: unknown }
@@ -15,7 +17,9 @@ export async function handleUploadProfilePhoto(request: Request): Promise<Respon
   } catch (error) {
     if (!isApiError(error)) {
       console.error('Failed to upload profile photo', error)
-      return mapThrownErrorToResponse(new Error('SERVER_ERROR_UPLOADING_PROFILE_PHOTO'))
+      return mapThrownErrorToResponse(
+        new Error('SERVER_ERROR_UPLOADING_PROFILE_PHOTO'),
+      )
     }
     return mapThrownErrorToResponse(error)
   }

@@ -119,7 +119,7 @@ export default function AssignPointsForm({ onDone }: { onDone: () => void }) {
       </div>
 
       {mutation.isError ? (
-        <p className="text-[13px] text-red-600">
+        <p className="text-[13px] text-danger">
           Couldn&apos;t assign points. Please try again.
         </p>
       ) : null}

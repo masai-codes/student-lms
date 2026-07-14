@@ -123,7 +123,9 @@ describe('buildAssignmentCompletedDetails', () => {
       concludes,
     })
 
-    expect(practice?.message).toContain('This Practice Assignment was automatically')
+    expect(practice?.message).toContain(
+      'This Practice Assignment was automatically',
+    )
     expect(evaluation?.message).toContain('This Evaluation was automatically')
   })
 

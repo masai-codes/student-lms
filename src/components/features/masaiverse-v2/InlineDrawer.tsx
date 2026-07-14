@@ -89,7 +89,7 @@ export default function InlineDrawer({
       />
 
       <aside
-        className={`fixed right-0 z-30 flex flex-col border-l border-[#E5E7EB] bg-white shadow-[-8px_0_24px_rgba(17,24,39,0.06)] transition-transform duration-300 ease-out ${
+        className={`fixed right-0 z-30 flex flex-col border-l border-border bg-surface shadow-[-8px_0_24px_rgba(17,24,39,0.06)] transition-transform duration-300 ease-out ${
           open ? 'translate-x-0' : 'pointer-events-none translate-x-full'
         }`}
         style={{
@@ -101,14 +101,14 @@ export default function InlineDrawer({
       >
         {onClose ? (
           <div className="flex shrink-0 items-center justify-between px-5 pb-3 pt-4">
-            <span className="text-[15px] font-bold text-[#111827]">
+            <span className="text-[15px] font-bold text-foreground">
               {title ?? ''}
             </span>
             <button
               type="button"
               onClick={onClose}
               aria-label="Close panel"
-              className="flex size-8 items-center justify-center rounded-full text-[#6B7280] hover:bg-[#F3F4F6] hover:text-[#111827]"
+              className="flex size-8 items-center justify-center rounded-full text-foreground-muted hover:bg-surface-muted hover:text-foreground"
             >
               <X size={18} />
             </button>

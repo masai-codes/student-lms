@@ -10,7 +10,9 @@ type AssignmentHeaderBadgesProps = {
 }
 
 /** Distinct meta-row badges: deadline-enforced (timer) + weightage (evaluation only). */
-export function AssignmentHeaderBadges({ badges }: AssignmentHeaderBadgesProps) {
+export function AssignmentHeaderBadges({
+  badges,
+}: AssignmentHeaderBadgesProps) {
   if (badges.length === 0) {
     return null
   }
@@ -25,8 +27,8 @@ export function AssignmentHeaderBadges({ badges }: AssignmentHeaderBadgesProps) 
             size="regular"
             label={badge.label}
             icon={<Timer weight="bold" aria-hidden />}
-            backgroundClassName="bg-[#F6EDE7]"
-            textClassName="!text-[#CC926E]"
+            backgroundClassName="bg-[#F6EDE7] dark:bg-warning-subtle"
+            textClassName="!text-[#CC926E] dark:!text-warning-subtle-foreground"
             className="pointer-events-none"
             tabIndex={-1}
             data-testid={`assignment-header-badge-${badge.kind}`}
@@ -37,8 +39,8 @@ export function AssignmentHeaderBadges({ badges }: AssignmentHeaderBadgesProps) 
             type="default"
             size="regular"
             label={badge.label}
-            backgroundClassName="bg-blue-50"
-            textClassName="!text-blue-500"
+            backgroundClassName="bg-blue-50 dark:bg-info-subtle"
+            textClassName="!text-blue-500 dark:!text-info-subtle-foreground"
             className="pointer-events-none"
             tabIndex={-1}
             data-testid={`assignment-header-badge-${badge.kind}`}

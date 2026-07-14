@@ -23,10 +23,15 @@ export async function getSessions(userId: number): Promise<SessionInfo[]> {
   return rows
 }
 
-export async function deleteSession(sessionId: string, userId: number): Promise<void> {
+export async function deleteSession(
+  sessionId: string,
+  userId: number,
+): Promise<void> {
   await db
     .delete(sessions)
-    .where(sql`${sessions.id} = ${sessionId} AND ${sessions.userId} = ${userId}`)
+    .where(
+      sql`${sessions.id} = ${sessionId} AND ${sessions.userId} = ${userId}`,
+    )
 }
 
 export async function deleteAllSessions(userId: number): Promise<void> {

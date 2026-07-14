@@ -12,7 +12,11 @@ export const LECTURE_CHAT_OPENING_LOADER_SIZE_PX = 200
 
 /** Resolves a public-folder gif name or path to a URL for `<img src>`. */
 export function lectureChatOpeningLoaderSrc(gif: string): string {
-  if (gif.startsWith('/') || gif.startsWith('http://') || gif.startsWith('https://')) {
+  if (
+    gif.startsWith('/') ||
+    gif.startsWith('http://') ||
+    gif.startsWith('https://')
+  ) {
     return gif
   }
   return `/${gif}`

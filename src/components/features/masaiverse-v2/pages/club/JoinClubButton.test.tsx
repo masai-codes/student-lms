@@ -1,5 +1,9 @@
 // @vitest-environment jsdom
-import { QueryClient, QueryClientProvider, useQuery } from '@tanstack/react-query'
+import {
+  QueryClient,
+  QueryClientProvider,
+  useQuery,
+} from '@tanstack/react-query'
 import {
   act,
   cleanup,
@@ -68,8 +72,8 @@ describe('JoinClubButton', () => {
       <JoinClubButton clubId="5" isJoined={false} variant="primary" />,
     )
     const button = screen.getByRole('button', { name: 'Join' })
-    expect(button.className).toContain('bg-masaiverse-orange')
-    expect(button.className).not.toContain('bg-white')
+    expect(button.className).toContain('bg-accent-warm')
+    expect(button.className).not.toContain('bg-surface')
   })
 
   it('opens a confirmation dialog and only joins after acknowledging', async () => {

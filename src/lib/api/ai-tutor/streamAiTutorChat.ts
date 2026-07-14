@@ -2,8 +2,7 @@ import { AI_TUTOR_API } from '@/lib/api/ai-tutor/aiTutorPaths'
 
 /** Wire events emitted by `POST /api/ai-tutor/chat/stream`. */
 export type ChatStreamEvent =
-  | { type: 'token'; content: string }
-  | { type: 'done'; chatId: number }
+  { type: 'token'; content: string } | { type: 'done'; chatId: number }
 
 export type LectureAiChatPlatform = 'web-desktop' | 'web-mobile'
 
@@ -77,7 +76,11 @@ function parseEvent(payload: string): ChatStreamEvent | null {
   }
 
   if (typeof parsed !== 'object' || parsed === null) return null
-  const record = parsed as { type?: unknown; content?: unknown; chatId?: unknown }
+  const record = parsed as {
+    type?: unknown
+    content?: unknown
+    chatId?: unknown
+  }
 
   if (record.type === 'token') {
     return {

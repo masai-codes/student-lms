@@ -44,13 +44,16 @@ async function computeAttendanceForSections(
         AND l.optional = 0
         AND l.deleted_at IS NULL
         AND EXISTS (SELECT 1 FROM meetings m WHERE m.lecture_id = l.id)
-    `)
+    `),
   )
 
   const total = lectureRows.length
   if (total === 0) return 0
 
-  const lectureIdList = lectureRows.map((r) => Number(r.id)).filter(Number.isFinite).join(', ')
+  const lectureIdList = lectureRows
+    .map((r) => Number(r.id))
+    .filter(Number.isFinite)
+    .join(', ')
 
   const attendanceRows = normalizeRows<{ attended: number | string }>(
     await db.execute(sql`
@@ -59,7 +62,7 @@ async function computeAttendanceForSections(
       WHERE user_id = ${userId}
         AND batch_id = ${batchId}
         AND lecture_id IN (${sql.raw(lectureIdList)})
-    `)
+    `),
   )
 
   const attended = Number(attendanceRows[0]?.attended ?? 0)
@@ -86,7 +89,8 @@ export async function getCourseAttendance(
   if (attendanceDetails.length > 0) {
     const groups = await Promise.all(
       attendanceDetails.map(async (group) => {
-        const label = typeof group.title === 'string' ? group.title : 'Attendance'
+        const label =
+          typeof group.title === 'string' ? group.title : 'Attendance'
         const rules = typeof group.rules === 'string' ? group.rules : ''
 
         // Group may specify which section IDs to count
@@ -95,7 +99,9 @@ export async function getCourseAttendance(
           : userSectionIds
 
         // Intersect with user's enrolled sections
-        const relevantIds = groupSectionIds.filter((id) => userSectionIds.includes(id))
+        const relevantIds = groupSectionIds.filter((id) =>
+          userSectionIds.includes(id),
+        )
 
         const attendancePercentage = await computeAttendanceForSections(
           userId,
@@ -104,12 +110,16 @@ export async function getCourseAttendance(
         )
 
         return { label, rules, attendancePercentage }
-      })
+      }),
     )
     return { groups }
   }
 
   // Fallback: single group for all enrolled sections
-  const attendancePercentage = await computeAttendanceForSections(userId, batchId, userSectionIds)
+  const attendancePercentage = await computeAttendanceForSections(
+    userId,
+    batchId,
+    userSectionIds,
+  )
   return { groups: [{ label: 'Attendance', rules: '', attendancePercentage }] }
 }

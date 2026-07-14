@@ -37,8 +37,10 @@ export async function sendMessageReply(
   const receiver = participants.find((u) => u.id === receiverId)
 
   const isAdminInvolved =
-    sender?.role === 'admin' || sender?.role === 'super_admin' ||
-    receiver?.role === 'admin' || receiver?.role === 'super_admin'
+    sender?.role === 'admin' ||
+    sender?.role === 'super_admin' ||
+    receiver?.role === 'admin' ||
+    receiver?.role === 'super_admin'
 
   const meta = {
     from: sender?.name ?? '',

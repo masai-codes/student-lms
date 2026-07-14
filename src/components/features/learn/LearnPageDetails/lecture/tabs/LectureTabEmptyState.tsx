@@ -13,8 +13,10 @@ export function LectureTabEmptyState({
 }: LectureTabEmptyStateProps) {
   return (
     <div className="flex flex-col items-center justify-center gap-2 py-8 text-center">
-      <p className="type-b1-md text-gray-900">{title}</p>
-      <p className="type-b2-regular max-w-sm text-gray-500">{description}</p>
+      <p className="type-b1-md text-foreground">{title}</p>
+      <p className="type-b2-regular max-w-sm text-foreground-muted">
+        {description}
+      </p>
     </div>
   )
 }

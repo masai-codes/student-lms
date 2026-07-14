@@ -45,7 +45,12 @@ describe('InlineDrawer', () => {
   it('renders the title and fires onClose from the close button', () => {
     const onClose = vi.fn()
     render(
-      <InlineDrawer open panel={<p>Panel body</p>} title="Schedule" onClose={onClose}>
+      <InlineDrawer
+        open
+        panel={<p>Panel body</p>}
+        title="Schedule"
+        onClose={onClose}
+      >
         <p>Main content</p>
       </InlineDrawer>,
     )

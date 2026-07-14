@@ -10,7 +10,9 @@ const CHAT_BAR_BLOCK_PX = CHAT_BAR_HEIGHT_PX + 24
 /**
  * When the inline chat anchor scrolls above the viewport, dock the bar to the bottom.
  */
-export function useLectureChatDock(onDockedChange?: (isDocked: boolean) => void) {
+export function useLectureChatDock(
+  onDockedChange?: (isDocked: boolean) => void,
+) {
   const anchorRef = useRef<HTMLDivElement>(null)
   const onDockedChangeRef = useRef(onDockedChange)
   const [isDocked, setIsDocked] = useState(false)
@@ -23,7 +25,7 @@ export function useLectureChatDock(onDockedChange?: (isDocked: boolean) => void)
 
     const syncDocked = () => {
       const docked = shouldDockLectureChatAnchor(anchor.getBoundingClientRect())
-      setIsDocked(previous => {
+      setIsDocked((previous) => {
         if (previous === docked) return previous
         onDockedChangeRef.current?.(docked)
         return docked
@@ -35,7 +37,7 @@ export function useLectureChatDock(onDockedChange?: (isDocked: boolean) => void)
     const observer = new IntersectionObserver(
       ([entry]) => {
         const docked = shouldDockLectureChatAnchor(entry.boundingClientRect)
-        setIsDocked(previous => {
+        setIsDocked((previous) => {
           if (previous === docked) return previous
           onDockedChangeRef.current?.(docked)
           return docked

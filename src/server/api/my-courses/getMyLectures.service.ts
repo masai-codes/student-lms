@@ -40,18 +40,31 @@ export async function getMyCourses(userId: number): Promise<MyCoursesItem[]> {
     const b = batchMap.get(batchId)
     if (!b) return []
     const meta = (b.meta ?? {}) as Record<string, unknown>
-    const timeline = Array.isArray(meta.courseTimeline) ? (meta.courseTimeline as unknown[]) : []
-    const title = typeof meta.courseTitle === 'string' && meta.courseTitle ? meta.courseTitle : b.name
-    const institute = typeof meta.instituteName === 'string' && meta.instituteName
-      ? meta.instituteName
-      : typeof meta.institute === 'string' ? meta.institute : ''
-    const logo = typeof meta.courseLogo === 'string' && meta.courseLogo ? meta.courseLogo : null
-    return [{
-      batchId: b.id,
-      courseTitle: title,
-      instituteName: institute,
-      courseLogo: logo,
-      courseProgress: computeProgress(timeline),
-    }]
+    const timeline = Array.isArray(meta.courseTimeline)
+      ? (meta.courseTimeline as unknown[])
+      : []
+    const title =
+      typeof meta.courseTitle === 'string' && meta.courseTitle
+        ? meta.courseTitle
+        : b.name
+    const institute =
+      typeof meta.instituteName === 'string' && meta.instituteName
+        ? meta.instituteName
+        : typeof meta.institute === 'string'
+          ? meta.institute
+          : ''
+    const logo =
+      typeof meta.courseLogo === 'string' && meta.courseLogo
+        ? meta.courseLogo
+        : null
+    return [
+      {
+        batchId: b.id,
+        courseTitle: title,
+        instituteName: institute,
+        courseLogo: logo,
+        courseProgress: computeProgress(timeline),
+      },
+    ]
   })
 }

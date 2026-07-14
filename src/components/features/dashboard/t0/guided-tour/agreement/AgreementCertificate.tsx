@@ -22,7 +22,20 @@ interface AgreementCertificateProps {
 }
 
 const PLACEHOLDER = '--'
-const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+const MONTHS = [
+  'Jan',
+  'Feb',
+  'Mar',
+  'Apr',
+  'May',
+  'Jun',
+  'Jul',
+  'Aug',
+  'Sep',
+  'Oct',
+  'Nov',
+  'Dec',
+]
 
 /**
  * Agreement timestamps are stored as IST wall-clock time but carry a misleading
@@ -69,18 +82,23 @@ export function AgreementCertificate({
   return (
     <div className="flex flex-col gap-4" data-testid="agreement-certificate">
       {completed ? (
-        <div className="inline-flex items-center gap-2 rounded-lg bg-green-50 px-4 py-3 text-sm font-medium text-green-700">
+        <div className="inline-flex items-center gap-2 rounded-lg bg-green-50 px-4 py-3 text-sm font-medium text-success dark:bg-success-subtle dark:text-success-subtle-foreground">
           <CheckCircle weight="fill" className="size-5" aria-hidden />
           You&apos;ve signed this agreement.
         </div>
       ) : (
-        <p className="text-sm text-gray-600">Review your details, then submit to sign the agreement.</p>
+        <p className="text-sm text-foreground-muted">
+          Review your details, then submit to sign the agreement.
+        </p>
       )}
 
       {/* On the certificate step the reference number is shown (the issuing-entity
           block appears only on the earlier agreement-reading steps). */}
-      <p className="text-sm text-gray-700">
-        Reference number :- <span className="font-medium text-gray-900">{referenceNumber || PLACEHOLDER}</span>
+      <p className="text-sm text-foreground">
+        Reference number :-{' '}
+        <span className="font-medium text-foreground">
+          {referenceNumber || PLACEHOLDER}
+        </span>
       </p>
 
       <Section title="Details">
@@ -111,7 +129,7 @@ export function AgreementCertificate({
               reference_number: referenceNumber,
             })
           }
-          className="inline-flex w-fit items-center gap-2 rounded-lg border border-[#6962AC] px-4 py-2 text-sm font-semibold text-[#6962AC] hover:bg-[#6962AC]/5"
+          className="inline-flex w-fit items-center gap-2 rounded-lg border border-brand px-4 py-2 text-sm font-semibold text-brand hover:bg-brand/5"
           data-testid="agreement-view-pdf"
         >
           <FilePdf className="size-4" aria-hidden />
@@ -122,20 +140,36 @@ export function AgreementCertificate({
   )
 }
 
-function Section({ title, children }: { title: string; children: React.ReactNode }) {
+function Section({
+  title,
+  children,
+}: {
+  title: string
+  children: React.ReactNode
+}) {
   return (
-    <div className="rounded-xl border border-gray-200">
-      <h3 className="border-b border-gray-100 px-4 py-2 text-sm font-bold text-gray-800">{title}</h3>
-      <dl className="divide-y divide-gray-100">{children}</dl>
+    <div className="rounded-xl border border-border">
+      <h3 className="border-b border-border px-4 py-2 text-sm font-bold text-foreground">
+        {title}
+      </h3>
+      <dl className="divide-y divide-border">{children}</dl>
     </div>
   )
 }
 
-function InfoRow({ label, value }: { label: string; value: string | null | undefined }) {
+function InfoRow({
+  label,
+  value,
+}: {
+  label: string
+  value: string | null | undefined
+}) {
   return (
     <div className="flex justify-between gap-4 px-4 py-2.5 text-sm">
-      <dt className="text-gray-500">{label}</dt>
-      <dd className="text-right font-medium text-gray-900">{value || PLACEHOLDER}</dd>
+      <dt className="text-foreground-muted">{label}</dt>
+      <dd className="text-right font-medium text-foreground">
+        {value || PLACEHOLDER}
+      </dd>
     </div>
   )
 }

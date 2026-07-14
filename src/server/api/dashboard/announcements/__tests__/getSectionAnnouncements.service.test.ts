@@ -1,6 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-const hoisted = vi.hoisted(() => ({ rows: [] as Array<Record<string, unknown>> }))
+const hoisted = vi.hoisted(() => ({
+  rows: [] as Array<Record<string, unknown>>,
+}))
 
 vi.mock('@/db', () => {
   const chain: Record<string, unknown> = {
@@ -31,14 +33,18 @@ describe('getSectionAnnouncements', () => {
 
   it('returns [] without querying when the user has no sections', async () => {
     hoisted.rows = [row()]
-    const { getSectionAnnouncements } = await import('../getSectionAnnouncements.service')
+    const { getSectionAnnouncements } =
+      await import('../getSectionAnnouncements.service')
 
-    expect(await getSectionAnnouncements([], 42, '2026-07-02 12:00:00')).toEqual([])
+    expect(
+      await getSectionAnnouncements([], 42, '2026-07-02 12:00:00'),
+    ).toEqual([])
   })
 
   it('maps rows to ranked announcements (source a, not For You)', async () => {
     hoisted.rows = [row()]
-    const { getSectionAnnouncements } = await import('../getSectionAnnouncements.service')
+    const { getSectionAnnouncements } =
+      await import('../getSectionAnnouncements.service')
 
     const result = await getSectionAnnouncements([5], 42, '2026-07-02 12:00:00')
     expect(result).toEqual([
@@ -60,9 +66,14 @@ describe('getSectionAnnouncements', () => {
 
   it('falls back to createdAt for sortedAt when schedule is null', async () => {
     hoisted.rows = [row({ schedule: null })]
-    const { getSectionAnnouncements } = await import('../getSectionAnnouncements.service')
+    const { getSectionAnnouncements } =
+      await import('../getSectionAnnouncements.service')
 
-    const [ranked] = await getSectionAnnouncements([5], 42, '2026-07-02 12:00:00')
+    const [ranked] = await getSectionAnnouncements(
+      [5],
+      42,
+      '2026-07-02 12:00:00',
+    )
     expect(ranked.sortedAt).toBe('2026-07-01 10:00:00')
   })
 })

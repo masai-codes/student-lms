@@ -31,9 +31,12 @@ export async function submitLectureAiChatFeedback(
     body.feedback = input.feedback.trim()
   }
 
-  return fetchJson<SubmitLectureAiChatFeedbackResponse>(AI_TUTOR_API.chatFeedback, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(body),
-  })
+  return fetchJson<SubmitLectureAiChatFeedbackResponse>(
+    AI_TUTOR_API.chatFeedback,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    },
+  )
 }

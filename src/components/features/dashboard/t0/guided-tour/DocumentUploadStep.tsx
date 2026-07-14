@@ -10,7 +10,7 @@ interface DocumentUploadStepProps {
 }
 
 const CARD_CENTER =
-  'flex min-h-[360px] w-full flex-col items-center justify-center rounded-2xl border border-gray-100 bg-white p-10 text-center shadow-sm'
+  'flex min-h-[360px] w-full flex-col items-center justify-center rounded-2xl border border-border bg-surface p-10 text-center shadow-sm'
 
 /**
  * Document-upload step, mirroring the legacy LMS: fetches the (external)
@@ -18,7 +18,10 @@ const CARD_CENTER =
  * learner to the admissions portal; once uploaded it shows a success card.
  * Uploads happen externally, so there's no in-app form.
  */
-export function DocumentUploadStep({ batchId, onCompleted }: DocumentUploadStepProps) {
+export function DocumentUploadStep({
+  batchId,
+  onCompleted,
+}: DocumentUploadStepProps) {
   const { data, isPending } = useQuery({
     queryKey: ['dashboard', 't0-flow-documents', batchId],
     queryFn: () => fetchT0FlowDocuments(batchId),
@@ -27,7 +30,9 @@ export function DocumentUploadStep({ batchId, onCompleted }: DocumentUploadStepP
   if (isPending) {
     return (
       <div className={CARD_CENTER} data-testid="document-upload-step">
-        <p className="text-sm text-gray-500">Checking your document status…</p>
+        <p className="text-sm text-foreground-muted">
+          Checking your document status…
+        </p>
       </div>
     )
   }
@@ -36,13 +41,23 @@ export function DocumentUploadStep({ batchId, onCompleted }: DocumentUploadStepP
   if (data?.documentsUploaded) {
     return (
       <div className={CARD_CENTER} data-testid="document-upload-step">
-        <div className="mb-6 flex size-[72px] items-center justify-center rounded-full bg-[#3B9D6E]">
-          <CheckCircle size={40} weight="bold" className="text-white" aria-hidden />
+        <div className="mb-6 flex size-[72px] items-center justify-center rounded-full bg-success">
+          <CheckCircle
+            size={40}
+            weight="bold"
+            className="text-success-foreground"
+            aria-hidden
+          />
         </div>
-        <h2 className="mb-3 text-2xl font-bold text-gray-900" data-testid="document-upload-done">
+        <h2
+          className="mb-3 text-2xl font-bold text-foreground"
+          data-testid="document-upload-done"
+        >
           Documents Submitted
         </h2>
-        <p className="max-w-sm text-sm text-gray-600">Your documents have been uploaded successfully</p>
+        <p className="max-w-sm text-sm text-foreground-muted">
+          Your documents have been uploaded successfully
+        </p>
       </div>
     )
   }

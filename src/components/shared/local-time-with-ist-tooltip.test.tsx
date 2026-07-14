@@ -43,7 +43,13 @@ describe('LocalTimeWithIstTooltip', () => {
 
   it('falls back when local is empty', () => {
     vi.spyOn(tz, 'isIstTimezone').mockReturnValue(false)
-    render(<LocalTimeWithIstTooltip local={null} ist={null} fallback="No schedule" />)
+    render(
+      <LocalTimeWithIstTooltip
+        local={null}
+        ist={null}
+        fallback="No schedule"
+      />,
+    )
     expect(screen.getByText('No schedule')).toBeTruthy()
   })
 })

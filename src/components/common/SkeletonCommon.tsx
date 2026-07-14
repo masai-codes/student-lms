@@ -2,7 +2,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 
 export default function SkeletonCommon() {
   return (
-    <div className="p-4 bg-white border rounded-xl sm:p-6">
+    <div className="p-4 bg-surface border rounded-xl sm:p-6">
       <div className="flex items-start justify-between gap-4">
         {/* Left content */}
         <div className="flex gap-4 flex-1">

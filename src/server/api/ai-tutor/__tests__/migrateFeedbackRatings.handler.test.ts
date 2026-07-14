@@ -26,14 +26,17 @@ function postRequest(
   body: unknown,
   cookie: string | null = 'session=abc',
 ): Request {
-  return new Request('http://localhost/api/ai-tutor/chat/feedback/migrate-ratings', {
-    method: 'POST',
-    headers: {
-      ...(cookie ? { cookie } : {}),
-      'Content-Type': 'application/json',
+  return new Request(
+    'http://localhost/api/ai-tutor/chat/feedback/migrate-ratings',
+    {
+      method: 'POST',
+      headers: {
+        ...(cookie ? { cookie } : {}),
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(body),
     },
-    body: JSON.stringify(body),
-  })
+  )
 }
 
 function adminSelectChain(role: string | null) {
@@ -71,7 +74,9 @@ describe('handleMigrateFeedbackRatings', () => {
     hoisted.getCurrentUserId.mockResolvedValueOnce(7)
     hoisted.dbSelect.mockReturnValueOnce(adminSelectChain('student'))
 
-    const res = await handleMigrateFeedbackRatings(postRequest({ dryRun: true }))
+    const res = await handleMigrateFeedbackRatings(
+      postRequest({ dryRun: true }),
+    )
 
     expect(res.status).toBe(422)
     expect(res.headers.get('x-true-status')).toBe('403')
@@ -95,7 +100,9 @@ describe('handleMigrateFeedbackRatings', () => {
       skippedRows: [],
     })
 
-    const res = await handleMigrateFeedbackRatings(postRequest({ dryRun: true }))
+    const res = await handleMigrateFeedbackRatings(
+      postRequest({ dryRun: true }),
+    )
 
     expect(res.status).toBe(200)
     expect(hoisted.migrateAiTutorFeedbackRatings).toHaveBeenCalledWith({

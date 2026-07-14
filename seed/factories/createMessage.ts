@@ -31,7 +31,11 @@ export async function createMessage(
   const [result] = await db.insert(messages).values(values)
   const id = Number(result.insertId)
 
-  const [row] = await db.select().from(messages).where(eq(messages.id, id)).limit(1)
+  const [row] = await db
+    .select()
+    .from(messages)
+    .where(eq(messages.id, id))
+    .limit(1)
   if (!row) {
     throw new Error(`Failed to load message after insert (id=${id})`)
   }

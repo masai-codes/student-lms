@@ -27,12 +27,14 @@ export function LectureDiscussionList({
           className="flex flex-col items-center gap-2 py-8 text-center"
         >
           <MagnifyingGlass
-            className="h-14 w-14 text-gray-400"
+            className="h-14 w-14 text-foreground-subtle"
             weight="bold"
             aria-hidden
           />
-          <h3 className="type-b2-md text-gray-900">No matching discussions</h3>
-          <p className="type-b3-regular max-w-sm text-gray-500">
+          <h3 className="type-b2-md text-foreground">
+            No matching discussions
+          </h3>
+          <p className="type-b3-regular max-w-sm text-foreground-muted">
             Try a different search or turn off the filter.
           </p>
         </div>
@@ -44,9 +46,13 @@ export function LectureDiscussionList({
         data-testid="discussion-empty"
         className="flex flex-col items-center gap-2 py-8 text-center"
       >
-        <UsersThree className="h-16 w-16 text-gray-400" weight="bold" aria-hidden />
-        <h3 className="type-b2-md text-gray-900">No discussions yet</h3>
-        <p className="type-b3-regular max-w-sm text-gray-500">
+        <UsersThree
+          className="h-16 w-16 text-foreground-subtle"
+          weight="bold"
+          aria-hidden
+        />
+        <h3 className="type-b2-md text-foreground">No discussions yet</h3>
+        <p className="type-b3-regular max-w-sm text-foreground-muted">
           Be the first to start a discussion about this {emptyStateNoun}.
         </p>
       </div>
@@ -55,7 +61,7 @@ export function LectureDiscussionList({
 
   return (
     <div className="space-y-3" data-testid="discussion-list">
-      <p className="type-b3-regular text-gray-600">
+      <p className="type-b3-regular text-foreground-muted">
         Check what your peers are discussing
       </p>
       {discussions.map((discussion) => (

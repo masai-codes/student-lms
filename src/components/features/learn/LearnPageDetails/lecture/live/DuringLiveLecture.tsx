@@ -39,8 +39,9 @@ export function DuringLiveLecture({
               isNewZoomRedirection={isNewZoomRedirection}
             />
           ) : (
-            <p className="type-b2-regular max-w-sm text-gray-500">
-              The join link is not available yet. Check back closer to the start time.
+            <p className="type-b2-regular max-w-sm text-foreground-muted">
+              The join link is not available yet. Check back closer to the start
+              time.
             </p>
           )}
         </div>

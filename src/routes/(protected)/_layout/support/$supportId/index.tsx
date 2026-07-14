@@ -7,7 +7,9 @@ import { createFileRoute, redirect } from '@tanstack/react-router'
  * `?step=ticketdetails&ticketId=`), not a standalone page. So this route simply
  * redirects into that modal flow, preserving deep-links to a ticket.
  */
-export const Route = createFileRoute('/(protected)/_layout/support/$supportId/')({
+export const Route = createFileRoute(
+  '/(protected)/_layout/support/$supportId/',
+)({
   beforeLoad: ({ params }) => {
     throw redirect({
       to: '/support',

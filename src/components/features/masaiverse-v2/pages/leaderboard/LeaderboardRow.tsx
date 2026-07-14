@@ -32,13 +32,13 @@ export default function LeaderboardRow({
     <div
       className={`flex items-center gap-4 rounded-[16px] border p-4 ${
         isCurrentUser
-          ? 'border-masaiverse-orange bg-masaiverse-orange/10 ring-1 ring-masaiverse-orange/30'
+          ? 'border-accent-warm bg-accent-warm/10 ring-1 ring-accent-warm/30'
           : entry.rank === 1
-            ? 'border-masaiverse-orange/40 bg-masaiverse-orange/5'
-            : 'border-[#EDEAE8] bg-white'
+            ? 'border-accent-warm/40 bg-accent-warm/5'
+            : 'border-border bg-surface'
       }`}
     >
-      <span className="w-6 shrink-0 text-center text-[16px] font-semibold text-[#6B7280]">
+      <span className="w-6 shrink-0 text-center text-[16px] font-semibold text-foreground-muted">
         {medal ?? entry.rank}
       </span>
       <Avatar size="lg" className="shrink-0">
@@ -52,17 +52,19 @@ export default function LeaderboardRow({
           {getInitials(entry.name)}
         </AvatarFallback>
       </Avatar>
-      <p className="min-w-0 flex-1 truncate text-[16px] font-bold leading-5 text-[#111827]">
+      <p className="min-w-0 flex-1 truncate text-[16px] font-bold leading-5 text-foreground">
         {entry.name}
         {isCurrentUser ? (
-          <span className="ml-2 text-[12px] font-semibold text-masaiverse-orange">
+          <span className="ml-2 text-[12px] font-semibold text-accent-warm">
             You
           </span>
         ) : null}
       </p>
-      <p className="shrink-0 text-[20px] font-extrabold text-masaiverse-orange">
+      <p className="shrink-0 text-[20px] font-extrabold text-accent-warm">
         {entry.points.toLocaleString()}
-        <span className="ml-1 text-[13px] font-medium text-[#6B7280]">pts</span>
+        <span className="ml-1 text-[13px] font-medium text-foreground-muted">
+          pts
+        </span>
       </p>
     </div>
   )

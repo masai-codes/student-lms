@@ -10,7 +10,9 @@ describe('SupportMarkdown', () => {
   it('renders legacy comment HTML (<br/> + signature) as real line breaks, not raw tags', () => {
     const { container } = render(
       <SupportMarkdown>
-        {'Dear Student,<br/><br/>Thanks for reaching out.<br/><br/>Regards,<br/>Program Co-ordinator<br/>Student Experience Team'}
+        {
+          'Dear Student,<br/><br/>Thanks for reaching out.<br/><br/>Regards,<br/>Program Co-ordinator<br/>Student Experience Team'
+        }
       </SupportMarkdown>,
     )
 
@@ -23,7 +25,9 @@ describe('SupportMarkdown', () => {
 
   it('strips unsafe HTML while keeping safe formatting', () => {
     const { container } = render(
-      <SupportMarkdown>{'<script>alert(1)</script><b>bold</b>'}</SupportMarkdown>,
+      <SupportMarkdown>
+        {'<script>alert(1)</script><b>bold</b>'}
+      </SupportMarkdown>,
     )
 
     expect(container.querySelector('script')).toBeNull()

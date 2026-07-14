@@ -44,22 +44,22 @@
 
 ## Where each feature lives
 
-| Feature | Service | Endpoint | UI |
-|---|---|---|---|
-| Landing (everything) | `getSupportOverview.service` | `GET /api/support/overview` | `SupportHome` |
-| FAQ search | `faqs.service#searchFaqs` | `GET /api/support/faqs` | `FaqList` / `FaqItem` |
-| FAQ vote | `faqs.service#voteFaq` | `POST /api/support/faqs/vote` | `FaqItem` |
-| Categories | `faqs.service#getCategoriesForBatch` | (in overview) | `CategoryGrid` |
-| Ticket list | `tickets.read#listTickets` | `GET /api/support/tickets` | `TicketCard` |
-| Conversation | `tickets.read#getTicketThread` | `GET /api/support/tickets/thread` | `TicketConversation` |
-| Create ticket | `tickets.write#createTicket` | `POST /api/support/tickets/create` | `CreateTicketSheet` |
-| Reply | `tickets.write#addReply` | `POST /api/support/tickets/reply` | `TicketActionFooter` |
-| Rate | `tickets.write#rateTicket` | `POST /api/support/tickets/rate` | `TicketActionFooter` |
-| Reopen | `tickets.write#reopenTicket` | `POST /api/support/tickets/reopen` | `TicketActionFooter` |
-| Escalate | `tickets.write#escalateTicket` | `POST /api/support/tickets/escalate` | `TicketActionFooter` |
-| Callback | `callback.service` | `POST /api/support/callback/create` | `CallbackSheet` |
-| 1:1 coordinators | `directory.service#getCoordinators` | (in overview) | `CoordinatorCard` |
-| Creation gates | `directory.service#getSupportGate` | (in overview) | `GateBanner` |
+| Feature              | Service                              | Endpoint                             | UI                    |
+| -------------------- | ------------------------------------ | ------------------------------------ | --------------------- |
+| Landing (everything) | `getSupportOverview.service`         | `GET /api/support/overview`          | `SupportHome`         |
+| FAQ search           | `faqs.service#searchFaqs`            | `GET /api/support/faqs`              | `FaqList` / `FaqItem` |
+| FAQ vote             | `faqs.service#voteFaq`               | `POST /api/support/faqs/vote`        | `FaqItem`             |
+| Categories           | `faqs.service#getCategoriesForBatch` | (in overview)                        | `CategoryGrid`        |
+| Ticket list          | `tickets.read#listTickets`           | `GET /api/support/tickets`           | `TicketCard`          |
+| Conversation         | `tickets.read#getTicketThread`       | `GET /api/support/tickets/thread`    | `TicketConversation`  |
+| Create ticket        | `tickets.write#createTicket`         | `POST /api/support/tickets/create`   | `CreateTicketSheet`   |
+| Reply                | `tickets.write#addReply`             | `POST /api/support/tickets/reply`    | `TicketActionFooter`  |
+| Rate                 | `tickets.write#rateTicket`           | `POST /api/support/tickets/rate`     | `TicketActionFooter`  |
+| Reopen               | `tickets.write#reopenTicket`         | `POST /api/support/tickets/reopen`   | `TicketActionFooter`  |
+| Escalate             | `tickets.write#escalateTicket`       | `POST /api/support/tickets/escalate` | `TicketActionFooter`  |
+| Callback             | `callback.service`                   | `POST /api/support/callback/create`  | `CallbackSheet`       |
+| 1:1 coordinators     | `directory.service#getCoordinators`  | (in overview)                        | `CoordinatorCard`     |
+| Creation gates       | `directory.service#getSupportGate`   | (in overview)                        | `GateBanner`          |
 
 ## Two ideas worth understanding before you edit
 

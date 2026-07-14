@@ -12,19 +12,37 @@ describe('computeFeePaymentBanner', () => {
   }
 
   it('returns null for full-fee learners', () => {
-    expect(computeFeePaymentBanner({ ...base, fullFeesPaid: true, now: day('2026-07-05T00:00:00Z') })).toBeNull()
+    expect(
+      computeFeePaymentBanner({
+        ...base,
+        fullFeesPaid: true,
+        now: day('2026-07-05T00:00:00Z'),
+      }),
+    ).toBeNull()
   })
 
   it('returns null when there is no course_fee_deadline', () => {
     expect(
-      computeFeePaymentBanner({ ...base, courseFeeDeadline: null, now: day('2026-07-05T00:00:00Z') }),
+      computeFeePaymentBanner({
+        ...base,
+        courseFeeDeadline: null,
+        now: day('2026-07-05T00:00:00Z'),
+      }),
     ).toBeNull()
   })
 
   it('shows a timer banner with a whole-day countdown when a day or more remains', () => {
     // deadline 07-15, now 07-08 → 7 days remaining
-    const banner = computeFeePaymentBanner({ ...base, now: day('2026-07-08T00:00:00Z') })
-    expect(banner).toEqual({ type: 'timer', daysRemaining: 7, hoursRemaining: null, paymentUrl: 'https://pay.test/x' })
+    const banner = computeFeePaymentBanner({
+      ...base,
+      now: day('2026-07-08T00:00:00Z'),
+    })
+    expect(banner).toEqual({
+      type: 'timer',
+      daysRemaining: 7,
+      hoursRemaining: null,
+      paymentUrl: 'https://pay.test/x',
+    })
   })
 
   it('switches to an hour countdown when less than a day remains', () => {
@@ -33,7 +51,12 @@ describe('computeFeePaymentBanner', () => {
       ...base,
       now: new Date(day('2026-07-15T00:00:00Z').getTime() - DAY_MS / 2),
     })
-    expect(banner).toEqual({ type: 'timer', daysRemaining: 0, hoursRemaining: 12, paymentUrl: 'https://pay.test/x' })
+    expect(banner).toEqual({
+      type: 'timer',
+      daysRemaining: 0,
+      hoursRemaining: 12,
+      paymentUrl: 'https://pay.test/x',
+    })
   })
 
   it('rounds partial hours up and never below 1', () => {
@@ -42,17 +65,36 @@ describe('computeFeePaymentBanner', () => {
       ...base,
       now: new Date(day('2026-07-15T00:00:00Z').getTime() - 30 * 60 * 1000),
     })
-    expect(banner).toEqual({ type: 'timer', daysRemaining: 0, hoursRemaining: 1, paymentUrl: 'https://pay.test/x' })
+    expect(banner).toEqual({
+      type: 'timer',
+      daysRemaining: 0,
+      hoursRemaining: 1,
+      paymentUrl: 'https://pay.test/x',
+    })
   })
 
   it('shows the overdue banner with a days-overdue count once the deadline has passed', () => {
     // deadline 07-15, now 07-18 → 3 days overdue
-    const banner = computeFeePaymentBanner({ ...base, now: day('2026-07-18T00:00:00Z') })
-    expect(banner).toEqual({ type: 'overdue', daysOverdue: 3, paymentUrl: 'https://pay.test/x' })
+    const banner = computeFeePaymentBanner({
+      ...base,
+      now: day('2026-07-18T00:00:00Z'),
+    })
+    expect(banner).toEqual({
+      type: 'overdue',
+      daysOverdue: 3,
+      paymentUrl: 'https://pay.test/x',
+    })
   })
 
   it('treats the exact deadline instant as overdue (min 1 day)', () => {
-    const banner = computeFeePaymentBanner({ ...base, now: day('2026-07-15T00:00:00Z') })
-    expect(banner).toEqual({ type: 'overdue', daysOverdue: 1, paymentUrl: 'https://pay.test/x' })
+    const banner = computeFeePaymentBanner({
+      ...base,
+      now: day('2026-07-15T00:00:00Z'),
+    })
+    expect(banner).toEqual({
+      type: 'overdue',
+      daysOverdue: 1,
+      paymentUrl: 'https://pay.test/x',
+    })
   })
 })

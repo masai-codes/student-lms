@@ -45,18 +45,18 @@ Feedback text is trimmed and the full stored value is capped at 191 characters.
 
 ## Test cases
 
-| ID | Case | Expected |
-|----|------|----------|
-| AT-FB-001 | Missing session cookie | `401 UNAUTHORIZED` |
-| AT-FB-002 | Invalid `lectureId` | `400 AI_TUTOR_LECTURE_ID_INVALID` |
-| AT-FB-003 | Invalid `chatId` | `400 AI_TUTOR_CHAT_ID_INVALID` |
-| AT-FB-004 | Invalid `rating` for platform | `400 AI_TUTOR_RATING_INVALID` |
-| AT-FB-005 | Invalid `platform` | `400 AI_TUTOR_PLATFORM_INVALID` |
-| AT-FB-006 | Unknown chat for user/lecture | `404 AI_TUTOR_CHAT_NOT_FOUND` |
-| AT-FB-007 | Valid web request | `200` with rating `0`/`1` and `web-...` feedback |
-| AT-FB-008 | Valid mobile request | `200` with shifted rating and `ios-...` / `android-...` feedback |
-| AT-FB-009 | Blank feedback text | Stored as platform only (`web`, `ios`, or `android`) |
-| AT-FB-010 | Feedback over max length | Trimmed to 191 characters |
+| ID        | Case                          | Expected                                                         |
+| --------- | ----------------------------- | ---------------------------------------------------------------- |
+| AT-FB-001 | Missing session cookie        | `401 UNAUTHORIZED`                                               |
+| AT-FB-002 | Invalid `lectureId`           | `400 AI_TUTOR_LECTURE_ID_INVALID`                                |
+| AT-FB-003 | Invalid `chatId`              | `400 AI_TUTOR_CHAT_ID_INVALID`                                   |
+| AT-FB-004 | Invalid `rating` for platform | `400 AI_TUTOR_RATING_INVALID`                                    |
+| AT-FB-005 | Invalid `platform`            | `400 AI_TUTOR_PLATFORM_INVALID`                                  |
+| AT-FB-006 | Unknown chat for user/lecture | `404 AI_TUTOR_CHAT_NOT_FOUND`                                    |
+| AT-FB-007 | Valid web request             | `200` with rating `0`/`1` and `web-...` feedback                 |
+| AT-FB-008 | Valid mobile request          | `200` with shifted rating and `ios-...` / `android-...` feedback |
+| AT-FB-009 | Blank feedback text           | Stored as platform only (`web`, `ios`, or `android`)             |
+| AT-FB-010 | Feedback over max length      | Trimmed to 191 characters                                        |
 
 ## Commands
 

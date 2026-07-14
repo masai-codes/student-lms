@@ -92,4 +92,3 @@ export interface MasaiverseUpcomingEvent {
   subtitle: string
   ctaLabel: string
 }
-

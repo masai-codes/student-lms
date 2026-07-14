@@ -52,7 +52,8 @@ describe('lectureFeedback.service', () => {
   describe('getLectureFeedbackRecord', () => {
     it('returns nulls when no row exists', async () => {
       hoisted.selectQueue = [[]]
-      const { getLectureFeedbackRecord } = await import('../lectureFeedback.service')
+      const { getLectureFeedbackRecord } =
+        await import('../lectureFeedback.service')
 
       await expect(getLectureFeedbackRecord(7, 572)).resolves.toEqual({
         rating: null,
@@ -62,7 +63,8 @@ describe('lectureFeedback.service', () => {
 
     it('returns the saved rating and feedback', async () => {
       hoisted.selectQueue = [[{ rating: 4, feedback: 'Great session' }]]
-      const { getLectureFeedbackRecord } = await import('../lectureFeedback.service')
+      const { getLectureFeedbackRecord } =
+        await import('../lectureFeedback.service')
 
       await expect(getLectureFeedbackRecord(7, 572)).resolves.toEqual({
         rating: 4,
@@ -72,7 +74,8 @@ describe('lectureFeedback.service', () => {
 
     it('treats a 0 rating as not-yet-rated', async () => {
       hoisted.selectQueue = [[{ rating: 0, feedback: null }]]
-      const { getLectureFeedbackRecord } = await import('../lectureFeedback.service')
+      const { getLectureFeedbackRecord } =
+        await import('../lectureFeedback.service')
 
       await expect(getLectureFeedbackRecord(7, 572)).resolves.toEqual({
         rating: null,
@@ -85,7 +88,8 @@ describe('lectureFeedback.service', () => {
     it('inserts feedback when none exists and the window is open', async () => {
       // [lecture row, existing-feedback lookup (none)]
       hoisted.selectQueue = [[openLectureRow()], []]
-      const { submitLectureFeedback } = await import('../lectureFeedback.service')
+      const { submitLectureFeedback } =
+        await import('../lectureFeedback.service')
 
       const result = await submitLectureFeedback({
         userId: 7,
@@ -101,7 +105,8 @@ describe('lectureFeedback.service', () => {
 
     it('updates feedback when a row already exists', async () => {
       hoisted.selectQueue = [[openLectureRow()], [{ id: 11 }]]
-      const { submitLectureFeedback } = await import('../lectureFeedback.service')
+      const { submitLectureFeedback } =
+        await import('../lectureFeedback.service')
 
       await submitLectureFeedback({
         userId: 7,
@@ -116,29 +121,47 @@ describe('lectureFeedback.service', () => {
 
     it('throws when the lecture is missing', async () => {
       hoisted.selectQueue = [[]]
-      const { submitLectureFeedback } = await import('../lectureFeedback.service')
+      const { submitLectureFeedback } =
+        await import('../lectureFeedback.service')
 
       await expect(
-        submitLectureFeedback({ userId: 7, lectureId: 1, rating: 5, text: null }),
+        submitLectureFeedback({
+          userId: 7,
+          lectureId: 1,
+          rating: 5,
+          text: null,
+        }),
       ).rejects.toThrow('LEARN_DETAIL_NOT_FOUND')
     })
 
     it('throws when the user cannot access the lecture', async () => {
       hoisted.selectQueue = [[openLectureRow()]]
       hoisted.ensureAccess.mockResolvedValueOnce(false)
-      const { submitLectureFeedback } = await import('../lectureFeedback.service')
+      const { submitLectureFeedback } =
+        await import('../lectureFeedback.service')
 
       await expect(
-        submitLectureFeedback({ userId: 7, lectureId: 572, rating: 5, text: null }),
+        submitLectureFeedback({
+          userId: 7,
+          lectureId: 572,
+          rating: 5,
+          text: null,
+        }),
       ).rejects.toThrow('LEARN_DETAIL_NOT_FOUND')
     })
 
     it('throws when the feedback window is closed', async () => {
       hoisted.selectQueue = [[openLectureRow(0)]]
-      const { submitLectureFeedback } = await import('../lectureFeedback.service')
+      const { submitLectureFeedback } =
+        await import('../lectureFeedback.service')
 
       await expect(
-        submitLectureFeedback({ userId: 7, lectureId: 572, rating: 5, text: null }),
+        submitLectureFeedback({
+          userId: 7,
+          lectureId: 572,
+          rating: 5,
+          text: null,
+        }),
       ).rejects.toThrow('FEEDBACK_WINDOW_CLOSED')
     })
   })
