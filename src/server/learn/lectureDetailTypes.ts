@@ -57,6 +57,14 @@ export type LectureDetailPayload = LearnHubDetailPayload & {
   tabs: LectureDetailTabContent
   videoUrl: string | null
   zoomLink: string | null
+  /**
+   * For a SAL (adaptive) live lecture that has ended, the lecture-scoped
+   * adaptive join link — which the experience-api handler redirects to the
+   * recording once the meeting is over. Null for non-adaptive lectures, or
+   * before the lecture ends. Powers the "Watch Recording" affordance since SAL
+   * recordings live on the adaptive platform, not in `videoUrl`.
+   */
+  adaptiveRecordingUrl: string | null
   livePhase: LiveLecturePhase | null
   videoPhase: VideoLecturePhase | null
   hasRecording: boolean
