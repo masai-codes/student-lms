@@ -5,10 +5,12 @@ import {
   LearningDetailMasaiBreadcrumb,
   ResourceDetailPage,
 } from '@/components/features/learn/LearnPageDetails'
-import { layoutMainClasses } from '@/lib/layout'
+import { detailRouteInnerClasses } from '@/lib/layout'
 import { fetchResourceLearningDetailFromApi } from '@/lib/api/learn/learnApi'
 
-export const Route = createFileRoute('/(protected)/_layout/resources_/$resourceId')({
+export const Route = createFileRoute(
+  '/(protected)/_layout/resources_/$resourceId',
+)({
   component: RouteComponent,
   errorComponent: LearnPageDetailError,
   loader: async ({ params }) => {
@@ -24,7 +26,7 @@ function RouteComponent() {
   const detail = Route.useLoaderData()
 
   return (
-    <div className={layoutMainClasses}>
+    <div className={detailRouteInnerClasses}>
       <LearningDetailMasaiBreadcrumb currentLabel={detail.title} />
       <ResourceDetailPage detail={detail} />
     </div>

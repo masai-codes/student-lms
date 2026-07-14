@@ -40,7 +40,7 @@ function LearnTypeIcon({ type }: Pick<LearnContentItem, 'type'>) {
       alt={LEARN_TYPE_ICON_ALT[type]}
       width={40}
       height={40}
-      className="size-10 shrink-0 object-contain"
+      className="size-10 shrink-0 object-contain transition-transform duration-200 group-hover:scale-110"
       loading="lazy"
       decoding="async"
     />
@@ -100,7 +100,7 @@ export function LearnContentCard({
               : 'learn_listing',
         })
       }
-      className="bg-white rounded-[8px] border border-gray-200 p-3 block transition-colors hover:bg-gray-50/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+      className="group bg-white rounded-[8px] border border-gray-200 p-3 block transition-colors duration-200 hover:border-[#4F6BED]/35 hover:bg-gray-50/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
     >
       <div
         className={cn(
@@ -119,8 +119,8 @@ export function LearnContentCard({
               title={item.title}
               className={
                 fromDashboard
-                  ? 'line-clamp-2 break-words text-sm font-medium leading-snug text-gray-900 md:text-base'
-                  : 'type-b1-md break-words'
+                  ? 'line-clamp-2 break-words text-sm font-medium leading-snug text-gray-900 transition-colors duration-200 group-hover:text-[#4F6BED] md:text-base'
+                  : 'type-b1-md break-words transition-colors duration-200 group-hover:text-[#4F6BED]'
               }
             >
               {item.title}
@@ -140,7 +140,10 @@ export function LearnContentCard({
                   />
                   {item.courseName ? (
                     <>
-                      <span className="size-1 shrink-0 rounded-full bg-gray-600" aria-hidden />
+                      <span
+                        className="size-1 shrink-0 rounded-full bg-gray-600"
+                        aria-hidden
+                      />
                       <span className="max-w-[10ch] truncate md:max-w-[15ch]">
                         {item.courseName}
                       </span>
@@ -159,7 +162,7 @@ export function LearnContentCard({
                         size="regular"
                         label={tag}
                         tabIndex={-1}
-                        className="cursor-default"
+                        className="cursor-default transition-colors duration-200"
                         {...learnContentTagChipPalette}
                       />
                     ))}
@@ -196,7 +199,7 @@ export function LearnContentCard({
                         size="regular"
                         label={tag}
                         tabIndex={-1}
-                        className="cursor-default"
+                        className="cursor-default transition-colors duration-200"
                         {...learnContentTagChipPalette}
                       />
                     ))}

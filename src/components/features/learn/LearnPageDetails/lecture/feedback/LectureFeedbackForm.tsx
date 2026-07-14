@@ -97,7 +97,9 @@ export function LectureFeedbackForm({
 
   return (
     <section className="rounded-xl border border-border bg-white px-4 py-3">
-      <h2 className="type-b1-md text-gray-900">How would you rate this lecture?</h2>
+      <h2 className="type-b1-md text-gray-900">
+        How would you rate this lecture?
+      </h2>
       <div
         className="mt-2 flex gap-1.5"
         role="radiogroup"
@@ -116,14 +118,17 @@ export function LectureFeedbackForm({
             onFocus={() => setHovered(star)}
             onBlur={() => setHovered(0)}
             onClick={() => setRating(star)}
-            className="rounded-md outline-none focus-visible:ring-2 focus-visible:ring-amber-300 disabled:cursor-not-allowed"
+            className="rounded-md outline-none transition-transform duration-150 hover:scale-110 focus-visible:ring-2 focus-visible:ring-amber-300 active:scale-95 disabled:cursor-not-allowed"
           >
             <Star
+              // Remounting the chosen star replays the springy pop on select.
+              key={rating === star ? `selected-${rating}` : 'idle'}
               size={28}
               weight={star <= active ? 'fill' : 'regular'}
               className={cn(
                 'transition-colors',
                 star <= active ? 'text-amber-400' : 'text-gray-300',
+                rating === star && 'animate-masaiverse-star-pop',
               )}
             />
           </button>
@@ -145,6 +150,7 @@ export function LectureFeedbackForm({
           ctaText={savedRating != null ? 'Update feedback' : 'Submit feedback'}
           disabled={rating < 1 || submitting}
           onClick={handleSubmit}
+          className="transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md hover:shadow-[#4F6BED]/20 active:translate-y-0 active:scale-[0.98]"
         />
       </div>
     </section>

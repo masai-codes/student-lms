@@ -80,14 +80,14 @@ export function LectureDiscussionListItem({
   const toggleLabel = getDiscussionRepliesToggleLabel(expanded, replyCount)
 
   return (
-    <div className="rounded-lg border border-gray-200 bg-white shadow-sm">
+    <div className="animate-dash-row-in rounded-lg border border-gray-200 bg-white shadow-sm transition-colors duration-200 hover:border-[#4F6BED]/35">
       <div className="p-3">
         <DiscussionSummaryCard discussion={discussion} embedded />
         <button
           type="button"
           onClick={toggleReplies}
           aria-expanded={expanded}
-          className="type-b3-md mt-2 inline-flex items-center gap-1 rounded-full px-2 py-1 text-[#6962AC] hover:bg-purple-50"
+          className="type-b3-md mt-2 inline-flex items-center gap-1 rounded-full px-2 py-1 text-[#6962AC] transition duration-150 hover:bg-purple-50 active:scale-95"
         >
           {expanded ? (
             <CaretUp className="size-4" aria-hidden />
@@ -109,7 +109,7 @@ export function LectureDiscussionListItem({
             </p>
           ) : (
             <div className={cn(discussion.isClosed ? 'pb-0' : 'pb-3')}>
-              {discussion.threads.map(thread => (
+              {discussion.threads.map((thread) => (
                 <LectureDiscussionReplyItem key={thread.id} thread={thread} />
               ))}
             </div>
@@ -126,7 +126,10 @@ export function LectureDiscussionListItem({
                 onSubmit={handleReplySubmit}
               />
               {replyError ? (
-                <p className="type-caption-regular mt-2 text-destructive" role="alert">
+                <p
+                  className="type-caption-regular mt-2 text-destructive"
+                  role="alert"
+                >
                   {replyError}
                 </p>
               ) : null}

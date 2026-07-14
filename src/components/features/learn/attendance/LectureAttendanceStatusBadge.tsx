@@ -21,7 +21,11 @@ export function LectureAttendanceStatusBadge({
         className={cn(badgeBase, 'bg-emerald-100 text-emerald-700', className)}
         aria-label="Present"
       >
-        <CheckCircle weight="fill" className="size-[18px] shrink-0" aria-hidden />
+        <CheckCircle
+          weight="fill"
+          className="size-[18px] shrink-0"
+          aria-hidden
+        />
         <span className="capitalize">Present</span>
       </span>
     )
@@ -50,13 +54,10 @@ export function LectureAttendanceStatusBadge({
         aria-label="Continue watching"
       >
         <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-primary-600">
-          <PlayCircle
-            weight="fill"
-            className="size-4 text-white"
-            aria-hidden
-          />
+          <PlayCircle weight="fill" className="size-4 text-white" aria-hidden />
         </span>
-        <span className="whitespace-nowrap">Continue Watching</span>
+        {/* Wraps below `sm` so the badge can't force 320px viewports to scroll. */}
+        <span className="sm:whitespace-nowrap">Continue Watching</span>
       </span>
     )
   }
@@ -73,7 +74,8 @@ export function LectureAttendanceStatusBadge({
       <span className="flex size-5 shrink-0 items-center justify-center rounded-full bg-rose-600">
         <Timer weight="bold" className="size-3 text-white" aria-hidden />
       </span>
-      <span className="whitespace-nowrap">Absent and Att. Window Over</span>
+      {/* Wraps below `sm` so the badge can't force 320px viewports to scroll. */}
+      <span className="sm:whitespace-nowrap">Absent and Att. Window Over</span>
     </span>
   )
 }

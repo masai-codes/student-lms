@@ -1,5 +1,3 @@
-import { CircleNotch } from '@phosphor-icons/react'
-
 interface SidebarPanelProps {
   title: string
   /** `data-testid` for the panel root; the title gets `${testId}-title`. */
@@ -31,10 +29,17 @@ export function SidebarPanel({
   return (
     <section
       data-testid={testId}
-      className="flex flex-col gap-4 rounded-2xl border border-gray-200 bg-white p-5"
+      className="flex flex-col gap-4 rounded-2xl border border-gray-200 bg-white p-5 transition-colors duration-300 hover:border-[#4F6BED]/25"
     >
       <div className="flex items-center justify-between gap-2">
-        <h3 data-testid={`${testId}-title`} className="text-base font-bold text-gray-900">
+        <h3
+          data-testid={`${testId}-title`}
+          className="flex items-center gap-2 text-base font-bold text-gray-900"
+        >
+          <span
+            aria-hidden
+            className="h-4 w-1 shrink-0 rounded-full bg-gradient-to-b from-[#4F6BED] to-[#7C3AED]"
+          />
           {title}
         </h3>
         {action}
@@ -69,25 +74,35 @@ function PanelBody({
 }) {
   if (isLoading) {
     return (
-      <div
-        data-testid={`${testId}-loading`}
-        className="flex items-center justify-center gap-2 py-8 text-sm text-gray-400"
-      >
-        <CircleNotch size={16} className="animate-spin" />
-        Loading…
+      <div data-testid={`${testId}-loading`} className="flex flex-col gap-3">
+        {/* Tests (and screen readers) still see the literal "Loading…". */}
+        <span className="sr-only">Loading…</span>
+        {[0, 1].map((i) => (
+          <div
+            key={i}
+            className="dash-skeleton h-14 rounded-xl"
+            style={{ animationDelay: `${i * 0.12}s` }}
+          />
+        ))}
       </div>
     )
   }
   if (isError) {
     return (
-      <p data-testid={`${testId}-error`} className="py-8 text-center text-sm text-gray-400">
+      <p
+        data-testid={`${testId}-error`}
+        className="py-8 text-center text-sm text-gray-400"
+      >
         Failed to load content
       </p>
     )
   }
   if (isEmpty) {
     return (
-      <p data-testid={`${testId}-empty`} className="py-8 text-center text-sm text-gray-400">
+      <p
+        data-testid={`${testId}-empty`}
+        className="py-8 text-center text-sm text-gray-400"
+      >
         {emptyText}
       </p>
     )
@@ -109,9 +124,15 @@ export function SidebarPanelLink({
       type="button"
       onClick={onClick}
       data-testid={testId}
-      className="text-sm font-medium text-[#4F46E5] transition-colors hover:text-[#4338CA] focus-visible:outline-none focus-visible:underline"
+      className="group inline-flex items-center gap-0.5 text-sm font-medium text-[#4F46E5] transition-colors hover:text-[#4338CA] focus-visible:outline-none focus-visible:underline"
     >
-      {label}
+      <span>{label}</span>
+      <span
+        aria-hidden
+        className="transition-transform duration-200 ease-out group-hover:translate-x-0.5"
+      >
+        →
+      </span>
     </button>
   )
 }

@@ -40,7 +40,7 @@ export function LectureDiscussionPagination({
   return (
     <div
       data-testid="discussion-pagination"
-      className="mt-4 flex flex-col items-center gap-2"
+      className="mt-4 flex flex-col items-center gap-2 [&_button]:transition [&_button]:duration-150 [&_button:hover]:-translate-y-px [&_button:active]:scale-95"
     >
       <MasaiPagination
         currentPage={page}

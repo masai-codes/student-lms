@@ -45,7 +45,8 @@ function splitDuration(remainingMs: number): Array<CountdownUnit> {
 
   // Days only surface when the lecture is more than a day out, keeping the row
   // compact for the common same-day case.
-  if (days > 0) units.unshift({ key: 'd', value: days, label: days === 1 ? 'Day' : 'Days' })
+  if (days > 0)
+    units.unshift({ key: 'd', value: days, label: days === 1 ? 'Day' : 'Days' })
 
   return units
 }
@@ -56,7 +57,9 @@ function CountdownTile({ value, label }: { value: number; label: string }) {
 
   return (
     <div className="flex flex-col items-center gap-1.5">
-      <div className="relative flex h-16 w-14 items-center justify-center overflow-hidden rounded-2xl border border-white/70 bg-white/80 shadow-sm shadow-primary/5 backdrop-blur-sm sm:h-[4.5rem] sm:w-16">
+      {/* Tiles shrink a notch below 400px so the four-tile (days) row still
+          fits inside the card at 320px viewports. */}
+      <div className="relative flex h-14 w-12 items-center justify-center overflow-hidden rounded-2xl border border-white/70 bg-white/80 shadow-sm shadow-primary/5 backdrop-blur-sm min-[400px]:h-16 min-[400px]:w-14 sm:h-[4.5rem] sm:w-16">
         {/* Faint divider that hints at a split-flap clock. */}
         <span className="pointer-events-none absolute inset-x-0 top-1/2 h-px -translate-y-1/2 bg-gray-900/5" />
         <span
@@ -67,7 +70,9 @@ function CountdownTile({ value, label }: { value: number; label: string }) {
           {padded}
         </span>
       </div>
-      <span className="type-caption uppercase tracking-[0.14em] text-gray-500">{label}</span>
+      <span className="type-caption uppercase tracking-[0.14em] text-gray-500">
+        {label}
+      </span>
     </div>
   )
 }
@@ -83,7 +88,9 @@ type LectureStartsInCountdownProps = {
  * each `REFETCH_MARKS_MS` boundary it refetches the route so the join CTA
  * appears / enables automatically, without the student reloading.
  */
-export function LectureStartsInCountdown({ schedule }: LectureStartsInCountdownProps) {
+export function LectureStartsInCountdown({
+  schedule,
+}: LectureStartsInCountdownProps) {
   const router = useRouter()
   const targetMs = parseMysqlDatetimeIST(schedule)?.valueOf() ?? null
   const remainingMs = useCountdown(targetMs)
@@ -134,13 +141,16 @@ export function LectureStartsInCountdown({ schedule }: LectureStartsInCountdownP
           </span>
         </div>
 
-        <div className="flex items-end gap-1.5">
+        <div className="flex items-end gap-1 min-[400px]:gap-1.5">
           {units.map((unit, index) => (
-            <div key={unit.key} className="flex items-end gap-1.5">
+            <div
+              key={unit.key}
+              className="flex items-end gap-1 min-[400px]:gap-1.5"
+            >
               <CountdownTile value={unit.value} label={unit.label} />
               {index < units.length - 1 ? (
                 <span
-                  className="type-h4 animate-countdown-pulse pb-7 font-semibold text-primary/50"
+                  className="type-h4 animate-countdown-pulse pb-6 font-semibold text-primary/50 min-[400px]:pb-7"
                   aria-hidden
                 >
                   :

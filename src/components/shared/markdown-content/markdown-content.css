@@ -154,7 +154,12 @@
 }
 
 .markdown-content table {
+  /* `display: block` + `overflow-x: auto` keeps wide tables scrollable inside
+     the content column instead of overflowing the viewport on phones. */
+  display: block;
   width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
   margin-bottom: 16px;
   border-collapse: collapse;
 }
