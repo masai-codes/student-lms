@@ -1,4 +1,5 @@
 import { loginAndJoinLectureConfig } from './flows/login-and-join-lecture/config'
+import { liveLecturePhasesConfig } from './flows/live-lecture-phases/config'
 import { dashboardHomeConfig } from './flows/dashboard-home/config'
 import {
   createOnboardingFlowMeta,
@@ -11,6 +12,7 @@ const onboardingConfigs = ONBOARDING_FLOW_IDS.map((id) => createOnboardingFlowMe
 
 const flowConfigs: SeedFlowMeta[] = [
   loginAndJoinLectureConfig,
+  liveLecturePhasesConfig,
   dashboardHomeConfig,
   ...onboardingConfigs,
 ]
@@ -34,6 +36,10 @@ async function loadFlowModule(id: string): Promise<SeedFlowModule> {
         './flows/login-and-join-lecture/seed'
       )
       return { meta: loginAndJoinLectureConfig, seed: seedLoginAndJoinLecture }
+    }
+    case liveLecturePhasesConfig.id: {
+      const { seedLiveLecturePhases } = await import('./flows/live-lecture-phases/seed')
+      return { meta: liveLecturePhasesConfig, seed: seedLiveLecturePhases }
     }
     case dashboardHomeConfig.id: {
       const { seedDashboardHome } = await import('./flows/dashboard-home/seed')

@@ -16,15 +16,14 @@ export async function createSubmission(
     throw new Error('createSubmission requires assignmentId and userId')
   }
 
-  const values: SubmissionInsert = {
+  const values = {
     score: 0,
-    oldScore: 0,
     started: 0,
     completed: 0,
     ...overrides,
     assignmentId,
     userId,
-  }
+  } as SubmissionInsert
 
   const [result] = await db.insert(submissions).values(values)
   const id = Number(result.insertId)

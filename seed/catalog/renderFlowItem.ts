@@ -11,12 +11,69 @@ function escapeHtml(value: string): string {
     .replaceAll('"', '&quot;')
 }
 
+/**
+ * Parse a seedCommand string (which may contain `# comment` lines between commands)
+ * into an array of { label, command } blocks — one entry per runnable command.
+ */
+function parseSeedCommands(raw: string): Array<{ label: string; command: string }> {
+  const lines = raw.split('\n').map((l) => l.trim()).filter(Boolean)
+  const blocks: Array<{ label: string; command: string }> = []
+  let pendingLabel = ''
+
+  for (const line of lines) {
+    if (line.startsWith('#')) {
+      // Strip leading `# ` and trailing `:` for a clean label
+      pendingLabel = line.replace(/^#+\s*/, '').replace(/:$/, '').trim()
+    } else {
+      blocks.push({ label: pendingLabel, command: line })
+      pendingLabel = ''
+    }
+  }
+  return blocks
+}
+
+function renderSeedCommands(seedCommand: string): string {
+  const blocks = parseSeedCommands(seedCommand)
+
+  const items = blocks
+    .map(
+      ({ label, command }) => `
+      <div class="cmd-block">
+        ${label ? `<span class="cmd-label">${escapeHtml(label)}</span>` : ''}
+        <div class="cmd-row">
+          <code class="cmd-text">${escapeHtml(command)}</code>
+          <button
+            type="button"
+            class="cmd-copy"
+            data-cmd="${escapeHtml(command)}"
+            title="Copy command"
+            aria-label="Copy command"
+          >
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="5" y="5" width="8" height="9" rx="1.2"/>
+              <path d="M3 11H2.5A1.5 1.5 0 0 1 1 9.5v-7A1.5 1.5 0 0 1 2.5 1h7A1.5 1.5 0 0 1 11 2.5V3"/>
+            </svg>
+          </button>
+        </div>
+      </div>`,
+    )
+    .join('')
+
+  return `<div class="cmd-list">${items}</div>`
+}
+
 function resolvePrimaryEmail(flow: SeedFlowMeta, primaryRole: string): string {
   return (
     flow.defaultCredentialEmails?.find((cred) => cred.role === primaryRole)?.email ??
     flow.defaultCredentialEmails?.[0]?.email ??
     ''
   )
+}
+
+function rolePillClass(role: string): string {
+  if (role === 'student') return 'student'
+  if (role === 'admin') return 'admin'
+  return 'default'
 }
 
 function renderCredentialRows(
@@ -40,7 +97,7 @@ function renderCredentialRows(
         : `<td class="muted">No token</td>`
 
       return `<tr data-user-role="${escapeHtml(cred.role)}">
-        <td>${escapeHtml(cred.role)}</td>
+        <td><span class="role-pill ${rolePillClass(cred.role)}">${escapeHtml(cred.role)}</span></td>
         <td>${escapeHtml(cred.email)}</td>
         <td><code>${escapeHtml(DEV_PASSWORD_PLAINTEXT)}</code></td>
         ${userIdCell}
@@ -144,14 +201,41 @@ export function renderFlowItem(
         </div>`
       : ''
 
+  const liveLecturePhasesPanel =
+    flow.id === 'live-lecture-phases'
+      ? `<div class="panel-section">
+          <h3>Lectures in the flow</h3>
+          <table>
+            <thead><tr><th>Lecture</th><th>Timing (relative to seed)</th><th>Expected UI</th></tr></thead>
+            <tbody>
+              <tr><td><code>beforeUnlockLectureId</code></td><td>Starts in ~20 min (outside 10-min join window)</td><td>Clock icon · “Live lecture hasn't started yet” · unlock time shown</td></tr>
+              <tr><td><code>duringJoinLectureId</code></td><td>Starts in ~3 min (inside 5-min-before → conclude+30 min window)</td><td>Video icon · join button active · mute reminder</td></tr>
+              <tr><td><code>optionalLiveBeforeUnlockLectureId</code></td><td>Same timing as before unlock · <code>optional: 1</code></td><td>Same clock / not-started UI · Recommended chip (no attendance badge)</td></tr>
+              <tr><td><code>optionalLiveDuringJoinLectureId</code></td><td>Same timing as during join · <code>optional: 1</code></td><td>Join button active · Recommended chip (no attendance badge)</td></tr>
+              <tr><td><code>videoMandatoryLectureId</code></td><td><code>type: video</code> · schedule in the past · mandatory</td><td>Video player unlocked · Mandatory chip</td></tr>
+              <tr><td><code>videoOptionalLectureId</code></td><td><code>type: video</code> · schedule in the past · optional</td><td>Video player unlocked · Recommended chip</td></tr>
+              <tr><td><code>afterNoRecordingLectureId</code></td><td>Ended ~90 min ago (past conclude+30 grace)</td><td>Blank video container · “Recording not available yet”</td></tr>
+              <tr><td><code>afterWithRecordingAttendanceOffLectureId</code></td><td>Ended ~90 min ago · section <code>enableVideoAttendance: false</code>, <code>considerVideoAttendanceForActualAttendance: false</code></td><td>Full recording player · disclaimer: recording does <b>not</b> count for attendance</td></tr>
+              <tr><td><code>afterWithRecordingAttendanceOnLectureId</code></td><td>Ended ~90 min ago · section <code>enableVideoAttendance: true</code>, <code>considerVideoAttendanceForActualAttendance: true</code>, <code>minimumVideoWatchPercentage: 5</code></td><td>Recording player · tabs seeded (Description, AI Summary, Transcript, Associated Content) · watch past 5% to flip Present</td></tr>
+            </tbody>
+          </table>
+          <p class="note">Recording lectures use the Masai CDN HLS master playlist (<code>master.m3u8</code>) for multi-quality playback (360/480/720/1080). Open from Learn → the matching section.</p>
+        </div>`
+      : ''
+
+  const LECTURE_FLOW_IDS = new Set(['login-and-join-lecture', 'live-lecture-phases'])
+  const isLecture = LECTURE_FLOW_IDS.has(flow.id)
+  const badgeClass = isLecture ? 'flow-badge lec' : 'flow-badge'
+  const badgeLabel = isLecture ? 'LECTURE' : 'FLOW'
+
   return `
     <article class="flow-item" data-flow-id="${escapeHtml(flow.id)}" data-search="${escapeHtml(`${flow.id} ${flow.description}`.toLowerCase())}">
       <div class="flow-row">
         <button type="button" class="flow-toggle" aria-expanded="false">
-          <span class="flow-badge">FLOW</span>
+          <span class="${badgeClass}">${badgeLabel}</span>
           <span class="flow-id">${escapeHtml(flow.id)}</span>
           <span class="flow-summary">${escapeHtml(flow.description)}</span>
-          <span class="chevron" aria-hidden="true">▸</span>
+          <svg class="chevron" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 4 10 8 6 12"/></svg>
         </button>
         <button
           type="button"
@@ -166,28 +250,33 @@ export function renderFlowItem(
       <div class="flow-panel" hidden>
         <div class="panel-section">
           <h3>Seed command</h3>
-          <pre><code>${escapeHtml(flow.seedCommand)}</code></pre>
+          ${renderSeedCommands(flow.seedCommand)}
         </div>
         ${unpaidComponentsPanel}
         ${paidComponentsPanel}
         ${dashboardHomePanel}
+        ${liveLecturePhasesPanel}
         <div class="panel-grid">
           <div class="panel-section">
             <h3>Timing offsets</h3>
+            <div class="table-wrap">
             <table>
               <thead><tr><th>Key</th><th>Offset</th></tr></thead>
               <tbody>${timingRows}</tbody>
             </table>
+            </div>
           </div>
           ${
             resolvedTimingRows
               ? `<div class="panel-section">
             <h3>Last seeded timestamps</h3>
             <p class="note">Seeded ${escapeHtml(flowState?.seededAt ?? '')}</p>
+            <div class="table-wrap">
             <table>
               <thead><tr><th>Key</th><th>Value</th></tr></thead>
               <tbody>${resolvedTimingRows}</tbody>
             </table>
+            </div>
           </div>`
               : ''
           }
@@ -196,20 +285,24 @@ export function renderFlowItem(
           entityRows
             ? `<div class="panel-section">
           <h3>Entity IDs</h3>
+          <div class="table-wrap">
           <table>
             <thead><tr><th>Entity</th><th>ID</th></tr></thead>
             <tbody>${entityRows}</tbody>
           </table>
+          </div>
         </div>`
             : ''
         }
         <div class="panel-section">
           <h3>Test users</h3>
           <p class="note">Password: <code>${escapeHtml(DEV_PASSWORD_PLAINTEXT)}</code>. Primary login role: <code>${escapeHtml(primaryRole)}</code>.</p>
+          <div class="table-wrap">
           <table>
             <thead><tr><th>Role</th><th>Email</th><th>Password</th><th>User ID</th><th></th></tr></thead>
             <tbody>${renderCredentialRows(flow, flowState, secretLoginToken)}</tbody>
           </table>
+          </div>
         </div>
       </div>
     </article>`

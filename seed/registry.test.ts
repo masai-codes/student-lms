@@ -14,6 +14,7 @@ describe('seed registry', () => {
   it('lists login-and-join-lecture flow', () => {
     const flows = listFlows()
     expect(flows.some((flow) => flow.id === 'login-and-join-lecture')).toBe(true)
+    expect(flows.some((flow) => flow.id === 'live-lecture-phases')).toBe(true)
     expect(flows.some((flow) => flow.id === 'dashboard-home')).toBe(true)
   })
 
