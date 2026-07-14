@@ -1,10 +1,10 @@
 import { and, desc, eq, isNull } from 'drizzle-orm'
 import {
   buildBannerAnalyticsKey,
-  getIstNowMs,
   getUserBannerGroup,
   isBannerVisibleToBatches,
   isBannerVisibleToGroup,
+  isNonMasaiVerseBanner,
   isWithinBannerWindow,
   parseBannerVisibility,
 } from './welcomeBannerVisibility'
@@ -27,12 +27,18 @@ export interface DashboardBanner {
  * Resolves the welcome-area banners visible to a user by composing small,
  * independently-testable pieces:
  *
+ * These rules mirror the old LMS `getBanners` resolver's student path so both
+ * dashboards surface the same set:
+ *
  * 1. DB filter — only `is_active` and non-deleted rows are fetched.
- * 2. Time window — kept only when IST "now" is inside `[start_date, end_date]`.
- * 3. Batch targeting — `visible_to.batches` empty, or intersects the user's
- *    enrolled batches (resolved via {@link getBatchIdsForEnrolledUser}).
- * 4. Group targeting — `visible_to.random_group` empty, or contains the user's
- *    A/B/C/D bucket.
+ * 2. Masaiverse — only banners whose `settings.isMasaiVerse` is explicitly
+ *    `false` (the dashboard never shows Masaiverse banners).
+ * 3. Time window — kept only when both `start_date` and `end_date` are set and
+ *    IST "now" is inside `[start_date, end_date]`.
+ * 4. Targeting — the banner must *explicitly* target the user: one of its
+ *    `visible_to.batches` matches an enrolled batch (via
+ *    {@link getBatchIdsForEnrolledUser}) OR its `visible_to.random_group`
+ *    contains the user's A/B/C/D bucket. Empty targeting reaches nobody.
  *
  * Ordering is newest-first; the UI handles per-refresh rotation client-side.
  */
@@ -53,6 +59,7 @@ export async function getWelcomeBanners(
       variant: banners.variant,
       groupName: banners.groupName,
       visibleTo: banners.visibleTo,
+      settings: banners.settings,
       startDate: banners.startDate,
       endDate: banners.endDate,
     })
@@ -62,17 +69,24 @@ export async function getWelcomeBanners(
 
   const userBatchIds = batchIds.map(String)
   const userGroup = getUserBannerGroup(userId)
-  const istNowMs = getIstNowMs(now.getTime())
+  const nowMs = now.getTime()
 
   return rows
     .filter((row) => {
-      if (!isWithinBannerWindow(row.startDate, row.endDate, istNowMs)) return false
+      if (!isNonMasaiVerseBanner(row.settings as string | Record<string, unknown> | null))
+        return false
+
+      if (!isWithinBannerWindow(row.startDate, row.endDate, nowMs)) return false
 
       const visibility = parseBannerVisibility(
         row.visibleTo as string | Record<string, unknown> | null,
       )
-      if (!isBannerVisibleToBatches(visibility, userBatchIds)) return false
-      if (!isBannerVisibleToGroup(visibility, userGroup)) return false
+      // Old-LMS parity: batch OR group match; empty targeting reaches nobody.
+      if (
+        !isBannerVisibleToBatches(visibility, userBatchIds) &&
+        !isBannerVisibleToGroup(visibility, userGroup)
+      )
+        return false
 
       return true
     })

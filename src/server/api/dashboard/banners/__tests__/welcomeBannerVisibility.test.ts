@@ -1,13 +1,13 @@
 import { describe, expect, it } from 'vitest'
 import {
   buildBannerAnalyticsKey,
-  getIstNowMs,
   getUserBannerGroup,
   isBannerVisibleToBatches,
   isBannerVisibleToGroup,
+  isNonMasaiVerseBanner,
   isWithinBannerWindow,
+  parseBannerInstant,
   parseBannerVisibility,
-  parseIstWallClock,
 } from '../welcomeBannerVisibility'
 
 describe('buildBannerAnalyticsKey', () => {
@@ -56,8 +56,8 @@ describe('parseBannerVisibility', () => {
 })
 
 describe('isBannerVisibleToBatches', () => {
-  it('is visible to everyone when no batches are targeted', () => {
-    expect(isBannerVisibleToBatches({ batches: [], randomGroup: [] }, ['5'])).toBe(true)
+  it('reaches nobody when no batches are targeted (old-LMS parity)', () => {
+    expect(isBannerVisibleToBatches({ batches: [], randomGroup: [] }, ['5'])).toBe(false)
   })
 
   it('is visible only when a targeted batch intersects the user batches', () => {
@@ -67,8 +67,8 @@ describe('isBannerVisibleToBatches', () => {
 })
 
 describe('isBannerVisibleToGroup', () => {
-  it('is visible to everyone when no group is targeted', () => {
-    expect(isBannerVisibleToGroup({ batches: [], randomGroup: [] }, 'A')).toBe(true)
+  it('reaches nobody when no group is targeted (old-LMS parity)', () => {
+    expect(isBannerVisibleToGroup({ batches: [], randomGroup: [] }, 'A')).toBe(false)
   })
 
   it('is visible only when the user group is listed', () => {
@@ -77,28 +77,64 @@ describe('isBannerVisibleToGroup', () => {
   })
 })
 
-describe('IST window', () => {
-  it('shifts now by +5:30 and parses IST wall-clock datetimes into the same frame', () => {
-    const utcNoon = Date.parse('2026-07-02T12:00:00Z')
-    expect(getIstNowMs(utcNoon)).toBe(parseIstWallClock('2026-07-02 17:30:00'))
+describe('isNonMasaiVerseBanner', () => {
+  it('shows only banners whose settings.isMasaiVerse is explicitly false', () => {
+    expect(isNonMasaiVerseBanner({ isMasaiVerse: false })).toBe(true)
+    expect(isNonMasaiVerseBanner('{"isMasaiVerse":false}')).toBe(true)
   })
 
-  it('returns null for missing/invalid wall-clock values', () => {
-    expect(parseIstWallClock(null)).toBeNull()
-    expect(parseIstWallClock('nope')).toBeNull()
+  it('hides Masaiverse, missing-flag, missing-settings and malformed banners', () => {
+    expect(isNonMasaiVerseBanner({ isMasaiVerse: true })).toBe(false)
+    expect(isNonMasaiVerseBanner({})).toBe(false)
+    expect(isNonMasaiVerseBanner(null)).toBe(false)
+    expect(isNonMasaiVerseBanner('not json')).toBe(false)
+  })
+})
+
+describe('parseBannerInstant', () => {
+  // The driver returns zoned strings; appending a bare "Z" to those used to
+  // yield Invalid Date, which made every banner's window unbounded.
+  it('parses an already-zoned datetime as an absolute instant', () => {
+    expect(parseBannerInstant('2026-05-07T20:40:00+05:30')).toBe(
+      Date.parse('2026-05-07T15:10:00Z'),
+    )
+    expect(parseBannerInstant('2026-05-07T15:10:00Z')).toBe(
+      Date.parse('2026-05-07T15:10:00Z'),
+    )
   })
 
-  it('treats missing bounds as open on that side', () => {
-    const now = parseIstWallClock('2026-07-02 12:00:00') as number
-    expect(isWithinBannerWindow(null, null, now)).toBe(true)
-    expect(isWithinBannerWindow('2026-07-01 00:00:00', null, now)).toBe(true)
-    expect(isWithinBannerWindow(null, '2026-07-03 00:00:00', now)).toBe(true)
+  it('treats a naive datetime as IST wall-clock', () => {
+    expect(parseBannerInstant('2026-05-07 20:40:00')).toBe(
+      Date.parse('2026-05-07T15:10:00Z'),
+    )
+  })
+
+  it('returns null for missing/invalid values', () => {
+    expect(parseBannerInstant(null)).toBeNull()
+    expect(parseBannerInstant('')).toBeNull()
+    expect(parseBannerInstant('nope')).toBeNull()
+  })
+})
+
+describe('isWithinBannerWindow', () => {
+  const now = Date.parse('2026-07-02T12:00:00Z')
+
+  it('hides banners with a missing bound (old-LMS parity)', () => {
+    expect(isWithinBannerWindow(null, null, now)).toBe(false)
+    expect(isWithinBannerWindow('2026-07-01T00:00:00Z', null, now)).toBe(false)
+    expect(isWithinBannerWindow(null, '2026-07-03T00:00:00Z', now)).toBe(false)
   })
 
   it('excludes banners before start or after end', () => {
-    const now = parseIstWallClock('2026-07-02 12:00:00') as number
-    expect(isWithinBannerWindow('2026-07-03 00:00:00', '2026-07-10 00:00:00', now)).toBe(false)
-    expect(isWithinBannerWindow('2026-06-01 00:00:00', '2026-07-01 00:00:00', now)).toBe(false)
-    expect(isWithinBannerWindow('2026-07-01 00:00:00', '2026-07-10 00:00:00', now)).toBe(true)
+    expect(isWithinBannerWindow('2026-07-03T00:00:00Z', '2026-07-10T00:00:00Z', now)).toBe(false)
+    expect(isWithinBannerWindow('2026-06-01T00:00:00Z', '2026-07-01T00:00:00Z', now)).toBe(false)
+    expect(isWithinBannerWindow('2026-07-01T00:00:00Z', '2026-07-10T00:00:00Z', now)).toBe(true)
+  })
+
+  it('works with the zoned strings the driver actually returns', () => {
+    // 2026-10-15T23:59+05:30 is still in the future relative to `now`.
+    expect(
+      isWithinBannerWindow('2026-05-07T20:40:00+05:30', '2026-10-15T23:59:00+05:30', now),
+    ).toBe(true)
   })
 })

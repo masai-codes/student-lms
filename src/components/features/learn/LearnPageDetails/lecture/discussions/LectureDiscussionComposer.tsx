@@ -52,7 +52,8 @@ export function LectureDiscussionComposer({
       <div className="min-w-0 flex-1">
         <div
           className={cn(
-            'rounded-2xl border bg-white transition-colors',
+            'rounded-2xl border bg-white transition-[border-color,box-shadow] duration-200',
+            'focus-within:border-[#4F6BED]/50 focus-within:ring-2 focus-within:ring-[#4F6BED]/15',
             hasDraft ? 'border-gray-300 shadow-sm' : 'border-gray-200',
           )}
         >
@@ -77,6 +78,7 @@ export function LectureDiscussionComposer({
               htmlType="button"
               disabled={disabled}
               onClick={() => setDescriptionHtml('')}
+              className="transition-transform duration-150 active:scale-95"
             >
               Cancel
             </MasaiButton>
@@ -86,6 +88,7 @@ export function LectureDiscussionComposer({
               htmlType="button"
               disabled={!canSubmit}
               onClick={() => void handleSubmit()}
+              className="transition-transform duration-150 active:scale-95"
             >
               Comment
             </MasaiButton>

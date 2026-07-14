@@ -33,7 +33,7 @@ export function LectureTabBar({
         className,
       )}
     >
-      {tabs.map(tab => (
+      {tabs.map((tab) => (
         <MasaiTab
           key={tab.id}
           label={tab.label}
@@ -42,7 +42,7 @@ export function LectureTabBar({
             pushLearnEvent('l_learn_lecture_tab_change', { tab: tab.id })
             onTabChange(tab.id)
           }}
-          className="shrink-0 whitespace-nowrap"
+          className="shrink-0 whitespace-nowrap transition-all duration-200 hover:-translate-y-px hover:shadow-sm active:translate-y-0 active:scale-[0.97]"
         />
       ))}
     </div>

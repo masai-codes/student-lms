@@ -60,7 +60,6 @@ export function MasaiDrawer({
   const hasFloatingMargin =
     typeof sideMarginInPx === 'number' && sideMarginInPx > 0
   const resolvedBottomInsetPx = Math.max(0, bottomInsetPx)
-  const stacksAboveFixedChrome = resolvedBottomInsetPx > 0
 
   const floatingPanelStyle = React.useMemo(() => {
     if (!hasFloatingMargin || !sideMarginInPx) return undefined
@@ -100,7 +99,11 @@ export function MasaiDrawer({
     }
   }, [direction, hasFloatingMargin, resolvedBottomInsetPx, sideMarginInPx])
 
-  const drawerLayerClass = stacksAboveFixedChrome ? 'z-[90]' : 'z-50'
+  // The drawer is modal, so it must render above every page-level fixed bar —
+  // most importantly the mobile tab bar (z-[200]) — otherwise the panel and its
+  // bottom CTAs get clipped behind the bar on phones. The overlay dims the bar
+  // too so nothing behind the drawer stays interactive.
+  const drawerLayerClass = 'z-[210]'
 
   return (
     <Drawer.Root
