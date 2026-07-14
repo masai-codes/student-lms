@@ -43,7 +43,9 @@ describe('checkIfValidQuery', () => {
 
   it('returns false when classifier says NON_CURRICULUM', async () => {
     mockOpenAiResponse(JSON.stringify({ classification: 'NON_CURRICULUM' }))
-    await expect(checkIfValidQuery('which phone should I buy?')).resolves.toBe(false)
+    await expect(checkIfValidQuery('which phone should I buy?')).resolves.toBe(
+      false,
+    )
   })
 
   it('returns false for unknown classification values', async () => {

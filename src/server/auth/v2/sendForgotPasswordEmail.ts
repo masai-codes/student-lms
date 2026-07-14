@@ -17,7 +17,11 @@ function getJwtSecret(): string {
   return secret
 }
 
-function buildResetLink(role: string | null, token: string, portal: 'masai' | 'ihub'): string | undefined {
+function buildResetLink(
+  role: string | null,
+  token: string,
+  portal: 'masai' | 'ihub',
+): string | undefined {
   if (role !== 'student' && role !== 'admin') return undefined
   const base = getStudentPasswordResetBaseUrl(portal)
   return base ? `${base}/reset-password/${token}` : undefined

@@ -211,11 +211,11 @@ export function LearnControlsSection({
                 ? `Open filters, ${filterCount} active`
                 : 'Open filters'
             }
-            className="!border !border-slate-200 !text-slate-700 transition-all duration-200 hover:-translate-y-px hover:!border-[#4F6BED]/35 hover:!bg-slate-50 active:scale-95"
+            className="!border !border-border !text-foreground transition-all duration-200 hover:-translate-y-px hover:!border-brand/35 hover:!bg-surface-muted active:scale-95"
           />
           {filterCount > 0 ? (
             <span
-              className="animate-dash-pop absolute -right-1.5 -top-1.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-red-500 px-1 text-xs font-bold text-white"
+              className="animate-dash-pop absolute -right-1.5 -top-1.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-danger px-1 text-xs font-bold text-danger-foreground"
               aria-hidden
             >
               {filterCount > 99 ? '99+' : filterCount}

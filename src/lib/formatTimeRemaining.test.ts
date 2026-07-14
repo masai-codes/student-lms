@@ -7,7 +7,9 @@ const DAY = 24 * HOUR
 
 describe('formatTimeRemaining', () => {
   it('shows days only when a day or more is left', () => {
-    expect(formatTimeRemaining(2 * DAY + 3 * HOUR + 40 * MINUTE)).toBe('2 days remaining')
+    expect(formatTimeRemaining(2 * DAY + 3 * HOUR + 40 * MINUTE)).toBe(
+      '2 days remaining',
+    )
   })
 
   it('uses singular day', () => {
@@ -15,7 +17,9 @@ describe('formatTimeRemaining', () => {
   })
 
   it('shows hr + min under a day', () => {
-    expect(formatTimeRemaining(3 * HOUR + 20 * MINUTE)).toBe('3 hr 20 min remaining')
+    expect(formatTimeRemaining(3 * HOUR + 20 * MINUTE)).toBe(
+      '3 hr 20 min remaining',
+    )
   })
 
   it('drops the min unit when it is zero', () => {

@@ -100,7 +100,9 @@ describe('EventListCard', () => {
     )
     expect(queryByText('Registered')).toBeNull()
 
-    rerender(<EventListCard event={makeEvent({ isEnrolled: true })} now={NOW} />)
+    rerender(
+      <EventListCard event={makeEvent({ isEnrolled: true })} now={NOW} />,
+    )
     expect(screen.getByText('Registered')).toBeTruthy()
   })
 

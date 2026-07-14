@@ -11,9 +11,14 @@ interface AutoDetectLocation {
 
 const NOMINATIM_URL = 'https://nominatim.openstreetmap.org/reverse'
 
-async function reverseGeocode(lat: number, lon: number): Promise<string | null> {
+async function reverseGeocode(
+  lat: number,
+  lon: number,
+): Promise<string | null> {
   try {
-    const res = await fetch(`${NOMINATIM_URL}?lat=${lat}&lon=${lon}&format=json`)
+    const res = await fetch(
+      `${NOMINATIM_URL}?lat=${lat}&lon=${lon}&format=json`,
+    )
     if (!res.ok) return null
     const data = (await res.json()) as { display_name?: string }
     return data.display_name ?? null
@@ -39,14 +44,16 @@ export function useAutoDetectLocation(enabled: boolean): AutoDetectLocation {
     setStatus('loading')
     navigator.geolocation.getCurrentPosition(
       (pos) => {
-        void reverseGeocode(pos.coords.latitude, pos.coords.longitude).then((address) => {
-          if (address) {
-            setDetected(address)
-            setStatus('done')
-          } else {
-            setStatus('error')
-          }
-        })
+        void reverseGeocode(pos.coords.latitude, pos.coords.longitude).then(
+          (address) => {
+            if (address) {
+              setDetected(address)
+              setStatus('done')
+            } else {
+              setStatus('error')
+            }
+          },
+        )
       },
       () => setStatus('error'),
     )

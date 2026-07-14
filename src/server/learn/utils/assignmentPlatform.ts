@@ -3,7 +3,9 @@ const ASSESSMENT_PLATFORMS = new Set([
   'assessment platform - ai interview',
 ])
 
-export function isAssessmentPlatform(platform: string | null | undefined): boolean {
+export function isAssessmentPlatform(
+  platform: string | null | undefined,
+): boolean {
   if (platform == null || platform.trim() === '') return false
   return ASSESSMENT_PLATFORMS.has(platform.trim().toLowerCase())
 }

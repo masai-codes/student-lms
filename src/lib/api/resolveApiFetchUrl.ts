@@ -3,7 +3,9 @@ import { ORIGIN_URLS } from '@/utils/originUrls'
 
 /** Origin for server-side `fetch` when no browser `window` exists (SSR loaders). */
 function readServerOrigin(): string {
-  const base = ORIGIN_URLS[getAppOrigin()].newStudentUi.trim().replace(/\/$/, '')
+  const base = ORIGIN_URLS[getAppOrigin()].newStudentUi
+    .trim()
+    .replace(/\/$/, '')
   return base || 'http://127.0.0.1:3002'
 }
 

@@ -9,7 +9,9 @@ type RegularAssignmentContentProps = {
   detail: AssignmentDetailPayload
 }
 
-export function RegularAssignmentContent({ detail }: RegularAssignmentContentProps) {
+export function RegularAssignmentContent({
+  detail,
+}: RegularAssignmentContentProps) {
   return (
     <AssignmentDetailLayout
       detail={detail}

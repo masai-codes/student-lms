@@ -9,7 +9,9 @@ type PracticeAssignmentContentProps = {
   detail: AssignmentDetailPayload
 }
 
-export function PracticeAssignmentContent({ detail }: PracticeAssignmentContentProps) {
+export function PracticeAssignmentContent({
+  detail,
+}: PracticeAssignmentContentProps) {
   return (
     <AssignmentDetailLayout
       detail={detail}

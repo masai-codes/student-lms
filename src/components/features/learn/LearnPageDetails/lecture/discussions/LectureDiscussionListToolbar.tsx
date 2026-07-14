@@ -80,7 +80,7 @@ export function LectureDiscussionListToolbar({
         />
         <label
           htmlFor={toggleId}
-          className="type-b3-md cursor-pointer whitespace-nowrap text-gray-700"
+          className="type-b3-md cursor-pointer whitespace-nowrap text-foreground"
         >
           My Discussions
         </label>

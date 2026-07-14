@@ -11,7 +11,9 @@ vi.mock('@/db', () => ({
 function mockOwnership(rows: Array<{ id: number }>) {
   hoisted.dbSelect.mockReturnValueOnce({
     from: () => ({
-      innerJoin: () => ({ where: () => ({ limit: () => Promise.resolve(rows) }) }),
+      innerJoin: () => ({
+        where: () => ({ limit: () => Promise.resolve(rows) }),
+      }),
     }),
   })
 }
@@ -33,7 +35,10 @@ describe('submitSolutionForUser', () => {
       submissionLink: 'https://x.test',
     })
 
-    expect(result).toEqual({ status: 'submitted', submissionLink: 'https://x.test' })
+    expect(result).toEqual({
+      status: 'submitted',
+      submissionLink: 'https://x.test',
+    })
     expect(set).toHaveBeenCalledWith(
       expect.objectContaining({
         submissionLink: 'https://x.test',
@@ -46,7 +51,11 @@ describe('submitSolutionForUser', () => {
     mockOwnership([])
 
     await expect(
-      submitSolutionForUser({ userId: 5, solutionId: 7, submissionLink: 'https://x.test' }),
+      submitSolutionForUser({
+        userId: 5,
+        solutionId: 7,
+        submissionLink: 'https://x.test',
+      }),
     ).rejects.toMatchObject({ status: 404, code: 'SOLUTION_NOT_FOUND' })
     expect(hoisted.dbUpdate).not.toHaveBeenCalled()
   })

@@ -8,7 +8,9 @@ const hoisted = vi.hoisted(() => ({
   computeLite: vi.fn(),
 }))
 
-vi.mock('@/db', () => ({ db: { execute: hoisted.execute, select: hoisted.select } }))
+vi.mock('@/db', () => ({
+  db: { execute: hoisted.execute, select: hoisted.select },
+}))
 vi.mock('@/db/schema', () => ({ batches: {}, userDeviceTokens: {} }))
 vi.mock('@/server/batches/getBatchIdsForEnrolledUser', () => ({
   getBatchIdsForEnrolledUser: hoisted.getBatchIds,
@@ -45,7 +47,9 @@ describe('getT0FlowStatus', () => {
           ],
         }),
       })
-      .mockReturnValueOnce({ from: () => ({ where: () => ({ limit: () => [] }) }) })
+      .mockReturnValueOnce({
+        from: () => ({ where: () => ({ limit: () => [] }) }),
+      })
     hoisted.getBatchIds.mockResolvedValue([348, 354, 999])
     // Batch 348 has an admission row → full flow, walkthrough + program pending.
     hoisted.computeFull.mockResolvedValue({
@@ -56,8 +60,14 @@ describe('getT0FlowStatus', () => {
     hoisted.computeLite.mockImplementation((_userId: number, batchId: number) =>
       Promise.resolve(
         batchId === 354
-          ? { lms: { completed: 2, total: 2 }, program: { completed: 0, total: 1 } }
-          : { lms: { completed: 2, total: 2 }, program: { completed: 0, total: 0 } },
+          ? {
+              lms: { completed: 2, total: 2 },
+              program: { completed: 0, total: 1 },
+            }
+          : {
+              lms: { completed: 2, total: 2 },
+              program: { completed: 0, total: 0 },
+            },
       ),
     )
   })
@@ -69,7 +79,12 @@ describe('getT0FlowStatus', () => {
     expect(status.showT0Flow).toBe(true)
     expect(status.flowVariant).toBe('full')
     // 348 (full) + 354 (lite w/ agreement); 999 (lite, no agreement) is excluded.
-    expect(status.batches.map((b) => ({ batchId: b.batchId, flowVariant: b.flowVariant }))).toEqual([
+    expect(
+      status.batches.map((b) => ({
+        batchId: b.batchId,
+        flowVariant: b.flowVariant,
+      })),
+    ).toEqual([
       { batchId: 348, flowVariant: 'full' },
       { batchId: 354, flowVariant: 'lite' },
     ])

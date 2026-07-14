@@ -60,7 +60,8 @@ describe('discussionsApi', () => {
   describe('addLearnDiscussionReplyViaApi', () => {
     it('POSTs the message to the replies endpoint', async () => {
       hoisted.fetchJson.mockResolvedValueOnce({ ok: true })
-      const { addLearnDiscussionReplyViaApi } = await import('../discussionsApi')
+      const { addLearnDiscussionReplyViaApi } =
+        await import('../discussionsApi')
 
       const result = await addLearnDiscussionReplyViaApi({
         discussionId: 12,
@@ -79,7 +80,8 @@ describe('discussionsApi', () => {
 
     it('rethrows unexpected (non-API) errors', async () => {
       hoisted.fetchJson.mockRejectedValueOnce(new Error('boom'))
-      const { addLearnDiscussionReplyViaApi } = await import('../discussionsApi')
+      const { addLearnDiscussionReplyViaApi } =
+        await import('../discussionsApi')
 
       await expect(
         addLearnDiscussionReplyViaApi({ discussionId: 12, message: 'hi' }),
@@ -90,7 +92,8 @@ describe('discussionsApi', () => {
   describe('markLearnDiscussionRepliesReadViaApi', () => {
     it('POSTs to the read endpoint', async () => {
       hoisted.fetchJson.mockResolvedValueOnce({ ok: true })
-      const { markLearnDiscussionRepliesReadViaApi } = await import('../discussionsApi')
+      const { markLearnDiscussionRepliesReadViaApi } =
+        await import('../discussionsApi')
 
       const result = await markLearnDiscussionRepliesReadViaApi(12)
 
@@ -105,7 +108,8 @@ describe('discussionsApi', () => {
   describe('setLearnDiscussionClosedViaApi', () => {
     it('POSTs the closed flag to the close endpoint', async () => {
       hoisted.fetchJson.mockResolvedValueOnce({ isClosed: true })
-      const { setLearnDiscussionClosedViaApi } = await import('../discussionsApi')
+      const { setLearnDiscussionClosedViaApi } =
+        await import('../discussionsApi')
 
       const result = await setLearnDiscussionClosedViaApi({
         discussionId: 12,
@@ -126,7 +130,8 @@ describe('discussionsApi', () => {
   describe('submitLearnDiscussionFeedbackViaApi', () => {
     it('POSTs the rating and comment to the feedback endpoint', async () => {
       hoisted.fetchJson.mockResolvedValueOnce({ rating: 5 })
-      const { submitLearnDiscussionFeedbackViaApi } = await import('../discussionsApi')
+      const { submitLearnDiscussionFeedbackViaApi } =
+        await import('../discussionsApi')
 
       const result = await submitLearnDiscussionFeedbackViaApi({
         discussionId: 12,

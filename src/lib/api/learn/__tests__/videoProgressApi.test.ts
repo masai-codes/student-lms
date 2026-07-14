@@ -21,7 +21,8 @@ describe('storeLectureVideoProgressViaApi', () => {
 
   it('POSTs the payload to the video-progress endpoint', async () => {
     hoisted.fetchJson.mockResolvedValueOnce({ ok: true })
-    const { storeLectureVideoProgressViaApi } = await import('../videoProgressApi')
+    const { storeLectureVideoProgressViaApi } =
+      await import('../videoProgressApi')
 
     const result = await storeLectureVideoProgressViaApi(input)
 
@@ -43,7 +44,8 @@ describe('storeLectureVideoProgressViaApi', () => {
     hoisted.fetchJson.mockRejectedValueOnce(
       new ApiClientError(401, { code: 'UNAUTHORIZED' }),
     )
-    const { storeLectureVideoProgressViaApi } = await import('../videoProgressApi')
+    const { storeLectureVideoProgressViaApi } =
+      await import('../videoProgressApi')
 
     await expect(storeLectureVideoProgressViaApi(input)).resolves.toEqual({
       ok: false,
@@ -52,7 +54,8 @@ describe('storeLectureVideoProgressViaApi', () => {
 
   it('rethrows unexpected (non-API) errors', async () => {
     hoisted.fetchJson.mockRejectedValueOnce(new Error('network down'))
-    const { storeLectureVideoProgressViaApi } = await import('../videoProgressApi')
+    const { storeLectureVideoProgressViaApi } =
+      await import('../videoProgressApi')
 
     await expect(storeLectureVideoProgressViaApi(input)).rejects.toThrow(
       'network down',

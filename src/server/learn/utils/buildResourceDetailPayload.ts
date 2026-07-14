@@ -46,7 +46,10 @@ export function buildResourceDetailPayload(
     phase,
     schedule: row.schedule,
     concludes: row.concludes,
-    scheduleDisplayRange: formatLectureScheduleRange(row.schedule, row.concludes),
+    scheduleDisplayRange: formatLectureScheduleRange(
+      row.schedule,
+      row.concludes,
+    ),
     hostAvatarUrl: row.hostAvatarUrl,
     body,
     hideNotes: settings.hideNotes,

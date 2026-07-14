@@ -92,7 +92,8 @@ export function LectureReactPlayer({
     }
 
     window.addEventListener('keydown', onWindowKey, { capture: true })
-    return () => window.removeEventListener('keydown', onWindowKey, { capture: true })
+    return () =>
+      window.removeEventListener('keydown', onWindowKey, { capture: true })
   }, [attendance.seekBySeconds, attendance.toggleVideoPlayPause])
 
   return (
@@ -162,7 +163,7 @@ export function LectureReactPlayer({
           isPlaying={attendance.isVideoPlaying}
           fullscreenContainerRef={fullscreenContainerRef}
           onSeekBySeconds={attendance.seekBySeconds}
-          onSeekToSeconds={seconds => {
+          onSeekToSeconds={(seconds) => {
             attendance.handleSeek(seconds)
             seekPlayerToSeconds(videoRef, seconds)
           }}
@@ -174,11 +175,11 @@ export function LectureReactPlayer({
           onQualityChange={attendance.changeQuality}
           transcriptAvailable={hasTranscript}
           captionsOn={captionsOn}
-          onCaptionsToggle={() => setCaptionsOn(value => !value)}
+          onCaptionsToggle={() => setCaptionsOn((value) => !value)}
         />
         {splitChat?.isOpen && isFullscreen ? (
           <div
-            className="absolute inset-y-0 right-0 z-[55] flex min-h-0 flex-col border-l border-gray-200 bg-white shadow-2xl"
+            className="absolute inset-y-0 right-0 z-[55] flex min-h-0 flex-col border-l border-border bg-surface shadow-2xl"
             style={{ width: getLectureSplitChatOpenWidthCss() }}
           >
             <LectureAiChatExperience

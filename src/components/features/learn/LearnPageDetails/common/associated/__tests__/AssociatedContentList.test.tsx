@@ -71,7 +71,9 @@ describe('AssociatedContentList', () => {
     expect(screen.getByText('Assignments')).toBeTruthy()
 
     // The card title renders, and its link points at the entity route.
-    const lectureSection = screen.getByTestId('learn-associated-section-lecture')
+    const lectureSection = screen.getByTestId(
+      'learn-associated-section-lecture',
+    )
     expect(within(lectureSection).getByText('Lecture Two')).toBeTruthy()
     const link = within(lectureSection).getByText('Lecture Two').closest('a')
     expect(link?.getAttribute('to')).toBe('/lectures/$lectureId')
@@ -79,10 +81,14 @@ describe('AssociatedContentList', () => {
 
   it('omits a section with no items for that kind', () => {
     render(
-      <AssociatedContentList items={[learningItem(7, 'assignment', 'Only Assignment')]} />,
+      <AssociatedContentList
+        items={[learningItem(7, 'assignment', 'Only Assignment')]}
+      />,
     )
 
     expect(screen.queryByTestId('learn-associated-section-lecture')).toBeNull()
-    expect(screen.getByTestId('learn-associated-section-assignment')).toBeTruthy()
+    expect(
+      screen.getByTestId('learn-associated-section-assignment'),
+    ).toBeTruthy()
   })
 })

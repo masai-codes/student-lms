@@ -1,5 +1,11 @@
 // @vitest-environment jsdom
-import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
+import {
+  cleanup,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { SwitchAccountFlow } from '@/components/features/sign-in/SwitchAccountFlow'
 
@@ -35,9 +41,16 @@ vi.mock('@/components/features/sign-in/signInRouting', () => ({
   redirectToResolvedUrl: redirectToResolvedUrlMock,
 }))
 
-function stubFetchJson(handler: (url: string, init?: RequestInit) => Promise<Response>) {
+function stubFetchJson(
+  handler: (url: string, init?: RequestInit) => Promise<Response>,
+) {
   globalThis.fetch = vi.fn((input: RequestInfo | URL, init?: RequestInit) => {
-    const url = typeof input === 'string' ? input : input instanceof URL ? input.href : input.url
+    const url =
+      typeof input === 'string'
+        ? input
+        : input instanceof URL
+          ? input.href
+          : input.url
     return handler(url, init)
   }) as typeof fetch
 }
@@ -52,7 +65,8 @@ describe('SwitchAccountFlow', () => {
     getRedirectToSearchParamMock.mockReset()
     redirectToResolvedUrlMock.mockReset()
     window.sessionStorage.clear()
-    delete (window as Window & { dataLayer?: Array<Record<string, unknown>> }).dataLayer
+    delete (window as Window & { dataLayer?: Array<Record<string, unknown>> })
+      .dataLayer
   })
 
   beforeEach(() => {
@@ -64,12 +78,24 @@ describe('SwitchAccountFlow', () => {
           JSON.stringify({
             accounts: [
               {
-                user: { id: 1, name: 'Primary User', email: 'primary@example.com', mobile: '9000000000', role: 'student' },
+                user: {
+                  id: 1,
+                  name: 'Primary User',
+                  email: 'primary@example.com',
+                  mobile: '9000000000',
+                  role: 'student',
+                },
                 sessionId: 'session-primary',
                 isActive: true,
               },
               {
-                user: { id: 2, name: 'Secondary User', email: 'secondary@example.com', mobile: '9000000000', role: 'student' },
+                user: {
+                  id: 2,
+                  name: 'Secondary User',
+                  email: 'secondary@example.com',
+                  mobile: '9000000000',
+                  role: 'student',
+                },
                 sessionId: 'session-secondary',
                 isActive: false,
               },
@@ -81,7 +107,13 @@ describe('SwitchAccountFlow', () => {
       if (url.includes('/v2/auth/use-account')) {
         return new Response(
           JSON.stringify({
-            user: { id: 2, name: 'Secondary User', email: 'secondary@example.com', mobile: '9000000000', role: 'student' },
+            user: {
+              id: 2,
+              name: 'Secondary User',
+              email: 'secondary@example.com',
+              mobile: '9000000000',
+              role: 'student',
+            },
             token: 'jwt-secondary',
           }),
           { status: 200, headers: { 'Content-Type': 'application/json' } },
@@ -95,21 +127,33 @@ describe('SwitchAccountFlow', () => {
     render(<SwitchAccountFlow />)
 
     await waitFor(() => {
-      expect(screen.getByText(/we found that you have multiple accounts/i)).toBeTruthy()
+      expect(
+        screen.getByText(/we found that you have multiple accounts/i),
+      ).toBeTruthy()
     })
 
     expect(screen.getByText(/primary user/i)).toBeTruthy()
     expect(screen.getByText(/secondary user/i)).toBeTruthy()
-    expect(screen.getAllByRole('button', { name: /login with this account/i })).toHaveLength(2)
+    expect(
+      screen.getAllByRole('button', { name: /login with this account/i }),
+    ).toHaveLength(2)
   })
 
   it('continues with active account and dispatches pending phone-otp success', async () => {
     const dispatchSpy = vi.spyOn(window, 'dispatchEvent')
-    ;(window as Window & { dataLayer?: Array<Record<string, unknown>> }).dataLayer = []
+    ;(
+      window as Window & { dataLayer?: Array<Record<string, unknown>> }
+    ).dataLayer = []
     window.sessionStorage.setItem(
       'student-lms.pending-phone-otp-sign-in',
       JSON.stringify({
-        user: { id: 1, name: 'Primary User', email: 'primary@example.com', mobile: '9000000000', role: 'student' },
+        user: {
+          id: 1,
+          name: 'Primary User',
+          email: 'primary@example.com',
+          mobile: '9000000000',
+          role: 'student',
+        },
         token: 'jwt-primary',
       }),
     )
@@ -117,10 +161,14 @@ describe('SwitchAccountFlow', () => {
     render(<SwitchAccountFlow />)
 
     await waitFor(() => {
-      expect(screen.getAllByRole('button', { name: /login with this account/i })).toHaveLength(2)
+      expect(
+        screen.getAllByRole('button', { name: /login with this account/i }),
+      ).toHaveLength(2)
     })
 
-    fireEvent.click(screen.getAllByRole('button', { name: /login with this account/i })[0])
+    fireEvent.click(
+      screen.getAllByRole('button', { name: /login with this account/i })[0],
+    )
 
     await waitFor(() => {
       expect(redirectToOldStudentUiMock).toHaveBeenCalled()
@@ -132,7 +180,8 @@ describe('SwitchAccountFlow', () => {
       }),
     )
     expect(
-      (window as Window & { dataLayer?: Array<Record<string, unknown>> }).dataLayer,
+      (window as Window & { dataLayer?: Array<Record<string, unknown>> })
+        .dataLayer,
     ).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
@@ -147,15 +196,21 @@ describe('SwitchAccountFlow', () => {
 
   it('switches inactive account and redirects to old lms', async () => {
     const dispatchSpy = vi.spyOn(window, 'dispatchEvent')
-    ;(window as Window & { dataLayer?: Array<Record<string, unknown>> }).dataLayer = []
+    ;(
+      window as Window & { dataLayer?: Array<Record<string, unknown>> }
+    ).dataLayer = []
 
     render(<SwitchAccountFlow />)
 
     await waitFor(() => {
-      expect(screen.getAllByRole('button', { name: /login with this account/i })).toHaveLength(2)
+      expect(
+        screen.getAllByRole('button', { name: /login with this account/i }),
+      ).toHaveLength(2)
     })
 
-    fireEvent.click(screen.getAllByRole('button', { name: /login with this account/i })[1])
+    fireEvent.click(
+      screen.getAllByRole('button', { name: /login with this account/i })[1],
+    )
 
     await waitFor(() => {
       expect(redirectToOldStudentUiMock).toHaveBeenCalled()
@@ -167,7 +222,8 @@ describe('SwitchAccountFlow', () => {
       }),
     )
     expect(
-      (window as Window & { dataLayer?: Array<Record<string, unknown>> }).dataLayer,
+      (window as Window & { dataLayer?: Array<Record<string, unknown>> })
+        .dataLayer,
     ).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
@@ -181,18 +237,26 @@ describe('SwitchAccountFlow', () => {
   })
 
   it('uses redirectTo on switch-account page when present', async () => {
-    getRedirectToSearchParamMock.mockReturnValue('https://example.com/final-target')
+    getRedirectToSearchParamMock.mockReturnValue(
+      'https://example.com/final-target',
+    )
 
     render(<SwitchAccountFlow />)
 
     await waitFor(() => {
-      expect(screen.getAllByRole('button', { name: /login with this account/i })).toHaveLength(2)
+      expect(
+        screen.getAllByRole('button', { name: /login with this account/i }),
+      ).toHaveLength(2)
     })
 
-    fireEvent.click(screen.getAllByRole('button', { name: /login with this account/i })[1])
+    fireEvent.click(
+      screen.getAllByRole('button', { name: /login with this account/i })[1],
+    )
 
     await waitFor(() => {
-      expect(redirectToResolvedUrlMock).toHaveBeenCalledWith('https://example.com/final-target')
+      expect(redirectToResolvedUrlMock).toHaveBeenCalledWith(
+        'https://example.com/final-target',
+      )
     })
     expect(redirectToOldStudentUiMock).not.toHaveBeenCalled()
   })
@@ -203,10 +267,14 @@ describe('SwitchAccountFlow', () => {
     render(<SwitchAccountFlow />)
 
     await waitFor(() => {
-      expect(screen.getAllByRole('button', { name: /login with this account/i })).toHaveLength(2)
+      expect(
+        screen.getAllByRole('button', { name: /login with this account/i }),
+      ).toHaveLength(2)
     })
 
-    fireEvent.click(screen.getAllByRole('button', { name: /login with this account/i })[1])
+    fireEvent.click(
+      screen.getAllByRole('button', { name: /login with this account/i })[1],
+    )
 
     await waitFor(() => {
       expect(navigateMock).toHaveBeenCalledWith({ to: '/' })

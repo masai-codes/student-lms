@@ -13,8 +13,7 @@ export type LevelupSsoSuccessBody = {
 }
 
 export type LevelupSsoErrorBody =
-  | { error: string }
-  | { success: false; error: string; message: string }
+  { error: string } | { success: false; error: string; message: string }
 
 export type LevelupSsoResult =
   | { status: 200; body: LevelupSsoSuccessBody }

@@ -1,13 +1,13 @@
-import type { TabNavbarProps } from "./types"
+import type { TabNavbarProps } from './types'
 
-import { cn } from "@/lib/utils"
+import { cn } from '@/lib/utils'
 
 export function TabNavbar({
   items,
   className,
   labelClassName,
-  activeClassName = "text-[#6962AC]",
-  ariaLabel = "Primary navigation",
+  activeClassName = 'text-brand',
+  ariaLabel = 'Primary navigation',
 }: TabNavbarProps) {
   if (!items.length) {
     return null
@@ -17,7 +17,7 @@ export function TabNavbar({
     <nav
       aria-label={ariaLabel}
       className={cn(
-        "flex w-full flex-row items-center bg-white py-2 font-poppins",
+        'flex w-full flex-row items-center bg-surface py-2 font-poppins',
         className,
       )}
     >
@@ -31,28 +31,28 @@ export function TabNavbar({
             key={key}
             type="button"
             onClick={item.onClick}
-            aria-current={isActive ? "page" : undefined}
+            aria-current={isActive ? 'page' : undefined}
             className={cn(
-              "group relative flex min-w-0 basis-0 flex-1 flex-col items-center justify-center gap-1 px-1 pt-4 pb-1 transition-colors",
-              "cursor-pointer border-0 bg-transparent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-0",
+              'group relative flex min-w-0 basis-0 flex-1 flex-col items-center justify-center gap-1 px-1 pt-4 pb-1 transition-colors',
+              'cursor-pointer border-0 bg-transparent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-0',
               isActive
                 ? activeClassName
-                : "text-[#6B7280] hover:text-[#4B5563]",
+                : 'text-foreground-muted hover:text-foreground-muted',
             )}
           >
             {/* Top indicator bar */}
             {isActive && !accent && (
-              <span className="absolute top-0 left-1/2 -translate-x-1/2 h-[3px] w-8 rounded-b-full bg-[#6962AC]" />
+              <span className="absolute top-0 left-1/2 -translate-x-1/2 h-[3px] w-8 rounded-b-full bg-brand" />
             )}
 
             {accent ? (
               <span
                 className={cn(
-                  "-mt-1 flex size-7 shrink-0 items-center justify-center rounded-full",
-                  "bg-gradient-to-br from-[#7B73B8] to-[#564E97] text-white",
-                  "shadow-[0_4px_12px_-2px_rgba(96,89,157,0.55)] ring-[3px] ring-white",
-                  "transition-transform duration-200 group-hover:scale-105 group-active:scale-95",
-                  "[&_svg]:size-4 [&_svg]:shrink-0",
+                  '-mt-1 flex size-7 shrink-0 items-center justify-center rounded-full',
+                  'bg-gradient-to-br from-[#7B73B8] to-[#564E97] text-white',
+                  'shadow-[0_4px_12px_-2px_rgba(96,89,157,0.55)] ring-[3px] ring-white',
+                  'transition-transform duration-200 group-hover:scale-105 group-active:scale-95',
+                  '[&_svg]:size-4 [&_svg]:shrink-0',
                 )}
                 aria-hidden
               >
@@ -68,8 +68,8 @@ export function TabNavbar({
             )}
             <span
               className={cn(
-                "truncate text-center text-[11px] font-medium leading-4",
-                accent && "font-semibold text-[#564E97]",
+                'truncate text-center text-[11px] font-medium leading-4',
+                accent && 'font-semibold text-brand',
                 labelClassName,
               )}
             >
@@ -82,4 +82,4 @@ export function TabNavbar({
   )
 }
 
-export type { TabNavbarItem, TabNavbarProps } from "./types"
+export type { TabNavbarItem, TabNavbarProps } from './types'

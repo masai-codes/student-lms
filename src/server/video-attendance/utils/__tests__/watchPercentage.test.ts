@@ -51,7 +51,9 @@ describe('calculateVideoWatchDurationPercentage', () => {
   })
 
   it('returns 0 for a non-positive totalDuration', () => {
-    expect(calculateVideoWatchDurationPercentage([{ start: 0, end: 10 }], 0)).toBe(0)
+    expect(
+      calculateVideoWatchDurationPercentage([{ start: 0, end: 10 }], 0),
+    ).toBe(0)
   })
 })
 

@@ -1,5 +1,9 @@
-export { DiscussionPostCard } from "./discussion-post-card"
-export { DiscussionPostCardComposer } from "./discussion-post-card-composer"
-export { RichTextEditor } from "./rich-text-editor"
-export { RichTextContent } from "./rich-text-content"
-export type { DiscussionPostCardProps, DiscussionReply, DrawerDirection } from "./types"
+export { DiscussionPostCard } from './discussion-post-card'
+export { DiscussionPostCardComposer } from './discussion-post-card-composer'
+export { RichTextEditor } from './rich-text-editor'
+export { RichTextContent } from './rich-text-content'
+export type {
+  DiscussionPostCardProps,
+  DiscussionReply,
+  DrawerDirection,
+} from './types'

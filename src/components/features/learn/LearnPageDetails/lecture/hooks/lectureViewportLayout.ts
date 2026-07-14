@@ -23,7 +23,9 @@ export function computeLectureHeroHeightPx({
   return Math.max(Math.floor(available), minHeroHeightPx)
 }
 
-export function sumElementOffsetHeights(elements: Iterable<HTMLElement>): number {
+export function sumElementOffsetHeights(
+  elements: Iterable<HTMLElement>,
+): number {
   let total = 0
   for (const element of elements) {
     total += element.offsetHeight

@@ -40,7 +40,9 @@ function main(): void {
   publishCatalogArtifacts(html)
   console.log(`Catalog written to ${outputPath}`)
   console.log(`Catalog published to ${join(publicOutputDir, 'index.html')}`)
-  console.log('Open http://localhost:3002/seed-catalog/ while the dev server is running.')
+  console.log(
+    'Open http://localhost:3002/seed-catalog/ while the dev server is running.',
+  )
 }
 
 const isDirectRun = process.argv[1]?.includes('catalog/generate')

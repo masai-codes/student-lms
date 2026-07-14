@@ -50,7 +50,7 @@ export function LectureDiscussionPagination({
       />
       <p
         data-testid="discussion-pagination-summary"
-        className="type-caption-regular text-gray-500"
+        className="type-caption-regular text-foreground-muted"
       >
         Showing {from}&ndash;{to} of {filteredCount}
       </p>

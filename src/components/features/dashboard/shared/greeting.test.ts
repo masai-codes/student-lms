@@ -7,11 +7,15 @@ describe('formatGreetingName', () => {
   })
 
   it('falls back to the first name for a long full name', () => {
-    expect(formatGreetingName('Suryakumar Venkatasubramanian Iyer')).toBe('Suryakumar')
+    expect(formatGreetingName('Suryakumar Venkatasubramanian Iyer')).toBe(
+      'Suryakumar',
+    )
   })
 
   it('truncates a very long single first name with an ellipsis', () => {
-    expect(formatGreetingName('Venkatanarasimharajuvaripeta')).toBe('Venkatanarasimharaj…')
+    expect(formatGreetingName('Venkatanarasimharajuvaripeta')).toBe(
+      'Venkatanarasimharaj…',
+    )
     expect(formatGreetingName('Venkatanarasimharajuvaripeta')).toHaveLength(20)
   })
 })

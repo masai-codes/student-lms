@@ -34,7 +34,8 @@ export function buildLearnListingCardCtas(input: {
     const isCompleted = input.assignmentProgressStatus === 'completed'
     const assignmentDeadlineLabel =
       isUnlocked && !isCompleted
-        ? computeDeadlineCountdown(input.concludes, input.nowMs)?.label ?? null
+        ? (computeDeadlineCountdown(input.concludes, input.nowMs)?.label ??
+          null)
         : null
 
     return {

@@ -16,7 +16,7 @@ export function LectureTitleStrip({
     <section
       className={cn('border-b border-border bg-background py-3 ', className)}
     >
-      <h1 className="type-h5 line-clamp-2 min-w-0 break-words text-gray-900">
+      <h1 className="type-h5 line-clamp-2 min-w-0 break-words text-foreground">
         {title}
       </h1>
     </section>

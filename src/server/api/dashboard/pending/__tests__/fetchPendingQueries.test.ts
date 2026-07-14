@@ -1,6 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-const hoisted = vi.hoisted(() => ({ rows: [] as Array<Record<string, unknown>> }))
+const hoisted = vi.hoisted(() => ({
+  rows: [] as Array<Record<string, unknown>>,
+}))
 
 vi.mock('@/db', () => {
   const chain: Record<string, unknown> = {
@@ -19,14 +21,19 @@ describe('fetchPendingAssignments', () => {
 
   it('returns [] without querying when there are no sections', async () => {
     hoisted.rows = [{ id: 1 }]
-    const { fetchPendingAssignments } = await import('../fetchPendingAssignments')
+    const { fetchPendingAssignments } =
+      await import('../fetchPendingAssignments')
     expect(await fetchPendingAssignments([], '2026-07-02 12:00:00')).toEqual([])
   })
 
   it('normalises rows with null module/zoomLink', async () => {
     hoisted.rows = [{ id: 1, title: 'A', sectionId: 5 }]
-    const { fetchPendingAssignments } = await import('../fetchPendingAssignments')
-    const [assignment] = await fetchPendingAssignments([5], '2026-07-02 12:00:00')
+    const { fetchPendingAssignments } =
+      await import('../fetchPendingAssignments')
+    const [assignment] = await fetchPendingAssignments(
+      [5],
+      '2026-07-02 12:00:00',
+    )
     expect(assignment).toMatchObject({ id: 1, module: null, zoomLink: null })
   })
 })

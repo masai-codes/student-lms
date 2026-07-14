@@ -15,9 +15,8 @@ describe('markSubmissionCompletedWithToken (client)', () => {
 
   it('POSTs the token to the mark-completed endpoint', async () => {
     hoisted.fetchJson.mockResolvedValueOnce({ markAsCompleted: true })
-    const { markSubmissionCompletedWithToken } = await import(
-      '../assignmentDetailActionsApi'
-    )
+    const { markSubmissionCompletedWithToken } =
+      await import('../assignmentDetailActionsApi')
 
     const result = await markSubmissionCompletedWithToken(79307, 'abc123')
 
@@ -33,11 +32,13 @@ describe('markSubmissionCompletedWithToken (client)', () => {
 
   it('maps an API client error to a plain Error', async () => {
     hoisted.fetchJson.mockRejectedValueOnce(
-      new ApiClientError(403, { code: 'INVALID_TOKEN', message: 'Invalid token' }),
+      new ApiClientError(403, {
+        code: 'INVALID_TOKEN',
+        message: 'Invalid token',
+      }),
     )
-    const { markSubmissionCompletedWithToken } = await import(
-      '../assignmentDetailActionsApi'
-    )
+    const { markSubmissionCompletedWithToken } =
+      await import('../assignmentDetailActionsApi')
 
     await expect(
       markSubmissionCompletedWithToken(79307, 'bad'),
@@ -46,9 +47,8 @@ describe('markSubmissionCompletedWithToken (client)', () => {
 
   it('rethrows unexpected (non-API) errors', async () => {
     hoisted.fetchJson.mockRejectedValueOnce(new Error('network down'))
-    const { markSubmissionCompletedWithToken } = await import(
-      '../assignmentDetailActionsApi'
-    )
+    const { markSubmissionCompletedWithToken } =
+      await import('../assignmentDetailActionsApi')
 
     await expect(
       markSubmissionCompletedWithToken(79307, 'abc123'),

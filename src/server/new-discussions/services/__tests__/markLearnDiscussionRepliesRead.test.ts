@@ -20,7 +20,12 @@ describe('markLearnDiscussionRepliesRead', () => {
     hoisted.where.mockResolvedValue(undefined)
     hoisted.set.mockReturnValue({ where: hoisted.where })
     hoisted.update.mockReturnValue({ set: hoisted.set })
-    hoisted.assertOwns.mockResolvedValue({ id: 10, userId: 1, isClosed: 0, data: null })
+    hoisted.assertOwns.mockResolvedValue({
+      id: 10,
+      userId: 1,
+      isClosed: 0,
+      data: null,
+    })
   })
 
   it('checks ownership then updates unread replies', async () => {

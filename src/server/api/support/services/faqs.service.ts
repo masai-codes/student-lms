@@ -70,7 +70,10 @@ export async function searchFaqs(input: {
 
   if (input.search?.trim()) {
     const term = `%${input.search.trim()}%`
-    const textMatch = or(like(helpFaqs.question, term), like(helpFaqs.answer, term))
+    const textMatch = or(
+      like(helpFaqs.question, term),
+      like(helpFaqs.answer, term),
+    )
     if (textMatch) conditions.push(textMatch)
   }
 
@@ -101,12 +104,23 @@ export async function getTicketCategories(): Promise<Array<SupportCategory>> {
     db
       .select({ value: menus.value, ordering: menus.ordering })
       .from(menus)
-      .where(and(eq(menus.category, TICKET_CATEGORY_MENU), eq(menus.deprecated, 0)))
+      .where(
+        and(eq(menus.category, TICKET_CATEGORY_MENU), eq(menus.deprecated, 0)),
+      )
       .orderBy(asc(menus.ordering)),
     db
-      .select({ category: menus.category, value: menus.value, ordering: menus.ordering })
+      .select({
+        category: menus.category,
+        value: menus.value,
+        ordering: menus.ordering,
+      })
       .from(menus)
-      .where(and(like(menus.category, `%${SUBCATEGORY_SUFFIX}`), eq(menus.deprecated, 0)))
+      .where(
+        and(
+          like(menus.category, `%${SUBCATEGORY_SUFFIX}`),
+          eq(menus.deprecated, 0),
+        ),
+      )
       .orderBy(asc(menus.category), asc(menus.ordering)),
   ])
 

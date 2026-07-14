@@ -11,14 +11,14 @@
 
 ## Test files
 
-| Area | File |
-|------|------|
-| Context subcategory list UI (list / fallback / loading) | `src/components/features/support/__tests__/ContextSubcategoryList.test.tsx` |
-| Subcategories-by-category service (menu → label) | `src/server/api/support/services/__tests__/getSubcategoriesByCategory.test.ts` |
-| First template reply (title/phone/admin-name/body) | `src/server/api/support/services/__tests__/ticketReplyTemplate.test.ts` |
-| Callback eligibility (journey / full-fees / driver shape) | `src/server/api/support/services/__tests__/getCallbackEligibility.test.ts` |
-| Markdown HTML rendering (br/signature, sanitize, links) | `src/components/features/support/__tests__/SupportMarkdown.test.tsx` |
-| Raise Ticket CTA opens drawer (lecture/resource actions) | `src/components/features/learn/LearnPageDetails/{lecture,resource}/shared/__tests__/*DetailActions.test.tsx` |
+| Area                                                      | File                                                                                                         |
+| --------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
+| Context subcategory list UI (list / fallback / loading)   | `src/components/features/support/__tests__/ContextSubcategoryList.test.tsx`                                  |
+| Subcategories-by-category service (menu → label)          | `src/server/api/support/services/__tests__/getSubcategoriesByCategory.test.ts`                               |
+| First template reply (title/phone/admin-name/body)        | `src/server/api/support/services/__tests__/ticketReplyTemplate.test.ts`                                      |
+| Callback eligibility (journey / full-fees / driver shape) | `src/server/api/support/services/__tests__/getCallbackEligibility.test.ts`                                   |
+| Markdown HTML rendering (br/signature, sanitize, links)   | `src/components/features/support/__tests__/SupportMarkdown.test.tsx`                                         |
+| Raise Ticket CTA opens drawer (lecture/resource actions)  | `src/components/features/learn/LearnPageDetails/{lecture,resource}/shared/__tests__/*DetailActions.test.tsx` |
 
 ## Commands
 

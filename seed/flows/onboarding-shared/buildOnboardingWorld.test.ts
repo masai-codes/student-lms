@@ -56,17 +56,21 @@ describe('buildOnboardingWorld', () => {
     hoisted.createBatch.mockResolvedValue({ id: 10, starting: '2026-07-03' })
 
     let sectionId = 100
-    hoisted.createSection.mockImplementation(async (input: { name: string; type: string }) => ({
-      id: sectionId++,
-      name: input.name,
-      type: input.type,
-    }))
+    hoisted.createSection.mockImplementation(
+      async (input: { name: string; type: string }) => ({
+        id: sectionId++,
+        name: input.name,
+        type: input.type,
+      }),
+    )
 
     let lectureId = 200
-    hoisted.createLecture.mockImplementation(async (input: { title: string }) => ({
-      id: lectureId++,
-      title: input.title,
-    }))
+    hoisted.createLecture.mockImplementation(
+      async (input: { title: string }) => ({
+        id: lectureId++,
+        title: input.title,
+      }),
+    )
 
     hoisted.createEnrollment.mockResolvedValue({ id: 300 })
     hoisted.createUserBatchAdmissionData.mockResolvedValue({
@@ -152,24 +156,30 @@ describe('buildOnboardingWorld', () => {
   })
 
   it('fees-paid writes a simulated onward fixture and mirrors kit fields into admission data', async () => {
-    await buildOnboardingWorld('onboarding-fees-paid', getOnboardingScenario('onboarding-fees-paid'))
+    await buildOnboardingWorld(
+      'onboarding-fees-paid',
+      getOnboardingScenario('onboarding-fees-paid'),
+    )
 
-    expect(hoisted.writeOnwardFixture).toHaveBeenCalledWith('onboarding-fees-paid-student', {
-      documents: {
-        required: true,
-        instituteSideUpload: false,
-        documentsUploaded: false,
-        documentsVerified: false,
-        documentsPendingVerification: false,
+    expect(hoisted.writeOnwardFixture).toHaveBeenCalledWith(
+      'onboarding-fees-paid-student',
+      {
+        documents: {
+          required: true,
+          instituteSideUpload: false,
+          documentsUploaded: false,
+          documentsVerified: false,
+          documentsPendingVerification: false,
+        },
+        kit: {
+          showKit: true,
+          welcomeKitUrl: null,
+          detailsFilled: false,
+          details: null,
+          tracking: null,
+        },
       },
-      kit: {
-        showKit: true,
-        welcomeKitUrl: null,
-        detailsFilled: false,
-        details: null,
-        tracking: null,
-      },
-    })
+    )
 
     expect(hoisted.createUserBatchAdmissionData).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -191,17 +201,30 @@ describe('buildOnboardingWorld', () => {
     process.env.SEED_KIT_TRACKING = '1'
     process.env.SEED_AGREEMENT_SIGNED = '1'
 
-    await buildOnboardingWorld('onboarding-fees-paid', getOnboardingScenario('onboarding-fees-paid'))
+    await buildOnboardingWorld(
+      'onboarding-fees-paid',
+      getOnboardingScenario('onboarding-fees-paid'),
+    )
 
     expect(hoisted.writeOnwardFixture).toHaveBeenCalledWith(
       'onboarding-fees-paid-student',
       expect.objectContaining({
-        documents: expect.objectContaining({ required: true, documentsUploaded: true }),
-        kit: expect.objectContaining({ showKit: true, detailsFilled: true, tracking: expect.any(String) }),
+        documents: expect.objectContaining({
+          required: true,
+          documentsUploaded: true,
+        }),
+        kit: expect.objectContaining({
+          showKit: true,
+          detailsFilled: true,
+          tracking: expect.any(String),
+        }),
       }),
     )
     expect(hoisted.createUserBatchAdmissionData).toHaveBeenCalledWith(
-      expect.objectContaining({ studentKitDetailsFilled: 1, studentKitTrackingUrl: expect.any(String) }),
+      expect.objectContaining({
+        studentKitDetailsFilled: 1,
+        studentKitTrackingUrl: expect.any(String),
+      }),
     )
     expect(hoisted.createProfile).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -211,7 +234,10 @@ describe('buildOnboardingWorld', () => {
   })
 
   it('complete seeds profile photo for the LMS walkthrough step', async () => {
-    await buildOnboardingWorld('onboarding-complete', getOnboardingScenario('onboarding-complete'))
+    await buildOnboardingWorld(
+      'onboarding-complete',
+      getOnboardingScenario('onboarding-complete'),
+    )
 
     expect(hoisted.createProfile).toHaveBeenCalledWith(
       expect.objectContaining({

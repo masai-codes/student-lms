@@ -14,8 +14,7 @@ import {
 import { getLectureSummaryForChat } from '@/server/api/ai-tutor/services/lecturesAi.service'
 
 export type ChatStreamEvent =
-  | { type: 'token'; content: string }
-  | { type: 'done'; chatId: number }
+  { type: 'token'; content: string } | { type: 'done'; chatId: number }
 
 export type StreamLectureChatInput = {
   userId: number

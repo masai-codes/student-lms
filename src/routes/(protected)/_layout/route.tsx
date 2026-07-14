@@ -24,7 +24,6 @@ import {
 } from '@/utils/authRedirect'
 import { initClarity, setCurrentUserForTracking } from '@/utils/tracking'
 
-
 /** Paths served by this app when legacy redirect is enabled (everything else → old LMS). */
 function isNewStudentExperienceRoute(pathname: string): boolean {
   if (pathname === '/' || pathname === '') return true
@@ -43,7 +42,6 @@ function isNewStudentExperienceRoute(pathname: string): boolean {
   if (pathname.startsWith('/support')) return true
   return false
 }
-
 
 export const Route = createFileRoute('/(protected)/_layout')({
   beforeLoad: async ({ location }) => {
@@ -128,7 +126,7 @@ function RouteComponent() {
 
   return (
     <ModalProvider>
-      <div className="min-h-dvh bg-[#FAF9F9] flex flex-col">
+      <div className="min-h-dvh bg-surface-muted flex flex-col">
         <AppNavbar />
         {/* Mobile-only greeting header for the dashboard home; the desktop
             navbar (with the same announcements + onboarding actions) is hidden

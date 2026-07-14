@@ -29,8 +29,11 @@ function extractOriginFromUrl(url: string): string {
 
 export function isRequestFromIHub(request: Request): boolean {
   const origin = (request.headers.get('origin') ?? '').toLowerCase()
-  const referer = request.headers.get('referer') ?? request.headers.get('referrer') ?? ''
-  const xAppOrigin = (request.headers.get('x-app-origin') ?? '').toLowerCase().trim()
+  const referer =
+    request.headers.get('referer') ?? request.headers.get('referrer') ?? ''
+  const xAppOrigin = (request.headers.get('x-app-origin') ?? '')
+    .toLowerCase()
+    .trim()
 
   if (xAppOrigin) {
     if (xAppOrigin === 'ihub' || xAppOrigin.includes('ihub')) return true
@@ -38,12 +41,21 @@ export function isRequestFromIHub(request: Request): boolean {
   }
 
   const useLocalhostTesting =
-    process.env.TESTING_IHUB_LOCALHOST === 'true' || process.env.NODE_ENV === 'development'
+    process.env.TESTING_IHUB_LOCALHOST === 'true' ||
+    process.env.NODE_ENV === 'development'
 
   if (useLocalhostTesting) {
     const refererOrigin = extractOriginFromUrl(referer)
-    if (origin.includes('localhost:3002') || refererOrigin.includes('localhost:3002')) return true
-    if (origin.includes('localhost:3001') || refererOrigin.includes('localhost:3001')) return false
+    if (
+      origin.includes('localhost:3002') ||
+      refererOrigin.includes('localhost:3002')
+    )
+      return true
+    if (
+      origin.includes('localhost:3001') ||
+      refererOrigin.includes('localhost:3001')
+    )
+      return false
   }
 
   const allowed = getIHubOrigins()

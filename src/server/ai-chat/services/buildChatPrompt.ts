@@ -44,7 +44,7 @@ export function buildChatPromptMessages(input: {
 
   return [
     { role: 'system', content: systemContent },
-    ...recentHistory.map<OpenAiChatMessage>(entry => ({
+    ...recentHistory.map<OpenAiChatMessage>((entry) => ({
       role: entry.role,
       content: entry.content,
     })),

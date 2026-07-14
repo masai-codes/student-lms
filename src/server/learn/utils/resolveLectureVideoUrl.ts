@@ -7,7 +7,9 @@ function readGumletHlsUrl(vimeoDownloadLinks: unknown): string | null {
   const gumlet = vimeoDownloadLinks.gumlet
   if (!isRecord(gumlet)) return null
   const hlsUrl = gumlet.hls_url
-  return typeof hlsUrl === 'string' && hlsUrl.trim() !== '' ? hlsUrl.trim() : null
+  return typeof hlsUrl === 'string' && hlsUrl.trim() !== ''
+    ? hlsUrl.trim()
+    : null
 }
 
 /**
@@ -79,6 +81,8 @@ export function resolveLectureVideoUrl(input: {
   return (
     readGumletHlsUrl(input.vimeoDownloadLinks) ??
     readVideosUrl(input.videos) ??
-    (input.vimeoPlayerEmbedUrl?.trim() ? input.vimeoPlayerEmbedUrl.trim() : null)
+    (input.vimeoPlayerEmbedUrl?.trim()
+      ? input.vimeoPlayerEmbedUrl.trim()
+      : null)
   )
 }

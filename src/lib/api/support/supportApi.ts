@@ -80,7 +80,9 @@ export async function fetchSupportTickets(input: {
 }
 
 /** GET one ticket's full conversation (header + messages + capabilities). */
-export async function fetchTicketThread(ticketId: number): Promise<TicketThread> {
+export async function fetchTicketThread(
+  ticketId: number,
+): Promise<TicketThread> {
   return fetchJson(`${SUPPORT_API.ticketThread}?ticketId=${ticketId}`)
 }
 

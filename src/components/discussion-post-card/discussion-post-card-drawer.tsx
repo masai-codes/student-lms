@@ -1,48 +1,48 @@
-"use client";
+'use client'
 
-import * as React from "react";
-import * as Dialog from "@radix-ui/react-dialog";
-import { X } from "lucide-react";
+import * as React from 'react'
+import * as Dialog from '@radix-ui/react-dialog'
+import { X } from 'lucide-react'
 
-import { DiscussionPostCardPreview } from "./discussion-post-card-preview";
-import { DiscussionPostCardComposer } from "./discussion-post-card-composer";
+import { DiscussionPostCardPreview } from './discussion-post-card-preview'
+import { DiscussionPostCardComposer } from './discussion-post-card-composer'
 import type {
   DiscussionPostCardProps,
   DrawerDirection,
   VoteDirection,
-} from "./types";
+} from './types'
 
-import { cn } from "@/lib/utils";
+import { cn } from '@/lib/utils'
 
 type DiscussionPostCardDrawerProps = Pick<
   DiscussionPostCardProps,
-  | "profileImage"
-  | "name"
-  | "createdAt"
-  | "content"
-  | "currentUpvoteCount"
-  | "currentDownvoteCount"
-  | "voteDirection"
-  | "hideDownvoteCount"
-  | "onUpvoteClick"
-  | "onDownvoteClick"
-  | "replies"
-  | "replyText"
-  | "onReplyTextChange"
-  | "onReplySubmit"
-  | "replyPlaceholder"
-  | "drawerBottomInsetClassName"
-  | "drawerBodyClassName"
-  | "drawerPinFooter"
-  | "drawerFooterClassName"
+  | 'profileImage'
+  | 'name'
+  | 'createdAt'
+  | 'content'
+  | 'currentUpvoteCount'
+  | 'currentDownvoteCount'
+  | 'voteDirection'
+  | 'hideDownvoteCount'
+  | 'onUpvoteClick'
+  | 'onDownvoteClick'
+  | 'replies'
+  | 'replyText'
+  | 'onReplyTextChange'
+  | 'onReplySubmit'
+  | 'replyPlaceholder'
+  | 'drawerBottomInsetClassName'
+  | 'drawerBodyClassName'
+  | 'drawerPinFooter'
+  | 'drawerFooterClassName'
 > & {
   composerError?: string | null
-  isBookmarked: boolean;
-  onBookmarkClick: () => void;
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  resolvedDirection: Exclude<DrawerDirection, "auto">;
-};
+  isBookmarked: boolean
+  onBookmarkClick: () => void
+  open: boolean
+  onOpenChange: (open: boolean) => void
+  resolvedDirection: Exclude<DrawerDirection, 'auto'>
+}
 
 export function DiscussionPostCardDrawer({
   profileImage,
@@ -72,43 +72,46 @@ export function DiscussionPostCardDrawer({
   composerError = null,
 }: DiscussionPostCardDrawerProps) {
   const [replyVotes, setReplyVotes] = React.useState<
-    Record<string, { upvotes: number; downvotes: number; direction: VoteDirection }>
-  >({});
+    Record<
+      string,
+      { upvotes: number; downvotes: number; direction: VoteDirection }
+    >
+  >({})
 
   React.useEffect(() => {
     setReplyVotes(
       replies.reduce<
-        Record<string, { upvotes: number; downvotes: number; direction: VoteDirection }>
-      >(
-        (accumulator, reply) => {
-          accumulator[reply.id] = {
-            upvotes: reply.currentUpvoteCount ?? 0,
-            downvotes: reply.currentDownvoteCount ?? 0,
-            direction: reply.voteDirection ?? null,
-          };
-          return accumulator;
-        },
-        {},
-      ),
-    );
-  }, [replies]);
+        Record<
+          string,
+          { upvotes: number; downvotes: number; direction: VoteDirection }
+        >
+      >((accumulator, reply) => {
+        accumulator[reply.id] = {
+          upvotes: reply.currentUpvoteCount ?? 0,
+          downvotes: reply.currentDownvoteCount ?? 0,
+          direction: reply.voteDirection ?? null,
+        }
+        return accumulator
+      }, {}),
+    )
+  }, [replies])
 
   const showReplyComposer = onReplySubmit != null
 
   const composerFooter = (
     <div
       className={cn(
-        "bg-white",
-        drawerPinFooter && "shrink-0 border-t p-4",
+        'bg-surface',
+        drawerPinFooter && 'shrink-0 border-t p-4',
         drawerPinFooter &&
-          resolvedDirection === "bottom" &&
-          "shadow-[0_-4px_16px_rgba(0,0,0,0.06)]",
-        !drawerPinFooter && "mt-4 border-t border-[#E5E7EB] pt-4",
+          resolvedDirection === 'bottom' &&
+          'shadow-[0_-4px_16px_rgba(0,0,0,0.06)]',
+        !drawerPinFooter && 'mt-4 border-t border-border pt-4',
         drawerFooterClassName,
       )}
     >
       {composerError ? (
-        <p className="mb-2 text-sm text-red-600" role="alert">
+        <p className="mb-2 text-sm text-danger" role="alert">
           {composerError}
         </p>
       ) : null}
@@ -120,7 +123,7 @@ export function DiscussionPostCardDrawer({
         placeholder={replyPlaceholder}
       />
     </div>
-  );
+  )
 
   return (
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
@@ -128,18 +131,18 @@ export function DiscussionPostCardDrawer({
         <Dialog.Overlay className="fixed inset-0 z-50 bg-black/50 transition-opacity duration-300 ease-out data-[state=closed]:opacity-0 data-[state=open]:opacity-100" />
         <Dialog.Content
           className={cn(
-            "fixed z-50 border bg-white font-poppins shadow-xl outline-none",
-            resolvedDirection === "right"
-              ? "right-0 top-0 flex h-svh w-full max-w-[460px] flex-col border-l transition-transform duration-300 ease-out will-change-transform data-[state=closed]:translate-x-full data-[state=open]:translate-x-0"
-              : "bottom-0 left-0 flex max-h-[88svh] w-full flex-col rounded-t-2xl border-t transition-transform duration-300 ease-out will-change-transform data-[state=closed]:translate-y-full data-[state=open]:translate-y-0",
+            'fixed z-50 border bg-surface font-poppins shadow-xl outline-none',
+            resolvedDirection === 'right'
+              ? 'right-0 top-0 flex h-svh w-full max-w-[460px] flex-col border-l transition-transform duration-300 ease-out will-change-transform data-[state=closed]:translate-x-full data-[state=open]:translate-x-0'
+              : 'bottom-0 left-0 flex max-h-[88svh] w-full flex-col rounded-t-2xl border-t transition-transform duration-300 ease-out will-change-transform data-[state=closed]:translate-y-full data-[state=open]:translate-y-0',
             drawerBottomInsetClassName,
           )}
         >
           <div className="flex items-start justify-between border-b p-4">
-            <Dialog.Title className="text-lg font-semibold text-[#111928]">
+            <Dialog.Title className="text-lg font-semibold text-foreground">
               Discussion Thread
             </Dialog.Title>
-            <Dialog.Close className="inline-flex size-8 items-center justify-center rounded-md border text-[#6B7280] hover:bg-[#F9FAFB] hover:text-[#111928]">
+            <Dialog.Close className="inline-flex size-8 items-center justify-center rounded-md border text-foreground-muted hover:bg-surface-muted hover:text-foreground">
               <X size={16} />
               <span className="sr-only">Close</span>
             </Dialog.Close>
@@ -147,7 +150,7 @@ export function DiscussionPostCardDrawer({
 
           <div
             className={cn(
-              "min-h-0 flex-1 overflow-y-auto p-4",
+              'min-h-0 flex-1 overflow-y-auto p-4',
               drawerBodyClassName,
             )}
           >
@@ -169,7 +172,7 @@ export function DiscussionPostCardDrawer({
             />
 
             <div className="mt-4">
-              <p className="text-[14px] font-[600] leading-[20px] text-[#111928]">
+              <p className="text-[14px] font-[600] leading-[20px] text-foreground">
                 Responses
               </p>
               {replies.length ? (
@@ -179,7 +182,7 @@ export function DiscussionPostCardDrawer({
                       key={reply.id}
                       profileImage={
                         reply.profileImage ||
-                        "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=120&q=80"
+                        'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=120&q=80'
                       }
                       name={reply.author}
                       createdAt={reply.createdAt}
@@ -196,9 +199,9 @@ export function DiscussionPostCardDrawer({
                             upvotes: 0,
                             downvotes: 0,
                             direction: null,
-                          };
+                          }
 
-                          if (currentState.direction === "up") {
+                          if (currentState.direction === 'up') {
                             return {
                               ...current,
                               [reply.id]: {
@@ -206,18 +209,21 @@ export function DiscussionPostCardDrawer({
                                 upvotes: Math.max(currentState.upvotes - 1, 0),
                                 direction: null,
                               },
-                            };
+                            }
                           }
 
-                          if (currentState.direction === "down") {
+                          if (currentState.direction === 'down') {
                             return {
                               ...current,
                               [reply.id]: {
                                 upvotes: currentState.upvotes + 1,
-                                downvotes: Math.max(currentState.downvotes - 1, 0),
-                                direction: "up",
+                                downvotes: Math.max(
+                                  currentState.downvotes - 1,
+                                  0,
+                                ),
+                                direction: 'up',
                               },
-                            };
+                            }
                           }
 
                           return {
@@ -225,10 +231,10 @@ export function DiscussionPostCardDrawer({
                             [reply.id]: {
                               ...currentState,
                               upvotes: currentState.upvotes + 1,
-                              direction: "up",
+                              direction: 'up',
                             },
-                          };
-                        });
+                          }
+                        })
                       }}
                       onDownvoteClick={() => {
                         setReplyVotes((current) => {
@@ -236,28 +242,31 @@ export function DiscussionPostCardDrawer({
                             upvotes: 0,
                             downvotes: 0,
                             direction: null,
-                          };
+                          }
 
-                          if (currentState.direction === "down") {
+                          if (currentState.direction === 'down') {
                             return {
                               ...current,
                               [reply.id]: {
                                 ...currentState,
-                                downvotes: Math.max(currentState.downvotes - 1, 0),
+                                downvotes: Math.max(
+                                  currentState.downvotes - 1,
+                                  0,
+                                ),
                                 direction: null,
                               },
-                            };
+                            }
                           }
 
-                          if (currentState.direction === "up") {
+                          if (currentState.direction === 'up') {
                             return {
                               ...current,
                               [reply.id]: {
                                 upvotes: Math.max(currentState.upvotes - 1, 0),
                                 downvotes: currentState.downvotes + 1,
-                                direction: "down",
+                                direction: 'down',
                               },
-                            };
+                            }
                           }
 
                           return {
@@ -265,10 +274,10 @@ export function DiscussionPostCardDrawer({
                             [reply.id]: {
                               ...currentState,
                               downvotes: currentState.downvotes + 1,
-                              direction: "down",
+                              direction: 'down',
                             },
-                          };
-                        });
+                          }
+                        })
                       }}
                       replyCount={0}
                       showReplyAction={false}
@@ -278,7 +287,7 @@ export function DiscussionPostCardDrawer({
                   ))}
                 </div>
               ) : (
-                <div className="mt-3 rounded-[10px] border border-dashed border-[#D1D5DB] bg-[#F9FAFB] p-4 text-[13px] text-[#6B7280]">
+                <div className="mt-3 rounded-[10px] border border-dashed border-border-strong bg-surface-muted p-4 text-[13px] text-foreground-muted">
                   No replies yet. Start the discussion.
                 </div>
               )}
@@ -291,5 +300,5 @@ export function DiscussionPostCardDrawer({
         </Dialog.Content>
       </Dialog.Portal>
     </Dialog.Root>
-  );
+  )
 }

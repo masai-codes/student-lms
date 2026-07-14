@@ -65,9 +65,9 @@ lives on the backend so the frontend only renders:
 - `schedule` / `concludes` are formatted as **IST ISO-8601** (`…+05:30`) —
   `formatIstWallClock` — because the DB stores IST wall-clock times.
 - `status` is computed by `resolveSupportSessionStatus(schedule, concludes,
-  istNow)`:
+istNow)`:
   - **`live`** — `schedule <= now` AND (`concludes` is null OR `now <=
-    concludes`).
+concludes`).
   - **`today`** — same IST calendar day as now (and not live).
   - **`upcoming`** — otherwise (future day, or no schedule).
 

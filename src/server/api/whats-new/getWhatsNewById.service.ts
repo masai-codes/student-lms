@@ -33,7 +33,9 @@ function formatIST(dateStr: string | null): string {
  * Fetches a single whatsnew row by primary key.
  * No access control — any authenticated user can fetch any ID.
  */
-export async function getWhatsNewById(id: number): Promise<WhatsNewDetail | null> {
+export async function getWhatsNewById(
+  id: number,
+): Promise<WhatsNewDetail | null> {
   const rows = await db
     .select({
       id: whatsnew.id,

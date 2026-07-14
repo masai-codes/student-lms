@@ -56,9 +56,8 @@ export default function EventRegisterCard({ event }: EventRegisterCardProps) {
   // Local confirmation so the success UI flips instantly on this page, even if
   // the cached detail this card was rendered from isn't the same query the
   // surrounding page re-renders off of (e.g. on client-side navigation).
-  const [justRegistered, setJustRegistered] = useState<EventEnrollmentState | null>(
-    null,
-  )
+  const [justRegistered, setJustRegistered] =
+    useState<EventEnrollmentState | null>(null)
   // Whether the pre-registration confirmation dialog is open. Only ever shown
   // when the event configures `confirmationModalText`.
   const [confirmOpen, setConfirmOpen] = useState(false)
@@ -116,7 +115,9 @@ export default function EventRegisterCard({ event }: EventRegisterCardProps) {
           queryKey: masaiverseV2ClubDetailQuery(event.clubId).queryKey,
         })
       }
-      void queryClient.invalidateQueries({ queryKey: MASAIVERSE_V2_MY_CLUBS_KEY })
+      void queryClient.invalidateQueries({
+        queryKey: MASAIVERSE_V2_MY_CLUBS_KEY,
+      })
     },
   })
 
@@ -154,28 +155,28 @@ export default function EventRegisterCard({ event }: EventRegisterCardProps) {
   const needsClubMembership = event.clubId != null && !isClubMember
 
   return (
-    <div className="rounded-[20px] border border-[#EDEAE8] bg-white/95 p-5 shadow-[0_10px_40px_-18px_rgba(0,0,0,0.28)] backdrop-blur-sm">
-      <p className="text-[13px] font-semibold uppercase tracking-wide text-[#9CA3AF]">
+    <div className="rounded-[20px] border border-border bg-surface/95 p-5 shadow-[0_10px_40px_-18px_rgba(0,0,0,0.28)] backdrop-blur-sm">
+      <p className="text-[13px] font-semibold uppercase tracking-wide text-foreground-subtle">
         Registration
       </p>
 
       {event.status === 'completed' ? (
-        <p className="mt-3 text-[14px] leading-5 text-[#6B7280]">
+        <p className="mt-3 text-[14px] leading-5 text-foreground-muted">
           This event has ended.
         </p>
       ) : isEnrolled ? (
         <div className="mt-3">
-          <div className="flex flex-col items-center rounded-[14px] border border-[#BBF7D0] bg-gradient-to-b from-[#F0FDF4] to-white px-4 py-5 text-center">
+          <div className="flex flex-col items-center rounded-[14px] border border-success-subtle bg-gradient-to-b from-[#F0FDF4] to-white px-4 py-5 text-center dark:bg-none dark:bg-success-subtle">
             <span
-              className="flex h-12 w-12 items-center justify-center rounded-full bg-[#DCFCE7] text-[#16A34A]"
+              className="flex h-12 w-12 items-center justify-center rounded-full bg-success-subtle text-success"
               aria-hidden="true"
             >
               <CheckCircle size={32} weight="fill" />
             </span>
-            <p className="mt-3 text-[16px] font-bold text-[#15803D]">
+            <p className="mt-3 text-[16px] font-bold text-success">
               You're registered! 🎉
             </p>
-            <p className="mt-1 text-[13px] leading-5 text-[#4B5563]">
+            <p className="mt-1 text-[13px] leading-5 text-foreground-muted">
               Your spot is saved. We can't wait to see you there ✨
             </p>
           </div>
@@ -189,7 +190,7 @@ export default function EventRegisterCard({ event }: EventRegisterCardProps) {
                 })
                 openExternal(link)
               }}
-              className="mt-3 flex w-full items-center justify-center gap-2 rounded-[14px] bg-gradient-to-r from-masaiverse-orange to-[#FF7A29] px-5 py-3.5 text-[15px] font-bold text-white shadow-[0_8px_20px_-6px_rgba(242,92,4,0.5)] transition-all hover:shadow-[0_10px_26px_-6px_rgba(242,92,4,0.6)] active:scale-[0.99]"
+              className="mt-3 flex w-full items-center justify-center gap-2 rounded-[14px] bg-gradient-to-r from-accent-warm to-[#FF7A29] px-5 py-3.5 text-[15px] font-bold text-accent-warm-foreground shadow-[0_8px_20px_-6px_rgba(242,92,4,0.5)] transition-all hover:shadow-[0_10px_26px_-6px_rgba(242,92,4,0.6)] active:scale-[0.99]"
             >
               <OpenIcon size={18} weight="bold" />
               {openLabel}
@@ -198,9 +199,9 @@ export default function EventRegisterCard({ event }: EventRegisterCardProps) {
         </div>
       ) : needsClubMembership ? (
         <div className="mt-3">
-          <p className="text-[14px] leading-5 text-[#6B7280]">
+          <p className="text-[14px] leading-5 text-foreground-muted">
             Join{' '}
-            <span className="font-semibold text-[#111827]">
+            <span className="font-semibold text-foreground">
               {event.clubName ?? 'the club'}
             </span>{' '}
             to register for this event.
@@ -209,7 +210,7 @@ export default function EventRegisterCard({ event }: EventRegisterCardProps) {
             type="button"
             onClick={handleJoinClick}
             disabled={joinMutation.isPending}
-            className="mt-3 flex w-full items-center justify-center gap-2 rounded-[14px] bg-gradient-to-r from-masaiverse-orange to-[#FF7A29] px-5 py-3.5 text-[15px] font-bold text-white shadow-[0_8px_20px_-6px_rgba(242,92,4,0.5)] transition-all hover:shadow-[0_10px_26px_-6px_rgba(242,92,4,0.6)] active:scale-[0.99] disabled:opacity-70 disabled:shadow-none"
+            className="mt-3 flex w-full items-center justify-center gap-2 rounded-[14px] bg-gradient-to-r from-accent-warm to-[#FF7A29] px-5 py-3.5 text-[15px] font-bold text-accent-warm-foreground shadow-[0_8px_20px_-6px_rgba(242,92,4,0.5)] transition-all hover:shadow-[0_10px_26px_-6px_rgba(242,92,4,0.6)] active:scale-[0.99] disabled:opacity-70 disabled:shadow-none"
           >
             <Plus size={18} weight="bold" />
             {joinMutation.isPending ? 'Joining…' : 'Join club'}
@@ -220,7 +221,7 @@ export default function EventRegisterCard({ event }: EventRegisterCardProps) {
           type="button"
           onClick={handleRegisterClick}
           disabled={mutation.isPending}
-          className="mt-3 flex w-full items-center justify-center gap-2 rounded-[14px] bg-gradient-to-r from-masaiverse-orange to-[#FF7A29] px-5 py-3.5 text-[15px] font-bold text-white shadow-[0_8px_20px_-6px_rgba(242,92,4,0.5)] transition-all hover:shadow-[0_10px_26px_-6px_rgba(242,92,4,0.6)] active:scale-[0.99] disabled:opacity-70 disabled:shadow-none"
+          className="mt-3 flex w-full items-center justify-center gap-2 rounded-[14px] bg-gradient-to-r from-accent-warm to-[#FF7A29] px-5 py-3.5 text-[15px] font-bold text-accent-warm-foreground shadow-[0_8px_20px_-6px_rgba(242,92,4,0.5)] transition-all hover:shadow-[0_10px_26px_-6px_rgba(242,92,4,0.6)] active:scale-[0.99] disabled:opacity-70 disabled:shadow-none"
         >
           <Ticket size={18} weight="fill" />
           {mutation.isPending ? 'Registering…' : 'Register'}
@@ -235,7 +236,9 @@ export default function EventRegisterCard({ event }: EventRegisterCardProps) {
           onOpenChange={setConfirmOpen}
           confirmationText={event.confirmationModalText}
           title="Confirm your registration"
-          confirmLabel={mutation.isPending ? 'Registering…' : 'Confirm & register'}
+          confirmLabel={
+            mutation.isPending ? 'Registering…' : 'Confirm & register'
+          }
           isPending={mutation.isPending}
           onConfirm={() => mutation.mutate()}
         />

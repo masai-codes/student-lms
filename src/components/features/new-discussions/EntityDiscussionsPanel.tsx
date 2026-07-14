@@ -41,7 +41,7 @@ export function EntityDiscussionsPanel({
 
   const visibleDiscussions = useMemo(() => {
     if (!myDiscussionsOnly) return discussions
-    return discussions.filter(d => d.author?.id === user.id)
+    return discussions.filter((d) => d.author?.id === user.id)
   }, [discussions, myDiscussionsOnly, user.id])
 
   const noun = nounForContext(emptyStateContext)
@@ -49,15 +49,17 @@ export function EntityDiscussionsPanel({
   return (
     <div className="relative flex min-h-[320px] flex-1 flex-col gap-3">
       <div className="flex flex-col gap-3">
-        <h2 className="text-lg font-semibold leading-7 text-gray-900">Discussions</h2>
+        <h2 className="text-lg font-semibold leading-7 text-foreground">
+          Discussions
+        </h2>
         <button
           type="button"
-          onClick={() => setMyDiscussionsOnly(v => !v)}
+          onClick={() => setMyDiscussionsOnly((v) => !v)}
           className={cn(
             'self-start rounded-[32px] border px-4 py-2 text-xs font-semibold leading-6 transition-colors',
             myDiscussionsOnly
-              ? 'border-[#6962AC] text-[#6962AC]'
-              : 'border-gray-900 text-gray-500'
+              ? 'border-brand text-brand'
+              : 'border-gray-900 text-foreground-muted',
           )}
         >
           My Discussions
@@ -67,14 +69,22 @@ export function EntityDiscussionsPanel({
       <div className="min-h-0 flex-1 space-y-3 overflow-y-auto pb-24">
         {visibleDiscussions.length === 0 ? (
           <div className="flex flex-col items-center justify-center gap-2 py-8 text-center">
-            <UsersThree className="h-20 w-20 text-gray-400" weight="bold" aria-hidden />
-            <h3 className="text-lg font-bold text-gray-900">No Discussions Yet</h3>
-            <p className="max-w-[250px] text-sm leading-6 text-gray-500">
+            <UsersThree
+              className="h-20 w-20 text-foreground-subtle"
+              weight="bold"
+              aria-hidden
+            />
+            <h3 className="text-lg font-bold text-foreground">
+              No Discussions Yet
+            </h3>
+            <p className="max-w-[250px] text-sm leading-6 text-foreground-muted">
               Be the first to start a discussion about this {noun}.
             </p>
           </div>
         ) : (
-          visibleDiscussions.map(d => <DiscussionSummaryCard key={d.id} discussion={d} />)
+          visibleDiscussions.map((d) => (
+            <DiscussionSummaryCard key={d.id} discussion={d} />
+          ))
         )}
       </div>
 
@@ -82,7 +92,7 @@ export function EntityDiscussionsPanel({
         <Button
           type="button"
           onClick={() => setCreateOpen(true)}
-          className="pointer-events-auto rounded-full bg-[#6962AC] px-6 py-2.5 font-medium text-white shadow-md hover:bg-[#585196]"
+          className="pointer-events-auto rounded-full bg-brand px-6 py-2.5 font-medium text-brand-foreground shadow-md hover:bg-brand"
         >
           <Plus className="mr-1.5 h-5 w-5" weight="bold" aria-hidden />
           Create

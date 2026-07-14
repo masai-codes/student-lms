@@ -49,7 +49,10 @@ export async function resetDatabase(): Promise<{ truncatedTables: string[] }> {
 
   const tableNames = normalizeRows(result)
     .map((row) => row.TABLE_NAME)
-    .filter((name) => !PRESERVED_TABLES.includes(name as (typeof PRESERVED_TABLES)[number]))
+    .filter(
+      (name) =>
+        !PRESERVED_TABLES.includes(name as (typeof PRESERVED_TABLES)[number]),
+    )
     .sort()
 
   if (tableNames.length === 0) {

@@ -36,7 +36,7 @@ export function LectureOptionalAttendanceInfo({
         <button
           type="button"
           aria-label="Attendance status"
-          className="inline-flex shrink-0 items-center justify-center rounded-full text-gray-400 transition-colors hover:text-gray-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          className="inline-flex shrink-0 items-center justify-center rounded-full text-foreground-subtle transition-colors hover:text-foreground-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
         >
           <Info width={iconSize} height={iconSize} aria-hidden />
         </button>

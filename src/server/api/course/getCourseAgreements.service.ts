@@ -14,14 +14,19 @@ export async function getCourseAgreements(
   userId: number,
 ): Promise<CourseAgreementItem[]> {
   const sectionRows = await db
-    .select({ id: sections.id, name: sections.name, settings: sections.settings })
+    .select({
+      id: sections.id,
+      name: sections.name,
+      settings: sections.settings,
+    })
     .from(sections)
     .where(and(eq(sections.batchId, batchId), isNull(sections.deletedAt)))
 
   // Only sections that have a visible legal agreement modal
   const agreementSections = sectionRows.filter((s) => {
     const settings = s.settings as Record<string, unknown> | null
-    const agreements = settings?.agreements as Record<string, unknown> | undefined
+    const agreements = settings?.agreements as
+      Record<string, unknown> | undefined
     return agreements?.shouldModalBeVisible === true
   })
 
@@ -34,7 +39,10 @@ export async function getCourseAgreements(
     .limit(1)
 
   const legalData = (profile?.legalData ?? {}) as Record<string, unknown>
-  const acceptedAgreements = (legalData.agreements ?? {}) as Record<string, unknown>
+  const acceptedAgreements = (legalData.agreements ?? {}) as Record<
+    string,
+    unknown
+  >
 
   return agreementSections.map((s) => {
     const settings = s.settings as Record<string, unknown> | null
@@ -51,7 +59,10 @@ export async function getCourseAgreements(
       }
     }
 
-    const sectionData = (acceptedAgreements[`section_${s.id}`] ?? {}) as Record<string, unknown>
+    const sectionData = (acceptedAgreements[`section_${s.id}`] ?? {}) as Record<
+      string,
+      unknown
+    >
 
     return {
       sectionId: s.id,

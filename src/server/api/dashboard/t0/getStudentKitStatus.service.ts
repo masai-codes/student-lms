@@ -20,9 +20,17 @@ export interface StudentKitStatus {
 }
 
 /** Project the shared admissions status onto the kit view the client consumes. */
-export function toStudentKitStatus(status: T0AdmissionsStatus): StudentKitStatus {
+export function toStudentKitStatus(
+  status: T0AdmissionsStatus,
+): StudentKitStatus {
   if (!status.kitApplicable) {
-    return { applicable: false, detailsFilled: false, trackingUrl: null, trackingId: null, admissionsFormUrl: null }
+    return {
+      applicable: false,
+      detailsFilled: false,
+      trackingUrl: null,
+      trackingId: null,
+      admissionsFormUrl: null,
+    }
   }
   return {
     applicable: true,
@@ -30,6 +38,8 @@ export function toStudentKitStatus(status: T0AdmissionsStatus): StudentKitStatus
     trackingUrl: status.trackingUrl,
     trackingId: status.trackingId,
     // The SSO form link is only actionable while details are unfilled.
-    admissionsFormUrl: status.kitDetailsFilled ? null : status.admissionsFormUrl,
+    admissionsFormUrl: status.kitDetailsFilled
+      ? null
+      : status.admissionsFormUrl,
   }
 }

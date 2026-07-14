@@ -42,11 +42,14 @@ export function LearnListingJoinLiveCta({
 
   const handleJoin = async () => {
     if (lectureId !== undefined) {
-      pushLearnEvent(learnEntityEvent('lecture', 'join_live_click', lectureId), {
-        lecture_id: lectureId,
-        title,
-        source: 'learn_listing',
-      })
+      pushLearnEvent(
+        learnEntityEvent('lecture', 'join_live_click', lectureId),
+        {
+          lecture_id: lectureId,
+          title,
+          source: 'learn_listing',
+        },
+      )
     }
     if (!isActive || pending) return
 
@@ -73,7 +76,9 @@ export function LearnListingJoinLiveCta({
       text={pending ? 'Opening…' : 'Join Live'}
       theme={getJoinLiveCtaTheme(joinLive)}
       onClick={handleJoin}
-      className={joinLive === 'disabled' ? 'pointer-events-none opacity-60' : ''}
+      className={
+        joinLive === 'disabled' ? 'pointer-events-none opacity-60' : ''
+      }
     />
   )
 }

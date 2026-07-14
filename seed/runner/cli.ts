@@ -24,15 +24,31 @@ function publishCatalog(html: string): void {
 
 function printUsage(): void {
   console.log('Usage: npm run seed [flow-id|all] [--no-reset] [flags]\n')
-  console.log('  npm run seed all          — run every flow (reset once, then append)')
+  console.log(
+    '  npm run seed all          — run every flow (reset once, then append)',
+  )
   console.log('  npm run seed:all          — same as above\n')
-  console.log('  --with-app-download       — for onboarding-fees-unpaid, pre-seeds a device token')
-  console.log('  --docs-required           — for onboarding-fees-paid, simulated onward: documents.required = true')
-  console.log('  --docs-uploaded           — for onboarding-fees-paid, simulated onward: documents.documentsUploaded = true')
-  console.log('  --kit-shown               — for onboarding-fees-paid, simulated onward: kit.showKit = true')
-  console.log('  --kit-filled              — for onboarding-fees-paid, simulated onward: kit.detailsFilled = true')
-  console.log('  --kit-tracking            — for onboarding-fees-paid, simulated onward: kit.tracking = <url>')
-  console.log('  --agreement-signed        — for onboarding-fees-paid, pre-signs the Program Onboarding agreement')
+  console.log(
+    '  --with-app-download       — for onboarding-fees-unpaid, pre-seeds a device token',
+  )
+  console.log(
+    '  --docs-required           — for onboarding-fees-paid, simulated onward: documents.required = true',
+  )
+  console.log(
+    '  --docs-uploaded           — for onboarding-fees-paid, simulated onward: documents.documentsUploaded = true',
+  )
+  console.log(
+    '  --kit-shown               — for onboarding-fees-paid, simulated onward: kit.showKit = true',
+  )
+  console.log(
+    '  --kit-filled              — for onboarding-fees-paid, simulated onward: kit.detailsFilled = true',
+  )
+  console.log(
+    '  --kit-tracking            — for onboarding-fees-paid, simulated onward: kit.tracking = <url>',
+  )
+  console.log(
+    '  --agreement-signed        — for onboarding-fees-paid, pre-signs the Program Onboarding agreement',
+  )
   console.log('Available flows:')
   for (const flow of listFlows()) {
     console.log(`  ${flow.id} — ${flow.description}`)
@@ -63,11 +79,15 @@ function printResult(result: Awaited<ReturnType<typeof seedFlow>>): void {
   }
 }
 
-function printAllResults(results: Awaited<ReturnType<typeof seedAllFlows>>): void {
+function printAllResults(
+  results: Awaited<ReturnType<typeof seedAllFlows>>,
+): void {
   console.log(`\nSeeding completed — ${results.length} flows.\n`)
   console.table(
     results.map((result) => {
-      const student = result.testUsers.find((user) => user.role === 'student') ?? result.testUsers[0]
+      const student =
+        result.testUsers.find((user) => user.role === 'student') ??
+        result.testUsers[0]
       return {
         flowId: result.flowId,
         studentEmail: student?.email ?? '',

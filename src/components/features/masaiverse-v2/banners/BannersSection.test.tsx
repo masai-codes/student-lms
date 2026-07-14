@@ -1,6 +1,12 @@
 // @vitest-environment jsdom
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
+import {
+  cleanup,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import BannersSection from './BannersSection'
 import type { ReactNode } from 'react'
@@ -84,7 +90,9 @@ describe('BannersSection', () => {
   })
 
   it('shows a draft badge + edit control for an admin', async () => {
-    fetchBanners.mockResolvedValue([banner({ isPublished: false, title: 'Draft B' })])
+    fetchBanners.mockResolvedValue([
+      banner({ isPublished: false, title: 'Draft B' }),
+    ])
     fetchAdminMode.mockResolvedValue({ isAdmin: true, enabled: true })
     renderSection()
 

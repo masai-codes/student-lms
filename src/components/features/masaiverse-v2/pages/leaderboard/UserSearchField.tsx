@@ -22,12 +22,14 @@ export default function UserSearchField({
 
   if (selected) {
     return (
-      <div className="flex items-center justify-between gap-3 rounded-[12px] border border-[#EDEAE8] p-3">
+      <div className="flex items-center justify-between gap-3 rounded-[12px] border border-border p-3">
         <div className="min-w-0">
-          <p className="truncate text-[14px] font-semibold text-[#111827]">
+          <p className="truncate text-[14px] font-semibold text-foreground">
             {selected.name}
           </p>
-          <p className="truncate text-[12px] text-[#6B7280]">{selected.email}</p>
+          <p className="truncate text-[12px] text-foreground-muted">
+            {selected.email}
+          </p>
         </div>
         <button
           type="button"
@@ -35,7 +37,7 @@ export default function UserSearchField({
             onSelect(null)
             setQuery('')
           }}
-          className="shrink-0 text-[13px] font-semibold text-masaiverse-orange"
+          className="shrink-0 text-[13px] font-semibold text-accent-warm"
         >
           Change
         </button>
@@ -54,9 +56,9 @@ export default function UserSearchField({
         aria-label="Search users"
       />
       {showResults ? (
-        <ul className="absolute z-10 mt-1 max-h-56 w-full overflow-y-auto rounded-[12px] border border-[#EDEAE8] bg-white py-1 shadow-lg">
+        <ul className="absolute z-10 mt-1 max-h-56 w-full overflow-y-auto rounded-[12px] border border-border bg-surface py-1 shadow-lg">
           {results.length === 0 ? (
-            <li className="px-3 py-2 text-[13px] text-[#6B7280]">
+            <li className="px-3 py-2 text-[13px] text-foreground-muted">
               {isFetching ? 'Searching…' : 'No users found'}
             </li>
           ) : (
@@ -65,12 +67,12 @@ export default function UserSearchField({
                 <button
                   type="button"
                   onClick={() => onSelect(user)}
-                  className="block w-full px-3 py-2 text-left hover:bg-[#F7F4F1]"
+                  className="block w-full px-3 py-2 text-left hover:bg-surface-muted"
                 >
-                  <span className="block truncate text-[14px] font-semibold text-[#111827]">
+                  <span className="block truncate text-[14px] font-semibold text-foreground">
                     {user.name}
                   </span>
-                  <span className="block truncate text-[12px] text-[#6B7280]">
+                  <span className="block truncate text-[12px] text-foreground-muted">
                     {user.email}
                   </span>
                 </button>

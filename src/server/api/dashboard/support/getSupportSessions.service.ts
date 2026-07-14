@@ -58,11 +58,11 @@ export async function getSupportSessions(
   // (`…+05:30`) from the `istDatetime` column type — pass them through as-is;
   // re-formatting here would double the offset and produce an invalid date.
   return rows.map((row) => ({
-      id: row.id,
-      title: row.title,
-      schedule: row.schedule,
-      concludes: row.concludes,
-      zoomLink: row.zoomLink,
-      status: resolveSupportSessionStatus(row.schedule, row.concludes, now),
-    }))
+    id: row.id,
+    title: row.title,
+    schedule: row.schedule,
+    concludes: row.concludes,
+    zoomLink: row.zoomLink,
+    status: resolveSupportSessionStatus(row.schedule, row.concludes, now),
+  }))
 }

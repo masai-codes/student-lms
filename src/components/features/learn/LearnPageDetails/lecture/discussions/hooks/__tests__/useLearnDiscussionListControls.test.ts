@@ -5,7 +5,10 @@ import { describe, expect, it } from 'vitest'
 import type { DiscussionListItem } from '@/server/learn/types'
 import { useLearnDiscussionListControls } from '../useLearnDiscussionListControls'
 
-function makeDiscussions(count: number, authorId = 1): Array<DiscussionListItem> {
+function makeDiscussions(
+  count: number,
+  authorId = 1,
+): Array<DiscussionListItem> {
   return Array.from({ length: count }, (_, i) => ({
     id: i + 1,
     title: `Discussion ${i + 1}`,

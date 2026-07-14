@@ -50,7 +50,10 @@ describe('handleSendAiChatMessage', () => {
       },
     })
 
-    const res = await handleSendAiChatMessage(makeRequest({ message: 'hi' }), '5')
+    const res = await handleSendAiChatMessage(
+      makeRequest({ message: 'hi' }),
+      '5',
+    )
     expect(res.status).toBe(200)
     const body = (await res.json()) as {
       userMessage: { content: string }
@@ -71,7 +74,10 @@ describe('handleSendAiChatMessage', () => {
       new ApiError(401, 'UNAUTHORIZED'),
     )
 
-    const res = await handleSendAiChatMessage(makeRequest({ message: 'hi' }), '5')
+    const res = await handleSendAiChatMessage(
+      makeRequest({ message: 'hi' }),
+      '5',
+    )
     expect(res.status).toBe(401)
     expect(sendAiChatMessage).not.toHaveBeenCalled()
   })
@@ -89,7 +95,10 @@ describe('handleSendAiChatMessage', () => {
   it('returns 400 for an invalid lecture id', async () => {
     vi.mocked(requireSessionUserId).mockResolvedValueOnce(7)
 
-    const res = await handleSendAiChatMessage(makeRequest({ message: 'hi' }), '0')
+    const res = await handleSendAiChatMessage(
+      makeRequest({ message: 'hi' }),
+      '0',
+    )
     expect(res.status).toBe(400)
     const body = (await res.json()) as { code: string }
     expect(body.code).toBe('INVALID_LECTURE_ID')
@@ -101,7 +110,10 @@ describe('handleSendAiChatMessage', () => {
       new Error('AI_CHAT_OPENAI_NOT_CONFIGURED'),
     )
 
-    const res = await handleSendAiChatMessage(makeRequest({ message: 'hi' }), '5')
+    const res = await handleSendAiChatMessage(
+      makeRequest({ message: 'hi' }),
+      '5',
+    )
     expect(res.status).toBe(503)
     const body = (await res.json()) as { code: string }
     expect(body.code).toBe('AI_CHAT_OPENAI_NOT_CONFIGURED')

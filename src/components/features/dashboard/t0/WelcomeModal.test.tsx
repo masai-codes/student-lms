@@ -24,7 +24,9 @@ beforeEach(() => {
 describe('WelcomeModal', () => {
   it('renders the title, intro copy, video, and CTA on desktop', () => {
     render(<WelcomeModal open onDismiss={vi.fn()} />)
-    expect(screen.getByTestId('welcome-modal-title').textContent).toBe('Welcome to Masai!')
+    expect(screen.getByTestId('welcome-modal-title').textContent).toBe(
+      'Welcome to Masai!',
+    )
     expect(screen.getByTestId('welcome-modal-body-text')).toBeTruthy()
     expect(screen.getByTestId('welcome-modal-video')).toBeTruthy()
     expect(screen.getByTestId('welcome-modal-get-started')).toBeTruthy()
@@ -39,7 +41,9 @@ describe('WelcomeModal', () => {
 
   it('disables the CTA and shows a pending label while dismissing', () => {
     render(<WelcomeModal open onDismiss={vi.fn()} isDismissing />)
-    const cta = screen.getByTestId<HTMLButtonElement>('welcome-modal-get-started')
+    const cta = screen.getByTestId<HTMLButtonElement>(
+      'welcome-modal-get-started',
+    )
     expect(cta.disabled).toBe(true)
     expect(cta.textContent).toContain('moment')
   })
@@ -54,9 +58,9 @@ describe('WelcomeModal', () => {
     expect(screen.queryByTestId('welcome-modal-celebrate-message')).toBeNull()
 
     fireEvent.click(celebrate)
-    expect(screen.getByTestId('welcome-modal-celebrate-message').textContent).toContain(
-      'We love celebrating wins',
-    )
+    expect(
+      screen.getByTestId('welcome-modal-celebrate-message').textContent,
+    ).toContain('We love celebrating wins')
   })
 
   it('renders the body content in the mobile bottom drawer', () => {

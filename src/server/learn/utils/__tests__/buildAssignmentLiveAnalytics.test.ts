@@ -26,7 +26,10 @@ describe('buildAssignmentLiveAnalytics', () => {
 
   it('returns null when live progress is disabled', () => {
     expect(
-      buildAssignmentLiveAnalytics({ ...baseInput, settings: { liveProgress: false } }),
+      buildAssignmentLiveAnalytics({
+        ...baseInput,
+        settings: { liveProgress: false },
+      }),
     ).toBeNull()
   })
 
@@ -40,7 +43,9 @@ describe('buildAssignmentLiveAnalytics', () => {
     expect(
       buildAssignmentLiveAnalytics({
         ...baseInput,
-        submission: { data: { ...liveData, assess_platform_link_clicked: false } },
+        submission: {
+          data: { ...liveData, assess_platform_link_clicked: false },
+        },
       }),
     ).toBeNull()
   })

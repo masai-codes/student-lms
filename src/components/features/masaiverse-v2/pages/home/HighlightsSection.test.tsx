@@ -26,9 +26,7 @@ function renderWithClient(ui: ReactNode) {
   const client = new QueryClient({
     defaultOptions: { queries: { retry: false } },
   })
-  return render(
-    <QueryClientProvider client={client}>{ui}</QueryClientProvider>,
-  )
+  return render(<QueryClientProvider client={client}>{ui}</QueryClientProvider>)
 }
 
 const highlight = {
@@ -52,7 +50,11 @@ describe('HighlightsSection', () => {
   })
 
   it('renders recap cards once loaded', async () => {
-    fetchHome.mockResolvedValue({ stats: {}, events: [], highlights: [highlight] })
+    fetchHome.mockResolvedValue({
+      stats: {},
+      events: [],
+      highlights: [highlight],
+    })
     renderWithClient(<HighlightsSection />)
 
     await waitFor(() =>

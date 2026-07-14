@@ -42,7 +42,9 @@ export function PhoneOtpStepView({
   resendBusy = false,
   submitDisabled = false,
 }: Props) {
-  const [resendSecondsLeft, setResendSecondsLeft] = useState(RESEND_OTP_COOLDOWN_SEC)
+  const [resendSecondsLeft, setResendSecondsLeft] = useState(
+    RESEND_OTP_COOLDOWN_SEC,
+  )
   const otpRef = useAutoFocus<HTMLInputElement>()
 
   useEffect(() => {
@@ -69,8 +71,12 @@ export function PhoneOtpStepView({
       </Button>
 
       <div className="rounded-xl border border-border bg-muted/30 p-4 shadow-sm ring-1 ring-border/50">
-        <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Mobile number</p>
-        <p className="mt-1 font-poppins text-base font-semibold tabular-nums text-foreground">{displayPhone}</p>
+        <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+          Mobile number
+        </p>
+        <p className="mt-1 font-poppins text-base font-semibold tabular-nums text-foreground">
+          {displayPhone}
+        </p>
       </div>
 
       {info ? (
@@ -104,7 +110,10 @@ export function PhoneOtpStepView({
       />
 
       {error ? (
-        <p className="rounded-md border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive" role="alert">
+        <p
+          className="rounded-md border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive"
+          role="alert"
+        >
           {error}
         </p>
       ) : null}

@@ -24,7 +24,10 @@ function buildTestUsers(world: OnboardingWorld): TestUser[] {
   ]
 }
 
-function toSeedFlowResult(flowId: OnboardingFlowId, world: OnboardingWorld): SeedFlowResult {
+function toSeedFlowResult(
+  flowId: OnboardingFlowId,
+  world: OnboardingWorld,
+): SeedFlowResult {
   return {
     flowId,
     entities: {

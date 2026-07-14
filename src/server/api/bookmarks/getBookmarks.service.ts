@@ -5,10 +5,10 @@ import type { BookmarksQueryParams } from './utils/parseBookmarksQuery'
 // ── Entity type constants ──────────────────────────────────────────────────────
 
 const ENTITY = {
-  lecture:      "App\\Models\\Lecture",
-  assignment:   "App\\Models\\Assignment",
-  announcement: "App\\Models\\Announcement",
-  ticket:       "App\\Models\\Ticket",
+  lecture: 'App\\Models\\Lecture',
+  assignment: 'App\\Models\\Assignment',
+  announcement: 'App\\Models\\Announcement',
+  ticket: 'App\\Models\\Ticket',
 } as const
 
 // ── Shared types ───────────────────────────────────────────────────────────────
@@ -495,10 +495,15 @@ export async function getBookmarks(
   params: BookmarksQueryParams,
 ): Promise<GetBookmarksResult> {
   switch (params.tab) {
-    case 'lectures':      return getLectures(userId, params)
-    case 'assignments':   return getAssignments(userId, params)
-    case 'tickets':       return getTickets(userId, params)
-    case 'announcements': return getAnnouncements(userId, params)
-    case 'masaiverse':    return getMasaiverse(userId, params)
+    case 'lectures':
+      return getLectures(userId, params)
+    case 'assignments':
+      return getAssignments(userId, params)
+    case 'tickets':
+      return getTickets(userId, params)
+    case 'announcements':
+      return getAnnouncements(userId, params)
+    case 'masaiverse':
+      return getMasaiverse(userId, params)
   }
 }

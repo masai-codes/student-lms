@@ -14,13 +14,13 @@ export function LearnPhaseContentSection({
 }: LearnPhaseContentSectionProps) {
   return (
     <section className="animate-dash-rise space-y-3">
-      <h2 className="type-h6 text-gray-900">{content.title}</h2>
-      <p className="type-b2-regular text-gray-600">
+      <h2 className="type-h6 text-foreground">{content.title}</h2>
+      <p className="type-b2-regular text-foreground-muted">
         {content.description}
         {content.scheduleHint ? (
           <>
             {' '}
-            <span className="type-b2-md inline-flex max-w-full items-center rounded-full bg-[#4F6BED]/10 px-2.5 py-0.5 text-[#4F6BED]">
+            <span className="type-b2-md inline-flex max-w-full items-center rounded-full bg-brand/10 px-2.5 py-0.5 text-brand">
               {content.scheduleHint}
             </span>
           </>

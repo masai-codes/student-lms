@@ -40,7 +40,7 @@ async function userHasSectionAccess(input: {
 
   if (userSections.length === 0) return false
 
-  const sectionIds = userSections.map(s => s.sectionId)
+  const sectionIds = userSections.map((s) => s.sectionId)
   const matchingLectures = await db
     .select({ id: lectures.id })
     .from(lectures)

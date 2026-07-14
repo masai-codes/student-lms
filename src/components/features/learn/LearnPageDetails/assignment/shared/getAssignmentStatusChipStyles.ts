@@ -9,23 +9,23 @@ type StatusChipStyles = {
 const STATUS_CHIP_STYLES: Record<AssignmentProgressStatus, StatusChipStyles> = {
   completed: {
     label: 'Complete',
-    backgroundClassName: 'bg-green-50 border border-green-200',
-    textClassName: '!text-green-600',
+    backgroundClassName: 'bg-success-subtle border border-success-subtle',
+    textClassName: '!text-success-subtle-foreground',
   },
   overdue: {
     label: 'Over Due',
-    backgroundClassName: 'bg-red-50 border border-red-200',
-    textClassName: '!text-red-500',
+    backgroundClassName: 'bg-danger-subtle border border-danger-subtle',
+    textClassName: '!text-danger-subtle-foreground',
   },
   'in-progress': {
     label: 'In Progress',
-    backgroundClassName: 'bg-orange-50 border border-orange-200',
-    textClassName: '!text-orange-500',
+    backgroundClassName: 'bg-warning-subtle border border-warning-subtle',
+    textClassName: '!text-warning-subtle-foreground',
   },
   new: {
     label: 'New',
-    backgroundClassName: 'bg-gray-50 border border-gray-200',
-    textClassName: '!text-gray-600',
+    backgroundClassName: 'bg-surface-muted border border-border',
+    textClassName: '!text-foreground-muted',
   },
 }
 

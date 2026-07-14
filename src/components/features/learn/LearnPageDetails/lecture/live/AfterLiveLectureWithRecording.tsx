@@ -30,6 +30,8 @@ type AfterLiveLectureWithRecordingProps = {
   feedback: LectureFeedbackState
 }
 
-export function AfterLiveLectureWithRecording(props: AfterLiveLectureWithRecordingProps) {
+export function AfterLiveLectureWithRecording(
+  props: AfterLiveLectureWithRecordingProps,
+) {
   return <LectureRecordingExperience {...props} />
 }

@@ -24,7 +24,10 @@ export function LectureTranscriptTabContent({
   if (segments.length === 0) {
     if (!fallbackText) {
       return (
-        <LectureTabEmptyState title={emptyTitle} description={emptyDescription} />
+        <LectureTabEmptyState
+          title={emptyTitle}
+          description={emptyDescription}
+        />
       )
     }
 
@@ -38,18 +41,20 @@ export function LectureTranscriptTabContent({
   return (
     <ExpandableTabContent>
       <ol className="flex flex-col gap-3 list-none p-0 m-0">
-        {segments.map(segment => (
+        {segments.map((segment) => (
           <li
             key={segment.id}
             className="flex flex-col gap-1 sm:flex-row sm:items-baseline sm:gap-3"
           >
             <span
               aria-label={`Timestamp ${formatTranscriptTimestamp(segment.start)}`}
-              className="type-b3-md shrink-0 font-mono tabular-nums text-blue-500"
+              className="type-b3-md shrink-0 font-mono tabular-nums text-brand"
             >
               {formatTranscriptTimestamp(segment.start)}
             </span>
-            <span className="type-b2-regular text-gray-900">{segment.text}</span>
+            <span className="type-b2-regular text-foreground">
+              {segment.text}
+            </span>
           </li>
         ))}
       </ol>

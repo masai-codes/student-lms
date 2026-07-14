@@ -30,8 +30,8 @@ function ReadOnlyFeedback({
   text: string | null
 }) {
   return (
-    <section className="rounded-xl border border-border bg-white px-4 py-3">
-      <h2 className="type-b1-md text-gray-900">Your feedback</h2>
+    <section className="rounded-xl border border-border bg-surface px-4 py-3">
+      <h2 className="type-b1-md text-foreground">Your feedback</h2>
       <div
         className="mt-2 flex gap-1"
         role="img"
@@ -47,7 +47,7 @@ function ReadOnlyFeedback({
         ))}
       </div>
       {text ? (
-        <p className="type-b2-regular mt-2 whitespace-pre-wrap text-gray-700">
+        <p className="type-b2-regular mt-2 whitespace-pre-wrap text-foreground">
           {text}
         </p>
       ) : null}
@@ -96,8 +96,8 @@ export function LectureFeedbackForm({
   const active = hovered || rating
 
   return (
-    <section className="rounded-xl border border-border bg-white px-4 py-3">
-      <h2 className="type-b1-md text-gray-900">
+    <section className="rounded-xl border border-border bg-surface px-4 py-3">
+      <h2 className="type-b1-md text-foreground">
         How would you rate this lecture?
       </h2>
       <div
@@ -127,7 +127,7 @@ export function LectureFeedbackForm({
               weight={star <= active ? 'fill' : 'regular'}
               className={cn(
                 'transition-colors',
-                star <= active ? 'text-amber-400' : 'text-gray-300',
+                star <= active ? 'text-amber-400' : 'text-foreground-subtle',
                 rating === star && 'animate-masaiverse-star-pop',
               )}
             />

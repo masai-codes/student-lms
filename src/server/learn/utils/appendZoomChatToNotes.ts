@@ -9,7 +9,9 @@ export type ZoomChatLinkEntry = {
 }
 
 /** Keep only entries that carry a non-empty string URL. */
-export function parseFinalChatLinks(finalChat: unknown): Array<ZoomChatLinkEntry> {
+export function parseFinalChatLinks(
+  finalChat: unknown,
+): Array<ZoomChatLinkEntry> {
   if (!Array.isArray(finalChat)) return []
   return finalChat.filter(
     (link): link is ZoomChatLinkEntry =>
@@ -25,11 +27,13 @@ export function formatZoomChatLinksForNotes(
   links: Array<ZoomChatLinkEntry>,
 ): string | null {
   const urls = links
-    .map(link => (typeof link.url === 'string' ? link.url.trim() : ''))
+    .map((link) => (typeof link.url === 'string' ? link.url.trim() : ''))
     .filter(Boolean)
   if (!urls.length) return null
 
-  const numberedList = urls.map((url, index) => `${index + 1}. ${url}`).join('\n')
+  const numberedList = urls
+    .map((url, index) => `${index + 1}. ${url}`)
+    .join('\n')
   return `Resources shared :-\n\n${numberedList}`
 }
 

@@ -33,7 +33,7 @@ const COLLAPSED_HEIGHT = 240
 
 function flushObserver() {
   act(() => {
-    StubResizeObserver.instances.forEach(instance => instance.trigger())
+    StubResizeObserver.instances.forEach((instance) => instance.trigger())
   })
 }
 

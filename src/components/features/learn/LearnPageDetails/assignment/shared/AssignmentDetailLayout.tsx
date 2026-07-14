@@ -23,10 +23,11 @@ type AssignmentDetailLayoutProps = {
   main: ReactNode
 }
 
-export function AssignmentDetailLayout({ detail, main }: AssignmentDetailLayoutProps) {
-  const footerPadClass = detail.footer.visible
-    ? 'pb-28 md:pb-20'
-    : ''
+export function AssignmentDetailLayout({
+  detail,
+  main,
+}: AssignmentDetailLayoutProps) {
+  const footerPadClass = detail.footer.visible ? 'pb-28 md:pb-20' : ''
 
   return (
     <>
@@ -36,7 +37,9 @@ export function AssignmentDetailLayout({ detail, main }: AssignmentDetailLayoutP
           main={
             <>
               <AssignmentDetailFooterInlineNotices footer={detail.footer} />
-              <AssignmentCompletedBanner completedDetails={detail.completedDetails} />
+              <AssignmentCompletedBanner
+                completedDetails={detail.completedDetails}
+              />
               <AssignmentLiveAnalytics liveAnalytics={detail.liveAnalytics} />
               {main}
               <AssignmentProblemList
@@ -53,7 +56,9 @@ export function AssignmentDetailLayout({ detail, main }: AssignmentDetailLayoutP
               initialIsBookmarked={detail.isBookmarked}
             />
           }
-          overviewTrailingChips={<AssignmentHeaderBadges badges={detail.headerBadges} />}
+          overviewTrailingChips={
+            <AssignmentHeaderBadges badges={detail.headerBadges} />
+          }
           fullWidthBanner={
             <div className="flex flex-col gap-4">
               {detail.phase === 'before' ? (
@@ -72,7 +77,7 @@ export function AssignmentDetailLayout({ detail, main }: AssignmentDetailLayoutP
           mainFooter={
             detail.instructions ? (
               <section data-testid="assignment-instructions">
-                <h2 className="type-h6 text-gray-900">Instructions</h2>
+                <h2 className="type-h6 text-foreground">Instructions</h2>
                 <MarkdownContent
                   value={detail.instructions}
                   variant="detail"

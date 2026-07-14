@@ -110,7 +110,9 @@ export function useAssignmentFooterActions(detail: AssignmentDetailPayload) {
           await refreshDetail()
         } catch (error) {
           setErrorMessage(
-            error instanceof Error ? error.message : 'Could not update submission',
+            error instanceof Error
+              ? error.message
+              : 'Could not update submission',
           )
         } finally {
           setLoading(false)

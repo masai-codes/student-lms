@@ -21,13 +21,17 @@ describe('MarkdownContent', () => {
     render(<MarkdownContent value={evaluationInstructions} variant="detail" />)
 
     expect(screen.getByText(/If you face any query/)).toBeTruthy()
-    expect(screen.getByRole('link', { name: /83629643104/ }).getAttribute('href')).toBe(
-      'https://us06web.zoom.us/j/83629643104',
-    )
-    expect(screen.getByRole('link', { name: /example\.mp4/ }).getAttribute('href')).toBe(
+    expect(
+      screen.getByRole('link', { name: /83629643104/ }).getAttribute('href'),
+    ).toBe('https://us06web.zoom.us/j/83629643104')
+    expect(
+      screen.getByRole('link', { name: /example\.mp4/ }).getAttribute('href'),
+    ).toBe(
       'https://coding-platform.s3.amazonaws.com/dev/lms/tickets/example.mp4',
     )
-    expect(screen.getByText('All the best for the evaluation').tagName).toBe('STRONG')
+    expect(screen.getByText('All the best for the evaluation').tagName).toBe(
+      'STRONG',
+    )
   })
 
   it('opens external links in a new tab', () => {
@@ -43,18 +47,27 @@ describe('MarkdownContent', () => {
       <MarkdownContent value="Body" variant="detail" />,
     )
     expect(
-      detail.querySelector('.markdown-content')?.classList.contains('markdown-content--detail'),
+      detail
+        .querySelector('.markdown-content')
+        ?.classList.contains('markdown-content--detail'),
     ).toBe(true)
 
-    const { container: card } = render(<MarkdownContent value="Body" variant="card" />)
+    const { container: card } = render(
+      <MarkdownContent value="Body" variant="card" />,
+    )
     expect(
-      card.querySelector('.markdown-content')?.classList.contains('markdown-content--card'),
+      card
+        .querySelector('.markdown-content')
+        ?.classList.contains('markdown-content--card'),
     ).toBe(true)
   })
 
   it('renders bullet lists with disc styling', () => {
     const { container } = render(
-      <MarkdownContent value={'- First item\n- Second item'} variant="detail" />,
+      <MarkdownContent
+        value={'- First item\n- Second item'}
+        variant="detail"
+      />,
     )
 
     const list = container.querySelector('.markdown-content ul')
@@ -75,8 +88,8 @@ https://example.com/join
 
     expect(container.querySelectorAll('.markdown-content ul').length).toBe(1)
     expect(container.querySelectorAll('.markdown-content li').length).toBe(2)
-    expect(container.querySelector('.markdown-content a')?.getAttribute('href')).toBe(
-      'https://example.com/join',
-    )
+    expect(
+      container.querySelector('.markdown-content a')?.getAttribute('href'),
+    ).toBe('https://example.com/join')
   })
 })

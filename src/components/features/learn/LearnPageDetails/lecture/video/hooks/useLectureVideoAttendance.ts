@@ -48,7 +48,9 @@ export function useLectureVideoAttendance({
   const [totalDuration, setTotalDuration] = useState(0)
   const [isVideoPlaying, setIsVideoPlaying] = useState(false)
   const [playbackRate, setPlaybackRate] = useState(1)
-  const [qualityLevels, setQualityLevels] = useState<LectureVideoQualityLevel[]>([])
+  const [qualityLevels, setQualityLevels] = useState<
+    LectureVideoQualityLevel[]
+  >([])
   // Selected HLS rendition. -1 = Auto (hls.js adaptive bitrate).
   const [currentQuality, setCurrentQuality] = useState(-1)
   const [playerReadyVersion, setPlayerReadyVersion] = useState(0)
@@ -77,8 +79,14 @@ export function useLectureVideoAttendance({
   const seekHintTimeoutRef = useRef<number | null>(null)
   const timerSnapshotRef = useRef({ timer: 0, totalDuration: 0 })
 
-  const { time: timer, startTimer, stopTimer, resetTimer, changeSpeed, setTime: setTimer } =
-    useTimer(0)
+  const {
+    time: timer,
+    startTimer,
+    stopTimer,
+    resetTimer,
+    changeSpeed,
+    setTime: setTimer,
+  } = useTimer(0)
 
   const effectiveLastWatchedPosition = initialAttendance?.lastWatchedPosition
   resumeTargetSecondsRef.current =
@@ -190,10 +198,13 @@ export function useLectureVideoAttendance({
         videoRef,
         resumeSeconds: resume,
         resumeAppliedRef,
-        onApplied: seconds => {
+        onApplied: (seconds) => {
           setProgress(seconds)
           startTimeRef.current = seconds
-          maxPlayedSecondsRef.current = Math.max(maxPlayedSecondsRef.current, seconds)
+          maxPlayedSecondsRef.current = Math.max(
+            maxPlayedSecondsRef.current,
+            seconds,
+          )
         },
       })
     }, 200)
@@ -234,7 +245,9 @@ export function useLectureVideoAttendance({
 
     const target = resumeTargetSecondsRef.current
     const pendingResume =
-      target !== null && target > SEEK_ALIGNMENT_EPSILON && !resumeAppliedRef.current
+      target !== null &&
+      target > SEEK_ALIGNMENT_EPSILON &&
+      !resumeAppliedRef.current
 
     if (pendingResume && playedSeconds <= SEEK_ALIGNMENT_EPSILON) {
       playedSeconds = target
@@ -242,7 +255,10 @@ export function useLectureVideoAttendance({
 
     setProgress(playedSeconds)
     latestPlayedRef.current = playedSeconds
-    maxPlayedSecondsRef.current = Math.max(maxPlayedSecondsRef.current, playedSeconds)
+    maxPlayedSecondsRef.current = Math.max(
+      maxPlayedSecondsRef.current,
+      playedSeconds,
+    )
   }, [])
 
   const handleSeek = useCallback(
@@ -261,7 +277,11 @@ export function useLectureVideoAttendance({
       // Close and save the segment watched up to the CURRENT real position
       // before jumping. saveProgress captures its segment synchronously, so
       // this runs against the pre-seek start/position.
-      updateIfNeeded(timerSnapshotRef.current.timer, timerSnapshotRef.current.totalDuration, true)
+      updateIfNeeded(
+        timerSnapshotRef.current.timer,
+        timerSnapshotRef.current.totalDuration,
+        true,
+      )
 
       // Start a fresh segment at the seek target. Bumping the generation makes
       // any in-flight save skip its post-await anchor advance, so it cannot
@@ -273,7 +293,10 @@ export function useLectureVideoAttendance({
       latestPlayedRef.current = seekSeconds
       setTimer(0)
       setProgress(seekSeconds)
-      maxPlayedSecondsRef.current = Math.max(maxPlayedSecondsRef.current, seekSeconds)
+      maxPlayedSecondsRef.current = Math.max(
+        maxPlayedSecondsRef.current,
+        seekSeconds,
+      )
     },
     [setTimer, updateIfNeeded],
   )
@@ -292,17 +315,29 @@ export function useLectureVideoAttendance({
     setIsVideoPlaying(false)
     stopTimer()
     isVideoPausedRef.current = true
-    updateIfNeeded(timerSnapshotRef.current.timer, timerSnapshotRef.current.totalDuration, true)
+    updateIfNeeded(
+      timerSnapshotRef.current.timer,
+      timerSnapshotRef.current.totalDuration,
+      true,
+    )
   }, [stopTimer, updateIfNeeded])
 
   const handleVideoEnded = useCallback(() => {
     setIsVideoPlaying(false)
-    updateIfNeeded(timerSnapshotRef.current.timer, timerSnapshotRef.current.totalDuration, false)
+    updateIfNeeded(
+      timerSnapshotRef.current.timer,
+      timerSnapshotRef.current.totalDuration,
+      false,
+    )
   }, [updateIfNeeded])
 
   const handleBuffer = useCallback(() => {
     stopTimer()
-    updateIfNeeded(timerSnapshotRef.current.timer, timerSnapshotRef.current.totalDuration, false)
+    updateIfNeeded(
+      timerSnapshotRef.current.timer,
+      timerSnapshotRef.current.totalDuration,
+      false,
+    )
   }, [stopTimer, updateIfNeeded])
 
   const handleBufferEnd = useCallback(() => {
@@ -355,10 +390,13 @@ export function useLectureVideoAttendance({
             videoRef,
             resumeSeconds: resumeTargetSecondsRef.current,
             resumeAppliedRef,
-            onApplied: seconds => {
+            onApplied: (seconds) => {
               setProgress(seconds)
               startTimeRef.current = seconds
-              maxPlayedSecondsRef.current = Math.max(maxPlayedSecondsRef.current, seconds)
+              maxPlayedSecondsRef.current = Math.max(
+                maxPlayedSecondsRef.current,
+                seconds,
+              )
             },
           })
         })
@@ -368,7 +406,7 @@ export function useLectureVideoAttendance({
           else setCurrentQuality(data.level)
         })
       }
-      setPlayerReadyVersion(version => version + 1)
+      setPlayerReadyVersion((version) => version + 1)
       return
     }
 
@@ -376,19 +414,24 @@ export function useLectureVideoAttendance({
       videoRef,
       resumeSeconds: resumeTargetSecondsRef.current,
       resumeAppliedRef,
-      onApplied: seconds => {
+      onApplied: (seconds) => {
         setProgress(seconds)
         startTimeRef.current = seconds
-        maxPlayedSecondsRef.current = Math.max(maxPlayedSecondsRef.current, seconds)
+        maxPlayedSecondsRef.current = Math.max(
+          maxPlayedSecondsRef.current,
+          seconds,
+        )
       },
     })
-    setPlayerReadyVersion(version => version + 1)
+    setPlayerReadyVersion((version) => version + 1)
   }, [isHls, src, videoRef])
 
   const seekBySeconds = useCallback(
     (delta: number) => {
       resumeAppliedRef.current = true
-      const player = videoRef.current as { getCurrentTime?: () => number } | null
+      const player = videoRef.current as {
+        getCurrentTime?: () => number
+      } | null
       const currentTime =
         typeof player?.getCurrentTime === 'function'
           ? player.getCurrentTime()

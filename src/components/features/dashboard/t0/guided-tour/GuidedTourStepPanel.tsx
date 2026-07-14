@@ -16,7 +16,8 @@ interface GuidedTourStepPanelProps {
   onCompleted: () => void
 }
 
-const CARD = 'flex flex-col items-start gap-4 rounded-xl border border-gray-200 bg-white p-6'
+const CARD =
+  'flex flex-col items-start gap-4 rounded-xl border border-border bg-surface p-6'
 
 /**
  * Renders the active fixed (non-video) guided-tour step by dispatching to its
@@ -24,9 +25,19 @@ const CARD = 'flex flex-col items-start gap-4 rounded-xl border border-gray-200 
  * agreement (multi-step form), student-kit, and document-upload. (The ID card
  * is a capstone rendered below the step list, not a step here.)
  */
-export function GuidedTourStepPanel({ step, batchId, profilePhotoUrl, onCompleted }: GuidedTourStepPanelProps) {
+export function GuidedTourStepPanel({
+  step,
+  batchId,
+  profilePhotoUrl,
+  onCompleted,
+}: GuidedTourStepPanelProps) {
   if (step.action === 'profile-photo') {
-    return <ProfilePhotoStep existingPhotoUrl={profilePhotoUrl} onCompleted={onCompleted} />
+    return (
+      <ProfilePhotoStep
+        existingPhotoUrl={profilePhotoUrl}
+        onCompleted={onCompleted}
+      />
+    )
   }
 
   if (step.action === 'download-app') {
@@ -34,7 +45,7 @@ export function GuidedTourStepPanel({ step, batchId, profilePhotoUrl, onComplete
     // `user_device_tokens` row (drives `downloadAppCompleted`), never by a click.
     return (
       <div
-        className="flex h-full items-center justify-center rounded-xl border border-gray-200 bg-white p-6"
+        className="flex h-full items-center justify-center rounded-xl border border-border bg-surface p-6"
         data-testid="guided-tour-panel-download-app"
       >
         <DownloadAppContent className="mx-auto w-full max-w-[600px]" />
@@ -79,8 +90,10 @@ export function GuidedTourStepPanel({ step, batchId, profilePhotoUrl, onComplete
 
   return (
     <div className={CARD} data-testid="guided-tour-panel-pending">
-      <p className="text-sm font-medium text-gray-900">{step.title}</p>
-      <p className="text-sm text-gray-500">This step will be available here shortly.</p>
+      <p className="text-sm font-medium text-foreground">{step.title}</p>
+      <p className="text-sm text-foreground-muted">
+        This step will be available here shortly.
+      </p>
     </div>
   )
 }

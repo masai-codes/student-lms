@@ -59,7 +59,7 @@ export function LearnHeaderSection({
               {selectedBatchLabel}
             </h4>
             <span
-              className="flex shrink-0 items-center justify-center rounded-full bg-blue-50 p-2 text-blue-500 transition-colors group-hover:bg-blue-100"
+              className="flex shrink-0 items-center justify-center rounded-full bg-blue-50 p-2 text-blue-500 transition-colors group-hover:bg-blue-100 dark:bg-info-subtle dark:text-info-subtle-foreground dark:group-hover:bg-info-subtle"
               aria-hidden
             >
               <ChevronDown
@@ -74,9 +74,9 @@ export function LearnHeaderSection({
         <DropdownMenuContent
           align="start"
           sideOffset={8}
-          className="max-h-[min(60vh,420px)] w-[min(92vw,360px)] overflow-y-auto rounded-xl border border-gray-200 bg-white p-2 shadow-lg"
+          className="max-h-[min(60vh,420px)] w-[min(92vw,360px)] overflow-y-auto rounded-xl border border-border bg-surface p-2 shadow-lg"
         >
-          <DropdownMenuLabel className="text-slate-900">
+          <DropdownMenuLabel className="text-foreground">
             Select a course
           </DropdownMenuLabel>
           {batches.map((batch, index) => {
@@ -92,8 +92,8 @@ export function LearnHeaderSection({
                   onBatchChange(batch.value)
                 }}
                 style={{ '--dash-delay': `${index * 0.04}s` } as CSSProperties}
-                className={`animate-dash-row-in cursor-pointer items-start gap-3 rounded-lg px-3 py-3 transition-colors hover:bg-[#4F6BED]/5 focus:bg-[#4F6BED]/5 ${
-                  isSelected ? 'bg-[#4F6BED]/5' : ''
+                className={`animate-dash-row-in cursor-pointer items-start gap-3 rounded-lg px-3 py-3 transition-colors hover:bg-brand/5 focus:bg-brand/5 ${
+                  isSelected ? 'bg-brand/5' : ''
                 }`}
               >
                 <div className="flex min-w-0 flex-1 flex-col gap-2">
@@ -106,7 +106,7 @@ export function LearnHeaderSection({
                   ) : null}
                   <span
                     className={`type-b1-md break-words font-semibold ${
-                      isSelected ? 'text-[#4F6BED]' : 'text-slate-900'
+                      isSelected ? 'text-brand' : 'text-foreground'
                     }`}
                   >
                     {batch.label}
@@ -114,7 +114,7 @@ export function LearnHeaderSection({
                 </div>
                 {isSelected ? (
                   <Check
-                    className="mt-0.5 size-5 shrink-0 text-[#4F6BED]"
+                    className="mt-0.5 size-5 shrink-0 text-brand"
                     strokeWidth={2}
                     aria-hidden
                   />

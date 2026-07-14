@@ -38,10 +38,10 @@ export function LearnDetailMetaCard({
         className,
       )}
     >
-      <p className="type-t1 min-w-0 break-words text-gray-600">
-        <span className="text-gray-900">{hostName}</span>
+      <p className="type-t1 min-w-0 break-words text-foreground-muted">
+        <span className="text-foreground">{hostName}</span>
         <span
-          className="mx-2 inline-block size-1 rounded-full bg-gray-600 align-middle"
+          className="mx-2 inline-block size-1 rounded-full bg-foreground-muted align-middle"
           aria-hidden
         />
         <LocalTimeWithIstTooltip

@@ -23,7 +23,12 @@ describe('setLearnDiscussionClosed', () => {
   })
 
   it('closes an open discussion', async () => {
-    hoisted.assertOwns.mockResolvedValue({ id: 5, userId: 1, isClosed: 0, data: null })
+    hoisted.assertOwns.mockResolvedValue({
+      id: 5,
+      userId: 1,
+      isClosed: 0,
+      data: null,
+    })
     const result = await setLearnDiscussionClosed({
       viewerUserId: 1,
       discussionId: 5,
@@ -34,7 +39,12 @@ describe('setLearnDiscussionClosed', () => {
   })
 
   it('reopens a closed discussion', async () => {
-    hoisted.assertOwns.mockResolvedValue({ id: 5, userId: 1, isClosed: 1, data: null })
+    hoisted.assertOwns.mockResolvedValue({
+      id: 5,
+      userId: 1,
+      isClosed: 1,
+      data: null,
+    })
     const result = await setLearnDiscussionClosed({
       viewerUserId: 1,
       discussionId: 5,
@@ -45,7 +55,12 @@ describe('setLearnDiscussionClosed', () => {
   })
 
   it('is a no-op when already in the requested state', async () => {
-    hoisted.assertOwns.mockResolvedValue({ id: 5, userId: 1, isClosed: 1, data: null })
+    hoisted.assertOwns.mockResolvedValue({
+      id: 5,
+      userId: 1,
+      isClosed: 1,
+      data: null,
+    })
     const result = await setLearnDiscussionClosed({
       viewerUserId: 1,
       discussionId: 5,
@@ -58,7 +73,11 @@ describe('setLearnDiscussionClosed', () => {
   it('propagates ownership errors', async () => {
     hoisted.assertOwns.mockRejectedValueOnce(new Error('DISCUSSION_FORBIDDEN'))
     await expect(
-      setLearnDiscussionClosed({ viewerUserId: 2, discussionId: 5, isClosed: true }),
+      setLearnDiscussionClosed({
+        viewerUserId: 2,
+        discussionId: 5,
+        isClosed: true,
+      }),
     ).rejects.toThrow('DISCUSSION_FORBIDDEN')
   })
 })

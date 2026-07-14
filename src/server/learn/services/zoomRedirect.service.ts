@@ -60,7 +60,9 @@ export async function getZoomRedirectUrl(
   })
   if (!result.ok) {
     throw new Error(
-      result.status === 403 ? 'ZOOM_REDIRECT_FORBIDDEN' : 'ZOOM_REDIRECT_FAILED',
+      result.status === 403
+        ? 'ZOOM_REDIRECT_FORBIDDEN'
+        : 'ZOOM_REDIRECT_FAILED',
     )
   }
 

@@ -2,7 +2,9 @@ import { getAppOrigin } from '@/utils/appOrigin'
 import { ORIGIN_URLS } from '@/utils/originUrls'
 
 /** PM2/runtime `process.env` first, then Vite build `import.meta.env`. */
-function readViteEnv(key: 'VITE_ENABLE_LEGACY_STUDENT_REDIRECT'): string | undefined {
+function readViteEnv(
+  key: 'VITE_ENABLE_LEGACY_STUDENT_REDIRECT',
+): string | undefined {
   const fromProcess =
     typeof process !== 'undefined' ? process.env[key] : undefined
   if (fromProcess != null && fromProcess.trim() !== '') {
@@ -13,7 +15,9 @@ function readViteEnv(key: 'VITE_ENABLE_LEGACY_STUDENT_REDIRECT'): string | undef
 }
 
 export function isLegacyStudentRedirectEnabled(): boolean {
-  return readViteEnv('VITE_ENABLE_LEGACY_STUDENT_REDIRECT')?.toLowerCase() === 'true'
+  return (
+    readViteEnv('VITE_ENABLE_LEGACY_STUDENT_REDIRECT')?.toLowerCase() === 'true'
+  )
 }
 
 /**

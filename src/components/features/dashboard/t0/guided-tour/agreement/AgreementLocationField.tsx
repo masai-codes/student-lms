@@ -24,22 +24,35 @@ const ENABLE_LOCATION_GUIDE_URL =
  * available; when the box is unchecked we point the learner to a guide on
  * enabling location access.
  */
-export function AgreementLocationField({ consent, onConsentChange, status, location, showError }: AgreementLocationFieldProps) {
+export function AgreementLocationField({
+  consent,
+  onConsentChange,
+  status,
+  location,
+  showError,
+}: AgreementLocationFieldProps) {
   const hasLocation = location.trim() !== ''
 
   return (
     <div className="flex flex-col gap-1.5" data-testid="agreement-location">
-      <Label className="text-sm font-medium text-gray-700">
-        Location<span className="ml-0.5 text-red-600">*</span>
+      <Label className="text-sm font-medium text-foreground">
+        Location<span className="ml-0.5 text-danger">*</span>
       </Label>
-      <CheckboxField id="agreement-location-consent" checked={consent} onChange={onConsentChange} data-testid="agreement-location-consent">
-        {status === 'loading' ? 'Fetching location…' : 'Allow location access to auto-fill your current location'}
+      <CheckboxField
+        id="agreement-location-consent"
+        checked={consent}
+        onChange={onConsentChange}
+        data-testid="agreement-location-consent"
+      >
+        {status === 'loading'
+          ? 'Fetching location…'
+          : 'Allow location access to auto-fill your current location'}
         {!consent ? (
           <a
             href={ENABLE_LOCATION_GUIDE_URL}
             target="_blank"
             rel="noopener noreferrer"
-            className="ml-2 text-xs text-[#6962AC] underline"
+            className="ml-2 text-xs text-brand underline"
             data-testid="agreement-location-guide"
           >
             (How to enable location access)
@@ -48,16 +61,35 @@ export function AgreementLocationField({ consent, onConsentChange, status, locat
       </CheckboxField>
 
       {status === 'loading' ? (
-        <p className="text-xs text-gray-500" data-testid="agreement-location-status">Detecting your location…</p>
+        <p
+          className="text-xs text-foreground-muted"
+          data-testid="agreement-location-status"
+        >
+          Detecting your location…
+        </p>
       ) : hasLocation ? (
-        <p className="inline-flex items-start gap-1.5 text-sm text-gray-700" data-testid="agreement-location-value">
-          <MapPin className="mt-0.5 size-4 shrink-0 text-gray-400" aria-hidden />
+        <p
+          className="inline-flex items-start gap-1.5 text-sm text-foreground"
+          data-testid="agreement-location-value"
+        >
+          <MapPin
+            className="mt-0.5 size-4 shrink-0 text-foreground-subtle"
+            aria-hidden
+          />
           {location}
         </p>
       ) : status === 'error' ? (
-        <p className="text-xs text-red-600" data-testid="agreement-location-status">
+        <p
+          className="text-xs text-danger"
+          data-testid="agreement-location-status"
+        >
           Couldn&apos;t detect your location.{' '}
-          <a href={ENABLE_LOCATION_GUIDE_URL} target="_blank" rel="noopener noreferrer" className="text-[#6962AC] underline">
+          <a
+            href={ENABLE_LOCATION_GUIDE_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-brand underline"
+          >
             See how to enable location access
           </a>{' '}
           and try again.
@@ -66,7 +98,10 @@ export function AgreementLocationField({ consent, onConsentChange, status, locat
 
       {/* Both the consent box and a captured location are mandatory. */}
       {showError && !hasLocation ? (
-        <p className="text-xs text-red-600" data-testid="agreement-location-error">
+        <p
+          className="text-xs text-danger"
+          data-testid="agreement-location-error"
+        >
           {!consent
             ? 'Please select the checkbox to fetch location.'
             : 'Location is required. Please allow location access and check the box.'}

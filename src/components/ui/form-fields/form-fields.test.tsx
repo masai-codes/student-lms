@@ -8,17 +8,41 @@ afterEach(cleanup)
 describe('TextField', () => {
   it('renders label + required asterisk and emits changes', () => {
     const onChange = vi.fn()
-    render(<TextField id="name" label="Name" value="" onChange={onChange} required data-testid="f-name" />)
+    render(
+      <TextField
+        id="name"
+        label="Name"
+        value=""
+        onChange={onChange}
+        required
+        data-testid="f-name"
+      />,
+    )
     expect(screen.getByText('Name')).toBeTruthy()
     expect(screen.getByText('*')).toBeTruthy()
-    fireEvent.change(screen.getByTestId('f-name-input'), { target: { value: 'Riya' } })
+    fireEvent.change(screen.getByTestId('f-name-input'), {
+      target: { value: 'Riya' },
+    })
     expect(onChange).toHaveBeenCalledWith('Riya')
   })
 
   it('shows an error and marks the input invalid', () => {
-    render(<TextField id="email" label="Email" value="x" onChange={vi.fn()} error="Invalid email" data-testid="f-email" />)
-    expect(screen.getByTestId('f-email-error').textContent).toBe('Invalid email')
-    expect(screen.getByTestId('f-email-input').getAttribute('aria-invalid')).toBe('true')
+    render(
+      <TextField
+        id="email"
+        label="Email"
+        value="x"
+        onChange={vi.fn()}
+        error="Invalid email"
+        data-testid="f-email"
+      />,
+    )
+    expect(screen.getByTestId('f-email-error').textContent).toBe(
+      'Invalid email',
+    )
+    expect(
+      screen.getByTestId('f-email-input').getAttribute('aria-invalid'),
+    ).toBe('true')
   })
 })
 
@@ -26,7 +50,12 @@ describe('CheckboxField', () => {
   it('toggles and emits the checked state', () => {
     const onChange = vi.fn()
     render(
-      <CheckboxField id="posh" checked={false} onChange={onChange} data-testid="f-posh">
+      <CheckboxField
+        id="posh"
+        checked={false}
+        onChange={onChange}
+        data-testid="f-posh"
+      >
         I accept
       </CheckboxField>,
     )
@@ -50,7 +79,9 @@ describe('PhoneField', () => {
         data-testid="f-phone"
       />,
     )
-    fireEvent.change(screen.getByTestId('f-phone-input'), { target: { value: '98a76' } })
+    fireEvent.change(screen.getByTestId('f-phone-input'), {
+      target: { value: '98a76' },
+    })
     expect(onNumber).toHaveBeenCalledWith('9876')
   })
 })

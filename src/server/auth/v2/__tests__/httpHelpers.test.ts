@@ -7,7 +7,9 @@ import {
 } from '../httpHelpers'
 import { resolveTrueStatus } from '@/lib/api/cloudFrontSafeStatus'
 
-async function readBody(res: Response): Promise<{ error: { code: string; message: string } }> {
+async function readBody(
+  res: Response,
+): Promise<{ error: { code: string; message: string } }> {
   return (await res.json()) as { error: { code: string; message: string } }
 }
 
@@ -33,13 +35,18 @@ describe('readJsonBody', () => {
       body: JSON.stringify({ identifier: '9999999999' }),
     })
 
-    await expect(readJsonBody<{ identifier: string }>(request)).resolves.toEqual({
+    await expect(
+      readJsonBody<{ identifier: string }>(request),
+    ).resolves.toEqual({
       identifier: '9999999999',
     })
   })
 
   it('throws a BadRequestError(INVALID_JSON) for a malformed body', async () => {
-    const request = new Request('http://test/local', { method: 'POST', body: 'not-json{' })
+    const request = new Request('http://test/local', {
+      method: 'POST',
+      body: 'not-json{',
+    })
 
     await expect(readJsonBody(request)).rejects.toBeInstanceOf(BadRequestError)
     await readJsonBody(
@@ -79,7 +86,9 @@ describe('withAuthErrorHandling', () => {
 
   it('never leaks a raw error: unexpected throws become a generic 500', async () => {
     const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
-    const rawDbError = new Error("ER_NO_SUCH_TABLE: Table 'lms.users' doesn't exist")
+    const rawDbError = new Error(
+      "ER_NO_SUCH_TABLE: Table 'lms.users' doesn't exist",
+    )
     const wrapped = withAuthErrorHandling('request-otp', async () => {
       throw rawDbError
     })
@@ -95,7 +104,10 @@ describe('withAuthErrorHandling', () => {
     // The raw DB detail must not reach the client...
     expect(body.error.message).not.toContain('ER_NO_SUCH_TABLE')
     // ...but it must be logged server-side for ops.
-    expect(errorSpy).toHaveBeenCalledWith('[auth:request-otp] unexpected error:', rawDbError)
+    expect(errorSpy).toHaveBeenCalledWith(
+      '[auth:request-otp] unexpected error:',
+      rawDbError,
+    )
   })
 
   it('treats a thrown non-Error value (e.g. null) as an unexpected 500', async () => {

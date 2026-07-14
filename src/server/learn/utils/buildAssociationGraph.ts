@@ -56,7 +56,10 @@ export function buildAssociationGraph(input: {
     linkToLectures(makeAssociationNodeKey('lecture', lecture.id), lecture.data)
   }
   for (const assignment of input.assignments) {
-    linkToLectures(makeAssociationNodeKey('assignment', assignment.id), assignment.data)
+    linkToLectures(
+      makeAssociationNodeKey('assignment', assignment.id),
+      assignment.data,
+    )
   }
 
   return graph

@@ -5,8 +5,20 @@ import { resolveLoginUserId, type FlowSeedState } from './seedState'
 const flowState: FlowSeedState = {
   seededAt: '2026-07-02T10:00:00.000Z',
   testUsers: [
-    { role: 'admin', email: 'a@example.com', password: 'p', userId: 1, name: 'A' },
-    { role: 'student', email: 's@example.com', password: 'p', userId: 99, name: 'S' },
+    {
+      role: 'admin',
+      email: 'a@example.com',
+      password: 'p',
+      userId: 1,
+      name: 'A',
+    },
+    {
+      role: 'student',
+      email: 's@example.com',
+      password: 'p',
+      userId: 99,
+      name: 'S',
+    },
   ],
   timing: {},
   entityIds: {},

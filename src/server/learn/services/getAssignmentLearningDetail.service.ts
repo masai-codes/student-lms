@@ -148,7 +148,9 @@ export async function getAssignmentLearningDetailForUser(
 
   const solutionStatusByProblemId = new Map<number, string | null>()
   if (submissionRow != null && problemRows.length > 0) {
-    const solutionRows = await fetchSolutionStatusesBySubmission(submissionRow.id)
+    const solutionRows = await fetchSolutionStatusesBySubmission(
+      submissionRow.id,
+    )
     for (const solution of solutionRows) {
       solutionStatusByProblemId.set(solution.problemId, solution.status)
     }

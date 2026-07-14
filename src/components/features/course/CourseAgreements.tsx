@@ -10,14 +10,20 @@ export function CourseAgreements({ agreements }: Props) {
 
   return (
     <div className="flex flex-col gap-4">
-      <h2 className="font-semibold text-xl leading-8 text-gray-900">Agreements</h2>
+      <h2 className="font-semibold text-xl leading-8 text-foreground">
+        Agreements
+      </h2>
       <div className="grid grid-cols-2 gap-4">
         {agreements.map((ag) => (
           <FileCard
             key={ag.sectionId}
             title="Course Agreement"
             uploadedOn={ag.sectionName}
-            onView={ag.agreementPdfUrl ? () => window.open(ag.agreementPdfUrl!, '_blank') : undefined}
+            onView={
+              ag.agreementPdfUrl
+                ? () => window.open(ag.agreementPdfUrl!, '_blank')
+                : undefined
+            }
             badge={ag.alreadyAccepted ? 'signed' : 'pending'}
           />
         ))}

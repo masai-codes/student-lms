@@ -10,7 +10,9 @@ vi.mock('@/components/features/learn/shared/learnAnalytics', () => ({
   pushLearnEvent: hoisted.pushLearnEvent,
 }))
 
-function renderToolbar(props: Partial<Parameters<typeof LectureDiscussionListToolbar>[0]> = {}) {
+function renderToolbar(
+  props: Partial<Parameters<typeof LectureDiscussionListToolbar>[0]> = {},
+) {
   const onSearchChange = vi.fn()
   const onToggleMineOnly = vi.fn()
   const utils = render(
@@ -62,7 +64,9 @@ describe('LectureDiscussionListToolbar', () => {
   it('reflects the active checked state', () => {
     const { container } = renderToolbar({ mineOnly: true })
     expect(
-      within(container).getByTestId('discussion-mine-toggle').getAttribute('aria-checked'),
+      within(container)
+        .getByTestId('discussion-mine-toggle')
+        .getAttribute('aria-checked'),
     ).toBe('true')
   })
 
@@ -82,10 +86,13 @@ describe('LectureDiscussionListToolbar', () => {
       />,
     )
     vi.advanceTimersByTime(600)
-    expect(hoisted.pushLearnEvent).toHaveBeenCalledWith('l_learn_discussion_search', {
-      entity_id: 42,
-      entity_kind: 'lecture',
-      query_length: 5,
-    })
+    expect(hoisted.pushLearnEvent).toHaveBeenCalledWith(
+      'l_learn_discussion_search',
+      {
+        entity_id: 42,
+        entity_kind: 'lecture',
+        query_length: 5,
+      },
+    )
   })
 })

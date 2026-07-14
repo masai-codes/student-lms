@@ -5,12 +5,8 @@ import GalleryImagesEditor from './clubEditors/GalleryImagesEditor'
 import KeyValueListEditor from './clubEditors/KeyValueListEditor'
 import LearningTenureEditor from './clubEditors/LearningTenureEditor'
 import StringListEditor from './clubEditors/StringListEditor'
-import {
-  
-  toClubFormState,
-  toClubPatch
-} from './clubEditors/clubFormState'
-import type {ClubFormState} from './clubEditors/clubFormState';
+import { toClubFormState, toClubPatch } from './clubEditors/clubFormState'
+import type { ClubFormState } from './clubEditors/clubFormState'
 import { RichTextEditor } from '@/components/discussion-post-card/rich-text-editor'
 import { Switch } from '@/components/ui/switch'
 import { updateMasaiverseV2Club } from '@/lib/api/masaiverse-v2/masaiverseV2Api'
@@ -26,9 +22,9 @@ type ClubEditFormProps = {
   onClose: () => void
 }
 
-const LABEL = 'mb-1 text-[12px] font-semibold text-[#6B7280]'
+const LABEL = 'mb-1 text-[12px] font-semibold text-foreground-muted'
 const INPUT =
-  'w-full rounded-lg border border-[#E5E7EB] px-3 py-2 text-[14px] text-[#111928] outline-none'
+  'w-full rounded-lg border border-border px-3 py-2 text-[14px] text-foreground outline-none'
 
 /** The admin club edit form, rendered inside the right drawer. */
 export default function ClubEditForm({ clubId, onClose }: ClubEditFormProps) {
@@ -41,7 +37,8 @@ export default function ClubEditForm({ clubId, onClose }: ClubEditFormProps) {
   }, [data, form])
 
   const mutation = useMutation({
-    mutationFn: () => updateMasaiverseV2Club(clubId, toClubPatch(form as ClubFormState)),
+    mutationFn: () =>
+      updateMasaiverseV2Club(clubId, toClubPatch(form as ClubFormState)),
     onSuccess: async () => {
       trackMasaiverse(MASAIVERSE_EVENTS.clubUpdate, {
         club_id: clubId,
@@ -57,7 +54,7 @@ export default function ClubEditForm({ clubId, onClose }: ClubEditFormProps) {
 
   if (isPending || !form) {
     return (
-      <p role="status" className="text-[13px] text-[#9CA3AF]">
+      <p role="status" className="text-[13px] text-foreground-subtle">
         Loading club…
       </p>
     )
@@ -76,10 +73,10 @@ export default function ClubEditForm({ clubId, onClose }: ClubEditFormProps) {
       }}
       className="flex flex-col gap-5 pb-20"
     >
-      <div className="flex items-center justify-between rounded-lg bg-[#F9FAFB] px-3 py-2.5">
+      <div className="flex items-center justify-between rounded-lg bg-surface-muted px-3 py-2.5">
         <div>
-          <p className="text-[14px] font-semibold text-[#111827]">Published</p>
-          <p className="text-[12px] text-[#6B7280]">
+          <p className="text-[14px] font-semibold text-foreground">Published</p>
+          <p className="text-[12px] text-foreground-muted">
             Visible to students when on.
           </p>
         </div>
@@ -151,7 +148,9 @@ export default function ClubEditForm({ clubId, onClose }: ClubEditFormProps) {
         <input
           type="text"
           value={form.learningTenureDateText}
-          onChange={(event) => set('learningTenureDateText', event.target.value)}
+          onChange={(event) =>
+            set('learningTenureDateText', event.target.value)
+          }
           className={INPUT}
         />
       </div>
@@ -186,18 +185,18 @@ export default function ClubEditForm({ clubId, onClose }: ClubEditFormProps) {
         />
       </div>
 
-      <div className="sticky bottom-0 -mx-4 flex justify-end gap-3 border-t border-[#E5E7EB] bg-white px-4 py-3">
+      <div className="sticky bottom-0 -mx-4 flex justify-end gap-3 border-t border-border bg-surface px-4 py-3">
         <button
           type="button"
           onClick={onClose}
-          className="rounded-[12px] border border-[#E5E7EB] px-5 py-2.5 text-[14px] font-semibold text-[#374151] hover:bg-[#F9FAFB]"
+          className="rounded-[12px] border border-border px-5 py-2.5 text-[14px] font-semibold text-foreground hover:bg-surface-muted"
         >
           Cancel
         </button>
         <button
           type="submit"
           disabled={mutation.isPending}
-          className="rounded-[12px] bg-[#111827] px-5 py-2.5 text-[14px] font-bold text-white hover:bg-[#1F2937] disabled:opacity-50"
+          className="rounded-[12px] bg-foreground px-5 py-2.5 text-[14px] font-bold text-background hover:bg-foreground/90 disabled:opacity-50"
         >
           {mutation.isPending ? 'Saving…' : 'Save changes'}
         </button>

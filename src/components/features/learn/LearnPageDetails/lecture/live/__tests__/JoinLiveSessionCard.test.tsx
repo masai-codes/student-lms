@@ -1,5 +1,11 @@
 // @vitest-environment jsdom
-import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
+import {
+  cleanup,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { JoinLiveSessionCard } from '../JoinLiveSessionCard'
@@ -69,7 +75,9 @@ describe('JoinLiveSessionCard', () => {
   })
 
   it('fetches the ZEF url and opens it for new-zoom-redirection lectures', async () => {
-    hoisted.fetchUrl.mockResolvedValueOnce('https://zoom.masaischool.com/?token=x')
+    hoisted.fetchUrl.mockResolvedValueOnce(
+      'https://zoom.masaischool.com/?token=x',
+    )
     render(
       <JoinLiveSessionCard
         lectureId={572}
@@ -105,7 +113,11 @@ describe('JoinLiveSessionCard', () => {
     fireEvent.click(screen.getByRole('button', { name: /Join live session/ }))
 
     await waitFor(() =>
-      expect(hoisted.open).toHaveBeenCalledWith(ZOOM, '_blank', 'noopener,noreferrer'),
+      expect(hoisted.open).toHaveBeenCalledWith(
+        ZOOM,
+        '_blank',
+        'noopener,noreferrer',
+      ),
     )
     expect(hoisted.toastError).toHaveBeenCalled()
   })

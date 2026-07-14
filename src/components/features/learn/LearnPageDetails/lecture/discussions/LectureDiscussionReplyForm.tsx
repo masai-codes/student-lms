@@ -37,7 +37,7 @@ export function LectureDiscussionReplyForm({
   return (
     <form
       className={cn(
-        'space-y-3 rounded-lg border border-gray-200 bg-gray-50/50 p-3',
+        'space-y-3 rounded-lg border border-border bg-surface-muted/50 p-3',
         className,
       )}
       onSubmit={(e) => {
@@ -51,7 +51,7 @@ export function LectureDiscussionReplyForm({
           value={replyHtml}
           onChange={setReplyHtml}
           placeholder="Write your reply"
-          className="rounded-lg border border-[#E5E7EB] bg-white transition-[border-color,box-shadow] duration-200 focus-within:border-[#4F6BED]/50 focus-within:ring-2 focus-within:ring-[#4F6BED]/15"
+          className="rounded-lg border border-border bg-surface transition-[border-color,box-shadow] duration-200 focus-within:border-brand/50 focus-within:ring-2 focus-within:ring-brand/15"
         />
         <div className="flex justify-end text-xs text-muted-foreground">
           {replyLength}/{LECTURE_DISCUSSION_REPLY_MAX_PLAIN}

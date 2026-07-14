@@ -29,12 +29,12 @@ export function SidebarPanel({
   return (
     <section
       data-testid={testId}
-      className="flex flex-col gap-4 rounded-2xl border border-gray-200 bg-white p-5 transition-colors duration-300 hover:border-[#4F6BED]/25"
+      className="flex flex-col gap-4 rounded-2xl border border-border bg-surface p-5 transition-colors duration-300 hover:border-[#4F6BED]/25"
     >
       <div className="flex items-center justify-between gap-2">
         <h3
           data-testid={`${testId}-title`}
-          className="flex items-center gap-2 text-base font-bold text-gray-900"
+          className="flex items-center gap-2 text-base font-bold text-foreground"
         >
           <span
             aria-hidden
@@ -91,7 +91,7 @@ function PanelBody({
     return (
       <p
         data-testid={`${testId}-error`}
-        className="py-8 text-center text-sm text-gray-400"
+        className="py-8 text-center text-sm text-foreground-subtle"
       >
         Failed to load content
       </p>
@@ -101,7 +101,7 @@ function PanelBody({
     return (
       <p
         data-testid={`${testId}-empty`}
-        className="py-8 text-center text-sm text-gray-400"
+        className="py-8 text-center text-sm text-foreground-subtle"
       >
         {emptyText}
       </p>

@@ -12,7 +12,10 @@ export const dashboardHomeConfig: SeedFlowMeta = {
   seedCommand: `npm run seed ${DASHBOARD_HOME_FLOW_ID}`,
   defaultCredentialEmails: [
     { role: 'admin', email: flowScopedEmail(DASHBOARD_HOME_FLOW_ID, 'admin') },
-    { role: 'student', email: flowScopedEmail(DASHBOARD_HOME_FLOW_ID, 'student') },
+    {
+      role: 'student',
+      email: flowScopedEmail(DASHBOARD_HOME_FLOW_ID, 'student'),
+    },
   ],
   primaryLoginRole: 'student',
 }

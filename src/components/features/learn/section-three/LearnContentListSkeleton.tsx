@@ -7,7 +7,7 @@ function LearnContentCardSkeleton({ delaySeconds }: { delaySeconds: number }) {
   const shimmer = { animationDelay: `${delaySeconds}s` }
 
   return (
-    <div className="bg-white rounded-[8px] border border-gray-200 p-3">
+    <div className="bg-surface rounded-[8px] border border-border p-3">
       <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
         <div className="flex items-start gap-3">
           <div

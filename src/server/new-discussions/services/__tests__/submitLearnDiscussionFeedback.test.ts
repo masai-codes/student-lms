@@ -20,7 +20,12 @@ describe('submitLearnDiscussionFeedback', () => {
     hoisted.where.mockResolvedValue(undefined)
     hoisted.set.mockReturnValue({ where: hoisted.where })
     hoisted.update.mockReturnValue({ set: hoisted.set })
-    hoisted.assertOwns.mockResolvedValue({ id: 5, userId: 1, isClosed: 1, data: null })
+    hoisted.assertOwns.mockResolvedValue({
+      id: 5,
+      userId: 1,
+      isClosed: 1,
+      data: null,
+    })
   })
 
   it('merges feedback into existing data', async () => {
@@ -48,7 +53,11 @@ describe('submitLearnDiscussionFeedback', () => {
   })
 
   it('stores a null comment when omitted', async () => {
-    await submitLearnDiscussionFeedback({ viewerUserId: 1, discussionId: 5, rating: 5 })
+    await submitLearnDiscussionFeedback({
+      viewerUserId: 1,
+      discussionId: 5,
+      rating: 5,
+    })
     expect(hoisted.set).toHaveBeenCalledWith(
       expect.objectContaining({
         data: { learnFeedback: { rating: 5, comment: null } },
@@ -58,7 +67,11 @@ describe('submitLearnDiscussionFeedback', () => {
 
   it('rejects an invalid rating before touching the db', async () => {
     await expect(
-      submitLearnDiscussionFeedback({ viewerUserId: 1, discussionId: 5, rating: 9 }),
+      submitLearnDiscussionFeedback({
+        viewerUserId: 1,
+        discussionId: 5,
+        rating: 9,
+      }),
     ).rejects.toThrow('INVALID_FEEDBACK_PAYLOAD')
     expect(hoisted.assertOwns).not.toHaveBeenCalled()
     expect(hoisted.update).not.toHaveBeenCalled()

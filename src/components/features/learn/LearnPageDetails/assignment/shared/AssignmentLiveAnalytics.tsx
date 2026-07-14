@@ -60,7 +60,7 @@ export function AssignmentLiveAnalytics({
 
   return (
     <div
-      className="rounded-xl border border-[#C0D9FF] bg-[#F2F6FF] p-4 transition-colors hover:border-[#3F83F8]/60"
+      className="rounded-xl border border-info-subtle bg-info-subtle p-4 transition-colors hover:border-info/60"
       data-testid="assignment-live-analytics"
     >
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
@@ -70,9 +70,11 @@ export function AssignmentLiveAnalytics({
               className={`size-2 shrink-0 rounded-full ${metric.dotClassName}`}
               aria-hidden
             />
-            <span className="type-b3-md text-gray-600">{metric.label}</span>
+            <span className="type-b3-md text-foreground-muted">
+              {metric.label}
+            </span>
             <span
-              className="type-b3-md font-semibold text-gray-900 transition-colors duration-200 group-hover:text-[#4F6BED]"
+              className="type-b3-md font-semibold text-foreground transition-colors duration-200 group-hover:text-brand"
               data-testid={`assignment-live-analytics-${metric.key}`}
             >
               {formatMetric(liveAnalytics[metric.key])}

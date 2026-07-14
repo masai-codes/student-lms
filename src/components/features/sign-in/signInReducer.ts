@@ -1,6 +1,12 @@
 import type { ParsedIdentifier } from '@/components/features/sign-in/detectIdentifier'
-import { identifierErrorMessage, parseIdentifier } from '@/components/features/sign-in/detectIdentifier'
-import { phoneOtpFirstSendBody, phoneOtpResentBody } from '@/components/features/sign-in/signInMessages'
+import {
+  identifierErrorMessage,
+  parseIdentifier,
+} from '@/components/features/sign-in/detectIdentifier'
+import {
+  phoneOtpFirstSendBody,
+  phoneOtpResentBody,
+} from '@/components/features/sign-in/signInMessages'
 
 export type SignInState =
   | { step: 'identifier'; draft: string; error?: string }
@@ -26,7 +32,13 @@ export type SignInState =
       info?: string
       resendCount: number
     }
-  | { step: 'forgot'; email: string; fromEmailSignIn: boolean; error?: string; info?: string }
+  | {
+      step: 'forgot'
+      email: string
+      fromEmailSignIn: boolean
+      error?: string
+      info?: string
+    }
 
 export const initialSignInState: SignInState = { step: 'identifier', draft: '' }
 
@@ -76,7 +88,12 @@ export type SignInAction =
       info: string
     }
   | { type: 'phone_otp'; value: string }
-  | { type: 'phone_resend_ok'; otpSessionId: string; delivery: 'sms' | 'whatsapp'; info: string }
+  | {
+      type: 'phone_resend_ok'
+      otpSessionId: string
+      delivery: 'sms' | 'whatsapp'
+      info: string
+    }
   | { type: 'phone_clear_error' }
   | { type: 'phone_set_error'; message: string }
   | { type: 'phone_info'; message: string | undefined }
@@ -98,14 +115,19 @@ function initialEmailState(email: string) {
   }
 }
 
-export function signInReducer(state: SignInState, action: SignInAction): SignInState {
+export function signInReducer(
+  state: SignInState,
+  action: SignInAction,
+): SignInState {
   switch (action.type) {
     case 'identifier_draft':
       return state.step === 'identifier'
         ? { step: 'identifier', draft: action.value, error: undefined }
         : state
     case 'identifier_clear_error':
-      return state.step === 'identifier' ? { ...state, error: undefined } : state
+      return state.step === 'identifier'
+        ? { ...state, error: undefined }
+        : state
     case 'identifier_set_error':
       return state.step === 'identifier'
         ? { step: 'identifier', draft: state.draft, error: action.message }
@@ -141,13 +163,19 @@ export function signInReducer(state: SignInState, action: SignInAction): SignInS
         ? { ...state, authMode: action.mode, error: undefined }
         : state
     case 'email_password':
-      return state.step === 'email' ? { ...state, password: action.value, error: undefined } : state
+      return state.step === 'email'
+        ? { ...state, password: action.value, error: undefined }
+        : state
     case 'email_otp':
-      return state.step === 'email' ? { ...state, otp: action.value, error: undefined } : state
+      return state.step === 'email'
+        ? { ...state, otp: action.value, error: undefined }
+        : state
     case 'email_clear_error':
       return state.step === 'email' ? { ...state, error: undefined } : state
     case 'email_set_error':
-      return state.step === 'email' ? { ...state, error: action.message } : state
+      return state.step === 'email'
+        ? { ...state, error: action.message }
+        : state
     case 'email_info':
       return state.step === 'email' ? { ...state, info: action.message } : state
     case 'email_otp_requested':
@@ -203,7 +231,9 @@ export function signInReducer(state: SignInState, action: SignInAction): SignInS
         info: action.info,
       }
     case 'phone_otp':
-      return state.step === 'phone' ? { ...state, otp: action.value, error: undefined } : state
+      return state.step === 'phone'
+        ? { ...state, otp: action.value, error: undefined }
+        : state
     case 'phone_resend_ok':
       return state.step === 'phone'
         ? {
@@ -217,7 +247,9 @@ export function signInReducer(state: SignInState, action: SignInAction): SignInS
     case 'phone_clear_error':
       return state.step === 'phone' ? { ...state, error: undefined } : state
     case 'phone_set_error':
-      return state.step === 'phone' ? { ...state, error: action.message } : state
+      return state.step === 'phone'
+        ? { ...state, error: action.message }
+        : state
     case 'phone_info':
       return state.step === 'phone' ? { ...state, info: action.message } : state
     case 'forgot_open':
@@ -233,9 +265,13 @@ export function signInReducer(state: SignInState, action: SignInAction): SignInS
         ? { ...state, email: action.value, error: undefined }
         : state
     case 'forgot_set_error':
-      return state.step === 'forgot' ? { ...state, error: action.message } : state
+      return state.step === 'forgot'
+        ? { ...state, error: action.message }
+        : state
     case 'forgot_info':
-      return state.step === 'forgot' ? { ...state, info: action.message } : state
+      return state.step === 'forgot'
+        ? { ...state, info: action.message }
+        : state
     case 'forgot_clear_error':
       return state.step === 'forgot' ? { ...state, error: undefined } : state
     case 'forgot_back':
@@ -249,7 +285,9 @@ export function signInReducer(state: SignInState, action: SignInAction): SignInS
   }
 }
 
-export function channelToDelivery(channel: 'email' | 'sms' | 'whatsapp'): 'sms' | 'whatsapp' {
+export function channelToDelivery(
+  channel: 'email' | 'sms' | 'whatsapp',
+): 'sms' | 'whatsapp' {
   return channel === 'whatsapp' ? 'whatsapp' : 'sms'
 }
 

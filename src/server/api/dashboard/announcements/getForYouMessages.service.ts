@@ -52,18 +52,18 @@ export async function getForYouMessages(
     .limit(DASHBOARD_ANNOUNCEMENTS_LIMIT)
 
   return rows.map((row) => ({
-      sortedAt: row.schedule ?? row.createdAt,
-      item: {
-        id: row.id,
-        source: 'm' as const,
-        title: resolveMessageTitle(row.meta, row.subject),
-        body: row.body,
-        authorName: row.authorName,
-        isForYou: true,
-        ctaName: row.ctaName,
-        ctaLink: row.ctaLink,
-      },
-    }))
+    sortedAt: row.schedule ?? row.createdAt,
+    item: {
+      id: row.id,
+      source: 'm' as const,
+      title: resolveMessageTitle(row.meta, row.subject),
+      body: row.body,
+      authorName: row.authorName,
+      isForYou: true,
+      ctaName: row.ctaName,
+      ctaLink: row.ctaLink,
+    },
+  }))
 }
 
 function resolveMessageTitle(meta: unknown, subject: string): string {

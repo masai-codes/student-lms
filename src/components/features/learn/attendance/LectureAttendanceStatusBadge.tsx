@@ -18,7 +18,11 @@ export function LectureAttendanceStatusBadge({
   if (state === 'present') {
     return (
       <span
-        className={cn(badgeBase, 'bg-emerald-100 text-emerald-700', className)}
+        className={cn(
+          badgeBase,
+          'bg-success-subtle text-success-subtle-foreground',
+          className,
+        )}
         aria-label="Present"
       >
         <CheckCircle
@@ -34,7 +38,11 @@ export function LectureAttendanceStatusBadge({
   if (state === 'absent') {
     return (
       <span
-        className={cn(badgeBase, 'bg-rose-100 text-rose-600', className)}
+        className={cn(
+          badgeBase,
+          'bg-danger-subtle text-danger-subtle-foreground',
+          className,
+        )}
         aria-label="Absent"
       >
         <XCircle weight="fill" className="size-[18px] shrink-0" aria-hidden />
@@ -66,13 +74,17 @@ export function LectureAttendanceStatusBadge({
     <span
       className={cn(
         badgeBase,
-        'gap-1.5 bg-rose-100 pr-2.5 text-rose-600',
+        'gap-1.5 bg-danger-subtle pr-2.5 text-danger-subtle-foreground',
         className,
       )}
       aria-label="Absent and attendance window over"
     >
-      <span className="flex size-5 shrink-0 items-center justify-center rounded-full bg-rose-600">
-        <Timer weight="bold" className="size-3 text-white" aria-hidden />
+      <span className="flex size-5 shrink-0 items-center justify-center rounded-full bg-danger">
+        <Timer
+          weight="bold"
+          className="size-3 text-danger-foreground"
+          aria-hidden
+        />
       </span>
       {/* Wraps below `sm` so the badge can't force 320px viewports to scroll. */}
       <span className="sm:whitespace-nowrap">Absent and Att. Window Over</span>

@@ -52,7 +52,9 @@ describe('getSupportSessions', () => {
   })
 
   it('marks a future-day session as upcoming and null concludes as null', async () => {
-    hoisted.rows = [row({ schedule: '2026-07-06T10:00:00+05:30', concludes: null })]
+    hoisted.rows = [
+      row({ schedule: '2026-07-06T10:00:00+05:30', concludes: null }),
+    ]
     const { getSupportSessions } = await import('../getSupportSessions.service')
 
     const [session] = await getSupportSessions(NOW)

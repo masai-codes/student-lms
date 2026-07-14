@@ -37,7 +37,9 @@ export function batchVisibleOnPortal(
  * Usage:
  *   .where(and(<existing>, batchScopeForPortal()))
  */
-export function batchScopeForPortal(portal: EmailPortal = getRequestPortal()): SQL {
+export function batchScopeForPortal(
+  portal: EmailPortal = getRequestPortal(),
+): SQL {
   return portal === 'ihub'
     ? eq(batches.duration, IHUB_BATCH_DURATION)
     : ne(batches.duration, IHUB_BATCH_DURATION)

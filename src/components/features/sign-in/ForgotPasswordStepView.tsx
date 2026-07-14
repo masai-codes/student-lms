@@ -40,9 +40,12 @@ export function ForgotPasswordStepView({
       </Button>
 
       <div className="text-left">
-        <h2 className="font-poppins text-lg font-semibold text-foreground">Reset your password</h2>
+        <h2 className="font-poppins text-lg font-semibold text-foreground">
+          Reset your password
+        </h2>
         <p className="mt-1 text-sm text-muted-foreground">
-          Enter the email on your Masai account. If it matches an account, we will send a reset link.
+          Enter the email on your Masai account. If it matches an account, we
+          will send a reset link.
         </p>
       </div>
 

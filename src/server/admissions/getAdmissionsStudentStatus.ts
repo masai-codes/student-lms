@@ -78,9 +78,14 @@ export async function getAdmissionsStudentStatus(
       signal: controller.signal,
     })
     clearTimeout(timeout)
-    console.log('[student-status] response received', { status: res.status, ok: res.ok })
+    console.log('[student-status] response received', {
+      status: res.status,
+      ok: res.ok,
+    })
     if (!res.ok) {
-      console.log('[student-status] non-ok response — returning null', { status: res.status })
+      console.log('[student-status] non-ok response — returning null', {
+        status: res.status,
+      })
       return null
     }
     // The endpoint wraps its payload as `{ success, data }`; return `data`.

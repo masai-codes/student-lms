@@ -133,10 +133,6 @@ flowchart TD
   Dashboard --> BatchBanner["Batch Start Banner<br/>Future feature"]
 ```
 
-
-
-
-
 ## INFO
 
 The Student Onboarding flow is what a brand-new student sees from the moment they log into the LMS for the first time until they're fully verified and admitted.
@@ -148,9 +144,10 @@ In short:
 3. Program Onboarding → only unlocked once the student has paid full fees. It handles the "real" admission paperwork: uploading documents, ordering/tracking a student kit, and signing any required agreements — each of these can be turned on/off per batch, and document/kit steps are actually handled by an external system ("Onward") that calls back into the LMS when done.
 4. ID Card → stays locked until both the walkthrough and (if applicable) program onboarding are fully complete; once done, the student can download it.
 5. Nudges along the way:
-  - A sticky banner on the dashboard shows "X/Y steps done" until everything's complete, and grows in scope (denominator) as more sections unlock (e.g., paying full fee adds the program-onboarding steps to the count).
-    - A payment countdown banner nags the student as their fee deadline approaches/passes (Timer → Warning tiers), meant to eventually escalate to a ban if they never pay (not automated yet).
-    - A batch start-date banner would show when their course begins (this one isn't built yet).
+
+- A sticky banner on the dashboard shows "X/Y steps done" until everything's complete, and grows in scope (denominator) as more sections unlock (e.g., paying full fee adds the program-onboarding steps to the count).
+  - A payment countdown banner nags the student as their fee deadline approaches/passes (Timer → Warning tiers), meant to eventually escalate to a ban if they never pay (not automated yet).
+  - A batch start-date banner would show when their course begins (this one isn't built yet).
 
 Essentially: prove you're a real student (photo, app) → learn the platform (walkthrough) → complete admission formalities (docs/kit/agreement, gated by full payment) → get your ID card, with banners at each stage reminding the student what's left and applying pressure around payment deadlines.
 
@@ -160,7 +157,6 @@ Order matters — seed in this sequence: `batches` → `sections` → `lec
 
 ### `batches`
 
-
 | Field      | Value to seed              | Effect                                                                                            |
 | ---------- | -------------------------- | ------------------------------------------------------------------------------------------------- |
 | `id`       | e.g. `9001`                | FK target for everything below                                                                    |
@@ -169,11 +165,7 @@ Order matters — seed in this sequence: `batches` → `sections` → `lec
 | `active`   | `true`                     | Inactive batches are filtered out                                                                 |
 | `program`  | `"SDE"`                    | Course/program label                                                                              |
 
-
-
-
 ### `sections` (create 4, two per walkthrough type, web+app)
-
 
 | Field                                              | Value                                                                                               | Effect                                                                                                                                                                                                                        |
 | -------------------------------------------------- | --------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -183,11 +175,7 @@ Order matters — seed in this sequence: `batches` → `sections` → `lec
 | `deleted_at`                                       | `NULL`                                                                                              | Soft-deleted sections excluded                                                                                                                                                                                                |
 | `settings` (JSON, only for `program-onboarding-*`) | `{ "agreements": { "posh": { "shouldModalBeVisible": true, "heading": "...", "pdfUrl": "..." } } }` | `shouldModalBeVisible: true` is what turns on the Agreement step (`batchHasAgreementStep`, `isBatchAgreementAccepted` in `guidedTourProgress.service.ts:216-283`) — omit this key entirely to test "agreement not configured" |
 
-
-
-
 ### `lectures` (2–3 per section)
-
 
 | Field        | Value                                                                                                          | Effect                                                                                                                                                                                                                                                           |
 | ------------ | -------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -197,11 +185,7 @@ Order matters — seed in this sequence: `batches` → `sections` → `lec
 | `title`      | keep identical text between the `-web` and `-app` sibling lecture (e.g. `"How to submit assignments"` in both) | The sibling-sync logic (`normalizeTitleForMatch`, `guidedTourStep.service.ts:296-310`) marks the app lecture done automatically when the matching-titled web lecture is completed, and vice versa — mismatched titles = no cross-platform sync, useful test case |
 | `schedule`   | any date                                                                                                       | Used as fallback attendance timestamp                                                                                                                                                                                                                            |
 
-
-
-
 ### `users`
-
 
 | Field                | Value                                                                                     | Effect                                                                                                              |
 | -------------------- | ----------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
@@ -210,11 +194,7 @@ Order matters — seed in this sequence: `batches` → `sections` → `lec
 | `status`             | `NULL` / `"active"`                                                                       | Set to `"banned"` + `status_time` to simulate the (currently manual) ban outcome                                    |
 | `email`              | real-looking, used by Zoom-active check                                                   | If Zoom API call fails/throws it's silently treated as incomplete — fine for local seed                             |
 
-
-
-
 ### `user_batch_admission_data` — the real hub, one row per (user, batch)
-
 
 | Field                                                               | Value to seed                                      | Effect on flow                                                                                                                                                                                                                                                              |
 | ------------------------------------------------------------------- | -------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -231,40 +211,25 @@ Order matters — seed in this sequence: `batches` → `sections` → `lec
 | `id_card_url`                                                       | `NULL` until all onboarding steps done, then a URL | ID card stays locked (`idCardUrl` resolver returns whatever's in DB — your frontend should gate display on `isComplete`)                                                                                                                                                    |
 | `meta`                                                              | `{}` initially                                     | Progress fractions get written here automatically as `lms_walkthrough_web`, `lms_walkthrough_app`, `lms_walkthrough` (aggregate = max of both), `program_onboarding_web/app` — you can also hand-seed e.g. `{"lms_walkthrough": "3/7"}` to jump straight to a partial state |
 
-
-
-
 ### `batch_info` (per batch, key-value)
-
 
 | `item`                         | `value`                                               | Effect                                                |
 | ------------------------------ | ----------------------------------------------------- | ----------------------------------------------------- |
 | `"Documents required"`         | any non-empty string                                  | Turns on "Upload Document" step in Program Onboarding |
 | `"Is Student Kit applicable?"` | `"true"` (must be literal string `"true"`, lowercase) | Turns on Student Kit step                             |
 
-
-
-
 ### `profiles`
-
 
 | Field        | Value                                                                           | Effect                                                                                                                                |
 | ------------ | ------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
 | `legal_data` | `{"agreements": {"section_<sectionId>": {"haveAcceptedLegalAgreement": true}}}` | Marks agreement accepted for that specific program-onboarding section id — key must be `section_{id}` matching the section you seeded |
 
-
-
-
 ### `video_attendances` (optional — normally written by the app, but you can seed to fast-forward)
-
 
 | Field                   | Value                                          | Effect                                                 |
 | ----------------------- | ---------------------------------------------- | ------------------------------------------------------ |
 | `user_id`, `lecture_id` | matching seed                                  |                                                        |
 | `duration`              | `>= 10` (the `MIN_DURATION_THRESHOLD_PERCENT`) | Counts that lecture as "completed" toward the fraction |
-
-
-
 
 ### `user_device_tokens`
 
@@ -376,10 +341,7 @@ flags_legend:
   overdue: course_fee_deadline passed without full_fees_paid -> today: no automated consequence (gap); spec: ban at batch_user level
 ```
 
-
-
 ## NOT IMPLEMENTED
 
 - No automated ban when `course_fee_deadline` passes unpaid — the resolver comment literally says "user should be banned" but just returns `null`. Nothing touches `users.status` or `batch_user`.
 - No `start_date` column on `batches` and no Batch Start Date banner component anywhere in the UI — the 5-second rotating banner doesn't exist yet.
-

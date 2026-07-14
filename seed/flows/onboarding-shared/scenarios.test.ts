@@ -9,11 +9,15 @@ describe('onboarding scenarios', () => {
   })
 
   it('legacy user skips admission data', () => {
-    expect(getOnboardingScenario('onboarding-legacy-user').includeAdmission).toBe(false)
+    expect(
+      getOnboardingScenario('onboarding-legacy-user').includeAdmission,
+    ).toBe(false)
   })
 
   it('welcome modal keeps showWelcomeModal unset', () => {
-    expect(getOnboardingScenario('onboarding-welcome-modal').userMeta).toEqual({})
+    expect(getOnboardingScenario('onboarding-welcome-modal').userMeta).toEqual(
+      {},
+    )
   })
 
   it('fees-unpaid is an interactive LMS Walkthrough start state', () => {
@@ -45,7 +49,9 @@ describe('onboarding scenarios', () => {
     const scenario = getOnboardingScenario('onboarding-complete')
     expect(scenario.deviceToken).toBe(true)
     expect(scenario.videoAttendances).toBe('all')
-    expect(scenario.profile?.meta).toEqual({ profile_pic: ONBOARDING_PROFILE_PHOTO_URL })
+    expect(scenario.profile?.meta).toEqual({
+      profile_pic: ONBOARDING_PROFILE_PHOTO_URL,
+    })
     expect(scenario.admission?.idCardUrl).toMatch(/^https:\/\//)
   })
 })

@@ -1,12 +1,7 @@
 import { ApiError } from '@/server/api/http/apiError'
 
 export type AiTutorFeedbackPlatform =
-  | 'ios'
-  | 'android'
-  | 'web'
-  | 'web-mobile'
-  | 'web-desktop'
-  | 'app'
+  'ios' | 'android' | 'web' | 'web-mobile' | 'web-desktop' | 'app'
 
 const PLATFORMS: readonly AiTutorFeedbackPlatform[] = [
   'ios',

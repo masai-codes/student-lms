@@ -7,7 +7,9 @@ import type { CertificateItem } from '@/server/api/profile/certificates.service'
 import type { AchievementItem } from '@/server/api/profile/achievements.service'
 
 export async function fetchProfile(): Promise<UserProfile> {
-  const { profile } = await fetchJson<{ profile: UserProfile }>(PROFILE_API.profile)
+  const { profile } = await fetchJson<{ profile: UserProfile }>(
+    PROFILE_API.profile,
+  )
   return profile
 }
 
@@ -15,11 +17,14 @@ export async function updateProfile(payload: {
   name?: string
   mobile?: string
 }): Promise<UserProfile> {
-  const { profile } = await fetchJson<{ profile: UserProfile }>(PROFILE_API.profile, {
-    method: 'PATCH',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload),
-  })
+  const { profile } = await fetchJson<{ profile: UserProfile }>(
+    PROFILE_API.profile,
+    {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    },
+  )
   return profile
 }
 
@@ -56,10 +61,14 @@ export async function updateEmailPreferences(
   return preferences
 }
 
-export async function fetchAccountActivity(): Promise<{ sessions: SessionInfo[]; currentSessionId: string | null }> {
-  return fetchJson<{ sessions: SessionInfo[]; currentSessionId: string | null }>(
-    PROFILE_API.accountActivity,
-  )
+export async function fetchAccountActivity(): Promise<{
+  sessions: SessionInfo[]
+  currentSessionId: string | null
+}> {
+  return fetchJson<{
+    sessions: SessionInfo[]
+    currentSessionId: string | null
+  }>(PROFILE_API.accountActivity)
 }
 
 export async function signOutSession(sessionId: string): Promise<void> {
@@ -77,15 +86,15 @@ export async function signOutAllSessions(): Promise<void> {
 }
 
 export async function fetchCertificates(): Promise<Array<CertificateItem>> {
-  const { certificates } = await fetchJson<{ certificates: Array<CertificateItem> }>(
-    PROFILE_API.certificates,
-  )
+  const { certificates } = await fetchJson<{
+    certificates: Array<CertificateItem>
+  }>(PROFILE_API.certificates)
   return certificates
 }
 
 export async function fetchAchievements(): Promise<Array<AchievementItem>> {
-  const { achievements } = await fetchJson<{ achievements: Array<AchievementItem> }>(
-    PROFILE_API.achievements,
-  )
+  const { achievements } = await fetchJson<{
+    achievements: Array<AchievementItem>
+  }>(PROFILE_API.achievements)
   return achievements
 }

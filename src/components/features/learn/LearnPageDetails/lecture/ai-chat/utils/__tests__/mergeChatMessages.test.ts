@@ -21,7 +21,7 @@ describe('mergeChatMessages', () => {
       [makeMessage({ id: 'b', timestamp: 10 })],
       [makeMessage({ id: 'c', timestamp: 20 })],
     )
-    expect(result.map(m => m.id)).toEqual(['b', 'c', 'a'])
+    expect(result.map((m) => m.id)).toEqual(['b', 'c', 'a'])
   })
 
   it('deduplicates messages by id, preserving the first occurrence', () => {
@@ -45,8 +45,8 @@ describe('mergeChatMessages', () => {
       ],
     )
 
-    expect(result.map(m => m.id)).toEqual(['unique', 'shared'])
-    expect(result.find(m => m.id === 'shared')?.content).toBe('first')
+    expect(result.map((m) => m.id)).toEqual(['unique', 'shared'])
+    expect(result.find((m) => m.id === 'shared')?.content).toBe('first')
   })
 
   it('returns empty array when no messages are provided', () => {

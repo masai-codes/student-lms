@@ -34,7 +34,7 @@ export function AssociatedContentList({
 
         return (
           <section key={kind} data-testid={`learn-associated-section-${kind}`}>
-            <h3 className="type-s1-md mb-3 text-gray-900">
+            <h3 className="type-s1-md mb-3 text-foreground">
               {ASSOCIATED_CONTENT_SECTION_LABELS[kind]}
             </h3>
             <div className="flex flex-col gap-3">

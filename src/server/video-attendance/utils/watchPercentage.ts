@@ -59,9 +59,10 @@ export function mergeIntervalsWithTolerance(
   if (!Array.isArray(intervals) || intervals.length === 0) return []
 
   const sanitized = intervals
-    .map(i => ({ start: Number(i?.start), end: Number(i?.end) }))
+    .map((i) => ({ start: Number(i?.start), end: Number(i?.end) }))
     .filter(
-      i => Number.isFinite(i.start) && Number.isFinite(i.end) && i.end >= i.start,
+      (i) =>
+        Number.isFinite(i.start) && Number.isFinite(i.end) && i.end >= i.start,
     )
     .sort((a, b) => a.start - b.start)
 
@@ -83,7 +84,9 @@ export function mergeIntervalsWithTolerance(
 }
 
 /** Parse the JSON `intervals` column into a typed array (tolerant of shapes). */
-export function parseStoredIntervals(raw: unknown): Array<WatchIntervalSegment> {
+export function parseStoredIntervals(
+  raw: unknown,
+): Array<WatchIntervalSegment> {
   let value = raw
   if (typeof value === 'string') {
     try {
@@ -94,8 +97,9 @@ export function parseStoredIntervals(raw: unknown): Array<WatchIntervalSegment> 
   }
   if (!Array.isArray(value)) return []
   return value
-    .map(i => ({ start: Number(i?.start), end: Number(i?.end) }))
+    .map((i) => ({ start: Number(i?.start), end: Number(i?.end) }))
     .filter(
-      i => Number.isFinite(i.start) && Number.isFinite(i.end) && i.end >= i.start,
+      (i) =>
+        Number.isFinite(i.start) && Number.isFinite(i.end) && i.end >= i.start,
     )
 }

@@ -16,7 +16,12 @@ const DAY_MS = 24 * HOUR_MS
  * a day left it counts down in hours (`daysRemaining: 0`).
  */
 export type FeePaymentBannerState =
-  | { type: 'timer'; daysRemaining: number; hoursRemaining: number | null; paymentUrl: string | null }
+  | {
+      type: 'timer'
+      daysRemaining: number
+      hoursRemaining: number | null
+      paymentUrl: string | null
+    }
   | { type: 'overdue'; daysOverdue: number; paymentUrl: string | null }
 
 export interface FeePaymentBannerInput {
@@ -32,14 +37,19 @@ export interface FeePaymentBannerInput {
  * Which fee-payment banner (if any) a partial-fee learner should see. Returns
  * `null` for full-fee learners or when there's no `course_fee_deadline`.
  */
-export function computeFeePaymentBanner(input: FeePaymentBannerInput): FeePaymentBannerState | null {
+export function computeFeePaymentBanner(
+  input: FeePaymentBannerInput,
+): FeePaymentBannerState | null {
   const { fullFeesPaid, courseFeeDeadline, paymentUrl, now } = input
   if (fullFeesPaid) return null
   if (!courseFeeDeadline) return null
 
   // Deadline passed → overdue, with a whole-day count of how long ago (min 1).
   if (now.getTime() >= courseFeeDeadline.getTime()) {
-    const daysOverdue = Math.max(1, Math.ceil((now.getTime() - courseFeeDeadline.getTime()) / DAY_MS))
+    const daysOverdue = Math.max(
+      1,
+      Math.ceil((now.getTime() - courseFeeDeadline.getTime()) / DAY_MS),
+    )
     return { type: 'overdue', daysOverdue, paymentUrl }
   }
 
@@ -47,7 +57,17 @@ export function computeFeePaymentBanner(input: FeePaymentBannerInput): FeePaymen
   // more remains, otherwise switch to an hour countdown (min 1) for urgency.
   const remainingMs = courseFeeDeadline.getTime() - now.getTime()
   if (remainingMs >= DAY_MS) {
-    return { type: 'timer', daysRemaining: Math.ceil(remainingMs / DAY_MS), hoursRemaining: null, paymentUrl }
+    return {
+      type: 'timer',
+      daysRemaining: Math.ceil(remainingMs / DAY_MS),
+      hoursRemaining: null,
+      paymentUrl,
+    }
   }
-  return { type: 'timer', daysRemaining: 0, hoursRemaining: Math.max(1, Math.ceil(remainingMs / HOUR_MS)), paymentUrl }
+  return {
+    type: 'timer',
+    daysRemaining: 0,
+    hoursRemaining: Math.max(1, Math.ceil(remainingMs / HOUR_MS)),
+    paymentUrl,
+  }
 }

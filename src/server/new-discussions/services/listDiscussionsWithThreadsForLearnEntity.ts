@@ -10,7 +10,8 @@ import { mapDiscussionThreadRow } from '@/server/new-discussions/utils/mapDiscus
 
 export async function listDiscussionsWithThreadsForLearnEntity(
   viewerUserId: number,
-  entityType: DiscussionPersistedEntityType | Array<DiscussionPersistedEntityType>,
+  entityType:
+    DiscussionPersistedEntityType | Array<DiscussionPersistedEntityType>,
   entityId: number,
 ): Promise<Array<DiscussionListItem>> {
   const rows = await db
@@ -44,7 +45,7 @@ export async function listDiscussionsWithThreadsForLearnEntity(
     return []
   }
 
-  const ids = rows.map(r => r.id)
+  const ids = rows.map((r) => r.id)
 
   const [countRows, threadRows] = await Promise.all([
     db
@@ -91,7 +92,8 @@ export async function listDiscussionsWithThreadsForLearnEntity(
 
     // Unread replies matter only to the discussion owner, and only for
     // replies written by someone else that have not been marked read.
-    const isOwner = ownerByDiscussionId.get(thread.discussionId) === viewerUserId
+    const isOwner =
+      ownerByDiscussionId.get(thread.discussionId) === viewerUserId
     if (isOwner && thread.readAt === null && thread.authorId !== viewerUserId) {
       unreadByDiscussionId.set(
         thread.discussionId,
@@ -100,7 +102,7 @@ export async function listDiscussionsWithThreadsForLearnEntity(
     }
   }
 
-  return rows.map(r =>
+  return rows.map((r) =>
     toDiscussionListItem(
       r as DiscussionRowWithAuthor,
       countById.get(r.id) ?? 0,

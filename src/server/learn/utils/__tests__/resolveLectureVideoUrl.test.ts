@@ -11,7 +11,9 @@ describe('resolveLectureVideoUrl', () => {
     expect(
       resolveLectureVideoUrl({
         videos: ['https://example.com/a.mp4'],
-        vimeoDownloadLinks: { gumlet: { hls_url: 'https://cdn.example/hls.m3u8' } },
+        vimeoDownloadLinks: {
+          gumlet: { hls_url: 'https://cdn.example/hls.m3u8' },
+        },
         vimeoPlayerEmbedUrl: 'https://player.vimeo.com/x',
       }),
     ).toBe('https://cdn.example/hls.m3u8')
@@ -63,7 +65,9 @@ describe('resolveLectureVideoUrl', () => {
       vi.stubEnv('CLOUD_FRONT_BASE', 'dxyz.cloudfront.net')
       expect(
         resolveLectureVideoUrl({
-          videos: ['https://masai-course.s3.ap-south-1.amazonaws.com/videos/a.mp4'],
+          videos: [
+            'https://masai-course.s3.ap-south-1.amazonaws.com/videos/a.mp4',
+          ],
           vimeoDownloadLinks: null,
           vimeoPlayerEmbedUrl: null,
         }),
@@ -88,7 +92,9 @@ describe('resolveLectureVideoUrl', () => {
       expect(
         resolveLectureVideoUrl({
           videos: null,
-          vimeoDownloadLinks: { gumlet: { hls_url: 'https://cdn.masaischool.com/hls/master.m3u8' } },
+          vimeoDownloadLinks: {
+            gumlet: { hls_url: 'https://cdn.masaischool.com/hls/master.m3u8' },
+          },
           vimeoPlayerEmbedUrl: null,
         }),
       ).toBe('https://cdn.masaischool.com/hls/master.m3u8')

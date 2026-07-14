@@ -19,7 +19,8 @@ export async function createLecture(
     throw new Error('createLecture requires batchId, sectionId, and userId')
   }
 
-  const schedule = overrides.schedule ?? formatMysqlDatetime(offsetFromNow({ minutesAgo: 0 }))
+  const schedule =
+    overrides.schedule ?? formatMysqlDatetime(offsetFromNow({ minutesAgo: 0 }))
 
   const values: LectureInsert = {
     title: 'Intro to JavaScript',
@@ -40,7 +41,11 @@ export async function createLecture(
   const [result] = await db.insert(lectures).values(values)
   const id = Number(result.insertId)
 
-  const [row] = await db.select().from(lectures).where(eq(lectures.id, id)).limit(1)
+  const [row] = await db
+    .select()
+    .from(lectures)
+    .where(eq(lectures.id, id))
+    .limit(1)
   if (!row) {
     throw new Error(`Failed to load lecture after insert (id=${id})`)
   }

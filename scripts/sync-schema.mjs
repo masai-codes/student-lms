@@ -17,20 +17,20 @@
  * meta (./drizzle/meta) and generated SQL are untouched.
  */
 
-import { readFileSync, writeFileSync, existsSync, unlinkSync } from "node:fs";
-import { fileURLToPath } from "node:url";
-import path from "node:path";
+import { readFileSync, writeFileSync, existsSync, unlinkSync } from 'node:fs'
+import { fileURLToPath } from 'node:url'
+import path from 'node:path'
 
-const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
-const DUMP = path.join(root, "drizzle", "schema.ts");
-const OUT = path.join(root, "src", "db", "schema.ts");
+const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
+const DUMP = path.join(root, 'drizzle', 'schema.ts')
+const OUT = path.join(root, 'src', 'db', 'schema.ts')
 
 const COLUMN_TYPES_IMPORT = [
-  "// Timezone-safe replacements for `datetime` (IST wall-clock) and `timestamp`",
-  "// (UTC). Reads return offset-stamped ISO strings so no call site has to know",
-  "// the convention. See ./columnTypes for details.",
+  '// Timezone-safe replacements for `datetime` (IST wall-clock) and `timestamp`',
+  '// (UTC). Reads return offset-stamped ISO strings so no call site has to know',
+  '// the convention. See ./columnTypes for details.',
   'import { istDatetime as datetime, utcTimestamp as timestamp } from "./columnTypes"',
-].join("\n");
+].join('\n')
 
 /**
  * `drizzle-kit pull` emits MySQL backtick-quoted identifiers INSIDE a
@@ -40,21 +40,21 @@ const COLUMN_TYPES_IMPORT = [
  * same line, leaving the template delimiters intact.
  */
 function escapeSqlTemplateBackticks(src) {
-  const OPEN = "sql`";
+  const OPEN = 'sql`'
   return src
-    .split("\n")
+    .split('\n')
     .map((line) => {
-      const open = line.indexOf(OPEN);
-      if (open === -1) return line;
-      const openTick = open + OPEN.length - 1; // index of the opening backtick
-      const closeTick = line.lastIndexOf("`");
-      if (closeTick <= openTick) return line; // no closing backtick on this line
-      const before = line.slice(0, openTick + 1);
-      const inner = line.slice(openTick + 1, closeTick).replace(/`/g, "\\`");
-      const after = line.slice(closeTick);
-      return before + inner + after;
+      const open = line.indexOf(OPEN)
+      if (open === -1) return line
+      const openTick = open + OPEN.length - 1 // index of the opening backtick
+      const closeTick = line.lastIndexOf('`')
+      if (closeTick <= openTick) return line // no closing backtick on this line
+      const before = line.slice(0, openTick + 1)
+      const inner = line.slice(openTick + 1, closeTick).replace(/`/g, '\\`')
+      const after = line.slice(closeTick)
+      return before + inner + after
     })
-    .join("\n");
+    .join('\n')
 }
 
 /**
@@ -72,83 +72,96 @@ function escapeSqlTemplateBackticks(src) {
  */
 function reconcileCustomTypes(src) {
   return src
-    .replace(/\.default\(\((\w+\([^)]*\))\)\)/g, ".default(sql`($1)`)")
-    .replace(/\.defaultNow\(\)/g, ".default(sql`CURRENT_TIMESTAMP`)")
-    .replace(/\.onUpdateNow\(\)/g, "")
-    .replace(/\bjson\(([^)]*)\)(?!\.\$type)/g, "json($1).$type<Record<string, any>>()");
+    .replace(/\.default\(\((\w+\([^)]*\))\)\)/g, '.default(sql`($1)`)')
+    .replace(/\.defaultNow\(\)/g, '.default(sql`CURRENT_TIMESTAMP`)')
+    .replace(/\.onUpdateNow\(\)/g, '')
+    .replace(
+      /\bjson\(([^)]*)\)(?!\.\$type)/g,
+      'json($1).$type<Record<string, any>>()',
+    )
 }
 
 /** Split a schema file into a Map<tableName, blockText>, preserving order. */
 function parseTableBlocks(src) {
-  const map = new Map();
-  const re = /export const \w+ = mysqlTable\("([^"]+)"/g;
-  const starts = [];
-  let m;
-  while ((m = re.exec(src)) !== null) starts.push({ idx: m.index, table: m[1] });
+  const map = new Map()
+  const re = /export const \w+ = mysqlTable\("([^"]+)"/g
+  const starts = []
+  let m
+  while ((m = re.exec(src)) !== null) starts.push({ idx: m.index, table: m[1] })
   for (let i = 0; i < starts.length; i++) {
-    const start = starts[i].idx;
-    const end = i + 1 < starts.length ? starts[i + 1].idx : src.length;
-    map.set(starts[i].table, src.slice(start, end).trimEnd());
+    const start = starts[i].idx
+    const end = i + 1 < starts.length ? starts[i + 1].idx : src.length
+    map.set(starts[i].table, src.slice(start, end).trimEnd())
   }
-  return map;
+  return map
 }
 
 if (!existsSync(DUMP)) {
-  console.error(`[sync-schema] dump not found: ${DUMP}. Run \`drizzle-kit pull\` first.`);
-  process.exit(1);
+  console.error(
+    `[sync-schema] dump not found: ${DUMP}. Run \`drizzle-kit pull\` first.`,
+  )
+  process.exit(1)
 }
 
-const dump = readFileSync(DUMP, "utf8");
-const previous = existsSync(OUT) ? readFileSync(OUT, "utf8") : "";
+const dump = readFileSync(DUMP, 'utf8')
+const previous = existsSync(OUT) ? readFileSync(OUT, 'utf8') : ''
 
-const dumpBlocks = parseTableBlocks(dump);
+const dumpBlocks = parseTableBlocks(dump)
 if (dumpBlocks.size === 0) {
-  console.error("[sync-schema] dump has 0 tables — aborting so we don't clobber src/db/schema.ts.");
-  process.exit(1);
+  console.error(
+    "[sync-schema] dump has 0 tables — aborting so we don't clobber src/db/schema.ts.",
+  )
+  process.exit(1)
 }
 
-const body = reconcileCustomTypes(escapeSqlTemplateBackticks([...dumpBlocks.values()].join("\n\n")));
+const body = reconcileCustomTypes(
+  escapeSqlTemplateBackticks([...dumpBlocks.values()].join('\n\n')),
+)
 
 // Rebuild the mysql-core import from the dump's list, minus the swapped types,
 // keeping only identifiers actually referenced in the body (drops dead imports).
-const coreMatch = dump.match(/import\s*\{([^}]*)\}\s*from\s*["']drizzle-orm\/mysql-core["']/);
+const coreMatch = dump.match(
+  /import\s*\{([^}]*)\}\s*from\s*["']drizzle-orm\/mysql-core["']/,
+)
 if (!coreMatch) {
-  console.error("[sync-schema] could not locate the drizzle-orm/mysql-core import in the dump.");
-  process.exit(1);
+  console.error(
+    '[sync-schema] could not locate the drizzle-orm/mysql-core import in the dump.',
+  )
+  process.exit(1)
 }
 const coreNames = coreMatch[1]
-  .split(",")
+  .split(',')
   .map((s) => s.trim())
   .filter(Boolean)
-  .filter((n) => n !== "datetime" && n !== "timestamp")
-  .filter((n) => new RegExp(`\\b${n}\\b`).test(body));
+  .filter((n) => n !== 'datetime' && n !== 'timestamp')
+  .filter((n) => new RegExp(`\\b${n}\\b`).test(body))
 
-const usesSql = /\bsql\b/.test(body);
+const usesSql = /\bsql\b/.test(body)
 
 const header = [
-  "import {",
+  'import {',
   ...coreNames.map((n) => `  ${n},`),
   '} from "drizzle-orm/mysql-core"',
   ...(usesSql ? ['import { sql } from "drizzle-orm"'] : []),
   COLUMN_TYPES_IMPORT,
-].join("\n");
+].join('\n')
 
-writeFileSync(OUT, `${header}\n\n${body}\n`, "utf8");
+writeFileSync(OUT, `${header}\n\n${body}\n`, 'utf8')
 
 // Delete the transient dump so only one schema.ts exists on disk.
 try {
-  unlinkSync(DUMP);
+  unlinkSync(DUMP)
 } catch {
   /* best-effort cleanup */
 }
 
 // Report what the DB no longer has, so you know which features will fail.
-const previousTables = new Set(parseTableBlocks(previous).keys());
-const dropped = [...previousTables].filter((t) => !dumpBlocks.has(t));
+const previousTables = new Set(parseTableBlocks(previous).keys())
+const dropped = [...previousTables].filter((t) => !dumpBlocks.has(t))
 
-console.error(`[sync-schema] wrote ${OUT} (${dumpBlocks.size} tables from DB)`);
+console.error(`[sync-schema] wrote ${OUT} (${dumpBlocks.size} tables from DB)`)
 if (dropped.length) {
   console.error(
-    `[sync-schema] ⚠ ${dropped.length} table(s) present before but NOT in the DB — dropped, code using them will fail at runtime: ${dropped.join(", ")}`,
-  );
+    `[sync-schema] ⚠ ${dropped.length} table(s) present before but NOT in the DB — dropped, code using them will fail at runtime: ${dropped.join(', ')}`,
+  )
 }

@@ -9,7 +9,9 @@ import type { T0AdmissionsStatus } from '../getT0AdmissionsStatus.service'
  * originates from the admissions `student-status` API — the four states are
  * not-applicable → details-not-filled → filled-pending-tracking → tracking.
  */
-const status = (over: Partial<T0AdmissionsStatus> = {}): T0AdmissionsStatus => ({
+const status = (
+  over: Partial<T0AdmissionsStatus> = {},
+): T0AdmissionsStatus => ({
   documentsRequired: false,
   documentsUploaded: false,
   documentsVerified: false,
@@ -24,7 +26,14 @@ const status = (over: Partial<T0AdmissionsStatus> = {}): T0AdmissionsStatus => (
 
 describe('toStudentKitStatus', () => {
   it('is not applicable when there is no kit', () => {
-    expect(toStudentKitStatus(status({ kitApplicable: false, admissionsFormUrl: 'https://sso/kit-form' }))).toEqual({
+    expect(
+      toStudentKitStatus(
+        status({
+          kitApplicable: false,
+          admissionsFormUrl: 'https://sso/kit-form',
+        }),
+      ),
+    ).toEqual({
       applicable: false,
       detailsFilled: false,
       trackingUrl: null,
@@ -42,12 +51,21 @@ describe('toStudentKitStatus', () => {
 
   it('is pending tracking when filled but no tracking url', () => {
     const kit = toStudentKitStatus(status({ kitDetailsFilled: true }))
-    expect(kit).toMatchObject({ applicable: true, detailsFilled: true, trackingUrl: null, admissionsFormUrl: null })
+    expect(kit).toMatchObject({
+      applicable: true,
+      detailsFilled: true,
+      trackingUrl: null,
+      admissionsFormUrl: null,
+    })
   })
 
   it('surfaces the tracking url and id when the kit has shipped', () => {
     const kit = toStudentKitStatus(
-      status({ kitDetailsFilled: true, trackingUrl: 'https://track/123', trackingId: 'CK540196281IN' }),
+      status({
+        kitDetailsFilled: true,
+        trackingUrl: 'https://track/123',
+        trackingId: 'CK540196281IN',
+      }),
     )
     expect(kit).toMatchObject({
       applicable: true,

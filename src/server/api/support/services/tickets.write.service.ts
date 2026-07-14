@@ -30,7 +30,9 @@ import { getTicketCapabilities } from '@/server/api/support/ticketCapabilities'
  * `tickets.assignee_id` column is NOT NULL, so a ticket must always have an
  * owner; ops can reassign from the admin tools. Override via env if needed.
  */
-const FALLBACK_ASSIGNEE_ID = Number(process.env.SUPPORT_FALLBACK_ASSIGNEE_ID ?? 1)
+const FALLBACK_ASSIGNEE_ID = Number(
+  process.env.SUPPORT_FALLBACK_ASSIGNEE_ID ?? 1,
+)
 
 /** Load a ticket the student owns, or throw `*_NOT_FOUND`. */
 async function loadOwnedTicket(userId: number, ticketId: number) {
@@ -122,7 +124,10 @@ export async function createTicket(input: {
       data: { firstTemplateResponse: true, ticket_level: 'l1' },
     })
   } catch (error) {
-    console.error(`[support] first-template reply failed for ticket ${ticketId}`, error)
+    console.error(
+      `[support] first-template reply failed for ticket ${ticketId}`,
+      error,
+    )
   }
 
   // TODO(workflow): kick off the background workflow (TAT, notifications) here.
@@ -141,7 +146,11 @@ export async function addReply(input: {
   if (!input.message.trim()) throw new Error('SUPPORT_MESSAGE_REQUIRED')
 
   const ticket = await loadOwnedTicket(input.userId, input.ticketId)
-  const caps = getTicketCapabilities(normalizeStatus(ticket.status), ticket.rating, false)
+  const caps = getTicketCapabilities(
+    normalizeStatus(ticket.status),
+    ticket.rating,
+    false,
+  )
   if (!caps.canReply) throw new Error('SUPPORT_REPLY_NOT_ALLOWED')
 
   const now = new Date().toISOString()
@@ -153,7 +162,10 @@ export async function addReply(input: {
     createdAt: now,
     updatedAt: now,
   })
-  await db.update(tickets).set({ updatedAt: now }).where(eq(tickets.id, input.ticketId))
+  await db
+    .update(tickets)
+    .set({ updatedAt: now })
+    .where(eq(tickets.id, input.ticketId))
 
   return { id: Number(result.insertId) }
 }
@@ -170,7 +182,11 @@ export async function rateTicket(input: {
     throw new Error('SUPPORT_INVALID_RATING')
 
   const ticket = await loadOwnedTicket(input.userId, input.ticketId)
-  const caps = getTicketCapabilities(normalizeStatus(ticket.status), ticket.rating, false)
+  const caps = getTicketCapabilities(
+    normalizeStatus(ticket.status),
+    ticket.rating,
+    false,
+  )
   if (!caps.canRate) throw new Error('SUPPORT_RATE_NOT_ALLOWED')
 
   await db
@@ -187,12 +203,20 @@ export async function reopenTicket(input: {
   ticketId: number
 }): Promise<{ status: 're-opened' }> {
   const ticket = await loadOwnedTicket(input.userId, input.ticketId)
-  const caps = getTicketCapabilities(normalizeStatus(ticket.status), ticket.rating, false)
+  const caps = getTicketCapabilities(
+    normalizeStatus(ticket.status),
+    ticket.rating,
+    false,
+  )
   if (!caps.canReopen) throw new Error('SUPPORT_REOPEN_NOT_ALLOWED')
 
   await db
     .update(tickets)
-    .set({ status: 're-opened', isClosed: 0, updatedAt: new Date().toISOString() })
+    .set({
+      status: 're-opened',
+      isClosed: 0,
+      updatedAt: new Date().toISOString(),
+    })
     .where(eq(tickets.id, input.ticketId))
 
   return { status: 're-opened' }
@@ -212,11 +236,22 @@ export async function escalateTicket(input: {
   const batchId = ticket.data?.batch_id ? Number(ticket.data.batch_id) : null
 
   const [batchRow] = batchId
-    ? await db.select({ settings: batches.settings }).from(batches).where(eq(batches.id, batchId))
+    ? await db
+        .select({ settings: batches.settings })
+        .from(batches)
+        .where(eq(batches.id, batchId))
     : [undefined]
 
-  const canEscalate = hasHigherLevel(batchRow?.settings, ticket.category, ticket.assigneeId)
-  const caps = getTicketCapabilities(normalizeStatus(ticket.status), ticket.rating, canEscalate)
+  const canEscalate = hasHigherLevel(
+    batchRow?.settings,
+    ticket.category,
+    ticket.assigneeId,
+  )
+  const caps = getTicketCapabilities(
+    normalizeStatus(ticket.status),
+    ticket.rating,
+    canEscalate,
+  )
   if (!caps.canEscalate) throw new Error('SUPPORT_ESCALATE_NOT_ALLOWED')
 
   const ladder = ladderFromBatchSettings(batchRow?.settings, ticket.category)
@@ -224,8 +259,8 @@ export async function escalateTicket(input: {
   if (!next) throw new Error('SUPPORT_ESCALATE_NOT_ALLOWED')
 
   const now = new Date().toISOString()
-  const meta = (ticket.meta) ?? {}
-  const logstamps = (ticket.logstamps) ?? {}
+  const meta = ticket.meta ?? {}
+  const logstamps = ticket.logstamps ?? {}
 
   await db
     .update(tickets)

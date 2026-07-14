@@ -1,12 +1,20 @@
 // @vitest-environment jsdom
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
+import {
+  cleanup,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { GuidedTourVideoStep } from './GuidedTourVideoStep'
 
 const hoisted = vi.hoisted(() => ({ record: vi.fn() }))
 
-vi.mock('@/lib/api/dashboard/dashboardApi', () => ({ recordT0FlowStepComplete: hoisted.record }))
+vi.mock('@/lib/api/dashboard/dashboardApi', () => ({
+  recordT0FlowStepComplete: hoisted.record,
+}))
 
 afterEach(() => {
   cleanup()
@@ -19,10 +27,19 @@ beforeEach(() => {
 const navProps = { videoCount: 1, videoIndex: 0, onEnded: vi.fn() }
 
 function renderStep(onReported = vi.fn()) {
-  const client = new QueryClient({ defaultOptions: { queries: { retry: false }, mutations: { retry: false } } })
+  const client = new QueryClient({
+    defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
+  })
   render(
     <QueryClientProvider client={client}>
-      <GuidedTourVideoStep lectureId={1} videoUrl="https://x/v.mp4" batchId={5} tab="lms" onReported={onReported} {...navProps} />
+      <GuidedTourVideoStep
+        lectureId={1}
+        videoUrl="https://x/v.mp4"
+        batchId={5}
+        tab="lms"
+        onReported={onReported}
+        {...navProps}
+      />
     </QueryClientProvider>,
   )
   return { onReported }
@@ -32,7 +49,10 @@ function fireTimeUpdate(seconds: number) {
   const videos = document.querySelectorAll('video')
   if (videos.length === 0) throw new Error('no video element')
   videos.forEach((video) => {
-    Object.defineProperty(video, 'currentTime', { value: seconds, configurable: true })
+    Object.defineProperty(video, 'currentTime', {
+      value: seconds,
+      configurable: true,
+    })
     fireEvent.timeUpdate(video)
   })
 }
@@ -42,7 +62,14 @@ describe('GuidedTourVideoStep', () => {
     const client = new QueryClient()
     render(
       <QueryClientProvider client={client}>
-        <GuidedTourVideoStep lectureId={1} videoUrl={null} batchId={5} tab="lms" onReported={vi.fn()} {...navProps} />
+        <GuidedTourVideoStep
+          lectureId={1}
+          videoUrl={null}
+          batchId={5}
+          tab="lms"
+          onReported={vi.fn()}
+          {...navProps}
+        />
       </QueryClientProvider>,
     )
     expect(screen.getByTestId('guided-tour-video-missing')).toBeTruthy()

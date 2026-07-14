@@ -73,7 +73,7 @@ export function LectureDetailOverviewHeader({
       )}
     >
       <div className="flex min-w-0 flex-1 flex-col gap-2">
-        <h1 className="type-h5 line-clamp-3 min-w-0 text-gray-900 md:line-clamp-2">
+        <h1 className="type-h5 line-clamp-3 min-w-0 text-foreground md:line-clamp-2">
           {title}
         </h1>
         {/* Tag chips, then the status components (info button + Present badge)
@@ -87,7 +87,7 @@ export function LectureDetailOverviewHeader({
                 size="regular"
                 label={tag}
                 tabIndex={-1}
-                className="max-w-full cursor-default truncate transition-colors duration-200 hover:border-[#4F6BED]/35"
+                className="max-w-full cursor-default truncate transition-colors duration-200 hover:border-brand/35"
                 {...lectureDetailTagChipPalette}
               />
             ))}
@@ -96,7 +96,7 @@ export function LectureDetailOverviewHeader({
               size="regular"
               label={formatLearnDetailPriorityLabel(priority)}
               tabIndex={-1}
-              className="max-w-full cursor-default truncate transition-colors duration-200 hover:border-[#4F6BED]/35"
+              className="max-w-full cursor-default truncate transition-colors duration-200 hover:border-brand/35"
               {...lectureDetailTagChipPalette}
             />
           </div>
@@ -131,20 +131,20 @@ export function LectureDetailOverviewHeader({
         <div className="flex min-w-0 items-start gap-3 md:justify-end">
           <Avatar
             size="lg"
-            className="size-10 shrink-0 ring-2 ring-[#4F6BED]/15 ring-offset-2 ring-offset-background transition-transform duration-300 hover:scale-105"
+            className="size-10 shrink-0 ring-2 ring-brand/15 ring-offset-2 ring-offset-background transition-transform duration-300 hover:scale-105"
           >
             {avatarUrl ? <AvatarImage src={avatarUrl} alt={hostName} /> : null}
-            <AvatarFallback className="type-b2-md bg-muted text-gray-700">
+            <AvatarFallback className="type-b2-md bg-muted text-foreground">
               {hostInitials(hostName)}
             </AvatarFallback>
           </Avatar>
           <div className="min-w-0 pt-0.5 text-left">
-            <p className="type-b1-md break-words text-gray-900">{hostName}</p>
+            <p className="type-b1-md break-words text-foreground">{hostName}</p>
             {dateRange ? (
               <LocalTimeWithIstTooltip
                 local={dateRange}
                 ist={dateRangeIst}
-                className="type-b2-regular mt-0.5 block text-gray-600"
+                className="type-b2-regular mt-0.5 block text-foreground-muted"
               />
             ) : null}
           </div>

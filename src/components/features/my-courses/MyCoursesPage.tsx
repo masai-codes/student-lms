@@ -12,8 +12,8 @@ function CourseCard({ course }: { course: MyCoursesItem }) {
 
   return (
     <div
-      className="relative bg-white rounded-2xl overflow-hidden"
-      style={{ border: '1px solid #E5E7EB', minHeight: 294 }}
+      className="relative bg-surface rounded-2xl overflow-hidden border border-border"
+      style={{ minHeight: 294 }}
     >
       {/* Logo */}
       <div
@@ -38,19 +38,18 @@ function CourseCard({ course }: { course: MyCoursesItem }) {
       {/* Title + Institute */}
       <div className="absolute" style={{ left: 16, right: 16, top: 84 }}>
         <h3
-          className="text-gray-900 leading-7"
+          className="text-foreground leading-7"
           style={{ fontWeight: 600, fontSize: 18, lineHeight: '28px' }}
         >
           {course.courseTitle}
         </h3>
         {course.instituteName && (
           <p
-            className="mt-1.5"
+            className="mt-1.5 text-foreground-muted"
             style={{
               fontWeight: 500,
               fontSize: 14,
               lineHeight: '20px',
-              color: '#4B5563',
             }}
           >
             By {course.instituteName}
@@ -63,10 +62,7 @@ function CourseCard({ course }: { course: MyCoursesItem }) {
         className="absolute flex flex-col gap-1.5"
         style={{ left: 16, right: 16, top: 182 }}
       >
-        <div
-          className="relative h-2.5 rounded-full"
-          style={{ background: '#DEF7EC' }}
-        >
+        <div className="relative h-2.5 rounded-full bg-success-subtle">
           <div
             className="absolute left-0 top-0 h-full rounded-full"
             style={{
@@ -77,21 +73,21 @@ function CourseCard({ course }: { course: MyCoursesItem }) {
         </div>
         <div className="flex justify-between">
           <span
+            className="text-foreground-muted"
             style={{
               fontWeight: 500,
               fontSize: 12,
               lineHeight: '16px',
-              color: '#4B5563',
             }}
           >
             Course Progress
           </span>
           <span
+            className="text-foreground"
             style={{
               fontWeight: 500,
               fontSize: 12,
               lineHeight: '16px',
-              color: '#1F2A37',
             }}
           >
             {course.courseProgress}%
@@ -111,12 +107,11 @@ function CourseCard({ course }: { course: MyCoursesItem }) {
               params: { batchId: String(course.batchId) },
             })
           }
-          className="cursor-pointer hover:underline"
+          className="cursor-pointer hover:underline text-brand"
           style={{
             fontWeight: 500,
             fontSize: 14,
             lineHeight: '20px',
-            color: '#6962AC',
             background: 'none',
             border: 'none',
             padding: 0,
@@ -131,9 +126,8 @@ function CourseCard({ course }: { course: MyCoursesItem }) {
               params: { batchId: String(course.batchId) },
             })
           }
-          className="flex items-center justify-center rounded-lg cursor-pointer text-white"
+          className="flex items-center justify-center rounded-lg cursor-pointer bg-brand text-brand-foreground"
           style={{
-            background: '#6962AC',
             fontWeight: 500,
             fontSize: 14,
             lineHeight: '20px',
@@ -163,7 +157,7 @@ export function MyCoursesPage() {
 
   if (isError) {
     return (
-      <div className="flex items-center justify-center min-h-96 text-gray-500 text-sm">
+      <div className="flex items-center justify-center min-h-96 text-foreground-muted text-sm">
         Failed to load courses.
       </div>
     )
@@ -171,21 +165,21 @@ export function MyCoursesPage() {
 
   return (
     <div
-      className="flex flex-col gap-4 px-2 py-2"
-      style={{ background: '#FAF9F9', minHeight: '100vh' }}
+      className="flex flex-col gap-4 px-2 py-2 bg-surface-muted"
+      style={{ minHeight: '100vh' }}
     >
       <h1
+        className="text-foreground"
         style={{
           fontWeight: 700,
           fontSize: 20,
           lineHeight: '30px',
-          color: '#111928',
         }}
       >
         My Courses
       </h1>
       {courses.length === 0 ? (
-        <p className="text-sm text-gray-500">No courses found.</p>
+        <p className="text-sm text-foreground-muted">No courses found.</p>
       ) : (
         <div className="grid grid-cols-2 gap-4">
           {courses.map((course) => (

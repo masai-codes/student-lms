@@ -43,15 +43,15 @@ Conversation titles are derived from the first user message (truncated to 50 cha
 
 ## Test cases
 
-| ID | Case | Expected |
-|----|------|----------|
-| AT-CONV-001 | Missing session cookie | `401 UNAUTHORIZED` |
-| AT-CONV-002 | Invalid `lectureId` query param | `400 AI_TUTOR_LECTURE_ID_INVALID` |
-| AT-CONV-003 | Valid list request | `200` with `conversations[]` sorted by service query |
-| AT-CONV-004 | Invalid `chatId` path param | `400 AI_TUTOR_CHAT_ID_INVALID` |
-| AT-CONV-005 | Unknown `chatId` for user | `404 AI_TUTOR_CHAT_NOT_FOUND` |
-| AT-CONV-006 | Valid detail request | `200` with ordered `chat` turns |
-| AT-CONV-007 | Title + turn mapping utils | First user message title + user/assistant turns |
+| ID          | Case                            | Expected                                             |
+| ----------- | ------------------------------- | ---------------------------------------------------- |
+| AT-CONV-001 | Missing session cookie          | `401 UNAUTHORIZED`                                   |
+| AT-CONV-002 | Invalid `lectureId` query param | `400 AI_TUTOR_LECTURE_ID_INVALID`                    |
+| AT-CONV-003 | Valid list request              | `200` with `conversations[]` sorted by service query |
+| AT-CONV-004 | Invalid `chatId` path param     | `400 AI_TUTOR_CHAT_ID_INVALID`                       |
+| AT-CONV-005 | Unknown `chatId` for user       | `404 AI_TUTOR_CHAT_NOT_FOUND`                        |
+| AT-CONV-006 | Valid detail request            | `200` with ordered `chat` turns                      |
+| AT-CONV-007 | Title + turn mapping utils      | First user message title + user/assistant turns      |
 
 ## Commands
 

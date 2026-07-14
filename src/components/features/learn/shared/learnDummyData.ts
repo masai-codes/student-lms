@@ -17,11 +17,14 @@ const hostNames = [
   'Arjun Rao',
 ]
 
-const priorities: Array<LearnContentItem['priority']> = ['recommended', 'mandatory']
+const priorities: Array<LearnContentItem['priority']> = [
+  'recommended',
+  'mandatory',
+]
 
 function createDummyItems(
   kind: LearnContentItem['type'],
-  titlePrefix: string
+  titlePrefix: string,
 ): Array<LearnContentItem> {
   return Array.from({ length: 20 }, (_, index) => {
     const itemNumber = index + 1

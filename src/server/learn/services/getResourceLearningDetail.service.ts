@@ -12,9 +12,7 @@ import { ensureUserCanAccessLearnHubEntity } from '@/server/learn/utils/ensureLe
 import { resolveLearnDetailRestriction } from '@/server/restrictions/resolveLearnDetailRestriction'
 import { getBatchIdForSection } from '@/server/batches/getBatchIdsForSections'
 import { getUserBatchRestrictions } from '@/server/restrictions/getUserBatchRestrictions'
-import {
-  isSupportedResourceLectureType,
-} from '@/server/learn/utils/normalizeResourceKind'
+import { isSupportedResourceLectureType } from '@/server/learn/utils/normalizeResourceKind'
 import { getAllAssociatedEntities } from '@/server/learn/services/getAllAssociatedEntities.service'
 import { getLearnEntityBookmarkState } from '@/server/learn/services/learnEntityBookmark.service'
 import { LECTURE_RESOURCE_TYPE } from '@/server/learn/utils/resolveLectureLearningType'

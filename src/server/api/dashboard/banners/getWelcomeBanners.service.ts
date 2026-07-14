@@ -73,7 +73,11 @@ export async function getWelcomeBanners(
 
   return rows
     .filter((row) => {
-      if (!isNonMasaiVerseBanner(row.settings as string | Record<string, unknown> | null))
+      if (
+        !isNonMasaiVerseBanner(
+          row.settings as string | Record<string, unknown> | null,
+        )
+      )
         return false
 
       if (!isWithinBannerWindow(row.startDate, row.endDate, nowMs)) return false
@@ -96,6 +100,10 @@ export async function getWelcomeBanners(
       description: row.description,
       imageUrl: row.imageUrl,
       ctaUrl: row.ctaUrl,
-      analyticsKey: buildBannerAnalyticsKey(row.groupName, row.type, row.variant),
+      analyticsKey: buildBannerAnalyticsKey(
+        row.groupName,
+        row.type,
+        row.variant,
+      ),
     }))
 }

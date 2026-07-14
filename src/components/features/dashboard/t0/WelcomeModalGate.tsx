@@ -22,7 +22,9 @@ export function WelcomeModalGate({ showWelcomeModal }: WelcomeModalGateProps) {
   const dismissMutation = useMutation({
     mutationFn: dismissWelcomeModalApi,
     onSettled: () => {
-      void queryClient.invalidateQueries({ queryKey: ['dashboard', 'overview'] })
+      void queryClient.invalidateQueries({
+        queryKey: ['dashboard', 'overview'],
+      })
     },
   })
 
@@ -37,6 +39,10 @@ export function WelcomeModalGate({ showWelcomeModal }: WelcomeModalGateProps) {
   if (!open) return null
 
   return (
-    <WelcomeModal open={open} onDismiss={handleDismiss} isDismissing={dismissMutation.isPending} />
+    <WelcomeModal
+      open={open}
+      onDismiss={handleDismiss}
+      isDismissing={dismissMutation.isPending}
+    />
   )
 }

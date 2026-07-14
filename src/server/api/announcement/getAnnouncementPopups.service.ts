@@ -33,7 +33,9 @@ function normalizeRows(result: unknown): Array<Record<string, unknown>> {
   return []
 }
 
-export async function getAnnouncementPopups(userId: number): Promise<PopupItem[]> {
+export async function getAnnouncementPopups(
+  userId: number,
+): Promise<PopupItem[]> {
   const sectionResult = await db.execute(sql`
     SELECT DISTINCT section_id FROM section_user
     WHERE user_id = ${userId} AND deleted_at IS NULL

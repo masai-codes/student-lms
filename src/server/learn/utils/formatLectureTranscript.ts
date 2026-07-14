@@ -83,6 +83,6 @@ export function buildTranscriptPlainText(input: {
   if (stored != null) return stored
   if (input.segments.length === 0) return null
 
-  const lines = input.segments.map(segment => segment.text).filter(Boolean)
+  const lines = input.segments.map((segment) => segment.text).filter(Boolean)
   return lines.length > 0 ? lines.join('\n\n') : null
 }

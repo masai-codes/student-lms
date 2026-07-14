@@ -23,6 +23,8 @@ export function formatLearnDetailHostName(name: string): string {
   return formatLearnDetailTagLabel(name)
 }
 
-export function formatLearnDetailPriorityLabel(priority: LearningPriority): string {
+export function formatLearnDetailPriorityLabel(
+  priority: LearningPriority,
+): string {
   return capitalizeWord(priority)
 }

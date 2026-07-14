@@ -14,7 +14,9 @@ describe('formatLearnDetailTagLabel', () => {
 
   it('capitalizes hyphenated tags', () => {
     expect(formatLearnDetailTagLabel('pre-read')).toBe('Pre-Read')
-    expect(formatLearnDetailTagLabel('interactive-video')).toBe('Interactive-Video')
+    expect(formatLearnDetailTagLabel('interactive-video')).toBe(
+      'Interactive-Video',
+    )
   })
 
   it('capitalizes multi-word labels', () => {

@@ -34,6 +34,7 @@ The tab badge counts these items. Two sources, merged (assignments first, then
 catch-up lectures), rendered by the **same** reused card:
 
 **Pending assignments** (`fetchPendingAssignments` + `fetchAssignmentStartState`):
+
 - in the user's sections, `deleted_at IS NULL`;
 - **deadline not passed** — `concludes > now` (IST); overdue ones drop off;
 - **not begun** — the user has no submission that is `started = true` OR has
@@ -51,6 +52,7 @@ assignment cards show it too (reused). Lectures already show their catch-up
 "N days remaining".
 
 **Catch-up lectures** (`fetchPendingLectures`):
+
 - mandatory (`optional != 1`), **not** `resource`/`scrum` type, in the user's
   sections, `deleted_at IS NULL`;
 - already concluded (`concludes < now`, IST) **but the catch-up window is still
@@ -65,7 +67,7 @@ The rows are shaped as the learn listing's `LearningEntityRow` and mapped with
 the **same** learn utilities, so the **same card** renders them:
 
 - `buildLearnListingCardCtas` — Join Live state, attendance/assignment chips.
-  (On the listing the "Join Live" CTA is a *state*; the card links to the
+  (On the listing the "Join Live" CTA is a _state_; the card links to the
   lecture/assignment detail page, where the actual zoom join + adaptive-link
   transform happens — so no zoom transform is needed here.)
 - `mapLearningEntityRow` — row → `LearningItem`.
