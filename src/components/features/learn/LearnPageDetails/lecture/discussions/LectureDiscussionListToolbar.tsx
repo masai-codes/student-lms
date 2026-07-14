@@ -68,7 +68,7 @@ export function LectureDiscussionListToolbar({
         onChange={(event) => onSearchChange(event.target.value)}
         placeholder="Search discussions"
         aria-label="Search discussions"
-        className="min-w-[180px] flex-1"
+        className="min-w-[140px] flex-1"
         iconLeft={<MagnifyingGlass className="size-[18px]" aria-hidden />}
       />
       <div className="flex shrink-0 items-center gap-2">

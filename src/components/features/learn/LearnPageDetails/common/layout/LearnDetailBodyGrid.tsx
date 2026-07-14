@@ -33,17 +33,21 @@ export function LearnDetailBodyGrid({
     <section className="grid grid-cols-1 items-start gap-4 lg:grid-cols-10">
       <div
         className={cn(
-          'min-h-[200px] rounded-lg border border-gray-200 bg-white p-4 md:p-6 lg:col-span-7',
+          'min-h-[200px] rounded-lg border border-gray-200 bg-white p-4 transition-colors hover:border-[#4F6BED]/25 md:p-6 lg:col-span-7',
           !main && 'border-dashed border-gray-300 bg-gray-50/80',
         )}
       >
         {main ?? (
-          <p className="type-b2-regular text-muted-foreground">{mainPlaceholder ?? ''}</p>
+          <p className="type-b2-regular text-muted-foreground">
+            {mainPlaceholder ?? ''}
+          </p>
         )}
       </div>
-      <div className="flex min-h-[200px] flex-col overflow-hidden rounded-lg border border-gray-200 bg-white p-4 md:p-6 lg:sticky lg:top-[84px] lg:col-span-3 lg:h-[calc(100dvh-104px)]">
+      <div className="flex min-h-[200px] flex-col overflow-hidden rounded-lg border border-gray-200 bg-white p-4 transition-colors hover:border-[#4F6BED]/25 md:p-6 lg:sticky lg:top-[84px] lg:col-span-3 lg:h-[calc(100dvh-104px)]">
         {aside ?? (
-          <p className="type-b2-regular text-muted-foreground">{asidePlaceholder ?? ''}</p>
+          <p className="type-b2-regular text-muted-foreground">
+            {asidePlaceholder ?? ''}
+          </p>
         )}
       </div>
     </section>

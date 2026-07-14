@@ -134,8 +134,9 @@ export function LearnFiltersPanel({
   return (
     <div className="-mx-4 flex min-h-full min-w-0 flex-col">
       <div className="flex min-h-0 min-w-0 flex-1">
+        {/* Narrower nav below `sm` so the option list keeps room in the drawer. */}
         <nav
-          className="flex w-[148px] shrink-0 flex-col gap-1 border-r border-slate-200 py-4 pl-4 pr-2"
+          className="flex w-[104px] shrink-0 flex-col gap-1 border-r border-slate-200 py-4 pl-4 pr-2 sm:w-[148px]"
           aria-label="Filter categories"
         >
           {navItems.map(({ key, label }) => {
@@ -145,10 +146,20 @@ export function LearnFiltersPanel({
                 key={key}
                 type="button"
                 onClick={() => setActiveNav(key)}
-                className="flex items-center justify-between gap-2 rounded-lg py-2 text-left text-sm transition-colors hover:bg-slate-50"
+                className={`relative flex items-center justify-between gap-2 rounded-lg py-2 pl-2 text-left text-sm transition-colors duration-200 hover:bg-slate-50 ${
+                  active ? 'bg-[#6962AC]/5' : ''
+                }`}
               >
                 <span
-                  className={active ? 'font-medium' : 'text-slate-800'}
+                  aria-hidden
+                  className={`absolute inset-y-2 left-0 w-[3px] rounded-full bg-[#6962AC] transition-opacity duration-200 ${
+                    active ? 'opacity-100' : 'opacity-0'
+                  }`}
+                />
+                <span
+                  className={`min-w-0 break-words transition-colors duration-200 ${
+                    active ? 'font-medium' : 'text-slate-800'
+                  }`}
                   style={active ? { color: '#6962AC' } : undefined}
                 >
                   {label}
@@ -167,7 +178,7 @@ export function LearnFiltersPanel({
           })}
         </nav>
 
-        <div className="min-h-0 flex-1 overflow-y-auto px-4 py-4">
+        <div className="min-h-0 min-w-0 flex-1 overflow-y-auto px-4 py-4">
           <div className="space-y-3">
             <h3 className="text-base font-semibold text-slate-900">
               {activeNavLabel}
@@ -349,6 +360,7 @@ export function LearnFiltersPanel({
           size="md"
           htmlType="button"
           ctaText="Clear filters"
+          className="transition-transform duration-200 hover:-translate-y-px active:scale-[0.97]"
           onClick={() => {
             pushLearnEvent('l_learn_filters_panel_clear', { tab: activeTab })
             const cleared = createEmptyLearnModalFilters()
@@ -361,6 +373,7 @@ export function LearnFiltersPanel({
           size="md"
           htmlType="button"
           ctaText="Apply"
+          className="transition-transform duration-200 hover:-translate-y-px active:scale-[0.97]"
           onClick={() => {
             pushLearnEvent('l_learn_filters_apply', {
               tab: activeTab,

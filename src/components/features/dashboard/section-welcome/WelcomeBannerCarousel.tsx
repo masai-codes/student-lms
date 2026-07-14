@@ -26,7 +26,9 @@ const CHANGEMAKERS_ROUTE = '/changemakers-circle'
 // rotates one step per page load (localStorage). The card is a link; a drag is
 // not treated as a click.
 export function WelcomeBannerCarousel({ banners }: WelcomeBannerCarouselProps) {
-  const [startIndex] = useState(() => nextRotatedBannerIndex(banners.map((b) => b.id)))
+  const [startIndex] = useState(() =>
+    nextRotatedBannerIndex(banners.map((b) => b.id)),
+  )
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: false, startIndex })
 
   const [selected, setSelected] = useState(startIndex)
@@ -42,7 +44,8 @@ export function WelcomeBannerCarousel({ banners }: WelcomeBannerCarouselProps) {
       setSelected(index)
       setCanScrollPrev(api.canScrollPrev())
       setCanScrollNext(api.canScrollNext())
-      if (index >= 0 && index < banners.length) rememberBannerId(banners[index].id)
+      if (index >= 0 && index < banners.length)
+        rememberBannerId(banners[index].id)
     },
     [banners],
   )
@@ -77,46 +80,65 @@ export function WelcomeBannerCarousel({ banners }: WelcomeBannerCarouselProps) {
   return (
     <div
       data-testid="dashboard-welcome-banner-carousel"
-      className="relative rounded-2xl bg-[#EBF3FE] px-12 py-5"
+      className="dash-sheen relative rounded-2xl bg-gradient-to-r from-[#EBF3FE] via-[#EEF0FE] to-[#F3EDFE] px-12 py-5 ring-1 ring-inset ring-[#4F6BED]/10 transition-shadow duration-300 hover:shadow-[0_10px_28px_-10px_rgb(79_107_237_/_0.28)]"
     >
-      <div className="overflow-hidden" ref={emblaRef}>
-        <div className="flex">
-          {banners.map((banner) => (
-            <div key={banner.id} className="min-w-0 flex-[0_0_100%]">
-              <BannerLink banner={banner} wasDragged={() => draggedRef.current} />
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {hasMultiple && (
-        <>
-          <ArrowButton
-            direction="prev"
-            disabled={!canScrollPrev}
-            onClick={() => emblaApi?.scrollPrev()}
-          />
-          <ArrowButton
-            direction="next"
-            disabled={!canScrollNext}
-            onClick={() => emblaApi?.scrollNext()}
-          />
-          <div className="mt-3 flex justify-center gap-1.5">
-            {banners.map((b, i) => (
-              <button
-                key={b.id}
-                type="button"
-                aria-label={`Go to banner ${i + 1}`}
-                data-testid="dashboard-welcome-banner-dot"
-                data-active={i === selected}
-                onClick={() => emblaApi?.scrollTo(i)}
-                className={`size-1.5 rounded-full transition-colors ${
-                  i === selected ? 'bg-[#3F83F8]' : 'bg-[#3F83F8]/30'
-                }`}
-              />
+      {/* Arrows are anchored to this wrapper (the banner row) rather than the
+          card, so they stay vertically centred on the content instead of being
+          pulled off-centre by the dots row below. They reach out into the
+          card's px-12 gutters. */}
+      <div className="relative">
+        <div className="overflow-hidden" ref={emblaRef}>
+          <div className="flex">
+            {banners.map((banner) => (
+              <div key={banner.id} className="min-w-0 flex-[0_0_100%]">
+                <BannerLink
+                  banner={banner}
+                  wasDragged={() => draggedRef.current}
+                />
+              </div>
             ))}
           </div>
-        </>
+        </div>
+
+        {hasMultiple && (
+          <>
+            <ArrowButton
+              direction="prev"
+              disabled={!canScrollPrev}
+              onClick={() => emblaApi?.scrollPrev()}
+            />
+            <ArrowButton
+              direction="next"
+              disabled={!canScrollNext}
+              onClick={() => emblaApi?.scrollNext()}
+            />
+          </>
+        )}
+      </div>
+
+      {/* Dots are absolutely positioned in the card's bottom padding rather
+          than in normal flow, so they don't add to the card's height. That
+          keeps the card's height equal to the banner content, letting the
+          side-by-side greeting stay vertically centred on the content instead
+          of being pulled down by a taller card. */}
+      {hasMultiple && (
+        <div className="absolute inset-x-0 bottom-2 flex justify-center gap-1.5">
+          {banners.map((b, i) => (
+            <button
+              key={b.id}
+              type="button"
+              aria-label={`Go to banner ${i + 1}`}
+              data-testid="dashboard-welcome-banner-dot"
+              data-active={i === selected}
+              onClick={() => emblaApi?.scrollTo(i)}
+              className={`h-1.5 rounded-full transition-all duration-300 ease-out ${
+                i === selected
+                  ? 'w-5 bg-[#3F83F8]'
+                  : 'w-1.5 bg-[#3F83F8]/30 hover:bg-[#3F83F8]/60'
+              }`}
+            />
+          ))}
+        </div>
       )}
     </div>
   )
@@ -153,10 +175,14 @@ function BannerLink({
       draggable={false}
       data-testid="dashboard-welcome-banner-item"
       onClick={handleClick}
-      className="flex items-center gap-4 no-underline"
+      className="group flex items-center gap-4 no-underline"
     >
-      <div className="flex size-11 shrink-0 items-center justify-center overflow-hidden rounded-full bg-white">
-        <img src={banner.imageUrl ?? FALLBACK_ICON} alt="" className="size-7 object-contain" />
+      <div className="flex size-11 shrink-0 items-center justify-center overflow-hidden rounded-full bg-white shadow-sm ring-1 ring-[#4F6BED]/10 transition-transform duration-300 ease-out group-hover:scale-110 group-hover:-rotate-6">
+        <img
+          src={banner.imageUrl ?? FALLBACK_ICON}
+          alt=""
+          className="size-7 object-contain"
+        />
       </div>
       <div className="min-w-0">
         <h3 className="truncate text-sm font-bold text-gray-900 md:text-base">
@@ -182,6 +208,9 @@ function ArrowButton({
   onClick: () => void
 }) {
   const isPrev = direction === 'prev'
+  // `top-1/2` + `-translate-y-1/2` centres the arrow on the banner row; the
+  // negative inset pushes it out into the card's px-12 gutter (48px), leaving
+  // the same 8px gap from the card edge as before.
   return (
     <button
       type="button"
@@ -189,17 +218,24 @@ function ArrowButton({
       data-testid={`dashboard-welcome-banner-${direction}`}
       disabled={disabled}
       onClick={onClick}
-      className={`absolute top-5 flex size-8 items-center justify-center rounded-full bg-white/70 text-gray-500 shadow-sm transition-opacity hover:bg-white disabled:cursor-not-allowed disabled:opacity-40 ${
-        isPrev ? 'left-2' : 'right-2'
+      className={`absolute top-1/2 flex size-8 -translate-y-1/2 items-center justify-center rounded-full bg-white/70 text-gray-500 shadow-sm backdrop-blur-sm transition-all duration-200 hover:scale-110 hover:bg-white hover:text-[#3F83F8] hover:shadow-md active:scale-95 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:scale-100 disabled:hover:text-gray-500 ${
+        isPrev ? '-left-10' : '-right-10'
       }`}
     >
-      {isPrev ? <CaretLeft size={16} weight="bold" /> : <CaretRight size={16} weight="bold" />}
+      {isPrev ? (
+        <CaretLeft size={16} weight="bold" />
+      ) : (
+        <CaretRight size={16} weight="bold" />
+      )}
     </button>
   )
 }
 
 /** `/…` → internal same-tab; full URL → new tab; none → Changemakers Circle. */
-function resolveBannerHref(ctaUrl: string | null): { href: string; external: boolean } {
+function resolveBannerHref(ctaUrl: string | null): {
+  href: string
+  external: boolean
+} {
   if (!ctaUrl) return { href: CHANGEMAKERS_ROUTE, external: false }
   if (ctaUrl.startsWith('/')) return { href: ctaUrl, external: false }
   return { href: ctaUrl, external: true }

@@ -30,7 +30,10 @@ export function LearnDetailFullWidthBanner({
         className="flex size-10 shrink-0 items-center justify-center rounded-full bg-primary-500 p-2.5 md:size-[72px] md:p-5"
         aria-hidden
       >
-        <Lock weight="duotone" className="size-5 text-white md:size-8" />
+        <Lock
+          weight="duotone"
+          className="animate-dash-float size-5 text-white md:size-8"
+        />
       </div>
       <div className="flex min-w-0 flex-col gap-2">
         <h2 className="type-h6 text-gray-900">{title}</h2>

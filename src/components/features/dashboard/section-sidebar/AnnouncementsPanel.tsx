@@ -44,10 +44,11 @@ export function AnnouncementsPanel({
       emptyText="No announcements yet"
     >
       <div className="flex max-h-72 flex-col gap-3 overflow-y-auto">
-        {announcements.map((announcement) => (
+        {announcements.map((announcement, index) => (
           <AnnouncementRow
             key={`${announcement.source}-${announcement.id}`}
             announcement={announcement}
+            index={index}
           />
         ))}
       </div>
@@ -55,30 +56,42 @@ export function AnnouncementsPanel({
   )
 }
 
-function AnnouncementRow({ announcement }: { announcement: DashboardAnnouncement }) {
+function AnnouncementRow({
+  announcement,
+  index,
+}: {
+  announcement: DashboardAnnouncement
+  index: number
+}) {
   const isMessage = announcement.source === 'm'
 
   return (
     <Link
+      style={{ '--dash-delay': `${index * 0.05}s` } as React.CSSProperties}
       to={isMessage ? '/messages/$id' : '/announcements/$id'}
       params={{ id: String(announcement.id) }}
       onClick={() => {
-        pushDashboardEvent('l_dashboard_announcement_click_id_' + announcement.id, {
-          announcement_id: announcement.id,
-          source: announcement.source,
-          is_message: isMessage,
-          title: announcement.title,
-        })
+        pushDashboardEvent(
+          'l_dashboard_announcement_click_id_' + announcement.id,
+          {
+            announcement_id: announcement.id,
+            source: announcement.source,
+            is_message: isMessage,
+            title: announcement.title,
+          },
+        )
       }}
       data-testid={`dashboard-announcement-item-${announcement.source}-${announcement.id}`}
-      className="rounded-xl border border-gray-200 p-3.5 no-underline transition-shadow hover:shadow-sm"
+      className="dash-lift animate-dash-row-in rounded-xl border border-gray-200 p-3.5 no-underline hover:border-[#4F6BED]/35"
     >
       <h4 className="truncate text-sm font-semibold text-gray-900">
         {announcement.title}
       </h4>
       <div className="mt-1.5 flex items-center gap-2">
         {announcement.authorName && (
-          <span className="truncate text-xs text-gray-600">{announcement.authorName}</span>
+          <span className="truncate text-xs text-gray-600">
+            {announcement.authorName}
+          </span>
         )}
         {announcement.isForYou && (
           <span

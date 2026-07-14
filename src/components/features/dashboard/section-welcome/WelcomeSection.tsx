@@ -20,24 +20,34 @@ export function WelcomeSection({ name, banners }: WelcomeSectionProps) {
       {/* The greeting is shown in the mobile sticky header (AppMobileHeader)
           below the `lg` breakpoint, so only render it inline on desktop to
           avoid duplication. */}
-      <div className="hidden shrink-0 lg:block">
+      <div className="dash-wave-trigger hidden shrink-0 cursor-default lg:block">
         {name ? (
           <>
-            <p className="text-2xl font-medium text-gray-500 md:text-3xl">Welcome</p>
+            <p className="text-2xl font-medium text-gray-500 md:text-3xl">
+              Welcome
+            </p>
             <h1
               data-testid="dashboard-welcome-name"
               title={name}
-              className="text-3xl font-bold text-gray-900 md:text-4xl"
+              className="text-3xl font-bold md:text-4xl"
             >
-              {formatGreetingName(name)} <span aria-hidden="true">👋</span>
+              <span className="dash-gradient-text">
+                {formatGreetingName(name)}
+              </span>{' '}
+              <span aria-hidden="true" className="dash-wave">
+                👋
+              </span>
             </h1>
           </>
         ) : (
           <h1
             data-testid="dashboard-welcome-name"
-            className="text-3xl font-bold text-gray-900 md:text-4xl"
+            className="text-3xl font-bold md:text-4xl"
           >
-            Welcome! <span aria-hidden="true">👋</span>
+            <span className="dash-gradient-text">Welcome!</span>{' '}
+            <span aria-hidden="true" className="dash-wave">
+              👋
+            </span>
           </h1>
         )}
       </div>

@@ -48,7 +48,10 @@ export function LectureDetailChrome({
   belowHero,
   footer,
 }: LectureDetailChromeProps) {
-  const attendanceBanner = resolveLectureAttendanceBanner(attendance, watchPercentage)
+  const attendanceBanner = resolveLectureAttendanceBanner(
+    attendance,
+    watchPercentage,
+  )
   return (
     <div className="w-full pb-12">
       <section className="flex w-full shrink-0 flex-col overflow-visible bg-white">
@@ -57,7 +60,11 @@ export function LectureDetailChrome({
           data-lecture-viewport-chrome
           className={cn(lectureDetailContentClasses, 'relative z-20 shrink-0')}
         >
+          {/* Content below the video rises in with a gentle stagger (header →
+              attendance banner → footer). The hero stays untouched — its
+              heights are JS-measured. */}
           <LectureDetailOverviewHeader
+            className="animate-dash-rise"
             title={title}
             tags={tags}
             priority={priority}
@@ -72,13 +79,22 @@ export function LectureDetailChrome({
             actions={actions}
           />
           {attendanceBanner ? (
-            <LectureAttendanceBanner banner={attendanceBanner} />
+            <div className="animate-dash-rise [--dash-delay:0.08s]">
+              <LectureAttendanceBanner banner={attendanceBanner} />
+            </div>
           ) : null}
           {belowHero}
         </div>
       </section>
       {footer ? (
-        <div className={cn(lectureDetailContentClasses, 'bg-white')}>{footer}</div>
+        <div
+          className={cn(
+            lectureDetailContentClasses,
+            'animate-dash-rise bg-white [--dash-delay:0.16s]',
+          )}
+        >
+          {footer}
+        </div>
       ) : null}
     </div>
   )

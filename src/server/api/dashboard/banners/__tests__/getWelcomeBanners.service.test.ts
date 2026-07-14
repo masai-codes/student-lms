@@ -31,7 +31,9 @@ const bannerRow = (over: Record<string, unknown> = {}) => ({
   type: 'promo',
   variant: 'v1',
   groupName: 'referral',
-  visibleTo: { batches: [], random_group: [] },
+  // Enrolled in batch 5 (see mock below), so this targets the user by default.
+  visibleTo: { batches: [5], random_group: [] },
+  settings: { isMasaiVerse: false },
   startDate: '2026-07-01 00:00:00',
   endDate: '2026-07-10 00:00:00',
   createdAt: '2026-06-01 00:00:00',
@@ -79,5 +81,38 @@ describe('getWelcomeBanners', () => {
 
     const result = await getWelcomeBanners(42, NOW)
     expect(result.map((b) => b.id)).toEqual([1])
+  })
+
+  it('hides untargeted banners with empty visible_to (old-LMS parity)', async () => {
+    hoisted.bannerRows = [bannerRow({ visibleTo: { batches: [], random_group: [] } })]
+    const { getWelcomeBanners } = await import('../getWelcomeBanners.service')
+
+    expect(await getWelcomeBanners(42, NOW)).toEqual([])
+  })
+
+  it('shows a group-targeted banner even when no batch matches', async () => {
+    // userId 42 % 4 = 2 -> group "C"
+    hoisted.bannerRows = [bannerRow({ visibleTo: { batches: [999], random_group: ['C'] } })]
+    const { getWelcomeBanners } = await import('../getWelcomeBanners.service')
+
+    expect((await getWelcomeBanners(42, NOW)).map((b) => b.id)).toEqual([1])
+  })
+
+  it('hides Masaiverse banners and banners without an explicit isMasaiVerse:false', async () => {
+    hoisted.bannerRows = [
+      bannerRow({ id: 1, settings: { isMasaiVerse: true } }),
+      bannerRow({ id: 2, settings: null }),
+      bannerRow({ id: 3, settings: {} }),
+    ]
+    const { getWelcomeBanners } = await import('../getWelcomeBanners.service')
+
+    expect(await getWelcomeBanners(42, NOW)).toEqual([])
+  })
+
+  it('hides banners with a missing date bound (old-LMS parity)', async () => {
+    hoisted.bannerRows = [bannerRow({ startDate: null }), bannerRow({ id: 2, endDate: null })]
+    const { getWelcomeBanners } = await import('../getWelcomeBanners.service')
+
+    expect(await getWelcomeBanners(42, NOW)).toEqual([])
   })
 })

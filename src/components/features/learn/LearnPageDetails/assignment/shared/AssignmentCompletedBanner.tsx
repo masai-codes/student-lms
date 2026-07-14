@@ -18,12 +18,12 @@ export function AssignmentCompletedBanner({
 
   return (
     <div
-      className="flex items-start gap-2 rounded-lg bg-[#EDEBFE] p-3"
+      className="flex items-start gap-2 rounded-lg bg-gradient-to-r from-[#EDEBFE] to-[#EDEBFE]/60 p-3"
       data-testid="assignment-completed-banner"
       data-variant={completedDetails.variant}
     >
       <CheckCircle
-        className="mt-0.5 size-5 shrink-0 text-[#6962AC]"
+        className="animate-dash-pop mt-0.5 size-5 shrink-0 text-[#6962AC]"
         weight="fill"
         aria-hidden
       />

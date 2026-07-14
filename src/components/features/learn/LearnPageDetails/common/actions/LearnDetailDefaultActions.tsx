@@ -34,6 +34,7 @@ export function LearnDetailDefaultActions({
         size="md"
         ctaText="Raise Ticket"
         htmlType="button"
+        className="transition-all duration-200 active:scale-95"
         onClick={() => {
           pushLearnEvent('l_learn_raise_ticket_open', {
             category: ticketCategory,
@@ -45,14 +46,21 @@ export function LearnDetailDefaultActions({
         type="tertiary"
         size="md"
         icon={
+          // Remounting on toggle replays the springy star pop each time.
           <Bookmark
+            key={bookmark?.isBookmarked ? 'bookmarked' : 'unbookmarked'}
             strokeWidth={1.75}
-            className="size-5"
+            className={
+              bookmark?.isBookmarked
+                ? 'animate-masaiverse-star-pop size-5'
+                : 'size-5'
+            }
             fill={bookmark?.isBookmarked ? 'currentColor' : 'none'}
           />
         }
         iconOnly
         htmlType="button"
+        className="transition-all duration-200 hover:scale-105 active:scale-95"
         aria-label={bookmark?.isBookmarked ? 'Remove bookmark' : 'Add bookmark'}
         aria-pressed={bookmark ? bookmark.isBookmarked : undefined}
         disabled={bookmark?.pending}
