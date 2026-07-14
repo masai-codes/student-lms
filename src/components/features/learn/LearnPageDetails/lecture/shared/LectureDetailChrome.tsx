@@ -54,7 +54,7 @@ export function LectureDetailChrome({
   )
   return (
     <div className="w-full pb-12">
-      <section className="flex w-full shrink-0 flex-col overflow-visible bg-surface">
+      <section className="flex w-full shrink-0 flex-col overflow-visible bg-surface dark:bg-transparent">
         {hero}
         <div
           data-lecture-viewport-chrome
@@ -90,7 +90,7 @@ export function LectureDetailChrome({
         <div
           className={cn(
             lectureDetailContentClasses,
-            'animate-dash-rise bg-surface [--dash-delay:0.16s]',
+            'animate-dash-rise bg-surface dark:bg-transparent [--dash-delay:0.16s]',
           )}
         >
           {footer}

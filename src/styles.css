@@ -261,9 +261,9 @@ code {
      foreground so all body/heading text stays readable. LMS Default keeps the
      original #111928 (set in masai-typography.css), so light stays identical. */
   --masai-text-color: var(--foreground);
-  --card: #131a2b;
+  --card: #232e48;
   --card-foreground: #e5e9f0;
-  --popover: #131a2b;
+  --popover: #232e48;
   --popover-foreground: #e5e9f0;
   --primary: #8da2fb;
   --primary-foreground: #0b0f1a;
@@ -292,7 +292,7 @@ code {
   --sidebar-border: #2a3350;
   --sidebar-ring: #8da2fb;
 
-  --surface: #131a2b;
+  --surface: #232e48;
   --surface-foreground: #e5e9f0;
   --surface-muted: #1c2438;
   --surface-muted-foreground: #aeb6c7;
@@ -331,9 +331,9 @@ code {
   --background: #1a1310;
   --foreground: #f0e6dd;
   --masai-text-color: var(--foreground);
-  --card: #241a15;
+  --card: #38281e;
   --card-foreground: #f0e6dd;
-  --popover: #241a15;
+  --popover: #38281e;
   --popover-foreground: #f0e6dd;
   --primary: #e8a87c;
   --primary-foreground: #1a1310;
@@ -362,7 +362,7 @@ code {
   --sidebar-border: #3a2a20;
   --sidebar-ring: #e8a87c;
 
-  --surface: #241a15;
+  --surface: #38281e;
   --surface-foreground: #f0e6dd;
   --surface-muted: #2e211a;
   --surface-muted-foreground: #c9b4a4;
