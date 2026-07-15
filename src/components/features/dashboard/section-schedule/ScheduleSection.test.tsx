@@ -33,6 +33,7 @@ const item = (
     joinLive: 'active',
     joinZoomLink: null,
     isNewZoomRedirection: false,
+    enableZoomWebView: false,
     showAttendance: false,
     assignmentStatusChip: null,
     assignmentDeadlineLabel: null,

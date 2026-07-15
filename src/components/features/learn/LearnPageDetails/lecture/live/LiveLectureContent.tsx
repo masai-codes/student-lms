@@ -25,6 +25,7 @@ function renderLiveHero(detail: LectureDetailPayload) {
           zoomLink={detail.zoomLink}
           joinLiveButtonState={detail.joinLiveButtonState ?? 'hidden'}
           isNewZoomRedirection={detail.isNewZoomRedirection}
+          enableZoomWebView={detail.enableZoomWebView}
         />
       )
     case 'after':

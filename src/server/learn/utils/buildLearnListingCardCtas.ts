@@ -6,7 +6,10 @@ import { resolveJoinLiveButtonState } from '@/server/learn/utils/resolveJoinLive
 import { resolveAssignmentListingStatusChip } from '@/server/learn/utils/resolveAssignmentListingStatusChip'
 import { computeDeadlineCountdown } from '@/server/learn/utils/computeDeadlineCountdown'
 import { scrubZoomLinkForSchedule } from '@/server/learn/utils/scrubZoomLinkForSchedule'
-import { toLectureScopedAdaptiveLink } from '@/server/learn/utils/toLectureScopedAdaptiveLink'
+import {
+  isAdaptiveLectureLink,
+  toLectureScopedAdaptiveLink,
+} from '@/server/learn/utils/toLectureScopedAdaptiveLink'
 import { parseIstToMs } from '@/server/time/istClock'
 
 export function buildLearnListingCardCtas(input: {
@@ -18,6 +21,8 @@ export function buildLearnListingCardCtas(input: {
   isMandatory: boolean
   zoomLink: string | null
   isNewZoomRedirection: boolean
+  /** `sections.settings.enableZoomWebView` — routes the join CTA to the old LMS embed. */
+  enableZoomWebView: boolean
   nowMs: number
   attendance: LectureAttendanceSummary | null
   assignmentProgressStatus: AssignmentProgressStatus | null
@@ -42,6 +47,7 @@ export function buildLearnListingCardCtas(input: {
       joinLive: 'hidden',
       joinZoomLink: null,
       isNewZoomRedirection: false,
+      enableZoomWebView: false,
       showAttendance: false,
       assignmentStatusChip: resolveAssignmentListingStatusChip(
         input.assignmentProgressStatus,
@@ -57,6 +63,7 @@ export function buildLearnListingCardCtas(input: {
       joinLive: 'hidden',
       joinZoomLink: null,
       isNewZoomRedirection: false,
+      enableZoomWebView: false,
       showAttendance: false,
       assignmentStatusChip: null,
       assignmentDeadlineLabel: null,
@@ -100,6 +107,13 @@ export function buildLearnListingCardCtas(input: {
     joinLive,
     joinZoomLink,
     isNewZoomRedirection: input.isNewZoomRedirection,
+    // Web View only applies to a shown, non-adaptive join link (SAL keeps its
+    // own redirect) that isn't a ZEF lecture; mirrors the old LMS join ladder.
+    enableZoomWebView:
+      input.enableZoomWebView &&
+      joinZoomLink != null &&
+      !input.isNewZoomRedirection &&
+      !isAdaptiveLectureLink(joinZoomLink),
     showAttendance,
     assignmentStatusChip: null,
     assignmentDeadlineLabel: null,

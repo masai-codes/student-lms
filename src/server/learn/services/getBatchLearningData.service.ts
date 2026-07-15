@@ -20,6 +20,7 @@ import {
   mapLearningEntityRow,
   toLearningPriority,
 } from '@/server/learn/utils/learningDataMappers'
+import { resolveEnableZoomWebView } from '@/server/learn/utils/resolveEnableZoomWebView'
 import {
   LEARN_LISTING_MAX_PAGE_SIZE,
   LEARN_LISTING_PAGE_SIZE,
@@ -76,6 +77,7 @@ function mapRowToItem(
     isMandatory: toLearningPriority(row.optional) === 'mandatory',
     zoomLink: row.zoomLink ?? null,
     isNewZoomRedirection: row.isNewZoomRedirection === 1,
+    enableZoomWebView: resolveEnableZoomWebView(row.sectionSettings),
     nowMs,
     attendance,
     assignmentProgressStatus,
