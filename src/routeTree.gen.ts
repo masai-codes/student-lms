@@ -150,6 +150,7 @@ import { Route as protectedLayoutCourseBatchIdRouteRouteImport } from './routes/
 import { Route as protectedLayoutAssignmentsAssignmentIdRouteRouteImport } from './routes/(protected)/_layout/assignments_/$assignmentId/route'
 import { Route as protectedLayoutAnnouncementsIdRouteRouteImport } from './routes/(protected)/_layout/announcements_/$id/route'
 import { Route as ApiAiTutorChatConversationsIndexRouteImport } from './routes/api/ai-tutor/chat/conversations/index'
+import { Route as ApiAiTutorLecturesLectureIdIngestRouteImport } from './routes/api/ai-tutor/lectures/$lectureId/ingest'
 import { Route as protectedLayoutSupportSupportIdIndexRouteImport } from './routes/(protected)/_layout/support/$supportId/index'
 import { Route as ApiLearnSubmissionsSubmissionIdViewOnPlatformRouteImport } from './routes/api/learn/submissions/$submissionId/view-on-platform'
 import { Route as ApiLearnSolutionsSolutionIdFileRouteImport } from './routes/api/learn/solutions/$solutionId/file'
@@ -1100,6 +1101,12 @@ const ApiLearnAiChatLectureIdHistoryRoute =
     path: '/api/learn/ai-chat/$lectureId/history',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiAiTutorLecturesLectureIdIngestRoute =
+  ApiAiTutorLecturesLectureIdIngestRouteImport.update({
+    id: '/api/ai-tutor/lectures/$lectureId/ingest',
+    path: '/api/ai-tutor/lectures/$lectureId/ingest',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiAiTutorChatFeedbackMigrateRatingsRoute =
   ApiAiTutorChatFeedbackMigrateRatingsRouteImport.update({
     id: '/migrate-ratings',
@@ -1289,6 +1296,7 @@ export interface FileRoutesByFullPath {
   '/masaiverse/event/$eventId': typeof protectedLayoutMasaiverseEventEventIdRoute
   '/api/ai-tutor/chat/conversations/$chatId': typeof ApiAiTutorChatConversationsChatIdRoute
   '/api/ai-tutor/chat/feedback/migrate-ratings': typeof ApiAiTutorChatFeedbackMigrateRatingsRoute
+  '/api/ai-tutor/lectures/$lectureId/ingest': typeof ApiAiTutorLecturesLectureIdIngestRoute
   '/api/learn/ai-chat/$lectureId/history': typeof ApiLearnAiChatLectureIdHistoryRoute
   '/api/learn/ai-chat/$lectureId/send': typeof ApiLearnAiChatLectureIdSendRoute
   '/api/learn/ai-tutor/$lectureId/dispatch': typeof ApiLearnAiTutorLectureIdDispatchRoute
@@ -1459,6 +1467,7 @@ export interface FileRoutesByTo {
   '/masaiverse/event/$eventId': typeof protectedLayoutMasaiverseEventEventIdRoute
   '/api/ai-tutor/chat/conversations/$chatId': typeof ApiAiTutorChatConversationsChatIdRoute
   '/api/ai-tutor/chat/feedback/migrate-ratings': typeof ApiAiTutorChatFeedbackMigrateRatingsRoute
+  '/api/ai-tutor/lectures/$lectureId/ingest': typeof ApiAiTutorLecturesLectureIdIngestRoute
   '/api/learn/ai-chat/$lectureId/history': typeof ApiLearnAiChatLectureIdHistoryRoute
   '/api/learn/ai-chat/$lectureId/send': typeof ApiLearnAiChatLectureIdSendRoute
   '/api/learn/ai-tutor/$lectureId/dispatch': typeof ApiLearnAiTutorLectureIdDispatchRoute
@@ -1632,6 +1641,7 @@ export interface FileRoutesById {
   '/(protected)/_layout/masaiverse/event/$eventId': typeof protectedLayoutMasaiverseEventEventIdRoute
   '/api/ai-tutor/chat/conversations/$chatId': typeof ApiAiTutorChatConversationsChatIdRoute
   '/api/ai-tutor/chat/feedback/migrate-ratings': typeof ApiAiTutorChatFeedbackMigrateRatingsRoute
+  '/api/ai-tutor/lectures/$lectureId/ingest': typeof ApiAiTutorLecturesLectureIdIngestRoute
   '/api/learn/ai-chat/$lectureId/history': typeof ApiLearnAiChatLectureIdHistoryRoute
   '/api/learn/ai-chat/$lectureId/send': typeof ApiLearnAiChatLectureIdSendRoute
   '/api/learn/ai-tutor/$lectureId/dispatch': typeof ApiLearnAiTutorLectureIdDispatchRoute
@@ -1805,6 +1815,7 @@ export interface FileRouteTypes {
     | '/masaiverse/event/$eventId'
     | '/api/ai-tutor/chat/conversations/$chatId'
     | '/api/ai-tutor/chat/feedback/migrate-ratings'
+    | '/api/ai-tutor/lectures/$lectureId/ingest'
     | '/api/learn/ai-chat/$lectureId/history'
     | '/api/learn/ai-chat/$lectureId/send'
     | '/api/learn/ai-tutor/$lectureId/dispatch'
@@ -1975,6 +1986,7 @@ export interface FileRouteTypes {
     | '/masaiverse/event/$eventId'
     | '/api/ai-tutor/chat/conversations/$chatId'
     | '/api/ai-tutor/chat/feedback/migrate-ratings'
+    | '/api/ai-tutor/lectures/$lectureId/ingest'
     | '/api/learn/ai-chat/$lectureId/history'
     | '/api/learn/ai-chat/$lectureId/send'
     | '/api/learn/ai-tutor/$lectureId/dispatch'
@@ -2147,6 +2159,7 @@ export interface FileRouteTypes {
     | '/(protected)/_layout/masaiverse/event/$eventId'
     | '/api/ai-tutor/chat/conversations/$chatId'
     | '/api/ai-tutor/chat/feedback/migrate-ratings'
+    | '/api/ai-tutor/lectures/$lectureId/ingest'
     | '/api/learn/ai-chat/$lectureId/history'
     | '/api/learn/ai-chat/$lectureId/send'
     | '/api/learn/ai-tutor/$lectureId/dispatch'
@@ -2284,6 +2297,7 @@ export interface RootRouteChildren {
   ApiProfileEmailPreferencesIndexRoute: typeof ApiProfileEmailPreferencesIndexRoute
   ApiWhatsNewIdIndexRoute: typeof ApiWhatsNewIdIndexRoute
   ApiAiTutorChatConversationsChatIdRoute: typeof ApiAiTutorChatConversationsChatIdRoute
+  ApiAiTutorLecturesLectureIdIngestRoute: typeof ApiAiTutorLecturesLectureIdIngestRoute
   ApiLearnAiChatLectureIdHistoryRoute: typeof ApiLearnAiChatLectureIdHistoryRoute
   ApiLearnAiChatLectureIdSendRoute: typeof ApiLearnAiChatLectureIdSendRoute
   ApiLearnAiTutorLectureIdDispatchRoute: typeof ApiLearnAiTutorLectureIdDispatchRoute
@@ -3436,6 +3450,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiLearnAiChatLectureIdHistoryRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/ai-tutor/lectures/$lectureId/ingest': {
+      id: '/api/ai-tutor/lectures/$lectureId/ingest'
+      path: '/api/ai-tutor/lectures/$lectureId/ingest'
+      fullPath: '/api/ai-tutor/lectures/$lectureId/ingest'
+      preLoaderRoute: typeof ApiAiTutorLecturesLectureIdIngestRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/ai-tutor/chat/feedback/migrate-ratings': {
       id: '/api/ai-tutor/chat/feedback/migrate-ratings'
       path: '/migrate-ratings'
@@ -3889,6 +3910,8 @@ const rootRouteChildren: RootRouteChildren = {
   ApiWhatsNewIdIndexRoute: ApiWhatsNewIdIndexRoute,
   ApiAiTutorChatConversationsChatIdRoute:
     ApiAiTutorChatConversationsChatIdRoute,
+  ApiAiTutorLecturesLectureIdIngestRoute:
+    ApiAiTutorLecturesLectureIdIngestRoute,
   ApiLearnAiChatLectureIdHistoryRoute: ApiLearnAiChatLectureIdHistoryRoute,
   ApiLearnAiChatLectureIdSendRoute: ApiLearnAiChatLectureIdSendRoute,
   ApiLearnAiTutorLectureIdDispatchRoute: ApiLearnAiTutorLectureIdDispatchRoute,

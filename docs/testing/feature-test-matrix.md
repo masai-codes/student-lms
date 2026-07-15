@@ -218,8 +218,8 @@ Last updated: 2026-07-09
 
 - Area: Authenticated SSE chat stub (`src/routes/api/ai-tutor/chat/stream.ts`, `src/server/api/ai-tutor/**`, `src/server/api/http/sse.ts`)
 - Status: Covered
-- Test files: `src/server/api/ai-tutor/__tests__/stream*.test.ts`, `src/server/api/http/__tests__/sse.test.ts`
-- Notes: `POST /api/ai-tutor/chat/stream` requires a session cookie, accepts `{ lectureId, chat, chatID?, platform?, language? }` (`platform`: `ios` | `android` | `web` | `web-mobile` | `web-desktop` | `app`), reads/writes `ai_chat_practice_questions`, loads lecture summary from `lectures_ai`, streams Claude output as SSE token events, persists each turn with optional `platform` and `language` on `chatHistory`, enforces reply language when `language` is set, and returns `{ type: "done", chatId }`.
+- Test files: `src/server/api/ai-tutor/__tests__/stream*.test.ts`, `src/server/api/http/__tests__/sse.test.ts`, `src/server/api/ai-tutor/__tests__/{buildLectureChatPrompt,buildNotesOutline,formatLectureSharedResources,getLectureChatMaterials.service,parseLectureZoomChatResources,retrieveLectureRagChunks.service,retrieveLectureContent.tool}.test.ts`
+- Notes: `POST /api/ai-tutor/chat/stream` requires a session cookie, accepts `{ lectureId, chat, chatID?, platform?, language? }`, reads/writes `ai_chat_practice_questions`, loads `lectures.title`, `lectures_ai.summary`, instructor notes, and parsed `lecture_zoom_chat.final_chat` resources into the system prompt (inline notes when `<= 10k` chars, outline when longer), exposes a `retrieveLectureContent` tool (`query`, `top_k`) for LLM-driven RAG retrieval from ingested notes/transcript, streams Claude output as SSE token events, persists each turn with optional `platform` and `language` on `chatHistory`, enforces reply language when `language` is set, and returns `{ type: "done", chatId }`.
 
 ## AI Tutor chat conversations
 
@@ -269,6 +269,11 @@ Last updated: 2026-07-09
 - Status: Covered (graph build + BFS traversal + node-key utils + card-item builders + service across all start kinds/edge cases + shared item→card mapper + grouped card UI + card analytics source)
 - Test files: `src/server/learn/utils/__tests__/associationGraphTypes.test.ts`, `src/server/learn/utils/__tests__/buildAssociationGraph.test.ts`, `src/server/learn/utils/__tests__/collectAssociatedNodeKeys.test.ts`, `src/server/learn/utils/__tests__/buildAssociatedLearningItems.test.ts`, `src/server/learn/services/__tests__/getAllAssociatedEntities.service.test.ts`, `src/components/features/learn/shared/__tests__/mapLearningItemToContent.test.ts`, `src/components/features/learn/LearnPageDetails/common/associated/__tests__/AssociatedContentList.test.tsx`, `src/components/features/learn/section-three/content-card/__tests__/LearnContentCard.test.tsx`
 - Notes: See `docs/testing/features/associated-content.md`
+## AI Tutor RAG lecture ingestion
+- Area: Internal lecture notes preparation (`src/routes/api/ai-tutor/lectures/$lectureId/ingest.ts`, `src/server/api/ai-tutor/**`)
+- Status: Covered
+- Test files: `src/server/api/ai-tutor/__tests__/{ragPlatform,lectureRagContent.service,ingestLectureRag.service,ingestLectureRag.handler,generateLectureNotesTocFromMarkdown,lectureNotesTocData}.test.ts`
+- Notes: `GET /api/ai-tutor/lectures/:lectureId/ingest` is protected by `x-ai-tutor-rag-ingest-secret`. For notes above 10,000 characters it generates a Claude TOC, stores `lectures.data.notesRagged = true` and `lectures.data.aiTutorNotesToc`, and enqueues RAG ingestion. For shorter notes it stores `lectures.data.notesRagged = false` and skips TOC/RAG.
 
 ## Status Meaning
 
