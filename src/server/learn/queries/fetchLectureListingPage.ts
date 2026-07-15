@@ -5,7 +5,7 @@ import type { LearningPagination } from '@/server/learn/types'
 import type { LearningEntityRow } from '@/server/learn/utils/learningDataMappers'
 import type { LearnListingConditionsInput } from '@/server/learn/utils/buildLearnListingConditions'
 import { db } from '@/db'
-import { lectures, users } from '@/db/schema'
+import { lectures, sections, users } from '@/db/schema'
 import { buildLectureListingConditions } from '@/server/learn/utils/buildLearnListingConditions'
 import { toMysqlUtc } from '@/server/learn/utils/buildLearnScheduleWindow'
 import { IST_OFFSET_MS } from '@/server/learn/utils/learnListingConstants'
@@ -115,9 +115,11 @@ export async function fetchLectureListingPage(
       hostName: users.name,
       zoomLink: lectures.zoomLink,
       isNewZoomRedirection: lectures.isNewZoomRedirection,
+      sectionSettings: sections.settings,
     })
     .from(lectures)
     .leftJoin(users, eq(lectures.hostId, users.id))
+    .leftJoin(sections, eq(lectures.sectionId, sections.id))
     .where(where)
     .orderBy(...buildLectureListingOrderBy(input.nowMs))
     .limit(input.pageSize)

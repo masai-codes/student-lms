@@ -44,6 +44,11 @@ export interface LearnListingCardCtas {
   joinZoomLink: string | null
   /** When true, join via the ZEF redirect flow instead of the raw zoom link. */
   isNewZoomRedirection: boolean
+  /**
+   * `sections.settings.enableZoomWebView`. When true (non-adaptive, non-ZEF
+   * link), the join CTA opens the old LMS embedded Zoom page (`/lectures/:id/zoom`).
+   */
+  enableZoomWebView: boolean
   showAttendance: boolean
   assignmentStatusChip: AssignmentListingStatusChip
   /** "N days/hours remaining" until an assignment deadline; null otherwise. */

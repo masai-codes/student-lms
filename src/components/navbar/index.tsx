@@ -16,6 +16,7 @@ export function Navbar({
   profile,
   trailingActions,
   centerSlot,
+  actionsSlot,
   className,
 }: NavbarProps) {
   return (
@@ -40,6 +41,7 @@ export function Navbar({
         <div className="flex shrink-0 items-center gap-4">
           {centerSlot ?? null}
           <NavbarTrailingActions items={trailingActions ?? []} />
+          {actionsSlot ?? null}
           <ThemeSwitcher />
           <NavbarProfileMenu profile={profile} />
         </div>

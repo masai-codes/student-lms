@@ -12,6 +12,7 @@ type DuringLiveLectureProps = {
   zoomLink: string | null
   joinLiveButtonState: JoinLiveButtonState
   isNewZoomRedirection: boolean
+  enableZoomWebView: boolean
 }
 
 export function DuringLiveLecture({
@@ -20,6 +21,7 @@ export function DuringLiveLecture({
   zoomLink,
   joinLiveButtonState,
   isNewZoomRedirection,
+  enableZoomWebView,
 }: DuringLiveLectureProps) {
   return (
     <LectureStatePanel
@@ -37,6 +39,7 @@ export function DuringLiveLecture({
               zoomLink={zoomLink}
               buttonState={joinLiveButtonState}
               isNewZoomRedirection={isNewZoomRedirection}
+              enableZoomWebView={enableZoomWebView}
             />
           ) : (
             <p className="type-b2-regular max-w-sm text-foreground-muted">

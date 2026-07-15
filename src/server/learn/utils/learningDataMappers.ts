@@ -25,6 +25,8 @@ export interface LearningEntityRow {
   zoomLink?: string | null
   /** `lectures.is_new_zoom_redirection` (tinyint 0/1); ZEF join flow when 1. */
   isNewZoomRedirection?: number | null
+  /** `sections.settings` JSON; read for `enableZoomWebView` on live join CTAs. */
+  sectionSettings?: unknown
 }
 
 export function toLearningPriority(optional: number | null): LearningPriority {

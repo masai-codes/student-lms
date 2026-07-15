@@ -24,6 +24,17 @@ behavior restored.
   derived from the filtered subset.
 - Assignment progress status is computed in app code (derived from time +
   submission state) and applied to the SQL-narrowed set, then paginated.
+- **Join Live CTA (live/scrum cards):** `buildLearnListingCardCtas` resolves
+  `joinLive`/`joinZoomLink`/`isNewZoomRedirection` plus **`enableZoomWebView`**
+  (from `sections.settings` via the `sections` join in `fetchLectureListingPage`).
+  The card CTA (`LearnListingJoinLiveCta`) mirrors the lecture-detail join ladder:
+  ZEF redirect → **Zoom Web View** (opens the old LMS embed
+  `${getOldStudentUiUrlFromEnv()}/lectures/:id/zoom` via `buildZoomWebViewUrl`) →
+  raw/adaptive link. Web View is only flagged for a shown, non-adaptive, non-ZEF
+  link; it falls back to the raw link when the legacy base is unresolved. Analytics
+  tag `join_method`. The same builder feeds associated-item cards
+  (`buildAssociatedLearningItems`) and the dashboard schedule
+  (`buildDashboardScheduleItem`).
 
 ## Test files
 
@@ -37,6 +48,8 @@ behavior restored.
 | Assignment query (progress compute + filter + paginate)     | `src/server/learn/queries/__tests__/fetchAssignmentListingPage.test.ts`    |
 | Facet queries (distinct, sorted, week/unknown fallbacks)    | `src/server/learn/queries/__tests__/fetchLearnListingFacets.test.ts`       |
 | Service orchestration (lecture/assignment/resource mapping) | `src/server/learn/__tests__/getBatchLearningData.service.test.ts`          |
+| Card CTA resolver (join state + Zoom Web View gate)          | `src/server/learn/utils/__tests__/buildLearnListingCardCtas.test.ts`       |
+| Join Live CTA component (ZEF / Web View / raw / fallback)    | `src/components/features/learn/section-three/content-card/__tests__/LearnListingJoinLiveCta.test.tsx` |
 | Combined page service (batches + selected batch + listing)  | `src/server/learn/__tests__/getLearnPageData.service.test.ts`              |
 | Page query parser (optional batchId)                        | `src/server/api/learn/utils/__tests__/parseLearnPageQuery.test.ts`         |
 | Page endpoint handler                                       | `src/server/api/learn/handlers/__tests__/getLearnPageData.handler.test.ts` |

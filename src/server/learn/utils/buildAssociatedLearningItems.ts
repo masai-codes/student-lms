@@ -9,6 +9,7 @@ import {
   mapLearningEntityRow,
   toLearningPriority,
 } from '@/server/learn/utils/learningDataMappers'
+import { resolveEnableZoomWebView } from '@/server/learn/utils/resolveEnableZoomWebView'
 import { resolveAssignmentPhase } from '@/server/learn/utils/resolveAssignmentPhase'
 import { resolveLectureLearningType } from '@/server/learn/utils/resolveLectureLearningType'
 import { resolveReleasedAssignmentScore } from '@/server/learn/utils/resolveReleasedAssignmentScore'
@@ -29,6 +30,7 @@ export type AssociatedLectureRow = {
   hostName: string | null
   zoomLink: string | null
   isNewZoomRedirection: number | null
+  sectionSettings?: unknown
 }
 
 export type AssociatedAssignmentRow = {
@@ -66,6 +68,7 @@ export function buildAssociatedLectureItem(
     isMandatory: toLearningPriority(row.optional) === 'mandatory',
     zoomLink: row.zoomLink,
     isNewZoomRedirection: row.isNewZoomRedirection === 1,
+    enableZoomWebView: resolveEnableZoomWebView(row.sectionSettings),
     nowMs,
     attendance,
     assignmentProgressStatus: null,
@@ -118,6 +121,7 @@ export function buildAssociatedAssignmentItem(
     isMandatory: toLearningPriority(row.optional) === 'mandatory',
     zoomLink: null,
     isNewZoomRedirection: false,
+    enableZoomWebView: false,
     nowMs,
     attendance: null,
     assignmentProgressStatus,

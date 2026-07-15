@@ -48,6 +48,7 @@ function makeItem(
       joinLive: 'hidden',
       joinZoomLink: null,
       isNewZoomRedirection: false,
+      enableZoomWebView: false,
       showAttendance: false,
       assignmentStatusChip: null,
       assignmentDeadlineLabel: null,

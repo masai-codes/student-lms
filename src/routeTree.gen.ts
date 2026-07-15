@@ -31,6 +31,7 @@ import { Route as ApiSupportOverviewRouteImport } from './routes/api/support/ove
 import { Route as ApiSupportFaqsRouteImport } from './routes/api/support/faqs'
 import { Route as ApiProfilePhotoUploadUrlRouteImport } from './routes/api/profile/photo-upload-url'
 import { Route as ApiProfilePhotoRouteImport } from './routes/api/profile/photo'
+import { Route as ApiProfileNewLmsPagesRouteImport } from './routes/api/profile/new-lms-pages'
 import { Route as ApiProfileAchievementsRouteImport } from './routes/api/profile/achievements'
 import { Route as ApiMessageUploadRouteImport } from './routes/api/message/upload'
 import { Route as ApiMasaiverseV2VisitedRouteImport } from './routes/api/masaiverse-v2/visited'
@@ -287,6 +288,11 @@ const ApiProfilePhotoUploadUrlRoute =
 const ApiProfilePhotoRoute = ApiProfilePhotoRouteImport.update({
   id: '/api/profile/photo',
   path: '/api/profile/photo',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiProfileNewLmsPagesRoute = ApiProfileNewLmsPagesRouteImport.update({
+  id: '/api/profile/new-lms-pages',
+  path: '/api/profile/new-lms-pages',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiProfileAchievementsRoute = ApiProfileAchievementsRouteImport.update({
@@ -1164,6 +1170,7 @@ export interface FileRoutesByFullPath {
   '/api/masaiverse-v2/visited': typeof ApiMasaiverseV2VisitedRoute
   '/api/message/upload': typeof ApiMessageUploadRoute
   '/api/profile/achievements': typeof ApiProfileAchievementsRoute
+  '/api/profile/new-lms-pages': typeof ApiProfileNewLmsPagesRoute
   '/api/profile/photo': typeof ApiProfilePhotoRoute
   '/api/profile/photo-upload-url': typeof ApiProfilePhotoUploadUrlRoute
   '/api/support/faqs': typeof ApiSupportFaqsRouteWithChildren
@@ -1332,6 +1339,7 @@ export interface FileRoutesByTo {
   '/api/masaiverse-v2/visited': typeof ApiMasaiverseV2VisitedRoute
   '/api/message/upload': typeof ApiMessageUploadRoute
   '/api/profile/achievements': typeof ApiProfileAchievementsRoute
+  '/api/profile/new-lms-pages': typeof ApiProfileNewLmsPagesRoute
   '/api/profile/photo': typeof ApiProfilePhotoRoute
   '/api/profile/photo-upload-url': typeof ApiProfilePhotoUploadUrlRoute
   '/api/support/faqs': typeof ApiSupportFaqsRouteWithChildren
@@ -1503,6 +1511,7 @@ export interface FileRoutesById {
   '/api/masaiverse-v2/visited': typeof ApiMasaiverseV2VisitedRoute
   '/api/message/upload': typeof ApiMessageUploadRoute
   '/api/profile/achievements': typeof ApiProfileAchievementsRoute
+  '/api/profile/new-lms-pages': typeof ApiProfileNewLmsPagesRoute
   '/api/profile/photo': typeof ApiProfilePhotoRoute
   '/api/profile/photo-upload-url': typeof ApiProfilePhotoUploadUrlRoute
   '/api/support/faqs': typeof ApiSupportFaqsRouteWithChildren
@@ -1674,6 +1683,7 @@ export interface FileRouteTypes {
     | '/api/masaiverse-v2/visited'
     | '/api/message/upload'
     | '/api/profile/achievements'
+    | '/api/profile/new-lms-pages'
     | '/api/profile/photo'
     | '/api/profile/photo-upload-url'
     | '/api/support/faqs'
@@ -1842,6 +1852,7 @@ export interface FileRouteTypes {
     | '/api/masaiverse-v2/visited'
     | '/api/message/upload'
     | '/api/profile/achievements'
+    | '/api/profile/new-lms-pages'
     | '/api/profile/photo'
     | '/api/profile/photo-upload-url'
     | '/api/support/faqs'
@@ -2012,6 +2023,7 @@ export interface FileRouteTypes {
     | '/api/masaiverse-v2/visited'
     | '/api/message/upload'
     | '/api/profile/achievements'
+    | '/api/profile/new-lms-pages'
     | '/api/profile/photo'
     | '/api/profile/photo-upload-url'
     | '/api/support/faqs'
@@ -2180,6 +2192,7 @@ export interface RootRouteChildren {
   ApiMasaiverseV2VisitedRoute: typeof ApiMasaiverseV2VisitedRoute
   ApiMessageUploadRoute: typeof ApiMessageUploadRoute
   ApiProfileAchievementsRoute: typeof ApiProfileAchievementsRoute
+  ApiProfileNewLmsPagesRoute: typeof ApiProfileNewLmsPagesRoute
   ApiProfilePhotoRoute: typeof ApiProfilePhotoRoute
   ApiProfilePhotoUploadUrlRoute: typeof ApiProfilePhotoUploadUrlRoute
   ApiSupportFaqsRoute: typeof ApiSupportFaqsRouteWithChildren
@@ -2421,6 +2434,13 @@ declare module '@tanstack/react-router' {
       path: '/api/profile/photo'
       fullPath: '/api/profile/photo'
       preLoaderRoute: typeof ApiProfilePhotoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/profile/new-lms-pages': {
+      id: '/api/profile/new-lms-pages'
+      path: '/api/profile/new-lms-pages'
+      fullPath: '/api/profile/new-lms-pages'
+      preLoaderRoute: typeof ApiProfileNewLmsPagesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/profile/achievements': {
@@ -3763,6 +3783,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiMasaiverseV2VisitedRoute: ApiMasaiverseV2VisitedRoute,
   ApiMessageUploadRoute: ApiMessageUploadRoute,
   ApiProfileAchievementsRoute: ApiProfileAchievementsRoute,
+  ApiProfileNewLmsPagesRoute: ApiProfileNewLmsPagesRoute,
   ApiProfilePhotoRoute: ApiProfilePhotoRoute,
   ApiProfilePhotoUploadUrlRoute: ApiProfilePhotoUploadUrlRoute,
   ApiSupportFaqsRoute: ApiSupportFaqsRouteWithChildren,

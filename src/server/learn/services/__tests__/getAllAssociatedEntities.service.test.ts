@@ -6,19 +6,29 @@ const hoisted = vi.hoisted(() => ({
   fetchSubmissions: vi.fn(),
 }))
 
-vi.mock('@/db', () => ({
-  db: {
-    select: () => ({
-      from: () => ({
-        leftJoin: () => ({
-          where: () => Promise.resolve(hoisted.selectQueue.shift() ?? []),
-        }),
-      }),
-    }),
-  },
-}))
+vi.mock('@/db', () => {
+  // `leftJoin` is chainable (lecture query joins users + sections; assignment
+  // joins only users), so it returns itself and `where` resolves the queue.
+  const chain: {
+    leftJoin: () => typeof chain
+    where: () => Promise<Array<Record<string, unknown>>>
+  } = {
+    leftJoin: () => chain,
+    where: () => Promise.resolve(hoisted.selectQueue.shift() ?? []),
+  }
+  return {
+    db: {
+      select: () => ({ from: () => chain }),
+    },
+  }
+})
 
-vi.mock('@/db/schema', () => ({ lectures: {}, assignments: {}, users: {} }))
+vi.mock('@/db/schema', () => ({
+  lectures: {},
+  assignments: {},
+  sections: {},
+  users: {},
+}))
 
 vi.mock('@/server/attendance/services/fetchLectureAttendanceSummaries', () => ({
   fetchLectureAttendanceSummaries: hoisted.fetchAttendance,

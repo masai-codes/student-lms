@@ -30,6 +30,7 @@ function learningItem(overrides: Partial<LearningItem> = {}): LearningItem {
       joinLive: 'hidden',
       joinZoomLink: null,
       isNewZoomRedirection: false,
+      enableZoomWebView: false,
       showAttendance: false,
       assignmentStatusChip: 'completed',
       assignmentDeadlineLabel: '2 days remaining',

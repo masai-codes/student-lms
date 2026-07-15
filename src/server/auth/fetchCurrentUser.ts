@@ -45,6 +45,7 @@ export const fetchCurrentUser = createServerFn({ method: 'GET' }).handler(
       role: string | null
       status: string | null
       profileImage: string | null
+      newLmsPagesEnabled: number | boolean | string | null
     }>(
       await db.execute(sql`
       SELECT
@@ -54,6 +55,7 @@ export const fetchCurrentUser = createServerFn({ method: 'GET' }).handler(
         u.mobile,
         u.role,
         u.status,
+        JSON_EXTRACT(u.meta, '$.new_lms_pages_enabled') AS newLmsPagesEnabled,
         COALESCE(
           JSON_UNQUOTE(JSON_EXTRACT(pr.meta, '$.profile_pic')),
           JSON_UNQUOTE(JSON_EXTRACT(u.meta, '$.profile_pic')),
@@ -95,6 +97,12 @@ export const fetchCurrentUser = createServerFn({ method: 'GET' }).handler(
       mobile: row.mobile,
       role: row.role,
       profileImageUrl: pickProfileImageUrl(row.profileImage),
+      // JSON_EXTRACT of a boolean can surface as true/1/"true" depending on the
+      // driver; treat any of those truthy encodings as enabled.
+      newLmsPagesEnabled:
+        row.newLmsPagesEnabled === true ||
+        row.newLmsPagesEnabled === 1 ||
+        row.newLmsPagesEnabled === 'true',
       joinedClubId:
         membershipRows[0]?.clubId != null
           ? String(membershipRows[0].clubId)

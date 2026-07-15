@@ -1,7 +1,7 @@
 import { and, eq, inArray, isNull } from 'drizzle-orm'
 
 import { db } from '@/db'
-import { assignments, lectures, users } from '@/db/schema'
+import { assignments, lectures, sections, users } from '@/db/schema'
 import { fetchLectureAttendanceSummaries } from '@/server/attendance/services/fetchLectureAttendanceSummaries'
 import type { LearningItem } from '@/server/learn/types'
 import { fetchLatestSubmissionByAssignment } from '@/server/learn/queries/fetchLatestSubmissionByAssignment'
@@ -36,6 +36,7 @@ const lectureColumns = {
   hostName: users.name,
   zoomLink: lectures.zoomLink,
   isNewZoomRedirection: lectures.isNewZoomRedirection,
+  sectionSettings: sections.settings,
   data: lectures.data,
 }
 
@@ -97,6 +98,7 @@ export async function getAllAssociatedEntities(input: {
       .select(lectureColumns)
       .from(lectures)
       .leftJoin(users, eq(lectures.hostId, users.id))
+      .leftJoin(sections, eq(lectures.sectionId, sections.id))
       .where(
         and(
           eq(lectures.sectionId, input.sectionId),
@@ -193,6 +195,7 @@ async function resolveDirectForwardItems(input: {
     .select(lectureColumns)
     .from(lectures)
     .leftJoin(users, eq(lectures.hostId, users.id))
+    .leftJoin(sections, eq(lectures.sectionId, sections.id))
     .where(and(inArray(lectures.id, forwardIds), isNull(lectures.deletedAt)))
 
   const attendanceByLectureId = await fetchLectureAttendanceSummaries(

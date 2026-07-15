@@ -56,7 +56,10 @@ export function buildLectureDetailPayload(
   attendance: LectureAttendanceSummary | null,
   optionalAttendance: LectureAttendanceSummary | null,
   feedbackRecord: { rating: number | null; text: string | null },
-): Omit<LectureDetailPayload, 'isBookmarked' | 'isNewZoomRedirection'> {
+): Omit<
+  LectureDetailPayload,
+  'isBookmarked' | 'isNewZoomRedirection' | 'enableZoomWebView'
+> {
   const lectureKind = normalizeLectureKind(row.type)
   if (lectureKind == null) {
     throw new Error('LECTURE_DETAIL_UNSUPPORTED_TYPE')

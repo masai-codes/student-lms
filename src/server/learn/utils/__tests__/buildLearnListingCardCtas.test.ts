@@ -15,6 +15,7 @@ describe('buildLearnListingCardCtas', () => {
       isMandatory: true,
       zoomLink: 'https://zoom.example/j/1',
       isNewZoomRedirection: false,
+      enableZoomWebView: false,
       nowMs,
       attendance: null,
       assignmentProgressStatus: null,
@@ -24,6 +25,64 @@ describe('buildLearnListingCardCtas', () => {
     expect(ctas.joinLive).toBe('active')
     expect(ctas.showAttendance).toBe(false)
     expect(ctas.joinZoomLink).toBe('https://zoom.example/j/1')
+    expect(ctas.enableZoomWebView).toBe(false)
+  })
+
+  it('flags Zoom Web View for a shown, non-adaptive, non-ZEF live link', () => {
+    const ctas = buildLearnListingCardCtas({
+      learningType: 'lecture',
+      lectureId: 1,
+      itemType: 'live',
+      schedule: '2026-05-11T10:00:00.000Z',
+      concludes: '2026-05-11T12:00:00.000Z',
+      isMandatory: true,
+      zoomLink: 'https://zoom.example/j/1',
+      isNewZoomRedirection: false,
+      enableZoomWebView: true,
+      nowMs,
+      attendance: null,
+      assignmentProgressStatus: null,
+      assignmentScore: null,
+    })
+
+    expect(ctas.joinLive).toBe('active')
+    expect(ctas.enableZoomWebView).toBe(true)
+  })
+
+  it('does not flag Zoom Web View for adaptive (SAL) or ZEF links', () => {
+    const adaptive = buildLearnListingCardCtas({
+      learningType: 'lecture',
+      lectureId: 1,
+      itemType: 'live',
+      schedule: '2026-05-11T10:00:00.000Z',
+      concludes: '2026-05-11T12:00:00.000Z',
+      isMandatory: true,
+      zoomLink: 'https://api.example.com/api/adaptive-lecture/9/join',
+      isNewZoomRedirection: false,
+      enableZoomWebView: true,
+      nowMs,
+      attendance: null,
+      assignmentProgressStatus: null,
+      assignmentScore: null,
+    })
+    expect(adaptive.enableZoomWebView).toBe(false)
+
+    const zef = buildLearnListingCardCtas({
+      learningType: 'lecture',
+      lectureId: 1,
+      itemType: 'live',
+      schedule: '2026-05-11T10:00:00.000Z',
+      concludes: '2026-05-11T12:00:00.000Z',
+      isMandatory: true,
+      zoomLink: 'https://zoom.example/j/1',
+      isNewZoomRedirection: true,
+      enableZoomWebView: true,
+      nowMs,
+      attendance: null,
+      assignmentProgressStatus: null,
+      assignmentScore: null,
+    })
+    expect(zef.enableZoomWebView).toBe(false)
   })
 
   it('shows attendance only after the session has ended', () => {
@@ -37,6 +96,7 @@ describe('buildLearnListingCardCtas', () => {
       isMandatory: true,
       zoomLink: 'https://zoom.example/j/1',
       isNewZoomRedirection: false,
+      enableZoomWebView: false,
       nowMs: endedNow,
       attendance: {
         overallStatus: 0,
@@ -70,6 +130,7 @@ describe('buildLearnListingCardCtas', () => {
       isMandatory: true,
       zoomLink: null,
       isNewZoomRedirection: false,
+      enableZoomWebView: false,
       nowMs,
       attendance: null,
       assignmentProgressStatus: 'new',
@@ -89,6 +150,7 @@ describe('buildLearnListingCardCtas', () => {
       isMandatory: true,
       zoomLink: null,
       isNewZoomRedirection: false,
+      enableZoomWebView: false,
       nowMs,
       attendance: null,
       assignmentProgressStatus: 'in-progress',
@@ -108,6 +170,7 @@ describe('buildLearnListingCardCtas', () => {
       isMandatory: true,
       zoomLink: null,
       isNewZoomRedirection: false,
+      enableZoomWebView: false,
       nowMs,
       attendance: null,
       assignmentProgressStatus: 'completed',
@@ -127,6 +190,7 @@ describe('buildLearnListingCardCtas', () => {
       isMandatory: true,
       zoomLink: null,
       isNewZoomRedirection: false,
+      enableZoomWebView: false,
       nowMs,
       attendance: null,
       assignmentProgressStatus: 'new',
@@ -146,6 +210,7 @@ describe('buildLearnListingCardCtas', () => {
       isMandatory: true,
       zoomLink: null,
       isNewZoomRedirection: false,
+      enableZoomWebView: false,
       nowMs,
       attendance: null,
       assignmentProgressStatus: null,
