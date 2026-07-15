@@ -62,9 +62,11 @@ export function VideoAttendanceCustomControls({
     number | null
   >(null)
   const [chromeVisible, setChromeVisible] = useState(true)
+  const [overflowMenuOpen, setOverflowMenuOpen] = useState(false)
   const hideTimerRef = useRef<number | null>(null)
   const lastPointerMoveWakeAtRef = useRef(0)
   const isPlayingRef = useRef(isPlaying)
+  const overflowMenuOpenRef = useRef(overflowMenuOpen)
 
   const displaySecondsRaw =
     scrubPreviewSeconds !== null
@@ -87,6 +89,10 @@ export function VideoAttendanceCustomControls({
     isPlayingRef.current = isPlaying
   }, [isPlaying])
 
+  useEffect(() => {
+    overflowMenuOpenRef.current = overflowMenuOpen
+  }, [overflowMenuOpen])
+
   const clearHideTimer = useCallback(() => {
     if (hideTimerRef.current !== null) {
       window.clearTimeout(hideTimerRef.current)
@@ -97,9 +103,12 @@ export function VideoAttendanceCustomControls({
   const tryScheduleHide = useCallback(() => {
     clearHideTimer()
     if (!isPlayingRef.current) return
+    // Don't hide the chrome while the overflow menu is open — hiding it would
+    // orphan an open native <select> (quality / speed) dropdown on screen.
+    if (overflowMenuOpenRef.current) return
     hideTimerRef.current = window.setTimeout(() => {
       hideTimerRef.current = null
-      if (!isPlayingRef.current) return
+      if (!isPlayingRef.current || overflowMenuOpenRef.current) return
       setChromeVisible(false)
     }, CHROME_HIDE_AFTER_MS)
   }, [clearHideTimer])
@@ -118,6 +127,15 @@ export function VideoAttendanceCustomControls({
     bumpChromeActivity()
     return clearHideTimer
   }, [isPlaying, bumpChromeActivity, clearHideTimer])
+
+  useEffect(() => {
+    if (overflowMenuOpen) {
+      setChromeVisible(true)
+      clearHideTimer()
+    } else {
+      tryScheduleHide()
+    }
+  }, [overflowMenuOpen, clearHideTimer, tryScheduleHide])
 
   useEffect(() => {
     const host = fullscreenContainerRef.current
@@ -215,6 +233,8 @@ export function VideoAttendanceCustomControls({
         transcriptAvailable={transcriptAvailable}
         captionsOn={captionsOn}
         onCaptionsToggle={onCaptionsToggle}
+        chromeVisible={chromeVisible}
+        onMenuOpenChange={setOverflowMenuOpen}
       />
     </div>
   )

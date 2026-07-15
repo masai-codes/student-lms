@@ -46,6 +46,10 @@ type LectureVideoControlsToolbarProps = {
   transcriptAvailable: boolean
   captionsOn: boolean
   onCaptionsToggle: () => void
+  /** Whether the auto-hiding control chrome is currently visible. */
+  chromeVisible: boolean
+  /** Notifies the parent when the overflow menu opens/closes so it can pause auto-hide. */
+  onMenuOpenChange?: (open: boolean) => void
 }
 
 export function LectureVideoControlsToolbar({
@@ -64,6 +68,8 @@ export function LectureVideoControlsToolbar({
   transcriptAvailable,
   captionsOn,
   onCaptionsToggle,
+  chromeVisible,
+  onMenuOpenChange,
 }: LectureVideoControlsToolbarProps) {
   const splitChat = useLectureSplitChatOptional()
   const overflowMenuRef = useRef<HTMLDivElement>(null)
@@ -131,6 +137,22 @@ export function LectureVideoControlsToolbar({
     setVolumeUiSupported(false)
     return undefined
   }, [videoRef, playerReadyVersion])
+
+  // Keep the parent in sync so it can pause the chrome auto-hide while the
+  // menu is open (otherwise the toolbar hides and an open native <select>
+  // dropdown is left floating on screen).
+  useEffect(() => {
+    onMenuOpenChange?.(overflowMenuOpen)
+  }, [overflowMenuOpen, onMenuOpenChange])
+
+  // Safety net: if the chrome hides for any reason while the menu is open,
+  // close the menu too. Unmounting the popover dismisses any open native
+  // <select> (quality / playback speed) dropdown along with it.
+  useEffect(() => {
+    if (!chromeVisible && overflowMenuOpen) {
+      setOverflowMenuOpen(false)
+    }
+  }, [chromeVisible, overflowMenuOpen])
 
   useEffect(() => {
     if (!overflowMenuOpen) return

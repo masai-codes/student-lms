@@ -7,7 +7,6 @@ import { PlayCircle } from 'lucide-react'
 import { fetchNavbarPillEvent } from '@/lib/api/dashboard/dashboardApi'
 import { useServerTime } from '@/hooks/useServerTime'
 import {
-  EVALUATION_TICK_MS,
   LECTURE_TICK_MS,
   formatCountdown,
   resolveNextActionBannerView,
@@ -23,13 +22,27 @@ import { cn } from '@/lib/utils'
 
 const REFRESH_MS = 5 * 60 * 1000
 
-/** Force a re-render on an interval so the countdown stays live. */
-function useCountdownTick(tickMs: number): void {
+/**
+ * Force a re-render so the countdown stays live.
+ *
+ * `tickMs` drives the periodic refresh (coarse for lectures — the label only
+ * changes by the minute). `msUntilStart` adds a precise one-shot re-render at
+ * the exact start boundary, so the pill flips to the "View" CTA the instant the
+ * countdown hits zero rather than up to `tickMs` later (keeps it in sync with
+ * the second-accurate lecture-details countdown). No network cost either way.
+ */
+function useCountdownTick(tickMs: number, msUntilStart: number | null): void {
   const [, tick] = useReducer((n: number) => n + 1, 0)
   useEffect(() => {
     const id = setInterval(tick, tickMs)
     return () => clearInterval(id)
   }, [tickMs])
+  useEffect(() => {
+    if (msUntilStart == null || msUntilStart <= 0) return
+    // +50ms so the adjusted clock has provably crossed the start time on fire.
+    const id = setTimeout(tick, msUntilStart + 50)
+    return () => clearTimeout(id)
+  }, [msUntilStart])
 }
 
 function BannerContent({
@@ -133,12 +146,15 @@ export function useNextActionBannerView(): NextActionBannerView | null {
     refetchInterval: REFRESH_MS,
   })
 
-  const tickMs =
-    event?.eventType === 'evaluation' ? EVALUATION_TICK_MS : LECTURE_TICK_MS
-  useCountdownTick(tickMs)
-
   const { now } = useServerTime()
-  return resolveNextActionBannerView(event, now.valueOf())
+  const view = resolveNextActionBannerView(event, now.valueOf())
+
+  // `view.tickMs` already picks the right cadence (1s evaluations / 30s
+  // lectures); `view.countdownMs` is the ms remaining until start (null once
+  // started), which doubles as the precise flip-to-CTA boundary.
+  useCountdownTick(view?.tickMs ?? LECTURE_TICK_MS, view?.countdownMs ?? null)
+
+  return view
 }
 
 /**

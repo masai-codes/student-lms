@@ -33,6 +33,7 @@ function ToolbarHarness({
           transcriptAvailable={false}
           captionsOn={false}
           onCaptionsToggle={vi.fn()}
+          chromeVisible={true}
         />
       </div>
     </LectureSplitChatProvider>
