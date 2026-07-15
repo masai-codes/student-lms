@@ -21,6 +21,12 @@ export interface NewLmsSwitchFeedbackEntry {
   createdAt: string
 }
 
+/**
+ * Key on `users.meta` recording that the user has seen the one-time "Try New"
+ * guided tour. Once true the tour never shows again (lifetime, per user).
+ */
+export const NEW_LMS_TRY_NEW_TOUR_META_KEY = 'new_lms_try_new_tour_seen'
+
 function readFlag(meta: unknown): boolean {
   if (!meta || typeof meta !== 'object') return false
   return (meta as Record<string, unknown>)[NEW_LMS_PAGES_META_KEY] === true
@@ -93,4 +99,29 @@ export async function updateNewLmsPagesPreference(
     .where(eq(users.id, userId))
 
   return enabled
+}
+
+/** Marks the one-time "Try New" guided tour as seen, preserving other meta keys. */
+export async function markTryNewTourSeen(userId: number): Promise<boolean> {
+  const rows = await db
+    .select({ meta: users.meta })
+    .from(users)
+    .where(eq(users.id, userId))
+    .limit(1)
+
+  const existingMeta = (
+    rows[0]?.meta && typeof rows[0].meta === 'object' ? rows[0].meta : {}
+  ) as Record<string, unknown>
+
+  const newMeta = { ...existingMeta, [NEW_LMS_TRY_NEW_TOUR_META_KEY]: true }
+
+  await db
+    .update(users)
+    .set({
+      meta: newMeta,
+      updatedAt: new Date().toISOString().slice(0, 19).replace('T', ' '),
+    })
+    .where(eq(users.id, userId))
+
+  return true
 }

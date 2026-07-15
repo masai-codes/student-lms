@@ -3,6 +3,7 @@ import { jsonOk, mapThrownErrorToResponse } from '@/server/api/http/responses'
 import { requireSessionUserId } from '@/server/api/http/requireSessionUser'
 import {
   getNewLmsPagesPreference,
+  markTryNewTourSeen,
   updateNewLmsPagesPreference,
 } from '@/server/api/profile/newLmsPreference.service'
 
@@ -46,6 +47,22 @@ export async function handleUpdateNewLmsPagesPreference(
       console.error('Failed to update new-LMS-pages preference', error)
       return mapThrownErrorToResponse(
         new Error('SERVER_ERROR_UPDATING_NEW_LMS_PREFERENCE'),
+      )
+    }
+    return mapThrownErrorToResponse(error)
+  }
+}
+
+export async function handleMarkTryNewTourSeen(): Promise<Response> {
+  try {
+    const userId = await requireSessionUserId()
+    await markTryNewTourSeen(userId)
+    return jsonOk({ seen: true })
+  } catch (error) {
+    if (!isApiError(error)) {
+      console.error('Failed to mark Try New tour as seen', error)
+      return mapThrownErrorToResponse(
+        new Error('SERVER_ERROR_MARKING_TRY_NEW_TOUR'),
       )
     }
     return mapThrownErrorToResponse(error)

@@ -46,6 +46,7 @@ export const fetchCurrentUser = createServerFn({ method: 'GET' }).handler(
       status: string | null
       profileImage: string | null
       newLmsPagesEnabled: number | boolean | string | null
+      tryNewTourSeen: number | boolean | string | null
     }>(
       await db.execute(sql`
       SELECT
@@ -56,6 +57,7 @@ export const fetchCurrentUser = createServerFn({ method: 'GET' }).handler(
         u.role,
         u.status,
         JSON_EXTRACT(u.meta, '$.new_lms_pages_enabled') AS newLmsPagesEnabled,
+        JSON_EXTRACT(u.meta, '$.new_lms_try_new_tour_seen') AS tryNewTourSeen,
         COALESCE(
           JSON_UNQUOTE(JSON_EXTRACT(pr.meta, '$.profile_pic')),
           JSON_UNQUOTE(JSON_EXTRACT(u.meta, '$.profile_pic')),
@@ -103,6 +105,10 @@ export const fetchCurrentUser = createServerFn({ method: 'GET' }).handler(
         row.newLmsPagesEnabled === true ||
         row.newLmsPagesEnabled === 1 ||
         row.newLmsPagesEnabled === 'true',
+      hasSeenTryNewTour:
+        row.tryNewTourSeen === true ||
+        row.tryNewTourSeen === 1 ||
+        row.tryNewTourSeen === 'true',
       joinedClubId:
         membershipRows[0]?.clubId != null
           ? String(membershipRows[0].clubId)

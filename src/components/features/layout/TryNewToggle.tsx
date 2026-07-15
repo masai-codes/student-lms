@@ -3,13 +3,9 @@
 import { useState } from 'react'
 import { useMutation } from '@tanstack/react-query'
 import { useRouter, useRouterState } from '@tanstack/react-router'
+import { Sparkles } from 'lucide-react'
 import { toast } from 'sonner'
-import {
-  Modal,
-  ModalContent,
-  ModalOverlay,
-  ModalPortal,
-} from '@/components/ui/modal'
+import { Modal, ModalContent } from '@/components/ui/modal'
 import { setNewLmsPagesPreference } from '@/lib/api/profile/profileApi'
 import { getOldStudentUiUrlForPath } from '@/utils/authRedirect'
 import { isMigratedRoute } from '@/utils/migratedRoutes'
@@ -83,32 +79,21 @@ export function TryNewToggle({ initialEnabled }: { initialEnabled: boolean }) {
     mutate({ enabled: false, feedback: feedback.trim() || undefined })
   }
 
+  const label = enabled ? 'Switch to old' : 'Try New'
+
   return (
     <>
       <button
         type="button"
-        role="switch"
-        aria-checked={enabled}
-        aria-label="Try the new experience"
-        title="Try New"
+        data-tour-target="try-new"
+        aria-label={enabled ? 'Switch to the old experience' : 'Try the new experience'}
+        title={label}
         disabled={isPending}
         onClick={handleClick}
-        className="flex items-center gap-2 disabled:opacity-60"
+        className="inline-flex items-center gap-1.5 rounded-full border border-brand/30 bg-brand-subtle px-3 py-1.5 text-sm font-semibold text-brand-subtle-foreground transition-colors hover:bg-brand/10 disabled:opacity-60"
       >
-        <span className="text-sm font-semibold text-foreground max-md:hidden">
-          Try New
-        </span>
-        <span
-          className={`relative inline-flex h-[22px] w-[40px] shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ${
-            enabled ? 'bg-brand' : 'bg-gray-300'
-          }`}
-        >
-          <span
-            className={`pointer-events-none inline-block size-[18px] rounded-full bg-surface shadow-sm ring-0 transition-transform duration-200 ${
-              enabled ? 'translate-x-[18px]' : 'translate-x-0'
-            }`}
-          />
-        </span>
+        <Sparkles className="size-4" aria-hidden />
+        <span>{label}</span>
       </button>
 
       <Modal
@@ -117,46 +102,48 @@ export function TryNewToggle({ initialEnabled }: { initialEnabled: boolean }) {
           if (!open && !isPending) setFeedbackOpen(false)
         }}
       >
-        <ModalPortal>
-          <ModalOverlay className="bg-black/50" />
-          <ModalContent className="flex w-full max-w-[440px] flex-col gap-4 rounded-[20px] p-6 shadow-xl">
-            <div className="flex flex-col gap-1">
-              <h2 className="text-lg font-bold text-foreground">
-                Switching back to the classic experience?
-              </h2>
-              <p className="text-sm text-foreground-muted">
-                Tell us why (optional) — did you face any issue with the new
-                experience?
-              </p>
-            </div>
-            <textarea
-              value={feedback}
-              onChange={(e) => setFeedback(e.target.value)}
-              rows={4}
-              maxLength={1000}
-              placeholder="Your feedback helps us improve…"
-              className="w-full resize-none rounded-[12px] border border-border bg-surface p-3 text-sm text-foreground outline-none focus-visible:ring-2 focus-visible:ring-primary-400"
-            />
-            <div className="mt-1 flex items-center justify-end gap-3">
-              <button
-                type="button"
-                onClick={submitSwitchBack}
-                disabled={isPending}
-                className="rounded-[10px] border-2 border-info bg-surface px-5 py-2.5 text-sm font-semibold text-info transition-colors hover:bg-info-subtle disabled:opacity-60"
-              >
-                Skip
-              </button>
-              <button
-                type="button"
-                onClick={submitSwitchBack}
-                disabled={isPending}
-                className="rounded-[10px] bg-info px-5 py-2.5 text-sm font-semibold text-info-foreground transition-colors hover:bg-info disabled:opacity-60"
-              >
-                {isPending ? 'Switching…' : 'Switch back'}
-              </button>
-            </div>
-          </ModalContent>
-        </ModalPortal>
+        <ModalContent
+          showCloseButton={false}
+          className="flex w-full max-w-[440px] flex-col gap-4 rounded-[20px] p-6 shadow-xl"
+        >
+          <div className="flex flex-col gap-1">
+            <h2 className="text-lg font-bold text-foreground">
+              Switching back to the classic experience?
+            </h2>
+            <p className="text-sm text-foreground-muted">
+              Tell us why (optional) — did you face any issue with the new
+              experience?
+            </p>
+          </div>
+          <textarea
+            value={feedback}
+            onChange={(e) => setFeedback(e.target.value)}
+            rows={4}
+            maxLength={1000}
+            placeholder="Your feedback helps us improve…"
+            className="w-full resize-none rounded-[12px] border border-border bg-surface p-3 text-sm text-foreground outline-none focus-visible:ring-2 focus-visible:ring-primary-400"
+          />
+          <div className="mt-1 flex items-center justify-end gap-3">
+            <button
+              type="button"
+              onClick={() => {
+                if (!isPending) setFeedbackOpen(false)
+              }}
+              disabled={isPending}
+              className="rounded-[10px] border-2 border-info bg-surface px-5 py-2.5 text-sm font-semibold text-info transition-colors hover:bg-info-subtle disabled:opacity-60"
+            >
+              Close
+            </button>
+            <button
+              type="button"
+              onClick={submitSwitchBack}
+              disabled={isPending}
+              className="rounded-[10px] bg-info px-5 py-2.5 text-sm font-semibold text-info-foreground transition-colors hover:bg-info disabled:opacity-60"
+            >
+              {isPending ? 'Switching…' : 'Switch to old'}
+            </button>
+          </div>
+        </ModalContent>
       </Modal>
     </>
   )

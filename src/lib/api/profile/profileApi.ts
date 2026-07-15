@@ -120,3 +120,9 @@ export async function setNewLmsPagesPreference(
   )
   return updated
 }
+
+export async function markTryNewTourSeen(): Promise<void> {
+  await fetchJson<{ seen: boolean }>(PROFILE_API.tryNewTour, {
+    method: 'POST',
+  })
+}
