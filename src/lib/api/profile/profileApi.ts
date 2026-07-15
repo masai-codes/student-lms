@@ -98,3 +98,24 @@ export async function fetchAchievements(): Promise<Array<AchievementItem>> {
   }>(PROFILE_API.achievements)
   return achievements
 }
+
+export async function fetchNewLmsPagesPreference(): Promise<boolean> {
+  const { enabled } = await fetchJson<{ enabled: boolean }>(
+    PROFILE_API.newLmsPages,
+  )
+  return enabled
+}
+
+export async function setNewLmsPagesPreference(
+  enabled: boolean,
+): Promise<boolean> {
+  const { enabled: updated } = await fetchJson<{ enabled: boolean }>(
+    PROFILE_API.newLmsPages,
+    {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ enabled }),
+    },
+  )
+  return updated
+}

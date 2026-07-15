@@ -35,6 +35,7 @@ import { Navbar } from '@/components/navbar'
 import { LevelUpIcon } from '@/components/common/LevelUpIcon'
 import { DownloadAppModal } from '@/components/features/layout/DownloadAppModal'
 import { NextActionBanner } from '@/components/features/layout/NextActionBanner'
+import { TryNewToggle } from '@/components/features/layout/TryNewToggle'
 import { OLD_STUDENT_UI_NAV_PATHS } from '@/constants/oldStudentUiNavPaths'
 import { activeAppNavIdForPathname } from '@/lib/appNavActiveItem'
 import { getBugReportFormUrl } from '@/utils/bugReportFormUrl'
@@ -532,6 +533,7 @@ export default function AppNavbar() {
         navItems={navItems}
         centerSlot={<NextActionBanner className="max-w-[340px]" />}
         trailingActions={trailingActions}
+        actionsSlot={<TryNewToggle initialEnabled={user.newLmsPagesEnabled} />}
         profile={profile}
       />
       <DownloadAppModal

@@ -100,5 +100,7 @@ export type NavbarProps = {
   trailingActions?: NavbarActionItem[]
   /** Optional content rendered between nav items and trailing actions. */
   centerSlot?: ReactNode
+  /** Optional content rendered in the trailing action row, before the theme switcher. */
+  actionsSlot?: ReactNode
   className?: string
 }

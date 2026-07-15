@@ -11,6 +11,7 @@ import {
   NextActionBanner,
   useNextActionBannerView,
 } from '@/components/features/layout/NextActionBanner'
+import { TryNewToggle } from '@/components/features/layout/TryNewToggle'
 import { isIHubPortal } from '@/utils/portal'
 
 const layoutRouteApi = getRouteApi('/(protected)/_layout')
@@ -71,6 +72,7 @@ export default function AppMobileHeader() {
       )}
 
       <div className="flex shrink-0 items-center gap-2">
+        <TryNewToggle initialEnabled={user.newLmsPagesEnabled} />
         <button
           type="button"
           onClick={handleAnnouncementsClick}
