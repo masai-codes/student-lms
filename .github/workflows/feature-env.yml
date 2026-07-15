@@ -1,0 +1,127 @@
+name: Feature Environment
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize, closed]
+  schedule:
+    - cron: '30 2 * * *'
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+  pull-requests: read
+
+jobs:
+  create_or_update:
+    if: github.event_name == 'pull_request' && github.event.action != 'closed'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_FEATURE_ENV_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
+      - name: Create or update feature environment
+        env:
+          BRANCH: ${{ github.head_ref }}
+          APP_DB_USER: ${{ secrets.APP_DB_USER }}
+          APP_DB_PASS: ${{ secrets.APP_DB_PASS }}
+          MYSQL_ADMIN_USER: ${{ secrets.MYSQL_ADMIN_USER }}
+          MYSQL_ADMIN_PASS: ${{ secrets.MYSQL_ADMIN_PASS }}
+          MYSQL_ADMIN_HOST: ${{ vars.MYSQL_ADMIN_HOST }}
+          MYSQL_ADMIN_PORT: ${{ vars.MYSQL_ADMIN_PORT }}
+          ALB_LISTENER_ARN: ${{ vars.ALB_LISTENER_ARN }}
+          BASE_DOMAIN: ${{ vars.FEATURE_BASE_DOMAIN }}
+          ECR_REPO: ${{ vars.ECR_REPO }}
+          PORT_RANGE_START: ${{ vars.FEATURE_PORT_RANGE_START }}
+          PORT_RANGE_END: ${{ vars.FEATURE_PORT_RANGE_END }}
+          VPC_ID: ${{ vars.VPC_ID }}
+          EC2_INSTANCE_ID: ${{ vars.EC2_INSTANCE_ID }}
+          MIGRATION_CMD: ${{ vars.FEATURE_MIGRATION_CMD }}
+          SEED_CMD: ${{ vars.FEATURE_SEED_CMD }}
+          SSM_WORKDIR: ${{ vars.SSM_WORKDIR }}
+        run: |
+          set -euo pipefail
+          vars=(BRANCH APP_DB_USER APP_DB_PASS MYSQL_ADMIN_USER MYSQL_ADMIN_PASS MYSQL_ADMIN_HOST MYSQL_ADMIN_PORT ALB_LISTENER_ARN BASE_DOMAIN ECR_REPO PORT_RANGE_START PORT_RANGE_END VPC_ID EC2_INSTANCE_ID MIGRATION_CMD SEED_CMD)
+          env_exports=""
+          for key in "${vars[@]}"; do
+            value="${!key:-}"
+            printf -v env_exports '%s export %q=%q;' "$env_exports" "$key" "$value"
+          done
+          remote_cmd="${env_exports} cd ${SSM_WORKDIR} && bash scripts/feature-env/create-feature-env.sh"
+          command_id="$(aws ssm send-command --instance-ids "${EC2_INSTANCE_ID}" --document-name "AWS-RunShellScript" --comment "feature-env-create" --parameters "commands=${remote_cmd}" --query 'Command.CommandId' --output text)"
+          aws ssm wait command-executed --command-id "$command_id" --instance-id "${EC2_INSTANCE_ID}"
+          aws ssm get-command-invocation --command-id "$command_id" --instance-id "${EC2_INSTANCE_ID}" --query 'StandardOutputContent' --output text
+
+  teardown:
+    if: github.event_name == 'pull_request' && github.event.action == 'closed'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_FEATURE_ENV_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
+      - name: Teardown feature environment
+        env:
+          BRANCH: ${{ github.head_ref }}
+          BASE_DOMAIN: ${{ vars.FEATURE_BASE_DOMAIN }}
+          ALB_LISTENER_ARN: ${{ vars.ALB_LISTENER_ARN }}
+          MYSQL_ADMIN_USER: ${{ secrets.MYSQL_ADMIN_USER }}
+          MYSQL_ADMIN_PASS: ${{ secrets.MYSQL_ADMIN_PASS }}
+          MYSQL_ADMIN_HOST: ${{ vars.MYSQL_ADMIN_HOST }}
+          MYSQL_ADMIN_PORT: ${{ vars.MYSQL_ADMIN_PORT }}
+          ECR_REPO: ${{ vars.ECR_REPO }}
+          EC2_INSTANCE_ID: ${{ vars.EC2_INSTANCE_ID }}
+          SSM_WORKDIR: ${{ vars.SSM_WORKDIR }}
+        run: |
+          set -euo pipefail
+          vars=(BRANCH BASE_DOMAIN ALB_LISTENER_ARN MYSQL_ADMIN_USER MYSQL_ADMIN_PASS MYSQL_ADMIN_HOST MYSQL_ADMIN_PORT ECR_REPO)
+          env_exports=""
+          for key in "${vars[@]}"; do
+            value="${!key:-}"
+            printf -v env_exports '%s export %q=%q;' "$env_exports" "$key" "$value"
+          done
+          remote_cmd="${env_exports} cd ${SSM_WORKDIR} && bash scripts/feature-env/teardown-feature-env.sh"
+          command_id="$(aws ssm send-command --instance-ids "${EC2_INSTANCE_ID}" --document-name "AWS-RunShellScript" --comment "feature-env-teardown" --parameters "commands=${remote_cmd}" --query 'Command.CommandId' --output text)"
+          aws ssm wait command-executed --command-id "$command_id" --instance-id "${EC2_INSTANCE_ID}"
+          aws ssm get-command-invocation --command-id "$command_id" --instance-id "${EC2_INSTANCE_ID}" --query 'StandardOutputContent' --output text
+
+  cleanup_orphans:
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_FEATURE_ENV_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
+      - name: Cleanup orphaned feature environments
+        env:
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          BASE_DOMAIN: ${{ vars.FEATURE_BASE_DOMAIN }}
+          ALB_LISTENER_ARN: ${{ vars.ALB_LISTENER_ARN }}
+          MYSQL_ADMIN_USER: ${{ secrets.MYSQL_ADMIN_USER }}
+          MYSQL_ADMIN_PASS: ${{ secrets.MYSQL_ADMIN_PASS }}
+          MYSQL_ADMIN_HOST: ${{ vars.MYSQL_ADMIN_HOST }}
+          MYSQL_ADMIN_PORT: ${{ vars.MYSQL_ADMIN_PORT }}
+          ECR_REPO: ${{ vars.ECR_REPO }}
+          EC2_INSTANCE_ID: ${{ vars.EC2_INSTANCE_ID }}
+          SSM_WORKDIR: ${{ vars.SSM_WORKDIR }}
+        run: |
+          set -euo pipefail
+          vars=(GITHUB_REPOSITORY GITHUB_TOKEN BASE_DOMAIN ALB_LISTENER_ARN MYSQL_ADMIN_USER MYSQL_ADMIN_PASS MYSQL_ADMIN_HOST MYSQL_ADMIN_PORT ECR_REPO)
+          env_exports=""
+          for key in "${vars[@]}"; do
+            value="${!key:-}"
+            printf -v env_exports '%s export %q=%q;' "$env_exports" "$key" "$value"
+          done
+          remote_cmd="${env_exports} cd ${SSM_WORKDIR} && bash scripts/feature-env/cleanup-orphans.sh"
+          command_id="$(aws ssm send-command --instance-ids "${EC2_INSTANCE_ID}" --document-name "AWS-RunShellScript" --comment "feature-env-cleanup" --parameters "commands=${remote_cmd}" --query 'Command.CommandId' --output text)"
+          aws ssm wait command-executed --command-id "$command_id" --instance-id "${EC2_INSTANCE_ID}"
+          aws ssm get-command-invocation --command-id "$command_id" --instance-id "${EC2_INSTANCE_ID}" --query 'StandardOutputContent' --output text
