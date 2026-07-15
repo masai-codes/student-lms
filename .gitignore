@@ -20,3 +20,6 @@ otp.ts
 
 # Cached local DB seed dumps
 scripts/db/.cache
+
+# Temp output from `npm run db:pull` (schema is copied into src/db/)
+.drizzle-introspect
