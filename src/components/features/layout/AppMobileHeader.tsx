@@ -11,8 +11,7 @@ import {
   NextActionBanner,
   useNextActionBannerView,
 } from '@/components/features/layout/NextActionBanner'
-// Temporarily hidden — "Try New" CTA disabled for now.
-// import { TryNewToggle } from '@/components/features/layout/TryNewToggle'
+import { TryNewToggle } from '@/components/features/layout/TryNewToggle'
 import { isIHubPortal } from '@/utils/portal'
 
 const layoutRouteApi = getRouteApi('/(protected)/_layout')
@@ -73,8 +72,7 @@ export default function AppMobileHeader() {
       )}
 
       <div className="flex shrink-0 items-center gap-2">
-        {/* Temporarily hidden — "Try New" CTA disabled for now. */}
-        {/* <TryNewToggle initialEnabled={user.newLmsPagesEnabled} /> */}
+        <TryNewToggle initialEnabled={user.newLmsPagesEnabled} />
         <button
           type="button"
           onClick={handleAnnouncementsClick}

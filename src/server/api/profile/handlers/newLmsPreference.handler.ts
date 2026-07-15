@@ -33,7 +33,13 @@ export async function handleUpdateNewLmsPagesPreference(
       return mapThrownErrorToResponse(new Error('INVALID_ENABLED_FLAG'))
     }
 
-    const enabled = await updateNewLmsPagesPreference(userId, body.enabled)
+    const feedback = typeof body.feedback === 'string' ? body.feedback : undefined
+
+    const enabled = await updateNewLmsPagesPreference(
+      userId,
+      body.enabled,
+      feedback,
+    )
     return jsonOk({ enabled })
   } catch (error) {
     if (!isApiError(error)) {
