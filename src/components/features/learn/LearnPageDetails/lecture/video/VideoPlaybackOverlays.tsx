@@ -44,7 +44,7 @@ export function VideoPlaybackOverlays({
       ) : null}
       {seekHint === 'backward' ? (
         <div
-          className="pointer-events-none absolute inset-y-0 left-0 z-[41] flex items-center justify-start pl-3 md:pl-8"
+          className="pointer-events-none absolute inset-y-0 left-0 z-[41] flex items-center justify-start pl-[max(0.75rem,env(safe-area-inset-left,0px))] md:pl-8"
           aria-hidden
         >
           <div className={seekBadgeClass}>
@@ -55,7 +55,7 @@ export function VideoPlaybackOverlays({
       ) : null}
       {seekHint === 'forward' ? (
         <div
-          className="pointer-events-none absolute inset-y-0 right-0 z-[41] flex items-center justify-end pr-3 md:pr-8"
+          className="pointer-events-none absolute inset-y-0 right-0 z-[41] flex items-center justify-end pr-[max(0.75rem,env(safe-area-inset-right,0px))] md:pr-8"
           aria-hidden
         >
           <div className={seekBadgeClass}>

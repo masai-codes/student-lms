@@ -232,7 +232,7 @@ export function LectureReactPlayer({
               onChange={(event) =>
                 attendance.changeQuality(Number(event.target.value))
               }
-              className="absolute right-3 top-3 z-[55] cursor-pointer rounded-md border border-white/15 bg-black/60 py-1.5 pl-3 pr-2 text-sm font-medium text-white outline-none backdrop-blur-sm transition-colors hover:bg-black/80 focus-visible:ring-2 focus-visible:ring-white/40"
+              className="absolute right-[max(0.75rem,env(safe-area-inset-right,0px))] top-3 z-[55] cursor-pointer rounded-md border border-white/15 bg-black/60 py-1.5 pl-3 pr-2 text-sm font-medium text-white outline-none backdrop-blur-sm transition-colors hover:bg-black/80 focus-visible:ring-2 focus-visible:ring-white/40"
             >
               <option value={-1}>Auto</option>
               {attendance.qualityLevels.map((level) => (

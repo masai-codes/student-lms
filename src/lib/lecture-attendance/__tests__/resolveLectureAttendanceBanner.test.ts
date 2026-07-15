@@ -165,18 +165,21 @@ describe('resolveLectureAttendanceBanner', () => {
     ).toBe(LECTURE_ATTENDANCE_BANNERS['live-only'])
   })
 
-  it('prefers the local watch percentage over the stored one for mid-watch', () => {
-    // stored says 0%, local says 40% -> continue_watching, video counts -> hidden
+  it('ignores live watch progress so the banner stays visible mid-watch (legacy parity)', () => {
+    // Stored video percentage is still 0 (not yet reconciled). The banner must
+    // NOT flip to continue_watching from live playback progress — otherwise it
+    // would vanish ~30s into playback. It derives from the stored percentage
+    // only, so an absent student with an open window still sees `video-counts`.
     expect(
       resolveLectureAttendanceBanner(
         makeSummary({
           overallStatus: 0,
           includeVideoAttendance: true,
           videoPercentage: 0,
+          isCatchupWindowOver: false,
           daysRemaining: 2,
         }),
-        40,
       ),
-    ).toBeNull()
+    ).toBe(LECTURE_ATTENDANCE_BANNERS['video-counts'])
   })
 })
