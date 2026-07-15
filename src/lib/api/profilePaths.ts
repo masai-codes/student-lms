@@ -6,4 +6,5 @@ export const PROFILE_API = {
   certificates: '/api/profile/certificates',
   achievements: '/api/profile/achievements',
   newLmsPages: '/api/profile/new-lms-pages',
+  tryNewTour: '/api/profile/try-new-tour',
 } as const

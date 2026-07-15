@@ -1,15 +1,19 @@
 # AI Tutor streaming chat
 
-Last updated: 2026-07-07
+Last updated: 2026-07-10
 
 ## Scope
 
-- `POST /api/ai-tutor/chat/stream` — authenticated SSE lecture chat backed by `ai_chat_practice_questions` + `lectures_ai`, streamed from Claude via Vercel AI SDK.
+- `POST /api/ai-tutor/chat/stream` — authenticated SSE lecture chat backed by `ai_chat_practice_questions`, lecture summary, instructor notes, and LLM-driven RAG retrieval via tool calling.
 
-## Database tables
+## Data sources
 
 - `ai_chat_practice_questions` — per-user lecture chat thread + `chatHistory` JSON
-- `lectures_ai` — lecture summary used as RAG context (`summary` column)
+- `lectures.title` — included in the system prompt
+- `lectures_ai.summary` — always included in the system prompt
+- `lectures.notes` — inlined when `<= 10,000` chars; otherwise only an outline is shown
+- `lecture_zoom_chat.final_chat` — parsed defensively into **Resources shared** in the system prompt
+- External RAG platform — ingested notes/transcript; retrieved on demand via `retrieveLectureContent` tool
 
 ## Request body
 
@@ -32,9 +36,12 @@ Last updated: 2026-07-07
 ## Environment
 
 - `ANTHROPIC_API_KEY` — required
-- `ANTHROPIC_MODEL` — optional; defaults to `claude-opus-4-8`
+- `ANTHROPIC_MODEL` — optional; defaults to `claude-haiku-4-5`
+- `RAG_PLATFORM_BASE_URL` — required for the retrieve tool
+- `RAG_PLATFORM_API_KEY` — required for the retrieve tool
+- `RAG_PLATFORM_COLLECTION_NAME` — optional; defaults to `student-lms-ai-tutor`
 
-## Test cases
+## Retrieval behavior
 
 | ID           | Case                     | Expected                                                            |
 | ------------ | ------------------------ | ------------------------------------------------------------------- |
@@ -52,6 +59,11 @@ Last updated: 2026-07-07
 | AT-SSE-007   | Stream service           | Loads summary/history, persists turn after stream                   |
 | AT-SSE-008   | Prompt builder           | Summary + optional history + question                               |
 | AT-SSE-009   | Chat history parser      | Parses stored JSON safely                                           |
+- The model decides whether to call `retrieveLectureContent`.
+- Tool args: `query` (model-written search query) and `top_k` (1–20).
+- Short notes (`<= 10k` chars) are already in the system prompt; long notes show an outline only.
+- Lecture summary is always in the system prompt.
+- If RAG is unconfigured, the tool is omitted and the tutor answers from summary/notes only.
 
 ## Commands
 

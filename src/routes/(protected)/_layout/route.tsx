@@ -12,6 +12,7 @@ import {
   AppNavbar,
   SupportChatButton,
 } from '@/components/features/layout'
+import { TryNewTour } from '@/components/features/layout/TryNewTour'
 import { AnnouncementModalController, ModalProvider } from '@/components/modals'
 import MasaiverseMobileTabBar from '@/components/features/masaiverse-v2/MasaiverseMobileTabBar'
 import { isMasaiverseApp } from '@/constants/masaiverseDrawerUi'
@@ -132,6 +133,7 @@ function RouteComponent() {
   return (
     <ModalProvider>
       <div className="min-h-dvh bg-surface-muted flex flex-col">
+        <TryNewTour hasSeen={user.hasSeenTryNewTour} />
         <AppNavbar />
         {/* Mobile-only greeting header for the dashboard home; the desktop
             navbar (with the same announcements + onboarding actions) is hidden

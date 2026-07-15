@@ -129,6 +129,9 @@ export function mapThrownErrorToResponse(error: unknown): Response {
       case 'AI_TUTOR_LECTURE_NOT_FOUND':
       case 'AI_TUTOR_SESSION_NOT_FOUND':
         return jsonError(404, error.message)
+      case 'AI_TUTOR_NOTES_NOT_FOUND':
+      case 'AI_TUTOR_RAG_CONTENT_NOT_FOUND':
+        return jsonError(404, error.message)
       case 'AI_TUTOR_SESSION_NOT_OWNED':
         return jsonError(403, error.message)
       case 'AI_TUTOR_TRANSCRIPT_UNAVAILABLE':
@@ -158,14 +161,22 @@ export function mapThrownErrorToResponse(error: unknown): Response {
       case 'AI_TUTOR_CHAT_NOT_FOUND':
       case 'AI_TUTOR_LECTURE_SUMMARY_NOT_FOUND':
         return jsonError(404, error.message)
+      case 'AI_TUTOR_RAG_INGEST_FORBIDDEN':
+        return jsonError(401, error.message)
       case 'SERVER_ERROR_STREAMING_AI_TUTOR_CHAT':
       case 'SERVER_ERROR_CREATING_AI_TUTOR_CHAT':
       case 'SERVER_ERROR_FETCHING_AI_TUTOR_CONVERSATIONS':
       case 'SERVER_ERROR_FETCHING_AI_TUTOR_CONVERSATION':
       case 'SERVER_ERROR_SUBMITTING_AI_TUTOR_FEEDBACK':
       case 'SERVER_ERROR_MIGRATING_AI_TUTOR_FEEDBACK_RATINGS':
+      case 'SERVER_ERROR_INGESTING_LECTURE_RAG':
+      case 'SERVER_ERROR_GENERATING_LECTURE_NOTES_TOC':
         return jsonError(500, error.message)
       case 'AI_TUTOR_ANTHROPIC_NOT_CONFIGURED':
+      case 'AI_TUTOR_RAG_PLATFORM_NOT_CONFIGURED':
+      case 'AI_TUTOR_RAG_PLATFORM_REQUEST_FAILED':
+      case 'AI_TUTOR_RAG_INGEST_NOT_CONFIGURED':
+      case 'AI_TUTOR_NOTES_TOC_GENERATION_FAILED':
         return jsonError(503, error.message)
       case 'AI_CHAT_OPENAI_NOT_CONFIGURED':
       case 'AI_CHAT_OPENAI_REQUEST_FAILED':

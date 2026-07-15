@@ -35,7 +35,7 @@ function createClient(): Redis | null {
     lazyConnect: true,
     enableOfflineQueue: false,
     maxRetriesPerRequest: 1,
-    retryStrategy: (times) => Math.min(times * 200, 3000),
+    retryStrategy: (times: number) => Math.min(times * 200, 3000),
   })
 
   // Log the first error after each healthy period, but never let a connection

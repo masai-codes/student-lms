@@ -45,12 +45,15 @@ instead of living in someone's memory.
                                              ▼
    ┌──────────────────────────────────────────────────────────────────┐
    │  npm run db:sync                                                   │
-   │    1. drizzle-kit pull   → ./drizzle/schema.ts (raw dump)          │
+   │    1. drizzle-kit pull   → ./drizzle/schema.ts                      │
+   │       (tablesFilter = src/db/managedTables.ts)                     │
    │    2. scripts/sync-schema.mjs                                      │
+   │         • update MANAGED_TABLES only                               │
    │         • swap datetime→istDatetime, timestamp→utcTimestamp        │
    │         • reconcile defaults / json types / sql backticks          │
    │         • delete the transient dump                                │
-   │       → ./src/db/schema.ts  (pure derivative of the DB)            │
+   │    3. prettier --write src/db/schema.ts                            │
+   │       → ./src/db/schema.ts  (managed tables from the DB)           │
    └──────────────────────────────────┬───────────────────────────────┘
                                        │
                                        ▼
@@ -174,23 +177,24 @@ Both resolve to the same moment — the offset stamp is what disambiguates them.
 ## 4. Layer 2 — The sync pipeline (`npm run db:sync`)
 
 ```
-npm run db:sync  =  drizzle-kit pull  &&  node scripts/sync-schema.mjs
+npm run db:sync  =  drizzle-kit pull  &&  node scripts/sync-schema.mjs  &&  prettier --write src/db/schema.ts
 ```
 
-The DB is the **single source of truth**; `src/db/schema.ts` is a pure derivative.
-You never hand-edit it.
+The DB is the **source of truth for column definitions** of tables listed in
+`src/db/managedTables.ts`. That file is the **manual allowlist** — edit it by hand
+when you start or stop using a table. `db:sync` never invents the list from
+`schema.ts` or from import scanning.
 
 ### Step 1 — `drizzle-kit pull`
 
-Regenerates a raw dump at `./drizzle/schema.ts` straight from the live DB (driven by
-`drizzle.config.ts`, which points `schema` at `./src/db/schema.ts`, `out` at
-`./drizzle`, dialect `mysql`, credentials from `DATABASE_URL`). Nothing is
-hand-preserved — a table that lives only in code and not in the DB is intentionally
-dropped.
+Regenerates a raw dump at `./drizzle/schema.ts` from the live DB, filtered by
+`tablesFilter: MANAGED_TABLES` in `drizzle.config.ts`. Credentials come from
+`DATABASE_URL`.
 
 ### Step 2 — `scripts/sync-schema.mjs`
 
-Rewrites the dump into `./src/db/schema.ts`, all mechanical and reapplied every run:
+Rewrites the dump into `./src/db/schema.ts` for **managed tables only**, all
+mechanical and reapplied every run:
 
 1. **Swap the import** (the key move):
 
@@ -228,12 +232,17 @@ Rewrites the dump into `./src/db/schema.ts`, all mechanical and reapplied every 
    ever exists on disk. Drizzle's migration meta (`./drizzle/meta`) and generated SQL
    are untouched.
 
-6. **Report dropped tables** — tables present in the previous `schema.ts` but no
-   longer in the DB are logged as a warning (their code will fail at runtime).
+6. **Report allowlist gaps** — managed tables missing from the dump keep their
+   previous definition when possible (with a warning). Tables removed from
+   `MANAGED_TABLES` are dropped from `schema.ts`. Dump tables not in the
+   allowlist are skipped.
+
+7. **`prettier --write src/db/schema.ts`** (via `npm run db:sync`) — formats the
+   rewritten file so sync does not create format-only git diffs.
 
 **Guard rails:** the script aborts if the dump has 0 tables (so it never clobbers a
-good `schema.ts`), if the dump file is missing, or if it can't find the
-`drizzle-orm/mysql-core` import.
+good `schema.ts`), if the dump file is missing, if `MANAGED_TABLES` is empty/unparseable,
+or if it can't find the `drizzle-orm/mysql-core` import.
 
 > **Related script:** `npm run db:pull` runs _only_ `drizzle-kit pull` (raw dump,
 > no swap). Use `db:sync` for the full, safe regeneration.
@@ -365,7 +374,10 @@ the runtime sets `TZ=UTC`.
 
 ## 7. Practical rules for developers
 
-- **Never hand-edit `src/db/schema.ts`.** Change the DB, then run `npm run db:sync`.
+- **Don't hand-edit table bodies in `src/db/schema.ts`.** Change the DB, then run
+  `npm run db:sync`. To **add** a table: put its SQL name in
+  `src/db/managedTables.ts`, then sync. To **drop** one from the app schema: remove
+  it from that list and sync.
 - **Reading a time column?** You get an offset-stamped ISO string — just
   `new Date(v)` / `dayjs(v)`. Do **not** re-guess the zone.
 - **Writing a time column?** Pass a `Date`, an offset-bearing ISO, or a naive string
@@ -386,10 +398,11 @@ the runtime sets `TZ=UTC`.
 | ------------------------------------------------------- | ----------------------------------------------------------------------- |
 | `src/db/columnTypes.ts`                                 | Custom `istDatetime`/`utcTimestamp` types + read/write helpers.         |
 | `src/db/columnTypes.test.ts`                            | Unit tests for `driverWallClock`, `toEpochMs`, `toDbWallClock`.         |
-| `src/db/schema.ts`                                      | Generated schema (pure derivative of the DB). **Do not edit.**          |
+| `src/db/managedTables.ts`                               | **Manual** allowlist of SQL tables for `db:sync` / pull.                |
+| `src/db/schema.ts`                                      | Generated schema for managed tables only (via `db:sync`).               |
 | `src/db/index.ts`                                       | mysql2 pool + Drizzle instance (see §6 re: session timezone).           |
 | `scripts/sync-schema.mjs`                               | Reapplies the type swap + reconciliations after `drizzle-kit pull`.     |
-| `drizzle.config.ts`                                     | drizzle-kit config (schema path, out dir, credentials).                 |
+| `drizzle.config.ts`                                     | drizzle-kit config; `tablesFilter` from `MANAGED_TABLES`.               |
 | `src/utils/timeZoneHandler/index.ts`                    | **Single app-side home:** all 3 parsers + viewer-tz formatters (dayjs). |
 | `src/utils/timeZoneHandler/parsers.test.ts`             | Tests for the UTC parsers.                                              |
 | `src/utils/timeZoneHandler/formatScheduleRange.test.ts` | Tests for the formatters.                                               |
