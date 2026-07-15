@@ -11,6 +11,7 @@
  */
 
 import type {
+  AssignmentSupportSnapshot,
   FaqVote,
   FloatingChatInbox,
   LectureSupportSnapshot,
@@ -49,6 +50,15 @@ export async function fetchLectureSupportSnapshot(
   lectureId: number,
 ): Promise<LectureSupportSnapshot> {
   return fetchJson<LectureSupportSnapshot>(SUPPORT_API.floatingChatLectureSnapshot(lectureId))
+}
+
+/** GET assignment/evaluation type, status, and score for support modal. */
+export async function fetchAssignmentSupportSnapshot(
+  assignmentId: number,
+): Promise<AssignmentSupportSnapshot> {
+  return fetchJson<AssignmentSupportSnapshot>(
+    SUPPORT_API.floatingChatAssignmentSnapshot(assignmentId),
+  )
 }
 
 /** GET a page of FAQs for a batch (live search). */

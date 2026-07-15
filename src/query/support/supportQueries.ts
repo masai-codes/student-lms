@@ -14,6 +14,7 @@
 
 import type { TicketTab } from '@/server/api/support/support.types'
 import {
+  fetchAssignmentSupportSnapshot,
   fetchFloatingChatInbox,
   fetchLectureSupportSnapshot,
   fetchSubcategoriesByCategory,
@@ -30,6 +31,8 @@ export const SUPPORT_KEYS = {
   floatingChatInbox: ['support', 'floating-chat', 'inbox'] as const,
   lectureSnapshot: (lectureId: number) =>
     ['support', 'floating-chat', 'lecture', lectureId] as const,
+  assignmentSnapshot: (assignmentId: number) =>
+    ['support', 'floating-chat', 'assignment', assignmentId] as const,
   faqs: (batchId: number, search: string, category?: string) =>
     ['support', 'faqs', batchId, search, category ?? null] as const,
   tickets: (tab: TicketTab, page: number) =>
@@ -66,6 +69,13 @@ export const floatingChatInboxQuery = () => ({
 export const lectureSupportSnapshotQuery = (lectureId: number) => ({
   queryKey: SUPPORT_KEYS.lectureSnapshot(lectureId),
   queryFn: () => fetchLectureSupportSnapshot(lectureId),
+  staleTime: 2 * 60 * 1000,
+})
+
+/** Assignment/evaluation snapshot for floating support item confirmation. */
+export const assignmentSupportSnapshotQuery = (assignmentId: number) => ({
+  queryKey: SUPPORT_KEYS.assignmentSnapshot(assignmentId),
+  queryFn: () => fetchAssignmentSupportSnapshot(assignmentId),
   staleTime: 2 * 60 * 1000,
 })
 

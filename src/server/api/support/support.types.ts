@@ -247,6 +247,24 @@ export interface LectureSupportSnapshot {
   showAttendance: boolean
 }
 
+export type AssignmentSupportSnapshotTone = 'neutral' | 'success' | 'warning' | 'danger'
+
+/**
+ * Lean assignment/evaluation snapshot for floating support item confirmation
+ * (`GET /api/support/floating-chat/assignments/:assignmentId`).
+ */
+export interface AssignmentSupportSnapshot {
+  assignmentId: number
+  assignmentKind: 'practice' | 'assignment' | 'evaluation'
+  phase: 'before' | 'during' | 'after'
+  progressStatus: 'new' | 'in-progress' | 'overdue' | 'completed'
+  typeLabel: string | null
+  statusLabel: string
+  statusTone: AssignmentSupportSnapshotTone
+  scoreDisplay: string | null
+  scorePolicyNotice: string | null
+}
+
 /**
  * The aggregated payload for the support landing page — fetched in **one** GET
  * (`/api/support/overview`). Every section below is produced by an independent,

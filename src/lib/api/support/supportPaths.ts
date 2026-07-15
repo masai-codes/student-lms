@@ -13,6 +13,9 @@ export const SUPPORT_API = {
   /** GET — lecture snapshot for floating support item confirmation. */
   floatingChatLectureSnapshot: (lectureId: number) =>
     `/api/support/floating-chat/lectures/${lectureId}`,
+  /** GET — assignment/evaluation snapshot for floating support item confirmation. */
+  floatingChatAssignmentSnapshot: (assignmentId: number) =>
+    `/api/support/floating-chat/assignments/${assignmentId}`,
   /** GET — search/list FAQs for a batch. */
   faqs: '/api/support/faqs',
   /** GET — subcategories for a single (context) category. */

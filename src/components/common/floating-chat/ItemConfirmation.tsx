@@ -19,9 +19,17 @@ import {
   shouldShowLectureDuration,
   shouldShowUnableToJoinLiveLecture,
 } from './lectureSnapshotPresentation'
+import {
+  getAssignmentSnapshotStatusClassName,
+  shouldShowAssignmentScoreCard,
+  shouldShowAssignmentTypeCard,
+} from './assignmentSnapshotPresentation'
 import type { Category, Item } from './types'
-import type { LectureSupportSnapshot } from '@/server/api/support/support.types'
-import { lectureSupportSnapshotQuery } from '@/query/support/supportQueries'
+import type { AssignmentSupportSnapshot, LectureSupportSnapshot } from '@/server/api/support/support.types'
+import {
+  assignmentSupportSnapshotQuery,
+  lectureSupportSnapshotQuery,
+} from '@/query/support/supportQueries'
 
 interface ItemConfirmationProps {
   categoryObj: Category
@@ -179,10 +187,103 @@ function LectureSnapshotCards({
   )
 }
 
+function AssignmentSnapshotCards({
+  snapshot,
+  isLoading,
+  isError,
+  onRetry,
+  showTypeCard,
+  showScoreCard,
+}: {
+  snapshot?: AssignmentSupportSnapshot
+  isLoading: boolean
+  isError: boolean
+  onRetry: () => void
+  showTypeCard: boolean
+  showScoreCard: boolean
+}) {
+  if (isLoading) {
+    return (
+      <div className="grid grid-cols-2 gap-2 mb-3 animate-pulse">
+        {Array.from({ length: 2 }).map((_, index) => (
+          <div
+            key={index}
+            className="h-[62px] rounded-[12px] border border-[#e9e9f3] bg-white"
+          />
+        ))}
+      </div>
+    )
+  }
+
+  if (isError || !snapshot) {
+    return (
+      <div className="mb-3 rounded-[12px] border border-[#fecaca] bg-[#fef2f2] p-3 text-center">
+        <p className="text-[12.5px] font-bold text-[#b91c1c] mb-2">
+          Couldn&apos;t load assignment details.
+        </p>
+        <button
+          type="button"
+          onClick={onRetry}
+          className="text-[12px] font-bold text-[#4338ca] underline"
+        >
+          Try again
+        </button>
+      </div>
+    )
+  }
+
+  const statusClassName = getAssignmentSnapshotStatusClassName(snapshot.statusTone)
+
+  return (
+    <div className="animate-in fade-in slide-in-from-bottom-2 duration-300">
+      <div className="grid grid-cols-2 gap-2 mb-3">
+        {showTypeCard && snapshot.typeLabel != null && (
+          <div className="flex flex-col p-[11px_12px] bg-white border border-[#e9e9f3] rounded-[12px] shadow-sm">
+            <div className="flex items-center gap-1.5 mb-[3px] text-[#62647d]">
+              <Target weight="fill" className="size-[14px] text-[#4b4396]" />
+              <span className="text-[10.5px] font-bold uppercase tracking-wide">Type</span>
+            </div>
+            <span className="text-[12.5px] font-extrabold text-[#15162c]">{snapshot.typeLabel}</span>
+          </div>
+        )}
+        <div className="flex flex-col p-[11px_12px] bg-white border border-[#e9e9f3] rounded-[12px] shadow-sm">
+          <div className="flex items-center gap-1.5 mb-[3px] text-[#62647d]">
+            <PencilSimple weight="fill" className="size-[13px] text-[#4b4396]" />
+            <span className="text-[10.5px] font-bold uppercase tracking-wide">Status</span>
+          </div>
+          <span className={`text-[12.5px] font-extrabold ${statusClassName}`}>
+            {snapshot.statusLabel}
+          </span>
+        </div>
+        {showScoreCard && (
+          <div className="flex flex-col p-[11px_12px] bg-white border border-[#e9e9f3] rounded-[12px] shadow-sm">
+            <div className="flex items-center gap-1.5 mb-[3px] text-[#62647d]">
+              <Star weight="fill" className="size-[13px] text-[#4b4396]" />
+              <span className="text-[10.5px] font-bold uppercase tracking-wide">Score</span>
+            </div>
+            <span className="text-[12.5px] font-extrabold text-[#15162c]">
+              {snapshot.scoreDisplay ?? '-'}
+            </span>
+          </div>
+        )}
+        {snapshot.scorePolicyNotice != null && (
+          <div className="col-span-2 flex items-center gap-2 p-[10px_12px] bg-[#f0f4ff] border border-[#d6e4ff] rounded-[12px] shadow-sm">
+            <Info weight="fill" className="size-[15px] text-[#2952cc] shrink-0" />
+            <span className="text-[12px] font-bold text-[#1a3380]">{snapshot.scorePolicyNotice}</span>
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
 export function ItemConfirmation({ categoryObj, itemObj, onConfirm, onDirectQuery }: ItemConfirmationProps) {
   const gradientBg = 'linear-gradient(90.38deg, rgb(75, 67, 150) 2.62%, rgb(105, 98, 172) 100%)'
 
   const isLecture = categoryObj.id === 'lecture' && itemObj.id != null
+  const isAssignmentLike =
+    (categoryObj.id === 'assignment' || categoryObj.id === 'evaluation') &&
+    itemObj.id != null
   const {
     data: lectureSnapshot,
     isLoading: isLectureSnapshotLoading,
@@ -192,6 +293,15 @@ export function ItemConfirmation({ categoryObj, itemObj, onConfirm, onDirectQuer
     ...lectureSupportSnapshotQuery(itemObj.id ?? 0),
     enabled: isLecture,
   })
+  const {
+    data: assignmentSnapshot,
+    isLoading: isAssignmentSnapshotLoading,
+    isError: isAssignmentSnapshotError,
+    refetch: refetchAssignmentSnapshot,
+  } = useQuery({
+    ...assignmentSupportSnapshotQuery(itemObj.id ?? 0),
+    enabled: isAssignmentLike,
+  })
 
   const fallbackIsLive = itemObj.type === 'live'
   const startTime = itemObj.startTime ? new Date(itemObj.startTime).getTime() : 0
@@ -200,7 +310,7 @@ export function ItemConfirmation({ categoryObj, itemObj, onConfirm, onDirectQuer
   const fallbackOngoing = Boolean(fallbackIsLive && startTime && diffMins < 60)
   const isSessionPending = isLecture
     ? (lectureSnapshot?.isSessionPending ?? fallbackOngoing)
-    : fallbackOngoing
+    : false
 
   return (
     <div className="flex flex-col h-full">
@@ -233,71 +343,27 @@ export function ItemConfirmation({ categoryObj, itemObj, onConfirm, onDirectQuer
         />
       )}
 
-      {categoryObj.id === 'assignment' && (
-        <div className="grid grid-cols-2 gap-2 mb-3 animate-in fade-in slide-in-from-bottom-2 duration-300">
-          <div className="flex flex-col p-[11px_12px] bg-white border border-[#e9e9f3] rounded-[12px] shadow-sm">
-            <div className="flex items-center gap-1.5 mb-[3px] text-[#62647d]">
-              <Target weight="fill" className="size-[14px] text-[#4b4396]" />
-              <span className="text-[10.5px] font-bold uppercase tracking-wide">Type</span>
-            </div>
-            <span className="text-[12.5px] font-extrabold text-[#15162c]">Practice</span>
-          </div>
-          <div className="flex flex-col p-[11px_12px] bg-white border border-[#e9e9f3] rounded-[12px] shadow-sm">
-            <div className="flex items-center gap-1.5 mb-[3px] text-[#62647d]">
-              <PencilSimple weight="fill" className="size-[13px] text-[#4b4396]" />
-              <span className="text-[10.5px] font-bold uppercase tracking-wide">Status</span>
-            </div>
-            <span className="text-[12.5px] font-extrabold text-[#0E9F6E]">Submitted</span>
-          </div>
-          <div className="col-span-2 flex items-center gap-2 p-[10px_12px] bg-[#f0f4ff] border border-[#d6e4ff] rounded-[12px] shadow-sm">
-            <Info weight="fill" className="size-[15px] text-[#2952cc] shrink-0" />
-            <span className="text-[12px] font-bold text-[#1a3380]">Score will not be considered for final grading</span>
-          </div>
-        </div>
+      {(categoryObj.id === 'assignment' || categoryObj.id === 'evaluation') &&
+        itemObj.id != null && (
+        <AssignmentSnapshotCards
+          snapshot={assignmentSnapshot}
+          isLoading={isAssignmentSnapshotLoading}
+          isError={isAssignmentSnapshotError}
+          onRetry={() => void refetchAssignmentSnapshot()}
+          showTypeCard={
+            categoryObj.id === 'assignment' &&
+            (assignmentSnapshot != null
+              ? shouldShowAssignmentTypeCard(assignmentSnapshot)
+              : true)
+          }
+          showScoreCard={
+            categoryObj.id === 'evaluation' &&
+            (assignmentSnapshot != null
+              ? shouldShowAssignmentScoreCard(assignmentSnapshot)
+              : true)
+          }
+        />
       )}
-
-      {categoryObj.id === 'evaluation' && (() => {
-        let evalStatus = 'Not Attempted'
-        let evalScore = '-'
-        let evalStatusColor = 'text-[#62647d]'
-
-        if (itemObj.date.includes('Scored')) {
-          evalStatus = 'Attempted'
-          evalScore = itemObj.date.replace('Scored ', '')
-          evalStatusColor = 'text-[#0E9F6E]'
-        } else if (itemObj.date === 'Result pending') {
-          evalStatus = 'Attempted'
-          evalScore = 'Pending'
-          evalStatusColor = 'text-[#0E9F6E]'
-        } else if (itemObj.date === 'Scheduled') {
-          evalStatus = 'Not Attempted'
-          evalScore = '-'
-          evalStatusColor = 'text-[#62647d]'
-        }
-
-        return (
-          <div className="grid grid-cols-2 gap-2 mb-3 animate-in fade-in slide-in-from-bottom-2 duration-300">
-            <div className="flex flex-col p-[11px_12px] bg-white border border-[#e9e9f3] rounded-[12px] shadow-sm">
-              <div className="flex items-center gap-1.5 mb-[3px] text-[#62647d]">
-                <PencilSimple weight="fill" className="size-[13px] text-[#4b4396]" />
-                <span className="text-[10.5px] font-bold uppercase tracking-wide">Status</span>
-              </div>
-              <span className={`text-[12.5px] font-extrabold ${evalStatusColor}`}>{evalStatus}</span>
-            </div>
-            <div className="flex flex-col p-[11px_12px] bg-white border border-[#e9e9f3] rounded-[12px] shadow-sm">
-              <div className="flex items-center gap-1.5 mb-[3px] text-[#62647d]">
-                <Star weight="fill" className="size-[13px] text-[#4b4396]" />
-                <span className="text-[10.5px] font-bold uppercase tracking-wide">Score</span>
-              </div>
-              <span className="text-[12.5px] font-extrabold text-[#15162c]">{evalScore}</span>
-            </div>
-            <div className="col-span-2 flex items-center gap-2 p-[10px_12px] bg-[#f0f4ff] border border-[#d6e4ff] rounded-[12px] shadow-sm">
-              <Info weight="fill" className="size-[15px] text-[#2952cc] shrink-0" />
-              <span className="text-[12px] font-bold text-[#1a3380]">Score will be considered for final grading</span>
-            </div>
-          </div>
-        )
-      })()}
       {!isSessionPending && (
         <>
           <a href="#" onClick={(e) => e.preventDefault()} className="flex items-center justify-center gap-1.5 mb-1.5 p-[9px_14px] rounded-[10px] text-[13px] font-bold text-[#4338ca] bg-white border-[1.5px] border-[#e3e3fb] hover:bg-[#e3e3fb] hover:border-[#4b4396] hover:text-[#4b4396] transition-colors no-underline">
