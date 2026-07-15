@@ -198,6 +198,12 @@ export function useLectureVideoAttendance({
         videoRef,
         resumeSeconds: resume,
         resumeAppliedRef,
+        // The resume target comes from the SSR payload, so this timeout
+        // almost always fires before an MP4 reaches canplay/onReady. Without
+        // requireReady the pre-ready seekTo is a no-op that still latched
+        // resumeAppliedRef, so handleReady never re-seeked → MP4s resumed at
+        // 0. Not-ready here just defers to the onReady call in handleReady.
+        requireReady: true,
         onApplied: (seconds) => {
           setProgress(seconds)
           startTimeRef.current = seconds
