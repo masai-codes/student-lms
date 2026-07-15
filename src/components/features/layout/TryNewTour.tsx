@@ -117,11 +117,11 @@ export function TryNewTour({ hasSeen }: { hasSeen: boolean }) {
         style={{ top: popTop, left: popLeft, width: popWidth }}
       >
         <h3 className="text-base font-bold text-foreground">
-          Try the new experience ✨
+          You're on the new lms experience ✨
         </h3>
         <p className="mt-1 text-sm text-foreground-muted">
-          Switch between the new and classic experience anytime from here — you
-          can always switch back.
+          This is our redesigned experience. You can switch back to the classic
+          one anytime from here.
         </p>
         <div className="mt-3 flex justify-end">
           <button
