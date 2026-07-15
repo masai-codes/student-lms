@@ -69,7 +69,7 @@ export async function cacheScanKeys(pattern: string): Promise<Array<string>> {
         for (const key of keys) found.push(key)
       })
       stream.on('end', () => resolve())
-      stream.on('error', (err) => reject(err))
+      stream.on('error', (err: Error) => reject(err))
     })
     return found
   } catch (err) {
