@@ -7,12 +7,20 @@ import { LectureAiChatEmptyState } from './LectureAiChatEmptyState'
 import { LectureAiChatMessage } from './LectureAiChatMessage'
 import type { LectureAiChatMessage as LectureAiChatMessageModel } from '../types'
 import { Button } from '@/components/ui/button'
+import { cn } from '@/lib/utils'
 
 type LectureAiChatMessageListProps = {
   messages: Array<LectureAiChatMessageModel>
   isSending: boolean
   onRetry: () => void
   onSuggestion: (text: string) => void
+  /**
+   * Trap wheel/touch scroll inside the list even at its top/bottom edge. Wanted
+   * for the mobile drawer (so the page behind it stays put), but not for the
+   * desktop sidebar — there, when the list has little/nothing to scroll the
+   * wheel should chain to the page as usual.
+   */
+  containScroll?: boolean
 }
 
 export function LectureAiChatMessageList({
@@ -20,6 +28,7 @@ export function LectureAiChatMessageList({
   isSending,
   onRetry,
   onSuggestion,
+  containScroll = false,
 }: LectureAiChatMessageListProps) {
   const isEmpty = messages.length === 0
   const lastContentLength = isEmpty
@@ -34,7 +43,10 @@ export function LectureAiChatMessageList({
     <div className="relative min-h-0 flex-1">
       <div
         ref={listRef}
-        className="h-full overflow-y-auto overscroll-contain px-4 py-4"
+        className={cn(
+          'h-full overflow-y-auto px-4 py-4',
+          containScroll ? 'overscroll-contain' : 'overscroll-auto',
+        )}
       >
         {isEmpty ? (
           <LectureAiChatEmptyState onSuggestion={onSuggestion} />

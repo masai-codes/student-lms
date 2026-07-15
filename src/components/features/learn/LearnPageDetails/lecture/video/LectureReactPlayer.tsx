@@ -5,13 +5,26 @@ import ReactPlayer from 'react-player/lazy'
 
 import { VideoAttendanceCustomControls } from './controls/VideoAttendanceCustomControls'
 import { LECTURE_VIDEO_CHROME_CSS } from './controls/lectureVideoChrome.constants'
+import { getHtmlVideoFromPlayer } from './controls/lectureVideoChrome.utils'
 import { getLectureSplitChatOpenWidthCss } from '../constants/lectureSplitLayout'
 import { useLectureSplitChatOptional } from '../hooks/LectureSplitChatContext'
+import {
+  enterElementFullscreen,
+  exitAnyFullscreen,
+  getFullscreenElement,
+  isCoarsePointerDevice,
+  supportsElementFullscreen,
+  toggleLectureVideoFullscreen,
+} from './hooks/lectureVideoFullscreen.utils'
 import { seekPlayerToSeconds } from './hooks/lectureVideoResume'
-import { useLectureVideoAttendance } from './hooks/useLectureVideoAttendance'
+import {
+  shouldUseHlsJsForSrc,
+  useLectureVideoAttendance,
+} from './hooks/useLectureVideoAttendance'
 import { useIsElementFullscreen } from './hooks/useLectureVideoFullscreen'
 import { VideoPlaybackOverlays } from './VideoPlaybackOverlays'
 import { LectureVideoCaptionOverlay } from './LectureVideoCaptionOverlay'
+import { LectureVideoGestureLayer } from './LectureVideoGestureLayer'
 import type { LectureChromePlayerRef } from './controls/lectureVideoChrome.utils'
 
 import './lectureReactPlayer.css'
@@ -29,10 +42,8 @@ type LectureReactPlayerProps = {
   initialAttendance: LectureVideoAttendanceState | null
   transcriptSegments?: Array<LectureTranscriptSegment>
   className?: string
-}
-
-function isHlsUrl(url: string): boolean {
-  return url.includes('.m3u8')
+  /** Reports the intrinsic video aspect ratio (w/h) once metadata loads. */
+  onVideoAspectRatioChange?: (ratio: number) => void
 }
 
 export function LectureReactPlayer({
@@ -41,6 +52,7 @@ export function LectureReactPlayer({
   initialAttendance,
   transcriptSegments,
   className,
+  onVideoAspectRatioChange,
 }: LectureReactPlayerProps) {
   const fullscreenContainerRef = useRef<HTMLDivElement>(null)
   const videoRef = useRef<LectureChromePlayerRef>(null)
@@ -61,6 +73,54 @@ export function LectureReactPlayer({
     videoRef,
     initialAttendance,
   })
+
+  // Surface the real video dimensions so mobile can size the player to the
+  // actual aspect ratio instead of a fixed viewport slice.
+  useEffect(() => {
+    const video = getHtmlVideoFromPlayer(videoRef)
+    if (!video) return
+    const report = () => {
+      if (video.videoWidth > 0 && video.videoHeight > 0) {
+        onVideoAspectRatioChange?.(video.videoWidth / video.videoHeight)
+      }
+    }
+    report()
+    video.addEventListener('loadedmetadata', report)
+    // `resize` fires when an HLS rendition switch changes intrinsic size.
+    video.addEventListener('resize', report)
+    return () => {
+      video.removeEventListener('loadedmetadata', report)
+      video.removeEventListener('resize', report)
+    }
+  }, [attendance.playerReadyVersion, onVideoAspectRatioChange, videoRef])
+
+  // YouTube-style rotate-to-fullscreen on touch devices that support element
+  // fullscreen (Android). iPhone Safari has no element fullscreen; its native
+  // fullscreen player (via the fullscreen button) handles rotation itself.
+  const isPlayingRef = useRef(false)
+  useEffect(() => {
+    isPlayingRef.current = attendance.isVideoPlaying
+  }, [attendance.isVideoPlaying])
+
+  useEffect(() => {
+    if (typeof window === 'undefined' || !isCoarsePointerDevice()) return
+    const landscapeQuery = window.matchMedia('(orientation: landscape)')
+    const onOrientationChange = () => {
+      const container = fullscreenContainerRef.current
+      if (!container || !supportsElementFullscreen(container)) return
+      if (landscapeQuery.matches) {
+        if (isPlayingRef.current && !getFullscreenElement()) {
+          // No orientation lock here — the user must be able to rotate back.
+          void enterElementFullscreen(container)
+        }
+      } else if (getFullscreenElement() === container) {
+        void exitAnyFullscreen()
+      }
+    }
+    landscapeQuery.addEventListener('change', onOrientationChange)
+    return () =>
+      landscapeQuery.removeEventListener('change', onOrientationChange)
+  }, [])
 
   useEffect(() => {
     const onWindowKey = (event: KeyboardEvent) => {
@@ -134,15 +194,26 @@ export function LectureReactPlayer({
             onContextMenu={(event: MouseEvent) => event.preventDefault()}
             config={{
               file: {
-                forceHLS: isHlsUrl(src),
+                // Never force hls.js on iOS — iPhone must use Safari's native
+                // HLS (react-player skips hls.js for IS_IOS unless forced).
+                forceHLS: shouldUseHlsJsForSrc(src),
                 attributes: {
                   playsInline: true,
                   controlsList: 'nodownload',
-                  onClick: attendance.toggleVideoPlayPause,
                 },
               },
             }}
             style={{ background: '#000', display: 'block' }}
+          />
+          <LectureVideoGestureLayer
+            onTogglePlay={attendance.toggleVideoPlayPause}
+            onToggleFullscreen={() =>
+              toggleLectureVideoFullscreen(
+                fullscreenContainerRef.current,
+                getHtmlVideoFromPlayer(videoRef),
+              )
+            }
+            onSeekBySeconds={attendance.seekBySeconds}
           />
           <VideoPlaybackOverlays
             isVideoPlaying={attendance.isVideoPlaying}

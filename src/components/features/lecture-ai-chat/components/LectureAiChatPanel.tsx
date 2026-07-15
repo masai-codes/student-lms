@@ -19,6 +19,14 @@ type LectureAiChatPanelProps = {
   onClose?: () => void
   className?: string
   feedback?: UseLectureAiChatFeedbackResult
+  /** Focus the composer when this panel mounts (used by the mobile drawer). */
+  autoFocusComposer?: boolean
+  /**
+   * Trap message-list scroll at its edges instead of chaining to the page.
+   * Enabled for the mobile drawer so the page behind it stays put; left off for
+   * the desktop sidebar so a barely-scrollable list still lets the page scroll.
+   */
+  containScroll?: boolean
 }
 
 /**
@@ -32,6 +40,8 @@ export function LectureAiChatPanel({
   onClose,
   className,
   feedback,
+  autoFocusComposer,
+  containScroll,
 }: LectureAiChatPanelProps) {
   const [isHistoryOpen, setIsHistoryOpen] = useState(false)
   const conversations = useLectureAiConversations(lectureId, isHistoryOpen)
@@ -127,6 +137,7 @@ export function LectureAiChatPanel({
           isSending={chat.isSending}
           onRetry={chat.retryLast}
           onSuggestion={(text) => chat.sendMessage(text)}
+          containScroll={containScroll}
         />
       )}
 
@@ -149,6 +160,7 @@ export function LectureAiChatPanel({
           isSending={chat.isSending}
           language={chat.language}
           onLanguageChange={chat.setLanguage}
+          autoFocus={autoFocusComposer}
         />
       ) : null}
     </div>

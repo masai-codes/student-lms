@@ -16,9 +16,10 @@ type LectureAiChatMobileDockProps = {
 }
 
 /**
- * Mobile surface: shows only the composer ("search box"). Sending opens a
- * bottom drawer holding the full chat panel, wired to the same chat instance so
- * the just-sent message streams inside the drawer. The feedback banner
+ * Mobile surface: shows only the composer ("search box"). Focusing the composer
+ * (or sending) opens a bottom drawer holding the full chat panel, wired to the
+ * same chat instance so typing/streaming continues inside the drawer — whose
+ * composer auto-focuses so the keyboard stays up seamlessly. The feedback banner
  * (docs/AI_CHAT_FEEDBACK.md) becomes eligible as soon as the first reply in a
  * new thread completes, but only renders here — above the dock composer —
  * once the drawer is closed, so it never competes with the open chat.
@@ -57,6 +58,7 @@ export function LectureAiChatMobileDock({
         language={chat.language}
         onLanguageChange={chat.setLanguage}
         platform="mobile"
+        onFocus={() => setIsOpen(true)}
       />
 
       <Drawer.Root open={isOpen} onOpenChange={setIsOpen}>
@@ -72,6 +74,8 @@ export function LectureAiChatMobileDock({
               lectureId={lectureId}
               onClose={() => setIsOpen(false)}
               className="min-h-0 flex-1"
+              autoFocusComposer
+              containScroll
             />
           </Drawer.Content>
         </Drawer.Portal>

@@ -68,12 +68,12 @@ export function LectureDetailOverviewHeader({
   return (
     <section
       className={cn(
-        'flex flex-col gap-4 border-b border-border bg-background py-4 dark:bg-transparent md:flex-row md:items-start md:justify-between md:gap-6 md:py-5',
+        'flex flex-col gap-3 border-b border-border bg-background py-3 dark:bg-transparent md:flex-row md:items-start md:justify-between md:gap-6 md:py-5',
         className,
       )}
     >
       <div className="flex min-w-0 flex-1 flex-col gap-2">
-        <h1 className="type-h5 line-clamp-3 min-w-0 text-foreground md:line-clamp-2">
+        <h1 className="type-h5 line-clamp-2 min-w-0 text-foreground">
           {title}
         </h1>
         {/* Tag chips, then the status components (info button + Present badge)
@@ -121,14 +121,13 @@ export function LectureDetailOverviewHeader({
         </div>
       </div>
 
-      <div className="flex min-w-0 shrink-0 flex-col gap-3 md:max-w-[min(100%,280px)] md:items-end">
-        {actions ? (
-          // Press physics for the header CTAs (Raise Ticket + bookmark).
-          <div className="flex items-center gap-2 [&_a]:transition-transform [&_a]:duration-150 [&_a]:active:scale-95 [&_button]:transition-transform [&_button]:duration-150 [&_button]:active:scale-95">
-            {actions}
-          </div>
-        ) : null}
-        <div className="flex min-w-0 items-start gap-3 md:justify-end">
+      {/* Mobile: host (left) and CTAs (right) share one row to save vertical
+          space, but the row is allowed to WRAP — on narrow widths the CTAs
+          drop to their own line instead of crushing the host name into
+          mid-word breaks. Desktop keeps its column with the CTAs above the
+          host, right aligned (flex-col-reverse over the same DOM order). */}
+      <div className="flex min-w-0 shrink-0 flex-row flex-wrap items-center justify-between gap-3 md:max-w-[min(100%,280px)] md:flex-col-reverse md:flex-nowrap md:items-end md:justify-start md:gap-3">
+        <div className="flex min-w-[180px] flex-1 items-start gap-3 md:min-w-0 md:flex-none md:justify-end">
           <Avatar
             size="lg"
             className="size-10 shrink-0 ring-2 ring-brand/15 ring-offset-2 ring-offset-background transition-transform duration-300 hover:scale-105"
@@ -149,6 +148,12 @@ export function LectureDetailOverviewHeader({
             ) : null}
           </div>
         </div>
+        {actions ? (
+          // Press physics for the header CTAs (Raise Ticket + bookmark).
+          <div className="flex shrink-0 items-center gap-2 [&_a]:transition-transform [&_a]:duration-150 [&_a]:active:scale-95 [&_button]:transition-transform [&_button]:duration-150 [&_button]:active:scale-95">
+            {actions}
+          </div>
+        ) : null}
       </div>
     </section>
   )

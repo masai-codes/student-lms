@@ -10,8 +10,12 @@ type VideoPlaybackOverlaysProps = {
   seekHint: SeekHint
 }
 
-const seekIconClass =
-  'h-5 w-5 shrink-0 text-white [filter:drop-shadow(0_0_2px_rgba(0,0,0,0.95))_drop-shadow(0_1px_3px_rgba(0,0,0,0.85))] md:h-6 md:w-6'
+const seekIconClass = 'h-6 w-6 shrink-0 text-white md:h-7 md:w-7'
+
+const seekBadgeClass =
+  'flex flex-col items-center gap-1 rounded-2xl bg-black/60 px-4 py-3 text-white shadow-[0_2px_16px_rgba(0,0,0,0.5)] backdrop-blur-sm animate-in fade-in-0 zoom-in-95 duration-150'
+
+const seekLabelClass = 'text-xs font-semibold leading-none text-white/90'
 
 export function VideoPlaybackOverlays({
   isVideoPlaying,
@@ -43,7 +47,10 @@ export function VideoPlaybackOverlays({
           className="pointer-events-none absolute inset-y-0 left-0 z-[41] flex items-center justify-start pl-3 md:pl-8"
           aria-hidden
         >
-          <CaretDoubleLeft className={seekIconClass} weight="bold" />
+          <div className={seekBadgeClass}>
+            <CaretDoubleLeft className={seekIconClass} weight="fill" />
+            <span className={seekLabelClass}>5s</span>
+          </div>
         </div>
       ) : null}
       {seekHint === 'forward' ? (
@@ -51,7 +58,10 @@ export function VideoPlaybackOverlays({
           className="pointer-events-none absolute inset-y-0 right-0 z-[41] flex items-center justify-end pr-3 md:pr-8"
           aria-hidden
         >
-          <CaretDoubleRight className={seekIconClass} weight="bold" />
+          <div className={seekBadgeClass}>
+            <CaretDoubleRight className={seekIconClass} weight="fill" />
+            <span className={seekLabelClass}>5s</span>
+          </div>
         </div>
       ) : null}
     </>

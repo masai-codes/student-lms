@@ -12,6 +12,7 @@ import {
   AssignmentDetailFooterInlineNotices,
   AssignmentDetailStickyFooter,
 } from './AssignmentDetailStickyFooter'
+import { AssignmentMobileAttemptNotice } from './AssignmentMobileAttemptNotice'
 import { AssignmentNotStartedBanner } from './AssignmentNotStartedBanner'
 
 import type { AssignmentDetailPayload } from '@/server/learn/assignmentDetailTypes'
@@ -27,7 +28,8 @@ export function AssignmentDetailLayout({
   detail,
   main,
 }: AssignmentDetailLayoutProps) {
-  const footerPadClass = detail.footer.visible ? 'pb-28 md:pb-20' : ''
+  // Footer is hidden on mobile, so only reserve bottom padding on md+.
+  const footerPadClass = detail.footer.visible ? 'md:pb-20' : ''
 
   return (
     <>
@@ -36,6 +38,7 @@ export function AssignmentDetailLayout({
           detail={detail}
           main={
             <>
+              <AssignmentMobileAttemptNotice footer={detail.footer} />
               <AssignmentDetailFooterInlineNotices footer={detail.footer} />
               <AssignmentCompletedBanner
                 completedDetails={detail.completedDetails}
