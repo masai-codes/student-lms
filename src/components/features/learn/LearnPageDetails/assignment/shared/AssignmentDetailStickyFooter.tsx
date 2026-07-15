@@ -88,7 +88,9 @@ export function AssignmentDetailStickyFooter({
     <>
       <footer
         data-testid="assignment-detail-sticky-footer"
-        className="fixed bottom-[calc(4.5rem+env(safe-area-inset-bottom))] left-0 right-0 z-[80] flex flex-col gap-3 border-t border-border bg-surface px-4 py-3 shadow-[0_1px_4px_0_rgba(0,0,0,0.20)] md:bottom-0 md:flex-row md:items-center md:justify-between"
+        // Hidden on mobile: assignment actions must be performed on a
+        // laptop/desktop (see AssignmentMobileAttemptNotice). md+ only.
+        className="fixed bottom-[calc(4.5rem+env(safe-area-inset-bottom))] left-0 right-0 z-[80] hidden flex-col gap-3 border-t border-border bg-surface px-4 py-3 shadow-[0_1px_4px_0_rgba(0,0,0,0.20)] md:bottom-0 md:flex md:flex-row md:items-center md:justify-between"
       >
         {/* Entrance animates the content, not the fixed element's position. */}
         <div className="animate-dash-rise flex min-w-0 flex-1 flex-wrap items-center gap-3">

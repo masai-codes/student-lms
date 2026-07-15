@@ -89,4 +89,19 @@ export const LECTURE_VIDEO_CHROME_CSS = `
     min-height: 0;
     height: 100%;
   }
+  /* Safari fires the prefixed pseudo-class; keep as separate rules — an
+     unsupported selector in a shared rule would invalidate the whole rule. */
+  .lecture-video-fs-root:-webkit-full-screen {
+    height: 100vh;
+    width: 100%;
+    max-height: 100vh;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+  }
+  .lecture-video-fs-root:-webkit-full-screen .lecture-video-fs-video {
+    flex: 1 1 auto;
+    min-height: 0;
+    height: 100%;
+  }
 `

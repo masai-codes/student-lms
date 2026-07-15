@@ -5,6 +5,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import Hls from 'hls.js'
 
 import { SEEK_ALIGNMENT_EPSILON } from '../controls/lectureVideoChrome.constants'
+import { isIosLikeDevice } from './lectureVideoFullscreen.utils'
 import { applyResumeIfNeeded, seekPlayerToSeconds } from './lectureVideoResume'
 import { useTimer } from './useTimer'
 import type { LectureChromePlayerRef } from '../controls/lectureVideoChrome.utils'
@@ -18,6 +19,41 @@ import { storeLectureVideoProgressViaApi } from '@/lib/api/learn/videoProgressAp
 
 function isHlsUrl(url: string): boolean {
   return url.includes('.m3u8')
+}
+
+/**
+ * hls.js only where MSE genuinely works (desktop / Android) — it powers the
+ * quality picker. On iPhone/iPad we MUST use Safari's native HLS: forcing
+ * hls.js there (MSE-less or ManagedMediaSource-flaky) breaks playback
+ * entirely, which is why lectures played in the old LMS but not here.
+ */
+export function shouldUseHlsJsForSrc(src: string): boolean {
+  return (
+    isHlsUrl(src) &&
+    typeof window !== 'undefined' &&
+    !isIosLikeDevice() &&
+    Hls.isSupported()
+  )
+}
+
+/**
+ * play() returns a promise that can reject on mobile Safari (aborted load,
+ * transient network error). Recover by reloading the element once when it has
+ * no usable data, so the user's tap still starts playback.
+ */
+export function playVideoWithRecovery(video: HTMLVideoElement): void {
+  const playResult: Promise<void> | undefined = video.play()
+  void playResult?.catch(() => {
+    if (video.error || video.readyState === HTMLMediaElement.HAVE_NOTHING) {
+      try {
+        video.load()
+        const retry: Promise<void> | undefined = video.play()
+        void retry?.catch(() => {})
+      } catch {
+        /* leave paused; user can retry */
+      }
+    }
+  })
 }
 
 /** A selectable HLS rendition, surfaced to the quality picker. */
@@ -375,7 +411,7 @@ export function useLectureVideoAttendance({
     const videoEl = player
       ? (player.getInternalPlayer() as HTMLMediaElement | undefined)
       : undefined
-    const useHlsJs = Boolean(isHls && videoEl && src && Hls.isSupported())
+    const useHlsJs = Boolean(videoEl && src && shouldUseHlsJsForSrc(src))
 
     if (useHlsJs && videoEl) {
       if (!hlsRef.current) {
@@ -466,7 +502,7 @@ export function useLectureVideoAttendance({
       (internal as HTMLVideoElement).tagName === 'VIDEO'
     ) {
       const video = internal as HTMLVideoElement
-      if (video.paused) void video.play()
+      if (video.paused) playVideoWithRecovery(video)
       else void video.pause()
     }
   }, [videoRef])
