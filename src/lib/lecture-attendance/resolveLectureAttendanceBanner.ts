@@ -61,7 +61,14 @@ export const LECTURE_ATTENDANCE_BANNERS: Record<
  * ¹ `video-counts` promises "watch it and you'll become Present". It is hidden
  *   when the student is already Present (nothing to earn) or the catch-up window
  *   is over (watching can no longer change the status) — no scope left either way.
- * ² Mid-watch: the catch-up progress bar is shown instead of the blue banner.
+ * ² 'continue_watching' here reflects the server-reconciled video percentage
+ *   (`attendance.videoPercentage` from `student_attendances`), NOT live playback
+ *   progress. Legacy parity: the old-LMS `AttendanceDisclaimer` derived its state
+ *   from the stored video percentage only and deliberately ignored the live
+ *   watch-progress, so the banner stayed visible for the whole watch session and
+ *   only resolved to a progress view once the reconciled status caught up. Wiring
+ *   live progress in here made the banner vanish ~30s into playback (first
+ *   progress save + router refetch) — the regression this parity restores.
  * ³ `live-only` warns "watching won't count, only live does" — only relevant
  *   while the student is not yet Present, so it is hidden once already Present.
  * ⁴ No attendance row yet (student never marked): they are not Present, so the
@@ -70,14 +77,16 @@ export const LECTURE_ATTENDANCE_BANNERS: Record<
  */
 export function resolveLectureAttendanceBanner(
   attendance: LectureAttendanceSummary | null | undefined,
-  watchPercentage?: number | null,
 ): LectureAttendanceBannerDescriptor | null {
   if (attendance == null) {
     return null
   }
 
+  // Derive the UI state from the stored (server-reconciled) attendance only —
+  // no live watch-percentage. See footnote ² above: the legacy banner ignored
+  // live progress so it did not disappear mid-watch.
   const uiState: LectureAttendanceUiState | null =
-    mapAttendanceSummaryToDetailUiState(attendance, watchPercentage)
+    mapAttendanceSummaryToDetailUiState(attendance)
 
   const { includeVideoAttendance, isCatchupWindowOver } = attendance
 

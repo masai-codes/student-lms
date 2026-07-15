@@ -194,7 +194,7 @@ export function VideoAttendanceCustomControls({
   }
 
   const shellClass =
-    `pointer-events-auto absolute bottom-0 left-0 right-0 z-[45] flex w-full min-w-0 flex-col bg-gradient-to-t from-black/95 via-black/70 to-transparent px-3 pb-2 pt-10 text-white transition-opacity duration-300 ease-out ${
+    `pointer-events-auto absolute bottom-0 left-0 right-0 z-[45] flex w-full min-w-0 flex-col bg-gradient-to-t from-black/95 via-black/70 to-transparent pt-10 text-white transition-opacity duration-300 ease-out ${
       chromeVisible ? 'opacity-100' : 'pointer-events-none opacity-0'
     } ${className}`.trim()
 
@@ -203,6 +203,13 @@ export function VideoAttendanceCustomControls({
       role="toolbar"
       aria-label="Video controls"
       className={shellClass}
+      // Full-bleed player: keep the chrome clear of the iOS notch / rounded
+      // corners (landscape) and the home indicator (fullscreen).
+      style={{
+        paddingLeft: 'max(0.75rem, env(safe-area-inset-left, 0px))',
+        paddingRight: 'max(0.75rem, env(safe-area-inset-right, 0px))',
+        paddingBottom: 'max(0.5rem, env(safe-area-inset-bottom, 0px))',
+      }}
       onFocusCapture={() => {
         setChromeVisible(true)
         clearHideTimer()
