@@ -57,6 +57,14 @@ export type LectureDetailPayload = LearnHubDetailPayload & {
   tabs: LectureDetailTabContent
   videoUrl: string | null
   zoomLink: string | null
+  /**
+   * For a SAL (adaptive) live lecture that has ended, the lecture-scoped
+   * adaptive join link — which the experience-api handler redirects to the
+   * recording once the meeting is over. Null for non-adaptive lectures, or
+   * before the lecture ends. Powers the "Watch Recording" affordance since SAL
+   * recordings live on the adaptive platform, not in `videoUrl`.
+   */
+  adaptiveRecordingUrl: string | null
   livePhase: LiveLecturePhase | null
   videoPhase: VideoLecturePhase | null
   hasRecording: boolean
@@ -74,6 +82,12 @@ export type LectureDetailPayload = LearnHubDetailPayload & {
   isBookmarked: boolean
   /** When true, live join uses the ZEF redirect flow instead of the raw zoom link. */
   isNewZoomRedirection: boolean
+  /**
+   * `sections.settings.enableZoomWebView`. When true (and the lecture is a
+   * non-adaptive, non-ZEF Zoom link), the live-join CTA opens the old LMS's
+   * embedded Zoom Web SDK page (`/lectures/:id/zoom`) instead of the raw link.
+   */
+  enableZoomWebView: boolean
   /** Lecture feedback window + the user's existing rating/text. */
   feedback: LectureFeedbackState
 }

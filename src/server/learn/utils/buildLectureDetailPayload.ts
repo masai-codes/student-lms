@@ -15,7 +15,10 @@ import { resolveLectureVideoUrl } from '@/server/learn/utils/resolveLectureVideo
 import { resolveJoinLiveButtonState } from '@/server/learn/utils/resolveJoinLiveButtonState'
 import { resolveVideoLecturePhase } from '@/server/learn/utils/resolveVideoLecturePhase'
 import { scrubZoomLinkForSchedule } from '@/server/learn/utils/scrubZoomLinkForSchedule'
-import { toLectureScopedAdaptiveLink } from '@/server/learn/utils/toLectureScopedAdaptiveLink'
+import {
+  isAdaptiveLectureLink,
+  toLectureScopedAdaptiveLink,
+} from '@/server/learn/utils/toLectureScopedAdaptiveLink'
 
 type LectureDetailRow = {
   type: string
@@ -53,7 +56,10 @@ export function buildLectureDetailPayload(
   attendance: LectureAttendanceSummary | null,
   optionalAttendance: LectureAttendanceSummary | null,
   feedbackRecord: { rating: number | null; text: string | null },
-): Omit<LectureDetailPayload, 'isBookmarked' | 'isNewZoomRedirection'> {
+): Omit<
+  LectureDetailPayload,
+  'isBookmarked' | 'isNewZoomRedirection' | 'enableZoomWebView'
+> {
   const lectureKind = normalizeLectureKind(row.type)
   if (lectureKind == null) {
     throw new Error('LECTURE_DETAIL_UNSUPPORTED_TYPE')
@@ -95,6 +101,18 @@ export function buildLectureDetailPayload(
         )
       : null
 
+  // SAL (adaptive) recordings live on the adaptive platform, not in `videoUrl`.
+  // After the lecture ends, the lecture-scoped adaptive link redirects to the
+  // recording, so surface it as the "Watch Recording" link (only when there is
+  // no native recording to prefer). `zoomLink` is already scrubbed + scoped.
+  const adaptiveRecordingUrl =
+    lectureKind === 'live' &&
+    livePhase === 'after' &&
+    !hasRecording &&
+    isAdaptiveLectureLink(zoomLink)
+      ? zoomLink
+      : null
+
   const joinLiveButtonState =
     lectureKind === 'live'
       ? resolveJoinLiveButtonState({
@@ -132,6 +150,7 @@ export function buildLectureDetailPayload(
     tabs,
     videoUrl,
     zoomLink,
+    adaptiveRecordingUrl,
     livePhase,
     videoPhase,
     hasRecording,

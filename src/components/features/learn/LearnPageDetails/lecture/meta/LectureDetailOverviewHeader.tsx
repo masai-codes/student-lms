@@ -68,7 +68,7 @@ export function LectureDetailOverviewHeader({
   return (
     <section
       className={cn(
-        'flex flex-col gap-4 border-b border-border bg-background py-3 md:flex-row md:items-start md:justify-between md:gap-6 md:py-4',
+        'flex flex-col gap-4 border-b border-border bg-background py-4 dark:bg-transparent md:flex-row md:items-start md:justify-between md:gap-6 md:py-5',
         className,
       )}
     >

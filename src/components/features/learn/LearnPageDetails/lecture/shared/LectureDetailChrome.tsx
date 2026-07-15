@@ -21,6 +21,13 @@ type LectureDetailChromeProps = {
   attendance: LectureAttendanceSummary | null
   /** Set only for optional (recommended) lectures; renders the info tooltip. */
   optionalAttendance?: LectureAttendanceSummary | null
+  /**
+   * Render the blue "watch the recording to become Present" / "only live counts"
+   * attendance disclaimer. Only the recording experience passes `true` — the
+   * before/during/no-recording fallbacks must not, since there is no recording
+   * to watch yet and the message would be misleading.
+   */
+  showAttendanceBanner?: boolean
   /** `live`/`scrum` lecture — shows the Live line in the attendance breakdown. */
   isLiveLecture: boolean
   watchPercentage?: number | null
@@ -43,18 +50,18 @@ export function LectureDetailChrome({
   optionalAttendance,
   isLiveLecture,
   watchPercentage,
+  showAttendanceBanner = false,
   actions,
   hero,
   belowHero,
   footer,
 }: LectureDetailChromeProps) {
-  const attendanceBanner = resolveLectureAttendanceBanner(
-    attendance,
-    watchPercentage,
-  )
+  const attendanceBanner = showAttendanceBanner
+    ? resolveLectureAttendanceBanner(attendance, watchPercentage)
+    : null
   return (
     <div className="w-full pb-12">
-      <section className="flex w-full shrink-0 flex-col overflow-visible bg-surface">
+      <section className="flex w-full shrink-0 flex-col overflow-visible bg-surface dark:bg-transparent">
         {hero}
         <div
           data-lecture-viewport-chrome
@@ -79,7 +86,7 @@ export function LectureDetailChrome({
             actions={actions}
           />
           {attendanceBanner ? (
-            <div className="animate-dash-rise [--dash-delay:0.08s]">
+            <div className="mb-4 animate-dash-rise [--dash-delay:0.08s]">
               <LectureAttendanceBanner banner={attendanceBanner} />
             </div>
           ) : null}
@@ -90,7 +97,7 @@ export function LectureDetailChrome({
         <div
           className={cn(
             lectureDetailContentClasses,
-            'animate-dash-rise bg-surface [--dash-delay:0.16s]',
+            'animate-dash-rise bg-surface dark:bg-transparent [--dash-delay:0.16s]',
           )}
         >
           {footer}

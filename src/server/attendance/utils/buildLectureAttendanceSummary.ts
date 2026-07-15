@@ -15,6 +15,11 @@ export function buildLectureAttendanceSummary(
   context: LectureAttendanceContext,
   record: StudentAttendanceRow | null,
   nowMs: number,
+  /**
+   * Live recording watch progress (0–100) from `video_attendances.duration`.
+   * Defaults to 0 when the student has no watch row yet.
+   */
+  videoWatchPercentage = 0,
 ): LectureAttendanceSummary {
   const sectionSettings = parseSectionAttendanceSettings(
     context.sectionSettings,
@@ -54,6 +59,7 @@ export function buildLectureAttendanceSummary(
     hasStudentAttendanceEntry,
     isCatchupWindowOver,
     videoPercentage: record?.videoPercentage ?? 0,
+    watchPercentage: videoWatchPercentage,
     daysRemaining,
     remainingLabel,
     lateByMinutes: record?.lateByMinutes ?? null,

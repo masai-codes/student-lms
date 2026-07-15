@@ -55,7 +55,13 @@ export function getListingAttendanceRender(
     hasStudentAttendanceEntry: attendance.hasStudentAttendanceEntry,
     isCatchupWindowOver: attendance.isCatchupWindowOver,
     videoPercentage: attendance.videoPercentage,
-    localWatchPercentage: videoProgressHint?.watchPercentage ?? undefined,
+    // Prefer a live hint (lecture detail passes the player's current value);
+    // otherwise fall back to the server watch progress on the summary so the
+    // listing card resolves to the same state as the detail.
+    localWatchPercentage:
+      videoProgressHint?.watchPercentage ??
+      attendance.watchPercentage ??
+      undefined,
     daysRemaining: attendance.daysRemaining,
   })
 

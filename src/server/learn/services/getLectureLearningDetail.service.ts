@@ -3,12 +3,19 @@ import { and, eq, isNull, ne } from 'drizzle-orm'
 import type { LectureDetailPayload } from '@/server/learn/lectureDetailTypes'
 
 import { db } from '@/db'
-import { lectures, lecturesAi, lectureZoomChat, users } from '@/db/schema'
+import {
+  lectures,
+  lecturesAi,
+  lectureZoomChat,
+  sections,
+  users,
+} from '@/db/schema'
 import { DISCUSSION_ENTITY_LECTURE } from '@/server/new-discussions/discussionEntityTypes'
 import { listDiscussionsWithThreadsForLearnEntity } from '@/server/new-discussions/services/listDiscussionsWithThreadsForLearnEntity'
 import { fetchLectureAttendanceSummaries } from '@/server/attendance/services/fetchLectureAttendanceSummaries'
 import { buildLectureVideoAttendanceState } from '@/server/learn/utils/buildLectureVideoAttendanceState'
 import { toLearningPriority } from '@/server/learn/utils/learningDataMappers'
+import { resolveEnableZoomWebView } from '@/server/learn/utils/resolveEnableZoomWebView'
 import {
   buildLectureDetailPayload,
   isSupportedLectureDetailType,
@@ -50,10 +57,12 @@ export async function getLectureLearningDetailForUser(
       settings: lectures.settings,
       notes: lectures.notes,
       isNewZoomRedirection: lectures.isNewZoomRedirection,
+      sectionSettings: sections.settings,
       data: lectures.data,
     })
     .from(lectures)
     .leftJoin(users, eq(lectures.hostId, users.id))
+    .leftJoin(sections, eq(lectures.sectionId, sections.id))
     .where(
       and(
         eq(lectures.id, lectureId),
@@ -73,11 +82,7 @@ export async function getLectureLearningDetailForUser(
     throw new Error('LEARN_DETAIL_NOT_FOUND')
   }
 
-  const allowed = await ensureUserCanAccessLearnHubEntity(
-    userId,
-    row.batchId,
-    row.sectionId,
-  )
+  const allowed = await ensureUserCanAccessLearnHubEntity(userId, row.sectionId)
 
   if (!allowed) {
     throw new Error('LEARN_DETAIL_NOT_FOUND')
@@ -196,6 +201,7 @@ export async function getLectureLearningDetailForUser(
     ...payload,
     isBookmarked,
     isNewZoomRedirection: row.isNewZoomRedirection === 1,
+    enableZoomWebView: resolveEnableZoomWebView(row.sectionSettings),
     restriction,
     // When restricted the whole page is blocked client-side; don't leak the
     // recording URL either way.

@@ -22,16 +22,12 @@ import {
   getOldStudentUiUrlForPath,
   isLegacyStudentRedirectEnabled,
 } from '@/utils/authRedirect'
+import { isMigratedRoute } from '@/utils/migratedRoutes'
 import { initClarity, setCurrentUserForTracking } from '@/utils/tracking'
 
 /** Paths served by this app when legacy redirect is enabled (everything else → old LMS). */
 function isNewStudentExperienceRoute(pathname: string): boolean {
-  if (pathname === '/' || pathname === '') return true
   if (pathname.startsWith('/masaiverse')) return true
-  if (pathname.startsWith('/learn')) return true
-  if (pathname.startsWith('/assignments')) return true
-  if (pathname.startsWith('/lectures')) return true
-  if (pathname.startsWith('/resources')) return true
   if (pathname.startsWith('/announcements')) return true
   if (pathname.startsWith('/messages')) return true
   if (pathname.startsWith('/bookmarks')) return true
@@ -82,15 +78,24 @@ export const Route = createFileRoute('/(protected)/_layout')({
       }
     }
 
-    if (
-      shouldRedirectToLegacy &&
-      !isNewStudentExperienceRoute(location.pathname)
-    ) {
+    if (shouldRedirectToLegacy) {
       const url = new URL(location.href, 'http://localhost')
       const pathForLegacy = `${url.pathname}${url.search}`
-      const oldUiUrl = getOldStudentUiUrlForPath(pathForLegacy)
-      if (oldUiUrl) {
-        throw redirect({ href: oldUiUrl })
+
+      // The 5 migrated routes ignore the static allowlist: the per-user flag
+      // decides. Opted in → stay here; opted out → old LMS. Every other route
+      // keeps the existing allowlist behaviour.
+      const shouldRedirectMigratedRoute =
+        isMigratedRoute(location.pathname) && !user.newLmsPagesEnabled
+      const shouldRedirectOtherRoute =
+        !isMigratedRoute(location.pathname) &&
+        !isNewStudentExperienceRoute(location.pathname)
+
+      if (shouldRedirectMigratedRoute || shouldRedirectOtherRoute) {
+        const oldUiUrl = getOldStudentUiUrlForPath(pathForLegacy)
+        if (oldUiUrl) {
+          throw redirect({ href: oldUiUrl })
+        }
       }
     }
     return {

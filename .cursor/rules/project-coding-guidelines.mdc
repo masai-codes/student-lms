@@ -45,6 +45,126 @@ alwaysApply: true
 - Avoid hardcoded magic values when a project token or shared constant exists.
 - Preserve accessibility basics (semantic elements, interactive affordances, readable text).
 
+## Design & Motion System ("the delightful feel")
+The product's bar is not "functional" — it is **delightful**. Every screen should
+feel premium and alive: each hover, tap, and load should have a small, tasteful
+reaction so the UI feels responsive and "wow" without ever being noisy or slow.
+Match this feel in all new and touched UI. Restraint is part of the bar — a few
+well-placed motions beat many competing ones.
+
+### Reusable motion kit (use these first)
+A shared animation kit lives in `src/styles.css` — **reuse these classes; do not
+reinvent per-component keyframes or add new global keyframes without need.**
+- `animate-dash-rise` — section/panel entrance (fade + rise + blur-to-sharp).
+- `animate-dash-row-in` — list-row / item entrance.
+- `dash-lift` — hover lift + press-squish for clickable cards/rows.
+- `dash-sheen` — one-shot sheen sweep on hover (sets `position:relative` +
+  `overflow:hidden`; do **not** put it on containers whose children must overflow,
+  e.g. absolutely-positioned badges).
+- `dash-skeleton` — shimmer skeleton block for loading (prefer over static gray
+  pulses / spinners for content placeholders).
+- `animate-dash-pop` — springy pop-in for count badges / newly-shown icons.
+- `animate-dash-glow` — breathing accent glow for "today"/live emphasis.
+- `animate-dash-ping` — expanding ring behind a live dot.
+- `animate-dash-float` — gentle idle float for illustrations/empty-state icons.
+- `dash-gradient-text` — animated indigo→violet gradient text; use sparingly
+  (greetings/hero only, never body copy).
+- Stagger entrances with the `--dash-delay` CSS variable — either the
+  `[--dash-delay:0.08s]` utility or an inline style cast as
+  `style={{ '--dash-delay': `${i * 0.05}s` } as React.CSSProperties}`. Cap
+  cumulative list delay (~0.4s, e.g. `Math.min(i, 8) * 0.05`) so long lists stay
+  snappy.
+
+### Interaction conventions (apply consistently)
+- **Clickable cards/rows:** `dash-lift` (or hover lift + `active:scale-[0.98]`)
+  plus an accent border tint on hover (`hover:border-[#4F6BED]/35`).
+- **Buttons / CTAs:** hover lift (`hover:-translate-y-px`) + press
+  (`active:scale-95`); primary CTAs get an accent glow shadow. Use smooth
+  `transition-*` with `duration-150`–`300` and `ease-out`.
+- **Icons in interactive elements:** nudge/scale on hover (chevrons slide with
+  `group-hover:translate-x-1`, toggle chevrons rotate `data-[state=open]:rotate-180`,
+  decorative icons `group-hover:scale-110`).
+- **Overlays (dropdown / select / menu / modal / drawer / tooltip):** must
+  animate open **and** close. The shared primitives in `src/components/ui`
+  (`dropdown-menu`, `select`, `modal`, `sheet`, `tooltip`,
+  `masai-dropdown-checkbox-filter`, `masai-drawer`) already encode this — reuse
+  them. Standard timing: `data-[state=open]:duration-200 ease-out`,
+  `data-[state=closed]:duration-150`, entering with zoom/slide + fade from the
+  trigger origin. New menu/filter items get `transition-colors` + a press
+  response.
+- **Loading:** `dash-skeleton` shimmer that mirrors the real layout; keep the
+  literal "Loading…" text as `sr-only` when a test or screen reader needs it.
+- **Empty states:** make them friendly, not blank — a popping/floating icon
+  (`animate-dash-pop` / `animate-dash-float`) with a short line. Preserve the
+  exact `data-testid` and copy tests assert on.
+
+### Brand accents
+- Indigo `#4F6BED`, purple `#6962AC`, blue `#3F83F8`; hero gradient
+  `from-[#4F6BED] to-[#7C3AED]`. Prefer these (or existing theme tokens) over new
+  arbitrary colors for accents, tints, glows, and gradient bars.
+
+### Responsiveness (mobile-first, nothing may break)
+- Every screen must look native-app-quality from **320px** up through tablet and
+  desktop. Nothing may overflow horizontally or touch the viewport edge.
+- Horizontal page gutters come from the shared `<main>` (`layout.ts`
+  `LAYOUT_MAIN_PADDING_X`); do not add a second `mx-*`/`px-*` gutter on top of it
+  inside a page — it double-pads on small screens.
+- Control rows must stack (`flex-col … md:flex-row`) rather than keep fixed widths
+  that overflow; give inputs `w-full min-w-0 sm:w-[fixed]`. Add `min-w-0` +
+  `break-words`/`truncate` to text columns so long titles/URLs can't push layout
+  wide. Scope `whitespace-nowrap` to `sm:` and up when the text is long.
+- Wide tables/media inside content get an `overflow-x-auto` wrapper.
+- Modal/drawer layers must sit **above** the fixed mobile tab bar (`z-[200]`) so
+  their panels and CTAs are never clipped (shared overlays already do this).
+
+### Reduced motion & performance
+- All motion must be disabled under `prefers-reduced-motion` — the `dash-*` kit
+  already handles this; any bespoke animation you add must include a
+  `@media (prefers-reduced-motion: reduce)` off-switch.
+- Animate only compositor-friendly properties (`transform`, `opacity`, `filter`);
+  never animate layout properties (width/height/top/left) in hot paths. Keep
+  durations short (150–550ms) so the UI never feels sluggish.
+
+## Theming (multi-theme — every theme must look great)
+The app ships multiple themes (LMS Default + light variants + dark themes) via a
+semantic token system in `src/styles.css`. Every new or edited UI element MUST
+render correctly in ALL themes — an unreadable/dark-on-dark string or a stray
+light "island" in a dark theme is incomplete work, treated like a missing
+`data-testid`. Full mapping: `docs/theming-token-map.md`. Visual QA surface: the
+`/theme-lab` route. Contrast is enforced in CI by `npm run check:contrast`.
+- **Never hardcode a color.** No raw hex (`text-[#111827]`, `bg-[#F9FAFB]`), no
+  literal Tailwind color scales (`text-gray-700`, `bg-blue-50`, `border-slate-200`),
+  and no fixed `text-white`/`text-black` sitting on a themed fill. Colors come
+  from semantic token utilities so they re-theme automatically.
+- **Use the semantic tokens** (all wired to Tailwind utilities):
+  - Surfaces: `bg-background`, `bg-surface`, `bg-surface-muted`, `bg-card`,
+    `bg-popover`, `bg-muted`, `bg-brand-subtle`, `bg-{success,warning,danger,info}-subtle`.
+  - Text: `text-foreground`, `text-foreground-muted`, `text-foreground-subtle`,
+    `text-brand`, and each fill's `text-*-foreground` / `text-*-subtle-foreground`.
+  - Borders/rings: `border-border`, `border-border-strong`, `ring-ring`, `ring-brand`.
+  - Brand/accent: `bg-brand`/`text-brand`, `bg-accent-warm`/`hover:bg-accent-warm-hover`;
+    status families `success`/`warning`/`danger`/`info`.
+- **Colors travel as foreground/background PAIRS** — never choose a text color
+  independently of its background. On `bg-brand` use `text-brand-foreground`; on
+  `bg-*-subtle` use `text-*-subtle-foreground`. This is what guarantees contrast
+  in every theme.
+- **Dark themes add a `.dark` class to `<html>`.** For a genuinely decorative
+  light background/gradient that can't be tokenized (brand gradient, promo card,
+  illustration), KEEP the light classes and ADD `dark:` overrides — never change
+  the light classes. e.g. `... from-[#EBF3FE] to-[#F3EDFE] dark:bg-none dark:bg-surface-muted`,
+  or `bg-blue-50 text-blue-600 dark:bg-info-subtle dark:text-info-subtle-foreground`.
+- **Respect elevation:** raised elements (cards, popovers, dropdowns) use
+  `bg-surface`/`bg-card`; recessed/inset fills use `bg-surface-muted`. In dark
+  themes elevated surfaces are LIGHTER than the page — don't invert it.
+- **Typography color is themed:** `type-*` classes and `MarkdownContent` derive
+  their color from `--masai-text-color` (the theme foreground). Do not override
+  typography/prose text with a hardcoded color.
+- **Adding a theme** = one `[data-theme='<id>']` block in `styles.css` + one
+  entry in `src/lib/theme/themes.ts`. Zero component changes.
+- **Before shipping UI:** run `npm run check:contrast` (must pass on every
+  theme), open `/theme-lab`, and eyeball the feature in Default AND at least one
+  dark theme (Midnight/Cocoa).
+
 ## Automation Test Hooks
 - Add a stable `data-testid` to every meaningful UI element so end-to-end /
   automation suites can target it without depending on copy, styling, or DOM

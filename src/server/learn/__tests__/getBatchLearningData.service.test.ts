@@ -97,6 +97,7 @@ describe('getBatchLearningData service (orchestration)', () => {
             hasStudentAttendanceEntry: true,
             isCatchupWindowOver: null,
             videoPercentage: 0,
+            watchPercentage: 0,
             daysRemaining: null,
             lateByMinutes: null,
           },

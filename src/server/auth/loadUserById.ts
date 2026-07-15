@@ -41,6 +41,7 @@ export async function loadUserById(userId: number) {
     mobile: string | null
     role: string | null
     profileImage: string | null
+    newLmsPagesEnabled: number | boolean | string | null
   }>(
     await db.execute(sql`
       SELECT
@@ -49,6 +50,7 @@ export async function loadUserById(userId: number) {
         u.email,
         u.mobile,
         u.role,
+        JSON_EXTRACT(u.meta, '$.new_lms_pages_enabled') AS newLmsPagesEnabled,
         COALESCE(
           JSON_UNQUOTE(JSON_EXTRACT(pr.meta, '$.profile_pic')),
           JSON_UNQUOTE(JSON_EXTRACT(u.meta, '$.profile_pic')),
@@ -86,6 +88,10 @@ export async function loadUserById(userId: number) {
     mobile: row.mobile,
     role: row.role,
     profileImageUrl: pickProfileImageUrl(row.profileImage),
+    newLmsPagesEnabled:
+      row.newLmsPagesEnabled === true ||
+      row.newLmsPagesEnabled === 1 ||
+      row.newLmsPagesEnabled === 'true',
     joinedClubId:
       membershipRows[0]?.clubId != null
         ? String(membershipRows[0].clubId)

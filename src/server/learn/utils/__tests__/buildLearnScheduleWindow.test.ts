@@ -2,9 +2,10 @@ import { describe, expect, it } from 'vitest'
 
 import { buildLearnScheduleWindow } from '@/server/learn/utils/buildLearnScheduleWindow'
 
-// Fixed "now": 2026-06-22 12:00:00 UTC.
+// Fixed "now": 2026-06-22 12:00:00 UTC (= 17:30 IST — same calendar date in both
+// zones, so the IST and UTC day boundaries coincide here).
 const NOW_MS = Date.UTC(2026, 5, 22, 12, 0, 0)
-// Legacy lectures/resources default + "upcoming" upper bound = next UTC midnight.
+// Lectures/resources default + "upcoming" upper bound = next IST midnight.
 const END_OF_TODAY_UTC = '2026-06-23 00:00:00'
 // Legacy past/upcoming "now" = UTC now shifted +5:30 (experience-api `currDateIST`).
 const LEGACY_NOW = '2026-06-22 17:30:00'
@@ -103,6 +104,36 @@ describe('buildLearnScheduleWindow', () => {
           nowMs: NOW_MS,
         }),
       ).toEqual({ gte: '2026-06-01 00:00:00', lt: '2026-06-23 00:00:00' })
+    })
+
+    // Regression: `schedule` is stored as IST wall-clock, so the day boundary must
+    // be the IST day. During 00:00–05:30 IST the UTC date still lags the IST date by
+    // a day; the boundary must not collapse to the previous (UTC) midnight or a
+    // lecture scheduled for "today (IST)" gets hidden.
+    describe('IST day boundary during early-morning IST', () => {
+      // 2026-07-14 20:00:00 UTC = 2026-07-15 01:30 IST → IST "today" is Jul-15,
+      // so the tomorrow boundary is next IST midnight (Jul-16 00:00), NOT the next
+      // UTC midnight (Jul-15 00:00).
+      const EARLY_IST_MORNING = Date.UTC(2026, 6, 14, 20, 0, 0)
+
+      it('default window uses the IST day, not the UTC day', () => {
+        expect(
+          buildLearnScheduleWindow({
+            learningType: 'lecture',
+            nowMs: EARLY_IST_MORNING,
+          }),
+        ).toEqual({ gte: null, lt: '2026-07-16 00:00:00' })
+      })
+
+      it('upcoming window uses the IST day for its upper bound', () => {
+        expect(
+          buildLearnScheduleWindow({
+            learningType: 'lecture',
+            schedulePhase: 'upcoming',
+            nowMs: EARLY_IST_MORNING,
+          }),
+        ).toEqual({ gte: '2026-07-15 01:30:00', lt: '2026-07-16 00:00:00' })
+      })
     })
 
     it('ignores a malformed start date and falls back to the phase window', () => {

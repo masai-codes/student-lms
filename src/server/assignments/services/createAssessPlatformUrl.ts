@@ -4,6 +4,7 @@ import { db } from '@/db'
 import { assignments, batches, submissions, users } from '@/db/schema'
 import { ApiError } from '@/server/api/http/apiError'
 import { getExperienceApiBaseUrl } from '@/server/api/http/experienceApiFetch'
+import { acquireLock, releaseLock } from '@/server/redis/lock'
 import { getIstNowSqlDatetime } from '@/server/time/istClock'
 import { ORIGIN_URLS } from '@/utils/originUrls'
 
@@ -16,10 +17,13 @@ import { ORIGIN_URLS } from '@/utils/originUrls'
  * pointed back at experience-api (GQL_BASE_URL/*-callback), whose webhook
  * handlers still own inbound assessment events.
  *
- * There is no Redis in student-lms, so the experience-api distributed lock is
- * replaced by the same idempotency guards it already relies on: an
- * early-return when a link is already stored, plus a conditional UPDATE that
- * only writes when none exists (and reads the winner back on a race).
+ * Concurrent generation for the same submission is serialized by a Redis
+ * distributed lock (`assess:url:generation:{submissionId}`, EX 120 NX) — the
+ * same primitive experience-api used. When Redis is disabled/unreachable the
+ * lock is a no-op and the DB idempotency guards still hold correctness: an
+ * early-return when a link is already stored, a re-check under the lock, plus a
+ * conditional UPDATE that only writes when none exists (and reads the winner
+ * back on a race).
  *
  * Required env: ASSESS_PLATFORM_URL, ASSESS_PLATFORM_AUTH_TOKEN,
  * ASSESS_PLATFORM_SECRET_KEY, ASSESS_PLATFORM_CALLBACK_TOKEN,
@@ -298,57 +302,78 @@ export async function createAssessPlatformUrl(input: {
       : {}),
   }
 
-  const response = await fetch(`${base}/student/assessments/generate-test`, {
-    method: 'POST',
-    headers: {
-      adminauthtoken: adminAuthToken,
-      'Content-Type': 'application/json; charset=utf-8',
-    },
-    body: JSON.stringify(payload),
-  })
-
-  if (!response.ok) await parseAssessError(response)
-  const responseBody = (await response.json().catch(() => ({}))) as {
-    url?: string
+  // Serialize concurrent generation for this submission across PM2 workers.
+  // The 120s TTL auto-frees the lock if we crash; when Redis is off acquireLock
+  // returns true and the conditional UPDATE below remains the correctness guard.
+  const lockKey = `assess:url:generation:${submissionId}`
+  const gotLock = await acquireLock(lockKey, 120)
+  if (!gotLock) {
+    throw new ApiError(429, 'ASSESS_URL_GENERATION_IN_PROGRESS')
   }
-  let url = responseBody.url
-  if (!url) throw new ApiError(500, 'ASSESS_PLATFORM_URL_MISSING')
 
-  // Persist only if no link exists yet (guards against a concurrent generate).
-  const nowIst = istNowIso()
-  const updatedData: JsonObject = {
-    ...(submission.data ?? {}),
-    assess_platform_link: url,
-    assess_platform_link_clicked: nowIst,
-  }
-  const [header] = await db
-    .update(submissions)
-    .set({ data: updatedData, updatedAt: nowIst })
-    .where(
-      and(
-        eq(submissions.id, submissionId),
-        sql`(${submissions.data} IS NULL OR JSON_EXTRACT(${submissions.data}, '$.assess_platform_link') IS NULL)`,
-      ),
-    )
-
-  if (header.affectedRows === 0) {
-    // A concurrent request won; use the stored link.
-    const stored = await loadOwnedSubmission(submissionId, userId)
-    const storedLink = stored.data?.assess_platform_link
-    if (typeof storedLink !== 'string' || !storedLink) {
-      throw new ApiError(500, 'ASSESS_PLATFORM_URL_MISSING')
+  try {
+    // Re-check under the lock: a racing request may have stored the link
+    // between our first read and acquiring the lock — reuse it, don't regen.
+    const locked = await loadOwnedSubmission(submissionId, userId)
+    const lockedLink = locked.data?.assess_platform_link
+    if (typeof lockedLink === 'string' && lockedLink) {
+      return { url: lockedLink }
     }
-    url = storedLink
-  }
 
-  if (showProblemSolution) {
-    const token = extractToken(url)
-    if (token) {
-      await sendTokensToAssess({ tokens: [token], showProblemSolution: true })
+    const response = await fetch(`${base}/student/assessments/generate-test`, {
+      method: 'POST',
+      headers: {
+        adminauthtoken: adminAuthToken,
+        'Content-Type': 'application/json; charset=utf-8',
+      },
+      body: JSON.stringify(payload),
+    })
+
+    if (!response.ok) await parseAssessError(response)
+    const responseBody = (await response.json().catch(() => ({}))) as {
+      url?: string
     }
-  }
+    let url = responseBody.url
+    if (!url) throw new ApiError(500, 'ASSESS_PLATFORM_URL_MISSING')
 
-  return { url }
+    // Persist only if no link exists yet (guards against a concurrent generate).
+    const nowIst = istNowIso()
+    const updatedData: JsonObject = {
+      ...(locked.data ?? {}),
+      assess_platform_link: url,
+      assess_platform_link_clicked: nowIst,
+    }
+    const [header] = await db
+      .update(submissions)
+      .set({ data: updatedData, updatedAt: nowIst })
+      .where(
+        and(
+          eq(submissions.id, submissionId),
+          sql`(${submissions.data} IS NULL OR JSON_EXTRACT(${submissions.data}, '$.assess_platform_link') IS NULL)`,
+        ),
+      )
+
+    if (header.affectedRows === 0) {
+      // A concurrent request won; use the stored link.
+      const stored = await loadOwnedSubmission(submissionId, userId)
+      const storedLink = stored.data?.assess_platform_link
+      if (typeof storedLink !== 'string' || !storedLink) {
+        throw new ApiError(500, 'ASSESS_PLATFORM_URL_MISSING')
+      }
+      url = storedLink
+    }
+
+    if (showProblemSolution) {
+      const token = extractToken(url)
+      if (token) {
+        await sendTokensToAssess({ tokens: [token], showProblemSolution: true })
+      }
+    }
+
+    return { url }
+  } finally {
+    await releaseLock(lockKey)
+  }
 }
 
 /**

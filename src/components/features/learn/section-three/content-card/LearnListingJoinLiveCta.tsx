@@ -5,6 +5,7 @@ import { CardCtaButton } from '@/components/shared/card-cta-button'
 import { learnEntityEvent, pushLearnEvent } from '../../shared/learnAnalytics'
 import { fetchZoomRedirectUrlViaApi } from '@/lib/api/learn/zoomRedirectApi'
 import { toast } from '@/lib/toast'
+import { buildZoomWebViewUrl } from '@/lib/learn/zoomWebView'
 import {
   getJoinLiveCtaTheme,
   shouldShowJoinLiveCta,
@@ -17,6 +18,8 @@ type LearnListingJoinLiveCtaProps = {
   joinZoomLink: string | null
   /** When true, mint the join URL via the zoom-redirect API on click. */
   isNewZoomRedirection: boolean
+  /** When true, open the old LMS embedded Zoom page instead of the raw link. */
+  enableZoomWebView: boolean
   lectureId?: number
   title?: string
 }
@@ -29,6 +32,7 @@ export function LearnListingJoinLiveCta({
   joinLive,
   joinZoomLink,
   isNewZoomRedirection,
+  enableZoomWebView,
   lectureId,
   title,
 }: LearnListingJoinLiveCtaProps) {
@@ -48,6 +52,7 @@ export function LearnListingJoinLiveCta({
           lecture_id: lectureId,
           title,
           source: 'learn_listing',
+          join_method: enableZoomWebView ? 'zoom_web_view' : 'zoom_link',
         },
       )
     }
@@ -68,6 +73,15 @@ export function LearnListingJoinLiveCta({
       return
     }
 
+    // Zoom Web View: reuse the old LMS embedded Zoom page (shared cookie).
+    if (enableZoomWebView && lectureId !== undefined) {
+      const webViewUrl = buildZoomWebViewUrl(lectureId)
+      if (webViewUrl) {
+        openInNewTab(webViewUrl)
+        return
+      }
+    }
+
     if (joinZoomLink) openInNewTab(joinZoomLink)
   }
 
@@ -76,6 +90,7 @@ export function LearnListingJoinLiveCta({
       text={pending ? 'Opening…' : 'Join Live'}
       theme={getJoinLiveCtaTheme(joinLive)}
       onClick={handleJoin}
+      dataTestId="learn-listing-join-live-cta"
       className={
         joinLive === 'disabled' ? 'pointer-events-none opacity-60' : ''
       }

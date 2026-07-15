@@ -45,7 +45,6 @@ export async function createDiscussionForLearnEntity(options: {
 
     const allowed = await ensureUserCanAccessLearnHubEntity(
       authorUserId,
-      a.batchId,
       a.sectionId,
     )
     if (!allowed) throw new Error('LEARN_DETAIL_NOT_FOUND')
@@ -106,7 +105,6 @@ export async function createDiscussionForLearnEntity(options: {
 
   const allowed = await ensureUserCanAccessLearnHubEntity(
     authorUserId,
-    L.batchId,
     L.sectionId,
   )
   if (!allowed) throw new Error('LEARN_DETAIL_NOT_FOUND')

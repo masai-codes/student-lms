@@ -68,6 +68,73 @@ describe('buildLectureDetailPayload', () => {
     expect(payload.zoomLink).toBe('https://zoom.example/j/1')
     expect(payload.joinLiveButtonState).toBe('hidden')
     expect(payload.videoAttendance).toBeNull()
+    // Non-adaptive Zoom lecture: no SAL "watch recording" link.
+    expect(payload.adaptiveRecordingUrl).toBeNull()
+  })
+
+  it('exposes the lecture-scoped adaptive link as the recording for an ended SAL lecture', () => {
+    const concludesMs = new Date(concludes).getTime()
+    const payload = buildLectureDetailPayload(
+      core,
+      {
+        type: 'live',
+        schedule,
+        concludes,
+        zoomLink:
+          'https://experience-api.masaischool.com/api/adaptive-lecture/abc123/join',
+        // SAL recordings live on the adaptive platform, not in these fields.
+        videos: null,
+        vimeoDownloadLinks: null,
+        vimeoPlayerEmbedUrl: null,
+        settings: null,
+        hostAvatarUrl: null,
+        notes: null,
+      },
+      concludesMs + 31 * 60 * 1000,
+      emptyTabs,
+      null,
+      null,
+      null,
+      { rating: null, text: null },
+    )
+
+    expect(payload.livePhase).toBe('after')
+    expect(payload.hasRecording).toBe(false)
+    expect(payload.videoUrl).toBeNull()
+    // Middle segment rewritten from the meeting id to the lecture id (227).
+    expect(payload.adaptiveRecordingUrl).toBe(
+      'https://experience-api.masaischool.com/api/adaptive-lecture/227/join',
+    )
+  })
+
+  it('does not expose an adaptive recording link before a SAL lecture ends', () => {
+    const scheduleMs = new Date(schedule).getTime()
+    const payload = buildLectureDetailPayload(
+      core,
+      {
+        type: 'live',
+        schedule,
+        concludes,
+        zoomLink:
+          'https://experience-api.masaischool.com/api/adaptive-lecture/abc123/join',
+        videos: null,
+        vimeoDownloadLinks: null,
+        vimeoPlayerEmbedUrl: null,
+        settings: null,
+        hostAvatarUrl: null,
+        notes: null,
+      },
+      // While the lecture is live (during phase).
+      scheduleMs + 5 * 60 * 1000,
+      emptyTabs,
+      null,
+      null,
+      null,
+      { rating: null, text: null },
+    )
+
+    expect(payload.livePhase).toBe('during')
+    expect(payload.adaptiveRecordingUrl).toBeNull()
   })
 
   it('strips video when hide_video is enabled', () => {

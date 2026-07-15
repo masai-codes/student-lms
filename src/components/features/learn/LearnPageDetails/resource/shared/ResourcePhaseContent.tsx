@@ -9,5 +9,5 @@ type ResourcePhaseContentProps = {
 }
 
 export function ResourcePhaseContent({ content }: ResourcePhaseContentProps) {
-  return <LearnPhaseContentSection content={content} />
+  return <LearnPhaseContentSection content={content} showLockIcon />
 }

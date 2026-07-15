@@ -75,7 +75,7 @@ describe('LectureFeedbackForm', () => {
       />,
     )
 
-    fireEvent.click(screen.getByRole('radio', { name: 'Rate 5 stars' }))
+    fireEvent.click(screen.getByRole('radio', { name: 'Amazing (5 out of 5)' }))
     fireEvent.click(screen.getByRole('button', { name: 'Submit feedback' }))
 
     expect(hoisted.submit).toHaveBeenCalledWith({

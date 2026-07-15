@@ -15,6 +15,7 @@ function makeSummary(
     hasStudentAttendanceEntry: true,
     isCatchupWindowOver: null,
     videoPercentage: 0,
+    watchPercentage: 0,
     daysRemaining: null,
     remainingLabel: null,
     lateByMinutes: null,
@@ -38,6 +39,48 @@ describe('resolveLectureAttendanceBanner', () => {
     ).toBeNull()
   })
 
+  it('shows video-counts when no attendance row exists yet, recording counts, window open', () => {
+    // No student_attendances row: never marked. Still has scope to earn Present
+    // by watching (legacy-LMS parity — new LMS previously showed nothing here).
+    expect(
+      resolveLectureAttendanceBanner(
+        makeSummary({
+          overallStatus: null,
+          hasStudentAttendanceEntry: false,
+          includeVideoAttendance: true,
+          isCatchupWindowOver: false,
+          daysRemaining: 30,
+        }),
+      ),
+    ).toBe(LECTURE_ATTENDANCE_BANNERS['video-counts'])
+  })
+
+  it('hides the banner when no attendance row exists but the catch-up window is over', () => {
+    expect(
+      resolveLectureAttendanceBanner(
+        makeSummary({
+          overallStatus: null,
+          hasStudentAttendanceEntry: false,
+          includeVideoAttendance: true,
+          isCatchupWindowOver: true,
+        }),
+      ),
+    ).toBeNull()
+  })
+
+  it('shows live-only when no attendance row exists and recording does not count', () => {
+    expect(
+      resolveLectureAttendanceBanner(
+        makeSummary({
+          overallStatus: null,
+          hasStudentAttendanceEntry: false,
+          includeVideoAttendance: false,
+          isCatchupWindowOver: null,
+        }),
+      ),
+    ).toBe(LECTURE_ATTENDANCE_BANNERS['live-only'])
+  })
+
   it('returns null when the UI state is hidden (not applicable + absent)', () => {
     expect(
       resolveLectureAttendanceBanner(
@@ -46,15 +89,27 @@ describe('resolveLectureAttendanceBanner', () => {
     ).toBeNull()
   })
 
-  it('shows the video-counts banner when recording watch-time counts (present)', () => {
+  it('shows the video-counts banner when recording counts and Present is still earnable (absent, window open)', () => {
     expect(
       resolveLectureAttendanceBanner(
-        makeSummary({ overallStatus: 1, includeVideoAttendance: true }),
+        makeSummary({
+          overallStatus: 0,
+          includeVideoAttendance: true,
+          isCatchupWindowOver: false,
+        }),
       ),
     ).toBe(LECTURE_ATTENDANCE_BANNERS['video-counts'])
   })
 
-  it('shows the video-counts banner when recording counts (absent, window over)', () => {
+  it('hides the video-counts banner when already Present (no need to watch)', () => {
+    expect(
+      resolveLectureAttendanceBanner(
+        makeSummary({ overallStatus: 1, includeVideoAttendance: true }),
+      ),
+    ).toBeNull()
+  })
+
+  it('hides the video-counts banner when the catch-up window is over (watching can no longer help)', () => {
     expect(
       resolveLectureAttendanceBanner(
         makeSummary({
@@ -63,7 +118,7 @@ describe('resolveLectureAttendanceBanner', () => {
           isCatchupWindowOver: true,
         }),
       ),
-    ).toBe(LECTURE_ATTENDANCE_BANNERS['video-counts'])
+    ).toBeNull()
   })
 
   it('hides the banner mid-watch when recording counts (progress bar shown instead)', () => {
@@ -86,6 +141,14 @@ describe('resolveLectureAttendanceBanner', () => {
         makeSummary({ overallStatus: 0, includeVideoAttendance: false }),
       ),
     ).toBe(LECTURE_ATTENDANCE_BANNERS['live-only'])
+  })
+
+  it('hides the live-only banner when already Present (recording is irrelevant once Present)', () => {
+    expect(
+      resolveLectureAttendanceBanner(
+        makeSummary({ overallStatus: 1, includeVideoAttendance: false }),
+      ),
+    ).toBeNull()
   })
 
   it('still shows live-only mid-watch when recording does not count', () => {

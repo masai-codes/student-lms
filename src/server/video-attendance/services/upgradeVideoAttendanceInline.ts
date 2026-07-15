@@ -1,13 +1,9 @@
 import { and, eq } from 'drizzle-orm'
 
 import { db } from '@/db'
-import {
-  lectures,
-  sections,
-  studentAttendances,
-  videoAttendances,
-} from '@/db/schema'
-import { getIstNowSqlDatetime, parseIstToMs } from '@/server/time/istClock'
+import { studentAttendances, videoAttendances } from '@/db/schema'
+import { getIstNowSqlDatetime } from '@/server/time/istClock'
+import { getLectureEligibility } from '@/server/video-attendance/services/lectureEligibilityCache'
 
 /**
  * Inline "absent -> present via recording" upgrade.
@@ -19,45 +15,19 @@ import { getIstNowSqlDatetime, parseIstToMs } from '@/server/time/istClock'
  * present on the twice-daily cron. Running it here gives the same real-time
  * upgrade the old GraphQL path had, with all changes confined to student-lms.
  *
+ * The lecture/section eligibility inputs (deadline + watch-% threshold) come
+ * from {@link getLectureEligibility}, which caches them in Redis on the hot
+ * path; only the freshly-written watch % is read live here.
+ *
  * Fire-and-forget: never throws to the caller. Any failure is logged and the
  * safety-net cron still reconciles the row later.
  */
-
-const IST_OFFSET_MS = (5 * 60 + 30) * 60_000
-const DAY_MS = 24 * 60 * 60 * 1000
-const DEFAULT_CATCH_UP_DAYS = 30
 
 type UpgradeArgs = {
   lectureId: number
   userId: number
   /** totalDuration reported by the player this request (seconds). */
   totalDuration: number | null | undefined
-}
-
-type SectionSettings = {
-  considerVideoAttendanceForActualAttendance?: unknown
-  minimumVideoWatchPercentage?: unknown
-  catchUpDays?: unknown
-}
-
-/** End-of-day (23:59:59.999) IST for the given absolute instant, as epoch ms. */
-function endOfDayIstMs(instantMs: number): number {
-  const ist = new Date(instantMs + IST_OFFSET_MS)
-  ist.setUTCHours(23, 59, 59, 999)
-  return ist.getTime() - IST_OFFSET_MS
-}
-
-function parseSettings(raw: unknown): SectionSettings {
-  if (raw == null) return {}
-  if (typeof raw === 'string') {
-    try {
-      return JSON.parse(raw) as SectionSettings
-    } catch {
-      return {}
-    }
-  }
-  if (typeof raw === 'object') return raw as SectionSettings
-  return {}
 }
 
 export async function upgradeVideoAttendanceInline(
@@ -76,18 +46,14 @@ export async function upgradeVideoAttendanceInline(
       return
     }
 
-    // One round-trip: the just-written watch % + the lecture/section eligibility inputs.
+    // Cached: is this lecture video-eligible, and until when / above what %?
+    const eligibility = await getLectureEligibility(lectureId)
+    if (!eligibility.enabled) return
+
+    // Live: the watch % we just wrote for this (lecture, user).
     const rows = await db
-      .select({
-        watchPercentage: videoAttendances.duration,
-        schedule: lectures.schedule,
-        deletedAt: lectures.deletedAt,
-        sectionId: lectures.sectionId,
-        settings: sections.settings,
-      })
+      .select({ watchPercentage: videoAttendances.duration })
       .from(videoAttendances)
-      .innerJoin(lectures, eq(lectures.id, videoAttendances.lectureId))
-      .innerJoin(sections, eq(sections.id, lectures.sectionId))
       .where(
         and(
           eq(videoAttendances.lectureId, lectureId),
@@ -97,28 +63,16 @@ export async function upgradeVideoAttendanceInline(
       .limit(1)
 
     const row = rows[0]
-    if (!row || row.deletedAt || row.schedule == null) return
-
-    const settings = parseSettings(row.settings)
-    if (settings.considerVideoAttendanceForActualAttendance !== true) return
-
-    const threshold = Number(settings.minimumVideoWatchPercentage)
-    if (!Number.isFinite(threshold)) return
+    if (!row) return
 
     const newPercentage = Number(row.watchPercentage)
-    if (!Number.isFinite(newPercentage) || newPercentage < threshold) return
+    if (
+      !Number.isFinite(newPercentage) ||
+      newPercentage < eligibility.threshold
+    )
+      return
 
-    const catchUpDaysRaw = Number(settings.catchUpDays)
-    const catchUpDays =
-      Number.isFinite(catchUpDaysRaw) && catchUpDaysRaw > 0
-        ? catchUpDaysRaw
-        : DEFAULT_CATCH_UP_DAYS
-
-    const scheduleMs = parseIstToMs(row.schedule)
-    if (scheduleMs == null) return
-
-    const deadlineMs = endOfDayIstMs(scheduleMs + catchUpDays * DAY_MS)
-    if (Date.now() > deadlineMs) return
+    if (Date.now() > eligibility.deadline) return
 
     // Flip only a still-absent, live-absent row. Scoped WHERE = idempotent:
     // once present the update matches 0 rows, so repeated pings are harmless.

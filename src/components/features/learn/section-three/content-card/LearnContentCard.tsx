@@ -301,6 +301,7 @@ export function LearnContentCard({
               joinLive={item.listingCtas.joinLive}
               joinZoomLink={item.listingCtas.joinZoomLink}
               isNewZoomRedirection={item.listingCtas.isNewZoomRedirection}
+              enableZoomWebView={item.listingCtas.enableZoomWebView}
               lectureId={item.id}
               title={item.title}
             />
