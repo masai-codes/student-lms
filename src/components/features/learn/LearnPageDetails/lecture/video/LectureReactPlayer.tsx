@@ -110,22 +110,62 @@ export function LectureReactPlayer({
   useEffect(() => {
     if (typeof window === 'undefined' || !isCoarsePointerDevice()) return
     const landscapeQuery = window.matchMedia('(orientation: landscape)')
+    let exitTimer: number | null = null
+    const clearExitTimer = () => {
+      if (exitTimer !== null) {
+        window.clearTimeout(exitTimer)
+        exitTimer = null
+      }
+    }
     const onOrientationChange = () => {
       const container = fullscreenContainerRef.current
       if (!container || !supportsElementFullscreen(container)) return
       if (landscapeQuery.matches) {
+        clearExitTimer()
         if (isPlayingRef.current && !getFullscreenElement()) {
           // No orientation lock here — the user must be able to rotate back.
           void enterElementFullscreen(container)
         }
       } else if (getFullscreenElement() === container) {
-        void exitAnyFullscreen()
+        // Debounced: a 180° landscape-to-landscape flip briefly reports
+        // portrait mid-rotation. Exiting instantly would drop fullscreen and
+        // the re-enter on the far side fails (no user gesture), stranding the
+        // user on the inline view — so only exit if portrait sticks.
+        clearExitTimer()
+        exitTimer = window.setTimeout(() => {
+          exitTimer = null
+          if (!landscapeQuery.matches && getFullscreenElement() === container) {
+            void exitAnyFullscreen()
+          }
+        }, 500)
       }
     }
     landscapeQuery.addEventListener('change', onOrientationChange)
-    return () =>
+    return () => {
+      clearExitTimer()
       landscapeQuery.removeEventListener('change', onOrientationChange)
+    }
   }, [])
+
+  // Pause playback whenever this player instance's container is hidden
+  // (display:none → observed size collapses to 0×0). The lecture page mounts
+  // separate mobile/desktop player rows swapped at the `md` breakpoint, so
+  // e.g. exiting fullscreen while the phone is still landscape hides the
+  // playing mobile instance — without this its audio keeps running in the
+  // background. A transient 0×0 during the enter-fullscreen swap is fine:
+  // ResizeObserver coalesces to the final (visible) size.
+  useEffect(() => {
+    const container = fullscreenContainerRef.current
+    if (!container || typeof ResizeObserver === 'undefined') return
+    const observer = new ResizeObserver((entries) => {
+      const entry = entries[entries.length - 1]
+      if (entry.contentRect.width > 0 || entry.contentRect.height > 0) return
+      const video = getHtmlVideoFromPlayer(videoRef)
+      if (video && !video.paused) video.pause()
+    })
+    observer.observe(container)
+    return () => observer.disconnect()
+  }, [videoRef])
 
   useEffect(() => {
     const onWindowKey = (event: KeyboardEvent) => {
@@ -238,7 +278,7 @@ export function LectureReactPlayer({
               onChange={(event) =>
                 attendance.changeQuality(Number(event.target.value))
               }
-              className="absolute right-[max(0.75rem,env(safe-area-inset-right,0px))] top-3 z-[55] cursor-pointer rounded-md border border-white/15 bg-black/60 py-1.5 pl-3 pr-2 text-sm font-medium text-white outline-none backdrop-blur-sm transition-colors hover:bg-black/80 focus-visible:ring-2 focus-visible:ring-white/40"
+              className="absolute right-3 top-3 z-[55] cursor-pointer rounded-md border border-white/15 bg-black/60 py-1.5 pl-3 pr-2 text-sm font-medium text-white outline-none backdrop-blur-sm transition-colors hover:bg-black/80 focus-visible:ring-2 focus-visible:ring-white/40"
             >
               <option value={-1}>Auto</option>
               {attendance.qualityLevels.map((level) => (
