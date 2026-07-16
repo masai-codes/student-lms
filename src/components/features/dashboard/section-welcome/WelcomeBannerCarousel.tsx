@@ -169,24 +169,33 @@ function BannerCard({
       draggable={false}
       data-testid="dashboard-welcome-banner-item"
       onClick={handleClick}
-      className="dash-sheen group flex h-full items-center gap-4 rounded-2xl bg-gradient-to-r from-[#EBF3FE] via-[#EEF0FE] to-[#F3EDFE] px-12 py-5 no-underline ring-1 ring-inset ring-[#4F6BED]/10 transition-shadow duration-300 hover:shadow-[0_10px_28px_-10px_rgb(79_107_237_/_0.28)] dark:bg-none dark:bg-surface-muted"
+      className="dash-sheen group relative flex h-full items-stretch overflow-hidden rounded-2xl no-underline shadow-[0_6px_20px_-10px_rgb(79_107_237_/_0.22)] ring-1 ring-inset ring-[#4F6BED]/10 transition-shadow duration-300 hover:shadow-[0_12px_30px_-10px_rgb(79_107_237_/_0.30)]"
     >
-      <div className="flex size-11 shrink-0 items-center justify-center overflow-hidden rounded-full bg-surface shadow-sm ring-1 ring-[#4F6BED]/10 transition-transform duration-300 ease-out group-hover:scale-110 group-hover:-rotate-6">
+      {/* Base blue/purple wash. */}
+      <span
+        aria-hidden
+        className="pointer-events-none absolute inset-0 bg-gradient-to-r from-[#EBF3FE] via-[#EEF0FE] to-[#F3EDFE] dark:bg-none dark:bg-surface-muted"
+      />
+      {/* Full-height image, flush to the left edge — matches the promo card so
+          every slide in the carousel looks consistent. */}
+      <div className="relative z-10 w-20 shrink-0 self-stretch overflow-hidden bg-surface md:w-36">
         <img
           src={banner.imageUrl ?? FALLBACK_ICON}
           alt=""
-          className="size-7 object-contain"
+          className="h-full w-full object-cover transition-transform duration-300 ease-out group-hover:scale-105"
         />
       </div>
-      <div className="min-w-0">
-        <h3 className="truncate text-sm font-bold text-foreground md:text-base">
-          {banner.title}
-        </h3>
-        {banner.description && (
-          <p className="mt-0.5 hidden truncate text-xs text-foreground-muted md:block md:text-sm">
-            {banner.description}
-          </p>
-        )}
+      <div className="relative z-10 flex min-w-0 flex-1 items-center px-3 py-3 sm:px-5 md:px-8 md:py-4">
+        <div className="min-w-0 flex-1">
+          <h3 className="truncate text-sm font-bold text-foreground md:text-base">
+            {banner.title}
+          </h3>
+          {banner.description && (
+            <p className="mt-0.5 hidden truncate text-xs text-foreground-muted md:block md:text-sm">
+              {banner.description}
+            </p>
+          )}
+        </div>
       </div>
     </a>
   )

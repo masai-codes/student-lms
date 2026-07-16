@@ -62,6 +62,9 @@ export function LectureReactPlayer({
   const segments = transcriptSegments ?? []
   const hasTranscript = segments.length > 0
   const [captionsOn, setCaptionsOn] = useState(false)
+  // Intrinsic w/h ratio of the loaded video — lets overlays anchor to the
+  // visible (object-fit: contain) frame instead of the wrapper edges.
+  const [videoAspectRatio, setVideoAspectRatio] = useState<number | null>(null)
 
   useEffect(() => {
     if (!hasTranscript) setCaptionsOn(false)
@@ -81,7 +84,9 @@ export function LectureReactPlayer({
     if (!video) return
     const report = () => {
       if (video.videoWidth > 0 && video.videoHeight > 0) {
-        onVideoAspectRatioChange?.(video.videoWidth / video.videoHeight)
+        const ratio = video.videoWidth / video.videoHeight
+        setVideoAspectRatio(ratio)
+        onVideoAspectRatioChange?.(ratio)
       }
     }
     report()
@@ -219,6 +224,7 @@ export function LectureReactPlayer({
             isVideoPlaying={attendance.isVideoPlaying}
             onCenterPlay={attendance.toggleVideoPlayPause}
             seekHint={attendance.seekHint}
+            videoAspectRatio={videoAspectRatio}
           />
           <LectureVideoCaptionOverlay
             segments={segments}
