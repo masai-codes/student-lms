@@ -22,28 +22,42 @@ function makeSummary(
     liveAttendanceStatus: 0,
     videoAttendanceStatus: 0,
     includeVideoAttendance: true,
+    videoCountsForAttendance: true,
     ...overrides,
   }
 }
 
 describe('resolveLectureAttendanceBanner', () => {
-  it('returns null when there is no attendance (optional/recommended lecture)', () => {
+  it('returns null when there is no attendance context (no section)', () => {
     expect(resolveLectureAttendanceBanner(null)).toBeNull()
     expect(resolveLectureAttendanceBanner(undefined)).toBeNull()
   })
 
-  it('shows video-counts when recording watch-time counts toward attendance', () => {
+  it('shows video-counts when watching the recording counts toward attendance', () => {
     expect(
       resolveLectureAttendanceBanner(
-        makeSummary({ includeVideoAttendance: true }),
+        makeSummary({ videoCountsForAttendance: true }),
       ),
     ).toBe(LECTURE_ATTENDANCE_BANNERS['video-counts'])
   })
 
-  it('shows live-only when recording watch-time does not count', () => {
+  it('shows live-only when watching the recording does not count', () => {
     expect(
       resolveLectureAttendanceBanner(
-        makeSummary({ includeVideoAttendance: false }),
+        makeSummary({ videoCountsForAttendance: false }),
+      ),
+    ).toBe(LECTURE_ATTENDANCE_BANNERS['live-only'])
+  })
+
+  it('keys off videoCountsForAttendance, NOT includeVideoAttendance', () => {
+    // Section tracks video for a catch-up window (includeVideoAttendance true)
+    // but does NOT count it toward actual attendance → live-only.
+    expect(
+      resolveLectureAttendanceBanner(
+        makeSummary({
+          includeVideoAttendance: true,
+          videoCountsForAttendance: false,
+        }),
       ),
     ).toBe(LECTURE_ATTENDANCE_BANNERS['live-only'])
   })
@@ -58,7 +72,7 @@ describe('resolveLectureAttendanceBanner', () => {
           videoPercentage: 100,
           watchPercentage: 100,
           isCatchupWindowOver: true,
-          includeVideoAttendance: true,
+          videoCountsForAttendance: true,
         }),
       ),
     ).toBe(LECTURE_ATTENDANCE_BANNERS['video-counts'])
@@ -71,7 +85,7 @@ describe('resolveLectureAttendanceBanner', () => {
           videoPercentage: 100,
           watchPercentage: 100,
           isCatchupWindowOver: true,
-          includeVideoAttendance: false,
+          videoCountsForAttendance: false,
         }),
       ),
     ).toBe(LECTURE_ATTENDANCE_BANNERS['live-only'])
@@ -87,7 +101,7 @@ describe('resolveLectureAttendanceBanner', () => {
           videoPercentage: 40,
           watchPercentage: 40,
           daysRemaining: 2,
-          includeVideoAttendance: true,
+          videoCountsForAttendance: true,
         }),
       ),
     ).toBe(LECTURE_ATTENDANCE_BANNERS['video-counts'])

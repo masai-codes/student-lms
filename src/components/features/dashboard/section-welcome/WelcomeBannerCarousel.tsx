@@ -79,7 +79,10 @@ export function WelcomeBannerCarousel({ banners }: WelcomeBannerCarouselProps) {
   const hasMultiple = slideCount > 1
 
   return (
-    <div data-testid="dashboard-welcome-banner-carousel" className="relative">
+    <div
+      data-testid="dashboard-welcome-banner-carousel"
+      className="relative ml-auto w-full max-w-[626px]"
+    >
       <div className="overflow-hidden rounded-2xl" ref={emblaRef}>
         <div className="flex">
           <div className="min-w-0 flex-[0_0_100%]">
@@ -166,24 +169,33 @@ function BannerCard({
       draggable={false}
       data-testid="dashboard-welcome-banner-item"
       onClick={handleClick}
-      className="dash-sheen group flex h-full items-center gap-4 rounded-2xl bg-gradient-to-r from-[#EBF3FE] via-[#EEF0FE] to-[#F3EDFE] px-12 py-5 no-underline ring-1 ring-inset ring-[#4F6BED]/10 transition-shadow duration-300 hover:shadow-[0_10px_28px_-10px_rgb(79_107_237_/_0.28)] dark:bg-none dark:bg-surface-muted"
+      className="dash-sheen group relative flex h-full items-stretch overflow-hidden rounded-2xl no-underline shadow-[0_6px_20px_-10px_rgb(79_107_237_/_0.22)] ring-1 ring-inset ring-[#4F6BED]/10 transition-shadow duration-300 hover:shadow-[0_12px_30px_-10px_rgb(79_107_237_/_0.30)]"
     >
-      <div className="flex size-11 shrink-0 items-center justify-center overflow-hidden rounded-full bg-surface shadow-sm ring-1 ring-[#4F6BED]/10 transition-transform duration-300 ease-out group-hover:scale-110 group-hover:-rotate-6">
+      {/* Base blue/purple wash. */}
+      <span
+        aria-hidden
+        className="pointer-events-none absolute inset-0 bg-gradient-to-r from-[#EBF3FE] via-[#EEF0FE] to-[#F3EDFE] dark:bg-none dark:bg-surface-muted"
+      />
+      {/* Full-height image, flush to the left edge — matches the promo card so
+          every slide in the carousel looks consistent. */}
+      <div className="relative z-10 w-20 shrink-0 self-stretch overflow-hidden bg-surface md:w-36">
         <img
           src={banner.imageUrl ?? FALLBACK_ICON}
           alt=""
-          className="size-7 object-contain"
+          className="h-full w-full object-cover transition-transform duration-300 ease-out group-hover:scale-105"
         />
       </div>
-      <div className="min-w-0">
-        <h3 className="truncate text-sm font-bold text-foreground md:text-base">
-          {banner.title}
-        </h3>
-        {banner.description && (
-          <p className="mt-0.5 hidden truncate text-xs text-foreground-muted md:block md:text-sm">
-            {banner.description}
-          </p>
-        )}
+      <div className="relative z-10 flex min-w-0 flex-1 items-center px-3 py-3 sm:px-5 md:px-8 md:py-4">
+        <div className="min-w-0 flex-1">
+          <h3 className="truncate text-sm font-bold text-foreground md:text-base">
+            {banner.title}
+          </h3>
+          {banner.description && (
+            <p className="mt-0.5 hidden truncate text-xs text-foreground-muted md:block md:text-sm">
+              {banner.description}
+            </p>
+          )}
+        </div>
       </div>
     </a>
   )
@@ -214,7 +226,7 @@ function MasaiLivePromoCard({ wasDragged }: { wasDragged: () => boolean }) {
       draggable={false}
       data-testid="dashboard-masai-live-promo"
       onClick={handleClick}
-      className="dash-sheen group relative flex h-full items-center gap-3 overflow-hidden rounded-2xl px-4 py-3 no-underline shadow-[0_6px_20px_-10px_rgb(225_29_72_/_0.25)] ring-1 ring-inset ring-[#E11D48]/15 transition-shadow duration-300 hover:shadow-[0_12px_30px_-10px_rgb(225_29_72_/_0.32)] sm:gap-4 sm:px-6 md:px-10 md:py-4"
+      className="dash-sheen group relative flex h-full items-stretch overflow-hidden rounded-2xl no-underline shadow-[0_6px_20px_-10px_rgb(225_29_72_/_0.25)] ring-1 ring-inset ring-[#E11D48]/15 transition-shadow duration-300 hover:shadow-[0_12px_30px_-10px_rgb(225_29_72_/_0.32)]"
     >
       {/* Base pink wash. */}
       <span
@@ -226,32 +238,38 @@ function MasaiLivePromoCard({ wasDragged }: { wasDragged: () => boolean }) {
         aria-hidden
         className="pointer-events-none absolute inset-y-0 right-0 w-2/5 bg-[radial-gradient(120%_130%_at_100%_50%,rgb(225_29_72_/_0.20),transparent_65%)] dark:hidden"
       />
-      <img
-        src={MASAI_LIVE_PROMO.imageUrl}
-        alt=""
-        className="relative z-10 size-12 shrink-0 rounded-xl object-cover shadow-sm ring-1 ring-black/5 transition-transform duration-300 ease-out group-hover:scale-105 md:size-14"
-      />
-      <div className="relative z-10 min-w-0 flex-1">
-        <p className="flex items-center gap-1.5 whitespace-nowrap text-[10px] font-semibold uppercase tracking-[0.1em] text-foreground-muted md:text-[11px] md:tracking-[0.14em]">
-          {MASAI_LIVE_PROMO.label}
-          <span className="text-xs font-extrabold normal-case tracking-normal text-foreground md:text-sm">
-            {MASAI_LIVE_PROMO.brand}
-          </span>
-          <span className="text-xs font-semibold italic normal-case tracking-normal text-[#E11D48] md:text-sm">
-            {MASAI_LIVE_PROMO.brandAccent}
-          </span>
-        </p>
-        <h3 className="truncate text-sm font-bold text-foreground md:text-lg">
-          {MASAI_LIVE_PROMO.title}
-        </h3>
-        <p className="truncate text-[11px] text-foreground-muted md:text-sm">
-          {MASAI_LIVE_PROMO.subtitle}
-        </p>
+      {/* Full-height image, flush to the left edge (clipped to the card's
+          rounded corners by the parent's overflow-hidden). */}
+      <div className="relative z-10 w-20 shrink-0 self-stretch overflow-hidden md:w-36">
+        <img
+          src={MASAI_LIVE_PROMO.imageUrl}
+          alt=""
+          className="h-full w-full object-cover transition-transform duration-300 ease-out group-hover:scale-105"
+        />
       </div>
-      <span className="relative z-10 ml-auto hidden shrink-0 items-center gap-2 rounded-full bg-[#E11D48] px-5 py-2.5 text-sm font-semibold text-white shadow-[0_8px_18px_-4px_rgb(225_29_72_/_0.5)] transition-transform duration-200 group-hover:scale-105 md:flex">
-        {MASAI_LIVE_PROMO.ctaText}
-        <ArrowRight size={16} weight="bold" />
-      </span>
+      <div className="relative z-10 flex min-w-0 flex-1 items-center gap-3 px-3 py-3 sm:gap-4 sm:px-5 md:px-8 md:py-4">
+        <div className="min-w-0 flex-1">
+          <p className="flex items-center gap-1.5 whitespace-nowrap text-[10px] font-semibold uppercase tracking-[0.1em] text-foreground-muted md:text-[11px] md:tracking-[0.14em]">
+            {MASAI_LIVE_PROMO.label}
+            <span className="text-xs font-extrabold normal-case tracking-normal text-foreground md:text-sm">
+              {MASAI_LIVE_PROMO.brand}
+            </span>
+            <span className="text-xs font-semibold italic normal-case tracking-normal text-[#E11D48] md:text-sm">
+              {MASAI_LIVE_PROMO.brandAccent}
+            </span>
+          </p>
+          <h3 className="text-sm font-bold leading-snug text-foreground md:text-lg">
+            {MASAI_LIVE_PROMO.title}
+          </h3>
+          <p className="text-[11px] leading-snug text-foreground-muted md:text-sm">
+            {MASAI_LIVE_PROMO.subtitle}
+          </p>
+        </div>
+        <span className="ml-auto hidden shrink-0 items-center gap-2 rounded-full bg-[#E11D48] px-5 py-2.5 text-sm font-semibold text-white shadow-[0_8px_18px_-4px_rgb(225_29_72_/_0.5)] transition-transform duration-200 group-hover:scale-105 md:flex">
+          {MASAI_LIVE_PROMO.ctaText}
+          <ArrowRight size={16} weight="bold" />
+        </span>
+      </div>
     </a>
   )
 }

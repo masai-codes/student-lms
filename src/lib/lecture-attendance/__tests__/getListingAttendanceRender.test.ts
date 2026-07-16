@@ -27,6 +27,7 @@ describe('getListingAttendanceRender', () => {
         liveAttendanceStatus: 0,
         videoAttendanceStatus: 0,
         includeVideoAttendance: false,
+        videoCountsForAttendance: false,
       }),
     ).toEqual({
       uiState: 'att_window_over',
@@ -51,6 +52,7 @@ describe('getListingAttendanceRender', () => {
         liveAttendanceStatus: 0,
         videoAttendanceStatus: 0,
         includeVideoAttendance: false,
+        videoCountsForAttendance: false,
       }),
     ).toEqual({
       uiState: 'present',
