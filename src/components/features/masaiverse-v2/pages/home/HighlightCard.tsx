@@ -26,7 +26,7 @@ export default function HighlightCard({
           source: 'home_highlights',
         })
       }
-      className="flex h-full gap-3 rounded-[14px] border border-[#EDEAE8] bg-white p-4 transition-shadow hover:shadow-[0_8px_24px_-12px_rgba(0,0,0,0.25)]"
+      className="flex h-full gap-3 rounded-[14px] border border-border bg-surface p-4 transition-shadow hover:shadow-[0_8px_24px_-12px_rgba(0,0,0,0.25)]"
       style={{ borderLeft: `4px solid ${accentColor}` }}
     >
       {highlight.pastEventEmojiValue ? (
@@ -36,21 +36,21 @@ export default function HighlightCard({
       ) : null}
       <div className="min-w-0 flex-1">
         {highlight.aboveTitle ? (
-          <p className="text-[11px] font-semibold uppercase tracking-wide text-[#9CA3AF]">
+          <p className="text-[11px] font-semibold uppercase tracking-wide text-foreground-subtle">
             {highlight.aboveTitle}
           </p>
         ) : null}
-        <p className="mt-1 text-[15px] font-bold leading-5 text-[#111827]">
+        <p className="mt-1 text-[15px] font-bold leading-5 text-foreground">
           {highlight.title}
         </p>
         {highlight.belowTitle ? (
-          <p className="mt-1 text-[13px] leading-5 text-[#6B7280]">
+          <p className="mt-1 text-[13px] leading-5 text-foreground-muted">
             {highlight.belowTitle}
           </p>
         ) : null}
       </div>
       {startLabel ? (
-        <span className="shrink-0 self-start whitespace-nowrap text-[12px] leading-4 text-[#9CA3AF]">
+        <span className="shrink-0 self-start whitespace-nowrap text-[12px] leading-4 text-foreground-subtle">
           {startLabel}
         </span>
       ) : null}

@@ -31,6 +31,18 @@ describe('parseChatHistory', () => {
     ])
   })
 
+  it('preserves web-desktop and web-mobile on stored chat history entries', () => {
+    expect(
+      parseChatHistory([
+        { userMessage: 'Hi', aiMessage: 'Hello', platform: 'web-desktop' },
+        { userMessage: 'More', aiMessage: 'Sure', platform: 'web-mobile' },
+      ]),
+    ).toEqual([
+      { userMessage: 'Hi', aiMessage: 'Hello', platform: 'web-desktop' },
+      { userMessage: 'More', aiMessage: 'Sure', platform: 'web-mobile' },
+    ])
+  })
+
   it('preserves language on stored chat history entries', () => {
     expect(
       parseChatHistory([

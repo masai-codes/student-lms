@@ -1,17 +1,17 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { requireSessionUserId } from '@/server/api/http/requireSessionUser'
+
 const hoisted = vi.hoisted(() => ({
   getGlobalLeaderboard: vi.fn(),
-  getUserIdFromCookieHeader: vi.fn(),
 }))
 
 vi.mock(
   '@/server/api/masaiverse-v2/services/getGlobalLeaderboard.service',
   () => ({ getGlobalLeaderboard: hoisted.getGlobalLeaderboard }),
 )
-vi.mock('@/server/auth/getCurrentSessionUserId', () => ({
-  getUserIdFromCookieHeader: hoisted.getUserIdFromCookieHeader,
-  getUserIdFromRequest: hoisted.getUserIdFromCookieHeader,
+vi.mock('@/server/api/http/requireSessionUser', () => ({
+  requireSessionUserId: vi.fn(),
 }))
 
 function getRequest(query: string, cookie: string | null): Request {
@@ -43,7 +43,7 @@ describe('handleGetGlobalLeaderboard', () => {
   it('returns the leaderboard result, parsing the limit and month period', async () => {
     const { handleGetGlobalLeaderboard } =
       await import('../handlers/getGlobalLeaderboard.handler')
-    hoisted.getUserIdFromCookieHeader.mockResolvedValueOnce(7)
+    vi.mocked(requireSessionUserId).mockResolvedValueOnce(7)
     hoisted.getGlobalLeaderboard.mockResolvedValueOnce(RESULT)
 
     const response = await handleGetGlobalLeaderboard(
@@ -62,7 +62,7 @@ describe('handleGetGlobalLeaderboard', () => {
   it('defaults to the overall period and undefined limit when omitted', async () => {
     const { handleGetGlobalLeaderboard } =
       await import('../handlers/getGlobalLeaderboard.handler')
-    hoisted.getUserIdFromCookieHeader.mockResolvedValueOnce(7)
+    vi.mocked(requireSessionUserId).mockResolvedValueOnce(7)
     hoisted.getGlobalLeaderboard.mockResolvedValueOnce(RESULT)
 
     await handleGetGlobalLeaderboard(getRequest('', 'session=abc'))
@@ -76,7 +76,10 @@ describe('handleGetGlobalLeaderboard', () => {
   it('returns 401 when there is no session', async () => {
     const { handleGetGlobalLeaderboard } =
       await import('../handlers/getGlobalLeaderboard.handler')
-    hoisted.getUserIdFromCookieHeader.mockResolvedValueOnce(null)
+    const { ApiError } = await import('@/server/api/http/apiError')
+    vi.mocked(requireSessionUserId).mockRejectedValueOnce(
+      new ApiError(401, 'UNAUTHORIZED'),
+    )
 
     const response = await handleGetGlobalLeaderboard(getRequest('', null))
     expect(response.status).toBe(401)
@@ -86,7 +89,7 @@ describe('handleGetGlobalLeaderboard', () => {
   it('maps an unexpected service error to 500', async () => {
     const { handleGetGlobalLeaderboard } =
       await import('../handlers/getGlobalLeaderboard.handler')
-    hoisted.getUserIdFromCookieHeader.mockResolvedValueOnce(1)
+    vi.mocked(requireSessionUserId).mockResolvedValueOnce(1)
     hoisted.getGlobalLeaderboard.mockRejectedValueOnce(new Error('boom'))
     const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
 

@@ -1,38 +1,59 @@
+import { useEffect } from 'react'
 import { createFileRoute } from '@tanstack/react-router'
-// import { Dashboard } from '@/components/features/dashboard'
-import { Dashboard } from '@/components/features/dashboard'
-import { fetchWeeklySchedule } from '@/server/dashboard/fetchWeeklySchedule'
-import { fetchPendingTasks } from '@/server/dashboard/fetchPendingTasks'
-import { fetchAnnouncements } from '@/server/dashboard/fetchAnnouncements'
+import { DashboardPage } from '@/components/features/dashboard'
 
-export const Route = createFileRoute('/(protected)/_layout/')({ 
-  component: App,
-  pendingComponent: () => {
-      return (
-        <div className="p-6 space-y-6">
-          <h2 className="text-2xl font-semibold">LOading...</h2>
-        </div>
-      )
-    },
-  
-    loader: ({ context }) => {
-        const { user } = context
+/**
+ * `?guidedTour=open` (set by the navbar "?") requests the guided tour open.
+ * A "Sign agreement" CTA on a restricted lecture/assignment adds `batchId`,
+ * `tab=program` and `step=agreement` to deep-link into that step for the batch.
+ */
+interface DashboardSearch {
+  guidedTour?: 'open'
+  batchId?: number
+  tab?: 'lms' | 'program'
+  step?: 'agreement'
+}
 
-        const pendingTasks = fetchPendingTasks({ data: {userId: user.id} })
-        const yourSchedule = fetchWeeklySchedule({ data: {userId: user.id} })
-        const announcements = fetchAnnouncements({ data: {userId: user.id} })
-    
-        return { yourSchedule, pendingTasks, announcements }
-      }
+export const Route = createFileRoute('/(protected)/_layout/')({
+  validateSearch: (raw): DashboardSearch => {
+    const batchId = Number(raw.batchId)
+    return {
+      guidedTour: raw.guidedTour === 'open' ? 'open' : undefined,
+      batchId: Number.isFinite(batchId) && batchId > 0 ? batchId : undefined,
+      tab: raw.tab === 'program' || raw.tab === 'lms' ? raw.tab : undefined,
+      step: raw.step === 'agreement' ? 'agreement' : undefined,
+    }
+  },
+  component: DashboardRoute,
 })
 
-function App() {
+function DashboardRoute() {
+  const { guidedTour, batchId, tab, step } = Route.useSearch()
+  const navigate = Route.useNavigate()
+  const requested = guidedTour === 'open'
 
-  const { yourSchedule, pendingTasks, announcements } = Route.useLoaderData()
+  // Strip the one-shot params once consumed so a refresh / close doesn't reopen.
+  useEffect(() => {
+    if (requested) {
+      void navigate({
+        search: (prev) => ({
+          ...prev,
+          guidedTour: undefined,
+          batchId: undefined,
+          tab: undefined,
+          step: undefined,
+        }),
+        replace: true,
+      })
+    }
+  }, [requested, navigate])
 
   return (
-    <div className="w-full">
-        <Dashboard schedule={yourSchedule} pendingTasks={pendingTasks} announcements={announcements}  />
-    </div>
+    <DashboardPage
+      openGuidedTourSignal={requested}
+      guidedTourTarget={
+        requested ? { batchId, tab, stepAction: step } : undefined
+      }
+    />
   )
 }

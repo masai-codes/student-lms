@@ -3,7 +3,10 @@ import type { AiTutorFeedbackPlatform } from '@/server/api/ai-tutor/feedbackPlat
 import { ApiError, isApiError } from '@/server/api/http/apiError'
 import { mapThrownErrorToResponse } from '@/server/api/http/responses'
 import { requireSessionUserId } from '@/server/api/http/requireSessionUser'
-import { createSseResponse, createSseStreamFromEvents } from '@/server/api/http/sse'
+import {
+  createSseResponse,
+  createSseStreamFromEvents,
+} from '@/server/api/http/sse'
 import { ensureAnthropicConfigured } from '@/server/api/ai-tutor/clients/anthropicModel'
 import { AI_TUTOR_CHAT_MAX_MESSAGE_LENGTH } from '@/server/api/ai-tutor/constants'
 import { parseChatLanguage } from '@/server/api/ai-tutor/chatLanguage'
@@ -66,8 +69,10 @@ function parseStreamChatBody(body: StreamChatBody | null): {
 
 export async function handleStreamChat(request: Request): Promise<Response> {
   try {
-    const userId = await requireSessionUserId(request)
-    const body = (await request.json().catch(() => null)) as StreamChatBody | null
+    const userId = await requireSessionUserId()
+    const body = (await request
+      .json()
+      .catch(() => null)) as StreamChatBody | null
     const parsed = parseStreamChatBody(body)
     ensureAnthropicConfigured()
 

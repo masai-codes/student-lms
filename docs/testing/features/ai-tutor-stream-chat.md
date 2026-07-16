@@ -21,11 +21,17 @@ Last updated: 2026-07-10
 {
   "lectureId": 123,
   "chat": "What is useState?",
+  "platform": "web-desktop",
   "chatID": 45,
-  "platform": "ios",
-  "language": "hi"
+  "language": "English"
 }
 ```
+
+`platform` is required for web clients: `web-desktop` or `web-mobile`. Mobile native apps send `ios` or `android`. Legacy values `web` and `app` are still accepted.
+
+`chatID` / `chatId` is optional; omit to start a new thread.
+`platform` is optional (`ios` | `android` | `web` | `web-mobile` | `web-desktop` | `app`); defaults to `app` and is stored on each persisted `chatHistory` turn.
+`language` is optional and defaults to `English`. When provided, the tutor must reply only in that language (technical terms stay in English). Accepts English and major Indian languages by name or ISO code (`en`, `hi`, `ta`, `te`, `kn`, `ml`, `bn`, `mr`, `gu`, `pa`, `or`, `as`). The canonical language name (e.g. `Hindi`) is stored on each `chatHistory` turn alongside `platform`.
 
 ## Environment
 
@@ -37,6 +43,22 @@ Last updated: 2026-07-10
 
 ## Retrieval behavior
 
+| ID           | Case                     | Expected                                                            |
+| ------------ | ------------------------ | ------------------------------------------------------------------- |
+| AT-SSE-001   | Missing session cookie   | `401 UNAUTHORIZED`                                                  |
+| AT-SSE-002   | Invalid lectureId        | `400 AI_TUTOR_LECTURE_ID_INVALID`                                   |
+| AT-SSE-003   | Empty chat message       | `400 AI_TUTOR_CHAT_MESSAGE_EMPTY`                                   |
+| AT-SSE-004   | Chat over max length     | `400 AI_TUTOR_CHAT_MESSAGE_TOO_LONG`                                |
+| AT-SSE-005   | Missing Anthropic config | `503 AI_TUTOR_ANTHROPIC_NOT_CONFIGURED`                             |
+| AT-SSE-006   | Authenticated request    | SSE token chunks + `{ type: "done", chatId }`                       |
+| AT-SSE-006b  | Invalid platform         | `400 AI_TUTOR_PLATFORM_INVALID`                                     |
+| AT-SSE-006c  | Invalid language         | `400 AI_TUTOR_LANGUAGE_INVALID`                                     |
+| AT-SSE-006d  | Language provided        | System prompt enforces selected language; `language` stored on turn |
+| AT-SSE-006d2 | Language omitted         | Defaults to English in prompt and stored history                    |
+| AT-SSE-006e  | Mobile platform          | Persists `platform` on the new `chatHistory` turn                   |
+| AT-SSE-007   | Stream service           | Loads summary/history, persists turn after stream                   |
+| AT-SSE-008   | Prompt builder           | Summary + optional history + question                               |
+| AT-SSE-009   | Chat history parser      | Parses stored JSON safely                                           |
 - The model decides whether to call `retrieveLectureContent`.
 - Tool args: `query` (model-written search query) and `top_k` (1–20).
 - Short notes (`<= 10k` chars) are already in the system prompt; long notes show an outline only.

@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { ApiError } from '@/server/api/http/apiError'
+import { requireSessionUserId } from '@/server/api/http/requireSessionUser'
 
 const hoisted = vi.hoisted(() => ({
   vote: vi.fn(),
@@ -7,7 +8,6 @@ const hoisted = vi.hoisted(() => ({
   listReplies: vi.fn(),
   createReply: vi.fn(),
   listDiscussions: vi.fn(),
-  getUserIdFromCookieHeader: vi.fn(),
   canSeeUnpublished: vi.fn(),
 }))
 
@@ -36,9 +36,8 @@ vi.mock(
     createDiscussionReply: hoisted.createReply,
   }),
 )
-vi.mock('@/server/auth/getCurrentSessionUserId', () => ({
-  getUserIdFromCookieHeader: hoisted.getUserIdFromCookieHeader,
-  getUserIdFromRequest: hoisted.getUserIdFromCookieHeader,
+vi.mock('@/server/api/http/requireSessionUser', () => ({
+  requireSessionUserId: vi.fn(),
 }))
 vi.mock('@/server/api/masaiverse-v2/services/publishVisibility', () => ({
   canSeeUnpublished: hoisted.canSeeUnpublished,
@@ -48,7 +47,8 @@ const cookie = { cookie: 'session=abc' }
 
 beforeEach(() => {
   vi.clearAllMocks()
-  hoisted.getUserIdFromCookieHeader.mockResolvedValue(5)
+  vi.mocked(requireSessionUserId).mockReset()
+  vi.mocked(requireSessionUserId).mockResolvedValue(5)
   hoisted.canSeeUnpublished.mockResolvedValue(false)
 })
 
@@ -198,7 +198,9 @@ describe('discussion replies handlers', () => {
   it('returns 401 when not signed in', async () => {
     const { handleCreateDiscussionReply } =
       await import('../handlers/discussionReplies.handler')
-    hoisted.getUserIdFromCookieHeader.mockResolvedValueOnce(null)
+    vi.mocked(requireSessionUserId).mockRejectedValueOnce(
+      new ApiError(401, 'UNAUTHORIZED'),
+    )
 
     const res = await handleCreateDiscussionReply(
       new Request('http://localhost/api/masaiverse-v2/discussions/replies', {

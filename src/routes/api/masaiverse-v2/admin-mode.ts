@@ -5,7 +5,7 @@ import { handleSetAdminMode } from '@/server/api/masaiverse-v2/handlers/setAdmin
 export const Route = createFileRoute('/api/masaiverse-v2/admin-mode')({
   server: {
     handlers: {
-      GET: ({ request }) => handleGetAdminMode(request),
+      GET: () => handleGetAdminMode(),
       POST: ({ request }) => handleSetAdminMode(request),
     },
   },

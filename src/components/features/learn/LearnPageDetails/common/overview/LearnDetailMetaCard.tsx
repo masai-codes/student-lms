@@ -1,0 +1,75 @@
+'use client'
+
+import { learnDetailChipPalette } from './learnDetailChipPalette'
+import type { LearningPriority } from '@/server/learn/types'
+import type { ReactNode } from 'react'
+import { formatLearnDetailPriorityLabel } from '@/server/learn/utils/formatLearnDetailDisplay'
+
+import { LocalTimeWithIstTooltip } from '@/components/shared/local-time-with-ist-tooltip'
+import { MasaiChips } from '@/components/ui/masai-chips'
+import { cn } from '@/lib/utils'
+
+type LearnDetailMetaCardProps = {
+  hostName: string
+  displayDate: string
+  /** Same date in IST; shown on hover when the viewer isn't in IST. */
+  displayDateIst?: string
+  priority: LearningPriority
+  tags: Array<string>
+  className?: string
+  /** Extra chips rendered after the priority chip. */
+  trailingChips?: ReactNode
+}
+
+/** Single row (wraps): host • date alongside tag chips — no border/card. */
+export function LearnDetailMetaCard({
+  hostName,
+  displayDate,
+  displayDateIst,
+  priority,
+  tags,
+  className,
+  trailingChips,
+}: LearnDetailMetaCardProps) {
+  return (
+    <div
+      className={cn(
+        'flex w-full min-w-0 flex-wrap items-center gap-x-3 gap-y-2',
+        className,
+      )}
+    >
+      <p className="type-t1 min-w-0 break-words text-foreground-muted">
+        <span className="text-foreground">{hostName}</span>
+        <span
+          className="mx-2 inline-block size-1 rounded-full bg-foreground-muted align-middle"
+          aria-hidden
+        />
+        <LocalTimeWithIstTooltip
+          local={displayDate}
+          ist={displayDateIst}
+          fallback=""
+        />
+      </p>
+      {tags.map((tag, index) => (
+        <MasaiChips
+          key={`${tag}-${index}`}
+          type="default"
+          size="regular"
+          label={tag}
+          tabIndex={-1}
+          className="cursor-default transition-colors duration-200"
+          {...learnDetailChipPalette}
+        />
+      ))}
+      <MasaiChips
+        type="default"
+        size="regular"
+        label={formatLearnDetailPriorityLabel(priority)}
+        tabIndex={-1}
+        className="cursor-default transition-colors duration-200"
+        {...learnDetailChipPalette}
+      />
+      {trailingChips}
+    </div>
+  )
+}

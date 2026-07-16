@@ -11,8 +11,8 @@ type MigrateFeedbackRatingsBody = {
   dryRun?: unknown
 }
 
-async function requireAdminUserId(request: Request): Promise<number> {
-  const userId = await requireSessionUserId(request)
+async function requireAdminUserId(): Promise<number> {
+  const userId = await requireSessionUserId()
   const rows = await db
     .select({ role: users.role })
     .from(users)
@@ -30,10 +30,10 @@ export async function handleMigrateFeedbackRatings(
   request: Request,
 ): Promise<Response> {
   try {
-    await requireAdminUserId(request)
-    const body = (await request.json().catch(() => null)) as
-      | MigrateFeedbackRatingsBody
-      | null
+    await requireAdminUserId()
+    const body = (await request
+      .json()
+      .catch(() => null)) as MigrateFeedbackRatingsBody | null
     const dryRun = body?.dryRun === true
 
     const data = await migrateAiTutorFeedbackRatings({ dryRun })

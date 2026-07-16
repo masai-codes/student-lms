@@ -1,7 +1,11 @@
 // @vitest-environment jsdom
 // @vitest-environment-options { "url": "https://students-demo-v2.ihubiitrcourses.org/signin" }
 import { describe, expect, it } from 'vitest'
-import { getAppOrigin, originFromHost, withAppOriginHeader } from '@/utils/appOrigin'
+import {
+  getAppOrigin,
+  originFromHost,
+  withAppOriginHeader,
+} from '@/utils/appOrigin'
 
 describe('originFromHost', () => {
   it('treats any host containing "ihub" as ihub', () => {

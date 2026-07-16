@@ -1,5 +1,5 @@
-export type DrawerDirection = "right" | "bottom" | "auto"
-export type VoteDirection = "up" | "down" | null
+export type DrawerDirection = 'right' | 'bottom' | 'auto'
+export type VoteDirection = 'up' | 'down' | null
 
 export type DiscussionReply = {
   id: string

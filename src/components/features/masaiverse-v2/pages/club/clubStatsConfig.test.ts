@@ -21,7 +21,10 @@ describe('formatClubStat', () => {
 
   it('renders a dash when the metric value is null', () => {
     expect(
-      formatClubStat(card('avg-event-rating'), { ...stats, avgEventRating: null }),
+      formatClubStat(card('avg-event-rating'), {
+        ...stats,
+        avgEventRating: null,
+      }),
     ).toBe('—')
   })
 

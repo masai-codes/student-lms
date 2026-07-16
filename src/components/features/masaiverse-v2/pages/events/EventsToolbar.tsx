@@ -34,8 +34,11 @@ export default function EventsToolbar({
 }: EventsToolbarProps) {
   return (
     <div className="mt-5 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-      <Tabs value={tab} onValueChange={(value) => onTabChange(value as EventTimeBucket)}>
-        <TabsList className="bg-[#F1ECE8]">
+      <Tabs
+        value={tab}
+        onValueChange={(value) => onTabChange(value as EventTimeBucket)}
+      >
+        <TabsList className="bg-surface-muted">
           <TabsTrigger value="upcoming" className="px-3">
             Upcoming
             <CountPill active={tab === 'upcoming'} value={tabCounts.upcoming} />
@@ -48,7 +51,7 @@ export default function EventsToolbar({
       </Tabs>
 
       <div className="flex flex-wrap items-center gap-2">
-        <div className="flex items-center gap-1.5 rounded-full bg-[#F1ECE8] p-1">
+        <div className="flex items-center gap-1.5 rounded-full bg-surface-muted p-1">
           {SCOPES.map(({ value, label }) => (
             <button
               key={value}
@@ -58,12 +61,12 @@ export default function EventsToolbar({
               className={cn(
                 'rounded-full px-3 py-1 text-[13px] font-medium transition-colors',
                 scope === value
-                  ? 'bg-white text-[#111827] shadow-sm'
-                  : 'text-[#6B7280] hover:text-[#111827]',
+                  ? 'bg-surface text-foreground shadow-sm'
+                  : 'text-foreground-muted hover:text-foreground',
               )}
             >
               {label}
-              <span className="ml-1 text-[11px] text-[#9CA3AF]">
+              <span className="ml-1 text-[11px] text-foreground-subtle">
                 {scopeCounts[value]}
               </span>
             </button>
@@ -74,7 +77,7 @@ export default function EventsToolbar({
           <MagnifyingGlass
             size={16}
             weight="bold"
-            className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[#9CA3AF]"
+            className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-foreground-subtle"
           />
           <Input
             type="search"
@@ -95,7 +98,9 @@ function CountPill({ active, value }: { active: boolean; value: number }) {
     <span
       className={cn(
         'ml-1.5 rounded-full px-1.5 text-[11px] font-semibold leading-5',
-        active ? 'bg-masaiverse-orange/15 text-masaiverse-orange' : 'text-[#9CA3AF]',
+        active
+          ? 'bg-accent-warm/15 text-accent-warm'
+          : 'text-foreground-subtle',
       )}
     >
       {value}

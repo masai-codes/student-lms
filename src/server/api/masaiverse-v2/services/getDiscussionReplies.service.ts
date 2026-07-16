@@ -3,7 +3,7 @@ import type { DiscussionVote } from '@/server/api/masaiverse-v2/services/getComm
 import { readBannedReplyIds } from '@/server/api/masaiverse-v2/services/discussionModeration'
 import { db } from '@/db'
 import { posts, replies, users, votes } from '@/db/schema'
-import { parseMasaiverseEventDbTimestamp } from '@/lib/eventTimestamps'
+import { parseMasaiverseEventDbTimestamp } from '@/utils/timeZoneHandler'
 
 export interface MasaiverseV2Reply {
   id: string

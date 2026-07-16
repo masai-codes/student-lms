@@ -1,5 +1,5 @@
-export { Navbar } from "./index.tsx"
-export { NAVBAR_ACCENT_HEX } from "./types"
+export { Navbar } from './index.tsx'
+export { NAVBAR_ACCENT_HEX } from './types'
 export type {
   NavbarActionItem,
   NavbarHref,
@@ -11,4 +11,4 @@ export type {
   NavbarProfileMenuItem,
   NavbarProps,
   NavbarTextAction,
-} from "./types"
+} from './types'

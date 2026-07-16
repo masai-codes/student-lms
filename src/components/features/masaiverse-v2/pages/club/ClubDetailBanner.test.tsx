@@ -43,7 +43,9 @@ afterEach(cleanup)
 describe('ClubDetailBanner', () => {
   it('renders the title, subtitle and an initials fallback when no image', () => {
     renderBanner(baseClub)
-    expect(screen.getByRole('heading', { name: 'Programming Club' })).toBeTruthy()
+    expect(
+      screen.getByRole('heading', { name: 'Programming Club' }),
+    ).toBeTruthy()
     expect(
       screen.getByText('Code. Build. Ship. Repeat. · Est. Batch 23'),
     ).toBeTruthy()
@@ -52,7 +54,8 @@ describe('ClubDetailBanner', () => {
 
   it('builds pills as [first tag, member count, ...rest tags]', () => {
     renderBanner(baseClub)
-    const section = screen.getByRole('heading', { name: 'Programming Club' })
+    const section = screen
+      .getByRole('heading', { name: 'Programming Club' })
       .closest('section') as HTMLElement
     const pillText = within(section)
       .getAllByText(/Code · DSA · Projects|members|Tenure 4 · Active/)

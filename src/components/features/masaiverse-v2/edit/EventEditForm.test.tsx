@@ -1,6 +1,12 @@
 // @vitest-environment jsdom
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
+import {
+  cleanup,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import EventEditForm from './EventEditForm'
 
@@ -23,7 +29,10 @@ vi.mock('@/components/discussion-post-card/rich-text-editor', () => ({
     value: string
     onChange: (value: string) => void
   }) => (
-    <textarea value={value} onChange={(event) => onChange(event.target.value)} />
+    <textarea
+      value={value}
+      onChange={(event) => onChange(event.target.value)}
+    />
   ),
 }))
 
@@ -94,7 +103,9 @@ describe('EventEditForm', () => {
 
     await screen.findByDisplayValue('Build Sprint')
     expect(screen.getByText('Host club')).toBeTruthy()
-    expect(screen.getByRole('option', { name: 'None (community-wide)' })).toBeTruthy()
+    expect(
+      screen.getByRole('option', { name: 'None (community-wide)' }),
+    ).toBeTruthy()
     expect(screen.getByRole('option', { name: 'Code Club' })).toBeTruthy()
     expect(screen.getByRole('option', { name: 'Design Guild' })).toBeTruthy()
   })

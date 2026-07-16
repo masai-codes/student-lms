@@ -1,7 +1,7 @@
-import type { MouseEventHandler, ReactNode } from "react"
+import type { MouseEventHandler, ReactNode } from 'react'
 
 /** Hover + active text/icon color for primary nav and profile menu (keep Tailwind `text-[#6962AC]` in sync). */
-export const NAVBAR_ACCENT_HEX = "#6962AC" as const
+export const NAVBAR_ACCENT_HEX = '#6962AC' as const
 
 export type NavbarHref = string
 
@@ -25,6 +25,8 @@ export type NavbarLinkItem = {
 
 export type NavbarLogo = {
   src: string
+  /** Optional variant shown in dark themes (swapped via CSS, no flash). */
+  darkSrc?: string
   alt: string
   href: NavbarHref
   openInNewTab?: boolean
@@ -49,7 +51,7 @@ export type NavbarProfile = {
 
 export type NavbarTextAction = {
   id?: string
-  type: "text"
+  type: 'text'
   label: string
   href: NavbarHref
   openInNewTab?: boolean
@@ -58,7 +60,7 @@ export type NavbarTextAction = {
 
 export type NavbarIconAction = {
   id?: string
-  type: "icon"
+  type: 'icon'
   icon: ReactNode
   ariaLabel: string
   href: NavbarHref
@@ -75,7 +77,7 @@ export type NavbarIconAction = {
 
 export type NavbarImageAction = {
   id?: string
-  type: "image"
+  type: 'image'
   src: string
   alt: string
   href: NavbarHref
@@ -87,7 +89,8 @@ export type NavbarImageAction = {
   tooltip?: string
 }
 
-export type NavbarActionItem = NavbarTextAction | NavbarIconAction | NavbarImageAction
+export type NavbarActionItem =
+  NavbarTextAction | NavbarIconAction | NavbarImageAction
 
 export type NavbarProps = {
   logo: NavbarLogo
@@ -95,5 +98,9 @@ export type NavbarProps = {
   profile: NavbarProfile
   /** Shown to the left of the profile control (text links and/or icon buttons). */
   trailingActions?: NavbarActionItem[]
+  /** Optional content rendered between nav items and trailing actions. */
+  centerSlot?: ReactNode
+  /** Optional content rendered in the trailing action row, before the theme switcher. */
+  actionsSlot?: ReactNode
   className?: string
 }

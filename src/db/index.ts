@@ -7,8 +7,6 @@ if (!databaseUrl) {
   throw new Error('DATABASE_URL is not defined in environment variables')
 }
 
-const isProduction = process.env.NODE_ENV === 'production'
-
 // Cache the pool on globalThis so that hot-reloads (dev) and any accidental
 // re-evaluation of this module (prod) reuse a single pool instead of opening a
 // brand-new one each time. Without this, MySQL eventually hits
@@ -28,5 +26,5 @@ const pool =
 globalForDb.__dbPool = pool
 
 export const db = drizzle(pool, {
-  logger: !isProduction,
+  logger: false,
 })

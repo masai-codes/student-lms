@@ -11,7 +11,10 @@ import {
   masaiverseV2ClubLeaderboardQuery,
   masaiverseV2ClubStatsQuery,
 } from '@/query/masaiverse-v2/clubsQuery'
-import { MASAIVERSE_EVENTS, trackMasaiverse } from '@/components/features/masaiverse-v2/tracking'
+import {
+  MASAIVERSE_EVENTS,
+  trackMasaiverse,
+} from '@/components/features/masaiverse-v2/tracking'
 
 type JoinClubButtonProps = {
   clubId: string
@@ -31,9 +34,9 @@ type JoinClubButtonProps = {
 
 /** Per-variant classes for the not-yet-joined state. */
 const VARIANT_STYLES = {
-  onDark: 'bg-white text-[#111827] hover:bg-white/90',
+  onDark: 'bg-surface text-foreground hover:bg-surface/90',
   primary:
-    'bg-masaiverse-orange text-white shadow-sm hover:bg-masaiverse-orange/90 hover:shadow-md hover:-translate-y-0.5 active:translate-y-0',
+    'bg-accent-warm text-accent-warm-foreground shadow-sm hover:bg-accent-warm/90 hover:shadow-md hover:-translate-y-0.5 active:translate-y-0',
 } as const
 
 export default function JoinClubButton({
@@ -65,7 +68,10 @@ export default function JoinClubButton({
           : prev
 
       // Reflect the new membership immediately so the button flips to "Joined".
-      queryClient.setQueryData<MasaiverseV2ClubDetail>(detailKey, applyMembership)
+      queryClient.setQueryData<MasaiverseV2ClubDetail>(
+        detailKey,
+        applyMembership,
+      )
       // Refetch everything scoped to this club. `detailKey` is the prefix of the
       // stats / events / leaderboard query keys, so a non-exact invalidate
       // refreshes the whole page (member count, active members, …) — not just
@@ -74,7 +80,10 @@ export default function JoinClubButton({
       // Re-assert the confirmed membership: the refetch above can race the
       // just-committed write and return a stale `isJoined: false`, which would
       // otherwise snap the button back to "Join" until a manual refresh.
-      queryClient.setQueryData<MasaiverseV2ClubDetail>(detailKey, applyMembership)
+      queryClient.setQueryData<MasaiverseV2ClubDetail>(
+        detailKey,
+        applyMembership,
+      )
       // The member-only sections (events, leaderboard, stats) seed their own
       // queries from the detail payload's embedded data via `initialData`, which
       // is sticky after first mount. Flipping membership above mounts them with
@@ -97,7 +106,9 @@ export default function JoinClubButton({
         )
       }
       // The sidebar "My Clubs" list now needs to gain this club.
-      void queryClient.invalidateQueries({ queryKey: MASAIVERSE_V2_MY_CLUBS_KEY })
+      void queryClient.invalidateQueries({
+        queryKey: MASAIVERSE_V2_MY_CLUBS_KEY,
+      })
     },
   })
 
@@ -121,7 +132,9 @@ export default function JoinClubButton({
         disabled={isJoined || mutation.isPending}
         aria-pressed={isJoined}
         className={`flex items-center justify-center gap-2 rounded-[12px] px-5 py-2.5 text-[14px] font-bold transition-all disabled:opacity-70 ${
-          isJoined ? 'bg-masaiverse-orange text-white' : VARIANT_STYLES[variant]
+          isJoined
+            ? 'bg-accent-warm text-accent-warm-foreground'
+            : VARIANT_STYLES[variant]
         }`}
       >
         {isJoined ? (

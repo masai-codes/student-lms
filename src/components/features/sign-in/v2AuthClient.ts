@@ -67,7 +67,8 @@ async function postJson<T>(path: string, body: unknown): Promise<T> {
   const parsed = await readJson(res)
   if (!res.ok) {
     const code = getErrorCode(parsed) ?? 'REQUEST_FAILED'
-    const message = getErrorMessage(parsed) ?? (res.statusText || 'Request failed')
+    const message =
+      getErrorMessage(parsed) ?? (res.statusText || 'Request failed')
     throw new V2AuthRequestError(resolveTrueStatus(res), code, message)
   }
   return parsed as T
@@ -81,7 +82,8 @@ async function getJson<T>(path: string): Promise<T> {
   const parsed = await readJson(res)
   if (!res.ok) {
     const code = getErrorCode(parsed) ?? 'REQUEST_FAILED'
-    const message = getErrorMessage(parsed) ?? (res.statusText || 'Request failed')
+    const message =
+      getErrorMessage(parsed) ?? (res.statusText || 'Request failed')
     throw new V2AuthRequestError(resolveTrueStatus(res), code, message)
   }
   return parsed as T
@@ -142,7 +144,9 @@ export async function v2VerifyOtp(input: {
   })
 }
 
-export async function v2FetchLinkedAccounts(): Promise<{ accounts: Array<LinkedAccount> }> {
+export async function v2FetchLinkedAccounts(): Promise<{
+  accounts: Array<LinkedAccount>
+}> {
   return getJson<{ accounts: Array<LinkedAccount> }>('/v2/auth/linked-accounts')
 }
 
@@ -161,10 +165,15 @@ export async function v2UseAccount(input: {
   })
 }
 
-export async function v2ForgotPassword(input: { email: string }): Promise<void> {
-  await postJson<{ success: boolean; message?: string }>('/v2/forgot-password', {
-    email: input.email,
-  })
+export async function v2ForgotPassword(input: {
+  email: string
+}): Promise<void> {
+  await postJson<{ success: boolean; message?: string }>(
+    '/v2/forgot-password',
+    {
+      email: input.email,
+    },
+  )
 }
 
 export async function v2ResetPassword(input: {

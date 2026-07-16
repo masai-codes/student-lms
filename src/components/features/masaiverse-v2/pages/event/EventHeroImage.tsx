@@ -25,8 +25,8 @@ export default function EventHeroImage({ event }: EventHeroImageProps) {
       )}
 
       {event.status === 'live' ? (
-        <span className="absolute left-4 top-4 inline-flex items-center gap-1.5 rounded-full bg-[#EF4444] px-3 py-1 text-[12px] font-bold uppercase leading-none text-white">
-          <span className="size-1.5 rounded-full bg-white" />
+        <span className="absolute left-4 top-4 inline-flex items-center gap-1.5 rounded-full bg-danger px-3 py-1 text-[12px] font-bold uppercase leading-none text-danger-foreground">
+          <span className="size-1.5 rounded-full bg-surface" />
           Live
         </span>
       ) : null}

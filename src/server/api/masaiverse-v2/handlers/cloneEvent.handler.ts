@@ -5,7 +5,7 @@ import { cloneMasaiverseEvent } from '@/server/api/masaiverse-v2/services/cloneE
 
 export async function handleCloneEvent(request: Request): Promise<Response> {
   try {
-    const userId = await requireSessionUserId(request)
+    const userId = await requireSessionUserId()
     const body = (await request.json().catch(() => null)) as {
       eventId?: unknown
     } | null

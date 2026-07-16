@@ -4,9 +4,9 @@ import { requireSessionUserId } from '@/server/api/http/requireSessionUser'
 import { getEventsList } from '@/server/api/masaiverse-v2/services/getEventsList.service'
 import { canSeeUnpublished } from '@/server/api/masaiverse-v2/services/publishVisibility'
 
-export async function handleGetEventsList(request: Request): Promise<Response> {
+export async function handleGetEventsList(): Promise<Response> {
   try {
-    const userId = await requireSessionUserId(request)
+    const userId = await requireSessionUserId()
     const events = await getEventsList(userId, await canSeeUnpublished(userId))
     return jsonOk({ events })
   } catch (error) {

@@ -16,7 +16,10 @@ import {
   v2FetchLinkedAccounts,
   v2UseAccount,
 } from '@/components/features/sign-in/v2AuthClient'
-import { redirectToOldStudentUi } from '@/utils/authRedirect'
+import {
+  isLegacyStudentRedirectEnabled,
+  redirectToOldStudentUi,
+} from '@/utils/authRedirect'
 
 function formatSwitchAccountError(err: unknown): string {
   if (err instanceof V2AuthRequestError) {
@@ -44,13 +47,19 @@ export function SwitchAccountFlow() {
         return
       }
 
-      redirectToOldStudentUi({
-        source: 'SwitchAccountFlow',
-        reason: context.reason,
-        extra: context.extra,
-      })
+      if (isLegacyStudentRedirectEnabled()) {
+        redirectToOldStudentUi({
+          source: 'SwitchAccountFlow',
+          reason: context.reason,
+          extra: context.extra,
+        })
+        return
+      }
+
+      // Legacy redirect disabled: stay in this (new) app.
+      void navigate({ to: '/' })
     },
-    [],
+    [navigate],
   )
 
   useEffect(() => {
@@ -101,12 +110,18 @@ export function SwitchAccountFlow() {
       try {
         if (account.isActive) {
           if (pendingPhoneOtpSignIn) {
-            dispatchSignInSuccessEvent('sso-v2', 'phone-otp', pendingPhoneOtpSignIn.response)
+            dispatchSignInSuccessEvent(
+              'sso-v2',
+              'phone-otp',
+              pendingPhoneOtpSignIn.response,
+            )
           }
           redirectAfterAccountSelection({
             reason: 'Continue with currently active account',
             extra: {
-              method: pendingPhoneOtpSignIn ? 'phone-otp' : 'switch-account-existing-session',
+              method: pendingPhoneOtpSignIn
+                ? 'phone-otp'
+                : 'switch-account-existing-session',
               userId: account.user.id,
             },
           })
@@ -136,8 +151,12 @@ export function SwitchAccountFlow() {
     return (
       <div className="space-y-4">
         <div className="rounded-2xl border border-primary/20 bg-gradient-to-br from-primary/10 via-background to-amber-50/70 p-5 shadow-sm">
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">Switch account</p>
-          <h1 className="mt-2 font-poppins text-xl font-semibold text-foreground">Loading your accounts</h1>
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
+            Switch account
+          </p>
+          <h1 className="mt-2 font-poppins text-xl font-semibold text-foreground">
+            Loading your accounts
+          </h1>
           <p className="mt-1 text-sm leading-6 text-muted-foreground">
             Please wait while we load the linked accounts for this session.
           </p>

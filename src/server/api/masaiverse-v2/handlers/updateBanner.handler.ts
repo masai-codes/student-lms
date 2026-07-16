@@ -11,7 +11,7 @@ function asRecord(value: unknown): Record<string, unknown> | undefined {
 
 export async function handleUpdateBanner(request: Request): Promise<Response> {
   try {
-    const userId = await requireSessionUserId(request)
+    const userId = await requireSessionUserId()
     const body = (await request.json().catch(() => null)) as {
       bannerId?: unknown
       column?: unknown

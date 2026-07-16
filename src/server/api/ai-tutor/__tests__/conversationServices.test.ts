@@ -5,10 +5,13 @@ const hoisted = vi.hoisted(() => ({
   getChatPracticeConversation: vi.fn(),
 }))
 
-vi.mock('@/server/api/ai-tutor/services/aiChatPracticeQuestions.service', () => ({
-  listChatPracticeConversations: hoisted.listChatPracticeConversations,
-  getChatPracticeConversation: hoisted.getChatPracticeConversation,
-}))
+vi.mock(
+  '@/server/api/ai-tutor/services/aiChatPracticeQuestions.service',
+  () => ({
+    listChatPracticeConversations: hoisted.listChatPracticeConversations,
+    getChatPracticeConversation: hoisted.getChatPracticeConversation,
+  }),
+)
 
 beforeEach(() => {
   vi.clearAllMocks()

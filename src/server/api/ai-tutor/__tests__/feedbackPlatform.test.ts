@@ -26,6 +26,10 @@ describe('parsePlatform', () => {
     expect(parsePlatform('WEB-DESKTOP')).toBe('web-desktop')
     expect(parsePlatform('app')).toBe('app')
     expect(parsePlatform('APP')).toBe('app')
+    expect(parsePlatform('web-desktop')).toBe('web-desktop')
+    expect(parsePlatform('WEB-DESKTOP')).toBe('web-desktop')
+    expect(parsePlatform('web-mobile')).toBe('web-mobile')
+    expect(parsePlatform('WEB-MOBILE')).toBe('web-mobile')
   })
 
   it('rejects unknown platform values', () => {
@@ -46,6 +50,8 @@ describe('parseRatingForPlatform', () => {
     expect(parseRatingForPlatform(1, 'web-desktop')).toBe(1)
     expect(parseRatingForPlatform(0, 'app')).toBe(0)
     expect(parseRatingForPlatform(1, 'app')).toBe(1)
+    expect(parseRatingForPlatform(4, 'web-desktop')).toBe(4)
+    expect(parseRatingForPlatform(5, 'web-mobile')).toBe(5)
   })
 
   it('accepts 1 through 5 for ios and android', () => {

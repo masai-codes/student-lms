@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 const hoisted = vi.hoisted(() => ({
   markMasaiverseVisited: vi.fn(),
-  getUserIdFromCookieHeader: vi.fn(),
+  getCurrentUserId: vi.fn(),
 }))
 
 vi.mock('@/server/api/masaiverse-v2/markMasaiverseVisited.service', () => ({
@@ -10,16 +10,8 @@ vi.mock('@/server/api/masaiverse-v2/markMasaiverseVisited.service', () => ({
 }))
 
 vi.mock('@/server/auth/getCurrentSessionUserId', () => ({
-  getUserIdFromCookieHeader: hoisted.getUserIdFromCookieHeader,
-  getUserIdFromRequest: hoisted.getUserIdFromCookieHeader,
+  getCurrentUserId: hoisted.getCurrentUserId,
 }))
-
-function requestWithCookie(cookie: string | null): Request {
-  return new Request('http://localhost/api/masaiverse-v2/visited', {
-    method: 'POST',
-    headers: cookie ? { cookie } : {},
-  })
-}
 
 describe('handleMarkMasaiverseVisited', () => {
   beforeEach(() => {
@@ -29,12 +21,10 @@ describe('handleMarkMasaiverseVisited', () => {
   it('marks the session user and returns success', async () => {
     const { handleMarkMasaiverseVisited } =
       await import('../handlers/markMasaiverseVisited.handler')
-    hoisted.getUserIdFromCookieHeader.mockResolvedValueOnce(99)
+    hoisted.getCurrentUserId.mockResolvedValueOnce(99)
     hoisted.markMasaiverseVisited.mockResolvedValueOnce(undefined)
 
-    const response = await handleMarkMasaiverseVisited(
-      requestWithCookie('session=abc'),
-    )
+    const response = await handleMarkMasaiverseVisited()
 
     expect(response.status).toBe(200)
     await expect(response.json()).resolves.toEqual({ success: true })
@@ -44,9 +34,9 @@ describe('handleMarkMasaiverseVisited', () => {
   it('returns 401 when there is no session user', async () => {
     const { handleMarkMasaiverseVisited } =
       await import('../handlers/markMasaiverseVisited.handler')
-    hoisted.getUserIdFromCookieHeader.mockResolvedValueOnce(null)
+    hoisted.getCurrentUserId.mockResolvedValueOnce(null)
 
-    const response = await handleMarkMasaiverseVisited(requestWithCookie(null))
+    const response = await handleMarkMasaiverseVisited()
 
     expect(response.status).toBe(401)
     await expect(response.json()).resolves.toEqual({
@@ -59,13 +49,11 @@ describe('handleMarkMasaiverseVisited', () => {
   it('maps unexpected service failures to a 500 error', async () => {
     const { handleMarkMasaiverseVisited } =
       await import('../handlers/markMasaiverseVisited.handler')
-    hoisted.getUserIdFromCookieHeader.mockResolvedValueOnce(5)
+    hoisted.getCurrentUserId.mockResolvedValueOnce(5)
     hoisted.markMasaiverseVisited.mockRejectedValueOnce(new Error('boom'))
     const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
 
-    const response = await handleMarkMasaiverseVisited(
-      requestWithCookie('session=abc'),
-    )
+    const response = await handleMarkMasaiverseVisited()
 
     expect(response.status).toBe(500)
     await expect(response.json()).resolves.toEqual({

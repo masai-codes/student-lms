@@ -1,17 +1,17 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { requireSessionUserId } from '@/server/api/http/requireSessionUser'
+
 const hoisted = vi.hoisted(() => ({
   getEventDetail: vi.fn(),
-  getUserIdFromCookieHeader: vi.fn(),
 }))
 
 vi.mock('@/server/api/masaiverse-v2/services/getEventDetail.service', () => ({
   getEventDetail: hoisted.getEventDetail,
 }))
 
-vi.mock('@/server/auth/getCurrentSessionUserId', () => ({
-  getUserIdFromCookieHeader: hoisted.getUserIdFromCookieHeader,
-  getUserIdFromRequest: hoisted.getUserIdFromCookieHeader,
+vi.mock('@/server/api/http/requireSessionUser', () => ({
+  requireSessionUserId: vi.fn(),
 }))
 
 vi.mock('@/server/api/masaiverse-v2/services/publishVisibility', () => ({
@@ -35,7 +35,7 @@ describe('handleGetEventDetail', () => {
   it('returns the event detail for the requested id', async () => {
     const { handleGetEventDetail } =
       await import('../handlers/getEventDetail.handler')
-    hoisted.getUserIdFromCookieHeader.mockResolvedValueOnce(1)
+    vi.mocked(requireSessionUserId).mockResolvedValueOnce(1)
     hoisted.getEventDetail.mockResolvedValueOnce(PAYLOAD)
 
     const response = await handleGetEventDetail(getRequest('7', 'session=abc'))
@@ -48,7 +48,7 @@ describe('handleGetEventDetail', () => {
   it('returns 404 when the event is missing', async () => {
     const { handleGetEventDetail } =
       await import('../handlers/getEventDetail.handler')
-    hoisted.getUserIdFromCookieHeader.mockResolvedValueOnce(1)
+    vi.mocked(requireSessionUserId).mockResolvedValueOnce(1)
     hoisted.getEventDetail.mockResolvedValueOnce(null)
 
     const response = await handleGetEventDetail(getRequest('99', 'session=abc'))
@@ -64,7 +64,10 @@ describe('handleGetEventDetail', () => {
   it('returns 401 when there is no session user', async () => {
     const { handleGetEventDetail } =
       await import('../handlers/getEventDetail.handler')
-    hoisted.getUserIdFromCookieHeader.mockResolvedValueOnce(null)
+    const { ApiError } = await import('@/server/api/http/apiError')
+    vi.mocked(requireSessionUserId).mockRejectedValueOnce(
+      new ApiError(401, 'UNAUTHORIZED'),
+    )
 
     const response = await handleGetEventDetail(getRequest('7', null))
 
@@ -75,7 +78,7 @@ describe('handleGetEventDetail', () => {
   it('maps unexpected service failures to a 500 error', async () => {
     const { handleGetEventDetail } =
       await import('../handlers/getEventDetail.handler')
-    hoisted.getUserIdFromCookieHeader.mockResolvedValueOnce(1)
+    vi.mocked(requireSessionUserId).mockResolvedValueOnce(1)
     hoisted.getEventDetail.mockRejectedValueOnce(new Error('boom'))
     const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
 

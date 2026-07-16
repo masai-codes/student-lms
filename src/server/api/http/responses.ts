@@ -10,7 +10,11 @@ export function jsonOk<T>(data: T, init?: ResponseInit): Response {
   return Response.json(data, { status: 200, ...init })
 }
 
-export function jsonError(status: number, code: string, message?: string): Response {
+export function jsonError(
+  status: number,
+  code: string,
+  message?: string,
+): Response {
   const body: ApiErrorBody = {
     code,
     message: message ?? code,
@@ -33,6 +37,11 @@ export function mapThrownErrorToResponse(error: unknown): Response {
       case 'RESOURCE_DETAIL_UNSUPPORTED_TYPE':
       case 'LECTURE_DETAIL_UNSUPPORTED_TYPE':
         return jsonError(404, error.message)
+      case 'SERVER_ERROR_RECORDING_GUIDED_TOUR_STEP':
+      case 'SERVER_ERROR_FETCHING_T0_FLOW_STATUS':
+      case 'SERVER_ERROR_FETCHING_T0_FLOW_LECTURES':
+      case 'SERVER_ERROR_FETCHING_T0_FLOW_STUDENT_STATUS':
+        return jsonError(500, error.message)
       case 'SERVER_ERROR_FETCHING_BOOKMARKS':
         return jsonError(500, error.message)
       case 'ANNOUNCEMENT_NOT_FOUND':
@@ -43,6 +52,8 @@ export function mapThrownErrorToResponse(error: unknown): Response {
       case 'SERVER_ERROR_FETCHING_ENROLLED_BATCHES':
         return jsonError(500, error.message)
       case 'SERVER_ERROR_FETCHING_BATCH_LEARNING_DATA':
+        return jsonError(500, error.message)
+      case 'SERVER_ERROR_FETCHING_LEARN_PAGE_DATA':
         return jsonError(500, error.message)
       case 'SERVER_ERROR_FETCHING_DASHBOARD_ANNOUNCEMENTS':
         return jsonError(500, error.message)
@@ -172,6 +183,46 @@ export function mapThrownErrorToResponse(error: unknown): Response {
       case 'AI_CHAT_OPENAI_EMPTY_RESPONSE':
       case 'AI_CHAT_OPENAI_TIMEOUT':
       case 'AI_CHAT_MESSAGE_INSERT_FAILED':
+        return jsonError(503, error.message)
+      case 'CHATBOT_INVALID_LECTURE_ID':
+      case 'CHATBOT_INVALID_SESSION_PAYLOAD':
+      case 'CHATBOT_INVALID_SESSION_PATCH':
+      case 'CHATBOT_INVALID_MESSAGE_PAYLOAD':
+      case 'CHATBOT_INVALID_TOKEN_PAYLOAD':
+      case 'CHATBOT_MESSAGE_EMPTY':
+        return jsonError(400, error.message)
+      case 'CHATBOT_UNAUTHORIZED_INTERNAL':
+        return jsonError(401, error.message)
+      case 'CHATBOT_SESSION_NOT_FOUND':
+        return jsonError(404, error.message)
+      case 'CHATBOT_MONGODB_URI_NOT_CONFIGURED':
+      case 'CHATBOT_LIVEKIT_API_KEY_NOT_CONFIGURED':
+      case 'CHATBOT_LIVEKIT_API_SECRET_NOT_CONFIGURED':
+      case 'CHATBOT_LIVEKIT_URL_NOT_CONFIGURED':
+      case 'CHATBOT_SESSION_CREATE_FAILED':
+        return jsonError(503, error.message)
+      case 'INVALID_DISCUSSION_PAYLOAD':
+      case 'INVALID_DISCUSSION_TITLE':
+      case 'INVALID_DISCUSSION_MESSAGE':
+      case 'INVALID_REPLY_MESSAGE':
+      case 'INVALID_ENTITY_ID':
+      case 'INVALID_DISCUSSION_ID':
+        return jsonError(400, error.message)
+      case 'DISCUSSION_FORBIDDEN':
+        return jsonError(403, error.message)
+      case 'DISCUSSION_NOT_FOUND':
+        return jsonError(404, error.message)
+      case 'DISCUSSION_CLOSED':
+        return jsonError(409, error.message)
+      case 'DISCUSSION_CREATE_FAILED':
+        return jsonError(500, error.message)
+      case 'INVALID_FEEDBACK_PAYLOAD':
+        return jsonError(400, error.message)
+      case 'FEEDBACK_WINDOW_CLOSED':
+        return jsonError(409, error.message)
+      case 'ZOOM_REDIRECT_FORBIDDEN':
+        return jsonError(403, error.message)
+      case 'ZOOM_REDIRECT_FAILED':
         return jsonError(503, error.message)
       default:
         break

@@ -14,14 +14,12 @@ import type {
 import { db } from '@/db'
 import { notificationLogs, userDeviceTokens } from '@/db/schema'
 
-
 let expoClient: Expo | null = null
 const TEST_EXPO_PUSH_TOKEN = 'ExponentPushToken[q3G1K-EhoFVLg7ueCm4y0E]'
 
 async function getExpoClient(): Promise<Expo> {
   if (expoClient) return expoClient
 
-  
   expoClient = new Expo({
     accessToken: process.env.EXPO_ACCESS_TOKEN,
   })
@@ -29,7 +27,9 @@ async function getExpoClient(): Promise<Expo> {
   return expoClient
 }
 
-function mapDeviceTokenRowToDto(row: typeof userDeviceTokens.$inferSelect): UserDeviceTokenDto {
+function mapDeviceTokenRowToDto(
+  row: typeof userDeviceTokens.$inferSelect,
+): UserDeviceTokenDto {
   return {
     id: row.id,
     userId: row.userId,
@@ -48,7 +48,9 @@ export class PushNotificationService {
     return Expo.isExpoPushToken(token)
   }
 
-  async registerDeviceToken(params: RegisterTokenParams): Promise<RegisterDeviceTokenResponse> {
+  async registerDeviceToken(
+    params: RegisterTokenParams,
+  ): Promise<RegisterDeviceTokenResponse> {
     try {
       const { userId, token, deviceType, deviceName } = params
 
@@ -77,13 +79,23 @@ export class PushNotificationService {
             active: 0,
             updatedAt: new Date().toISOString().slice(0, 19).replace('T', ' '),
           })
-          .where(and(eq(userDeviceTokens.token, token), ne(userDeviceTokens.userId, userId)))
+          .where(
+            and(
+              eq(userDeviceTokens.token, token),
+              ne(userDeviceTokens.userId, userId),
+            ),
+          )
       }
 
       const existingTokenRows = await db
         .select()
         .from(userDeviceTokens)
-        .where(and(eq(userDeviceTokens.userId, userId), eq(userDeviceTokens.token, token)))
+        .where(
+          and(
+            eq(userDeviceTokens.userId, userId),
+            eq(userDeviceTokens.token, token),
+          ),
+        )
       if (existingTokenRows.length > 0) {
         const existingToken = existingTokenRows[0]
 
@@ -127,7 +139,12 @@ export class PushNotificationService {
       const createdTokenRows = await db
         .select()
         .from(userDeviceTokens)
-        .where(and(eq(userDeviceTokens.userId, userId), eq(userDeviceTokens.token, token)))
+        .where(
+          and(
+            eq(userDeviceTokens.userId, userId),
+            eq(userDeviceTokens.token, token),
+          ),
+        )
       const createdToken = createdTokenRows[0]
 
       return {
@@ -143,13 +160,20 @@ export class PushNotificationService {
     }
   }
 
-  async removeDeviceToken(params: RemoveTokenParams): Promise<RemoveDeviceTokenResponse> {
+  async removeDeviceToken(
+    params: RemoveTokenParams,
+  ): Promise<RemoveDeviceTokenResponse> {
     try {
       const { userId, token } = params
       const existingTokenRows = await db
         .select()
         .from(userDeviceTokens)
-        .where(and(eq(userDeviceTokens.userId, userId), eq(userDeviceTokens.token, token)))
+        .where(
+          and(
+            eq(userDeviceTokens.userId, userId),
+            eq(userDeviceTokens.token, token),
+          ),
+        )
       if (existingTokenRows.length === 0) {
         return {
           success: false,
@@ -183,7 +207,12 @@ export class PushNotificationService {
       const devices = await db
         .select()
         .from(userDeviceTokens)
-        .where(and(eq(userDeviceTokens.userId, userId), eq(userDeviceTokens.active, 1)))
+        .where(
+          and(
+            eq(userDeviceTokens.userId, userId),
+            eq(userDeviceTokens.active, 1),
+          ),
+        )
         .orderBy(desc(userDeviceTokens.lastUsed))
 
       return {
@@ -203,7 +232,12 @@ export class PushNotificationService {
       const devices = await db
         .select({ token: userDeviceTokens.token })
         .from(userDeviceTokens)
-        .where(and(eq(userDeviceTokens.userId, userId), eq(userDeviceTokens.active, 1)))
+        .where(
+          and(
+            eq(userDeviceTokens.userId, userId),
+            eq(userDeviceTokens.active, 1),
+          ),
+        )
 
       const dbTokens = devices.map((device) => device.token)
       // Temporary hardcoded token for manual testing.
@@ -221,7 +255,12 @@ export class PushNotificationService {
       const staleTokens = await db
         .select({ id: userDeviceTokens.id })
         .from(userDeviceTokens)
-        .where(and(eq(userDeviceTokens.active, 1), lt(userDeviceTokens.lastUsed, cutoff)))
+        .where(
+          and(
+            eq(userDeviceTokens.active, 1),
+            lt(userDeviceTokens.lastUsed, cutoff),
+          ),
+        )
 
       if (staleTokens.length === 0) {
         return 0
@@ -233,7 +272,12 @@ export class PushNotificationService {
           active: 0,
           updatedAt: new Date().toISOString().slice(0, 19).replace('T', ' '),
         })
-        .where(and(eq(userDeviceTokens.active, 1), lt(userDeviceTokens.lastUsed, cutoff)))
+        .where(
+          and(
+            eq(userDeviceTokens.active, 1),
+            lt(userDeviceTokens.lastUsed, cutoff),
+          ),
+        )
 
       return staleTokens.length
     } catch {
@@ -244,7 +288,15 @@ export class PushNotificationService {
   async sendNotificationWithLogging(
     params: SendNotificationWithLoggingParams,
   ): Promise<SendNotificationWithLoggingResponse> {
-    const { userId, title, body, notificationType, entityType, entityId, data } = params
+    const {
+      userId,
+      title,
+      body,
+      notificationType,
+      entityType,
+      entityId,
+      data,
+    } = params
 
     try {
       const tokens = await this.getActiveTokensForUser(userId)
@@ -259,7 +311,8 @@ export class PushNotificationService {
         body,
         data: data || {},
         status: tokens.length > 0 ? 'pending' : 'failed',
-        errorMessage: tokens.length === 0 ? 'No active devices registered' : null,
+        errorMessage:
+          tokens.length === 0 ? 'No active devices registered' : null,
         updatedAt: now,
       })
 
@@ -335,18 +388,29 @@ export class PushNotificationService {
             active: 0,
             updatedAt: new Date().toISOString().slice(0, 19).replace('T', ' '),
           })
-          .where(and(eq(userDeviceTokens.userId, userId), inArray(userDeviceTokens.token, failedTokens)))
+          .where(
+            and(
+              eq(userDeviceTokens.userId, userId),
+              inArray(userDeviceTokens.token, failedTokens),
+            ),
+          )
       }
 
-      const successCount = results.filter((ticket) => ticket.status === 'ok').length
+      const successCount = results.filter(
+        (ticket) => ticket.status === 'ok',
+      ).length
       const finalStatus = hasSuccess ? 'sent' : 'failed'
 
       await db
         .update(notificationLogs)
         .set({
           status: finalStatus,
-          sentAt: hasSuccess ? new Date().toISOString().slice(0, 19).replace('T', ' ') : null,
-          errorMessage: hasSuccess ? null : 'Failed to send notification to any active device',
+          sentAt: hasSuccess
+            ? new Date().toISOString().slice(0, 19).replace('T', ' ')
+            : null,
+          errorMessage: hasSuccess
+            ? null
+            : 'Failed to send notification to any active device',
           updatedAt: new Date().toISOString().slice(0, 19).replace('T', ' '),
         })
         .where(eq(notificationLogs.id, notificationLog.id))
@@ -371,7 +435,11 @@ export class PushNotificationService {
     title: string
     body: string
     data?: Record<string, string>
-  }): Promise<{ success: boolean; message: string; results?: Array<ExpoPushTicket> }> {
+  }): Promise<{
+    success: boolean
+    message: string
+    results?: Array<ExpoPushTicket>
+  }> {
     try {
       const { userId, title, body, data } = params
       const tokens = await this.getActiveTokensForUser(userId)
@@ -424,10 +492,17 @@ export class PushNotificationService {
             active: 0,
             updatedAt: new Date().toISOString().slice(0, 19).replace('T', ' '),
           })
-          .where(and(eq(userDeviceTokens.userId, userId), inArray(userDeviceTokens.token, failedTokens)))
+          .where(
+            and(
+              eq(userDeviceTokens.userId, userId),
+              inArray(userDeviceTokens.token, failedTokens),
+            ),
+          )
       }
 
-      const successCount = results.filter((ticket) => ticket.status === 'ok').length
+      const successCount = results.filter(
+        (ticket) => ticket.status === 'ok',
+      ).length
       return {
         success: successCount > 0,
         message:

@@ -14,9 +14,9 @@ type BannerEditModalProps = {
   onClose: () => void
 }
 
-const LABEL = 'mb-1 text-[12px] font-semibold text-[#6B7280]'
+const LABEL = 'mb-1 text-[12px] font-semibold text-foreground-muted'
 const INPUT =
-  'w-full rounded-lg border border-[#E5E7EB] px-3 py-2 text-[14px] text-[#111928] outline-none'
+  'w-full rounded-lg border border-border px-3 py-2 text-[14px] text-foreground outline-none'
 
 /** Admin modal to edit a single home banner. */
 export default function BannerEditModal({
@@ -61,15 +61,17 @@ export default function BannerEditModal({
   return (
     <Modal open={open} onOpenChange={(next) => (next ? undefined : onClose())}>
       <ModalContent className="max-w-[560px]">
-        <ModalTitle className="pr-8 text-[18px] font-bold text-[#111827]">
+        <ModalTitle className="pr-8 text-[18px] font-bold text-foreground">
           Edit banner
         </ModalTitle>
 
         <div className="mt-4 flex flex-col gap-4">
-          <div className="flex items-center justify-between rounded-lg bg-[#F9FAFB] px-3 py-2.5">
+          <div className="flex items-center justify-between rounded-lg bg-surface-muted px-3 py-2.5">
             <div>
-              <p className="text-[14px] font-semibold text-[#111827]">Published</p>
-              <p className="text-[12px] text-[#6B7280]">
+              <p className="text-[14px] font-semibold text-foreground">
+                Published
+              </p>
+              <p className="text-[12px] text-foreground-muted">
                 Visible to students when on.
               </p>
             </div>
@@ -119,7 +121,7 @@ export default function BannerEditModal({
           <button
             type="button"
             onClick={onClose}
-            className="rounded-[12px] border border-[#E5E7EB] px-5 py-2.5 text-[14px] font-semibold text-[#374151] hover:bg-[#F9FAFB]"
+            className="rounded-[12px] border border-border px-5 py-2.5 text-[14px] font-semibold text-foreground hover:bg-surface-muted"
           >
             Cancel
           </button>
@@ -134,7 +136,7 @@ export default function BannerEditModal({
               save.mutate()
             }}
             disabled={isBusy}
-            className="rounded-[12px] bg-[#111827] px-5 py-2.5 text-[14px] font-bold text-white hover:bg-[#1F2937] disabled:opacity-50"
+            className="rounded-[12px] bg-foreground px-5 py-2.5 text-[14px] font-bold text-background hover:bg-foreground/90 disabled:opacity-50"
           >
             {save.isPending ? 'Saving…' : 'Save'}
           </button>

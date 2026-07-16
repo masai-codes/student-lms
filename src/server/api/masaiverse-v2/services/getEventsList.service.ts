@@ -4,7 +4,7 @@ import { publishedEventCondition } from './publishVisibility'
 import { getMemberClubIds } from './getMemberClubIds.service'
 import { db } from '@/db'
 import { clubs, eventEnrollments, events } from '@/db/schema'
-import { parseMasaiverseEventDbTimestamp } from '@/lib/eventTimestamps'
+import { parseMasaiverseEventDbTimestamp } from '@/utils/timeZoneHandler'
 
 /** Free-form `events.category` string, surfaced to the client as a pill. */
 export type MasaiverseV2EventCategory = string

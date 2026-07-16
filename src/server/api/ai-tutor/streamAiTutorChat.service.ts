@@ -16,8 +16,7 @@ import { getLectureChatMaterials } from '@/server/api/ai-tutor/services/getLectu
 import { createRetrieveLectureContentTool } from '@/server/api/ai-tutor/tools/retrieveLectureContent.tool'
 
 export type ChatStreamEvent =
-  | { type: 'token'; content: string }
-  | { type: 'done'; chatId: number }
+  { type: 'token'; content: string } | { type: 'done'; chatId: number }
 
 export type StreamLectureChatInput = {
   userId: number

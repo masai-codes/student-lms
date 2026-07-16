@@ -1,17 +1,26 @@
 import { useState } from 'react'
-import { HeadContent, Scripts, createRootRouteWithContext } from '@tanstack/react-router'
+import {
+  HeadContent,
+  Scripts,
+  createRootRouteWithContext,
+} from '@tanstack/react-router'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { Toaster } from 'sonner'
 import appCss from '../styles.css?url'
 import type { RouterContext } from '@/types'
 import { captureAppMobileContextFromUrl } from '@/utils/appMobile'
 import { installAppOriginFetchHeader } from '@/utils/appOrigin'
 import { getAuthBranding } from '@/utils/authBranding'
+import { ThemeProvider, buildThemeInitScript } from '@/lib/theme'
 
 const GA_MEASUREMENT_ID = 'G-R3MQZK6LM6'
 
+// Computed once at module load; injected into <head> to set the theme before
+// first paint (no flash of the default theme on reload).
+const THEME_INIT_SCRIPT = buildThemeInitScript()
+
 captureAppMobileContextFromUrl()
 installAppOriginFetchHeader()
-
 
 export const Route = createRootRouteWithContext<RouterContext>()({
   head: () => ({
@@ -21,10 +30,19 @@ export const Route = createRootRouteWithContext<RouterContext>()({
       },
       {
         name: 'viewport',
-        content: 'width=device-width, initial-scale=1',
+        // `interactive-widget=resizes-content` restores pre-Chrome-108 Android
+        // behavior: the on-screen keyboard shrinks the layout viewport, so
+        // `dvh` heights and `fixed bottom-0` surfaces (AI chat drawer, bottom
+        // nav) stay above the keyboard. iOS ignores this key entirely.
+        content:
+          'width=device-width, initial-scale=1, interactive-widget=resizes-content',
       },
       {
         title: getAuthBranding().pageTitle,
+      },
+      {
+        name: 'description',
+        content: getAuthBranding().metaDescription,
       },
     ],
     links: [
@@ -62,8 +80,14 @@ function RootDocument({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
       <head>
+        {/* Must run before first paint and before the stylesheet applies, so
+            the correct theme's tokens are present on the very first frame. */}
+        <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
         <HeadContent />
-        <script async src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`} />
+        <script
+          async
+          src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`}
+        />
         <script
           dangerouslySetInnerHTML={{
             __html: `window.dataLayer = window.dataLayer || [];
@@ -76,7 +100,15 @@ gtag('config', '${GA_MEASUREMENT_ID}');`,
       </head>
       <body>
         <QueryClientProvider client={queryClient}>
-          {children}
+          <ThemeProvider>
+            {children}
+            <Toaster
+              position="top-center"
+              richColors
+              closeButton
+              toastOptions={{ duration: 4000 }}
+            />
+          </ThemeProvider>
         </QueryClientProvider>
         <Scripts />
       </body>

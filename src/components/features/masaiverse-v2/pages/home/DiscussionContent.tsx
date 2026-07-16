@@ -58,7 +58,7 @@ export default function DiscussionContent({
     <div className="mt-1">
       <div
         ref={contentRef}
-        className="break-words text-[14px] leading-5 text-[#374151] [overflow-wrap:anywhere] [&_a]:text-masaiverse-orange [&_a]:underline [&_blockquote]:border-l-2 [&_blockquote]:border-[#E5E7EB] [&_blockquote]:pl-3 [&_li]:my-1 [&_ol]:my-1 [&_ol]:list-decimal [&_ol]:pl-5 [&_p]:my-1 [&_ul]:my-1 [&_ul]:list-disc [&_ul]:pl-5"
+        className="break-words text-[14px] leading-5 text-foreground [overflow-wrap:anywhere] [&_a]:text-accent-warm [&_a]:underline [&_blockquote]:border-l-2 [&_blockquote]:border-border [&_blockquote]:pl-3 [&_li]:my-1 [&_ol]:my-1 [&_ol]:list-decimal [&_ol]:pl-5 [&_p]:my-1 [&_ul]:my-1 [&_ul]:list-disc [&_ul]:pl-5"
         style={
           expanded
             ? undefined
@@ -80,7 +80,7 @@ export default function DiscussionContent({
             })
             setExpanded((open) => !open)
           }}
-          className="mt-1 text-[12px] font-semibold text-masaiverse-orange hover:text-masaiverse-orange-dark"
+          className="mt-1 text-[12px] font-semibold text-accent-warm hover:text-accent-warm-hover"
         >
           {expanded ? 'View less' : 'View more'}
         </button>

@@ -20,7 +20,10 @@ describe('parseIdentifier', () => {
   })
 
   it('rejects malformed email when @ is present', () => {
-    expect(parseIdentifier('not-an-email@')).toEqual({ ok: false, reason: 'invalid_email' })
+    expect(parseIdentifier('not-an-email@')).toEqual({
+      ok: false,
+      reason: 'invalid_email',
+    })
   })
 
   it('accepts 10-digit phone without country code', () => {
@@ -44,21 +47,39 @@ describe('parseIdentifier', () => {
   })
 
   it('rejects numbers with country code (more than 10 digits)', () => {
-    expect(parseIdentifier('+91 98765 43210')).toEqual({ ok: false, reason: 'invalid_phone' })
-    expect(parseIdentifier('919876543210')).toEqual({ ok: false, reason: 'invalid_phone' })
+    expect(parseIdentifier('+91 98765 43210')).toEqual({
+      ok: false,
+      reason: 'invalid_phone',
+    })
+    expect(parseIdentifier('919876543210')).toEqual({
+      ok: false,
+      reason: 'invalid_phone',
+    })
   })
 
   it('rejects 11–15 digit strings', () => {
-    expect(parseIdentifier('12345678901')).toEqual({ ok: false, reason: 'invalid_phone' })
-    expect(parseIdentifier('123456789012345')).toEqual({ ok: false, reason: 'invalid_phone' })
+    expect(parseIdentifier('12345678901')).toEqual({
+      ok: false,
+      reason: 'invalid_phone',
+    })
+    expect(parseIdentifier('123456789012345')).toEqual({
+      ok: false,
+      reason: 'invalid_phone',
+    })
   })
 
   it('rejects too-short digit-only input as phone', () => {
-    expect(parseIdentifier('123456789')).toEqual({ ok: false, reason: 'invalid_phone' })
+    expect(parseIdentifier('123456789')).toEqual({
+      ok: false,
+      reason: 'invalid_phone',
+    })
   })
 
   it('rejects too-long digit-only input', () => {
-    expect(parseIdentifier('1234567890123456')).toEqual({ ok: false, reason: 'invalid_phone' })
+    expect(parseIdentifier('1234567890123456')).toEqual({
+      ok: false,
+      reason: 'invalid_phone',
+    })
   })
 })
 

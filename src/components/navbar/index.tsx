@@ -8,35 +8,41 @@ import type { NavbarProps } from './types'
 
 import { LAYOUT_NAVBAR_INNER_CLASSES } from '@/lib/layout'
 import { cn } from '@/lib/utils'
+import { ThemeSwitcher } from '@/components/theme/ThemeSwitcher'
 
 export function Navbar({
   logo,
   navItems,
   profile,
   trailingActions,
+  centerSlot,
+  actionsSlot,
   className,
 }: NavbarProps) {
   return (
     <header
+      data-app-navbar
       className={cn(
-        /* Outer bar matches legacy DesktopNavbar; shadow = v3 `.shadow-sm` (0 1px 2px / 5%), not Tailwind v4’s heavier `shadow-sm` token. */
-        'sticky top-0 z-[210] flex w-full flex-col bg-white shadow-[0_1px_2px_0_rgb(0_0_0/0.05)] md:px-[24px] rounded-b-[32px]',
+        'sticky top-0 z-[210] flex w-full flex-col bg-surface shadow-[0_1px_2px_0_rgb(0_0_0/0.05)] rounded-b-[32px] lg:px-6',
         className,
       )}
     >
       <div
         className={cn(
           LAYOUT_NAVBAR_INNER_CLASSES,
-          'justify-between py-3 md:py-4',
+          'justify-between py-3 lg:py-4',
         )}
       >
-        <div className="flex min-w-0 flex-1 items-center gap-8">
+        <div className="flex min-w-0 flex-1 items-center gap-12">
           <NavbarLogo logo={logo} />
           <NavbarNavItems items={navItems} />
         </div>
 
-        <div className="flex shrink-0 items-center gap-6">
+        <div className="flex shrink-0 items-center gap-4">
+          {centerSlot ?? null}
           <NavbarTrailingActions items={trailingActions ?? []} />
+          {actionsSlot ?? null}
+          <ThemeSwitcher />
           <NavbarProfileMenu profile={profile} />
         </div>
       </div>

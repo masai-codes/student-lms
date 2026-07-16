@@ -18,9 +18,16 @@ vi.mock('@/server/api/ai-tutor/clients/anthropicModel', () => ({
   getAiTutorChatModel: vi.fn(() => 'mock-model'),
 }))
 
-vi.mock('@/server/api/ai-tutor/services/aiChatPracticeQuestions.service', () => ({
-  findOrCreateChatPracticeRow: hoisted.findOrCreateChatPracticeRow,
-  appendChatPracticeHistory: hoisted.appendChatPracticeHistory,
+vi.mock(
+  '@/server/api/ai-tutor/services/aiChatPracticeQuestions.service',
+  () => ({
+    findOrCreateChatPracticeRow: hoisted.findOrCreateChatPracticeRow,
+    appendChatPracticeHistory: hoisted.appendChatPracticeHistory,
+  }),
+)
+
+vi.mock('@/server/api/ai-tutor/services/getLectureChatMaterials.service', () => ({
+  getLectureChatMaterials: hoisted.getLectureChatMaterials,
 }))
 
 vi.mock('@/server/api/ai-tutor/services/getLectureChatMaterials.service', () => ({
@@ -57,7 +64,7 @@ describe('prepareLectureChatContext', () => {
       userId: 7,
       lectureId: 99,
       chat: 'Explain hooks',
-      platform: 'web',
+      platform: 'web-desktop',
       language: 'English',
     })
 
@@ -77,7 +84,7 @@ describe('prepareLectureChatContext', () => {
         { role: 'user', content: 'Explain hooks' },
       ],
       chat: 'Explain hooks',
-      platform: 'web',
+      platform: 'web-desktop',
       language: 'English',
     })
     expect(context.systemPrompt).toContain('retrieveLectureContent')
@@ -91,7 +98,7 @@ describe('prepareLectureChatContext', () => {
       userId: 7,
       lectureId: 99,
       chat: 'Explain hooks',
-      platform: 'web',
+      platform: 'web-desktop',
       language: 'Tamil',
     })
 
@@ -113,8 +120,8 @@ describe('prepareLectureChatContext', () => {
         userId: 7,
         lectureId: 99,
         chat: 'Explain hooks',
+        platform: 'web-desktop',
         chatId: 2,
-        platform: 'web',
         language: 'English',
       }),
     ).rejects.toMatchObject({ status: 404, code: 'AI_TUTOR_CHAT_NOT_FOUND' })
@@ -147,7 +154,7 @@ describe('streamLectureChatEventsFromContext', () => {
         { role: 'user', content: 'Explain hooks' },
       ],
       chat: 'Explain hooks',
-      platform: 'web',
+      platform: 'web-desktop',
       language: 'Hindi',
     })) {
       events.push(event)
@@ -165,6 +172,14 @@ describe('streamLectureChatEventsFromContext', () => {
         stopWhen: { type: 'stepCountIs', count: 2 },
       }),
     )
+    expect(hoisted.appendChatPracticeHistory).toHaveBeenCalledWith({
+      rowId: 12,
+      userMessage: 'Explain hooks',
+      aiMessage: 'Hello there',
+      platform: 'web-desktop',
+      language: 'Hindi',
+      existingHistory: [{ userMessage: 'Earlier', aiMessage: 'Sure' }],
+    })
     expect(events).toEqual([
       { type: 'token', content: 'Hello ' },
       { type: 'token', content: 'there' },
