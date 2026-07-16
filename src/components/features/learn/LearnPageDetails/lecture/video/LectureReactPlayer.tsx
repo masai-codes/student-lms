@@ -11,6 +11,7 @@ import { useLectureSplitChatOptional } from '../hooks/LectureSplitChatContext'
 import {
   enterElementFullscreen,
   exitAnyFullscreen,
+  FULLSCREEN_CHANGE_EVENTS,
   getFullscreenElement,
   isCoarsePointerDevice,
   supportsElementFullscreen,
@@ -125,6 +126,41 @@ export function LectureReactPlayer({
     landscapeQuery.addEventListener('change', onOrientationChange)
     return () =>
       landscapeQuery.removeEventListener('change', onOrientationChange)
+  }, [])
+
+  // Fallback for touch devices where screen.orientation.lock() is rejected
+  // (e.g. Android Chrome in a regular, non-installed tab): while fullscreen
+  // and still physically portrait, CSS-rotate the container so a landscape
+  // video fills the screen. Clears itself the moment the OS actually rotates.
+  useEffect(() => {
+    if (typeof window === 'undefined' || !isCoarsePointerDevice()) return
+    const portraitQuery = window.matchMedia('(orientation: portrait)')
+    const sync = () => {
+      const container = fullscreenContainerRef.current
+      if (!container) return
+      const video = getHtmlVideoFromPlayer(videoRef)
+      const isLandscapeVideo =
+        !video || video.videoWidth === 0 || video.videoWidth >= video.videoHeight
+      const shouldRotate =
+        getFullscreenElement() === container &&
+        portraitQuery.matches &&
+        isLandscapeVideo
+      container.classList.toggle('lecture-video-fs-rotate', shouldRotate)
+    }
+    sync()
+    portraitQuery.addEventListener('change', sync)
+    for (const eventName of FULLSCREEN_CHANGE_EVENTS) {
+      document.addEventListener(eventName, sync)
+    }
+    return () => {
+      portraitQuery.removeEventListener('change', sync)
+      for (const eventName of FULLSCREEN_CHANGE_EVENTS) {
+        document.removeEventListener(eventName, sync)
+      }
+      fullscreenContainerRef.current?.classList.remove(
+        'lecture-video-fs-rotate',
+      )
+    }
   }, [])
 
   useEffect(() => {

@@ -49,17 +49,35 @@ export function LectureAiChatMobileDock({
         />
       ) : null}
 
-      <LectureAiChatComposer
-        value={chat.input}
-        onChange={chat.setInput}
-        onSend={handleSend}
-        onStop={chat.stop}
-        isSending={chat.isSending}
-        language={chat.language}
-        onLanguageChange={chat.setLanguage}
-        platform="mobile"
-        onFocus={() => setIsOpen(true)}
-      />
+      {/* Read-only launcher: tapping opens the drawer but never pops the
+          keyboard on this (outside-the-drawer) field. Opening on click — not
+          focus — avoids a reopen loop when vaul restores focus here on close.
+          The editable composer lives inside the drawer and auto-focuses, so the
+          keyboard is driven from within, where vaul repositions it correctly. */}
+      <div
+        role="button"
+        tabIndex={0}
+        aria-label="Ask the AI tutor"
+        onClick={() => setIsOpen(true)}
+        onKeyDown={(event) => {
+          if (event.key === 'Enter' || event.key === ' ') {
+            event.preventDefault()
+            setIsOpen(true)
+          }
+        }}
+      >
+        <LectureAiChatComposer
+          value={chat.input}
+          onChange={chat.setInput}
+          onSend={handleSend}
+          onStop={chat.stop}
+          isSending={chat.isSending}
+          language={chat.language}
+          onLanguageChange={chat.setLanguage}
+          platform="mobile"
+          readOnly
+        />
+      </div>
 
       <Drawer.Root open={isOpen} onOpenChange={setIsOpen}>
         <Drawer.Portal>
