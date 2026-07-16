@@ -10,6 +10,9 @@ type VideoPlaybackOverlaysProps = {
   seekHint: SeekHint
 }
 
+/** Matches the ±5s used by the keyboard/double-tap/slider seek shortcuts. */
+const SEEK_STEP_SECONDS = 5
+
 const seekIconClass = 'h-6 w-6 shrink-0 text-white md:h-7 md:w-7'
 
 const seekBadgeClass =
@@ -42,25 +45,29 @@ export function VideoPlaybackOverlays({
           </button>
         </div>
       ) : null}
+      {/* Transient seek feedback only — shown for ~650ms after a seek
+          (keyboard / double-tap / slider). Backward hint hugs the left edge,
+          forward the right edge; both vertically centred via translate so the
+          position never depends on flex quirks of the player wrapper. */}
       {seekHint === 'backward' ? (
         <div
-          className="pointer-events-none absolute inset-y-0 left-0 z-[41] flex items-center justify-start pl-[max(0.75rem,env(safe-area-inset-left,0px))] md:pl-8"
+          className="pointer-events-none absolute left-[max(0.75rem,env(safe-area-inset-left,0px))] top-1/2 z-[41] -translate-y-1/2 md:left-8"
           aria-hidden
         >
           <div className={seekBadgeClass}>
             <CaretDoubleLeft className={seekIconClass} weight="fill" />
-            <span className={seekLabelClass}>5s</span>
+            <span className={seekLabelClass}>{SEEK_STEP_SECONDS}s</span>
           </div>
         </div>
       ) : null}
       {seekHint === 'forward' ? (
         <div
-          className="pointer-events-none absolute inset-y-0 right-0 z-[41] flex items-center justify-end pr-[max(0.75rem,env(safe-area-inset-right,0px))] md:pr-8"
+          className="pointer-events-none absolute right-[max(0.75rem,env(safe-area-inset-right,0px))] top-1/2 z-[41] -translate-y-1/2 md:right-8"
           aria-hidden
         >
           <div className={seekBadgeClass}>
             <CaretDoubleRight className={seekIconClass} weight="fill" />
-            <span className={seekLabelClass}>5s</span>
+            <span className={seekLabelClass}>{SEEK_STEP_SECONDS}s</span>
           </div>
         </div>
       ) : null}
