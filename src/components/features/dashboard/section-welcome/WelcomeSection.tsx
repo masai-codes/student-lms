@@ -6,12 +6,18 @@ interface WelcomeSectionProps {
   /** The signed-in user's name, or null while loading / unknown. */
   name: string | null
   banners: Array<DashboardBanner>
+  /** Hide the banner carousel while the overview is still loading. */
+  isLoading?: boolean
 }
 
 // Greeting header paired with the promotional banner carousel. Stacks on
 // mobile and sits side-by-side on desktop. Falls back to "Welcome!" when the
 // name is unknown.
-export function WelcomeSection({ name, banners }: WelcomeSectionProps) {
+export function WelcomeSection({
+  name,
+  banners,
+  isLoading = false,
+}: WelcomeSectionProps) {
   return (
     <div
       data-testid="dashboard-welcome-section"
@@ -52,7 +58,10 @@ export function WelcomeSection({ name, banners }: WelcomeSectionProps) {
         )}
       </div>
 
-      {banners.length > 0 && (
+      {/* Once loaded, the carousel is always rendered: it pins the hardcoded
+          Masai Live promo as its first slide, so it shows even when there are
+          no DB banners. Hidden during loading like the other dashboard cards. */}
+      {!isLoading && (
         <div className="w-full min-w-0 md:flex-1">
           <WelcomeBannerCarousel banners={banners} />
         </div>
