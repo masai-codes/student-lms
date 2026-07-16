@@ -22,8 +22,20 @@ export type LectureAttendanceSummary = {
   liveAttendanceStatus: number
   /** `student_attendances.video_attendance_status`: 1 recording watched, 0 otherwise. */
   videoAttendanceStatus: number
-  /** Whether recording watch-time counts toward attendance for this section/record. */
+  /**
+   * Whether video attendance is TRACKED (catch-up window applies) — true when
+   * the section enables video attendance OR counts it for actual attendance.
+   * Drives the catch-up window / breakdown, NOT the disclaimer banner variant.
+   */
   includeVideoAttendance: boolean
+  /**
+   * Section setting `considerVideoAttendanceForActualAttendance`: whether
+   * watching the recording actually COUNTS toward the Present/Absent status.
+   * Section-derived (reliable even when the per-student row is stale). Drives
+   * the lecture-detail disclaimer banner variant — legacy parity with
+   * `video_attendance_considered_in_section`.
+   */
+  videoCountsForAttendance: boolean
 }
 
 export type LectureAttendanceContext = {

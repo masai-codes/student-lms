@@ -66,5 +66,9 @@ export function buildLectureAttendanceSummary(
     liveAttendanceStatus: record?.liveAttendanceStatus ?? 0,
     videoAttendanceStatus: record?.videoAttendanceStatus ?? 0,
     includeVideoAttendance,
+    // Section-derived so the banner is reliable even when the per-student
+    // `include_video_attendance` column is stale (see upgrade/backfill notes).
+    videoCountsForAttendance:
+      sectionSettings.considerVideoAttendanceForActualAttendance,
   }
 }

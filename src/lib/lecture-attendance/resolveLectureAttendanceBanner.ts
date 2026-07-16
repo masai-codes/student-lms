@@ -4,12 +4,14 @@ import type { LectureAttendanceSummary } from '@/server/attendance/types'
  * Blue "attendance disclaimer" banner on the lecture detail page.
  *
  * Ported from the legacy LMS `AttendanceDisclaimer`. When a recording is present
- * on the page, the banner shows one of two messages decided SOLELY by whether
- * recording watch-time counts toward attendance for this section
- * (`includeVideoAttendance`, aka "consider video attendance for actual
- * attendance"). No watch-progress / present / catch-up-window state is involved —
- * the banner is always visible while the recording is shown, so it never
- * disappears mid-watch.
+ * on the page, the banner shows one of two messages decided SOLELY by the
+ * section setting `considerVideoAttendanceForActualAttendance` (surfaced as
+ * `videoCountsForAttendance`) — i.e. whether watching the recording actually
+ * counts toward the Present/Absent status. This is NOT `includeVideoAttendance`,
+ * which is also true for sections that merely track video for a catch-up window
+ * without counting it. No watch-progress / present / catch-up-window state is
+ * involved — the banner is always visible while the recording is shown, so it
+ * never disappears mid-watch (legacy `video_attendance_considered_in_section`).
  */
 export type LectureAttendanceBannerKey = 'video-counts' | 'live-only'
 
@@ -44,11 +46,11 @@ export const LECTURE_ATTENDANCE_BANNERS: Record<
  * on the lecture detail page. The choice is made solely on whether recording
  * watch-time counts toward attendance:
  *
- * - `includeVideoAttendance === true`  → `video-counts` ("watch it to become Present")
- * - `includeVideoAttendance === false` → `live-only` ("watching won't count")
+ * - `videoCountsForAttendance === true`  → `video-counts` ("watch it to become Present")
+ * - `videoCountsForAttendance === false` → `live-only` ("watching won't count")
  *
- * Returns `null` only when there is no attendance record at all (e.g. optional /
- * recommended lectures), where the disclaimer does not apply.
+ * Returns `null` only when there is no attendance context at all (no section),
+ * where the section setting cannot be determined.
  */
 export function resolveLectureAttendanceBanner(
   attendance: LectureAttendanceSummary | null | undefined,
@@ -57,7 +59,7 @@ export function resolveLectureAttendanceBanner(
     return null
   }
 
-  return attendance.includeVideoAttendance
+  return attendance.videoCountsForAttendance
     ? LECTURE_ATTENDANCE_BANNERS['video-counts']
     : LECTURE_ATTENDANCE_BANNERS['live-only']
 }

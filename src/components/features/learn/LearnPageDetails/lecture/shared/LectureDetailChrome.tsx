@@ -3,7 +3,6 @@
 import { LectureDetailOverviewHeader } from '../meta'
 import type { ReactNode } from 'react'
 
-import { LectureAttendanceBanner } from '@/components/features/learn/attendance/LectureAttendanceBanner'
 import type { LectureAttendanceSummary } from '@/server/attendance/types'
 import type { LearningPriority } from '@/server/learn/types'
 import { resolveLectureAttendanceBanner } from '@/lib/lecture-attendance/resolveLectureAttendanceBanner'
@@ -56,13 +55,14 @@ export function LectureDetailChrome({
   belowHero,
   footer,
 }: LectureDetailChromeProps) {
-  // While the recording is shown, the banner is always visible and its variant
-  // depends solely on whether recording watch-time counts toward attendance
-  // (`includeVideoAttendance`). It does not depend on watch progress, so it
-  // never disappears mid-watch. `watchPercentage` still drives the live header
-  // badge below.
+  // While the recording is shown (`showAttendanceBanner`, set only by the
+  // recording experience), the banner is always visible; its variant depends
+  // solely on whether watching the recording counts toward attendance
+  // (`videoCountsForAttendance`). It does not depend on watch progress, so it
+  // never disappears mid-watch. `optionalAttendance` covers recommended lectures
+  // (which have a recording but null `attendance`) so they show it too.
   const attendanceBanner = showAttendanceBanner
-    ? resolveLectureAttendanceBanner(attendance)
+    ? resolveLectureAttendanceBanner(attendance ?? optionalAttendance)
     : null
   return (
     <div className="w-full pb-12">
@@ -89,12 +89,8 @@ export function LectureDetailChrome({
             isLiveLecture={isLiveLecture}
             watchPercentage={watchPercentage}
             actions={actions}
+            attendanceBanner={attendanceBanner}
           />
-          {attendanceBanner ? (
-            <div className="mb-4 animate-dash-rise [--dash-delay:0.08s]">
-              <LectureAttendanceBanner banner={attendanceBanner} />
-            </div>
-          ) : null}
           {belowHero}
         </div>
       </section>

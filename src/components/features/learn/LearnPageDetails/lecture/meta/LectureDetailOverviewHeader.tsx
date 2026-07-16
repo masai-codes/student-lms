@@ -5,6 +5,8 @@ import type { ReactNode } from 'react'
 
 import type { LectureAttendanceSummary } from '@/server/attendance/types'
 import type { LearningPriority } from '@/server/learn/types'
+import type { LectureAttendanceBannerDescriptor } from '@/lib/lecture-attendance/resolveLectureAttendanceBanner'
+import { LectureAttendanceBanner } from '@/components/features/learn/attendance/LectureAttendanceBanner'
 import { LectureAttendanceDetailBadge } from '@/components/features/learn/attendance/LectureAttendanceDetailBadge'
 import { LectureOptionalAttendanceInfo } from '@/components/features/learn/attendance/LectureOptionalAttendanceInfo'
 import { useListingAttendancePresentation } from '@/components/features/learn/attendance/useLectureAttendancePresentation'
@@ -31,6 +33,12 @@ type LectureDetailOverviewHeaderProps = {
   watchPercentage?: number | null
   /** Header CTAs (Raise Ticket + bookmark) rendered top-right. */
   actions?: ReactNode
+  /**
+   * Blue attendance disclaimer. Rendered inside the left column directly below
+   * the tag row so it fills the desktop whitespace beside the short host block
+   * instead of sitting full-width under the header.
+   */
+  attendanceBanner?: LectureAttendanceBannerDescriptor | null
   className?: string
 }
 
@@ -56,6 +64,7 @@ export function LectureDetailOverviewHeader({
   isLiveLecture,
   watchPercentage,
   actions,
+  attendanceBanner,
   className,
 }: LectureDetailOverviewHeaderProps) {
   const attendancePresentation = useListingAttendancePresentation(
@@ -119,14 +128,20 @@ export function LectureDetailOverviewHeader({
             </div>
           ) : null}
         </div>
+        {/* Blue attendance disclaimer sits right under the tags so it fills the
+            desktop whitespace next to the short host/CTA column instead of
+            leaving an empty gap under the header. */}
+        {attendanceBanner ? (
+          <LectureAttendanceBanner banner={attendanceBanner} />
+        ) : null}
       </div>
 
       {/* Mobile: host (left) and CTAs (right) share one row to save vertical
           space, but the row is allowed to WRAP — on narrow widths the CTAs
           drop to their own line instead of crushing the host name into
-          mid-word breaks. Desktop keeps its column with the CTAs above the
-          host, right aligned (flex-col-reverse over the same DOM order). */}
-      <div className="flex min-w-0 shrink-0 flex-row flex-wrap items-center justify-between gap-3 md:max-w-[min(100%,280px)] md:flex-col-reverse md:flex-nowrap md:items-end md:justify-start md:gap-3">
+          mid-word breaks. Desktop keeps its column with the host name on top
+          and the CTAs below, right aligned (flex-col over the DOM order). */}
+      <div className="flex min-w-0 shrink-0 flex-row flex-wrap items-center justify-between gap-3 md:max-w-[min(100%,280px)] md:flex-col md:flex-nowrap md:items-end md:justify-start md:gap-3">
         <div className="flex min-w-[180px] flex-1 items-start gap-3 md:min-w-0 md:flex-none md:justify-end">
           <Avatar
             size="lg"
