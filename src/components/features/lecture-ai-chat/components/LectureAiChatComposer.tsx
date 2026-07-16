@@ -19,6 +19,12 @@ type LectureAiChatComposerProps = {
   platform?: 'mobile' | 'desktop'
   onFocus?: () => void
   autoFocus?: boolean
+  /**
+   * Render the textarea as a non-editable launcher: it can be focused/tapped
+   * (firing `onFocus`) but never opens the mobile keyboard. Used by the mobile
+   * dock so the keyboard-driving input lives inside the drawer instead.
+   */
+  readOnly?: boolean
 }
 
 export function LectureAiChatComposer({
@@ -32,8 +38,9 @@ export function LectureAiChatComposer({
   platform = 'desktop',
   onFocus,
   autoFocus,
+  readOnly = false,
 }: LectureAiChatComposerProps) {
-  const canSend = value.trim().length > 0 && !isSending
+  const canSend = value.trim().length > 0 && !isSending && !readOnly
 
   return (
     <div
@@ -47,6 +54,7 @@ export function LectureAiChatComposer({
           value={value}
           autoFocus={autoFocus}
           onFocus={onFocus}
+          readOnly={readOnly}
           onChange={(event) =>
             onChange(
               event.target.value.slice(0, LECTURE_AI_CHAT_MAX_MESSAGE_LENGTH),
