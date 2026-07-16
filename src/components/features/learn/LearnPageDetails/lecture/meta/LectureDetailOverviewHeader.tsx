@@ -77,7 +77,7 @@ export function LectureDetailOverviewHeader({
   return (
     <section
       className={cn(
-        'flex flex-col gap-3 border-b border-border bg-background py-3 dark:bg-transparent md:flex-row md:items-start md:justify-between md:gap-6 md:py-5',
+        'flex flex-col gap-3 border-b border-border bg-background py-3 dark:bg-transparent md:flex-row md:items-stretch md:justify-between md:gap-6 md:py-5',
         className,
       )}
     >
@@ -140,8 +140,10 @@ export function LectureDetailOverviewHeader({
           space, but the row is allowed to WRAP — on narrow widths the CTAs
           drop to their own line instead of crushing the host name into
           mid-word breaks. Desktop keeps its column with the host name on top
-          and the CTAs below, right aligned (flex-col over the DOM order). */}
-      <div className="flex min-w-0 shrink-0 flex-row flex-wrap items-center justify-between gap-3 md:max-w-[min(100%,280px)] md:flex-col md:flex-nowrap md:items-end md:justify-start md:gap-3">
+          and the CTAs below, right aligned (flex-col over the DOM order).
+          justify-between + the stretched section height pushes the CTAs to the
+          bottom so they line up with the blue banner in the left column. */}
+      <div className="flex min-w-0 shrink-0 flex-row flex-wrap items-center justify-between gap-3 md:max-w-[min(100%,280px)] md:flex-col md:flex-nowrap md:items-end md:justify-between md:gap-3">
         <div className="flex min-w-[180px] flex-1 items-start gap-3 md:min-w-0 md:flex-none md:justify-end">
           <Avatar
             size="lg"
