@@ -30,6 +30,10 @@ vi.mock('@/server/api/ai-tutor/services/getLectureChatMaterials.service', () => 
   getLectureChatMaterials: hoisted.getLectureChatMaterials,
 }))
 
+vi.mock('@/server/api/ai-tutor/services/getLectureChatMaterials.service', () => ({
+  getLectureChatMaterials: hoisted.getLectureChatMaterials,
+}))
+
 const materials = {
   lectureId: 99,
   title: 'Hooks Overview',
