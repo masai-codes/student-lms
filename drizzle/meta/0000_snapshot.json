@@ -4405,8 +4405,8 @@
           "notNull": false,
           "autoincrement": false
         },
-        "transcriptId": {
-          "name": "transcriptId",
+        "transcriptID": {
+          "name": "transcriptID",
           "type": "varchar(191)",
           "primaryKey": false,
           "notNull": false,
