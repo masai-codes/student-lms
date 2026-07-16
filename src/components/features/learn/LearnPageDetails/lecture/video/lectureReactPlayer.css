@@ -1,5 +1,11 @@
 .lecture-react-player {
   min-height: 0;
+  /* Keep the video frame + chrome clear of the camera housing / Dynamic
+     Island when the OS lays the page out edge-to-edge (iOS 26 Safari in
+     landscape, notched fullscreen). The container is black, so the inset
+     reads as an intentional pillarbox. Insets are 0 everywhere else. */
+  padding-left: env(safe-area-inset-left, 0px);
+  padding-right: env(safe-area-inset-right, 0px);
 }
 
 .lecture-react-player__stage,

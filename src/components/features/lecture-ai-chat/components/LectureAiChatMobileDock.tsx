@@ -97,7 +97,29 @@ export function LectureAiChatMobileDock({
       >
         <Drawer.Portal>
           <Drawer.Overlay className="fixed inset-0 z-[215] bg-black/50" />
-          <Drawer.Content className="fixed inset-x-0 bottom-0 z-[220] flex h-[90dvh] flex-col rounded-t-2xl border-t border-border bg-background outline-none">
+          <Drawer.Content
+            className="fixed inset-x-0 bottom-0 z-[220] flex h-[90dvh] flex-col rounded-t-2xl border-t border-border bg-background outline-none"
+            // The composer's language DropdownMenu portals to <body>, i.e.
+            // outside this drawer's DOM — without this guard, tapping a
+            // language option registers as an "outside" tap and dismisses
+            // the whole drawer.
+            onPointerDownOutside={(event) => {
+              if (
+                event.target instanceof Element &&
+                event.target.closest('[data-radix-popper-content-wrapper]')
+              ) {
+                event.preventDefault()
+              }
+            }}
+            onInteractOutside={(event) => {
+              if (
+                event.target instanceof Element &&
+                event.target.closest('[data-radix-popper-content-wrapper]')
+              ) {
+                event.preventDefault()
+              }
+            }}
+          >
             <div className="flex shrink-0 cursor-grab justify-center pt-2.5 active:cursor-grabbing">
               <Drawer.Handle className="!h-1 !w-10 !bg-border" />
             </div>

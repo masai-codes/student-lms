@@ -203,11 +203,11 @@ export function VideoAttendanceCustomControls({
       role="toolbar"
       aria-label="Video controls"
       className={shellClass}
-      // Full-bleed player: keep the chrome clear of the iOS notch / rounded
-      // corners (landscape) and the home indicator (fullscreen).
+      // The player container already pads the left/right safe areas (camera
+      // housing); the chrome only needs to clear the home indicator below.
       style={{
-        paddingLeft: 'max(0.75rem, env(safe-area-inset-left, 0px))',
-        paddingRight: 'max(0.75rem, env(safe-area-inset-right, 0px))',
+        paddingLeft: '0.75rem',
+        paddingRight: '0.75rem',
         paddingBottom: 'max(0.5rem, env(safe-area-inset-bottom, 0px))',
       }}
       onFocusCapture={() => {
