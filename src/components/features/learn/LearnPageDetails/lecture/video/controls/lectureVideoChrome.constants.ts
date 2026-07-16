@@ -104,4 +104,18 @@ export const LECTURE_VIDEO_CHROME_CSS = `
     min-height: 0;
     height: 100%;
   }
+  /* Fallback for touch devices where screen.orientation.lock() is rejected
+     (e.g. Android Chrome in a regular, non-installed tab) — CSS-rotate the
+     fullscreen container so a landscape video still fills the screen instead
+     of staying letterboxed in portrait. */
+  .lecture-video-fs-root:fullscreen.lecture-video-fs-rotate,
+  .lecture-video-fs-root:-webkit-full-screen.lecture-video-fs-rotate {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vh;
+    height: 100vw;
+    transform-origin: top left;
+    transform: rotate(90deg) translateY(-100%);
+  }
 `
