@@ -9,7 +9,7 @@ export const MASAI_LIVE_PROMO = {
   // A value starting with `/` is treated as an internal same-tab route;
   // a full URL (like this one) opens in a new tab.
   ctaUrl:
-    'https://masai-live.masaischool.com/cd/afnFk0_Po9vgQKzf/session/akeYwZiFm3TFUV-h?pl=akeXhJiFm3TFUV8w',
+    'https://masai-live.masaischool.com/cd/afnFk0_Po9vgQKzf/session/akeYwZiFm3TFUV-h?pl=akeXhJiFm3TFUV8w&join=1',
 
   label: 'This Month On',
   brand: 'masai',
