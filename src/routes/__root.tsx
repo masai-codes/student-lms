@@ -30,7 +30,12 @@ export const Route = createRootRouteWithContext<RouterContext>()({
       },
       {
         name: 'viewport',
-        content: 'width=device-width, initial-scale=1',
+        // `interactive-widget=resizes-content` restores pre-Chrome-108 Android
+        // behavior: the on-screen keyboard shrinks the layout viewport, so
+        // `dvh` heights and `fixed bottom-0` surfaces (AI chat drawer, bottom
+        // nav) stay above the keyboard. iOS ignores this key entirely.
+        content:
+          'width=device-width, initial-scale=1, interactive-widget=resizes-content',
       },
       {
         title: getAuthBranding().pageTitle,

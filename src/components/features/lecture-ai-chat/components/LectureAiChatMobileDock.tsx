@@ -16,6 +16,17 @@ type LectureAiChatMobileDockProps = {
 }
 
 /**
+ * Vaul's `repositionInputs` shifts the drawer up by the keyboard height using
+ * `visualViewport` — correct on iOS Safari (where the keyboard never resizes
+ * the layout viewport), but on Android our viewport meta
+ * (`interactive-widget=resizes-content`) already shrinks the layout viewport
+ * and the `90dvh` drawer with it, so vaul's extra shift detaches the drawer
+ * from the keyboard and leaves a dead whitespace band. Keep it iOS-only.
+ */
+const shouldRepositionInputs = () =>
+  typeof navigator === 'undefined' || !/android/i.test(navigator.userAgent)
+
+/**
  * Mobile surface: shows only the composer ("search box"). Focusing the composer
  * (or sending) opens a bottom drawer holding the full chat panel, wired to the
  * same chat instance so typing/streaming continues inside the drawer — whose
@@ -79,7 +90,11 @@ export function LectureAiChatMobileDock({
         />
       </div>
 
-      <Drawer.Root open={isOpen} onOpenChange={setIsOpen}>
+      <Drawer.Root
+        open={isOpen}
+        onOpenChange={setIsOpen}
+        repositionInputs={shouldRepositionInputs()}
+      >
         <Drawer.Portal>
           <Drawer.Overlay className="fixed inset-0 z-[215] bg-black/50" />
           <Drawer.Content className="fixed inset-x-0 bottom-0 z-[220] flex h-[90dvh] flex-col rounded-t-2xl border-t border-border bg-background outline-none">
