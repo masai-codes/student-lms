@@ -4,11 +4,9 @@ import { LectureDetailOverviewHeader } from '../meta'
 import type { ReactNode } from 'react'
 
 import { LectureAttendanceBanner } from '@/components/features/learn/attendance/LectureAttendanceBanner'
-import { LectureCatchupProgressBar } from '@/components/features/learn/attendance/LectureCatchupProgressBar'
 import type { LectureAttendanceSummary } from '@/server/attendance/types'
 import type { LearningPriority } from '@/server/learn/types'
 import { resolveLectureAttendanceBanner } from '@/lib/lecture-attendance/resolveLectureAttendanceBanner'
-import { resolveLectureCatchUpProgress } from '@/lib/lecture-attendance/resolveLectureCatchUpProgress'
 import { lectureDetailContentClasses } from '@/lib/layout'
 import { cn } from '@/lib/utils'
 
@@ -58,20 +56,14 @@ export function LectureDetailChrome({
   belowHero,
   footer,
 }: LectureDetailChromeProps) {
-  // The banner intentionally does NOT depend on live `watchPercentage` — it
-  // tracks the server-reconciled attendance state only (legacy parity), so it
-  // does not vanish ~30s into playback. `watchPercentage` still drives the live
-  // header badge below.
+  // While the recording is shown, the banner is always visible and its variant
+  // depends solely on whether recording watch-time counts toward attendance
+  // (`includeVideoAttendance`). It does not depend on watch progress, so it
+  // never disappears mid-watch. `watchPercentage` still drives the live header
+  // badge below.
   const attendanceBanner = showAttendanceBanner
     ? resolveLectureAttendanceBanner(attendance)
     : null
-  // Mid-catch-up (`continue_watching`, recording counts): the banner steps aside
-  // for the dark catch-up progress strip — legacy parity. Mutually exclusive
-  // with the banner by construction (the banner resolves to null for that state).
-  const catchUpProgress =
-    showAttendanceBanner && attendanceBanner == null
-      ? resolveLectureCatchUpProgress(attendance)
-      : null
   return (
     <div className="w-full pb-12">
       <section className="flex w-full shrink-0 flex-col overflow-visible bg-surface dark:bg-transparent">
@@ -101,13 +93,6 @@ export function LectureDetailChrome({
           {attendanceBanner ? (
             <div className="mb-4 animate-dash-rise [--dash-delay:0.08s]">
               <LectureAttendanceBanner banner={attendanceBanner} />
-            </div>
-          ) : catchUpProgress ? (
-            <div className="mb-4 animate-dash-rise [--dash-delay:0.08s]">
-              <LectureCatchupProgressBar
-                progress={catchUpProgress}
-                watchPercentage={attendance?.watchPercentage ?? 0}
-              />
             </div>
           ) : null}
           {belowHero}
