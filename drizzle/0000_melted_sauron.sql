@@ -513,7 +513,7 @@ CREATE TABLE `lectures_ai` (
 	`created_at` timestamp,
 	`updated_at` timestamp,
 	`lastRefetchTime` datetime,
-	`transcriptId` varchar(191),
+	`transcriptID` varchar(191),
 	CONSTRAINT `lectures_ai_id` PRIMARY KEY(`id`),
 	CONSTRAINT `lectures_ai_lectureId_key` UNIQUE(`lectureId`)
 );

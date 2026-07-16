@@ -929,7 +929,7 @@ export const lecturesAi = mysqlTable(
     createdAt: timestamp('created_at', { mode: 'string' }),
     updatedAt: timestamp('updated_at', { mode: 'string' }),
     lastRefetchTime: datetime({ mode: 'string', fsp: 3 }),
-    transcriptId: varchar({ length: 191 }),
+    transcriptId: varchar("transcriptID", { length: 191 }),
   },
   (table) => [
     primaryKey({ columns: [table.id], name: 'lectures_ai_id' }),

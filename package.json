@@ -26,7 +26,8 @@
     "seed": "tsx seed/runner/cli.ts",
     "seed:all": "tsx seed/runner/cli.ts all",
     "seed:catalog": "tsx seed/catalog/generate.ts",
-    "db:pull": "drizzle-kit pull && node scripts/sync-schema.mjs && prettier --write src/db/schema.ts"
+    "db:pull": "drizzle-kit pull && node scripts/sync-schema.mjs && prettier --write src/db/schema.ts",
+    "db:push": "drizzle-kit push"
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^3.0.85",

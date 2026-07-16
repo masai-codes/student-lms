@@ -16,3 +16,12 @@ export function pushDashboardEvent(
 export function bannerClickEvent(analyticsKey: string, id: number): string {
   return `l_dashboard_banner_carousel_${analyticsKey}_id_${id}`
 }
+
+/**
+ * GTM event for the hardcoded Masai Live promo banner (the always-first
+ * carousel slide): `l_dashboard_banner_carousel_<key>`. No DB id since the
+ * banner is fixed in code.
+ */
+export function masaiLivePromoClickEvent(analyticsKey: string): string {
+  return `l_dashboard_banner_carousel_${analyticsKey}`
+}
