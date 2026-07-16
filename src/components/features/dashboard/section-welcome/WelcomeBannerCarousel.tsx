@@ -214,7 +214,7 @@ function MasaiLivePromoCard({ wasDragged }: { wasDragged: () => boolean }) {
       draggable={false}
       data-testid="dashboard-masai-live-promo"
       onClick={handleClick}
-      className="dash-sheen group relative flex h-full items-center gap-4 overflow-hidden rounded-2xl px-12 py-4 no-underline shadow-[0_6px_20px_-10px_rgb(225_29_72_/_0.25)] ring-1 ring-inset ring-[#E11D48]/15 transition-shadow duration-300 hover:shadow-[0_12px_30px_-10px_rgb(225_29_72_/_0.32)]"
+      className="dash-sheen group relative flex h-full items-center gap-3 overflow-hidden rounded-2xl px-4 py-3 no-underline shadow-[0_6px_20px_-10px_rgb(225_29_72_/_0.25)] ring-1 ring-inset ring-[#E11D48]/15 transition-shadow duration-300 hover:shadow-[0_12px_30px_-10px_rgb(225_29_72_/_0.32)] sm:gap-4 sm:px-6 md:px-10 md:py-4"
     >
       {/* Base pink wash. */}
       <span
@@ -229,26 +229,26 @@ function MasaiLivePromoCard({ wasDragged }: { wasDragged: () => boolean }) {
       <img
         src={MASAI_LIVE_PROMO.imageUrl}
         alt=""
-        className="relative z-10 size-14 shrink-0 rounded-xl object-cover shadow-sm ring-1 ring-black/5 transition-transform duration-300 ease-out group-hover:scale-105"
+        className="relative z-10 size-12 shrink-0 rounded-xl object-cover shadow-sm ring-1 ring-black/5 transition-transform duration-300 ease-out group-hover:scale-105 md:size-14"
       />
       <div className="relative z-10 min-w-0 flex-1">
-        <p className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-foreground-muted">
+        <p className="flex items-center gap-1.5 whitespace-nowrap text-[10px] font-semibold uppercase tracking-[0.1em] text-foreground-muted md:text-[11px] md:tracking-[0.14em]">
           {MASAI_LIVE_PROMO.label}
-          <span className="text-sm font-extrabold normal-case tracking-normal text-foreground">
+          <span className="text-xs font-extrabold normal-case tracking-normal text-foreground md:text-sm">
             {MASAI_LIVE_PROMO.brand}
           </span>
-          <span className="text-sm font-semibold italic normal-case tracking-normal text-[#E11D48]">
+          <span className="text-xs font-semibold italic normal-case tracking-normal text-[#E11D48] md:text-sm">
             {MASAI_LIVE_PROMO.brandAccent}
           </span>
         </p>
-        <h3 className="truncate text-base font-bold text-foreground md:text-lg">
+        <h3 className="truncate text-sm font-bold text-foreground md:text-lg">
           {MASAI_LIVE_PROMO.title}
         </h3>
-        <p className="truncate text-xs text-foreground-muted md:text-sm">
+        <p className="truncate text-[11px] text-foreground-muted md:text-sm">
           {MASAI_LIVE_PROMO.subtitle}
         </p>
       </div>
-      <span className="relative z-10 ml-auto hidden shrink-0 items-center gap-2 rounded-full bg-[#E11D48] px-5 py-2.5 text-sm font-semibold text-white shadow-[0_8px_18px_-4px_rgb(225_29_72_/_0.5)] transition-transform duration-200 group-hover:scale-105 sm:flex">
+      <span className="relative z-10 ml-auto hidden shrink-0 items-center gap-2 rounded-full bg-[#E11D48] px-5 py-2.5 text-sm font-semibold text-white shadow-[0_8px_18px_-4px_rgb(225_29_72_/_0.5)] transition-transform duration-200 group-hover:scale-105 md:flex">
         {MASAI_LIVE_PROMO.ctaText}
         <ArrowRight size={16} weight="bold" />
       </span>
@@ -275,7 +275,7 @@ function ArrowButton({
       data-testid={`dashboard-welcome-banner-${direction}`}
       disabled={disabled}
       onClick={onClick}
-      className={`absolute top-1/2 z-10 flex size-8 -translate-y-1/2 items-center justify-center rounded-full bg-surface/70 text-foreground-muted shadow-sm backdrop-blur-sm transition-all duration-200 hover:scale-110 hover:bg-surface hover:text-[#3F83F8] hover:shadow-md active:scale-95 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:scale-100 disabled:hover:text-foreground-muted ${
+      className={`absolute top-1/2 z-10 hidden size-8 -translate-y-1/2 items-center justify-center rounded-full bg-surface/70 text-foreground-muted shadow-sm backdrop-blur-sm transition-all duration-200 hover:scale-110 hover:bg-surface hover:text-[#3F83F8] hover:shadow-md active:scale-95 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:scale-100 disabled:hover:text-foreground-muted md:flex ${
         isPrev ? 'left-0 -translate-x-1/2' : 'right-0 translate-x-1/2'
       }`}
     >
