@@ -58,6 +58,31 @@ function s3ToCloudFront(url: string): string {
   }
 }
 
+/**
+ * Percent-encode each path segment unless the URL is already encoded —
+ * mirrors the legacy LMS `uriEncode` so S3 keys with spaces/special chars
+ * (common in Zoom recording names) stream correctly, especially on Safari.
+ */
+function uriEncodeIfNeeded(originalUri: string): string {
+  const isEncoded = (uri: string) => {
+    try {
+      return uri !== decodeURIComponent(uri)
+    } catch {
+      return false
+    }
+  }
+  if (isEncoded(originalUri)) return originalUri
+
+  const [protocol, ...rest] = originalUri.split('://')
+  if (rest.length === 0) return originalUri
+  const encodedPath = rest
+    .join('://')
+    .split('/')
+    .map(encodeURIComponent)
+    .join('/')
+  return `${protocol}://${encodedPath}`
+}
+
 function readVideosUrl(videos: unknown): string | null {
   let raw: string | null = null
 
@@ -70,7 +95,7 @@ function readVideosUrl(videos: unknown): string | null {
     }
   }
 
-  return raw ? s3ToCloudFront(raw) : null
+  return raw ? s3ToCloudFront(uriEncodeIfNeeded(raw)) : null
 }
 
 export function resolveLectureVideoUrl(input: {

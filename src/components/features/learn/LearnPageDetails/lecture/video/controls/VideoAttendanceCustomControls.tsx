@@ -62,9 +62,11 @@ export function VideoAttendanceCustomControls({
     number | null
   >(null)
   const [chromeVisible, setChromeVisible] = useState(true)
+  const [overflowMenuOpen, setOverflowMenuOpen] = useState(false)
   const hideTimerRef = useRef<number | null>(null)
   const lastPointerMoveWakeAtRef = useRef(0)
   const isPlayingRef = useRef(isPlaying)
+  const overflowMenuOpenRef = useRef(overflowMenuOpen)
 
   const displaySecondsRaw =
     scrubPreviewSeconds !== null
@@ -87,6 +89,10 @@ export function VideoAttendanceCustomControls({
     isPlayingRef.current = isPlaying
   }, [isPlaying])
 
+  useEffect(() => {
+    overflowMenuOpenRef.current = overflowMenuOpen
+  }, [overflowMenuOpen])
+
   const clearHideTimer = useCallback(() => {
     if (hideTimerRef.current !== null) {
       window.clearTimeout(hideTimerRef.current)
@@ -97,9 +103,12 @@ export function VideoAttendanceCustomControls({
   const tryScheduleHide = useCallback(() => {
     clearHideTimer()
     if (!isPlayingRef.current) return
+    // Don't hide the chrome while the overflow menu is open — hiding it would
+    // orphan an open native <select> (quality / speed) dropdown on screen.
+    if (overflowMenuOpenRef.current) return
     hideTimerRef.current = window.setTimeout(() => {
       hideTimerRef.current = null
-      if (!isPlayingRef.current) return
+      if (!isPlayingRef.current || overflowMenuOpenRef.current) return
       setChromeVisible(false)
     }, CHROME_HIDE_AFTER_MS)
   }, [clearHideTimer])
@@ -118,6 +127,15 @@ export function VideoAttendanceCustomControls({
     bumpChromeActivity()
     return clearHideTimer
   }, [isPlaying, bumpChromeActivity, clearHideTimer])
+
+  useEffect(() => {
+    if (overflowMenuOpen) {
+      setChromeVisible(true)
+      clearHideTimer()
+    } else {
+      tryScheduleHide()
+    }
+  }, [overflowMenuOpen, clearHideTimer, tryScheduleHide])
 
   useEffect(() => {
     const host = fullscreenContainerRef.current
@@ -176,7 +194,7 @@ export function VideoAttendanceCustomControls({
   }
 
   const shellClass =
-    `pointer-events-auto absolute bottom-0 left-0 right-0 z-[45] flex w-full min-w-0 flex-col bg-gradient-to-t from-black/95 via-black/70 to-transparent px-3 pb-2 pt-10 text-white transition-opacity duration-300 ease-out ${
+    `pointer-events-auto absolute bottom-0 left-0 right-0 z-[45] flex w-full min-w-0 flex-col bg-gradient-to-t from-black/95 via-black/70 to-transparent pt-10 text-white transition-opacity duration-300 ease-out ${
       chromeVisible ? 'opacity-100' : 'pointer-events-none opacity-0'
     } ${className}`.trim()
 
@@ -185,6 +203,13 @@ export function VideoAttendanceCustomControls({
       role="toolbar"
       aria-label="Video controls"
       className={shellClass}
+      // The player container already pads the left/right safe areas (camera
+      // housing); the chrome only needs to clear the home indicator below.
+      style={{
+        paddingLeft: '0.75rem',
+        paddingRight: '0.75rem',
+        paddingBottom: 'max(0.5rem, env(safe-area-inset-bottom, 0px))',
+      }}
       onFocusCapture={() => {
         setChromeVisible(true)
         clearHideTimer()
@@ -215,6 +240,8 @@ export function VideoAttendanceCustomControls({
         transcriptAvailable={transcriptAvailable}
         captionsOn={captionsOn}
         onCaptionsToggle={onCaptionsToggle}
+        chromeVisible={chromeVisible}
+        onMenuOpenChange={setOverflowMenuOpen}
       />
     </div>
   )

@@ -110,12 +110,13 @@ The **Profile Photo** step (`ProfilePhotoStep`) is a real capture flow:
    (`uploadImageToS3`), then writes the URL to **`profiles.meta.profile_pic`**
    (upserting the profile row — this is what the progress check reads) and
    **`users.profile_photo_path`**, then best-effort syncs the Supabase avatar
-   via `updateProfileAvatarByEmail` (the `update_profile_avatar_by_email` RPC —
-   never blocks the upload). On success the tour refetches, so the step flips to
-   complete. Mirrors experience-api's student `uploadProfilePicture`. The
-   reusable Supabase admin client lives at `src/server/supabase/client.ts`
-   (`SUPABASE_URL` + `SUPABASE_SERVICE_ROLE_KEY` — server-only secrets, no
-   `VITE_`/`NEXT_PUBLIC_` prefix).
+   via `updateProfileAvatarByEmail` (the `update_profile_avatar_by_email`
+   PostgREST RPC — never blocks the upload). On success the tour refetches, so
+   the step flips to complete. Mirrors experience-api's student
+   `uploadProfilePicture`. The RPC call lives at `src/server/supabase/profile.ts`
+   and hits the REST API directly with `fetch` (no `@supabase/supabase-js`
+   dependency) using `SUPABASE_URL` + `SUPABASE_SERVICE_ROLE_KEY`
+   (server-only secrets, no `VITE_`/`NEXT_PUBLIC_` prefix).
 
 ## Step sources
 

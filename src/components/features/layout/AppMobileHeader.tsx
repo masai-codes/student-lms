@@ -12,6 +12,7 @@ import {
   useNextActionBannerView,
 } from '@/components/features/layout/NextActionBanner'
 import { TryNewToggle } from '@/components/features/layout/TryNewToggle'
+import { useTryNewCtaVisible } from '@/hooks/useTryNewCtaVisible'
 import { isIHubPortal } from '@/utils/portal'
 
 const layoutRouteApi = getRouteApi('/(protected)/_layout')
@@ -28,6 +29,7 @@ export default function AppMobileHeader() {
   const navigate = useNavigate()
   // iHub hides the guided-tour icon (same as the desktop navbar).
   const isIHub = isIHubPortal()
+  const showTryNew = useTryNewCtaVisible()
 
   const { data: unreadCount = 0 } = useQuery({
     queryKey: ['announcement-unread-count'],
@@ -72,7 +74,9 @@ export default function AppMobileHeader() {
       )}
 
       <div className="flex shrink-0 items-center gap-2">
-        <TryNewToggle initialEnabled={user.newLmsPagesEnabled} />
+        {showTryNew ? (
+          <TryNewToggle initialEnabled={user.newLmsPagesEnabled} />
+        ) : null}
         <button
           type="button"
           onClick={handleAnnouncementsClick}

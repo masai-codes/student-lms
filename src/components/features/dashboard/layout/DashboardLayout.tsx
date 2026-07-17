@@ -71,7 +71,11 @@ export function DashboardLayout({
         />
 
         <div className="animate-dash-rise relative">
-          <WelcomeSection name={userName} banners={overview.banners} />
+          <WelcomeSection
+            name={userName}
+            banners={overview.banners}
+            isLoading={overview.isPending}
+          />
         </div>
 
         <div className="relative grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_360px]">

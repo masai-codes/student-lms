@@ -17,6 +17,8 @@ type LectureVideoSectionProps = {
   className?: string
   /** When false, video stays in its column within a split row. */
   fullBleed?: boolean
+  /** Reports the intrinsic video aspect ratio (w/h) once metadata loads. */
+  onVideoAspectRatioChange?: (ratio: number) => void
 }
 
 export function LectureVideoSection({
@@ -26,6 +28,7 @@ export function LectureVideoSection({
   transcriptSegments,
   className,
   fullBleed = true,
+  onVideoAspectRatioChange,
 }: LectureVideoSectionProps) {
   const player = (
     <LectureReactPlayer
@@ -33,6 +36,7 @@ export function LectureVideoSection({
       src={videoUrl}
       initialAttendance={initialAttendance}
       transcriptSegments={transcriptSegments}
+      onVideoAspectRatioChange={onVideoAspectRatioChange}
     />
   )
 
