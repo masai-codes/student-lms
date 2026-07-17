@@ -2,6 +2,7 @@ import { Link } from '@tanstack/react-router'
 import type { LearnContentItem, LearnContentType } from '../../shared/types'
 import { learnEntityEvent, pushLearnEvent } from '../../shared/learnAnalytics'
 import { LectureAttendanceInline } from '@/components/features/learn/attendance/LectureAttendanceInline'
+import { LectureOptionalAttendanceInfo } from '@/components/features/learn/attendance/LectureOptionalAttendanceInfo'
 import { getAssignmentStatusChipStyles } from '@/components/features/learn/LearnPageDetails/assignment/shared/getAssignmentStatusChipStyles'
 import { LearnListingJoinLiveCta } from '@/components/features/learn/section-three/content-card/LearnListingJoinLiveCta'
 import { LocalTimeWithIstTooltip } from '@/components/shared/local-time-with-ist-tooltip'
@@ -10,6 +11,7 @@ import {
   getLearnListingAttendancePresentation,
   shouldShowAssignmentStatusChip,
 } from '@/lib/learn/listingCardPresentation'
+import { cn } from '@/lib/utils'
 
 const LEARN_TYPE_ICON_SRC: Record<LearnContentType, string> = {
   lecture:
@@ -27,8 +29,8 @@ const LEARN_TYPE_ICON_ALT: Record<LearnContentType, string> = {
 }
 
 const learnContentTagChipPalette = {
-  backgroundClassName: 'bg-gray-50',
-  textClassName: '!text-gray-500',
+  backgroundClassName: 'bg-surface-muted',
+  textClassName: '!text-foreground-muted',
 }
 
 function LearnTypeIcon({ type }: Pick<LearnContentItem, 'type'>) {
@@ -38,7 +40,7 @@ function LearnTypeIcon({ type }: Pick<LearnContentItem, 'type'>) {
       alt={LEARN_TYPE_ICON_ALT[type]}
       width={40}
       height={40}
-      className="size-10 shrink-0 object-contain"
+      className="size-10 shrink-0 object-contain transition-transform duration-200 group-hover:scale-110"
       loading="lazy"
       decoding="async"
     />
@@ -48,10 +50,13 @@ function LearnTypeIcon({ type }: Pick<LearnContentItem, 'type'>) {
 export function LearnContentCard({
   item,
   fromDashboard = false,
+  isAssociatedCard = false,
 }: {
   item: LearnContentItem
   /** Compact dashboard layout: meta + tags on one row (shorter card). */
   fromDashboard?: boolean
+  /** Rendered in an associated-content surface; only tags the analytics source. */
+  isAssociatedCard?: boolean
 }) {
   const attendancePresentation = getLearnListingAttendancePresentation(
     item.listingCtas,
@@ -88,75 +93,125 @@ export function LearnContentCard({
           title: item.title,
           category: item.category,
           priority: item.priority,
-          source: fromDashboard ? 'dashboard' : 'learn_listing',
+          source: isAssociatedCard
+            ? 'associated'
+            : fromDashboard
+              ? 'dashboard'
+              : 'learn_listing',
         })
       }
-      className="bg-white rounded-[8px] border border-gray-200 p-3 block transition-colors hover:bg-gray-50/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+      className="group bg-surface rounded-[8px] border border-border p-3 block transition-colors duration-200 hover:border-brand/35 hover:bg-surface-muted/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
     >
-      <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
-        <div className="flex items-start gap-3">
+      <div
+        className={cn(
+          'flex flex-col gap-3',
+          // Associated cards render inside a narrow drawer, so they stay in the
+          // mobile stacked layout at every viewport instead of the desktop row
+          // split (which squeezes host/tags into cramped, per-word-wrapping
+          // columns).
+          !isAssociatedCard && 'md:flex-row md:items-start md:justify-between',
+        )}
+      >
+        <div className="flex min-w-0 items-start gap-3">
           <LearnTypeIcon type={item.type} />
-          <div>
-            <p className="type-b1-md">{item.title}</p>
+          <div className="min-w-0 flex-1">
+            <p
+              title={item.title}
+              className={
+                fromDashboard
+                  ? 'line-clamp-2 break-words text-sm font-medium leading-snug text-foreground transition-colors duration-200 group-hover:text-brand md:text-base'
+                  : 'type-b1-md break-words transition-colors duration-200 group-hover:text-brand'
+              }
+            >
+              {item.title}
+            </p>
             {fromDashboard ? (
-              <div className="mt-[4px] type-t1 flex flex-wrap items-center gap-x-2 gap-y-1">
-                <LocalTimeWithIstTooltip
-                  local={item.date}
-                  ist={item.dateTooltip}
-                />
-                {item.courseName ? (
-                  <>
-                    <span className="size-1 shrink-0 rounded-full bg-gray-600" aria-hidden />
-                    <span className="max-w-[10ch] truncate md:max-w-[15ch]">
-                      {item.courseName}
-                    </span>
-                  </>
-                ) : null}
-                {item.tags.map((tag, index) => (
-                  <MasaiChips
-                    key={`${tag}-${index}`}
-                    type="default"
-                    size="regular"
-                    label={tag}
-                    tabIndex={-1}
-                    className="cursor-default"
-                    {...learnContentTagChipPalette}
-                  />
-                ))}
-              </div>
-            ) : (
-              <>
-                <p className="mt-[4px] type-t1 flex flex-wrap items-center gap-x-2 gap-y-1">
-                  <span className="min-w-0">{item.hostName}</span>
-                  <span
-                    className="size-1 shrink-0 rounded-full bg-gray-600"
-                    aria-hidden
-                  />
+              // Keep time+course and tags on separate rows so the compact card
+              // doesn't force each tag onto its own line on narrow mobile
+              // widths; they sit side-by-side from `md` up.
+              <div
+                data-testid="learn-card-dashboard-meta"
+                className="mt-[4px] flex flex-col gap-2 md:flex-row md:items-center"
+              >
+                <div className="type-t1 flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
                   <LocalTimeWithIstTooltip
                     local={item.date}
                     ist={item.dateTooltip}
                   />
-                </p>
-                <div className="flex flex-wrap gap-2 mt-[8px]">
-                  {item.tags.map((tag, index) => (
+                  {item.courseName ? (
+                    <>
+                      <span
+                        className="size-1 shrink-0 rounded-full bg-foreground-muted"
+                        aria-hidden
+                      />
+                      <span className="max-w-[10ch] truncate md:max-w-[15ch]">
+                        {item.courseName}
+                      </span>
+                    </>
+                  ) : null}
+                </div>
+                {item.tags.length > 0 ? (
+                  <div
+                    data-testid="learn-card-dashboard-tags"
+                    className="flex flex-wrap items-center gap-2"
+                  >
+                    {item.tags.map((tag, index) => (
+                      <MasaiChips
+                        key={`${tag}-${index}`}
+                        type="default"
+                        size="regular"
+                        label={tag}
+                        tabIndex={-1}
+                        className="cursor-default transition-colors duration-200"
+                        {...learnContentTagChipPalette}
+                      />
+                    ))}
+                  </div>
+                ) : null}
+              </div>
+            ) : (
+              <>
+                {/* Keep host+time and tags stacked on mobile, but sit them
+                    side-by-side from `md` up so the card is 2 rows on desktop
+                    instead of 3. */}
+                <div
+                  className={cn(
+                    'mt-[4px] flex flex-col gap-2',
+                    !isAssociatedCard && 'md:flex-row md:items-center',
+                  )}
+                >
+                  <p className="type-t1 flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
+                    <span className="min-w-0">{item.hostName}</span>
+                    <span
+                      className="size-1 shrink-0 rounded-full bg-foreground-muted"
+                      aria-hidden
+                    />
+                    <LocalTimeWithIstTooltip
+                      local={item.date}
+                      ist={item.dateTooltip}
+                    />
+                  </p>
+                  <div className="flex flex-wrap items-center gap-2">
+                    {item.tags.map((tag, index) => (
+                      <MasaiChips
+                        key={`${tag}-${index}`}
+                        type="default"
+                        size="regular"
+                        label={tag}
+                        tabIndex={-1}
+                        className="cursor-default transition-colors duration-200"
+                        {...learnContentTagChipPalette}
+                      />
+                    ))}
                     <MasaiChips
-                      key={`${tag}-${index}`}
                       type="default"
                       size="regular"
-                      label={tag}
+                      label={item.priority}
                       tabIndex={-1}
                       className="cursor-default"
                       {...learnContentTagChipPalette}
                     />
-                  ))}
-                  <MasaiChips
-                    type="default"
-                    size="regular"
-                    label={item.priority}
-                    tabIndex={-1}
-                    className="cursor-default"
-                    {...learnContentTagChipPalette}
-                  />
+                  </div>
                 </div>
               </>
             )}
@@ -174,22 +229,36 @@ export function LearnContentCard({
           }}
         >
           {item.type === 'lecture' && item.priority === 'recommended' ? (
-            <MasaiChips
-              label="Optional session"
-              size="regular"
-              backgroundClassName="bg-yellow-50 border border-yellow-100"
-              textClassName="!text-yellow-600"
-              className="pointer-events-none"
-              tabIndex={-1}
-            />
+            <div className="flex items-center gap-4">
+              <MasaiChips
+                label="Optional session"
+                size="regular"
+                backgroundClassName="bg-yellow-50 border border-yellow-100 dark:bg-warning-subtle dark:border-warning-subtle"
+                textClassName="!text-yellow-600 dark:!text-warning-subtle-foreground"
+                className="pointer-events-none"
+                tabIndex={-1}
+              />
+              {item.optionalAttendance ? (
+                <LectureOptionalAttendanceInfo
+                  attendance={item.optionalAttendance}
+                  isLiveLecture={
+                    item.learningSubType === 'live' ||
+                    item.learningSubType === 'scrum'
+                  }
+                />
+              ) : null}
+            </div>
           ) : null}
           {item.type === 'lecture' && attendancePresentation ? (
-            <LectureAttendanceInline {...attendancePresentation} />
+            <LectureAttendanceInline
+              {...attendancePresentation}
+              forceRow={isAssociatedCard}
+            />
           ) : null}
           {item.type === 'assignment' && item.assignmentDeadlineLabel ? (
             <span
               data-testid="learn-assignment-deadline"
-              className="type-t1 whitespace-nowrap text-gray-500"
+              className="type-t1 whitespace-nowrap text-foreground-muted"
             >
               {item.assignmentDeadlineLabel}
             </span>
@@ -199,8 +268,20 @@ export function LearnContentCard({
             <MasaiChips
               label="Practice Mode"
               size="regular"
-              backgroundClassName="bg-teal-50 border border-teal-100"
-              textClassName="!text-teal-600"
+              backgroundClassName="bg-teal-50 border border-teal-100 dark:bg-info-subtle dark:border-info-subtle"
+              textClassName="!text-teal-600 dark:!text-info-subtle-foreground"
+              className="pointer-events-none"
+              tabIndex={-1}
+            />
+          ) : null}
+          {item.type === 'assignment' &&
+          typeof item.assignmentScore === 'number' ? (
+            <MasaiChips
+              data-testid="learn-assignment-score"
+              label={`${item.assignmentScore.toFixed(2)}/10`}
+              size="regular"
+              backgroundClassName="bg-blue-50 border border-blue-100 dark:bg-info-subtle dark:border-info-subtle"
+              textClassName="!text-blue-600 dark:!text-info-subtle-foreground"
               className="pointer-events-none"
               tabIndex={-1}
             />
@@ -220,6 +301,7 @@ export function LearnContentCard({
               joinLive={item.listingCtas.joinLive}
               joinZoomLink={item.listingCtas.joinZoomLink}
               isNewZoomRedirection={item.listingCtas.isNewZoomRedirection}
+              enableZoomWebView={item.listingCtas.enableZoomWebView}
               lectureId={item.id}
               title={item.title}
             />

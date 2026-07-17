@@ -7,10 +7,10 @@
 
 Two repositories are involved:
 
-| Repo | Path | Role |
-|---|---|---|
-| **experience-ui** | `/Users/nitansh/Documents/lms/experience-ui` | Frontend. Contains the **student React app** (`apps/student-experience`) and the **admin Next.js app** (`apps/admin`). |
-| **experience-api** | `/Users/nitansh/Documents/lms/experience-api` | Backend. Express + **Apollo GraphQL** + **Prisma** over **MySQL**. |
+| Repo               | Path                                          | Role                                                                                                                   |
+| ------------------ | --------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| **experience-ui**  | `/Users/nitansh/Documents/lms/experience-ui`  | Frontend. Contains the **student React app** (`apps/student-experience`) and the **admin Next.js app** (`apps/admin`). |
+| **experience-api** | `/Users/nitansh/Documents/lms/experience-api` | Backend. Express + **Apollo GraphQL** + **Prisma** over **MySQL**.                                                     |
 
 ---
 
@@ -55,128 +55,128 @@ you can collapse this to a single transport.
 Source of truth: `experience-api/prisma/schema.prisma`. All seven support tables below
 are verbatim from that file.
 
-### 2.1 `tickets` — the core ticket *(schema.prisma:2457)*
+### 2.1 `tickets` — the core ticket _(schema.prisma:2457)_
 
-| Column | Type | Notes |
-|---|---|---|
-| `id` | UnsignedInt PK | auto-increment |
-| `user_id` | UnsignedBigInt | FK → `users.id` — the student who raised it |
-| `title` | Text | auto-generated in V2 |
-| `message` | Text | the student's opening message |
-| `data` | Json? | `batch_id`, `question_id`, `subCategory`, active sections, `help_faq_question`, etc. |
-| `status` | VarChar(255)? | `open` / `resolved` / `closed` / `re-opened` / `automatic` |
-| `department` | VarChar(255)? | legacy V1 field |
-| `priority` | VarChar(255)? | legacy V1 field |
-| `is_closed` | Boolean | default `false` |
-| `assignee_id` | UnsignedBigInt | FK → `users.id` — **current owner** (L1…L5) |
-| `agent_id` | UnsignedBigInt? | FK → `users.id` — optional secondary agent |
-| `closed_at` | DateTime? | |
-| `category` | VarChar(255) | e.g. `assignment`, `evaluation`, `leave` |
-| `rating` | UnsignedInt | default `0` (1 = 👎, 5 = 👍) |
-| `meta` | Json? | `escalation_count` + escalation history |
-| `info` | Json? | assignment & escalation log |
-| `logstamps` | Json? | `L1_assigned_at`, `escalated_to_l2_at`, … |
-| `deleted_at` | Timestamp? | soft delete |
-| `created_at` / `updated_at` | Timestamp? | |
+| Column                      | Type            | Notes                                                                                |
+| --------------------------- | --------------- | ------------------------------------------------------------------------------------ |
+| `id`                        | UnsignedInt PK  | auto-increment                                                                       |
+| `user_id`                   | UnsignedBigInt  | FK → `users.id` — the student who raised it                                          |
+| `title`                     | Text            | auto-generated in V2                                                                 |
+| `message`                   | Text            | the student's opening message                                                        |
+| `data`                      | Json?           | `batch_id`, `question_id`, `subCategory`, active sections, `help_faq_question`, etc. |
+| `status`                    | VarChar(255)?   | `open` / `resolved` / `closed` / `re-opened` / `automatic`                           |
+| `department`                | VarChar(255)?   | legacy V1 field                                                                      |
+| `priority`                  | VarChar(255)?   | legacy V1 field                                                                      |
+| `is_closed`                 | Boolean         | default `false`                                                                      |
+| `assignee_id`               | UnsignedBigInt  | FK → `users.id` — **current owner** (L1…L5)                                          |
+| `agent_id`                  | UnsignedBigInt? | FK → `users.id` — optional secondary agent                                           |
+| `closed_at`                 | DateTime?       |                                                                                      |
+| `category`                  | VarChar(255)    | e.g. `assignment`, `evaluation`, `leave`                                             |
+| `rating`                    | UnsignedInt     | default `0` (1 = 👎, 5 = 👍)                                                         |
+| `meta`                      | Json?           | `escalation_count` + escalation history                                              |
+| `info`                      | Json?           | assignment & escalation log                                                          |
+| `logstamps`                 | Json?           | `L1_assigned_at`, `escalated_to_l2_at`, …                                            |
+| `deleted_at`                | Timestamp?      | soft delete                                                                          |
+| `created_at` / `updated_at` | Timestamp?      |                                                                                      |
 
 **Relations:** `comments[]`, `interactions[]`, and three FKs to `users`
 (owner / assignee / agent).
 **Indexes:** `user_id`, `assignee_id`, `agent_id`, `created_at`, `closed_at`, `updated_at`.
 
-### 2.2 `comments` — ticket conversation thread *(schema.prisma:724)*
+### 2.2 `comments` — ticket conversation thread _(schema.prisma:724)_
 
-| Column | Type | Notes |
-|---|---|---|
-| `id` | UnsignedInt PK | |
-| `ticket_id` | UnsignedInt | FK → `tickets.id` |
-| `user_id` | UnsignedBigInt | FK → `users.id` — author (student, admin, or bot) |
-| `message` | Text | for admin replies, signature HTML is appended here |
-| `data` | Json? | `ticket_level` (l1…l5), `displayName`, `ai_response`, `ai_response_error` |
-| `status` | VarChar(255)? | |
-| `public` | Boolean | default `false` — `true` = visible to student, `false` = internal note |
-| `deleted_at` / `created_at` / `updated_at` | Timestamp? | |
+| Column                                     | Type           | Notes                                                                     |
+| ------------------------------------------ | -------------- | ------------------------------------------------------------------------- |
+| `id`                                       | UnsignedInt PK |                                                                           |
+| `ticket_id`                                | UnsignedInt    | FK → `tickets.id`                                                         |
+| `user_id`                                  | UnsignedBigInt | FK → `users.id` — author (student, admin, or bot)                         |
+| `message`                                  | Text           | for admin replies, signature HTML is appended here                        |
+| `data`                                     | Json?          | `ticket_level` (l1…l5), `displayName`, `ai_response`, `ai_response_error` |
+| `status`                                   | VarChar(255)?  |                                                                           |
+| `public`                                   | Boolean        | default `false` — `true` = visible to student, `false` = internal note    |
+| `deleted_at` / `created_at` / `updated_at` | Timestamp?     |                                                                           |
 
 **Indexes:** `ticket_id`, `user_id`, `created_at`, `updated_at`.
 
-### 2.3 `help_faqs` — knowledge base *(schema.prisma:3396)*
+### 2.3 `help_faqs` — knowledge base _(schema.prisma:3396)_
 
-| Column | Type | Notes |
-|---|---|---|
-| `id` | UnsignedInt PK | |
-| `category` / `sub_category` | VarChar(255) | grouping |
-| `question` / `answer` | Text | |
-| `assignees` | Json? | **`{ l1, l2, l3, l4, l5 }`** — user_ids; drives ticket routing when a ticket is raised from this FAQ |
-| `batch_id` | UnsignedInt | FK → `batches.id` — FAQs are per-batch |
-| `redirection_to_pc` | Boolean | redirect to program coordinator |
-| `is_hidden` | Boolean | |
-| `meta` | Json? | (FAQ votes live here) |
-| `created_at` / `updated_at` | Timestamp? | |
+| Column                      | Type           | Notes                                                                                                |
+| --------------------------- | -------------- | ---------------------------------------------------------------------------------------------------- |
+| `id`                        | UnsignedInt PK |                                                                                                      |
+| `category` / `sub_category` | VarChar(255)   | grouping                                                                                             |
+| `question` / `answer`       | Text           |                                                                                                      |
+| `assignees`                 | Json?          | **`{ l1, l2, l3, l4, l5 }`** — user_ids; drives ticket routing when a ticket is raised from this FAQ |
+| `batch_id`                  | UnsignedInt    | FK → `batches.id` — FAQs are per-batch                                                               |
+| `redirection_to_pc`         | Boolean        | redirect to program coordinator                                                                      |
+| `is_hidden`                 | Boolean        |                                                                                                      |
+| `meta`                      | Json?          | (FAQ votes live here)                                                                                |
+| `created_at` / `updated_at` | Timestamp?     |                                                                                                      |
 
 **Indexes:** `category`, `sub_category`, `batch_id`, `is_hidden`, composite `(category, sub_category)`.
 
-### 2.4 `user_callback_tickets` — callback requests *(schema.prisma:3001)*
+### 2.4 `user_callback_tickets` — callback requests _(schema.prisma:3001)_
 
-| Column | Type | Notes |
-|---|---|---|
-| `id` | UnsignedInt PK | |
-| `user_id` | UnsignedBigInt | FK → `users.id` — requester |
-| `resolved_by` | UnsignedBigInt? | FK → `users.id` — admin who resolved |
-| `batch_id` | UnsignedInt | FK → `batches.id` |
-| `category` | VarChar(255) | the reason |
-| `status` | VarChar(255) | default `pending` → `resolved` |
-| `assigned_to` | UnsignedBigInt? | FK → `users.id` |
-| `preferred_time_slot` | VarChar(255)? | |
-| `admin_comment` | Text? | |
-| `resolved_at` / `comment_updated_at` | Timestamp? | |
-| `logs` | Json? | change history |
-| `meta` | Json? | |
-| `created_at` / `updated_at` | Timestamp? | |
+| Column                               | Type            | Notes                                |
+| ------------------------------------ | --------------- | ------------------------------------ |
+| `id`                                 | UnsignedInt PK  |                                      |
+| `user_id`                            | UnsignedBigInt  | FK → `users.id` — requester          |
+| `resolved_by`                        | UnsignedBigInt? | FK → `users.id` — admin who resolved |
+| `batch_id`                           | UnsignedInt     | FK → `batches.id`                    |
+| `category`                           | VarChar(255)    | the reason                           |
+| `status`                             | VarChar(255)    | default `pending` → `resolved`       |
+| `assigned_to`                        | UnsignedBigInt? | FK → `users.id`                      |
+| `preferred_time_slot`                | VarChar(255)?   |                                      |
+| `admin_comment`                      | Text?           |                                      |
+| `resolved_at` / `comment_updated_at` | Timestamp?      |                                      |
+| `logs`                               | Json?           | change history                       |
+| `meta`                               | Json?           |                                      |
+| `created_at` / `updated_at`          | Timestamp?      |                                      |
 
 **Indexes:** `user_id`, `resolved_by`, `batch_id`, `assigned_to`, `status`.
 
-### 2.5 `interactions` — chatbot conversations *(schema.prisma:3110)*
+### 2.5 `interactions` — chatbot conversations _(schema.prisma:3110)_
 
-| Column | Type | Notes |
-|---|---|---|
-| `id` | UnsignedInt PK | |
-| `user_id` | UnsignedBigInt | FK → `users.id` |
-| `title` | VarChar(255) | |
-| `category` | VarChar(255)? | |
-| `ticket_id` | UnsignedInt? | FK → `tickets.id` — set if the chat created a ticket |
-| `created_at` / `updated_at` | Timestamp | |
+| Column                      | Type           | Notes                                                |
+| --------------------------- | -------------- | ---------------------------------------------------- |
+| `id`                        | UnsignedInt PK |                                                      |
+| `user_id`                   | UnsignedBigInt | FK → `users.id`                                      |
+| `title`                     | VarChar(255)   |                                                      |
+| `category`                  | VarChar(255)?  |                                                      |
+| `ticket_id`                 | UnsignedInt?   | FK → `tickets.id` — set if the chat created a ticket |
+| `created_at` / `updated_at` | Timestamp      |                                                      |
 
 Has many `interaction_messages`.
 
-### 2.6 `interaction_messages` — chatbot messages *(schema.prisma:3126)*
+### 2.6 `interaction_messages` — chatbot messages _(schema.prisma:3126)_
 
-| Column | Type | Notes |
-|---|---|---|
-| `id` | UnsignedInt PK | |
-| `interaction_id` | UnsignedInt | FK → `interactions.id` |
-| `message` | Text | |
-| `user_id` | UnsignedBigInt | FK → `users.id` (real user or `BOT_USER_ID`) |
-| `sent_at` | Timestamp | |
+| Column           | Type           | Notes                                        |
+| ---------------- | -------------- | -------------------------------------------- |
+| `id`             | UnsignedInt PK |                                              |
+| `interaction_id` | UnsignedInt    | FK → `interactions.id`                       |
+| `message`        | Text           |                                              |
+| `user_id`        | UnsignedBigInt | FK → `users.id` (real user or `BOT_USER_ID`) |
+| `sent_at`        | Timestamp      |                                              |
 
-### 2.7 `ticket_templates` — canned admin responses *(schema.prisma:3450)*
+### 2.7 `ticket_templates` — canned admin responses _(schema.prisma:3450)_
 
-| Column | Type | Notes |
-|---|---|---|
-| `id` | UnsignedInt PK | |
-| `title` | VarChar(500) | |
-| `description` | LongText | the template body |
-| `created_by` | UnsignedBigInt | FK → `users.id` |
-| `updated_by` | UnsignedBigInt? | FK → `users.id` |
-| `meta` | Json? | |
-| `created_at` / `updated_at` | Timestamp? | |
+| Column                      | Type            | Notes             |
+| --------------------------- | --------------- | ----------------- |
+| `id`                        | UnsignedInt PK  |                   |
+| `title`                     | VarChar(500)    |                   |
+| `description`               | LongText        | the template body |
+| `created_by`                | UnsignedBigInt  | FK → `users.id`   |
+| `updated_by`                | UnsignedBigInt? | FK → `users.id`   |
+| `meta`                      | Json?           |                   |
+| `created_at` / `updated_at` | Timestamp?      |                   |
 
 ### 2.8 Tables referenced but owned elsewhere
 
-| Table | Why it matters here |
-|---|---|
-| `users` | every actor (student, assignee, agent, resolver, bot) |
-| `batches` | **`batches.settings` JSON** holds the entire escalation config (see §6) |
-| `sections` / `section_user` | "active section" gate for ticket creation; coordinator (IA/EC/PC) lookups |
-| `menus` | **ticket categories are read from the `menus` table** (`getTicketCategories` queries `prisma.menus`) — not a dedicated category table |
+| Table                       | Why it matters here                                                                                                                   |
+| --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| `users`                     | every actor (student, assignee, agent, resolver, bot)                                                                                 |
+| `batches`                   | **`batches.settings` JSON** holds the entire escalation config (see §6)                                                               |
+| `sections` / `section_user` | "active section" gate for ticket creation; coordinator (IA/EC/PC) lookups                                                             |
+| `menus`                     | **ticket categories are read from the `menus` table** (`getTicketCategories` queries `prisma.menus`) — not a dedicated category table |
 
 ### 2.9 Entity relationships
 
@@ -201,45 +201,45 @@ controller-level equivalent (`src/routes/tickets.ts` → `ticket.controller.ts`)
 All routes are behind `authenticateUserWithJWT` + `attachIHubAllowedBatches`.
 Routes marked 🔒 require `req.user.role === 'admin'` (`requireAdmin` middleware).
 
-| Method | Path | Controller | Purpose |
-|---|---|---|---|
-| GET | `/tickets` | `getTickets` | List with filters (`page, tab, user_id, id, assignee_id, agent_id, category, status, priority, rating, default, excludeIds`) |
-| GET | `/tickets/column-values` | `getColumnValues` | Distinct status/category/priority/rating for filters |
-| GET 🔒 | `/tickets/users-dropdown` | `getUsersForDropdown` | Users by role (assignee picker) |
-| GET | `/tickets/template-dropdown-options` | `getTemplateDropDownOptions` | Template options |
-| GET | `/tickets/common-response` | `getCommonTicketResponse` | Canned response by `category, studentName` |
-| GET | `/tickets/active-sections/:userId` | `getActiveImpSections` | Active sections (creation gate) |
-| GET | `/tickets/categories` | `getTicketCategories` | Categories (from `menus`) |
-| GET | `/tickets/subcategories` | `getTicketSubcategories` | Subcategories |
-| GET | `/tickets/categories-with-subcategories` | `getTicketCategoriesWithSubcategories` | Grouped |
-| GET | `/tickets/categories/:categoryValue/subcategories` | `getSubcategoriesByCategory` | Subcats for a category |
-| GET | `/tickets/faqs` | `getFAQs` | FAQ search (`batch_id` required, `search, category, subCategory, limit, is_hidden`) |
-| GET | `/tickets/faqs/:faqId` | `getFAQById` | Single FAQ |
-| GET 🔒 | `/tickets/:id/reply-signature-preview` | `getReplySignaturePreview` | Preview admin signature |
-| GET | `/tickets/:id` | `getTicketById` | Single ticket |
-| GET | `/tickets/:id/comments` | `getCommentsByTicketId` | Thread |
-| POST | `/tickets` | `createTicket` | **V1** create (title, category, priority, message, department, data) |
-| POST | `/tickets/v2` | `createTicketV2` | **V2** create (category, message, data, batch_id, question_id?) |
-| POST | `/tickets/chatbot` | `createChatbotTicket` | Bot-created ticket |
-| POST 🔒 | `/tickets/:id/suggest-reply` | `suggestReplyForTicket` | AI reply suggestion |
-| POST 🔒 | `/tickets/bulk-add-agent` | `bulkAddAgent` | Assign agent to many tickets |
-| POST | `/tickets/:id/confirm` | `confirmTicket` | Student confirms resolution (`resolution, mode?, reason?`) |
-| POST | `/tickets/:id/escalate` | `escalateTicket` | Escalate L1→L5 |
-| POST | `/tickets/:id/message` | `addMessageToTicket` | Add comment (`message, public?, data?`) |
-| PATCH | `/tickets/:id/message` | `patchTicketMessageByOwner` | Owner edits their message |
-| PUT 🔒 | `/tickets/:id` | `updateTicketById` | Reassign (`assignee_id, agent_id, data`) |
-| PUT | `/tickets/:id/status` | `updateTicketStatus` | Change status |
-| PUT | `/tickets/:id/rating` | `updateTicketRating` | Rate (`rating, reason?`) |
-| POST | `/tickets/faqs/:faqId/vote` | `voteFAQ` | Up/downvote FAQ |
-| DELETE | `/tickets/faqs/:faqId/vote` | `removeVoteFAQ` | Remove vote |
+| Method  | Path                                               | Controller                             | Purpose                                                                                                                      |
+| ------- | -------------------------------------------------- | -------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| GET     | `/tickets`                                         | `getTickets`                           | List with filters (`page, tab, user_id, id, assignee_id, agent_id, category, status, priority, rating, default, excludeIds`) |
+| GET     | `/tickets/column-values`                           | `getColumnValues`                      | Distinct status/category/priority/rating for filters                                                                         |
+| GET 🔒  | `/tickets/users-dropdown`                          | `getUsersForDropdown`                  | Users by role (assignee picker)                                                                                              |
+| GET     | `/tickets/template-dropdown-options`               | `getTemplateDropDownOptions`           | Template options                                                                                                             |
+| GET     | `/tickets/common-response`                         | `getCommonTicketResponse`              | Canned response by `category, studentName`                                                                                   |
+| GET     | `/tickets/active-sections/:userId`                 | `getActiveImpSections`                 | Active sections (creation gate)                                                                                              |
+| GET     | `/tickets/categories`                              | `getTicketCategories`                  | Categories (from `menus`)                                                                                                    |
+| GET     | `/tickets/subcategories`                           | `getTicketSubcategories`               | Subcategories                                                                                                                |
+| GET     | `/tickets/categories-with-subcategories`           | `getTicketCategoriesWithSubcategories` | Grouped                                                                                                                      |
+| GET     | `/tickets/categories/:categoryValue/subcategories` | `getSubcategoriesByCategory`           | Subcats for a category                                                                                                       |
+| GET     | `/tickets/faqs`                                    | `getFAQs`                              | FAQ search (`batch_id` required, `search, category, subCategory, limit, is_hidden`)                                          |
+| GET     | `/tickets/faqs/:faqId`                             | `getFAQById`                           | Single FAQ                                                                                                                   |
+| GET 🔒  | `/tickets/:id/reply-signature-preview`             | `getReplySignaturePreview`             | Preview admin signature                                                                                                      |
+| GET     | `/tickets/:id`                                     | `getTicketById`                        | Single ticket                                                                                                                |
+| GET     | `/tickets/:id/comments`                            | `getCommentsByTicketId`                | Thread                                                                                                                       |
+| POST    | `/tickets`                                         | `createTicket`                         | **V1** create (title, category, priority, message, department, data)                                                         |
+| POST    | `/tickets/v2`                                      | `createTicketV2`                       | **V2** create (category, message, data, batch_id, question_id?)                                                              |
+| POST    | `/tickets/chatbot`                                 | `createChatbotTicket`                  | Bot-created ticket                                                                                                           |
+| POST 🔒 | `/tickets/:id/suggest-reply`                       | `suggestReplyForTicket`                | AI reply suggestion                                                                                                          |
+| POST 🔒 | `/tickets/bulk-add-agent`                          | `bulkAddAgent`                         | Assign agent to many tickets                                                                                                 |
+| POST    | `/tickets/:id/confirm`                             | `confirmTicket`                        | Student confirms resolution (`resolution, mode?, reason?`)                                                                   |
+| POST    | `/tickets/:id/escalate`                            | `escalateTicket`                       | Escalate L1→L5                                                                                                               |
+| POST    | `/tickets/:id/message`                             | `addMessageToTicket`                   | Add comment (`message, public?, data?`)                                                                                      |
+| PATCH   | `/tickets/:id/message`                             | `patchTicketMessageByOwner`            | Owner edits their message                                                                                                    |
+| PUT 🔒  | `/tickets/:id`                                     | `updateTicketById`                     | Reassign (`assignee_id, agent_id, data`)                                                                                     |
+| PUT     | `/tickets/:id/status`                              | `updateTicketStatus`                   | Change status                                                                                                                |
+| PUT     | `/tickets/:id/rating`                              | `updateTicketRating`                   | Rate (`rating, reason?`)                                                                                                     |
+| POST    | `/tickets/faqs/:faqId/vote`                        | `voteFAQ`                              | Up/downvote FAQ                                                                                                              |
+| DELETE  | `/tickets/faqs/:faqId/vote`                        | `removeVoteFAQ`                        | Remove vote                                                                                                                  |
 
 ### 3.2 REST routes — Callbacks (`src/routes/userCallbackTickets.ts`)
 
-| Method | Path | Purpose |
-|---|---|---|
-| POST | `/user-callback-tickets` | Create callback (one pending per batch) |
-| GET | `/user-callback-tickets` | List the user's callbacks |
-| GET | `/user-callback-tickets/:id` | Callback detail |
+| Method | Path                         | Purpose                                 |
+| ------ | ---------------------------- | --------------------------------------- |
+| POST   | `/user-callback-tickets`     | Create callback (one pending per batch) |
+| GET    | `/user-callback-tickets`     | List the user's callbacks               |
+| GET    | `/user-callback-tickets/:id` | Callback detail                         |
 
 Admin-side callback management (assign, comment, resolve) is a **GraphQL resolver**:
 `src/features/userCallbackTickets/resolver.ts`.
@@ -274,12 +274,15 @@ The `Ticket` GraphQL type also resolves computed fields: `categoryTat`,
 ### 4.1 Routing
 
 `apps/student-experience/src/pages/Routes.tsx`:
+
 ```tsx
 <Route path="/support" element={<Tickets />} />
 <Route path="/support/:id" element={<Navigate to="/support" replace />} />
 <Route path="/support/create" element={<Navigate to="/support" replace />} />
 ```
+
 Route helpers (`src/utils/route.utils.ts`):
+
 ```ts
 support: {
   main: () => `/support?tab=unresolved`,
@@ -290,19 +293,19 @@ support: {
 
 ### 4.2 Component map (`apps/student-experience/src/pages/tickets/`)
 
-| Component | Role |
-|---|---|
-| `index.tsx` (`Tickets`) | Root `/support`; chooses `BatchTickets` (new) vs `OldTickets` (legacy) by batch data |
-| `BatchTickets.tsx` | New container: Help / Raised Tickets / 1:1 tabs, FAQs, categories, callbacks |
-| `TicketListingPage.tsx` | List with Unresolved/Resolved/All tabs + pagination |
-| `CreateTicketModal.tsx` | Full-screen create / view / reply / rate / escalate modal (the workhorse) |
-| `SupportModal.tsx` | Search + FAQ + category browse + messaging |
-| `FaqList.tsx` | FAQ accordion with search, up/down vote, "raise ticket" |
-| `CategoryAccordion.tsx`, `SupportEntityList.tsx` | Category/subcategory browse + entities (people/links/info) |
-| `SlotBook.tsx`, `PairProgramming/PairProgrammingTab.tsx` | Coordinator + 1:1 Calendly booking |
-| `RatingPopup.tsx`, `ReopenWarning.tsx` | Rating & reopen dialogs |
-| `CreateTicket/` (`index`, `Chatbot`, `CreateTicketFields`) | Legacy create form + chatbot triage |
-| `TicketDetails.tsx`, `TicketDetailsHeader.tsx`, `TicketResponses.tsx`, `AddResponseSection.tsx`, `ChatbotTicketMessages.tsx`, `OldTickets.tsx` | Legacy detail/thread views |
+| Component                                                                                                                                      | Role                                                                                 |
+| ---------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------ |
+| `index.tsx` (`Tickets`)                                                                                                                        | Root `/support`; chooses `BatchTickets` (new) vs `OldTickets` (legacy) by batch data |
+| `BatchTickets.tsx`                                                                                                                             | New container: Help / Raised Tickets / 1:1 tabs, FAQs, categories, callbacks         |
+| `TicketListingPage.tsx`                                                                                                                        | List with Unresolved/Resolved/All tabs + pagination                                  |
+| `CreateTicketModal.tsx`                                                                                                                        | Full-screen create / view / reply / rate / escalate modal (the workhorse)            |
+| `SupportModal.tsx`                                                                                                                             | Search + FAQ + category browse + messaging                                           |
+| `FaqList.tsx`                                                                                                                                  | FAQ accordion with search, up/down vote, "raise ticket"                              |
+| `CategoryAccordion.tsx`, `SupportEntityList.tsx`                                                                                               | Category/subcategory browse + entities (people/links/info)                           |
+| `SlotBook.tsx`, `PairProgramming/PairProgrammingTab.tsx`                                                                                       | Coordinator + 1:1 Calendly booking                                                   |
+| `RatingPopup.tsx`, `ReopenWarning.tsx`                                                                                                         | Rating & reopen dialogs                                                              |
+| `CreateTicket/` (`index`, `Chatbot`, `CreateTicketFields`)                                                                                     | Legacy create form + chatbot triage                                                  |
+| `TicketDetails.tsx`, `TicketDetailsHeader.tsx`, `TicketResponses.tsx`, `AddResponseSection.tsx`, `ChatbotTicketMessages.tsx`, `OldTickets.tsx` | Legacy detail/thread views                                                           |
 
 ### 4.3 Data layer
 
@@ -409,16 +412,32 @@ This JSON on the `batches` row is the brain of routing/escalation. Shape:
 
 ```jsonc
 {
-  "discussionPC": { "l1": 12345, "l2": 23456, "l3": 34567, "l4": 45678, "l5": 56789 },
-  "opsPC":        { "l1": 11111, "l2": 22222, "l3": 33333, "l4": 44444, "l5": 55555 },
-  "opsRoleTitles":{ "l1": "Program Co-ordinator", "l2": "Program Manager",
-                    "l3": "Program Head", "l4": "Grievance Officer" },
-  "phNumbers":    { "ph_l1": "...", "ph_l2": "...", "ph_l3": "...", "ph_l4": "..." },
-  "showAdminNameInTicketReply": false
+  "discussionPC": {
+    "l1": 12345,
+    "l2": 23456,
+    "l3": 34567,
+    "l4": 45678,
+    "l5": 56789,
+  },
+  "opsPC": { "l1": 11111, "l2": 22222, "l3": 33333, "l4": 44444, "l5": 55555 },
+  "opsRoleTitles": {
+    "l1": "Program Co-ordinator",
+    "l2": "Program Manager",
+    "l3": "Program Head",
+    "l4": "Grievance Officer",
+  },
+  "phNumbers": {
+    "ph_l1": "...",
+    "ph_l2": "...",
+    "ph_l3": "...",
+    "ph_l4": "...",
+  },
+  "showAdminNameInTicketReply": false,
 }
 ```
 
 Helper logic lives in `src/features/ticket/ticketLevel.utils.ts`:
+
 - `categoryUsesDiscussionPc(category)` → `'assignment'|'evaluation'` use `discussionPC`, else `opsPC`.
 - `resolveAssigneesForTicket(prisma, ticket)` → the `{l1..l5}` ladder (FAQ assignees take priority over batch settings).
 - `getAdminTicketReplySignaturePreview(prisma, ticket, adminUser)` → `{ displayName, phoneNumber, signatureHtml, ticketLevel }`.
@@ -432,6 +451,7 @@ Helper logic lives in `src/features/ticket/ticketLevel.utils.ts`:
 checks in resolvers / `apps/admin` via `useUserData().role`).
 
 **Admin-only capabilities:**
+
 - **See everything** — list/filter all tickets (by id, category, status, priority,
   rating, assignee, agent) rather than only own tickets.
 - **Reply** with auto-appended **signature** (role title + phone from batch settings);
@@ -454,20 +474,21 @@ already escalated above them.
 
 ## 8. Side-effects & integrations
 
-| Concern | Where | Trigger |
-|---|---|---|
-| **Email** | `src/services/ticketEmailService.ts` (SES, `noreply-lms@masaischool.com`) | admin reply, resolved — gated by user notification prefs |
-| **Push** | push-notification service | admin reply |
-| **Slack** | `src/services/callbackTicketNbfcOpsSlack.service.ts` | new callback request |
-| **Temporal** | `src/services/ticketTemporalWorkflow.service.ts` | after V2 create (fire-and-forget) |
-| **AI support** | external `SUPPORT_API` | chatbot messages, suggest-reply |
-| **S3** | presigned POST policy | ticket attachments (max 5) |
+| Concern        | Where                                                                     | Trigger                                                  |
+| -------------- | ------------------------------------------------------------------------- | -------------------------------------------------------- |
+| **Email**      | `src/services/ticketEmailService.ts` (SES, `noreply-lms@masaischool.com`) | admin reply, resolved — gated by user notification prefs |
+| **Push**       | push-notification service                                                 | admin reply                                              |
+| **Slack**      | `src/services/callbackTicketNbfcOpsSlack.service.ts`                      | new callback request                                     |
+| **Temporal**   | `src/services/ticketTemporalWorkflow.service.ts`                          | after V2 create (fire-and-forget)                        |
+| **AI support** | external `SUPPORT_API`                                                    | chatbot messages, suggest-reply                          |
+| **S3**         | presigned POST policy                                                     | ticket attachments (max 5)                               |
 
 ---
 
 ## 9. Key files cheat-sheet
 
 **experience-api**
+
 - `prisma/schema.prisma` — all 7 support tables (lines 2457, 724, 3396, 3001, 3110, 3126, 3450)
 - `src/routes/tickets.ts` · `userCallbackTickets.ts` · `supportChatbot.ts` — REST routes
 - `src/features/ticket/ticket.controller.ts` — controller (~2400 lines, all logic)
@@ -479,6 +500,7 @@ already escalated above them.
 - `src/constants/tickets.constants.ts` — 40+ canned templates, categories, statuses
 
 **experience-ui**
+
 - `apps/student-experience/src/pages/tickets/*` — student UI (see §4.2)
 - `apps/student-experience/src/pages/Routes.tsx` · `src/utils/route.utils.ts` — routing
 - `apps/student-experience/src/graphql/*` + `src/config/apiClient.ts` — data layer

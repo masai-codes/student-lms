@@ -3,11 +3,7 @@ import { resolveSupportSessionStatus } from './supportSessionStatus'
 import type { SupportSessionStatus } from './supportSessionStatus'
 import { db } from '@/db'
 import { lectures } from '@/db/schema'
-import {
-  formatIstWallClock,
-  getIstDayWindow,
-  getIstNowSqlDatetime,
-} from '@/server/time/istClock'
+import { getIstDayWindow } from '@/server/time/istClock'
 
 /** Single hardcoded section holding all help / support-session lectures. */
 export const HELP_SESSION_SECTION_ID = 7576
@@ -38,7 +34,6 @@ export async function getSupportSessions(
   now: Date = new Date(),
 ): Promise<Array<DashboardSupportSession>> {
   const { start, end } = getIstDayWindow(now, SUPPORT_SESSION_WINDOW_DAYS)
-  const istNow = getIstNowSqlDatetime(now)
 
   const rows = await db
     .select({
@@ -59,12 +54,15 @@ export async function getSupportSessions(
     )
     .orderBy(asc(lectures.schedule))
 
+  // `schedule`/`concludes` already arrive as offset-stamped IST ISO strings
+  // (`…+05:30`) from the `istDatetime` column type — pass them through as-is;
+  // re-formatting here would double the offset and produce an invalid date.
   return rows.map((row) => ({
-      id: row.id,
-      title: row.title,
-      schedule: formatIstWallClock(row.schedule),
-      concludes: formatIstWallClock(row.concludes),
-      zoomLink: row.zoomLink,
-      status: resolveSupportSessionStatus(row.schedule, row.concludes, istNow),
-    }))
+    id: row.id,
+    title: row.title,
+    schedule: row.schedule,
+    concludes: row.concludes,
+    zoomLink: row.zoomLink,
+    status: resolveSupportSessionStatus(row.schedule, row.concludes, now),
+  }))
 }

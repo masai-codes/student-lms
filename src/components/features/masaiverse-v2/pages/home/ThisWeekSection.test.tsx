@@ -21,9 +21,7 @@ function renderWithClient(ui: ReactNode) {
   const client = new QueryClient({
     defaultOptions: { queries: { retry: false } },
   })
-  return render(
-    <QueryClientProvider client={client}>{ui}</QueryClientProvider>,
-  )
+  return render(<QueryClientProvider client={client}>{ui}</QueryClientProvider>)
 }
 
 const baseEvent = {
@@ -52,7 +50,9 @@ describe('ThisWeekSection', () => {
     fetchHome.mockResolvedValue({ stats: {}, events: [baseEvent] })
     renderWithClient(<ThisWeekSection onViewCalendar={() => {}} />)
 
-    await waitFor(() => expect(screen.getByText('Build Sprint #12')).toBeTruthy())
+    await waitFor(() =>
+      expect(screen.getByText('Build Sprint #12')).toBeTruthy(),
+    )
     expect(screen.getByText('· 1 event live or upcoming')).toBeTruthy()
     // A single event needs no carousel navigation.
     expect(screen.queryByLabelText('Next events')).toBeNull()

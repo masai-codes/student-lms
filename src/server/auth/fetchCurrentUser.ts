@@ -3,6 +3,7 @@ import { createServerFn } from '@tanstack/react-start'
 import { db } from '@/db'
 import { clubMembers } from '@/db/schema'
 import { getCurrentUserId } from '@/server/auth/getCurrentSessionUserId'
+import { isUserDeactivated } from '@/server/restrictions/deactivatedUser'
 
 function normalizeRows<T>(result: unknown): Array<T> {
   if (Array.isArray(result)) {
@@ -42,7 +43,10 @@ export const fetchCurrentUser = createServerFn({ method: 'GET' }).handler(
       email: string
       mobile: string | null
       role: string | null
+      status: string | null
       profileImage: string | null
+      newLmsPagesEnabled: number | boolean | string | null
+      tryNewTourSeen: number | boolean | string | null
     }>(
       await db.execute(sql`
       SELECT
@@ -51,6 +55,9 @@ export const fetchCurrentUser = createServerFn({ method: 'GET' }).handler(
         u.email,
         u.mobile,
         u.role,
+        u.status,
+        JSON_EXTRACT(u.meta, '$.new_lms_pages_enabled') AS newLmsPagesEnabled,
+        JSON_EXTRACT(u.meta, '$.new_lms_try_new_tour_seen') AS tryNewTourSeen,
         COALESCE(
           JSON_UNQUOTE(JSON_EXTRACT(pr.meta, '$.profile_pic')),
           JSON_UNQUOTE(JSON_EXTRACT(u.meta, '$.profile_pic')),
@@ -75,6 +82,10 @@ export const fetchCurrentUser = createServerFn({ method: 'GET' }).handler(
     const row = rows.at(0)
     if (row === undefined) return null
 
+    // Deactivated mid-session: treat as logged-out so the layout redirects to
+    // login (where sign-in is also blocked), cutting off the active session.
+    if (isUserDeactivated(row.status)) return null
+
     const membershipRows = await db
       .select({ clubId: clubMembers.clubId })
       .from(clubMembers)
@@ -88,6 +99,16 @@ export const fetchCurrentUser = createServerFn({ method: 'GET' }).handler(
       mobile: row.mobile,
       role: row.role,
       profileImageUrl: pickProfileImageUrl(row.profileImage),
+      // JSON_EXTRACT of a boolean can surface as true/1/"true" depending on the
+      // driver; treat any of those truthy encodings as enabled.
+      newLmsPagesEnabled:
+        row.newLmsPagesEnabled === true ||
+        row.newLmsPagesEnabled === 1 ||
+        row.newLmsPagesEnabled === 'true',
+      hasSeenTryNewTour:
+        row.tryNewTourSeen === true ||
+        row.tryNewTourSeen === 1 ||
+        row.tryNewTourSeen === 'true',
       joinedClubId:
         membershipRows[0]?.clubId != null
           ? String(membershipRows[0].clubId)

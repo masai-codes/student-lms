@@ -20,6 +20,8 @@ export async function fetchLatestSubmissionByAssignment(
       completed: submissions.completed,
       status: submissions.status,
       markAsCompleted: submissions.markAsCompleted,
+      score: submissions.score,
+      data: submissions.data,
     })
     .from(submissions)
     .where(
@@ -38,6 +40,8 @@ export async function fetchLatestSubmissionByAssignment(
         completed: row.completed === 1,
         status: row.status ?? null,
         markAsCompleted: row.markAsCompleted === 1,
+        score: row.score,
+        data: row.data ?? null,
       })
     }
   }

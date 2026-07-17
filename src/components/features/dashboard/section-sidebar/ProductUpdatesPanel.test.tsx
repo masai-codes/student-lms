@@ -33,14 +33,24 @@ describe('ProductUpdatesPanel', () => {
   })
 
   it('shows the empty state with header + View All', () => {
-    render(<ProductUpdatesPanel updates={[]} isLoading={false} isError={false} />)
+    render(
+      <ProductUpdatesPanel updates={[]} isLoading={false} isError={false} />,
+    )
     expect(screen.getByText('Product Updates')).toBeTruthy()
-    expect(screen.getByTestId('dashboard-product-updates-view-all')).toBeTruthy()
+    expect(
+      screen.getByTestId('dashboard-product-updates-view-all'),
+    ).toBeTruthy()
     expect(screen.getByText('No content available')).toBeTruthy()
   })
 
   it('renders each update linking to its detail page', () => {
-    render(<ProductUpdatesPanel updates={updates} isLoading={false} isError={false} />)
+    render(
+      <ProductUpdatesPanel
+        updates={updates}
+        isLoading={false}
+        isError={false}
+      />,
+    )
     expect(screen.getByText('New feature A')).toBeTruthy()
     const row = screen.getByTestId('dashboard-product-update-item-1')
     expect(row.getAttribute('to')).toBe('/whats-new/$id')

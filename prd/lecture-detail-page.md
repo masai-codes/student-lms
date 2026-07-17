@@ -5,17 +5,17 @@
 
 **Source references**
 
-| Area | Path in repo |
-|------|----------------|
-| Legacy page shell | `experience-ui/apps/student-experience/src/pages/lectures/lectureDetails/index.tsx` |
-| Legacy GraphQL (lecture payload) | `experience-ui/apps/student-experience/src/graphql/lectures/lectureById.gql` |
-| Legacy tab config | `experience-ui/apps/student-experience/src/pages/lectures/lectureDetails/variables.ts` |
-| Legacy header / meta row | `experience-ui/apps/student-experience/src/components/Lectures/LectureDetails/LectureInfo/index.tsx` |
-| New route | `student-lms-experience/src/routes/(protected)/_layout/lectures_/$lectureId/route.tsx` |
-| New page component | `student-lms-experience/src/components/features/learn/LearnPageDetails/lecture/LectureDetailPage.tsx` |
-| New loader / API | `student-lms-experience/src/server/learn/getLectureLearningDetail.ts`, `.../services/getLectureLearningDetail.service.ts` |
-| Legacy API resolver | `experience-api/src/features/lecture/resolver.ts` (`lectureById`) |
-| Legacy attendance API | `experience-api/src/features/attendance/resolver.ts` (`getNewAttendanceDetails`) |
+| Area                             | Path in repo                                                                                                              |
+| -------------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| Legacy page shell                | `experience-ui/apps/student-experience/src/pages/lectures/lectureDetails/index.tsx`                                       |
+| Legacy GraphQL (lecture payload) | `experience-ui/apps/student-experience/src/graphql/lectures/lectureById.gql`                                              |
+| Legacy tab config                | `experience-ui/apps/student-experience/src/pages/lectures/lectureDetails/variables.ts`                                    |
+| Legacy header / meta row         | `experience-ui/apps/student-experience/src/components/Lectures/LectureDetails/LectureInfo/index.tsx`                      |
+| New route                        | `student-lms-experience/src/routes/(protected)/_layout/lectures_/$lectureId/route.tsx`                                    |
+| New page component               | `student-lms-experience/src/components/features/learn/LearnPageDetails/lecture/LectureDetailPage.tsx`                     |
+| New loader / API                 | `student-lms-experience/src/server/learn/getLectureLearningDetail.ts`, `.../services/getLectureLearningDetail.service.ts` |
+| Legacy API resolver              | `experience-api/src/features/lecture/resolver.ts` (`lectureById`)                                                         |
+| Legacy attendance API            | `experience-api/src/features/attendance/resolver.ts` (`getNewAttendanceDetails`)                                          |
 
 ---
 
@@ -55,27 +55,27 @@ Below is a **developer-oriented** checklist of what appears on the legacy lectur
 
 ### 3.1 Layout chrome
 
-| UI element | Meaning / behaviour | Backend / data |
-|------------|---------------------|----------------|
-| **Max-width page container** (`md:max-w-[1440px]`) | Centers content on large screens. | None. |
-| **Desktop breadcrumb** (`CoursesBredcurms`) | Trail: Dashboard → Learn → current title (lecture vs resource path aware). | Client routing; title from `lectureById.title`. |
-| **Mobile breadcrumb** | Hidden on small screens in this layout (`md:block hidden` on breadcrumb wrapper). | None. |
+| UI element                                         | Meaning / behaviour                                                               | Backend / data                                  |
+| -------------------------------------------------- | --------------------------------------------------------------------------------- | ----------------------------------------------- |
+| **Max-width page container** (`md:max-w-[1440px]`) | Centers content on large screens.                                                 | None.                                           |
+| **Desktop breadcrumb** (`CoursesBredcurms`)        | Trail: Dashboard → Learn → current title (lecture vs resource path aware).        | Client routing; title from `lectureById.title`. |
+| **Mobile breadcrumb**                              | Hidden on small screens in this layout (`md:block hidden` on breadcrumb wrapper). | None.                                           |
 
 ### 3.2 Lecture header block (`LectureInfo`)
 
-| UI element | Meaning / behaviour | Backend / data |
-|------------|---------------------|----------------|
-| **Title** (`h4`, tooltip) | Lecture title; tooltip repeats long titles. | `lectureById.title`. |
-| **Attendance badge cluster** (separator dot + badge) | For **non-optional** lectures when attendance payload supports UI: shows states such as present, absent, continue watching, catch-up window over, etc. Uses `resolveLectureAttendanceUiState` with live + video progress hints. | `getNewAttendanceDetails` + `getVideoProgress` (see 4.2). |
-| **Host / instructor name** | Primary display: `hostData.name`, fallback `user.name`. | `user_lecture_host_idTousers`, `user`. |
-| **Schedule / conclude** (`TimeDisplay`) | Human-readable window from `schedule` and optional `concludes`. | `lectureById.schedule`, `concludes`. |
-| **Category chip** | e.g. curriculum category. | `lectureById.category`. |
-| **Module chip** | Module label when present. | `lectureById.module`. |
-| **Mandatory vs Recommended** | Derived from `optional` boolean. | `lectureById.optional`. |
-| **Status chip** | “Live” for `live` / `scrum`; “Resource” for `reading`; else “Recorded”. | `lectureById.type`. |
-| **Legacy star feedback control** (`LectureFeedback`) | Shown when `isFeedbackEditable` (server time vs schedule/concludes window). | `feedback_id`, `lectureFeedbackFormVisibleTime` (client util). |
-| **Raise a Ticket** | Opens subcategory picker then ticket creation modal; category context `lecture` vs `resource` from pathname. | Ticket modals; batch/lecture ids passed through. |
-| **Bookmark** | Persists bookmark for entity type lecture. | `BookmarkButton` + bookmarks API (not detailed in lecture query). |
+| UI element                                           | Meaning / behaviour                                                                                                                                                                                                             | Backend / data                                                    |
+| ---------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------- |
+| **Title** (`h4`, tooltip)                            | Lecture title; tooltip repeats long titles.                                                                                                                                                                                     | `lectureById.title`.                                              |
+| **Attendance badge cluster** (separator dot + badge) | For **non-optional** lectures when attendance payload supports UI: shows states such as present, absent, continue watching, catch-up window over, etc. Uses `resolveLectureAttendanceUiState` with live + video progress hints. | `getNewAttendanceDetails` + `getVideoProgress` (see 4.2).         |
+| **Host / instructor name**                           | Primary display: `hostData.name`, fallback `user.name`.                                                                                                                                                                         | `user_lecture_host_idTousers`, `user`.                            |
+| **Schedule / conclude** (`TimeDisplay`)              | Human-readable window from `schedule` and optional `concludes`.                                                                                                                                                                 | `lectureById.schedule`, `concludes`.                              |
+| **Category chip**                                    | e.g. curriculum category.                                                                                                                                                                                                       | `lectureById.category`.                                           |
+| **Module chip**                                      | Module label when present.                                                                                                                                                                                                      | `lectureById.module`.                                             |
+| **Mandatory vs Recommended**                         | Derived from `optional` boolean.                                                                                                                                                                                                | `lectureById.optional`.                                           |
+| **Status chip**                                      | “Live” for `live` / `scrum`; “Resource” for `reading`; else “Recorded”.                                                                                                                                                         | `lectureById.type`.                                               |
+| **Legacy star feedback control** (`LectureFeedback`) | Shown when `isFeedbackEditable` (server time vs schedule/concludes window).                                                                                                                                                     | `feedback_id`, `lectureFeedbackFormVisibleTime` (client util).    |
+| **Raise a Ticket**                                   | Opens subcategory picker then ticket creation modal; category context `lecture` vs `resource` from pathname.                                                                                                                    | Ticket modals; batch/lecture ids passed through.                  |
+| **Bookmark**                                         | Persists bookmark for entity type lecture.                                                                                                                                                                                      | `BookmarkButton` + bookmarks API (not detailed in lecture query). |
 
 ### 3.3 Video area (`LectureVideo`) — when `renderLectureVideo` is true
 
@@ -85,90 +85,90 @@ Below is a **developer-oriented** checklist of what appears on the legacy lectur
 - Type is **live** and lecture **has ended** (recording path), or
 - Type is **interactive-video**.
 
-| UI element | Meaning / behaviour | Backend / data |
-|------------|---------------------|----------------|
-| **Video player** | Plays Vimeo embed, Gumlet HLS, or S3/CloudFront URL after encoding. | `vimeo_player_embed_url`, `vimeo_download_links.gumlet.hls_url`, `videos`. |
-| **Hide video** (`settings.hide_video`) | Suppresses player and clears video-related payloads in API response. | Parsed `lecture.settings` JSON in resolver. |
-| **Side panel** (desktop, fixed height) | Default: **AI Tutor** (`AiTutor` + LiveKit `Room`). Can switch to tab content (transcript, notes, summary, AI chat, discussions, associated). | Transcript/AI from `lectures_ai`; LiveKit separate. |
-| **Catch-up progress bar** | For mandatory lectures where section counts **video** toward attendance and learner is in “continue watching” state: shows days remaining; tracks play/pause for disclaimer. | `getNewAttendanceDetails` fields + optional `getVideoProgress`. |
-| **“Associated Lectures & Assignments”** button under side panel | Opens `tab=associated` in side panel; red badge shows **count** of linked assignments + lectures. | `getAssociateAssignments` + `data.associatedLecture` + `associateWIthOtherLecture` (resolver-computed). |
+| UI element                                                      | Meaning / behaviour                                                                                                                                                          | Backend / data                                                                                          |
+| --------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
+| **Video player**                                                | Plays Vimeo embed, Gumlet HLS, or S3/CloudFront URL after encoding.                                                                                                          | `vimeo_player_embed_url`, `vimeo_download_links.gumlet.hls_url`, `videos`.                              |
+| **Hide video** (`settings.hide_video`)                          | Suppresses player and clears video-related payloads in API response.                                                                                                         | Parsed `lecture.settings` JSON in resolver.                                                             |
+| **Side panel** (desktop, fixed height)                          | Default: **AI Tutor** (`AiTutor` + LiveKit `Room`). Can switch to tab content (transcript, notes, summary, AI chat, discussions, associated).                                | Transcript/AI from `lectures_ai`; LiveKit separate.                                                     |
+| **Catch-up progress bar**                                       | For mandatory lectures where section counts **video** toward attendance and learner is in “continue watching” state: shows days remaining; tracks play/pause for disclaimer. | `getNewAttendanceDetails` fields + optional `getVideoProgress`.                                         |
+| **“Associated Lectures & Assignments”** button under side panel | Opens `tab=associated` in side panel; red badge shows **count** of linked assignments + lectures.                                                                            | `getAssociateAssignments` + `data.associatedLecture` + `associateWIthOtherLecture` (resolver-computed). |
 
 ### 3.4 Live session strip
 
-| UI element | Meaning / behaviour | Backend / data |
-|------------|---------------------|----------------|
+| UI element                   | Meaning / behaviour                                                               | Backend / data                               |
+| ---------------------------- | --------------------------------------------------------------------------------- | -------------------------------------------- |
 | **`JoinLiveSessionsBanner`** | When lecture **is running** and type is `live` or `scrum` and `zoom_link` exists. | `zoom_link`, `useLectures` schedule helpers. |
 
 ### 3.5 Adaptive lecture recording
 
-| UI element | Meaning / behaviour | Backend / data |
-|------------|---------------------|----------------|
-| **“Watch Recording”** button | When lecture **ended**, adaptive lecture (`zoom_link` contains `adaptive-lecture`), opens link in new tab. | `zoom_link`. |
+| UI element                   | Meaning / behaviour                                                                                        | Backend / data |
+| ---------------------------- | ---------------------------------------------------------------------------------------------------------- | -------------- |
+| **“Watch Recording”** button | When lecture **ended**, adaptive lecture (`zoom_link` contains `adaptive-lecture`), opens link in new tab. | `zoom_link`.   |
 
 ### 3.6 Locked state
 
-| UI element | Meaning / behaviour | Backend / data |
-|------------|---------------------|----------------|
-| **`LockedBanner`** | If lecture **has not started** (except `interactive-video`), shows unlock time. | `schedule`. |
+| UI element         | Meaning / behaviour                                                             | Backend / data |
+| ------------------ | ------------------------------------------------------------------------------- | -------------- |
+| **`LockedBanner`** | If lecture **has not started** (except `interactive-video`), shows unlock time. | `schedule`.    |
 
 ### 3.7 Associated content entry points
 
-| UI element | Meaning / behaviour | Backend / data |
-|------------|---------------------|----------------|
+| UI element                                                             | Meaning / behaviour                                                                    | Backend / data                                                        |
+| ---------------------------------------------------------------------- | -------------------------------------------------------------------------------------- | --------------------------------------------------------------------- |
 | **“Associated Lectures & Resources”** row (before start or while live) | Shown if another lecture links to this one; opens `AssociatedLecturesResourcesDialog`. | Resolver `associateWIthOtherLecture` list + `data.associatedLecture`. |
-| **`AssociatedLecturesResourcesDialog`** | Modal listing associated assignments and lectures with notes context. | Same as above + `getAssociateAssignments`. |
+| **`AssociatedLecturesResourcesDialog`**                                | Modal listing associated assignments and lectures with notes context.                  | Same as above + `getAssociateAssignments`.                            |
 
 ### 3.8 Instructor / product feedback (`LectureFeedbackNew`)
 
-| UI element | Meaning / behaviour | Backend / data |
-|------------|---------------------|----------------|
+| UI element            | Meaning / behaviour                                                                                                                         | Backend / data                                                                |
+| --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------- |
 | **New feedback form** | Shown when `settings.show_feedback` and `isFeedbackEditable`. Range + text; loads/saves via `getLectureFeedback` / create update mutations. | `getLectureFeedback`, `createLectureFeedback`, `updateLectureFeedback` (GQL). |
 
 ### 3.9 Attendance disclaimer block (`AttendanceDisclaimer`)
 
-| UI element | Meaning / behaviour | Backend / data |
-|------------|---------------------|----------------|
+| UI element          | Meaning / behaviour                                                                                                                                    | Backend / data                                 |
+| ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------- |
 | **Disclaimer copy** | Explains live vs recording attendance rules and current state for **mandatory** lectures with video rendered (layout varies with optional / adaptive). | `getNewAttendanceDetails` + UI state resolver. |
 
 ### 3.10 Two-column “Description + Discussions” (when video + non-adaptive)
 
 When there is a **normal video layout** (`showDescriptionDiscussionsSideBySide`):
 
-| UI element | Meaning / behaviour | Backend / data |
-|------------|---------------------|----------------|
-| **Description card** | Renders `NotesTab` with rich notes + embedded associated links; empty state if hidden or empty. | `notes`, `settings.hide_notes`, associations. |
-| **Discussions card** | Embedded `DiscussionsPageForOtherPages` for this lecture id. | Discussions service (separate from lecture query). |
+| UI element           | Meaning / behaviour                                                                             | Backend / data                                     |
+| -------------------- | ----------------------------------------------------------------------------------------------- | -------------------------------------------------- |
+| **Description card** | Renders `NotesTab` with rich notes + embedded associated links; empty state if hidden or empty. | `notes`, `settings.hide_notes`, associations.      |
+| **Discussions card** | Embedded `DiscussionsPageForOtherPages` for this lecture id.                                    | Discussions service (separate from lecture query). |
 
 ### 3.11 Tab strip (no side-by-side description layout)
 
 When **no** side-by-side block (typically **no video** or adaptive path): horizontal **`Tabs`** from `tabOptionsToPass`.
 
-| Tab value | Label | Meaning | Visibility rules |
-|-----------|-------|---------|------------------|
-| `transcript` | Transcript | Scrollable segments; click seeks video. | Only in **with-video** tab set; hidden if no video sources. |
-| `notes` | Description | Same as `NotesTab`. | Removed entirely if `settings.hide_notes`. |
-| `summary` | AI Summary | Renders AI summary text. | Requires video available and not `hide_video`; content from `lectures_ai[0].summary` and GPT central published flags for feedback. |
-| `ai-chat` | AI Chat | Chat grounded in parsed `concepts` JSON. | Same video constraints; empty state if concepts invalid. |
-| `discussions` | Discussions | Thread list / create. | Always in tab list when applicable. |
-| `ai-tutor` | (filtered) | Tab value exists in full list but filtered unless transcript segments exist. | Shown only if `lectures_ai[0].transcriptSegments` and video exists. |
-| `associated` | Associated… | Combined assignments + lectures. | Driven by side panel / mobile sheet, not always in primary tab list (see legacy code paths). |
+| Tab value     | Label       | Meaning                                                                      | Visibility rules                                                                                                                   |
+| ------------- | ----------- | ---------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| `transcript`  | Transcript  | Scrollable segments; click seeks video.                                      | Only in **with-video** tab set; hidden if no video sources.                                                                        |
+| `notes`       | Description | Same as `NotesTab`.                                                          | Removed entirely if `settings.hide_notes`.                                                                                         |
+| `summary`     | AI Summary  | Renders AI summary text.                                                     | Requires video available and not `hide_video`; content from `lectures_ai[0].summary` and GPT central published flags for feedback. |
+| `ai-chat`     | AI Chat     | Chat grounded in parsed `concepts` JSON.                                     | Same video constraints; empty state if concepts invalid.                                                                           |
+| `discussions` | Discussions | Thread list / create.                                                        | Always in tab list when applicable.                                                                                                |
+| `ai-tutor`    | (filtered)  | Tab value exists in full list but filtered unless transcript segments exist. | Shown only if `lectures_ai[0].transcriptSegments` and video exists.                                                                |
+| `associated`  | Associated… | Combined assignments + lectures.                                             | Driven by side panel / mobile sheet, not always in primary tab list (see legacy code paths).                                       |
 
 **URL state:** clicking tabs sets `?tab=` and may toggle `isSidePanelShowingTabContent` for desktop split layout.
 
 ### 3.12 Mobile-only UI
 
-| UI element | Meaning / behaviour | Backend / data |
-|------------|---------------------|----------------|
-| **AI Tutor / side content card** | When video + right panel possible but tab not one of the “sheet” tabs, shows stacked panel. | Same as desktop side panel. |
-| **Bottom sheet** (`role="dialog"`) | For `notes`, `discussions`, `transcript`, `associated`, `summary`, `ai-chat`: 70vh sheet with handle, title, close; discussions can nest **Create Discussion**. | Same tab bodies. |
-| **Practice quiz** | Hidden container when `tab=practice` (`LecturePracticeQuiz`). | Separate quiz API. |
+| UI element                         | Meaning / behaviour                                                                                                                                             | Backend / data              |
+| ---------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------- |
+| **AI Tutor / side content card**   | When video + right panel possible but tab not one of the “sheet” tabs, shows stacked panel.                                                                     | Same as desktop side panel. |
+| **Bottom sheet** (`role="dialog"`) | For `notes`, `discussions`, `transcript`, `associated`, `summary`, `ai-chat`: 70vh sheet with handle, title, close; discussions can nest **Create Discussion**. | Same tab bodies.            |
+| **Practice quiz**                  | Hidden container when `tab=practice` (`LecturePracticeQuiz`).                                                                                                   | Separate quiz API.          |
 
 ### 3.13 GPT Central feedback (summary / concepts)
 
-| UI element | Meaning / behaviour | Backend / data |
-|------------|---------------------|----------------|
+| UI element                    | Meaning / behaviour                                                                                 | Backend / data                                                                     |
+| ----------------------------- | --------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------- |
 | **`InitialFeedbackQuestion`** | Thumbs up/down on AI summary/concepts when published, lecture ended, and no prior `getGptFeedback`. | `getGptFeedback`, `createGptFeedback`, `gpt_central_data` publish + `executionId`. |
-| **`LastFeedbackOption`** | Shows prior rating when exists. | `getGptFeedback`. |
+| **`LastFeedbackOption`**      | Shows prior rating when exists.                                                                     | `getGptFeedback`.                                                                  |
 
 ### 3.14 Other legacy integrations (commented or conditional)
 
@@ -193,16 +193,16 @@ When **no** side-by-side block (typically **no video** or adaptive path): horizo
 
 ### 4.2 Supporting GraphQL / REST used by the same page
 
-| Concern | Typical API | Role |
-|---------|-------------|------|
-| Attendance | `getNewAttendanceDetails` | Per-lecture, per-user attendance, catch-up days from **section settings**, video vs live breakdown, N/A flags. Still returns computed catch-up when **no** `student_attendances` row exists. |
-| Video progress | `getVideoProgress` | Last position and watch percentage for progress bar and attendance UI blending. |
-| Associated assignments | `getAssociateAssignments` | Assignments linked to this lecture + section. |
-| Lecture feedback (form) | `getLectureFeedback`, mutations | Structured or legacy response shape for ratings + text. |
-| GPT feedback | `getGptFeedback`, `createGptFeedback` | Stores learner rating/text for AI summary/concepts runs. |
-| Discussions | Separate queries in `DiscussionsPageForOtherPages` | List/create threads for lecture entity. |
-| Bookmarks | Bookmark mutations | Persist learner bookmarks. |
-| Tickets | Ticket / subcategory APIs | Support workflow. |
+| Concern                 | Typical API                                        | Role                                                                                                                                                                                         |
+| ----------------------- | -------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Attendance              | `getNewAttendanceDetails`                          | Per-lecture, per-user attendance, catch-up days from **section settings**, video vs live breakdown, N/A flags. Still returns computed catch-up when **no** `student_attendances` row exists. |
+| Video progress          | `getVideoProgress`                                 | Last position and watch percentage for progress bar and attendance UI blending.                                                                                                              |
+| Associated assignments  | `getAssociateAssignments`                          | Assignments linked to this lecture + section.                                                                                                                                                |
+| Lecture feedback (form) | `getLectureFeedback`, mutations                    | Structured or legacy response shape for ratings + text.                                                                                                                                      |
+| GPT feedback            | `getGptFeedback`, `createGptFeedback`              | Stores learner rating/text for AI summary/concepts runs.                                                                                                                                     |
+| Discussions             | Separate queries in `DiscussionsPageForOtherPages` | List/create threads for lecture entity.                                                                                                                                                      |
+| Bookmarks               | Bookmark mutations                                 | Persist learner bookmarks.                                                                                                                                                                   |
+| Tickets                 | Ticket / subcategory APIs                          | Support workflow.                                                                                                                                                                            |
 
 ---
 
@@ -212,10 +212,10 @@ The new lecture page is intentionally **minimal** compared to legacy. Implemente
 
 ### 5.1 Route and error UI
 
-| Piece | Behaviour |
-|-------|-----------|
-| **Loader** | Calls `getLectureLearningDetail({ lectureId })`; requires authenticated user. |
-| **Not found / forbidden** | Same error component as other learn entities: *“This item isn't available or you don't have access.”* (`LearnPageDetailError`) for bad id or failed access check. |
+| Piece                     | Behaviour                                                                                                                                                         |
+| ------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Loader**                | Calls `getLectureLearningDetail({ lectureId })`; requires authenticated user.                                                                                     |
+| **Not found / forbidden** | Same error component as other learn entities: _“This item isn't available or you don't have access.”_ (`LearnPageDetailError`) for bad id or failed access check. |
 
 ### 5.2 Access control (server)
 
@@ -233,13 +233,13 @@ The new lecture page is intentionally **minimal** compared to legacy. Implemente
 
 ### 5.4 On-screen UI (new)
 
-| Region | Elements | Notes |
-|--------|-----------|-------|
-| **Breadcrumb** | Dashboard, Learn, lecture title | SPA links via `MasaiBreadcrumb`. |
-| **Overview** | Title row + meta row | Title + **Raise Ticket** (redirects to **legacy** support URL via `getOldStudentUiUrlForPath`) + **Bookmark** button (**no-op** today — comment in code: “not wired yet”). |
-| **Meta row** | Host name • date • chip per tag • priority chip | `LearnDetailMetaCard` / `MasaiChips`. |
-| **Main column** | Dashed placeholder: “Lecture — main content area” | No video, notes, tabs, or attendance in new UI yet. |
-| **Aside** | `EntityDiscussionsPanel` | Heading “Discussions”, **My Discussions** toggle (client filter by author id), scrollable `DiscussionSummaryCard` list, **Create** FAB opening `DiscussionCreateModal`, empty state with icon + copy. |
+| Region          | Elements                                          | Notes                                                                                                                                                                                                 |
+| --------------- | ------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Breadcrumb**  | Dashboard, Learn, lecture title                   | SPA links via `MasaiBreadcrumb`.                                                                                                                                                                      |
+| **Overview**    | Title row + meta row                              | Title + **Raise Ticket** (redirects to **legacy** support URL via `getOldStudentUiUrlForPath`) + **Bookmark** button (**no-op** today — comment in code: “not wired yet”).                            |
+| **Meta row**    | Host name • date • chip per tag • priority chip   | `LearnDetailMetaCard` / `MasaiChips`.                                                                                                                                                                 |
+| **Main column** | Dashed placeholder: “Lecture — main content area” | No video, notes, tabs, or attendance in new UI yet.                                                                                                                                                   |
+| **Aside**       | `EntityDiscussionsPanel`                          | Heading “Discussions”, **My Discussions** toggle (client filter by author id), scrollable `DiscussionSummaryCard` list, **Create** FAB opening `DiscussionCreateModal`, empty state with icon + copy. |
 
 ---
 
@@ -254,13 +254,13 @@ The new lecture page is intentionally **minimal** compared to legacy. Implemente
 
 ## 7. Glossary
 
-| Term | Meaning |
-|------|---------|
-| **Optional lecture** | `optional === true`; treated as **recommended** in new chips; skips several attendance UI paths in legacy. |
-| **Resource / reading** | Legacy uses `type === 'reading'` and `/resources/:id` for the same detail shell; new learn hub treats resources as a separate route/type. |
-| **Catch-up window** | Section-configured days after conclude during which recording watch can still satisfy video attendance (legacy `getNewAttendanceDetails`). |
-| **`associateWIthOtherLecture`** | Lectures in the same section whose JSON `data.associatedLecture.id` references this lecture (inverse association list). |
+| Term                            | Meaning                                                                                                                                    |
+| ------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Optional lecture**            | `optional === true`; treated as **recommended** in new chips; skips several attendance UI paths in legacy.                                 |
+| **Resource / reading**          | Legacy uses `type === 'reading'` and `/resources/:id` for the same detail shell; new learn hub treats resources as a separate route/type.  |
+| **Catch-up window**             | Section-configured days after conclude during which recording watch can still satisfy video attendance (legacy `getNewAttendanceDetails`). |
+| **`associateWIthOtherLecture`** | Lectures in the same section whose JSON `data.associatedLecture.id` references this lecture (inverse association list).                    |
 
 ---
 
-*Document generated for PRD planning; align with product before treating any legacy behaviour as required in the new LMS.*
+_Document generated for PRD planning; align with product before treating any legacy behaviour as required in the new LMS._

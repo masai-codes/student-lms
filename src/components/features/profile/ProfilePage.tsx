@@ -47,51 +47,65 @@ export function ProfilePage() {
 
   return (
     <div className="mx-4 mb-6 mt-4 md:mx-8 flex flex-col gap-5">
-
       {/* Breadcrumb */}
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>
             <BreadcrumbLink asChild>
-              <Link to="/" className="text-sm text-gray-500 hover:text-gray-700">Home</Link>
+              <Link
+                to="/"
+                className="text-sm text-foreground-muted hover:text-foreground"
+              >
+                Home
+              </Link>
             </BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
-            <span className="text-sm text-gray-500">My Profile</span>
+            <span className="text-sm text-foreground-muted">My Profile</span>
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
 
       {/* Page title */}
-      <h1 className="text-2xl font-bold text-gray-900">My Profile</h1>
+      <h1 className="text-2xl font-bold text-foreground">My Profile</h1>
 
       {/* User header */}
       <div className="flex items-center gap-4">
         {isLoading ? (
-          <div className="size-16 rounded-full bg-gray-200 animate-pulse shrink-0" />
+          <div className="size-16 rounded-full bg-muted animate-pulse shrink-0" />
         ) : profile?.profileImageUrl ? (
           <img
             src={profile.profileImageUrl}
             alt={profile.name}
-            className="size-16 rounded-full object-cover shrink-0 border border-gray-200"
+            className="size-16 rounded-full object-cover shrink-0 border border-border"
           />
         ) : (
-          <div className="size-16 rounded-full bg-gray-100 border border-gray-200 flex items-center justify-center shrink-0">
-            <User size={28} className="text-gray-400" />
+          <div className="size-16 rounded-full bg-surface-muted border border-border flex items-center justify-center shrink-0">
+            <User size={28} className="text-foreground-subtle" />
           </div>
         )}
         <div className="flex flex-col gap-0.5 min-w-0">
           {isLoading ? (
             <>
-              <div className="h-5 w-48 rounded bg-gray-200 animate-pulse" />
-              <div className="h-4 w-36 rounded bg-gray-100 animate-pulse mt-1" />
+              <div className="h-5 w-48 rounded bg-muted animate-pulse" />
+              <div className="h-4 w-36 rounded bg-surface-muted animate-pulse mt-1" />
             </>
           ) : (
             <>
-              <p className="text-lg font-bold text-gray-900 leading-snug break-words">{profile?.name}</p>
-              <div className="flex items-center gap-1.5 text-sm text-gray-500">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="shrink-0">
+              <p className="text-lg font-bold text-foreground leading-snug break-words">
+                {profile?.name}
+              </p>
+              <div className="flex items-center gap-1.5 text-sm text-foreground-muted">
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  className="shrink-0"
+                >
                   <rect width="20" height="16" x="2" y="4" rx="2" />
                   <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
                 </svg>
@@ -106,10 +120,9 @@ export function ProfilePage() {
       <AchievementsSection />
 
       {/* Tabs + content */}
-      <div className="rounded-2xl border border-gray-200 bg-white overflow-hidden">
-
+      <div className="rounded-2xl border border-border bg-surface overflow-hidden">
         {/* Tab bar */}
-        <div className="flex border-b border-gray-200 overflow-x-auto">
+        <div className="flex border-b border-border overflow-x-auto">
           {TABS.map(({ slug, label }) => (
             <button
               key={slug}
@@ -117,8 +130,8 @@ export function ProfilePage() {
               onClick={() => handleTabChange(slug)}
               className={`shrink-0 px-5 py-3.5 text-sm font-medium whitespace-nowrap transition-colors focus-visible:outline-none border-b-2 -mb-px ${
                 tab === slug
-                  ? 'border-[#4F46E5] text-[#4F46E5]'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  ? 'border-brand text-brand'
+                  : 'border-transparent text-foreground-muted hover:text-foreground hover:border-border-strong'
               }`}
             >
               {label}
@@ -132,9 +145,14 @@ export function ProfilePage() {
           {tab === 'email-preferences' && <EmailPreferencesTab />}
           {tab === 'account-activity' && <AccountActivityTab />}
           {tab === 'certificates' && <CertificatesTab />}
-          {tab !== 'profile-details' && tab !== 'email-preferences' && tab !== 'account-activity' && tab !== 'certificates' && (
-            <ComingSoonTab tab={TABS.find((t) => t.slug === tab)?.label ?? tab} />
-          )}
+          {tab !== 'profile-details' &&
+            tab !== 'email-preferences' &&
+            tab !== 'account-activity' &&
+            tab !== 'certificates' && (
+              <ComingSoonTab
+                tab={TABS.find((t) => t.slug === tab)?.label ?? tab}
+              />
+            )}
         </div>
       </div>
     </div>

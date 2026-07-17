@@ -7,6 +7,7 @@ import {
   toLearningPriority,
 } from '@/server/learn/utils/learningDataMappers'
 import { buildLearnListingCardCtas } from '@/server/learn/utils/buildLearnListingCardCtas'
+import { resolveEnableZoomWebView } from '@/server/learn/utils/resolveEnableZoomWebView'
 
 /**
  * Maps a schedule/pending row to a `DashboardScheduleItem`, reusing the learn
@@ -21,7 +22,8 @@ export function buildDashboardScheduleItem(input: {
   assignmentProgressStatus: AssignmentProgressStatus | null
   showCourseName: boolean
 }): DashboardScheduleItem {
-  const { row, learningType, nowMs, attendance, assignmentProgressStatus } = input
+  const { row, learningType, nowMs, attendance, assignmentProgressStatus } =
+    input
 
   const listingCtas = buildLearnListingCardCtas({
     learningType,
@@ -32,9 +34,12 @@ export function buildDashboardScheduleItem(input: {
     isMandatory: toLearningPriority(row.optional) === 'mandatory',
     zoomLink: row.zoomLink ?? null,
     isNewZoomRedirection: row.isNewZoomRedirection === 1,
+    enableZoomWebView: resolveEnableZoomWebView(row.sectionSettings),
     nowMs,
     attendance,
     assignmentProgressStatus,
+    // Dashboard schedule/pending feeds don't surface released scores.
+    assignmentScore: null,
   })
 
   const item = mapLearningEntityRow(
@@ -56,11 +61,4 @@ export function buildDashboardScheduleItem(input: {
 /** sections.name → batches.name → null (the learn "which course" label chain). */
 function resolveCourseName(row: ScheduleEntityRow): string | null {
   return row.sectionName?.trim() || row.batchName?.trim() || null
-}
-
-function resolveEnableZoomWebView(settings: unknown): boolean {
-  if (settings && typeof settings === 'object' && 'enableZoomWebView' in settings) {
-    return settings.enableZoomWebView === true
-  }
-  return false
 }

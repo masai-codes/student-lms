@@ -16,7 +16,7 @@ export default function UpcomingEvents() {
 
   return (
     <div>
-      <p className="mb-3 text-[11px] font-semibold uppercase tracking-wide text-[#9CA3AF]">
+      <p className="mb-3 text-[11px] font-semibold uppercase tracking-wide text-foreground-subtle">
         Upcoming events
       </p>
       {isPending ? (
@@ -29,12 +29,12 @@ export default function UpcomingEvents() {
           {[0, 1, 2].map((key) => (
             <div
               key={key}
-              className="h-10 animate-pulse rounded-[8px] bg-[#ECE7E2]"
+              className="h-10 animate-pulse rounded-[8px] bg-surface-muted"
             />
           ))}
         </div>
       ) : events.length === 0 ? (
-        <p className="text-[12px] text-[#9CA3AF]">
+        <p className="text-[12px] text-foreground-subtle">
           No live or upcoming events right now.
         </p>
       ) : (
@@ -62,22 +62,22 @@ function UpcomingEventRow({ event }: { event: MasaiverseV2HomeEvent }) {
           source: 'calendar_upcoming',
         })
       }
-      className="flex gap-3 rounded-[8px] -mx-1 px-1 py-1 transition-colors hover:bg-masaiverse-orange/10"
+      className="flex gap-3 rounded-[8px] -mx-1 px-1 py-1 transition-colors hover:bg-accent-warm/10"
     >
       <div className="flex w-7 shrink-0 flex-col items-center leading-none">
-        <span className="text-[16px] font-bold text-[#111827]">
+        <span className="text-[16px] font-bold text-foreground">
           {display.dateDay || '—'}
         </span>
-        <span className="text-[10px] font-semibold text-[#9CA3AF]">
+        <span className="text-[10px] font-semibold text-foreground-subtle">
           {display.dateMonth}
         </span>
       </div>
       <div className="min-w-0 flex-1">
-        <p className="text-[14px] font-bold leading-5 text-[#111827]">
+        <p className="text-[14px] font-bold leading-5 text-foreground">
           {event.title}
         </p>
         {event.belowTitle ? (
-          <p className="mt-1 text-[12px] leading-4 text-[#6B7280]">
+          <p className="mt-1 text-[12px] leading-4 text-foreground-muted">
             {event.belowTitle}
           </p>
         ) : null}

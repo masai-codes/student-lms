@@ -1,3 +1,5 @@
 import { createOnboardingFlowMeta } from '../onboarding-shared/flowMeta'
 
-export const onboardingWelcomeSeenConfig = createOnboardingFlowMeta('onboarding-welcome-seen')
+export const onboardingWelcomeSeenConfig = createOnboardingFlowMeta(
+  'onboarding-welcome-seen',
+)

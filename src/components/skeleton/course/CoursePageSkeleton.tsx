@@ -2,7 +2,10 @@ import { Skeleton } from '@/components/ui/skeleton'
 
 function HeroCardSkeleton() {
   return (
-    <div className="w-full rounded-2xl border border-gray-200 bg-white overflow-hidden flex" style={{ minHeight: 380 }}>
+    <div
+      className="w-full rounded-2xl border border-border bg-surface overflow-hidden flex"
+      style={{ minHeight: 380 }}
+    >
       {/* Left */}
       <div className="flex flex-col justify-center gap-8 px-6 py-6 w-1/2 shrink-0">
         <div className="flex flex-col gap-3">
@@ -27,7 +30,7 @@ function HeroCardSkeleton() {
         </div>
       </div>
       {/* Right image placeholder */}
-      <div className="flex-1 bg-gray-100" />
+      <div className="flex-1 bg-surface-muted" />
     </div>
   )
 }
@@ -55,7 +58,7 @@ function FileCardRowSkeleton({ count = 4 }: { count?: number }) {
       {Array.from({ length: count }).map((_, i) => (
         <div
           key={i}
-          className="flex items-center gap-2 rounded-2xl border border-gray-200 bg-white px-3"
+          className="flex items-center gap-2 rounded-2xl border border-border bg-surface px-3"
           style={{ height: 72 }}
         >
           <Skeleton className="w-12 h-12 rounded-lg shrink-0" />
@@ -70,10 +73,19 @@ function FileCardRowSkeleton({ count = 4 }: { count?: number }) {
   )
 }
 
-function SectionSkeleton({ label, children }: { label: string; children: React.ReactNode }) {
+function SectionSkeleton({
+  label,
+  children,
+}: {
+  label: string
+  children: React.ReactNode
+}) {
   return (
     <div className="flex flex-col gap-4">
-      <Skeleton className={`h-7 rounded`} style={{ width: `${label.length * 10}px` }} />
+      <Skeleton
+        className={`h-7 rounded`}
+        style={{ width: `${label.length * 10}px` }}
+      />
       {children}
     </div>
   )
@@ -85,7 +97,11 @@ function InstructorsSkeleton() {
       <Skeleton className="h-7 w-48 rounded" />
       <div className="flex gap-4 flex-wrap">
         {Array.from({ length: 3 }).map((_, i) => (
-          <div key={i} className="flex items-center gap-3 rounded-2xl border border-gray-200 bg-white px-4 py-3" style={{ minWidth: 200 }}>
+          <div
+            key={i}
+            className="flex items-center gap-3 rounded-2xl border border-border bg-surface px-4 py-3"
+            style={{ minWidth: 200 }}
+          >
             <Skeleton className="size-10 rounded-full shrink-0" />
             <div className="flex flex-col gap-1.5">
               <Skeleton className="h-4 w-28 rounded" />
@@ -104,7 +120,11 @@ function EvaluationsSkeleton() {
       <Skeleton className="h-7 w-36 rounded" />
       <div className="flex gap-8 flex-wrap">
         {Array.from({ length: 3 }).map((_, i) => (
-          <div key={i} className="flex-1 rounded-2xl border border-gray-200 bg-white p-6 flex flex-col justify-between gap-4" style={{ minWidth: 280, minHeight: 160 }}>
+          <div
+            key={i}
+            className="flex-1 rounded-2xl border border-border bg-surface p-6 flex flex-col justify-between gap-4"
+            style={{ minWidth: 280, minHeight: 160 }}
+          >
             <div className="flex flex-col gap-2">
               <Skeleton className="h-5 w-40 rounded" />
               <Skeleton className="h-3 w-28 rounded" />
@@ -127,7 +147,10 @@ function CourseStructureSkeleton() {
       <Skeleton className="h-7 w-44 rounded" />
       <div className="flex flex-col gap-2">
         {Array.from({ length: 4 }).map((_, i) => (
-          <div key={i} className="rounded-2xl border border-gray-200 bg-white px-5 py-4 flex items-center gap-4">
+          <div
+            key={i}
+            className="rounded-2xl border border-border bg-surface px-5 py-4 flex items-center gap-4"
+          >
             <Skeleton className="size-5 rounded-full shrink-0" />
             <Skeleton className="h-5 w-48 rounded" />
             <Skeleton className="h-3 w-20 rounded ml-auto" />

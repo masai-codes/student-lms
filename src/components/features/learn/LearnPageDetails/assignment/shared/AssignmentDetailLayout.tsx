@@ -1,8 +1,8 @@
 'use client'
 
 import { AssociatedContentEntryCta } from '../../common/associated/AssociatedContentEntryCta'
-import { LearnDetailDefaultActions } from '../../common/actions'
 import { LearnEntityDetailLayout } from '../../common/layout/LearnEntityDetailLayout'
+import { AssignmentDetailActions } from './AssignmentDetailActions'
 import { AssignmentCompletedBanner } from './AssignmentCompletedBanner'
 import { AssignmentHeaderBadges } from './AssignmentHeaderBadges'
 import { AssignmentLiveAnalytics } from './AssignmentLiveAnalytics'
@@ -12,6 +12,7 @@ import {
   AssignmentDetailFooterInlineNotices,
   AssignmentDetailStickyFooter,
 } from './AssignmentDetailStickyFooter'
+import { AssignmentMobileAttemptNotice } from './AssignmentMobileAttemptNotice'
 import { AssignmentNotStartedBanner } from './AssignmentNotStartedBanner'
 
 import type { AssignmentDetailPayload } from '@/server/learn/assignmentDetailTypes'
@@ -23,10 +24,12 @@ type AssignmentDetailLayoutProps = {
   main: ReactNode
 }
 
-export function AssignmentDetailLayout({ detail, main }: AssignmentDetailLayoutProps) {
-  const footerPadClass = detail.footer.visible
-    ? 'pb-28 md:pb-20'
-    : ''
+export function AssignmentDetailLayout({
+  detail,
+  main,
+}: AssignmentDetailLayoutProps) {
+  // Footer is hidden on mobile, so only reserve bottom padding on md+.
+  const footerPadClass = detail.footer.visible ? 'md:pb-20' : ''
 
   return (
     <>
@@ -35,8 +38,11 @@ export function AssignmentDetailLayout({ detail, main }: AssignmentDetailLayoutP
           detail={detail}
           main={
             <>
+              <AssignmentMobileAttemptNotice footer={detail.footer} />
               <AssignmentDetailFooterInlineNotices footer={detail.footer} />
-              <AssignmentCompletedBanner completedDetails={detail.completedDetails} />
+              <AssignmentCompletedBanner
+                completedDetails={detail.completedDetails}
+              />
               <AssignmentLiveAnalytics liveAnalytics={detail.liveAnalytics} />
               {main}
               <AssignmentProblemList
@@ -47,8 +53,15 @@ export function AssignmentDetailLayout({ detail, main }: AssignmentDetailLayoutP
           }
           discussionEntityKind="assignment"
           emptyStateContext="assignment"
-          headerActions={<LearnDetailDefaultActions ticketCategory="assignment" />}
-          overviewTrailingChips={<AssignmentHeaderBadges badges={detail.headerBadges} />}
+          headerActions={
+            <AssignmentDetailActions
+              assignmentId={detail.id}
+              initialIsBookmarked={detail.isBookmarked}
+            />
+          }
+          overviewTrailingChips={
+            <AssignmentHeaderBadges badges={detail.headerBadges} />
+          }
           fullWidthBanner={
             <div className="flex flex-col gap-4">
               {detail.phase === 'before' ? (
@@ -67,7 +80,7 @@ export function AssignmentDetailLayout({ detail, main }: AssignmentDetailLayoutP
           mainFooter={
             detail.instructions ? (
               <section data-testid="assignment-instructions">
-                <h2 className="type-h6 text-gray-900">Instructions</h2>
+                <h2 className="type-h6 text-foreground">Instructions</h2>
                 <MarkdownContent
                   value={detail.instructions}
                   variant="detail"

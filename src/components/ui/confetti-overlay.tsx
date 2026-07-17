@@ -64,14 +64,21 @@ export function ConfettiOverlay({
       if (Date.now() < end) {
         animFrameRef.current = requestAnimationFrame(frame)
       } else {
-        void fire({ particleCount: 40, spread: 90, origin: { x: 0.5, y: 0.3 }, ticks: 250, decay: 0.88 })
+        void fire({
+          particleCount: 40,
+          spread: 90,
+          origin: { x: 0.5, y: 0.3 },
+          ticks: 250,
+          decay: 0.88,
+        })
       }
     }
 
     animFrameRef.current = requestAnimationFrame(frame)
 
     return () => {
-      if (animFrameRef.current !== null) cancelAnimationFrame(animFrameRef.current)
+      if (animFrameRef.current !== null)
+        cancelAnimationFrame(animFrameRef.current)
       instanceRef.current?.reset()
     }
   }, [active, durationMs])
@@ -80,7 +87,10 @@ export function ConfettiOverlay({
     <canvas
       ref={canvasRef}
       data-testid={dataTestId}
-      className={cn('pointer-events-none absolute inset-0 h-full w-full z-10', className)}
+      className={cn(
+        'pointer-events-none absolute inset-0 h-full w-full z-10',
+        className,
+      )}
     />
   )
 }

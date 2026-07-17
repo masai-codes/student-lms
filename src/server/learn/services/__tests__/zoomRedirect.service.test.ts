@@ -65,12 +65,18 @@ describe('getZoomRedirectUrl', () => {
     hoisted.selectQueue = [[]]
     const { getZoomRedirectUrl } = await import('../zoomRedirect.service')
 
-    await expect(getZoomRedirectUrl(7, 572)).rejects.toThrow('ZOOM_REDIRECT_FAILED')
+    await expect(getZoomRedirectUrl(7, 572)).rejects.toThrow(
+      'ZOOM_REDIRECT_FAILED',
+    )
   })
 
   it('maps a forbidden token result to ZOOM_REDIRECT_FORBIDDEN', async () => {
     hoisted.selectQueue = [USER]
-    hoisted.genToken.mockResolvedValueOnce({ ok: false, status: 403, message: 'no' })
+    hoisted.genToken.mockResolvedValueOnce({
+      ok: false,
+      status: 403,
+      message: 'no',
+    })
     const { getZoomRedirectUrl } = await import('../zoomRedirect.service')
 
     await expect(getZoomRedirectUrl(7, 572)).rejects.toThrow(
@@ -80,9 +86,15 @@ describe('getZoomRedirectUrl', () => {
 
   it('maps other token failures to ZOOM_REDIRECT_FAILED', async () => {
     hoisted.selectQueue = [USER]
-    hoisted.genToken.mockResolvedValueOnce({ ok: false, status: 500, message: 'x' })
+    hoisted.genToken.mockResolvedValueOnce({
+      ok: false,
+      status: 500,
+      message: 'x',
+    })
     const { getZoomRedirectUrl } = await import('../zoomRedirect.service')
 
-    await expect(getZoomRedirectUrl(7, 572)).rejects.toThrow('ZOOM_REDIRECT_FAILED')
+    await expect(getZoomRedirectUrl(7, 572)).rejects.toThrow(
+      'ZOOM_REDIRECT_FAILED',
+    )
   })
 })

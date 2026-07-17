@@ -55,7 +55,10 @@ export function playbackRateLabel(rate: number): string {
   return `${rate}x`
 }
 
-export function formatVideoClock(seconds: number, useLongFormat: boolean): string {
+export function formatVideoClock(
+  seconds: number,
+  useLongFormat: boolean,
+): string {
   if (!Number.isFinite(seconds) || seconds < 0) {
     return useLongFormat ? '0:00:00' : '0:00'
   }

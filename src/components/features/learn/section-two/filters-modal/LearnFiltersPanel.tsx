@@ -19,7 +19,7 @@ import type { FilterNavKey } from './learnFilterNavConfig'
 import { pushLearnEvent } from '../../shared/learnAnalytics'
 import { MasaiButton } from '@/components/masai-button'
 import { MasaiCheckbox } from '@/components/ui/masai-checkbox'
-import { MasaiDateSelection } from '@/components/ui/masai-date-selection'
+import { MasaiDateRangePicker } from '@/components/ui/masai-date-range-picker'
 import { MasaiInput } from '@/components/ui/masai-input'
 import { MasaiRadioGroup } from '@/components/ui/masai-radio-group'
 
@@ -134,8 +134,9 @@ export function LearnFiltersPanel({
   return (
     <div className="-mx-4 flex min-h-full min-w-0 flex-col">
       <div className="flex min-h-0 min-w-0 flex-1">
+        {/* Narrower nav below `sm` so the option list keeps room in the drawer. */}
         <nav
-          className="flex w-[148px] shrink-0 flex-col gap-1 border-r border-slate-200 py-4 pl-4 pr-2"
+          className="flex w-[104px] shrink-0 flex-col gap-1 border-r border-border py-4 pl-4 pr-2 sm:w-[148px]"
           aria-label="Filter categories"
         >
           {navItems.map(({ key, label }) => {
@@ -145,18 +146,26 @@ export function LearnFiltersPanel({
                 key={key}
                 type="button"
                 onClick={() => setActiveNav(key)}
-                className="flex items-center justify-between gap-2 rounded-lg py-2 text-left text-sm transition-colors hover:bg-slate-50"
+                className={`relative flex items-center justify-between gap-2 rounded-lg py-2 pl-2 text-left text-sm transition-colors duration-200 hover:bg-surface-muted ${
+                  active ? 'bg-brand/5' : ''
+                }`}
               >
                 <span
-                  className={active ? 'font-medium' : 'text-slate-800'}
-                  style={active ? { color: '#6962AC' } : undefined}
+                  aria-hidden
+                  className={`absolute inset-y-2 left-0 w-[3px] rounded-full bg-brand transition-opacity duration-200 ${
+                    active ? 'opacity-100' : 'opacity-0'
+                  }`}
+                />
+                <span
+                  className={`min-w-0 break-words transition-colors duration-200 ${
+                    active ? 'font-medium text-brand' : 'text-foreground'
+                  }`}
                 >
                   {label}
                 </span>
                 {active ? (
                   <span
-                    className="size-1.5 shrink-0 rounded-full"
-                    style={{ backgroundColor: '#6962AC' }}
+                    className="size-1.5 shrink-0 rounded-full bg-brand"
                     aria-hidden
                   />
                 ) : (
@@ -167,9 +176,9 @@ export function LearnFiltersPanel({
           })}
         </nav>
 
-        <div className="min-h-0 flex-1 overflow-y-auto px-4 py-4">
+        <div className="min-h-0 min-w-0 flex-1 overflow-y-auto px-4 py-4">
           <div className="space-y-3">
-            <h3 className="text-base font-semibold text-slate-900">
+            <h3 className="text-base font-semibold text-foreground">
               {activeNavLabel}
             </h3>
 
@@ -322,27 +331,18 @@ export function LearnFiltersPanel({
 
             {activeNav === 'date' ? (
               <div className="space-y-4">
-                <p className="type-b2-regular text-gray-600">
+                <p className="type-b2-regular text-foreground-muted">
                   Filter by schedule dates. Items without a scheduled date are
                   hidden when either bound is set.
                 </p>
-                <MasaiDateSelection
-                  label="Start date"
-                  value={draft.scheduleStartDate ?? ''}
-                  onChange={(event) =>
+                <MasaiDateRangePicker
+                  startDate={draft.scheduleStartDate}
+                  endDate={draft.scheduleEndDate}
+                  onChange={({ start, end }) =>
                     setDraft((prev) => ({
                       ...prev,
-                      scheduleStartDate: event.target.value || null,
-                    }))
-                  }
-                />
-                <MasaiDateSelection
-                  label="End date"
-                  value={draft.scheduleEndDate ?? ''}
-                  onChange={(event) =>
-                    setDraft((prev) => ({
-                      ...prev,
-                      scheduleEndDate: event.target.value || null,
+                      scheduleStartDate: start,
+                      scheduleEndDate: end,
                     }))
                   }
                 />
@@ -352,12 +352,13 @@ export function LearnFiltersPanel({
         </div>
       </div>
 
-      <div className="mt-auto flex shrink-0 flex-wrap items-center justify-between gap-2 border-t border-slate-200 px-4 py-3">
+      <div className="mt-auto flex shrink-0 flex-wrap items-center justify-between gap-2 border-t border-border px-4 py-3">
         <MasaiButton
           type="secondary"
           size="md"
           htmlType="button"
           ctaText="Clear filters"
+          className="transition-transform duration-200 hover:-translate-y-px active:scale-[0.97]"
           onClick={() => {
             pushLearnEvent('l_learn_filters_panel_clear', { tab: activeTab })
             const cleared = createEmptyLearnModalFilters()
@@ -370,6 +371,7 @@ export function LearnFiltersPanel({
           size="md"
           htmlType="button"
           ctaText="Apply"
+          className="transition-transform duration-200 hover:-translate-y-px active:scale-[0.97]"
           onClick={() => {
             pushLearnEvent('l_learn_filters_apply', {
               tab: activeTab,
@@ -378,7 +380,13 @@ export function LearnFiltersPanel({
               types_count: draft.types.length,
               instructors_count: draft.instructors.length,
             })
-            onApply(draft)
+            // A half-open range (only one bound picked) collapses to a single
+            // day so the filter still applies instead of being ignored.
+            const scheduleStartDate =
+              draft.scheduleStartDate ?? draft.scheduleEndDate
+            const scheduleEndDate =
+              draft.scheduleEndDate ?? draft.scheduleStartDate
+            onApply({ ...draft, scheduleStartDate, scheduleEndDate })
           }}
         />
       </div>
@@ -407,7 +415,7 @@ function CheckboxColumn({
         </li>
       ))}
       {options.length === 0 ? (
-        <li className="text-sm text-slate-500">No matches.</li>
+        <li className="text-sm text-foreground-muted">No matches.</li>
       ) : null}
     </ul>
   )

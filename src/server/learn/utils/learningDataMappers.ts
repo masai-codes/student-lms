@@ -25,6 +25,8 @@ export interface LearningEntityRow {
   zoomLink?: string | null
   /** `lectures.is_new_zoom_redirection` (tinyint 0/1); ZEF join flow when 1. */
   isNewZoomRedirection?: number | null
+  /** `sections.settings` JSON; read for `enableZoomWebView` on live join CTAs. */
+  sectionSettings?: unknown
 }
 
 export function toLearningPriority(optional: number | null): LearningPriority {
@@ -36,7 +38,10 @@ export function toModuleName(week: number): string {
 }
 
 /** Prefer stored `module` label; otherwise legacy `Module {week}` from week index. */
-export function resolveModuleName(module: string | null | undefined, week: number): string {
+export function resolveModuleName(
+  module: string | null | undefined,
+  week: number,
+): string {
   const label = module?.trim()
   if (label) {
     return label
@@ -72,7 +77,10 @@ export function mapLearningEntityRow(
     moduleName: resolveModuleName(row.module, row.week),
     attendance:
       learningType === 'lecture' && !isRecommended ? attendance : null,
-    assignmentProgressStatus: learningType === 'assignment' ? assignmentProgressStatus : null,
+    optionalAttendance:
+      learningType === 'lecture' && isRecommended ? attendance : null,
+    assignmentProgressStatus:
+      learningType === 'assignment' ? assignmentProgressStatus : null,
     resourcePhase: learningType === 'resource' ? resourcePhase : null,
     listingCtas,
   }

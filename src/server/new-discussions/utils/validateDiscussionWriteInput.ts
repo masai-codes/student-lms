@@ -15,8 +15,7 @@ export function parseCreateDiscussionInput(raw: {
     throw new Error('INVALID_DISCUSSION_TITLE')
   }
   const markerIdx = message.indexOf(DISCUSSION_ATTACHMENT_APPEND_MARKER)
-  const bodyHtml =
-    markerIdx >= 0 ? message.slice(0, markerIdx).trim() : message
+  const bodyHtml = markerIdx >= 0 ? message.slice(0, markerIdx).trim() : message
   const plainBody = plainTextFromHtml(bodyHtml)
   if (plainBody.length === 0 || plainBody.length > 2000) {
     throw new Error('INVALID_DISCUSSION_MESSAGE')

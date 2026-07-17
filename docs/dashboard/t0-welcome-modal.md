@@ -68,19 +68,19 @@ DashboardPage
 
 ## Automation test hooks
 
-| `data-testid`                    | Element                                  |
-| -------------------------------- | ---------------------------------------- |
-| `welcome-modal`                  | Desktop dialog content                   |
-| `welcome-modal-body`             | Shared inner content (both layouts)      |
-| `welcome-modal-title`            | "Welcome to Masai!" heading              |
-| `welcome-modal-body-text`        | Intro copy                               |
-| `welcome-modal-video`            | Embedded intro video player              |
-| `welcome-modal-get-started`      | "Get Started" CTA (disabled while saving)|
-| `welcome-modal-confetti`         | Confetti canvas                          |
+| `data-testid`               | Element                                   |
+| --------------------------- | ----------------------------------------- |
+| `welcome-modal`             | Desktop dialog content                    |
+| `welcome-modal-body`        | Shared inner content (both layouts)       |
+| `welcome-modal-title`       | "Welcome to Masai!" heading               |
+| `welcome-modal-body-text`   | Intro copy                                |
+| `welcome-modal-video`       | Embedded intro video player               |
+| `welcome-modal-get-started` | "Get Started" CTA (disabled while saving) |
+| `welcome-modal-confetti`    | Confetti canvas                           |
 
 ## Guided Tour + dashboard gating (Phase 2)
 
-When a T0 user is eligible, the **Guided Tour** is shown *instead of* the
+When a T0 user is eligible, the **Guided Tour** is shown _instead of_ the
 dashboard. See [t0-guided-tour.md](./t0-guided-tour.md).
 
 ## Not yet built (later T0 slices)

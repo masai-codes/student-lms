@@ -32,7 +32,10 @@ describe('appMobile', () => {
 
   beforeEach(() => {
     storage = new MemoryStorage()
-    vi.stubGlobal('window', { sessionStorage: storage, location: { search: '' } })
+    vi.stubGlobal('window', {
+      sessionStorage: storage,
+      location: { search: '' },
+    })
   })
 
   afterEach(() => {
@@ -49,7 +52,10 @@ describe('appMobile', () => {
     it('persists mobile context for android', () => {
       captureAppMobileContextFromUrl('?isApp=true&platform=android')
 
-      expect(getAppMobileContext()).toEqual({ isMobile: true, platform: 'android' })
+      expect(getAppMobileContext()).toEqual({
+        isMobile: true,
+        platform: 'android',
+      })
     })
 
     it('normalizes platform casing', () => {
@@ -81,7 +87,9 @@ describe('appMobile', () => {
 
   describe('withAppMobileHeaders', () => {
     it('omits headers when not in mobile context', () => {
-      const headers = withAppMobileHeaders({ 'Content-Type': 'application/json' })
+      const headers = withAppMobileHeaders({
+        'Content-Type': 'application/json',
+      })
 
       expect(headers.get('Content-Type')).toBe('application/json')
       expect(headers.get('X-App-Mobile')).toBeNull()
@@ -91,7 +99,9 @@ describe('appMobile', () => {
     it('adds X-App-Mobile and X-App-Mobile-Platform when captured', () => {
       captureAppMobileContextFromUrl('?isApp=true&platform=android')
 
-      const headers = withAppMobileHeaders({ 'Content-Type': 'application/json' })
+      const headers = withAppMobileHeaders({
+        'Content-Type': 'application/json',
+      })
 
       expect(headers.get('Content-Type')).toBe('application/json')
       expect(headers.get('X-App-Mobile')).toBe('true')

@@ -1,7 +1,12 @@
 import { and, desc, eq, isNull } from 'drizzle-orm'
 
 import { db } from '@/db'
-import { assignmentProblem, problems, solutions, submissions } from '@/db/schema'
+import {
+  assignmentProblem,
+  problems,
+  solutions,
+  submissions,
+} from '@/db/schema'
 
 export type ProblemDetailRow = {
   elementId: number

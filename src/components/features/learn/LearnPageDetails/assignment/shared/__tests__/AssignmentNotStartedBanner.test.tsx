@@ -22,6 +22,8 @@ const baseDetail = {
   scheduleDisplayRange: '20 May 2026',
   hostAvatarUrl: null,
   instructions: null,
+  emptyInstructionsMessage:
+    'This Assignment does not require additional instructions.',
   enforceDeadline: false,
   phaseContent: {
     title: 'Assignment not open yet',
@@ -42,6 +44,7 @@ const baseDetail = {
   liveAnalytics: null,
   requiresPledge: false,
   problems: [],
+  isBookmarked: false,
 } satisfies AssignmentDetailPayload
 
 describe('AssignmentNotStartedBanner', () => {
@@ -49,15 +52,17 @@ describe('AssignmentNotStartedBanner', () => {
     render(<AssignmentNotStartedBanner detail={baseDetail} />)
 
     expect(screen.getByTestId('assignment-not-started-banner')).toBeTruthy()
-    expect(screen.getByRole('heading', { name: "Assignment hasn't started yet" })).toBeTruthy()
-    expect(screen.getByText(/Assignment will be unlocked and available at/)).toBeTruthy()
+    expect(
+      screen.getByRole('heading', { name: "Assignment hasn't started yet" }),
+    ).toBeTruthy()
+    expect(
+      screen.getByText(/Assignment will be unlocked and available at/),
+    ).toBeTruthy()
   })
 
   it('falls back when schedule is missing', () => {
     render(
-      <AssignmentNotStartedBanner
-        detail={{ ...baseDetail, schedule: null }}
-      />,
+      <AssignmentNotStartedBanner detail={{ ...baseDetail, schedule: null }} />,
     )
 
     expect(screen.getByText('the scheduled time')).toBeTruthy()

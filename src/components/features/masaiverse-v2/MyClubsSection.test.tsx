@@ -31,7 +31,9 @@ describe('MyClubsSection', () => {
       />,
     )
     expect(
-      screen.getByAltText<HTMLImageElement>('Programming Club').getAttribute('src'),
+      screen
+        .getByAltText<HTMLImageElement>('Programming Club')
+        .getAttribute('src'),
     ).toBe('https://cdn/c.png')
     expect(screen.getByText('DC')).toBeTruthy()
   })

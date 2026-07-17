@@ -40,3 +40,40 @@ export async function addLearnDiscussionReplyViaApi(input: {
     },
   )
 }
+
+export async function markLearnDiscussionRepliesReadViaApi(
+  discussionId: number,
+): Promise<{ ok: boolean }> {
+  return call<{ ok: boolean }>(LEARN_API.discussionRead(discussionId), {
+    method: 'POST',
+  })
+}
+
+export async function setLearnDiscussionClosedViaApi(input: {
+  discussionId: number
+  isClosed: boolean
+}): Promise<{ isClosed: boolean }> {
+  return call<{ isClosed: boolean }>(
+    LEARN_API.discussionClose(input.discussionId),
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ isClosed: input.isClosed }),
+    },
+  )
+}
+
+export async function submitLearnDiscussionFeedbackViaApi(input: {
+  discussionId: number
+  rating: number
+  comment?: string
+}): Promise<{ rating: number }> {
+  return call<{ rating: number }>(
+    LEARN_API.discussionFeedback(input.discussionId),
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ rating: input.rating, comment: input.comment }),
+    },
+  )
+}

@@ -7,7 +7,9 @@ import {
 import type { OnboardingFlowId } from './flows/onboarding-shared/types'
 import type { SeedFlowMeta, SeedFlowModule } from './types'
 
-const onboardingConfigs = ONBOARDING_FLOW_IDS.map((id) => createOnboardingFlowMeta(id))
+const onboardingConfigs = ONBOARDING_FLOW_IDS.map((id) =>
+  createOnboardingFlowMeta(id),
+)
 
 const flowConfigs: SeedFlowMeta[] = [
   loginAndJoinLectureConfig,
@@ -21,7 +23,8 @@ function isOnboardingFlowId(id: string): id is OnboardingFlowId {
 
 async function loadFlowModule(id: string): Promise<SeedFlowModule> {
   if (isOnboardingFlowId(id)) {
-    const { runOnboardingFlow } = await import('./flows/onboarding-shared/runOnboardingFlow')
+    const { runOnboardingFlow } =
+      await import('./flows/onboarding-shared/runOnboardingFlow')
     return {
       meta: createOnboardingFlowMeta(id),
       seed: () => runOnboardingFlow(id),
@@ -30,9 +33,8 @@ async function loadFlowModule(id: string): Promise<SeedFlowModule> {
 
   switch (id) {
     case loginAndJoinLectureConfig.id: {
-      const { seedLoginAndJoinLecture } = await import(
-        './flows/login-and-join-lecture/seed'
-      )
+      const { seedLoginAndJoinLecture } =
+        await import('./flows/login-and-join-lecture/seed')
       return { meta: loginAndJoinLectureConfig, seed: seedLoginAndJoinLecture }
     }
     case dashboardHomeConfig.id: {
@@ -41,7 +43,9 @@ async function loadFlowModule(id: string): Promise<SeedFlowModule> {
     }
     default: {
       const known = flowConfigs.map((flow) => flow.id).join(', ')
-      throw new Error(`Unknown seed flow "${id}". Known flows: ${known || '(none)'}`)
+      throw new Error(
+        `Unknown seed flow "${id}". Known flows: ${known || '(none)'}`,
+      )
     }
   }
 }

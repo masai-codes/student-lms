@@ -54,7 +54,7 @@ export default function DiscussionRow({
 
   return (
     <div
-      className={`border-b border-[#EDEAE8] py-4 last:border-b-0 ${
+      className={`border-b border-border py-4 last:border-b-0 ${
         discussion.isBanned ? 'opacity-60' : ''
       }`}
     >
@@ -67,8 +67,8 @@ export default function DiscussionRow({
         </span>
 
         <div className="min-w-0 flex-1">
-          <p className="text-[13px] text-[#6B7280]">
-            <span className="font-semibold text-[#111827]">
+          <p className="text-[13px] text-foreground-muted">
+            <span className="font-semibold text-foreground">
               {discussion.authorName}
             </span>
             {' · '}
@@ -77,12 +77,12 @@ export default function DiscussionRow({
               new Date(now.valueOf()),
             )}
             {discussion.isBanned ? (
-              <span className="ml-2 rounded-full bg-red-100 px-2 py-0.5 text-[11px] font-semibold text-red-700">
+              <span className="ml-2 rounded-full bg-danger-subtle px-2 py-0.5 text-[11px] font-semibold text-danger">
                 Banned
               </span>
             ) : null}
           </p>
-          <p className="mt-1 text-[15px] font-bold leading-5 text-[#111827]">
+          <p className="mt-1 text-[15px] font-bold leading-5 text-foreground">
             {discussion.title}
           </p>
           <DiscussionContent html={discussion.content} />
@@ -113,7 +113,7 @@ export default function DiscussionRow({
                 })
                 setShowReplies((open) => !open)
               }}
-              className="text-[12px] font-medium text-[#9CA3AF] hover:text-[#111827]"
+              className="text-[12px] font-medium text-foreground-subtle hover:text-foreground"
             >
               {showReplies
                 ? 'Hide replies'
@@ -124,7 +124,7 @@ export default function DiscussionRow({
                 type="button"
                 disabled={banMutation.isPending}
                 onClick={() => banMutation.mutate()}
-                className="text-[12px] font-semibold text-red-600 hover:text-red-700 disabled:opacity-50"
+                className="text-[12px] font-semibold text-danger hover:text-danger disabled:opacity-50"
               >
                 {discussion.isBanned ? 'Unban' : 'Ban'}
               </button>

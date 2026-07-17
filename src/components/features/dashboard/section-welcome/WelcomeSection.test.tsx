@@ -10,7 +10,8 @@ beforeAll(() => {
     disconnect() {}
   }
   globalThis.ResizeObserver = NoopObserver
-  globalThis.IntersectionObserver = NoopObserver as unknown as typeof IntersectionObserver
+  globalThis.IntersectionObserver =
+    NoopObserver as unknown as typeof IntersectionObserver
 })
 
 afterEach(cleanup)
@@ -24,7 +25,9 @@ describe('WelcomeSection', () => {
 
   it('falls back to a plain "Welcome!" when there is no name', () => {
     render(<WelcomeSection name={null} banners={[]} />)
-    expect(screen.getByTestId('dashboard-welcome-name').textContent).toContain('Welcome!')
+    expect(screen.getByTestId('dashboard-welcome-name').textContent).toContain(
+      'Welcome!',
+    )
   })
 
   it('renders the banner carousel when banners are provided', () => {
@@ -32,7 +35,14 @@ describe('WelcomeSection', () => {
       <WelcomeSection
         name="Suryakumar"
         banners={[
-          { id: 1, title: 'Refer a friend', description: null, imageUrl: null, ctaUrl: null, analyticsKey: 'referral' },
+          {
+            id: 1,
+            title: 'Refer a friend',
+            description: null,
+            imageUrl: null,
+            ctaUrl: null,
+            analyticsKey: 'referral',
+          },
         ]}
       />,
     )

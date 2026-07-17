@@ -1,7 +1,11 @@
 import { useCallback, useEffect, useState } from 'react'
 import useEmblaCarousel from 'embla-carousel-react'
 import { CalendarBlank, Sparkle } from '@phosphor-icons/react'
-import { useCarouselAutoplay } from './useCarouselAutoplay'
+import { BannerArrow } from './BannerArrow'
+import {
+  BATCH_START_AUTOPLAY_MS,
+  useCarouselAutoplay,
+} from './useCarouselAutoplay'
 import type { BatchStartBanner } from '@/server/api/dashboard/getBatchStartBanners.service'
 import type { EmblaCarouselType } from 'embla-carousel'
 
@@ -31,7 +35,11 @@ export function BatchStartBanners({ banners }: BatchStartBannersProps) {
     }
   }, [emblaApi, onSelect])
 
-  const autoplay = useCarouselAutoplay(emblaApi, banners.length)
+  const autoplay = useCarouselAutoplay(
+    emblaApi,
+    banners.length,
+    BATCH_START_AUTOPLAY_MS,
+  )
 
   if (banners.length === 0) return null
 
@@ -56,7 +64,7 @@ export function BatchStartBanners({ banners }: BatchStartBannersProps) {
           {banners.map((banner) => (
             <div key={banner.batchId} className="min-w-0 flex-[0_0_100%]">
               <div className="flex items-center gap-3.5">
-                <span className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-white/15 backdrop-blur-sm">
+                <span className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-surface/15 backdrop-blur-sm">
                   <CalendarBlank size={24} weight="bold" aria-hidden />
                 </span>
                 <div className="min-w-0">
@@ -67,8 +75,10 @@ export function BatchStartBanners({ banners }: BatchStartBannersProps) {
                     data-testid="dashboard-batch-start-text"
                     className="mt-0.5 truncate text-sm font-medium md:text-base"
                   >
-                    Your course <span className="font-bold">{banner.courseTitle}</span> will start on{' '}
-                    <span className="rounded-md bg-white/20 px-1.5 py-0.5 font-bold whitespace-nowrap">
+                    Your course{' '}
+                    <span className="font-bold">{banner.courseTitle}</span> will
+                    start on{' '}
+                    <span className="rounded-md bg-surface/20 px-1.5 py-0.5 font-bold whitespace-nowrap">
                       {banner.startDateLabel}
                     </span>
                   </p>
@@ -80,19 +90,38 @@ export function BatchStartBanners({ banners }: BatchStartBannersProps) {
       </div>
 
       {hasMultiple && (
-        <div className="relative mt-3 flex justify-center gap-1.5" data-testid="dashboard-batch-start-dots">
-          {banners.map((b, i) => (
-            <button
-              key={b.batchId}
-              type="button"
-              aria-label={`Go to ${b.courseTitle}`}
-              data-active={i === selected}
-              onClick={() => emblaApi?.scrollTo(i)}
-              className={`h-1.5 rounded-full transition-all ${
-                i === selected ? 'w-4 bg-white' : 'w-1.5 bg-white/40'
-              }`}
-            />
-          ))}
+        <div className="relative mt-3 flex items-center justify-center gap-2">
+          <BannerArrow
+            direction="prev"
+            tone="dark"
+            label="batch banner"
+            testIdBase="dashboard-batch-start"
+            onClick={() => emblaApi?.scrollPrev()}
+          />
+          <div
+            className="flex justify-center gap-1.5"
+            data-testid="dashboard-batch-start-dots"
+          >
+            {banners.map((b, i) => (
+              <button
+                key={b.batchId}
+                type="button"
+                aria-label={`Go to ${b.courseTitle}`}
+                data-active={i === selected}
+                onClick={() => emblaApi?.scrollTo(i)}
+                className={`h-1.5 rounded-full transition-all ${
+                  i === selected ? 'w-4 bg-surface' : 'w-1.5 bg-surface/40'
+                }`}
+              />
+            ))}
+          </div>
+          <BannerArrow
+            direction="next"
+            tone="dark"
+            label="batch banner"
+            testIdBase="dashboard-batch-start"
+            onClick={() => emblaApi?.scrollNext()}
+          />
         </div>
       )}
     </div>

@@ -65,7 +65,10 @@ export async function sendResetPasswordEmail({
         Simple: {
           Subject: { Charset: 'UTF-8', Data: 'Request for Password Reset' },
           Body: {
-            Html: { Charset: 'UTF-8', Data: buildHtml(toName, resetLink, portal) },
+            Html: {
+              Charset: 'UTF-8',
+              Data: buildHtml(toName, resetLink, portal),
+            },
           },
         },
       },

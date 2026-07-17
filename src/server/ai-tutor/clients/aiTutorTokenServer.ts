@@ -55,7 +55,10 @@ async function tokenServerFetch(
 ): Promise<Response> {
   const base = getTokenServerBaseUrl()
   const controller = new AbortController()
-  const timeout = setTimeout(() => controller.abort(), getTokenServerTimeoutMs())
+  const timeout = setTimeout(
+    () => controller.abort(),
+    getTokenServerTimeoutMs(),
+  )
   try {
     const response = await fetch(`${base}${path}`, {
       ...init,
@@ -113,9 +116,9 @@ export async function generateSessionOnTokenServer(
     'AI_TUTOR_TOKEN_SERVER_GENERATE_FAILED',
   )
 
-  const data = (await response.json().catch(() => null)) as
-    | Partial<TokenServerSession>
-    | null
+  const data = (await response
+    .json()
+    .catch(() => null)) as Partial<TokenServerSession> | null
 
   if (
     !data ||
@@ -181,9 +184,9 @@ export async function fetchTranscriptOnTokenServer(
     'AI_TUTOR_TOKEN_SERVER_TRANSCRIPT_FAILED',
   )
 
-  const data = (await response.json().catch(() => null)) as
-    | Partial<TokenServerTranscriptResponse>
-    | null
+  const data = (await response
+    .json()
+    .catch(() => null)) as Partial<TokenServerTranscriptResponse> | null
 
   const transcript = Array.isArray(data?.transcript) ? data.transcript : []
   return {

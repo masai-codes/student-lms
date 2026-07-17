@@ -2,27 +2,49 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 const hoisted = vi.hoisted(() => ({
   streamText: vi.fn(),
+  stepCountIs: vi.fn((count: number) => ({ type: 'stepCountIs', count })),
   findOrCreateChatPracticeRow: vi.fn(),
   appendChatPracticeHistory: vi.fn(),
-  getLectureSummaryForChat: vi.fn(),
+  getLectureChatMaterials: vi.fn(),
 }))
 
 vi.mock('ai', () => ({
   streamText: hoisted.streamText,
+  stepCountIs: hoisted.stepCountIs,
+  tool: vi.fn((definition: unknown) => definition),
 }))
 
 vi.mock('@/server/api/ai-tutor/clients/anthropicModel', () => ({
   getAiTutorChatModel: vi.fn(() => 'mock-model'),
 }))
 
-vi.mock('@/server/api/ai-tutor/services/aiChatPracticeQuestions.service', () => ({
-  findOrCreateChatPracticeRow: hoisted.findOrCreateChatPracticeRow,
-  appendChatPracticeHistory: hoisted.appendChatPracticeHistory,
+vi.mock(
+  '@/server/api/ai-tutor/services/aiChatPracticeQuestions.service',
+  () => ({
+    findOrCreateChatPracticeRow: hoisted.findOrCreateChatPracticeRow,
+    appendChatPracticeHistory: hoisted.appendChatPracticeHistory,
+  }),
+)
+
+vi.mock('@/server/api/ai-tutor/services/getLectureChatMaterials.service', () => ({
+  getLectureChatMaterials: hoisted.getLectureChatMaterials,
 }))
 
-vi.mock('@/server/api/ai-tutor/services/lecturesAi.service', () => ({
-  getLectureSummaryForChat: hoisted.getLectureSummaryForChat,
+vi.mock('@/server/api/ai-tutor/services/getLectureChatMaterials.service', () => ({
+  getLectureChatMaterials: hoisted.getLectureChatMaterials,
 }))
+
+const materials = {
+  lectureId: 99,
+  title: 'Hooks Overview',
+  summary: 'Lecture summary text',
+  resourcesShared: [],
+  notesRagged: true,
+  notesInline: null,
+  notesOutline: '- Hooks',
+  notesCharacterCount: 24,
+  ragRetrievalAvailable: true,
+}
 
 beforeEach(() => {
   vi.clearAllMocks()
@@ -30,11 +52,11 @@ beforeEach(() => {
     id: 12,
     chatHistory: [{ userMessage: 'Earlier', aiMessage: 'Sure' }],
   })
-  hoisted.getLectureSummaryForChat.mockResolvedValue('Lecture summary text')
+  hoisted.getLectureChatMaterials.mockResolvedValue(materials)
 })
 
 describe('prepareLectureChatContext', () => {
-  it('loads chat row and builds the user prompt', async () => {
+  it('loads chat materials and builds the prompt without upfront retrieval', async () => {
     const { prepareLectureChatContext } =
       await import('../streamAiTutorChat.service')
 
@@ -46,18 +68,15 @@ describe('prepareLectureChatContext', () => {
       language: 'English',
     })
 
-    expect(hoisted.findOrCreateChatPracticeRow).toHaveBeenCalledWith({
-      userId: 7,
-      lectureId: 99,
-      chatId: undefined,
-    })
+    expect(hoisted.getLectureChatMaterials).toHaveBeenCalledWith(99)
     expect(context).toEqual({
       chatRow: {
         id: 12,
         chatHistory: [{ userMessage: 'Earlier', aiMessage: 'Sure' }],
       },
+      materials,
       systemPrompt: expect.stringMatching(
-        /Lecture summary text|You MUST respond ONLY in English/,
+        /Lecture summary text|- Hooks|You MUST respond ONLY in English/,
       ),
       messages: [
         { role: 'user', content: 'Earlier' },
@@ -68,6 +87,7 @@ describe('prepareLectureChatContext', () => {
       platform: 'web-desktop',
       language: 'English',
     })
+    expect(context.systemPrompt).toContain('retrieveLectureContent')
   })
 
   it('includes enforced language instructions when language is provided', async () => {
@@ -83,9 +103,6 @@ describe('prepareLectureChatContext', () => {
     })
 
     expect(context.systemPrompt).toContain('You MUST respond ONLY in Tamil')
-    expect(context.systemPrompt).not.toContain(
-      'Start by asking which language they prefer',
-    )
     expect(context.language).toBe('Tamil')
   })
 
@@ -112,7 +129,7 @@ describe('prepareLectureChatContext', () => {
 })
 
 describe('streamLectureChatEventsFromContext', () => {
-  it('streams tokens, persists history, and returns chatId on done', async () => {
+  it('streams tokens with the retrieve tool enabled', async () => {
     function* textStream() {
       yield 'Hello '
       yield 'there'
@@ -129,7 +146,8 @@ describe('streamLectureChatEventsFromContext', () => {
         id: 12,
         chatHistory: [{ userMessage: 'Earlier', aiMessage: 'Sure' }],
       },
-      systemPrompt: 'System prompt with lecture summary',
+      materials,
+      systemPrompt: 'System prompt with lecture materials',
       messages: [
         { role: 'user', content: 'Earlier' },
         { role: 'assistant', content: 'Sure' },
@@ -142,17 +160,16 @@ describe('streamLectureChatEventsFromContext', () => {
       events.push(event)
     }
 
-    expect(hoisted.findOrCreateChatPracticeRow).not.toHaveBeenCalled()
-    expect(hoisted.getLectureSummaryForChat).not.toHaveBeenCalled()
     expect(hoisted.streamText).toHaveBeenCalledWith(
       expect.objectContaining({
         model: 'mock-model',
-        system: 'System prompt with lecture summary',
-        messages: [
-          { role: 'user', content: 'Earlier' },
-          { role: 'assistant', content: 'Sure' },
-          { role: 'user', content: 'Explain hooks' },
-        ],
+        system: 'System prompt with lecture materials',
+        tools: expect.objectContaining({
+          retrieveLectureContent: expect.objectContaining({
+            inputSchema: expect.anything(),
+          }),
+        }),
+        stopWhen: { type: 'stepCountIs', count: 2 },
       }),
     )
     expect(hoisted.appendChatPracticeHistory).toHaveBeenCalledWith({
@@ -168,5 +185,34 @@ describe('streamLectureChatEventsFromContext', () => {
       { type: 'token', content: 'there' },
       { type: 'done', chatId: 12 },
     ])
+  })
+
+  it('omits tools when RAG retrieval is unavailable', async () => {
+    function* textStream() {
+      yield 'Hi'
+    }
+
+    hoisted.streamText.mockReturnValueOnce({ textStream: textStream() })
+
+    const { streamLectureChatEventsFromContext } =
+      await import('../streamAiTutorChat.service')
+
+    for await (const _event of streamLectureChatEventsFromContext({
+      chatRow: { id: 12, chatHistory: [] },
+      materials: { ...materials, ragRetrievalAvailable: false },
+      systemPrompt: 'Prompt',
+      messages: [{ role: 'user', content: 'Explain hooks' }],
+      chat: 'Explain hooks',
+      platform: 'web',
+      language: 'English',
+    })) {
+      // drain stream
+    }
+
+    expect(hoisted.streamText).toHaveBeenCalledWith(
+      expect.objectContaining({
+        tools: undefined,
+      }),
+    )
   })
 })

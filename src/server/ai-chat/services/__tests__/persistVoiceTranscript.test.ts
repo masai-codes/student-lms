@@ -86,9 +86,7 @@ describe('persistVoiceTranscriptToHistory', () => {
 
   it('falls back to current time when transcript timestamp is invalid', async () => {
     vi.mocked(fetchTranscriptOnTokenServer).mockResolvedValueOnce({
-      transcript: [
-        { role: 'user', content: 'q', timestamp: 'not-a-date' },
-      ],
+      transcript: [{ role: 'user', content: 'q', timestamp: 'not-a-date' }],
     })
     vi.mocked(loadOrCreateChatRow).mockResolvedValueOnce({
       id: 1,

@@ -37,16 +37,20 @@ describe('reply-language persistence', () => {
   })
 
   it('falls back to English when reading storage throws', () => {
-    vi.spyOn(window.localStorage.__proto__, 'getItem').mockImplementation(() => {
-      throw new Error('storage disabled')
-    })
+    vi.spyOn(window.localStorage.__proto__, 'getItem').mockImplementation(
+      () => {
+        throw new Error('storage disabled')
+      },
+    )
     expect(readStoredAiLectureChatLanguage()).toBe('English')
   })
 
   it('silently ignores a write when storage throws', () => {
-    vi.spyOn(window.localStorage.__proto__, 'setItem').mockImplementation(() => {
-      throw new Error('storage disabled')
-    })
+    vi.spyOn(window.localStorage.__proto__, 'setItem').mockImplementation(
+      () => {
+        throw new Error('storage disabled')
+      },
+    )
     expect(() => writeStoredAiLectureChatLanguage('Bengali')).not.toThrow()
   })
 

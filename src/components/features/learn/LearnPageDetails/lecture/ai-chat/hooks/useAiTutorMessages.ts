@@ -13,7 +13,6 @@ import {
   sendAiChatMessageRequest,
 } from '@/lib/api/learn/aiChatApi'
 
-
 function aiChatMessageToLecture(msg: AiChatMessage): LectureChatMessage {
   return {
     id: msg.id,
@@ -28,8 +27,8 @@ function liveTranscriptsToMessages(
   transcriptions: ReadonlyArray<TextStreamData>,
 ): Array<LectureChatMessage> {
   return transcriptions
-    .filter(t => Boolean(t.text))
-    .map(t => {
+    .filter((t) => Boolean(t.text))
+    .map((t) => {
       const identity = t.participantInfo.identity
       const isAgent = /agent|tutor|ai/i.test(identity)
       return {
@@ -75,7 +74,7 @@ export function useAiTutorMessages({
     setIsHistoryLoading(true)
     setHistoryError(null)
     fetchAiChatHistoryRequest(lectureId)
-      .then(rows => {
+      .then((rows) => {
         if (cancelled) return
         setHistory(rows.map(aiChatMessageToLecture))
       })
@@ -118,7 +117,7 @@ export function useAiTutorMessages({
         timestamp: now,
         source: 'live-text',
       }
-      setPending(prev => [...prev, optimistic])
+      setPending((prev) => [...prev, optimistic])
       setIsSending(true)
 
       try {
@@ -126,15 +125,15 @@ export function useAiTutorMessages({
           lectureId,
           message: trimmed,
         })
-        setHistory(prev =>
+        setHistory((prev) =>
           mergeChatMessages(prev, [
             aiChatMessageToLecture(result.userMessage),
             aiChatMessageToLecture(result.assistantMessage),
           ]),
         )
-        setPending(prev => prev.filter(m => m.id !== localId))
+        setPending((prev) => prev.filter((m) => m.id !== localId))
       } catch (error) {
-        setPending(prev => prev.filter(m => m.id !== localId))
+        setPending((prev) => prev.filter((m) => m.id !== localId))
         throw error
       } finally {
         setIsSending(false)
@@ -149,6 +148,6 @@ export function useAiTutorMessages({
     historyError,
     send,
     isSending,
-    refetchHistory: () => setHistoryVersion(v => v + 1),
+    refetchHistory: () => setHistoryVersion((v) => v + 1),
   }
 }

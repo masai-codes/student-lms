@@ -47,6 +47,12 @@ vi.mock('@/db/schema', () => ({
     deletedAt: 'sections.deleted_at',
   },
   batches: { id: 'batches.id', meta: 'batches.meta' },
+  batchUser: {
+    batchId: 'batch_user.batch_id',
+    userId: 'batch_user.user_id',
+    meta: 'batch_user.meta',
+    deletedAt: 'batch_user.deleted_at',
+  },
   clubs: { id: 'clubs.id', createdAt: 'clubs.created_at' },
   clubMembers: {
     id: 'club_members.id',

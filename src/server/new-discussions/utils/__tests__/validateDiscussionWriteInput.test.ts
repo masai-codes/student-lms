@@ -12,7 +12,7 @@ describe('validateDiscussionWriteInput', () => {
       parseCreateDiscussionInput({
         title: '  Hi ',
         message: ' Question ',
-      })
+      }),
     ).toEqual({ title: 'Hi', message: 'Question' })
   })
 
@@ -21,7 +21,7 @@ describe('validateDiscussionWriteInput', () => {
       parseCreateDiscussionInput({
         title: '   ',
         message: 'x',
-      })
+      }),
     ).toThrow('INVALID_DISCUSSION_TITLE')
   })
 
@@ -34,7 +34,7 @@ describe('validateDiscussionWriteInput', () => {
       parseCreateDiscussionInput({
         title: 'T',
         message: '<p>Hello world</p>',
-      }).message
+      }).message,
     ).toContain('<p>Hello world</p>')
   })
 
@@ -44,7 +44,7 @@ describe('validateDiscussionWriteInput', () => {
       parseCreateDiscussionInput({
         title: 'T',
         message: `<p>ok</p>${longNames}`,
-      }).message
+      }).message,
     ).toContain(longNames)
   })
 })

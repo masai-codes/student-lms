@@ -7,8 +7,8 @@ export const getRouter = () => {
     routeTree,
     context: {
       user: null,
-      login: () => { },
-      logout: () => { },
+      login: () => {},
+      logout: () => {},
     },
     scrollRestoration: false,
     defaultPreloadStaleTime: 0,
@@ -16,7 +16,9 @@ export const getRouter = () => {
     defaultPendingMs: 120,
     defaultPendingMinMs: 300,
     defaultPendingComponent: () => <AppLoading fullPage label="Loading..." />,
-    defaultNotFoundComponent: () => <AppLoading fullPage label="Resolving route..." />,
+    defaultNotFoundComponent: () => (
+      <AppLoading fullPage label="Resolving route..." />
+    ),
   })
 
   return router

@@ -2,6 +2,11 @@
 
 import { useEffect, useState, type RefObject } from 'react'
 
+import {
+  FULLSCREEN_CHANGE_EVENTS,
+  getFullscreenElement,
+} from './lectureVideoFullscreen.utils'
+
 export function useIsElementFullscreen(
   elementRef: RefObject<HTMLElement | null>,
 ): boolean {
@@ -10,13 +15,19 @@ export function useIsElementFullscreen(
   useEffect(() => {
     const sync = () => {
       const element = elementRef.current
-      setIsFullscreen(Boolean(element && document.fullscreenElement === element))
+      setIsFullscreen(Boolean(element && getFullscreenElement() === element))
     }
 
-    document.addEventListener('fullscreenchange', sync)
+    for (const eventName of FULLSCREEN_CHANGE_EVENTS) {
+      document.addEventListener(eventName, sync)
+    }
     sync()
 
-    return () => document.removeEventListener('fullscreenchange', sync)
+    return () => {
+      for (const eventName of FULLSCREEN_CHANGE_EVENTS) {
+        document.removeEventListener(eventName, sync)
+      }
+    }
   }, [elementRef])
 
   return isFullscreen
@@ -29,15 +40,21 @@ export function useLectureVideoFullscreenActive(): boolean {
     const sync = () => {
       setIsActive(
         Boolean(
-          document.fullscreenElement?.classList.contains('lecture-video-fs-root'),
+          getFullscreenElement()?.classList.contains('lecture-video-fs-root'),
         ),
       )
     }
 
-    document.addEventListener('fullscreenchange', sync)
+    for (const eventName of FULLSCREEN_CHANGE_EVENTS) {
+      document.addEventListener(eventName, sync)
+    }
     sync()
 
-    return () => document.removeEventListener('fullscreenchange', sync)
+    return () => {
+      for (const eventName of FULLSCREEN_CHANGE_EVENTS) {
+        document.removeEventListener(eventName, sync)
+      }
+    }
   }, [])
 
   return isActive

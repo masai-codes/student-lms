@@ -11,21 +11,31 @@ import { LEARN_API } from '@/lib/api/learnPaths'
 import { fetchJson } from '@/lib/api/fetchJson'
 import { ApiClientError } from '@/lib/api/apiClientError'
 
-function appendCsv(params: URLSearchParams, key: string, values?: Array<string>): void {
+function appendCsv(
+  params: URLSearchParams,
+  key: string,
+  values?: Array<string>,
+): void {
   if (values && values.length > 0) params.set(key, values.join(','))
 }
 
-function appendFilters(params: URLSearchParams, filters?: BatchLearningFiltersInput): void {
+function appendFilters(
+  params: URLSearchParams,
+  filters?: BatchLearningFiltersInput,
+): void {
   if (!filters) return
   appendCsv(params, 'modules', filters.modules)
   appendCsv(params, 'categories', filters.categories)
   appendCsv(params, 'types', filters.types)
   appendCsv(params, 'priorities', filters.priorities)
   appendCsv(params, 'instructors', filters.instructors)
-  if (filters.scheduleStartDate) params.set('scheduleStartDate', filters.scheduleStartDate)
-  if (filters.scheduleEndDate) params.set('scheduleEndDate', filters.scheduleEndDate)
+  if (filters.scheduleStartDate)
+    params.set('scheduleStartDate', filters.scheduleStartDate)
+  if (filters.scheduleEndDate)
+    params.set('scheduleEndDate', filters.scheduleEndDate)
   if (filters.schedulePhase) params.set('schedulePhase', filters.schedulePhase)
-  if (filters.attendanceStatus) params.set('attendanceStatus', filters.attendanceStatus)
+  if (filters.attendanceStatus)
+    params.set('attendanceStatus', filters.attendanceStatus)
   appendCsv(params, 'assignmentProgress', filters.assignmentProgressStatuses)
 }
 
@@ -54,7 +64,9 @@ async function fetchLearnApi<T>(path: string): Promise<T> {
 export async function fetchLearnPageDataFromApi(
   input: GetLearnPageDataInput,
 ): Promise<GetLearnPageDataResponse> {
-  return fetchLearnApi<GetLearnPageDataResponse>(`${LEARN_API.page}?${buildLearnPageQuery(input)}`)
+  return fetchLearnApi<GetLearnPageDataResponse>(
+    `${LEARN_API.page}?${buildLearnPageQuery(input)}`,
+  )
 }
 
 export async function fetchLectureLearningDetailFromApi(
@@ -66,7 +78,9 @@ export async function fetchLectureLearningDetailFromApi(
 export async function fetchAssignmentLearningDetailFromApi(
   assignmentId: number,
 ): Promise<AssignmentDetailPayload> {
-  return fetchLearnApi<AssignmentDetailPayload>(LEARN_API.assignment(assignmentId))
+  return fetchLearnApi<AssignmentDetailPayload>(
+    LEARN_API.assignment(assignmentId),
+  )
 }
 
 export async function fetchProblemDetailFromApi(
@@ -91,17 +105,45 @@ export interface ResourceBookmarkResult {
 export async function addResourceBookmarkViaApi(
   resourceId: number,
 ): Promise<ResourceBookmarkResult> {
-  return fetchJson<ResourceBookmarkResult>(LEARN_API.resourceBookmark(resourceId), {
-    method: 'POST',
-  })
+  return fetchJson<ResourceBookmarkResult>(
+    LEARN_API.resourceBookmark(resourceId),
+    {
+      method: 'POST',
+    },
+  )
 }
 
 export async function removeResourceBookmarkViaApi(
   resourceId: number,
 ): Promise<ResourceBookmarkResult> {
-  return fetchJson<ResourceBookmarkResult>(LEARN_API.resourceBookmark(resourceId), {
-    method: 'DELETE',
-  })
+  return fetchJson<ResourceBookmarkResult>(
+    LEARN_API.resourceBookmark(resourceId),
+    {
+      method: 'DELETE',
+    },
+  )
+}
+
+export interface AssignmentBookmarkResult {
+  isBookmarked: boolean
+}
+
+export async function addAssignmentBookmarkViaApi(
+  assignmentId: number,
+): Promise<AssignmentBookmarkResult> {
+  return fetchJson<AssignmentBookmarkResult>(
+    LEARN_API.assignmentBookmark(assignmentId),
+    { method: 'POST' },
+  )
+}
+
+export async function removeAssignmentBookmarkViaApi(
+  assignmentId: number,
+): Promise<AssignmentBookmarkResult> {
+  return fetchJson<AssignmentBookmarkResult>(
+    LEARN_API.assignmentBookmark(assignmentId),
+    { method: 'DELETE' },
+  )
 }
 
 export interface LectureBookmarkResult {
@@ -111,15 +153,21 @@ export interface LectureBookmarkResult {
 export async function addLectureBookmarkViaApi(
   lectureId: number,
 ): Promise<LectureBookmarkResult> {
-  return fetchJson<LectureBookmarkResult>(LEARN_API.lectureBookmark(lectureId), {
-    method: 'POST',
-  })
+  return fetchJson<LectureBookmarkResult>(
+    LEARN_API.lectureBookmark(lectureId),
+    {
+      method: 'POST',
+    },
+  )
 }
 
 export async function removeLectureBookmarkViaApi(
   lectureId: number,
 ): Promise<LectureBookmarkResult> {
-  return fetchJson<LectureBookmarkResult>(LEARN_API.lectureBookmark(lectureId), {
-    method: 'DELETE',
-  })
+  return fetchJson<LectureBookmarkResult>(
+    LEARN_API.lectureBookmark(lectureId),
+    {
+      method: 'DELETE',
+    },
+  )
 }

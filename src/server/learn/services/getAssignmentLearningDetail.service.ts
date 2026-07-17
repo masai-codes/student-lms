@@ -3,8 +3,11 @@ import { and, desc, eq, isNull } from 'drizzle-orm'
 import type { AssignmentDetailPayload } from '@/server/learn/assignmentDetailTypes'
 
 import { db } from '@/db'
-import { assignments, submissions, users } from '@/db/schema'
-import { DISCUSSION_ENTITY_ASSIGNMENT } from '@/server/new-discussions/discussionEntityTypes'
+import { assignments, lectures, submissions, users } from '@/db/schema'
+import {
+  DISCUSSION_ENTITY_ASSIGNMENT,
+  DISCUSSION_ENTITY_LECTURE,
+} from '@/server/new-discussions/discussionEntityTypes'
 import { listDiscussionsWithThreadsForLearnEntity } from '@/server/new-discussions/services/listDiscussionsWithThreadsForLearnEntity'
 import {
   fetchAssignmentProblemRows,
@@ -16,11 +19,12 @@ import {
 } from '@/server/learn/utils/buildAssignmentDetailPayload'
 import { buildAssignmentProblemListItems } from '@/server/learn/utils/buildAssignmentProblemListItems'
 import { buildLearnDetailPresentation } from '@/server/learn/utils/buildLearnDetailPresentation'
-import { getAssignmentAssociatedContent } from '@/server/learn/services/getAssignmentAssociatedContent.service'
+import { getAllAssociatedEntities } from '@/server/learn/services/getAllAssociatedEntities.service'
+import { getLearnEntityBookmarkState } from '@/server/learn/services/learnEntityBookmark.service'
 import { ensureUserCanAccessLearnHubEntity } from '@/server/learn/utils/ensureLearnEntityAccess'
-import { resolveLearnDetailBanRestriction } from '@/server/learn/utils/resolveLearnDetailBanRestriction'
+import { resolveLearnDetailRestriction } from '@/server/restrictions/resolveLearnDetailRestriction'
 import { getBatchIdForSection } from '@/server/batches/getBatchIdsForSections'
-import { getUserBatchBans } from '@/server/users/batchBan'
+import { getUserBatchRestrictions } from '@/server/restrictions/getUserBatchRestrictions'
 
 export async function getAssignmentLearningDetailForUser(
   userId: number,
@@ -66,18 +70,38 @@ export async function getAssignmentLearningDetailForUser(
     throw new Error('ASSIGNMENT_DETAIL_UNSUPPORTED_TYPE')
   }
 
-  const allowed = await ensureUserCanAccessLearnHubEntity(
-    userId,
-    row.batchId,
-    row.sectionId,
-  )
+  const allowed = await ensureUserCanAccessLearnHubEntity(userId, row.sectionId)
 
   if (!allowed) {
     throw new Error('LEARN_DETAIL_NOT_FOUND')
   }
 
-  const [submissionRows, problemRows, discussions, associatedItems] =
-    await Promise.all([
+  // Old LMS's desktop assignment discussions tab mis-tags assignment
+  // discussions as lecture-typed (entity_type `App\Models\Lecture`) while still
+  // storing the assignment id as entity_id, so those posts would otherwise be
+  // invisible here. Recover them without a data migration: also accept
+  // lecture-typed rows for this assignment's id, but only when no lecture shares
+  // that id. When a lecture with the same id exists we cannot tell a mis-tagged
+  // assignment post from a genuine lecture post, so we skip it to avoid leaking
+  // that lecture's discussions into the assignment view.
+  const collidingLecture = await db
+    .select({ id: lectures.id })
+    .from(lectures)
+    .where(eq(lectures.id, assignmentId))
+    .limit(1)
+
+  const discussionEntityTypes =
+    collidingLecture.length === 0
+      ? [DISCUSSION_ENTITY_ASSIGNMENT, DISCUSSION_ENTITY_LECTURE]
+      : DISCUSSION_ENTITY_ASSIGNMENT
+
+  const [
+    submissionRows,
+    problemRows,
+    discussions,
+    associatedItems,
+    isBookmarked,
+  ] = await Promise.all([
     db
       .select({
         id: submissions.id,
@@ -102,21 +126,27 @@ export async function getAssignmentLearningDetailForUser(
     fetchAssignmentProblemRows(assignmentId),
     listDiscussionsWithThreadsForLearnEntity(
       userId,
-      DISCUSSION_ENTITY_ASSIGNMENT,
+      discussionEntityTypes,
       assignmentId,
     ),
-    getAssignmentAssociatedContent({
-      assignmentId,
+    getAllAssociatedEntities({
+      entityId: assignmentId,
+      entityKind: 'assignment',
       sectionId: row.sectionId,
-      assignmentData: row.data,
+      entityData: row.data,
+      userId,
+      nowMs: Date.now(),
     }),
+    getLearnEntityBookmarkState(userId, 'assignment', assignmentId),
   ])
 
   const submissionRow = submissionRows.length > 0 ? submissionRows[0] : null
 
   const solutionStatusByProblemId = new Map<number, string | null>()
   if (submissionRow != null && problemRows.length > 0) {
-    const solutionRows = await fetchSolutionStatusesBySubmission(submissionRow.id)
+    const solutionRows = await fetchSolutionStatusesBySubmission(
+      submissionRow.id,
+    )
     for (const solution of solutionRows) {
       solutionStatusByProblemId.set(solution.problemId, solution.status)
     }
@@ -166,27 +196,29 @@ export async function getAssignmentLearningDetailForUser(
     problems,
   )
 
-  const [bans, sectionBatchId] = await Promise.all([
-    getUserBatchBans(userId),
+  const [restrictions, sectionBatchId] = await Promise.all([
+    getUserBatchRestrictions(userId),
     getBatchIdForSection(row.sectionId),
   ])
+  // Agreement ban restricts only practice (proactive) assignments.
   const isPractice = row.type.trim().toLowerCase() === 'practice'
-  const banRestriction = resolveLearnDetailBanRestriction({
+  const restriction = resolveLearnDetailRestriction({
     contentBatchId: sectionBatchId ?? row.batchId,
     schedule: row.schedule,
-    bans,
-    agreementRestrictionKind: isPractice ? 'practice' : null,
+    restrictions,
+    agreementScope: isPractice ? 'practice' : null,
   })
 
-  if (banRestriction?.kind === 'practice') {
-    // Agreement ban: strip the practice attempt so it can't be started; the
-    // frontend renders a ban notice in the footer's place.
+  if (restriction != null) {
+    // Whole page is blocked client-side; strip the footer actions defensively so
+    // the attempt can't be started via the API either.
     return {
       ...payload,
-      banRestriction,
+      isBookmarked,
+      restriction,
       footer: { ...payload.footer, visible: false, actions: [] },
     }
   }
 
-  return { ...payload, banRestriction }
+  return { ...payload, isBookmarked, restriction }
 }

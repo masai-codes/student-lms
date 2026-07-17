@@ -3,7 +3,12 @@ import { Confetti } from '@phosphor-icons/react'
 import { WELCOME_INTRO_VIDEO_URL } from './t0Config'
 import { pushDashboardEvent } from '../shared/dashboardAnalytics'
 import { LottieConfetti } from '@/components/ui/lottie-confetti'
-import { Modal, ModalContent, ModalDescription, ModalTitle } from '@/components/ui/modal'
+import {
+  Modal,
+  ModalContent,
+  ModalDescription,
+  ModalTitle,
+} from '@/components/ui/modal'
 import BottomDrawer from '@/components/ui/bottom-drawer'
 import { useIsMobileViewport } from '@/hooks/useIsMobileViewport'
 
@@ -20,45 +25,68 @@ const TITLE = 'Welcome to Masai!'
 const BODY =
   'Your registration is confirmed and your LMS access is now active. Let’s take a quick walkthrough to help you get started.'
 
+/**
+ * Hard-stops the intro video. Pausing alone is not enough: a played-then-paused
+ * media element stays alive as the browser's active media session, so the
+ * OS/hardware "play" control (lock screen, headphones, media notification) could
+ * resume it with no visible player. Detaching the source and calling load()
+ * tears the element down so no audio can leak after close.
+ */
+function stopVideo(video: HTMLVideoElement | null) {
+  if (!video) return
+  video.pause()
+  video.removeAttribute('src')
+  video.load()
+}
+
 /** The shared inner content: confetti, intro video, copy, and the CTA. */
-function WelcomeModalBody({ open, onDismiss, isDismissing }: WelcomeModalProps) {
+function WelcomeModalBody({
+  open,
+  onDismiss,
+  isDismissing,
+}: WelcomeModalProps) {
   // Each celebrate-button click re-fires the one-shot confetti (remount via key).
   const [celebrateCount, setCelebrateCount] = useState(0)
 
   const videoRef = useRef<HTMLVideoElement>(null)
 
-  // Hard-stop the intro video whenever the modal is closed or unmounted.
-  // Unmounting the <video> alone does NOT reliably stop audio: a played-then-
-  // paused media element stays alive as the browser's active media session, so
-  // the OS/hardware "play" control (lock screen, headphones, media notification)
-  // could resume it with no visible player. Pausing + detaching the source and
-  // calling load() tears the element down so no audio can leak after close.
+  // Stop the intro video whenever the modal is closed in place.
   useEffect(() => {
     if (open) return
-    const video = videoRef.current
-    if (!video) return
-    video.pause()
-    video.removeAttribute('src')
-    video.load()
+    stopVideo(videoRef.current)
   }, [open])
 
-  useEffect(
-    () => () => {
-      const video = videoRef.current
-      if (!video) return
-      video.pause()
-      video.removeAttribute('src')
+  // Stop it on unmount too. The gate unmounts this tree the moment the modal is
+  // dismissed, so this is the primary teardown path. We capture the element here
+  // (on mount) rather than reading videoRef.current inside the cleanup: React
+  // nulls the ref before passive-effect cleanups run on unmount, so reading it
+  // there would find null and skip the teardown — the media session would
+  // survive and the OS "play" control could resume audio with the modal gone.
+  //
+  // Because teardown strips the source, we (re)attach it here on mount. React
+  // won't re-apply the unchanged `src` prop after we removed the attribute
+  // (notably across StrictMode's dev setup→cleanup→setup remount), so reattaching
+  // imperatively keeps the player playable.
+  useEffect(() => {
+    const video = videoRef.current
+    if (!video) return
+    if (video.getAttribute('src') !== WELCOME_INTRO_VIDEO_URL) {
+      video.setAttribute('src', WELCOME_INTRO_VIDEO_URL)
       video.load()
-    },
-    [],
-  )
+    }
+    return () => stopVideo(video)
+  }, [])
 
   return (
     <div
       className="relative flex flex-col items-center gap-5 text-center md:gap-6"
       data-testid="welcome-modal-body"
     >
-      <LottieConfetti key={celebrateCount} active={open} data-testid="welcome-modal-confetti" />
+      <LottieConfetti
+        key={celebrateCount}
+        active={open}
+        data-testid="welcome-modal-confetti"
+      />
 
       <button
         type="button"
@@ -68,19 +96,22 @@ function WelcomeModalBody({ open, onDismiss, isDismissing }: WelcomeModalProps) 
         data-testid="welcome-modal-celebrate"
         // Sits in the modal's top-left corner (mirroring the close X on the
         // right); the negative offsets pull it out past the modal's padding.
-        className="absolute left-0 top-0 z-20 inline-flex size-9 items-center justify-center rounded-full text-[#F59E0B] transition-colors hover:bg-[#FEF3C7] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F59E0B] md:-left-6 md:-top-6"
+        className="absolute left-0 top-0 z-20 inline-flex size-9 items-center justify-center rounded-full text-[#F59E0B] transition-colors hover:bg-[#FEF3C7] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F59E0B] dark:hover:bg-warning-subtle md:-left-6 md:-top-6"
       >
         <Confetti size={24} weight="fill" aria-hidden />
       </button>
 
       <div className="flex flex-col gap-2">
         <h2
-          className="text-2xl font-bold text-[#111827] md:text-3xl"
+          className="text-2xl font-bold text-foreground md:text-3xl"
           data-testid="welcome-modal-title"
         >
           {TITLE}
         </h2>
-        <p className="text-sm text-gray-600 md:text-base" data-testid="welcome-modal-body-text">
+        <p
+          className="text-sm text-foreground-muted md:text-base"
+          data-testid="welcome-modal-body-text"
+        >
           {BODY}
         </p>
       </div>
@@ -124,7 +155,7 @@ function WelcomeModalBody({ open, onDismiss, isDismissing }: WelcomeModalProps) 
           onDismiss()
         }}
         disabled={isDismissing}
-        className="inline-flex h-12 w-52 items-center justify-center rounded-lg bg-[#6962AC] text-base font-semibold text-white transition-colors hover:bg-[#554f8b] disabled:opacity-60"
+        className="inline-flex h-12 w-52 items-center justify-center rounded-lg bg-brand text-base font-semibold text-brand-foreground transition-colors hover:bg-brand disabled:opacity-60"
         data-testid="welcome-modal-get-started"
       >
         {isDismissing ? 'Just a moment…' : 'Get Started'}
@@ -154,7 +185,10 @@ export function WelcomeModal(props: WelcomeModalProps) {
 
   return (
     <Modal open={open} onOpenChange={(next) => !next && onDismiss()}>
-      <ModalContent className="max-w-[1000px] p-8 md:p-10" data-testid="welcome-modal">
+      <ModalContent
+        className="max-w-[1000px] p-8 md:p-10"
+        data-testid="welcome-modal"
+      >
         {/* Screen-reader-only labels: the visible title/body inside the body
             are styled headings, so Radix needs an explicit accessible name. */}
         <ModalTitle className="sr-only">{TITLE}</ModalTitle>

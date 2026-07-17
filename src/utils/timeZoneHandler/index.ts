@@ -41,7 +41,8 @@ const IST = 'Asia/Kolkata'
 /** Matches a trailing zone marker: `Z`, `+05:30`, `-0400`, etc. */
 const ZONE_SUFFIX_REGEX = /(Z|[+-]\d{2}(?::?\d{2})?)$/i
 /** Matches a naive `YYYY-MM-DD HH:MM:SS[.fff]` datetime with no zone. */
-const NAIVE_DATETIME_REGEX = /^\d{4}-\d{2}-\d{2}[ T]\d{2}:\d{2}:\d{2}(?:\.\d+)?$/
+const NAIVE_DATETIME_REGEX =
+  /^\d{4}-\d{2}-\d{2}[ T]\d{2}:\d{2}:\d{2}(?:\.\d+)?$/
 
 type FutureFallback = {
   /** "now" the future check is measured against (epoch ms). */
@@ -79,7 +80,10 @@ function parseUtcDbInstant(
     const normalized = raw.replace(' ', 'T')
     const asUtc = new Date(`${normalized}Z`)
     if (Number.isNaN(asUtc.getTime())) return null
-    if (futureFallback && asUtc.getTime() > futureFallback.nowMs + futureFallback.skewMs) {
+    if (
+      futureFallback &&
+      asUtc.getTime() > futureFallback.nowMs + futureFallback.skewMs
+    ) {
       const asLocal = new Date(normalized)
       return Number.isNaN(asLocal.getTime()) ? null : asLocal
     }
@@ -96,7 +100,9 @@ function parseUtcDbInstant(
  * Any pre-existing zone suffix is stripped first, so both legacy naive strings
  * and the offset-stamped strings the DB layer now emits resolve identically.
  */
-export function parseMysqlDatetimeIST(raw: string | null | undefined): dayjs.Dayjs | null {
+export function parseMysqlDatetimeIST(
+  raw: string | null | undefined,
+): dayjs.Dayjs | null {
   if (!raw) return null
   const stripped = raw
     .replace(' ', 'T')
@@ -127,7 +133,9 @@ export function parseServerTimestamp(
  * STRICT UTC — no future fallback: events are legitimately in the future, so a
  * fallback would misread them (e.g. show 08:30 instead of 14:00 IST).
  */
-export function parseMasaiverseEventDbTimestamp(value: string | null | undefined): Date | null {
+export function parseMasaiverseEventDbTimestamp(
+  value: string | null | undefined,
+): Date | null {
   return parseUtcDbInstant(value)
 }
 
@@ -136,7 +144,10 @@ export function parseMasaiverseEventDbTimestamp(value: string | null | undefined
  * timestamp was fetched, so countdowns stay correct even if the device clock is
  * skewed. `serverTimeISO` should be an offset-stamped/ISO string.
  */
-export function getAdjustedNow(serverTimeISO: string, fetchedAt: number): dayjs.Dayjs {
+export function getAdjustedNow(
+  serverTimeISO: string,
+  fetchedAt: number,
+): dayjs.Dayjs {
   const elapsed = Date.now() - fetchedAt
   return dayjs(serverTimeISO).add(elapsed, 'millisecond')
 }
@@ -257,6 +268,22 @@ export function formatLectureRangeLocal(
   return `${startLabel} - ${formatDate(endLocal, true)}, ${formatHour(endLocal)} (${tz})`
 }
 
+/** Same as {@link formatLectureRangeLocal} but always IST — for tooltips. */
+export function formatLectureRangeIST(
+  scheduleIST: string | null,
+  concludesIST: string | null | undefined,
+): string {
+  const start = parseMysqlDatetimeIST(scheduleIST)
+  if (!start) return ''
+  const end = concludesIST ? parseMysqlDatetimeIST(concludesIST) : null
+  const startLabel = `${formatDate(start, true)}, ${formatHour(start)}`
+  if (!end) return `${startLabel} (IST)`
+  if (start.isSame(end, 'day')) {
+    return `${startLabel} - ${formatHour(end)} (IST)`
+  }
+  return `${startLabel} - ${formatDate(end, true)}, ${formatHour(end)} (IST)`
+}
+
 // ── 3b. Single timestamps ────────────────────────────────────────────────────────
 
 /** Single timestamp in the viewer's local zone, e.g. "6 Jun, 9:54 AM (EDT)". */
@@ -281,7 +308,10 @@ export function formatTimestampIST(raw: string): string {
  * `now`. IST early-morning may be the prior/next local day abroad, so this is
  * computed in the viewer's zone, not IST. Must run client-side.
  */
-export function isTodayLocal(raw: string | null | undefined, now: Date = new Date()): boolean {
+export function isTodayLocal(
+  raw: string | null | undefined,
+  now: Date = new Date(),
+): boolean {
   const d = parseMysqlDatetimeIST(raw ?? null)
   if (!d) return false
   return toLocal(d).isSame(dayjs(now.valueOf()), 'day')

@@ -1,4 +1,4 @@
-import { inArray, sql  } from 'drizzle-orm'
+import { inArray, sql } from 'drizzle-orm'
 import {
   computeGuidedTourProgress,
   computeLiteGuidedTourProgress,
@@ -33,6 +33,13 @@ export interface BatchT0Status {
    * `getT0FlowStatus` itself always leaves this `null`.
    */
   lectures: T0FlowLecturesResult | null
+  /**
+   * Which tour this batch shows: `'full'` when the batch has a
+   * `user_batch_admission_data` row (walkthrough + program videos, agreement,
+   * documents, kit, ID card), `'lite'` when the learner is enrolled but the
+   * batch has no admission row (photo + download app + agreement only).
+   */
+  flowVariant: 'full' | 'lite'
 }
 
 export interface T0FlowStatus {
@@ -58,7 +65,12 @@ function normalizeRows<T>(result: unknown): Array<T> {
     if (Array.isArray(first)) return first as Array<T>
     return result as Array<T>
   }
-  if (result && typeof result === 'object' && 'rows' in result && Array.isArray((result).rows)) {
+  if (
+    result &&
+    typeof result === 'object' &&
+    'rows' in result &&
+    Array.isArray(result.rows)
+  ) {
     return (result as { rows: Array<T> }).rows
   }
   return []
@@ -67,14 +79,20 @@ function normalizeRows<T>(result: unknown): Array<T> {
 function parseMeta(raw: unknown): Record<string, unknown> {
   if (!raw) return {}
   if (typeof raw === 'object') return raw as Record<string, unknown>
-  try { return JSON.parse(String(raw)) as Record<string, unknown> } catch { return {} }
+  try {
+    return JSON.parse(String(raw)) as Record<string, unknown>
+  } catch {
+    return {}
+  }
 }
 
 function httpUrlOrNull(value: unknown): string | null {
   if (typeof value !== 'string' || value.trim() === '') return null
   try {
     const u = new URL(value.trim())
-    return u.protocol === 'http:' || u.protocol === 'https:' ? u.toString() : null
+    return u.protocol === 'http:' || u.protocol === 'https:'
+      ? u.toString()
+      : null
   } catch {
     return null
   }
@@ -85,7 +103,9 @@ function toTabProgress(
   web: { completed: number; total: number },
   storedAppFraction: unknown,
 ): GuidedTourTabProgress {
-  const complete = isProgressComplete(web) || fracValue(storedAppFraction as string | undefined) >= 1
+  const complete =
+    isProgressComplete(web) ||
+    fracValue(storedAppFraction as string | undefined) >= 1
   return { completed: web.completed, total: web.total, complete }
 }
 
@@ -110,24 +130,36 @@ export async function getT0FlowStatus(
 
   const batchIdList = batchIds.join(', ')
 
-  const [admissionRows, batchRows, profileRows, deviceTokenRows] = await Promise.all([
-    normalizeRows<{ batch_id: number; full_fees_paid: number | boolean; meta: unknown }>(
-      await db.execute(sql`
+  const [admissionRows, batchRows, profileRows, deviceTokenRows] =
+    await Promise.all([
+      normalizeRows<{
+        batch_id: number
+        full_fees_paid: number | boolean
+        meta: unknown
+      }>(
+        await db.execute(sql`
         SELECT batch_id, full_fees_paid, meta
         FROM user_batch_admission_data
         WHERE user_id = ${userId} AND batch_id IN (${sql.raw(batchIdList)})
         ORDER BY batch_id ASC
-      `)
-    ),
-    db.select({ id: batches.id, name: batches.name, meta: batches.meta }).from(batches).where(inArray(batches.id, batchIds)),
-    normalizeRows<{ meta: unknown; legal_data: unknown }>(
-      await db.execute(sql`
+      `),
+      ),
+      db
+        .select({ id: batches.id, name: batches.name, meta: batches.meta })
+        .from(batches)
+        .where(inArray(batches.id, batchIds)),
+      normalizeRows<{ meta: unknown; legal_data: unknown }>(
+        await db.execute(sql`
         SELECT meta, legal_data FROM profiles
         WHERE user_id = ${userId} AND deleted_at IS NULL LIMIT 1
-      `)
-    ),
-    db.select({ id: userDeviceTokens.id }).from(userDeviceTokens).where(inArray(userDeviceTokens.userId, [userId])).limit(1),
-  ])
+      `),
+      ),
+      db
+        .select({ id: userDeviceTokens.id })
+        .from(userDeviceTokens)
+        .where(inArray(userDeviceTokens.userId, [userId]))
+        .limit(1),
+    ])
 
   const profileMeta = profileRows[0]?.meta
   const legalData = profileRows[0]?.legal_data
@@ -135,7 +167,10 @@ export async function getT0FlowStatus(
   const profilePhotoUrl = httpUrlOrNull(parseMeta(profileMeta)['profile_pic'])
   // Prefer batch.meta.courseTitle; fall back to batch.name, then the id.
   const batchNameMap = new Map(
-    batchRows.map((b) => [b.id, resolveCourseTitle(b.meta, b.name) || String(b.id)]),
+    batchRows.map((b) => [
+      b.id,
+      resolveCourseTitle(b.meta, b.name) || String(b.id),
+    ]),
   )
 
   // Non-T0 (no admission row): enrolled users get the trimmed 3-step "lite" tour.
@@ -143,9 +178,21 @@ export async function getT0FlowStatus(
     // Most-recently-enrolled batch anchors the agreement step (the only
     // batch-specific one); photo + app are user-level.
     const batchId = Math.max(...batchIds)
-    const web = await computeLiteGuidedTourProgress(userId, batchId, profileMeta, legalData, hasDeviceToken)
-    const lms: GuidedTourTabProgress = { ...web.lms, complete: isProgressComplete(web.lms) }
-    const program: GuidedTourTabProgress = { ...web.program, complete: isProgressComplete(web.program) }
+    const web = await computeLiteGuidedTourProgress(
+      userId,
+      batchId,
+      profileMeta,
+      legalData,
+      hasDeviceToken,
+    )
+    const lms: GuidedTourTabProgress = {
+      ...web.lms,
+      complete: isProgressComplete(web.lms),
+    }
+    const program: GuidedTourTabProgress = {
+      ...web.program,
+      complete: isProgressComplete(web.program),
+    }
 
     return {
       showT0Flow: true,
@@ -157,6 +204,7 @@ export async function getT0FlowStatus(
           lms,
           program,
           lectures: null,
+          flowVariant: 'lite',
         },
       ],
       profilePhotoUrl,
@@ -166,26 +214,83 @@ export async function getT0FlowStatus(
     }
   }
 
-  const batchStatuses: Array<BatchT0Status> = await Promise.all(
+  const fullStatuses: Array<BatchT0Status> = await Promise.all(
     admissionRows.map(async (row) => {
       const batchId = Number(row.batch_id)
       const fullFeesPaid = Boolean(row.full_fees_paid)
       const meta = parseMeta(row.meta)
-      const live = await computeGuidedTourProgress(userId, batchId, fullFeesPaid, profileMeta, legalData, hasDeviceToken, platform)
+      const live = await computeGuidedTourProgress(
+        userId,
+        batchId,
+        fullFeesPaid,
+        profileMeta,
+        legalData,
+        hasDeviceToken,
+        platform,
+      )
 
       return {
         batchId,
         batchName: batchNameMap.get(batchId) ?? String(batchId),
         showProgramTab: fullFeesPaid,
         lms: toTabProgress(live.lms, meta[`lms_walkthrough_${otherPlatform}`]),
-        program: live.program ? toTabProgress(live.program, meta[`program_onboarding_${otherPlatform}`]) : null,
+        program: live.program
+          ? toTabProgress(
+              live.program,
+              meta[`program_onboarding_${otherPlatform}`],
+            )
+          : null,
         lectures: null, // filled by the overview composer for the primary batch
+        flowVariant: 'full' as const,
       }
     }),
   )
 
+  // Enrolled batches with NO admission row still need onboarding for their
+  // agreement — surface them as trimmed "lite" batches alongside the full ones.
+  // Photo/download-app are user-level and already covered by the full batches, so
+  // we only include a lite batch when it has a signable agreement (its only
+  // batch-specific step) to avoid redundant photo/app-only banners.
+  const admissionBatchIds = new Set(
+    admissionRows.map((r) => Number(r.batch_id)),
+  )
+  const liteBatchIds = batchIds.filter((id) => !admissionBatchIds.has(id))
+  const liteStatuses: Array<BatchT0Status> = (
+    await Promise.all(
+      liteBatchIds.map(async (batchId): Promise<BatchT0Status | null> => {
+        const web = await computeLiteGuidedTourProgress(
+          userId,
+          batchId,
+          profileMeta,
+          legalData,
+          hasDeviceToken,
+        )
+        if (web.program.total <= 0) return null // no signable agreement → nothing batch-specific to onboard
+        return {
+          batchId,
+          batchName: batchNameMap.get(batchId) ?? String(batchId),
+          showProgramTab: true,
+          lms: { ...web.lms, complete: isProgressComplete(web.lms) },
+          program: {
+            ...web.program,
+            complete: isProgressComplete(web.program),
+          },
+          lectures: null,
+          flowVariant: 'lite' as const,
+        }
+      }),
+    )
+  ).filter((b): b is BatchT0Status => b !== null)
+
+  const batchStatuses: Array<BatchT0Status> = [
+    ...fullStatuses,
+    ...liteStatuses,
+  ].sort((a, b) => a.batchId - b.batchId)
+
   const showGuidedTour = batchStatuses.some(
-    (b) => !b.lms.complete || (b.showProgramTab && b.program !== null && !b.program.complete),
+    (b) =>
+      !b.lms.complete ||
+      (b.showProgramTab && b.program !== null && !b.program.complete),
   )
 
   return {
@@ -194,6 +299,6 @@ export async function getT0FlowStatus(
     profilePhotoUrl,
     downloadAppCompleted: hasDeviceToken,
     showGuidedTour,
-    flowVariant: 'full',
+    flowVariant: fullStatuses.length > 0 ? 'full' : 'lite',
   }
 }

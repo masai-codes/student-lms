@@ -2,11 +2,15 @@ import { buildDashboardScheduleItem } from '../schedule/buildDashboardScheduleIt
 import { fetchPendingAssignments } from './fetchPendingAssignments'
 import { fetchPendingLectures } from './fetchPendingLectures'
 import { fetchAssignmentStartState } from './fetchAssignmentStartState'
-import type { DashboardScheduleItem, ScheduleEntityRow } from '../schedule/scheduleTypes'
+import type {
+  DashboardScheduleItem,
+  ScheduleEntityRow,
+} from '../schedule/scheduleTypes'
 import { getSectionIdsForUser } from '@/server/batches/getSectionIdsForUser'
 import { getBatchIdsForEnrolledUser } from '@/server/batches/getBatchIdsForEnrolledUser'
 import { getBatchIdsForSections } from '@/server/batches/getBatchIdsForSections'
-import { getUserBatchBans, makeNormalBanScheduleFilter } from '@/server/users/batchBan'
+import { getUserBatchRestrictions } from '@/server/restrictions/getUserBatchRestrictions'
+import { makePausedScheduleFilter } from '@/server/restrictions/enrollmentRestrictionScope'
 import { fetchLectureAttendanceSummaries } from '@/server/attendance/services/fetchLectureAttendanceSummaries'
 import { calculateAssignmentProgressStatus } from '@/server/learn/utils/calculateAssignmentProgressStatus'
 import { computeDeadlineCountdown } from '@/server/learn/utils/computeDeadlineCountdown'
@@ -29,10 +33,10 @@ export async function getDashboardPendingTasks(
   const nowMs = now.getTime()
   const istNow = getIstNowSqlDatetime(now)
 
-  const [sectionIds, batchIds, bans] = await Promise.all([
+  const [sectionIds, batchIds, restrictions] = await Promise.all([
     getSectionIdsForUser(userId),
     getBatchIdsForEnrolledUser(userId),
-    getUserBatchBans(userId),
+    getUserBatchRestrictions(userId),
   ])
   if (sectionIds.length === 0) return []
 
@@ -45,9 +49,11 @@ export async function getDashboardPendingTasks(
 
   let assignmentCandidates = assignmentCandidatesRaw
   let lectureCandidates = lectureCandidatesRaw
-  if (bans.normalByBatch.size > 0) {
+  // Drop candidates in enrolment-cancelled batches, and those scheduled after a
+  // paused batch's cutoff.
+  if (restrictions.size > 0) {
     const sectionToBatch = await getBatchIdsForSections(sectionIds)
-    const keep = makeNormalBanScheduleFilter(bans.normalByBatch, sectionToBatch)
+    const keep = makePausedScheduleFilter(restrictions, sectionToBatch)
     assignmentCandidates = assignmentCandidatesRaw.filter(keep)
     lectureCandidates = lectureCandidatesRaw.filter(keep)
   }
@@ -75,10 +81,15 @@ export async function getDashboardPendingTasks(
 /** Milliseconds of time left to act; smaller = more urgent. */
 function urgencyMs(item: DashboardScheduleItem, nowMs: number): number {
   if (item.learningType === 'assignment') {
-    return computeDeadlineCountdown(item.concludes, nowMs)?.totalMs ?? Number.POSITIVE_INFINITY
+    return (
+      computeDeadlineCountdown(item.concludes, nowMs)?.totalMs ??
+      Number.POSITIVE_INFINITY
+    )
   }
   const daysRemaining = item.attendance?.daysRemaining
-  return daysRemaining != null ? daysRemaining * DAY_MS : Number.POSITIVE_INFINITY
+  return daysRemaining != null
+    ? daysRemaining * DAY_MS
+    : Number.POSITIVE_INFINITY
 }
 
 /** Keep only assignments the user hasn't begun (see {@link fetchAssignmentStartState}). */
@@ -126,7 +137,10 @@ async function resolvePendingLectures(
   const attendance = await fetchLectureAttendanceSummaries(
     userId,
     candidates
-      .filter((row): row is ScheduleEntityRow & { sectionId: number } => row.sectionId != null)
+      .filter(
+        (row): row is ScheduleEntityRow & { sectionId: number } =>
+          row.sectionId != null,
+      )
       .map((row) => ({
         lectureId: row.id,
         sectionId: row.sectionId,

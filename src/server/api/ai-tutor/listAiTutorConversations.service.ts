@@ -1,5 +1,5 @@
-import { listChatPracticeConversations } from '@/server/api/ai-tutor/services/aiChatPracticeQuestions.service'
 import type { ListAiTutorConversationsResponse } from '@/server/api/ai-tutor/types/conversation'
+import { listChatPracticeConversations } from '@/server/api/ai-tutor/services/aiChatPracticeQuestions.service'
 import { deriveConversationTitle } from '@/server/api/ai-tutor/utils/chatTurns'
 
 export async function listAiTutorConversations(input: {

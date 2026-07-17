@@ -11,19 +11,28 @@ const hoisted = vi.hoisted(() => ({
   fetchAttendance: vi.fn(),
 }))
 
-vi.mock('@/server/batches/getSectionIdsForUser', () => ({ getSectionIdsForUser: hoisted.getSectionIds }))
-vi.mock('@/server/batches/getBatchIdsForEnrolledUser', () => ({ getBatchIdsForEnrolledUser: hoisted.getBatchIds }))
-vi.mock('@/server/users/batchBan', () => ({
-  getUserBatchBans: vi.fn(async () => ({ normalByBatch: new Map(), agreementByBatch: new Map() })),
-  makeNormalBanScheduleFilter: () => () => true,
+vi.mock('@/server/batches/getSectionIdsForUser', () => ({
+  getSectionIdsForUser: hoisted.getSectionIds,
+}))
+vi.mock('@/server/batches/getBatchIdsForEnrolledUser', () => ({
+  getBatchIdsForEnrolledUser: hoisted.getBatchIds,
+}))
+vi.mock('@/server/restrictions/getUserBatchRestrictions', () => ({
+  getUserBatchRestrictions: vi.fn(async () => new Map()),
 }))
 vi.mock('@/server/batches/getBatchIdsForSections', () => ({
   getBatchIdsForSections: vi.fn(async () => new Map()),
   getBatchIdForSection: vi.fn(async () => null),
 }))
-vi.mock('../fetchPendingAssignments', () => ({ fetchPendingAssignments: hoisted.fetchAssignments }))
-vi.mock('../fetchPendingLectures', () => ({ fetchPendingLectures: hoisted.fetchLectures }))
-vi.mock('../fetchAssignmentStartState', () => ({ fetchAssignmentStartState: hoisted.fetchStartState }))
+vi.mock('../fetchPendingAssignments', () => ({
+  fetchPendingAssignments: hoisted.fetchAssignments,
+}))
+vi.mock('../fetchPendingLectures', () => ({
+  fetchPendingLectures: hoisted.fetchLectures,
+}))
+vi.mock('../fetchAssignmentStartState', () => ({
+  fetchAssignmentStartState: hoisted.fetchStartState,
+}))
 vi.mock('@/server/learn/queries/fetchLatestSubmissionByAssignment', () => ({
   fetchLatestSubmissionByAssignment: hoisted.fetchSubmissions,
 }))
@@ -66,7 +75,8 @@ describe('getDashboardPendingTasks', () => {
 
   it('returns [] without querying when the user has no sections', async () => {
     hoisted.getSectionIds.mockResolvedValue([])
-    const { getDashboardPendingTasks } = await import('../getDashboardPendingTasks.service')
+    const { getDashboardPendingTasks } =
+      await import('../getDashboardPendingTasks.service')
     expect(await getDashboardPendingTasks(42, NOW)).toEqual([])
     expect(hoisted.fetchAssignments).not.toHaveBeenCalled()
   })
@@ -77,7 +87,8 @@ describe('getDashboardPendingTasks', () => {
       row({ id: 2, type: 'assignment' }),
     ])
     hoisted.fetchStartState.mockResolvedValue(new Set([2])) // 2 begun → excluded
-    const { getDashboardPendingTasks } = await import('../getDashboardPendingTasks.service')
+    const { getDashboardPendingTasks } =
+      await import('../getDashboardPendingTasks.service')
 
     const result = await getDashboardPendingTasks(42, NOW)
     expect(result.map((i) => i.id)).toEqual([1])
@@ -91,11 +102,15 @@ describe('getDashboardPendingTasks', () => {
     ])
     hoisted.fetchAttendance.mockResolvedValue(
       new Map([
-        [10, { isCatchupWindowOver: false, overallStatus: 0, daysRemaining: 2 }],
+        [
+          10,
+          { isCatchupWindowOver: false, overallStatus: 0, daysRemaining: 2 },
+        ],
         [11, { isCatchupWindowOver: true, overallStatus: 0, daysRemaining: 0 }],
       ]),
     )
-    const { getDashboardPendingTasks } = await import('../getDashboardPendingTasks.service')
+    const { getDashboardPendingTasks } =
+      await import('../getDashboardPendingTasks.service')
 
     const result = await getDashboardPendingTasks(42, NOW)
     expect(result.map((i) => i.id)).toEqual([10])
@@ -109,9 +124,15 @@ describe('getDashboardPendingTasks', () => {
     ])
     hoisted.fetchLectures.mockResolvedValue([row({ id: 10, type: 'live' })])
     hoisted.fetchAttendance.mockResolvedValue(
-      new Map([[10, { isCatchupWindowOver: false, overallStatus: 0, daysRemaining: 2 }]]),
+      new Map([
+        [
+          10,
+          { isCatchupWindowOver: false, overallStatus: 0, daysRemaining: 2 },
+        ],
+      ]),
     )
-    const { getDashboardPendingTasks } = await import('../getDashboardPendingTasks.service')
+    const { getDashboardPendingTasks } =
+      await import('../getDashboardPendingTasks.service')
 
     const result = await getDashboardPendingTasks(42, NOW)
     // hours-away assignment → 2-day catch-up lecture → 7-day assignment.

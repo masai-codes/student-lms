@@ -6,7 +6,7 @@ import {
   AI_LECTURE_CHAT_LANGUAGES,
   AI_LECTURE_CHAT_LANGUAGE_NATIVE_LABELS,
 } from '../languages'
-import type {AiLectureChatLanguage} from '../languages';
+import type { AiLectureChatLanguage } from '../languages'
 import {
   DropdownMenu,
   DropdownMenuContent,

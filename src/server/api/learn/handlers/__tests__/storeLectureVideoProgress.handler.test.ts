@@ -6,6 +6,7 @@ const hoisted = vi.hoisted(() => ({
   store: vi.fn(),
 }))
 
+// Mocked so the handler unit test does not pull in the DB layer (`@/db`).
 vi.mock('@/server/video-attendance/services/storeVideoProgress', () => ({
   storeVideoProgress: hoisted.store,
 }))
@@ -49,6 +50,7 @@ describe('storeLectureVideoProgress.handler', () => {
     await expect(res.json()).resolves.toEqual({ ok: true })
     expect(hoisted.store).toHaveBeenCalledWith({
       lectureId: 572,
+      userId: 7,
       totalDuration: 600,
       intervals: [{ start: 0, end: 30 }],
       sessionToken: undefined,

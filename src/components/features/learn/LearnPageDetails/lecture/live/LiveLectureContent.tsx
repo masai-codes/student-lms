@@ -6,7 +6,6 @@ import { LectureDetailFooter } from '../shared/LectureDetailFooter'
 import { AfterLiveLecture } from './AfterLiveLecture'
 import { BeforeStartingLiveLecture } from './BeforeStartingLiveLecture'
 import { DuringLiveLecture } from './DuringLiveLecture'
-import { LectureRecordingBanPanel } from '../shared/LectureRecordingBanPanel'
 
 import type { LectureDetailPayload } from '@/server/learn/lectureDetailTypes'
 
@@ -22,16 +21,14 @@ function renderLiveHero(detail: LectureDetailPayload) {
       return (
         <DuringLiveLecture
           lectureId={detail.id}
+          schedule={detail.schedule}
           zoomLink={detail.zoomLink}
           joinLiveButtonState={detail.joinLiveButtonState ?? 'hidden'}
           isNewZoomRedirection={detail.isNewZoomRedirection}
+          enableZoomWebView={detail.enableZoomWebView}
         />
       )
     case 'after':
-      // Agreement ban: block the recording, keep the rest of the page.
-      if (detail.banRestriction?.kind === 'recording') {
-        return <LectureRecordingBanPanel />
-      }
       return <AfterLiveLecture detail={detail} />
     default:
       return <BeforeStartingLiveLecture schedule={detail.schedule} />
@@ -51,7 +48,10 @@ export function LiveLectureContent({ detail }: LiveLectureContentProps) {
       hostName={detail.hostName}
       hostAvatarUrl={detail.hostAvatarUrl}
       scheduleDisplayRange={detail.scheduleDisplayRange}
+      scheduleDisplayRangeIst={detail.scheduleDisplayRangeIst}
       attendance={detail.attendance}
+      optionalAttendance={detail.optionalAttendance}
+      isLiveLecture={detail.lectureKind === 'live'}
       watchPercentage={detail.videoAttendance?.watchPercentage}
       actions={
         <LectureDetailActions

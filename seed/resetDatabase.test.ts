@@ -15,7 +15,8 @@ describe('resetDatabase', () => {
     const previous = process.env.NODE_ENV
     const previousDatabaseUrl = process.env.DATABASE_URL
     process.env.NODE_ENV = 'production'
-    process.env.DATABASE_URL = 'mysql://root:root@localhost:3306/student_lms_test'
+    process.env.DATABASE_URL =
+      'mysql://root:root@localhost:3306/student_lms_test'
     await expect(resetDatabase()).rejects.toThrow(/disabled in production/)
     process.env.NODE_ENV = previous
     process.env.DATABASE_URL = previousDatabaseUrl
@@ -25,7 +26,8 @@ describe('resetDatabase', () => {
     const previous = process.env.NODE_ENV
     const previousDatabaseUrl = process.env.DATABASE_URL
     process.env.NODE_ENV = 'development'
-    process.env.DATABASE_URL = 'mysql://root:root@localhost:3306/student_lms_test'
+    process.env.DATABASE_URL =
+      'mysql://root:root@localhost:3306/student_lms_test'
 
     vi.mocked(db.execute)
       .mockResolvedValueOnce([

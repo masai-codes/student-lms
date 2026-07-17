@@ -15,11 +15,7 @@ import type {
   StreamLectureAiChatRequest,
 } from '@/lib/api/ai-tutor/streamAiTutorChat'
 import { getAiTutorConversation } from '@/lib/api/ai-tutor/aiTutorChatApi'
-import {
-  
-  streamLectureAiChat
-} from '@/lib/api/ai-tutor/streamAiTutorChat'
-
+import { streamLectureAiChat } from '@/lib/api/ai-tutor/streamAiTutorChat'
 
 let messageCounter = 0
 function createMessageId(prefix: string): string {

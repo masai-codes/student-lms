@@ -1,11 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
-import {
-  
-  createSseFrameBuffer,
-  streamLectureAiChat
-} from '../streamAiTutorChat'
-import type {StreamLectureAiChatRequest} from '../streamAiTutorChat';
+import { createSseFrameBuffer, streamLectureAiChat } from '../streamAiTutorChat'
+import type { StreamLectureAiChatRequest } from '../streamAiTutorChat'
 
 /** Encode events into `data: …\n\n` SSE frames (one frame per event). */
 function sse(...events: Array<Record<string, unknown>>): string {

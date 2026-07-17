@@ -12,11 +12,17 @@ import {
 } from 'lucide-react'
 
 import { TabNavbar } from '@/components/tab-navbar'
-import { NextActionBanner } from '@/components/features/layout/NextActionBanner'
 import { activeAppNavIdForPathname } from '@/lib/appNavActiveItem'
 import { OLD_STUDENT_UI_NAV_PATHS } from '@/constants/oldStudentUiNavPaths'
 import { getOldStudentUiUrlForPath } from '@/utils/authRedirect'
 import { isIHubPortal } from '@/utils/portal'
+
+/**
+ * Selects the fixed mobile tab bar. Keep in sync with the `data-app-mobile-tab-bar`
+ * attribute below; consumers use it to reserve bottom viewport space (the bar is
+ * `lg:hidden`, so it only reserves space on mobile/tablet).
+ */
+export const APP_MOBILE_TAB_BAR_SELECTOR = '[data-app-mobile-tab-bar]'
 
 function oldUiNavigate(path: string) {
   const url = getOldStudentUiUrlForPath(path)
@@ -53,7 +59,9 @@ export default function AppMobileTabBar() {
           />
         ),
         isActive: activeId === 'learn',
-        onClick: () => oldUiNavigate(OLD_STUDENT_UI_NAV_PATHS.learn),
+        onClick: () => {
+          void navigate({ to: '/learn', search: {} })
+        },
       },
       {
         id: 'support',
@@ -113,9 +121,6 @@ export default function AppMobileTabBar() {
       className="fixed bottom-0 left-0 right-0 z-[200] lg:hidden"
       data-app-mobile-tab-bar
     >
-      <div>
-        <NextActionBanner className="w-full rounded-t-[14px]" />
-      </div>
       <TabNavbar
         items={items}
         ariaLabel="Primary navigation"

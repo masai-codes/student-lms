@@ -13,7 +13,9 @@ type AIAvatarProps = {
 type LottieComponent = ComponentType<LottieComponentProps>
 
 function resolveLottieComponent(
-  module: LottieComponent | { default: LottieComponent | { default: LottieComponent } },
+  module:
+    | LottieComponent
+    | { default: LottieComponent | { default: LottieComponent } },
 ): LottieComponent {
   if (typeof module === 'function') {
     return module
@@ -37,7 +39,10 @@ export function AIAvatar({ className, isSpeaking = false }: AIAvatarProps) {
 
   return (
     <div
-      className={cn('mx-auto size-[min(11rem,42vw)] max-w-full shrink-0', className)}
+      className={cn(
+        'mx-auto size-[min(11rem,42vw)] max-w-full shrink-0',
+        className,
+      )}
       aria-hidden
     >
       <div

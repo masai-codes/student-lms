@@ -27,7 +27,8 @@ export type AssignmentFooterScore = {
   label: string
 }
 
-export type AssignmentFooterNoticeVariant = 'score-policy' | 'practice-after-deadline'
+export type AssignmentFooterNoticeVariant =
+  'score-policy' | 'practice-after-deadline'
 
 export type AssignmentFooterNotice = {
   variant: AssignmentFooterNoticeVariant

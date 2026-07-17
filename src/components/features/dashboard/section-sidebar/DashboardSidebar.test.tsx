@@ -18,7 +18,16 @@ const overview: DashboardOverviewState = {
   isError: false,
   banners: [],
   announcements: [
-    { id: 1, source: 'a', title: 'Notice', body: '', authorName: 'Prof', isForYou: false, ctaName: null, ctaLink: null },
+    {
+      id: 1,
+      source: 'a',
+      title: 'Notice',
+      body: '',
+      authorName: 'Prof',
+      isForYou: false,
+      ctaName: null,
+      ctaLink: null,
+    },
   ],
   productUpdates: [{ id: 1, title: 'Update', imageUrl: null }],
   supportSession: {
@@ -44,7 +53,9 @@ describe('DashboardSidebar', () => {
   })
 
   it('hides the support card when there is no session', () => {
-    render(<DashboardSidebar overview={{ ...overview, supportSession: null }} />)
+    render(
+      <DashboardSidebar overview={{ ...overview, supportSession: null }} />,
+    )
     expect(screen.queryByTestId('dashboard-lms-support-panel')).toBeNull()
   })
 })

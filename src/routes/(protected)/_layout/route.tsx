@@ -6,7 +6,13 @@ import {
 } from '@tanstack/react-router'
 import { useEffect } from 'react'
 import { AppLoading } from '@/components/common'
-import { AppMobileTabBar, AppNavbar } from '@/components/features/layout'
+import {
+  AppMobileHeader,
+  AppMobileTabBar,
+  AppNavbar,
+  SupportChatButton,
+} from '@/components/features/layout'
+import { TryNewTour } from '@/components/features/layout/TryNewTour'
 import { AnnouncementModalController, ModalProvider } from '@/components/modals'
 import MasaiverseMobileTabBar from '@/components/features/masaiverse-v2/MasaiverseMobileTabBar'
 import { isMasaiverseApp } from '@/constants/masaiverseDrawerUi'
@@ -17,17 +23,12 @@ import {
   getOldStudentUiUrlForPath,
   isLegacyStudentRedirectEnabled,
 } from '@/utils/authRedirect'
+import { isMigratedRoute } from '@/utils/migratedRoutes'
 import { initClarity, setCurrentUserForTracking } from '@/utils/tracking'
-
 
 /** Paths served by this app when legacy redirect is enabled (everything else → old LMS). */
 function isNewStudentExperienceRoute(pathname: string): boolean {
-  if (pathname === '/' || pathname === '') return true
   if (pathname.startsWith('/masaiverse')) return true
-  if (pathname.startsWith('/learn')) return true
-  if (pathname.startsWith('/assignments')) return true
-  if (pathname.startsWith('/lectures')) return true
-  if (pathname.startsWith('/resources')) return true
   if (pathname.startsWith('/announcements')) return true
   if (pathname.startsWith('/messages')) return true
   if (pathname.startsWith('/bookmarks')) return true
@@ -38,7 +39,6 @@ function isNewStudentExperienceRoute(pathname: string): boolean {
   if (pathname.startsWith('/support')) return true
   return false
 }
-
 
 export const Route = createFileRoute('/(protected)/_layout')({
   beforeLoad: async ({ location }) => {
@@ -79,15 +79,28 @@ export const Route = createFileRoute('/(protected)/_layout')({
       }
     }
 
-    if (
-      shouldRedirectToLegacy &&
-      !isNewStudentExperienceRoute(location.pathname)
-    ) {
+    if (shouldRedirectToLegacy) {
       const url = new URL(location.href, 'http://localhost')
-      const pathForLegacy = `${url.pathname}${url.search}`
-      const oldUiUrl = getOldStudentUiUrlForPath(pathForLegacy)
-      if (oldUiUrl) {
-        throw redirect({ href: oldUiUrl })
+
+      // The 5 migrated routes ignore the static allowlist: the per-user flag
+      // decides. Opted in → stay here; opted out → old LMS. Every other route
+      // keeps the existing allowlist behaviour.
+      const shouldRedirectMigratedRoute =
+        isMigratedRoute(location.pathname) && !user.newLmsPagesEnabled
+      const shouldRedirectOtherRoute =
+        !isMigratedRoute(location.pathname) &&
+        !isNewStudentExperienceRoute(location.pathname)
+
+      if (shouldRedirectMigratedRoute || shouldRedirectOtherRoute) {
+        // Migrated pages hand off path-only — the old LMS regenerates its own
+        // query params (batch/tab/page). Other legacy routes keep their search.
+        const pathForLegacy = shouldRedirectMigratedRoute
+          ? url.pathname
+          : `${url.pathname}${url.search}`
+        const oldUiUrl = getOldStudentUiUrlForPath(pathForLegacy)
+        if (oldUiUrl) {
+          throw redirect({ href: oldUiUrl })
+        }
       }
     }
     return {
@@ -108,6 +121,7 @@ function RouteComponent() {
   const { user } = Route.useRouteContext()
   const isApp = isMasaiverseApp(searchStr)
   const isMasaiverseRoute = pathname.startsWith('/masaiverse')
+  const isSupportRoute = pathname.startsWith('/support')
   const mainClasses = isMasaiverseRoute
     ? layoutMainClassesFullWidth
     : layoutMainClasses
@@ -122,8 +136,13 @@ function RouteComponent() {
 
   return (
     <ModalProvider>
-      <div className="min-h-dvh bg-[#FAF9F9] flex flex-col">
+      <div className="min-h-dvh bg-surface-muted flex flex-col">
+        <TryNewTour hasSeen={user.hasSeenTryNewTour} />
         <AppNavbar />
+        {/* Mobile-only greeting header for the dashboard home; the desktop
+            navbar (with the same announcements + onboarding actions) is hidden
+            on mobile. */}
+        {pathname === '/' && !isApp ? <AppMobileHeader /> : null}
         <main
           className={`${mainClasses} ${isApp && !isMasaiverseRoute ? 'pb-0' : 'pb-[calc(4.5rem+env(safe-area-inset-bottom))]'} md:pb-0`}
         >
@@ -133,6 +152,10 @@ function RouteComponent() {
           <MasaiverseMobileTabBar />
         ) : !isApp ? (
           <AppMobileTabBar />
+        ) : null}
+        {/* Floating support entry — shown only on the dashboard home for now. */}
+        {pathname === '/' && !isMasaiverseRoute && !isSupportRoute ? (
+          <SupportChatButton />
         ) : null}
         {/* Central modal system — announcement popups check on every page. */}
         <AnnouncementModalController />

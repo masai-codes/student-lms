@@ -17,28 +17,35 @@ type ContextSubcategoryListProps = {
   onSelect: (subcategoryValue: string) => void
 }
 
-export function ContextSubcategoryList({ category, onSelect }: ContextSubcategoryListProps) {
+export function ContextSubcategoryList({
+  category,
+  onSelect,
+}: ContextSubcategoryListProps) {
   const { data, isLoading } = useQuery(supportSubcategoriesQuery(category))
   const subcategories = data?.subcategories ?? []
 
   return (
     <div className="overflow-y-auto p-5">
-      <p className="mb-3 font-poppins text-[12px] text-gray-500">What can we help you with?</p>
+      <p className="mb-3 font-poppins text-[12px] text-foreground-muted">
+        What can we help you with?
+      </p>
 
       {isLoading && (
-        <div className="py-6 font-poppins text-[14px] text-gray-500">Loading subcategories…</div>
+        <div className="py-6 font-poppins text-[14px] text-foreground-muted">
+          Loading subcategories…
+        </div>
       )}
 
       {!isLoading && subcategories.length === 0 && (
         <button
           type="button"
-          className="flex w-full items-center justify-between rounded-[8px] border border-gray-100 p-3 text-left transition-colors hover:bg-gray-50"
+          className="flex w-full items-center justify-between rounded-[8px] border border-border p-3 text-left transition-colors hover:bg-surface-muted"
           onClick={() => onSelect('General')}
         >
-          <span className="font-poppins text-[14px] font-medium capitalize text-gray-800">
+          <span className="font-poppins text-[14px] font-medium capitalize text-foreground">
             General
           </span>
-          <CaretRight className="size-5 text-gray-400" />
+          <CaretRight className="size-5 text-foreground-subtle" />
         </button>
       )}
 
@@ -47,13 +54,13 @@ export function ContextSubcategoryList({ category, onSelect }: ContextSubcategor
           <button
             key={sub.value}
             type="button"
-            className="mb-3 flex w-full items-center justify-between rounded-[8px] border border-gray-100 p-3 text-left transition-colors hover:bg-gray-50"
+            className="mb-3 flex w-full items-center justify-between rounded-[8px] border border-border p-3 text-left transition-colors hover:bg-surface-muted"
             onClick={() => onSelect(sub.value)}
           >
-            <span className="font-poppins text-[14px] font-medium capitalize text-gray-800">
+            <span className="font-poppins text-[14px] font-medium capitalize text-foreground">
               {sub.label}
             </span>
-            <CaretRight className="size-5 text-gray-400" />
+            <CaretRight className="size-5 text-foreground-subtle" />
           </button>
         ))}
     </div>

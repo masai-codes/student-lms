@@ -8,4 +8,8 @@ export {
   useLectureAiChatStateContext,
 } from './LectureAiChatStateContext'
 
-export type { LectureChatMessage, LectureChatRole, AiTutorSessionState } from './types'
+export type {
+  LectureChatMessage,
+  LectureChatRole,
+  AiTutorSessionState,
+} from './types'

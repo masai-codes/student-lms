@@ -19,7 +19,10 @@ export type UseLectureAiChatFeedbackResult = {
    * prompted (submitted or skipped) this page visit.
    */
   notifyFirstReplyCompleted: (chatId: number | null) => void
-  submit: (rating: LectureAiChatFeedbackRating, feedback?: string) => Promise<void>
+  submit: (
+    rating: LectureAiChatFeedbackRating,
+    feedback?: string,
+  ) => Promise<void>
   skip: () => void
 }
 
@@ -57,7 +60,12 @@ export function useLectureAiChatFeedback(
       setIsSubmitting(true)
       setSubmitError(null)
       try {
-        await submitLectureAiChatFeedback({ lectureId, chatId, rating, feedback })
+        await submitLectureAiChatFeedback({
+          lectureId,
+          chatId,
+          rating,
+          feedback,
+        })
         submittedChatIdsRef.current.add(chatId)
         setIsVisible(false)
       } catch {

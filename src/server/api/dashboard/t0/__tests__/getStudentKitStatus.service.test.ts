@@ -1,54 +1,77 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { describe, expect, it } from 'vitest'
 
-import { getStudentKitStatus } from '../getStudentKitStatus.service'
+import { toStudentKitStatus } from '../getStudentKitStatus.service'
+import type { T0AdmissionsStatus } from '../getT0AdmissionsStatus.service'
 
-const hoisted = vi.hoisted(() => ({ execute: vi.fn(), buildRedirect: vi.fn() }))
-
-vi.mock('@/db', () => ({ db: { execute: hoisted.execute } }))
-vi.mock('@/server/admissions/buildAdmissionsRedirectForUser', () => ({
-  buildAdmissionsRedirectForUser: hoisted.buildRedirect,
-}))
-
-beforeEach(() => {
-  vi.clearAllMocks()
-  hoisted.buildRedirect.mockResolvedValue('https://sso/kit-form')
-})
-
-const row = (over: Record<string, unknown> = {}) => ({
-  student_kit_exists: 1,
-  student_kit_details_filled: 0,
-  student_kit_tracking_url: null,
-  payment_url: 'https://pay/x',
+/**
+ * `toStudentKitStatus` is a pure projection of the admissions-derived
+ * {@link T0AdmissionsStatus} onto the kit view the client consumes. All state
+ * originates from the admissions `student-status` API — the four states are
+ * not-applicable → details-not-filled → filled-pending-tracking → tracking.
+ */
+const status = (
+  over: Partial<T0AdmissionsStatus> = {},
+): T0AdmissionsStatus => ({
+  documentsRequired: false,
+  documentsUploaded: false,
+  documentsVerified: false,
+  kitApplicable: true,
+  kitDetailsFilled: false,
+  trackingUrl: null,
+  trackingId: null,
+  idCardUrl: null,
+  admissionsFormUrl: 'https://sso/kit-form',
   ...over,
 })
 
-describe('getStudentKitStatus', () => {
-  it('is not applicable when there is no kit', async () => {
-    hoisted.execute.mockResolvedValue([row({ student_kit_exists: 0 })])
-    const kit = await getStudentKitStatus(1, 5)
-    expect(kit).toEqual({ applicable: false, detailsFilled: false, trackingUrl: null, trackingId: null, admissionsFormUrl: null })
-    expect(hoisted.buildRedirect).not.toHaveBeenCalled()
+describe('toStudentKitStatus', () => {
+  it('is not applicable when there is no kit', () => {
+    expect(
+      toStudentKitStatus(
+        status({
+          kitApplicable: false,
+          admissionsFormUrl: 'https://sso/kit-form',
+        }),
+      ),
+    ).toEqual({
+      applicable: false,
+      detailsFilled: false,
+      trackingUrl: null,
+      trackingId: null,
+      admissionsFormUrl: null,
+    })
   })
 
-  it('offers an admissions SSO form link when details are not filled', async () => {
-    hoisted.execute.mockResolvedValue([row()])
-    const kit = await getStudentKitStatus(1, 5)
+  it('offers an admissions SSO form link when details are not filled', () => {
+    const kit = toStudentKitStatus(status({ kitDetailsFilled: false }))
     expect(kit.applicable).toBe(true)
     expect(kit.detailsFilled).toBe(false)
     expect(kit.admissionsFormUrl).toBe('https://sso/kit-form')
-    expect(hoisted.buildRedirect).toHaveBeenCalledWith(1, 'https://pay/x')
   })
 
-  it('is pending tracking when filled but no tracking url', async () => {
-    hoisted.execute.mockResolvedValue([row({ student_kit_details_filled: 1 })])
-    const kit = await getStudentKitStatus(1, 5)
-    expect(kit).toMatchObject({ applicable: true, detailsFilled: true, trackingUrl: null, admissionsFormUrl: null })
-    expect(hoisted.buildRedirect).not.toHaveBeenCalled()
+  it('is pending tracking when filled but no tracking url', () => {
+    const kit = toStudentKitStatus(status({ kitDetailsFilled: true }))
+    expect(kit).toMatchObject({
+      applicable: true,
+      detailsFilled: true,
+      trackingUrl: null,
+      admissionsFormUrl: null,
+    })
   })
 
-  it('surfaces the tracking url when the kit has shipped', async () => {
-    hoisted.execute.mockResolvedValue([row({ student_kit_details_filled: 1, student_kit_tracking_url: 'https://track/123' })])
-    const kit = await getStudentKitStatus(1, 5)
-    expect(kit).toMatchObject({ applicable: true, detailsFilled: true, trackingUrl: 'https://track/123' })
+  it('surfaces the tracking url and id when the kit has shipped', () => {
+    const kit = toStudentKitStatus(
+      status({
+        kitDetailsFilled: true,
+        trackingUrl: 'https://track/123',
+        trackingId: 'CK540196281IN',
+      }),
+    )
+    expect(kit).toMatchObject({
+      applicable: true,
+      detailsFilled: true,
+      trackingUrl: 'https://track/123',
+      trackingId: 'CK540196281IN',
+    })
   })
 })

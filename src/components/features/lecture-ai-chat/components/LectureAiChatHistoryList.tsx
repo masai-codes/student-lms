@@ -6,7 +6,6 @@ import type { AiTutorConversationSummary } from '@/lib/api/ai-tutor/aiTutorChatA
 import { Skeleton } from '@/components/ui/skeleton'
 import { cn } from '@/lib/utils'
 
-
 function formatRelativeTime(iso: string): string {
   const date = new Date(iso)
   const diffMs = Date.now() - date.getTime()

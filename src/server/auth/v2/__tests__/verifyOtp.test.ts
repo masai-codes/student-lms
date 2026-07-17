@@ -52,7 +52,9 @@ describe('verifyOtp — meaningful error messages', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     // `db.update(...).set(...).where(...)` resolves by default (attempt bump / mark-used)
-    hoisted.dbUpdate.mockReturnValue({ set: () => ({ where: () => Promise.resolve() }) })
+    hoisted.dbUpdate.mockReturnValue({
+      set: () => ({ where: () => Promise.resolve() }),
+    })
   })
 
   const cases: Array<{
@@ -87,26 +89,35 @@ describe('verifyOtp — meaningful error messages', () => {
     },
   ]
 
-  it.each(cases)('returns $expectedCode for $name', async ({ record, expectedCode, expectedMessage }) => {
-    const { verifyOtp, VerifyOtpError } = await import('../verifyOtp')
-    mockOtpLookup(record ? [record] : [])
+  it.each(cases)(
+    'returns $expectedCode for $name',
+    async ({ record, expectedCode, expectedMessage }) => {
+      const { verifyOtp, VerifyOtpError } = await import('../verifyOtp')
+      mockOtpLookup(record ? [record] : [])
 
-    const err = await verifyOtp({ otpSessionId: 's', otp: '123456' }).catch((e) => e)
+      const err = await verifyOtp({ otpSessionId: 's', otp: '123456' }).catch(
+        (e) => e,
+      )
 
-    expect(err).toBeInstanceOf(VerifyOtpError)
-    expect(err.code).toBe(expectedCode)
-    expect(err.message).toMatch(expectedMessage)
-  })
+      expect(err).toBeInstanceOf(VerifyOtpError)
+      expect(err.code).toBe(expectedCode)
+      expect(err.message).toMatch(expectedMessage)
+    },
+  )
 
   it('returns a friendly INVALID_OTP message and increments attempts on a wrong code', async () => {
     const { verifyOtp } = await import('../verifyOtp')
     mockOtpLookup([validRecord])
     hoisted.compare.mockResolvedValueOnce(false)
 
-    const err = await verifyOtp({ otpSessionId: 's', otp: '000000' }).catch((e) => e)
+    const err = await verifyOtp({ otpSessionId: 's', otp: '000000' }).catch(
+      (e) => e,
+    )
 
     expect(err.code).toBe('INVALID_OTP')
-    expect(err.message).toBe('The code you entered is incorrect. Please check it and try again.')
+    expect(err.message).toBe(
+      'The code you entered is incorrect. Please check it and try again.',
+    )
     expect(hoisted.dbUpdate).toHaveBeenCalledTimes(1) // attempts bumped
   })
 
@@ -116,7 +127,9 @@ describe('verifyOtp — meaningful error messages', () => {
     hoisted.compare.mockResolvedValueOnce(true)
     mockUserLookup([])
 
-    const err = await verifyOtp({ otpSessionId: 's', otp: '123456' }).catch((e) => e)
+    const err = await verifyOtp({ otpSessionId: 's', otp: '123456' }).catch(
+      (e) => e,
+    )
 
     expect(err.code).toBe('USER_NOT_FOUND')
     expect(err.message).toMatch(/couldn't find an account/i)
@@ -128,6 +141,8 @@ describe('verifyOtp — meaningful error messages', () => {
     hoisted.compare.mockResolvedValueOnce(true)
     mockUserLookup([dbUser])
 
-    await expect(verifyOtp({ otpSessionId: 's', otp: '123456' })).resolves.toEqual([dbUser])
+    await expect(
+      verifyOtp({ otpSessionId: 's', otp: '123456' }),
+    ).resolves.toEqual([dbUser])
   })
 })

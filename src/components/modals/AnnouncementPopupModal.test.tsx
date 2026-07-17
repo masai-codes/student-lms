@@ -16,12 +16,25 @@ const item = (over: Partial<PopupItem> = {}): PopupItem => ({
   ...over,
 })
 
-const handlers = () => ({ onShowLater: vi.fn(), onMarkRead: vi.fn(), onCta: vi.fn() })
+const handlers = () => ({
+  onShowLater: vi.fn(),
+  onMarkRead: vi.fn(),
+  onCta: vi.fn(),
+})
 
 describe('AnnouncementPopupModal', () => {
   it('renders the title + "Show me later" and has no close (X) button', () => {
-    render(<AnnouncementPopupModal open item={item()} isSubmitting={false} {...handlers()} />)
-    expect(screen.getByTestId('announcement-popup-title').textContent).toBe('Hello')
+    render(
+      <AnnouncementPopupModal
+        open
+        item={item()}
+        isSubmitting={false}
+        {...handlers()}
+      />,
+    )
+    expect(screen.getByTestId('announcement-popup-title').textContent).toBe(
+      'Hello',
+    )
     expect(screen.getByTestId('announcement-popup-show-later')).toBeTruthy()
     // No close (X) affordance — dismissal is only via "Show me later" / backdrop.
     expect(screen.queryByLabelText('Close')).toBeNull()
@@ -29,7 +42,9 @@ describe('AnnouncementPopupModal', () => {
 
   it('shows "Mark as read" (not a CTA) when the popup has no link, and fires onMarkRead', () => {
     const h = handlers()
-    render(<AnnouncementPopupModal open item={item()} isSubmitting={false} {...h} />)
+    render(
+      <AnnouncementPopupModal open item={item()} isSubmitting={false} {...h} />,
+    )
     expect(screen.queryByTestId('announcement-popup-cta')).toBeNull()
     fireEvent.click(screen.getByTestId('announcement-popup-mark-read'))
     expect(h.onMarkRead).toHaveBeenCalledTimes(1)
@@ -67,13 +82,22 @@ describe('AnnouncementPopupModal', () => {
 
   it('"Show me later" fires onShowLater', () => {
     const h = handlers()
-    render(<AnnouncementPopupModal open item={item()} isSubmitting={false} {...h} />)
+    render(
+      <AnnouncementPopupModal open item={item()} isSubmitting={false} {...h} />,
+    )
     fireEvent.click(screen.getByTestId('announcement-popup-show-later'))
     expect(h.onShowLater).toHaveBeenCalledTimes(1)
   })
 
   it('renders nothing when there is no item', () => {
-    render(<AnnouncementPopupModal open={false} item={null} isSubmitting={false} {...handlers()} />)
+    render(
+      <AnnouncementPopupModal
+        open={false}
+        item={null}
+        isSubmitting={false}
+        {...handlers()}
+      />,
+    )
     expect(screen.queryByTestId('announcement-popup-modal')).toBeNull()
   })
 })

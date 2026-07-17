@@ -1,12 +1,15 @@
 'use client'
 
-import { CaretDown, CaretUp, UsersThree } from '@phosphor-icons/react'
-import { useRouter } from '@tanstack/react-router'
+import { useRouteContext, useRouter } from '@tanstack/react-router'
 import { useState } from 'react'
+import type { CSSProperties } from 'react'
 
-import { LectureDiscussionCreateForm } from './LectureDiscussionCreateForm'
+import { LectureDiscussionCreatePanel } from './LectureDiscussionCreatePanel'
+import { LectureDiscussionList } from './LectureDiscussionList'
+import { LectureDiscussionListToolbar } from './LectureDiscussionListToolbar'
+import { LectureDiscussionPagination } from './LectureDiscussionPagination'
 import { learnDiscussionsEmptyStateNoun } from './discussionsEmptyStateCopy'
-import { LectureDiscussionListItem } from './LectureDiscussionListItem'
+import { useLearnDiscussionListControls } from './hooks/useLearnDiscussionListControls'
 import type { LearnDiscussionsEmptyStateContext } from './discussionsEmptyStateCopy'
 
 import type { DiscussionListItem } from '@/server/learn/types'
@@ -39,9 +42,14 @@ export function LectureDiscussionsSection({
   className,
 }: LectureDiscussionsSectionProps) {
   const router = useRouter()
+  const { user } = useRouteContext({ from: '/(protected)/_layout' })
   const [pending, setPending] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [createFormExpanded, setCreateFormExpanded] = useState(false)
+
+  const controls = useLearnDiscussionListControls({
+    discussions,
+    currentUserId: user?.id ?? null,
+  })
 
   const emptyStateNoun = learnDiscussionsEmptyStateNoun(emptyStateContext)
   const isAside = layout === 'aside'
@@ -52,7 +60,10 @@ export function LectureDiscussionsSection({
   }) => {
     pushLearnEvent(
       learnEntityEvent(entityKind, 'discussion_create', entityId),
-      { entity_id: entityId, entity_kind: entityKind },
+      {
+        entity_id: entityId,
+        entity_kind: entityKind,
+      },
     )
     setError(null)
     setPending(true)
@@ -71,35 +82,9 @@ export function LectureDiscussionsSection({
     }
   }
 
-  const listContent =
-    discussions.length === 0 ? (
-      <div className="flex flex-col items-center gap-2 py-8 text-center">
-        <UsersThree
-          className="h-16 w-16 text-gray-400"
-          weight="bold"
-          aria-hidden
-        />
-        <h3 className="type-b2-md text-gray-900">No discussions yet</h3>
-        <p className="type-b3-regular max-w-sm text-gray-500">
-          Be the first to start a discussion about this {emptyStateNoun}.
-        </p>
-      </div>
-    ) : (
-      <div className="space-y-3">
-        <p className="type-b3-regular text-gray-600">
-          Check what your peers are discussing
-        </p>
-        {discussions.map((discussion) => (
-          <LectureDiscussionListItem
-            key={discussion.id}
-            discussion={discussion}
-          />
-        ))}
-      </div>
-    )
-
   return (
     <section
+      data-testid="discussions-section"
       className={cn(
         isAside
           ? 'flex min-h-0 flex-1 flex-col'
@@ -107,69 +92,56 @@ export function LectureDiscussionsSection({
         className,
       )}
     >
-      <h2 className="type-h4 mb-2 text-gray-900">Discussions</h2>
-      <p className="type-b3-regular mb-4 text-gray-500">
+      <h2 className="type-h4 animate-dash-rise mb-2 text-foreground">
+        Discussions
+      </h2>
+      <p
+        className="type-b3-regular animate-dash-rise mb-4 text-foreground-muted"
+        style={{ '--dash-delay': '0.05s' } as CSSProperties}
+      >
         Share course-related discussions with your peers.
       </p>
 
-      {useCreateFormAccordion ? (
-        <div className="mb-4 shrink-0 rounded-lg border border-gray-200 bg-white">
-          <button
-            type="button"
-            onClick={() => {
-              pushLearnEvent('l_learn_discussion_create_form_toggle', {
-                entity_id: entityId,
-                entity_kind: entityKind,
-              })
-              setCreateFormExpanded((current) => !current)
-            }}
-            aria-expanded={createFormExpanded}
-            className="type-b3-md flex w-full items-center justify-between gap-2 px-3 py-2.5 text-left text-gray-900 hover:bg-gray-50"
-          >
-            Create discussion
-            {createFormExpanded ? (
-              <CaretUp className="size-4 shrink-0 text-gray-600" aria-hidden />
-            ) : (
-              <CaretDown
-                className="size-4 shrink-0 text-gray-600"
-                aria-hidden
-              />
-            )}
-          </button>
-          {createFormExpanded ? (
-            <div className="border-t border-gray-100 px-3 pb-3 pt-2">
-              <LectureDiscussionCreateForm
-                disabled={pending}
-                onSubmit={handlePost}
-              />
-              {error ? (
-                <p
-                  className="type-b3-regular mt-3 text-destructive"
-                  role="alert"
-                >
-                  {error}
-                </p>
-              ) : null}
-            </div>
-          ) : null}
-        </div>
-      ) : (
-        <div className={cn('shrink-0', isAside ? 'mb-4' : 'mb-6')}>
-          <LectureDiscussionCreateForm
-            disabled={pending}
-            onSubmit={handlePost}
-          />
-          {error ? (
-            <p className="type-b3-regular mt-3 text-destructive" role="alert">
-              {error}
-            </p>
-          ) : null}
-        </div>
-      )}
+      <LectureDiscussionCreatePanel
+        entityId={entityId}
+        entityKind={entityKind}
+        pending={pending}
+        error={error}
+        onSubmit={handlePost}
+        useAccordion={useCreateFormAccordion}
+        className={cn(isAside || useCreateFormAccordion ? 'mb-4' : 'mb-6')}
+      />
+
+      {discussions.length > 0 ? (
+        <LectureDiscussionListToolbar
+          entityId={entityId}
+          entityKind={entityKind}
+          search={controls.search}
+          onSearchChange={controls.changeSearch}
+          mineOnly={controls.mineOnly}
+          onToggleMineOnly={controls.toggleMineOnly}
+          className="mb-3 shrink-0"
+        />
+      ) : null}
 
       <div className={cn(isAside && 'min-h-0 flex-1 overflow-y-auto')}>
-        {listContent}
+        <LectureDiscussionList
+          discussions={controls.pageItems}
+          emptyStateNoun={emptyStateNoun}
+          hasActiveFilters={controls.hasActiveFilters}
+          currentUserId={user?.id ?? null}
+        />
       </div>
+
+      <LectureDiscussionPagination
+        entityId={entityId}
+        entityKind={entityKind}
+        page={controls.page}
+        totalPages={controls.totalPages}
+        filteredCount={controls.filteredCount}
+        pageSize={controls.pageSize}
+        onPageChange={controls.goToPage}
+      />
     </section>
   )
 }

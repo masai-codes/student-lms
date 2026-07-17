@@ -11,10 +11,14 @@ describe('getAssignmentNotStartedBannerCopy', () => {
   })
 
   it('returns practice copy for practice assignments', () => {
-    expect(getAssignmentNotStartedBannerCopy('practice').title).toContain('Practice')
+    expect(getAssignmentNotStartedBannerCopy('practice').title).toContain(
+      'Practice',
+    )
   })
 
   it('returns evaluation copy for evaluations', () => {
-    expect(getAssignmentNotStartedBannerCopy('evaluation').title).toContain('Evaluation')
+    expect(getAssignmentNotStartedBannerCopy('evaluation').title).toContain(
+      'Evaluation',
+    )
   })
 })

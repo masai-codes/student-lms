@@ -1,4 +1,7 @@
-import { MarkdownContent, toMarkdownPreviewText } from '@/components/shared/markdown-content'
+import {
+  MarkdownContent,
+  toMarkdownPreviewText,
+} from '@/components/shared/markdown-content'
 
 type RichContentProps = {
   value: string

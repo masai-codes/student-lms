@@ -1,19 +1,18 @@
-import { createServerFn } from '@tanstack/react-start';
-import { and, desc, eq } from 'drizzle-orm';
+import { createServerFn } from '@tanstack/react-start'
+import { and, desc, eq } from 'drizzle-orm'
 import type { InferSelectModel } from 'drizzle-orm'
-import { db } from '@/db';
-import { assignments } from '@/db/schema';
-import { PAGINATION_PAGE_SIZE } from '@/globalSettings';
+import { db } from '@/db'
+import { assignments } from '@/db/schema'
+import { PAGINATION_PAGE_SIZE } from '@/globalSettings'
 
 export type AssignmentsType = InferSelectModel<typeof assignments>
 
-
-export const fetchAllAssignments = createServerFn({ method: "GET" })
+export const fetchAllAssignments = createServerFn({ method: 'GET' })
   .inputValidator(
-    (data: { userId: number; batchId?: number | null; page?: number }) => data
+    (data: { userId: number; batchId?: number | null; page?: number }) => data,
   )
   .handler(async ({ data }) => {
-    console.log("📥 Request reached server", data.page)
+    console.log('📥 Request reached server', data.page)
 
     try {
       const page = data.page ?? 1
@@ -33,10 +32,10 @@ export const fetchAllAssignments = createServerFn({ method: "GET" })
         .limit(PAGINATION_PAGE_SIZE)
         .offset(offset)
 
-      console.log("🙈", rows)
+      console.log('🙈', rows)
       return rows
     } catch (err) {
-      console.error("🔥 Server/DB error", err)
-      throw new Error("SERVER_ERROR_FETCHING_LECTURES")
+      console.error('🔥 Server/DB error', err)
+      throw new Error('SERVER_ERROR_FETCHING_LECTURES')
     }
   })

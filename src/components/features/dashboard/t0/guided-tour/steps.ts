@@ -66,10 +66,11 @@ function videoStep(
 export function buildLmsSteps(
   lectures: T0FlowLecturesResult,
   status: T0FlowStatus,
+  flowVariant: 'full' | 'lite',
 ): Array<GuidedTourStep> {
   const completedIds = new Set(lectures.completedLectureIds)
   const videoSteps =
-    status.flowVariant === 'lite'
+    flowVariant === 'lite'
       ? []
       : lectures.lmsLectures.map((l) => videoStep(l, completedIds))
 
@@ -106,10 +107,10 @@ export function buildLmsSteps(
  */
 export function buildProgramSteps(
   lectures: T0FlowLecturesResult,
-  status: T0FlowStatus,
+  flowVariant: 'full' | 'lite',
 ): Array<GuidedTourStep> {
   const completedIds = new Set(lectures.completedLectureIds)
-  const isLite = status.flowVariant === 'lite'
+  const isLite = flowVariant === 'lite'
   const videoSteps = isLite
     ? []
     : lectures.programLectures.map((l) => videoStep(l, completedIds))
@@ -127,21 +128,17 @@ export function buildProgramSteps(
   // Lite is agreement-only — no documents / kit / ID-card capstone.
   if (isLite) return [...agreementSteps]
 
-  // Documents + student kit are locked until every agreement is signed.
-  const agreementsSigned = lectures.legalAgreementSections.every(
-    (a) => a.completed,
-  )
-
+  // Documents + student kit are optional steps — always available (not gated on
+  // the agreement). Visibility is decided solely by the admissions API.
   const extraSteps: Array<GuidedTourStep> = []
   if (lectures.isDocumentsRequired) {
-    // Completion comes from the on-demand documents status the step fetches.
+    // Green-checked once the admissions API reports the documents as uploaded.
     extraSteps.push({
       key: 'documents',
       kind: 'fixed',
       title: 'Upload your documents',
-      completed: false,
+      completed: lectures.documentsUploaded,
       action: 'documents',
-      locked: !agreementsSigned,
     })
   }
   if (lectures.studentKit.applicable) {
@@ -152,7 +149,6 @@ export function buildProgramSteps(
       completed: lectures.studentKit.detailsFilled,
       action: 'student-kit',
       studentKit: lectures.studentKit,
-      locked: !agreementsSigned,
     })
   }
 
@@ -175,10 +171,9 @@ export interface IdCardState {
  */
 export function getIdCardState(
   lectures: T0FlowLecturesResult,
-  status: T0FlowStatus,
+  flowVariant: 'full' | 'lite',
 ): IdCardState {
-  if (status.flowVariant === 'lite')
-    return { show: false, url: null, unlocked: false }
+  if (flowVariant === 'lite') return { show: false, url: null, unlocked: false }
 
   const completedIds = new Set(lectures.completedLectureIds)
   const videosComplete = lectures.programLectures.every((l) =>

@@ -25,7 +25,10 @@ export function joinSessionButtonVisible(
     ) {
       return 'active'
     }
-    if (serverTimeMs > lectureScheduledTime - beforeLectureButtonVisibilityTime) {
+    if (
+      serverTimeMs >
+      lectureScheduledTime - beforeLectureButtonVisibilityTime
+    ) {
       return 'visible'
     }
     return ''

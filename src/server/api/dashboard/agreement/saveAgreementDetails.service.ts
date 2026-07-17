@@ -12,6 +12,8 @@ import { profiles } from '@/db/schema'
 export interface SaveAgreementResult {
   savedValues: AgreementFormValues
   referenceNumber: string
+  /** Client IP recorded for the certificate (matches the reference flow, which stamps it on save). */
+  ipAddress: string | null
 }
 
 function asRecord(raw: unknown): Record<string, unknown> {
@@ -28,6 +30,7 @@ export async function saveAgreementDetails(
   userId: number,
   sectionId: number,
   values: AgreementFormValues,
+  ipAddress?: string,
 ): Promise<SaveAgreementResult> {
   const cleanValues = pickAgreementFormValues(values)
   const key = sectionAgreementKey(sectionId)
@@ -42,22 +45,40 @@ export async function saveAgreementDetails(
   const legalData = asRecord(profile?.legalData)
   const agreements = asRecord(legalData['agreements'])
   const existing = asRecord(agreements[key])
-  const referenceNumber = (existing['referenceNumber'] as string | undefined) ?? buildReferenceNumber(userId, sectionId)
+  const referenceNumber =
+    (existing['referenceNumber'] as string | undefined) ??
+    buildReferenceNumber(userId, sectionId)
+
+  // Stamp the client IP on first save (kept once set), so it shows on the
+  // certificate before final submit — mirroring the reference (experience) flow.
+  const resolvedIp =
+    (existing['ipAddress'] as string | undefined) || ipAddress || null
 
   const merged = {
     ...existing,
     ...cleanValues,
     referenceNumber,
+    ...(resolvedIp ? { ipAddress: resolvedIp } : {}),
     formDetailCreateTime: existing['formDetailCreateTime'] ?? now,
     formDetailUpdateTime: now,
   }
-  const nextLegalData = { ...legalData, agreements: { ...agreements, [key]: merged } }
+  const nextLegalData = {
+    ...legalData,
+    agreements: { ...agreements, [key]: merged },
+  }
 
   if (profile) {
-    await db.update(profiles).set({ legalData: nextLegalData }).where(eq(profiles.id, profile.id))
+    await db
+      .update(profiles)
+      .set({ legalData: nextLegalData })
+      .where(eq(profiles.id, profile.id))
   } else {
     await db.insert(profiles).values({ userId, legalData: nextLegalData })
   }
 
-  return { savedValues: pickAgreementFormValues(merged), referenceNumber }
+  return {
+    savedValues: pickAgreementFormValues(merged),
+    referenceNumber,
+    ipAddress: resolvedIp,
+  }
 }

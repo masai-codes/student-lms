@@ -1,5 +1,19 @@
 export type SectionAttendanceSettings = {
+  /**
+   * Video attendance is tracked at all (catch-up window applies). True when
+   * EITHER `enableVideoAttendance` OR `considerVideoAttendanceForActualAttendance`
+   * is set — used to decide whether to compute the catch-up window.
+   */
   enableVideoAttendance: boolean
+  /**
+   * `considerVideoAttendanceForActualAttendance` verbatim: whether watching the
+   * recording actually COUNTS toward the attendance status. Distinct from
+   * `enableVideoAttendance` (a section can track video watching for a catch-up
+   * window without letting it change the Present/Absent status). Drives the
+   * lecture-detail disclaimer banner variant (legacy
+   * `video_attendance_considered_in_section`).
+   */
+  considerVideoAttendanceForActualAttendance: boolean
   catchUpDays: number
 }
 
@@ -18,9 +32,12 @@ export function parseSectionAttendanceSettings(
     settings = settingsRaw as Record<string, unknown>
   }
 
+  const considerVideoAttendanceForActualAttendance =
+    settings.considerVideoAttendanceForActualAttendance === true
+
   const enableVideoAttendance =
     settings.enableVideoAttendance === true ||
-    settings.considerVideoAttendanceForActualAttendance === true
+    considerVideoAttendanceForActualAttendance
 
   const catchUpDaysFromSettings = Number(settings.catchUpDays)
   const catchUpDays =
@@ -28,5 +45,9 @@ export function parseSectionAttendanceSettings(
       ? catchUpDaysFromSettings
       : 0
 
-  return { enableVideoAttendance, catchUpDays }
+  return {
+    enableVideoAttendance,
+    considerVideoAttendanceForActualAttendance,
+    catchUpDays,
+  }
 }

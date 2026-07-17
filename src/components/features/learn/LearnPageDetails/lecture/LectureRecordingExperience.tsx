@@ -1,5 +1,7 @@
 'use client'
 
+import { useState } from 'react'
+
 import { LectureDesktopChatSidebar } from './components/LectureDesktopChatSidebar'
 import { useLectureHeroViewportHeight } from './hooks/useLectureHeroViewportHeight'
 import { LectureDetailActions } from './shared/LectureDetailActions'
@@ -24,12 +26,17 @@ type LectureRecordingExperienceProps = {
   hostName: string
   hostAvatarUrl: string | null
   scheduleDisplayRange: string
+  scheduleDisplayRangeIst?: string
   entityId: number
   discussions: Array<DiscussionListItem>
   hideNotes: boolean
   tabs: LectureDetailTabContent
   videoAttendance: LectureVideoAttendanceState | null
   attendance: LectureAttendanceSummary | null
+  /** Set only for optional (recommended) lectures; renders the info tooltip. */
+  optionalAttendance?: LectureAttendanceSummary | null
+  /** `live`/`scrum` lecture — shows the Live line in the attendance breakdown. */
+  isLiveLecture: boolean
   isBookmarked: boolean
   feedback: LectureFeedbackState
 }
@@ -45,41 +52,52 @@ export function LectureRecordingExperience({
   hostName,
   hostAvatarUrl,
   scheduleDisplayRange,
+  scheduleDisplayRangeIst,
   entityId,
   discussions,
   hideNotes,
   tabs,
   videoAttendance,
   attendance,
+  optionalAttendance,
+  isLiveLecture,
   isBookmarked,
   feedback,
 }: LectureRecordingExperienceProps) {
-  const { rootRef, heightPx } = useLectureHeroViewportHeight()
+  // On mobile the hero (video) height tracks the actual video aspect ratio.
+  const [videoAspectRatio, setVideoAspectRatio] = useState<number | null>(null)
+  const { rootRef, heightPx } = useLectureHeroViewportHeight(videoAspectRatio)
 
   const renderVideoSection = () => (
     <LectureVideoSection
       lectureId={entityId}
       videoUrl={videoUrl}
       initialAttendance={videoAttendance}
+      transcriptSegments={tabs.transcriptSegments}
       className="min-h-0 flex-1"
       fullBleed={false}
+      onVideoAspectRatioChange={setVideoAspectRatio}
     />
   )
 
   const hero = (
     <div
       ref={rootRef}
-      className="flex w-full shrink-0 flex-col overflow-visible bg-white"
+      className="flex w-full shrink-0 flex-col overflow-visible bg-surface"
       style={
         heightPx != null
           ? { height: heightPx, minHeight: heightPx, maxHeight: heightPx }
           : undefined
       }
     >
+      {/* `has-[:fullscreen]:flex` on both rows: entering fullscreen on Android
+          locks the screen to landscape, which flips the viewport past the `md`
+          breakpoint — without it the fullscreened row goes display:none and the
+          browser instantly exits fullscreen. */}
       <div
         className={cn(
           heroRowFullBleedClasses,
-          'hidden min-h-0 flex-1 flex-row items-stretch overflow-hidden bg-black md:flex',
+          'hidden min-h-0 flex-1 flex-row items-stretch overflow-hidden bg-black md:flex has-[:fullscreen]:flex',
         )}
         data-lecture-split-layout
       >
@@ -92,7 +110,7 @@ export function LectureRecordingExperience({
       <div
         className={cn(
           heroRowFullBleedClasses,
-          'flex min-h-0 flex-1 flex-col bg-black md:hidden',
+          'flex min-h-0 flex-1 flex-col bg-black md:hidden has-[:fullscreen]:flex',
         )}
       >
         {renderVideoSection()}
@@ -101,7 +119,7 @@ export function LectureRecordingExperience({
   )
 
   const belowHero = (
-    <div className="shrink-0 border-t border-gray-200 bg-white md:hidden">
+    <div className="shrink-0 border-t border-border bg-surface md:hidden">
       <LectureAiChatExperience lectureId={entityId} variant="mobile-dock" />
     </div>
   )
@@ -114,8 +132,12 @@ export function LectureRecordingExperience({
       hostName={hostName}
       hostAvatarUrl={hostAvatarUrl}
       scheduleDisplayRange={scheduleDisplayRange}
+      scheduleDisplayRangeIst={scheduleDisplayRangeIst}
       attendance={attendance}
+      optionalAttendance={optionalAttendance}
+      isLiveLecture={isLiveLecture}
       watchPercentage={videoAttendance?.watchPercentage}
+      showAttendanceBanner
       actions={
         <LectureDetailActions
           lectureId={entityId}

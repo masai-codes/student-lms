@@ -18,8 +18,8 @@ export function BeforeVideoLecture({ schedule }: BeforeVideoLectureProps) {
       title="Lecture hasn’t started yet"
       description={
         <>
-         Lecture will be unlocked and available at{' '}
-          <span className="type-b2-md text-gray-900">{unlockLabel}</span>.
+          Lecture will be unlocked and available at{' '}
+          <span className="type-b2-md text-foreground">{unlockLabel}</span>.
         </>
       }
     />

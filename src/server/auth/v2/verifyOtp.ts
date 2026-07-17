@@ -4,6 +4,7 @@ import { db } from '@/db'
 import { otpCodes, users } from '@/db/schema'
 import type { AuthenticatedUser } from '@/server/auth/v2/loginWithPassword'
 import { mobileLookupCandidates } from '@/server/auth/v2/mobileLookup'
+import { isUserDeactivated } from '@/server/restrictions/deactivatedUser'
 
 const MAX_ATTEMPTS = 5
 
@@ -20,7 +21,8 @@ export class VerifyOtpError extends Error {
       | 'OTP_EXPIRED'
       | 'TOO_MANY_ATTEMPTS'
       | 'INVALID_OTP'
-      | 'USER_NOT_FOUND',
+      | 'USER_NOT_FOUND'
+      | 'ACCOUNT_DEACTIVATED',
     message: string,
   ) {
     super(message)
@@ -112,6 +114,7 @@ export async function verifyOtp({
       mobile: users.mobile,
       role: users.role,
       client: users.client,
+      status: users.status,
     })
     .from(users)
     .where(
@@ -127,5 +130,14 @@ export async function verifyOtp({
     )
   }
 
-  return userRows
+  // Drop deactivated accounts; if every matched account is deactivated, block sign-in.
+  const activeUsers = userRows.filter((u) => !isUserDeactivated(u.status))
+  if (activeUsers.length === 0) {
+    throw new VerifyOtpError(
+      'ACCOUNT_DEACTIVATED',
+      'Your account has been deactivated. Please contact support if you think this is a mistake.',
+    )
+  }
+
+  return activeUsers.map(({ status: _status, ...user }) => user)
 }

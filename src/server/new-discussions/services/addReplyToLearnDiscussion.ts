@@ -11,7 +11,10 @@ export async function addReplyToLearnDiscussion(options: {
   rawMessage: string
 }): Promise<void> {
   const message = parseReplyMessage(options.rawMessage)
-  await assertStudentMayInteractWithDiscussion(options.authorUserId, options.discussionId)
+  await assertStudentMayInteractWithDiscussion(
+    options.authorUserId,
+    options.discussionId,
+  )
 
   const discussionRows = await db
     .select({ isClosed: discussions.isClosed })
@@ -27,7 +30,7 @@ export async function addReplyToLearnDiscussion(options: {
     throw new Error('DISCUSSION_CLOSED')
   }
 
-  await db.transaction(async tx => {
+  await db.transaction(async (tx) => {
     await tx.insert(threads).values({
       discussionId: options.discussionId,
       userId: options.authorUserId,

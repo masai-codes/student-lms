@@ -17,7 +17,9 @@ export function parseLectureSettings(raw: unknown): ParsedLectureSettings {
     return { hideVideo: false, hideNotes: false, showFeedback: false }
   }
   return {
-    hideVideo: raw.hide_video === true,
+    // Match legacy LMS truthy semantics: `hide_video` is stored as either a
+    // JSON boolean `true` or the integer `1`, both of which must hide the video.
+    hideVideo: isTruthySettingFlag(raw.hide_video),
     hideNotes: isTruthySettingFlag(raw.hide_notes),
     showFeedback: isTruthySettingFlag(raw.show_feedback),
   }

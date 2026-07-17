@@ -23,9 +23,7 @@ export type SendAiChatMessageResult = {
  * cleanly even if the session ends mid-conversation.
  */
 export type AiChatHistoryEntry =
-  | AiChatTextTurnEntry
-  | AiChatAudioStudentEntry
-  | AiChatAudioAssistantEntry
+  AiChatTextTurnEntry | AiChatAudioStudentEntry | AiChatAudioAssistantEntry
 
 export type AiChatTextTurnEntry = {
   type: 'text'

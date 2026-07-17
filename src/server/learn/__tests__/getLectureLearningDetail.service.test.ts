@@ -15,11 +15,8 @@ vi.mock('@/db', () => ({
   db: { select: hoisted.dbSelect },
 }))
 
-vi.mock('@/server/users/batchBan', () => ({
-  getUserBatchBans: vi.fn(async () => ({
-    normalByBatch: new Map(),
-    agreementByBatch: new Map(),
-  })),
+vi.mock('@/server/restrictions/getUserBatchRestrictions', () => ({
+  getUserBatchRestrictions: vi.fn(async () => new Map()),
 }))
 vi.mock('@/server/batches/getBatchIdsForSections', () => ({
   getBatchIdForSection: vi.fn(async () => null),
@@ -37,8 +34,8 @@ vi.mock(
   }),
 )
 
-vi.mock('@/server/learn/services/getLectureAssociatedContent.service', () => ({
-  getLectureAssociatedContent: hoisted.associatedContent,
+vi.mock('@/server/learn/services/getAllAssociatedEntities.service', () => ({
+  getAllAssociatedEntities: hoisted.associatedContent,
 }))
 
 vi.mock('@/server/learn/utils/buildLectureVideoAttendanceState', () => ({
@@ -70,45 +67,56 @@ describe('getLectureLearningDetailForUser', () => {
   })
 
   it('returns lecture detail payload for supported live lectures', async () => {
-    const { getLectureLearningDetailForUser } = await import(
-      '../services/getLectureLearningDetail.service'
-    )
+    const { getLectureLearningDetailForUser } =
+      await import('../services/getLectureLearningDetail.service')
 
     hoisted.dbSelect
       .mockReturnValueOnce({
         from: () => ({
           leftJoin: () => ({
-            where: () => ({
-              limit: () =>
-                Promise.resolve([
-                  {
-                    id: 227,
-                    title: 'Live DSA',
-                    category: 'coding',
-                    type: 'live',
-                    optional: 0,
-                    schedule: '2020-01-01 10:00:00',
-                    concludes: '2020-01-01 12:00:00',
-                    week: 1,
-                    module: null,
-                    batchId: 1,
-                    sectionId: 2,
-                    hostName: 'Ravi',
-                    hostAvatarUrl: null,
-                    zoomLink: null,
-                    videos: null,
-                    vimeoDownloadLinks: null,
-                    vimeoPlayerEmbedUrl: null,
-                    settings: { hide_notes: 0 },
-                    notes: '# Session notes',
-                    isNewZoomRedirection: 1,
-                    data: null,
-                  },
-                ]),
+            leftJoin: () => ({
+              where: () => ({
+                limit: () =>
+                  Promise.resolve([
+                    {
+                      id: 227,
+                      title: 'Live DSA',
+                      category: 'coding',
+                      type: 'live',
+                      optional: 0,
+                      schedule: '2020-01-01 10:00:00',
+                      concludes: '2020-01-01 12:00:00',
+                      week: 1,
+                      module: null,
+                      batchId: 1,
+                      sectionId: 2,
+                      hostName: 'Ravi',
+                      hostAvatarUrl: null,
+                      zoomLink: null,
+                      videos: null,
+                      vimeoDownloadLinks: null,
+                      vimeoPlayerEmbedUrl: null,
+                      settings: { hide_notes: 0 },
+                      notes: '# Session notes',
+                      isNewZoomRedirection: 1,
+                      sectionSettings: { enableZoomWebView: true },
+                      data: null,
+                    },
+                  ]),
+              }),
             }),
           }),
         }),
       })
+      // lecturesAi select
+      .mockReturnValueOnce({
+        from: () => ({
+          where: () => ({
+            limit: () => Promise.resolve([]),
+          }),
+        }),
+      })
+      // lectureZoomChat select
       .mockReturnValueOnce({
         from: () => ({
           where: () => ({
@@ -129,25 +137,26 @@ describe('getLectureLearningDetailForUser', () => {
     expect(result.attendance).toBeNull()
     expect(result.isBookmarked).toBe(false)
     expect(result.isNewZoomRedirection).toBe(true)
+    expect(result.enableZoomWebView).toBe(true)
     expect(hoisted.bookmarkState).toHaveBeenCalledWith(9, 'lecture', 227)
   })
 
   it('throws when lecture type is unsupported', async () => {
-    const { getLectureLearningDetailForUser } = await import(
-      '../services/getLectureLearningDetail.service'
-    )
+    const { getLectureLearningDetailForUser } =
+      await import('../services/getLectureLearningDetail.service')
 
     hoisted.dbSelect.mockReturnValue({
       from: () => ({
         leftJoin: () => ({
-          where: () => ({
-            limit: () =>
-              Promise.resolve([
-                {
-                  id: 1,
-                  title: 'Scrum',
+          leftJoin: () => ({
+            where: () => ({
+              limit: () =>
+                Promise.resolve([
+                  {
+                    id: 1,
+                    title: 'Unknown type',
                   category: 'coding',
-                  type: 'scrum',
+                  type: 'unknown',
                   optional: 0,
                   schedule: null,
                   concludes: null,
@@ -166,6 +175,7 @@ describe('getLectureLearningDetailForUser', () => {
                   data: null,
                 },
               ]),
+            }),
           }),
         }),
       }),

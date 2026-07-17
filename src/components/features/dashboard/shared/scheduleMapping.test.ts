@@ -21,7 +21,9 @@ function pinTimezone(tz: string) {
   })
 }
 
-const item = (over: Partial<DashboardScheduleItem> = {}): DashboardScheduleItem => ({
+const item = (
+  over: Partial<DashboardScheduleItem> = {},
+): DashboardScheduleItem => ({
   id: 1,
   learningType: 'lecture',
   title: 'Workshop',
@@ -33,9 +35,19 @@ const item = (over: Partial<DashboardScheduleItem> = {}): DashboardScheduleItem 
   isOptional: 'mandatory',
   moduleName: 'Module 1',
   attendance: null,
+  optionalAttendance: null,
   assignmentProgressStatus: null,
   resourcePhase: null,
-  listingCtas: { joinLive: 'active', joinZoomLink: null, isNewZoomRedirection: false, showAttendance: false, assignmentStatusChip: null, assignmentDeadlineLabel: null },
+  listingCtas: {
+    joinLive: 'active',
+    joinZoomLink: null,
+    isNewZoomRedirection: false,
+    enableZoomWebView: false,
+    showAttendance: false,
+    assignmentStatusChip: null,
+    assignmentDeadlineLabel: null,
+    assignmentScore: null,
+  },
   courseName: 'Full Stack',
   enableZoomWebView: false,
   ...over,
@@ -70,9 +82,20 @@ describe('buildScheduleWeek (IST viewer)', () => {
     const week = buildScheduleWeek([], NOW)
     expect(week.rangeLabel).toBe('Jul 02 - 08')
     expect(week.days).toHaveLength(7)
-    expect(week.days[0]).toMatchObject({ key: '2026-07-02', weekday: 'Thu', dayOfMonth: '02', isToday: true })
-    expect(week.days[6]).toMatchObject({ key: '2026-07-08', dayOfMonth: '08', isToday: false })
-    expect(week.days.every((d, i) => (i === 0 ? d.isToday : !d.isToday))).toBe(true)
+    expect(week.days[0]).toMatchObject({
+      key: '2026-07-02',
+      weekday: 'Thu',
+      dayOfMonth: '02',
+      isToday: true,
+    })
+    expect(week.days[6]).toMatchObject({
+      key: '2026-07-08',
+      dayOfMonth: '08',
+      isToday: false,
+    })
+    expect(week.days.every((d, i) => (i === 0 ? d.isToday : !d.isToday))).toBe(
+      true,
+    )
   })
 
   it('places each item on its local day; empty days stay empty', () => {
@@ -84,7 +107,9 @@ describe('buildScheduleWeek (IST viewer)', () => {
       ],
       NOW,
     )
-    const byKey = Object.fromEntries(week.days.map((d) => [d.key, d.items.map((i) => i.id)]))
+    const byKey = Object.fromEntries(
+      week.days.map((d) => [d.key, d.items.map((i) => i.id)]),
+    )
     expect(byKey['2026-07-03']).toEqual([2])
     expect(byKey['2026-07-05']).toEqual([1])
     expect(byKey['2026-07-02']).toEqual([])
@@ -102,7 +127,9 @@ describe('buildScheduleWeek (IST viewer)', () => {
       ],
       NOW,
     )
-    const byKey = Object.fromEntries(week.days.map((d) => [d.key, d.items.map((i) => i.id)]))
+    const byKey = Object.fromEntries(
+      week.days.map((d) => [d.key, d.items.map((i) => i.id)]),
+    )
     expect(byKey['2026-07-03']).toEqual([1])
     expect(byKey['2026-07-04']).toEqual([])
     expect(byKey['2026-07-06']).toEqual([])
@@ -121,7 +148,9 @@ describe('buildScheduleWeek (IST viewer)', () => {
       ],
       NOW,
     )
-    const byKey = Object.fromEntries(week.days.map((d) => [d.key, d.items.map((i) => i.id)]))
+    const byKey = Object.fromEntries(
+      week.days.map((d) => [d.key, d.items.map((i) => i.id)]),
+    )
     expect(byKey['2026-07-02']).toEqual([7]) // today only
     expect(byKey['2026-07-03']).toEqual([])
     expect(byKey['2026-07-08']).toEqual([])
@@ -140,7 +169,9 @@ describe('buildScheduleWeek (IST viewer)', () => {
       ],
       NOW,
     )
-    const byKey = Object.fromEntries(week.days.map((d) => [d.key, d.items.map((i) => i.id)]))
+    const byKey = Object.fromEntries(
+      week.days.map((d) => [d.key, d.items.map((i) => i.id)]),
+    )
     expect(byKey['2026-07-02']).toEqual([]) // not started yet
     expect(byKey['2026-07-05']).toEqual([8]) // start day
     expect(byKey['2026-07-06']).toEqual([])

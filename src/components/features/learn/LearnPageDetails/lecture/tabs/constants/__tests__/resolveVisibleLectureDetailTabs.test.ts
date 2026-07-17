@@ -9,20 +9,20 @@ import {
 describe('resolveVisibleLectureDetailTabs', () => {
   it('includes the description tab by default', () => {
     const tabs = resolveVisibleLectureDetailTabs(false)
-    expect(tabs.some(tab => tab.id === 'description')).toBe(true)
+    expect(tabs.some((tab) => tab.id === 'description')).toBe(true)
     expect(tabs).toHaveLength(LECTURE_DETAIL_TABS.length)
   })
 
   it('removes the description tab when hide_notes is enabled', () => {
     const tabs = resolveVisibleLectureDetailTabs(true)
-    expect(tabs.some(tab => tab.id === 'description')).toBe(false)
+    expect(tabs.some((tab) => tab.id === 'description')).toBe(false)
     expect(tabs).toHaveLength(LECTURE_DETAIL_TABS.length - 1)
   })
 
   it('does not expose a separate notes tab', () => {
-    expect(LECTURE_DETAIL_TABS.some(tab => tab.id === ('notes' as string))).toBe(
-      false,
-    )
+    expect(
+      LECTURE_DETAIL_TABS.some((tab) => tab.id === ('notes' as string)),
+    ).toBe(false)
   })
 })
 

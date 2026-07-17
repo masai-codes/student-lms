@@ -17,12 +17,24 @@ interface DashboardPageProps {
    * guided tour open even if onboarding is already complete.
    */
   openGuidedTourSignal?: boolean
+  /**
+   * Deep-link target for the guided tour (e.g. a "Sign agreement" CTA from a
+   * restricted lecture navigates here with a batch + agreement step preselected).
+   */
+  guidedTourTarget?: {
+    batchId?: number
+    tab?: 'lms' | 'program'
+    stepAction?: 'agreement'
+  }
 }
 
 // Feature entry point. The welcome greeting comes from the `me` API; the live
 // sections come from the consolidated overview query (each card renders its own
 // loading / error / empty state).
-export function DashboardPage({ openGuidedTourSignal = false }: DashboardPageProps = {}) {
+export function DashboardPage({
+  openGuidedTourSignal = false,
+  guidedTourTarget,
+}: DashboardPageProps = {}) {
   const { data, isPending, isError } = useQuery({
     queryKey: ['dashboard', 'overview'],
     queryFn: fetchDashboardOverview,
@@ -42,20 +54,35 @@ export function DashboardPage({ openGuidedTourSignal = false }: DashboardPagePro
   const [tourDismissed, setTourDismissed] = useState(false)
   const [tourTarget, setTourTarget] = useState<GuidedTourTarget | null>(null)
   const [tourForced, setTourForced] = useState(false)
-  const resumeOnboarding = useCallback((batchId: number, tab: 'lms' | 'program') => {
-    setTourTarget({ batchId, tab })
-    setTourDismissed(false)
-  }, [])
+  const resumeOnboarding = useCallback(
+    (batchId: number, tab: 'lms' | 'program') => {
+      setTourTarget({ batchId, tab })
+      setTourDismissed(false)
+    },
+    [],
+  )
 
   // The navbar "?" navigates here with `?guidedTour=open`; force the tour open
-  // (even when complete). The route strips the param after this fires.
+  // (even when complete). A "Sign agreement" CTA adds a batch + agreement step to
+  // deep-link into that step. The route strips the params after this fires.
+  const targetBatchId = guidedTourTarget?.batchId
+  const targetTab = guidedTourTarget?.tab
+  const targetStepAction = guidedTourTarget?.stepAction
   useEffect(() => {
     if (openGuidedTourSignal) {
       setTourForced(true)
       setTourDismissed(false)
-      setTourTarget(null)
+      setTourTarget(
+        targetBatchId != null
+          ? {
+              batchId: targetBatchId,
+              tab: targetTab ?? 'program',
+              stepAction: targetStepAction,
+            }
+          : null,
+      )
     }
-  }, [openGuidedTourSignal])
+  }, [openGuidedTourSignal, targetBatchId, targetTab, targetStepAction])
 
   const overview: DashboardOverviewState = {
     isPending,
@@ -73,7 +100,10 @@ export function DashboardPage({ openGuidedTourSignal = false }: DashboardPagePro
   // When the guided tour is showing it takes over the content area (below the
   // navbar), so the dashboard itself is hidden.
   const tourVisible = data
-    ? isGuidedTourVisible(data.t0Flow, { dismissed: tourDismissed, forceOpen: tourForced })
+    ? isGuidedTourVisible(data.t0Flow, {
+        dismissed: tourDismissed,
+        forceOpen: tourForced,
+      })
     : false
 
   return (
@@ -99,7 +129,11 @@ export function DashboardPage({ openGuidedTourSignal = false }: DashboardPagePro
           feePaymentBanners={data.feePaymentBanners}
         />
       ) : null}
-      {data ? <WelcomeModalGate showWelcomeModal={data.welcomeModal.showWelcomeModal} /> : null}
+      {data ? (
+        <WelcomeModalGate
+          showWelcomeModal={data.welcomeModal.showWelcomeModal}
+        />
+      ) : null}
     </>
   )
 }

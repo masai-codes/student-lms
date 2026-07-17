@@ -11,10 +11,7 @@ describe('toClubFormState', () => {
         galleryImages: ['https://cdn/1.png', 42, 'https://cdn/2.png'],
         projectsBuild: 12,
         cardDescription: 'card',
-        aboutCardDetails: [
-          { heading: 'Founded', value: '2023' },
-          'bogus',
-        ],
+        aboutCardDetails: [{ heading: 'Founded', value: '2023' }, 'bogus'],
         belowTitleCardText: 'below',
         learningTenureData: [
           { emoji: '⚡', heading: 'H', text: 'T', tags: ['a', 7, 'b'] },

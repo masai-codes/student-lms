@@ -15,21 +15,21 @@ Last updated: 2026-06-17
 
 ## Test files
 
-| File | Covers |
-|------|--------|
-| `src/components/features/chatbot/utils/chatScroll.test.ts` | Spacer height, max height ratio, latest user lookup, scroll offset math |
-| `src/components/features/chatbot/utils/voiceSubtitle.test.ts` | Voice subtitle selection from merged display messages |
-| `src/components/features/chatbot/utils/voiceSubtitleViewport.test.ts` | Fixed-height voice subtitle top trimming |
-| `src/components/features/chatbot/hooks/useChatTurnScroll.test.tsx` | ResizeObserver viewport sizing, instant vs smooth snap, no re-scroll on assistant-only updates |
-| `src/components/features/chatbot/hooks/useIsMobileViewport.test.ts` | Mobile breakpoint detection and media-query subscription |
-| `src/server/api/chatbot/__tests__/token.service.test.ts` | LiveKit token metadata includes lecture id + transcript |
-| `src/components/features/chatbot/components/ChatbotHistoryHeader.test.tsx` | Desktop sidebar close control + lecture header title |
-| `src/components/features/chatbot/components/ChatbotPreSessionWelcome.test.tsx` | Pre-session greeting, disclaimer, and prompt selection |
-| `src/components/features/chatbot/components/ChatbotAssistantMessage.test.tsx` | Assistant bubble markdown rendering (bold, lists, empty content) |
-| `src/components/features/chatbot/components/ChatbotComposer.test.tsx` | Composer submit keys |
-| `src/components/features/chatbot/components/ChatbotMobileShell.test.tsx` | Mobile full-bleed composer dock, inline send, drawer voice activation |
-| `src/components/features/chatbot/components/ChatbotVoiceControls.test.tsx` | Voice footer controls, avatar speaking state, mic toggle |
-| `src/components/common/AIAvatar.test.tsx` | Speaking pulse animation class |
+| File                                                                           | Covers                                                                                         |
+| ------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------- |
+| `src/components/features/chatbot/utils/chatScroll.test.ts`                     | Spacer height, max height ratio, latest user lookup, scroll offset math                        |
+| `src/components/features/chatbot/utils/voiceSubtitle.test.ts`                  | Voice subtitle selection from merged display messages                                          |
+| `src/components/features/chatbot/utils/voiceSubtitleViewport.test.ts`          | Fixed-height voice subtitle top trimming                                                       |
+| `src/components/features/chatbot/hooks/useChatTurnScroll.test.tsx`             | ResizeObserver viewport sizing, instant vs smooth snap, no re-scroll on assistant-only updates |
+| `src/components/features/chatbot/hooks/useIsMobileViewport.test.ts`            | Mobile breakpoint detection and media-query subscription                                       |
+| `src/server/api/chatbot/__tests__/token.service.test.ts`                       | LiveKit token metadata includes lecture id + transcript                                        |
+| `src/components/features/chatbot/components/ChatbotHistoryHeader.test.tsx`     | Desktop sidebar close control + lecture header title                                           |
+| `src/components/features/chatbot/components/ChatbotPreSessionWelcome.test.tsx` | Pre-session greeting, disclaimer, and prompt selection                                         |
+| `src/components/features/chatbot/components/ChatbotAssistantMessage.test.tsx`  | Assistant bubble markdown rendering (bold, lists, empty content)                               |
+| `src/components/features/chatbot/components/ChatbotComposer.test.tsx`          | Composer submit keys                                                                           |
+| `src/components/features/chatbot/components/ChatbotMobileShell.test.tsx`       | Mobile full-bleed composer dock, inline send, drawer voice activation                          |
+| `src/components/features/chatbot/components/ChatbotVoiceControls.test.tsx`     | Voice footer controls, avatar speaking state, mic toggle                                       |
+| `src/components/common/AIAvatar.test.tsx`                                      | Speaking pulse animation class                                                                 |
 
 ## Commands
 

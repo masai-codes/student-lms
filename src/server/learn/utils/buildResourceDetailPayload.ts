@@ -2,8 +2,7 @@ import type {
   ResourceDetailPayload,
   ResourceKind,
 } from '@/server/learn/resourceDetailTypes'
-import type { LearnAssociatedListItem } from '@/server/learn/learnAssociatedTypes'
-import type { LearnHubDetailPayload } from '@/server/learn/types'
+import type { LearnHubDetailPayload, LearningItem } from '@/server/learn/types'
 import { formatLectureScheduleRange } from '@/server/learn/utils/formatLectureScheduleRange'
 import { normalizeResourceKind } from '@/server/learn/utils/normalizeResourceKind'
 import { resolveAssignmentPhase } from '@/server/learn/utils/resolveAssignmentPhase'
@@ -25,7 +24,7 @@ export function buildResourceDetailPayload(
   core: LearnHubDetailPayload,
   row: ResourceDetailRow,
   nowMs: number,
-  associatedItems: Array<LearnAssociatedListItem>,
+  associatedItems: Array<LearningItem>,
   isBookmarked: boolean,
 ): ResourceDetailPayload {
   const resourceKind: ResourceKind = normalizeResourceKind(row.category)
@@ -47,7 +46,10 @@ export function buildResourceDetailPayload(
     phase,
     schedule: row.schedule,
     concludes: row.concludes,
-    scheduleDisplayRange: formatLectureScheduleRange(row.schedule, row.concludes),
+    scheduleDisplayRange: formatLectureScheduleRange(
+      row.schedule,
+      row.concludes,
+    ),
     hostAvatarUrl: row.hostAvatarUrl,
     body,
     hideNotes: settings.hideNotes,

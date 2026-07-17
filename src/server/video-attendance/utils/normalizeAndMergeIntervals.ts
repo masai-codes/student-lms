@@ -28,10 +28,13 @@ export function normalizeAndMergeIntervals(
 ): Array<WatchIntervalSegment> {
   const list = Array.isArray(raw) ? raw.filter(isValidSegment) : []
 
-  let prepared = list.map(segment => ({ start: segment.start, end: segment.end }))
+  let prepared = list.map((segment) => ({
+    start: segment.start,
+    end: segment.end,
+  }))
   if (totalDuration > 0) {
     prepared = prepared
-      .map(segment => clampSegment(segment, totalDuration))
+      .map((segment) => clampSegment(segment, totalDuration))
       .filter(Boolean) as Array<WatchIntervalSegment>
   }
 

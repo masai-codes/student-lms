@@ -163,14 +163,18 @@ describe('sendAiChatMessage', () => {
 
     const call = vi.mocked(requestOpenAiChatCompletion).mock.calls[0]
     const messages = call[0].messages
-    expect(messages.some(m => m.role === 'user' && m.content === 'q1')).toBe(
+    expect(messages.some((m) => m.role === 'user' && m.content === 'q1')).toBe(
       true,
     )
     expect(
-      messages.some(m => m.role === 'user' && m.content === 'spoken question'),
+      messages.some(
+        (m) => m.role === 'user' && m.content === 'spoken question',
+      ),
     ).toBe(true)
     expect(
-      messages.some(m => m.role === 'assistant' && m.content === 'spoken reply'),
+      messages.some(
+        (m) => m.role === 'assistant' && m.content === 'spoken reply',
+      ),
     ).toBe(true)
     expect(messages[messages.length - 1]).toEqual({
       role: 'user',

@@ -21,16 +21,16 @@ function verifyBootstrapUserId(token: string): number | null {
 
   let decoded: Record<string, unknown>
   try {
-    decoded = jwt.verify(token, secret, { algorithms: [JWT_ALGORITHM] }) as Record<
-      string,
-      unknown
-    >
+    decoded = jwt.verify(token, secret, {
+      algorithms: [JWT_ALGORITHM],
+    }) as Record<string, unknown>
   } catch {
     return null
   }
 
   // A session token, not a bootstrap token.
-  if (decoded.sessionId != null && String(decoded.sessionId).length > 0) return null
+  if (decoded.sessionId != null && String(decoded.sessionId).length > 0)
+    return null
 
   const raw = decoded.userId
   if (raw == null || raw === '') return null
@@ -52,7 +52,9 @@ function verifyBootstrapUserId(token: string): number | null {
  * exists — callers should then treat the request as unauthenticated.
  */
 export const bootstrapLoginWithToken = createServerFn({ method: 'GET' })
-  .inputValidator((token: unknown): string => (typeof token === 'string' ? token : ''))
+  .inputValidator((token: unknown): string =>
+    typeof token === 'string' ? token : '',
+  )
   .handler(async ({ data: token }) => {
     const userId = verifyBootstrapUserId(token)
     if (userId == null) return null

@@ -16,7 +16,10 @@ const END = '2026-06-10T11:30:00Z'
 
 describe('formatLocalDateBadge', () => {
   it('builds an uppercase month + day badge from the start', () => {
-    expect(formatLocalDateBadge(START, null)).toEqual({ month: 'JUN', day: '10' })
+    expect(formatLocalDateBadge(START, null)).toEqual({
+      month: 'JUN',
+      day: '10',
+    })
   })
 
   it('falls back to the end time when there is no start', () => {

@@ -45,7 +45,9 @@ function hostedByList(value: unknown): Array<HostedByItem> {
 }
 
 /** Builds the editable form state from the raw event columns + meta. */
-export function toEventFormState(data: MasaiverseV2EventEditData): EventFormState {
+export function toEventFormState(
+  data: MasaiverseV2EventEditData,
+): EventFormState {
   const c = data.columns
   const meta = data.meta
   return {

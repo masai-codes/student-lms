@@ -41,7 +41,9 @@ export function ProblemSolutionForm({ detail }: ProblemSolutionFormProps) {
       await router.invalidate()
     } catch (error) {
       setErrorMessage(
-        error instanceof Error ? error.message : 'Could not submit your solution',
+        error instanceof Error
+          ? error.message
+          : 'Could not submit your solution',
       )
       setLoading(false)
     }
@@ -53,7 +55,11 @@ export function ProblemSolutionForm({ detail }: ProblemSolutionFormProps) {
       return
     }
     pushLearnEvent(
-      learnEntityEvent('assignment', 'problem_solution_submit_link', detail.problemId),
+      learnEntityEvent(
+        'assignment',
+        'problem_solution_submit_link',
+        detail.problemId,
+      ),
       {
         problem_id: detail.problemId,
         assignment_id: detail.assignmentId,
@@ -69,7 +75,11 @@ export function ProblemSolutionForm({ detail }: ProblemSolutionFormProps) {
       return
     }
     pushLearnEvent(
-      learnEntityEvent('assignment', 'problem_solution_submit_file', detail.problemId),
+      learnEntityEvent(
+        'assignment',
+        'problem_solution_submit_file',
+        detail.problemId,
+      ),
       {
         problem_id: detail.problemId,
         assignment_id: detail.assignmentId,
@@ -81,9 +91,9 @@ export function ProblemSolutionForm({ detail }: ProblemSolutionFormProps) {
 
   return (
     <section data-testid="problem-solution-form" className="space-y-3">
-      <h2 className="type-h6 text-gray-900">Submission</h2>
+      <h2 className="type-h6 text-foreground">Submission</h2>
       {errorMessage ? (
-        <p className="type-b3-md text-red-600" role="alert">
+        <p className="type-b3-md text-danger" role="alert">
           {errorMessage}
         </p>
       ) : null}
@@ -121,7 +131,7 @@ export function ProblemSolutionForm({ detail }: ProblemSolutionFormProps) {
               setErrorMessage(null)
               setFile(event.target.files?.[0] ?? null)
             }}
-            className="type-b3-md text-gray-700"
+            className="type-b3-md text-foreground"
             data-testid="problem-solution-file-input"
           />
           <MasaiButton

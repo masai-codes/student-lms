@@ -35,7 +35,7 @@ export default function ThisWeekSection({
               })
               onViewCalendar()
             }}
-            className="text-[14px] font-medium text-masaiverse-orange hover:underline"
+            className="text-[14px] font-medium text-accent-warm hover:underline"
           >
             {calendarOpen ? 'Hide calendar →' : 'View calendar →'}
           </button>

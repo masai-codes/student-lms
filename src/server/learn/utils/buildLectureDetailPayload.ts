@@ -2,7 +2,8 @@ import type {
   LectureDetailPayload,
   LectureDetailTabContent,
   LectureFeedbackState,
-  LectureKind, LectureVideoAttendanceState 
+  LectureKind,
+  LectureVideoAttendanceState,
 } from '@/server/learn/lectureDetailTypes'
 import type { LearnHubDetailPayload } from '@/server/learn/types'
 import type { LectureAttendanceSummary } from '@/server/attendance/types'
@@ -14,7 +15,10 @@ import { resolveLectureVideoUrl } from '@/server/learn/utils/resolveLectureVideo
 import { resolveJoinLiveButtonState } from '@/server/learn/utils/resolveJoinLiveButtonState'
 import { resolveVideoLecturePhase } from '@/server/learn/utils/resolveVideoLecturePhase'
 import { scrubZoomLinkForSchedule } from '@/server/learn/utils/scrubZoomLinkForSchedule'
-import { toLectureScopedAdaptiveLink } from '@/server/learn/utils/toLectureScopedAdaptiveLink'
+import {
+  isAdaptiveLectureLink,
+  toLectureScopedAdaptiveLink,
+} from '@/server/learn/utils/toLectureScopedAdaptiveLink'
 
 type LectureDetailRow = {
   type: string
@@ -29,12 +33,16 @@ type LectureDetailRow = {
   notes: string | null
 }
 
-const SUPPORTED_LECTURE_KINDS = new Set<LectureKind>(['live', 'video'])
-
 function normalizeLectureKind(type: string): LectureKind | null {
   const normalized = type.trim().toLowerCase()
-  if (normalized === 'live' || normalized === 'video') {
-    return normalized
+  // `scrum` is a live-class variant (Zoom join + optional recording), so it is
+  // treated as `live` here — mirroring the listing/dashboard `('live','scrum')`
+  // grouping and the legacy LMS `is_live` computation.
+  if (normalized === 'live' || normalized === 'scrum') {
+    return 'live'
+  }
+  if (normalized === 'video') {
+    return 'video'
   }
   return null
 }
@@ -46,8 +54,12 @@ export function buildLectureDetailPayload(
   tabs: LectureDetailTabContent,
   videoAttendance: LectureVideoAttendanceState | null,
   attendance: LectureAttendanceSummary | null,
+  optionalAttendance: LectureAttendanceSummary | null,
   feedbackRecord: { rating: number | null; text: string | null },
-): Omit<LectureDetailPayload, 'isBookmarked' | 'isNewZoomRedirection'> {
+): Omit<
+  LectureDetailPayload,
+  'isBookmarked' | 'isNewZoomRedirection' | 'enableZoomWebView'
+> {
   const lectureKind = normalizeLectureKind(row.type)
   if (lectureKind == null) {
     throw new Error('LECTURE_DETAIL_UNSUPPORTED_TYPE')
@@ -89,6 +101,18 @@ export function buildLectureDetailPayload(
         )
       : null
 
+  // SAL (adaptive) recordings live on the adaptive platform, not in `videoUrl`.
+  // After the lecture ends, the lecture-scoped adaptive link redirects to the
+  // recording, so surface it as the "Watch Recording" link (only when there is
+  // no native recording to prefer). `zoomLink` is already scrubbed + scoped.
+  const adaptiveRecordingUrl =
+    lectureKind === 'live' &&
+    livePhase === 'after' &&
+    !hasRecording &&
+    isAdaptiveLectureLink(zoomLink)
+      ? zoomLink
+      : null
+
   const joinLiveButtonState =
     lectureKind === 'live'
       ? resolveJoinLiveButtonState({
@@ -115,7 +139,10 @@ export function buildLectureDetailPayload(
     lectureKind,
     schedule: row.schedule,
     concludes: row.concludes,
-    scheduleDisplayRange: formatLectureScheduleRange(row.schedule, row.concludes),
+    scheduleDisplayRange: formatLectureScheduleRange(
+      row.schedule,
+      row.concludes,
+    ),
     hostAvatarUrl: row.hostAvatarUrl,
     hideVideo: settings.hideVideo,
     hideNotes: settings.hideNotes,
@@ -123,16 +150,18 @@ export function buildLectureDetailPayload(
     tabs,
     videoUrl,
     zoomLink,
+    adaptiveRecordingUrl,
     livePhase,
     videoPhase,
     hasRecording,
     joinLiveButtonState,
     videoAttendance: hasRecording ? videoAttendance : null,
     attendance,
+    optionalAttendance,
     feedback,
   }
 }
 
 export function isSupportedLectureDetailType(type: string): boolean {
-  return SUPPORTED_LECTURE_KINDS.has(type.trim().toLowerCase() as LectureKind)
+  return normalizeLectureKind(type) != null
 }

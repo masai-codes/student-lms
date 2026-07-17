@@ -24,7 +24,8 @@ import {
 /** All support query keys live here so invalidation is unambiguous. */
 export const SUPPORT_KEYS = {
   all: ['support'] as const,
-  overview: (batchId?: number) => ['support', 'overview', batchId ?? 'default'] as const,
+  overview: (batchId?: number) =>
+    ['support', 'overview', batchId ?? 'default'] as const,
   faqs: (batchId: number, search: string, category?: string) =>
     ['support', 'faqs', batchId, search, category ?? null] as const,
   tickets: (tab: TicketTab, page: number) =>

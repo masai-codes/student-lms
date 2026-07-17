@@ -6,10 +6,10 @@ This document describes how events are loaded, ordered, and shown on the Masaive
 
 The `/masaiverse` route resolves the main content from the `tab` search param:
 
-| URL / `tab` value | Component |
-|-------------------|-----------|
-| `tab=home`, invalid/missing `tab` | `HomeSection` |
-| `tab=events` | `EventsSection` |
+| URL / `tab` value                 | Component       |
+| --------------------------------- | --------------- |
+| `tab=home`, invalid/missing `tab` | `HomeSection`   |
+| `tab=events`                      | `EventsSection` |
 
 Defined in `src/routes/(protected)/_layout/masaiverse/index.tsx`.
 
@@ -42,11 +42,11 @@ After fetching, `fetchAllEventsHandler` sorts a copy of the array with this logi
 
 For each event, using “now” = server time when the handler runs:
 
-| Rank | Meaning |
-|------|--------|
-| **0** | Event is **not ended** (`endTime` is finite and ≥ now) **and** its `clubId` is one of the user’s **joined** clubs |
+| Rank  | Meaning                                                                                                                        |
+| ----- | ------------------------------------------------------------------------------------------------------------------------------ |
+| **0** | Event is **not ended** (`endTime` is finite and ≥ now) **and** its `clubId` is one of the user’s **joined** clubs              |
 | **1** | Event is **not ended** but is **not** in rank 0 (e.g. global `clubId === null`, or not a joined-club event in the allowed set) |
-| **2** | Event is **ended** (`endTime` is finite and &lt; now) |
+| **2** | Event is **ended** (`endTime` is finite and &lt; now)                                                                          |
 
 Sort key: **lower rank first** → active joined-club events first, then other active events, then ended events.
 
@@ -86,11 +86,11 @@ Component: `EventsSection.tsx`.
 
 ## Quick reference
 
-| Concern | Where it happens |
-|--------|-------------------|
-| Tab → screen | `masaiverse/index.tsx` |
-| Fetch + sort | `fetchEvents.ts` → `fetchAllEventsHandler` |
-| Home: top 2 only | `HomeEventsPreview.tsx` → `slice(0, 2)` |
-| Events: category filter | `EventsSection.tsx` → `filteredEvents` |
-| Events: search | `EventsSection.tsx` → `fetchAllEvents({ searchQuery })` |
+| Concern                 | Where it happens                                                                           |
+| ----------------------- | ------------------------------------------------------------------------------------------ |
+| Tab → screen            | `masaiverse/index.tsx`                                                                     |
+| Fetch + sort            | `fetchEvents.ts` → `fetchAllEventsHandler`                                                 |
+| Home: top 2 only        | `HomeEventsPreview.tsx` → `slice(0, 2)`                                                    |
+| Events: category filter | `EventsSection.tsx` → `filteredEvents`                                                     |
+| Events: search          | `EventsSection.tsx` → `fetchAllEvents({ searchQuery })`                                    |
 | Past vs future for CTAs | Both sections: `eventDbTimestampToMs(endTime) < Date.now()` → treat as past for enroll CTA |

@@ -36,12 +36,14 @@ describe('loginWithPassword', () => {
   })
 
   it('throws a meaningful USER_NOT_FOUND (not a raw/null error) when no account matches', async () => {
-    const { loginWithPassword, LoginError } = await import('../loginWithPassword')
+    const { loginWithPassword, LoginError } =
+      await import('../loginWithPassword')
     mockUserLookup([])
 
-    const err = await loginWithPassword({ email: 'ghost@example.com', password: 'x' }).catch(
-      (e) => e,
-    )
+    const err = await loginWithPassword({
+      email: 'ghost@example.com',
+      password: 'x',
+    }).catch((e) => e)
 
     expect(err).toBeInstanceOf(LoginError)
     expect(err.code).toBe('USER_NOT_FOUND')
@@ -52,10 +54,14 @@ describe('loginWithPassword', () => {
   })
 
   it('asks the user to reset when the stored password is blank', async () => {
-    const { loginWithPassword, LoginError } = await import('../loginWithPassword')
+    const { loginWithPassword, LoginError } =
+      await import('../loginWithPassword')
     mockUserLookup([{ ...dbUser, password: '   ' }])
 
-    const err = await loginWithPassword({ email: dbUser.email, password: 'x' }).catch((e) => e)
+    const err = await loginWithPassword({
+      email: dbUser.email,
+      password: 'x',
+    }).catch((e) => e)
 
     expect(err).toBeInstanceOf(LoginError)
     expect(err.code).toBe('PASSWORD_RESET_REQUIRED')
@@ -63,15 +69,21 @@ describe('loginWithPassword', () => {
   })
 
   it('returns a friendly INCORRECT_CREDENTIALS message when the password does not match', async () => {
-    const { loginWithPassword, LoginError } = await import('../loginWithPassword')
+    const { loginWithPassword, LoginError } =
+      await import('../loginWithPassword')
     mockUserLookup([dbUser])
     hoisted.compare.mockResolvedValueOnce(false)
 
-    const err = await loginWithPassword({ email: dbUser.email, password: 'wrong' }).catch((e) => e)
+    const err = await loginWithPassword({
+      email: dbUser.email,
+      password: 'wrong',
+    }).catch((e) => e)
 
     expect(err).toBeInstanceOf(LoginError)
     expect(err.code).toBe('INCORRECT_CREDENTIALS')
-    expect(err.message).toBe('The password you entered is incorrect. Please try again.')
+    expect(err.message).toBe(
+      'The password you entered is incorrect. Please try again.',
+    )
   })
 
   it('normalizes the email and returns the authenticated user on a correct password', async () => {
@@ -79,7 +91,10 @@ describe('loginWithPassword', () => {
     mockUserLookup([dbUser])
     hoisted.compare.mockResolvedValueOnce(true)
 
-    const user = await loginWithPassword({ email: '  ASHA@Example.com ', password: 'right' })
+    const user = await loginWithPassword({
+      email: '  ASHA@Example.com ',
+      password: 'right',
+    })
 
     expect(user).toEqual({
       id: 7,

@@ -19,7 +19,8 @@ export const Route = createFileRoute('/(protected)/_layout/support/')({
         ? Number(search.batchId)
         : undefined,
     tickets:
-      search.tickets === 'ticketlisting' || search.tickets === 'pair-programming'
+      search.tickets === 'ticketlisting' ||
+      search.tickets === 'pair-programming'
         ? search.tickets
         : undefined,
     tab: typeof search.tab === 'string' ? search.tab : undefined,
@@ -35,7 +36,9 @@ export const Route = createFileRoute('/(protected)/_layout/support/')({
     subcategory:
       typeof search.subcategory === 'string' ? search.subcategory : undefined,
     page:
-      search.page != null && Number(search.page) > 0 ? Number(search.page) : undefined,
+      search.page != null && Number(search.page) > 0
+        ? Number(search.page)
+        : undefined,
   }),
   component: BatchTickets,
 })

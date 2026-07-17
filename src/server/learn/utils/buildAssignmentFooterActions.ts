@@ -63,21 +63,17 @@ export function buildAssignmentFooterActions(
 
   if (submission == null) {
     if (!input.isExpired) {
-      actions.push(
-        action('start-assessment', ctaLabels.start, 'primary', true),
-      )
+      actions.push(action('start-assessment', ctaLabels.start, 'primary', true))
     }
     return actions
   }
 
-  if (
-    !input.isExpired &&
-    !submission.scoreUpdated &&
-    !submission.completed
-  ) {
+  if (!input.isExpired && !submission.scoreUpdated && !submission.completed) {
     actions.push(
       action(
-        submission.assessPlatformLink ? 'continue-assessment' : 'start-assessment',
+        submission.assessPlatformLink
+          ? 'continue-assessment'
+          : 'start-assessment',
         submission.assessPlatformLink ? ctaLabels.continue : ctaLabels.start,
         'primary',
         true,
@@ -86,9 +82,7 @@ export function buildAssignmentFooterActions(
   }
 
   if (input.showPractice) {
-    actions.push(
-      action('practice-assessment', 'Practice', 'secondary', true),
-    )
+    actions.push(action('practice-assessment', 'Practice', 'secondary', true))
   }
 
   const showSubmissionCta =
@@ -100,9 +94,7 @@ export function buildAssignmentFooterActions(
     !input.hideShowSubmissionButton
 
   if (showSubmissionCta) {
-    actions.push(
-      action('show-submission', 'Show Submission', 'primary', true),
-    )
+    actions.push(action('show-submission', 'Show Submission', 'primary', true))
   }
 
   return actions

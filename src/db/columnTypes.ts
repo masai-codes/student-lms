@@ -128,7 +128,9 @@ export function istDatetime(
   nameOrConfig?: string | Record<string, unknown>,
   _config?: Record<string, unknown>,
 ) {
-  return typeof nameOrConfig === 'string' ? _istDatetime(nameOrConfig) : _istDatetime()
+  return typeof nameOrConfig === 'string'
+    ? _istDatetime(nameOrConfig)
+    : _istDatetime()
 }
 
 /**
@@ -140,5 +142,7 @@ export function utcTimestamp(
   nameOrConfig?: string | Record<string, unknown>,
   _config?: Record<string, unknown>,
 ) {
-  return typeof nameOrConfig === 'string' ? _utcTimestamp(nameOrConfig) : _utcTimestamp()
+  return typeof nameOrConfig === 'string'
+    ? _utcTimestamp(nameOrConfig)
+    : _utcTimestamp()
 }

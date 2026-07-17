@@ -1,6 +1,12 @@
 // @vitest-environment jsdom
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
+import {
+  cleanup,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { ContextSubcategoryList } from '../ContextSubcategoryList'
@@ -58,8 +64,6 @@ describe('ContextSubcategoryList', () => {
     renderList()
 
     expect(screen.getByText('Loading subcategories…')).toBeTruthy()
-    await waitFor(() =>
-      expect(hoisted.fetchSubcategories).toHaveBeenCalled(),
-    )
+    await waitFor(() => expect(hoisted.fetchSubcategories).toHaveBeenCalled())
   })
 })

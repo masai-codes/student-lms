@@ -11,7 +11,9 @@ describe('resolveLectureVideoUrl', () => {
     expect(
       resolveLectureVideoUrl({
         videos: ['https://example.com/a.mp4'],
-        vimeoDownloadLinks: { gumlet: { hls_url: 'https://cdn.example/hls.m3u8' } },
+        vimeoDownloadLinks: {
+          gumlet: { hls_url: 'https://cdn.example/hls.m3u8' },
+        },
         vimeoPlayerEmbedUrl: 'https://player.vimeo.com/x',
       }),
     ).toBe('https://cdn.example/hls.m3u8')
@@ -63,7 +65,9 @@ describe('resolveLectureVideoUrl', () => {
       vi.stubEnv('CLOUD_FRONT_BASE', 'dxyz.cloudfront.net')
       expect(
         resolveLectureVideoUrl({
-          videos: ['https://masai-course.s3.ap-south-1.amazonaws.com/videos/a.mp4'],
+          videos: [
+            'https://masai-course.s3.ap-south-1.amazonaws.com/videos/a.mp4',
+          ],
           vimeoDownloadLinks: null,
           vimeoPlayerEmbedUrl: null,
         }),
@@ -83,12 +87,42 @@ describe('resolveLectureVideoUrl', () => {
       ).toBe(raw)
     })
 
+    it('percent-encodes S3 keys with spaces/special chars (old LMS parity)', () => {
+      vi.stubEnv('CLOUD_FRONT_BASE', 'dxyz.cloudfront.net')
+      expect(
+        resolveLectureVideoUrl({
+          videos: [
+            'https://zoom-lecture-recordings.s3.ap-south-1.amazonaws.com/833/GMT2024 Recording 1280x720.mp4',
+          ],
+          vimeoDownloadLinks: null,
+          vimeoPlayerEmbedUrl: null,
+        }),
+      ).toBe(
+        'https://dxyz.cloudfront.net/zoom/833/GMT2024%20Recording%201280x720.mp4',
+      )
+    })
+
+    it('does not double-encode already-encoded S3 keys', () => {
+      vi.stubEnv('CLOUD_FRONT_BASE', 'dxyz.cloudfront.net')
+      expect(
+        resolveLectureVideoUrl({
+          videos: [
+            'https://masai-course.s3.ap-south-1.amazonaws.com/videos/a%20b.mp4',
+          ],
+          vimeoDownloadLinks: null,
+          vimeoPlayerEmbedUrl: null,
+        }),
+      ).toBe('https://dxyz.cloudfront.net/masai-course/videos/a%20b.mp4')
+    })
+
     it('does not rewrite gumlet HLS urls', () => {
       vi.stubEnv('CLOUD_FRONT_BASE', 'dxyz.cloudfront.net')
       expect(
         resolveLectureVideoUrl({
           videos: null,
-          vimeoDownloadLinks: { gumlet: { hls_url: 'https://cdn.masaischool.com/hls/master.m3u8' } },
+          vimeoDownloadLinks: {
+            gumlet: { hls_url: 'https://cdn.masaischool.com/hls/master.m3u8' },
+          },
           vimeoPlayerEmbedUrl: null,
         }),
       ).toBe('https://cdn.masaischool.com/hls/master.m3u8')

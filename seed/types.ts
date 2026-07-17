@@ -48,7 +48,9 @@ export type DashboardHomeEntities = {
   pastIncompleteScheduleAssignment: typeof import('@/db/schema').assignments.$inferSelect
   pendingCatchupLecture: typeof lectures.$inferSelect
   pendingAssignment: typeof import('@/db/schema').assignments.$inferSelect
-  visibleAnnouncements: Array<typeof import('@/db/schema').announcements.$inferSelect>
+  visibleAnnouncements: Array<
+    typeof import('@/db/schema').announcements.$inferSelect
+  >
   visibleMessages: Array<typeof import('@/db/schema').messages.$inferSelect>
   productUpdates: Array<typeof import('@/db/schema').whatsnew.$inferSelect>
   exclusions: {
@@ -78,7 +80,8 @@ export type OnboardingEntities = {
   profile: typeof profiles.$inferSelect | null
 }
 
-export type SeedFlowEntities = LoginAndJoinLectureEntities | OnboardingEntities | DashboardHomeEntities
+export type SeedFlowEntities =
+  LoginAndJoinLectureEntities | OnboardingEntities | DashboardHomeEntities
 
 export type SeedFlowResult = {
   flowId: string
@@ -98,10 +101,14 @@ export function isLoginAndJoinLectureEntities(
   return 'lecture' in entities && !('scheduleLectures' in entities)
 }
 
-export function isOnboardingEntities(entities: SeedFlowEntities): entities is OnboardingEntities {
+export function isOnboardingEntities(
+  entities: SeedFlowEntities,
+): entities is OnboardingEntities {
   return 'sections' in entities
 }
 
-export function isDashboardHomeEntities(entities: SeedFlowEntities): entities is DashboardHomeEntities {
+export function isDashboardHomeEntities(
+  entities: SeedFlowEntities,
+): entities is DashboardHomeEntities {
   return 'scheduleLectures' in entities && 'visibleAnnouncements' in entities
 }

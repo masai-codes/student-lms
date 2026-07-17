@@ -9,6 +9,7 @@ import {
   lt,
   lte,
   ne,
+  notExists,
   or,
   sql,
 } from 'drizzle-orm'
@@ -23,6 +24,7 @@ import type {
 import type { LearnScheduleWindow } from '@/server/learn/utils/buildLearnScheduleWindow'
 import { db } from '@/db'
 import { assignments, lectures, studentAttendances, users } from '@/db/schema'
+import { buildAbsentWindowOverCondition } from '@/server/learn/utils/buildAbsentWindowOverCondition'
 import { buildModuleFilterCondition } from '@/server/learn/utils/buildModuleFilterCondition'
 import { LECTURE_RESOURCE_TYPE } from '@/server/learn/utils/resolveLectureLearningType'
 import {
@@ -75,7 +77,7 @@ function bannedScheduleCondition(
 ): SQL | undefined {
   if (cutoff == null) return undefined
   if (cutoff === '') return isNull(scheduleColumn)
-  return or(isNull(scheduleColumn), lte(scheduleColumn, cutoff)) as SQL
+  return or(isNull(scheduleColumn), lte(scheduleColumn, cutoff))
 }
 
 /**
@@ -113,26 +115,65 @@ export function buildLectureContentGate(nowMs: number): SQL {
   ) as SQL
 }
 
-/** Mandatory lecture with an attendance row of the requested status (legacy #5: forces mandatory). */
+/** EXISTS an attendance row of the given status for this user/lecture. */
+function attendanceStatusExists(userId: number, statusValue: number): SQL {
+  return exists(
+    db
+      .select({ exists: studentAttendances.id })
+      .from(studentAttendances)
+      .where(
+        and(
+          eq(studentAttendances.lectureId, lectures.id),
+          eq(studentAttendances.userId, userId),
+          eq(studentAttendances.status, statusValue),
+        ),
+      ),
+  )
+}
+
+/**
+ * Attendance filter → SQL (legacy #5: forces mandatory).
+ *
+ * `present` requires a `status = 1` attendance row.
+ *
+ * `absent` must match what the card badge actually shows as absent:
+ *   1. a `status = 0` attendance row (a visible "Absent" / "Absent and Att.
+ *      Window Over" chip), OR
+ *   2. NO attendance row at all, but the catch-up window has closed so the card
+ *      derives an `att_window_over` chip (see `buildAbsentWindowOverCondition`,
+ *      which mirrors `computeCatchUpWindow`).
+ *
+ * A no-row lecture that is still inside its catch-up window, or whose section
+ * does not count recording watch-time, shows no absent chip — so it is
+ * deliberately NOT matched here.
+ */
 function attendanceConditions(
   attendanceStatus: BatchLearningFiltersInput['attendanceStatus'],
   userId: number,
-): Array<SQL> {
+  nowMs: number,
+): Array<SQL | undefined> {
   if (attendanceStatus == null) return []
-  const statusValue = attendanceStatus === 'present' ? 1 : 0
+
+  if (attendanceStatus === 'present') {
+    return [eq(lectures.optional, 0), attendanceStatusExists(userId, 1)]
+  }
+
+  const hasNoAttendanceRow = notExists(
+    db
+      .select({ exists: studentAttendances.id })
+      .from(studentAttendances)
+      .where(
+        and(
+          eq(studentAttendances.lectureId, lectures.id),
+          eq(studentAttendances.userId, userId),
+        ),
+      ),
+  )
   return [
     eq(lectures.optional, 0),
-    exists(
-      db
-        .select({ exists: studentAttendances.id })
-        .from(studentAttendances)
-        .where(
-          and(
-            eq(studentAttendances.lectureId, lectures.id),
-            eq(studentAttendances.userId, userId),
-            eq(studentAttendances.status, statusValue),
-          ),
-        ),
+    or(
+      attendanceStatusExists(userId, 0),
+      and(hasNoAttendanceRow, buildAbsentWindowOverCondition(nowMs)),
     ),
   ]
 }
@@ -169,7 +210,7 @@ export function buildLectureListingConditions(
     filters?.priorities?.length
       ? inArray(lectures.optional, priorityToOptional(filters.priorities))
       : undefined,
-    ...attendanceConditions(filters?.attendanceStatus, input.userId),
+    ...attendanceConditions(filters?.attendanceStatus, input.userId, input.nowMs),
   ]
 
   return conditions.filter(

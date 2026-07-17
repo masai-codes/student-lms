@@ -10,9 +10,9 @@ export default function HomeClubCard({ club }: HomeClubCardProps) {
   const hasMoreMembers = club.memberCount > club.sampleMemberNames.length
 
   return (
-    <div className="flex h-full flex-col rounded-[14px] border border-[#EDEAE8] bg-white p-4">
+    <div className="flex h-full flex-col rounded-[14px] border border-border bg-surface p-4">
       <div className="flex items-center gap-3">
-        <span className="flex size-11 shrink-0 items-center justify-center overflow-hidden rounded-[12px] bg-[#F3F0EE]">
+        <span className="flex size-11 shrink-0 items-center justify-center overflow-hidden rounded-[12px] bg-surface-muted">
           {club.imageUrl ? (
             <img
               src={club.imageUrl}
@@ -20,17 +20,17 @@ export default function HomeClubCard({ club }: HomeClubCardProps) {
               className="size-full object-cover"
             />
           ) : (
-            <span className="text-[16px] font-bold text-[#6B7280]">
+            <span className="text-[16px] font-bold text-foreground-muted">
               {getInitials(club.name)}
             </span>
           )}
         </span>
         <div className="min-w-0">
-          <p className="text-[16px] font-bold leading-5 text-[#111827]">
+          <p className="text-[16px] font-bold leading-5 text-foreground">
             {club.name}
           </p>
           {club.belowTitleCardText ? (
-            <p className="mt-0.5 text-[13px] leading-4 text-[#6B7280]">
+            <p className="mt-0.5 text-[13px] leading-4 text-foreground-muted">
               {club.belowTitleCardText}
             </p>
           ) : null}
@@ -38,7 +38,7 @@ export default function HomeClubCard({ club }: HomeClubCardProps) {
       </div>
 
       {club.cardDescription ? (
-        <p className="mt-3 text-[14px] leading-5 text-[#4B5563]">
+        <p className="mt-3 text-[14px] leading-5 text-foreground-muted">
           {club.cardDescription}
         </p>
       ) : null}
@@ -50,19 +50,19 @@ export default function HomeClubCard({ club }: HomeClubCardProps) {
               {club.sampleMemberNames.map((name, index) => (
                 <span
                   key={`${name}-${index}`}
-                  className="flex size-7 items-center justify-center rounded-full border-2 border-white bg-masaiverse-orange/15 text-[10px] font-bold text-masaiverse-orange"
+                  className="flex size-7 items-center justify-center rounded-full border-2 border-white bg-accent-warm/15 text-[10px] font-bold text-accent-warm"
                 >
                   {getInitials(name)}
                 </span>
               ))}
               {hasMoreMembers ? (
-                <span className="flex size-7 items-center justify-center rounded-full border-2 border-white bg-masaiverse-orange/15 text-[10px] font-bold text-masaiverse-orange">
+                <span className="flex size-7 items-center justify-center rounded-full border-2 border-white bg-accent-warm/15 text-[10px] font-bold text-accent-warm">
                   +
                 </span>
               ) : null}
             </div>
           ) : null}
-          <p className="text-[13px] text-[#6B7280]">
+          <p className="text-[13px] text-foreground-muted">
             {formatMemberCount(club.memberCount)}
           </p>
         </div>

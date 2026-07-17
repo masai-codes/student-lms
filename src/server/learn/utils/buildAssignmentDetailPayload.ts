@@ -2,12 +2,15 @@ import type {
   AssignmentDetailPayload,
   AssignmentKind,
 } from '@/server/learn/assignmentDetailTypes'
-import type { LearnAssociatedListItem } from '@/server/learn/learnAssociatedTypes'
-import type { LearnHubDetailPayload } from '@/server/learn/types'
+import type { LearnHubDetailPayload, LearningItem } from '@/server/learn/types'
 import type { AssignmentProblemListItem } from '@/server/learn/utils/buildAssignmentProblemListItems'
 import type { AssignmentDetailFooterContext } from '@/server/learn/utils/buildAssignmentDetailFooter'
-import { buildAssignmentDetailFooter } from '@/server/learn/utils/buildAssignmentDetailFooter'
+import {
+  buildAssignmentDetailFooter,
+  isAssignmentExpired,
+} from '@/server/learn/utils/buildAssignmentDetailFooter'
 import { buildAssignmentCompletedDetails } from '@/server/learn/utils/buildAssignmentCompletedDetails'
+import { buildAssignmentEmptyInstructionsMessage } from '@/server/learn/utils/buildAssignmentEmptyInstructionsMessage'
 import { buildAssignmentHeaderBadges } from '@/server/learn/utils/buildAssignmentHeaderBadges'
 import { buildAssignmentLiveAnalytics } from '@/server/learn/utils/buildAssignmentLiveAnalytics'
 import { resolveAssignmentRequiresPledge } from '@/server/learn/utils/resolveAssignmentRequiresPledge'
@@ -57,9 +60,9 @@ export function buildAssignmentDetailPayload(
   row: AssignmentDetailRow,
   nowMs: number,
   footerInput: AssignmentDetailFooterInput,
-  associatedItems: Array<LearnAssociatedListItem>,
+  associatedItems: Array<LearningItem>,
   problems: Array<AssignmentProblemListItem>,
-): AssignmentDetailPayload {
+): Omit<AssignmentDetailPayload, 'isBookmarked'> {
   const assignmentKind = normalizeAssignmentKind(row.type)
   if (assignmentKind == null) {
     throw new Error('ASSIGNMENT_DETAIL_UNSUPPORTED_TYPE')
@@ -76,6 +79,20 @@ export function buildAssignmentDetailPayload(
       ? row.instructions.trim()
       : null
 
+  const expired = isAssignmentExpired(row.settings, row.concludes, nowMs)
+  const emptyInstructionsMessage = buildAssignmentEmptyInstructionsMessage({
+    assignmentKind,
+    platform: row.platform,
+    isExpired: expired,
+    submission:
+      footerInput.submission == null
+        ? null
+        : {
+            completed: footerInput.submission.completed,
+            data: footerInput.submission.data,
+          },
+  })
+
   const footer = buildAssignmentDetailFooter({
     assignmentKind,
     category: row.category,
@@ -90,17 +107,23 @@ export function buildAssignmentDetailPayload(
     submission: footerInput.submission,
   })
 
-  const completedDetails = buildAssignmentCompletedDetails({
-    submission:
-      footerInput.submission == null
-        ? null
-        : {
-            completed: footerInput.submission.completed,
-            completedAt: footerInput.submission.completedAt,
-            data: footerInput.submission.data,
-          },
-    concludes: row.concludes,
-  })
+  // Match old LMS: the "Completed" banner is only shown for assignments with
+  // no attached problems (problem-based/coding assignments never show it).
+  const completedDetails =
+    problems.length > 0
+      ? null
+      : buildAssignmentCompletedDetails({
+          assignmentKind,
+          submission:
+            footerInput.submission == null
+              ? null
+              : {
+                  completed: footerInput.submission.completed,
+                  completedAt: footerInput.submission.completedAt,
+                  data: footerInput.submission.data,
+                },
+          concludes: row.concludes,
+        })
 
   return {
     ...core,
@@ -109,11 +132,19 @@ export function buildAssignmentDetailPayload(
     phase,
     schedule: row.schedule,
     concludes: row.concludes,
-    scheduleDisplayRange: formatLectureScheduleRange(row.schedule, row.concludes),
+    scheduleDisplayRange: formatLectureScheduleRange(
+      row.schedule,
+      row.concludes,
+    ),
     hostAvatarUrl: row.hostAvatarUrl,
     instructions,
+    emptyInstructionsMessage,
     enforceDeadline: row.enforceDeadline === 1,
-    phaseContent: buildAssignmentPhaseContent(assignmentKind, phase, row.schedule),
+    phaseContent: buildAssignmentPhaseContent(
+      assignmentKind,
+      phase,
+      row.schedule,
+    ),
     footer,
     completedDetails,
     headerBadges: buildAssignmentHeaderBadges({

@@ -18,7 +18,10 @@ const ranked = (id: number, sortedAt: string | null): RankedAnnouncement => ({
 
 describe('combineAnnouncementFeeds', () => {
   it('merges feeds and sorts newest-first by sortedAt', () => {
-    const feedA = [ranked(1, '2026-07-01 09:00:00'), ranked(2, '2026-07-03 09:00:00')]
+    const feedA = [
+      ranked(1, '2026-07-01 09:00:00'),
+      ranked(2, '2026-07-03 09:00:00'),
+    ]
     const feedB = [ranked(3, '2026-07-02 09:00:00')]
 
     const result = combineAnnouncementFeeds([feedA, feedB])

@@ -73,7 +73,9 @@ export function CreateTicketModal({
       : category
         ? slugToDisplayName(category)
         : ''
-  const subcategoryDisplayName = subcategory ? slugToDisplayName(subcategory) : ''
+  const subcategoryDisplayName = subcategory
+    ? slugToDisplayName(subcategory)
+    : ''
 
   useEffect(() => {
     const update = () => setIsDesktop(window.innerWidth >= 1024)
@@ -92,7 +94,10 @@ export function CreateTicketModal({
   const status = ticket?.status
 
   const refresh = () => {
-    if (ticketId) void queryClient.invalidateQueries({ queryKey: SUPPORT_KEYS.thread(ticketId) })
+    if (ticketId)
+      void queryClient.invalidateQueries({
+        queryKey: SUPPORT_KEYS.thread(ticketId),
+      })
     void queryClient.invalidateQueries({ queryKey: ['support', 'overview'] })
   }
 
@@ -108,12 +113,15 @@ export function CreateTicketModal({
       setMessage('')
       setFiles([])
       void queryClient.invalidateQueries({ queryKey: ['support', 'overview'] })
-      void navigate({ search: (prev) => ({ ...prev, ticketId: id, step: 'ticketdetails' }) })
+      void navigate({
+        search: (prev) => ({ ...prev, ticketId: id, step: 'ticketdetails' }),
+      })
     },
   })
 
   const replyMutation = useMutation({
-    mutationFn: (finalMessage: string) => replyToTicket({ ticketId: ticketId!, message: finalMessage }),
+    mutationFn: (finalMessage: string) =>
+      replyToTicket({ ticketId: ticketId!, message: finalMessage }),
     onSuccess: () => {
       setMessage('')
       setFiles([])
@@ -122,7 +130,8 @@ export function CreateTicketModal({
   })
 
   const rateMutation = useMutation({
-    mutationFn: (rating: 1 | 5) => rateSupportTicket({ ticketId: ticketId!, rating }),
+    mutationFn: (rating: 1 | 5) =>
+      rateSupportTicket({ ticketId: ticketId!, rating }),
     onSuccess: refresh,
     onSettled: () => setPendingRating(null),
   })
@@ -133,14 +142,16 @@ export function CreateTicketModal({
   })
 
   const isExisting = Boolean(ticketId)
-  const submitting = createMutation.isPending || replyMutation.isPending || uploading
+  const submitting =
+    createMutation.isPending || replyMutation.isPending || uploading
 
   const addFiles = (incoming: FileList | null) => {
     if (!incoming) return
     setFiles((prev) => [...prev, ...Array.from(incoming)].slice(0, MAX_FILES))
   }
 
-  const isImageName = (name: string) => /\.(png|jpe?g|gif|webp|svg|bmp)$/i.test(name)
+  const isImageName = (name: string) =>
+    /\.(png|jpe?g|gif|webp|svg|bmp)$/i.test(name)
 
   const handleSubmit = async () => {
     if ((!message.trim() && files.length === 0) || submitting) return
@@ -152,9 +163,15 @@ export function CreateTicketModal({
     if (files.length > 0) {
       setUploading(true)
       try {
-        const uploaded = await Promise.all(files.map((f) => uploadSupportAttachment(f)))
+        const uploaded = await Promise.all(
+          files.map((f) => uploadSupportAttachment(f)),
+        )
         const links = uploaded
-          .map((u) => (isImageName(u.name) ? `![${u.name}](${u.url})` : `[${u.name}](${u.url})`))
+          .map((u) =>
+            isImageName(u.name)
+              ? `![${u.name}](${u.url})`
+              : `[${u.name}](${u.url})`,
+          )
           .join('\n\n')
         finalMessage = finalMessage ? `${finalMessage}\n\n${links}` : links
       } catch {
@@ -170,7 +187,10 @@ export function CreateTicketModal({
   }
 
   const scrollToBottom = useCallback(() => {
-    scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: 'smooth' })
+    scrollRef.current?.scrollTo({
+      top: scrollRef.current.scrollHeight,
+      behavior: 'smooth',
+    })
   }, [])
   useEffect(() => {
     scrollToBottom()
@@ -183,71 +203,205 @@ export function CreateTicketModal({
   }
 
   const displayedRating =
-    pendingRating !== null ? null : ticket?.rating === 1 || ticket?.rating === 5 ? ticket.rating : null
+    pendingRating !== null
+      ? null
+      : ticket?.rating === 1 || ticket?.rating === 5
+        ? ticket.rating
+        : null
 
   const wrapperClassName = 'fixed inset-0 z-[9999]'
   const containerClassName = isDesktop
-    ? 'absolute bottom-8 right-8 w-[30%] max-w-[450px] min-w-[330px] h-[80vh] max-h-[80vh] bg-white rounded-[24px] shadow-xl flex flex-col overflow-hidden'
-    : 'fixed inset-0 bg-white flex flex-col'
+    ? 'absolute bottom-8 right-8 w-[30%] max-w-[450px] min-w-[330px] h-[80vh] max-h-[80vh] bg-surface rounded-[24px] shadow-xl flex flex-col overflow-hidden'
+    : 'fixed inset-0 bg-surface flex flex-col'
 
   const handleBackdrop = (e: React.MouseEvent<HTMLDivElement>) => {
     if (e.target === e.currentTarget) onClose()
   }
 
+  const attachments =
+    files.length > 0 ? (
+      <div className="mt-2 flex flex-wrap gap-2">
+        {files.map((f, i) => (
+          <span
+            key={`${f.name}-${i}`}
+            className="inline-flex items-center gap-1.5 rounded-full bg-surface-muted px-3 py-1 font-poppins text-[12px] text-foreground"
+          >
+            <Paperclip className="size-3.5" />
+            <span className="max-w-[140px] truncate">{f.name}</span>
+            <button
+              type="button"
+              aria-label={`Remove ${f.name}`}
+              onClick={() =>
+                setFiles((prev) => prev.filter((_, idx) => idx !== i))
+              }
+              className="text-foreground-subtle hover:text-foreground"
+            >
+              ✕
+            </button>
+          </span>
+        ))}
+      </div>
+    ) : null
+
+  const attachButton = (
+    <label className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border border-border px-3 py-2 font-poppins text-[13px] text-foreground hover:bg-surface-muted">
+      <Paperclip className="size-4" />
+      Attach
+      <input
+        type="file"
+        multiple
+        className="hidden"
+        disabled={files.length >= MAX_FILES}
+        onChange={(e) => {
+          addFiles(e.target.files)
+          e.target.value = ''
+        }}
+      />
+    </label>
+  )
+
   const content = (
     <div className={wrapperClassName} onClick={handleBackdrop}>
       <div className={containerClassName} onClick={(e) => e.stopPropagation()}>
         {/* Header */}
-        <div className={`flex items-center justify-between border-b border-gray-100 ${isDesktop ? 'px-5 py-4' : 'px-4 py-3'}`}>
+        <div
+          className={`flex items-center justify-between border-b border-border ${isDesktop ? 'px-5 py-4' : 'px-4 py-3'}`}
+        >
           <div className="flex items-center">
             <button aria-label="Back" onClick={onBack}>
               <ArrowLeft className="h-4 w-4" />
             </button>
             <div className="flex flex-col items-start ml-4">
-              <span className="font-poppins font-[500] text-[20px] text-gray-900 truncate">
+              <span className="font-poppins font-[500] text-[20px] text-foreground truncate">
                 {categoryDisplayName}
                 {status && <StatusBadge status={status} />}
               </span>
               <div className="flex items-center gap-2">
-                <span className="font-poppins font-[400] text-[12px] text-gray-500">{subcategoryDisplayName}</span>
+                <span className="font-poppins font-[400] text-[12px] text-foreground-muted">
+                  {subcategoryDisplayName}
+                </span>
               </div>
             </div>
           </div>
-          <button aria-label="Close" className="hover:bg-gray-100 rounded-full transition-colors" onClick={onClose}>
-            <svg className="w-6 h-6 text-gray-600" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+          <button
+            aria-label="Close"
+            className="hover:bg-surface-muted rounded-full transition-colors"
+            onClick={onClose}
+          >
+            <svg
+              className="w-6 h-6 text-foreground-muted"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M6 18L18 6M6 6l12 12"
+              />
             </svg>
           </button>
         </div>
 
         {/* Body */}
-        <div className={`flex-1 overflow-y-auto ${isDesktop ? 'px-5 py-6' : 'px-4 py-5'} space-y-4`} ref={scrollRef}>
-          <div className="rounded-3xl bg-[#F7F6FF] border border-[#E6E3FF] px-4 py-4 text-[13px] text-gray-700 font-poppins leading-relaxed">
-            <p>Share the details of your issue so our support team can reach out with the right help.</p>
-          </div>
-          {ticket?.message && (
-            <ResponseBubble isStudent author={ticket.owner.name} message={ticket.message} />
-          )}
-          {thread?.statusResponse && (
-            <ResponseBubble
-              isStudent={false}
-              author="Support Team"
-              message={`**${thread.statusResponse.heading}**\n\n${thread.statusResponse.message}`}
-            />
-          )}
-          {thread?.messages.map((m: TicketMessage) => (
-            <ResponseBubble
-              key={m.id}
-              isStudent={m.side === 'student'}
-              author={m.author.name}
-              role={m.author.role}
-              message={m.message}
-            />
-          ))}
-        </div>
+        {!isExisting ? (
+          /* Create mode — mirror the old LMS modal: editor at the TOP of the body,
+             full-width "Create Ticket" in the footer. */
+          <div
+            className={`flex-1 overflow-y-auto ${isDesktop ? 'px-5 py-6' : 'px-4 py-5'}`}
+          >
+            <button
+              type="button"
+              onClick={onBack}
+              className="w-full flex items-center justify-between rounded-[12px] bg-[#EBF5FF] px-3 py-2 dark:bg-info-subtle"
+            >
+              <span className="text-[14px] text-foreground font-[500] font-poppins text-left">
+                {subcategoryDisplayName || categoryDisplayName}
+              </span>
+              <span className="text-[12px] text-brand font-[500]">Change</span>
+            </button>
 
-        {/* Footer: composer (open) or feedback (resolved/closed) */}
-        {(!isExisting || capabilities?.canReply) && (
+            <p className="text-[16px] text-foreground mb-3 mt-6 font-poppins">
+              Tell us more about your issue
+            </p>
+            <label className="block text-[14px] font-[500] text-foreground mb-2 font-poppins">
+              Describe your issue <span className="text-danger">*</span>
+            </label>
+
+            <MarkdownComposer
+              value={message}
+              onChange={setMessage}
+              rows={3}
+              placeholder="Type message here"
+            />
+
+            {uploadError && (
+              <p className="mt-2 font-poppins text-[12px] text-danger">
+                {uploadError}
+              </p>
+            )}
+            {attachments}
+            <div className="mt-4">{attachButton}</div>
+          </div>
+        ) : (
+          <div
+            className={`flex-1 overflow-y-auto ${isDesktop ? 'px-5 py-6' : 'px-4 py-5'} space-y-4`}
+            ref={scrollRef}
+          >
+            <div className="rounded-3xl bg-brand-subtle border border-[#E6E3FF] px-4 py-4 text-[13px] text-foreground font-poppins leading-relaxed">
+              <p>
+                Share the details of your issue so our support team can reach
+                out with the right help.
+              </p>
+            </div>
+            {ticket?.message && (
+              <ResponseBubble
+                isStudent
+                author={ticket.owner.name}
+                message={ticket.message}
+              />
+            )}
+            {thread?.statusResponse && (
+              <ResponseBubble
+                isStudent={false}
+                author="Support Team"
+                message={`**${thread.statusResponse.heading}**\n\n${thread.statusResponse.message}`}
+              />
+            )}
+            {thread?.messages.map((m: TicketMessage) => (
+              <ResponseBubble
+                key={m.id}
+                isStudent={m.side === 'student'}
+                author={m.author.name}
+                role={m.author.role}
+                message={m.message}
+              />
+            ))}
+          </div>
+        )}
+
+        {/* Create footer — full-width Create Ticket */}
+        {!isExisting && (
+          <div
+            className={`border-t border-border ${isDesktop ? 'px-5 py-4' : 'px-4 py-4'}`}
+          >
+            <button
+              onClick={() => void handleSubmit()}
+              disabled={submitting || (!message.trim() && files.length === 0)}
+              className="w-full rounded-[12px] bg-brand py-3.5 text-[16px] text-brand-foreground font-[600] hover:bg-brand transition disabled:opacity-60 disabled:cursor-not-allowed"
+            >
+              {uploading
+                ? 'Uploading…'
+                : submitting
+                  ? 'Creating…'
+                  : 'Create Ticket'}
+            </button>
+          </div>
+        )}
+
+        {/* Reply composer (existing open ticket) */}
+        {isExisting && capabilities?.canReply && (
           <div className={`${isDesktop ? 'px-5 py-4' : 'px-4 py-4'}`}>
             <MarkdownComposer
               value={message}
@@ -257,47 +411,15 @@ export function CreateTicketModal({
             />
 
             {uploadError && (
-              <p className="mt-2 font-poppins text-[12px] text-red-600">{uploadError}</p>
+              <p className="mt-2 font-poppins text-[12px] text-danger">
+                {uploadError}
+              </p>
             )}
 
-            {/* Selected attachments */}
-            {files.length > 0 && (
-              <div className="mt-2 flex flex-wrap gap-2">
-                {files.map((f, i) => (
-                  <span
-                    key={`${f.name}-${i}`}
-                    className="inline-flex items-center gap-1.5 rounded-full bg-gray-100 px-3 py-1 font-poppins text-[12px] text-gray-700"
-                  >
-                    <Paperclip className="size-3.5" />
-                    <span className="max-w-[140px] truncate">{f.name}</span>
-                    <button
-                      type="button"
-                      aria-label={`Remove ${f.name}`}
-                      onClick={() => setFiles((prev) => prev.filter((_, idx) => idx !== i))}
-                      className="text-gray-400 hover:text-gray-700"
-                    >
-                      ✕
-                    </button>
-                  </span>
-                ))}
-              </div>
-            )}
+            {attachments}
 
             <div className="mt-4 flex items-center justify-between">
-              <label className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border border-gray-200 px-3 py-2 font-poppins text-[13px] text-gray-700 hover:bg-gray-50">
-                <Paperclip className="size-4" />
-                Attach
-                <input
-                  type="file"
-                  multiple
-                  className="hidden"
-                  disabled={files.length >= MAX_FILES}
-                  onChange={(e) => {
-                    addFiles(e.target.files)
-                    e.target.value = ''
-                  }}
-                />
-              </label>
+              {attachButton}
               <button
                 onClick={() => void handleSubmit()}
                 disabled={submitting || (!message.trim() && files.length === 0)}
@@ -318,11 +440,13 @@ export function CreateTicketModal({
               boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.06)',
             }}
           >
-            <p className="text-[14px] font-poppins text-gray-800 mx-auto text-center mb-2">
+            <p className="text-[14px] font-poppins text-foreground mx-auto text-center mb-2">
               This ticket has been marked as {status}
             </p>
-            <div className="bg-white flex p-3 rounded-xl w-full items-center justify-between">
-              <span className="text-[14px] font-poppins text-gray-800">Did we solve your issue?</span>
+            <div className="bg-surface flex p-3 rounded-xl w-full items-center justify-between">
+              <span className="text-[14px] font-poppins text-foreground">
+                Did we solve your issue?
+              </span>
               <div className="flex items-center gap-2">
                 <ThumbButton
                   selected={displayedRating === 5}
@@ -341,11 +465,13 @@ export function CreateTicketModal({
             {capabilities.canEscalate && (
               <div className="flex justify-end gap-2 mt-2">
                 <button
-                  className="font-poppins text-[14px] bg-white border border-gray-800 rounded-[10px] px-3 py-2 text-gray-800 font-semibold hover:bg-gray-50 transition disabled:opacity-60 disabled:cursor-not-allowed"
+                  className="font-poppins text-[14px] bg-surface border border-gray-800 rounded-[10px] px-3 py-2 text-foreground font-semibold hover:bg-surface-muted transition disabled:opacity-60 disabled:cursor-not-allowed"
                   onClick={() => escalateMutation.mutate()}
                   disabled={escalateMutation.isPending}
                 >
-                  {escalateMutation.isPending ? 'Escalating...' : 'Reopen to escalate'}
+                  {escalateMutation.isPending
+                    ? 'Escalating...'
+                    : 'Reopen to escalate'}
                 </button>
               </div>
             )}
@@ -362,12 +488,12 @@ export function CreateTicketModal({
 function StatusBadge({ status }: { status: string }) {
   const cls =
     status === 'open'
-      ? 'bg-[#ebf5ff] text-[#8997f8]'
+      ? 'bg-[#ebf5ff] text-[#8997f8] dark:bg-info-subtle dark:text-info-subtle-foreground'
       : status === 'closed'
-        ? 'bg-[#f5fcff] text-[#31afc3]'
+        ? 'bg-[#f5fcff] text-[#31afc3] dark:bg-info-subtle dark:text-info-subtle-foreground'
         : status === 're-opened'
-          ? 'bg-[#fef8e4] text-[#ffc391]'
-          : 'bg-[#eefff8] text-[#0d930f]'
+          ? 'bg-[#fef8e4] text-[#ffc391] dark:bg-warning-subtle dark:text-warning-subtle-foreground'
+          : 'bg-[#eefff8] text-success dark:bg-success-subtle dark:text-success-subtle-foreground'
   return (
     <span
       className={`ml-2 inline-block px-2 py-[2px] rounded-full text-xs font-bold ${cls}`}
@@ -392,9 +518,11 @@ function ResponseBubble({
 }) {
   return (
     <div className={`flex ${isStudent ? 'justify-end' : 'justify-start'}`}>
-      <div className={`max-w-[85%] rounded-2xl px-4 py-3 ${isStudent ? 'bg-[#EEF2FF]' : 'bg-gray-50 border border-gray-100'}`}>
+      <div
+        className={`max-w-[85%] rounded-2xl px-4 py-3 ${isStudent ? 'bg-brand-subtle' : 'bg-surface-muted border border-border'}`}
+      >
         {!isStudent && (
-          <p className="font-poppins text-[12px] font-semibold text-gray-600 mb-1">
+          <p className="font-poppins text-[12px] font-semibold text-foreground-muted mb-1">
             {author}
             {role ? ` · ${role}` : ''}
           </p>
@@ -420,7 +548,7 @@ function ThumbButton({
     <button
       onClick={onClick}
       disabled={loading}
-      className={`p-2 rounded-full text-lg transition-all hover:bg-gray-100 ${selected ? 'bg-gray-100' : ''} ${
+      className={`p-2 rounded-full text-lg transition-all hover:bg-surface-muted ${selected ? 'bg-surface-muted' : ''} ${
         loading ? 'cursor-not-allowed opacity-70' : ''
       }`}
     >

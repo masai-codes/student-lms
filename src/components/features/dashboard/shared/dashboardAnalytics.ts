@@ -5,11 +5,23 @@
 
 import { type GtmEventParams, pushGtmEvent } from '@/utils/gtm'
 
-export function pushDashboardEvent(event: string, params: GtmEventParams = {}): void {
+export function pushDashboardEvent(
+  event: string,
+  params: GtmEventParams = {},
+): void {
   pushGtmEvent(event, params)
 }
 
 /** GTM event for a welcome-banner click: `l_dashboard_banner_carousel_<key>_id_<id>`. */
 export function bannerClickEvent(analyticsKey: string, id: number): string {
   return `l_dashboard_banner_carousel_${analyticsKey}_id_${id}`
+}
+
+/**
+ * GTM event for the hardcoded Masai Live promo banner (the always-first
+ * carousel slide): `l_dashboard_banner_carousel_<key>`. No DB id since the
+ * banner is fixed in code.
+ */
+export function masaiLivePromoClickEvent(analyticsKey: string): string {
+  return `l_dashboard_banner_carousel_${analyticsKey}`
 }

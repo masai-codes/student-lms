@@ -25,8 +25,8 @@ describe('normalizeAndMergeIntervals', () => {
   })
 
   it('clamps intervals to total duration', () => {
-    expect(
-      normalizeAndMergeIntervals([{ start: 50, end: 120 }], 100),
-    ).toEqual([{ start: 50, end: 100 }])
+    expect(normalizeAndMergeIntervals([{ start: 50, end: 120 }], 100)).toEqual([
+      { start: 50, end: 100 },
+    ])
   })
 })

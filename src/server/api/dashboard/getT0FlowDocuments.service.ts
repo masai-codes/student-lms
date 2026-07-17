@@ -1,8 +1,4 @@
-import { eq, sql } from 'drizzle-orm'
-import { db } from '@/db'
-import { users } from '@/db/schema'
-import { buildAdmissionsRedirectForUser } from '@/server/admissions/buildAdmissionsRedirectForUser'
-import { getAdmissionsStudentStatus } from '@/server/admissions/getAdmissionsStudentStatus'
+import { getT0AdmissionsStatus } from './t0/getT0AdmissionsStatus.service'
 
 export interface T0FlowDocumentsStatus {
   /** Uploaded to the admissions portal (external system of record). */
@@ -12,51 +8,31 @@ export interface T0FlowDocumentsStatus {
   admissionsFormUrl: string | null
 }
 
-function normalizeRows<T>(result: unknown): Array<T> {
-  if (Array.isArray(result))
-    return (Array.isArray(result[0]) ? result[0] : result) as Array<T>
-  if (result && typeof result === 'object' && 'rows' in result)
-    return (result as { rows: Array<T> }).rows
-  return []
-}
-
 /**
- * Document-upload status for the guided tour — fetched on demand (not in the
- * overview) because it hits the external admissions API. Upload/verification
- * state comes from admissions (the LMS doesn't store it); the SSO upload link is
- * always built so the redirect works even when the status API is unconfigured.
+ * Document-upload status for the guided tour, fetched on demand when the learner
+ * opens the step. Upload/verification state and the SSO upload link both come
+ * from the admissions `student-status` API (see {@link getT0AdmissionsStatus}) —
+ * the LMS doesn't store document state itself. The SSO link is always returned so
+ * the redirect works even when the status API is unconfigured.
  */
 export async function getT0FlowDocuments(
   userId: number,
   batchId: number,
 ): Promise<T0FlowDocumentsStatus> {
-  const [[user], admissionRows] = await Promise.all([
-    db
-      .select({ username: users.username })
-      .from(users)
-      .where(eq(users.id, userId))
-      .limit(1),
-    normalizeRows<{ payment_url: string | null }>(
-      await db.execute(sql`
-        SELECT payment_url FROM user_batch_admission_data
-        WHERE user_id = ${userId} AND batch_id = ${batchId} LIMIT 1
-      `),
-    ),
-  ])
-
-  const status = await getAdmissionsStudentStatus(
-    user?.username ?? '',
-    'documents',
+  console.log(
+    '[student-status] getT0FlowDocuments called (on-demand document step)',
+    { userId, batchId },
   )
-  console.log('Status', status)
-  const redirect =
-    admissionRows[0]?.payment_url?.trim() ||
-    process.env.ADMISSIONS_SSO_BASE_URL ||
-    ''
-
+  const status = await getT0AdmissionsStatus(userId, batchId)
+  console.log('[student-status] getT0FlowDocuments result', {
+    userId,
+    batchId,
+    documentsUploaded: status.documentsUploaded,
+    documentsVerified: status.documentsVerified,
+  })
   return {
-    documentsUploaded: status?.documents?.documentsUploaded === true,
-    documentsVerified: status?.documents?.documentsVerified === true,
-    admissionsFormUrl: await buildAdmissionsRedirectForUser(userId, redirect),
+    documentsUploaded: status.documentsUploaded,
+    documentsVerified: status.documentsVerified,
+    admissionsFormUrl: status.admissionsFormUrl,
   }
 }

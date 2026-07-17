@@ -1,9 +1,8 @@
 import { and, eq, isNull, sql } from 'drizzle-orm'
 import {
-  AGREEMENT_REVIEW_DAYS,
   buildAgreementSteps,
   buildReferenceNumber,
-  daysSinceAgreementView,
+  computeAgreementCountdown,
   pickAgreementFormValues,
   sectionAgreementKey,
 } from './agreementShared'
@@ -16,6 +15,10 @@ export interface AgreementSection {
   sectionName: string
   programName: string
   batchName: string
+  /** Learner's registered email — shown on the signature certificate. */
+  email: string
+  /** Learner's student code (username) — shown on the signature certificate. */
+  studentCode: string
   steps: Array<AgreementStepDoc>
   /** Prefill: user's profile defaults merged with any previously-saved values. */
   savedValues: AgreementFormValues
@@ -27,34 +30,50 @@ export interface AgreementSection {
   agreementPdfUrl: string | null
   /** ISO time the agreement was first viewed (starts the review countdown); null until viewed. */
   viewTime: string | null
+  /** ISO time the agreement was signed (`finalSignTime`); null until signed. */
+  signedTime: string | null
+  /** IP address captured at submit; null until signed. */
+  ipAddress: string | null
   /** Whole days elapsed since first view. */
   daysSinceFirstView: number
-  /** Days left in the {@link AGREEMENT_REVIEW_DAYS}-day review window. */
+  /** Days left in the {@link AGREEMENT_REVIEW_DAYS}-day review window (0 when under a day remains). */
   daysLeft: number
+  /** Hours left when under a day remains, else null (count down in days). */
+  hoursLeft: number | null
   /** False once the window elapses — LMS access is paused until signed. */
   isClosable: boolean
 }
 
 function normalizeRows<T>(result: unknown): Array<T> {
-  if (Array.isArray(result)) return (Array.isArray(result[0]) ? result[0] : result) as Array<T>
-  if (result && typeof result === 'object' && 'rows' in result) return (result as { rows: Array<T> }).rows
+  if (Array.isArray(result))
+    return (Array.isArray(result[0]) ? result[0] : result) as Array<T>
+  if (result && typeof result === 'object' && 'rows' in result)
+    return (result as { rows: Array<T> }).rows
   return []
 }
 
 function parseJson(raw: unknown): Record<string, unknown> {
   if (!raw) return {}
   if (typeof raw === 'object') return raw as Record<string, unknown>
-  try { return JSON.parse(String(raw)) as Record<string, unknown> } catch { return {} }
+  try {
+    return JSON.parse(String(raw)) as Record<string, unknown>
+  } catch {
+    return {}
+  }
 }
 
-const GENDER_MAP: Record<string, string> = { MALE: 'male', FEMALE: 'female', OTHER: 'prefer_not_to_say' }
-
-/** Safe scalar prefill from the profile (prior saved values override these). */
-function profilePrefill(userName: string | null, birthDate: string | null, gender: string | null): AgreementFormValues {
-  const values: AgreementFormValues = {}
+/**
+ * Safe scalar prefill from the profile (prior saved values override these).
+ * Gender is intentionally NOT prefilled — the learner must pick it themselves so
+ * nothing is selected by default. Phone country defaults to `+91`.
+ */
+function profilePrefill(
+  userName: string | null,
+  birthDate: string | null,
+): AgreementFormValues {
+  const values: AgreementFormValues = { parentsMobileCountry: '+91' }
   if (userName) values.name = userName
   if (birthDate) values.dateOfBirth = birthDate.slice(0, 10)
-  if (gender && GENDER_MAP[gender]) values.gender = GENDER_MAP[gender]
   return values
 }
 
@@ -64,15 +83,24 @@ function profilePrefill(userName: string | null, birthDate: string | null, gende
  * signable steps (PDFs), prefill values (profile + prior saves), which steps are
  * already accepted, and completion. No modal state / deadline (non-blocking).
  */
-export async function getAgreementRenderData(userId: number, batchId: number): Promise<Array<AgreementSection>> {
+export async function getAgreementRenderData(
+  userId: number,
+  batchId: number,
+): Promise<Array<AgreementSection>> {
   const enrolled = await db
     .select({ sectionId: sectionUser.sectionId })
     .from(sectionUser)
     .where(and(eq(sectionUser.userId, userId), isNull(sectionUser.deletedAt)))
-  const sectionIds = [...new Set(enrolled.map((r) => r.sectionId))].filter(Number.isFinite)
+  const sectionIds = [...new Set(enrolled.map((r) => r.sectionId))].filter(
+    Number.isFinite,
+  )
   if (!sectionIds.length) return []
 
-  const sectionRows = normalizeRows<{ id: number; name: string; agreements: string | null }>(
+  const sectionRows = normalizeRows<{
+    id: number
+    name: string
+    agreements: string | null
+  }>(
     await db.execute(sql`
       SELECT id, name, settings->>'$.agreements' AS agreements
       FROM sections
@@ -85,14 +113,33 @@ export async function getAgreementRenderData(userId: number, batchId: number): P
   if (!sectionRows.length) return []
 
   const [[batch], [user], [profile]] = await Promise.all([
-    db.select({ name: batches.name, program: batches.program }).from(batches).where(eq(batches.id, batchId)).limit(1),
-    db.select({ name: users.name }).from(users).where(eq(users.id, userId)).limit(1),
-    db.select({ birthDate: profiles.birthDate, gender: profiles.gender, legalData: profiles.legalData })
-      .from(profiles).where(and(eq(profiles.userId, userId), isNull(profiles.deletedAt))).limit(1),
+    db
+      .select({ name: batches.name, program: batches.program })
+      .from(batches)
+      .where(eq(batches.id, batchId))
+      .limit(1),
+    db
+      .select({
+        name: users.name,
+        email: users.email,
+        username: users.username,
+      })
+      .from(users)
+      .where(eq(users.id, userId))
+      .limit(1),
+    db
+      .select({ birthDate: profiles.birthDate, legalData: profiles.legalData })
+      .from(profiles)
+      .where(and(eq(profiles.userId, userId), isNull(profiles.deletedAt)))
+      .limit(1),
   ])
 
-  const baseValues = profilePrefill(user?.name ?? null, profile?.birthDate ?? null, profile?.gender ?? null)
-  const userAgreements = (parseJson(profile?.legalData)['agreements'] ?? {}) as Record<string, unknown>
+  const baseValues = profilePrefill(
+    user?.name ?? null,
+    profile?.birthDate ?? null,
+  )
+  const userAgreements = (parseJson(profile?.legalData)['agreements'] ??
+    {}) as Record<string, unknown>
 
   const sections: Array<AgreementSection> = []
   for (const row of sectionRows) {
@@ -107,25 +154,40 @@ export async function getAgreementRenderData(userId: number, batchId: number): P
       : steps.filter((s) => acceptedSteps[s.key] === true).map((s) => s.key)
 
     // Review countdown, keyed off the first-view timestamp.
-    const viewTime = typeof stored['viewTime'] === 'string' ? stored['viewTime'] : null
-    const daysSinceFirstView = daysSinceAgreementView(viewTime)
-    const daysLeft = Math.max(0, AGREEMENT_REVIEW_DAYS - daysSinceFirstView)
-    const isClosable = viewTime ? daysSinceFirstView < AGREEMENT_REVIEW_DAYS : true
+    const viewTime =
+      typeof stored['viewTime'] === 'string' ? stored['viewTime'] : null
+    const { daysSinceFirstView, daysLeft, hoursLeft, isClosable } =
+      computeAgreementCountdown(viewTime)
+
+    const signedTime =
+      typeof stored['finalSignTime'] === 'string'
+        ? stored['finalSignTime']
+        : null
+    const ipAddress =
+      typeof stored['ipAddress'] === 'string' ? stored['ipAddress'] : null
 
     sections.push({
       sectionId: Number(row.id),
       sectionName: String(row.name ?? ''),
       programName: batch?.program ?? '',
       batchName: batch?.name ?? '',
+      email: user?.email ?? '',
+      studentCode: user?.username ?? '',
       steps,
       savedValues: { ...baseValues, ...pickAgreementFormValues(stored) },
       acceptedStepKeys,
       completed,
-      referenceNumber: (stored['referenceNumber'] as string | undefined) ?? buildReferenceNumber(userId, Number(row.id)),
-      agreementPdfUrl: (stored['agreementPdfUrl'] as string | undefined) ?? null,
+      referenceNumber:
+        (stored['referenceNumber'] as string | undefined) ??
+        buildReferenceNumber(userId, Number(row.id)),
+      agreementPdfUrl:
+        (stored['agreementPdfUrl'] as string | undefined) ?? null,
       viewTime,
+      signedTime,
+      ipAddress,
       daysSinceFirstView,
       daysLeft,
+      hoursLeft,
       isClosable,
     })
   }

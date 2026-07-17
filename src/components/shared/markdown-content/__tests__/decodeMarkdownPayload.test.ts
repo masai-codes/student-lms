@@ -8,7 +8,9 @@ describe('decodeMarkdownPayload', () => {
   })
 
   it('converts escaped newlines to real newlines', () => {
-    expect(decodeMarkdownPayload('line one\\nline two')).toBe('line one\nline two')
+    expect(decodeMarkdownPayload('line one\\nline two')).toBe(
+      'line one\nline two',
+    )
   })
 
   it('leaves plain markdown unchanged', () => {

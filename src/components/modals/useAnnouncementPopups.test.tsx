@@ -128,7 +128,9 @@ describe('useAnnouncementPopups', () => {
 
     await waitFor(() => expect(result.current.current?.id).toBe('5'))
     act(() => result.current.handleMarkRead())
-    await waitFor(() => expect(hoisted.markMessageRead).toHaveBeenCalledWith('5'))
+    await waitFor(() =>
+      expect(hoisted.markMessageRead).toHaveBeenCalledWith('5'),
+    )
     expect(hoisted.markAnnouncementRead).not.toHaveBeenCalled()
   })
 

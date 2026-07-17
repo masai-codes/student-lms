@@ -60,7 +60,6 @@ export function MasaiDrawer({
   const hasFloatingMargin =
     typeof sideMarginInPx === 'number' && sideMarginInPx > 0
   const resolvedBottomInsetPx = Math.max(0, bottomInsetPx)
-  const stacksAboveFixedChrome = resolvedBottomInsetPx > 0
 
   const floatingPanelStyle = React.useMemo(() => {
     if (!hasFloatingMargin || !sideMarginInPx) return undefined
@@ -100,7 +99,11 @@ export function MasaiDrawer({
     }
   }, [direction, hasFloatingMargin, resolvedBottomInsetPx, sideMarginInPx])
 
-  const drawerLayerClass = stacksAboveFixedChrome ? 'z-[90]' : 'z-50'
+  // The drawer is modal, so it must render above every page-level fixed bar —
+  // most importantly the mobile tab bar (z-[200]) — otherwise the panel and its
+  // bottom CTAs get clipped behind the bar on phones. The overlay dims the bar
+  // too so nothing behind the drawer stays interactive.
+  const drawerLayerClass = 'z-[210]'
 
   return (
     <Drawer.Root
@@ -138,7 +141,7 @@ export function MasaiDrawer({
           <div
             style={floatingPanelStyle}
             className={cn(
-              'pointer-events-auto fixed flex flex-col border bg-white font-poppins shadow-xl outline-none',
+              'pointer-events-auto fixed flex flex-col border bg-surface font-poppins shadow-xl outline-none',
               drawerLayerClass,
               hasFloatingMargin
                 ? 'rounded-2xl'
@@ -152,7 +155,7 @@ export function MasaiDrawer({
 
             {title || showCloseButton ? (
               <div className="flex items-center justify-between gap-3 border-b p-4">
-                <Drawer.Title className="text-lg font-semibold text-slate-900">
+                <Drawer.Title className="text-lg font-semibold text-foreground">
                   {title ?? 'Drawer'}
                 </Drawer.Title>
                 {showCloseButton ? (
@@ -164,7 +167,7 @@ export function MasaiDrawer({
                     htmlType="button"
                     onClick={() => onOpenChange(false)}
                     aria-label="Close drawer"
-                    className="!h-8 !w-8 !rounded-md !border !border-slate-200 !text-slate-500 hover:!bg-slate-50 hover:!text-slate-800"
+                    className="!h-8 !w-8 !rounded-md !border !border-border !text-foreground-muted hover:!bg-surface-muted hover:!text-foreground"
                   />
                 ) : null}
               </div>

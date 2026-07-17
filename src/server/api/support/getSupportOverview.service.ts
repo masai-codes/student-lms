@@ -78,7 +78,11 @@ export async function getSupportOverview(
   //    in one (e.g. agreements, 1:1, callbacks) must not blank out the whole
   //    page — most importantly it must never wipe the batch list. Each falls
   //    back to a safe empty value and logs.
-  const safe = async <T>(label: string, fn: () => Promise<T>, fallback: T): Promise<T> => {
+  const safe = async <T>(
+    label: string,
+    fn: () => Promise<T>,
+    fallback: T,
+  ): Promise<T> => {
     try {
       return await fn()
     } catch (error) {
@@ -100,12 +104,18 @@ export async function getSupportOverview(
     eligibility,
   ] = await Promise.all([
     safe('gate', () => getSupportGate({ userId, batchId }), null),
-    safe('contact', () => getBatchContact(batchId), { text: null, phone: null }),
+    safe('contact', () => getBatchContact(batchId), {
+      text: null,
+      phone: null,
+    }),
     safe('categories', () => getTicketCategories(), []),
     safe('faqs', () => searchFaqs({ batchId, limit: INITIAL_FAQ_LIMIT }), []),
     safe('tickets', () => listTickets({ userId, tab: 'unresolved' }), []),
     safe('openTicketCount', () => countOpenTickets(userId), 0),
-    safe('callbackOptions', () => getCallbackOptions(), { reasons: [], timeslots: [] }),
+    safe('callbackOptions', () => getCallbackOptions(), {
+      reasons: [],
+      timeslots: [],
+    }),
     safe('callbackTickets', () => listCallbacks(userId), []),
     safe('oneOnOne', () => getOneOnOneGroups(userId), []),
     safe('eligibility', () => getCallbackEligibility({ userId, batchId }), {

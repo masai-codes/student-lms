@@ -1,8 +1,10 @@
 import { describe, expect, it } from 'vitest'
+import type { LectureChatMaterials } from '@/server/api/ai-tutor/types/lectureChatMaterials'
 import {
+  AI_TUTOR_LECTURE_CHAT_RAG_GUIDANCE,
   AI_TUTOR_LECTURE_CHAT_RESPONSE_GUIDANCE,
-  AI_TUTOR_LECTURE_CHAT_SYSTEM_PROMPT,
   AI_TUTOR_LECTURE_CHAT_SYSTEM_PROMPT_BASE,
+  AI_TUTOR_LECTURE_RAG_TOOL_NAME,
   buildEnforcedChatLanguageInstruction,
 } from '@/server/api/ai-tutor/constants'
 import { AI_TUTOR_DEFAULT_CHAT_LANGUAGE } from '@/server/api/ai-tutor/chatLanguage'
@@ -11,34 +13,86 @@ import {
   buildLectureChatSystemPrompt,
 } from '@/server/api/ai-tutor/services/buildLectureChatPrompt'
 
+const inlineMaterials: LectureChatMaterials = {
+  lectureId: 12,
+  title: 'React Hooks Deep Dive',
+  summary: 'The lecture covered React hooks.',
+  resourcesShared: [
+    {
+      url: 'https://example.com/hooks-cheatsheet',
+      count: 1,
+      postedBy: 'Instructor',
+      timestamp: '00:12:00',
+      resolvedTo: null,
+    },
+  ],
+  notesRagged: false,
+  notesInline: 'useState stores component state.',
+  notesOutline: null,
+  notesCharacterCount: 32,
+  ragRetrievalAvailable: false,
+}
+
+const raggedMaterials: LectureChatMaterials = {
+  lectureId: 12,
+  title: 'Sorting Algorithms',
+  summary: 'The lecture covered sorting algorithms.',
+  resourcesShared: [],
+  notesRagged: true,
+  notesInline: null,
+  notesOutline: '## Bubble sort\n## Insertion sort',
+  notesCharacterCount: 15_000,
+  ragRetrievalAvailable: true,
+}
+
 describe('buildLectureChatSystemPrompt', () => {
-  it('defaults to English and appends the lecture summary', () => {
-    expect(buildLectureChatSystemPrompt('Hooks let you reuse state.', 'English')).toBe(
-      `${AI_TUTOR_LECTURE_CHAT_SYSTEM_PROMPT_BASE}
+  it('includes summary and inline notes when notes are not ragged', () => {
+    const prompt = buildLectureChatSystemPrompt(inlineMaterials, 'English')
 
-${buildEnforcedChatLanguageInstruction('English')}
-
-${AI_TUTOR_LECTURE_CHAT_RESPONSE_GUIDANCE}
-
-## Lecture content (summary)
-Hooks let you reuse state.`,
-    )
+    expect(prompt).toContain('## Lecture')
+    expect(prompt).toContain('Title: React Hooks Deep Dive')
+    expect(prompt).toContain('## Resources shared')
+    expect(prompt).toContain('https://example.com/hooks-cheatsheet')
+    expect(prompt).toContain('## Lecture content (summary)')
+    expect(prompt).toContain('The lecture covered React hooks.')
+    expect(prompt).toContain('## Instructor notes')
+    expect(prompt).toContain('useState stores component state.')
+    expect(prompt).not.toContain(AI_TUTOR_LECTURE_RAG_TOOL_NAME)
+    expect(prompt).not.toContain(AI_TUTOR_LECTURE_CHAT_RAG_GUIDANCE)
   })
 
-  it('matches the legacy full prompt for English', () => {
-    expect(
-      buildLectureChatSystemPrompt('Hooks let you reuse state.', AI_TUTOR_DEFAULT_CHAT_LANGUAGE),
-    ).toContain(
-      AI_TUTOR_LECTURE_CHAT_SYSTEM_PROMPT.split('## Lecture content')[0].trim(),
+  it('shows the empty resources message when none were shared', () => {
+    const prompt = buildLectureChatSystemPrompt(raggedMaterials, 'English')
+
+    expect(prompt).toContain('No resources were shared during the lecture.')
+  })
+
+  it('includes notesToc and tool guidance when notes are ragged', () => {
+    const prompt = buildLectureChatSystemPrompt(raggedMaterials, 'English')
+
+    expect(prompt).toContain('Table of contents')
+    expect(prompt).toContain('## Bubble sort')
+    expect(prompt).toContain(AI_TUTOR_LECTURE_RAG_TOOL_NAME)
+    expect(prompt).toContain(AI_TUTOR_LECTURE_CHAT_RAG_GUIDANCE)
+  })
+
+  it('omits tool guidance when retrieval is unavailable even for ragged notes', () => {
+    const prompt = buildLectureChatSystemPrompt(
+      { ...raggedMaterials, ragRetrievalAvailable: false },
+      AI_TUTOR_DEFAULT_CHAT_LANGUAGE,
     )
+
+    expect(prompt).not.toContain(AI_TUTOR_LECTURE_RAG_TOOL_NAME)
+    expect(prompt).toContain(AI_TUTOR_LECTURE_CHAT_RESPONSE_GUIDANCE)
+    expect(prompt).toContain(AI_TUTOR_LECTURE_CHAT_SYSTEM_PROMPT_BASE)
+    expect(prompt).toContain(buildEnforcedChatLanguageInstruction('English'))
   })
 
   it('enforces the provided language in the system prompt', () => {
-    const prompt = buildLectureChatSystemPrompt('Summary text', 'Hindi')
+    const prompt = buildLectureChatSystemPrompt(inlineMaterials, 'Hindi')
 
     expect(prompt).toContain(buildEnforcedChatLanguageInstruction('Hindi'))
     expect(prompt).not.toContain('Start by asking which language they prefer')
-    expect(prompt).toContain('## Lecture content (summary)\nSummary text')
   })
 })
 

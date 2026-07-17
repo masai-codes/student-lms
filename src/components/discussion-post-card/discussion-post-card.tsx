@@ -1,25 +1,25 @@
-import * as React from "react"
+import * as React from 'react'
 
-import { DiscussionPostCardDrawer } from "./discussion-post-card-drawer"
-import { DiscussionPostCardPreview } from "./discussion-post-card-preview"
+import { DiscussionPostCardDrawer } from './discussion-post-card-drawer'
+import { DiscussionPostCardPreview } from './discussion-post-card-preview'
 import type {
   DiscussionPostCardProps,
   DrawerDirection,
   VoteDirection,
-} from "./types"
+} from './types'
 
 function useResolvedDirection(direction: DrawerDirection) {
   const [isDesktop, setIsDesktop] = React.useState(false)
 
   React.useEffect(() => {
-    const mediaQuery = window.matchMedia("(min-width: 768px)")
+    const mediaQuery = window.matchMedia('(min-width: 768px)')
     const sync = () => setIsDesktop(mediaQuery.matches)
     sync()
-    mediaQuery.addEventListener("change", sync)
-    return () => mediaQuery.removeEventListener("change", sync)
+    mediaQuery.addEventListener('change', sync)
+    return () => mediaQuery.removeEventListener('change', sync)
   }, [])
 
-  return direction === "auto" ? (isDesktop ? "right" : "bottom") : direction
+  return direction === 'auto' ? (isDesktop ? 'right' : 'bottom') : direction
 }
 
 export function DiscussionPostCard({
@@ -38,7 +38,7 @@ export function DiscussionPostCard({
   onReplyTextChange,
   onReplySubmit,
   replyPlaceholder,
-  drawerDirection = "auto",
+  drawerDirection = 'auto',
   drawerBottomInsetClassName,
   drawerBodyClassName,
   drawerPinFooter = true,
@@ -62,7 +62,7 @@ export function DiscussionPostCard({
 
   const handleUpvoteClick = () => {
     setVoteCounts((current) => {
-      if (voteDirection === "up") {
+      if (voteDirection === 'up') {
         setVoteDirection(null)
         return {
           upvotes: Math.max(current.upvotes - 1, 0),
@@ -70,15 +70,15 @@ export function DiscussionPostCard({
         }
       }
 
-      if (voteDirection === "down") {
-        setVoteDirection("up")
+      if (voteDirection === 'down') {
+        setVoteDirection('up')
         return {
           upvotes: current.upvotes + 1,
           downvotes: Math.max(current.downvotes - 1, 0),
         }
       }
 
-      setVoteDirection("up")
+      setVoteDirection('up')
       return {
         upvotes: current.upvotes + 1,
         downvotes: current.downvotes,
@@ -89,7 +89,7 @@ export function DiscussionPostCard({
 
   const handleDownvoteClick = () => {
     setVoteCounts((current) => {
-      if (voteDirection === "down") {
+      if (voteDirection === 'down') {
         setVoteDirection(null)
         return {
           upvotes: current.upvotes,
@@ -97,15 +97,15 @@ export function DiscussionPostCard({
         }
       }
 
-      if (voteDirection === "up") {
-        setVoteDirection("down")
+      if (voteDirection === 'up') {
+        setVoteDirection('down')
         return {
           upvotes: Math.max(current.upvotes - 1, 0),
           downvotes: current.downvotes + 1,
         }
       }
 
-      setVoteDirection("down")
+      setVoteDirection('down')
       return {
         upvotes: current.upvotes,
         downvotes: current.downvotes + 1,

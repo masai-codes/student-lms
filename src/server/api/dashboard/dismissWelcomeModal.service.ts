@@ -3,7 +3,11 @@ import { db } from '@/db'
 import { users } from '@/db/schema'
 
 export async function dismissWelcomeModal(userId: number): Promise<void> {
-  const rows = await db.select({ meta: users.meta }).from(users).where(eq(users.id, userId)).limit(1)
+  const rows = await db
+    .select({ meta: users.meta })
+    .from(users)
+    .where(eq(users.id, userId))
+    .limit(1)
 
   const existing = rows.at(0)
   if (!existing) return

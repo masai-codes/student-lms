@@ -89,6 +89,50 @@ describe('buildAssignmentDetailPayload', () => {
     expect(payload.liveAnalytics).toBeNull()
   })
 
+  it('suppresses the completed-details banner when the assignment has problems', () => {
+    const scheduleMs = new Date(schedule).getTime()
+    const payload = buildAssignmentDetailPayload(
+      core,
+      {
+        type: 'assignment',
+        category: 'coding',
+        platform: null,
+        showScores: 0,
+        showSubmission: 0,
+        settings: null,
+        schedule,
+        concludes,
+        hostAvatarUrl: null,
+        instructions: null,
+        enforceDeadline: 0,
+      },
+      scheduleMs + 60_000,
+      {
+        submission: {
+          id: 7,
+          completed: true,
+          status: 'submitted',
+          markAsCompleted: null,
+          score: 0,
+          startedAt: null,
+          completedAt: '2026-05-20T11:30:00.000Z',
+          data: null,
+        },
+      },
+      [],
+      [
+        {
+          elementId: 1,
+          problemId: 11,
+          title: 'Two Sum',
+          statusChip: { tone: 'completed', label: 'Completed' },
+        },
+      ],
+    )
+
+    expect(payload.completedDetails).toBeNull()
+  })
+
   it('includes live analytics for a launched assessment-platform assignment', () => {
     const scheduleMs = new Date(schedule).getTime()
     const payload = buildAssignmentDetailPayload(

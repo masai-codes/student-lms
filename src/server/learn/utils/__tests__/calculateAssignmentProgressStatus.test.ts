@@ -23,7 +23,11 @@ describe('calculateAssignmentProgressStatus', () => {
         schedule,
         concludes,
         nowMs: new Date(schedule).getTime() + 60_000,
-        submission: { completed: false, status: 'pending', markAsCompleted: null },
+        submission: {
+          completed: false,
+          status: 'pending',
+          markAsCompleted: null,
+        },
       }),
     ).toBe('in-progress')
   })
@@ -34,7 +38,11 @@ describe('calculateAssignmentProgressStatus', () => {
         schedule,
         concludes,
         nowMs: new Date(schedule).getTime() + 60_000,
-        submission: { completed: true, status: 'pending', markAsCompleted: null },
+        submission: {
+          completed: true,
+          status: 'pending',
+          markAsCompleted: null,
+        },
       }),
     ).toBe('completed')
   })
@@ -45,7 +53,11 @@ describe('calculateAssignmentProgressStatus', () => {
         schedule,
         concludes,
         nowMs: new Date(concludes).getTime() + 60_000,
-        submission: { completed: false, status: 'pending', markAsCompleted: null },
+        submission: {
+          completed: false,
+          status: 'pending',
+          markAsCompleted: null,
+        },
       }),
     ).toBe('overdue')
   })

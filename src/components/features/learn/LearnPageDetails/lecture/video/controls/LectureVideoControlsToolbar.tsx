@@ -1,7 +1,8 @@
 'use client'
 
-import {  useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import {
+  ClosedCaptioning,
   CornersIn,
   CornersOut,
   DotsThreeOutlineVertical,
@@ -23,7 +24,16 @@ import {
   playbackRateLabel,
 } from './lectureVideoChrome.utils'
 import { LectureVideoAskAiPill } from './LectureVideoAskAiPill'
+import {
+  FULLSCREEN_CHANGE_EVENTS,
+  getFullscreenElement,
+  toggleLectureVideoFullscreen,
+} from '../hooks/lectureVideoFullscreen.utils'
 import type { LectureChromePlayerRef } from './lectureVideoChrome.utils'
+import {
+  playVideoWithRecovery,
+  type LectureVideoQualityLevel,
+} from '../hooks/useLectureVideoAttendance'
 import { useLectureSplitChatOptional } from '../../hooks/LectureSplitChatContext'
 import { pushLearnEvent } from '@/components/features/learn/shared/learnAnalytics'
 
@@ -35,8 +45,19 @@ type LectureVideoControlsToolbarProps = {
   isPlaying: boolean
   playbackRate: number
   onPlaybackRateChange: (rate: number) => void
+  qualityLevels: Array<LectureVideoQualityLevel>
+  currentQuality: number
+  onQualityChange: (levelIndex: number) => void
   fullscreenContainerRef: React.RefObject<HTMLDivElement | null>
   onActivity: () => void
+  /** Whether AI transcript segments exist to power on-video captions. */
+  transcriptAvailable: boolean
+  captionsOn: boolean
+  onCaptionsToggle: () => void
+  /** Whether the auto-hiding control chrome is currently visible. */
+  chromeVisible: boolean
+  /** Notifies the parent when the overflow menu opens/closes so it can pause auto-hide. */
+  onMenuOpenChange?: (open: boolean) => void
 }
 
 export function LectureVideoControlsToolbar({
@@ -47,8 +68,16 @@ export function LectureVideoControlsToolbar({
   isPlaying,
   playbackRate,
   onPlaybackRateChange,
+  qualityLevels,
+  currentQuality,
+  onQualityChange,
   fullscreenContainerRef,
   onActivity,
+  transcriptAvailable,
+  captionsOn,
+  onCaptionsToggle,
+  chromeVisible,
+  onMenuOpenChange,
 }: LectureVideoControlsToolbarProps) {
   const splitChat = useLectureSplitChatOptional()
   const overflowMenuRef = useRef<HTMLDivElement>(null)
@@ -61,16 +90,24 @@ export function LectureVideoControlsToolbar({
   const numeratorLongFmt =
     totalDuration >= 3600 || (totalDuration <= 0 && displaySeconds >= 3600)
   const denominatorLabel =
-    totalDuration > 0 ? formatVideoClock(totalDuration, totalDuration >= 3600) : '--:--'
+    totalDuration > 0
+      ? formatVideoClock(totalDuration, totalDuration >= 3600)
+      : '--:--'
 
   useEffect(() => {
     const onFullscreenChange = () => {
       const element = fullscreenContainerRef.current
-      setIsFullscreen(Boolean(element && document.fullscreenElement === element))
+      setIsFullscreen(Boolean(element && getFullscreenElement() === element))
     }
-    document.addEventListener('fullscreenchange', onFullscreenChange)
+    for (const eventName of FULLSCREEN_CHANGE_EVENTS) {
+      document.addEventListener(eventName, onFullscreenChange)
+    }
     onFullscreenChange()
-    return () => document.removeEventListener('fullscreenchange', onFullscreenChange)
+    return () => {
+      for (const eventName of FULLSCREEN_CHANGE_EVENTS) {
+        document.removeEventListener(eventName, onFullscreenChange)
+      }
+    }
   }, [fullscreenContainerRef])
 
   useEffect(() => {
@@ -91,12 +128,15 @@ export function LectureVideoControlsToolbar({
       setVolumeUiSupported(Boolean(vimeo.setVolume && vimeo.setMuted))
       const pull = () => {
         if (!vimeo.getVolume || !vimeo.getMuted) return
-        void Promise.all([asPromise(vimeo.getVolume()), asPromise(vimeo.getMuted())]).then(
-          ([volume, muted]) => {
-            setVolumeUi(typeof volume === 'number' && Number.isFinite(volume) ? volume : 1)
-            setMutedUi(Boolean(muted))
-          },
-        )
+        void Promise.all([
+          asPromise(vimeo.getVolume()),
+          asPromise(vimeo.getMuted()),
+        ]).then(([volume, muted]) => {
+          setVolumeUi(
+            typeof volume === 'number' && Number.isFinite(volume) ? volume : 1,
+          )
+          setMutedUi(Boolean(muted))
+        })
       }
       pull()
       if (typeof vimeo.on === 'function') {
@@ -109,6 +149,22 @@ export function LectureVideoControlsToolbar({
     return undefined
   }, [videoRef, playerReadyVersion])
 
+  // Keep the parent in sync so it can pause the chrome auto-hide while the
+  // menu is open (otherwise the toolbar hides and an open native <select>
+  // dropdown is left floating on screen).
+  useEffect(() => {
+    onMenuOpenChange?.(overflowMenuOpen)
+  }, [overflowMenuOpen, onMenuOpenChange])
+
+  // Safety net: if the chrome hides for any reason while the menu is open,
+  // close the menu too. Unmounting the popover dismisses any open native
+  // <select> (quality / playback speed) dropdown along with it.
+  useEffect(() => {
+    if (!chromeVisible && overflowMenuOpen) {
+      setOverflowMenuOpen(false)
+    }
+  }, [chromeVisible, overflowMenuOpen])
+
   useEffect(() => {
     if (!overflowMenuOpen) return
     const onPointerDown = (event: PointerEvent) => {
@@ -118,20 +174,21 @@ export function LectureVideoControlsToolbar({
       }
     }
     document.addEventListener('pointerdown', onPointerDown, true)
-    return () => document.removeEventListener('pointerdown', onPointerDown, true)
+    return () =>
+      document.removeEventListener('pointerdown', onPointerDown, true)
   }, [overflowMenuOpen])
 
   const togglePlay = () => {
     onActivity()
     const video = getHtmlVideoFromPlayer(videoRef)
     if (video) {
-      if (video.paused) void video.play()
+      if (video.paused) playVideoWithRecovery(video)
       else void video.pause()
       return
     }
     const vimeo = getVimeoLikeInternal(videoRef)
     if (vimeo?.getPaused) {
-      void asPromise(vimeo.getPaused()).then(paused => {
+      void asPromise(vimeo.getPaused()).then((paused) => {
         if (paused) void vimeo.play?.()
         else void vimeo.pause?.()
       })
@@ -148,7 +205,7 @@ export function LectureVideoControlsToolbar({
     }
     const vimeo = getVimeoLikeInternal(videoRef)
     if (vimeo?.getMuted && vimeo.setMuted) {
-      void asPromise(vimeo.getMuted()).then(muted => {
+      void asPromise(vimeo.getMuted()).then((muted) => {
         void vimeo.setMuted?.(!muted)
         setMutedUi(!muted)
       })
@@ -178,13 +235,12 @@ export function LectureVideoControlsToolbar({
   const toggleFullscreen = () => {
     onActivity()
     pushLearnEvent('l_learn_lecture_video_fullscreen_toggle')
-    const element = fullscreenContainerRef.current
-    if (!element) return
-    if (!document.fullscreenElement) {
-      void element.requestFullscreen()
-    } else {
-      void document.exitFullscreen()
-    }
+    // Standard/prefixed element fullscreen where available; iPhone Safari has
+    // neither, so this falls back to the native video fullscreen player.
+    toggleLectureVideoFullscreen(
+      fullscreenContainerRef.current,
+      getHtmlVideoFromPlayer(videoRef),
+    )
   }
 
   const openAssistant = () => {
@@ -196,12 +252,12 @@ export function LectureVideoControlsToolbar({
   return (
     <>
       <style>{LECTURE_VIDEO_OVERFLOW_VOLUME_CSS}</style>
-      <div className="flex min-w-0 items-center justify-between gap-2">
-        <div className="flex min-w-0 items-center gap-2 md:gap-3">
+      <div className="flex min-w-0 items-center justify-between gap-1.5 min-[380px]:gap-2">
+        <div className="flex min-w-0 items-center gap-1 min-[380px]:gap-2 md:gap-3">
           <button
             type="button"
             onClick={togglePlay}
-            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md text-white hover:bg-white/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/40"
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md text-white hover:bg-surface/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/40 transition duration-150 active:scale-90"
             aria-label={isPlaying ? 'Pause' : 'Play'}
           >
             {isPlaying ? (
@@ -211,18 +267,58 @@ export function LectureVideoControlsToolbar({
             )}
           </button>
           <span className="min-w-0 truncate font-mono text-xs tabular-nums text-white md:text-sm">
-            {formatVideoClock(displaySeconds, numeratorLongFmt)} / {denominatorLabel}
+            {formatVideoClock(displaySeconds, numeratorLongFmt)}
+            {/* Duration hides on very narrow screens so one row fits at 320px. */}
+            <span className="hidden min-[380px]:inline">
+              {' '}
+              / {denominatorLabel}
+            </span>
           </span>
         </div>
 
-        <div className="flex shrink-0 items-center gap-0.5 md:gap-1">
+        {/* min-w-0 (not shrink-0) so the Ask pill can give way on narrow screens
+            while the fixed icon buttons keep their hit areas. */}
+        <div className="flex min-w-0 items-center gap-0.5 md:gap-1">
           {splitChat && !splitChat.isOpen ? (
-            <LectureVideoAskAiPill onClick={openAssistant} />
+            <LectureVideoAskAiPill
+              onClick={openAssistant}
+              className="min-w-0 shrink overflow-hidden"
+            />
+          ) : null}
+          {transcriptAvailable ? (
+            <button
+              type="button"
+              onClick={() => {
+                onActivity()
+                onCaptionsToggle()
+              }}
+              aria-pressed={captionsOn}
+              aria-label={captionsOn ? 'Turn off captions' : 'Turn on captions'}
+              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md text-white hover:bg-surface/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/40 transition duration-150 active:scale-90"
+            >
+              <ClosedCaptioning
+                className="h-6 w-6"
+                weight={captionsOn ? 'fill' : 'bold'}
+              />
+            </button>
           ) : null}
           <button
             type="button"
+            onClick={toggleMute}
+            disabled={!volumeUiSupported}
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md text-white hover:bg-surface/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/40 transition duration-150 active:scale-90 disabled:pointer-events-none disabled:opacity-40"
+            aria-label={mutedUi ? 'Unmute' : 'Mute'}
+          >
+            {mutedUi || volumeUi === 0 ? (
+              <SpeakerSlash className="h-6 w-6" weight="bold" />
+            ) : (
+              <SpeakerHigh className="h-6 w-6" weight="bold" />
+            )}
+          </button>
+          <button
+            type="button"
             onClick={toggleFullscreen}
-            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md text-white hover:bg-white/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/40"
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md text-white hover:bg-surface/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/40 transition duration-150 active:scale-90"
             aria-label={isFullscreen ? 'Exit fullscreen' : 'Fullscreen'}
           >
             {isFullscreen ? (
@@ -239,10 +335,10 @@ export function LectureVideoControlsToolbar({
               aria-controls="lecture-video-overflow-menu"
               onClick={() => {
                 onActivity()
-                setOverflowMenuOpen(open => !open)
+                setOverflowMenuOpen((open) => !open)
               }}
-              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md text-white hover:bg-white/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/40"
-              aria-label="More: volume and playback speed"
+              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md text-white hover:bg-surface/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/40 transition duration-150 active:scale-90"
+              aria-label="More: volume, playback speed and quality"
             >
               <DotsThreeOutlineVertical className="h-6 w-6" weight="bold" />
             </button>
@@ -255,13 +351,15 @@ export function LectureVideoControlsToolbar({
               >
                 <div className="flex flex-col gap-3">
                   <div>
-                    <span className="mb-2 block text-xs font-medium text-white/70">Volume</span>
+                    <span className="mb-2 block text-xs font-medium text-white/70">
+                      Volume
+                    </span>
                     <div className="flex items-center gap-2">
                       <button
                         type="button"
                         onClick={toggleMute}
                         disabled={!volumeUiSupported}
-                        className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md hover:bg-white/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/40 disabled:pointer-events-none disabled:opacity-40"
+                        className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md hover:bg-surface/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/40 disabled:pointer-events-none disabled:opacity-40"
                         aria-label={mutedUi ? 'Unmute' : 'Mute'}
                       >
                         {mutedUi || volumeUi === 0 ? (
@@ -279,11 +377,9 @@ export function LectureVideoControlsToolbar({
                         onChange={onVolumeInput}
                         disabled={!volumeUiSupported}
                         className="lecture-video-overflow-volume accent-white min-w-0 flex-1 cursor-pointer disabled:cursor-not-allowed"
-                        style={
-                          {
-                            ['--vol-pct' as string]: `${(mutedUi ? 0 : volumeUi) * 100}%`,
-                          }
-                        }
+                        style={{
+                          ['--vol-pct' as string]: `${(mutedUi ? 0 : volumeUi) * 100}%`,
+                        }}
                         aria-label="Volume"
                       />
                     </div>
@@ -299,22 +395,48 @@ export function LectureVideoControlsToolbar({
                       id="lecture-video-playback-rate"
                       value={
                         PLAYBACK_RATE_OPTIONS.find(
-                          rate => Math.abs(rate - playbackRate) < 0.001,
+                          (rate) => Math.abs(rate - playbackRate) < 0.001,
                         ) ?? 1
                       }
-                      onChange={event => {
+                      onChange={(event) => {
                         onActivity()
                         onPlaybackRateChange(Number(event.target.value))
                       }}
-                      className="h-9 w-full cursor-pointer rounded-md border border-white/15 bg-black/50 px-2 text-sm text-white outline-none hover:bg-white/10 focus-visible:ring-2 focus-visible:ring-white/40"
+                      className="h-9 w-full cursor-pointer rounded-md border border-white/15 bg-black/50 px-2 text-sm text-white outline-none hover:bg-surface/10 focus-visible:ring-2 focus-visible:ring-white/40"
                     >
-                      {PLAYBACK_RATE_OPTIONS.map(rate => (
+                      {PLAYBACK_RATE_OPTIONS.map((rate) => (
                         <option key={rate} value={rate}>
                           {playbackRateLabel(rate)}
                         </option>
                       ))}
                     </select>
                   </div>
+                  {qualityLevels.length > 0 ? (
+                    <div>
+                      <label
+                        htmlFor="lecture-video-quality"
+                        className="mb-2 block text-xs font-medium text-white/70"
+                      >
+                        Quality
+                      </label>
+                      <select
+                        id="lecture-video-quality"
+                        value={currentQuality}
+                        onChange={(event) => {
+                          onActivity()
+                          onQualityChange(Number(event.target.value))
+                        }}
+                        className="h-9 w-full cursor-pointer rounded-md border border-white/15 bg-black/50 px-2 text-sm text-white outline-none hover:bg-surface/10 focus-visible:ring-2 focus-visible:ring-white/40"
+                      >
+                        <option value={-1}>Auto</option>
+                        {qualityLevels.map((level) => (
+                          <option key={level.index} value={level.index}>
+                            {level.height}p
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  ) : null}
                 </div>
               </div>
             ) : null}
