@@ -18,4 +18,15 @@ describe('getAuthBranding', () => {
       showLegalLinks: false,
     })
   })
+
+  it('returns IIT Jodhpur branding for the iitj origin', () => {
+    expect(getAuthBranding('iitj')).toMatchObject({
+      logoSrc:
+        'https://s3.ap-south-1.amazonaws.com/static.masaischool.com/iit-jodhpur-logo.jpg',
+      logoAlt: 'IIT Jodhpur',
+      pageTitle: 'IIT Jodhpur',
+      signInHeading: 'IIT Jodhpur',
+      showLegalLinks: false,
+    })
+  })
 })

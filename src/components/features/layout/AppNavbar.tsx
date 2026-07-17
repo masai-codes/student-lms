@@ -50,7 +50,11 @@ import {
 import { fetchLevelupSso } from '@/utils/levelupSso'
 import { fetchReferralLmsLoginRedirectUrl } from '@/utils/referralLmsLogin'
 import { getAuthBranding } from '@/utils/authBranding'
-import { isIHubPortal } from '@/utils/portal'
+import {
+  hidesMasaiOnlyFeatures,
+  isIHubPortal,
+  isMasaiPortal,
+} from '@/utils/portal'
 
 const layoutRouteApi = getRouteApi('/(protected)/_layout')
 
@@ -68,17 +72,20 @@ const MASAI_LOGO =
 const MASAI_LOGO_DARK =
   'https://cdn.masaischool.com/masai-website/masai_dark_853075d7cd.png'
 
-/** Portal-aware navbar logo: iHub gets its own mark, everyone else Masai. */
+/**
+ * Portal-aware navbar logo: Masai uses the hosted wordmark; every other portal
+ * (iHub, IIT Jodhpur) uses its branding mark from {@link getAuthBranding}.
+ */
 function navbarLogoSrc(): string {
-  return isIHubPortal() ? getAuthBranding('ihub').logoSrc : MASAI_LOGO
+  return isMasaiPortal() ? MASAI_LOGO : getAuthBranding().logoSrc
 }
 
 /**
- * Dark-theme logo variant, swapped via CSS. iHub keeps its single mark (no dark
- * asset supplied); Masai gets the light-on-dark wordmark.
+ * Dark-theme logo variant, swapped via CSS. Non-Masai portals keep their single
+ * mark (no dark asset supplied); Masai gets the light-on-dark wordmark.
  */
 function navbarLogoDarkSrc(): string | undefined {
-  return isIHubPortal() ? undefined : MASAI_LOGO_DARK
+  return isMasaiPortal() ? MASAI_LOGO_DARK : undefined
 }
 
 /**
@@ -118,8 +125,10 @@ type PrimaryNavTab = { id: string; label: string; isActive?: boolean } & (
 
 export default function AppNavbar() {
   const { user } = layoutRouteApi.useRouteContext()
-  // iHub portal hides Masai-only surfaces (MasaiVerse, Refer & Earn, Practice
-  // Interviews, LevelUp, Download App, chat + guided-tour icons).
+  // Non-Masai portals (iHub, IIT Jodhpur) hide the Masai-only surfaces
+  // (MasaiVerse, Refer & Earn, Practice Interviews, LevelUp, chat + guided-tour
+  // icons). Download App is different: hidden on iHub only, kept on IIT Jodhpur.
+  const hideMasaiExtras = hidesMasaiOnlyFeatures()
   const isIHub = isIHubPortal()
   const navigate = useNavigate()
   const pathname = useRouterState({ select: (s) => s.location.pathname })
@@ -161,7 +170,7 @@ export default function AppNavbar() {
   // dropdown. Otherwise the nav keeps "Refer & Earn" and the dropdown keeps
   // "MasaiVerse Community" as-is.
   const showMasaiverseCta =
-    !isIHub &&
+    !hideMasaiExtras &&
     (user.role === 'admin' || masaiverseAccess?.canShowMasaiverse === true)
 
   const handleLevelupClick = useCallback(
@@ -316,9 +325,9 @@ export default function AppNavbar() {
       stayInNew: false,
       oldUiPath: OLD_STUDENT_UI_NAV_PATHS.discussions,
     }),
-    // iHub hides the MasaiVerse CTA and the Refer & Earn (changemakers) link
-    // entirely; Masai keeps the existing either/or behaviour.
-    ...(isIHub
+    // Non-Masai portals hide the MasaiVerse CTA and the Refer & Earn
+    // (changemakers) link entirely; Masai keeps the existing either/or behaviour.
+    ...(hideMasaiExtras
       ? []
       : [
           showMasaiverseCta
@@ -341,7 +350,8 @@ export default function AppNavbar() {
 
   const trailingActions: Array<NavbarActionItem> = useMemo(
     () => [
-      // Download App, Chat and the guided-tour icon are Masai-only.
+      // Download App is hidden on iHub only (iHub has no mobile app) — Masai and
+      // IIT Jodhpur both keep it. Chat + the guided-tour icon are Masai-only.
       ...(isIHub
         ? []
         : [
@@ -366,7 +376,7 @@ export default function AppNavbar() {
         ariaLabel: 'Calendar',
         ...oldStudentUiLink(OLD_STUDENT_UI_NAV_PATHS.calendar),
       },
-      ...(isIHub
+      ...(hideMasaiExtras
         ? []
         : [
             {
@@ -398,7 +408,13 @@ export default function AppNavbar() {
         onClick: handleAnnouncementsClick,
       },
     ],
-    [handleAnnouncementsClick, handleGuidedTourClick, isIHub, unreadCount],
+    [
+      handleAnnouncementsClick,
+      handleGuidedTourClick,
+      hideMasaiExtras,
+      isIHub,
+      unreadCount,
+    ],
   )
 
   const profileMenuItems: Array<NavbarProfileMenuItem> = useMemo(
@@ -425,8 +441,8 @@ export default function AppNavbar() {
         openInNewTab: false,
       },
       // MasaiVerse Community / Refer & Earn and Practice Interviews are
-      // Masai-only and dropped from the iHub profile menu.
-      ...(isIHub
+      // Masai-only and dropped from the non-Masai (iHub, IIT Jodhpur) profile menu.
+      ...(hideMasaiExtras
         ? []
         : [
             showMasaiverseCta
@@ -460,8 +476,8 @@ export default function AppNavbar() {
         openInNewTab: true,
         icon: <Bug className="size-4" />,
       },
-      // LevelUp is the Masai placement platform — hidden on iHub.
-      ...(isIHub
+      // LevelUp is the Masai placement platform — hidden on non-Masai portals.
+      ...(hideMasaiExtras
         ? []
         : [
             {
@@ -504,7 +520,7 @@ export default function AppNavbar() {
       handleProductUpdatesClick,
       handleReferAndEarnClick,
       handleSignOut,
-      isIHub,
+      hideMasaiExtras,
       isLevelupLoading,
       showMasaiverseCta,
     ],
@@ -528,7 +544,7 @@ export default function AppNavbar() {
         logo={{
           src: navbarLogoSrc(),
           darkSrc: navbarLogoDarkSrc(),
-          alt: isIHub ? 'iHub Logo' : 'Masai Logo',
+          alt: getAuthBranding().logoAlt,
           href: '/',
           openInNewTab: false,
           onClick: handleHomeClick,

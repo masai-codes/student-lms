@@ -1,4 +1,4 @@
-export type EmailPortal = 'masai' | 'ihub'
+export type EmailPortal = 'masai' | 'ihub' | 'iitj'
 
 /**
  * Narrows a raw `users.client` string (or any other untyped value) to a known
@@ -6,16 +6,26 @@ export type EmailPortal = 'masai' | 'ihub'
  * (everything pre-iHub was Masai). Add new cases here when we onboard new clients.
  */
 export function toEmailPortal(value: string | null | undefined): EmailPortal {
-  return value === 'ihub' ? 'ihub' : 'masai'
+  if (value === 'ihub') return 'ihub'
+  if (value === 'iitj') return 'iitj'
+  return 'masai'
 }
 
-function getIHubOrigins(): Set<string> {
+function getOriginsFromEnv(envVar: string): Set<string> {
   return new Set(
-    (process.env.IHUB_ORIGINS ?? '')
+    (process.env[envVar] ?? '')
       .split(',')
       .map((o) => o.trim().toLowerCase())
       .filter(Boolean),
   )
+}
+
+function getIHubOrigins(): Set<string> {
+  return getOriginsFromEnv('IHUB_ORIGINS')
+}
+
+function getIITJOrigins(): Set<string> {
+  return getOriginsFromEnv('IITJ_ORIGINS')
 }
 
 function extractOriginFromUrl(url: string): string {
@@ -27,17 +37,25 @@ function extractOriginFromUrl(url: string): string {
   }
 }
 
-export function isRequestFromIHub(request: Request): boolean {
+/**
+ * Resolves the portal ('masai' | 'ihub' | 'iitj') for a request. Resolution
+ * order: the `X-App-Origin` header the client attaches to every same-origin
+ * fetch, then a localhost port convention (dev), then the `Origin`/`Referer`
+ * allowlists, then a Masai default.
+ */
+export function getEmailPortal(request: Request): EmailPortal {
   const origin = (request.headers.get('origin') ?? '').toLowerCase()
   const referer =
     request.headers.get('referer') ?? request.headers.get('referrer') ?? ''
+  const refererOrigin = extractOriginFromUrl(referer)
   const xAppOrigin = (request.headers.get('x-app-origin') ?? '')
     .toLowerCase()
     .trim()
 
   if (xAppOrigin) {
-    if (xAppOrigin === 'ihub' || xAppOrigin.includes('ihub')) return true
-    if (xAppOrigin === 'masai' || xAppOrigin.includes('masai')) return false
+    if (xAppOrigin === 'iitj' || xAppOrigin.includes('iitj')) return 'iitj'
+    if (xAppOrigin === 'ihub' || xAppOrigin.includes('ihub')) return 'ihub'
+    if (xAppOrigin === 'masai' || xAppOrigin.includes('masai')) return 'masai'
   }
 
   const useLocalhostTesting =
@@ -45,27 +63,40 @@ export function isRequestFromIHub(request: Request): boolean {
     process.env.NODE_ENV === 'development'
 
   if (useLocalhostTesting) {
-    const refererOrigin = extractOriginFromUrl(referer)
+    // Dev port convention: 3001 = Masai, 3002 = iHub, 3003 = IIT Jodhpur.
+    if (
+      origin.includes('localhost:3003') ||
+      refererOrigin.includes('localhost:3003')
+    )
+      return 'iitj'
     if (
       origin.includes('localhost:3002') ||
       refererOrigin.includes('localhost:3002')
     )
-      return true
+      return 'ihub'
     if (
       origin.includes('localhost:3001') ||
       refererOrigin.includes('localhost:3001')
     )
-      return false
+      return 'masai'
   }
 
-  const allowed = getIHubOrigins()
-  if (origin && allowed.has(origin)) return true
-  const refererOrigin = extractOriginFromUrl(referer)
-  if (refererOrigin && allowed.has(refererOrigin)) return true
+  const iitjAllowed = getIITJOrigins()
+  if (origin && iitjAllowed.has(origin)) return 'iitj'
+  if (refererOrigin && iitjAllowed.has(refererOrigin)) return 'iitj'
 
-  return false
+  const ihubAllowed = getIHubOrigins()
+  if (origin && ihubAllowed.has(origin)) return 'ihub'
+  if (refererOrigin && ihubAllowed.has(refererOrigin)) return 'ihub'
+
+  return 'masai'
 }
 
-export function getEmailPortal(request: Request): EmailPortal {
-  return isRequestFromIHub(request) ? 'ihub' : 'masai'
+/**
+ * Whether a request is on the iHub portal specifically. Prefer `getEmailPortal`
+ * for three-way logic; this stays for the iHub-only branches (e.g. grandfathered
+ * mobile-app access) that don't care about IIT Jodhpur.
+ */
+export function isRequestFromIHub(request: Request): boolean {
+  return getEmailPortal(request) === 'ihub'
 }

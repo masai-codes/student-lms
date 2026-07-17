@@ -45,6 +45,8 @@ function renderControls(
       modalFilters={EMPTY_FILTERS}
       onModulesChange={() => {}}
       onApplyModalFilters={() => {}}
+      horizon="today"
+      onHorizonChange={() => {}}
     />,
   )
   return { onSearchChange }

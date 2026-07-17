@@ -47,6 +47,22 @@ const BRANDING: Record<AppOrigin, AuthBranding> = {
     showLegalLinks: false,
     craftedBy: 'iHub DivyaSampark',
   },
+  iitj: {
+    logoSrc:
+      'https://s3.ap-south-1.amazonaws.com/static.masaischool.com/iit-jodhpur-logo.jpg',
+    logoAlt: 'IIT Jodhpur',
+    logoClassName:
+      'mx-auto h-14 w-auto cursor-pointer object-contain md:h-16',
+    pageTitle: 'IIT Jodhpur',
+    metaDescription:
+      'IIT Jodhpur learning platform — courses and live sessions.',
+    signInHeading: 'IIT Jodhpur',
+    accountPrompt: 'Continue with your IIT Jodhpur account.',
+    footerLabel: 'IIT Jodhpur',
+    footerHref: 'https://www.iitj.ac.in/',
+    showLegalLinks: false,
+    craftedBy: 'IIT Jodhpur',
+  },
 }
 
 export function getAuthBranding(

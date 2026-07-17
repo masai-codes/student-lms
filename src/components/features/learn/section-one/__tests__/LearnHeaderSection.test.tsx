@@ -26,6 +26,9 @@ function renderHeader(showBatchDetails: boolean) {
         },
       ]}
       onBatchChange={() => {}}
+      sections={[]}
+      selectedSectionId={null}
+      onSectionChange={() => {}}
     />,
   )
 }

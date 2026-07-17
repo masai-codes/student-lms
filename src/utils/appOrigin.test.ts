@@ -13,6 +13,11 @@ describe('originFromHost', () => {
     expect(originFromHost('IHUB.example.com')).toBe('ihub')
   })
 
+  it('treats any host containing "iitj" as iitj', () => {
+    expect(originFromHost('iitj.masaischool.com')).toBe('iitj')
+    expect(originFromHost('IITJ.example.com')).toBe('iitj')
+  })
+
   it('falls back to masai for everything else', () => {
     expect(originFromHost('students-demo-v2.masaischool.com')).toBe('masai')
     expect(originFromHost('localhost')).toBe('masai')
