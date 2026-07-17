@@ -19,7 +19,7 @@ import type { EmailPortal } from '@/server/auth/v2/isRequestFromIHub'
 
 export const ENROLLMENT_CACHE_TTL_SECONDS = 60 * 60 // 1 hour, matches experience-api
 
-const PORTALS: ReadonlyArray<EmailPortal> = ['masai', 'ihub']
+const PORTALS: ReadonlyArray<EmailPortal> = ['masai', 'ihub', 'iitj']
 
 export function enrolledBatchIdsKey(
   userId: number,

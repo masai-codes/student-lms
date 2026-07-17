@@ -194,6 +194,7 @@ export function LearnControlsSection({
 
         <MasaiSelectDropdown
           triggerLabel="Timeframe"
+          menuLabel="Select timeframe"
           aria-label="Filter by timeframe"
           options={LEARN_SCHEDULE_HORIZON_OPTIONS}
           value={horizon}
@@ -211,11 +212,12 @@ export function LearnControlsSection({
 
         <MasaiDropdownCheckboxFilter
           triggerLabel="Module"
+          menuLabel="Select modules"
           options={moduleDropdownOptions}
           value={selectedModules}
           onValueChange={setSelectedModules}
           disabled={!hasModuleChoices}
-          className="min-w-[150px] flex-1 sm:w-[170px] sm:flex-none"
+          className="min-w-[150px] flex-1 sm:w-[190px] sm:flex-none"
           triggerClassName="min-w-0 w-full"
         />
 

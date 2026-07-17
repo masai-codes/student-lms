@@ -3,19 +3,23 @@ import { getRequestHost } from '@tanstack/react-start/server'
 import { MOBILE_VIEWPORT_HEADER, withAppMobileHeaders } from '@/utils/appMobile'
 import { getIsMobileViewport } from '@/hooks/useIsMobileViewport'
 
-export type AppOrigin = 'masai' | 'ihub'
+export type AppOrigin = 'masai' | 'ihub' | 'iitj'
 
 const APP_ORIGIN_HEADER = 'X-App-Origin'
 const DEFAULT_APP_ORIGIN: AppOrigin = 'masai'
 
 /**
- * Maps a host (domain/subdomain) to an app origin: anything containing "ihub"
- * is iHub, everything else falls back to Masai. This is what lets us ship a
- * single build for both portals — the origin is derived from the request URL
- * at runtime instead of being baked in at build time.
+ * Maps a host (domain/subdomain) to an app origin: anything containing "iitj"
+ * is IIT Jodhpur, anything containing "ihub" is iHub, everything else falls
+ * back to Masai. This is what lets us ship a single build for all portals — the
+ * origin is derived from the request URL at runtime instead of being baked in
+ * at build time.
  */
 export function originFromHost(host: string | null | undefined): AppOrigin {
-  return host?.toLowerCase().includes('ihub') ? 'ihub' : DEFAULT_APP_ORIGIN
+  const lower = host?.toLowerCase() ?? ''
+  if (lower.includes('iitj')) return 'iitj'
+  if (lower.includes('ihub')) return 'ihub'
+  return DEFAULT_APP_ORIGIN
 }
 
 /**
