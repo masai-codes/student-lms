@@ -108,13 +108,19 @@ export async function fetchLearnListingFacets(
   learningType: LearningType,
   sectionIds: Array<number>,
   nowMs: number,
+  scheduleHorizonDays?: number,
 ): Promise<LearningFilterValues> {
   if (sectionIds.length === 0) {
     return emptyFilterValues()
   }
 
-  // The base (no schedulePhase / no date) window — the default landing view for the tab.
-  const window = buildLearnScheduleWindow({ learningType, nowMs })
+  // The base (no schedulePhase / no date) window — the default landing view for the
+  // tab, honouring the chosen future horizon so facets match the visible listing.
+  const window = buildLearnScheduleWindow({
+    learningType,
+    scheduleHorizonDays,
+    nowMs,
+  })
   const rows = await fetchFacetRows(learningType, sectionIds, window, nowMs)
 
   return {

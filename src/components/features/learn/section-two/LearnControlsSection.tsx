@@ -7,10 +7,16 @@ import { Filter, Search } from 'lucide-react'
 import { LearnFiltersPanel } from './filters-modal/LearnFiltersPanel'
 import { useDebouncedCommit } from './useDebouncedCommit'
 import { pushLearnEvent } from '../shared/learnAnalytics'
-import type { LearnModalFiltersState, LearnTab } from '../shared/types'
+import type {
+  LearnModalFiltersState,
+  LearnScheduleHorizon,
+  LearnTab,
+} from '../shared/types'
+import { LEARN_SCHEDULE_HORIZON_OPTIONS } from '../shared/types'
 
 import type { MasaiDropdownCheckboxFilterOption } from '@/components/ui/masai-dropdown-checkbox-filter'
 import { MasaiDropdownCheckboxFilter } from '@/components/ui/masai-dropdown-checkbox-filter'
+import { MasaiSelectDropdown } from '@/components/ui/masai-select-dropdown'
 import { MasaiButton } from '@/components/masai-button'
 import { MasaiDrawer } from '@/components/ui/masai-drawer'
 import { MasaiInput } from '@/components/ui/masai-input'
@@ -50,6 +56,8 @@ interface LearnControlsSectionProps {
   modalFilters: LearnModalFiltersState
   onModulesChange: (modules: Array<string>) => void
   onApplyModalFilters: (next: LearnModalFiltersState) => void
+  horizon: LearnScheduleHorizon
+  onHorizonChange: (horizon: LearnScheduleHorizon) => void
 }
 
 export function LearnControlsSection({
@@ -65,6 +73,8 @@ export function LearnControlsSection({
   modalFilters,
   onModulesChange,
   onApplyModalFilters,
+  horizon,
+  onHorizonChange,
 }: LearnControlsSectionProps) {
   const [filtersOpen, setFiltersOpen] = useState(false)
 
@@ -180,6 +190,23 @@ export function LearnControlsSection({
           placeholder={SEARCH_PLACEHOLDER_BY_TAB[activeTab]}
           iconLeft={<Search className="size-4 shrink-0" strokeWidth={2} />}
           className="w-full min-w-0 sm:w-[300px]"
+        />
+
+        <MasaiSelectDropdown
+          triggerLabel="Timeframe"
+          aria-label="Filter by timeframe"
+          options={LEARN_SCHEDULE_HORIZON_OPTIONS}
+          value={horizon}
+          onValueChange={(value) => {
+            const nextHorizon = value as LearnScheduleHorizon
+            pushLearnEvent('l_learn_horizon_change', {
+              horizon: nextHorizon,
+              tab: activeTab,
+            })
+            onHorizonChange(nextHorizon)
+          }}
+          className="min-w-[150px] flex-1 sm:w-[210px] sm:flex-none"
+          triggerClassName="min-w-0 w-full"
         />
 
         <MasaiDropdownCheckboxFilter
