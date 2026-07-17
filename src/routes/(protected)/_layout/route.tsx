@@ -81,7 +81,6 @@ export const Route = createFileRoute('/(protected)/_layout')({
 
     if (shouldRedirectToLegacy) {
       const url = new URL(location.href, 'http://localhost')
-      const pathForLegacy = `${url.pathname}${url.search}`
 
       // The 5 migrated routes ignore the static allowlist: the per-user flag
       // decides. Opted in → stay here; opted out → old LMS. Every other route
@@ -93,6 +92,11 @@ export const Route = createFileRoute('/(protected)/_layout')({
         !isNewStudentExperienceRoute(location.pathname)
 
       if (shouldRedirectMigratedRoute || shouldRedirectOtherRoute) {
+        // Migrated pages hand off path-only — the old LMS regenerates its own
+        // query params (batch/tab/page). Other legacy routes keep their search.
+        const pathForLegacy = shouldRedirectMigratedRoute
+          ? url.pathname
+          : `${url.pathname}${url.search}`
         const oldUiUrl = getOldStudentUiUrlForPath(pathForLegacy)
         if (oldUiUrl) {
           throw redirect({ href: oldUiUrl })

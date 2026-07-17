@@ -19,12 +19,7 @@ import { isMigratedRoute } from '@/utils/migratedRoutes'
  */
 export function TryNewToggle({ initialEnabled }: { initialEnabled: boolean }) {
   const router = useRouter()
-  const { pathname, search } = useRouterState({
-    select: (s) => ({
-      pathname: s.location.pathname,
-      search: s.location.searchStr,
-    }),
-  })
+  const pathname = useRouterState({ select: (s) => s.location.pathname })
   const [enabled, setEnabled] = useState(initialEnabled)
   const [feedbackOpen, setFeedbackOpen] = useState(false)
   const [feedback, setFeedback] = useState('')
@@ -41,9 +36,10 @@ export function TryNewToggle({ initialEnabled }: { initialEnabled: boolean }) {
       setEnabled(value)
       setFeedbackOpen(false)
       setFeedback('')
-      // Turned OFF on a migrated page → the old LMS now owns it: hand off now.
+      // Turned OFF on a migrated page → the old LMS now owns it: hand off to the
+      // same path (no search — the old LMS regenerates its own query params).
       if (!value && isMigratedRoute(pathname)) {
-        const oldUiUrl = getOldStudentUiUrlForPath(`${pathname}${search}`)
+        const oldUiUrl = getOldStudentUiUrlForPath(pathname)
         if (oldUiUrl) {
           window.location.assign(oldUiUrl)
           return
