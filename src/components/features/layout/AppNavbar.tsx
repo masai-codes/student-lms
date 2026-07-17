@@ -324,7 +324,7 @@ export default function AppNavbar() {
           showMasaiverseCta
             ? {
                 id: 'masaiverse-nav',
-                label: 'MasaiVerse Community',
+                label: 'MasaiVerse',
                 href: '/masaiverse',
                 openInNewTab: false,
                 isActive: activeNavId === 'masaiverse',
@@ -440,7 +440,7 @@ export default function AppNavbar() {
                 }
               : {
                   id: 'masaiverse-menu',
-                  label: 'MasaiVerse Community',
+                  label: 'MasaiVerse',
                   icon: <Users className="size-4" />,
                   href: '/masaiverse',
                   openInNewTab: false,
@@ -534,7 +534,9 @@ export default function AppNavbar() {
           onClick: handleHomeClick,
         }}
         navItems={navItems}
-        centerSlot={<NextActionBanner className="max-w-[340px]" />}
+        centerSlot={
+          <NextActionBanner className="max-w-[180px] xl:max-w-[260px] 2xl:max-w-[340px]" />
+        }
         trailingActions={trailingActions}
         actionsSlot={
           showTryNew && isMigratedRoute(pathname) ? (
