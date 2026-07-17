@@ -24,8 +24,16 @@ import {
   playbackRateLabel,
 } from './lectureVideoChrome.utils'
 import { LectureVideoAskAiPill } from './LectureVideoAskAiPill'
+import {
+  FULLSCREEN_CHANGE_EVENTS,
+  getFullscreenElement,
+  toggleLectureVideoFullscreen,
+} from '../hooks/lectureVideoFullscreen.utils'
 import type { LectureChromePlayerRef } from './lectureVideoChrome.utils'
-import type { LectureVideoQualityLevel } from '../hooks/useLectureVideoAttendance'
+import {
+  playVideoWithRecovery,
+  type LectureVideoQualityLevel,
+} from '../hooks/useLectureVideoAttendance'
 import { useLectureSplitChatOptional } from '../../hooks/LectureSplitChatContext'
 import { pushLearnEvent } from '@/components/features/learn/shared/learnAnalytics'
 
@@ -46,6 +54,10 @@ type LectureVideoControlsToolbarProps = {
   transcriptAvailable: boolean
   captionsOn: boolean
   onCaptionsToggle: () => void
+  /** Whether the auto-hiding control chrome is currently visible. */
+  chromeVisible: boolean
+  /** Notifies the parent when the overflow menu opens/closes so it can pause auto-hide. */
+  onMenuOpenChange?: (open: boolean) => void
 }
 
 export function LectureVideoControlsToolbar({
@@ -64,6 +76,8 @@ export function LectureVideoControlsToolbar({
   transcriptAvailable,
   captionsOn,
   onCaptionsToggle,
+  chromeVisible,
+  onMenuOpenChange,
 }: LectureVideoControlsToolbarProps) {
   const splitChat = useLectureSplitChatOptional()
   const overflowMenuRef = useRef<HTMLDivElement>(null)
@@ -83,14 +97,17 @@ export function LectureVideoControlsToolbar({
   useEffect(() => {
     const onFullscreenChange = () => {
       const element = fullscreenContainerRef.current
-      setIsFullscreen(
-        Boolean(element && document.fullscreenElement === element),
-      )
+      setIsFullscreen(Boolean(element && getFullscreenElement() === element))
     }
-    document.addEventListener('fullscreenchange', onFullscreenChange)
+    for (const eventName of FULLSCREEN_CHANGE_EVENTS) {
+      document.addEventListener(eventName, onFullscreenChange)
+    }
     onFullscreenChange()
-    return () =>
-      document.removeEventListener('fullscreenchange', onFullscreenChange)
+    return () => {
+      for (const eventName of FULLSCREEN_CHANGE_EVENTS) {
+        document.removeEventListener(eventName, onFullscreenChange)
+      }
+    }
   }, [fullscreenContainerRef])
 
   useEffect(() => {
@@ -132,6 +149,22 @@ export function LectureVideoControlsToolbar({
     return undefined
   }, [videoRef, playerReadyVersion])
 
+  // Keep the parent in sync so it can pause the chrome auto-hide while the
+  // menu is open (otherwise the toolbar hides and an open native <select>
+  // dropdown is left floating on screen).
+  useEffect(() => {
+    onMenuOpenChange?.(overflowMenuOpen)
+  }, [overflowMenuOpen, onMenuOpenChange])
+
+  // Safety net: if the chrome hides for any reason while the menu is open,
+  // close the menu too. Unmounting the popover dismisses any open native
+  // <select> (quality / playback speed) dropdown along with it.
+  useEffect(() => {
+    if (!chromeVisible && overflowMenuOpen) {
+      setOverflowMenuOpen(false)
+    }
+  }, [chromeVisible, overflowMenuOpen])
+
   useEffect(() => {
     if (!overflowMenuOpen) return
     const onPointerDown = (event: PointerEvent) => {
@@ -149,7 +182,7 @@ export function LectureVideoControlsToolbar({
     onActivity()
     const video = getHtmlVideoFromPlayer(videoRef)
     if (video) {
-      if (video.paused) void video.play()
+      if (video.paused) playVideoWithRecovery(video)
       else void video.pause()
       return
     }
@@ -202,13 +235,12 @@ export function LectureVideoControlsToolbar({
   const toggleFullscreen = () => {
     onActivity()
     pushLearnEvent('l_learn_lecture_video_fullscreen_toggle')
-    const element = fullscreenContainerRef.current
-    if (!element) return
-    if (!document.fullscreenElement) {
-      void element.requestFullscreen()
-    } else {
-      void document.exitFullscreen()
-    }
+    // Standard/prefixed element fullscreen where available; iPhone Safari has
+    // neither, so this falls back to the native video fullscreen player.
+    toggleLectureVideoFullscreen(
+      fullscreenContainerRef.current,
+      getHtmlVideoFromPlayer(videoRef),
+    )
   }
 
   const openAssistant = () => {

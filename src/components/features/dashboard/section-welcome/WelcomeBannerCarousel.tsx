@@ -1,14 +1,13 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import useEmblaCarousel from 'embla-carousel-react'
-import { CaretLeft, CaretRight } from '@phosphor-icons/react'
+import { ArrowRight, CaretLeft, CaretRight } from '@phosphor-icons/react'
 import {
   bannerClickEvent,
+  masaiLivePromoClickEvent,
   pushDashboardEvent,
 } from '../shared/dashboardAnalytics'
-import {
-  nextRotatedBannerIndex,
-  rememberBannerId,
-} from '../shared/bannerRotation'
+import { rememberBannerId } from '../shared/bannerRotation'
+import { MASAI_LIVE_PROMO } from './masaiLivePromo'
 import type { EmblaCarouselType } from 'embla-carousel'
 import type { DashboardBanner } from '@/server/api/dashboard/banners/getWelcomeBanners.service'
 
@@ -22,16 +21,15 @@ const CHANGEMAKERS_ROUTE = '/changemakers-circle'
 
 // Light-blue promo carousel beside the welcome greeting. Uses embla for smooth
 // mouse/touch drag-to-swipe. Arrows are bounded (no wraparound); dots mark the
-// current banner. Controls appear only with >1 banner. The starting banner
-// rotates one step per page load (localStorage). The card is a link; a drag is
-// not treated as a click.
+// current banner. The hardcoded Masai Live promo is pinned as the always-first
+// slide, so the carousel opens on it; the DB-driven banners follow. Controls
+// appear only with >1 slide. Each card is a link; a drag is not treated as a
+// click.
 export function WelcomeBannerCarousel({ banners }: WelcomeBannerCarouselProps) {
-  const [startIndex] = useState(() =>
-    nextRotatedBannerIndex(banners.map((b) => b.id)),
-  )
-  const [emblaRef, emblaApi] = useEmblaCarousel({ loop: false, startIndex })
+  // Slide 0 is the fixed Masai Live promo; slides 1..n are the DB banners.
+  const [emblaRef, emblaApi] = useEmblaCarousel({ loop: false, startIndex: 0 })
 
-  const [selected, setSelected] = useState(startIndex)
+  const [selected, setSelected] = useState(0)
   const [canScrollPrev, setCanScrollPrev] = useState(false)
   const [canScrollNext, setCanScrollNext] = useState(false)
   // True when the pointer moved (dragged) since the last pointer-down, so the
@@ -44,8 +42,9 @@ export function WelcomeBannerCarousel({ banners }: WelcomeBannerCarouselProps) {
       setSelected(index)
       setCanScrollPrev(api.canScrollPrev())
       setCanScrollNext(api.canScrollNext())
-      if (index >= 0 && index < banners.length)
-        rememberBannerId(banners[index].id)
+      // Index 0 is the promo (no DB id); 1..n map to banners[0..n-1].
+      if (index >= 1 && index - 1 < banners.length)
+        rememberBannerId(banners[index - 1].id)
     },
     [banners],
   )
@@ -73,59 +72,52 @@ export function WelcomeBannerCarousel({ banners }: WelcomeBannerCarouselProps) {
     }
   }, [emblaApi, onSelect])
 
-  if (banners.length === 0) return null
-
-  const hasMultiple = banners.length > 1
+  const wasDragged = () => draggedRef.current
+  // Total slides = the pinned promo + the DB banners. Controls show only when
+  // there is more than the promo to page through.
+  const slideCount = banners.length + 1
+  const hasMultiple = slideCount > 1
 
   return (
     <div
       data-testid="dashboard-welcome-banner-carousel"
-      className="dash-sheen relative rounded-2xl bg-gradient-to-r from-[#EBF3FE] via-[#EEF0FE] to-[#F3EDFE] px-12 py-5 ring-1 ring-inset ring-[#4F6BED]/10 transition-shadow duration-300 hover:shadow-[0_10px_28px_-10px_rgb(79_107_237_/_0.28)] dark:bg-none dark:bg-surface-muted"
+      className="relative ml-auto w-full max-w-[626px]"
     >
-      {/* Arrows are anchored to this wrapper (the banner row) rather than the
-          card, so they stay vertically centred on the content instead of being
-          pulled off-centre by the dots row below. They reach out into the
-          card's px-12 gutters. */}
-      <div className="relative">
-        <div className="overflow-hidden" ref={emblaRef}>
-          <div className="flex">
-            {banners.map((banner) => (
-              <div key={banner.id} className="min-w-0 flex-[0_0_100%]">
-                <BannerLink
-                  banner={banner}
-                  wasDragged={() => draggedRef.current}
-                />
-              </div>
-            ))}
+      <div className="overflow-hidden rounded-2xl" ref={emblaRef}>
+        <div className="flex">
+          <div className="min-w-0 flex-[0_0_100%]">
+            <MasaiLivePromoCard wasDragged={wasDragged} />
           </div>
+          {banners.map((banner) => (
+            <div key={banner.id} className="min-w-0 flex-[0_0_100%]">
+              <BannerCard banner={banner} wasDragged={wasDragged} />
+            </div>
+          ))}
         </div>
-
-        {hasMultiple && (
-          <>
-            <ArrowButton
-              direction="prev"
-              disabled={!canScrollPrev}
-              onClick={() => emblaApi?.scrollPrev()}
-            />
-            <ArrowButton
-              direction="next"
-              disabled={!canScrollNext}
-              onClick={() => emblaApi?.scrollNext()}
-            />
-          </>
-        )}
       </div>
 
+      {hasMultiple && (
+        <>
+          <ArrowButton
+            direction="prev"
+            disabled={!canScrollPrev}
+            onClick={() => emblaApi?.scrollPrev()}
+          />
+          <ArrowButton
+            direction="next"
+            disabled={!canScrollNext}
+            onClick={() => emblaApi?.scrollNext()}
+          />
+        </>
+      )}
+
       {/* Dots are absolutely positioned in the card's bottom padding rather
-          than in normal flow, so they don't add to the card's height. That
-          keeps the card's height equal to the banner content, letting the
-          side-by-side greeting stay vertically centred on the content instead
-          of being pulled down by a taller card. */}
+          than in normal flow, so they don't add to the card's height. */}
       {hasMultiple && (
         <div className="absolute inset-x-0 bottom-2 flex justify-center gap-1.5">
-          {banners.map((b, i) => (
+          {Array.from({ length: slideCount }).map((_, i) => (
             <button
-              key={b.id}
+              key={i}
               type="button"
               aria-label={`Go to banner ${i + 1}`}
               data-testid="dashboard-welcome-banner-dot"
@@ -144,7 +136,9 @@ export function WelcomeBannerCarousel({ banners }: WelcomeBannerCarouselProps) {
   )
 }
 
-function BannerLink({
+// The DB-driven banner card: the original light-blue gradient chrome wrapping a
+// compact avatar + title + description link.
+function BannerCard({
   banner,
   wasDragged,
 }: {
@@ -175,24 +169,106 @@ function BannerLink({
       draggable={false}
       data-testid="dashboard-welcome-banner-item"
       onClick={handleClick}
-      className="group flex items-center gap-4 no-underline"
+      className="dash-sheen group relative flex h-full items-stretch overflow-hidden rounded-2xl no-underline shadow-[0_6px_20px_-10px_rgb(79_107_237_/_0.22)] ring-1 ring-inset ring-[#4F6BED]/10 transition-shadow duration-300 hover:shadow-[0_12px_30px_-10px_rgb(79_107_237_/_0.30)]"
     >
-      <div className="flex size-11 shrink-0 items-center justify-center overflow-hidden rounded-full bg-surface shadow-sm ring-1 ring-[#4F6BED]/10 transition-transform duration-300 ease-out group-hover:scale-110 group-hover:-rotate-6">
+      {/* Base blue/purple wash. */}
+      <span
+        aria-hidden
+        className="pointer-events-none absolute inset-0 bg-gradient-to-r from-[#EBF3FE] via-[#EEF0FE] to-[#F3EDFE] dark:bg-none dark:bg-surface-muted"
+      />
+      {/* Full-height image, flush to the left edge — matches the promo card so
+          every slide in the carousel looks consistent. */}
+      <div className="relative z-10 w-20 shrink-0 self-stretch overflow-hidden bg-surface md:w-36">
         <img
           src={banner.imageUrl ?? FALLBACK_ICON}
           alt=""
-          className="size-7 object-contain"
+          className="h-full w-full object-cover transition-transform duration-300 ease-out group-hover:scale-105"
         />
       </div>
-      <div className="min-w-0">
-        <h3 className="truncate text-sm font-bold text-foreground md:text-base">
-          {banner.title}
-        </h3>
-        {banner.description && (
-          <p className="mt-0.5 hidden truncate text-xs text-foreground-muted md:block md:text-sm">
-            {banner.description}
+      <div className="relative z-10 flex min-w-0 flex-1 items-center px-3 py-3 sm:px-5 md:px-8 md:py-4">
+        <div className="min-w-0 flex-1">
+          <h3 className="truncate text-sm font-bold text-foreground md:text-base">
+            {banner.title}
+          </h3>
+          {banner.description && (
+            <p className="mt-0.5 hidden truncate text-xs text-foreground-muted md:block md:text-sm">
+              {banner.description}
+            </p>
+          )}
+        </div>
+      </div>
+    </a>
+  )
+}
+
+// The hardcoded Masai Live promo card: its own pink chrome, a rounded image on
+// the left, the "This Month On masai live." eyebrow, headline + subtitle, and a
+// red "Join for Free" pill on the right.
+function MasaiLivePromoCard({ wasDragged }: { wasDragged: () => boolean }) {
+  const { href, external } = resolveBannerHref(MASAI_LIVE_PROMO.ctaUrl)
+
+  const handleClick = (event: React.MouseEvent) => {
+    if (wasDragged()) {
+      event.preventDefault()
+      return
+    }
+    pushDashboardEvent(masaiLivePromoClickEvent(MASAI_LIVE_PROMO.analyticsKey), {
+      analytics_key: MASAI_LIVE_PROMO.analyticsKey,
+      title: MASAI_LIVE_PROMO.title,
+    })
+  }
+
+  return (
+    <a
+      href={href}
+      target={external ? '_blank' : undefined}
+      rel={external ? 'noopener noreferrer' : undefined}
+      draggable={false}
+      data-testid="dashboard-masai-live-promo"
+      onClick={handleClick}
+      className="dash-sheen group relative flex h-full items-stretch overflow-hidden rounded-2xl no-underline shadow-[0_6px_20px_-10px_rgb(225_29_72_/_0.25)] ring-1 ring-inset ring-[#E11D48]/15 transition-shadow duration-300 hover:shadow-[0_12px_30px_-10px_rgb(225_29_72_/_0.32)]"
+    >
+      {/* Base pink wash. */}
+      <span
+        aria-hidden
+        className="pointer-events-none absolute inset-0 bg-gradient-to-r from-[#FCE9EC] via-[#FDF3F3] to-[#FBE7E9] dark:bg-none dark:bg-surface-muted"
+      />
+      {/* Soft red glow fading in from the right, matching the design. */}
+      <span
+        aria-hidden
+        className="pointer-events-none absolute inset-y-0 right-0 w-2/5 bg-[radial-gradient(120%_130%_at_100%_50%,rgb(225_29_72_/_0.20),transparent_65%)] dark:hidden"
+      />
+      {/* Full-height image, flush to the left edge (clipped to the card's
+          rounded corners by the parent's overflow-hidden). */}
+      <div className="relative z-10 w-20 shrink-0 self-stretch overflow-hidden md:w-36">
+        <img
+          src={MASAI_LIVE_PROMO.imageUrl}
+          alt=""
+          className="h-full w-full object-cover transition-transform duration-300 ease-out group-hover:scale-105"
+        />
+      </div>
+      <div className="relative z-10 flex min-w-0 flex-1 items-center gap-3 px-3 py-3 sm:gap-4 sm:px-5 md:px-8 md:py-4">
+        <div className="min-w-0 flex-1">
+          <p className="flex items-center gap-1.5 whitespace-nowrap text-[10px] font-semibold uppercase tracking-[0.1em] text-foreground-muted md:text-[11px] md:tracking-[0.14em]">
+            {MASAI_LIVE_PROMO.label}
+            <span className="text-xs font-extrabold normal-case tracking-normal text-foreground md:text-sm">
+              {MASAI_LIVE_PROMO.brand}
+            </span>
+            <span className="text-xs font-semibold italic normal-case tracking-normal text-[#E11D48] md:text-sm">
+              {MASAI_LIVE_PROMO.brandAccent}
+            </span>
           </p>
-        )}
+          <h3 className="text-sm font-bold leading-snug text-foreground md:text-lg">
+            {MASAI_LIVE_PROMO.title}
+          </h3>
+          <p className="text-[11px] leading-snug text-foreground-muted md:text-sm">
+            {MASAI_LIVE_PROMO.subtitle}
+          </p>
+        </div>
+        <span className="ml-auto hidden shrink-0 items-center gap-2 rounded-full bg-[#E11D48] px-5 py-2.5 text-sm font-semibold text-white shadow-[0_8px_18px_-4px_rgb(225_29_72_/_0.5)] transition-transform duration-200 group-hover:scale-105 md:flex">
+          {MASAI_LIVE_PROMO.ctaText}
+          <ArrowRight size={16} weight="bold" />
+        </span>
       </div>
     </a>
   )
@@ -208,9 +284,8 @@ function ArrowButton({
   onClick: () => void
 }) {
   const isPrev = direction === 'prev'
-  // `top-1/2` + `-translate-y-1/2` centres the arrow on the banner row; the
-  // negative inset pushes it out into the card's px-12 gutter (48px), leaving
-  // the same 8px gap from the card edge as before.
+  // `top-1/2` + `-translate-y-1/2` centres the arrow on the card; the horizontal
+  // translate straddles the arrow on the card's side border.
   return (
     <button
       type="button"
@@ -218,8 +293,8 @@ function ArrowButton({
       data-testid={`dashboard-welcome-banner-${direction}`}
       disabled={disabled}
       onClick={onClick}
-      className={`absolute top-1/2 flex size-8 -translate-y-1/2 items-center justify-center rounded-full bg-surface/70 text-foreground-muted shadow-sm backdrop-blur-sm transition-all duration-200 hover:scale-110 hover:bg-surface hover:text-[#3F83F8] hover:shadow-md active:scale-95 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:scale-100 disabled:hover:text-foreground-muted ${
-        isPrev ? '-left-10' : '-right-10'
+      className={`absolute top-1/2 z-10 hidden size-8 -translate-y-1/2 items-center justify-center rounded-full bg-surface/70 text-foreground-muted shadow-sm backdrop-blur-sm transition-all duration-200 hover:scale-110 hover:bg-surface hover:text-[#3F83F8] hover:shadow-md active:scale-95 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:scale-100 disabled:hover:text-foreground-muted md:flex ${
+        isPrev ? 'left-0 -translate-x-1/2' : 'right-0 translate-x-1/2'
       }`}
     >
       {isPrev ? (

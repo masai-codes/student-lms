@@ -1,5 +1,7 @@
 'use client'
 
+import { useState } from 'react'
+
 import { LectureDesktopChatSidebar } from './components/LectureDesktopChatSidebar'
 import { useLectureHeroViewportHeight } from './hooks/useLectureHeroViewportHeight'
 import { LectureDetailActions } from './shared/LectureDetailActions'
@@ -62,7 +64,9 @@ export function LectureRecordingExperience({
   isBookmarked,
   feedback,
 }: LectureRecordingExperienceProps) {
-  const { rootRef, heightPx } = useLectureHeroViewportHeight()
+  // On mobile the hero (video) height tracks the actual video aspect ratio.
+  const [videoAspectRatio, setVideoAspectRatio] = useState<number | null>(null)
+  const { rootRef, heightPx } = useLectureHeroViewportHeight(videoAspectRatio)
 
   const renderVideoSection = () => (
     <LectureVideoSection
@@ -72,6 +76,7 @@ export function LectureRecordingExperience({
       transcriptSegments={tabs.transcriptSegments}
       className="min-h-0 flex-1"
       fullBleed={false}
+      onVideoAspectRatioChange={setVideoAspectRatio}
     />
   )
 
@@ -85,10 +90,14 @@ export function LectureRecordingExperience({
           : undefined
       }
     >
+      {/* `has-[:fullscreen]:flex` on both rows: entering fullscreen on Android
+          locks the screen to landscape, which flips the viewport past the `md`
+          breakpoint — without it the fullscreened row goes display:none and the
+          browser instantly exits fullscreen. */}
       <div
         className={cn(
           heroRowFullBleedClasses,
-          'hidden min-h-0 flex-1 flex-row items-stretch overflow-hidden bg-black md:flex',
+          'hidden min-h-0 flex-1 flex-row items-stretch overflow-hidden bg-black md:flex has-[:fullscreen]:flex',
         )}
         data-lecture-split-layout
       >
@@ -101,7 +110,7 @@ export function LectureRecordingExperience({
       <div
         className={cn(
           heroRowFullBleedClasses,
-          'flex min-h-0 flex-1 flex-col bg-black md:hidden',
+          'flex min-h-0 flex-1 flex-col bg-black md:hidden has-[:fullscreen]:flex',
         )}
       >
         {renderVideoSection()}

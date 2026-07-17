@@ -29,6 +29,7 @@ import { Route as ApiSupportTicketsRouteImport } from './routes/api/support/tick
 import { Route as ApiSupportSubcategoriesRouteImport } from './routes/api/support/subcategories'
 import { Route as ApiSupportOverviewRouteImport } from './routes/api/support/overview'
 import { Route as ApiSupportFaqsRouteImport } from './routes/api/support/faqs'
+import { Route as ApiProfileTryNewTourRouteImport } from './routes/api/profile/try-new-tour'
 import { Route as ApiProfilePhotoUploadUrlRouteImport } from './routes/api/profile/photo-upload-url'
 import { Route as ApiProfilePhotoRouteImport } from './routes/api/profile/photo'
 import { Route as ApiProfileNewLmsPagesRouteImport } from './routes/api/profile/new-lms-pages'
@@ -171,6 +172,7 @@ import { Route as ApiLearnAiTutorLectureIdFeedbackRouteImport } from './routes/a
 import { Route as ApiLearnAiTutorLectureIdDispatchRouteImport } from './routes/api/learn/ai-tutor/$lectureId/dispatch'
 import { Route as ApiLearnAiChatLectureIdSendRouteImport } from './routes/api/learn/ai-chat/$lectureId/send'
 import { Route as ApiLearnAiChatLectureIdHistoryRouteImport } from './routes/api/learn/ai-chat/$lectureId/history'
+import { Route as ApiAiTutorLecturesLectureIdIngestRouteImport } from './routes/api/ai-tutor/lectures/$lectureId/ingest'
 import { Route as ApiAiTutorChatFeedbackMigrateRatingsRouteImport } from './routes/api/ai-tutor/chat/feedback/migrate-ratings'
 import { Route as ApiAiTutorChatConversationsChatIdRouteImport } from './routes/api/ai-tutor/chat/conversations/$chatId'
 import { Route as protectedLayoutMasaiverseEventEventIdRouteImport } from './routes/(protected)/_layout/masaiverse/event.$eventId'
@@ -277,6 +279,11 @@ const ApiSupportOverviewRoute = ApiSupportOverviewRouteImport.update({
 const ApiSupportFaqsRoute = ApiSupportFaqsRouteImport.update({
   id: '/api/support/faqs',
   path: '/api/support/faqs',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiProfileTryNewTourRoute = ApiProfileTryNewTourRouteImport.update({
+  id: '/api/profile/try-new-tour',
+  path: '/api/profile/try-new-tour',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiProfilePhotoUploadUrlRoute =
@@ -1094,6 +1101,12 @@ const ApiLearnAiChatLectureIdHistoryRoute =
     path: '/api/learn/ai-chat/$lectureId/history',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiAiTutorLecturesLectureIdIngestRoute =
+  ApiAiTutorLecturesLectureIdIngestRouteImport.update({
+    id: '/api/ai-tutor/lectures/$lectureId/ingest',
+    path: '/api/ai-tutor/lectures/$lectureId/ingest',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiAiTutorChatFeedbackMigrateRatingsRoute =
   ApiAiTutorChatFeedbackMigrateRatingsRouteImport.update({
     id: '/migrate-ratings',
@@ -1173,6 +1186,7 @@ export interface FileRoutesByFullPath {
   '/api/profile/new-lms-pages': typeof ApiProfileNewLmsPagesRoute
   '/api/profile/photo': typeof ApiProfilePhotoRoute
   '/api/profile/photo-upload-url': typeof ApiProfilePhotoUploadUrlRoute
+  '/api/profile/try-new-tour': typeof ApiProfileTryNewTourRoute
   '/api/support/faqs': typeof ApiSupportFaqsRouteWithChildren
   '/api/support/overview': typeof ApiSupportOverviewRoute
   '/api/support/subcategories': typeof ApiSupportSubcategoriesRoute
@@ -1282,6 +1296,7 @@ export interface FileRoutesByFullPath {
   '/masaiverse/event/$eventId': typeof protectedLayoutMasaiverseEventEventIdRoute
   '/api/ai-tutor/chat/conversations/$chatId': typeof ApiAiTutorChatConversationsChatIdRoute
   '/api/ai-tutor/chat/feedback/migrate-ratings': typeof ApiAiTutorChatFeedbackMigrateRatingsRoute
+  '/api/ai-tutor/lectures/$lectureId/ingest': typeof ApiAiTutorLecturesLectureIdIngestRoute
   '/api/learn/ai-chat/$lectureId/history': typeof ApiLearnAiChatLectureIdHistoryRoute
   '/api/learn/ai-chat/$lectureId/send': typeof ApiLearnAiChatLectureIdSendRoute
   '/api/learn/ai-tutor/$lectureId/dispatch': typeof ApiLearnAiTutorLectureIdDispatchRoute
@@ -1342,6 +1357,7 @@ export interface FileRoutesByTo {
   '/api/profile/new-lms-pages': typeof ApiProfileNewLmsPagesRoute
   '/api/profile/photo': typeof ApiProfilePhotoRoute
   '/api/profile/photo-upload-url': typeof ApiProfilePhotoUploadUrlRoute
+  '/api/profile/try-new-tour': typeof ApiProfileTryNewTourRoute
   '/api/support/faqs': typeof ApiSupportFaqsRouteWithChildren
   '/api/support/overview': typeof ApiSupportOverviewRoute
   '/api/support/subcategories': typeof ApiSupportSubcategoriesRoute
@@ -1451,6 +1467,7 @@ export interface FileRoutesByTo {
   '/masaiverse/event/$eventId': typeof protectedLayoutMasaiverseEventEventIdRoute
   '/api/ai-tutor/chat/conversations/$chatId': typeof ApiAiTutorChatConversationsChatIdRoute
   '/api/ai-tutor/chat/feedback/migrate-ratings': typeof ApiAiTutorChatFeedbackMigrateRatingsRoute
+  '/api/ai-tutor/lectures/$lectureId/ingest': typeof ApiAiTutorLecturesLectureIdIngestRoute
   '/api/learn/ai-chat/$lectureId/history': typeof ApiLearnAiChatLectureIdHistoryRoute
   '/api/learn/ai-chat/$lectureId/send': typeof ApiLearnAiChatLectureIdSendRoute
   '/api/learn/ai-tutor/$lectureId/dispatch': typeof ApiLearnAiTutorLectureIdDispatchRoute
@@ -1514,6 +1531,7 @@ export interface FileRoutesById {
   '/api/profile/new-lms-pages': typeof ApiProfileNewLmsPagesRoute
   '/api/profile/photo': typeof ApiProfilePhotoRoute
   '/api/profile/photo-upload-url': typeof ApiProfilePhotoUploadUrlRoute
+  '/api/profile/try-new-tour': typeof ApiProfileTryNewTourRoute
   '/api/support/faqs': typeof ApiSupportFaqsRouteWithChildren
   '/api/support/overview': typeof ApiSupportOverviewRoute
   '/api/support/subcategories': typeof ApiSupportSubcategoriesRoute
@@ -1623,6 +1641,7 @@ export interface FileRoutesById {
   '/(protected)/_layout/masaiverse/event/$eventId': typeof protectedLayoutMasaiverseEventEventIdRoute
   '/api/ai-tutor/chat/conversations/$chatId': typeof ApiAiTutorChatConversationsChatIdRoute
   '/api/ai-tutor/chat/feedback/migrate-ratings': typeof ApiAiTutorChatFeedbackMigrateRatingsRoute
+  '/api/ai-tutor/lectures/$lectureId/ingest': typeof ApiAiTutorLecturesLectureIdIngestRoute
   '/api/learn/ai-chat/$lectureId/history': typeof ApiLearnAiChatLectureIdHistoryRoute
   '/api/learn/ai-chat/$lectureId/send': typeof ApiLearnAiChatLectureIdSendRoute
   '/api/learn/ai-tutor/$lectureId/dispatch': typeof ApiLearnAiTutorLectureIdDispatchRoute
@@ -1686,6 +1705,7 @@ export interface FileRouteTypes {
     | '/api/profile/new-lms-pages'
     | '/api/profile/photo'
     | '/api/profile/photo-upload-url'
+    | '/api/profile/try-new-tour'
     | '/api/support/faqs'
     | '/api/support/overview'
     | '/api/support/subcategories'
@@ -1795,6 +1815,7 @@ export interface FileRouteTypes {
     | '/masaiverse/event/$eventId'
     | '/api/ai-tutor/chat/conversations/$chatId'
     | '/api/ai-tutor/chat/feedback/migrate-ratings'
+    | '/api/ai-tutor/lectures/$lectureId/ingest'
     | '/api/learn/ai-chat/$lectureId/history'
     | '/api/learn/ai-chat/$lectureId/send'
     | '/api/learn/ai-tutor/$lectureId/dispatch'
@@ -1855,6 +1876,7 @@ export interface FileRouteTypes {
     | '/api/profile/new-lms-pages'
     | '/api/profile/photo'
     | '/api/profile/photo-upload-url'
+    | '/api/profile/try-new-tour'
     | '/api/support/faqs'
     | '/api/support/overview'
     | '/api/support/subcategories'
@@ -1964,6 +1986,7 @@ export interface FileRouteTypes {
     | '/masaiverse/event/$eventId'
     | '/api/ai-tutor/chat/conversations/$chatId'
     | '/api/ai-tutor/chat/feedback/migrate-ratings'
+    | '/api/ai-tutor/lectures/$lectureId/ingest'
     | '/api/learn/ai-chat/$lectureId/history'
     | '/api/learn/ai-chat/$lectureId/send'
     | '/api/learn/ai-tutor/$lectureId/dispatch'
@@ -2026,6 +2049,7 @@ export interface FileRouteTypes {
     | '/api/profile/new-lms-pages'
     | '/api/profile/photo'
     | '/api/profile/photo-upload-url'
+    | '/api/profile/try-new-tour'
     | '/api/support/faqs'
     | '/api/support/overview'
     | '/api/support/subcategories'
@@ -2135,6 +2159,7 @@ export interface FileRouteTypes {
     | '/(protected)/_layout/masaiverse/event/$eventId'
     | '/api/ai-tutor/chat/conversations/$chatId'
     | '/api/ai-tutor/chat/feedback/migrate-ratings'
+    | '/api/ai-tutor/lectures/$lectureId/ingest'
     | '/api/learn/ai-chat/$lectureId/history'
     | '/api/learn/ai-chat/$lectureId/send'
     | '/api/learn/ai-tutor/$lectureId/dispatch'
@@ -2195,6 +2220,7 @@ export interface RootRouteChildren {
   ApiProfileNewLmsPagesRoute: typeof ApiProfileNewLmsPagesRoute
   ApiProfilePhotoRoute: typeof ApiProfilePhotoRoute
   ApiProfilePhotoUploadUrlRoute: typeof ApiProfilePhotoUploadUrlRoute
+  ApiProfileTryNewTourRoute: typeof ApiProfileTryNewTourRoute
   ApiSupportFaqsRoute: typeof ApiSupportFaqsRouteWithChildren
   ApiSupportOverviewRoute: typeof ApiSupportOverviewRoute
   ApiSupportSubcategoriesRoute: typeof ApiSupportSubcategoriesRoute
@@ -2271,6 +2297,7 @@ export interface RootRouteChildren {
   ApiProfileEmailPreferencesIndexRoute: typeof ApiProfileEmailPreferencesIndexRoute
   ApiWhatsNewIdIndexRoute: typeof ApiWhatsNewIdIndexRoute
   ApiAiTutorChatConversationsChatIdRoute: typeof ApiAiTutorChatConversationsChatIdRoute
+  ApiAiTutorLecturesLectureIdIngestRoute: typeof ApiAiTutorLecturesLectureIdIngestRoute
   ApiLearnAiChatLectureIdHistoryRoute: typeof ApiLearnAiChatLectureIdHistoryRoute
   ApiLearnAiChatLectureIdSendRoute: typeof ApiLearnAiChatLectureIdSendRoute
   ApiLearnAiTutorLectureIdDispatchRoute: typeof ApiLearnAiTutorLectureIdDispatchRoute
@@ -2420,6 +2447,13 @@ declare module '@tanstack/react-router' {
       path: '/api/support/faqs'
       fullPath: '/api/support/faqs'
       preLoaderRoute: typeof ApiSupportFaqsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/profile/try-new-tour': {
+      id: '/api/profile/try-new-tour'
+      path: '/api/profile/try-new-tour'
+      fullPath: '/api/profile/try-new-tour'
+      preLoaderRoute: typeof ApiProfileTryNewTourRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/profile/photo-upload-url': {
@@ -3416,6 +3450,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiLearnAiChatLectureIdHistoryRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/ai-tutor/lectures/$lectureId/ingest': {
+      id: '/api/ai-tutor/lectures/$lectureId/ingest'
+      path: '/api/ai-tutor/lectures/$lectureId/ingest'
+      fullPath: '/api/ai-tutor/lectures/$lectureId/ingest'
+      preLoaderRoute: typeof ApiAiTutorLecturesLectureIdIngestRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/ai-tutor/chat/feedback/migrate-ratings': {
       id: '/api/ai-tutor/chat/feedback/migrate-ratings'
       path: '/migrate-ratings'
@@ -3786,6 +3827,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiProfileNewLmsPagesRoute: ApiProfileNewLmsPagesRoute,
   ApiProfilePhotoRoute: ApiProfilePhotoRoute,
   ApiProfilePhotoUploadUrlRoute: ApiProfilePhotoUploadUrlRoute,
+  ApiProfileTryNewTourRoute: ApiProfileTryNewTourRoute,
   ApiSupportFaqsRoute: ApiSupportFaqsRouteWithChildren,
   ApiSupportOverviewRoute: ApiSupportOverviewRoute,
   ApiSupportSubcategoriesRoute: ApiSupportSubcategoriesRoute,
@@ -3868,6 +3910,8 @@ const rootRouteChildren: RootRouteChildren = {
   ApiWhatsNewIdIndexRoute: ApiWhatsNewIdIndexRoute,
   ApiAiTutorChatConversationsChatIdRoute:
     ApiAiTutorChatConversationsChatIdRoute,
+  ApiAiTutorLecturesLectureIdIngestRoute:
+    ApiAiTutorLecturesLectureIdIngestRoute,
   ApiLearnAiChatLectureIdHistoryRoute: ApiLearnAiChatLectureIdHistoryRoute,
   ApiLearnAiChatLectureIdSendRoute: ApiLearnAiChatLectureIdSendRoute,
   ApiLearnAiTutorLectureIdDispatchRoute: ApiLearnAiTutorLectureIdDispatchRoute,

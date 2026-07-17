@@ -35,8 +35,9 @@ import { Navbar } from '@/components/navbar'
 import { LevelUpIcon } from '@/components/common/LevelUpIcon'
 import { DownloadAppModal } from '@/components/features/layout/DownloadAppModal'
 import { NextActionBanner } from '@/components/features/layout/NextActionBanner'
-// Temporarily hidden — "Try New" CTA disabled for now.
-// import { TryNewToggle } from '@/components/features/layout/TryNewToggle'
+import { TryNewToggle } from '@/components/features/layout/TryNewToggle'
+import { useTryNewCtaVisible } from '@/hooks/useTryNewCtaVisible'
+import { isMigratedRoute } from '@/utils/migratedRoutes'
 import { OLD_STUDENT_UI_NAV_PATHS } from '@/constants/oldStudentUiNavPaths'
 import { activeAppNavIdForPathname } from '@/lib/appNavActiveItem'
 import { getBugReportFormUrl } from '@/utils/bugReportFormUrl'
@@ -122,6 +123,7 @@ export default function AppNavbar() {
   const isIHub = isIHubPortal()
   const navigate = useNavigate()
   const pathname = useRouterState({ select: (s) => s.location.pathname })
+  const showTryNew = useTryNewCtaVisible()
   const activeNavId = activeAppNavIdForPathname(pathname)
   const [downloadAppOpen, setDownloadAppOpen] = useState(false)
   const [isLevelupLoading, setIsLevelupLoading] = useState(false)
@@ -534,8 +536,11 @@ export default function AppNavbar() {
         navItems={navItems}
         centerSlot={<NextActionBanner className="max-w-[340px]" />}
         trailingActions={trailingActions}
-        // Temporarily hidden — "Try New" CTA disabled for now.
-        // actionsSlot={<TryNewToggle initialEnabled={user.newLmsPagesEnabled} />}
+        actionsSlot={
+          showTryNew && isMigratedRoute(pathname) ? (
+            <TryNewToggle initialEnabled={user.newLmsPagesEnabled} />
+          ) : undefined
+        }
         profile={profile}
       />
       <DownloadAppModal

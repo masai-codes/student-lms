@@ -108,14 +108,21 @@ export async function fetchNewLmsPagesPreference(): Promise<boolean> {
 
 export async function setNewLmsPagesPreference(
   enabled: boolean,
+  feedback?: string,
 ): Promise<boolean> {
   const { enabled: updated } = await fetchJson<{ enabled: boolean }>(
     PROFILE_API.newLmsPages,
     {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ enabled }),
+      body: JSON.stringify({ enabled, ...(feedback ? { feedback } : {}) }),
     },
   )
   return updated
+}
+
+export async function markTryNewTourSeen(): Promise<void> {
+  await fetchJson<{ seen: boolean }>(PROFILE_API.tryNewTour, {
+    method: 'POST',
+  })
 }

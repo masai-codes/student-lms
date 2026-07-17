@@ -13,6 +13,33 @@ export const AI_TUTOR_CONVERSATION_TITLE_MAX_LENGTH = 50
 /** Default Claude model; override with `ANTHROPIC_MODEL`. */
 export const AI_TUTOR_CHAT_DEFAULT_MODEL = 'claude-haiku-4-5'
 
+/** Notes at or below this length are inlined in the system prompt instead of RAG retrieval. */
+export const AI_TUTOR_INLINE_NOTES_MAX_CHARS = 10_000
+
+/** Max characters of retrieved lecture content returned to the model from a tool call. */
+export const AI_TUTOR_RAG_RETRIEVED_CONTENT_MAX_CHARS = 12_000
+
+/** Hard cap on top_k accepted from the retrieve tool. */
+export const AI_TUTOR_RAG_RETRIEVE_TOP_K_MAX = 6
+
+export const AI_TUTOR_LECTURE_RAG_TOOL_NAME = 'retrieveLectureContent'
+
+export const AI_TUTOR_NOTES_TOC_SYSTEM_PROMPT = `You create a concise table of contents for instructor lecture notes written in Markdown.
+
+Return ONLY the outline as plain text. Use indentation or bullets to show sections and subsections.
+Include the main topic labels from the notes. Do not summarize paragraph content or add commentary.
+Preserve the logical order from the original notes.`
+
+export const AI_TUTOR_LECTURE_CHAT_RAG_GUIDANCE = `## Lecture materials and retrieval tool
+You may have a lecture summary, instructor notes (inline or as a table of contents), and a \`${AI_TUTOR_LECTURE_RAG_TOOL_NAME}\` tool.
+
+Call \`${AI_TUTOR_LECTURE_RAG_TOOL_NAME}\` when you need specific details from ingested instructor notes (when only a table of contents is shown).
+Write a focused \`query\` for retrieval — do not pass the student's message verbatim.
+Choose \`top_k\` based on how many excerpts you need (typically 3–8).
+
+Do NOT call the tool for greetings, acknowledgments, or questions already answerable from the summary or inline notes.
+If the tool is unavailable or returns nothing, do not invent lecture-specific details.`
+
 /** Mirrors the lecture chat system prompt from experience-api. */
 export const AI_TUTOR_LECTURE_CHAT_SYSTEM_PROMPT_BASE = `You are an AI tutor for ONE specific lecture. Your replies are written for a text chat — be natural, clear, and conversational.
 

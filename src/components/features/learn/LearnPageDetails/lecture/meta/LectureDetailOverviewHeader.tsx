@@ -5,6 +5,8 @@ import type { ReactNode } from 'react'
 
 import type { LectureAttendanceSummary } from '@/server/attendance/types'
 import type { LearningPriority } from '@/server/learn/types'
+import type { LectureAttendanceBannerDescriptor } from '@/lib/lecture-attendance/resolveLectureAttendanceBanner'
+import { LectureAttendanceBanner } from '@/components/features/learn/attendance/LectureAttendanceBanner'
 import { LectureAttendanceDetailBadge } from '@/components/features/learn/attendance/LectureAttendanceDetailBadge'
 import { LectureOptionalAttendanceInfo } from '@/components/features/learn/attendance/LectureOptionalAttendanceInfo'
 import { useListingAttendancePresentation } from '@/components/features/learn/attendance/useLectureAttendancePresentation'
@@ -31,6 +33,12 @@ type LectureDetailOverviewHeaderProps = {
   watchPercentage?: number | null
   /** Header CTAs (Raise Ticket + bookmark) rendered top-right. */
   actions?: ReactNode
+  /**
+   * Blue attendance disclaimer. Rendered inside the left column directly below
+   * the tag row so it fills the desktop whitespace beside the short host block
+   * instead of sitting full-width under the header.
+   */
+  attendanceBanner?: LectureAttendanceBannerDescriptor | null
   className?: string
 }
 
@@ -56,6 +64,7 @@ export function LectureDetailOverviewHeader({
   isLiveLecture,
   watchPercentage,
   actions,
+  attendanceBanner,
   className,
 }: LectureDetailOverviewHeaderProps) {
   const attendancePresentation = useListingAttendancePresentation(
@@ -68,12 +77,12 @@ export function LectureDetailOverviewHeader({
   return (
     <section
       className={cn(
-        'flex flex-col gap-4 border-b border-border bg-background py-4 dark:bg-transparent md:flex-row md:items-start md:justify-between md:gap-6 md:py-5',
+        'flex flex-col gap-3 border-b border-border bg-background py-3 dark:bg-transparent md:flex-row md:items-stretch md:justify-between md:gap-6 md:py-5',
         className,
       )}
     >
       <div className="flex min-w-0 flex-1 flex-col gap-2">
-        <h1 className="type-h5 line-clamp-3 min-w-0 text-foreground md:line-clamp-2">
+        <h1 className="type-h5 line-clamp-2 min-w-0 text-foreground">
           {title}
         </h1>
         {/* Tag chips, then the status components (info button + Present badge)
@@ -119,16 +128,23 @@ export function LectureDetailOverviewHeader({
             </div>
           ) : null}
         </div>
+        {/* Blue attendance disclaimer sits right under the tags so it fills the
+            desktop whitespace next to the short host/CTA column instead of
+            leaving an empty gap under the header. */}
+        {attendanceBanner ? (
+          <LectureAttendanceBanner banner={attendanceBanner} />
+        ) : null}
       </div>
 
-      <div className="flex min-w-0 shrink-0 flex-col gap-3 md:max-w-[min(100%,280px)] md:items-end">
-        {actions ? (
-          // Press physics for the header CTAs (Raise Ticket + bookmark).
-          <div className="flex items-center gap-2 [&_a]:transition-transform [&_a]:duration-150 [&_a]:active:scale-95 [&_button]:transition-transform [&_button]:duration-150 [&_button]:active:scale-95">
-            {actions}
-          </div>
-        ) : null}
-        <div className="flex min-w-0 items-start gap-3 md:justify-end">
+      {/* Mobile: host (left) and CTAs (right) share one row to save vertical
+          space, but the row is allowed to WRAP — on narrow widths the CTAs
+          drop to their own line instead of crushing the host name into
+          mid-word breaks. Desktop keeps its column with the host name on top
+          and the CTAs below, right aligned (flex-col over the DOM order).
+          justify-between + the stretched section height pushes the CTAs to the
+          bottom so they line up with the blue banner in the left column. */}
+      <div className="flex min-w-0 shrink-0 flex-row flex-wrap items-center justify-between gap-3 md:max-w-[min(100%,280px)] md:flex-col md:flex-nowrap md:items-end md:justify-between md:gap-3">
+        <div className="flex min-w-[180px] flex-1 items-start gap-3 md:min-w-0 md:flex-none md:justify-end">
           <Avatar
             size="lg"
             className="size-10 shrink-0 ring-2 ring-brand/15 ring-offset-2 ring-offset-background transition-transform duration-300 hover:scale-105"
@@ -149,6 +165,12 @@ export function LectureDetailOverviewHeader({
             ) : null}
           </div>
         </div>
+        {actions ? (
+          // Press physics for the header CTAs (Raise Ticket + bookmark).
+          <div className="flex shrink-0 items-center gap-2 [&_a]:transition-transform [&_a]:duration-150 [&_a]:active:scale-95 [&_button]:transition-transform [&_button]:duration-150 [&_button]:active:scale-95">
+            {actions}
+          </div>
+        ) : null}
       </div>
     </section>
   )

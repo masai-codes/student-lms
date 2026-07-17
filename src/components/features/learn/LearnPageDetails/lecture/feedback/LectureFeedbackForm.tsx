@@ -118,7 +118,7 @@ export function LectureFeedbackForm({
   const activeMeta = ratingFor(active)
 
   return (
-    <section className="rounded-xl border border-border bg-surface px-4 py-3">
+    <section className="mt-4 rounded-xl border border-border bg-surface px-4 py-3">
       <h2 className="type-b1-md text-foreground">
         How would you rate this lecture?
       </h2>
