@@ -48,7 +48,12 @@ export function VideoPlaybackOverlays({
   return (
     <>
       {!isVideoPlaying ? (
-        <div className="pointer-events-none absolute inset-0 z-40 flex items-center justify-center">
+        // z-50 so the play button clears the controls chrome shell (z-45),
+        // whose transparent gradient is `pointer-events-auto` and, on the short
+        // mobile player, reaches the vertical center and would otherwise
+        // swallow the tap. Only the button is interactive (container stays
+        // pointer-events-none), so it doesn't block taps elsewhere.
+        <div className="pointer-events-none absolute inset-0 z-50 flex items-center justify-center">
           <button
             type="button"
             onClick={(event) => {
