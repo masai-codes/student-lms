@@ -81,7 +81,7 @@ export default function StarRow({
                 'transition-colors duration-200',
                 filled
                   ? 'text-amber-400 drop-shadow-[0_2px_6px_rgba(251,191,36,0.45)]'
-                  : 'text-[#D1D5DB]',
+                  : 'text-foreground-subtle',
               )}
             />
           </button>

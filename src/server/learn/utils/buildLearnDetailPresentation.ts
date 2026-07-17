@@ -1,4 +1,7 @@
-import type { LearnHubDetailPayload, LearningPriority } from '@/server/learn/types'
+import type {
+  LearnHubDetailPayload,
+  LearningPriority,
+} from '@/server/learn/types'
 import {
   resolveModuleName,
   toLearningPriority,
@@ -32,15 +35,21 @@ function formatScheduleDisplay(schedule: string | null): string {
 type LearnDetailCore = Omit<LearnHubDetailPayload, 'discussions'>
 
 /** Final values for the detail page (tags / date / host / priority computed here, not in the client). */
-export function buildLearnDetailPresentation(row: LearnLikeRow): LearnDetailCore {
+export function buildLearnDetailPresentation(
+  row: LearnLikeRow,
+): LearnDetailCore {
   const hostName =
     row.hostName != null && row.hostName.trim() !== ''
       ? formatLearnDetailHostName(row.hostName)
       : 'Unknown Instructor'
 
-  const moduleName = formatLearnDetailTagLabel(resolveModuleName(row.module, row.week))
+  const moduleName = formatLearnDetailTagLabel(
+    resolveModuleName(row.module, row.week),
+  )
   const typeTagSource =
-    row.type.trim().toLowerCase() === LECTURE_RESOURCE_TYPE ? 'resource' : row.type
+    row.type.trim().toLowerCase() === LECTURE_RESOURCE_TYPE
+      ? 'resource'
+      : row.type
   const tags = [
     formatLearnDetailTagLabel(typeTagSource),
     formatLearnDetailTagLabel(row.category),

@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, type MouseEvent } from 'react'
+import { useEffect, useRef, useState, type MouseEvent } from 'react'
 import ReactPlayer from 'react-player/lazy'
 
 import { VideoAttendanceCustomControls } from './controls/VideoAttendanceCustomControls'
@@ -11,18 +11,23 @@ import { seekPlayerToSeconds } from './hooks/lectureVideoResume'
 import { useLectureVideoAttendance } from './hooks/useLectureVideoAttendance'
 import { useIsElementFullscreen } from './hooks/useLectureVideoFullscreen'
 import { VideoPlaybackOverlays } from './VideoPlaybackOverlays'
+import { LectureVideoCaptionOverlay } from './LectureVideoCaptionOverlay'
 import type { LectureChromePlayerRef } from './controls/lectureVideoChrome.utils'
 
 import './lectureReactPlayer.css'
 
-import type { LectureVideoAttendanceState } from '@/server/learn/lectureDetailTypes'
-import { ChatbotExperience } from '@/components/features/chatbot/ChatbotExperience'
+import type {
+  LectureTranscriptSegment,
+  LectureVideoAttendanceState,
+} from '@/server/learn/lectureDetailTypes'
+import { LectureAiChatExperience } from '@/components/features/lecture-ai-chat/LectureAiChatExperience'
 import { cn } from '@/lib/utils'
 
 type LectureReactPlayerProps = {
   lectureId: number
   src: string
   initialAttendance: LectureVideoAttendanceState | null
+  transcriptSegments?: Array<LectureTranscriptSegment>
   className?: string
 }
 
@@ -34,12 +39,21 @@ export function LectureReactPlayer({
   lectureId,
   src,
   initialAttendance,
+  transcriptSegments,
   className,
 }: LectureReactPlayerProps) {
   const fullscreenContainerRef = useRef<HTMLDivElement>(null)
   const videoRef = useRef<LectureChromePlayerRef>(null)
   const splitChat = useLectureSplitChatOptional()
   const isFullscreen = useIsElementFullscreen(fullscreenContainerRef)
+
+  const segments = transcriptSegments ?? []
+  const hasTranscript = segments.length > 0
+  const [captionsOn, setCaptionsOn] = useState(false)
+
+  useEffect(() => {
+    if (!hasTranscript) setCaptionsOn(false)
+  }, [hasTranscript])
 
   const attendance = useLectureVideoAttendance({
     lectureId,
@@ -78,7 +92,8 @@ export function LectureReactPlayer({
     }
 
     window.addEventListener('keydown', onWindowKey, { capture: true })
-    return () => window.removeEventListener('keydown', onWindowKey, { capture: true })
+    return () =>
+      window.removeEventListener('keydown', onWindowKey, { capture: true })
   }, [attendance.seekBySeconds, attendance.toggleVideoPlayPause])
 
   return (
@@ -134,6 +149,28 @@ export function LectureReactPlayer({
             onCenterPlay={attendance.toggleVideoPlayPause}
             seekHint={attendance.seekHint}
           />
+          <LectureVideoCaptionOverlay
+            segments={segments}
+            progressSeconds={attendance.progress}
+            visible={captionsOn && hasTranscript}
+          />
+          {attendance.qualityLevels.length > 0 ? (
+            <select
+              aria-label="Video quality"
+              value={attendance.currentQuality}
+              onChange={(event) =>
+                attendance.changeQuality(Number(event.target.value))
+              }
+              className="absolute right-3 top-3 z-[55] cursor-pointer rounded-md border border-white/15 bg-black/60 py-1.5 pl-3 pr-2 text-sm font-medium text-white outline-none backdrop-blur-sm transition-colors hover:bg-black/80 focus-visible:ring-2 focus-visible:ring-white/40"
+            >
+              <option value={-1}>Auto</option>
+              {attendance.qualityLevels.map((level) => (
+                <option key={level.index} value={level.index}>
+                  {level.height}p
+                </option>
+              ))}
+            </select>
+          ) : null}
         </div>
         <VideoAttendanceCustomControls
           videoRef={videoRef}
@@ -143,20 +180,26 @@ export function LectureReactPlayer({
           isPlaying={attendance.isVideoPlaying}
           fullscreenContainerRef={fullscreenContainerRef}
           onSeekBySeconds={attendance.seekBySeconds}
-          onSeekToSeconds={seconds => {
+          onSeekToSeconds={(seconds) => {
             attendance.handleSeek(seconds)
             seekPlayerToSeconds(videoRef, seconds)
           }}
           playerReadyVersion={attendance.playerReadyVersion}
           playbackRate={attendance.playbackRate}
           onPlaybackRateChange={attendance.handlePlayBackRateChange}
+          qualityLevels={attendance.qualityLevels}
+          currentQuality={attendance.currentQuality}
+          onQualityChange={attendance.changeQuality}
+          transcriptAvailable={hasTranscript}
+          captionsOn={captionsOn}
+          onCaptionsToggle={() => setCaptionsOn((value) => !value)}
         />
         {splitChat?.isOpen && isFullscreen ? (
           <div
-            className="absolute inset-y-0 right-0 z-[55] flex min-h-0 flex-col border-l border-gray-200 bg-white shadow-2xl"
+            className="absolute inset-y-0 right-0 z-[55] flex min-h-0 flex-col border-l border-border bg-surface shadow-2xl"
             style={{ width: getLectureSplitChatOpenWidthCss() }}
           >
-            <ChatbotExperience
+            <LectureAiChatExperience
               lectureId={lectureId}
               onCloseSidebar={splitChat.close}
             />

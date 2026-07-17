@@ -12,6 +12,14 @@ vi.mock('@/db', () => ({
   db: { select: hoisted.dbSelect },
 }))
 
+vi.mock('@/server/restrictions/getUserBatchRestrictions', () => ({
+  getUserBatchRestrictions: vi.fn(async () => new Map()),
+}))
+vi.mock('@/server/batches/getBatchIdsForSections', () => ({
+  getBatchIdForSection: vi.fn(async () => null),
+  getBatchIdsForSections: vi.fn(async () => new Map()),
+}))
+
 vi.mock('@/server/learn/utils/ensureLearnEntityAccess', () => ({
   ensureUserCanAccessLearnHubEntity: hoisted.ensureAccess,
 }))
@@ -23,8 +31,8 @@ vi.mock(
   }),
 )
 
-vi.mock('@/server/learn/services/getLectureAssociatedContent.service', () => ({
-  getLectureAssociatedContent: hoisted.associatedContent,
+vi.mock('@/server/learn/services/getAllAssociatedEntities.service', () => ({
+  getAllAssociatedEntities: hoisted.associatedContent,
 }))
 
 vi.mock('@/server/learn/services/learnEntityBookmark.service', () => ({
@@ -77,9 +85,8 @@ describe('getResourceLearningDetailForUser', () => {
   it('returns resource payload with bookmark state from the bookmark service', async () => {
     mockResourceRow()
     hoisted.bookmarkState.mockResolvedValue(true)
-    const { getResourceLearningDetailForUser } = await import(
-      '../services/getResourceLearningDetail.service'
-    )
+    const { getResourceLearningDetailForUser } =
+      await import('../services/getResourceLearningDetail.service')
 
     const payload = await getResourceLearningDetailForUser(7, 515)
 
@@ -97,9 +104,8 @@ describe('getResourceLearningDetailForUser', () => {
         }),
       }),
     })
-    const { getResourceLearningDetailForUser } = await import(
-      '../services/getResourceLearningDetail.service'
-    )
+    const { getResourceLearningDetailForUser } =
+      await import('../services/getResourceLearningDetail.service')
 
     await expect(getResourceLearningDetailForUser(7, 999)).rejects.toThrow(
       'LEARN_DETAIL_NOT_FOUND',
@@ -109,9 +115,8 @@ describe('getResourceLearningDetailForUser', () => {
   it('throws when the user cannot access the resource batch/section', async () => {
     mockResourceRow()
     hoisted.ensureAccess.mockResolvedValue(false)
-    const { getResourceLearningDetailForUser } = await import(
-      '../services/getResourceLearningDetail.service'
-    )
+    const { getResourceLearningDetailForUser } =
+      await import('../services/getResourceLearningDetail.service')
 
     await expect(getResourceLearningDetailForUser(7, 515)).rejects.toThrow(
       'LEARN_DETAIL_NOT_FOUND',

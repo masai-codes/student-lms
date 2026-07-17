@@ -17,6 +17,10 @@ function renderMaterialMain(detail: ResourceDetailPayload) {
   return <ResourceOpenPhaseMain detail={detail} />
 }
 
-export function MaterialResourceContent({ detail }: MaterialResourceContentProps) {
-  return <ResourceDetailLayout detail={detail} main={renderMaterialMain(detail)} />
+export function MaterialResourceContent({
+  detail,
+}: MaterialResourceContentProps) {
+  return (
+    <ResourceDetailLayout detail={detail} main={renderMaterialMain(detail)} />
+  )
 }

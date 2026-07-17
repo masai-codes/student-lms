@@ -24,7 +24,7 @@ export function VideoPlaybackOverlays({
         <div className="pointer-events-none absolute inset-0 z-40 flex items-center justify-center">
           <button
             type="button"
-            onClick={event => {
+            onClick={(event) => {
               event.stopPropagation()
               onCenterPlay()
             }}

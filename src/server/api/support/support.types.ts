@@ -30,11 +30,7 @@ import type { JoinLiveButtonState } from '@/server/learn/utils/resolveJoinLiveBu
  * - `automatic`  — auto-resolved (e.g. short leave, chatbot) with a templated reply
  */
 export type TicketStatus =
-  | 'open'
-  | 're-opened'
-  | 'resolved'
-  | 'closed'
-  | 'automatic'
+  'open' | 're-opened' | 'resolved' | 'closed' | 'automatic'
 
 /** The three list filters shown above the ticket list. */
 export type TicketTab = 'unresolved' | 'resolved' | 'all'

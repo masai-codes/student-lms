@@ -21,13 +21,17 @@ export function CourseCertificates({ certificates }: Props) {
 
   return (
     <div className="flex flex-col gap-4">
-      <h2 className="font-semibold text-xl leading-8 text-gray-900">Certificates</h2>
+      <h2 className="font-semibold text-xl leading-8 text-foreground">
+        Certificates
+      </h2>
       <div className="grid grid-cols-2 gap-4">
         {certificates.map((cert) => (
           <CertificateFileCard
             key={cert.certificateObjectId}
             certificate={cert}
-            subtitle={cert.code ?? formatDate(cert.issuedDateIso) ?? cert.batchName}
+            subtitle={
+              cert.code ?? formatDate(cert.issuedDateIso) ?? cert.batchName
+            }
           />
         ))}
       </div>

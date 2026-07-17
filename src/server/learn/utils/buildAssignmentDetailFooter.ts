@@ -13,6 +13,7 @@ import {
   readAssignmentSettingsCase,
   readAssignmentSettingsFlag,
 } from '@/server/learn/utils/assignmentPlatform'
+import { parseIstToMs } from '@/server/time/istClock'
 
 export type AssignmentDetailFooterContext = {
   assignmentKind: AssignmentKind
@@ -44,25 +45,19 @@ const STATUS_LABELS: Record<AssignmentProgressStatus, string> = {
   completed: 'Complete',
 }
 
-function toTimestamp(value: string | null): number | null {
-  if (value == null || value.trim() === '') return null
-  const ms = new Date(value).getTime()
-  return Number.isFinite(ms) ? ms : null
-}
-
 function isAssignmentUnlocked(schedule: string | null, nowMs: number): boolean {
-  const scheduleMs = toTimestamp(schedule)
+  const scheduleMs = parseIstToMs(schedule)
   if (scheduleMs == null) return true
   return nowMs >= scheduleMs
 }
 
-function isAssignmentExpired(
+export function isAssignmentExpired(
   settings: Record<string, unknown> | null,
   concludes: string | null,
   nowMs: number,
 ): boolean {
   if (readAssignmentSettingsCase(settings) === 'case1') return false
-  const concludesMs = toTimestamp(concludes)
+  const concludesMs = parseIstToMs(concludes)
   if (concludesMs == null) return false
   return nowMs > concludesMs
 }
@@ -98,6 +93,10 @@ function buildScoreBlock(
   context: AssignmentDetailFooterContext,
 ): AssignmentDetailFooter['score'] {
   if (!context.showScores) return null
+  // Match old LMS: the "Score yet to be released" tag only appears once a
+  // submission exists (old LMS keys off `final_score === null`, which requires
+  // a submission row). No submission => no score chip at all.
+  if (context.submission == null) return null
   const gradedScore = resolveGradedScore(context.submission)
   if (gradedScore == null) {
     return {
@@ -130,7 +129,7 @@ function buildNotices(
     if (context.assignmentKind === 'evaluation') {
       notices.push({
         variant: 'score-policy',
-        message: 'Evaluation score will be considered.',
+        message: 'Evaluation Score will be considered',
       })
     }
   }
@@ -142,9 +141,9 @@ function buildNotices(
 
   const startedAfterDeadline =
     context.submission?.startedAt != null &&
-    toTimestamp(context.concludes) != null &&
-    toTimestamp(context.submission.startedAt)! >
-      toTimestamp(context.concludes)!
+    parseIstToMs(context.concludes) != null &&
+    parseIstToMs(context.submission.startedAt)! >
+      parseIstToMs(context.concludes)!
 
   if (
     showPractice &&
@@ -211,9 +210,7 @@ export function buildAssignmentDetailFooter(
   }
 
   const actions =
-    context.problemCount === 0
-      ? buildAssignmentFooterActions(actionsInput)
-      : []
+    context.problemCount === 0 ? buildAssignmentFooterActions(actionsInput) : []
 
   const assessPlatformLink = readAssessPlatformLink(
     context.submission?.data ?? null,

@@ -2,8 +2,10 @@ import { sql } from 'drizzle-orm'
 import { db } from '@/db'
 import { batches } from '@/db/schema'
 import { eq, isNull, and } from 'drizzle-orm'
+import { parseIstToMs } from '@/server/time/istClock'
 
-export type EvaluationStatus = 'UPCOMING' | 'COMPLETED' | 'SCORE_PENDING' | 'NOT_ATTEMPTED'
+export type EvaluationStatus =
+  'UPCOMING' | 'COMPLETED' | 'SCORE_PENDING' | 'NOT_ATTEMPTED'
 
 export interface CourseEvaluationItem {
   label: string
@@ -28,15 +30,21 @@ function normalizeRows<T>(result: unknown): T[] {
 
 function formatScheduleDisplay(schedule: string): string {
   try {
-    const d = new Date(schedule)
-    if (isNaN(d.getTime())) return schedule
-    const day = d.getDate()
-    const month = d.toLocaleString('en-US', { month: 'short' })
-    const hours = d.getHours()
-    const minutes = d.getMinutes().toString().padStart(2, '0')
-    const ampm = hours >= 12 ? 'PM' : 'AM'
-    const h = hours % 12 || 12
-    return `${day} ${month} at ${h}.${minutes} ${ampm}`
+    const ms = parseIstToMs(schedule)
+    if (ms == null) return schedule
+    const d = new Date(ms)
+    // Read the wall-clock parts in IST so display is correct on any server tz.
+    const parts = new Intl.DateTimeFormat('en-US', {
+      timeZone: 'Asia/Kolkata',
+      day: 'numeric',
+      month: 'short',
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true,
+    }).formatToParts(d)
+    const get = (type: string) =>
+      parts.find((p) => p.type === type)?.value ?? ''
+    return `${get('day')} ${get('month')} at ${get('hour')}.${get('minute')} ${get('dayPeriod').toUpperCase()}`
   } catch {
     return schedule
   }
@@ -52,7 +60,11 @@ async function resolveEvaluationStatus(
   const idList = assignmentIds.join(', ')
 
   // Fetch assignments to check schedule/concludes
-  type AssignmentRow = { id: number | string; schedule: string | null; concludes: string | null }
+  type AssignmentRow = {
+    id: number | string
+    schedule: string | null
+    concludes: string | null
+  }
   const assignmentRows = normalizeRows<AssignmentRow>(
     await db.execute(sql`
       SELECT id, schedule, concludes
@@ -60,14 +72,14 @@ async function resolveEvaluationStatus(
       WHERE id IN (${sql.raw(idList)})
         AND deleted_at IS NULL
       LIMIT 1
-    `)
+    `),
   )
 
   const assignment = assignmentRows[0]
   if (!assignment) return { status: 'UPCOMING', score: null }
 
-  const scheduleTs = assignment.schedule ? new Date(assignment.schedule).getTime() : null
-  const concludesTs = assignment.concludes ? new Date(assignment.concludes).getTime() : null
+  const scheduleTs = parseIstToMs(assignment.schedule)
+  const concludesTs = parseIstToMs(assignment.concludes)
 
   if (scheduleTs && now < scheduleTs) {
     return { status: 'UPCOMING', score: null }
@@ -89,22 +101,28 @@ async function resolveEvaluationStatus(
         AND deleted_at IS NULL
       ORDER BY created_at DESC
       LIMIT 1
-    `)
+    `),
   )
 
   const submission = submissionRows[0]
 
   if (!submission) {
-    if (concludesTs && now > concludesTs) return { status: 'NOT_ATTEMPTED', score: null }
+    if (concludesTs && now > concludesTs)
+      return { status: 'NOT_ATTEMPTED', score: null }
     return { status: 'UPCOMING', score: null }
   }
 
-  const data = (typeof submission.data === 'object' && submission.data !== null
-    ? submission.data
-    : {}) as Record<string, unknown>
+  const data = (
+    typeof submission.data === 'object' && submission.data !== null
+      ? submission.data
+      : {}
+  ) as Record<string, unknown>
 
   if (data.updatedScore !== undefined || data.scoreUpdatedByAdmin) {
-    return { status: 'COMPLETED', score: submission.score != null ? Number(submission.score) : null }
+    return {
+      status: 'COMPLETED',
+      score: submission.score != null ? Number(submission.score) : null,
+    }
   }
 
   if (Number(submission.completed) === 1) {
@@ -140,15 +158,31 @@ export async function getCourseEvaluations(
   return Promise.all(
     evaluationDetails.map(async (ev): Promise<CourseEvaluationItem> => {
       const label = typeof ev.title === 'string' ? ev.title : 'Evaluation'
-      const schedule = typeof ev.schedule === 'string' ? ev.schedule : (typeof ev.date === 'string' ? ev.date : '')
-      const duration = Number(ev.durationMins ?? ev.durationMinutes ?? ev.duration ?? 0)
-      const description = typeof ev.rules === 'string' ? ev.rules : (typeof ev.description === 'string' ? ev.description : '')
+      const schedule =
+        typeof ev.schedule === 'string'
+          ? ev.schedule
+          : typeof ev.date === 'string'
+            ? ev.date
+            : ''
+      const duration = Number(
+        ev.durationMins ?? ev.durationMinutes ?? ev.duration ?? 0,
+      )
+      const description =
+        typeof ev.rules === 'string'
+          ? ev.rules
+          : typeof ev.description === 'string'
+            ? ev.description
+            : ''
 
       const assignmentIds: number[] = Array.isArray(ev.evaluations)
         ? (ev.evaluations as unknown[]).map(Number).filter(Number.isFinite)
         : []
 
-      const { status, score } = await resolveEvaluationStatus(assignmentIds, userId, now)
+      const { status, score } = await resolveEvaluationStatus(
+        assignmentIds,
+        userId,
+        now,
+      )
 
       return {
         label,
@@ -158,6 +192,6 @@ export async function getCourseEvaluations(
         status,
         score,
       }
-    })
+    }),
   )
 }

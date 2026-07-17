@@ -1,16 +1,17 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { requireSessionUserId } from '@/server/api/http/requireSessionUser'
+
 const hoisted = vi.hoisted(() => ({
   store: vi.fn(),
-  getUserIdFromCookieHeader: vi.fn(),
 }))
 
+// Mocked so the handler unit test does not pull in the DB layer (`@/db`).
 vi.mock('@/server/video-attendance/services/storeVideoProgress', () => ({
   storeVideoProgress: hoisted.store,
 }))
-vi.mock('@/server/auth/getCurrentSessionUserId', () => ({
-  getUserIdFromCookieHeader: hoisted.getUserIdFromCookieHeader,
-  getUserIdFromRequest: hoisted.getUserIdFromCookieHeader,
+vi.mock('@/server/api/http/requireSessionUser', () => ({
+  requireSessionUserId: vi.fn(),
 }))
 
 const validBody = {
@@ -37,7 +38,7 @@ async function loadHandler() {
 describe('storeLectureVideoProgress.handler', () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    hoisted.getUserIdFromCookieHeader.mockResolvedValue(7)
+    vi.mocked(requireSessionUserId).mockResolvedValue(7)
     hoisted.store.mockResolvedValue(true)
   })
 
@@ -49,6 +50,7 @@ describe('storeLectureVideoProgress.handler', () => {
     await expect(res.json()).resolves.toEqual({ ok: true })
     expect(hoisted.store).toHaveBeenCalledWith({
       lectureId: 572,
+      userId: 7,
       totalDuration: 600,
       intervals: [{ start: 0, end: 30 }],
       sessionToken: undefined,
@@ -76,7 +78,10 @@ describe('storeLectureVideoProgress.handler', () => {
 
   it('returns 401 when unauthenticated', async () => {
     const handle = await loadHandler()
-    hoisted.getUserIdFromCookieHeader.mockResolvedValueOnce(null)
+    const { ApiError } = await import('@/server/api/http/apiError')
+    vi.mocked(requireSessionUserId).mockRejectedValueOnce(
+      new ApiError(401, 'UNAUTHORIZED'),
+    )
 
     const res = await handle(request(validBody, null), '572')
 
@@ -90,7 +95,9 @@ describe('storeLectureVideoProgress.handler', () => {
     const res = await handle(request(validBody), '0')
 
     expect(res.status).toBe(400)
-    await expect(res.json()).resolves.toMatchObject({ code: 'INVALID_LECTURE_ID' })
+    await expect(res.json()).resolves.toMatchObject({
+      code: 'INVALID_LECTURE_ID',
+    })
     expect(hoisted.store).not.toHaveBeenCalled()
   })
 

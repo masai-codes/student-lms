@@ -1,5 +1,11 @@
 // @vitest-environment jsdom
-import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
+import {
+  cleanup,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { LectureFeedbackForm } from '../LectureFeedbackForm'
@@ -69,7 +75,7 @@ describe('LectureFeedbackForm', () => {
       />,
     )
 
-    fireEvent.click(screen.getByRole('radio', { name: 'Rate 5 stars' }))
+    fireEvent.click(screen.getByRole('radio', { name: 'Amazing (5 out of 5)' }))
     fireEvent.click(screen.getByRole('button', { name: 'Submit feedback' }))
 
     expect(hoisted.submit).toHaveBeenCalledWith({

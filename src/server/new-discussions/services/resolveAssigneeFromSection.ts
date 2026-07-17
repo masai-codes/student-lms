@@ -7,7 +7,7 @@ import { sectionUser } from '@/db/schema'
 export async function resolveAssigneeFromSection(
   studentUserId: number,
   sectionId: number | null,
-  fallbackInstructorUserId: number
+  fallbackInstructorUserId: number,
 ): Promise<number> {
   if (sectionId == null) {
     return fallbackInstructorUserId
@@ -20,8 +20,8 @@ export async function resolveAssigneeFromSection(
       and(
         eq(sectionUser.sectionId, sectionId),
         eq(sectionUser.userId, studentUserId),
-        isNull(sectionUser.deletedAt)
-      )
+        isNull(sectionUser.deletedAt),
+      ),
     )
     .limit(1)
 

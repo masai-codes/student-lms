@@ -2,11 +2,16 @@
 
 import { useLayoutEffect, useState } from 'react'
 
-function measureViewportBottomInset(selector: string): number {
+export function measureViewportBottomInset(selector: string): number {
   const element = document.querySelector(selector)
   if (!element) return 0
 
   const rect = element.getBoundingClientRect()
+  // A hidden element (e.g. the mobile tab bar under `lg:hidden` on desktop)
+  // reports a zero-size rect at the origin — reserving `innerHeight - 0` would
+  // swallow the whole viewport, so treat it as "nothing to reserve".
+  if (rect.height === 0) return 0
+
   return Math.max(0, Math.ceil(window.innerHeight - rect.top))
 }
 
@@ -32,8 +37,7 @@ export function useViewportBottomInset(
     measure()
 
     const element = document.querySelector(selector)
-    const resizeObserver =
-      element != null ? new ResizeObserver(measure) : null
+    const resizeObserver = element != null ? new ResizeObserver(measure) : null
     if (element != null) {
       resizeObserver?.observe(element)
     }

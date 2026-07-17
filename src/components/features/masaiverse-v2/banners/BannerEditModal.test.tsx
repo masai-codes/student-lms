@@ -1,6 +1,12 @@
 // @vitest-environment jsdom
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
+import {
+  cleanup,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import BannerEditModal from './BannerEditModal'
 
@@ -20,7 +26,10 @@ vi.mock('@/components/discussion-post-card/rich-text-editor', () => ({
     value: string
     onChange: (value: string) => void
   }) => (
-    <textarea value={value} onChange={(event) => onChange(event.target.value)} />
+    <textarea
+      value={value}
+      onChange={(event) => onChange(event.target.value)}
+    />
   ),
 }))
 

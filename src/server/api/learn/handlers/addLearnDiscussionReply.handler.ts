@@ -13,7 +13,7 @@ export async function handleAddLearnDiscussionReply(
   discussionIdParam: string,
 ): Promise<Response> {
   try {
-    const userId = await requireSessionUserId(request)
+    const userId = await requireSessionUserId()
     const discussionId = parsePositiveIdParam(
       discussionIdParam,
       'INVALID_DISCUSSION_ID',

@@ -1,23 +1,16 @@
 import type { VideoLecturePhase } from '@/server/learn/lectureDetailTypes'
-import { JOIN_UI_VISIBLE_MINUTES_BEFORE_START } from '@/server/learn/utils/lectureScheduleConstants'
-
-function toTimestamp(value: string | null): number | null {
-  if (value == null || value.trim() === '') return null
-  const ms = new Date(value).getTime()
-  return Number.isFinite(ms) ? ms : null
-}
+import { parseIstToMs } from '@/server/time/istClock'
 
 export function resolveVideoLecturePhase(input: {
   schedule: string | null
   nowMs: number
 }): VideoLecturePhase {
-  const scheduleMs = toTimestamp(input.schedule)
+  const scheduleMs = parseIstToMs(input.schedule)
   if (scheduleMs == null) {
     return 'during_after'
   }
 
-  const visibleFromMs =
-    scheduleMs - JOIN_UI_VISIBLE_MINUTES_BEFORE_START * 60 * 1000
-
-  return input.nowMs < visibleFromMs ? 'before' : 'during_after'
+  // Video lectures become visible exactly at the scheduled start time (matches
+  // legacy LMS). Unlike live lectures, there is no early join window.
+  return input.nowMs < scheduleMs ? 'before' : 'during_after'
 }

@@ -52,9 +52,17 @@ function legacyNowMs(nowMs: number): number {
   return nowMs + IST_OFFSET_MS
 }
 
-/** Next UTC midnight — legacy `tomorrow` boundary for the default lecture window. */
-function endOfTodayUtcMs(nowMs: number): number {
-  return startOfUtcDay(nowMs) + DAY_MS
+/**
+ * Next IST midnight — the `tomorrow` boundary for the default / upcoming lecture
+ * window. `schedule` is stored as IST wall-clock, so the day boundary must be the
+ * IST day, not the UTC day. We shift `nowMs` into IST before truncating, then let
+ * `toMysqlUtc` render that shifted instant back to an IST wall-clock string (the
+ * same trick `legacyNowMs` relies on). Without the shift, between 00:00–05:30 IST
+ * the UTC date still lags the IST date by a day, so lectures scheduled for "today
+ * (IST)" get treated as tomorrow and hidden.
+ */
+function endOfTodayIstMs(nowMs: number): number {
+  return startOfUtcDay(nowMs + IST_OFFSET_MS) + DAY_MS
 }
 
 /**
@@ -80,9 +88,10 @@ function buildDateRangeWindow(
 }
 
 /**
- * Resolves the `schedule` window for a learn listing, mirroring legacy LMS visibility:
- * - Lectures/resources: "upcoming" → [now+5:30, next-UTC-midnight); "past" → (−∞, now+5:30);
- *   default → (−∞, next-UTC-midnight). A date range (when present, and not "upcoming")
+ * Resolves the `schedule` window for a learn listing, mirroring legacy LMS visibility.
+ * `schedule` is IST wall-clock, so all day boundaries are IST days:
+ * - Lectures/resources: "upcoming" → [now+5:30, next-IST-midnight); "past" → (−∞, now+5:30);
+ *   default → (−∞, next-IST-midnight). A date range (when present, and not "upcoming")
  *   overrides with its capped bounds.
  * - Assignments: date range when present, otherwise (−∞, legacy 18:30-UTC+5:30 cutoff).
  */
@@ -108,7 +117,7 @@ export function buildLearnScheduleWindow(
   if (schedulePhase === 'upcoming') {
     return {
       gte: toMysqlUtc(legacyNowMs(nowMs)),
-      lt: toMysqlUtc(endOfTodayUtcMs(nowMs)),
+      lt: toMysqlUtc(endOfTodayIstMs(nowMs)),
     }
   }
 
@@ -120,5 +129,5 @@ export function buildLearnScheduleWindow(
     return { gte: null, lt: toMysqlUtc(legacyNowMs(nowMs)) }
   }
 
-  return { gte: null, lt: toMysqlUtc(endOfTodayUtcMs(nowMs)) }
+  return { gte: null, lt: toMysqlUtc(endOfTodayIstMs(nowMs)) }
 }

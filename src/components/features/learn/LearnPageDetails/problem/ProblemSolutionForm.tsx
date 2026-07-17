@@ -11,6 +11,10 @@ import {
 import { isValidSubmissionUrl } from '@/lib/learn/isValidSubmissionUrl'
 import { MasaiButton } from '@/components/ui/masai-button'
 import { MasaiInput } from '@/components/ui/masai-input'
+import {
+  learnEntityEvent,
+  pushLearnEvent,
+} from '@/components/features/learn/shared/learnAnalytics'
 
 type ProblemSolutionFormProps = {
   detail: ProblemDetailPayload
@@ -37,7 +41,9 @@ export function ProblemSolutionForm({ detail }: ProblemSolutionFormProps) {
       await router.invalidate()
     } catch (error) {
       setErrorMessage(
-        error instanceof Error ? error.message : 'Could not submit your solution',
+        error instanceof Error
+          ? error.message
+          : 'Could not submit your solution',
       )
       setLoading(false)
     }
@@ -48,6 +54,18 @@ export function ProblemSolutionForm({ detail }: ProblemSolutionFormProps) {
       setErrorMessage('Please enter a valid link.')
       return
     }
+    pushLearnEvent(
+      learnEntityEvent(
+        'assignment',
+        'problem_solution_submit_link',
+        detail.problemId,
+      ),
+      {
+        problem_id: detail.problemId,
+        assignment_id: detail.assignmentId,
+        solution_id: solutionId,
+      },
+    )
     void runSubmit(() => submitSolutionLink(solutionId, link.trim()))
   }
 
@@ -56,14 +74,26 @@ export function ProblemSolutionForm({ detail }: ProblemSolutionFormProps) {
       setErrorMessage('Please choose a file to upload.')
       return
     }
+    pushLearnEvent(
+      learnEntityEvent(
+        'assignment',
+        'problem_solution_submit_file',
+        detail.problemId,
+      ),
+      {
+        problem_id: detail.problemId,
+        assignment_id: detail.assignmentId,
+        solution_id: solutionId,
+      },
+    )
     void runSubmit(() => uploadSolutionFile(solutionId, file))
   }
 
   return (
     <section data-testid="problem-solution-form" className="space-y-3">
-      <h2 className="type-h6 text-gray-900">Submission</h2>
+      <h2 className="type-h6 text-foreground">Submission</h2>
       {errorMessage ? (
-        <p className="type-b3-md text-red-600" role="alert">
+        <p className="type-b3-md text-danger" role="alert">
           {errorMessage}
         </p>
       ) : null}
@@ -101,7 +131,7 @@ export function ProblemSolutionForm({ detail }: ProblemSolutionFormProps) {
               setErrorMessage(null)
               setFile(event.target.files?.[0] ?? null)
             }}
-            className="type-b3-md text-gray-700"
+            className="type-b3-md text-foreground"
             data-testid="problem-solution-file-input"
           />
           <MasaiButton

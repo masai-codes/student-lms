@@ -2,7 +2,11 @@
 
 import { useCallback, useEffect, useRef } from 'react'
 
-import { clampTime, isTouchLikePointer, scrubRatioFromClientX } from './lectureVideoChrome.utils'
+import {
+  clampTime,
+  isTouchLikePointer,
+  scrubRatioFromClientX,
+} from './lectureVideoChrome.utils'
 import type { WatchIntervalSegment } from '@/server/video-attendance/types'
 import { unwatchedGaps } from '@/lib/video-attendance/unwatchedGaps'
 
@@ -32,9 +36,13 @@ export function LectureVideoProgressTrack({
 
   const elapsedPct =
     totalDuration > 0
-      ? Math.min(100, (Math.min(displaySeconds, totalDuration) / totalDuration) * 100)
+      ? Math.min(
+          100,
+          (Math.min(displaySeconds, totalDuration) / totalDuration) * 100,
+        )
       : 0
-  const gaps = totalDuration > 0 ? unwatchedGaps(mergedIntervals, totalDuration) : []
+  const gaps =
+    totalDuration > 0 ? unwatchedGaps(mergedIntervals, totalDuration) : []
 
   const ratioFromClientX = useCallback(
     (clientX: number) => scrubRatioFromClientX(trackRef.current, clientX),
@@ -130,7 +138,7 @@ export function LectureVideoProgressTrack({
         onPointerUp={endDrag}
         onPointerCancel={endDrag}
         onLostPointerCapture={onTrackLostPointerCapture}
-        onKeyDown={event => {
+        onKeyDown={(event) => {
           onActivity()
           if (event.key === 'ArrowLeft') {
             event.preventDefault()
@@ -146,7 +154,7 @@ export function LectureVideoProgressTrack({
       >
         <div className="relative h-[3px] w-full overflow-hidden rounded-full bg-[#6B7280] md:h-1">
           {totalDuration > 0 &&
-            gaps.map(gap => (
+            gaps.map((gap) => (
               <div
                 key={`gap-${gap.start}-${gap.end}`}
                 className="pointer-events-none absolute inset-y-0 z-[1] bg-[#9CA3AF]"
@@ -158,7 +166,7 @@ export function LectureVideoProgressTrack({
             ))}
           {totalDuration > 0 && elapsedPct > 0 ? (
             <div
-              className="pointer-events-none absolute inset-y-0 left-0 z-[2] rounded-l-full bg-white"
+              className="pointer-events-none absolute inset-y-0 left-0 z-[2] rounded-l-full bg-surface"
               style={{
                 width: `${elapsedPct}%`,
                 borderTopRightRadius: elapsedPct >= 99.9 ? 9999 : 0,
@@ -167,7 +175,7 @@ export function LectureVideoProgressTrack({
             />
           ) : null}
           {totalDuration > 0 &&
-            mergedIntervals.map(segment => (
+            mergedIntervals.map((segment) => (
               <div
                 key={`seg-${segment.start}-${segment.end}`}
                 className="pointer-events-none absolute inset-y-0 z-[4] bg-[#22C55E]"
@@ -180,7 +188,7 @@ export function LectureVideoProgressTrack({
         </div>
         {totalDuration > 0 ? (
           <div
-            className="pointer-events-none absolute top-1/2 z-[5] h-3.5 w-3.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-white shadow-[0_1px_4px_rgba(0,0,0,0.45)] ring-1 ring-black/25 md:h-3 md:w-3"
+            className="pointer-events-none absolute top-1/2 z-[5] h-3.5 w-3.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-surface shadow-[0_1px_4px_rgba(0,0,0,0.45)] ring-1 ring-black/25 md:h-3 md:w-3"
             style={{ left: `${elapsedPct}%` }}
             aria-hidden
           />

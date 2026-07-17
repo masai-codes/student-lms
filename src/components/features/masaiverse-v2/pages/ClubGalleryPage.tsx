@@ -23,7 +23,7 @@ function BackToClubLink({ clubId }: { clubId: string }) {
           club_id: clubId,
         })
       }
-      className="inline-flex items-center gap-1 text-[14px] font-medium text-[#6B7280] hover:text-[#111827]"
+      className="inline-flex items-center gap-1 text-[14px] font-medium text-foreground-muted hover:text-foreground"
     >
       <ArrowLeft size={16} />
       Back to club
@@ -33,9 +33,11 @@ function BackToClubLink({ clubId }: { clubId: string }) {
 
 /** Full photo gallery for a club — every `clubs.meta.galleryImages` entry. */
 export default function ClubGalleryPage({ clubId }: ClubGalleryPageProps) {
-  const { data: club, isPending, error } = useQuery(
-    masaiverseV2ClubDetailQuery(clubId),
-  )
+  const {
+    data: club,
+    isPending,
+    error,
+  } = useQuery(masaiverseV2ClubDetailQuery(clubId))
   const [activePhoto, setActivePhoto] = useState<string | null>(null)
 
   if (isPending) {
@@ -51,7 +53,7 @@ export default function ClubGalleryPage({ clubId }: ClubGalleryPageProps) {
           {Array.from({ length: 8 }, (_, index) => (
             <div
               key={index}
-              className="aspect-square animate-pulse rounded-[16px] bg-[#ECE7E2]"
+              className="aspect-square animate-pulse rounded-[16px] bg-surface-muted"
             />
           ))}
         </div>
@@ -64,7 +66,7 @@ export default function ClubGalleryPage({ clubId }: ClubGalleryPageProps) {
     return (
       <div>
         <BackToClubLink clubId={clubId} />
-        <h2 className="mt-4 text-[20px] font-bold leading-7 text-[#111827]">
+        <h2 className="mt-4 text-[20px] font-bold leading-7 text-foreground">
           {notFound ? 'Club not found' : 'Something went wrong'}
         </h2>
       </div>
@@ -75,17 +77,17 @@ export default function ClubGalleryPage({ clubId }: ClubGalleryPageProps) {
     <div className="flex flex-col gap-6">
       <BackToClubLink clubId={clubId} />
       <div>
-        <h1 className="text-[24px] font-extrabold leading-8 text-[#111827]">
+        <h1 className="text-[24px] font-extrabold leading-8 text-foreground">
           {club.name} — Photos
         </h1>
-        <p className="mt-1 text-[14px] text-[#6B7280]">
+        <p className="mt-1 text-[14px] text-foreground-muted">
           {club.galleryImages.length} photo
           {club.galleryImages.length === 1 ? '' : 's'}
         </p>
       </div>
 
       {club.galleryImages.length === 0 ? (
-        <p className="text-[14px] text-[#6B7280]">No photos yet.</p>
+        <p className="text-[14px] text-foreground-muted">No photos yet.</p>
       ) : (
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
           {club.galleryImages.map((src, index) => (
@@ -94,7 +96,7 @@ export default function ClubGalleryPage({ clubId }: ClubGalleryPageProps) {
               type="button"
               onClick={() => setActivePhoto(src)}
               aria-label={`Open photo ${index + 1}`}
-              className="relative aspect-square overflow-hidden rounded-[16px] bg-gradient-to-br from-[#7C3AED] to-[#EC4899] transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-masaiverse-orange"
+              className="relative aspect-square overflow-hidden rounded-[16px] bg-gradient-to-br from-[#7C3AED] to-[#EC4899] transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-warm"
             >
               <img
                 src={src}

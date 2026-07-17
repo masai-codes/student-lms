@@ -1,5 +1,3 @@
-export type LearnTab = 'lectures' | 'assignments' | 'resources'
-
 import type { LectureAttendanceSummary } from '@/server/attendance/types'
 import type {
   AssignmentListingStatusChip,
@@ -7,6 +5,8 @@ import type {
 } from '@/server/learn/types'
 import type { AssignmentProgressStatus } from '@/server/learn/utils/calculateAssignmentProgressStatus'
 import type { ResourcePhase } from '@/server/learn/resourceDetailTypes'
+
+export type LearnTab = 'lectures' | 'assignments' | 'resources'
 
 export type LearnContentType = 'lecture' | 'assignment' | 'resource'
 export type LearnPriority = 'recommended' | 'mandatory'
@@ -20,12 +20,25 @@ export interface LearnContentItem {
   category: string
   learningSubType: string
   priority: LearnPriority
-  tags: string[]
+  tags: Array<string>
   attendance: LectureAttendanceSummary | null
+  /** Present for optional (recommended) lectures only; powers the info tooltip. */
+  optionalAttendance: LectureAttendanceSummary | null
   assignmentProgressStatus: AssignmentProgressStatus | null
   resourcePhase: ResourcePhase | null
   listingCtas: LearnListingCardCtas
   assignmentStatusChip: AssignmentListingStatusChip
+  /**
+   * Dashboard-only "which course" label, shown after the date when the student
+   * is in more than one batch. Absent/null on the /learn page.
+   */
+  courseName?: string | null
+  /** Dashboard-only hover tooltip for the date (IST range). Absent on /learn. */
+  dateTooltip?: string | null
+  /** "N days/hours remaining" until an assignment deadline; null otherwise. */
+  assignmentDeadlineLabel?: string | null
+  /** Released score (clamped to 10) to show as a card badge; null unless `showScores` is on and the score is released. */
+  assignmentScore?: number | null
 }
 
 export interface LearnFilterValues {

@@ -10,7 +10,8 @@ import { mapDiscussionThreadRow } from '@/server/new-discussions/utils/mapDiscus
 
 export async function listDiscussionsWithThreadsForLearnEntity(
   viewerUserId: number,
-  entityType: DiscussionPersistedEntityType,
+  entityType:
+    DiscussionPersistedEntityType | Array<DiscussionPersistedEntityType>,
   entityId: number,
 ): Promise<Array<DiscussionListItem>> {
   const rows = await db
@@ -20,6 +21,7 @@ export async function listDiscussionsWithThreadsForLearnEntity(
       message: discussions.message,
       isClosed: discussions.isClosed,
       public: discussions.public,
+      data: discussions.data,
       createdAt: discussions.createdAt,
       updatedAt: discussions.updatedAt,
       authorId: discussions.userId,
@@ -29,7 +31,9 @@ export async function listDiscussionsWithThreadsForLearnEntity(
     .leftJoin(users, eq(discussions.userId, users.id))
     .where(
       and(
-        eq(discussions.entityType, entityType),
+        Array.isArray(entityType)
+          ? inArray(discussions.entityType, entityType)
+          : eq(discussions.entityType, entityType),
         eq(discussions.entityId, entityId),
         isNull(discussions.deletedAt),
         or(eq(discussions.public, 1), eq(discussions.userId, viewerUserId)),
@@ -41,7 +45,7 @@ export async function listDiscussionsWithThreadsForLearnEntity(
     return []
   }
 
-  const ids = rows.map(r => r.id)
+  const ids = rows.map((r) => r.id)
 
   const [countRows, threadRows] = await Promise.all([
     db
@@ -58,6 +62,7 @@ export async function listDiscussionsWithThreadsForLearnEntity(
         discussionId: threads.discussionId,
         message: threads.message,
         createdAt: threads.createdAt,
+        readAt: threads.readAt,
         authorId: threads.userId,
         authorName: users.name,
         authorProfilePhotoPath: users.profilePhotoPath,
@@ -73,18 +78,36 @@ export async function listDiscussionsWithThreadsForLearnEntity(
     countById.set(c.discussionId, Number(c.threadCount))
   }
 
+  const ownerByDiscussionId = new Map<number, number>()
+  for (const r of rows) {
+    ownerByDiscussionId.set(r.id, r.authorId)
+  }
+
   const threadsByDiscussionId = new Map<number, DiscussionListItem['threads']>()
+  const unreadByDiscussionId = new Map<number, number>()
   for (const thread of threadRows) {
     const list = threadsByDiscussionId.get(thread.discussionId) ?? []
     list.push(mapDiscussionThreadRow(thread))
     threadsByDiscussionId.set(thread.discussionId, list)
+
+    // Unread replies matter only to the discussion owner, and only for
+    // replies written by someone else that have not been marked read.
+    const isOwner =
+      ownerByDiscussionId.get(thread.discussionId) === viewerUserId
+    if (isOwner && thread.readAt === null && thread.authorId !== viewerUserId) {
+      unreadByDiscussionId.set(
+        thread.discussionId,
+        (unreadByDiscussionId.get(thread.discussionId) ?? 0) + 1,
+      )
+    }
   }
 
-  return rows.map(r =>
+  return rows.map((r) =>
     toDiscussionListItem(
       r as DiscussionRowWithAuthor,
       countById.get(r.id) ?? 0,
       threadsByDiscussionId.get(r.id) ?? [],
+      unreadByDiscussionId.get(r.id) ?? 0,
     ),
   )
 }

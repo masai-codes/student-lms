@@ -51,7 +51,7 @@ export function IdentifierStepView({
           spellCheck={false}
           placeholder="Email or mobile number"
           value={draft}
-          className="h-12 rounded-xl border-slate-300 bg-white px-4 text-base shadow-none md:h-13"
+          className="h-12 rounded-xl border-border-strong bg-surface px-4 text-base shadow-none md:h-13"
           onChange={(e) => onDraftChange(e.target.value)}
           onKeyDown={(e) => {
             if (e.key === 'Enter') {

@@ -25,8 +25,14 @@ function ToolbarHarness({
           isPlaying={false}
           playbackRate={1}
           onPlaybackRateChange={vi.fn()}
+          qualityLevels={[]}
+          currentQuality={-1}
+          onQualityChange={vi.fn()}
           fullscreenContainerRef={fullscreenContainerRef}
           onActivity={vi.fn()}
+          transcriptAvailable={false}
+          captionsOn={false}
+          onCaptionsToggle={vi.fn()}
         />
       </div>
     </LectureSplitChatProvider>
@@ -42,9 +48,7 @@ describe('LectureVideoControlsToolbar Ask pill', () => {
     const open = vi.fn()
 
     render(
-      <ToolbarHarness
-        splitChat={{ isOpen: false, open, close: vi.fn() }}
-      />,
+      <ToolbarHarness splitChat={{ isOpen: false, open, close: vi.fn() }} />,
     )
 
     fireEvent.click(

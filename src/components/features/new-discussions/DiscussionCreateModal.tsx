@@ -61,7 +61,7 @@ export function DiscussionCreateModal({
   }
 
   function removeFile(index: number) {
-    setFiles(prev => prev.filter((_, i) => i !== index))
+    setFiles((prev) => prev.filter((_, i) => i !== index))
   }
 
   async function handleSubmit(e: FormEvent) {
@@ -71,7 +71,7 @@ export function DiscussionCreateModal({
     try {
       let message = messageHtml.trim()
       if (files.length > 0) {
-        const lines = files.map(f => `- ${f.name}`).join('\n')
+        const lines = files.map((f) => `- ${f.name}`).join('\n')
         message = `${message}${DISCUSSION_ATTACHMENT_APPEND_MARKER}${lines}`
       }
       await createLearnDiscussionViaApi({
@@ -98,15 +98,18 @@ export function DiscussionCreateModal({
 
   return (
     <Modal open={open} onOpenChange={onOpenChange}>
-      <ModalContent className="max-h-[min(90vh,880px)] max-w-2xl p-0" showCloseButton={false}>
+      <ModalContent
+        className="max-h-[min(90vh,880px)] max-w-2xl p-0"
+        showCloseButton={false}
+      >
         <form onSubmit={handleSubmit} className="flex max-h-[inherit] flex-col">
-          <div className="flex items-center justify-between border-b border-gray-100 px-6 py-4">
-            <ModalTitle className="text-xl font-semibold text-gray-900">
+          <div className="flex items-center justify-between border-b border-border px-6 py-4">
+            <ModalTitle className="text-xl font-semibold text-foreground">
               Create Discussion
             </ModalTitle>
             <ModalClose
               type="button"
-              className="rounded-full p-1 text-gray-400 hover:bg-gray-50 hover:text-gray-700"
+              className="rounded-full p-1 text-foreground-subtle hover:bg-surface-muted hover:text-foreground"
               aria-label="Close"
               disabled={pending}
             >
@@ -128,13 +131,18 @@ export function DiscussionCreateModal({
             error={error}
           />
 
-          <div className="flex flex-shrink-0 items-center justify-between gap-3 border-t border-gray-100 bg-white px-6 py-4">
-            <Button type="button" variant="secondary" onClick={handleClose} disabled={pending}>
+          <div className="flex flex-shrink-0 items-center justify-between gap-3 border-t border-border bg-surface px-6 py-4">
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={handleClose}
+              disabled={pending}
+            >
               Close
             </Button>
             <Button
               type="submit"
-              className="bg-[#6962AC] hover:bg-[#585196]"
+              className="bg-brand hover:bg-brand"
               disabled={
                 pending ||
                 plainLen === 0 ||

@@ -1,25 +1,33 @@
 import { isApiError } from '@/server/api/http/apiError'
-import { jsonOk, jsonError, mapThrownErrorToResponse } from '@/server/api/http/responses'
+import {
+  jsonOk,
+  jsonError,
+  mapThrownErrorToResponse,
+} from '@/server/api/http/responses'
 import { requireSessionUserId } from '@/server/api/http/requireSessionUser'
-import { markAnnouncementAsUnread, markMessageAsUnread } from '@/server/api/announcement/markAnnouncementUnread.service'
+import {
+  markAnnouncementAsUnread,
+  markMessageAsUnread,
+} from '@/server/api/announcement/markAnnouncementUnread.service'
 
 export async function handleMarkAnnouncementUnread(
-  request: Request,
   rawId: string,
   source: 'a' | 'm' = 'a',
 ): Promise<Response> {
   try {
-    const numericId = parseInt(rawId, 10)
-    if (!Number.isFinite(numericId) || numericId <= 0) {
+    // Validate as a positive integer string. Messages use BigInt ids that can
+    // exceed Number.MAX_SAFE_INTEGER, so keep the id as a string rather than
+    // parseInt-ing it and losing precision.
+    if (!/^\d+$/.test(rawId) || /^0+$/.test(rawId)) {
       return jsonError(400, 'INVALID_ID')
     }
 
-    const userId = await requireSessionUserId(request)
+    const userId = await requireSessionUserId()
 
     if (source === 'm') {
-      await markMessageAsUnread(userId, numericId)
+      await markMessageAsUnread(userId, rawId)
     } else {
-      await markAnnouncementAsUnread(userId, numericId)
+      await markAnnouncementAsUnread(userId, parseInt(rawId, 10))
     }
 
     return jsonOk({ ok: true })

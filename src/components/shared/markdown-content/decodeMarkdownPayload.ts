@@ -6,7 +6,10 @@ export function decodeMarkdownPayload(content: string): string {
     .replace(/\\n/g, '\n')
     .replace(/\\t/g, '\t')
 
-  if (!normalizedContent.includes('&lt;') && !normalizedContent.includes('&gt;')) {
+  if (
+    !normalizedContent.includes('&lt;') &&
+    !normalizedContent.includes('&gt;')
+  ) {
     return normalizedContent
   }
 
@@ -14,9 +17,10 @@ export function decodeMarkdownPayload(content: string): string {
     return normalizedContent
   }
 
-  const decoded = new DOMParser()
-    .parseFromString(normalizedContent, 'text/html')
-    .documentElement.textContent
+  const decoded = new DOMParser().parseFromString(
+    normalizedContent,
+    'text/html',
+  ).documentElement.textContent
 
   return decoded ?? normalizedContent
 }

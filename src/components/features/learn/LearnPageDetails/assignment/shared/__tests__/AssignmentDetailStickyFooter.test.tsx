@@ -21,6 +21,8 @@ const baseDetail = {
   scheduleDisplayRange: 'May 20',
   hostAvatarUrl: null,
   instructions: null,
+  emptyInstructionsMessage:
+    'This Assignment does not require additional instructions.',
   enforceDeadline: true,
   phaseContent: { title: 'Open', description: 'Desc', scheduleHint: null },
   completedDetails: null,
@@ -28,6 +30,7 @@ const baseDetail = {
   liveAnalytics: null,
   requiresPledge: false,
   problems: [],
+  isBookmarked: false,
 } satisfies Omit<AssignmentDetailPayload, 'footer'>
 
 describe('AssignmentDetailStickyFooter', () => {
@@ -64,11 +67,12 @@ describe('AssignmentDetailStickyFooter', () => {
     )
 
     expect(screen.getByTestId('assignment-detail-sticky-footer')).toBeTruthy()
-    expect(screen.getByTestId('assignment-footer-status-chip').textContent).toContain(
-      'In Progress',
-    )
     expect(
-      screen.getByTestId('assignment-footer-action-start-assessment').textContent,
+      screen.getByTestId('assignment-footer-status-chip').textContent,
+    ).toContain('In Progress')
+    expect(
+      screen.getByTestId('assignment-footer-action-start-assessment')
+        .textContent,
     ).toContain('Start Assignment')
   })
 

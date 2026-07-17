@@ -3,12 +3,19 @@ import { and, eq, isNull, ne } from 'drizzle-orm'
 import type { LectureDetailPayload } from '@/server/learn/lectureDetailTypes'
 
 import { db } from '@/db'
-import { lectures, lecturesAi, users } from '@/db/schema'
+import {
+  lectures,
+  lecturesAi,
+  lectureZoomChat,
+  sections,
+  users,
+} from '@/db/schema'
 import { DISCUSSION_ENTITY_LECTURE } from '@/server/new-discussions/discussionEntityTypes'
 import { listDiscussionsWithThreadsForLearnEntity } from '@/server/new-discussions/services/listDiscussionsWithThreadsForLearnEntity'
 import { fetchLectureAttendanceSummaries } from '@/server/attendance/services/fetchLectureAttendanceSummaries'
 import { buildLectureVideoAttendanceState } from '@/server/learn/utils/buildLectureVideoAttendanceState'
 import { toLearningPriority } from '@/server/learn/utils/learningDataMappers'
+import { resolveEnableZoomWebView } from '@/server/learn/utils/resolveEnableZoomWebView'
 import {
   buildLectureDetailPayload,
   isSupportedLectureDetailType,
@@ -18,10 +25,11 @@ import { buildLectureTabContent } from '@/server/learn/utils/buildLectureTabCont
 import { getLearnEntityBookmarkState } from '@/server/learn/services/learnEntityBookmark.service'
 import { getLectureFeedbackRecord } from '@/server/learn/services/lectureFeedback.service'
 import { ensureUserCanAccessLearnHubEntity } from '@/server/learn/utils/ensureLearnEntityAccess'
+import { resolveLearnDetailRestriction } from '@/server/restrictions/resolveLearnDetailRestriction'
+import { getBatchIdForSection } from '@/server/batches/getBatchIdsForSections'
+import { getUserBatchRestrictions } from '@/server/restrictions/getUserBatchRestrictions'
 import { LECTURE_RESOURCE_TYPE } from '@/server/learn/utils/resolveLectureLearningType'
-import {
-  getLectureAssociatedContent,
-} from '@/server/learn/services/getLectureAssociatedContent.service'
+import { getAllAssociatedEntities } from '@/server/learn/services/getAllAssociatedEntities.service'
 
 export async function getLectureLearningDetailForUser(
   userId: number,
@@ -49,10 +57,12 @@ export async function getLectureLearningDetailForUser(
       settings: lectures.settings,
       notes: lectures.notes,
       isNewZoomRedirection: lectures.isNewZoomRedirection,
+      sectionSettings: sections.settings,
       data: lectures.data,
     })
     .from(lectures)
     .leftJoin(users, eq(lectures.hostId, users.id))
+    .leftJoin(sections, eq(lectures.sectionId, sections.id))
     .where(
       and(
         eq(lectures.id, lectureId),
@@ -72,11 +82,7 @@ export async function getLectureLearningDetailForUser(
     throw new Error('LEARN_DETAIL_NOT_FOUND')
   }
 
-  const allowed = await ensureUserCanAccessLearnHubEntity(
-    userId,
-    row.batchId,
-    row.sectionId,
-  )
+  const allowed = await ensureUserCanAccessLearnHubEntity(userId, row.sectionId)
 
   if (!allowed) {
     throw new Error('LEARN_DETAIL_NOT_FOUND')
@@ -88,6 +94,7 @@ export async function getLectureLearningDetailForUser(
     core,
     discussions,
     aiRows,
+    zoomChatRows,
     associatedItems,
     videoAttendance,
     attendanceMap,
@@ -109,31 +116,48 @@ export async function getLectureLearningDetailForUser(
       .from(lecturesAi)
       .where(eq(lecturesAi.lectureId, lectureId))
       .limit(1),
-    getLectureAssociatedContent({
-      lectureId,
+    db
+      .select({ finalChat: lectureZoomChat.finalChat })
+      .from(lectureZoomChat)
+      .where(eq(lectureZoomChat.lectureId, lectureId))
+      .limit(1),
+    getAllAssociatedEntities({
+      entityId: lectureId,
+      entityKind: 'lecture',
       sectionId: row.sectionId,
-      lectureData: row.data,
+      entityData: row.data,
+      userId,
+      nowMs: Date.now(),
     }),
-    buildLectureVideoAttendanceState(lectureId),
-    isRecommended || row.sectionId == null
+    buildLectureVideoAttendanceState(userId, lectureId),
+    row.sectionId == null
       ? Promise.resolve(new Map())
-      : fetchLectureAttendanceSummaries(userId, [
-          {
-            lectureId,
-            sectionId: row.sectionId,
-            schedule: row.schedule,
-            concludes: row.concludes,
-            optional: row.optional,
-          },
-        ]),
+      : fetchLectureAttendanceSummaries(
+          userId,
+          [
+            {
+              lectureId,
+              sectionId: row.sectionId,
+              schedule: row.schedule,
+              concludes: row.concludes,
+              optional: row.optional,
+            },
+          ],
+          Date.now(),
+          // Compute for optional lectures too so the info tooltip has data.
+          isRecommended,
+        ),
     getLearnEntityBookmarkState(userId, 'lecture', lectureId),
     getLectureFeedbackRecord(userId, lectureId),
   ])
 
-  const attendance = isRecommended ? null : (attendanceMap.get(lectureId) ?? null)
+  const attendanceSummary = attendanceMap.get(lectureId) ?? null
+  const attendance = isRecommended ? null : attendanceSummary
+  const optionalAttendance = isRecommended ? attendanceSummary : null
 
   const tabs = buildLectureTabContent({
     notes: row.notes,
+    zoomChatFinalChat: zoomChatRows[0]?.finalChat ?? null,
     lecturesAi: aiRows[0] ?? null,
     associatedItems,
   })
@@ -156,12 +180,31 @@ export async function getLectureLearningDetailForUser(
     tabs,
     videoAttendance,
     attendance,
+    optionalAttendance,
     feedbackRecord,
   )
+
+  const [restrictions, sectionBatchId] = await Promise.all([
+    getUserBatchRestrictions(userId),
+    getBatchIdForSection(row.sectionId),
+  ])
+  // Agreement ban restricts a lecture only when the page would show a recording;
+  // live lectures without a recording stay accessible.
+  const restriction = resolveLearnDetailRestriction({
+    contentBatchId: sectionBatchId ?? row.batchId,
+    schedule: row.schedule,
+    restrictions,
+    agreementScope: payload.hasRecording ? 'recording' : null,
+  })
 
   return {
     ...payload,
     isBookmarked,
     isNewZoomRedirection: row.isNewZoomRedirection === 1,
+    enableZoomWebView: resolveEnableZoomWebView(row.sectionSettings),
+    restriction,
+    // When restricted the whole page is blocked client-side; don't leak the
+    // recording URL either way.
+    ...(restriction != null ? { videoUrl: null, hasRecording: false } : {}),
   }
 }

@@ -1,5 +1,5 @@
-export type DrawerDirection = "right" | "bottom" | "auto"
-export type CtaTheme = "yellow" | "red"
+export type DrawerDirection = 'right' | 'bottom' | 'auto'
+export type CtaTheme = 'yellow' | 'red'
 
 export type ClubCardProps = {
   domain: string

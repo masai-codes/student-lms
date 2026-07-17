@@ -17,7 +17,6 @@ import { aiTutorErrorMessage } from './utils/aiTutorErrorMessage'
 import type { RefObject } from 'react'
 import type { AiTutorSessionState, LectureChatMessage } from './types'
 
-
 import { cn } from '@/lib/utils'
 
 import './lectureAiChatPanel.css'
@@ -57,7 +56,10 @@ function resolveStatus(props: {
   isMicEnabled?: boolean
   isAgentSpeaking?: boolean
 }): StatusBadge | null {
-  if (props.sessionState === 'creating' || props.sessionState === 'connecting') {
+  if (
+    props.sessionState === 'creating' ||
+    props.sessionState === 'connecting'
+  ) {
     return { tone: 'connecting', label: 'Connecting…' }
   }
   if (props.isAgentSpeaking) {
@@ -83,7 +85,8 @@ export function LectureAiChatPanel({
   variant = 'anchor',
   openingLoaderSweepMs = LECTURE_CHAT_OPENING_LOADER_SWEEP_MS,
   openingLoaderSizePx = LECTURE_CHAT_OPENING_LOADER_SIZE_PX,
-  showOpeningLoader: showOpeningLoaderEnabled = LECTURE_CHAT_OPENING_LOADER_ENABLED,
+  showOpeningLoader:
+    showOpeningLoaderEnabled = LECTURE_CHAT_OPENING_LOADER_ENABLED,
   openingLoaderGif = LECTURE_CHAT_OPENING_LOADER_GIF,
   className,
 }: LectureAiChatPanelProps) {
@@ -152,17 +155,20 @@ export function LectureAiChatPanel({
               className={cn(
                 'inline-flex items-center gap-1.5 rounded-full px-2.5 py-1',
                 'type-caption-regular',
-                status.tone === 'listening' && 'bg-red-500/15 !text-red-300',
-                status.tone === 'speaking' && 'bg-primary-500/15 !text-primary-200',
-                status.tone === 'connecting' && 'bg-white/10 !text-gray-200',
+                status.tone === 'listening' && 'bg-danger/15 !text-red-300',
+                status.tone === 'speaking' &&
+                  'bg-primary-500/15 !text-primary-200',
+                status.tone === 'connecting' && 'bg-surface/10 !text-gray-200',
               )}
               aria-live="polite"
             >
               <span
                 className={cn(
                   'size-1.5 rounded-full',
-                  status.tone === 'listening' && 'lecture-chat-status-dot bg-red-400',
-                  status.tone === 'speaking' && 'lecture-chat-status-dot bg-primary-300',
+                  status.tone === 'listening' &&
+                    'lecture-chat-status-dot bg-red-400',
+                  status.tone === 'speaking' &&
+                    'lecture-chat-status-dot bg-primary-300',
                   status.tone === 'connecting' && 'bg-gray-300',
                 )}
               />
@@ -174,7 +180,7 @@ export function LectureAiChatPanel({
               type="button"
               onClick={onClose}
               aria-label="Close chat"
-              className="ml-auto flex size-8 items-center justify-center rounded-full text-gray-300 transition-colors hover:bg-white/10 hover:text-white"
+              className="ml-auto flex size-8 items-center justify-center rounded-full text-foreground-subtle transition-colors hover:bg-surface/10 hover:text-white"
             >
               <X className="size-5" weight="bold" />
             </button>
@@ -189,7 +195,7 @@ export function LectureAiChatPanel({
             {errorMessage ? (
               <div
                 role="alert"
-                className="flex items-start gap-2 rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2"
+                className="flex items-start gap-2 rounded-lg border border-red-500/30 bg-danger/10 px-3 py-2"
               >
                 <WarningCircle
                   className="mt-0.5 size-4 shrink-0 !text-red-300"
@@ -205,7 +211,10 @@ export function LectureAiChatPanel({
                 Loading chat history…
               </p>
             ) : null}
-            {messages.length === 0 && !isHistoryLoading && !isSending && !errorMessage ? (
+            {messages.length === 0 &&
+            !isHistoryLoading &&
+            !isSending &&
+            !errorMessage ? (
               <div className="space-y-2 py-4">
                 <p className="type-b2-regular !text-gray-300">
                   Ask anything about this lecture.
@@ -216,7 +225,7 @@ export function LectureAiChatPanel({
                 </p>
               </div>
             ) : null}
-            {messages.map(message => (
+            {messages.map((message) => (
               <LectureAiChatMessage key={message.id} message={message} />
             ))}
             {isSending ? (

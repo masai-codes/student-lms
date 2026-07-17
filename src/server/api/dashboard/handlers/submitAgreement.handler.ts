@@ -1,21 +1,32 @@
-import { isApiError } from '@/server/api/http/apiError'
+import { ApiError, isApiError } from '@/server/api/http/apiError'
 import { jsonOk, mapThrownErrorToResponse } from '@/server/api/http/responses'
 import { requireSessionUserId } from '@/server/api/http/requireSessionUser'
-import { submitAgreement } from '@/server/api/dashboard/submitAgreement.service'
+import { getClientIp } from '@/server/api/http/clientIp'
+import { submitAgreement } from '@/server/api/dashboard/agreement/submitAgreement.service'
 
 export async function handleSubmitAgreement(
   request: Request,
-  sectionId: string,
 ): Promise<Response> {
   try {
-    const userId = await requireSessionUserId(request)
-    const id = Number(sectionId)
-    if (!Number.isInteger(id) || id <= 0) return jsonOk({ success: false })
+    const userId = await requireSessionUserId()
+    const body = (await request.json()) as { sectionId?: unknown }
+    const sectionId = Number(body.sectionId)
+    if (!Number.isFinite(sectionId) || sectionId <= 0)
+      throw new ApiError(400, 'INVALID_SECTION_ID')
 
-    await submitAgreement(id, userId)
-    return jsonOk({ success: true })
+    const result = await submitAgreement(
+      userId,
+      sectionId,
+      getClientIp(request),
+    )
+    return jsonOk(result)
   } catch (error) {
-    if (!isApiError(error)) console.error('Failed to submit agreement', error)
+    if (!isApiError(error)) {
+      console.error('Failed to submit agreement', error)
+      return mapThrownErrorToResponse(
+        new Error('SERVER_ERROR_SUBMITTING_AGREEMENT'),
+      )
+    }
     return mapThrownErrorToResponse(error)
   }
 }

@@ -49,7 +49,7 @@ function BackToClubsLink() {
     <button
       type="button"
       onClick={handleBack}
-      className="inline-flex items-center gap-1 text-[14px] font-medium text-[#6B7280] hover:text-[#111827]"
+      className="inline-flex items-center gap-1 text-[14px] font-medium text-foreground-muted hover:text-foreground"
     >
       <ArrowLeft size={16} />
       Back to clubs
@@ -62,9 +62,11 @@ function BackToClubsLink() {
  * will grow to mirror the home page; data is fetched live by `clubId`.
  */
 export default function ClubDetailPage({ clubId }: ClubDetailPageProps) {
-  const { data: club, isPending, error } = useQuery(
-    masaiverseV2ClubDetailQuery(clubId),
-  )
+  const {
+    data: club,
+    isPending,
+    error,
+  } = useQuery(masaiverseV2ClubDetailQuery(clubId))
   const { data: adminMode } = useQuery(masaiverseV2AdminModeQuery())
   const canEdit = adminMode?.enabled ?? false
   const [isCalendarOpen, setIsCalendarOpen] = useState(false)
@@ -94,7 +96,7 @@ export default function ClubDetailPage({ clubId }: ClubDetailPageProps) {
         <div
           role="status"
           aria-label="Loading club"
-          className="mt-4 h-48 animate-pulse rounded-[20px] bg-[#ECE7E2]"
+          className="mt-4 h-48 animate-pulse rounded-[20px] bg-surface-muted"
         >
           <span className="sr-only">Loading club…</span>
         </div>
@@ -107,10 +109,10 @@ export default function ClubDetailPage({ clubId }: ClubDetailPageProps) {
     return (
       <div>
         <BackToClubsLink />
-        <h2 className="mt-4 text-[20px] font-bold leading-7 text-[#111827]">
+        <h2 className="mt-4 text-[20px] font-bold leading-7 text-foreground">
           {notFound ? 'Club not found' : 'Something went wrong'}
         </h2>
-        <p className="mt-1 text-[14px] leading-5 text-[#6B7280]">
+        <p className="mt-1 text-[14px] leading-5 text-foreground-muted">
           {notFound
             ? `We couldn't find a club with id "${clubId}".`
             : "We couldn't load this club. Please try again."}
@@ -156,7 +158,7 @@ export default function ClubDetailPage({ clubId }: ClubDetailPageProps) {
             <button
               type="button"
               onClick={openEdit}
-              className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-[#111827] px-3.5 py-2 text-sm font-semibold text-[#111827] transition-colors hover:bg-[#111827] hover:text-white"
+              className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-foreground px-3.5 py-2 text-sm font-semibold text-foreground transition-colors hover:bg-foreground hover:text-background"
             >
               <PencilSimple size={16} weight="bold" />
               Edit club

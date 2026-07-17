@@ -15,7 +15,8 @@ export interface AnnouncementsQueryParams {
 
 export function parseAnnouncementsQuery(url: URL): AnnouncementsQueryParams {
   const page = parsePositiveInt(url.searchParams.get('page')) ?? 1
-  const limit = parsePositiveInt(url.searchParams.get('limit')) ?? ANNOUNCEMENTS_PER_PAGE
+  const limit =
+    parsePositiveInt(url.searchParams.get('limit')) ?? ANNOUNCEMENTS_PER_PAGE
   const q = url.searchParams.get('q')?.trim() || undefined
   const messagesOnly = url.searchParams.get('message') === 'true'
   return { page, limit, q, messagesOnly }

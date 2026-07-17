@@ -66,7 +66,9 @@ export default function ResponsiveCardCarousel<T>({
   )
   // In auto-width mode we can't know up front how many fit, so always wire up
   // navigation; Swiper's `watchOverflow` hides the controls when they all fit.
-  const showNav = autoWidth ? items.length > 1 : items.length > Math.floor(maxPerView)
+  const showNav = autoWidth
+    ? items.length > 1
+    : items.length > Math.floor(maxPerView)
 
   return (
     <div className="relative">

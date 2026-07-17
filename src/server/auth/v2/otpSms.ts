@@ -19,7 +19,11 @@ function normalizeIndianMobile(input: string): string {
   return trimmed
 }
 
-function withTimeout<T>(promise: Promise<T>, ms: number, message: string): Promise<T> {
+function withTimeout<T>(
+  promise: Promise<T>,
+  ms: number,
+  message: string,
+): Promise<T> {
   return new Promise((resolve, reject) => {
     const timer = setTimeout(() => reject(new Error(message)), ms)
     promise.then(
@@ -40,7 +44,10 @@ export type SendOtpSmsArgs = {
   otp: string
 }
 
-export async function sendOtpSms({ mobile, otp }: SendOtpSmsArgs): Promise<void> {
+export async function sendOtpSms({
+  mobile,
+  otp,
+}: SendOtpSmsArgs): Promise<void> {
   const phoneNumber = normalizeIndianMobile(mobile)
   if (!/^\d{10}$/.test(phoneNumber)) {
     throw new Error(`Invalid Indian mobile number: ${mobile}`)
@@ -48,7 +55,10 @@ export async function sendOtpSms({ mobile, otp }: SendOtpSmsArgs): Promise<void>
 
   const client = new TwoFactor(getApiKey())
   await withTimeout(
-    client.sendOTP(phoneNumber, { otp, template: TEMPLATE }) as Promise<unknown>,
+    client.sendOTP(phoneNumber, {
+      otp,
+      template: TEMPLATE,
+    }) as Promise<unknown>,
     SEND_TIMEOUT_MS,
     '2Factor OTP request timed out',
   )

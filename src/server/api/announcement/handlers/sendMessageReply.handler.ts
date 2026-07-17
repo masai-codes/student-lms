@@ -6,15 +6,19 @@ export async function handleSendMessageReply(
   request: Request,
   rawId: string,
 ): Promise<Response> {
-  const currentUserId = await requireSessionUserId(request)
+  const currentUserId = await requireSessionUserId()
   const rootMessageId = parseInt(rawId, 10)
   if (!Number.isFinite(rootMessageId) || rootMessageId <= 0) {
-    return new Response(JSON.stringify({ error: 'INVALID_ID' }), { status: 400 })
+    return new Response(JSON.stringify({ error: 'INVALID_ID' }), {
+      status: 400,
+    })
   }
 
   const { body } = (await request.json()) as { body?: string }
   if (!body?.trim()) {
-    return new Response(JSON.stringify({ error: 'BODY_REQUIRED' }), { status: 400 })
+    return new Response(JSON.stringify({ error: 'BODY_REQUIRED' }), {
+      status: 400,
+    })
   }
 
   await sendMessageReply(currentUserId, rootMessageId, body.trim())

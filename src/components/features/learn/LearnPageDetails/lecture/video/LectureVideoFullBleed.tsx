@@ -10,7 +10,10 @@ type LectureVideoFullBleedProps = {
 }
 
 /** Full viewport-width video; breaks out of any centered content column. */
-export function LectureVideoFullBleed({ children, className }: LectureVideoFullBleedProps) {
+export function LectureVideoFullBleed({
+  children,
+  className,
+}: LectureVideoFullBleedProps) {
   return (
     <div
       className={cn(
@@ -20,7 +23,9 @@ export function LectureVideoFullBleed({ children, className }: LectureVideoFullB
         className,
       )}
     >
-      <div className="flex h-full min-h-0 w-full flex-1 flex-col">{children}</div>
+      <div className="flex h-full min-h-0 w-full flex-1 flex-col">
+        {children}
+      </div>
     </div>
   )
 }

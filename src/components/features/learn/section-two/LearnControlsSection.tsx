@@ -6,6 +6,7 @@ import { Filter, Search } from 'lucide-react'
 
 import { LearnFiltersPanel } from './filters-modal/LearnFiltersPanel'
 import { useDebouncedCommit } from './useDebouncedCommit'
+import { pushLearnEvent } from '../shared/learnAnalytics'
 import type { LearnModalFiltersState, LearnTab } from '../shared/types'
 
 import type { MasaiDropdownCheckboxFilterOption } from '@/components/ui/masai-dropdown-checkbox-filter'
@@ -67,11 +68,24 @@ export function LearnControlsSection({
 }: LearnControlsSectionProps) {
   const [filtersOpen, setFiltersOpen] = useState(false)
 
+  // Fire the search event only on the committed (debounced) value, not per
+  // keystroke, and only when the query is non-empty.
+  const handleSearchCommit = useCallback(
+    (value: string) => {
+      const query = value.trim()
+      if (query) {
+        pushLearnEvent('l_learn_search', { query, tab: activeTab })
+      }
+      onSearchChange(value)
+    },
+    [activeTab, onSearchChange],
+  )
+
   // Local drafts so typing and checkbox ticks reflect instantly; the actual fetch
   // (URL commit) is debounced rather than firing on every keystroke/click.
   const [searchInput, setSearchInput] = useDebouncedCommit(
     searchValue,
-    onSearchChange,
+    handleSearchCommit,
     SEARCH_DEBOUNCE_MS,
   )
   const [selectedModules, setSelectedModules] = useDebouncedCommit(
@@ -126,8 +140,9 @@ export function LearnControlsSection({
     )
   const hasModuleChoices = moduleDropdownOptions.length > 0
 
+  // Tabs stack above the controls on small screens; one row from `md` up.
   return (
-    <section className="py-5 flex flex-row items-start justify-between gap-4 md:items-center">
+    <section className="py-5 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
       <div
         role="tablist"
         aria-label="Learning content type"
@@ -138,7 +153,10 @@ export function LearnControlsSection({
             key={tab.value}
             label={tab.label}
             selected={activeTab === tab.value}
-            onClick={() => onTabChange(tab.value)}
+            onClick={() => {
+              pushLearnEvent('l_learn_tab_change', { tab: tab.value })
+              onTabChange(tab.value)
+            }}
             iconLeft={
               <img
                 src={LEARN_TAB_ICON_URL}
@@ -152,14 +170,16 @@ export function LearnControlsSection({
         ))}
       </div>
 
-      <div className="ml-auto flex flex-wrap items-center justify-end gap-3">
+      {/* Search takes the full first line below `sm` so module + filter never
+          squeeze off-screen at 320px. */}
+      <div className="flex w-full min-w-0 flex-wrap items-center gap-3 md:ml-auto md:w-auto md:justify-end">
         <MasaiInput
           type="search"
           value={searchInput}
           onChange={(event) => setSearchInput(event.target.value)}
           placeholder={SEARCH_PLACEHOLDER_BY_TAB[activeTab]}
           iconLeft={<Search className="size-4 shrink-0" strokeWidth={2} />}
-          className="w-[300px]"
+          className="w-full min-w-0 sm:w-[300px]"
         />
 
         <MasaiDropdownCheckboxFilter
@@ -168,7 +188,7 @@ export function LearnControlsSection({
           value={selectedModules}
           onValueChange={setSelectedModules}
           disabled={!hasModuleChoices}
-          className="w-[170px]"
+          className="min-w-[150px] flex-1 sm:w-[170px] sm:flex-none"
           triggerClassName="min-w-0 w-full"
         />
 
@@ -179,17 +199,23 @@ export function LearnControlsSection({
             iconOnly
             icon={<Filter className="size-6" strokeWidth={2} />}
             htmlType="button"
-            onClick={() => setFiltersOpen(true)}
+            onClick={() => {
+              pushLearnEvent('l_learn_filters_open', {
+                tab: activeTab,
+                active_filter_count: filterCount,
+              })
+              setFiltersOpen(true)
+            }}
             aria-label={
               filterCount > 0
                 ? `Open filters, ${filterCount} active`
                 : 'Open filters'
             }
-            className="!border !border-slate-200 !text-slate-700 hover:!bg-slate-50"
+            className="!border !border-border !text-foreground transition-all duration-200 hover:-translate-y-px hover:!border-brand/35 hover:!bg-surface-muted active:scale-95"
           />
           {filterCount > 0 ? (
             <span
-              className="absolute -right-1.5 -top-1.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-red-500 px-1 text-xs font-bold text-white"
+              className="animate-dash-pop absolute -right-1.5 -top-1.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-danger px-1 text-xs font-bold text-danger-foreground"
               aria-hidden
             >
               {filterCount > 99 ? '99+' : filterCount}

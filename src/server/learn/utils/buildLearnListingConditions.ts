@@ -7,7 +7,9 @@ import {
   isNull,
   like,
   lt,
+  lte,
   ne,
+  notExists,
   or,
   sql,
 } from 'drizzle-orm'
@@ -22,6 +24,7 @@ import type {
 import type { LearnScheduleWindow } from '@/server/learn/utils/buildLearnScheduleWindow'
 import { db } from '@/db'
 import { assignments, lectures, studentAttendances, users } from '@/db/schema'
+import { buildAbsentWindowOverCondition } from '@/server/learn/utils/buildAbsentWindowOverCondition'
 import { buildModuleFilterCondition } from '@/server/learn/utils/buildModuleFilterCondition'
 import { LECTURE_RESOURCE_TYPE } from '@/server/learn/utils/resolveLectureLearningType'
 import {
@@ -39,6 +42,12 @@ export interface LearnListingConditionsInput {
   window: LearnScheduleWindow
   search?: string
   nowMs: number
+  /**
+   * Normal-ban cutoff for this batch (normalised `"YYYY-MM-DD HH:MM:SS"`, or `''`
+   * to restrict everything scheduled). When set, only items scheduled on/before it
+   * (or with no schedule) are listed. Absent when the user isn't normal-banned here.
+   */
+  bannedScheduleCutoff?: string
 }
 
 function priorityToOptional(
@@ -55,6 +64,20 @@ function scheduleConditions(
   if (window.gte != null) out.push(gte(scheduleColumn, window.gte))
   if (window.lt != null) out.push(lt(scheduleColumn, window.lt))
   return out
+}
+
+/**
+ * Normal-ban schedule gate: keep only rows scheduled on/before the ban cutoff (plus
+ * rows with no schedule). An empty cutoff means "restrict everything scheduled", so
+ * only null-schedule rows survive. Returns `undefined` when no ban applies.
+ */
+function bannedScheduleCondition(
+  scheduleColumn: AnyMySqlColumn,
+  cutoff: string | undefined,
+): SQL | undefined {
+  if (cutoff == null) return undefined
+  if (cutoff === '') return isNull(scheduleColumn)
+  return or(isNull(scheduleColumn), lte(scheduleColumn, cutoff))
 }
 
 /**
@@ -92,26 +115,65 @@ export function buildLectureContentGate(nowMs: number): SQL {
   ) as SQL
 }
 
-/** Mandatory lecture with an attendance row of the requested status (legacy #5: forces mandatory). */
+/** EXISTS an attendance row of the given status for this user/lecture. */
+function attendanceStatusExists(userId: number, statusValue: number): SQL {
+  return exists(
+    db
+      .select({ exists: studentAttendances.id })
+      .from(studentAttendances)
+      .where(
+        and(
+          eq(studentAttendances.lectureId, lectures.id),
+          eq(studentAttendances.userId, userId),
+          eq(studentAttendances.status, statusValue),
+        ),
+      ),
+  )
+}
+
+/**
+ * Attendance filter → SQL (legacy #5: forces mandatory).
+ *
+ * `present` requires a `status = 1` attendance row.
+ *
+ * `absent` must match what the card badge actually shows as absent:
+ *   1. a `status = 0` attendance row (a visible "Absent" / "Absent and Att.
+ *      Window Over" chip), OR
+ *   2. NO attendance row at all, but the catch-up window has closed so the card
+ *      derives an `att_window_over` chip (see `buildAbsentWindowOverCondition`,
+ *      which mirrors `computeCatchUpWindow`).
+ *
+ * A no-row lecture that is still inside its catch-up window, or whose section
+ * does not count recording watch-time, shows no absent chip — so it is
+ * deliberately NOT matched here.
+ */
 function attendanceConditions(
   attendanceStatus: BatchLearningFiltersInput['attendanceStatus'],
   userId: number,
-): Array<SQL> {
+  nowMs: number,
+): Array<SQL | undefined> {
   if (attendanceStatus == null) return []
-  const statusValue = attendanceStatus === 'present' ? 1 : 0
+
+  if (attendanceStatus === 'present') {
+    return [eq(lectures.optional, 0), attendanceStatusExists(userId, 1)]
+  }
+
+  const hasNoAttendanceRow = notExists(
+    db
+      .select({ exists: studentAttendances.id })
+      .from(studentAttendances)
+      .where(
+        and(
+          eq(studentAttendances.lectureId, lectures.id),
+          eq(studentAttendances.userId, userId),
+        ),
+      ),
+  )
   return [
     eq(lectures.optional, 0),
-    exists(
-      db
-        .select({ exists: studentAttendances.id })
-        .from(studentAttendances)
-        .where(
-          and(
-            eq(studentAttendances.lectureId, lectures.id),
-            eq(studentAttendances.userId, userId),
-            eq(studentAttendances.status, statusValue),
-          ),
-        ),
+    or(
+      attendanceStatusExists(userId, 0),
+      and(hasNoAttendanceRow, buildAbsentWindowOverCondition(nowMs)),
     ),
   ]
 }
@@ -131,6 +193,7 @@ export function buildLectureListingConditions(
       : buildLectureContentGate(input.nowMs),
     input.search ? like(lectures.title, `%${input.search}%`) : undefined,
     ...scheduleConditions(lectures.schedule, input.window),
+    bannedScheduleCondition(lectures.schedule, input.bannedScheduleCutoff),
     filters?.categories?.length
       ? inArray(lectures.category, filters.categories)
       : undefined,
@@ -147,7 +210,7 @@ export function buildLectureListingConditions(
     filters?.priorities?.length
       ? inArray(lectures.optional, priorityToOptional(filters.priorities))
       : undefined,
-    ...attendanceConditions(filters?.attendanceStatus, input.userId),
+    ...attendanceConditions(filters?.attendanceStatus, input.userId, input.nowMs),
   ]
 
   return conditions.filter(
@@ -166,6 +229,7 @@ export function buildAssignmentListingConditions(
     isNull(assignments.deletedAt),
     input.search ? like(assignments.title, `%${input.search}%`) : undefined,
     ...scheduleConditions(assignments.schedule, input.window),
+    bannedScheduleCondition(assignments.schedule, input.bannedScheduleCutoff),
     filters?.categories?.length
       ? inArray(assignments.category, filters.categories)
       : undefined,

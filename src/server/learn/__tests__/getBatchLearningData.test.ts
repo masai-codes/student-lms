@@ -15,7 +15,8 @@ describe('getBatchLearningData api', () => {
   })
 
   it('returns learning data payload from service', async () => {
-    const { getBatchLearningDataHandler } = await import('../getBatchLearningData')
+    const { getBatchLearningDataHandler } =
+      await import('../getBatchLearningData')
     const input: GetBatchLearningDataInput = {
       batchId: 1,
       learningType: 'lecture',
@@ -62,22 +63,25 @@ describe('getBatchLearningData api', () => {
     }
     hoisted.getBatchLearningDataService.mockResolvedValueOnce(payload)
 
-    await expect(getBatchLearningDataHandler({ data: input, userId: 1 })).resolves.toEqual(
-      payload,
-    )
+    await expect(
+      getBatchLearningDataHandler({ data: input, userId: 1 }),
+    ).resolves.toEqual(payload)
     expect(hoisted.getBatchLearningDataService).toHaveBeenCalledWith(input, 1)
   })
 
   it('throws stable server error when service fails', async () => {
-    const { getBatchLearningDataHandler } = await import('../getBatchLearningData')
+    const { getBatchLearningDataHandler } =
+      await import('../getBatchLearningData')
     const input: GetBatchLearningDataInput = {
       batchId: 1,
       learningType: 'assignment',
     }
-    hoisted.getBatchLearningDataService.mockRejectedValueOnce(new Error('db fail'))
-
-    await expect(getBatchLearningDataHandler({ data: input, userId: 1 })).rejects.toThrow(
-      'SERVER_ERROR_FETCHING_BATCH_LEARNING_DATA'
+    hoisted.getBatchLearningDataService.mockRejectedValueOnce(
+      new Error('db fail'),
     )
+
+    await expect(
+      getBatchLearningDataHandler({ data: input, userId: 1 }),
+    ).rejects.toThrow('SERVER_ERROR_FETCHING_BATCH_LEARNING_DATA')
   })
 })

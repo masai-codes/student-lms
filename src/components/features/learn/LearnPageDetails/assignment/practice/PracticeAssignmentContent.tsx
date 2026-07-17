@@ -1,8 +1,7 @@
 'use client'
 
-import { DuringPracticeAssignment } from './DuringPracticeAssignment'
 import { AssignmentDetailLayout } from '../shared/AssignmentDetailLayout'
-import { AssignmentPhaseContent } from '../shared/AssignmentPhaseContent'
+import { AssignmentMainContent } from '../shared/AssignmentMainContent'
 
 import type { AssignmentDetailPayload } from '@/server/learn/assignmentDetailTypes'
 
@@ -10,15 +9,13 @@ type PracticeAssignmentContentProps = {
   detail: AssignmentDetailPayload
 }
 
-function renderPracticeMain(detail: AssignmentDetailPayload) {
-  if (detail.phase === 'during') {
-    return <DuringPracticeAssignment content={detail.phaseContent} />
-  }
-  return <AssignmentPhaseContent content={detail.phaseContent} />
-}
-
-export function PracticeAssignmentContent({ detail }: PracticeAssignmentContentProps) {
+export function PracticeAssignmentContent({
+  detail,
+}: PracticeAssignmentContentProps) {
   return (
-    <AssignmentDetailLayout detail={detail} main={renderPracticeMain(detail)} />
+    <AssignmentDetailLayout
+      detail={detail}
+      main={<AssignmentMainContent detail={detail} />}
+    />
   )
 }

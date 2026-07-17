@@ -4,13 +4,18 @@ import { parsePositiveIdParam } from '@/server/api/learn/utils/parsePositiveIdPa
 import { getAssignmentLearningDetailForUser } from '@/server/learn/services/getAssignmentLearningDetail.service'
 
 export async function handleGetAssignmentLearningDetail(
-  request: Request,
   assignmentIdParam: string,
 ): Promise<Response> {
   try {
-    const userId = await requireSessionUserId(request)
-    const assignmentId = parsePositiveIdParam(assignmentIdParam, 'INVALID_ASSIGNMENT_ID')
-    const detail = await getAssignmentLearningDetailForUser(userId, assignmentId)
+    const userId = await requireSessionUserId()
+    const assignmentId = parsePositiveIdParam(
+      assignmentIdParam,
+      'INVALID_ASSIGNMENT_ID',
+    )
+    const detail = await getAssignmentLearningDetailForUser(
+      userId,
+      assignmentId,
+    )
     return jsonOk(detail)
   } catch (error) {
     return mapThrownErrorToResponse(error)

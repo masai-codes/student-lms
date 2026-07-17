@@ -1,115 +1,97 @@
-import { useState } from 'react'
-import { X } from 'lucide-react'
-import { useQueryClient } from '@tanstack/react-query'
+import { Modal, ModalContent, ModalTitle } from '@/components/ui/modal'
+import { MarkdownContent } from '@/components/shared/markdown-content/MarkdownContent'
 import type { PopupItem } from '@/server/api/announcement/getAnnouncementPopups.service'
 
-import { MarkdownContent } from '@/components/shared/markdown-content'
-import { markAnnouncementRead, markMessageRead } from '@/lib/api/announcement/announcementApi'
-
-export function filterUnshownPopups(items: PopupItem[]): PopupItem[] {
-  return items
+interface AnnouncementPopupModalProps {
+  open: boolean
+  item: PopupItem | null
+  isSubmitting: boolean
+  /** "Show me later" / backdrop / escape — close without marking read. */
+  onShowLater: () => void
+  /** "Mark as read" — always shown; marks the popup read. */
+  onMarkRead: () => void
+  /** Link CTA — mark read + close, then open the link. */
+  onCta: () => void
 }
 
-interface Props {
-  popups: PopupItem[]
-  onDone: () => void
-  onMarkedRead?: () => void
-}
-
-export function AnnouncementPopupModal({ popups, onDone, onMarkedRead }: Props) {
-  const [index, setIndex] = useState(0)
-  const [isMarking, setIsMarking] = useState(false)
-  const queryClient = useQueryClient()
-
-  const item = popups[index]
-  if (!item) return null
-
-  const hasCta = Boolean(item.ctaName && item.ctaLink)
-
-  function advance() {
-    const next = index + 1
-    if (next >= popups.length) {
-      onDone()
-    } else {
-      setIndex(next)
-    }
-  }
-
-  async function handleMarkRead() {
-    if (isMarking) return
-    setIsMarking(true)
-    try {
-      if (item.source === 'a') {
-        await markAnnouncementRead(Number(item.id))
-      } else {
-        await markMessageRead(Number(item.id))
-      }
-      queryClient.setQueryData<number>(
-        ['announcement-unread-count'],
-        (old = 0) => Math.max(0, old - 1),
-      )
-      void queryClient.invalidateQueries({ queryKey: ['announcements'] })
-      void queryClient.invalidateQueries({ queryKey: ['announcement-unread-count'] })
-    } catch {
-      // best-effort
-    } finally {
-      setIsMarking(false)
-      onMarkedRead?.()
-      advance()
-    }
-  }
+/**
+ * Announcement popup. There's no close (X) — instead a "Show me later" action
+ * sits where the close icon would be, and backdrop / escape behave the same:
+ * they dismiss without marking read. "Mark as read" is always present so the
+ * popup can always be cleared; when the announcement has a link CTA, that CTA
+ * is shown as well and also marks the popup read.
+ */
+export function AnnouncementPopupModal({
+  open,
+  item,
+  isSubmitting,
+  onShowLater,
+  onMarkRead,
+  onCta,
+}: AnnouncementPopupModalProps) {
+  const hasCta = Boolean(item?.ctaName?.trim() && item?.ctaLink?.trim())
 
   return (
-    <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/40 px-4">
-      <div className="w-full max-w-md rounded-2xl bg-white shadow-2xl flex flex-col overflow-hidden">
-        {/* Header */}
-        <div className="flex items-center justify-between px-6 py-5">
-          <h2 className="text-[18px] font-bold text-[#1C2B4B] font-poppins">
-            {item.source === 'm' ? 'New message' : 'New announcement'}
-          </h2>
-          <button
-            type="button"
-            onClick={advance}
-            className="flex size-8 items-center justify-center rounded-full bg-gray-100 text-gray-500 hover:bg-gray-200 transition-colors focus-visible:outline-none"
-          >
-            <X size={16} />
-          </button>
-        </div>
+    <Modal
+      open={open && item !== null}
+      onOpenChange={(next) => {
+        // Backdrop click / escape → same as "Show me later".
+        if (!next) onShowLater()
+      }}
+    >
+      <ModalContent
+        showCloseButton={false}
+        data-testid="announcement-popup-modal"
+        className="flex max-h-[85vh] flex-col overflow-hidden p-0"
+      >
+        {item ? (
+          <>
+            <div className="flex shrink-0 items-start justify-between gap-3 px-6 pt-6 pb-3">
+              <ModalTitle
+                data-testid="announcement-popup-title"
+                className="pr-1 text-lg font-bold leading-snug text-foreground"
+              >
+                {item.title}
+              </ModalTitle>
+              <button
+                type="button"
+                onClick={onShowLater}
+                data-testid="announcement-popup-show-later"
+                className="shrink-0 whitespace-nowrap rounded-lg px-2.5 py-1 text-xs font-semibold text-foreground-muted transition-colors hover:bg-surface-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
+              >
+                Show me later
+              </button>
+            </div>
 
-        <div className="h-px bg-gray-200" />
+            <div className="min-h-0 flex-1 overflow-y-auto px-6 pb-4 text-sm leading-relaxed text-foreground-muted">
+              <MarkdownContent value={item.body} />
+            </div>
 
-        {/* Body */}
-        <div className="px-6 py-5 max-h-[50vh] overflow-y-auto text-sm text-gray-800">
-          <MarkdownContent value={item.body} />
-        </div>
-
-        <div className="h-px bg-gray-200" />
-
-        {/* Footer — CTA replaces Mark as read when present */}
-        <div className="px-6 py-4">
-          {hasCta ? (
-            <a
-              href={item.ctaLink!}
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={() => void handleMarkRead()}
-              className="flex w-full items-center justify-center rounded-lg py-3 text-sm font-semibold text-white transition-opacity hover:opacity-90 focus-visible:outline-none"
-              style={{ background: '#6962AC', fontFamily: 'Poppins' }}
-            >
-              {item.ctaName!.length > 50 ? `${item.ctaName!.slice(0, 50)}…` : item.ctaName}
-            </a>
-          ) : (
-            <button
-              type="button"
-              onClick={() => void handleMarkRead()}
-              disabled={isMarking}
-              className="w-full rounded-lg border border-gray-200 py-3 text-sm font-medium text-[#1C2B4B] hover:bg-gray-50 transition-colors disabled:opacity-50 focus-visible:outline-none"
-            >
-              {isMarking ? 'Marking…' : 'Mark as read'}
-            </button>
-          )}
-        </div>
-      </div>
-    </div>
+            <div className="flex shrink-0 flex-col gap-2 border-t border-border px-6 py-4">
+              {hasCta ? (
+                <button
+                  type="button"
+                  onClick={onCta}
+                  disabled={isSubmitting}
+                  data-testid="announcement-popup-cta"
+                  className="flex w-full items-center justify-center rounded-xl bg-brand px-4 py-3 text-sm font-semibold text-brand-foreground transition-colors hover:bg-brand disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  {item.ctaName}
+                </button>
+              ) : null}
+              <button
+                type="button"
+                onClick={onMarkRead}
+                disabled={isSubmitting}
+                data-testid="announcement-popup-mark-read"
+                className="flex w-full items-center justify-center rounded-xl border border-border bg-surface px-4 py-3 text-sm font-semibold text-foreground transition-colors hover:bg-surface-muted disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                Mark as read
+              </button>
+            </div>
+          </>
+        ) : null}
+      </ModalContent>
+    </Modal>
   )
 }

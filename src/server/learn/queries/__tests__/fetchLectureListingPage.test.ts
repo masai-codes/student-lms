@@ -34,9 +34,11 @@ function mockRows(rows: Array<unknown>) {
   hoisted.dbSelect.mockReturnValueOnce({
     from: () => ({
       leftJoin: () => ({
-        where: () => ({
-          orderBy: () => ({
-            limit: () => ({ offset: () => Promise.resolve(rows) }),
+        leftJoin: () => ({
+          where: () => ({
+            orderBy: () => ({
+              limit: () => ({ offset: () => Promise.resolve(rows) }),
+            }),
           }),
         }),
       }),

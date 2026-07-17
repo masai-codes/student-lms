@@ -38,9 +38,7 @@ describe('AssignPointsButton', () => {
     adminMode.mockResolvedValue({ isAdmin: false, enabled: false })
     const { container } = renderWithClient(<AssignPointsButton />)
     // Give the query a tick; the button must never appear.
-    await waitFor(() =>
-      expect(adminMode).toHaveBeenCalled(),
-    )
+    await waitFor(() => expect(adminMode).toHaveBeenCalled())
     expect(screen.queryByRole('button', { name: 'Assign points' })).toBeNull()
     expect(container.querySelector('button')).toBeNull()
   })

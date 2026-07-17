@@ -10,11 +10,10 @@ function parsePositiveInt(value: string): number | null {
 }
 
 export async function handleGetConversation(
-  request: Request,
   chatIdParam: string,
 ): Promise<Response> {
   try {
-    const userId = await requireSessionUserId(request)
+    const userId = await requireSessionUserId()
     const chatId = parsePositiveInt(chatIdParam)
 
     if (!chatId) {

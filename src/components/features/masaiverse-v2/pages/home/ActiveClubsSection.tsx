@@ -30,7 +30,7 @@ export default function ActiveClubsSection() {
                 to: 'clubs',
               })
             }
-            className="text-[14px] font-medium text-masaiverse-orange hover:underline"
+            className="text-[14px] font-medium text-accent-warm hover:underline"
           >
             All clubs →
           </Link>
@@ -48,7 +48,7 @@ export default function ActiveClubsSection() {
           ))}
         </div>
       ) : clubs.length === 0 ? (
-        <p className="text-[14px] text-[#6B7280]">No clubs yet.</p>
+        <p className="text-[14px] text-foreground-muted">No clubs yet.</p>
       ) : (
         <div className="relative">
           <Swiper

@@ -1,4 +1,4 @@
-import { parseServerTimestamp } from './parseServerTimestamp'
+import { parseServerTimestamp } from '@/utils/timeZoneHandler'
 
 /**
  * Formats post/reply timestamps in a social-feed style using the viewer's own

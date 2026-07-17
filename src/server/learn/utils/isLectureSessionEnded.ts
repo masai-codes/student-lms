@@ -11,6 +11,7 @@ export function isLectureSessionEnded(input: {
   }
 
   return (
-    joinSessionButtonVisible(input.schedule, input.concludes, input.nowMs) === 'ended'
+    joinSessionButtonVisible(input.schedule, input.concludes, input.nowMs) ===
+    'ended'
   )
 }

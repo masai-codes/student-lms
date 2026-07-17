@@ -2,7 +2,11 @@ import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { Eye, EyeOff, InfoIcon } from 'lucide-react'
 import { toast } from 'sonner'
-import { fetchProfile, updateProfile, changePassword } from '@/lib/api/profile/profileApi'
+import {
+  fetchProfile,
+  updateProfile,
+  changePassword,
+} from '@/lib/api/profile/profileApi'
 import { ApiClientError } from '@/lib/api/apiClientError'
 
 // ── Edit Card ─────────────────────────────────────────────────────────────────
@@ -63,9 +67,13 @@ function EditCard({
   }
 
   return (
-    <div className={`rounded-[12px] border border-gray-200 bg-white p-5 transition-opacity ${dimmed ? 'opacity-40' : 'opacity-100'}`}>
+    <div
+      className={`rounded-[12px] border border-border bg-surface p-5 transition-opacity ${dimmed ? 'opacity-40' : 'opacity-100'}`}
+    >
       <div className="flex items-center justify-between mb-3">
-        <span className={`text-[15px] font-semibold ${editing ? 'text-gray-900' : 'text-gray-500'}`}>
+        <span
+          className={`text-[15px] font-semibold ${editing ? 'text-foreground' : 'text-foreground-muted'}`}
+        >
           {label}
         </span>
         {!editing && (
@@ -73,7 +81,7 @@ function EditCard({
             type="button"
             onClick={startEdit}
             disabled={dimmed}
-            className="text-[13px] font-semibold text-[#6962AC] hover:underline focus-visible:outline-none disabled:pointer-events-none"
+            className="text-[13px] font-semibold text-brand hover:underline focus-visible:outline-none disabled:pointer-events-none"
           >
             EDIT
           </button>
@@ -87,7 +95,7 @@ function EditCard({
             value={draft}
             onChange={(e) => setDraft(e.target.value)}
             placeholder={placeholder}
-            className="w-full rounded-[8px] border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm text-gray-900 outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-400 focus:ring-offset-2"
+            className="w-full rounded-[8px] border border-border bg-surface-muted px-3 py-2.5 text-sm text-foreground outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-400 focus:ring-offset-2"
             // eslint-disable-next-line jsx-a11y/no-autofocus
             autoFocus
             onKeyDown={(e) => {
@@ -95,13 +103,13 @@ function EditCard({
               if (e.key === 'Escape') cancelEdit()
             }}
           />
-          {error ? <p className="text-xs text-red-500">{error}</p> : null}
+          {error ? <p className="text-xs text-danger">{error}</p> : null}
           <div className="flex items-center justify-end gap-2">
             <button
               type="button"
               onClick={cancelEdit}
               disabled={saving}
-              className="px-4 py-2 rounded-[8px] border border-gray-300 text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-60 transition-colors"
+              className="px-4 py-2 rounded-[8px] border border-border-strong text-sm font-medium text-foreground bg-surface hover:bg-surface-muted disabled:opacity-60 transition-colors"
             >
               Cancel
             </button>
@@ -109,14 +117,16 @@ function EditCard({
               type="button"
               onClick={() => void save()}
               disabled={saving}
-              className="px-4 py-2 rounded-[8px] bg-[#4B44A8] text-white text-sm font-medium hover:bg-[#3d379a] disabled:opacity-60 transition-colors"
+              className="px-4 py-2 rounded-[8px] bg-brand text-brand-foreground text-sm font-medium hover:bg-brand disabled:opacity-60 transition-colors"
             >
               {saving ? 'Saving…' : 'Save'}
             </button>
           </div>
         </div>
       ) : (
-        <p className={`text-[15px] ${value ? 'text-gray-700' : 'text-gray-400'}`}>
+        <p
+          className={`text-[15px] ${value ? 'text-foreground' : 'text-foreground-subtle'}`}
+        >
           {value || placeholder}
         </p>
       )}
@@ -146,19 +156,19 @@ function PasswordInput({
   const [show, setShow] = useState(false)
   return (
     <div className="flex flex-col gap-1.5">
-      <span className="text-[14px] font-semibold text-gray-900">{label}</span>
+      <span className="text-[14px] font-semibold text-foreground">{label}</span>
       <div className="relative">
         <input
           type={show ? 'text' : 'password'}
           value={value}
           onChange={(e) => onChange(e.target.value)}
           placeholder={placeholder}
-          className="w-full rounded-[10px] border border-gray-200 bg-gray-50 px-4 py-3 pr-11 text-sm text-gray-900 outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-400 focus:ring-offset-2"
+          className="w-full rounded-[10px] border border-border bg-surface-muted px-4 py-3 pr-11 text-sm text-foreground outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-400 focus:ring-offset-2"
         />
         <button
           type="button"
           onClick={() => setShow((v) => !v)}
-          className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 focus-visible:outline-none"
+          className="absolute right-3 top-1/2 -translate-y-1/2 text-foreground-subtle hover:text-foreground-muted focus-visible:outline-none"
           tabIndex={-1}
           aria-label={show ? 'Hide password' : 'Show password'}
         >
@@ -169,7 +179,11 @@ function PasswordInput({
   )
 }
 
-function PasswordCard({ dimmed = false, onEditStart, onEditEnd }: PasswordCardProps) {
+function PasswordCard({
+  dimmed = false,
+  onEditStart,
+  onEditEnd,
+}: PasswordCardProps) {
   const [editing, setEditing] = useState(false)
   const [current, setCurrent] = useState('')
   const [newPwd, setNewPwd] = useState('')
@@ -178,7 +192,9 @@ function PasswordCard({ dimmed = false, onEditStart, onEditEnd }: PasswordCardPr
   const [error, setError] = useState<string | null>(null)
 
   function startEdit() {
-    setCurrent(''); setNewPwd(''); setConfirm('')
+    setCurrent('')
+    setNewPwd('')
+    setConfirm('')
     setError(null)
     setEditing(true)
     onEditStart('password')
@@ -194,12 +210,19 @@ function PasswordCard({ dimmed = false, onEditStart, onEditEnd }: PasswordCardPr
     setSaving(true)
     setError(null)
     try {
-      await changePassword({ currentPassword: current, newPassword: newPwd, confirmPassword: confirm })
+      await changePassword({
+        currentPassword: current,
+        newPassword: newPwd,
+        confirmPassword: confirm,
+      })
       setEditing(false)
       onEditEnd()
       toast.success('Password changed successfully.')
     } catch (err) {
-      const msg = err instanceof ApiClientError ? err.message : 'Failed to change password. Please try again.'
+      const msg =
+        err instanceof ApiClientError
+          ? err.message
+          : 'Failed to change password. Please try again.'
       setError(msg)
       toast.error(msg)
     } finally {
@@ -208,9 +231,13 @@ function PasswordCard({ dimmed = false, onEditStart, onEditEnd }: PasswordCardPr
   }
 
   return (
-    <div className={`rounded-[12px] border border-gray-200 bg-white p-5 transition-opacity ${dimmed ? 'opacity-40' : 'opacity-100'}`}>
+    <div
+      className={`rounded-[12px] border border-border bg-surface p-5 transition-opacity ${dimmed ? 'opacity-40' : 'opacity-100'}`}
+    >
       <div className="flex items-center justify-between mb-3">
-        <span className={`text-[15px] font-semibold ${editing ? 'text-gray-900' : 'text-gray-500'}`}>
+        <span
+          className={`text-[15px] font-semibold ${editing ? 'text-foreground' : 'text-foreground-muted'}`}
+        >
           Password
         </span>
         {!editing && (
@@ -218,7 +245,7 @@ function PasswordCard({ dimmed = false, onEditStart, onEditEnd }: PasswordCardPr
             type="button"
             onClick={startEdit}
             disabled={dimmed}
-            className="text-[13px] font-semibold text-[#6962AC] hover:underline focus-visible:outline-none disabled:pointer-events-none"
+            className="text-[13px] font-semibold text-brand hover:underline focus-visible:outline-none disabled:pointer-events-none"
           >
             EDIT
           </button>
@@ -227,25 +254,53 @@ function PasswordCard({ dimmed = false, onEditStart, onEditEnd }: PasswordCardPr
 
       {editing ? (
         <div className="flex flex-col gap-4">
-          <PasswordInput label="Current Password" placeholder="Enter current password (Mandatory)" value={current} onChange={setCurrent} />
-          <PasswordInput label="New Password" placeholder="Enter new password (Mandatory)" value={newPwd} onChange={setNewPwd} />
-          <PasswordInput label="Confirm New Password" placeholder="Confirm new password (Mandatory)" value={confirm} onChange={setConfirm} />
-          <div className="flex items-start gap-2 text-[13px] text-gray-500">
-            <InfoIcon size={15} className="shrink-0 mt-0.5 text-yellow-500" />
-            <span>Please note, your password must be at least 8 characters and cannot contain any space.</span>
+          <PasswordInput
+            label="Current Password"
+            placeholder="Enter current password (Mandatory)"
+            value={current}
+            onChange={setCurrent}
+          />
+          <PasswordInput
+            label="New Password"
+            placeholder="Enter new password (Mandatory)"
+            value={newPwd}
+            onChange={setNewPwd}
+          />
+          <PasswordInput
+            label="Confirm New Password"
+            placeholder="Confirm new password (Mandatory)"
+            value={confirm}
+            onChange={setConfirm}
+          />
+          <div className="flex items-start gap-2 text-[13px] text-foreground-muted">
+            <InfoIcon size={15} className="shrink-0 mt-0.5 text-warning" />
+            <span>
+              Please note, your password must be at least 8 characters and
+              cannot contain any space.
+            </span>
           </div>
-          {error ? <p className="text-xs text-red-500">{error}</p> : null}
+          {error ? <p className="text-xs text-danger">{error}</p> : null}
           <div className="flex items-center gap-3">
-            <button type="button" onClick={cancelEdit} disabled={saving} className="px-6 py-2.5 rounded-[10px] border-2 border-gray-800 text-sm font-semibold text-gray-800 bg-white hover:bg-gray-50 disabled:opacity-60 transition-colors">
+            <button
+              type="button"
+              onClick={cancelEdit}
+              disabled={saving}
+              className="px-6 py-2.5 rounded-[10px] border-2 border-gray-800 text-sm font-semibold text-foreground bg-surface hover:bg-surface-muted disabled:opacity-60 transition-colors"
+            >
               Cancel
             </button>
-            <button type="button" onClick={() => void save()} disabled={saving} className="px-6 py-2.5 rounded-[10px] bg-[#4B44A8] text-white text-sm font-semibold hover:bg-[#3d379a] disabled:opacity-60 transition-colors">
+            <button
+              type="button"
+              onClick={() => void save()}
+              disabled={saving}
+              className="px-6 py-2.5 rounded-[10px] bg-brand text-brand-foreground text-sm font-semibold hover:bg-brand disabled:opacity-60 transition-colors"
+            >
               {saving ? 'Saving…' : 'Save'}
             </button>
           </div>
         </div>
       ) : (
-        <p className="text-[15px] text-gray-700">••••••••</p>
+        <p className="text-[15px] text-foreground">••••••••</p>
       )}
     </div>
   )
@@ -265,7 +320,9 @@ export function ProfileDetailsTab() {
 
   const { mutateAsync: saveProfile } = useMutation({
     mutationFn: updateProfile,
-    onSuccess: (updated) => { queryClient.setQueryData(['profile'], updated) },
+    onSuccess: (updated) => {
+      queryClient.setQueryData(['profile'], updated)
+    },
   })
 
   return (
@@ -276,7 +333,9 @@ export function ProfileDetailsTab() {
         value={profile?.name ?? null}
         placeholder="Enter your name"
         dimmed={activeEditId !== null && activeEditId !== 'name'}
-        onSave={async (name) => { await saveProfile({ name }) }}
+        onSave={async (name) => {
+          await saveProfile({ name })
+        }}
         onEditStart={setActiveEditId}
         onEditEnd={() => setActiveEditId(null)}
       />
@@ -286,7 +345,9 @@ export function ProfileDetailsTab() {
         value={profile?.mobile ?? null}
         placeholder="Enter your phone number"
         dimmed={activeEditId !== null && activeEditId !== 'phone'}
-        onSave={async (mobile) => { await saveProfile({ mobile }) }}
+        onSave={async (mobile) => {
+          await saveProfile({ mobile })
+        }}
         onEditStart={setActiveEditId}
         onEditEnd={() => setActiveEditId(null)}
       />

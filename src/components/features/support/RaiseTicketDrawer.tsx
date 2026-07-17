@@ -44,7 +44,11 @@ export function RaiseTicketDrawer({
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent
         side="right"
-        className="flex w-full flex-col gap-0 p-0 sm:max-w-[480px]"
+        // Raise above every page-level fixed bar — the mobile tab bar (z-[200])
+        // and the assignment detail sticky footer (z-[80]) — so the drawer and
+        // its Create Ticket CTA are never hidden behind them.
+        className="z-[210] flex w-full flex-col gap-0 p-0 sm:max-w-[480px]"
+        overlayClassName="z-[210]"
         showCloseButton={false}
       >
         {open && (
@@ -74,12 +78,14 @@ function RaiseTicketDrawerBody({
   const { data: overview, isLoading } = useQuery(supportOverviewQuery())
 
   const batches = overview?.batches ?? []
-  const effectiveBatchId = batchId ?? (batches.length === 1 ? String(batches[0].id) : null)
+  const effectiveBatchId =
+    batchId ?? (batches.length === 1 ? String(batches[0].id) : null)
 
   // Single batch → auto-select; multiple → show the picker first.
   useEffect(() => {
     if (batches.length === 1 && !batchId) setBatchId(String(batches[0].id))
-    else if (batches.length > 1 && !batchId && step === 'issue') setStep('batches')
+    else if (batches.length > 1 && !batchId && step === 'issue')
+      setStep('batches')
   }, [batches, batchId, step])
 
   const pickSubcategory = (cat: string, sub: string) => {
@@ -103,33 +109,43 @@ function RaiseTicketDrawerBody({
   }
 
   const title =
-    step === 'conversation' ? 'Raise Ticket' : step === 'batches' ? 'Select Batch' : 'Raise a Ticket'
+    step === 'conversation'
+      ? 'Raise Ticket'
+      : step === 'batches'
+        ? 'Select Batch'
+        : 'Raise a Ticket'
 
   return (
     <>
       <SheetTitle className="sr-only">{title}</SheetTitle>
 
-      <div className="flex shrink-0 items-center gap-3 border-b border-gray-200 px-4 py-4">
+      <div className="flex shrink-0 items-center gap-3 border-b border-border px-4 py-4">
         <button
           aria-label="Back"
           onClick={handleBack}
-          className="rounded-lg p-1 transition-colors hover:bg-gray-100"
+          className="rounded-lg p-1 transition-colors hover:bg-surface-muted"
         >
-          <ArrowLeft className="size-4 text-gray-700" />
+          <ArrowLeft className="size-4 text-foreground" />
         </button>
-        <h2 className="font-poppins text-[16px] font-semibold text-gray-900">{title}</h2>
+        <h2 className="font-poppins text-[16px] font-semibold text-foreground">
+          {title}
+        </h2>
       </div>
 
       <div className="flex flex-1 flex-col overflow-hidden">
         {isLoading && (
           <div className="flex flex-1 items-center justify-center">
-            <p className="font-poppins text-sm text-gray-500">Loading…</p>
+            <p className="font-poppins text-sm text-foreground-muted">
+              Loading…
+            </p>
           </div>
         )}
 
         {!isLoading && step === 'batches' && (
           <div className="space-y-3 overflow-y-auto p-4">
-            <p className="font-poppins text-[13px] text-gray-600">Select a batch to continue</p>
+            <p className="font-poppins text-[13px] text-foreground-muted">
+              Select a batch to continue
+            </p>
             {batches.map((b) => (
               <button
                 key={b.id}
@@ -138,10 +154,10 @@ function RaiseTicketDrawerBody({
                   setBatchId(String(b.id))
                   setStep('issue')
                 }}
-                className="w-full rounded-xl border border-gray-200 bg-white p-4 text-left transition-shadow hover:shadow-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                className="w-full rounded-xl border border-border bg-surface p-4 text-left transition-shadow hover:shadow-md focus:outline-none focus:ring-2 focus:ring-brand focus:ring-offset-2"
               >
-                <div className="mb-1 text-xs text-gray-500">Batch</div>
-                <div className="truncate text-sm font-semibold text-gray-900">
+                <div className="mb-1 text-xs text-foreground-muted">Batch</div>
+                <div className="truncate text-sm font-semibold text-foreground">
                   {b.name || `Batch ${b.id}`}
                 </div>
               </button>

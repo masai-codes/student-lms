@@ -19,7 +19,9 @@ vi.mock('@/lib/api/learn/assignmentDetailActionsApi', () => ({
   uploadSolutionFile: hoisted.uploadSolutionFile,
 }))
 
-function detail(overrides: Partial<ProblemDetailPayload> = {}): ProblemDetailPayload {
+function detail(
+  overrides: Partial<ProblemDetailPayload> = {},
+): ProblemDetailPayload {
   return {
     assignmentId: 99,
     problemId: 11,
@@ -39,8 +41,14 @@ function detail(overrides: Partial<ProblemDetailPayload> = {}): ProblemDetailPay
 describe('ProblemSolutionForm', () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    hoisted.submitSolutionLink.mockResolvedValue({ status: 'submitted', submissionLink: 'x' })
-    hoisted.uploadSolutionFile.mockResolvedValue({ status: 'submitted', submissionLink: 'x' })
+    hoisted.submitSolutionLink.mockResolvedValue({
+      status: 'submitted',
+      submissionLink: 'x',
+    })
+    hoisted.uploadSolutionFile.mockResolvedValue({
+      status: 'submitted',
+      submissionLink: 'x',
+    })
     hoisted.invalidate.mockResolvedValue(undefined)
   })
 
@@ -74,7 +82,10 @@ describe('ProblemSolutionForm', () => {
     fireEvent.click(scope.getByTestId('problem-solution-link-submit'))
 
     await waitFor(() => {
-      expect(hoisted.submitSolutionLink).toHaveBeenCalledWith(7, 'https://x.test')
+      expect(hoisted.submitSolutionLink).toHaveBeenCalledWith(
+        7,
+        'https://x.test',
+      )
       expect(hoisted.invalidate).toHaveBeenCalledTimes(1)
     })
   })
@@ -97,7 +108,9 @@ describe('ProblemSolutionForm', () => {
   })
 
   it('surfaces a submission error', async () => {
-    hoisted.submitSolutionLink.mockRejectedValueOnce(new Error('SOLUTION_NOT_FOUND'))
+    hoisted.submitSolutionLink.mockRejectedValueOnce(
+      new Error('SOLUTION_NOT_FOUND'),
+    )
     const { container } = render(<ProblemSolutionForm detail={detail()} />)
     const scope = within(container)
 
@@ -107,7 +120,9 @@ describe('ProblemSolutionForm', () => {
     fireEvent.click(scope.getByTestId('problem-solution-link-submit'))
 
     await waitFor(() => {
-      expect(scope.getByRole('alert').textContent).toContain('SOLUTION_NOT_FOUND')
+      expect(scope.getByRole('alert').textContent).toContain(
+        'SOLUTION_NOT_FOUND',
+      )
     })
     expect(hoisted.invalidate).not.toHaveBeenCalled()
   })

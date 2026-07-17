@@ -67,7 +67,7 @@ export default function WeeklyConnectsSection({
               })
               onViewSchedule?.()
             }}
-            className="text-[14px] font-medium text-masaiverse-orange hover:underline"
+            className="text-[14px] font-medium text-accent-warm hover:underline"
           >
             {scheduleOpen ? 'Hide schedule →' : 'See schedule →'}
           </button>
@@ -83,12 +83,12 @@ export default function WeeklyConnectsSection({
           {repeat(3, (key) => (
             <div
               key={key}
-              className="h-[84px] animate-pulse rounded-[16px] bg-[#EDEAE8]"
+              className="h-[84px] animate-pulse rounded-[16px] bg-surface-muted"
             />
           ))}
         </div>
       ) : connects.length === 0 ? (
-        <p className="text-[14px] text-[#6B7280]">
+        <p className="text-[14px] text-foreground-muted">
           No weekly connects scheduled yet.
         </p>
       ) : (
@@ -99,7 +99,10 @@ export default function WeeklyConnectsSection({
           navLabel="weekly connects"
           // One wide row at a time on phones, easing up to ~two on desktop.
           slidesPerView={1.05}
-          breakpoints={{ 768: { slidesPerView: 1.8 }, 1024: { slidesPerView: 2.2 } }}
+          breakpoints={{
+            768: { slidesPerView: 1.8 },
+            1024: { slidesPerView: 2.2 },
+          }}
           renderItem={(connect) => (
             <WeeklyConnectRow connect={connect} now={now} />
           )}

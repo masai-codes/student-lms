@@ -21,6 +21,8 @@ describe('buildLectureAttendanceSummary', () => {
         includeVideoAttendance: 1,
         catchUpDays: 5,
         lateByMinutes: null,
+        liveAttendanceStatus: 1,
+        videoAttendanceStatus: 1,
         meta: { notApplicable: false },
       },
       Date.now(),
@@ -40,5 +42,17 @@ describe('buildLectureAttendanceSummary', () => {
     expect(summary.notApplicable).toBe(true)
     expect(summary.daysRemaining).toBe(2)
     expect(summary.isCatchupWindowOver).toBe(false)
+  })
+
+  it('carries the live video watch percentage from video_attendances', () => {
+    const summary = buildLectureAttendanceSummary(context, null, Date.now(), 40)
+
+    expect(summary.watchPercentage).toBe(40)
+  })
+
+  it('defaults watch percentage to 0 when no watch row exists', () => {
+    const summary = buildLectureAttendanceSummary(context, null, Date.now())
+
+    expect(summary.watchPercentage).toBe(0)
   })
 })

@@ -19,7 +19,10 @@ export async function getLectureFeedbackRecord(
   lectureId: number,
 ): Promise<LectureFeedbackRecord> {
   const rows = await db
-    .select({ rating: lectureFeedback.rating, feedback: lectureFeedback.feedback })
+    .select({
+      rating: lectureFeedback.rating,
+      feedback: lectureFeedback.feedback,
+    })
     .from(lectureFeedback)
     .where(
       and(
@@ -31,7 +34,10 @@ export async function getLectureFeedbackRecord(
 
   const row = rows.at(0)
   if (!row) return { rating: null, text: null }
-  return { rating: row.rating > 0 ? row.rating : null, text: row.feedback ?? null }
+  return {
+    rating: row.rating > 0 ? row.rating : null,
+    text: row.feedback ?? null,
+  }
 }
 
 /** Create or update the user's feedback row for a lecture (idempotent upsert). */
@@ -100,7 +106,6 @@ export async function submitLectureFeedback(input: {
 
   const allowed = await ensureUserCanAccessLearnHubEntity(
     input.userId,
-    lecture.batchId,
     lecture.sectionId,
   )
   if (!allowed) {

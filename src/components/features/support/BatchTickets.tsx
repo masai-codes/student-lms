@@ -44,9 +44,12 @@ export function BatchTickets() {
   const [selectedReason, setSelectedReason] = useState<string | null>(null)
   const [selectedTimeslot, setSelectedTimeslot] = useState<string | null>(null)
 
-  const { data: overview, isLoading, isError, refetch } = useQuery(
-    supportOverviewQuery(search.batchId),
-  )
+  const {
+    data: overview,
+    isLoading,
+    isError,
+    refetch,
+  } = useQuery(supportOverviewQuery(search.batchId))
   const batches = overview?.batches ?? []
 
   // No auto-select: the Help tab shows the batch picker by default and a batch
@@ -169,7 +172,7 @@ export function BatchTickets() {
         <div className="overflow-hidden">
           {/* Header: tabs + contact + callback button */}
           <div className="flex flex-col sm:flex-row sm:items-stretch sm:justify-between">
-            <div className="min-w-0 flex-1 border-b border-gray-200 bg-[#F9FAFB]">
+            <div className="min-w-0 flex-1 border-b border-border bg-surface-muted">
               <div className="px-4 pt-3 md:px-6 md:pt-4">
                 <div className="flex gap-2">
                   {tabs.map((t) => {
@@ -179,10 +182,11 @@ export function BatchTickets() {
                         key={t.value}
                         type="button"
                         onClick={() => handleTabChange(t.value)}
-                        className={`font-poppins rounded-t-lg px-4 py-2.5 text-[14px] font-[500] transition-colors ${active
-                          ? 'bg-white text-[#6962AC] border border-b-0 border-gray-200'
-                          : 'text-gray-600 hover:text-gray-900'
-                          }`}
+                        className={`font-poppins rounded-t-lg px-4 py-2.5 text-[14px] font-[500] transition-colors ${
+                          active
+                            ? 'bg-surface text-brand border border-b-0 border-border'
+                            : 'text-foreground-muted hover:text-foreground'
+                        }`}
                       >
                         {t.label}
                       </button>
@@ -191,8 +195,8 @@ export function BatchTickets() {
                 </div>
               </div>
               {showContact && (
-                <div className="border-t border-gray-200 px-4 py-3 md:px-6">
-                  <p className="font-poppins text-[11px] text-gray-600 md:text-[13px] md:text-gray-700">
+                <div className="border-t border-border px-4 py-3 md:px-6">
+                  <p className="font-poppins text-[11px] text-foreground-muted md:text-[13px] md:text-foreground">
                     {contact?.text}
                     {contact?.phone && (
                       <span className="whitespace-nowrap">
@@ -210,7 +214,7 @@ export function BatchTickets() {
               )}
             </div>
             {showCallbackButton && (
-              <div className="flex flex-wrap items-center gap-2 border-b border-gray-200 bg-[#F9FAFB] px-4 py-3 sm:bg-transparent sm:px-0 sm:pb-3 sm:pr-4 sm:pt-3">
+              <div className="flex flex-wrap items-center gap-2 border-b border-border bg-surface-muted px-4 py-3 sm:bg-transparent sm:px-0 sm:pb-3 sm:pr-4 sm:pt-3">
                 <button
                   type="button"
                   onClick={() => {
@@ -218,7 +222,7 @@ export function BatchTickets() {
                     setSelectedTimeslot(null)
                     setCallbackStep('reason')
                   }}
-                  className="shrink-0 rounded-lg border border-gray-300 bg-white py-2 px-3 font-poppins text-[12px] font-semibold text-gray-800 transition-colors hover:bg-gray-50 sm:text-[13px]"
+                  className="shrink-0 rounded-lg border border-border-strong bg-surface py-2 px-3 font-poppins text-[12px] font-semibold text-foreground transition-colors hover:bg-surface-muted sm:text-[13px]"
                 >
                   <Phone
                     className="mr-1.5 inline-block h-3.5 w-3.5"
@@ -232,10 +236,11 @@ export function BatchTickets() {
 
           {/* Tab body */}
           <div
-            className={`relative z-0 min-h-[320px] bg-white border border-gray-200 ${activeTab === 'support-tickets'
-              ? 'rounded-xl'
-              : 'rounded-b-xl rounded-tr-xl sm:rounded-tl-xl'
-              }`}
+            className={`relative z-0 min-h-[320px] bg-surface border border-border ${
+              activeTab === 'support-tickets'
+                ? 'rounded-xl'
+                : 'rounded-b-xl rounded-tr-xl sm:rounded-tl-xl'
+            }`}
           >
             {activeTab === 'support-tickets' ? (
               <div className="p-4 md:p-6">
@@ -382,7 +387,7 @@ function HelpTab(props: {
   if (isLoading) {
     return (
       <div className="flex min-h-[200px] items-center justify-center p-8">
-        <p className="font-poppins text-sm text-gray-500">Loading…</p>
+        <p className="font-poppins text-sm text-foreground-muted">Loading…</p>
       </div>
     )
   }
@@ -390,11 +395,13 @@ function HelpTab(props: {
   if (isError) {
     return (
       <div className="flex min-h-[200px] flex-col items-center justify-center gap-3 p-8 text-center">
-        <p className="font-poppins text-sm text-gray-700">Couldn’t load your support details.</p>
+        <p className="font-poppins text-sm text-foreground">
+          Couldn’t load your support details.
+        </p>
         <button
           type="button"
           onClick={onRetry}
-          className="rounded-lg border border-gray-300 bg-white px-4 py-2 font-poppins text-[13px] font-semibold text-gray-800 hover:bg-gray-50"
+          className="rounded-lg border border-border-strong bg-surface px-4 py-2 font-poppins text-[13px] font-semibold text-foreground hover:bg-surface-muted"
         >
           Try again
         </button>
@@ -405,20 +412,22 @@ function HelpTab(props: {
   if (batches.length === 0) {
     return (
       <div className="flex min-h-[200px] flex-col items-center justify-center gap-2 p-8 text-center">
-        <p className="font-poppins text-[15px] font-semibold text-gray-900">No batches found</p>
-        <p className="font-poppins text-[13px] text-gray-500">
-          We couldn’t find any batch linked to your account. If this looks wrong, please reach
-          out to your program team.
+        <p className="font-poppins text-[15px] font-semibold text-foreground">
+          No batches found
+        </p>
+        <p className="font-poppins text-[13px] text-foreground-muted">
+          We couldn’t find any batch linked to your account. If this looks
+          wrong, please reach out to your program team.
         </p>
       </div>
     )
   }
 
   const SearchBar = (
-    <div className="border-b border-gray-200 bg-white px-4 py-4 md:px-6 md:py-5">
+    <div className="border-b border-border bg-surface px-4 py-4 md:px-6 md:py-5">
       <div className="relative">
         <span
-          className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+          className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-foreground-subtle"
           aria-hidden
         >
           <svg
@@ -441,7 +450,7 @@ function HelpTab(props: {
           value={helpSearchQuery}
           onChange={(e) => setHelpSearchQuery(e.target.value)}
           placeholder="Search category and subcategory here"
-          className="font-poppins w-full rounded-xl border border-gray-200 bg-white py-3 pl-11 pr-4 text-[14px] text-gray-800 placeholder:text-gray-400 outline-none transition-colors focus:border-gray-400 focus:ring-2 focus:ring-gray-200"
+          className="font-poppins w-full rounded-xl border border-border bg-surface py-3 pl-11 pr-4 text-[14px] text-foreground placeholder:text-foreground-subtle outline-none transition-colors focus:border-gray-400 focus:ring-2 focus:ring-gray-200"
         />
       </div>
     </div>
@@ -451,17 +460,17 @@ function HelpTab(props: {
     <>
       {/* Selected-batch bar with a way back to the picker (multi-batch). */}
       {canChangeBatch && effectiveBatchId && (
-        <div className="flex items-center justify-between gap-3 border-b border-gray-200 bg-white px-4 py-3 md:px-6">
-          <p className="font-poppins text-[13px] text-gray-700">
+        <div className="flex items-center justify-between gap-3 border-b border-border bg-surface px-4 py-3 md:px-6">
+          <p className="font-poppins text-[13px] text-foreground">
             Batch:{' '}
-            <span className="font-semibold text-gray-900">
+            <span className="font-semibold text-foreground">
               {activeBatchName}
             </span>
           </p>
           <button
             type="button"
             onClick={onChangeBatch}
-            className="font-poppins text-[13px] font-semibold text-[#6962AC] hover:underline"
+            className="font-poppins text-[13px] font-semibold text-brand hover:underline"
           >
             Change batch
           </button>
@@ -469,14 +478,14 @@ function HelpTab(props: {
       )}
 
       {gateReason === 'legal-agreement' && (
-        <div className="mx-4 mb-4 mt-4 rounded-lg border border-[#ED0331] bg-[#FFF0F3] p-4 md:mx-6">
+        <div className="mx-4 mb-4 mt-4 rounded-lg border border-danger bg-danger-subtle p-4 md:mx-6">
           <div className="flex items-center gap-3">
-            <div className="text-[#ED0331] text-lg">⚠️</div>
+            <div className="text-danger text-lg">⚠️</div>
             <div>
-              <h4 className="text-[#ED0331] font-semibold text-lg">
+              <h4 className="text-danger font-semibold text-lg">
                 Access Restricted
               </h4>
-              <p className="text-[#ED0331] text-sm mt-1">
+              <p className="text-danger text-sm mt-1">
                 Your LMS access has been paused as the Terms &amp; Conditions
                 for your program have not yet been accepted. Once you complete
                 this step, your access will be restored immediately.
@@ -487,14 +496,14 @@ function HelpTab(props: {
       )}
 
       {gateReason === 'no-active-section' && (
-        <div className="mx-4 mb-4 mt-4 rounded-lg border border-amber-300 bg-amber-50 p-4 md:mx-6">
+        <div className="mx-4 mb-4 mt-4 rounded-lg border border-warning bg-warning-subtle p-4 md:mx-6">
           <div className="flex items-center gap-3">
-            <div className="text-amber-600 text-lg">⚠️</div>
+            <div className="text-warning text-lg">⚠️</div>
             <div>
-              <h4 className="text-amber-900 font-semibold text-[15px]">
+              <h4 className="text-warning-subtle-foreground font-semibold text-[15px]">
                 No active section yet
               </h4>
-              <p className="text-amber-800 text-sm mt-1">
+              <p className="text-warning-subtle-foreground text-sm mt-1">
                 You’ll be able to raise tickets once you’re placed in an active
                 section. You can still browse topics below.
               </p>
@@ -506,7 +515,7 @@ function HelpTab(props: {
       {/* Batch selection — shown by default until a batch is chosen. */}
       {!effectiveBatchId && (
         <div className="px-4 pt-6 md:px-6">
-          <h3 className="mb-3 font-poppins text-[14px] font-semibold text-gray-900">
+          <h3 className="mb-3 font-poppins text-[14px] font-semibold text-foreground">
             Select a batch to continue
           </h3>
           <div className="mb-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -515,10 +524,10 @@ function HelpTab(props: {
                 key={batch.id}
                 type="button"
                 onClick={() => onSelectBatch(String(batch.id))}
-                className="w-full rounded-2xl border border-gray-200 bg-white p-4 text-left shadow-sm hover:shadow-md transition-shadow focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                className="w-full rounded-2xl border border-border bg-surface p-4 text-left shadow-sm hover:shadow-md transition-shadow focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand"
               >
-                <div className="text-xs text-gray-500 mb-1">Batch</div>
-                <div className="text-sm font-semibold text-gray-900 truncate">
+                <div className="text-xs text-foreground-muted mb-1">Batch</div>
+                <div className="text-sm font-semibold text-foreground truncate">
                   {batch.name || `Batch ${batch.id}`}
                 </div>
               </button>
@@ -542,12 +551,12 @@ function HelpTab(props: {
           <>
             {SearchBar}
             {helpSearchQuery.trim() ? (
-              <div className="px-4 py-6 text-sm text-gray-600 md:px-6">
+              <div className="px-4 py-6 text-sm text-foreground-muted md:px-6">
                 No matching category or subcategory found.
               </div>
             ) : (
               <div className="mt-6 flex flex-col gap-4 px-4 py-6 md:flex-row md:items-center md:justify-between md:px-6">
-                <p className="text-[11px] md:text-sm text-gray-800 max-w-2xl leading-relaxed">
+                <p className="text-[11px] md:text-sm text-foreground max-w-2xl leading-relaxed">
                   <span className="font-semibold">
                     Have doubts about your program?
                   </span>{' '}
@@ -557,7 +566,7 @@ function HelpTab(props: {
                 <button
                   type="button"
                   onClick={onFallbackCreate}
-                  className="w-full md:w-auto bg-white text-[#6962AC] hover:opacity-90 font-semibold rounded-full py-2.5 px-5 shadow-sm border border-[#6962AC] font-poppins text-[13px] md:text-[14px] whitespace-nowrap"
+                  className="w-full md:w-auto bg-surface text-brand hover:opacity-90 font-semibold rounded-full py-2.5 px-5 shadow-sm border border-brand font-poppins text-[13px] md:text-[14px] whitespace-nowrap"
                 >
                   Create Ticket
                 </button>
@@ -598,15 +607,15 @@ function CallbackFlow(props: {
           aria-hidden
           onClick={onClose}
         />
-        <div className="fixed left-1/2 top-1/2 z-[203] w-[90vw] max-w-[500px] -translate-x-1/2 -translate-y-1/2 rounded-2xl bg-white p-6 shadow-xl">
+        <div className="fixed left-1/2 top-1/2 z-[203] w-[90vw] max-w-[500px] -translate-x-1/2 -translate-y-1/2 rounded-2xl bg-surface p-6 shadow-xl">
           <div className="flex flex-col items-center text-center pt-2 pb-1">
-            <div className="w-14 h-14 rounded-full bg-[#D1FAE5] border-2 border-[#10B981] flex items-center justify-center mb-4 text-2xl">
+            <div className="w-14 h-14 rounded-full bg-success-subtle border-2 border-success flex items-center justify-center mb-4 text-2xl">
               ✓
             </div>
-            <h2 className="text-xl font-bold font-poppins text-gray-900 mb-3">
+            <h2 className="text-xl font-bold font-poppins text-foreground mb-3">
               Callback Requested Successfully
             </h2>
-            <p className="text-sm font-poppins text-gray-600 leading-relaxed mb-6 max-w-[320px]">
+            <p className="text-sm font-poppins text-foreground-muted leading-relaxed mb-6 max-w-[320px]">
               {selectedTimeslot
                 ? `Our team will reach out to you within 48 hours during ${selectedTimeslot}.`
                 : 'Our team will reach out to you within 48 hours.'}
@@ -614,7 +623,7 @@ function CallbackFlow(props: {
             <button
               type="button"
               onClick={onClose}
-              className="w-full max-w-[150px] py-2 rounded-lg bg-[#6962AC] hover:bg-[#5B548F] text-white font-poppins font-semibold text-[14px] transition-colors"
+              className="w-full max-w-[150px] py-2 rounded-lg bg-brand hover:bg-[#5B548F] text-brand-foreground font-poppins font-semibold text-[14px] transition-colors"
             >
               Got It
             </button>
@@ -637,15 +646,15 @@ function CallbackFlow(props: {
         aria-hidden
         onClick={onClose}
       />
-      <div className="fixed top-20 right-2 bottom-2 z-[201] w-full max-w-[400px] bg-white rounded-2xl shadow-xl flex flex-col">
-        <div className="flex items-center justify-between p-5 border-b border-gray-200">
-          <h2 className="text-lg font-bold font-poppins text-gray-900">
+      <div className="fixed top-20 right-2 bottom-2 z-[201] w-full max-w-[400px] bg-surface rounded-2xl shadow-xl flex flex-col">
+        <div className="flex items-center justify-between p-5 border-b border-border">
+          <h2 className="text-lg font-bold font-poppins text-foreground">
             {title}
           </h2>
           <button
             type="button"
             onClick={onClose}
-            className="p-1.5 rounded-lg text-gray-500 hover:bg-gray-100 hover:text-gray-700"
+            className="p-1.5 rounded-lg text-foreground-muted hover:bg-surface-muted hover:text-foreground"
             aria-label="Close"
           >
             ✕
@@ -659,11 +668,11 @@ function CallbackFlow(props: {
               onClick={() =>
                 isReason ? onPickReason(value) : onPickTimeslot(value)
               }
-              className="w-full flex items-center justify-between rounded-xl border border-gray-200 bg-white px-4 py-3.5 text-left font-poppins text-[14px] font-medium text-gray-900 hover:bg-gray-50 hover:border-gray-300 transition-colors"
+              className="w-full flex items-center justify-between rounded-xl border border-border bg-surface px-4 py-3.5 text-left font-poppins text-[14px] font-medium text-foreground hover:bg-surface-muted hover:border-border-strong transition-colors"
             >
               <span>{value}</span>
               <svg
-                className="w-5 h-5 text-gray-400 shrink-0"
+                className="w-5 h-5 text-foreground-subtle shrink-0"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"

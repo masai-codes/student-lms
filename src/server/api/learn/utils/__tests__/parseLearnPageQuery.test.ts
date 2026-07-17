@@ -3,7 +3,9 @@ import { describe, expect, it } from 'vitest'
 import { parseLearnPageQuery } from '@/server/api/learn/utils/parseLearnPageQuery'
 
 function parse(query: string) {
-  return parseLearnPageQuery(new URL(`http://localhost/api/learn/page?${query}`))
+  return parseLearnPageQuery(
+    new URL(`http://localhost/api/learn/page?${query}`),
+  )
 }
 
 describe('parseLearnPageQuery', () => {
@@ -48,12 +50,16 @@ describe('parseLearnPageQuery', () => {
   })
 
   it('maps the legacy optional + assignmentTab params', () => {
-    const result = parse('learningType=assignment&optional=no&assignmentTab=overdue')
+    const result = parse(
+      'learningType=assignment&optional=no&assignmentTab=overdue',
+    )
     expect(result.filters?.priorities).toEqual(['mandatory'])
     expect(result.filters?.assignmentProgressStatuses).toEqual(['overdue'])
   })
 
   it('returns undefined filters when nothing filterable is provided', () => {
-    expect(parse('learningType=resource&lectureTab=all').filters).toBeUndefined()
+    expect(
+      parse('learningType=resource&lectureTab=all').filters,
+    ).toBeUndefined()
   })
 })

@@ -20,7 +20,7 @@ export default function StatsSection() {
         const accent = ACCENT_STYLES[card.accent]
         const count = data?.stats[card.metric]
         return (
-          <div className="flex h-full items-center gap-3 rounded-[16px] border border-[#EDEAE8] bg-white p-4">
+          <div className="flex h-full items-center gap-3 rounded-[16px] border border-border bg-surface p-4">
             <span
               className="flex size-10 shrink-0 items-center justify-center rounded-[12px] text-[18px]"
               style={{ backgroundColor: accent.iconBg }}
@@ -30,7 +30,7 @@ export default function StatsSection() {
             <div className="min-w-0">
               {isPending ? (
                 <div
-                  className="h-7 w-12 animate-pulse rounded bg-[#EDEAE8]"
+                  className="h-7 w-12 animate-pulse rounded bg-surface-muted"
                   aria-hidden
                 />
               ) : (
@@ -43,7 +43,7 @@ export default function StatsSection() {
                     : count.toLocaleString('en-IN')}
                 </p>
               )}
-              <p className="break-words text-[13px] leading-4 text-[#6B7280]">
+              <p className="break-words text-[13px] leading-4 text-foreground-muted">
                 {card.label}
               </p>
             </div>

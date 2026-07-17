@@ -18,9 +18,11 @@ const createCallbackSchema = z.object({
   preferredTimeSlot: z.string().nullish(),
 })
 
-export async function handleCreateCallback(request: Request): Promise<Response> {
+export async function handleCreateCallback(
+  request: Request,
+): Promise<Response> {
   try {
-    const userId = await requireSessionUserId(request)
+    const userId = await requireSessionUserId()
     const body = await readJsonBody(request, createCallbackSchema)
     const result = await createCallback({ userId, ...body })
     return jsonOk(result)

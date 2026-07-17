@@ -3,10 +3,12 @@ import { jsonOk, mapThrownErrorToResponse } from '@/server/api/http/responses'
 import { requireSessionUserId } from '@/server/api/http/requireSessionUser'
 import { recordGuidedTourStepCompleted } from '@/server/api/dashboard/recordGuidedTourStepCompleted.service'
 
-export async function handleRecordGuidedTourStepCompleted(request: Request): Promise<Response> {
+export async function handleRecordGuidedTourStepCompleted(
+  request: Request,
+): Promise<Response> {
   try {
-    const userId = await requireSessionUserId(request)
-    const body = await request.json() as {
+    const userId = await requireSessionUserId()
+    const body = (await request.json()) as {
       lectureId: number
       batchId: number
       tab: 'lms' | 'program'
@@ -23,7 +25,9 @@ export async function handleRecordGuidedTourStepCompleted(request: Request): Pro
   } catch (error) {
     if (!isApiError(error)) {
       console.error('Failed to record guided tour step completed', error)
-      return mapThrownErrorToResponse(new Error('SERVER_ERROR_RECORDING_GUIDED_TOUR_STEP'))
+      return mapThrownErrorToResponse(
+        new Error('SERVER_ERROR_RECORDING_GUIDED_TOUR_STEP'),
+      )
     }
     return mapThrownErrorToResponse(error)
   }

@@ -10,7 +10,7 @@ import { ensureUserCanAccessLearnHubEntity } from '@/server/learn/utils/ensureLe
 
 export async function assertStudentMayInteractWithDiscussion(
   viewerUserId: number,
-  discussionId: number
+  discussionId: number,
 ): Promise<void> {
   const rows = await db
     .select({
@@ -46,7 +46,10 @@ export async function assertStudentMayInteractWithDiscussion(
       .limit(1)
     const row = a.at(0)
     if (row === undefined) throw new Error('LEARN_DETAIL_NOT_FOUND')
-    const ok = await ensureUserCanAccessLearnHubEntity(viewerUserId, row.batchId, row.sectionId)
+    const ok = await ensureUserCanAccessLearnHubEntity(
+      viewerUserId,
+      row.sectionId,
+    )
     if (!ok) throw new Error('DISCUSSION_FORBIDDEN')
     return
   }
@@ -64,7 +67,10 @@ export async function assertStudentMayInteractWithDiscussion(
     if (row === undefined) {
       throw new Error('LEARN_DETAIL_NOT_FOUND')
     }
-    const ok = await ensureUserCanAccessLearnHubEntity(viewerUserId, row.batchId, row.sectionId)
+    const ok = await ensureUserCanAccessLearnHubEntity(
+      viewerUserId,
+      row.sectionId,
+    )
     if (!ok) throw new Error('DISCUSSION_FORBIDDEN')
     return
   }

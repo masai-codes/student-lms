@@ -1,16 +1,16 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { requireSessionUserId } from '@/server/api/http/requireSessionUser'
+
 const hoisted = vi.hoisted(() => ({
   submit: vi.fn(),
-  getUserIdFromCookieHeader: vi.fn(),
 }))
 
 vi.mock('@/server/learn/services/lectureFeedback.service', () => ({
   submitLectureFeedback: hoisted.submit,
 }))
-vi.mock('@/server/auth/getCurrentSessionUserId', () => ({
-  getUserIdFromCookieHeader: hoisted.getUserIdFromCookieHeader,
-  getUserIdFromRequest: hoisted.getUserIdFromCookieHeader,
+vi.mock('@/server/api/http/requireSessionUser', () => ({
+  requireSessionUserId: vi.fn(),
 }))
 
 function request(body: unknown, cookie: string | null = 'session=abc') {
@@ -32,7 +32,7 @@ async function loadHandler() {
 describe('submitLectureFeedback.handler', () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    hoisted.getUserIdFromCookieHeader.mockResolvedValue(7)
+    vi.mocked(requireSessionUserId).mockResolvedValue(7)
     hoisted.submit.mockResolvedValue({ rating: 5, text: 'Nice' })
   })
 
@@ -61,7 +61,10 @@ describe('submitLectureFeedback.handler', () => {
 
   it('returns 401 when unauthenticated', async () => {
     const handle = await loadHandler()
-    hoisted.getUserIdFromCookieHeader.mockResolvedValueOnce(null)
+    const { ApiError } = await import('@/server/api/http/apiError')
+    vi.mocked(requireSessionUserId).mockRejectedValueOnce(
+      new ApiError(401, 'UNAUTHORIZED'),
+    )
 
     const res = await handle(request({ rating: 5 }, null), '572')
 

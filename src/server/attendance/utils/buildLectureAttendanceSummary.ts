@@ -15,8 +15,15 @@ export function buildLectureAttendanceSummary(
   context: LectureAttendanceContext,
   record: StudentAttendanceRow | null,
   nowMs: number,
+  /**
+   * Live recording watch progress (0–100) from `video_attendances.duration`.
+   * Defaults to 0 when the student has no watch row yet.
+   */
+  videoWatchPercentage = 0,
 ): LectureAttendanceSummary {
-  const sectionSettings = parseSectionAttendanceSettings(context.sectionSettings)
+  const sectionSettings = parseSectionAttendanceSettings(
+    context.sectionSettings,
+  )
   const hasStudentAttendanceEntry = record != null
 
   const catchUpDaysFromRecord = Number(record?.catchUpDays)
@@ -28,17 +35,19 @@ export function buildLectureAttendanceSummary(
         : 0
 
   const includeVideoAttendance =
-    Boolean(record?.includeVideoAttendance) || sectionSettings.enableVideoAttendance
+    Boolean(record?.includeVideoAttendance) ||
+    sectionSettings.enableVideoAttendance
 
   const isAbsent = record != null ? record.status === 0 : true
-  const { daysRemaining, isCatchupWindowOver } = computeCatchUpWindow({
-    schedule: context.schedule,
-    concludes: context.concludes,
-    catchUpDays,
-    includeVideoAttendance,
-    isAbsent,
-    nowMs,
-  })
+  const { daysRemaining, isCatchupWindowOver, remainingLabel } =
+    computeCatchUpWindow({
+      schedule: context.schedule,
+      concludes: context.concludes,
+      catchUpDays,
+      includeVideoAttendance,
+      isAbsent,
+      nowMs,
+    })
 
   const notApplicable = hasStudentAttendanceEntry
     ? readNotApplicable(record?.meta)
@@ -50,7 +59,12 @@ export function buildLectureAttendanceSummary(
     hasStudentAttendanceEntry,
     isCatchupWindowOver,
     videoPercentage: record?.videoPercentage ?? 0,
+    watchPercentage: videoWatchPercentage,
     daysRemaining,
+    remainingLabel,
     lateByMinutes: record?.lateByMinutes ?? null,
+    liveAttendanceStatus: record?.liveAttendanceStatus ?? 0,
+    videoAttendanceStatus: record?.videoAttendanceStatus ?? 0,
+    includeVideoAttendance,
   }
 }

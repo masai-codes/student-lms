@@ -20,8 +20,7 @@ afterEach(() => {
   vi.unstubAllGlobals()
   if (ORIGINAL_BASE === undefined) delete process.env.TOKEN_SERVER_URL
   else process.env.TOKEN_SERVER_URL = ORIGINAL_BASE
-  if (ORIGINAL_TIMEOUT === undefined)
-    delete process.env.TOKEN_SERVER_TIMEOUT_MS
+  if (ORIGINAL_TIMEOUT === undefined) delete process.env.TOKEN_SERVER_TIMEOUT_MS
   else process.env.TOKEN_SERVER_TIMEOUT_MS = ORIGINAL_TIMEOUT
 })
 

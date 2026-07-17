@@ -1,20 +1,17 @@
+import { parseIstToMs } from '@/server/time/istClock'
+
 export type AssignmentProgressStatus =
-  | 'new'
-  | 'in-progress'
-  | 'overdue'
-  | 'completed'
+  'new' | 'in-progress' | 'overdue' | 'completed'
 
 export type AssignmentSubmissionProgress = {
   completed: boolean
   status: string | null
   markAsCompleted: boolean | null
+  /** Latest submission raw score; used by the listing score badge (evaluations). */
+  score?: number
+  /** Latest submission `data` JSON; gates whether the score is released. */
+  data?: Record<string, unknown> | null
 } | null
-
-function toTimestamp(value: string | null): number | null {
-  if (value == null || value.trim() === '') return null
-  const ms = new Date(value).getTime()
-  return Number.isFinite(ms) ? ms : null
-}
 
 /** Mirrors legacy LMS assignment list status (`experience-api` `calculateAssignmentStatus`). */
 export function calculateAssignmentProgressStatus(input: {
@@ -23,8 +20,8 @@ export function calculateAssignmentProgressStatus(input: {
   nowMs: number
   submission: AssignmentSubmissionProgress
 }): AssignmentProgressStatus {
-  const startTime = toTimestamp(input.schedule) ?? 0
-  const concludesTime = toTimestamp(input.concludes)
+  const startTime = parseIstToMs(input.schedule) ?? 0
+  const concludesTime = parseIstToMs(input.concludes)
   const submission = input.submission
 
   if (startTime > 0 && input.nowMs < startTime) {

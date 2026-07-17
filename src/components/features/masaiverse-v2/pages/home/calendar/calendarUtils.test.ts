@@ -61,7 +61,12 @@ describe('localDateKey', () => {
 describe('buildEventsByDate', () => {
   it('buckets events by local day and skips undatable ones', () => {
     const map = buildEventsByDate([
-      { id: 'a', title: 'A', startTime: '2026-06-05T10:00:00Z', clubName: null },
+      {
+        id: 'a',
+        title: 'A',
+        startTime: '2026-06-05T10:00:00Z',
+        clubName: null,
+      },
       {
         id: 'b',
         title: 'B',

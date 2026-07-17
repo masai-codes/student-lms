@@ -12,6 +12,7 @@ export function LearnDetailOverview({
   title,
   hostName,
   displayDate,
+  displayDateIst,
   priority,
   tags,
   actions,
@@ -23,6 +24,7 @@ export function LearnDetailOverview({
       <LearnDetailMetaCard
         hostName={hostName}
         displayDate={displayDate}
+        displayDateIst={displayDateIst}
         priority={priority}
         tags={tags}
         trailingChips={trailingChips}

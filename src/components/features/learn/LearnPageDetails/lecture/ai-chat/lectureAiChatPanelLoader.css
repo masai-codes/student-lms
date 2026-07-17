@@ -13,8 +13,8 @@
   max-width: none;
   pointer-events: none;
   user-select: none;
-  animation: lecture-chat-panel-loader-sweep var(--lecture-chat-loader-duration, 1400ms)
-    linear forwards;
+  animation: lecture-chat-panel-loader-sweep
+    var(--lecture-chat-loader-duration, 1400ms) linear forwards;
 }
 
 @keyframes lecture-chat-panel-loader-sweep {

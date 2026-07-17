@@ -58,9 +58,7 @@ function formatLocalTime(date: Date): string {
  * "May 28 · 2:00 PM (IST)". Returns null when the timestamp is
  * missing or unparseable.
  */
-export function formatLocalDateTime(
-  value: string | null,
-): string | null {
+export function formatLocalDateTime(value: string | null): string | null {
   const date = toLocalDate(value)
   if (!date) return null
   const datePart = new Intl.DateTimeFormat('en-US', {

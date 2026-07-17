@@ -28,13 +28,24 @@ describe('resolveLiveLecturePhase', () => {
     ).toBe('during')
   })
 
-  it('returns after when past concludes', () => {
+  it('stays during within the 30-min post-conclude grace window', () => {
     const concludesMs = new Date(concludes).getTime()
     expect(
       resolveLiveLecturePhase({
         schedule,
         concludes,
-        nowMs: concludesMs + 60_000,
+        nowMs: concludesMs + 20 * 60 * 1000,
+      }),
+    ).toBe('during')
+  })
+
+  it('returns after once past the 30-min grace window', () => {
+    const concludesMs = new Date(concludes).getTime()
+    expect(
+      resolveLiveLecturePhase({
+        schedule,
+        concludes,
+        nowMs: concludesMs + 31 * 60 * 1000,
       }),
     ).toBe('after')
   })

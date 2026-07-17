@@ -1,6 +1,12 @@
 // @vitest-environment jsdom
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
+import {
+  cleanup,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import AdminModeToggle from './AdminModeToggle'
 
@@ -58,7 +64,9 @@ describe('AdminModeToggle', () => {
   it('shows an off switch for an admin with admin mode disabled', async () => {
     fetchAdminMode.mockResolvedValue({ isAdmin: true, enabled: false })
     renderToggle()
-    const toggle = await screen.findByRole('switch', { name: 'Enable admin mode' })
+    const toggle = await screen.findByRole('switch', {
+      name: 'Enable admin mode',
+    })
     expect(toggle.getAttribute('aria-checked')).toBe('false')
     expect(screen.getByText('Admin mode')).toBeTruthy()
   })
@@ -66,7 +74,9 @@ describe('AdminModeToggle', () => {
   it('shows an on switch for an admin with admin mode enabled', async () => {
     fetchAdminMode.mockResolvedValue({ isAdmin: true, enabled: true })
     renderToggle()
-    const toggle = await screen.findByRole('switch', { name: 'Enable admin mode' })
+    const toggle = await screen.findByRole('switch', {
+      name: 'Enable admin mode',
+    })
     expect(toggle.getAttribute('aria-checked')).toBe('true')
   })
 
@@ -75,7 +85,9 @@ describe('AdminModeToggle', () => {
     setAdminMode.mockResolvedValue({ isAdmin: true, enabled: true })
     renderToggle()
 
-    const toggle = await screen.findByRole('switch', { name: 'Enable admin mode' })
+    const toggle = await screen.findByRole('switch', {
+      name: 'Enable admin mode',
+    })
     fireEvent.click(toggle)
 
     await waitFor(() => expect(setAdminMode).toHaveBeenCalledWith(true))

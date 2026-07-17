@@ -21,9 +21,7 @@ function renderWithClient(ui: ReactNode) {
   const client = new QueryClient({
     defaultOptions: { queries: { retry: false } },
   })
-  return render(
-    <QueryClientProvider client={client}>{ui}</QueryClientProvider>,
-  )
+  return render(<QueryClientProvider client={client}>{ui}</QueryClientProvider>)
 }
 
 afterEach(() => {
@@ -59,7 +57,13 @@ describe('GlobalLeaderboardSection', () => {
   it('renders the top members and pins the signed-in member below them', async () => {
     fetchLeaderboard.mockResolvedValue({
       entries: [
-        { rank: 1, userId: '10', name: 'Priya Rajan', avatarUrl: null, points: 940 },
+        {
+          rank: 1,
+          userId: '10',
+          name: 'Priya Rajan',
+          avatarUrl: null,
+          points: 940,
+        },
         {
           rank: 2,
           userId: '20',

@@ -12,7 +12,10 @@ import { ensureUserCanAccessLearnHubEntity } from '@/server/learn/utils/ensureLe
 
 export type CreateLearnDiscussionKind = 'assignment' | 'lecture'
 
-async function resolveDiscussionVisibility(title: string, message: string): Promise<number> {
+async function resolveDiscussionVisibility(
+  title: string,
+  message: string,
+): Promise<number> {
   const isPublic = await checkIfValidQuery(`${title}\n\n${message}`)
   return isPublic ? 1 : 0
 }
@@ -42,15 +45,14 @@ export async function createDiscussionForLearnEntity(options: {
 
     const allowed = await ensureUserCanAccessLearnHubEntity(
       authorUserId,
-      a.batchId,
-      a.sectionId
+      a.sectionId,
     )
     if (!allowed) throw new Error('LEARN_DETAIL_NOT_FOUND')
 
     const assigneeId = await resolveAssigneeFromSection(
       authorUserId,
       a.sectionId,
-      a.instructorId
+      a.instructorId,
     )
 
     const isPublic = await resolveDiscussionVisibility(title, message)
@@ -71,7 +73,12 @@ export async function createDiscussionForLearnEntity(options: {
     const inserted = await db
       .select({ id: discussions.id })
       .from(discussions)
-      .where(and(eq(discussions.entityId, entityId), eq(discussions.userId, authorUserId)))
+      .where(
+        and(
+          eq(discussions.entityId, entityId),
+          eq(discussions.userId, authorUserId),
+        ),
+      )
       .orderBy(desc(discussions.id))
       .limit(1)
 
@@ -98,8 +105,7 @@ export async function createDiscussionForLearnEntity(options: {
 
   const allowed = await ensureUserCanAccessLearnHubEntity(
     authorUserId,
-    L.batchId,
-    L.sectionId
+    L.sectionId,
   )
   if (!allowed) throw new Error('LEARN_DETAIL_NOT_FOUND')
 
@@ -107,7 +113,7 @@ export async function createDiscussionForLearnEntity(options: {
   const assigneeId = await resolveAssigneeFromSection(
     authorUserId,
     L.sectionId,
-    fallbackHost
+    fallbackHost,
   )
 
   const isPublic = await resolveDiscussionVisibility(title, message)
@@ -128,7 +134,12 @@ export async function createDiscussionForLearnEntity(options: {
   const inserted = await db
     .select({ id: discussions.id })
     .from(discussions)
-    .where(and(eq(discussions.entityId, entityId), eq(discussions.userId, authorUserId)))
+    .where(
+      and(
+        eq(discussions.entityId, entityId),
+        eq(discussions.userId, authorUserId),
+      ),
+    )
     .orderBy(desc(discussions.id))
     .limit(1)
 

@@ -18,8 +18,10 @@ export async function markAnnouncementAsUnread(
   `)
 
   const rows = Array.isArray(result)
-    ? (Array.isArray(result[0]) ? result[0] : result) as Array<Record<string, unknown>>
-    : (result as { rows: Array<Record<string, unknown>> }).rows ?? []
+    ? ((Array.isArray(result[0]) ? result[0] : result) as Array<
+        Record<string, unknown>
+      >)
+    : ((result as { rows: Array<Record<string, unknown>> }).rows ?? [])
 
   const trackRead = rows[0]?.track_read
   if (!trackRead || Number(trackRead) === 0) return { skipped: true }
@@ -42,7 +44,7 @@ export async function markAnnouncementAsUnread(
  */
 export async function markMessageAsUnread(
   _userId: number,
-  messageId: number,
+  messageId: string,
 ): Promise<void> {
   await db.execute(sql`
     UPDATE messages

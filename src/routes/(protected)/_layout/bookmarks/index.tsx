@@ -22,8 +22,7 @@ export const Route = createFileRoute('/(protected)/_layout/bookmarks/')({
     const page =
       Number.isFinite(rawPage) && rawPage > 0 ? Math.floor(rawPage) : 1
 
-    const q =
-      typeof raw.q === 'string' && raw.q.length > 0 ? raw.q : undefined
+    const q = typeof raw.q === 'string' && raw.q.length > 0 ? raw.q : undefined
 
     return { tab, page, q }
   },

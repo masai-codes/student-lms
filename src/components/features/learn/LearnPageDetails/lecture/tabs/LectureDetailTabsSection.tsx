@@ -28,7 +28,7 @@ export function LectureDetailTabsSection({
   return (
     <section
       className={cn(
-        'border-b border-border bg-white px-4 py-5 md:px-6',
+        'border-b border-border bg-surface px-4 py-5 md:px-6',
         className,
       )}
     >

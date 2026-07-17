@@ -3,7 +3,7 @@ import type { SQL } from 'drizzle-orm'
 import { db } from '@/db'
 import { posts, replies, users, votes } from '@/db/schema'
 import { parseContentWithTags } from '@/lib/discussionTags'
-import { parseMasaiverseEventDbTimestamp } from '@/lib/eventTimestamps'
+import { parseMasaiverseEventDbTimestamp } from '@/utils/timeZoneHandler'
 
 /** Max search terms honored, to bound the query. */
 const MAX_SEARCH_TERMS = 6

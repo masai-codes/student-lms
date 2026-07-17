@@ -1,6 +1,6 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState } from 'react'
 import { Share2, X } from 'lucide-react'
-import confetti from 'canvas-confetti'
+import { ConfettiOverlay } from '@/components/ui/confetti-overlay'
 import { Modal, ModalContent } from '@/components/ui/modal'
 
 export interface CertificateCardData {
@@ -31,65 +31,6 @@ function formatDate(iso: string | null): string {
   }
 }
 
-function ConfettiCanvas({ open }: { open: boolean }) {
-  const canvasRef = useRef<HTMLCanvasElement>(null)
-  const animFrameRef = useRef<number | null>(null)
-  const instanceRef = useRef<ReturnType<typeof confetti.create> | null>(null)
-
-  useEffect(() => {
-    const canvas = canvasRef.current
-    if (!canvas || !open) return
-
-    // Create a confetti instance bound to this canvas
-    const fire = confetti.create(canvas, { resize: true, useWorker: false })
-    instanceRef.current = fire
-
-    const duration = 3000
-    const end = Date.now() + duration
-
-    function frame() {
-      void fire({
-        particleCount: 6,
-        angle: 60,
-        spread: 55,
-        origin: { x: 0, y: 0.4 },
-        gravity: 1.2,
-        scalar: 0.9,
-        ticks: 150,
-      })
-      void fire({
-        particleCount: 6,
-        angle: 120,
-        spread: 55,
-        origin: { x: 1, y: 0.4 },
-        gravity: 1.2,
-        scalar: 0.9,
-        ticks: 150,
-      })
-
-      if (Date.now() < end) {
-        animFrameRef.current = requestAnimationFrame(frame)
-      } else {
-        void fire({ particleCount: 40, spread: 90, origin: { x: 0.5, y: 0.3 }, ticks: 250, decay: 0.88 })
-      }
-    }
-
-    animFrameRef.current = requestAnimationFrame(frame)
-
-    return () => {
-      if (animFrameRef.current !== null) cancelAnimationFrame(animFrameRef.current)
-      instanceRef.current?.reset()
-    }
-  }, [open])
-
-  return (
-    <canvas
-      ref={canvasRef}
-      className="pointer-events-none absolute inset-0 w-full h-full z-10"
-    />
-  )
-}
-
 export function CertificateViewModal({
   open,
   onClose,
@@ -100,27 +41,35 @@ export function CertificateViewModal({
   certificate: CertificateCardData
 }) {
   return (
-    <Modal open={open} onOpenChange={(v) => { if (!v) onClose() }}>
+    <Modal
+      open={open}
+      onOpenChange={(v) => {
+        if (!v) onClose()
+      }}
+    >
       <ModalContent
         className="max-w-[1000px] w-full rounded-[20px] p-6 shadow-xl overflow-hidden"
         showCloseButton={false}
       >
         {/* Confetti canvas — covers the entire modal */}
-        <ConfettiCanvas open={open} />
+        <ConfettiOverlay active={open} />
 
         <div className="relative z-20 flex flex-col gap-4">
           {/* Header */}
           <div className="flex items-start justify-between gap-4">
             <div>
-              <h2 className="text-lg font-bold text-gray-900">{certificate.certificateTitle ?? 'Certificate'}</h2>
-              <p className="text-sm text-gray-500 mt-0.5">
-                Congratulations on earning this certification! Share your achievement or open it in a new tab.
+              <h2 className="text-lg font-bold text-foreground">
+                {certificate.certificateTitle ?? 'Certificate'}
+              </h2>
+              <p className="text-sm text-foreground-muted mt-0.5">
+                Congratulations on earning this certification! Share your
+                achievement or open it in a new tab.
               </p>
             </div>
             <button
               type="button"
               onClick={onClose}
-              className="shrink-0 text-gray-400 hover:text-gray-600 transition-colors focus-visible:outline-none"
+              className="shrink-0 text-foreground-subtle hover:text-foreground-muted transition-colors focus-visible:outline-none"
               aria-label="Close"
             >
               <X size={20} />
@@ -129,7 +78,10 @@ export function CertificateViewModal({
 
           {/* Certificate iframe */}
           {certificate.verificationUrl ? (
-            <div className="rounded-[12px] overflow-hidden border border-gray-200 bg-gray-50" style={{ height: '480px' }}>
+            <div
+              className="rounded-[12px] overflow-hidden border border-border bg-surface-muted"
+              style={{ height: '480px' }}
+            >
               <iframe
                 src={certificate.verificationUrl}
                 title={certificate.certificateTitle ?? 'Certificate'}
@@ -138,7 +90,10 @@ export function CertificateViewModal({
               />
             </div>
           ) : certificate.pdfUrl ? (
-            <div className="rounded-[12px] overflow-hidden border border-gray-200 bg-gray-50" style={{ height: '480px' }}>
+            <div
+              className="rounded-[12px] overflow-hidden border border-border bg-surface-muted"
+              style={{ height: '480px' }}
+            >
               <iframe
                 src={certificate.pdfUrl}
                 title={certificate.certificateTitle ?? 'Certificate'}
@@ -146,8 +101,10 @@ export function CertificateViewModal({
               />
             </div>
           ) : (
-            <div className="flex items-center justify-center h-40 rounded-[12px] bg-gray-50 border border-gray-200">
-              <p className="text-sm text-gray-400">Certificate not available</p>
+            <div className="flex items-center justify-center h-40 rounded-[12px] bg-surface-muted border border-border">
+              <p className="text-sm text-foreground-subtle">
+                Certificate not available
+              </p>
             </div>
           )}
 
@@ -157,7 +114,9 @@ export function CertificateViewModal({
               <button
                 type="button"
                 onClick={() => {
-                  void navigator.clipboard?.writeText(certificate.verificationUrl!)
+                  void navigator.clipboard?.writeText(
+                    certificate.verificationUrl!,
+                  )
                 }}
                 className="flex items-center gap-2 px-5 py-2.5 rounded-[10px] bg-blue-500 text-white text-sm font-semibold hover:bg-blue-600 transition-colors"
               >
@@ -187,15 +146,24 @@ export function CertificateCard({ certificate }: CertificateCardProps) {
 
   return (
     <>
-      <div className="rounded-[12px] border border-gray-200 bg-white p-5 flex flex-col gap-3">
-        <h3 className="text-[15px] font-bold text-gray-900 leading-snug">
+      <div className="rounded-[12px] border border-border bg-surface p-5 flex flex-col gap-3">
+        <h3 className="text-[15px] font-bold text-foreground leading-snug">
           {certificate.certificateTitle ?? 'Certificate'}
         </h3>
 
-        <div className="flex flex-col gap-1 text-sm text-gray-600">
-          <p><span className="font-medium text-gray-700">Type:</span> {certificate.certificateType ?? '-'}</p>
-          <p><span className="font-medium text-gray-700">Issue date:</span> {formatDate(certificate.issuedDateIso)}</p>
-          <p><span className="font-medium text-gray-700">Batch:</span> {certificate.batchName}</p>
+        <div className="flex flex-col gap-1 text-sm text-foreground-muted">
+          <p>
+            <span className="font-medium text-foreground">Type:</span>{' '}
+            {certificate.certificateType ?? '-'}
+          </p>
+          <p>
+            <span className="font-medium text-foreground">Issue date:</span>{' '}
+            {formatDate(certificate.issuedDateIso)}
+          </p>
+          <p>
+            <span className="font-medium text-foreground">Batch:</span>{' '}
+            {certificate.batchName}
+          </p>
         </div>
 
         <div className="flex items-center gap-2 pt-1">
@@ -210,7 +178,9 @@ export function CertificateCard({ certificate }: CertificateCardProps) {
             <button
               type="button"
               onClick={() => {
-                void navigator.clipboard?.writeText(certificate.verificationUrl!)
+                void navigator.clipboard?.writeText(
+                  certificate.verificationUrl!,
+                )
               }}
               className="flex items-center gap-1.5 px-4 py-2 rounded-[8px] bg-blue-500 text-white text-sm font-semibold hover:bg-blue-600 transition-colors"
             >

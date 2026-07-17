@@ -5,7 +5,7 @@ import type { MasaiverseEventScope } from './eventScope'
 import { db } from '@/db'
 import { events } from '@/db/schema'
 import { toMysqlUtc } from '@/lib/dateRanges'
-import { parseMasaiverseEventDbTimestamp } from '@/lib/eventTimestamps'
+import { parseMasaiverseEventDbTimestamp } from '@/utils/timeZoneHandler'
 
 /** Max recap cards shown in the home "Past Events" section. */
 const HIGHLIGHTS_LIMIT = 20

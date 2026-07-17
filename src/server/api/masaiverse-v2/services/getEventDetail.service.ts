@@ -3,7 +3,7 @@ import { publishedEventCondition } from './publishVisibility'
 import type { EventStatus } from '@/lib/masaiverseEventCard'
 import { db } from '@/db'
 import { clubMembers, clubs, eventEnrollments, events } from '@/db/schema'
-import { parseMasaiverseEventDbTimestamp } from '@/lib/eventTimestamps'
+import { parseMasaiverseEventDbTimestamp } from '@/utils/timeZoneHandler'
 import { getEventStatus } from '@/lib/masaiverseEventCard'
 import { readEnrollmentRating } from '@/server/api/masaiverse-v2/services/rateEvent.service'
 

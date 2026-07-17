@@ -5,7 +5,9 @@ import { batches } from '@/db/schema'
 import { getBatchIdsForEnrolledUser } from '@/server/batches/getBatchIdsForEnrolledUser'
 import { mapEnrolledBatchRow } from '@/server/learn/utils/mapEnrolledBatchRow'
 
-export async function getEnrolledBatchesForUser(userId: number): Promise<Array<EnrolledBatch>> {
+export async function getEnrolledBatchesForUser(
+  userId: number,
+): Promise<Array<EnrolledBatch>> {
   const batchIds = await getBatchIdsForEnrolledUser(userId)
 
   if (batchIds.length === 0) {
@@ -26,7 +28,7 @@ export async function getEnrolledBatchesForUser(userId: number): Promise<Array<E
     rows.map((row) => {
       const mapped = mapEnrolledBatchRow(row)
       return [mapped.batchId, mapped] as const
-    })
+    }),
   )
 
   return batchIds

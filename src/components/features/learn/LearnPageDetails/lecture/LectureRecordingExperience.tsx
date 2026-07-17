@@ -13,7 +13,7 @@ import type {
   LectureFeedbackState,
   LectureVideoAttendanceState,
 } from '@/server/learn/lectureDetailTypes'
-import { ChatbotExperience } from '@/components/features/chatbot/ChatbotExperience'
+import { LectureAiChatExperience } from '@/components/features/lecture-ai-chat/LectureAiChatExperience'
 import { cn } from '@/lib/utils'
 
 type LectureRecordingExperienceProps = {
@@ -24,12 +24,17 @@ type LectureRecordingExperienceProps = {
   hostName: string
   hostAvatarUrl: string | null
   scheduleDisplayRange: string
+  scheduleDisplayRangeIst?: string
   entityId: number
   discussions: Array<DiscussionListItem>
   hideNotes: boolean
   tabs: LectureDetailTabContent
   videoAttendance: LectureVideoAttendanceState | null
   attendance: LectureAttendanceSummary | null
+  /** Set only for optional (recommended) lectures; renders the info tooltip. */
+  optionalAttendance?: LectureAttendanceSummary | null
+  /** `live`/`scrum` lecture — shows the Live line in the attendance breakdown. */
+  isLiveLecture: boolean
   isBookmarked: boolean
   feedback: LectureFeedbackState
 }
@@ -45,12 +50,15 @@ export function LectureRecordingExperience({
   hostName,
   hostAvatarUrl,
   scheduleDisplayRange,
+  scheduleDisplayRangeIst,
   entityId,
   discussions,
   hideNotes,
   tabs,
   videoAttendance,
   attendance,
+  optionalAttendance,
+  isLiveLecture,
   isBookmarked,
   feedback,
 }: LectureRecordingExperienceProps) {
@@ -61,6 +69,7 @@ export function LectureRecordingExperience({
       lectureId={entityId}
       videoUrl={videoUrl}
       initialAttendance={videoAttendance}
+      transcriptSegments={tabs.transcriptSegments}
       className="min-h-0 flex-1"
       fullBleed={false}
     />
@@ -69,7 +78,7 @@ export function LectureRecordingExperience({
   const hero = (
     <div
       ref={rootRef}
-      className="flex w-full shrink-0 flex-col overflow-visible bg-white"
+      className="flex w-full shrink-0 flex-col overflow-visible bg-surface"
       style={
         heightPx != null
           ? { height: heightPx, minHeight: heightPx, maxHeight: heightPx }
@@ -101,8 +110,8 @@ export function LectureRecordingExperience({
   )
 
   const belowHero = (
-    <div className="shrink-0 border-t border-gray-200 bg-white md:hidden">
-      <ChatbotExperience lectureId={entityId} />
+    <div className="shrink-0 border-t border-border bg-surface md:hidden">
+      <LectureAiChatExperience lectureId={entityId} variant="mobile-dock" />
     </div>
   )
 
@@ -114,8 +123,12 @@ export function LectureRecordingExperience({
       hostName={hostName}
       hostAvatarUrl={hostAvatarUrl}
       scheduleDisplayRange={scheduleDisplayRange}
+      scheduleDisplayRangeIst={scheduleDisplayRangeIst}
       attendance={attendance}
+      optionalAttendance={optionalAttendance}
+      isLiveLecture={isLiveLecture}
       watchPercentage={videoAttendance?.watchPercentage}
+      showAttendanceBanner
       actions={
         <LectureDetailActions
           lectureId={entityId}

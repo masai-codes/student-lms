@@ -17,11 +17,14 @@ const hostNames = [
   'Arjun Rao',
 ]
 
-const priorities: Array<LearnContentItem['priority']> = ['recommended', 'mandatory']
+const priorities: Array<LearnContentItem['priority']> = [
+  'recommended',
+  'mandatory',
+]
 
 function createDummyItems(
   kind: LearnContentItem['type'],
-  titlePrefix: string
+  titlePrefix: string,
 ): Array<LearnContentItem> {
   return Array.from({ length: 20 }, (_, index) => {
     const itemNumber = index + 1
@@ -38,12 +41,18 @@ function createDummyItems(
       priority: priorities[index % priorities.length],
       tags: ['Live', 'Faculty', 'Recommended', moduleName],
       attendance: null,
+      optionalAttendance: null,
       assignmentProgressStatus: null,
       resourcePhase: null,
       listingCtas: {
         joinLive: 'hidden',
+        joinZoomLink: null,
+        isNewZoomRedirection: false,
+        enableZoomWebView: false,
         showAttendance: false,
         assignmentStatusChip: null,
+        assignmentDeadlineLabel: null,
+        assignmentScore: null,
       },
       assignmentStatusChip: null,
     }

@@ -1,11 +1,6 @@
 import { useState } from 'react'
 import { CaretLeft, CaretRight } from '@phosphor-icons/react'
-import {
-  MONTH_NAMES,
-  WEEKDAYS,
-  getMonthGrid,
-  toDateKey,
-} from './calendarUtils'
+import { MONTH_NAMES, WEEKDAYS, getMonthGrid, toDateKey } from './calendarUtils'
 import { MASAIVERSE_EVENTS, trackMasaiverse } from '../../../tracking'
 
 type ReadOnlyCalendarProps = {
@@ -37,30 +32,32 @@ export default function ReadOnlyCalendar({
     trackMasaiverse(MASAIVERSE_EVENTS.calendarMonthNav, {
       direction: delta < 0 ? 'prev' : 'next',
     })
-    setViewDate((date) => new Date(date.getFullYear(), date.getMonth() + delta, 1))
+    setViewDate(
+      (date) => new Date(date.getFullYear(), date.getMonth() + delta, 1),
+    )
   }
 
   const cells = getMonthGrid(viewDate)
 
   return (
-    <div className="rounded-[16px] p-4" style={{ backgroundColor: 'var(--color-masaiverse-orange)' }}>
+    <div className="rounded-[16px] bg-accent-warm p-4">
       <div className="mb-3 flex items-center justify-between">
         <button
           type="button"
           onClick={() => goToMonth(-1)}
           aria-label="Previous month"
-          className="flex size-7 items-center justify-center rounded-full bg-white/20 text-white hover:bg-white/30"
+          className="flex size-7 items-center justify-center rounded-full bg-surface/20 text-accent-warm-foreground hover:bg-surface/30"
         >
           <CaretLeft size={14} weight="bold" />
         </button>
-        <p className="text-[15px] font-bold text-white">
+        <p className="text-[15px] font-bold text-accent-warm-foreground">
           {MONTH_NAMES[viewDate.getMonth()]} {viewDate.getFullYear()}
         </p>
         <button
           type="button"
           onClick={() => goToMonth(1)}
           aria-label="Next month"
-          className="flex size-7 items-center justify-center rounded-full bg-white/20 text-white hover:bg-white/30"
+          className="flex size-7 items-center justify-center rounded-full bg-surface/20 text-accent-warm-foreground hover:bg-surface/30"
         >
           <CaretRight size={14} weight="bold" />
         </button>
@@ -70,7 +67,7 @@ export default function ReadOnlyCalendar({
         {WEEKDAYS.map((weekday) => (
           <span
             key={weekday.key}
-            className="pb-1 text-[11px] font-semibold text-white/70"
+            className="pb-1 text-[11px] font-semibold text-accent-warm-foreground/70"
           >
             {weekday.label}
           </span>
@@ -126,22 +123,22 @@ function DayCell({
         })
         onSelectDate?.(dateKey)
       }}
-      className="flex flex-col items-center rounded-[8px] py-0.5 hover:bg-white/15"
+      className="flex flex-col items-center rounded-[8px] py-0.5 hover:bg-surface/15"
     >
       <span
         className={`flex size-7 items-center justify-center rounded-full text-[13px] ${
           isToday
-            ? 'bg-white font-bold text-masaiverse-orange'
+            ? 'bg-surface font-bold text-accent-warm'
             : isSelected
-              ? 'font-bold text-white ring-1 ring-white'
-              : 'text-white'
+              ? 'font-bold text-accent-warm-foreground ring-1 ring-accent-warm-foreground'
+              : 'text-accent-warm-foreground'
         }`}
       >
         {day}
       </span>
       <span
         className={`mt-0.5 size-1 rounded-full ${
-          hasEvents ? 'bg-white' : 'bg-transparent'
+          hasEvents ? 'bg-surface' : 'bg-transparent'
         }`}
       />
     </button>

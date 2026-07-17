@@ -1,13 +1,7 @@
 'use client'
 
-import {
-  
-  useEffect,
-  useLayoutEffect,
-  useRef,
-  useState
-} from 'react'
-import type {RefObject} from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import type { RefObject } from 'react'
 
 const PANEL_GAP_ABOVE_BAR_PX = 8
 /** Extra breathing room below navbar so the panel does not touch the top edge. */

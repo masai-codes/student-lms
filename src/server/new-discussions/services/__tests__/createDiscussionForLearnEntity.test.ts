@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { createDiscussionForLearnEntity } from '../createDiscussionForLearnEntity'
 
 const hoisted = vi.hoisted(() => ({
   checkIfValidQuery: vi.fn(),
@@ -27,8 +28,6 @@ vi.mock('@/db', () => ({
   },
 }))
 
-import { createDiscussionForLearnEntity } from '../createDiscussionForLearnEntity'
-
 describe('createDiscussionForLearnEntity', () => {
   beforeEach(() => {
     vi.clearAllMocks()
@@ -41,9 +40,9 @@ describe('createDiscussionForLearnEntity', () => {
   })
 
   function mockLectureLookup() {
-    const limit = vi.fn().mockResolvedValue([
-      { batchId: 1, sectionId: 2, hostId: 3, ownerId: 4 },
-    ])
+    const limit = vi
+      .fn()
+      .mockResolvedValue([{ batchId: 1, sectionId: 2, hostId: 3, ownerId: 4 }])
     const where = vi.fn().mockReturnValue({ limit })
     const from = vi.fn().mockReturnValue({ where })
     hoisted.select.mockReturnValueOnce({ from })
@@ -93,8 +92,6 @@ describe('createDiscussionForLearnEntity', () => {
     })
 
     const values = hoisted.insert.mock.results[0]?.value?.values
-    expect(values).toHaveBeenCalledWith(
-      expect.objectContaining({ public: 0 }),
-    )
+    expect(values).toHaveBeenCalledWith(expect.objectContaining({ public: 0 }))
   })
 })

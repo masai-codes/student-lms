@@ -34,7 +34,9 @@ function normalizeRows<T>(result: unknown): Array<T> {
   return []
 }
 
-export async function getAchievements(userId: number): Promise<Array<AchievementItem>> {
+export async function getAchievements(
+  userId: number,
+): Promise<Array<AchievementItem>> {
   // Step 1 — enrolled section IDs
   const sectionRows = await db
     .select({ sectionId: sectionUser.sectionId })
@@ -43,7 +45,9 @@ export async function getAchievements(userId: number): Promise<Array<Achievement
 
   if (sectionRows.length === 0) return []
 
-  const sectionIds = [...new Set(sectionRows.map((r) => r.sectionId))].filter(Number.isFinite)
+  const sectionIds = [...new Set(sectionRows.map((r) => r.sectionId))].filter(
+    Number.isFinite,
+  )
   if (sectionIds.length === 0) return []
 
   // Step 2 — earned badges for this user
@@ -57,13 +61,19 @@ export async function getAchievements(userId: number): Promise<Array<Achievement
     .orderBy(asc(userBadges.releaseDate), asc(userBadges.createdAt))
 
   // Group by badgeConfigId: count + earliest releaseDate
-  const earnedMap = new Map<number, { count: number; releaseDate: string | null }>()
+  const earnedMap = new Map<
+    number,
+    { count: number; releaseDate: string | null }
+  >()
   for (const row of earnedRows) {
     const existing = earnedMap.get(row.badgeConfigId)
     if (existing) {
       existing.count += 1
     } else {
-      earnedMap.set(row.badgeConfigId, { count: 1, releaseDate: row.releaseDate ?? null })
+      earnedMap.set(row.badgeConfigId, {
+        count: 1,
+        releaseDate: row.releaseDate ?? null,
+      })
     }
   }
 
@@ -89,14 +99,16 @@ export async function getAchievements(userId: number): Promise<Array<Achievement
   if (configRows.length === 0) return []
 
   // Fetch courseTitle from batches.meta
-  const batchIds = [...new Set(configRows.map((r) => r.batchId))].filter(Number.isFinite)
+  const batchIds = [...new Set(configRows.map((r) => r.batchId))].filter(
+    Number.isFinite,
+  )
   const batchMetaMap = new Map<number, string | null>()
   if (batchIds.length > 0) {
     const rows = normalizeRows<{ id: number; courseTitle: string | null }>(
       await db.execute(sql`
         SELECT id, meta->>'$.courseTitle' AS courseTitle
         FROM batches WHERE id IN (${sql.raw(batchIds.join(', '))})
-      `)
+      `),
     )
     for (const r of rows) batchMetaMap.set(Number(r.id), r.courseTitle ?? null)
   }
@@ -106,7 +118,7 @@ export async function getAchievements(userId: number): Promise<Array<Achievement
   const secRows = normalizeRows<{ id: number; module: string | null }>(
     await db.execute(sql`
       SELECT id, module FROM sections WHERE id IN (${sql.raw(sectionIds.join(', '))})
-    `)
+    `),
   )
   for (const r of secRows) sectionModuleMap.set(Number(r.id), r.module ?? null)
 
@@ -124,7 +136,10 @@ export async function getAchievements(userId: number): Promise<Array<Achievement
       count: earned?.count ?? 0,
       releaseDate: earned?.releaseDate ?? null,
       courseTitle: batchMetaMap.get(row.batchId) ?? null,
-      sectionModuleName: sectionModuleMap.get(row.sectionId) ?? null,
+      sectionModuleName:
+        row.sectionId != null
+          ? (sectionModuleMap.get(row.sectionId) ?? null)
+          : null,
       badge: {
         title: row.badgeTitle,
         description: row.badgeDescription ?? null,

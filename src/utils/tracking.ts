@@ -5,7 +5,9 @@ function isBrowser() {
   return typeof window !== 'undefined'
 }
 
-export function setCurrentUserForTracking(user: { id?: number } | null | undefined) {
+export function setCurrentUserForTracking(
+  user: { id?: number } | null | undefined,
+) {
   currentUser = user ?? null
 }
 
@@ -26,7 +28,15 @@ export function initClarity() {
 
   if ((window as any).__clarityInitialized) return
 
-  ;(function (c: any, l: Document, a: string, r: string, i: string, t?: HTMLScriptElement, y?: Node) {
+  ;(function (
+    c: any,
+    l: Document,
+    a: string,
+    r: string,
+    i: string,
+    t?: HTMLScriptElement,
+    y?: Node,
+  ) {
     c[a] =
       c[a] ||
       function (...args: any[]) {
@@ -41,4 +51,3 @@ export function initClarity() {
 
   ;(window as any).__clarityInitialized = true
 }
-

@@ -12,10 +12,9 @@ function getAwsRegion(): string {
 
 /** Key prefix (folder) uploads land under; configurable per environment. */
 function getUploadPrefix(): string {
-  return (process.env.AWS_S3_UPLOAD_PREFIX?.trim() || 'dev/lms/masaiverse').replace(
-    /\/+$/,
-    '',
-  )
+  return (
+    process.env.AWS_S3_UPLOAD_PREFIX?.trim() || 'dev/lms/masaiverse'
+  ).replace(/\/+$/, '')
 }
 
 /** Shared LMS root, e.g. `dev/lms` derived from `dev/lms/masaiverse`. */
@@ -180,7 +179,9 @@ export async function getSignedDownloadUrl(
   key: string,
   expiresIn = 3600,
 ): Promise<string> {
-  const bucket = (process.env.AWS_S3_CERTIFICATE_BUCKET_NAME || process.env.AWS_S3_BUCKET_NAME)?.trim()
+  const bucket = (
+    process.env.AWS_S3_CERTIFICATE_BUCKET_NAME || process.env.AWS_S3_BUCKET_NAME
+  )?.trim()
   if (!bucket) throw new ApiError(500, 'S3_NOT_CONFIGURED')
 
   const command = new GetObjectCommand({ Bucket: bucket, Key: key })

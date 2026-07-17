@@ -18,10 +18,7 @@ export default function CalendarPanel() {
   const events = data ?? []
   const [selectedDateKey, setSelectedDateKey] = useState<string | null>(null)
 
-  const eventsByDate = useMemo(
-    () => buildEventsByDate(events),
-    [events],
-  )
+  const eventsByDate = useMemo(() => buildEventsByDate(events), [events])
   const eventDateKeys = useMemo(
     () => new Set(eventsByDate.keys()),
     [eventsByDate],
@@ -44,7 +41,7 @@ export default function CalendarPanel() {
         />
       </div>
       <UpcomingEvents />
-      <div className="h-px bg-[#EDEAE8]" />
+      <div className="h-px bg-surface-muted" />
       <GlobalLeaders />
     </div>
   )

@@ -1,0 +1,18 @@
+{
+  "onboarding-fees-paid-student": {
+    "documents": {
+      "required": true,
+      "instituteSideUpload": false,
+      "documentsUploaded": true,
+      "documentsVerified": false,
+      "documentsPendingVerification": false
+    },
+    "kit": {
+      "showKit": true,
+      "welcomeKitUrl": null,
+      "detailsFilled": true,
+      "details": null,
+      "tracking": "https://tracking.example.com/ABC123"
+    }
+  }
+}

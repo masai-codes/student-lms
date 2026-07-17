@@ -15,7 +15,12 @@ function extractRows(result: unknown): Array<Record<string, unknown>> {
     if (Array.isArray(first)) return first as Array<Record<string, unknown>>
     return result as Array<Record<string, unknown>>
   }
-  if (result && typeof result === 'object' && 'rows' in result && Array.isArray((result as { rows: unknown }).rows)) {
+  if (
+    result &&
+    typeof result === 'object' &&
+    'rows' in result &&
+    Array.isArray((result as { rows: unknown }).rows)
+  ) {
     return (result as { rows: Array<Record<string, unknown>> }).rows
   }
   return []
@@ -63,7 +68,9 @@ export async function addAnnouncementBookmark(
 }
 
 /** Remove a bookmark by its row id. */
-export async function removeAnnouncementBookmark(bookmarkId: number): Promise<void> {
+export async function removeAnnouncementBookmark(
+  bookmarkId: number,
+): Promise<void> {
   await db.execute(sql`
     DELETE FROM bookmarks WHERE id = ${bookmarkId}
   `)

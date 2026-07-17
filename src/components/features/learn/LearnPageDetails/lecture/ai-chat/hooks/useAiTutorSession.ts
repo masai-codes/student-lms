@@ -83,9 +83,9 @@ export function useAiTutorSession({
         setState('connecting')
         await room.connect(created.url, created.token)
 
-        const alreadyHasAgent = Array.from(room.remoteParticipants.values()).some(
-          p => isAgentParticipantIdentity(p.identity),
-        )
+        const alreadyHasAgent = Array.from(
+          room.remoteParticipants.values(),
+        ).some((p) => isAgentParticipantIdentity(p.identity))
 
         if (!alreadyHasAgent) {
           await dispatchAiTutorAgentRequest(lectureId, created.roomName)
@@ -97,7 +97,9 @@ export function useAiTutorSession({
         return true
       } catch (error) {
         setState('error')
-        setErrorCode(error instanceof Error ? error.message : 'AI_TUTOR_UNKNOWN_ERROR')
+        setErrorCode(
+          error instanceof Error ? error.message : 'AI_TUTOR_UNKNOWN_ERROR',
+        )
         try {
           await room.disconnect()
         } catch {

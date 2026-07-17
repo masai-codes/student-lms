@@ -1,9 +1,9 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { ApiError } from '@/server/api/http/apiError'
+import { requireSessionUserId } from '@/server/api/http/requireSessionUser'
 
 const hoisted = vi.hoisted(() => ({
   createDiscussion: vi.fn(),
-  getUserIdFromCookieHeader: vi.fn(),
 }))
 
 vi.mock(
@@ -12,9 +12,8 @@ vi.mock(
     createCommunityDiscussion: hoisted.createDiscussion,
   }),
 )
-vi.mock('@/server/auth/getCurrentSessionUserId', () => ({
-  getUserIdFromCookieHeader: hoisted.getUserIdFromCookieHeader,
-  getUserIdFromRequest: hoisted.getUserIdFromCookieHeader,
+vi.mock('@/server/api/http/requireSessionUser', () => ({
+  requireSessionUserId: vi.fn(),
 }))
 
 function postRequest(
@@ -30,13 +29,14 @@ function postRequest(
 
 beforeEach(() => {
   vi.clearAllMocks()
+  vi.mocked(requireSessionUserId).mockReset()
 })
 
 describe('handleCreateCommunityDiscussion', () => {
   it('creates the discussion and returns 201 with the id', async () => {
     const { handleCreateCommunityDiscussion } =
       await import('../handlers/createCommunityDiscussion.handler')
-    hoisted.getUserIdFromCookieHeader.mockResolvedValueOnce(5)
+    vi.mocked(requireSessionUserId).mockResolvedValueOnce(5)
     hoisted.createDiscussion.mockResolvedValueOnce({ id: '99' })
 
     const res = await handleCreateCommunityDiscussion(
@@ -61,7 +61,7 @@ describe('handleCreateCommunityDiscussion', () => {
   it('forwards a string clubId so the post is scoped to that club', async () => {
     const { handleCreateCommunityDiscussion } =
       await import('../handlers/createCommunityDiscussion.handler')
-    hoisted.getUserIdFromCookieHeader.mockResolvedValueOnce(5)
+    vi.mocked(requireSessionUserId).mockResolvedValueOnce(5)
     hoisted.createDiscussion.mockResolvedValueOnce({ id: '99' })
 
     const res = await handleCreateCommunityDiscussion(
@@ -85,7 +85,9 @@ describe('handleCreateCommunityDiscussion', () => {
   it('returns 401 when not signed in', async () => {
     const { handleCreateCommunityDiscussion } =
       await import('../handlers/createCommunityDiscussion.handler')
-    hoisted.getUserIdFromCookieHeader.mockResolvedValueOnce(null)
+    vi.mocked(requireSessionUserId).mockRejectedValueOnce(
+      new ApiError(401, 'UNAUTHORIZED'),
+    )
 
     const res = await handleCreateCommunityDiscussion(
       postRequest({ title: 'Hi', content: '<p>Yo</p>' }, null),
@@ -97,7 +99,7 @@ describe('handleCreateCommunityDiscussion', () => {
   it('maps a validation ApiError to its status', async () => {
     const { handleCreateCommunityDiscussion } =
       await import('../handlers/createCommunityDiscussion.handler')
-    hoisted.getUserIdFromCookieHeader.mockResolvedValueOnce(5)
+    vi.mocked(requireSessionUserId).mockResolvedValueOnce(5)
     hoisted.createDiscussion.mockRejectedValueOnce(
       new ApiError(400, 'DISCUSSION_TITLE_REQUIRED'),
     )
@@ -115,7 +117,7 @@ describe('handleCreateCommunityDiscussion', () => {
   it('maps an unexpected failure to a 500', async () => {
     const { handleCreateCommunityDiscussion } =
       await import('../handlers/createCommunityDiscussion.handler')
-    hoisted.getUserIdFromCookieHeader.mockResolvedValueOnce(5)
+    vi.mocked(requireSessionUserId).mockResolvedValueOnce(5)
     hoisted.createDiscussion.mockRejectedValueOnce(new Error('db down'))
     const spy = vi.spyOn(console, 'error').mockImplementation(() => {})
 

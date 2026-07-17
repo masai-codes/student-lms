@@ -88,8 +88,8 @@ export function LectureAiChatBar({
     const baseClasses =
       'flex size-9 items-center justify-center rounded-full transition-colors'
     const stateClasses = isMicEnabled
-      ? 'lecture-chat-mic-pulse bg-red-500 text-white hover:bg-red-600'
-      : 'bg-white text-[#2f2f2f] shadow-sm hover:opacity-90'
+      ? 'lecture-chat-mic-pulse bg-danger text-white hover:bg-red-600'
+      : 'bg-surface text-[#2f2f2f] shadow-sm hover:opacity-90 dark:text-foreground'
 
     return (
       <button
@@ -123,7 +123,7 @@ export function LectureAiChatBar({
             'flex size-9 items-center justify-center rounded-full transition-colors',
             canSend
               ? 'bg-primary-600 text-white hover:bg-primary-700'
-              : 'cursor-not-allowed bg-white/10 text-gray-500',
+              : 'cursor-not-allowed bg-surface/10 text-foreground-muted',
           )}
         >
           <PaperPlaneRight className="size-5" weight="fill" />
@@ -152,10 +152,12 @@ export function LectureAiChatBar({
         )}
       >
         <textarea
-          ref={inputRef ? mergeRefs(localTextareaRef, inputRef) : localTextareaRef}
+          ref={
+            inputRef ? mergeRefs(localTextareaRef, inputRef) : localTextareaRef
+          }
           rows={1}
           value={value}
-          onChange={event => onChange(event.target.value)}
+          onChange={(event) => onChange(event.target.value)}
           onFocus={() => {
             setIsFocused(true)
             onFocus?.()
@@ -164,17 +166,19 @@ export function LectureAiChatBar({
             setIsFocused(false)
             onBlur?.()
           }}
-          onKeyDown={event => {
+          onKeyDown={(event) => {
             if (event.key !== 'Enter') return
             if (event.shiftKey) return
             event.preventDefault()
             if (canSend) onSend?.()
           }}
           placeholder={
-            isMicEnabled ? 'Listening… speak or type to respond' : 'Ask anything...'
+            isMicEnabled
+              ? 'Listening… speak or type to respond'
+              : 'Ask anything...'
           }
           aria-label="Ask the AI tutor"
-          className="type-b2-regular max-h-[7.5rem] min-h-6 min-w-0 flex-1 resize-none overflow-y-auto bg-transparent py-1.5 text-white outline-none placeholder:text-gray-400"
+          className="type-b2-regular max-h-[7.5rem] min-h-6 min-w-0 flex-1 resize-none overflow-y-auto bg-transparent py-1.5 text-white outline-none placeholder:text-foreground-subtle"
         />
 
         <div className="flex shrink-0 items-center gap-0.5 self-end">

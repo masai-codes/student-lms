@@ -4,10 +4,23 @@ import { useEffect, useRef, useState } from 'react'
 import { useNavigate, useRouter } from '@tanstack/react-router'
 import { useQueryClient } from '@tanstack/react-query'
 import MDEditor, { commands } from '@uiw/react-md-editor'
-import { Paperclip, Send, ArrowLeft, Mic, MicOff, X, Play, Pause, Check } from 'lucide-react'
+import {
+  Paperclip,
+  Send,
+  ArrowLeft,
+  Mic,
+  MicOff,
+  X,
+  Play,
+  Pause,
+  Check,
+} from 'lucide-react'
 import type { AnnouncementDetail } from '@/server/api/announcement/getAnnouncementById.service'
 
-import { markMessageRead, markMessageUnread } from '@/lib/api/announcement/announcementApi'
+import {
+  markMessageRead,
+  markMessageUnread,
+} from '@/lib/api/announcement/announcementApi'
 import { toast } from '@/lib/toast'
 import { formatTimestampIST } from '@/utils/timeZoneHandler'
 import { capitalize } from '@/utils/capitalize'
@@ -67,19 +80,25 @@ export function MessageDetailPage({ detail }: MessageDetailPageProps) {
   const chunksRef = useRef<BlobPart[]>([])
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const waveSurferRef = useRef<HTMLDivElement>(null)
-  const waveSurferInstanceRef = useRef<InstanceType<typeof import('wavesurfer.js')['default']> | null>(null)
+  const waveSurferInstanceRef = useRef<InstanceType<
+    (typeof import('wavesurfer.js'))['default']
+  > | null>(null)
   const audioBlobUrlRef = useRef<string | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
-  const numericId = parseInt(detail.id, 10)
+  // Message ids are BigInt — keep as a string to avoid Number precision loss.
+  const messageId = detail.id
+  const isValidId = /^\d+$/.test(messageId)
   const senderName = detail.from ?? detail.authorName
-  const metaChips = [detail.category, detail.type].filter(Boolean).map(capitalize)
+  const metaChips = [detail.category, detail.type]
+    .filter(Boolean)
+    .map(capitalize)
 
   // Auto-mark as read
   useEffect(() => {
-    if (markedReadRef.current || !Number.isFinite(numericId)) return
+    if (markedReadRef.current || !isValidId) return
     markedReadRef.current = true
-    markMessageRead(numericId)
+    markMessageRead(messageId)
       .then(() => {
         void queryClient.invalidateQueries({ queryKey: ['announcements'] })
         if (!detail.isRead) {
@@ -88,10 +107,12 @@ export function MessageDetailPage({ detail }: MessageDetailPageProps) {
             (old = 0) => Math.max(0, old - 1),
           )
         }
-        void queryClient.invalidateQueries({ queryKey: ['announcement-unread-count'] })
+        void queryClient.invalidateQueries({
+          queryKey: ['announcement-unread-count'],
+        })
       })
       .catch(() => {})
-  }, [numericId, queryClient, detail.isRead])
+  }, [messageId, queryClient, detail.isRead])
 
   // WaveSurfer init when audioBlob is ready
   useEffect(() => {
@@ -132,10 +153,10 @@ export function MessageDetailPage({ detail }: MessageDetailPageProps) {
   }, [])
 
   async function handleToggleUnread() {
-    if (!Number.isFinite(numericId)) return
+    if (!isValidId) return
     try {
       if (isUnread) {
-        await markMessageRead(numericId)
+        await markMessageRead(messageId)
         setIsUnread(false)
         toast.success('Marked as read')
         queryClient.setQueryData<number>(
@@ -143,7 +164,7 @@ export function MessageDetailPage({ detail }: MessageDetailPageProps) {
           (old = 0) => Math.max(0, old - 1),
         )
       } else {
-        await markMessageUnread(numericId)
+        await markMessageUnread(messageId)
         setIsUnread(true)
         toast.success('Marked as unread')
         queryClient.setQueryData<number>(
@@ -152,7 +173,9 @@ export function MessageDetailPage({ detail }: MessageDetailPageProps) {
         )
       }
       void queryClient.invalidateQueries({ queryKey: ['announcements'] })
-      void queryClient.invalidateQueries({ queryKey: ['announcement-unread-count'] })
+      void queryClient.invalidateQueries({
+        queryKey: ['announcement-unread-count'],
+      })
     } catch {
       toast.error('Something went wrong. Please try again.')
     }
@@ -227,7 +250,9 @@ export function MessageDetailPage({ detail }: MessageDetailPageProps) {
     if (!audioBlob) return
     setIsUploading(true)
     try {
-      const file = new File([audioBlob], 'voice_note.wav', { type: 'audio/wav' })
+      const file = new File([audioBlob], 'voice_note.wav', {
+        type: 'audio/wav',
+      })
       const uploaded = await uploadFile(file)
       setUploadedFiles((prev) => [...prev, uploaded])
       setAudioBlob(null)
@@ -252,13 +277,15 @@ export function MessageDetailPage({ detail }: MessageDetailPageProps) {
   async function handleSend() {
     let body = replyValue?.trim() ?? ''
     for (const f of uploadedFiles) {
-      const md = isImageUrl(f.name) ? `\n\n![${f.name}](${f.url})` : `\n\n[${f.name}](${f.url})`
+      const md = isImageUrl(f.name)
+        ? `\n\n![${f.name}](${f.url})`
+        : `\n\n[${f.name}](${f.url})`
       body += md
     }
     if (!body.trim()) return
 
     try {
-      const res = await fetch(`/api/message/${numericId}/reply`, {
+      const res = await fetch(`/api/message/${messageId}/reply`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ body }),
@@ -274,14 +301,15 @@ export function MessageDetailPage({ detail }: MessageDetailPageProps) {
   }
 
   return (
-    <div className="flex flex-col bg-white border border-gray-200 rounded-lg overflow-hidden mx-4 md:mx-8 my-4">
-
+    <div className="flex flex-col bg-surface border border-border rounded-lg overflow-hidden mx-4 md:mx-8 my-4">
       {/* ── Header ──────────────────────────────────────────────────────────── */}
-      <div className="shrink-0 px-5 py-3 flex items-center gap-3 border-b border-gray-200">
+      <div className="shrink-0 px-5 py-3 flex items-center gap-3 border-b border-border">
         <button
           type="button"
-          onClick={() => void navigate({ to: '/announcements', search: { page: 1 } })}
-          className="text-gray-500 hover:text-gray-800 transition-colors p-1 -ml-1"
+          onClick={() =>
+            void navigate({ to: '/announcements', search: { page: 1 } })
+          }
+          className="text-foreground-muted hover:text-foreground transition-colors p-1 -ml-1"
           aria-label="Go back"
         >
           <ArrowLeft size={20} />
@@ -290,11 +318,15 @@ export function MessageDetailPage({ detail }: MessageDetailPageProps) {
         <SenderAvatar name={senderName} />
 
         <div className="flex-1 min-w-0">
-          <p className="text-xl font-bold text-gray-900 leading-tight truncate">{senderName}</p>
+          <p className="text-xl font-bold text-foreground leading-tight truncate">
+            {senderName}
+          </p>
           {metaChips.length > 0 && (
-            <p className="text-sm text-gray-500 leading-tight">
+            <p className="text-sm text-foreground-muted leading-tight">
               {metaChips.map((chip) => (
-                <span key={chip} className="mr-3">• {chip}</span>
+                <span key={chip} className="mr-3">
+                  • {chip}
+                </span>
               ))}
             </p>
           )}
@@ -303,7 +335,7 @@ export function MessageDetailPage({ detail }: MessageDetailPageProps) {
         <button
           type="button"
           onClick={() => void handleToggleUnread()}
-          className="shrink-0 px-4 py-1.5 rounded-md border border-gray-300 text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors focus-visible:outline-none whitespace-nowrap"
+          className="shrink-0 px-4 py-1.5 rounded-md border border-border-strong text-sm font-medium text-foreground bg-surface hover:bg-surface-muted transition-colors focus-visible:outline-none whitespace-nowrap"
         >
           {isUnread ? 'Mark As Read' : 'Mark As Unread'}
         </button>
@@ -311,10 +343,9 @@ export function MessageDetailPage({ detail }: MessageDetailPageProps) {
 
       {/* ── Message thread ──────────────────────────────────────────────────── */}
       <div className="px-6 py-5 flex flex-col gap-4 w-full">
-
         {/* Title pill */}
         <div className="flex justify-center">
-          <span className="px-4 py-1 rounded-md bg-gray-100 text-black text-sm font-medium">
+          <span className="px-4 py-1 rounded-md bg-surface-muted text-foreground text-sm font-medium">
             {detail.title}
           </span>
         </div>
@@ -325,23 +356,29 @@ export function MessageDetailPage({ detail }: MessageDetailPageProps) {
             href={detail.ctaLink}
             target="_blank"
             rel="noopener noreferrer"
-            className="self-start inline-flex items-center justify-center rounded-lg px-6 py-2.5 text-sm font-semibold text-white transition-opacity hover:opacity-90"
-            style={{ background: '#6962AC' }}
+            className="self-start inline-flex items-center justify-center rounded-lg px-6 py-2.5 text-sm font-semibold text-brand-foreground bg-brand transition-opacity hover:opacity-90"
           >
-            {detail.ctaName.length > 50 ? `${detail.ctaName.slice(0, 50)}…` : detail.ctaName}
+            {detail.ctaName.length > 50
+              ? `${detail.ctaName.slice(0, 50)}…`
+              : detail.ctaName}
           </a>
         )}
 
         {/* Thread bubbles */}
         {detail.thread.map((msg) => (
-          <div key={msg.id} className={`max-w-[520px] ${msg.isSentByUser ? 'self-end' : 'self-start'}`}>
-            <div className={`px-4 py-3 ${
-              msg.isSentByUser
-                ? 'rounded-2xl rounded-tr-sm bg-[#EEF2FF] border border-indigo-100'
-                : 'rounded-2xl rounded-tl-sm bg-[#FEFCE8] border border-yellow-100'
-            }`}>
+          <div
+            key={msg.id}
+            className={`max-w-[520px] ${msg.isSentByUser ? 'self-end' : 'self-start'}`}
+          >
+            <div
+              className={`px-4 py-3 ${
+                msg.isSentByUser
+                  ? 'rounded-2xl rounded-tr-sm bg-brand-subtle border border-brand-subtle'
+                  : 'rounded-2xl rounded-tl-sm bg-[#FEFCE8] border border-yellow-100 dark:bg-warning-subtle dark:border-warning-subtle'
+              }`}
+            >
               <MarkdownContent value={msg.body} />
-              <p className="mt-2 text-[11px] text-gray-400 text-right">
+              <p className="mt-2 text-[11px] text-foreground-subtle text-right">
                 {formatTimestampIST(msg.scheduledAt)}
               </p>
             </div>
@@ -350,11 +387,13 @@ export function MessageDetailPage({ detail }: MessageDetailPageProps) {
       </div>
 
       {/* ── Reply area ──────────────────────────────────────────────────────── */}
-      <div className="shrink-0 border-t border-gray-200 px-4 md:px-6 py-4 bg-white flex flex-col gap-3" data-color-mode="light">
-
+      <div
+        className="shrink-0 border-t border-border px-4 md:px-6 py-4 bg-surface flex flex-col gap-3"
+        data-color-mode="light"
+      >
         {/* Recording UI */}
         {/* Markdown editor — always visible */}
-        <div className="border border-gray-200 rounded-lg overflow-hidden">
+        <div className="border border-border rounded-lg overflow-hidden">
           <MDEditor
             value={replyValue}
             onChange={setReplyValue}
@@ -383,13 +422,13 @@ export function MessageDetailPage({ detail }: MessageDetailPageProps) {
             {uploadedFiles.map((f) => (
               <div
                 key={f.id}
-                className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-blue-200 bg-blue-50 text-sm text-blue-700 max-w-sm"
+                className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-info-subtle bg-info-subtle text-sm text-info-subtle-foreground max-w-sm"
               >
                 <span className="truncate flex-1">{f.name}</span>
                 <button
                   type="button"
                   onClick={() => removeFile(f.id)}
-                  className="shrink-0 text-blue-400 hover:text-blue-600 transition-colors"
+                  className="shrink-0 text-info hover:text-info-subtle-foreground transition-colors"
                   aria-label="Remove file"
                 >
                   <X size={14} />
@@ -401,7 +440,6 @@ export function MessageDetailPage({ detail }: MessageDetailPageProps) {
 
         {/* Action buttons row */}
         <div className="flex items-center gap-2">
-
           {/* Spacer */}
           <div className="flex-1" />
 
@@ -410,7 +448,7 @@ export function MessageDetailPage({ detail }: MessageDetailPageProps) {
             <>
               <div
                 ref={waveSurferRef}
-                className="w-[200px] h-[44px] border border-blue-200 rounded-lg bg-blue-50 overflow-hidden shrink-0"
+                className="w-[200px] h-[44px] border border-info-subtle rounded-lg bg-info-subtle overflow-hidden shrink-0"
               />
               <button
                 type="button"
@@ -432,7 +470,7 @@ export function MessageDetailPage({ detail }: MessageDetailPageProps) {
               <button
                 type="button"
                 onClick={discardRecording}
-                className="flex items-center justify-center size-10 rounded-lg bg-red-500 text-white hover:bg-red-600 transition-colors shrink-0"
+                className="flex items-center justify-center size-10 rounded-lg bg-danger text-danger-foreground hover:bg-danger transition-colors shrink-0"
                 aria-label="Discard recording"
               >
                 <X size={18} />
@@ -452,8 +490,10 @@ export function MessageDetailPage({ detail }: MessageDetailPageProps) {
                 <Mic size={18} />
               </button>
               <div className="flex items-center gap-2 shrink-0">
-                <span className="size-2 rounded-full bg-red-500 animate-pulse" />
-                <span className="text-sm font-medium text-red-500">Recording...</span>
+                <span className="size-2 rounded-full bg-danger animate-pulse" />
+                <span className="text-sm font-medium text-danger">
+                  Recording...
+                </span>
               </div>
             </>
           )}
@@ -475,11 +515,11 @@ export function MessageDetailPage({ detail }: MessageDetailPageProps) {
             type="button"
             onClick={() => fileInputRef.current?.click()}
             disabled={isUploading}
-            className="flex items-center justify-center size-10 rounded-lg border border-gray-200 text-[#6962AC] bg-white hover:bg-gray-50 transition-colors disabled:opacity-50 shrink-0"
+            className="flex items-center justify-center size-10 rounded-lg border border-border text-brand bg-surface hover:bg-surface-muted transition-colors disabled:opacity-50 shrink-0"
             aria-label="Attach file"
           >
             {isUploading ? (
-              <span className="size-4 border-2 border-[#6962AC] border-t-transparent rounded-full animate-spin" />
+              <span className="size-4 border-2 border-brand border-t-transparent rounded-full animate-spin" />
             ) : (
               <Paperclip size={18} />
             )}

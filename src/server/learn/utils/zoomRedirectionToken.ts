@@ -14,8 +14,7 @@ export type ZoomRedirectionUser = {
 }
 
 export type ZoomRedirectionTokenResult =
-  | { ok: true; token: string }
-  | { ok: false; status: number; message: string }
+  { ok: true; token: string } | { ok: false; status: number; message: string }
 
 function parseZoomDetails(raw: unknown): Record<string, unknown> | null {
   if (raw == null) return null
@@ -144,7 +143,10 @@ export async function generateZoomRedirectionToken(input: {
     if (!Number.isFinite(idN)) {
       return { ok: false, status: 400, message: 'Invalid lectureId' }
     }
-    const adminEmail = resolveAdminEmail(await readZoomDetails(idN), normalizedEmail)
+    const adminEmail = resolveAdminEmail(
+      await readZoomDetails(idN),
+      normalizedEmail,
+    )
     if (!adminEmail) {
       return {
         ok: false,

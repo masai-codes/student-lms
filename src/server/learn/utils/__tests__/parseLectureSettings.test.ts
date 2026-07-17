@@ -29,6 +29,11 @@ describe('parseLectureSettings', () => {
     })
   })
 
+  it('treats integer hide_video (1/0) like the legacy LMS truthy check', () => {
+    expect(parseLectureSettings({ hide_video: 1 }).hideVideo).toBe(true)
+    expect(parseLectureSettings({ hide_video: 0 }).hideVideo).toBe(false)
+  })
+
   it('reads hide_notes from settings object', () => {
     expect(parseLectureSettings({ hide_notes: true })).toEqual({
       hideVideo: false,
@@ -48,7 +53,9 @@ describe('parseLectureSettings', () => {
   })
 
   it('reads show_feedback from settings object', () => {
-    expect(parseLectureSettings({ show_feedback: true }).showFeedback).toBe(true)
+    expect(parseLectureSettings({ show_feedback: true }).showFeedback).toBe(
+      true,
+    )
     expect(parseLectureSettings({ show_feedback: 1 }).showFeedback).toBe(true)
     expect(parseLectureSettings({ show_feedback: 0 }).showFeedback).toBe(false)
   })

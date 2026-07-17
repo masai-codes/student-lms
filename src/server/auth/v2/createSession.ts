@@ -3,6 +3,7 @@ import jwt from 'jsonwebtoken'
 import { db } from '@/db'
 import { sessions } from '@/db/schema'
 import { getCookieDomain } from '@/server/auth/v2/cookieDomain'
+import { getCookieName, getJwtSecret } from '@/server/auth/v2/sessionConfig'
 
 const JWT_ALGORITHM = 'HS256'
 const DEFAULT_TTL_HOURS = 72
@@ -26,18 +27,6 @@ export type CreateSessionsResult = {
   activeSessionId: string
   activeToken: string
   setCookieHeader: string
-}
-
-function getCookieName(): string {
-  const name = process.env.COOKIE_NAME ?? process.env.NEW_COOKIE_NAME
-  if (!name) throw new Error('COOKIE_NAME (or NEW_COOKIE_NAME) env var is not set')
-  return name
-}
-
-function getJwtSecret(): string {
-  const secret = process.env.JWT_SECRET_KEY
-  if (!secret) throw new Error('JWT_SECRET_KEY env var is not set')
-  return secret
 }
 
 export function extractClientIp(request: Request): string {
@@ -103,7 +92,9 @@ export async function createSessions({
   }))
 
   const linkedSessionIds =
-    sessionRecords.length > 1 ? sessionRecords.map((s) => s.sessionId) : undefined
+    sessionRecords.length > 1
+      ? sessionRecords.map((s) => s.sessionId)
+      : undefined
 
   const now = new Date().toISOString()
   const ipAddress = extractClientIp(request)

@@ -6,7 +6,10 @@ import { PasswordInput } from '@/components/ui/password-input'
 import { Label } from '@/components/ui/label'
 import { useAutoFocus } from '@/hooks/useAutoFocus'
 import { SignInShell } from '@/components/features/sign-in/SignInShell'
-import { V2AuthRequestError, v2ResetPassword } from '@/components/features/sign-in/v2AuthClient'
+import {
+  V2AuthRequestError,
+  v2ResetPassword,
+} from '@/components/features/sign-in/v2AuthClient'
 
 export const Route = createFileRoute('/(auth)/reset-password/$token/')({
   component: ResetPasswordPage,
@@ -59,7 +62,13 @@ function ResetPasswordPage() {
   return (
     <SignInShell>
       <div className="space-y-6">
-        <Button type="button" variant="ghost" size="sm" className="h-auto gap-1.5 px-0 font-poppins text-muted-foreground hover:bg-transparent hover:text-foreground" asChild>
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          className="h-auto gap-1.5 px-0 font-poppins text-muted-foreground hover:bg-transparent hover:text-foreground"
+          asChild
+        >
           <Link to="/signin">
             <ArrowLeft className="size-4 shrink-0" aria-hidden />
             Back to sign in
@@ -71,7 +80,8 @@ function ResetPasswordPage() {
             Set a new password
           </h1>
           <p className="mt-2 text-sm text-muted-foreground">
-            Choose a new password for your account. You will be redirected to sign in when it succeeds.
+            Choose a new password for your account. You will be redirected to
+            sign in when it succeeds.
           </p>
         </div>
 
@@ -105,11 +115,19 @@ function ResetPasswordPage() {
               />
             </div>
             {error ? (
-              <p className="rounded-md border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive" role="alert">
+              <p
+                className="rounded-md border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive"
+                role="alert"
+              >
                 {error}
               </p>
             ) : null}
-            <Button type="button" className="w-full font-poppins shadow-sm" disabled={busy} onClick={() => void onSubmit()}>
+            <Button
+              type="button"
+              className="w-full font-poppins shadow-sm"
+              disabled={busy}
+              onClick={() => void onSubmit()}
+            >
               {busy ? 'Saving…' : 'Update password'}
             </Button>
           </div>

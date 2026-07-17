@@ -1,7 +1,7 @@
 import { and, eq, isNull } from 'drizzle-orm'
 import { db } from '@/db'
 import { users, profiles } from '@/db/schema'
-import { getUserIdFromCookieHeader } from '@/server/auth/getCurrentSessionUserId'
+import { getCurrentUserId } from '@/server/auth/getCurrentSessionUserId'
 import { buildAdmissionsSsoUrl } from '@/server/admissions/createAdmissionsSsoToken'
 
 export type ReferralLmsLoginUrlSuccessBody = {
@@ -20,18 +20,21 @@ export type ReferralLmsLoginUrlResult =
   | { status: 401; body: ReferralLmsLoginUrlErrorBody }
   | { status: 500; body: ReferralLmsLoginUrlErrorBody }
 
-export async function getReferralLmsLoginUrlResult(
-  cookieHeader: string | null,
-): Promise<ReferralLmsLoginUrlResult> {
+export async function getReferralLmsLoginUrlResult(): Promise<ReferralLmsLoginUrlResult> {
   try {
-    const userId = await getUserIdFromCookieHeader(cookieHeader)
+    const userId = await getCurrentUserId()
     if (!userId) {
       return { status: 401, body: { success: false, error: 'Unauthorized' } }
     }
 
     const [userRows, profileRows] = await Promise.all([
       db
-        .select({ id: users.id, name: users.name, email: users.email, mobile: users.mobile })
+        .select({
+          id: users.id,
+          name: users.name,
+          email: users.email,
+          mobile: users.mobile,
+        })
         .from(users)
         .where(eq(users.id, userId))
         .limit(1),
@@ -48,10 +51,17 @@ export async function getReferralLmsLoginUrlResult(
     }
 
     const admissionsUrl = process.env.ADMISSIONS_SSO_BASE_URL
-    if (!admissionsUrl) throw new Error('ADMISSIONS_SSO_BASE_URL is not configured')
+    if (!admissionsUrl)
+      throw new Error('ADMISSIONS_SSO_BASE_URL is not configured')
 
-    const profileMeta = (profileRows.at(0)?.meta ?? {}) as Record<string, unknown>
-    const avatar = typeof profileMeta['profile_pic'] === 'string' ? profileMeta['profile_pic'] : ''
+    const profileMeta = (profileRows.at(0)?.meta ?? {}) as Record<
+      string,
+      unknown
+    >
+    const avatar =
+      typeof profileMeta['profile_pic'] === 'string'
+        ? profileMeta['profile_pic']
+        : ''
 
     const url = buildAdmissionsSsoUrl(
       {
@@ -67,7 +77,15 @@ export async function getReferralLmsLoginUrlResult(
 
     return { status: 200, body: { success: true, url } }
   } catch (err) {
-    const message = err instanceof Error ? err.message : 'Failed to generate LMS login URL'
-    return { status: 500, body: { success: false, error: 'Failed to generate LMS login URL', message } }
+    const message =
+      err instanceof Error ? err.message : 'Failed to generate LMS login URL'
+    return {
+      status: 500,
+      body: {
+        success: false,
+        error: 'Failed to generate LMS login URL',
+        message,
+      },
+    }
   }
 }

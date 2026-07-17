@@ -23,8 +23,8 @@
     #e9d5ff 340deg,
     #2f2f2f 360deg
   );
-  animation: lecture-chat-bar-shine-spin var(--lecture-chat-bar-shine-speed) linear
-    infinite;
+  animation: lecture-chat-bar-shine-spin var(--lecture-chat-bar-shine-speed)
+    linear infinite;
   box-shadow:
     0 2px 12px rgba(0, 0, 0, 0.18),
     0 0 0 1px rgba(255, 255, 255, 0.06),
@@ -41,8 +41,8 @@
   filter: blur(10px);
   opacity: 0.45;
   z-index: -1;
-  animation: lecture-chat-bar-shine-spin var(--lecture-chat-bar-shine-speed) linear
-    infinite;
+  animation: lecture-chat-bar-shine-spin var(--lecture-chat-bar-shine-speed)
+    linear infinite;
 }
 
 .lecture-chat-bar-shine--focused {
@@ -122,12 +122,7 @@
   .lecture-chat-bar-shine,
   .lecture-chat-bar-shine::after {
     animation: none;
-    background: linear-gradient(
-      90deg,
-      #6962ac,
-      #c4b5fd,
-      #6962ac
-    );
+    background: linear-gradient(90deg, #6962ac, #c4b5fd, #6962ac);
     background-size: 200% 100%;
   }
 

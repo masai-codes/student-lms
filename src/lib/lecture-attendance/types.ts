@@ -1,9 +1,5 @@
 export type LectureAttendanceUiState =
-  | 'hidden'
-  | 'present'
-  | 'absent'
-  | 'continue_watching'
-  | 'att_window_over'
+  'hidden' | 'present' | 'absent' | 'continue_watching' | 'att_window_over'
 
 export type LectureAttendanceUiInput = {
   overallStatus: number | null | undefined
@@ -15,10 +11,14 @@ export type LectureAttendanceUiInput = {
   daysRemaining?: number | null
 }
 
-export type ListingAttendanceVisibleState = Exclude<LectureAttendanceUiState, 'hidden'>
+export type ListingAttendanceVisibleState = Exclude<
+  LectureAttendanceUiState,
+  'hidden'
+>
 
 export type ListingAttendanceRender = {
   uiState: ListingAttendanceVisibleState | null
   daysRemaining: number | null
+  remainingLabel: string | null
   showBadge: boolean
 }

@@ -46,17 +46,17 @@ export default function DiscussionsPage() {
 
   return (
     <div>
-      <h2 className="text-[20px] font-bold leading-7 text-[#111827]">
+      <h2 className="text-[20px] font-bold leading-7 text-foreground">
         Discussions
       </h2>
-      <p className="mt-1 text-[14px] leading-5 text-[#6B7280]">
+      <p className="mt-1 text-[14px] leading-5 text-foreground-muted">
         Join the public conversation or catch up on discussions inside your
         clubs.
       </p>
 
       <Tabs value={activeTab} onValueChange={setTab} className="mt-5">
         <div className="overflow-x-auto">
-          <TabsList className="bg-[#F1ECE8]">
+          <TabsList className="bg-surface-muted">
             <TabsTrigger value={PUBLIC_TAB} className="px-3">
               Public
             </TabsTrigger>
@@ -86,7 +86,7 @@ export default function DiscussionsPage() {
         <p
           role="status"
           aria-label="Loading your clubs"
-          className="mt-2 text-[13px] text-[#9CA3AF]"
+          className="mt-2 text-[13px] text-foreground-subtle"
         >
           Loading your clubs…
         </p>

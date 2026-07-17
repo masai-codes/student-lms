@@ -24,7 +24,9 @@ describe('fetchProblemDetail queries', () => {
     }
     hoisted.dbSelect.mockReturnValueOnce({
       from: () => ({
-        innerJoin: () => ({ where: () => ({ limit: () => Promise.resolve([row]) }) }),
+        innerJoin: () => ({
+          where: () => ({ limit: () => Promise.resolve([row]) }),
+        }),
       }),
     })
 
@@ -34,7 +36,9 @@ describe('fetchProblemDetail queries', () => {
   it('returns null when the problem is not linked to the assignment', async () => {
     hoisted.dbSelect.mockReturnValueOnce({
       from: () => ({
-        innerJoin: () => ({ where: () => ({ limit: () => Promise.resolve([]) }) }),
+        innerJoin: () => ({
+          where: () => ({ limit: () => Promise.resolve([]) }),
+        }),
       }),
     })
 
@@ -51,7 +55,9 @@ describe('fetchProblemDetail queries', () => {
     hoisted.dbSelect.mockReturnValueOnce({
       from: () => ({
         innerJoin: () => ({
-          where: () => ({ orderBy: () => ({ limit: () => Promise.resolve([row]) }) }),
+          where: () => ({
+            orderBy: () => ({ limit: () => Promise.resolve([row]) }),
+          }),
         }),
       }),
     })
@@ -63,7 +69,9 @@ describe('fetchProblemDetail queries', () => {
     hoisted.dbSelect.mockReturnValueOnce({
       from: () => ({
         innerJoin: () => ({
-          where: () => ({ orderBy: () => ({ limit: () => Promise.resolve([]) }) }),
+          where: () => ({
+            orderBy: () => ({ limit: () => Promise.resolve([]) }),
+          }),
         }),
       }),
     })

@@ -16,6 +16,9 @@ const hoisted = vi.hoisted(() => ({
 vi.mock('@/server/batches/getSectionIdsForUserInBatch', () => ({
   getSectionIdsForUserInBatch: hoisted.getSectionIds,
 }))
+vi.mock('@/server/restrictions/getUserBatchRestrictions', () => ({
+  getUserBatchRestrictions: vi.fn(async () => new Map()),
+}))
 vi.mock('@/server/learn/queries/fetchLearnListingFacets', () => ({
   fetchLearnListingFacets: hoisted.fetchFacets,
 }))
@@ -94,6 +97,7 @@ describe('getBatchLearningData service (orchestration)', () => {
             hasStudentAttendanceEntry: true,
             isCatchupWindowOver: null,
             videoPercentage: 0,
+            watchPercentage: 0,
             daysRemaining: null,
             lateByMinutes: null,
           },
@@ -133,6 +137,7 @@ describe('getBatchLearningData service (orchestration)', () => {
       rows: [row],
       pagination: PAGINATION,
       progressById: new Map([[55, 'completed' as const]]),
+      scoreById: new Map<number, number>(),
     })
 
     const input: GetBatchLearningDataInput = {

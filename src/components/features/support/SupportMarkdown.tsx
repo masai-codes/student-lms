@@ -37,7 +37,9 @@ export function SupportMarkdown({
         remarkPlugins={[remarkGfm]}
         rehypePlugins={[rehypeRaw, rehypeSanitize]}
         components={{
-          a: (props) => <a {...props} target="_blank" rel="noopener noreferrer" />,
+          a: (props) => (
+            <a {...props} target="_blank" rel="noopener noreferrer" />
+          ),
         }}
       >
         {children}

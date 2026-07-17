@@ -28,7 +28,7 @@ export async function markAnnouncementAsRead(
  */
 export async function markMessageAsRead(
   userId: number,
-  messageId: number,
+  messageId: string,
 ): Promise<void> {
   await db.execute(sql`
     UPDATE messages

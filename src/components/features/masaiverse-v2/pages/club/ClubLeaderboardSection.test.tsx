@@ -95,7 +95,11 @@ describe('ClubLeaderboardSection', () => {
     fetchLeaderboard.mockImplementation((input: { period: string }) =>
       Promise.resolve({
         entries: [
-          entry(1, input.period === 'month' ? 'Monthly Mira' : 'Overall Olivia', 50),
+          entry(
+            1,
+            input.period === 'month' ? 'Monthly Mira' : 'Overall Olivia',
+            50,
+          ),
         ],
         currentUser: null,
       }),

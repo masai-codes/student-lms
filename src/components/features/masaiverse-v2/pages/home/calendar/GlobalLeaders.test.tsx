@@ -21,9 +21,7 @@ function renderWithClient(ui: ReactNode) {
   const client = new QueryClient({
     defaultOptions: { queries: { retry: false } },
   })
-  return render(
-    <QueryClientProvider client={client}>{ui}</QueryClientProvider>,
-  )
+  return render(<QueryClientProvider client={client}>{ui}</QueryClientProvider>)
 }
 
 afterEach(() => {
@@ -49,7 +47,13 @@ describe('GlobalLeaders', () => {
   it('renders ranked leaders with medals, initials and a photo', async () => {
     fetchLeaderboard.mockResolvedValue({
       entries: [
-        { rank: 1, userId: '10', name: 'Priya Rajan', avatarUrl: null, points: 940 },
+        {
+          rank: 1,
+          userId: '10',
+          name: 'Priya Rajan',
+          avatarUrl: null,
+          points: 940,
+        },
         {
           rank: 2,
           userId: '20',
@@ -75,7 +79,13 @@ describe('GlobalLeaders', () => {
   it('pins the signed-in member when they fall outside the top list', async () => {
     fetchLeaderboard.mockResolvedValue({
       entries: [
-        { rank: 1, userId: '10', name: 'Priya Rajan', avatarUrl: null, points: 940 },
+        {
+          rank: 1,
+          userId: '10',
+          name: 'Priya Rajan',
+          avatarUrl: null,
+          points: 940,
+        },
       ],
       currentUser: {
         rank: 27,

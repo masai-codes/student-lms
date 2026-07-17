@@ -4,7 +4,7 @@ import { handleGetMyCourses } from '@/server/api/my-courses/handlers/getMyCourse
 export const Route = createFileRoute('/api/my-courses/')({
   server: {
     handlers: {
-      GET: ({ request }) => handleGetMyCourses(request),
+      GET: () => handleGetMyCourses(),
     },
   },
 })

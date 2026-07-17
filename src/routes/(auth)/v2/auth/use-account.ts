@@ -2,10 +2,7 @@ import { eq } from 'drizzle-orm'
 import { createFileRoute } from '@tanstack/react-router'
 import { db } from '@/db'
 import { sessions, users } from '@/db/schema'
-import {
-  readSessionIdFromAuthHeader,
-  readSessionIdFromCookieHeader,
-} from '@/server/auth/getCurrentSessionUserId'
+import { getCurrentUserSessionId } from '@/server/auth/getCurrentSessionUserId'
 import {
   buildActiveCookieHeader,
   signSessionToken,
@@ -23,22 +20,16 @@ type UseAccountBody = {
   rememberMe?: unknown
 }
 
-function resolveCurrentSessionId(request: Request): string | null {
-  return (
-    readSessionIdFromAuthHeader(request.headers.get('authorization')) ??
-    readSessionIdFromCookieHeader(request.headers.get('cookie'))
-  )
-}
-
 async function handleUseAccount(request: Request): Promise<Response> {
-  const currentSessionId = resolveCurrentSessionId(request)
+  const currentSessionId = getCurrentUserSessionId()
   if (!currentSessionId) {
     return errorResponse(401, 'UNAUTHENTICATED', 'Not signed in')
   }
 
   const body = await readJsonBody<UseAccountBody>(request)
 
-  const targetSessionId = typeof body.sessionId === 'string' ? body.sessionId : ''
+  const targetSessionId =
+    typeof body.sessionId === 'string' ? body.sessionId : ''
   const rememberMe = body.rememberMe === true
   if (!targetSessionId) {
     return errorResponse(400, 'MISSING_FIELDS', 'sessionId is required')
@@ -61,7 +52,11 @@ async function handleUseAccount(request: Request): Promise<Response> {
 
   const targetSession = targetRows[0]
   if (!targetSession || targetSession.userId == null) {
-    return errorResponse(404, 'SESSION_NOT_FOUND', 'Target session no longer exists')
+    return errorResponse(
+      404,
+      'SESSION_NOT_FOUND',
+      'Target session no longer exists',
+    )
   }
 
   const userRows = await db
@@ -82,7 +77,11 @@ async function handleUseAccount(request: Request): Promise<Response> {
   }
 
   const token = signSessionToken(targetSessionId)
-  const setCookieHeader = buildActiveCookieHeader({ token, request, rememberMe })
+  const setCookieHeader = buildActiveCookieHeader({
+    token,
+    request,
+    rememberMe,
+  })
 
   return jsonResponse(
     { user, token },

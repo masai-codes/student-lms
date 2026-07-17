@@ -6,7 +6,7 @@ import { canSeeUnpublished } from '@/server/api/masaiverse-v2/services/publishVi
 
 export async function handleGetClubStats(request: Request): Promise<Response> {
   try {
-    const userId = await requireSessionUserId(request)
+    const userId = await requireSessionUserId()
     const clubId = Number(new URL(request.url).searchParams.get('clubId'))
     const stats = await getClubStats(
       clubId,

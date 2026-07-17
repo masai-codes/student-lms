@@ -26,10 +26,7 @@ const EDIT_DATA = {
     confirmationModalText: 'confirm',
     isWeeklyConnect: true,
     isPublished: true,
-    hostedBy: [
-      { host: 'Aman', imageUrl: 'https://cdn/a.png' },
-      'bogus',
-    ],
+    hostedBy: [{ host: 'Aman', imageUrl: 'https://cdn/a.png' }, 'bogus'],
   },
 }
 
@@ -43,7 +40,9 @@ describe('toEventFormState', () => {
     expect(state.clubId).toBe('7')
     expect(state.isWeeklyConnect).toBe(true)
     expect(state.isPublished).toBe(true)
-    expect(state.hostedBy).toEqual([{ host: 'Aman', imageUrl: 'https://cdn/a.png' }])
+    expect(state.hostedBy).toEqual([
+      { host: 'Aman', imageUrl: 'https://cdn/a.png' },
+    ])
   })
 
   it('falls back to empty values for null columns / missing meta', () => {
@@ -77,7 +76,12 @@ describe('toEventFormState', () => {
 describe('toEventPatch', () => {
   it('maps columns + meta, nulling empty enums/dates', () => {
     const state = toEventFormState(EDIT_DATA)
-    const patch = toEventPatch({ ...state, category: '', mode: '', startTime: '' })
+    const patch = toEventPatch({
+      ...state,
+      category: '',
+      mode: '',
+      startTime: '',
+    })
     expect(patch.column).toMatchObject({
       title: 'Build Sprint',
       category: null,

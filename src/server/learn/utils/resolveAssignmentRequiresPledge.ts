@@ -1,4 +1,5 @@
 import type { AssignmentKind } from '@/server/learn/assignmentDetailTypes'
+import { parseIstToMs } from '@/server/time/istClock'
 
 export type ResolveAssignmentRequiresPledgeInput = {
   assignmentKind: AssignmentKind
@@ -8,9 +9,8 @@ export type ResolveAssignmentRequiresPledgeInput = {
 }
 
 function isUnlocked(schedule: string | null, nowMs: number): boolean {
-  if (schedule == null || schedule.trim() === '') return true
-  const scheduleMs = new Date(schedule).getTime()
-  if (!Number.isFinite(scheduleMs)) return true
+  const scheduleMs = parseIstToMs(schedule)
+  if (scheduleMs == null) return true
   return nowMs >= scheduleMs
 }
 

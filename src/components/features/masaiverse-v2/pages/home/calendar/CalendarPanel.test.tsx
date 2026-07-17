@@ -36,9 +36,7 @@ function renderWithClient(ui: ReactNode) {
   const client = new QueryClient({
     defaultOptions: { queries: { retry: false } },
   })
-  return render(
-    <QueryClientProvider client={client}>{ui}</QueryClientProvider>,
-  )
+  return render(<QueryClientProvider client={client}>{ui}</QueryClientProvider>)
 }
 
 afterEach(() => {
@@ -100,7 +98,9 @@ describe('CalendarPanel', () => {
 
     renderWithClient(<CalendarPanel />)
 
-    await waitFor(() => expect(screen.getByText('Upcoming events')).toBeTruthy())
+    await waitFor(() =>
+      expect(screen.getByText('Upcoming events')).toBeTruthy(),
+    )
     expect(screen.getByText('Global leaderboard')).toBeTruthy()
     expect(screen.queryByRole('button', { name: /has events/ })).toBeNull()
   })

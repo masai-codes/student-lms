@@ -17,6 +17,8 @@ describe('mapDiscussionToLectureView', () => {
       createdAt: '2026-05-20T12:00:00.000Z',
       updatedAt: '2026-05-20T12:00:00.000Z',
       threadCount: 3,
+      unreadReplyCount: 0,
+      feedbackRating: null,
       threads: [],
       author: { id: 1, name: 'Priya Sharma' },
     }
@@ -42,6 +44,8 @@ describe('mapDiscussionToLectureView', () => {
         createdAt: null,
         updatedAt: null,
         threadCount: 0,
+        unreadReplyCount: 0,
+        feedbackRating: null,
         threads: [],
         author: null,
       },
