@@ -4,6 +4,7 @@ import type { ApiErrorBody } from '@/server/api/http/responses'
 import { ApiClientError } from '@/lib/api/apiClientError'
 import { resolveTrueStatus } from '@/lib/api/cloudFrontSafeStatus'
 import { resolveApiFetchUrl } from '@/lib/api/resolveApiFetchUrl'
+import { getAppOrigin } from '@/utils/appOrigin'
 
 export type FetchJsonOptions = RequestInit & {
   cookieHeader?: string | null
@@ -42,10 +43,15 @@ const fetchJsonIsomorphic = createIsomorphicFn()
     const url = resolveApiFetchUrl(path)
     const cookie = cookieHeader ?? getRequest().headers.get('cookie')
 
+    // Propagate the portal to internal API calls during SSR. The backend
+    // resolves the portal from X-App-Origin (never the Host header), and a
+    // server-to-server fetch carries no Origin/Referer, so without this the
+    // receiving handler would default to Masai and scope out iHub/IITJ data.
     const response = await fetch(url, {
       ...init,
       headers: {
         Accept: 'application/json',
+        'X-App-Origin': getAppOrigin(),
         ...(cookie ? { cookie } : {}),
         ...headers,
       },
