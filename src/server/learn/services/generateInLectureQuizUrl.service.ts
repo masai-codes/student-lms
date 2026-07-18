@@ -13,21 +13,27 @@ import { parseLectureSettings } from '@/server/learn/utils/parseLectureSettings'
  * lecture's own `settings.inLecturePopupQuiz` so a student can't mint a test
  * for an arbitrary template id.
  *
- * Required env: ASSESS_PLATFORM_URL, ASSESS_ADMIN_AUTH_TOKEN, ASSESS_CLIENT_ID.
+ * Required env: ASSESS_PLATFORM_URL, ASSESS_ADMIN_AUTH_TOKEN, ASSESS_CLIENT_ID,
+ * ASSESS_CALLBACK_BASE_URL (public base the Assess Platform posts callbacks to).
  */
 function requireAssessEnv(): {
   base: string
   adminAuthToken: string
   clientId: string
+  callbackBase: string
 } {
   const base = process.env.ASSESS_PLATFORM_URL?.trim().replace(/\/$/, '')
   const adminAuthToken = process.env.ASSESS_ADMIN_AUTH_TOKEN?.trim()
   const clientId = process.env.ASSESS_CLIENT_ID?.trim()
+  const callbackBase = process.env.ASSESS_CALLBACK_BASE_URL?.trim().replace(
+    /\/$/,
+    '',
+  )
 
-  if (!base || !adminAuthToken || !clientId) {
+  if (!base || !adminAuthToken || !clientId || !callbackBase) {
     throw new ApiError(500, 'ASSESS_QUIZ_NOT_CONFIGURED')
   }
-  return { base, adminAuthToken, clientId }
+  return { base, adminAuthToken, clientId, callbackBase }
 }
 
 export async function generateInLectureQuizUrl(input: {
@@ -36,7 +42,7 @@ export async function generateInLectureQuizUrl(input: {
   assessmentTemplateId: string
 }): Promise<{ url: string }> {
   const { userId, lectureId, assessmentTemplateId } = input
-  const { base, adminAuthToken, clientId } = requireAssessEnv()
+  const { base, adminAuthToken, clientId, callbackBase } = requireAssessEnv()
 
   const rows = await db
     .select({ sectionId: lectures.sectionId, settings: lectures.settings })
@@ -84,9 +90,9 @@ export async function generateInLectureQuizUrl(input: {
       redirectClientUrl: 'https://dont-redirect.com',
       email,
       client_id: clientId,
-      callback_url: 'https://e7b9-2401-4900-c9ab-9856-7dd4-3e44-7336-1678.ngrok-free.app/api/assessment-callback',
+      callback_url: `${callbackBase}/api/assessment-callback`,
       groupId: String(lectureId),
-      liveProgressCallbackUrl: 'https://e7b9-2401-4900-c9ab-9856-7dd4-3e44-7336-1678.ngrok-free.app/api/assessment-callback/live-progress',
+      liveProgressCallbackUrl: `${callbackBase}/api/assessment-callback/live-progress`,
       noTimeBound: true,
       skipSubjectiveGrading: false,
     }),
