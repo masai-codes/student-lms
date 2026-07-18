@@ -74,6 +74,14 @@ export async function generateInLectureQuizUrl(input: {
   const email = userRows[0]?.email
   if (!email) throw new ApiError(404, 'USER_NOT_FOUND')
 
+  const callbackUrl = `${callbackBase}/api/assessment-callback`
+  const liveProgressCallbackUrl = `${callbackBase}/api/assessment-callback/live-progress`
+  console.log('[in-lecture-quiz] generate-test callback_url:', callbackUrl)
+  console.log(
+    '[in-lecture-quiz] generate-test liveProgressCallbackUrl:',
+    liveProgressCallbackUrl,
+  )
+
   const response = await fetch(`${base}/student/assessments/generate-test`, {
     method: 'POST',
     headers: {
@@ -90,9 +98,9 @@ export async function generateInLectureQuizUrl(input: {
       redirectClientUrl: 'https://dont-redirect.com',
       email,
       client_id: clientId,
-      callback_url: `${callbackBase}/api/assessment-callback`,
+      callback_url: callbackUrl,
       groupId: String(lectureId),
-      liveProgressCallbackUrl: `${callbackBase}/api/assessment-callback/live-progress`,
+      liveProgressCallbackUrl,
       noTimeBound: true,
       skipSubjectiveGrading: false,
     }),
