@@ -1,32 +1,23 @@
 import { eq } from 'drizzle-orm'
-import jwt from 'jsonwebtoken'
 import { getCookie, getRequestHeader } from '@tanstack/react-start/server'
 import { db } from '@/db'
 import { sessions, users } from '@/db/schema'
 import { isUserDeactivated } from '@/server/restrictions/deactivatedUser'
-import { getCookieName, getJwtSecret } from '@/server/auth/v2/sessionConfig'
-
-type SessionTokenPayload = {
-  sessionId?: string
-}
+import { getCookieName } from '@/server/auth/v2/sessionConfig'
+import {
+  verifySessionToken,
+  type SessionTokenPayload,
+} from '@/server/auth/v2/sessionToken'
 
 function extractBearerToken(authHeader: string | null): string | undefined {
   const match = authHeader?.match(/^Bearer\s+(.+)$/i)
   return match?.[1].trim()
 }
 
-/** Verifies a session JWT and returns its embedded session id, or `null` if absent/invalid. */
-function verifySessionToken(token: string | undefined): string | null {
-  if (!token) return null
-
-  const jwtSecret = getJwtSecret()
-
-  try {
-    const payload = jwt.verify(token, jwtSecret) as SessionTokenPayload
-    return payload.sessionId ?? null
-  } catch {
-    return null
-  }
+function currentJwtToken(): string | undefined {
+  const authHeader = getRequestHeader('Authorization')
+  if (authHeader) return extractBearerToken(authHeader)
+  return getCookie(getCookieName())
 }
 
 async function lookupUserIdBySessionId(
@@ -50,16 +41,22 @@ async function lookupUserIdBySessionId(
 }
 
 /**
+ * Full session token payload (current session id + every linked session's own
+ * expiry bookkeeping) from either an `Authorization: Bearer <jwt>` header
+ * (preferred — used by mobile clients) or the session cookie (used by browsers).
+ * Pure — verifies/decodes only, never reissues the cookie, so it's safe to call
+ * from any context (including `createServerFn` handlers).
+ */
+export function getCurrentSessionPayload(): SessionTokenPayload | null {
+  return verifySessionToken(currentJwtToken())
+}
+
+/**
  * Session id from either an `Authorization: Bearer <jwt>` header (preferred — used by
  * mobile clients) or the session cookie (used by browsers).
  */
 export function getCurrentUserSessionId(): string | null {
-  const authHeader = getRequestHeader('Authorization')
-  let jwtToken: string | undefined
-  if (authHeader) jwtToken = extractBearerToken(authHeader)
-  else jwtToken = getCookie(getCookieName())
-  if (jwtToken) return verifySessionToken(jwtToken)
-  return null
+  return getCurrentSessionPayload()?.sessionId ?? null
 }
 
 /**

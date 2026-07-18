@@ -3,6 +3,7 @@ import { useNavigate } from '@tanstack/react-router'
 import { LinkedAccountsStepView } from '@/components/features/sign-in/LinkedAccountsStepView'
 import { takePendingPhoneOtpSignIn } from '@/components/features/sign-in/pendingPhoneOtpSignIn'
 import {
+  buildAddAccountSignInUrl,
   getRedirectToSearchParam,
   redirectToResolvedUrl,
 } from '@/components/features/sign-in/signInRouting'
@@ -31,7 +32,12 @@ function formatSwitchAccountError(err: unknown): string {
   return 'Something went wrong. Please try again.'
 }
 
-export function SwitchAccountFlow() {
+export function SwitchAccountFlow({
+  onAccountSwitched,
+}: {
+  /** Called right after an account selection triggers its redirect/navigation — lets a modal wrapper close itself. */
+  onAccountSwitched?: () => void
+} = {}) {
   const navigate = useNavigate()
   const [accounts, setAccounts] = useState<Array<LinkedAccount>>([])
   const [loading, setLoading] = useState(true)
@@ -125,6 +131,7 @@ export function SwitchAccountFlow() {
               userId: account.user.id,
             },
           })
+          onAccountSwitched?.()
           return
         }
 
@@ -137,6 +144,7 @@ export function SwitchAccountFlow() {
           reason: 'Linked account selected from switch-account page',
           extra: { method: 'phone-use-account', userId: response.user.id },
         })
+        onAccountSwitched?.()
       } catch (err) {
         dispatchSignInFailureEvent('sso-v2', 'phone-use-account', err)
         setError(formatSwitchAccountError(err))
@@ -144,7 +152,7 @@ export function SwitchAccountFlow() {
         setBusy(false)
       }
     },
-    [pendingPhoneOtpSignIn, redirectAfterAccountSelection],
+    [pendingPhoneOtpSignIn, redirectAfterAccountSelection, onAccountSwitched],
   )
 
   if (loading) {
@@ -181,6 +189,9 @@ export function SwitchAccountFlow() {
       error={error}
       busy={busy}
       onSelectAccount={(account) => void onSelectAccount(account)}
+      onAddAccount={() => {
+        window.location.assign(buildAddAccountSignInUrl())
+      }}
     />
   )
 }

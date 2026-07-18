@@ -135,7 +135,9 @@ describe('SwitchAccountFlow', () => {
     expect(screen.getByText(/primary user/i)).toBeTruthy()
     expect(screen.getByText(/secondary user/i)).toBeTruthy()
     expect(
-      screen.getAllByRole('button', { name: /login with this account/i }),
+      screen.getAllByRole('button', {
+        name: /login with this account|continue with this account/i,
+      }),
     ).toHaveLength(2)
   })
 
@@ -162,12 +164,16 @@ describe('SwitchAccountFlow', () => {
 
     await waitFor(() => {
       expect(
-        screen.getAllByRole('button', { name: /login with this account/i }),
+        screen.getAllByRole('button', {
+          name: /login with this account|continue with this account/i,
+        }),
       ).toHaveLength(2)
     })
 
     fireEvent.click(
-      screen.getAllByRole('button', { name: /login with this account/i })[0],
+      screen.getAllByRole('button', {
+        name: /login with this account|continue with this account/i,
+      })[0],
     )
 
     await waitFor(() => {
@@ -204,12 +210,16 @@ describe('SwitchAccountFlow', () => {
 
     await waitFor(() => {
       expect(
-        screen.getAllByRole('button', { name: /login with this account/i }),
+        screen.getAllByRole('button', {
+          name: /login with this account|continue with this account/i,
+        }),
       ).toHaveLength(2)
     })
 
     fireEvent.click(
-      screen.getAllByRole('button', { name: /login with this account/i })[1],
+      screen.getAllByRole('button', {
+        name: /login with this account|continue with this account/i,
+      })[1],
     )
 
     await waitFor(() => {
@@ -245,12 +255,16 @@ describe('SwitchAccountFlow', () => {
 
     await waitFor(() => {
       expect(
-        screen.getAllByRole('button', { name: /login with this account/i }),
+        screen.getAllByRole('button', {
+          name: /login with this account|continue with this account/i,
+        }),
       ).toHaveLength(2)
     })
 
     fireEvent.click(
-      screen.getAllByRole('button', { name: /login with this account/i })[1],
+      screen.getAllByRole('button', {
+        name: /login with this account|continue with this account/i,
+      })[1],
     )
 
     await waitFor(() => {
@@ -268,12 +282,16 @@ describe('SwitchAccountFlow', () => {
 
     await waitFor(() => {
       expect(
-        screen.getAllByRole('button', { name: /login with this account/i }),
+        screen.getAllByRole('button', {
+          name: /login with this account|continue with this account/i,
+        }),
       ).toHaveLength(2)
     })
 
     fireEvent.click(
-      screen.getAllByRole('button', { name: /login with this account/i })[1],
+      screen.getAllByRole('button', {
+        name: /login with this account|continue with this account/i,
+      })[1],
     )
 
     await waitFor(() => {

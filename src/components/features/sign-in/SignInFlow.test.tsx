@@ -42,6 +42,7 @@ vi.mock('@/components/features/sign-in/signInRouting', () => ({
   getRedirectToSearchParam: getRedirectToSearchParamMock,
   redirectToResolvedUrl: redirectToResolvedUrlMock,
   redirectToSwitchAccountPage: redirectToSwitchAccountPageMock,
+  isAddAccountIntent: () => false,
 }))
 
 function stubFetchJson(

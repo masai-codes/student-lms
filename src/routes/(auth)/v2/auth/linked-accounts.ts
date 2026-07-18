@@ -1,19 +1,19 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { getCurrentUserSessionId } from '@/server/auth/getCurrentSessionUserId'
+import { getCurrentSessionPayload } from '@/server/auth/getCurrentSessionUserId'
 import {
   errorResponse,
   jsonResponse,
   withAuthErrorHandling,
 } from '@/server/auth/v2/httpHelpers'
-import { getLinkedAccountsForSession } from '@/server/auth/v2/linkedAccounts'
+import { getLinkedAccountsForPayload } from '@/server/auth/v2/linkedAccounts'
 
 async function handleLinkedAccounts(): Promise<Response> {
-  const sessionId = getCurrentUserSessionId()
-  if (!sessionId) {
+  const payload = getCurrentSessionPayload()
+  if (!payload) {
     return errorResponse(401, 'UNAUTHENTICATED', 'Not signed in')
   }
 
-  const accounts = await getLinkedAccountsForSession(sessionId)
+  const accounts = await getLinkedAccountsForPayload(payload)
   if (accounts.length === 0) {
     return errorResponse(401, 'UNAUTHENTICATED', 'Session is no longer valid')
   }

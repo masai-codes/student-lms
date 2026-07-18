@@ -141,6 +141,7 @@ import { Route as protectedLayoutMasaiverseClubsRouteImport } from './routes/(pr
 import { Route as authV2LoginVerifyOtpRouteImport } from './routes/(auth)/v2/login/verify-otp'
 import { Route as authV2LoginRequestOtpRouteImport } from './routes/(auth)/v2/login/request-otp'
 import { Route as authV2AuthUseAccountRouteImport } from './routes/(auth)/v2/auth/use-account'
+import { Route as authV2AuthRenewRouteImport } from './routes/(auth)/v2/auth/renew'
 import { Route as authV2AuthLinkedAccountsRouteImport } from './routes/(auth)/v2/auth/linked-accounts'
 import { Route as protectedLayoutWhatsNewIdRouteRouteImport } from './routes/(protected)/_layout/whats-new_/$id/route'
 import { Route as protectedLayoutResourcesResourceIdRouteRouteImport } from './routes/(protected)/_layout/resources_/$resourceId/route'
@@ -915,6 +916,11 @@ const authV2AuthUseAccountRoute = authV2AuthUseAccountRouteImport.update({
   path: '/v2/auth/use-account',
   getParentRoute: () => rootRouteImport,
 } as any)
+const authV2AuthRenewRoute = authV2AuthRenewRouteImport.update({
+  id: '/(auth)/v2/auth/renew',
+  path: '/v2/auth/renew',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const authV2AuthLinkedAccountsRoute =
   authV2AuthLinkedAccountsRouteImport.update({
     id: '/(auth)/v2/auth/linked-accounts',
@@ -1209,6 +1215,7 @@ export interface FileRoutesByFullPath {
   '/resources/$resourceId': typeof protectedLayoutResourcesResourceIdRouteRoute
   '/whats-new/$id': typeof protectedLayoutWhatsNewIdRouteRoute
   '/v2/auth/linked-accounts': typeof authV2AuthLinkedAccountsRoute
+  '/v2/auth/renew': typeof authV2AuthRenewRoute
   '/v2/auth/use-account': typeof authV2AuthUseAccountRoute
   '/v2/login/request-otp': typeof authV2LoginRequestOtpRoute
   '/v2/login/verify-otp': typeof authV2LoginVerifyOtpRoute
@@ -1380,6 +1387,7 @@ export interface FileRoutesByTo {
   '/resources/$resourceId': typeof protectedLayoutResourcesResourceIdRouteRoute
   '/whats-new/$id': typeof protectedLayoutWhatsNewIdRouteRoute
   '/v2/auth/linked-accounts': typeof authV2AuthLinkedAccountsRoute
+  '/v2/auth/renew': typeof authV2AuthRenewRoute
   '/v2/auth/use-account': typeof authV2AuthUseAccountRoute
   '/v2/login/request-otp': typeof authV2LoginRequestOtpRoute
   '/v2/login/verify-otp': typeof authV2LoginVerifyOtpRoute
@@ -1554,6 +1562,7 @@ export interface FileRoutesById {
   '/(protected)/_layout/resources_/$resourceId': typeof protectedLayoutResourcesResourceIdRouteRoute
   '/(protected)/_layout/whats-new_/$id': typeof protectedLayoutWhatsNewIdRouteRoute
   '/(auth)/v2/auth/linked-accounts': typeof authV2AuthLinkedAccountsRoute
+  '/(auth)/v2/auth/renew': typeof authV2AuthRenewRoute
   '/(auth)/v2/auth/use-account': typeof authV2AuthUseAccountRoute
   '/(auth)/v2/login/request-otp': typeof authV2LoginRequestOtpRoute
   '/(auth)/v2/login/verify-otp': typeof authV2LoginVerifyOtpRoute
@@ -1728,6 +1737,7 @@ export interface FileRouteTypes {
     | '/resources/$resourceId'
     | '/whats-new/$id'
     | '/v2/auth/linked-accounts'
+    | '/v2/auth/renew'
     | '/v2/auth/use-account'
     | '/v2/login/request-otp'
     | '/v2/login/verify-otp'
@@ -1899,6 +1909,7 @@ export interface FileRouteTypes {
     | '/resources/$resourceId'
     | '/whats-new/$id'
     | '/v2/auth/linked-accounts'
+    | '/v2/auth/renew'
     | '/v2/auth/use-account'
     | '/v2/login/request-otp'
     | '/v2/login/verify-otp'
@@ -2072,6 +2083,7 @@ export interface FileRouteTypes {
     | '/(protected)/_layout/resources_/$resourceId'
     | '/(protected)/_layout/whats-new_/$id'
     | '/(auth)/v2/auth/linked-accounts'
+    | '/(auth)/v2/auth/renew'
     | '/(auth)/v2/auth/use-account'
     | '/(auth)/v2/login/request-otp'
     | '/(auth)/v2/login/verify-otp'
@@ -2235,6 +2247,7 @@ export interface RootRouteChildren {
   ApiProfileIndexRoute: typeof ApiProfileIndexRoute
   ApiWhatsNewIndexRoute: typeof ApiWhatsNewIndexRoute
   authV2AuthLinkedAccountsRoute: typeof authV2AuthLinkedAccountsRoute
+  authV2AuthRenewRoute: typeof authV2AuthRenewRoute
   authV2AuthUseAccountRoute: typeof authV2AuthUseAccountRoute
   authV2LoginRequestOtpRoute: typeof authV2LoginRequestOtpRoute
   authV2LoginVerifyOtpRoute: typeof authV2LoginVerifyOtpRoute
@@ -3233,6 +3246,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof authV2AuthUseAccountRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/(auth)/v2/auth/renew': {
+      id: '/(auth)/v2/auth/renew'
+      path: '/v2/auth/renew'
+      fullPath: '/v2/auth/renew'
+      preLoaderRoute: typeof authV2AuthRenewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/(auth)/v2/auth/linked-accounts': {
       id: '/(auth)/v2/auth/linked-accounts'
       path: '/v2/auth/linked-accounts'
@@ -3842,6 +3862,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiProfileIndexRoute: ApiProfileIndexRoute,
   ApiWhatsNewIndexRoute: ApiWhatsNewIndexRoute,
   authV2AuthLinkedAccountsRoute: authV2AuthLinkedAccountsRoute,
+  authV2AuthRenewRoute: authV2AuthRenewRoute,
   authV2AuthUseAccountRoute: authV2AuthUseAccountRoute,
   authV2LoginRequestOtpRoute: authV2LoginRequestOtpRoute,
   authV2LoginVerifyOtpRoute: authV2LoginVerifyOtpRoute,

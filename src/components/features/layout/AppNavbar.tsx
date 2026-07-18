@@ -8,6 +8,7 @@ import {
   useRouterState,
 } from '@tanstack/react-router'
 import {
+  ArrowRightLeft,
   Book,
   Bookmark,
   BriefcaseBusiness,
@@ -31,9 +32,11 @@ import type {
   NavbarProfileMenuItem,
 } from '@/components/navbar'
 import { fetchAnnouncementUnreadCount } from '@/lib/api/announcement/announcementApi'
+import { v2RenewSession } from '@/components/features/sign-in/v2AuthClient'
 import { Navbar } from '@/components/navbar'
 import { LevelUpIcon } from '@/components/common/LevelUpIcon'
 import { DownloadAppModal } from '@/components/features/layout/DownloadAppModal'
+import { SwitchAccountModal } from '@/components/features/layout/SwitchAccountModal'
 import { NextActionBanner } from '@/components/features/layout/NextActionBanner'
 import { TryNewToggle } from '@/components/features/layout/TryNewToggle'
 import { useTryNewCtaVisible } from '@/hooks/useTryNewCtaVisible'
@@ -126,6 +129,7 @@ export default function AppNavbar() {
   const showTryNew = useTryNewCtaVisible()
   const activeNavId = activeAppNavIdForPathname(pathname)
   const [downloadAppOpen, setDownloadAppOpen] = useState(false)
+  const [switchAccountOpen, setSwitchAccountOpen] = useState(false)
   const [isLevelupLoading, setIsLevelupLoading] = useState(false)
   const levelupLoadingRef = useRef(false)
   const REFERRAL_URL_REFETCH_INTERVAL = 5 * 60 * 1000
@@ -135,6 +139,20 @@ export default function AppNavbar() {
     queryFn: fetchAnnouncementUnreadCount,
     staleTime: 5 * 60 * 1000,
     refetchOnWindowFocus: false,
+  })
+
+  // Sliding-window session keep-alive: nudges the session's expiry forward
+  // (capped server-side) as long as the app shell stays mounted. Deliberately
+  // explicit rather than piggybacked on every request, so a bare stolen
+  // cookie replayed outside the real app doesn't renew itself.
+  const SESSION_RENEW_INTERVAL = 6 * 60 * 60 * 1000
+  useQuery({
+    queryKey: ['v2-session-renew'],
+    queryFn: v2RenewSession,
+    staleTime: SESSION_RENEW_INTERVAL,
+    refetchInterval: SESSION_RENEW_INTERVAL,
+    refetchIntervalInBackground: false,
+    retry: 1,
   })
 
   const { data: referralUrl, isFetching: isReferralUrlLoading } = useQuery({
@@ -489,6 +507,17 @@ export default function AppNavbar() {
         onClick: handleProductUpdatesClick,
       },
       {
+        id: 'switch-account',
+        label: 'Switch account',
+        icon: <ArrowRightLeft className="size-4" />,
+        href: '#',
+        openInNewTab: false,
+        onClick: (e) => {
+          e.preventDefault()
+          setSwitchAccountOpen(true)
+        },
+      },
+      {
         id: 'sign-out',
         label: 'Sign out',
         href: '#',
@@ -548,6 +577,10 @@ export default function AppNavbar() {
       <DownloadAppModal
         open={downloadAppOpen}
         onOpenChange={setDownloadAppOpen}
+      />
+      <SwitchAccountModal
+        open={switchAccountOpen}
+        onOpenChange={setSwitchAccountOpen}
       />
     </>
   )

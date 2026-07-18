@@ -98,11 +98,14 @@ export async function v2LoginWithPassword(input: {
   email: string
   password: string
   rememberMe?: boolean
+  /** Link into the current browser session's family instead of replacing it. */
+  linkToCurrentSession?: boolean
 }): Promise<PasswordLoginResult> {
   return postJson<PasswordLoginResult>('/v2/login/', {
     email: input.email,
     password: input.password,
     rememberMe: input.rememberMe === true,
+    linkToCurrentSession: input.linkToCurrentSession === true,
   })
 }
 
@@ -136,11 +139,14 @@ export async function v2VerifyOtp(input: {
   otpSessionId: string
   otp: string
   rememberMe?: boolean
+  /** Link into the current browser session's family instead of replacing it. */
+  linkToCurrentSession?: boolean
 }): Promise<VerifyOtpResult> {
   return postJson<VerifyOtpResult>('/v2/login/verify-otp', {
     otpSessionId: input.otpSessionId,
     otp: input.otp,
     rememberMe: input.rememberMe === true,
+    linkToCurrentSession: input.linkToCurrentSession === true,
   })
 }
 
@@ -163,6 +169,16 @@ export async function v2UseAccount(input: {
     sessionId: input.sessionId,
     rememberMe: input.rememberMe === true,
   })
+}
+
+export type RenewSessionResult = {
+  renewed: boolean
+  exp: number
+}
+
+/** Best-effort sliding-window keep-alive; call from the app shell, not per-request. */
+export async function v2RenewSession(): Promise<RenewSessionResult> {
+  return postJson<RenewSessionResult>('/v2/auth/renew', {})
 }
 
 export async function v2ForgotPassword(input: {

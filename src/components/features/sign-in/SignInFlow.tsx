@@ -8,6 +8,7 @@ import { PhoneOtpStepView } from '@/components/features/sign-in/PhoneOtpStepView
 import { savePendingPhoneOtpSignIn } from '@/components/features/sign-in/pendingPhoneOtpSignIn'
 import {
   getRedirectToSearchParam,
+  isAddAccountIntent,
   redirectToResolvedUrl,
   redirectToSwitchAccountPage,
 } from '@/components/features/sign-in/signInRouting'
@@ -65,6 +66,7 @@ export function SignInFlow() {
   const [phoneResendBusy, setPhoneResendBusy] = useState(false)
   const [forgotBusy, setForgotBusy] = useState(false)
   const [rememberMe, setRememberMe] = useState(true)
+  const [addAccountMode] = useState(() => isAddAccountIntent())
 
   const completePrimarySignIn = useCallback(() => {
     const redirectTo = getRedirectToSearchParam()
@@ -219,6 +221,7 @@ export function SignInFlow() {
             email: state.email,
             password: state.password,
             rememberMe,
+            linkToCurrentSession: addAccountMode,
           })
           dispatchSignInSuccessEvent('sso-v2', 'email-password', response)
         } else {
@@ -226,6 +229,7 @@ export function SignInFlow() {
             otpSessionId: state.otpSessionId!,
             otp: state.otp.trim(),
             rememberMe,
+            linkToCurrentSession: addAccountMode,
           })
           dispatchSignInSuccessEvent('sso-v2', 'email-otp', response)
         }
@@ -254,6 +258,7 @@ export function SignInFlow() {
           otpSessionId: state.otpSessionId,
           otp: state.otp.trim(),
           rememberMe,
+          linkToCurrentSession: addAccountMode,
         })
         const linkedAccountsResult = await v2FetchLinkedAccounts()
         if (linkedAccountsResult.accounts.length >= 2) {
@@ -269,7 +274,13 @@ export function SignInFlow() {
         setSubmitBusy(false)
       }
     }
-  }, [completePhoneRedirect, completePrimarySignIn, rememberMe, state])
+  }, [
+    addAccountMode,
+    completePhoneRedirect,
+    completePrimarySignIn,
+    rememberMe,
+    state,
+  ])
 
   const onForgotSubmit = useCallback(async () => {
     if (state.step !== 'forgot') return
@@ -303,6 +314,13 @@ export function SignInFlow() {
 
   return (
     <div className="space-y-6">
+      {addAccountMode ? (
+        <div className="rounded-xl border border-primary/20 bg-primary/5 px-4 py-3 text-center text-sm text-foreground">
+          Adding another account — you&apos;ll stay signed in to your current
+          account, and can switch between the two afterwards.
+        </div>
+      ) : null}
+
       {state.step !== 'identifier' ? (
         <div className="text-center">
           <h1 className="font-poppins text-2xl font-bold tracking-tight text-foreground md:text-3xl">

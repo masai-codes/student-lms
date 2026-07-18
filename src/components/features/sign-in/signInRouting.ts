@@ -40,3 +40,18 @@ export function buildSwitchAccountUrl(redirectTo: string | null): string {
 export function redirectToSwitchAccountPage(redirectTo: string | null): void {
   redirectToResolvedUrl(buildSwitchAccountUrl(redirectTo))
 }
+
+const ADD_ACCOUNT_INTENT_KEY = 'intent'
+const ADD_ACCOUNT_INTENT_VALUE = 'add-account'
+
+/** `/signin?intent=add-account` — lets an already-authenticated browser reach the sign-in form to link a second account instead of being bounced home. */
+export function buildAddAccountSignInUrl(): string {
+  return `/signin?${ADD_ACCOUNT_INTENT_KEY}=${ADD_ACCOUNT_INTENT_VALUE}`
+}
+
+export function isAddAccountIntent(search?: string): boolean {
+  return (
+    new URLSearchParams(getSearchValue(search)).get(ADD_ACCOUNT_INTENT_KEY) ===
+    ADD_ACCOUNT_INTENT_VALUE
+  )
+}

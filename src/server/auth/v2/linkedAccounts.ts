@@ -1,6 +1,7 @@
-import { eq, inArray } from 'drizzle-orm'
+import { inArray } from 'drizzle-orm'
 import { db } from '@/db'
 import { sessions, users } from '@/db/schema'
+import type { SessionTokenPayload } from '@/server/auth/v2/sessionToken'
 
 export type LinkedAccountUser = {
   id: number
@@ -16,47 +17,23 @@ export type LinkedAccount = {
   isActive: boolean
 }
 
-type SessionPayload = {
-  linkedSessionIds?: string[]
-}
-
-function parsePayload(payload: string): SessionPayload {
-  try {
-    return JSON.parse(
-      Buffer.from(payload, 'base64').toString('utf-8'),
-    ) as SessionPayload
-  } catch {
-    return {}
-  }
-}
-
-async function readLinkedSessionIds(sessionId: string): Promise<string[]> {
-  const rows = await db
-    .select({ id: sessions.id, payload: sessions.payload })
-    .from(sessions)
-    .where(eq(sessions.id, sessionId))
-    .limit(1)
-
-  const current = rows[0]
-  if (!current) return []
-
-  const parsed = parsePayload(current.payload)
-  if (parsed.linkedSessionIds && parsed.linkedSessionIds.length > 0) {
-    return parsed.linkedSessionIds
-  }
-  return [current.id]
-}
-
-export async function getLinkedAccountsForSession(
-  sessionId: string,
+/**
+ * Every account this browser is currently signed into, per its own signed
+ * session token — the token is the sole source of truth for "which accounts
+ * are linked" (no DB-side linked-session list). Candidates are still checked
+ * against `sessions` so one revoked elsewhere (its row deleted) drops out
+ * here even if a stale copy still lingers in the token.
+ */
+export async function getLinkedAccountsForPayload(
+  payload: SessionTokenPayload,
 ): Promise<LinkedAccount[]> {
-  const peerIds = await readLinkedSessionIds(sessionId)
-  if (peerIds.length === 0) return []
+  const candidateIds = payload.sessions.map((s) => s.sessionId)
+  if (candidateIds.length === 0) return []
 
   const peerSessions = await db
     .select({ id: sessions.id, userId: sessions.userId })
     .from(sessions)
-    .where(inArray(sessions.id, peerIds))
+    .where(inArray(sessions.id, candidateIds))
 
   const userIds = peerSessions
     .map((s) => s.userId)
@@ -84,21 +61,19 @@ export async function getLinkedAccountsForSession(
       return {
         user,
         sessionId: peer.id,
-        isActive: peer.id === sessionId,
+        isActive: peer.id === payload.sessionId,
       }
     })
     .filter((x): x is LinkedAccount => x !== null)
 }
 
-export async function isSessionLinkedTo({
-  currentSessionId,
+/** Whether `targetSessionId` is one this browser's current token already vouches for. */
+export function isSessionLinkedTo({
+  payload,
   targetSessionId,
 }: {
-  currentSessionId: string
+  payload: SessionTokenPayload
   targetSessionId: string
-}): Promise<boolean> {
-  if (currentSessionId === targetSessionId) return true
-
-  const peerIds = await readLinkedSessionIds(currentSessionId)
-  return peerIds.includes(targetSessionId)
+}): boolean {
+  return payload.sessions.some((s) => s.sessionId === targetSessionId)
 }

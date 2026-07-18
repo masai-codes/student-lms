@@ -9,6 +9,8 @@ type Props = {
   error?: string
   busy?: boolean
   onSelectAccount: (account: LinkedAccount) => void
+  /** Shown as a secondary action below the account list when provided. */
+  onAddAccount?: () => void
 }
 
 export function LinkedAccountsStepView({
@@ -18,6 +20,7 @@ export function LinkedAccountsStepView({
   error,
   busy = false,
   onSelectAccount,
+  onAddAccount,
 }: Props) {
   return (
     <div className="space-y-4">
@@ -34,13 +37,24 @@ export function LinkedAccountsStepView({
         {accounts.map((account) => (
           <Card
             key={account.sessionId}
-            className="overflow-hidden border-border bg-surface/95 py-0 shadow-sm transition-shadow hover:shadow-md md:min-w-[280px] md:flex-1"
+            className={
+              account.isActive
+                ? 'overflow-hidden border-primary/50 bg-primary/5 py-0 shadow-sm ring-1 ring-primary/30 transition-shadow hover:shadow-md md:min-w-[280px] md:flex-1'
+                : 'overflow-hidden border-border bg-surface/95 py-0 shadow-sm transition-shadow hover:shadow-md md:min-w-[280px] md:flex-1'
+            }
           >
             <CardContent className="space-y-3 px-4 py-4 sm:px-5">
               <div className="min-w-0 space-y-0.5">
-                <p className="truncate font-poppins text-[15px] font-semibold text-foreground">
-                  {account.user.name || account.user.email}
-                </p>
+                <div className="flex items-center gap-2">
+                  <p className="truncate font-poppins text-[15px] font-semibold text-foreground">
+                    {account.user.name || account.user.email}
+                  </p>
+                  {account.isActive ? (
+                    <span className="shrink-0 rounded-full bg-primary/15 px-2 py-0.5 text-xs font-medium text-primary">
+                      Current account
+                    </span>
+                  ) : null}
+                </div>
                 <p className="break-all text-sm text-muted-foreground">
                   {account.user.email}
                 </p>
@@ -52,11 +66,16 @@ export function LinkedAccountsStepView({
               </div>
               <Button
                 type="button"
+                variant={account.isActive ? 'outline' : 'default'}
                 className="h-9 w-full rounded-full font-poppins shadow-sm"
                 onClick={() => onSelectAccount(account)}
                 disabled={busy}
               >
-                {busy ? 'Please wait…' : 'Login with this account'}
+                {busy
+                  ? 'Please wait…'
+                  : account.isActive
+                    ? 'Continue with this account'
+                    : 'Login with this account'}
               </Button>
             </CardContent>
           </Card>
@@ -70,6 +89,18 @@ export function LinkedAccountsStepView({
         >
           {error}
         </p>
+      ) : null}
+
+      {onAddAccount ? (
+        <Button
+          type="button"
+          variant="outline"
+          className="h-9 w-full rounded-full font-poppins"
+          onClick={onAddAccount}
+          disabled={busy}
+        >
+          Add another account
+        </Button>
       ) : null}
     </div>
   )

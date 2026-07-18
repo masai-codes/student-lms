@@ -1,4 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router'
+import { getCurrentSessionPayload } from '@/server/auth/getCurrentSessionUserId'
 import { createSessions, extractClientIp } from '@/server/auth/v2/createSession'
 import {
   errorResponse,
@@ -22,6 +23,7 @@ type PasswordLoginBody = {
   email?: unknown
   password?: unknown
   rememberMe?: unknown
+  linkToCurrentSession?: unknown
 }
 
 function statusForLoginError(code: LoginError['code']): number {
@@ -37,18 +39,31 @@ function statusForLoginError(code: LoginError['code']): number {
   }
 }
 
-async function handlePasswordLogin(request: Request): Promise<Response> {
+export async function handlePasswordLogin(request: Request): Promise<Response> {
   const body = await readJsonBody<PasswordLoginBody>(request)
 
   const rawEmail = typeof body.email === 'string' ? body.email : ''
   const password = typeof body.password === 'string' ? body.password : ''
   const rememberMe = body.rememberMe === true
+  const linkToCurrentSession = body.linkToCurrentSession === true
 
   if (!rawEmail || !password) {
     return errorResponse(
       400,
       'MISSING_FIELDS',
       'email and password are required',
+    )
+  }
+
+  // "Add another account": link the new session into the browser's already
+  // -signed-in family instead of replacing it. Requires a genuinely valid
+  // current session — this can't be used to fabricate a link out of thin air.
+  const linkTo = linkToCurrentSession ? getCurrentSessionPayload() : null
+  if (linkToCurrentSession && !linkTo) {
+    return errorResponse(
+      401,
+      'UNAUTHENTICATED',
+      'You must be signed in to add another account.',
     )
   }
 
@@ -87,6 +102,7 @@ async function handlePasswordLogin(request: Request): Promise<Response> {
       request,
       rememberMe,
       source: 'v2-login-password',
+      linkTo: linkTo ?? undefined,
     })
     return jsonResponse(
       { user, token: activeToken },

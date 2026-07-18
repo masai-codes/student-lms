@@ -1,4 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router'
+import { getCurrentSessionPayload } from '@/server/auth/getCurrentSessionUserId'
 import { createSessions } from '@/server/auth/v2/createSession'
 import {
   errorResponse,
@@ -13,6 +14,7 @@ type VerifyOtpBody = {
   otpSessionId?: unknown
   otp?: unknown
   rememberMe?: unknown
+  linkToCurrentSession?: unknown
 }
 
 function statusForVerifyOtpError(code: VerifyOtpError['code']): number {
@@ -34,19 +36,31 @@ function statusForVerifyOtpError(code: VerifyOtpError['code']): number {
   }
 }
 
-async function handleVerifyOtp(request: Request): Promise<Response> {
+export async function handleVerifyOtp(request: Request): Promise<Response> {
   const body = await readJsonBody<VerifyOtpBody>(request)
 
   const otpSessionId =
     typeof body.otpSessionId === 'string' ? body.otpSessionId : ''
   const otp = typeof body.otp === 'string' ? body.otp : ''
   const rememberMe = body.rememberMe === true
+  const linkToCurrentSession = body.linkToCurrentSession === true
 
   if (!otpSessionId || !otp) {
     return errorResponse(
       400,
       'MISSING_FIELDS',
       'otpSessionId and otp are required',
+    )
+  }
+
+  // "Add another account": link the new session(s) into the browser's
+  // already-signed-in family instead of replacing it.
+  const linkTo = linkToCurrentSession ? getCurrentSessionPayload() : null
+  if (linkToCurrentSession && !linkTo) {
+    return errorResponse(
+      401,
+      'UNAUTHENTICATED',
+      'You must be signed in to add another account.',
     )
   }
 
@@ -76,6 +90,7 @@ async function handleVerifyOtp(request: Request): Promise<Response> {
       request,
       rememberMe,
       source: 'v2-login-otp',
+      linkTo: linkTo ?? undefined,
     })
 
     const userById = new Map(allowedUsers.map((u) => [u.id, u]))
