@@ -32,6 +32,7 @@ export function AfterLiveLecture({ detail }: AfterLiveLectureProps) {
         isLiveLecture={detail.lectureKind === 'live'}
         isBookmarked={detail.isBookmarked}
         feedback={detail.feedback}
+        inLecturePopupQuiz={detail.inLecturePopupQuiz}
       />
     )
   }

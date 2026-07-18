@@ -13,6 +13,7 @@ import { Route as ApiServerTimeRouteImport } from './routes/api/server-time'
 import { Route as ApiSecretLoginRouteImport } from './routes/api/secret-login'
 import { Route as ApiMeRouteImport } from './routes/api/me'
 import { Route as ApiHealthRouteImport } from './routes/api/health'
+import { Route as ApiAssessmentCallbackRouteRouteImport } from './routes/api/assessment-callback/route'
 import { Route as ApiAssessNpsCallbackRouteRouteImport } from './routes/api/assess-nps-callback/route'
 import { Route as protectedLayoutRouteRouteImport } from './routes/(protected)/_layout/route'
 import { Route as ApiWhatsNewIndexRouteImport } from './routes/api/whats-new/index'
@@ -50,6 +51,7 @@ import { Route as ApiDashboardT0FlowDocumentsRouteImport } from './routes/api/da
 import { Route as ApiDashboardProfilePhotoRouteImport } from './routes/api/dashboard/profile-photo'
 import { Route as ApiDashboardOverviewRouteImport } from './routes/api/dashboard/overview'
 import { Route as ApiDashboardNavbarPillRouteImport } from './routes/api/dashboard/navbar-pill'
+import { Route as ApiAssessmentCallbackLiveProgressRouteImport } from './routes/api/assessment-callback/live-progress'
 import { Route as ApiAnnouncementUnreadCountRouteImport } from './routes/api/announcement/unread-count'
 import { Route as ApiAnnouncementPopupsRouteImport } from './routes/api/announcement/popups'
 import { Route as protectedLayoutThemeLabRouteImport } from './routes/(protected)/_layout/theme-lab'
@@ -156,6 +158,8 @@ import { Route as ApiLearnSolutionsSolutionIdFileRouteImport } from './routes/ap
 import { Route as ApiLearnResourcesResourceIdBookmarkRouteImport } from './routes/api/learn/resources/$resourceId/bookmark'
 import { Route as ApiLearnLecturesLectureIdZoomRedirectRouteImport } from './routes/api/learn/lectures/$lectureId/zoom-redirect'
 import { Route as ApiLearnLecturesLectureIdVideoProgressRouteImport } from './routes/api/learn/lectures/$lectureId/video-progress'
+import { Route as ApiLearnLecturesLectureIdQuizUrlRouteImport } from './routes/api/learn/lectures/$lectureId/quiz-url'
+import { Route as ApiLearnLecturesLectureIdQuizStatusRouteImport } from './routes/api/learn/lectures/$lectureId/quiz-status'
 import { Route as ApiLearnLecturesLectureIdFeedbackRouteImport } from './routes/api/learn/lectures/$lectureId/feedback'
 import { Route as ApiLearnLecturesLectureIdBookmarkRouteImport } from './routes/api/learn/lectures/$lectureId/bookmark'
 import { Route as ApiLearnDiscussionsDiscussionIdRepliesRouteImport } from './routes/api/learn/discussions/$discussionId/replies'
@@ -201,6 +205,12 @@ const ApiHealthRoute = ApiHealthRouteImport.update({
   path: '/api/health',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiAssessmentCallbackRouteRoute =
+  ApiAssessmentCallbackRouteRouteImport.update({
+    id: '/api/assessment-callback',
+    path: '/api/assessment-callback',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiAssessNpsCallbackRouteRoute =
   ApiAssessNpsCallbackRouteRouteImport.update({
     id: '/api/assess-nps-callback',
@@ -396,6 +406,12 @@ const ApiDashboardNavbarPillRoute = ApiDashboardNavbarPillRouteImport.update({
   path: '/api/dashboard/navbar-pill',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiAssessmentCallbackLiveProgressRoute =
+  ApiAssessmentCallbackLiveProgressRouteImport.update({
+    id: '/live-progress',
+    path: '/live-progress',
+    getParentRoute: () => ApiAssessmentCallbackRouteRoute,
+  } as any)
 const ApiAnnouncementUnreadCountRoute =
   ApiAnnouncementUnreadCountRouteImport.update({
     id: '/api/announcement/unread-count',
@@ -1005,6 +1021,18 @@ const ApiLearnLecturesLectureIdVideoProgressRoute =
     path: '/video-progress',
     getParentRoute: () => ApiLearnLecturesLectureIdRoute,
   } as any)
+const ApiLearnLecturesLectureIdQuizUrlRoute =
+  ApiLearnLecturesLectureIdQuizUrlRouteImport.update({
+    id: '/quiz-url',
+    path: '/quiz-url',
+    getParentRoute: () => ApiLearnLecturesLectureIdRoute,
+  } as any)
+const ApiLearnLecturesLectureIdQuizStatusRoute =
+  ApiLearnLecturesLectureIdQuizStatusRouteImport.update({
+    id: '/quiz-status',
+    path: '/quiz-status',
+    getParentRoute: () => ApiLearnLecturesLectureIdRoute,
+  } as any)
 const ApiLearnLecturesLectureIdFeedbackRoute =
   ApiLearnLecturesLectureIdFeedbackRouteImport.update({
     id: '/feedback',
@@ -1154,6 +1182,7 @@ const protectedLayoutAssignmentsAssignmentIdProblemsProblemIdRouteRoute =
 
 export interface FileRoutesByFullPath {
   '/api/assess-nps-callback': typeof ApiAssessNpsCallbackRouteRoute
+  '/api/assessment-callback': typeof ApiAssessmentCallbackRouteRouteWithChildren
   '/api/health': typeof ApiHealthRoute
   '/api/me': typeof ApiMeRoute
   '/api/secret-login': typeof ApiSecretLoginRoute
@@ -1166,6 +1195,7 @@ export interface FileRoutesByFullPath {
   '/theme-lab': typeof protectedLayoutThemeLabRoute
   '/api/announcement/popups': typeof ApiAnnouncementPopupsRoute
   '/api/announcement/unread-count': typeof ApiAnnouncementUnreadCountRoute
+  '/api/assessment-callback/live-progress': typeof ApiAssessmentCallbackLiveProgressRoute
   '/api/dashboard/navbar-pill': typeof ApiDashboardNavbarPillRoute
   '/api/dashboard/overview': typeof ApiDashboardOverviewRoute
   '/api/dashboard/profile-photo': typeof ApiDashboardProfilePhotoRoute
@@ -1313,6 +1343,8 @@ export interface FileRoutesByFullPath {
   '/api/learn/discussions/$discussionId/replies': typeof ApiLearnDiscussionsDiscussionIdRepliesRoute
   '/api/learn/lectures/$lectureId/bookmark': typeof ApiLearnLecturesLectureIdBookmarkRoute
   '/api/learn/lectures/$lectureId/feedback': typeof ApiLearnLecturesLectureIdFeedbackRoute
+  '/api/learn/lectures/$lectureId/quiz-status': typeof ApiLearnLecturesLectureIdQuizStatusRoute
+  '/api/learn/lectures/$lectureId/quiz-url': typeof ApiLearnLecturesLectureIdQuizUrlRoute
   '/api/learn/lectures/$lectureId/video-progress': typeof ApiLearnLecturesLectureIdVideoProgressRoute
   '/api/learn/lectures/$lectureId/zoom-redirect': typeof ApiLearnLecturesLectureIdZoomRedirectRoute
   '/api/learn/resources/$resourceId/bookmark': typeof ApiLearnResourcesResourceIdBookmarkRoute
@@ -1326,6 +1358,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/api/assess-nps-callback': typeof ApiAssessNpsCallbackRouteRoute
+  '/api/assessment-callback': typeof ApiAssessmentCallbackRouteRouteWithChildren
   '/api/health': typeof ApiHealthRoute
   '/api/me': typeof ApiMeRoute
   '/api/secret-login': typeof ApiSecretLoginRoute
@@ -1337,6 +1370,7 @@ export interface FileRoutesByTo {
   '/theme-lab': typeof protectedLayoutThemeLabRoute
   '/api/announcement/popups': typeof ApiAnnouncementPopupsRoute
   '/api/announcement/unread-count': typeof ApiAnnouncementUnreadCountRoute
+  '/api/assessment-callback/live-progress': typeof ApiAssessmentCallbackLiveProgressRoute
   '/api/dashboard/navbar-pill': typeof ApiDashboardNavbarPillRoute
   '/api/dashboard/overview': typeof ApiDashboardOverviewRoute
   '/api/dashboard/profile-photo': typeof ApiDashboardProfilePhotoRoute
@@ -1484,6 +1518,8 @@ export interface FileRoutesByTo {
   '/api/learn/discussions/$discussionId/replies': typeof ApiLearnDiscussionsDiscussionIdRepliesRoute
   '/api/learn/lectures/$lectureId/bookmark': typeof ApiLearnLecturesLectureIdBookmarkRoute
   '/api/learn/lectures/$lectureId/feedback': typeof ApiLearnLecturesLectureIdFeedbackRoute
+  '/api/learn/lectures/$lectureId/quiz-status': typeof ApiLearnLecturesLectureIdQuizStatusRoute
+  '/api/learn/lectures/$lectureId/quiz-url': typeof ApiLearnLecturesLectureIdQuizUrlRoute
   '/api/learn/lectures/$lectureId/video-progress': typeof ApiLearnLecturesLectureIdVideoProgressRoute
   '/api/learn/lectures/$lectureId/zoom-redirect': typeof ApiLearnLecturesLectureIdZoomRedirectRoute
   '/api/learn/resources/$resourceId/bookmark': typeof ApiLearnResourcesResourceIdBookmarkRoute
@@ -1499,6 +1535,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/(protected)/_layout': typeof protectedLayoutRouteRouteWithChildren
   '/api/assess-nps-callback': typeof ApiAssessNpsCallbackRouteRoute
+  '/api/assessment-callback': typeof ApiAssessmentCallbackRouteRouteWithChildren
   '/api/health': typeof ApiHealthRoute
   '/api/me': typeof ApiMeRoute
   '/api/secret-login': typeof ApiSecretLoginRoute
@@ -1511,6 +1548,7 @@ export interface FileRoutesById {
   '/(protected)/_layout/theme-lab': typeof protectedLayoutThemeLabRoute
   '/api/announcement/popups': typeof ApiAnnouncementPopupsRoute
   '/api/announcement/unread-count': typeof ApiAnnouncementUnreadCountRoute
+  '/api/assessment-callback/live-progress': typeof ApiAssessmentCallbackLiveProgressRoute
   '/api/dashboard/navbar-pill': typeof ApiDashboardNavbarPillRoute
   '/api/dashboard/overview': typeof ApiDashboardOverviewRoute
   '/api/dashboard/profile-photo': typeof ApiDashboardProfilePhotoRoute
@@ -1658,6 +1696,8 @@ export interface FileRoutesById {
   '/api/learn/discussions/$discussionId/replies': typeof ApiLearnDiscussionsDiscussionIdRepliesRoute
   '/api/learn/lectures/$lectureId/bookmark': typeof ApiLearnLecturesLectureIdBookmarkRoute
   '/api/learn/lectures/$lectureId/feedback': typeof ApiLearnLecturesLectureIdFeedbackRoute
+  '/api/learn/lectures/$lectureId/quiz-status': typeof ApiLearnLecturesLectureIdQuizStatusRoute
+  '/api/learn/lectures/$lectureId/quiz-url': typeof ApiLearnLecturesLectureIdQuizUrlRoute
   '/api/learn/lectures/$lectureId/video-progress': typeof ApiLearnLecturesLectureIdVideoProgressRoute
   '/api/learn/lectures/$lectureId/zoom-redirect': typeof ApiLearnLecturesLectureIdZoomRedirectRoute
   '/api/learn/resources/$resourceId/bookmark': typeof ApiLearnResourcesResourceIdBookmarkRoute
@@ -1673,6 +1713,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/api/assess-nps-callback'
+    | '/api/assessment-callback'
     | '/api/health'
     | '/api/me'
     | '/api/secret-login'
@@ -1685,6 +1726,7 @@ export interface FileRouteTypes {
     | '/theme-lab'
     | '/api/announcement/popups'
     | '/api/announcement/unread-count'
+    | '/api/assessment-callback/live-progress'
     | '/api/dashboard/navbar-pill'
     | '/api/dashboard/overview'
     | '/api/dashboard/profile-photo'
@@ -1832,6 +1874,8 @@ export interface FileRouteTypes {
     | '/api/learn/discussions/$discussionId/replies'
     | '/api/learn/lectures/$lectureId/bookmark'
     | '/api/learn/lectures/$lectureId/feedback'
+    | '/api/learn/lectures/$lectureId/quiz-status'
+    | '/api/learn/lectures/$lectureId/quiz-url'
     | '/api/learn/lectures/$lectureId/video-progress'
     | '/api/learn/lectures/$lectureId/zoom-redirect'
     | '/api/learn/resources/$resourceId/bookmark'
@@ -1845,6 +1889,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/api/assess-nps-callback'
+    | '/api/assessment-callback'
     | '/api/health'
     | '/api/me'
     | '/api/secret-login'
@@ -1856,6 +1901,7 @@ export interface FileRouteTypes {
     | '/theme-lab'
     | '/api/announcement/popups'
     | '/api/announcement/unread-count'
+    | '/api/assessment-callback/live-progress'
     | '/api/dashboard/navbar-pill'
     | '/api/dashboard/overview'
     | '/api/dashboard/profile-photo'
@@ -2003,6 +2049,8 @@ export interface FileRouteTypes {
     | '/api/learn/discussions/$discussionId/replies'
     | '/api/learn/lectures/$lectureId/bookmark'
     | '/api/learn/lectures/$lectureId/feedback'
+    | '/api/learn/lectures/$lectureId/quiz-status'
+    | '/api/learn/lectures/$lectureId/quiz-url'
     | '/api/learn/lectures/$lectureId/video-progress'
     | '/api/learn/lectures/$lectureId/zoom-redirect'
     | '/api/learn/resources/$resourceId/bookmark'
@@ -2017,6 +2065,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/(protected)/_layout'
     | '/api/assess-nps-callback'
+    | '/api/assessment-callback'
     | '/api/health'
     | '/api/me'
     | '/api/secret-login'
@@ -2029,6 +2078,7 @@ export interface FileRouteTypes {
     | '/(protected)/_layout/theme-lab'
     | '/api/announcement/popups'
     | '/api/announcement/unread-count'
+    | '/api/assessment-callback/live-progress'
     | '/api/dashboard/navbar-pill'
     | '/api/dashboard/overview'
     | '/api/dashboard/profile-photo'
@@ -2176,6 +2226,8 @@ export interface FileRouteTypes {
     | '/api/learn/discussions/$discussionId/replies'
     | '/api/learn/lectures/$lectureId/bookmark'
     | '/api/learn/lectures/$lectureId/feedback'
+    | '/api/learn/lectures/$lectureId/quiz-status'
+    | '/api/learn/lectures/$lectureId/quiz-url'
     | '/api/learn/lectures/$lectureId/video-progress'
     | '/api/learn/lectures/$lectureId/zoom-redirect'
     | '/api/learn/resources/$resourceId/bookmark'
@@ -2191,6 +2243,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   protectedLayoutRouteRoute: typeof protectedLayoutRouteRouteWithChildren
   ApiAssessNpsCallbackRouteRoute: typeof ApiAssessNpsCallbackRouteRoute
+  ApiAssessmentCallbackRouteRoute: typeof ApiAssessmentCallbackRouteRouteWithChildren
   ApiHealthRoute: typeof ApiHealthRoute
   ApiMeRoute: typeof ApiMeRoute
   ApiSecretLoginRoute: typeof ApiSecretLoginRoute
@@ -2335,6 +2388,13 @@ declare module '@tanstack/react-router' {
       path: '/api/health'
       fullPath: '/api/health'
       preLoaderRoute: typeof ApiHealthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/assessment-callback': {
+      id: '/api/assessment-callback'
+      path: '/api/assessment-callback'
+      fullPath: '/api/assessment-callback'
+      preLoaderRoute: typeof ApiAssessmentCallbackRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/assess-nps-callback': {
@@ -2595,6 +2655,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/api/dashboard/navbar-pill'
       preLoaderRoute: typeof ApiDashboardNavbarPillRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/api/assessment-callback/live-progress': {
+      id: '/api/assessment-callback/live-progress'
+      path: '/live-progress'
+      fullPath: '/api/assessment-callback/live-progress'
+      preLoaderRoute: typeof ApiAssessmentCallbackLiveProgressRouteImport
+      parentRoute: typeof ApiAssessmentCallbackRouteRoute
     }
     '/api/announcement/unread-count': {
       id: '/api/announcement/unread-count'
@@ -3338,6 +3405,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiLearnLecturesLectureIdVideoProgressRouteImport
       parentRoute: typeof ApiLearnLecturesLectureIdRoute
     }
+    '/api/learn/lectures/$lectureId/quiz-url': {
+      id: '/api/learn/lectures/$lectureId/quiz-url'
+      path: '/quiz-url'
+      fullPath: '/api/learn/lectures/$lectureId/quiz-url'
+      preLoaderRoute: typeof ApiLearnLecturesLectureIdQuizUrlRouteImport
+      parentRoute: typeof ApiLearnLecturesLectureIdRoute
+    }
+    '/api/learn/lectures/$lectureId/quiz-status': {
+      id: '/api/learn/lectures/$lectureId/quiz-status'
+      path: '/quiz-status'
+      fullPath: '/api/learn/lectures/$lectureId/quiz-status'
+      preLoaderRoute: typeof ApiLearnLecturesLectureIdQuizStatusRouteImport
+      parentRoute: typeof ApiLearnLecturesLectureIdRoute
+    }
     '/api/learn/lectures/$lectureId/feedback': {
       id: '/api/learn/lectures/$lectureId/feedback'
       path: '/feedback'
@@ -3612,6 +3693,21 @@ const protectedLayoutRouteRouteChildren: protectedLayoutRouteRouteChildren = {
 const protectedLayoutRouteRouteWithChildren =
   protectedLayoutRouteRoute._addFileChildren(protectedLayoutRouteRouteChildren)
 
+interface ApiAssessmentCallbackRouteRouteChildren {
+  ApiAssessmentCallbackLiveProgressRoute: typeof ApiAssessmentCallbackLiveProgressRoute
+}
+
+const ApiAssessmentCallbackRouteRouteChildren: ApiAssessmentCallbackRouteRouteChildren =
+  {
+    ApiAssessmentCallbackLiveProgressRoute:
+      ApiAssessmentCallbackLiveProgressRoute,
+  }
+
+const ApiAssessmentCallbackRouteRouteWithChildren =
+  ApiAssessmentCallbackRouteRoute._addFileChildren(
+    ApiAssessmentCallbackRouteRouteChildren,
+  )
+
 interface ApiLearnDiscussionsRouteChildren {
   ApiLearnDiscussionsDiscussionIdCloseRoute: typeof ApiLearnDiscussionsDiscussionIdCloseRoute
   ApiLearnDiscussionsDiscussionIdFeedbackRoute: typeof ApiLearnDiscussionsDiscussionIdFeedbackRoute
@@ -3730,6 +3826,8 @@ const ApiLearnAssignmentsAssignmentIdRouteWithChildren =
 interface ApiLearnLecturesLectureIdRouteChildren {
   ApiLearnLecturesLectureIdBookmarkRoute: typeof ApiLearnLecturesLectureIdBookmarkRoute
   ApiLearnLecturesLectureIdFeedbackRoute: typeof ApiLearnLecturesLectureIdFeedbackRoute
+  ApiLearnLecturesLectureIdQuizStatusRoute: typeof ApiLearnLecturesLectureIdQuizStatusRoute
+  ApiLearnLecturesLectureIdQuizUrlRoute: typeof ApiLearnLecturesLectureIdQuizUrlRoute
   ApiLearnLecturesLectureIdVideoProgressRoute: typeof ApiLearnLecturesLectureIdVideoProgressRoute
   ApiLearnLecturesLectureIdZoomRedirectRoute: typeof ApiLearnLecturesLectureIdZoomRedirectRoute
 }
@@ -3740,6 +3838,10 @@ const ApiLearnLecturesLectureIdRouteChildren: ApiLearnLecturesLectureIdRouteChil
       ApiLearnLecturesLectureIdBookmarkRoute,
     ApiLearnLecturesLectureIdFeedbackRoute:
       ApiLearnLecturesLectureIdFeedbackRoute,
+    ApiLearnLecturesLectureIdQuizStatusRoute:
+      ApiLearnLecturesLectureIdQuizStatusRoute,
+    ApiLearnLecturesLectureIdQuizUrlRoute:
+      ApiLearnLecturesLectureIdQuizUrlRoute,
     ApiLearnLecturesLectureIdVideoProgressRoute:
       ApiLearnLecturesLectureIdVideoProgressRoute,
     ApiLearnLecturesLectureIdZoomRedirectRoute:
@@ -3798,6 +3900,7 @@ const ApiLearnSubmissionsSubmissionIdRouteWithChildren =
 const rootRouteChildren: RootRouteChildren = {
   protectedLayoutRouteRoute: protectedLayoutRouteRouteWithChildren,
   ApiAssessNpsCallbackRouteRoute: ApiAssessNpsCallbackRouteRoute,
+  ApiAssessmentCallbackRouteRoute: ApiAssessmentCallbackRouteRouteWithChildren,
   ApiHealthRoute: ApiHealthRoute,
   ApiMeRoute: ApiMeRoute,
   ApiSecretLoginRoute: ApiSecretLoginRoute,
