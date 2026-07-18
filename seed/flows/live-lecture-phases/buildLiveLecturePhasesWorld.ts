@@ -484,7 +484,7 @@ export async function buildLiveLecturePhasesWorld(
     category: 'coding',
     type: 'assignment',
     module: 'JavaScript Fundamentals',
-    description: 'Practice map/filter/reduce after watching the recording.',
+    instructions: 'Practice map/filter/reduce after watching the recording.',
     optional: 0,
     week: 2,
     day: 3,

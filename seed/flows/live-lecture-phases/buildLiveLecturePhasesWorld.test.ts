@@ -28,6 +28,8 @@ import { resolveJoinLiveButtonState } from '@/server/learn/utils/resolveJoinLive
 import { resolveLiveLecturePhase } from '@/server/learn/utils/resolveLiveLecturePhase'
 import { resolveLectureVideoUrl } from '@/server/learn/utils/resolveLectureVideoUrl'
 
+import type { CreateLectureOverrides } from '../../factories/createLecture'
+import type { CreateSectionOverrides } from '../../factories/createSection'
 import { ONBOARDING_PROFILE_PHOTO_URL } from '../onboarding-shared/constants'
 import { LIVE_LECTURE_PHASES_TIMING, LIVE_LECTURE_RECORDING_HLS_URL } from './config'
 import { buildLiveLecturePhasesWorld } from './buildLiveLecturePhasesWorld'
@@ -45,11 +47,14 @@ describe('buildLiveLecturePhasesWorld', () => {
       }),
     )
     hoisted.createBatch.mockResolvedValue({ id: 10 })
-    hoisted.createSection.mockImplementation(async (input: { name: string }) => ({
-      id: input.name.includes('OFF') ? 21 : input.name.includes('ON') ? 22 : 20,
-      name: input.name,
-      settings: input.settings,
-    }))
+    hoisted.createSection.mockImplementation(async (input: CreateSectionOverrides) => {
+      const name = input.name ?? ''
+      return {
+        id: name.includes('OFF') ? 21 : name.includes('ON') ? 22 : 20,
+        name,
+        settings: input.settings,
+      }
+    })
     hoisted.createEnrollment.mockResolvedValue({ id: 30 })
     hoisted.createLecturesAi.mockResolvedValue({ id: 40, lectureId: 104 })
     hoisted.createAssignment.mockResolvedValue({ id: 50, title: 'Associated assignment' })
@@ -57,9 +62,9 @@ describe('buildLiveLecturePhasesWorld', () => {
     hoisted.createUserDeviceToken.mockResolvedValue({ id: 80, userId: 2 })
 
     let lectureId = 100
-    hoisted.createLecture.mockImplementation(async (input: { title: string }) => ({
+    hoisted.createLecture.mockImplementation(async (input: CreateLectureOverrides) => ({
       id: lectureId++,
-      title: input.title,
+      title: input.title ?? '',
       schedule: input.schedule,
       concludes: input.concludes,
       zoomLink: input.zoomLink,
