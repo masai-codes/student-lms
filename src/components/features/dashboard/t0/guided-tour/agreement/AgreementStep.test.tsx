@@ -355,6 +355,9 @@ describe('AgreementStep', () => {
     expect(screen.getByTestId('agreement-certificate')).toBeTruthy()
     fireEvent.click(screen.getByTestId('agreement-submit'))
     await waitFor(() => expect(hoisted.submit).toHaveBeenCalledWith(7))
+    // Router loaders are invalidated so the (now-unbanned) lecture/assignment
+    // detail pages refetch during SPA nav without a hard reload.
+    await waitFor(() => expect(hoisted.invalidate).toHaveBeenCalled())
     await waitFor(() => expect(onCompleted).toHaveBeenCalled())
   })
 })
