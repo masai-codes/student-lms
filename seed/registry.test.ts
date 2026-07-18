@@ -13,12 +13,11 @@ import { ONBOARDING_FLOW_IDS } from './flows/onboarding-shared/flowMeta'
 describe('seed registry', () => {
   it('lists login-and-join-lecture flow', () => {
     const flows = listFlows()
-    expect(flows.some((flow) => flow.id === 'login-and-join-lecture')).toBe(
-      true,
-    )
+    expect(flows.some((flow) => flow.id === 'login-and-join-lecture')).toBe(true)
+    expect(flows.some((flow) => flow.id === 'live-lecture-phases')).toBe(true)
     expect(flows.some((flow) => flow.id === 'dashboard-home')).toBe(true)
   })
-
+  
   it('lists all onboarding flows', () => {
     const flows = listFlows()
     for (const id of ONBOARDING_FLOW_IDS) {

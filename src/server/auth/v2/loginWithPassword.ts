@@ -54,6 +54,11 @@ export async function loginWithPassword({
 
   const user = rows[0]
   if (!user) {
+    // Track the "silent drop": password login for an email with no account.
+    // Shipped to CloudWatch via stdout (tag: [auth:user-not-found]).
+    console.warn(
+      `[auth:user-not-found] stage=password-login type=email identifier="${normalizedEmail}"`,
+    )
     throw new LoginError(
       'USER_NOT_FOUND',
       "We couldn't find an account with that email address. Please check it and try again, or sign up.",

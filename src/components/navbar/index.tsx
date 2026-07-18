@@ -8,7 +8,7 @@ import type { NavbarProps } from './types'
 
 import { LAYOUT_NAVBAR_INNER_CLASSES } from '@/lib/layout'
 import { cn } from '@/lib/utils'
-import { ThemeSwitcher } from '@/components/theme/ThemeSwitcher'
+// import { ThemeSwitcher } from '@/components/theme/ThemeSwitcher'
 
 export function Navbar({
   logo,
@@ -48,7 +48,7 @@ export function Navbar({
           <div className="flex shrink-0 items-center gap-2 xl:gap-4">
             <NavbarTrailingActions items={trailingActions ?? []} />
             {actionsSlot ?? null}
-            <ThemeSwitcher />
+            {/* <ThemeSwitcher /> */}
             <NavbarProfileMenu profile={profile} />
           </div>
         </div>

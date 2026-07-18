@@ -163,6 +163,12 @@ export async function sendOtp({
 
   const user = userRows[0]
   if (!user) {
+    // Track the "silent drop": a login attempt for an identifier with no
+    // account. Shipped to CloudWatch via stdout; query with
+    // `fields @timestamp, @message | filter @message like /\[auth:user-not-found\]/`.
+    console.warn(
+      `[auth:user-not-found] stage=send-otp type=${isEmail ? 'email' : 'phone'} identifier="${normalized}"`,
+    )
     throw new SendOtpError(
       'USER_NOT_FOUND',
       isEmail

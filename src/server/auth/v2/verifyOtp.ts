@@ -124,6 +124,11 @@ export async function verifyOtp({
     )
 
   if (userRows.length === 0) {
+    // Track the "silent drop": OTP verified but no account matches the
+    // identifier. Shipped to CloudWatch via stdout (tag: [auth:user-not-found]).
+    console.warn(
+      `[auth:user-not-found] stage=verify-otp type=${isEmailChannel ? 'email' : 'phone'} identifier="${record.identifier}"`,
+    )
     throw new VerifyOtpError(
       'USER_NOT_FOUND',
       "We couldn't find an account for this code. Please check your details, or sign up.",

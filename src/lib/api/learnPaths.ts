@@ -13,6 +13,8 @@ export const LEARN_API = {
     `/api/learn/lectures/${lectureId}/feedback`,
   lectureZoomRedirect: (lectureId: number) =>
     `/api/learn/lectures/${lectureId}/zoom-redirect`,
+  lectureAdaptiveJoin: (lectureId: number) =>
+    `/api/learn/lectures/${lectureId}/adaptive-join`,
   assignment: (assignmentId: number) =>
     `/api/learn/assignments/${assignmentId}`,
   assignmentBookmark: (assignmentId: number) =>
