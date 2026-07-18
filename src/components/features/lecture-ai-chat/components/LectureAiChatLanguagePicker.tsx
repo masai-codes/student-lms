@@ -19,6 +19,12 @@ type LectureAiChatLanguagePickerProps = {
   value: AiLectureChatLanguage
   onChange: (language: AiLectureChatLanguage) => void
   disabled?: boolean
+  /**
+   * Portal target for the menu. Inside the mobile drawer this is the drawer
+   * content node, so the menu renders within the drawer's DOM and tapping a
+   * language never registers as an outside interaction that dismisses it.
+   */
+  container?: HTMLElement | null
 }
 
 /**
@@ -31,6 +37,7 @@ export function LectureAiChatLanguagePicker({
   value,
   onChange,
   disabled = false,
+  container,
 }: LectureAiChatLanguagePickerProps) {
   return (
     <DropdownMenu>
@@ -50,6 +57,7 @@ export function LectureAiChatLanguagePicker({
       </DropdownMenuTrigger>
 
       <DropdownMenuContent
+        container={container ?? undefined}
         align="start"
         side="top"
         sideOffset={8}

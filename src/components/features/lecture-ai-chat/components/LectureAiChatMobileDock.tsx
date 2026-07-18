@@ -41,6 +41,12 @@ export function LectureAiChatMobileDock({
   feedback,
 }: LectureAiChatMobileDockProps) {
   const [isOpen, setIsOpen] = useState(false)
+  // The drawer content node, captured once mounted, so the composer's language
+  // menu can portal *inside* the drawer instead of to <body>. Kept in state (not
+  // a ref) so the picker re-renders with the real container once it's available.
+  const [drawerContentEl, setDrawerContentEl] = useState<HTMLDivElement | null>(
+    null,
+  )
 
   const handleSend = () => {
     if (chat.input.trim().length === 0) return
@@ -98,11 +104,14 @@ export function LectureAiChatMobileDock({
         <Drawer.Portal>
           <Drawer.Overlay className="fixed inset-0 z-[215] bg-black/50" />
           <Drawer.Content
+            ref={setDrawerContentEl}
             className="fixed inset-x-0 bottom-0 z-[220] flex h-[90dvh] flex-col rounded-t-2xl border-t border-border bg-background outline-none"
-            // The composer's language DropdownMenu portals to <body>, i.e.
-            // outside this drawer's DOM — without this guard, tapping a
-            // language option registers as an "outside" tap and dismisses
-            // the whole drawer.
+            // The composer's language DropdownMenu now portals *into* this drawer
+            // (via `languageMenuContainer` below), so picking a language is no
+            // longer an "outside" tap. These guards remain as a fallback for the
+            // brief window before `drawerContentEl` is captured, when the menu
+            // could still portal to <body>: a tap inside any Radix popper must
+            // not dismiss the drawer.
             onPointerDownOutside={(event) => {
               if (
                 event.target instanceof Element &&
@@ -131,6 +140,7 @@ export function LectureAiChatMobileDock({
               className="min-h-0 flex-1"
               autoFocusComposer
               containScroll
+              languageMenuContainer={drawerContentEl}
             />
           </Drawer.Content>
         </Drawer.Portal>

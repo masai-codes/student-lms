@@ -27,6 +27,12 @@ type LectureAiChatPanelProps = {
    * the desktop sidebar so a barely-scrollable list still lets the page scroll.
    */
   containScroll?: boolean
+  /**
+   * Portal target for the composer's language menu. The mobile drawer passes
+   * its content node so the menu renders inside the drawer instead of `<body>`,
+   * keeping the drawer open when a language is picked.
+   */
+  languageMenuContainer?: HTMLElement | null
 }
 
 /**
@@ -42,6 +48,7 @@ export function LectureAiChatPanel({
   feedback,
   autoFocusComposer,
   containScroll,
+  languageMenuContainer,
 }: LectureAiChatPanelProps) {
   const [isHistoryOpen, setIsHistoryOpen] = useState(false)
   const conversations = useLectureAiConversations(lectureId, isHistoryOpen)
@@ -161,6 +168,7 @@ export function LectureAiChatPanel({
           language={chat.language}
           onLanguageChange={chat.setLanguage}
           autoFocus={autoFocusComposer}
+          languageMenuContainer={languageMenuContainer}
         />
       ) : null}
     </div>

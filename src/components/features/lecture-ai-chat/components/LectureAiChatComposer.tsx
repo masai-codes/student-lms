@@ -25,6 +25,12 @@ type LectureAiChatComposerProps = {
    * dock so the keyboard-driving input lives inside the drawer instead.
    */
   readOnly?: boolean
+  /**
+   * Portal target for the language menu. Set to the drawer content node on
+   * mobile so the menu renders inside the drawer and picking a language doesn't
+   * dismiss it. Omit on desktop to portal to `<body>` as usual.
+   */
+  languageMenuContainer?: HTMLElement | null
 }
 
 export function LectureAiChatComposer({
@@ -39,6 +45,7 @@ export function LectureAiChatComposer({
   onFocus,
   autoFocus,
   readOnly = false,
+  languageMenuContainer,
 }: LectureAiChatComposerProps) {
   const canSend = value.trim().length > 0 && !isSending && !readOnly
 
@@ -76,6 +83,7 @@ export function LectureAiChatComposer({
             value={language}
             onChange={onLanguageChange}
             disabled={isSending}
+            container={languageMenuContainer}
           />
 
           {isSending ? (
