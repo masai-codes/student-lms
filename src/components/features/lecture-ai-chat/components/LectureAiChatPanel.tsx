@@ -33,6 +33,8 @@ type LectureAiChatPanelProps = {
    * keeping the drawer open when a language is picked.
    */
   languageMenuContainer?: HTMLElement | null
+  /** Fired when the composer's language menu opens/closes (see the picker). */
+  onLanguageMenuOpenChange?: (open: boolean) => void
 }
 
 /**
@@ -49,6 +51,7 @@ export function LectureAiChatPanel({
   autoFocusComposer,
   containScroll,
   languageMenuContainer,
+  onLanguageMenuOpenChange,
 }: LectureAiChatPanelProps) {
   const [isHistoryOpen, setIsHistoryOpen] = useState(false)
   const conversations = useLectureAiConversations(lectureId, isHistoryOpen)
@@ -169,6 +172,7 @@ export function LectureAiChatPanel({
           onLanguageChange={chat.setLanguage}
           autoFocus={autoFocusComposer}
           languageMenuContainer={languageMenuContainer}
+          onLanguageMenuOpenChange={onLanguageMenuOpenChange}
         />
       ) : null}
     </div>

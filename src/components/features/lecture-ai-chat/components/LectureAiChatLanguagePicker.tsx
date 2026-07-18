@@ -25,6 +25,12 @@ type LectureAiChatLanguagePickerProps = {
    * language never registers as an outside interaction that dismisses it.
    */
   container?: HTMLElement | null
+  /**
+   * Fired when the menu opens/closes. The mobile drawer uses this to block its
+   * own dismissal while the menu is open, so the first outside tap closes only
+   * the menu — not the whole chat drawer.
+   */
+  onOpenChange?: (open: boolean) => void
 }
 
 /**
@@ -38,9 +44,10 @@ export function LectureAiChatLanguagePicker({
   onChange,
   disabled = false,
   container,
+  onOpenChange,
 }: LectureAiChatLanguagePickerProps) {
   return (
-    <DropdownMenu>
+    <DropdownMenu onOpenChange={onOpenChange}>
       <DropdownMenuTrigger
         disabled={disabled}
         aria-label={`Reply language: ${value}`}

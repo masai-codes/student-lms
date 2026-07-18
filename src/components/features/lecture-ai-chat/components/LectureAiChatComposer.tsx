@@ -31,6 +31,8 @@ type LectureAiChatComposerProps = {
    * dismiss it. Omit on desktop to portal to `<body>` as usual.
    */
   languageMenuContainer?: HTMLElement | null
+  /** Fired when the language menu opens/closes (see the picker's `onOpenChange`). */
+  onLanguageMenuOpenChange?: (open: boolean) => void
 }
 
 export function LectureAiChatComposer({
@@ -46,6 +48,7 @@ export function LectureAiChatComposer({
   autoFocus,
   readOnly = false,
   languageMenuContainer,
+  onLanguageMenuOpenChange,
 }: LectureAiChatComposerProps) {
   const canSend = value.trim().length > 0 && !isSending && !readOnly
 
@@ -84,6 +87,7 @@ export function LectureAiChatComposer({
             onChange={onLanguageChange}
             disabled={isSending}
             container={languageMenuContainer}
+            onOpenChange={onLanguageMenuOpenChange}
           />
 
           {isSending ? (
