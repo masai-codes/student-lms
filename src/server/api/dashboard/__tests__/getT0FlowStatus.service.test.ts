@@ -100,3 +100,64 @@ describe('getT0FlowStatus', () => {
     expect(status.showGuidedTour).toBe(true)
   })
 })
+
+describe('getT0FlowStatus — non-T0 multi-batch (no admission rows)', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+    // Same evaluation order, but the learner has NO admission rows at all.
+    hoisted.execute
+      .mockResolvedValueOnce([]) // admission: none → pure-lite path
+      .mockResolvedValueOnce([{ meta: null, legal_data: null }]) // profile
+    hoisted.select
+      .mockReturnValueOnce({
+        from: () => ({
+          where: () => [
+            { id: 10, name: 'Batch A', meta: null },
+            { id: 20, name: 'Batch B', meta: null },
+            { id: 30, name: 'Batch C (no agreement)', meta: null },
+          ],
+        }),
+      })
+      .mockReturnValueOnce({
+        from: () => ({ where: () => ({ limit: () => [] }) }),
+      })
+    hoisted.getBatchIds.mockResolvedValue([10, 20, 30])
+  })
+
+  it('surfaces every batch with a pending agreement (not just one), and auto-opens when a step is pending', async () => {
+    // Photo done, app missing → lms 1/2 (user-level) for all; batches 10 & 20
+    // have signable agreements, batch 30 has none.
+    hoisted.computeLite.mockImplementation((_u: number, batchId: number) =>
+      Promise.resolve({
+        lms: { completed: 1, total: 2 },
+        program: { completed: 0, total: batchId === 30 ? 0 : 1 },
+      }),
+    )
+    const { getT0FlowStatus } = await import('../getT0FlowStatus.service')
+    const status = await getT0FlowStatus(555)
+
+    expect(status.flowVariant).toBe('lite')
+    // 10 & 20 (agreements) + 30 (anchor = max id, carries the user-level steps).
+    expect(status.batches.map((b) => b.batchId)).toEqual([10, 20, 30])
+    expect(status.batches.every((b) => b.flowVariant === 'lite')).toBe(true)
+    // A pending step anywhere → the tour opens automatically.
+    expect(status.showGuidedTour).toBe(true)
+  })
+
+  it('drops a non-anchor batch with no batch-specific step (avoids duplicate photo/app banners)', async () => {
+    // Photo + app complete (lms done); only batch 20 has a pending agreement.
+    hoisted.computeLite.mockImplementation((_u: number, batchId: number) =>
+      Promise.resolve({
+        lms: { completed: 2, total: 2 },
+        program: { completed: 0, total: batchId === 20 ? 1 : 0 },
+      }),
+    )
+    const { getT0FlowStatus } = await import('../getT0FlowStatus.service')
+    const status = await getT0FlowStatus(555)
+
+    // Anchor = 30 (max id) always kept; 20 kept for its agreement; 10 dropped
+    // (not the anchor and no agreement).
+    expect(status.batches.map((b) => b.batchId)).toEqual([20, 30])
+    expect(status.showGuidedTour).toBe(true) // batch 20's agreement is pending
+  })
+})
