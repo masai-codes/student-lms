@@ -12,12 +12,16 @@ import { JoinLiveSessionCard } from '../JoinLiveSessionCard'
 
 const hoisted = vi.hoisted(() => ({
   fetchUrl: vi.fn(),
+  fetchAdaptive: vi.fn(),
   toastError: vi.fn(),
   open: vi.fn(),
 }))
 
 vi.mock('@/lib/api/learn/zoomRedirectApi', () => ({
   fetchZoomRedirectUrlViaApi: hoisted.fetchUrl,
+}))
+vi.mock('@/lib/api/learn/adaptiveJoinApi', () => ({
+  fetchAdaptiveJoinUrlViaApi: hoisted.fetchAdaptive,
 }))
 vi.mock('@/lib/toast', () => ({
   toast: { error: hoisted.toastError, success: vi.fn() },
@@ -143,8 +147,9 @@ describe('JoinLiveSessionCard', () => {
     expect(link.getAttribute('href')).not.toBe(ZOOM)
   })
 
-  it('ignores enableZoomWebView for adaptive (SAL) links and uses the raw link', () => {
+  it('mints the adaptive (SAL) join url and ignores enableZoomWebView', async () => {
     const adaptive = 'https://api.example.com/api/adaptive-lecture/572/join'
+    hoisted.fetchAdaptive.mockResolvedValueOnce(`${adaptive}?token=x`)
     render(
       <JoinLiveSessionCard
         lectureId={572}
@@ -154,8 +159,46 @@ describe('JoinLiveSessionCard', () => {
         enableZoomWebView
       />,
     )
-    const link = screen.getByRole('link', { name: /Join live session/ })
-    expect(link.getAttribute('href')).toBe(adaptive)
+
+    // Adaptive links mint the join URL server-side, so they render a click
+    // handler (a button) rather than a raw/zoom-web-view anchor.
+    expect(screen.queryByRole('link')).toBeNull()
+
+    fireEvent.click(screen.getByRole('button', { name: /Join live session/ }))
+
+    expect(hoisted.fetchAdaptive).toHaveBeenCalledWith(572)
+    await waitFor(() =>
+      expect(hoisted.open).toHaveBeenCalledWith(
+        `${adaptive}?token=x`,
+        '_blank',
+        'noopener,noreferrer',
+      ),
+    )
+  })
+
+  it('falls back to the raw adaptive link when minting fails', async () => {
+    const adaptive = 'https://api.example.com/api/adaptive-lecture/572/join'
+    hoisted.fetchAdaptive.mockRejectedValueOnce(new Error('MINT_FAILED'))
+    render(
+      <JoinLiveSessionCard
+        lectureId={572}
+        zoomLink={adaptive}
+        buttonState="active"
+        isNewZoomRedirection={false}
+        enableZoomWebView
+      />,
+    )
+
+    fireEvent.click(screen.getByRole('button', { name: /Join live session/ }))
+
+    await waitFor(() =>
+      expect(hoisted.open).toHaveBeenCalledWith(
+        adaptive,
+        '_blank',
+        'noopener,noreferrer',
+      ),
+    )
+    expect(hoisted.toastError).toHaveBeenCalled()
   })
 
   it('ZEF wins over enableZoomWebView', () => {
