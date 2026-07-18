@@ -49,15 +49,20 @@ function applyMetaFlags(
   }
 
   if (Array.isArray(parsed)) {
-    if (
-      parsed.length === 0 ||
-      !parsed[0] ||
-      typeof parsed[0] !== 'object' ||
-      Array.isArray(parsed[0])
-    ) {
-      parsed[0] = {}
+    // The read path flattens EVERY element (later keys win), so mutate every
+    // object element — clearing only [0] would let a `true` in a later element
+    // survive the flatten and keep the user banned.
+    const objectElements = parsed.filter(
+      (el): el is Record<string, unknown> =>
+        !!el && typeof el === 'object' && !Array.isArray(el),
+    )
+    if (objectElements.length === 0) {
+      const fresh: Record<string, unknown> = {}
+      mutate(fresh)
+      parsed.push(fresh)
+    } else {
+      for (const el of objectElements) mutate(el)
     }
-    mutate(parsed[0] as Record<string, unknown>)
     return JSON.stringify(parsed)
   }
 

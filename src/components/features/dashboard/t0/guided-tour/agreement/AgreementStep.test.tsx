@@ -16,6 +16,12 @@ const hoisted = vi.hoisted(() => ({
   submit: vi.fn(),
   recordView: vi.fn(),
   isMobile: vi.fn(),
+  invalidate: vi.fn(() => Promise.resolve()),
+}))
+
+vi.mock('@tanstack/react-router', async (importActual) => ({
+  ...(await importActual<typeof import('@tanstack/react-router')>()),
+  useRouter: () => ({ invalidate: hoisted.invalidate }),
 }))
 
 vi.mock('@/lib/api/dashboard/dashboardApi', () => ({
