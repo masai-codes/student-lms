@@ -132,28 +132,13 @@ export function LectureAiChatMobileDock({
           <Drawer.Content
             ref={setDrawerContentEl}
             className="fixed inset-x-0 bottom-0 z-[220] flex h-[90dvh] flex-col rounded-t-2xl border-t border-border bg-background outline-none"
-            // The composer's language DropdownMenu now portals *into* this drawer
-            // (via `languageMenuContainer` below), so picking a language is no
-            // longer an "outside" tap. These guards remain as a fallback for the
-            // brief window before `drawerContentEl` is captured, when the menu
-            // could still portal to <body>: a tap inside any Radix popper must
-            // not dismiss the drawer.
-            onPointerDownOutside={(event) => {
-              if (
-                event.target instanceof Element &&
-                event.target.closest('[data-radix-popper-content-wrapper]')
-              ) {
-                event.preventDefault()
-              }
-            }}
-            onInteractOutside={(event) => {
-              if (
-                event.target instanceof Element &&
-                event.target.closest('[data-radix-popper-content-wrapper]')
-              ) {
-                event.preventDefault()
-              }
-            }}
+            // While the language menu is open, the first outside tap should
+            // close only the menu — never the drawer. vaul and Radix don't
+            // coordinate their dismissable layers here, so we gate every
+            // drawer-dismiss path on `isLanguageMenuOpenRef` (see above).
+            onPointerDownOutside={guardDismiss}
+            onInteractOutside={guardDismiss}
+            onEscapeKeyDown={guardDismiss}
           >
             <div className="flex shrink-0 cursor-grab justify-center pt-2.5 active:cursor-grabbing">
               <Drawer.Handle className="!h-1 !w-10 !bg-border" />
@@ -167,6 +152,7 @@ export function LectureAiChatMobileDock({
               autoFocusComposer
               containScroll
               languageMenuContainer={drawerContentEl}
+              onLanguageMenuOpenChange={handleLanguageMenuOpenChange}
             />
           </Drawer.Content>
         </Drawer.Portal>
