@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { Drawer } from 'vaul'
 
 import { LectureAiChatComposer } from './LectureAiChatComposer'
@@ -47,6 +47,32 @@ export function LectureAiChatMobileDock({
   const [drawerContentEl, setDrawerContentEl] = useState<HTMLDivElement | null>(
     null,
   )
+
+  // True while the composer's language menu is open. The drawer and the menu
+  // are independent dismissable layers (vaul's dialog vs. Radix's menu) that
+  // don't reliably coordinate, so an outside tap can dismiss both at once.
+  // We block the drawer's own dismissal whenever the menu is open, so the
+  // first outside tap closes only the menu. A ref (read synchronously inside
+  // the dismiss handlers) avoids a re-render race with the closing tap, and we
+  // release the guard on the next tick so that same tap can't also close the
+  // drawer.
+  const isLanguageMenuOpenRef = useRef(false)
+
+  const handleLanguageMenuOpenChange = (open: boolean) => {
+    if (open) {
+      isLanguageMenuOpenRef.current = true
+      return
+    }
+    setTimeout(() => {
+      isLanguageMenuOpenRef.current = false
+    }, 0)
+  }
+
+  const guardDismiss = (event: { preventDefault: () => void }) => {
+    if (isLanguageMenuOpenRef.current) {
+      event.preventDefault()
+    }
+  }
 
   const handleSend = () => {
     if (chat.input.trim().length === 0) return
