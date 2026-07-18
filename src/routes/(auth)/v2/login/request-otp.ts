@@ -1,4 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router'
+import { extractClientIp } from '@/server/auth/v2/createSession'
 import {
   errorResponse,
   jsonResponse,
@@ -33,7 +34,11 @@ async function handleRequestOtp(request: Request): Promise<Response> {
   }
 
   try {
-    const result = await sendOtp({ identifier, isResend })
+    const result = await sendOtp({
+      identifier,
+      isResend,
+      ip: extractClientIp(request),
+    })
     return jsonResponse({
       channel: result.channel,
       otpSessionId: result.otpSessionId,

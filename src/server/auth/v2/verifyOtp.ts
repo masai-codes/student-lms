@@ -3,6 +3,7 @@ import { and, eq, inArray, isNull } from 'drizzle-orm'
 import { db } from '@/db'
 import { otpCodes, users } from '@/db/schema'
 import type { AuthenticatedUser } from '@/server/auth/v2/loginWithPassword'
+import { recordFailedLogin } from '@/server/auth/v2/loginRateLimit'
 import { mobileLookupCandidates } from '@/server/auth/v2/mobileLookup'
 import { isUserDeactivated } from '@/server/restrictions/deactivatedUser'
 
@@ -124,11 +125,9 @@ export async function verifyOtp({
     )
 
   if (userRows.length === 0) {
-    // Track the "silent drop": OTP verified but no account matches the
-    // identifier. Shipped to CloudWatch via stdout (tag: [auth:user-not-found]).
-    console.warn(
-      `[auth:user-not-found] stage=verify-otp type=${isEmailChannel ? 'email' : 'phone'} identifier="${record.identifier}"`,
-    )
+    // Rare: OTP was sent (user existed) but no account matches at verify time.
+    // Record the unknown identifier in login_attempts, same as the send path.
+    await recordFailedLogin({ identifier: record.identifier, ip: '' })
     throw new VerifyOtpError(
       'USER_NOT_FOUND',
       "We couldn't find an account for this code. Please check your details, or sign up.",
