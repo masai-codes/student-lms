@@ -23,7 +23,7 @@ type WebkitVideoElement = HTMLVideoElement & {
 }
 
 type OrientationLockCapable = ScreenOrientation & {
-  lock?: (orientation: string) => Promise<void>
+  lock?: (orientation: OrientationLockType) => Promise<void>
   unlock?: () => void
 }
 
