@@ -159,6 +159,7 @@ export function buildLectureDetailPayload(
     attendance,
     optionalAttendance,
     feedback,
+    inLecturePopupQuiz: settings.inLecturePopupQuiz,
   }
 }
 

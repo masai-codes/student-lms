@@ -26,11 +26,13 @@ import { useIsElementFullscreen } from './hooks/useLectureVideoFullscreen'
 import { VideoPlaybackOverlays } from './VideoPlaybackOverlays'
 import { LectureVideoCaptionOverlay } from './LectureVideoCaptionOverlay'
 import { LectureVideoGestureLayer } from './LectureVideoGestureLayer'
+import { InLectureQuizModal, useInLectureQuiz } from './in-lecture-quiz'
 import type { LectureChromePlayerRef } from './controls/lectureVideoChrome.utils'
 
 import './lectureReactPlayer.css'
 
 import type {
+  InLecturePopupQuiz,
   LectureTranscriptSegment,
   LectureVideoAttendanceState,
 } from '@/server/learn/lectureDetailTypes'
@@ -42,6 +44,7 @@ type LectureReactPlayerProps = {
   src: string
   initialAttendance: LectureVideoAttendanceState | null
   transcriptSegments?: Array<LectureTranscriptSegment>
+  inLecturePopupQuiz?: Array<InLecturePopupQuiz>
   className?: string
   /** Reports the intrinsic video aspect ratio (w/h) once metadata loads. */
   onVideoAspectRatioChange?: (ratio: number) => void
@@ -52,6 +55,7 @@ export function LectureReactPlayer({
   src,
   initialAttendance,
   transcriptSegments,
+  inLecturePopupQuiz,
   className,
   onVideoAspectRatioChange,
 }: LectureReactPlayerProps) {
@@ -77,6 +81,23 @@ export function LectureReactPlayer({
     videoRef,
     initialAttendance,
   })
+
+  const quiz = useInLectureQuiz({
+    lectureId,
+    quizzes: inLecturePopupQuiz ?? [],
+    progressSeconds: attendance.progress,
+    totalDuration: attendance.totalDuration,
+    seekSignal: attendance.seekNonce,
+    onSeekToSeconds: (seconds) => {
+      attendance.handleSeek(seconds)
+      seekPlayerToSeconds(videoRef, seconds)
+    },
+  })
+
+  // While a quiz card is open, suspend the global player keyboard shortcuts so
+  // arrow-key seeks / space-to-pause can't fire from the quiz UI.
+  const isQuizActiveRef = useRef(false)
+  isQuizActiveRef.current = quiz.activeQuiz !== null
 
   // Surface the real video dimensions so mobile can size the player to the
   // actual aspect ratio instead of a fixed viewport slice.
@@ -205,6 +226,7 @@ export function LectureReactPlayer({
 
   useEffect(() => {
     const onWindowKey = (event: KeyboardEvent) => {
+      if (isQuizActiveRef.current) return
       const target = event.target as HTMLElement | null
       const tag = target ? target.tagName.toLowerCase() : undefined
       if (
@@ -307,6 +329,16 @@ export function LectureReactPlayer({
             progressSeconds={attendance.progress}
             visible={captionsOn && hasTranscript}
           />
+          {quiz.activeQuiz ? (
+            <InLectureQuizModal
+              lectureId={lectureId}
+              quiz={quiz.activeQuiz}
+              progressSeconds={attendance.progress}
+              isFullscreen={isFullscreen}
+              onResolve={quiz.resolveQuiz}
+              onSkipToLecture={quiz.closeQuiz}
+            />
+          ) : null}
           {attendance.qualityLevels.length > 0 ? (
             <select
               aria-label="Video quality"

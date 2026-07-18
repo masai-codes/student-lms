@@ -91,6 +91,9 @@ export function useLectureVideoAttendance({
   const [currentQuality, setCurrentQuality] = useState(-1)
   const [playerReadyVersion, setPlayerReadyVersion] = useState(0)
   const [seekHint, setSeekHint] = useState<'forward' | 'backward' | null>(null)
+  // Bumped on every user seek. Lets consumers distinguish a deliberate scrub
+  // from natural playback (which advances `progress` smoothly).
+  const [seekNonce, setSeekNonce] = useState(0)
   const [mergedAttendanceIntervals, setMergedAttendanceIntervals] = useState(
     () => initialAttendance?.mergedIntervals ?? [],
   )
@@ -307,6 +310,8 @@ export function useLectureVideoAttendance({
     (seekSeconds: number) => {
       if (!Number.isFinite(seekSeconds) || seekSeconds < 0) return
 
+      setSeekNonce((nonce) => nonce + 1)
+
       const target = resumeTargetSecondsRef.current
       const isLikelyWarmupZero =
         seekSeconds <= SEEK_ALIGNMENT_EPSILON &&
@@ -517,6 +522,7 @@ export function useLectureVideoAttendance({
     changeQuality,
     playerReadyVersion,
     seekHint,
+    seekNonce,
     mergedAttendanceIntervals,
     handleProgress,
     handleSeek,
