@@ -9,6 +9,7 @@ const hoisted = vi.hoisted(() => ({
 }))
 
 vi.mock('@/db', () => ({ db: { select: hoisted.dbSelect } }))
+vi.mock('../loginRateLimit', () => ({ recordFailedLogin: vi.fn() }))
 vi.mock('bcryptjs', () => ({ hash: hoisted.hash }))
 vi.mock('../otpEmail', () => ({ sendOtpEmail: hoisted.sendOtpEmail }))
 vi.mock('../otpSms', () => ({ sendOtpSms: hoisted.sendOtpSms }))
