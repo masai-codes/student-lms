@@ -13,16 +13,14 @@ export interface GuidedTourTarget {
 interface T0FlowGateProps {
   /** From the consolidated overview payload (`overview.t0Flow`); each batch carries its `lectures`. */
   status: T0FlowStatus
-  /** Hidden once the learner clicks "See dashboard"; reopened from the onboarding banner. */
-  dismissed: boolean
+  /**
+   * Whether the tour should render now. Computed by the dashboard page (which
+   * latches it open for the visit) so a mid-view completion doesn't yank it away.
+   */
+  open: boolean
   onDismiss: () => void
   /** Course + tab to open on (set when reopened from the banner). */
   target: GuidedTourTarget | null
-  /**
-   * Force the tour open even when onboarding is already complete — used by the
-   * navbar "?" so learners can revisit the steps at any time.
-   */
-  forceOpen?: boolean
   /** Fee-payment banners (same as the dashboard); shown under the LMS-walkthrough steps. */
   feePaymentBanners: Array<FeePaymentBanner>
 }
@@ -52,13 +50,12 @@ export function isGuidedTourVisible(
  */
 export function T0FlowGate({
   status,
-  dismissed,
+  open,
   onDismiss,
   target,
-  forceOpen = false,
   feePaymentBanners,
 }: T0FlowGateProps) {
-  if (!isGuidedTourVisible(status, { dismissed, forceOpen })) return null
+  if (!open) return null
 
   return (
     <GuidedTourOverlay
