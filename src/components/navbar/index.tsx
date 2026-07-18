@@ -33,17 +33,24 @@ export function Navbar({
           'justify-between py-3 lg:py-4',
         )}
       >
-        <div className="flex min-w-0 flex-1 items-center gap-12">
+        <div className="flex min-w-0 flex-1 items-center gap-4 xl:gap-8 2xl:gap-12">
           <NavbarLogo logo={logo} />
           <NavbarNavItems items={navItems} />
         </div>
 
-        <div className="flex shrink-0 items-center gap-4">
-          {centerSlot ?? null}
-          <NavbarTrailingActions items={trailingActions ?? []} />
-          {actionsSlot ?? null}
-          <ThemeSwitcher />
-          <NavbarProfileMenu profile={profile} />
+        <div className="flex min-w-0 shrink items-center gap-2 xl:gap-4">
+          {/* Only the center badge is allowed to shrink/truncate; the icon
+              cluster, toggle, theme switcher and avatar stay a fixed size so
+              they never overlap or wrap when the badge + toggle are both live. */}
+          {centerSlot ? (
+            <div className="flex min-w-0 shrink items-center">{centerSlot}</div>
+          ) : null}
+          <div className="flex shrink-0 items-center gap-2 xl:gap-4">
+            <NavbarTrailingActions items={trailingActions ?? []} />
+            {actionsSlot ?? null}
+            <ThemeSwitcher />
+            <NavbarProfileMenu profile={profile} />
+          </div>
         </div>
       </div>
     </header>

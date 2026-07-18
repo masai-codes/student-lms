@@ -10,6 +10,11 @@
 export function isMigratedRoute(pathname: string): boolean {
   if (pathname === '/' || pathname === '') return true
   if (pathname === '/learn' || pathname.startsWith('/learn/')) return true
+  // Exception: `/lectures/:id/zoom` (Zoom web view) is served only by the old
+  // LMS and reused by both, so it must never switch — otherwise it bounces
+  // between the two apps. Only this sub-path is excluded; all other lecture
+  // paths keep the existing behaviour.
+  if (/^\/lectures\/[^/]+\/zoom(?:\/|$)/.test(pathname)) return false
   if (pathname.startsWith('/lectures')) return true
   if (pathname.startsWith('/assignments')) return true
   if (pathname.startsWith('/resources')) return true

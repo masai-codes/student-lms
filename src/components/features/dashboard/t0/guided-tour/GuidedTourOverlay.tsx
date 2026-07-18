@@ -226,6 +226,60 @@ export function GuidedTourOverlay({
     onSeeDashboard()
   }
 
+  // On the last LMS-walkthrough step, Next crosses over to Program Onboarding
+  // when the learner is eligible for it (fees paid → program tab unlocked, and a
+  // program flow exists), instead of dead-ending with a disabled button.
+  const isLastStep = steps.length > 0 && activeIndex >= steps.length - 1
+  const canCrossToProgram =
+    effectiveTab === 'lms' && programUnlocked && selectedBatch?.program != null
+  const hasNext = !isLastStep || canCrossToProgram
+  const handleNext = () => {
+    if (!isLastStep) {
+      goToStep(activeIndex + 1)
+      return
+    }
+    if (canCrossToProgram) {
+      pushDashboardEvent('l_dashboard_guided_tour_tab', { tab: 'program' })
+      selectTab('program')
+    }
+  }
+
+  // Onboarding is complete (all mandatory steps across every batch/tab done).
+  // The tour is kept open by the dashboard latch so it never closes mid-view;
+  // instead we celebrate here and let the learner leave on their own terms —
+  // any optional steps (documents, kit) stay available below.
+  const onboardingComplete = !status.showGuidedTour
+  const completionBanner = onboardingComplete ? (
+    <div
+      className="flex w-full flex-col gap-3 rounded-2xl border border-brand/30 bg-brand/5 p-4 shadow-sm sm:flex-row sm:items-center sm:justify-between"
+      role="status"
+      data-testid="guided-tour-complete-banner"
+    >
+      <div className="flex items-start gap-3">
+        <span className="text-2xl leading-none" aria-hidden>
+          🎉
+        </span>
+        <div>
+          <p className="text-sm font-semibold text-foreground">
+            Congratulations! You&apos;ve completed your onboarding.
+          </p>
+          <p className="text-sm text-foreground-muted">
+            Take your time with any optional steps, or head to your dashboard
+            whenever you&apos;re ready.
+          </p>
+        </div>
+      </div>
+      <button
+        type="button"
+        onClick={handleClose}
+        className="inline-flex h-11 shrink-0 items-center justify-center rounded-lg bg-brand px-6 text-sm font-semibold text-brand-foreground transition-colors hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
+        data-testid="guided-tour-complete-cta"
+      >
+        Go to dashboard
+      </button>
+    </div>
+  ) : null
+
   const batchSelect =
     status.batches.length > 1 ? (
       <Select
@@ -335,97 +389,101 @@ export function GuidedTourOverlay({
     <div
       // Full-bleed to the viewport: the app's <main> is capped at max-w-1440 and
       // centered, so break out of it and use the whole width.
-      className="relative left-1/2 mb-6 mt-2 flex w-screen -translate-x-1/2 flex-col gap-4 px-3 md:flex-row md:items-start md:gap-5 md:px-5"
+      className="relative left-1/2 mb-6 mt-2 flex w-screen -translate-x-1/2 flex-col gap-4 px-3 md:px-5"
       data-testid="guided-tour-overlay"
     >
-      {isMobile ? (
-        // Mobile: a compact header (title + close + tabs + a "steps" trigger). The
-        // step list moves into a bottom sheet so the active content stays primary.
-        <div className="flex w-full flex-col gap-3 rounded-2xl bg-surface p-4 shadow-sm">
-          <div className="flex items-center justify-between">
-            <h1 className="text-base font-semibold text-foreground">
-              Let&apos;s get you started
-            </h1>
-            <button
-              type="button"
-              onClick={handleClose}
-              aria-label="Close and see dashboard"
-              className="rounded-lg p-1 text-foreground-subtle hover:bg-surface-muted hover:text-foreground-muted"
-              data-testid="guided-tour-see-dashboard"
-            >
-              <X className="size-5" aria-hidden />
-            </button>
-          </div>
-          {batchSelect}
-          {tabsRow}
-          <button
-            type="button"
-            onClick={() => setStepsDrawerOpen(true)}
-            className="flex items-center justify-center gap-2 rounded-lg border border-brand bg-brand/5 px-4 py-2.5 text-sm font-semibold text-brand"
-            data-testid="guided-tour-open-steps"
-          >
-            <ListChecks className="size-4" aria-hidden />
-            View steps ({tabProgress?.completed ?? 0}/{tabProgress?.total ?? 0})
-          </button>
-        </div>
-      ) : (
-        // Desktop: the task-list side rail (fills the viewport height, scrolls internally).
-        <aside className="flex w-full flex-col overflow-hidden rounded-2xl bg-surface shadow-sm md:sticky md:top-4 md:h-[calc(100dvh-6rem)] md:max-w-[440px] md:self-start">
-          <header className="flex shrink-0 items-center justify-between border-b border-border px-5 py-4">
-            <h1 className="text-lg font-semibold text-foreground">
-              Let&apos;s get you started
-            </h1>
-            <button
-              type="button"
-              onClick={handleClose}
-              aria-label="Close and see dashboard"
-              className="rounded-lg p-1 text-foreground-subtle hover:bg-surface-muted hover:text-foreground-muted"
-              data-testid="guided-tour-see-dashboard"
-            >
-              <X className="size-5" aria-hidden />
-            </button>
-          </header>
-
-          {/* Fixed: batch selector + tabs (never scroll away). */}
-          <div className="flex shrink-0 flex-col gap-4 border-b border-border px-5 py-4">
+      {completionBanner}
+      <div className="flex flex-col gap-4 md:flex-row md:items-start md:gap-5">
+        {isMobile ? (
+          // Mobile: a compact header (title + close + tabs + a "steps" trigger). The
+          // step list moves into a bottom sheet so the active content stays primary.
+          <div className="flex w-full flex-col gap-3 rounded-2xl bg-surface p-4 shadow-sm">
+            <div className="flex items-center justify-between">
+              <h1 className="text-base font-semibold text-foreground">
+                Let&apos;s get you started
+              </h1>
+              <button
+                type="button"
+                onClick={handleClose}
+                aria-label="Close and see dashboard"
+                className="rounded-lg p-1 text-foreground-subtle hover:bg-surface-muted hover:text-foreground-muted"
+                data-testid="guided-tour-see-dashboard"
+              >
+                <X className="size-5" aria-hidden />
+              </button>
+            </div>
             {batchSelect}
             {tabsRow}
+            <button
+              type="button"
+              onClick={() => setStepsDrawerOpen(true)}
+              className="flex items-center justify-center gap-2 rounded-lg border border-brand bg-brand/5 px-4 py-2.5 text-sm font-semibold text-brand"
+              data-testid="guided-tour-open-steps"
+            >
+              <ListChecks className="size-4" aria-hidden />
+              View steps ({tabProgress?.completed ?? 0}/
+              {tabProgress?.total ?? 0})
+            </button>
           </div>
+        ) : (
+          // Desktop: the task-list side rail (fills the viewport height, scrolls internally).
+          <aside className="flex w-full flex-col overflow-hidden rounded-2xl bg-surface shadow-sm md:sticky md:top-4 md:h-[calc(100dvh-6rem)] md:max-w-[440px] md:self-start">
+            <header className="flex shrink-0 items-center justify-between border-b border-border px-5 py-4">
+              <h1 className="text-lg font-semibold text-foreground">
+                Let&apos;s get you started
+              </h1>
+              <button
+                type="button"
+                onClick={handleClose}
+                aria-label="Close and see dashboard"
+                className="rounded-lg p-1 text-foreground-subtle hover:bg-surface-muted hover:text-foreground-muted"
+                data-testid="guided-tour-see-dashboard"
+              >
+                <X className="size-5" aria-hidden />
+              </button>
+            </header>
 
-          {/* Scrollable: progress + step list + ID-card capstone. */}
-          <div className="min-h-0 flex-1 overflow-y-auto px-5 py-4">
-            {renderStepList(selectStep)}
-          </div>
-
-          {feeBanner ? (
-            <div className="shrink-0 border-t border-border p-4">
-              {feeBanner}
+            {/* Fixed: batch selector + tabs (never scroll away). */}
+            <div className="flex shrink-0 flex-col gap-4 border-b border-border px-5 py-4">
+              {batchSelect}
+              {tabsRow}
             </div>
-          ) : null}
-        </aside>
-      )}
 
-      {/* Right side — selected step actionables. Bounded to the viewport height so
+            {/* Scrollable: progress + step list + ID-card capstone. */}
+            <div className="min-h-0 flex-1 overflow-y-auto px-5 py-4">
+              {renderStepList(selectStep)}
+            </div>
+
+            {feeBanner ? (
+              <div className="shrink-0 border-t border-border p-4">
+                {feeBanner}
+              </div>
+            ) : null}
+          </aside>
+        )}
+
+        {/* Right side — selected step actionables. Bounded to the viewport height so
           long steps (the agreement) scroll internally with a pinned footer. */}
-      <section className="flex min-w-0 flex-1 flex-col md:h-[calc(100dvh-6rem)]">
-        {selectedBatch ? (
-          <GuidedTourActivePanel
-            step={activeStep}
-            batchId={selectedBatch.batchId}
-            tab={effectiveTab}
-            profilePhotoUrl={status.profilePhotoUrl}
-            onReported={refetchProgress}
-            videoCount={videoStepKeys.length}
-            videoIndex={videoIndex}
-            autoPlayVideo={autoPlayNext}
-            onVideoEnded={handleVideoEnded}
-            hasPrev={activeIndex > 0}
-            hasNext={activeIndex < steps.length - 1}
-            onPrev={() => goToStep(activeIndex - 1)}
-            onNext={() => goToStep(activeIndex + 1)}
-          />
-        ) : null}
-      </section>
+        <section className="flex min-w-0 flex-1 flex-col md:h-[calc(100dvh-6rem)]">
+          {selectedBatch ? (
+            <GuidedTourActivePanel
+              step={activeStep}
+              batchId={selectedBatch.batchId}
+              tab={effectiveTab}
+              profilePhotoUrl={status.profilePhotoUrl}
+              onReported={refetchProgress}
+              videoCount={videoStepKeys.length}
+              videoIndex={videoIndex}
+              autoPlayVideo={autoPlayNext}
+              onVideoEnded={handleVideoEnded}
+              hasPrev={activeIndex > 0}
+              hasNext={hasNext}
+              onPrev={() => goToStep(activeIndex - 1)}
+              onNext={handleNext}
+            />
+          ) : null}
+        </section>
+      </div>
 
       {/* Mobile: the step list in a swipeable bottom sheet. Selecting a step closes it. */}
       {isMobile ? (

@@ -18,7 +18,7 @@ export function NavbarTrailingActions({
 
   return (
     <div
-      className={`flex shrink-0 items-center gap-[16px] ${className ?? ''}`.trim()}
+      className={`flex shrink-0 items-center gap-2 xl:gap-4 ${className ?? ''}`.trim()}
     >
       {items.map((item, index) => {
         const key = item.id ?? `${item.type}-${item.href}-${index}`

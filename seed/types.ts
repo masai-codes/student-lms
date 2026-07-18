@@ -45,6 +45,7 @@ export type DashboardHomeEntities = {
   enrollment: typeof sectionUser.$inferSelect
   scheduleLectures: Array<typeof lectures.$inferSelect>
   scheduleAssignment: typeof import('@/db/schema').assignments.$inferSelect
+  pastIncompleteScheduleAssignment: typeof import('@/db/schema').assignments.$inferSelect
   pendingCatchupLecture: typeof lectures.$inferSelect
   pendingAssignment: typeof import('@/db/schema').assignments.$inferSelect
   visibleAnnouncements: Array<
