@@ -27,6 +27,7 @@ export async function fetchPendingAssignments(
       concludes: assignments.concludes,
       sectionId: assignments.sectionId,
       week: assignments.week,
+      module: assignments.module,
       hostName: users.name,
       sectionName: sections.name,
       batchName: batches.name,
@@ -46,5 +47,6 @@ export async function fetchPendingAssignments(
     )
     .orderBy(asc(assignments.concludes))
 
-  return rows.map((row) => ({ ...row, module: null, zoomLink: null }))
+  // Assignments have no `zoom_link` column.
+  return rows.map((row) => ({ ...row, zoomLink: null }))
 }
