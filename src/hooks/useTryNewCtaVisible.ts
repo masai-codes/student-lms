@@ -30,5 +30,6 @@ export function useTryNewCtaVisible(): boolean {
     }
   }, [])
 
-  return visible
+  // Enabled for all students. To revert to the dev-only gate, return `visible`.
+  return true || visible
 }
