@@ -69,6 +69,18 @@ export const LECTURE_VIDEO_OVERFLOW_VOLUME_CSS = `
 `
 
 export const LECTURE_VIDEO_CHROME_CSS = `
+  /* Native fullscreen switches are an instant jump the browser controls; a
+     short fade on the player root (added via JS on every enter AND exit)
+     makes the transition read as smooth. Opacity only — transform here would
+     fight the .lecture-video-fs-rotate fallback. */
+  @keyframes lecture-video-fs-settle {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  .lecture-video-fs-settling {
+    animation: lecture-video-fs-settle 300ms ease-out;
+  }
+
   .react-player-page video::-webkit-media-text-track-display {
     display: none !important;
   }

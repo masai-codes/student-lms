@@ -1,20 +1,11 @@
-/** Open chat sidebar width (% of hero row on desktop). */
-export const LECTURE_SPLIT_CHAT_OPEN_WIDTH_PERCENT = 35
-
 /**
- * Min/max sidebar width (px) when open — keeps chat readable without shrinking
- * video too much. The min stays low enough that on a 768px tablet (where the
- * split first activates) the video keeps a usable width beside the chat.
+ * Shared open state for the lecture AI "Ask" chat. The chat renders as a
+ * floating popup (see `LectureFloatingChat`) rather than a sidebar, so no width
+ * constants are needed — only the open-by-default and persistence keys.
  */
-export const LECTURE_SPLIT_CHAT_MIN_WIDTH_PX = 320
-export const LECTURE_SPLIT_CHAT_MAX_WIDTH_PX = 520
 
-/** Open AI chat panel by default in the desktop sidebar. */
+/** Open the floating AI chat popup by default on desktop. */
 export const LECTURE_SPLIT_CHAT_OPEN_BY_DEFAULT = false
 
-/** Persists whether the user left the desktop chat sidebar open. */
+/** Persists whether the user left the floating chat popup open. */
 export const LECTURE_SPLIT_CHAT_STORAGE_KEY = 'lecture-split-chat-open'
-
-export function getLectureSplitChatOpenWidthCss(): string {
-  return `clamp(${LECTURE_SPLIT_CHAT_MIN_WIDTH_PX}px, ${LECTURE_SPLIT_CHAT_OPEN_WIDTH_PERCENT}%, ${LECTURE_SPLIT_CHAT_MAX_WIDTH_PX}px)`
-}

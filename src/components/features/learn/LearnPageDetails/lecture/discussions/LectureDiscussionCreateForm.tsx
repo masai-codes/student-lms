@@ -46,43 +46,47 @@ export function LectureDiscussionCreateForm({
 
   return (
     <form
-      className={cn(
-        'space-y-4 rounded-xl border border-border bg-surface p-4',
-        className,
-      )}
+      data-testid="lecture-discussion-create-form"
+      className={cn('space-y-2', className)}
       onSubmit={(e) => {
         e.preventDefault()
         void handleSubmit()
       }}
     >
-      <div className="space-y-1.5">
-        <Label htmlFor="lecture-discussion-title">Title</Label>
+      <Label htmlFor="lecture-discussion-title" className="sr-only">
+        Discussion title
+      </Label>
+      <div className="overflow-hidden rounded-xl border border-border bg-surface transition-colors duration-200 focus-within:border-brand/60 focus-within:ring-2 focus-within:ring-brand/15">
         <Input
           id="lecture-discussion-title"
+          data-testid="lecture-discussion-title-input"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
-          placeholder="Enter the title"
+          placeholder="Title"
           maxLength={255}
           required
           disabled={disabled}
-          className="bg-surface-muted"
+          className="h-auto rounded-none border-0 bg-transparent px-3 py-2.5 type-b2-regular font-semibold shadow-none placeholder:font-normal focus-visible:ring-0"
         />
-      </div>
-
-      <div className="space-y-1.5">
-        <Label htmlFor="lecture-discussion-description">Description</Label>
+        <div className="h-px bg-border" />
         <RichTextEditor
           value={descriptionHtml}
           onChange={setDescriptionHtml}
           placeholder="Describe your question or topic"
-          className="rounded-lg border border-border"
+          embedded
         />
-        <div className="flex justify-end text-xs text-muted-foreground">
-          {descriptionLength}/{DISCUSSION_MODAL_MAX_BODY_PLAIN}
-        </div>
       </div>
 
-      <div className="flex justify-end">
+      <div className="flex items-center justify-between">
+        <span
+          data-testid="lecture-discussion-char-count"
+          className={cn(
+            'text-xs tabular-nums text-muted-foreground transition-colors',
+            descriptionLength > DISCUSSION_MODAL_MAX_BODY_PLAIN && 'text-danger',
+          )}
+        >
+          {descriptionLength}/{DISCUSSION_MODAL_MAX_BODY_PLAIN}
+        </span>
         <MasaiButton
           type="primary"
           size="sm"

@@ -29,6 +29,7 @@ Last updated: 2026-07-09
 - Status: Covered (prompt builder, OpenAI client, send + history services, both handlers)
 - Test files: `src/server/ai-chat/**/__tests__/*`, `src/server/api/ai-chat/handlers/__tests__/*`
 - Notes: Voice transcript fetch errors fall back gracefully (return text history only). New migration `drizzle/0001_add_ai_chat_messages.sql`.
+- Desktop UI: the AI chat opens as a floating, maximizable "Ask" popup (`LectureFloatingChat`) instead of a sidebar, so the lecture video stays full width; a `contained` variant renders inside the video's fullscreen root so Ask is reachable in fullscreen. Covered by `src/components/features/lecture-ai-chat/components/__tests__/LectureFloatingChat.test.tsx` + `LectureAiChatPanel.test.tsx` and `.../lecture/components/__tests__/LectureDesktopVideoStage.test.tsx`. See `docs/testing/features/lecture-detail.md`.
 
 ## Lecture attendance (learn listing + detail)
 

@@ -32,6 +32,10 @@ type VideoAttendanceCustomControlsProps = {
   transcriptAvailable: boolean
   captionsOn: boolean
   onCaptionsToggle: () => void
+  /** Opens the lecture AI chat; the toolbar's "Ask AI" pill renders only when provided. */
+  onOpenAiChat?: () => void
+  /** Reports auto-hide chrome visibility (e.g. so captions can lift above the progress bar). */
+  onChromeVisibleChange?: (visible: boolean) => void
   className?: string
 }
 
@@ -53,6 +57,8 @@ export function VideoAttendanceCustomControls({
   transcriptAvailable,
   captionsOn,
   onCaptionsToggle,
+  onOpenAiChat,
+  onChromeVisibleChange,
   className = '',
 }: VideoAttendanceCustomControlsProps) {
   const [scrubPreviewSeconds, setScrubPreviewSeconds] = useState<number | null>(
@@ -92,6 +98,10 @@ export function VideoAttendanceCustomControls({
   useEffect(() => {
     overflowMenuOpenRef.current = overflowMenuOpen
   }, [overflowMenuOpen])
+
+  useEffect(() => {
+    onChromeVisibleChange?.(chromeVisible)
+  }, [chromeVisible, onChromeVisibleChange])
 
   const clearHideTimer = useCallback(() => {
     if (hideTimerRef.current !== null) {
@@ -193,9 +203,14 @@ export function VideoAttendanceCustomControls({
     setCommittedSeekSeconds(seconds)
   }
 
+  // A soft scrim keeps the glass pills legible on bright footage; the pills
+  // themselves carry most of the contrast, so it stays much lighter than a
+  // classic control gradient.
   const shellClass =
-    `pointer-events-auto absolute bottom-0 left-0 right-0 z-[45] flex w-full min-w-0 flex-col bg-gradient-to-t from-black/95 via-black/70 to-transparent pt-10 text-white transition-opacity duration-300 ease-out ${
-      chromeVisible ? 'opacity-100' : 'pointer-events-none opacity-0'
+    `pointer-events-auto absolute bottom-0 left-0 right-0 z-[45] flex w-full min-w-0 flex-col bg-gradient-to-t from-black/60 via-black/25 to-transparent pt-10 text-white transition-[opacity,transform] duration-300 ease-out ${
+      chromeVisible
+        ? 'translate-y-0 opacity-100'
+        : 'pointer-events-none translate-y-2 opacity-0'
     } ${className}`.trim()
 
   return (
@@ -242,6 +257,7 @@ export function VideoAttendanceCustomControls({
         onCaptionsToggle={onCaptionsToggle}
         chromeVisible={chromeVisible}
         onMenuOpenChange={setOverflowMenuOpen}
+        onOpenAiChat={onOpenAiChat}
       />
     </div>
   )

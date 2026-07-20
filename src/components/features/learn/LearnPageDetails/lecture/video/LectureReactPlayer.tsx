@@ -2,11 +2,11 @@
 
 import { useEffect, useRef, useState, type MouseEvent } from 'react'
 import ReactPlayer from 'react-player/lazy'
+import { CaretDown, Check } from '@phosphor-icons/react'
 
 import { VideoAttendanceCustomControls } from './controls/VideoAttendanceCustomControls'
 import { LECTURE_VIDEO_CHROME_CSS } from './controls/lectureVideoChrome.constants'
 import { getHtmlVideoFromPlayer } from './controls/lectureVideoChrome.utils'
-import { getLectureSplitChatOpenWidthCss } from '../constants/lectureSplitLayout'
 import { useLectureSplitChatOptional } from '../hooks/LectureSplitChatContext'
 import {
   enterElementFullscreen,
@@ -34,7 +34,8 @@ import type {
   LectureTranscriptSegment,
   LectureVideoAttendanceState,
 } from '@/server/learn/lectureDetailTypes'
-import { LectureAiChatExperience } from '@/components/features/lecture-ai-chat/LectureAiChatExperience'
+import { LectureFloatingChat } from '@/components/features/lecture-ai-chat/components/LectureFloatingChat'
+import { pushLearnEvent } from '@/components/features/learn/shared/learnAnalytics'
 import { cn } from '@/lib/utils'
 
 type LectureReactPlayerProps = {
@@ -237,6 +238,49 @@ export function LectureReactPlayer({
       window.removeEventListener('keydown', onWindowKey, { capture: true })
   }, [attendance.seekBySeconds, attendance.toggleVideoPlayPause])
 
+  // Mirrors the controls' auto-hide chrome state so captions can lift above
+  // the progress bar while the chrome is showing.
+  const [controlsChromeVisible, setControlsChromeVisible] = useState(true)
+
+  // Fade the player back in on every fullscreen enter/exit so the native
+  // instant jump feels like a smooth transition.
+  const prevFullscreenRef = useRef<boolean | null>(null)
+  useEffect(() => {
+    const wasFullscreen = prevFullscreenRef.current
+    prevFullscreenRef.current = isFullscreen
+    if (wasFullscreen === null || wasFullscreen === isFullscreen) return
+    const element = fullscreenContainerRef.current
+    if (!element) return
+    element.classList.remove('lecture-video-fs-settling')
+    // Force a reflow so re-adding the class restarts the animation even when
+    // the user toggles fullscreen rapidly.
+    void element.offsetWidth
+    element.classList.add('lecture-video-fs-settling')
+    const timeoutId = window.setTimeout(
+      () => element.classList.remove('lecture-video-fs-settling'),
+      350,
+    )
+    return () => window.clearTimeout(timeoutId)
+  }, [isFullscreen])
+
+  // Custom glass dropdown for the top-right quality shortcut (a native
+  // <select> would open the OS-styled picker, breaking the glass chrome).
+  const [qualityMenuOpen, setQualityMenuOpen] = useState(false)
+  const qualityMenuRef = useRef<HTMLSpanElement>(null)
+
+  useEffect(() => {
+    if (!qualityMenuOpen) return
+    const onPointerDown = (event: PointerEvent) => {
+      const element = qualityMenuRef.current
+      if (element && !element.contains(event.target as Node)) {
+        setQualityMenuOpen(false)
+      }
+    }
+    document.addEventListener('pointerdown', onPointerDown, true)
+    return () =>
+      document.removeEventListener('pointerdown', onPointerDown, true)
+  }, [qualityMenuOpen])
+
   return (
     <div
       ref={fullscreenContainerRef}
@@ -306,23 +350,78 @@ export function LectureReactPlayer({
             segments={segments}
             progressSeconds={attendance.progress}
             visible={captionsOn && hasTranscript}
+            liftForControls={controlsChromeVisible}
           />
           {attendance.qualityLevels.length > 0 ? (
-            <select
-              aria-label="Video quality"
-              value={attendance.currentQuality}
-              onChange={(event) =>
-                attendance.changeQuality(Number(event.target.value))
-              }
-              className="absolute right-3 top-3 z-[55] cursor-pointer rounded-md border border-white/15 bg-black/60 py-1.5 pl-3 pr-2 text-sm font-medium text-white outline-none backdrop-blur-sm transition-colors hover:bg-black/80 focus-visible:ring-2 focus-visible:ring-white/40"
+            // Fully custom glass dropdown (no native <select> — the OS picker
+            // would break the glass chrome). A <span>, NOT a <div>:
+            // lectureReactPlayer.css force-stretches `.react-player-page > div`
+            // to 100%×100%, which would turn this into a click-swallowing
+            // overlay.
+            <span
+              ref={qualityMenuRef}
+              className="absolute right-3 top-3 z-[55] block"
             >
-              <option value={-1}>Auto</option>
-              {attendance.qualityLevels.map((level) => (
-                <option key={level.index} value={level.index}>
-                  {level.height}p
-                </option>
-              ))}
-            </select>
+              <button
+                type="button"
+                aria-haspopup="listbox"
+                aria-expanded={qualityMenuOpen}
+                aria-label="Video quality"
+                onClick={() => setQualityMenuOpen((open) => !open)}
+                className="flex cursor-pointer items-center gap-2 rounded-full border border-white/15 bg-white/10 py-2 pl-4 pr-3.5 text-sm font-semibold text-white shadow-[0_4px_24px_rgba(0,0,0,0.35),inset_0_1px_0_rgba(255,255,255,0.12)] outline-none backdrop-blur-xl transition duration-200 hover:border-white/30 hover:bg-white/20 focus-visible:ring-2 focus-visible:ring-white/50"
+              >
+                {attendance.currentQuality === -1
+                  ? 'Auto'
+                  : `${
+                      attendance.qualityLevels.find(
+                        (level) => level.index === attendance.currentQuality,
+                      )?.height ?? '?'
+                    }p`}
+                <CaretDown
+                  className={`h-4 w-4 shrink-0 text-white/80 transition-transform duration-200 ${
+                    qualityMenuOpen ? 'rotate-180' : ''
+                  }`}
+                  weight="bold"
+                  aria-hidden
+                />
+              </button>
+              {qualityMenuOpen ? (
+                <div
+                  role="listbox"
+                  aria-label="Video quality"
+                  className="absolute right-0 top-full z-[60] mt-2 min-w-[7.5rem] overflow-hidden rounded-2xl border border-white/15 bg-black/60 p-1.5 shadow-[0_12px_40px_rgba(0,0,0,0.55),inset_0_1px_0_rgba(255,255,255,0.1)] backdrop-blur-2xl animate-in fade-in-0 zoom-in-95 slide-in-from-top-1 duration-150"
+                >
+                  {[
+                    { index: -1, label: 'Auto' },
+                    ...attendance.qualityLevels.map((level) => ({
+                      index: level.index,
+                      label: `${level.height}p`,
+                    })),
+                  ].map((option) => {
+                    const selected = option.index === attendance.currentQuality
+                    return (
+                      <button
+                        key={option.index}
+                        type="button"
+                        role="option"
+                        aria-selected={selected}
+                        onClick={() => {
+                          attendance.changeQuality(option.index)
+                          setQualityMenuOpen(false)
+                        }}
+                        className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-sm text-white transition duration-150 hover:bg-white/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50"
+                      >
+                        <Check
+                          className={`h-4 w-4 shrink-0 ${selected ? 'opacity-100' : 'opacity-0'}`}
+                          weight="bold"
+                        />
+                        {option.label}
+                      </button>
+                    )
+                  })}
+                </div>
+              ) : null}
+            </span>
           ) : null}
         </div>
         <VideoAttendanceCustomControls
@@ -346,17 +445,25 @@ export function LectureReactPlayer({
           transcriptAvailable={hasTranscript}
           captionsOn={captionsOn}
           onCaptionsToggle={() => setCaptionsOn((value) => !value)}
+          onOpenAiChat={
+            splitChat
+              ? () => {
+                  pushLearnEvent('l_learn_lecture_ask_ai_open', { lectureId })
+                  splitChat.open()
+                }
+              : undefined
+          }
+          onChromeVisibleChange={setControlsChromeVisible}
         />
-        {splitChat?.isOpen && isFullscreen ? (
-          <div
-            className="absolute inset-y-0 right-0 z-[55] flex min-h-0 flex-col border-l border-border bg-surface shadow-2xl"
-            style={{ width: getLectureSplitChatOpenWidthCss() }}
-          >
-            <LectureAiChatExperience
-              lectureId={lectureId}
-              onCloseSidebar={splitChat.close}
-            />
-          </div>
+        {/* While the video is in browser fullscreen, a body-portaled page-level
+            launcher can't render over the fullscreen element, so the floating
+            chat lives inside the fullscreen root here (bottom-right). */}
+        {splitChat && isFullscreen ? (
+          <LectureFloatingChat
+            lectureId={lectureId}
+            state={splitChat}
+            variant="contained"
+          />
         ) : null}
       </div>
     </div>
