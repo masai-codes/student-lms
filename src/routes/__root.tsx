@@ -75,20 +75,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
   // (e.g. a club's `isJoined` / `memberCount` after Join). `useState` keeps one
   // client for the life of the browser tab while still giving each SSR request
   // its own.
-  const [queryClient] = useState(
-    () =>
-      new QueryClient({
-        defaultOptions: {
-          queries: {
-            // Don't refetch every query when the tab regains focus, and treat
-            // data as fresh for 30s so brief tab-switches don't trigger a
-            // network round-trip (see /learn's `learn-page-data` query).
-            staleTime: 30_000,
-            refetchOnWindowFocus: false,
-          },
-        },
-      }),
-  )
+  const [queryClient] = useState(() => new QueryClient())
 
   return (
     <html lang="en">
