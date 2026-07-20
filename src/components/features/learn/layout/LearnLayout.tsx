@@ -72,6 +72,11 @@ export function LearnLayout({ pageData, onBatchChange }: LearnLayoutProps) {
       }),
     initialData: pageData,
     placeholderData: keepPreviousData,
+    // Keep staleTime at its default (0) so switching batch — which changes the
+    // query key and seeds `initialData` from the *previous* batch — refetches
+    // immediately and shows the selected batch's listing. We only suppress the
+    // redundant refetch when the tab regains focus.
+    refetchOnWindowFocus: false,
   })
 
   const enrolledBatches = data.batches
