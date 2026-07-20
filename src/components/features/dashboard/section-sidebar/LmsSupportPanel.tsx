@@ -56,7 +56,7 @@ export function LmsSupportPanel({
       <img
         src={SUPPORT_ILLUSTRATION}
         alt=""
-        className="animate-dash-float size-12 shrink-0"
+        className="size-12 shrink-0"
       />
 
       <div className="min-w-0 flex-1">
