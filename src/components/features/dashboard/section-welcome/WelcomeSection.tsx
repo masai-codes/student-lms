@@ -37,7 +37,7 @@ export function WelcomeSection({
               title={name}
               className="text-3xl font-bold md:text-4xl"
             >
-              <span className="dash-gradient-text">
+              <span className="text-foreground">
                 {formatGreetingName(name)}
               </span>{' '}
               <span aria-hidden="true" className="dash-wave">
@@ -50,7 +50,7 @@ export function WelcomeSection({
             data-testid="dashboard-welcome-name"
             className="text-3xl font-bold md:text-4xl"
           >
-            <span className="dash-gradient-text">Welcome!</span>{' '}
+            <span className="text-foreground">Welcome!</span>{' '}
             <span aria-hidden="true" className="dash-wave">
               👋
             </span>

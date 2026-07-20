@@ -95,9 +95,10 @@ describe('LectureFloatingChat', () => {
       />,
     )
 
-    expect(
-      screen.getByTestId('lecture-ask-ai-launcher').className,
-    ).toContain('absolute')
+    // The contained variant anchors inside the fullscreen video (absolute),
+    // not via the body portal — the anchor lives on the wrapper.
+    const wrapper = screen.getByTestId('lecture-ask-ai-launcher').closest('div')
+    expect(wrapper?.className).toContain('absolute')
   })
 
   it('grows the contained popup to near-full size when maximized', () => {

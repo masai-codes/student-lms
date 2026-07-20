@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
-import { Sparkle } from '@phosphor-icons/react'
 
+import { AskAiPillContent, askAiPillClass } from './AskAiPill'
 import { LectureAiChatExperience } from '../LectureAiChatExperience'
 import { pushLearnEvent } from '@/components/features/learn/shared/learnAnalytics'
 import { cn } from '@/lib/utils'
@@ -38,8 +38,8 @@ const LAUNCHER_POSITION = {
 // ancestor can't hide them — gate on the breakpoint directly. Mobile keeps the
 // separate below-hero dock. The contained (in-fullscreen) variant always shows.
 const LAUNCHER_DISPLAY = {
-  viewport: 'hidden md:inline-flex',
-  contained: 'inline-flex',
+  viewport: 'hidden md:block',
+  contained: 'block',
 } as const
 
 const PANEL_DISPLAY = {
@@ -139,41 +139,40 @@ export function LectureFloatingChat({
     <>
       {/* Always mounted — we fade/scale it in and out in sync with the popup so
           it never re-mounts (which would replay its entrance every close). */}
-      <button
-        type="button"
-        onClick={handleOpen}
-        data-testid="lecture-ask-ai-launcher"
-        aria-label="Ask the AI tutor about this lecture"
-        aria-hidden={state.isOpen}
-        tabIndex={state.isOpen ? -1 : 0}
-        className={cn(
-          LAUNCHER_POSITION[variant],
-          LAUNCHER_DISPLAY[variant],
-          'group h-12 items-center justify-center gap-2 rounded-full px-5',
-          'bg-gradient-to-br from-[#4F6BED] to-[#7C3AED] text-sm font-semibold text-white',
-          'shadow-xl shadow-[#4F6BED]/40 ring-1 ring-white/15',
-          // Center origin + smooth ease (no spring overshoot) so hover gives a
-          // barely-there, negligible lift instead of a pop.
-          'origin-center will-change-transform transition-[transform,opacity] duration-300 ease-out motion-reduce:transition-none',
-          'hover:-translate-y-px hover:scale-[1.015] active:scale-[0.99]',
-          'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/80',
-          state.isOpen
-            ? 'pointer-events-none scale-90 opacity-0'
-            : 'scale-100 opacity-100',
-        )}
-      >
-        {/* Breathing halo so the pill reads as a live, tappable CTA. */}
-        <span
-          aria-hidden
-          className="pointer-events-none absolute inset-0 rounded-full animate-dash-glow"
-        />
-        <Sparkle
-          className="relative size-5 transition-transform duration-200 group-hover:rotate-12 group-hover:scale-110"
-          weight="fill"
-          aria-hidden
-        />
-        <span className="relative">Ask AI</span>
-      </button>
+      <div className={cn(LAUNCHER_POSITION[variant], LAUNCHER_DISPLAY[variant])}>
+        <span className="group/tt relative block">
+          <button
+            type="button"
+            onClick={handleOpen}
+            data-testid="lecture-ask-ai-launcher"
+            aria-label="Ask the AI tutor about this lecture"
+            aria-hidden={state.isOpen}
+            tabIndex={state.isOpen ? -1 : 0}
+            className={cn(
+              askAiPillClass,
+              // Center origin + smooth ease so hover gives a barely-there lift.
+              'inline-flex origin-center will-change-transform hover:-translate-y-px hover:scale-[1.015]',
+              state.isOpen
+                ? 'pointer-events-none scale-90 opacity-0'
+                : 'scale-100 opacity-100',
+            )}
+          >
+            <AskAiPillContent />
+          </button>
+
+          {/* Same hover tooltip as the in-player pill (hover devices only). */}
+          <span
+            role="tooltip"
+            className={cn(
+              'pointer-events-none absolute bottom-[calc(100%+0.75rem)] right-2 z-[70] translate-y-1 scale-95 whitespace-nowrap rounded-lg border border-white/15 bg-black/75 px-2.5 py-1.5 text-xs font-medium text-white opacity-0 shadow-[0_8px_24px_rgba(0,0,0,0.45)] backdrop-blur-xl transition duration-150 ease-out',
+              '[@media(hover:hover)]:group-hover/tt:translate-y-0 [@media(hover:hover)]:group-hover/tt:scale-100 [@media(hover:hover)]:group-hover/tt:opacity-100',
+              state.isOpen && 'hidden',
+            )}
+          >
+            Ask AI about this lecture
+          </span>
+        </span>
+      </div>
 
       {isRendered ? (
         <div

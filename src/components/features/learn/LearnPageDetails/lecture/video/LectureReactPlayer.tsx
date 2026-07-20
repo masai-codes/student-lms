@@ -169,6 +169,24 @@ export function LectureReactPlayer({
     return () => observer.disconnect()
   }, [videoRef])
 
+  // Safety net for the same dual-instance layout: the ResizeObserver above
+  // only catches a visible→hidden collapse, not a video that STARTS while its
+  // container is already display:none (e.g. via a global shortcut or OS media
+  // keys). If this hidden instance ever begins playing, pause it immediately —
+  // its audio would otherwise run under the visible player's.
+  useEffect(() => {
+    const video = getHtmlVideoFromPlayer(videoRef)
+    const container = fullscreenContainerRef.current
+    if (!video || !container) return
+    const onPlay = () => {
+      if (container.offsetWidth === 0 && container.offsetHeight === 0) {
+        video.pause()
+      }
+    }
+    video.addEventListener('play', onPlay)
+    return () => video.removeEventListener('play', onPlay)
+  }, [attendance.playerReadyVersion, videoRef])
+
   // Fallback for touch devices where screen.orientation.lock() is rejected
   // (e.g. Android Chrome in a regular, non-installed tab): while fullscreen
   // and still physically portrait, CSS-rotate the container so a landscape
@@ -206,6 +224,18 @@ export function LectureReactPlayer({
 
   useEffect(() => {
     const onWindowKey = (event: KeyboardEvent) => {
+      // TWO player instances are mounted at once (mobile/desktop rows swapped
+      // via display:none at the md breakpoint) and each registers this window
+      // listener. Only the VISIBLE instance may handle shortcuts — otherwise
+      // Space also starts the hidden instance's video, whose audio still
+      // plays (the "two voices in parallel" bug).
+      const container = fullscreenContainerRef.current
+      if (
+        !container ||
+        (container.offsetWidth === 0 && container.offsetHeight === 0)
+      ) {
+        return
+      }
       const target = event.target as HTMLElement | null
       const tag = target ? target.tagName.toLowerCase() : undefined
       if (

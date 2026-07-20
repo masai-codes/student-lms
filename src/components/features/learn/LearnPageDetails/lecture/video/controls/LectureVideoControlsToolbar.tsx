@@ -13,7 +13,6 @@ import {
   GearSix,
   Pause,
   Play,
-  Sparkle,
   SpeakerHigh,
   SpeakerLow,
   SpeakerSlash,
@@ -40,7 +39,12 @@ import {
   playVideoWithRecovery,
   type LectureVideoQualityLevel,
 } from '../hooks/useLectureVideoAttendance'
+import {
+  AskAiPillContent,
+  askAiPillClass,
+} from '@/components/features/lecture-ai-chat/components/AskAiPill'
 import { pushLearnEvent } from '@/components/features/learn/shared/learnAnalytics'
+import { cn } from '@/lib/utils'
 
 /**
  * YouTube-style hover tooltip above a control. Hover-only (guarded by the
@@ -390,21 +394,19 @@ export function LectureVideoControlsToolbar({
         >
           {onOpenAiChat ? (
             <ControlTooltip label="Ask AI about this lecture">
-              {/* Gradient-tinted glass pill matching the floating AI-tutor
-                  launcher so both read as the same feature. Desktop-only: the
-                  chat popup itself is hidden below md (mobile uses the
-                  below-video dock). */}
+              {/* Shared pill so it's identical to the floating AI-tutor launcher.
+                  Desktop-only: the chat popup itself is hidden below md (mobile
+                  uses the below-video dock). */}
               <button
                 type="button"
                 onClick={() => {
                   onActivity()
                   onOpenAiChat()
                 }}
-                className="hidden h-11 shrink-0 items-center gap-2 rounded-full bg-gradient-to-r from-[#4F6BED]/60 to-[#7C3AED]/60 px-4 text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.2)] transition duration-200 hover:from-[#4F6BED]/80 hover:to-[#7C3AED]/80 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50 active:scale-90 md:flex"
+                className={cn(askAiPillClass, 'hidden shrink-0 md:inline-flex')}
                 aria-label="Ask AI about this lecture"
               >
-                <Sparkle className="h-5 w-5 shrink-0" weight="fill" />
-                <span className="text-sm font-semibold">Ask AI</span>
+                <AskAiPillContent />
               </button>
             </ControlTooltip>
           ) : null}
