@@ -24,7 +24,7 @@ function buildHtml(name: string, link: string, portal: EmailPortal): string {
   const intro = isIhub
     ? "You've recently made a request to reset your password on the IHub IITR Courses platform. Please click on the following button to reset your password:"
     : "You've recently made a request to reset your password on the Masai Platform. Please click on the following button to reset your password:"
-  const signature = isIhub ? 'IHub IITR Courses' : 'Masai School | Course'
+  const signature = isIhub ? 'IHub IITR Courses' : 'Masai School | Program'
 
   return `<div style="background-color: #008CBA; padding: 20px;">
               <div style="background-color: #f2f2f2; padding: 20px; border: 1px solid #ddd;">

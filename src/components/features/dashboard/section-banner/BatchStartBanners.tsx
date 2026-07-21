@@ -75,7 +75,7 @@ export function BatchStartBanners({ banners }: BatchStartBannersProps) {
                     data-testid="dashboard-batch-start-text"
                     className="mt-0.5 truncate text-sm font-medium md:text-base"
                   >
-                    Your course{' '}
+                    Your program{' '}
                     <span className="font-bold">{banner.courseTitle}</span> will
                     start on{' '}
                     <span className="rounded-md bg-surface/20 px-1.5 py-0.5 font-bold whitespace-nowrap">

@@ -69,7 +69,7 @@ export function CourseStructure({ modules }: Props) {
   return (
     <div className="flex flex-col gap-4">
       <h2 className="font-semibold text-xl leading-8 text-foreground">
-        Course Structure
+        Program Structure
       </h2>
 
       <div className="rounded-2xl border border-border bg-surface p-6 flex flex-col gap-2">

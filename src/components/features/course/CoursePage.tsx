@@ -41,7 +41,7 @@ export function CoursePage({ batchId }: Props) {
   if (isError || !primary) {
     return (
       <div className="flex items-center justify-center min-h-96 text-foreground-muted text-sm">
-        Course not found or you are not enrolled.
+        Program not found or you are not enrolled.
       </div>
     )
   }

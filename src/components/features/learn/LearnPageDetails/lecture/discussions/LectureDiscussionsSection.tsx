@@ -99,7 +99,7 @@ export function LectureDiscussionsSection({
         className="type-b3-regular animate-dash-rise mb-4 text-foreground-muted"
         style={{ '--dash-delay': '0.05s' } as CSSProperties}
       >
-        Share course-related discussions with your peers.
+        Share program-related discussions with your peers.
       </p>
 
       <LectureDiscussionCreatePanel

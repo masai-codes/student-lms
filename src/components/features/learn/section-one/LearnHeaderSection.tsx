@@ -107,7 +107,7 @@ export function LearnHeaderSection({
             className="max-h-[min(60vh,420px)] w-[min(92vw,360px)] overflow-y-auto rounded-xl border border-border bg-surface p-2 shadow-lg"
           >
             <DropdownMenuLabel className="text-foreground">
-              Select a course
+              Select a program
             </DropdownMenuLabel>
             {batches.map((batch, index) => {
               const isSelected = batch.value === selectedBatch
@@ -159,9 +159,9 @@ export function LearnHeaderSection({
 
         {/* Section filter — scopes the listing to one enrolled section of the batch. */}
         <MasaiSelectDropdown
-          triggerLabel="Section"
-          menuLabel="Select a section"
-          aria-label="Filter by section"
+          triggerLabel="Subject"
+          menuLabel="Select a subject"
+          aria-label="Filter by subject"
           options={sectionOptions}
           value={sectionValue}
           disabled={sections.length === 0}
@@ -191,7 +191,7 @@ export function LearnHeaderSection({
           }
           className="type-b1-md group flex shrink-0 items-center gap-1 self-start text-primary-500 transition-colors hover:text-primary-600 hover:underline md:self-auto"
         >
-          <span>Course Details</span>
+          <span>Program Details</span>
           <ExternalLink
             className="size-4 transition-transform duration-200 group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
             aria-hidden
