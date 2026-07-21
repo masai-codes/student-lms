@@ -251,6 +251,9 @@ export function LectureReactPlayer({
 
   useEffect(() => {
     const onWindowKey = (event: KeyboardEvent) => {
+      // While a quiz card is open, suspend the global player keyboard shortcuts
+      // so arrow-key seeks / space-to-pause can't fire from the quiz UI.
+      if (isQuizActiveRef.current) return
       const container = fullscreenContainerRef.current
       if (
         !container ||
@@ -289,7 +292,6 @@ export function LectureReactPlayer({
         event.stopPropagation()
         attendance.toggleVideoPlayPause()
       }
-       if (isQuizActiveRef.current) return
     }
 
     window.addEventListener('keydown', onWindowKey, { capture: true })
