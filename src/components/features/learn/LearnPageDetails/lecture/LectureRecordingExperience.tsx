@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 
-import { LectureDesktopChatSidebar } from './components/LectureDesktopChatSidebar'
+import { LectureDesktopVideoStage } from './components/LectureDesktopVideoStage'
 import { useLectureHeroViewportHeight } from './hooks/useLectureHeroViewportHeight'
 import { LectureDetailActions } from './shared/LectureDetailActions'
 import { LectureDetailFooter } from './shared/LectureDetailFooter'
@@ -99,9 +99,8 @@ export function LectureRecordingExperience({
           heroRowFullBleedClasses,
           'hidden min-h-0 flex-1 flex-row items-stretch overflow-hidden bg-black md:flex has-[:fullscreen]:flex',
         )}
-        data-lecture-split-layout
       >
-        <LectureDesktopChatSidebar
+        <LectureDesktopVideoStage
           lectureId={entityId}
           video={renderVideoSection()}
         />

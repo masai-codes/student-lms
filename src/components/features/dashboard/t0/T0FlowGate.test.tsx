@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import {
   cleanup,
@@ -9,7 +9,7 @@ import {
   waitFor,
 } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { T0FlowGate } from './T0FlowGate'
+import { T0FlowGate, isGuidedTourVisible } from './T0FlowGate'
 import type { T0FlowLecturesResult } from '@/server/api/dashboard/getT0FlowLectures.service'
 import type { T0FlowStatus } from '@/server/api/dashboard/getT0FlowStatus.service'
 
@@ -74,8 +74,9 @@ const baseStatus = (over: Partial<T0FlowStatus> = {}): T0FlowStatus => ({
   ...over,
 })
 
-// Mirrors the dashboard page: dismissed state is lifted above the gate, so
-// "See dashboard" (onDismiss) actually hides the overlay.
+// Mirrors the dashboard page: visibility (dismiss + the "keep open once shown"
+// latch) is computed above the gate, so "See dashboard" (onDismiss) hides the
+// overlay and a mid-view completion doesn't yank it away.
 function StatefulGate({
   status,
   forceOpen = false,
@@ -84,13 +85,21 @@ function StatefulGate({
   forceOpen?: boolean
 }) {
   const [dismissed, setDismissed] = useState(false)
+  const [latched, setLatched] = useState(false)
+  const eligible = isGuidedTourVisible(status, { dismissed, forceOpen })
+  useEffect(() => {
+    if (eligible) setLatched(true)
+  }, [eligible])
+  const open = eligible || (latched && !dismissed)
   return (
     <T0FlowGate
       status={status}
-      dismissed={dismissed}
-      onDismiss={() => setDismissed(true)}
+      open={open}
+      onDismiss={() => {
+        setDismissed(true)
+        setLatched(false)
+      }}
       target={null}
-      forceOpen={forceOpen}
       feePaymentBanners={[]}
     />
   )
@@ -199,6 +208,85 @@ describe('T0FlowGate', () => {
     expect(screen.getByTestId('guided-tour-active-title').textContent).toBe(
       'Add your profile photo',
     )
+  })
+
+  it('keeps the tour open and celebrates when onboarding completes mid-view', () => {
+    const client = new QueryClient({
+      defaultOptions: { queries: { retry: false } },
+    })
+    const { rerender } = render(
+      <QueryClientProvider client={client}>
+        <StatefulGate status={baseStatus()} />
+      </QueryClientProvider>,
+    )
+    // Open and in progress: no completion celebration yet.
+    expect(screen.getByTestId('guided-tour-overlay')).toBeTruthy()
+    expect(screen.queryByTestId('guided-tour-complete-banner')).toBeNull()
+
+    // Backend now reports onboarding complete (learner finished the last video).
+    // The tour must stay open (latched) and show the congrats CTA instead of
+    // being yanked away.
+    rerender(
+      <QueryClientProvider client={client}>
+        <StatefulGate
+          status={baseStatus({
+            showGuidedTour: false,
+            batches: [
+              {
+                batchId: 5,
+                batchName: 'MERN',
+                showProgramTab: false,
+                lms: { completed: 4, total: 4, complete: true },
+                program: null,
+                lectures,
+                flowVariant: 'full',
+              },
+            ],
+          })}
+        />
+      </QueryClientProvider>,
+    )
+    expect(screen.getByTestId('guided-tour-overlay')).toBeTruthy()
+    expect(screen.getByTestId('guided-tour-complete-banner')).toBeTruthy()
+    // The congrats CTA closes the tour.
+    fireEvent.click(screen.getByTestId('guided-tour-complete-cta'))
+    expect(screen.queryByTestId('guided-tour-overlay')).toBeNull()
+  })
+
+  it('crosses from the last LMS step to Program Onboarding via Next when eligible', () => {
+    renderGate(
+      baseStatus({
+        batches: [
+          {
+            batchId: 5,
+            batchName: 'MERN',
+            showProgramTab: true,
+            lms: { completed: 1, total: 4, complete: false },
+            program: { completed: 0, total: 2, complete: false },
+            lectures,
+            flowVariant: 'full',
+          },
+        ],
+      }),
+    )
+    // Program tab starts unlocked but not selected.
+    expect(
+      screen
+        .getByTestId('guided-tour-tab-program')
+        .getAttribute('aria-selected'),
+    ).toBe('false')
+
+    // Advance through the LMS steps; the last one's Next crosses to the program.
+    for (let i = 0; i < 10; i++) {
+      const program = screen.getByTestId('guided-tour-tab-program')
+      if (program.getAttribute('aria-selected') === 'true') break
+      fireEvent.click(screen.getByTestId('guided-tour-step-next'))
+    }
+    expect(
+      screen
+        .getByTestId('guided-tour-tab-program')
+        .getAttribute('aria-selected'),
+    ).toBe('true')
   })
 
   it('shows a batch dropdown only for multi-batch users', async () => {

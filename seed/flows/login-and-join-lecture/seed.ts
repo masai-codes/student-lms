@@ -2,8 +2,10 @@ import {
   createBatch,
   createEnrollment,
   createLecture,
+  createProfile,
   createSection,
   createUser,
+  createUserDeviceToken,
 } from '../../factories'
 import type { SeedFlowResult, TestUser } from '../../types'
 import {
@@ -16,7 +18,10 @@ import {
   formatMysqlDatetime,
   offsetFromNow,
 } from '../../utils/time'
-import { flowScopedEmail } from '../onboarding-shared/constants'
+import {
+  flowScopedEmail,
+  ONBOARDING_PROFILE_PHOTO_URL,
+} from '../onboarding-shared/constants'
 import { loginAndJoinLectureConfig, loginAndJoinLectureTiming } from './config'
 
 const FLOW_ID = loginAndJoinLectureConfig.id
@@ -54,6 +59,8 @@ export async function seedLoginAndJoinLecture(): Promise<SeedFlowResult> {
     lectureSchedule,
     loginAndJoinLectureTiming.lectureDurationMinutes,
   )
+  const schedule = formatMysqlDatetime(lectureSchedule)
+  const concludes = formatMysqlDatetime(lectureConcludes)
 
   const admin = await createUser({
     name: 'Admin User',
@@ -80,12 +87,25 @@ export async function seedLoginAndJoinLecture(): Promise<SeedFlowResult> {
     managerId: admin.id,
   })
 
+  await createProfile({
+    userId: student.id,
+    meta: { profile_pic: ONBOARDING_PROFILE_PHOTO_URL },
+  })
+
+  await createUserDeviceToken({
+    userId: student.id,
+    token: `seed-device-${FLOW_ID}`,
+    deviceType: 'ios',
+  })
+
   const lecture = await createLecture({
     batchId: batch.id,
     sectionId: section.id,
     userId: admin.id,
-    schedule: formatMysqlDatetime(lectureSchedule),
-    concludes: formatMysqlDatetime(lectureConcludes),
+    schedule,
+    concludes,
+    startDate: formatMysqlDate(lectureSchedule),
+    endDate: formatMysqlDate(lectureConcludes),
     zoomLink: DEFAULT_ZOOM_LINK,
   })
 

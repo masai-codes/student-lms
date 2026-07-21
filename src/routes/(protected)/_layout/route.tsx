@@ -16,7 +16,11 @@ import { TryNewTour } from '@/components/features/layout/TryNewTour'
 import { AnnouncementModalController, ModalProvider } from '@/components/modals'
 import MasaiverseMobileTabBar from '@/components/features/masaiverse-v2/MasaiverseMobileTabBar'
 import { isMasaiverseApp } from '@/constants/masaiverseDrawerUi'
-import { layoutMainClasses, layoutMainClassesFullWidth } from '@/lib/layout'
+import {
+  layoutMainClasses,
+  layoutMainClassesFullWidth,
+  lectureDetailMainClasses,
+} from '@/lib/layout'
 import { bootstrapLoginWithToken } from '@/server/auth/bootstrapLogin'
 import { fetchCurrentUser } from '@/server/auth/fetchCurrentUser'
 import {
@@ -30,17 +34,32 @@ import { initClarity, setCurrentUserForTracking } from '@/utils/tracking'
 const ENABLE_SUPPORT_FLOATER = true
 
 /** Paths served by this app when legacy redirect is enabled (everything else → old LMS). */
+/**
+ * Paths served by this app when legacy redirect is enabled (everything else →
+ * old LMS). Deliberately minimal: only the 5 migrated pages (flag-gated,
+ * handled separately) plus `masaiverse` stay on the new LMS. Everything else —
+ * announcements, messages, bookmarks, whats-new, profile, my-courses, course,
+ * support, etc. — redirects to the old LMS.
+ */
 function isNewStudentExperienceRoute(pathname: string): boolean {
   if (pathname.startsWith('/masaiverse')) return true
-  if (pathname.startsWith('/announcements')) return true
-  if (pathname.startsWith('/messages')) return true
-  if (pathname.startsWith('/bookmarks')) return true
-  if (pathname.startsWith('/whats-new')) return true
-  if (pathname.startsWith('/profile')) return true
-  if (pathname.startsWith('/my-courses')) return true
-  if (pathname.startsWith('/course')) return true
-  if (pathname.startsWith('/support')) return true
   return false
+}
+
+/**
+ * New→old path translation for pages whose old-LMS route differs. Anything not
+ * listed keeps the same path on the old LMS.
+ *   /my-courses  → /my-lectures      (course listing)
+ *   /course/:id  → /new-courses/:id  (course detail)
+ */
+function mapToLegacyPath(pathname: string): string {
+  if (pathname === '/my-courses' || pathname.startsWith('/my-courses/')) {
+    return pathname.replace(/^\/my-courses/, '/my-lectures')
+  }
+  if (pathname === '/course' || pathname.startsWith('/course/')) {
+    return pathname.replace(/^\/course/, '/new-courses')
+  }
+  return pathname
 }
 
 export const Route = createFileRoute('/(protected)/_layout')({
@@ -96,10 +115,11 @@ export const Route = createFileRoute('/(protected)/_layout')({
 
       if (shouldRedirectMigratedRoute || shouldRedirectOtherRoute) {
         // Migrated pages hand off path-only — the old LMS regenerates its own
-        // query params (batch/tab/page). Other legacy routes keep their search.
+        // query params (batch/tab/page). Other legacy routes keep their search,
+        // with a path translation where the old-LMS route differs.
         const pathForLegacy = shouldRedirectMigratedRoute
           ? url.pathname
-          : `${url.pathname}${url.search}`
+          : `${mapToLegacyPath(url.pathname)}${url.search}`
         const oldUiUrl = getOldStudentUiUrlForPath(pathForLegacy)
         if (oldUiUrl) {
           throw redirect({ href: oldUiUrl })
@@ -125,9 +145,14 @@ function RouteComponent() {
   const isApp = isMasaiverseApp(searchStr)
   const isMasaiverseRoute = pathname.startsWith('/masaiverse')
   const isSupportRoute = pathname.startsWith('/support')
+  // Lecture detail spans the full viewport width (no centered container), so
+  // every hero state is edge-to-edge like the recording video.
+  const isLectureDetail = /^\/lectures\/[^/]+/.test(pathname)
   const mainClasses = isMasaiverseRoute
     ? layoutMainClassesFullWidth
-    : layoutMainClasses
+    : isLectureDetail
+      ? lectureDetailMainClasses
+      : layoutMainClasses
 
   useEffect(() => {
     initClarity()

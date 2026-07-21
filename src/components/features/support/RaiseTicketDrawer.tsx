@@ -40,6 +40,25 @@ export function RaiseTicketDrawer({
   onOpenChange,
   contextCategory,
 }: RaiseTicketDrawerProps) {
+  // Safety net for a Radix Dialog scroll-lock leak. While the Sheet is open,
+  // Radix locks page scroll via react-remove-scroll (which sets the
+  // `data-scroll-locked` attribute on <body>, backed by a
+  // `body[data-scroll-locked] { overflow: hidden !important }` style rule, and
+  // may also touch inline body styles). On teardown this is meant to be undone,
+  // but it occasionally desyncs, leaving the underlying lecture page unable to
+  // scroll after the drawer closes. Once closed, restore scroll explicitly.
+  // No-op whenever Radix's own cleanup already succeeded.
+  useEffect(() => {
+    if (open) return
+    const timer = window.setTimeout(() => {
+      document.body.removeAttribute('data-scroll-locked')
+      document.body.style.removeProperty('overflow')
+      document.body.style.removeProperty('padding-right')
+      document.documentElement.style.removeProperty('overflow')
+    }, 400)
+    return () => window.clearTimeout(timer)
+  }, [open])
+
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent

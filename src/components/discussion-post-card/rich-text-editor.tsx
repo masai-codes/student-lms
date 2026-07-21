@@ -163,7 +163,7 @@ export function RichTextEditor({
 
   const placeholderTopClass = showToolbar
     ? embedded
-      ? 'top-[40px]'
+      ? 'top-[48px]'
       : 'top-[56px]'
     : 'top-[8px]'
 

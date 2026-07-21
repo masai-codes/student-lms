@@ -161,6 +161,7 @@ import { Route as ApiLearnLecturesLectureIdZoomRedirectRouteImport } from './rou
 import { Route as ApiLearnLecturesLectureIdVideoProgressRouteImport } from './routes/api/learn/lectures/$lectureId/video-progress'
 import { Route as ApiLearnLecturesLectureIdFeedbackRouteImport } from './routes/api/learn/lectures/$lectureId/feedback'
 import { Route as ApiLearnLecturesLectureIdBookmarkRouteImport } from './routes/api/learn/lectures/$lectureId/bookmark'
+import { Route as ApiLearnLecturesLectureIdAdaptiveJoinRouteImport } from './routes/api/learn/lectures/$lectureId/adaptive-join'
 import { Route as ApiLearnDiscussionsDiscussionIdRepliesRouteImport } from './routes/api/learn/discussions/$discussionId/replies'
 import { Route as ApiLearnDiscussionsDiscussionIdReadRouteImport } from './routes/api/learn/discussions/$discussionId/read'
 import { Route as ApiLearnDiscussionsDiscussionIdFeedbackRouteImport } from './routes/api/learn/discussions/$discussionId/feedback'
@@ -1038,6 +1039,12 @@ const ApiLearnLecturesLectureIdBookmarkRoute =
     path: '/bookmark',
     getParentRoute: () => ApiLearnLecturesLectureIdRoute,
   } as any)
+const ApiLearnLecturesLectureIdAdaptiveJoinRoute =
+  ApiLearnLecturesLectureIdAdaptiveJoinRouteImport.update({
+    id: '/adaptive-join',
+    path: '/adaptive-join',
+    getParentRoute: () => ApiLearnLecturesLectureIdRoute,
+  } as any)
 const ApiLearnDiscussionsDiscussionIdRepliesRoute =
   ApiLearnDiscussionsDiscussionIdRepliesRouteImport.update({
     id: '/$discussionId/replies',
@@ -1333,6 +1340,7 @@ export interface FileRoutesByFullPath {
   '/api/learn/discussions/$discussionId/feedback': typeof ApiLearnDiscussionsDiscussionIdFeedbackRoute
   '/api/learn/discussions/$discussionId/read': typeof ApiLearnDiscussionsDiscussionIdReadRoute
   '/api/learn/discussions/$discussionId/replies': typeof ApiLearnDiscussionsDiscussionIdRepliesRoute
+  '/api/learn/lectures/$lectureId/adaptive-join': typeof ApiLearnLecturesLectureIdAdaptiveJoinRoute
   '/api/learn/lectures/$lectureId/bookmark': typeof ApiLearnLecturesLectureIdBookmarkRoute
   '/api/learn/lectures/$lectureId/feedback': typeof ApiLearnLecturesLectureIdFeedbackRoute
   '/api/learn/lectures/$lectureId/video-progress': typeof ApiLearnLecturesLectureIdVideoProgressRoute
@@ -1507,6 +1515,7 @@ export interface FileRoutesByTo {
   '/api/learn/discussions/$discussionId/feedback': typeof ApiLearnDiscussionsDiscussionIdFeedbackRoute
   '/api/learn/discussions/$discussionId/read': typeof ApiLearnDiscussionsDiscussionIdReadRoute
   '/api/learn/discussions/$discussionId/replies': typeof ApiLearnDiscussionsDiscussionIdRepliesRoute
+  '/api/learn/lectures/$lectureId/adaptive-join': typeof ApiLearnLecturesLectureIdAdaptiveJoinRoute
   '/api/learn/lectures/$lectureId/bookmark': typeof ApiLearnLecturesLectureIdBookmarkRoute
   '/api/learn/lectures/$lectureId/feedback': typeof ApiLearnLecturesLectureIdFeedbackRoute
   '/api/learn/lectures/$lectureId/video-progress': typeof ApiLearnLecturesLectureIdVideoProgressRoute
@@ -1684,6 +1693,7 @@ export interface FileRoutesById {
   '/api/learn/discussions/$discussionId/feedback': typeof ApiLearnDiscussionsDiscussionIdFeedbackRoute
   '/api/learn/discussions/$discussionId/read': typeof ApiLearnDiscussionsDiscussionIdReadRoute
   '/api/learn/discussions/$discussionId/replies': typeof ApiLearnDiscussionsDiscussionIdRepliesRoute
+  '/api/learn/lectures/$lectureId/adaptive-join': typeof ApiLearnLecturesLectureIdAdaptiveJoinRoute
   '/api/learn/lectures/$lectureId/bookmark': typeof ApiLearnLecturesLectureIdBookmarkRoute
   '/api/learn/lectures/$lectureId/feedback': typeof ApiLearnLecturesLectureIdFeedbackRoute
   '/api/learn/lectures/$lectureId/video-progress': typeof ApiLearnLecturesLectureIdVideoProgressRoute
@@ -1861,6 +1871,7 @@ export interface FileRouteTypes {
     | '/api/learn/discussions/$discussionId/feedback'
     | '/api/learn/discussions/$discussionId/read'
     | '/api/learn/discussions/$discussionId/replies'
+    | '/api/learn/lectures/$lectureId/adaptive-join'
     | '/api/learn/lectures/$lectureId/bookmark'
     | '/api/learn/lectures/$lectureId/feedback'
     | '/api/learn/lectures/$lectureId/video-progress'
@@ -2035,6 +2046,7 @@ export interface FileRouteTypes {
     | '/api/learn/discussions/$discussionId/feedback'
     | '/api/learn/discussions/$discussionId/read'
     | '/api/learn/discussions/$discussionId/replies'
+    | '/api/learn/lectures/$lectureId/adaptive-join'
     | '/api/learn/lectures/$lectureId/bookmark'
     | '/api/learn/lectures/$lectureId/feedback'
     | '/api/learn/lectures/$lectureId/video-progress'
@@ -2211,6 +2223,7 @@ export interface FileRouteTypes {
     | '/api/learn/discussions/$discussionId/feedback'
     | '/api/learn/discussions/$discussionId/read'
     | '/api/learn/discussions/$discussionId/replies'
+    | '/api/learn/lectures/$lectureId/adaptive-join'
     | '/api/learn/lectures/$lectureId/bookmark'
     | '/api/learn/lectures/$lectureId/feedback'
     | '/api/learn/lectures/$lectureId/video-progress'
@@ -3415,6 +3428,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiLearnLecturesLectureIdBookmarkRouteImport
       parentRoute: typeof ApiLearnLecturesLectureIdRoute
     }
+    '/api/learn/lectures/$lectureId/adaptive-join': {
+      id: '/api/learn/lectures/$lectureId/adaptive-join'
+      path: '/adaptive-join'
+      fullPath: '/api/learn/lectures/$lectureId/adaptive-join'
+      preLoaderRoute: typeof ApiLearnLecturesLectureIdAdaptiveJoinRouteImport
+      parentRoute: typeof ApiLearnLecturesLectureIdRoute
+    }
     '/api/learn/discussions/$discussionId/replies': {
       id: '/api/learn/discussions/$discussionId/replies'
       path: '/$discussionId/replies'
@@ -3791,6 +3811,7 @@ const ApiLearnAssignmentsAssignmentIdRouteWithChildren =
   )
 
 interface ApiLearnLecturesLectureIdRouteChildren {
+  ApiLearnLecturesLectureIdAdaptiveJoinRoute: typeof ApiLearnLecturesLectureIdAdaptiveJoinRoute
   ApiLearnLecturesLectureIdBookmarkRoute: typeof ApiLearnLecturesLectureIdBookmarkRoute
   ApiLearnLecturesLectureIdFeedbackRoute: typeof ApiLearnLecturesLectureIdFeedbackRoute
   ApiLearnLecturesLectureIdVideoProgressRoute: typeof ApiLearnLecturesLectureIdVideoProgressRoute
@@ -3799,6 +3820,8 @@ interface ApiLearnLecturesLectureIdRouteChildren {
 
 const ApiLearnLecturesLectureIdRouteChildren: ApiLearnLecturesLectureIdRouteChildren =
   {
+    ApiLearnLecturesLectureIdAdaptiveJoinRoute:
+      ApiLearnLecturesLectureIdAdaptiveJoinRoute,
     ApiLearnLecturesLectureIdBookmarkRoute:
       ApiLearnLecturesLectureIdBookmarkRoute,
     ApiLearnLecturesLectureIdFeedbackRoute:

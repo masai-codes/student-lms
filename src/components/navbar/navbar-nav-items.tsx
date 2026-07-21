@@ -16,11 +16,14 @@ export function NavbarNavItems({ items, className }: NavbarNavItemsProps) {
   return (
     <nav
       aria-label="Primary"
-      className={`flex min-w-0 flex-1 flex-wrap items-center gap-1 sm:gap-2 ${className ?? ''}`.trim()}
+      className={`flex min-w-0 flex-1 items-center ${className ?? ''}`.trim()}
     >
-      <ul className="flex flex-wrap items-center gap-4">
+      <ul className="flex min-w-0 flex-nowrap items-center gap-3 xl:gap-4">
         {items.map((item, index) => (
-          <li key={item.id ?? `${item.href}-${item.label}-${index}`}>
+          <li
+            key={item.id ?? `${item.href}-${item.label}-${index}`}
+            className="shrink-0"
+          >
             <NavbarAnchor
               href={item.href}
               openInNewTab={item.openInNewTab}
@@ -30,7 +33,7 @@ export function NavbarNavItems({ items, className }: NavbarNavItemsProps) {
             >
               <span
                 className={cn(
-                  'subpixel-antialiased cursor-pointer font-poppins text-base leading-6 !font-[500] transition-colors',
+                  'subpixel-antialiased cursor-pointer whitespace-nowrap font-poppins text-base leading-6 !font-[500] transition-colors',
                   item.isActive
                     ? 'text-brand'
                     : 'text-foreground-muted hover:text-brand',

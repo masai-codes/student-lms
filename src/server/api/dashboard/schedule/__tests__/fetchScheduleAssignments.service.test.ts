@@ -28,8 +28,8 @@ describe('fetchScheduleAssignments', () => {
     ).toEqual([])
   })
 
-  it('normalises rows with null module and zoomLink (assignments have neither)', async () => {
-    hoisted.rows = [{ id: 1, title: 'Assignment', sectionId: 5 }]
+  it('passes through module and normalises zoomLink to null (assignments have no zoom_link)', async () => {
+    hoisted.rows = [{ id: 1, title: 'Assignment', sectionId: 5, module: 3 }]
     const { fetchScheduleAssignments } =
       await import('../fetchScheduleAssignments.service')
     const [assignment] = await fetchScheduleAssignments(
@@ -40,7 +40,7 @@ describe('fetchScheduleAssignments', () => {
     expect(assignment).toMatchObject({
       id: 1,
       title: 'Assignment',
-      module: null,
+      module: 3,
       zoomLink: null,
     })
   })
