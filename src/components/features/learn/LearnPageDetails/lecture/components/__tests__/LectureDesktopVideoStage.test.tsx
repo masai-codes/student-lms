@@ -29,28 +29,32 @@ describe('LectureDesktopVideoStage', () => {
     window.localStorage.clear()
   })
 
-  it('renders the video full width with the floating launcher, popup closed', () => {
+  it('renders the video full width with the chat split closed', () => {
     render(<LectureDesktopVideoStage lectureId={42} video={<div>Video</div>} />)
 
     expect(screen.getByText('Video')).toBeTruthy()
-    expect(screen.getByTestId('lecture-ask-ai-launcher')).toBeTruthy()
-    expect(screen.queryByTestId('lecture-ask-ai-popup')).toBeNull()
+    expect(screen.queryByTestId('lecture-chat-panel')).toBeNull()
+    expect(screen.queryByTestId('lecture-chat-resize-handle')).toBeNull()
   })
 
-  it('opens the floating popup when the launcher is clicked', () => {
-    render(<LectureDesktopVideoStage lectureId={42} video={<div>Video</div>} />)
-
-    fireEvent.click(screen.getByTestId('lecture-ask-ai-launcher'))
-
-    expect(screen.getByTestId('lecture-ask-ai-popup')).toBeTruthy()
-    expect(screen.getByRole('button', { name: 'Close assistant' })).toBeTruthy()
-  })
-
-  it('restores an open popup from storage', () => {
+  it('shows the resizable chat panel when open from storage', () => {
     window.localStorage.setItem('lecture-split-chat-open', 'true')
 
     render(<LectureDesktopVideoStage lectureId={42} video={<div>Video</div>} />)
 
-    expect(screen.getByTestId('lecture-ask-ai-popup')).toBeTruthy()
+    expect(screen.getByTestId('lecture-chat-panel')).toBeTruthy()
+    expect(screen.getByTestId('lecture-chat-resize-handle')).toBeTruthy()
+    expect(screen.getByRole('button', { name: 'Close assistant' })).toBeTruthy()
+  })
+
+  it('collapses the split back to full-width video when closed', () => {
+    window.localStorage.setItem('lecture-split-chat-open', 'true')
+
+    render(<LectureDesktopVideoStage lectureId={42} video={<div>Video</div>} />)
+
+    fireEvent.click(screen.getByRole('button', { name: 'Close assistant' }))
+
+    expect(screen.queryByTestId('lecture-chat-panel')).toBeNull()
+    expect(screen.queryByTestId('lecture-chat-resize-handle')).toBeNull()
   })
 })

@@ -1,12 +1,14 @@
 'use client'
 
-import type { ReactNode } from 'react'
+import { useRef, type ReactNode } from 'react'
 
+import { LectureChatResizeHandle } from './LectureChatResizeHandle'
 import { LectureSplitChatProvider } from '../hooks/LectureSplitChatContext'
+import { useLectureChatWidth } from '../hooks/useLectureChatWidth'
 import { useLectureSplitChatOpen } from '../hooks/useLectureSplitChatOpen'
 import { useLectureVideoFullscreenActive } from '../video/hooks/useLectureVideoFullscreen'
 
-import { LectureFloatingChat } from '@/components/features/lecture-ai-chat/components/LectureFloatingChat'
+import { LectureAiChatExperience } from '@/components/features/lecture-ai-chat/LectureAiChatExperience'
 
 type LectureDesktopVideoStageProps = {
   lectureId: number
@@ -14,10 +16,11 @@ type LectureDesktopVideoStageProps = {
 }
 
 /**
- * Desktop lecture stage: the video always renders full width, with the AI chat
- * living in a floating "Ask" popup instead of a sidebar that shrinks the video.
- * The shared open state is provided so the in-video (fullscreen) launcher and
- * this page-level launcher stay in sync.
+ * Desktop lecture stage: the video and the AI chat sit side by side with a
+ * draggable divider, so the learner chooses how much width to give each. The
+ * chat is opened from the in-player "Ask AI" control (shared open state); when
+ * closed, the video fills the row. Hidden while the video is in browser
+ * fullscreen — the in-video chat instance takes over there.
  */
 export function LectureDesktopVideoStage({
   lectureId,
@@ -25,18 +28,46 @@ export function LectureDesktopVideoStage({
 }: LectureDesktopVideoStageProps) {
   const splitChat = useLectureSplitChatOpen()
   const isVideoFullscreen = useLectureVideoFullscreenActive()
+  const containerRef = useRef<HTMLDivElement>(null)
+  const { width, isDragging, startResize, nudge } = useLectureChatWidth(containerRef)
+
+  const showChat = splitChat.isOpen && !isVideoFullscreen
 
   return (
     <LectureSplitChatProvider value={splitChat}>
-      <div className="relative flex min-h-0 min-w-0 flex-1 flex-col bg-black">
-        {video}
+      <div
+        ref={containerRef}
+        className="flex min-h-0 min-w-0 flex-1 flex-row"
+      >
+        <div className="relative flex min-h-0 min-w-0 flex-1 flex-col bg-black">
+          {video}
+        </div>
+
+        {showChat ? (
+          <>
+            <LectureChatResizeHandle
+              onPointerDown={startResize}
+              onNudge={nudge}
+              isDragging={isDragging}
+            />
+            <div
+              data-testid="lecture-chat-panel"
+              className="flex h-full min-h-0 shrink-0 flex-col border-l border-border bg-background"
+              style={{ width }}
+            >
+              <LectureAiChatExperience
+                lectureId={lectureId}
+                onCloseSidebar={splitChat.close}
+              />
+            </div>
+          </>
+        ) : null}
       </div>
 
-      {/* Page-level floating chat. Hidden while the video is in browser
-          fullscreen — the in-video launcher (LectureReactPlayer) takes over,
-          since a body-portaled node can't render over the fullscreen element. */}
-      {!isVideoFullscreen ? (
-        <LectureFloatingChat lectureId={lectureId} state={splitChat} />
+      {/* While dragging, a transparent overlay keeps the pointer stream off the
+          video iframe (which would otherwise swallow pointermove events). */}
+      {isDragging ? (
+        <div className="fixed inset-0 z-[130] cursor-col-resize" />
       ) : null}
     </LectureSplitChatProvider>
   )

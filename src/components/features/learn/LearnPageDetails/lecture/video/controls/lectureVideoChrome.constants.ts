@@ -2,6 +2,10 @@ export const SEEK_ALIGNMENT_EPSILON = 0.45
 
 export const CHROME_HIDE_AFTER_MS = 3000
 
+// Grace period after the cursor leaves the player before the chrome fades out,
+// so a quick hover-out doesn't feel like an abrupt cut.
+export const CHROME_HIDE_ON_LEAVE_MS = 500
+
 export const POINTER_MOVE_WAKE_INTERVAL_MS = 200
 
 export const PLAYBACK_RATE_OPTIONS = [0.5, 0.75, 1, 1.25, 1.5, 2] as const

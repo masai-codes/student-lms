@@ -371,8 +371,6 @@ export function LectureReactPlayer({
             onSeekBySeconds={attendance.seekBySeconds}
           />
           <VideoPlaybackOverlays
-            isVideoPlaying={attendance.isVideoPlaying}
-            onCenterPlay={attendance.toggleVideoPlayPause}
             seekHint={attendance.seekHint}
             videoAspectRatio={videoAspectRatio}
           />
@@ -493,6 +491,7 @@ export function LectureReactPlayer({
             lectureId={lectureId}
             state={splitChat}
             variant="contained"
+            showLauncher={false}
           />
         ) : null}
       </div>

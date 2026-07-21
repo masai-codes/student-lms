@@ -86,6 +86,28 @@ describe('LectureFloatingChat', () => {
     )
   })
 
+  it('hides the launcher but still opens the popup when showLauncher is false', () => {
+    const { rerender } = render(
+      <LectureFloatingChat
+        lectureId={4}
+        state={makeState(false)}
+        showLauncher={false}
+      />,
+    )
+
+    expect(screen.queryByTestId('lecture-ask-ai-launcher')).toBeNull()
+
+    rerender(
+      <LectureFloatingChat
+        lectureId={4}
+        state={makeState(true)}
+        showLauncher={false}
+      />,
+    )
+    expect(screen.getByTestId('lecture-ask-ai-popup')).toBeTruthy()
+    expect(screen.queryByTestId('lecture-ask-ai-launcher')).toBeNull()
+  })
+
   it('renders the contained variant inline for the fullscreen video', () => {
     render(
       <LectureFloatingChat

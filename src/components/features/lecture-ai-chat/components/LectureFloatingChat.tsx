@@ -25,6 +25,11 @@ type LectureFloatingChatProps = {
    * video is in browser fullscreen.
    */
   variant?: 'viewport' | 'contained'
+  /**
+   * Render the floating pill launcher. Off where the in-player controls already
+   * expose an "Ask AI" button — the popup is then opened from there instead.
+   */
+  showLauncher?: boolean
 }
 
 const LAUNCHER_POSITION = {
@@ -75,6 +80,7 @@ export function LectureFloatingChat({
   lectureId,
   state,
   variant = 'viewport',
+  showLauncher = true,
 }: LectureFloatingChatProps) {
   const [isExpanded, setIsExpanded] = useState(false)
   // The popup node — passed as the composer's language-menu portal target so the
@@ -139,8 +145,9 @@ export function LectureFloatingChat({
     <>
       {/* Always mounted — we fade/scale it in and out in sync with the popup so
           it never re-mounts (which would replay its entrance every close). */}
-      <div className={cn(LAUNCHER_POSITION[variant], LAUNCHER_DISPLAY[variant])}>
-        <span className="group/tt relative block">
+      {showLauncher ? (
+        <div className={cn(LAUNCHER_POSITION[variant], LAUNCHER_DISPLAY[variant])}>
+          <span className="group/tt relative block">
           <button
             type="button"
             onClick={handleOpen}
@@ -170,9 +177,10 @@ export function LectureFloatingChat({
             )}
           >
             Ask AI about this lecture
+            </span>
           </span>
-        </span>
-      </div>
+        </div>
+      ) : null}
 
       {isRendered ? (
         <div

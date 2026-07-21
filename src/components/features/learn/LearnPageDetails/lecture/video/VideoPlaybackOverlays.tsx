@@ -1,14 +1,12 @@
 'use client'
 
-import { CaretDoubleLeft, CaretDoubleRight, Play } from '@phosphor-icons/react'
+import { CaretDoubleLeft, CaretDoubleRight } from '@phosphor-icons/react'
 
 import type { CSSProperties } from 'react'
 
 type SeekHint = 'forward' | 'backward' | null
 
 type VideoPlaybackOverlaysProps = {
-  isVideoPlaying: boolean
-  onCenterPlay: () => void
   seekHint: SeekHint
   /**
    * Intrinsic video aspect ratio (w/h). The <video> uses `object-fit: contain`
@@ -29,8 +27,6 @@ const seekBadgeClass =
 const seekLabelClass = 'text-xs font-semibold leading-none text-white/90'
 
 export function VideoPlaybackOverlays({
-  isVideoPlaying,
-  onCenterPlay,
   seekHint,
   videoAspectRatio,
 }: VideoPlaybackOverlaysProps) {
@@ -47,29 +43,6 @@ export function VideoPlaybackOverlays({
 
   return (
     <>
-      {!isVideoPlaying ? (
-        // z-50 so the play button clears the controls chrome shell (z-45),
-        // whose transparent gradient is `pointer-events-auto` and, on the short
-        // mobile player, reaches the vertical center and would otherwise
-        // swallow the tap. Only the button is interactive (container stays
-        // pointer-events-none), so it doesn't block taps elsewhere.
-        <div className="pointer-events-none absolute inset-0 z-50 flex items-center justify-center">
-          <button
-            type="button"
-            onClick={(event) => {
-              event.stopPropagation()
-              onCenterPlay()
-            }}
-            className="pointer-events-auto inline-flex h-14 w-14 shrink-0 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white shadow-[0_8px_32px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.15)] backdrop-blur-xl transition duration-200 hover:scale-105 hover:border-white/35 hover:bg-white/20 active:scale-95 md:h-[4.25rem] md:w-[4.25rem]"
-            aria-label="Play"
-          >
-            <Play
-              className="h-6 w-6 text-white drop-shadow-[0_1px_2px_rgba(0,0,0,1)] md:h-7 md:w-7"
-              weight="fill"
-            />
-          </button>
-        </div>
-      ) : null}
       {/* Transient seek feedback only — shown for ~650ms after a seek
           (keyboard / double-tap / slider). YouTube-style: backward hint sits
           inside the left side of the visible video frame, forward inside the

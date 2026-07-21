@@ -6,6 +6,7 @@ import { LectureVideoControlsToolbar } from './LectureVideoControlsToolbar'
 import { LectureVideoProgressTrack } from './LectureVideoProgressTrack'
 import {
   CHROME_HIDE_AFTER_MS,
+  CHROME_HIDE_ON_LEAVE_MS,
   POINTER_MOVE_WAKE_INTERVAL_MS,
   SEEK_ALIGNMENT_EPSILON,
 } from './lectureVideoChrome.constants'
@@ -70,6 +71,7 @@ export function VideoAttendanceCustomControls({
   const [chromeVisible, setChromeVisible] = useState(true)
   const [overflowMenuOpen, setOverflowMenuOpen] = useState(false)
   const hideTimerRef = useRef<number | null>(null)
+  const leaveHideTimerRef = useRef<number | null>(null)
   const lastPointerMoveWakeAtRef = useRef(0)
   const isPlayingRef = useRef(isPlaying)
   const overflowMenuOpenRef = useRef(overflowMenuOpen)
@@ -110,6 +112,13 @@ export function VideoAttendanceCustomControls({
     }
   }, [])
 
+  const clearLeaveHideTimer = useCallback(() => {
+    if (leaveHideTimerRef.current !== null) {
+      window.clearTimeout(leaveHideTimerRef.current)
+      leaveHideTimerRef.current = null
+    }
+  }, [])
+
   const tryScheduleHide = useCallback(() => {
     clearHideTimer()
     if (!isPlayingRef.current) return
@@ -124,9 +133,26 @@ export function VideoAttendanceCustomControls({
   }, [clearHideTimer])
 
   const bumpChromeActivity = useCallback(() => {
+    // Any activity inside the player cancels a pending hover-out fade.
+    clearLeaveHideTimer()
     setChromeVisible(true)
     tryScheduleHide()
-  }, [tryScheduleHide])
+  }, [tryScheduleHide, clearLeaveHideTimer])
+
+  // YouTube-style hover-out: leaving the player fades the chrome away (via the
+  // same 300ms opacity/transform transition) after a short grace period, so a
+  // quick or accidental exit doesn't read as an abrupt cut. Runs whether the
+  // video is playing or paused; only an open dropdown keeps it pinned.
+  const scheduleHideOnLeave = useCallback(() => {
+    clearHideTimer()
+    clearLeaveHideTimer()
+    if (overflowMenuOpenRef.current) return
+    leaveHideTimerRef.current = window.setTimeout(() => {
+      leaveHideTimerRef.current = null
+      if (overflowMenuOpenRef.current) return
+      setChromeVisible(false)
+    }, CHROME_HIDE_ON_LEAVE_MS)
+  }, [clearHideTimer, clearLeaveHideTimer])
 
   useEffect(() => {
     if (!isPlaying) {
@@ -167,15 +193,31 @@ export function VideoAttendanceCustomControls({
       bumpChromeActivity()
     }
 
+    const onPointerLeave = (event: PointerEvent) => {
+      // Touch/pen have no real "hover out"; leave those to the inactivity
+      // timer so the chrome doesn't vanish the instant a tap ends.
+      if (event.pointerType !== 'mouse') return
+      lastPointerMoveWakeAtRef.current = 0
+      scheduleHideOnLeave()
+    }
+
     host.addEventListener('pointerdown', onActivity)
     host.addEventListener('pointermove', onActivity)
     host.addEventListener('touchstart', onActivity, { passive: true })
+    host.addEventListener('pointerleave', onPointerLeave)
     return () => {
       host.removeEventListener('pointerdown', onActivity)
       host.removeEventListener('pointermove', onActivity)
       host.removeEventListener('touchstart', onActivity)
+      host.removeEventListener('pointerleave', onPointerLeave)
+      clearLeaveHideTimer()
     }
-  }, [fullscreenContainerRef, bumpChromeActivity])
+  }, [
+    fullscreenContainerRef,
+    bumpChromeActivity,
+    scheduleHideOnLeave,
+    clearLeaveHideTimer,
+  ])
 
   useEffect(() => {
     if (committedSeekSeconds === null) return
@@ -228,6 +270,7 @@ export function VideoAttendanceCustomControls({
       onFocusCapture={() => {
         setChromeVisible(true)
         clearHideTimer()
+        clearLeaveHideTimer()
       }}
     >
       <LectureVideoProgressTrack
