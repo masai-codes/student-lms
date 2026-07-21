@@ -11,18 +11,18 @@ describe('useLectureSplitChatOpen', () => {
     window.localStorage.clear()
   })
 
-  it('starts collapsed when no preference is stored', () => {
-    const { result } = renderHook(() => useLectureSplitChatOpen())
-
-    expect(result.current.isOpen).toBe(false)
-  })
-
-  it('restores a stored open preference on mount', () => {
-    window.localStorage.setItem(LECTURE_SPLIT_CHAT_STORAGE_KEY, 'true')
-
+  it('starts open when no preference is stored', () => {
     const { result } = renderHook(() => useLectureSplitChatOpen())
 
     expect(result.current.isOpen).toBe(true)
+  })
+
+  it('restores a stored closed preference on mount', () => {
+    window.localStorage.setItem(LECTURE_SPLIT_CHAT_STORAGE_KEY, 'false')
+
+    const { result } = renderHook(() => useLectureSplitChatOpen())
+
+    expect(result.current.isOpen).toBe(false)
   })
 
   it('persists open and close actions', () => {

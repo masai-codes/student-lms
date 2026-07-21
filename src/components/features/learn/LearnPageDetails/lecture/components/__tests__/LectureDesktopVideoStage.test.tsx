@@ -29,29 +29,38 @@ describe('LectureDesktopVideoStage', () => {
     window.localStorage.clear()
   })
 
-  it('renders the video full width with the chat split closed', () => {
+  it('opens the resizable chat split by default', () => {
     render(<LectureDesktopVideoStage lectureId={42} video={<div>Video</div>} />)
 
     expect(screen.getByText('Video')).toBeTruthy()
-    expect(screen.queryByTestId('lecture-chat-panel')).toBeNull()
-    expect(screen.queryByTestId('lecture-chat-resize-handle')).toBeNull()
-  })
-
-  it('shows the resizable chat panel when open from storage', () => {
-    window.localStorage.setItem('lecture-split-chat-open', 'true')
-
-    render(<LectureDesktopVideoStage lectureId={42} video={<div>Video</div>} />)
-
     expect(screen.getByTestId('lecture-chat-panel')).toBeTruthy()
     expect(screen.getByTestId('lecture-chat-resize-handle')).toBeTruthy()
     expect(screen.getByRole('button', { name: 'Close assistant' })).toBeTruthy()
   })
 
+  it('stays collapsed when the user closed it previously', () => {
+    vi.useFakeTimers()
+    try {
+      window.localStorage.setItem('lecture-split-chat-open', 'false')
+
+      render(
+        <LectureDesktopVideoStage lectureId={42} video={<div>Video</div>} />,
+      )
+
+      // The stored "closed" preference is applied on mount, collapsing it.
+      act(() => {
+        vi.advanceTimersByTime(300)
+      })
+      expect(screen.queryByTestId('lecture-chat-panel')).toBeNull()
+      expect(screen.queryByTestId('lecture-chat-resize-handle')).toBeNull()
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
   it('collapses the split back to full-width video after the close animation', () => {
     vi.useFakeTimers()
     try {
-      window.localStorage.setItem('lecture-split-chat-open', 'true')
-
       render(
         <LectureDesktopVideoStage lectureId={42} video={<div>Video</div>} />,
       )
