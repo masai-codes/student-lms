@@ -11,11 +11,11 @@ import { getAssignmentSupportSnapshot } from '@/server/api/support/services/getA
 import { mapSupportError } from '@/server/api/support/http'
 
 export async function handleGetAssignmentSupportSnapshot(
-  request: Request,
+  _request: Request,
   assignmentIdParam: string,
 ): Promise<Response> {
   try {
-    const userId = await requireSessionUserId(request)
+    const userId = await requireSessionUserId()
     const assignmentId = parsePositiveIdParam(
       assignmentIdParam,
       'SUPPORT_INVALID_ASSIGNMENT_ID',

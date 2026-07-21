@@ -106,7 +106,7 @@ export async function getLectureSupportSnapshot(
       .from(lecturesAi)
       .where(eq(lecturesAi.lectureId, lectureId))
       .limit(1),
-    buildLectureVideoAttendanceState(lectureId),
+    buildLectureVideoAttendanceState(userId, lectureId),
     isMandatory && row.sectionId != null
       ? fetchLectureAttendanceSummaries(userId, [
           {

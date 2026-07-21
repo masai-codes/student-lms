@@ -15,7 +15,7 @@ const presignBodySchema = z.object({
 /** POST /api/uploads/presign — mint a presigned POST policy for direct S3 upload. */
 export async function handlePresignUpload(request: Request): Promise<Response> {
   try {
-    await requireSessionUserId(request)
+    await requireSessionUserId()
 
     const body = presignBodySchema.parse(await request.json())
     const policy = await generatePresignedPostPolicy(body)

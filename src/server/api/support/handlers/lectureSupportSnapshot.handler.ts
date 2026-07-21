@@ -11,11 +11,11 @@ import { getLectureSupportSnapshot } from '@/server/api/support/services/getLect
 import { mapSupportError } from '@/server/api/support/http'
 
 export async function handleGetLectureSupportSnapshot(
-  request: Request,
+  _request: Request,
   lectureIdParam: string,
 ): Promise<Response> {
   try {
-    const userId = await requireSessionUserId(request)
+    const userId = await requireSessionUserId()
     const lectureId = parsePositiveIdParam(lectureIdParam, 'SUPPORT_INVALID_LECTURE_ID')
     const snapshot = await getLectureSupportSnapshot(userId, lectureId)
     return jsonOk(snapshot)

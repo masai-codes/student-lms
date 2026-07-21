@@ -6,7 +6,6 @@
  * Files  → icon + filename chip that opens in a new tab.
  */
 
-import { useState } from 'react'
 import {
   ArrowSquareOut,
   FilePdf,
@@ -15,7 +14,6 @@ import {
   Image,
   Play,
   VideoCamera,
-  X,
 } from '@phosphor-icons/react'
 import { cn } from '@/lib/utils'
 
