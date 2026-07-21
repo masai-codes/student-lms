@@ -28,15 +28,43 @@ export function supportCategoryToLearnFilters(
   return undefined
 }
 
+function toSupportLectureType(rawType: string): Item['type'] {
+  const normalized = rawType.trim().toLowerCase()
+  if (normalized === 'live') return 'live'
+  if (normalized === 'video') return 'video'
+  return undefined
+}
+
+export function formatSupportLectureTypeLabel(type: Item['type']): string | null {
+  if (type === 'live') return 'Live'
+  if (type === 'video') return 'Video'
+  return null
+}
+
+/** Chip colors for Live vs Video so the two kinds are easy to tell apart. */
+export function supportLectureTypeChipClassName(type: Item['type']): string {
+  if (type === 'live') return 'text-[#b42318] bg-[#fee4e2]'
+  if (type === 'video') return 'text-[#175cd3] bg-[#d1e9ff]'
+  return 'text-[#4338ca] bg-[#e3e3fb]'
+}
+
 export function mapLearningItemToSupportItem(item: LearningItem): Item {
-  const isLive = item.listingCtas.joinLive === 'active'
+  const isAssignmentLike = item.learningType === 'assignment'
+  const isResource = item.learningType === 'resource'
+  const categoryMeta = item.category.trim()
 
   return {
     id: item.id,
     title: item.title,
-    meta: item.moduleName,
+    // Assignments/evaluations/resources: category is the useful tag; module is not.
+    meta:
+      isAssignmentLike || isResource
+        ? categoryMeta || 'Uncategorized'
+        : item.moduleName,
     date: item.scheduleDate ? formatSocialPostTime(item.scheduleDate) : 'No schedule',
-    type: isLive ? 'live' : 'recorded',
+    type: item.learningType === 'lecture' ? toSupportLectureType(item.type) : undefined,
     startTime: item.scheduleDate ?? undefined,
+    isOptional:
+      (isAssignmentLike || isResource) && item.isOptional === 'recommended',
   }
 }

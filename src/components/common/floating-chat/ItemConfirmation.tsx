@@ -24,6 +24,7 @@ import {
   shouldShowAssignmentScoreCard,
   shouldShowAssignmentTypeCard,
 } from './assignmentSnapshotPresentation'
+import { formatSupportLectureTypeLabel, supportLectureTypeChipClassName } from './supportCategoryLearning'
 import type { Category, Item } from './types'
 import type { AssignmentSupportSnapshot, LectureSupportSnapshot } from '@/server/api/support/support.types'
 import {
@@ -36,6 +37,22 @@ interface ItemConfirmationProps {
   itemObj: Item
   onConfirm: () => void
   onDirectQuery?: (query: string) => void
+  onReviewItem?: (input: {
+    href: string
+    categoryLabel: string
+    itemTitle: string
+  }) => void
+}
+
+/** Deep-link to the exact learn item (matches LearnContentCard routes). */
+function getSupportItemReviewHref(categoryId: string, itemId: number | undefined): string | null {
+  if (itemId == null) return null
+  if (categoryId === 'lecture') return `/lectures/${itemId}`
+  if (categoryId === 'assignment' || categoryId === 'evaluation') {
+    return `/assignments/${itemId}`
+  }
+  if (categoryId === 'resource') return `/resources/${itemId}`
+  return null
 }
 
 function LectureSnapshotCards({
@@ -174,10 +191,22 @@ function LectureSnapshotCards({
             </span>
           </div>
           {attendance.showAbsentReason && attendance.absentReason && (
-            <div className="col-span-2 flex items-center gap-2 p-[10px_12px] bg-[#fef2f2] border border-[#fecaca] rounded-[12px] shadow-sm">
-              <Info weight="fill" className="size-[15px] text-[#ef4444] shrink-0" />
-              <span className="text-[12px] font-bold text-[#b91c1c]">
-                Reason: {attendance.absentReason}
+            <div
+              className={
+                attendance.label === 'Absent'
+                  ? 'col-span-2 flex items-center gap-2 p-[10px_12px] bg-[#fef2f2] border border-[#fecaca] rounded-[12px] shadow-sm'
+                  : 'col-span-2 flex items-center gap-2 p-[10px_12px] bg-[#f0f4ff] border border-[#d6e4ff] rounded-[12px] shadow-sm'
+              }
+            >
+              <Info
+                weight="fill"
+                className={`size-[15px] shrink-0 ${attendance.label === 'Absent' ? 'text-[#ef4444]' : 'text-[#2952cc]'}`}
+              />
+              <span
+                className={`text-[12px] font-bold ${attendance.label === 'Absent' ? 'text-[#b91c1c]' : 'text-[#1a3380]'}`}
+              >
+                {attendance.label === 'Absent' ? 'Reason: ' : ''}
+                {attendance.absentReason}
               </span>
             </div>
           )}
@@ -277,7 +306,13 @@ function AssignmentSnapshotCards({
   )
 }
 
-export function ItemConfirmation({ categoryObj, itemObj, onConfirm, onDirectQuery }: ItemConfirmationProps) {
+export function ItemConfirmation({
+  categoryObj,
+  itemObj,
+  onConfirm,
+  onDirectQuery,
+  onReviewItem,
+}: ItemConfirmationProps) {
   const gradientBg = 'linear-gradient(90.38deg, rgb(75, 67, 150) 2.62%, rgb(105, 98, 172) 100%)'
 
   const isLecture = categoryObj.id === 'lecture' && itemObj.id != null
@@ -311,6 +346,16 @@ export function ItemConfirmation({ categoryObj, itemObj, onConfirm, onDirectQuer
   const isSessionPending = isLecture
     ? (lectureSnapshot?.isSessionPending ?? fallbackOngoing)
     : false
+  const lectureType = isLecture
+    ? (lectureSnapshot?.lectureKind ?? itemObj.type)
+    : undefined
+  const lectureTypeLabel = formatSupportLectureTypeLabel(lectureType)
+  const reviewHref = getSupportItemReviewHref(categoryObj.id, itemObj.id)
+  const showOptionalChip =
+    (categoryObj.id === 'assignment' ||
+      categoryObj.id === 'evaluation' ||
+      categoryObj.id === 'resource') &&
+    itemObj.isOptional === true
 
   return (
     <div className="flex flex-col h-full">
@@ -325,8 +370,22 @@ export function ItemConfirmation({ categoryObj, itemObj, onConfirm, onDirectQuer
           <div className="text-[14px] font-bold text-[#15162c] leading-[1.35] mb-1 truncate">
             {itemObj.title}
           </div>
-          <div className="flex items-center gap-1.5">
-            <span className="text-[11px] font-bold text-[#62647d] bg-[rgba(255,255,255,0.7)] px-2 py-0.5 rounded-full">{itemObj.meta}</span>
+          <div className="flex items-center gap-1.5 min-w-0 flex-wrap">
+            {lectureTypeLabel ? (
+              <span
+                className={`text-[11px] font-bold px-2 py-0.5 rounded-full shrink-0 ${supportLectureTypeChipClassName(lectureType)}`}
+              >
+                {lectureTypeLabel}
+              </span>
+            ) : null}
+            {showOptionalChip ? (
+              <span className="text-[11px] font-bold text-[#b54708] bg-[#fffaeb] px-2 py-0.5 rounded-full shrink-0">
+                Optional
+              </span>
+            ) : null}
+            <span className="text-[11px] font-bold text-[#62647d] bg-[rgba(255,255,255,0.7)] px-2 py-0.5 rounded-full">
+              {itemObj.meta}
+            </span>
             <span className="text-[11px] text-[#9496ab]">{itemObj.date}</span>
           </div>
         </div>
@@ -366,11 +425,23 @@ export function ItemConfirmation({ categoryObj, itemObj, onConfirm, onDirectQuer
       )}
       {!isSessionPending && (
         <>
-          <a href="#" onClick={(e) => e.preventDefault()} className="flex items-center justify-center gap-1.5 mb-1.5 p-[9px_14px] rounded-[10px] text-[13px] font-bold text-[#4338ca] bg-white border-[1.5px] border-[#e3e3fb] hover:bg-[#e3e3fb] hover:border-[#4b4396] hover:text-[#4b4396] transition-colors no-underline">
-            <categoryObj.icon weight="fill" className="size-[14px] shrink-0" />
-            Open {categoryObj.label} to review it
-            <ArrowUpRight weight="bold" className="size-[14px] shrink-0 ml-auto" />
-          </a>
+          {reviewHref ? (
+            <button
+              type="button"
+              onClick={() =>
+                onReviewItem?.({
+                  href: reviewHref,
+                  categoryLabel: categoryObj.label,
+                  itemTitle: itemObj.title,
+                })
+              }
+              className="flex w-full items-center justify-center gap-1.5 mb-1.5 p-[9px_14px] rounded-[10px] text-[13px] font-bold text-[#4338ca] bg-white border-[1.5px] border-[#e3e3fb] hover:bg-[#e3e3fb] hover:border-[#4b4396] hover:text-[#4b4396] transition-colors"
+            >
+              <categoryObj.icon weight="fill" className="size-[14px] shrink-0" />
+              Open {categoryObj.label} to review it
+              <ArrowUpRight weight="bold" className="size-[14px] shrink-0 ml-auto" />
+            </button>
+          ) : null}
 
           <div className="mt-auto shrink-0 pt-4">
             <div className="text-[12.5px] text-[#62647d] leading-[1.5] p-[11px_13px] bg-[#f6f6fb] rounded-[10px] border border-dashed border-[#e9e9f3] mb-3">

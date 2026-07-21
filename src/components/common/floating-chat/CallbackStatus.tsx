@@ -2,10 +2,11 @@ import { CheckCircle, Info } from '@phosphor-icons/react'
 
 interface CallbackStatusProps {
   status: 'success' | 'already_requested'
+  preferredTimeslot?: string | null
   onClose: () => void
 }
 
-export function CallbackStatus({ status, onClose }: CallbackStatusProps) {
+export function CallbackStatus({ status, preferredTimeslot, onClose }: CallbackStatusProps) {
   const gradientBg = 'linear-gradient(90.38deg, rgb(75, 67, 150) 2.62%, rgb(105, 98, 172) 100%)'
 
   if (status === 'already_requested') {
@@ -51,7 +52,9 @@ export function CallbackStatus({ status, onClose }: CallbackStatusProps) {
         </h3>
         
         <p className="text-[14px] text-[#62647d] leading-[1.5] px-4">
-          We'll reach out to you within 48 hours to help you out.
+          {preferredTimeslot
+            ? `Our team will reach out to you within 48 hours during ${preferredTimeslot}.`
+            : "We'll reach out to you within 48 hours to help you out."}
         </p>
       </div>
 

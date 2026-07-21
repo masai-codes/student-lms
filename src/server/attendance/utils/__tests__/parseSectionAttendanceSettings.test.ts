@@ -12,6 +12,7 @@ describe('parseSectionAttendanceSettings', () => {
       enableVideoAttendance: true,
       considerVideoAttendanceForActualAttendance: false,
       catchUpDays: 3,
+      markAbsentIfLate: false,
     })
   })
 
@@ -25,6 +26,7 @@ describe('parseSectionAttendanceSettings', () => {
       enableVideoAttendance: true,
       considerVideoAttendanceForActualAttendance: true,
       catchUpDays: 5,
+      markAbsentIfLate: false,
     })
   })
 
@@ -41,6 +43,18 @@ describe('parseSectionAttendanceSettings', () => {
       enableVideoAttendance: true,
       considerVideoAttendanceForActualAttendance: false,
       catchUpDays: 4,
+      markAbsentIfLate: false,
+    })
+  })
+
+  it('reads markAbsentIfLate from settings', () => {
+    expect(
+      parseSectionAttendanceSettings({ markAbsentIfLate: true }),
+    ).toEqual({
+      enableVideoAttendance: false,
+      considerVideoAttendanceForActualAttendance: false,
+      catchUpDays: 0,
+      markAbsentIfLate: true,
     })
   })
 
@@ -49,6 +63,7 @@ describe('parseSectionAttendanceSettings', () => {
       enableVideoAttendance: false,
       considerVideoAttendanceForActualAttendance: false,
       catchUpDays: 0,
+      markAbsentIfLate: false,
     })
   })
 })

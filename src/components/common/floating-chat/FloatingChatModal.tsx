@@ -1,9 +1,9 @@
-import { useState, useEffect, useMemo } from 'react'
-import { useQuery } from '@tanstack/react-query'
+import { useState, useEffect, useMemo, useRef, useCallback } from 'react'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { cn } from '@/lib/utils'
 import { CaretRight, Lifebuoy, Ticket } from '@phosphor-icons/react'
 import type { FloatingChatInbox, TicketListItem } from '@/server/api/support/support.types'
-import { ticketThreadQuery } from '@/query/support/supportQueries'
+import { SUPPORT_KEYS, ticketThreadQuery } from '@/query/support/supportQueries'
 import { learnPageQuery } from '@/query/learn/learnQueries'
 import { isResolvedTicketStatus } from './ticketStatus'
 import {
@@ -12,6 +12,8 @@ import {
   supportCategoryToLearningType,
   supportCategoryUsesLearnApi,
 } from './supportCategoryLearning'
+import { mapSupportCategoryToTicketCategory } from './ticketCategoryMapping'
+import { ApiClientError } from '@/lib/api/apiClientError'
 
 import { CATEGORIES, ITEMS, QUICK_QUERIES } from './mockData'
 import type { Item, Message, TicketFilter } from './types'
@@ -27,9 +29,18 @@ import { ChatComposer } from './ChatComposer'
 import { CallbackReasonSelector } from './CallbackReasonSelector'
 import { CallbackTimeSelector } from './CallbackTimeSelector'
 import { CallbackStatus } from './CallbackStatus'
+import { filterCallbackReasons, hasPendingCallbackForBatch } from './callbackHelpers'
 import { ResolvedTicketFeedback } from './ResolvedTicketFeedback'
 import { QuickQuerySelector } from './QuickQuerySelector'
-import { uploadSupportAttachment } from '@/lib/api/support/supportApi'
+import {
+  createSupportTicket,
+  createSupportCallback,
+  rateSupportTicket,
+  reopenSupportTicket,
+  escalateSupportTicket,
+  replyToTicket,
+  uploadSupportAttachment,
+} from '@/lib/api/support/supportApi'
 import {
   embedSupportAttachmentLinks,
   SUPPORT_MAX_ATTACHMENTS,
@@ -42,6 +53,11 @@ interface FloatingChatModalProps {
   isInboxLoading: boolean
   isInboxError: boolean
   onInboxRetry: () => void
+  onReviewItem?: (input: {
+    href: string
+    categoryLabel: string
+    itemTitle: string
+  }) => void
 }
 
 const SUPPORT_ITEM_PAGE_SIZE = 10
@@ -55,12 +71,45 @@ function filterMockItems(items: Item[], search: string): Item[] {
   )
 }
 
-function threadMessagesToChat(messages: Array<{ message: string; side: string; author: { name: string } }>): Message[] {
+function threadMessagesToChat(
+  messages: Array<{
+    message: string
+    side: string
+    author: { name: string }
+    createdAt?: string | null
+  }>,
+): Message[] {
   return messages.map((m) => ({
-    role: m.side === 'student' ? 'user' : m.side === 'agent' ? 'agent' : 'bot',
+    role:
+      m.side === 'student' ? 'user' : m.side === 'system' ? 'bot' : 'agent',
     text: m.message,
-    name: m.author.name,
+    name: m.side === 'agent' ? m.author.name : undefined,
+    isAutoReply: m.side === 'system',
+    createdAt: m.createdAt ?? null,
   }))
+}
+
+/**
+ * Build the full conversation for ChatThread. The student's opening text lives
+ * on `ticket.message` (not as a comment) — same shape as CreateTicketModal —
+ * so it must be prepended ahead of the public comment thread.
+ */
+function buildChatThreadMessages(thread: {
+  ticket: { message: string; createdAt?: string | null }
+  messages: Array<{
+    message: string
+    side: string
+    author: { name: string }
+    createdAt?: string | null
+  }>
+}): Message[] {
+  const opening = thread.ticket.message.trim()
+  const comments = threadMessagesToChat(thread.messages)
+  if (!opening) return comments
+  return [
+    { role: 'user', text: opening, createdAt: thread.ticket.createdAt ?? null },
+    ...comments,
+  ]
 }
 
 export function FloatingChatModal({
@@ -70,7 +119,11 @@ export function FloatingChatModal({
   isInboxLoading,
   isInboxError,
   onInboxRetry,
+  onReviewItem,
 }: FloatingChatModalProps) {
+  const queryClient = useQueryClient()
+  const threadScrollRef = useRef<HTMLDivElement>(null)
+
   const [view, setView] = useState<'home' | 'tickets'>('home')
   const [step, setStep] = useState(0)
 
@@ -84,6 +137,7 @@ export function FloatingChatModal({
   const [ticketFilter, setTicketFilter] = useState<TicketFilter>('all')
   const [selectedTicketId, setSelectedTicketId] = useState<number | null>(null)
 
+  const [selectedTopic, setSelectedTopic] = useState<string | null>(null)
   const [message, setMessage] = useState('')
   const [files, setFiles] = useState<Array<File>>([])
   const [uploading, setUploading] = useState(false)
@@ -91,12 +145,17 @@ export function FloatingChatModal({
 
   const [isSubmittingCallback, setIsSubmittingCallback] = useState(false)
   const [callbackStatus, setCallbackStatus] = useState<'success' | 'already_requested'>('success')
+  const [selectedCallbackReason, setSelectedCallbackReason] = useState<string | null>(null)
+  const [selectedCallbackTimeslot, setSelectedCallbackTimeslot] = useState<string | null>(null)
   const [isEscalating, setIsEscalating] = useState(false)
 
   const batches = inbox?.batches ?? []
   const tickets = inbox?.tickets ?? []
   const callbackTickets = inbox?.callbackTickets ?? []
   const openTicketCount = inbox?.openTicketCount ?? 0
+  const callbackOptions = inbox?.callback ?? { reasons: [], timeslots: [] }
+  const fullFeesPaidBatchIds = inbox?.fullFeesPaidBatchIds ?? []
+  const batchContacts = inbox?.batchContacts ?? {}
   const showBatchStep = batches.length > 1
 
   useEffect(() => {
@@ -117,13 +176,6 @@ export function FloatingChatModal({
   useEffect(() => {
     setItemPage(1)
   }, [debouncedItemSearch, selectedCategory])
-
-  useEffect(() => {
-    if (step === 2) return
-    setItemSearch('')
-    setDebouncedItemSearch('')
-    setItemPage(1)
-  }, [step])
 
   const usesLearnApi = selectedCategory != null && supportCategoryUsesLearnApi(selectedCategory)
   const learningType = selectedCategory ? supportCategoryToLearningType(selectedCategory) : null
@@ -156,11 +208,120 @@ export function FloatingChatModal({
     enabled: view === 'tickets' && selectedTicketId != null,
   })
 
+  const refreshAfterMutation = (ticketId: number) => {
+    void queryClient.invalidateQueries({ queryKey: SUPPORT_KEYS.floatingChatInbox })
+    void queryClient.invalidateQueries({ queryKey: SUPPORT_KEYS.thread(ticketId) })
+  }
+
+  const resetHomeFlow = () => {
+    setSelectedCategory(null)
+    setSelectedItem(null)
+    setItemSearch('')
+    setDebouncedItemSearch('')
+    setItemPage(1)
+    setSelectedCallbackReason(null)
+    setSelectedCallbackTimeslot(null)
+    // Keep the chosen batch; only rewind the wizard to category selection.
+    setStep(selectedBatchId != null ? 1 : showBatchStep ? 0 : 1)
+  }
+
+  const createTicketMutation = useMutation({
+    mutationFn: createSupportTicket,
+    onSuccess: ({ id }) => {
+      refreshAfterMutation(id)
+      setMessage('')
+      setFiles([])
+      setSelectedTopic(null)
+      resetHomeFlow()
+      setView('tickets')
+      setSelectedTicketId(id)
+    },
+    onError: () => setUploadError('Couldn’t send your message. Please try again.'),
+  })
+
+  const replyMutation = useMutation({
+    mutationFn: replyToTicket,
+    onSuccess: () => {
+      if (selectedTicketId) refreshAfterMutation(selectedTicketId)
+      setMessage('')
+      setFiles([])
+    },
+    onError: () => setUploadError('Couldn’t send your reply. Please try again.'),
+  })
+
+  const callbackMutation = useMutation({
+    mutationFn: createSupportCallback,
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: SUPPORT_KEYS.floatingChatInbox })
+      setCallbackStatus('success')
+      setStep(6)
+    },
+    onError: (error) => {
+      if (error instanceof ApiClientError && error.code === 'SUPPORT_CALLBACK_DUPLICATE') {
+        setCallbackStatus('already_requested')
+        setStep(6)
+        return
+      }
+      setUploadError('Couldn’t request a callback. Please try again.')
+    },
+    onSettled: () => setIsSubmittingCallback(false),
+  })
+
+  const rateTicketMutation = useMutation({
+    mutationFn: (input: { ticketId: number; rating: 1 | 5 }) => rateSupportTicket(input),
+    onSuccess: (_data, { ticketId }) => refreshAfterMutation(ticketId),
+  })
+
+  const reopenTicketMutation = useMutation({
+    mutationFn: (ticketId: number) => reopenSupportTicket(ticketId),
+    onSuccess: (_data, ticketId) => refreshAfterMutation(ticketId),
+  })
+
+  const escalateTicketMutation = useMutation({
+    mutationFn: (ticketId: number) => escalateSupportTicket(ticketId),
+    onSuccess: (_data, ticketId) => refreshAfterMutation(ticketId),
+  })
+
   const selectedBatch = batches.find((b) => b.id === selectedBatchId)
+  const hasFullFees =
+    selectedBatchId != null && fullFeesPaidBatchIds.includes(selectedBatchId)
+  const callbackReasons = useMemo(
+    () => filterCallbackReasons(callbackOptions.reasons, hasFullFees),
+    [callbackOptions.reasons, hasFullFees],
+  )
+  const callbackTimeslots = useMemo(
+    () => callbackOptions.timeslots.map((slot) => slot.value),
+    [callbackOptions.timeslots],
+  )
+  const callbackContact =
+    selectedBatchId != null ? batchContacts[selectedBatchId] ?? null : null
+  const hasPendingCallback =
+    selectedBatchId != null &&
+    hasPendingCallbackForBatch(callbackTickets, selectedBatchId)
   const selectedCategoryObj = CATEGORIES.find((c) => c.id === selectedCategory)
   const selectedItemObj = selectedItem
   const selectedTicket: TicketListItem | undefined = tickets.find((t) => t.id === selectedTicketId)
-  const threadMessages = ticketThread ? threadMessagesToChat(ticketThread.messages) : []
+  const threadMessages = ticketThread ? buildChatThreadMessages(ticketThread) : []
+
+  const scrollThreadToBottom = useCallback(() => {
+    const el = threadScrollRef.current
+    if (!el) return
+    el.scrollTo({ top: el.scrollHeight, behavior: 'smooth' })
+  }, [])
+
+  // Keep the latest reply (and the full thread on open) in view —
+  // same pattern as CreateTicketModal.
+  useEffect(() => {
+    if (view !== 'tickets' || selectedTicketId == null || isThreadLoading) return
+    if (threadMessages.length === 0) return
+    requestAnimationFrame(() => scrollThreadToBottom())
+  }, [
+    view,
+    selectedTicketId,
+    isThreadLoading,
+    threadMessages.length,
+    scrollThreadToBottom,
+  ])
 
   const learnItems = useMemo(
     () => (learnPageData?.learningItems ?? []).map(mapLearningItemToSupportItem),
@@ -174,7 +335,39 @@ export function FloatingChatModal({
 
   const gradientBg = 'linear-gradient(90.38deg, rgb(75, 67, 150) 2.62%, rgb(105, 98, 172) 100%)'
 
-  const goToHomeStart = () => setStep(showBatchStep ? 0 : 1)
+  const goToHomeStart = () => {
+    setSelectedCallbackReason(null)
+    setSelectedCallbackTimeslot(null)
+    setStep(showBatchStep ? 0 : 1)
+  }
+
+  const startCallbackFlow = () => {
+    setSelectedCallbackReason(null)
+    setSelectedCallbackTimeslot(null)
+    setUploadError(null)
+    if (hasPendingCallback) {
+      setCallbackStatus('already_requested')
+      setStep(6)
+      return
+    }
+    setStep(4)
+  }
+
+  const handleCallbackReasonSelect = (reason: string) => {
+    setSelectedCallbackReason(reason)
+    setStep(5)
+  }
+
+  const handleCallbackTimeslotSubmit = (timeslot: string) => {
+    if (!selectedBatchId || !selectedCallbackReason || isSubmittingCallback) return
+    setSelectedCallbackTimeslot(timeslot)
+    setIsSubmittingCallback(true)
+    callbackMutation.mutate({
+      batchId: selectedBatchId,
+      category: selectedCallbackReason,
+      preferredTimeSlot: timeslot,
+    })
+  }
 
   const handleBack = () => {
     if (view === 'tickets') {
@@ -193,9 +386,17 @@ export function FloatingChatModal({
       else setStep(2.5)
     } else if (step === 2.8) {
       setStep(2.5)
-    } else if (step === 2.5) setStep(2)
-    else if (step === 2) setStep(1)
-    else if (step === 1 && showBatchStep) setStep(0)
+    } else if (step === 2.5) {
+      setStep(2)
+    } else if (step === 2) {
+      setSelectedItem(null)
+      setItemSearch('')
+      setDebouncedItemSearch('')
+      setItemPage(1)
+      setStep(1)
+    } else if (step === 1 && showBatchStep) {
+      setStep(0)
+    }
   }
 
   const handleSwitchTab = (newView: 'home' | 'tickets') => {
@@ -203,6 +404,15 @@ export function FloatingChatModal({
     if (newView === 'tickets') {
       setSelectedTicketId(null)
     }
+    if (newView === 'home') {
+      resetHomeFlow()
+    }
+    // Draft state belongs to whichever flow is active — leaving it behind would
+    // leak a half-typed "create" draft (topic chip, message) into a reply box.
+    setSelectedTopic(null)
+    setMessage('')
+    setFiles([])
+    setUploadError(null)
   }
 
   const handleCategorySelect = (categoryId: string) => {
@@ -227,11 +437,22 @@ export function FloatingChatModal({
     setFiles((prev) => prev.filter((_, i) => i !== index))
   }
 
+  const isCreatingTicket = view === 'home' && step === 3
+  const isSubmitting = uploading || createTicketMutation.isPending || replyMutation.isPending
+
   const handleComposerSend = async () => {
-    if ((!message.trim() && files.length === 0) || uploading) return
+    if ((!selectedTopic && !message.trim() && files.length === 0) || isSubmitting) return
     setUploadError(null)
 
-    let finalMessage = message.trim()
+    // The quick-question chip ("Topic:") is the subCategory verbatim; any extra
+    // text the student types is appended to the body, never merged into it.
+    const extraText = message.trim()
+    let finalMessage = selectedTopic
+      ? extraText
+        ? `${selectedTopic}\n\n${extraText}`
+        : selectedTopic
+      : extraText
+
     if (files.length > 0) {
       setUploading(true)
       try {
@@ -245,12 +466,54 @@ export function FloatingChatModal({
       setUploading(false)
     }
 
-    setMessage(finalMessage)
-    setFiles([])
+    if (isCreatingTicket) {
+      if (!selectedBatchId) {
+        setUploadError('Select a course before raising a ticket.')
+        return
+      }
+      createTicketMutation.mutate({
+        batchId: selectedBatchId,
+        category: mapSupportCategoryToTicketCategory(selectedCategoryObj?.id ?? 'general'),
+        subCategory: selectedTopic,
+        message: finalMessage,
+        entityId: selectedItem?.id ?? null,
+      })
+    } else if (view === 'tickets' && selectedTicketId) {
+      replyMutation.mutate({ ticketId: selectedTicketId, message: finalMessage })
+    }
   }
 
   const isTicketResolved =
     selectedTicket != null && isResolvedTicketStatus(selectedTicket.status)
+  const ticketRating = ticketThread?.ticket.rating ?? selectedTicket?.rating ?? 0
+  const hasSubmittedRating = ticketRating === 1 || ticketRating === 5
+  const canRateResolvedTicket = ticketThread?.capabilities?.canRate ?? false
+  const showResolvedFeedback =
+    view === 'tickets' &&
+    selectedTicketId != null &&
+    isTicketResolved &&
+    !isEscalating &&
+    canRateResolvedTicket
+  const isFeedbackSubmitting =
+    rateTicketMutation.isPending ||
+    reopenTicketMutation.isPending ||
+    escalateTicketMutation.isPending
+
+  const handleSubmitTicketRating = async (rating: 1 | 5) => {
+    if (!selectedTicketId) return
+    await rateTicketMutation.mutateAsync({ ticketId: selectedTicketId, rating })
+  }
+
+  const handleReopenEscalateTicket = async () => {
+    if (!selectedTicketId) return
+    await rateTicketMutation.mutateAsync({ ticketId: selectedTicketId, rating: 1 })
+    if (ticketThread?.capabilities?.canEscalate) {
+      await escalateTicketMutation.mutateAsync(selectedTicketId)
+    } else {
+      await reopenTicketMutation.mutateAsync(selectedTicketId)
+    }
+    setIsEscalating(true)
+  }
 
   const showInboxLoading = isInboxLoading && !inbox
   const showHomeBatchStep = view === 'home' && step === 0 && showBatchStep
@@ -260,14 +523,18 @@ export function FloatingChatModal({
       <div
         onClick={onClose}
         className={cn(
-          'fixed inset-0 bg-[#15162c]/30 backdrop-blur-[2px] z-[40] transition-opacity duration-300',
+          'fixed inset-0 bg-[#15162c]/30 backdrop-blur-[2px] z-[205] transition-opacity duration-300',
           isOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none',
         )}
       />
 
       <div
         className={cn(
-          'fixed top-4 right-4 bottom-4 w-[512px] bg-white rounded-[22px] flex flex-col overflow-hidden z-[50] transition-transform duration-300 ease-out shadow-[-10px_0_40px_rgba(20,20,43,0.12)] border border-[#e9e9f3]',
+          'fixed flex flex-col overflow-hidden bg-white transition-transform duration-300 ease-out border border-[#e9e9f3] z-[210]',
+          // Mobile/tablet: full-width sheet above AppMobileTabBar (~4.5rem + safe area).
+          'inset-x-3 top-3 bottom-[calc(4.5rem+env(safe-area-inset-bottom)+3rem)] rounded-[18px] shadow-[0_8px_32px_rgba(20,20,43,0.16)]',
+          // Desktop: fixed 512px panel anchored top-right (unchanged width).
+          'lg:inset-x-auto lg:left-auto lg:right-4 lg:top-4 lg:bottom-4 lg:w-[512px] lg:rounded-[22px] lg:shadow-[-10px_0_40px_rgba(20,20,43,0.12)]',
           isOpen ? 'translate-x-0' : 'translate-x-[120%]',
         )}
       >
@@ -281,10 +548,12 @@ export function FloatingChatModal({
           selectedItemTitle={selectedItem?.title ?? null}
           selectedTicket={selectedTicket}
           onBack={handleBack}
+          onClose={onClose}
         />
 
         <div className="flex-1 overflow-hidden flex flex-col p-[16px_18px_8px] gap-2.5">
           <div
+            ref={threadScrollRef}
             className="flex-1 overflow-y-auto flex flex-col gap-[9px] animate-in slide-in-from-right-2 duration-200 fade-in h-full [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:bg-[#e9e9f3] [&::-webkit-scrollbar-thumb]:rounded-full pr-1 -mr-1"
             key={`${view}-${step}-${selectedTicketId}`}
           >
@@ -334,7 +603,7 @@ export function FloatingChatModal({
               <CategorySelector
                 categories={CATEGORIES}
                 onSelect={handleCategorySelect}
-                onRequestCallback={() => setStep(4)}
+                onRequestCallback={startCallbackFlow}
               />
             )}
 
@@ -380,6 +649,7 @@ export function FloatingChatModal({
                   setMessage(query)
                   setStep(3)
                 }}
+                onReviewItem={onReviewItem}
               />
             )}
 
@@ -387,7 +657,8 @@ export function FloatingChatModal({
               <QuickQuerySelector
                 queries={QUICK_QUERIES[selectedCategoryObj.id]}
                 onSelect={(query) => {
-                  setMessage(query)
+                  setSelectedTopic(query)
+                  setMessage('')
                   setStep(3)
                 }}
               />
@@ -402,24 +673,42 @@ export function FloatingChatModal({
               />
             )}
 
-            {view === 'home' && step === 4 && <CallbackReasonSelector onSelect={() => setStep(5)} />}
+            {view === 'home' && step === 4 && (
+              <>
+                {uploadError && (
+                  <p className="mb-2 rounded-[10px] bg-[#fef2f2] px-3 py-2 text-[12.5px] font-medium text-[#b42318]">
+                    {uploadError}
+                  </p>
+                )}
+                <CallbackReasonSelector
+                  reasons={callbackReasons}
+                  contact={callbackContact}
+                  onSelect={handleCallbackReasonSelect}
+                />
+              </>
+            )}
 
             {view === 'home' && step === 5 && (
-              <CallbackTimeSelector
-                isSubmitting={isSubmittingCallback}
-                onSubmit={() => {
-                  setIsSubmittingCallback(true)
-                  setTimeout(() => {
-                    setIsSubmittingCallback(false)
-                    setCallbackStatus(Math.random() > 0.5 ? 'success' : 'already_requested')
-                    setStep(6)
-                  }, 800)
-                }}
-              />
+              <>
+                {uploadError && (
+                  <p className="mb-2 rounded-[10px] bg-[#fef2f2] px-3 py-2 text-[12.5px] font-medium text-[#b42318]">
+                    {uploadError}
+                  </p>
+                )}
+                <CallbackTimeSelector
+                  timeslots={callbackTimeslots}
+                  isSubmitting={isSubmittingCallback}
+                  onSubmit={handleCallbackTimeslotSubmit}
+                />
+              </>
             )}
 
             {view === 'home' && step === 6 && (
-              <CallbackStatus status={callbackStatus} onClose={goToHomeStart} />
+              <CallbackStatus
+                status={callbackStatus}
+                preferredTimeslot={selectedCallbackTimeslot}
+                onClose={goToHomeStart}
+              />
             )}
 
             {view === 'tickets' && !selectedTicketId && (
@@ -459,7 +748,12 @@ export function FloatingChatModal({
                   </div>
                 )}
                 {!isThreadLoading && threadMessages.length > 0 && (
-                  <ChatThread messages={threadMessages} />
+                  <ChatThread
+                    messages={threadMessages}
+                    assignee={ticketThread?.ticket.assignee}
+                    reopenedAt={ticketThread?.ticket.reopenedAt}
+                    ticketStatus={ticketThread?.ticket.status}
+                  />
                 )}
               </>
             )}
@@ -488,15 +782,21 @@ export function FloatingChatModal({
         {((view === 'home' && step === 3) ||
           (view === 'tickets' && selectedTicketId && (!isTicketResolved || isEscalating))) && (
           <ChatComposer
+            selectedTopic={selectedTopic}
+            onClearTopic={() => setSelectedTopic(null)}
             message={message}
             onChange={setMessage}
-            placeholder={view === 'tickets' ? 'Reply to this ticket...' : 'Describe your issue...'}
+            placeholder={
+              view === 'tickets' ? 'Reply to this ticket...' : 
+              selectedTopic ? 'Any extra details we should know? (Optional)' : 'Describe your issue...'
+            }
             files={files}
             onFilesSelected={addFiles}
             onRemoveFile={removeFile}
             onSend={() => void handleComposerSend()}
             uploading={uploading}
             uploadError={uploadError}
+            disabled={isSubmitting}
           />
         )}
 
@@ -504,7 +804,11 @@ export function FloatingChatModal({
           <div className="shrink-0 p-[12px_18px_14px] border-t border-[#e9e9f3] bg-white transition-all duration-200 ease-out">
             <button
               type="button"
-              onClick={() => setStep(3)}
+              onClick={() => {
+                setSelectedTopic(null)
+                setMessage('')
+                setStep(3)
+              }}
               className="flex w-full items-center justify-center gap-2 p-[13px] rounded-[10px] bg-[#f8f8fc] border-[1.5px] border-[#e9e9f3] text-[#4b4396] font-bold text-[14px] hover:bg-[#f0f0fd] hover:border-[#d6d6f5] transition-all group"
             >
               My issue is not listed
@@ -512,8 +816,21 @@ export function FloatingChatModal({
           </div>
         )}
 
-        {view === 'tickets' && selectedTicketId && isTicketResolved && !isEscalating && (
-          <ResolvedTicketFeedback onEscalate={() => setIsEscalating(true)} onSubmit={() => {}} />
+        {showResolvedFeedback && (
+          <ResolvedTicketFeedback
+            key={selectedTicketId}
+            alreadySubmitted={hasSubmittedRating}
+            isSubmitting={isFeedbackSubmitting}
+            submitError={
+              rateTicketMutation.isError ||
+              reopenTicketMutation.isError ||
+              escalateTicketMutation.isError
+                ? 'Couldn’t save your feedback. Please try again.'
+                : null
+            }
+            onSubmitRating={handleSubmitTicketRating}
+            onReopenEscalate={handleReopenEscalateTicket}
+          />
         )}
 
         <div className="flex shrink-0 border-t border-[#e9e9f3] bg-white z-10 relative">

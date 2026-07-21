@@ -125,6 +125,7 @@ export interface OneOnOneBatchGroup {
 /** A callback request the student has raised (listed in the Raised Tickets tab). */
 export interface CallbackTicketItem {
   id: number
+  batchId: number
   category: string
   status: string
   preferredTimeSlot: string | null
@@ -187,6 +188,8 @@ export interface TicketDetail {
   batchId: number | null
   owner: SupportPerson
   assignee?: SupportPerson | null
+  /** When the ticket was last reopened or escalated (`logstamps.reopened_at`). */
+  reopenedAt?: string | null
 }
 
 /**
@@ -211,6 +214,14 @@ export interface FloatingChatInbox {
   callbackTickets: Array<CallbackTicketItem>
   /** Count of open + re-opened tickets (drives the My Tickets badge). */
   openTicketCount: number
+  /** Reason + time-slot pickers (from `menus`). */
+  callback: { reasons: Array<CallbackOption>; timeslots: Array<CallbackOption> }
+  /** Legacy gate: any `user_batch_admission_data` row for the student. */
+  isNewUserJourney: boolean
+  /** Batch ids where `full_fees_paid` is set — drives Student-Kit reason visibility. */
+  fullFeesPaidBatchIds: Array<number>
+  /** Batch support line + phone keyed by batch id. */
+  batchContacts: Record<number, { text: string | null; phone: string | null }>
 }
 
 export type LectureRecordingStatus =
@@ -230,6 +241,8 @@ export type AiSummaryStatus = 'generated' | 'processing' | 'not_available'
 export interface LectureSupportSnapshot {
   lectureId: number
   lectureKind: 'live' | 'video'
+  /** Mandatory vs recommended/optional — drives whether attendance is scored at all. */
+  isMandatory: boolean
   livePhase: 'before' | 'during' | 'after' | null
   videoPhase: 'before' | 'during_after' | null
   joinLiveButtonState: JoinLiveButtonState | null

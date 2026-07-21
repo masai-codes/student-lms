@@ -1,13 +1,21 @@
 /**
  * Floating support modal — inbox payload.
  *
- * Batches, ticket inbox, callback history, and open-ticket count in one GET.
- * Called once when the user opens the floater; the client caches until reload.
+ * Batches, ticket inbox, callback history, callback options, and open-ticket
+ * count in one GET. Called once when the user opens the floater; the client
+ * caches until reload.
  */
 
 import type { FloatingChatInbox } from '@/server/api/support/support.types'
-import { listCallbacks } from '@/server/api/support/services/callback.service'
-import { getUserSupportBatches } from '@/server/api/support/services/directory.service'
+import {
+  getCallbackAdmissionFlags,
+  getCallbackOptions,
+  listCallbacks,
+} from '@/server/api/support/services/callback.service'
+import {
+  getBatchContact,
+  getUserSupportBatches,
+} from '@/server/api/support/services/directory.service'
 import {
   countOpenTickets,
   listTickets,
@@ -17,17 +25,31 @@ import {
 const INBOX_TICKET_LIMIT = 100
 
 export async function getFloatingChatInbox(userId: number): Promise<FloatingChatInbox> {
-  const [batches, tickets, callbackTickets, openTicketCount] = await Promise.all([
-    getUserSupportBatches(userId),
-    listTickets({ userId, tab: 'all', page: 1, limit: INBOX_TICKET_LIMIT }),
-    listCallbacks(userId),
-    countOpenTickets(userId),
-  ])
+  const batches = await getUserSupportBatches(userId)
+
+  const [tickets, callbackTickets, openTicketCount, callback, admissionFlags, ...contacts] =
+    await Promise.all([
+      listTickets({ userId, tab: 'all', page: 1, limit: INBOX_TICKET_LIMIT }),
+      listCallbacks(userId),
+      countOpenTickets(userId),
+      getCallbackOptions(),
+      getCallbackAdmissionFlags(userId),
+      ...batches.map((b) => getBatchContact(b.id)),
+    ])
+
+  const batchContacts: FloatingChatInbox['batchContacts'] = {}
+  batches.forEach((batch, index) => {
+    batchContacts[batch.id] = contacts[index] ?? { text: null, phone: null }
+  })
 
   return {
     batches,
     tickets,
     callbackTickets,
     openTicketCount,
+    callback,
+    isNewUserJourney: admissionFlags.isNewUserJourney,
+    fullFeesPaidBatchIds: admissionFlags.fullFeesPaidBatchIds,
+    batchContacts,
   }
 }

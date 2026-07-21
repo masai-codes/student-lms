@@ -1,6 +1,7 @@
 import { cn } from '@/lib/utils'
 import { MagnifyingGlass, CaretRight, CaretLeft } from '@phosphor-icons/react'
 import type { Category, Item } from './types'
+import { formatSupportLectureTypeLabel, supportLectureTypeChipClassName } from './supportCategoryLearning'
 
 interface ItemSelectorPagination {
   page: number
@@ -84,7 +85,18 @@ export function ItemSelector({
       {!isLoading && !isError && items.length > 0 && (
         <div className="flex flex-col flex-1 min-h-0">
           <div className="flex flex-col flex-1 overflow-y-auto">
-            {items.map((item) => (
+            {items.map((item) => {
+              const lectureTypeLabel =
+                categoryObj.id === 'lecture'
+                  ? formatSupportLectureTypeLabel(item.type)
+                  : null
+              const showOptional =
+                (categoryObj.id === 'assignment' ||
+                  categoryObj.id === 'evaluation' ||
+                  categoryObj.id === 'resource') &&
+                item.isOptional === true
+
+              return (
               <button
                 key={item.id ?? item.title}
                 type="button"
@@ -98,7 +110,22 @@ export function ItemSelector({
                   <strong className="block text-[13.6px] font-semibold text-[#15162c] truncate">
                     {item.title}
                   </strong>
-                  <div className="flex items-center gap-1.5 mt-0.5">
+                  <div className="flex items-center gap-1.5 mt-0.5 min-w-0">
+                    {lectureTypeLabel ? (
+                      <span
+                        className={cn(
+                          'text-[11px] font-bold px-2 py-[2.5px] rounded-full shrink-0',
+                          supportLectureTypeChipClassName(item.type),
+                        )}
+                      >
+                        {lectureTypeLabel}
+                      </span>
+                    ) : null}
+                    {showOptional ? (
+                      <span className="text-[11px] font-bold text-[#b54708] bg-[#fffaeb] px-2 py-[2.5px] rounded-full shrink-0">
+                        Optional
+                      </span>
+                    ) : null}
                     <span className="text-[11px] font-bold text-[#62647d] bg-[#f1f1f7] px-2 py-[2.5px] rounded-full group-hover:bg-white transition-colors truncate max-w-[140px]">
                       {item.meta}
                     </span>
@@ -109,7 +136,8 @@ export function ItemSelector({
                   <CaretRight weight="bold" className="size-4" />
                 </div>
               </button>
-            ))}
+              )
+            })}
           </div>
 
           {showPagination && pagination && (

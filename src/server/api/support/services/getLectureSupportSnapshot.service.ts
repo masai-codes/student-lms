@@ -38,7 +38,6 @@ export async function getLectureSupportSnapshot(
       optional: lectures.optional,
       schedule: lectures.schedule,
       concludes: lectures.concludes,
-      batchId: lectures.batchId,
       sectionId: lectures.sectionId,
       zoomLink: lectures.zoomLink,
       vimeoDownloadLinks: lectures.vimeoDownloadLinks,
@@ -64,11 +63,7 @@ export async function getLectureSupportSnapshot(
     throw new Error('SUPPORT_LECTURE_NOT_FOUND')
   }
 
-  const allowed = await ensureUserCanAccessLearnHubEntity(
-    userId,
-    row.batchId,
-    row.sectionId,
-  )
+  const allowed = await ensureUserCanAccessLearnHubEntity(userId, row.sectionId)
   if (!allowed) {
     throw new Error('SUPPORT_LECTURE_NOT_FOUND')
   }
@@ -159,6 +154,7 @@ export async function getLectureSupportSnapshot(
   return {
     lectureId,
     lectureKind,
+    isMandatory,
     livePhase,
     videoPhase,
     joinLiveButtonState,

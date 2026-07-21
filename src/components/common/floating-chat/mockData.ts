@@ -14,7 +14,7 @@ export const ITEMS: Record<string, Item[]> = {
     { title: 'Lecture 008: Recursion & Backtracking', meta: 'Module 4 · DSA', date: 'Yesterday' },
     { title: 'Lecture 007: Array & String Methods', meta: 'Module 4 · DSA', date: '3 days ago' },
     { title: 'Test lecture 001 (Live)', meta: 'Module 1 · Coding', date: 'Live', type: 'live', startTime: new Date(Date.now() - 5 * 60 * 1000).toISOString() },
-    { title: 'test learn listing', meta: 'Module 4 · Coding', date: '24 Jun' },
+    { title: 'test learn listing', meta: 'Module 4 · Coding', date: '24 Jun', type: 'video' },
     { title: 'Lecture 006: Time & Space Complexity', meta: 'Module 3 · DSA', date: '1 week ago' },
   ],
   assignment: [
@@ -24,10 +24,10 @@ export const ITEMS: Record<string, Item[]> = {
     { title: 'Assignment 09: Recursion Practice Set', meta: 'Module 3 · DSA', date: 'Submitted' },
   ],
   resource: [
-    { title: 'Big-O Cheat Sheet', meta: 'Module 4 · DSA', date: 'PDF' },
-    { title: 'Git & GitHub Handbook', meta: 'Module 1 · Coding', date: 'PDF' },
-    { title: 'JS Closures Deep Dive', meta: 'Module 2 · Coding', date: 'Article' },
-    { title: 'Interview Prep Playbook', meta: 'Career Prep', date: 'PDF' },
+    { title: 'Big-O Cheat Sheet', meta: 'pre-read', date: 'PDF' },
+    { title: 'Git & GitHub Handbook', meta: 'notes', date: 'PDF' },
+    { title: 'JS Closures Deep Dive', meta: 'reference', date: 'Article' },
+    { title: 'Interview Prep Playbook', meta: 'notes', date: 'PDF' },
   ],
   evaluation: [
     { title: 'Module 4 Quiz', meta: 'Module 4 · DSA', date: 'Result pending' },

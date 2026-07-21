@@ -1,4 +1,4 @@
-import { CaretLeft } from '@phosphor-icons/react'
+import { CaretLeft, X } from '@phosphor-icons/react'
 import type { SupportBatch, TicketListItem } from '@/server/api/support/support.types'
 import { formatSocialPostTime } from '@/lib/socialRelativeTime'
 import type { Category } from './types'
@@ -14,6 +14,7 @@ interface FloatingChatHeaderProps {
   selectedItemTitle?: string | null
   selectedTicket?: TicketListItem
   onBack: () => void
+  onClose?: () => void
 }
 
 export function FloatingChatHeader({
@@ -26,6 +27,7 @@ export function FloatingChatHeader({
   selectedItemTitle,
   selectedTicket,
   onBack,
+  onClose,
 }: FloatingChatHeaderProps) {
   const getHeaderTitle = () => {
     if (view === 'tickets') {
@@ -137,6 +139,16 @@ export function FloatingChatHeader({
             </div>
           )}
         </div>
+        {onClose ? (
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Close support"
+            className="lg:hidden flex items-center justify-center shrink-0 size-8 rounded-full bg-[#f1f1f7] text-[#62647d] hover:bg-[#e3e3fb] hover:text-[#4b4396] transition-colors mt-0.5"
+          >
+            <X weight="bold" className="size-4" />
+          </button>
+        ) : null}
       </div>
     </div>
   )

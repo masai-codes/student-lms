@@ -38,7 +38,6 @@ export async function getAssignmentSupportSnapshot(
       settings: assignments.settings,
       schedule: assignments.schedule,
       concludes: assignments.concludes,
-      batchId: assignments.batchId,
       sectionId: assignments.sectionId,
     })
     .from(assignments)
@@ -55,11 +54,7 @@ export async function getAssignmentSupportSnapshot(
     throw new Error('SUPPORT_ASSIGNMENT_NOT_FOUND')
   }
 
-  const allowed = await ensureUserCanAccessLearnHubEntity(
-    userId,
-    row.batchId,
-    row.sectionId,
-  )
+  const allowed = await ensureUserCanAccessLearnHubEntity(userId, row.sectionId)
   if (!allowed) {
     throw new Error('SUPPORT_ASSIGNMENT_NOT_FOUND')
   }
