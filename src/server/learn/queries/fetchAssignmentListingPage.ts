@@ -16,24 +16,27 @@ import { toMysqlUtc } from '@/server/learn/utils/buildLearnScheduleWindow'
 import { IST_OFFSET_MS } from '@/server/learn/utils/learnListingConstants'
 
 /**
- * Ordering that matches the legacy `experience-ui` `/learn` view
- * (`SectionLectures.tsx` priority-bucketed sort) for assignment items. The
- * live/scrum buckets (1-2) never apply to assignments, so it reduces to:
- *   upcoming (`schedule > now`) first, ascending so the soonest-due floats up,
- *   then past/started, descending so the most recent sits on top.
+ * Reverse-chronological ordering for assignments (latest first), mirroring the
+ * lecture listing, with one pin on top: assignments that are currently IN
+ * PROGRESS — released and still open (`schedule <= now < concludes`) — float to
+ * the very top so students see what they can work on right now. Everything else
+ * then sorts by `schedule` descending: later date first, and — because
+ * `schedule` is a full timestamp — same-date items sort later-time first.
  *
- * Tie-break (same bucket + same schedule): type priority evaluation >
- * assignment > practice, then newest id — new behaviour requested on top of
- * the legacy order, which had no type ranking.
+ * Tie-break (identical schedule): type priority evaluation > assignment >
+ * practice, then newest id.
  *
  * `now` is an IST wall-clock string (`now + 5:30`) so it compares directly
- * against the IST-stored `schedule` column, consistent with the schedule
- * filter and the lecture listing order.
+ * against the IST-stored `schedule` / `concludes` columns.
  */
 function buildAssignmentListingOrderBy(nowMs: number): Array<SQL> {
   const wallNow = toMysqlUtc(nowMs + IST_OFFSET_MS)
 
-  const bucket = sql`CASE WHEN ${assignments.schedule} > ${wallNow} THEN 3 ELSE 4 END`
+  const inProgressFirst = sql`CASE
+    WHEN ${assignments.schedule} <= ${wallNow}
+      AND ${assignments.concludes} > ${wallNow} THEN 0
+    ELSE 1
+  END`
 
   const typeRank = sql`CASE ${assignments.type}
     WHEN 'evaluation' THEN 1
@@ -43,9 +46,8 @@ function buildAssignmentListingOrderBy(nowMs: number): Array<SQL> {
   END`
 
   return [
-    sql`${bucket} ASC`,
-    sql`CASE WHEN ${bucket} = 3 THEN ${assignments.schedule} END ASC`,
-    sql`CASE WHEN ${bucket} = 4 THEN ${assignments.schedule} END DESC`,
+    sql`${inProgressFirst} ASC`,
+    desc(assignments.schedule),
     sql`${typeRank} ASC`,
     desc(assignments.id),
   ]
