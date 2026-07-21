@@ -159,9 +159,9 @@ export function LearnHeaderSection({
 
         {/* Section filter — scopes the listing to one enrolled section of the batch. */}
         <MasaiSelectDropdown
-          triggerLabel="Subject"
-          menuLabel="Select a subject"
-          aria-label="Filter by subject"
+          triggerLabel="Course"
+          menuLabel="Select a course"
+          aria-label="Filter by course"
           options={sectionOptions}
           value={sectionValue}
           disabled={sections.length === 0}
