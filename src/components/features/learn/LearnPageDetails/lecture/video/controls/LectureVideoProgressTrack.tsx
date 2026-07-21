@@ -162,9 +162,12 @@ export function LectureVideoProgressTrack({
         }}
         className="group relative flex min-h-[44px] w-full cursor-pointer touch-none select-none items-center rounded-full py-2 outline-none focus-visible:ring-2 focus-visible:ring-white/40 md:min-h-[28px]"
       >
-        {/* Glass rail: translucent + blurred so the video shimmers through,
-            thickening on hover/focus like the YouTube scrub bar. */}
-        <div className="relative h-[3px] w-full overflow-hidden rounded-full bg-white/15 shadow-[inset_0_1px_2px_rgba(0,0,0,0.3)] backdrop-blur-sm transition-[height,background-color] duration-200 ease-out group-hover:h-[7px] group-hover:bg-white/25 group-focus-visible:h-[7px] md:h-[5px]">
+        {/* Glass rail: translucent + blurred so the video shimmers through.
+            Height stays constant — animating it on hover made the bar visibly
+            shrink the instant the cursor left the player, fighting the chrome's
+            fade-out. Hover feedback is carried by the brighter fill + the
+            scrubber knob popping in, so the whole chrome fades as one unit. */}
+        <div className="relative h-[4px] w-full overflow-hidden rounded-full bg-white/15 shadow-[inset_0_1px_2px_rgba(0,0,0,0.3)] backdrop-blur-sm transition-[background-color] duration-200 ease-out group-hover:bg-white/25 group-focus-visible:bg-white/25 md:h-[5px]">
           {totalDuration > 0 &&
             gaps.map((gap) => (
               <div

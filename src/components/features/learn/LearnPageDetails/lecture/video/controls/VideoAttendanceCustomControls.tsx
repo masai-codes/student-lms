@@ -248,11 +248,16 @@ export function VideoAttendanceCustomControls({
   // A soft scrim keeps the glass pills legible on bright footage; the pills
   // themselves carry most of the contrast, so it stays much lighter than a
   // classic control gradient.
+  // Promote the chrome onto its own GPU layer (transform-gpu + will-change) so
+  // the opacity fade runs on the compositor thread — otherwise the progress
+  // bar's per-frame repaints (while playing) stutter the transition on the
+  // main thread. Pure opacity fade (no translate): a positional slide reads as
+  // the chrome "dropping" before it fades, a second motion competing with the
+  // fade. A longer duration + gentle ease reads as a soft, soothing fade;
+  // motion-reduce disables it.
   const shellClass =
-    `pointer-events-auto absolute bottom-0 left-0 right-0 z-[45] flex w-full min-w-0 flex-col bg-gradient-to-t from-black/60 via-black/25 to-transparent pt-10 text-white transition-[opacity,transform] duration-300 ease-out ${
-      chromeVisible
-        ? 'translate-y-0 opacity-100'
-        : 'pointer-events-none translate-y-2 opacity-0'
+    `pointer-events-auto absolute bottom-0 left-0 right-0 z-[45] flex w-full min-w-0 flex-col bg-gradient-to-t from-black/60 via-black/25 to-transparent pt-10 text-white transform-gpu will-change-[opacity] transition-opacity duration-[600ms] ease-[cubic-bezier(0.33,0,0.2,1)] motion-reduce:transition-none ${
+      chromeVisible ? 'opacity-100' : 'pointer-events-none opacity-0'
     } ${className}`.trim()
 
   return (
