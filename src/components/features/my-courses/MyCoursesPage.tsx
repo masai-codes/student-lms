@@ -80,7 +80,7 @@ function CourseCard({ course }: { course: MyCoursesItem }) {
               lineHeight: '16px',
             }}
           >
-            Course Progress
+            Program Progress
           </span>
           <span
             className="text-foreground"
@@ -117,7 +117,7 @@ function CourseCard({ course }: { course: MyCoursesItem }) {
             padding: 0,
           }}
         >
-          Course Details
+          Program Details
         </button>
         <button
           onClick={() =>
@@ -158,7 +158,7 @@ export function MyCoursesPage() {
   if (isError) {
     return (
       <div className="flex items-center justify-center min-h-96 text-foreground-muted text-sm">
-        Failed to load courses.
+        Failed to load programs.
       </div>
     )
   }
@@ -176,10 +176,10 @@ export function MyCoursesPage() {
           lineHeight: '30px',
         }}
       >
-        My Courses
+        My Programs
       </h1>
       {courses.length === 0 ? (
-        <p className="text-sm text-foreground-muted">No courses found.</p>
+        <p className="text-sm text-foreground-muted">No programs found.</p>
       ) : (
         <div className="grid grid-cols-2 gap-4">
           {courses.map((course) => (

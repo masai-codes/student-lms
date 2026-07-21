@@ -445,7 +445,7 @@ export default function AppNavbar() {
       },
       {
         id: 'courses',
-        label: 'My Courses',
+        label: 'My Programs',
         icon: <Book className="size-4" />,
         href: '/my-courses',
         openInNewTab: false,
