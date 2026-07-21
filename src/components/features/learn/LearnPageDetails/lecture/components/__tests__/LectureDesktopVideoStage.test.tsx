@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { cleanup, fireEvent, render, screen } from '@testing-library/react'
+import { act, cleanup, fireEvent, render, screen } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import { LectureDesktopVideoStage } from '../LectureDesktopVideoStage'
@@ -47,14 +47,25 @@ describe('LectureDesktopVideoStage', () => {
     expect(screen.getByRole('button', { name: 'Close assistant' })).toBeTruthy()
   })
 
-  it('collapses the split back to full-width video when closed', () => {
-    window.localStorage.setItem('lecture-split-chat-open', 'true')
+  it('collapses the split back to full-width video after the close animation', () => {
+    vi.useFakeTimers()
+    try {
+      window.localStorage.setItem('lecture-split-chat-open', 'true')
 
-    render(<LectureDesktopVideoStage lectureId={42} video={<div>Video</div>} />)
+      render(
+        <LectureDesktopVideoStage lectureId={42} video={<div>Video</div>} />,
+      )
 
-    fireEvent.click(screen.getByRole('button', { name: 'Close assistant' }))
-
-    expect(screen.queryByTestId('lecture-chat-panel')).toBeNull()
-    expect(screen.queryByTestId('lecture-chat-resize-handle')).toBeNull()
+      fireEvent.click(screen.getByRole('button', { name: 'Close assistant' }))
+      // Still mounted through the close transition, then unmounted.
+      expect(screen.getByTestId('lecture-chat-panel')).toBeTruthy()
+      act(() => {
+        vi.advanceTimersByTime(300)
+      })
+      expect(screen.queryByTestId('lecture-chat-panel')).toBeNull()
+      expect(screen.queryByTestId('lecture-chat-resize-handle')).toBeNull()
+    } finally {
+      vi.useRealTimers()
+    }
   })
 })

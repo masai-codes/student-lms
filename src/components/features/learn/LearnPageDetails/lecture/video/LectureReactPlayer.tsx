@@ -34,7 +34,9 @@ import type {
   LectureTranscriptSegment,
   LectureVideoAttendanceState,
 } from '@/server/learn/lectureDetailTypes'
-import { LectureFloatingChat } from '@/components/features/lecture-ai-chat/components/LectureFloatingChat'
+import { LectureChatSidePanel } from '../components/LectureChatSidePanel'
+import { useChatPanelReveal } from '../hooks/useChatPanelReveal'
+import { useLectureChatWidth } from '../hooks/useLectureChatWidth'
 import { pushLearnEvent } from '@/components/features/learn/shared/learnAnalytics'
 import { cn } from '@/lib/utils'
 
@@ -60,6 +62,10 @@ export function LectureReactPlayer({
   const videoRef = useRef<LectureChromePlayerRef>(null)
   const splitChat = useLectureSplitChatOptional()
   const isFullscreen = useIsElementFullscreen(fullscreenContainerRef)
+  // In fullscreen the chat becomes a resizable right-side split (same as inline)
+  // rendered inside the fullscreen root so it's visible over the video.
+  const chatWidth = useLectureChatWidth(fullscreenContainerRef)
+  const chatReveal = useChatPanelReveal(Boolean(splitChat?.isOpen) && isFullscreen)
 
   const segments = transcriptSegments ?? []
   const hasTranscript = segments.length > 0
@@ -316,11 +322,15 @@ export function LectureReactPlayer({
       ref={fullscreenContainerRef}
       className={cn(
         'lecture-react-player lecture-video-fs-root group relative flex h-full min-h-0 w-full flex-1 flex-col bg-black outline-none',
+        // Split the area into video | chat when the chat is open (inline via the
+        // flex row here; in fullscreen the `fs-split` class flips the injected
+        // :fullscreen column rule to a row — see lectureVideoChrome.constants).
+        isFullscreen && chatReveal.isRendered && 'flex-row lecture-video-fs-split',
         className,
       )}
     >
       <style>{LECTURE_VIDEO_CHROME_CSS}</style>
-      <div className="lecture-video-fs-video relative flex h-full min-h-0 w-full flex-1 flex-col">
+      <div className="lecture-video-fs-video relative flex h-full min-h-0 w-full min-w-0 flex-1 flex-col">
         <div
           className="react-player-page relative h-full min-h-0 w-full flex-1"
           style={{ overflow: 'visible' }}
@@ -483,18 +493,27 @@ export function LectureReactPlayer({
           }
           onChromeVisibleChange={setControlsChromeVisible}
         />
-        {/* While the video is in browser fullscreen, a body-portaled page-level
-            launcher can't render over the fullscreen element, so the floating
-            chat lives inside the fullscreen root here (bottom-right). */}
-        {splitChat && isFullscreen ? (
-          <LectureFloatingChat
-            lectureId={lectureId}
-            state={splitChat}
-            variant="contained"
-            showLauncher={false}
-          />
-        ) : null}
       </div>
+
+      {/* In fullscreen the chat is a resizable right-side split inside the
+          fullscreen root (a body-portaled panel can't render over it). */}
+      {isFullscreen && chatReveal.isRendered && splitChat ? (
+        <LectureChatSidePanel
+          lectureId={lectureId}
+          onClose={splitChat.close}
+          width={chatWidth.width}
+          isDragging={chatWidth.isDragging}
+          isOpen={chatReveal.isOpenAnim}
+          onResizeStart={chatWidth.startResize}
+          onNudge={chatWidth.nudge}
+          languageMenuContainer={fullscreenContainerRef.current}
+        />
+      ) : null}
+
+      {/* Keeps pointermove off the video iframe while dragging the divider. */}
+      {chatWidth.isDragging ? (
+        <div className="absolute inset-0 z-[130] cursor-col-resize" />
+      ) : null}
     </div>
   )
 }

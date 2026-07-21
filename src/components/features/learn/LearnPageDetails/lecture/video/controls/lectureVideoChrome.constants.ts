@@ -120,6 +120,20 @@ export const LECTURE_VIDEO_CHROME_CSS = `
     min-height: 0;
     height: 100%;
   }
+  /* With the AI chat open in fullscreen, split the area into video | chat
+     (chat is the right column) instead of the default column stack. These
+     out-specify the :fullscreen rules above so the row layout wins. */
+  .lecture-video-fs-root:fullscreen.lecture-video-fs-split,
+  .lecture-video-fs-root:-webkit-full-screen.lecture-video-fs-split {
+    flex-direction: row;
+  }
+  .lecture-video-fs-root:fullscreen.lecture-video-fs-split .lecture-video-fs-video,
+  .lecture-video-fs-root:-webkit-full-screen.lecture-video-fs-split
+    .lecture-video-fs-video {
+    flex: 1 1 0%;
+    min-width: 0;
+    width: auto;
+  }
   /* Fallback for touch devices where screen.orientation.lock() is rejected
      (e.g. Android Chrome in a regular, non-installed tab) — CSS-rotate the
      fullscreen container so a landscape video still fills the screen instead

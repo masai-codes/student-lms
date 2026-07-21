@@ -9,6 +9,7 @@ type LectureChatResizeHandleProps = {
   onPointerDown: (event: React.PointerEvent) => void
   onNudge: (deltaPx: number) => void
   isDragging: boolean
+  className?: string
 }
 
 /**
@@ -20,6 +21,7 @@ export function LectureChatResizeHandle({
   onPointerDown,
   onNudge,
   isDragging,
+  className,
 }: LectureChatResizeHandleProps) {
   return (
     <div
@@ -43,6 +45,7 @@ export function LectureChatResizeHandle({
       className={cn(
         'group relative flex w-3 shrink-0 cursor-col-resize touch-none select-none items-center justify-center',
         'focus-visible:outline-none',
+        className,
       )}
     >
       {/* Divider line. */}

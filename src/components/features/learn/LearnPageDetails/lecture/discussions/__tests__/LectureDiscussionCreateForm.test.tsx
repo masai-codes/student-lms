@@ -47,20 +47,43 @@ describe('LectureDiscussionCreateForm', () => {
     )
   })
 
-  it('keeps submit disabled until both title and description have content', () => {
-    const { scope } = setup()
+  it('keeps the CTA enabled and shows a red error when required fields are empty', () => {
+    const { scope, onSubmit } = setup()
     const submit = scope.getByRole('button', { name: /post discussion/i })
-    expect((submit as HTMLButtonElement).disabled).toBe(true)
+    // CTA is never gated by field content anymore.
+    expect((submit as HTMLButtonElement).disabled).toBe(false)
+    expect(scope.queryByTestId('lecture-discussion-create-error')).toBeNull()
 
+    fireEvent.submit(scope.getByTestId('lecture-discussion-create-form'))
+
+    expect(onSubmit).not.toHaveBeenCalled()
+    const alert = scope.getByTestId('lecture-discussion-create-error')
+    expect(alert.getAttribute('role')).toBe('alert')
+    expect(alert.textContent).toContain('title')
+    // The title error focuses the title input so the caret lands there.
+    const titleInput = scope.getByTestId('lecture-discussion-title-input')
+    expect(document.activeElement).toBe(titleInput)
+
+    // Title present but description still empty -> description error.
     fireEvent.change(scope.getByTestId('lecture-discussion-title-input'), {
       target: { value: 'My question' },
     })
-    expect((submit as HTMLButtonElement).disabled).toBe(true)
+    fireEvent.submit(scope.getByTestId('lecture-discussion-create-form'))
+    expect(onSubmit).not.toHaveBeenCalled()
+    expect(
+      scope.getByTestId('lecture-discussion-create-error').textContent,
+    ).toContain('description')
+  })
 
-    fireEvent.change(scope.getByTestId('mock-rich-editor'), {
-      target: { value: '<p>Body text</p>' },
+  it('clears the error once the user edits a field', () => {
+    const { scope } = setup()
+    fireEvent.submit(scope.getByTestId('lecture-discussion-create-form'))
+    expect(scope.getByTestId('lecture-discussion-create-error')).toBeTruthy()
+
+    fireEvent.change(scope.getByTestId('lecture-discussion-title-input'), {
+      target: { value: 'A' },
     })
-    expect((submit as HTMLButtonElement).disabled).toBe(false)
+    expect(scope.queryByTestId('lecture-discussion-create-error')).toBeNull()
   })
 
   it('submits trimmed values and resets the fields', async () => {
