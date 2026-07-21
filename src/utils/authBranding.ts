@@ -49,7 +49,7 @@ const BRANDING: Record<AppOrigin, AuthBranding> = {
   },
   iitj: {
     logoSrc:
-      'https://s3.ap-south-1.amazonaws.com/static.masaischool.com/iit-jodhpur-logo.jpg',
+      'https://s3.ap-south-1.amazonaws.com/static.masaischool.com/iitj-logo-new.png',
     logoAlt: 'IIT Jodhpur',
     logoClassName:
       'mx-auto h-14 w-auto cursor-pointer object-contain md:h-16',

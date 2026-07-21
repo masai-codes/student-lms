@@ -22,7 +22,7 @@ describe('getAuthBranding', () => {
   it('returns IIT Jodhpur branding for the iitj origin', () => {
     expect(getAuthBranding('iitj')).toMatchObject({
       logoSrc:
-        'https://s3.ap-south-1.amazonaws.com/static.masaischool.com/iit-jodhpur-logo.jpg',
+        'https://s3.ap-south-1.amazonaws.com/static.masaischool.com/iitj-logo-new.png',
       logoAlt: 'IIT Jodhpur',
       pageTitle: 'IIT Jodhpur',
       signInHeading: 'IIT Jodhpur',
