@@ -1,4 +1,4 @@
-import { and, asc, count, eq, sql } from 'drizzle-orm'
+import { and, count, desc, eq, sql } from 'drizzle-orm'
 
 import type { SQL } from 'drizzle-orm'
 import type { LearningPagination } from '@/server/learn/types'
@@ -14,46 +14,29 @@ import { resolveListingPagination } from '@/server/learn/utils/resolveListingPag
 const MIN_MS = 60 * 1000
 
 /**
- * Ordering that matches the legacy `experience-ui` `/learn` view
- * (`SectionLectures.tsx` priority-bucketed sort). Bucketed by urgency, then
- * schedule ascends for the live/upcoming buckets and descends for past:
- *   1 = live/scrum joinable now, 2 = about to start, 3 = upcoming, 4 = past.
+ * Reverse-chronological ordering (latest first) with one exception: live/scrum
+ * sessions that are joinable RIGHT NOW are pinned to the very top so students
+ * never have to scroll to join. Everything else — including upcoming and past —
+ * then sorts by `schedule` descending (later date/time first; a 23:00 lecture
+ * above a 22:00 one on the same day). `id` descending is the final tie-breaker.
  *
- * The live-session windows mirror `LectureButtonVisibility.ts`:
- *   active  = 5m before start → 30m after end
- *   visible = 10m → 5m before start
- *
- * Thresholds are IST wall-clock strings (`now (+/- delta) + 5:30`) so they
- * compare directly against the IST-stored `schedule` / `concludes` columns,
- * consistent with the schedule-window filter.
+ * The "joinable now" window mirrors the legacy `LectureButtonVisibility.ts`
+ * active window: 5m before start → 30m after end. Thresholds are IST wall-clock
+ * strings so they compare directly against the IST-stored schedule columns.
  */
 function buildLectureListingOrderBy(nowMs: number): Array<SQL> {
   const istNow = nowMs + IST_OFFSET_MS
-  const wallNow = toMysqlUtc(istNow)
   const wallPlus5 = toMysqlUtc(istNow + 5 * MIN_MS)
-  const wallPlus10 = toMysqlUtc(istNow + 10 * MIN_MS)
   const wallMinus30 = toMysqlUtc(istNow - 30 * MIN_MS)
 
-  const bucket = sql`CASE
+  const liveNowFirst = sql`CASE
     WHEN ${lectures.type} IN ('live', 'scrum')
       AND ${lectures.schedule} <= ${wallPlus5}
-      AND ${lectures.concludes} > ${wallMinus30} THEN 1
-    WHEN ${lectures.type} IN ('live', 'scrum')
-      AND ${lectures.schedule} >= ${wallPlus5}
-      AND ${lectures.schedule} < ${wallPlus10}
-      AND ${lectures.concludes} >= ${wallNow} THEN 2
-    WHEN ${lectures.schedule} > ${wallNow} THEN 3
-    ELSE 4
+      AND ${lectures.concludes} > ${wallMinus30} THEN 0
+    ELSE 1
   END`
 
-  return [
-    sql`${bucket} ASC`,
-    // Buckets 1-3 (live/upcoming) ascend by schedule so the soonest floats up;
-    // bucket 4 (past) descends so the most recent past sits on top.
-    sql`CASE WHEN ${bucket} <= 3 THEN ${lectures.schedule} END ASC`,
-    sql`CASE WHEN ${bucket} = 4 THEN ${lectures.schedule} END DESC`,
-    asc(lectures.id),
-  ]
+  return [sql`${liveNowFirst} ASC`, desc(lectures.schedule), desc(lectures.id)]
 }
 
 export interface LectureListingPage {
