@@ -1,12 +1,20 @@
 const GOOGLE_PLAY_QR_URL =
-  'https://coding-platform.s3.amazonaws.com/dev/lms/tickets/25088ff4-0060-43c3-88ad-f7232e6e23e1/gVzYkLNCEIgmfdic.png'
+  'https://s3.ap-south-1.amazonaws.com/static.masaischool.com/google_play_qr.png'
 const APP_STORE_QR_URL =
-  'https://coding-platform.s3.amazonaws.com/dev/lms/tickets/f043eb9b-0d02-499b-90f1-eb33940239c0/JGQKZLQoKo1qfKpj.png'
+  'https://s3.ap-south-1.amazonaws.com/static.masaischool.com/app_store_qr.png'
 
-const APP_STORE_LINK =
-  'https://apps.apple.com/sa/app/masai-learn/id6753811719?uo=2'
-const GOOGLE_PLAY_LINK =
-  'https://play.google.com/store/apps/details?id=com.lms.masai'
+// UTM parameters shared across both store links so app installs attribute back
+// to the LMS "Download the app" surface.
+const APP_UTM_PARAMS = new URLSearchParams({
+  utm_source: 'masai_lms',
+  utm_medium: 'web',
+  utm_campaign: 'download_masai_learn_app',
+  utm_content: 'download_app_modal',
+  utm_term: 'masai_learn',
+}).toString()
+
+const APP_STORE_LINK = `https://apps.apple.com/in/app/masai-learn/id6753811719?${APP_UTM_PARAMS}`
+const GOOGLE_PLAY_LINK = `https://play.google.com/store/apps/details?id=com.lms.masai&${APP_UTM_PARAMS}`
 
 export type DownloadAppContentProps = {
   googlePlayQRUrl?: string

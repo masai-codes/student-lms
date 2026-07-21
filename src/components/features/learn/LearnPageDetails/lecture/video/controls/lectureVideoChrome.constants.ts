@@ -2,6 +2,10 @@ export const SEEK_ALIGNMENT_EPSILON = 0.45
 
 export const CHROME_HIDE_AFTER_MS = 3000
 
+// Grace period after the cursor leaves the player before the chrome fades out,
+// so a quick hover-out doesn't feel like an abrupt cut.
+export const CHROME_HIDE_ON_LEAVE_MS = 500
+
 export const POINTER_MOVE_WAKE_INTERVAL_MS = 200
 
 export const PLAYBACK_RATE_OPTIONS = [0.5, 0.75, 1, 1.25, 1.5, 2] as const
@@ -69,6 +73,18 @@ export const LECTURE_VIDEO_OVERFLOW_VOLUME_CSS = `
 `
 
 export const LECTURE_VIDEO_CHROME_CSS = `
+  /* Native fullscreen switches are an instant jump the browser controls; a
+     short fade on the player root (added via JS on every enter AND exit)
+     makes the transition read as smooth. Opacity only — transform here would
+     fight the .lecture-video-fs-rotate fallback. */
+  @keyframes lecture-video-fs-settle {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  .lecture-video-fs-settling {
+    animation: lecture-video-fs-settle 300ms ease-out;
+  }
+
   .react-player-page video::-webkit-media-text-track-display {
     display: none !important;
   }
@@ -103,6 +119,20 @@ export const LECTURE_VIDEO_CHROME_CSS = `
     flex: 1 1 auto;
     min-height: 0;
     height: 100%;
+  }
+  /* With the AI chat open in fullscreen, split the area into video | chat
+     (chat is the right column) instead of the default column stack. These
+     out-specify the :fullscreen rules above so the row layout wins. */
+  .lecture-video-fs-root:fullscreen.lecture-video-fs-split,
+  .lecture-video-fs-root:-webkit-full-screen.lecture-video-fs-split {
+    flex-direction: row;
+  }
+  .lecture-video-fs-root:fullscreen.lecture-video-fs-split .lecture-video-fs-video,
+  .lecture-video-fs-root:-webkit-full-screen.lecture-video-fs-split
+    .lecture-video-fs-video {
+    flex: 1 1 0%;
+    min-width: 0;
+    width: auto;
   }
   /* Fallback for touch devices where screen.orientation.lock() is rejected
      (e.g. Android Chrome in a regular, non-installed tab) — CSS-rotate the

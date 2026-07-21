@@ -30,6 +30,7 @@ import type {
   NavbarProfile,
   NavbarProfileMenuItem,
 } from '@/components/navbar'
+import type { LectureDetailPayload } from '@/server/learn/lectureDetailTypes'
 import { fetchAnnouncementUnreadCount } from '@/lib/api/announcement/announcementApi'
 import { Navbar } from '@/components/navbar'
 import { LevelUpIcon } from '@/components/common/LevelUpIcon'
@@ -123,6 +124,22 @@ export default function AppNavbar() {
   const isIHub = isIHubPortal()
   const navigate = useNavigate()
   const pathname = useRouterState({ select: (s) => s.location.pathname })
+  // Lecture detail only goes dark when it renders the immersive black video
+  // experience — i.e. a watchable in-app recording is present. Before/during
+  // and "recording not available" states keep the normal light navbar. The
+  // flag comes from the lecture route's loader data (this navbar is its
+  // ancestor, so we read it off the active router matches).
+  const lectureHasRecording = useRouterState({
+    select: (s) => {
+      const match = s.matches.find(
+        (m) => m.routeId === '/(protected)/_layout/lectures_/$lectureId',
+      )
+      const detail = match?.loaderData as LectureDetailPayload | undefined
+      return Boolean(
+        detail && !detail.restriction && detail.hasRecording && detail.videoUrl,
+      )
+    },
+  })
   const showTryNew = useTryNewCtaVisible()
   const activeNavId = activeAppNavIdForPathname(pathname)
   const [downloadAppOpen, setDownloadAppOpen] = useState(false)
@@ -525,6 +542,7 @@ export default function AppNavbar() {
     <>
       <Navbar
         className="z-40 max-lg:hidden"
+        forceDark={lectureHasRecording}
         logo={{
           src: navbarLogoSrc(),
           darkSrc: navbarLogoDarkSrc(),

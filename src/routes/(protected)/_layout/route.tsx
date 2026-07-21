@@ -16,7 +16,11 @@ import { TryNewTour } from '@/components/features/layout/TryNewTour'
 import { AnnouncementModalController, ModalProvider } from '@/components/modals'
 import MasaiverseMobileTabBar from '@/components/features/masaiverse-v2/MasaiverseMobileTabBar'
 import { isMasaiverseApp } from '@/constants/masaiverseDrawerUi'
-import { layoutMainClasses, layoutMainClassesFullWidth } from '@/lib/layout'
+import {
+  layoutMainClasses,
+  layoutMainClassesFullWidth,
+  lectureDetailMainClasses,
+} from '@/lib/layout'
 import { bootstrapLoginWithToken } from '@/server/auth/bootstrapLogin'
 import { fetchCurrentUser } from '@/server/auth/fetchCurrentUser'
 import {
@@ -137,9 +141,14 @@ function RouteComponent() {
   const isApp = isMasaiverseApp(searchStr)
   const isMasaiverseRoute = pathname.startsWith('/masaiverse')
   const isSupportRoute = pathname.startsWith('/support')
+  // Lecture detail spans the full viewport width (no centered container), so
+  // every hero state is edge-to-edge like the recording video.
+  const isLectureDetail = /^\/lectures\/[^/]+/.test(pathname)
   const mainClasses = isMasaiverseRoute
     ? layoutMainClassesFullWidth
-    : layoutMainClasses
+    : isLectureDetail
+      ? lectureDetailMainClasses
+      : layoutMainClasses
 
   useEffect(() => {
     initClarity()
