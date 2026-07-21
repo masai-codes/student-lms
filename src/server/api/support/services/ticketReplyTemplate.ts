@@ -34,25 +34,26 @@ function computeDisplayName(input: {
   return NON_ASSIGNMENT_FALLBACK_L1
 }
 
-/** Legacy L1 display name for the ticket owner (divider + first-reply signature). */
-export async function resolveAssigneeDisplayName(input: {
-  batchId: number | null
+async function loadBatchSettings(
+  batchId: number | null,
+): Promise<Record<string, unknown>> {
+  if (!batchId) return {}
+  const rows = await db
+    .select({ settings: batches.settings })
+    .from(batches)
+    .where(eq(batches.id, batchId))
+  return (rows[0]?.settings as Record<string, unknown> | null) ?? {}
+}
+
+async function resolveDisplayName(input: {
+  batchSettings: Record<string, unknown>
   category: string
   assigneeId: number
 }): Promise<string> {
   const isAssignmentCategory =
     trackForCategory(input.category) === 'discussionPC'
 
-  let batchSettings: Record<string, unknown> = {}
-  if (input.batchId) {
-    const rows = await db
-      .select({ settings: batches.settings })
-      .from(batches)
-      .where(eq(batches.id, input.batchId))
-    batchSettings = (rows[0]?.settings as Record<string, unknown> | null) ?? {}
-  }
-
-  const showAdminName = batchSettings.showAdminNameInTicketReply === true
+  const showAdminName = input.batchSettings.showAdminNameInTicketReply === true
   let adminName: string | null = null
   if (showAdminName) {
     const rows = await db
@@ -66,7 +67,21 @@ export async function resolveAssigneeDisplayName(input: {
     showAdminName,
     adminName,
     isAssignmentCategory,
+    batchSettings: input.batchSettings,
+  })
+}
+
+/** Legacy L1 display name for the ticket owner (divider + first-reply signature). */
+export async function resolveAssigneeDisplayName(input: {
+  batchId: number | null
+  category: string
+  assigneeId: number
+}): Promise<string> {
+  const batchSettings = await loadBatchSettings(input.batchId)
+  return resolveDisplayName({
     batchSettings,
+    category: input.category,
+    assigneeId: input.assigneeId,
   })
 }
 
@@ -97,16 +112,12 @@ export async function buildFirstTemplateResponse(input: {
   const isAssignmentCategory =
     trackForCategory(input.category) === 'discussionPC'
 
-  let batchSettings: Record<string, unknown> = {}
-  if (input.batchId) {
-    const rows = await db
-      .select({ settings: batches.settings })
-      .from(batches)
-      .where(eq(batches.id, input.batchId))
-    batchSettings = (rows[0]?.settings as Record<string, unknown> | null) ?? {}
-  }
-
-  const displayName = await resolveAssigneeDisplayName(input)
+  const batchSettings = await loadBatchSettings(input.batchId)
+  const displayName = await resolveDisplayName({
+    batchSettings,
+    category: input.category,
+    assigneeId: input.assigneeId,
+  })
   const phoneNumber = computePhoneNumber({
     isAssignmentCategory,
     batchSettings,
