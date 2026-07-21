@@ -171,7 +171,7 @@ function FeePaymentSlide({
       className={`text-xs font-medium ${compact ? '' : 'truncate'} ${isOverdue ? 'text-danger' : 'text-[#9A4B22] dark:text-warning-subtle-foreground'}`}
     >
       {isOverdue
-        ? 'Payment Overdue! Complete the payment to avoid course deactivation'
+        ? 'Payment Overdue! Complete the payment to avoid program deactivation'
         : 'Pay your remaining program fee to avoid interruption and unlock full access'}
     </p>
   )

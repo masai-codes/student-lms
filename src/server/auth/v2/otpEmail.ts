@@ -72,7 +72,7 @@ function buildHtml(otp: string, portal: EmailPortal): string {
 
 function buildText(otp: string, portal: EmailPortal): string {
   const isIhub = portal === 'ihub'
-  const signature = isIhub ? 'IHub IITR Courses' : 'Masai School | Course'
+  const signature = isIhub ? 'IHub IITR Courses' : 'Masai School | Program'
 
   return [
     `Your verification code is: ${otp}`,
