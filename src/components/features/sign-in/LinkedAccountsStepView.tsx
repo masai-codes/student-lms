@@ -24,7 +24,7 @@ export function LinkedAccountsStepView({
 }: Props) {
   return (
     <div className="space-y-4">
-      <div className="rounded-2xl border border-primary/20 bg-gradient-to-br from-primary/10 via-background to-amber-50/70 p-4 shadow-sm md:p-5">
+      <div className="pr-9 sm:pr-0">
         <h2 className="font-poppins text-xl font-semibold text-foreground">
           {title}
         </h2>
@@ -45,8 +45,8 @@ export function LinkedAccountsStepView({
           >
             <CardContent className="space-y-3 px-4 py-4 sm:px-5">
               <div className="min-w-0 space-y-0.5">
-                <div className="flex items-center gap-2">
-                  <p className="truncate font-poppins text-[15px] font-semibold text-foreground">
+                <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                  <p className="min-w-0 truncate font-poppins text-[15px] font-semibold text-foreground">
                     {account.user.name || account.user.email}
                   </p>
                   {account.isActive ? (
