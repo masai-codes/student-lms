@@ -6,6 +6,7 @@ import { LectureVideoControlsToolbar } from './LectureVideoControlsToolbar'
 import { LectureVideoProgressTrack } from './LectureVideoProgressTrack'
 import {
   CHROME_HIDE_AFTER_MS,
+  CHROME_HIDE_ON_LEAVE_MS,
   POINTER_MOVE_WAKE_INTERVAL_MS,
   SEEK_ALIGNMENT_EPSILON,
 } from './lectureVideoChrome.constants'
@@ -32,6 +33,10 @@ type VideoAttendanceCustomControlsProps = {
   transcriptAvailable: boolean
   captionsOn: boolean
   onCaptionsToggle: () => void
+  /** Opens the lecture AI chat; the toolbar's "Ask AI" pill renders only when provided. */
+  onOpenAiChat?: () => void
+  /** Reports auto-hide chrome visibility (e.g. so captions can lift above the progress bar). */
+  onChromeVisibleChange?: (visible: boolean) => void
   className?: string
 }
 
@@ -53,6 +58,8 @@ export function VideoAttendanceCustomControls({
   transcriptAvailable,
   captionsOn,
   onCaptionsToggle,
+  onOpenAiChat,
+  onChromeVisibleChange,
   className = '',
 }: VideoAttendanceCustomControlsProps) {
   const [scrubPreviewSeconds, setScrubPreviewSeconds] = useState<number | null>(
@@ -64,6 +71,7 @@ export function VideoAttendanceCustomControls({
   const [chromeVisible, setChromeVisible] = useState(true)
   const [overflowMenuOpen, setOverflowMenuOpen] = useState(false)
   const hideTimerRef = useRef<number | null>(null)
+  const leaveHideTimerRef = useRef<number | null>(null)
   const lastPointerMoveWakeAtRef = useRef(0)
   const isPlayingRef = useRef(isPlaying)
   const overflowMenuOpenRef = useRef(overflowMenuOpen)
@@ -93,10 +101,21 @@ export function VideoAttendanceCustomControls({
     overflowMenuOpenRef.current = overflowMenuOpen
   }, [overflowMenuOpen])
 
+  useEffect(() => {
+    onChromeVisibleChange?.(chromeVisible)
+  }, [chromeVisible, onChromeVisibleChange])
+
   const clearHideTimer = useCallback(() => {
     if (hideTimerRef.current !== null) {
       window.clearTimeout(hideTimerRef.current)
       hideTimerRef.current = null
+    }
+  }, [])
+
+  const clearLeaveHideTimer = useCallback(() => {
+    if (leaveHideTimerRef.current !== null) {
+      window.clearTimeout(leaveHideTimerRef.current)
+      leaveHideTimerRef.current = null
     }
   }, [])
 
@@ -114,9 +133,26 @@ export function VideoAttendanceCustomControls({
   }, [clearHideTimer])
 
   const bumpChromeActivity = useCallback(() => {
+    // Any activity inside the player cancels a pending hover-out fade.
+    clearLeaveHideTimer()
     setChromeVisible(true)
     tryScheduleHide()
-  }, [tryScheduleHide])
+  }, [tryScheduleHide, clearLeaveHideTimer])
+
+  // YouTube-style hover-out: leaving the player fades the chrome away (via the
+  // same 300ms opacity/transform transition) after a short grace period, so a
+  // quick or accidental exit doesn't read as an abrupt cut. Runs whether the
+  // video is playing or paused; only an open dropdown keeps it pinned.
+  const scheduleHideOnLeave = useCallback(() => {
+    clearHideTimer()
+    clearLeaveHideTimer()
+    if (overflowMenuOpenRef.current) return
+    leaveHideTimerRef.current = window.setTimeout(() => {
+      leaveHideTimerRef.current = null
+      if (overflowMenuOpenRef.current) return
+      setChromeVisible(false)
+    }, CHROME_HIDE_ON_LEAVE_MS)
+  }, [clearHideTimer, clearLeaveHideTimer])
 
   useEffect(() => {
     if (!isPlaying) {
@@ -157,15 +193,31 @@ export function VideoAttendanceCustomControls({
       bumpChromeActivity()
     }
 
+    const onPointerLeave = (event: PointerEvent) => {
+      // Touch/pen have no real "hover out"; leave those to the inactivity
+      // timer so the chrome doesn't vanish the instant a tap ends.
+      if (event.pointerType !== 'mouse') return
+      lastPointerMoveWakeAtRef.current = 0
+      scheduleHideOnLeave()
+    }
+
     host.addEventListener('pointerdown', onActivity)
     host.addEventListener('pointermove', onActivity)
     host.addEventListener('touchstart', onActivity, { passive: true })
+    host.addEventListener('pointerleave', onPointerLeave)
     return () => {
       host.removeEventListener('pointerdown', onActivity)
       host.removeEventListener('pointermove', onActivity)
       host.removeEventListener('touchstart', onActivity)
+      host.removeEventListener('pointerleave', onPointerLeave)
+      clearLeaveHideTimer()
     }
-  }, [fullscreenContainerRef, bumpChromeActivity])
+  }, [
+    fullscreenContainerRef,
+    bumpChromeActivity,
+    scheduleHideOnLeave,
+    clearLeaveHideTimer,
+  ])
 
   useEffect(() => {
     if (committedSeekSeconds === null) return
@@ -193,9 +245,14 @@ export function VideoAttendanceCustomControls({
     setCommittedSeekSeconds(seconds)
   }
 
+  // A soft scrim keeps the glass pills legible on bright footage; the pills
+  // themselves carry most of the contrast, so it stays much lighter than a
+  // classic control gradient.
   const shellClass =
-    `pointer-events-auto absolute bottom-0 left-0 right-0 z-[45] flex w-full min-w-0 flex-col bg-gradient-to-t from-black/95 via-black/70 to-transparent pt-10 text-white transition-opacity duration-300 ease-out ${
-      chromeVisible ? 'opacity-100' : 'pointer-events-none opacity-0'
+    `pointer-events-auto absolute bottom-0 left-0 right-0 z-[45] flex w-full min-w-0 flex-col bg-gradient-to-t from-black/60 via-black/25 to-transparent pt-10 text-white transition-[opacity,transform] duration-300 ease-out ${
+      chromeVisible
+        ? 'translate-y-0 opacity-100'
+        : 'pointer-events-none translate-y-2 opacity-0'
     } ${className}`.trim()
 
   return (
@@ -213,6 +270,7 @@ export function VideoAttendanceCustomControls({
       onFocusCapture={() => {
         setChromeVisible(true)
         clearHideTimer()
+        clearLeaveHideTimer()
       }}
     >
       <LectureVideoProgressTrack
@@ -242,6 +300,7 @@ export function VideoAttendanceCustomControls({
         onCaptionsToggle={onCaptionsToggle}
         chromeVisible={chromeVisible}
         onMenuOpenChange={setOverflowMenuOpen}
+        onOpenAiChat={onOpenAiChat}
       />
     </div>
   )

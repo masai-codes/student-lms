@@ -2,11 +2,11 @@
 
 import { useEffect, useRef, useState, type MouseEvent } from 'react'
 import ReactPlayer from 'react-player/lazy'
+import { CaretDown, Check } from '@phosphor-icons/react'
 
 import { VideoAttendanceCustomControls } from './controls/VideoAttendanceCustomControls'
 import { LECTURE_VIDEO_CHROME_CSS } from './controls/lectureVideoChrome.constants'
 import { getHtmlVideoFromPlayer } from './controls/lectureVideoChrome.utils'
-import { getLectureSplitChatOpenWidthCss } from '../constants/lectureSplitLayout'
 import { useLectureSplitChatOptional } from '../hooks/LectureSplitChatContext'
 import {
   enterElementFullscreen,
@@ -36,7 +36,10 @@ import type {
   LectureTranscriptSegment,
   LectureVideoAttendanceState,
 } from '@/server/learn/lectureDetailTypes'
-import { LectureAiChatExperience } from '@/components/features/lecture-ai-chat/LectureAiChatExperience'
+import { LectureChatSidePanel } from '../components/LectureChatSidePanel'
+import { useChatPanelReveal } from '../hooks/useChatPanelReveal'
+import { useLectureChatWidth } from '../hooks/useLectureChatWidth'
+import { pushLearnEvent } from '@/components/features/learn/shared/learnAnalytics'
 import { cn } from '@/lib/utils'
 
 type LectureReactPlayerProps = {
@@ -63,6 +66,10 @@ export function LectureReactPlayer({
   const videoRef = useRef<LectureChromePlayerRef>(null)
   const splitChat = useLectureSplitChatOptional()
   const isFullscreen = useIsElementFullscreen(fullscreenContainerRef)
+  // In fullscreen the chat becomes a resizable right-side split (same as inline)
+  // rendered inside the fullscreen root so it's visible over the video.
+  const chatWidth = useLectureChatWidth(fullscreenContainerRef)
+  const chatReveal = useChatPanelReveal(Boolean(splitChat?.isOpen) && isFullscreen)
 
   const segments = transcriptSegments ?? []
   const hasTranscript = segments.length > 0
@@ -189,6 +196,24 @@ export function LectureReactPlayer({
     return () => observer.disconnect()
   }, [videoRef])
 
+  // Safety net for the same dual-instance layout: the ResizeObserver above
+  // only catches a visible→hidden collapse, not a video that STARTS while its
+  // container is already display:none (e.g. via a global shortcut or OS media
+  // keys). If this hidden instance ever begins playing, pause it immediately —
+  // its audio would otherwise run under the visible player's.
+  useEffect(() => {
+    const video = getHtmlVideoFromPlayer(videoRef)
+    const container = fullscreenContainerRef.current
+    if (!video || !container) return
+    const onPlay = () => {
+      if (container.offsetWidth === 0 && container.offsetHeight === 0) {
+        video.pause()
+      }
+    }
+    video.addEventListener('play', onPlay)
+    return () => video.removeEventListener('play', onPlay)
+  }, [attendance.playerReadyVersion, videoRef])
+
   // Fallback for touch devices where screen.orientation.lock() is rejected
   // (e.g. Android Chrome in a regular, non-installed tab): while fullscreen
   // and still physically portrait, CSS-rotate the container so a landscape
@@ -226,7 +251,19 @@ export function LectureReactPlayer({
 
   useEffect(() => {
     const onWindowKey = (event: KeyboardEvent) => {
-      if (isQuizActiveRef.current) return
+      const container = fullscreenContainerRef.current
+      if (
+        !container ||
+        (container.offsetWidth === 0 && container.offsetHeight === 0)
+      ) {
+        return
+      }
+
+      // TWO player instances are mounted at once (mobile/desktop rows swapped
+      // via display:none at the md breakpoint) and each registers this window
+      // listener. Only the VISIBLE instance may handle shortcuts — otherwise
+      // Space also starts the hidden instance's video, whose audio still
+      // plays (the "two voices in parallel" bug).
       const target = event.target as HTMLElement | null
       const tag = target ? target.tagName.toLowerCase() : undefined
       if (
@@ -252,6 +289,7 @@ export function LectureReactPlayer({
         event.stopPropagation()
         attendance.toggleVideoPlayPause()
       }
+       if (isQuizActiveRef.current) return
     }
 
     window.addEventListener('keydown', onWindowKey, { capture: true })
@@ -259,16 +297,63 @@ export function LectureReactPlayer({
       window.removeEventListener('keydown', onWindowKey, { capture: true })
   }, [attendance.seekBySeconds, attendance.toggleVideoPlayPause])
 
+  // Mirrors the controls' auto-hide chrome state so captions can lift above
+  // the progress bar while the chrome is showing.
+  const [controlsChromeVisible, setControlsChromeVisible] = useState(true)
+
+  // Fade the player back in on every fullscreen enter/exit so the native
+  // instant jump feels like a smooth transition.
+  const prevFullscreenRef = useRef<boolean | null>(null)
+  useEffect(() => {
+    const wasFullscreen = prevFullscreenRef.current
+    prevFullscreenRef.current = isFullscreen
+    if (wasFullscreen === null || wasFullscreen === isFullscreen) return
+    const element = fullscreenContainerRef.current
+    if (!element) return
+    element.classList.remove('lecture-video-fs-settling')
+    // Force a reflow so re-adding the class restarts the animation even when
+    // the user toggles fullscreen rapidly.
+    void element.offsetWidth
+    element.classList.add('lecture-video-fs-settling')
+    const timeoutId = window.setTimeout(
+      () => element.classList.remove('lecture-video-fs-settling'),
+      350,
+    )
+    return () => window.clearTimeout(timeoutId)
+  }, [isFullscreen])
+
+  // Custom glass dropdown for the top-right quality shortcut (a native
+  // <select> would open the OS-styled picker, breaking the glass chrome).
+  const [qualityMenuOpen, setQualityMenuOpen] = useState(false)
+  const qualityMenuRef = useRef<HTMLSpanElement>(null)
+
+  useEffect(() => {
+    if (!qualityMenuOpen) return
+    const onPointerDown = (event: PointerEvent) => {
+      const element = qualityMenuRef.current
+      if (element && !element.contains(event.target as Node)) {
+        setQualityMenuOpen(false)
+      }
+    }
+    document.addEventListener('pointerdown', onPointerDown, true)
+    return () =>
+      document.removeEventListener('pointerdown', onPointerDown, true)
+  }, [qualityMenuOpen])
+
   return (
     <div
       ref={fullscreenContainerRef}
       className={cn(
         'lecture-react-player lecture-video-fs-root group relative flex h-full min-h-0 w-full flex-1 flex-col bg-black outline-none',
+        // Split the area into video | chat when the chat is open (inline via the
+        // flex row here; in fullscreen the `fs-split` class flips the injected
+        // :fullscreen column rule to a row — see lectureVideoChrome.constants).
+        isFullscreen && chatReveal.isRendered && 'flex-row lecture-video-fs-split',
         className,
       )}
     >
       <style>{LECTURE_VIDEO_CHROME_CSS}</style>
-      <div className="lecture-video-fs-video relative flex h-full min-h-0 w-full flex-1 flex-col">
+      <div className="lecture-video-fs-video relative flex h-full min-h-0 w-full min-w-0 flex-1 flex-col">
         <div
           className="react-player-page relative h-full min-h-0 w-full flex-1"
           style={{ overflow: 'visible' }}
@@ -319,8 +404,6 @@ export function LectureReactPlayer({
             onSeekBySeconds={attendance.seekBySeconds}
           />
           <VideoPlaybackOverlays
-            isVideoPlaying={attendance.isVideoPlaying}
-            onCenterPlay={attendance.toggleVideoPlayPause}
             seekHint={attendance.seekHint}
             videoAspectRatio={videoAspectRatio}
           />
@@ -328,6 +411,7 @@ export function LectureReactPlayer({
             segments={segments}
             progressSeconds={attendance.progress}
             visible={captionsOn && hasTranscript}
+            liftForControls={controlsChromeVisible}
           />
           {quiz.activeQuiz ? (
             <InLectureQuizModal
@@ -340,21 +424,75 @@ export function LectureReactPlayer({
             />
           ) : null}
           {attendance.qualityLevels.length > 0 ? (
-            <select
-              aria-label="Video quality"
-              value={attendance.currentQuality}
-              onChange={(event) =>
-                attendance.changeQuality(Number(event.target.value))
-              }
-              className="absolute right-3 top-3 z-[55] cursor-pointer rounded-md border border-white/15 bg-black/60 py-1.5 pl-3 pr-2 text-sm font-medium text-white outline-none backdrop-blur-sm transition-colors hover:bg-black/80 focus-visible:ring-2 focus-visible:ring-white/40"
+            // Fully custom glass dropdown (no native <select> — the OS picker
+            // would break the glass chrome). A <span>, NOT a <div>:
+            // lectureReactPlayer.css force-stretches `.react-player-page > div`
+            // to 100%×100%, which would turn this into a click-swallowing
+            // overlay.
+            <span
+              ref={qualityMenuRef}
+              className="absolute right-3 top-3 z-[55] block"
             >
-              <option value={-1}>Auto</option>
-              {attendance.qualityLevels.map((level) => (
-                <option key={level.index} value={level.index}>
-                  {level.height}p
-                </option>
-              ))}
-            </select>
+              <button
+                type="button"
+                aria-haspopup="listbox"
+                aria-expanded={qualityMenuOpen}
+                aria-label="Video quality"
+                onClick={() => setQualityMenuOpen((open) => !open)}
+                className="flex cursor-pointer items-center gap-2 rounded-full border border-white/15 bg-white/10 py-2 pl-4 pr-3.5 text-sm font-semibold text-white shadow-[0_4px_24px_rgba(0,0,0,0.35),inset_0_1px_0_rgba(255,255,255,0.12)] outline-none backdrop-blur-xl transition duration-200 hover:border-white/30 hover:bg-white/20 focus-visible:ring-2 focus-visible:ring-white/50"
+              >
+                {attendance.currentQuality === -1
+                  ? 'Auto'
+                  : `${
+                      attendance.qualityLevels.find(
+                        (level) => level.index === attendance.currentQuality,
+                      )?.height ?? '?'
+                    }p`}
+                <CaretDown
+                  className={`h-4 w-4 shrink-0 text-white/80 transition-transform duration-200 ${
+                    qualityMenuOpen ? 'rotate-180' : ''
+                  }`}
+                  weight="bold"
+                  aria-hidden
+                />
+              </button>
+              {qualityMenuOpen ? (
+                <div
+                  role="listbox"
+                  aria-label="Video quality"
+                  className="absolute right-0 top-full z-[60] mt-2 min-w-[7.5rem] overflow-hidden rounded-2xl border border-white/15 bg-black/60 p-1.5 shadow-[0_12px_40px_rgba(0,0,0,0.55),inset_0_1px_0_rgba(255,255,255,0.1)] backdrop-blur-2xl animate-in fade-in-0 zoom-in-95 slide-in-from-top-1 duration-150"
+                >
+                  {[
+                    { index: -1, label: 'Auto' },
+                    ...attendance.qualityLevels.map((level) => ({
+                      index: level.index,
+                      label: `${level.height}p`,
+                    })),
+                  ].map((option) => {
+                    const selected = option.index === attendance.currentQuality
+                    return (
+                      <button
+                        key={option.index}
+                        type="button"
+                        role="option"
+                        aria-selected={selected}
+                        onClick={() => {
+                          attendance.changeQuality(option.index)
+                          setQualityMenuOpen(false)
+                        }}
+                        className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-sm text-white transition duration-150 hover:bg-white/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50"
+                      >
+                        <Check
+                          className={`h-4 w-4 shrink-0 ${selected ? 'opacity-100' : 'opacity-0'}`}
+                          weight="bold"
+                        />
+                        {option.label}
+                      </button>
+                    )
+                  })}
+                </div>
+              ) : null}
+            </span>
           ) : null}
         </div>
         <VideoAttendanceCustomControls
@@ -378,19 +516,37 @@ export function LectureReactPlayer({
           transcriptAvailable={hasTranscript}
           captionsOn={captionsOn}
           onCaptionsToggle={() => setCaptionsOn((value) => !value)}
+          onOpenAiChat={
+            splitChat
+              ? () => {
+                  pushLearnEvent('l_learn_lecture_ask_ai_open', { lectureId })
+                  splitChat.open()
+                }
+              : undefined
+          }
+          onChromeVisibleChange={setControlsChromeVisible}
         />
-        {splitChat?.isOpen && isFullscreen ? (
-          <div
-            className="absolute inset-y-0 right-0 z-[55] flex min-h-0 flex-col border-l border-border bg-surface shadow-2xl"
-            style={{ width: getLectureSplitChatOpenWidthCss() }}
-          >
-            <LectureAiChatExperience
-              lectureId={lectureId}
-              onCloseSidebar={splitChat.close}
-            />
-          </div>
-        ) : null}
       </div>
+
+      {/* In fullscreen the chat is a resizable right-side split inside the
+          fullscreen root (a body-portaled panel can't render over it). */}
+      {isFullscreen && chatReveal.isRendered && splitChat ? (
+        <LectureChatSidePanel
+          lectureId={lectureId}
+          onClose={splitChat.close}
+          width={chatWidth.width}
+          isDragging={chatWidth.isDragging}
+          isOpen={chatReveal.isOpenAnim}
+          onResizeStart={chatWidth.startResize}
+          onNudge={chatWidth.nudge}
+          languageMenuContainer={fullscreenContainerRef.current}
+        />
+      ) : null}
+
+      {/* Keeps pointermove off the video iframe while dragging the divider. */}
+      {chatWidth.isDragging ? (
+        <div className="absolute inset-0 z-[130] cursor-col-resize" />
+      ) : null}
     </div>
   )
 }
