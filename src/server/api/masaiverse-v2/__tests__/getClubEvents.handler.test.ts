@@ -1,16 +1,17 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { ApiError } from '@/server/api/http/apiError'
+import { requireSessionUserId } from '@/server/api/http/requireSessionUser'
 
 const hoisted = vi.hoisted(() => ({
   getClubEvents: vi.fn(),
-  getUserIdFromCookieHeader: vi.fn(),
 }))
 
 vi.mock('@/server/api/masaiverse-v2/services/getClubEvents.service', () => ({
   getClubEvents: hoisted.getClubEvents,
 }))
 
-vi.mock('@/server/auth/getCurrentSessionUserId', () => ({
-  getUserIdFromCookieHeader: hoisted.getUserIdFromCookieHeader,
+vi.mock('@/server/api/http/requireSessionUser', () => ({
+  requireSessionUserId: vi.fn(),
 }))
 
 vi.mock('@/server/api/masaiverse-v2/services/publishVisibility', () => ({
@@ -29,12 +30,13 @@ const PAYLOAD = { weeklyConnects: [], upcoming: [], past: [] }
 describe('handleGetClubEvents', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    vi.mocked(requireSessionUserId).mockReset()
   })
 
   it('returns the event sections for the requested club', async () => {
     const { handleGetClubEvents } =
       await import('../handlers/getClubEvents.handler')
-    hoisted.getUserIdFromCookieHeader.mockResolvedValueOnce(1)
+    vi.mocked(requireSessionUserId).mockResolvedValueOnce(1)
     hoisted.getClubEvents.mockResolvedValueOnce(PAYLOAD)
 
     const response = await handleGetClubEvents(getRequest('5', 'session=abc'))
@@ -47,7 +49,7 @@ describe('handleGetClubEvents', () => {
   it('returns 404 when the club is missing', async () => {
     const { handleGetClubEvents } =
       await import('../handlers/getClubEvents.handler')
-    hoisted.getUserIdFromCookieHeader.mockResolvedValueOnce(1)
+    vi.mocked(requireSessionUserId).mockResolvedValueOnce(1)
     hoisted.getClubEvents.mockResolvedValueOnce(null)
 
     const response = await handleGetClubEvents(getRequest('99', 'session=abc'))
@@ -63,7 +65,9 @@ describe('handleGetClubEvents', () => {
   it('returns 401 when there is no session user', async () => {
     const { handleGetClubEvents } =
       await import('../handlers/getClubEvents.handler')
-    hoisted.getUserIdFromCookieHeader.mockResolvedValueOnce(null)
+    vi.mocked(requireSessionUserId).mockRejectedValueOnce(
+      new ApiError(401, 'UNAUTHORIZED'),
+    )
 
     const response = await handleGetClubEvents(getRequest('5', null))
 
@@ -74,7 +78,7 @@ describe('handleGetClubEvents', () => {
   it('maps unexpected service failures to a 500 error', async () => {
     const { handleGetClubEvents } =
       await import('../handlers/getClubEvents.handler')
-    hoisted.getUserIdFromCookieHeader.mockResolvedValueOnce(1)
+    vi.mocked(requireSessionUserId).mockResolvedValueOnce(1)
     hoisted.getClubEvents.mockRejectedValueOnce(new Error('boom'))
     const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
 

@@ -1,0 +1,74 @@
+'use client'
+
+import { WarningCircle } from '@phosphor-icons/react'
+
+import { MasaiButton } from '@/components/ui/masai-button'
+import {
+  Modal,
+  ModalContent,
+  ModalDescription,
+  ModalTitle,
+} from '@/components/ui/modal'
+import { pushLearnEvent } from '@/components/features/learn/shared/learnAnalytics'
+
+type AssessmentPlatformRedirectModalProps = {
+  open: boolean
+  loading: boolean
+  onOpenChange: (open: boolean) => void
+  onConfirm: () => void
+}
+
+export function AssessmentPlatformRedirectModal({
+  open,
+  loading,
+  onOpenChange,
+  onConfirm,
+}: AssessmentPlatformRedirectModalProps) {
+  return (
+    <Modal open={open} onOpenChange={onOpenChange}>
+      <ModalContent
+        className="max-w-lg"
+        data-testid="assessment-platform-modal"
+      >
+        <div className="flex flex-col gap-4">
+          <WarningCircle
+            className="size-14 text-warning"
+            weight="duotone"
+            aria-hidden
+          />
+          <ModalTitle className="type-h6 text-foreground">
+            You are going to be redirected to Assessment Platform
+          </ModalTitle>
+          <ModalDescription className="type-b2-regular text-foreground-muted">
+            This is a unique link generated only for you. Please do not share
+            this link with anyone.
+          </ModalDescription>
+          <div className="flex justify-end gap-3 pt-2">
+            <MasaiButton
+              type="secondary"
+              size="md"
+              ctaText="Cancel"
+              htmlType="button"
+              disabled={loading}
+              onClick={() => {
+                pushLearnEvent('l_learn_assignment_assessment_redirect_cancel')
+                onOpenChange(false)
+              }}
+            />
+            <MasaiButton
+              type="primary"
+              size="md"
+              ctaText={loading ? 'Please wait…' : 'Okay'}
+              htmlType="button"
+              disabled={loading}
+              onClick={() => {
+                pushLearnEvent('l_learn_assignment_assessment_redirect_confirm')
+                onConfirm()
+              }}
+            />
+          </div>
+        </div>
+      </ModalContent>
+    </Modal>
+  )
+}

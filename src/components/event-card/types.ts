@@ -1,4 +1,4 @@
-export type DrawerDirection = "right" | "bottom" | "auto"
+export type DrawerDirection = 'right' | 'bottom' | 'auto'
 
 export type EventTimelineItem = {
   time: string

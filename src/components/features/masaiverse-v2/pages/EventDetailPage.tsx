@@ -52,7 +52,7 @@ function BackToEventsLink() {
     <button
       type="button"
       onClick={handleBack}
-      className="inline-flex items-center gap-1 text-[14px] font-medium text-[#6B7280] hover:text-[#111827]"
+      className="inline-flex items-center gap-1 text-[14px] font-medium text-foreground-muted hover:text-foreground"
     >
       <ArrowLeft size={16} />
       Back to events
@@ -74,7 +74,7 @@ function EventPills({ event }: { event: MasaiverseV2EventDetail }) {
       {labels.map((label) => (
         <span
           key={label}
-          className="rounded-full bg-masaiverse-orange/10 px-3 py-1 text-[12px] font-semibold capitalize text-masaiverse-orange"
+          className="rounded-full bg-accent-warm/10 px-3 py-1 text-[12px] font-semibold capitalize text-accent-warm"
         >
           {label}
         </span>
@@ -89,9 +89,11 @@ function EventPills({ event }: { event: MasaiverseV2EventDetail }) {
  * Data is fetched live by `eventId`.
  */
 export default function EventDetailPage({ eventId }: EventDetailPageProps) {
-  const { data: event, isPending, error } = useQuery(
-    masaiverseV2EventDetailQuery(eventId),
-  )
+  const {
+    data: event,
+    isPending,
+    error,
+  } = useQuery(masaiverseV2EventDetailQuery(eventId))
   const { data: adminMode } = useQuery(masaiverseV2AdminModeQuery())
   const canEdit = adminMode?.enabled ?? false
   const [isEditOpen, setIsEditOpen] = useState(false)
@@ -103,9 +105,14 @@ export default function EventDetailPage({ eventId }: EventDetailPageProps) {
   const cloneMutation = useMutation({
     mutationFn: () => cloneMasaiverseV2Event(eventId),
     onSuccess: ({ id }) => {
-      void queryClient.invalidateQueries({ queryKey: ['masaiverse-v2', 'events'] })
+      void queryClient.invalidateQueries({
+        queryKey: ['masaiverse-v2', 'events'],
+      })
       void queryClient.invalidateQueries({ queryKey: MASAIVERSE_V2_HOME_KEY })
-      void navigate({ to: '/masaiverse/event/$eventId', params: { eventId: id } })
+      void navigate({
+        to: '/masaiverse/event/$eventId',
+        params: { eventId: id },
+      })
     },
   })
 
@@ -116,7 +123,7 @@ export default function EventDetailPage({ eventId }: EventDetailPageProps) {
         <div
           role="status"
           aria-label="Loading event"
-          className="mt-4 h-72 animate-pulse rounded-[20px] bg-[#ECE7E2]"
+          className="mt-4 h-72 animate-pulse rounded-[20px] bg-surface-muted"
         >
           <span className="sr-only">Loading event…</span>
         </div>
@@ -129,10 +136,10 @@ export default function EventDetailPage({ eventId }: EventDetailPageProps) {
     return (
       <div>
         <BackToEventsLink />
-        <h2 className="mt-4 text-[20px] font-bold leading-7 text-[#111827]">
+        <h2 className="mt-4 text-[20px] font-bold leading-7 text-foreground">
           {notFound ? 'Event not found' : 'Something went wrong'}
         </h2>
-        <p className="mt-1 text-[14px] leading-5 text-[#6B7280]">
+        <p className="mt-1 text-[14px] leading-5 text-foreground-muted">
           {notFound
             ? `We couldn't find an event with id "${eventId}".`
             : "We couldn't load this event. Please try again."}
@@ -146,7 +153,10 @@ export default function EventDetailPage({ eventId }: EventDetailPageProps) {
       open={isEditOpen}
       panel={
         isEditOpen ? (
-          <EventEditForm eventId={eventId} onClose={() => setIsEditOpen(false)} />
+          <EventEditForm
+            eventId={eventId}
+            onClose={() => setIsEditOpen(false)}
+          />
         ) : null
       }
       panelWidth={460}
@@ -167,7 +177,7 @@ export default function EventDetailPage({ eventId }: EventDetailPageProps) {
                   cloneMutation.mutate()
                 }}
                 disabled={cloneMutation.isPending}
-                className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-[#111827] px-3.5 py-2 text-sm font-semibold text-[#111827] transition-colors hover:bg-[#111827] hover:text-white disabled:opacity-60"
+                className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-foreground px-3.5 py-2 text-sm font-semibold text-foreground transition-colors hover:bg-foreground hover:text-background disabled:opacity-60"
               >
                 <CopySimple size={16} weight="bold" />
                 {cloneMutation.isPending ? 'Cloning…' : 'Clone event'}
@@ -180,7 +190,7 @@ export default function EventDetailPage({ eventId }: EventDetailPageProps) {
                   })
                   setIsEditOpen(true)
                 }}
-                className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-[#111827] px-3.5 py-2 text-sm font-semibold text-[#111827] transition-colors hover:bg-[#111827] hover:text-white"
+                className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-foreground px-3.5 py-2 text-sm font-semibold text-foreground transition-colors hover:bg-foreground hover:text-background"
               >
                 <PencilSimple size={16} weight="bold" />
                 Edit event
@@ -198,22 +208,22 @@ export default function EventDetailPage({ eventId }: EventDetailPageProps) {
           <div className="flex flex-col gap-5">
             <div>
               {event.aboveTitle ? (
-                <p className="text-[12px] font-semibold uppercase tracking-wide text-masaiverse-orange">
+                <p className="text-[12px] font-semibold uppercase tracking-wide text-accent-warm">
                   {event.aboveTitle}
                 </p>
               ) : null}
-              <h1 className="mt-1 text-[28px] font-extrabold leading-9 text-[#111827] sm:text-[32px]">
+              <h1 className="mt-1 text-[28px] font-extrabold leading-9 text-foreground sm:text-[32px]">
                 {event.title}
               </h1>
               {event.belowTitle ? (
-                <p className="mt-1.5 text-[15px] leading-6 text-[#6B7280]">
+                <p className="mt-1.5 text-[15px] leading-6 text-foreground-muted">
                   {event.belowTitle}
                 </p>
               ) : null}
               {event.clubName ? (
-                <p className="mt-2 text-[14px] leading-5 text-[#6B7280]">
+                <p className="mt-2 text-[14px] leading-5 text-foreground-muted">
                   Hosted by{' '}
-                  <span className="font-semibold text-[#111827]">
+                  <span className="font-semibold text-foreground">
                     {event.clubName}
                   </span>
                 </p>
@@ -227,24 +237,24 @@ export default function EventDetailPage({ eventId }: EventDetailPageProps) {
 
             {event.eventSummary && eventHasEnded(event.endTime) ? (
               <section>
-                <h2 className="text-[16px] font-bold leading-6 text-[#111827]">
+                <h2 className="text-[16px] font-bold leading-6 text-foreground">
                   Event summary
                 </h2>
                 <RichContent
                   value={event.eventSummary}
-                  className="mt-2 text-[14px] leading-6 text-[#4B5563]"
+                  className="mt-2 text-[14px] leading-6 text-foreground-muted"
                 />
               </section>
             ) : null}
 
             {event.description ? (
               <section>
-                <h2 className="text-[16px] font-bold leading-6 text-[#111827]">
+                <h2 className="text-[16px] font-bold leading-6 text-foreground">
                   About this event
                 </h2>
                 <RichContent
                   value={event.description}
-                  className="mt-2 text-[14px] leading-6 text-[#4B5563]"
+                  className="mt-2 text-[14px] leading-6 text-foreground-muted"
                 />
               </section>
             ) : null}

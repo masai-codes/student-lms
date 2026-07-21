@@ -1,4 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router'
+import { extractClientIp } from '@/server/auth/v2/createSession'
 import {
   errorResponse,
   jsonResponse,
@@ -18,6 +19,8 @@ function statusForSendOtpError(code: SendOtpError['code']): number {
       return 404
     case 'RATE_LIMITED':
       return 429
+    case 'ACCOUNT_DEACTIVATED':
+      return 403
   }
 }
 
@@ -31,11 +34,22 @@ async function handleRequestOtp(request: Request): Promise<Response> {
   }
 
   try {
-    const result = await sendOtp({ identifier, isResend })
-    return jsonResponse({ channel: result.channel, otpSessionId: result.otpSessionId })
+    const result = await sendOtp({
+      identifier,
+      isResend,
+      ip: extractClientIp(request),
+    })
+    return jsonResponse({
+      channel: result.channel,
+      otpSessionId: result.otpSessionId,
+    })
   } catch (err) {
     if (err instanceof SendOtpError) {
-      return errorResponse(statusForSendOtpError(err.code), err.code, err.message)
+      return errorResponse(
+        statusForSendOtpError(err.code),
+        err.code,
+        err.message,
+      )
     }
     throw err
   }

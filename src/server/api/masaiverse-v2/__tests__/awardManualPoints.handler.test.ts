@@ -1,9 +1,9 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { ApiError } from '@/server/api/http/apiError'
+import { requireSessionUserId } from '@/server/api/http/requireSessionUser'
 
 const hoisted = vi.hoisted(() => ({
   awardManualPoints: vi.fn(),
-  getUserIdFromCookieHeader: vi.fn(),
 }))
 
 vi.mock(
@@ -12,8 +12,8 @@ vi.mock(
     awardManualPoints: hoisted.awardManualPoints,
   }),
 )
-vi.mock('@/server/auth/getCurrentSessionUserId', () => ({
-  getUserIdFromCookieHeader: hoisted.getUserIdFromCookieHeader,
+vi.mock('@/server/api/http/requireSessionUser', () => ({
+  requireSessionUserId: vi.fn(),
 }))
 
 function postRequest(body: unknown, cookie: string | null): Request {
@@ -26,6 +26,7 @@ function postRequest(body: unknown, cookie: string | null): Request {
 
 beforeEach(() => {
   vi.clearAllMocks()
+  vi.mocked(requireSessionUserId).mockReset()
 })
 
 async function load() {
@@ -36,7 +37,7 @@ async function load() {
 describe('handleAwardManualPoints', () => {
   it('awards points (201) parsing the numeric args and club id', async () => {
     const handle = await load()
-    hoisted.getUserIdFromCookieHeader.mockResolvedValueOnce(7)
+    vi.mocked(requireSessionUserId).mockResolvedValueOnce(7)
     hoisted.awardManualPoints.mockResolvedValueOnce({ id: '99' })
 
     const response = await handle(
@@ -57,7 +58,7 @@ describe('handleAwardManualPoints', () => {
 
   it('treats a blank/missing club id as a community-wide award', async () => {
     const handle = await load()
-    hoisted.getUserIdFromCookieHeader.mockResolvedValueOnce(7)
+    vi.mocked(requireSessionUserId).mockResolvedValueOnce(7)
     hoisted.awardManualPoints.mockResolvedValueOnce({ id: '1' })
 
     await handle(
@@ -75,7 +76,9 @@ describe('handleAwardManualPoints', () => {
 
   it('returns 401 when there is no session', async () => {
     const handle = await load()
-    hoisted.getUserIdFromCookieHeader.mockResolvedValueOnce(null)
+    vi.mocked(requireSessionUserId).mockRejectedValueOnce(
+      new ApiError(401, 'UNAUTHORIZED'),
+    )
 
     const response = await handle(
       postRequest({ targetUserId: '2', points: 5 }, null),
@@ -86,7 +89,7 @@ describe('handleAwardManualPoints', () => {
 
   it('propagates a service ApiError (e.g. 403)', async () => {
     const handle = await load()
-    hoisted.getUserIdFromCookieHeader.mockResolvedValueOnce(7)
+    vi.mocked(requireSessionUserId).mockResolvedValueOnce(7)
     hoisted.awardManualPoints.mockRejectedValueOnce(
       new ApiError(403, 'MASAIVERSE_ADMIN_FORBIDDEN'),
     )
@@ -100,7 +103,7 @@ describe('handleAwardManualPoints', () => {
 
   it('maps an unexpected error to 500', async () => {
     const handle = await load()
-    hoisted.getUserIdFromCookieHeader.mockResolvedValueOnce(7)
+    vi.mocked(requireSessionUserId).mockResolvedValueOnce(7)
     hoisted.awardManualPoints.mockRejectedValueOnce(new Error('boom'))
     const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
 

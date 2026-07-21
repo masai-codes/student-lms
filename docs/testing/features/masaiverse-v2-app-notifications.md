@@ -13,7 +13,7 @@ The only app push notifications student-lms is responsible for in Masaiverse v2:
    before an event starts; payload carries `eventId`.
 
 Delivery (Expo + device tokens) lives entirely in **experience-api**, which shares the
-same database. student-lms only *triggers* the discussion-reply notification over an
+same database. student-lms only _triggers_ the discussion-reply notification over an
 authenticated server-to-server call. Event reminders are scheduled and sent end-to-end
 by experience-api's BullMQ jobs — student-lms does not trigger them.
 

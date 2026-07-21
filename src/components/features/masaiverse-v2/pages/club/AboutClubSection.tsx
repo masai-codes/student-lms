@@ -17,29 +17,29 @@ export default function AboutClubSection({ club }: AboutClubSectionProps) {
 
   return (
     <section>
-      <h2 className="mb-4 text-[20px] font-bold leading-7 text-[#111827]">
+      <h2 className="mb-4 text-[20px] font-bold leading-7 text-foreground">
         About the Club
       </h2>
-      <div className="rounded-[20px] border border-[#EDEAE8] bg-white p-6 sm:p-8">
+      <div className="rounded-[20px] border border-border bg-surface p-6 sm:p-8">
         {aboutDescription ? (
           <RichContent
             value={aboutDescription}
-            className="text-[16px] leading-7 text-[#4B5563]"
+            className="text-[16px] leading-7 text-foreground-muted"
           />
         ) : null}
 
         {aboutDetails.length > 0 ? (
           <>
             {aboutDescription ? (
-              <hr className="my-6 border-t border-[#EDEAE8]" />
+              <hr className="my-6 border-t border-border" />
             ) : null}
             <dl className="grid grid-cols-2 gap-x-8 gap-y-6 lg:grid-cols-3">
               {aboutDetails.map((detail, index) => (
                 <div key={`${detail.heading}-${index}`}>
-                  <dt className="text-[12px] font-semibold uppercase tracking-wide text-[#9CA3AF]">
+                  <dt className="text-[12px] font-semibold uppercase tracking-wide text-foreground-subtle">
                     {detail.heading}
                   </dt>
-                  <dd className="mt-1 text-[16px] font-bold text-[#111827]">
+                  <dd className="mt-1 text-[16px] font-bold text-foreground">
                     {detail.value}
                   </dd>
                 </div>

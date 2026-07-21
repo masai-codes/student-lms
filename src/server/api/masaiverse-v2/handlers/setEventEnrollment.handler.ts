@@ -7,7 +7,7 @@ export async function handleSetEventEnrollment(
   request: Request,
 ): Promise<Response> {
   try {
-    const userId = await requireSessionUserId(request)
+    const userId = await requireSessionUserId()
     const body = (await request.json().catch(() => null)) as {
       eventId?: unknown
     } | null

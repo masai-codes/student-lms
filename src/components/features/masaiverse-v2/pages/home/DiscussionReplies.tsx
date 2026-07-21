@@ -95,14 +95,14 @@ export default function DiscussionReplies({
   const replies = repliesQuery.data ?? []
 
   return (
-    <div className="mt-3 rounded-[12px] bg-[#FAF7F5] p-3">
+    <div className="mt-3 rounded-[12px] bg-surface-muted p-3">
       <div className="flex gap-2">
         <textarea
           value={text}
           onChange={(event) => setText(event.target.value)}
           placeholder="Write a reply…"
           rows={2}
-          className="flex-1 resize-y rounded-lg border border-[#E5E7EB] bg-white px-3 py-2 text-[14px] text-[#111827] outline-none placeholder:text-[#9CA3AF]"
+          className="flex-1 resize-y rounded-lg border border-border bg-surface px-3 py-2 text-[14px] text-foreground outline-none placeholder:text-foreground-subtle"
         />
         <button
           type="button"
@@ -110,7 +110,7 @@ export default function DiscussionReplies({
           onClick={() => {
             if (canPost) createMutation.mutate({ postId, content: text.trim() })
           }}
-          className="h-fit self-end rounded-lg bg-masaiverse-orange px-4 py-2 text-[14px] font-semibold text-white hover:bg-masaiverse-orange-dark disabled:opacity-50"
+          className="h-fit self-end rounded-lg bg-accent-warm px-4 py-2 text-[14px] font-semibold text-accent-warm-foreground hover:bg-accent-warm-hover disabled:opacity-50"
         >
           Reply
         </button>
@@ -118,9 +118,9 @@ export default function DiscussionReplies({
 
       <div className="mt-3 flex flex-col gap-3">
         {repliesQuery.isPending ? (
-          <p className="text-[13px] text-[#6B7280]">Loading replies…</p>
+          <p className="text-[13px] text-foreground-muted">Loading replies…</p>
         ) : replies.length === 0 ? (
-          <p className="text-[13px] text-[#6B7280]">
+          <p className="text-[13px] text-foreground-muted">
             No replies yet. Be the first!
           </p>
         ) : (
@@ -131,12 +131,12 @@ export default function DiscussionReplies({
                 reply.isBanned ? 'opacity-60' : ''
               }`}
             >
-              <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-[#EDEAE8] text-[11px] font-bold text-[#6B7280]">
+              <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-surface-muted text-[11px] font-bold text-foreground-muted">
                 {getInitials(reply.authorName)}
               </span>
               <div className="min-w-0 flex-1">
-                <p className="text-[12px] text-[#6B7280]">
-                  <span className="font-semibold text-[#111827]">
+                <p className="text-[12px] text-foreground-muted">
+                  <span className="font-semibold text-foreground">
                     {reply.authorName}
                   </span>
                   {' · '}
@@ -145,12 +145,12 @@ export default function DiscussionReplies({
                     new Date(now.valueOf()),
                   )}
                   {reply.isBanned ? (
-                    <span className="ml-2 rounded-full bg-red-100 px-2 py-0.5 text-[10px] font-semibold text-red-700">
+                    <span className="ml-2 rounded-full bg-danger-subtle px-2 py-0.5 text-[10px] font-semibold text-danger">
                       Banned
                     </span>
                   ) : null}
                 </p>
-                <p className="whitespace-pre-wrap text-[14px] leading-5 text-[#111827]">
+                <p className="whitespace-pre-wrap text-[14px] leading-5 text-foreground">
                   {reply.content}
                 </p>
                 {canModerate ? (
@@ -163,7 +163,7 @@ export default function DiscussionReplies({
                         banned: !reply.isBanned,
                       })
                     }
-                    className="mt-1 text-[11px] font-semibold text-red-600 hover:text-red-700 disabled:opacity-50"
+                    className="mt-1 text-[11px] font-semibold text-danger hover:text-danger disabled:opacity-50"
                   >
                     {reply.isBanned ? 'Unban' : 'Ban'}
                   </button>

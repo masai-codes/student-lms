@@ -45,25 +45,33 @@ export async function notifyDiscussionReplyViaExperienceApi(payload: {
     return
   }
   try {
-    const res = await fetch(`${base}/internal/community-masaiverse/notify/post-reply`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        [HEADER]: sec,
+    const res = await fetch(
+      `${base}/internal/community-masaiverse/notify/post-reply`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          [HEADER]: sec,
+        },
+        body: JSON.stringify({
+          post_id: payload.postId,
+          recipient_user_id: payload.recipientUserId,
+          actor_user_id: payload.actorUserId,
+          reply_preview: payload.replyPreview,
+          notification_type:
+            payload.notificationType ?? 'discussion-reply-received',
+          ...(payload.clubId != null ? { club_id: payload.clubId } : {}),
+        }),
+        signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
       },
-      body: JSON.stringify({
-        post_id: payload.postId,
-        recipient_user_id: payload.recipientUserId,
-        actor_user_id: payload.actorUserId,
-        reply_preview: payload.replyPreview,
-        notification_type: payload.notificationType ?? 'discussion-reply-received',
-        ...(payload.clubId != null ? { club_id: payload.clubId } : {}),
-      }),
-      signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
-    })
+    )
     if (!res.ok) {
       const text = await res.text().catch(() => '')
-      console.warn('[communityMasaiverse] reply notify HTTP', res.status, text.slice(0, 200))
+      console.warn(
+        '[communityMasaiverse] reply notify HTTP',
+        res.status,
+        text.slice(0, 200),
+      )
     }
   } catch (e) {
     console.warn('[communityMasaiverse] reply notify failed', e)

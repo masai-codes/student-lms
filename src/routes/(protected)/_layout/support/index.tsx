@@ -1,95 +1,44 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { FilterAndSeachBar } from '@/components/common'
-import { PAGINATION_PAGE_SIZE } from '@/globalSettings'
-import { Pagination as AppPagination } from '@/components/common'
-import { SkeletonCommon } from '@/components/common'
 
-import {
-  getCurrentPage,
-  getTotalPages,
-} from '@/utils/pagination'
-import { createPageSetter } from '@/utils/routerPagination'
-import { fetchAllTickets } from '@/server/tickets/fetchAllTickets'
-import { fetchAllTicketsCount } from '@/server/tickets/fetchAllTicketsCount'
-import { TicketCard } from '@/components/features/support'
+import type { SupportSearch } from '@/components/features/support/supportRoute'
+import { BatchTickets } from '@/components/features/support'
 
-export const Route = createFileRoute(
-  '/(protected)/_layout/support/',
-)({
-  validateSearch: (search) => {
-    const page =
-      typeof search.page === 'number'
-        ? search.page
-        : Number(search.page)
-
-    return {
-      page: page && page > 0 ? page : undefined,
-    }
-  },
-  component: RouteComponent,
-  pendingComponent: () => {
-    return (
-      <div className="w-full space-y-6">
-        {/** TODO: Drop this H2 and FilterAndSeach component in a _layout */}
-        <h2 className="text-2xl font-semibold">Support</h2>
-        <FilterAndSeachBar referer='support_o'/>
-        {Array.from({ length: PAGINATION_PAGE_SIZE }).map((_, i) => (
-          <SkeletonCommon key={i} />
-        ))}
-      </div>
-    )
-  },
-  loaderDeps: ({ search: { page } }) => ({ page }),
-  loader: async ({ deps, context }) => {
-    const { page } = deps
-    const { user } = context
-    const ticketList = await fetchAllTickets({
-      data: { userId: user.id, page: page },
-    })
-    const rowsCount = await fetchAllTicketsCount({
-      data: { userId: context.user.id }
-    })
-
-    return { rowsCount, ticketList }
-  }
+/**
+ * `/support` — the support landing, faithful to the legacy `BatchTickets` flow.
+ *
+ * The whole feature (Help / Raised Tickets / 1:1 Support tabs, the create +
+ * conversation modal, and the callback flow) lives on this one route and is
+ * driven by URL search params — exactly like the original. {@link BatchTickets}
+ * loads everything from the single aggregated overview query and manages the
+ * rest client-side.
+ */
+export const Route = createFileRoute('/(protected)/_layout/support/')({
+  validateSearch: (search: Record<string, unknown>): SupportSearch => ({
+    batchId:
+      search.batchId != null && Number(search.batchId) > 0
+        ? Number(search.batchId)
+        : undefined,
+    tickets:
+      search.tickets === 'ticketlisting' ||
+      search.tickets === 'pair-programming'
+        ? search.tickets
+        : undefined,
+    tab: typeof search.tab === 'string' ? search.tab : undefined,
+    step:
+      search.step === 'ticketCreate' || search.step === 'ticketdetails'
+        ? search.step
+        : undefined,
+    ticketId:
+      search.ticketId != null && Number(search.ticketId) > 0
+        ? Number(search.ticketId)
+        : undefined,
+    category: typeof search.category === 'string' ? search.category : undefined,
+    subcategory:
+      typeof search.subcategory === 'string' ? search.subcategory : undefined,
+    page:
+      search.page != null && Number(search.page) > 0
+        ? Number(search.page)
+        : undefined,
+  }),
+  component: BatchTickets,
 })
-
-function RouteComponent() {
-  const { page } = Route.useSearch()
-  const navigate = Route.useNavigate()
-
-  const currentPage = getCurrentPage(page)
-  const setPage = createPageSetter(navigate)
-
-
-  const { rowsCount, ticketList } = Route.useLoaderData()
-
-  const totalPages = getTotalPages(
-    rowsCount,
-    PAGINATION_PAGE_SIZE,
-  )
-
-
-  return (
-    <div className="w-full space-y-6">
-      <h2 className="text-2xl font-semibold">Support</h2>
-
-      <FilterAndSeachBar referer='support_o'/>
-
-      <div className="space-y-4">
-        {ticketList.map((ticket, key) => (
-          <TicketCard
-            key={key}
-            support={ticket}
-          />
-        ))}
-      </div>
-
-      <AppPagination
-        currentPage={currentPage}
-        totalPages={totalPages}
-        onPageChange={setPage}
-      />
-    </div>
-  )
-}

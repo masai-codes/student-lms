@@ -38,9 +38,7 @@ export default function AppPagination({
         {/* Previous */}
         <PaginationItem>
           <PaginationPrevious
-            onClick={() =>
-              onPageChange(Math.max(currentPage - 1, 1))
-            }
+            onClick={() => onPageChange(Math.max(currentPage - 1, 1))}
           />
         </PaginationItem>
 
@@ -99,11 +97,7 @@ export default function AppPagination({
         {/* Next */}
         <PaginationItem>
           <PaginationNext
-            onClick={() =>
-              onPageChange(
-                Math.min(currentPage + 1, totalPages),
-              )
-            }
+            onClick={() => onPageChange(Math.min(currentPage + 1, totalPages))}
           />
         </PaginationItem>
       </PaginationContent>

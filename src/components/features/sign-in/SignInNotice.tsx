@@ -1,4 +1,8 @@
-import { ChatTeardropDots, EnvelopeSimple, WhatsappLogo } from '@phosphor-icons/react'
+import {
+  ChatTeardropDots,
+  EnvelopeSimple,
+  WhatsappLogo,
+} from '@phosphor-icons/react'
 import type { ReactNode } from 'react'
 import { cn } from '@/lib/utils'
 
@@ -42,9 +46,13 @@ function NoticeIcon({ variant }: { variant: SignInNoticeVariant }) {
   const iconClass = 'size-7 drop-shadow-sm'
   switch (variant) {
     case 'email':
-      return <EnvelopeSimple className={iconClass} weight="duotone" aria-hidden />
+      return (
+        <EnvelopeSimple className={iconClass} weight="duotone" aria-hidden />
+      )
     case 'sms':
-      return <ChatTeardropDots className={iconClass} weight="duotone" aria-hidden />
+      return (
+        <ChatTeardropDots className={iconClass} weight="duotone" aria-hidden />
+      )
     case 'whatsapp':
       return <WhatsappLogo className={iconClass} weight="fill" aria-hidden />
     default:
@@ -76,10 +84,22 @@ export function SignInNotice({ variant, children }: Props) {
         <NoticeIcon variant={variant} />
       </span>
       <div className="min-w-0 flex-1 pt-0.5">
-        <p className={cn('font-poppins text-sm font-bold leading-tight tracking-tight', titleClass[variant])}>
+        <p
+          className={cn(
+            'font-poppins text-sm font-bold leading-tight tracking-tight',
+            titleClass[variant],
+          )}
+        >
           {titles[variant]}
         </p>
-        <div className={cn('mt-2 text-sm font-medium leading-relaxed', bodyClass[variant])}>{children}</div>
+        <div
+          className={cn(
+            'mt-2 text-sm font-medium leading-relaxed',
+            bodyClass[variant],
+          )}
+        >
+          {children}
+        </div>
       </div>
     </div>
   )

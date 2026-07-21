@@ -1,8 +1,8 @@
 import { useQuery } from '@tanstack/react-query'
+import type dayjs from 'dayjs'
+import type { ServerTimeResult } from '@/server/api/serverTime/getServerTime.handler'
 import { getAdjustedNow } from '@/utils/timeZoneHandler'
 import { SERVER_TIME_API } from '@/lib/api/dashboardPaths'
-import type { ServerTimeResult } from '@/server/api/serverTime/getServerTime.handler'
-import type dayjs from 'dayjs'
 
 const POLL_INTERVAL_MS = 5 * 60 * 1000
 const STORAGE_KEY = 'lms-server-time-cache'
@@ -21,14 +21,19 @@ function loadCache(): CacheEntry | undefined {
 function saveCache(entry: CacheEntry) {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(entry))
-  } catch { /* ignore */ }
+  } catch {
+    /* ignore */
+  }
 }
 
 async function fetchServerTime(): Promise<CacheEntry> {
   const res = await fetch(SERVER_TIME_API)
   if (!res.ok) throw new Error('Failed to fetch server time')
   const data = (await res.json()) as ServerTimeResult
-  const entry: CacheEntry = { serverTimeISO: data.serverTime, fetchedAt: Date.now() }
+  const entry: CacheEntry = {
+    serverTimeISO: data.serverTime,
+    fetchedAt: Date.now(),
+  }
   saveCache(entry)
   return entry
 }
@@ -43,8 +48,8 @@ export function useServerTime(): { now: dayjs.Dayjs } {
   const { data } = useQuery({
     queryKey: ['server-time'],
     queryFn: fetchServerTime,
-    initialData: loadCache,       // immediate value from last session
-    initialDataUpdatedAt: 0,      // always treat as stale → always refetch on mount
+    initialData: loadCache, // immediate value from last session
+    initialDataUpdatedAt: 0, // always treat as stale → always refetch on mount
     refetchInterval: POLL_INTERVAL_MS,
     staleTime: POLL_INTERVAL_MS,
   })

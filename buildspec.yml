@@ -16,6 +16,15 @@ phases:
     commands:
       - echo "Building application with Nitro preset=node-server..."
       - npm run build
+      # Nitro's dependency tracer hoists conflicting-version packages (e.g. two
+      # tslib versions) behind a `.nf3/<name>@<version>` cache dir and symlinks
+      # the resolved version into node_modules. CodeDeploy does not preserve
+      # symlinks when it deploys a revision, so any such symlink resolves to
+      # nothing on the target instance (ERR_MODULE_NOT_FOUND at runtime).
+      # Replace each symlink with a real copy of its target before packaging.
+      - echo "Dereferencing symlinks in .output/server for CodeDeploy compatibility..."
+      - find .output/server -type l -exec bash -c 'target=$(readlink -f "$0"); rm "$0"; cp -a "$target" "$0"' {} \;
+      - test -z "$(find .output/server -type l)" || (echo "Symlinks remain after dereferencing" && exit 1)
       # Sync static assets to S3 — additive only (default; no --delete flag)
       - echo "Uploading static assets to S3..."
       - aws s3 sync .output/public/assets/ "s3://${STATIC_ASSETS_BUCKET}/assets/" --cache-control "max-age=31536000,immutable"

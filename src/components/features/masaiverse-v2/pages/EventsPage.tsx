@@ -10,10 +10,7 @@ import {
   matchesSearch,
   sortForBucket,
 } from './events/eventBuckets'
-import type {
-  EventScopeFilter,
-  EventTimeBucket,
-} from './events/eventBuckets'
+import type { EventScopeFilter, EventTimeBucket } from './events/eventBuckets'
 import { masaiverseV2EventsQuery } from '@/query/masaiverse-v2/eventsQuery'
 import { MASAIVERSE_EVENTS, trackMasaiverse } from '../tracking'
 
@@ -72,10 +69,10 @@ export default function EventsPage({ now: nowProp }: { now?: Date }) {
     <div>
       <div className="flex items-start justify-between gap-4">
         <div>
-          <h2 className="text-[20px] font-bold leading-7 text-[#111827]">
+          <h2 className="text-[20px] font-bold leading-7 text-foreground">
             Events
           </h2>
-          <p className="mt-1 text-[14px] leading-5 text-[#6B7280]">
+          <p className="mt-1 text-[14px] leading-5 text-foreground-muted">
             Hackathons, meetups, and webinars across the community and your
             clubs.
           </p>
@@ -110,7 +107,7 @@ export default function EventsPage({ now: nowProp }: { now?: Date }) {
           {[0, 1, 2, 3].map((key) => (
             <div
               key={key}
-              className="h-[240px] animate-pulse rounded-[14px] bg-[#ECE7E2]"
+              className="h-[240px] animate-pulse rounded-[14px] bg-surface-muted"
             />
           ))}
         </div>
@@ -119,11 +116,7 @@ export default function EventsPage({ now: nowProp }: { now?: Date }) {
       ) : (
         <div className="mt-6 grid grid-cols-[repeat(auto-fill,minmax(min(100%,260px),1fr))] gap-4">
           {view.visible.map((event) => (
-            <EventListCard
-              key={event.id}
-              event={event}
-              now={now}
-            />
+            <EventListCard key={event.id} event={event} now={now} />
           ))}
         </div>
       )}
@@ -133,12 +126,16 @@ export default function EventsPage({ now: nowProp }: { now?: Date }) {
 
 function EmptyState({ bucket }: { bucket: EventTimeBucket }) {
   return (
-    <div className="mt-6 flex flex-col items-center justify-center rounded-[14px] border border-dashed border-[#E0D9D3] bg-[#FBF9F8] px-6 py-14 text-center">
-      <CalendarX size={32} weight="duotone" className="text-[#B8AEA6]" />
-      <p className="mt-3 text-[15px] font-semibold text-[#111827]">
+    <div className="mt-6 flex flex-col items-center justify-center rounded-[14px] border border-dashed border-border bg-surface-muted px-6 py-14 text-center">
+      <CalendarX
+        size={32}
+        weight="duotone"
+        className="text-foreground-subtle"
+      />
+      <p className="mt-3 text-[15px] font-semibold text-foreground">
         {bucket === 'upcoming' ? 'No upcoming events' : 'No past events'}
       </p>
-      <p className="mt-1 text-[13px] text-[#6B7280]">
+      <p className="mt-1 text-[13px] text-foreground-muted">
         {bucket === 'upcoming'
           ? 'Check back soon — new events are added regularly.'
           : 'Past events will show up here once they wrap.'}

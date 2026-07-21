@@ -1,0 +1,46 @@
+{
+  "live-lecture-phases": {
+    "seededAt": "2026-07-13T13:50:08.827Z",
+    "testUsers": [
+      {
+        "role": "admin",
+        "email": "live-lecture-phases.admin@example.com",
+        "password": "password",
+        "userId": 1,
+        "name": "Instructor Aditya [live-lecture-phases]"
+      },
+      {
+        "role": "student",
+        "email": "live-lecture-phases.student@example.com",
+        "password": "password",
+        "userId": 2,
+        "name": "Student [live-lecture-phases]"
+      }
+    ],
+    "timing": {
+      "beforeUnlockSchedule": "2026-07-13 19:40:08",
+      "beforeUnlockConcludes": "2026-07-13 20:40:08",
+      "duringJoinSchedule": "2026-07-13 19:23:08",
+      "duringJoinConcludes": "2026-07-13 20:23:08",
+      "afterNoRecordingSchedule": "2026-07-13 17:20:08",
+      "afterNoRecordingConcludes": "2026-07-13 17:50:08",
+      "afterWithRecordingSchedule": "2026-07-13 17:20:08",
+      "afterWithRecordingConcludes": "2026-07-13 17:50:08"
+    },
+    "entityIds": {
+      "batchId": 1,
+      "sectionId": 1,
+      "beforeUnlockLectureId": 1,
+      "duringJoinLectureId": 2,
+      "afterNoRecordingLectureId": 7,
+      "afterWithRecordingAttendanceOffLectureId": 8,
+      "afterWithRecordingAttendanceOnLectureId": 10,
+      "videoMandatoryLectureId": 5,
+      "videoOptionalLectureId": 6,
+      "optionalLiveBeforeUnlockLectureId": 3,
+      "optionalLiveDuringJoinLectureId": 4,
+      "recordingAttendanceOffSectionId": 2,
+      "recordingAttendanceOnSectionId": 3
+    }
+  }
+}

@@ -1,8 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { requireSessionUserId } from '@/server/api/http/requireSessionUser'
 
 const hoisted = vi.hoisted(() => ({
   setEventEnrollment: vi.fn(),
-  getUserIdFromCookieHeader: vi.fn(),
 }))
 
 vi.mock(
@@ -12,8 +12,8 @@ vi.mock(
   }),
 )
 
-vi.mock('@/server/auth/getCurrentSessionUserId', () => ({
-  getUserIdFromCookieHeader: hoisted.getUserIdFromCookieHeader,
+vi.mock('@/server/api/http/requireSessionUser', () => ({
+  requireSessionUserId: vi.fn(),
 }))
 
 function postRequest(body: unknown, cookie: string | null): Request {
@@ -36,12 +36,13 @@ const STATE = {
 describe('handleSetEventEnrollment', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    vi.mocked(requireSessionUserId).mockReset()
   })
 
   it('registers the user and returns the enrollment state', async () => {
     const { handleSetEventEnrollment } =
       await import('../handlers/setEventEnrollment.handler')
-    hoisted.getUserIdFromCookieHeader.mockResolvedValueOnce(1)
+    vi.mocked(requireSessionUserId).mockResolvedValueOnce(1)
     hoisted.setEventEnrollment.mockResolvedValueOnce(STATE)
 
     const response = await handleSetEventEnrollment(
@@ -56,7 +57,7 @@ describe('handleSetEventEnrollment', () => {
   it('coerces a missing body to NaN so the service can reject it', async () => {
     const { handleSetEventEnrollment } =
       await import('../handlers/setEventEnrollment.handler')
-    hoisted.getUserIdFromCookieHeader.mockResolvedValueOnce(1)
+    vi.mocked(requireSessionUserId).mockResolvedValueOnce(1)
     hoisted.setEventEnrollment.mockResolvedValueOnce(STATE)
 
     await handleSetEventEnrollment(postRequest(undefined, 'session=abc'))
@@ -67,7 +68,10 @@ describe('handleSetEventEnrollment', () => {
   it('returns 401 when there is no session user', async () => {
     const { handleSetEventEnrollment } =
       await import('../handlers/setEventEnrollment.handler')
-    hoisted.getUserIdFromCookieHeader.mockResolvedValueOnce(null)
+    const { ApiError } = await import('@/server/api/http/apiError')
+    vi.mocked(requireSessionUserId).mockRejectedValueOnce(
+      new ApiError(401, 'UNAUTHORIZED'),
+    )
 
     const response = await handleSetEventEnrollment(
       postRequest({ eventId: '7' }, null),
@@ -81,7 +85,7 @@ describe('handleSetEventEnrollment', () => {
     const { handleSetEventEnrollment } =
       await import('../handlers/setEventEnrollment.handler')
     const { ApiError } = await import('@/server/api/http/apiError')
-    hoisted.getUserIdFromCookieHeader.mockResolvedValueOnce(1)
+    vi.mocked(requireSessionUserId).mockResolvedValueOnce(1)
     hoisted.setEventEnrollment.mockRejectedValueOnce(
       new ApiError(404, 'EVENT_NOT_FOUND'),
     )
@@ -101,7 +105,7 @@ describe('handleSetEventEnrollment', () => {
   it('maps unexpected service failures to a 500 error', async () => {
     const { handleSetEventEnrollment } =
       await import('../handlers/setEventEnrollment.handler')
-    hoisted.getUserIdFromCookieHeader.mockResolvedValueOnce(1)
+    vi.mocked(requireSessionUserId).mockResolvedValueOnce(1)
     hoisted.setEventEnrollment.mockRejectedValueOnce(new Error('boom'))
     const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
 

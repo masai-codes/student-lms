@@ -10,10 +10,7 @@ type EventCardProps = {
   now?: Date
 }
 
-export default function EventCard({
-  event,
-  now = new Date(),
-}: EventCardProps) {
+export default function EventCard({ event, now = new Date() }: EventCardProps) {
   const { isLive, badgeLabel, dateDay, dateMonth } = getEventCardDisplay(
     event,
     now,
@@ -30,7 +27,7 @@ export default function EventCard({
           source: 'home_events',
         })
       }
-      className="flex h-full flex-col overflow-hidden rounded-[14px] border border-[#EDEAE8] bg-white transition-shadow hover:shadow-[0_8px_24px_-12px_rgba(0,0,0,0.25)]"
+      className="flex h-full flex-col overflow-hidden rounded-[14px] border border-border bg-surface transition-shadow hover:shadow-[0_8px_24px_-12px_rgba(0,0,0,0.25)]"
     >
       <div className="relative h-[116px] bg-[#241C16]">
         {event.imageUrl ? (
@@ -43,28 +40,32 @@ export default function EventCard({
 
         {badgeLabel ? (
           <span
-            className={`absolute left-3 top-3 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-bold uppercase leading-none text-white ${
-              isLive ? 'bg-[#EF4444]' : 'bg-masaiverse-orange'
+            className={`absolute left-3 top-3 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-bold uppercase leading-none ${
+              isLive
+                ? 'bg-danger text-danger-foreground'
+                : 'bg-accent-warm text-accent-warm-foreground'
             }`}
           >
-            {isLive ? <span className="size-1.5 rounded-full bg-white" /> : null}
+            {isLive ? (
+              <span className="size-1.5 rounded-full bg-surface" />
+            ) : null}
             {badgeLabel}
           </span>
         ) : null}
 
         {dateDay ? (
-          <span className="absolute right-3 top-3 flex flex-col items-center rounded-[8px] bg-white px-2 py-1 leading-none">
-            <span className="text-[15px] font-bold text-[#111827]">
+          <span className="absolute right-3 top-3 flex flex-col items-center rounded-[8px] bg-surface px-2 py-1 leading-none">
+            <span className="text-[15px] font-bold text-foreground">
               {dateDay}
             </span>
-            <span className="text-[9px] font-semibold text-[#6B7280]">
+            <span className="text-[9px] font-semibold text-foreground-muted">
               {dateMonth}
             </span>
           </span>
         ) : null}
 
         {event.isEnrolled ? (
-          <span className="absolute bottom-3 left-3 inline-flex items-center gap-1 rounded-full bg-[#16A34A] px-2 py-0.5 text-[11px] font-bold leading-none text-white shadow-sm">
+          <span className="absolute bottom-3 left-3 inline-flex items-center gap-1 rounded-full bg-success px-2 py-0.5 text-[11px] font-bold leading-none text-success-foreground shadow-sm">
             <CheckCircle size={13} weight="fill" />
             Registered
           </span>
@@ -73,15 +74,15 @@ export default function EventCard({
 
       <div className="flex flex-1 flex-col p-3">
         {event.aboveTitle ? (
-          <p className="text-[11px] font-semibold uppercase tracking-wide text-[#9CA3AF]">
+          <p className="text-[11px] font-semibold uppercase tracking-wide text-foreground-subtle">
             {event.aboveTitle}
           </p>
         ) : null}
-        <p className="mt-1 text-[15px] font-bold leading-5 text-[#111827]">
+        <p className="mt-1 text-[15px] font-bold leading-5 text-foreground">
           {event.title}
         </p>
         {event.belowTitle ? (
-          <p className="mt-1 text-[13px] leading-5 text-[#6B7280]">
+          <p className="mt-1 text-[13px] leading-5 text-foreground-muted">
             {event.belowTitle}
           </p>
         ) : null}

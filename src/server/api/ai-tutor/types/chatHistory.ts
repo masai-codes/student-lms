@@ -1,7 +1,17 @@
+import type { AiTutorChatLanguage } from '@/server/api/ai-tutor/chatLanguage'
+import type {AiTutorFeedbackPlatform} from '@/server/api/ai-tutor/feedbackPlatform';
+import {
+  
+  isAiTutorFeedbackPlatform
+} from '@/server/api/ai-tutor/feedbackPlatform'
+import { parseStoredChatLanguage } from '@/server/api/ai-tutor/chatLanguage'
+
 /** One persisted turn in `ai_chat_practice_questions.chatHistory`. */
 export type AiChatHistoryEntry = {
   userMessage: string
   aiMessage: string
+  platform?: AiTutorFeedbackPlatform
+  language?: AiTutorChatLanguage
 }
 
 export function parseChatHistory(value: unknown): Array<AiChatHistoryEntry> {
@@ -14,6 +24,21 @@ export function parseChatHistory(value: unknown): Array<AiChatHistoryEntry> {
       typeof row.userMessage === 'string' ? row.userMessage : ''
     const aiMessage = typeof row.aiMessage === 'string' ? row.aiMessage : ''
     if (!userMessage && !aiMessage) return []
-    return [{ userMessage, aiMessage }]
+
+    const platformValue = row.platform
+    const platform = isAiTutorFeedbackPlatform(platformValue)
+      ? platformValue
+      : undefined
+
+    const language = parseStoredChatLanguage(row.language)
+
+    return [
+      {
+        userMessage,
+        aiMessage,
+        ...(platform ? { platform } : {}),
+        ...(language ? { language } : {}),
+      },
+    ]
   })
 }

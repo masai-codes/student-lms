@@ -1,16 +1,16 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { ApiError } from '@/server/api/http/apiError'
+import { requireSessionUserId } from '@/server/api/http/requireSessionUser'
 
 const hoisted = vi.hoisted(() => ({
   updateMasaiverseClub: vi.fn(),
-  getUserIdFromCookieHeader: vi.fn(),
 }))
 
 vi.mock('@/server/api/masaiverse-v2/services/updateClub.service', () => ({
   updateMasaiverseClub: hoisted.updateMasaiverseClub,
 }))
-vi.mock('@/server/auth/getCurrentSessionUserId', () => ({
-  getUserIdFromCookieHeader: hoisted.getUserIdFromCookieHeader,
+vi.mock('@/server/api/http/requireSessionUser', () => ({
+  requireSessionUserId: vi.fn(),
 }))
 
 function postRequest(body: unknown, cookie: string | null): Request {
@@ -23,12 +23,13 @@ function postRequest(body: unknown, cookie: string | null): Request {
 
 beforeEach(() => {
   vi.clearAllMocks()
+  vi.mocked(requireSessionUserId).mockReset()
 })
 
 describe('handleUpdateClub', () => {
   it('forwards the parsed patch to the service and returns success', async () => {
     const { handleUpdateClub } = await import('../handlers/updateClub.handler')
-    hoisted.getUserIdFromCookieHeader.mockResolvedValueOnce(4)
+    vi.mocked(requireSessionUserId).mockResolvedValueOnce(4)
     hoisted.updateMasaiverseClub.mockResolvedValueOnce({ success: true })
 
     const response = await handleUpdateClub(
@@ -49,7 +50,11 @@ describe('handleUpdateClub', () => {
 
   it('returns 401 without a session', async () => {
     const { handleUpdateClub } = await import('../handlers/updateClub.handler')
-    hoisted.getUserIdFromCookieHeader.mockResolvedValueOnce(null)
+    const { ApiError: ApiErrorForAuth } =
+      await import('@/server/api/http/apiError')
+    vi.mocked(requireSessionUserId).mockRejectedValueOnce(
+      new ApiErrorForAuth(401, 'UNAUTHORIZED'),
+    )
 
     const response = await handleUpdateClub(postRequest({ clubId: 5 }, null))
     expect(response.status).toBe(401)
@@ -58,7 +63,7 @@ describe('handleUpdateClub', () => {
 
   it('propagates a 403 from the service', async () => {
     const { handleUpdateClub } = await import('../handlers/updateClub.handler')
-    hoisted.getUserIdFromCookieHeader.mockResolvedValueOnce(4)
+    vi.mocked(requireSessionUserId).mockResolvedValueOnce(4)
     hoisted.updateMasaiverseClub.mockRejectedValueOnce(
       new ApiError(403, 'MASAIVERSE_ADMIN_FORBIDDEN'),
     )
@@ -72,7 +77,7 @@ describe('handleUpdateClub', () => {
 
   it('maps unexpected failures to a 500 error', async () => {
     const { handleUpdateClub } = await import('../handlers/updateClub.handler')
-    hoisted.getUserIdFromCookieHeader.mockResolvedValueOnce(4)
+    vi.mocked(requireSessionUserId).mockResolvedValueOnce(4)
     hoisted.updateMasaiverseClub.mockRejectedValueOnce(new Error('boom'))
     const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
 

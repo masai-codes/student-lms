@@ -1,35 +1,35 @@
-"use client";
+'use client'
 
-import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
+import * as DropdownMenu from '@radix-ui/react-dropdown-menu'
 
-import { cn } from "@/lib/utils";
+import { cn } from '@/lib/utils'
 
-import { NavbarAnchor } from "./navbar-anchor";
-import type { NavbarProfile } from "./types";
+import { NavbarAnchor } from './navbar-anchor'
+import type { NavbarProfile } from './types'
 
 type NavbarProfileMenuProps = {
-  profile: NavbarProfile;
-  className?: string;
-};
+  profile: NavbarProfile
+  className?: string
+}
 
 function initials(value: string) {
-  const parts = value.trim().split(/\s+/).filter(Boolean);
+  const parts = value.trim().split(/\s+/).filter(Boolean)
   if (!parts.length) {
-    return "?";
+    return '?'
   }
 
   if (parts.length === 1) {
-    return parts[0].slice(0, 2).toUpperCase();
+    return parts[0].slice(0, 2).toUpperCase()
   }
 
-  return `${parts[0][0] ?? ""}${parts[parts.length - 1][0] ?? ""}`.toUpperCase();
+  return `${parts[0][0] ?? ''}${parts[parts.length - 1][0] ?? ''}`.toUpperCase()
 }
 
 const menuItemClassName =
-  "flex cursor-pointer select-none items-center gap-2 rounded-sm px-3 py-2 font-poppins text-[14px] font-medium leading-6 shadow-none outline-none transition-colors text-gray-700 hover:text-[#6962AC] data-[highlighted]:text-[#6962AC] data-[highlighted]:shadow-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50"
+  'flex cursor-pointer select-none items-center gap-2 rounded-sm px-3 py-2 font-poppins text-[14px] font-medium leading-6 shadow-none outline-none transition-colors text-foreground hover:text-brand data-[highlighted]:text-brand data-[highlighted]:shadow-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50'
 
 const menuContentClassName =
-  "z-[220] min-w-[200px] overflow-hidden rounded-md border border-border bg-popover p-1 text-popover-foreground shadow-md";
+  'z-[400] min-w-[200px] overflow-hidden rounded-md border border-border bg-popover p-1 text-popover-foreground shadow-md'
 
 export function NavbarProfileMenu({
   profile,
@@ -39,22 +39,22 @@ export function NavbarProfileMenu({
     profile.menuTriggerLabel ??
     profile.avatarAlt ??
     profile.fallbackText ??
-    "Account menu";
+    'Account menu'
 
   return (
-    <div className={cn("shrink-0", className)}>
+    <div className={cn('shrink-0', className)}>
       <DropdownMenu.Root>
         <DropdownMenu.Trigger asChild>
           <button
             type="button"
-            className="inline-flex size-10 cursor-pointer items-center justify-center rounded-full border border-border bg-background text-sm font-medium text-foreground shadow-none outline-none ring-offset-background transition-colors hover:bg-accent hover:shadow-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-0 data-[state=open]:ring-2 data-[state=open]:ring-ring data-[state=open]:ring-offset-0"
+            className="inline-flex size-9 cursor-pointer items-center justify-center rounded-full border border-border bg-surface text-sm font-medium text-foreground shadow-none outline-none ring-offset-background transition-colors hover:bg-accent hover:shadow-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-0 data-[state=open]:ring-2 data-[state=open]:ring-ring data-[state=open]:ring-offset-0"
             aria-label={label}
             suppressHydrationWarning
           >
             {profile.avatarSrc ? (
               <img
                 src={profile.avatarSrc}
-                alt={profile.avatarAlt ?? "Profile photo"}
+                alt={profile.avatarAlt ?? 'Profile photo'}
                 className="size-full rounded-full object-cover"
                 loading="lazy"
                 decoding="async"
@@ -62,7 +62,7 @@ export function NavbarProfileMenu({
               />
             ) : (
               <span aria-hidden="true">
-                {initials(profile.fallbackText ?? profile.avatarAlt ?? "User")}
+                {initials(profile.fallbackText ?? profile.avatarAlt ?? 'User')}
               </span>
             )}
           </button>
@@ -89,11 +89,11 @@ export function NavbarProfileMenu({
                     href={item.href}
                     openInNewTab={item.openInNewTab}
                     onClick={item.onClick}
-                    aria-current={item.isActive ? "page" : undefined}
+                    aria-current={item.isActive ? 'page' : undefined}
                     className={cn(
                       menuItemClassName,
                       item.isActive &&
-                        "font-medium text-[#6962AC] data-[highlighted]:text-[#6962AC]",
+                        'font-medium text-brand data-[highlighted]:text-brand',
                     )}
                   >
                     {item.icon ? (
@@ -106,8 +106,8 @@ export function NavbarProfileMenu({
                     ) : null}
                     <span
                       className={cn(
-                        "min-w-0 flex-1 text-inherit text-[14px] font-medium leading-6",
-                        item.isActive && "font-medium text-[#6962AC]",
+                        'min-w-0 flex-1 text-inherit text-[14px] font-medium leading-6',
+                        item.isActive && 'font-medium text-brand',
                       )}
                     >
                       {item.label}
@@ -120,5 +120,5 @@ export function NavbarProfileMenu({
         </DropdownMenu.Portal>
       </DropdownMenu.Root>
     </div>
-  );
+  )
 }

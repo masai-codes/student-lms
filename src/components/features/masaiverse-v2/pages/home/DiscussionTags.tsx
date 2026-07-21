@@ -1,6 +1,9 @@
 /** Pill palette; a tag is mapped to one deterministically so its color is stable. */
 const TAG_COLORS = [
-  { bg: 'color-mix(in srgb, var(--color-masaiverse-orange) 15%, white)', text: 'var(--color-masaiverse-orange)' },
+  {
+    bg: 'color-mix(in srgb, var(--color-masaiverse-orange) 15%, white)',
+    text: 'var(--color-masaiverse-orange)',
+  },
   { bg: '#E6EEFB', text: '#2563EB' },
   { bg: '#E3F3E8', text: '#2E7D46' },
   { bg: '#EDE6F8', text: '#6D28D9' },

@@ -17,3 +17,9 @@ todos.json
 
 # Reference files temporarily copied for inspection
 otp.ts
+
+# Cached local DB seed dumps
+scripts/db/.cache
+
+# Transient drizzle-kit pull dump — src/db/schema.ts is the single source of truth
+drizzle/schema.ts

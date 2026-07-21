@@ -46,11 +46,11 @@ function BannerCard({
   }, [banner.description])
 
   return (
-    <div className="relative overflow-hidden rounded-2xl border border-masaiverse-orange/15 bg-gradient-to-br from-[#FFF8F3] via-white to-[#FFF6EE] p-5 shadow-[0_2px_16px_-6px_rgba(242,92,4,0.18)]">
+    <div className="relative overflow-hidden rounded-2xl border border-accent-warm/15 bg-gradient-to-br from-[#FFF8F3] via-white to-[#FFF6EE] p-5 shadow-[0_2px_16px_-6px_rgba(242,92,4,0.18)] dark:bg-none dark:bg-surface-muted">
       {/* Soft brand glow + left accent bar keep it warm without drowning the text in orange. */}
       <span
         aria-hidden
-        className="pointer-events-none absolute -right-12 -top-12 size-36 rounded-full bg-masaiverse-orange/10 blur-3xl"
+        className="pointer-events-none absolute -right-12 -top-12 size-36 rounded-full bg-accent-warm/10 blur-3xl"
       />
       <span
         aria-hidden
@@ -60,7 +60,7 @@ function BannerCard({
       {canManage ? (
         <div className="absolute right-3 top-3 z-20 flex items-center gap-2">
           {!banner.isPublished ? (
-            <span className="rounded-full bg-masaiverse-orange/12 px-2 py-0.5 text-[11px] font-semibold text-masaiverse-orange">
+            <span className="rounded-full bg-accent-warm/12 px-2 py-0.5 text-[11px] font-semibold text-accent-warm">
               Draft
             </span>
           ) : null}
@@ -74,7 +74,7 @@ function BannerCard({
               onEdit()
             }}
             aria-label={`Edit banner ${banner.title}`}
-            className="inline-flex size-7 items-center justify-center rounded-full bg-masaiverse-orange/10 text-masaiverse-orange transition-colors hover:bg-masaiverse-orange/20"
+            className="inline-flex size-7 items-center justify-center rounded-full bg-accent-warm/10 text-accent-warm transition-colors hover:bg-accent-warm/20"
           >
             <PencilSimple size={14} weight="bold" />
           </button>
@@ -82,12 +82,12 @@ function BannerCard({
       ) : null}
 
       <div className="relative z-10 flex items-start gap-3">
-        <span className="mt-0.5 inline-flex size-9 shrink-0 items-center justify-center rounded-xl bg-masaiverse-orange/12 text-masaiverse-orange">
+        <span className="mt-0.5 inline-flex size-9 shrink-0 items-center justify-center rounded-xl bg-accent-warm/12 text-accent-warm">
           <Megaphone size={18} weight="fill" />
         </span>
 
         <div className="min-w-0 flex-1">
-          <h3 className="pr-16 text-[17px] font-bold leading-6 text-[#1F2937]">
+          <h3 className="pr-16 text-[17px] font-bold leading-6 text-foreground">
             {banner.title}
           </h3>
           {banner.description ? (
@@ -98,7 +98,7 @@ function BannerCard({
               >
                 <RichContent
                   value={banner.description}
-                  className="!text-[#4B5563] [&_a]:!text-masaiverse-orange [&_a]:underline [&_blockquote]:!text-[#4B5563] [&_h1]:!text-[#1F2937] [&_h2]:!text-[#1F2937] [&_h3]:!text-[#1F2937] [&_h4]:!text-[#1F2937] [&_h5]:!text-[#1F2937] [&_h6]:!text-[#1F2937] [&_li]:!text-[#4B5563] [&_p]:!text-[#4B5563] [&_strong]:!text-[#1F2937]"
+                  className="!text-foreground-muted [&_a]:!text-accent-warm [&_a]:underline [&_blockquote]:!text-foreground-muted [&_h1]:!text-foreground [&_h2]:!text-foreground [&_h3]:!text-foreground [&_h4]:!text-foreground [&_h5]:!text-foreground [&_h6]:!text-foreground [&_li]:!text-foreground-muted [&_p]:!text-foreground-muted [&_strong]:!text-foreground"
                 />
               </div>
               {canExpand ? (
@@ -112,7 +112,7 @@ function BannerCard({
                     })
                     setDetailOpen(true)
                   }}
-                  className="mt-1 text-[13px] font-semibold text-masaiverse-orange hover:underline"
+                  className="mt-1 text-[13px] font-semibold text-accent-warm hover:underline"
                 >
                   View more
                 </button>
@@ -133,7 +133,7 @@ function BannerCard({
                     cta_url: banner.ctaUrl,
                   })
                 }
-                className="inline-flex items-center rounded-lg bg-masaiverse-orange px-4 py-2 text-[13px] font-bold text-white shadow-[0_4px_12px_-3px_rgba(242,92,4,0.5)] transition-transform hover:scale-[1.02] active:scale-95"
+                className="inline-flex items-center rounded-lg bg-accent-warm px-4 py-2 text-[13px] font-bold text-accent-warm-foreground shadow-[0_4px_12px_-3px_rgba(242,92,4,0.5)] transition-transform hover:scale-[1.02] active:scale-95"
               >
                 {banner.ctaText}
               </a>
@@ -145,12 +145,12 @@ function BannerCard({
       {banner.description ? (
         <Modal open={detailOpen} onOpenChange={setDetailOpen}>
           <ModalContent className="max-w-[560px]">
-            <ModalTitle className="pr-8 text-[18px] font-bold text-[#111827]">
+            <ModalTitle className="pr-8 text-[18px] font-bold text-foreground">
               {banner.title}
             </ModalTitle>
             <RichContent
               value={banner.description}
-              className="mt-3 text-[14px] leading-6 text-[#374151] [&_a]:text-masaiverse-orange [&_a]:underline"
+              className="mt-3 text-[14px] leading-6 text-foreground [&_a]:text-accent-warm [&_a]:underline"
             />
             {banner.ctaText && banner.ctaUrl ? (
               <div className="mt-5">
@@ -166,7 +166,7 @@ function BannerCard({
                       cta_url: banner.ctaUrl,
                     })
                   }
-                  className="inline-flex items-center rounded-lg bg-masaiverse-orange px-4 py-2 text-[14px] font-bold text-white"
+                  className="inline-flex items-center rounded-lg bg-accent-warm px-4 py-2 text-[14px] font-bold text-accent-warm-foreground"
                 >
                   {banner.ctaText}
                 </a>
@@ -211,7 +211,7 @@ export default function BannersSection() {
   return (
     <section>
       <div className="flex items-center justify-between">
-        <h2 className="text-[13px] font-bold uppercase tracking-wide text-[#9CA3AF]">
+        <h2 className="text-[13px] font-bold uppercase tracking-wide text-foreground-subtle">
           Announcements
         </h2>
         <div className="flex items-center gap-2">
@@ -228,7 +228,7 @@ export default function BannersSection() {
                 }}
                 disabled={navState.isBeginning}
                 aria-label="Previous banner"
-                className="inline-flex size-7 items-center justify-center rounded-full border border-[#E5E7EB] text-[#111827] transition hover:bg-[#F9FAFB] disabled:cursor-not-allowed disabled:opacity-40"
+                className="inline-flex size-7 items-center justify-center rounded-full border border-border text-foreground transition hover:bg-surface-muted disabled:cursor-not-allowed disabled:opacity-40"
               >
                 <CaretLeft size={14} weight="bold" />
               </button>
@@ -243,7 +243,7 @@ export default function BannersSection() {
                 }}
                 disabled={navState.isEnd}
                 aria-label="Next banner"
-                className="inline-flex size-7 items-center justify-center rounded-full border border-[#E5E7EB] text-[#111827] transition hover:bg-[#F9FAFB] disabled:cursor-not-allowed disabled:opacity-40"
+                className="inline-flex size-7 items-center justify-center rounded-full border border-border text-foreground transition hover:bg-surface-muted disabled:cursor-not-allowed disabled:opacity-40"
               >
                 <CaretRight size={14} weight="bold" />
               </button>
@@ -257,7 +257,7 @@ export default function BannersSection() {
                 create.mutate()
               }}
               disabled={create.isPending}
-              className="inline-flex items-center gap-1.5 rounded-lg border border-[#111827] px-3 py-1.5 text-[13px] font-semibold text-[#111827] transition-colors hover:bg-[#111827] hover:text-white disabled:opacity-50"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-foreground px-3 py-1.5 text-[13px] font-semibold text-foreground transition-colors hover:bg-foreground hover:text-background disabled:opacity-50"
             >
               <Plus size={14} weight="bold" />
               {create.isPending ? 'Adding…' : 'Add banner'}
@@ -267,7 +267,7 @@ export default function BannersSection() {
       </div>
 
       {banners.length === 0 ? (
-        <p className="mt-3 rounded-[16px] border border-dashed border-[#E0D9D3] bg-white px-4 py-6 text-center text-[13px] text-[#9CA3AF]">
+        <p className="mt-3 rounded-[16px] border border-dashed border-border bg-surface px-4 py-6 text-center text-[13px] text-foreground-subtle">
           No banners yet. Click “Add banner” to create one.
         </p>
       ) : (

@@ -75,7 +75,7 @@ export default function DiscussionComposer({
           })
         }
       }}
-      className="rounded-[14px] border border-[#EDEAE8] bg-white p-4"
+      className="rounded-[14px] border border-border bg-surface p-4"
     >
       <input
         type="text"
@@ -83,7 +83,7 @@ export default function DiscussionComposer({
         onChange={(event) => setTitle(event.target.value)}
         placeholder="Discussion title"
         maxLength={255}
-        className="mb-3 w-full rounded-lg border border-[#E5E7EB] px-3 py-2 text-[16px] font-semibold text-[#111827] outline-none placeholder:font-normal placeholder:text-[#9CA3AF] sm:text-[15px]"
+        className="mb-3 w-full rounded-lg border border-border px-3 py-2 text-[16px] font-semibold text-foreground outline-none placeholder:font-normal placeholder:text-foreground-subtle sm:text-[15px]"
       />
       <RichTextEditor
         value={content}
@@ -95,10 +95,10 @@ export default function DiscussionComposer({
         value={tagsInput}
         onChange={(event) => setTagsInput(event.target.value)}
         placeholder="Add tags, comma separated (e.g. Career, Interviews)"
-        className="mt-3 w-full rounded-lg border border-[#E5E7EB] px-3 py-2 text-[16px] text-[#111827] outline-none placeholder:text-[#9CA3AF] sm:text-[14px]"
+        className="mt-3 w-full rounded-lg border border-border px-3 py-2 text-[16px] text-foreground outline-none placeholder:text-foreground-subtle sm:text-[14px]"
       />
       {mutation.isError ? (
-        <p className="mt-2 text-[13px] text-[#DC2626]">
+        <p className="mt-2 text-[13px] text-danger">
           Could not post your discussion. Please try again.
         </p>
       ) : null}
@@ -106,14 +106,14 @@ export default function DiscussionComposer({
         <button
           type="button"
           onClick={onClose}
-          className="rounded-lg px-4 py-2 text-[14px] font-medium text-[#6B7280] hover:bg-[#F3F0EE]"
+          className="rounded-lg px-4 py-2 text-[14px] font-medium text-foreground-muted hover:bg-surface-muted"
         >
           Cancel
         </button>
         <button
           type="submit"
           disabled={!canSubmit}
-          className="rounded-lg bg-masaiverse-orange px-4 py-2 text-[14px] font-semibold text-white hover:bg-masaiverse-orange-dark disabled:opacity-50"
+          className="rounded-lg bg-accent-warm px-4 py-2 text-[14px] font-semibold text-accent-warm-foreground hover:bg-accent-warm-hover disabled:opacity-50"
         >
           {mutation.isPending ? 'Posting…' : 'Post'}
         </button>

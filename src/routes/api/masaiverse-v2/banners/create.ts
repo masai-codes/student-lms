@@ -4,7 +4,7 @@ import { handleCreateBanner } from '@/server/api/masaiverse-v2/handlers/createBa
 export const Route = createFileRoute('/api/masaiverse-v2/banners/create')({
   server: {
     handlers: {
-      POST: ({ request }) => handleCreateBanner(request),
+      POST: () => handleCreateBanner(),
     },
   },
 })

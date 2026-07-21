@@ -3,7 +3,7 @@ import { eventScopeConditions } from './eventScope'
 import { publishedEventCondition } from './publishVisibility'
 import { db } from '@/db'
 import { events } from '@/db/schema'
-import { parseMasaiverseEventDbTimestamp } from '@/lib/eventTimestamps'
+import { parseMasaiverseEventDbTimestamp } from '@/utils/timeZoneHandler'
 
 /** Max weekly-connect rows shown on the club page. */
 const WEEKLY_CONNECTS_LIMIT = 20

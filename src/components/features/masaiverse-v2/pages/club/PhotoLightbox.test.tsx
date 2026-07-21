@@ -30,7 +30,11 @@ describe('PhotoLightbox', () => {
 
   it('zooms in and out via the controls', () => {
     render(
-      <PhotoLightbox open onOpenChange={() => {}} src="https://cdn/photo.jpg" />,
+      <PhotoLightbox
+        open
+        onOpenChange={() => {}}
+        src="https://cdn/photo.jpg"
+      />,
     )
     fireEvent.click(screen.getByLabelText('Zoom in'))
     expect(screen.getByText('150%')).toBeTruthy()

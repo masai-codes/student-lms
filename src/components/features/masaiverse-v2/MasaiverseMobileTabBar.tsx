@@ -5,9 +5,17 @@ import { useNavigate, useRouterState } from '@tanstack/react-router'
 import { ArrowLeft, DotsThreeOutline } from '@phosphor-icons/react'
 
 import { SIDEBAR_NAV_ITEMS } from './data/sidebarNavItems'
-import type { MasaiverseV2NavPath, MasaiverseV2Tab } from './data/sidebarNavItems'
+import type {
+  MasaiverseV2NavPath,
+  MasaiverseV2Tab,
+} from './data/sidebarNavItems'
 import { TabNavbar } from '@/components/tab-navbar'
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet'
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+} from '@/components/ui/sheet'
 import { OLD_STUDENT_UI_NAV_PATHS } from '@/constants/oldStudentUiNavPaths'
 import { getOldStudentUiUrlForPath } from '@/utils/authRedirect'
 import { isMasaiverseApp } from '@/constants/masaiverseDrawerUi'
@@ -143,7 +151,7 @@ export default function MasaiverseMobileTabBar() {
           items={items}
           ariaLabel="Masaiverse navigation"
           labelClassName="text-[11px]"
-          activeClassName="text-masaiverse-orange"
+          activeClassName="text-accent-warm"
           className="shadow-[0_-4px_24px_rgba(0,0,0,0.08)] pb-[max(0.5rem,env(safe-area-inset-bottom))]"
         />
       </div>
@@ -174,17 +182,23 @@ export default function MasaiverseMobileTabBar() {
                     setIsMoreOpen(false)
                   }}
                   className={`flex items-center gap-2.5 rounded-[10px] px-4 py-3 text-left ${
-                    isActive ? 'bg-masaiverse-orange' : 'hover:bg-[#FBF9F9]'
+                    isActive ? 'bg-accent-warm' : 'hover:bg-surface-muted'
                   }`}
                 >
                   <Icon
                     size={22}
                     weight={isActive ? 'fill' : 'regular'}
-                    color={isActive ? '#FFFFFF' : '#111827'}
+                    color={
+                      isActive
+                        ? 'var(--accent-warm-foreground)'
+                        : 'var(--foreground)'
+                    }
                   />
                   <span
                     className={`flex-1 text-[15px] font-medium leading-5 ${
-                      isActive ? 'text-white' : 'text-[#111827]'
+                      isActive
+                        ? 'text-accent-warm-foreground'
+                        : 'text-foreground'
                     }`}
                   >
                     {label}

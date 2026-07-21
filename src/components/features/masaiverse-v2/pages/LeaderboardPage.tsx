@@ -25,10 +25,10 @@ export default function LeaderboardPage() {
     <div>
       <div className="flex items-start justify-between gap-3">
         <div>
-          <h2 className="text-[20px] font-bold leading-7 text-[#111827]">
+          <h2 className="text-[20px] font-bold leading-7 text-foreground">
             Leaderboard
           </h2>
-          <p className="mt-1 text-[14px] leading-5 text-[#6B7280]">
+          <p className="mt-1 text-[14px] leading-5 text-foreground-muted">
             See who&apos;s leading across the community and inside your clubs.
           </p>
         </div>
@@ -47,7 +47,7 @@ export default function LeaderboardPage() {
         className="mt-5"
       >
         <div className="overflow-x-auto">
-          <TabsList className="bg-[#F1ECE8]">
+          <TabsList className="bg-surface-muted">
             <TabsTrigger value={GLOBAL_TAB} className="px-3">
               Global leaderboard
             </TabsTrigger>
@@ -74,7 +74,7 @@ export default function LeaderboardPage() {
         <p
           role="status"
           aria-label="Loading your clubs"
-          className="mt-2 text-[13px] text-[#9CA3AF]"
+          className="mt-2 text-[13px] text-foreground-subtle"
         >
           Loading your clubs…
         </p>

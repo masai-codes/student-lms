@@ -30,9 +30,7 @@ function renderWithClient(ui: ReactNode) {
   const client = new QueryClient({
     defaultOptions: { queries: { retry: false } },
   })
-  return render(
-    <QueryClientProvider client={client}>{ui}</QueryClientProvider>,
-  )
+  return render(<QueryClientProvider client={client}>{ui}</QueryClientProvider>)
 }
 
 afterEach(() => {
@@ -42,7 +40,11 @@ afterEach(() => {
 
 describe('ClubUpcomingSection', () => {
   it('renders the section header and empty state', async () => {
-    fetchEvents.mockResolvedValue({ weeklyConnects: [], upcoming: [], past: [] })
+    fetchEvents.mockResolvedValue({
+      weeklyConnects: [],
+      upcoming: [],
+      past: [],
+    })
     renderWithClient(<ClubUpcomingSection clubId="5" />)
 
     expect(screen.getByText('Live & Upcoming Events')).toBeTruthy()
@@ -71,7 +73,9 @@ describe('ClubUpcomingSection', () => {
     })
     renderWithClient(<ClubUpcomingSection clubId="5" />)
 
-    await waitFor(() => expect(screen.getByText('React Deep Dive')).toBeTruthy())
+    await waitFor(() =>
+      expect(screen.getByText('React Deep Dive')).toBeTruthy(),
+    )
     expect(screen.getByText('· 1 event')).toBeTruthy()
   })
 
@@ -85,4 +89,3 @@ describe('ClubUpcomingSection', () => {
     expect(onViewCalendar).toHaveBeenCalledOnce()
   })
 })
-

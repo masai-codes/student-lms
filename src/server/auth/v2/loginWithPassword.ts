@@ -2,6 +2,7 @@ import { compare } from 'bcryptjs'
 import { eq } from 'drizzle-orm'
 import { db } from '@/db'
 import { users } from '@/db/schema'
+import { isUserDeactivated } from '@/server/restrictions/deactivatedUser'
 
 export type LoginWithPasswordInput = {
   email: string
@@ -19,7 +20,11 @@ export type AuthenticatedUser = {
 
 export class LoginError extends Error {
   constructor(
-    public code: 'USER_NOT_FOUND' | 'PASSWORD_RESET_REQUIRED' | 'INCORRECT_CREDENTIALS',
+    public code:
+      | 'USER_NOT_FOUND'
+      | 'PASSWORD_RESET_REQUIRED'
+      | 'INCORRECT_CREDENTIALS'
+      | 'ACCOUNT_DEACTIVATED',
     message: string,
   ) {
     super(message)
@@ -41,6 +46,7 @@ export async function loginWithPassword({
       role: users.role,
       client: users.client,
       password: users.password,
+      status: users.status,
     })
     .from(users)
     .where(eq(users.email, normalizedEmail))
@@ -48,9 +54,18 @@ export async function loginWithPassword({
 
   const user = rows[0]
   if (!user) {
+    // Note: the unknown email is recorded in login_attempts by the route
+    // (login/index.ts) on USER_NOT_FOUND, so no extra tracking is needed here.
     throw new LoginError(
       'USER_NOT_FOUND',
       "We couldn't find an account with that email address. Please check it and try again, or sign up.",
+    )
+  }
+
+  if (isUserDeactivated(user.status)) {
+    throw new LoginError(
+      'ACCOUNT_DEACTIVATED',
+      'Your account has been deactivated. Please contact support if you think this is a mistake.',
     )
   }
 

@@ -29,9 +29,7 @@ function renderWithClient(ui: ReactNode) {
   const client = new QueryClient({
     defaultOptions: { queries: { retry: false } },
   })
-  return render(
-    <QueryClientProvider client={client}>{ui}</QueryClientProvider>,
-  )
+  return render(<QueryClientProvider client={client}>{ui}</QueryClientProvider>)
 }
 
 afterEach(() => {
@@ -41,7 +39,11 @@ afterEach(() => {
 
 describe('ClubPastSection', () => {
   it('renders the section header and empty state', async () => {
-    fetchEvents.mockResolvedValue({ weeklyConnects: [], upcoming: [], past: [] })
+    fetchEvents.mockResolvedValue({
+      weeklyConnects: [],
+      upcoming: [],
+      past: [],
+    })
     renderWithClient(<ClubPastSection clubId="5" />)
 
     expect(screen.getByText('Past Events')).toBeTruthy()

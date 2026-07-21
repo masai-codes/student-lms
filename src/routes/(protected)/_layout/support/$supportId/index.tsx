@@ -1,33 +1,24 @@
-import { createFileRoute } from '@tanstack/react-router'
-import { fetchTicketById } from '@/server/tickets/fetchTicketById'
-import { Card } from '@/components/ui/card'
+import { createFileRoute, redirect } from '@tanstack/react-router'
 
-
+/**
+ * `/support/$supportId` — deep-link to a single ticket.
+ *
+ * In the legacy flow the conversation is a modal on `/support` (driven by
+ * `?step=ticketdetails&ticketId=`), not a standalone page. So this route simply
+ * redirects into that modal flow, preserving deep-links to a ticket.
+ */
 export const Route = createFileRoute(
   '/(protected)/_layout/support/$supportId/',
 )({
-  component: RouteComponent,
-  loader: async ({ params }) => {
-    const ticketId = Number(params.supportId)
-
-    const ticketData = await fetchTicketById({
-      data: { ticketId },
+  beforeLoad: ({ params }) => {
+    throw redirect({
+      to: '/support',
+      search: {
+        tickets: 'ticketlisting',
+        tab: 'all',
+        step: 'ticketdetails',
+        ticketId: Number(params.supportId),
+      },
     })
-    return { ticketData }
-  }
+  },
 })
-
-function RouteComponent() {
-
-  const data = Route.useLoaderData();
-
-  const { ticketData } = data;
-
-  return (
-    <>
-    <Card className='p-6'>
-      {JSON.stringify(ticketData[0])}
-    </Card>
-    </>
-  )
-}

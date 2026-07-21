@@ -1,9 +1,5 @@
 import { useEffect } from 'react'
-import {
-  Outlet,
-  createFileRoute,
-  useRouterState,
-} from '@tanstack/react-router'
+import { Outlet, createFileRoute, useRouterState } from '@tanstack/react-router'
 import MasaiverseLoader from '@/components/features/masaiverse-v2/MasaiverseLoader'
 import MasaiverseV2Page from '@/components/features/masaiverse-v2/MasaiverseV2Page'
 import { markMasaiverseV2Visited } from '@/lib/api/masaiverse-v2/masaiverseV2Api'

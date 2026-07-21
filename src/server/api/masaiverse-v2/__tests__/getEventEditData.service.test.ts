@@ -28,7 +28,8 @@ vi.mock('@/db/schema', () => ({
 vi.mock('@/server/api/masaiverse-v2/services/adminMode.service', () => ({
   getAdminModeState: hoisted.getAdminModeState,
 }))
-vi.mock('@/lib/eventTimestamps', () => ({
+vi.mock('@/utils/timeZoneHandler', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('@/utils/timeZoneHandler')>()),
   parseMasaiverseEventDbTimestamp: (value: string | null) =>
     value ? new Date(`${value.replace(' ', 'T')}Z`) : null,
 }))

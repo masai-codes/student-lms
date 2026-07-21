@@ -34,14 +34,14 @@ function Switch({
       onClick={() => onCheckedChange(!checked)}
       className={cn(
         'inline-flex h-5 w-9 shrink-0 cursor-pointer items-center rounded-full border border-transparent transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50',
-        checked ? 'bg-primary' : 'bg-[#E5E7EB]',
+        checked ? 'bg-primary' : 'bg-muted',
         className,
       )}
       {...props}
     >
       <span
         className={cn(
-          'pointer-events-none block size-4 rounded-full bg-white shadow-sm transition-transform',
+          'pointer-events-none block size-4 rounded-full bg-surface shadow-sm transition-transform',
           checked ? 'translate-x-4' : 'translate-x-0.5',
         )}
       />

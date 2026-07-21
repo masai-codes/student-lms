@@ -14,7 +14,11 @@ export function getCookieDomain(request: Request): string | undefined {
     hostname = host.split(':')[0]
   }
 
-  if (!hostname || hostname === 'localhost' || /^\d+\.\d+\.\d+\.\d+$/.test(hostname)) {
+  if (
+    !hostname ||
+    hostname === 'localhost' ||
+    /^\d+\.\d+\.\d+\.\d+$/.test(hostname)
+  ) {
     return undefined
   }
 

@@ -153,8 +153,6 @@ describe('EventRatingCard', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Rate 2 stars' }))
     fireEvent.click(screen.getByRole('button', { name: 'Submit rating' }))
 
-    expect(
-      await screen.findByText(/Couldn't submit your rating/),
-    ).toBeTruthy()
+    expect(await screen.findByText(/Couldn't submit your rating/)).toBeTruthy()
   })
 })

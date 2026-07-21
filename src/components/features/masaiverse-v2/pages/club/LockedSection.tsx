@@ -27,7 +27,7 @@ function Placeholder({ variant }: { variant: 'list' | 'cards' }) {
         {repeat(3, (key) => (
           <div
             key={key}
-            className="h-[170px] flex-1 rounded-[16px] bg-[#EDEAE8]"
+            className="h-[170px] flex-1 rounded-[16px] bg-surface-muted"
           />
         ))}
       </div>
@@ -36,7 +36,7 @@ function Placeholder({ variant }: { variant: 'list' | 'cards' }) {
   return (
     <div className="flex flex-col gap-3">
       {repeat(3, (key) => (
-        <div key={key} className="h-[72px] rounded-[16px] bg-[#EDEAE8]" />
+        <div key={key} className="h-[72px] rounded-[16px] bg-surface-muted" />
       ))}
     </div>
   )
@@ -69,15 +69,15 @@ export default function LockedSection({
           <Placeholder variant={variant} />
         </div>
         {/* Frosted unlock overlay with the live Join CTA. */}
-        <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 rounded-[20px] bg-gradient-to-b from-white/70 to-white/85 px-4 py-6 text-center backdrop-blur-[2px]">
-          <span className="flex size-12 items-center justify-center rounded-full bg-masaiverse-orange/10 text-masaiverse-orange ring-1 ring-masaiverse-orange/20 transition-transform duration-300 group-hover:scale-110">
+        <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 rounded-[20px] bg-gradient-to-b from-white/70 to-white/85 px-4 py-6 text-center backdrop-blur-[2px] dark:bg-none dark:bg-surface-muted/85">
+          <span className="flex size-12 items-center justify-center rounded-full bg-accent-warm/10 text-accent-warm ring-1 ring-accent-warm/20 transition-transform duration-300 group-hover:scale-110">
             <LockSimple size={24} weight="fill" />
           </span>
           <div className="flex flex-col gap-1">
-            <p className="text-[16px] font-extrabold leading-6 text-[#111827]">
+            <p className="text-[16px] font-extrabold leading-6 text-foreground">
               Join the club to unlock
             </p>
-            <p className="mx-auto max-w-[340px] text-[13px] leading-5 text-[#6B7280]">
+            <p className="mx-auto max-w-[340px] text-[13px] leading-5 text-foreground-muted">
               {teaser}
             </p>
           </div>

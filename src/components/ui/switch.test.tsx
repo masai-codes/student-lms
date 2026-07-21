@@ -16,7 +16,11 @@ describe('Switch', () => {
   it('calls onCheckedChange with the toggled value when clicked', () => {
     const onCheckedChange = vi.fn()
     render(
-      <Switch checked={false} onCheckedChange={onCheckedChange} aria-label="toggle" />,
+      <Switch
+        checked={false}
+        onCheckedChange={onCheckedChange}
+        aria-label="toggle"
+      />,
     )
     fireEvent.click(screen.getByRole('switch', { name: 'toggle' }))
     expect(onCheckedChange).toHaveBeenCalledWith(true)

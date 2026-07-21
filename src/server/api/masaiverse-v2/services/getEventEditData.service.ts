@@ -3,7 +3,7 @@ import { db } from '@/db'
 import { clubs, events } from '@/db/schema'
 import { ApiError } from '@/server/api/http/apiError'
 import { getAdminModeState } from '@/server/api/masaiverse-v2/services/adminMode.service'
-import { parseMasaiverseEventDbTimestamp } from '@/lib/eventTimestamps'
+import { parseMasaiverseEventDbTimestamp } from '@/utils/timeZoneHandler'
 
 export interface MasaiverseV2EventEditData {
   id: string

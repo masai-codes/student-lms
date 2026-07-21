@@ -1,4 +1,5 @@
 import { useCallback, useReducer, useState } from 'react'
+import { useNavigate } from '@tanstack/react-router'
 import type { VerifyOtpResult } from '@/components/features/sign-in/v2AuthClient'
 import { EmailAuthStepView } from '@/components/features/sign-in/EmailAuthStepView'
 import { ForgotPasswordStepView } from '@/components/features/sign-in/ForgotPasswordStepView'
@@ -24,7 +25,10 @@ import {
   phoneOtpResentInfoForChannel,
   signInReducer,
 } from '@/components/features/sign-in/signInReducer'
-import { emailOtpResentBody, emailOtpSentBody } from '@/components/features/sign-in/signInMessages'
+import {
+  emailOtpResentBody,
+  emailOtpSentBody,
+} from '@/components/features/sign-in/signInMessages'
 import { getSignInSubmitError } from '@/components/features/sign-in/signInSubmit'
 import {
   V2AuthRequestError,
@@ -34,7 +38,10 @@ import {
   v2RequestOtp,
   v2VerifyOtp,
 } from '@/components/features/sign-in/v2AuthClient'
-import { redirectToOldStudentUi } from '@/utils/authRedirect'
+import {
+  isLegacyStudentRedirectEnabled,
+  redirectToOldStudentUi,
+} from '@/utils/authRedirect'
 
 const FORGOT_GENERIC_OK =
   'If an account exists for that email, we have sent a reset link. Check your inbox and spam folder.'
@@ -50,6 +57,7 @@ function formatAuthError(err: unknown): string {
 }
 
 export function SignInFlow() {
+  const navigate = useNavigate()
   const [state, dispatch] = useReducer(signInReducer, initialSignInState)
   const [identifierBusy, setIdentifierBusy] = useState(false)
   const [emailOtpBusy, setEmailOtpBusy] = useState(false)
@@ -64,11 +72,16 @@ export function SignInFlow() {
       redirectToResolvedUrl(redirectTo)
       return
     }
-    redirectToOldStudentUi({
-      source: 'SignInFlow',
-      reason: 'Email sign-in completed',
-    })
-  }, [])
+    if (isLegacyStudentRedirectEnabled()) {
+      redirectToOldStudentUi({
+        source: 'SignInFlow',
+        reason: 'Email sign-in completed',
+      })
+      return
+    }
+    // Legacy redirect disabled: stay in this (new) app.
+    void navigate({ to: '/' })
+  }, [navigate])
 
   const completePhoneRedirect = useCallback(
     (method: 'phone-otp' | 'phone-use-account', response: VerifyOtpResult) => {
@@ -78,13 +91,18 @@ export function SignInFlow() {
         redirectToResolvedUrl(redirectTo)
         return
       }
-      redirectToOldStudentUi({
-        source: 'SignInFlow',
-        reason: 'Phone sign-in completed',
-        extra: { method, userId: response.user.id },
-      })
+      if (isLegacyStudentRedirectEnabled()) {
+        redirectToOldStudentUi({
+          source: 'SignInFlow',
+          reason: 'Phone sign-in completed',
+          extra: { method, userId: response.user.id },
+        })
+        return
+      }
+      // Legacy redirect disabled: stay in this (new) app.
+      void navigate({ to: '/' })
     },
-    [],
+    [navigate],
   )
 
   const onIdentifierSubmit = useCallback(async () => {
@@ -101,7 +119,10 @@ export function SignInFlow() {
     setIdentifierBusy(true)
     dispatch({ type: 'identifier_clear_error' })
     try {
-      const { channel, otpSessionId } = await v2RequestOtp({ identifier: r.digits, isResend: false })
+      const { channel, otpSessionId } = await v2RequestOtp({
+        identifier: r.digits,
+        isResend: false,
+      })
       const delivery = channelToDelivery(channel)
       dispatch({
         type: 'phone_enter',
@@ -123,7 +144,10 @@ export function SignInFlow() {
     setEmailOtpBusy(true)
     dispatch({ type: 'email_clear_error' })
     try {
-      const { otpSessionId } = await v2RequestOtp({ identifier: state.email, isResend: false })
+      const { otpSessionId } = await v2RequestOtp({
+        identifier: state.email,
+        isResend: false,
+      })
       dispatch({
         type: 'email_otp_requested',
         otpSessionId,
@@ -141,7 +165,10 @@ export function SignInFlow() {
     setEmailOtpBusy(true)
     dispatch({ type: 'email_clear_error' })
     try {
-      const { otpSessionId } = await v2RequestOtp({ identifier: state.email, isResend: true })
+      const { otpSessionId } = await v2RequestOtp({
+        identifier: state.email,
+        isResend: true,
+      })
       dispatch({
         type: 'email_resend_ok',
         otpSessionId,
@@ -159,7 +186,10 @@ export function SignInFlow() {
     setPhoneResendBusy(true)
     dispatch({ type: 'phone_clear_error' })
     try {
-      const { channel, otpSessionId } = await v2RequestOtp({ identifier: state.digits, isResend: true })
+      const { channel, otpSessionId } = await v2RequestOtp({
+        identifier: state.digits,
+        isResend: true,
+      })
       const delivery = channelToDelivery(channel)
       dispatch({
         type: 'phone_resend_ok',
@@ -245,7 +275,10 @@ export function SignInFlow() {
     if (state.step !== 'forgot') return
     const email = state.email.trim()
     if (!email) {
-      dispatch({ type: 'forgot_set_error', message: 'Enter your email address.' })
+      dispatch({
+        type: 'forgot_set_error',
+        message: 'Enter your email address.',
+      })
       return
     }
     setForgotBusy(true)
@@ -286,7 +319,9 @@ export function SignInFlow() {
           draft={state.draft}
           error={state.error}
           nextDisabled={identifierBusy}
-          onDraftChange={(value) => dispatch({ type: 'identifier_draft', value })}
+          onDraftChange={(value) =>
+            dispatch({ type: 'identifier_draft', value })
+          }
           onSubmit={onIdentifierSubmit}
           onForgotPassword={openForgotFromIdentifier}
         />
@@ -303,7 +338,9 @@ export function SignInFlow() {
           error={state.error}
           info={state.info}
           onBack={() => dispatch({ type: 'back_to_identifier' })}
-          onPasswordChange={(value) => dispatch({ type: 'email_password', value })}
+          onPasswordChange={(value) =>
+            dispatch({ type: 'email_password', value })
+          }
           onOtpChange={(value) => dispatch({ type: 'email_otp', value })}
           onRememberMeChange={setRememberMe}
           onUseOtp={onEmailRequestOtp}
@@ -349,7 +386,10 @@ export function SignInFlow() {
       ) : null}
 
       {(state.step === 'email' || state.step === 'phone') && submitBusy ? (
-        <p className="text-center text-sm text-muted-foreground" aria-live="polite">
+        <p
+          className="text-center text-sm text-muted-foreground"
+          aria-live="polite"
+        >
           Signing you in…
         </p>
       ) : null}

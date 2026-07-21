@@ -22,7 +22,9 @@ type SessionPayload = {
 
 function parsePayload(payload: string): SessionPayload {
   try {
-    return JSON.parse(Buffer.from(payload, 'base64').toString('utf-8')) as SessionPayload
+    return JSON.parse(
+      Buffer.from(payload, 'base64').toString('utf-8'),
+    ) as SessionPayload
   } catch {
     return {}
   }
@@ -45,7 +47,9 @@ async function readLinkedSessionIds(sessionId: string): Promise<string[]> {
   return [current.id]
 }
 
-export async function getLinkedAccountsForSession(sessionId: string): Promise<LinkedAccount[]> {
+export async function getLinkedAccountsForSession(
+  sessionId: string,
+): Promise<LinkedAccount[]> {
   const peerIds = await readLinkedSessionIds(sessionId)
   if (peerIds.length === 0) return []
 

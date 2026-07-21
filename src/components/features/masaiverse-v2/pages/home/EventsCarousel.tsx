@@ -46,7 +46,7 @@ export default function EventsCarousel({
   }
 
   if (events.length === 0) {
-    return <p className="text-[14px] text-[#6B7280]">{emptyMessage}</p>
+    return <p className="text-[14px] text-foreground-muted">{emptyMessage}</p>
   }
 
   return (

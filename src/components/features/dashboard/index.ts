@@ -1,2 +1,2 @@
-export { default as Dashboard } from "./Dashboard";
-export { default as DashboardPanels } from "./DashboardPanels";
+export { DashboardPage } from './DashboardPage'
+export { DashboardLayout } from './layout/DashboardLayout'

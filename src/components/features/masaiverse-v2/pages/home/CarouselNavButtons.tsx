@@ -17,7 +17,7 @@ type CarouselNavButtonsProps = {
 }
 
 const BASE =
-  'absolute top-1/2 z-10 flex size-9 -translate-y-1/2 items-center justify-center rounded-full border border-[#EDEAE8] bg-white text-masaiverse-orange shadow-sm [&.swiper-button-disabled]:cursor-default [&.swiper-button-disabled]:opacity-30'
+  'absolute top-1/2 z-10 flex size-9 -translate-y-1/2 items-center justify-center rounded-full border border-border bg-surface text-accent-warm shadow-sm [&.swiper-button-disabled]:cursor-default [&.swiper-button-disabled]:opacity-30'
 
 /**
  * Prev/next controls overlaid on the vertical center of a carousel's left and

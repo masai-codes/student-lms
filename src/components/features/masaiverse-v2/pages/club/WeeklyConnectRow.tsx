@@ -10,15 +10,15 @@ type WeeklyConnectRowProps = {
 }
 
 const BADGE_STYLES = {
-  live: 'bg-masaiverse-orange/10 text-masaiverse-orange',
-  upcoming: 'bg-masaiverse-orange/10 text-masaiverse-orange',
-  completed: 'bg-[#F3F4F6] text-[#9CA3AF]',
+  live: 'bg-accent-warm/10 text-accent-warm',
+  upcoming: 'bg-accent-warm/10 text-accent-warm',
+  completed: 'bg-surface-muted text-foreground-subtle',
 } as const
 
 const PILL_STYLES = {
-  live: 'bg-[#FEE2E2] text-[#DC2626]',
-  upcoming: 'bg-masaiverse-orange/10 text-masaiverse-orange',
-  completed: 'bg-[#F3F4F6] text-[#9CA3AF]',
+  live: 'bg-danger-subtle text-danger',
+  upcoming: 'bg-accent-warm/10 text-accent-warm',
+  completed: 'bg-surface-muted text-foreground-subtle',
 } as const
 
 const PILL_LABELS = {
@@ -46,7 +46,7 @@ export default function WeeklyConnectRow({
           source: 'weekly_connect',
         })
       }
-      className="flex h-full items-center gap-4 rounded-[16px] border border-[#EDEAE8] bg-white p-4 transition-shadow hover:shadow-[0_8px_24px_-12px_rgba(0,0,0,0.25)]"
+      className="flex h-full items-center gap-4 rounded-[16px] border border-border bg-surface p-4 transition-shadow hover:shadow-[0_8px_24px_-12px_rgba(0,0,0,0.25)]"
     >
       <span
         className={`flex size-14 shrink-0 flex-col items-center justify-center rounded-[12px] leading-none ${BADGE_STYLES[status]}`}
@@ -68,13 +68,13 @@ export default function WeeklyConnectRow({
       <div className="min-w-0 flex-1">
         <p
           className={`text-[16px] font-bold leading-5 ${
-            isMuted ? 'text-[#6B7280]' : 'text-[#111827]'
+            isMuted ? 'text-foreground-muted' : 'text-foreground'
           }`}
         >
           {connect.title}
         </p>
         {connect.subtitle ? (
-          <p className="mt-1 text-[14px] leading-5 text-[#9CA3AF]">
+          <p className="mt-1 text-[14px] leading-5 text-foreground-subtle">
             {connect.subtitle}
           </p>
         ) : null}
@@ -84,7 +84,7 @@ export default function WeeklyConnectRow({
         className={`inline-flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1 text-[13px] font-semibold ${PILL_STYLES[status]}`}
       >
         {status === 'live' ? (
-          <span className="size-1.5 rounded-full bg-[#DC2626]" />
+          <span className="size-1.5 rounded-full bg-danger" />
         ) : null}
         {PILL_LABELS[status]}
       </span>

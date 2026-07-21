@@ -14,14 +14,14 @@ export default function EventHosts({ hosts }: EventHostsProps) {
   if (hosts.length === 0) return null
 
   return (
-    <section className="border-t border-[#EDEAE8] pt-4">
-      <p className="text-[12px] font-semibold uppercase tracking-wide text-[#9CA3AF]">
+    <section className="border-t border-border pt-4">
+      <p className="text-[12px] font-semibold uppercase tracking-wide text-foreground-subtle">
         Hosted By
       </p>
       <ul className="mt-3 flex flex-col gap-3">
         {hosts.map((host, index) => (
           <li key={`${host.name}-${index}`} className="flex items-center gap-3">
-            <span className="flex size-9 shrink-0 items-center justify-center overflow-hidden rounded-full bg-masaiverse-orange/10 text-[13px] font-bold text-masaiverse-orange">
+            <span className="flex size-9 shrink-0 items-center justify-center overflow-hidden rounded-full bg-accent-warm/10 text-[13px] font-bold text-accent-warm">
               {host.imageUrl ? (
                 <img
                   src={host.imageUrl}
@@ -32,7 +32,7 @@ export default function EventHosts({ hosts }: EventHostsProps) {
                 getInitials(host.name)
               )}
             </span>
-            <span className="text-[14px] font-semibold leading-5 text-[#111827]">
+            <span className="text-[14px] font-semibold leading-5 text-foreground">
               {host.name}
             </span>
           </li>

@@ -1,17 +1,17 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { ApiError } from '@/server/api/http/apiError'
+import { requireSessionUserId } from '@/server/api/http/requireSessionUser'
 
 const hoisted = vi.hoisted(() => ({
   setAdminModeState: vi.fn(),
-  getUserIdFromCookieHeader: vi.fn(),
 }))
 
 vi.mock('@/server/api/masaiverse-v2/services/adminMode.service', () => ({
   setAdminModeState: hoisted.setAdminModeState,
 }))
 
-vi.mock('@/server/auth/getCurrentSessionUserId', () => ({
-  getUserIdFromCookieHeader: hoisted.getUserIdFromCookieHeader,
+vi.mock('@/server/api/http/requireSessionUser', () => ({
+  requireSessionUserId: vi.fn(),
 }))
 
 function postRequest(body: unknown, cookie: string | null): Request {
@@ -24,13 +24,14 @@ function postRequest(body: unknown, cookie: string | null): Request {
 
 beforeEach(() => {
   vi.clearAllMocks()
+  vi.mocked(requireSessionUserId).mockReset()
 })
 
 describe('handleSetAdminMode', () => {
   it('toggles admin mode and returns the new state', async () => {
     const { handleSetAdminMode } =
       await import('../handlers/setAdminMode.handler')
-    hoisted.getUserIdFromCookieHeader.mockResolvedValueOnce(9)
+    vi.mocked(requireSessionUserId).mockResolvedValueOnce(9)
     hoisted.setAdminModeState.mockResolvedValueOnce({
       isAdmin: true,
       enabled: true,
@@ -51,7 +52,7 @@ describe('handleSetAdminMode', () => {
   it('returns 400 when "enabled" is not a boolean', async () => {
     const { handleSetAdminMode } =
       await import('../handlers/setAdminMode.handler')
-    hoisted.getUserIdFromCookieHeader.mockResolvedValueOnce(9)
+    vi.mocked(requireSessionUserId).mockResolvedValueOnce(9)
 
     const response = await handleSetAdminMode(
       postRequest({ enabled: 'yes' }, 'session=abc'),
@@ -68,7 +69,7 @@ describe('handleSetAdminMode', () => {
   it('returns 400 when the body is missing entirely', async () => {
     const { handleSetAdminMode } =
       await import('../handlers/setAdminMode.handler')
-    hoisted.getUserIdFromCookieHeader.mockResolvedValueOnce(9)
+    vi.mocked(requireSessionUserId).mockResolvedValueOnce(9)
 
     const response = await handleSetAdminMode(
       postRequest(undefined, 'session=abc'),
@@ -81,7 +82,11 @@ describe('handleSetAdminMode', () => {
   it('returns 401 when there is no session user', async () => {
     const { handleSetAdminMode } =
       await import('../handlers/setAdminMode.handler')
-    hoisted.getUserIdFromCookieHeader.mockResolvedValueOnce(null)
+    const { ApiError: ApiErrorForAuth } =
+      await import('@/server/api/http/apiError')
+    vi.mocked(requireSessionUserId).mockRejectedValueOnce(
+      new ApiErrorForAuth(401, 'UNAUTHORIZED'),
+    )
 
     const response = await handleSetAdminMode(
       postRequest({ enabled: true }, null),
@@ -94,7 +99,7 @@ describe('handleSetAdminMode', () => {
   it('propagates a 403 from the service for non-admins', async () => {
     const { handleSetAdminMode } =
       await import('../handlers/setAdminMode.handler')
-    hoisted.getUserIdFromCookieHeader.mockResolvedValueOnce(9)
+    vi.mocked(requireSessionUserId).mockResolvedValueOnce(9)
     hoisted.setAdminModeState.mockRejectedValueOnce(
       new ApiError(403, 'MASAIVERSE_ADMIN_FORBIDDEN'),
     )
@@ -114,7 +119,7 @@ describe('handleSetAdminMode', () => {
   it('maps unexpected service failures to a 500 error', async () => {
     const { handleSetAdminMode } =
       await import('../handlers/setAdminMode.handler')
-    hoisted.getUserIdFromCookieHeader.mockResolvedValueOnce(9)
+    vi.mocked(requireSessionUserId).mockResolvedValueOnce(9)
     hoisted.setAdminModeState.mockRejectedValueOnce(new Error('boom'))
     const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
 

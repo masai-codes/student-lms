@@ -32,6 +32,8 @@ function statusForLoginError(code: LoginError['code']): number {
       return 403
     case 'INCORRECT_CREDENTIALS':
       return 401
+    case 'ACCOUNT_DEACTIVATED':
+      return 403
   }
 }
 
@@ -43,7 +45,11 @@ async function handlePasswordLogin(request: Request): Promise<Response> {
   const rememberMe = body.rememberMe === true
 
   if (!rawEmail || !password) {
-    return errorResponse(400, 'MISSING_FIELDS', 'email and password are required')
+    return errorResponse(
+      400,
+      'MISSING_FIELDS',
+      'email and password are required',
+    )
   }
 
   // Key rate limiting off the same normalized identifier loginWithPassword uses,
@@ -90,7 +96,10 @@ async function handlePasswordLogin(request: Request): Promise<Response> {
     if (err instanceof LoginError) {
       // Count bad-password and unknown-email attempts so neither account
       // brute-forcing nor email enumeration can run unbounded.
-      if (err.code === 'INCORRECT_CREDENTIALS' || err.code === 'USER_NOT_FOUND') {
+      if (
+        err.code === 'INCORRECT_CREDENTIALS' ||
+        err.code === 'USER_NOT_FOUND'
+      ) {
         await recordFailedLogin({ identifier, ip })
       }
       return errorResponse(statusForLoginError(err.code), err.code, err.message)

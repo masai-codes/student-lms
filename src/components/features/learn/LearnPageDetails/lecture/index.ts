@@ -1,0 +1,1 @@
+export { LectureDetailPage } from './LectureDetailPage'
