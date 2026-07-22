@@ -50,13 +50,15 @@ export function BookmarksFiltersPanel({
   const [draft, setDraft] = useState<BookmarkFilters>(selectedFilters)
   const [activeNav, setActiveNav] = useState<BookmarkFilterSection>(sections[0])
 
+  // Re-sync the draft from committed filters each time the drawer opens, so
+  // edits are discarded on close-without-apply. Keyed on the open transition
+  // only — depending on `selectedFilters` (a fresh object each parent render)
+  // would wipe in-progress edits whenever the page re-renders while open.
   useEffect(() => {
     if (filtersOpen) {
       setDraft(structuredClone(selectedFilters))
       setActiveNav(sections[0])
     }
-    // Re-sync only on open transition; `sections`/`selectedFilters` are stable per open.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filtersOpen])
 
   function optionsFor(section: BookmarkFilterSection): Array<FilterOption> {

@@ -149,7 +149,7 @@ async function getLectures(
   ])
 
   const total = normalizeCount(countResult)
-  const items = normalizeRows(dataResult).map((row) => {
+  const items = normalizeRows(dataResult).map((row): BookmarkItem => {
     const isResource = str(row['lectureType']) === 'reading'
     const entityId = str(row['entityId'])
     const parts = [row['category'], row['module']].map(str).filter(Boolean)
@@ -161,7 +161,7 @@ async function getLectures(
       meta: '',
       author: str(row['authorName']),
       savedAt: savedAt(row['savedAt']),
-      entityType: (isResource ? 'resource' : 'lecture') as BookmarkEntityType,
+      entityType: (isResource ? 'resource' : 'lecture'),
       isForYou: false,
     }
   })
@@ -238,7 +238,7 @@ async function getAssignments(
   ])
 
   const total = normalizeCount(countResult)
-  const items = normalizeRows(dataResult).map((row) => {
+  const items = normalizeRows(dataResult).map((row): BookmarkItem => {
     const entityId = str(row['entityId'])
     const parts = [row['category'], row['module']].map(str).filter(Boolean)
     return {
@@ -249,7 +249,7 @@ async function getAssignments(
       meta: '',
       author: str(row['authorName']),
       savedAt: savedAt(row['savedAt']),
-      entityType: 'assignment' as BookmarkEntityType,
+      entityType: 'assignment',
       isForYou: false,
     }
   })
@@ -329,7 +329,7 @@ async function getTickets(
   ])
 
   const total = normalizeCount(countResult)
-  const items = normalizeRows(dataResult).map((row) => {
+  const items = normalizeRows(dataResult).map((row): BookmarkItem => {
     const entityId = str(row['entityId'])
     const metaParts = [row['status'], row['priority']].map(str).filter(Boolean)
     return {
@@ -340,7 +340,7 @@ async function getTickets(
       meta: metaParts.join(' · '),
       author: str(row['authorName']),
       savedAt: savedAt(row['savedAt']),
-      entityType: 'ticket' as BookmarkEntityType,
+      entityType: 'ticket',
       isForYou: false,
     }
   })
@@ -421,7 +421,7 @@ async function getAnnouncements(
   ])
 
   const total = normalizeCount(countResult)
-  const items = normalizeRows(dataResult).map((row) => ({
+  const items = normalizeRows(dataResult).map((row): BookmarkItem => ({
     id: str(row['id']),
     ctaUrl: `/announcements/${str(row['entityId'])}`,
     title: str(row['title']),
@@ -429,7 +429,7 @@ async function getAnnouncements(
     meta: '',
     author: str(row['authorName']),
     savedAt: savedAt(row['savedAt']),
-    entityType: 'announcement' as BookmarkEntityType,
+    entityType: 'announcement',
     isForYou: false,
   }))
 
@@ -490,7 +490,7 @@ async function getMasaiverse(
   ])
 
   const total = normalizeCount(countResult)
-  const items = normalizeRows(dataResult).map((row) => {
+  const items = normalizeRows(dataResult).map((row): BookmarkItem => {
     const entityId = str(row['entityId'])
     // Truncate long post content for the title display
     const content = str(row['content'])
@@ -503,7 +503,7 @@ async function getMasaiverse(
       meta: '',
       author: str(row['authorName']),
       savedAt: savedAt(row['savedAt']),
-      entityType: 'masaiverse' as BookmarkEntityType,
+      entityType: 'masaiverse',
       isForYou: false,
     }
   })
