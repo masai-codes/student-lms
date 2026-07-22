@@ -4,6 +4,8 @@ import { LectureAiChatMobileDock } from './components/LectureAiChatMobileDock'
 import { LectureAiChatPanel } from './components/LectureAiChatPanel'
 import { useLectureAiChat } from './hooks/useLectureAiChat'
 import { useLectureAiChatFeedback } from './hooks/useLectureAiChatFeedback'
+import type { UseLectureAiChatResult } from './hooks/useLectureAiChat'
+import type { UseLectureAiChatFeedbackResult } from './hooks/useLectureAiChatFeedback'
 
 import './lecture-ai-chat.css'
 
@@ -27,6 +29,14 @@ type LectureAiChatExperienceProps = {
    * video's fullscreen root) rather than behind it at `<body>`.
    */
   languageMenuContainer?: HTMLElement | null
+  /**
+   * Externally-owned chat session. Passed by the desktop side panels so the
+   * inline and in-video fullscreen mounts share one session (owned by
+   * `LectureDesktopVideoStage`); when omitted a local session is created (mobile
+   * dock). Supply both `chat` and `feedback` together.
+   */
+  chat?: UseLectureAiChatResult
+  feedback?: UseLectureAiChatFeedbackResult
 }
 
 export function LectureAiChatExperience({
@@ -36,14 +46,21 @@ export function LectureAiChatExperience({
   isExpanded,
   onToggleExpand,
   languageMenuContainer,
+  chat: chatProp,
+  feedback: feedbackProp,
 }: LectureAiChatExperienceProps) {
   const platform = variant === 'mobile-dock' ? 'web-mobile' : 'web-desktop'
-  const feedback = useLectureAiChatFeedback(lectureId)
-  const chat = useLectureAiChat(
+  // Local fallback session for when this mount isn't given a shared one (the
+  // mobile dock). Hooks run unconditionally; their state is simply unused when
+  // a shared session is supplied.
+  const localFeedback = useLectureAiChatFeedback(lectureId)
+  const localChat = useLectureAiChat(
     lectureId,
     platform,
-    feedback.notifyFirstReplyCompleted,
+    localFeedback.notifyFirstReplyCompleted,
   )
+  const feedback = feedbackProp ?? localFeedback
+  const chat = chatProp ?? localChat
 
   if (variant === 'mobile-dock') {
     return (

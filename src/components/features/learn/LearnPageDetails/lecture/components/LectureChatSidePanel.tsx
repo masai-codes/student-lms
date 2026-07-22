@@ -1,6 +1,7 @@
 'use client'
 
 import { LectureChatResizeHandle } from './LectureChatResizeHandle'
+import { useLectureSplitChatOptional } from '../hooks/LectureSplitChatContext'
 
 import { LectureAiChatExperience } from '@/components/features/lecture-ai-chat/LectureAiChatExperience'
 import { cn } from '@/lib/utils'
@@ -35,6 +36,10 @@ export function LectureChatSidePanel({
   onNudge,
   languageMenuContainer,
 }: LectureChatSidePanelProps) {
+  // The session lives on the context (owned by LectureDesktopVideoStage) so it
+  // is shared between the inline and in-video fullscreen mounts of this panel.
+  const splitChat = useLectureSplitChatOptional()
+
   return (
     <>
       <LectureChatResizeHandle
@@ -69,6 +74,8 @@ export function LectureChatSidePanel({
             lectureId={lectureId}
             onCloseSidebar={onClose}
             languageMenuContainer={languageMenuContainer}
+            chat={splitChat?.chat}
+            feedback={splitChat?.feedback}
           />
         </div>
       </div>

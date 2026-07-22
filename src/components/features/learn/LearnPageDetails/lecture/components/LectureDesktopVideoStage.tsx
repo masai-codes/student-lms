@@ -8,6 +8,8 @@ import { useChatPanelReveal } from '../hooks/useChatPanelReveal'
 import { useLectureChatWidth } from '../hooks/useLectureChatWidth'
 import { useLectureSplitChatOpen } from '../hooks/useLectureSplitChatOpen'
 import { useLectureVideoFullscreenActive } from '../video/hooks/useLectureVideoFullscreen'
+import { useLectureAiChat } from '@/components/features/lecture-ai-chat/hooks/useLectureAiChat'
+import { useLectureAiChatFeedback } from '@/components/features/lecture-ai-chat/hooks/useLectureAiChatFeedback'
 
 type LectureDesktopVideoStageProps = {
   lectureId: number
@@ -34,8 +36,18 @@ export function LectureDesktopVideoStage({
     splitChat.isOpen && !isVideoFullscreen,
   )
 
+  // Own the chat session here so it persists across the inline↔fullscreen panel
+  // swap: this component stays mounted through the fullscreen toggle, while the
+  // side panels that consume it are unmounted/remounted.
+  const feedback = useLectureAiChatFeedback(lectureId)
+  const chat = useLectureAiChat(
+    lectureId,
+    'web-desktop',
+    feedback.notifyFirstReplyCompleted,
+  )
+
   return (
-    <LectureSplitChatProvider value={splitChat}>
+    <LectureSplitChatProvider value={{ ...splitChat, chat, feedback }}>
       <div ref={containerRef} className="flex min-h-0 min-w-0 flex-1 flex-row">
         <div className="relative flex min-h-0 min-w-0 flex-1 flex-col bg-black">
           {video}
