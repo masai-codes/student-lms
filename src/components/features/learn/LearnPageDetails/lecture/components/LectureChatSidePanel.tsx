@@ -36,7 +36,7 @@ export function LectureChatSidePanel({
   onNudge,
   languageMenuContainer,
 }: LectureChatSidePanelProps) {
-  // The session lives on the context (owned by LectureDesktopVideoStage) so it
+  // The session lives on the context (owned by LectureSplitLayout) so it
   // is shared between the inline and in-video fullscreen mounts of this panel.
   const splitChat = useLectureSplitChatOptional()
 

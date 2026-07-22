@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 
-import { LectureDesktopVideoStage } from './components/LectureDesktopVideoStage'
+import { LectureSplitLayout } from './components/LectureSplitLayout'
 import { useLectureHeroViewportHeight } from './hooks/useLectureHeroViewportHeight'
 import { LectureDetailActions } from './shared/LectureDetailActions'
 import { LectureDetailFooter } from './shared/LectureDetailFooter'
@@ -94,16 +94,10 @@ export function LectureRecordingExperience({
           locks the screen to landscape, which flips the viewport past the `md`
           breakpoint — without it the fullscreened row goes display:none and the
           browser instantly exits fullscreen. */}
-      <div
-        className={cn(
-          heroRowFullBleedClasses,
-          'hidden min-h-0 flex-1 flex-row items-stretch overflow-hidden bg-black md:flex has-[:fullscreen]:flex',
-        )}
-      >
-        <LectureDesktopVideoStage
-          lectureId={entityId}
-          video={renderVideoSection()}
-        />
+      {/* Desktop: the video fills the left section; the chat is a separate
+          full-height right rail (LectureSplitLayout), not an inline split. */}
+      <div className="relative hidden min-h-0 flex-1 flex-col overflow-hidden bg-black md:flex has-[:fullscreen]:flex">
+        {renderVideoSection()}
       </div>
 
       <div
@@ -124,36 +118,38 @@ export function LectureRecordingExperience({
   )
 
   return (
-    <LectureDetailChrome
-      title={title}
-      tags={tags}
-      priority={priority}
-      hostName={hostName}
-      hostAvatarUrl={hostAvatarUrl}
-      scheduleDisplayRange={scheduleDisplayRange}
-      scheduleDisplayRangeIst={scheduleDisplayRangeIst}
-      attendance={attendance}
-      optionalAttendance={optionalAttendance}
-      isLiveLecture={isLiveLecture}
-      watchPercentage={videoAttendance?.watchPercentage}
-      showAttendanceBanner
-      actions={
-        <LectureDetailActions
-          lectureId={entityId}
-          initialIsBookmarked={isBookmarked}
-        />
-      }
-      hero={hero}
-      belowHero={belowHero}
-      footer={
-        <LectureDetailFooter
-          entityId={entityId}
-          discussions={discussions}
-          hideNotes={hideNotes}
-          tabs={tabs}
-          feedback={feedback}
-        />
-      }
-    />
+    <LectureSplitLayout lectureId={entityId}>
+      <LectureDetailChrome
+        title={title}
+        tags={tags}
+        priority={priority}
+        hostName={hostName}
+        hostAvatarUrl={hostAvatarUrl}
+        scheduleDisplayRange={scheduleDisplayRange}
+        scheduleDisplayRangeIst={scheduleDisplayRangeIst}
+        attendance={attendance}
+        optionalAttendance={optionalAttendance}
+        isLiveLecture={isLiveLecture}
+        watchPercentage={videoAttendance?.watchPercentage}
+        showAttendanceBanner
+        actions={
+          <LectureDetailActions
+            lectureId={entityId}
+            initialIsBookmarked={isBookmarked}
+          />
+        }
+        hero={hero}
+        belowHero={belowHero}
+        footer={
+          <LectureDetailFooter
+            entityId={entityId}
+            discussions={discussions}
+            hideNotes={hideNotes}
+            tabs={tabs}
+            feedback={feedback}
+          />
+        }
+      />
+    </LectureSplitLayout>
   )
 }

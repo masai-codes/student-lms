@@ -32,7 +32,7 @@ type LectureAiChatExperienceProps = {
   /**
    * Externally-owned chat session. Passed by the desktop side panels so the
    * inline and in-video fullscreen mounts share one session (owned by
-   * `LectureDesktopVideoStage`); when omitted a local session is created (mobile
+   * `LectureSplitLayout`); when omitted a local session is created (mobile
    * dock). Supply both `chat` and `feedback` together.
    */
   chat?: UseLectureAiChatResult

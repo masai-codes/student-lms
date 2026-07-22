@@ -11,7 +11,7 @@ export type LectureSplitChatContextValue = {
   close: () => void
   /**
    * The single chat session shared by the inline and in-video fullscreen
-   * panels. Owned by `LectureDesktopVideoStage` (which stays mounted across the
+   * panels. Owned by `LectureSplitLayout` (which stays mounted across the
    * fullscreen toggle), so the conversation survives the panel swap instead of
    * each mount starting a fresh session.
    */
