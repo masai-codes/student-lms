@@ -93,7 +93,7 @@ describe('getDashboardSchedule', () => {
     ])
   })
 
-  it('omits the course name unless the user is in more than one batch', async () => {
+  it('omits the batch name unless the user is in more than one batch', async () => {
     hoisted.fetchLectures.mockResolvedValue([row()])
     const { getDashboardSchedule } =
       await import('../getDashboardSchedule.service')
@@ -101,15 +101,13 @@ describe('getDashboardSchedule', () => {
     expect((await getDashboardSchedule(42, NOW))[0].courseName).toBeNull()
 
     hoisted.getBatchIds.mockResolvedValue([1, 2])
-    expect((await getDashboardSchedule(42, NOW))[0].courseName).toBe(
-      'Full Stack Section A',
-    )
+    expect((await getDashboardSchedule(42, NOW))[0].courseName).toBe('FS Batch')
   })
 
-  it('falls back to the batch name when the section has no name', async () => {
+  it('shows the batch name regardless of the section name', async () => {
     hoisted.getBatchIds.mockResolvedValue([1, 2])
     hoisted.fetchLectures.mockResolvedValue([
-      row({ sectionName: '  ', batchName: 'FS Batch' }),
+      row({ sectionName: 'Full Stack Section A', batchName: 'FS Batch' }),
     ])
     const { getDashboardSchedule } =
       await import('../getDashboardSchedule.service')
