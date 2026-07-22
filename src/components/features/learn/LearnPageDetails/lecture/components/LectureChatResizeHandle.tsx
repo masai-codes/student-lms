@@ -43,7 +43,7 @@ export function LectureChatResizeHandle({
         }
       }}
       className={cn(
-        'group relative flex w-3 shrink-0 cursor-col-resize touch-none select-none items-center justify-center',
+        'group relative flex w-1.5 shrink-0 cursor-col-resize touch-none select-none items-center justify-center',
         'focus-visible:outline-none',
         className,
       )}

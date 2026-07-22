@@ -3,7 +3,6 @@
 import { useState } from 'react'
 
 import { LectureSplitLayout } from './components/LectureSplitLayout'
-import { useLectureHeroViewportHeight } from './hooks/useLectureHeroViewportHeight'
 import { LectureDetailActions } from './shared/LectureDetailActions'
 import { LectureDetailFooter } from './shared/LectureDetailFooter'
 import { LectureDetailChrome } from './shared/LectureDetailChrome'
@@ -64,9 +63,13 @@ export function LectureRecordingExperience({
   isBookmarked,
   feedback,
 }: LectureRecordingExperienceProps) {
-  // On mobile the hero (video) height tracks the actual video aspect ratio.
+  // The video simply takes the height it needs for its aspect ratio (real once
+  // metadata loads, 16:9 until then); the rest of the page flows below and the
+  // left column scrolls. No viewport-slice math crushing the video to keep the
+  // tabs in view.
   const [videoAspectRatio, setVideoAspectRatio] = useState<number | null>(null)
-  const { rootRef, heightPx } = useLectureHeroViewportHeight(videoAspectRatio)
+  const aspectRatio =
+    videoAspectRatio && videoAspectRatio > 0 ? videoAspectRatio : 16 / 9
 
   const renderVideoSection = () => (
     <LectureVideoSection
@@ -81,30 +84,27 @@ export function LectureRecordingExperience({
   )
 
   const hero = (
-    <div
-      ref={rootRef}
-      className="flex w-full shrink-0 flex-col overflow-visible bg-surface"
-      style={
-        heightPx != null
-          ? { height: heightPx, minHeight: heightPx, maxHeight: heightPx }
-          : undefined
-      }
-    >
+    <div className="flex w-full shrink-0 flex-col overflow-visible bg-surface">
       {/* `has-[:fullscreen]:flex` on both rows: entering fullscreen on Android
           locks the screen to landscape, which flips the viewport past the `md`
           breakpoint — without it the fullscreened row goes display:none and the
           browser instantly exits fullscreen. */}
-      {/* Desktop: the video fills the left section; the chat is a separate
-          full-height right rail (LectureSplitLayout), not an inline split. */}
-      <div className="relative hidden min-h-0 flex-1 flex-col overflow-hidden bg-black md:flex has-[:fullscreen]:flex">
+      {/* Desktop: the video fills the left section at its natural aspect ratio;
+          the chat is a separate full-height right rail (LectureSplitLayout).
+          Capped at 575px tall so it never dominates the page. */}
+      <div
+        className="relative hidden max-h-[575px] w-full flex-col overflow-hidden bg-black md:flex has-[:fullscreen]:flex"
+        style={{ aspectRatio }}
+      >
         {renderVideoSection()}
       </div>
 
       <div
         className={cn(
           heroRowFullBleedClasses,
-          'flex min-h-0 flex-1 flex-col bg-black md:hidden has-[:fullscreen]:flex',
+          'flex max-h-[575px] w-full flex-col bg-black md:hidden has-[:fullscreen]:flex',
         )}
+        style={{ aspectRatio }}
       >
         {renderVideoSection()}
       </div>
