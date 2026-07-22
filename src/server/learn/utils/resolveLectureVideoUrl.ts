@@ -2,7 +2,7 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value)
 }
 
-function readGumletHlsUrl(vimeoDownloadLinks: unknown): string | null {
+export function readGumletHlsUrl(vimeoDownloadLinks: unknown): string | null {
   if (!isRecord(vimeoDownloadLinks)) return null
   const gumlet = vimeoDownloadLinks.gumlet
   if (!isRecord(gumlet)) return null

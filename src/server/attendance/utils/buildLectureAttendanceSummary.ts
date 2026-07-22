@@ -70,5 +70,6 @@ export function buildLectureAttendanceSummary(
     // `include_video_attendance` column is stale (see upgrade/backfill notes).
     videoCountsForAttendance:
       sectionSettings.considerVideoAttendanceForActualAttendance,
+    markAbsentIfLate: sectionSettings.markAbsentIfLate,
   }
 }

@@ -15,6 +15,14 @@ export type SectionAttendanceSettings = {
    */
   considerVideoAttendanceForActualAttendance: boolean
   catchUpDays: number
+  /**
+   * `markAbsentIfLate` verbatim: whether joining the live session late (beyond
+   * the lecture's grace period, tracked via `late_by_minutes`) marks the
+   * student Absent. When false, a late join does not by itself cause an
+   * Absent — the status still resolves from `live_attendance_status` /
+   * recording-watch rules, and updates can take up to 24 hours to reflect.
+   */
+  markAbsentIfLate: boolean
 }
 
 export function parseSectionAttendanceSettings(
@@ -45,9 +53,12 @@ export function parseSectionAttendanceSettings(
       ? catchUpDaysFromSettings
       : 0
 
+  const markAbsentIfLate = settings.markAbsentIfLate === true
+
   return {
     enableVideoAttendance,
     considerVideoAttendanceForActualAttendance,
     catchUpDays,
+    markAbsentIfLate,
   }
 }

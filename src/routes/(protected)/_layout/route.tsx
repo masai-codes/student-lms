@@ -5,7 +5,7 @@ import {
   useRouterState,
 } from '@tanstack/react-router'
 import { useEffect } from 'react'
-import { AppLoading } from '@/components/common'
+import { AppLoading, FloatingChatSphere } from '@/components/common'
 import {
   AppMobileHeader,
   AppMobileTabBar,
@@ -30,6 +30,10 @@ import {
 import { isMigratedRoute } from '@/utils/migratedRoutes'
 import { initClarity, setCurrentUserForTracking } from '@/utils/tracking'
 
+/** Hardcoded kill-switch for the new floating support chat. Flip to `false` to fall back to the old /support button. */
+const ENABLE_SUPPORT_FLOATER = true
+
+/** Paths served by this app when legacy redirect is enabled (everything else → old LMS). */
 /**
  * Paths served by this app when legacy redirect is enabled (everything else →
  * old LMS). Deliberately minimal: only the 5 migrated pages (flag-gated,
@@ -177,10 +181,14 @@ function RouteComponent() {
         ) : !isApp ? (
           <AppMobileTabBar />
         ) : null}
-        {/* Floating support entry — shown only on the dashboard home for now. */}
-        {pathname === '/' && !isMasaiverseRoute && !isSupportRoute ? (
-          <SupportChatButton />
-        ) : null}
+        {/* Floating support entry — new floater when enabled; else old /support button on home. */}
+        {ENABLE_SUPPORT_FLOATER
+          ? !isMasaiverseRoute && !isSupportRoute
+            ? <FloatingChatSphere />
+            : null
+          : pathname === '/' && !isMasaiverseRoute && !isSupportRoute
+            ? <SupportChatButton />
+            : null}
         {/* Central modal system — announcement popups check on every page. */}
         <AnnouncementModalController />
       </div>

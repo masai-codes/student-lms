@@ -5,3 +5,6 @@ truth shared with Cursor. They live in `.cursor/rules/` and are imported below
 so Claude Code (and any agent reading this file) follows the same standards.
 
 @.cursor/rules/project-coding-guidelines.mdc
+
+For a full architecture walkthrough, feature-building checklist, and
+anti-patterns to avoid, see `AGENTS.md` in this directory.

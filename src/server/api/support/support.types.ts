@@ -16,6 +16,9 @@
  * (POST) invalidate the relevant query so the UI re-fetches just what changed.
  */
 
+import type { LectureAttendanceSummary } from '@/server/attendance/types'
+import type { JoinLiveButtonState } from '@/server/learn/utils/resolveJoinLiveButtonState'
+
 /**
  * The lifecycle state of a ticket. Mirrors the `tickets.status` column values
  * used by the legacy system so existing rows render correctly.
@@ -122,6 +125,7 @@ export interface OneOnOneBatchGroup {
 /** A callback request the student has raised (listed in the Raised Tickets tab). */
 export interface CallbackTicketItem {
   id: number
+  batchId: number
   category: string
   status: string
   preferredTimeSlot: string | null
@@ -184,6 +188,8 @@ export interface TicketDetail {
   batchId: number | null
   owner: SupportPerson
   assignee?: SupportPerson | null
+  /** When the ticket was last reopened or escalated (`logstamps.reopened_at`). */
+  reopenedAt?: string | null
 }
 
 /**
@@ -196,6 +202,78 @@ export interface TicketCapabilities {
   canRate: boolean
   canReopen: boolean
   canEscalate: boolean
+}
+
+/**
+ * Lean payload for the floating support modal — fetched once when the user opens
+ * the floater (`GET /api/support/floating-chat/inbox`).
+ */
+export interface FloatingChatInbox {
+  batches: Array<SupportBatch>
+  tickets: Array<TicketListItem>
+  callbackTickets: Array<CallbackTicketItem>
+  /** Count of open + re-opened tickets (drives the My Tickets badge). */
+  openTicketCount: number
+  /** Reason + time-slot pickers (from `menus`). */
+  callback: { reasons: Array<CallbackOption>; timeslots: Array<CallbackOption> }
+  /** Legacy gate: any `user_batch_admission_data` row for the student. */
+  isNewUserJourney: boolean
+  /** Batch ids where `full_fees_paid` is set — drives Student-Kit reason visibility. */
+  fullFeesPaidBatchIds: Array<number>
+  /** Batch support line + phone keyed by batch id. */
+  batchContacts: Record<number, { text: string | null; phone: string | null }>
+  /** 1:1 booking grouped by batch (empty when none — hides the 1:1 tab). */
+  oneOnOne: Array<OneOnOneBatchGroup>
+}
+
+export type LectureRecordingStatus =
+  | 'pending'
+  | 'available'
+  | 'not_available'
+  | 'processing'
+
+export type LectureDurationSource = 'hls' | 'transcript' | 'schedule' | 'video_progress'
+
+export type AiSummaryStatus = 'generated' | 'processing' | 'not_available'
+
+/**
+ * Lean lecture snapshot for floating support item confirmation (`GET /api/support/floating-chat/lectures/:lectureId`).
+ * Probes Gumlet HLS availability server-side — does not bloat the learn lecture detail API.
+ */
+export interface LectureSupportSnapshot {
+  lectureId: number
+  lectureKind: 'live' | 'video'
+  /** Mandatory vs recommended/optional — drives whether attendance is scored at all. */
+  isMandatory: boolean
+  livePhase: 'before' | 'during' | 'after' | null
+  videoPhase: 'before' | 'during_after' | null
+  joinLiveButtonState: JoinLiveButtonState | null
+  isSessionPending: boolean
+  recordingStatus: LectureRecordingStatus
+  recordingUrl: string | null
+  durationSeconds: number | null
+  durationSource: LectureDurationSource | null
+  aiSummaryStatus: AiSummaryStatus
+  attendance: LectureAttendanceSummary | null
+  showAttendance: boolean
+}
+
+export type AssignmentSupportSnapshotTone = 'neutral' | 'success' | 'warning' | 'danger'
+
+/**
+ * Lean assignment/evaluation snapshot for floating support item confirmation
+ * (`GET /api/support/floating-chat/assignments/:assignmentId`).
+ */
+export interface AssignmentSupportSnapshot {
+  assignmentId: number
+  assignmentKind: 'practice' | 'assignment' | 'evaluation'
+  phase: 'before' | 'during' | 'after'
+  progressStatus: 'new' | 'in-progress' | 'overdue' | 'completed'
+  typeLabel: string | null
+  statusLabel: string
+  statusTone: AssignmentSupportSnapshotTone
+  scoreDisplay: string | null
+  scorePolicyNotice: string | null
 }
 
 /**
@@ -219,16 +297,9 @@ export interface SupportOverview {
   tickets: Array<TicketListItem>
   /** Count of not-yet-resolved tickets (drives the header badge). */
   openTicketCount: number
-  /**
-   * Whether the student is on the "new user journey" (has a
-   * `user_batch_admission_data` row). Gates the "Request a Callback" CTA — the
-   * legacy `is_new_user_journey` flag.
-   */
+  /** Whether the student is on the new-user journey (gates "Request a Callback" CTA). */
   isNewUserJourney: boolean
-  /**
-   * Whether the active batch's admission has full fees paid. Controls the
-   * "Student-Kit" callback reason (legacy `hasFullFees`).
-   */
+  /** Whether full fees are paid for the active batch (gates "Student-Kit" callback reason). */
   hasFullFees: boolean
   /** Options for the "request a callback" flow. */
   callback: { reasons: Array<CallbackOption>; timeslots: Array<CallbackOption> }

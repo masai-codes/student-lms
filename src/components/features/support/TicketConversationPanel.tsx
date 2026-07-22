@@ -229,8 +229,12 @@ export function TicketConversationPanel({
           <MessageBubble
             key={m.id}
             isStudent={m.side === 'student'}
-            author={m.author.name}
-            role={m.author.role}
+            author={
+              m.side === 'system'
+                ? 'Student Experience Team'
+                : m.author.name
+            }
+            role={m.side === 'system' ? null : m.author.role}
             message={m.message}
           />
         ))}

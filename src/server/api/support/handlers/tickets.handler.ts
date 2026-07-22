@@ -77,6 +77,7 @@ const createSchema = z.object({
   subCategory: z.string().nullish(),
   message: z.string().min(1),
   questionId: z.number().int().positive().nullish(),
+  entityId: z.number().int().positive().nullish(),
 })
 
 /** POST /api/support/tickets/create */
