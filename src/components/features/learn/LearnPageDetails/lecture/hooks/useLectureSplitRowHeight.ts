@@ -3,9 +3,10 @@
 import { useLayoutEffect, useRef, useState } from 'react'
 
 import { getStableHeroRootTopPx } from './lectureViewportLayout'
+import { LECTURE_RAIL_MEDIA_QUERY } from '../constants/lectureSplitLayout'
 
-/** Below this the page uses natural window scroll (mobile dock, no side rail). */
-const DESKTOP_MEDIA_QUERY = '(min-width: 768px)'
+/** Below this the page uses natural window scroll (bottom drawer, no side rail). */
+const DESKTOP_MEDIA_QUERY = LECTURE_RAIL_MEDIA_QUERY
 const MIN_SPLIT_ROW_HEIGHT_PX = 320
 
 /**

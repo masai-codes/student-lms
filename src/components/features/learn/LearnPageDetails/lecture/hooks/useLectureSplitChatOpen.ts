@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from 'react'
 
 import {
+  LECTURE_RAIL_MEDIA_QUERY,
   LECTURE_SPLIT_CHAT_OPEN_BY_DEFAULT,
   LECTURE_SPLIT_CHAT_STORAGE_KEY,
 } from '../constants/lectureSplitLayout'
@@ -32,10 +33,14 @@ function persistOpenPreference(isOpen: boolean): void {
 }
 
 export function useLectureSplitChatOpen() {
-  const [isOpen, setIsOpen] = useState(LECTURE_SPLIT_CHAT_OPEN_BY_DEFAULT)
+  // Start closed (SSR-safe). The persisted "open by default" is a laptop/desktop
+  // rail concept only — on mobile/tablet the chat is a bottom drawer that must
+  // never auto-open on load.
+  const [isOpen, setIsOpen] = useState(false)
 
   useEffect(() => {
-    setIsOpen(readStoredOpenPreference())
+    const isRailViewport = window.matchMedia(LECTURE_RAIL_MEDIA_QUERY).matches
+    setIsOpen(isRailViewport ? readStoredOpenPreference() : false)
   }, [])
 
   const open = useCallback(() => {

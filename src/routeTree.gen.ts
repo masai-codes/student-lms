@@ -50,8 +50,10 @@ import { Route as ApiDashboardT0FlowDocumentsRouteImport } from './routes/api/da
 import { Route as ApiDashboardProfilePhotoRouteImport } from './routes/api/dashboard/profile-photo'
 import { Route as ApiDashboardOverviewRouteImport } from './routes/api/dashboard/overview'
 import { Route as ApiDashboardNavbarPillRouteImport } from './routes/api/dashboard/navbar-pill'
+import { Route as ApiBookmarksFilterOptionsRouteImport } from './routes/api/bookmarks/filter-options'
 import { Route as ApiAnnouncementUnreadCountRouteImport } from './routes/api/announcement/unread-count'
 import { Route as ApiAnnouncementPopupsRouteImport } from './routes/api/announcement/popups'
+import { Route as ApiAnnouncementFilterOptionsRouteImport } from './routes/api/announcement/filter-options'
 import { Route as protectedLayoutThemeLabRouteImport } from './routes/(protected)/_layout/theme-lab'
 import { Route as protectedLayoutMyCoursesRouteImport } from './routes/(protected)/_layout/my-courses'
 import { Route as authV2ResetPasswordRouteImport } from './routes/(auth)/v2/reset-password'
@@ -397,6 +399,12 @@ const ApiDashboardNavbarPillRoute = ApiDashboardNavbarPillRouteImport.update({
   path: '/api/dashboard/navbar-pill',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiBookmarksFilterOptionsRoute =
+  ApiBookmarksFilterOptionsRouteImport.update({
+    id: '/api/bookmarks/filter-options',
+    path: '/api/bookmarks/filter-options',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiAnnouncementUnreadCountRoute =
   ApiAnnouncementUnreadCountRouteImport.update({
     id: '/api/announcement/unread-count',
@@ -408,6 +416,12 @@ const ApiAnnouncementPopupsRoute = ApiAnnouncementPopupsRouteImport.update({
   path: '/api/announcement/popups',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiAnnouncementFilterOptionsRoute =
+  ApiAnnouncementFilterOptionsRouteImport.update({
+    id: '/api/announcement/filter-options',
+    path: '/api/announcement/filter-options',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const protectedLayoutThemeLabRoute = protectedLayoutThemeLabRouteImport.update({
   id: '/theme-lab',
   path: '/theme-lab',
@@ -1171,8 +1185,10 @@ export interface FileRoutesByFullPath {
   '/v2/reset-password': typeof authV2ResetPasswordRoute
   '/my-courses': typeof protectedLayoutMyCoursesRoute
   '/theme-lab': typeof protectedLayoutThemeLabRoute
+  '/api/announcement/filter-options': typeof ApiAnnouncementFilterOptionsRoute
   '/api/announcement/popups': typeof ApiAnnouncementPopupsRoute
   '/api/announcement/unread-count': typeof ApiAnnouncementUnreadCountRoute
+  '/api/bookmarks/filter-options': typeof ApiBookmarksFilterOptionsRoute
   '/api/dashboard/navbar-pill': typeof ApiDashboardNavbarPillRoute
   '/api/dashboard/overview': typeof ApiDashboardOverviewRoute
   '/api/dashboard/profile-photo': typeof ApiDashboardProfilePhotoRoute
@@ -1343,8 +1359,10 @@ export interface FileRoutesByTo {
   '/v2/reset-password': typeof authV2ResetPasswordRoute
   '/my-courses': typeof protectedLayoutMyCoursesRoute
   '/theme-lab': typeof protectedLayoutThemeLabRoute
+  '/api/announcement/filter-options': typeof ApiAnnouncementFilterOptionsRoute
   '/api/announcement/popups': typeof ApiAnnouncementPopupsRoute
   '/api/announcement/unread-count': typeof ApiAnnouncementUnreadCountRoute
+  '/api/bookmarks/filter-options': typeof ApiBookmarksFilterOptionsRoute
   '/api/dashboard/navbar-pill': typeof ApiDashboardNavbarPillRoute
   '/api/dashboard/overview': typeof ApiDashboardOverviewRoute
   '/api/dashboard/profile-photo': typeof ApiDashboardProfilePhotoRoute
@@ -1518,8 +1536,10 @@ export interface FileRoutesById {
   '/(auth)/v2/reset-password': typeof authV2ResetPasswordRoute
   '/(protected)/_layout/my-courses': typeof protectedLayoutMyCoursesRoute
   '/(protected)/_layout/theme-lab': typeof protectedLayoutThemeLabRoute
+  '/api/announcement/filter-options': typeof ApiAnnouncementFilterOptionsRoute
   '/api/announcement/popups': typeof ApiAnnouncementPopupsRoute
   '/api/announcement/unread-count': typeof ApiAnnouncementUnreadCountRoute
+  '/api/bookmarks/filter-options': typeof ApiBookmarksFilterOptionsRoute
   '/api/dashboard/navbar-pill': typeof ApiDashboardNavbarPillRoute
   '/api/dashboard/overview': typeof ApiDashboardOverviewRoute
   '/api/dashboard/profile-photo': typeof ApiDashboardProfilePhotoRoute
@@ -1693,8 +1713,10 @@ export interface FileRouteTypes {
     | '/v2/reset-password'
     | '/my-courses'
     | '/theme-lab'
+    | '/api/announcement/filter-options'
     | '/api/announcement/popups'
     | '/api/announcement/unread-count'
+    | '/api/bookmarks/filter-options'
     | '/api/dashboard/navbar-pill'
     | '/api/dashboard/overview'
     | '/api/dashboard/profile-photo'
@@ -1865,8 +1887,10 @@ export interface FileRouteTypes {
     | '/v2/reset-password'
     | '/my-courses'
     | '/theme-lab'
+    | '/api/announcement/filter-options'
     | '/api/announcement/popups'
     | '/api/announcement/unread-count'
+    | '/api/bookmarks/filter-options'
     | '/api/dashboard/navbar-pill'
     | '/api/dashboard/overview'
     | '/api/dashboard/profile-photo'
@@ -2039,8 +2063,10 @@ export interface FileRouteTypes {
     | '/(auth)/v2/reset-password'
     | '/(protected)/_layout/my-courses'
     | '/(protected)/_layout/theme-lab'
+    | '/api/announcement/filter-options'
     | '/api/announcement/popups'
     | '/api/announcement/unread-count'
+    | '/api/bookmarks/filter-options'
     | '/api/dashboard/navbar-pill'
     | '/api/dashboard/overview'
     | '/api/dashboard/profile-photo'
@@ -2211,8 +2237,10 @@ export interface RootRouteChildren {
   authV2ForgotPasswordRoute: typeof authV2ForgotPasswordRoute
   authV2MeRoute: typeof authV2MeRoute
   authV2ResetPasswordRoute: typeof authV2ResetPasswordRoute
+  ApiAnnouncementFilterOptionsRoute: typeof ApiAnnouncementFilterOptionsRoute
   ApiAnnouncementPopupsRoute: typeof ApiAnnouncementPopupsRoute
   ApiAnnouncementUnreadCountRoute: typeof ApiAnnouncementUnreadCountRoute
+  ApiBookmarksFilterOptionsRoute: typeof ApiBookmarksFilterOptionsRoute
   ApiDashboardNavbarPillRoute: typeof ApiDashboardNavbarPillRoute
   ApiDashboardOverviewRoute: typeof ApiDashboardOverviewRoute
   ApiDashboardProfilePhotoRoute: typeof ApiDashboardProfilePhotoRoute
@@ -2609,6 +2637,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiDashboardNavbarPillRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/bookmarks/filter-options': {
+      id: '/api/bookmarks/filter-options'
+      path: '/api/bookmarks/filter-options'
+      fullPath: '/api/bookmarks/filter-options'
+      preLoaderRoute: typeof ApiBookmarksFilterOptionsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/announcement/unread-count': {
       id: '/api/announcement/unread-count'
       path: '/api/announcement/unread-count'
@@ -2621,6 +2656,13 @@ declare module '@tanstack/react-router' {
       path: '/api/announcement/popups'
       fullPath: '/api/announcement/popups'
       preLoaderRoute: typeof ApiAnnouncementPopupsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/announcement/filter-options': {
+      id: '/api/announcement/filter-options'
+      path: '/api/announcement/filter-options'
+      fullPath: '/api/announcement/filter-options'
+      preLoaderRoute: typeof ApiAnnouncementFilterOptionsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/(protected)/_layout/theme-lab': {
@@ -3828,8 +3870,10 @@ const rootRouteChildren: RootRouteChildren = {
   authV2ForgotPasswordRoute: authV2ForgotPasswordRoute,
   authV2MeRoute: authV2MeRoute,
   authV2ResetPasswordRoute: authV2ResetPasswordRoute,
+  ApiAnnouncementFilterOptionsRoute: ApiAnnouncementFilterOptionsRoute,
   ApiAnnouncementPopupsRoute: ApiAnnouncementPopupsRoute,
   ApiAnnouncementUnreadCountRoute: ApiAnnouncementUnreadCountRoute,
+  ApiBookmarksFilterOptionsRoute: ApiBookmarksFilterOptionsRoute,
   ApiDashboardNavbarPillRoute: ApiDashboardNavbarPillRoute,
   ApiDashboardOverviewRoute: ApiDashboardOverviewRoute,
   ApiDashboardProfilePhotoRoute: ApiDashboardProfilePhotoRoute,

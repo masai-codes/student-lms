@@ -1,10 +1,13 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { AnnouncementsPage } from '@/components/features/announcements/AnnouncementsPage'
+import { normalizeFilterValues } from '@/components/features/announcements/announcementFilterConfig'
 
-type AnnouncementsSearch = {
+export type AnnouncementsSearch = {
   q?: string
   page: number
   message?: boolean
+  type?: Array<string>
+  category?: Array<string>
 }
 
 export const Route = createFileRoute('/(protected)/_layout/announcements/')({
@@ -18,7 +21,10 @@ export const Route = createFileRoute('/(protected)/_layout/announcements/')({
     const message =
       raw.message === true || raw.message === 'true' ? true : undefined
 
-    return { q, page, message }
+    const type = normalizeFilterValues(raw.type)
+    const category = normalizeFilterValues(raw.category)
+
+    return { q, page, message, type, category }
   },
   component: AnnouncementsPage,
 })

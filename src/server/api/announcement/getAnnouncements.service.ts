@@ -9,6 +9,7 @@ import {
 } from '@/server/restrictions/enrollmentRestrictionScope'
 import { getUserBatchRestrictions } from '@/server/restrictions/getUserBatchRestrictions'
 import type { AnnouncementsQueryParams } from './utils/parseAnnouncementsQuery'
+import { buildAnnouncementFilterClauses } from './utils/buildAnnouncementFilterClauses'
 
 export interface AnnouncementItem {
   id: string
@@ -107,7 +108,14 @@ async function getMessagesOnly(
     limit,
     q,
     searchTerm,
-  }: { offset: number; limit: number; q?: string; searchTerm: string },
+    messageFilter,
+  }: {
+    offset: number
+    limit: number
+    q?: string
+    searchTerm: string
+    messageFilter: SQL
+  },
 ): Promise<GetAnnouncementsResult> {
   const countResult = await db.execute(
     q
@@ -118,7 +126,7 @@ async function getMessagesOnly(
           WHERE m.user_id = ${userId}
             AND m.message_id IS NULL
             AND m.deleted_at IS NULL
-            AND (m.schedule IS NULL OR m.schedule <= CONVERT_TZ(NOW(), '+00:00', '+05:30'))
+            AND (m.schedule IS NULL OR m.schedule <= CONVERT_TZ(NOW(), '+00:00', '+05:30'))${messageFilter}
             AND (COALESCE(JSON_UNQUOTE(JSON_EXTRACT(m.meta, '$.title')), m.subject) LIKE ${searchTerm} OR u.name LIKE ${searchTerm})
         `
       : sql`
@@ -127,7 +135,7 @@ async function getMessagesOnly(
           WHERE m.user_id = ${userId}
             AND m.message_id IS NULL
             AND m.deleted_at IS NULL
-            AND (m.schedule IS NULL OR m.schedule <= CONVERT_TZ(NOW(), '+00:00', '+05:30'))
+            AND (m.schedule IS NULL OR m.schedule <= CONVERT_TZ(NOW(), '+00:00', '+05:30'))${messageFilter}
         `,
   )
 
@@ -151,7 +159,7 @@ async function getMessagesOnly(
           WHERE m.user_id = ${userId}
             AND m.message_id IS NULL
             AND m.deleted_at IS NULL
-            AND (m.schedule IS NULL OR m.schedule <= CONVERT_TZ(NOW(), '+00:00', '+05:30'))
+            AND (m.schedule IS NULL OR m.schedule <= CONVERT_TZ(NOW(), '+00:00', '+05:30'))${messageFilter}
             AND (COALESCE(JSON_UNQUOTE(JSON_EXTRACT(m.meta, '$.title')), m.subject) LIKE ${searchTerm} OR u.name LIKE ${searchTerm})
           ORDER BY m.created_at DESC
           LIMIT ${limit} OFFSET ${offset}
@@ -171,7 +179,7 @@ async function getMessagesOnly(
           WHERE m.user_id = ${userId}
             AND m.message_id IS NULL
             AND m.deleted_at IS NULL
-            AND (m.schedule IS NULL OR m.schedule <= CONVERT_TZ(NOW(), '+00:00', '+05:30'))
+            AND (m.schedule IS NULL OR m.schedule <= CONVERT_TZ(NOW(), '+00:00', '+05:30'))${messageFilter}
           ORDER BY m.created_at DESC
           LIMIT ${limit} OFFSET ${offset}
         `,
@@ -193,14 +201,21 @@ async function getMessagesOnly(
 
 export async function getAnnouncements(
   userId: number,
-  { page, limit, q, messagesOnly }: AnnouncementsQueryParams,
+  { page, limit, q, messagesOnly, types, categories }: AnnouncementsQueryParams,
 ): Promise<GetAnnouncementsResult> {
   const offset = (page - 1) * limit
   const searchTerm = `%${q ?? ''}%`
+  const filters = buildAnnouncementFilterClauses(types, categories)
 
   // When filtering to messages only, skip section-ID resolution entirely
   if (messagesOnly) {
-    return getMessagesOnly(userId, { offset, limit, q, searchTerm })
+    return getMessagesOnly(userId, {
+      offset,
+      limit,
+      q,
+      searchTerm,
+      messageFilter: filters.message,
+    })
   }
 
   // ── 1. Resolve section IDs ─────────────────────────────────────────────────
@@ -255,7 +270,7 @@ export async function getAnnouncements(
             LEFT JOIN users u ON u.id = a.user_id
             WHERE a.section_id IN (${sql.raw(sectionIdList)})
               AND a.deleted_at IS NULL
-              AND (a.schedule IS NULL OR a.schedule <= CONVERT_TZ(NOW(), '+00:00', '+05:30'))${pausedClause}
+              AND (a.schedule IS NULL OR a.schedule <= CONVERT_TZ(NOW(), '+00:00', '+05:30'))${pausedClause}${filters.announcement}
               AND (a.subject LIKE ${searchTerm} OR u.name LIKE ${searchTerm})
 
             UNION ALL
@@ -266,7 +281,7 @@ export async function getAnnouncements(
             WHERE m.user_id = ${userId}
               AND m.message_id IS NULL
               AND m.deleted_at IS NULL
-              AND (m.schedule IS NULL OR m.schedule <= CONVERT_TZ(NOW(), '+00:00', '+05:30'))
+              AND (m.schedule IS NULL OR m.schedule <= CONVERT_TZ(NOW(), '+00:00', '+05:30'))${filters.message}
               AND (COALESCE(JSON_UNQUOTE(JSON_EXTRACT(m.meta, '$.title')), m.subject) LIKE ${searchTerm} OR u.name LIKE ${searchTerm})
           ) combined
         `
@@ -276,7 +291,7 @@ export async function getAnnouncements(
             FROM announcements a
             WHERE a.section_id IN (${sql.raw(sectionIdList)})
               AND a.deleted_at IS NULL
-              AND (a.schedule IS NULL OR a.schedule <= CONVERT_TZ(NOW(), '+00:00', '+05:30'))${pausedClause}
+              AND (a.schedule IS NULL OR a.schedule <= CONVERT_TZ(NOW(), '+00:00', '+05:30'))${pausedClause}${filters.announcement}
 
             UNION ALL
 
@@ -285,7 +300,7 @@ export async function getAnnouncements(
             WHERE m.user_id = ${userId}
               AND m.message_id IS NULL
               AND m.deleted_at IS NULL
-              AND (m.schedule IS NULL OR m.schedule <= CONVERT_TZ(NOW(), '+00:00', '+05:30'))
+              AND (m.schedule IS NULL OR m.schedule <= CONVERT_TZ(NOW(), '+00:00', '+05:30'))${filters.message}
           ) combined
         `,
   )
@@ -322,7 +337,7 @@ export async function getAnnouncements(
              AND ar.user_id = ${userId}
             WHERE a.section_id IN (${sql.raw(sectionIdList)})
               AND a.deleted_at IS NULL
-              AND (a.schedule IS NULL OR a.schedule <= CONVERT_TZ(NOW(), '+00:00', '+05:30'))${pausedClause}
+              AND (a.schedule IS NULL OR a.schedule <= CONVERT_TZ(NOW(), '+00:00', '+05:30'))${pausedClause}${filters.announcement}
               AND (a.subject LIKE ${searchTerm} OR u.name LIKE ${searchTerm})
 
             UNION ALL
@@ -341,7 +356,7 @@ export async function getAnnouncements(
             WHERE m.user_id = ${userId}
               AND m.message_id IS NULL
               AND m.deleted_at IS NULL
-              AND (m.schedule IS NULL OR m.schedule <= CONVERT_TZ(NOW(), '+00:00', '+05:30'))
+              AND (m.schedule IS NULL OR m.schedule <= CONVERT_TZ(NOW(), '+00:00', '+05:30'))${filters.message}
               AND (COALESCE(JSON_UNQUOTE(JSON_EXTRACT(m.meta, '$.title')), m.subject) LIKE ${searchTerm} OR u.name LIKE ${searchTerm})
           ) combined
           ORDER BY createdAt DESC
@@ -373,7 +388,7 @@ export async function getAnnouncements(
              AND ar.user_id = ${userId}
             WHERE a.section_id IN (${sql.raw(sectionIdList)})
               AND a.deleted_at IS NULL
-              AND (a.schedule IS NULL OR a.schedule <= CONVERT_TZ(NOW(), '+00:00', '+05:30'))${pausedClause}
+              AND (a.schedule IS NULL OR a.schedule <= CONVERT_TZ(NOW(), '+00:00', '+05:30'))${pausedClause}${filters.announcement}
 
             UNION ALL
 
@@ -391,7 +406,7 @@ export async function getAnnouncements(
             WHERE m.user_id = ${userId}
               AND m.message_id IS NULL
               AND m.deleted_at IS NULL
-              AND (m.schedule IS NULL OR m.schedule <= CONVERT_TZ(NOW(), '+00:00', '+05:30'))
+              AND (m.schedule IS NULL OR m.schedule <= CONVERT_TZ(NOW(), '+00:00', '+05:30'))${filters.message}
           ) combined
           ORDER BY createdAt DESC
           LIMIT ${limit} OFFSET ${offset}

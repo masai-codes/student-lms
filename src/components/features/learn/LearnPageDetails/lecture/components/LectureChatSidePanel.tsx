@@ -54,7 +54,9 @@ export function LectureChatSidePanel({
       <div
         data-testid="lecture-chat-panel"
         className={cn(
-          'h-full min-h-0 shrink-0 overflow-hidden border-l border-border bg-background',
+          // No left border here — the resize handle carries the single divider
+          // line so the two don't stack into a thick-looking edge.
+          'h-full min-h-0 shrink-0 overflow-hidden bg-background',
           // Animate open/close (width), but track the pointer 1:1 mid-drag.
           !isDragging &&
             'transition-[width] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none',

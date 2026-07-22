@@ -264,6 +264,13 @@ Last updated: 2026-07-09
 - Test files: `src/server/api/ai-tutor/__tests__/{migrateFeedbackRating,migrateAiTutorFeedbackRatings.service,migrateFeedbackRatings.handler}.test.ts`
 - Notes: `POST /api/ai-tutor/chat/feedback/migrate-ratings` is admin-gated and backfills legacy `ai_chat_practice_questions.rating` values: subtract `1` for `ios`/`android` feedback prefixes (skip when result would be `< 1`), otherwise convert unprefixed binary `0`/`1` ratings to `1`/`5`. Supports `{ dryRun: true }`.
 
+## Announcements listing — Type & Category filters
+
+- Area: `/announcements` listing (`AnnouncementsPage`) filter bar. Frontend: `AnnouncementFilters` (Type fixed + Category from menus, multi-select `MasaiDropdownCheckboxFilter`), `announcementFilterConfig` (`ANNOUNCEMENT_TYPE_OPTIONS`, `normalizeFilterValues`), `AnnouncementCard` (extracted), route `validateSearch` (`type`/`category` string arrays). Client: `fetchAnnouncements` (comma-joined `type`/`category` params) + `fetchAnnouncementFilterOptions`. Backend: `parseAnnouncementsQuery` (CSV parse), `buildAnnouncementFilterClauses` (parameterized `IN` fragments for both `announcements` + `messages` sources), `getAnnouncementFilterOptions` service/handler + `GET /api/announcement/filter-options`.
+- Status: Covered
+- Test files: `src/server/api/announcement/utils/__tests__/{buildAnnouncementFilterClauses,parseAnnouncementsQuery}.test.ts`, `src/server/api/announcement/__tests__/getAnnouncementFilterOptions.service.test.ts`, `src/lib/api/announcement/__tests__/announcementApi.filters.test.ts`, `src/components/features/announcements/{announcementFilterConfig.test.ts,AnnouncementFilters.test.tsx,AnnouncementCard.test.tsx,AnnouncementsPage.test.tsx}`
+- Notes: Replicates the old LMS student filter. Type surfaces only `critical`/`info`; Category is data-driven from `menus` (`announcement-category`, non-deprecated). Filters live in URL search params, reset `page` to 1 on change, preserve `q`/`message`, and expose a Clear control; each control fires an `l_announcement_filter_*` GTM event. Filters apply to both blended sources — `a.type`/`a.category` for announcements and `meta.$.message_type`/`meta.$.category` for messages. `announced_by` and `date` dimensions from the old LMS are not (yet) ported. Test docs: `docs/testing/features/announcements-filters.md`.
+
 ## Announcement popups (global queued modal)
 
 - Area: Global announcement popups on every authenticated page. Frontend (`src/components/modals/**`): `AnnouncementModalController` (mounted in `(protected)/_layout/route.tsx`), `useAnnouncementPopups` (queue hook), `AnnouncementPopupModal` (UI), `ModalContext` (central stack). Backend read endpoints reused from announcements (`markAnnouncementRead` / `markMessageRead`).

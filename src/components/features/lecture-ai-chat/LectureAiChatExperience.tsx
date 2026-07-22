@@ -1,6 +1,5 @@
 'use client'
 
-import { LectureAiChatMobileDock } from './components/LectureAiChatMobileDock'
 import { LectureAiChatPanel } from './components/LectureAiChatPanel'
 import { useLectureAiChat } from './hooks/useLectureAiChat'
 import { useLectureAiChatFeedback } from './hooks/useLectureAiChatFeedback'
@@ -12,13 +11,6 @@ import './lecture-ai-chat.css'
 type LectureAiChatExperienceProps = {
   lectureId: number
   onCloseSidebar?: () => void
-  /**
-   * `panel` (default) fills its container with the full chat surface — used by
-   * the desktop floating popup, the in-video overlay, and the fullscreen route.
-   * `mobile-dock` shows only the composer and opens the chat in a bottom drawer
-   * on send — used by the mobile below-hero block.
-   */
-  variant?: 'panel' | 'mobile-dock'
   /** Whether the floating popup is maximized (renders a minimize control). */
   isExpanded?: boolean
   /** Toggles the floating popup between docked and maximized. */
@@ -30,47 +22,40 @@ type LectureAiChatExperienceProps = {
    */
   languageMenuContainer?: HTMLElement | null
   /**
-   * Externally-owned chat session. Passed by the desktop side panels so the
-   * inline and in-video fullscreen mounts share one session (owned by
-   * `LectureSplitLayout`); when omitted a local session is created (mobile
-   * dock). Supply both `chat` and `feedback` together.
+   * Externally-owned chat session. Passed by the side panels so the inline rail
+   * and the in-video fullscreen mount share one session (owned by
+   * `LectureSplitLayout`); when omitted a local session is created. Supply both
+   * `chat` and `feedback` together.
    */
   chat?: UseLectureAiChatResult
   feedback?: UseLectureAiChatFeedbackResult
 }
 
+/**
+ * The full chat surface (`panel`). Fills its bounded container — the desktop
+ * side rail, the in-video fullscreen split, and the fullscreen route. The
+ * mobile/tablet bottom-drawer surface is `LectureAiChatMobileDock`.
+ */
 export function LectureAiChatExperience({
   lectureId,
   onCloseSidebar,
-  variant = 'panel',
   isExpanded,
   onToggleExpand,
   languageMenuContainer,
   chat: chatProp,
   feedback: feedbackProp,
 }: LectureAiChatExperienceProps) {
-  const platform = variant === 'mobile-dock' ? 'web-mobile' : 'web-desktop'
-  // Local fallback session for when this mount isn't given a shared one (the
-  // mobile dock). Hooks run unconditionally; their state is simply unused when
-  // a shared session is supplied.
+  // Local fallback session for when this mount isn't given a shared one. Hooks
+  // run unconditionally; their state is simply unused when a shared session is
+  // supplied.
   const localFeedback = useLectureAiChatFeedback(lectureId)
   const localChat = useLectureAiChat(
     lectureId,
-    platform,
+    'web-desktop',
     localFeedback.notifyFirstReplyCompleted,
   )
   const feedback = feedbackProp ?? localFeedback
   const chat = chatProp ?? localChat
-
-  if (variant === 'mobile-dock') {
-    return (
-      <LectureAiChatMobileDock
-        chat={chat}
-        lectureId={lectureId}
-        feedback={feedback}
-      />
-    )
-  }
 
   // `h-full` fills bounded parents (desktop sidebar, in-video overlay, and the
   // fullscreen route whose <main> is `flex-1 min-h-0`).

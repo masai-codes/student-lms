@@ -9,6 +9,10 @@ export interface FetchAnnouncementsParams {
   limit: number
   q?: string
   message?: boolean
+  /** Selected announcement types (e.g. `critical`, `info`). */
+  types?: Array<string>
+  /** Selected announcement categories. */
+  categories?: Array<string>
 }
 
 export interface FetchAnnouncementsResult {
@@ -25,9 +29,21 @@ export async function fetchAnnouncements(
   })
   if (params.q) search.set('q', params.q)
   if (params.message) search.set('message', 'true')
+  if (params.types && params.types.length > 0)
+    search.set('type', params.types.join(','))
+  if (params.categories && params.categories.length > 0)
+    search.set('category', params.categories.join(','))
 
   return fetchJson<FetchAnnouncementsResult>(
     `${ANNOUNCEMENT_API.list}?${search.toString()}`,
+  )
+}
+
+export async function fetchAnnouncementFilterOptions(): Promise<{
+  categories: Array<string>
+}> {
+  return fetchJson<{ categories: Array<string> }>(
+    ANNOUNCEMENT_API.filterOptions,
   )
 }
 

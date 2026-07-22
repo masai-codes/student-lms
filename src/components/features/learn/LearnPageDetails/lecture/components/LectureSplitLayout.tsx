@@ -29,8 +29,9 @@ type LectureSplitLayoutProps = {
  * the video is in browser fullscreen the rail is hidden and the in-video split
  * (LectureReactPlayer) renders the same session instead.
  *
- * Below `md` there is no rail — the page scrolls naturally and the chat lives
- * in the mobile dock below the hero.
+ * Below `lg` (mobile + tablet) there is no rail — the page scrolls naturally
+ * and the chat opens as a bottom drawer (LectureAiChatMobileEntry), triggered
+ * by the same shared open-state so the player's "Ask AI" pill drives it too.
  */
 export function LectureSplitLayout({
   lectureId,
@@ -58,15 +59,16 @@ export function LectureSplitLayout({
     <LectureSplitChatProvider value={{ ...splitChat, chat, feedback }}>
       <div
         ref={rowRef}
-        className="flex w-full min-h-0 flex-col md:flex-row md:overflow-hidden"
+        className="flex w-full min-h-0 flex-col lg:flex-row lg:overflow-hidden"
         style={heightPx ? { height: heightPx } : undefined}
       >
-        {/* Left section: the whole page, with its own scroll on desktop. */}
-        <div className="flex min-h-0 min-w-0 flex-1 flex-col md:overflow-y-auto">
+        {/* Left section: the whole page, with its own scroll on laptop/desktop. */}
+        <div className="flex min-h-0 min-w-0 flex-1 flex-col lg:overflow-y-auto">
           {children}
         </div>
 
-        {/* Right section: full-height, resizable AI chat rail. */}
+        {/* Right section: full-height, resizable AI chat rail (laptop/desktop).
+            Mobile and tablet use the bottom drawer (LectureAiChatMobileEntry). */}
         {isRendered ? (
           <LectureChatSidePanel
             lectureId={lectureId}

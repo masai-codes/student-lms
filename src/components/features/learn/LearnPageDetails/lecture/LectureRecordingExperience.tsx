@@ -2,7 +2,9 @@
 
 import { useState } from 'react'
 
+import { LectureAiChatMobileEntry } from './components/LectureAiChatMobileEntry'
 import { LectureSplitLayout } from './components/LectureSplitLayout'
+import { useLectureVideoMaxHeight } from './hooks/useLectureVideoMaxHeight'
 import { LectureDetailActions } from './shared/LectureDetailActions'
 import { LectureDetailFooter } from './shared/LectureDetailFooter'
 import { LectureDetailChrome } from './shared/LectureDetailChrome'
@@ -14,7 +16,6 @@ import type {
   LectureFeedbackState,
   LectureVideoAttendanceState,
 } from '@/server/learn/lectureDetailTypes'
-import { LectureAiChatExperience } from '@/components/features/lecture-ai-chat/LectureAiChatExperience'
 import { cn } from '@/lib/utils'
 
 type LectureRecordingExperienceProps = {
@@ -70,6 +71,9 @@ export function LectureRecordingExperience({
   const [videoAspectRatio, setVideoAspectRatio] = useState<number | null>(null)
   const aspectRatio =
     videoAspectRatio && videoAspectRatio > 0 ? videoAspectRatio : 16 / 9
+  // Let the video grow to fill the viewport, but never so tall that the title
+  // and tag rows get pushed off-screen.
+  const { videoRef, maxHeightPx } = useLectureVideoMaxHeight()
 
   const renderVideoSection = () => (
     <LectureVideoSection
@@ -91,10 +95,11 @@ export function LectureRecordingExperience({
           browser instantly exits fullscreen. */}
       {/* Desktop: the video fills the left section at its natural aspect ratio;
           the chat is a separate full-height right rail (LectureSplitLayout).
-          Capped at 575px tall so it never dominates the page. */}
+          Height capped so the title + tag rows stay visible below it. */}
       <div
-        className="relative hidden max-h-[575px] w-full flex-col overflow-hidden bg-black md:flex has-[:fullscreen]:flex"
-        style={{ aspectRatio }}
+        ref={videoRef}
+        className="relative hidden w-full flex-col overflow-hidden bg-black md:flex has-[:fullscreen]:flex"
+        style={{ aspectRatio, maxHeight: maxHeightPx }}
       >
         {renderVideoSection()}
       </div>
@@ -102,7 +107,7 @@ export function LectureRecordingExperience({
       <div
         className={cn(
           heroRowFullBleedClasses,
-          'flex max-h-[575px] w-full flex-col bg-black md:hidden has-[:fullscreen]:flex',
+          'flex w-full flex-col bg-black md:hidden has-[:fullscreen]:flex',
         )}
         style={{ aspectRatio }}
       >
@@ -112,8 +117,8 @@ export function LectureRecordingExperience({
   )
 
   const belowHero = (
-    <div className="shrink-0 border-t border-border bg-surface md:hidden">
-      <LectureAiChatExperience lectureId={entityId} variant="mobile-dock" />
+    <div className="shrink-0 border-t border-border bg-surface lg:hidden">
+      <LectureAiChatMobileEntry lectureId={entityId} />
     </div>
   )
 
