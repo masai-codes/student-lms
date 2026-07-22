@@ -389,7 +389,7 @@ export function GuidedTourOverlay({
     <div
       // Full-bleed to the viewport: the app's <main> is capped at max-w-1440 and
       // centered, so break out of it and use the whole width.
-      className="relative left-1/2 mb-6 mt-2 flex w-screen -translate-x-1/2 flex-col gap-4 px-3 md:px-5"
+      className="relative left-1/2 mb-6 mt-0 flex w-screen -translate-x-1/2 flex-col gap-4 px-3 md:px-5"
       data-testid="guided-tour-overlay"
     >
       {completionBanner}
