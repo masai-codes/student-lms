@@ -47,7 +47,7 @@ Parameters:
     Default: 'arn:aws:codestar-connections:ap-south-1:016530944324:connection/71493bbf-615c-48c1-adc5-fbb0e15ecffa'
     Description: >
       ARN of an existing CodeStar/CodeConnections GitHub connection used by CodePipeline.
-    AllowedPattern: '^arn:aws:codestar-connections:[a-z0-9-]+:[0-9]+:connection/.+$'
+    AllowedPattern: '^arn:aws:(codestar-connections|codeconnections):[a-z0-9-]+:[0-9]+:connection/.+$'
 
   ACMCertificateARNRegional:
     Type: String
@@ -453,6 +453,14 @@ Resources:
                 Action:
                   - autoscaling:DescribeAutoScalingInstances
                 Resource: '*'
+        - PolicyName: StaticAssetsReadOnly
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - s3:GetObject
+                Resource: !Sub '${StaticAssetsBucket.Arn}/config/cloudwatch/*'
       Tags:
         - Key: Project
           Value: student-lms
@@ -499,6 +507,11 @@ Resources:
             sudo -u ubuntu pm2 startup systemd -u ubuntu --hp /home/ubuntu 2>/dev/null || true
             STARTUP_CMD=$(sudo -u ubuntu pm2 startup systemd -u ubuntu --hp /home/ubuntu 2>/dev/null | grep 'sudo' || true)
             if [ -n "$STARTUP_CMD" ]; then eval "$STARTUP_CMD" || true; fi
+            mkdir -p /opt/aws/amazon-cloudwatch-agent/etc
+            if ! aws s3 cp "s3://${StaticAssetsBucket}/config/cloudwatch/amazon-cloudwatch-agent.json" \
+              /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.json; then
+              echo "CloudWatch agent config not in S3 yet — using AMI-baked config"
+            fi
             /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl \
               -a fetch-config -m ec2 -s \
               -c file:/opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.json || true
@@ -1162,6 +1175,188 @@ Resources:
         EvaluateTargetHealth: false
 
   # ---------------------------------------------------------------------------
+  # CloudWatch - Log Groups
+  # ---------------------------------------------------------------------------
+  AppLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: /student-lms/production/app
+      RetentionInDays: 30
+      Tags:
+        - Key: Project
+          Value: student-lms
+
+  # ---------------------------------------------------------------------------
+  # CloudWatch - Dashboard
+  # ---------------------------------------------------------------------------
+  ProductionDashboard:
+    Type: AWS::CloudWatch::Dashboard
+    Properties:
+      DashboardName: student-lms-production
+      DashboardBody: !Sub
+        - |
+          {
+            "widgets": [
+              {
+                "type": "metric",
+                "x": 0,
+                "y": 0,
+                "width": 12,
+                "height": 6,
+                "properties": {
+                  "title": "ALB Request Volume",
+                  "region": "${Region}",
+                  "view": "timeSeries",
+                  "stacked": false,
+                  "period": 60,
+                  "metrics": [
+                    [ "AWS/ApplicationELB", "RequestCount", "LoadBalancer", "${ALBFullName}" ],
+                    [ ".", "HTTPCode_Target_2XX_Count", ".", "." ],
+                    [ ".", "HTTPCode_Target_4XX_Count", ".", "." ],
+                    [ ".", "HTTPCode_Target_5XX_Count", ".", "." ]
+                  ]
+                }
+              },
+              {
+                "type": "metric",
+                "x": 12,
+                "y": 0,
+                "width": 12,
+                "height": 6,
+                "properties": {
+                  "title": "ALB Latency (P99)",
+                  "region": "${Region}",
+                  "view": "timeSeries",
+                  "stacked": false,
+                  "period": 60,
+                  "metrics": [
+                    [ "AWS/ApplicationELB", "TargetResponseTime", "LoadBalancer", "${ALBFullName}", { "stat": "p99" } ]
+                  ]
+                }
+              },
+              {
+                "type": "metric",
+                "x": 0,
+                "y": 6,
+                "width": 8,
+                "height": 6,
+                "properties": {
+                  "title": "EC2 CPU Utilization",
+                  "region": "${Region}",
+                  "view": "timeSeries",
+                  "stacked": false,
+                  "period": 300,
+                  "metrics": [
+                    [ "AWS/EC2", "CPUUtilization", "AutoScalingGroupName", "${ASGName}" ]
+                  ]
+                }
+              },
+              {
+                "type": "metric",
+                "x": 8,
+                "y": 6,
+                "width": 8,
+                "height": 6,
+                "properties": {
+                  "title": "EC2 Memory Utilization",
+                  "region": "${Region}",
+                  "view": "timeSeries",
+                  "stacked": false,
+                  "period": 300,
+                  "metrics": [
+                    [
+                      {
+                        "expression": "SEARCH('{StudentLMS/EC2,InstanceId,AutoScalingGroupName} MetricName=\"mem_used_percent\" AND AutoScalingGroupName=\"${ASGName}\"', 'Average', 300)",
+                        "label": "Memory %",
+                        "id": "mem1"
+                      }
+                    ]
+                  ]
+                }
+              },
+              {
+                "type": "metric",
+                "x": 16,
+                "y": 6,
+                "width": 8,
+                "height": 6,
+                "properties": {
+                  "title": "EC2 Disk Utilization",
+                  "region": "${Region}",
+                  "view": "timeSeries",
+                  "stacked": false,
+                  "period": 300,
+                  "metrics": [
+                    [
+                      {
+                        "expression": "SEARCH('{StudentLMS/EC2,InstanceId,AutoScalingGroupName} MetricName=\"disk_used_percent\" AND AutoScalingGroupName=\"${ASGName}\"', 'Average', 300)",
+                        "label": "Disk %",
+                        "id": "disk1"
+                      }
+                    ]
+                  ]
+                }
+              },
+              {
+                "type": "metric",
+                "x": 0,
+                "y": 12,
+                "width": 8,
+                "height": 6,
+                "properties": {
+                  "title": "ALB Unhealthy Hosts",
+                  "region": "${Region}",
+                  "view": "timeSeries",
+                  "stacked": false,
+                  "period": 60,
+                  "metrics": [
+                    [ "AWS/ApplicationELB", "UnHealthyHostCount", "LoadBalancer", "${ALBFullName}", "TargetGroup", "${TGBlue}" ]
+                  ]
+                }
+              },
+              {
+                "type": "metric",
+                "x": 8,
+                "y": 12,
+                "width": 8,
+                "height": 6,
+                "properties": {
+                  "title": "RDS CPU Utilization",
+                  "region": "${Region}",
+                  "view": "timeSeries",
+                  "stacked": false,
+                  "period": 300,
+                  "metrics": [
+                    [ "AWS/RDS", "CPUUtilization", "DBInstanceIdentifier", "${RDSId}" ]
+                  ]
+                }
+              },
+              {
+                "type": "metric",
+                "x": 16,
+                "y": 12,
+                "width": 8,
+                "height": 6,
+                "properties": {
+                  "title": "RDS Database Connections",
+                  "region": "${Region}",
+                  "view": "timeSeries",
+                  "stacked": false,
+                  "period": 300,
+                  "metrics": [
+                    [ "AWS/RDS", "DatabaseConnections", "DBInstanceIdentifier", "${RDSId}" ]
+                  ]
+                }
+              }
+            ]
+          }
+        - Region: !Ref AWS::Region
+          ALBFullName: !GetAtt ALB.LoadBalancerFullName
+          ASGName: !Ref AutoScalingGroup
+          TGBlue: !GetAtt ALBTargetGroupBlue.TargetGroupFullName
+          RDSId: !Ref RDSInstanceIdentifier
+
+  # ---------------------------------------------------------------------------
   # CloudWatch - Alarms
   # ---------------------------------------------------------------------------
 
@@ -1237,17 +1432,15 @@ Resources:
     Properties:
       AlarmName: student-lms-memory-high
       AlarmDescription: EC2 average memory utilization exceeded 85%
-      Namespace: StudentLMS/EC2
-      MetricName: mem_used_percent
-      Dimensions:
-        - Name: AutoScalingGroupName
-          Value: !Ref AutoScalingGroup
-      Statistic: Average
-      Period: 300
       EvaluationPeriods: 2
       Threshold: 85
       ComparisonOperator: GreaterThanThreshold
       TreatMissingData: notBreaching
+      Metrics:
+        - Id: mem
+          Expression: !Sub 'SELECT AVG(mem_used_percent) FROM "StudentLMS/EC2" WHERE AutoScalingGroupName = ''${AutoScalingGroup}'''
+          Period: 300
+          ReturnData: true
       AlarmActions:
         - !Ref SNSTopicARN
       OKActions:
@@ -1327,6 +1520,12 @@ Outputs:
   DashboardURL:
     Description: CloudWatch dashboard URL
     Value: !Sub 'https://${AWS::Region}.console.aws.amazon.com/cloudwatch/home#dashboards:name=student-lms-production'
+
+  AppLogGroupName:
+    Description: CloudWatch Logs group for application stdout/stderr
+    Value: !Ref AppLogGroup
+    Export:
+      Name: student-lms-app-log-group
 
   AppURL:
     Description: Application URL
