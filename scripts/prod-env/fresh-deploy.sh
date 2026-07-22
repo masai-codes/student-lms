@@ -6,7 +6,7 @@
 
 aws cloudformation deploy --stack-name student-lms-pre-prod --template-file cloudformation.yml --capabilities CAPABILITY_NAMED_IAM\
   --parameter-overrides \
-  GoldenAMIId=ami-0372ffb3c8401306b \
+  GoldenAMIId=ami-0be039ca5f9e07370 \
   RDSInstanceIdentifier=msi-experience \
   SecretsManagerARN=arn:aws:secretsmanager:ap-south-1:016530944324:secret:prod/student-lms-prod-ssqA4U \
   ACMCertificateARNRegional=arn:aws:acm:ap-south-1:016530944324:certificate/23c7139a-ae42-4b85-b56a-92c0b7efd56e \

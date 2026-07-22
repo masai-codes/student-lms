@@ -30,10 +30,26 @@ for lock in /var/lib/dpkg/lock-frontend /var/lib/apt/lists/lock /var/cache/apt/a
 done
 
 echo "==> Updating system packages..."
+# Ubuntu ARM (ports) mirrors sometimes advertise a package version whose .deb
+# was already removed from the pool (404). Refresh indexes and retry so a
+# transient mirror mismatch does not abort the AMI build.
 apt-get update -y
-apt-get upgrade -y \
-  -o Dpkg::Options::="--force-confdef" \
-  -o Dpkg::Options::="--force-confold"
+UPGRADE_OK=false
+for attempt in 1 2 3; do
+  if apt-get upgrade -y \
+    -o Dpkg::Options::="--force-confdef" \
+    -o Dpkg::Options::="--force-confold" \
+    --fix-missing; then
+    UPGRADE_OK=true
+    break
+  fi
+  echo "WARNING: apt upgrade failed (attempt ${attempt}/3); refreshing indexes..."
+  apt-get update -y
+  sleep 5
+done
+if [ "$UPGRADE_OK" != "true" ]; then
+  echo "WARNING: apt upgrade did not fully succeed; continuing with base packages"
+fi
 
 echo "==> Installing Node.js ${NODE_MAJOR}..."
 curl -fsSL https://deb.nodesource.com/setup_${NODE_MAJOR}.x | bash -
