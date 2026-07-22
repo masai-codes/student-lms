@@ -1,9 +1,9 @@
 import { useState, useEffect, useMemo, useRef, useCallback } from 'react'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { cn } from '@/lib/utils'
-import { CaretRight, Lifebuoy, Ticket } from '@phosphor-icons/react'
+import { CalendarCheck, Lifebuoy, Ticket } from '@phosphor-icons/react'
 import type { FloatingChatInbox, TicketListItem } from '@/server/api/support/support.types'
-import { SUPPORT_KEYS, ticketThreadQuery } from '@/query/support/supportQueries'
+import { SUPPORT_KEYS, supportSubcategoriesQuery, ticketThreadQuery } from '@/query/support/supportQueries'
 import { learnPageQuery } from '@/query/learn/learnQueries'
 import { isResolvedTicketStatus } from './ticketStatus'
 import {
@@ -15,8 +15,8 @@ import {
 import { mapSupportCategoryToTicketCategory } from './ticketCategoryMapping'
 import { ApiClientError } from '@/lib/api/apiClientError'
 
-import { CATEGORIES, ITEMS, QUICK_QUERIES } from './mockData'
-import type { Item, Message, TicketFilter } from './types'
+import { CATEGORIES } from './mockData'
+import type { Item, Message, TicketFilter, FloatingChatView } from './types'
 
 import { FloatingChatHeader } from './FloatingChatHeader'
 import { CourseSelector } from './CourseSelector'
@@ -31,6 +31,7 @@ import { CallbackTimeSelector } from './CallbackTimeSelector'
 import { CallbackStatus } from './CallbackStatus'
 import { filterCallbackReasons, hasPendingCallbackForBatch } from './callbackHelpers'
 import { ResolvedTicketFeedback } from './ResolvedTicketFeedback'
+import { FloatingOneOnOneTab } from './FloatingOneOnOneTab'
 import { QuickQuerySelector } from './QuickQuerySelector'
 import {
   createSupportTicket,
@@ -61,15 +62,6 @@ interface FloatingChatModalProps {
 }
 
 const SUPPORT_ITEM_PAGE_SIZE = 10
-
-function filterMockItems(items: Item[], search: string): Item[] {
-  const query = search.trim().toLowerCase()
-  if (!query) return items
-  return items.filter(
-    (item) =>
-      item.title.toLowerCase().includes(query) || item.meta.toLowerCase().includes(query),
-  )
-}
 
 function threadMessagesToChat(
   messages: Array<{
@@ -124,7 +116,7 @@ export function FloatingChatModal({
   const queryClient = useQueryClient()
   const threadScrollRef = useRef<HTMLDivElement>(null)
 
-  const [view, setView] = useState<'home' | 'tickets'>('home')
+  const [view, setView] = useState<FloatingChatView>('home')
   const [step, setStep] = useState(0)
 
   const [selectedBatchId, setSelectedBatchId] = useState<number | null>(null)
@@ -137,7 +129,8 @@ export function FloatingChatModal({
   const [ticketFilter, setTicketFilter] = useState<TicketFilter>('all')
   const [selectedTicketId, setSelectedTicketId] = useState<number | null>(null)
 
-  const [selectedTopic, setSelectedTopic] = useState<string | null>(null)
+  const [selectedSubCategory, setSelectedSubCategory] = useState<string | null>(null)
+  const [selectedSubCategoryLabel, setSelectedSubCategoryLabel] = useState<string | null>(null)
   const [message, setMessage] = useState('')
   const [files, setFiles] = useState<Array<File>>([])
   const [uploading, setUploading] = useState(false)
@@ -156,6 +149,8 @@ export function FloatingChatModal({
   const callbackOptions = inbox?.callback ?? { reasons: [], timeslots: [] }
   const fullFeesPaidBatchIds = inbox?.fullFeesPaidBatchIds ?? []
   const batchContacts = inbox?.batchContacts ?? {}
+  const oneOnOneGroups = inbox?.oneOnOne ?? []
+  const hasOneOnOne = oneOnOneGroups.length > 0
   const showBatchStep = batches.length > 1
 
   useEffect(() => {
@@ -167,6 +162,11 @@ export function FloatingChatModal({
     setSelectedBatchId(batches[0].id)
     setStep((current) => (current === 0 ? 1 : current))
   }, [batches])
+
+  const handleBatchSelect = (batchId: number) => {
+    setSelectedBatchId(batchId)
+    setStep(1)
+  }
 
   useEffect(() => {
     const timer = setTimeout(() => setDebouncedItemSearch(itemSearch), 300)
@@ -184,6 +184,7 @@ export function FloatingChatModal({
   const {
     data: learnPageData,
     isLoading: isLearnItemsLoading,
+    isFetching: isLearnItemsFetching,
     isError: isLearnItemsError,
     refetch: refetchLearnItems,
   } = useQuery({
@@ -201,7 +202,28 @@ export function FloatingChatModal({
       usesLearnApi &&
       selectedBatchId != null &&
       learningType != null,
+    placeholderData: keepPreviousData,
   })
+
+  const subcategoryCategory =
+    selectedCategory && supportCategoryUsesLearnApi(selectedCategory)
+      ? selectedCategory
+      : null
+
+  const {
+    data: subcategoriesData,
+    isLoading: isSubcategoriesLoading,
+    isError: isSubcategoriesError,
+    refetch: refetchSubcategories,
+  } = useQuery({
+    ...supportSubcategoriesQuery(subcategoryCategory ?? ''),
+    enabled:
+      subcategoryCategory != null &&
+      view === 'home' &&
+      (step === 2.5 || step === 2.8),
+  })
+
+  const subcategoryOptions = subcategoriesData?.subcategories ?? []
 
   const { data: ticketThread, isLoading: isThreadLoading } = useQuery({
     ...ticketThreadQuery(selectedTicketId ?? 0),
@@ -231,7 +253,8 @@ export function FloatingChatModal({
       refreshAfterMutation(id)
       setMessage('')
       setFiles([])
-      setSelectedTopic(null)
+      setSelectedSubCategory(null)
+      setSelectedSubCategoryLabel(null)
       resetHomeFlow()
       setView('tickets')
       setSelectedTicketId(id)
@@ -327,13 +350,7 @@ export function FloatingChatModal({
     () => (learnPageData?.learningItems ?? []).map(mapLearningItemToSupportItem),
     [learnPageData?.learningItems],
   )
-  const mockItems = useMemo(() => {
-    if (!selectedCategory) return []
-    return filterMockItems(ITEMS[selectedCategory] ?? [], itemSearch)
-  }, [selectedCategory, itemSearch])
-  const selectorItems = usesLearnApi ? learnItems : mockItems
-
-  const gradientBg = 'linear-gradient(90.38deg, rgb(75, 67, 150) 2.62%, rgb(105, 98, 172) 100%)'
+  const selectorItems = learnItems
 
   const goToHomeStart = () => {
     setSelectedCallbackReason(null)
@@ -382,7 +399,7 @@ export function FloatingChatModal({
       setStep(1)
     } else if (step === 3) {
       if (selectedCategory === 'general') setStep(1)
-      else if (selectedCategory && QUICK_QUERIES[selectedCategory]) setStep(2.8)
+      else if (selectedCategory && supportCategoryUsesLearnApi(selectedCategory)) setStep(2.8)
       else setStep(2.5)
     } else if (step === 2.8) {
       setStep(2.5)
@@ -399,17 +416,16 @@ export function FloatingChatModal({
     }
   }
 
-  const handleSwitchTab = (newView: 'home' | 'tickets') => {
+  const handleSwitchTab = (newView: FloatingChatView) => {
     setView(newView)
-    if (newView === 'tickets') {
-      setSelectedTicketId(null)
-    }
+    setSelectedTicketId(null)
     if (newView === 'home') {
       resetHomeFlow()
     }
     // Draft state belongs to whichever flow is active — leaving it behind would
     // leak a half-typed "create" draft (topic chip, message) into a reply box.
-    setSelectedTopic(null)
+    setSelectedSubCategory(null)
+    setSelectedSubCategoryLabel(null)
     setMessage('')
     setFiles([])
     setUploadError(null)
@@ -441,16 +457,16 @@ export function FloatingChatModal({
   const isSubmitting = uploading || createTicketMutation.isPending || replyMutation.isPending
 
   const handleComposerSend = async () => {
-    if ((!selectedTopic && !message.trim() && files.length === 0) || isSubmitting) return
+    if ((!selectedSubCategory && !message.trim() && files.length === 0) || isSubmitting) return
     setUploadError(null)
 
-    // The quick-question chip ("Topic:") is the subCategory verbatim; any extra
-    // text the student types is appended to the body, never merged into it.
+    // The quick-question chip ("Topic:") shows the label; the slug is stored as subCategory.
     const extraText = message.trim()
-    let finalMessage = selectedTopic
+    const topicText = selectedSubCategoryLabel ?? selectedSubCategory
+    let finalMessage = topicText
       ? extraText
-        ? `${selectedTopic}\n\n${extraText}`
-        : selectedTopic
+        ? `${topicText}\n\n${extraText}`
+        : topicText
       : extraText
 
     if (files.length > 0) {
@@ -474,7 +490,7 @@ export function FloatingChatModal({
       createTicketMutation.mutate({
         batchId: selectedBatchId,
         category: mapSupportCategoryToTicketCategory(selectedCategoryObj?.id ?? 'general'),
-        subCategory: selectedTopic,
+        subCategory: selectedSubCategory,
         message: finalMessage,
         entityId: selectedItem?.id ?? null,
       })
@@ -517,6 +533,11 @@ export function FloatingChatModal({
 
   const showInboxLoading = isInboxLoading && !inbox
   const showHomeBatchStep = view === 'home' && step === 0 && showBatchStep
+  const isResolvingSingleBatch =
+    view === 'home' &&
+    step === 0 &&
+    !showBatchStep &&
+    (showInboxLoading || batches.length === 1)
 
   return (
     <>
@@ -557,6 +578,12 @@ export function FloatingChatModal({
             className="flex-1 overflow-y-auto flex flex-col gap-[9px] animate-in slide-in-from-right-2 duration-200 fade-in h-full [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:bg-[#e9e9f3] [&::-webkit-scrollbar-thumb]:rounded-full pr-1 -mr-1"
             key={`${view}-${step}-${selectedTicketId}`}
           >
+            {isResolvingSingleBatch && (
+              <div className="flex flex-1 items-center justify-center py-8">
+                <p className="text-[13px] text-[#62647d]">Loading…</p>
+              </div>
+            )}
+
             {showHomeBatchStep && showInboxLoading && (
               <div className="flex flex-1 items-center justify-center py-8">
                 <p className="text-[13px] text-[#62647d]">Loading batches…</p>
@@ -589,7 +616,7 @@ export function FloatingChatModal({
               <CourseSelector
                 batches={batches}
                 selectedBatchId={selectedBatchId}
-                onSelect={setSelectedBatchId}
+                onSelect={handleBatchSelect}
               />
             )}
 
@@ -613,7 +640,8 @@ export function FloatingChatModal({
                 items={selectorItems}
                 search={itemSearch}
                 onSearchChange={setItemSearch}
-                isLoading={usesLearnApi ? isLearnItemsLoading : false}
+                isLoading={usesLearnApi ? isLearnItemsLoading && learnPageData == null : false}
+                isPageLoading={usesLearnApi ? isLearnItemsFetching && learnPageData != null : false}
                 isError={usesLearnApi ? isLearnItemsError : false}
                 onRetry={usesLearnApi ? () => void refetchLearnItems() : undefined}
                 pagination={
@@ -639,7 +667,7 @@ export function FloatingChatModal({
                 categoryObj={selectedCategoryObj}
                 itemObj={selectedItemObj}
                 onConfirm={() => {
-                  if (QUICK_QUERIES[selectedCategoryObj.id]) {
+                  if (supportCategoryUsesLearnApi(selectedCategoryObj.id)) {
                     setStep(2.8)
                   } else {
                     setStep(3)
@@ -653,11 +681,15 @@ export function FloatingChatModal({
               />
             )}
 
-            {view === 'home' && step === 2.8 && selectedCategoryObj && QUICK_QUERIES[selectedCategoryObj.id] && (
+            {view === 'home' && step === 2.8 && selectedCategoryObj && subcategoryCategory && (
               <QuickQuerySelector
-                queries={QUICK_QUERIES[selectedCategoryObj.id]}
-                onSelect={(query) => {
-                  setSelectedTopic(query)
+                queries={subcategoryOptions}
+                isLoading={isSubcategoriesLoading}
+                isError={isSubcategoriesError}
+                onRetry={() => void refetchSubcategories()}
+                onSelect={(option) => {
+                  setSelectedSubCategory(option.value)
+                  setSelectedSubCategoryLabel(option.label)
                   setMessage('')
                   setStep(3)
                 }}
@@ -711,6 +743,29 @@ export function FloatingChatModal({
               />
             )}
 
+            {view === 'oneOnOne' && (
+              <>
+                {showInboxLoading ? (
+                  <div className="flex flex-1 items-center justify-center py-8">
+                    <p className="text-[13px] text-[#62647d]">Loading 1:1 sessions…</p>
+                  </div>
+                ) : isInboxError ? (
+                  <div className="flex flex-1 flex-col items-center justify-center gap-3 py-8 text-center">
+                    <p className="text-[13px] text-[#62647d]">Couldn&apos;t load 1:1 sessions.</p>
+                    <button
+                      type="button"
+                      onClick={onInboxRetry}
+                      className="rounded-[10px] border border-[#e9e9f3] bg-white px-4 py-2 text-[13px] font-bold text-[#15162c] hover:bg-[#f0f0fd]"
+                    >
+                      Try again
+                    </button>
+                  </div>
+                ) : (
+                  <FloatingOneOnOneTab groups={oneOnOneGroups} />
+                )}
+              </>
+            )}
+
             {view === 'tickets' && !selectedTicketId && (
               <>
                 {showInboxLoading ? (
@@ -760,35 +815,19 @@ export function FloatingChatModal({
           </div>
         </div>
 
-        {showHomeBatchStep && (
-          <div
-            className={cn(
-              'shrink-0 p-[12px_18px_14px] border-t border-[#e9e9f3] bg-white transition-all duration-200 ease-out',
-              selectedBatchId ? 'block' : 'hidden',
-            )}
-          >
-            <button
-              type="button"
-              onClick={() => setStep(1)}
-              className="flex w-full items-center justify-center gap-2 p-[13px] rounded-[10px] font-bold text-[14px] text-white transition-all hover:-translate-y-[1px] hover:opacity-90 active:scale-[0.98]"
-              style={{ background: gradientBg }}
-            >
-              Continue
-              <CaretRight weight="bold" className="size-[15px]" />
-            </button>
-          </div>
-        )}
-
         {((view === 'home' && step === 3) ||
           (view === 'tickets' && selectedTicketId && (!isTicketResolved || isEscalating))) && (
           <ChatComposer
-            selectedTopic={selectedTopic}
-            onClearTopic={() => setSelectedTopic(null)}
+            selectedTopic={selectedSubCategoryLabel}
+            onClearTopic={() => {
+              setSelectedSubCategory(null)
+              setSelectedSubCategoryLabel(null)
+            }}
             message={message}
             onChange={setMessage}
             placeholder={
               view === 'tickets' ? 'Reply to this ticket...' : 
-              selectedTopic ? 'Any extra details we should know? (Optional)' : 'Describe your issue...'
+              selectedSubCategoryLabel ? 'Any extra details we should know? (Optional)' : 'Describe your issue...'
             }
             files={files}
             onFilesSelected={addFiles}
@@ -805,7 +844,8 @@ export function FloatingChatModal({
             <button
               type="button"
               onClick={() => {
-                setSelectedTopic(null)
+                setSelectedSubCategory(null)
+                setSelectedSubCategoryLabel(null)
                 setMessage('')
                 setStep(3)
               }}
@@ -861,6 +901,19 @@ export function FloatingChatModal({
               </span>
             )}
           </button>
+          {hasOneOnOne && (
+            <button
+              type="button"
+              onClick={() => handleSwitchTab('oneOnOne')}
+              className={cn(
+                'flex-1 flex flex-col items-center gap-[3px] p-[9px_0_10px] text-[10.8px] font-bold transition-colors group',
+                view === 'oneOnOne' ? 'text-[#4b4396]' : 'text-[#9496ab] hover:text-[#4b4396]',
+              )}
+            >
+              <CalendarCheck weight="bold" className="size-[19px]" />
+              <span>1:1 Support</span>
+            </button>
+          )}
         </div>
       </div>
     </>

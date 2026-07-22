@@ -65,16 +65,13 @@ function buildAttendanceReason(
 
   const isWindowOver = uiState === 'att_window_over'
   const isWatching = uiState === 'continue_watching'
-  const watched = Math.round(attendance.watchPercentage || attendance.videoPercentage || 0)
 
   if (snapshot.lectureKind === 'video') {
     if (isWindowOver) {
-      return watched > 0
-        ? `You only watched ${watched}% of the recording and the window to finish it has closed, so you were marked absent.`
-        : 'You did not watch this recording and the window to watch it has closed, so you were marked absent.'
+      return 'You did not finish watching the recording and the window to finish it has closed, so you were marked absent.'
     }
     if (isWatching) {
-      return `You've watched ${watched}% of the recording. Watch it fully to be marked present — status updates can take up to 24 hours.`
+      return 'Finish watching the recording to be marked present — status updates can take up to 24 hours.'
     }
     return 'You have not watched this recording yet, so you were marked absent. Watch the full recording to be marked present.'
   }
@@ -96,7 +93,7 @@ function buildAttendanceReason(
     return `${liveReason} The window to watch the recording and claim attendance has closed.`
   }
   if (isWatching) {
-    return `${liveReason} You're currently at ${watched}% of the recording — finish watching to become Present; status updates can take up to 24 hours.`
+    return `${liveReason} Finish watching the recording to become Present; status updates can take up to 24 hours.`
   }
   return `${liveReason} You can still watch the recording to become Present within the catch-up window.`
 }

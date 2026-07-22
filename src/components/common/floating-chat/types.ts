@@ -29,11 +29,4 @@ export interface Message {
 
 export type TicketFilter = 'all' | 'open' | 're-opened' | 'resolved'
 
-export interface Ticket {
-  id: string
-  category: string
-  itemTitle: string | null
-  status: 'open' | 'in_progress' | 'resolved'
-  updated: string
-  messages: Message[]
-}
+export type FloatingChatView = 'home' | 'tickets' | 'oneOnOne'

@@ -163,7 +163,7 @@ describe('getSupportAttendancePresentation', () => {
       }),
     )
 
-    expect(result.absentReason).toMatch(/watched 40% of the recording/i)
+    expect(result.absentReason).toMatch(/finish watching the recording to be marked present/i)
   })
 
   it('explains a video lecture with no watch progress at all', () => {
@@ -189,7 +189,7 @@ describe('getSupportAttendancePresentation', () => {
       }),
     )
 
-    expect(result.absentReason).toMatch(/only watched 30%/i)
+    expect(result.absentReason).toMatch(/did not finish watching the recording/i)
     expect(result.absentReason).toMatch(/window to finish it has closed/i)
   })
 })

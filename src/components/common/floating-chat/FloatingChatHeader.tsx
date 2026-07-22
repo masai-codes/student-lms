@@ -1,11 +1,11 @@
 import { CaretLeft, X } from '@phosphor-icons/react'
 import type { SupportBatch, TicketListItem } from '@/server/api/support/support.types'
 import { formatSocialPostTime } from '@/lib/socialRelativeTime'
-import type { Category } from './types'
+import type { Category, FloatingChatView } from './types'
 import { ticketStatusLabel } from './ticketStatus'
 
 interface FloatingChatHeaderProps {
-  view: 'home' | 'tickets'
+  view: FloatingChatView
   step: number
   selectedTicketId: number | null
   showBatchStep: boolean
@@ -30,13 +30,14 @@ export function FloatingChatHeader({
   onClose,
 }: FloatingChatHeaderProps) {
   const getHeaderTitle = () => {
+    if (view === 'oneOnOne') return '1:1 Support'
     if (view === 'tickets') {
       if (selectedTicket) return selectedTicket.title
       return 'Your tickets'
     }
     switch (step) {
       case 0:
-        return 'Select a batch'
+        return showBatchStep ? 'Select a batch' : 'Loading…'
       case 1:
         return 'Choose a category'
       case 2:
@@ -59,6 +60,9 @@ export function FloatingChatHeader({
   }
 
   const getHeaderSubtitle = () => {
+    if (view === 'oneOnOne') {
+      return 'Book a session with your IA, EC, or Program Coordinator.'
+    }
     if (view === 'tickets') {
       if (selectedTicket) {
         const updated = selectedTicket.updatedAt
@@ -70,7 +74,9 @@ export function FloatingChatHeader({
     }
     switch (step) {
       case 0:
-        return 'Select the batch related to your issue so your ticket reaches the right team.'
+        return showBatchStep
+          ? 'Select the batch related to your issue so your ticket reaches the right team.'
+          : 'Getting things ready…'
       case 1:
         return 'Pick the category that best fits your issue.'
       case 2:

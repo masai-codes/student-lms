@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react'
 import { cn } from '@/lib/utils'
 import { MagnifyingGlass, CaretRight, CaretLeft } from '@phosphor-icons/react'
 import type { Category, Item } from './types'
@@ -18,6 +19,7 @@ interface ItemSelectorProps {
   onSearchChange: (value: string) => void
   onSelect: (item: Item) => void
   isLoading?: boolean
+  isPageLoading?: boolean
   isError?: boolean
   onRetry?: () => void
   pagination?: ItemSelectorPagination
@@ -30,12 +32,19 @@ export function ItemSelector({
   onSearchChange,
   onSelect,
   isLoading = false,
+  isPageLoading = false,
   isError = false,
   onRetry,
   pagination,
 }: ItemSelectorProps) {
+  const listRef = useRef<HTMLDivElement>(null)
   const showPagination =
     pagination != null && (pagination.hasPreviousPage || pagination.hasNextPage)
+
+  useEffect(() => {
+    if (pagination == null) return
+    listRef.current?.scrollTo({ top: 0 })
+  }, [pagination?.page])
 
   return (
     <div className="flex flex-col h-full gap-2">
@@ -84,7 +93,13 @@ export function ItemSelector({
 
       {!isLoading && !isError && items.length > 0 && (
         <div className="flex flex-col flex-1 min-h-0">
-          <div className="flex flex-col flex-1 overflow-y-auto">
+          <div
+            ref={listRef}
+            className={cn(
+              'flex flex-col flex-1 overflow-y-auto transition-opacity duration-150',
+              isPageLoading && 'pointer-events-none opacity-60',
+            )}
+          >
             {items.map((item) => {
               const lectureTypeLabel =
                 categoryObj.id === 'lecture'
@@ -145,7 +160,7 @@ export function ItemSelector({
               <div className="flex items-center bg-[#f4f4f7] rounded-full p-1 shadow-sm border border-[#e9e9f3]">
                 <button
                   type="button"
-                  disabled={!pagination.hasPreviousPage}
+                  disabled={!pagination.hasPreviousPage || isPageLoading}
                   onClick={() => pagination.onPageChange(pagination.page - 1)}
                   className={cn(
                     'flex items-center justify-center size-[26px] rounded-full transition-all duration-200',
@@ -163,7 +178,7 @@ export function ItemSelector({
                 </div>
                 <button
                   type="button"
-                  disabled={!pagination.hasNextPage}
+                  disabled={!pagination.hasNextPage || isPageLoading}
                   onClick={() => pagination.onPageChange(pagination.page + 1)}
                   className={cn(
                     'flex items-center justify-center size-[26px] rounded-full transition-all duration-200',
