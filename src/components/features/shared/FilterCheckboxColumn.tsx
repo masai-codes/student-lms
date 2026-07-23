@@ -1,10 +1,14 @@
 import { useState } from 'react'
 import { MasaiCheckbox } from '@/components/ui/masai-checkbox'
 import { MasaiInput } from '@/components/ui/masai-input'
-import type { FilterOption } from './bookmarksFilterConfig'
 
-export interface BookmarkCheckboxColumnProps {
-  options: Array<FilterOption>
+export interface FilterColumnOption {
+  value: string
+  label: string
+}
+
+export interface FilterCheckboxColumnProps {
+  options: Array<FilterColumnOption>
   selected: Array<string>
   onToggle: (value: string) => void
   /** Show the in-list search box once the list is long enough to warrant it. */
@@ -12,21 +16,21 @@ export interface BookmarkCheckboxColumnProps {
 }
 
 /**
- * A searchable multi-select checkbox list used inside the bookmarks filter
- * drawer. Self-contained: owns its own list-search text.
+ * A searchable multi-select checkbox list used inside filter drawers
+ * (bookmarks, announcements). Self-contained: owns its own list-search text.
  */
-export function BookmarkCheckboxColumn({
+export function FilterCheckboxColumn({
   options,
   selected,
   onToggle,
   searchable = true,
-}: BookmarkCheckboxColumnProps) {
+}: FilterCheckboxColumnProps) {
   const [search, setSearch] = useState('')
 
   if (options.length === 0) {
     return (
       <p
-        data-testid="bookmarks-filter-empty-options"
+        data-testid="filter-empty-options"
         className="type-b2-regular text-foreground-subtle"
       >
         No options available.

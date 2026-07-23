@@ -1,34 +1,44 @@
 import { describe, expect, it } from 'vitest'
 import {
+  ANNOUNCEMENT_FILTER_SECTIONS,
   ANNOUNCEMENT_TYPE_OPTIONS,
+  createEmptyAnnouncementFilters,
+  isIsoDate,
   normalizeFilterValues,
 } from './announcementFilterConfig'
 
-describe('ANNOUNCEMENT_TYPE_OPTIONS', () => {
-  it('exposes only the critical and info student-facing types', () => {
+describe('announcementFilterConfig', () => {
+  it('exposes the four filter sections in order', () => {
+    expect(ANNOUNCEMENT_FILTER_SECTIONS).toEqual([
+      'type',
+      'category',
+      'announcedBy',
+      'date',
+    ])
+  })
+
+  it('exposes only the critical + info type options', () => {
     expect(ANNOUNCEMENT_TYPE_OPTIONS.map((o) => o.value)).toEqual([
       'critical',
       'info',
     ])
   })
-})
 
-describe('normalizeFilterValues', () => {
-  it('returns undefined for absent, empty, or non-string input', () => {
-    expect(normalizeFilterValues(undefined)).toBeUndefined()
-    expect(normalizeFilterValues('')).toBeUndefined()
-    expect(normalizeFilterValues([])).toBeUndefined()
-    expect(normalizeFilterValues(42)).toBeUndefined()
-    expect(normalizeFilterValues([''])).toBeUndefined()
+  it('creates a fresh empty filter state', () => {
+    const a = createEmptyAnnouncementFilters()
+    a.types.push('x')
+    expect(createEmptyAnnouncementFilters().types).toEqual([])
   })
 
-  it('wraps a single string into a one-element list', () => {
-    expect(normalizeFilterValues('critical')).toEqual(['critical'])
+  it('validates ISO dates', () => {
+    expect(isIsoDate('2026-07-22')).toBe(true)
+    expect(isIsoDate('2026-13-01')).toBe(false)
   })
 
-  it('dedupes an array and drops non-string / empty entries', () => {
-    expect(
-      normalizeFilterValues(['critical', 'critical', 'info', '', 5]),
-    ).toEqual(['critical', 'info'])
+  it('normalizes csv/array/junk filter values', () => {
+    expect(normalizeFilterValues('a, b ,a')).toEqual(['a', 'b'])
+    expect(normalizeFilterValues(['a', 'a', ''])).toEqual(['a'])
+    expect(normalizeFilterValues(undefined)).toEqual([])
+    expect(normalizeFilterValues(5)).toEqual([])
   })
 })

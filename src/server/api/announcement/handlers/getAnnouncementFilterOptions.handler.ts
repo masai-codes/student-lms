@@ -5,9 +5,10 @@ import { getAnnouncementFilterOptions } from '@/server/api/announcement/getAnnou
 
 export async function handleGetAnnouncementFilterOptions(): Promise<Response> {
   try {
-    await requireSessionUserId()
-    const { categories } = await getAnnouncementFilterOptions()
-    return jsonOk({ categories })
+    const userId = await requireSessionUserId()
+    const { categories, announcers } =
+      await getAnnouncementFilterOptions(userId)
+    return jsonOk({ categories, announcers })
   } catch (error) {
     if (!isApiError(error)) {
       console.error('Failed to fetch announcement filter options', error)

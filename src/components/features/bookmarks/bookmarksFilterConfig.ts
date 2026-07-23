@@ -1,4 +1,7 @@
 import type { BookmarkTab } from './bookmarksConfig'
+import { isIsoDate } from '@/lib/isIsoDate'
+
+export { isIsoDate }
 
 export interface FilterOption {
   value: string
@@ -73,13 +76,6 @@ export function getTypeOptions(tab: BookmarkTab): Array<FilterOption> {
   if (tab === 'lectures') return LECTURE_TYPE_OPTIONS
   if (tab === 'announcements') return ANNOUNCEMENT_TYPE_OPTIONS
   return []
-}
-
-/** Strict `YYYY-MM-DD` validator (also rejects impossible calendar dates). */
-export function isIsoDate(value: string): boolean {
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return false
-  const date = new Date(`${value}T00:00:00Z`)
-  return !Number.isNaN(date.getTime()) && date.toISOString().slice(0, 10) === value
 }
 
 /** Coerce a raw search-param value into a deduped list of non-empty strings. */

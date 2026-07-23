@@ -2,21 +2,19 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { act, cleanup, fireEvent, render, screen } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { BookmarksFilterDrawer } from './BookmarksFilterDrawer'
-import { createEmptyBookmarkFilters } from './bookmarksFilterConfig'
-import type { BookmarkFilters } from './bookmarksFilterConfig'
+import { AnnouncementFilterDrawer } from './AnnouncementFilterDrawer'
+import { createEmptyAnnouncementFilters } from './announcementFilterConfig'
+import type { AnnouncementFilters } from './announcementFilterConfig'
 
 const hoisted = vi.hoisted(() => ({
   fetchOptions: vi.fn(),
   pushGtmEvent: vi.fn(),
 }))
 
-vi.mock('@/lib/api/bookmarks/bookmarksApi', () => ({
-  fetchBookmarkFilterOptions: hoisted.fetchOptions,
+vi.mock('@/lib/api/announcement/announcementApi', () => ({
+  fetchAnnouncementFilterOptions: hoisted.fetchOptions,
 }))
 vi.mock('@/utils/gtm', () => ({ pushGtmEvent: hoisted.pushGtmEvent }))
-
-// Mock the drawer so we can drive open state + fire the post-close hook.
 vi.mock('@/components/ui/masai-drawer', () => ({
   MasaiDrawer: ({
     isOpen,
@@ -33,17 +31,16 @@ vi.mock('@/components/ui/masai-drawer', () => ({
     </div>
   ),
 }))
-
-vi.mock('./BookmarksFiltersPanel', () => ({
-  BookmarksFiltersPanel: ({
+vi.mock('./AnnouncementFiltersPanel', () => ({
+  AnnouncementFiltersPanel: ({
     onApply,
   }: {
-    onApply: (next: BookmarkFilters) => void
+    onApply: (next: AnnouncementFilters) => void
   }) => (
     <button
       data-testid="panel-apply"
       onClick={() =>
-        onApply({ ...createEmptyBookmarkFilters(), categories: ['DSA'] })
+        onApply({ ...createEmptyAnnouncementFilters(), types: ['critical'] })
       }
     />
   ),
@@ -52,16 +49,11 @@ vi.mock('./BookmarksFiltersPanel', () => ({
 afterEach(cleanup)
 beforeEach(() => {
   vi.clearAllMocks()
-  hoisted.fetchOptions.mockResolvedValue({
-    categories: [],
-    modules: [],
-    statuses: [],
-    priorities: [],
-  })
+  hoisted.fetchOptions.mockResolvedValue({ categories: [], announcers: [] })
 })
 
 function renderDrawer(
-  filters: BookmarkFilters = createEmptyBookmarkFilters(),
+  filters: AnnouncementFilters = createEmptyAnnouncementFilters(),
   onApply = vi.fn(),
 ) {
   const client = new QueryClient({
@@ -69,52 +61,56 @@ function renderDrawer(
   })
   render(
     <QueryClientProvider client={client}>
-      <BookmarksFilterDrawer tab="lectures" filters={filters} onApply={onApply} />
+      <AnnouncementFilterDrawer filters={filters} onApply={onApply} />
     </QueryClientProvider>,
   )
   return { onApply }
 }
 
-describe('BookmarksFilterDrawer', () => {
-  it('shows no count badge when there are no active filters', () => {
+describe('AnnouncementFilterDrawer', () => {
+  it('hides the count badge with no active filters', () => {
     renderDrawer()
-    expect(screen.queryByTestId('bookmarks-filter-count')).toBeNull()
+    expect(screen.queryByTestId('announcements-filter-count')).toBeNull()
   })
 
-  it('shows the active filter count on the trigger', () => {
-    renderDrawer({ ...createEmptyBookmarkFilters(), categories: ['a', 'b'] })
-    expect(screen.getByTestId('bookmarks-filter-count').textContent).toBe('2')
+  it('shows the active filter count', () => {
+    renderDrawer({
+      ...createEmptyAnnouncementFilters(),
+      types: ['critical'],
+      categories: ['DSA'],
+    })
+    expect(screen.getByTestId('announcements-filter-count').textContent).toBe(
+      '2',
+    )
   })
 
   it('opens the drawer from the trigger', () => {
     renderDrawer()
     expect(screen.getByTestId('mock-drawer').dataset.open).toBe('false')
-    fireEvent.click(screen.getByTestId('bookmarks-filter-trigger'))
+    fireEvent.click(screen.getByTestId('announcements-filter-trigger'))
     expect(screen.getByTestId('mock-drawer').dataset.open).toBe('true')
   })
 
-  it('defers the commit until the drawer close animation finishes', () => {
+  it('defers the commit to the drawer close animation and fires GTM', () => {
     const { onApply } = renderDrawer()
-    fireEvent.click(screen.getByTestId('bookmarks-filter-trigger'))
+    fireEvent.click(screen.getByTestId('announcements-filter-trigger'))
     fireEvent.click(screen.getByTestId('panel-apply'))
 
-    // Apply fires GTM + closes the drawer, but does NOT commit yet.
     expect(hoisted.pushGtmEvent).toHaveBeenCalledWith(
-      'l_bookmarks_filter_apply',
-      { tab: 'lectures', count: 1 },
+      'l_announcement_filter_apply',
+      { count: 1 },
     )
     expect(onApply).not.toHaveBeenCalled()
 
-    // Commit happens once the drawer reports it has closed.
     fireEvent.click(screen.getByTestId('drawer-fire-closed'))
     expect(onApply).toHaveBeenCalledWith(
-      expect.objectContaining({ categories: ['DSA'] }),
+      expect.objectContaining({ types: ['critical'] }),
     )
   })
 
   it('commits via the fallback timer when the close animation never reports', () => {
     const { onApply } = renderDrawer()
-    fireEvent.click(screen.getByTestId('bookmarks-filter-trigger'))
+    fireEvent.click(screen.getByTestId('announcements-filter-trigger'))
     vi.useFakeTimers()
     fireEvent.click(screen.getByTestId('panel-apply'))
     expect(onApply).not.toHaveBeenCalled()
@@ -122,7 +118,7 @@ describe('BookmarksFilterDrawer', () => {
       vi.advanceTimersByTime(600)
     })
     expect(onApply).toHaveBeenCalledWith(
-      expect.objectContaining({ categories: ['DSA'] }),
+      expect.objectContaining({ types: ['critical'] }),
     )
     vi.useRealTimers()
   })

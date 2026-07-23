@@ -11,14 +11,17 @@ import {
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type * as TanstackRouter from '@tanstack/react-router'
 import { AnnouncementsPage } from './AnnouncementsPage'
+import { createEmptyAnnouncementFilters } from './announcementFilterConfig'
 
 const hoisted = vi.hoisted(() => {
   const search: {
-    page: number
     q?: string
+    page: number
     message?: boolean
     type?: Array<string>
     category?: Array<string>
+    announcedBy?: Array<string>
+    startDate?: string
   } = { page: 1 }
   return { fetchAnnouncements: vi.fn(), navigate: vi.fn(), search }
 })
@@ -39,22 +42,27 @@ vi.mock('@tanstack/react-router', async (importOriginal) => {
     ),
   }
 })
-vi.mock('./AnnouncementFilters', () => ({
-  AnnouncementFilters: ({
-    onChange,
+vi.mock('./AnnouncementFilterDrawer', () => ({
+  AnnouncementFilterDrawer: ({
+    onApply,
   }: {
-    onChange: (v: { types: Array<string>; categories: Array<string> }) => void
+    onApply: (f: ReturnType<typeof createEmptyAnnouncementFilters>) => void
   }) => (
-    <>
-      <button
-        data-testid="mock-apply-filters"
-        onClick={() => onChange({ types: ['critical'], categories: ['DSA'] })}
-      />
-      <button
-        data-testid="mock-clear-filters"
-        onClick={() => onChange({ types: [], categories: [] })}
-      />
-    </>
+    <button
+      data-testid="apply-filters"
+      onClick={() =>
+        onApply({
+          ...createEmptyAnnouncementFilters(),
+          types: ['critical'],
+          announcedBy: ['42'],
+        })
+      }
+    />
+  ),
+}))
+vi.mock('./AnnouncementAppliedFilters', () => ({
+  AnnouncementAppliedFilters: ({ onClearAll }: { onClearAll: () => void }) => (
+    <button data-testid="chips-clear" onClick={onClearAll} />
   ),
 }))
 
@@ -91,94 +99,94 @@ function renderPage() {
 }
 
 describe('AnnouncementsPage', () => {
-  it('renders announcements returned by the query', async () => {
+  it('renders announcements from the query', async () => {
     renderPage()
     expect(await screen.findByText('Welcome')).toBeTruthy()
   })
 
-  it('renders the empty state when no announcements match', async () => {
-    hoisted.fetchAnnouncements.mockResolvedValue({ announcements: [], total: 0 })
+  it('renders the empty state when nothing matches', async () => {
+    hoisted.fetchAnnouncements.mockResolvedValue({
+      announcements: [],
+      total: 0,
+    })
     renderPage()
     expect(await screen.findByTestId('announcements-empty')).toBeTruthy()
   })
 
-  it('navigates with the selected type/category filters (resetting page)', async () => {
+  it('navigates with applied filter params (page reset to 1)', async () => {
     renderPage()
     await screen.findByText('Welcome')
-    fireEvent.click(screen.getByTestId('mock-apply-filters'))
+    fireEvent.click(screen.getByTestId('apply-filters'))
     expect(hoisted.navigate).toHaveBeenCalledWith({
       to: '/announcements',
-      search: {
-        q: undefined,
+      search: expect.objectContaining({
         page: 1,
-        message: undefined,
         type: ['critical'],
-        category: ['DSA'],
-      },
+        announcedBy: ['42'],
+      }),
     })
   })
 
-  it('drops the filter params from the URL when cleared', async () => {
+  it('clears all filters via clear-all', async () => {
+    hoisted.search = { page: 1, type: ['critical'], category: ['DSA'] }
     renderPage()
     await screen.findByText('Welcome')
-    fireEvent.click(screen.getByTestId('mock-clear-filters'))
+    fireEvent.click(screen.getByTestId('chips-clear'))
     expect(hoisted.navigate).toHaveBeenCalledWith({
       to: '/announcements',
-      search: {
-        q: undefined,
-        page: 1,
-        message: undefined,
-        type: undefined,
-        category: undefined,
-      },
+      search: { q: undefined, page: 1, message: undefined },
     })
   })
 
-  it('preserves active filters when toggling "Important for you"', async () => {
-    hoisted.search = { page: 1, type: ['critical'], category: ['DSA'] }
+  it('preserves filters when toggling "Important for you"', async () => {
+    hoisted.search = { page: 1, type: ['critical'] }
     renderPage()
     await screen.findByText('Welcome')
     fireEvent.click(screen.getByTestId('announcements-important-toggle'))
     expect(hoisted.navigate).toHaveBeenCalledWith({
       to: '/announcements',
-      search: {
-        q: undefined,
-        page: 1,
-        message: true,
-        type: ['critical'],
-        category: ['DSA'],
-      },
+      search: expect.objectContaining({ message: true, type: ['critical'] }),
     })
   })
 
-  it('debounces the search box and preserves filters', async () => {
+  it('debounces search while preserving filters', async () => {
     vi.useFakeTimers()
     hoisted.search = { page: 1, type: ['critical'] }
     renderPage()
-    const input = screen.getByPlaceholderText('Search Announcements')
-    fireEvent.change(input, { target: { value: 'exam' } })
+    fireEvent.change(screen.getByPlaceholderText('Search Announcements'), {
+      target: { value: 'exam' },
+    })
     await act(() => {
       vi.advanceTimersByTime(300)
     })
     expect(hoisted.navigate).toHaveBeenCalledWith({
       to: '/announcements',
-      search: { q: 'exam', page: 1, message: undefined, type: ['critical'], category: undefined },
+      search: expect.objectContaining({ q: 'exam', type: ['critical'] }),
     })
     vi.useRealTimers()
   })
 
-  it('passes the current filters to the fetch query', async () => {
-    hoisted.search = { page: 2, type: ['critical'], category: ['DSA'], q: 'x' }
+  it('passes the active filters into the fetch query', async () => {
+    hoisted.search = {
+      page: 2,
+      type: ['critical'],
+      category: ['DSA'],
+      announcedBy: ['42'],
+      startDate: '2026-07-01',
+      q: 'x',
+    }
     renderPage()
     await waitFor(() =>
-      expect(hoisted.fetchAnnouncements).toHaveBeenCalledWith({
-        page: 2,
-        limit: 15,
-        q: 'x',
-        message: false,
-        types: ['critical'],
-        categories: ['DSA'],
-      }),
+      expect(hoisted.fetchAnnouncements).toHaveBeenCalledWith(
+        expect.objectContaining({
+          page: 2,
+          q: 'x',
+          types: ['critical'],
+          categories: ['DSA'],
+          announcedBy: ['42'],
+          startDate: '2026-07-01',
+        }),
+      ),
     )
   })
 })

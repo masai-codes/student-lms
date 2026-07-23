@@ -1,44 +1,54 @@
-# Announcements listing — Type & Category filters
+# Announcements listing — filter drawer
 
 Last updated: 2026-07-22
 
 ## Scope
 
-The `/announcements` listing (`AnnouncementsPage`) gains parity with the old LMS
-filter bar. Alongside the existing search box (`q`) and "Important for you"
-toggle (`message`), it now offers two multi-select dropdown filters:
+The `/announcements` listing gains a Learn-style right-side **filter drawer**
+(`MasaiDrawer`) replicating the old LMS announcements filter, alongside the
+existing search box (`q`) and "Important for you" toggle (`message`). Four
+filter sections (left-nav + content), matching the old LMS:
 
-- **Type** — fixed options `Critical` (`critical`) and `Information` (`info`),
-  matching the old LMS student filter (which intentionally exposes only these
-  two of the stored types).
-- **Category** — options loaded from the `menus` table
-  (`category = 'announcement-category'`, non-deprecated), via
-  `GET /api/announcement/filter-options`. The dropdown is hidden when no
-  categories are configured.
+| Section | Control | Values |
+|---|---|---|
+| Type | checkboxes | `Critical` (`critical`), `Information` (`info`) — fixed |
+| Category | checkboxes | non-deprecated `announcement-category` menu values |
+| Announced by | checkboxes | distinct authors of the user's section announcements (value = user id) |
+| Announced date | date range | IST calendar-day range on `schedule` (fallback `created_at`) |
 
-Selections live in the URL search params (`type`, `category` — string arrays)
-so filters are shareable/back-forward safe. Changing any filter resets `page`
-to 1 and preserves the other params. A **Clear** control appears when any filter
-is active. Every control fires a GTM event (`l_announcement_filter_*`).
+- **Options** load once from `GET /api/announcement/filter-options`
+  (`{ categories, announcers }`); the drawer and the applied chips share the
+  cached query. Type is a fixed set.
+- **URL-driven** — `type`, `category`, `announcedBy` (CSV arrays), `startDate`,
+  `endDate`. The drawer keeps a draft and commits on Apply (deferred to the
+  drawer's `onClosed`). Changing a filter resets `page` to 1 and preserves
+  `q`/`message`.
+- **Applied-filter chips** below the controls remove one value each (Type
+  humanized, Announced-by shown as the author's name via the cached options);
+  "Clear all" drops every filter. An active-count badge sits on the trigger.
+- Filters apply to both blended sources — announcements (`a.type`/`a.category`/
+  `a.user_id`/schedule) and messages (`meta.$.message_type`/`meta.$.category`/
+  `m.author_id`/schedule) — via `buildAnnouncementFilterClauses`.
+- Apply/clear fire `l_announcement_filter_apply` GTM events.
 
-Backend: `parseAnnouncementsQuery` reads comma-separated `type`/`category`
-params into deduped arrays; `buildAnnouncementFilterClauses` produces
-parameterized `IN (…)` WHERE fragments applied to both blended sources —
-`announcements` (`a.type` / `a.category`) and `messages`
-(`meta.$.message_type` / `meta.$.category`), mirroring the old LMS resolver.
+Shared with the bookmarks drawer: `FilterCheckboxColumn`
+(`components/features/shared`) and `isIsoDate` (`@/lib/isIsoDate`).
 
 ## Test files
 
-| File                                                                                    | Covers                                                                          |
-| --------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------- |
-| `src/server/api/announcement/utils/__tests__/buildAnnouncementFilterClauses.test.ts`    | Empty → empty fragment; parameterized `IN` for types/categories on both sources; combined ordering |
-| `src/server/api/announcement/utils/__tests__/parseAnnouncementsQuery.test.ts`           | Defaults, page/limit/q/message parsing, invalid fallbacks, CSV type/category dedupe + trim, empty params |
-| `src/server/api/announcement/__tests__/getAnnouncementFilterOptions.service.test.ts`    | Menu rows → deduped category values; empty-value drop / empty result           |
-| `src/lib/api/announcement/__tests__/announcementApi.filters.test.ts`                    | Param serialization (omit when empty, comma-join when set); filter-options fetch |
-| `src/components/features/announcements/announcementFilterConfig.test.ts`                | Type option set; `normalizeFilterValues` (single/array/dedupe/invalid → undefined) |
-| `src/components/features/announcements/AnnouncementFilters.test.tsx`                     | Type renders; Category shows/hides on options; GTM + onChange for type/category/clear |
-| `src/components/features/announcements/AnnouncementCard.test.tsx`                        | Announcement vs message routing; critical tint; unread dot + For-you badge; empty author |
-| `src/components/features/announcements/AnnouncementsPage.test.tsx`                       | List/empty render; filter apply/clear navigation (page reset); toggle preserves filters; debounced search; fetch params |
+| File | Covers |
+| --- | --- |
+| `src/server/api/announcement/utils/__tests__/buildAnnouncementFilterClauses.test.ts` | type/category/announcedBy `IN` on both sources; schedule date range (BETWEEN/`>=`/`<=`) |
+| `src/server/api/announcement/utils/__tests__/parseAnnouncementsQuery.test.ts` | defaults, csv parse, announcedBy + date validation |
+| `src/server/api/announcement/__tests__/getAnnouncementFilterOptions.service.test.ts` | categories + section-scoped announcers; no sections; blank-name drop |
+| `src/lib/api/announcement/__tests__/announcementApi.filters.test.ts` | param serialization (incl. announcedBy/dates); options fetch shape |
+| `src/components/features/announcements/announcementFilterConfig.test.ts` | sections, type options, empty factory, `isIsoDate`, `normalizeFilterValues` |
+| `src/components/features/announcements/announcementFilterSearch.test.ts` | search⇄filters, count, chips (type/announcer labels, removal, date) |
+| `src/components/features/announcements/AnnouncementFiltersPanel.test.tsx` | nav sections, type/announced-by/date apply, clear |
+| `src/components/features/announcements/AnnouncementFilterDrawer.test.tsx` | trigger open, count badge, deferred commit, GTM |
+| `src/components/features/announcements/AnnouncementAppliedFilters.test.tsx` | chip render, announcer-name resolution, removal, clear-all, empty → null |
+| `src/components/features/announcements/AnnouncementCard.test.tsx` | card routing/tint/badges |
+| `src/components/features/announcements/AnnouncementsPage.test.tsx` | list/empty, apply/clear navigation, toggle preserves filters, debounced search, fetch params |
 
 ## Commands
 
@@ -50,15 +60,13 @@ npx tsc --noEmit
 
 ## Manual QA
 
-1. Open `/announcements`. Select one or more **Type** options — the list filters
-   and the URL gains `type=…`; the count badge shows the number selected.
-2. Select **Category** options — the list filters and `category=…` is added.
-   Confirm the Category dropdown is absent if no categories are configured.
-3. Confirm changing a filter resets to page 1 and keeps the search text and
-   "Important for you" state.
-4. Click **Clear** — all filter params drop from the URL and the full list
-   returns.
-5. Reload / use browser back-forward — the active filters restore from the URL.
+1. Open `/announcements`, click **Filters** — the drawer slides in with Type,
+   Category, Announced by, Announced date sections.
+2. Select values across sections, click Apply — the list filters, the URL gains
+   the params, chips appear, and the count badge updates.
+3. Remove a chip; click "Clear all" — filters clear.
+4. Confirm "Important for you" and search still work and preserve active
+   filters. Reload / back-forward restores filters from the URL.
 
-Update this file and `feature-test-matrix.md` when the announcement listing
-filter behavior or tests change.
+Update this file and `feature-test-matrix.md` when the announcement filter
+behavior or tests change.

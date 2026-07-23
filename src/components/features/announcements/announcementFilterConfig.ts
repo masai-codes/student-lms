@@ -1,34 +1,63 @@
-import type { MasaiDropdownCheckboxFilterOption } from '@/components/ui/masai-dropdown-checkbox-filter'
+import { isIsoDate } from '@/lib/isIsoDate'
+import type { FilterColumnOption } from '@/components/features/shared/FilterCheckboxColumn'
+
+export { isIsoDate }
+
+/** Selected filter state for the announcements drawer (URL-driven). */
+export interface AnnouncementFilters {
+  types: Array<string>
+  categories: Array<string>
+  announcedBy: Array<string>
+  startDate?: string
+  endDate?: string
+}
+
+export function createEmptyAnnouncementFilters(): AnnouncementFilters {
+  return { types: [], categories: [], announcedBy: [] }
+}
+
+export type AnnouncementFilterSection =
+  | 'type'
+  | 'category'
+  | 'announcedBy'
+  | 'date'
+
+export const ANNOUNCEMENT_FILTER_SECTIONS: Array<AnnouncementFilterSection> = [
+  'type',
+  'category',
+  'announcedBy',
+  'date',
+]
+
+export const SECTION_LABELS: Record<AnnouncementFilterSection, string> = {
+  type: 'Type',
+  category: 'Category',
+  announcedBy: 'Announced by',
+  date: 'Announced date',
+}
 
 /**
- * Announcement TYPE filter options. Matches the old LMS student filter, which
- * intentionally surfaces only `critical` and `info` (other stored types such as
- * `warning`/`success` are admin-side and not offered to students).
+ * Fixed announcement TYPE options. Matches the old LMS student filter, which
+ * surfaces only `critical` and `info`.
  */
-export const ANNOUNCEMENT_TYPE_OPTIONS: Array<MasaiDropdownCheckboxFilterOption> =
-  [
-    { value: 'critical', label: 'Critical' },
-    { value: 'info', label: 'Information' },
-  ]
+export const ANNOUNCEMENT_TYPE_OPTIONS: Array<FilterColumnOption> = [
+  { value: 'critical', label: 'Critical' },
+  { value: 'info', label: 'Information' },
+]
 
-/**
- * Coerce a raw search-param value (string, array, or absent) into a deduped
- * list of non-empty strings, or `undefined` when nothing is selected. Used by
- * the route's `validateSearch` so the URL stays canonical.
- */
-export function normalizeFilterValues(raw: unknown): Array<string> | undefined {
+/** Coerce a raw search-param value into a deduped list of non-empty strings. */
+export function normalizeFilterValues(raw: unknown): Array<string> {
   const list = Array.isArray(raw)
     ? raw
     : typeof raw === 'string' && raw.length > 0
-      ? [raw]
+      ? raw.split(',')
       : []
-  const cleaned = [
+  return [
     ...new Set(
-      list.filter(
-        (value): value is string =>
-          typeof value === 'string' && value.length > 0,
-      ),
+      list
+        .filter((v): v is string => typeof v === 'string')
+        .map((v) => v.trim())
+        .filter(Boolean),
     ),
   ]
-  return cleaned.length > 0 ? cleaned : undefined
 }

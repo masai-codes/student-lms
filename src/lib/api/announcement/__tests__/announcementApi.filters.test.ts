@@ -29,6 +29,9 @@ describe('fetchAnnouncements — filter params', () => {
       message: true,
       types: ['critical', 'info'],
       categories: ['DSA'],
+      announcedBy: ['42', '7'],
+      startDate: '2026-07-01',
+      endDate: '2026-07-31',
     })
 
     const url = hoisted.fetchJson.mock.calls[0][0] as string
@@ -37,6 +40,9 @@ describe('fetchAnnouncements — filter params', () => {
     expect(search.get('message')).toBe('true')
     expect(search.get('type')).toBe('critical,info')
     expect(search.get('category')).toBe('DSA')
+    expect(search.get('announcedBy')).toBe('42,7')
+    expect(search.get('startDate')).toBe('2026-07-01')
+    expect(search.get('endDate')).toBe('2026-07-31')
   })
 
   it('does not set type/category when the arrays are empty', async () => {
@@ -51,11 +57,15 @@ describe('fetchAnnouncements — filter params', () => {
   })
 
   it('fetchAnnouncementFilterOptions GETs the filter-options endpoint', async () => {
-    hoisted.fetchJson.mockResolvedValueOnce({ categories: ['DSA'] })
+    hoisted.fetchJson.mockResolvedValueOnce({
+      categories: ['DSA'],
+      announcers: [{ id: '1', name: 'Ada' }],
+    })
     const { fetchAnnouncementFilterOptions } = await import('../announcementApi')
 
     await expect(fetchAnnouncementFilterOptions()).resolves.toEqual({
       categories: ['DSA'],
+      announcers: [{ id: '1', name: 'Ada' }],
     })
     expect(hoisted.fetchJson).toHaveBeenCalledWith(
       '/api/announcement/filter-options',

@@ -7,26 +7,33 @@ import AppPagination from '@/components/common/Pagination'
 import { fetchAnnouncements } from '@/lib/api/announcement/announcementApi'
 import { ANNOUNCEMENTS_PER_PAGE } from './announcementsConfig'
 import { AnnouncementCard } from './AnnouncementCard'
-import { AnnouncementFilters } from './AnnouncementFilters'
+import { AnnouncementFilterDrawer } from './AnnouncementFilterDrawer'
+import { AnnouncementAppliedFilters } from './AnnouncementAppliedFilters'
+import {
+  filtersFromSearch,
+  searchFromFilters,
+} from './announcementFilterSearch'
+import type { AnnouncementFilters } from './announcementFilterConfig'
 
 const STALE_TIME_MS = 5 * 60 * 1000 // 5 minutes
 
 const routeApi = getRouteApi('/(protected)/_layout/announcements/')
 
 export function AnnouncementsPage() {
-  const { q, page, message, type, category } = routeApi.useSearch()
+  const search = routeApi.useSearch()
+  const { q, page, message } = search
   const navigate = useNavigate()
   const messagesOnly = message === true
-  const types = type ?? []
-  const categories = category ?? []
+  const filters = filtersFromSearch(search)
 
   const [searchInput, setSearchInput] = useState(q ?? '')
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-  // Keep local input in sync if q changes externally (e.g. browser back/forward)
   useEffect(() => {
     setSearchInput(q ?? '')
   }, [q])
+
+  const filterSearch = searchFromFilters(filters)
 
   function handleSearch(value: string) {
     setSearchInput(value)
@@ -34,24 +41,24 @@ export function AnnouncementsPage() {
     debounceRef.current = setTimeout(() => {
       void navigate({
         to: '/announcements',
-        search: { q: value || undefined, page: 1, message, type, category },
+        search: { ...filterSearch, q: value || undefined, page: 1, message },
       })
     }, 300)
   }
 
   const { data, isLoading, isFetching } = useQuery({
-    queryKey: [
-      'announcements',
-      { page, q: q ?? '', message: messagesOnly, types, categories },
-    ],
+    queryKey: ['announcements', { page, q: q ?? '', message: messagesOnly, filterSearch }],
     queryFn: () =>
       fetchAnnouncements({
         page,
         limit: ANNOUNCEMENTS_PER_PAGE,
         q,
         message: messagesOnly,
-        types,
-        categories,
+        types: filters.types,
+        categories: filters.categories,
+        announcedBy: filters.announcedBy,
+        startDate: filters.startDate,
+        endDate: filters.endDate,
       }),
     staleTime: STALE_TIME_MS,
     placeholderData: keepPreviousData,
@@ -65,7 +72,7 @@ export function AnnouncementsPage() {
   function handlePageChange(newPage: number) {
     void navigate({
       to: '/announcements',
-      search: { q, page: newPage, message, type, category },
+      search: { ...filterSearch, q, page: newPage, message },
     })
   }
 
@@ -73,34 +80,23 @@ export function AnnouncementsPage() {
     void navigate({
       to: '/announcements',
       search: {
+        ...filterSearch,
         q,
         page: 1,
         message: messagesOnly ? undefined : true,
-        type,
-        category,
       },
     })
   }
 
-  function handleFiltersChange(next: {
-    types: Array<string>
-    categories: Array<string>
-  }) {
+  function applyFilters(next: AnnouncementFilters) {
     void navigate({
       to: '/announcements',
-      search: {
-        q,
-        page: 1,
-        message,
-        type: next.types.length > 0 ? next.types : undefined,
-        category: next.categories.length > 0 ? next.categories : undefined,
-      },
+      search: { ...searchFromFilters(next), q, page: 1, message },
     })
   }
 
   return (
     <div className="mx-4 mb-6 mt-4 md:mx-8 flex flex-col gap-4">
-      {/* Header row — outside the white card */}
       <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
         <h1 className="text-xl font-semibold text-foreground shrink-0">
           Announcements
@@ -113,10 +109,7 @@ export function AnnouncementsPage() {
             iconLeft={<Search size={15} className="text-foreground-subtle" />}
             className="w-full min-w-0 sm:w-[20rem] lg:w-[28rem]"
           />
-          <AnnouncementFilters
-            value={{ types, categories }}
-            onChange={handleFiltersChange}
-          />
+          <AnnouncementFilterDrawer filters={filters} onApply={applyFilters} />
           <button
             type="button"
             onClick={handleMessagesToggle}
@@ -132,11 +125,20 @@ export function AnnouncementsPage() {
         </div>
       </div>
 
-      {/* White card — card list + pagination */}
+      <AnnouncementAppliedFilters
+        filters={filters}
+        onChange={applyFilters}
+        onClearAll={() =>
+          void navigate({
+            to: '/announcements',
+            search: { q, page: 1, message },
+          })
+        }
+      />
+
       <div
         className={`rounded-2xl border border-border bg-surface p-6 flex flex-col gap-5 transition-opacity ${isFetching && !isLoading ? 'opacity-60' : 'opacity-100'}`}
       >
-        {/* Card list */}
         <div className="flex flex-col gap-2.5">
           {isLoading ? (
             <div className="py-10 text-center text-sm text-foreground-subtle">
@@ -163,7 +165,6 @@ export function AnnouncementsPage() {
           )}
         </div>
 
-        {/* Pagination */}
         {totalPages > 1 && (
           <div className="flex justify-center">
             <AppPagination

@@ -13,6 +13,21 @@ export interface FetchAnnouncementsParams {
   types?: Array<string>
   /** Selected announcement categories. */
   categories?: Array<string>
+  /** Selected author user ids. */
+  announcedBy?: Array<string>
+  /** Announced-date range bounds (ISO `yyyy-mm-dd`). */
+  startDate?: string
+  endDate?: string
+}
+
+export interface AnnouncerOption {
+  id: string
+  name: string
+}
+
+export interface AnnouncementFilterOptionsResult {
+  categories: Array<string>
+  announcers: Array<AnnouncerOption>
 }
 
 export interface FetchAnnouncementsResult {
@@ -33,16 +48,18 @@ export async function fetchAnnouncements(
     search.set('type', params.types.join(','))
   if (params.categories && params.categories.length > 0)
     search.set('category', params.categories.join(','))
+  if (params.announcedBy && params.announcedBy.length > 0)
+    search.set('announcedBy', params.announcedBy.join(','))
+  if (params.startDate) search.set('startDate', params.startDate)
+  if (params.endDate) search.set('endDate', params.endDate)
 
   return fetchJson<FetchAnnouncementsResult>(
     `${ANNOUNCEMENT_API.list}?${search.toString()}`,
   )
 }
 
-export async function fetchAnnouncementFilterOptions(): Promise<{
-  categories: Array<string>
-}> {
-  return fetchJson<{ categories: Array<string> }>(
+export async function fetchAnnouncementFilterOptions(): Promise<AnnouncementFilterOptionsResult> {
+  return fetchJson<AnnouncementFilterOptionsResult>(
     ANNOUNCEMENT_API.filterOptions,
   )
 }

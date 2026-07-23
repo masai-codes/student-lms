@@ -14,7 +14,18 @@ describe('parseAnnouncementsQuery', () => {
       messagesOnly: false,
       types: [],
       categories: [],
+      announcedBy: [],
+      startDate: undefined,
+      endDate: undefined,
     })
+  })
+
+  it('parses announcedBy + announced-date range', () => {
+    const r = parse('?announcedBy=42,7,42&startDate=2026-07-01&endDate=2026-07-31')
+    expect(r.announcedBy).toEqual(['42', '7'])
+    expect(r.startDate).toBe('2026-07-01')
+    expect(r.endDate).toBe('2026-07-31')
+    expect(parse('?startDate=nope').startDate).toBeUndefined()
   })
 
   it('parses page, limit, q and message flag', () => {

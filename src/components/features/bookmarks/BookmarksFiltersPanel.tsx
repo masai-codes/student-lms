@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { MasaiButton } from '@/components/masai-button'
 import { MasaiDateRangePicker } from '@/components/ui/masai-date-range-picker'
-import { BookmarkCheckboxColumn } from './BookmarkCheckboxColumn'
+import { FilterCheckboxColumn } from '@/components/features/shared/FilterCheckboxColumn'
 import {
   createEmptyBookmarkFilters,
   getBookmarkFilterSections,
@@ -117,7 +117,7 @@ export function BookmarksFiltersPanel({
               }
             />
           ) : (
-            <BookmarkCheckboxColumn
+            <FilterCheckboxColumn
               key={activeNav}
               options={optionsFor(activeNav)}
               selected={(draft[SECTION_FIELD[activeNav]!] as Array<string>) ?? []}

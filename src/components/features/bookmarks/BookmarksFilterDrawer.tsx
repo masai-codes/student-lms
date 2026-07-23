@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { SlidersHorizontal } from 'lucide-react'
 import { MasaiDrawer } from '@/components/ui/masai-drawer'
@@ -37,6 +37,15 @@ export function BookmarksFilterDrawer({
 }: BookmarksFilterDrawerProps) {
   const [open, setOpen] = useState(false)
   const pendingRef = useRef<BookmarkFilters | null>(null)
+  const fallbackRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  // Clear any pending fallback timer on unmount.
+  useEffect(
+    () => () => {
+      if (fallbackRef.current) clearTimeout(fallbackRef.current)
+    },
+    [],
+  )
 
   const { data } = useQuery({
     queryKey: ['bookmark-filter-options', tab],
@@ -46,6 +55,18 @@ export function BookmarksFilterDrawer({
 
   const activeCount = countActiveBookmarkFilters(filters)
 
+  function flushPending() {
+    if (fallbackRef.current) {
+      clearTimeout(fallbackRef.current)
+      fallbackRef.current = null
+    }
+    if (pendingRef.current) {
+      const pending = pendingRef.current
+      pendingRef.current = null
+      onApply(pending)
+    }
+  }
+
   function handleApply(next: BookmarkFilters) {
     pushGtmEvent('l_bookmarks_filter_apply', {
       tab,
@@ -53,13 +74,9 @@ export function BookmarksFilterDrawer({
     })
     pendingRef.current = next
     setOpen(false)
-  }
-
-  function flushPending() {
-    if (pendingRef.current) {
-      onApply(pendingRef.current)
-      pendingRef.current = null
-    }
+    // Safety net: commit even if the drawer's close animation never reports done.
+    if (fallbackRef.current) clearTimeout(fallbackRef.current)
+    fallbackRef.current = setTimeout(flushPending, 600)
   }
 
   return (

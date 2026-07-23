@@ -201,11 +201,27 @@ async function getMessagesOnly(
 
 export async function getAnnouncements(
   userId: number,
-  { page, limit, q, messagesOnly, types, categories }: AnnouncementsQueryParams,
+  {
+    page,
+    limit,
+    q,
+    messagesOnly,
+    types,
+    categories,
+    announcedBy,
+    startDate,
+    endDate,
+  }: AnnouncementsQueryParams,
 ): Promise<GetAnnouncementsResult> {
   const offset = (page - 1) * limit
   const searchTerm = `%${q ?? ''}%`
-  const filters = buildAnnouncementFilterClauses(types, categories)
+  const filters = buildAnnouncementFilterClauses({
+    types,
+    categories,
+    announcedBy,
+    startDate,
+    endDate,
+  })
 
   // When filtering to messages only, skip section-ID resolution entirely
   if (messagesOnly) {
