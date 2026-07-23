@@ -31,7 +31,8 @@ export function AskAiPillContent() {
         weight="fill"
         aria-hidden
       />
-      <span className="relative">Ask AI</span>
+      {/* Icon-only on phones (compact toolbar); labelled from `sm` up. */}
+      <span className="relative hidden sm:inline">Ask AI</span>
     </>
   )
 }

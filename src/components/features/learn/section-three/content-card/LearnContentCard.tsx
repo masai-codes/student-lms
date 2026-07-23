@@ -33,6 +33,20 @@ const learnContentTagChipPalette = {
   textClassName: '!text-foreground-muted',
 }
 
+// Evaluation tags get a distinct yellow treatment so graded evaluations stand
+// out from ordinary type/category/module tags.
+const learnContentEvaluationTagChipPalette = {
+  backgroundClassName:
+    'bg-yellow-50 border border-yellow-100 dark:bg-warning-subtle dark:border-warning-subtle',
+  textClassName: '!text-yellow-600 dark:!text-warning-subtle-foreground',
+}
+
+function resolveTagChipPalette(tag: string) {
+  return tag.trim().toLowerCase() === 'evaluation'
+    ? learnContentEvaluationTagChipPalette
+    : learnContentTagChipPalette
+}
+
 function LearnTypeIcon({ type }: Pick<LearnContentItem, 'type'>) {
   return (
     <img
@@ -163,7 +177,7 @@ export function LearnContentCard({
                         label={tag}
                         tabIndex={-1}
                         className="cursor-default transition-colors duration-200"
-                        {...learnContentTagChipPalette}
+                        {...resolveTagChipPalette(tag)}
                       />
                     ))}
                   </div>
@@ -200,7 +214,7 @@ export function LearnContentCard({
                         label={tag}
                         tabIndex={-1}
                         className="cursor-default transition-colors duration-200"
-                        {...learnContentTagChipPalette}
+                        {...resolveTagChipPalette(tag)}
                       />
                     ))}
                     <MasaiChips

@@ -174,13 +174,22 @@ export default function AppNavbar() {
 
   // MasaiVerse Community access is per-user and stable for the session, so cache
   // it the same way the masaiverse route loader does. Admins always have access.
-  const { data: masaiverseAccess } = useQuery({
-    queryKey: ['masaiverse-access', user.id],
-    queryFn: () =>
-      getMasaiverseAccessDebugServer({ data: { userId: user.id } }),
-    staleTime: 5 * 60 * 1000,
-    enabled: user.role !== 'admin',
-  })
+  const { data: masaiverseAccess, isLoading: isMasaiverseAccessLoading } =
+    useQuery({
+      queryKey: ['masaiverse-access', user.id],
+      queryFn: () =>
+        getMasaiverseAccessDebugServer({ data: { userId: user.id } }),
+      staleTime: 5 * 60 * 1000,
+      enabled: user.role !== 'admin',
+    })
+
+  // Until the per-user access check resolves we don't yet know whether to show
+  // "MasaiVerse" or "Refer & Earn", so we withhold the either/or item entirely.
+  // Rendering it early defaults to the "Refer & Earn" branch and then swaps to
+  // "MasaiVerse" once the query resolves — the fraction-of-a-second flicker.
+  // Admins short-circuit (query is disabled), so they never wait.
+  const isMasaiverseAccessResolved =
+    user.role === 'admin' || !isMasaiverseAccessLoading
 
   // When the CTA is active we surface "MasaiVerse Community" in the main desktop
   // nav (replacing "Refer & Earn") and move "Refer & Earn" into the profile
@@ -342,9 +351,10 @@ export default function AppNavbar() {
       stayInNew: false,
       oldUiPath: OLD_STUDENT_UI_NAV_PATHS.discussions,
     }),
-    // Non-Masai portals hide the MasaiVerse CTA and the Refer & Earn
-    // (changemakers) link entirely; Masai keeps the existing either/or behaviour.
-    ...(hideMasaiExtras
+    // iHub hides the MasaiVerse CTA and the Refer & Earn (changemakers) link
+    // entirely; Masai keeps the existing either/or behaviour. We also wait for
+    // the access check to resolve to avoid flickering between the two labels.
+    ...(isIHub || !isMasaiverseAccessResolved
       ? []
       : [
           showMasaiverseCta
@@ -458,8 +468,9 @@ export default function AppNavbar() {
         openInNewTab: false,
       },
       // MasaiVerse Community / Refer & Earn and Practice Interviews are
-      // Masai-only and dropped from the non-Masai (iHub, IIT Jodhpur) profile menu.
-      ...(hideMasaiExtras
+      // Masai-only and dropped from the iHub profile menu. Withhold the
+      // either/or item until the access check resolves to avoid the flicker.
+      ...(isIHub || !isMasaiverseAccessResolved
         ? []
         : [
             showMasaiverseCta
@@ -539,6 +550,7 @@ export default function AppNavbar() {
       handleSignOut,
       hideMasaiExtras,
       isLevelupLoading,
+      isMasaiverseAccessResolved,
       showMasaiverseCta,
     ],
   )

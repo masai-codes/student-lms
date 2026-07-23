@@ -58,7 +58,11 @@ export function buildDashboardScheduleItem(input: {
   }
 }
 
-/** sections.name → batches.name → null (the learn "which course" label chain). */
+/**
+ * The batch label shown on dashboard cards. Only surfaced when the learner is
+ * enrolled in more than one batch (see `showCourseName` in the service), so a
+ * single-batch learner never sees a redundant batch name.
+ */
 function resolveCourseName(row: ScheduleEntityRow): string | null {
-  return row.sectionName?.trim() || row.batchName?.trim() || null
+  return row.batchName?.trim() || null
 }

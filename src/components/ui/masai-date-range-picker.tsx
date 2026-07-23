@@ -193,7 +193,9 @@ export function MasaiDateRangePicker({
               <div
                 key={day.format(ISO)}
                 className={cn(
-                  'relative grid h-9 place-items-center',
+                  // Square, fluid cell so the 7-column grid fits any container
+                  // width (narrow filter drawers included) without overflowing.
+                  'relative grid aspect-square min-w-0 place-items-center',
                   inBand && 'bg-[color:var(--range)]',
                   inBand && roundLeft && 'rounded-l-full',
                   inBand && roundRight && 'rounded-r-full',
@@ -210,7 +212,7 @@ export function MasaiDateRangePicker({
                   aria-label={day.format('dddd, MMMM D, YYYY')}
                   aria-pressed={isEndpoint}
                   className={cn(
-                    'grid size-9 place-items-center rounded-full text-sm transition-colors',
+                    'grid aspect-square size-full max-h-9 max-w-9 place-items-center rounded-full text-sm transition-colors',
                     inMonth ? 'text-slate-700' : 'text-slate-300',
                     !isEndpoint && 'hover:bg-surface-muted',
                     !isEndpoint &&

@@ -80,29 +80,16 @@ wget -q "https://s3.amazonaws.com/amazoncloudwatch-agent/ubuntu/arm64/latest/ama
   -O /tmp/amazon-cloudwatch-agent.deb
 dpkg -i /tmp/amazon-cloudwatch-agent.deb
 
-echo "==> Writing CloudWatch agent config (memory metrics)..."
+echo "==> Writing CloudWatch agent config..."
 mkdir -p /opt/aws/amazon-cloudwatch-agent/etc
-cat > /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.json << 'EOF'
-{
-  "agent": {
-    "metrics_collection_interval": 60,
-    "run_as_user": "root"
-  },
-  "metrics": {
-    "namespace": "StudentLMS/EC2",
-    "append_dimensions": {
-      "InstanceId": "${aws:InstanceId}",
-      "AutoScalingGroupName": "${aws:AutoScalingGroupName}"
-    },
-    "metrics_collected": {
-      "mem": {
-        "measurement": ["mem_used_percent"],
-        "metrics_collection_interval": 60
-      }
-    }
-  }
-}
-EOF
+CW_AGENT_CONFIG="/opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.json"
+STAGED_CONFIG="/tmp/cw-agent-config.json"
+if [ -f "$STAGED_CONFIG" ]; then
+  cp "$STAGED_CONFIG" "$CW_AGENT_CONFIG"
+else
+  echo "ERROR: CloudWatch agent config not staged at $STAGED_CONFIG"
+  exit 1
+fi
 
 echo "==> Starting CloudWatch agent..."
 /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl \

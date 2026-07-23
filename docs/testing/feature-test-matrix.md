@@ -1,5 +1,12 @@
 # Feature Test Matrix
 
+Last updated: 2026-07-02
+
+## Structured logging
+- Area: Server logging utility (`src/lib/logger.ts`)
+- Status: Covered
+- Test files: `src/lib/logger.test.ts`
+- Notes: JSON structured logs for PM2/CloudWatch (`level`, `time`, `msg`, optional `fn`/`requestId`/`userId`/`err`). Production emits compact single-line JSON; non-production pretty-prints. `warn`/`error` route to stderr; `debug`/`info` to stdout.
 Last updated: 2026-07-09
 
 ## Next-action pill (navbar top-right + mobile tab bar)
@@ -256,6 +263,20 @@ Last updated: 2026-07-09
 - Status: Covered
 - Test files: `src/server/api/ai-tutor/__tests__/{migrateFeedbackRating,migrateAiTutorFeedbackRatings.service,migrateFeedbackRatings.handler}.test.ts`
 - Notes: `POST /api/ai-tutor/chat/feedback/migrate-ratings` is admin-gated and backfills legacy `ai_chat_practice_questions.rating` values: subtract `1` for `ios`/`android` feedback prefixes (skip when result would be `< 1`), otherwise convert unprefixed binary `0`/`1` ratings to `1`/`5`. Supports `{ dryRun: true }`.
+
+## Bookmarks listing — filter drawer
+
+- Area: `/bookmarks` listing (`BookmarksPage`) Learn-style right-side filter drawer. Frontend: `BookmarksFilterDrawer` (`MasaiDrawer` host + trigger/count badge + deferred `onClosed` commit), `BookmarksFiltersPanel` (nav + content + apply/clear), `BookmarkCheckboxColumn`, `BookmarksAppliedFilters` (chips), `bookmarksFilterConfig` (per-tab sections, fixed type options, `isIsoDate`/`normalizeFilterValues`), `bookmarksFilterSearch` (URL⇄filters, count, chips), extracted `BookmarkCard` + `BookmarkListStates`. Client: `fetchBookmarks` (CSV filter params) + `fetchBookmarkFilterOptions`. Backend: `parseBookmarksQuery` (CSV + date parse), `buildBookmarkFilterClauses` (`IN` + lecture-type + IST saved-date fragments) threaded into all tab queries, `getBookmarkFilterOptions` service/handler + `GET /api/bookmarks/filter-options`.
+- Status: Covered
+- Test files: `src/server/api/bookmarks/utils/__tests__/{buildBookmarkFilterClauses,parseBookmarksQuery}.test.ts`, `src/server/api/bookmarks/__tests__/getBookmarkFilterOptions.service.test.ts`, `src/lib/api/bookmarks/__tests__/bookmarksApi.filters.test.ts`, `src/components/features/bookmarks/{bookmarksFilterConfig.test.ts,bookmarksFilterSearch.test.ts,BookmarksFiltersPanel.test.tsx,BookmarksFilterDrawer.test.tsx,BookmarksAppliedFilters.test.tsx,BookmarkCard.test.tsx,BookmarksPage.test.tsx}`
+- Notes: The old LMS bookmarks drawer only had a date filter; this is a richer, data-grounded drawer whose per-tab filters map to real columns (Lectures: Category/Module/Type/Saved-date; Assignments: Category/Module/Saved-date; Tickets: Status/Priority/Category/Saved-date; Announcements: Category/Type/Saved-date; Masaiverse: Saved-date). Category/Module/Status/Priority options are distinct values from the user's own bookmarks; Type is fixed (Lecture/Resource, Critical/Information). Filters live in URL params, commit on Apply (deferred to `onClosed`), reset page to 1, and switching tabs clears search + filters. Saved date compares `bookmarks.created_at` (`club_post_bookmarks.created_at` for Masaiverse) as an IST calendar day. Chips remove single values; a count badge sits on the trigger. Apply/clear fire `l_bookmarks_filter_apply`. Test docs: `docs/testing/features/bookmarks-filters.md`.
+
+## Announcements listing — filter drawer
+
+- Area: `/announcements` listing (`AnnouncementsPage`) Learn-style right-side filter drawer replicating the old LMS announcements filter (Type, Category, Announced by, Announced date). Frontend: `AnnouncementFilterDrawer` (`MasaiDrawer` host + trigger/count badge + deferred `onClosed` commit), `AnnouncementFiltersPanel` (nav + content + apply/clear), shared `FilterCheckboxColumn`, `AnnouncementAppliedFilters` (chips, announcer-name resolution), `announcementFilterConfig` (sections, fixed type options), `announcementFilterSearch` (URL⇄filters, count, chips), `AnnouncementCard` (extracted), route `validateSearch`. Client: `fetchAnnouncements` (CSV `type`/`category`/`announcedBy` + `startDate`/`endDate`) + `fetchAnnouncementFilterOptions` (`{categories, announcers}`). Backend: `parseAnnouncementsQuery`, `buildAnnouncementFilterClauses` (`IN` + author + IST schedule-date fragments for both `announcements` + `messages` sources), `getAnnouncementFilterOptions` service/handler + `GET /api/announcement/filter-options`. Shared: `@/lib/isIsoDate`, `components/features/shared/FilterCheckboxColumn`.
+- Status: Covered
+- Test files: `src/server/api/announcement/utils/__tests__/{buildAnnouncementFilterClauses,parseAnnouncementsQuery}.test.ts`, `src/server/api/announcement/__tests__/getAnnouncementFilterOptions.service.test.ts`, `src/lib/api/announcement/__tests__/announcementApi.filters.test.ts`, `src/components/features/announcements/{announcementFilterConfig.test.ts,announcementFilterSearch.test.ts,AnnouncementFiltersPanel.test.tsx,AnnouncementFilterDrawer.test.tsx,AnnouncementAppliedFilters.test.tsx,AnnouncementCard.test.tsx,AnnouncementsPage.test.tsx}`
+- Notes: Four sections match the old LMS drawer. Type is fixed (`critical`/`info`); Category from `menus` (`announcement-category`, non-deprecated); Announced-by = distinct authors of the user's section announcements (value = user id); Announced-date = IST calendar-day range on `schedule` (fallback `created_at`). Multi-select checkboxes (a superset of the old single-select radios). Filters live in URL params, commit on Apply (deferred to `onClosed`), reset `page` to 1, preserve `q`/`message`; chips remove single values (announcer chips show the name), count badge on the trigger, `l_announcement_filter_apply` GTM. Applied to both blended sources — announcements (`a.type`/`a.category`/`a.user_id`/schedule) and messages (`meta.$.message_type`/`meta.$.category`/`m.author_id`/schedule). Test docs: `docs/testing/features/announcements-filters.md`.
 
 ## Announcement popups (global queued modal)
 
