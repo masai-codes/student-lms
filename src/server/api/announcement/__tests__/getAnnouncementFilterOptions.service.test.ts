@@ -21,15 +21,19 @@ function mockSections(rows: Array<{ sectionId: number }>) {
 describe('getAnnouncementFilterOptions service', () => {
   beforeEach(() => vi.clearAllMocks())
 
-  it('returns categories + distinct announcers for the user sections', async () => {
+  it('merges announcement + message authors, deduped and sorted by name', async () => {
     mockCategories([{ value: 'DSA' }, { value: 'General' }])
     mockSections([{ sectionId: 9 }])
-    hoisted.dbExecute.mockResolvedValueOnce([
-      [
-        { id: 1, name: 'Ada' },
-        { id: 2, name: 'Zed' },
-      ],
-    ])
+    // db.execute #1 = announcement authors, #2 = message authors
+    hoisted.dbExecute
+      .mockResolvedValueOnce([[{ id: 2, name: 'Indrani' }]])
+      .mockResolvedValueOnce([
+        [
+          { id: 5, name: 'Mridul Katara' },
+          { id: 2, name: 'Indrani' }, // duplicate across sources
+          { id: 7, name: 'Nihal' },
+        ],
+      ])
 
     const { getAnnouncementFilterOptions } = await import(
       '../getAnnouncementFilterOptions.service'
@@ -37,35 +41,36 @@ describe('getAnnouncementFilterOptions service', () => {
     await expect(getAnnouncementFilterOptions(7)).resolves.toEqual({
       categories: ['DSA', 'General'],
       announcers: [
-        { id: '1', name: 'Ada' },
-        { id: '2', name: 'Zed' },
+        { id: '2', name: 'Indrani' },
+        { id: '5', name: 'Mridul Katara' },
+        { id: '7', name: 'Nihal' },
       ],
     })
+    expect(hoisted.dbExecute).toHaveBeenCalledTimes(2)
   })
 
-  it('returns no announcers when the user has no sections', async () => {
+  it('still returns message authors when the user has no sections', async () => {
     mockCategories([{ value: 'DSA' }])
     mockSections([])
+    // Only the message-authors query runs (no announcement query without sections)
+    hoisted.dbExecute.mockResolvedValueOnce([[{ id: 5, name: 'Mridul Katara' }]])
 
     const { getAnnouncementFilterOptions } = await import(
       '../getAnnouncementFilterOptions.service'
     )
     await expect(getAnnouncementFilterOptions(7)).resolves.toEqual({
       categories: ['DSA'],
-      announcers: [],
+      announcers: [{ id: '5', name: 'Mridul Katara' }],
     })
-    expect(hoisted.dbExecute).not.toHaveBeenCalled()
+    expect(hoisted.dbExecute).toHaveBeenCalledTimes(1)
   })
 
-  it('drops announcers with blank names', async () => {
+  it('drops authors with blank names', async () => {
     mockCategories([])
     mockSections([{ sectionId: 9 }])
-    hoisted.dbExecute.mockResolvedValueOnce([
-      [
-        { id: 1, name: 'Ada' },
-        { id: 3, name: '' },
-      ],
-    ])
+    hoisted.dbExecute
+      .mockResolvedValueOnce([[{ id: 1, name: 'Ada' }, { id: 3, name: '' }]])
+      .mockResolvedValueOnce([[]])
 
     const { getAnnouncementFilterOptions } = await import(
       '../getAnnouncementFilterOptions.service'

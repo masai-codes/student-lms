@@ -48,6 +48,17 @@ async function getCategories(): Promise<Array<string>> {
   return [...new Set(rows.map((row) => row.value).filter(Boolean))]
 }
 
+function toAnnouncers(result: unknown): Array<AnnouncerOption> {
+  return rowsOf(result)
+    .map((row) => ({ id: String(row['id']), name: String(row['name'] ?? '') }))
+    .filter((a) => a.name.trim() !== '')
+}
+
+/**
+ * Authors who appear in the blended announcements listing — both announcement
+ * authors (section-scoped) and message senders (the user's personal top-level
+ * messages). Merged, deduped by id, and sorted by name.
+ */
 async function getAnnouncers(userId: number): Promise<Array<AnnouncerOption>> {
   const sectionRows = await db
     .select({ sectionId: sectionUser.sectionId })
@@ -57,24 +68,50 @@ async function getAnnouncers(userId: number): Promise<Array<AnnouncerOption>> {
   const sectionIds = [...new Set(sectionRows.map((r) => r.sectionId))].filter(
     Number.isFinite,
   )
-  if (sectionIds.length === 0) return []
 
-  const result = await db.execute(sql`
-    SELECT DISTINCT u.id AS id, u.name AS name
-    FROM announcements a
-    INNER JOIN users u ON u.id = a.user_id
-    WHERE a.section_id IN (${sql.join(
-      sectionIds.map((id) => sql`${id}`),
-      sql`, `,
-    )})
-      AND a.deleted_at IS NULL
-      AND u.name IS NOT NULL
-    ORDER BY u.name
-  `)
+  const announcementAuthors =
+    sectionIds.length > 0
+      ? db
+          .execute(
+            sql`
+              SELECT DISTINCT u.id AS id, u.name AS name
+              FROM announcements a
+              INNER JOIN users u ON u.id = a.user_id
+              WHERE a.section_id IN (${sql.join(
+                sectionIds.map((id) => sql`${id}`),
+                sql`, `,
+              )})
+                AND a.deleted_at IS NULL
+                AND u.name IS NOT NULL
+            `,
+          )
+          .then(toAnnouncers)
+      : Promise.resolve<Array<AnnouncerOption>>([])
 
-  return rowsOf(result)
-    .map((row) => ({ id: String(row['id']), name: String(row['name'] ?? '') }))
-    .filter((a) => a.name.trim() !== '')
+  const messageAuthors = db
+    .execute(
+      sql`
+        SELECT DISTINCT u.id AS id, u.name AS name
+        FROM messages m
+        INNER JOIN users u ON u.id = m.author_id
+        WHERE m.user_id = ${userId}
+          AND m.message_id IS NULL
+          AND m.deleted_at IS NULL
+          AND u.name IS NOT NULL
+      `,
+    )
+    .then(toAnnouncers)
+
+  const [fromAnnouncements, fromMessages] = await Promise.all([
+    announcementAuthors,
+    messageAuthors,
+  ])
+
+  const byId = new Map<string, AnnouncerOption>()
+  for (const author of [...fromAnnouncements, ...fromMessages]) {
+    if (!byId.has(author.id)) byId.set(author.id, author)
+  }
+  return [...byId.values()].sort((a, b) => a.name.localeCompare(b.name))
 }
 
 /**

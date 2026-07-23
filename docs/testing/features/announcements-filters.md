@@ -13,7 +13,7 @@ filter sections (left-nav + content), matching the old LMS:
 |---|---|---|
 | Type | checkboxes | `Critical` (`critical`), `Information` (`info`) — fixed |
 | Category | checkboxes | non-deprecated `announcement-category` menu values |
-| Announced by | checkboxes | distinct authors of the user's section announcements (value = user id) |
+| Announced by | checkboxes | distinct authors across the blended list — section announcement authors **and** message senders (value = user id) |
 | Announced date | date range | IST calendar-day range on `schedule` (fallback `created_at`) |
 
 - **Options** load once from `GET /api/announcement/filter-options`
