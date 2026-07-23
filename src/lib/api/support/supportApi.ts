@@ -15,6 +15,7 @@ import type {
   FaqVote,
   FloatingChatInbox,
   LectureSupportSnapshot,
+  SupportEntityContext,
   SupportFaq,
   SupportOverview,
   TicketListItem,
@@ -43,6 +44,16 @@ export async function fetchSupportOverview(
 /** GET the floating support modal inbox payload. */
 export async function fetchFloatingChatInbox(): Promise<FloatingChatInbox> {
   return fetchJson<FloatingChatInbox>(SUPPORT_API.floatingChatInbox)
+}
+
+/** GET batch + item card for launching the floater from a learn detail page. */
+export async function fetchSupportEntityContext(input: {
+  category: string
+  entityId: number
+}): Promise<SupportEntityContext> {
+  return fetchJson<SupportEntityContext>(
+    SUPPORT_API.floatingChatEntityContext(input.category, input.entityId),
+  )
 }
 
 /** GET lecture recording / duration / AI summary / attendance for support modal. */

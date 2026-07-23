@@ -5,7 +5,7 @@ import {
   useRouterState,
 } from '@tanstack/react-router'
 import { useEffect } from 'react'
-import { AppLoading, FloatingChatSphere } from '@/components/common'
+import { AppLoading, FloatingChatProvider } from '@/components/common'
 import {
   AppMobileHeader,
   AppMobileTabBar,
@@ -43,6 +43,9 @@ const ENABLE_SUPPORT_FLOATER = true
  */
 function isNewStudentExperienceRoute(pathname: string): boolean {
   if (pathname.startsWith('/masaiverse')) return true
+  if (pathname === '/support-page' || pathname.startsWith('/support-page/')) {
+    return true
+  }
   return false
 }
 
@@ -144,6 +147,8 @@ function RouteComponent() {
   const { user } = Route.useRouteContext()
   const isApp = isMasaiverseApp(searchStr)
   const isMasaiverseRoute = pathname.startsWith('/masaiverse')
+  const isSupportPageRoute =
+    pathname === '/support-page' || pathname.startsWith('/support-page/')
   const isSupportRoute = pathname.startsWith('/support')
   // Lecture detail spans the full viewport width (no centered container), so
   // every hero state is edge-to-edge like the recording video.
@@ -162,36 +167,49 @@ function RouteComponent() {
     setCurrentUserForTracking(user)
   }, [user])
 
+  if (isSupportPageRoute) {
+    return (
+      <ModalProvider>
+        <Outlet />
+      </ModalProvider>
+    )
+  }
+
+  const showFloatingChat =
+    ENABLE_SUPPORT_FLOATER && !isMasaiverseRoute && !isSupportRoute
+
+  const layout = (
+    <div className="min-h-dvh bg-surface-muted flex flex-col">
+      <TryNewTour hasSeen={user.hasSeenTryNewTour} />
+      <AppNavbar />
+      {pathname === '/' && !isApp ? <AppMobileHeader /> : null}
+      <main
+        className={`${mainClasses} ${isApp && !isMasaiverseRoute ? 'pb-0' : 'pb-[calc(4.5rem+env(safe-area-inset-bottom))]'} md:pb-0`}
+      >
+        <Outlet />
+      </main>
+      {isMasaiverseRoute ? (
+        <MasaiverseMobileTabBar />
+      ) : !isApp ? (
+        <AppMobileTabBar />
+      ) : null}
+      {!ENABLE_SUPPORT_FLOATER &&
+      pathname === '/' &&
+      !isMasaiverseRoute &&
+      !isSupportRoute ? (
+        <SupportChatButton />
+      ) : null}
+      <AnnouncementModalController />
+    </div>
+  )
+
   return (
     <ModalProvider>
-      <div className="min-h-dvh bg-surface-muted flex flex-col">
-        <TryNewTour hasSeen={user.hasSeenTryNewTour} />
-        <AppNavbar />
-        {/* Mobile-only greeting header for the dashboard home; the desktop
-            navbar (with the same announcements + onboarding actions) is hidden
-            on mobile. */}
-        {pathname === '/' && !isApp ? <AppMobileHeader /> : null}
-        <main
-          className={`${mainClasses} ${isApp && !isMasaiverseRoute ? 'pb-0' : 'pb-[calc(4.5rem+env(safe-area-inset-bottom))]'} md:pb-0`}
-        >
-          <Outlet />
-        </main>
-        {isMasaiverseRoute ? (
-          <MasaiverseMobileTabBar />
-        ) : !isApp ? (
-          <AppMobileTabBar />
-        ) : null}
-        {/* Floating support entry — new floater when enabled; else old /support button on home. */}
-        {ENABLE_SUPPORT_FLOATER
-          ? !isMasaiverseRoute && !isSupportRoute
-            ? <FloatingChatSphere />
-            : null
-          : pathname === '/' && !isMasaiverseRoute && !isSupportRoute
-            ? <SupportChatButton />
-            : null}
-        {/* Central modal system — announcement popups check on every page. */}
-        <AnnouncementModalController />
-      </div>
+      {showFloatingChat ? (
+        <FloatingChatProvider>{layout}</FloatingChatProvider>
+      ) : (
+        layout
+      )}
     </ModalProvider>
   )
 }

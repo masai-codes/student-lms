@@ -204,6 +204,26 @@ export interface TicketCapabilities {
   canEscalate: boolean
 }
 
+export type SupportEntityCategory = 'lecture' | 'assignment' | 'resource' | 'evaluation'
+
+/** Item card fields for floating support step 2.5 (`Before you raise a ticket`). */
+export interface SupportEntityContextItem {
+  id: number
+  title: string
+  meta: string
+  date: string
+  type?: 'live' | 'video'
+  startTime?: string
+  isOptional?: boolean
+}
+
+/** Resolved learn entity for opening the floater from a detail page CTA. */
+export interface SupportEntityContext {
+  batchId: number
+  category: SupportEntityCategory
+  item: SupportEntityContextItem
+}
+
 /**
  * Lean payload for the floating support modal — fetched once when the user opens
  * the floater (`GET /api/support/floating-chat/inbox`).

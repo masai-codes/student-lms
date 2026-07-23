@@ -17,6 +17,7 @@ import {
   fetchAssignmentSupportSnapshot,
   fetchFloatingChatInbox,
   fetchLectureSupportSnapshot,
+  fetchSupportEntityContext,
   fetchSubcategoriesByCategory,
   fetchSupportFaqs,
   fetchSupportOverview,
@@ -29,6 +30,8 @@ export const SUPPORT_KEYS = {
   all: ['support'] as const,
   overview: (batchId?: number) => ['support', 'overview', batchId ?? 'default'] as const,
   floatingChatInbox: ['support', 'floating-chat', 'inbox'] as const,
+  entityContext: (category: string, entityId: number) =>
+    ['support', 'floating-chat', 'entity-context', category, entityId] as const,
   lectureSnapshot: (lectureId: number) =>
     ['support', 'floating-chat', 'lecture', lectureId] as const,
   assignmentSnapshot: (assignmentId: number) =>
@@ -63,6 +66,13 @@ export const floatingChatInboxQuery = () => ({
   refetchOnMount: false,
   refetchOnWindowFocus: false,
   refetchOnReconnect: false,
+})
+
+/** Learn detail entity → batch + item card for floater deep launch. */
+export const supportEntityContextQuery = (category: string, entityId: number) => ({
+  queryKey: SUPPORT_KEYS.entityContext(category, entityId),
+  queryFn: () => fetchSupportEntityContext({ category, entityId }),
+  staleTime: 60 * 1000,
 })
 
 /** Lecture snapshot for floating support item confirmation (probes CDN server-side). */
