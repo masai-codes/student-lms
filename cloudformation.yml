@@ -1209,6 +1209,7 @@ Resources:
                   "view": "timeSeries",
                   "stacked": false,
                   "period": 60,
+                  "stat": "Sum",
                   "metrics": [
                     [ "AWS/ApplicationELB", "RequestCount", "LoadBalancer", "${ALBFullName}" ],
                     [ ".", "HTTPCode_Target_2XX_Count", ".", "." ],
@@ -1224,13 +1225,14 @@ Resources:
                 "width": 12,
                 "height": 6,
                 "properties": {
-                  "title": "ALB Latency (P99)",
+                  "title": "ALB Latency (P99 / TM10:99)",
                   "region": "${Region}",
                   "view": "timeSeries",
                   "stacked": false,
                   "period": 60,
                   "metrics": [
-                    [ "AWS/ApplicationELB", "TargetResponseTime", "LoadBalancer", "${ALBFullName}", { "stat": "p99" } ]
+                    [ "AWS/ApplicationELB", "TargetResponseTime", "LoadBalancer", "${ALBFullName}", { "stat": "p99" } ],
+                    [ "AWS/ApplicationELB", "TargetResponseTime", "LoadBalancer", "${ALBFullName}", { "stat": "TM(10%:99%)" } ]
                   ]
                 }
               },
