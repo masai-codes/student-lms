@@ -6,7 +6,7 @@ import { useCallback, useEffect, useState, type RefObject } from 'react'
 const MIN_CHAT_WIDTH = 320
 const DEFAULT_CHAT_WIDTH = 440
 /** The video always keeps at least this much width beside the chat. */
-const MIN_VIDEO_WIDTH = 360
+const MIN_VIDEO_WIDTH = 475
 const STORAGE_KEY = 'lecture-chat-width'
 /** Keyboard resize step (px) for the separator. */
 export const CHAT_WIDTH_KEYBOARD_STEP = 24
