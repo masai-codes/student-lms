@@ -1,4 +1,5 @@
 import { CaretLeft, X } from '@phosphor-icons/react'
+import { cn } from '@/lib/utils'
 import type { SupportBatch, TicketListItem } from '@/server/api/support/support.types'
 import { formatSocialPostTime } from '@/lib/socialRelativeTime'
 import type { Category, FloatingChatView } from './types'
@@ -15,6 +16,8 @@ interface FloatingChatHeaderProps {
   selectedTicket?: TicketListItem
   onBack: () => void
   onClose?: () => void
+  /** When true, show the close control on all breakpoints (full-page support). */
+  showCloseButton?: boolean
 }
 
 export function FloatingChatHeader({
@@ -28,6 +31,7 @@ export function FloatingChatHeader({
   selectedTicket,
   onBack,
   onClose,
+  showCloseButton = false,
 }: FloatingChatHeaderProps) {
   const getHeaderTitle = () => {
     if (view === 'oneOnOne') return '1:1 Support'
@@ -150,7 +154,11 @@ export function FloatingChatHeader({
             type="button"
             onClick={onClose}
             aria-label="Close support"
-            className="lg:hidden flex items-center justify-center shrink-0 size-8 rounded-full bg-[#f1f1f7] text-[#62647d] hover:bg-[#e3e3fb] hover:text-[#4b4396] transition-colors mt-0.5"
+            data-testid="floating-chat-close"
+            className={cn(
+              'flex items-center justify-center shrink-0 size-8 rounded-full bg-[#f1f1f7] text-[#62647d] hover:bg-[#e3e3fb] hover:text-[#4b4396] transition-colors mt-0.5',
+              !showCloseButton && 'lg:hidden',
+            )}
           >
             <X weight="bold" className="size-4" />
           </button>

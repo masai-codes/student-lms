@@ -3,7 +3,7 @@ import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tansta
 import { cn } from '@/lib/utils'
 import { CalendarCheck, Lifebuoy, Ticket } from '@phosphor-icons/react'
 import type { FloatingChatInbox, TicketListItem } from '@/server/api/support/support.types'
-import { SUPPORT_KEYS, supportSubcategoriesQuery, ticketThreadQuery } from '@/query/support/supportQueries'
+import { SUPPORT_KEYS, supportSubcategoriesQuery, supportEntityContextQuery, ticketThreadQuery } from '@/query/support/supportQueries'
 import { learnPageQuery } from '@/query/learn/learnQueries'
 import { isResolvedTicketStatus } from './ticketStatus'
 import {
@@ -46,6 +46,10 @@ import {
   embedSupportAttachmentLinks,
   SUPPORT_MAX_ATTACHMENTS,
 } from './supportAttachmentUpload'
+import { EntityLaunchErrorPanel } from './EntityLaunchErrorPanel'
+import { getEntityLaunchErrorMessage } from './entityLaunchErrorMessage'
+import type { FloatingChatEntityLaunchIntent } from './floatingChatLaunchIntent'
+import { floatingChatEntityLaunchKey } from './floatingChatLaunchIntent'
 
 interface FloatingChatModalProps {
   isOpen: boolean
@@ -59,6 +63,12 @@ interface FloatingChatModalProps {
     categoryLabel: string
     itemTitle: string
   }) => void
+  /** Full viewport page (e.g. `/support-page`) vs anchored floater panel. */
+  presentation?: 'floating' | 'fullPage'
+  /** Deep-link from a learn detail page → step 2.5 for this entity. */
+  entityLaunchIntent?: FloatingChatEntityLaunchIntent | null
+  onEntityLaunchComplete?: () => void
+  onEntityLaunchFailed?: () => void
 }
 
 const SUPPORT_ITEM_PAGE_SIZE = 10
@@ -112,7 +122,13 @@ export function FloatingChatModal({
   isInboxError,
   onInboxRetry,
   onReviewItem,
+  presentation = 'floating',
+  entityLaunchIntent = null,
+  onEntityLaunchComplete,
+  onEntityLaunchFailed,
 }: FloatingChatModalProps) {
+  const isFullPage = presentation === 'fullPage'
+  const appliedEntityLaunchRef = useRef<string | null>(null)
   const queryClient = useQueryClient()
   const threadScrollRef = useRef<HTMLDivElement>(null)
 
@@ -135,6 +151,7 @@ export function FloatingChatModal({
   const [files, setFiles] = useState<Array<File>>([])
   const [uploading, setUploading] = useState(false)
   const [uploadError, setUploadError] = useState<string | null>(null)
+  const [entityLaunchError, setEntityLaunchError] = useState<string | null>(null)
 
   const [isSubmittingCallback, setIsSubmittingCallback] = useState(false)
   const [callbackStatus, setCallbackStatus] = useState<'success' | 'already_requested'>('success')
@@ -152,16 +169,105 @@ export function FloatingChatModal({
   const oneOnOneGroups = inbox?.oneOnOne ?? []
   const hasOneOnOne = oneOnOneGroups.length > 0
   const showBatchStep = batches.length > 1
+  const pendingEntityLaunchKey = entityLaunchIntent
+    ? floatingChatEntityLaunchKey(entityLaunchIntent)
+    : null
+  const isApplyingEntityLaunch =
+    pendingEntityLaunchKey != null &&
+    isOpen &&
+    appliedEntityLaunchRef.current !== pendingEntityLaunchKey
 
   useEffect(() => {
     setIsEscalating(false)
   }, [selectedTicketId])
 
   useEffect(() => {
+    if (entityLaunchIntent) return
     if (batches.length !== 1) return
     setSelectedBatchId(batches[0].id)
     setStep((current) => (current === 0 ? 1 : current))
-  }, [batches])
+  }, [batches, entityLaunchIntent])
+
+  const {
+    data: entityContext,
+    isLoading: isEntityContextLoading,
+    isError: isEntityContextError,
+    error: entityContextError,
+    refetch: refetchEntityContext,
+  } = useQuery({
+    ...supportEntityContextQuery(
+      entityLaunchIntent?.category ?? '',
+      entityLaunchIntent?.entityId ?? 0,
+    ),
+    enabled:
+      entityLaunchIntent != null &&
+      isOpen &&
+      !isInboxLoading &&
+      inbox != null,
+  })
+
+  useEffect(() => {
+    if (!entityLaunchIntent || !isOpen || !inbox) return
+
+    const launchKey = floatingChatEntityLaunchKey(entityLaunchIntent)
+    if (appliedEntityLaunchRef.current === launchKey) return
+    if (isEntityContextLoading) return
+
+    if (isEntityContextError || !entityContext) {
+      appliedEntityLaunchRef.current = launchKey
+      setEntityLaunchError(
+        getEntityLaunchErrorMessage({
+          error: entityContextError,
+          category: entityLaunchIntent.category,
+          entityId: entityLaunchIntent.entityId,
+        }),
+      )
+      return
+    }
+
+    const batchKnown = batches.some((batch) => batch.id === entityContext.batchId)
+    if (!batchKnown) {
+      appliedEntityLaunchRef.current = launchKey
+      setEntityLaunchError(
+        getEntityLaunchErrorMessage({
+          reason: 'batch_unknown',
+          category: entityLaunchIntent.category,
+          entityId: entityLaunchIntent.entityId,
+        }),
+      )
+      return
+    }
+
+    setEntityLaunchError(null)
+    setView('home')
+    setSelectedBatchId(entityContext.batchId)
+    setSelectedCategory(entityContext.category)
+    setSelectedItem(entityContext.item)
+    setSelectedSubCategory(null)
+    setSelectedSubCategoryLabel(null)
+    setMessage('')
+    setFiles([])
+    setUploadError(null)
+    setStep(2.5)
+    appliedEntityLaunchRef.current = launchKey
+    onEntityLaunchComplete?.()
+  }, [
+    entityLaunchIntent,
+    isOpen,
+    inbox,
+    isEntityContextLoading,
+    isEntityContextError,
+    entityContextError,
+    entityContext,
+    batches,
+    onEntityLaunchComplete,
+  ])
+
+  useEffect(() => {
+    if (entityLaunchIntent) return
+    appliedEntityLaunchRef.current = null
+    setEntityLaunchError(null)
+  }, [entityLaunchIntent])
 
   const handleBatchSelect = (batchId: number) => {
     setSelectedBatchId(batchId)
@@ -532,31 +638,79 @@ export function FloatingChatModal({
   }
 
   const showInboxLoading = isInboxLoading && !inbox
-  const showHomeBatchStep = view === 'home' && step === 0 && showBatchStep
+  const showEntityLaunchError = entityLaunchError != null
+
+  const handleEntityLaunchRetry = () => {
+    if (!entityLaunchIntent) return
+    appliedEntityLaunchRef.current = null
+    setEntityLaunchError(null)
+    void queryClient
+      .resetQueries({
+        queryKey: SUPPORT_KEYS.entityContext(
+          entityLaunchIntent.category,
+          entityLaunchIntent.entityId,
+        ),
+      })
+      .then(() => refetchEntityContext())
+  }
+
+  const handleEntityLaunchDismiss = () => {
+    setEntityLaunchError(null)
+    if (entityLaunchIntent) {
+      appliedEntityLaunchRef.current = floatingChatEntityLaunchKey(entityLaunchIntent)
+    }
+    setView('home')
+    setSelectedCategory(null)
+    setSelectedItem(null)
+    setSelectedSubCategory(null)
+    setSelectedSubCategoryLabel(null)
+    setMessage('')
+    setFiles([])
+    setUploadError(null)
+    setSelectedBatchId(batches.length === 1 ? batches[0]?.id ?? null : null)
+    setStep(batches.length > 1 ? 0 : batches.length === 1 ? 1 : 0)
+    onEntityLaunchFailed?.()
+  }
+
+  const showHomeBatchStep =
+    view === 'home' &&
+    step === 0 &&
+    showBatchStep &&
+    !isApplyingEntityLaunch &&
+    !showEntityLaunchError
   const isResolvingSingleBatch =
     view === 'home' &&
     step === 0 &&
     !showBatchStep &&
+    !showEntityLaunchError &&
     (showInboxLoading || batches.length === 1)
 
   return (
     <>
-      <div
-        onClick={onClose}
-        className={cn(
-          'fixed inset-0 bg-[#15162c]/30 backdrop-blur-[2px] z-[205] transition-opacity duration-300',
-          isOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none',
-        )}
-      />
+      {!isFullPage ? (
+        <div
+          onClick={onClose}
+          className={cn(
+            'fixed inset-0 bg-[#15162c]/30 backdrop-blur-[2px] z-[205] transition-opacity duration-300',
+            isOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none',
+          )}
+        />
+      ) : null}
 
       <div
+        data-testid="floating-chat-panel"
         className={cn(
-          'fixed flex flex-col overflow-hidden bg-white transition-transform duration-300 ease-out border border-[#e9e9f3] z-[210]',
-          // Mobile/tablet: full-width sheet above AppMobileTabBar (~4.5rem + safe area).
-          'inset-x-3 top-3 bottom-[calc(4.5rem+env(safe-area-inset-bottom)+3rem)] rounded-[18px] shadow-[0_8px_32px_rgba(20,20,43,0.16)]',
-          // Desktop: fixed 512px panel anchored top-right (unchanged width).
-          'lg:inset-x-auto lg:left-auto lg:right-4 lg:top-4 lg:bottom-4 lg:w-[512px] lg:rounded-[22px] lg:shadow-[-10px_0_40px_rgba(20,20,43,0.12)]',
-          isOpen ? 'translate-x-0' : 'translate-x-[120%]',
+          'fixed flex flex-col overflow-hidden bg-white border border-[#e9e9f3] z-[210]',
+          isFullPage
+            ? 'inset-0 h-dvh w-full rounded-none border-0 shadow-none'
+            : cn(
+                'transition-transform duration-300 ease-out',
+                // Mobile/tablet: full-width sheet above AppMobileTabBar (~4.5rem + safe area).
+                'inset-x-3 top-3 bottom-[calc(4.5rem+env(safe-area-inset-bottom)+3rem)] rounded-[18px] shadow-[0_8px_32px_rgba(20,20,43,0.16)]',
+                // Desktop: fixed 512px panel anchored top-right (unchanged width).
+                'lg:inset-x-auto lg:left-auto lg:right-4 lg:top-4 lg:bottom-4 lg:w-[512px] lg:rounded-[22px] lg:shadow-[-10px_0_40px_rgba(20,20,43,0.12)]',
+                isOpen ? 'translate-x-0' : 'translate-x-[120%]',
+              ),
         )}
       >
         <FloatingChatHeader
@@ -570,6 +724,7 @@ export function FloatingChatModal({
           selectedTicket={selectedTicket}
           onBack={handleBack}
           onClose={onClose}
+          showCloseButton={isFullPage}
         />
 
         <div className="flex-1 overflow-hidden flex flex-col p-[16px_18px_8px] gap-2.5">
@@ -578,7 +733,24 @@ export function FloatingChatModal({
             className="flex-1 overflow-y-auto flex flex-col gap-[9px] animate-in slide-in-from-right-2 duration-200 fade-in h-full [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:bg-[#e9e9f3] [&::-webkit-scrollbar-thumb]:rounded-full pr-1 -mr-1"
             key={`${view}-${step}-${selectedTicketId}`}
           >
-            {isResolvingSingleBatch && (
+            {isApplyingEntityLaunch && (
+              <div
+                className="flex flex-1 items-center justify-center py-8"
+                data-testid="floating-chat-entity-launch-loading"
+              >
+                <p className="text-[13px] text-[#62647d]">Loading your item…</p>
+              </div>
+            )}
+
+            {showEntityLaunchError && entityLaunchError && (
+              <EntityLaunchErrorPanel
+                message={entityLaunchError}
+                onRetry={handleEntityLaunchRetry}
+                onDismiss={handleEntityLaunchDismiss}
+              />
+            )}
+
+            {isResolvingSingleBatch && !isApplyingEntityLaunch && (
               <div className="flex flex-1 items-center justify-center py-8">
                 <p className="text-[13px] text-[#62647d]">Loading…</p>
               </div>
@@ -620,13 +792,13 @@ export function FloatingChatModal({
               />
             )}
 
-            {view === 'home' && step === 1 && showInboxLoading && (
+            {view === 'home' && step === 1 && !isApplyingEntityLaunch && !showEntityLaunchError && showInboxLoading && (
               <div className="flex flex-1 items-center justify-center py-8">
                 <p className="text-[13px] text-[#62647d]">Loading…</p>
               </div>
             )}
 
-            {view === 'home' && step === 1 && !showInboxLoading && (
+            {view === 'home' && step === 1 && !isApplyingEntityLaunch && !showEntityLaunchError && !showInboxLoading && (
               <CategorySelector
                 categories={CATEGORIES}
                 onSelect={handleCategorySelect}
