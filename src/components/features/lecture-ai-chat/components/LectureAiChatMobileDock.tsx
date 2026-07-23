@@ -13,6 +13,9 @@ type LectureAiChatMobileDockProps = {
   chat: UseLectureAiChatResult
   lectureId: number
   feedback: UseLectureAiChatFeedbackResult
+  /** Controlled drawer open state (shared with the player's "Ask AI" pill). */
+  open: boolean
+  onOpenChange: (open: boolean) => void
 }
 
 /**
@@ -39,8 +42,9 @@ export function LectureAiChatMobileDock({
   chat,
   lectureId,
   feedback,
+  open: isOpen,
+  onOpenChange: setIsOpen,
 }: LectureAiChatMobileDockProps) {
-  const [isOpen, setIsOpen] = useState(false)
   // The drawer content node, captured once mounted, so the composer's language
   // menu can portal *inside* the drawer instead of to <body>. Kept in state (not
   // a ref) so the picker re-renders with the real container once it's available.

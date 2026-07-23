@@ -77,56 +77,61 @@ export function LectureDetailOverviewHeader({
   return (
     <section
       className={cn(
-        'flex flex-col gap-3 border-b border-border bg-background py-3 dark:bg-transparent md:flex-row md:items-stretch md:justify-between md:gap-6 md:py-5',
+        'flex flex-col gap-4 border-b border-border bg-background py-4 dark:bg-transparent md:flex-row md:items-stretch md:justify-between md:gap-6 md:py-5',
         className,
       )}
     >
       <div className="flex min-w-0 flex-1 flex-col gap-2">
-        <h1 className="type-h5 line-clamp-2 min-w-0 text-foreground">
-          {title}
-        </h1>
-        {/* Tag chips, then the status components (info button + Present badge)
-            grouped to their right with a 16px (gap-4) gap between the two. */}
-        <div className="flex min-w-0 flex-wrap items-center gap-4">
-          <div className="flex min-w-0 flex-wrap items-center gap-2">
-            {tags.map((tag, index) => (
+        {/* Title + tag rows. Marked so the video hero can reserve exactly their
+            height and keep them in view while it expands (see
+            `useLectureVideoMaxHeight`). */}
+        <div data-lecture-title-block className="flex min-w-0 flex-col gap-2">
+          <h1 className="type-h5 line-clamp-2 min-w-0 text-foreground">
+            {title}
+          </h1>
+          {/* Tag chips, then the status components (info button + Present badge)
+              grouped to their right with a 16px (gap-4) gap between the two. */}
+          <div className="flex min-w-0 flex-wrap items-center gap-4">
+            <div className="flex min-w-0 flex-wrap items-center gap-2">
+              {tags.map((tag, index) => (
+                <MasaiChips
+                  key={`${tag}-${index}`}
+                  type="default"
+                  size="regular"
+                  label={tag}
+                  tabIndex={-1}
+                  className="max-w-full cursor-default truncate transition-colors duration-200 hover:border-brand/35"
+                  {...lectureDetailTagChipPalette}
+                />
+              ))}
               <MasaiChips
-                key={`${tag}-${index}`}
                 type="default"
                 size="regular"
-                label={tag}
+                label={formatLearnDetailPriorityLabel(priority)}
                 tabIndex={-1}
                 className="max-w-full cursor-default truncate transition-colors duration-200 hover:border-brand/35"
                 {...lectureDetailTagChipPalette}
               />
-            ))}
-            <MasaiChips
-              type="default"
-              size="regular"
-              label={formatLearnDetailPriorityLabel(priority)}
-              tabIndex={-1}
-              className="max-w-full cursor-default truncate transition-colors duration-200 hover:border-brand/35"
-              {...lectureDetailTagChipPalette}
-            />
-          </div>
-          {optionalAttendance || (showAttendance && attendance) ? (
-            <div className="flex shrink-0 items-center gap-2">
-              {optionalAttendance ? (
-                <LectureOptionalAttendanceInfo
-                  attendance={optionalAttendance}
-                  isLiveLecture={isLiveLecture}
-                  size="md"
-                />
-              ) : null}
-              {showAttendance && attendance ? (
-                <LectureAttendanceDetailBadge
-                  {...attendancePresentation}
-                  attendance={attendance}
-                  isLiveLecture={isLiveLecture}
-                />
-              ) : null}
             </div>
-          ) : null}
+            {optionalAttendance || (showAttendance && attendance) ? (
+              <div className="flex shrink-0 items-center gap-2">
+                {optionalAttendance ? (
+                  <LectureOptionalAttendanceInfo
+                    attendance={optionalAttendance}
+                    isLiveLecture={isLiveLecture}
+                    size="md"
+                  />
+                ) : null}
+                {showAttendance && attendance ? (
+                  <LectureAttendanceDetailBadge
+                    {...attendancePresentation}
+                    attendance={attendance}
+                    isLiveLecture={isLiveLecture}
+                  />
+                ) : null}
+              </div>
+            ) : null}
+          </div>
         </div>
         {/* Blue attendance disclaimer sits right under the tags so it fills the
             desktop whitespace next to the short host/CTA column instead of
@@ -143,7 +148,7 @@ export function LectureDetailOverviewHeader({
           and the CTAs below, right aligned (flex-col over the DOM order).
           justify-between + the stretched section height pushes the CTAs to the
           bottom so they line up with the blue banner in the left column. */}
-      <div className="flex min-w-0 shrink-0 flex-row flex-wrap items-center justify-between gap-3 md:max-w-[min(100%,280px)] md:flex-col md:flex-nowrap md:items-end md:justify-between md:gap-3">
+      <div className="flex min-w-0 shrink-0 flex-row flex-wrap items-center justify-between gap-x-3 gap-y-4 md:max-w-[min(100%,280px)] md:flex-col md:flex-nowrap md:items-end md:justify-between md:gap-3">
         <div className="flex min-w-[180px] flex-1 items-start gap-3 md:min-w-0 md:flex-none md:justify-end">
           <Avatar
             size="lg"

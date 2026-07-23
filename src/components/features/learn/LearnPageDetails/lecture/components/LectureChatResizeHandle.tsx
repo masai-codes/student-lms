@@ -43,20 +43,16 @@ export function LectureChatResizeHandle({
         }
       }}
       className={cn(
-        'group relative flex w-3 shrink-0 cursor-col-resize touch-none select-none items-center justify-center',
-        'focus-visible:outline-none',
+        'group relative flex w-1.5 shrink-0 cursor-col-resize touch-none select-none items-center justify-center',
+        // The single divider line: the handle merges into the chat surface and
+        // carries the only border, so there's one hairline between the page and
+        // the chat (no stacked panel border + separate divider).
+        'border-l border-border bg-background transition-colors',
+        'hover:border-brand/50 focus-visible:border-brand focus-visible:outline-none',
+        isDragging && 'border-brand',
         className,
       )}
     >
-      {/* Divider line. */}
-      <span
-        aria-hidden
-        className={cn(
-          'absolute inset-y-0 left-1/2 w-px -translate-x-1/2 bg-border transition-colors',
-          'group-hover:bg-brand/50 group-focus-visible:bg-brand',
-          isDragging && 'bg-brand',
-        )}
-      />
       {/* Prominent grip chip. */}
       <span
         aria-hidden

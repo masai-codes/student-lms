@@ -133,7 +133,7 @@ export function LectureVideoProgressTrack({
   }, [totalDuration])
 
   return (
-    <div className="flex w-full min-w-0 touch-none select-none flex-col pb-2 pt-0.5">
+    <div className="flex w-full min-w-0 touch-none select-none flex-col pb-1 pt-0.5 md:pb-2">
       <div
         ref={trackRef}
         role="slider"
@@ -160,7 +160,7 @@ export function LectureVideoProgressTrack({
             onSeekBySeconds(5)
           }
         }}
-        className="group relative flex min-h-[44px] w-full cursor-pointer touch-none select-none items-center rounded-full py-2 outline-none focus-visible:ring-2 focus-visible:ring-white/40 md:min-h-[28px]"
+        className="group relative flex min-h-[32px] w-full cursor-pointer touch-none select-none items-center rounded-full py-1.5 outline-none focus-visible:ring-2 focus-visible:ring-white/40 md:min-h-[28px] md:py-2"
       >
         {/* Glass rail: translucent + blurred so the video shimmers through.
             Height stays constant — animating it on hover made the bar visibly

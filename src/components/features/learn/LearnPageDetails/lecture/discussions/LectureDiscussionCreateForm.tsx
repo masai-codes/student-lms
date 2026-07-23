@@ -138,35 +138,35 @@ export function LectureDiscussionCreateForm({
           placeholder="Describe your question or topic"
           embedded
         />
-      </div>
-
-      {error?.field === 'description' ? (
-        <p
-          role="alert"
-          data-testid="lecture-discussion-create-error"
-          className="type-caption-regular text-danger"
-        >
-          {error.message}
-        </p>
-      ) : null}
-
-      <div className="flex items-center justify-between">
-        <span
-          data-testid="lecture-discussion-char-count"
-          className={cn(
-            'text-xs tabular-nums text-muted-foreground transition-colors',
-            descriptionLength > DISCUSSION_MODAL_MAX_BODY_PLAIN && 'text-danger',
-          )}
-        >
-          {descriptionLength}/{DISCUSSION_MODAL_MAX_BODY_PLAIN}
-        </span>
-        <MasaiButton
-          type="primary"
-          size="sm"
-          htmlType="submit"
-          ctaText="Post discussion"
-          disabled={disabled}
-        />
+        {error?.field === 'description' ? (
+          <p
+            role="alert"
+            data-testid="lecture-discussion-create-error"
+            className="type-caption-regular px-3 pb-2 text-danger"
+          >
+            {error.message}
+          </p>
+        ) : null}
+        {/* Footer lives inside the box: char counter + the Post CTA. */}
+        <div className="h-px bg-border" />
+        <div className="flex items-center justify-between gap-2 px-3 py-2">
+          <span
+            data-testid="lecture-discussion-char-count"
+            className={cn(
+              'text-xs tabular-nums text-muted-foreground transition-colors',
+              descriptionLength > DISCUSSION_MODAL_MAX_BODY_PLAIN && 'text-danger',
+            )}
+          >
+            {descriptionLength}/{DISCUSSION_MODAL_MAX_BODY_PLAIN}
+          </span>
+          <MasaiButton
+            type="primary"
+            size="sm"
+            htmlType="submit"
+            ctaText="Post discussion"
+            disabled={disabled}
+          />
+        </div>
       </div>
     </form>
   )
