@@ -2,13 +2,17 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 const hoisted = vi.hoisted(() => ({
   dbSelect: vi.fn(),
-  requestOpenAiChatCompletion: vi.fn(),
+  generateText: vi.fn(),
+  getAiTutorChatModel: vi.fn(),
   ensureUserCanAccessLearnHubEntity: vi.fn(),
 }))
 
 vi.mock('@/db', () => ({ db: { select: hoisted.dbSelect } }))
-vi.mock('@/server/ai-chat/clients/openAiChatCompletions', () => ({
-  requestOpenAiChatCompletion: hoisted.requestOpenAiChatCompletion,
+vi.mock('ai', () => ({
+  generateText: hoisted.generateText,
+}))
+vi.mock('@/server/api/ai-tutor/clients/anthropicModel', () => ({
+  getAiTutorChatModel: hoisted.getAiTutorChatModel,
 }))
 vi.mock('@/server/learn/utils/ensureLearnEntityAccess', () => ({
   ensureUserCanAccessLearnHubEntity: hoisted.ensureUserCanAccessLearnHubEntity,
@@ -29,9 +33,10 @@ describe('generateTicketTitle.service', () => {
 
   beforeEach(() => {
     vi.clearAllMocks()
-    process.env = { ...originalEnv, OPENAI_API_KEY: 'test-key' }
+    process.env = { ...originalEnv, ANTHROPIC_API_KEY: 'test-key' }
     delete process.env.SUPPORT_AI_TITLES
     delete process.env.SUPPORT_AI_TITLE_TIMEOUT_MS
+    hoisted.getAiTutorChatModel.mockReturnValue('mock-model')
     hoisted.ensureUserCanAccessLearnHubEntity.mockResolvedValue(true)
   })
 
@@ -114,10 +119,10 @@ describe('generateTicketTitle.service', () => {
   })
 
   describe('resolveTicketTitle', () => {
-    it('uses the AI title when OpenAI returns a valid summary', async () => {
-      hoisted.requestOpenAiChatCompletion.mockResolvedValue(
-        'Request for HTML and Colab Files for Current Session',
-      )
+    it('uses the AI title when Anthropic returns a valid summary', async () => {
+      hoisted.generateText.mockResolvedValue({
+        text: 'Request for HTML and Colab Files for Current Session',
+      })
 
       const { resolveTicketTitle } = await import('../generateTicketTitle.service')
       const result = await resolveTicketTitle({
@@ -131,6 +136,12 @@ describe('generateTicketTitle.service', () => {
         title: 'Request for HTML and Colab Files for Current Session',
         source: 'ai',
       })
+      expect(hoisted.generateText).toHaveBeenCalledWith(
+        expect.objectContaining({
+          model: 'mock-model',
+          temperature: 0.3,
+        }),
+      )
     })
 
     it('falls back to entity + subcategory when AI is disabled', async () => {
@@ -148,13 +159,11 @@ describe('generateTicketTitle.service', () => {
         title: 'Module 3 Session 5 – Others',
         source: 'entity',
       })
-      expect(hoisted.requestOpenAiChatCompletion).not.toHaveBeenCalled()
+      expect(hoisted.generateText).not.toHaveBeenCalled()
     })
 
     it('falls back to the message line when AI fails and no entity is present', async () => {
-      hoisted.requestOpenAiChatCompletion.mockRejectedValue(
-        new Error('AI_CHAT_OPENAI_REQUEST_FAILED'),
-      )
+      hoisted.generateText.mockRejectedValue(new Error('Anthropic request failed'))
 
       const { resolveTicketTitle } = await import('../generateTicketTitle.service')
       const result = await resolveTicketTitle({
@@ -196,8 +205,8 @@ describe('generateTicketTitle.service', () => {
       expect(result).toEqual({ title: 'Support request', source: 'default' })
     })
 
-    it('skips AI when OPENAI_API_KEY is missing', async () => {
-      delete process.env.OPENAI_API_KEY
+    it('skips AI when ANTHROPIC_API_KEY is missing', async () => {
+      delete process.env.ANTHROPIC_API_KEY
 
       const { resolveTicketTitle } = await import('../generateTicketTitle.service')
       const result = await resolveTicketTitle({

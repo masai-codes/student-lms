@@ -2,11 +2,12 @@
  * Support — ticket title generation with AI enhancement + deterministic fallbacks.
  *
  * Legacy `createTicketV2` called OpenAI to summarize the message. This module
- * keeps that behavior when configured, but never blocks ticket creation: every
- * tier falls through to a readable deterministic title.
+ * uses Anthropic (Claude) when configured, but never blocks ticket creation:
+ * every tier falls through to a readable deterministic title.
  */
 
-import { requestOpenAiChatCompletion } from '@/server/ai-chat/clients/openAiChatCompletions'
+import { generateText } from 'ai'
+import { getAiTutorChatModel } from '@/server/api/ai-tutor/clients/anthropicModel'
 import { plainTextFromHtml } from '@/lib/plainTextFromHtml'
 
 export type TicketTitleSource = 'ai' | 'entity' | 'message' | 'category' | 'default'
@@ -132,15 +133,13 @@ function buildAiPrompt(input: ResolveTicketTitleInput): {
 
 async function requestAiTitle(input: ResolveTicketTitleInput): Promise<string | null> {
   const { system, user } = buildAiPrompt(input)
-  const content = await requestOpenAiChatCompletion({
-    model: 'gpt-4.1-mini',
+  const result = await generateText({
+    model: getAiTutorChatModel(),
+    system,
+    prompt: user,
     temperature: 0.3,
-    messages: [
-      { role: 'system', content: system },
-      { role: 'user', content: user },
-    ],
   })
-  return sanitizeAndValidateAiTitle(content)
+  return sanitizeAndValidateAiTitle(result.text)
 }
 
 async function tryAiTicketTitle(
@@ -148,7 +147,7 @@ async function tryAiTicketTitle(
   timeoutMs?: number,
 ): Promise<string | null> {
   if (!aiTitlesEnabled()) return null
-  if (!process.env.OPENAI_API_KEY?.trim()) return null
+  if (!process.env.ANTHROPIC_API_KEY?.trim()) return null
 
   const timeout = resolveAiTimeoutMs(timeoutMs)
 
