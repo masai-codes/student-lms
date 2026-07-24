@@ -20,6 +20,8 @@ function buildLearningItem(overrides: Partial<LearningItem> = {}): LearningItem 
     moduleName: 'module-1',
     assignmentProgressStatus: 'new',
     resourcePhase: null,
+    attendance: null,
+    optionalAttendance: null,
     listingCtas: {
       joinLive: 'hidden',
       joinZoomLink: null,

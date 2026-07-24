@@ -2,7 +2,6 @@ import type {
   LectureDetailPayload,
   LectureDetailTabContent,
   LectureFeedbackState,
-  LectureKind,
   LectureVideoAttendanceState,
 } from '@/server/learn/lectureDetailTypes'
 import { normalizeLectureKind } from '@/server/learn/utils/normalizeLectureKind'
