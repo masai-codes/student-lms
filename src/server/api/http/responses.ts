@@ -234,6 +234,8 @@ export function mapThrownErrorToResponse(error: unknown): Response {
         return jsonError(404, error.message)
       case 'ENROLMENT_NOT_FOUND':
         return jsonError(404, error.message)
+      case 'ADMISSION_DATA_NOT_FOUND':
+        return jsonError(404, error.message)
       case 'NO_VALID_SECTIONS':
         return jsonError(422, error.message)
       default:

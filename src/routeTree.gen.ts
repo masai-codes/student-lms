@@ -76,8 +76,13 @@ import { Route as protectedLayoutBookmarksIndexRouteImport } from './routes/(pro
 import { Route as protectedLayoutAnnouncementsIndexRouteImport } from './routes/(protected)/_layout/announcements/index'
 import { Route as authV2LoginIndexRouteImport } from './routes/(auth)/v2/login/index'
 import { Route as authResetPasswordTokenIndexRouteImport } from './routes/(auth)/reset-password.$token/index'
+import { Route as ApiWebhooksAdmissionsPauseBatchRouteImport } from './routes/api/webhooks/admissions/pause-batch'
 import { Route as ApiWebhooksAdmissionsCreateEnrolmentRouteImport } from './routes/api/webhooks/admissions/create-enrolment'
 import { Route as ApiWebhooksAdmissionsCancelEnrolmentRouteImport } from './routes/api/webhooks/admissions/cancel-enrolment'
+import { Route as ApiWebhooksAdmissionsBatchTransferRequestRejectedRouteImport } from './routes/api/webhooks/admissions/batch-transfer-request-rejected'
+import { Route as ApiWebhooksAdmissionsBatchTransferRequestConsideredRouteImport } from './routes/api/webhooks/admissions/batch-transfer-request-considered'
+import { Route as ApiWebhooksAdmissionsBatchTransferRequestCompletedRouteImport } from './routes/api/webhooks/admissions/batch-transfer-request-completed'
+import { Route as ApiWebhooksAdmissionsBatchFullPaymentReceivedRouteImport } from './routes/api/webhooks/admissions/batch-full-payment-received'
 import { Route as ApiSupportTicketsThreadRouteImport } from './routes/api/support/tickets/thread'
 import { Route as ApiSupportTicketsReplyRouteImport } from './routes/api/support/tickets/reply'
 import { Route as ApiSupportTicketsReopenRouteImport } from './routes/api/support/tickets/reopen'
@@ -547,6 +552,12 @@ const authResetPasswordTokenIndexRoute =
     path: '/reset-password/$token/',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiWebhooksAdmissionsPauseBatchRoute =
+  ApiWebhooksAdmissionsPauseBatchRouteImport.update({
+    id: '/api/webhooks/admissions/pause-batch',
+    path: '/api/webhooks/admissions/pause-batch',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiWebhooksAdmissionsCreateEnrolmentRoute =
   ApiWebhooksAdmissionsCreateEnrolmentRouteImport.update({
     id: '/api/webhooks/admissions/create-enrolment',
@@ -557,6 +568,30 @@ const ApiWebhooksAdmissionsCancelEnrolmentRoute =
   ApiWebhooksAdmissionsCancelEnrolmentRouteImport.update({
     id: '/api/webhooks/admissions/cancel-enrolment',
     path: '/api/webhooks/admissions/cancel-enrolment',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiWebhooksAdmissionsBatchTransferRequestRejectedRoute =
+  ApiWebhooksAdmissionsBatchTransferRequestRejectedRouteImport.update({
+    id: '/api/webhooks/admissions/batch-transfer-request-rejected',
+    path: '/api/webhooks/admissions/batch-transfer-request-rejected',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiWebhooksAdmissionsBatchTransferRequestConsideredRoute =
+  ApiWebhooksAdmissionsBatchTransferRequestConsideredRouteImport.update({
+    id: '/api/webhooks/admissions/batch-transfer-request-considered',
+    path: '/api/webhooks/admissions/batch-transfer-request-considered',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiWebhooksAdmissionsBatchTransferRequestCompletedRoute =
+  ApiWebhooksAdmissionsBatchTransferRequestCompletedRouteImport.update({
+    id: '/api/webhooks/admissions/batch-transfer-request-completed',
+    path: '/api/webhooks/admissions/batch-transfer-request-completed',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiWebhooksAdmissionsBatchFullPaymentReceivedRoute =
+  ApiWebhooksAdmissionsBatchFullPaymentReceivedRouteImport.update({
+    id: '/api/webhooks/admissions/batch-full-payment-received',
+    path: '/api/webhooks/admissions/batch-full-payment-received',
     getParentRoute: () => rootRouteImport,
   } as any)
 const ApiSupportTicketsThreadRoute = ApiSupportTicketsThreadRouteImport.update({
@@ -1313,8 +1348,13 @@ export interface FileRoutesByFullPath {
   '/api/support/tickets/reopen': typeof ApiSupportTicketsReopenRoute
   '/api/support/tickets/reply': typeof ApiSupportTicketsReplyRoute
   '/api/support/tickets/thread': typeof ApiSupportTicketsThreadRoute
+  '/api/webhooks/admissions/batch-full-payment-received': typeof ApiWebhooksAdmissionsBatchFullPaymentReceivedRoute
+  '/api/webhooks/admissions/batch-transfer-request-completed': typeof ApiWebhooksAdmissionsBatchTransferRequestCompletedRoute
+  '/api/webhooks/admissions/batch-transfer-request-considered': typeof ApiWebhooksAdmissionsBatchTransferRequestConsideredRoute
+  '/api/webhooks/admissions/batch-transfer-request-rejected': typeof ApiWebhooksAdmissionsBatchTransferRequestRejectedRoute
   '/api/webhooks/admissions/cancel-enrolment': typeof ApiWebhooksAdmissionsCancelEnrolmentRoute
   '/api/webhooks/admissions/create-enrolment': typeof ApiWebhooksAdmissionsCreateEnrolmentRoute
+  '/api/webhooks/admissions/pause-batch': typeof ApiWebhooksAdmissionsPauseBatchRoute
   '/reset-password/$token/': typeof authResetPasswordTokenIndexRoute
   '/v2/login/': typeof authV2LoginIndexRoute
   '/announcements/': typeof protectedLayoutAnnouncementsIndexRoute
@@ -1489,8 +1529,13 @@ export interface FileRoutesByTo {
   '/api/support/tickets/reopen': typeof ApiSupportTicketsReopenRoute
   '/api/support/tickets/reply': typeof ApiSupportTicketsReplyRoute
   '/api/support/tickets/thread': typeof ApiSupportTicketsThreadRoute
+  '/api/webhooks/admissions/batch-full-payment-received': typeof ApiWebhooksAdmissionsBatchFullPaymentReceivedRoute
+  '/api/webhooks/admissions/batch-transfer-request-completed': typeof ApiWebhooksAdmissionsBatchTransferRequestCompletedRoute
+  '/api/webhooks/admissions/batch-transfer-request-considered': typeof ApiWebhooksAdmissionsBatchTransferRequestConsideredRoute
+  '/api/webhooks/admissions/batch-transfer-request-rejected': typeof ApiWebhooksAdmissionsBatchTransferRequestRejectedRoute
   '/api/webhooks/admissions/cancel-enrolment': typeof ApiWebhooksAdmissionsCancelEnrolmentRoute
   '/api/webhooks/admissions/create-enrolment': typeof ApiWebhooksAdmissionsCreateEnrolmentRoute
+  '/api/webhooks/admissions/pause-batch': typeof ApiWebhooksAdmissionsPauseBatchRoute
   '/reset-password/$token': typeof authResetPasswordTokenIndexRoute
   '/v2/login': typeof authV2LoginIndexRoute
   '/announcements': typeof protectedLayoutAnnouncementsIndexRoute
@@ -1668,8 +1713,13 @@ export interface FileRoutesById {
   '/api/support/tickets/reopen': typeof ApiSupportTicketsReopenRoute
   '/api/support/tickets/reply': typeof ApiSupportTicketsReplyRoute
   '/api/support/tickets/thread': typeof ApiSupportTicketsThreadRoute
+  '/api/webhooks/admissions/batch-full-payment-received': typeof ApiWebhooksAdmissionsBatchFullPaymentReceivedRoute
+  '/api/webhooks/admissions/batch-transfer-request-completed': typeof ApiWebhooksAdmissionsBatchTransferRequestCompletedRoute
+  '/api/webhooks/admissions/batch-transfer-request-considered': typeof ApiWebhooksAdmissionsBatchTransferRequestConsideredRoute
+  '/api/webhooks/admissions/batch-transfer-request-rejected': typeof ApiWebhooksAdmissionsBatchTransferRequestRejectedRoute
   '/api/webhooks/admissions/cancel-enrolment': typeof ApiWebhooksAdmissionsCancelEnrolmentRoute
   '/api/webhooks/admissions/create-enrolment': typeof ApiWebhooksAdmissionsCreateEnrolmentRoute
+  '/api/webhooks/admissions/pause-batch': typeof ApiWebhooksAdmissionsPauseBatchRoute
   '/(auth)/reset-password/$token/': typeof authResetPasswordTokenIndexRoute
   '/(auth)/v2/login/': typeof authV2LoginIndexRoute
   '/(protected)/_layout/announcements/': typeof protectedLayoutAnnouncementsIndexRoute
@@ -1847,8 +1897,13 @@ export interface FileRouteTypes {
     | '/api/support/tickets/reopen'
     | '/api/support/tickets/reply'
     | '/api/support/tickets/thread'
+    | '/api/webhooks/admissions/batch-full-payment-received'
+    | '/api/webhooks/admissions/batch-transfer-request-completed'
+    | '/api/webhooks/admissions/batch-transfer-request-considered'
+    | '/api/webhooks/admissions/batch-transfer-request-rejected'
     | '/api/webhooks/admissions/cancel-enrolment'
     | '/api/webhooks/admissions/create-enrolment'
+    | '/api/webhooks/admissions/pause-batch'
     | '/reset-password/$token/'
     | '/v2/login/'
     | '/announcements/'
@@ -2023,8 +2078,13 @@ export interface FileRouteTypes {
     | '/api/support/tickets/reopen'
     | '/api/support/tickets/reply'
     | '/api/support/tickets/thread'
+    | '/api/webhooks/admissions/batch-full-payment-received'
+    | '/api/webhooks/admissions/batch-transfer-request-completed'
+    | '/api/webhooks/admissions/batch-transfer-request-considered'
+    | '/api/webhooks/admissions/batch-transfer-request-rejected'
     | '/api/webhooks/admissions/cancel-enrolment'
     | '/api/webhooks/admissions/create-enrolment'
+    | '/api/webhooks/admissions/pause-batch'
     | '/reset-password/$token'
     | '/v2/login'
     | '/announcements'
@@ -2201,8 +2261,13 @@ export interface FileRouteTypes {
     | '/api/support/tickets/reopen'
     | '/api/support/tickets/reply'
     | '/api/support/tickets/thread'
+    | '/api/webhooks/admissions/batch-full-payment-received'
+    | '/api/webhooks/admissions/batch-transfer-request-completed'
+    | '/api/webhooks/admissions/batch-transfer-request-considered'
+    | '/api/webhooks/admissions/batch-transfer-request-rejected'
     | '/api/webhooks/admissions/cancel-enrolment'
     | '/api/webhooks/admissions/create-enrolment'
+    | '/api/webhooks/admissions/pause-batch'
     | '/(auth)/reset-password/$token/'
     | '/(auth)/v2/login/'
     | '/(protected)/_layout/announcements/'
@@ -2354,8 +2419,13 @@ export interface RootRouteChildren {
   ApiMessageIdReplyRoute: typeof ApiMessageIdReplyRoute
   ApiProfileAccountActivitySignOutAllRoute: typeof ApiProfileAccountActivitySignOutAllRoute
   ApiSupportCallbackCreateRoute: typeof ApiSupportCallbackCreateRoute
+  ApiWebhooksAdmissionsBatchFullPaymentReceivedRoute: typeof ApiWebhooksAdmissionsBatchFullPaymentReceivedRoute
+  ApiWebhooksAdmissionsBatchTransferRequestCompletedRoute: typeof ApiWebhooksAdmissionsBatchTransferRequestCompletedRoute
+  ApiWebhooksAdmissionsBatchTransferRequestConsideredRoute: typeof ApiWebhooksAdmissionsBatchTransferRequestConsideredRoute
+  ApiWebhooksAdmissionsBatchTransferRequestRejectedRoute: typeof ApiWebhooksAdmissionsBatchTransferRequestRejectedRoute
   ApiWebhooksAdmissionsCancelEnrolmentRoute: typeof ApiWebhooksAdmissionsCancelEnrolmentRoute
   ApiWebhooksAdmissionsCreateEnrolmentRoute: typeof ApiWebhooksAdmissionsCreateEnrolmentRoute
+  ApiWebhooksAdmissionsPauseBatchRoute: typeof ApiWebhooksAdmissionsPauseBatchRoute
   authResetPasswordTokenIndexRoute: typeof authResetPasswordTokenIndexRoute
   authV2LoginIndexRoute: typeof authV2LoginIndexRoute
   ApiAnnouncementIdIndexRoute: typeof ApiAnnouncementIdIndexRoute
@@ -2847,6 +2917,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof authResetPasswordTokenIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/webhooks/admissions/pause-batch': {
+      id: '/api/webhooks/admissions/pause-batch'
+      path: '/api/webhooks/admissions/pause-batch'
+      fullPath: '/api/webhooks/admissions/pause-batch'
+      preLoaderRoute: typeof ApiWebhooksAdmissionsPauseBatchRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/webhooks/admissions/create-enrolment': {
       id: '/api/webhooks/admissions/create-enrolment'
       path: '/api/webhooks/admissions/create-enrolment'
@@ -2859,6 +2936,34 @@ declare module '@tanstack/react-router' {
       path: '/api/webhooks/admissions/cancel-enrolment'
       fullPath: '/api/webhooks/admissions/cancel-enrolment'
       preLoaderRoute: typeof ApiWebhooksAdmissionsCancelEnrolmentRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/webhooks/admissions/batch-transfer-request-rejected': {
+      id: '/api/webhooks/admissions/batch-transfer-request-rejected'
+      path: '/api/webhooks/admissions/batch-transfer-request-rejected'
+      fullPath: '/api/webhooks/admissions/batch-transfer-request-rejected'
+      preLoaderRoute: typeof ApiWebhooksAdmissionsBatchTransferRequestRejectedRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/webhooks/admissions/batch-transfer-request-considered': {
+      id: '/api/webhooks/admissions/batch-transfer-request-considered'
+      path: '/api/webhooks/admissions/batch-transfer-request-considered'
+      fullPath: '/api/webhooks/admissions/batch-transfer-request-considered'
+      preLoaderRoute: typeof ApiWebhooksAdmissionsBatchTransferRequestConsideredRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/webhooks/admissions/batch-transfer-request-completed': {
+      id: '/api/webhooks/admissions/batch-transfer-request-completed'
+      path: '/api/webhooks/admissions/batch-transfer-request-completed'
+      fullPath: '/api/webhooks/admissions/batch-transfer-request-completed'
+      preLoaderRoute: typeof ApiWebhooksAdmissionsBatchTransferRequestCompletedRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/webhooks/admissions/batch-full-payment-received': {
+      id: '/api/webhooks/admissions/batch-full-payment-received'
+      path: '/api/webhooks/admissions/batch-full-payment-received'
+      fullPath: '/api/webhooks/admissions/batch-full-payment-received'
+      preLoaderRoute: typeof ApiWebhooksAdmissionsBatchFullPaymentReceivedRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/support/tickets/thread': {
@@ -4008,10 +4113,19 @@ const rootRouteChildren: RootRouteChildren = {
   ApiProfileAccountActivitySignOutAllRoute:
     ApiProfileAccountActivitySignOutAllRoute,
   ApiSupportCallbackCreateRoute: ApiSupportCallbackCreateRoute,
+  ApiWebhooksAdmissionsBatchFullPaymentReceivedRoute:
+    ApiWebhooksAdmissionsBatchFullPaymentReceivedRoute,
+  ApiWebhooksAdmissionsBatchTransferRequestCompletedRoute:
+    ApiWebhooksAdmissionsBatchTransferRequestCompletedRoute,
+  ApiWebhooksAdmissionsBatchTransferRequestConsideredRoute:
+    ApiWebhooksAdmissionsBatchTransferRequestConsideredRoute,
+  ApiWebhooksAdmissionsBatchTransferRequestRejectedRoute:
+    ApiWebhooksAdmissionsBatchTransferRequestRejectedRoute,
   ApiWebhooksAdmissionsCancelEnrolmentRoute:
     ApiWebhooksAdmissionsCancelEnrolmentRoute,
   ApiWebhooksAdmissionsCreateEnrolmentRoute:
     ApiWebhooksAdmissionsCreateEnrolmentRoute,
+  ApiWebhooksAdmissionsPauseBatchRoute: ApiWebhooksAdmissionsPauseBatchRoute,
   authResetPasswordTokenIndexRoute: authResetPasswordTokenIndexRoute,
   authV2LoginIndexRoute: authV2LoginIndexRoute,
   ApiAnnouncementIdIndexRoute: ApiAnnouncementIdIndexRoute,

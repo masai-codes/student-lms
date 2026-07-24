@@ -44,6 +44,11 @@ export type EnrolmentEvent =
 export const ADMISSION_PAYLOAD_TYPE = {
   ENROLMENT: 'enrolment',
   CANCEL: 'cancel',
+  FULL_PAYMENT_RECEIVED: 'full_payment_received',
+  BATCH_TRANSFER_CONSIDERED: 'batch_transfer_considered',
+  BATCH_TRANSFER_REJECTED: 'batch_transfer_rejected',
+  BATCH_TRANSFER_COMPLETED: 'batch_transfer_completed',
+  BATCH_PAUSED: 'batch_paused',
 } as const
 
 /** `batch_user.status` values this integration writes. */
