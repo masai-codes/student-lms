@@ -1,3 +1,5 @@
+import { MATH_SENTINEL } from './normalizeMathSpans'
+
 const LIST_ITEM_PATTERN = /^\s*([-*+]|\d+\.)\s/
 
 function isListMarkerLine(line: string): boolean {
@@ -9,6 +11,10 @@ function isContinuationLine(line: string): boolean {
   if (trimmed === '') return false
   if (isListMarkerLine(line)) return false
   if (/^#{1,6}\s/.test(trimmed)) return false
+  // A masked math span is a block boundary, not list-item continuation, so it
+  // must not be slurped/indented into the preceding list (which would break
+  // block math like `$$...$$` that follows a bulleted list).
+  if (trimmed.includes(MATH_SENTINEL)) return false
   return true
 }
 

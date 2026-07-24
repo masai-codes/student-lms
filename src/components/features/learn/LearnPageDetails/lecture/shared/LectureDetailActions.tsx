@@ -18,6 +18,10 @@ export function LectureDetailActions({
   const bookmark = useLectureBookmark(lectureId, initialIsBookmarked)
 
   return (
-    <LearnDetailDefaultActions bookmark={bookmark} ticketCategory="lecture" />
+    <LearnDetailDefaultActions
+      bookmark={bookmark}
+      ticketCategory="lecture"
+      entityId={lectureId}
+    />
   )
 }

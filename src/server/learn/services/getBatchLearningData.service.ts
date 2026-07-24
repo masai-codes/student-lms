@@ -7,7 +7,7 @@ import type { LectureAttendanceSummary } from '@/server/attendance/types'
 import type { LearningEntityRow } from '@/server/learn/utils/learningDataMappers'
 import type { AssignmentProgressStatus } from '@/server/learn/utils/calculateAssignmentProgressStatus'
 import type { AssignmentListingPage } from '@/server/learn/queries/fetchAssignmentListingPage'
-import { getSectionIdsForUserInBatch } from '@/server/batches/getSectionIdsForUserInBatch'
+import { getEnrolledSectionsForUserInBatch } from '@/server/batches/getSectionIdsForUserInBatch'
 import { getUserBatchRestrictions } from '@/server/restrictions/getUserBatchRestrictions'
 import {
   getCancelledBatchIds,
@@ -109,10 +109,20 @@ export async function getBatchLearningData(
 ): Promise<GetBatchLearningDataResponse> {
   const { page, pageSize } = normalizePagination(input.page, input.pageSize)
   const nowMs = Date.now()
-  const [sectionIds, restrictions] = await Promise.all([
-    getSectionIdsForUserInBatch(userId, input.batchId),
+  const [enrolledSections, restrictions] = await Promise.all([
+    getEnrolledSectionsForUserInBatch(userId, input.batchId),
     getUserBatchRestrictions(userId),
   ])
+
+  const enrolledSectionIds = enrolledSections.map(
+    (section) => section.sectionId,
+  )
+  // Honour the section filter only when the user is actually enrolled in it;
+  // otherwise fall back to every section they hold in this batch.
+  const sectionIds =
+    input.sectionId != null && enrolledSectionIds.includes(input.sectionId)
+      ? [input.sectionId]
+      : enrolledSectionIds
 
   // Enrolment cancelled: the batch is hidden entirely — return an empty listing
   // even if the batchId is passed directly.
@@ -125,6 +135,7 @@ export async function getBatchLearningData(
         priorityFilterValues: [],
         instructorFilterValues: [],
       },
+      sections: enrolledSections,
       learningItems: [],
       pagination: {
         page,
@@ -142,6 +153,7 @@ export async function getBatchLearningData(
     schedulePhase: input.filters?.schedulePhase,
     scheduleStartDate: input.filters?.scheduleStartDate,
     scheduleEndDate: input.filters?.scheduleEndDate,
+    scheduleHorizonDays: input.scheduleHorizonDays,
     nowMs,
   })
 
@@ -160,7 +172,12 @@ export async function getBatchLearningData(
   }
 
   const [filterValues, pageResult] = await Promise.all([
-    fetchLearnListingFacets(input.learningType, sectionIds, nowMs),
+    fetchLearnListingFacets(
+      input.learningType,
+      sectionIds,
+      nowMs,
+      input.scheduleHorizonDays,
+    ),
     input.learningType === 'assignment'
       ? fetchAssignmentListingPage({ ...conditions, page, pageSize })
       : fetchLectureListingPage({ ...conditions, page, pageSize }),
@@ -192,5 +209,10 @@ export async function getBatchLearningData(
     ),
   )
 
-  return { filterValues, learningItems, pagination: pageResult.pagination }
+  return {
+    filterValues,
+    sections: enrolledSections,
+    learningItems,
+    pagination: pageResult.pagination,
+  }
 }

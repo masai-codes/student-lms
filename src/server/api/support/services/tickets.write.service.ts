@@ -12,10 +12,12 @@
  * All routing/escalation logic is delegated to `resolveAssignees.ts`.
  */
 
+import { randomUUID } from 'node:crypto'
 import { and, eq } from 'drizzle-orm'
 import type { TicketRating } from '@/server/api/support/support.types'
 import { db } from '@/db'
 import { batches, comments, tickets } from '@/db/schema'
+import { getActiveSectionNames } from '@/server/api/support/services/directory.service'
 import {
   hasHigherLevel,
   ladderFromBatchSettings,
@@ -62,9 +64,12 @@ async function resolveInitialAssignee(
 /**
  * Raise a new ticket.
  *
- * Stores `batch_id`, `subCategory` and the originating FAQ (`question_id`) in
- * `tickets.data`, sets `status='open'`, and auto-assigns the L1 owner. The title
- * is derived from category + subcategory (the legacy system auto-titles too).
+ * Stores `batch_id`, `entity_id` (the lecture/assignment/resource the student
+ * was looking at, if any), `subCategory`, the originating FAQ (`question_id`),
+ * a fresh `workflow_id`, and a snapshot of the student's `active-sections` in
+ * `tickets.data`, sets `status='open'`, and auto-assigns the L1 owner. The
+ * title is derived from category + subcategory (the legacy system auto-titles
+ * too).
  *
  * @returns the new ticket id (the client then navigates into its conversation).
  */
@@ -75,10 +80,12 @@ export async function createTicket(input: {
   subCategory?: string | null
   message: string
   questionId?: number | null
+  entityId?: number | null
 }): Promise<{ id: number }> {
   if (!input.message.trim()) throw new Error('SUPPORT_MESSAGE_REQUIRED')
 
   const assigneeId = await resolveInitialAssignee(input.batchId, input.category)
+  const activeSections = await getActiveSectionNames(input.userId, input.batchId)
   const title = [input.category, input.subCategory]
     .filter(Boolean)
     .map((s) => String(s).replace(/[-_]/g, ' '))
@@ -95,8 +102,11 @@ export async function createTicket(input: {
     isClosed: 0,
     data: {
       batch_id: String(input.batchId),
+      entity_id: input.entityId != null ? String(input.entityId) : null,
       subCategory: input.subCategory ?? null,
       question_id: input.questionId ?? null,
+      workflow_id: `ticket-${randomUUID()}`,
+      'active-sections': activeSections,
       help_faq_question: true,
     },
     logstamps: { L1_assigned_at: new Date().toISOString() },
@@ -108,7 +118,7 @@ export async function createTicket(input: {
   // like the legacy flow. Best-effort: a failure here must not fail ticket
   // creation (the ticket already exists and is owned by an assignee).
   try {
-    const { message } = await buildFirstTemplateResponse({
+    const { message, displayName } = await buildFirstTemplateResponse({
       batchId: input.batchId,
       category: input.category,
       assigneeId,
@@ -121,7 +131,11 @@ export async function createTicket(input: {
       public: 1,
       createdAt: now,
       updatedAt: now,
-      data: { firstTemplateResponse: true, ticket_level: 'l1' },
+      data: {
+        firstTemplateResponse: true,
+        ticket_level: 'l1',
+        displayName,
+      },
     })
   } catch (error) {
     console.error(
@@ -210,12 +224,16 @@ export async function reopenTicket(input: {
   )
   if (!caps.canReopen) throw new Error('SUPPORT_REOPEN_NOT_ALLOWED')
 
+  const now = new Date().toISOString()
+  const logstamps = ticket.logstamps ?? {}
+
   await db
     .update(tickets)
     .set({
       status: 're-opened',
       isClosed: 0,
-      updatedAt: new Date().toISOString(),
+      updatedAt: now,
+      logstamps: { ...logstamps, reopened_at: now },
     })
     .where(eq(tickets.id, input.ticketId))
 
@@ -270,7 +288,11 @@ export async function escalateTicket(input: {
       isClosed: 0,
       updatedAt: now,
       meta: { ...meta, escalation_count: (meta.escalation_count ?? 0) + 1 },
-      logstamps: { ...logstamps, [`escalated_to_${next.level}_at`]: now },
+      logstamps: {
+        ...logstamps,
+        reopened_at: now,
+        [`escalated_to_${next.level}_at`]: now,
+      },
     })
     .where(eq(tickets.id, input.ticketId))
 

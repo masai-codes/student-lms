@@ -26,7 +26,7 @@ const COPY: Record<
     after: {
       title: 'Practice assignment window has ended',
       description:
-        'Review your work and solutions. Practice scores are not counted toward your course evaluation.',
+        'Review your work and solutions. Practice scores are not counted toward your program evaluation.',
     },
   },
   assignment: {
@@ -55,7 +55,7 @@ const COPY: Record<
     during: {
       title: 'Evaluation in progress',
       description:
-        'Complete the evaluation within the allotted window. Your score may count toward course assessment.',
+        'Complete the evaluation within the allotted window. Your score may count toward program assessment.',
     },
     after: {
       title: 'Evaluation window has ended',

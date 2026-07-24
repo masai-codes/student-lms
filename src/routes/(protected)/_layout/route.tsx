@@ -5,7 +5,7 @@ import {
   useRouterState,
 } from '@tanstack/react-router'
 import { useEffect } from 'react'
-import { AppLoading } from '@/components/common'
+import { AppLoading, FloatingChatProvider } from '@/components/common'
 import {
   AppMobileHeader,
   AppMobileTabBar,
@@ -30,6 +30,10 @@ import {
 import { isMigratedRoute } from '@/utils/migratedRoutes'
 import { initClarity, setCurrentUserForTracking } from '@/utils/tracking'
 
+/** Hardcoded kill-switch for the new floating support chat. Flip to `false` to fall back to the old /support button. */
+const ENABLE_SUPPORT_FLOATER = true
+
+/** Paths served by this app when legacy redirect is enabled (everything else → old LMS). */
 /**
  * Paths served by this app when legacy redirect is enabled (everything else →
  * old LMS). Deliberately minimal: only the 5 migrated pages (flag-gated,
@@ -39,6 +43,9 @@ import { initClarity, setCurrentUserForTracking } from '@/utils/tracking'
  */
 function isNewStudentExperienceRoute(pathname: string): boolean {
   if (pathname.startsWith('/masaiverse')) return true
+  if (pathname === '/support-page' || pathname.startsWith('/support-page/')) {
+    return true
+  }
   return false
 }
 
@@ -67,11 +74,11 @@ export const Route = createFileRoute('/(protected)/_layout')({
 
     let user = await fetchCurrentUser()
 
-    // Auto-login fallback: only when there's no session yet but the request
-    // carries a `?token=` (legacy/app hands the session off via the URL).
-    // Verifying it persists the session cookie so later requests are authed.
-    if (!user && token && isMasaiverseRoute) {
-      console.log('Masaiverse:', isMasaiverseRoute, token)
+    // Auto-login fallback: on any route, when there's no session yet but the
+    // request carries a `?token=` (legacy/app hands the session off via the
+    // URL). Verifying it persists the session cookie so later requests are
+    // authed. The `?token=` is stripped from the URL below once consumed.
+    if (!user && token) {
       user = await bootstrapLoginWithToken({ data: token })
     }
 
@@ -122,6 +129,19 @@ export const Route = createFileRoute('/(protected)/_layout')({
         }
       }
     }
+    // One-time bootstrap tokens must not linger in the URL (browser history,
+    // server logs, Referer). Once the session cookie is set and we've decided
+    // to stay on this app, drop `?token=` and send the browser to the clean URL.
+    if (token) {
+      const cleanParams = new URLSearchParams(requestUrl.searchParams)
+      cleanParams.delete('token')
+      const cleanSearch = cleanParams.toString()
+      throw redirect({
+        href: `${location.pathname}${cleanSearch ? `?${cleanSearch}` : ''}`,
+        replace: true,
+      })
+    }
+
     return {
       user,
     }
@@ -140,6 +160,8 @@ function RouteComponent() {
   const { user } = Route.useRouteContext()
   const isApp = isMasaiverseApp(searchStr)
   const isMasaiverseRoute = pathname.startsWith('/masaiverse')
+  const isSupportPageRoute =
+    pathname === '/support-page' || pathname.startsWith('/support-page/')
   const isSupportRoute = pathname.startsWith('/support')
   // Lecture detail spans the full viewport width (no centered container), so
   // every hero state is edge-to-edge like the recording video.
@@ -158,32 +180,49 @@ function RouteComponent() {
     setCurrentUserForTracking(user)
   }, [user])
 
+  if (isSupportPageRoute) {
+    return (
+      <ModalProvider>
+        <Outlet />
+      </ModalProvider>
+    )
+  }
+
+  const showFloatingChat =
+    ENABLE_SUPPORT_FLOATER && !isMasaiverseRoute && !isSupportRoute
+
+  const layout = (
+    <div className="min-h-dvh bg-surface-muted flex flex-col">
+      <TryNewTour hasSeen={user.hasSeenTryNewTour} />
+      <AppNavbar />
+      {pathname === '/' && !isApp ? <AppMobileHeader /> : null}
+      <main
+        className={`${mainClasses} ${isApp && !isMasaiverseRoute ? 'pb-0' : 'pb-[calc(4.5rem+env(safe-area-inset-bottom))]'} md:pb-0`}
+      >
+        <Outlet />
+      </main>
+      {isMasaiverseRoute ? (
+        <MasaiverseMobileTabBar />
+      ) : !isApp ? (
+        <AppMobileTabBar />
+      ) : null}
+      {!ENABLE_SUPPORT_FLOATER &&
+      pathname === '/' &&
+      !isMasaiverseRoute &&
+      !isSupportRoute ? (
+        <SupportChatButton />
+      ) : null}
+      <AnnouncementModalController />
+    </div>
+  )
+
   return (
     <ModalProvider>
-      <div className="min-h-dvh bg-surface-muted flex flex-col">
-        <TryNewTour hasSeen={user.hasSeenTryNewTour} />
-        <AppNavbar />
-        {/* Mobile-only greeting header for the dashboard home; the desktop
-            navbar (with the same announcements + onboarding actions) is hidden
-            on mobile. */}
-        {pathname === '/' && !isApp ? <AppMobileHeader /> : null}
-        <main
-          className={`${mainClasses} ${isApp && !isMasaiverseRoute ? 'pb-0' : 'pb-[calc(4.5rem+env(safe-area-inset-bottom))]'} md:pb-0`}
-        >
-          <Outlet />
-        </main>
-        {isMasaiverseRoute ? (
-          <MasaiverseMobileTabBar />
-        ) : !isApp ? (
-          <AppMobileTabBar />
-        ) : null}
-        {/* Floating support entry — shown only on the dashboard home for now. */}
-        {pathname === '/' && !isMasaiverseRoute && !isSupportRoute ? (
-          <SupportChatButton />
-        ) : null}
-        {/* Central modal system — announcement popups check on every page. */}
-        <AnnouncementModalController />
-      </div>
+      {showFloatingChat ? (
+        <FloatingChatProvider>{layout}</FloatingChatProvider>
+      ) : (
+        layout
+      )}
     </ModalProvider>
   )
 }

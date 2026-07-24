@@ -46,6 +46,10 @@ function buildLearnPageQuery(input: GetLearnPageDataInput): string {
   if (input.search) params.set('search', input.search)
   if (input.page) params.set('page', String(input.page))
   if (input.pageSize) params.set('pageSize', String(input.pageSize))
+  if (input.sectionId != null) params.set('sectionId', String(input.sectionId))
+  if (input.scheduleHorizonDays != null) {
+    params.set('scheduleHorizonDays', String(input.scheduleHorizonDays))
+  }
   appendFilters(params, input.filters)
   return params.toString()
 }

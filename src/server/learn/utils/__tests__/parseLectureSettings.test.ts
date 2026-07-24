@@ -8,11 +8,13 @@ describe('parseLectureSettings', () => {
       hideVideo: false,
       hideNotes: false,
       showFeedback: false,
+      inLecturePopupQuiz: [],
     })
     expect(parseLectureSettings('x')).toEqual({
       hideVideo: false,
       hideNotes: false,
       showFeedback: false,
+      inLecturePopupQuiz: [],
     })
   })
 
@@ -21,11 +23,13 @@ describe('parseLectureSettings', () => {
       hideVideo: true,
       hideNotes: false,
       showFeedback: false,
+      inLecturePopupQuiz: [],
     })
     expect(parseLectureSettings({ hide_video: false })).toEqual({
       hideVideo: false,
       hideNotes: false,
       showFeedback: false,
+      inLecturePopupQuiz: [],
     })
   })
 
@@ -39,16 +43,19 @@ describe('parseLectureSettings', () => {
       hideVideo: false,
       hideNotes: true,
       showFeedback: false,
+      inLecturePopupQuiz: [],
     })
     expect(parseLectureSettings({ hide_notes: 1 })).toEqual({
       hideVideo: false,
       hideNotes: true,
       showFeedback: false,
+      inLecturePopupQuiz: [],
     })
     expect(parseLectureSettings({ hide_notes: 0 })).toEqual({
       hideVideo: false,
       hideNotes: false,
       showFeedback: false,
+      inLecturePopupQuiz: [],
     })
   })
 
@@ -58,5 +65,28 @@ describe('parseLectureSettings', () => {
     )
     expect(parseLectureSettings({ show_feedback: 1 }).showFeedback).toBe(true)
     expect(parseLectureSettings({ show_feedback: 0 }).showFeedback).toBe(false)
+  })
+
+  it('parses valid in-lecture popup quizzes and drops malformed entries', () => {
+    const valid = {
+      timeStamp: { start: '00:01:00', end: '00:02:00' },
+      assessmentTemplate: 'tmpl-1',
+    }
+    expect(
+      parseLectureSettings({
+        inLecturePopupQuiz: [
+          valid,
+          { assessmentTemplate: 'no-timestamp' },
+          { timeStamp: { start: '00:00:00', end: '00:00:10' } },
+          'not-an-object',
+        ],
+      }).inLecturePopupQuiz,
+    ).toEqual([valid])
+  })
+
+  it('defaults in-lecture popup quiz to an empty array for non-array input', () => {
+    expect(
+      parseLectureSettings({ inLecturePopupQuiz: 'nope' }).inLecturePopupQuiz,
+    ).toEqual([])
   })
 })

@@ -1,7 +1,7 @@
 import { pushDashboardEvent } from '../shared/dashboardAnalytics'
 import type { DashboardSupportSession } from '@/server/api/dashboard/support/getSupportSessions.service'
 import type { SupportSessionStatus } from '@/server/api/dashboard/support/supportSessionStatus'
-import { isIHubPortal } from '@/utils/portal'
+import { hidesMasaiOnlyFeatures } from '@/utils/portal'
 import { formatTimestampLocal, isTodayLocal } from '@/utils/timeZoneHandler'
 
 interface LmsSupportPanelProps {
@@ -27,8 +27,9 @@ export function LmsSupportPanel({
   session,
   now = new Date(),
 }: LmsSupportPanelProps) {
-  // The LMS support-session card is a Masai-only surface — hidden on iHub.
-  if (isIHubPortal()) return null
+  // The LMS support-session card is a Masai-only surface — hidden on non-Masai
+  // portals (iHub, IIT Jodhpur).
+  if (hidesMasaiOnlyFeatures()) return null
   if (!session) return null
 
   // `session.status` is computed server-side in IST. Trust it for the real-time

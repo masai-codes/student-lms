@@ -1,13 +1,21 @@
 import { createFileRoute, getRouteApi } from '@tanstack/react-router'
 import { useEffect } from 'react'
-import type { LearnTab } from '@/components/features/learn/shared/types'
+import type {
+  LearnScheduleHorizon,
+  LearnTab,
+} from '@/components/features/learn/shared/types'
 import type { LearningType } from '@/server/learn/types'
+import {
+  learnScheduleHorizonToDays,
+  parseLearnScheduleHorizon,
+} from '@/components/features/learn/shared/types'
 import { LearnLayout } from '@/components/features/learn'
 import { LearnPageSkeleton } from '@/components/features/learn/LearnPageSkeleton'
 import {
   getLastSelectedBatchIdForUser,
   setLastSelectedBatchIdForUser,
 } from '@/lib/learnBatchSelection'
+import { setLastSelectedSectionIdForUser } from '@/lib/learnSectionSelection'
 import {
   learnModalFiltersFromSearch,
   modalFiltersToApiFilters,
@@ -31,6 +39,8 @@ function toLearningType(tab: LearnTab): LearningType {
 
 export type LearnRouteSearch = {
   batchId?: number
+  sectionId?: number
+  horizon?: LearnScheduleHorizon
   tab?: LearnTab
   page?: number
   search?: string
@@ -55,6 +65,8 @@ export const Route = createFileRoute('/(protected)/_layout/learn/')({
         : parsed.tab
 
     const result: LearnRouteSearch = { batchId: parsed.batchId }
+    if (parsed.sectionId) result.sectionId = parsed.sectionId
+    if (parsed.horizon) result.horizon = parsed.horizon
     if (tab) result.tab = tab
     if (parsed.page) result.page = parsed.page
     if (parsed.search) result.search = parsed.search
@@ -102,6 +114,10 @@ export const Route = createFileRoute('/(protected)/_layout/learn/')({
       search: search.search?.trim() || undefined,
       page: search.page ?? 1,
       filters: hasFilters ? apiFilters : undefined,
+      sectionId: search.sectionId,
+      scheduleHorizonDays: learnScheduleHorizonToDays(
+        parseLearnScheduleHorizon(search.horizon),
+      ),
     })
   },
   pendingComponent: () => <LearnPageSkeleton />,
@@ -183,12 +199,29 @@ function LearnPage() {
   return (
     <LearnLayout
       pageData={pageData}
+      userId={user.id}
       onBatchChange={(nextBatchId) => {
         setLastSelectedBatchIdForUser(user.id, nextBatchId)
         navigate({
           search: (prev) => ({
             ...prev,
             batchId: nextBatchId,
+            // Section belongs to a batch — drop it so the new batch restores its own
+            // stored section (LearnLayout) or defaults to "Any".
+            sectionId: undefined,
+            page: 1,
+          }),
+          replace: true,
+        })
+      }}
+      onSectionChange={(nextSectionId) => {
+        if (batchId != null) {
+          setLastSelectedSectionIdForUser(user.id, batchId, nextSectionId)
+        }
+        navigate({
+          search: (prev) => ({
+            ...prev,
+            sectionId: nextSectionId ?? undefined,
             page: 1,
           }),
           replace: true,
