@@ -40,11 +40,30 @@ export const ENROLMENT_EVENT = {
 export type EnrolmentEvent =
   (typeof ENROLMENT_EVENT)[keyof typeof ENROLMENT_EVENT]
 
+/** Which webhook a stored `admissionPayloadHistory` entry came from. */
+export const ADMISSION_PAYLOAD_TYPE = {
+  ENROLMENT: 'enrolment',
+  CANCEL: 'cancel',
+} as const
+
 /** `batch_user.status` values this integration writes. */
 export const BATCH_USER_STATUS = {
   ACTIVE: 'active',
   CANCELLED: 'enrolment_cancelled',
 } as const
+
+/**
+ * `batch_user.batch_transfer_status` values. Code-level enum only — the DB
+ * column is a plain varchar, not a DB enum.
+ */
+export const BATCH_TRANSFER_STATUS = {
+  CONSIDERED: 'considered',
+  REJECTED: 'rejected',
+  COMPLETED: 'completed',
+} as const
+
+export type BatchTransferStatus =
+  (typeof BATCH_TRANSFER_STATUS)[keyof typeof BATCH_TRANSFER_STATUS]
 
 export type CancelEnrolmentResult = {
   batchUserId: number

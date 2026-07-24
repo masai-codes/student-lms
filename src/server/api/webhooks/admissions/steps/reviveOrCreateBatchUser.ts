@@ -3,11 +3,14 @@ import { and, eq } from 'drizzle-orm'
 import { batchUser } from '@/db/schema'
 import { logger } from '@/lib/logger'
 import {
+  ADMISSION_PAYLOAD_TYPE,
   BATCH_USER_STATUS,
   ENROLMENT_EVENT,
   type DbTransaction,
 } from '@/server/api/webhooks/admissions/types'
+import { buildBatchUserMeta } from '@/server/api/webhooks/admissions/utils/batchUserMeta'
 import {
+  appendAdmissionPayload,
   appendTimelineEntry,
   newTimeline,
 } from '@/server/api/webhooks/admissions/utils/history'
@@ -19,6 +22,8 @@ type Params = {
   batchId: number
   isIhub: boolean
   enrolmentId: number
+  /** Redacted enrolment payload, stored in the admissionPayloadHistory audit trail. */
+  payload: Record<string, unknown>
 }
 
 /**
@@ -27,24 +32,44 @@ type Params = {
  *   a `revived` entry to `history.timeline`.
  * - No row → insert one with a `created` timeline entry.
  *
- * `meta` is a `varchar(300)` column here (not JSON), so the iHub flag is stored
- * as a compact JSON string. Returns the `batch_user` id.
+ * `meta` is a `varchar(300)` JSON string here. Writes merge into it (preserving
+ * other keys like `batchPaused`) rather than overwriting: create/revive refresh
+ * `isIhub` and clear the enrolment-cancel flags so a re-enrol lifts the
+ * restriction a prior cancel set. Returns the `batch_user` id.
  */
 export async function reviveOrCreateBatchUser(
   tx: DbTransaction,
-  { userId, batchId, isIhub, enrolmentId }: Params,
+  { userId, batchId, isIhub, enrolmentId, payload }: Params,
 ): Promise<number> {
   const now = new Date().toISOString()
-  const meta = JSON.stringify({ isIhub })
+  // Clear the cancel restriction so a re-enrol reactivates the batch.
+  const metaPatch = {
+    isIhub,
+    batchEnrolmentCancelled: false,
+    batchEnrolmentCancelledDate: null,
+  }
+  const payloadEntry = {
+    type: ADMISSION_PAYLOAD_TYPE.ENROLMENT,
+    date: now,
+    payload,
+  }
 
   const existing = await tx
-    .select({ id: batchUser.id, history: batchUser.history })
+    .select({
+      id: batchUser.id,
+      meta: batchUser.meta,
+      history: batchUser.history,
+    })
     .from(batchUser)
     .where(and(eq(batchUser.userId, userId), eq(batchUser.batchId, batchId)))
     .limit(1)
 
   const row = existing.at(0)
   if (row) {
+    const withEvent = appendTimelineEntry(row.history, {
+      type: ENROLMENT_EVENT.REVIVED,
+      date: now,
+    })
     await tx
       .update(batchUser)
       .set({
@@ -52,11 +77,8 @@ export async function reviveOrCreateBatchUser(
         isActive: 1,
         status: BATCH_USER_STATUS.ACTIVE,
         enrolmentId,
-        meta,
-        history: appendTimelineEntry(row.history, {
-          type: ENROLMENT_EVENT.REVIVED,
-          date: now,
-        }),
+        meta: buildBatchUserMeta(row.meta, metaPatch),
+        history: appendAdmissionPayload(withEvent, payloadEntry),
         updatedAt: now,
       })
       .where(eq(batchUser.id, row.id))
@@ -78,8 +100,11 @@ export async function reviveOrCreateBatchUser(
     isActive: 1,
     status: BATCH_USER_STATUS.ACTIVE,
     enrolmentId,
-    meta,
-    history: newTimeline({ type: ENROLMENT_EVENT.CREATED, date: now }),
+    meta: buildBatchUserMeta(null, metaPatch),
+    history: appendAdmissionPayload(
+      newTimeline({ type: ENROLMENT_EVENT.CREATED, date: now }),
+      payloadEntry,
+    ),
     createdAt: now,
     updatedAt: now,
   })

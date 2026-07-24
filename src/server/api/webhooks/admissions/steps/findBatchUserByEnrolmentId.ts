@@ -9,6 +9,7 @@ export type FoundBatchUser = {
   id: number
   userId: number
   batchId: number
+  meta: string | null
   history: Record<string, unknown> | null
 }
 
@@ -25,6 +26,7 @@ export async function findBatchUserByEnrolmentId(
       id: batchUser.id,
       userId: batchUser.userId,
       batchId: batchUser.batchId,
+      meta: batchUser.meta,
       history: batchUser.history,
     })
     .from(batchUser)

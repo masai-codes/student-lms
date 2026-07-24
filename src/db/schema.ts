@@ -465,6 +465,14 @@ export const batchUser = mysqlTable(
     status: varchar({ length: 300 }),
     // Enrolment id from the external admissions platform (large number).
     enrolmentId: bigint('enrolment_id', { mode: 'number', unsigned: true }),
+    // Batch-transfer id from the external admissions platform (large number).
+    batchTransferId: bigint('batch_transfer_id', {
+      mode: 'number',
+      unsigned: true,
+    }),
+    // Batch-transfer status; values are a code-level enum (BATCH_TRANSFER_STATUS),
+    // deliberately not a DB enum.
+    batchTransferStatus: varchar('batch_transfer_status', { length: 50 }),
   },
   (table) => [primaryKey({ columns: [table.id], name: 'batch_user_id' })],
 )

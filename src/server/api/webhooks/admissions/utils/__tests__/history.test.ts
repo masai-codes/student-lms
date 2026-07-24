@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
 import {
+  appendAdmissionPayload,
   appendSectionHistory,
   appendTimelineEntry,
   newSectionHistory,
@@ -43,5 +44,38 @@ describe('newSectionHistory / appendSectionHistory (section_user.meta)', () => {
 
   it('starts a fresh history when meta is undefined', () => {
     expect(appendSectionHistory(undefined, ENTRY)).toEqual({ history: [ENTRY] })
+  })
+})
+
+describe('appendAdmissionPayload (batch_user.history.admissionPayloadHistory)', () => {
+  const PAYLOAD = {
+    type: 'enrolment',
+    date: '2026-07-24T10:00:00Z',
+    payload: { enrolment_id: 999, email: 'a@b.com' },
+  }
+
+  it('starts the array and preserves the existing timeline', () => {
+    const result = appendAdmissionPayload({ timeline: [ENTRY] }, PAYLOAD)
+    expect(result).toEqual({
+      timeline: [ENTRY],
+      admissionPayloadHistory: [PAYLOAD],
+    })
+  })
+
+  it('appends to an existing admissionPayloadHistory', () => {
+    const next = { ...PAYLOAD, type: 'cancel', payload: { enrolment_id: 999 } }
+    const result = appendAdmissionPayload(
+      { admissionPayloadHistory: [PAYLOAD] },
+      next,
+    )
+    expect(result.admissionPayloadHistory).toEqual([PAYLOAD, next])
+  })
+
+  it('ignores a non-array existing value and starts fresh', () => {
+    const result = appendAdmissionPayload(
+      { admissionPayloadHistory: 'bad' },
+      PAYLOAD,
+    )
+    expect(result.admissionPayloadHistory).toEqual([PAYLOAD])
   })
 })

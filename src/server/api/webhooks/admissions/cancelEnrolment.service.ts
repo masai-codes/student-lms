@@ -36,7 +36,9 @@ export async function cancelEnrolmentFromAdmissions(
 
     await cancelBatchUser(tx, {
       batchUserId: batchUserRow.id,
+      meta: batchUserRow.meta,
       history: batchUserRow.history,
+      payload: { ...input },
     })
 
     const cancelledSectionUserIds = await cancelSectionUsers(tx, {

@@ -11,6 +11,7 @@ import { resolveEnrolmentUser } from '@/server/api/webhooks/admissions/steps/res
 import { reviveOrCreateBatchUser } from '@/server/api/webhooks/admissions/steps/reviveOrCreateBatchUser'
 import { reviveOrCreateSectionUsers } from '@/server/api/webhooks/admissions/steps/reviveOrCreateSectionUsers'
 import { upsertAdmissionData } from '@/server/api/webhooks/admissions/steps/upsertAdmissionData'
+import { redactEnrolmentPayload } from '@/server/api/webhooks/admissions/utils/redactPayload'
 import { resolveClient } from '@/server/api/webhooks/admissions/utils/resolveClient'
 
 const FN = 'createEnrolmentFromAdmissions'
@@ -65,6 +66,7 @@ export async function createEnrolmentFromAdmissions(
       batchId: input.batch_id,
       isIhub: client === 'ihub',
       enrolmentId: input.enrolment_id,
+      payload: redactEnrolmentPayload(input),
     })
     await reviveOrCreateSectionUsers(tx, {
       userId: resolvedUserId,
