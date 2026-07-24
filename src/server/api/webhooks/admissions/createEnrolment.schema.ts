@@ -26,6 +26,7 @@ export const createEnrolmentSchema = z
     section_ids: z.array(z.number().int().positive()).min(1),
     manager_id: z.number().int().positive().optional(),
     batch_id: z.number().int().positive(),
+    enrolment_id: z.number().int().positive(),
     new_user_journey: z.boolean().optional(),
     id_card_url: z.string().trim().min(1).optional(),
     seat_blocking_fees_paid: z.boolean().optional(),

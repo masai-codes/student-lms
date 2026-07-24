@@ -58,31 +58,33 @@ export async function createEnrolmentFromAdmissions(
     throw new ApiError(422, 'NO_VALID_SECTIONS')
   }
 
-  const batchUserId = await db.transaction(async (tx) => {
-    const userId = await resolveEnrolmentUser(tx, input, client)
+  const { userId, batchUserId } = await db.transaction(async (tx) => {
+    const resolvedUserId = await resolveEnrolmentUser(tx, input, client)
     const createdBatchUserId = await reviveOrCreateBatchUser(tx, {
-      userId,
+      userId: resolvedUserId,
       batchId: input.batch_id,
       isIhub: client === 'ihub',
+      enrolmentId: input.enrolment_id,
     })
     await reviveOrCreateSectionUsers(tx, {
-      userId,
+      userId: resolvedUserId,
       sectionIds: validSectionIds,
       managerId: input.manager_id,
     })
     if (input.new_user_journey) {
-      await upsertAdmissionData(tx, { userId, input })
+      await upsertAdmissionData(tx, { userId: resolvedUserId, input })
     }
-    return createdBatchUserId
+    return { userId: resolvedUserId, batchUserId: createdBatchUserId }
   })
 
   logger.info({
     msg: 'Enrolment processed successfully',
     fn: FN,
+    userId,
     batchUserId,
     validSectionCount: validSectionIds.length,
     invalidSectionCount: invalidSectionIds.length,
   })
 
-  return { batchUserId, invalidSectionIds }
+  return { userId, batchUserId, validSectionIds, invalidSectionIds }
 }

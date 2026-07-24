@@ -11,6 +11,7 @@ function validPayload(overrides: Record<string, unknown> = {}) {
     username: 'asha_rao',
     section_ids: [1, 2],
     batch_id: 10,
+    enrolment_id: 987654321,
     ...overrides,
   }
 }
@@ -41,6 +42,12 @@ describe('createEnrolmentSchema', () => {
   it('rejects a missing mandatory field', () => {
     const payload = validPayload()
     delete (payload as Record<string, unknown>).username
+    expect(createEnrolmentSchema.safeParse(payload).success).toBe(false)
+  })
+
+  it('rejects a missing enrolment_id', () => {
+    const payload = validPayload()
+    delete (payload as Record<string, unknown>).enrolment_id
     expect(createEnrolmentSchema.safeParse(payload).success).toBe(false)
   })
 

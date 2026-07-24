@@ -463,6 +463,8 @@ export const batchUser = mysqlTable(
       .references(() => batches.id),
     history: json().$type<Record<string, any>>(),
     status: varchar({ length: 300 }),
+    // Enrolment id from the external admissions platform (large number).
+    enrolmentId: bigint('enrolment_id', { mode: 'number', unsigned: true }),
   },
   (table) => [primaryKey({ columns: [table.id], name: 'batch_user_id' })],
 )
@@ -1786,7 +1788,6 @@ export const users = mysqlTable(
     index('idx_name').on(table.name),
     primaryKey({ columns: [table.id], name: 'users_id' }),
     unique('users_email_client_unique').on(table.email, table.client),
-    unique('users_email_unique').on(table.email),
     unique('users_username_unique').on(table.username),
   ],
 )

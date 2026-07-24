@@ -24,7 +24,9 @@ export type InvalidSection = {
 }
 
 export type CreateEnrolmentResult = {
+  userId: number
   batchUserId: number
+  validSectionIds: number[]
   invalidSectionIds: InvalidSection[]
 }
 

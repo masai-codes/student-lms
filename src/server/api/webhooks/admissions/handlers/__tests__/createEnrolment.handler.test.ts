@@ -36,6 +36,7 @@ function validBody() {
     username: 'asha',
     section_ids: [1],
     batch_id: 10,
+    enrolment_id: 987654321,
   }
 }
 
@@ -51,7 +52,9 @@ afterEach(() => {
 describe('handleCreateEnrolment', () => {
   it('returns 200 with the service result on a valid request', async () => {
     createEnrolmentFromAdmissions.mockResolvedValue({
+      userId: 7,
       batchUserId: 55,
+      validSectionIds: [1, 2],
       invalidSectionIds: [{ sectionId: 9, reason: 'NOT_FOUND' }],
     })
 
@@ -59,7 +62,9 @@ describe('handleCreateEnrolment', () => {
 
     expect(response.status).toBe(200)
     await expect(response.json()).resolves.toEqual({
+      userId: 7,
       batchUserId: 55,
+      validSectionIds: [1, 2],
       invalidSectionIds: [{ sectionId: 9, reason: 'NOT_FOUND' }],
     })
     expect(createEnrolmentFromAdmissions).toHaveBeenCalledTimes(1)

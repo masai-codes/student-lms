@@ -14,6 +14,7 @@ type Params = {
   userId: number
   batchId: number
   isIhub: boolean
+  enrolmentId: number
 }
 
 /**
@@ -27,7 +28,7 @@ type Params = {
  */
 export async function reviveOrCreateBatchUser(
   tx: DbTransaction,
-  { userId, batchId, isIhub }: Params,
+  { userId, batchId, isIhub, enrolmentId }: Params,
 ): Promise<number> {
   const now = new Date().toISOString()
   const meta = JSON.stringify({ isIhub })
@@ -45,6 +46,7 @@ export async function reviveOrCreateBatchUser(
       .set({
         deletedAt: null,
         isActive: 1,
+        enrolmentId,
         meta,
         history: appendTimelineEntry(row.history, {
           type: 'revived',
@@ -69,6 +71,7 @@ export async function reviveOrCreateBatchUser(
     batchId,
     role: 'student',
     isActive: 1,
+    enrolmentId,
     meta,
     history: newTimeline({ type: 'created', date: now }),
     createdAt: now,
