@@ -41,13 +41,6 @@ export function formatAiSummaryStatusLabel(status: AiSummaryStatus): string {
   }
 }
 
-function optionalAttendanceReason(lectureKind: LectureSupportSnapshot['lectureKind']): string {
-  if (lectureKind === 'video') {
-    return "This lecture is optional, so watching it does not count toward your attendance status. But trust us, it's worth the watch."
-  }
-  return "This lecture is optional, so its attendance is not counted toward your attendance status. Only mandatory live class attendance is considered. But trust us, it's worth the watch."
-}
-
 /**
  * Simple, student-facing explanation of a non-Present lecture attendance — so
  * they know what happened before raising a ticket. Branches on lecture kind
@@ -104,15 +97,6 @@ export function getSupportAttendancePresentation(snapshot: LectureSupportSnapsho
   showAbsentReason: boolean
   absentReason: string | null
 } {
-  if (!snapshot.isMandatory) {
-    return {
-      label: 'N/A',
-      colorClass: 'text-[#62647d]',
-      showAbsentReason: true,
-      absentReason: optionalAttendanceReason(snapshot.lectureKind),
-    }
-  }
-
   if (!snapshot.showAttendance) {
     return {
       label: 'N/A',

@@ -6,8 +6,9 @@ import type {
   TicketStatus,
 } from '@/server/api/support/support.types'
 import { formatSocialPostTime } from '@/lib/socialRelativeTime'
+import { mergeRaisedSupportItems } from '@/lib/support/mergeRaisedSupportItems'
 import type { TicketFilter } from './types'
-import { isResolvedTicketStatus } from './ticketStatus'
+import { isResolvedTicketStatus, matchesCallbackTicketFilter } from './ticketStatus'
 
 interface TicketListProps {
   tickets: TicketListItem[]
@@ -49,14 +50,12 @@ export function TicketList({
   onTicketSelect,
 }: TicketListProps) {
   const filteredTickets = tickets.filter((t) => matchesFilter(t.status, filter))
-  const filteredCallbacks = callbackTickets.filter((cb) => {
-    if (filter === 'all') return true
-    const resolved = cb.status.toLowerCase() === 'resolved'
-    if (filter === 'resolved') return resolved
-    return !resolved
-  })
+  const filteredCallbacks = callbackTickets.filter((cb) =>
+    matchesCallbackTicketFilter(cb.status, filter),
+  )
 
-  const isEmpty = filteredTickets.length === 0 && filteredCallbacks.length === 0
+  const raisedItems = mergeRaisedSupportItems(filteredTickets, filteredCallbacks)
+  const isEmpty = raisedItems.length === 0
 
   return (
     <>
@@ -87,42 +86,44 @@ export function TicketList({
         })}
       </div>
 
-      {filteredTickets.map((ticket) => {
-        const chip = statusChip(ticket.status)
-        return (
-          <button
-            key={ticket.id}
-            type="button"
-            onClick={() => onTicketSelect(ticket.id)}
-            className="w-full text-left p-[13px_12px] border border-[#e9e9f3] rounded-[14px] shrink-0 cursor-pointer transition-colors hover:bg-[#f0f0fd] hover:border-[#e3e3fb]"
-          >
-            <div className="flex items-center justify-between gap-2 mb-[7px]">
-              <div className="flex items-center gap-1.5 text-[#62647d] text-[11.8px] font-bold min-w-0">
-                <Ticket weight="fill" className="size-[14px] text-[#4b4396] shrink-0" />
-                <span className="truncate capitalize">{ticket.category.replace(/[-_]/g, ' ')}</span>
+      {raisedItems.map((row) => {
+        if (row.kind === 'ticket') {
+          const ticket = row.item
+          const chip = statusChip(ticket.status)
+          return (
+            <button
+              key={`ticket-${ticket.id}`}
+              type="button"
+              onClick={() => onTicketSelect(ticket.id)}
+              className="w-full text-left p-[13px_12px] border border-[#e9e9f3] rounded-[14px] shrink-0 cursor-pointer transition-colors hover:bg-[#f0f0fd] hover:border-[#e3e3fb]"
+            >
+              <div className="flex items-center justify-between gap-2 mb-[7px]">
+                <div className="flex items-center gap-1.5 text-[#62647d] text-[11.8px] font-bold min-w-0">
+                  <Ticket weight="fill" className="size-[14px] text-[#4b4396] shrink-0" />
+                  <span className="truncate capitalize">{ticket.category.replace(/[-_]/g, ' ')}</span>
+                </div>
+                <span
+                  className={cn(
+                    'text-[11px] font-bold px-[9px] py-[3px] rounded-full shrink-0 whitespace-nowrap',
+                    chip.className,
+                  )}
+                >
+                  {chip.label}
+                </span>
               </div>
-              <span
-                className={cn(
-                  'text-[11px] font-bold px-[9px] py-[3px] rounded-full shrink-0 whitespace-nowrap',
-                  chip.className,
-                )}
-              >
-                {chip.label}
-              </span>
-            </div>
-            <div className="text-[13.8px] font-bold text-[#15162c] mb-1 truncate">{ticket.title}</div>
-            <div className="text-[11.2px] text-[#9496ab]">
-              #{ticket.id}
-              {ticket.updatedAt ? ` · updated ${formatSocialPostTime(ticket.updatedAt)}` : ''}
-              {ticket.hasUnread ? ' · New reply' : ''}
-            </div>
-          </button>
-        )
-      })}
+              <div className="text-[13.8px] font-bold text-[#15162c] mb-1 truncate">{ticket.title}</div>
+              <div className="text-[11.2px] text-[#9496ab]">
+                #{ticket.id}
+                {ticket.createdAt ? ` · raised ${formatSocialPostTime(ticket.createdAt)}` : ''}
+                {ticket.hasUnread ? ' · New reply' : ''}
+              </div>
+            </button>
+          )
+        }
 
-      {filteredCallbacks.map((cb) => {
+        const cb = row.item
         const chip = callbackStatusChip(cb.status)
-        const timestamp = cb.updatedAt || cb.createdAt
+        const timestamp = cb.createdAt
         return (
           <div
             key={`callback-${cb.id}`}
@@ -150,7 +151,7 @@ export function TicketList({
             </div>
             <div className="text-[11.2px] text-[#9496ab]">
               #{cb.id}
-              {timestamp ? ` · ${formatSocialPostTime(timestamp)}` : ''}
+              {timestamp ? ` · raised ${formatSocialPostTime(timestamp)}` : ''}
             </div>
           </div>
         )

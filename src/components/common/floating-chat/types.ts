@@ -10,11 +10,15 @@ export interface Item {
   title: string
   meta: string
   date: string
-  /** Lecture kind from learn listing (`live` / `video`). */
-  type?: 'live' | 'video'
+  /** Lecture kind from learn listing (`live` / `video` / `scrum`). */
+  type?: 'live' | 'video' | 'scrum'
   startTime?: string
   /** True for recommended/optional assignments (and similar learn items). */
   isOptional?: boolean
+  /** True for mandatory assignments and evaluations. */
+  isMandatory?: boolean
+  /** Module label for assignment/evaluation cards. */
+  moduleName?: string
 }
 
 export interface Message {

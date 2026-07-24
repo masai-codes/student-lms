@@ -13,12 +13,13 @@ const emptyFooter = {
 }
 
 describe('resolveAssignmentSupportSnapshot', () => {
-  it('maps practice assignment status and type', () => {
+  it('maps practice assignment status and hides score policy without weightage', () => {
     const snapshot = resolveAssignmentSupportSnapshot({
       assignmentId: 1,
       assignmentKind: 'practice',
       phase: 'during',
       progressStatus: 'completed',
+      settings: null,
       footer: emptyFooter,
     })
 
@@ -26,17 +27,30 @@ describe('resolveAssignmentSupportSnapshot', () => {
     expect(snapshot.statusLabel).toBe('Submitted')
     expect(snapshot.statusTone).toBe('success')
     expect(snapshot.scoreDisplay).toBeNull()
-    expect(snapshot.scorePolicyNotice).toBe(
-      'Score will not be considered for final grading',
-    )
+    expect(snapshot.scorePolicyNotice).toBeNull()
   })
 
-  it('maps graded assignment type', () => {
+  it('shows Practice Mode instead of Overdue for past-deadline practice assignments', () => {
+    const snapshot = resolveAssignmentSupportSnapshot({
+      assignmentId: 6,
+      assignmentKind: 'practice',
+      phase: 'after',
+      progressStatus: 'overdue',
+      settings: null,
+      footer: emptyFooter,
+    })
+
+    expect(snapshot.statusLabel).toBe('Practice Mode')
+    expect(snapshot.statusTone).toBe('neutral')
+  })
+
+  it('maps graded assignment type and score policy when weightage is set', () => {
     const snapshot = resolveAssignmentSupportSnapshot({
       assignmentId: 2,
       assignmentKind: 'assignment',
       phase: 'after',
       progressStatus: 'in-progress',
+      settings: { weightagePercentage: 69 },
       footer: emptyFooter,
     })
 
@@ -45,6 +59,21 @@ describe('resolveAssignmentSupportSnapshot', () => {
     expect(snapshot.scorePolicyNotice).toBe(
       'Score will be considered for final grading',
     )
+    expect(snapshot.weightagePercentage).toBe(69)
+  })
+
+  it('hides score policy and weightage when weightagePercentage is missing', () => {
+    const snapshot = resolveAssignmentSupportSnapshot({
+      assignmentId: 2,
+      assignmentKind: 'assignment',
+      phase: 'after',
+      progressStatus: 'in-progress',
+      settings: { case: 'case1' },
+      footer: emptyFooter,
+    })
+
+    expect(snapshot.scorePolicyNotice).toBeNull()
+    expect(snapshot.weightagePercentage).toBeNull()
   })
 
   it('maps evaluation attempt and released score', () => {
@@ -53,6 +82,7 @@ describe('resolveAssignmentSupportSnapshot', () => {
       assignmentKind: 'evaluation',
       phase: 'after',
       progressStatus: 'completed',
+      settings: { weightagePercentage: 25 },
       footer: {
         ...emptyFooter,
         score: {
@@ -69,6 +99,7 @@ describe('resolveAssignmentSupportSnapshot', () => {
     expect(snapshot.scorePolicyNotice).toBe(
       'Score will be considered for final grading',
     )
+    expect(snapshot.weightagePercentage).toBe(25)
   })
 
   it('maps evaluation pending score', () => {
@@ -77,6 +108,7 @@ describe('resolveAssignmentSupportSnapshot', () => {
       assignmentKind: 'evaluation',
       phase: 'after',
       progressStatus: 'completed',
+      settings: null,
       footer: {
         ...emptyFooter,
         score: {
@@ -88,6 +120,7 @@ describe('resolveAssignmentSupportSnapshot', () => {
     })
 
     expect(snapshot.scoreDisplay).toBe('Pending')
+    expect(snapshot.scorePolicyNotice).toBeNull()
   })
 
   it('maps evaluation not attempted', () => {
@@ -96,6 +129,7 @@ describe('resolveAssignmentSupportSnapshot', () => {
       assignmentKind: 'evaluation',
       phase: 'during',
       progressStatus: 'new',
+      settings: null,
       footer: emptyFooter,
     })
 

@@ -4,11 +4,11 @@ import type { LectureSupportSnapshot } from '@/server/api/support/support.types'
 import { db } from '@/db'
 import { lectures, lecturesAi } from '@/db/schema'
 import { fetchLectureAttendanceSummaries } from '@/server/attendance/services/fetchLectureAttendanceSummaries'
-import type { LectureKind } from '@/server/learn/lectureDetailTypes'
 import { buildLectureVideoAttendanceState } from '@/server/learn/utils/buildLectureVideoAttendanceState'
 import { ensureUserCanAccessLearnHubEntity } from '@/server/learn/utils/ensureLearnEntityAccess'
 import { parseLectureTranscriptSegments } from '@/server/learn/utils/formatLectureTranscript'
 import { toLearningPriority } from '@/server/learn/utils/learningDataMappers'
+import { normalizeLectureKind } from '@/server/learn/utils/normalizeLectureKind'
 import { parseLectureSettings } from '@/server/learn/utils/parseLectureSettings'
 import { resolveAiSummaryStatus } from '@/server/learn/utils/resolveAiSummaryStatus'
 import { resolveJoinLiveButtonState } from '@/server/learn/utils/resolveJoinLiveButtonState'
@@ -18,14 +18,6 @@ import { resolveLiveLecturePhase } from '@/server/learn/utils/resolveLiveLecture
 import { resolveVideoLecturePhase } from '@/server/learn/utils/resolveVideoLecturePhase'
 import { isLectureSessionEnded } from '@/server/learn/utils/isLectureSessionEnded'
 import { LECTURE_RESOURCE_TYPE } from '@/server/learn/utils/resolveLectureLearningType'
-
-function normalizeLectureKind(type: string): LectureKind | null {
-  const normalized = type.trim().toLowerCase()
-  if (normalized === 'live' || normalized === 'video') {
-    return normalized
-  }
-  return null
-}
 
 export async function getLectureSupportSnapshot(
   userId: number,
@@ -107,16 +99,21 @@ export async function getLectureSupportSnapshot(
       .where(eq(lecturesAi.lectureId, lectureId))
       .limit(1),
     buildLectureVideoAttendanceState(userId, lectureId),
-    isMandatory && row.sectionId != null
-      ? fetchLectureAttendanceSummaries(userId, [
-          {
-            lectureId,
-            sectionId: row.sectionId,
-            schedule: row.schedule,
-            concludes: row.concludes,
-            optional: row.optional,
-          },
-        ])
+    row.sectionId != null
+      ? fetchLectureAttendanceSummaries(
+          userId,
+          [
+            {
+              lectureId,
+              sectionId: row.sectionId,
+              schedule: row.schedule,
+              concludes: row.concludes,
+              optional: row.optional,
+            },
+          ],
+          nowMs,
+          true,
+        )
       : Promise.resolve(new Map()),
   ])
 
@@ -148,7 +145,7 @@ export async function getLectureSupportSnapshot(
     nowMs,
   })
 
-  const showAttendance = isMandatory && sessionEnded
+  const showAttendance = sessionEnded
   const attendance = showAttendance ? (attendanceMap.get(lectureId) ?? null) : null
 
   return {

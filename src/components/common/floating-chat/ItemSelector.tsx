@@ -2,7 +2,14 @@ import { useEffect, useRef } from 'react'
 import { cn } from '@/lib/utils'
 import { MagnifyingGlass, CaretRight, CaretLeft } from '@phosphor-icons/react'
 import type { Category, Item } from './types'
-import { formatSupportLectureTypeLabel, supportLectureTypeChipClassName } from './supportCategoryLearning'
+import { formatSupportLectureTypeLabel, supportAssignmentPriorityChipClassName, supportLectureTypeChipClassName } from './supportCategoryLearning'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 
 interface ItemSelectorPagination {
   page: number
@@ -23,6 +30,23 @@ interface ItemSelectorProps {
   isError?: boolean
   onRetry?: () => void
   pagination?: ItemSelectorPagination
+  lectureTypeFilter?: string
+  onLectureTypeChange?: (value: string) => void
+  attendanceStatusFilter?: string
+  onAttendanceStatusChange?: (value: string) => void
+  assignmentPriorityFilter?: string
+  onAssignmentPriorityChange?: (value: string) => void
+  assignmentCategoryFilter?: string
+  onAssignmentCategoryChange?: (value: string) => void
+  assignmentCategoryOptions?: Array<string>
+  assignmentModuleFilter?: string
+  onAssignmentModuleChange?: (value: string) => void
+  assignmentModuleOptions?: Array<string>
+  evaluationProgressFilter?: string
+  onEvaluationProgressChange?: (value: string) => void
+  evaluationModuleFilter?: string
+  onEvaluationModuleChange?: (value: string) => void
+  evaluationModuleOptions?: Array<string>
 }
 
 export function ItemSelector({
@@ -36,6 +60,23 @@ export function ItemSelector({
   isError = false,
   onRetry,
   pagination,
+  lectureTypeFilter,
+  onLectureTypeChange,
+  attendanceStatusFilter,
+  onAttendanceStatusChange,
+  assignmentPriorityFilter,
+  onAssignmentPriorityChange,
+  assignmentCategoryFilter,
+  onAssignmentCategoryChange,
+  assignmentCategoryOptions = [],
+  assignmentModuleFilter,
+  onAssignmentModuleChange,
+  assignmentModuleOptions = [],
+  evaluationProgressFilter,
+  onEvaluationProgressChange,
+  evaluationModuleFilter,
+  onEvaluationModuleChange,
+  evaluationModuleOptions = [],
 }: ItemSelectorProps) {
   const listRef = useRef<HTMLDivElement>(null)
   const showPagination =
@@ -58,6 +99,131 @@ export function ItemSelector({
           className="flex-1 bg-transparent outline-none border-none text-[13.6px] text-[#15162c] placeholder:text-[#9496ab] font-[inherit]"
         />
       </div>
+
+      {categoryObj.id === 'lecture' && onLectureTypeChange && onAttendanceStatusChange && (
+        <div className="flex items-center gap-2 mb-1 shrink-0">
+          <Select value={lectureTypeFilter} onValueChange={onLectureTypeChange}>
+            <SelectTrigger className="h-[34px] flex-1 text-[13px] bg-[#f1f1f7] border-transparent hover:bg-[#e3e3fb] transition-colors rounded-[10px]">
+              <SelectValue placeholder="Type" />
+            </SelectTrigger>
+            <SelectContent className="z-[300]">
+              <SelectItem value="any">All types</SelectItem>
+              <SelectItem value="live">Live</SelectItem>
+              <SelectItem value="scrum">Scrum</SelectItem>
+              <SelectItem value="video">Video</SelectItem>
+            </SelectContent>
+          </Select>
+
+          <Select value={attendanceStatusFilter} onValueChange={onAttendanceStatusChange}>
+            <SelectTrigger className="h-[34px] flex-1 text-[13px] bg-[#f1f1f7] border-transparent hover:bg-[#e3e3fb] transition-colors rounded-[10px]">
+              <SelectValue placeholder="Attendance" />
+            </SelectTrigger>
+            <SelectContent className="z-[300]">
+              <SelectItem value="any">All attendance</SelectItem>
+              <SelectItem value="present">Present</SelectItem>
+              <SelectItem value="absent">Absent</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      )}
+
+      {categoryObj.id === 'assignment' &&
+        onAssignmentPriorityChange &&
+        onAssignmentCategoryChange &&
+        onAssignmentModuleChange && (
+          <div className="flex flex-col gap-1.5 mb-1 shrink-0 min-w-0 lg:flex-row lg:items-center">
+            <div className="flex items-center gap-1.5 min-w-0 lg:contents">
+              <Select
+                value={assignmentPriorityFilter}
+                onValueChange={onAssignmentPriorityChange}
+              >
+                <SelectTrigger className="h-[34px] min-w-0 flex-1 text-[12px] bg-[#f1f1f7] border-transparent hover:bg-[#e3e3fb] transition-colors rounded-[10px] px-2">
+                  <SelectValue placeholder="Priority" />
+                </SelectTrigger>
+                <SelectContent className="z-[300]">
+                  <SelectItem value="any">All priorities</SelectItem>
+                  <SelectItem value="recommended">Optional</SelectItem>
+                  <SelectItem value="mandatory">Mandatory</SelectItem>
+                </SelectContent>
+              </Select>
+
+              <Select
+                value={assignmentCategoryFilter}
+                onValueChange={onAssignmentCategoryChange}
+              >
+                <SelectTrigger className="h-[34px] min-w-0 flex-1 text-[12px] bg-[#f1f1f7] border-transparent hover:bg-[#e3e3fb] transition-colors rounded-[10px] px-2">
+                  <SelectValue placeholder="Category" />
+                </SelectTrigger>
+                <SelectContent className="z-[300]">
+                  <SelectItem value="any">All categories</SelectItem>
+                  {assignmentCategoryOptions.map((category) => (
+                    <SelectItem key={category} value={category}>
+                      {category}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="w-full lg:contents">
+              <Select
+                value={assignmentModuleFilter}
+                onValueChange={onAssignmentModuleChange}
+              >
+                <SelectTrigger className="h-[34px] w-full min-w-0 lg:flex-1 text-[12px] bg-[#f1f1f7] border-transparent hover:bg-[#e3e3fb] transition-colors rounded-[10px] px-2">
+                  <SelectValue placeholder="Module" />
+                </SelectTrigger>
+                <SelectContent className="z-[300]">
+                  <SelectItem value="any">All modules</SelectItem>
+                  {assignmentModuleOptions.map((moduleName) => (
+                    <SelectItem key={moduleName} value={moduleName}>
+                      {moduleName}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        )}
+
+      {categoryObj.id === 'evaluation' &&
+        onEvaluationProgressChange &&
+        onEvaluationModuleChange && (
+          <div className="flex items-center gap-2 mb-1 shrink-0">
+            <Select
+              value={evaluationProgressFilter}
+              onValueChange={onEvaluationProgressChange}
+            >
+              <SelectTrigger className="h-[34px] flex-1 text-[13px] bg-[#f1f1f7] border-transparent hover:bg-[#e3e3fb] transition-colors rounded-[10px]">
+                <SelectValue placeholder="Progress" />
+              </SelectTrigger>
+              <SelectContent className="z-[300]">
+                <SelectItem value="any">All progress</SelectItem>
+                <SelectItem value="new">New</SelectItem>
+                <SelectItem value="in-progress">In Progress</SelectItem>
+                <SelectItem value="completed">Completed</SelectItem>
+                <SelectItem value="overdue">Overdue</SelectItem>
+              </SelectContent>
+            </Select>
+
+            <Select
+              value={evaluationModuleFilter}
+              onValueChange={onEvaluationModuleChange}
+            >
+              <SelectTrigger className="h-[34px] flex-1 text-[13px] bg-[#f1f1f7] border-transparent hover:bg-[#e3e3fb] transition-colors rounded-[10px]">
+                <SelectValue placeholder="Module" />
+              </SelectTrigger>
+              <SelectContent className="z-[300]">
+                <SelectItem value="any">All modules</SelectItem>
+                {evaluationModuleOptions.map((moduleName) => (
+                  <SelectItem key={moduleName} value={moduleName}>
+                    {moduleName}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        )}
 
       {isLoading && (
         <div className="flex flex-1 items-center justify-center py-8">
@@ -108,8 +274,18 @@ export function ItemSelector({
               const showOptional =
                 (categoryObj.id === 'assignment' ||
                   categoryObj.id === 'evaluation' ||
-                  categoryObj.id === 'resource') &&
+                  categoryObj.id === 'resource' ||
+                  categoryObj.id === 'lecture') &&
                 item.isOptional === true
+              const showMandatory =
+                (categoryObj.id === 'assignment' ||
+                  categoryObj.id === 'evaluation' ||
+                  categoryObj.id === 'lecture') &&
+                item.isMandatory === true
+              const showModulePill =
+                (categoryObj.id === 'assignment' ||
+                  categoryObj.id === 'evaluation') &&
+                item.moduleName
 
               return (
               <button
@@ -136,14 +312,34 @@ export function ItemSelector({
                         {lectureTypeLabel}
                       </span>
                     ) : null}
+                    {showMandatory ? (
+                      <span
+                        className={cn(
+                          'text-[11px] font-bold px-2 py-[2.5px] rounded-full shrink-0',
+                          supportAssignmentPriorityChipClassName('mandatory'),
+                        )}
+                      >
+                        Mandatory
+                      </span>
+                    ) : null}
                     {showOptional ? (
-                      <span className="text-[11px] font-bold text-[#b54708] bg-[#fffaeb] px-2 py-[2.5px] rounded-full shrink-0">
+                      <span
+                        className={cn(
+                          'text-[11px] font-bold px-2 py-[2.5px] rounded-full shrink-0',
+                          supportAssignmentPriorityChipClassName('optional'),
+                        )}
+                      >
                         Optional
                       </span>
                     ) : null}
                     <span className="text-[11px] font-bold text-[#62647d] bg-[#f1f1f7] px-2 py-[2.5px] rounded-full group-hover:bg-white transition-colors truncate max-w-[140px]">
                       {item.meta}
                     </span>
+                    {showModulePill ? (
+                      <span className="text-[11px] font-bold text-[#62647d] bg-[#f1f1f7] px-2 py-[2.5px] rounded-full group-hover:bg-white transition-colors truncate max-w-[140px]">
+                        {item.moduleName}
+                      </span>
+                    ) : null}
                     <span className="text-[11.5px] text-[#9496ab] truncate">{item.date}</span>
                   </div>
                 </div>

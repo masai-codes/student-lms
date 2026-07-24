@@ -5,6 +5,7 @@ import type {
   LectureKind,
   LectureVideoAttendanceState,
 } from '@/server/learn/lectureDetailTypes'
+import { normalizeLectureKind } from '@/server/learn/utils/normalizeLectureKind'
 import type { LearnHubDetailPayload } from '@/server/learn/types'
 import type { LectureAttendanceSummary } from '@/server/attendance/types'
 import { formatLectureScheduleRange } from '@/server/learn/utils/formatLectureScheduleRange'
@@ -31,20 +32,6 @@ type LectureDetailRow = {
   settings: unknown
   hostAvatarUrl: string | null
   notes: string | null
-}
-
-function normalizeLectureKind(type: string): LectureKind | null {
-  const normalized = type.trim().toLowerCase()
-  // `scrum` is a live-class variant (Zoom join + optional recording), so it is
-  // treated as `live` here — mirroring the listing/dashboard `('live','scrum')`
-  // grouping and the legacy LMS `is_live` computation.
-  if (normalized === 'live' || normalized === 'scrum') {
-    return 'live'
-  }
-  if (normalized === 'video') {
-    return 'video'
-  }
-  return null
 }
 
 export function buildLectureDetailPayload(

@@ -16,14 +16,18 @@ export function getAssignmentSnapshotStatusClassName(
   return TONE_CLASS[tone]
 }
 
-export function shouldShowAssignmentTypeCard(
-  snapshot: AssignmentSupportSnapshot,
-): boolean {
-  return snapshot.typeLabel != null
-}
-
 export function shouldShowAssignmentScoreCard(
   snapshot: AssignmentSupportSnapshot,
 ): boolean {
   return snapshot.assignmentKind === 'evaluation'
+}
+
+export function shouldShowAssignmentWeightageCard(
+  snapshot: AssignmentSupportSnapshot,
+): boolean {
+  return snapshot.weightagePercentage != null
+}
+
+export function formatAssignmentWeightageDisplay(weightagePercentage: number): string {
+  return `${weightagePercentage}%`
 }

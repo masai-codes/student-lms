@@ -40,6 +40,7 @@ function buildItem(input: {
   schedule: string | null
   lectureType?: string
   isOptional?: boolean
+  isMandatory?: boolean
 }): SupportEntityContext['item'] {
   return {
     id: input.id,
@@ -49,6 +50,7 @@ function buildItem(input: {
     type: input.lectureType ? toSupportLectureType(input.lectureType) : undefined,
     startTime: input.schedule ?? undefined,
     isOptional: input.isOptional,
+    isMandatory: input.isMandatory,
   }
 }
 
@@ -100,7 +102,7 @@ async function resolveLectureContext(
     throw new Error('SUPPORT_ENTITY_BATCH_NOT_FOUND')
   }
 
-  const isRecommended = toLearningPriority(row.optional) === 'recommended'
+  const priority = toLearningPriority(row.optional)
 
   return {
     batchId,
@@ -114,7 +116,8 @@ async function resolveLectureContext(
           : resolveModuleName(row.module, row.week),
       schedule: row.schedule,
       lectureType: category === 'lecture' ? row.type : undefined,
-      isOptional: category === 'resource' ? isRecommended : undefined,
+      isOptional: priority === 'recommended' ? true : undefined,
+      isMandatory: category === 'lecture' && priority === 'mandatory' ? true : undefined,
     }),
   }
 }
@@ -159,7 +162,7 @@ async function resolveAssignmentContext(
     throw new Error('SUPPORT_ENTITY_BATCH_NOT_FOUND')
   }
 
-  const isRecommended = toLearningPriority(row.optional) === 'recommended'
+  const priority = toLearningPriority(row.optional)
 
   return {
     batchId,
@@ -169,7 +172,8 @@ async function resolveAssignmentContext(
       title: row.title,
       meta: row.category.trim() || 'Uncategorized',
       schedule: row.schedule,
-      isOptional: isRecommended,
+      isOptional: priority === 'recommended',
+      isMandatory: priority === 'mandatory',
     }),
   }
 }

@@ -136,6 +136,7 @@ export async function getAssignmentSupportSnapshot(
     assignmentKind,
     phase,
     progressStatus,
+    settings: row.settings,
     footer,
   })
 }

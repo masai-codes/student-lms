@@ -23,6 +23,10 @@ import {
   ladderFromBatchSettings,
   nextEscalation,
 } from '@/server/api/support/services/resolveAssignees'
+import {
+  resolveTicketTitle,
+} from '@/server/api/support/services/generateTicketTitle.service'
+import { fetchEntityTitleForTicket } from '@/server/api/support/services/fetchEntityTitleForTicket.service'
 import { buildFirstTemplateResponse } from '@/server/api/support/services/ticketReplyTemplate'
 import { normalizeStatus } from '@/server/api/support/services/serialize'
 import { getTicketCapabilities } from '@/server/api/support/ticketCapabilities'
@@ -67,9 +71,9 @@ async function resolveInitialAssignee(
  * Stores `batch_id`, `entity_id` (the lecture/assignment/resource the student
  * was looking at, if any), `subCategory`, the originating FAQ (`question_id`),
  * a fresh `workflow_id`, and a snapshot of the student's `active-sections` in
- * `tickets.data`, sets `status='open'`, and auto-assigns the L1 owner. The
- * title is derived from category + subcategory (the legacy system auto-titles
- * too).
+ * `tickets.data`, sets `status='open'`, and auto-assigns the L1 owner. The title
+ * is resolved by {@link resolveTicketTitle} (AI summary when configured, with
+ * deterministic fallbacks).
  *
  * @returns the new ticket id (the client then navigates into its conversation).
  */
@@ -84,16 +88,28 @@ export async function createTicket(input: {
 }): Promise<{ id: number }> {
   if (!input.message.trim()) throw new Error('SUPPORT_MESSAGE_REQUIRED')
 
-  const assigneeId = await resolveInitialAssignee(input.batchId, input.category)
-  const activeSections = await getActiveSectionNames(input.userId, input.batchId)
-  const title = [input.category, input.subCategory]
-    .filter(Boolean)
-    .map((s) => String(s).replace(/[-_]/g, ' '))
-    .join(' – ')
+  const [assigneeId, activeSections, entityTitle] = await Promise.all([
+    resolveInitialAssignee(input.batchId, input.category),
+    getActiveSectionNames(input.userId, input.batchId),
+    input.entityId != null
+      ? fetchEntityTitleForTicket({
+          userId: input.userId,
+          category: input.category,
+          entityId: input.entityId,
+        })
+      : Promise.resolve(null),
+  ])
+
+  const { title, source: titleSource } = await resolveTicketTitle({
+    message: input.message.trim(),
+    category: input.category,
+    subCategory: input.subCategory,
+    entityTitle,
+  })
 
   const [result] = await db.insert(tickets).values({
     userId: input.userId,
-    title: title || input.category,
+    title,
     message: input.message.trim(),
     category: input.category,
     status: 'open',
@@ -108,6 +124,7 @@ export async function createTicket(input: {
       workflow_id: `ticket-${randomUUID()}`,
       'active-sections': activeSections,
       help_faq_question: true,
+      title_source: titleSource,
     },
     logstamps: { L1_assigned_at: new Date().toISOString() },
   })

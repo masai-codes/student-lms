@@ -51,32 +51,41 @@ function makeSnapshot(
 }
 
 describe('getSupportAttendancePresentation', () => {
-  it('tells the student attendance is not counted for optional live lectures', () => {
+  it('shows Present for optional live lectures when attendance is marked present', () => {
     const result = getSupportAttendancePresentation(
-      makeSnapshot({ isMandatory: false, showAttendance: false, attendance: null }),
+      makeSnapshot({
+        isMandatory: false,
+        attendance: makeAttendance({ overallStatus: 1 }),
+      }),
     )
 
-    expect(result.label).toBe('N/A')
-    expect(result.showAbsentReason).toBe(true)
-    expect(result.absentReason).toMatch(/optional/i)
-    expect(result.absentReason).toMatch(/mandatory live class attendance/i)
-    expect(result.absentReason).toMatch(/worth the watch/i)
+    expect(result.label).toBe('Present')
+    expect(result.showAbsentReason).toBe(false)
   })
 
-  it('does not mention live attendance for optional video lectures', () => {
+  it('shows Absent with reason for optional live lectures when the student missed the session', () => {
+    const result = getSupportAttendancePresentation(
+      makeSnapshot({
+        isMandatory: false,
+        attendance: makeAttendance({ videoCountsForAttendance: false }),
+      }),
+    )
+
+    expect(result.label).toBe('Absent')
+    expect(result.absentReason).toMatch(/did not join the live session/i)
+  })
+
+  it('shows Absent with video-specific reason for optional video lectures', () => {
     const result = getSupportAttendancePresentation(
       makeSnapshot({
         lectureKind: 'video',
         isMandatory: false,
-        showAttendance: false,
-        attendance: null,
+        attendance: makeAttendance({ watchPercentage: 0, videoPercentage: 0 }),
       }),
     )
 
-    expect(result.label).toBe('N/A')
-    expect(result.absentReason).toMatch(/watching it does not count/i)
-    expect(result.absentReason).not.toMatch(/live class/i)
-    expect(result.absentReason).toMatch(/worth the watch/i)
+    expect(result.label).toBe('Absent')
+    expect(result.absentReason).toMatch(/have not watched this recording yet/i)
   })
 
   it('shows plain N/A with no reason when a mandatory session has not ended yet', () => {

@@ -1,5 +1,6 @@
 import type { AssignmentKind, AssignmentPhase } from '@/server/learn/assignmentDetailTypes'
 import type { AssignmentDetailFooter } from '@/server/learn/assignmentDetailFooterTypes'
+import { readWeightagePercentage } from '@/server/learn/utils/buildAssignmentHeaderBadges'
 import type { AssignmentProgressStatus } from '@/server/learn/utils/calculateAssignmentProgressStatus'
 
 export type AssignmentSupportSnapshotTone = 'neutral' | 'success' | 'warning' | 'danger'
@@ -14,6 +15,8 @@ export type ResolvedAssignmentSupportSnapshot = {
   statusTone: AssignmentSupportSnapshotTone
   scoreDisplay: string | null
   scorePolicyNotice: string | null
+  /** From `settings.weightagePercentage` when set; drives the weightage card + policy banner. */
+  weightagePercentage: number | null
 }
 
 const ASSIGNMENT_STATUS: Record<
@@ -41,6 +44,16 @@ function resolveEvaluationAttemptStatus(
   return { label: 'Not Attempted', tone: 'neutral' }
 }
 
+/** Practice assignments past deadline stay in practice mode — not "Overdue". */
+function resolvePracticeAssignmentStatus(
+  progressStatus: AssignmentProgressStatus,
+): { label: string; tone: AssignmentSupportSnapshotTone } {
+  if (progressStatus === 'overdue') {
+    return { label: 'Practice Mode', tone: 'neutral' }
+  }
+  return ASSIGNMENT_STATUS[progressStatus]
+}
+
 function resolveScoreDisplay(footer: AssignmentDetailFooter): string | null {
   const score = footer.score
   if (score == null) return '-'
@@ -54,18 +67,11 @@ function resolveScoreDisplay(footer: AssignmentDetailFooter): string | null {
   return '-'
 }
 
-function resolveScorePolicyNotice(assignmentKind: AssignmentKind): string | null {
-  const policyNotice = (message: string) => message
-
-  if (assignmentKind === 'practice') {
-    return policyNotice('Score will not be considered for final grading')
-  }
-
-  if (assignmentKind === 'assignment' || assignmentKind === 'evaluation') {
-    return policyNotice('Score will be considered for final grading')
-  }
-
-  return null
+function resolveScorePolicyNotice(
+  settings: Record<string, unknown> | null,
+): string | null {
+  if (readWeightagePercentage(settings) == null) return null
+  return 'Score will be considered for final grading'
 }
 
 export function resolveAssignmentSupportSnapshot(input: {
@@ -73,6 +79,7 @@ export function resolveAssignmentSupportSnapshot(input: {
   assignmentKind: AssignmentKind
   phase: AssignmentPhase
   progressStatus: AssignmentProgressStatus
+  settings: Record<string, unknown> | null
   footer: AssignmentDetailFooter
 }): ResolvedAssignmentSupportSnapshot {
   const typeLabel = resolveTypeLabel(input.assignmentKind)
@@ -80,14 +87,17 @@ export function resolveAssignmentSupportSnapshot(input: {
   const status =
     input.assignmentKind === 'evaluation'
       ? resolveEvaluationAttemptStatus(input.progressStatus)
-      : ASSIGNMENT_STATUS[input.progressStatus]
+      : input.assignmentKind === 'practice'
+        ? resolvePracticeAssignmentStatus(input.progressStatus)
+        : ASSIGNMENT_STATUS[input.progressStatus]
 
   const scoreDisplay =
     input.assignmentKind === 'evaluation'
       ? resolveScoreDisplay(input.footer)
       : null
 
-  const scorePolicyNotice = resolveScorePolicyNotice(input.assignmentKind)
+  const scorePolicyNotice = resolveScorePolicyNotice(input.settings)
+  const weightagePercentage = readWeightagePercentage(input.settings)
 
   return {
     assignmentId: input.assignmentId,
@@ -99,5 +109,6 @@ export function resolveAssignmentSupportSnapshot(input: {
     statusTone: status.tone,
     scoreDisplay,
     scorePolicyNotice,
+    weightagePercentage,
   }
 }

@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useRef, useCallback } from 'react'
+import { useState, useEffect, useMemo, useRef, useCallback, type PointerEvent } from 'react'
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { cn } from '@/lib/utils'
 import { CalendarCheck, Lifebuoy, Ticket } from '@phosphor-icons/react'
@@ -114,6 +114,12 @@ function buildChatThreadMessages(thread: {
   ]
 }
 
+function isFloatingChatSelectOpen(): boolean {
+  return Boolean(
+    document.querySelector('[data-slot="select-content"][data-state="open"]'),
+  )
+}
+
 export function FloatingChatModal({
   isOpen,
   onClose,
@@ -134,6 +140,13 @@ export function FloatingChatModal({
 
   const [view, setView] = useState<FloatingChatView>('home')
   const [step, setStep] = useState(0)
+  /** Step to return to when backing out of the composer (step 3). */
+  const [composerReturnStep, setComposerReturnStep] = useState(2.8)
+
+  const goToComposer = (returnStep: number) => {
+    setComposerReturnStep(returnStep)
+    setStep(3)
+  }
 
   const [selectedBatchId, setSelectedBatchId] = useState<number | null>(null)
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
@@ -279,13 +292,39 @@ export function FloatingChatModal({
     return () => clearTimeout(timer)
   }, [itemSearch])
 
+  const [lectureTypeFilter, setLectureTypeFilter] = useState<string>('any')
+  const [attendanceStatusFilter, setAttendanceStatusFilter] = useState<string>('any')
+  const [assignmentPriorityFilter, setAssignmentPriorityFilter] = useState<string>('any')
+  const [assignmentCategoryFilter, setAssignmentCategoryFilter] = useState<string>('any')
+  const [assignmentModuleFilter, setAssignmentModuleFilter] = useState<string>('any')
+  const [evaluationProgressFilter, setEvaluationProgressFilter] = useState<string>('any')
+  const [evaluationModuleFilter, setEvaluationModuleFilter] = useState<string>('any')
+
   useEffect(() => {
     setItemPage(1)
-  }, [debouncedItemSearch, selectedCategory])
+  }, [
+    debouncedItemSearch,
+    selectedCategory,
+    lectureTypeFilter,
+    attendanceStatusFilter,
+    assignmentPriorityFilter,
+    assignmentCategoryFilter,
+    assignmentModuleFilter,
+    evaluationProgressFilter,
+    evaluationModuleFilter,
+  ])
 
   const usesLearnApi = selectedCategory != null && supportCategoryUsesLearnApi(selectedCategory)
   const learningType = selectedCategory ? supportCategoryToLearningType(selectedCategory) : null
-  const learnFilters = selectedCategory ? supportCategoryToLearnFilters(selectedCategory) : undefined
+  const learnFilters = selectedCategory ? supportCategoryToLearnFilters(selectedCategory, {
+    lectureType: lectureTypeFilter,
+    attendanceStatus: attendanceStatusFilter,
+    assignmentPriority: assignmentPriorityFilter,
+    assignmentCategory: assignmentCategoryFilter,
+    assignmentModule: assignmentModuleFilter,
+    evaluationProgress: evaluationProgressFilter,
+    evaluationModule: evaluationModuleFilter,
+  }) : undefined
 
   const {
     data: learnPageData,
@@ -347,6 +386,14 @@ export function FloatingChatModal({
     setItemSearch('')
     setDebouncedItemSearch('')
     setItemPage(1)
+    setLectureTypeFilter('any')
+    setAttendanceStatusFilter('any')
+    setAssignmentPriorityFilter('any')
+    setAssignmentCategoryFilter('any')
+    setAssignmentModuleFilter('any')
+    setEvaluationProgressFilter('any')
+    setEvaluationModuleFilter('any')
+    setComposerReturnStep(2.8)
     setSelectedCallbackReason(null)
     setSelectedCallbackTimeslot(null)
     // Keep the chosen batch; only rewind the wizard to category selection.
@@ -504,9 +551,7 @@ export function FloatingChatModal({
     } else if (step === 4) {
       setStep(1)
     } else if (step === 3) {
-      if (selectedCategory === 'general') setStep(1)
-      else if (selectedCategory && supportCategoryUsesLearnApi(selectedCategory)) setStep(2.8)
-      else setStep(2.5)
+      setStep(composerReturnStep)
     } else if (step === 2.8) {
       setStep(2.5)
     } else if (step === 2.5) {
@@ -543,8 +588,15 @@ export function FloatingChatModal({
     setItemSearch('')
     setDebouncedItemSearch('')
     setItemPage(1)
+    setLectureTypeFilter('any')
+    setAttendanceStatusFilter('any')
+    setAssignmentPriorityFilter('any')
+    setAssignmentCategoryFilter('any')
+    setAssignmentModuleFilter('any')
+    setEvaluationProgressFilter('any')
+    setEvaluationModuleFilter('any')
     if (categoryId === 'general') {
-      setStep(3)
+      goToComposer(1)
     } else {
       setStep(2)
     }
@@ -685,11 +737,18 @@ export function FloatingChatModal({
     !showEntityLaunchError &&
     (showInboxLoading || batches.length === 1)
 
+  const handleBackdropPointerDown = (event: PointerEvent<HTMLDivElement>) => {
+    if (event.target !== event.currentTarget) return
+    // Dismissing an open filter dropdown also hits the backdrop — close the menu only.
+    if (isFloatingChatSelectOpen()) return
+    onClose?.()
+  }
+
   return (
     <>
       {!isFullPage ? (
         <div
-          onClick={onClose}
+          onPointerDown={handleBackdropPointerDown}
           className={cn(
             'fixed inset-0 bg-[#15162c]/30 backdrop-blur-[2px] z-[205] transition-opacity duration-300',
             isOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none',
@@ -831,6 +890,23 @@ export function FloatingChatModal({
                   setSelectedItem(item)
                   setStep(2.5)
                 }}
+                lectureTypeFilter={lectureTypeFilter}
+                onLectureTypeChange={setLectureTypeFilter}
+                attendanceStatusFilter={attendanceStatusFilter}
+                onAttendanceStatusChange={setAttendanceStatusFilter}
+                assignmentPriorityFilter={assignmentPriorityFilter}
+                onAssignmentPriorityChange={setAssignmentPriorityFilter}
+                assignmentCategoryFilter={assignmentCategoryFilter}
+                onAssignmentCategoryChange={setAssignmentCategoryFilter}
+                assignmentCategoryOptions={learnPageData?.filterValues.categoryFilterValues ?? []}
+                assignmentModuleFilter={assignmentModuleFilter}
+                onAssignmentModuleChange={setAssignmentModuleFilter}
+                assignmentModuleOptions={learnPageData?.filterValues.moduleFilterValues ?? []}
+                evaluationProgressFilter={evaluationProgressFilter}
+                onEvaluationProgressChange={setEvaluationProgressFilter}
+                evaluationModuleFilter={evaluationModuleFilter}
+                onEvaluationModuleChange={setEvaluationModuleFilter}
+                evaluationModuleOptions={learnPageData?.filterValues.moduleFilterValues ?? []}
               />
             )}
 
@@ -842,12 +918,12 @@ export function FloatingChatModal({
                   if (supportCategoryUsesLearnApi(selectedCategoryObj.id)) {
                     setStep(2.8)
                   } else {
-                    setStep(3)
+                    goToComposer(2.5)
                   }
                 }}
                 onDirectQuery={(query) => {
                   setMessage(query)
-                  setStep(3)
+                  goToComposer(2.5)
                 }}
                 onReviewItem={onReviewItem}
               />
@@ -863,7 +939,7 @@ export function FloatingChatModal({
                   setSelectedSubCategory(option.value)
                   setSelectedSubCategoryLabel(option.label)
                   setMessage('')
-                  setStep(3)
+                  goToComposer(2.8)
                 }}
               />
             )}
@@ -1019,7 +1095,7 @@ export function FloatingChatModal({
                 setSelectedSubCategory(null)
                 setSelectedSubCategoryLabel(null)
                 setMessage('')
-                setStep(3)
+                goToComposer(2.8)
               }}
               className="flex w-full items-center justify-center gap-2 p-[13px] rounded-[10px] bg-[#f8f8fc] border-[1.5px] border-[#e9e9f3] text-[#4b4396] font-bold text-[14px] hover:bg-[#f0f0fd] hover:border-[#d6d6f5] transition-all group"
             >

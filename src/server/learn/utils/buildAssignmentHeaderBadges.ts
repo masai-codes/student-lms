@@ -12,7 +12,7 @@ export type AssignmentHeaderBadgesInput = {
   settings: Record<string, unknown> | null
 }
 
-function readWeightagePercentage(
+export function readWeightagePercentage(
   settings: Record<string, unknown> | null,
 ): number | null {
   const raw = settings?.['weightagePercentage']

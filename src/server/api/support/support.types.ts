@@ -149,6 +149,8 @@ export interface TicketListItem {
   rating: number
   /** ISO timestamp of the last update. */
   updatedAt: string | null
+  /** ISO timestamp when the ticket was raised. */
+  createdAt: string | null
   /** Derived: there is at least one coordinator reply the student hasn't seen. */
   hasUnread: boolean
 }
@@ -215,6 +217,7 @@ export interface SupportEntityContextItem {
   type?: 'live' | 'video'
   startTime?: string
   isOptional?: boolean
+  isMandatory?: boolean
 }
 
 /** Resolved learn entity for opening the floater from a detail page CTA. */
@@ -294,6 +297,7 @@ export interface AssignmentSupportSnapshot {
   statusTone: AssignmentSupportSnapshotTone
   scoreDisplay: string | null
   scorePolicyNotice: string | null
+  weightagePercentage: number | null
 }
 
 /**

@@ -2,7 +2,7 @@
  * Support module — ticket read services.
  *
  * Pure reads over `tickets` + `comments` (+ `users` for authors). Three concerns:
- *   1. {@link listTickets}     — the student's tickets for a tab (newest first).
+ *   1. {@link listTickets}     — the student's tickets for a tab (newest raised first).
  *   2. {@link countOpenTickets} — header badge count.
  *   3. {@link getTicketThread} — full conversation for one ticket (+ capabilities).
  *
@@ -80,7 +80,7 @@ export async function countTickets(
 }
 
 /**
- * List a student's tickets for a given tab, newest-updated first.
+ * List a student's tickets for a given tab, newest-raised first.
  *
  * `hasUnread` is derived: the newest comment is from someone other than the
  * student and is public. (A richer per-user read-state can replace this later
@@ -107,10 +107,11 @@ export async function listTickets(input: {
       status: tickets.status,
       rating: tickets.rating,
       updatedAt: tickets.updatedAt,
+      createdAt: tickets.createdAt,
     })
     .from(tickets)
     .where(and(...conditions))
-    .orderBy(desc(tickets.id))
+    .orderBy(desc(tickets.createdAt), desc(tickets.id))
     .limit(limit)
     .offset((page - 1) * PAGE_SIZE)
 
@@ -142,6 +143,7 @@ export async function listTickets(input: {
       status: normalizeStatus(r.status),
       rating: r.rating,
       updatedAt: r.updatedAt,
+      createdAt: r.createdAt,
       hasUnread: latest ? latest.userId !== input.userId : false,
     }
   })

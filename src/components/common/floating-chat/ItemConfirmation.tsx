@@ -5,8 +5,8 @@ import {
   Info,
   Notepad,
   PencilSimple,
+  Percent,
   Star,
-  Target,
   Timer,
   UserCheck,
   VideoCamera,
@@ -21,10 +21,15 @@ import {
 } from './lectureSnapshotPresentation'
 import {
   getAssignmentSnapshotStatusClassName,
+  formatAssignmentWeightageDisplay,
   shouldShowAssignmentScoreCard,
-  shouldShowAssignmentTypeCard,
+  shouldShowAssignmentWeightageCard,
 } from './assignmentSnapshotPresentation'
-import { formatSupportLectureTypeLabel, supportLectureTypeChipClassName } from './supportCategoryLearning'
+import {
+  formatSupportLectureTypeLabel,
+  supportAssignmentPriorityChipClassName,
+  supportLectureTypeChipClassName,
+} from './supportCategoryLearning'
 import type { Category, Item } from './types'
 import type { AssignmentSupportSnapshot, LectureSupportSnapshot } from '@/server/api/support/support.types'
 import {
@@ -70,7 +75,7 @@ function LectureSnapshotCards({
   onRetry: () => void
   onDirectQuery?: (query: string) => void
 }) {
-  const fallbackIsLive = itemObj.type === 'live'
+  const fallbackIsLive = itemObj.type === 'live' || itemObj.type === 'scrum'
   const startTime = itemObj.startTime ? new Date(itemObj.startTime).getTime() : 0
   const now = Date.now()
   const diffMins = startTime ? (now - startTime) / (1000 * 60) : 0
@@ -221,14 +226,12 @@ function AssignmentSnapshotCards({
   isLoading,
   isError,
   onRetry,
-  showTypeCard,
   showScoreCard,
 }: {
   snapshot?: AssignmentSupportSnapshot
   isLoading: boolean
   isError: boolean
   onRetry: () => void
-  showTypeCard: boolean
   showScoreCard: boolean
 }) {
   if (isLoading) {
@@ -262,19 +265,11 @@ function AssignmentSnapshotCards({
   }
 
   const statusClassName = getAssignmentSnapshotStatusClassName(snapshot.statusTone)
+  const showWeightageCard = shouldShowAssignmentWeightageCard(snapshot)
 
   return (
     <div className="animate-in fade-in slide-in-from-bottom-2 duration-300">
       <div className="grid grid-cols-2 gap-2 mb-3">
-        {showTypeCard && snapshot.typeLabel != null && (
-          <div className="flex flex-col p-[11px_12px] bg-white border border-[#e9e9f3] rounded-[12px] shadow-sm">
-            <div className="flex items-center gap-1.5 mb-[3px] text-[#62647d]">
-              <Target weight="fill" className="size-[14px] text-[#4b4396]" />
-              <span className="text-[10.5px] font-bold uppercase tracking-wide">Type</span>
-            </div>
-            <span className="text-[12.5px] font-extrabold text-[#15162c]">{snapshot.typeLabel}</span>
-          </div>
-        )}
         <div className="flex flex-col p-[11px_12px] bg-white border border-[#e9e9f3] rounded-[12px] shadow-sm">
           <div className="flex items-center gap-1.5 mb-[3px] text-[#62647d]">
             <PencilSimple weight="fill" className="size-[13px] text-[#4b4396]" />
@@ -284,6 +279,20 @@ function AssignmentSnapshotCards({
             {snapshot.statusLabel}
           </span>
         </div>
+        {showWeightageCard && snapshot.weightagePercentage != null && (
+          <div
+            className="flex flex-col p-[11px_12px] bg-white border border-[#e9e9f3] rounded-[12px] shadow-sm"
+            data-testid="floating-chat-assignment-weightage-card"
+          >
+            <div className="flex items-center gap-1.5 mb-[3px] text-[#62647d]">
+              <Percent weight="bold" className="size-[13px] text-[#4b4396]" />
+              <span className="text-[10.5px] font-bold uppercase tracking-wide">Weightage</span>
+            </div>
+            <span className="text-[12.5px] font-extrabold text-[#15162c]">
+              {formatAssignmentWeightageDisplay(snapshot.weightagePercentage)}
+            </span>
+          </div>
+        )}
         {showScoreCard && (
           <div className="flex flex-col p-[11px_12px] bg-white border border-[#e9e9f3] rounded-[12px] shadow-sm">
             <div className="flex items-center gap-1.5 mb-[3px] text-[#62647d]">
@@ -338,7 +347,7 @@ export function ItemConfirmation({
     enabled: isAssignmentLike,
   })
 
-  const fallbackIsLive = itemObj.type === 'live'
+  const fallbackIsLive = itemObj.type === 'live' || itemObj.type === 'scrum'
   const startTime = itemObj.startTime ? new Date(itemObj.startTime).getTime() : 0
   const now = Date.now()
   const diffMins = startTime ? (now - startTime) / (1000 * 60) : 0
@@ -347,15 +356,21 @@ export function ItemConfirmation({
     ? (lectureSnapshot?.isSessionPending ?? fallbackOngoing)
     : false
   const lectureType = isLecture
-    ? (lectureSnapshot?.lectureKind ?? itemObj.type)
+    ? (itemObj.type ?? lectureSnapshot?.lectureKind)
     : undefined
   const lectureTypeLabel = formatSupportLectureTypeLabel(lectureType)
   const reviewHref = getSupportItemReviewHref(categoryObj.id, itemObj.id)
   const showOptionalChip =
     (categoryObj.id === 'assignment' ||
       categoryObj.id === 'evaluation' ||
-      categoryObj.id === 'resource') &&
+      categoryObj.id === 'resource' ||
+      categoryObj.id === 'lecture') &&
     itemObj.isOptional === true
+  const showMandatoryChip =
+    (categoryObj.id === 'assignment' ||
+      categoryObj.id === 'evaluation' ||
+      categoryObj.id === 'lecture') &&
+    itemObj.isMandatory === true
 
   return (
     <div className="flex flex-col h-full">
@@ -378,8 +393,17 @@ export function ItemConfirmation({
                 {lectureTypeLabel}
               </span>
             ) : null}
+            {showMandatoryChip ? (
+              <span
+                className={`text-[11px] font-bold px-2 py-0.5 rounded-full shrink-0 ${supportAssignmentPriorityChipClassName('mandatory')}`}
+              >
+                Mandatory
+              </span>
+            ) : null}
             {showOptionalChip ? (
-              <span className="text-[11px] font-bold text-[#b54708] bg-[#fffaeb] px-2 py-0.5 rounded-full shrink-0">
+              <span
+                className={`text-[11px] font-bold px-2 py-0.5 rounded-full shrink-0 ${supportAssignmentPriorityChipClassName('optional')}`}
+              >
                 Optional
               </span>
             ) : null}
@@ -409,12 +433,6 @@ export function ItemConfirmation({
           isLoading={isAssignmentSnapshotLoading}
           isError={isAssignmentSnapshotError}
           onRetry={() => void refetchAssignmentSnapshot()}
-          showTypeCard={
-            categoryObj.id === 'assignment' &&
-            (assignmentSnapshot != null
-              ? shouldShowAssignmentTypeCard(assignmentSnapshot)
-              : true)
-          }
           showScoreCard={
             categoryObj.id === 'evaluation' &&
             (assignmentSnapshot != null
