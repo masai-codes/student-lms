@@ -74,11 +74,11 @@ export const Route = createFileRoute('/(protected)/_layout')({
 
     let user = await fetchCurrentUser()
 
-    // Auto-login fallback: only when there's no session yet but the request
-    // carries a `?token=` (legacy/app hands the session off via the URL).
-    // Verifying it persists the session cookie so later requests are authed.
-    if (!user && token && isMasaiverseRoute) {
-      console.log('Masaiverse:', isMasaiverseRoute, token)
+    // Auto-login fallback: on any route, when there's no session yet but the
+    // request carries a `?token=` (legacy/app hands the session off via the
+    // URL). Verifying it persists the session cookie so later requests are
+    // authed. The `?token=` is stripped from the URL below once consumed.
+    if (!user && token) {
       user = await bootstrapLoginWithToken({ data: token })
     }
 
@@ -129,6 +129,19 @@ export const Route = createFileRoute('/(protected)/_layout')({
         }
       }
     }
+    // One-time bootstrap tokens must not linger in the URL (browser history,
+    // server logs, Referer). Once the session cookie is set and we've decided
+    // to stay on this app, drop `?token=` and send the browser to the clean URL.
+    if (token) {
+      const cleanParams = new URLSearchParams(requestUrl.searchParams)
+      cleanParams.delete('token')
+      const cleanSearch = cleanParams.toString()
+      throw redirect({
+        href: `${location.pathname}${cleanSearch ? `?${cleanSearch}` : ''}`,
+        replace: true,
+      })
+    }
+
     return {
       user,
     }

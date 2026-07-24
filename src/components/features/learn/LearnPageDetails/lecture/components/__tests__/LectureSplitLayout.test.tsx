@@ -73,21 +73,14 @@ describe('LectureSplitLayout', () => {
     expect(screen.getByRole('button', { name: 'Close assistant' })).toBeTruthy()
   })
 
-  it('stays collapsed when the user closed the rail previously', () => {
-    vi.useFakeTimers()
-    try {
-      window.localStorage.setItem('lecture-split-chat-open', 'false')
+  it('auto-opens on reload even when the user closed the rail previously', () => {
+    // Open state is no longer persisted — every load re-surfaces the AI chat.
+    window.localStorage.setItem('lecture-split-chat-open', 'false')
 
-      renderLayout()
+    renderLayout()
 
-      act(() => {
-        vi.advanceTimersByTime(300)
-      })
-      expect(screen.queryByTestId('lecture-chat-panel')).toBeNull()
-      expect(screen.queryByTestId('lecture-chat-resize-handle')).toBeNull()
-    } finally {
-      vi.useRealTimers()
-    }
+    expect(screen.getByTestId('lecture-chat-panel')).toBeTruthy()
+    expect(screen.getByTestId('lecture-chat-resize-handle')).toBeTruthy()
   })
 
   it('collapses the rail back to full-width page after the close animation', () => {

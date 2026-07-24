@@ -75,6 +75,54 @@ describe('MarkdownContent', () => {
     expect(list?.querySelectorAll('li').length).toBe(2)
   })
 
+  it('renders inline \\(...\\) and block $$...$$ math via KaTeX', () => {
+    const { container } = render(
+      <MarkdownContent
+        value={`Inline \\(a^2 + b^2 = c^2\\)
+
+$$
+\\lim_{x \\to \\infty} \\frac{1}{x} = 0
+$$`}
+        variant="detail"
+      />,
+    )
+
+    // KaTeX renders into .katex (inline) and .katex-display (block) wrappers.
+    expect(container.querySelector('.katex')).toBeTruthy()
+    expect(container.querySelector('.katex-display')).toBeTruthy()
+    // \to must survive decoding (it would otherwise be mangled into a tab).
+    expect(container.querySelector('.katex-error')).toBeNull()
+  })
+
+  it('renders block math that follows a bulleted list of inline math', () => {
+    // Regression: list-continuation normalisation used to slurp the trailing
+    // $$...$$ blocks into the preceding list item and break them.
+    const { container } = render(
+      <MarkdownContent
+        value={`Inline math:
+
+- Pythagorean theorem: \\(a^2 + b^2 = c^2\\)
+- Integral: \\(\\int_0^1 x^2\\,dx = \\frac{1}{3}\\)
+
+Block math:
+
+$$
+E = mc^2
+$$
+
+$$
+\\lim_{x \\to \\infty} \\frac{1}{x} = 0
+$$`}
+        variant="detail"
+      />,
+    )
+
+    expect(container.querySelectorAll('.katex-display').length).toBe(2)
+    expect(container.querySelector('.katex-error')).toBeNull()
+    // No literal $$ delimiter should leak into the rendered output.
+    expect(container.textContent).not.toContain('$$')
+  })
+
   it('keeps URL lines inside list items when authors use blank lines', () => {
     const { container } = render(
       <MarkdownContent
