@@ -31,10 +31,16 @@ export function parseBatchUserMeta(
 /**
  * Merge `patch` into the existing parsed meta and return the JSON string to
  * store. Normalizes to the object form (the reader flattens arrays anyway).
+ * `removeKeys` are deleted from the result — used to clear a flag by absence
+ * (the restriction reader treats a missing key as "not set") rather than
+ * storing a redundant `false`/`null`.
  */
 export function buildBatchUserMeta(
   existing: string | null,
   patch: Record<string, unknown>,
+  removeKeys: readonly string[] = [],
 ): string {
-  return JSON.stringify({ ...parseBatchUserMeta(existing), ...patch })
+  const merged = { ...parseBatchUserMeta(existing), ...patch }
+  for (const key of removeKeys) delete merged[key]
+  return JSON.stringify(merged)
 }

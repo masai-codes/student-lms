@@ -22,6 +22,7 @@ type Params = {
   batchId: number
   isIhub: boolean
   enrolmentId: number
+  username: string
   /** Redacted enrolment payload, stored in the admissionPayloadHistory audit trail. */
   payload: Record<string, unknown>
 }
@@ -34,20 +35,20 @@ type Params = {
  *
  * `meta` is a `varchar(300)` JSON string here. Writes merge into it (preserving
  * other keys like `batchPaused`) rather than overwriting: create/revive refresh
- * `isIhub` and clear the enrolment-cancel flags so a re-enrol lifts the
- * restriction a prior cancel set. Returns the `batch_user` id.
+ * `isIhub` and, on revive, drop the enrolment-cancel keys so a re-enrol lifts
+ * the restriction a prior cancel set (absence = not cancelled, so we remove the
+ * keys instead of storing `false`). Returns the `batch_user` id.
  */
 export async function reviveOrCreateBatchUser(
   tx: DbTransaction,
-  { userId, batchId, isIhub, enrolmentId, payload }: Params,
+  { userId, batchId, isIhub, enrolmentId, username, payload }: Params,
 ): Promise<number> {
   const now = new Date().toISOString()
-  // Clear the cancel restriction so a re-enrol reactivates the batch.
-  const metaPatch = {
-    isIhub,
-    batchEnrolmentCancelled: false,
-    batchEnrolmentCancelledDate: null,
-  }
+  // On revive, clear a prior cancel by removing its keys (absence = not cancelled).
+  const CANCEL_META_KEYS = [
+    'batchEnrolmentCancelled',
+    'batchEnrolmentCancelledDate',
+  ]
   const payloadEntry = {
     type: ADMISSION_PAYLOAD_TYPE.ENROLMENT,
     date: now,
@@ -77,7 +78,8 @@ export async function reviveOrCreateBatchUser(
         isActive: 1,
         status: BATCH_USER_STATUS.ACTIVE,
         enrolmentId,
-        meta: buildBatchUserMeta(row.meta, metaPatch),
+        username,
+        meta: buildBatchUserMeta(row.meta, { isIhub }, CANCEL_META_KEYS),
         history: appendAdmissionPayload(withEvent, payloadEntry),
         updatedAt: now,
       })
@@ -100,7 +102,8 @@ export async function reviveOrCreateBatchUser(
     isActive: 1,
     status: BATCH_USER_STATUS.ACTIVE,
     enrolmentId,
-    meta: buildBatchUserMeta(null, metaPatch),
+    username,
+    meta: buildBatchUserMeta(null, { isIhub }),
     history: appendAdmissionPayload(
       newTimeline({ type: ENROLMENT_EVENT.CREATED, date: now }),
       payloadEntry,

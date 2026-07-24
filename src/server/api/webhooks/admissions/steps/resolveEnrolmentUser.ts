@@ -41,12 +41,13 @@ export async function resolveEnrolmentUser(
 
   const hashedPassword = await hash(input.password, BCRYPT_COST)
   const now = new Date().toISOString()
+  // `username` is intentionally not stored on `users` — it lives on `batch_user`
+  // (set in reviveOrCreateBatchUser) to avoid duplicating it here.
   const [result] = await tx.insert(users).values({
     name: input.name,
     email: input.email,
     password: hashedPassword,
     mobile: input.mobile,
-    username: input.username,
     role: 'student',
     client,
     createdAt: now,

@@ -66,6 +66,7 @@ export async function createEnrolmentFromAdmissions(
       batchId: input.batch_id,
       isIhub: client === 'ihub',
       enrolmentId: input.enrolment_id,
+      username: input.username,
       payload: redactEnrolmentPayload(input),
     })
     await reviveOrCreateSectionUsers(tx, {

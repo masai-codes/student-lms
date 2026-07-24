@@ -46,16 +46,21 @@ describe('buildBatchUserMeta', () => {
     })
   })
 
-  it('patch overrides existing keys (clearing the cancel flag on revive)', () => {
+  it('removeKeys drops the cancel keys on revive (absence = not cancelled)', () => {
     const result = buildBatchUserMeta(
       '{"batchEnrolmentCancelled":true,"batchEnrolmentCancelledDate":"2026-07-24","batchPaused":true}',
-      { batchEnrolmentCancelled: false, batchEnrolmentCancelledDate: null },
+      { isIhub: false },
+      ['batchEnrolmentCancelled', 'batchEnrolmentCancelledDate'],
     )
-    expect(JSON.parse(result)).toEqual({
-      batchEnrolmentCancelled: false,
-      batchEnrolmentCancelledDate: null,
-      batchPaused: true,
-    })
+    const parsed = JSON.parse(result)
+    expect(parsed).toEqual({ isIhub: false, batchPaused: true })
+    expect('batchEnrolmentCancelled' in parsed).toBe(false)
+    expect('batchEnrolmentCancelledDate' in parsed).toBe(false)
+  })
+
+  it('removeKeys applies even when the key was also in the patch', () => {
+    const result = buildBatchUserMeta('{"a":1}', { b: 2 }, ['b'])
+    expect(JSON.parse(result)).toEqual({ a: 1 })
   })
 
   it('builds fresh meta from null', () => {

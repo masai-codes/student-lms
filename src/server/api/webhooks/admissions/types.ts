@@ -40,6 +40,21 @@ export const ENROLMENT_EVENT = {
 export type EnrolmentEvent =
   (typeof ENROLMENT_EVENT)[keyof typeof ENROLMENT_EVENT]
 
+/**
+ * Event names the unified `/events` webhook accepts (the envelope `type` field).
+ */
+export const ADMISSION_EVENT = {
+  BATCH_PAID: 'lms.batch.paid',
+  BATCH_TRANSFER_CONSIDERED: 'lms.batch.transfer.considered',
+  BATCH_TRANSFER_REJECTED: 'lms.batch.transfer.rejected',
+  BATCH_TRANSFER_COMPLETED: 'lms.batch.transfer.completed',
+  BATCH_PAUSE: 'lms.batch.pause',
+  BATCH_UNPAUSE: 'lms.batch.unpause',
+} as const
+
+export type AdmissionEvent =
+  (typeof ADMISSION_EVENT)[keyof typeof ADMISSION_EVENT]
+
 /** Which webhook a stored `admissionPayloadHistory` entry came from. */
 export const ADMISSION_PAYLOAD_TYPE = {
   ENROLMENT: 'enrolment',
@@ -49,6 +64,7 @@ export const ADMISSION_PAYLOAD_TYPE = {
   BATCH_TRANSFER_REJECTED: 'batch_transfer_rejected',
   BATCH_TRANSFER_COMPLETED: 'batch_transfer_completed',
   BATCH_PAUSED: 'batch_paused',
+  BATCH_UNPAUSED: 'batch_unpaused',
 } as const
 
 /** `batch_user.status` values this integration writes. */
