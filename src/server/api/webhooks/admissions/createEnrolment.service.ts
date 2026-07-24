@@ -1,0 +1,88 @@
+import { db } from '@/db'
+import { logger } from '@/lib/logger'
+import { ApiError } from '@/server/api/http/apiError'
+import type {
+  CreateEnrolmentInput,
+  CreateEnrolmentResult,
+} from '@/server/api/webhooks/admissions/types'
+import { assertActiveBatchExists } from '@/server/api/webhooks/admissions/steps/assertActiveBatchExists'
+import { resolveValidSections } from '@/server/api/webhooks/admissions/steps/resolveValidSections'
+import { resolveEnrolmentUser } from '@/server/api/webhooks/admissions/steps/resolveEnrolmentUser'
+import { reviveOrCreateBatchUser } from '@/server/api/webhooks/admissions/steps/reviveOrCreateBatchUser'
+import { reviveOrCreateSectionUsers } from '@/server/api/webhooks/admissions/steps/reviveOrCreateSectionUsers'
+import { upsertAdmissionData } from '@/server/api/webhooks/admissions/steps/upsertAdmissionData'
+import { resolveClient } from '@/server/api/webhooks/admissions/utils/resolveClient'
+
+const FN = 'createEnrolmentFromAdmissions'
+
+/**
+ * Orchestrates a "create enrolment" event from the admissions platform. Reads a
+ * developer as a table of contents — each step lives in its own file:
+ *
+ *   1. batch must be active + non-deleted
+ *   2. keep only valid sections (invalid ones are reported, not fatal)
+ *   3. find-or-create the student (by email + client)
+ *   4. revive-or-create the batch_user
+ *   5. revive-or-create a section_user per valid section
+ *   6. (new-user-journey only) record admission data
+ *
+ * Steps 3–6 run inside a single transaction so a partial enrolment can never
+ * persist. Returns the batch_user id plus any sections that were skipped.
+ */
+export async function createEnrolmentFromAdmissions(
+  input: CreateEnrolmentInput,
+): Promise<CreateEnrolmentResult> {
+  const client = resolveClient(input.isiHub)
+  logger.info({
+    msg: 'Processing admissions enrolment',
+    fn: FN,
+    email: input.email,
+    batchId: input.batch_id,
+    client,
+  })
+
+  await assertActiveBatchExists(input.batch_id)
+
+  const { validSectionIds, invalidSectionIds } = await resolveValidSections(
+    input.batch_id,
+    input.section_ids,
+  )
+  if (validSectionIds.length === 0) {
+    logger.error({
+      msg: 'No valid sections for enrolment',
+      fn: FN,
+      batchId: input.batch_id,
+      requestedSectionIds: input.section_ids,
+      invalidSectionIds,
+    })
+    throw new ApiError(422, 'NO_VALID_SECTIONS')
+  }
+
+  const batchUserId = await db.transaction(async (tx) => {
+    const userId = await resolveEnrolmentUser(tx, input, client)
+    const createdBatchUserId = await reviveOrCreateBatchUser(tx, {
+      userId,
+      batchId: input.batch_id,
+      isIhub: client === 'ihub',
+    })
+    await reviveOrCreateSectionUsers(tx, {
+      userId,
+      sectionIds: validSectionIds,
+      managerId: input.manager_id,
+    })
+    if (input.new_user_journey) {
+      await upsertAdmissionData(tx, { userId, input })
+    }
+    return createdBatchUserId
+  })
+
+  logger.info({
+    msg: 'Enrolment processed successfully',
+    fn: FN,
+    batchUserId,
+    validSectionCount: validSectionIds.length,
+    invalidSectionCount: invalidSectionIds.length,
+  })
+
+  return { batchUserId, invalidSectionIds }
+}
