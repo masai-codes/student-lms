@@ -3,11 +3,12 @@
 Last updated: 2026-07-02
 
 ## Structured logging
+
 - Area: Server logging utility (`src/lib/logger.ts`)
 - Status: Covered
 - Test files: `src/lib/logger.test.ts`
 - Notes: JSON structured logs for PM2/CloudWatch (`level`, `time`, `msg`, optional `fn`/`requestId`/`userId`/`err`). Production emits compact single-line JSON; non-production pretty-prints. `warn`/`error` route to stderr; `debug`/`info` to stdout.
-Last updated: 2026-07-09
+  Last updated: 2026-07-09
 
 ## Next-action pill (navbar top-right + mobile tab bar)
 
@@ -291,11 +292,20 @@ Last updated: 2026-07-09
 - Status: Covered (graph build + BFS traversal + node-key utils + card-item builders + service across all start kinds/edge cases + shared item→card mapper + grouped card UI + card analytics source)
 - Test files: `src/server/learn/utils/__tests__/associationGraphTypes.test.ts`, `src/server/learn/utils/__tests__/buildAssociationGraph.test.ts`, `src/server/learn/utils/__tests__/collectAssociatedNodeKeys.test.ts`, `src/server/learn/utils/__tests__/buildAssociatedLearningItems.test.ts`, `src/server/learn/services/__tests__/getAllAssociatedEntities.service.test.ts`, `src/components/features/learn/shared/__tests__/mapLearningItemToContent.test.ts`, `src/components/features/learn/LearnPageDetails/common/associated/__tests__/AssociatedContentList.test.tsx`, `src/components/features/learn/section-three/content-card/__tests__/LearnContentCard.test.tsx`
 - Notes: See `docs/testing/features/associated-content.md`
+
 ## AI Tutor RAG lecture ingestion
+
 - Area: Internal lecture notes preparation (`src/routes/api/ai-tutor/lectures/$lectureId/ingest.ts`, `src/server/api/ai-tutor/**`)
 - Status: Covered
 - Test files: `src/server/api/ai-tutor/__tests__/{ragPlatform,lectureRagContent.service,ingestLectureRag.service,ingestLectureRag.handler,generateLectureNotesTocFromMarkdown,lectureNotesTocData}.test.ts`
 - Notes: `GET /api/ai-tutor/lectures/:lectureId/ingest` is protected by `x-ai-tutor-rag-ingest-secret`. For notes above 10,000 characters it generates a Claude TOC, stores `lectures.data.notesRagged = true` and `lectures.data.aiTutorNotesToc`, and enqueues RAG ingestion. For shorter notes it stores `lectures.data.notesRagged = false` and skips TOC/RAG.
+
+## Notes Preview v2 (`/notes-preview-v2`)
+
+- Area: Standalone chrome-less WebView route (`src/routes/notes-preview-v2.tsx`, outside `(protected)/_layout`) that reads `token`/`category`/`contentType`/`entityId`, exchanges the one-time bootstrap `?token=` for a session cookie (`bootstrapLoginWithToken`) then strips it, and renders lecture/assignment markdown fetched from the focused `GET /api/notes-preview` endpoint (`handleGetNotesPreview` → `getNotesPreviewContent`, reusing `getLectureLearningDetailForUser`/`getAssignmentLearningDetailForUser`). Client helper `notesPreviewApi.ts`; component `NotesPreviewV2` with React Query + `MarkdownContent`. GA/GTM excluded on this path via `ANALYTICS_EXCLUDED_PATHS` in `__root.tsx` (Clarity already excluded by living outside `_layout`).
+- Status: Covered (service field-mapping/alias/unsupported/invalid-id; handler auth + query parsing + 401 mapping; client path building + error mapping; component loading/content/empty/error states). Thin route file `validateSearch`/`beforeLoad` untested per repo `src/routes/**` convention.
+- Test files: `src/server/api/notes-preview/__tests__/notesPreview.service.test.ts`, `src/server/api/notes-preview/__tests__/getNotesPreview.handler.test.ts`, `src/lib/api/notes-preview/__tests__/notesPreviewApi.test.ts`, `src/components/features/notes-preview/__tests__/NotesPreviewV2.test.tsx`
+- Notes: `content: null` (HTTP 200) for unsupported category/contentType combos or invalid/missing `entityId` so the WebView shows an empty state and never crashes. Assignments only have `instructions`; `description` is accepted as an alias. See `docs/testing/features/notes-preview-v2.md`.
 
 ## Status Meaning
 
