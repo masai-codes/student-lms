@@ -77,6 +77,7 @@ import { Route as protectedLayoutAnnouncementsIndexRouteImport } from './routes/
 import { Route as authV2LoginIndexRouteImport } from './routes/(auth)/v2/login/index'
 import { Route as authResetPasswordTokenIndexRouteImport } from './routes/(auth)/reset-password.$token/index'
 import { Route as ApiWebhooksAdmissionsCreateEnrolmentRouteImport } from './routes/api/webhooks/admissions/create-enrolment'
+import { Route as ApiWebhooksAdmissionsCancelEnrolmentRouteImport } from './routes/api/webhooks/admissions/cancel-enrolment'
 import { Route as ApiSupportTicketsThreadRouteImport } from './routes/api/support/tickets/thread'
 import { Route as ApiSupportTicketsReplyRouteImport } from './routes/api/support/tickets/reply'
 import { Route as ApiSupportTicketsReopenRouteImport } from './routes/api/support/tickets/reopen'
@@ -550,6 +551,12 @@ const ApiWebhooksAdmissionsCreateEnrolmentRoute =
   ApiWebhooksAdmissionsCreateEnrolmentRouteImport.update({
     id: '/api/webhooks/admissions/create-enrolment',
     path: '/api/webhooks/admissions/create-enrolment',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiWebhooksAdmissionsCancelEnrolmentRoute =
+  ApiWebhooksAdmissionsCancelEnrolmentRouteImport.update({
+    id: '/api/webhooks/admissions/cancel-enrolment',
+    path: '/api/webhooks/admissions/cancel-enrolment',
     getParentRoute: () => rootRouteImport,
   } as any)
 const ApiSupportTicketsThreadRoute = ApiSupportTicketsThreadRouteImport.update({
@@ -1306,6 +1313,7 @@ export interface FileRoutesByFullPath {
   '/api/support/tickets/reopen': typeof ApiSupportTicketsReopenRoute
   '/api/support/tickets/reply': typeof ApiSupportTicketsReplyRoute
   '/api/support/tickets/thread': typeof ApiSupportTicketsThreadRoute
+  '/api/webhooks/admissions/cancel-enrolment': typeof ApiWebhooksAdmissionsCancelEnrolmentRoute
   '/api/webhooks/admissions/create-enrolment': typeof ApiWebhooksAdmissionsCreateEnrolmentRoute
   '/reset-password/$token/': typeof authResetPasswordTokenIndexRoute
   '/v2/login/': typeof authV2LoginIndexRoute
@@ -1481,6 +1489,7 @@ export interface FileRoutesByTo {
   '/api/support/tickets/reopen': typeof ApiSupportTicketsReopenRoute
   '/api/support/tickets/reply': typeof ApiSupportTicketsReplyRoute
   '/api/support/tickets/thread': typeof ApiSupportTicketsThreadRoute
+  '/api/webhooks/admissions/cancel-enrolment': typeof ApiWebhooksAdmissionsCancelEnrolmentRoute
   '/api/webhooks/admissions/create-enrolment': typeof ApiWebhooksAdmissionsCreateEnrolmentRoute
   '/reset-password/$token': typeof authResetPasswordTokenIndexRoute
   '/v2/login': typeof authV2LoginIndexRoute
@@ -1659,6 +1668,7 @@ export interface FileRoutesById {
   '/api/support/tickets/reopen': typeof ApiSupportTicketsReopenRoute
   '/api/support/tickets/reply': typeof ApiSupportTicketsReplyRoute
   '/api/support/tickets/thread': typeof ApiSupportTicketsThreadRoute
+  '/api/webhooks/admissions/cancel-enrolment': typeof ApiWebhooksAdmissionsCancelEnrolmentRoute
   '/api/webhooks/admissions/create-enrolment': typeof ApiWebhooksAdmissionsCreateEnrolmentRoute
   '/(auth)/reset-password/$token/': typeof authResetPasswordTokenIndexRoute
   '/(auth)/v2/login/': typeof authV2LoginIndexRoute
@@ -1837,6 +1847,7 @@ export interface FileRouteTypes {
     | '/api/support/tickets/reopen'
     | '/api/support/tickets/reply'
     | '/api/support/tickets/thread'
+    | '/api/webhooks/admissions/cancel-enrolment'
     | '/api/webhooks/admissions/create-enrolment'
     | '/reset-password/$token/'
     | '/v2/login/'
@@ -2012,6 +2023,7 @@ export interface FileRouteTypes {
     | '/api/support/tickets/reopen'
     | '/api/support/tickets/reply'
     | '/api/support/tickets/thread'
+    | '/api/webhooks/admissions/cancel-enrolment'
     | '/api/webhooks/admissions/create-enrolment'
     | '/reset-password/$token'
     | '/v2/login'
@@ -2189,6 +2201,7 @@ export interface FileRouteTypes {
     | '/api/support/tickets/reopen'
     | '/api/support/tickets/reply'
     | '/api/support/tickets/thread'
+    | '/api/webhooks/admissions/cancel-enrolment'
     | '/api/webhooks/admissions/create-enrolment'
     | '/(auth)/reset-password/$token/'
     | '/(auth)/v2/login/'
@@ -2341,6 +2354,7 @@ export interface RootRouteChildren {
   ApiMessageIdReplyRoute: typeof ApiMessageIdReplyRoute
   ApiProfileAccountActivitySignOutAllRoute: typeof ApiProfileAccountActivitySignOutAllRoute
   ApiSupportCallbackCreateRoute: typeof ApiSupportCallbackCreateRoute
+  ApiWebhooksAdmissionsCancelEnrolmentRoute: typeof ApiWebhooksAdmissionsCancelEnrolmentRoute
   ApiWebhooksAdmissionsCreateEnrolmentRoute: typeof ApiWebhooksAdmissionsCreateEnrolmentRoute
   authResetPasswordTokenIndexRoute: typeof authResetPasswordTokenIndexRoute
   authV2LoginIndexRoute: typeof authV2LoginIndexRoute
@@ -2838,6 +2852,13 @@ declare module '@tanstack/react-router' {
       path: '/api/webhooks/admissions/create-enrolment'
       fullPath: '/api/webhooks/admissions/create-enrolment'
       preLoaderRoute: typeof ApiWebhooksAdmissionsCreateEnrolmentRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/webhooks/admissions/cancel-enrolment': {
+      id: '/api/webhooks/admissions/cancel-enrolment'
+      path: '/api/webhooks/admissions/cancel-enrolment'
+      fullPath: '/api/webhooks/admissions/cancel-enrolment'
+      preLoaderRoute: typeof ApiWebhooksAdmissionsCancelEnrolmentRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/support/tickets/thread': {
@@ -3987,6 +4008,8 @@ const rootRouteChildren: RootRouteChildren = {
   ApiProfileAccountActivitySignOutAllRoute:
     ApiProfileAccountActivitySignOutAllRoute,
   ApiSupportCallbackCreateRoute: ApiSupportCallbackCreateRoute,
+  ApiWebhooksAdmissionsCancelEnrolmentRoute:
+    ApiWebhooksAdmissionsCancelEnrolmentRoute,
   ApiWebhooksAdmissionsCreateEnrolmentRoute:
     ApiWebhooksAdmissionsCreateEnrolmentRoute,
   authResetPasswordTokenIndexRoute: authResetPasswordTokenIndexRoute,

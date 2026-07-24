@@ -2,7 +2,11 @@ import { and, eq } from 'drizzle-orm'
 
 import { batchUser } from '@/db/schema'
 import { logger } from '@/lib/logger'
-import type { DbTransaction } from '@/server/api/webhooks/admissions/types'
+import {
+  BATCH_USER_STATUS,
+  ENROLMENT_EVENT,
+  type DbTransaction,
+} from '@/server/api/webhooks/admissions/types'
 import {
   appendTimelineEntry,
   newTimeline,
@@ -46,10 +50,11 @@ export async function reviveOrCreateBatchUser(
       .set({
         deletedAt: null,
         isActive: 1,
+        status: BATCH_USER_STATUS.ACTIVE,
         enrolmentId,
         meta,
         history: appendTimelineEntry(row.history, {
-          type: 'revived',
+          type: ENROLMENT_EVENT.REVIVED,
           date: now,
         }),
         updatedAt: now,
@@ -71,9 +76,10 @@ export async function reviveOrCreateBatchUser(
     batchId,
     role: 'student',
     isActive: 1,
+    status: BATCH_USER_STATUS.ACTIVE,
     enrolmentId,
     meta,
-    history: newTimeline({ type: 'created', date: now }),
+    history: newTimeline({ type: ENROLMENT_EVENT.CREATED, date: now }),
     createdAt: now,
     updatedAt: now,
   })

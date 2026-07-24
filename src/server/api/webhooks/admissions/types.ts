@@ -30,4 +30,27 @@ export type CreateEnrolmentResult = {
   invalidSectionIds: InvalidSection[]
 }
 
+/** Audit-trail entry types shared by the enrol and cancel flows. */
+export const ENROLMENT_EVENT = {
+  CREATED: 'created',
+  REVIVED: 'revived',
+  CANCELLED: 'cancelled',
+} as const
+
+export type EnrolmentEvent =
+  (typeof ENROLMENT_EVENT)[keyof typeof ENROLMENT_EVENT]
+
+/** `batch_user.status` values this integration writes. */
+export const BATCH_USER_STATUS = {
+  ACTIVE: 'active',
+  CANCELLED: 'enrolment_cancelled',
+} as const
+
+export type CancelEnrolmentResult = {
+  batchUserId: number
+  userId: number
+  batchId: number
+  cancelledSectionUserIds: number[]
+}
+
 export type { CreateEnrolmentInput }

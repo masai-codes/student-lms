@@ -2,7 +2,10 @@ import { and, eq, inArray } from 'drizzle-orm'
 
 import { sectionUser } from '@/db/schema'
 import { logger } from '@/lib/logger'
-import type { DbTransaction } from '@/server/api/webhooks/admissions/types'
+import {
+  ENROLMENT_EVENT,
+  type DbTransaction,
+} from '@/server/api/webhooks/admissions/types'
 import {
   appendSectionHistory,
   newSectionHistory,
@@ -52,7 +55,10 @@ export async function reviveOrCreateSectionUsers(
         .set({
           deletedAt: null,
           updatedAt: now,
-          meta: appendSectionHistory(row.meta, { type: 'revived', date: now }),
+          meta: appendSectionHistory(row.meta, {
+            type: ENROLMENT_EVENT.REVIVED,
+            date: now,
+          }),
         })
         .where(eq(sectionUser.id, row.id))
 
@@ -71,7 +77,7 @@ export async function reviveOrCreateSectionUsers(
       sectionId,
       managerId: managerId ?? null,
       role: 'student',
-      meta: newSectionHistory({ type: 'created', date: now }),
+      meta: newSectionHistory({ type: ENROLMENT_EVENT.CREATED, date: now }),
       createdAt: now,
       updatedAt: now,
     })
