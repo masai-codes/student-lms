@@ -14,6 +14,7 @@ import { resolveLiveLecturePhase } from '@/server/learn/utils/resolveLiveLecture
 import { resolveLectureVideoUrl } from '@/server/learn/utils/resolveLectureVideoUrl'
 import { resolveJoinLiveButtonState } from '@/server/learn/utils/resolveJoinLiveButtonState'
 import { resolveVideoLecturePhase } from '@/server/learn/utils/resolveVideoLecturePhase'
+import { isSalLectureRecordingAvailable } from '@/server/learn/utils/isSalLectureRecordingAvailable'
 import { scrubZoomLinkForSchedule } from '@/server/learn/utils/scrubZoomLinkForSchedule'
 import {
   isAdaptiveLectureLink,
@@ -60,7 +61,9 @@ export function buildLectureDetailPayload(
         vimeoPlayerEmbedUrl: row.vimeoPlayerEmbedUrl,
       })
 
-  const hasRecording = videoUrl != null
+  const isSalLecture =
+    lectureKind === 'live' && isAdaptiveLectureLink(row.zoomLink)
+
   const livePhase =
     lectureKind === 'live'
       ? resolveLiveLecturePhase({
@@ -87,17 +90,24 @@ export function buildLectureDetailPayload(
         )
       : null
 
-  // SAL (adaptive) recordings live on the adaptive platform, not in `videoUrl`.
-  // After the lecture ends, the lecture-scoped adaptive link redirects to the
-  // recording, so surface it as the "Watch Recording" link (only when there is
-  // no native recording to prefer). `zoomLink` is already scrubbed + scoped.
-  const adaptiveRecordingUrl =
-    lectureKind === 'live' &&
-    livePhase === 'after' &&
-    !hasRecording &&
-    isAdaptiveLectureLink(zoomLink)
-      ? zoomLink
-      : null
+  let hasRecording = videoUrl != null
+  let adaptiveRecordingUrl: string | null = null
+
+  if (isSalLecture) {
+    // SAL recordings live on the adaptive platform — availability is time-based.
+    hasRecording = false
+    if (
+      zoomLink != null &&
+      isSalLectureRecordingAvailable({
+        zoomLink: row.zoomLink,
+        schedule: row.schedule,
+        concludes: row.concludes,
+        nowMs,
+      })
+    ) {
+      adaptiveRecordingUrl = zoomLink
+    }
+  }
 
   const joinLiveButtonState =
     lectureKind === 'live'

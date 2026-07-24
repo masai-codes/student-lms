@@ -1,6 +1,9 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
-import { resolveLectureVideoUrl } from '../resolveLectureVideoUrl'
+import {
+  readLectureVideosMp4Url,
+  resolveLectureVideoUrl,
+} from '../resolveLectureVideoUrl'
 
 describe('resolveLectureVideoUrl', () => {
   afterEach(() => {
@@ -45,6 +48,23 @@ describe('resolveLectureVideoUrl', () => {
         vimeoPlayerEmbedUrl: '   ',
       }),
     ).toBeNull()
+  })
+
+  describe('readLectureVideosMp4Url', () => {
+    it('returns the first mp4 url from videos', () => {
+      expect(
+        readLectureVideosMp4Url([
+          'https://example.com/segment',
+          'https://example.com/a.mp4',
+        ]),
+      ).toBe('https://example.com/a.mp4')
+    })
+
+    it('returns null when videos has no mp4 url', () => {
+      expect(
+        readLectureVideosMp4Url(['https://example.com/segment']),
+      ).toBeNull()
+    })
   })
 
   describe('CloudFront rewrite (S3 videos)', () => {

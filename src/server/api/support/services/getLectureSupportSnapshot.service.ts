@@ -32,6 +32,7 @@ export async function getLectureSupportSnapshot(
       concludes: lectures.concludes,
       sectionId: lectures.sectionId,
       zoomLink: lectures.zoomLink,
+      videos: lectures.videos,
       vimeoDownloadLinks: lectures.vimeoDownloadLinks,
       settings: lectures.settings,
     })
@@ -123,7 +124,12 @@ export async function getLectureSupportSnapshot(
     : []
 
   const recording = await resolveLectureRecordingForSupport({
+    zoomLink: row.zoomLink,
+    schedule: row.schedule,
+    concludes: row.concludes,
+    nowMs,
     vimeoDownloadLinks: row.vimeoDownloadLinks,
+    videos: row.videos,
     hideVideo: settings.hideVideo,
     lectureKind,
     livePhase,
