@@ -22,12 +22,6 @@ export function verifyWebhookApiKey(
   request: Request,
   envVarName: string,
 ): void {
-  // TEMPORARY: set WEBHOOKS_SKIP_AUTH=true to bypass the x-api-key check while
-  // testing. Remove this block to restore mandatory auth.
-  if (process.env.WEBHOOKS_SKIP_AUTH === 'true') {
-    return
-  }
-
   const expectedKey = process.env[envVarName]?.trim()
   if (!expectedKey) {
     throw new ApiError(503, 'WEBHOOK_NOT_ENABLED')

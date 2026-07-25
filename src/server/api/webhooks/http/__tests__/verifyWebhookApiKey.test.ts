@@ -30,7 +30,6 @@ function expectApiError(fn: () => void, status: number, code: string) {
 
 afterEach(() => {
   delete process.env[ENV_VAR]
-  delete process.env.WEBHOOKS_SKIP_AUTH
 })
 
 describe('verifyWebhookApiKey', () => {
@@ -72,11 +71,5 @@ describe('verifyWebhookApiKey', () => {
     expect(() =>
       verifyWebhookApiKey(requestWithKey('expected-secret'), ENV_VAR),
     ).not.toThrow()
-  })
-
-  it('bypasses the check entirely when WEBHOOKS_SKIP_AUTH=true', () => {
-    process.env.WEBHOOKS_SKIP_AUTH = 'true'
-    // No env secret and no header, yet it must not throw.
-    expect(() => verifyWebhookApiKey(requestWithKey(), ENV_VAR)).not.toThrow()
   })
 })

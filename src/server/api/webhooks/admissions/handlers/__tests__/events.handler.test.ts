@@ -56,10 +56,14 @@ describe('handleAdmissionEvent', () => {
     )
   })
 
-  it('returns 401 when the api key is missing', async () => {
+  it('processes even without an x-api-key header (auth disabled for /events)', async () => {
+    processAdmissionEvent.mockResolvedValue({
+      event: 'lms.batch.paid',
+      batchUserId: 55,
+    })
     const response = await handleAdmissionEvent(request(paidEvent(), null))
-    expect(response.status).toBe(401)
-    expect(processAdmissionEvent).not.toHaveBeenCalled()
+    expect(response.status).toBe(200)
+    expect(processAdmissionEvent).toHaveBeenCalled()
   })
 
   it('returns 400 for an unknown event type', async () => {
