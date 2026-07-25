@@ -5,7 +5,7 @@ import { assignments, batches, submissions, users } from '@/db/schema'
 import { ApiError } from '@/server/api/http/apiError'
 import { getExperienceApiBaseUrl } from '@/server/api/http/experienceApiFetch'
 import { acquireLock, releaseLock } from '@/server/redis/lock'
-import { getIstNowSqlDatetime } from '@/server/time/istClock'
+import { getIstNowSqlDatetime, parseIstToMs } from '@/server/time/istClock'
 import { ORIGIN_URLS } from '@/utils/originUrls'
 
 /**
@@ -246,8 +246,14 @@ export async function createAssessPlatformUrl(input: {
     (assignmentCase === CASE2 || assignmentCase === CASE3) &&
     sectionDetailTime != null
   ) {
-    const nowMs = Date.now() + 5.5 * 60 * 60 * 1000
-    const concludesMs = new Date(assignment.concludes).getTime()
+    // `concludes` is an IST wall-clock DATETIME string with no zone
+    // (`YYYY-MM-DD HH:MM:SS`). Compare it against "now" in absolute epoch-ms so
+    // the result is correct regardless of the process timezone. The old
+    // `Date.now() + 5.5h` vs `new Date(concludes)` pair was only correct on a
+    // UTC process: on an IST process it double-counts the +5:30 offset, pushing
+    // "now" 5h30m into the future and shrinking remainingSeconds by 19800s.
+    const nowMs = Date.now()
+    const concludesMs = parseIstToMs(assignment.concludes) ?? Number.NaN
     const remainingSeconds = (concludesMs - nowMs) / 1000
     const configured = Number(sectionDetailTime)
 
