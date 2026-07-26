@@ -12,7 +12,7 @@ export type SupportPageContextSearch = {
   entityId: number
 }
 
-/** Parse `/support-page/context?category=…&entityId=…` search params. */
+/** Parse `/support/context?category=…&entityId=…` search params. */
 export function parseSupportPageContextSearch(
   search: Record<string, unknown>,
 ): SupportPageContextSearch | null {

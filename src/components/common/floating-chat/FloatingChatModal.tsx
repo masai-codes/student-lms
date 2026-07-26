@@ -63,7 +63,7 @@ interface FloatingChatModalProps {
     categoryLabel: string
     itemTitle: string
   }) => void
-  /** Full viewport page (e.g. `/support-page`) vs anchored floater panel. */
+  /** Full viewport page (e.g. `/support`) vs anchored floater panel. */
   presentation?: 'floating' | 'fullPage'
   /** Deep-link from a learn detail page → step 2.5 for this entity. */
   entityLaunchIntent?: FloatingChatEntityLaunchIntent | null

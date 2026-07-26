@@ -67,7 +67,6 @@ import { Route as ApiCourseBatchIdIndexRouteImport } from './routes/api/course/$
 import { Route as ApiAnnouncementIdIndexRouteImport } from './routes/api/announcement/$id/index'
 import { Route as protectedLayoutWhatsNewIndexRouteImport } from './routes/(protected)/_layout/whats-new/index'
 import { Route as protectedLayoutSupportIndexRouteImport } from './routes/(protected)/_layout/support/index'
-import { Route as protectedLayoutSupportPageIndexRouteImport } from './routes/(protected)/_layout/support-page/index'
 import { Route as protectedLayoutProfileIndexRouteImport } from './routes/(protected)/_layout/profile/index'
 import { Route as protectedLayoutMasaiverseIndexRouteImport } from './routes/(protected)/_layout/masaiverse/index'
 import { Route as protectedLayoutLearnIndexRouteImport } from './routes/(protected)/_layout/learn/index'
@@ -136,7 +135,7 @@ import { Route as ApiAnnouncementIdMarkReadRouteImport } from './routes/api/anno
 import { Route as ApiAnnouncementIdBookmarkRouteImport } from './routes/api/announcement/$id/bookmark'
 import { Route as ApiAiTutorChatStreamRouteImport } from './routes/api/ai-tutor/chat/stream'
 import { Route as ApiAiTutorChatFeedbackRouteImport } from './routes/api/ai-tutor/chat/feedback'
-import { Route as protectedLayoutSupportPageContextRouteImport } from './routes/(protected)/_layout/support-page/context'
+import { Route as protectedLayoutSupportContextRouteImport } from './routes/(protected)/_layout/support/context'
 import { Route as protectedLayoutMasaiverseLeaderboardRouteImport } from './routes/(protected)/_layout/masaiverse/leaderboard'
 import { Route as protectedLayoutMasaiverseHomeRouteImport } from './routes/(protected)/_layout/masaiverse/home'
 import { Route as protectedLayoutMasaiverseEventsRouteImport } from './routes/(protected)/_layout/masaiverse/events'
@@ -494,12 +493,6 @@ const protectedLayoutSupportIndexRoute =
   protectedLayoutSupportIndexRouteImport.update({
     id: '/support/',
     path: '/support/',
-    getParentRoute: () => protectedLayoutRouteRoute,
-  } as any)
-const protectedLayoutSupportPageIndexRoute =
-  protectedLayoutSupportPageIndexRouteImport.update({
-    id: '/support-page/',
-    path: '/support-page/',
     getParentRoute: () => protectedLayoutRouteRoute,
   } as any)
 const protectedLayoutProfileIndexRoute =
@@ -895,10 +888,10 @@ const ApiAiTutorChatFeedbackRoute = ApiAiTutorChatFeedbackRouteImport.update({
   path: '/api/ai-tutor/chat/feedback',
   getParentRoute: () => rootRouteImport,
 } as any)
-const protectedLayoutSupportPageContextRoute =
-  protectedLayoutSupportPageContextRouteImport.update({
-    id: '/support-page/context',
-    path: '/support-page/context',
+const protectedLayoutSupportContextRoute =
+  protectedLayoutSupportContextRouteImport.update({
+    id: '/support/context',
+    path: '/support/context',
     getParentRoute: () => protectedLayoutRouteRoute,
   } as any)
 const protectedLayoutMasaiverseLeaderboardRoute =
@@ -1266,7 +1259,7 @@ export interface FileRoutesByFullPath {
   '/masaiverse/events': typeof protectedLayoutMasaiverseEventsRoute
   '/masaiverse/home': typeof protectedLayoutMasaiverseHomeRoute
   '/masaiverse/leaderboard': typeof protectedLayoutMasaiverseLeaderboardRoute
-  '/support-page/context': typeof protectedLayoutSupportPageContextRoute
+  '/support/context': typeof protectedLayoutSupportContextRoute
   '/api/ai-tutor/chat/feedback': typeof ApiAiTutorChatFeedbackRouteWithChildren
   '/api/ai-tutor/chat/stream': typeof ApiAiTutorChatStreamRoute
   '/api/announcement/$id/bookmark': typeof ApiAnnouncementIdBookmarkRoute
@@ -1335,7 +1328,6 @@ export interface FileRoutesByFullPath {
   '/learn/': typeof protectedLayoutLearnIndexRoute
   '/masaiverse/': typeof protectedLayoutMasaiverseIndexRoute
   '/profile/': typeof protectedLayoutProfileIndexRoute
-  '/support-page/': typeof protectedLayoutSupportPageIndexRoute
   '/support/': typeof protectedLayoutSupportIndexRoute
   '/whats-new/': typeof protectedLayoutWhatsNewIndexRoute
   '/api/announcement/$id/': typeof ApiAnnouncementIdIndexRoute
@@ -1444,7 +1436,7 @@ export interface FileRoutesByTo {
   '/masaiverse/events': typeof protectedLayoutMasaiverseEventsRoute
   '/masaiverse/home': typeof protectedLayoutMasaiverseHomeRoute
   '/masaiverse/leaderboard': typeof protectedLayoutMasaiverseLeaderboardRoute
-  '/support-page/context': typeof protectedLayoutSupportPageContextRoute
+  '/support/context': typeof protectedLayoutSupportContextRoute
   '/api/ai-tutor/chat/feedback': typeof ApiAiTutorChatFeedbackRouteWithChildren
   '/api/ai-tutor/chat/stream': typeof ApiAiTutorChatStreamRoute
   '/api/announcement/$id/bookmark': typeof ApiAnnouncementIdBookmarkRoute
@@ -1513,7 +1505,6 @@ export interface FileRoutesByTo {
   '/learn': typeof protectedLayoutLearnIndexRoute
   '/masaiverse': typeof protectedLayoutMasaiverseIndexRoute
   '/profile': typeof protectedLayoutProfileIndexRoute
-  '/support-page': typeof protectedLayoutSupportPageIndexRoute
   '/support': typeof protectedLayoutSupportIndexRoute
   '/whats-new': typeof protectedLayoutWhatsNewIndexRoute
   '/api/announcement/$id': typeof ApiAnnouncementIdIndexRoute
@@ -1625,7 +1616,7 @@ export interface FileRoutesById {
   '/(protected)/_layout/masaiverse/events': typeof protectedLayoutMasaiverseEventsRoute
   '/(protected)/_layout/masaiverse/home': typeof protectedLayoutMasaiverseHomeRoute
   '/(protected)/_layout/masaiverse/leaderboard': typeof protectedLayoutMasaiverseLeaderboardRoute
-  '/(protected)/_layout/support-page/context': typeof protectedLayoutSupportPageContextRoute
+  '/(protected)/_layout/support/context': typeof protectedLayoutSupportContextRoute
   '/api/ai-tutor/chat/feedback': typeof ApiAiTutorChatFeedbackRouteWithChildren
   '/api/ai-tutor/chat/stream': typeof ApiAiTutorChatStreamRoute
   '/api/announcement/$id/bookmark': typeof ApiAnnouncementIdBookmarkRoute
@@ -1694,7 +1685,6 @@ export interface FileRoutesById {
   '/(protected)/_layout/learn/': typeof protectedLayoutLearnIndexRoute
   '/(protected)/_layout/masaiverse/': typeof protectedLayoutMasaiverseIndexRoute
   '/(protected)/_layout/profile/': typeof protectedLayoutProfileIndexRoute
-  '/(protected)/_layout/support-page/': typeof protectedLayoutSupportPageIndexRoute
   '/(protected)/_layout/support/': typeof protectedLayoutSupportIndexRoute
   '/(protected)/_layout/whats-new/': typeof protectedLayoutWhatsNewIndexRoute
   '/api/announcement/$id/': typeof ApiAnnouncementIdIndexRoute
@@ -1806,7 +1796,7 @@ export interface FileRouteTypes {
     | '/masaiverse/events'
     | '/masaiverse/home'
     | '/masaiverse/leaderboard'
-    | '/support-page/context'
+    | '/support/context'
     | '/api/ai-tutor/chat/feedback'
     | '/api/ai-tutor/chat/stream'
     | '/api/announcement/$id/bookmark'
@@ -1875,7 +1865,6 @@ export interface FileRouteTypes {
     | '/learn/'
     | '/masaiverse/'
     | '/profile/'
-    | '/support-page/'
     | '/support/'
     | '/whats-new/'
     | '/api/announcement/$id/'
@@ -1984,7 +1973,7 @@ export interface FileRouteTypes {
     | '/masaiverse/events'
     | '/masaiverse/home'
     | '/masaiverse/leaderboard'
-    | '/support-page/context'
+    | '/support/context'
     | '/api/ai-tutor/chat/feedback'
     | '/api/ai-tutor/chat/stream'
     | '/api/announcement/$id/bookmark'
@@ -2053,7 +2042,6 @@ export interface FileRouteTypes {
     | '/learn'
     | '/masaiverse'
     | '/profile'
-    | '/support-page'
     | '/support'
     | '/whats-new'
     | '/api/announcement/$id'
@@ -2164,7 +2152,7 @@ export interface FileRouteTypes {
     | '/(protected)/_layout/masaiverse/events'
     | '/(protected)/_layout/masaiverse/home'
     | '/(protected)/_layout/masaiverse/leaderboard'
-    | '/(protected)/_layout/support-page/context'
+    | '/(protected)/_layout/support/context'
     | '/api/ai-tutor/chat/feedback'
     | '/api/ai-tutor/chat/stream'
     | '/api/announcement/$id/bookmark'
@@ -2233,7 +2221,6 @@ export interface FileRouteTypes {
     | '/(protected)/_layout/learn/'
     | '/(protected)/_layout/masaiverse/'
     | '/(protected)/_layout/profile/'
-    | '/(protected)/_layout/support-page/'
     | '/(protected)/_layout/support/'
     | '/(protected)/_layout/whats-new/'
     | '/api/announcement/$id/'
@@ -2810,13 +2797,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof protectedLayoutSupportIndexRouteImport
       parentRoute: typeof protectedLayoutRouteRoute
     }
-    '/(protected)/_layout/support-page/': {
-      id: '/(protected)/_layout/support-page/'
-      path: '/support-page'
-      fullPath: '/support-page/'
-      preLoaderRoute: typeof protectedLayoutSupportPageIndexRouteImport
-      parentRoute: typeof protectedLayoutRouteRoute
-    }
     '/(protected)/_layout/profile/': {
       id: '/(protected)/_layout/profile/'
       path: '/profile'
@@ -3293,11 +3273,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAiTutorChatFeedbackRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/(protected)/_layout/support-page/context': {
-      id: '/(protected)/_layout/support-page/context'
-      path: '/support-page/context'
-      fullPath: '/support-page/context'
-      preLoaderRoute: typeof protectedLayoutSupportPageContextRouteImport
+    '/(protected)/_layout/support/context': {
+      id: '/(protected)/_layout/support/context'
+      path: '/support/context'
+      fullPath: '/support/context'
+      preLoaderRoute: typeof protectedLayoutSupportContextRouteImport
       parentRoute: typeof protectedLayoutRouteRoute
     }
     '/(protected)/_layout/masaiverse/leaderboard': {
@@ -3715,12 +3695,11 @@ interface protectedLayoutRouteRouteChildren {
   protectedLayoutMessagesIdRouteRoute: typeof protectedLayoutMessagesIdRouteRoute
   protectedLayoutResourcesResourceIdRouteRoute: typeof protectedLayoutResourcesResourceIdRouteRoute
   protectedLayoutWhatsNewIdRouteRoute: typeof protectedLayoutWhatsNewIdRouteRoute
-  protectedLayoutSupportPageContextRoute: typeof protectedLayoutSupportPageContextRoute
+  protectedLayoutSupportContextRoute: typeof protectedLayoutSupportContextRoute
   protectedLayoutAnnouncementsIndexRoute: typeof protectedLayoutAnnouncementsIndexRoute
   protectedLayoutBookmarksIndexRoute: typeof protectedLayoutBookmarksIndexRoute
   protectedLayoutLearnIndexRoute: typeof protectedLayoutLearnIndexRoute
   protectedLayoutProfileIndexRoute: typeof protectedLayoutProfileIndexRoute
-  protectedLayoutSupportPageIndexRoute: typeof protectedLayoutSupportPageIndexRoute
   protectedLayoutSupportIndexRoute: typeof protectedLayoutSupportIndexRoute
   protectedLayoutWhatsNewIndexRoute: typeof protectedLayoutWhatsNewIndexRoute
   protectedLayoutSupportSupportIdIndexRoute: typeof protectedLayoutSupportSupportIdIndexRoute
@@ -3744,14 +3723,12 @@ const protectedLayoutRouteRouteChildren: protectedLayoutRouteRouteChildren = {
   protectedLayoutResourcesResourceIdRouteRoute:
     protectedLayoutResourcesResourceIdRouteRoute,
   protectedLayoutWhatsNewIdRouteRoute: protectedLayoutWhatsNewIdRouteRoute,
-  protectedLayoutSupportPageContextRoute:
-    protectedLayoutSupportPageContextRoute,
+  protectedLayoutSupportContextRoute: protectedLayoutSupportContextRoute,
   protectedLayoutAnnouncementsIndexRoute:
     protectedLayoutAnnouncementsIndexRoute,
   protectedLayoutBookmarksIndexRoute: protectedLayoutBookmarksIndexRoute,
   protectedLayoutLearnIndexRoute: protectedLayoutLearnIndexRoute,
   protectedLayoutProfileIndexRoute: protectedLayoutProfileIndexRoute,
-  protectedLayoutSupportPageIndexRoute: protectedLayoutSupportPageIndexRoute,
   protectedLayoutSupportIndexRoute: protectedLayoutSupportIndexRoute,
   protectedLayoutWhatsNewIndexRoute: protectedLayoutWhatsNewIndexRoute,
   protectedLayoutSupportSupportIdIndexRoute:
