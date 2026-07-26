@@ -41,6 +41,37 @@ describe('admissionEventSchema', () => {
     ).toBe(false)
   })
 
+  it('accepts lms.invoice.generated with full_fees_paid_invoice', () => {
+    const parsed = admissionEventSchema.safeParse(
+      envelope('lms.invoice.generated', {
+        full_fees_paid_invoice: 'https://cdn/inv.pdf',
+      }),
+    )
+    expect(parsed.success).toBe(true)
+  })
+
+  it('rejects lms.invoice.generated missing full_fees_paid_invoice', () => {
+    expect(
+      admissionEventSchema.safeParse(envelope('lms.invoice.generated')).success,
+    ).toBe(false)
+  })
+
+  it('accepts lms.fee.deadline.updated with course_fee_deadline', () => {
+    const parsed = admissionEventSchema.safeParse(
+      envelope('lms.fee.deadline.updated', {
+        course_fee_deadline: '2026-09-01 00:00:00',
+      }),
+    )
+    expect(parsed.success).toBe(true)
+  })
+
+  it('rejects lms.fee.deadline.updated missing course_fee_deadline', () => {
+    expect(
+      admissionEventSchema.safeParse(envelope('lms.fee.deadline.updated'))
+        .success,
+    ).toBe(false)
+  })
+
   it('rejects an unknown event type', () => {
     expect(
       admissionEventSchema.safeParse(envelope('lms.batch.exploded')).success,

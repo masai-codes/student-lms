@@ -1,9 +1,11 @@
-import { eq } from 'drizzle-orm'
+import { desc, eq } from 'drizzle-orm'
 
 import { batchUser } from '@/db/schema'
 import { logger } from '@/lib/logger'
 import { ApiError } from '@/server/api/http/apiError'
 import type { DbTransaction } from '@/server/api/webhooks/admissions/types'
+
+const FN = 'findBatchUserByEnrolmentId'
 
 export type FoundBatchUser = {
   id: number
@@ -15,12 +17,19 @@ export type FoundBatchUser = {
 
 /**
  * Locate the `batch_user` for an admissions enrolment by its `enrolment_id`.
- * Throws `ENROLMENT_NOT_FOUND` (404) when there is no matching row.
+ * An enrolment can map to more than one `batch_user` row; to resolve to a single
+ * one:
+ * - if `lmsBatchUserId` is given, pick the row with that id;
+ * - otherwise (or if it matches nothing) pick the latest-created row.
+ *
+ * Throws `ENROLMENT_NOT_FOUND` (404) when no row matches the enrolment.
  */
 export async function findBatchUserByEnrolmentId(
   tx: DbTransaction,
   enrolmentId: number,
+  lmsBatchUserId?: number,
 ): Promise<FoundBatchUser> {
+  // Newest first, so the default pick (no lms_batch_user_id) is the latest created.
   const rows = await tx
     .select({
       id: batchUser.id,
@@ -31,17 +40,28 @@ export async function findBatchUserByEnrolmentId(
     })
     .from(batchUser)
     .where(eq(batchUser.enrolmentId, enrolmentId))
-    .limit(1)
+    .orderBy(desc(batchUser.createdAt))
 
-  const row = rows.at(0)
-  if (!row) {
+  if (rows.length === 0) {
     logger.warn({
-      msg: 'No batch_user found for enrolment cancel',
-      fn: 'findBatchUserByEnrolmentId',
+      msg: 'No batch_user found for enrolment',
+      fn: FN,
       enrolmentId,
     })
     throw new ApiError(404, 'ENROLMENT_NOT_FOUND')
   }
 
-  return row
+  if (lmsBatchUserId != null) {
+    const match = rows.find((row) => row.id === lmsBatchUserId)
+    if (match) return match
+    logger.warn({
+      msg: 'lms_batch_user_id not found for enrolment; falling back to latest',
+      fn: FN,
+      enrolmentId,
+      lmsBatchUserId,
+      candidateCount: rows.length,
+    })
+  }
+
+  return rows[0]
 }

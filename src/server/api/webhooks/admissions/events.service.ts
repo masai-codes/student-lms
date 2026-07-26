@@ -4,10 +4,13 @@ import { ApiError } from '@/server/api/http/apiError'
 import type { AdmissionEventInput } from '@/server/api/webhooks/admissions/events.schema'
 import { appendBatchUserPayloadHistory } from '@/server/api/webhooks/admissions/steps/appendBatchUserPayloadHistory'
 import { applyBatchTransfer } from '@/server/api/webhooks/admissions/steps/applyBatchTransfer'
-import { findBatchUserByEnrolmentId } from '@/server/api/webhooks/admissions/steps/findBatchUserByEnrolmentId'
+import {
+  findBatchUserByEnrolmentId,
+  type FoundBatchUser,
+} from '@/server/api/webhooks/admissions/steps/findBatchUserByEnrolmentId'
 import { pauseBatchUser } from '@/server/api/webhooks/admissions/steps/pauseBatchUser'
 import { unpauseBatchUser } from '@/server/api/webhooks/admissions/steps/unpauseBatchUser'
-import { updateFullFeesPaid } from '@/server/api/webhooks/admissions/steps/updateFullFeesPaid'
+import { updateAdmissionDataForBatch } from '@/server/api/webhooks/admissions/steps/updateAdmissionDataForBatch'
 import {
   ADMISSION_EVENT,
   ADMISSION_PAYLOAD_TYPE,
@@ -70,6 +73,52 @@ async function applyTransferEvent(
   })
 }
 
+async function applyInvoiceGenerated(
+  tx: DbTransaction,
+  event: AdmissionEventInput,
+  batchUser: FoundBatchUser,
+): Promise<void> {
+  const invoice = event.data.full_fees_paid_invoice
+  if (invoice == null) {
+    // Guarded by the schema too; belt-and-braces so the type narrows.
+    throw new ApiError(400, 'INVALID_ENROLMENT_PAYLOAD')
+  }
+  await updateAdmissionDataForBatch(tx, {
+    userId: batchUser.userId,
+    batchId: batchUser.batchId,
+    values: { fullFeesPaidInvoice: invoice },
+  })
+  await appendBatchUserPayloadHistory(tx, {
+    batchUserId: batchUser.id,
+    history: batchUser.history,
+    type: ADMISSION_PAYLOAD_TYPE.INVOICE_GENERATED,
+    payload: { ...event },
+  })
+}
+
+async function applyFeeDeadlineUpdated(
+  tx: DbTransaction,
+  event: AdmissionEventInput,
+  batchUser: FoundBatchUser,
+): Promise<void> {
+  const deadline = event.data.course_fee_deadline
+  if (deadline == null) {
+    // Guarded by the schema too; belt-and-braces so the type narrows.
+    throw new ApiError(400, 'INVALID_ENROLMENT_PAYLOAD')
+  }
+  await updateAdmissionDataForBatch(tx, {
+    userId: batchUser.userId,
+    batchId: batchUser.batchId,
+    values: { courseFeeDeadline: deadline },
+  })
+  await appendBatchUserPayloadHistory(tx, {
+    batchUserId: batchUser.id,
+    history: batchUser.history,
+    type: ADMISSION_PAYLOAD_TYPE.FEE_DEADLINE_UPDATED,
+    payload: { ...event },
+  })
+}
+
 /**
  * Unified dispatcher for the admissions events webhook. Every event locates the
  * batch_user by `data.enrolment_id` (404 if unknown), dumps the whole envelope
@@ -87,16 +136,20 @@ export async function processAdmissionEvent(
   })
 
   return db.transaction(async (tx) => {
-    const batchUser = await findBatchUserByEnrolmentId(tx, enrolmentId)
+    const batchUser = await findBatchUserByEnrolmentId(
+      tx,
+      enrolmentId,
+      event.data.lms_batch_user_id,
+    )
     const payload = { ...event }
 
     switch (event.type) {
       case ADMISSION_EVENT.BATCH_PAID:
         // Receiving this event means the full fee is paid — no payload flag.
-        await updateFullFeesPaid(tx, {
+        await updateAdmissionDataForBatch(tx, {
           userId: batchUser.userId,
           batchId: batchUser.batchId,
-          fullFeesPaid: true,
+          values: { fullFeesPaid: 1 },
         })
         await appendBatchUserPayloadHistory(tx, {
           batchUserId: batchUser.id,
@@ -109,6 +162,12 @@ export async function processAdmissionEvent(
       case ADMISSION_EVENT.BATCH_TRANSFER_REJECTED:
       case ADMISSION_EVENT.BATCH_TRANSFER_COMPLETED:
         await applyTransferEvent(tx, event, batchUser)
+        break
+      case ADMISSION_EVENT.INVOICE_GENERATED:
+        await applyInvoiceGenerated(tx, event, batchUser)
+        break
+      case ADMISSION_EVENT.FEE_DEADLINE_UPDATED:
+        await applyFeeDeadlineUpdated(tx, event, batchUser)
         break
       case ADMISSION_EVENT.BATCH_PAUSE:
         await pauseBatchUser(tx, {

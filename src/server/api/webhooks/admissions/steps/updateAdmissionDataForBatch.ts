@@ -5,20 +5,24 @@ import { logger } from '@/lib/logger'
 import { ApiError } from '@/server/api/http/apiError'
 import type { DbTransaction } from '@/server/api/webhooks/admissions/types'
 
+type AdmissionDataValues = Partial<typeof userBatchAdmissionData.$inferInsert>
+
 type Params = {
   userId: number
   batchId: number
-  fullFeesPaid: boolean
+  values: AdmissionDataValues
 }
 
 /**
- * Set `full_fees_paid` on the user's `user_batch_admission_data` row for this
- * batch. Throws `ADMISSION_DATA_NOT_FOUND` (404) when no admission-data row
- * exists (it is created only during a new-user-journey enrolment).
+ * Update the user's `user_batch_admission_data` row for a batch with the given
+ * column `values` (plus `updated_at`). Throws `ADMISSION_DATA_NOT_FOUND` (404)
+ * when there is no admission-data row (it is created only during a
+ * new-user-journey enrolment). Shared by the paid / invoice / fee-deadline
+ * events, each of which just supplies different columns.
  */
-export async function updateFullFeesPaid(
+export async function updateAdmissionDataForBatch(
   tx: DbTransaction,
-  { userId, batchId, fullFeesPaid }: Params,
+  { userId, batchId, values }: Params,
 ): Promise<void> {
   const rows = await tx
     .select({ id: userBatchAdmissionData.id })
@@ -34,17 +38,16 @@ export async function updateFullFeesPaid(
   const row = rows.at(0)
   if (!row) {
     logger.warn({
-      msg: 'No admission data to record full payment against',
-      fn: 'updateFullFeesPaid',
+      msg: 'No admission data to update',
+      fn: 'updateAdmissionDataForBatch',
       userId,
       batchId,
     })
     throw new ApiError(404, 'ADMISSION_DATA_NOT_FOUND')
   }
 
-  const now = new Date().toISOString()
   await tx
     .update(userBatchAdmissionData)
-    .set({ fullFeesPaid: fullFeesPaid ? 1 : 0, updatedAt: now })
+    .set({ ...values, updatedAt: new Date().toISOString() })
     .where(eq(userBatchAdmissionData.id, row.id))
 }

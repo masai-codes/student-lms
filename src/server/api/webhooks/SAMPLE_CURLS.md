@@ -120,11 +120,15 @@ Supported `type` values:
 | `lms.batch.transfer.completed` | …status `completed` |
 | `lms.batch.pause` | Sets `batchPaused` / `batchPausedDate` in meta |
 | `lms.batch.unpause` | Removes `batchPaused` / `batchPausedDate` from meta |
+| `lms.invoice.generated` | Sets `full_fees_paid_invoice` on admission data (needs `data.full_fees_paid_invoice`). 404 if that row is missing |
+| `lms.fee.deadline.updated` | Sets `course_fee_deadline` on admission data (needs `data.course_fee_deadline`). 404 if that row is missing |
 
 Only `type` + `data.enrolment_id` are needed (transfer events also need
-`data.to_batch_id`). Any other fields the platform sends are ignored by the
-logic but still stored verbatim in the audit trail — the samples below show just
-the required keys.
+`data.to_batch_id`). Optionally send `data.lms_batch_user_id` — when one
+`enrolment_id` maps to several `batch_user` rows it selects that exact row;
+without it, the latest-created row is used. Any other fields the platform sends
+are ignored by the logic but still stored verbatim in the audit trail — the
+samples below show just the required keys.
 
 ### `lms.batch.paid` (also `lms.batch.pause` / `lms.batch.unpause`)
 
@@ -149,6 +153,34 @@ curl -X POST 'BASE_URL/api/webhooks/admissions/events' \
     "data": {
       "enrolment_id": 314294967295,
       "to_batch_id": 22
+    }
+  }'
+```
+
+### `lms.invoice.generated`
+
+```bash
+curl -X POST 'BASE_URL/api/webhooks/admissions/events' \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "type": "lms.invoice.generated",
+    "data": {
+      "enrolment_id": 314294967295,
+      "full_fees_paid_invoice": "https://cdn.example.com/inv/full-asha.pdf"
+    }
+  }'
+```
+
+### `lms.fee.deadline.updated`
+
+```bash
+curl -X POST 'BASE_URL/api/webhooks/admissions/events' \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "type": "lms.fee.deadline.updated",
+    "data": {
+      "enrolment_id": 314294967295,
+      "course_fee_deadline": "2026-09-01 00:00:00"
     }
   }'
 ```

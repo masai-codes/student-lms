@@ -12,7 +12,7 @@ const BATCH_USER = {
 }
 
 const findBatchUserByEnrolmentId = vi.hoisted(() => vi.fn())
-const updateFullFeesPaid = vi.hoisted(() => vi.fn())
+const updateAdmissionDataForBatch = vi.hoisted(() => vi.fn())
 const appendBatchUserPayloadHistory = vi.hoisted(() => vi.fn())
 const applyBatchTransfer = vi.hoisted(() => vi.fn())
 const pauseBatchUser = vi.hoisted(() => vi.fn())
@@ -29,9 +29,10 @@ vi.mock(
   '@/server/api/webhooks/admissions/steps/findBatchUserByEnrolmentId',
   () => ({ findBatchUserByEnrolmentId }),
 )
-vi.mock('@/server/api/webhooks/admissions/steps/updateFullFeesPaid', () => ({
-  updateFullFeesPaid,
-}))
+vi.mock(
+  '@/server/api/webhooks/admissions/steps/updateAdmissionDataForBatch',
+  () => ({ updateAdmissionDataForBatch }),
+)
 vi.mock(
   '@/server/api/webhooks/admissions/steps/appendBatchUserPayloadHistory',
   () => ({ appendBatchUserPayloadHistory }),
@@ -59,11 +60,15 @@ describe('processAdmissionEvent', () => {
   it('lms.batch.paid → marks full fees paid (assumed true) + records payload', async () => {
     const result = await processAdmissionEvent(event('lms.batch.paid'))
 
-    expect(findBatchUserByEnrolmentId).toHaveBeenCalledWith(FAKE_TX, 123)
-    expect(updateFullFeesPaid).toHaveBeenCalledWith(FAKE_TX, {
+    expect(findBatchUserByEnrolmentId).toHaveBeenCalledWith(
+      FAKE_TX,
+      123,
+      undefined,
+    )
+    expect(updateAdmissionDataForBatch).toHaveBeenCalledWith(FAKE_TX, {
       userId: 7,
       batchId: 10,
-      fullFeesPaid: true,
+      values: { fullFeesPaid: 1 },
     })
     expect(appendBatchUserPayloadHistory).toHaveBeenCalledWith(
       FAKE_TX,
@@ -116,6 +121,47 @@ describe('processAdmissionEvent', () => {
       expect.objectContaining({ batchUserId: 55 }),
     )
     expect(pauseBatchUser).not.toHaveBeenCalled()
+  })
+
+  it('lms.invoice.generated → updates full_fees_paid_invoice + records payload', async () => {
+    await processAdmissionEvent(
+      event('lms.invoice.generated', {
+        full_fees_paid_invoice: 'https://cdn/inv.pdf',
+      }),
+    )
+    expect(updateAdmissionDataForBatch).toHaveBeenCalledWith(FAKE_TX, {
+      userId: 7,
+      batchId: 10,
+      values: { fullFeesPaidInvoice: 'https://cdn/inv.pdf' },
+    })
+    expect(appendBatchUserPayloadHistory).toHaveBeenCalledWith(
+      FAKE_TX,
+      expect.objectContaining({ type: 'invoice_generated' }),
+    )
+  })
+
+  it('lms.fee.deadline.updated → updates course_fee_deadline + records payload', async () => {
+    await processAdmissionEvent(
+      event('lms.fee.deadline.updated', {
+        course_fee_deadline: '2026-09-01 00:00:00',
+      }),
+    )
+    expect(updateAdmissionDataForBatch).toHaveBeenCalledWith(FAKE_TX, {
+      userId: 7,
+      batchId: 10,
+      values: { courseFeeDeadline: '2026-09-01 00:00:00' },
+    })
+    expect(appendBatchUserPayloadHistory).toHaveBeenCalledWith(
+      FAKE_TX,
+      expect.objectContaining({ type: 'fee_deadline_updated' }),
+    )
+  })
+
+  it('forwards data.lms_batch_user_id to the lookup for disambiguation', async () => {
+    await processAdmissionEvent(
+      event('lms.batch.pause', { lms_batch_user_id: 456 }),
+    )
+    expect(findBatchUserByEnrolmentId).toHaveBeenCalledWith(FAKE_TX, 123, 456)
   })
 
   it('dumps the whole envelope as the stored payload', async () => {

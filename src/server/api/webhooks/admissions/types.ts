@@ -50,6 +50,8 @@ export const ADMISSION_EVENT = {
   BATCH_TRANSFER_COMPLETED: 'lms.batch.transfer.completed',
   BATCH_PAUSE: 'lms.batch.pause',
   BATCH_UNPAUSE: 'lms.batch.unpause',
+  INVOICE_GENERATED: 'lms.invoice.generated',
+  FEE_DEADLINE_UPDATED: 'lms.fee.deadline.updated',
 } as const
 
 export type AdmissionEvent =
@@ -65,6 +67,8 @@ export const ADMISSION_PAYLOAD_TYPE = {
   BATCH_TRANSFER_COMPLETED: 'batch_transfer_completed',
   BATCH_PAUSED: 'batch_paused',
   BATCH_UNPAUSED: 'batch_unpaused',
+  INVOICE_GENERATED: 'invoice_generated',
+  FEE_DEADLINE_UPDATED: 'fee_deadline_updated',
 } as const
 
 /** `batch_user.status` values this integration writes. */

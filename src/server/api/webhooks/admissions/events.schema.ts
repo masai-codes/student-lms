@@ -23,11 +23,17 @@ export const admissionEventSchema = z
       ADMISSION_EVENT.BATCH_TRANSFER_COMPLETED,
       ADMISSION_EVENT.BATCH_PAUSE,
       ADMISSION_EVENT.BATCH_UNPAUSE,
+      ADMISSION_EVENT.INVOICE_GENERATED,
+      ADMISSION_EVENT.FEE_DEADLINE_UPDATED,
     ]),
     data: z
       .object({
         enrolment_id: z.number().int().positive(),
+        // Disambiguates when one enrolment maps to several batch_user rows.
+        lms_batch_user_id: z.number().int().positive().optional(),
         to_batch_id: z.number().int().positive().optional(),
+        full_fees_paid_invoice: z.string().trim().min(1).optional(),
+        course_fee_deadline: z.string().trim().min(1).optional(),
       })
       .passthrough(),
   })
@@ -38,6 +44,24 @@ export const admissionEventSchema = z
     {
       path: ['data', 'to_batch_id'],
       message: 'to_batch_id is required for batch transfer events',
+    },
+  )
+  .refine(
+    (event) =>
+      event.type !== ADMISSION_EVENT.INVOICE_GENERATED ||
+      event.data.full_fees_paid_invoice != null,
+    {
+      path: ['data', 'full_fees_paid_invoice'],
+      message: 'full_fees_paid_invoice is required for lms.invoice.generated',
+    },
+  )
+  .refine(
+    (event) =>
+      event.type !== ADMISSION_EVENT.FEE_DEADLINE_UPDATED ||
+      event.data.course_fee_deadline != null,
+    {
+      path: ['data', 'course_fee_deadline'],
+      message: 'course_fee_deadline is required for lms.fee.deadline.updated',
     },
   )
 
