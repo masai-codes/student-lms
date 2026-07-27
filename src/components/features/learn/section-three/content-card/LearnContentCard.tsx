@@ -47,6 +47,33 @@ function resolveTagChipPalette(tag: string) {
     : learnContentTagChipPalette
 }
 
+/**
+ * `assignments.settings.weightagePercentage`, shown alongside the tags in the
+ * same blue treatment as the assignment detail header badge.
+ */
+function LearnAssignmentWeightageChip({
+  weightage,
+}: {
+  weightage: number | null | undefined
+}) {
+  if (weightage == null) {
+    return null
+  }
+
+  return (
+    <MasaiChips
+      data-testid="learn-assignment-weightage"
+      type="default"
+      size="regular"
+      label={`${weightage}% Weightage`}
+      tabIndex={-1}
+      className="pointer-events-none"
+      backgroundClassName="bg-blue-50 border border-blue-100 dark:bg-info-subtle dark:border-info-subtle"
+      textClassName="!text-blue-600 dark:!text-info-subtle-foreground"
+    />
+  )
+}
+
 function LearnTypeIcon({ type }: Pick<LearnContentItem, 'type'>) {
   return (
     <img
@@ -164,7 +191,7 @@ export function LearnContentCard({
                     </>
                   ) : null}
                 </div>
-                {item.tags.length > 0 ? (
+                {item.tags.length > 0 || item.assignmentWeightage != null ? (
                   <div
                     data-testid="learn-card-dashboard-tags"
                     className="flex flex-wrap items-center gap-2"
@@ -180,6 +207,11 @@ export function LearnContentCard({
                         {...resolveTagChipPalette(tag)}
                       />
                     ))}
+                    {item.type === 'assignment' ? (
+                      <LearnAssignmentWeightageChip
+                        weightage={item.assignmentWeightage}
+                      />
+                    ) : null}
                   </div>
                 ) : null}
               </div>
@@ -225,6 +257,11 @@ export function LearnContentCard({
                       className="cursor-default"
                       {...learnContentTagChipPalette}
                     />
+                    {item.type === 'assignment' ? (
+                      <LearnAssignmentWeightageChip
+                        weightage={item.assignmentWeightage}
+                      />
+                    ) : null}
                   </div>
                 </div>
               </>
