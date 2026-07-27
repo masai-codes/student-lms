@@ -21,6 +21,7 @@ export function AssignmentDetailActions({
     <LearnDetailDefaultActions
       bookmark={bookmark}
       ticketCategory="assignment"
+      ticketEntityId={assignmentId}
     />
   )
 }
