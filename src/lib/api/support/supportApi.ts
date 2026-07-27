@@ -93,6 +93,8 @@ export async function createSupportTicket(input: {
   subCategory?: string | null
   message: string
   questionId?: number | null
+  /** Lecture / assignment / resource id when raised from a detail page. */
+  entityId?: number | null
 }): Promise<{ id: number }> {
   return fetchJson(SUPPORT_API.ticketCreate, jsonPost(input))
 }
