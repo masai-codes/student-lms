@@ -3,7 +3,6 @@ import { and, eq, isNotNull, isNull } from 'drizzle-orm'
 import { resolveCourseTitle } from './courseTitle'
 import { db } from '@/db'
 import { batchUser, batches } from '@/db/schema'
-import { getAdmissionsSsoTokenForUser } from '@/server/admissions/getAdmissionsSsoTokenForUser'
 import { BATCH_TRANSFER_STATUS } from '@/server/api/webhooks/admissions/types'
 
 /** A "complete your batch-transfer payment" banner for one transfer request. */
@@ -14,8 +13,20 @@ export interface BatchTransferPaymentBanner {
   toBatchId: number
   /** Course title of the target batch (falls back to its id). */
   courseTitle: string
-  /** Admissions CTA URL, or null when SSO isn't configured (CTA disabled). */
+  /**
+   * CTA URL, or null when SSO isn't configured (CTA disabled). Points at the LMS
+   * redirect route, which mints the admissions SSO token fresh on click (so it
+   * can't expire before the click and never lands in the dashboard payload).
+   */
   paymentUrl: string | null
+}
+
+/** Whether the admissions SSO redirect can be built (env configured). */
+function isAdmissionsSsoConfigured(): boolean {
+  return Boolean(
+    process.env.ADMISSIONS_SSO_BASE_URL?.trim() &&
+    process.env.ADMISSIONS_SSO_SECRET?.trim(),
+  )
 }
 
 /**
@@ -52,20 +63,18 @@ export async function getBatchTransferPaymentBanners(
 
   if (rows.length === 0) return []
 
-  // One SSO token per user, reused across their transfer banners.
-  const base = process.env.ADMISSIONS_SSO_BASE_URL?.trim().replace(/\/$/, '')
-  const token = base ? await getAdmissionsSsoTokenForUser(userId) : null
+  // The CTA points at the LMS redirect route, which mints the SSO token on click
+  // (see handleEnrolmentPaymentRedirect). We only gate on SSO being configured so
+  // the CTA renders disabled when it can't work.
+  const ssoConfigured = isAdmissionsSsoConfigured()
 
   const banners: Array<BatchTransferPaymentBanner> = []
   for (const row of rows) {
     // Guaranteed non-null by the isNotNull filters; the checks also narrow types.
     if (row.toBatchId == null || row.enrolmentId == null) continue
-    // Admissions treats an /lms-login request with `enrolment_id` present as an
-    // enrolment payment (the SSO endpoint verifies the token + logs the user in).
-    const paymentUrl =
-      base && token
-        ? `${base}/lms-login?token=${token}&enrolment_id=${row.enrolmentId}`
-        : null
+    const paymentUrl = ssoConfigured
+      ? `/api/admissions/enrolment-payment-redirect?enrolmentId=${row.enrolmentId}`
+      : null
     banners.push({
       batchUserId: row.batchUserId,
       toBatchId: row.toBatchId,

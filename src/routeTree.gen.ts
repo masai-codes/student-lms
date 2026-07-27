@@ -54,6 +54,7 @@ import { Route as ApiBookmarksFilterOptionsRouteImport } from './routes/api/book
 import { Route as ApiAnnouncementUnreadCountRouteImport } from './routes/api/announcement/unread-count'
 import { Route as ApiAnnouncementPopupsRouteImport } from './routes/api/announcement/popups'
 import { Route as ApiAnnouncementFilterOptionsRouteImport } from './routes/api/announcement/filter-options'
+import { Route as ApiAdmissionsEnrolmentPaymentRedirectRouteImport } from './routes/api/admissions/enrolment-payment-redirect'
 import { Route as protectedLayoutThemeLabRouteImport } from './routes/(protected)/_layout/theme-lab'
 import { Route as protectedLayoutMyCoursesRouteImport } from './routes/(protected)/_layout/my-courses'
 import { Route as authV2ResetPasswordRouteImport } from './routes/(auth)/v2/reset-password'
@@ -423,6 +424,12 @@ const ApiAnnouncementFilterOptionsRoute =
   ApiAnnouncementFilterOptionsRouteImport.update({
     id: '/api/announcement/filter-options',
     path: '/api/announcement/filter-options',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiAdmissionsEnrolmentPaymentRedirectRoute =
+  ApiAdmissionsEnrolmentPaymentRedirectRouteImport.update({
+    id: '/api/admissions/enrolment-payment-redirect',
+    path: '/api/admissions/enrolment-payment-redirect',
     getParentRoute: () => rootRouteImport,
   } as any)
 const protectedLayoutThemeLabRoute = protectedLayoutThemeLabRouteImport.update({
@@ -1206,6 +1213,7 @@ export interface FileRoutesByFullPath {
   '/v2/reset-password': typeof authV2ResetPasswordRoute
   '/my-courses': typeof protectedLayoutMyCoursesRoute
   '/theme-lab': typeof protectedLayoutThemeLabRoute
+  '/api/admissions/enrolment-payment-redirect': typeof ApiAdmissionsEnrolmentPaymentRedirectRoute
   '/api/announcement/filter-options': typeof ApiAnnouncementFilterOptionsRoute
   '/api/announcement/popups': typeof ApiAnnouncementPopupsRoute
   '/api/announcement/unread-count': typeof ApiAnnouncementUnreadCountRoute
@@ -1383,6 +1391,7 @@ export interface FileRoutesByTo {
   '/v2/reset-password': typeof authV2ResetPasswordRoute
   '/my-courses': typeof protectedLayoutMyCoursesRoute
   '/theme-lab': typeof protectedLayoutThemeLabRoute
+  '/api/admissions/enrolment-payment-redirect': typeof ApiAdmissionsEnrolmentPaymentRedirectRoute
   '/api/announcement/filter-options': typeof ApiAnnouncementFilterOptionsRoute
   '/api/announcement/popups': typeof ApiAnnouncementPopupsRoute
   '/api/announcement/unread-count': typeof ApiAnnouncementUnreadCountRoute
@@ -1563,6 +1572,7 @@ export interface FileRoutesById {
   '/(auth)/v2/reset-password': typeof authV2ResetPasswordRoute
   '/(protected)/_layout/my-courses': typeof protectedLayoutMyCoursesRoute
   '/(protected)/_layout/theme-lab': typeof protectedLayoutThemeLabRoute
+  '/api/admissions/enrolment-payment-redirect': typeof ApiAdmissionsEnrolmentPaymentRedirectRoute
   '/api/announcement/filter-options': typeof ApiAnnouncementFilterOptionsRoute
   '/api/announcement/popups': typeof ApiAnnouncementPopupsRoute
   '/api/announcement/unread-count': typeof ApiAnnouncementUnreadCountRoute
@@ -1743,6 +1753,7 @@ export interface FileRouteTypes {
     | '/v2/reset-password'
     | '/my-courses'
     | '/theme-lab'
+    | '/api/admissions/enrolment-payment-redirect'
     | '/api/announcement/filter-options'
     | '/api/announcement/popups'
     | '/api/announcement/unread-count'
@@ -1920,6 +1931,7 @@ export interface FileRouteTypes {
     | '/v2/reset-password'
     | '/my-courses'
     | '/theme-lab'
+    | '/api/admissions/enrolment-payment-redirect'
     | '/api/announcement/filter-options'
     | '/api/announcement/popups'
     | '/api/announcement/unread-count'
@@ -2099,6 +2111,7 @@ export interface FileRouteTypes {
     | '/(auth)/v2/reset-password'
     | '/(protected)/_layout/my-courses'
     | '/(protected)/_layout/theme-lab'
+    | '/api/admissions/enrolment-payment-redirect'
     | '/api/announcement/filter-options'
     | '/api/announcement/popups'
     | '/api/announcement/unread-count'
@@ -2276,6 +2289,7 @@ export interface RootRouteChildren {
   authV2ForgotPasswordRoute: typeof authV2ForgotPasswordRoute
   authV2MeRoute: typeof authV2MeRoute
   authV2ResetPasswordRoute: typeof authV2ResetPasswordRoute
+  ApiAdmissionsEnrolmentPaymentRedirectRoute: typeof ApiAdmissionsEnrolmentPaymentRedirectRoute
   ApiAnnouncementFilterOptionsRoute: typeof ApiAnnouncementFilterOptionsRoute
   ApiAnnouncementPopupsRoute: typeof ApiAnnouncementPopupsRoute
   ApiAnnouncementUnreadCountRoute: typeof ApiAnnouncementUnreadCountRoute
@@ -2705,6 +2719,13 @@ declare module '@tanstack/react-router' {
       path: '/api/announcement/filter-options'
       fullPath: '/api/announcement/filter-options'
       preLoaderRoute: typeof ApiAnnouncementFilterOptionsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/admissions/enrolment-payment-redirect': {
+      id: '/api/admissions/enrolment-payment-redirect'
+      path: '/api/admissions/enrolment-payment-redirect'
+      fullPath: '/api/admissions/enrolment-payment-redirect'
+      preLoaderRoute: typeof ApiAdmissionsEnrolmentPaymentRedirectRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/(protected)/_layout/theme-lab': {
@@ -3933,6 +3954,8 @@ const rootRouteChildren: RootRouteChildren = {
   authV2ForgotPasswordRoute: authV2ForgotPasswordRoute,
   authV2MeRoute: authV2MeRoute,
   authV2ResetPasswordRoute: authV2ResetPasswordRoute,
+  ApiAdmissionsEnrolmentPaymentRedirectRoute:
+    ApiAdmissionsEnrolmentPaymentRedirectRoute,
   ApiAnnouncementFilterOptionsRoute: ApiAnnouncementFilterOptionsRoute,
   ApiAnnouncementPopupsRoute: ApiAnnouncementPopupsRoute,
   ApiAnnouncementUnreadCountRoute: ApiAnnouncementUnreadCountRoute,

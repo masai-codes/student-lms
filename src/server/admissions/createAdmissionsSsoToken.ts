@@ -9,11 +9,18 @@ export interface AdmissionsSsoPayload {
   avatar: string
 }
 
-/** Signs the admissions SSO JWT (5-min expiry). Throws if the secret is unset. */
-export function signAdmissionsSsoToken(payload: AdmissionsSsoPayload): string {
+/**
+ * Signs the admissions SSO JWT (5-min expiry). `extraClaims` are merged into the
+ * token payload (e.g. `{ enrolment_id }` for enrolment-payment links). Throws if
+ * the secret is unset.
+ */
+export function signAdmissionsSsoToken(
+  payload: AdmissionsSsoPayload,
+  extraClaims: Record<string, unknown> = {},
+): string {
   const secret = process.env.ADMISSIONS_SSO_SECRET
   if (!secret) throw new Error('ADMISSIONS_SSO_SECRET is not configured')
-  return jwt.sign(payload, secret, { expiresIn: '5m' })
+  return jwt.sign({ ...payload, ...extraClaims }, secret, { expiresIn: '5m' })
 }
 
 export function buildAdmissionsSsoUrl(

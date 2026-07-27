@@ -1,20 +1,19 @@
 import { and, eq, isNull } from 'drizzle-orm'
 
-import { signAdmissionsSsoToken } from './createAdmissionsSsoToken'
+import type { AdmissionsSsoPayload } from './createAdmissionsSsoToken'
 import { db } from '@/db'
 import { profiles, users } from '@/db/schema'
 
 /**
- * Mints the admissions SSO JWT for a user (the same token
- * {@link buildAdmissionsSsoUrl} uses) without wrapping it in a redirect URL, so
- * callers can embed it in their own admissions link. Fetches the user + avatar
- * like {@link buildAdmissionsRedirectForUser}. Returns `null` (never throws)
- * when SSO isn't configured or the user is missing, so callers degrade
- * gracefully. Note: the token expires in 5 minutes.
+ * Builds the admissions SSO payload (user identity + avatar) for a user, ready
+ * to sign with {@link signAdmissionsSsoToken} — optionally with extra per-link
+ * claims. Fetch it once and sign many tokens (e.g. one per enrolment). Returns
+ * `null` (never throws) when SSO isn't configured or the user is missing, so
+ * callers degrade gracefully.
  */
-export async function getAdmissionsSsoTokenForUser(
+export async function getAdmissionsSsoPayloadForUser(
   userId: number,
-): Promise<string | null> {
+): Promise<AdmissionsSsoPayload | null> {
   try {
     if (!process.env.ADMISSIONS_SSO_SECRET) return null
 
@@ -41,14 +40,14 @@ export async function getAdmissionsSsoTokenForUser(
     const avatar =
       typeof meta['profile_pic'] === 'string' ? meta['profile_pic'] : ''
 
-    return signAdmissionsSsoToken({
+    return {
       userId: String(user.id),
       name: user.name,
       email: user.email,
       mobile: user.mobile ?? '',
       platform: 'LMS',
       avatar,
-    })
+    }
   } catch {
     return null // SSO not configured — feature degrades gracefully
   }
