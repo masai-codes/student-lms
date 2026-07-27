@@ -3,6 +3,7 @@ import { and, eq, isNotNull, isNull } from 'drizzle-orm'
 import { resolveCourseTitle } from './courseTitle'
 import { db } from '@/db'
 import { batchUser, batches } from '@/db/schema'
+import { getBatchIdsForEnrolledUser } from '@/server/batches/getBatchIdsForEnrolledUser'
 import { BATCH_TRANSFER_STATUS } from '@/server/api/webhooks/admissions/types'
 
 /** A "complete your batch-transfer payment" banner for one transfer request. */
@@ -42,6 +43,8 @@ export async function getBatchTransferPaymentBanners(
   const rows = await db
     .select({
       batchUserId: batchUser.id,
+      // Current (source) batch — used to exclude cancelled enrolments below.
+      sourceBatchId: batchUser.batchId,
       toBatchId: batchUser.batchTransferId,
       enrolmentId: batchUser.enrolmentId,
       batchName: batches.name,
@@ -63,6 +66,11 @@ export async function getBatchTransferPaymentBanners(
 
   if (rows.length === 0) return []
 
+  // Exclude cancelled enrolments: the source batch must still be active
+  // (getBatchIdsForEnrolledUser excludes cancelled / deleted / other-portal).
+  const enrolledBatchIds = new Set(await getBatchIdsForEnrolledUser(userId))
+  if (enrolledBatchIds.size === 0) return []
+
   // The CTA points at the LMS redirect route, which mints the SSO token on click
   // (see handleEnrolmentPaymentRedirect). We only gate on SSO being configured so
   // the CTA renders disabled when it can't work.
@@ -72,6 +80,8 @@ export async function getBatchTransferPaymentBanners(
   for (const row of rows) {
     // Guaranteed non-null by the isNotNull filters; the checks also narrow types.
     if (row.toBatchId == null || row.enrolmentId == null) continue
+    // Skip if the current enrolment is cancelled / no longer active.
+    if (!enrolledBatchIds.has(row.sourceBatchId)) continue
     const paymentUrl = ssoConfigured
       ? `/api/admissions/enrolment-payment-redirect?enrolmentId=${row.enrolmentId}`
       : null
