@@ -1,6 +1,9 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { createAssessPlatformUrl } from '../createAssessPlatformUrl'
+import {
+  callbackBaseUrl,
+  createAssessPlatformUrl,
+} from '../createAssessPlatformUrl'
 import { isApiError } from '@/server/api/http/apiError'
 
 const hoisted = vi.hoisted(() => ({ dbSelect: vi.fn() }))
@@ -89,6 +92,23 @@ describe('createAssessPlatformUrl', () => {
       createAssessPlatformUrl({ assignmentId: 1, submissionId: 2, userId: 7 }),
     ).resolves.toEqual({ url: 'http://assess.test/?token=abc' })
     expect(fetchMock).not.toHaveBeenCalled()
+  })
+
+  // Regression: experience-api registers /lms-callback & friends as exact paths
+  // at its root. A "/graphql" suffix here made every Assess webhook land on the
+  // Apollo catch-all instead, which rejected it as INVALID_COOKIE (HTTP 500) —
+  // so scores and completions silently never came back.
+  it('builds the callback base from the bare experience-api origin', () => {
+    process.env.EXPERIENCE_API_BASE_URL = 'https://experience-api.test/'
+    expect(callbackBaseUrl()).toBe('https://experience-api.test')
+    expect(`${callbackBaseUrl()}/lms-callback`).toBe(
+      'https://experience-api.test/lms-callback',
+    )
+  })
+
+  it('throws when the experience-api base url is missing', () => {
+    delete process.env.EXPERIENCE_API_BASE_URL
+    expect(() => callbackBaseUrl()).toThrow()
   })
 
   it('404s when the submission is not owned/found', async () => {
