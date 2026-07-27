@@ -11,8 +11,15 @@ export const LAYOUT_MAIN_PADDING_Y = 'py-6 md:pt-[24px]'
 
 export const layoutMainClasses = `mx-auto w-full flex-1 min-h-0 ${LAYOUT_MAX_WIDTH_CLASS} ${LAYOUT_MAIN_PADDING_X} ${LAYOUT_MAIN_PADDING_Y}`
 
-/** Lecture detail route shell: flush under navbar, full viewport width for video. */
-export const lectureDetailRouteClasses = 'w-full'
+/**
+ * Lecture detail route shell: flush under navbar, full viewport width for video.
+ * At `lg` it joins the flex chain (`min-h-dvh` shell → `<main>` → here) so the
+ * split row below can fill exactly the viewport height left by the navbar with
+ * CSS alone — no measured height that can drift and leave the document taller
+ * than the viewport. Below `lg` the page keeps natural window scrolling.
+ */
+export const lectureDetailRouteClasses =
+  'w-full lg:flex lg:min-h-0 lg:flex-1 lg:flex-col'
 
 /**
  * `<main>` shell for the lecture detail route: full viewport width, no

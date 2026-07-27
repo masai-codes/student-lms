@@ -144,10 +144,15 @@ export const Route = createFileRoute('/(protected)/_layout')({
 })
 
 function RouteComponent() {
-  const { searchStr, pathname } = useRouterState({
+  const { searchStr, pathname, renderedPathname } = useRouterState({
     select: (state) => ({
       searchStr: state.location.searchStr,
       pathname: state.location.pathname,
+      // During a pending navigation `location` is already the destination while
+      // the outgoing route is still painted. Width classes must follow what's
+      // on screen, or the old page flashes in the new page's shell (e.g. the
+      // learn listing going edge-to-edge for a beat on the way to a lecture).
+      renderedPathname: (state.resolvedLocation ?? state.location).pathname,
     }),
   })
   const { user } = Route.useRouteContext()
@@ -156,8 +161,8 @@ function RouteComponent() {
   const isSupportRoute = pathname.startsWith('/support')
   // Lecture detail spans the full viewport width (no centered container), so
   // every hero state is edge-to-edge like the recording video.
-  const isLectureDetail = /^\/lectures\/[^/]+/.test(pathname)
-  const mainClasses = isMasaiverseRoute
+  const isLectureDetail = /^\/lectures\/[^/]+/.test(renderedPathname)
+  const mainClasses = renderedPathname.startsWith('/masaiverse')
     ? layoutMainClassesFullWidth
     : isLectureDetail
       ? lectureDetailMainClasses
