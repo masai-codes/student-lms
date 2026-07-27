@@ -58,7 +58,7 @@ describe('getBatchTransferPaymentBanners', () => {
         toBatchId: 22,
         courseTitle: 'FinTech AI',
         paymentUrl:
-          'https://admissions.example.com?token=jwt-token&enrolment_id=2032',
+          'https://admissions.example.com/lms-login?token=jwt-token&enrolment_id=2032',
       },
     ])
   })

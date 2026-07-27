@@ -60,11 +60,11 @@ export async function getBatchTransferPaymentBanners(
   for (const row of rows) {
     // Guaranteed non-null by the isNotNull filters; the checks also narrow types.
     if (row.toBatchId == null || row.enrolmentId == null) continue
-    // Admissions treats a request with `enrolment_id` present as an enrolment
-    // payment — the CTA is the SSO base URL + token + enrolment_id (no path).
+    // Admissions treats an /lms-login request with `enrolment_id` present as an
+    // enrolment payment (the SSO endpoint verifies the token + logs the user in).
     const paymentUrl =
       base && token
-        ? `${base}?token=${token}&enrolment_id=${row.enrolmentId}`
+        ? `${base}/lms-login?token=${token}&enrolment_id=${row.enrolmentId}`
         : null
     banners.push({
       batchUserId: row.batchUserId,
