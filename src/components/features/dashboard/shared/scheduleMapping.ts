@@ -39,6 +39,7 @@ export function scheduleItemToLearnContent(
     assignmentDeadlineLabel: includeDeadlineLabel
       ? item.listingCtas.assignmentDeadlineLabel
       : null,
+    assignmentWeightage: item.assignmentWeightage,
     courseName: item.courseName,
     dateTooltip:
       formatScheduleRangeIST(item.scheduleDate, item.concludes) || null,

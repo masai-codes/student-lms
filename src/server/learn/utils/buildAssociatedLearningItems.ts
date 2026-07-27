@@ -45,6 +45,8 @@ export type AssociatedAssignmentRow = {
   module: string | null
   hostName: string | null
   showScores: number | null
+  /** `assignments.settings` JSON; read for `weightagePercentage` on the card. */
+  settings?: unknown
 }
 
 /**
