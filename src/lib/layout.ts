@@ -13,13 +13,26 @@ export const layoutMainClasses = `mx-auto w-full flex-1 min-h-0 ${LAYOUT_MAX_WID
 
 /**
  * Lecture detail route shell: flush under navbar, full viewport width for video.
- * At `lg` it joins the flex chain (`min-h-dvh` shell → `<main>` → here) so the
- * split row below can fill exactly the viewport height left by the navbar with
- * CSS alone — no measured height that can drift and leave the document taller
- * than the viewport. Below `lg` the page keeps natural window scrolling.
+ * At `lg` it joins the flex chain (shell → `<main>` → here) so the split row
+ * below can fill exactly the viewport height left by the navbar with CSS alone —
+ * no measured height that can drift and leave the document taller than the
+ * viewport. Below `lg` the page keeps natural window scrolling.
  */
 export const lectureDetailRouteClasses =
   'w-full lg:flex lg:min-h-0 lg:flex-1 lg:flex-col'
+
+/**
+ * The app shell: `min-h-dvh` so short pages still fill the screen, and window
+ * scrolling for everything that grows past it.
+ *
+ * A page whose columns own their own scrolling (the lecture split layout) needs
+ * the opposite — a *definite* viewport height, since `min-h-dvh` lets a `flex-1`
+ * `<main>` keep growing to its content. That case is handled by the viewport lock
+ * in `styles.css`, which keys off `data-app-shell` here plus
+ * `data-viewport-locked` on `<html>`; see `useViewportScrollLock`.
+ */
+export const LAYOUT_APP_SHELL_CLASSES =
+  'min-h-dvh bg-surface-muted flex flex-col'
 
 /**
  * `<main>` shell for the lecture detail route: full viewport width, no
