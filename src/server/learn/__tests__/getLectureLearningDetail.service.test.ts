@@ -139,6 +139,75 @@ describe('getLectureLearningDetailForUser', () => {
     expect(result.isNewZoomRedirection).toBe(true)
     expect(result.enableZoomWebView).toBe(true)
     expect(hoisted.bookmarkState).toHaveBeenCalledWith(9, 'lecture', 227)
+    // No lectures_ai row → nothing to fetch.
+    expect(result.tabs.transcript).toEqual({ available: false, url: null })
+  })
+
+  it('exposes the transcript as a cache URL, never as text (#353)', async () => {
+    const { getLectureLearningDetailForUser } =
+      await import('../services/getLectureLearningDetail.service')
+
+    hoisted.dbSelect
+      .mockReturnValueOnce({
+        from: () => ({
+          leftJoin: () => ({
+            leftJoin: () => ({
+              where: () => ({
+                limit: () =>
+                  Promise.resolve([
+                    {
+                      id: 227,
+                      title: 'Live DSA',
+                      category: 'coding',
+                      type: 'live',
+                      optional: 0,
+                      schedule: '2020-01-01 10:00:00',
+                      concludes: '2020-01-01 12:00:00',
+                      week: 1,
+                      module: null,
+                      batchId: 1,
+                      sectionId: 2,
+                      hostName: 'Ravi',
+                      hostAvatarUrl: null,
+                      zoomLink: null,
+                      videos: null,
+                      vimeoDownloadLinks: null,
+                      vimeoPlayerEmbedUrl: null,
+                      settings: { hide_notes: 0 },
+                      notes: null,
+                      isNewZoomRedirection: 0,
+                      sectionSettings: null,
+                      data: null,
+                    },
+                  ]),
+              }),
+            }),
+          }),
+        }),
+      })
+      // lecturesAi select — MySQL returns the existence probe as 0/1, and the
+      // transcript columns are deliberately absent from the projection.
+      .mockReturnValueOnce({
+        from: () => ({
+          where: () => ({
+            limit: () =>
+              Promise.resolve([{ summary: 'Key points', hasTranscript: 1 }]),
+          }),
+        }),
+      })
+      .mockReturnValueOnce({
+        from: () => ({
+          where: () => ({ limit: () => Promise.resolve([]) }),
+        }),
+      })
+
+    const result = await getLectureLearningDetailForUser(9, 227)
+
+    expect(result.tabs.aiSummary).toBe('Key points')
+    expect(result.tabs.transcript).toEqual({
+      available: true,
+      url: '/api/cache/transcript/1/2/227',
+    })
   })
 
   it('throws when lecture type is unsupported', async () => {
@@ -155,26 +224,26 @@ describe('getLectureLearningDetailForUser', () => {
                   {
                     id: 1,
                     title: 'Unknown type',
-                  category: 'coding',
-                  type: 'unknown',
-                  optional: 0,
-                  schedule: null,
-                  concludes: null,
-                  week: 1,
-                  module: null,
-                  batchId: 1,
-                  sectionId: 2,
-                  hostName: 'Ravi',
-                  hostAvatarUrl: null,
-                  zoomLink: null,
-                  videos: null,
-                  vimeoDownloadLinks: null,
-                  vimeoPlayerEmbedUrl: null,
-                  settings: null,
-                  notes: null,
-                  data: null,
-                },
-              ]),
+                    category: 'coding',
+                    type: 'unknown',
+                    optional: 0,
+                    schedule: null,
+                    concludes: null,
+                    week: 1,
+                    module: null,
+                    batchId: 1,
+                    sectionId: 2,
+                    hostName: 'Ravi',
+                    hostAvatarUrl: null,
+                    zoomLink: null,
+                    videos: null,
+                    vimeoDownloadLinks: null,
+                    vimeoPlayerEmbedUrl: null,
+                    settings: null,
+                    notes: null,
+                    data: null,
+                  },
+                ]),
             }),
           }),
         }),

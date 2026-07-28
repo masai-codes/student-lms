@@ -1,131 +1,122 @@
 import { describe, expect, it } from 'vitest'
 
-import { buildLectureTabContent } from '../buildLectureTabContent'
+import type { LearningItem } from '@/server/learn/types'
+import {
+  buildLectureTabContent,
+  buildLectureTranscriptSource,
+} from '../buildLectureTabContent'
+
+const associatedItem: LearningItem = {
+  id: 2,
+  learningType: 'assignment',
+  title: 'Lab 1',
+  hostName: 'Host',
+  scheduleDate: null,
+  concludes: null,
+  type: 'assignment',
+  category: 'coding',
+  isOptional: 'mandatory',
+  moduleName: 'Module 1',
+  attendance: null,
+  optionalAttendance: null,
+  assignmentProgressStatus: null,
+  resourcePhase: null,
+  listingCtas: {
+    joinLive: 'hidden',
+    joinZoomLink: null,
+    isNewZoomRedirection: false,
+    enableZoomWebView: false,
+    showAttendance: false,
+    assignmentStatusChip: null,
+    assignmentDeadlineLabel: null,
+    assignmentScore: null,
+  },
+}
+
+const ids = { lectureId: 7, batchId: 12, sectionId: 34 }
 
 describe('buildLectureTabContent', () => {
   it('maps lecture notes and AI summary', () => {
     const tabs = buildLectureTabContent({
       notes: '  Instructor notes  ',
-      lecturesAi: {
-        summary: 'Key points',
-        transcript: null,
-        transcriptSegments: null,
-      },
-      associatedItems: [
-        {
-          id: 2,
-          learningType: 'assignment',
-          title: 'Lab 1',
-          hostName: 'Host',
-          scheduleDate: null,
-          concludes: null,
-          type: 'assignment',
-          category: 'coding',
-          isOptional: 'mandatory',
-          moduleName: 'Module 1',
-          attendance: null,
-          optionalAttendance: null,
-          assignmentProgressStatus: null,
-          resourcePhase: null,
-          listingCtas: {
-            joinLive: 'hidden',
-            joinZoomLink: null,
-            isNewZoomRedirection: false,
-            enableZoomWebView: false,
-            showAttendance: false,
-            assignmentStatusChip: null,
-            assignmentDeadlineLabel: null,
-            assignmentScore: null,
-          },
-        },
-      ],
+      lecturesAi: { summary: 'Key points', hasTranscript: false },
+      associatedItems: [associatedItem],
+      ...ids,
     })
 
     expect(tabs.notes).toBe('Instructor notes')
     expect(tabs.aiSummary).toBe('Key points')
-    expect(tabs.transcriptSegments).toEqual([])
     expect(tabs.associatedItems).toHaveLength(1)
     expect(tabs.associatedItems[0]?.title).toBe('Lab 1')
   })
 
-  it('returns null AI summary when row is missing', () => {
+  it('returns null AI summary and an unavailable transcript when row is missing', () => {
     const tabs = buildLectureTabContent({
       notes: null,
       lecturesAi: null,
       associatedItems: [],
+      ...ids,
     })
 
     expect(tabs.notes).toBeNull()
     expect(tabs.aiSummary).toBeNull()
-    expect(tabs.transcript).toBeNull()
-    expect(tabs.transcriptSegments).toEqual([])
+    expect(tabs.transcript).toEqual({ available: false, url: null })
   })
 
   it('treats blank summary text as missing', () => {
     const tabs = buildLectureTabContent({
       notes: null,
-      lecturesAi: {
-        summary: '   ',
-        transcript: 'Hello',
-        transcriptSegments: null,
-      },
+      lecturesAi: { summary: '   ', hasTranscript: true },
       associatedItems: [],
+      ...ids,
     })
 
     expect(tabs.aiSummary).toBeNull()
-    expect(tabs.transcript).toBe('Hello')
-    expect(tabs.transcriptSegments).toEqual([])
     expect(tabs.associatedItems).toEqual([])
   })
 
-  it('parses structured transcript segments from JSON string', () => {
+  it('never embeds transcript text — only a cacheable pointer', () => {
     const tabs = buildLectureTabContent({
       notes: null,
-      lecturesAi: {
-        summary: null,
-        transcript: null,
-        transcriptSegments: JSON.stringify([
-          { id: 1, start: 0, end: 4.5, text: 'Hello there' },
-          { id: 2, start: 4.5, end: 9, text: 'Welcome to class' },
-        ]),
-      },
+      lecturesAi: { summary: null, hasTranscript: true },
       associatedItems: [],
+      ...ids,
     })
 
-    expect(tabs.transcriptSegments).toEqual([
-      { id: 1, start: 0, end: 4.5, text: 'Hello there' },
-      { id: 2, start: 4.5, end: 9, text: 'Welcome to class' },
-    ])
-    expect(tabs.transcript).toBe('Hello there\n\nWelcome to class')
-  })
-
-  it('parses transcript segments whose start/end are stored as numeric strings', () => {
-    const tabs = buildLectureTabContent({
-      notes: null,
-      lecturesAi: {
-        summary: null,
-        transcript: null,
-        transcriptSegments: JSON.stringify([
-          { id: 0, start: '0.0', end: '0.5', text: 'Yeah.' },
-          {
-            id: 1,
-            start: '0.5',
-            end: '2.84',
-            text: 'So today we will talk about the Q data structure.',
-          },
-        ]),
-      },
-      associatedItems: [],
+    expect(tabs.transcript).toEqual({
+      available: true,
+      url: '/api/cache/transcript/12/34/7',
     })
-
-    expect(tabs.transcriptSegments).toEqual([
-      { id: 0, start: 0, end: 0.5, text: 'Yeah.' },
-      {
-        id: 1,
-        start: 0.5,
-        end: 2.84,
-        text: 'So today we will talk about the Q data structure.',
-      },
-    ])
+    expect(JSON.stringify(tabs)).not.toContain('segments')
   })
+})
+
+describe('buildLectureTranscriptSource', () => {
+  it('points at the cache endpoint when a transcript exists', () => {
+    expect(
+      buildLectureTranscriptSource({ hasTranscript: true, ...ids }),
+    ).toEqual({ available: true, url: '/api/cache/transcript/12/34/7' })
+  })
+
+  it('reports unavailable when there is no transcript', () => {
+    expect(
+      buildLectureTranscriptSource({ hasTranscript: false, ...ids }),
+    ).toEqual({ available: false, url: null })
+  })
+
+  it.each([
+    ['batch', { batchId: null, sectionId: 34 }],
+    ['section', { batchId: 12, sectionId: null }],
+  ])(
+    'reports unavailable when the lecture has no %s — it cannot be addressed on the cache path',
+    (_label, scope) => {
+      expect(
+        buildLectureTranscriptSource({
+          hasTranscript: true,
+          lectureId: 7,
+          ...scope,
+        }),
+      ).toEqual({ available: false, url: null })
+    },
+  )
 })

@@ -1127,6 +1127,26 @@ Resources:
               - HEAD
             Compress: true
 
+          # Cache behavior 2: /api/cache/* -> ALB, cached at the edge.
+          # These endpoints are deliberately public and cookie-free: the cache key
+          # is the path alone (CachingOptimized forwards no cookies, headers, or
+          # query strings), so every student shares one cached response. Never
+          # route a user-specific endpoint here. Paths are
+          # /api/cache/<resource>/<batchId>/<sectionId>/<entityId> so a batch or
+          # section can be dropped with a prefix invalidation.
+          # Compress matters most here — lecture transcripts are large text.
+          - PathPattern: /api/cache/*
+            TargetOriginId: ALBOrigin
+            ViewerProtocolPolicy: redirect-to-https
+            CachePolicyId: 658327ea-f89d-4fab-a63d-7e88639e58f6 # Managed-CachingOptimized
+            AllowedMethods:
+              - GET
+              - HEAD
+            CachedMethods:
+              - GET
+              - HEAD
+            Compress: true
+
         # Default behavior: ALB - no cache
         DefaultCacheBehavior:
           TargetOriginId: ALBOrigin
