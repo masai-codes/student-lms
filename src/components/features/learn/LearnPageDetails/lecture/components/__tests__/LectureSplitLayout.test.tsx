@@ -108,4 +108,30 @@ describe('LectureSplitLayout', () => {
     expect(screen.getByText('Page content')).toBeTruthy()
     expect(screen.queryByTestId('lecture-chat-panel')).toBeNull()
   })
+
+  it('locks the document scroll while mounted on the rail viewport, and releases it after', () => {
+    // The lock is what pins the shell to the viewport (so the rail can be
+    // full-height) and stops any gesture scrolling the page into blank space
+    // below the two columns.
+    const { unmount } = renderLayout()
+
+    expect(document.documentElement.hasAttribute('data-viewport-locked')).toBe(
+      true,
+    )
+
+    unmount()
+
+    expect(document.documentElement.hasAttribute('data-viewport-locked')).toBe(
+      false,
+    )
+  })
+
+  it('leaves the document scrolling alone on mobile/tablet', () => {
+    mockDesktopMatchMedia(false)
+    renderLayout()
+
+    expect(document.documentElement.hasAttribute('data-viewport-locked')).toBe(
+      false,
+    )
+  })
 })
