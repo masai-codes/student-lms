@@ -20,6 +20,7 @@ import {
   layoutMainClasses,
   layoutMainClassesFullWidth,
   lectureDetailMainClasses,
+  LAYOUT_APP_SHELL_CLASSES,
 } from '@/lib/layout'
 import { bootstrapLoginWithToken } from '@/server/auth/bootstrapLogin'
 import { fetchCurrentUser } from '@/server/auth/fetchCurrentUser'
@@ -178,7 +179,10 @@ function RouteComponent() {
 
   return (
     <ModalProvider>
-      <div className="min-h-dvh bg-surface-muted flex flex-col">
+      {/* `data-app-shell`: the hook target for the lecture page's viewport lock
+          (styles.css) — that page pins this shell to the viewport so its two
+          columns can scroll independently. */}
+      <div data-app-shell className={LAYOUT_APP_SHELL_CLASSES}>
         <TryNewTour hasSeen={user.hasSeenTryNewTour} />
         <AppNavbar />
         {/* Mobile-only greeting header for the dashboard home; the desktop
