@@ -10,9 +10,10 @@ This also moves the page from the old LMS web app to the new LMS
 (`EXPO_PUBLIC_STUDENTS_NEW_URL`, e.g. `learn.masaischool.com`), matching where
 `/support-page` already lives.
 
-> Scope note: this covers lecture notes/AI summary and assignment
-> description/instructions only. Support chat messages are out of scope and
-> stay on the existing `postMessage` content-push flow.
+> Scope note: this covers lecture notes/AI summary, reading resources
+> (`lectures.type = reading`), and assignment description/instructions only.
+> Support chat messages are out of scope and stay on the existing `postMessage`
+> content-push flow.
 
 ## URL
 
@@ -31,7 +32,7 @@ https://learn.masaischool.com/notes-preview?token=eyJhbGciOi...&category=lecture
 | Param | Type | Required | Values |
 |---|---|---|---|
 | `token` | string | yes | Bootstrap JWT identifying the student — use it to authenticate your own fetch of the entity's content, the same way `/support-page` does today. |
-| `category` | string | yes | `lecture`, `assignment` |
+| `category` | string | yes | `lecture`, `resource`, `assignment` |
 | `contentType` | string | yes | See mapping below — depends on `category` |
 | `entityId` | string \| number | yes | ID of the lecture or assignment, e.g. `157894` |
 
@@ -41,8 +42,13 @@ https://learn.masaischool.com/notes-preview?token=eyJhbGciOi...&category=lecture
 |---|---|---|---|
 | `lecture` | `notes` | Lecture notes | `lecture.notes` |
 | `lecture` | `summary` | Lecture AI summary | `lecture.lectures_ai[0].summary` |
-| `assignment` | `description` | Assignment description | `assignment.description` |
+| `resource` | `notes` | Reading resource body | `resource.body` (`notes` ?? `description`; `lectures.type = reading`) |
+| `resource` | `description` | Alias for resource body | same as `notes` |
+| `assignment` | `description` | Assignment description | `assignment.description` (alias → `instructions`) |
 | `assignment` | `instructions` | Assignment instructions | `assignment.instructions` |
+
+> Reading materials (`type = reading`) must use `category=resource`, not
+> `category=lecture` — the lecture detail path excludes reading rows.
 
 Any other `category`/`contentType` combination, or a missing `entityId`, should
 show an empty/error state — do not crash.
@@ -50,9 +56,11 @@ show an empty/error state — do not crash.
 ## Behavior
 
 1. Read `token`, `category`, `contentType`, `entityId` from the query string on load.
-2. Using `token` for auth, fetch the entity server-side (i.e. from your own API, not from the app):
-   - `category=lecture` → fetch lecture `{entityId}` (e.g. `GET /lectures/{entityId}`), then render the field matching `contentType`
-   - `category=assignment` → fetch assignment `{entityId}` (e.g. `GET /assignments/{entityId}`), then render the field matching `contentType`
+2. Using `token` for auth, call `GET /api/notes-preview` (session cookie after bootstrap). The API selects **only the requested markdown field** (not a full lecture/resource/assignment detail payload), applying the same access guards and text transforms as the learn detail pages:
+   - `category=lecture` + `contentType=notes` → `lectures.notes` (+ Zoom-chat "Resources shared" links)
+   - `category=lecture` + `contentType=summary` → `lectures_ai.summary`
+   - `category=resource` → reading-resource `body` (`notes ?? description`)
+   - `category=assignment` → `assignments.instructions` (`description` is an alias)
 3. Render the returned markdown as HTML in place of what previously came from `postMessage`.
 
 ## Why this matters for load time

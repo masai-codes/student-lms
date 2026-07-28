@@ -1,16 +1,17 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 const hoisted = vi.hoisted(() => ({
-  getLecture: vi.fn(),
-  getAssignment: vi.fn(),
+  fetchLectureNotes: vi.fn(),
+  fetchLectureSummary: vi.fn(),
+  fetchResourceBody: vi.fn(),
+  fetchAssignmentInstructions: vi.fn(),
 }))
 
-vi.mock('@/server/learn/services/getLectureLearningDetail.service', () => ({
-  getLectureLearningDetailForUser: hoisted.getLecture,
-}))
-
-vi.mock('@/server/learn/services/getAssignmentLearningDetail.service', () => ({
-  getAssignmentLearningDetailForUser: hoisted.getAssignment,
+vi.mock('@/server/api/notes-preview/notesPreviewQueries', () => ({
+  fetchLectureNotesForUser: hoisted.fetchLectureNotes,
+  fetchLectureSummaryForUser: hoisted.fetchLectureSummary,
+  fetchResourceBodyForUser: hoisted.fetchResourceBody,
+  fetchAssignmentInstructionsForUser: hoisted.fetchAssignmentInstructions,
 }))
 
 async function importService() {
@@ -23,10 +24,7 @@ describe('getNotesPreviewContent', () => {
   })
 
   it('returns lecture notes for lecture/notes', async () => {
-    hoisted.getLecture.mockResolvedValueOnce({
-      notes: '# Notes body',
-      tabs: { aiSummary: 'summary body' },
-    })
+    hoisted.fetchLectureNotes.mockResolvedValueOnce('# Notes body')
     const { getNotesPreviewContent } = await importService()
 
     const payload = await getNotesPreviewContent({
@@ -42,15 +40,14 @@ describe('getNotesPreviewContent', () => {
       entityId: 157894,
       content: '# Notes body',
     })
-    expect(hoisted.getLecture).toHaveBeenCalledWith(7, 157894)
-    expect(hoisted.getAssignment).not.toHaveBeenCalled()
+    expect(hoisted.fetchLectureNotes).toHaveBeenCalledWith(7, 157894)
+    expect(hoisted.fetchLectureSummary).not.toHaveBeenCalled()
+    expect(hoisted.fetchAssignmentInstructions).not.toHaveBeenCalled()
+    expect(hoisted.fetchResourceBody).not.toHaveBeenCalled()
   })
 
   it('returns the AI summary for lecture/summary', async () => {
-    hoisted.getLecture.mockResolvedValueOnce({
-      notes: 'notes body',
-      tabs: { aiSummary: 'AI summary body' },
-    })
+    hoisted.fetchLectureSummary.mockResolvedValueOnce('AI summary body')
     const { getNotesPreviewContent } = await importService()
 
     const payload = await getNotesPreviewContent({
@@ -61,13 +58,12 @@ describe('getNotesPreviewContent', () => {
     })
 
     expect(payload.content).toBe('AI summary body')
+    expect(hoisted.fetchLectureSummary).toHaveBeenCalledWith(7, 42)
+    expect(hoisted.fetchLectureNotes).not.toHaveBeenCalled()
   })
 
   it('coerces a null lecture field to null content', async () => {
-    hoisted.getLecture.mockResolvedValueOnce({
-      notes: null,
-      tabs: { aiSummary: null },
-    })
+    hoisted.fetchLectureSummary.mockResolvedValueOnce(null)
     const { getNotesPreviewContent } = await importService()
 
     const payload = await getNotesPreviewContent({
@@ -80,10 +76,57 @@ describe('getNotesPreviewContent', () => {
     expect(payload.content).toBeNull()
   })
 
-  it('returns assignment instructions for assignment/instructions', async () => {
-    hoisted.getAssignment.mockResolvedValueOnce({
-      instructions: 'Do the thing',
+  it('returns resource body for resource/notes', async () => {
+    hoisted.fetchResourceBody.mockResolvedValueOnce('# Pre-read body')
+    const { getNotesPreviewContent } = await importService()
+
+    const payload = await getNotesPreviewContent({
+      userId: 7,
+      category: 'resource',
+      contentType: 'notes',
+      entityId: '515',
     })
+
+    expect(payload).toEqual({
+      category: 'resource',
+      contentType: 'notes',
+      entityId: 515,
+      content: '# Pre-read body',
+    })
+    expect(hoisted.fetchResourceBody).toHaveBeenCalledWith(7, 515)
+    expect(hoisted.fetchLectureNotes).not.toHaveBeenCalled()
+  })
+
+  it('treats resource/description as an alias for body', async () => {
+    hoisted.fetchResourceBody.mockResolvedValueOnce('Resource description body')
+    const { getNotesPreviewContent } = await importService()
+
+    const payload = await getNotesPreviewContent({
+      userId: 7,
+      category: 'resource',
+      contentType: 'description',
+      entityId: '515',
+    })
+
+    expect(payload.content).toBe('Resource description body')
+  })
+
+  it('coerces null resource body to null content', async () => {
+    hoisted.fetchResourceBody.mockResolvedValueOnce(null)
+    const { getNotesPreviewContent } = await importService()
+
+    const payload = await getNotesPreviewContent({
+      userId: 7,
+      category: 'resource',
+      contentType: 'notes',
+      entityId: '515',
+    })
+
+    expect(payload.content).toBeNull()
+  })
+
+  it('returns assignment instructions for assignment/instructions', async () => {
+    hoisted.fetchAssignmentInstructions.mockResolvedValueOnce('Do the thing')
     const { getNotesPreviewContent } = await importService()
 
     const payload = await getNotesPreviewContent({
@@ -94,13 +137,13 @@ describe('getNotesPreviewContent', () => {
     })
 
     expect(payload.content).toBe('Do the thing')
-    expect(hoisted.getAssignment).toHaveBeenCalledWith(3, 900)
+    expect(hoisted.fetchAssignmentInstructions).toHaveBeenCalledWith(3, 900)
   })
 
   it('treats assignment/description as an alias for instructions', async () => {
-    hoisted.getAssignment.mockResolvedValueOnce({
-      instructions: 'Instructions text',
-    })
+    hoisted.fetchAssignmentInstructions.mockResolvedValueOnce(
+      'Instructions text',
+    )
     const { getNotesPreviewContent } = await importService()
 
     const payload = await getNotesPreviewContent({
@@ -114,7 +157,7 @@ describe('getNotesPreviewContent', () => {
   })
 
   it('coerces null assignment instructions to null content', async () => {
-    hoisted.getAssignment.mockResolvedValueOnce({ instructions: null })
+    hoisted.fetchAssignmentInstructions.mockResolvedValueOnce(null)
     const { getNotesPreviewContent } = await importService()
 
     const payload = await getNotesPreviewContent({
@@ -143,7 +186,7 @@ describe('getNotesPreviewContent', () => {
       entityId: null,
       content: null,
     })
-    expect(hoisted.getLecture).not.toHaveBeenCalled()
+    expect(hoisted.fetchLectureNotes).not.toHaveBeenCalled()
   })
 
   it('returns null content for a non-positive entityId', async () => {
@@ -171,8 +214,9 @@ describe('getNotesPreviewContent', () => {
     })
 
     expect(payload.content).toBeNull()
-    expect(hoisted.getLecture).not.toHaveBeenCalled()
-    expect(hoisted.getAssignment).not.toHaveBeenCalled()
+    expect(hoisted.fetchLectureNotes).not.toHaveBeenCalled()
+    expect(hoisted.fetchAssignmentInstructions).not.toHaveBeenCalled()
+    expect(hoisted.fetchResourceBody).not.toHaveBeenCalled()
   })
 
   it('returns null content for an unsupported contentType', async () => {
@@ -186,6 +230,20 @@ describe('getNotesPreviewContent', () => {
     })
 
     expect(payload.content).toBeNull()
-    expect(hoisted.getLecture).not.toHaveBeenCalled()
+    expect(hoisted.fetchLectureNotes).not.toHaveBeenCalled()
+  })
+
+  it('returns null content for resource with an unsupported contentType', async () => {
+    const { getNotesPreviewContent } = await importService()
+
+    const payload = await getNotesPreviewContent({
+      userId: 7,
+      category: 'resource',
+      contentType: 'summary',
+      entityId: '515',
+    })
+
+    expect(payload.content).toBeNull()
+    expect(hoisted.fetchResourceBody).not.toHaveBeenCalled()
   })
 })

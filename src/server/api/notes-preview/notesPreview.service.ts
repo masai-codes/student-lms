@@ -1,5 +1,9 @@
-import { getAssignmentLearningDetailForUser } from '@/server/learn/services/getAssignmentLearningDetail.service'
-import { getLectureLearningDetailForUser } from '@/server/learn/services/getLectureLearningDetail.service'
+import {
+  fetchAssignmentInstructionsForUser,
+  fetchLectureNotesForUser,
+  fetchLectureSummaryForUser,
+  fetchResourceBodyForUser,
+} from '@/server/api/notes-preview/notesPreviewQueries'
 
 /**
  * Content-by-ID payload backing the `/notes-preview-v2` WebView. `content` is
@@ -22,9 +26,12 @@ export interface NotesPreviewParams {
 }
 
 // Assignments only carry `instructions`; `description` is accepted as an alias
-// so the app can pass either without breaking.
+// so the app can pass either without breaking. Resources (`lectures.type =
+// reading`) expose a single `body` (notes ?? description); `notes` /
+// `description` both map to that field.
 const LECTURE_CONTENT_TYPES = new Set(['notes', 'summary'])
 const ASSIGNMENT_CONTENT_TYPES = new Set(['instructions', 'description'])
+const RESOURCE_CONTENT_TYPES = new Set(['notes', 'description'])
 
 function parseEntityId(raw: string): number | null {
   const parsed = Number(raw)
@@ -44,15 +51,21 @@ export async function getNotesPreviewContent({
   if (id == null) return { ...base, content: null }
 
   if (category === 'lecture' && LECTURE_CONTENT_TYPES.has(contentType)) {
-    const detail = await getLectureLearningDetailForUser(userId, id)
     const content =
-      contentType === 'summary' ? detail.tabs.aiSummary : detail.notes
-    return { ...base, content: content ?? null }
+      contentType === 'summary'
+        ? await fetchLectureSummaryForUser(userId, id)
+        : await fetchLectureNotesForUser(userId, id)
+    return { ...base, content }
+  }
+
+  if (category === 'resource' && RESOURCE_CONTENT_TYPES.has(contentType)) {
+    const content = await fetchResourceBodyForUser(userId, id)
+    return { ...base, content }
   }
 
   if (category === 'assignment' && ASSIGNMENT_CONTENT_TYPES.has(contentType)) {
-    const detail = await getAssignmentLearningDetailForUser(userId, id)
-    return { ...base, content: detail.instructions ?? null }
+    const content = await fetchAssignmentInstructionsForUser(userId, id)
+    return { ...base, content }
   }
 
   return { ...base, content: null }
