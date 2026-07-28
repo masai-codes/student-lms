@@ -848,38 +848,13 @@ code {
    class, staggerable via `--dash-delay`, and disabled wholesale under
    prefers-reduced-motion. */
 
-/* Sections float up into place on first paint. */
-@keyframes dash-rise {
-  from {
-    opacity: 0;
-    transform: translateY(14px) scale(0.99);
-    filter: blur(3px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-    filter: blur(0);
-  }
-}
-.animate-dash-rise {
-  animation: dash-rise 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
-  animation-delay: var(--dash-delay, 0s);
-}
-
-/* List rows cascade in a touch faster than sections. */
-@keyframes dash-row-in {
-  from {
-    opacity: 0;
-    transform: translateY(8px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
+/* Entrance reveals removed: sections and list rows render immediately.
+   The staggered fade/slide cascade was reported as a distracting flicker,
+   so these classes are now inert no-ops (kept so existing markup needn't
+   change). Hover/press physics (dash-lift) are unaffected. */
+.animate-dash-rise,
 .animate-dash-row-in {
-  animation: dash-row-in 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
-  animation-delay: var(--dash-delay, 0s);
+  animation: none;
 }
 
 /* The greeting hand waves once on load, and again on hover. */

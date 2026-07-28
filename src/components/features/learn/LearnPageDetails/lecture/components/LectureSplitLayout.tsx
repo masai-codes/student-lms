@@ -1,13 +1,13 @@
 'use client'
 
-import { type ReactNode } from 'react'
+import { type ReactNode, useRef } from 'react'
 
 import { LectureChatSidePanel } from './LectureChatSidePanel'
 import { LectureSplitChatProvider } from '../hooks/LectureSplitChatContext'
 import { useChatPanelReveal } from '../hooks/useChatPanelReveal'
 import { useLectureChatWidth } from '../hooks/useLectureChatWidth'
+import { useLectureRailViewport } from '../hooks/useLectureRailViewport'
 import { useLectureSplitChatOpen } from '../hooks/useLectureSplitChatOpen'
-import { useLectureSplitRowHeight } from '../hooks/useLectureSplitRowHeight'
 import { useLectureVideoFullscreenActive } from '../video/hooks/useLectureVideoFullscreen'
 import { useLectureAiChat } from '@/components/features/lecture-ai-chat/hooks/useLectureAiChat'
 import { useLectureAiChatFeedback } from '@/components/features/lecture-ai-chat/hooks/useLectureAiChatFeedback'
@@ -39,7 +39,8 @@ export function LectureSplitLayout({
 }: LectureSplitLayoutProps) {
   const splitChat = useLectureSplitChatOpen()
   const isVideoFullscreen = useLectureVideoFullscreenActive()
-  const { rowRef, heightPx, isDesktop } = useLectureSplitRowHeight()
+  const rowRef = useRef<HTMLDivElement>(null)
+  const isDesktop = useLectureRailViewport()
   const { width, isDragging, startResize, nudge } = useLectureChatWidth(rowRef)
   const { isRendered, isOpenAnim } = useChatPanelReveal(
     isDesktop && splitChat.isOpen && !isVideoFullscreen,
@@ -57,13 +58,21 @@ export function LectureSplitLayout({
 
   return (
     <LectureSplitChatProvider value={{ ...splitChat, chat, feedback }}>
+      {/* The row fills the viewport below the sticky navbar purely through the
+          flex chain (`min-h-dvh` shell → `<main>` → route wrapper → here), not a
+          measured pixel height: a JS height goes stale whenever the navbar grows
+          (async banner, wrapping actions), leaving the document taller than the
+          viewport — an extra window scroll into blank space underneath the
+          already-scrollable left column. */}
       <div
         ref={rowRef}
-        className="flex w-full min-h-0 flex-col lg:flex-row lg:overflow-hidden"
-        style={heightPx ? { height: heightPx } : undefined}
+        className="flex w-full min-h-0 flex-col lg:min-h-0 lg:flex-1 lg:flex-row lg:overflow-hidden"
       >
         {/* Left section: the whole page, with its own scroll on laptop/desktop. */}
-        <div className="flex min-h-0 min-w-0 flex-1 flex-col lg:overflow-y-auto">
+        <div
+          data-lecture-scroll-container
+          className="flex min-h-0 min-w-0 flex-1 flex-col lg:overflow-y-auto"
+        >
           {children}
         </div>
 

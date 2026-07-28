@@ -21,6 +21,7 @@ const associatedItem: LearningItem = {
   optionalAttendance: null,
   assignmentProgressStatus: null,
   resourcePhase: null,
+  assignmentWeightage: null,
   listingCtas: {
     joinLive: 'hidden',
     joinZoomLink: null,
