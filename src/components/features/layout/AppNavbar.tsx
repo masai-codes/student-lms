@@ -285,13 +285,6 @@ export default function AppNavbar() {
     [navigate],
   )
 
-  const handleProductUpdatesClick = useCallback(
-    (e: React.MouseEvent<HTMLAnchorElement>) => {
-      e.preventDefault()
-      void navigate({ to: '/whats-new', search: { page: 1 } })
-    },
-    [navigate],
-  )
 
   const handleReferAndEarnClick = useCallback(
     (e: React.MouseEvent<HTMLAnchorElement>) => {
@@ -513,12 +506,10 @@ export default function AppNavbar() {
         icon: <Sparkles className="size-4" />,
         href: '/whats-new',
         openInNewTab: false,
-        onClick: handleProductUpdatesClick,
       },
       {
         id: 'sign-out',
         label: 'Sign out',
-        href: '#',
         icon: <LogOutIcon className="size-4" />,
         onClick: (e) => {
           void handleSignOut(e)
@@ -528,7 +519,6 @@ export default function AppNavbar() {
     [
       activeNavId,
       handleLevelupClick,
-      handleProductUpdatesClick,
       handleReferAndEarnClick,
       handleSignOut,
       isIHub,
