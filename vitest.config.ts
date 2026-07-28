@@ -17,5 +17,6 @@ export default defineConfig({
     env: {
       TZ: 'Asia/Kolkata',
     },
+    dir:"src"
   },
 })

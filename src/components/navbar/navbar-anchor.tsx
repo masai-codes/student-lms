@@ -6,14 +6,15 @@ export type NavbarAnchorProps = Omit<
   React.AnchorHTMLAttributes<HTMLAnchorElement>,
   'href'
 > & {
-  href: string
+  href?: string
   openInNewTab?: boolean
 }
 
-function resolveOpenInNewTab(href: string, openInNewTab?: boolean) {
+function resolveOpenInNewTab(href?: string, openInNewTab?: boolean) {
   if (typeof openInNewTab === 'boolean') {
     return openInNewTab
   }
+  if (!href) return false;
 
   return /^https?:\/\//i.test(href)
 }
