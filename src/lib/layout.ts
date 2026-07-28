@@ -31,7 +31,8 @@ export const lectureDetailRouteClasses =
  * in `styles.css`, which keys off `data-app-shell` here plus
  * `data-viewport-locked` on `<html>`; see `useViewportScrollLock`.
  */
-export const LAYOUT_APP_SHELL_CLASSES = 'min-h-dvh bg-surface-muted flex flex-col'
+export const LAYOUT_APP_SHELL_CLASSES =
+  'min-h-dvh bg-surface-muted flex flex-col'
 
 /**
  * `<main>` shell for the lecture detail route: full viewport width, no

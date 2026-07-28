@@ -1090,7 +1090,13 @@ code {
     overflow: hidden;
   }
 
+  /* `position: relative` so an absolutely-positioned body-level child (a portal
+     that isn't `fixed`) is clipped by the body box instead of resolving against
+     the initial containing block, where it would still stretch the document's
+     scrollable height. Body sits at the document origin with no margin, so this
+     changes nothing visually. */
   html[data-viewport-locked] > body {
+    position: relative;
     height: 100%;
     overflow: hidden;
   }
