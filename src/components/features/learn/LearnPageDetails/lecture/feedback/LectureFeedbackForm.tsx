@@ -50,7 +50,7 @@ function ReadOnlyFeedback({
 }) {
   const chosen = ratingFor(rating)
   return (
-    <section className="rounded-xl border border-border bg-surface px-4 py-3">
+    <section className="rounded-xl border border-border bg-surface px-4 py-3 mt-4">
       <h2 className="type-b1-md text-foreground">Your feedback</h2>
       <div
         className="mt-2 flex items-center gap-2"
