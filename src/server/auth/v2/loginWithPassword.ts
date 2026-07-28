@@ -54,6 +54,8 @@ export async function loginWithPassword({
 
   const user = rows[0]
   if (!user) {
+    // Note: the unknown email is recorded in login_attempts by the route
+    // (login/index.ts) on USER_NOT_FOUND, so no extra tracking is needed here.
     throw new LoginError(
       'USER_NOT_FOUND',
       "We couldn't find an account with that email address. Please check it and try again, or sign up.",

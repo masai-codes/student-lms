@@ -19,12 +19,7 @@ import { isMigratedRoute } from '@/utils/migratedRoutes'
  */
 export function TryNewToggle({ initialEnabled }: { initialEnabled: boolean }) {
   const router = useRouter()
-  const { pathname, search } = useRouterState({
-    select: (s) => ({
-      pathname: s.location.pathname,
-      search: s.location.searchStr,
-    }),
-  })
+  const pathname = useRouterState({ select: (s) => s.location.pathname })
   const [enabled, setEnabled] = useState(initialEnabled)
   const [feedbackOpen, setFeedbackOpen] = useState(false)
   const [feedback, setFeedback] = useState('')
@@ -41,9 +36,10 @@ export function TryNewToggle({ initialEnabled }: { initialEnabled: boolean }) {
       setEnabled(value)
       setFeedbackOpen(false)
       setFeedback('')
-      // Turned OFF on a migrated page → the old LMS now owns it: hand off now.
+      // Turned OFF on a migrated page → the old LMS now owns it: hand off to the
+      // same path (no search — the old LMS regenerates its own query params).
       if (!value && isMigratedRoute(pathname)) {
-        const oldUiUrl = getOldStudentUiUrlForPath(`${pathname}${search}`)
+        const oldUiUrl = getOldStudentUiUrlForPath(pathname)
         if (oldUiUrl) {
           window.location.assign(oldUiUrl)
           return
@@ -90,7 +86,7 @@ export function TryNewToggle({ initialEnabled }: { initialEnabled: boolean }) {
         title={label}
         disabled={isPending}
         onClick={handleClick}
-        className="inline-flex items-center gap-1.5 rounded-full border border-brand/30 bg-brand-subtle px-3 py-1.5 text-sm font-semibold text-brand-subtle-foreground transition-colors hover:bg-brand/10 disabled:opacity-60"
+        className="inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full border border-brand/30 bg-brand-subtle px-3 py-1.5 text-sm font-semibold text-brand-subtle-foreground transition-colors hover:bg-brand/10 disabled:opacity-60"
       >
         <Sparkles className="size-4" aria-hidden />
         <span>{label}</span>

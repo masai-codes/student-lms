@@ -9,6 +9,13 @@ type SeekablePlayer = {
   getDuration?: () => number | null
 }
 
+/**
+ * A resume target this close to the end of the video is treated as "finished":
+ * resuming there would make the first play instantly fire `ended` and stop, so
+ * the video restarts from the beginning instead (YouTube behavior).
+ */
+export const RESUME_END_GUARD_SECONDS = 5
+
 export function seekPlayerToSeconds(
   videoRef: MutableRefObject<LectureChromePlayerRef>,
   seconds: number,
@@ -54,6 +61,20 @@ export function applyResumeIfNeeded(params: {
     const duration =
       typeof player.getDuration === 'function' ? player.getDuration() : null
     if (!duration) return
+  }
+
+  // Fully-watched guard (players whose duration is only known client-side):
+  // never seek into the last few seconds — latch the resume as applied and
+  // leave the video at the start.
+  const knownDuration =
+    typeof player.getDuration === 'function' ? player.getDuration() : null
+  if (
+    typeof knownDuration === 'number' &&
+    knownDuration > 0 &&
+    resumeSeconds >= knownDuration - RESUME_END_GUARD_SECONDS
+  ) {
+    resumeAppliedRef.current = true
+    return
   }
 
   const currentTime =

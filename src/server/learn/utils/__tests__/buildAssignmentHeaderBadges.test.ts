@@ -45,14 +45,14 @@ describe('buildAssignmentHeaderBadges', () => {
     expect(badges).toEqual([{ kind: 'weightage', label: '25% Weightage' }])
   })
 
-  it('omits weightage for non-evaluation assignments', () => {
+  it('includes weightage for non-evaluation assignments that have one set', () => {
     expect(
       buildAssignmentHeaderBadges({
         assignmentKind: 'practice',
         enforceDeadline: false,
         settings: { weightagePercentage: 40 },
       }),
-    ).toEqual([])
+    ).toEqual([{ kind: 'weightage', label: '40% Weightage' }])
   })
 
   it('omits weightage when the percentage is zero, negative, or invalid', () => {

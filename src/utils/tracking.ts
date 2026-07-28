@@ -1,5 +1,5 @@
 let currentUser: { id?: number } | null = null
-const CLARITY_PROJECT_ID = 'tes8x8flik'
+const CLARITY_PROJECT_ID = 'xpb03nelcs'
 
 function isBrowser() {
   return typeof window !== 'undefined'

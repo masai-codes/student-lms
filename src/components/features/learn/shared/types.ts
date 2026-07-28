@@ -39,6 +39,8 @@ export interface LearnContentItem {
   assignmentDeadlineLabel?: string | null
   /** Released score (clamped to 10) to show as a card badge; null unless `showScores` is on and the score is released. */
   assignmentScore?: number | null
+  /** `assignments.settings.weightagePercentage`; rendered as a chip beside the tags. */
+  assignmentWeightage?: number | null
 }
 
 export interface LearnFilterValues {
