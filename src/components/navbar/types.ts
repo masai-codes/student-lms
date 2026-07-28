@@ -103,4 +103,11 @@ export type NavbarProps = {
   /** Optional content rendered in the trailing action row, before the theme switcher. */
   actionsSlot?: ReactNode
   className?: string
+  /**
+   * Force the navbar to render in dark mode regardless of the active theme.
+   * Stamps the `midnight` dark-theme token block + `.dark` onto the navbar's
+   * own `<header>`, so only this subtree flips dark (the rest of the page keeps
+   * the user's theme). Used on immersive pages like lecture detail.
+   */
+  forceDark?: boolean
 }

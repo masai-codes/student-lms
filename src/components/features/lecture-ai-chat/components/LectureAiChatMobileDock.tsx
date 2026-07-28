@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { Drawer } from 'vaul'
 
 import { LectureAiChatComposer } from './LectureAiChatComposer'
@@ -13,6 +13,9 @@ type LectureAiChatMobileDockProps = {
   chat: UseLectureAiChatResult
   lectureId: number
   feedback: UseLectureAiChatFeedbackResult
+  /** Controlled drawer open state (shared with the player's "Ask AI" pill). */
+  open: boolean
+  onOpenChange: (open: boolean) => void
 }
 
 /**
@@ -39,14 +42,41 @@ export function LectureAiChatMobileDock({
   chat,
   lectureId,
   feedback,
+  open: isOpen,
+  onOpenChange: setIsOpen,
 }: LectureAiChatMobileDockProps) {
-  const [isOpen, setIsOpen] = useState(false)
   // The drawer content node, captured once mounted, so the composer's language
   // menu can portal *inside* the drawer instead of to <body>. Kept in state (not
   // a ref) so the picker re-renders with the real container once it's available.
   const [drawerContentEl, setDrawerContentEl] = useState<HTMLDivElement | null>(
     null,
   )
+
+  // True while the composer's language menu is open. The drawer and the menu
+  // are independent dismissable layers (vaul's dialog vs. Radix's menu) that
+  // don't reliably coordinate, so an outside tap can dismiss both at once.
+  // We block the drawer's own dismissal whenever the menu is open, so the
+  // first outside tap closes only the menu. A ref (read synchronously inside
+  // the dismiss handlers) avoids a re-render race with the closing tap, and we
+  // release the guard on the next tick so that same tap can't also close the
+  // drawer.
+  const isLanguageMenuOpenRef = useRef(false)
+
+  const handleLanguageMenuOpenChange = (open: boolean) => {
+    if (open) {
+      isLanguageMenuOpenRef.current = true
+      return
+    }
+    setTimeout(() => {
+      isLanguageMenuOpenRef.current = false
+    }, 0)
+  }
+
+  const guardDismiss = (event: { preventDefault: () => void }) => {
+    if (isLanguageMenuOpenRef.current) {
+      event.preventDefault()
+    }
+  }
 
   const handleSend = () => {
     if (chat.input.trim().length === 0) return
@@ -106,28 +136,13 @@ export function LectureAiChatMobileDock({
           <Drawer.Content
             ref={setDrawerContentEl}
             className="fixed inset-x-0 bottom-0 z-[220] flex h-[90dvh] flex-col rounded-t-2xl border-t border-border bg-background outline-none"
-            // The composer's language DropdownMenu now portals *into* this drawer
-            // (via `languageMenuContainer` below), so picking a language is no
-            // longer an "outside" tap. These guards remain as a fallback for the
-            // brief window before `drawerContentEl` is captured, when the menu
-            // could still portal to <body>: a tap inside any Radix popper must
-            // not dismiss the drawer.
-            onPointerDownOutside={(event) => {
-              if (
-                event.target instanceof Element &&
-                event.target.closest('[data-radix-popper-content-wrapper]')
-              ) {
-                event.preventDefault()
-              }
-            }}
-            onInteractOutside={(event) => {
-              if (
-                event.target instanceof Element &&
-                event.target.closest('[data-radix-popper-content-wrapper]')
-              ) {
-                event.preventDefault()
-              }
-            }}
+            // While the language menu is open, the first outside tap should
+            // close only the menu — never the drawer. vaul and Radix don't
+            // coordinate their dismissable layers here, so we gate every
+            // drawer-dismiss path on `isLanguageMenuOpenRef` (see above).
+            onPointerDownOutside={guardDismiss}
+            onInteractOutside={guardDismiss}
+            onEscapeKeyDown={guardDismiss}
           >
             <div className="flex shrink-0 cursor-grab justify-center pt-2.5 active:cursor-grabbing">
               <Drawer.Handle className="!h-1 !w-10 !bg-border" />
@@ -141,6 +156,7 @@ export function LectureAiChatMobileDock({
               autoFocusComposer
               containScroll
               languageMenuContainer={drawerContentEl}
+              onLanguageMenuOpenChange={handleLanguageMenuOpenChange}
             />
           </Drawer.Content>
         </Drawer.Portal>

@@ -1,20 +1,13 @@
-/** Open chat sidebar width (% of hero row on desktop). */
-export const LECTURE_SPLIT_CHAT_OPEN_WIDTH_PERCENT = 35
+/**
+ * Shared layout constants for the lecture AI "Ask" chat. The chat renders as a
+ * resizable side panel (see `LectureChatSidePanel`); the panel width lives in
+ * `useLectureChatWidth`. The open state is intentionally not persisted — the
+ * chat always auto-opens on reload (see `useLectureSplitChatOpen`) to keep
+ * reminding returning users it exists.
+ */
 
 /**
- * Min/max sidebar width (px) when open — keeps chat readable without shrinking
- * video too much. The min stays low enough that on a 768px tablet (where the
- * split first activates) the video keeps a usable width beside the chat.
+ * At/above this width the AI chat is a resizable right-side rail (laptop /
+ * desktop). Below it — mobile and tablet — the chat opens as a bottom drawer.
  */
-export const LECTURE_SPLIT_CHAT_MIN_WIDTH_PX = 320
-export const LECTURE_SPLIT_CHAT_MAX_WIDTH_PX = 520
-
-/** Open AI chat panel by default in the desktop sidebar. */
-export const LECTURE_SPLIT_CHAT_OPEN_BY_DEFAULT = false
-
-/** Persists whether the user left the desktop chat sidebar open. */
-export const LECTURE_SPLIT_CHAT_STORAGE_KEY = 'lecture-split-chat-open'
-
-export function getLectureSplitChatOpenWidthCss(): string {
-  return `clamp(${LECTURE_SPLIT_CHAT_MIN_WIDTH_PX}px, ${LECTURE_SPLIT_CHAT_OPEN_WIDTH_PERCENT}%, ${LECTURE_SPLIT_CHAT_MAX_WIDTH_PX}px)`
-}
+export const LECTURE_RAIL_MEDIA_QUERY = '(min-width: 1024px)'

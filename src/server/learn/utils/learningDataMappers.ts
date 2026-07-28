@@ -8,6 +8,7 @@ import type {
   LearningType,
 } from '@/server/learn/types'
 import { resolveLectureLearningType } from '@/server/learn/utils/resolveLectureLearningType'
+import { resolveAssignmentWeightage } from '@/server/learn/utils/resolveAssignmentWeightage'
 
 export interface LearningEntityRow {
   id: number
@@ -27,6 +28,8 @@ export interface LearningEntityRow {
   isNewZoomRedirection?: number | null
   /** `sections.settings` JSON; read for `enableZoomWebView` on live join CTAs. */
   sectionSettings?: unknown
+  /** `assignments.settings` JSON; read for `weightagePercentage` on cards. */
+  settings?: unknown
 }
 
 export function toLearningPriority(optional: number | null): LearningPriority {
@@ -81,6 +84,10 @@ export function mapLearningEntityRow(
       learningType === 'lecture' && isRecommended ? attendance : null,
     assignmentProgressStatus:
       learningType === 'assignment' ? assignmentProgressStatus : null,
+    assignmentWeightage:
+      learningType === 'assignment'
+        ? resolveAssignmentWeightage(row.settings)
+        : null,
     resourcePhase: learningType === 'resource' ? resourcePhase : null,
     listingCtas,
   }

@@ -18,12 +18,20 @@ type LearnDetailDefaultActionsProps = {
   bookmark?: LearnDetailBookmarkControls
   /** Page context category that scopes the Raise Ticket subcategory list. */
   ticketCategory?: string
+  /**
+   * Id of the lecture / assignment / resource this header belongs to. Recorded
+   * on any ticket raised from here as `data.entity_ID`, matching the legacy
+   * `createTicketV2` payload — without it ops can't tell which entity the
+   * student was on.
+   */
+  ticketEntityId?: number | null
 }
 
 /** Default CTAs for lecture / assignment / resource detail headers. */
 export function LearnDetailDefaultActions({
   bookmark,
   ticketCategory,
+  ticketEntityId,
 }: LearnDetailDefaultActionsProps = {}) {
   const [drawerOpen, setDrawerOpen] = useState(false)
 
@@ -38,6 +46,7 @@ export function LearnDetailDefaultActions({
         onClick={() => {
           pushLearnEvent('l_learn_raise_ticket_open', {
             category: ticketCategory,
+            entityId: ticketEntityId,
           })
           setDrawerOpen(true)
         }}
@@ -70,6 +79,7 @@ export function LearnDetailDefaultActions({
         open={drawerOpen}
         onOpenChange={setDrawerOpen}
         contextCategory={ticketCategory}
+        contextEntityId={ticketEntityId}
       />
     </>
   )

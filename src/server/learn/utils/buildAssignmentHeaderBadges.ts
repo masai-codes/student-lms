@@ -1,4 +1,8 @@
 import type { AssignmentKind } from '@/server/learn/assignmentDetailTypes'
+import {
+  formatAssignmentWeightageLabel,
+  resolveAssignmentWeightage,
+} from '@/server/learn/utils/resolveAssignmentWeightage'
 
 /** Distinct header badges shown next to the assignment meta row. */
 export type AssignmentHeaderBadge = {
@@ -12,19 +16,6 @@ export type AssignmentHeaderBadgesInput = {
   settings: Record<string, unknown> | null
 }
 
-function readWeightagePercentage(
-  settings: Record<string, unknown> | null,
-): number | null {
-  const raw = settings?.['weightagePercentage']
-  const value =
-    typeof raw === 'number'
-      ? raw
-      : typeof raw === 'string'
-        ? Number(raw)
-        : Number.NaN
-  return Number.isFinite(value) && value > 0 ? value : null
-}
-
 export function buildAssignmentHeaderBadges(
   input: AssignmentHeaderBadgesInput,
 ): Array<AssignmentHeaderBadge> {
@@ -34,12 +25,14 @@ export function buildAssignmentHeaderBadges(
     badges.push({ kind: 'deadline-enforced', label: 'Deadline Enforced' })
   }
 
-  // Weightage only applies to graded evaluation assignments.
-  if (input.assignmentKind === 'evaluation') {
-    const weightage = readWeightagePercentage(input.settings)
-    if (weightage != null) {
-      badges.push({ kind: 'weightage', label: `${weightage}% Weightage` })
-    }
+  // Weightage shows for any assignment type that has one configured — it is set
+  // per assignment in the old LMS, not implied by the type.
+  const weightage = resolveAssignmentWeightage(input.settings)
+  if (weightage != null) {
+    badges.push({
+      kind: 'weightage',
+      label: formatAssignmentWeightageLabel(weightage),
+    })
   }
 
   return badges

@@ -33,13 +33,39 @@ type RaiseTicketDrawerProps = {
   onOpenChange: (open: boolean) => void
   /** Page context category (e.g. "lecture") — scopes the subcategory list. */
   contextCategory?: string
+  /**
+   * Id of the lecture / assignment / resource the drawer was opened from.
+   * Stored on the ticket as `data.entity_ID` (legacy parity) so ops know which
+   * entity the student was looking at.
+   */
+  contextEntityId?: number | null
 }
 
 export function RaiseTicketDrawer({
   open,
   onOpenChange,
   contextCategory,
+  contextEntityId,
 }: RaiseTicketDrawerProps) {
+  // Safety net for a Radix Dialog scroll-lock leak. While the Sheet is open,
+  // Radix locks page scroll via react-remove-scroll (which sets the
+  // `data-scroll-locked` attribute on <body>, backed by a
+  // `body[data-scroll-locked] { overflow: hidden !important }` style rule, and
+  // may also touch inline body styles). On teardown this is meant to be undone,
+  // but it occasionally desyncs, leaving the underlying lecture page unable to
+  // scroll after the drawer closes. Once closed, restore scroll explicitly.
+  // No-op whenever Radix's own cleanup already succeeded.
+  useEffect(() => {
+    if (open) return
+    const timer = window.setTimeout(() => {
+      document.body.removeAttribute('data-scroll-locked')
+      document.body.style.removeProperty('overflow')
+      document.body.style.removeProperty('padding-right')
+      document.documentElement.style.removeProperty('overflow')
+    }, 400)
+    return () => window.clearTimeout(timer)
+  }, [open])
+
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent
@@ -54,6 +80,7 @@ export function RaiseTicketDrawer({
         {open && (
           <RaiseTicketDrawerBody
             contextCategory={contextCategory}
+            contextEntityId={contextEntityId}
             onClose={() => onOpenChange(false)}
           />
         )}
@@ -64,9 +91,11 @@ export function RaiseTicketDrawer({
 
 function RaiseTicketDrawerBody({
   contextCategory,
+  contextEntityId,
   onClose,
 }: {
   contextCategory?: string
+  contextEntityId?: number | null
   onClose: () => void
 }) {
   const [step, setStep] = useState<Step>('issue')
@@ -188,6 +217,7 @@ function RaiseTicketDrawerBody({
             batchId={effectiveBatchId}
             category={category}
             subcategory={subcategory}
+            entityId={contextEntityId}
             onBack={resetIssue}
           />
         )}
