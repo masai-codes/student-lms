@@ -10,11 +10,12 @@ import type { EmailPortal } from '@/server/auth/v2/isRequestFromIHub'
  * batches on the iHub site vs the Masai site, so a portal-blind key would leak
  * batches across portals.
  *
- * Staleness: enrolment (section_user) is written by experience-api, not here, so
- * student-lms can't invalidate on the write itself — the 1h TTL bounds how long
- * a just-enrolled / just-cancelled batch can be wrong. `invalidatePortalEnrollmentCache`
- * exists so a future student-lms write path (or an internal invalidation
- * endpoint experience-api calls) can clear it immediately.
+ * Staleness: the admissions webhooks in this app (create / cancel enrolment and
+ * the batch paid / transfer / pause / unpause events) call
+ * {@link invalidatePortalEnrollmentCache} right after their transaction commits,
+ * so those writes take effect on the student's next request. Enrolment written
+ * by experience-api directly is NOT visible to us, so the 1h TTL remains the
+ * backstop for it.
  */
 
 export const ENROLLMENT_CACHE_TTL_SECONDS = 60 * 60 // 1 hour, matches experience-api

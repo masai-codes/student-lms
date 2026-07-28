@@ -297,6 +297,13 @@ Last updated: 2026-07-09
 - Test files: `src/server/api/ai-tutor/__tests__/{ragPlatform,lectureRagContent.service,ingestLectureRag.service,ingestLectureRag.handler,generateLectureNotesTocFromMarkdown,lectureNotesTocData}.test.ts`
 - Notes: `GET /api/ai-tutor/lectures/:lectureId/ingest` is protected by `x-ai-tutor-rag-ingest-secret`. For notes above 10,000 characters it generates a Claude TOC, stores `lectures.data.notesRagged = true` and `lectures.data.aiTutorNotesToc`, and enqueues RAG ingestion. For shorter notes it stores `lectures.data.notesRagged = false` and skips TOC/RAG.
 
+## Admissions webhooks (create / cancel enrolment + batch events)
+
+- Area: `POST /api/webhooks/admissions/{create-enrolment,cancel-enrolment,events}` (`src/server/api/webhooks/admissions/**`). Each service runs its writes in one transaction, then invalidates the student's cached enrolment sets (`invalidatePortalEnrollmentCache` → `enrolledBatchIds:{userId}:{portal}` / `enrolledSectionIds:{userId}:{portal}`) so pause/unpause/cancel/enrol take effect on the next request instead of after the 1h Redis TTL.
+- Status: Covered (all three services incl. cache invalidation + skip-on-failure, per-event appliers, handlers, schemas, batch_user lookup, section validation)
+- Test files: `src/server/api/webhooks/admissions/__tests__/{createEnrolment.service,cancelEnrolment.service,events.service,createEnrolment.schema,cancelEnrolment.schema,events.schema}.test.ts`, `src/server/api/webhooks/admissions/steps/__tests__/{applyTransferEvent,applyAdmissionDataEvent,findBatchUserByEnrolmentId,resolveValidSections}.test.ts`, `src/server/api/webhooks/admissions/handlers/__tests__/*.test.ts`
+- Notes: See `docs/testing/features/admissions-webhooks.md`
+
 ## Status Meaning
 
 - `Covered`: key behavior and edge paths are fully tested for current scope.

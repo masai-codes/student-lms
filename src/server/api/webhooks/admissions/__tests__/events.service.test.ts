@@ -17,6 +17,7 @@ const appendBatchUserPayloadHistory = vi.hoisted(() => vi.fn())
 const applyBatchTransfer = vi.hoisted(() => vi.fn())
 const pauseBatchUser = vi.hoisted(() => vi.fn())
 const unpauseBatchUser = vi.hoisted(() => vi.fn())
+const invalidatePortalEnrollmentCache = vi.hoisted(() => vi.fn())
 
 // db.transaction just runs the callback with a fake tx.
 vi.mock('@/db', () => ({
@@ -45,6 +46,9 @@ vi.mock('@/server/api/webhooks/admissions/steps/pauseBatchUser', () => ({
 }))
 vi.mock('@/server/api/webhooks/admissions/steps/unpauseBatchUser', () => ({
   unpauseBatchUser,
+}))
+vi.mock('@/server/batches/portalEnrollmentCache', () => ({
+  invalidatePortalEnrollmentCache,
 }))
 
 function event(type: string, data: Record<string, unknown> = {}) {
@@ -162,6 +166,31 @@ describe('processAdmissionEvent', () => {
       event('lms.batch.pause', { lms_batch_user_id: 456 }),
     )
     expect(findBatchUserByEnrolmentId).toHaveBeenCalledWith(FAKE_TX, 123, 456)
+  })
+
+  it.each([
+    'lms.batch.paid',
+    'lms.batch.pause',
+    'lms.batch.unpause',
+    'lms.invoice.generated',
+    'lms.fee.deadline.updated',
+  ])('%s → clears the cached enrolment sets for the student', async (type) => {
+    await processAdmissionEvent(
+      event(type, {
+        full_fees_paid_invoice: 'https://cdn/inv.pdf',
+        course_fee_deadline: '2026-09-01 00:00:00',
+      }),
+    )
+    expect(invalidatePortalEnrollmentCache).toHaveBeenCalledWith(7)
+  })
+
+  it('does not clear the cache when the event fails', async () => {
+    findBatchUserByEnrolmentId.mockRejectedValue(new Error('not found'))
+
+    await expect(
+      processAdmissionEvent(event('lms.batch.pause')),
+    ).rejects.toThrow('not found')
+    expect(invalidatePortalEnrollmentCache).not.toHaveBeenCalled()
   })
 
   it('dumps the whole envelope as the stored payload', async () => {

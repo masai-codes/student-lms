@@ -5,6 +5,7 @@ import type { CancelEnrolmentResult } from '@/server/api/webhooks/admissions/typ
 import { cancelBatchUser } from '@/server/api/webhooks/admissions/steps/cancelBatchUser'
 import { cancelSectionUsers } from '@/server/api/webhooks/admissions/steps/cancelSectionUsers'
 import { findBatchUserByEnrolmentId } from '@/server/api/webhooks/admissions/steps/findBatchUserByEnrolmentId'
+import { invalidatePortalEnrollmentCache } from '@/server/batches/portalEnrollmentCache'
 
 const FN = 'cancelEnrolmentFromAdmissions'
 
@@ -17,7 +18,9 @@ const FN = 'cancelEnrolmentFromAdmissions'
  *
  * All writes run in one transaction. Mirrors create-enrolment: a subsequent
  * create-enrolment revives the batch_user and only the section_users whose ids
- * are in that payload, leaving the rest cancelled.
+ * are in that payload, leaving the rest cancelled. Once the transaction commits
+ * the student's cached enrolment sets are dropped, so the cancelled batch stops
+ * being served from cache immediately rather than after the 1h TTL.
  */
 export async function cancelEnrolmentFromAdmissions(
   input: CancelEnrolmentInput,
@@ -28,7 +31,7 @@ export async function cancelEnrolmentFromAdmissions(
     enrolmentId: input.enrolment_id,
   })
 
-  return db.transaction(async (tx) => {
+  const result = await db.transaction(async (tx) => {
     const batchUserRow = await findBatchUserByEnrolmentId(
       tx,
       input.enrolment_id,
@@ -46,14 +49,6 @@ export async function cancelEnrolmentFromAdmissions(
       batchId: batchUserRow.batchId,
     })
 
-    logger.info({
-      msg: 'Enrolment cancelled successfully',
-      fn: FN,
-      enrolmentId: input.enrolment_id,
-      batchUserId: batchUserRow.id,
-      cancelledSectionCount: cancelledSectionUserIds.length,
-    })
-
     return {
       batchUserId: batchUserRow.id,
       userId: batchUserRow.userId,
@@ -61,4 +56,18 @@ export async function cancelEnrolmentFromAdmissions(
       cancelledSectionUserIds,
     }
   })
+
+  // Post-commit: the cached batch/section sets still contain the cancelled
+  // batch, so drop them for this user. Never throws.
+  await invalidatePortalEnrollmentCache(result.userId)
+
+  logger.info({
+    msg: 'Enrolment cancelled successfully',
+    fn: FN,
+    enrolmentId: input.enrolment_id,
+    batchUserId: result.batchUserId,
+    cancelledSectionCount: result.cancelledSectionUserIds.length,
+  })
+
+  return result
 }

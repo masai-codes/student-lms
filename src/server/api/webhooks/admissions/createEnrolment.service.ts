@@ -13,6 +13,7 @@ import { reviveOrCreateSectionUsers } from '@/server/api/webhooks/admissions/ste
 import { upsertAdmissionData } from '@/server/api/webhooks/admissions/steps/upsertAdmissionData'
 import { redactEnrolmentPayload } from '@/server/api/webhooks/admissions/utils/redactPayload'
 import { resolveClient } from '@/server/api/webhooks/admissions/utils/resolveClient'
+import { invalidatePortalEnrollmentCache } from '@/server/batches/portalEnrollmentCache'
 
 const FN = 'createEnrolmentFromAdmissions'
 
@@ -28,7 +29,9 @@ const FN = 'createEnrolmentFromAdmissions'
  *   6. (new-user-journey only) record admission data
  *
  * Steps 3–6 run inside a single transaction so a partial enrolment can never
- * persist. Returns the batch_user id plus any sections that were skipped.
+ * persist. Once it commits, the student's cached enrolment sets are dropped so
+ * the new batch/sections show up on their next request instead of after the 1h
+ * TTL. Returns the batch_user id plus any sections that were skipped.
  */
 export async function createEnrolmentFromAdmissions(
   input: CreateEnrolmentInput,
@@ -79,6 +82,10 @@ export async function createEnrolmentFromAdmissions(
     }
     return { userId: resolvedUserId, batchUserId: createdBatchUserId }
   })
+
+  // Post-commit: `getBatchIdsForEnrolledUser` / `getSectionIdsForUser` cache the
+  // pre-enrolment sets for an hour, so drop them now. Never throws.
+  await invalidatePortalEnrollmentCache(userId)
 
   logger.info({
     msg: 'Enrolment processed successfully',
