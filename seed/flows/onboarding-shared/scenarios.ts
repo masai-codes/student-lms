@@ -62,6 +62,23 @@ export const ONBOARDING_SCENARIOS: Record<
     },
   },
   /**
+   * Same as `onboarding-fees-unpaid`, but download-app is pre-completed via a
+   * seeded `user_device_tokens` row. After videos + profile photo, all LMS
+   * Walkthrough steps are done and the onboarding reminder banner disappears.
+   */
+  'onboarding-fees-unpaid-with-app-download': {
+    includeAdmission: true,
+    userMeta: { showWelcomeModal: true },
+    videoAttendances: 'none',
+    deviceToken: true,
+    admission: {
+      lmsAccessDate: now(),
+      courseFeeDeadline: inDays(7),
+      fullFeesPaid: 0,
+      paymentUrl: ONBOARDING_PAYMENT_URL,
+    },
+  },
+  /**
    * Program Onboarding test bed (program tab unlocked): agreement pending,
    * Upload Documents + Student Kit both visible-but-incomplete via a
    * simulated onward `/lms/student-status` response — see

@@ -42,3 +42,5 @@ Area: layered test-data seeding (`seed/factories`, `seed/flows`, `seed/registry`
 - `onboarding-fees-unpaid` is the interactive LMS Walkthrough test bed: videos + auto-next + profile photo + download-app all start unticked (welcome dismissed, program tab locked).
 - `live-lecture-phases` is the transcript test bed: two extra recording lectures carry sample transcripts — one with timestamped segments (`transcriptSegmentedLectureId`), one with plain text only (`transcriptPlainTextLectureId`). Fixtures live in `seed/flows/live-lecture-phases/sampleTranscript.ts`; see `docs/testing/features/lecture-transcript-cache.md`.
 - Seed tests live outside `vitest.config.ts`'s `dir: 'src'`, so `npm run test` does not pick them up — run them explicitly with `npx vitest run --dir seed`.
+- `onboarding-fees-unpaid-with-app-download` is the same LMS Walkthrough bed with download-app pre-completed via a seeded `user_device_tokens` row (so after videos + photo the onboarding reminder banner disappears).
+- Agenthand e2e specs under `e2e/flows/*.e2e.ts` drive these worlds via `data-testid` (no AI). Run with `npm run seed:all`, `npm run dev`, then `npm run test:e2e`.

@@ -5,7 +5,7 @@ import { ONBOARDING_PROFILE_PHOTO_URL } from './constants'
 
 describe('onboarding scenarios', () => {
   it('defines a scenario for every onboarding flow id', () => {
-    expect(Object.keys(ONBOARDING_SCENARIOS)).toHaveLength(7)
+    expect(Object.keys(ONBOARDING_SCENARIOS)).toHaveLength(8)
   })
 
   it('legacy user skips admission data', () => {
@@ -26,6 +26,16 @@ describe('onboarding scenarios', () => {
     expect(scenario.userMeta).toEqual({ showWelcomeModal: true })
     expect(scenario.videoAttendances).toBe('none')
     expect(scenario.deviceToken).toBeUndefined()
+  })
+
+  it('fees-unpaid-with-app-download pre-seeds a device token', () => {
+    const scenario = getOnboardingScenario(
+      'onboarding-fees-unpaid-with-app-download',
+    )
+    expect(scenario.admission?.fullFeesPaid).toBe(0)
+    expect(scenario.userMeta).toEqual({ showWelcomeModal: true })
+    expect(scenario.videoAttendances).toBe('none')
+    expect(scenario.deviceToken).toBe(true)
   })
 
   it('fees-paid unlocks program onboarding via admission data', () => {

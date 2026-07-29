@@ -2552,11 +2552,11 @@ export interface RootRouteChildren {
   ApiMessageIdReplyRoute: typeof ApiMessageIdReplyRoute
   ApiProfileAccountActivitySignOutAllRoute: typeof ApiProfileAccountActivitySignOutAllRoute
   ApiSupportCallbackCreateRoute: typeof ApiSupportCallbackCreateRoute
+  ApiSupportFloatingChatContextRoute: typeof ApiSupportFloatingChatContextRoute
+  ApiSupportFloatingChatInboxRoute: typeof ApiSupportFloatingChatInboxRoute
   ApiWebhooksAdmissionsCancelEnrolmentRoute: typeof ApiWebhooksAdmissionsCancelEnrolmentRoute
   ApiWebhooksAdmissionsCreateEnrolmentRoute: typeof ApiWebhooksAdmissionsCreateEnrolmentRoute
   ApiWebhooksAdmissionsEventsRoute: typeof ApiWebhooksAdmissionsEventsRoute
-  ApiSupportFloatingChatContextRoute: typeof ApiSupportFloatingChatContextRoute
-  ApiSupportFloatingChatInboxRoute: typeof ApiSupportFloatingChatInboxRoute
   authResetPasswordTokenIndexRoute: typeof authResetPasswordTokenIndexRoute
   authV2LoginIndexRoute: typeof authV2LoginIndexRoute
   ApiAnnouncementIdIndexRoute: typeof ApiAnnouncementIdIndexRoute
@@ -4346,13 +4346,13 @@ const rootRouteChildren: RootRouteChildren = {
   ApiProfileAccountActivitySignOutAllRoute:
     ApiProfileAccountActivitySignOutAllRoute,
   ApiSupportCallbackCreateRoute: ApiSupportCallbackCreateRoute,
+  ApiSupportFloatingChatContextRoute: ApiSupportFloatingChatContextRoute,
+  ApiSupportFloatingChatInboxRoute: ApiSupportFloatingChatInboxRoute,
   ApiWebhooksAdmissionsCancelEnrolmentRoute:
     ApiWebhooksAdmissionsCancelEnrolmentRoute,
   ApiWebhooksAdmissionsCreateEnrolmentRoute:
     ApiWebhooksAdmissionsCreateEnrolmentRoute,
   ApiWebhooksAdmissionsEventsRoute: ApiWebhooksAdmissionsEventsRoute,
-  ApiSupportFloatingChatContextRoute: ApiSupportFloatingChatContextRoute,
-  ApiSupportFloatingChatInboxRoute: ApiSupportFloatingChatInboxRoute,
   authResetPasswordTokenIndexRoute: authResetPasswordTokenIndexRoute,
   authV2LoginIndexRoute: authV2LoginIndexRoute,
   ApiAnnouncementIdIndexRoute: ApiAnnouncementIdIndexRoute,
