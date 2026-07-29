@@ -3,6 +3,8 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { render, waitFor, within } from '@testing-library/react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { NotesPreviewV2 } from '../NotesPreviewV2'
+
 const hoisted = vi.hoisted(() => ({
   useSearch: vi.fn(),
   fetchNotesPreview: vi.fn(),
@@ -22,8 +24,7 @@ vi.mock('@/components/shared/markdown-content', () => ({
   ),
 }))
 
-async function renderComponent() {
-  const { NotesPreviewV2 } = await import('../NotesPreviewV2')
+function renderComponent() {
   const queryClient = new QueryClient({
     defaultOptions: { queries: { retry: false } },
   })
@@ -39,23 +40,23 @@ describe('NotesPreviewV2', () => {
     vi.clearAllMocks()
   })
 
-  it('shows the empty state when required params are missing', async () => {
+  it('shows the empty state when required params are missing', () => {
     hoisted.useSearch.mockReturnValue({})
-    const { container } = await renderComponent()
+    const { container } = renderComponent()
     const scope = within(container)
 
     expect(scope.getByTestId('notes-preview-v2-empty')).toBeTruthy()
     expect(hoisted.fetchNotesPreview).not.toHaveBeenCalled()
   })
 
-  it('shows the loading skeleton while the fetch is pending', async () => {
+  it('shows the loading skeleton while the fetch is pending', () => {
     hoisted.useSearch.mockReturnValue({
       category: 'lecture',
       contentType: 'notes',
       entityId: '10',
     })
     hoisted.fetchNotesPreview.mockReturnValue(new Promise(() => {}))
-    const { container } = await renderComponent()
+    const { container } = renderComponent()
     const scope = within(container)
 
     expect(scope.getByTestId('notes-preview-v2-loading')).toBeTruthy()
@@ -73,7 +74,7 @@ describe('NotesPreviewV2', () => {
       entityId: 10,
       content: '# Lecture notes',
     })
-    const { container } = await renderComponent()
+    const { container } = renderComponent()
     const scope = within(container)
 
     await waitFor(() => {
@@ -96,7 +97,7 @@ describe('NotesPreviewV2', () => {
       entityId: 10,
       content: null,
     })
-    const { container } = await renderComponent()
+    const { container } = renderComponent()
     const scope = within(container)
 
     await waitFor(() => {
@@ -116,7 +117,7 @@ describe('NotesPreviewV2', () => {
       entityId: 10,
       content: '   ',
     })
-    const { container } = await renderComponent()
+    const { container } = renderComponent()
     const scope = within(container)
 
     await waitFor(() => {
@@ -131,7 +132,7 @@ describe('NotesPreviewV2', () => {
       entityId: '10',
     })
     hoisted.fetchNotesPreview.mockRejectedValueOnce(new Error('UNAUTHORIZED'))
-    const { container } = await renderComponent()
+    const { container } = renderComponent()
     const scope = within(container)
 
     await waitFor(() => {
