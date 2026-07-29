@@ -1,6 +1,6 @@
 {
   "login-and-join-lecture": {
-    "seededAt": "2026-07-27T08:28:01.710Z",
+    "seededAt": "2026-07-29T11:15:53.274Z",
     "testUsers": [
       {
         "role": "admin",
@@ -18,9 +18,9 @@
       }
     ],
     "timing": {
-      "batchStarting": "2026-07-27",
-      "lectureSchedule": "2026-07-27 13:58:01",
-      "lectureConcludes": "2026-07-27 15:58:01"
+      "batchStarting": "2026-07-29",
+      "lectureSchedule": "2026-07-29 16:45:52",
+      "lectureConcludes": "2026-07-29 18:45:52"
     },
     "entityIds": {
       "batchId": 1,
@@ -29,7 +29,7 @@
     }
   },
   "live-lecture-phases": {
-    "seededAt": "2026-07-27T08:28:01.710Z",
+    "seededAt": "2026-07-29T11:15:53.275Z",
     "testUsers": [
       {
         "role": "admin",
@@ -47,14 +47,14 @@
       }
     ],
     "timing": {
-      "beforeUnlockSchedule": "2026-07-27 14:18:01",
-      "beforeUnlockConcludes": "2026-07-27 15:18:01",
-      "duringJoinSchedule": "2026-07-27 14:01:01",
-      "duringJoinConcludes": "2026-07-27 15:01:01",
-      "afterNoRecordingSchedule": "2026-07-27 11:58:01",
-      "afterNoRecordingConcludes": "2026-07-27 12:28:01",
-      "afterWithRecordingSchedule": "2026-07-27 11:58:01",
-      "afterWithRecordingConcludes": "2026-07-27 12:28:01"
+      "beforeUnlockSchedule": "2026-07-29 17:05:52",
+      "beforeUnlockConcludes": "2026-07-29 18:05:52",
+      "duringJoinSchedule": "2026-07-29 16:48:52",
+      "duringJoinConcludes": "2026-07-29 17:48:52",
+      "afterNoRecordingSchedule": "2026-07-29 14:45:52",
+      "afterNoRecordingConcludes": "2026-07-29 15:15:52",
+      "afterWithRecordingSchedule": "2026-07-29 14:45:52",
+      "afterWithRecordingConcludes": "2026-07-29 15:15:52"
     },
     "entityIds": {
       "batchId": 2,
@@ -73,7 +73,7 @@
     }
   },
   "dashboard-home": {
-    "seededAt": "2026-07-27T08:28:01.711Z",
+    "seededAt": "2026-07-29T11:15:53.275Z",
     "testUsers": [
       {
         "role": "admin",
@@ -99,7 +99,7 @@
     }
   },
   "onboarding-legacy-user": {
-    "seededAt": "2026-07-27T08:28:01.711Z",
+    "seededAt": "2026-07-29T11:15:53.275Z",
     "testUsers": [
       {
         "role": "admin",
@@ -117,7 +117,7 @@
       }
     ],
     "timing": {
-      "batchStarting": "2026-07-27",
+      "batchStarting": "2026-07-29",
       "lmsAccessDate": "",
       "courseFeeDeadline": ""
     },
@@ -126,7 +126,7 @@
     }
   },
   "onboarding-welcome-modal": {
-    "seededAt": "2026-07-27T08:28:01.712Z",
+    "seededAt": "2026-07-29T11:15:53.275Z",
     "testUsers": [
       {
         "role": "admin",
@@ -144,16 +144,16 @@
       }
     ],
     "timing": {
-      "batchStarting": "2026-07-27",
-      "lmsAccessDate": "2026-07-27T13:58:01+05:30",
-      "courseFeeDeadline": "2026-08-03T13:58:01+05:30"
+      "batchStarting": "2026-07-29",
+      "lmsAccessDate": "2026-07-29T16:45:52+05:30",
+      "courseFeeDeadline": "2026-08-05T16:45:52+05:30"
     },
     "entityIds": {
       "batchId": 5
     }
   },
   "onboarding-welcome-seen": {
-    "seededAt": "2026-07-27T08:28:01.712Z",
+    "seededAt": "2026-07-29T11:15:53.275Z",
     "testUsers": [
       {
         "role": "admin",
@@ -171,16 +171,16 @@
       }
     ],
     "timing": {
-      "batchStarting": "2026-07-27",
-      "lmsAccessDate": "2026-07-27T13:58:01+05:30",
-      "courseFeeDeadline": "2026-08-03T13:58:01+05:30"
+      "batchStarting": "2026-07-29",
+      "lmsAccessDate": "2026-07-29T16:45:52+05:30",
+      "courseFeeDeadline": "2026-08-05T16:45:52+05:30"
     },
     "entityIds": {
       "batchId": 6
     }
   },
   "onboarding-fees-unpaid": {
-    "seededAt": "2026-07-27T08:28:01.713Z",
+    "seededAt": "2026-07-29T11:15:53.276Z",
     "testUsers": [
       {
         "role": "admin",
@@ -198,16 +198,16 @@
       }
     ],
     "timing": {
-      "batchStarting": "2026-07-27",
-      "lmsAccessDate": "2026-07-27T13:58:01+05:30",
-      "courseFeeDeadline": "2026-08-03T13:58:01+05:30"
+      "batchStarting": "2026-07-29",
+      "lmsAccessDate": "2026-07-29T16:45:52+05:30",
+      "courseFeeDeadline": "2026-08-05T16:45:52+05:30"
     },
     "entityIds": {
       "batchId": 7
     }
   },
   "onboarding-fees-unpaid-with-app-download": {
-    "seededAt": "2026-07-27T08:28:01.713Z",
+    "seededAt": "2026-07-29T11:15:53.276Z",
     "testUsers": [
       {
         "role": "admin",
@@ -225,16 +225,16 @@
       }
     ],
     "timing": {
-      "batchStarting": "2026-07-27",
-      "lmsAccessDate": "2026-07-27T13:58:01+05:30",
-      "courseFeeDeadline": "2026-08-03T13:58:01+05:30"
+      "batchStarting": "2026-07-29",
+      "lmsAccessDate": "2026-07-29T16:45:52+05:30",
+      "courseFeeDeadline": "2026-08-05T16:45:52+05:30"
     },
     "entityIds": {
       "batchId": 8
     }
   },
   "onboarding-fees-paid": {
-    "seededAt": "2026-07-27T08:28:01.713Z",
+    "seededAt": "2026-07-29T11:15:53.276Z",
     "testUsers": [
       {
         "role": "admin",
@@ -252,8 +252,8 @@
       }
     ],
     "timing": {
-      "batchStarting": "2026-07-27",
-      "lmsAccessDate": "2026-07-27T13:58:01+05:30",
+      "batchStarting": "2026-07-29",
+      "lmsAccessDate": "2026-07-29T16:45:52+05:30",
       "courseFeeDeadline": ""
     },
     "entityIds": {
@@ -261,7 +261,7 @@
     }
   },
   "onboarding-complete": {
-    "seededAt": "2026-07-27T08:28:01.713Z",
+    "seededAt": "2026-07-29T11:15:53.277Z",
     "testUsers": [
       {
         "role": "admin",
@@ -279,8 +279,8 @@
       }
     ],
     "timing": {
-      "batchStarting": "2026-07-27",
-      "lmsAccessDate": "2026-07-27T13:58:01+05:30",
+      "batchStarting": "2026-07-29",
+      "lmsAccessDate": "2026-07-29T16:45:52+05:30",
       "courseFeeDeadline": ""
     },
     "entityIds": {
@@ -288,7 +288,7 @@
     }
   },
   "onboarding-fees-overdue": {
-    "seededAt": "2026-07-27T08:28:01.714Z",
+    "seededAt": "2026-07-29T11:15:53.277Z",
     "testUsers": [
       {
         "role": "admin",
@@ -306,9 +306,9 @@
       }
     ],
     "timing": {
-      "batchStarting": "2026-07-27",
-      "lmsAccessDate": "2026-06-27T13:58:01+05:30",
-      "courseFeeDeadline": "2026-07-20T13:58:01+05:30"
+      "batchStarting": "2026-07-29",
+      "lmsAccessDate": "2026-06-29T16:45:52+05:30",
+      "courseFeeDeadline": "2026-07-22T16:45:52+05:30"
     },
     "entityIds": {
       "batchId": 11
