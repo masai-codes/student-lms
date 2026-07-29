@@ -5,7 +5,7 @@ import { assignments, batches, submissions, users } from '@/db/schema'
 import { ApiError } from '@/server/api/http/apiError'
 import { getExperienceApiBaseUrl } from '@/server/api/http/experienceApiFetch'
 import { acquireLock, releaseLock } from '@/server/redis/lock'
-import { getIstNowSqlDatetime } from '@/server/time/istClock'
+import { getIstNowSqlDatetime, parseIstToMs } from '@/server/time/istClock'
 import { ORIGIN_URLS } from '@/utils/originUrls'
 
 /**
@@ -14,8 +14,8 @@ import { ORIGIN_URLS } from '@/utils/originUrls'
  *
  * This calls the external Assess Platform directly (same pattern as the
  * existing getAssessPlatformSubmissionViewUrl). Callbacks are deliberately
- * pointed back at experience-api (GQL_BASE_URL/*-callback), whose webhook
- * handlers still own inbound assessment events.
+ * pointed back at experience-api (<origin>/*-callback), whose webhook handlers
+ * still own inbound assessment events.
  *
  * Concurrent generation for the same submission is serialized by a Redis
  * distributed lock (`assess:url:generation:{submissionId}`, EX 120 NX) — the
@@ -28,7 +28,7 @@ import { ORIGIN_URLS } from '@/utils/originUrls'
  * Required env: ASSESS_PLATFORM_URL, ASSESS_PLATFORM_AUTH_TOKEN,
  * ASSESS_PLATFORM_SECRET_KEY, ASSESS_PLATFORM_CALLBACK_TOKEN,
  * ASSESS_LMS_CLIENT_ID, EXPERIENCE_API_BASE_URL. The callback base is
- * EXPERIENCE_API_BASE_URL + "/graphql" (i.e. experience-api's GQL_BASE_URL).
+ * EXPERIENCE_API_BASE_URL verbatim — see callbackBaseUrl() below.
  * The post-assessment redirect base reuses VITE_NEW_STUDENT_UI_URL /
  * VITE_NEW_STUDENT_UI_URL_IHUB via ORIGIN_URLS.
  */
@@ -64,12 +64,17 @@ function requireAssessEnv(): {
   return { base, adminAuthToken, secretKey }
 }
 
-// experience-api's GQL_BASE_URL == EXPERIENCE_API_BASE_URL + "/graphql", and the
-// assessment callbacks (/lms-callback, /live-progress-callback, ...) hang off it.
-function callbackBaseUrl(): string {
+// experience-api registers the assessment callbacks (/lms-callback,
+// /live-progress-callback, /lms-ai-interview-callback) as exact paths at its
+// ROOT, and mounts Apollo at `/` as a catch-all. So the callback base is the
+// bare origin — never suffixed with "/graphql". A "/graphql/lms-callback" URL
+// matches no route, falls through to the Apollo middleware, and is rejected by
+// the context cookie check as INVALID_COOKIE (HTTP 500) before the webhook body
+// is ever read.
+export function callbackBaseUrl(): string {
   const base = getExperienceApiBaseUrl()
   if (!base) throw new ApiError(500, 'EXPERIENCE_API_NOT_CONFIGURED')
-  return `${base}/graphql`
+  return base
 }
 
 // Student app "return home" base for the post-assessment redirect. Reuses the
@@ -204,7 +209,7 @@ export async function createAssessPlatformUrl(input: {
   }
   const isIhub = batchDuration === 'ihub'
   const frontendUrl = frontendUrlFor(batchDuration)
-  const gqlBase = callbackBaseUrl()
+  const callbackBase = callbackBaseUrl()
 
   // Tokens from the user's prior submissions in the same question series, so
   // the platform excludes already-attempted questions.
@@ -246,8 +251,14 @@ export async function createAssessPlatformUrl(input: {
     (assignmentCase === CASE2 || assignmentCase === CASE3) &&
     sectionDetailTime != null
   ) {
-    const nowMs = Date.now() + 5.5 * 60 * 60 * 1000
-    const concludesMs = new Date(assignment.concludes).getTime()
+    // `concludes` is an IST wall-clock DATETIME string with no zone
+    // (`YYYY-MM-DD HH:MM:SS`). Compare it against "now" in absolute epoch-ms so
+    // the result is correct regardless of the process timezone. The old
+    // `Date.now() + 5.5h` vs `new Date(concludes)` pair was only correct on a
+    // UTC process: on an IST process it double-counts the +5:30 offset, pushing
+    // "now" 5h30m into the future and shrinking remainingSeconds by 19800s.
+    const nowMs = Date.now()
+    const concludesMs = parseIstToMs(assignment.concludes) ?? Number.NaN
     const remainingSeconds = (concludesMs - nowMs) / 1000
     const configured = Number(sectionDetailTime)
 
@@ -283,8 +294,8 @@ export async function createAssessPlatformUrl(input: {
     redirectClientUrl: `${frontendUrl}/assignments/${assignmentId}`,
     isEligibleForMassRecruit: false,
     email: user.email,
-    callback_url: `${gqlBase}/lms-callback`,
-    liveProgressCallbackUrl: `${gqlBase}/live-progress-callback`,
+    callback_url: `${callbackBase}/lms-callback`,
+    liveProgressCallbackUrl: `${callbackBase}/live-progress-callback`,
     client_id: clientId,
     client_secret_key: secretKey,
     sauTokensToExcludeQuestions,
@@ -417,7 +428,7 @@ export async function createAssessPlatformAiInterviewUrl(input: {
     batchDuration = batchRows[0]?.duration ?? null
   }
   const frontendUrl = frontendUrlFor(batchDuration)
-  const gqlBase = callbackBaseUrl()
+  const callbackBase = callbackBaseUrl()
 
   const userRows = await db
     .select({ email: users.email })
@@ -434,7 +445,7 @@ export async function createAssessPlatformAiInterviewUrl(input: {
     uniqueID: String(submissionId),
     meta: {
       webhookDetailsToSendReport: {
-        url: `${gqlBase}/lms-ai-interview-callback`,
+        url: `${callbackBase}/lms-ai-interview-callback`,
         method: 'POST',
         headers: {},
       },

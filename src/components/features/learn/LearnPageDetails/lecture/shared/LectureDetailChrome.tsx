@@ -65,7 +65,10 @@ export function LectureDetailChrome({
     ? resolveLectureAttendanceBanner(attendance ?? optionalAttendance)
     : null
   return (
-    <div className="w-full pb-12">
+    // `bg-surface` + `flex-1` on the wrapper, not just on the inner sections:
+    // otherwise the `pb-12` tail (and any slack when the page is shorter than
+    // the scroll column) shows the shell's muted background as a grey band.
+    <div className="flex w-full flex-1 flex-col bg-surface pb-12 dark:bg-transparent">
       <section className="flex w-full shrink-0 flex-col overflow-visible bg-surface dark:bg-transparent">
         {hero}
         <div

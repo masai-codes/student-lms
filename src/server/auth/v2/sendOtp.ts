@@ -8,6 +8,7 @@ import {
   toEmailPortal,
   type EmailPortal,
 } from '@/server/auth/v2/isRequestFromIHub'
+import { recordFailedLogin } from '@/server/auth/v2/loginRateLimit'
 import { mobileLookupCandidates } from '@/server/auth/v2/mobileLookup'
 import { sendOtpEmail } from '@/server/auth/v2/otpEmail'
 import { sendOtpSms } from '@/server/auth/v2/otpSms'
@@ -26,6 +27,7 @@ const HOURLY_WINDOW_SECONDS = 3600
 export type SendOtpInput = {
   identifier: string
   isResend?: boolean
+  ip?: string
 }
 
 export type SendOtpResult = {
@@ -139,6 +141,7 @@ async function persistOtp({
 export async function sendOtp({
   identifier,
   isResend,
+  ip,
 }: SendOtpInput): Promise<SendOtpResult> {
   const normalized = identifier.trim().toLowerCase()
   const isEmail = isEmailIdentifier(normalized)
@@ -163,6 +166,11 @@ export async function sendOtp({
 
   const user = userRows[0]
   if (!user) {
+    // Track the "silent drop": a login attempt (phone or email) for an
+    // identifier with no account. Mirrors the password path in login/index.ts,
+    // which already records unknown emails here. These rows have no matching
+    // row in `users` — find them with a LEFT JOIN against users (id IS NULL).
+    await recordFailedLogin({ identifier: normalized, ip: ip ?? '' })
     throw new SendOtpError(
       'USER_NOT_FOUND',
       isEmail

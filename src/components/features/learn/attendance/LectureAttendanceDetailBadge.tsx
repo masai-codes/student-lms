@@ -47,8 +47,7 @@ function AbsentTooltipContent({
 
   return (
     <p>
-      You have not joined this session using your Zoom authenticated mail id
-      with Masai
+      You have not joined this session
     </p>
   )
 }

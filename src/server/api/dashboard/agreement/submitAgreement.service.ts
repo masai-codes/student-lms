@@ -11,6 +11,7 @@ import type { AgreementPdfDoc } from './buildAgreementPdf'
 import { db } from '@/db'
 import { batches, profiles, sectionUser, users } from '@/db/schema'
 import { ApiError } from '@/server/api/http/apiError'
+import { clearAgreementBan } from '@/server/restrictions/clearAgreementBan'
 import { uploadImageToS3 } from '@/server/storage/s3Upload'
 
 export interface SubmitAgreementResult {
@@ -166,6 +167,10 @@ export async function submitAgreement(
       legalData: { ...legalData, agreements: { ...agreements, [key]: merged } },
     })
     .where(eq(profiles.id, profile.id))
+
+  // The user just signed, so lift any agreement ban the experience-api cron may
+  // have stamped onto batch_user.meta — don't make them wait for the next cron run.
+  await clearAgreementBan(userId, sectionRow.batch_id)
 
   return { agreementPdfUrl }
 }

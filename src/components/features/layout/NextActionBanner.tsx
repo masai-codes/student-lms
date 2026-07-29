@@ -71,7 +71,7 @@ function BannerContent({
         <PlayCircle size={16} className="text-info-foreground" />
       </div>
       <span
-        className="whitespace-nowrap text-[12px] font-semibold text-foreground"
+        className="min-w-0 truncate text-[12px] font-semibold text-foreground"
         data-testid="next-action-banner-label"
       >
         {label}
@@ -95,7 +95,7 @@ function BannerContent({
   )
 
   const contentClass = cn(
-    'flex w-fit items-center gap-2 rounded-[14px] bg-[#EBF5FF] px-2.5 py-1.5 transition-colors hover:bg-[#DBEAFE] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400 dark:bg-info-subtle dark:hover:bg-info-subtle',
+    'flex w-fit min-w-0 items-center gap-2 rounded-[14px] bg-[#EBF5FF] px-2.5 py-1.5 transition-colors hover:bg-[#DBEAFE] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400 dark:bg-info-subtle dark:hover:bg-info-subtle',
     className,
   )
 

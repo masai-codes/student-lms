@@ -6,6 +6,7 @@ import {
   BreadcrumbList,
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb'
+import { MarkdownContent } from '@/components/shared/markdown-content'
 import type { WhatsNewDetail } from '@/server/api/whats-new/getWhatsNewById.service'
 
 interface WhatsNewDetailPageProps {
@@ -64,13 +65,7 @@ export function WhatsNewDetailPage({ detail }: WhatsNewDetailPageProps) {
 
       {/* Body content card */}
       <div className="rounded-2xl border border-border bg-surface p-6 md:p-8">
-        <div
-          className="prose prose-sm md:prose-base max-w-none text-foreground leading-relaxed
-            prose-a:text-info prose-a:underline
-            prose-p:my-3 prose-ul:my-3 prose-ol:my-3 prose-li:my-1"
-          // eslint-disable-next-line react/no-danger
-          dangerouslySetInnerHTML={{ __html: detail.body }}
-        />
+        <MarkdownContent value={detail.body} variant="detail" />
       </div>
     </div>
   )

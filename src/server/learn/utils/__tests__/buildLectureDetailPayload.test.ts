@@ -20,8 +20,7 @@ const concludes = '2026-05-20T12:00:00.000Z'
 const emptyTabs: LectureDetailTabContent = {
   notes: null,
   aiSummary: null,
-  transcript: null,
-  transcriptSegments: [],
+  transcript: { available: false, url: null },
   associatedItems: [],
 }
 

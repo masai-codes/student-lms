@@ -5,6 +5,7 @@ import { useState } from 'react'
 
 import type { JoinLiveButtonState } from '@/server/learn/utils/resolveJoinLiveButtonState'
 import { fetchZoomRedirectUrlViaApi } from '@/lib/api/learn/zoomRedirectApi'
+import { fetchAdaptiveJoinUrlViaApi } from '@/lib/api/learn/adaptiveJoinApi'
 import { isAdaptiveLectureLink } from '@/server/learn/utils/toLectureScopedAdaptiveLink'
 import { Button } from '@/components/ui/button'
 import { toast } from '@/lib/toast'
@@ -46,10 +47,9 @@ export function JoinLiveSessionCard({
   // Mirrors the old LMS join ladder (LectureBegun.tsx): ZEF wins first; then Zoom
   // Web View when the section flag is on and the link isn't adaptive (SAL); else
   // the raw zoom link. Falls back to the raw link if the old-UI base is unresolved.
+  const isAdaptive = isAdaptiveLectureLink(zoomLink)
   const zoomWebViewUrl =
-    enableZoomWebView &&
-    !isNewZoomRedirection &&
-    !isAdaptiveLectureLink(zoomLink)
+    enableZoomWebView && !isNewZoomRedirection && !isAdaptive
       ? buildZoomWebViewUrl(lectureId)
       : null
   const isZoomWebView = zoomWebViewUrl != null
@@ -71,6 +71,29 @@ export function JoinLiveSessionCard({
       setPending(false)
     }
   }
+
+  // SAL/adaptive: mint the join URL server-side so it carries a `?token=` fallback
+  // and points at the tenant's experience-api host (iHub cookies aren't sent to the
+  // masai host). Falls back to the raw scoped link (works for masai via cookie).
+  const handleAdaptiveJoin = async () => {
+    if (pending) return
+    pushLearnEvent(learnEntityEvent('lecture', 'join_live_click', lectureId), {
+      lecture_id: lectureId,
+    })
+    setPending(true)
+    try {
+      openInNewTab(await fetchAdaptiveJoinUrlViaApi(lectureId))
+    } catch {
+      openInNewTab(zoomLink)
+      toast.error('Opened the standard join link instead.')
+    } finally {
+      setPending(false)
+    }
+  }
+
+  // ZEF and SAL both need a server-minted URL, so they render as a click handler
+  // rather than a plain anchor.
+  const useMintedJoinButton = isActive && (isNewZoomRedirection || isAdaptive)
 
   // Glow + lift + press physics for the enabled join CTA.
   const joinCtaClasses =
@@ -98,12 +121,12 @@ export function JoinLiveSessionCard({
           </p>
         </div>
       )}
-      {isActive && isNewZoomRedirection ? (
+      {useMintedJoinButton ? (
         <Button
           size="lg"
           className={joinCtaClasses}
           disabled={pending}
-          onClick={handleZefJoin}
+          onClick={isNewZoomRedirection ? handleZefJoin : handleAdaptiveJoin}
           data-testid="lecture-join-live-cta"
         >
           {pending ? 'Opening…' : 'Join live session'}

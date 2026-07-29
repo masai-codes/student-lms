@@ -37,6 +37,7 @@ export async function seedDashboardHome(): Promise<SeedFlowResult> {
       enrollment: world.enrollment,
       scheduleLectures: world.scheduleLectures,
       scheduleAssignment: world.scheduleAssignment,
+      pastIncompleteScheduleAssignment: world.pastIncompleteScheduleAssignment,
       pendingCatchupLecture: world.pendingCatchupLecture,
       pendingAssignment: world.pendingAssignment,
       visibleAnnouncements: world.visibleAnnouncements,

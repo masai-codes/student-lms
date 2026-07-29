@@ -1,4 +1,4 @@
-import { and, eq, isNull, ne } from 'drizzle-orm'
+import { and, eq, isNull, ne, sql } from 'drizzle-orm'
 
 import type { LectureDetailPayload } from '@/server/learn/lectureDetailTypes'
 
@@ -111,8 +111,16 @@ export async function getLectureLearningDetailForUser(
     db
       .select({
         summary: lecturesAi.summary,
-        transcript: lecturesAi.transcript,
-        transcriptSegments: lecturesAi.transcriptSegments,
+        // Ask MySQL whether a transcript exists instead of selecting it (#353):
+        // long lectures store megabytes here, and the page only needs to know
+        // whether the CC button and Transcript tab have anything to offer. An
+        // emptiness test can't be expressed with the query builder, hence `sql`.
+        // The clients treat this as a hint — a 404 from the cache endpoint still
+        // renders the normal empty state.
+        hasTranscript: sql<number>`(
+          char_length(coalesce(${lecturesAi.transcript}, '')) > 0
+          or coalesce(json_length(${lecturesAi.transcriptSegments}), 0) > 0
+        )`,
       })
       .from(lecturesAi)
       .where(eq(lecturesAi.lectureId, lectureId))
@@ -166,11 +174,22 @@ export async function getLectureLearningDetailForUser(
     attended,
   )
 
+  const aiRow = aiRows[0]
+
   const tabs = buildLectureTabContent({
     notes: row.notes,
     zoomChatFinalChat: zoomChatRows[0]?.finalChat ?? null,
-    lecturesAi: aiRows[0] ?? null,
+    lecturesAi:
+      aiRow != null
+        ? {
+            summary: aiRow.summary,
+            hasTranscript: Number(aiRow.hasTranscript) > 0,
+          }
+        : null,
     associatedItems,
+    lectureId,
+    batchId: row.batchId,
+    sectionId: row.sectionId,
   })
 
   const payload = buildLectureDetailPayload(

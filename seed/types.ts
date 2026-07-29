@@ -1,6 +1,7 @@
 import type {
   batches,
   lectures,
+  lecturesAi,
   profiles,
   sectionUser,
   sections,
@@ -37,6 +38,48 @@ export type LoginAndJoinLectureEntities = {
   lecture: typeof lectures.$inferSelect
 }
 
+export type LiveLecturePhasesEntities = {
+  admin: typeof users.$inferSelect
+  student: typeof users.$inferSelect
+  batch: typeof batches.$inferSelect
+  section: typeof sections.$inferSelect
+  enrollment: typeof sectionUser.$inferSelect
+  sections: {
+    recordingAttendanceOff: typeof sections.$inferSelect
+    recordingAttendanceOn: typeof sections.$inferSelect
+  }
+  enrollments: {
+    recordingAttendanceOff: typeof sectionUser.$inferSelect
+    recordingAttendanceOn: typeof sectionUser.$inferSelect
+  }
+  lectures: {
+    beforeUnlock: typeof lectures.$inferSelect
+    duringJoin: typeof lectures.$inferSelect
+    afterNoRecording: typeof lectures.$inferSelect
+    afterWithRecordingAttendanceOff: typeof lectures.$inferSelect
+    afterWithRecordingAttendanceOn: typeof lectures.$inferSelect
+    videoMandatory: typeof lectures.$inferSelect
+    videoOptional: typeof lectures.$inferSelect
+    optionalLiveBeforeUnlock: typeof lectures.$inferSelect
+    optionalLiveDuringJoin: typeof lectures.$inferSelect
+    transcriptSegmented: typeof lectures.$inferSelect
+    transcriptPlainText: typeof lectures.$inferSelect
+  }
+  attendanceOffExtras: {
+    associatedLecture: typeof lectures.$inferSelect
+  }
+  transcriptExtras: {
+    segmentedAi: typeof lecturesAi.$inferSelect
+    plainTextAi: typeof lecturesAi.$inferSelect
+  }
+  attendanceOnExtras: {
+    lecturesAi: typeof import('@/db/schema').lecturesAi.$inferSelect
+    associatedLecture: typeof lectures.$inferSelect
+    associatedNotesLecture: typeof lectures.$inferSelect
+    associatedAssignment: typeof import('@/db/schema').assignments.$inferSelect
+  }
+}
+
 export type DashboardHomeEntities = {
   admin: typeof users.$inferSelect
   student: typeof users.$inferSelect
@@ -45,6 +88,7 @@ export type DashboardHomeEntities = {
   enrollment: typeof sectionUser.$inferSelect
   scheduleLectures: Array<typeof lectures.$inferSelect>
   scheduleAssignment: typeof import('@/db/schema').assignments.$inferSelect
+  pastIncompleteScheduleAssignment: typeof import('@/db/schema').assignments.$inferSelect
   pendingCatchupLecture: typeof lectures.$inferSelect
   pendingAssignment: typeof import('@/db/schema').assignments.$inferSelect
   visibleAnnouncements: Array<
@@ -80,7 +124,10 @@ export type OnboardingEntities = {
 }
 
 export type SeedFlowEntities =
-  LoginAndJoinLectureEntities | OnboardingEntities | DashboardHomeEntities
+  | LoginAndJoinLectureEntities
+  | LiveLecturePhasesEntities
+  | OnboardingEntities
+  | DashboardHomeEntities
 
 export type SeedFlowResult = {
   flowId: string
@@ -98,6 +145,12 @@ export function isLoginAndJoinLectureEntities(
   entities: SeedFlowEntities,
 ): entities is LoginAndJoinLectureEntities {
   return 'lecture' in entities && !('scheduleLectures' in entities)
+}
+
+export function isLiveLecturePhasesEntities(
+  entities: SeedFlowEntities,
+): entities is LiveLecturePhasesEntities {
+  return 'lectures' in entities && 'beforeUnlock' in entities.lectures
 }
 
 export function isOnboardingEntities(

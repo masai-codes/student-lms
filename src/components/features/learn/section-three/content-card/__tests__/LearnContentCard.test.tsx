@@ -172,3 +172,41 @@ describe('LearnContentCard — dashboard compact layout', () => {
     expect(screen.queryByTestId('learn-card-dashboard-tags')).toBeNull()
   })
 })
+
+describe('LearnContentCard — assignment weightage chip', () => {
+  afterEach(() => cleanup())
+
+  it('renders the weightage chip beside the tags for assignments', () => {
+    const item = {
+      ...makeItem('assignment', 'mandatory'),
+      assignmentWeightage: 15,
+    }
+    render(<LearnContentCard item={item} />)
+    expect(screen.getByTestId('learn-assignment-weightage').textContent).toBe(
+      '15% Weightage',
+    )
+  })
+
+  it('renders the weightage chip on the compact dashboard card', () => {
+    const item = {
+      ...makeItem('assignment', 'mandatory'),
+      assignmentWeightage: 15,
+    }
+    render(<LearnContentCard item={item} fromDashboard />)
+    const tagsRow = screen.getByTestId('learn-card-dashboard-tags')
+    expect(tagsRow.textContent).toContain('15% Weightage')
+  })
+
+  it('omits the chip when no weightage is set, and for non-assignments', () => {
+    render(<LearnContentCard item={makeItem('assignment', 'mandatory')} />)
+    expect(screen.queryByTestId('learn-assignment-weightage')).toBeNull()
+    cleanup()
+
+    const lecture = {
+      ...makeItem('lecture', 'mandatory'),
+      assignmentWeightage: 15,
+    }
+    render(<LearnContentCard item={lecture} />)
+    expect(screen.queryByTestId('learn-assignment-weightage')).toBeNull()
+  })
+})

@@ -86,7 +86,7 @@ export function TryNewToggle({ initialEnabled }: { initialEnabled: boolean }) {
         title={label}
         disabled={isPending}
         onClick={handleClick}
-        className="inline-flex items-center gap-1.5 rounded-full border border-brand/30 bg-brand-subtle px-3 py-1.5 text-sm font-semibold text-brand-subtle-foreground transition-colors hover:bg-brand/10 disabled:opacity-60"
+        className="inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full border border-brand/30 bg-brand-subtle px-3 py-1.5 text-sm font-semibold text-brand-subtle-foreground transition-colors hover:bg-brand/10 disabled:opacity-60"
       >
         <Sparkles className="size-4" aria-hidden />
         <span>{label}</span>

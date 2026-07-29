@@ -25,6 +25,7 @@ function learningItem(overrides: Partial<LearningItem> = {}): LearningItem {
     attendance: null,
     optionalAttendance: null,
     assignmentProgressStatus: null,
+    assignmentWeightage: null,
     resourcePhase: null,
     listingCtas: {
       joinLive: 'hidden',

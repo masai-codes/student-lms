@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useMutation } from '@tanstack/react-query'
+import { useRouter } from '@tanstack/react-router'
 import { CircleNotch, HourglassMedium, Warning } from '@phosphor-icons/react'
 import { AgreementDetailsForm } from './AgreementDetailsForm'
 import { AgreementPdfViewer } from './AgreementPdfViewer'
@@ -77,9 +78,16 @@ export function AgreementStep({ section, onCompleted }: AgreementStepProps) {
     mutationFn: () => saveAgreementDetailsApi(section.sectionId, values),
     onSuccess: (result) => setSavedIp(result.ipAddress ?? savedIp),
   })
+  const router = useRouter()
   const submitMutation = useMutation({
     mutationFn: () => submitAgreementApi(section.sectionId),
-    onSuccess: onCompleted,
+    onSuccess: async () => {
+      // Submitting cleared the agreement ban server-side. Re-run the router
+      // loaders so cached lecture/assignment detail pages drop the ban banner
+      // during SPA navigation, without needing a full page reload.
+      await router.invalidate()
+      onCompleted()
+    },
   })
 
   // Stamp the first-view time (starts the review countdown) once, when the

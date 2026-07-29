@@ -15,6 +15,8 @@ import { getFeePaymentBanners } from './t0/getFeePaymentBanner.service'
 import type { FeePaymentBanner } from './t0/getFeePaymentBanner.service'
 import { getBatchStartBanners } from './getBatchStartBanners.service'
 import type { BatchStartBanner } from './getBatchStartBanners.service'
+import { getBatchTransferPaymentBanners } from './getBatchTransferPaymentBanners.service'
+import type { BatchTransferPaymentBanner } from './getBatchTransferPaymentBanners.service'
 import type { DashboardBanner } from './banners/getWelcomeBanners.service'
 import type { DashboardAnnouncement } from './announcements/announcementFeed'
 import type { DashboardProductUpdate } from './product-updates/getProductUpdates.service'
@@ -60,6 +62,11 @@ export interface DashboardOverview {
    * will start on {date}"), soonest-first. Empty when none are upcoming.
    */
   batchStartBanners: Array<BatchStartBanner>
+  /**
+   * Banners for batches whose transfer request is "considered" and awaiting
+   * payment (CTA → admissions). Empty when the user has no pending transfers.
+   */
+  batchTransferPaymentBanners: Array<BatchTransferPaymentBanner>
 }
 
 export async function getDashboardOverview(
@@ -78,6 +85,7 @@ export async function getDashboardOverview(
     t0Flow,
     feePaymentBanners,
     batchStartBanners,
+    batchTransferPaymentBanners,
   ] = await Promise.all([
     getWelcomeBanners(userId, now),
     getAnnouncementsFeed(userId, now),
@@ -89,6 +97,7 @@ export async function getDashboardOverview(
     getT0FlowStatus(userId, platform),
     getFeePaymentBanners(userId, now),
     getBatchStartBanners(userId, now),
+    getBatchTransferPaymentBanners(userId),
   ])
 
   // Only compute lectures for T0 users, for their primary (first) batch, and
@@ -119,5 +128,6 @@ export async function getDashboardOverview(
     t0Flow: t0FlowWithLectures,
     feePaymentBanners,
     batchStartBanners,
+    batchTransferPaymentBanners,
   }
 }

@@ -23,3 +23,6 @@ scripts/db/.cache
 
 # Transient drizzle-kit pull dump — src/db/schema.ts is the single source of truth
 drizzle/schema.ts
+public/seed-catalog
+seed/catalog/index.html
+seed/catalog/seed-state.json
