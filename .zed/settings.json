@@ -1,9 +1,9 @@
 {
   "lsp": {
     "vtsls": {
-      "binary":{
+      "binary": {
         "path": "node_modules/.bin/tsc",
-        "arguments": ["--lsp","--stdio"]
+        "arguments": ["--lsp", "--stdio"]
       }
     }
   }

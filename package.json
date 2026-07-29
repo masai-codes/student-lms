@@ -128,6 +128,7 @@
     "drizzle-kit": "^0.31.8",
     "husky": "^9.1.7",
     "jsdom": "^27.0.0",
+    "lint-staged": "^17.2.0",
     "pm2": "^5.4.3",
     "prettier": "^3.5.3",
     "puppeteer": "^25.3.0",

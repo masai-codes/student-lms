@@ -18,7 +18,14 @@ export const getRouter = () => {
     defaultPendingMinMs: 300,
     defaultPendingComponent: () => <AppLoading fullPage label="Loading..." />,
     defaultNotFoundComponent: () => (
-      <div className="m-4 text-center"><div className="mb-2">Page Not Found!</div><div><Link to="/"><Button>Go to home</Button></Link></div></div>
+      <div className="m-4 text-center">
+        <div className="mb-2">Page Not Found!</div>
+        <div>
+          <Link to="/">
+            <Button>Go to home</Button>
+          </Link>
+        </div>
+      </div>
     ),
   })
 

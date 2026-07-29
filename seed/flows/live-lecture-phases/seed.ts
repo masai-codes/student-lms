@@ -34,7 +34,8 @@ export async function seedLiveLecturePhases(): Promise<SeedFlowResult> {
 
   const duration = LIVE_LECTURE_PHASES_TIMING.lectureDurationMinutes
   const beforeSchedule = offsetFromNow({
-    minutesFromNow: LIVE_LECTURE_PHASES_TIMING.beforeUnlockScheduleMinutesFromNow,
+    minutesFromNow:
+      LIVE_LECTURE_PHASES_TIMING.beforeUnlockScheduleMinutesFromNow,
   })
   const duringSchedule = offsetFromNow({
     minutesFromNow: LIVE_LECTURE_PHASES_TIMING.duringJoinScheduleMinutesFromNow,
@@ -64,9 +65,13 @@ export async function seedLiveLecturePhases(): Promise<SeedFlowResult> {
     testUsers: buildTestUsers(world),
     timing: {
       beforeUnlockSchedule: formatMysqlDatetime(beforeSchedule),
-      beforeUnlockConcludes: formatMysqlDatetime(addMinutes(beforeSchedule, duration)),
+      beforeUnlockConcludes: formatMysqlDatetime(
+        addMinutes(beforeSchedule, duration),
+      ),
       duringJoinSchedule: formatMysqlDatetime(duringSchedule),
-      duringJoinConcludes: formatMysqlDatetime(addMinutes(duringSchedule, duration)),
+      duringJoinConcludes: formatMysqlDatetime(
+        addMinutes(duringSchedule, duration),
+      ),
       afterNoRecordingSchedule: formatMysqlDatetime(afterSchedule),
       afterNoRecordingConcludes: formatMysqlDatetime(afterConcludes),
       afterWithRecordingSchedule: formatMysqlDatetime(afterSchedule),

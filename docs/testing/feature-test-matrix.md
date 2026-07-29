@@ -3,11 +3,12 @@
 Last updated: 2026-07-02
 
 ## Structured logging
+
 - Area: Server logging utility (`src/lib/logger.ts`)
 - Status: Covered
 - Test files: `src/lib/logger.test.ts`
 - Notes: JSON structured logs for PM2/CloudWatch (`level`, `time`, `msg`, optional `fn`/`requestId`/`userId`/`err`). Production emits compact single-line JSON; non-production pretty-prints. `warn`/`error` route to stderr; `debug`/`info` to stdout.
-Last updated: 2026-07-09
+  Last updated: 2026-07-09
 
 ## Next-action pill (navbar top-right + mobile tab bar)
 
@@ -298,7 +299,9 @@ Last updated: 2026-07-09
 - Status: Covered (graph build + BFS traversal + node-key utils + card-item builders + service across all start kinds/edge cases + shared item→card mapper + grouped card UI + card analytics source)
 - Test files: `src/server/learn/utils/__tests__/associationGraphTypes.test.ts`, `src/server/learn/utils/__tests__/buildAssociationGraph.test.ts`, `src/server/learn/utils/__tests__/collectAssociatedNodeKeys.test.ts`, `src/server/learn/utils/__tests__/buildAssociatedLearningItems.test.ts`, `src/server/learn/services/__tests__/getAllAssociatedEntities.service.test.ts`, `src/components/features/learn/shared/__tests__/mapLearningItemToContent.test.ts`, `src/components/features/learn/LearnPageDetails/common/associated/__tests__/AssociatedContentList.test.tsx`, `src/components/features/learn/section-three/content-card/__tests__/LearnContentCard.test.tsx`
 - Notes: See `docs/testing/features/associated-content.md`
+
 ## AI Tutor RAG lecture ingestion
+
 - Area: Internal lecture notes preparation (`src/routes/api/ai-tutor/lectures/$lectureId/ingest.ts`, `src/server/api/ai-tutor/**`)
 - Status: Covered
 - Test files: `src/server/api/ai-tutor/__tests__/{ragPlatform,lectureRagContent.service,ingestLectureRag.service,ingestLectureRag.handler,generateLectureNotesTocFromMarkdown,lectureNotesTocData}.test.ts`

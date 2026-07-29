@@ -10,6 +10,7 @@ elements by **`data-testid`**. This skill covers making elements selectable and 
 flows. It pairs with `browser-verify` (running & manually confirming the app).
 
 ## Selector contract — the one rule
+
 Automation targets `data-testid` **only**. Do NOT add `id`s or CSS class names for testing,
 and never key styling off a test id (see CLAUDE.md → Automation Test Hooks).
 
@@ -27,6 +28,7 @@ and never key styling off a test id (see CLAUDE.md → Automation Test Hooks).
   same change** — don't fall back to brittle text/CSS selectors.
 
 ## Auth in automation
+
 Protected routes need a session. Establish one by navigating to the secret-login backdoor
 before the flow (same mechanism as `browser-verify`):
 
@@ -39,6 +41,7 @@ GET http://localhost:3002/api/secret-login?token=${SECRET_LOGIN_TOKEN}&userId=${
 - Use a seeded student (`<flow-id>.student@example.com`). Seed with `npm run seed:all`.
 
 ## Flow shape
+
 1. Launch the browser (agenthand) → base URL `http://localhost:3002`.
 2. Navigate to `/api/secret-login?...` to authenticate, then to the feature route.
 3. Wait for the container testid, act on rows/controls by testid, assert on visible
@@ -48,8 +51,12 @@ GET http://localhost:3002/api/secret-login?token=${SECRET_LOGIN_TOKEN}&userId=${
    (`learn-content-list-empty`).
 
 Sketch (Puppeteer API, agenthand exposes the same surface):
+
 ```js
-await page.goto(`${BASE}/api/secret-login?token=${process.env.SECRET_LOGIN_TOKEN}&userId=${USER_ID}`, { waitUntil: 'networkidle0' })
+await page.goto(
+  `${BASE}/api/secret-login?token=${process.env.SECRET_LOGIN_TOKEN}&userId=${USER_ID}`,
+  { waitUntil: 'networkidle0' },
+)
 await page.goto(`${BASE}/learn`, { waitUntil: 'networkidle0' })
 await page.waitForSelector('[data-testid="learn-content-list"]')
 const lectures = await page.$$('[data-testid="lecture-list-item"]')
@@ -59,6 +66,7 @@ await page.waitForSelector('[data-testid="lecture-detail-page"]') // add this te
 ```
 
 ## Before you finish
+
 - If you added or changed selectors/behavior, update the testing docs in the same change
   (CLAUDE.md → Testing Documentation): `docs/testing/feature-test-matrix.md` and
   `docs/testing/features/<feature>.md`.

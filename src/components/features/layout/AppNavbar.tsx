@@ -285,7 +285,6 @@ export default function AppNavbar() {
     [navigate],
   )
 
-
   const handleReferAndEarnClick = useCallback(
     (e: React.MouseEvent<HTMLAnchorElement>) => {
       e.preventDefault()

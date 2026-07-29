@@ -10,13 +10,15 @@ tools (`mcp__Claude_Browser__*`). Never ask the user to check manually — verif
 share proof.
 
 ## When to use
+
 - "Run the app" / "start the dev server" / "open it in the browser".
 - "Does this work?" / "verify this change" / "show me a screenshot".
 - Reproducing or confirming a fix for a UI bug.
-Skip it when the change isn't observable in the browser (pure server/util/type/test
-changes) — run `npm run test` / `npm run typecheck` instead.
+  Skip it when the change isn't observable in the browser (pure server/util/type/test
+  changes) — run `npm run test` / `npm run typecheck` instead.
 
 ## 1. Start the dev server
+
 Use `preview_start` with the launch config name — **never** run the dev server with Bash.
 
 ```
@@ -29,6 +31,7 @@ First boot compiles — if the page is blank, wait a few seconds and `navigate` 
 again, or check `preview_logs { level: "error" }`.
 
 ## 2. Log in (protected routes need a session)
+
 App routes live under `(protected)` and require an auth cookie. Use the dev-only
 secret-login backdoor to establish a real session — no password flow needed:
 
@@ -46,6 +49,7 @@ navigate { url: "http://localhost:3002/api/secret-login?token=<SECRET_LOGIN_TOKE
   `navigate` to the feature you're verifying (e.g. `/learn`, `/lectures/$id`).
 
 ## 3. Drive & inspect with data-testid
+
 Prefer text-based tools over screenshots for assertions. Target elements by the project's
 stable `data-testid` hooks (see CLAUDE.md → Automation Test Hooks), not by copy or CSS.
 
@@ -60,6 +64,7 @@ stable `data-testid` hooks (see CLAUDE.md → Automation Test Hooks), not by cop
   theming changed.
 
 Example — assert the lecture listing rendered rows:
+
 ```
 navigate { url: "http://localhost:3002/learn" }
 read_page                      // look for [data-testid="learn-content-list"]
@@ -67,16 +72,20 @@ find { query: "lecture list item" }   // resolves [data-testid="lecture-list-ite
 ```
 
 ## 4. If broken, fix and re-check
+
 Read the source, edit the source file (never patch via `javascript_tool` — that's for
 inspection only), then re-run from step 3. HMR usually reloads automatically; otherwise
 `navigate` to the current URL again.
 
 ## 5. Share proof
+
 Once it works, give the user evidence — don't just say "done":
+
 - `computer { action: "screenshot" }` for visual changes.
 - `read_network_requests` for API behavior; `preview_logs` for server behavior.
 
 ## Notes
+
 - One Browser pane per session with tabs; `tabs_context` lists them, omit `tabId` to act on
   the fronted tab.
 - Stop the server with `preview_stop { serverId }` only if asked; leaving it running is fine.

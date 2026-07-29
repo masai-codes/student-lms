@@ -153,7 +153,9 @@ export function isLiveLecturePhasesEntities(
   return 'lectures' in entities && 'beforeUnlock' in entities.lectures
 }
 
-export function isOnboardingEntities(entities: SeedFlowEntities): entities is OnboardingEntities {
+export function isOnboardingEntities(
+  entities: SeedFlowEntities,
+): entities is OnboardingEntities {
   return 'sections' in entities
 }
 

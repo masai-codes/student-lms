@@ -21,8 +21,8 @@ Area: layered test-data seeding (`seed/factories`, `seed/flows`, `seed/registry`
 | SEED-CAT-002       | Swagger-style accordion listing + Login buttons                 | Covered                                   |
 | SEED-CAT-003       | Login uses `/api/secret-login` with seeded userId               | Covered                                   |
 | SEED-FLOW-001      | login-and-join-lecture composes factories and returns testUsers | Covered                                   |
-| SEED-FLOW-004      | live-lecture-phases seeds a segmented sample transcript lecture  | Covered                                   |
-| SEED-FLOW-005      | live-lecture-phases seeds a plain-text-only transcript lecture   | Covered                                   |
+| SEED-FLOW-004      | live-lecture-phases seeds a segmented sample transcript lecture | Covered                                   |
+| SEED-FLOW-005      | live-lecture-phases seeds a plain-text-only transcript lecture  | Covered                                   |
 | SEED-FLOW-002      | Onboarding shared builder wires scenario presets                | Covered                                   |
 | SEED-FLOW-003      | Onboarding constants map section names to video URLs            | Covered                                   |
 | SEED-RESET-001     | resetDatabase blocked in production                             | Covered                                   |

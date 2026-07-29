@@ -27,8 +27,14 @@ export const liveLecturePhasesConfig: SeedFlowMeta = {
   timing: { ...LIVE_LECTURE_PHASES_TIMING },
   seedCommand: 'npm run seed live-lecture-phases',
   defaultCredentialEmails: [
-    { role: 'admin', email: flowScopedEmail(LIVE_LECTURE_PHASES_FLOW_ID, 'admin') },
-    { role: 'student', email: flowScopedEmail(LIVE_LECTURE_PHASES_FLOW_ID, 'student') },
+    {
+      role: 'admin',
+      email: flowScopedEmail(LIVE_LECTURE_PHASES_FLOW_ID, 'admin'),
+    },
+    {
+      role: 'student',
+      email: flowScopedEmail(LIVE_LECTURE_PHASES_FLOW_ID, 'student'),
+    },
   ],
   primaryLoginRole: 'student',
 }

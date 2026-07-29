@@ -31,7 +31,10 @@ import { resolveLectureVideoUrl } from '@/server/learn/utils/resolveLectureVideo
 import type { CreateLectureOverrides } from '../../factories/createLecture'
 import type { CreateSectionOverrides } from '../../factories/createSection'
 import { ONBOARDING_PROFILE_PHOTO_URL } from '../onboarding-shared/constants'
-import { LIVE_LECTURE_PHASES_TIMING, LIVE_LECTURE_RECORDING_HLS_URL } from './config'
+import {
+  LIVE_LECTURE_PHASES_TIMING,
+  LIVE_LECTURE_RECORDING_HLS_URL,
+} from './config'
 import { buildLiveLecturePhasesWorld } from './buildLiveLecturePhasesWorld'
 import { seedLiveLecturePhases } from './seed'
 
@@ -47,31 +50,38 @@ describe('buildLiveLecturePhasesWorld', () => {
       }),
     )
     hoisted.createBatch.mockResolvedValue({ id: 10 })
-    hoisted.createSection.mockImplementation(async (input: CreateSectionOverrides) => {
-      const name = input.name ?? ''
-      return {
-        id: name.includes('OFF') ? 21 : name.includes('ON') ? 22 : 20,
-        name,
-        settings: input.settings,
-      }
-    })
+    hoisted.createSection.mockImplementation(
+      async (input: CreateSectionOverrides) => {
+        const name = input.name ?? ''
+        return {
+          id: name.includes('OFF') ? 21 : name.includes('ON') ? 22 : 20,
+          name,
+          settings: input.settings,
+        }
+      },
+    )
     hoisted.createEnrollment.mockResolvedValue({ id: 30 })
     hoisted.createLecturesAi.mockResolvedValue({ id: 40, lectureId: 104 })
-    hoisted.createAssignment.mockResolvedValue({ id: 50, title: 'Associated assignment' })
+    hoisted.createAssignment.mockResolvedValue({
+      id: 50,
+      title: 'Associated assignment',
+    })
     hoisted.createProfile.mockResolvedValue({ id: 70, userId: 2 })
     hoisted.createUserDeviceToken.mockResolvedValue({ id: 80, userId: 2 })
 
     let lectureId = 100
-    hoisted.createLecture.mockImplementation(async (input: CreateLectureOverrides) => ({
-      id: lectureId++,
-      title: input.title ?? '',
-      schedule: input.schedule,
-      concludes: input.concludes,
-      zoomLink: input.zoomLink,
-      videos: input.videos,
-      notes: input.notes,
-      data: input.data,
-    }))
+    hoisted.createLecture.mockImplementation(
+      async (input: CreateLectureOverrides) => ({
+        id: lectureId++,
+        title: input.title ?? '',
+        schedule: input.schedule,
+        concludes: input.concludes,
+        zoomLink: input.zoomLink,
+        videos: input.videos,
+        notes: input.notes,
+        data: input.data,
+      }),
+    )
   })
 
   it('pre-completes profile photo and download-app guided-tour steps', async () => {
@@ -97,20 +107,39 @@ describe('buildLiveLecturePhasesWorld', () => {
     expect(hoisted.createLecture).toHaveBeenCalledTimes(14)
     // attendance-ON summary/transcript + the two transcript-QA lectures
     expect(hoisted.createLecturesAi).toHaveBeenCalledTimes(3)
-    expect(world.lectures.transcriptSegmented.title).toContain('timestamped segments')
-    expect(world.lectures.transcriptPlainText.title).toContain('plain text only')
-    expect(world.lectures.afterWithRecordingAttendanceOff.title).toContain('attendance OFF')
-    expect(world.lectures.afterWithRecordingAttendanceOn.title).toContain('attendance ON')
-    expect(world.lectures.videoMandatory.title).toContain('Video lecture — mandatory')
-    expect(world.lectures.videoOptional.title).toContain('Video lecture — optional')
-    expect(world.lectures.optionalLiveBeforeUnlock.title).toContain('Optional live — before unlock')
-    expect(world.lectures.optionalLiveDuringJoin.title).toContain('Optional live — during join')
+    expect(world.lectures.transcriptSegmented.title).toContain(
+      'timestamped segments',
+    )
+    expect(world.lectures.transcriptPlainText.title).toContain(
+      'plain text only',
+    )
+    expect(world.lectures.afterWithRecordingAttendanceOff.title).toContain(
+      'attendance OFF',
+    )
+    expect(world.lectures.afterWithRecordingAttendanceOn.title).toContain(
+      'attendance ON',
+    )
+    expect(world.lectures.videoMandatory.title).toContain(
+      'Video lecture — mandatory',
+    )
+    expect(world.lectures.videoOptional.title).toContain(
+      'Video lecture — optional',
+    )
+    expect(world.lectures.optionalLiveBeforeUnlock.title).toContain(
+      'Optional live — before unlock',
+    )
+    expect(world.lectures.optionalLiveDuringJoin.title).toContain(
+      'Optional live — during join',
+    )
   })
 
   it('seeds type=video lectures (mandatory + optional) with playable HLS', async () => {
     await buildLiveLecturePhasesWorld('live-lecture-phases')
 
-    for (const titlePart of ['Video lecture — mandatory', 'Video lecture — optional'] as const) {
+    for (const titlePart of [
+      'Video lecture — mandatory',
+      'Video lecture — optional',
+    ] as const) {
       expect(hoisted.createLecture).toHaveBeenCalledWith(
         expect.objectContaining({
           title: expect.stringContaining(titlePart),
@@ -174,14 +203,20 @@ describe('buildLiveLecturePhasesWorld', () => {
 
     expect(hoisted.createLecture).toHaveBeenCalledWith(
       expect.objectContaining({
-        title: expect.stringContaining('Associated lecture — follow-up: DOM APIs'),
+        title: expect.stringContaining(
+          'Associated lecture — follow-up: DOM APIs',
+        ),
         type: 'live',
         data: {
-          associatedLecture: { id: world.lectures.afterWithRecordingAttendanceOff.id },
+          associatedLecture: {
+            id: world.lectures.afterWithRecordingAttendanceOff.id,
+          },
         },
       }),
     )
-    expect(world.attendanceOffExtras.associatedLecture.title).toContain('DOM APIs')
+    expect(world.attendanceOffExtras.associatedLecture.title).toContain(
+      'DOM APIs',
+    )
   })
 
   it('seeds description, AI, transcript, and associated content for attendance-ON lecture', async () => {
@@ -199,7 +234,9 @@ describe('buildLiveLecturePhasesWorld', () => {
         summary: expect.stringContaining('AI summary'),
         transcript: expect.stringContaining('Welcome back'),
         transcriptSegments: expect.arrayContaining([
-          expect.objectContaining({ text: expect.stringContaining('closures') }),
+          expect.objectContaining({
+            text: expect.stringContaining('closures'),
+          }),
         ]),
         isSummaryPublished: 1,
       }),
@@ -210,7 +247,9 @@ describe('buildLiveLecturePhasesWorld', () => {
         title: expect.stringContaining('Associated lecture — follow-up'),
         type: 'live',
         data: {
-          associatedLecture: { id: world.lectures.afterWithRecordingAttendanceOn.id },
+          associatedLecture: {
+            id: world.lectures.afterWithRecordingAttendanceOn.id,
+          },
         },
       }),
     )
@@ -221,7 +260,9 @@ describe('buildLiveLecturePhasesWorld', () => {
         category: 'notes',
         type: 'reading',
         data: {
-          associatedLecture: { id: world.lectures.afterWithRecordingAttendanceOn.id },
+          associatedLecture: {
+            id: world.lectures.afterWithRecordingAttendanceOn.id,
+          },
         },
       }),
     )
@@ -230,13 +271,19 @@ describe('buildLiveLecturePhasesWorld', () => {
       expect.objectContaining({
         title: expect.stringContaining('Associated assignment'),
         data: {
-          associatedLecture: { id: world.lectures.afterWithRecordingAttendanceOn.id },
+          associatedLecture: {
+            id: world.lectures.afterWithRecordingAttendanceOn.id,
+          },
         },
       }),
     )
 
-    expect(world.attendanceOnExtras.associatedLecture.title).toContain('Associated lecture')
-    expect(world.attendanceOnExtras.associatedNotesLecture.title).toContain('Associated notes')
+    expect(world.attendanceOnExtras.associatedLecture.title).toContain(
+      'Associated lecture',
+    )
+    expect(world.attendanceOnExtras.associatedNotesLecture.title).toContain(
+      'Associated notes',
+    )
     expect(world.attendanceOnExtras.associatedAssignment.title).toContain(
       'Associated assignment',
     )
@@ -257,10 +304,22 @@ describe('buildLiveLecturePhasesWorld', () => {
     )
 
     const aiCall = hoisted.createLecturesAi.mock.calls
-      .map((call) => call[0] as { lectureId: number; transcript: string; transcriptSegments: unknown })
-      .find((input) => input.lectureId === world.lectures.transcriptSegmented.id)
+      .map(
+        (call) =>
+          call[0] as {
+            lectureId: number
+            transcript: string
+            transcriptSegments: unknown
+          },
+      )
+      .find(
+        (input) => input.lectureId === world.lectures.transcriptSegmented.id,
+      )
 
-    const segments = aiCall?.transcriptSegments as Array<{ start: number; text: string }>
+    const segments = aiCall?.transcriptSegments as Array<{
+      start: number
+      text: string
+    }>
     expect(segments.length).toBeGreaterThan(20)
     expect(segments[0].start).toBe(0)
     // The closing block crosses the hour so QA sees `h:mm:ss` timestamps too.
@@ -280,8 +339,17 @@ describe('buildLiveLecturePhasesWorld', () => {
     )
 
     const aiCall = hoisted.createLecturesAi.mock.calls
-      .map((call) => call[0] as { lectureId: number; transcript: string; transcriptSegments: unknown })
-      .find((input) => input.lectureId === world.lectures.transcriptPlainText.id)
+      .map(
+        (call) =>
+          call[0] as {
+            lectureId: number
+            transcript: string
+            transcriptSegments: unknown
+          },
+      )
+      .find(
+        (input) => input.lectureId === world.lectures.transcriptPlainText.id,
+      )
 
     expect(aiCall?.transcriptSegments).toBeNull()
     expect(aiCall?.transcript).toContain('plain text')
@@ -306,7 +374,9 @@ describe('buildLiveLecturePhasesWorld', () => {
     expect(recordingCalls).toHaveLength(2)
     for (const input of recordingCalls) {
       expect(input.videos).toBeNull()
-      expect(input.vimeoDownloadLinks?.gumlet.hls_url).toBe(LIVE_LECTURE_RECORDING_HLS_URL)
+      expect(input.vimeoDownloadLinks?.gumlet.hls_url).toBe(
+        LIVE_LECTURE_RECORDING_HLS_URL,
+      )
       expect(
         resolveLectureVideoUrl({
           videos: input.videos,
@@ -397,8 +467,16 @@ describe('seedLiveLecturePhases', () => {
     vi.clearAllMocks()
 
     hoisted.createUser
-      .mockResolvedValueOnce({ id: 1, email: 'admin@example.com', name: 'Host' })
-      .mockResolvedValueOnce({ id: 2, email: 'student@example.com', name: 'Student' })
+      .mockResolvedValueOnce({
+        id: 1,
+        email: 'admin@example.com',
+        name: 'Host',
+      })
+      .mockResolvedValueOnce({
+        id: 2,
+        email: 'student@example.com',
+        name: 'Student',
+      })
     hoisted.createBatch.mockResolvedValue({ id: 10 })
     hoisted.createSection.mockResolvedValue({ id: 20 })
     hoisted.createEnrollment.mockResolvedValue({ id: 30 })
@@ -408,10 +486,12 @@ describe('seedLiveLecturePhases', () => {
     hoisted.createUserDeviceToken.mockResolvedValue({ id: 80 })
 
     let lectureId = 100
-    hoisted.createLecture.mockImplementation(async (input: { title: string }) => ({
-      id: lectureId++,
-      title: input.title,
-    }))
+    hoisted.createLecture.mockImplementation(
+      async (input: { title: string }) => ({
+        id: lectureId++,
+        title: input.title,
+      }),
+    )
   })
 
   it('returns flow metadata and timing keys', async () => {
@@ -420,10 +500,18 @@ describe('seedLiveLecturePhases', () => {
     expect(result.flowId).toBe('live-lecture-phases')
     expect(result.testUsers).toHaveLength(2)
     expect(result.timing).toMatchObject({
-      beforeUnlockSchedule: expect.stringMatching(/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/),
-      duringJoinSchedule: expect.stringMatching(/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/),
-      afterWithRecordingSchedule: expect.stringMatching(/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/),
+      beforeUnlockSchedule: expect.stringMatching(
+        /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/,
+      ),
+      duringJoinSchedule: expect.stringMatching(
+        /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/,
+      ),
+      afterWithRecordingSchedule: expect.stringMatching(
+        /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/,
+      ),
     })
-    expect(LIVE_LECTURE_PHASES_TIMING.beforeUnlockScheduleMinutesFromNow).toBe(20)
+    expect(LIVE_LECTURE_PHASES_TIMING.beforeUnlockScheduleMinutesFromNow).toBe(
+      20,
+    )
   })
 })
