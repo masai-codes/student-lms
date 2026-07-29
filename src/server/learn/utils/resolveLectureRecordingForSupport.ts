@@ -1,23 +1,37 @@
-import type { LiveLecturePhase, VideoLecturePhase } from '@/server/learn/lectureDetailTypes'
-import { isLectureSessionEnded } from '@/server/learn/utils/isLectureSessionEnded'
+import type {
+  LiveLecturePhase,
+  VideoLecturePhase,
+} from '@/server/learn/lectureDetailTypes'
 import { isSalLectureRecordingAvailable } from '@/server/learn/utils/isSalLectureRecordingAvailable'
 import {
   readGumletHlsUrl,
-  readLectureVideosMp4Url,
+  readLectureVideosRecordingUrl,
 } from '@/server/learn/utils/resolveLectureVideoUrl'
 import { isAdaptiveLectureLink } from '@/server/learn/utils/toLectureScopedAdaptiveLink'
 import { verifyUrlReachable } from '@/server/learn/utils/verifyUrlReachable'
 
-export type LectureRecordingStatus =
-  | 'pending'
-  | 'available'
-  | 'not_available'
-  | 'processing'
+/** Support floater budget — fail fast; cached results reuse the full TTL. */
+const SUPPORT_RECORDING_PROBE_TIMEOUT_MS = 1_500
+
+export type LectureRecordingStatus = 'available' | 'not_available'
 
 export type ResolvedLectureRecording = {
   recordingStatus: LectureRecordingStatus
   recordingUrl: string | null
   recordingVerified: boolean
+}
+
+async function resolveRecordingFromUrl(
+  url: string,
+): Promise<ResolvedLectureRecording> {
+  const recordingVerified = await verifyUrlReachable(url, {
+    timeoutMs: SUPPORT_RECORDING_PROBE_TIMEOUT_MS,
+  })
+  return {
+    recordingStatus: recordingVerified ? 'available' : 'not_available',
+    recordingUrl: url,
+    recordingVerified,
+  }
 }
 
 export async function resolveLectureRecordingForSupport(input: {
@@ -32,11 +46,14 @@ export async function resolveLectureRecordingForSupport(input: {
   livePhase: LiveLecturePhase | null
   videoPhase: VideoLecturePhase | null
 }): Promise<ResolvedLectureRecording> {
-  // SAL (adaptive) lectures first — recording availability is time-based, not gumlet.
-  if (
-    input.lectureKind === 'live' &&
-    isAdaptiveLectureLink(input.zoomLink)
-  ) {
+  const notAvailable: ResolvedLectureRecording = {
+    recordingStatus: 'not_available',
+    recordingUrl: null,
+    recordingVerified: false,
+  }
+
+  // SAL (adaptive) lectures — recording availability is time-based, not gumlet/videos.
+  if (input.lectureKind === 'live' && isAdaptiveLectureLink(input.zoomLink)) {
     if (
       isSalLectureRecordingAvailable({
         zoomLink: input.zoomLink,
@@ -52,25 +69,11 @@ export async function resolveLectureRecordingForSupport(input: {
       }
     }
 
-    const sessionEnded = isLectureSessionEnded({
-      schedule: input.schedule,
-      concludes: input.concludes,
-      nowMs: input.nowMs,
-    })
-
-    return {
-      recordingStatus: sessionEnded ? 'not_available' : 'pending',
-      recordingUrl: null,
-      recordingVerified: false,
-    }
+    return notAvailable
   }
 
   if (input.hideVideo) {
-    return {
-      recordingStatus: 'not_available',
-      recordingUrl: null,
-      recordingVerified: false,
-    }
+    return notAvailable
   }
 
   const isSessionPending =
@@ -80,36 +83,18 @@ export async function resolveLectureRecordingForSupport(input: {
     (input.lectureKind === 'video' && input.videoPhase === 'before')
 
   if (isSessionPending) {
-    return {
-      recordingStatus: 'pending',
-      recordingUrl: null,
-      recordingVerified: false,
-    }
+    return notAvailable
   }
 
   const gumletUrl = readGumletHlsUrl(input.vimeoDownloadLinks)
   if (gumletUrl != null) {
-    const recordingVerified = await verifyUrlReachable(gumletUrl)
-    return {
-      recordingStatus: recordingVerified ? 'available' : 'processing',
-      recordingUrl: gumletUrl,
-      recordingVerified,
-    }
+    return resolveRecordingFromUrl(gumletUrl)
   }
 
-  const mp4Url = readLectureVideosMp4Url(input.videos)
-  if (mp4Url != null) {
-    const recordingVerified = await verifyUrlReachable(mp4Url)
-    return {
-      recordingStatus: recordingVerified ? 'available' : 'not_available',
-      recordingUrl: mp4Url,
-      recordingVerified,
-    }
+  const videosUrl = readLectureVideosRecordingUrl(input.videos)
+  if (videosUrl != null) {
+    return resolveRecordingFromUrl(videosUrl)
   }
 
-  return {
-    recordingStatus: 'not_available',
-    recordingUrl: null,
-    recordingVerified: false,
-  }
+  return notAvailable
 }

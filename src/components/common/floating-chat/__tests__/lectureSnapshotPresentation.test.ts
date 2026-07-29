@@ -2,7 +2,10 @@ import { describe, expect, it } from 'vitest'
 
 import type { LectureAttendanceSummary } from '@/server/attendance/types'
 import type { LectureSupportSnapshot } from '@/server/api/support/support.types'
-import { getSupportAttendancePresentation } from '../lectureSnapshotPresentation'
+import {
+  getSupportAttendancePresentation,
+  getSupportCatchUpPresentation,
+} from '../lectureSnapshotPresentation'
 
 function makeAttendance(
   overrides: Partial<LectureAttendanceSummary> = {},
@@ -31,10 +34,12 @@ function makeSnapshot(
 ): LectureSupportSnapshot {
   return {
     lectureId: 1,
+    batchId: 42,
+    title: 'Intro to JS',
+    meta: 'module-1',
+    date: '24 Jul, 01:00 pm',
+    lectureDisplayType: 'live',
     lectureKind: 'live',
-    title: 'Sample lecture',
-    meta: 'Module 1',
-    date: 'Today',
     schedule: '2026-07-21 18:00:00',
     isOptional: false,
     isMandatory: true,
@@ -44,8 +49,6 @@ function makeSnapshot(
     isSessionPending: false,
     recordingStatus: 'available',
     recordingUrl: 'https://example.com/video',
-    durationSeconds: 3600,
-    durationSource: 'hls',
     aiSummaryStatus: 'generated',
     attendance: makeAttendance(),
     showAttendance: true,
@@ -219,5 +222,66 @@ describe('getSupportAttendancePresentation', () => {
       /did not finish watching the recording/i,
     )
     expect(result.absentReason).toMatch(/window to finish it has closed/i)
+  })
+})
+
+describe('getSupportCatchUpPresentation', () => {
+  it('shows the same countdown label as the lecture detail header', () => {
+    const result = getSupportCatchUpPresentation(
+      makeSnapshot({
+        attendance: makeAttendance({
+          daysRemaining: 2,
+          remainingLabel: '2 days remaining',
+        }),
+      }),
+    )
+
+    expect(result.label).toBe('2 days remaining')
+  })
+
+  it('shows Closed when the catch-up window is over', () => {
+    const result = getSupportCatchUpPresentation(
+      makeSnapshot({
+        attendance: makeAttendance({
+          videoCountsForAttendance: true,
+          isCatchupWindowOver: true,
+          daysRemaining: 0,
+        }),
+      }),
+    )
+
+    expect(result.label).toBe('Closed')
+  })
+
+  it('shows N/A when attendance is not scored for the session', () => {
+    const result = getSupportCatchUpPresentation(
+      makeSnapshot({ showAttendance: false, attendance: null }),
+    )
+
+    expect(result.label).toBe('N/A')
+  })
+
+  it('shows N/A when the student is present', () => {
+    const result = getSupportCatchUpPresentation(
+      makeSnapshot({
+        attendance: makeAttendance({ overallStatus: 1 }),
+      }),
+    )
+
+    expect(result.label).toBe('N/A')
+  })
+
+  it('shows N/A when only live attendance counts', () => {
+    const result = getSupportCatchUpPresentation(
+      makeSnapshot({
+        attendance: makeAttendance({
+          videoCountsForAttendance: false,
+          daysRemaining: null,
+          remainingLabel: null,
+        }),
+      }),
+    )
+
+    expect(result.label).toBe('N/A')
   })
 })

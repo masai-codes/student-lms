@@ -4,9 +4,8 @@ import type { LectureSupportSnapshot } from '@/server/api/support/support.types'
 import { db } from '@/db'
 import { lectures, lecturesAi } from '@/db/schema'
 import { fetchLectureAttendanceSummaries } from '@/server/attendance/services/fetchLectureAttendanceSummaries'
-import { buildLectureVideoAttendanceState } from '@/server/learn/utils/buildLectureVideoAttendanceState'
 import { ensureUserCanAccessLearnHubEntity } from '@/server/learn/utils/ensureLearnEntityAccess'
-import { parseLectureTranscriptSegments } from '@/server/learn/utils/formatLectureTranscript'
+import { getBatchIdForSection } from '@/server/batches/getBatchIdsForSections'
 import {
   resolveModuleName,
   toLearningPriority,
@@ -17,7 +16,6 @@ import { normalizeLectureKind } from '@/server/learn/utils/normalizeLectureKind'
 import { parseLectureSettings } from '@/server/learn/utils/parseLectureSettings'
 import { resolveAiSummaryStatus } from '@/server/learn/utils/resolveAiSummaryStatus'
 import { resolveJoinLiveButtonState } from '@/server/learn/utils/resolveJoinLiveButtonState'
-import { resolveLectureDuration } from '@/server/learn/utils/resolveLectureDuration'
 import { resolveLectureRecordingForSupport } from '@/server/learn/utils/resolveLectureRecordingForSupport'
 import { resolveLiveLecturePhase } from '@/server/learn/utils/resolveLiveLecturePhase'
 import { resolveVideoLecturePhase } from '@/server/learn/utils/resolveVideoLecturePhase'
@@ -75,6 +73,12 @@ export async function getLectureSupportSnapshot(
   const isMandatory = priority === 'mandatory'
   const isOptional = priority === 'recommended'
 
+  const batchId =
+    row.sectionId != null ? await getBatchIdForSection(row.sectionId) : null
+  if (batchId == null) {
+    throw new Error('SUPPORT_LECTURE_NOT_FOUND')
+  }
+
   const livePhase =
     lectureKind === 'live'
       ? resolveLiveLecturePhase({
@@ -99,17 +103,15 @@ export async function getLectureSupportSnapshot(
         })
       : null
 
-  const [aiRows, videoAttendance, attendanceMap] = await Promise.all([
+  const [aiRows, attendanceMap, recording] = await Promise.all([
     db
       .select({
         summary: lecturesAi.summary,
         isSummaryPublished: lecturesAi.isSummaryPublished,
-        transcriptSegments: lecturesAi.transcriptSegments,
       })
       .from(lecturesAi)
       .where(eq(lecturesAi.lectureId, lectureId))
       .limit(1),
-    buildLectureVideoAttendanceState(userId, lectureId),
     row.sectionId != null
       ? fetchLectureAttendanceSummaries(
           userId,
@@ -126,34 +128,21 @@ export async function getLectureSupportSnapshot(
           true,
         )
       : Promise.resolve(new Map()),
+    resolveLectureRecordingForSupport({
+      zoomLink: row.zoomLink,
+      schedule: row.schedule,
+      concludes: row.concludes,
+      nowMs,
+      vimeoDownloadLinks: row.vimeoDownloadLinks,
+      videos: row.videos,
+      hideVideo: settings.hideVideo,
+      lectureKind,
+      livePhase,
+      videoPhase,
+    }),
   ])
 
   const aiRow = aiRows[0] ?? null
-  const transcriptSegments = aiRow
-    ? parseLectureTranscriptSegments(aiRow.transcriptSegments)
-    : []
-
-  const recording = await resolveLectureRecordingForSupport({
-    zoomLink: row.zoomLink,
-    schedule: row.schedule,
-    concludes: row.concludes,
-    nowMs,
-    vimeoDownloadLinks: row.vimeoDownloadLinks,
-    videos: row.videos,
-    hideVideo: settings.hideVideo,
-    lectureKind,
-    livePhase,
-    videoPhase,
-  })
-
-  const duration = await resolveLectureDuration({
-    recordingUrl: recording.recordingUrl,
-    recordingVerified: recording.recordingVerified,
-    transcriptSegments,
-    schedule: row.schedule,
-    concludes: row.concludes,
-    videoProgressDurationSeconds: videoAttendance?.totalDuration ?? null,
-  })
 
   const sessionEnded = isLectureSessionEnded({
     schedule: row.schedule,
@@ -168,6 +157,7 @@ export async function getLectureSupportSnapshot(
 
   return {
     lectureId,
+    batchId,
     lectureKind,
     title: row.title.trim() || 'Untitled lecture',
     meta: resolveModuleName(row.module, row.week),
@@ -179,11 +169,11 @@ export async function getLectureSupportSnapshot(
     livePhase,
     videoPhase,
     joinLiveButtonState,
-    isSessionPending: recording.recordingStatus === 'pending',
+    isSessionPending:
+      (lectureKind === 'live' && livePhase != null && livePhase !== 'after') ||
+      (lectureKind === 'video' && videoPhase === 'before'),
     recordingStatus: recording.recordingStatus,
     recordingUrl: recording.recordingUrl,
-    durationSeconds: duration.durationSeconds,
-    durationSource: duration.durationSource,
     aiSummaryStatus: resolveAiSummaryStatus(aiRow),
     attendance,
     showAttendance,

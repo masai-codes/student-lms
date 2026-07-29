@@ -90,7 +90,9 @@ function readRawVideoUrls(videos: unknown): string[] {
   if (!Array.isArray(videos)) return []
 
   return videos
-    .filter((item): item is string => typeof item === 'string' && item.trim() !== '')
+    .filter(
+      (item): item is string => typeof item === 'string' && item.trim() !== '',
+    )
     .map((item) => item.trim())
 }
 
@@ -107,6 +109,11 @@ function readVideosUrl(videos: unknown): string | null {
   return raw ? s3ToCloudFront(uriEncodeIfNeeded(raw)) : null
 }
 
+/** First `lectures.videos` URL, S3→CloudFront when applicable — same fallback as the lecture player. */
+export function readLectureVideosRecordingUrl(videos: unknown): string | null {
+  return readVideosUrl(videos)
+}
+
 /** First `.mp4` URL from `lectures.videos`, rewritten through CloudFront when configured. */
 export function readLectureVideosMp4Url(videos: unknown): string | null {
   for (const raw of readRawVideoUrls(videos)) {
@@ -114,6 +121,20 @@ export function readLectureVideosMp4Url(videos: unknown): string | null {
     return s3ToCloudFront(uriEncodeIfNeeded(raw))
   }
   return null
+}
+
+/**
+ * Recording URL resolution — same gumlet → `videos` priority as
+ * {@link resolveLectureVideoUrl}, without the Vimeo embed fallback.
+ * S3 bucket URLs are rewritten through CloudFront when configured.
+ */
+export function resolveLectureRecordingVideoUrl(input: {
+  vimeoDownloadLinks: unknown
+  videos: unknown
+}): string | null {
+  return (
+    readGumletHlsUrl(input.vimeoDownloadLinks) ?? readVideosUrl(input.videos)
+  )
 }
 
 export function resolveLectureVideoUrl(input: {

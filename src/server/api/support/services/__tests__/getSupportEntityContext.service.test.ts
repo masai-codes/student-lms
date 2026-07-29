@@ -1,11 +1,18 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 const hoisted = vi.hoisted(() => ({
-  select: vi.fn(),
+  getLectureSupportSnapshot: vi.fn(),
 }))
 
+vi.mock(
+  '@/server/api/support/services/getLectureSupportSnapshot.service',
+  () => ({
+    getLectureSupportSnapshot: hoisted.getLectureSupportSnapshot,
+  }),
+)
+
 vi.mock('@/db', () => ({
-  db: { select: hoisted.select },
+  db: { select: vi.fn() },
 }))
 
 vi.mock('@/server/batches/getBatchIdsForSections', () => ({
@@ -19,15 +26,33 @@ vi.mock('@/server/learn/utils/ensureLearnEntityAccess', () => ({
 import { getBatchIdForSection } from '@/server/batches/getBatchIdsForSections'
 import { ensureUserCanAccessLearnHubEntity } from '@/server/learn/utils/ensureLearnEntityAccess'
 import { getSupportEntityContext } from '@/server/api/support/services/getSupportEntityContext.service'
+import type { LectureSupportSnapshot } from '@/server/api/support/support.types'
 
-function mockSelectChain(rows: unknown[]) {
-  hoisted.select.mockReturnValueOnce({
-    from: () => ({
-      where: () => ({
-        limit: () => Promise.resolve(rows),
-      }),
-    }),
-  })
+function makeLectureSnapshot(
+  overrides: Partial<LectureSupportSnapshot> = {},
+): LectureSupportSnapshot {
+  return {
+    lectureId: 7,
+    batchId: 42,
+    title: 'Intro to JS',
+    meta: 'Module A',
+    date: '15 Jan, 03:30 pm',
+    lectureDisplayType: 'live',
+    lectureKind: 'live',
+    schedule: '2026-01-15T10:00:00.000Z',
+    isMandatory: true,
+    isOptional: false,
+    livePhase: 'after',
+    videoPhase: null,
+    joinLiveButtonState: 'hidden',
+    isSessionPending: false,
+    recordingStatus: 'available',
+    recordingUrl: 'https://cdn.example/hls.m3u8',
+    aiSummaryStatus: 'generated',
+    attendance: null,
+    showAttendance: true,
+    ...overrides,
+  }
 }
 
 describe('getSupportEntityContext', () => {
@@ -37,23 +62,13 @@ describe('getSupportEntityContext', () => {
     vi.mocked(getBatchIdForSection).mockResolvedValue(42)
   })
 
-  it('maps a lecture to batch + item card fields', async () => {
-    mockSelectChain([
-      {
-        id: 7,
-        title: 'Intro to JS',
-        type: 'live',
-        optional: 0,
-        schedule: '2026-01-15T10:00:00.000Z',
-        week: 2,
-        module: 'Module A',
-        category: 'Core',
-        sectionId: 99,
-      },
-    ])
+  it('returns batch + item + lecture snapshot from the shared snapshot service', async () => {
+    const snapshot = makeLectureSnapshot()
+    hoisted.getLectureSupportSnapshot.mockResolvedValue(snapshot)
 
     const result = await getSupportEntityContext(1, 'lecture', 7)
 
+    expect(hoisted.getLectureSupportSnapshot).toHaveBeenCalledWith(1, 7)
     expect(result).toMatchObject({
       batchId: 42,
       category: 'lecture',
@@ -63,26 +78,21 @@ describe('getSupportEntityContext', () => {
         meta: 'Module A',
         type: 'live',
       },
+      lectureSnapshot: snapshot,
     })
   })
 
-  it('maps evaluations to the evaluation support category', async () => {
-    mockSelectChain([
-      {
-        id: 12,
-        title: 'Midterm',
-        type: 'evaluation',
-        optional: 0,
-        schedule: '2026-02-01T10:00:00.000Z',
-        category: 'Eval',
-        sectionId: 88,
-      },
-    ])
+  it('preserves scrum display type from the snapshot', async () => {
+    const snapshot = makeLectureSnapshot({
+      lectureDisplayType: 'scrum',
+      lectureKind: 'live',
+    })
+    hoisted.getLectureSupportSnapshot.mockResolvedValue(snapshot)
 
-    const result = await getSupportEntityContext(1, 'evaluation', 12)
+    const result = await getSupportEntityContext(1, 'lecture', 7)
 
-    expect(result.category).toBe('evaluation')
-    expect(result.item.id).toBe(12)
+    expect(result.item.type).toBe('scrum')
+    expect(result.lectureSnapshot?.lectureDisplayType).toBe('scrum')
   })
 
   it('rejects unknown categories', async () => {

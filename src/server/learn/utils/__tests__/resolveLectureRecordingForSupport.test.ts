@@ -1,4 +1,4 @@
-import { describe, expect, it, vi, beforeEach } from 'vitest'
+import { afterEach, describe, expect, it, vi, beforeEach } from 'vitest'
 
 import { resolveLectureRecordingForSupport } from '../resolveLectureRecordingForSupport'
 
@@ -17,12 +17,18 @@ const concludes = '2026-05-20T12:00:00.000Z'
 const adaptiveLink =
   'https://experience-api.masaischool.com/api/adaptive-lecture/abc123/join'
 
+const supportProbeOptions = { timeoutMs: 1500 }
+
 describe('resolveLectureRecordingForSupport', () => {
   beforeEach(() => {
     vi.mocked(verifyUrlReachable).mockReset()
   })
 
-  it('returns pending for live lectures still in session', async () => {
+  afterEach(() => {
+    vi.unstubAllEnvs()
+  })
+
+  it('returns not_available for live lectures still in session without probing', async () => {
     const scheduleMs = new Date(schedule).getTime()
     const result = await resolveLectureRecordingForSupport({
       zoomLink: 'https://zoom.example/j/1',
@@ -37,7 +43,7 @@ describe('resolveLectureRecordingForSupport', () => {
       videoPhase: null,
     })
 
-    expect(result.recordingStatus).toBe('pending')
+    expect(result.recordingStatus).toBe('not_available')
     expect(verifyUrlReachable).not.toHaveBeenCalled()
   })
 
@@ -65,7 +71,7 @@ describe('resolveLectureRecordingForSupport', () => {
     })
   })
 
-  it('returns processing when gumlet url fails HEAD check', async () => {
+  it('returns not_available when gumlet url fails HEAD check', async () => {
     vi.mocked(verifyUrlReachable).mockResolvedValue(false)
 
     const result = await resolveLectureRecordingForSupport({
@@ -81,8 +87,11 @@ describe('resolveLectureRecordingForSupport', () => {
       videoPhase: 'during_after',
     })
 
-    expect(result.recordingStatus).toBe('processing')
-    expect(result.recordingVerified).toBe(false)
+    expect(result).toEqual({
+      recordingStatus: 'not_available',
+      recordingUrl: 'https://cdn.example/hls/master.m3u8',
+      recordingVerified: false,
+    })
   })
 
   it('returns not_available when hide_video is enabled', async () => {
@@ -126,7 +135,7 @@ describe('resolveLectureRecordingForSupport', () => {
     expect(verifyUrlReachable).not.toHaveBeenCalled()
   })
 
-  it('returns pending for SAL lectures still in the live window', async () => {
+  it('returns not_available for SAL lectures still in the live window', async () => {
     const scheduleMs = new Date(schedule).getTime()
     const result = await resolveLectureRecordingForSupport({
       zoomLink: adaptiveLink,
@@ -141,7 +150,7 @@ describe('resolveLectureRecordingForSupport', () => {
       videoPhase: null,
     })
 
-    expect(result.recordingStatus).toBe('pending')
+    expect(result.recordingStatus).toBe('not_available')
     expect(verifyUrlReachable).not.toHaveBeenCalled()
   })
 
@@ -162,6 +171,51 @@ describe('resolveLectureRecordingForSupport', () => {
 
     expect(result.recordingStatus).toBe('not_available')
     expect(verifyUrlReachable).not.toHaveBeenCalled()
+  })
+
+  it('returns available when gumlet is missing but videos has HLS', async () => {
+    vi.mocked(verifyUrlReachable).mockResolvedValue(true)
+
+    const result = await resolveLectureRecordingForSupport({
+      zoomLink: null,
+      schedule,
+      concludes,
+      nowMs: Date.now(),
+      vimeoDownloadLinks: null,
+      videos: [
+        'https://cdn.masaischool.com/hls-videos/157896/6a6090c8d1790fa22d8c9e1e/master.m3u8',
+      ],
+      hideVideo: false,
+      lectureKind: 'live',
+      livePhase: 'after',
+      videoPhase: null,
+    })
+
+    expect(result).toEqual({
+      recordingStatus: 'available',
+      recordingUrl:
+        'https://cdn.masaischool.com/hls-videos/157896/6a6090c8d1790fa22d8c9e1e/master.m3u8',
+      recordingVerified: true,
+    })
+  })
+
+  it('returns not_available when videos HLS fails HEAD check', async () => {
+    vi.mocked(verifyUrlReachable).mockResolvedValue(false)
+
+    const result = await resolveLectureRecordingForSupport({
+      zoomLink: null,
+      schedule,
+      concludes,
+      nowMs: Date.now(),
+      vimeoDownloadLinks: null,
+      videos: ['https://cdn.example.com/master.m3u8'],
+      hideVideo: false,
+      lectureKind: 'live',
+      livePhase: 'after',
+      videoPhase: null,
+    })
+
+    expect(result.recordingStatus).toBe('not_available')
   })
 
   it('returns available when gumlet is missing but videos mp4 passes HEAD check', async () => {
@@ -185,7 +239,10 @@ describe('resolveLectureRecordingForSupport', () => {
       recordingUrl: 'https://example.com/recording.mp4',
       recordingVerified: true,
     })
-    expect(verifyUrlReachable).toHaveBeenCalledWith('https://example.com/recording.mp4')
+    expect(verifyUrlReachable).toHaveBeenCalledWith(
+      'https://example.com/recording.mp4',
+      supportProbeOptions,
+    )
   })
 
   it('returns not_available when gumlet is missing and videos mp4 fails HEAD check', async () => {
@@ -211,7 +268,39 @@ describe('resolveLectureRecordingForSupport', () => {
     })
   })
 
-  it('prefers gumlet over videos mp4 when both exist', async () => {
+  it('rewrites non-mp4 S3 zoom segment through CloudFront before HEAD check', async () => {
+    vi.stubEnv('CLOUD_FRONT_BASE', 'dxyz.cloudfront.net')
+    vi.mocked(verifyUrlReachable).mockResolvedValue(true)
+
+    const raw =
+      'https://zoom-lecture-recordings.s3.ap-south-1.amazonaws.com/84313531944/link_02_1750917137000'
+
+    const result = await resolveLectureRecordingForSupport({
+      zoomLink: null,
+      schedule,
+      concludes,
+      nowMs: Date.now(),
+      vimeoDownloadLinks: null,
+      videos: [raw],
+      hideVideo: false,
+      lectureKind: 'live',
+      livePhase: 'after',
+      videoPhase: null,
+    })
+
+    expect(result).toEqual({
+      recordingStatus: 'available',
+      recordingUrl:
+        'https://dxyz.cloudfront.net/zoom/84313531944/link_02_1750917137000',
+      recordingVerified: true,
+    })
+    expect(verifyUrlReachable).toHaveBeenCalledWith(
+      'https://dxyz.cloudfront.net/zoom/84313531944/link_02_1750917137000',
+      supportProbeOptions,
+    )
+  })
+
+  it('prefers gumlet over videos when both exist', async () => {
     vi.mocked(verifyUrlReachable).mockResolvedValue(true)
 
     const result = await resolveLectureRecordingForSupport({
@@ -229,6 +318,9 @@ describe('resolveLectureRecordingForSupport', () => {
 
     expect(result.recordingUrl).toBe('https://cdn.example/hls/master.m3u8')
     expect(verifyUrlReachable).toHaveBeenCalledTimes(1)
-    expect(verifyUrlReachable).toHaveBeenCalledWith('https://cdn.example/hls/master.m3u8')
+    expect(verifyUrlReachable).toHaveBeenCalledWith(
+      'https://cdn.example/hls/master.m3u8',
+      supportProbeOptions,
+    )
   })
 })
