@@ -51,6 +51,7 @@ import { Route as ApiDashboardT0FlowStepCompleteRouteImport } from './routes/api
 import { Route as ApiDashboardT0FlowLecturesRouteImport } from './routes/api/dashboard/t0-flow-lectures'
 import { Route as ApiDashboardT0FlowDocumentsRouteImport } from './routes/api/dashboard/t0-flow-documents'
 import { Route as ApiDashboardProfilePhotoRouteImport } from './routes/api/dashboard/profile-photo'
+import { Route as ApiDashboardPendingTasksRouteImport } from './routes/api/dashboard/pending-tasks'
 import { Route as ApiDashboardOverviewRouteImport } from './routes/api/dashboard/overview'
 import { Route as ApiDashboardNavbarPillRouteImport } from './routes/api/dashboard/navbar-pill'
 import { Route as ApiBookmarksFilterOptionsRouteImport } from './routes/api/bookmarks/filter-options'
@@ -414,6 +415,12 @@ const ApiDashboardProfilePhotoRoute =
   ApiDashboardProfilePhotoRouteImport.update({
     id: '/api/dashboard/profile-photo',
     path: '/api/dashboard/profile-photo',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiDashboardPendingTasksRoute =
+  ApiDashboardPendingTasksRouteImport.update({
+    id: '/api/dashboard/pending-tasks',
+    path: '/api/dashboard/pending-tasks',
     getParentRoute: () => rootRouteImport,
   } as any)
 const ApiDashboardOverviewRoute = ApiDashboardOverviewRouteImport.update({
@@ -1271,6 +1278,7 @@ export interface FileRoutesByFullPath {
   '/api/bookmarks/filter-options': typeof ApiBookmarksFilterOptionsRoute
   '/api/dashboard/navbar-pill': typeof ApiDashboardNavbarPillRoute
   '/api/dashboard/overview': typeof ApiDashboardOverviewRoute
+  '/api/dashboard/pending-tasks': typeof ApiDashboardPendingTasksRoute
   '/api/dashboard/profile-photo': typeof ApiDashboardProfilePhotoRoute
   '/api/dashboard/t0-flow-documents': typeof ApiDashboardT0FlowDocumentsRoute
   '/api/dashboard/t0-flow-lectures': typeof ApiDashboardT0FlowLecturesRoute
@@ -1456,6 +1464,7 @@ export interface FileRoutesByTo {
   '/api/bookmarks/filter-options': typeof ApiBookmarksFilterOptionsRoute
   '/api/dashboard/navbar-pill': typeof ApiDashboardNavbarPillRoute
   '/api/dashboard/overview': typeof ApiDashboardOverviewRoute
+  '/api/dashboard/pending-tasks': typeof ApiDashboardPendingTasksRoute
   '/api/dashboard/profile-photo': typeof ApiDashboardProfilePhotoRoute
   '/api/dashboard/t0-flow-documents': typeof ApiDashboardT0FlowDocumentsRoute
   '/api/dashboard/t0-flow-lectures': typeof ApiDashboardT0FlowLecturesRoute
@@ -1644,6 +1653,7 @@ export interface FileRoutesById {
   '/api/bookmarks/filter-options': typeof ApiBookmarksFilterOptionsRoute
   '/api/dashboard/navbar-pill': typeof ApiDashboardNavbarPillRoute
   '/api/dashboard/overview': typeof ApiDashboardOverviewRoute
+  '/api/dashboard/pending-tasks': typeof ApiDashboardPendingTasksRoute
   '/api/dashboard/profile-photo': typeof ApiDashboardProfilePhotoRoute
   '/api/dashboard/t0-flow-documents': typeof ApiDashboardT0FlowDocumentsRoute
   '/api/dashboard/t0-flow-lectures': typeof ApiDashboardT0FlowLecturesRoute
@@ -1832,6 +1842,7 @@ export interface FileRouteTypes {
     | '/api/bookmarks/filter-options'
     | '/api/dashboard/navbar-pill'
     | '/api/dashboard/overview'
+    | '/api/dashboard/pending-tasks'
     | '/api/dashboard/profile-photo'
     | '/api/dashboard/t0-flow-documents'
     | '/api/dashboard/t0-flow-lectures'
@@ -2017,6 +2028,7 @@ export interface FileRouteTypes {
     | '/api/bookmarks/filter-options'
     | '/api/dashboard/navbar-pill'
     | '/api/dashboard/overview'
+    | '/api/dashboard/pending-tasks'
     | '/api/dashboard/profile-photo'
     | '/api/dashboard/t0-flow-documents'
     | '/api/dashboard/t0-flow-lectures'
@@ -2204,6 +2216,7 @@ export interface FileRouteTypes {
     | '/api/bookmarks/filter-options'
     | '/api/dashboard/navbar-pill'
     | '/api/dashboard/overview'
+    | '/api/dashboard/pending-tasks'
     | '/api/dashboard/profile-photo'
     | '/api/dashboard/t0-flow-documents'
     | '/api/dashboard/t0-flow-lectures'
@@ -2388,6 +2401,7 @@ export interface RootRouteChildren {
   ApiBookmarksFilterOptionsRoute: typeof ApiBookmarksFilterOptionsRoute
   ApiDashboardNavbarPillRoute: typeof ApiDashboardNavbarPillRoute
   ApiDashboardOverviewRoute: typeof ApiDashboardOverviewRoute
+  ApiDashboardPendingTasksRoute: typeof ApiDashboardPendingTasksRoute
   ApiDashboardProfilePhotoRoute: typeof ApiDashboardProfilePhotoRoute
   ApiDashboardT0FlowDocumentsRoute: typeof ApiDashboardT0FlowDocumentsRoute
   ApiDashboardT0FlowLecturesRoute: typeof ApiDashboardT0FlowLecturesRoute
@@ -2791,6 +2805,13 @@ declare module '@tanstack/react-router' {
       path: '/api/dashboard/profile-photo'
       fullPath: '/api/dashboard/profile-photo'
       preLoaderRoute: typeof ApiDashboardProfilePhotoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/dashboard/pending-tasks': {
+      id: '/api/dashboard/pending-tasks'
+      path: '/api/dashboard/pending-tasks'
+      fullPath: '/api/dashboard/pending-tasks'
+      preLoaderRoute: typeof ApiDashboardPendingTasksRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/dashboard/overview': {
@@ -4128,6 +4149,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiBookmarksFilterOptionsRoute: ApiBookmarksFilterOptionsRoute,
   ApiDashboardNavbarPillRoute: ApiDashboardNavbarPillRoute,
   ApiDashboardOverviewRoute: ApiDashboardOverviewRoute,
+  ApiDashboardPendingTasksRoute: ApiDashboardPendingTasksRoute,
   ApiDashboardProfilePhotoRoute: ApiDashboardProfilePhotoRoute,
   ApiDashboardT0FlowDocumentsRoute: ApiDashboardT0FlowDocumentsRoute,
   ApiDashboardT0FlowLecturesRoute: ApiDashboardT0FlowLecturesRoute,

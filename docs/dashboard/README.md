@@ -144,8 +144,10 @@ Client access: `fetchDashboardOverview()` in
 >
 > 1. The old **per-section endpoints** (`/left-section`, `/right-section`,
 >    `/banners`, `/announcements`, `/action-banners`, `/schedule`,
->    `/pending-tasks`, `/product-updates`, `/lms-support`, `/attendance`) +
->    their flat services — all superseded by the consolidated `/overview`.
+>    `/product-updates`, `/lms-support`, `/attendance`) + their flat services
+>    were superseded by the consolidated `/overview`. The pending-tasks logic
+>    still lives in `getDashboardPendingTasks` and is also exposed again via a
+>    slim `/pending-tasks` wrapper for consumers that only need that field.
 > 2. **Frontend-unused** endpoints: `/agreement/*`, `/payment-banner`,
 >    `/nps-form/*` + `/assess-nps/:id/link`, and `/t0-flow-student-status`.
 >    They'll be re-added when a frontend feature actually needs them.
@@ -155,6 +157,7 @@ Client access: `fetchDashboardOverview()` in
 >    carries the primary batch's `t0-flow-lectures`.
 >
 > **Kept** (all frontend-wired): `/overview` (the single dashboard GET),
+> `/pending-tasks` (GET; slim wrapper returning `{ pendingTasks }`),
 > `/navbar-pill` (layout's upcoming-lecture pill), `/welcome-modal-dismiss`
 > (POST), `/t0-flow-lectures` (on-demand for non-primary batches),
 > `/t0-flow-step-complete` (POST), `/profile-photo` (POST), the agreement
