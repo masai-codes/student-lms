@@ -63,7 +63,7 @@ interface FloatingChatModalProps {
     categoryLabel: string
     itemTitle: string
   }) => void
-  /** Full viewport page (e.g. `/support-page`) vs anchored floater panel. */
+  /** Full viewport page (e.g. `/support`) vs anchored floater panel. */
   presentation?: 'floating' | 'fullPage'
   /** Deep-link from a learn detail page → step 2.5 for this entity. */
   entityLaunchIntent?: FloatingChatEntityLaunchIntent | null
@@ -134,6 +134,13 @@ export function FloatingChatModal({
   onEntityLaunchFailed,
 }: FloatingChatModalProps) {
   const isFullPage = presentation === 'fullPage'
+  // When the full-page support experience is embedded in an iframe (e.g. the old
+  // LMS opens it in a drawer), the host provides its own close control, so we
+  // hide our internal one to avoid a duplicate. Computed lazily on first render
+  // (this app runs client-side / SPA, so there's no hydration mismatch).
+  const [isEmbedded] = useState(
+    () => typeof window !== 'undefined' && window.self !== window.top,
+  )
   const appliedEntityLaunchRef = useRef<string | null>(null)
   const queryClient = useQueryClient()
   const threadScrollRef = useRef<HTMLDivElement>(null)
@@ -782,7 +789,7 @@ export function FloatingChatModal({
           selectedItemTitle={selectedItem?.title ?? null}
           selectedTicket={selectedTicket}
           onBack={handleBack}
-          onClose={onClose}
+          onClose={isEmbedded ? undefined : onClose}
           showCloseButton={isFullPage}
         />
 

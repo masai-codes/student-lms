@@ -38,13 +38,13 @@ const ENABLE_SUPPORT_FLOATER = true
 /**
  * Paths served by this app when legacy redirect is enabled (everything else →
  * old LMS). Deliberately minimal: only the 5 migrated pages (flag-gated,
- * handled separately) plus `masaiverse` stay on the new LMS. Everything else —
- * announcements, messages, bookmarks, whats-new, profile, my-courses, course,
- * support, etc. — redirects to the old LMS.
+ * handled separately) plus `masaiverse` and `support` stay on the new LMS.
+ * Everything else — announcements, messages, bookmarks, whats-new, profile,
+ * my-courses, course, etc. — redirects to the old LMS.
  */
 function isNewStudentExperienceRoute(pathname: string): boolean {
   if (pathname.startsWith('/masaiverse')) return true
-  if (pathname === '/support-page' || pathname.startsWith('/support-page/')) {
+  if (pathname === '/support' || pathname.startsWith('/support/')) {
     return true
   }
   return false
@@ -166,8 +166,6 @@ function RouteComponent() {
   const { user } = Route.useRouteContext()
   const isApp = isMasaiverseApp(searchStr)
   const isMasaiverseRoute = pathname.startsWith('/masaiverse')
-  const isSupportPageRoute =
-    pathname === '/support-page' || pathname.startsWith('/support-page/')
   const isSupportRoute = pathname.startsWith('/support')
   // Lecture detail spans the full viewport width (no centered container), so
   // every hero state is edge-to-edge like the recording video.
@@ -186,7 +184,7 @@ function RouteComponent() {
     setCurrentUserForTracking(user)
   }, [user])
 
-  if (isSupportPageRoute) {
+  if (isSupportRoute) {
     return (
       <ModalProvider>
         <Outlet />

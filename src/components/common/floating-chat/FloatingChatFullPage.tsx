@@ -7,11 +7,11 @@ import type { FloatingChatEntityLaunchIntent } from './floatingChatLaunchIntent'
 import { navigateSupportReviewHref } from './navigateSupportReviewHref'
 
 interface FloatingChatFullPageProps {
-  /** Deep-link from `/support-page/context?category=…&entityId=…`. */
+  /** Deep-link from `/support/context?category=…&entityId=…`. */
   initialEntityLaunchIntent?: FloatingChatEntityLaunchIntent | null
 }
 
-/** Full-viewport support experience for `/support-page` (linked from the old LMS). */
+/** Full-viewport support experience for `/support` (linked from the old LMS). */
 export function FloatingChatFullPage({
   initialEntityLaunchIntent = null,
 }: FloatingChatFullPageProps = {}) {
@@ -52,7 +52,7 @@ export function FloatingChatFullPage({
         onEntityLaunchFailed={() => {
           setEntityLaunchIntent(null)
           if (initialEntityLaunchIntent) {
-            void navigate({ to: '/support-page', replace: true })
+            void navigate({ to: '/support', replace: true })
           }
         }}
       />
