@@ -8,7 +8,7 @@ type LectureProbeRow = {
   id: number
   type: string
   sectionId: number | null
-  deletedAt: Date | null
+  deletedAt: string | null
 }
 
 async function probeLectureById(
