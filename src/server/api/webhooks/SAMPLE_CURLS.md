@@ -31,6 +31,8 @@ Mandatory: `name`, `email`, `password`, `mobile`, `username`, `section_ids`
 (≥1), `batch_id`, `enrolment_id`.
 Conditional: `course_fee_deadline` is required when `new_user_journey` is `true`.
 Everything else is optional.
+Portal: `isiitj: true` stores the user under the `iitj` client, `isiHub: true`
+under `ihub`; neither flag means `masai`.
 
 Returns `{ userId, batchUserId, validSectionIds, invalidSectionIds }`.
 
@@ -59,7 +61,8 @@ curl -X POST 'BASE_URL/api/webhooks/admissions/create-enrolment' \
     "student_kit_exists": true,
     "course_fee_deadline": "2026-09-01 00:00:00",
     "payment_url": "https://pay.example.com/asha",
-    "isiHub": false
+    "isiHub": false,
+    "isiitj": false
   }'
 ```
 

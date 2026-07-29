@@ -37,6 +37,7 @@ export const createEnrolmentSchema = z
     course_fee_deadline: z.string().trim().min(1).optional(),
     payment_url: z.string().trim().min(1).optional(),
     isiHub: z.boolean().optional(),
+    isiitj: z.boolean().optional(),
   })
   .refine(
     (data) => !data.new_user_journey || Boolean(data.course_fee_deadline),
