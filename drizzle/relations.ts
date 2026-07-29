@@ -1,5 +1,5 @@
 import { relations } from "drizzle-orm/relations";
-import { lectures, aiChatPracticeQuestions, users, aiTutorSessions, announcements, announcementReads, batches, sections, assessNpsForm, assessNpsSubmissions, assignments, assignmentProblem, problems, attendances, badges, badgeConfigs, batchUser, bookmarks, clubs, clubMembers, tickets, comments, discussions, events, eventEnrollments, feedbackBlueprints, feedback, quizzes, helpFaqs, lectureFeedback, lectureZoomChat, lecturesAi, masaiverseBanners, masaiverseLeaderboard, posts, replies, messages, notificationLogs, optInChoices, profiles, sectionUser, blocks, solutions, submissions, studentAttendances, threads, userBadges, userBatchAdmissionData, userCallbackTickets, userDeviceTokens, videoAttendances, votes } from "./schema";
+import { lectures, aiChatPracticeQuestions, users, aiTutorSessions, announcements, announcementReads, batches, sections, assessNpsForm, assessNpsSubmissions, assignments, assignmentProblem, problems, attendances, badges, badgeConfigs, batchUser, bookmarks, clubs, clubMembers, tickets, comments, discussions, events, eventEnrollments, feedbackBlueprints, feedback, quizzes, helpFaqs, lectureFeedback, lectureZoomChat, lecturesAi, masaiverseBanners, masaiverseLeaderboard, posts, replies, messages, notificationLogs, optInChoices, profiles, sectionUser, blocks, solutions, submissions, studentAttendances, threads, userBadges, userBatchAdmissionData, userCallbackTickets, userDeviceTokens, videoAttendances, votes, zefLmsMetaData, zefLmsFeedbackSubmissions, zefLmsLo, zefLmsPollsQuestions, zefLmsPollsSubmissions, zefLmsQuiz, zefLmsQuizSubmission, zefLmsSqlSandbox } from "./schema";
 
 export const aiChatPracticeQuestionsRelations = relations(aiChatPracticeQuestions, ({one}) => ({
 	lecture: one(lectures, {
@@ -43,6 +43,7 @@ export const lecturesRelations = relations(lectures, ({one, many}) => ({
 	lecturesAis: many(lecturesAi),
 	studentAttendances: many(studentAttendances),
 	videoAttendances: many(videoAttendances),
+	zefLmsMetaData: many(zefLmsMetaData),
 }));
 
 export const usersRelations = relations(users, ({many}) => ({
@@ -151,6 +152,9 @@ export const usersRelations = relations(users, ({many}) => ({
 		relationName: "videoAttendances_userId_users_id"
 	}),
 	votes: many(votes),
+	zefLmsFeedbackSubmissions: many(zefLmsFeedbackSubmissions),
+	zefLmsPollsSubmissions: many(zefLmsPollsSubmissions),
+	zefLmsQuizSubmissions: many(zefLmsQuizSubmission),
 }));
 
 export const aiTutorSessionsRelations = relations(aiTutorSessions, ({one}) => ({
@@ -810,5 +814,80 @@ export const votesRelations = relations(votes, ({one}) => ({
 	user: one(users, {
 		fields: [votes.userId],
 		references: [users.id]
+	}),
+}));
+
+export const zefLmsFeedbackSubmissionsRelations = relations(zefLmsFeedbackSubmissions, ({one}) => ({
+	zefLmsMetaDatum: one(zefLmsMetaData, {
+		fields: [zefLmsFeedbackSubmissions.zefLmsMetaDataId],
+		references: [zefLmsMetaData.id]
+	}),
+	user: one(users, {
+		fields: [zefLmsFeedbackSubmissions.userId],
+		references: [users.id]
+	}),
+}));
+
+export const zefLmsMetaDataRelations = relations(zefLmsMetaData, ({one, many}) => ({
+	zefLmsFeedbackSubmissions: many(zefLmsFeedbackSubmissions),
+	zefLmsLos: many(zefLmsLo),
+	lecture: one(lectures, {
+		fields: [zefLmsMetaData.lectureId],
+		references: [lectures.id]
+	}),
+	zefLmsPollsQuestions: many(zefLmsPollsQuestions),
+	zefLmsQuizs: many(zefLmsQuiz),
+	zefLmsSqlSandboxes: many(zefLmsSqlSandbox),
+}));
+
+export const zefLmsLoRelations = relations(zefLmsLo, ({one}) => ({
+	zefLmsMetaDatum: one(zefLmsMetaData, {
+		fields: [zefLmsLo.zefLmsMetaDataId],
+		references: [zefLmsMetaData.id]
+	}),
+}));
+
+export const zefLmsPollsQuestionsRelations = relations(zefLmsPollsQuestions, ({one, many}) => ({
+	zefLmsMetaDatum: one(zefLmsMetaData, {
+		fields: [zefLmsPollsQuestions.zefLmsMetaDataId],
+		references: [zefLmsMetaData.id]
+	}),
+	zefLmsPollsSubmissions: many(zefLmsPollsSubmissions),
+}));
+
+export const zefLmsPollsSubmissionsRelations = relations(zefLmsPollsSubmissions, ({one}) => ({
+	user: one(users, {
+		fields: [zefLmsPollsSubmissions.userId],
+		references: [users.id]
+	}),
+	zefLmsPollsQuestion: one(zefLmsPollsQuestions, {
+		fields: [zefLmsPollsSubmissions.zefLmsPollsQuestionsId],
+		references: [zefLmsPollsQuestions.id]
+	}),
+}));
+
+export const zefLmsQuizRelations = relations(zefLmsQuiz, ({one, many}) => ({
+	zefLmsMetaDatum: one(zefLmsMetaData, {
+		fields: [zefLmsQuiz.zefLmsMetaDataId],
+		references: [zefLmsMetaData.id]
+	}),
+	zefLmsQuizSubmissions: many(zefLmsQuizSubmission),
+}));
+
+export const zefLmsQuizSubmissionRelations = relations(zefLmsQuizSubmission, ({one}) => ({
+	user: one(users, {
+		fields: [zefLmsQuizSubmission.userId],
+		references: [users.id]
+	}),
+	zefLmsQuiz: one(zefLmsQuiz, {
+		fields: [zefLmsQuizSubmission.zefLmsQuizId],
+		references: [zefLmsQuiz.id]
+	}),
+}));
+
+export const zefLmsSqlSandboxRelations = relations(zefLmsSqlSandbox, ({one}) => ({
+	zefLmsMetaDatum: one(zefLmsMetaData, {
+		fields: [zefLmsSqlSandbox.zefLmsMetaDataId],
+		references: [zefLmsMetaData.id]
 	}),
 }));

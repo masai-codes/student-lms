@@ -63,7 +63,12 @@ describe('getLectureLearningDetailForUser', () => {
     hoisted.videoAttendance.mockResolvedValue(null)
     hoisted.fetchAttendance.mockResolvedValue(new Map())
     hoisted.bookmarkState.mockResolvedValue(false)
-    hoisted.feedbackRecord.mockResolvedValue({ rating: null, text: null })
+    hoisted.feedbackRecord.mockResolvedValue({
+      mode: 'legacy',
+      rating: null,
+      text: null,
+      tags: [],
+    })
   })
 
   it('returns lecture detail payload for supported live lectures', async () => {
@@ -124,6 +129,14 @@ describe('getLectureLearningDetailForUser', () => {
           }),
         }),
       })
+      // zef_lms_meta_data select (getInLecturePopupElements) — no meta row
+      .mockReturnValueOnce({
+        from: () => ({
+          where: () => ({
+            limit: () => Promise.resolve([]),
+          }),
+        }),
+      })
 
     const result = await getLectureLearningDetailForUser(9, 227)
 
@@ -139,14 +152,19 @@ describe('getLectureLearningDetailForUser', () => {
     expect(result.isNewZoomRedirection).toBe(true)
     expect(result.enableZoomWebView).toBe(true)
     expect(hoisted.bookmarkState).toHaveBeenCalledWith(9, 'lecture', 227)
-    // No lectures_ai row → nothing to fetch.
-    expect(result.tabs.transcript).toEqual({ available: false, url: null })
+    // No attendance row for this lecture (empty map) -> attended: false,
+    // reusing the same summary the "Present" badge reads instead of a
+    // second independent `student_attendances` query.
+    expect(hoisted.feedbackRecord).toHaveBeenCalledWith(9, 227, false)
   })
 
-  it('exposes the transcript as a cache URL, never as text (#353)', async () => {
+  it('passes attended: true through to the feedback record when the attendance summary is present', async () => {
     const { getLectureLearningDetailForUser } =
       await import('../services/getLectureLearningDetail.service')
 
+    hoisted.fetchAttendance.mockResolvedValue(
+      new Map([[227, { overallStatus: 1 }]]),
+    )
     hoisted.dbSelect
       .mockReturnValueOnce({
         from: () => ({
@@ -174,9 +192,9 @@ describe('getLectureLearningDetailForUser', () => {
                       vimeoDownloadLinks: null,
                       vimeoPlayerEmbedUrl: null,
                       settings: { hide_notes: 0 },
-                      notes: null,
-                      isNewZoomRedirection: 0,
-                      sectionSettings: null,
+                      notes: '# Session notes',
+                      isNewZoomRedirection: 1,
+                      sectionSettings: { enableZoomWebView: true },
                       data: null,
                     },
                   ]),
@@ -185,29 +203,20 @@ describe('getLectureLearningDetailForUser', () => {
           }),
         }),
       })
-      // lecturesAi select — MySQL returns the existence probe as 0/1, and the
-      // transcript columns are deliberately absent from the projection.
       .mockReturnValueOnce({
-        from: () => ({
-          where: () => ({
-            limit: () =>
-              Promise.resolve([{ summary: 'Key points', hasTranscript: 1 }]),
-          }),
-        }),
+        from: () => ({ where: () => ({ limit: () => Promise.resolve([]) }) }),
       })
       .mockReturnValueOnce({
-        from: () => ({
-          where: () => ({ limit: () => Promise.resolve([]) }),
-        }),
+        from: () => ({ where: () => ({ limit: () => Promise.resolve([]) }) }),
+      })
+      // zef_lms_meta_data select (getInLecturePopupElements) — no meta row
+      .mockReturnValueOnce({
+        from: () => ({ where: () => ({ limit: () => Promise.resolve([]) }) }),
       })
 
-    const result = await getLectureLearningDetailForUser(9, 227)
+    await getLectureLearningDetailForUser(9, 227)
 
-    expect(result.tabs.aiSummary).toBe('Key points')
-    expect(result.tabs.transcript).toEqual({
-      available: true,
-      url: '/api/cache/transcript/1/2/227',
-    })
+    expect(hoisted.feedbackRecord).toHaveBeenCalledWith(9, 227, true)
   })
 
   it('throws when lecture type is unsupported', async () => {
