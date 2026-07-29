@@ -28,27 +28,25 @@
   wrapper; maps `ApiClientError` to a code-only `Error`).
 - **Component** (`NotesPreviewV2`): reads params through `notesPreviewRouteApi`,
   fetches via React Query keyed on the params, and renders `MarkdownContent`.
-  It also renders an optional header with `user.id` + `user.email` (from the
-  route loader context) above the content when a session exists. States:
-  `dash-skeleton` loading, rendered markdown, and a friendly empty state
+  States: `dash-skeleton` loading, rendered markdown, and a friendly empty state
   (reused for missing params, null/blank content, and fetch errors). Test hooks:
-  `notes-preview-v2-root`, `-loading`, `-user`, `-content`, `-empty`.
+  `notes-preview-v2-root`, `-loading`, `-content`, `-empty`.
 - **Analytics exclusion** (`src/routes/__root.tsx`): GA/GTM scripts are gated by
   `ANALYTICS_EXCLUDED_PATHS` so they are skipped on `/notes-preview-v2`; Clarity
   is already excluded because the route is outside `_layout`.
 
 ## Test files
 
-| Area                                                     | File                                                                              |
-| -------------------------------------------------------- | --------------------------------------------------------------------------------- |
-| Service field mapping / alias / unsupported / invalid id | `src/server/api/notes-preview/__tests__/notesPreview.service.test.ts`             |
-| Lecture field-only queries (notes/summary)               | `src/server/api/notes-preview/__tests__/notesPreviewQueries.lecture.test.ts`      |
-| Resource field-only query                                | `src/server/api/notes-preview/__tests__/notesPreviewQueries.resource.test.ts`     |
-| Assignment field-only query                              | `src/server/api/notes-preview/__tests__/notesPreviewQueries.assignment.test.ts`   |
-| Handler auth + query parsing + error mapping             | `src/server/api/notes-preview/__tests__/getNotesPreview.handler.test.ts`          |
-| Not-found diagnostic probe reasons (lecture/resource)    | `src/server/api/notes-preview/__tests__/notesPreviewDiagnostics.test.ts`         |
-| Client helper path building + error mapping              | `src/lib/api/notes-preview/__tests__/notesPreviewApi.test.ts`                     |
-| Component loading / content / empty / error states       | `src/components/features/notes-preview/__tests__/NotesPreviewV2.test.tsx`         |
+| Area                                                     | File                                                                            |
+| -------------------------------------------------------- | ------------------------------------------------------------------------------- |
+| Service field mapping / alias / unsupported / invalid id | `src/server/api/notes-preview/__tests__/notesPreview.service.test.ts`           |
+| Lecture field-only queries (notes/summary)               | `src/server/api/notes-preview/__tests__/notesPreviewQueries.lecture.test.ts`    |
+| Resource field-only query                                | `src/server/api/notes-preview/__tests__/notesPreviewQueries.resource.test.ts`   |
+| Assignment field-only query                              | `src/server/api/notes-preview/__tests__/notesPreviewQueries.assignment.test.ts` |
+| Handler auth + query parsing + error mapping             | `src/server/api/notes-preview/__tests__/getNotesPreview.handler.test.ts`        |
+| Not-found diagnostic probe reasons (lecture/resource)    | `src/server/api/notes-preview/__tests__/notesPreviewDiagnostics.test.ts`        |
+| Client helper path building + error mapping              | `src/lib/api/notes-preview/__tests__/notesPreviewApi.test.ts`                   |
+| Component loading / content / empty / error states       | `src/components/features/notes-preview/__tests__/NotesPreviewV2.test.tsx`       |
 
 ## Commands
 
