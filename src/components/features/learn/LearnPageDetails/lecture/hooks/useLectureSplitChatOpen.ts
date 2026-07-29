@@ -10,7 +10,7 @@ export function useLectureSplitChatOpen() {
   // every page load to surface the AI chat (even if the user closed it in a
   // previous visit) so returning users are reminded it exists. On mobile/tablet
   // the chat is a bottom drawer that must never auto-open on load.
-  const [isOpen, setIsOpen] = useState(false)
+  const [isOpen, setIsOpen] = useState(true)
 
   useEffect(() => {
     const isRailViewport = window.matchMedia(LECTURE_RAIL_MEDIA_QUERY).matches

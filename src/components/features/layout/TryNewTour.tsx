@@ -2,9 +2,10 @@
 
 import { useCallback, useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
-import { useMutation } from '@tanstack/react-query'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useRouterState } from '@tanstack/react-router'
 import { markTryNewTourSeen } from '@/lib/api/profile/profileApi'
+import { invalidateMeQuery } from '@/query/me/meCache'
 
 /** Padding around the highlighted target, in px. */
 const SPOTLIGHT_PADDING = 8
@@ -35,7 +36,14 @@ export function TryNewTour({ hasSeen }: { hasSeen: boolean }) {
   const [rect, setRect] = useState<Rect | null>(null)
   const [dismissed, setDismissed] = useState(hasSeen)
 
-  const { mutate } = useMutation({ mutationFn: markTryNewTourSeen })
+  const queryClient = useQueryClient()
+  // `hasSeenTryNewTour` comes from the cached `me` payload, so the cache has to
+  // go once the flag is persisted — otherwise the tour reappears for up to
+  // `ME_STALE_TIME` on a later navigation.
+  const { mutate } = useMutation({
+    mutationFn: markTryNewTourSeen,
+    onSuccess: () => invalidateMeQuery(queryClient),
+  })
 
   const measure = useCallback(() => {
     const el = getVisibleTarget()

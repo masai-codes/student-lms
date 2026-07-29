@@ -22,8 +22,9 @@ import {
   lectureDetailMainClasses,
   LAYOUT_APP_SHELL_CLASSES,
 } from '@/lib/layout'
+import { ME_QUERY_KEY } from '@/query/me/meCache'
+import { meQuery } from '@/query/me/meQuery'
 import { bootstrapLoginWithToken } from '@/server/auth/bootstrapLogin'
-import { fetchCurrentUser } from '@/server/auth/fetchCurrentUser'
 import {
   getOldStudentUiUrlForPath,
   isLegacyStudentRedirectEnabled,
@@ -72,13 +73,17 @@ function isLearnDetailRoute(pathname: string): boolean {
 }
 
 export const Route = createFileRoute('/(protected)/_layout')({
-  beforeLoad: async ({ location }) => {
+  beforeLoad: async ({ context, location }) => {
     const shouldRedirectToLegacy = isLegacyStudentRedirectEnabled()
     const isMasaiverseRoute = location.pathname.startsWith('/masaiverse')
     const requestUrl = new URL(location.href, 'http://localhost')
     const token = requestUrl.searchParams.get('token')
 
-    let user = await fetchCurrentUser()
+    // `beforeLoad` re-runs on every navigation under this layout, so this must
+    // come from the cache: called directly, the server function was an RPC per
+    // page change that blocked navigation for up to ~1.3s (issue #354). Primed
+    // during SSR, streamed into the client, then reused for `ME_STALE_TIME`.
+    let user = await context.queryClient.ensureQueryData(meQuery())
 
     // Auto-login fallback: on any route, when there's no session yet but the
     // request carries a `?token=` (legacy/app hands the session off via the
@@ -86,6 +91,9 @@ export const Route = createFileRoute('/(protected)/_layout')({
     // authed. The `?token=` is stripped from the URL below once consumed.
     if (!user && token) {
       user = await bootstrapLoginWithToken({ data: token })
+      // Overwrite the `null` just cached, or the redirect below would re-read it
+      // and bounce this now-authenticated request to /signin.
+      context.queryClient.setQueryData(ME_QUERY_KEY, user)
     }
 
     if (!user) {
