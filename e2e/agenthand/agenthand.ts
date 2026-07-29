@@ -20,6 +20,55 @@ import { getStudent } from './seedState'
 
 const testidSelector = (testid: string): string => `[data-testid="${testid}"]`
 
+/** Canvas-based mock camera so profile-photo capture works headlessly. */
+async function installMockCamera(page: Page): Promise<void> {
+  await page.evaluateOnNewDocument(() => {
+    const nav = navigator as Navigator & {
+      mediaDevices?: MediaDevices
+    }
+
+    if (!nav.mediaDevices) {
+      Object.defineProperty(nav, 'mediaDevices', {
+        configurable: true,
+        value: {},
+      })
+    }
+
+    const mediaDevices = nav.mediaDevices as MediaDevices
+
+    mediaDevices.getUserMedia = async () => {
+      const canvas = document.createElement('canvas')
+      canvas.width = 640
+      canvas.height = 480
+      const ctx = canvas.getContext('2d')
+      if (ctx) {
+        ctx.fillStyle = '#6a5acd'
+        ctx.fillRect(0, 0, canvas.width, canvas.height)
+        ctx.fillStyle = '#ffffff'
+        ctx.beginPath()
+        ctx.arc(320, 200, 90, 0, Math.PI * 2)
+        ctx.fill()
+        ctx.fillRect(220, 300, 200, 140)
+        ctx.fillStyle = '#1f2937'
+        ctx.font = 'bold 28px sans-serif'
+        ctx.fillText('Mock DP', 255, 430)
+      }
+      return canvas.captureStream(30)
+    }
+
+    mediaDevices.enumerateDevices = async () =>
+      [
+        {
+          deviceId: 'agenthand-mock-camera',
+          kind: 'videoinput',
+          label: 'AgentHand Mock Camera',
+          groupId: 'agenthand-mock-group',
+          toJSON: () => ({}),
+        },
+      ] as MediaDeviceInfo[]
+  })
+}
+
 export class AgentHand {
   readonly page: Page
   private readonly context: BrowserContext
@@ -174,6 +223,104 @@ export class AgentHand {
     await handle.evaluate((el) => (el as HTMLElement).click())
   }
 
+  /**
+   * Click a testid and wait for a popup / new tab opened via `window.open` or
+   * `<a target="_blank">`. Returns the new Page.
+   */
+  async clickTestIdAndWaitForPopup(
+    testid: string,
+    options: { timeout?: number } = {},
+  ): Promise<Page> {
+    const timeout = options.timeout ?? DEFAULT_TIMEOUT
+    const popupPromise = new Promise<Page>((resolve, reject) => {
+      const timer = setTimeout(() => {
+        reject(
+          new Error(
+            `Timed out waiting for popup after clicking testid "${testid}"`,
+          ),
+        )
+      }, timeout)
+      this.page.once('popup', (popupPage) => {
+        clearTimeout(timer)
+        if (!popupPage) {
+          reject(new Error(`Popup page was null after clicking "${testid}"`))
+          return
+        }
+        resolve(popupPage)
+      })
+    })
+    await this.clickTestId(testid)
+    return popupPromise
+  }
+
+  /**
+   * Play (or force-complete) the first `<video>` under a container testid.
+   * Seeks past the guided-tour 10s completion threshold, then fires `ended`
+   * so auto-advance runs. For the welcome modal, seeking + play is enough.
+   */
+  async playVideoIn(
+    containerTestId: string,
+    options: { fireEnded?: boolean; minWatchSeconds?: number } = {},
+  ): Promise<void> {
+    const fireEnded = options.fireEnded ?? true
+    const minWatchSeconds = options.minWatchSeconds ?? 11
+    await this.waitForTestId(containerTestId)
+
+    await this.page.waitForFunction(
+      (sel) => {
+        const root = document.querySelector(sel)
+        const video = root?.querySelector('video') as HTMLVideoElement | null
+        return Boolean(video && video.readyState >= 1)
+      },
+      { timeout: DEFAULT_TIMEOUT },
+      testidSelector(containerTestId),
+    )
+
+    await this.page.$eval(
+      `${testidSelector(containerTestId)} video`,
+      (videoEl, opts) => {
+        const video = videoEl as HTMLVideoElement
+        const duration =
+          Number.isFinite(video.duration) && video.duration > 0
+            ? video.duration
+            : opts.minWatchSeconds + 1
+
+        // Seek past completion threshold so onTimeUpdate marks the step done.
+        video.currentTime = Math.min(
+          opts.minWatchSeconds,
+          Math.max(0, duration - 0.25),
+        )
+        video.dispatchEvent(new Event('timeupdate'))
+
+        if (opts.fireEnded) {
+          video.currentTime = duration
+          video.dispatchEvent(new Event('timeupdate'))
+          video.dispatchEvent(new Event('ended'))
+        } else {
+          void video.play().catch(() => {
+            /* autoplay policies — seek alone is enough for our assertions */
+          })
+        }
+      },
+      { fireEnded, minWatchSeconds },
+    )
+  }
+
+  /** Type into the first textarea/input under a container testid (e.g. MDEditor). */
+  async typeInTestId(testid: string, text: string): Promise<void> {
+    await this.waitForTestId(testid)
+    const selector = `${testidSelector(testid)} textarea, ${testidSelector(testid)} input`
+    await this.page.waitForSelector(selector, { timeout: DEFAULT_TIMEOUT })
+    await this.page.click(selector)
+    // Select-all + delete so React controlled inputs clear reliably.
+    const modifier = process.platform === 'darwin' ? 'Meta' : 'Control'
+    await this.page.keyboard.down(modifier)
+    await this.page.keyboard.press('a')
+    await this.page.keyboard.up(modifier)
+    await this.page.keyboard.press('Backspace')
+    await this.page.type(selector, text, { delay: 15 })
+  }
+
   async setViewport(viewport: {
     width: number
     height: number
@@ -190,13 +337,26 @@ export class AgentHand {
 
 /** Launch a single browser for a spec file. */
 export async function launchBrowser(): Promise<Browser> {
+  const executablePath =
+    process.env.PUPPETEER_EXECUTABLE_PATH ||
+    process.env.E2E_CHROME_PATH ||
+    undefined
+
   return puppeteer.launch({
     headless: !HEADFUL,
     slowMo: SLOWMO,
+    ...(executablePath
+      ? { executablePath }
+      : // Prefer the installed system Chrome when the bundled binary is missing
+        // (common in CI/agent sandboxes). Fall back to Puppeteer's download.
+        { channel: 'chrome' as const }),
     args: [
       '--no-sandbox',
       '--disable-setuid-sandbox',
       '--disable-dev-shm-usage',
+      // Profile-photo step + any getUserMedia usage in headless.
+      '--use-fake-ui-for-media-stream',
+      '--use-fake-device-for-media-stream',
     ],
   })
 }
@@ -211,7 +371,9 @@ export async function openSession(
   viewport = DESKTOP_VIEWPORT,
 ): Promise<AgentHand> {
   const context = await browser.createBrowserContext()
+  await context.overridePermissions(BASE_URL, ['camera', 'microphone'])
   const page = await context.newPage()
+  await installMockCamera(page)
   await page.setViewport(viewport)
   page.setDefaultTimeout(DEFAULT_TIMEOUT)
   return new AgentHand(page, context)

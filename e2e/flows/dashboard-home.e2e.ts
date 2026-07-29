@@ -80,4 +80,35 @@ describe(FLOW_ID, () => {
     )
     expect(items).toBe(5)
   })
+
+  it('opens the For You message thread and sends a reply', async () => {
+    // Click the For You badge's parent announcement row (a Link to /messages/$id).
+    await hand.page.$eval(
+      '[data-testid="dashboard-announcement-for-you"]',
+      (el) => {
+        const row = el.closest(
+          '[data-testid^="dashboard-announcement-item-"]',
+        ) as HTMLElement | null
+        row?.click()
+      },
+    )
+    await hand.page.waitForFunction(
+      () => window.location.pathname.startsWith('/messages/'),
+      { timeout: 15_000 },
+    )
+    expect(hand.page.url()).toMatch(/\/messages\//)
+
+    await hand.waitForTestId('message-reply-input')
+    const replyText = `e2e-for-you-reply-${Date.now()}`
+    await hand.typeInTestId('message-reply-input', replyText)
+    await hand.clickTestId('message-reply-send')
+
+    // After send, the thread refreshes and the reply body should appear.
+    await hand.page.waitForFunction(
+      (text) => document.body.innerText.includes(text),
+      { timeout: 15_000 },
+      replyText,
+    )
+    expect(await hand.page.content()).toContain(replyText)
+  })
 })

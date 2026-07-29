@@ -11,6 +11,8 @@ export const ONBOARDING_FLOW_DESCRIPTIONS: Record<OnboardingFlowId, string> = {
     'New-journey student who already dismissed the welcome modal.',
   'onboarding-fees-unpaid':
     'LMS Walkthrough test bed (videos + auto-next + profile photo + download app) with payment countdown; program tab locked.',
+  'onboarding-fees-unpaid-with-app-download':
+    'Same as fees-unpaid, but download-app is pre-completed via a seeded device token.',
   'onboarding-fees-paid':
     'Full fees paid — Program Onboarding tab unlocked. Documents + Student Kit driven by a simulated onward response (see flags); agreement pending; ID card unlock unchanged.',
   'onboarding-complete': 'All onboarding steps complete — ID card unlocked.',

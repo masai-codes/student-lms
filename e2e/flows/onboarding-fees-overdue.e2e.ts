@@ -3,12 +3,14 @@ import type { Browser } from 'puppeteer'
 
 import type { AgentHand } from '../agenthand'
 import { launchBrowser, openSession } from '../agenthand'
+import { closeGuidedTour } from './onboardingWalkthroughHelpers'
 
 /**
  * Flow: `onboarding-fees-overdue`
  * Fee deadline passed without full payment. The tour opens (LMS incomplete),
  * the program tab is locked, and the fee-payment banner is in the OVERDUE
- * (red) variant with "N days overdue" copy.
+ * (red) variant with "N days overdue" copy — both while the panel is open and
+ * after it is closed on the plain dashboard.
  */
 const FLOW_ID = 'onboarding-fees-overdue'
 
@@ -42,5 +44,17 @@ describe(FLOW_ID, () => {
     expect(await hand.attrOf('guided-tour-tab-program', 'data-locked')).toBe(
       'true',
     )
+  })
+
+  it('keeps the overdue banner on the dashboard after the panel is closed', async () => {
+    await closeGuidedTour(hand)
+    await hand.waitForTestId('dashboard-root')
+    expect(await hand.hasTestId('guided-tour-overlay')).toBe(false)
+    expect(
+      await hand.attrOf('dashboard-fee-payment-banner', 'data-variant'),
+    ).toBe('overdue')
+    expect(
+      (await hand.textOf('dashboard-fee-payment-days')).toLowerCase(),
+    ).toContain('overdue')
   })
 })

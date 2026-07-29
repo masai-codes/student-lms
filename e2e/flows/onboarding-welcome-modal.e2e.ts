@@ -9,6 +9,9 @@ import { launchBrowser, openSession } from '../agenthand'
  * New-journey student who has NOT seen the welcome modal. Distinguishing state:
  * the welcome modal is shown on first login. Behind it, the full LMS tour is
  * active with the program tab locked (fees unpaid) and a fee-payment timer.
+ *
+ * Interactions: play the welcome video, dismiss via Get Started, reload and
+ * confirm the modal does not return.
  */
 const FLOW_ID = 'onboarding-welcome-modal'
 
@@ -47,5 +50,28 @@ describe(FLOW_ID, () => {
     expect(
       (await hand.textOf('dashboard-fee-payment-days')).toLowerCase(),
     ).toContain('remaining')
+  })
+
+  it('plays the welcome video, dismisses the modal, and it stays dismissed after reload', async () => {
+    await hand.waitForTestId('welcome-modal-video')
+    await hand.playVideoIn('welcome-modal-video', {
+      fireEnded: false,
+      minWatchSeconds: 1,
+    })
+
+    await hand.clickTestId('welcome-modal-get-started')
+    await hand.page.waitForFunction(
+      () => !document.querySelector('[data-testid="welcome-modal"]'),
+      { timeout: 15_000 },
+    )
+    expect(await hand.hasTestId('welcome-modal')).toBe(false)
+
+    // Tour should still be available behind the dismissed modal.
+    expect(await hand.hasTestId('guided-tour-overlay')).toBe(true)
+
+    await hand.page.reload({ waitUntil: 'networkidle2' })
+    // Welcome modal must NOT return after dismiss + reload.
+    expect(await hand.isTestIdAbsent('welcome-modal', 3000)).toBe(true)
+    await hand.waitForTestId('guided-tour-overlay')
   })
 })
