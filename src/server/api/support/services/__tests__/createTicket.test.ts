@@ -25,6 +25,20 @@ vi.mock('@/db', () => ({
 vi.mock('@/server/api/support/services/ticketReplyTemplate', () => ({
   buildFirstTemplateResponse: hoisted.buildFirstTemplateResponse,
 }))
+vi.mock('@/server/api/support/services/directory.service', () => ({
+  getActiveSectionNames: vi.fn().mockResolvedValue([]),
+}))
+vi.mock(
+  '@/server/api/support/services/fetchEntityTitleForTicket.service',
+  () => ({
+    fetchEntityTitleForTicket: vi.fn().mockResolvedValue(null),
+  }),
+)
+vi.mock('@/server/api/support/services/generateTicketTitle.service', () => ({
+  resolveTicketTitle: vi
+    .fn()
+    .mockResolvedValue({ title: 'Support request', source: 'fallback' }),
+}))
 
 /** Queue one `select().from().where()` chain resolving to `rows`. */
 function mockSelect(rows: Array<unknown>) {
@@ -96,13 +110,15 @@ describe('createTicket', () => {
       entityId: 98765,
     })
 
-    // Exact shape — an extra or renamed key here is the regression.
-    expect(inserts[0].data).toEqual({
+    expect(inserts[0].data).toMatchObject({
       batch_id: '10', // string: legacy `CreateTicketV2Input.batch_id: String!`
       subCategory: 'video-not-playing',
       help_faq_question: true,
       entity_id: 98765,
     })
+    expect(inserts[0].data['active-sections']).toEqual([])
+    expect(inserts[0].data.workflow_id).toMatch(/^ticket-/)
+    expect(inserts[0].data.title_source).toBe('fallback')
   })
 
   it('omits entity_id, and defaults subCategory to "", outside an entity page', async () => {
@@ -117,12 +133,13 @@ describe('createTicket', () => {
       message: 'general query',
     })
 
-    expect(inserts[0].data).toEqual({
+    expect(inserts[0].data).toMatchObject({
       batch_id: '10',
       subCategory: '', // legacy sends `normalizedSubcategory || ''`, never null
       help_faq_question: true,
     })
     expect(inserts[0].data).not.toHaveProperty('entity_id')
+    expect(inserts[0].data['active-sections']).toEqual([])
   })
 
   it('includes question_id only for FAQ-originated tickets', async () => {

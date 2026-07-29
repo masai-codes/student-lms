@@ -1,7 +1,4 @@
-import {
-  isIsoDate,
-  normalizeFilterValues,
-} from './bookmarksFilterConfig'
+import { isIsoDate, normalizeFilterValues } from './bookmarksFilterConfig'
 import type { BookmarkFilters } from './bookmarksFilterConfig'
 
 /** URL search-param slice owned by the bookmarks filter drawer. */

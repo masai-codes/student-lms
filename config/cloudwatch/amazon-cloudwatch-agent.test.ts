@@ -2,10 +2,7 @@ import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { describe, expect, it } from 'vitest'
 
-const configPath = resolve(
-  import.meta.dirname,
-  'amazon-cloudwatch-agent.json',
-)
+const configPath = resolve(import.meta.dirname, 'amazon-cloudwatch-agent.json')
 
 describe('amazon-cloudwatch-agent.json', () => {
   it('parses as valid JSON with expected metrics and log shipping', () => {

@@ -120,7 +120,9 @@ export function BookmarksFiltersPanel({
             <FilterCheckboxColumn
               key={activeNav}
               options={optionsFor(activeNav)}
-              selected={(draft[SECTION_FIELD[activeNav]!] as Array<string>) ?? []}
+              selected={
+                (draft[SECTION_FIELD[activeNav]!] as Array<string>) ?? []
+              }
               onToggle={(value) => toggle(SECTION_FIELD[activeNav]!, value)}
             />
           )}

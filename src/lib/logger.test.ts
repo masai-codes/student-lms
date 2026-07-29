@@ -66,7 +66,9 @@ describe('logger', () => {
     log('error', { msg: 'Failed to save', fn: 'awardManualPoints', err })
 
     const output = vi.mocked(console.error).mock.calls[0]?.[0] as string
-    const parsed = JSON.parse(output) as { err: { name: string; message: string } }
+    const parsed = JSON.parse(output) as {
+      err: { name: string; message: string }
+    }
     expect(parsed.err).toEqual({
       name: 'Error',
       message: 'DB timeout',

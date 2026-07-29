@@ -23,6 +23,7 @@ import {
 import { CreateTicketModal } from '@/components/features/support/CreateTicketModal'
 import { supportRouteApi } from '@/components/features/support/supportRoute'
 import { formatSocialPostTime } from '@/lib/socialRelativeTime'
+import { mergeRaisedSupportItems } from '@/lib/support/mergeRaisedSupportItems'
 
 const TAB_OPTIONS = [
   { label: 'unresolved', value: 'unresolved' as const },
@@ -51,6 +52,8 @@ export function TicketListingPage({ batchId }: { batchId: string }) {
     if (tab === 'unresolved') return t.status.toLowerCase() !== 'resolved'
     return true
   })
+
+  const raisedItems = mergeRaisedSupportItems(tickets, callbackTickets)
 
   const showDetails =
     search.step === 'ticketdetails' && Boolean(search.ticketId)
@@ -86,8 +89,7 @@ export function TicketListingPage({ batchId }: { batchId: string }) {
       }),
     })
 
-  const isEmpty =
-    !isLoading && tickets.length === 0 && callbackTickets.length === 0
+  const isEmpty = !isLoading && raisedItems.length === 0
 
   return (
     <>
@@ -119,17 +121,17 @@ export function TicketListingPage({ batchId }: { batchId: string }) {
           </p>
         )}
 
-        {tickets.map((ticket) => (
-          <TicketRow
-            key={ticket.id}
-            ticket={ticket}
-            onClick={() => openTicket(ticket.id)}
-          />
-        ))}
-
-        {callbackTickets.map((cb) => (
-          <CallbackRow key={`callback-${cb.id}`} ticket={cb} />
-        ))}
+        {raisedItems.map((row) =>
+          row.kind === 'ticket' ? (
+            <TicketRow
+              key={`ticket-${row.item.id}`}
+              ticket={row.item}
+              onClick={() => openTicket(row.item.id)}
+            />
+          ) : (
+            <CallbackRow key={`callback-${row.item.id}`} ticket={row.item} />
+          ),
+        )}
 
         {isEmpty && (
           <div className="flex flex-col items-center justify-center py-12 text-center">
@@ -216,11 +218,11 @@ function TicketRow({
           <span className="first-letter:uppercase text-foreground-muted text-[12px] font-poppins capitalize">
             {ticket.category.replace(/[-_]/g, ' ')}
           </span>
-          {ticket.updatedAt && (
+          {ticket.createdAt && (
             <span className="flex items-center gap-1">
               <span className="w-1.5 h-1.5 bg-gray-400 rounded-full" />
               <span className="text-[12px] text-foreground">
-                {formatSocialPostTime(ticket.updatedAt)}
+                {formatSocialPostTime(ticket.createdAt)}
               </span>
             </span>
           )}
@@ -236,7 +238,7 @@ function TicketRow({
 }
 
 function CallbackRow({ ticket }: { ticket: CallbackTicketItem }) {
-  const timestamp = ticket.updatedAt || ticket.createdAt
+  const timestamp = ticket.createdAt
   return (
     <div className="rounded-[12px] p-3 flex justify-between md:items-center shadow-sm border gap-3 box-border bg-surface">
       <div className="flex flex-col">

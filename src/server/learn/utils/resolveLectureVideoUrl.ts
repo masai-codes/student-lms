@@ -2,7 +2,7 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value)
 }
 
-function readGumletHlsUrl(vimeoDownloadLinks: unknown): string | null {
+export function readGumletHlsUrl(vimeoDownloadLinks: unknown): string | null {
   if (!isRecord(vimeoDownloadLinks)) return null
   const gumlet = vimeoDownloadLinks.gumlet
   if (!isRecord(gumlet)) return null
@@ -83,19 +83,37 @@ function uriEncodeIfNeeded(originalUri: string): string {
   return `${protocol}://${encodedPath}`
 }
 
-function readVideosUrl(videos: unknown): string | null {
-  let raw: string | null = null
-
+function readRawVideoUrls(videos: unknown): string[] {
   if (typeof videos === 'string' && videos.trim() !== '') {
-    raw = videos.trim()
-  } else if (Array.isArray(videos)) {
-    const first = videos[0]
-    if (typeof first === 'string' && first.trim() !== '') {
-      raw = first.trim()
-    }
+    return [videos.trim()]
   }
+  if (!Array.isArray(videos)) return []
 
+  return videos
+    .filter((item): item is string => typeof item === 'string' && item.trim() !== '')
+    .map((item) => item.trim())
+}
+
+function isMp4Url(url: string): boolean {
+  try {
+    return new URL(url).pathname.toLowerCase().endsWith('.mp4')
+  } catch {
+    return url.toLowerCase().includes('.mp4')
+  }
+}
+
+function readVideosUrl(videos: unknown): string | null {
+  const raw = readRawVideoUrls(videos)[0]
   return raw ? s3ToCloudFront(uriEncodeIfNeeded(raw)) : null
+}
+
+/** First `.mp4` URL from `lectures.videos`, rewritten through CloudFront when configured. */
+export function readLectureVideosMp4Url(videos: unknown): string | null {
+  for (const raw of readRawVideoUrls(videos)) {
+    if (!isMp4Url(raw)) continue
+    return s3ToCloudFront(uriEncodeIfNeeded(raw))
+  }
+  return null
 }
 
 export function resolveLectureVideoUrl(input: {

@@ -12,15 +12,19 @@
  * All routing/escalation logic is delegated to `resolveAssignees.ts`.
  */
 
+import { randomUUID } from 'node:crypto'
 import { and, eq } from 'drizzle-orm'
 import type { TicketRating } from '@/server/api/support/support.types'
 import { db } from '@/db'
 import { batches, comments, tickets } from '@/db/schema'
+import { getActiveSectionNames } from '@/server/api/support/services/directory.service'
 import {
   hasHigherLevel,
   ladderFromBatchSettings,
   nextEscalation,
 } from '@/server/api/support/services/resolveAssignees'
+import { resolveTicketTitle } from '@/server/api/support/services/generateTicketTitle.service'
+import { fetchEntityTitleForTicket } from '@/server/api/support/services/fetchEntityTitleForTicket.service'
 import { buildFirstTemplateResponse } from '@/server/api/support/services/ticketReplyTemplate'
 import { normalizeStatus } from '@/server/api/support/services/serialize'
 import { supportNow } from '@/server/api/support/services/supportTime'
@@ -92,11 +96,24 @@ export async function createTicket(input: {
 }): Promise<{ id: number }> {
   if (!input.message.trim()) throw new Error('SUPPORT_MESSAGE_REQUIRED')
 
-  const assigneeId = await resolveInitialAssignee(input.batchId, input.category)
-  const title = [input.category, input.subCategory]
-    .filter(Boolean)
-    .map((s) => String(s).replace(/[-_]/g, ' '))
-    .join(' – ')
+  const [assigneeId, activeSections, entityTitle] = await Promise.all([
+    resolveInitialAssignee(input.batchId, input.category),
+    getActiveSectionNames(input.userId, input.batchId),
+    input.entityId != null
+      ? fetchEntityTitleForTicket({
+          userId: input.userId,
+          category: input.category,
+          entityId: input.entityId,
+        })
+      : Promise.resolve(null),
+  ])
+
+  const { title, source: titleSource } = await resolveTicketTitle({
+    message: input.message.trim(),
+    category: input.category,
+    subCategory: input.subCategory,
+    entityTitle,
+  })
 
   const now = supportNow()
 
@@ -115,7 +132,7 @@ export async function createTicket(input: {
 
   const [result] = await db.insert(tickets).values({
     userId: input.userId,
-    title: title || input.category,
+    title,
     message: input.message.trim(),
     category: input.category,
     status: 'open',
@@ -132,6 +149,9 @@ export async function createTicket(input: {
       help_faq_question: true,
       ...(input.questionId != null ? { question_id: input.questionId } : {}),
       ...(entityId !== null ? { entity_id: entityId } : {}),
+      'active-sections': activeSections,
+      workflow_id: `ticket-${randomUUID()}`,
+      title_source: titleSource,
     },
     logstamps: { L1_assigned_at: now },
     createdAt: now,
@@ -144,7 +164,7 @@ export async function createTicket(input: {
   // like the legacy flow. Best-effort: a failure here must not fail ticket
   // creation (the ticket already exists and is owned by an assignee).
   try {
-    const { message } = await buildFirstTemplateResponse({
+    const { message, displayName } = await buildFirstTemplateResponse({
       batchId: input.batchId,
       category: input.category,
       assigneeId,
@@ -156,7 +176,11 @@ export async function createTicket(input: {
       public: 1,
       createdAt: now,
       updatedAt: now,
-      data: { firstTemplateResponse: true, ticket_level: 'l1' },
+      data: {
+        firstTemplateResponse: true,
+        ticket_level: 'l1',
+        displayName,
+      },
     })
   } catch (error) {
     console.error(
@@ -245,12 +269,16 @@ export async function reopenTicket(input: {
   )
   if (!caps.canReopen) throw new Error('SUPPORT_REOPEN_NOT_ALLOWED')
 
+  const now = supportNow()
+  const logstamps = ticket.logstamps ?? {}
+
   await db
     .update(tickets)
     .set({
       status: 're-opened',
       isClosed: 0,
-      updatedAt: supportNow(),
+      updatedAt: now,
+      logstamps: { ...logstamps, reopened_at: now },
     })
     .where(eq(tickets.id, input.ticketId))
 
@@ -305,7 +333,11 @@ export async function escalateTicket(input: {
       isClosed: 0,
       updatedAt: now,
       meta: { ...meta, escalation_count: (meta.escalation_count ?? 0) + 1 },
-      logstamps: { ...logstamps, [`escalated_to_${next.level}_at`]: now },
+      logstamps: {
+        ...logstamps,
+        reopened_at: now,
+        [`escalated_to_${next.level}_at`]: now,
+      },
     })
     .where(eq(tickets.id, input.ticketId))
 

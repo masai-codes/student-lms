@@ -15,7 +15,9 @@ function readStoredWidth(): number {
   if (typeof window === 'undefined') return DEFAULT_CHAT_WIDTH
   try {
     const raw = Number(window.localStorage.getItem(STORAGE_KEY))
-    return Number.isFinite(raw) && raw >= MIN_CHAT_WIDTH ? raw : DEFAULT_CHAT_WIDTH
+    return Number.isFinite(raw) && raw >= MIN_CHAT_WIDTH
+      ? raw
+      : DEFAULT_CHAT_WIDTH
   } catch {
     return DEFAULT_CHAT_WIDTH
   }
@@ -100,7 +102,9 @@ export function useLectureChatWidth(
   useEffect(() => {
     const container = containerRef.current
     if (!container || typeof ResizeObserver === 'undefined') return
-    const observer = new ResizeObserver(() => setWidth((current) => clamp(current)))
+    const observer = new ResizeObserver(() =>
+      setWidth((current) => clamp(current)),
+    )
     observer.observe(container)
     return () => observer.disconnect()
   }, [clamp, containerRef])

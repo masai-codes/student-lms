@@ -183,6 +183,32 @@ export async function getSupportGate(input: {
   return activeSections.length === 0 ? 'no-active-section' : null
 }
 
+/**
+ * The student's active section names (codes) in a batch, e.g.
+ * `IITREICT_AIML_2604_M1_101` — snapshotted onto `tickets.data['active-sections']`
+ * at creation time so support agents can see which cohorts the student was in,
+ * exactly like the legacy `GetSectionsForTicket` gate captured.
+ */
+export async function getActiveSectionNames(
+  userId: number,
+  batchId: number,
+): Promise<Array<string>> {
+  const rows = await db
+    .select({ name: sections.name })
+    .from(sectionUser)
+    .innerJoin(sections, eq(sections.id, sectionUser.sectionId))
+    .where(
+      and(
+        eq(sectionUser.userId, userId),
+        eq(sections.batchId, batchId),
+        eq(sections.active, 1),
+        isNull(sectionUser.deletedAt),
+        isNull(sections.deletedAt),
+      ),
+    )
+  return rows.map((r) => r.name)
+}
+
 /** Normalise a pp link: trim and prepend https:// when no protocol present. */
 function normalizePpLink(value: unknown): string | null {
   const trimmed = typeof value === 'string' ? value.trim() : ''

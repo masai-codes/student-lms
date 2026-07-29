@@ -40,9 +40,7 @@ describe('AnnouncementCard', () => {
   })
 
   it('links a message to the message detail route', () => {
-    render(
-      <AnnouncementCard item={{ ...baseItem, id: '7', source: 'm' }} />,
-    )
+    render(<AnnouncementCard item={{ ...baseItem, id: '7', source: 'm' }} />)
     expect(
       screen.getByTestId('announcements-item-m-7').getAttribute('data-to'),
     ).toBe('/messages/$id')
