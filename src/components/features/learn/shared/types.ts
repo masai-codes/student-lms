@@ -51,6 +51,36 @@ export interface LearnFilterValues {
   instructorFilterValues: Array<string>
 }
 
+/**
+ * Top-level future window for the listing (independent of the modal date filter).
+ * `today` is the legacy default (past + today); the others extend into the future.
+ */
+export type LearnScheduleHorizon = 'today' | 'next7' | 'next30'
+
+export const LEARN_SCHEDULE_HORIZON_OPTIONS: ReadonlyArray<{
+  value: LearnScheduleHorizon
+  label: string
+}> = [
+  { value: 'today', label: 'Upto Today' },
+  { value: 'next7', label: 'Upto next 7 days' },
+  { value: 'next30', label: 'Upto next 30 days' },
+]
+
+export function parseLearnScheduleHorizon(
+  value: unknown,
+): LearnScheduleHorizon {
+  return value === 'next7' || value === 'next30' ? value : 'today'
+}
+
+/** Days added to the default "up to today" ceiling for a given horizon. */
+export function learnScheduleHorizonToDays(
+  horizon: LearnScheduleHorizon,
+): number | undefined {
+  if (horizon === 'next7') return 7
+  if (horizon === 'next30') return 30
+  return undefined
+}
+
 export type LearnSchedulePhase = 'all' | 'upcoming' | 'past'
 export type LearnAttendanceFilter = 'present' | 'absent'
 export type LearnAssignmentProgressFilter = 'all' | AssignmentProgressStatus

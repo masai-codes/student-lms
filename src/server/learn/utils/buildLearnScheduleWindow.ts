@@ -23,8 +23,13 @@ export interface BuildLearnScheduleWindowInput {
   schedulePhase?: LearnSchedulePhaseFilter
   /** `yyyy-mm-dd` (inclusive lower bound). */
   scheduleStartDate?: string
-  /** `yyyy-mm-dd` (inclusive upper bound, capped at today — legacy LMS). */
+  /** `yyyy-mm-dd` (inclusive upper bound, capped at the horizon — see `scheduleHorizonDays`). */
   scheduleEndDate?: string
+  /**
+   * Extends the default upper bound this many days into the future. `0`/undefined
+   * keeps the legacy "up to end of today" ceiling; `7` / `30` push it forward.
+   */
+  scheduleHorizonDays?: number
   nowMs: number
 }
 
@@ -75,15 +80,28 @@ function assignmentCutoffMs(nowMs: number): number {
   return base + IST_OFFSET_MS
 }
 
-/** Date-range bounds with the upper bound capped at "today" (legacy LMS). */
+/** Non-negative whole-day horizon offset in ms (guards against bad input). */
+function horizonOffsetMs(scheduleHorizonDays: number | undefined): number {
+  if (scheduleHorizonDays == null || !Number.isFinite(scheduleHorizonDays)) {
+    return 0
+  }
+  return Math.max(0, Math.trunc(scheduleHorizonDays)) * DAY_MS
+}
+
+/**
+ * Date-range bounds with the upper bound capped at the horizon ceiling
+ * ("today" by default, extended by `horizonMs` when a future horizon is chosen).
+ */
 function buildDateRangeWindow(
   startMs: number,
   endYmd: string | undefined,
   nowMs: number,
+  horizonMs: number,
 ): LearnScheduleWindow {
   const todayStart = startOfUtcDay(nowMs)
-  const requestedEnd = ymdToUtcStartOfDay(endYmd) ?? todayStart
-  const cappedEnd = Math.min(requestedEnd, todayStart)
+  const horizonEnd = todayStart + horizonMs
+  const requestedEnd = ymdToUtcStartOfDay(endYmd) ?? horizonEnd
+  const cappedEnd = Math.min(requestedEnd, horizonEnd)
   return { gte: toMysqlUtc(startMs), lt: toMysqlUtc(cappedEnd + DAY_MS) }
 }
 
@@ -103,31 +121,33 @@ export function buildLearnScheduleWindow(
     schedulePhase,
     scheduleStartDate,
     scheduleEndDate,
+    scheduleHorizonDays,
     nowMs,
   } = input
   const startMs = ymdToUtcStartOfDay(scheduleStartDate)
+  const horizonMs = horizonOffsetMs(scheduleHorizonDays)
 
   if (learningType === 'assignment') {
     if (startMs != null) {
-      return buildDateRangeWindow(startMs, scheduleEndDate, nowMs)
+      return buildDateRangeWindow(startMs, scheduleEndDate, nowMs, horizonMs)
     }
-    return { gte: null, lt: toMysqlUtc(assignmentCutoffMs(nowMs)) }
+    return { gte: null, lt: toMysqlUtc(assignmentCutoffMs(nowMs) + horizonMs) }
   }
 
   if (schedulePhase === 'upcoming') {
     return {
       gte: toMysqlUtc(legacyNowMs(nowMs)),
-      lt: toMysqlUtc(endOfTodayIstMs(nowMs)),
+      lt: toMysqlUtc(endOfTodayIstMs(nowMs) + horizonMs),
     }
   }
 
   if (startMs != null) {
-    return buildDateRangeWindow(startMs, scheduleEndDate, nowMs)
+    return buildDateRangeWindow(startMs, scheduleEndDate, nowMs, horizonMs)
   }
 
   if (schedulePhase === 'past') {
     return { gte: null, lt: toMysqlUtc(legacyNowMs(nowMs)) }
   }
 
-  return { gte: null, lt: toMysqlUtc(endOfTodayIstMs(nowMs)) }
+  return { gte: null, lt: toMysqlUtc(endOfTodayIstMs(nowMs) + horizonMs) }
 }

@@ -15,6 +15,8 @@ export interface EnrolledBatch {
   showEvaluationReport: boolean
   /** `batches.settings.showBatchDetails` — gates the "Course Details" link (legacy LMS). */
   showBatchDetails: boolean
+  /** `batches.meta.showSectionDropdown` — gates the section (Course) filter in the learn header. */
+  showSectionDropdown: boolean
 }
 
 export interface EnrolledBatchRow {
@@ -22,6 +24,12 @@ export interface EnrolledBatchRow {
   name: string
   meta: unknown
   settings: unknown
+}
+
+/** A section the user is enrolled in for a given batch — powers the section filter. */
+export interface EnrolledSection {
+  sectionId: number
+  name: string
 }
 
 export type LearningType = 'lecture' | 'assignment' | 'resource'
@@ -84,6 +92,16 @@ export interface GetBatchLearningDataInput {
   page?: number
   pageSize?: number
   filters?: BatchLearningFiltersInput
+  /**
+   * Narrows the listing to a single enrolled section. Ignored when the user is not
+   * enrolled in it — the listing then spans all of the user's sections in the batch.
+   */
+  sectionId?: number
+  /**
+   * How far into the future the default schedule window extends, in days.
+   * `0`/undefined = up to end of today (legacy default); `7` / `30` add that many days.
+   */
+  scheduleHorizonDays?: number
 }
 
 export interface LearningItem {
@@ -135,6 +153,8 @@ export interface LearningPagination {
 
 export interface GetBatchLearningDataResponse {
   filterValues: LearningFilterValues
+  /** Sections the user is enrolled in for the resolved batch (for the section filter). */
+  sections: Array<EnrolledSection>
   learningItems: Array<LearningItem>
   pagination: LearningPagination
 }
@@ -147,6 +167,10 @@ export interface GetLearnPageDataInput {
   page?: number
   pageSize?: number
   filters?: BatchLearningFiltersInput
+  /** Narrows the listing to a single enrolled section (ignored when not enrolled). */
+  sectionId?: number
+  /** Future window size in days for the default schedule window (0 = up to today). */
+  scheduleHorizonDays?: number
 }
 
 /** Everything the `/learn` page renders in one response: batch selector + listing. */

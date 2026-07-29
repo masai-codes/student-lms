@@ -3,6 +3,10 @@ export const LEARN_API = {
   lecture: (lectureId: number) => `/api/learn/lectures/${lectureId}`,
   lectureVideoProgress: (lectureId: number) =>
     `/api/learn/lectures/${lectureId}/video-progress`,
+  lectureQuizUrl: (lectureId: number) =>
+    `/api/learn/lectures/${lectureId}/quiz-url`,
+  lectureQuizStatus: (lectureId: number) =>
+    `/api/learn/lectures/${lectureId}/quiz-status`,
   lectureBookmark: (lectureId: number) =>
     `/api/learn/lectures/${lectureId}/bookmark`,
   lectureFeedback: (lectureId: number) =>

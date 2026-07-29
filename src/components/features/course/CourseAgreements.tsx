@@ -17,7 +17,7 @@ export function CourseAgreements({ agreements }: Props) {
         {agreements.map((ag) => (
           <FileCard
             key={ag.sectionId}
-            title="Course Agreement"
+            title="Program Agreement"
             uploadedOn={ag.sectionName}
             onView={
               ag.agreementPdfUrl

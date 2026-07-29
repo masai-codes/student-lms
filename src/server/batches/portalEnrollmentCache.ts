@@ -23,13 +23,15 @@ import type { EmailPortal } from '@/server/auth/v2/isRequestFromIHub'
 export const ENROLLMENT_CACHE_TTL_SECONDS = 60 * 60 // 1 hour, matches experience-api
 
 /**
- * Every portal a user's enrolment can be cached under. Exported so tests assert
- * against the same list the invalidation uses instead of hardcoding portals that
- * drift (e.g. `iitj`, which exists on some branches and not others).
+ * Every portal a user's enrolment can be cached under — must stay in sync with
+ * {@link EmailPortal}, or a portal's keys would survive an invalidation and serve
+ * a stale batch list for up to the TTL. Exported so tests assert against the same
+ * list the invalidation uses instead of hardcoding a set that drifts.
  */
 export const ENROLLMENT_CACHE_PORTALS: ReadonlyArray<EmailPortal> = [
   'masai',
   'ihub',
+  'iitj',
 ]
 
 export function enrolledBatchIdsKey(

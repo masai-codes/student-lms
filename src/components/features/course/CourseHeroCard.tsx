@@ -60,7 +60,7 @@ export function CourseHeroCard({ data }: Props) {
             </div>
             <div className="flex justify-between">
               <span className="text-xs font-medium text-foreground-muted">
-                Course Progress
+                Program Progress
               </span>
               <span className="text-xs font-medium text-foreground">
                 {data.courseProgress}%

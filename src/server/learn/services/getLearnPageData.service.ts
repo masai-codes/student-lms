@@ -43,6 +43,7 @@ export async function getLearnPageData(
       batches: [],
       selectedBatchId: null,
       filterValues: EMPTY_FILTER_VALUES,
+      sections: [],
       learningItems: [],
       pagination: resolveListingPagination(
         0,
@@ -65,6 +66,8 @@ export async function getLearnPageData(
       page: input.page,
       pageSize: input.pageSize,
       filters: input.filters,
+      sectionId: input.sectionId,
+      scheduleHorizonDays: input.scheduleHorizonDays,
     },
     userId,
   )
