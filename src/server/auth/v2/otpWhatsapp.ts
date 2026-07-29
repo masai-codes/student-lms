@@ -21,6 +21,13 @@ const PORTAL_CONFIG: Record<EmailPortal, PortalAisensyConfig> = {
     campaignName: 'otp_prepleaf_01',
     userName: 'IIT Online Programs 23',
   },
+  // IIT Jodhpur has no dedicated WhatsApp campaign yet — reuse the Masai config
+  // as the v1 fallback. Swap in an IITJ-specific campaign when one is provisioned.
+  iitj: {
+    apiKeyEnvVar: 'WHATSAPP_SERRI_API_KEY_MASAI',
+    campaignName: 'otp_masai_saharan',
+    userName: 'IIT Online Programs 19',
+  },
 }
 
 function getApiKey(envVar: string): string {

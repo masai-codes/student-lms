@@ -22,6 +22,7 @@ const LISTING: GetBatchLearningDataResponse = {
     priorityFilterValues: [],
     instructorFilterValues: [],
   },
+  sections: [],
   learningItems: [],
   pagination: {
     page: 1,

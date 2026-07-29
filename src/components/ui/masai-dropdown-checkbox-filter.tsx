@@ -1,16 +1,18 @@
 'use client'
 
-import * as DropdownMenu from '@radix-ui/react-dropdown-menu'
+import { useState } from 'react'
+import type { CSSProperties } from 'react'
+
 import { Check, ChevronDown } from 'lucide-react'
-import * as React from 'react'
 
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
 import { cn } from '@/lib/utils'
-
-/** Matches `MasaiCheckbox` / `masai-checkbox.tsx` regular size (18px root, h-3 check). */
-const CHECKBOX_VISUAL_CLASSES = {
-  root: 'h-[18px] w-[18px] rounded-[2px]',
-  icon: 'h-3 w-3',
-} as const
 
 /** One selectable row inside the dropdown. */
 export type MasaiDropdownCheckboxFilterOption = {
@@ -20,148 +22,140 @@ export type MasaiDropdownCheckboxFilterOption = {
 }
 
 export type MasaiDropdownCheckboxFilterProps = {
-  options: MasaiDropdownCheckboxFilterOption[]
+  options: Array<MasaiDropdownCheckboxFilterOption>
   /** Controlled selection — pass from parent state. */
-  value: string[]
+  value: Array<string>
   /** Called when the user toggles any option (full next array). */
-  onValueChange: (values: string[]) => void
-  /** Label on the default trigger (ignored when `children` is set). */
+  onValueChange: (values: Array<string>) => void
+  /** Short prefix shown on the trigger, e.g. `Module`. */
   triggerLabel?: string
-  /** Custom trigger; must be a single element (`asChild`). */
-  children?: React.ReactElement
+  /** Heading shown at the top of the open menu, e.g. `Select modules`. */
+  menuLabel?: string
   disabled?: boolean
   /** Root wrapper classes (layout, width). */
   className?: string
   triggerClassName?: string
-  contentClassName?: string
   contentAlign?: 'start' | 'center' | 'end'
   sideOffset?: number
 }
 
-const contentClassName =
-  'z-[220] max-h-[min(320px,var(--radix-dropdown-menu-content-available-height))] min-w-[var(--radix-dropdown-menu-trigger-width)] overflow-y-auto rounded-lg border border-border bg-surface p-1 text-foreground shadow-md'
-
-const checkboxItemClassName = cn(
-  'relative flex cursor-pointer select-none items-center rounded-[2px] py-2 pl-9 pr-3 type-b2-regular text-foreground outline-none transition-colors',
-  'data-highlighted:bg-surface-muted',
-  'data-disabled:pointer-events-none data-disabled:opacity-50',
-)
-
 function toggleSelected(
-  values: string[],
+  values: Array<string>,
   optionValue: string,
-  checked: boolean,
-) {
-  if (checked) {
-    return Array.from(new Set([...values, optionValue]))
-  }
-  return values.filter((v) => v !== optionValue)
+): Array<string> {
+  return values.includes(optionValue)
+    ? values.filter((v) => v !== optionValue)
+    : [...values, optionValue]
 }
 
 /**
- * MasaiDropdownCheckboxFilter — Radix DropdownMenu with multi-select checkbox rows.
- * Selection is controlled — parent owns `value` and updates from `onValueChange`.
+ * MasaiDropdownCheckboxFilter — multi-select styled to match the `/learn` batch
+ * picker: a rounded-full chevron badge trigger (with a selection count), a soft
+ * card panel, and staggered rows that highlight the chosen options in the brand
+ * colour. Toggling keeps the menu open.
  */
 export function MasaiDropdownCheckboxFilter({
   options,
   value,
   onValueChange,
   triggerLabel = 'Filter',
-  children,
+  menuLabel,
   disabled = false,
   className,
   triggerClassName,
-  contentClassName: contentClassNameProp,
   contentAlign = 'start',
-  sideOffset = 6,
+  sideOffset = 8,
 }: MasaiDropdownCheckboxFilterProps) {
+  const [isOpen, setIsOpen] = useState(false)
+
   return (
     <div className={cn('inline-flex', className)}>
-      <DropdownMenu.Root>
-        <DropdownMenu.Trigger asChild disabled={disabled}>
-          {children ? (
-            children
-          ) : (
-            <button
-              type="button"
-              className={cn(
-                'inline-flex min-h-[44px] min-w-[140px] max-w-full shrink-0 items-center justify-between gap-2 rounded-[8px] border border-border bg-surface px-[12px] py-[10px] type-b2-md text-foreground outline-none transition-colors',
-                'hover:border-border-strong hover:bg-surface-muted',
-                'focus-visible:ring-2 focus-visible:ring-primary-400 focus-visible:ring-offset-2 focus-visible:ring-offset-background',
-                'data-disabled:pointer-events-none data-disabled:opacity-50 data-[state=open]:border-primary-500 data-[state=open]:ring-2 data-[state=open]:ring-primary-400 data-[state=open]:ring-offset-2 data-[state=open]:ring-offset-background',
-                triggerClassName,
-              )}
-            >
-              <span className="truncate">{triggerLabel}</span>
-              <span className="inline-flex shrink-0 items-center gap-1">
-                {value.length > 0 ? (
-                  <span
-                    className="rounded-full bg-primary-50 px-2 py-0.5 type-caption font-medium text-primary-600"
-                    aria-hidden
-                  >
-                    {value.length}
-                  </span>
-                ) : null}
-                <ChevronDown
-                  className="size-4 text-foreground-muted"
+      <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
+        <DropdownMenuTrigger asChild disabled={disabled}>
+          <button
+            type="button"
+            className={cn(
+              'group flex min-h-[44px] min-w-[150px] max-w-full cursor-pointer items-center justify-between gap-3 rounded-xl border border-border bg-surface px-4 py-2 text-left transition-all duration-200',
+              'hover:-translate-y-px hover:border-brand/35 hover:bg-surface-muted',
+              'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400 focus-visible:ring-offset-2 focus-visible:ring-offset-background',
+              'active:scale-[0.98] disabled:pointer-events-none disabled:opacity-50 data-[state=open]:border-brand/40',
+              triggerClassName,
+            )}
+          >
+            <span className="type-b2-md min-w-0 flex-1 truncate text-foreground">
+              {triggerLabel}
+            </span>
+            <span className="inline-flex shrink-0 items-center gap-2">
+              {value.length > 0 ? (
+                <span
+                  className="flex h-5 min-w-5 items-center justify-center rounded-full bg-brand/10 px-1.5 type-caption font-semibold text-brand"
                   aria-hidden
+                >
+                  {value.length}
+                </span>
+              ) : null}
+              <span
+                className="flex shrink-0 items-center justify-center rounded-full bg-blue-50 p-1.5 text-blue-500 transition-colors group-hover:bg-blue-100 dark:bg-info-subtle dark:text-info-subtle-foreground dark:group-hover:bg-info-subtle"
+                aria-hidden
+              >
+                <ChevronDown
+                  className={cn(
+                    'size-4 transition-transform duration-200',
+                    isOpen ? 'rotate-180' : '',
+                  )}
                 />
               </span>
-            </button>
-          )}
-        </DropdownMenu.Trigger>
+            </span>
+          </button>
+        </DropdownMenuTrigger>
 
-        <DropdownMenu.Portal>
-          <DropdownMenu.Content
-            className={cn(contentClassName, contentClassNameProp)}
-            align={contentAlign}
-            sideOffset={sideOffset}
-            collisionPadding={12}
-          >
-            <DropdownMenu.Group>
-              {options.map((option) => {
-                const isChecked = value.includes(option.value)
-                return (
-                  <DropdownMenu.CheckboxItem
-                    key={option.value}
-                    className={checkboxItemClassName}
-                    checked={isChecked}
-                    disabled={option.disabled}
-                    onCheckedChange={(checked) =>
-                      onValueChange(
-                        toggleSelected(value, option.value, checked === true),
-                      )
-                    }
-                    onSelect={(event) => {
-                      event.preventDefault()
-                    }}
-                  >
-                    <span
-                      className={cn(
-                        'pointer-events-none absolute left-2 flex shrink-0 items-center justify-center border border-gray-500 bg-surface text-white transition-colors',
-                        CHECKBOX_VISUAL_CLASSES.root,
-                        isChecked && 'border-gray-500 bg-primary-500',
-                        option.disabled && isChecked && 'bg-primary-300',
-                      )}
-                      aria-hidden
-                    >
-                      {isChecked ? (
-                        <Check
-                          className={CHECKBOX_VISUAL_CLASSES.icon}
-                          aria-hidden
-                        />
-                      ) : null}
-                    </span>
-                    <span className="min-w-0 flex-1 truncate">
-                      {option.label}
-                    </span>
-                  </DropdownMenu.CheckboxItem>
-                )
-              })}
-            </DropdownMenu.Group>
-          </DropdownMenu.Content>
-        </DropdownMenu.Portal>
-      </DropdownMenu.Root>
+        <DropdownMenuContent
+          align={contentAlign}
+          sideOffset={sideOffset}
+          className="max-h-[min(60vh,420px)] w-[min(92vw,320px)] min-w-[var(--radix-dropdown-menu-trigger-width)] overflow-y-auto rounded-xl border border-border bg-surface p-2 shadow-lg"
+        >
+          {menuLabel ? (
+            <DropdownMenuLabel className="text-foreground-muted">
+              {menuLabel}
+            </DropdownMenuLabel>
+          ) : null}
+          {options.map((option, index) => {
+            const isChecked = value.includes(option.value)
+            return (
+              <DropdownMenuItem
+                key={option.value}
+                disabled={option.disabled}
+                // Keep the menu open so several options can be toggled in one pass.
+                onSelect={(event) => {
+                  event.preventDefault()
+                  onValueChange(toggleSelected(value, option.value))
+                }}
+                style={{ '--dash-delay': `${index * 0.04}s` } as CSSProperties}
+                className={cn(
+                  'animate-dash-row-in cursor-pointer items-center gap-3 rounded-lg px-3 py-2.5 transition-colors hover:bg-brand/5 focus:bg-brand/5',
+                  isChecked ? 'bg-brand/5' : '',
+                )}
+              >
+                <span
+                  className={cn(
+                    'type-b2-md min-w-0 flex-1 truncate',
+                    isChecked ? 'font-semibold text-brand' : 'text-foreground',
+                  )}
+                >
+                  {option.label}
+                </span>
+                {isChecked ? (
+                  <Check
+                    className="size-4 shrink-0 text-brand"
+                    strokeWidth={2}
+                    aria-hidden
+                  />
+                ) : null}
+              </DropdownMenuItem>
+            )
+          })}
+        </DropdownMenuContent>
+      </DropdownMenu>
     </div>
   )
 }

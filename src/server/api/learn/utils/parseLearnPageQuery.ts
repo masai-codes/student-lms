@@ -38,6 +38,15 @@ function parsePositiveInt(value: string | null): number | undefined {
   return Math.trunc(parsed)
 }
 
+/** Allowed future horizons (days). Anything else falls back to "up to today". */
+const SCHEDULE_HORIZON_DAYS = new Set([7, 30])
+
+function parseScheduleHorizonDays(value: string | null): number | undefined {
+  if (value == null || value.trim() === '') return undefined
+  const parsed = Math.trunc(Number(value))
+  return SCHEDULE_HORIZON_DAYS.has(parsed) ? parsed : undefined
+}
+
 function parseStringList(value: string | null): Array<string> | undefined {
   if (value == null || value.trim() === '') return undefined
   const items = value
@@ -158,5 +167,9 @@ export function parseLearnPageQuery(url: URL): GetLearnPageDataInput {
     page: parsePositiveInt(url.searchParams.get('page')),
     pageSize: parsePositiveInt(url.searchParams.get('pageSize')),
     filters: hasFilters ? filters : undefined,
+    sectionId: parsePositiveInt(url.searchParams.get('sectionId')),
+    scheduleHorizonDays: parseScheduleHorizonDays(
+      url.searchParams.get('scheduleHorizonDays'),
+    ),
   }
 }

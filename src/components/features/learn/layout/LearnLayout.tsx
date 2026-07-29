@@ -1,4 +1,4 @@
-import { useMemo, useRef } from 'react'
+import { useEffect, useMemo, useRef } from 'react'
 import { keepPreviousData, useQuery } from '@tanstack/react-query'
 import { LearnHeaderSection } from '../section-one/LearnHeaderSection'
 import { LearnAppliedFilters } from '../section-two/LearnAppliedFilters'
@@ -12,14 +12,20 @@ import type {
   GetLearnPageDataResponse,
   LearningType,
 } from '@/server/learn/types'
+import { learnScheduleHorizonToDays } from '../shared/types'
 import { fetchLearnPageDataFromApi } from '@/lib/api/learn/learnApi'
 import { LAYOUT_MAIN_PADDING_X, LAYOUT_MAX_WIDTH_CLASS } from '@/lib/layout'
 import { mapLearningItemToContent } from '../shared/mapLearningItemToContent'
+import { getLastSelectedSectionIdForUser } from '@/lib/learnSectionSelection'
 
 interface LearnLayoutProps {
   /** Loader-seeded initial page data; React Query takes over for interactive updates. */
   pageData: GetLearnPageDataResponse
+  /** Signed-in user id — for per-batch section persistence. */
+  userId: string | number
   onBatchChange: (batchId: number) => void
+  /** `null` selects "Any section". */
+  onSectionChange: (sectionId: number | null) => void
 }
 
 // Treat page data as fresh for 5 min (matches the dashboard/navbar convention) so
@@ -33,7 +39,12 @@ function toLearningType(tab: LearnTab): LearningType {
   return 'lecture'
 }
 
-export function LearnLayout({ pageData, onBatchChange }: LearnLayoutProps) {
+export function LearnLayout({
+  pageData,
+  userId,
+  onBatchChange,
+  onSectionChange,
+}: LearnLayoutProps) {
   const {
     activeTab,
     currentPage,
@@ -42,9 +53,13 @@ export function LearnLayout({ pageData, onBatchChange }: LearnLayoutProps) {
     filterCount,
     apiFilters,
     batchId,
+    sectionId,
+    horizon,
     setActiveTab,
     setSearchValue,
     setCurrentPage,
+    setSectionId,
+    setHorizon,
     setModalFilters,
     setModules,
     clearAllFilters,
@@ -54,13 +69,19 @@ export function LearnLayout({ pageData, onBatchChange }: LearnLayoutProps) {
   const hasActiveApiFilters = Object.values(apiFilters).some(
     (value) => value != null && (!Array.isArray(value) || value.length > 0),
   )
+  const scheduleHorizonDays = learnScheduleHorizonToDays(horizon)
 
   // Interactive updates fetch here (not via the route loader), so search / filters /
   // pagination never block the route — the header & search stay live and only the
   // list shows a skeleton while refetching.
+  // Section and schedule-horizon are part of the key: they change what the API
+  // returns, so a key that ignored them would serve another section's (or
+  // another horizon's) cached list on switch instead of refetching.
   const queryKey = [
     'learn-page-data',
     batchId ?? null,
+    sectionId ?? null,
+    scheduleHorizonDays ?? null,
     learningType,
     searchValue,
     currentPage,
@@ -87,6 +108,8 @@ export function LearnLayout({ pageData, onBatchChange }: LearnLayoutProps) {
         search: searchValue.trim() || undefined,
         page: currentPage,
         filters: hasActiveApiFilters ? apiFilters : undefined,
+        sectionId,
+        scheduleHorizonDays,
       }),
     initialData: isSeededKey ? pageData : undefined,
     placeholderData: keepPreviousData,
@@ -100,6 +123,49 @@ export function LearnLayout({ pageData, onBatchChange }: LearnLayoutProps) {
 
   const enrolledBatches = data.batches
   const selectedBatchId = data.selectedBatchId
+  const sections = data.sections
+
+  // The section filter is opt-in per batch (`batches.meta.showSectionDropdown`).
+  const showSectionDropdown =
+    enrolledBatches.find((batch) => batch.batchId === selectedBatchId)
+      ?.showSectionDropdown === true
+
+  // Section persistence/restore. Runs only on data that matches the current batch
+  // (guards against `keepPreviousData` showing the previous batch's sections):
+  //  - with the filter hidden, any lingering `sectionId` is dropped so the listing
+  //    is never narrowed by a control the student cannot see or reset;
+  //  - a stale `sectionId` not in this batch's enrolled sections is dropped;
+  //  - otherwise, when none is selected, restore this batch's stored choice.
+  useEffect(() => {
+    if (batchId == null || selectedBatchId !== batchId) return
+
+    if (!showSectionDropdown) {
+      if (sectionId != null) setSectionId(null)
+      return
+    }
+
+    const validSectionIds = new Set(
+      sections.map((section) => section.sectionId),
+    )
+
+    if (sectionId != null) {
+      if (!validSectionIds.has(sectionId)) setSectionId(null)
+      return
+    }
+
+    const storedSectionId = getLastSelectedSectionIdForUser(userId, batchId)
+    if (storedSectionId != null && validSectionIds.has(storedSectionId)) {
+      setSectionId(storedSectionId)
+    }
+  }, [
+    batchId,
+    selectedBatchId,
+    sections,
+    sectionId,
+    setSectionId,
+    showSectionDropdown,
+    userId,
+  ])
 
   const learningItems: Array<LearnContentItem> = useMemo(
     () => data.learningItems.map(mapLearningItemToContent),
@@ -128,10 +194,14 @@ export function LearnLayout({ pageData, onBatchChange }: LearnLayoutProps) {
               label: batch.courseTitle,
               courseLogo: batch.courseLogo,
               showBatchDetails: batch.showBatchDetails,
+              showSectionDropdown: batch.showSectionDropdown,
             }))}
             onBatchChange={(value) => {
               onBatchChange(Number(value))
             }}
+            sections={sections}
+            selectedSectionId={sectionId ?? null}
+            onSectionChange={onSectionChange}
           />
 
           <LearnControlsSection
@@ -147,6 +217,8 @@ export function LearnLayout({ pageData, onBatchChange }: LearnLayoutProps) {
             instructorFilterOptions={data.filterValues.instructorFilterValues}
             modalFilters={modalFilters}
             onApplyModalFilters={setModalFilters}
+            horizon={horizon}
+            onHorizonChange={setHorizon}
           />
         </div>
       </div>

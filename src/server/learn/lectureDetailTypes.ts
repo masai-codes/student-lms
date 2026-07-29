@@ -1,7 +1,10 @@
 import type { LectureAttendanceSummary } from '@/server/attendance/types'
 import type { LearnHubDetailPayload, LearningItem } from '@/server/learn/types'
 import type { JoinLiveButtonState } from '@/server/learn/utils/resolveJoinLiveButtonState'
+import type { InLecturePopupQuiz } from '@/server/learn/utils/parseLectureSettings'
 import type { WatchIntervalSegment } from '@/server/video-attendance/types'
+
+export type { InLecturePopupQuiz }
 
 export type LectureKind = 'live' | 'video'
 
@@ -119,4 +122,9 @@ export type LectureDetailPayload = LearnHubDetailPayload & {
   enableZoomWebView: boolean
   /** Lecture feedback window + the user's existing rating/text. */
   feedback: LectureFeedbackState
+  /**
+   * Timestamped popup quizzes to surface while the recording plays, from
+   * `lectures.settings.inLecturePopupQuiz`. Empty when none are configured.
+   */
+  inLecturePopupQuiz: Array<InLecturePopupQuiz>
 }

@@ -13,7 +13,7 @@ import {
 } from '@/components/features/layout/NextActionBanner'
 import { TryNewToggle } from '@/components/features/layout/TryNewToggle'
 import { useTryNewCtaVisible } from '@/hooks/useTryNewCtaVisible'
-import { isIHubPortal } from '@/utils/portal'
+import { hidesMasaiOnlyFeatures } from '@/utils/portal'
 
 const layoutRouteApi = getRouteApi('/(protected)/_layout')
 
@@ -27,8 +27,9 @@ const layoutRouteApi = getRouteApi('/(protected)/_layout')
 export default function AppMobileHeader() {
   const { user } = layoutRouteApi.useRouteContext()
   const navigate = useNavigate()
-  // iHub hides the guided-tour icon (same as the desktop navbar).
-  const isIHub = isIHubPortal()
+  // Non-Masai portals (iHub, IIT Jodhpur) hide the guided-tour icon (same as
+  // the desktop navbar).
+  const hideMasaiExtras = hidesMasaiOnlyFeatures()
   const showTryNew = useTryNewCtaVisible()
 
   const { data: unreadCount = 0 } = useQuery({
@@ -94,7 +95,7 @@ export default function AppMobileHeader() {
             </span>
           ) : null}
         </button>
-        {isIHub ? null : (
+        {hideMasaiExtras ? null : (
           <button
             type="button"
             onClick={handleGuidedTourClick}

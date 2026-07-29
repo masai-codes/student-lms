@@ -8,11 +8,13 @@ describe('parseLectureSettings', () => {
       hideVideo: false,
       hideNotes: false,
       showFeedback: false,
+      inLecturePopupQuiz: [],
     })
     expect(parseLectureSettings('x')).toEqual({
       hideVideo: false,
       hideNotes: false,
       showFeedback: false,
+      inLecturePopupQuiz: [],
     })
   })
 
@@ -21,11 +23,13 @@ describe('parseLectureSettings', () => {
       hideVideo: true,
       hideNotes: false,
       showFeedback: false,
+      inLecturePopupQuiz: [],
     })
     expect(parseLectureSettings({ hide_video: false })).toEqual({
       hideVideo: false,
       hideNotes: false,
       showFeedback: false,
+      inLecturePopupQuiz: [],
     })
   })
 
@@ -39,16 +43,19 @@ describe('parseLectureSettings', () => {
       hideVideo: false,
       hideNotes: true,
       showFeedback: false,
+      inLecturePopupQuiz: [],
     })
     expect(parseLectureSettings({ hide_notes: 1 })).toEqual({
       hideVideo: false,
       hideNotes: true,
       showFeedback: false,
+      inLecturePopupQuiz: [],
     })
     expect(parseLectureSettings({ hide_notes: 0 })).toEqual({
       hideVideo: false,
       hideNotes: false,
       showFeedback: false,
+      inLecturePopupQuiz: [],
     })
   })
 

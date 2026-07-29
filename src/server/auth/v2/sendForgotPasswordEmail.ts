@@ -2,6 +2,7 @@ import { eq } from 'drizzle-orm'
 import jwt from 'jsonwebtoken'
 import { db } from '@/db'
 import { users } from '@/db/schema'
+import type { EmailPortal } from '@/server/auth/v2/isRequestFromIHub'
 import { toEmailPortal } from '@/server/auth/v2/isRequestFromIHub'
 import {
   getStudentPasswordResetBaseUrl,
@@ -20,7 +21,7 @@ function getJwtSecret(): string {
 function buildResetLink(
   role: string | null,
   token: string,
-  portal: 'masai' | 'ihub',
+  portal: EmailPortal,
 ): string | undefined {
   if (role !== 'student' && role !== 'admin') return undefined
   const base = getStudentPasswordResetBaseUrl(portal)
