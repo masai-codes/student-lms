@@ -1,4 +1,5 @@
 import { BatchStartBanners } from '../section-banner/BatchStartBanners'
+import { BatchTransferPaymentBanners } from '../section-banner/BatchTransferPaymentBanners'
 import { FeePaymentBanners } from '../section-banner/FeePaymentBanners'
 import { OnboardingStepsBanner } from '../section-banner/OnboardingStepsBanner'
 import { buildOnboardingBanners } from '../section-banner/onboardingBanners'
@@ -43,6 +44,13 @@ export function DashboardLayout({
       {overview.feePaymentBanners.length > 0 ? (
         <div className="mb-4">
           <FeePaymentBanners banners={overview.feePaymentBanners} />
+        </div>
+      ) : null}
+      {overview.batchTransferPaymentBanners.length > 0 ? (
+        <div className="mb-4">
+          <BatchTransferPaymentBanners
+            banners={overview.batchTransferPaymentBanners}
+          />
         </div>
       ) : null}
       {overview.batchStartBanners.length > 0 ? (

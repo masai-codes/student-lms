@@ -95,6 +95,7 @@ export function DashboardPage({
     pendingTasks: data?.pendingTasks ?? [],
     feePaymentBanners: data?.feePaymentBanners ?? [],
     batchStartBanners: data?.batchStartBanners ?? [],
+    batchTransferPaymentBanners: data?.batchTransferPaymentBanners ?? [],
   }
 
   // When the guided tour is showing it takes over the content area (below the
