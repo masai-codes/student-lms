@@ -28,7 +28,7 @@ type Props = { progressSeconds: number }
 
 function renderPoll(
   initial: Props,
-  onSeekToSeconds: (s: number) => void = vi.fn(),
+  onSkipToSeconds: (from: number, to: number) => void = vi.fn(),
 ) {
   return renderHook(
     ({ progressSeconds }: Props) =>
@@ -36,7 +36,7 @@ function renderPoll(
         polls: POLLS,
         progressSeconds,
         totalDuration: 1000,
-        onSeekToSeconds,
+        onSkipToSeconds,
       }),
     { initialProps: initial },
   )
@@ -107,12 +107,12 @@ describe('useInLecturePoll', () => {
     expect(result.current.activePoll).toBeNull()
   })
 
-  it('closePoll seeks to the window end', () => {
+  it('closePoll seeks to the window end and reports the skipped range', () => {
     const onSeek = vi.fn()
     const { result, rerender } = renderPoll({ progressSeconds: 100 }, onSeek)
     act(() => rerender({ progressSeconds: 216 }))
     act(() => result.current.closePoll())
-    expect(onSeek).toHaveBeenCalledWith(357)
+    expect(onSeek).toHaveBeenCalledWith(215, 357)
   })
 
   it('opens when the user scrubs directly into a window', () => {

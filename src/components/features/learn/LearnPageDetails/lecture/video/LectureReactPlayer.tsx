@@ -100,26 +100,16 @@ export function LectureReactPlayer({
     initialAttendance,
   })
 
-  // Debug trace: confirms the player is mounted and whether any quiz elements
-  // actually reached it (if this never logs, the video isn't rendered by this
-  // player; if quizCount is 0, the API returned no quiz for this lecture).
-  useEffect(() => {
-    console.log('[in-lecture-quiz] player mounted', {
-      lectureId,
-      quizCount: inLecturePopupElements?.quiz?.length ?? 0,
-      quiz: inLecturePopupElements?.quiz ?? [],
-    })
-  }, [lectureId, inLecturePopupElements])
-
   const quiz = useInLectureQuiz({
     lectureId,
     quizzes: inLecturePopupElements?.quiz ?? [],
     progressSeconds: attendance.progress,
     totalDuration: attendance.totalDuration,
     seekSignal: attendance.seekNonce,
-    onSeekToSeconds: (seconds) => {
-      attendance.handleSeek(seconds)
-      seekPlayerToSeconds(videoRef, seconds)
+    onSkipToSeconds: (fromSeconds, toSeconds) => {
+      attendance.markIntervalWatched(fromSeconds, toSeconds)
+      attendance.handleSeek(toSeconds)
+      seekPlayerToSeconds(videoRef, toSeconds)
     },
   })
 
@@ -127,9 +117,10 @@ export function LectureReactPlayer({
     polls: inLecturePopupElements?.polls ?? [],
     progressSeconds: attendance.progress,
     totalDuration: attendance.totalDuration,
-    onSeekToSeconds: (seconds) => {
-      attendance.handleSeek(seconds)
-      seekPlayerToSeconds(videoRef, seconds)
+    onSkipToSeconds: (fromSeconds, toSeconds) => {
+      attendance.markIntervalWatched(fromSeconds, toSeconds)
+      attendance.handleSeek(toSeconds)
+      seekPlayerToSeconds(videoRef, toSeconds)
     },
   })
 

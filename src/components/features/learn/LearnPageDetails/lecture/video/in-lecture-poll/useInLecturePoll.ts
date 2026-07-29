@@ -28,8 +28,12 @@ type UseInLecturePollOptions = {
   progressSeconds: number
   /** Video duration in seconds, once known (used to validate/clamp windows). */
   totalDuration: number
-  /** Seek the player to a position (used by "skip to lecture"). */
-  onSeekToSeconds: (seconds: number) => void
+  /**
+   * "Skip to lecture": seek the player to `toSeconds`, and mark the skipped
+   * `[fromSeconds, toSeconds)` range as watched for attendance purposes —
+   * the poll's whole window counts even though playback never covered it.
+   */
+  onSkipToSeconds: (fromSeconds: number, toSeconds: number) => void
 }
 
 type UseInLecturePollResult = {
@@ -49,7 +53,7 @@ export function useInLecturePoll({
   polls,
   progressSeconds,
   totalDuration,
-  onSeekToSeconds,
+  onSkipToSeconds,
 }: UseInLecturePollOptions): UseInLecturePollResult {
   const normalized = useMemo(
     () => normalizeInLecturePolls(polls, totalDuration),
@@ -116,9 +120,9 @@ export function useInLecturePoll({
   const closePoll = useCallback(() => {
     if (activePollId === null) return
     const poll = normalized.find((p) => p.id === activePollId)
-    if (poll) onSeekToSeconds(poll.endSec)
+    if (poll) onSkipToSeconds(poll.startSec, poll.endSec)
     closeActivePoll()
-  }, [activePollId, normalized, onSeekToSeconds, closeActivePoll])
+  }, [activePollId, normalized, onSkipToSeconds, closeActivePoll])
 
   /** "Continue watching" — close without seeking; playback carries on as-is. */
   const dismissPoll = useCallback(() => {

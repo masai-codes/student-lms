@@ -32,8 +32,12 @@ type UseInLectureQuizOptions = {
   totalDuration: number
   /** Bumped on every user seek. Retained for API compatibility; unused. */
   seekSignal: number
-  /** Seek the player to a position (used by "skip to lecture"). */
-  onSeekToSeconds: (seconds: number) => void
+  /**
+   * "Skip to lecture": seek the player to `toSeconds`, and mark the skipped
+   * `[fromSeconds, toSeconds)` range as watched for attendance purposes —
+   * the quiz's whole window counts even though playback never covered it.
+   */
+  onSkipToSeconds: (fromSeconds: number, toSeconds: number) => void
 }
 
 type UseInLectureQuizResult = {
@@ -55,31 +59,12 @@ export function useInLectureQuiz({
   quizzes,
   progressSeconds,
   totalDuration,
-  onSeekToSeconds,
+  onSkipToSeconds,
 }: UseInLectureQuizOptions): UseInLectureQuizResult {
   const normalized = useMemo(
     () => normalizeInLectureQuizzes(quizzes, totalDuration),
     [quizzes, totalDuration],
   )
-
-  // Debug trace: whether raw elements survived normalization.
-  useEffect(() => {
-    console.log('[in-lecture-quiz] normalized', {
-      totalDuration,
-      rawCount: quizzes.length,
-      normalized,
-    })
-  }, [normalized, totalDuration, quizzes.length])
-
-  // Debug heartbeat: the live playback position the detector receives, and
-  // whether it's inside any window.
-  useEffect(() => {
-    const inside = normalized.find((q) => isInside(q, progressSeconds))
-    console.log('[in-lecture-quiz] progress tick', {
-      progress: progressSeconds,
-      insideWindow: inside ? `${inside.startSec}-${inside.endSec}` : null,
-    })
-  }, [progressSeconds, normalized])
 
   // In-session status only — no seeding from storage.
   const statusRef = useRef<Map<string, QuizStatus>>(new Map())
@@ -109,10 +94,6 @@ export function useInLectureQuiz({
     if (activeQuizId !== null) {
       const active = normalized.find((quiz) => quiz.id === activeQuizId)
       if (active && isInside(active, curr)) return
-      console.log('[in-lecture-quiz] left window → closing', {
-        quizId: activeQuizId,
-        progress: curr,
-      })
       statuses.set(activeQuizId, 'idle')
       setActiveQuizId(null)
       // Fall through: a different window may contain playback this same tick.
@@ -121,12 +102,6 @@ export function useInLectureQuiz({
     for (const quiz of normalized) {
       if (getStatus(quiz.id) !== 'idle') continue
       if (isInside(quiz, curr)) {
-        console.log('[in-lecture-quiz] window entered → opening', {
-          quizId: quiz.id,
-          progress: curr,
-          startSec: quiz.startSec,
-          endSec: quiz.endSec,
-        })
         statuses.set(quiz.id, 'active')
         setActiveQuizId(quiz.id)
         break
@@ -156,9 +131,9 @@ export function useInLectureQuiz({
   const closeQuiz = useCallback(() => {
     if (activeQuizId === null) return
     const quiz = normalized.find((q) => q.id === activeQuizId)
-    if (quiz) onSeekToSeconds(quiz.endSec)
+    if (quiz) onSkipToSeconds(quiz.startSec, quiz.endSec)
     closeActiveQuiz()
-  }, [activeQuizId, normalized, onSeekToSeconds, closeActiveQuiz])
+  }, [activeQuizId, normalized, onSkipToSeconds, closeActiveQuiz])
 
   /** "Continue watching" — close without seeking; playback carries on as-is. */
   const dismissQuiz = useCallback(() => {

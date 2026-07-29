@@ -15,7 +15,7 @@ type Props = { progressSeconds: number; seekSignal?: number }
 
 function renderQuiz(
   initial: Props,
-  onSeekToSeconds: (s: number) => void = vi.fn(),
+  onSkipToSeconds: (from: number, to: number) => void = vi.fn(),
 ) {
   return renderHook(
     ({ progressSeconds, seekSignal = 0 }: Props) =>
@@ -25,7 +25,7 @@ function renderQuiz(
         progressSeconds,
         totalDuration: 1000,
         seekSignal,
-        onSeekToSeconds,
+        onSkipToSeconds,
       }),
     { initialProps: initial },
   )
@@ -97,12 +97,12 @@ describe('useInLectureQuiz', () => {
     expect(result.current.activeQuiz).toBeNull()
   })
 
-  it('closeQuiz seeks to the window end', () => {
+  it('closeQuiz seeks to the window end and reports the skipped range', () => {
     const onSeek = vi.fn()
     const { result, rerender } = renderQuiz({ progressSeconds: 100 }, onSeek)
     act(() => rerender({ progressSeconds: 216 }))
     act(() => result.current.closeQuiz())
-    expect(onSeek).toHaveBeenCalledWith(357)
+    expect(onSeek).toHaveBeenCalledWith(215, 357)
   })
 
   it('opens when the user scrubs directly into a window', () => {

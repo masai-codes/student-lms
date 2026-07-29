@@ -100,7 +100,6 @@ export async function getLectureLearningDetailForUser(
     videoAttendance,
     attendanceMap,
     isBookmarked,
-    feedbackRecord,
     inLecturePopupElements,
   ] = await Promise.all([
     Promise.resolve(buildLearnDetailPresentation(row)),
@@ -150,13 +149,22 @@ export async function getLectureLearningDetailForUser(
           isRecommended,
         ),
     getLearnEntityBookmarkState(userId, 'lecture', lectureId),
-    getLectureFeedbackRecord(userId, lectureId),
     getInLecturePopupElements(lectureId),
   ])
 
   const attendanceSummary = attendanceMap.get(lectureId) ?? null
   const attendance = isRecommended ? null : attendanceSummary
   const optionalAttendance = isRecommended ? attendanceSummary : null
+  // Same `overallStatus === 1` the "Present" badge renders from (see
+  // resolveLectureAttendanceUiState) — reused here instead of a second
+  // independent `student_attendances` read, so the tagged-feedback flow can
+  // never disagree with what the badge shows.
+  const attended = attendanceSummary?.overallStatus === 1
+  const feedbackRecord = await getLectureFeedbackRecord(
+    userId,
+    lectureId,
+    attended,
+  )
 
   const tabs = buildLectureTabContent({
     notes: row.notes,

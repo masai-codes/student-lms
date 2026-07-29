@@ -67,10 +67,6 @@ export function InLectureQuizModal({
   useEffect(() => {
     let cancelled = false
     setState({ status: 'loading' })
-    console.log('[in-lecture-quiz] fetching assessment url', {
-      lectureId,
-      assessmentId: quiz.assessmentId,
-    })
     generateInLectureQuizUrl({
       lectureId,
       assessmentTemplateId: quiz.assessmentId,
@@ -80,10 +76,6 @@ export function InLectureQuizModal({
         const url = result.alreadySubmitted
           ? result.url
           : toEmbeddableQuizUrl(result.url)
-        console.log('[in-lecture-quiz] assessment url ready', {
-          url,
-          alreadySubmitted: result.alreadySubmitted,
-        })
         setState({
           status: 'ready',
           url,
@@ -117,7 +109,6 @@ export function InLectureQuizModal({
       })
         .then((result) => {
           if (cancelled || !result.graded) return
-          console.log('[in-lecture-quiz] graded — revealing skip in 1s')
           window.clearInterval(intervalId)
           revealTimer = window.setTimeout(() => {
             if (!cancelled) setShowSkip(true)
@@ -177,9 +168,6 @@ export function InLectureQuizModal({
               (interacting || showSkip) && 'pointer-events-none',
             )}
             allow="camera; microphone; fullscreen; clipboard-write"
-            onLoad={() =>
-              console.log('[in-lecture-quiz] iframe loaded', { url: state.url })
-            }
           />
         ) : (
           <div className="flex h-full flex-col items-center justify-center gap-3 p-6 text-center">

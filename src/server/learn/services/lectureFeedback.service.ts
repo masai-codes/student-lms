@@ -4,6 +4,7 @@ import { db } from '@/db'
 import {
   lectureFeedback,
   lectures,
+  studentAttendances,
   zefLmsFeedbackSubmissions,
   zefLmsMetaData,
 } from '@/db/schema'
@@ -40,18 +41,64 @@ async function findZefLmsMetaDataId(lectureId: number): Promise<number | null> {
   return rows.at(0)?.id ?? null
 }
 
+async function hasAttendedLecture(
+  userId: number,
+  lectureId: number,
+): Promise<boolean> {
+  const rows = await db
+    .select({ id: studentAttendances.id })
+    .from(studentAttendances)
+    .where(
+      and(
+        eq(studentAttendances.lectureId, lectureId),
+        eq(studentAttendances.userId, userId),
+        eq(studentAttendances.status, 1),
+      ),
+    )
+    .limit(1)
+  return rows.length > 0
+}
+
+/**
+ * `zef` mode requires both a `zef_lms_meta_data` row for the lecture *and*
+ * the user having attended it (`student_attendances.status = 1`). Either
+ * missing falls back to `legacy`. Returns the meta row id when eligible.
+ *
+ * Used only by `submitLectureFeedback` — a fresh POST has no pre-fetched
+ * attendance to reuse, unlike `getLectureFeedbackRecord` (see its docstring).
+ */
+async function resolveZefLmsMetaDataId(
+  userId: number,
+  lectureId: number,
+): Promise<number | null> {
+  const zefLmsMetaDataId = await findZefLmsMetaDataId(lectureId)
+  if (zefLmsMetaDataId == null) return null
+
+  const attended = await hasAttendedLecture(userId, lectureId)
+  if (!attended) return null
+
+  return zefLmsMetaDataId
+}
+
 /**
  * The current user's saved feedback for a lecture.
  *
- * Picks between two independent flows based solely on whether the lecture
- * has a `zef_lms_meta_data` row (i.e. ZEF configured in-lecture elements for
- * it) — see `submitLectureFeedback` for why.
+ * Picks between two independent flows: `zef` mode requires both a
+ * `zef_lms_meta_data` row for the lecture and the user having attended it —
+ * otherwise falls back to `legacy` (see `submitLectureFeedback` for why).
+ *
+ * `attended` is passed in by the caller rather than queried here: the lecture
+ * detail page already fetches `student_attendances` once (via
+ * `fetchLectureAttendanceSummaries`, `overallStatus === 1`) to render the
+ * "Present" badge, so reusing that value keeps the two in lockstep instead of
+ * running a second, independent read of the same row.
  */
 export async function getLectureFeedbackRecord(
   userId: number,
   lectureId: number,
+  attended: boolean,
 ): Promise<LectureFeedbackRecord> {
-  const zefLmsMetaDataId = await findZefLmsMetaDataId(lectureId)
+  const zefLmsMetaDataId = attended ? await findZefLmsMetaDataId(lectureId) : null
 
   if (zefLmsMetaDataId != null) {
     const rows = await db
@@ -168,13 +215,15 @@ async function upsertLegacyLectureFeedback(input: {
 /**
  * Save the user's feedback for a lecture.
  *
- * `zef` mode (the lecture has a `zef_lms_meta_data` row): no gating beyond
+ * `zef` mode (a `zef_lms_meta_data` row exists for the lecture *and* the
+ * user attended it — `student_attendances.status = 1`): no gating beyond
  * auth/access — rating + tags + text can be submitted any time, saved to
  * `zef_lms_feedback_submissions`.
  *
- * `legacy` mode (no meta row): the original behaviour — rating + text only
- * (no tags), gated by the schedule/conclude submission window, saved to
- * `lecture_feedback`. Throws `LEARN_DETAIL_NOT_FOUND` / `FEEDBACK_WINDOW_CLOSED`.
+ * `legacy` mode (meta row missing, or the user didn't attend): the original
+ * behaviour — rating + text only (no tags), gated by the schedule/conclude
+ * submission window, saved to `lecture_feedback`. Throws
+ * `LEARN_DETAIL_NOT_FOUND` / `FEEDBACK_WINDOW_CLOSED`.
  */
 export async function submitLectureFeedback(input: {
   userId: number
@@ -207,7 +256,10 @@ export async function submitLectureFeedback(input: {
     throw new Error('LEARN_DETAIL_NOT_FOUND')
   }
 
-  const zefLmsMetaDataId = await findZefLmsMetaDataId(input.lectureId)
+  const zefLmsMetaDataId = await resolveZefLmsMetaDataId(
+    input.userId,
+    input.lectureId,
+  )
 
   if (zefLmsMetaDataId != null) {
     await upsertZefLectureFeedback({
