@@ -55,10 +55,18 @@ export function buildLectureDetailPayload(
   videoAttendance: LectureVideoAttendanceState | null,
   attendance: LectureAttendanceSummary | null,
   optionalAttendance: LectureAttendanceSummary | null,
-  feedbackRecord: { rating: number | null; text: string | null },
+  feedbackRecord: {
+    mode: 'zef' | 'legacy'
+    rating: number | null
+    text: string | null
+    tags: Array<string>
+  },
 ): Omit<
   LectureDetailPayload,
-  'isBookmarked' | 'isNewZoomRedirection' | 'enableZoomWebView'
+  | 'isBookmarked'
+  | 'isNewZoomRedirection'
+  | 'enableZoomWebView'
+  | 'inLecturePopupElements'
 > {
   const lectureKind = normalizeLectureKind(row.type)
   if (lectureKind == null) {
@@ -124,14 +132,20 @@ export function buildLectureDetailPayload(
       : null
 
   const feedback: LectureFeedbackState = {
-    canSubmit: resolveLectureFeedbackWindow({
-      schedule: row.schedule,
-      concludes: row.concludes,
-      nowMs,
-      showFeedback: settings.showFeedback,
-    }),
+    mode: feedbackRecord.mode,
+    // `zef` mode has no submission window — only `legacy` is time-gated.
+    canSubmit:
+      feedbackRecord.mode === 'zef'
+        ? true
+        : resolveLectureFeedbackWindow({
+            schedule: row.schedule,
+            concludes: row.concludes,
+            nowMs,
+            showFeedback: settings.showFeedback,
+          }),
     rating: feedbackRecord.rating,
     text: feedbackRecord.text,
+    tags: feedbackRecord.tags,
   }
 
   return {
@@ -159,7 +173,6 @@ export function buildLectureDetailPayload(
     attendance,
     optionalAttendance,
     feedback,
-    inLecturePopupQuiz: settings.inLecturePopupQuiz,
   }
 }
 

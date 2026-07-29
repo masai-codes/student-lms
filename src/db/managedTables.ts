@@ -71,6 +71,14 @@ export const MANAGED_TABLES = [
   'video_attendances',
   'votes',
   'whatsnew',
+  'zef_lms_meta_data',
+  'zef_lms_lo',
+  'zef_lms_feedback_submissions',
+  'zef_lms_polls_questions',
+  'zef_lms_polls_submissions',
+  'zef_lms_quiz',
+  'zef_lms_quiz_submission',
+  'zef_lms_sql_sandbox'
 ] as const
 
 export type ManagedTable = (typeof MANAGED_TABLES)[number]

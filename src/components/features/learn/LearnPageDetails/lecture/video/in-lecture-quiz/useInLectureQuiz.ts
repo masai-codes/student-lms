@@ -6,48 +6,31 @@ import {
   normalizeInLectureQuizzes,
   type NormalizedInLectureQuiz,
 } from './normalizeInLectureQuizzes'
-import {
-  loadLectureQuizStatuses,
-  saveLectureQuizStatus,
-} from './inLectureQuizStorage'
-import type { InLecturePopupQuiz } from '@/server/learn/lectureDetailTypes'
+import type { InLecturePopupQuizElement } from '@/server/learn/lectureDetailTypes'
 
 /**
- * Per-quiz lifecycle.
- * - `idle`          — not yet shown, ready to open
- * - `active`        — modal currently open
- * - `auto_submitted`— resolved by the 7s client-side auto-submit; terminal
- * - `submitted`     — Assess Platform confirmed a real submission via webhook;
- *                     terminal, same as `auto_submitted` (a stronger signal
- *                     that can preempt any other phase, including `countdown`)
- * - `stopped`       — user stopped the auto-submit; re-arms to `idle` once
- *                     playback leaves the window, so it re-shows on a revisit
- *                     (but not instantly while still inside the window)
- * - `missed`        — scrubbed clean over the window without opening (session only)
+ * Per-quiz, in-session status (nothing is persisted).
+ * - `idle`   — ready to open whenever its window contains playback
+ * - `active` — modal currently open
+ * - `closed` — dismissed/skipped this pass; stays closed while still inside the
+ *              window, then re-arms to `idle` once playback leaves it
+ *
+ * There are intentionally NO terminal outcome states: a quiz re-opens every time
+ * its window is (re-)entered, regardless of any earlier submit/auto-submit.
  */
-type QuizStatus =
-  | 'idle'
-  | 'active'
-  | 'auto_submitted'
-  | 'submitted'
-  | 'stopped'
-  | 'missed'
+type QuizStatus = 'idle' | 'active' | 'closed'
 
-/** Outcome the modal reports once the quiz resolves. */
+/** Outcome the modal reports once the quiz resolves (not persisted). */
 export type QuizResolution = 'auto_submitted' | 'submitted' | 'stopped'
 
 type UseInLectureQuizOptions = {
   lectureId: number
-  quizzes: Array<InLecturePopupQuiz>
+  quizzes: Array<InLecturePopupQuizElement>
   /** Live playback position in seconds (`attendance.progress`). */
   progressSeconds: number
   /** Video duration in seconds, once known (used to validate/clamp windows). */
   totalDuration: number
-  /**
-   * A value that changes on every user seek (`attendance.seekNonce`). Used to
-   * distinguish a deliberate scrub from natural playback so an open quiz only
-   * closes when the user drags OUT of its window — not when playback rolls past.
-   */
+  /** Bumped on every user seek. Retained for API compatibility; unused. */
   seekSignal: number
   /** Seek the player to a position (used by "skip to lecture"). */
   onSeekToSeconds: (seconds: number) => void
@@ -56,7 +39,7 @@ type UseInLectureQuizOptions = {
 type UseInLectureQuizResult = {
   /** The quiz whose modal is currently open, or `null`. */
   activeQuiz: NormalizedInLectureQuiz | null
-  /** Persist the resolved outcome (does not close the modal). */
+  /** Report the resolved outcome (does not close the modal; not persisted). */
   resolveQuiz: (outcome: QuizResolution) => void
   /** Seek to the window end and close the modal ("skip to lecture"). */
   closeQuiz: () => void
@@ -64,12 +47,14 @@ type UseInLectureQuizResult = {
   dismissQuiz: () => void
 }
 
+function isInside(quiz: NormalizedInLectureQuiz, at: number): boolean {
+  return at >= quiz.startSec && at < quiz.endSec
+}
+
 export function useInLectureQuiz({
-  lectureId,
   quizzes,
   progressSeconds,
   totalDuration,
-  seekSignal,
   onSeekToSeconds,
 }: UseInLectureQuizOptions): UseInLectureQuizResult {
   const normalized = useMemo(
@@ -77,113 +62,95 @@ export function useInLectureQuiz({
     [quizzes, totalDuration],
   )
 
-  // Seed statuses once, synchronously, from localStorage: `auto_submitted` and
-  // `submitted` are terminal, so they're the only stored outcomes that block a
-  // re-show. `stopped` is intentionally NOT seeded terminal — it re-shows.
-  const statusRef = useRef<Map<string, QuizStatus> | null>(null)
-  if (statusRef.current === null) {
-    const stored = loadLectureQuizStatuses(lectureId)
-    const seeded = new Map<string, QuizStatus>()
-    for (const [id, status] of Object.entries(stored)) {
-      if (status === 'auto_submitted' || status === 'submitted') {
-        seeded.set(id, status)
-      }
-    }
-    statusRef.current = seeded
-  }
+  // Debug trace: whether raw elements survived normalization.
+  useEffect(() => {
+    console.log('[in-lecture-quiz] normalized', {
+      totalDuration,
+      rawCount: quizzes.length,
+      normalized,
+    })
+  }, [normalized, totalDuration, quizzes.length])
+
+  // Debug heartbeat: the live playback position the detector receives, and
+  // whether it's inside any window.
+  useEffect(() => {
+    const inside = normalized.find((q) => isInside(q, progressSeconds))
+    console.log('[in-lecture-quiz] progress tick', {
+      progress: progressSeconds,
+      insideWindow: inside ? `${inside.startSec}-${inside.endSec}` : null,
+    })
+  }, [progressSeconds, normalized])
+
+  // In-session status only — no seeding from storage.
+  const statusRef = useRef<Map<string, QuizStatus>>(new Map())
   const statuses = statusRef.current
 
   const [activeQuizId, setActiveQuizId] = useState<string | null>(null)
-  // `null` until the first observed tick, so the initial position can only OPEN
-  // a window it lands inside — never be mistaken for a "jumped-over" seek.
-  const prevProgressRef = useRef<number | null>(null)
-  const prevSeekSignalRef = useRef(seekSignal)
 
   const getStatus = useCallback(
     (id: string): QuizStatus => statuses.get(id) ?? 'idle',
     [statuses],
   )
 
-  // Edge-triggered detection. `prev → curr` tells natural playback / seek-into a
-  // window (open it) apart from a seek that jumps clean over an un-opened window
-  // (mark missed). Only `idle` quizzes can open, so `auto_submitted`/`missed`
-  // never re-fire, while a `stopped` quiz (which stays `idle`) does.
+  // Position-based detection (race-free — no dependence on seek timing).
+  // A quiz is open exactly while playback is inside its window; leaving the
+  // window (by seek or natural playback) closes it so another can open.
   useEffect(() => {
-    const isFirstTick = prevProgressRef.current === null
-    const prev = prevProgressRef.current ?? progressSeconds
     const curr = progressSeconds
-    prevProgressRef.current = curr
 
-    const didSeek = seekSignal !== prevSeekSignalRef.current
-    prevSeekSignalRef.current = seekSignal
-
-    // Re-arm `stopped` quizzes once playback has left their window, so a later
-    // revisit re-opens them (but they don't re-open while still inside).
+    // Re-arm `closed` quizzes once playback has left their window.
     for (const quiz of normalized) {
-      if (getStatus(quiz.id) !== 'stopped') continue
-      const inside = curr >= quiz.startSec && curr < quiz.endSec
-      if (!inside) statuses.set(quiz.id, 'idle')
+      if (getStatus(quiz.id) === 'closed' && !isInside(quiz, curr)) {
+        statuses.set(quiz.id, 'idle')
+      }
     }
 
-    // A quiz is open: only one shows at a time, so nothing else can open. But if
-    // the user SEEKS out of the active window, dismiss it (without seeking back).
-    // Natural playback rolling past the window keeps it open (e.g. the post
-    // auto-submit "skip" prompt), since only a real scrub flips `didSeek`.
+    // Keep the open quiz open only while playback stays inside its window.
     if (activeQuizId !== null) {
       const active = normalized.find((quiz) => quiz.id === activeQuizId)
-      const insideActive =
-        active != null && curr >= active.startSec && curr < active.endSec
-      if (didSeek && !insideActive) {
-        // Leave an unresolved quiz re-showable; keep a resolved status as-is.
-        if (getStatus(activeQuizId) === 'active') {
-          statuses.set(activeQuizId, 'idle')
-        }
-        setActiveQuizId(null)
-      }
-      return
+      if (active && isInside(active, curr)) return
+      console.log('[in-lecture-quiz] left window → closing', {
+        quizId: activeQuizId,
+        progress: curr,
+      })
+      statuses.set(activeQuizId, 'idle')
+      setActiveQuizId(null)
+      // Fall through: a different window may contain playback this same tick.
     }
 
     for (const quiz of normalized) {
       if (getStatus(quiz.id) !== 'idle') continue
-
-      const inside = curr >= quiz.startSec && curr < quiz.endSec
-      const jumpedOver =
-        !isFirstTick && prev < quiz.startSec && curr >= quiz.endSec
-
-      if (inside) {
+      if (isInside(quiz, curr)) {
+        console.log('[in-lecture-quiz] window entered → opening', {
+          quizId: quiz.id,
+          progress: curr,
+          startSec: quiz.startSec,
+          endSec: quiz.endSec,
+        })
         statuses.set(quiz.id, 'active')
         setActiveQuizId(quiz.id)
         break
       }
-      if (jumpedOver) {
-        statuses.set(quiz.id, 'missed')
-      }
     }
-  }, [progressSeconds, seekSignal, normalized, activeQuizId, getStatus, statuses])
+  }, [progressSeconds, normalized, activeQuizId, getStatus, statuses])
 
   const activeQuiz = useMemo(
     () => normalized.find((quiz) => quiz.id === activeQuizId) ?? null,
     [normalized, activeQuizId],
   )
 
-  const resolveQuiz = useCallback(
-    (outcome: QuizResolution) => {
-      if (activeQuizId === null) return
-      saveLectureQuizStatus(lectureId, activeQuizId, outcome)
-      // The modal stays open (showing the resolved state); the status records
-      // the outcome. `stopped` re-arms to `idle` once playback leaves the window.
-      statuses.set(activeQuizId, outcome)
-    },
-    [activeQuizId, lectureId, statuses],
-  )
+  // Outcomes are not persisted. The modal stays open (showing its resolved
+  // state) via `activeQuizId`; this is the hook point where server-side
+  // persistence will live later.
+  const resolveQuiz = useCallback((_outcome: QuizResolution) => {}, [])
 
-  // Shared close bookkeeping: closing without ever resolving (shouldn't
-  // normally happen) leaves the quiz re-showable; a resolved status is kept.
+  // Closing marks the quiz `closed`: it won't immediately re-open while still
+  // inside the window, but re-arms to `idle` (and re-opens) on re-entry.
   const closeActiveQuiz = useCallback(() => {
     if (activeQuizId === null) return
-    if (getStatus(activeQuizId) === 'active') statuses.set(activeQuizId, 'idle')
+    statuses.set(activeQuizId, 'closed')
     setActiveQuizId(null)
-  }, [activeQuizId, getStatus, statuses])
+  }, [activeQuizId, statuses])
 
   /** "Skip to lecture" — seek past the window, then close. */
   const closeQuiz = useCallback(() => {

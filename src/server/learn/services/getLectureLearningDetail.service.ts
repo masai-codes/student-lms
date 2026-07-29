@@ -24,6 +24,7 @@ import { buildLearnDetailPresentation } from '@/server/learn/utils/buildLearnDet
 import { buildLectureTabContent } from '@/server/learn/utils/buildLectureTabContent'
 import { getLearnEntityBookmarkState } from '@/server/learn/services/learnEntityBookmark.service'
 import { getLectureFeedbackRecord } from '@/server/learn/services/lectureFeedback.service'
+import { getInLecturePopupElements } from '@/server/learn/services/getInLecturePopupElements.service'
 import { ensureUserCanAccessLearnHubEntity } from '@/server/learn/utils/ensureLearnEntityAccess'
 import { resolveLearnDetailRestriction } from '@/server/restrictions/resolveLearnDetailRestriction'
 import { getBatchIdForSection } from '@/server/batches/getBatchIdsForSections'
@@ -100,6 +101,7 @@ export async function getLectureLearningDetailForUser(
     attendanceMap,
     isBookmarked,
     feedbackRecord,
+    inLecturePopupElements,
   ] = await Promise.all([
     Promise.resolve(buildLearnDetailPresentation(row)),
     listDiscussionsWithThreadsForLearnEntity(
@@ -149,6 +151,7 @@ export async function getLectureLearningDetailForUser(
         ),
     getLearnEntityBookmarkState(userId, 'lecture', lectureId),
     getLectureFeedbackRecord(userId, lectureId),
+    getInLecturePopupElements(lectureId),
   ])
 
   const attendanceSummary = attendanceMap.get(lectureId) ?? null
@@ -202,6 +205,7 @@ export async function getLectureLearningDetailForUser(
     isBookmarked,
     isNewZoomRedirection: row.isNewZoomRedirection === 1,
     enableZoomWebView: resolveEnableZoomWebView(row.sectionSettings),
+    inLecturePopupElements,
     restriction,
     // When restricted the whole page is blocked client-side; don't leak the
     // recording URL either way.

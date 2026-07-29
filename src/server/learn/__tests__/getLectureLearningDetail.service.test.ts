@@ -63,7 +63,12 @@ describe('getLectureLearningDetailForUser', () => {
     hoisted.videoAttendance.mockResolvedValue(null)
     hoisted.fetchAttendance.mockResolvedValue(new Map())
     hoisted.bookmarkState.mockResolvedValue(false)
-    hoisted.feedbackRecord.mockResolvedValue({ rating: null, text: null })
+    hoisted.feedbackRecord.mockResolvedValue({
+      mode: 'legacy',
+      rating: null,
+      text: null,
+      tags: [],
+    })
   })
 
   it('returns lecture detail payload for supported live lectures', async () => {
