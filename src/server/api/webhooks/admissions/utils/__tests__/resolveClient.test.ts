@@ -4,14 +4,22 @@ import { resolveClient } from '@/server/api/webhooks/admissions/utils/resolveCli
 
 describe('resolveClient', () => {
   it('maps isiHub=true to the ihub client', () => {
-    expect(resolveClient(true)).toBe('ihub')
+    expect(resolveClient({ isiHub: true })).toBe('ihub')
   })
 
-  it('maps isiHub=false to the masai client', () => {
-    expect(resolveClient(false)).toBe('masai')
+  it('maps isiitj=true to the iitj client', () => {
+    expect(resolveClient({ isiitj: true })).toBe('iitj')
   })
 
-  it('defaults to masai when isiHub is omitted', () => {
-    expect(resolveClient()).toBe('masai')
+  it('prefers iitj when both portal flags are true', () => {
+    expect(resolveClient({ isiHub: true, isiitj: true })).toBe('iitj')
+  })
+
+  it('maps both flags false to the masai client', () => {
+    expect(resolveClient({ isiHub: false, isiitj: false })).toBe('masai')
+  })
+
+  it('defaults to masai when the portal flags are omitted', () => {
+    expect(resolveClient({})).toBe('masai')
   })
 })

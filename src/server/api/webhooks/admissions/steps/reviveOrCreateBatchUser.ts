@@ -7,6 +7,7 @@ import {
   BATCH_USER_STATUS,
   ENROLMENT_EVENT,
   type DbTransaction,
+  type EnrolmentClient,
 } from '@/server/api/webhooks/admissions/types'
 import { buildBatchUserMeta } from '@/server/api/webhooks/admissions/utils/batchUserMeta'
 import {
@@ -20,7 +21,7 @@ const FN = 'reviveOrCreateBatchUser'
 type Params = {
   userId: number
   batchId: number
-  isIhub: boolean
+  client: EnrolmentClient
   enrolmentId: number
   username: string
   /** Redacted enrolment payload, stored in the admissionPayloadHistory audit trail. */
@@ -35,15 +36,17 @@ type Params = {
  *
  * `meta` is a `varchar(300)` JSON string here. Writes merge into it (preserving
  * other keys like `batchPaused`) rather than overwriting: create/revive refresh
- * `isIhub` and, on revive, drop the enrolment-cancel keys so a re-enrol lifts
- * the restriction a prior cancel set (absence = not cancelled, so we remove the
- * keys instead of storing `false`). Returns the `batch_user` id.
+ * the portal flags (`isIhub` / `isIitj`) and, on revive, drop the
+ * enrolment-cancel keys so a re-enrol lifts the restriction a prior cancel set
+ * (absence = not cancelled, so we remove the keys instead of storing `false`).
+ * Returns the `batch_user` id.
  */
 export async function reviveOrCreateBatchUser(
   tx: DbTransaction,
-  { userId, batchId, isIhub, enrolmentId, username, payload }: Params,
+  { userId, batchId, client, enrolmentId, username, payload }: Params,
 ): Promise<number> {
   const now = new Date().toISOString()
+  const portalMeta = { isIhub: client === 'ihub', isIitj: client === 'iitj' }
   // On revive, clear a prior cancel by removing its keys (absence = not cancelled).
   const CANCEL_META_KEYS = [
     'batchEnrolmentCancelled',
@@ -79,7 +82,7 @@ export async function reviveOrCreateBatchUser(
         status: BATCH_USER_STATUS.ACTIVE,
         enrolmentId,
         username,
-        meta: buildBatchUserMeta(row.meta, { isIhub }, CANCEL_META_KEYS),
+        meta: buildBatchUserMeta(row.meta, portalMeta, CANCEL_META_KEYS),
         history: appendAdmissionPayload(withEvent, payloadEntry),
         updatedAt: now,
       })
@@ -103,7 +106,7 @@ export async function reviveOrCreateBatchUser(
     status: BATCH_USER_STATUS.ACTIVE,
     enrolmentId,
     username,
-    meta: buildBatchUserMeta(null, { isIhub }),
+    meta: buildBatchUserMeta(null, portalMeta),
     history: appendAdmissionPayload(
       newTimeline({ type: ENROLMENT_EVENT.CREATED, date: now }),
       payloadEntry,

@@ -36,7 +36,7 @@ const FN = 'createEnrolmentFromAdmissions'
 export async function createEnrolmentFromAdmissions(
   input: CreateEnrolmentInput,
 ): Promise<CreateEnrolmentResult> {
-  const client = resolveClient(input.isiHub)
+  const client = resolveClient(input)
   logger.info({
     msg: 'Processing admissions enrolment',
     fn: FN,
@@ -67,7 +67,7 @@ export async function createEnrolmentFromAdmissions(
     const createdBatchUserId = await reviveOrCreateBatchUser(tx, {
       userId: resolvedUserId,
       batchId: input.batch_id,
-      isIhub: client === 'ihub',
+      client,
       enrolmentId: input.enrolment_id,
       username: input.username,
       payload: redactEnrolmentPayload(input),

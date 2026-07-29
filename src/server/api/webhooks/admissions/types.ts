@@ -4,8 +4,11 @@ import type { CreateEnrolmentInput } from '@/server/api/webhooks/admissions/crea
 /** The `tx` handle drizzle hands to a `db.transaction` callback. */
 export type DbTransaction = Parameters<Parameters<typeof db.transaction>[0]>[0]
 
-/** Which product a user belongs to — derived from the `isiHub` flag on the payload. */
-export type EnrolmentClient = 'ihub' | 'masai'
+/**
+ * Which product a user belongs to — derived from the `isiHub` / `isiitj` flags
+ * on the payload.
+ */
+export type EnrolmentClient = 'ihub' | 'iitj' | 'masai'
 
 /** Why a requested section could not be enrolled into. */
 export const INVALID_SECTION_REASON = {
