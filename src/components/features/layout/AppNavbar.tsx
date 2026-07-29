@@ -26,6 +26,7 @@ import type { MouseEventHandler } from 'react'
 
 import type {
   NavbarActionItem,
+  NavbarActivation,
   NavbarLinkItem,
   NavbarProfile,
   NavbarProfileMenuItem,
@@ -94,9 +95,7 @@ function navbarLogoDarkSrc(): string | undefined {
  * Refer & Earn: navbar uses `Routes.changemakersCircle.main()` (`/changemakers-circle`).
  * `/alumniReferal` is a different flow (alumni hiring / refer-hiring), not the main CTA.
  */
-function oldStudentUiLink(
-  path: string,
-): Pick<NavbarLinkItem, 'href' | 'openInNewTab' | 'onClick'> {
+function oldStudentUiLink(path: string): NavbarActivation {
   const href = getOldStudentUiUrlForPath(path) ?? '#'
   const onClick: MouseEventHandler<HTMLAnchorElement> | undefined =
     href === '#' ? (e) => e.preventDefault() : undefined
@@ -282,14 +281,6 @@ export default function AppNavbar() {
     (e: React.MouseEvent<HTMLAnchorElement>) => {
       e.preventDefault()
       void navigate({ to: '/announcements', search: { page: 1 } })
-    },
-    [navigate],
-  )
-
-  const handleProductUpdatesClick = useCallback(
-    (e: React.MouseEvent<HTMLAnchorElement>) => {
-      e.preventDefault()
-      void navigate({ to: '/whats-new', search: { page: 1 } })
     },
     [navigate],
   )
@@ -514,12 +505,10 @@ export default function AppNavbar() {
         icon: <Sparkles className="size-4" />,
         href: '/whats-new',
         openInNewTab: false,
-        onClick: handleProductUpdatesClick,
       },
       {
         id: 'sign-out',
         label: 'Sign out',
-        href: '#',
         icon: <LogOutIcon className="size-4" />,
         onClick: (e) => {
           void handleSignOut(e)
@@ -529,7 +518,6 @@ export default function AppNavbar() {
     [
       activeNavId,
       handleLevelupClick,
-      handleProductUpdatesClick,
       handleReferAndEarnClick,
       handleSignOut,
       isIHub,

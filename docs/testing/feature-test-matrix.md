@@ -3,11 +3,12 @@
 Last updated: 2026-07-02
 
 ## Structured logging
+
 - Area: Server logging utility (`src/lib/logger.ts`)
 - Status: Covered
 - Test files: `src/lib/logger.test.ts`
 - Notes: JSON structured logs for PM2/CloudWatch (`level`, `time`, `msg`, optional `fn`/`requestId`/`userId`/`err`). Production emits compact single-line JSON; non-production pretty-prints. `warn`/`error` route to stderr; `debug`/`info` to stdout.
-Last updated: 2026-07-09
+  Last updated: 2026-07-09
 
 ## Next-action pill (navbar top-right + mobile tab bar)
 
@@ -86,6 +87,13 @@ Last updated: 2026-07-09
 - Status: Covered (server utils + service; no initial client fetch for progress/intervals/discussion threads; REST mutation handlers + client wrappers covered)
 - Test files: `src/server/learn/**/__tests__/*lecture*`, `src/server/learn/utils/__tests__/resolveJoinLiveButtonState.test.ts`, `src/server/video-attendance/**/__tests__/*`, `src/server/api/learn/handlers/__tests__/{storeLectureVideoProgress,createLearnDiscussion,addLearnDiscussionReply,lectureBookmark}.handler.test.ts`, `src/lib/api/learn/__tests__/{videoProgressApi,discussionsApi,learnApiBookmark}.test.ts`, `src/components/features/learn/LearnPageDetails/lecture/shared/__tests__/LectureDetailActions.test.tsx`, `src/components/features/learn/LearnPageDetails/lecture/video/hooks/__tests__/*`, `src/components/features/learn/LearnPageDetails/lecture/tabs/constants/__tests__/resolveVisibleLectureDetailTabs.test.ts`
 - Notes: See `docs/testing/features/lecture-detail.md`, `docs/testing/features/lecture-video-player.md`
+
+## Lecture transcript (CloudFront-cached, lazily loaded)
+
+- Area: Transcripts no longer travel in the lecture-detail payload (issue #353 — they were sent twice and blocked page load). `tabs.transcript` is now a `{ available, url }` pointer; the text is served by `GET /api/cache/transcript/:batchId/:sectionId/:lectureId`, a public cookie-free endpoint cached at the edge by the `/api/cache/*` CloudFront behavior (`cloudformation.yml`). The batch + section are verified against the lecture row, and the nesting allows prefix invalidation. Responses carry `segments` **or** the plain-text `text` fallback, never both. The client fetches lazily via `useLectureTranscript` — on CC toggle (`LectureReactPlayer`) or on opening the Transcript tab (`LectureTranscriptTabContent`) — sharing one request across both surfaces. The tab also offers a Download button (`LectureTranscriptDownloadButton`) that saves the already-fetched transcript as a `.txt` via `downloadTextFile` — no extra request.
+- Status: Covered (service + handler cache/error headers, payload pointer construction, client 404-as-empty mapping, hook enable/dedupe/error/lectureId, tab skeleton → segments → fallback → empty → error, download file body/name/GTM event)
+- Test files: `src/server/api/cache/__tests__/getLectureTranscript.service.test.ts`, `src/server/api/cache/handlers/__tests__/getLectureTranscript.handler.test.ts`, `src/server/learn/utils/__tests__/buildLectureTabContent.test.ts`, `src/lib/api/cache/__tests__/lectureTranscriptApi.test.ts`, `src/lib/downloadTextFile.test.ts`, `src/components/features/learn/LearnPageDetails/lecture/hooks/__tests__/useLectureTranscript.test.tsx`, `src/components/features/learn/LearnPageDetails/lecture/tabs/__tests__/LectureTranscriptTabContent.test.tsx`, `src/components/features/learn/LearnPageDetails/lecture/tabs/__tests__/LectureTranscriptDownloadButton.test.tsx`, `src/components/features/learn/LearnPageDetails/lecture/tabs/__tests__/lectureTranscriptUtils.test.ts`
+- Notes: `available` is a hint (a cheap SQL existence probe, not a fetch) — a 404 from the cache endpoint degrades to the normal empty state. Nothing user-specific may ever be added under `/api/cache/*`: the cache key is the path alone. See `docs/testing/features/lecture-transcript-cache.md`
 
 ## Learn hub (new-discussions)
 
@@ -238,10 +246,10 @@ Last updated: 2026-07-09
 
 ## Seed framework (test-data)
 
-- Area: Layered seed infrastructure (`seed/factories`, `seed/flows`, `seed/registry`, `seed/index.ts`, CLI, catalog generator); flows include `login-and-join-lecture` and ten T0 onboarding branches (`onboarding-*`)
+- Area: Layered seed infrastructure (`seed/factories`, `seed/flows`, `seed/registry`, `seed/index.ts`, CLI, catalog generator); flows include `login-and-join-lecture`, `live-lecture-phases` (lecture phases + two sample-transcript lectures) and ten T0 onboarding branches (`onboarding-*`)
 - Status: Covered (unit tests for time, registry, catalog, flow composition, onboarding builder/scenarios, reset guard, localhost DB safety guard); integration opt-in via `SEED_INTEGRATION=1`
-- Test files: `seed/utils/time.test.ts`, `seed/registry.test.ts`, `seed/catalog/generate.test.ts`, `seed/flows/login-and-join-lecture.test.ts`, `seed/flows/onboarding-shared/*.test.ts`, `seed/flows/onboarding.integration.test.ts`, `seed/resetDatabase.test.ts`, `seed/utils/assertLocalSeedDatabase.test.ts`
-- Notes: See `docs/testing/features/seed-framework.md`. Each flow uses isolated seed data (flow-scoped emails/batches) so flows compose with `--no-reset`. Seeding/reset now fail unless `DATABASE_URL` includes `localhost`. Commands: `npm run seed`, `npm run seed onboarding-welcome-modal`, `npm run seed:catalog`.
+- Test files: `seed/utils/time.test.ts`, `seed/registry.test.ts`, `seed/catalog/generate.test.ts`, `seed/flows/login-and-join-lecture.test.ts`, `seed/flows/live-lecture-phases/buildLiveLecturePhasesWorld.test.ts`, `seed/flows/live-lecture-phases/sampleTranscript.test.ts`, `seed/flows/onboarding-shared/*.test.ts`, `seed/flows/onboarding.integration.test.ts`, `seed/resetDatabase.test.ts`, `seed/utils/assertLocalSeedDatabase.test.ts`
+- Notes: See `docs/testing/features/seed-framework.md`. Each flow uses isolated seed data (flow-scoped emails/batches) so flows compose with `--no-reset`. Seeding/reset now fail unless `DATABASE_URL` includes `localhost`. Commands: `npm run seed`, `npm run seed onboarding-welcome-modal`, `npm run seed:catalog`. Seed tests sit outside `vitest.config.ts`'s `dir: 'src'`, so run them with `npx vitest run --dir seed`.
 
 ## Dashboard (protected home)
 
@@ -291,7 +299,9 @@ Last updated: 2026-07-09
 - Status: Covered (graph build + BFS traversal + node-key utils + card-item builders + service across all start kinds/edge cases + shared item→card mapper + grouped card UI + card analytics source)
 - Test files: `src/server/learn/utils/__tests__/associationGraphTypes.test.ts`, `src/server/learn/utils/__tests__/buildAssociationGraph.test.ts`, `src/server/learn/utils/__tests__/collectAssociatedNodeKeys.test.ts`, `src/server/learn/utils/__tests__/buildAssociatedLearningItems.test.ts`, `src/server/learn/services/__tests__/getAllAssociatedEntities.service.test.ts`, `src/components/features/learn/shared/__tests__/mapLearningItemToContent.test.ts`, `src/components/features/learn/LearnPageDetails/common/associated/__tests__/AssociatedContentList.test.tsx`, `src/components/features/learn/section-three/content-card/__tests__/LearnContentCard.test.tsx`
 - Notes: See `docs/testing/features/associated-content.md`
+
 ## AI Tutor RAG lecture ingestion
+
 - Area: Internal lecture notes preparation (`src/routes/api/ai-tutor/lectures/$lectureId/ingest.ts`, `src/server/api/ai-tutor/**`)
 - Status: Covered
 - Test files: `src/server/api/ai-tutor/__tests__/{ragPlatform,lectureRagContent.service,ingestLectureRag.service,ingestLectureRag.handler,generateLectureNotesTocFromMarkdown,lectureNotesTocData}.test.ts`

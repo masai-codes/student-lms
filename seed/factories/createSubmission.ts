@@ -18,6 +18,9 @@ export async function createSubmission(
 
   const values = {
     score: 0,
+    // `submissions.old_score` is NOT NULL with no DB default, so it must be set
+    // explicitly on insert; mirror `score` unless overridden.
+    oldScore: 0,
     started: 0,
     completed: 0,
     ...overrides,

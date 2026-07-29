@@ -181,6 +181,7 @@ import { Route as ApiAiTutorChatConversationsChatIdRouteImport } from './routes/
 import { Route as protectedLayoutMasaiverseEventEventIdRouteImport } from './routes/(protected)/_layout/masaiverse/event.$eventId'
 import { Route as protectedLayoutMasaiverseClubClubIdRouteImport } from './routes/(protected)/_layout/masaiverse/club.$clubId'
 import { Route as ApiLearnAssignmentsAssignmentIdProblemsProblemIdRouteImport } from './routes/api/learn/assignments/$assignmentId/problems/$problemId'
+import { Route as ApiCacheTranscriptBatchIdSectionIdLectureIdRouteImport } from './routes/api/cache/transcript/$batchId/$sectionId/$lectureId'
 import { Route as protectedLayoutMasaiverseClubClubIdGalleryRouteImport } from './routes/(protected)/_layout/masaiverse/club.$clubId_.gallery'
 import { Route as protectedLayoutAssignmentsAssignmentIdProblemsProblemIdRouteRouteImport } from './routes/(protected)/_layout/assignments_/$assignmentId/problems/$problemId/route'
 
@@ -1158,6 +1159,12 @@ const ApiLearnAssignmentsAssignmentIdProblemsProblemIdRoute =
     path: '/problems/$problemId',
     getParentRoute: () => ApiLearnAssignmentsAssignmentIdRoute,
   } as any)
+const ApiCacheTranscriptBatchIdSectionIdLectureIdRoute =
+  ApiCacheTranscriptBatchIdSectionIdLectureIdRouteImport.update({
+    id: '/api/cache/transcript/$batchId/$sectionId/$lectureId',
+    path: '/api/cache/transcript/$batchId/$sectionId/$lectureId',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const protectedLayoutMasaiverseClubClubIdGalleryRoute =
   protectedLayoutMasaiverseClubClubIdGalleryRouteImport.update({
     id: '/club/$clubId_/gallery',
@@ -1346,6 +1353,7 @@ export interface FileRoutesByFullPath {
   '/api/ai-tutor/chat/conversations/': typeof ApiAiTutorChatConversationsIndexRoute
   '/assignments/$assignmentId/problems/$problemId': typeof protectedLayoutAssignmentsAssignmentIdProblemsProblemIdRouteRoute
   '/masaiverse/club/$clubId/gallery': typeof protectedLayoutMasaiverseClubClubIdGalleryRoute
+  '/api/cache/transcript/$batchId/$sectionId/$lectureId': typeof ApiCacheTranscriptBatchIdSectionIdLectureIdRoute
   '/api/learn/assignments/$assignmentId/problems/$problemId': typeof ApiLearnAssignmentsAssignmentIdProblemsProblemIdRoute
 }
 export interface FileRoutesByTo {
@@ -1520,6 +1528,7 @@ export interface FileRoutesByTo {
   '/api/ai-tutor/chat/conversations': typeof ApiAiTutorChatConversationsIndexRoute
   '/assignments/$assignmentId/problems/$problemId': typeof protectedLayoutAssignmentsAssignmentIdProblemsProblemIdRouteRoute
   '/masaiverse/club/$clubId/gallery': typeof protectedLayoutMasaiverseClubClubIdGalleryRoute
+  '/api/cache/transcript/$batchId/$sectionId/$lectureId': typeof ApiCacheTranscriptBatchIdSectionIdLectureIdRoute
   '/api/learn/assignments/$assignmentId/problems/$problemId': typeof ApiLearnAssignmentsAssignmentIdProblemsProblemIdRoute
 }
 export interface FileRoutesById {
@@ -1697,6 +1706,7 @@ export interface FileRoutesById {
   '/api/ai-tutor/chat/conversations/': typeof ApiAiTutorChatConversationsIndexRoute
   '/(protected)/_layout/assignments_/$assignmentId/problems/$problemId': typeof protectedLayoutAssignmentsAssignmentIdProblemsProblemIdRouteRoute
   '/(protected)/_layout/masaiverse/club/$clubId_/gallery': typeof protectedLayoutMasaiverseClubClubIdGalleryRoute
+  '/api/cache/transcript/$batchId/$sectionId/$lectureId': typeof ApiCacheTranscriptBatchIdSectionIdLectureIdRoute
   '/api/learn/assignments/$assignmentId/problems/$problemId': typeof ApiLearnAssignmentsAssignmentIdProblemsProblemIdRoute
 }
 export interface FileRouteTypes {
@@ -1874,6 +1884,7 @@ export interface FileRouteTypes {
     | '/api/ai-tutor/chat/conversations/'
     | '/assignments/$assignmentId/problems/$problemId'
     | '/masaiverse/club/$clubId/gallery'
+    | '/api/cache/transcript/$batchId/$sectionId/$lectureId'
     | '/api/learn/assignments/$assignmentId/problems/$problemId'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -2048,6 +2059,7 @@ export interface FileRouteTypes {
     | '/api/ai-tutor/chat/conversations'
     | '/assignments/$assignmentId/problems/$problemId'
     | '/masaiverse/club/$clubId/gallery'
+    | '/api/cache/transcript/$batchId/$sectionId/$lectureId'
     | '/api/learn/assignments/$assignmentId/problems/$problemId'
   id:
     | '__root__'
@@ -2224,6 +2236,7 @@ export interface FileRouteTypes {
     | '/api/ai-tutor/chat/conversations/'
     | '/(protected)/_layout/assignments_/$assignmentId/problems/$problemId'
     | '/(protected)/_layout/masaiverse/club/$clubId_/gallery'
+    | '/api/cache/transcript/$batchId/$sectionId/$lectureId'
     | '/api/learn/assignments/$assignmentId/problems/$problemId'
   fileRoutesById: FileRoutesById
 }
@@ -2346,6 +2359,7 @@ export interface RootRouteChildren {
   ApiLearnAiTutorLectureIdSessionRoute: typeof ApiLearnAiTutorLectureIdSessionRoute
   ApiLearnAiTutorLectureIdTranscriptRoute: typeof ApiLearnAiTutorLectureIdTranscriptRoute
   ApiAiTutorChatConversationsIndexRoute: typeof ApiAiTutorChatConversationsIndexRoute
+  ApiCacheTranscriptBatchIdSectionIdLectureIdRoute: typeof ApiCacheTranscriptBatchIdSectionIdLectureIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -3554,6 +3568,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiLearnAssignmentsAssignmentIdProblemsProblemIdRouteImport
       parentRoute: typeof ApiLearnAssignmentsAssignmentIdRoute
     }
+    '/api/cache/transcript/$batchId/$sectionId/$lectureId': {
+      id: '/api/cache/transcript/$batchId/$sectionId/$lectureId'
+      path: '/api/cache/transcript/$batchId/$sectionId/$lectureId'
+      fullPath: '/api/cache/transcript/$batchId/$sectionId/$lectureId'
+      preLoaderRoute: typeof ApiCacheTranscriptBatchIdSectionIdLectureIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/(protected)/_layout/masaiverse/club/$clubId_/gallery': {
       id: '/(protected)/_layout/masaiverse/club/$clubId_/gallery'
       path: '/club/$clubId/gallery'
@@ -3987,6 +4008,8 @@ const rootRouteChildren: RootRouteChildren = {
   ApiLearnAiTutorLectureIdTranscriptRoute:
     ApiLearnAiTutorLectureIdTranscriptRoute,
   ApiAiTutorChatConversationsIndexRoute: ApiAiTutorChatConversationsIndexRoute,
+  ApiCacheTranscriptBatchIdSectionIdLectureIdRoute:
+    ApiCacheTranscriptBatchIdSectionIdLectureIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

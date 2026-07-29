@@ -80,7 +80,7 @@ export function LectureRecordingExperience({
       lectureId={entityId}
       videoUrl={videoUrl}
       initialAttendance={videoAttendance}
-      transcriptSegments={tabs.transcriptSegments}
+      transcript={tabs.transcript}
       className="min-h-0 flex-1"
       fullBleed={false}
       onVideoAspectRatioChange={setVideoAspectRatio}
