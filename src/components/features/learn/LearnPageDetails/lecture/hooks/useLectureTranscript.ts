@@ -18,6 +18,8 @@ export type LectureTranscriptState = {
   segments: Array<LectureTranscriptSegment>
   /** Plain-text fallback; only set for lectures without structured segments. */
   text: string | null
+  /** Lecture the resolved transcript belongs to; null until the fetch lands. */
+  lectureId: number | null
   isLoading: boolean
   isError: boolean
   /** False once a fetch resolved and produced neither segments nor text. */
@@ -52,6 +54,7 @@ export function useLectureTranscript(
   return {
     segments,
     text,
+    lectureId: query.data?.lectureId ?? null,
     isLoading: query.isPending && query.fetchStatus === 'fetching',
     isError: query.isError,
     hasContent: segments.length > 0 || text != null,

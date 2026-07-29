@@ -29,6 +29,7 @@ function Probe({
       {JSON.stringify({
         count: state.segments.length,
         text: state.text,
+        lectureId: state.lectureId,
         isLoading: state.isLoading,
         isError: state.isError,
         hasContent: state.hasContent,
@@ -70,6 +71,7 @@ describe('useLectureTranscript', () => {
     expect(fetchLectureTranscriptFromCache).not.toHaveBeenCalled()
     expect(probeState()).toMatchObject({
       count: 0,
+      lectureId: null,
       isLoading: false,
       hasContent: false,
     })
@@ -85,7 +87,11 @@ describe('useLectureTranscript', () => {
     renderProbe(AVAILABLE, true)
 
     await waitFor(() => {
-      expect(probeState()).toMatchObject({ count: 1, hasContent: true })
+      expect(probeState()).toMatchObject({
+        count: 1,
+        lectureId: 7,
+        hasContent: true,
+      })
     })
     expect(fetchLectureTranscriptFromCache).toHaveBeenCalledTimes(1)
   })

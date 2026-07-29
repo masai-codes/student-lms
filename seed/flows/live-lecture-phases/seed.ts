@@ -57,6 +57,7 @@ export async function seedLiveLecturePhases(): Promise<SeedFlowResult> {
       sections: world.sections,
       enrollments: world.enrollments,
       lectures: world.lectures,
+      transcriptExtras: world.transcriptExtras,
       attendanceOffExtras: world.attendanceOffExtras,
       attendanceOnExtras: world.attendanceOnExtras,
     },
