@@ -23,6 +23,8 @@ type TicketConversationPanelProps = {
   batchId: string
   category?: string
   subcategory?: string
+  /** Lecture / assignment / resource the ticket is raised from, if any. */
+  entityId?: number | null
   onBack: () => void
 }
 
@@ -30,6 +32,7 @@ export function TicketConversationPanel({
   batchId,
   category,
   subcategory,
+  entityId,
   onBack,
 }: TicketConversationPanelProps) {
   const {
@@ -53,7 +56,7 @@ export function TicketConversationPanel({
     addFiles,
     escalateMutation,
     MAX_FILES,
-  } = useTicketComposer({ batchId, category, subcategory })
+  } = useTicketComposer({ batchId, category, subcategory, entityId })
 
   const categoryLabel =
     category === 'fallback-no-poc-mapped'
@@ -230,9 +233,7 @@ export function TicketConversationPanel({
             key={m.id}
             isStudent={m.side === 'student'}
             author={
-              m.side === 'system'
-                ? 'Student Experience Team'
-                : m.author.name
+              m.side === 'system' ? 'Student Experience Team' : m.author.name
             }
             role={m.side === 'system' ? null : m.author.role}
             message={m.message}

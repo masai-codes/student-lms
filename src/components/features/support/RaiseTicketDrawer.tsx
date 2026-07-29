@@ -33,12 +33,19 @@ type RaiseTicketDrawerProps = {
   onOpenChange: (open: boolean) => void
   /** Page context category (e.g. "lecture") — scopes the subcategory list. */
   contextCategory?: string
+  /**
+   * Id of the lecture / assignment / resource the drawer was opened from.
+   * Stored on the ticket as `data.entity_ID` (legacy parity) so ops know which
+   * entity the student was looking at.
+   */
+  contextEntityId?: number | null
 }
 
 export function RaiseTicketDrawer({
   open,
   onOpenChange,
   contextCategory,
+  contextEntityId,
 }: RaiseTicketDrawerProps) {
   // Safety net for a Radix Dialog scroll-lock leak. While the Sheet is open,
   // Radix locks page scroll via react-remove-scroll (which sets the
@@ -73,6 +80,7 @@ export function RaiseTicketDrawer({
         {open && (
           <RaiseTicketDrawerBody
             contextCategory={contextCategory}
+            contextEntityId={contextEntityId}
             onClose={() => onOpenChange(false)}
           />
         )}
@@ -83,9 +91,11 @@ export function RaiseTicketDrawer({
 
 function RaiseTicketDrawerBody({
   contextCategory,
+  contextEntityId,
   onClose,
 }: {
   contextCategory?: string
+  contextEntityId?: number | null
   onClose: () => void
 }) {
   const [step, setStep] = useState<Step>('issue')
@@ -207,6 +217,7 @@ function RaiseTicketDrawerBody({
             batchId={effectiveBatchId}
             category={category}
             subcategory={subcategory}
+            entityId={contextEntityId}
             onBack={resetIssue}
           />
         )}

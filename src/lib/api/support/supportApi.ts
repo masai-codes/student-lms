@@ -60,7 +60,9 @@ export async function fetchSupportEntityContext(input: {
 export async function fetchLectureSupportSnapshot(
   lectureId: number,
 ): Promise<LectureSupportSnapshot> {
-  return fetchJson<LectureSupportSnapshot>(SUPPORT_API.floatingChatLectureSnapshot(lectureId))
+  return fetchJson<LectureSupportSnapshot>(
+    SUPPORT_API.floatingChatLectureSnapshot(lectureId),
+  )
 }
 
 /** GET assignment/evaluation type, status, and score for support modal. */
@@ -129,6 +131,7 @@ export async function createSupportTicket(input: {
   subCategory?: string | null
   message: string
   questionId?: number | null
+  /** Lecture / assignment / resource id when raised from a detail page. */
   entityId?: number | null
 }): Promise<{ id: number }> {
   return fetchJson(SUPPORT_API.ticketCreate, jsonPost(input))

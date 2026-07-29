@@ -134,9 +134,7 @@ export function LectureVideoControlsToolbar({
   const [isFullscreen, setIsFullscreen] = useState(false)
   const [overflowMenuOpen, setOverflowMenuOpen] = useState(false)
   // YouTube-style settings menu drill-down: main list → speed / quality.
-  const [menuView, setMenuView] = useState<'main' | 'speed' | 'quality'>(
-    'main',
-  )
+  const [menuView, setMenuView] = useState<'main' | 'speed' | 'quality'>('main')
 
   useEffect(() => {
     if (!overflowMenuOpen) setMenuView('main')
@@ -331,8 +329,13 @@ export function LectureVideoControlsToolbar({
               )}
             </button>
           </ControlTooltip>
-          <div className="group/volume flex shrink-0 items-center">
-            <ControlTooltip label={mutedUi || volumeUi === 0 ? 'Unmute' : 'Mute'}>
+          {/* Volume is hidden on mobile — it lives in the settings menu there
+              (and the device has hardware volume keys). Desktop keeps the
+              inline mute button + hover slider. */}
+          <div className="group/volume hidden shrink-0 items-center md:flex">
+            <ControlTooltip
+              label={mutedUi || volumeUi === 0 ? 'Unmute' : 'Mute'}
+            >
               <button
                 type="button"
                 onClick={toggleMute}
@@ -341,11 +344,17 @@ export function LectureVideoControlsToolbar({
                 aria-label={mutedUi ? 'Unmute' : 'Mute'}
               >
                 {mutedUi || volumeUi === 0 ? (
-                  <SpeakerSlash className="h-5 w-5 md:h-6 md:w-6" weight="fill" />
+                  <SpeakerSlash
+                    className="h-5 w-5 md:h-6 md:w-6"
+                    weight="fill"
+                  />
                 ) : volumeUi < 0.5 ? (
                   <SpeakerLow className="h-5 w-5 md:h-6 md:w-6" weight="fill" />
                 ) : (
-                  <SpeakerHigh className="h-5 w-5 md:h-6 md:w-6" weight="fill" />
+                  <SpeakerHigh
+                    className="h-5 w-5 md:h-6 md:w-6"
+                    weight="fill"
+                  />
                 )}
               </button>
             </ControlTooltip>
@@ -394,16 +403,19 @@ export function LectureVideoControlsToolbar({
         >
           {onOpenAiChat ? (
             <ControlTooltip label="Ask AI about this lecture">
-              {/* Shared pill so it's identical to the floating AI-tutor launcher.
-                  Desktop-only: the chat popup itself is hidden below md (mobile
-                  uses the below-video dock). */}
+              {/* Always available: opens the right-side rail on laptop/desktop
+                  and the bottom drawer on mobile/tablet. Compact icon-only on
+                  phones so it fits the narrow toolbar, full pill from `sm` up. */}
               <button
                 type="button"
                 onClick={() => {
                   onActivity()
                   onOpenAiChat()
                 }}
-                className={cn(askAiPillClass, 'hidden shrink-0 md:inline-flex')}
+                className={cn(
+                  askAiPillClass,
+                  'inline-flex shrink-0 max-sm:h-9 max-sm:w-9 max-sm:gap-0 max-sm:px-0',
+                )}
                 aria-label="Ask AI about this lecture"
               >
                 <AskAiPillContent />
@@ -411,9 +423,7 @@ export function LectureVideoControlsToolbar({
             </ControlTooltip>
           ) : null}
           {transcriptAvailable ? (
-            <ControlTooltip
-              label={captionsOn ? 'Captions on' : 'Captions off'}
-            >
+            <ControlTooltip label={captionsOn ? 'Captions on' : 'Captions off'}>
               <button
                 type="button"
                 onClick={() => {
@@ -461,44 +471,17 @@ export function LectureVideoControlsToolbar({
                 role="dialog"
                 aria-label="Settings"
                 // The bottom offset clears the progress track that sits between
-                // the toolbar and the video (track row is ~54px tall on mobile,
-                // ~38px on md+), so the menu always opens above the track.
-                className="absolute bottom-[calc(100%+4rem)] right-0 z-[60] w-[min(100vw-1.5rem,17rem)] min-w-[220px] overflow-hidden rounded-2xl border border-white/15 bg-black/60 p-1.5 shadow-[0_12px_40px_rgba(0,0,0,0.55),inset_0_1px_0_rgba(255,255,255,0.1)] backdrop-blur-2xl animate-in fade-in-0 zoom-in-95 slide-in-from-bottom-1 duration-150 md:bottom-[calc(100%+3rem)]"
+                // the toolbar and the video (track row is ~40px tall on mobile,
+                // ~38px on md+), so the menu always opens above the track. The
+                // menu opens upward, so on a short mobile video its tall speed
+                // list could run past the top of the viewport — cap the height
+                // and scroll internally so every option stays reachable.
+                className="absolute bottom-[calc(100%+2.75rem)] right-0 z-[60] max-h-[55dvh] w-[min(100vw-1.5rem,17rem)] min-w-[220px] overflow-y-auto overscroll-contain rounded-2xl border border-white/15 bg-black/60 p-1.5 shadow-[0_12px_40px_rgba(0,0,0,0.55),inset_0_1px_0_rgba(255,255,255,0.1)] backdrop-blur-2xl animate-in fade-in-0 zoom-in-95 slide-in-from-bottom-1 duration-150 md:bottom-[calc(100%+3rem)]"
               >
                 {menuView === 'main' ? (
                   <div className="flex flex-col">
-                    {/* Volume row — the touch-device home for the slider
-                        (desktop also gets the hover slider next to play). */}
-                    <div className="flex items-center gap-3 rounded-xl px-3 py-2.5">
-                      <button
-                        type="button"
-                        onClick={toggleMute}
-                        disabled={!volumeUiSupported}
-                        className="flex shrink-0 items-center justify-center rounded-md text-white transition duration-150 hover:text-white/70 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50 disabled:pointer-events-none disabled:opacity-40"
-                        aria-label={mutedUi ? 'Unmute' : 'Mute'}
-                      >
-                        {mutedUi || volumeUi === 0 ? (
-                          <SpeakerSlash className="h-5 w-5" weight="fill" />
-                        ) : (
-                          <SpeakerHigh className="h-5 w-5" weight="fill" />
-                        )}
-                      </button>
-                      <input
-                        type="range"
-                        min={0}
-                        max={1}
-                        step={0.05}
-                        value={mutedUi ? 0 : volumeUi}
-                        onChange={onVolumeInput}
-                        disabled={!volumeUiSupported}
-                        className="lecture-video-overflow-volume min-w-0 flex-1 cursor-pointer disabled:cursor-not-allowed"
-                        style={{
-                          ['--vol-pct' as string]: `${(mutedUi ? 0 : volumeUi) * 100}%`,
-                        }}
-                        aria-label="Volume"
-                      />
-                    </div>
-                    <div className="mx-3 my-1 h-px bg-white/10" />
+                    {/* Volume is not here — it lives in the toolbar (desktop
+                        hover slider); mobile relies on hardware volume keys. */}
                     <button
                       type="button"
                       onClick={() => {

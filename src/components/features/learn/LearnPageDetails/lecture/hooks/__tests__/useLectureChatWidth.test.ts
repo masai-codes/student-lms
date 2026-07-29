@@ -31,11 +31,11 @@ describe('useLectureChatWidth', () => {
   })
 
   it('clamps so the video keeps its minimum width', () => {
-    // 900px container leaves at most 900 - 360 = 540 for the chat.
+    // 900px container leaves at most 900 - 475 = 425 for the chat.
     const { result } = renderHook(() => useLectureChatWidth(containerRef(900)))
 
     act(() => result.current.nudge(1000))
-    expect(result.current.width).toBe(540)
+    expect(result.current.width).toBe(425)
   })
 
   it('restores a stored width on mount', () => {

@@ -848,38 +848,13 @@ code {
    class, staggerable via `--dash-delay`, and disabled wholesale under
    prefers-reduced-motion. */
 
-/* Sections float up into place on first paint. */
-@keyframes dash-rise {
-  from {
-    opacity: 0;
-    transform: translateY(14px) scale(0.99);
-    filter: blur(3px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-    filter: blur(0);
-  }
-}
-.animate-dash-rise {
-  animation: dash-rise 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
-  animation-delay: var(--dash-delay, 0s);
-}
-
-/* List rows cascade in a touch faster than sections. */
-@keyframes dash-row-in {
-  from {
-    opacity: 0;
-    transform: translateY(8px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
+/* Entrance reveals removed: sections and list rows render immediately.
+   The staggered fade/slide cascade was reported as a distracting flicker,
+   so these classes are now inert no-ops (kept so existing markup needn't
+   change). Hover/press physics (dash-lift) are unaffected. */
+.animate-dash-rise,
 .animate-dash-row-in {
-  animation: dash-row-in 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
-  animation-delay: var(--dash-delay, 0s);
+  animation: none;
 }
 
 /* The greeting hand waves once on load, and again on hover. */
@@ -1084,5 +1059,51 @@ code {
   }
   .dash-sheen::after {
     display: none;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+ * Viewport lock — pages whose columns own their own scrolling.
+ *
+ * The lecture detail page is a split layout: the page column and the AI chat
+ * rail each scroll themselves, side by side, filling the height the navbar
+ * leaves. That needs a *definite* height at the top of the chain — the app
+ * shell's `min-h-dvh` leaves it indefinite, so a `flex-1` `<main>` keeps growing
+ * to its content: the row stretches to the whole page height, the window scrolls
+ * instead of the columns, and the chat rail (sized `h-full` against an
+ * indefinite parent) can't stand viewport-tall.
+ *
+ * `overflow: hidden` on `<html>`/`<body>` is the part that kills the trailing
+ * whitespace outright: the document itself becomes unscrollable, so nothing —
+ * not a stray portal, not scroll chaining out of either column, not a rounding
+ * error — can drag the page up into blank space below it.
+ *
+ * Applied only while `useViewportScrollLock` marks `<html>` (so it lifts the
+ * moment you navigate away or drop below `lg`, where the page goes back to
+ * natural window scrolling with the bottom-drawer chat). Plain CSS on purpose:
+ * no utility-scanner or `:has()` support to depend on, and it's greppable in the
+ * served stylesheet.
+ * ------------------------------------------------------------------------- */
+@media (width >= 64rem) {
+  html[data-viewport-locked] {
+    height: 100%;
+    overflow: hidden;
+  }
+
+  /* `position: relative` so an absolutely-positioned body-level child (a portal
+     that isn't `fixed`) is clipped by the body box instead of resolving against
+     the initial containing block, where it would still stretch the document's
+     scrollable height. Body sits at the document origin with no margin, so this
+     changes nothing visually. */
+  html[data-viewport-locked] > body {
+    position: relative;
+    height: 100%;
+    overflow: hidden;
+  }
+
+  html[data-viewport-locked] [data-app-shell] {
+    height: 100dvh;
+    min-height: 0;
+    overflow: hidden;
   }
 }

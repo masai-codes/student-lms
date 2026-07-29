@@ -31,7 +31,9 @@ export type LearnListingJoinLiveState = 'hidden' | 'disabled' | 'active'
 
 /** Assignment status chip on learn listing cards (legacy AssignmentListCard rules). */
 export type AssignmentListingStatusChip =
-  AssignmentProgressStatus | 'practice-mode' | null
+  | AssignmentProgressStatus
+  | 'practice-mode'
+  | null
 
 /** Server-resolved CTA visibility for learn listing cards — see `buildLearnListingCardCtas`. */
 export interface LearnListingCardCtas {
@@ -108,6 +110,8 @@ export interface LearningItem {
   optionalAttendance: LectureAttendanceSummary | null
   /** Present for assignments only. */
   assignmentProgressStatus: AssignmentProgressStatus | null
+  /** `assignments.settings.weightagePercentage`; null when unset or not an assignment. */
+  assignmentWeightage: number | null
   /** Present for resources only. */
   resourcePhase: ResourcePhase | null
   /** Listing card CTAs — resolved on the server to match legacy LMS rules. */

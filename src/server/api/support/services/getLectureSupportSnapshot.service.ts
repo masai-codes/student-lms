@@ -7,7 +7,12 @@ import { fetchLectureAttendanceSummaries } from '@/server/attendance/services/fe
 import { buildLectureVideoAttendanceState } from '@/server/learn/utils/buildLectureVideoAttendanceState'
 import { ensureUserCanAccessLearnHubEntity } from '@/server/learn/utils/ensureLearnEntityAccess'
 import { parseLectureTranscriptSegments } from '@/server/learn/utils/formatLectureTranscript'
-import { toLearningPriority } from '@/server/learn/utils/learningDataMappers'
+import {
+  resolveModuleName,
+  toLearningPriority,
+} from '@/server/learn/utils/learningDataMappers'
+import { toSupportLectureDisplayType } from '@/lib/support/lectureDisplayType'
+import { formatSocialPostTime } from '@/lib/socialRelativeTime'
 import { normalizeLectureKind } from '@/server/learn/utils/normalizeLectureKind'
 import { parseLectureSettings } from '@/server/learn/utils/parseLectureSettings'
 import { resolveAiSummaryStatus } from '@/server/learn/utils/resolveAiSummaryStatus'
@@ -26,10 +31,13 @@ export async function getLectureSupportSnapshot(
   const rows = await db
     .select({
       id: lectures.id,
+      title: lectures.title,
       type: lectures.type,
       optional: lectures.optional,
       schedule: lectures.schedule,
       concludes: lectures.concludes,
+      week: lectures.week,
+      module: lectures.module,
       sectionId: lectures.sectionId,
       zoomLink: lectures.zoomLink,
       videos: lectures.videos,
@@ -63,7 +71,9 @@ export async function getLectureSupportSnapshot(
 
   const nowMs = Date.now()
   const settings = parseLectureSettings(row.settings)
-  const isMandatory = toLearningPriority(row.optional) === 'mandatory'
+  const priority = toLearningPriority(row.optional)
+  const isMandatory = priority === 'mandatory'
+  const isOptional = priority === 'recommended'
 
   const livePhase =
     lectureKind === 'live'
@@ -152,12 +162,20 @@ export async function getLectureSupportSnapshot(
   })
 
   const showAttendance = sessionEnded
-  const attendance = showAttendance ? (attendanceMap.get(lectureId) ?? null) : null
+  const attendance = showAttendance
+    ? (attendanceMap.get(lectureId) ?? null)
+    : null
 
   return {
     lectureId,
     lectureKind,
+    title: row.title.trim() || 'Untitled lecture',
+    meta: resolveModuleName(row.module, row.week),
+    date: row.schedule ? formatSocialPostTime(row.schedule) : 'No schedule',
+    lectureDisplayType: toSupportLectureDisplayType(row.type),
+    schedule: row.schedule,
     isMandatory,
+    isOptional,
     livePhase,
     videoPhase,
     joinLiveButtonState,

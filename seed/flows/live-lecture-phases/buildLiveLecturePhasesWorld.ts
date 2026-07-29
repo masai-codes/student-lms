@@ -16,15 +16,26 @@ import {
   formatMysqlDatetime,
   offsetFromNow,
 } from '../../utils/time'
-import { flowScopedEmail, ONBOARDING_PROFILE_PHOTO_URL } from '../onboarding-shared/constants'
+import {
+  flowScopedEmail,
+  ONBOARDING_PROFILE_PHOTO_URL,
+} from '../onboarding-shared/constants'
 import {
   LIVE_LECTURE_PHASES_FLOW_ID,
   LIVE_LECTURE_PHASES_TIMING,
   LIVE_LECTURE_RECORDING_HLS_URL,
   type LiveLecturePhasesFlowId,
 } from './config'
+import { seedTranscriptLectures } from './seedTranscriptLectures'
+import type { TranscriptLectureSeeds } from './seedTranscriptLectures'
 
-import type { assignments, lectures, lecturesAi, sectionUser, sections } from '@/db/schema'
+import type {
+  assignments,
+  lectures,
+  lecturesAi,
+  sectionUser,
+  sections,
+} from '@/db/schema'
 
 type LectureRow = typeof lectures.$inferSelect
 type AssignmentRow = typeof assignments.$inferSelect
@@ -40,6 +51,8 @@ export type LiveLecturePhaseKey =
   | 'videoOptional'
   | 'optionalLiveBeforeUnlock'
   | 'optionalLiveDuringJoin'
+  | 'transcriptSegmented'
+  | 'transcriptPlainText'
 
 export type LiveLecturePhasesWorld = {
   flowId: LiveLecturePhasesFlowId
@@ -61,6 +74,11 @@ export type LiveLecturePhasesWorld = {
   /** Companion lecture for the video-attendance-OFF recording. */
   attendanceOffExtras: {
     associatedLecture: LectureRow
+  }
+  /** `lectures_ai` rows behind the two transcript-QA lectures. */
+  transcriptExtras: {
+    segmentedAi: TranscriptLectureSeeds['segmentedAi']
+    plainTextAi: TranscriptLectureSeeds['plainTextAi']
   }
   /** Tab content for the video-attendance-ON recording lecture. */
   attendanceOnExtras: {
@@ -237,7 +255,8 @@ export async function buildLiveLecturePhasesWorld(
   const duration = LIVE_LECTURE_PHASES_TIMING.lectureDurationMinutes
 
   const beforeSchedule = offsetFromNow({
-    minutesFromNow: LIVE_LECTURE_PHASES_TIMING.beforeUnlockScheduleMinutesFromNow,
+    minutesFromNow:
+      LIVE_LECTURE_PHASES_TIMING.beforeUnlockScheduleMinutesFromNow,
   })
   const beforeConcludes = addMinutes(beforeSchedule, duration)
 
@@ -259,7 +278,10 @@ export async function buildLiveLecturePhasesWorld(
     sectionId: section.id,
     userId: admin.id,
     title: `[${flowId}] Before unlock (>10 min to start)`,
-    description: baseDescription(flowId, 'Before unlock — clock icon, lecture has not started'),
+    description: baseDescription(
+      flowId,
+      'Before unlock — clock icon, lecture has not started',
+    ),
     optional: 0,
     schedule: formatMysqlDatetime(beforeSchedule),
     concludes: formatMysqlDatetime(beforeConcludes),
@@ -273,7 +295,10 @@ export async function buildLiveLecturePhasesWorld(
     sectionId: section.id,
     userId: admin.id,
     title: `[${flowId}] During join window (5 min before → conclude + 30 min)`,
-    description: baseDescription(flowId, 'During — video icon, join button, mute reminder'),
+    description: baseDescription(
+      flowId,
+      'During — video icon, join button, mute reminder',
+    ),
     optional: 0,
     schedule: formatMysqlDatetime(duringSchedule),
     concludes: formatMysqlDatetime(duringConcludes),
@@ -351,13 +376,31 @@ export async function buildLiveLecturePhasesWorld(
     endDate: formatMysqlDate(afterConcludes),
   })
 
+  // Recordings in the primary section whose only job is transcript QA: the
+  // Transcript tab (list + plain-text fallback), the CC overlay, and the
+  // transcript Download button.
+  const transcriptLectures = await seedTranscriptLectures(flowId, {
+    ...SHARED_VIDEO_LECTURE_META,
+    ...RECORDING_VIDEO_FIELDS,
+    batchId: batch.id,
+    sectionId: section.id,
+    userId: admin.id,
+    schedule: formatMysqlDatetime(afterSchedule),
+    concludes: formatMysqlDatetime(afterConcludes),
+    startDate: formatMysqlDate(afterSchedule),
+    endDate: formatMysqlDate(afterConcludes),
+  })
+
   const afterNoRecording = await createLecture({
     ...SHARED_LECTURE_META,
     batchId: batch.id,
     sectionId: section.id,
     userId: admin.id,
     title: `[${flowId}] After lecture (recording not available yet)`,
-    description: baseDescription(flowId, 'After — blank video area, recording processing'),
+    description: baseDescription(
+      flowId,
+      'After — blank video area, recording processing',
+    ),
     optional: 1,
     schedule: formatMysqlDatetime(afterSchedule),
     concludes: formatMysqlDatetime(afterConcludes),
@@ -395,7 +438,8 @@ export async function buildLiveLecturePhasesWorld(
     title: `[${flowId}] Associated lecture — follow-up: DOM APIs`,
     description:
       'Companion live lecture linked from the video-attendance-OFF recording (Associated Content tab).',
-    notes: '## Follow-up session\n\nCovers DOM querying, events, and common browser APIs after the main recording.',
+    notes:
+      '## Follow-up session\n\nCovers DOM querying, events, and common browser APIs after the main recording.',
     optional: 1,
     schedule: formatMysqlDatetime(afterSchedule),
     concludes: formatMysqlDatetime(afterConcludes),
@@ -428,7 +472,9 @@ export async function buildLiveLecturePhasesWorld(
   const attendanceOnAi = await createLecturesAi({
     lectureId: afterWithRecordingAttendanceOn.id,
     summary: ATTENDANCE_ON_AI_SUMMARY,
-    transcript: ATTENDANCE_ON_TRANSCRIPT_SEGMENTS.map(segment => segment.text).join('\n\n'),
+    transcript: ATTENDANCE_ON_TRANSCRIPT_SEGMENTS.map(
+      (segment) => segment.text,
+    ).join('\n\n'),
     transcriptSegments: [...ATTENDANCE_ON_TRANSCRIPT_SEGMENTS],
     isSummaryPublished: 1,
   })
@@ -442,7 +488,8 @@ export async function buildLiveLecturePhasesWorld(
     title: `[${flowId}] Associated lecture — follow-up: async JS`,
     description:
       'Companion live lecture linked from the video-attendance-ON recording (Associated Content tab).',
-    notes: '## Follow-up session\n\nCovers promises, async/await, and common pitfalls after the main recording.',
+    notes:
+      '## Follow-up session\n\nCovers promises, async/await, and common pitfalls after the main recording.',
     optional: 1,
     schedule: formatMysqlDatetime(afterSchedule),
     concludes: formatMysqlDatetime(afterConcludes),
@@ -461,8 +508,10 @@ export async function buildLiveLecturePhasesWorld(
     category: 'notes',
     type: 'reading',
     module: 'JavaScript Fundamentals',
-    description: 'Companion notes linked from the video-attendance-ON recording lecture.',
-    notes: '## Closures cheat sheet\n\n- Outer scope variables stay alive after the outer function returns.\n- Useful for private state and partial application.',
+    description:
+      'Companion notes linked from the video-attendance-ON recording lecture.',
+    notes:
+      '## Closures cheat sheet\n\n- Outer scope variables stay alive after the outer function returns.\n- Useful for private state and partial application.',
     optional: 1,
     week: 2,
     day: 3,
@@ -522,6 +571,12 @@ export async function buildLiveLecturePhasesWorld(
       videoOptional,
       optionalLiveBeforeUnlock,
       optionalLiveDuringJoin,
+      transcriptSegmented: transcriptLectures.segmented,
+      transcriptPlainText: transcriptLectures.plainText,
+    },
+    transcriptExtras: {
+      segmentedAi: transcriptLectures.segmentedAi,
+      plainTextAi: transcriptLectures.plainTextAi,
     },
     attendanceOffExtras: {
       associatedLecture: associatedLectureAttendanceOff,

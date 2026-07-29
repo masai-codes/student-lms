@@ -1,8 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import type {
-  LectureAttendanceSummary,
-} from '@/server/attendance/types'
+import type { LectureAttendanceSummary } from '@/server/attendance/types'
 import type { LectureSupportSnapshot } from '@/server/api/support/support.types'
 import { getSupportAttendancePresentation } from '../lectureSnapshotPresentation'
 
@@ -34,6 +32,11 @@ function makeSnapshot(
   return {
     lectureId: 1,
     lectureKind: 'live',
+    title: 'Sample lecture',
+    meta: 'Module 1',
+    date: 'Today',
+    schedule: '2026-07-21 18:00:00',
+    isOptional: false,
     isMandatory: true,
     livePhase: 'after',
     videoPhase: null,
@@ -116,7 +119,9 @@ describe('getSupportAttendancePresentation', () => {
 
     expect(result.label).toBe('Absent')
     expect(result.absentReason).toMatch(/did not join the live session/i)
-    expect(result.absentReason).toMatch(/only live class attendance is counted/i)
+    expect(result.absentReason).toMatch(
+      /only live class attendance is counted/i,
+    )
   })
 
   it('tells the student they can still catch up via the recording', () => {
@@ -140,23 +145,33 @@ describe('getSupportAttendancePresentation', () => {
       }),
     )
 
-    expect(result.absentReason).toMatch(/window to watch the recording.*closed/i)
+    expect(result.absentReason).toMatch(
+      /window to watch the recording.*closed/i,
+    )
   })
 
   it('marks a late join absent when the section enforces the late limit', () => {
     const result = getSupportAttendancePresentation(
       makeSnapshot({
-        attendance: makeAttendance({ lateByMinutes: 15, markAbsentIfLate: true }),
+        attendance: makeAttendance({
+          lateByMinutes: 15,
+          markAbsentIfLate: true,
+        }),
       }),
     )
 
-    expect(result.absentReason).toMatch(/late by 15 min, past the allowed limit/i)
+    expect(result.absentReason).toMatch(
+      /late by 15 min, past the allowed limit/i,
+    )
   })
 
   it('explains a late join is not fatal when the section does not enforce it', () => {
     const result = getSupportAttendancePresentation(
       makeSnapshot({
-        attendance: makeAttendance({ lateByMinutes: 15, markAbsentIfLate: false }),
+        attendance: makeAttendance({
+          lateByMinutes: 15,
+          markAbsentIfLate: false,
+        }),
       }),
     )
 
@@ -172,7 +187,9 @@ describe('getSupportAttendancePresentation', () => {
       }),
     )
 
-    expect(result.absentReason).toMatch(/finish watching the recording to be marked present/i)
+    expect(result.absentReason).toMatch(
+      /finish watching the recording to be marked present/i,
+    )
   })
 
   it('explains a video lecture with no watch progress at all', () => {
@@ -198,7 +215,9 @@ describe('getSupportAttendancePresentation', () => {
       }),
     )
 
-    expect(result.absentReason).toMatch(/did not finish watching the recording/i)
+    expect(result.absentReason).toMatch(
+      /did not finish watching the recording/i,
+    )
     expect(result.absentReason).toMatch(/window to finish it has closed/i)
   })
 })

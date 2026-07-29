@@ -6,7 +6,9 @@ import {
 } from '@/components/common/floating-chat/supportCategoryLearning'
 import type { LearningItem } from '@/server/learn/types'
 
-function buildLearningItem(overrides: Partial<LearningItem> = {}): LearningItem {
+function buildLearningItem(
+  overrides: Partial<LearningItem> = {},
+): LearningItem {
   return {
     id: 1,
     learningType: 'assignment',
@@ -22,6 +24,7 @@ function buildLearningItem(overrides: Partial<LearningItem> = {}): LearningItem 
     resourcePhase: null,
     attendance: null,
     optionalAttendance: null,
+    assignmentWeightage: null,
     listingCtas: {
       joinLive: 'hidden',
       joinZoomLink: null,
@@ -47,7 +50,11 @@ describe('mapLearningItemToSupportItem', () => {
 
     expect(
       mapLearningItemToSupportItem(
-        buildLearningItem({ type: 'evaluation', category: 'dsa', isOptional: 'recommended' }),
+        buildLearningItem({
+          type: 'evaluation',
+          category: 'dsa',
+          isOptional: 'recommended',
+        }),
       ),
     ).toMatchObject({
       meta: 'dsa',

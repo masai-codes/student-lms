@@ -30,7 +30,11 @@ import type { JoinLiveButtonState } from '@/server/learn/utils/resolveJoinLiveBu
  * - `automatic`  — auto-resolved (e.g. short leave, chatbot) with a templated reply
  */
 export type TicketStatus =
-  'open' | 're-opened' | 'resolved' | 'closed' | 'automatic'
+  | 'open'
+  | 're-opened'
+  | 'resolved'
+  | 'closed'
+  | 'automatic'
 
 /** The three list filters shown above the ticket list. */
 export type TicketTab = 'unresolved' | 'resolved' | 'all'
@@ -206,7 +210,14 @@ export interface TicketCapabilities {
   canEscalate: boolean
 }
 
-export type SupportEntityCategory = 'lecture' | 'assignment' | 'resource' | 'evaluation'
+export type SupportEntityCategory =
+  | 'lecture'
+  | 'assignment'
+  | 'resource'
+  | 'evaluation'
+
+/** Lecture kind chip on support item cards (`live` / `video` / `scrum`). */
+export type SupportLectureDisplayType = 'live' | 'video' | 'scrum'
 
 /** Item card fields for floating support step 2.5 (`Before you raise a ticket`). */
 export interface SupportEntityContextItem {
@@ -214,7 +225,7 @@ export interface SupportEntityContextItem {
   title: string
   meta: string
   date: string
-  type?: 'live' | 'video'
+  type?: SupportLectureDisplayType
   startTime?: string
   isOptional?: boolean
   isMandatory?: boolean
@@ -255,7 +266,11 @@ export type LectureRecordingStatus =
   | 'not_available'
   | 'processing'
 
-export type LectureDurationSource = 'hls' | 'transcript' | 'schedule' | 'video_progress'
+export type LectureDurationSource =
+  | 'hls'
+  | 'transcript'
+  | 'schedule'
+  | 'video_progress'
 
 export type AiSummaryStatus = 'generated' | 'processing' | 'not_available'
 
@@ -266,8 +281,20 @@ export type AiSummaryStatus = 'generated' | 'processing' | 'not_available'
 export interface LectureSupportSnapshot {
   lectureId: number
   lectureKind: 'live' | 'video'
+  /** Item card headline (step 2.5 confirmation). */
+  title: string
+  /** Module/week or category line under the title. */
+  meta: string
+  /** Human-readable schedule line (`formatSocialPostTime` or fallback). */
+  date: string
+  /** Raw lecture `type` mapped for chips (`live` / `video` / `scrum`). */
+  lectureDisplayType?: SupportLectureDisplayType
+  /** ISO-ish schedule from DB — used as `startTime` on item cards. */
+  schedule: string | null
   /** Mandatory vs recommended/optional — drives whether attendance is scored at all. */
   isMandatory: boolean
+  /** Recommended/optional lecture (inverse of mandatory-only flag). */
+  isOptional: boolean
   livePhase: 'before' | 'during' | 'after' | null
   videoPhase: 'before' | 'during_after' | null
   joinLiveButtonState: JoinLiveButtonState | null
@@ -281,7 +308,11 @@ export interface LectureSupportSnapshot {
   showAttendance: boolean
 }
 
-export type AssignmentSupportSnapshotTone = 'neutral' | 'success' | 'warning' | 'danger'
+export type AssignmentSupportSnapshotTone =
+  | 'neutral'
+  | 'success'
+  | 'warning'
+  | 'danger'
 
 /**
  * Lean assignment/evaluation snapshot for floating support item confirmation

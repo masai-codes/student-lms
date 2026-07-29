@@ -26,6 +26,7 @@ import type { MouseEventHandler } from 'react'
 
 import type {
   NavbarActionItem,
+  NavbarActivation,
   NavbarLinkItem,
   NavbarProfile,
   NavbarProfileMenuItem,
@@ -94,9 +95,7 @@ function navbarLogoDarkSrc(): string | undefined {
  * Refer & Earn: navbar uses `Routes.changemakersCircle.main()` (`/changemakers-circle`).
  * `/alumniReferal` is a different flow (alumni hiring / refer-hiring), not the main CTA.
  */
-function oldStudentUiLink(
-  path: string,
-): Pick<NavbarLinkItem, 'href' | 'openInNewTab' | 'onClick'> {
+function oldStudentUiLink(path: string): NavbarActivation {
   const href = getOldStudentUiUrlForPath(path) ?? '#'
   const onClick: MouseEventHandler<HTMLAnchorElement> | undefined =
     href === '#' ? (e) => e.preventDefault() : undefined
@@ -165,13 +164,22 @@ export default function AppNavbar() {
 
   // MasaiVerse Community access is per-user and stable for the session, so cache
   // it the same way the masaiverse route loader does. Admins always have access.
-  const { data: masaiverseAccess } = useQuery({
-    queryKey: ['masaiverse-access', user.id],
-    queryFn: () =>
-      getMasaiverseAccessDebugServer({ data: { userId: user.id } }),
-    staleTime: 5 * 60 * 1000,
-    enabled: user.role !== 'admin',
-  })
+  const { data: masaiverseAccess, isLoading: isMasaiverseAccessLoading } =
+    useQuery({
+      queryKey: ['masaiverse-access', user.id],
+      queryFn: () =>
+        getMasaiverseAccessDebugServer({ data: { userId: user.id } }),
+      staleTime: 5 * 60 * 1000,
+      enabled: user.role !== 'admin',
+    })
+
+  // Until the per-user access check resolves we don't yet know whether to show
+  // "MasaiVerse" or "Refer & Earn", so we withhold the either/or item entirely.
+  // Rendering it early defaults to the "Refer & Earn" branch and then swaps to
+  // "MasaiVerse" once the query resolves — the fraction-of-a-second flicker.
+  // Admins short-circuit (query is disabled), so they never wait.
+  const isMasaiverseAccessResolved =
+    user.role === 'admin' || !isMasaiverseAccessLoading
 
   // When the CTA is active we surface "MasaiVerse Community" in the main desktop
   // nav (replacing "Refer & Earn") and move "Refer & Earn" into the profile
@@ -277,14 +285,6 @@ export default function AppNavbar() {
     [navigate],
   )
 
-  const handleProductUpdatesClick = useCallback(
-    (e: React.MouseEvent<HTMLAnchorElement>) => {
-      e.preventDefault()
-      void navigate({ to: '/whats-new', search: { page: 1 } })
-    },
-    [navigate],
-  )
-
   const handleReferAndEarnClick = useCallback(
     (e: React.MouseEvent<HTMLAnchorElement>) => {
       e.preventDefault()
@@ -334,8 +334,9 @@ export default function AppNavbar() {
       oldUiPath: OLD_STUDENT_UI_NAV_PATHS.discussions,
     }),
     // iHub hides the MasaiVerse CTA and the Refer & Earn (changemakers) link
-    // entirely; Masai keeps the existing either/or behaviour.
-    ...(isIHub
+    // entirely; Masai keeps the existing either/or behaviour. We also wait for
+    // the access check to resolve to avoid flickering between the two labels.
+    ...(isIHub || !isMasaiverseAccessResolved
       ? []
       : [
           showMasaiverseCta
@@ -442,8 +443,9 @@ export default function AppNavbar() {
         openInNewTab: false,
       },
       // MasaiVerse Community / Refer & Earn and Practice Interviews are
-      // Masai-only and dropped from the iHub profile menu.
-      ...(isIHub
+      // Masai-only and dropped from the iHub profile menu. Withhold the
+      // either/or item until the access check resolves to avoid the flicker.
+      ...(isIHub || !isMasaiverseAccessResolved
         ? []
         : [
             showMasaiverseCta
@@ -503,12 +505,10 @@ export default function AppNavbar() {
         icon: <Sparkles className="size-4" />,
         href: '/whats-new',
         openInNewTab: false,
-        onClick: handleProductUpdatesClick,
       },
       {
         id: 'sign-out',
         label: 'Sign out',
-        href: '#',
         icon: <LogOutIcon className="size-4" />,
         onClick: (e) => {
           void handleSignOut(e)
@@ -518,11 +518,11 @@ export default function AppNavbar() {
     [
       activeNavId,
       handleLevelupClick,
-      handleProductUpdatesClick,
       handleReferAndEarnClick,
       handleSignOut,
       isIHub,
       isLevelupLoading,
+      isMasaiverseAccessResolved,
       showMasaiverseCta,
     ],
   )

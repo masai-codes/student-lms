@@ -21,13 +21,25 @@ if (typeof window !== 'undefined' && !window.matchMedia) {
   // viewport breakpoint (e.g. InlineDrawer, card drawers) can mount. We evaluate
   // `min-width`/`max-width` against `window.innerWidth` (jsdom defaults to 1024)
   // so breakpoint checks resolve the same way a real browser would at that size.
+  // `px` and `rem` are both accepted: Tailwind's breakpoints are `rem`
+  // (`lg` = 64rem), and queries written in the same unit as the CSS can't drift
+  // from it. Media-query `rem` resolves against the initial font size (16px),
+  // never a page-level override — so a fixed factor is correct here.
+  const REM_PX = 16
+  const lengthPx = (query: string, feature: string): number | null => {
+    const match = query.match(
+      new RegExp(`${feature}:\\s*(\\d+(?:\\.\\d+)?)(px|rem)`),
+    )
+    if (!match) return null
+    return Number(match[1]) * (match[2] === 'rem' ? REM_PX : 1)
+  }
   const evaluate = (query: string): boolean => {
     const width = window.innerWidth
-    const min = query.match(/min-width:\s*(\d+)px/)
-    if (min && width < Number(min[1])) return false
-    const max = query.match(/max-width:\s*(\d+)px/)
-    if (max && width > Number(max[1])) return false
-    return Boolean(min || max)
+    const min = lengthPx(query, 'min-width')
+    if (min !== null && width < min) return false
+    const max = lengthPx(query, 'max-width')
+    if (max !== null && width > max) return false
+    return min !== null || max !== null
   }
   window.matchMedia = (query: string) => ({
     matches: evaluate(query),

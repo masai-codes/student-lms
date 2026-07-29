@@ -6,7 +6,7 @@ import { useCallback, useEffect, useState, type RefObject } from 'react'
 const MIN_CHAT_WIDTH = 320
 const DEFAULT_CHAT_WIDTH = 440
 /** The video always keeps at least this much width beside the chat. */
-const MIN_VIDEO_WIDTH = 360
+const MIN_VIDEO_WIDTH = 475
 const STORAGE_KEY = 'lecture-chat-width'
 /** Keyboard resize step (px) for the separator. */
 export const CHAT_WIDTH_KEYBOARD_STEP = 24
@@ -15,7 +15,9 @@ function readStoredWidth(): number {
   if (typeof window === 'undefined') return DEFAULT_CHAT_WIDTH
   try {
     const raw = Number(window.localStorage.getItem(STORAGE_KEY))
-    return Number.isFinite(raw) && raw >= MIN_CHAT_WIDTH ? raw : DEFAULT_CHAT_WIDTH
+    return Number.isFinite(raw) && raw >= MIN_CHAT_WIDTH
+      ? raw
+      : DEFAULT_CHAT_WIDTH
   } catch {
     return DEFAULT_CHAT_WIDTH
   }
@@ -100,7 +102,9 @@ export function useLectureChatWidth(
   useEffect(() => {
     const container = containerRef.current
     if (!container || typeof ResizeObserver === 'undefined') return
-    const observer = new ResizeObserver(() => setWidth((current) => clamp(current)))
+    const observer = new ResizeObserver(() =>
+      setWidth((current) => clamp(current)),
+    )
     observer.observe(container)
     return () => observer.disconnect()
   }, [clamp, containerRef])

@@ -28,9 +28,15 @@ AMI_NAME="student-lms-golden-ami-$(date +%Y%m%d-%H%M%S)"
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 BOOTSTRAP_SCRIPT="$SCRIPT_DIR/golden-ami-bootstrap.sh"
+CW_AGENT_CONFIG="$SCRIPT_DIR/../../config/cloudwatch/amazon-cloudwatch-agent.json"
 
 if [ ! -f "$BOOTSTRAP_SCRIPT" ]; then
   echo "ERROR: golden-ami-bootstrap.sh not found at $BOOTSTRAP_SCRIPT"
+  exit 1
+fi
+
+if [ ! -f "$CW_AGENT_CONFIG" ]; then
+  echo "ERROR: CloudWatch agent config not found at $CW_AGENT_CONFIG"
   exit 1
 fi
 
@@ -90,6 +96,18 @@ echo "==> Base AMI: $BASE_AMI_ID"
 # =============================================================================
 # Launch builder instance
 # =============================================================================
+echo "==> Preparing builder UserData with CloudWatch agent config..."
+USERDATA_SCRIPT="$(mktemp)"
+{
+  echo '#!/bin/bash'
+  echo 'set -euo pipefail'
+  echo 'cat > /tmp/cw-agent-config.json << '\''CWCONFIG_EOF'\'''
+  cat "$CW_AGENT_CONFIG"
+  echo 'CWCONFIG_EOF'
+  cat "$BOOTSTRAP_SCRIPT"
+} > "$USERDATA_SCRIPT"
+trap 'rm -f "$USERDATA_SCRIPT"' EXIT
+
 echo "==> Launching builder instance..."
 INSTANCE_ID=$(aws ec2 run-instances \
   --region "$REGION" \
@@ -100,7 +118,7 @@ INSTANCE_ID=$(aws ec2 run-instances \
   --metadata-options "HttpTokens=required,HttpEndpoint=enabled" \
   --block-device-mappings '[{"DeviceName":"/dev/sda1","Ebs":{"VolumeSize":20,"VolumeType":"gp3","DeleteOnTermination":true}}]' \
   --tag-specifications "ResourceType=instance,Tags=[{Key=Name,Value=golden-ami-builder},{Key=Purpose,Value=golden-ami-build}]" \
-  --user-data "file://${BOOTSTRAP_SCRIPT}" \
+  --user-data "file://${USERDATA_SCRIPT}" \
   --query 'Instances[0].InstanceId' \
   --output text)
 
