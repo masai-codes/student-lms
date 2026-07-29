@@ -4,16 +4,14 @@ import { ApiError } from '@/server/api/http/apiError'
 import { jsonOk, mapThrownErrorToResponse } from '@/server/api/http/responses'
 import { requireSessionUserId } from '@/server/api/http/requireSessionUser'
 import { parsePositiveIdParam } from '@/server/api/learn/utils/parsePositiveIdParam'
-import { submitLectureFeedback } from '@/server/learn/services/lectureFeedback.service'
-import { LECTURE_FEEDBACK_TAGS } from '@/server/learn/utils/lectureFeedbackTags'
+import { endInLectureQuizAssessment } from '@/server/learn/services/endInLectureQuizAssessment.service'
 
 const bodySchema = z.object({
-  rating: z.number().int().min(1).max(5),
-  feedback: z.string().max(191).optional(),
-  tags: z.array(z.enum(LECTURE_FEEDBACK_TAGS)).max(5).optional(),
+  assessmentTemplateId: z.string().min(1),
+  token: z.string().min(1),
 })
 
-export async function handleSubmitLectureFeedback(
+export async function handleEndInLectureQuizAssessment(
   request: Request,
   lectureIdParam: string,
 ): Promise<Response> {
@@ -24,17 +22,14 @@ export async function handleSubmitLectureFeedback(
     const rawBody = await request.json().catch(() => ({}))
     const parsed = bodySchema.safeParse(rawBody)
     if (!parsed.success) {
-      throw new ApiError(400, 'INVALID_FEEDBACK_PAYLOAD')
+      throw new ApiError(400, 'INVALID_QUIZ_PAYLOAD')
     }
 
-    const text = parsed.data.feedback?.trim()
-    const tags = Array.from(new Set(parsed.data.tags ?? []))
-    const result = await submitLectureFeedback({
+    const result = await endInLectureQuizAssessment({
       userId,
       lectureId,
-      rating: parsed.data.rating,
-      text: text && text.length > 0 ? text : null,
-      tags,
+      assessmentTemplateId: parsed.data.assessmentTemplateId,
+      token: parsed.data.token,
     })
 
     return jsonOk(result)

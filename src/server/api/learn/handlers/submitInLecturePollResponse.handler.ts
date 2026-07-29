@@ -4,16 +4,14 @@ import { ApiError } from '@/server/api/http/apiError'
 import { jsonOk, mapThrownErrorToResponse } from '@/server/api/http/responses'
 import { requireSessionUserId } from '@/server/api/http/requireSessionUser'
 import { parsePositiveIdParam } from '@/server/api/learn/utils/parsePositiveIdParam'
-import { submitLectureFeedback } from '@/server/learn/services/lectureFeedback.service'
-import { LECTURE_FEEDBACK_TAGS } from '@/server/learn/utils/lectureFeedbackTags'
+import { saveInLecturePollSubmission } from '@/server/learn/services/saveInLecturePollSubmission.service'
 
 const bodySchema = z.object({
-  rating: z.number().int().min(1).max(5),
-  feedback: z.string().max(191).optional(),
-  tags: z.array(z.enum(LECTURE_FEEDBACK_TAGS)).max(5).optional(),
+  pollId: z.union([z.string(), z.number()]),
+  selectedOptionIndex: z.number().int().min(0),
 })
 
-export async function handleSubmitLectureFeedback(
+export async function handleSubmitInLecturePollResponse(
   request: Request,
   lectureIdParam: string,
 ): Promise<Response> {
@@ -24,17 +22,18 @@ export async function handleSubmitLectureFeedback(
     const rawBody = await request.json().catch(() => ({}))
     const parsed = bodySchema.safeParse(rawBody)
     if (!parsed.success) {
-      throw new ApiError(400, 'INVALID_FEEDBACK_PAYLOAD')
+      throw new ApiError(400, 'INVALID_POLL_SUBMIT_PAYLOAD')
     }
+    const pollId = parsePositiveIdParam(
+      String(parsed.data.pollId),
+      'INVALID_POLL_ID',
+    )
 
-    const text = parsed.data.feedback?.trim()
-    const tags = Array.from(new Set(parsed.data.tags ?? []))
-    const result = await submitLectureFeedback({
+    const result = await saveInLecturePollSubmission({
       userId,
       lectureId,
-      rating: parsed.data.rating,
-      text: text && text.length > 0 ? text : null,
-      tags,
+      pollId,
+      selectedOptionIndex: parsed.data.selectedOptionIndex,
     })
 
     return jsonOk(result)

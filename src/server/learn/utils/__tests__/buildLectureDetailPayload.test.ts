@@ -49,14 +49,16 @@ describe('buildLectureDetailPayload', () => {
       null,
       null,
       null,
-      { rating: null, text: null },
+      { mode: 'legacy', rating: null, text: null, tags: [] },
     )
 
     expect(payload.lectureKind).toBe('live')
     expect(payload.feedback).toEqual({
+      mode: 'legacy',
       canSubmit: false,
       rating: null,
       text: null,
+      tags: [],
     })
     expect(payload.notes).toBe('Lecture notes')
     expect(payload.tabs.notes).toBe('Lecture notes')
@@ -94,7 +96,7 @@ describe('buildLectureDetailPayload', () => {
       null,
       null,
       null,
-      { rating: null, text: null },
+      { mode: 'legacy', rating: null, text: null, tags: [] },
     )
 
     expect(payload.livePhase).toBe('after')
@@ -106,7 +108,7 @@ describe('buildLectureDetailPayload', () => {
     )
   })
 
-  it('does not expose an adaptive recording link before concludes + 30 min for SAL', () => {
+  it('always allows submission in zef mode, ignoring the window', () => {
     const concludesMs = new Date(concludes).getTime()
     const payload = buildLectureDetailPayload(
       core,
@@ -114,8 +116,7 @@ describe('buildLectureDetailPayload', () => {
         type: 'live',
         schedule,
         concludes,
-        zoomLink:
-          'https://experience-api.masaischool.com/api/adaptive-lecture/abc123/join',
+        zoomLink: null,
         videos: null,
         vimeoDownloadLinks: null,
         vimeoPlayerEmbedUrl: null,
@@ -123,20 +124,25 @@ describe('buildLectureDetailPayload', () => {
         hostAvatarUrl: null,
         notes: null,
       },
-      // Past conclude but still inside the 30-min grace window.
-      concludesMs + 10 * 60 * 1000,
+      // Well past any legacy window (concludes + several days).
+      concludesMs + 5 * 24 * 60 * 60 * 1000,
       emptyTabs,
       null,
       null,
       null,
-      { rating: null, text: null },
+      { mode: 'zef', rating: 4, text: 'Nice', tags: ['Great examples'] },
     )
 
-    expect(payload.livePhase).toBe('during')
-    expect(payload.adaptiveRecordingUrl).toBeNull()
+    expect(payload.feedback).toEqual({
+      mode: 'zef',
+      canSubmit: true,
+      rating: 4,
+      text: 'Nice',
+      tags: ['Great examples'],
+    })
   })
 
-  it('does not expose an adaptive recording link while a SAL lecture is live', () => {
+  it('does not expose an adaptive recording link before a SAL lecture ends', () => {
     const scheduleMs = new Date(schedule).getTime()
     const payload = buildLectureDetailPayload(
       core,
@@ -159,7 +165,7 @@ describe('buildLectureDetailPayload', () => {
       null,
       null,
       null,
-      { rating: null, text: null },
+      { mode: 'legacy', rating: null, text: null, tags: [] },
     )
 
     expect(payload.livePhase).toBe('during')
@@ -187,7 +193,7 @@ describe('buildLectureDetailPayload', () => {
       null,
       null,
       null,
-      { rating: null, text: null },
+      { mode: 'legacy', rating: null, text: null, tags: [] },
     )
 
     expect(payload.lectureKind).toBe('video')
@@ -219,7 +225,7 @@ describe('buildLectureDetailPayload', () => {
       null,
       null,
       null,
-      { rating: null, text: null },
+      { mode: 'legacy', rating: null, text: null, tags: [] },
     )
 
     expect(payload.lectureKind).toBe('live')
@@ -248,7 +254,7 @@ describe('buildLectureDetailPayload', () => {
         null,
         null,
         null,
-        { rating: null, text: null },
+        { mode: 'legacy', rating: null, text: null, tags: [] },
       ),
     ).toThrow('LECTURE_DETAIL_UNSUPPORTED_TYPE')
   })
