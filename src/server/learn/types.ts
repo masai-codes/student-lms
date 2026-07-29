@@ -124,6 +124,8 @@ export interface LearningItem {
   optionalAttendance: LectureAttendanceSummary | null
   /** Present for assignments only. */
   assignmentProgressStatus: AssignmentProgressStatus | null
+  /** `assignments.settings.weightagePercentage`; null when unset or not an assignment. */
+  assignmentWeightage: number | null
   /** Present for resources only. */
   resourcePhase: ResourcePhase | null
   /** Listing card CTAs — resolved on the server to match legacy LMS rules. */

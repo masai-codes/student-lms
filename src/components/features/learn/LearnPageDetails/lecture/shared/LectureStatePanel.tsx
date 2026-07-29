@@ -11,6 +11,12 @@ type LectureStatePanelProps = {
   description: ReactNode
   action?: ReactNode
   className?: string
+  /**
+   * Render on a black, video-player-style backdrop. Applies the `midnight`
+   * dark-theme token block to this subtree so the foreground/primary text
+   * colors flip to light automatically, then paints the panel pure black.
+   */
+  dark?: boolean
 }
 
 export function LectureStatePanel({
@@ -19,13 +25,17 @@ export function LectureStatePanel({
   description,
   action,
   className,
+  dark,
 }: LectureStatePanelProps) {
   const Icon = icon === 'video' ? VideoCamera : Clock
 
   return (
     <div
+      data-testid="lecture-state-panel"
+      data-theme={dark ? 'midnight' : undefined}
       className={cn(
-        'flex min-h-[min(52vh,420px)] w-full flex-col items-center justify-center gap-4 bg-muted/30 px-6 py-12 text-center',
+        'flex min-h-[min(52vh,420px)] w-full flex-col items-center justify-center gap-4 px-6 py-12 text-center',
+        dark ? 'dark bg-black' : 'bg-muted/30',
         className,
       )}
     >

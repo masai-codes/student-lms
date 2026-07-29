@@ -31,6 +31,9 @@ vi.mock('@/server/storage/s3Upload', () => ({
   uploadImageToS3: hoisted.uploadS3,
 }))
 vi.mock('../buildAgreementPdf', () => ({ buildAgreementPdf: hoisted.buildPdf }))
+vi.mock('@/server/restrictions/clearAgreementBan', () => ({
+  clearAgreementBan: vi.fn(() => Promise.resolve()),
+}))
 
 const SECTION = {
   name: 'Enrolment',

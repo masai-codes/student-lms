@@ -3,16 +3,16 @@
     "documents": {
       "required": true,
       "instituteSideUpload": false,
-      "documentsUploaded": true,
+      "documentsUploaded": false,
       "documentsVerified": false,
       "documentsPendingVerification": false
     },
     "kit": {
       "showKit": true,
       "welcomeKitUrl": null,
-      "detailsFilled": true,
+      "detailsFilled": false,
       "details": null,
-      "tracking": "https://tracking.example.com/ABC123"
+      "tracking": null
     }
   }
 }

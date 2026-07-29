@@ -23,6 +23,7 @@ import {
 } from '@/server/api/support/services/resolveAssignees'
 import { buildFirstTemplateResponse } from '@/server/api/support/services/ticketReplyTemplate'
 import { normalizeStatus } from '@/server/api/support/services/serialize'
+import { supportNow } from '@/server/api/support/services/supportTime'
 import { getTicketCapabilities } from '@/server/api/support/ticketCapabilities'
 
 /**
@@ -62,9 +63,20 @@ async function resolveInitialAssignee(
 /**
  * Raise a new ticket.
  *
- * Stores `batch_id`, `subCategory` and the originating FAQ (`question_id`) in
- * `tickets.data`, sets `status='open'`, and auto-assigns the L1 owner. The title
- * is derived from category + subcategory (the legacy system auto-titles too).
+ * Stores `batch_id`, `subCategory`, the originating FAQ (`question_id`) and —
+ * for tickets raised from a lecture / assignment / resource detail page — the
+ * originating entity (`entity_id`) in `tickets.data`, sets `status='open'`, and
+ * auto-assigns the L1 owner. The title is derived from category + subcategory
+ * (the legacy system auto-titles too).
+ *
+ * The `data` keys mirror the legacy web payload exactly — see the comment on
+ * the insert below.
+ *
+ * `created_at` / `updated_at` are written explicitly: the columns are
+ * `TIMESTAMP(0) NULL` with **no DB default**, so omitting them stores NULL —
+ * which is exactly what happened before this was fixed. The legacy writers
+ * (`experience-api` `createTicket` / `createTicketV2`) always set them, in IST
+ * wall-clock; {@link supportNow} matches that.
  *
  * @returns the new ticket id (the client then navigates into its conversation).
  */
@@ -75,6 +87,8 @@ export async function createTicket(input: {
   subCategory?: string | null
   message: string
   questionId?: number | null
+  /** Lecture / assignment / resource the ticket was raised from, if any. */
+  entityId?: number | null
 }): Promise<{ id: number }> {
   if (!input.message.trim()) throw new Error('SUPPORT_MESSAGE_REQUIRED')
 
@@ -83,6 +97,21 @@ export async function createTicket(input: {
     .filter(Boolean)
     .map((s) => String(s).replace(/[-_]/g, ' '))
     .join(' – ')
+
+  const now = supportNow()
+
+  // `entity_id` — the key the web flow this replaces writes. The old LMS's
+  // AssignmentCreateTicketModal (lecture / assignment detail → GraphQL
+  // `createTicketV2`) puts `entity_id: lectureId || assignmentId` into `data`.
+  // Note the REST `createTicketV2` (`ticket.controller.ts`, the mobile-app
+  // path) stores the same value as `entity_ID` instead — a pre-existing
+  // inconsistency in the legacy system. We follow the web spelling.
+  const entityId =
+    input.entityId != null &&
+    Number.isFinite(input.entityId) &&
+    input.entityId > 0
+      ? Number(input.entityId)
+      : null
 
   const [result] = await db.insert(tickets).values({
     userId: input.userId,
@@ -93,13 +122,20 @@ export async function createTicket(input: {
     assigneeId,
     rating: 0,
     isClosed: 0,
+    // Key names and shapes are held identical to the legacy payload: the admin
+    // ticket list filters on `$.subCategory` and `$.batch_id` (a *string*, per
+    // `CreateTicketV2Input.batch_id: String!`), and `question_id` is only ever
+    // present when the ticket came from a FAQ.
     data: {
       batch_id: String(input.batchId),
-      subCategory: input.subCategory ?? null,
-      question_id: input.questionId ?? null,
+      subCategory: input.subCategory ?? '',
       help_faq_question: true,
+      ...(input.questionId != null ? { question_id: input.questionId } : {}),
+      ...(entityId !== null ? { entity_id: entityId } : {}),
     },
-    logstamps: { L1_assigned_at: new Date().toISOString() },
+    logstamps: { L1_assigned_at: now },
+    createdAt: now,
+    updatedAt: now,
   })
 
   const ticketId = Number(result.insertId)
@@ -113,7 +149,6 @@ export async function createTicket(input: {
       category: input.category,
       assigneeId,
     })
-    const now = new Date().toISOString()
     await db.insert(comments).values({
       ticketId,
       userId: assigneeId,
@@ -153,7 +188,7 @@ export async function addReply(input: {
   )
   if (!caps.canReply) throw new Error('SUPPORT_REPLY_NOT_ALLOWED')
 
-  const now = new Date().toISOString()
+  const now = supportNow()
   const [result] = await db.insert(comments).values({
     ticketId: input.ticketId,
     userId: input.userId,
@@ -191,7 +226,7 @@ export async function rateTicket(input: {
 
   await db
     .update(tickets)
-    .set({ rating: input.rating, updatedAt: new Date().toISOString() })
+    .set({ rating: input.rating, updatedAt: supportNow() })
     .where(eq(tickets.id, input.ticketId))
 
   return { rating: input.rating }
@@ -215,7 +250,7 @@ export async function reopenTicket(input: {
     .set({
       status: 're-opened',
       isClosed: 0,
-      updatedAt: new Date().toISOString(),
+      updatedAt: supportNow(),
     })
     .where(eq(tickets.id, input.ticketId))
 
@@ -258,7 +293,7 @@ export async function escalateTicket(input: {
   const next = nextEscalation(ladder, ticket.assigneeId)
   if (!next) throw new Error('SUPPORT_ESCALATE_NOT_ALLOWED')
 
-  const now = new Date().toISOString()
+  const now = supportNow()
   const meta = ticket.meta ?? {}
   const logstamps = ticket.logstamps ?? {}
 

@@ -26,10 +26,12 @@ import type { MouseEventHandler } from 'react'
 
 import type {
   NavbarActionItem,
+  NavbarActivation,
   NavbarLinkItem,
   NavbarProfile,
   NavbarProfileMenuItem,
 } from '@/components/navbar'
+import type { LectureDetailPayload } from '@/server/learn/lectureDetailTypes'
 import { fetchAnnouncementUnreadCount } from '@/lib/api/announcement/announcementApi'
 import { Navbar } from '@/components/navbar'
 import { LevelUpIcon } from '@/components/common/LevelUpIcon'
@@ -100,9 +102,7 @@ function navbarLogoDarkSrc(): string | undefined {
  * Refer & Earn: navbar uses `Routes.changemakersCircle.main()` (`/changemakers-circle`).
  * `/alumniReferal` is a different flow (alumni hiring / refer-hiring), not the main CTA.
  */
-function oldStudentUiLink(
-  path: string,
-): Pick<NavbarLinkItem, 'href' | 'openInNewTab' | 'onClick'> {
+function oldStudentUiLink(path: string): NavbarActivation {
   const href = getOldStudentUiUrlForPath(path) ?? '#'
   const onClick: MouseEventHandler<HTMLAnchorElement> | undefined =
     href === '#' ? (e) => e.preventDefault() : undefined
@@ -132,6 +132,22 @@ export default function AppNavbar() {
   const isIHub = isIHubPortal()
   const navigate = useNavigate()
   const pathname = useRouterState({ select: (s) => s.location.pathname })
+  // Lecture detail only goes dark when it renders the immersive black video
+  // experience — i.e. a watchable in-app recording is present. Before/during
+  // and "recording not available" states keep the normal light navbar. The
+  // flag comes from the lecture route's loader data (this navbar is its
+  // ancestor, so we read it off the active router matches).
+  const lectureHasRecording = useRouterState({
+    select: (s) => {
+      const match = s.matches.find(
+        (m) => m.routeId === '/(protected)/_layout/lectures_/$lectureId',
+      )
+      const detail = match?.loaderData as LectureDetailPayload | undefined
+      return Boolean(
+        detail && !detail.restriction && detail.hasRecording && detail.videoUrl,
+      )
+    },
+  })
   const showTryNew = useTryNewCtaVisible()
   const activeNavId = activeAppNavIdForPathname(pathname)
   const [downloadAppOpen, setDownloadAppOpen] = useState(false)
@@ -157,13 +173,22 @@ export default function AppNavbar() {
 
   // MasaiVerse Community access is per-user and stable for the session, so cache
   // it the same way the masaiverse route loader does. Admins always have access.
-  const { data: masaiverseAccess } = useQuery({
-    queryKey: ['masaiverse-access', user.id],
-    queryFn: () =>
-      getMasaiverseAccessDebugServer({ data: { userId: user.id } }),
-    staleTime: 5 * 60 * 1000,
-    enabled: user.role !== 'admin',
-  })
+  const { data: masaiverseAccess, isLoading: isMasaiverseAccessLoading } =
+    useQuery({
+      queryKey: ['masaiverse-access', user.id],
+      queryFn: () =>
+        getMasaiverseAccessDebugServer({ data: { userId: user.id } }),
+      staleTime: 5 * 60 * 1000,
+      enabled: user.role !== 'admin',
+    })
+
+  // Until the per-user access check resolves we don't yet know whether to show
+  // "MasaiVerse" or "Refer & Earn", so we withhold the either/or item entirely.
+  // Rendering it early defaults to the "Refer & Earn" branch and then swaps to
+  // "MasaiVerse" once the query resolves — the fraction-of-a-second flicker.
+  // Admins short-circuit (query is disabled), so they never wait.
+  const isMasaiverseAccessResolved =
+    user.role === 'admin' || !isMasaiverseAccessLoading
 
   // When the CTA is active we surface "MasaiVerse Community" in the main desktop
   // nav (replacing "Refer & Earn") and move "Refer & Earn" into the profile
@@ -269,14 +294,6 @@ export default function AppNavbar() {
     [navigate],
   )
 
-  const handleProductUpdatesClick = useCallback(
-    (e: React.MouseEvent<HTMLAnchorElement>) => {
-      e.preventDefault()
-      void navigate({ to: '/whats-new', search: { page: 1 } })
-    },
-    [navigate],
-  )
-
   const handleReferAndEarnClick = useCallback(
     (e: React.MouseEvent<HTMLAnchorElement>) => {
       e.preventDefault()
@@ -325,15 +342,17 @@ export default function AppNavbar() {
       stayInNew: false,
       oldUiPath: OLD_STUDENT_UI_NAV_PATHS.discussions,
     }),
-    // Non-Masai portals hide the MasaiVerse CTA and the Refer & Earn
-    // (changemakers) link entirely; Masai keeps the existing either/or behaviour.
-    ...(hideMasaiExtras
+    // Non-Masai portals (iHub, IIT Jodhpur) hide the MasaiVerse CTA and the
+    // Refer & Earn (changemakers) link entirely; Masai keeps the existing
+    // either/or behaviour. We also wait for the access check to resolve to
+    // avoid flickering between the two labels.
+    ...(hideMasaiExtras || !isMasaiverseAccessResolved
       ? []
       : [
           showMasaiverseCta
             ? {
                 id: 'masaiverse-nav',
-                label: 'MasaiVerse Community',
+                label: 'MasaiVerse',
                 href: '/masaiverse',
                 openInNewTab: false,
                 isActive: activeNavId === 'masaiverse',
@@ -441,8 +460,10 @@ export default function AppNavbar() {
         openInNewTab: false,
       },
       // MasaiVerse Community / Refer & Earn and Practice Interviews are
-      // Masai-only and dropped from the non-Masai (iHub, IIT Jodhpur) profile menu.
-      ...(hideMasaiExtras
+      // Masai-only and dropped from the non-Masai (iHub, IIT Jodhpur) profile
+      // menu. Withhold the either/or item until the access check resolves to
+      // avoid the flicker.
+      ...(hideMasaiExtras || !isMasaiverseAccessResolved
         ? []
         : [
             showMasaiverseCta
@@ -456,7 +477,7 @@ export default function AppNavbar() {
                 }
               : {
                   id: 'masaiverse-menu',
-                  label: 'MasaiVerse Community',
+                  label: 'MasaiVerse',
                   icon: <Users className="size-4" />,
                   href: '/masaiverse',
                   openInNewTab: false,
@@ -502,12 +523,10 @@ export default function AppNavbar() {
         icon: <Sparkles className="size-4" />,
         href: '/whats-new',
         openInNewTab: false,
-        onClick: handleProductUpdatesClick,
       },
       {
         id: 'sign-out',
         label: 'Sign out',
-        href: '#',
         icon: <LogOutIcon className="size-4" />,
         onClick: (e) => {
           void handleSignOut(e)
@@ -517,11 +536,11 @@ export default function AppNavbar() {
     [
       activeNavId,
       handleLevelupClick,
-      handleProductUpdatesClick,
       handleReferAndEarnClick,
       handleSignOut,
       hideMasaiExtras,
       isLevelupLoading,
+      isMasaiverseAccessResolved,
       showMasaiverseCta,
     ],
   )
@@ -541,6 +560,7 @@ export default function AppNavbar() {
     <>
       <Navbar
         className="z-40 max-lg:hidden"
+        forceDark={lectureHasRecording}
         logo={{
           src: navbarLogoSrc(),
           darkSrc: navbarLogoDarkSrc(),
@@ -550,7 +570,9 @@ export default function AppNavbar() {
           onClick: handleHomeClick,
         }}
         navItems={navItems}
-        centerSlot={<NextActionBanner className="max-w-[340px]" />}
+        centerSlot={
+          <NextActionBanner className="max-w-[180px] xl:max-w-[260px] 2xl:max-w-[340px]" />
+        }
         trailingActions={trailingActions}
         actionsSlot={
           showTryNew && isMigratedRoute(pathname) ? (

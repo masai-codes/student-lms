@@ -3,7 +3,7 @@ import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 import type { SeedFlowResult, TestUser } from '../types'
-import { isLoginAndJoinLectureEntities } from '../types'
+import { isLiveLecturePhasesEntities, isLoginAndJoinLectureEntities } from '../types'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 export const SEED_STATE_PATH = join(__dirname, 'seed-state.json')
@@ -16,6 +16,17 @@ export type FlowSeedState = {
     batchId?: number
     sectionId?: number
     lectureId?: number
+    beforeUnlockLectureId?: number
+    duringJoinLectureId?: number
+    afterNoRecordingLectureId?: number
+    afterWithRecordingAttendanceOffLectureId?: number
+    afterWithRecordingAttendanceOnLectureId?: number
+    videoMandatoryLectureId?: number
+    videoOptionalLectureId?: number
+    optionalLiveBeforeUnlockLectureId?: number
+    optionalLiveDuringJoinLectureId?: number
+    recordingAttendanceOffSectionId?: number
+    recordingAttendanceOnSectionId?: number
   }
 }
 
@@ -28,6 +39,23 @@ function extractEntityIds(result: SeedFlowResult): FlowSeedState['entityIds'] {
   if (isLoginAndJoinLectureEntities(entities)) {
     ids.sectionId = entities.section.id
     ids.lectureId = entities.lecture.id
+  }
+
+  if (isLiveLecturePhasesEntities(entities)) {
+    ids.sectionId = entities.section.id
+    ids.beforeUnlockLectureId = entities.lectures.beforeUnlock.id
+    ids.duringJoinLectureId = entities.lectures.duringJoin.id
+    ids.afterNoRecordingLectureId = entities.lectures.afterNoRecording.id
+    ids.afterWithRecordingAttendanceOffLectureId =
+      entities.lectures.afterWithRecordingAttendanceOff.id
+    ids.afterWithRecordingAttendanceOnLectureId =
+      entities.lectures.afterWithRecordingAttendanceOn.id
+    ids.videoMandatoryLectureId = entities.lectures.videoMandatory.id
+    ids.videoOptionalLectureId = entities.lectures.videoOptional.id
+    ids.optionalLiveBeforeUnlockLectureId = entities.lectures.optionalLiveBeforeUnlock.id
+    ids.optionalLiveDuringJoinLectureId = entities.lectures.optionalLiveDuringJoin.id
+    ids.recordingAttendanceOffSectionId = entities.sections.recordingAttendanceOff.id
+    ids.recordingAttendanceOnSectionId = entities.sections.recordingAttendanceOn.id
   }
 
   return ids

@@ -52,6 +52,7 @@ const assignmentColumns = {
   module: assignments.module,
   hostName: users.name,
   showScores: assignments.showScores,
+  settings: assignments.settings,
   data: assignments.data,
 }
 

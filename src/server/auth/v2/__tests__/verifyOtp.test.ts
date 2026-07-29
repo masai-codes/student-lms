@@ -10,6 +10,8 @@ vi.mock('@/db', () => ({
   db: { select: hoisted.dbSelect, update: hoisted.dbUpdate },
 }))
 
+vi.mock('../loginRateLimit', () => ({ recordFailedLogin: vi.fn() }))
+
 vi.mock('bcryptjs', () => ({ compare: hoisted.compare }))
 
 // otp lookup → `db.select({...}).from(otpCodes).where(eq(...)).limit(1)`

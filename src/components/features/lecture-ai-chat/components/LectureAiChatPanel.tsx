@@ -1,7 +1,15 @@
 'use client'
 
 import { useState } from 'react'
-import { ArrowLeft, History, Loader2, PenSquare, X } from 'lucide-react'
+import {
+  ArrowLeft,
+  History,
+  Loader2,
+  Maximize2,
+  Minimize2,
+  PenSquare,
+  X,
+} from 'lucide-react'
 
 import { useLectureAiConversations } from '../hooks/useLectureAiConversations'
 import { LectureAiChatComposer } from './LectureAiChatComposer'
@@ -27,6 +35,18 @@ type LectureAiChatPanelProps = {
    * the desktop sidebar so a barely-scrollable list still lets the page scroll.
    */
   containScroll?: boolean
+  /**
+   * Portal target for the composer's language menu. The mobile drawer passes
+   * its content node so the menu renders inside the drawer instead of `<body>`,
+   * keeping the drawer open when a language is picked.
+   */
+  languageMenuContainer?: HTMLElement | null
+  /** Fired when the composer's language menu opens/closes (see the picker). */
+  onLanguageMenuOpenChange?: (open: boolean) => void
+  /** Whether the floating popup is maximized (used by the desktop floating chat). */
+  isExpanded?: boolean
+  /** When provided, renders a maximize/minimize control in the header. */
+  onToggleExpand?: () => void
 }
 
 /**
@@ -42,6 +62,10 @@ export function LectureAiChatPanel({
   feedback,
   autoFocusComposer,
   containScroll,
+  languageMenuContainer,
+  onLanguageMenuOpenChange,
+  isExpanded,
+  onToggleExpand,
 }: LectureAiChatPanelProps) {
   const [isHistoryOpen, setIsHistoryOpen] = useState(false)
   const conversations = useLectureAiConversations(lectureId, isHistoryOpen)
@@ -104,6 +128,23 @@ export function LectureAiChatPanel({
             </Button>
           ) : null}
 
+          {onToggleExpand ? (
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              onClick={onToggleExpand}
+              data-testid="lecture-ask-ai-expand-toggle"
+              aria-label={isExpanded ? 'Minimize chat' : 'Maximize chat'}
+              aria-pressed={isExpanded}
+            >
+              {isExpanded ? (
+                <Minimize2 className="size-4" />
+              ) : (
+                <Maximize2 className="size-4" />
+              )}
+            </Button>
+          ) : null}
+
           {onClose ? (
             <Button
               variant="ghost"
@@ -142,13 +183,16 @@ export function LectureAiChatPanel({
       )}
 
       {!isHistoryOpen && feedback?.isVisible ? (
-        <LectureAiChatFeedbackBanner
-          isSubmitting={feedback.isSubmitting}
-          submitError={feedback.submitError}
-          onSubmit={feedback.submit}
-          onDismiss={feedback.skip}
-          className="mb-2 mt-2 shrink-0 px-2"
-        />
+        // Match the composer's horizontal gutter (px-4) so the card lines up
+        // with it instead of bleeding to the panel edges.
+        <div className="shrink-0 px-4 pb-1 pt-2">
+          <LectureAiChatFeedbackBanner
+            isSubmitting={feedback.isSubmitting}
+            submitError={feedback.submitError}
+            onSubmit={feedback.submit}
+            onDismiss={feedback.skip}
+          />
+        </div>
       ) : null}
 
       {!isHistoryOpen ? (
@@ -161,6 +205,8 @@ export function LectureAiChatPanel({
           language={chat.language}
           onLanguageChange={chat.setLanguage}
           autoFocus={autoFocusComposer}
+          languageMenuContainer={languageMenuContainer}
+          onLanguageMenuOpenChange={onLanguageMenuOpenChange}
         />
       ) : null}
     </div>

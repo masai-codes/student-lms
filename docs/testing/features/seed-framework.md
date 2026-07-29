@@ -21,6 +21,8 @@ Area: layered test-data seeding (`seed/factories`, `seed/flows`, `seed/registry`
 | SEED-CAT-002       | Swagger-style accordion listing + Login buttons                 | Covered                                   |
 | SEED-CAT-003       | Login uses `/api/secret-login` with seeded userId               | Covered                                   |
 | SEED-FLOW-001      | login-and-join-lecture composes factories and returns testUsers | Covered                                   |
+| SEED-FLOW-004      | live-lecture-phases seeds a segmented sample transcript lecture | Covered                                   |
+| SEED-FLOW-005      | live-lecture-phases seeds a plain-text-only transcript lecture  | Covered                                   |
 | SEED-FLOW-002      | Onboarding shared builder wires scenario presets                | Covered                                   |
 | SEED-FLOW-003      | Onboarding constants map section names to video URLs            | Covered                                   |
 | SEED-RESET-001     | resetDatabase blocked in production                             | Covered                                   |
@@ -38,3 +40,5 @@ Area: layered test-data seeding (`seed/factories`, `seed/flows`, `seed/registry`
 - Programmatic API: `import { seedFlow } from '../seed'`.
 - Every flow creates isolated seed data (flow-scoped emails and batch names) so multiple flows can coexist after `--no-reset`.
 - `onboarding-fees-unpaid` is the interactive LMS Walkthrough test bed: videos + auto-next + profile photo + download-app all start unticked (welcome dismissed, program tab locked).
+- `live-lecture-phases` is the transcript test bed: two extra recording lectures carry sample transcripts — one with timestamped segments (`transcriptSegmentedLectureId`), one with plain text only (`transcriptPlainTextLectureId`). Fixtures live in `seed/flows/live-lecture-phases/sampleTranscript.ts`; see `docs/testing/features/lecture-transcript-cache.md`.
+- Seed tests live outside `vitest.config.ts`'s `dir: 'src'`, so `npm run test` does not pick them up — run them explicitly with `npx vitest run --dir seed`.

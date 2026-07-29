@@ -87,8 +87,7 @@ function renderTabBody(
   if (tabId === 'transcript') {
     return (
       <LectureTranscriptTabContent
-        segments={tabs.transcriptSegments}
-        fallbackText={tabs.transcript}
+        transcript={tabs.transcript}
         emptyTitle={TAB_EMPTY_COPY.transcript.title}
         emptyDescription={TAB_EMPTY_COPY.transcript.description}
       />

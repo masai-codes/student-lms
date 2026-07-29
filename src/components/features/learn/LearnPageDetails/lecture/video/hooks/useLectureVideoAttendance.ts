@@ -6,7 +6,11 @@ import Hls from 'hls.js'
 
 import { SEEK_ALIGNMENT_EPSILON } from '../controls/lectureVideoChrome.constants'
 import { isIosLikeDevice } from './lectureVideoFullscreen.utils'
-import { applyResumeIfNeeded, seekPlayerToSeconds } from './lectureVideoResume'
+import {
+  applyResumeIfNeeded,
+  RESUME_END_GUARD_SECONDS,
+  seekPlayerToSeconds,
+} from './lectureVideoResume'
 import { useTimer } from './useTimer'
 import type { LectureChromePlayerRef } from '../controls/lectureVideoChrome.utils'
 import type { OnProgressProps } from 'react-player/base'
@@ -128,10 +132,21 @@ export function useLectureVideoAttendance({
   } = useTimer(0)
 
   const effectiveLastWatchedPosition = initialAttendance?.lastWatchedPosition
+  // A fully-watched video must NOT resume at its final seconds: the first
+  // play would instantly hit `ended` and pause again ("plays then stops by
+  // itself after reload"). Restart from the beginning instead.
+  const savedTotalDuration = initialAttendance?.totalDuration
+  const resumeIsNearEnd =
+    typeof effectiveLastWatchedPosition === 'number' &&
+    typeof savedTotalDuration === 'number' &&
+    savedTotalDuration > 0 &&
+    effectiveLastWatchedPosition >=
+      savedTotalDuration - RESUME_END_GUARD_SECONDS
   resumeTargetSecondsRef.current =
     typeof effectiveLastWatchedPosition === 'number' &&
     Number.isFinite(effectiveLastWatchedPosition) &&
-    effectiveLastWatchedPosition > 0
+    effectiveLastWatchedPosition > 0 &&
+    !resumeIsNearEnd
       ? effectiveLastWatchedPosition
       : null
 
