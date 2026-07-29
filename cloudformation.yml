@@ -67,7 +67,17 @@ Parameters:
   DomainName:
     Type: String
     Default: learn.masaischool.com
-    Description: Domain name for the application.
+    Description: Primary domain name for the application (Route53 managed by this stack).
+
+  AdditionalDomainNames:
+    Type: CommaDelimitedList
+    Default: learn.ihubiitrcourses.org
+    Description: >-
+      Comma-separated extra CloudFront alternate domain names, added alongside
+      DomainName. Every entry must be covered by ACMCertificateARNCloudFront and
+      must not already be an alias on another distribution. DNS for these is
+      managed outside this stack - no Route53 records are created for them here.
+      Leave empty to serve DomainName only.
 
   SNSTopicARN:
     Type: String
@@ -88,6 +98,7 @@ Metadata:
         Parameters:
           [
             DomainName,
+            AdditionalDomainNames,
             HostedZoneId,
             ACMCertificateARNRegional,
             ACMCertificateARNCloudFront,
@@ -98,6 +109,19 @@ Metadata:
       GoldenAMIId: { default: 'Golden AMI ID (ARM64)' }
       SecretsManagerARN: { default: 'Secrets Manager Secret ARN' }
       RDSInstanceIdentifier: { default: 'RDS Instance Identifier' }
+      DomainName: { default: 'Primary Domain Name' }
+      AdditionalDomainNames:
+        { default: 'Additional Domain Names (comma-separated)' }
+
+# =============================================================================
+# CONDITIONS
+# =============================================================================
+Conditions:
+  # An unset CommaDelimitedList parameter still yields a single empty string, so
+  # test the joined value rather than the list length. Without this guard an
+  # empty parameter would push '' into Aliases and CloudFront would reject it.
+  HasAdditionalDomains:
+    !Not [!Equals [!Join ['', !Ref AdditionalDomainNames], '']]
 
 # =============================================================================
 # RESOURCES
@@ -1108,8 +1132,21 @@ Resources:
       DistributionConfig:
         Enabled: true
         Comment: student-lms production distribution
-        Aliases:
-          - !Ref DomainName
+        # DomainName plus every entry in AdditionalDomainNames. All of them must
+        # be present on ACMCertificateARNCloudFront - it is a multi-domain
+        # wildcard (*.masaischool.com, *.ihubiitrcourses.org, *.prepleaf.com),
+        # so anything one level under those three is already covered.
+        # Join-then-Split is how you concatenate a String onto a
+        # CommaDelimitedList: CloudFormation has no list-append intrinsic.
+        Aliases: !If
+          - HasAdditionalDomains
+          - !Split
+            - ','
+            - !Join
+              - ','
+              - - !Ref DomainName
+                - !Join [',', !Ref AdditionalDomainNames]
+          - [!Ref DomainName]
         ViewerCertificate:
           AcmCertificateArn: !Ref ACMCertificateARNCloudFront
           SslSupportMethod: sni-only
@@ -1203,7 +1240,10 @@ Resources:
           Value: student-lms
 
   # ---------------------------------------------------------------------------
-  # Route53 - DNS record for learn.masaischool.com
+  # Route53 - DNS records for the primary domain only (learn.masaischool.com).
+  # Everything in AdditionalDomainNames lives in a hosted zone outside this
+  # stack; point those at CloudFrontDomainName manually (A, and AAAA too since
+  # the distribution is dual-stack).
   # ---------------------------------------------------------------------------
   DNSRecord:
     Type: AWS::Route53::RecordSet
@@ -1211,6 +1251,19 @@ Resources:
       HostedZoneId: !Ref HostedZoneId
       Name: !Ref DomainName
       Type: A
+      AliasTarget:
+        DNSName: !GetAtt CloudFrontDistribution.DomainName
+        HostedZoneId: Z2FDTNDATAQYW2 # CloudFront hosted zone ID (constant for all distributions)
+        EvaluateTargetHealth: false
+
+  # The distribution sets IPV6Enabled: true, so the edge answers over IPv6.
+  # Without this AAAA alias an IPv6-only client cannot resolve the name at all.
+  DNSRecordIPv6:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      HostedZoneId: !Ref HostedZoneId
+      Name: !Ref DomainName
+      Type: AAAA
       AliasTarget:
         DNSName: !GetAtt CloudFrontDistribution.DomainName
         HostedZoneId: Z2FDTNDATAQYW2 # CloudFront hosted zone ID (constant for all distributions)
