@@ -8,6 +8,7 @@ function makeSnapshot(
 ): LectureSupportSnapshot {
   return {
     lectureId: 42,
+    batchId: 10,
     lectureKind: 'live',
     title: 'Intro to JS',
     meta: 'Module 1',
@@ -22,8 +23,6 @@ function makeSnapshot(
     isSessionPending: false,
     recordingStatus: 'not_available',
     recordingUrl: null,
-    durationSeconds: null,
-    durationSource: null,
     aiSummaryStatus: 'not_available',
     attendance: null,
     showAttendance: false,

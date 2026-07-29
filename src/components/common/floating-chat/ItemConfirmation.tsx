@@ -14,9 +14,8 @@ import {
 import {
   formatAiSummaryStatusLabel,
   formatRecordingStatusLabel,
-  formatSupportDuration,
   getSupportAttendancePresentation,
-  shouldShowLectureDuration,
+  getSupportCatchUpPresentation,
   shouldShowUnableToJoinLiveLecture,
 } from './lectureSnapshotPresentation'
 import {
@@ -31,7 +30,10 @@ import {
   supportLectureTypeChipClassName,
 } from './supportCategoryLearning'
 import type { Category, Item } from './types'
-import type { AssignmentSupportSnapshot, LectureSupportSnapshot } from '@/server/api/support/support.types'
+import type {
+  AssignmentSupportSnapshot,
+  LectureSupportSnapshot,
+} from '@/server/api/support/support.types'
 import {
   assignmentSupportSnapshotQuery,
   lectureSupportSnapshotQuery,
@@ -50,7 +52,10 @@ interface ItemConfirmationProps {
 }
 
 /** Deep-link to the exact learn item (matches LearnContentCard routes). */
-function getSupportItemReviewHref(categoryId: string, itemId: number | undefined): string | null {
+function getSupportItemReviewHref(
+  categoryId: string,
+  itemId: number | undefined,
+): string | null {
   if (itemId == null) return null
   if (categoryId === 'lecture') return `/lectures/${itemId}`
   if (categoryId === 'assignment' || categoryId === 'evaluation') {
@@ -76,11 +81,12 @@ function LectureSnapshotCards({
   onDirectQuery?: (query: string) => void
 }) {
   const fallbackIsLive = itemObj.type === 'live' || itemObj.type === 'scrum'
-  const startTime = itemObj.startTime ? new Date(itemObj.startTime).getTime() : 0
+  const startTime = itemObj.startTime
+    ? new Date(itemObj.startTime).getTime()
+    : 0
   const now = Date.now()
   const diffMins = startTime ? (now - startTime) / (1000 * 60) : 0
-  const fallbackOngoing =
-    Boolean(fallbackIsLive && startTime && diffMins < 60)
+  const fallbackOngoing = Boolean(fallbackIsLive && startTime && diffMins < 60)
 
   const showUnableToJoin =
     snapshot != null ? shouldShowUnableToJoinLiveLecture(snapshot) : false
@@ -118,7 +124,7 @@ function LectureSnapshotCards({
   }
 
   const attendance = getSupportAttendancePresentation(snapshot)
-  const showDuration = shouldShowLectureDuration(snapshot)
+  const catchUp = getSupportCatchUpPresentation(snapshot)
 
   return (
     <div className="animate-in fade-in slide-in-from-bottom-2 duration-300">
@@ -135,7 +141,9 @@ function LectureSnapshotCards({
               <span className="text-[13.5px] font-bold text-[#be123c] leading-tight mb-0.5">
                 Unable to join live lecture?
               </span>
-              <span className="text-[11.5px] font-medium text-[#e11d48]">Tap here for assistance</span>
+              <span className="text-[11.5px] font-medium text-[#e11d48]">
+                Tap here for assistance
+              </span>
             </div>
           </div>
           <div className="shrink-0 text-[#f43f5e] group-hover:translate-x-0.5 transition-transform">
@@ -151,18 +159,26 @@ function LectureSnapshotCards({
             <span className="relative inline-flex rounded-full h-3 w-3 bg-[#e11d48]" />
           </div>
           <span className="text-[14px] font-bold text-[#15162c] mb-1">
-            {snapshot.livePhase === 'before' ? 'Lecture starts soon' : 'Lecture is ongoing'}
+            {snapshot.livePhase === 'before'
+              ? 'Lecture starts soon'
+              : 'Lecture is ongoing'}
           </span>
           <span className="text-[12px] text-[#62647d] max-w-[200px] leading-snug">
-            Recording, AI Summary, and Attendance will be available after the session ends.
+            Recording, AI Summary, and Attendance will be available after the
+            session ends.
           </span>
         </div>
       ) : (
         <div className="grid grid-cols-2 gap-2 mb-3">
           <div className="flex flex-col p-[11px_12px] bg-white border border-[#e9e9f3] rounded-[12px] shadow-sm">
             <div className="flex items-center gap-1.5 mb-[3px] text-[#62647d]">
-              <VideoCamera weight="fill" className="size-[13px] text-[#4b4396]" />
-              <span className="text-[10.5px] font-bold uppercase tracking-wide">Recording</span>
+              <VideoCamera
+                weight="fill"
+                className="size-[13px] text-[#4b4396]"
+              />
+              <span className="text-[10.5px] font-bold uppercase tracking-wide">
+                Recording
+              </span>
             </div>
             <span className="text-[12.5px] font-extrabold text-[#15162c]">
               {formatRecordingStatusLabel(snapshot.recordingStatus)}
@@ -171,16 +187,20 @@ function LectureSnapshotCards({
           <div className="flex flex-col p-[11px_12px] bg-white border border-[#e9e9f3] rounded-[12px] shadow-sm">
             <div className="flex items-center gap-1.5 mb-[3px] text-[#62647d]">
               <Timer weight="fill" className="size-[13px] text-[#4b4396]" />
-              <span className="text-[10.5px] font-bold uppercase tracking-wide">Duration</span>
+              <span className="text-[10.5px] font-bold uppercase tracking-wide">
+                Days left
+              </span>
             </div>
             <span className="text-[12.5px] font-extrabold text-[#15162c]">
-              {showDuration ? formatSupportDuration(snapshot.durationSeconds!) : '—'}
+              {catchUp.label}
             </span>
           </div>
           <div className="flex flex-col p-[11px_12px] bg-white border border-[#e9e9f3] rounded-[12px] shadow-sm">
             <div className="flex items-center gap-1.5 mb-[3px] text-[#62647d]">
               <Notepad weight="fill" className="size-[13px] text-[#4b4396]" />
-              <span className="text-[10.5px] font-bold uppercase tracking-wide">AI Summary</span>
+              <span className="text-[10.5px] font-bold uppercase tracking-wide">
+                AI Summary
+              </span>
             </div>
             <span className="text-[12.5px] font-extrabold text-[#15162c]">
               {formatAiSummaryStatusLabel(snapshot.aiSummaryStatus)}
@@ -188,10 +208,17 @@ function LectureSnapshotCards({
           </div>
           <div className="flex flex-col p-[11px_12px] bg-white border border-[#e9e9f3] rounded-[12px] shadow-sm">
             <div className="flex items-center gap-1.5 mb-[3px] text-[#62647d]">
-              <UserCheck weight="fill" className={`size-[14px] ${attendance.colorClass}`} />
-              <span className="text-[10.5px] font-bold uppercase tracking-wide">Attendance</span>
+              <UserCheck
+                weight="fill"
+                className={`size-[14px] ${attendance.colorClass}`}
+              />
+              <span className="text-[10.5px] font-bold uppercase tracking-wide">
+                Attendance
+              </span>
             </div>
-            <span className={`text-[12.5px] font-extrabold ${attendance.colorClass}`}>
+            <span
+              className={`text-[12.5px] font-extrabold ${attendance.colorClass}`}
+            >
               {attendance.label}
             </span>
           </div>
@@ -264,7 +291,9 @@ function AssignmentSnapshotCards({
     )
   }
 
-  const statusClassName = getAssignmentSnapshotStatusClassName(snapshot.statusTone)
+  const statusClassName = getAssignmentSnapshotStatusClassName(
+    snapshot.statusTone,
+  )
   const showWeightageCard = shouldShowAssignmentWeightageCard(snapshot)
 
   return (
@@ -272,8 +301,13 @@ function AssignmentSnapshotCards({
       <div className="grid grid-cols-2 gap-2 mb-3">
         <div className="flex flex-col p-[11px_12px] bg-white border border-[#e9e9f3] rounded-[12px] shadow-sm">
           <div className="flex items-center gap-1.5 mb-[3px] text-[#62647d]">
-            <PencilSimple weight="fill" className="size-[13px] text-[#4b4396]" />
-            <span className="text-[10.5px] font-bold uppercase tracking-wide">Status</span>
+            <PencilSimple
+              weight="fill"
+              className="size-[13px] text-[#4b4396]"
+            />
+            <span className="text-[10.5px] font-bold uppercase tracking-wide">
+              Status
+            </span>
           </div>
           <span className={`text-[12.5px] font-extrabold ${statusClassName}`}>
             {snapshot.statusLabel}
@@ -286,7 +320,9 @@ function AssignmentSnapshotCards({
           >
             <div className="flex items-center gap-1.5 mb-[3px] text-[#62647d]">
               <Percent weight="bold" className="size-[13px] text-[#4b4396]" />
-              <span className="text-[10.5px] font-bold uppercase tracking-wide">Weightage</span>
+              <span className="text-[10.5px] font-bold uppercase tracking-wide">
+                Weightage
+              </span>
             </div>
             <span className="text-[12.5px] font-extrabold text-[#15162c]">
               {formatAssignmentWeightageDisplay(snapshot.weightagePercentage)}
@@ -297,7 +333,9 @@ function AssignmentSnapshotCards({
           <div className="flex flex-col p-[11px_12px] bg-white border border-[#e9e9f3] rounded-[12px] shadow-sm">
             <div className="flex items-center gap-1.5 mb-[3px] text-[#62647d]">
               <Star weight="fill" className="size-[13px] text-[#4b4396]" />
-              <span className="text-[10.5px] font-bold uppercase tracking-wide">Score</span>
+              <span className="text-[10.5px] font-bold uppercase tracking-wide">
+                Score
+              </span>
             </div>
             <span className="text-[12.5px] font-extrabold text-[#15162c]">
               {snapshot.scoreDisplay ?? '-'}
@@ -306,8 +344,13 @@ function AssignmentSnapshotCards({
         )}
         {snapshot.scorePolicyNotice != null && (
           <div className="col-span-2 flex items-center gap-2 p-[10px_12px] bg-[#f0f4ff] border border-[#d6e4ff] rounded-[12px] shadow-sm">
-            <Info weight="fill" className="size-[15px] text-[#2952cc] shrink-0" />
-            <span className="text-[12px] font-bold text-[#1a3380]">{snapshot.scorePolicyNotice}</span>
+            <Info
+              weight="fill"
+              className="size-[15px] text-[#2952cc] shrink-0"
+            />
+            <span className="text-[12px] font-bold text-[#1a3380]">
+              {snapshot.scorePolicyNotice}
+            </span>
           </div>
         )}
       </div>
@@ -322,7 +365,8 @@ export function ItemConfirmation({
   onDirectQuery,
   onReviewItem,
 }: ItemConfirmationProps) {
-  const gradientBg = 'linear-gradient(90.38deg, rgb(75, 67, 150) 2.62%, rgb(105, 98, 172) 100%)'
+  const gradientBg =
+    'linear-gradient(90.38deg, rgb(75, 67, 150) 2.62%, rgb(105, 98, 172) 100%)'
 
   const isLecture = categoryObj.id === 'lecture' && itemObj.id != null
   const isAssignmentLike =
@@ -348,7 +392,9 @@ export function ItemConfirmation({
   })
 
   const fallbackIsLive = itemObj.type === 'live' || itemObj.type === 'scrum'
-  const startTime = itemObj.startTime ? new Date(itemObj.startTime).getTime() : 0
+  const startTime = itemObj.startTime
+    ? new Date(itemObj.startTime).getTime()
+    : 0
   const now = Date.now()
   const diffMins = startTime ? (now - startTime) / (1000 * 60) : 0
   const fallbackOngoing = Boolean(fallbackIsLive && startTime && diffMins < 60)
@@ -356,8 +402,11 @@ export function ItemConfirmation({
     ? (lectureSnapshot?.isSessionPending ?? fallbackOngoing)
     : false
   const lectureType = isLecture
-    ? (itemObj.type ?? lectureSnapshot?.lectureKind)
+    ? (lectureSnapshot?.lectureDisplayType ?? itemObj.type)
     : undefined
+  const displayTitle = lectureSnapshot?.title ?? itemObj.title
+  const displayMeta = lectureSnapshot?.meta ?? itemObj.meta
+  const displayDate = lectureSnapshot?.date ?? itemObj.date
   const lectureTypeLabel = formatSupportLectureTypeLabel(lectureType)
   const reviewHref = getSupportItemReviewHref(categoryObj.id, itemObj.id)
   const showOptionalChip =
@@ -365,12 +414,12 @@ export function ItemConfirmation({
       categoryObj.id === 'evaluation' ||
       categoryObj.id === 'resource' ||
       categoryObj.id === 'lecture') &&
-    itemObj.isOptional === true
+    (lectureSnapshot?.isOptional ?? itemObj.isOptional === true)
   const showMandatoryChip =
     (categoryObj.id === 'assignment' ||
       categoryObj.id === 'evaluation' ||
       categoryObj.id === 'lecture') &&
-    itemObj.isMandatory === true
+    (lectureSnapshot?.isMandatory ?? itemObj.isMandatory === true)
 
   return (
     <div className="flex flex-col h-full">
@@ -383,7 +432,7 @@ export function ItemConfirmation({
             {categoryObj.label}
           </div>
           <div className="text-[14px] font-bold text-[#15162c] leading-[1.35] mb-1 truncate">
-            {itemObj.title}
+            {displayTitle}
           </div>
           <div className="flex items-center gap-1.5 min-w-0 flex-wrap">
             {lectureTypeLabel ? (
@@ -408,9 +457,9 @@ export function ItemConfirmation({
               </span>
             ) : null}
             <span className="text-[11px] font-bold text-[#62647d] bg-[rgba(255,255,255,0.7)] px-2 py-0.5 rounded-full">
-              {itemObj.meta}
+              {displayMeta}
             </span>
-            <span className="text-[11px] text-[#9496ab]">{itemObj.date}</span>
+            <span className="text-[11px] text-[#9496ab]">{displayDate}</span>
           </div>
         </div>
       </div>
@@ -428,19 +477,19 @@ export function ItemConfirmation({
 
       {(categoryObj.id === 'assignment' || categoryObj.id === 'evaluation') &&
         itemObj.id != null && (
-        <AssignmentSnapshotCards
-          snapshot={assignmentSnapshot}
-          isLoading={isAssignmentSnapshotLoading}
-          isError={isAssignmentSnapshotError}
-          onRetry={() => void refetchAssignmentSnapshot()}
-          showScoreCard={
-            categoryObj.id === 'evaluation' &&
-            (assignmentSnapshot != null
-              ? shouldShowAssignmentScoreCard(assignmentSnapshot)
-              : true)
-          }
-        />
-      )}
+          <AssignmentSnapshotCards
+            snapshot={assignmentSnapshot}
+            isLoading={isAssignmentSnapshotLoading}
+            isError={isAssignmentSnapshotError}
+            onRetry={() => void refetchAssignmentSnapshot()}
+            showScoreCard={
+              categoryObj.id === 'evaluation' &&
+              (assignmentSnapshot != null
+                ? shouldShowAssignmentScoreCard(assignmentSnapshot)
+                : true)
+            }
+          />
+        )}
       {!isSessionPending && (
         <>
           {reviewHref ? (
@@ -455,15 +504,22 @@ export function ItemConfirmation({
               }
               className="flex w-full items-center justify-center gap-1.5 mb-1.5 p-[9px_14px] rounded-[10px] text-[13px] font-bold text-[#4338ca] bg-white border-[1.5px] border-[#e3e3fb] hover:bg-[#e3e3fb] hover:border-[#4b4396] hover:text-[#4b4396] transition-colors"
             >
-              <categoryObj.icon weight="fill" className="size-[14px] shrink-0" />
+              <categoryObj.icon
+                weight="fill"
+                className="size-[14px] shrink-0"
+              />
               Open {categoryObj.label} to review it
-              <ArrowUpRight weight="bold" className="size-[14px] shrink-0 ml-auto" />
+              <ArrowUpRight
+                weight="bold"
+                className="size-[14px] shrink-0 ml-auto"
+              />
             </button>
           ) : null}
 
           <div className="mt-auto shrink-0 pt-4">
             <div className="text-[12.5px] text-[#62647d] leading-[1.5] p-[11px_13px] bg-[#f6f6fb] rounded-[10px] border border-dashed border-[#e9e9f3] mb-3">
-              Still need help? <strong className="text-[#15162c]">Raise a ticket below</strong>
+              Still need help?{' '}
+              <strong className="text-[#15162c]">Raise a ticket below</strong>
             </div>
 
             <button

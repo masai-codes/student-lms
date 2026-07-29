@@ -3,31 +3,14 @@ import type {
   LectureRecordingStatus,
   LectureSupportSnapshot,
 } from '@/server/api/support/support.types'
+import { formatCatchUpRemainingLabel } from '@/lib/lecture-attendance/formatCatchUpRemainingLabel'
 import { getListingAttendanceRender } from '@/lib/lecture-attendance/getListingAttendanceRender'
 import type { ListingAttendanceVisibleState } from '@/lib/lecture-attendance/types'
 
-export function formatSupportDuration(seconds: number): string {
-  const total = Math.max(0, Math.floor(seconds))
-  const hours = Math.floor(total / 3600)
-  const minutes = Math.floor((total % 3600) / 60)
-
-  if (hours > 0 && minutes > 0) return `${hours}h ${minutes}m`
-  if (hours > 0) return `${hours}h`
-  if (minutes > 0) return `${minutes}m`
-  return `${total}s`
-}
-
-export function formatRecordingStatusLabel(status: LectureRecordingStatus): string {
-  switch (status) {
-    case 'available':
-      return 'Available'
-    case 'processing':
-      return 'Processing'
-    case 'not_available':
-      return 'Not available'
-    case 'pending':
-      return 'Pending'
-  }
+export function formatRecordingStatusLabel(
+  status: LectureRecordingStatus,
+): string {
+  return status === 'available' ? 'Available' : 'Not available'
 }
 
 export function formatAiSummaryStatusLabel(status: AiSummaryStatus): string {
@@ -51,7 +34,10 @@ export function formatAiSummaryStatusLabel(status: AiSummaryStatus): string {
  */
 function buildAttendanceReason(
   snapshot: LectureSupportSnapshot,
-  uiState: Extract<ListingAttendanceVisibleState, 'absent' | 'att_window_over' | 'continue_watching'>,
+  uiState: Extract<
+    ListingAttendanceVisibleState,
+    'absent' | 'att_window_over' | 'continue_watching'
+  >,
 ): string {
   const attendance = snapshot.attendance
   if (!attendance) return 'Did not meet attendance criteria.'
@@ -91,7 +77,9 @@ function buildAttendanceReason(
   return `${liveReason} You can still watch the recording to become Present within the catch-up window.`
 }
 
-export function getSupportAttendancePresentation(snapshot: LectureSupportSnapshot): {
+export function getSupportAttendancePresentation(
+  snapshot: LectureSupportSnapshot,
+): {
   label: string
   colorClass: string
   showAbsentReason: boolean
@@ -138,10 +126,46 @@ export function getSupportAttendancePresentation(snapshot: LectureSupportSnapsho
   }
 }
 
-export function shouldShowLectureDuration(snapshot: LectureSupportSnapshot): boolean {
-  return snapshot.recordingStatus === 'available' && snapshot.durationSeconds != null
+/**
+ * Catch-up countdown for the support snapshot — mirrors the lecture detail header
+ * (`getListingAttendanceRender` + `formatCatchUpRemainingLabel`).
+ */
+export function getSupportCatchUpPresentation(
+  snapshot: LectureSupportSnapshot,
+): {
+  label: string
+} {
+  if (!snapshot.showAttendance || snapshot.attendance == null) {
+    return { label: 'N/A' }
+  }
+
+  const render = getListingAttendanceRender(snapshot.attendance)
+  const remainingText = formatCatchUpRemainingLabel(
+    render.remainingLabel,
+    render.daysRemaining,
+  )
+
+  if (remainingText) {
+    return { label: remainingText }
+  }
+
+  if (render.uiState === 'att_window_over') {
+    return { label: 'Closed' }
+  }
+
+  if (render.uiState === 'present') {
+    return { label: 'N/A' }
+  }
+
+  if (!snapshot.attendance.videoCountsForAttendance) {
+    return { label: 'N/A' }
+  }
+
+  return { label: '—' }
 }
 
-export function shouldShowUnableToJoinLiveLecture(snapshot: LectureSupportSnapshot): boolean {
+export function shouldShowUnableToJoinLiveLecture(
+  snapshot: LectureSupportSnapshot,
+): boolean {
   return snapshot.lectureKind === 'live' && snapshot.livePhase === 'during'
 }

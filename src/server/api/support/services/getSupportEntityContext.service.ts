@@ -1,4 +1,4 @@
-import { and, eq, isNull, ne } from 'drizzle-orm'
+import { and, eq, isNull } from 'drizzle-orm'
 
 import type {
   SupportEntityCategory,
@@ -8,12 +8,11 @@ import { db } from '@/db'
 import { assignments, lectures } from '@/db/schema'
 import { getBatchIdForSection } from '@/server/batches/getBatchIdsForSections'
 import { ensureUserCanAccessLearnHubEntity } from '@/server/learn/utils/ensureLearnEntityAccess'
-import {
-  resolveModuleName,
-  toLearningPriority,
-} from '@/server/learn/utils/learningDataMappers'
+import { toLearningPriority } from '@/server/learn/utils/learningDataMappers'
 import { LECTURE_RESOURCE_TYPE } from '@/server/learn/utils/resolveLectureLearningType'
 import { formatSocialPostTime } from '@/lib/socialRelativeTime'
+import { getLectureSupportSnapshot } from '@/server/api/support/services/getLectureSupportSnapshot.service'
+import { buildSupportLectureItemFromSnapshot } from '@/server/api/support/utils/buildSupportLectureItemFromSnapshot'
 
 const SUPPORT_ENTITY_CATEGORIES = new Set<SupportEntityCategory>([
   'lecture',
@@ -22,23 +21,17 @@ const SUPPORT_ENTITY_CATEGORIES = new Set<SupportEntityCategory>([
   'evaluation',
 ])
 
-function toSupportLectureType(rawType: string): 'live' | 'video' | undefined {
-  const normalized = rawType.trim().toLowerCase()
-  if (normalized === 'live') return 'live'
-  if (normalized === 'video') return 'video'
-  return undefined
-}
-
 function resolveAssignmentSupportCategory(type: string): SupportEntityCategory {
-  return type.trim().toLowerCase() === 'evaluation' ? 'evaluation' : 'assignment'
+  return type.trim().toLowerCase() === 'evaluation'
+    ? 'evaluation'
+    : 'assignment'
 }
 
-function buildItem(input: {
+function buildAssignmentItem(input: {
   id: number
   title: string
   meta: string
   schedule: string | null
-  lectureType?: string
   isOptional?: boolean
   isMandatory?: boolean
 }): SupportEntityContext['item'] {
@@ -47,7 +40,6 @@ function buildItem(input: {
     title: input.title,
     meta: input.meta,
     date: input.schedule ? formatSocialPostTime(input.schedule) : 'No schedule',
-    type: input.lectureType ? toSupportLectureType(input.lectureType) : undefined,
     startTime: input.schedule ?? undefined,
     isOptional: input.isOptional,
     isMandatory: input.isMandatory,
@@ -59,15 +51,21 @@ async function resolveLectureContext(
   lectureId: number,
   category: 'lecture' | 'resource',
 ): Promise<SupportEntityContext> {
+  if (category === 'lecture') {
+    const lectureSnapshot = await getLectureSupportSnapshot(userId, lectureId)
+    return {
+      batchId: lectureSnapshot.batchId,
+      category,
+      item: buildSupportLectureItemFromSnapshot(lectureSnapshot),
+      lectureSnapshot,
+    }
+  }
+
   const rows = await db
     .select({
       id: lectures.id,
       title: lectures.title,
-      type: lectures.type,
-      optional: lectures.optional,
       schedule: lectures.schedule,
-      week: lectures.week,
-      module: lectures.module,
       category: lectures.category,
       sectionId: lectures.sectionId,
     })
@@ -76,25 +74,19 @@ async function resolveLectureContext(
       and(
         eq(lectures.id, lectureId),
         isNull(lectures.deletedAt),
-        category === 'resource'
-          ? eq(lectures.type, LECTURE_RESOURCE_TYPE)
-          : ne(lectures.type, LECTURE_RESOURCE_TYPE),
+        eq(lectures.type, LECTURE_RESOURCE_TYPE),
       ),
     )
     .limit(1)
 
   if (rows.length === 0) {
-    throw new Error(
-      category === 'resource' ? 'SUPPORT_RESOURCE_NOT_FOUND' : 'SUPPORT_LECTURE_NOT_FOUND',
-    )
+    throw new Error('SUPPORT_RESOURCE_NOT_FOUND')
   }
 
   const row = rows[0]
   const allowed = await ensureUserCanAccessLearnHubEntity(userId, row.sectionId)
   if (!allowed) {
-    throw new Error(
-      category === 'resource' ? 'SUPPORT_RESOURCE_NOT_FOUND' : 'SUPPORT_LECTURE_NOT_FOUND',
-    )
+    throw new Error('SUPPORT_RESOURCE_NOT_FOUND')
   }
 
   const batchId = await getBatchIdForSection(row.sectionId)
@@ -102,22 +94,14 @@ async function resolveLectureContext(
     throw new Error('SUPPORT_ENTITY_BATCH_NOT_FOUND')
   }
 
-  const priority = toLearningPriority(row.optional)
-
   return {
     batchId,
     category,
-    item: buildItem({
+    item: buildAssignmentItem({
       id: row.id,
       title: row.title,
-      meta:
-        category === 'resource'
-          ? row.category.trim() || 'Uncategorized'
-          : resolveModuleName(row.module, row.week),
+      meta: row.category.trim() || 'Uncategorized',
       schedule: row.schedule,
-      lectureType: category === 'lecture' ? row.type : undefined,
-      isOptional: priority === 'recommended' ? true : undefined,
-      isMandatory: category === 'lecture' && priority === 'mandatory' ? true : undefined,
     }),
   }
 }
@@ -167,7 +151,7 @@ async function resolveAssignmentContext(
   return {
     batchId,
     category: resolvedCategory,
-    item: buildItem({
+    item: buildAssignmentItem({
       id: row.id,
       title: row.title,
       meta: row.category.trim() || 'Uncategorized',
@@ -181,6 +165,9 @@ async function resolveAssignmentContext(
 /**
  * Resolve the batch + support item card for a learn detail entity so the floating
  * chat can open directly on "Before you raise a ticket" (step 2.5).
+ *
+ * Lectures reuse {@link getLectureSupportSnapshot} so the context API and the
+ * listing path share one snapshot payload.
  */
 export async function getSupportEntityContext(
   userId: number,

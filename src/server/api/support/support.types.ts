@@ -236,6 +236,8 @@ export interface SupportEntityContext {
   batchId: number
   category: SupportEntityCategory
   item: SupportEntityContextItem
+  /** Included for lectures so step 2.5 reuses the same snapshot as the listing path. */
+  lectureSnapshot?: LectureSupportSnapshot
 }
 
 /**
@@ -260,17 +262,7 @@ export interface FloatingChatInbox {
   oneOnOne: Array<OneOnOneBatchGroup>
 }
 
-export type LectureRecordingStatus =
-  | 'pending'
-  | 'available'
-  | 'not_available'
-  | 'processing'
-
-export type LectureDurationSource =
-  | 'hls'
-  | 'transcript'
-  | 'schedule'
-  | 'video_progress'
+export type LectureRecordingStatus = 'available' | 'not_available'
 
 export type AiSummaryStatus = 'generated' | 'processing' | 'not_available'
 
@@ -280,6 +272,7 @@ export type AiSummaryStatus = 'generated' | 'processing' | 'not_available'
  */
 export interface LectureSupportSnapshot {
   lectureId: number
+  batchId: number
   lectureKind: 'live' | 'video'
   /** Item card headline (step 2.5 confirmation). */
   title: string
@@ -301,8 +294,6 @@ export interface LectureSupportSnapshot {
   isSessionPending: boolean
   recordingStatus: LectureRecordingStatus
   recordingUrl: string | null
-  durationSeconds: number | null
-  durationSource: LectureDurationSource | null
   aiSummaryStatus: AiSummaryStatus
   attendance: LectureAttendanceSummary | null
   showAttendance: boolean
