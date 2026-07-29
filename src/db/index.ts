@@ -20,7 +20,29 @@ const pool =
     connectionLimit: 10, // keep well under MySQL's max_connections
     waitForConnections: true,
     queueLimit: 0,
+
+    // --- Surviving an RDS reboot / failover ---------------------------------
+    // A reboot silently kills every socket in the pool. Without the settings
+    // below, those dead sockets sit here looking healthy until some request
+    // borrows one and fails. These bound that window.
+
+    // Probe idle sockets after 10s instead of inheriting the Linux default
+    // (tcp_keepalive_time = 7200s). This is what actually lets the kernel tear
+    // down connections killed by a reboot, so the pool replaces them in the
+    // background rather than handing a corpse to the next request.
     enableKeepAlive: true,
+    keepAliveInitialDelay: 10_000,
+
+    // Recycle idle connections so a stale one can't linger indefinitely.
+    // maxIdle < connectionLimit means the pool keeps a small warm set and lets
+    // the rest expire — also reduces idle connection count against RDS when
+    // running under PM2 cluster mode (the limit above is *per worker*).
+    maxIdle: 5,
+    idleTimeout: 60_000,
+
+    // Fail fast while the instance is still coming back up instead of holding
+    // the request open; the caller retries against a healthy connection.
+    connectTimeout: 10_000,
   })
 
 globalForDb.__dbPool = pool

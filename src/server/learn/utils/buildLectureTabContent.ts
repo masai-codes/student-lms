@@ -1,17 +1,46 @@
-import type { LectureDetailTabContent } from '@/server/learn/lectureDetailTypes'
+import type {
+  LectureDetailTabContent,
+  LectureTranscriptSource,
+} from '@/server/learn/lectureDetailTypes'
 import type { LearningItem } from '@/server/learn/types'
+import { CACHE_API } from '@/lib/api/cachePaths'
 import { appendZoomChatToNotes } from '@/server/learn/utils/appendZoomChatToNotes'
-import {
-  buildTranscriptPlainText,
-  parseLectureTranscriptSegments,
-} from '@/server/learn/utils/formatLectureTranscript'
 import { normalizeNullableText } from '@/server/learn/utils/normalizeNullableText'
 
 type LecturesAiRow = {
   summary: string | null
-  transcript: string | null
-  transcriptSegments: unknown
+  /** Existence probe only — the transcript text itself never leaves the DB here. */
+  hasTranscript: boolean
 } | null
+
+/**
+ * Resolve the lazy-fetch pointer for the transcript. A lecture missing its batch
+ * or section can't be addressed on the cache path, so it reports unavailable
+ * rather than falling back to an uncacheable endpoint.
+ */
+export function buildLectureTranscriptSource(input: {
+  hasTranscript: boolean
+  batchId: number | null
+  sectionId: number | null
+  lectureId: number
+}): LectureTranscriptSource {
+  if (
+    !input.hasTranscript ||
+    input.batchId == null ||
+    input.sectionId == null
+  ) {
+    return { available: false, url: null }
+  }
+
+  return {
+    available: true,
+    url: CACHE_API.lectureTranscript(
+      input.batchId,
+      input.sectionId,
+      input.lectureId,
+    ),
+  }
+}
 
 export function buildLectureTabContent(input: {
   notes: string | null
@@ -19,27 +48,21 @@ export function buildLectureTabContent(input: {
   zoomChatFinalChat?: unknown
   lecturesAi: LecturesAiRow
   associatedItems: Array<LearningItem>
+  lectureId: number
+  batchId: number | null
+  sectionId: number | null
 }): LectureDetailTabContent {
   const ai = input.lecturesAi
 
-  const aiSummary = ai != null ? normalizeNullableText(ai.summary) : null
-
-  const transcriptSegments =
-    ai != null ? parseLectureTranscriptSegments(ai.transcriptSegments) : []
-
-  const transcript =
-    ai != null
-      ? buildTranscriptPlainText({
-          transcript: ai.transcript,
-          segments: transcriptSegments,
-        })
-      : null
-
   return {
     notes: appendZoomChatToNotes(input.notes, input.zoomChatFinalChat),
-    aiSummary,
-    transcript,
-    transcriptSegments,
+    aiSummary: ai != null ? normalizeNullableText(ai.summary) : null,
+    transcript: buildLectureTranscriptSource({
+      hasTranscript: ai?.hasTranscript ?? false,
+      batchId: input.batchId,
+      sectionId: input.sectionId,
+      lectureId: input.lectureId,
+    }),
     associatedItems: input.associatedItems,
   }
 }

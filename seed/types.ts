@@ -1,6 +1,7 @@
 import type {
   batches,
   lectures,
+  lecturesAi,
   profiles,
   sectionUser,
   sections,
@@ -61,9 +62,15 @@ export type LiveLecturePhasesEntities = {
     videoOptional: typeof lectures.$inferSelect
     optionalLiveBeforeUnlock: typeof lectures.$inferSelect
     optionalLiveDuringJoin: typeof lectures.$inferSelect
+    transcriptSegmented: typeof lectures.$inferSelect
+    transcriptPlainText: typeof lectures.$inferSelect
   }
   attendanceOffExtras: {
     associatedLecture: typeof lectures.$inferSelect
+  }
+  transcriptExtras: {
+    segmentedAi: typeof lecturesAi.$inferSelect
+    plainTextAi: typeof lecturesAi.$inferSelect
   }
   attendanceOnExtras: {
     lecturesAi: typeof import('@/db/schema').lecturesAi.$inferSelect

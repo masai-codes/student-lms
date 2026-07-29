@@ -23,7 +23,7 @@ export const LIVE_LECTURE_PHASES_TIMING = {
 export const liveLecturePhasesConfig: SeedFlowMeta = {
   id: LIVE_LECTURE_PHASES_FLOW_ID,
   description:
-    'Live + video lecture phases: mandatory/optional live (before + join), type=video (mandatory + optional), after recording + attendance. Profile photo + download app pre-completed.',
+    'Live + video lecture phases: mandatory/optional live (before + join), type=video (mandatory + optional), after recording + attendance, transcript lectures (timestamped segments + plain-text fallback). Profile photo + download app pre-completed.',
   timing: { ...LIVE_LECTURE_PHASES_TIMING },
   seedCommand: 'npm run seed live-lecture-phases',
   defaultCredentialEmails: [

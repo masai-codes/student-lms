@@ -899,6 +899,11 @@ Resources:
                   - codebuild:BatchGetBuilds
                   - codebuild:StartBuild
                 Resource: !GetAtt CodeBuildInvalidationProject.Arn
+              # Manual approval notifications
+              - Effect: Allow
+                Action:
+                  - sns:Publish
+                Resource: !Ref SNSTopicARN
       Tags:
         - Key: Project
           Value: student-lms
@@ -1001,7 +1006,24 @@ Resources:
                 - Name: SourceArtifact
               RunOrder: 1
 
-        # Stage 2: Test + Build (parallel)
+        # Stage 2: Manual approval - nothing runs until a human approves
+        - Name: Approval
+          Actions:
+            - Name: ManualApproval
+              ActionTypeId:
+                Category: Approval
+                Owner: AWS
+                Provider: Manual
+                Version: '1'
+              Configuration:
+                NotificationArn: !Ref SNSTopicARN
+                CustomData: !Sub >-
+                  Approve to test, build and deploy ${GitHubOrg}/${GitHubRepo}
+                  (branch ${GitHubBranch}) to ${DomainName}.
+                ExternalEntityLink: !Sub 'https://github.com/${GitHubOrg}/${GitHubRepo}/commits/${GitHubBranch}'
+              RunOrder: 1
+
+        # Stage 3: Test + Build (parallel)
         - Name: TestAndBuild
           Actions:
             - Name: Test
@@ -1030,7 +1052,7 @@ Resources:
                 - Name: BuildArtifact
               RunOrder: 1
 
-        # Stage 3: Deploy
+        # Stage 4: Deploy
         - Name: Deploy
           Actions:
             - Name: CodeDeploy
@@ -1046,7 +1068,7 @@ Resources:
                 - Name: BuildArtifact
               RunOrder: 1
 
-        # Stage 4: CloudFront Invalidation
+        # Stage 5: CloudFront Invalidation
         - Name: Invalidate
           Actions:
             - Name: CloudFrontInvalidation
@@ -1117,6 +1139,26 @@ Resources:
         CacheBehaviors:
           - PathPattern: /assets/*
             TargetOriginId: S3StaticAssets
+            ViewerProtocolPolicy: redirect-to-https
+            CachePolicyId: 658327ea-f89d-4fab-a63d-7e88639e58f6 # Managed-CachingOptimized
+            AllowedMethods:
+              - GET
+              - HEAD
+            CachedMethods:
+              - GET
+              - HEAD
+            Compress: true
+
+          # Cache behavior 2: /api/cache/* -> ALB, cached at the edge.
+          # These endpoints are deliberately public and cookie-free: the cache key
+          # is the path alone (CachingOptimized forwards no cookies, headers, or
+          # query strings), so every student shares one cached response. Never
+          # route a user-specific endpoint here. Paths are
+          # /api/cache/<resource>/<batchId>/<sectionId>/<entityId> so a batch or
+          # section can be dropped with a prefix invalidation.
+          # Compress matters most here — lecture transcripts are large text.
+          - PathPattern: /api/cache/*
+            TargetOriginId: ALBOrigin
             ViewerProtocolPolicy: redirect-to-https
             CachePolicyId: 658327ea-f89d-4fab-a63d-7e88639e58f6 # Managed-CachingOptimized
             AllowedMethods:
@@ -1209,6 +1251,7 @@ Resources:
                   "view": "timeSeries",
                   "stacked": false,
                   "period": 60,
+                  "stat": "Sum",
                   "metrics": [
                     [ "AWS/ApplicationELB", "RequestCount", "LoadBalancer", "${ALBFullName}" ],
                     [ ".", "HTTPCode_Target_2XX_Count", ".", "." ],
@@ -1224,13 +1267,14 @@ Resources:
                 "width": 12,
                 "height": 6,
                 "properties": {
-                  "title": "ALB Latency (P99)",
+                  "title": "ALB Latency (P99 / TM10:99)",
                   "region": "${Region}",
                   "view": "timeSeries",
                   "stacked": false,
                   "period": 60,
                   "metrics": [
-                    [ "AWS/ApplicationELB", "TargetResponseTime", "LoadBalancer", "${ALBFullName}", { "stat": "p99" } ]
+                    [ "AWS/ApplicationELB", "TargetResponseTime", "LoadBalancer", "${ALBFullName}", { "stat": "p99" } ],
+                    [ "AWS/ApplicationELB", "TargetResponseTime", "LoadBalancer", "${ALBFullName}", { "stat": "TM(10%:99%)" } ]
                   ]
                 }
               },

@@ -93,8 +93,12 @@ describe('buildLiveLecturePhasesWorld', () => {
 
     expect(hoisted.createSection).toHaveBeenCalledTimes(3)
     expect(hoisted.createEnrollment).toHaveBeenCalledTimes(3)
-    // 9 primary variants + OFF associated + ON associated live + ON associated notes
-    expect(hoisted.createLecture).toHaveBeenCalledTimes(12)
+    // 11 primary variants + OFF associated + ON associated live + ON associated notes
+    expect(hoisted.createLecture).toHaveBeenCalledTimes(14)
+    // attendance-ON summary/transcript + the two transcript-QA lectures
+    expect(hoisted.createLecturesAi).toHaveBeenCalledTimes(3)
+    expect(world.lectures.transcriptSegmented.title).toContain('timestamped segments')
+    expect(world.lectures.transcriptPlainText.title).toContain('plain text only')
     expect(world.lectures.afterWithRecordingAttendanceOff.title).toContain('attendance OFF')
     expect(world.lectures.afterWithRecordingAttendanceOn.title).toContain('attendance ON')
     expect(world.lectures.videoMandatory.title).toContain('Video lecture — mandatory')
@@ -236,6 +240,53 @@ describe('buildLiveLecturePhasesWorld', () => {
     expect(world.attendanceOnExtras.associatedAssignment.title).toContain(
       'Associated assignment',
     )
+  })
+
+  it('seeds a segmented transcript lecture for transcript / caption / download QA', async () => {
+    const world = await buildLiveLecturePhasesWorld('live-lecture-phases')
+
+    expect(hoisted.createLecture).toHaveBeenCalledWith(
+      expect.objectContaining({
+        title: expect.stringContaining('Transcript — timestamped segments'),
+        type: 'video',
+        optional: 0,
+        vimeoDownloadLinks: {
+          gumlet: { hls_url: LIVE_LECTURE_RECORDING_HLS_URL },
+        },
+      }),
+    )
+
+    const aiCall = hoisted.createLecturesAi.mock.calls
+      .map((call) => call[0] as { lectureId: number; transcript: string; transcriptSegments: unknown })
+      .find((input) => input.lectureId === world.lectures.transcriptSegmented.id)
+
+    const segments = aiCall?.transcriptSegments as Array<{ start: number; text: string }>
+    expect(segments.length).toBeGreaterThan(20)
+    expect(segments[0].start).toBe(0)
+    // The closing block crosses the hour so QA sees `h:mm:ss` timestamps too.
+    expect(segments.some((segment) => segment.start >= 3600)).toBe(true)
+    expect(aiCall?.transcript).toContain('closure')
+  })
+
+  it('seeds a plain-text-only transcript lecture for the fallback path', async () => {
+    const world = await buildLiveLecturePhasesWorld('live-lecture-phases')
+
+    expect(hoisted.createLecture).toHaveBeenCalledWith(
+      expect.objectContaining({
+        title: expect.stringContaining('Transcript — plain text only'),
+        type: 'video',
+        optional: 1,
+      }),
+    )
+
+    const aiCall = hoisted.createLecturesAi.mock.calls
+      .map((call) => call[0] as { lectureId: number; transcript: string; transcriptSegments: unknown })
+      .find((input) => input.lectureId === world.lectures.transcriptPlainText.id)
+
+    expect(aiCall?.transcriptSegments).toBeNull()
+    expect(aiCall?.transcript).toContain('plain text')
+    expect(world.transcriptExtras.plainTextAi).toBeDefined()
+    expect(world.transcriptExtras.segmentedAi).toBeDefined()
   })
 
   it('seeds recording lectures with a playable video url and no attendance rows', async () => {

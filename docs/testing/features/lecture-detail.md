@@ -39,7 +39,7 @@
 - `src/lib/learn/__tests__/zoomWebView.test.ts` — `buildZoomWebViewUrl` (old-LMS embed URL; null when base unresolved)
 - `src/server/learn/utils/__tests__/scrubZoomLinkForSchedule.test.ts`
 - `src/server/learn/utils/__tests__/buildLectureDetailPayload.test.ts`
-- `src/server/learn/utils/__tests__/buildLectureTabContent.test.ts` — AI summary surfacing + transcript JSON parsing (incl. numeric strings)
+- `src/server/learn/utils/__tests__/buildLectureTabContent.test.ts` — AI summary surfacing + the `tabs.transcript` cache pointer (the payload no longer carries transcript text — see `docs/testing/features/lecture-transcript-cache.md`)
 - `src/server/learn/utils/__tests__/formatLectureTranscript.test.ts` — transcript segment parser tolerates string-typed `start`/`end`
 - `src/server/learn/__tests__/getLectureLearningDetail.service.test.ts`
 - `src/components/features/learn/LearnPageDetails/lecture/tabs/constants/__tests__/resolveVisibleLectureDetailTabs.test.ts` — single Description tab; hide_notes hides it; default-tab fallback

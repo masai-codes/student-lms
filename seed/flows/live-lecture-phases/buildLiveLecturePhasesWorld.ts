@@ -23,6 +23,8 @@ import {
   LIVE_LECTURE_RECORDING_HLS_URL,
   type LiveLecturePhasesFlowId,
 } from './config'
+import { seedTranscriptLectures } from './seedTranscriptLectures'
+import type { TranscriptLectureSeeds } from './seedTranscriptLectures'
 
 import type { assignments, lectures, lecturesAi, sectionUser, sections } from '@/db/schema'
 
@@ -40,6 +42,8 @@ export type LiveLecturePhaseKey =
   | 'videoOptional'
   | 'optionalLiveBeforeUnlock'
   | 'optionalLiveDuringJoin'
+  | 'transcriptSegmented'
+  | 'transcriptPlainText'
 
 export type LiveLecturePhasesWorld = {
   flowId: LiveLecturePhasesFlowId
@@ -61,6 +65,11 @@ export type LiveLecturePhasesWorld = {
   /** Companion lecture for the video-attendance-OFF recording. */
   attendanceOffExtras: {
     associatedLecture: LectureRow
+  }
+  /** `lectures_ai` rows behind the two transcript-QA lectures. */
+  transcriptExtras: {
+    segmentedAi: TranscriptLectureSeeds['segmentedAi']
+    plainTextAi: TranscriptLectureSeeds['plainTextAi']
   }
   /** Tab content for the video-attendance-ON recording lecture. */
   attendanceOnExtras: {
@@ -351,6 +360,21 @@ export async function buildLiveLecturePhasesWorld(
     endDate: formatMysqlDate(afterConcludes),
   })
 
+  // Recordings in the primary section whose only job is transcript QA: the
+  // Transcript tab (list + plain-text fallback), the CC overlay, and the
+  // transcript Download button.
+  const transcriptLectures = await seedTranscriptLectures(flowId, {
+    ...SHARED_VIDEO_LECTURE_META,
+    ...RECORDING_VIDEO_FIELDS,
+    batchId: batch.id,
+    sectionId: section.id,
+    userId: admin.id,
+    schedule: formatMysqlDatetime(afterSchedule),
+    concludes: formatMysqlDatetime(afterConcludes),
+    startDate: formatMysqlDate(afterSchedule),
+    endDate: formatMysqlDate(afterConcludes),
+  })
+
   const afterNoRecording = await createLecture({
     ...SHARED_LECTURE_META,
     batchId: batch.id,
@@ -522,6 +546,12 @@ export async function buildLiveLecturePhasesWorld(
       videoOptional,
       optionalLiveBeforeUnlock,
       optionalLiveDuringJoin,
+      transcriptSegmented: transcriptLectures.segmented,
+      transcriptPlainText: transcriptLectures.plainText,
+    },
+    transcriptExtras: {
+      segmentedAi: transcriptLectures.segmentedAi,
+      plainTextAi: transcriptLectures.plainTextAi,
     },
     attendanceOffExtras: {
       associatedLecture: associatedLectureAttendanceOff,
