@@ -1194,10 +1194,16 @@ Resources:
           # /api/cache/<resource>/<batchId>/<sectionId>/<entityId> so a batch or
           # section can be dropped with a prefix invalidation.
           # Compress matters most here — lecture transcripts are large text.
+          # The origin request policy is separate from the cache policy: AllViewer
+          # forwards the viewer's Host header (and the rest) to the ALB, which the
+          # app needs to serve the request at all — without it the origin errors
+          # and CloudFront returns 502. The cache key stays path-only because
+          # that is set by the cache policy above, not by this one.
           - PathPattern: /api/cache/*
             TargetOriginId: ALBOrigin
             ViewerProtocolPolicy: redirect-to-https
             CachePolicyId: 658327ea-f89d-4fab-a63d-7e88639e58f6 # Managed-CachingOptimized
+            OriginRequestPolicyId: 216adef6-5c7f-47e4-b989-5492eafa07d3 # Managed-AllViewer
             AllowedMethods:
               - GET
               - HEAD
