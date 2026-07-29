@@ -20,6 +20,8 @@ interface LearnBatchOption {
   label: string
   courseLogo: string | null
   showBatchDetails: boolean
+  /** `batches.meta.showSectionDropdown` — gates the section filter for this batch. */
+  showSectionDropdown: boolean
 }
 
 /** Sentinel option value for "Any section". */
@@ -67,6 +69,9 @@ export function LearnHeaderSection({
     sections.some((section) => section.sectionId === selectedSectionId)
       ? selectedSectionId.toString()
       : ANY_SECTION_VALUE
+
+  // The section filter is opt-in per batch (`batches.meta.showSectionDropdown`).
+  const showSectionDropdown = selectedBatchOption?.showSectionDropdown === true
 
   // Course details still lives in the legacy student app (resolve URL per origin),
   // and is only surfaced when the batch opts in via `showBatchDetails` (legacy LMS).
@@ -157,26 +162,29 @@ export function LearnHeaderSection({
           </DropdownMenuContent>
         </DropdownMenu>
 
-        {/* Section filter — scopes the listing to one enrolled section of the batch. */}
-        <MasaiSelectDropdown
-          triggerLabel="Course"
-          menuLabel="Select a course"
-          aria-label="Filter by course"
-          options={sectionOptions}
-          value={sectionValue}
-          disabled={sections.length === 0}
-          onValueChange={(value) => {
-            const nextSectionId =
-              value === ANY_SECTION_VALUE ? null : Number(value)
-            pushLearnEvent('l_learn_section_change', {
-              section_id: nextSectionId ?? 'any',
-              batch_id: selectedBatch,
-            })
-            onSectionChange(nextSectionId)
-          }}
-          className="w-full md:w-auto"
-          triggerClassName="w-full sm:w-[220px] md:w-[200px]"
-        />
+        {/* Section filter — scopes the listing to one enrolled section of the batch.
+            Only rendered for batches that opt in via `meta.showSectionDropdown`. */}
+        {showSectionDropdown ? (
+          <MasaiSelectDropdown
+            triggerLabel="Course"
+            menuLabel="Select a course"
+            aria-label="Filter by course"
+            options={sectionOptions}
+            value={sectionValue}
+            disabled={sections.length === 0}
+            onValueChange={(value) => {
+              const nextSectionId =
+                value === ANY_SECTION_VALUE ? null : Number(value)
+              pushLearnEvent('l_learn_section_change', {
+                section_id: nextSectionId ?? 'any',
+                batch_id: selectedBatch,
+              })
+              onSectionChange(nextSectionId)
+            }}
+            className="w-full md:w-auto"
+            triggerClassName="w-full sm:w-[220px] md:w-[200px]"
+          />
+        ) : null}
       </div>
 
       {courseDetailsHref ? (

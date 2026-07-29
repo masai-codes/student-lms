@@ -125,12 +125,25 @@ export function LearnLayout({
   const selectedBatchId = data.selectedBatchId
   const sections = data.sections
 
+  // The section filter is opt-in per batch (`batches.meta.showSectionDropdown`).
+  const showSectionDropdown =
+    enrolledBatches.find((batch) => batch.batchId === selectedBatchId)
+      ?.showSectionDropdown === true
+
   // Section persistence/restore. Runs only on data that matches the current batch
   // (guards against `keepPreviousData` showing the previous batch's sections):
+  //  - with the filter hidden, any lingering `sectionId` is dropped so the listing
+  //    is never narrowed by a control the student cannot see or reset;
   //  - a stale `sectionId` not in this batch's enrolled sections is dropped;
   //  - otherwise, when none is selected, restore this batch's stored choice.
   useEffect(() => {
     if (batchId == null || selectedBatchId !== batchId) return
+
+    if (!showSectionDropdown) {
+      if (sectionId != null) setSectionId(null)
+      return
+    }
+
     const validSectionIds = new Set(
       sections.map((section) => section.sectionId),
     )
@@ -144,7 +157,15 @@ export function LearnLayout({
     if (storedSectionId != null && validSectionIds.has(storedSectionId)) {
       setSectionId(storedSectionId)
     }
-  }, [batchId, selectedBatchId, sections, sectionId, setSectionId, userId])
+  }, [
+    batchId,
+    selectedBatchId,
+    sections,
+    sectionId,
+    setSectionId,
+    showSectionDropdown,
+    userId,
+  ])
 
   const learningItems: Array<LearnContentItem> = useMemo(
     () => data.learningItems.map(mapLearningItemToContent),
@@ -173,6 +194,7 @@ export function LearnLayout({
               label: batch.courseTitle,
               courseLogo: batch.courseLogo,
               showBatchDetails: batch.showBatchDetails,
+              showSectionDropdown: batch.showSectionDropdown,
             }))}
             onBatchChange={(value) => {
               onBatchChange(Number(value))
