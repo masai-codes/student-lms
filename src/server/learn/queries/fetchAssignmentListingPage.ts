@@ -94,6 +94,7 @@ export async function fetchAssignmentListingPage(
       week: assignments.week,
       module: assignments.module,
       showScores: assignments.showScores,
+      settings: assignments.settings,
       hostName: users.name,
     })
     .from(assignments)

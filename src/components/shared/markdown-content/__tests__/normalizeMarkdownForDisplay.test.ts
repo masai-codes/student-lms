@@ -29,6 +29,27 @@ https://example.com
 
     expect(normalizeListContinuations(input)).toContain('  https://example.com')
   })
+
+  it('leaves paragraphs after a blank line outside the list', () => {
+    const input = `- It incorrectly flags a genuine transaction as fraud
+- It correctly catches actual fraud about 95% of the time
+
+Both error rates sound impressively small.
+
+The model was not broken.`
+
+    expect(normalizeListContinuations(input)).toBe(input)
+  })
+
+  it('does not slurp a thematic break into the preceding list item', () => {
+    const input = `- Only bullet
+
+Trailing paragraph.
+
+---`
+
+    expect(normalizeListContinuations(input)).toBe(input)
+  })
 })
 
 describe('normalizeMarkdownForDisplay', () => {

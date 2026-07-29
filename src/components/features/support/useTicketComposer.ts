@@ -24,12 +24,19 @@ export type UseTicketComposerParams = {
   batchId: string
   category?: string
   subcategory?: string
+  /**
+   * Lecture / assignment / resource the ticket is being raised from. Persisted
+   * as `tickets.data.entity_ID` so ops can jump straight to the entity — the
+   * legacy `createTicketV2` stores the same key.
+   */
+  entityId?: number | null
 }
 
 export function useTicketComposer({
   batchId,
   category,
   subcategory,
+  entityId,
 }: UseTicketComposerParams) {
   const queryClient = useQueryClient()
   const [ticketId, setTicketId] = useState<number | null>(null)
@@ -64,6 +71,7 @@ export function useTicketComposer({
         category: category ?? 'support',
         subCategory: subcategory ?? null,
         message: msg,
+        entityId: entityId ?? null,
       }),
     onSuccess: ({ id }) => {
       setMessage('')

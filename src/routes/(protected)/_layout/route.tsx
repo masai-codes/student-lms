@@ -20,6 +20,7 @@ import {
   layoutMainClasses,
   layoutMainClassesFullWidth,
   lectureDetailMainClasses,
+  LAYOUT_APP_SHELL_CLASSES,
 } from '@/lib/layout'
 import { bootstrapLoginWithToken } from '@/server/auth/bootstrapLogin'
 import { fetchCurrentUser } from '@/server/auth/fetchCurrentUser'
@@ -144,10 +145,15 @@ export const Route = createFileRoute('/(protected)/_layout')({
 })
 
 function RouteComponent() {
-  const { searchStr, pathname } = useRouterState({
+  const { searchStr, pathname, renderedPathname } = useRouterState({
     select: (state) => ({
       searchStr: state.location.searchStr,
       pathname: state.location.pathname,
+      // During a pending navigation `location` is already the destination while
+      // the outgoing route is still painted. Width classes must follow what's
+      // on screen, or the old page flashes in the new page's shell (e.g. the
+      // learn listing going edge-to-edge for a beat on the way to a lecture).
+      renderedPathname: (state.resolvedLocation ?? state.location).pathname,
     }),
   })
   const { user } = Route.useRouteContext()
@@ -156,8 +162,8 @@ function RouteComponent() {
   const isSupportRoute = pathname.startsWith('/support')
   // Lecture detail spans the full viewport width (no centered container), so
   // every hero state is edge-to-edge like the recording video.
-  const isLectureDetail = /^\/lectures\/[^/]+/.test(pathname)
-  const mainClasses = isMasaiverseRoute
+  const isLectureDetail = /^\/lectures\/[^/]+/.test(renderedPathname)
+  const mainClasses = renderedPathname.startsWith('/masaiverse')
     ? layoutMainClassesFullWidth
     : isLectureDetail
       ? lectureDetailMainClasses
@@ -173,7 +179,10 @@ function RouteComponent() {
 
   return (
     <ModalProvider>
-      <div className="min-h-dvh bg-surface-muted flex flex-col">
+      {/* `data-app-shell`: the hook target for the lecture page's viewport lock
+          (styles.css) — that page pins this shell to the viewport so its two
+          columns can scroll independently. */}
+      <div data-app-shell className={LAYOUT_APP_SHELL_CLASSES}>
         <TryNewTour hasSeen={user.hasSeenTryNewTour} />
         <AppNavbar />
         {/* Mobile-only greeting header for the dashboard home; the desktop

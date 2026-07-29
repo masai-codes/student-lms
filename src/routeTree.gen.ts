@@ -56,6 +56,7 @@ import { Route as ApiBookmarksFilterOptionsRouteImport } from './routes/api/book
 import { Route as ApiAnnouncementUnreadCountRouteImport } from './routes/api/announcement/unread-count'
 import { Route as ApiAnnouncementPopupsRouteImport } from './routes/api/announcement/popups'
 import { Route as ApiAnnouncementFilterOptionsRouteImport } from './routes/api/announcement/filter-options'
+import { Route as ApiAdmissionsEnrolmentPaymentRedirectRouteImport } from './routes/api/admissions/enrolment-payment-redirect'
 import { Route as protectedLayoutThemeLabRouteImport } from './routes/(protected)/_layout/theme-lab'
 import { Route as protectedLayoutMyCoursesRouteImport } from './routes/(protected)/_layout/my-courses'
 import { Route as authV2ResetPasswordRouteImport } from './routes/(auth)/v2/reset-password'
@@ -78,6 +79,9 @@ import { Route as protectedLayoutBookmarksIndexRouteImport } from './routes/(pro
 import { Route as protectedLayoutAnnouncementsIndexRouteImport } from './routes/(protected)/_layout/announcements/index'
 import { Route as authV2LoginIndexRouteImport } from './routes/(auth)/v2/login/index'
 import { Route as authResetPasswordTokenIndexRouteImport } from './routes/(auth)/reset-password.$token/index'
+import { Route as ApiWebhooksAdmissionsEventsRouteImport } from './routes/api/webhooks/admissions/events'
+import { Route as ApiWebhooksAdmissionsCreateEnrolmentRouteImport } from './routes/api/webhooks/admissions/create-enrolment'
+import { Route as ApiWebhooksAdmissionsCancelEnrolmentRouteImport } from './routes/api/webhooks/admissions/cancel-enrolment'
 import { Route as ApiSupportTicketsThreadRouteImport } from './routes/api/support/tickets/thread'
 import { Route as ApiSupportTicketsReplyRouteImport } from './routes/api/support/tickets/reply'
 import { Route as ApiSupportTicketsReopenRouteImport } from './routes/api/support/tickets/reopen'
@@ -183,6 +187,7 @@ import { Route as ApiAiTutorChatConversationsChatIdRouteImport } from './routes/
 import { Route as protectedLayoutMasaiverseEventEventIdRouteImport } from './routes/(protected)/_layout/masaiverse/event.$eventId'
 import { Route as protectedLayoutMasaiverseClubClubIdRouteImport } from './routes/(protected)/_layout/masaiverse/club.$clubId'
 import { Route as ApiLearnAssignmentsAssignmentIdProblemsProblemIdRouteImport } from './routes/api/learn/assignments/$assignmentId/problems/$problemId'
+import { Route as ApiCacheTranscriptBatchIdSectionIdLectureIdRouteImport } from './routes/api/cache/transcript/$batchId/$sectionId/$lectureId'
 import { Route as protectedLayoutMasaiverseClubClubIdGalleryRouteImport } from './routes/(protected)/_layout/masaiverse/club.$clubId_.gallery'
 import { Route as protectedLayoutAssignmentsAssignmentIdProblemsProblemIdRouteRouteImport } from './routes/(protected)/_layout/assignments_/$assignmentId/problems/$problemId/route'
 
@@ -434,6 +439,12 @@ const ApiAnnouncementFilterOptionsRoute =
     path: '/api/announcement/filter-options',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiAdmissionsEnrolmentPaymentRedirectRoute =
+  ApiAdmissionsEnrolmentPaymentRedirectRouteImport.update({
+    id: '/api/admissions/enrolment-payment-redirect',
+    path: '/api/admissions/enrolment-payment-redirect',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const protectedLayoutThemeLabRoute = protectedLayoutThemeLabRouteImport.update({
   id: '/theme-lab',
   path: '/theme-lab',
@@ -555,6 +566,24 @@ const authResetPasswordTokenIndexRoute =
   authResetPasswordTokenIndexRouteImport.update({
     id: '/(auth)/reset-password/$token/',
     path: '/reset-password/$token/',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiWebhooksAdmissionsEventsRoute =
+  ApiWebhooksAdmissionsEventsRouteImport.update({
+    id: '/api/webhooks/admissions/events',
+    path: '/api/webhooks/admissions/events',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiWebhooksAdmissionsCreateEnrolmentRoute =
+  ApiWebhooksAdmissionsCreateEnrolmentRouteImport.update({
+    id: '/api/webhooks/admissions/create-enrolment',
+    path: '/api/webhooks/admissions/create-enrolment',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiWebhooksAdmissionsCancelEnrolmentRoute =
+  ApiWebhooksAdmissionsCancelEnrolmentRouteImport.update({
+    id: '/api/webhooks/admissions/cancel-enrolment',
+    path: '/api/webhooks/admissions/cancel-enrolment',
     getParentRoute: () => rootRouteImport,
   } as any)
 const ApiSupportTicketsThreadRoute = ApiSupportTicketsThreadRouteImport.update({
@@ -1170,6 +1199,12 @@ const ApiLearnAssignmentsAssignmentIdProblemsProblemIdRoute =
     path: '/problems/$problemId',
     getParentRoute: () => ApiLearnAssignmentsAssignmentIdRoute,
   } as any)
+const ApiCacheTranscriptBatchIdSectionIdLectureIdRoute =
+  ApiCacheTranscriptBatchIdSectionIdLectureIdRouteImport.update({
+    id: '/api/cache/transcript/$batchId/$sectionId/$lectureId',
+    path: '/api/cache/transcript/$batchId/$sectionId/$lectureId',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const protectedLayoutMasaiverseClubClubIdGalleryRoute =
   protectedLayoutMasaiverseClubClubIdGalleryRouteImport.update({
     id: '/club/$clubId_/gallery',
@@ -1199,6 +1234,7 @@ export interface FileRoutesByFullPath {
   '/v2/reset-password': typeof authV2ResetPasswordRoute
   '/my-courses': typeof protectedLayoutMyCoursesRoute
   '/theme-lab': typeof protectedLayoutThemeLabRoute
+  '/api/admissions/enrolment-payment-redirect': typeof ApiAdmissionsEnrolmentPaymentRedirectRoute
   '/api/announcement/filter-options': typeof ApiAnnouncementFilterOptionsRoute
   '/api/announcement/popups': typeof ApiAnnouncementPopupsRoute
   '/api/announcement/unread-count': typeof ApiAnnouncementUnreadCountRoute
@@ -1313,6 +1349,9 @@ export interface FileRoutesByFullPath {
   '/api/support/tickets/reopen': typeof ApiSupportTicketsReopenRoute
   '/api/support/tickets/reply': typeof ApiSupportTicketsReplyRoute
   '/api/support/tickets/thread': typeof ApiSupportTicketsThreadRoute
+  '/api/webhooks/admissions/cancel-enrolment': typeof ApiWebhooksAdmissionsCancelEnrolmentRoute
+  '/api/webhooks/admissions/create-enrolment': typeof ApiWebhooksAdmissionsCreateEnrolmentRoute
+  '/api/webhooks/admissions/events': typeof ApiWebhooksAdmissionsEventsRoute
   '/reset-password/$token/': typeof authResetPasswordTokenIndexRoute
   '/v2/login/': typeof authV2LoginIndexRoute
   '/announcements/': typeof protectedLayoutAnnouncementsIndexRoute
@@ -1360,6 +1399,7 @@ export interface FileRoutesByFullPath {
   '/api/ai-tutor/chat/conversations/': typeof ApiAiTutorChatConversationsIndexRoute
   '/assignments/$assignmentId/problems/$problemId': typeof protectedLayoutAssignmentsAssignmentIdProblemsProblemIdRouteRoute
   '/masaiverse/club/$clubId/gallery': typeof protectedLayoutMasaiverseClubClubIdGalleryRoute
+  '/api/cache/transcript/$batchId/$sectionId/$lectureId': typeof ApiCacheTranscriptBatchIdSectionIdLectureIdRoute
   '/api/learn/assignments/$assignmentId/problems/$problemId': typeof ApiLearnAssignmentsAssignmentIdProblemsProblemIdRoute
 }
 export interface FileRoutesByTo {
@@ -1375,6 +1415,7 @@ export interface FileRoutesByTo {
   '/v2/reset-password': typeof authV2ResetPasswordRoute
   '/my-courses': typeof protectedLayoutMyCoursesRoute
   '/theme-lab': typeof protectedLayoutThemeLabRoute
+  '/api/admissions/enrolment-payment-redirect': typeof ApiAdmissionsEnrolmentPaymentRedirectRoute
   '/api/announcement/filter-options': typeof ApiAnnouncementFilterOptionsRoute
   '/api/announcement/popups': typeof ApiAnnouncementPopupsRoute
   '/api/announcement/unread-count': typeof ApiAnnouncementUnreadCountRoute
@@ -1489,6 +1530,9 @@ export interface FileRoutesByTo {
   '/api/support/tickets/reopen': typeof ApiSupportTicketsReopenRoute
   '/api/support/tickets/reply': typeof ApiSupportTicketsReplyRoute
   '/api/support/tickets/thread': typeof ApiSupportTicketsThreadRoute
+  '/api/webhooks/admissions/cancel-enrolment': typeof ApiWebhooksAdmissionsCancelEnrolmentRoute
+  '/api/webhooks/admissions/create-enrolment': typeof ApiWebhooksAdmissionsCreateEnrolmentRoute
+  '/api/webhooks/admissions/events': typeof ApiWebhooksAdmissionsEventsRoute
   '/reset-password/$token': typeof authResetPasswordTokenIndexRoute
   '/v2/login': typeof authV2LoginIndexRoute
   '/announcements': typeof protectedLayoutAnnouncementsIndexRoute
@@ -1536,6 +1580,7 @@ export interface FileRoutesByTo {
   '/api/ai-tutor/chat/conversations': typeof ApiAiTutorChatConversationsIndexRoute
   '/assignments/$assignmentId/problems/$problemId': typeof protectedLayoutAssignmentsAssignmentIdProblemsProblemIdRouteRoute
   '/masaiverse/club/$clubId/gallery': typeof protectedLayoutMasaiverseClubClubIdGalleryRoute
+  '/api/cache/transcript/$batchId/$sectionId/$lectureId': typeof ApiCacheTranscriptBatchIdSectionIdLectureIdRoute
   '/api/learn/assignments/$assignmentId/problems/$problemId': typeof ApiLearnAssignmentsAssignmentIdProblemsProblemIdRoute
 }
 export interface FileRoutesById {
@@ -1554,6 +1599,7 @@ export interface FileRoutesById {
   '/(auth)/v2/reset-password': typeof authV2ResetPasswordRoute
   '/(protected)/_layout/my-courses': typeof protectedLayoutMyCoursesRoute
   '/(protected)/_layout/theme-lab': typeof protectedLayoutThemeLabRoute
+  '/api/admissions/enrolment-payment-redirect': typeof ApiAdmissionsEnrolmentPaymentRedirectRoute
   '/api/announcement/filter-options': typeof ApiAnnouncementFilterOptionsRoute
   '/api/announcement/popups': typeof ApiAnnouncementPopupsRoute
   '/api/announcement/unread-count': typeof ApiAnnouncementUnreadCountRoute
@@ -1668,6 +1714,9 @@ export interface FileRoutesById {
   '/api/support/tickets/reopen': typeof ApiSupportTicketsReopenRoute
   '/api/support/tickets/reply': typeof ApiSupportTicketsReplyRoute
   '/api/support/tickets/thread': typeof ApiSupportTicketsThreadRoute
+  '/api/webhooks/admissions/cancel-enrolment': typeof ApiWebhooksAdmissionsCancelEnrolmentRoute
+  '/api/webhooks/admissions/create-enrolment': typeof ApiWebhooksAdmissionsCreateEnrolmentRoute
+  '/api/webhooks/admissions/events': typeof ApiWebhooksAdmissionsEventsRoute
   '/(auth)/reset-password/$token/': typeof authResetPasswordTokenIndexRoute
   '/(auth)/v2/login/': typeof authV2LoginIndexRoute
   '/(protected)/_layout/announcements/': typeof protectedLayoutAnnouncementsIndexRoute
@@ -1715,6 +1764,7 @@ export interface FileRoutesById {
   '/api/ai-tutor/chat/conversations/': typeof ApiAiTutorChatConversationsIndexRoute
   '/(protected)/_layout/assignments_/$assignmentId/problems/$problemId': typeof protectedLayoutAssignmentsAssignmentIdProblemsProblemIdRouteRoute
   '/(protected)/_layout/masaiverse/club/$clubId_/gallery': typeof protectedLayoutMasaiverseClubClubIdGalleryRoute
+  '/api/cache/transcript/$batchId/$sectionId/$lectureId': typeof ApiCacheTranscriptBatchIdSectionIdLectureIdRoute
   '/api/learn/assignments/$assignmentId/problems/$problemId': typeof ApiLearnAssignmentsAssignmentIdProblemsProblemIdRoute
 }
 export interface FileRouteTypes {
@@ -1733,6 +1783,7 @@ export interface FileRouteTypes {
     | '/v2/reset-password'
     | '/my-courses'
     | '/theme-lab'
+    | '/api/admissions/enrolment-payment-redirect'
     | '/api/announcement/filter-options'
     | '/api/announcement/popups'
     | '/api/announcement/unread-count'
@@ -1847,6 +1898,9 @@ export interface FileRouteTypes {
     | '/api/support/tickets/reopen'
     | '/api/support/tickets/reply'
     | '/api/support/tickets/thread'
+    | '/api/webhooks/admissions/cancel-enrolment'
+    | '/api/webhooks/admissions/create-enrolment'
+    | '/api/webhooks/admissions/events'
     | '/reset-password/$token/'
     | '/v2/login/'
     | '/announcements/'
@@ -1894,6 +1948,7 @@ export interface FileRouteTypes {
     | '/api/ai-tutor/chat/conversations/'
     | '/assignments/$assignmentId/problems/$problemId'
     | '/masaiverse/club/$clubId/gallery'
+    | '/api/cache/transcript/$batchId/$sectionId/$lectureId'
     | '/api/learn/assignments/$assignmentId/problems/$problemId'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -1909,6 +1964,7 @@ export interface FileRouteTypes {
     | '/v2/reset-password'
     | '/my-courses'
     | '/theme-lab'
+    | '/api/admissions/enrolment-payment-redirect'
     | '/api/announcement/filter-options'
     | '/api/announcement/popups'
     | '/api/announcement/unread-count'
@@ -2023,6 +2079,9 @@ export interface FileRouteTypes {
     | '/api/support/tickets/reopen'
     | '/api/support/tickets/reply'
     | '/api/support/tickets/thread'
+    | '/api/webhooks/admissions/cancel-enrolment'
+    | '/api/webhooks/admissions/create-enrolment'
+    | '/api/webhooks/admissions/events'
     | '/reset-password/$token'
     | '/v2/login'
     | '/announcements'
@@ -2070,6 +2129,7 @@ export interface FileRouteTypes {
     | '/api/ai-tutor/chat/conversations'
     | '/assignments/$assignmentId/problems/$problemId'
     | '/masaiverse/club/$clubId/gallery'
+    | '/api/cache/transcript/$batchId/$sectionId/$lectureId'
     | '/api/learn/assignments/$assignmentId/problems/$problemId'
   id:
     | '__root__'
@@ -2087,6 +2147,7 @@ export interface FileRouteTypes {
     | '/(auth)/v2/reset-password'
     | '/(protected)/_layout/my-courses'
     | '/(protected)/_layout/theme-lab'
+    | '/api/admissions/enrolment-payment-redirect'
     | '/api/announcement/filter-options'
     | '/api/announcement/popups'
     | '/api/announcement/unread-count'
@@ -2201,6 +2262,9 @@ export interface FileRouteTypes {
     | '/api/support/tickets/reopen'
     | '/api/support/tickets/reply'
     | '/api/support/tickets/thread'
+    | '/api/webhooks/admissions/cancel-enrolment'
+    | '/api/webhooks/admissions/create-enrolment'
+    | '/api/webhooks/admissions/events'
     | '/(auth)/reset-password/$token/'
     | '/(auth)/v2/login/'
     | '/(protected)/_layout/announcements/'
@@ -2248,6 +2312,7 @@ export interface FileRouteTypes {
     | '/api/ai-tutor/chat/conversations/'
     | '/(protected)/_layout/assignments_/$assignmentId/problems/$problemId'
     | '/(protected)/_layout/masaiverse/club/$clubId_/gallery'
+    | '/api/cache/transcript/$batchId/$sectionId/$lectureId'
     | '/api/learn/assignments/$assignmentId/problems/$problemId'
   fileRoutesById: FileRoutesById
 }
@@ -2263,6 +2328,7 @@ export interface RootRouteChildren {
   authV2ForgotPasswordRoute: typeof authV2ForgotPasswordRoute
   authV2MeRoute: typeof authV2MeRoute
   authV2ResetPasswordRoute: typeof authV2ResetPasswordRoute
+  ApiAdmissionsEnrolmentPaymentRedirectRoute: typeof ApiAdmissionsEnrolmentPaymentRedirectRoute
   ApiAnnouncementFilterOptionsRoute: typeof ApiAnnouncementFilterOptionsRoute
   ApiAnnouncementPopupsRoute: typeof ApiAnnouncementPopupsRoute
   ApiAnnouncementUnreadCountRoute: typeof ApiAnnouncementUnreadCountRoute
@@ -2354,6 +2420,9 @@ export interface RootRouteChildren {
   ApiMessageIdReplyRoute: typeof ApiMessageIdReplyRoute
   ApiProfileAccountActivitySignOutAllRoute: typeof ApiProfileAccountActivitySignOutAllRoute
   ApiSupportCallbackCreateRoute: typeof ApiSupportCallbackCreateRoute
+  ApiWebhooksAdmissionsCancelEnrolmentRoute: typeof ApiWebhooksAdmissionsCancelEnrolmentRoute
+  ApiWebhooksAdmissionsCreateEnrolmentRoute: typeof ApiWebhooksAdmissionsCreateEnrolmentRoute
+  ApiWebhooksAdmissionsEventsRoute: typeof ApiWebhooksAdmissionsEventsRoute
   authResetPasswordTokenIndexRoute: typeof authResetPasswordTokenIndexRoute
   authV2LoginIndexRoute: typeof authV2LoginIndexRoute
   ApiAnnouncementIdIndexRoute: typeof ApiAnnouncementIdIndexRoute
@@ -2372,6 +2441,7 @@ export interface RootRouteChildren {
   ApiLearnAiTutorLectureIdSessionRoute: typeof ApiLearnAiTutorLectureIdSessionRoute
   ApiLearnAiTutorLectureIdTranscriptRoute: typeof ApiLearnAiTutorLectureIdTranscriptRoute
   ApiAiTutorChatConversationsIndexRoute: typeof ApiAiTutorChatConversationsIndexRoute
+  ApiCacheTranscriptBatchIdSectionIdLectureIdRoute: typeof ApiCacheTranscriptBatchIdSectionIdLectureIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -2705,6 +2775,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAnnouncementFilterOptionsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/admissions/enrolment-payment-redirect': {
+      id: '/api/admissions/enrolment-payment-redirect'
+      path: '/api/admissions/enrolment-payment-redirect'
+      fullPath: '/api/admissions/enrolment-payment-redirect'
+      preLoaderRoute: typeof ApiAdmissionsEnrolmentPaymentRedirectRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/(protected)/_layout/theme-lab': {
       id: '/(protected)/_layout/theme-lab'
       path: '/theme-lab'
@@ -2857,6 +2934,27 @@ declare module '@tanstack/react-router' {
       path: '/reset-password/$token'
       fullPath: '/reset-password/$token/'
       preLoaderRoute: typeof authResetPasswordTokenIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/webhooks/admissions/events': {
+      id: '/api/webhooks/admissions/events'
+      path: '/api/webhooks/admissions/events'
+      fullPath: '/api/webhooks/admissions/events'
+      preLoaderRoute: typeof ApiWebhooksAdmissionsEventsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/webhooks/admissions/create-enrolment': {
+      id: '/api/webhooks/admissions/create-enrolment'
+      path: '/api/webhooks/admissions/create-enrolment'
+      fullPath: '/api/webhooks/admissions/create-enrolment'
+      preLoaderRoute: typeof ApiWebhooksAdmissionsCreateEnrolmentRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/webhooks/admissions/cancel-enrolment': {
+      id: '/api/webhooks/admissions/cancel-enrolment'
+      path: '/api/webhooks/admissions/cancel-enrolment'
+      fullPath: '/api/webhooks/admissions/cancel-enrolment'
+      preLoaderRoute: typeof ApiWebhooksAdmissionsCancelEnrolmentRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/support/tickets/thread': {
@@ -3594,6 +3692,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiLearnAssignmentsAssignmentIdProblemsProblemIdRouteImport
       parentRoute: typeof ApiLearnAssignmentsAssignmentIdRoute
     }
+    '/api/cache/transcript/$batchId/$sectionId/$lectureId': {
+      id: '/api/cache/transcript/$batchId/$sectionId/$lectureId'
+      path: '/api/cache/transcript/$batchId/$sectionId/$lectureId'
+      fullPath: '/api/cache/transcript/$batchId/$sectionId/$lectureId'
+      preLoaderRoute: typeof ApiCacheTranscriptBatchIdSectionIdLectureIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/(protected)/_layout/masaiverse/club/$clubId_/gallery': {
       id: '/(protected)/_layout/masaiverse/club/$clubId_/gallery'
       path: '/club/$clubId/gallery'
@@ -3912,6 +4017,8 @@ const rootRouteChildren: RootRouteChildren = {
   authV2ForgotPasswordRoute: authV2ForgotPasswordRoute,
   authV2MeRoute: authV2MeRoute,
   authV2ResetPasswordRoute: authV2ResetPasswordRoute,
+  ApiAdmissionsEnrolmentPaymentRedirectRoute:
+    ApiAdmissionsEnrolmentPaymentRedirectRoute,
   ApiAnnouncementFilterOptionsRoute: ApiAnnouncementFilterOptionsRoute,
   ApiAnnouncementPopupsRoute: ApiAnnouncementPopupsRoute,
   ApiAnnouncementUnreadCountRoute: ApiAnnouncementUnreadCountRoute,
@@ -4008,6 +4115,11 @@ const rootRouteChildren: RootRouteChildren = {
   ApiProfileAccountActivitySignOutAllRoute:
     ApiProfileAccountActivitySignOutAllRoute,
   ApiSupportCallbackCreateRoute: ApiSupportCallbackCreateRoute,
+  ApiWebhooksAdmissionsCancelEnrolmentRoute:
+    ApiWebhooksAdmissionsCancelEnrolmentRoute,
+  ApiWebhooksAdmissionsCreateEnrolmentRoute:
+    ApiWebhooksAdmissionsCreateEnrolmentRoute,
+  ApiWebhooksAdmissionsEventsRoute: ApiWebhooksAdmissionsEventsRoute,
   authResetPasswordTokenIndexRoute: authResetPasswordTokenIndexRoute,
   authV2LoginIndexRoute: authV2LoginIndexRoute,
   ApiAnnouncementIdIndexRoute: ApiAnnouncementIdIndexRoute,
@@ -4029,6 +4141,8 @@ const rootRouteChildren: RootRouteChildren = {
   ApiLearnAiTutorLectureIdTranscriptRoute:
     ApiLearnAiTutorLectureIdTranscriptRoute,
   ApiAiTutorChatConversationsIndexRoute: ApiAiTutorChatConversationsIndexRoute,
+  ApiCacheTranscriptBatchIdSectionIdLectureIdRoute:
+    ApiCacheTranscriptBatchIdSectionIdLectureIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

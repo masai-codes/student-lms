@@ -32,7 +32,16 @@ export function useLectureVideoMaxHeight() {
         return
       }
       const viewportHeight = window.visualViewport?.height ?? window.innerHeight
-      const top = video.getBoundingClientRect().top + window.scrollY
+      // Where the video sits with nothing scrolled. On desktop the left column
+      // scrolls itself (LectureSplitLayout), so `window.scrollY` alone leaves
+      // `rect.top` negative mid-page and inflates the cap on the next resize.
+      const scroller = video.closest<HTMLElement>(
+        '[data-lecture-scroll-container]',
+      )
+      const top =
+        video.getBoundingClientRect().top +
+        window.scrollY +
+        (scroller?.scrollTop ?? 0)
       const titleBlock =
         document.querySelector<HTMLElement>(TITLE_BLOCK_SELECTOR)
       const reserve = (titleBlock?.offsetHeight ?? 0) + RESERVE_BUFFER_PX
