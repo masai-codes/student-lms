@@ -1,7 +1,7 @@
 'use client'
 
 import { useCallback, useMemo, useRef, useState } from 'react'
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import {
   getRouteApi,
   useNavigate,
@@ -43,6 +43,7 @@ import { isMigratedRoute } from '@/utils/migratedRoutes'
 import { OLD_STUDENT_UI_NAV_PATHS } from '@/constants/oldStudentUiNavPaths'
 import { activeAppNavIdForPathname } from '@/lib/appNavActiveItem'
 import { getBugReportFormUrl } from '@/utils/bugReportFormUrl'
+import { invalidateMeQuery } from '@/query/me/meCache'
 import { logout } from '@/server/auth/logout'
 import { getMasaiverseAccessDebugServer } from '@/server/masaiverse/getMasaiverseAccessDebugServer'
 import {
@@ -122,6 +123,7 @@ export default function AppNavbar() {
   // Interviews, LevelUp, Download App, chat + guided-tour icons).
   const isIHub = isIHubPortal()
   const navigate = useNavigate()
+  const queryClient = useQueryClient()
   const pathname = useRouterState({ select: (s) => s.location.pathname })
   // Lecture detail only goes dark when it renders the immersive black video
   // experience — i.e. a watchable in-app recording is present. Before/during
@@ -217,6 +219,8 @@ export default function AppNavbar() {
       e.preventDefault()
       try {
         await logout()
+        // Session is gone; drop the cached user so nothing can read it back.
+        invalidateMeQuery(queryClient)
       } catch (err) {
         console.error('Logout failed', err)
         window.alert(
@@ -228,7 +232,7 @@ export default function AppNavbar() {
       }
       window.location.assign(getPostLogoutRedirectUrl())
     },
-    [],
+    [queryClient],
   )
 
   const handleHomeClick = useCallback(

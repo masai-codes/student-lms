@@ -17,7 +17,7 @@ export function TabNavbar({
     <nav
       aria-label={ariaLabel}
       className={cn(
-        'flex w-full flex-row items-center bg-surface py-2 font-poppins',
+        'flex w-full flex-row items-center bg-surface py-0 font-poppins',
         className,
       )}
     >
@@ -33,7 +33,7 @@ export function TabNavbar({
             onClick={item.onClick}
             aria-current={isActive ? 'page' : undefined}
             className={cn(
-              'group relative flex min-w-0 basis-0 flex-1 flex-col items-center justify-center gap-1 px-1 pt-4 pb-1 transition-colors',
+              'group relative flex min-w-0 basis-0 flex-1 flex-col items-center justify-center gap-1 px-1 pt-3 pb-1 transition-colors',
               'cursor-pointer border-0 bg-transparent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-0',
               isActive
                 ? activeClassName

@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Bookmark } from 'lucide-react'
+import { Bookmark, CircleQuestionMark } from 'lucide-react'
 
 import { MasaiButton } from '@/components/ui/masai-button'
 import { RaiseTicketDrawer } from '@/components/features/support/RaiseTicketDrawer'
@@ -38,11 +38,12 @@ export function LearnDetailDefaultActions({
   return (
     <>
       <MasaiButton
-        type="secondary"
-        size="md"
+        type="tertiary"
+        size="sm"
         ctaText="Raise Ticket"
         htmlType="button"
         className="transition-all duration-200 active:scale-95"
+        icon={<CircleQuestionMark />}
         onClick={() => {
           pushLearnEvent('l_learn_raise_ticket_open', {
             category: ticketCategory,
@@ -52,8 +53,8 @@ export function LearnDetailDefaultActions({
         }}
       />
       <MasaiButton
-        type="tertiary"
-        size="md"
+        type="secondary"
+        size="sm"
         icon={
           // Remounting on toggle replays the springy star pop each time.
           <Bookmark

@@ -125,7 +125,7 @@ export default function AppMobileTabBar() {
         items={items}
         ariaLabel="Primary navigation"
         labelClassName="text-xs"
-        className="shadow-[0_-4px_24px_rgba(0,0,0,0.08)] pb-[max(1.25rem,env(safe-area-inset-bottom))]"
+        className="shadow-[0_-4px_24px_rgba(0,0,0,0.08)] pb-[env(safe-area-inset-bottom)]"
       />
     </div>
   )
