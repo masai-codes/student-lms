@@ -43,14 +43,20 @@ export function LectureVideoSection({
 
   if (!fullBleed) {
     return (
-      <div className={cn('flex min-h-0 flex-1 flex-col bg-black', className)}>
+      <div
+        data-testid="lecture-video-section"
+        className={cn('flex min-h-0 flex-1 flex-col bg-black', className)}
+      >
         {player}
       </div>
     )
   }
 
   return (
-    <LectureVideoFullBleed className={cn('flex min-h-0 flex-col', className)}>
+    <LectureVideoFullBleed
+      testId="lecture-video-section"
+      className={cn('flex min-h-0 flex-col', className)}
+    >
       {player}
     </LectureVideoFullBleed>
   )
