@@ -14,16 +14,10 @@ import { MasaiInput } from '@/components/ui/masai-input'
 import AppPagination from '@/components/common/Pagination'
 import { fetchBookmarks } from '@/lib/api/bookmarks/bookmarksApi'
 import { BookmarkCard } from './BookmarkCard'
-import {
-  BookmarkListSkeleton,
-  BookmarksEmptyState,
-} from './BookmarkListStates'
+import { BookmarkListSkeleton, BookmarksEmptyState } from './BookmarkListStates'
 import { BookmarksFilterDrawer } from './BookmarksFilterDrawer'
 import { BookmarksAppliedFilters } from './BookmarksAppliedFilters'
-import {
-  filtersFromSearch,
-  searchFromFilters,
-} from './bookmarksFilterSearch'
+import { filtersFromSearch, searchFromFilters } from './bookmarksFilterSearch'
 import type { BookmarkFilters } from './bookmarksFilterConfig'
 
 const STALE_TIME_MS = 5 * 60 * 1000
@@ -39,7 +33,13 @@ export function BookmarksPage() {
   const filters = filtersFromSearch(search)
 
   const { data, isLoading, isFetching } = useQuery({
-    queryKey: ['bookmarks', activeTab, page, q ?? '', searchFromFilters(filters)],
+    queryKey: [
+      'bookmarks',
+      activeTab,
+      page,
+      q ?? '',
+      searchFromFilters(filters),
+    ],
     queryFn: () =>
       fetchBookmarks({
         tab: activeTab,
@@ -77,7 +77,12 @@ export function BookmarksPage() {
   function handlePageChange(newPage: number) {
     void navigate({
       to: '/bookmarks',
-      search: { ...searchFromFilters(filters), tab: activeTab, page: newPage, q },
+      search: {
+        ...searchFromFilters(filters),
+        tab: activeTab,
+        page: newPage,
+        q,
+      },
     })
   }
 

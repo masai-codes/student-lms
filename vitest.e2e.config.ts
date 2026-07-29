@@ -15,8 +15,9 @@ export default defineConfig({
     // Real browser against one dev server — run files sequentially to avoid
     // hammering the single-process dev server and to keep output readable.
     fileParallelism: false,
-    testTimeout: 60_000,
-    hookTimeout: 60_000,
+    // Interactive flows (video seek + profile photo upload) need headroom.
+    testTimeout: 120_000,
+    hookTimeout: 120_000,
     // The project's day-boundary / IST wall-clock rendering assumes IST.
     env: { TZ: 'Asia/Kolkata' },
     reporters: ['default'],

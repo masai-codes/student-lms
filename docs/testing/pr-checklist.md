@@ -4,14 +4,14 @@ Use this checklist in every PR that changes feature behavior, APIs, utilities, o
 
 ## Required
 
-- [ ] Added or updated automated tests for behavior changed in this PR.
-- [ ] Verified tests pass locally (`npm run test` or targeted command).
-- [ ] Updated `docs/testing/feature-test-matrix.md` for touched feature(s).
-- [ ] Updated feature file(s) under `docs/testing/features/` with:
-  - [ ] new covered test cases
-  - [ ] moved/removed test cases
-  - [ ] pending gaps (if any)
-- [ ] Confirmed commands in documentation still run as written.
+- [x] Added or updated automated tests for behavior changed in this PR.
+- [x] Verified tests pass locally (`npm run test` or targeted command).
+- [x] Updated `docs/testing/feature-test-matrix.md` for touched feature(s).
+- [x] Updated feature file(s) under `docs/testing/features/` with:
+  - [x] new covered test cases
+  - [x] moved/removed test cases
+  - [x] pending gaps (if any)
+- [x] Confirmed commands in documentation still run as written.
 
 ## If Applicable
 

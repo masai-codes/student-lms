@@ -8,6 +8,17 @@
 export const SUPPORT_API = {
   /** GET — aggregated landing payload (the one page-load request). */
   overview: '/api/support/overview',
+  /** GET — floating support modal inbox (batches, tickets, callbacks). */
+  floatingChatInbox: '/api/support/floating-chat/inbox',
+  /** GET — batch + item card for opening the floater from a learn detail page. */
+  floatingChatEntityContext: (category: string, entityId: number) =>
+    `/api/support/floating-chat/context?category=${encodeURIComponent(category)}&entityId=${entityId}`,
+  /** GET — lecture snapshot for floating support item confirmation. */
+  floatingChatLectureSnapshot: (lectureId: number) =>
+    `/api/support/floating-chat/lectures/${lectureId}`,
+  /** GET — assignment/evaluation snapshot for floating support item confirmation. */
+  floatingChatAssignmentSnapshot: (assignmentId: number) =>
+    `/api/support/floating-chat/assignments/${assignmentId}`,
   /** GET — search/list FAQs for a batch. */
   faqs: '/api/support/faqs',
   /** GET — subcategories for a single (context) category. */
@@ -30,6 +41,4 @@ export const SUPPORT_API = {
   ticketEscalate: '/api/support/tickets/escalate',
   /** POST — request a callback. */
   callbackCreate: '/api/support/callback/create',
-  /** POST (multipart) — upload a ticket attachment. */
-  upload: '/api/support/upload',
 } as const

@@ -393,7 +393,10 @@ export function MessageDetailPage({ detail }: MessageDetailPageProps) {
       >
         {/* Recording UI */}
         {/* Markdown editor — always visible */}
-        <div className="border border-border rounded-lg overflow-hidden">
+        <div
+          className="border border-border rounded-lg overflow-hidden"
+          data-testid="message-reply-input"
+        >
           <MDEditor
             value={replyValue}
             onChange={setReplyValue}
@@ -528,6 +531,7 @@ export function MessageDetailPage({ detail }: MessageDetailPageProps) {
           {/* Send */}
           <button
             type="button"
+            data-testid="message-reply-send"
             onClick={() => void handleSend()}
             disabled={!replyValue?.trim() && !audioBlob}
             className="flex items-center gap-1.5 px-5 py-2 rounded-lg bg-[#3D4A6B] text-white text-sm font-semibold hover:bg-[#333f5c] transition-colors focus-visible:outline-none disabled:opacity-40 disabled:cursor-not-allowed shrink-0"

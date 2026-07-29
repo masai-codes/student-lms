@@ -15,14 +15,14 @@
 
 ## Test cases
 
-| ID | Case | Expected |
-|----|------|----------|
-| LOG-001 | `logger.info` in production | Single-line JSON on `console.log` with `level`, `time`, `msg`, and extra fields |
-| LOG-002 | `logger.debug` in development | Pretty-printed JSON on `console.log` |
-| LOG-003 | `logger.warn` / `logger.error` | Routed to `console.warn` / `console.error` |
-| LOG-004 | `err` is an `Error` | Serialized error object in JSON payload |
-| LOG-005 | `err` is a plain value | Passed through unchanged |
-| LOG-006 | No `err` field | Payload has no `err` key |
+| ID      | Case                           | Expected                                                                        |
+| ------- | ------------------------------ | ------------------------------------------------------------------------------- |
+| LOG-001 | `logger.info` in production    | Single-line JSON on `console.log` with `level`, `time`, `msg`, and extra fields |
+| LOG-002 | `logger.debug` in development  | Pretty-printed JSON on `console.log`                                            |
+| LOG-003 | `logger.warn` / `logger.error` | Routed to `console.warn` / `console.error`                                      |
+| LOG-004 | `err` is an `Error`            | Serialized error object in JSON payload                                         |
+| LOG-005 | `err` is a plain value         | Passed through unchanged                                                        |
+| LOG-006 | No `err` field                 | Payload has no `err` key                                                        |
 
 ## Usage
 

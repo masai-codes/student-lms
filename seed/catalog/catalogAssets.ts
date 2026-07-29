@@ -584,7 +584,8 @@ export const CATALOG_SCRIPT = `
   function handleLogin(btn) {
     const url = secretLoginUrl(btn.getAttribute('data-user-id'), btn.getAttribute('data-user-email'));
     if (!url) return;
-    window.open(url, '_blank', 'noopener,noreferrer');
+    // window.open(url, '_blank', 'noopener,noreferrer');
+    window.location.href = url;
   }
 
   function wireLoginButtons(root) {

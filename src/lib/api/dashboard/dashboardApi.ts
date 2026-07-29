@@ -1,4 +1,5 @@
 import type { DashboardOverview } from '@/server/api/dashboard/getDashboardOverview.service'
+import type { DashboardScheduleItem } from '@/server/api/dashboard/schedule/scheduleTypes'
 import type { T0FlowLecturesResult } from '@/server/api/dashboard/getT0FlowLectures.service'
 import type { NavbarPillEvent } from '@/server/api/dashboard/getNavbarPill.service'
 import type { T0FlowDocumentsStatus } from '@/server/api/dashboard/getT0FlowDocuments.service'
@@ -16,6 +17,14 @@ import { fetchJson } from '@/lib/api/fetchJson'
  */
 export async function fetchDashboardOverview(): Promise<DashboardOverview> {
   return fetchJson<DashboardOverview>(DASHBOARD_API.overview)
+}
+
+export async function fetchDashboardPendingTasks(): Promise<{
+  pendingTasks: Array<DashboardScheduleItem>
+}> {
+  return fetchJson<{ pendingTasks: Array<DashboardScheduleItem> }>(
+    DASHBOARD_API.pendingTasks,
+  )
 }
 
 export async function fetchNavbarPillEvent(): Promise<NavbarPillEvent | null> {

@@ -98,11 +98,7 @@ export function LectureDetailFooter({
       <div className="shrink-0 pb-4">
         <LectureFeedbackForm lectureId={entityId} feedback={feedback} />
       </div>
-      <div
-        ref={tabBarRef}
-        data-lecture-viewport-chrome
-        className="shrink-0"
-      >
+      <div ref={tabBarRef} data-lecture-viewport-chrome className="shrink-0">
         <LectureTabBar
           activeTabId={activeTabId}
           onTabChange={handleTabChange}

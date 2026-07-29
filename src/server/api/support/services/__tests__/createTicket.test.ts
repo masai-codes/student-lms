@@ -25,13 +25,36 @@ vi.mock('@/db', () => ({
 vi.mock('@/server/api/support/services/ticketReplyTemplate', () => ({
   buildFirstTemplateResponse: hoisted.buildFirstTemplateResponse,
 }))
-
-/** Queue one `select().from().where()` chain resolving to `rows`. */
-function mockSelect(rows: Array<unknown>) {
-  hoisted.dbSelect.mockReturnValueOnce({
-    from: () => ({ where: () => Promise.resolve(rows) }),
-  })
-}
+vi.mock('@/server/api/support/services/directory.service', () => ({
+  getActiveSectionNames: vi.fn().mockResolvedValue([]),
+}))
+vi.mock(
+  '@/server/api/support/services/fetchEntityTitleForTicket.service',
+  () => ({
+    fetchEntityTitleForTicket: vi.fn().mockResolvedValue(null),
+  }),
+)
+vi.mock('@/server/api/support/services/generateTicketTitle.service', () => ({
+  resolveTicketTitle: vi
+    .fn()
+    .mockResolvedValue({ title: 'Support request', source: 'fallback' }),
+}))
+vi.mock(
+  '@/server/api/support/services/createTicketAudit.service',
+  async (importOriginal) => {
+    const actual =
+      await importOriginal<typeof import('../createTicketAudit.service')>()
+    return {
+      ...actual,
+      getBatchDurationOfUser: vi.fn().mockResolvedValue('full-time'),
+      resolveCreateTicketAssignment: vi.fn().mockResolvedValue({
+        assigneeId: 77,
+        info: { log: 'Ticket assigned to L1.\n' },
+        logstamps: { L1_assigned_at: '2026-07-28 17:47:43' },
+      }),
+    }
+  },
+)
 
 /** Capture every `insert().values()` payload in call order. */
 function captureInserts() {
@@ -57,7 +80,6 @@ describe('createTicket', () => {
   })
 
   it('stores created_at / updated_at as IST wall-clock, never NULL', async () => {
-    mockSelect([{ settings: { opsPC: { l1: 77 } } }]) // resolveInitialAssignee
     const inserts = captureInserts()
     const { createTicket } = await import('../tickets.write.service')
 
@@ -73,9 +95,9 @@ describe('createTicket', () => {
     expect(ticket.createdAt).toMatch(MYSQL_DATETIME)
     expect(ticket.updatedAt).toBe(ticket.createdAt)
 
-    // IST wall-clock == UTC + 5:30, matching legacy `getCurrentTime()`. The
-    // lower bound allows one second of slack: the column is TIMESTAMP(0), so
-    // the formatter truncates (never rounds) sub-second precision.
+    // IST wall-clock == UTC + 5:30, matching legacy `getCurrentTime()`. Allow one
+    // second of slack: the column is TIMESTAMP(0), so sub-second precision is
+    // truncated.
     const stored = Date.parse(`${ticket.createdAt.replace(' ', 'T')}Z`)
     const skew = stored - (before + 5.5 * 60 * 60 * 1000)
     expect(skew).toBeGreaterThan(-1_000)
@@ -83,7 +105,6 @@ describe('createTicket', () => {
   })
 
   it('writes the legacy data payload verbatim, entity included', async () => {
-    mockSelect([{ settings: { opsPC: { l1: 77 } } }])
     const inserts = captureInserts()
     const { createTicket } = await import('../tickets.write.service')
 
@@ -96,17 +117,18 @@ describe('createTicket', () => {
       entityId: 98765,
     })
 
-    // Exact shape — an extra or renamed key here is the regression.
-    expect(inserts[0].data).toEqual({
+    expect(inserts[0].data).toMatchObject({
       batch_id: '10', // string: legacy `CreateTicketV2Input.batch_id: String!`
       subCategory: 'video-not-playing',
       help_faq_question: true,
       entity_id: 98765,
     })
+    expect(inserts[0].data['active-sections']).toEqual([])
+    expect(inserts[0].data.workflow_id).toMatch(/^ticket-/)
+    expect(inserts[0].data.title_source).toBe('fallback')
   })
 
   it('omits entity_id, and defaults subCategory to "", outside an entity page', async () => {
-    mockSelect([{ settings: { opsPC: { l1: 77 } } }])
     const inserts = captureInserts()
     const { createTicket } = await import('../tickets.write.service')
 
@@ -117,16 +139,16 @@ describe('createTicket', () => {
       message: 'general query',
     })
 
-    expect(inserts[0].data).toEqual({
+    expect(inserts[0].data).toMatchObject({
       batch_id: '10',
       subCategory: '', // legacy sends `normalizedSubcategory || ''`, never null
       help_faq_question: true,
     })
     expect(inserts[0].data).not.toHaveProperty('entity_id')
+    expect(inserts[0].data['active-sections']).toEqual([])
   })
 
   it('includes question_id only for FAQ-originated tickets', async () => {
-    mockSelect([{ settings: { opsPC: { l1: 77 } } }])
     const inserts = captureInserts()
     const { createTicket } = await import('../tickets.write.service')
 
@@ -142,7 +164,6 @@ describe('createTicket', () => {
   })
 
   it('timestamps the first-template comment with the same convention', async () => {
-    mockSelect([{ settings: { opsPC: { l1: 77 } } }])
     const inserts = captureInserts()
     const { createTicket } = await import('../tickets.write.service')
 

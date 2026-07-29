@@ -44,6 +44,18 @@ function normalizeRows<T>(result: unknown): Array<T> {
   return []
 }
 
+function httpUrlOrNull(value: unknown): string | null {
+  if (typeof value !== 'string' || value.trim() === '') return null
+  try {
+    const u = new URL(value.trim())
+    return u.protocol === 'http:' || u.protocol === 'https:'
+      ? u.toString()
+      : null
+  } catch {
+    return null
+  }
+}
+
 async function getLecturesForSection(
   sectionId: number,
 ): Promise<Array<T0FlowLectureItem>> {
@@ -138,7 +150,20 @@ export async function getT0FlowLectures(
   const isDocumentsRequired = admissionsStatus.documentsRequired
   const documentsUploaded = admissionsStatus.documentsUploaded
   const studentKit = toStudentKitStatus(admissionsStatus)
-  const idCardUrl = admissionsStatus.idCardUrl
+  // Prefer the admissions API URL; fall back to the seeded/persisted column so
+  // local seed flows (onboarding-complete) still unlock Download ID card when
+  // the onward mock isn't running.
+  let idCardUrl = admissionsStatus.idCardUrl
+  if (!idCardUrl) {
+    const idCardRows = normalizeRows<{ id_card_url: string | null }>(
+      await db.execute(sql`
+        SELECT id_card_url FROM user_batch_admission_data
+        WHERE user_id = ${userId} AND batch_id = ${batchId}
+        LIMIT 1
+      `),
+    )
+    idCardUrl = httpUrlOrNull(idCardRows[0]?.id_card_url) ?? null
+  }
   console.log('[student-status] getT0FlowLectures applied admissions status', {
     userId,
     batchId,

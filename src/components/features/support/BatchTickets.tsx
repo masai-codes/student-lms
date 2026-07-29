@@ -636,7 +636,7 @@ function CallbackFlow(props: {
   const isReason = step === 'reason'
   const options = isReason ? reasons : timeslots
   const title = isReason
-    ? 'Select the reason for call back'
+    ? 'Select a reason for the callback.'
     : 'Select a preferred time slot for callback'
 
   return (

@@ -90,7 +90,10 @@ export function ProfilePhotoStep({
             data-testid="guided-tour-profile-photo-preview"
           />
         ) : cameraEnabled ? (
-          <div className={CIRCLE}>
+          <div
+            className={CIRCLE}
+            data-testid="guided-tour-profile-photo-webcam"
+          >
             <Webcam
               ref={webcamRef}
               audio={false}
@@ -98,7 +101,6 @@ export function ProfilePhotoStep({
               videoConstraints={VIDEO_CONSTRAINTS}
               mirrored
               className="size-full object-cover"
-              data-testid="guided-tour-profile-photo-webcam"
             />
           </div>
         ) : existingPhotoUrl ? (

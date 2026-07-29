@@ -1,6 +1,10 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
-import { resolveLectureVideoUrl } from '../resolveLectureVideoUrl'
+import {
+  readLectureVideosMp4Url,
+  readLectureVideosRecordingUrl,
+  resolveLectureVideoUrl,
+} from '../resolveLectureVideoUrl'
 
 describe('resolveLectureVideoUrl', () => {
   afterEach(() => {
@@ -45,6 +49,44 @@ describe('resolveLectureVideoUrl', () => {
         vimeoPlayerEmbedUrl: '   ',
       }),
     ).toBeNull()
+  })
+
+  describe('readLectureVideosRecordingUrl', () => {
+    it('returns HLS urls from videos when gumlet is absent', () => {
+      expect(
+        readLectureVideosRecordingUrl([
+          'https://cdn.example.com/hls-videos/abc/master.m3u8',
+        ]),
+      ).toBe('https://cdn.example.com/hls-videos/abc/master.m3u8')
+    })
+
+    it('rewrites non-mp4 S3 zoom segments through CloudFront', () => {
+      vi.stubEnv('CLOUD_FRONT_BASE', 'dxyz.cloudfront.net')
+      expect(
+        readLectureVideosRecordingUrl([
+          'https://zoom-lecture-recordings.s3.ap-south-1.amazonaws.com/84313531944/link_02_1750917137000',
+        ]),
+      ).toBe(
+        'https://dxyz.cloudfront.net/zoom/84313531944/link_02_1750917137000',
+      )
+    })
+  })
+
+  describe('readLectureVideosMp4Url', () => {
+    it('returns the first mp4 url from videos', () => {
+      expect(
+        readLectureVideosMp4Url([
+          'https://example.com/segment',
+          'https://example.com/a.mp4',
+        ]),
+      ).toBe('https://example.com/a.mp4')
+    })
+
+    it('returns null when videos has no mp4 url', () => {
+      expect(
+        readLectureVideosMp4Url(['https://example.com/segment']),
+      ).toBeNull()
+    })
   })
 
   describe('CloudFront rewrite (S3 videos)', () => {

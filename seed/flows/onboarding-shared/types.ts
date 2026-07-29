@@ -85,6 +85,7 @@ export type OnboardingFlowId =
   | 'onboarding-welcome-modal'
   | 'onboarding-welcome-seen'
   | 'onboarding-fees-unpaid'
+  | 'onboarding-fees-unpaid-with-app-download'
   | 'onboarding-fees-paid'
   | 'onboarding-complete'
   | 'onboarding-fees-overdue'

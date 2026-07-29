@@ -82,7 +82,16 @@ function savedAt(raw: unknown): string {
 
 async function getLectures(
   userId: number,
-  { page, limit, q, categories, modules, types, startDate, endDate }: BookmarksQueryParams,
+  {
+    page,
+    limit,
+    q,
+    categories,
+    modules,
+    types,
+    startDate,
+    endDate,
+  }: BookmarksQueryParams,
 ): Promise<GetBookmarksResult> {
   const offset = (page - 1) * limit
   const searchTerm = `%${q ?? ''}%`
@@ -161,7 +170,7 @@ async function getLectures(
       meta: '',
       author: str(row['authorName']),
       savedAt: savedAt(row['savedAt']),
-      entityType: (isResource ? 'resource' : 'lecture'),
+      entityType: isResource ? 'resource' : 'lecture',
       isForYou: false,
     }
   })
@@ -173,7 +182,15 @@ async function getLectures(
 
 async function getAssignments(
   userId: number,
-  { page, limit, q, categories, modules, startDate, endDate }: BookmarksQueryParams,
+  {
+    page,
+    limit,
+    q,
+    categories,
+    modules,
+    startDate,
+    endDate,
+  }: BookmarksQueryParams,
 ): Promise<GetBookmarksResult> {
   const offset = (page - 1) * limit
   const searchTerm = `%${q ?? ''}%`
@@ -261,7 +278,16 @@ async function getAssignments(
 
 async function getTickets(
   userId: number,
-  { page, limit, q, categories, statuses, priorities, startDate, endDate }: BookmarksQueryParams,
+  {
+    page,
+    limit,
+    q,
+    categories,
+    statuses,
+    priorities,
+    startDate,
+    endDate,
+  }: BookmarksQueryParams,
 ): Promise<GetBookmarksResult> {
   const offset = (page - 1) * limit
   const searchTerm = `%${q ?? ''}%`
@@ -354,7 +380,15 @@ async function getTickets(
 
 async function getAnnouncements(
   userId: number,
-  { page, limit, q, categories, types, startDate, endDate }: BookmarksQueryParams,
+  {
+    page,
+    limit,
+    q,
+    categories,
+    types,
+    startDate,
+    endDate,
+  }: BookmarksQueryParams,
 ): Promise<GetBookmarksResult> {
   const offset = (page - 1) * limit
   const searchTerm = `%${q ?? ''}%`
@@ -421,17 +455,19 @@ async function getAnnouncements(
   ])
 
   const total = normalizeCount(countResult)
-  const items = normalizeRows(dataResult).map((row): BookmarkItem => ({
-    id: str(row['id']),
-    ctaUrl: `/announcements/${str(row['entityId'])}`,
-    title: str(row['title']),
-    subtitle: str(row['subtitle']),
-    meta: '',
-    author: str(row['authorName']),
-    savedAt: savedAt(row['savedAt']),
-    entityType: 'announcement',
-    isForYou: false,
-  }))
+  const items = normalizeRows(dataResult).map(
+    (row): BookmarkItem => ({
+      id: str(row['id']),
+      ctaUrl: `/announcements/${str(row['entityId'])}`,
+      title: str(row['title']),
+      subtitle: str(row['subtitle']),
+      meta: '',
+      author: str(row['authorName']),
+      savedAt: savedAt(row['savedAt']),
+      entityType: 'announcement',
+      isForYou: false,
+    }),
+  )
 
   return { items, total }
 }
@@ -445,7 +481,11 @@ async function getMasaiverse(
 ): Promise<GetBookmarksResult> {
   const offset = (page - 1) * limit
   const searchTerm = `%${q ?? ''}%`
-  const filterClause = buildSavedDateClause(sql`cpb.created_at`, startDate, endDate)
+  const filterClause = buildSavedDateClause(
+    sql`cpb.created_at`,
+    startDate,
+    endDate,
+  )
 
   const [countResult, dataResult] = await Promise.all([
     db.execute(
