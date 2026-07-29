@@ -5,11 +5,12 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 const hoisted = vi.hoisted(() => ({
   useSearch: vi.fn(),
+  useRouteContext: vi.fn(),
   fetchNotesPreview: vi.fn(),
 }))
 
 vi.mock('../notesPreviewRoute', () => ({
-  notesPreviewRouteApi: { useSearch: hoisted.useSearch },
+  notesPreviewRouteApi: { useSearch: hoisted.useSearch, useRouteContext: hoisted.useRouteContext },
 }))
 
 vi.mock('@/lib/api/notes-preview/notesPreviewApi', () => ({
@@ -37,6 +38,7 @@ async function renderComponent() {
 describe('NotesPreviewV2', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    hoisted.useRouteContext.mockReturnValue({ user: null })
   })
 
   it('shows the empty state when required params are missing', async () => {
@@ -62,6 +64,19 @@ describe('NotesPreviewV2', () => {
   })
 
   it('renders the returned markdown content', async () => {
+    hoisted.useRouteContext.mockReturnValue({
+      user: {
+        id: 1,
+        name: 'Test User',
+        email: 'test@example.com',
+        mobile: null,
+        role: 'student',
+        profileImageUrl: null,
+        newLmsPagesEnabled: false,
+        hasSeenTryNewTour: false,
+        joinedClubId: null,
+      },
+    })
     hoisted.useSearch.mockReturnValue({
       category: 'lecture',
       contentType: 'notes',
@@ -79,6 +94,12 @@ describe('NotesPreviewV2', () => {
     await waitFor(() => {
       expect(scope.getByTestId('notes-preview-v2-content')).toBeTruthy()
     })
+    expect(scope.getByTestId('notes-preview-v2-user').textContent).toContain(
+      '1',
+    )
+    expect(scope.getByTestId('notes-preview-v2-user').textContent).toContain(
+      'test@example.com',
+    )
     expect(scope.getByTestId('markdown-stub').textContent).toBe(
       '# Lecture notes',
     )

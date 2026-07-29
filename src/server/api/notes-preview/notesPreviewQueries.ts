@@ -2,6 +2,10 @@ import { and, eq, isNull, ne } from 'drizzle-orm'
 
 import { db } from '@/db'
 import { assignments, lectures, lecturesAi, lectureZoomChat } from '@/db/schema'
+import {
+  warnLectureRowNotMatched,
+  warnResourceRowNotMatched,
+} from '@/server/api/notes-preview/notesPreviewDiagnostics'
 import { isSupportedAssignmentDetailType } from '@/server/learn/utils/buildAssignmentDetailPayload'
 import { isSupportedLectureDetailType } from '@/server/learn/utils/buildLectureDetailPayload'
 import { appendZoomChatToNotes } from '@/server/learn/utils/appendZoomChatToNotes'
@@ -37,16 +41,28 @@ async function loadAccessibleLecture(
     .limit(1)
 
   if (rows.length === 0) {
+    await warnLectureRowNotMatched(userId, lectureId)
     throw new Error('LEARN_DETAIL_NOT_FOUND')
   }
 
   const row = rows[0]
   if (!isSupportedLectureDetailType(row.type)) {
+    console.warn('[notes-preview] lecture unsupported type', {
+      userId,
+      lectureId,
+      type: row.type,
+    })
     throw new Error('LEARN_DETAIL_NOT_FOUND')
   }
 
   const allowed = await ensureUserCanAccessLearnHubEntity(userId, row.sectionId)
   if (!allowed) {
+    console.warn('[notes-preview] lecture access denied', {
+      userId,
+      lectureId,
+      sectionId: row.sectionId,
+      type: row.type,
+    })
     throw new Error('LEARN_DETAIL_NOT_FOUND')
   }
 
@@ -106,16 +122,28 @@ export async function fetchResourceBodyForUser(
     .limit(1)
 
   if (rows.length === 0) {
+    await warnResourceRowNotMatched(userId, resourceId)
     throw new Error('LEARN_DETAIL_NOT_FOUND')
   }
 
   const row = rows[0]
   if (!isSupportedResourceLectureType(row.type)) {
+    console.warn('[notes-preview] resource unsupported type', {
+      userId,
+      resourceId,
+      type: row.type,
+    })
     throw new Error('RESOURCE_DETAIL_UNSUPPORTED_TYPE')
   }
 
   const allowed = await ensureUserCanAccessLearnHubEntity(userId, row.sectionId)
   if (!allowed) {
+    console.warn('[notes-preview] resource access denied', {
+      userId,
+      resourceId,
+      sectionId: row.sectionId,
+      type: row.type,
+    })
     throw new Error('LEARN_DETAIL_NOT_FOUND')
   }
 
@@ -140,16 +168,31 @@ export async function fetchAssignmentInstructionsForUser(
     .limit(1)
 
   if (rows.length === 0) {
+    console.warn('[notes-preview] assignment row not found', {
+      userId,
+      assignmentId,
+    })
     throw new Error('LEARN_DETAIL_NOT_FOUND')
   }
 
   const row = rows[0]
   if (!isSupportedAssignmentDetailType(row.type)) {
+    console.warn('[notes-preview] assignment unsupported type', {
+      userId,
+      assignmentId,
+      type: row.type,
+    })
     throw new Error('ASSIGNMENT_DETAIL_UNSUPPORTED_TYPE')
   }
 
   const allowed = await ensureUserCanAccessLearnHubEntity(userId, row.sectionId)
   if (!allowed) {
+    console.warn('[notes-preview] assignment access denied', {
+      userId,
+      assignmentId,
+      sectionId: row.sectionId,
+      type: row.type,
+    })
     throw new Error('LEARN_DETAIL_NOT_FOUND')
   }
 

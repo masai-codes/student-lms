@@ -88,4 +88,34 @@ describe('handleGetNotesPreview', () => {
     })
     expect(hoisted.getNotesPreviewContent).not.toHaveBeenCalled()
   })
+
+  it('maps LEARN_DETAIL_NOT_FOUND to a CloudFront-safe 422 with x-true-status 404', async () => {
+    vi.spyOn(console, 'error').mockImplementation(() => {})
+    hoisted.requireSessionUserId.mockResolvedValueOnce(7)
+    hoisted.getNotesPreviewContent.mockRejectedValueOnce(
+      new Error('LEARN_DETAIL_NOT_FOUND'),
+    )
+    const { handleGetNotesPreview } = await importHandler()
+
+    const response = await handleGetNotesPreview(
+      new Request(
+        'https://learn.example.com/api/notes-preview?category=resource&contentType=notes&entityId=157479',
+      ),
+    )
+
+    expect(response.status).toBe(422)
+    expect(response.headers.get('x-true-status')).toBe('404')
+    await expect(response.json()).resolves.toMatchObject({
+      code: 'LEARN_DETAIL_NOT_FOUND',
+    })
+    expect(console.error).toHaveBeenCalledWith(
+      '[notes-preview] failed',
+      expect.objectContaining({
+        category: 'resource',
+        contentType: 'notes',
+        entityId: '157479',
+        error: 'LEARN_DETAIL_NOT_FOUND',
+      }),
+    )
+  })
 })

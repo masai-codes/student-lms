@@ -25,13 +25,42 @@ export interface NotesPreviewParams {
   entityId: string
 }
 
-// Assignments only carry `instructions`; `description` is accepted as an alias
-// so the app can pass either without breaking. Resources (`lectures.type =
-// reading`) expose a single `body` (notes ?? description); `notes` /
-// `description` both map to that field.
-const LECTURE_CONTENT_TYPES = new Set(['notes', 'summary'])
-const ASSIGNMENT_CONTENT_TYPES = new Set(['instructions', 'description'])
-const RESOURCE_CONTENT_TYPES = new Set(['notes', 'description'])
+interface CategoryResolver {
+  contentTypes: Set<string>
+  // The log `path` for this route; a function when it varies by contentType.
+  path: string | ((contentType: string) => string)
+  fetch: (
+    userId: number,
+    id: number,
+    contentType: string,
+  ) => Promise<string | null>
+}
+
+// Each category maps to the field(s) it can serve. Assignments only carry
+// `instructions`; `description` is accepted as an alias so the app can pass
+// either without breaking. Resources (`lectures.type = reading`) expose a
+// single `body` (notes ?? description); `notes` / `description` both map to it.
+const CATEGORY_RESOLVERS: Record<string, CategoryResolver> = {
+  lecture: {
+    contentTypes: new Set(['notes', 'summary']),
+    path: (contentType) =>
+      contentType === 'summary' ? 'lecture.summary' : 'lecture.notes',
+    fetch: (userId, id, contentType) =>
+      contentType === 'summary'
+        ? fetchLectureSummaryForUser(userId, id)
+        : fetchLectureNotesForUser(userId, id),
+  },
+  resource: {
+    contentTypes: new Set(['notes', 'description']),
+    path: 'resource.body',
+    fetch: (userId, id) => fetchResourceBodyForUser(userId, id),
+  },
+  assignment: {
+    contentTypes: new Set(['instructions', 'description']),
+    path: 'assignment.instructions',
+    fetch: (userId, id) => fetchAssignmentInstructionsForUser(userId, id),
+  },
+}
 
 function parseEntityId(raw: string): number | null {
   const parsed = Number(raw)
@@ -48,25 +77,31 @@ export async function getNotesPreviewContent({
   const id = parseEntityId(entityId)
   const base = { category, contentType, entityId: id }
 
-  if (id == null) return { ...base, content: null }
-
-  if (category === 'lecture' && LECTURE_CONTENT_TYPES.has(contentType)) {
-    const content =
-      contentType === 'summary'
-        ? await fetchLectureSummaryForUser(userId, id)
-        : await fetchLectureNotesForUser(userId, id)
-    return { ...base, content }
+  if (id == null) {
+    console.warn('[notes-preview] invalid entityId', { userId, entityId })
+    return { ...base, content: null }
   }
 
-  if (category === 'resource' && RESOURCE_CONTENT_TYPES.has(contentType)) {
-    const content = await fetchResourceBodyForUser(userId, id)
-    return { ...base, content }
+  const resolver = CATEGORY_RESOLVERS[category]
+  if (!resolver || !resolver.contentTypes.has(contentType)) {
+    console.warn('[notes-preview] unsupported category/contentType', {
+      userId,
+      category,
+      contentType,
+      id,
+    })
+    return { ...base, content: null }
   }
 
-  if (category === 'assignment' && ASSIGNMENT_CONTENT_TYPES.has(contentType)) {
-    const content = await fetchAssignmentInstructionsForUser(userId, id)
-    return { ...base, content }
-  }
-
-  return { ...base, content: null }
+  console.info('[notes-preview] route', {
+    path:
+      typeof resolver.path === 'function'
+        ? resolver.path(contentType)
+        : resolver.path,
+    userId,
+    id,
+    contentType,
+  })
+  const content = await resolver.fetch(userId, id, contentType)
+  return { ...base, content }
 }

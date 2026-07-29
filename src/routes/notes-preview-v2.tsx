@@ -29,27 +29,32 @@ export const Route = createFileRoute('/notes-preview-v2')({
   beforeLoad: async ({ location }) => {
     const requestUrl = new URL(location.href, 'http://localhost')
     const token = requestUrl.searchParams.get('token')
-    if (!token) return
+    let user = await fetchCurrentUser()
 
     // Auto-login: when the WebView is opened without a session but carries a
     // `?token=` bootstrap JWT, verifying it persists the session cookie so the
     // content fetch below is authenticated. An invalid token simply leaves the
     // request unauthenticated (the page then shows its empty/error state).
-    const user = await fetchCurrentUser()
-    if (!user) {
-      await bootstrapLoginWithToken({ data: token })
+    if (!user && token) {
+      user = await bootstrapLoginWithToken({ data: token })
     }
 
     // One-time bootstrap tokens must not linger in the URL (history, logs,
     // Referer). Strip `token` and send the browser to the clean URL; later
     // param-only URL updates re-run this loader with no token and no redirect.
-    const cleanParams = new URLSearchParams(requestUrl.searchParams)
-    cleanParams.delete('token')
-    const cleanSearch = cleanParams.toString()
-    throw redirect({
-      href: `${location.pathname}${cleanSearch ? `?${cleanSearch}` : ''}`,
-      replace: true,
-    })
+    if (token) {
+      const cleanParams = new URLSearchParams(requestUrl.searchParams)
+      cleanParams.delete('token')
+      const cleanSearch = cleanParams.toString()
+      throw redirect({
+        href: `${location.pathname}${
+          cleanSearch ? `?${cleanSearch}` : ''
+        }`,
+        replace: true,
+      })
+    }
+
+    return { user }
   },
   component: NotesPreviewV2,
 })

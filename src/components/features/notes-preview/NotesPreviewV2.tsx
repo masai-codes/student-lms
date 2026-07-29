@@ -54,8 +54,18 @@ const EMPTY_MESSAGE = 'There is nothing to show here yet.'
 const ERROR_MESSAGE = "This content couldn't be loaded right now."
 
 export function NotesPreviewV2() {
+  const { user } = notesPreviewRouteApi.useRouteContext()
   const { category, contentType, entityId } = notesPreviewRouteApi.useSearch()
   const hasParams = Boolean(category && contentType && entityId)
+
+  const userHeader = user ? (
+    <div
+      data-testid="notes-preview-v2-user"
+      className="type-body-md text-foreground-muted wrap-break-word"
+    >
+      {user.id} {user.email}
+    </div>
+  ) : null
 
   const query = useQuery({
     queryKey: ['notes-preview-v2', category, contentType, entityId],
@@ -71,6 +81,7 @@ export function NotesPreviewV2() {
   if (!hasParams) {
     return (
       <PreviewShell>
+        {userHeader}
         <EmptyState message={EMPTY_MESSAGE} />
       </PreviewShell>
     )
@@ -79,6 +90,7 @@ export function NotesPreviewV2() {
   if (query.isPending) {
     return (
       <PreviewShell>
+        {userHeader}
         <LoadingState />
       </PreviewShell>
     )
@@ -87,6 +99,7 @@ export function NotesPreviewV2() {
   if (query.isError) {
     return (
       <PreviewShell>
+        {userHeader}
         <EmptyState message={ERROR_MESSAGE} />
       </PreviewShell>
     )
@@ -96,6 +109,7 @@ export function NotesPreviewV2() {
   if (!content || !content.trim()) {
     return (
       <PreviewShell>
+        {userHeader}
         <EmptyState message={EMPTY_MESSAGE} />
       </PreviewShell>
     )
@@ -103,6 +117,7 @@ export function NotesPreviewV2() {
 
   return (
     <PreviewShell>
+      {userHeader}
       <div data-testid="notes-preview-v2-content">
         <MarkdownContent value={content} variant="detail" />
       </div>
