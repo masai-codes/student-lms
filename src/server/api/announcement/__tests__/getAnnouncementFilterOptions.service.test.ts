@@ -35,9 +35,8 @@ describe('getAnnouncementFilterOptions service', () => {
         ],
       ])
 
-    const { getAnnouncementFilterOptions } = await import(
-      '../getAnnouncementFilterOptions.service'
-    )
+    const { getAnnouncementFilterOptions } =
+      await import('../getAnnouncementFilterOptions.service')
     await expect(getAnnouncementFilterOptions(7)).resolves.toEqual({
       categories: ['DSA', 'General'],
       announcers: [
@@ -53,11 +52,12 @@ describe('getAnnouncementFilterOptions service', () => {
     mockCategories([{ value: 'DSA' }])
     mockSections([])
     // Only the message-authors query runs (no announcement query without sections)
-    hoisted.dbExecute.mockResolvedValueOnce([[{ id: 5, name: 'Mridul Katara' }]])
+    hoisted.dbExecute.mockResolvedValueOnce([
+      [{ id: 5, name: 'Mridul Katara' }],
+    ])
 
-    const { getAnnouncementFilterOptions } = await import(
-      '../getAnnouncementFilterOptions.service'
-    )
+    const { getAnnouncementFilterOptions } =
+      await import('../getAnnouncementFilterOptions.service')
     await expect(getAnnouncementFilterOptions(7)).resolves.toEqual({
       categories: ['DSA'],
       announcers: [{ id: '5', name: 'Mridul Katara' }],
@@ -69,12 +69,16 @@ describe('getAnnouncementFilterOptions service', () => {
     mockCategories([])
     mockSections([{ sectionId: 9 }])
     hoisted.dbExecute
-      .mockResolvedValueOnce([[{ id: 1, name: 'Ada' }, { id: 3, name: '' }]])
+      .mockResolvedValueOnce([
+        [
+          { id: 1, name: 'Ada' },
+          { id: 3, name: '' },
+        ],
+      ])
       .mockResolvedValueOnce([[]])
 
-    const { getAnnouncementFilterOptions } = await import(
-      '../getAnnouncementFilterOptions.service'
-    )
+    const { getAnnouncementFilterOptions } =
+      await import('../getAnnouncementFilterOptions.service')
     const result = await getAnnouncementFilterOptions(7)
     expect(result.announcers).toEqual([{ id: '1', name: 'Ada' }])
   })

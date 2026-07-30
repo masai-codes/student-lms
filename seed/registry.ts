@@ -40,7 +40,8 @@ async function loadFlowModule(id: string): Promise<SeedFlowModule> {
       return { meta: loginAndJoinLectureConfig, seed: seedLoginAndJoinLecture }
     }
     case liveLecturePhasesConfig.id: {
-      const { seedLiveLecturePhases } = await import('./flows/live-lecture-phases/seed')
+      const { seedLiveLecturePhases } =
+        await import('./flows/live-lecture-phases/seed')
       return { meta: liveLecturePhasesConfig, seed: seedLiveLecturePhases }
     }
     case dashboardHomeConfig.id: {

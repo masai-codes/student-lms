@@ -2,9 +2,7 @@
 
 import { useCallback, useEffect, useState } from 'react'
 
-import {
-  LECTURE_RAIL_MEDIA_QUERY,
-} from '../constants/lectureSplitLayout'
+import { LECTURE_RAIL_MEDIA_QUERY } from '../constants/lectureSplitLayout'
 
 export function useLectureSplitChatOpen() {
   // Start closed (SSR-safe). On mount we always auto-open on the laptop/desktop

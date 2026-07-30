@@ -19,7 +19,9 @@ function EntityIcon({ type }: { type: BookmarkEntityType }) {
     return <img src="/AssignmentIcon.svg" alt="" className="size-5 shrink-0" />
   }
   if (type === 'announcement') {
-    return <img src="/AnnouncementIcon.svg" alt="" className="size-5 shrink-0" />
+    return (
+      <img src="/AnnouncementIcon.svg" alt="" className="size-5 shrink-0" />
+    )
   }
   if (type === 'masaiverse') {
     return <Globe size={18} strokeWidth={1.75} className="text-info shrink-0" />

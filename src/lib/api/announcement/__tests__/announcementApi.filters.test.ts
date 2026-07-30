@@ -61,7 +61,8 @@ describe('fetchAnnouncements — filter params', () => {
       categories: ['DSA'],
       announcers: [{ id: '1', name: 'Ada' }],
     })
-    const { fetchAnnouncementFilterOptions } = await import('../announcementApi')
+    const { fetchAnnouncementFilterOptions } =
+      await import('../announcementApi')
 
     await expect(fetchAnnouncementFilterOptions()).resolves.toEqual({
       categories: ['DSA'],

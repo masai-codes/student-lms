@@ -11,13 +11,13 @@ version whose filters map to columns each tab already returns.
 
 Per-tab filters:
 
-| Tab | Filters |
-|---|---|
-| Lectures | Category, Module, Type (Lecture / Resource), Saved date |
-| Assignments | Category, Module, Saved date |
-| Tickets | Status, Priority, Category, Saved date |
-| Announcements | Category, Type (Critical / Information), Saved date |
-| Masaiverse | Saved date only |
+| Tab           | Filters                                                 |
+| ------------- | ------------------------------------------------------- |
+| Lectures      | Category, Module, Type (Lecture / Resource), Saved date |
+| Assignments   | Category, Module, Saved date                            |
+| Tickets       | Status, Priority, Category, Saved date                  |
+| Announcements | Category, Type (Critical / Information), Saved date     |
+| Masaiverse    | Saved date only                                         |
 
 - **Options are dynamic** — Category/Module/Status/Priority values come from the
   user's own bookmarked items via `GET /api/bookmarks/filter-options?tab=…`
@@ -38,19 +38,19 @@ Per-tab filters:
 
 ## Test files
 
-| File | Covers |
-| --- | --- |
+| File                                                                          | Covers                                                                                                 |
+| ----------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
 | `src/server/api/bookmarks/utils/__tests__/buildBookmarkFilterClauses.test.ts` | `IN` clause building, lecture type (both/neither/resource/lecture), saved-date BETWEEN/`>=`/`<=`/empty |
-| `src/server/api/bookmarks/utils/__tests__/parseBookmarksQuery.test.ts` | defaults, tab fallback, CSV parse/dedupe, date validation |
-| `src/server/api/bookmarks/__tests__/getBookmarkFilterOptions.service.test.ts` | distinct/sorted options per tab; empty (masaiverse) without a query |
-| `src/components/features/bookmarks/bookmarksFilterConfig.test.ts` | empty-state factory, per-tab sections, type options, `isIsoDate`, `normalizeFilterValues` |
-| `src/components/features/bookmarks/bookmarksFilterSearch.test.ts` | search⇄filters round-trip, count, chips (labels, removal, date ranges) |
-| `src/lib/api/bookmarks/__tests__/bookmarksApi.filters.test.ts` | param serialization; filter-options fetch |
-| `src/components/features/bookmarks/BookmarksFiltersPanel.test.tsx` | nav per tab, toggle + apply, type section, date range, clear |
-| `src/components/features/bookmarks/BookmarksFilterDrawer.test.tsx` | trigger open, count badge, deferred commit via `onClosed`, GTM |
-| `src/components/features/bookmarks/BookmarksAppliedFilters.test.tsx` | chip render, single removal, clear-all, empty → null |
-| `src/components/features/bookmarks/BookmarkCard.test.tsx` | title/author/href/testid, For-you badge, all entity types |
-| `src/components/features/bookmarks/BookmarksPage.test.tsx` | list/empty render, apply/clear navigation, tab reset, fetch params |
+| `src/server/api/bookmarks/utils/__tests__/parseBookmarksQuery.test.ts`        | defaults, tab fallback, CSV parse/dedupe, date validation                                              |
+| `src/server/api/bookmarks/__tests__/getBookmarkFilterOptions.service.test.ts` | distinct/sorted options per tab; empty (masaiverse) without a query                                    |
+| `src/components/features/bookmarks/bookmarksFilterConfig.test.ts`             | empty-state factory, per-tab sections, type options, `isIsoDate`, `normalizeFilterValues`              |
+| `src/components/features/bookmarks/bookmarksFilterSearch.test.ts`             | search⇄filters round-trip, count, chips (labels, removal, date ranges)                                 |
+| `src/lib/api/bookmarks/__tests__/bookmarksApi.filters.test.ts`                | param serialization; filter-options fetch                                                              |
+| `src/components/features/bookmarks/BookmarksFiltersPanel.test.tsx`            | nav per tab, toggle + apply, type section, date range, clear                                           |
+| `src/components/features/bookmarks/BookmarksFilterDrawer.test.tsx`            | trigger open, count badge, deferred commit via `onClosed`, GTM                                         |
+| `src/components/features/bookmarks/BookmarksAppliedFilters.test.tsx`          | chip render, single removal, clear-all, empty → null                                                   |
+| `src/components/features/bookmarks/BookmarkCard.test.tsx`                     | title/author/href/testid, For-you badge, all entity types                                              |
+| `src/components/features/bookmarks/BookmarksPage.test.tsx`                    | list/empty render, apply/clear navigation, tab reset, fetch params                                     |
 
 ## Commands
 

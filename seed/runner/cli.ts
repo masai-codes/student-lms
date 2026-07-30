@@ -7,7 +7,10 @@ import { fileURLToPath } from 'node:url'
 import { generateCatalogHtml } from '../catalog/generate'
 import { SEED_STATE_PATH, writeSeedState } from '../catalog/seedState'
 import { listFlows, seedAllFlows, seedFlow } from '../index'
-import { isLiveLecturePhasesEntities, isLoginAndJoinLectureEntities } from '../types'
+import {
+  isLiveLecturePhasesEntities,
+  isLoginAndJoinLectureEntities,
+} from '../types'
 
 const catalogDir = join(dirname(fileURLToPath(import.meta.url)), '../catalog')
 const catalogHtmlPath = join(catalogDir, 'index.html')
@@ -75,9 +78,15 @@ function printResult(result: Awaited<ReturnType<typeof seedFlow>>): void {
   }
   if (isLiveLecturePhasesEntities(result.entities)) {
     console.log(`  section id:  ${result.entities.section.id}`)
-    console.log(`  before-unlock lecture id:       ${result.entities.lectures.beforeUnlock.id}`)
-    console.log(`  during-join lecture id:         ${result.entities.lectures.duringJoin.id}`)
-    console.log(`  after-no-recording lecture id:  ${result.entities.lectures.afterNoRecording.id}`)
+    console.log(
+      `  before-unlock lecture id:       ${result.entities.lectures.beforeUnlock.id}`,
+    )
+    console.log(
+      `  during-join lecture id:         ${result.entities.lectures.duringJoin.id}`,
+    )
+    console.log(
+      `  after-no-recording lecture id:  ${result.entities.lectures.afterNoRecording.id}`,
+    )
     console.log(
       `  after-recording (attendance OFF) lecture id: ${result.entities.lectures.afterWithRecordingAttendanceOff.id}`,
     )

@@ -38,7 +38,10 @@ export function LectureDiscussionCreateForm({
 
   const validate = (): typeof error => {
     if (title.trim().length === 0)
-      return { field: 'title', message: 'Please add a title for your discussion.' }
+      return {
+        field: 'title',
+        message: 'Please add a title for your discussion.',
+      }
     if (descriptionLength === 0)
       return { field: 'description', message: 'Please add a description.' }
     if (descriptionLength > DISCUSSION_MODAL_MAX_BODY_PLAIN)
@@ -154,7 +157,8 @@ export function LectureDiscussionCreateForm({
             data-testid="lecture-discussion-char-count"
             className={cn(
               'text-xs tabular-nums text-muted-foreground transition-colors',
-              descriptionLength > DISCUSSION_MODAL_MAX_BODY_PLAIN && 'text-danger',
+              descriptionLength > DISCUSSION_MODAL_MAX_BODY_PLAIN &&
+                'text-danger',
             )}
           >
             {descriptionLength}/{DISCUSSION_MODAL_MAX_BODY_PLAIN}

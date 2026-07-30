@@ -90,7 +90,10 @@ export function buildAppliedAnnouncementChips(
       chips.push({
         key: `${field}:${value}`,
         label: labelFor(value),
-        next: { ...filters, [field]: filters[field].filter((v) => v !== value) },
+        next: {
+          ...filters,
+          [field]: filters[field].filter((v) => v !== value),
+        },
       })
     }
   }

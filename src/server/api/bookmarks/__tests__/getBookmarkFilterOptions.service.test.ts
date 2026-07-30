@@ -16,9 +16,8 @@ describe('getBookmarkFilterOptions service', () => {
         { category: '', module: '' },
       ],
     ])
-    const { getBookmarkFilterOptions } = await import(
-      '../getBookmarkFilterOptions.service'
-    )
+    const { getBookmarkFilterOptions } =
+      await import('../getBookmarkFilterOptions.service')
     await expect(getBookmarkFilterOptions(7, 'lectures')).resolves.toEqual({
       categories: ['Coding', 'DSA'],
       modules: ['Module 1', 'Module 2'],
@@ -34,9 +33,8 @@ describe('getBookmarkFilterOptions service', () => {
         { category: 'Billing', status: 'closed', priority: 'low' },
       ],
     ])
-    const { getBookmarkFilterOptions } = await import(
-      '../getBookmarkFilterOptions.service'
-    )
+    const { getBookmarkFilterOptions } =
+      await import('../getBookmarkFilterOptions.service')
     await expect(getBookmarkFilterOptions(7, 'tickets')).resolves.toEqual({
       categories: ['Billing'],
       modules: [],
@@ -46,9 +44,8 @@ describe('getBookmarkFilterOptions service', () => {
   })
 
   it('returns empty options for masaiverse without querying', async () => {
-    const { getBookmarkFilterOptions } = await import(
-      '../getBookmarkFilterOptions.service'
-    )
+    const { getBookmarkFilterOptions } =
+      await import('../getBookmarkFilterOptions.service')
     await expect(getBookmarkFilterOptions(7, 'masaiverse')).resolves.toEqual({
       categories: [],
       modules: [],
