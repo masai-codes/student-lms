@@ -11,5 +11,5 @@ export type LectureChatMessage = {
   source: LectureChatMessageSource
 }
 
-export type AiTutorSessionState =
+type AiTutorSessionState =
   'idle' | 'creating' | 'connecting' | 'connected' | 'ending' | 'error'

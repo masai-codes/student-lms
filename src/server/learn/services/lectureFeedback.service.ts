@@ -41,7 +41,7 @@ export async function getLectureFeedbackRecord(
 }
 
 /** Create or update the user's feedback row for a lecture (idempotent upsert). */
-export async function upsertLectureFeedback(input: {
+async function upsertLectureFeedback(input: {
   userId: number
   lectureId: number
   rating: number

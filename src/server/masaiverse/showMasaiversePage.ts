@@ -21,7 +21,7 @@ function normalizeMeta(meta: unknown): BatchMeta {
   return {}
 }
 
-export const showMasaiversePage = createServerFn({ method: 'GET' })
+const showMasaiversePage = createServerFn({ method: 'GET' })
   .inputValidator((data: { userId: number }) => data)
   .handler(showMasaiversePageHandler)
 

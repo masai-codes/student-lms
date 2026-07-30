@@ -1,0 +1,20 @@
+{
+  "$schema": "https://unpkg.com/knip@6/schema.json",
+  "tags": ["-lintignore"],
+  "tanstack-router": true,
+  "typescript": true,
+  "drizzle": true,
+  "eslint": true,
+  "pm2": {
+    "config": ["ecosystem.config.cjs", "ecosystem.local.config.cjs"]
+  },
+  "nitro": {
+    "entry": ["src/server/plugins/**/*.ts"]
+  },
+  "ignoreExportsUsedInFile": {
+    "interface": true,
+    "type": true
+  },
+  "ignoreDependencies": ["@typescript/typescript6"],
+  "ignore": ["scripts/**", "seed/**", "e2e/**"]
+}

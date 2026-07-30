@@ -1,4 +1,3 @@
-export { FieldShell } from './FieldShell'
 export { TextField } from './TextField'
 export { NumberField } from './NumberField'
 export { DateField } from './DateField'

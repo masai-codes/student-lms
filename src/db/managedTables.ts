@@ -73,4 +73,4 @@ export const MANAGED_TABLES = [
   'whatsnew',
 ] as const
 
-export type ManagedTable = (typeof MANAGED_TABLES)[number]
+type ManagedTable = (typeof MANAGED_TABLES)[number]

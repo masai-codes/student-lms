@@ -21,7 +21,7 @@ export function isMasaiPortal(): boolean {
 }
 
 /** Whether the app is currently running on the IIT Jodhpur portal. */
-export function isIITJPortal(): boolean {
+function isIITJPortal(): boolean {
   return getAppOrigin() === 'iitj'
 }
 

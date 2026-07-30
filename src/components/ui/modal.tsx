@@ -123,8 +123,6 @@ function ModalDescription({
 
 export {
   Modal,
-  ModalTrigger,
-  ModalClose,
   ModalPortal,
   ModalOverlay,
   ModalContent,

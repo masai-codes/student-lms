@@ -1,0 +1,10 @@
+{
+  "mcpServers": {
+    "knip": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@knip/mcp"],
+      "env": {}
+    }
+  }
+}

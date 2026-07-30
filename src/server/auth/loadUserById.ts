@@ -105,4 +105,4 @@ export async function loadUserById(userId: number) {
   }
 }
 
-export type MeUser = NonNullable<Awaited<ReturnType<typeof loadUserById>>>
+type MeUser = NonNullable<Awaited<ReturnType<typeof loadUserById>>>

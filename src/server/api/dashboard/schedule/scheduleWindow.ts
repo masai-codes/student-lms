@@ -7,7 +7,7 @@ export interface ScheduleDateWindow {
 }
 
 /** Number of days shown on the dashboard schedule tab ("next 7 days"). */
-export const SCHEDULE_WINDOW_DAYS = 7
+const SCHEDULE_WINDOW_DAYS = 7
 
 /**
  * One IST day of slack padded onto each side of the window. The client renders

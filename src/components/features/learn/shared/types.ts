@@ -43,7 +43,7 @@ export interface LearnContentItem {
   assignmentWeightage?: number | null
 }
 
-export interface LearnFilterValues {
+interface LearnFilterValues {
   moduleFilterValues: Array<string>
   categoryFilterValues: Array<string>
   typeFilterValues: Array<string>

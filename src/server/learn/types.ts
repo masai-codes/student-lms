@@ -207,25 +207,8 @@ export interface DiscussionListItem {
  * Presentation payload for /lectures/:id, /assignments/:id, /resources/:id.
  * Mirrors listing card fields — all strings/arrays are finalized on the server.
  */
-export type {
-  AssignmentDetailPayload,
-  AssignmentKind,
-  AssignmentPhase,
-} from '@/server/learn/assignmentDetailTypes'
 
-export type {
-  ResourceDetailPayload,
-  ResourceKind,
-  ResourcePhase,
-} from '@/server/learn/resourceDetailTypes'
-
-export type {
-  LectureDetailPayload,
-  LectureDetailTabContent,
-  LectureKind,
-  LiveLecturePhase,
-  VideoLecturePhase,
-} from '@/server/learn/lectureDetailTypes'
+export type { ResourcePhase } from '@/server/learn/resourceDetailTypes'
 
 /**
  * Backend-computed restriction for a detail page (see `@/server/restrictions`).

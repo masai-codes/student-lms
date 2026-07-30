@@ -233,6 +233,6 @@ export function useLearnPageState() {
   }
 }
 
-export function parseLearnRouteSearch(search: Record<string, unknown>) {
+function parseLearnRouteSearch(search: Record<string, unknown>) {
   return parseLearnPageSearch(search)
 }

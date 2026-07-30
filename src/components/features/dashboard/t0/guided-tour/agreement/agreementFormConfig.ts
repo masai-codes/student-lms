@@ -30,28 +30,28 @@ export interface AgreementFieldDef {
 
 const opt = (value: string, label: string): SelectOption => ({ value, label })
 
-export const GENDER_OPTIONS = [
+const GENDER_OPTIONS = [
   opt('male', 'Male'),
   opt('female', 'Female'),
   opt('prefer_not_to_say', 'Prefer not to say'),
 ]
-export const CURRENT_STATUS_OPTIONS = [
+const CURRENT_STATUS_OPTIONS = [
   opt('completed_12th', 'Completed 12th'),
   opt('graduated_not_working', 'Graduated but not working'),
   opt('studying', 'Studying'),
   opt('working', 'Working'),
 ]
-export const STUDY_YEAR_OPTIONS = [
+const STUDY_YEAR_OPTIONS = [
   opt('first_year', 'I Year'),
   opt('second_year', 'II Year'),
   opt('pre_final', 'Pre-final Year'),
   opt('final_year', 'Final Year'),
 ]
-export const WORK_DOMAIN_OPTIONS = [
+const WORK_DOMAIN_OPTIONS = [
   opt('tech', 'Tech Domain'),
   opt('non_tech', 'Non-tech Domain'),
 ]
-export const EDUCATION_OPTIONS = [
+const EDUCATION_OPTIONS = [
   opt('btech_cs', 'BTech/B.E (CS)'),
   opt('btech_non_cs', 'BTech/B.E (Non-CS)'),
   opt('graduation_cs', 'Graduation (CS, e.g., B.Sc Computer Science, BCA)'),

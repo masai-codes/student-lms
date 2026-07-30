@@ -141,7 +141,7 @@ export function CertificateViewModal({
   )
 }
 
-export function CertificateCard({ certificate }: CertificateCardProps) {
+function CertificateCard({ certificate }: CertificateCardProps) {
   const [viewOpen, setViewOpen] = useState(false)
 
   return (

@@ -19,7 +19,7 @@
 
 export type EscalationLevel = 'l1' | 'l2' | 'l3' | 'l4' | 'l5'
 
-export const ESCALATION_ORDER: ReadonlyArray<EscalationLevel> = [
+const ESCALATION_ORDER: ReadonlyArray<EscalationLevel> = [
   'l1',
   'l2',
   'l3',
@@ -65,7 +65,7 @@ export function ladderFromBatchSettings(
 }
 
 /** The level currently occupied by `assigneeId` within a ladder, if any. */
-export function currentLevel(
+function currentLevel(
   ladder: AssigneeLadder,
   assigneeId: number,
 ): EscalationLevel | null {

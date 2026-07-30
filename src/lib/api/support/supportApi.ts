@@ -62,7 +62,7 @@ export async function fetchSubcategoriesByCategory(
 }
 
 /** POST an FAQ vote; returns the new aggregate counts. */
-export async function voteSupportFaq(input: {
+async function voteSupportFaq(input: {
   faqId: number
   vote: FaqVote
 }): Promise<{ faqId: number; upvotes: number; downvotes: number }> {
@@ -116,7 +116,7 @@ export async function rateSupportTicket(input: {
 }
 
 /** POST to reopen a ticket. */
-export async function reopenSupportTicket(
+async function reopenSupportTicket(
   ticketId: number,
 ): Promise<{ status: 're-opened' }> {
   return fetchJson(SUPPORT_API.ticketReopen, jsonPost({ ticketId }))

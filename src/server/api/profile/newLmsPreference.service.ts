@@ -8,13 +8,13 @@ import { users } from '@/db/schema'
  * the new LMS. Absent = opted out (default). Shared with the old LMS +
  * experience-api, which read/write the same key.
  */
-export const NEW_LMS_PAGES_META_KEY = 'new_lms_pages_enabled'
+const NEW_LMS_PAGES_META_KEY = 'new_lms_pages_enabled'
 
 /**
  * Key on `users.meta` holding the history of "switched back to old LMS" events.
  * An array so every switch-back (with its optional feedback) is preserved.
  */
-export const NEW_LMS_SWITCH_FEEDBACK_META_KEY = 'new_lms_switch_feedback'
+const NEW_LMS_SWITCH_FEEDBACK_META_KEY = 'new_lms_switch_feedback'
 
 export interface NewLmsSwitchFeedbackEntry {
   feedback: string
@@ -25,7 +25,7 @@ export interface NewLmsSwitchFeedbackEntry {
  * Key on `users.meta` recording that the user has seen the one-time "Try New"
  * guided tour. Once true the tour never shows again (lifetime, per user).
  */
-export const NEW_LMS_TRY_NEW_TOUR_META_KEY = 'new_lms_try_new_tour_seen'
+const NEW_LMS_TRY_NEW_TOUR_META_KEY = 'new_lms_try_new_tour_seen'
 
 function readFlag(meta: unknown): boolean {
   if (!meta || typeof meta !== 'object') return false
@@ -34,12 +34,16 @@ function readFlag(meta: unknown): boolean {
 
 function readFeedbackList(meta: unknown): Array<NewLmsSwitchFeedbackEntry> {
   if (!meta || typeof meta !== 'object') return []
-  const list = (meta as Record<string, unknown>)[NEW_LMS_SWITCH_FEEDBACK_META_KEY]
+  const list = (meta as Record<string, unknown>)[
+    NEW_LMS_SWITCH_FEEDBACK_META_KEY
+  ]
   return Array.isArray(list) ? (list as Array<NewLmsSwitchFeedbackEntry>) : []
 }
 
 /** Reads the new-LMS-pages opt-in flag from users.meta. Defaults to false. */
-export async function getNewLmsPagesPreference(userId: number): Promise<boolean> {
+export async function getNewLmsPagesPreference(
+  userId: number,
+): Promise<boolean> {
   const rows = await db
     .select({ meta: users.meta })
     .from(users)

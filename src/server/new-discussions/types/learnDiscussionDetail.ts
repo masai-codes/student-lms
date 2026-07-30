@@ -8,7 +8,7 @@ export type LearnDiscussionThreadItem = {
   authorProfileImageUrl: string | null
 }
 
-export type LearnDiscussionDetail = {
+type LearnDiscussionDetail = {
   id: number
   title: string
   message: string

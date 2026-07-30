@@ -30,7 +30,7 @@ export function normalizeStatus(raw: string | null | undefined): TicketStatus {
 }
 
 /** A ticket is "resolved-ish" (no longer in the unresolved tab) when closed. */
-export function isResolvedStatus(status: TicketStatus): boolean {
+function isResolvedStatus(status: TicketStatus): boolean {
   return status === 'resolved' || status === 'closed' || status === 'automatic'
 }
 

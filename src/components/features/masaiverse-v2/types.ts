@@ -6,7 +6,7 @@
 export type AccentColor = 'orange' | 'green' | 'purple' | 'blue'
 
 /** A single stat card in the home stats strip. */
-export interface MasaiverseStat {
+interface MasaiverseStat {
   id: string
   emoji: string
   value: string
@@ -15,7 +15,7 @@ export interface MasaiverseStat {
 }
 
 /** A club entry shown on the clubs listing and detail pages. */
-export interface MasaiverseClubDetail {
+interface MasaiverseClubDetail {
   id: string
   name: string
   icon: string
@@ -33,7 +33,7 @@ export interface MasaiverseHighlightMeta {
 }
 
 /** A "last week's highlights" recap card. */
-export interface MasaiverseHighlight {
+interface MasaiverseHighlight {
   id: string
   emoji: string
   /** Optional hex accent override for the card. */
@@ -46,7 +46,7 @@ export interface MasaiverseHighlight {
 }
 
 /** A leader entry in the "this month's leaders" list. */
-export interface MasaiverseLeader {
+interface MasaiverseLeader {
   id: string
   name: string
   role: string
@@ -64,13 +64,13 @@ export interface MasaiverseSidebarClub {
 }
 
 /** Sidebar data, shaped like the home API response. */
-export interface MasaiverseV2SidebarData {
+interface MasaiverseV2SidebarData {
   eventsCount: number
   myClubs: Array<MasaiverseSidebarClub>
 }
 
 /** An event card in the "this week on masaiverse" section. */
-export interface MasaiverseWeekEvent {
+interface MasaiverseWeekEvent {
   id: string
   badgeLabel: string
   isLive: boolean
@@ -84,7 +84,7 @@ export interface MasaiverseWeekEvent {
 }
 
 /** An event row in the calendar drawer's "upcoming events" list. */
-export interface MasaiverseUpcomingEvent {
+interface MasaiverseUpcomingEvent {
   id: string
   day: string
   month: string

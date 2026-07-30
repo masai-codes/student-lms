@@ -45,7 +45,7 @@ export interface GuidedTourWebProgress {
  * never reach 100% on iHub). Keep this in sync with the frontend step builder
  * (`guided-tour/steps.ts`) which reads `lmsExtraSteps` from the same intent.
  */
-export function lmsWalkthroughExtraSteps(isIHub: boolean): number {
+function lmsWalkthroughExtraSteps(isIHub: boolean): number {
   // profile photo + (download app unless iHub)
   return 1 + (isIHub ? 0 : 1)
 }

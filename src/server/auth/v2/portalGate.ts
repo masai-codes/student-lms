@@ -14,7 +14,7 @@ export function isAdminRole(role: string | null): boolean {
 }
 
 /** Whether the request originates from a mobile app (sends X-App-Mobile: true). */
-export function isMobileRequest(request: Request): boolean {
+function isMobileRequest(request: Request): boolean {
   const v = request.headers.get('x-app-mobile')?.trim().toLowerCase()
   return v === 'true' || v === '1'
 }

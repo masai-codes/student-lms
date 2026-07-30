@@ -194,7 +194,7 @@ export async function voteFaq(input: {
 }
 
 /** A tiny helper used by the overview to count FAQs without fetching them. */
-export async function countFaqsForBatch(batchId: number): Promise<number> {
+async function countFaqsForBatch(batchId: number): Promise<number> {
   const rows = await db
     .select({ count: sql<number>`count(*)` })
     .from(helpFaqs)

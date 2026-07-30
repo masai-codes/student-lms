@@ -399,7 +399,7 @@ export async function updateMasaiverseV2Banner(
 }
 
 /** Permanently deletes a banner (admin only). */
-export async function deleteMasaiverseV2Banner(
+async function deleteMasaiverseV2Banner(
   bannerId: string,
 ): Promise<{ success: true }> {
   return fetchJson<{ success: true }>(MASAIVERSE_V2_API.bannerDelete, {

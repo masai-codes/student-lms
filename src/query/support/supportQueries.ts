@@ -46,7 +46,7 @@ export const supportOverviewQuery = (batchId?: number) => ({
 })
 
 /** Live FAQ search for a batch (enabled by the caller while searching). */
-export const supportFaqsQuery = (input: {
+const supportFaqsQuery = (input: {
   batchId: number
   search: string
   category?: string

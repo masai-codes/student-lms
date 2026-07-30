@@ -94,5 +94,3 @@ export function MermaidCodeComponent({
     </code>
   )
 }
-
-export default MermaidCodeComponent

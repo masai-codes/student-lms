@@ -9,10 +9,10 @@
  */
 
 /** Keys in `settings.agreements` that are NOT signable documents. */
-export const RESERVED_AGREEMENT_KEYS = new Set(['shouldModalBeVisible'])
+const RESERVED_AGREEMENT_KEYS = new Set(['shouldModalBeVisible'])
 
 /** Fallback ordering when steps have no explicit `order` (legacy). */
-export const DEFAULT_AGREEMENT_ORDER = [
+const DEFAULT_AGREEMENT_ORDER = [
   'program_agreement',
   'grading_policy',
   'posh_compliance',
@@ -22,13 +22,13 @@ export const DEFAULT_AGREEMENT_ORDER = [
  * Days a learner has to review + sign an agreement after first viewing it,
  * before LMS access is paused (matches the old LMS's 7-day countdown).
  */
-export const AGREEMENT_REVIEW_DAYS = 7
+const AGREEMENT_REVIEW_DAYS = 7
 
 const HOUR_MS = 60 * 60 * 1000
 const DAY_MS = 24 * HOUR_MS
 
 /** Whole days elapsed since `viewTime` (0 when never viewed). */
-export function daysSinceAgreementView(viewTime: string | null): number {
+function daysSinceAgreementView(viewTime: string | null): number {
   if (!viewTime) return 0
   const viewed = new Date(viewTime).getTime()
   if (Number.isNaN(viewed)) return 0

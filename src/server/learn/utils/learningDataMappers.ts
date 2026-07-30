@@ -36,7 +36,7 @@ export function toLearningPriority(optional: number | null): LearningPriority {
   return optional === 1 ? 'recommended' : 'mandatory'
 }
 
-export function toModuleName(week: number): string {
+function toModuleName(week: number): string {
   return `Module ${week}`
 }
 

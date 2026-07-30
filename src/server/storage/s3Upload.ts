@@ -103,7 +103,7 @@ export async function generatePresignedUploadUrl(
  * Generates a presigned GET URL for reading a private S3 object (e.g. a certificate PDF).
  * Expires in 1 hour by default.
  */
-export async function getSignedDownloadUrl(
+async function getSignedDownloadUrl(
   key: string,
   expiresIn = 3600,
 ): Promise<string> {
@@ -121,7 +121,7 @@ export async function getSignedDownloadUrl(
  * Key: legal-agreement/{userId}/{sectionId}/TC-{userId}-section_{sectionId}_{timestamp}.pdf
  * Expires in 10 minutes.
  */
-export async function generateLegalAgreementPresignedUrl(
+async function generateLegalAgreementPresignedUrl(
   userId: number,
   sectionId: number,
   timestamp: number,

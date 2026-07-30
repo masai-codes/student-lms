@@ -33,7 +33,7 @@ export const AI_LECTURE_CHAT_LANGUAGES: ReadonlyArray<AiLectureChatLanguage> = [
   'Assamese',
 ]
 
-export const DEFAULT_AI_LECTURE_CHAT_LANGUAGE: AiLectureChatLanguage = 'English'
+const DEFAULT_AI_LECTURE_CHAT_LANGUAGE: AiLectureChatLanguage = 'English'
 
 /** Native-script labels shown alongside the English name in the picker. */
 export const AI_LECTURE_CHAT_LANGUAGE_NATIVE_LABELS: Record<

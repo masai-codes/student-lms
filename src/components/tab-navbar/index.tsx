@@ -82,4 +82,4 @@ export function TabNavbar({
   )
 }
 
-export type { TabNavbarItem, TabNavbarProps } from './types'
+export type { TabNavbarProps } from './types'
