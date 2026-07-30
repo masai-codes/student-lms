@@ -9,7 +9,7 @@
  *   3. {@link voteFaq}             — record 👍/👎 helpfulness (stored in meta).
  */
 
-import { and, asc, eq, like, or, sql } from 'drizzle-orm'
+import { and, asc, eq, like, or } from 'drizzle-orm'
 import type {
   FaqVote,
   SupportCategory,
@@ -191,14 +191,4 @@ export async function voteFaq(input: {
     .where(eq(helpFaqs.id, input.faqId))
 
   return { faqId: input.faqId, upvotes, downvotes }
-}
-
-/** A tiny helper used by the overview to count FAQs without fetching them. */
-async function countFaqsForBatch(batchId: number): Promise<number> {
-  const rows = await db
-    .select({ count: sql<number>`count(*)` })
-    .from(helpFaqs)
-    .where(and(eq(helpFaqs.batchId, batchId), eq(helpFaqs.isHidden, 0)))
-  // count(*) always returns exactly one row.
-  return Number(rows[0].count)
 }

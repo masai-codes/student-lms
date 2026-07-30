@@ -10,6 +10,3 @@ export type LectureChatMessage = {
   timestamp: number
   source: LectureChatMessageSource
 }
-
-type AiTutorSessionState =
-  'idle' | 'creating' | 'connecting' | 'connected' | 'ending' | 'error'

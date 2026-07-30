@@ -20,11 +20,6 @@ export function isMasaiPortal(): boolean {
   return getAppOrigin() === 'masai'
 }
 
-/** Whether the app is currently running on the IIT Jodhpur portal. */
-function isIITJPortal(): boolean {
-  return getAppOrigin() === 'iitj'
-}
-
 /**
  * Whether the current portal hides the Masai-only surfaces (MasaiVerse, Refer &
  * Earn, Chat, guided-tour icon, LevelUp, Practice Interviews, LMS support).

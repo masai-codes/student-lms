@@ -72,5 +72,3 @@ export const MANAGED_TABLES = [
   'votes',
   'whatsnew',
 ] as const
-
-type ManagedTable = (typeof MANAGED_TABLES)[number]

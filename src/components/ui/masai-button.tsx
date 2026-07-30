@@ -68,8 +68,6 @@ export type MasaiButtonProps = Omit<
     htmlType?: 'button' | 'submit' | 'reset'
   }
 
-type ButtonProps = MasaiButtonProps
-
 /**
  * Masai reusable CTA button.
  * - if iconDirection is provided, icon should also be provided
@@ -117,6 +115,3 @@ export function MasaiButton({
     </button>
   )
 }
-
-// Backward-compatible alias for existing imports.
-const Button = MasaiButton

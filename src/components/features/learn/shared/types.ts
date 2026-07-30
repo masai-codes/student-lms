@@ -43,14 +43,6 @@ export interface LearnContentItem {
   assignmentWeightage?: number | null
 }
 
-interface LearnFilterValues {
-  moduleFilterValues: Array<string>
-  categoryFilterValues: Array<string>
-  typeFilterValues: Array<string>
-  priorityFilterValues: Array<LearnPriority>
-  instructorFilterValues: Array<string>
-}
-
 /**
  * Top-level future window for the listing (independent of the modal date filter).
  * `today` is the legacy default (past + today); the others extend into the future.

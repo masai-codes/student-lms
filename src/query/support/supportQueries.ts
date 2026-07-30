@@ -15,7 +15,6 @@
 import type { TicketTab } from '@/server/api/support/support.types'
 import {
   fetchSubcategoriesByCategory,
-  fetchSupportFaqs,
   fetchSupportOverview,
   fetchSupportTickets,
   fetchTicketThread,
@@ -43,22 +42,6 @@ export const supportOverviewQuery = (batchId?: number) => ({
   queryFn: () => fetchSupportOverview(batchId),
   staleTime: 60 * 1000,
   ...REFETCH_ON_NAV,
-})
-
-/** Live FAQ search for a batch (enabled by the caller while searching). */
-const supportFaqsQuery = (input: {
-  batchId: number
-  search: string
-  category?: string
-}) => ({
-  queryKey: SUPPORT_KEYS.faqs(input.batchId, input.search, input.category),
-  queryFn: () =>
-    fetchSupportFaqs({
-      batchId: input.batchId,
-      search: input.search || undefined,
-      category: input.category,
-    }),
-  staleTime: 60 * 1000,
 })
 
 /** A page of the student's tickets for a tab. */

@@ -11,8 +11,6 @@
  */
 
 import type {
-  FaqVote,
-  SupportFaq,
   SupportOverview,
   TicketListItem,
   TicketRating,
@@ -36,22 +34,6 @@ export async function fetchSupportOverview(
   return fetchJson<SupportOverview>(`${SUPPORT_API.overview}${qs}`)
 }
 
-/** GET a page of FAQs for a batch (live search). */
-export async function fetchSupportFaqs(input: {
-  batchId: number
-  search?: string
-  category?: string
-  subCategory?: string
-  limit?: number
-}): Promise<{ faqs: Array<SupportFaq> }> {
-  const params = new URLSearchParams({ batchId: String(input.batchId) })
-  if (input.search) params.set('search', input.search)
-  if (input.category) params.set('category', input.category)
-  if (input.subCategory) params.set('subCategory', input.subCategory)
-  if (input.limit) params.set('limit', String(input.limit))
-  return fetchJson(`${SUPPORT_API.faqs}?${params.toString()}`)
-}
-
 /** GET the subcategories for a single (context) category — e.g. "lecture". */
 export async function fetchSubcategoriesByCategory(
   category: string,
@@ -62,12 +44,6 @@ export async function fetchSubcategoriesByCategory(
 }
 
 /** POST an FAQ vote; returns the new aggregate counts. */
-async function voteSupportFaq(input: {
-  faqId: number
-  vote: FaqVote
-}): Promise<{ faqId: number; upvotes: number; downvotes: number }> {
-  return fetchJson(SUPPORT_API.faqVote, jsonPost(input))
-}
 
 /** GET the student's tickets for a tab (with the total count for pagination). */
 export async function fetchSupportTickets(input: {
@@ -113,13 +89,6 @@ export async function rateSupportTicket(input: {
   rating: TicketRating
 }): Promise<{ rating: number }> {
   return fetchJson(SUPPORT_API.ticketRate, jsonPost(input))
-}
-
-/** POST to reopen a ticket. */
-async function reopenSupportTicket(
-  ticketId: number,
-): Promise<{ status: 're-opened' }> {
-  return fetchJson(SUPPORT_API.ticketReopen, jsonPost({ ticketId }))
 }
 
 /** POST to escalate a ticket up the ladder. */

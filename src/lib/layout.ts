@@ -67,7 +67,5 @@ export const layoutMainClassesFullWidth =
  */
 export const detailRouteInnerClasses = `w-full ${LAYOUT_MAIN_PADDING_Y}`
 
-const LAYOUT_NAVBAR_OUTER_CLASSES = 'w-full'
-
 export const LAYOUT_NAVBAR_INNER_CLASSES =
   'mx-auto flex w-full max-w-[1440px] flex-row items-center'

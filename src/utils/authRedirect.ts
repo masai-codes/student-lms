@@ -32,12 +32,6 @@ export function getOldStudentUiUrlForPath(path: string): string | undefined {
   return `${normalizedBase}${normalizedPath}`
 }
 
-/** Auto-redirect protected routes to legacy LMS (off unless `VITE_ENABLE_LEGACY_STUDENT_REDIRECT=true`). */
-function getLegacyProtectedRouteRedirectUrl(path: string): string | undefined {
-  if (!isLegacyStudentRedirectEnabled()) return undefined
-  return getOldStudentUiUrlForPath(path)
-}
-
 export function redirectToOldStudentUi(context?: RedirectDebugContext) {
   const studentUiUrl = getOldStudentUiUrl()
   const debugInfo = {

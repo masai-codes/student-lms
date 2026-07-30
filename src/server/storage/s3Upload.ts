@@ -1,9 +1,5 @@
 import { randomUUID } from 'node:crypto'
-import {
-  GetObjectCommand,
-  PutObjectCommand,
-  S3Client,
-} from '@aws-sdk/client-s3'
+import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3'
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
 import { ApiError } from '@/server/api/http/apiError'
 
@@ -94,51 +90,6 @@ export async function generatePresignedUploadUrl(
   })
 
   const uploadUrl = await getSignedUrl(getClient(), command, { expiresIn: 300 })
-  const s3Url = `https://${bucket}.s3.${getAwsRegion()}.amazonaws.com/${key}`
-
-  return { uploadUrl, s3Url, key }
-}
-
-/**
- * Generates a presigned GET URL for reading a private S3 object (e.g. a certificate PDF).
- * Expires in 1 hour by default.
- */
-async function getSignedDownloadUrl(
-  key: string,
-  expiresIn = 3600,
-): Promise<string> {
-  const bucket = (
-    process.env.AWS_S3_CERTIFICATE_BUCKET_NAME || process.env.AWS_S3_BUCKET_NAME
-  )?.trim()
-  if (!bucket) throw new ApiError(500, 'S3_NOT_CONFIGURED')
-
-  const command = new GetObjectCommand({ Bucket: bucket, Key: key })
-  return getSignedUrl(getClient(), command, { expiresIn })
-}
-
-/**
- * Generates a presigned PUT URL for uploading a merged legal-agreement PDF.
- * Key: legal-agreement/{userId}/{sectionId}/TC-{userId}-section_{sectionId}_{timestamp}.pdf
- * Expires in 10 minutes.
- */
-async function generateLegalAgreementPresignedUrl(
-  userId: number,
-  sectionId: number,
-  timestamp: number,
-): Promise<PresignedUploadResult> {
-  const bucket = process.env.AWS_S3_BUCKET_NAME?.trim()
-  if (!bucket) throw new ApiError(500, 'S3_NOT_CONFIGURED')
-
-  const referenceNumber = `TC-${userId}-section_${sectionId}`
-  const key = `legal-agreement/${userId}/${sectionId}/${referenceNumber}_${timestamp}.pdf`
-
-  const command = new PutObjectCommand({
-    Bucket: bucket,
-    Key: key,
-    ContentType: 'application/pdf',
-  })
-
-  const uploadUrl = await getSignedUrl(getClient(), command, { expiresIn: 600 })
   const s3Url = `https://${bucket}.s3.${getAwsRegion()}.amazonaws.com/${key}`
 
   return { uploadUrl, s3Url, key }

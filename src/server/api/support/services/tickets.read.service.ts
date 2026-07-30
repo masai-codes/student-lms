@@ -36,9 +36,6 @@ const RESOLVED_STATUSES = ['closed', 'resolved', 'automatic', 'chatbot']
 /** Statuses for the default "unresolved" tab — matches legacy. */
 const UNRESOLVED_STATUSES = ['open', 're-opened']
 
-/** Rows per page in the Raised Tickets list. */
-const TICKETS_PAGE_SIZE = PAGE_SIZE
-
 /** WHERE conditions for a tab (shared by list + count). */
 function tabConditions(userId: number, tab: TicketTab) {
   const conditions = [eq(tickets.userId, userId)]

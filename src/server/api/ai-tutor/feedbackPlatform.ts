@@ -14,8 +14,6 @@ const PLATFORMS: ReadonlyArray<AiTutorFeedbackPlatform> = [
   'web-mobile',
 ]
 
-const AI_TUTOR_FEEDBACK_PLATFORMS = PLATFORMS
-
 function isWebLikePlatform(platform: AiTutorFeedbackPlatform): boolean {
   return (
     platform === 'web' ||

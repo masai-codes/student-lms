@@ -57,29 +57,3 @@ export async function cacheDel(...keys: Array<string>): Promise<void> {
     warnOnce('cacheDel', err)
   }
 }
-
-/** Collect every key matching a glob pattern via a non-blocking SCAN. */
-export async function cacheScanKeys(pattern: string): Promise<Array<string>> {
-  if (!redis) return []
-  try {
-    const found: Array<string> = []
-    const stream = redis.scanStream({ match: pattern, count: 200 })
-    await new Promise<void>((resolve, reject) => {
-      stream.on('data', (keys: Array<string>) => {
-        for (const key of keys) found.push(key)
-      })
-      stream.on('end', () => resolve())
-      stream.on('error', (err: Error) => reject(err))
-    })
-    return found
-  } catch (err) {
-    warnOnce('cacheScanKeys', err)
-    return []
-  }
-}
-
-/** SCAN + pipelined delete of every key matching a glob pattern. */
-async function cacheDelByPattern(pattern: string): Promise<void> {
-  const keys = await cacheScanKeys(pattern)
-  await cacheDel(...keys)
-}

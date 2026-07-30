@@ -27,14 +27,6 @@ const AGREEMENT_REVIEW_DAYS = 7
 const HOUR_MS = 60 * 60 * 1000
 const DAY_MS = 24 * HOUR_MS
 
-/** Whole days elapsed since `viewTime` (0 when never viewed). */
-function daysSinceAgreementView(viewTime: string | null): number {
-  if (!viewTime) return 0
-  const viewed = new Date(viewTime).getTime()
-  if (Number.isNaN(viewed)) return 0
-  return Math.max(0, Math.floor((istNow().getTime() - viewed) / DAY_MS))
-}
-
 /**
  * State of the {@link AGREEMENT_REVIEW_DAYS}-day review window, keyed off the
  * first-view time. Counts down in days while a full day or more remains; under
