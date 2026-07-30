@@ -183,7 +183,12 @@ function RouteComponent() {
           (styles.css) — that page pins this shell to the viewport so its two
           columns can scroll independently. */}
       <div data-app-shell className={LAYOUT_APP_SHELL_CLASSES}>
-        <TryNewTour hasSeen={user.hasSeenTryNewTour} />
+        {/* The tour spotlights the "Try New" CTA — pointless when that CTA is
+            hidden for this user, so skip it entirely rather than let it poll for
+            a target that will never render. */}
+        <TryNewTour
+          hasSeen={user.hasSeenTryNewTour || user.hideSwitchOption}
+        />
         <AppNavbar />
         {/* Mobile-only greeting header for the dashboard home; the desktop
             navbar (with the same announcements + onboarding actions) is hidden

@@ -75,7 +75,7 @@ export default function AppMobileHeader() {
       )}
 
       <div className="flex shrink-0 items-center gap-2">
-        {showTryNew ? (
+        {showTryNew && !user.hideSwitchOption ? (
           <TryNewToggle initialEnabled={user.newLmsPagesEnabled} />
         ) : null}
         <button
