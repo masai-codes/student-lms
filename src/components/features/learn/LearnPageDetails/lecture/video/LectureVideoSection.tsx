@@ -5,7 +5,7 @@ import { LectureVideoFullBleed } from './LectureVideoFullBleed'
 
 import type {
   InLecturePopupElements,
-  LectureTranscriptSegment,
+  LectureTranscriptSource,
   LectureVideoAttendanceState,
 } from '@/server/learn/lectureDetailTypes'
 import { cn } from '@/lib/utils'
@@ -14,7 +14,7 @@ type LectureVideoSectionProps = {
   lectureId: number
   videoUrl: string
   initialAttendance: LectureVideoAttendanceState | null
-  transcriptSegments?: Array<LectureTranscriptSegment>
+  transcript?: LectureTranscriptSource
   inLecturePopupElements?: InLecturePopupElements
   className?: string
   /** When false, video stays in its column within a split row. */
@@ -27,7 +27,7 @@ export function LectureVideoSection({
   lectureId,
   videoUrl,
   initialAttendance,
-  transcriptSegments,
+  transcript,
   inLecturePopupElements,
   className,
   fullBleed = true,
@@ -38,7 +38,7 @@ export function LectureVideoSection({
       lectureId={lectureId}
       src={videoUrl}
       initialAttendance={initialAttendance}
-      transcriptSegments={transcriptSegments}
+      transcript={transcript}
       inLecturePopupElements={inLecturePopupElements}
       onVideoAspectRatioChange={onVideoAspectRatioChange}
     />

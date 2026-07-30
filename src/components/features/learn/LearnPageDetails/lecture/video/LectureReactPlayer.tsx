@@ -40,7 +40,7 @@ import './lectureReactPlayer.css'
 
 import type {
   InLecturePopupElements,
-  LectureTranscriptSegment,
+  LectureTranscriptSource,
   LectureVideoAttendanceState,
 } from '@/server/learn/lectureDetailTypes'
 import { useLectureTranscript } from '../hooks/useLectureTranscript'
@@ -54,7 +54,7 @@ type LectureReactPlayerProps = {
   lectureId: number
   src: string
   initialAttendance: LectureVideoAttendanceState | null
-  transcriptSegments?: Array<LectureTranscriptSegment>
+  transcript?: LectureTranscriptSource
   inLecturePopupElements?: InLecturePopupElements
   className?: string
   /** Reports the intrinsic video aspect ratio (w/h) once metadata loads. */
@@ -65,7 +65,7 @@ export function LectureReactPlayer({
   lectureId,
   src,
   initialAttendance,
-  transcriptSegments,
+  transcript,
   inLecturePopupElements,
   className,
   onVideoAspectRatioChange,
@@ -105,7 +105,9 @@ export function LectureReactPlayer({
   const [popupPortalContainer, setPopupPortalContainer] =
     useState<HTMLElement | null>(null)
   useEffect(() => {
-    setPopupPortalContainer(isFullscreen ? fullscreenContainerRef.current : null)
+    setPopupPortalContainer(
+      isFullscreen ? fullscreenContainerRef.current : null,
+    )
   }, [isFullscreen])
 
   useEffect(() => {
