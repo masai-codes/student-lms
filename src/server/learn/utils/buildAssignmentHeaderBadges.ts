@@ -16,6 +16,19 @@ export type AssignmentHeaderBadgesInput = {
   settings: Record<string, unknown> | null
 }
 
+export function readWeightagePercentage(
+  settings: Record<string, unknown> | null,
+): number | null {
+  const raw = settings?.['weightagePercentage']
+  const value =
+    typeof raw === 'number'
+      ? raw
+      : typeof raw === 'string'
+        ? Number(raw)
+        : Number.NaN
+  return Number.isFinite(value) && value > 0 ? value : null
+}
+
 export function buildAssignmentHeaderBadges(
   input: AssignmentHeaderBadgesInput,
 ): Array<AssignmentHeaderBadge> {

@@ -14,6 +14,10 @@
 
 import type { TicketTab } from '@/server/api/support/support.types'
 import {
+  fetchAssignmentSupportSnapshot,
+  fetchFloatingChatInbox,
+  fetchLectureSupportSnapshot,
+  fetchSupportEntityContext,
   fetchSubcategoriesByCategory,
   fetchSupportFaqs,
   fetchSupportOverview,
@@ -26,6 +30,13 @@ export const SUPPORT_KEYS = {
   all: ['support'] as const,
   overview: (batchId?: number) =>
     ['support', 'overview', batchId ?? 'default'] as const,
+  floatingChatInbox: ['support', 'floating-chat', 'inbox'] as const,
+  entityContext: (category: string, entityId: number) =>
+    ['support', 'floating-chat', 'entity-context', category, entityId] as const,
+  lectureSnapshot: (lectureId: number) =>
+    ['support', 'floating-chat', 'lecture', lectureId] as const,
+  assignmentSnapshot: (assignmentId: number) =>
+    ['support', 'floating-chat', 'assignment', assignmentId] as const,
   faqs: (batchId: number, search: string, category?: string) =>
     ['support', 'faqs', batchId, search, category ?? null] as const,
   tickets: (tab: TicketTab, page: number) =>
@@ -43,6 +54,43 @@ export const supportOverviewQuery = (batchId?: number) => ({
   queryFn: () => fetchSupportOverview(batchId),
   staleTime: 60 * 1000,
   ...REFETCH_ON_NAV,
+})
+
+/**
+ * Floating support modal — fetched once on first open, cached until page reload.
+ */
+export const floatingChatInboxQuery = () => ({
+  queryKey: SUPPORT_KEYS.floatingChatInbox,
+  queryFn: () => fetchFloatingChatInbox(),
+  staleTime: Number.POSITIVE_INFINITY,
+  gcTime: Number.POSITIVE_INFINITY,
+  refetchOnMount: false,
+  refetchOnWindowFocus: false,
+  refetchOnReconnect: false,
+})
+
+/** Learn detail entity → batch + item card for floater deep launch. */
+export const supportEntityContextQuery = (
+  category: string,
+  entityId: number,
+) => ({
+  queryKey: SUPPORT_KEYS.entityContext(category, entityId),
+  queryFn: () => fetchSupportEntityContext({ category, entityId }),
+  staleTime: 60 * 1000,
+})
+
+/** Lecture snapshot for floating support item confirmation (probes CDN server-side). */
+export const lectureSupportSnapshotQuery = (lectureId: number) => ({
+  queryKey: SUPPORT_KEYS.lectureSnapshot(lectureId),
+  queryFn: () => fetchLectureSupportSnapshot(lectureId),
+  staleTime: 2 * 60 * 1000,
+})
+
+/** Assignment/evaluation snapshot for floating support item confirmation. */
+export const assignmentSupportSnapshotQuery = (assignmentId: number) => ({
+  queryKey: SUPPORT_KEYS.assignmentSnapshot(assignmentId),
+  queryFn: () => fetchAssignmentSupportSnapshot(assignmentId),
+  staleTime: 2 * 60 * 1000,
 })
 
 /** Live FAQ search for a batch (enabled by the caller while searching). */
