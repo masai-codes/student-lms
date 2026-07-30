@@ -4,7 +4,7 @@ import { useNavigate } from '@tanstack/react-router'
 import { floatingChatInboxQuery } from '@/query/support/supportQueries'
 import { FloatingChatModal } from './FloatingChatModal'
 import type { FloatingChatEntityLaunchIntent } from './floatingChatLaunchIntent'
-import { navigateSupportReviewHref } from './navigateSupportReviewHref'
+import { dispatchSupportNavigate } from './dispatchSupportNavigate'
 
 interface FloatingChatFullPageProps {
   /** Deep-link from `/support/context?category=…&entityId=…`. */
@@ -34,10 +34,7 @@ export function FloatingChatFullPage({
   }
 
   return (
-    <div
-      className="min-h-dvh bg-white"
-      data-testid="support-page-root"
-    >
+    <div className="min-h-dvh bg-white" data-testid="support-page-root">
       <FloatingChatModal
         presentation="fullPage"
         isOpen
@@ -46,7 +43,12 @@ export function FloatingChatFullPage({
         isInboxLoading={inboxQuery.isLoading}
         isInboxError={inboxQuery.isError}
         onInboxRetry={() => void inboxQuery.refetch()}
-        onReviewItem={(input) => navigateSupportReviewHref(navigate, input.href)}
+        onReviewItem={(input) =>
+          dispatchSupportNavigate({
+            category: input.category,
+            entityId: input.entityId,
+          })
+        }
         entityLaunchIntent={entityLaunchIntent}
         onEntityLaunchComplete={() => setEntityLaunchIntent(null)}
         onEntityLaunchFailed={() => {

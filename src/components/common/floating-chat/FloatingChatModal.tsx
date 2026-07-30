@@ -73,6 +73,7 @@ import { EntityLaunchErrorPanel } from './EntityLaunchErrorPanel'
 import { getEntityLaunchErrorMessage } from './entityLaunchErrorMessage'
 import type { FloatingChatEntityLaunchIntent } from './floatingChatLaunchIntent'
 import { floatingChatEntityLaunchKey } from './floatingChatLaunchIntent'
+import type { SupportReviewItemInput } from './supportReviewItem'
 
 interface FloatingChatModalProps {
   isOpen: boolean
@@ -81,11 +82,7 @@ interface FloatingChatModalProps {
   isInboxLoading: boolean
   isInboxError: boolean
   onInboxRetry: () => void
-  onReviewItem?: (input: {
-    href: string
-    categoryLabel: string
-    itemTitle: string
-  }) => void
+  onReviewItem?: (input: SupportReviewItemInput) => void
   /** Full viewport page (e.g. `/support`) vs anchored floater panel. */
   presentation?: 'floating' | 'fullPage'
   /** Deep-link from a learn detail page → step 2.5 for this entity. */

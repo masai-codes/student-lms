@@ -3,8 +3,11 @@ import { describe, expect, it } from 'vitest'
 import type { LectureAttendanceSummary } from '@/server/attendance/types'
 import type { LectureSupportSnapshot } from '@/server/api/support/support.types'
 import {
+  formatAiSummaryStatusLabel,
+  formatRecordingStatusLabel,
   getSupportAttendancePresentation,
   getSupportCatchUpPresentation,
+  shouldShowUnableToJoinLiveLecture,
 } from '../lectureSnapshotPresentation'
 
 function makeAttendance(
@@ -283,5 +286,63 @@ describe('getSupportCatchUpPresentation', () => {
     )
 
     expect(result.label).toBe('N/A')
+  })
+
+  it('shows em dash when video counts but no remaining label is available', () => {
+    const result = getSupportCatchUpPresentation(
+      makeSnapshot({
+        attendance: makeAttendance({
+          videoCountsForAttendance: true,
+          daysRemaining: null,
+          remainingLabel: null,
+          isCatchupWindowOver: false,
+        }),
+      }),
+    )
+
+    expect(result.label).toBe('—')
+  })
+})
+
+describe('formatRecordingStatusLabel', () => {
+  it.each([
+    ['available', 'Available'],
+    ['not_available', 'Not available'],
+  ] as const)('maps %s to %s', (status, label) => {
+    expect(formatRecordingStatusLabel(status)).toBe(label)
+  })
+})
+
+describe('formatAiSummaryStatusLabel', () => {
+  it.each([
+    ['generated', 'Generated'],
+    ['processing', 'Processing'],
+    ['not_available', 'Not available'],
+  ] as const)('maps %s to %s', (status, label) => {
+    expect(formatAiSummaryStatusLabel(status)).toBe(label)
+  })
+})
+
+describe('shouldShowUnableToJoinLiveLecture', () => {
+  it('is true only for live lectures during the session', () => {
+    expect(
+      shouldShowUnableToJoinLiveLecture(
+        makeSnapshot({ lectureKind: 'live', livePhase: 'during' }),
+      ),
+    ).toBe(true)
+    expect(
+      shouldShowUnableToJoinLiveLecture(
+        makeSnapshot({ lectureKind: 'live', livePhase: 'after' }),
+      ),
+    ).toBe(false)
+    expect(
+      shouldShowUnableToJoinLiveLecture(
+        makeSnapshot({
+          lectureKind: 'video',
+          livePhase: null,
+          videoPhase: 'during_after',
+        }),
+      ),
+    ).toBe(false)
   })
 })

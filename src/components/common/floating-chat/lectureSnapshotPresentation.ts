@@ -140,14 +140,6 @@ export function getSupportCatchUpPresentation(
   }
 
   const render = getListingAttendanceRender(snapshot.attendance)
-  const remainingText = formatCatchUpRemainingLabel(
-    render.remainingLabel,
-    render.daysRemaining,
-  )
-
-  if (remainingText) {
-    return { label: remainingText }
-  }
 
   if (render.uiState === 'att_window_over') {
     return { label: 'Closed' }
@@ -159,6 +151,15 @@ export function getSupportCatchUpPresentation(
 
   if (!snapshot.attendance.videoCountsForAttendance) {
     return { label: 'N/A' }
+  }
+
+  const remainingText = formatCatchUpRemainingLabel(
+    render.remainingLabel,
+    render.daysRemaining,
+  )
+
+  if (remainingText) {
+    return { label: remainingText }
   }
 
   return { label: '—' }
