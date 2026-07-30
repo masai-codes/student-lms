@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
 import {
+  formatSupportItemScheduleDate,
   mapLearningItemToSupportItem,
   supportCategoryToLearnFilters,
 } from '@/components/common/floating-chat/supportCategoryLearning'
@@ -38,6 +39,19 @@ function buildLearningItem(
     ...overrides,
   }
 }
+
+describe('formatSupportItemScheduleDate', () => {
+  it('formats IST wall-clock schedule in the viewer timezone', () => {
+    const istSchedule = '2026-07-16T16:52:00+05:30'
+    const formatted = formatSupportItemScheduleDate(istSchedule)
+    expect(formatted).toMatch(/16 Jul/i)
+    expect(formatted).toMatch(/4:52\s*pm/i)
+  })
+
+  it('returns fallback when schedule is missing', () => {
+    expect(formatSupportItemScheduleDate(null)).toBe('No schedule')
+  })
+})
 
 describe('mapLearningItemToSupportItem', () => {
   it('includes moduleName for assignment and evaluation cards', () => {

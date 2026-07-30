@@ -25,6 +25,7 @@ import {
   shouldShowAssignmentWeightageCard,
 } from './assignmentSnapshotPresentation'
 import {
+  formatSupportItemScheduleDate,
   formatSupportLectureTypeLabel,
   supportAssignmentPriorityChipClassName,
   supportLectureTypeChipClassName,
@@ -403,7 +404,12 @@ export function ItemConfirmation({
     : undefined
   const displayTitle = lectureSnapshot?.title ?? itemObj.title
   const displayMeta = lectureSnapshot?.meta ?? itemObj.meta
-  const displayDate = lectureSnapshot?.date ?? itemObj.date
+  const scheduleRaw = isLecture
+    ? (lectureSnapshot?.schedule ?? itemObj.startTime)
+    : itemObj.startTime
+  const displayDate = scheduleRaw
+    ? formatSupportItemScheduleDate(scheduleRaw)
+    : itemObj.date
   const lectureTypeLabel = formatSupportLectureTypeLabel(lectureType)
   const reviewHref = getSupportItemReviewHref(categoryObj.id, itemObj.id)
   const showOptionalChip =

@@ -1,9 +1,15 @@
 import { cn } from '@/lib/utils'
 import { Headset, Sparkle } from '@phosphor-icons/react'
 import { SupportMarkdown } from '@/components/features/support/SupportMarkdown'
-import { SmartLink, ImageThumbnail } from '@/components/features/support/AttachmentPreview'
+import {
+  SmartLink,
+  ImageThumbnail,
+} from '@/components/features/support/AttachmentPreview'
 import { formatTicketMessageSentAt } from './formatTicketMessageSentAt'
-import type { SupportPerson, TicketStatus } from '@/server/api/support/support.types'
+import type {
+  SupportPerson,
+  TicketStatus,
+} from '@/server/api/support/support.types'
 import type { Message, Category } from './types'
 
 interface ChatThreadProps {
@@ -31,8 +37,18 @@ function AssigneeDivider({ name }: { name: string }) {
   )
 }
 
-/** Where to insert "Chat with …" dividers in the message list. */
-function assigneeDividerPlacements(
+/**
+ * Where to insert "Chat with …" dividers in the message list.
+ *
+ * The reopen/escalate divider marks the boundary between messages that
+ * existed *before* the reopen and whatever comes *after* it. When every
+ * message currently in the thread already has a timestamp at/after
+ * `reopenedAt` (e.g. the student's escalation reason + its auto-reply were
+ * just created as part of the reopen itself, with no older messages to
+ * separate from), there is nothing to place the divider *before* — so it
+ * goes after all current messages instead of above the very first one.
+ */
+export function assigneeDividerPlacements(
   messages: Message[],
   assigneeName: string | undefined,
   reopenedAt: string | null | undefined,
@@ -55,7 +71,9 @@ function assigneeDividerPlacements(
     )
   }
 
-  if (reopenIdx >= 0) {
+  // Only split before an existing message when older messages actually
+  // precede it; otherwise fall through to placing the divider at the end.
+  if (reopenIdx > 0) {
     if (reopenIdx !== firstAgentIdx) placements.set(reopenIdx, assigneeName)
   } else {
     placements.set(messages.length, assigneeName)
@@ -67,12 +85,12 @@ function assigneeDividerPlacements(
 function parseMessageContent(text: string) {
   const lines = text.split('\n')
   const attachments: { name: string; url: string; isImage: boolean }[] = []
-  
+
   let lastTextIndex = -1
   for (let i = lines.length - 1; i >= 0; i--) {
     const line = lines[i].trim()
     if (!line) continue
-    
+
     // Match exactly one link per line
     const linkMatch = line.match(/^(!?)\[([^\]]+)\]\(([^)]+)\)$/)
     if (linkMatch) {
@@ -86,8 +104,14 @@ function parseMessageContent(text: string) {
       break
     }
   }
-  
-  const cleanText = lastTextIndex >= 0 ? lines.slice(0, lastTextIndex + 1).join('\n').trim() : ''
+
+  const cleanText =
+    lastTextIndex >= 0
+      ? lines
+          .slice(0, lastTextIndex + 1)
+          .join('\n')
+          .trim()
+      : ''
   return { cleanText, attachments }
 }
 
@@ -120,7 +144,16 @@ export function ChatThread({
             <Sparkle weight="fill" className="size-[13px]" />
           </div>
           <div className="text-[13.6px] leading-[1.45] p-[10px_13px] rounded-[14px_14px_14px_4px] bg-[#f1f1f7] text-[#15162c]">
-            Hi! I'm here to help{categoryObj?.id !== 'general' && selectedItemTitle ? <span> with <strong>{selectedItemTitle}</strong></span> : ''}. Go ahead and type out what's going on.
+            Hi! I'm here to help
+            {categoryObj?.id !== 'general' && selectedItemTitle ? (
+              <span>
+                {' '}
+                with <strong>{selectedItemTitle}</strong>
+              </span>
+            ) : (
+              ''
+            )}
+            . Go ahead and type out what's going on.
           </div>
         </div>
       </div>
@@ -146,60 +179,102 @@ export function ChatThread({
         return (
           <div key={i} className="contents">
             {dividerName ? <AssigneeDivider name={dividerName} /> : null}
-            <div className={cn("flex gap-[9px] max-w-[92%] animate-in slide-in-from-bottom-2 duration-300 fade-in", isUser ? "self-end flex-row-reverse" : "self-start")}>
-            {!isUser && (
-              <div className={cn(
-                "flex items-center justify-center shrink-0 size-[26px] rounded-full text-white",
-                isAgent ? "bg-[#15162c]" : "bg-[#4b4396]"
-              )}>
-                {isAgent ? <Headset weight="fill" className="size-[13px]" /> : <Sparkle weight="fill" className="size-[13px]" />}
-              </div>
-            )}
-            <div className={cn("flex flex-col gap-1 w-full", isUser ? "items-end" : "items-start")}>
-              {senderLabel ? (
-                <span className="text-[11px] font-bold text-[#62647d] ml-1">{senderLabel}</span>
-              ) : null}
-              
-              {cleanText && (
-                <div className={cn(
-                  "p-[10px_13px]",
-                  isUser
-                    ? "bg-[#4b4396] rounded-[14px_14px_4px_14px]"
-                    : "bg-[#f1f1f7] rounded-[14px_14px_14px_4px]"
-                )}>
-                  <SupportMarkdown
-                    variant={isUser ? 'user' : 'agent'}
+            <div
+              className={cn(
+                'flex gap-[9px] max-w-[92%] animate-in slide-in-from-bottom-2 duration-300 fade-in',
+                isUser ? 'self-end flex-row-reverse' : 'self-start',
+              )}
+            >
+              {!isUser && (
+                <div
+                  className={cn(
+                    'flex items-center justify-center shrink-0 size-[26px] rounded-full text-white',
+                    isAgent ? 'bg-[#15162c]' : 'bg-[#4b4396]',
+                  )}
+                >
+                  {isAgent ? (
+                    <Headset weight="fill" className="size-[13px]" />
+                  ) : (
+                    <Sparkle weight="fill" className="size-[13px]" />
+                  )}
+                </div>
+              )}
+              <div
+                className={cn(
+                  'flex flex-col gap-1 w-full',
+                  isUser ? 'items-end' : 'items-start',
+                )}
+              >
+                {senderLabel ? (
+                  <span className="text-[11px] font-bold text-[#62647d] ml-1">
+                    {senderLabel}
+                  </span>
+                ) : null}
+
+                {cleanText && (
+                  <div
                     className={cn(
-                      'text-[13.6px] leading-[1.45] prose-p:my-0 prose-p:leading-[1.45]',
+                      'p-[10px_13px]',
                       isUser
-                        ? 'text-white prose-headings:text-white prose-p:text-white prose-strong:text-white prose-a:text-white'
-                        : 'text-[#15162c]',
+                        ? 'bg-[#4b4396] rounded-[14px_14px_4px_14px]'
+                        : 'bg-[#f1f1f7] rounded-[14px_14px_14px_4px]',
                     )}
                   >
-                    {cleanText}
-                  </SupportMarkdown>
-                </div>
-              )}
-
-              {attachments.length > 0 && (
-                <div className={cn("flex flex-col gap-1.5 mt-1", isUser ? "items-end w-full" : "items-start w-full")}>
-                  {attachments.map((att, idx) => (
-                    <div key={idx} className={isUser ? "w-full max-w-[280px]" : "w-full max-w-[280px]"}>
-                      {att.isImage ? (
-                        <ImageThumbnail src={att.url} alt={att.name} variant="agent" />
-                      ) : (
-                        <SmartLink href={att.url} name={att.name} variant="agent" />
+                    <SupportMarkdown
+                      variant={isUser ? 'user' : 'agent'}
+                      className={cn(
+                        'text-[13.6px] leading-[1.45] prose-p:my-0 prose-p:leading-[1.45]',
+                        isUser
+                          ? 'text-white prose-headings:text-white prose-p:text-white prose-strong:text-white prose-a:text-white'
+                          : 'text-[#15162c]',
                       )}
-                    </div>
-                  ))}
-                </div>
-              )}
+                    >
+                      {cleanText}
+                    </SupportMarkdown>
+                  </div>
+                )}
 
-              {sentAtLabel ? (
-                <span className="text-[10.5px] text-[#9496ab] px-1">{sentAtLabel}</span>
-              ) : null}
+                {attachments.length > 0 && (
+                  <div
+                    className={cn(
+                      'flex flex-col gap-1.5 mt-1',
+                      isUser ? 'items-end w-full' : 'items-start w-full',
+                    )}
+                  >
+                    {attachments.map((att, idx) => (
+                      <div
+                        key={idx}
+                        className={
+                          isUser
+                            ? 'w-full max-w-[280px]'
+                            : 'w-full max-w-[280px]'
+                        }
+                      >
+                        {att.isImage ? (
+                          <ImageThumbnail
+                            src={att.url}
+                            alt={att.name}
+                            variant="agent"
+                          />
+                        ) : (
+                          <SmartLink
+                            href={att.url}
+                            name={att.name}
+                            variant="agent"
+                          />
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {sentAtLabel ? (
+                  <span className="text-[10.5px] text-[#9496ab] px-1">
+                    {sentAtLabel}
+                  </span>
+                ) : null}
+              </div>
             </div>
-          </div>
           </div>
         )
       })}
