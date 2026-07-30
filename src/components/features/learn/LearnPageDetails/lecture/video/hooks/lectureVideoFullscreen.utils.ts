@@ -22,8 +22,23 @@ type WebkitVideoElement = HTMLVideoElement & {
   webkitSupportsFullscreen?: boolean
 }
 
+/**
+ * Spelled out rather than using the DOM lib's `OrientationLockType`: that name
+ * is absent from some lib.dom.d.ts versions, so referencing it breaks the build
+ * depending on which TypeScript is installed.
+ */
+type OrientationLock =
+  | 'any'
+  | 'landscape'
+  | 'landscape-primary'
+  | 'landscape-secondary'
+  | 'natural'
+  | 'portrait'
+  | 'portrait-primary'
+  | 'portrait-secondary'
+
 type OrientationLockCapable = ScreenOrientation & {
-  lock?: (orientation: string) => Promise<void>
+  lock?: (orientation: OrientationLock) => Promise<void>
   unlock?: () => void
 }
 

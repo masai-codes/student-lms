@@ -3,6 +3,7 @@ import {
   HeadContent,
   Scripts,
   createRootRouteWithContext,
+  useRouterState,
 } from '@tanstack/react-router'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { Toaster } from 'sonner'
@@ -14,6 +15,11 @@ import { getAuthBranding } from '@/utils/authBranding'
 import { ThemeProvider, buildThemeInitScript } from '@/lib/theme'
 
 const GA_MEASUREMENT_ID = 'G-R3MQZK6LM6'
+
+// Routes that must ship without analytics/tracking scripts. The
+// `/notes-preview-v2` WebView is embedded in the app and reused across opens,
+// so it excludes GA/GTM to keep the preview bundle lean and tracker-free.
+const ANALYTICS_EXCLUDED_PATHS = new Set(['/notes-preview-v2'])
 
 // Computed once at module load; injected into <head> to set the theme before
 // first paint (no flash of the default theme on reload).
@@ -76,6 +82,10 @@ function RootDocument({ children }: { children: React.ReactNode }) {
   // client for the life of the browser tab while still giving each SSR request
   // its own.
   const [queryClient] = useState(() => new QueryClient())
+  const pathname = useRouterState({
+    select: (state) => state.location.pathname,
+  })
+  const analyticsEnabled = !ANALYTICS_EXCLUDED_PATHS.has(pathname)
 
   return (
     <html lang="en">
@@ -84,19 +94,23 @@ function RootDocument({ children }: { children: React.ReactNode }) {
             the correct theme's tokens are present on the very first frame. */}
         <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
         <HeadContent />
-        <script
-          async
-          src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`}
-        />
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `window.dataLayer = window.dataLayer || [];
+        {analyticsEnabled ? (
+          <>
+            <script
+              async
+              src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`}
+            />
+            <script
+              dangerouslySetInnerHTML={{
+                __html: `window.dataLayer = window.dataLayer || [];
 function gtag(){dataLayer.push(arguments);}
 window.gtag = gtag;
 gtag('js', new Date());
 gtag('config', '${GA_MEASUREMENT_ID}');`,
-          }}
-        />
+              }}
+            />
+          </>
+        ) : null}
       </head>
       <body>
         <QueryClientProvider client={queryClient}>

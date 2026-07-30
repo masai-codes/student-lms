@@ -90,4 +90,33 @@ describe('lectureVideoResume', () => {
     expect(resumeAppliedRef.current).toBe(true)
     expect(onApplied).toHaveBeenCalledWith(25)
   })
+
+  it('does not resume into the final seconds of a fully-watched video', () => {
+    const seekTo = vi.fn()
+    const getCurrentTime = vi.fn(() => 0)
+    const getDuration = vi.fn(() => 971)
+    const videoRef = {
+      current: {
+        seekTo,
+        getCurrentTime,
+        getDuration,
+      } as unknown as LectureChromePlayerRef,
+    }
+    const resumeAppliedRef = { current: false }
+    const onApplied = vi.fn()
+
+    // Watched to the end (971s of 971s): resuming there would make the first
+    // play instantly fire `ended` and stop.
+    applyResumeIfNeeded({
+      videoRef,
+      resumeSeconds: 971,
+      resumeAppliedRef,
+      onApplied,
+    })
+
+    expect(seekTo).not.toHaveBeenCalled()
+    expect(onApplied).not.toHaveBeenCalled()
+    // Latched so no later call (onReady / MANIFEST_PARSED) re-seeks either.
+    expect(resumeAppliedRef.current).toBe(true)
+  })
 })

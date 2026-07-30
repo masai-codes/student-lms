@@ -30,7 +30,7 @@ export const LECTURE_ATTENDANCE_BANNERS: Record<
   // Section counts recording watch-time toward attendance.
   'video-counts': {
     key: 'video-counts',
-    text: 'Once you finish watching the complete lecture recording, your status will change to Present after 24 hours.',
+    text: 'Complete the full recording with the lecture open on your screen. Attendance will be updated within 24 hours. Playing lectures in the background or watching multiple recordings at once will not mark attendance.',
     testId: 'lecture-attendance-banner-video-counts',
   },
   // Section only counts live attendance; recording is watch-only.

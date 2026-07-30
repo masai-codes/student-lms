@@ -175,41 +175,56 @@ export async function getT0FlowStatus(
 
   // Non-T0 (no admission row): enrolled users get the trimmed 3-step "lite" tour.
   if (admissionRows.length === 0) {
-    // Most-recently-enrolled batch anchors the agreement step (the only
-    // batch-specific one); photo + app are user-level.
-    const batchId = Math.max(...batchIds)
-    const web = await computeLiteGuidedTourProgress(
-      userId,
-      batchId,
-      profileMeta,
-      legalData,
-      hasDeviceToken,
+    // Photo + download-app are user-level (identical for every batch); the
+    // agreement is the only batch-specific step. Anchor the user-level steps on
+    // the most-recently-enrolled batch, then surface every *other* enrolled batch
+    // that has its own signable agreement, so a multi-batch learner gets one
+    // banner per pending agreement instead of only a single batch.
+    const anchorBatchId = Math.max(...batchIds)
+    const liteStatuses: Array<BatchT0Status> = (
+      await Promise.all(
+        batchIds.map(async (batchId): Promise<BatchT0Status | null> => {
+          const web = await computeLiteGuidedTourProgress(
+            userId,
+            batchId,
+            profileMeta,
+            legalData,
+            hasDeviceToken,
+          )
+          // Non-anchor batches only matter when they add a batch-specific step
+          // (their agreement); otherwise they'd just repeat the user-level
+          // photo/app steps the anchor batch already covers.
+          if (batchId !== anchorBatchId && web.program.total <= 0) return null
+          return {
+            batchId,
+            batchName: batchNameMap.get(batchId) ?? String(batchId),
+            showProgramTab: true, // old full-fee users → program tab always unlocked
+            lms: { ...web.lms, complete: isProgressComplete(web.lms) },
+            program: {
+              ...web.program,
+              complete: isProgressComplete(web.program),
+            },
+            lectures: null,
+            flowVariant: 'lite' as const,
+          }
+        }),
+      )
     )
-    const lms: GuidedTourTabProgress = {
-      ...web.lms,
-      complete: isProgressComplete(web.lms),
-    }
-    const program: GuidedTourTabProgress = {
-      ...web.program,
-      complete: isProgressComplete(web.program),
-    }
+      .filter((b): b is BatchT0Status => b !== null)
+      .sort((a, b) => a.batchId - b.batchId)
+
+    const showGuidedTour = liteStatuses.some(
+      (b) =>
+        !b.lms.complete ||
+        (b.showProgramTab && b.program !== null && !b.program.complete),
+    )
 
     return {
       showT0Flow: true,
-      batches: [
-        {
-          batchId,
-          batchName: batchNameMap.get(batchId) ?? String(batchId),
-          showProgramTab: true, // old full-fee users → program tab always unlocked
-          lms,
-          program,
-          lectures: null,
-          flowVariant: 'lite',
-        },
-      ],
+      batches: liteStatuses,
       profilePhotoUrl,
       downloadAppCompleted: hasDeviceToken,
-      showGuidedTour: !lms.complete || !program.complete,
+      showGuidedTour,
       flowVariant: 'lite',
     }
   }

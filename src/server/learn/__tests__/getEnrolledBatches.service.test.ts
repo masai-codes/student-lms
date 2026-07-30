@@ -51,6 +51,7 @@ describe('getEnrolledBatchesForUser service', () => {
         showAttendanceReport: false,
         showEvaluationReport: false,
         showBatchDetails: false,
+        showSectionDropdown: false,
       },
       {
         batchId: 2,
@@ -59,6 +60,7 @@ describe('getEnrolledBatchesForUser service', () => {
         showAttendanceReport: false,
         showEvaluationReport: false,
         showBatchDetails: false,
+        showSectionDropdown: false,
       },
     ])
   })
@@ -91,6 +93,7 @@ describe('getEnrolledBatchesForUser service', () => {
         showAttendanceReport: false,
         showEvaluationReport: false,
         showBatchDetails: false,
+        showSectionDropdown: false,
       },
     ])
   })
@@ -116,6 +119,59 @@ describe('getEnrolledBatchesForUser service', () => {
         showAttendanceReport: false,
         showEvaluationReport: false,
         showBatchDetails: true,
+        showSectionDropdown: false,
+      },
+    ])
+  })
+
+  it('flags showSectionDropdown from batch meta', async () => {
+    const { getEnrolledBatchesForUser } =
+      await import('../services/getEnrolledBatches.service')
+    hoisted.getBatchIdsForEnrolledUser.mockResolvedValueOnce([4])
+    hoisted.dbSelect.mockReturnValueOnce({
+      from: () => ({
+        where: () =>
+          Promise.resolve([
+            { id: 4, name: 'Cohort D', meta: { showSectionDropdown: true } },
+          ]),
+      }),
+    })
+
+    await expect(getEnrolledBatchesForUser(77)).resolves.toEqual([
+      {
+        batchId: 4,
+        courseTitle: 'Cohort D',
+        courseLogo: null,
+        showAttendanceReport: false,
+        showEvaluationReport: false,
+        showBatchDetails: false,
+        showSectionDropdown: true,
+      },
+    ])
+  })
+
+  it('treats a non-boolean meta.showSectionDropdown as disabled', async () => {
+    const { getEnrolledBatchesForUser } =
+      await import('../services/getEnrolledBatches.service')
+    hoisted.getBatchIdsForEnrolledUser.mockResolvedValueOnce([5])
+    hoisted.dbSelect.mockReturnValueOnce({
+      from: () => ({
+        where: () =>
+          Promise.resolve([
+            { id: 5, name: 'Cohort E', meta: { showSectionDropdown: 'true' } },
+          ]),
+      }),
+    })
+
+    await expect(getEnrolledBatchesForUser(77)).resolves.toEqual([
+      {
+        batchId: 5,
+        courseTitle: 'Cohort E',
+        courseLogo: null,
+        showAttendanceReport: false,
+        showEvaluationReport: false,
+        showBatchDetails: false,
+        showSectionDropdown: false,
       },
     ])
   })

@@ -12,6 +12,7 @@ import type { DashboardSupportSession } from '@/server/api/dashboard/support/get
 import type { DashboardScheduleItem } from '@/server/api/dashboard/schedule/scheduleTypes'
 import type { FeePaymentBanner } from '@/server/api/dashboard/t0/getFeePaymentBanner.service'
 import type { BatchStartBanner } from '@/server/api/dashboard/getBatchStartBanners.service'
+import type { BatchTransferPaymentBanner } from '@/server/api/dashboard/getBatchTransferPaymentBanners.service'
 
 /**
  * Live overview sections + the shared query state. Cards render their own
@@ -30,4 +31,6 @@ export interface DashboardOverviewState {
   feePaymentBanners: Array<FeePaymentBanner>
   /** Upcoming-batch-start banners (swipable, auto-advancing). */
   batchStartBanners: Array<BatchStartBanner>
+  /** "Complete your batch-transfer payment" banners (swipable, auto-advancing). */
+  batchTransferPaymentBanners: Array<BatchTransferPaymentBanner>
 }

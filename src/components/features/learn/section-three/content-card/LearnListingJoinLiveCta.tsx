@@ -4,6 +4,8 @@ import { useState } from 'react'
 import { CardCtaButton } from '@/components/shared/card-cta-button'
 import { learnEntityEvent, pushLearnEvent } from '../../shared/learnAnalytics'
 import { fetchZoomRedirectUrlViaApi } from '@/lib/api/learn/zoomRedirectApi'
+import { fetchAdaptiveJoinUrlViaApi } from '@/lib/api/learn/adaptiveJoinApi'
+import { isAdaptiveLectureLink } from '@/server/learn/utils/toLectureScopedAdaptiveLink'
 import { toast } from '@/lib/toast'
 import { buildZoomWebViewUrl } from '@/lib/learn/zoomWebView'
 import {
@@ -64,6 +66,22 @@ export function LearnListingJoinLiveCta({
       setPending(true)
       try {
         openInNewTab(await fetchZoomRedirectUrlViaApi(lectureId))
+      } catch {
+        if (joinZoomLink) openInNewTab(joinZoomLink)
+        toast.error('Opened the standard join link instead.')
+      } finally {
+        setPending(false)
+      }
+      return
+    }
+
+    // SAL/adaptive: mint the join URL server-side so it carries a `?token=`
+    // fallback and the tenant's experience-api host (iHub cookies aren't sent to
+    // the masai host). Fall back to the raw scoped link (works for masai).
+    if (isAdaptiveLectureLink(joinZoomLink) && lectureId !== undefined) {
+      setPending(true)
+      try {
+        openInNewTab(await fetchAdaptiveJoinUrlViaApi(lectureId))
       } catch {
         if (joinZoomLink) openInNewTab(joinZoomLink)
         toast.error('Opened the standard join link instead.')

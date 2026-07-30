@@ -6,8 +6,8 @@ import { assignments, batches, sections, users } from '@/db/schema'
 /**
  * Assignments in the user's sections whose `start_date` OR `end_date` falls in
  * the `[start, end]` date window, excluding deleted rows. Same filter/shape as
- * {@link fetchScheduleLectures}, minus the lecture-only join fields (assignments
- * have no `module`/`zoom_link`). Ordered by `schedule` ascending.
+ * {@link fetchScheduleLectures}, minus the lecture-only `zoom_link` field.
+ * Ordered by `schedule` ascending.
  */
 export async function fetchScheduleAssignments(
   sectionIds: Array<number>,
@@ -27,6 +27,8 @@ export async function fetchScheduleAssignments(
       concludes: assignments.concludes,
       sectionId: assignments.sectionId,
       week: assignments.week,
+      module: assignments.module,
+      settings: assignments.settings,
       hostName: users.name,
       sectionName: sections.name,
       batchName: batches.name,
@@ -51,6 +53,6 @@ export async function fetchScheduleAssignments(
     )
     .orderBy(asc(assignments.schedule))
 
-  // Assignments have no `module`/`zoom_link` columns.
-  return rows.map((row) => ({ ...row, module: null, zoomLink: null }))
+  // Assignments have no `zoom_link` column.
+  return rows.map((row) => ({ ...row, zoomLink: null }))
 }

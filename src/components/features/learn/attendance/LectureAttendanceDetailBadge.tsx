@@ -45,12 +45,7 @@ function AbsentTooltipContent({
     )
   }
 
-  return (
-    <p>
-      You have not joined this session using your Zoom authenticated mail id
-      with Masai
-    </p>
-  )
+  return <p>You have not joined this session</p>
 }
 
 function withTooltip(content: ReactNode, badge: ReactNode): ReactNode {

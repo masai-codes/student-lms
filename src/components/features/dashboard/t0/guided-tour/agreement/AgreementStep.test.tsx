@@ -16,6 +16,12 @@ const hoisted = vi.hoisted(() => ({
   submit: vi.fn(),
   recordView: vi.fn(),
   isMobile: vi.fn(),
+  invalidate: vi.fn(() => Promise.resolve()),
+}))
+
+vi.mock('@tanstack/react-router', async (importActual) => ({
+  ...(await importActual<typeof import('@tanstack/react-router')>()),
+  useRouter: () => ({ invalidate: hoisted.invalidate }),
 }))
 
 vi.mock('@/lib/api/dashboard/dashboardApi', () => ({
@@ -349,6 +355,9 @@ describe('AgreementStep', () => {
     expect(screen.getByTestId('agreement-certificate')).toBeTruthy()
     fireEvent.click(screen.getByTestId('agreement-submit'))
     await waitFor(() => expect(hoisted.submit).toHaveBeenCalledWith(7))
+    // Router loaders are invalidated so the (now-unbanned) lecture/assignment
+    // detail pages refetch during SPA nav without a hard reload.
+    await waitFor(() => expect(hoisted.invalidate).toHaveBeenCalled())
     await waitFor(() => expect(onCompleted).toHaveBeenCalled())
   })
 })

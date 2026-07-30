@@ -18,6 +18,10 @@ export function ResourceDetailActions({
   const bookmark = useResourceBookmark(resourceId, initialIsBookmarked)
 
   return (
-    <LearnDetailDefaultActions bookmark={bookmark} ticketCategory="resource" />
+    <LearnDetailDefaultActions
+      bookmark={bookmark}
+      ticketCategory="resource"
+      ticketEntityId={resourceId}
+    />
   )
 }

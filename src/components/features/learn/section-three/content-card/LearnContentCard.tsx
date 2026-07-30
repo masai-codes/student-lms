@@ -33,6 +33,47 @@ const learnContentTagChipPalette = {
   textClassName: '!text-foreground-muted',
 }
 
+// Evaluation tags get a distinct yellow treatment so graded evaluations stand
+// out from ordinary type/category/module tags.
+const learnContentEvaluationTagChipPalette = {
+  backgroundClassName:
+    'bg-yellow-50 border border-yellow-100 dark:bg-warning-subtle dark:border-warning-subtle',
+  textClassName: '!text-yellow-600 dark:!text-warning-subtle-foreground',
+}
+
+function resolveTagChipPalette(tag: string) {
+  return tag.trim().toLowerCase() === 'evaluation'
+    ? learnContentEvaluationTagChipPalette
+    : learnContentTagChipPalette
+}
+
+/**
+ * `assignments.settings.weightagePercentage`, shown alongside the tags in the
+ * same blue treatment as the assignment detail header badge.
+ */
+function LearnAssignmentWeightageChip({
+  weightage,
+}: {
+  weightage: number | null | undefined
+}) {
+  if (weightage == null) {
+    return null
+  }
+
+  return (
+    <MasaiChips
+      data-testid="learn-assignment-weightage"
+      type="default"
+      size="regular"
+      label={`${weightage}% Weightage`}
+      tabIndex={-1}
+      className="pointer-events-none"
+      backgroundClassName="bg-blue-50 border border-blue-100 dark:bg-info-subtle dark:border-info-subtle"
+      textClassName="!text-blue-600 dark:!text-info-subtle-foreground"
+    />
+  )
+}
+
 function LearnTypeIcon({ type }: Pick<LearnContentItem, 'type'>) {
   return (
     <img
@@ -150,7 +191,7 @@ export function LearnContentCard({
                     </>
                   ) : null}
                 </div>
-                {item.tags.length > 0 ? (
+                {item.tags.length > 0 || item.assignmentWeightage != null ? (
                   <div
                     data-testid="learn-card-dashboard-tags"
                     className="flex flex-wrap items-center gap-2"
@@ -163,9 +204,14 @@ export function LearnContentCard({
                         label={tag}
                         tabIndex={-1}
                         className="cursor-default transition-colors duration-200"
-                        {...learnContentTagChipPalette}
+                        {...resolveTagChipPalette(tag)}
                       />
                     ))}
+                    {item.type === 'assignment' ? (
+                      <LearnAssignmentWeightageChip
+                        weightage={item.assignmentWeightage}
+                      />
+                    ) : null}
                   </div>
                 ) : null}
               </div>
@@ -200,7 +246,7 @@ export function LearnContentCard({
                         label={tag}
                         tabIndex={-1}
                         className="cursor-default transition-colors duration-200"
-                        {...learnContentTagChipPalette}
+                        {...resolveTagChipPalette(tag)}
                       />
                     ))}
                     <MasaiChips
@@ -211,6 +257,11 @@ export function LearnContentCard({
                       className="cursor-default"
                       {...learnContentTagChipPalette}
                     />
+                    {item.type === 'assignment' ? (
+                      <LearnAssignmentWeightageChip
+                        weightage={item.assignmentWeightage}
+                      />
+                    ) : null}
                   </div>
                 </div>
               </>

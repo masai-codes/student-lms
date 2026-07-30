@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from 'react'
+import { useEffect, useMemo, useRef } from 'react'
 import { keepPreviousData, useQuery } from '@tanstack/react-query'
 import { LearnHeaderSection } from '../section-one/LearnHeaderSection'
 import { LearnAppliedFilters } from '../section-two/LearnAppliedFilters'
@@ -27,6 +27,11 @@ interface LearnLayoutProps {
   /** `null` selects "Any section". */
   onSectionChange: (sectionId: number | null) => void
 }
+
+// Treat page data as fresh for 5 min (matches the dashboard/navbar convention) so
+// returning to the tab doesn't refetch on window focus. The default staleTime of 0
+// marks data stale immediately, which is what triggers a refetch on every focus.
+const PAGE_STALE_TIME_MS = 5 * 60 * 1000 // 5 minutes
 
 function toLearningType(tab: LearnTab): LearningType {
   if (tab === 'assignments') return 'assignment'
@@ -69,17 +74,33 @@ export function LearnLayout({
   // Interactive updates fetch here (not via the route loader), so search / filters /
   // pagination never block the route — the header & search stay live and only the
   // list shows a skeleton while refetching.
-  const { data, isFetching } = useQuery({
-    queryKey: [
-      'learn-page-data',
-      batchId ?? null,
-      sectionId ?? null,
-      scheduleHorizonDays ?? null,
-      learningType,
-      searchValue,
-      currentPage,
-      hasActiveApiFilters ? apiFilters : null,
-    ],
+  // Section and schedule-horizon are part of the key: they change what the API
+  // returns, so a key that ignored them would serve another section's (or
+  // another horizon's) cached list on switch instead of refetching.
+  const queryKey = [
+    'learn-page-data',
+    batchId ?? null,
+    sectionId ?? null,
+    scheduleHorizonDays ?? null,
+    learningType,
+    searchValue,
+    currentPage,
+    hasActiveApiFilters ? apiFilters : null,
+  ]
+
+  // The route loader seeds `pageData` for the key it fetched (this first render).
+  // Scope `initialData` to that exact key: TanStack applies `initialData` to every
+  // new key with `dataUpdatedAt = now`, so without this a batch / filter / page
+  // change would seed the new key with the *previous* batch's data and — because
+  // `staleTime` marks it fresh on creation — show it without refetching. Other keys
+  // start empty and fetch their own data (keepPreviousData keeps the old list
+  // visible under a skeleton meanwhile).
+  const queryKeyString = JSON.stringify(queryKey)
+  const seededKeyRef = useRef(queryKeyString)
+  const isSeededKey = queryKeyString === seededKeyRef.current
+
+  const { data: queryData, isFetching } = useQuery({
+    queryKey,
     queryFn: () =>
       fetchLearnPageDataFromApi({
         batchId,
@@ -90,20 +111,39 @@ export function LearnLayout({
         sectionId,
         scheduleHorizonDays,
       }),
-    initialData: pageData,
+    initialData: isSeededKey ? pageData : undefined,
     placeholderData: keepPreviousData,
+    staleTime: PAGE_STALE_TIME_MS,
   })
+
+  // `queryData` is only undefined in the impossible case of a non-seeded key with no
+  // previous data; keepPreviousData otherwise keeps the last list in place while the
+  // new one loads. The fallback keeps types honest without a non-null assertion.
+  const data = queryData ?? pageData
 
   const enrolledBatches = data.batches
   const selectedBatchId = data.selectedBatchId
   const sections = data.sections
 
+  // The section filter is opt-in per batch (`batches.meta.showSectionDropdown`).
+  const showSectionDropdown =
+    enrolledBatches.find((batch) => batch.batchId === selectedBatchId)
+      ?.showSectionDropdown === true
+
   // Section persistence/restore. Runs only on data that matches the current batch
   // (guards against `keepPreviousData` showing the previous batch's sections):
+  //  - with the filter hidden, any lingering `sectionId` is dropped so the listing
+  //    is never narrowed by a control the student cannot see or reset;
   //  - a stale `sectionId` not in this batch's enrolled sections is dropped;
   //  - otherwise, when none is selected, restore this batch's stored choice.
   useEffect(() => {
     if (batchId == null || selectedBatchId !== batchId) return
+
+    if (!showSectionDropdown) {
+      if (sectionId != null) setSectionId(null)
+      return
+    }
+
     const validSectionIds = new Set(
       sections.map((section) => section.sectionId),
     )
@@ -117,7 +157,15 @@ export function LearnLayout({
     if (storedSectionId != null && validSectionIds.has(storedSectionId)) {
       setSectionId(storedSectionId)
     }
-  }, [batchId, selectedBatchId, sections, sectionId, setSectionId, userId])
+  }, [
+    batchId,
+    selectedBatchId,
+    sections,
+    sectionId,
+    setSectionId,
+    showSectionDropdown,
+    userId,
+  ])
 
   const learningItems: Array<LearnContentItem> = useMemo(
     () => data.learningItems.map(mapLearningItemToContent),
@@ -146,6 +194,7 @@ export function LearnLayout({
               label: batch.courseTitle,
               courseLogo: batch.courseLogo,
               showBatchDetails: batch.showBatchDetails,
+              showSectionDropdown: batch.showSectionDropdown,
             }))}
             onBatchChange={(value) => {
               onBatchChange(Number(value))

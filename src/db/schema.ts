@@ -462,11 +462,15 @@ export const batchUser = mysqlTable(
       .references(() => batches.id),
     history: json().$type<Record<string, any>>(),
     status: varchar({ length: 300 }),
+    // Enrolment id from the external admissions platform (large number).
     enrolmentId: bigint('enrolment_id', { mode: 'number', unsigned: true }),
+    // Batch-transfer id from the external admissions platform (large number).
     batchTransferId: bigint('batch_transfer_id', {
       mode: 'number',
       unsigned: true,
     }),
+    // Batch-transfer status; values are a code-level enum (BATCH_TRANSFER_STATUS),
+    // deliberately not a DB enum.
     batchTransferStatus: varchar('batch_transfer_status', { length: 50 }),
   },
   (table) => [primaryKey({ columns: [table.id], name: 'batch_user_id' })],
@@ -935,7 +939,7 @@ export const lecturesAi = mysqlTable(
     createdAt: timestamp('created_at', { mode: 'string' }),
     updatedAt: timestamp('updated_at', { mode: 'string' }),
     lastRefetchTime: datetime({ mode: 'string', fsp: 3 }),
-    transcriptId: varchar({ length: 191 }),
+    transcriptId: varchar('transcriptID', { length: 191 }),
     faqs: json().$type<Record<string, any>>(),
   },
   (table) => [

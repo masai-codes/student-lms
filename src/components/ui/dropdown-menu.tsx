@@ -32,10 +32,20 @@ function DropdownMenuTrigger({
 function DropdownMenuContent({
   className,
   sideOffset = 4,
+  container,
   ...props
-}: React.ComponentProps<typeof DropdownMenuPrimitive.Content>) {
+}: React.ComponentProps<typeof DropdownMenuPrimitive.Content> & {
+  /**
+   * Portal container for the menu. Pass a node inside a vaul drawer (or any
+   * dismissable overlay) so the menu renders within that subtree and selecting
+   * an item is not treated as an "outside" interaction that closes the overlay.
+   */
+  container?: React.ComponentProps<
+    typeof DropdownMenuPrimitive.Portal
+  >['container']
+}) {
   return (
-    <DropdownMenuPrimitive.Portal>
+    <DropdownMenuPrimitive.Portal container={container}>
       <DropdownMenuPrimitive.Content
         data-slot="dropdown-menu-content"
         sideOffset={sideOffset}

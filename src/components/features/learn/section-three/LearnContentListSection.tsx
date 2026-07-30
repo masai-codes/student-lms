@@ -12,7 +12,10 @@ export function LearnContentListSection({
 }) {
   if (!items.length) {
     return (
-      <section className="my-[20px] rounded-lg border border-dashed p-6 text-center text-sm text-muted-foreground">
+      <section
+        data-testid="learn-content-list-empty"
+        className="my-[20px] rounded-lg border border-dashed p-6 text-center text-sm text-muted-foreground"
+      >
         <span className="animate-dash-pop mb-2 block text-2xl" aria-hidden>
           🔍
         </span>
@@ -22,10 +25,15 @@ export function LearnContentListSection({
   }
 
   return (
-    <section className="mt-[16px] space-y-3">
+    <section data-testid="learn-content-list" className="mt-[16px] space-y-3">
       {items.map((item, index) => (
         <div
           key={item.id}
+          // Stable automation hook per row, keyed by content type so suites can
+          // target e.g. [data-testid="lecture-list-item"]. See CLAUDE.md →
+          // Automation Test Hooks and the `browser-verify` skill.
+          data-testid={`${item.type}-list-item`}
+          data-content-id={item.id}
           className="dash-lift animate-dash-row-in rounded-[8px]"
           style={
             {

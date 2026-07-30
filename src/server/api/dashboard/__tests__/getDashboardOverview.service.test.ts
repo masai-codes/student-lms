@@ -12,6 +12,7 @@ const hoisted = vi.hoisted(() => ({
   getT0FlowLectures: vi.fn(),
   getFeePaymentBanners: vi.fn(),
   getBatchStartBanners: vi.fn(),
+  getBatchTransferPaymentBanners: vi.fn(),
 }))
 
 vi.mock('../banners/getWelcomeBanners.service', () => ({
@@ -47,6 +48,9 @@ vi.mock('../t0/getFeePaymentBanner.service', () => ({
 }))
 vi.mock('../getBatchStartBanners.service', () => ({
   getBatchStartBanners: hoisted.getBatchStartBanners,
+}))
+vi.mock('../getBatchTransferPaymentBanners.service', () => ({
+  getBatchTransferPaymentBanners: hoisted.getBatchTransferPaymentBanners,
 }))
 
 const banners = [
@@ -93,6 +97,7 @@ describe('getDashboardOverview', () => {
     hoisted.getT0FlowStatus.mockResolvedValue(t0FlowOff)
     hoisted.getFeePaymentBanners.mockResolvedValue([])
     hoisted.getBatchStartBanners.mockResolvedValue([])
+    hoisted.getBatchTransferPaymentBanners.mockResolvedValue([])
   })
 
   it('composes every section and features the selected support session', async () => {
@@ -127,6 +132,7 @@ describe('getDashboardOverview', () => {
       t0Flow: t0FlowOff,
       feePaymentBanners: [],
       batchStartBanners: [],
+      batchTransferPaymentBanners: [],
     })
     expect(hoisted.getFeePaymentBanners).toHaveBeenCalledWith(7, now)
     expect(hoisted.getBatchStartBanners).toHaveBeenCalledWith(7, now)

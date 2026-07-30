@@ -32,5 +32,6 @@ export function mapLearningItemToContent(item: LearningItem): LearnContentItem {
     assignmentStatusChip: item.listingCtas.assignmentStatusChip,
     assignmentDeadlineLabel: item.listingCtas.assignmentDeadlineLabel,
     assignmentScore: item.listingCtas.assignmentScore,
+    assignmentWeightage: item.assignmentWeightage,
   }
 }

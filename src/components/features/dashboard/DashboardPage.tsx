@@ -95,16 +95,28 @@ export function DashboardPage({
     pendingTasks: data?.pendingTasks ?? [],
     feePaymentBanners: data?.feePaymentBanners ?? [],
     batchStartBanners: data?.batchStartBanners ?? [],
+    batchTransferPaymentBanners: data?.batchTransferPaymentBanners ?? [],
   }
 
   // When the guided tour is showing it takes over the content area (below the
   // navbar), so the dashboard itself is hidden.
-  const tourVisible = data
+  const tourEligible = data
     ? isGuidedTourVisible(data.t0Flow, {
         dismissed: tourDismissed,
         forceOpen: tourForced,
       })
     : false
+
+  // Once the tour is open this visit, keep it open even if the backend flips
+  // `showGuidedTour` to false mid-view (e.g. the learner finishes the last video
+  // and onboarding becomes complete). Closing is then driven only by the user
+  // ("See dashboard" / the completion CTA) — never yanked away abruptly. On a
+  // fresh reload the latch resets, so a completed onboarding still won't auto-open.
+  const [tourLatched, setTourLatched] = useState(false)
+  useEffect(() => {
+    if (tourEligible) setTourLatched(true)
+  }, [tourEligible])
+  const tourVisible = tourEligible || (tourLatched && !tourDismissed)
 
   return (
     <>
@@ -119,13 +131,13 @@ export function DashboardPage({
       {data ? (
         <T0FlowGate
           status={data.t0Flow}
-          dismissed={tourDismissed}
+          open={tourVisible}
           onDismiss={() => {
             setTourDismissed(true)
             setTourForced(false)
+            setTourLatched(false)
           }}
           target={tourTarget}
-          forceOpen={tourForced}
           feePaymentBanners={data.feePaymentBanners}
         />
       ) : null}

@@ -16,6 +16,8 @@ const hoisted = vi.hoisted(() => ({
   createBatch: vi.fn(),
   createSection: vi.fn(),
   createEnrollment: vi.fn(),
+  createProfile: vi.fn(),
+  createUserDeviceToken: vi.fn(),
   createLecture: vi.fn(),
 }))
 
@@ -24,9 +26,12 @@ vi.mock('../factories/index.ts', () => ({
   createBatch: hoisted.createBatch,
   createSection: hoisted.createSection,
   createEnrollment: hoisted.createEnrollment,
+  createProfile: hoisted.createProfile,
+  createUserDeviceToken: hoisted.createUserDeviceToken,
   createLecture: hoisted.createLecture,
 }))
 
+import { ONBOARDING_PROFILE_PHOTO_URL } from './onboarding-shared/constants'
 import { loginAndJoinLectureConfig } from './login-and-join-lecture/config'
 import { seedLoginAndJoinLecture } from './login-and-join-lecture/seed'
 
@@ -68,6 +73,9 @@ describe('seedLoginAndJoinLecture', () => {
       role: 'student',
     })
 
+    hoisted.createProfile.mockResolvedValue({ id: 50, userId: 2 })
+    hoisted.createUserDeviceToken.mockResolvedValue({ id: 60, userId: 2 })
+
     hoisted.createLecture.mockResolvedValue({
       id: 40,
       batchId: 10,
@@ -90,7 +98,37 @@ describe('seedLoginAndJoinLecture', () => {
       userId: 2,
       managerId: 1,
     })
-    expect(hoisted.createLecture).toHaveBeenCalledOnce()
+    expect(hoisted.createProfile).toHaveBeenCalledWith({
+      userId: 2,
+      meta: { profile_pic: ONBOARDING_PROFILE_PHOTO_URL },
+    })
+    expect(hoisted.createUserDeviceToken).toHaveBeenCalledWith({
+      userId: 2,
+      token: 'seed-device-login-and-join-lecture',
+      deviceType: 'ios',
+    })
+    expect(hoisted.createLecture).toHaveBeenCalledWith(
+      expect.objectContaining({
+        schedule: expect.stringMatching(
+          /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/,
+        ),
+        concludes: expect.stringMatching(
+          /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/,
+        ),
+        startDate: expect.stringMatching(/^\d{4}-\d{2}-\d{2}$/),
+        endDate: expect.stringMatching(/^\d{4}-\d{2}-\d{2}$/),
+        zoomLink: expect.any(String),
+      }),
+    )
+
+    const lectureArgs = hoisted.createLecture.mock.calls[0][0] as {
+      schedule: string
+      concludes: string
+      startDate: string
+      endDate: string
+    }
+    expect(lectureArgs.startDate).toBe(lectureArgs.schedule.slice(0, 10))
+    expect(lectureArgs.endDate).toBe(lectureArgs.concludes.slice(0, 10))
 
     expect(result.flowId).toBe('login-and-join-lecture')
     expect(result.testUsers).toHaveLength(2)
