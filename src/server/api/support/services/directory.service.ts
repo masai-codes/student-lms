@@ -205,11 +205,17 @@ function normalizePpLink(value: unknown): string | null {
  *     `show_pp === true`), plus IA (`section_user.manager_id`) + EC/PC
  *     (`role='ec'/'pc'`).
  *
- * Returns `[]` when no section qualifies — the UI then hides the 1:1 tab.
+ * Batches are scoped via {@link getBatchIdsForEnrolledUser} so cancelled
+ * enrolments never appear here. Returns `[]` when no section qualifies — the UI
+ * then hides the 1:1 tab.
  */
 export async function getOneOnOneGroups(
   userId: number,
 ): Promise<Array<OneOnOneBatchGroup>> {
+  const enrolledBatchIds = await getBatchIdsForEnrolledUser(userId)
+  if (enrolledBatchIds.length === 0) return []
+  const enrolledBatchIdSet = new Set(enrolledBatchIds)
+
   // 1) The student's active sections + their pp settings + IA (manager_id).
   const myRows = await db
     .select({
@@ -236,7 +242,9 @@ export async function getOneOnOneGroups(
       const ppLink = typeof s.ppLink === 'string' ? s.ppLink.trim() : ''
       return { ...r, showPp: Boolean(s.show_pp), ppLink }
     })
-    .filter((r) => r.showPp && r.ppLink !== '')
+    .filter(
+      (r) => r.showPp && r.ppLink !== '' && enrolledBatchIdSet.has(r.batchId),
+    )
 
   if (enabled.length === 0) return []
 
