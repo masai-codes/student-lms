@@ -6,6 +6,9 @@ so Claude Code (and any agent reading this file) follows the same standards.
 
 @.cursor/rules/project-coding-guidelines.mdc
 
+For a full architecture walkthrough, feature-building checklist, and
+anti-patterns to avoid, see `AGENTS.md` in this directory.
+
 ## Running & verifying the app in a browser
 
 The dev server runs on **port 3002** (`npm run dev`, config in `.claude/launch.json`).

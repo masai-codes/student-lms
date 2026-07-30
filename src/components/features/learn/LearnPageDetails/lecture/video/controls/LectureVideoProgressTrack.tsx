@@ -228,7 +228,10 @@ export function LectureVideoProgressTrack({
             }}
             aria-hidden
           >
-            {formatVideoClock(hoverRatio * totalDuration, totalDuration >= 3600)}
+            {formatVideoClock(
+              hoverRatio * totalDuration,
+              totalDuration >= 3600,
+            )}
           </div>
         ) : null}
       </div>

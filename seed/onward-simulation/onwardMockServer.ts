@@ -45,8 +45,9 @@ const server = createServer((req, res) => {
   const fixtures = readOnwardFixtures()
   const status = fixtures[studentCode] ?? buildSimulatedOnwardStatus()
 
+  // Match the real admissions API envelope that `getAdmissionsStudentStatus` unwraps.
   res.writeHead(200, { 'Content-Type': 'application/json' })
-  res.end(JSON.stringify(status))
+  res.end(JSON.stringify({ success: true, data: status }))
 })
 
 const isDirectRun = process.argv[1]?.includes('onwardMockServer')

@@ -21,7 +21,9 @@ describe('parseAnnouncementsQuery', () => {
   })
 
   it('parses announcedBy + announced-date range', () => {
-    const r = parse('?announcedBy=42,7,42&startDate=2026-07-01&endDate=2026-07-31')
+    const r = parse(
+      '?announcedBy=42,7,42&startDate=2026-07-01&endDate=2026-07-31',
+    )
     expect(r.announcedBy).toEqual(['42', '7'])
     expect(r.startDate).toBe('2026-07-01')
     expect(r.endDate).toBe('2026-07-31')
@@ -47,7 +49,9 @@ describe('parseAnnouncementsQuery', () => {
   })
 
   it('parses comma-separated type and category filters, trimmed and deduped', () => {
-    const result = parse('?type=critical,%20info%20,critical&category=DSA,General')
+    const result = parse(
+      '?type=critical,%20info%20,critical&category=DSA,General',
+    )
     expect(result.types).toEqual(['critical', 'info'])
     expect(result.categories).toEqual(['DSA', 'General'])
   })

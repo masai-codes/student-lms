@@ -36,6 +36,12 @@ export type LectureAttendanceSummary = {
    * `video_attendance_considered_in_section`.
    */
   videoCountsForAttendance: boolean
+  /**
+   * Section setting `markAbsentIfLate`: whether joining the live session late
+   * (beyond grace, per `lateByMinutes`) marks the student Absent by itself.
+   * Drives the floating-support absent reason copy.
+   */
+  markAbsentIfLate: boolean
 }
 
 export type LectureAttendanceContext = {

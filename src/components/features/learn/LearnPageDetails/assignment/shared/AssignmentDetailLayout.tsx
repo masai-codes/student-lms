@@ -57,6 +57,7 @@ export function AssignmentDetailLayout({
             <AssignmentDetailActions
               assignmentId={detail.id}
               initialIsBookmarked={detail.isBookmarked}
+              assignmentKind={detail.assignmentKind}
             />
           }
           overviewTrailingChips={

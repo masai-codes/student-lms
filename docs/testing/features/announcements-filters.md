@@ -9,12 +9,12 @@ The `/announcements` listing gains a Learn-style right-side **filter drawer**
 existing search box (`q`) and "Important for you" toggle (`message`). Four
 filter sections (left-nav + content), matching the old LMS:
 
-| Section | Control | Values |
-|---|---|---|
-| Type | checkboxes | `Critical` (`critical`), `Information` (`info`) — fixed |
-| Category | checkboxes | non-deprecated `announcement-category` menu values |
-| Announced by | checkboxes | distinct authors across the blended list — section announcement authors **and** message senders (value = user id) |
-| Announced date | date range | IST calendar-day range on `schedule` (fallback `created_at`) |
+| Section        | Control    | Values                                                                                                            |
+| -------------- | ---------- | ----------------------------------------------------------------------------------------------------------------- |
+| Type           | checkboxes | `Critical` (`critical`), `Information` (`info`) — fixed                                                           |
+| Category       | checkboxes | non-deprecated `announcement-category` menu values                                                                |
+| Announced by   | checkboxes | distinct authors across the blended list — section announcement authors **and** message senders (value = user id) |
+| Announced date | date range | IST calendar-day range on `schedule` (fallback `created_at`)                                                      |
 
 - **Options** load once from `GET /api/announcement/filter-options`
   (`{ categories, announcers }`); the drawer and the applied chips share the
@@ -36,19 +36,19 @@ Shared with the bookmarks drawer: `FilterCheckboxColumn`
 
 ## Test files
 
-| File | Covers |
-| --- | --- |
-| `src/server/api/announcement/utils/__tests__/buildAnnouncementFilterClauses.test.ts` | type/category/announcedBy `IN` on both sources; schedule date range (BETWEEN/`>=`/`<=`) |
-| `src/server/api/announcement/utils/__tests__/parseAnnouncementsQuery.test.ts` | defaults, csv parse, announcedBy + date validation |
-| `src/server/api/announcement/__tests__/getAnnouncementFilterOptions.service.test.ts` | categories + section-scoped announcers; no sections; blank-name drop |
-| `src/lib/api/announcement/__tests__/announcementApi.filters.test.ts` | param serialization (incl. announcedBy/dates); options fetch shape |
-| `src/components/features/announcements/announcementFilterConfig.test.ts` | sections, type options, empty factory, `isIsoDate`, `normalizeFilterValues` |
-| `src/components/features/announcements/announcementFilterSearch.test.ts` | search⇄filters, count, chips (type/announcer labels, removal, date) |
-| `src/components/features/announcements/AnnouncementFiltersPanel.test.tsx` | nav sections, type/announced-by/date apply, clear |
-| `src/components/features/announcements/AnnouncementFilterDrawer.test.tsx` | trigger open, count badge, deferred commit, GTM |
-| `src/components/features/announcements/AnnouncementAppliedFilters.test.tsx` | chip render, announcer-name resolution, removal, clear-all, empty → null |
-| `src/components/features/announcements/AnnouncementCard.test.tsx` | card routing/tint/badges |
-| `src/components/features/announcements/AnnouncementsPage.test.tsx` | list/empty, apply/clear navigation, toggle preserves filters, debounced search, fetch params |
+| File                                                                                 | Covers                                                                                       |
+| ------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------- |
+| `src/server/api/announcement/utils/__tests__/buildAnnouncementFilterClauses.test.ts` | type/category/announcedBy `IN` on both sources; schedule date range (BETWEEN/`>=`/`<=`)      |
+| `src/server/api/announcement/utils/__tests__/parseAnnouncementsQuery.test.ts`        | defaults, csv parse, announcedBy + date validation                                           |
+| `src/server/api/announcement/__tests__/getAnnouncementFilterOptions.service.test.ts` | categories + section-scoped announcers; no sections; blank-name drop                         |
+| `src/lib/api/announcement/__tests__/announcementApi.filters.test.ts`                 | param serialization (incl. announcedBy/dates); options fetch shape                           |
+| `src/components/features/announcements/announcementFilterConfig.test.ts`             | sections, type options, empty factory, `isIsoDate`, `normalizeFilterValues`                  |
+| `src/components/features/announcements/announcementFilterSearch.test.ts`             | search⇄filters, count, chips (type/announcer labels, removal, date)                          |
+| `src/components/features/announcements/AnnouncementFiltersPanel.test.tsx`            | nav sections, type/announced-by/date apply, clear                                            |
+| `src/components/features/announcements/AnnouncementFilterDrawer.test.tsx`            | trigger open, count badge, deferred commit, GTM                                              |
+| `src/components/features/announcements/AnnouncementAppliedFilters.test.tsx`          | chip render, announcer-name resolution, removal, clear-all, empty → null                     |
+| `src/components/features/announcements/AnnouncementCard.test.tsx`                    | card routing/tint/badges                                                                     |
+| `src/components/features/announcements/AnnouncementsPage.test.tsx`                   | list/empty, apply/clear navigation, toggle preserves filters, debounced search, fetch params |
 
 ## Commands
 
