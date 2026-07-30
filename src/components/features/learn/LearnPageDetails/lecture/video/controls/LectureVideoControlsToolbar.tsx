@@ -134,9 +134,7 @@ export function LectureVideoControlsToolbar({
   const [isFullscreen, setIsFullscreen] = useState(false)
   const [overflowMenuOpen, setOverflowMenuOpen] = useState(false)
   // YouTube-style settings menu drill-down: main list → speed / quality.
-  const [menuView, setMenuView] = useState<'main' | 'speed' | 'quality'>(
-    'main',
-  )
+  const [menuView, setMenuView] = useState<'main' | 'speed' | 'quality'>('main')
 
   useEffect(() => {
     if (!overflowMenuOpen) setMenuView('main')
@@ -335,7 +333,9 @@ export function LectureVideoControlsToolbar({
               (and the device has hardware volume keys). Desktop keeps the
               inline mute button + hover slider. */}
           <div className="group/volume hidden shrink-0 items-center md:flex">
-            <ControlTooltip label={mutedUi || volumeUi === 0 ? 'Unmute' : 'Mute'}>
+            <ControlTooltip
+              label={mutedUi || volumeUi === 0 ? 'Unmute' : 'Mute'}
+            >
               <button
                 type="button"
                 onClick={toggleMute}
@@ -344,11 +344,17 @@ export function LectureVideoControlsToolbar({
                 aria-label={mutedUi ? 'Unmute' : 'Mute'}
               >
                 {mutedUi || volumeUi === 0 ? (
-                  <SpeakerSlash className="h-5 w-5 md:h-6 md:w-6" weight="fill" />
+                  <SpeakerSlash
+                    className="h-5 w-5 md:h-6 md:w-6"
+                    weight="fill"
+                  />
                 ) : volumeUi < 0.5 ? (
                   <SpeakerLow className="h-5 w-5 md:h-6 md:w-6" weight="fill" />
                 ) : (
-                  <SpeakerHigh className="h-5 w-5 md:h-6 md:w-6" weight="fill" />
+                  <SpeakerHigh
+                    className="h-5 w-5 md:h-6 md:w-6"
+                    weight="fill"
+                  />
                 )}
               </button>
             </ControlTooltip>
@@ -417,9 +423,7 @@ export function LectureVideoControlsToolbar({
             </ControlTooltip>
           ) : null}
           {transcriptAvailable ? (
-            <ControlTooltip
-              label={captionsOn ? 'Captions on' : 'Captions off'}
-            >
+            <ControlTooltip label={captionsOn ? 'Captions on' : 'Captions off'}>
               <button
                 type="button"
                 onClick={() => {

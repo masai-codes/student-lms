@@ -69,7 +69,11 @@ function renderDrawer(
   })
   render(
     <QueryClientProvider client={client}>
-      <BookmarksFilterDrawer tab="lectures" filters={filters} onApply={onApply} />
+      <BookmarksFilterDrawer
+        tab="lectures"
+        filters={filters}
+        onApply={onApply}
+      />
     </QueryClientProvider>,
   )
   return { onApply }

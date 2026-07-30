@@ -57,7 +57,9 @@ describe('AnnouncementAppliedFilters', () => {
         />
       </QueryClientProvider>,
     )
-    expect(container.querySelector('[data-testid="announcements-applied-filters"]')).toBeNull()
+    expect(
+      container.querySelector('[data-testid="announcements-applied-filters"]'),
+    ).toBeNull()
   })
 
   it('resolves the announcer name from the cached options and removes a chip', async () => {

@@ -4,8 +4,10 @@ import {
   PutObjectCommand,
   S3Client,
 } from '@aws-sdk/client-s3'
+import { createPresignedPost } from '@aws-sdk/s3-presigned-post'
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
 import { ApiError } from '@/server/api/http/apiError'
+import type { S3UploadScope } from '@/lib/api/uploads/s3UploadScope'
 
 /** Region used for the S3 client; mirrors the SES setup's default. */
 function getAwsRegion(): string {
@@ -18,6 +20,27 @@ function getUploadPrefix(): string {
     process.env.AWS_S3_UPLOAD_PREFIX?.trim() || 'dev/lms/masaiverse'
   ).replace(/\/+$/, '')
 }
+
+/** Shared LMS root, e.g. `dev/lms` derived from `dev/lms/masaiverse`. */
+function getLmsUploadRoot(): string {
+  const prefix = getUploadPrefix()
+  const lastSlash = prefix.lastIndexOf('/')
+  return lastSlash > 0 ? prefix.slice(0, lastSlash) : prefix
+}
+
+/** Resolve a logical upload scope to an S3 key prefix. */
+export function resolveS3UploadScope(scope: S3UploadScope): string {
+  switch (scope) {
+    case 'tickets':
+      return `${getLmsUploadRoot()}/tickets`
+    case 'masaiverse':
+    default:
+      return getUploadPrefix()
+  }
+}
+
+/** Max direct-upload size (10 MB), shared by presigned POST and multipart handlers. */
+export const S3_UPLOAD_MAX_BYTES = 10 * 1024 * 1024
 
 let cachedClient: S3Client | null = null
 function getClient(): S3Client {
@@ -64,6 +87,73 @@ export async function uploadImageToS3({
   )
 
   return `https://${bucket}.s3.amazonaws.com/${key}`
+}
+
+export interface PresignedPostPolicyResult {
+  url: string
+  bucketPath: string
+  fields: Record<string, string>
+}
+
+function fileExtensionFromName(fileName: string, contentType: string): string {
+  if (fileName.includes('.')) {
+    return (
+      fileName
+        .split('.')
+        .pop()!
+        .toLowerCase()
+        .replace(/[^a-z0-9]/g, '') || 'bin'
+    )
+  }
+  return contentType.split('/')[1]?.replace(/[^a-z0-9]/g, '') || 'bin'
+}
+
+function buildScopedObjectKey(
+  scope: S3UploadScope,
+  fileName: string,
+  contentType: string,
+): string {
+  const prefix = resolveS3UploadScope(scope)
+  const folderId = randomUUID()
+  const ext = fileExtensionFromName(fileName, contentType)
+  const objectName = `${randomUUID().replace(/-/g, '').slice(0, 16)}.${ext}`
+  return `${prefix}/${folderId}/${objectName}`
+}
+
+/**
+ * Generates a presigned POST policy so the client can upload directly to S3.
+ * Objects are stored under the scope folder, e.g. `dev/lms/tickets/<uuid>/<file>`.
+ */
+export async function generatePresignedPostPolicy(input: {
+  scope: S3UploadScope
+  fileName: string
+  contentType: string
+}): Promise<PresignedPostPolicyResult> {
+  const bucket = process.env.AWS_S3_BUCKET_NAME?.trim()
+  if (!bucket) throw new ApiError(500, 'S3_NOT_CONFIGURED')
+
+  const contentType = input.contentType || 'application/octet-stream'
+  const bucketPath = buildScopedObjectKey(
+    input.scope,
+    input.fileName,
+    contentType,
+  )
+
+  const { url, fields } = await createPresignedPost(getClient(), {
+    Bucket: bucket,
+    Key: bucketPath,
+    Conditions: [
+      ['content-length-range', 0, S3_UPLOAD_MAX_BYTES],
+      ['eq', '$Content-Type', contentType],
+    ],
+    Fields: {
+      acl: 'public-read',
+      'Content-Type': contentType,
+    },
+    Expires: 300,
+  })
+
+  return { url, bucketPath, fields }
 }
 
 export interface PresignedUploadResult {

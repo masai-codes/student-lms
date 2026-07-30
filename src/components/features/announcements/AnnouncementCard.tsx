@@ -24,7 +24,9 @@ export function AnnouncementCard({ item }: { item: AnnouncementItem }) {
           alt=""
           className="size-8"
           style={
-            item.type === 'critical' ? { filter: CRITICAL_ICON_FILTER } : undefined
+            item.type === 'critical'
+              ? { filter: CRITICAL_ICON_FILTER }
+              : undefined
           }
         />
       </div>
