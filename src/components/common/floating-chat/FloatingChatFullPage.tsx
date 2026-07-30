@@ -25,20 +25,11 @@ export function FloatingChatFullPage({
     setEntityLaunchIntent(initialEntityLaunchIntent)
   }, [initialEntityLaunchIntent])
 
-  const handleClose = () => {
-    if (window.history.length > 1) {
-      window.history.back()
-      return
-    }
-    void navigate({ to: '/' })
-  }
-
   return (
     <div className="min-h-dvh bg-white" data-testid="support-page-root">
       <FloatingChatModal
         presentation="fullPage"
         isOpen
-        onClose={handleClose}
         inbox={inboxQuery.data}
         isInboxLoading={inboxQuery.isLoading}
         isInboxError={inboxQuery.isError}

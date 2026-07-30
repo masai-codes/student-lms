@@ -47,11 +47,11 @@ vi.mock(
     return {
       ...actual,
       getBatchDurationOfUser: vi.fn().mockResolvedValue('full-time'),
-      resolveCreateTicketAssignment: vi.fn().mockResolvedValue({
+      resolveCreateTicketAssignment: vi.fn().mockImplementation(async () => ({
         assigneeId: 77,
         info: { log: 'Ticket assigned to L1.\n' },
         logstamps: { L1_assigned_at: '2026-07-28 17:47:43' },
-      }),
+      })),
     }
   },
 )
@@ -161,6 +161,35 @@ describe('createTicket', () => {
     })
 
     expect(inserts[0].data).toMatchObject({ question_id: 55 })
+  })
+
+  it('records support floater origin in info.log when fromFloater is true', async () => {
+    const inserts = captureInserts()
+    const { createTicket } = await import('../tickets.write.service')
+
+    await createTicket({
+      userId: 1,
+      batchId: 10,
+      category: 'support',
+      message: 'from the floater',
+      fromFloater: true,
+    })
+
+    expect(inserts[0].info.log).toContain('Ticket raised from support floater.')
+  })
+
+  it('does not record floater origin when fromFloater is omitted', async () => {
+    const inserts = captureInserts()
+    const { createTicket } = await import('../tickets.write.service')
+
+    await createTicket({
+      userId: 1,
+      batchId: 10,
+      category: 'support',
+      message: 'from full page',
+    })
+
+    expect(inserts[0].info.log).not.toContain('support floater')
   })
 
   it('timestamps the first-template comment with the same convention', async () => {

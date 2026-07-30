@@ -153,10 +153,8 @@ export function FloatingChatModal({
   onEntityLaunchFailed,
 }: FloatingChatModalProps) {
   const isFullPage = presentation === 'fullPage'
-  // When the full-page support experience is embedded in an iframe (e.g. the old
-  // LMS opens it in a drawer), the host provides its own close control, so we
-  // hide our internal one to avoid a duplicate. Computed lazily on first render
-  // (this app runs client-side / SPA, so there's no hydration mismatch).
+  // Full-page support (`/support`) and iframe embeds use the host app's navigation
+  // — no in-panel close control. The floating drawer keeps a mobile-only X.
   const [isEmbedded] = useState(
     () => typeof window !== 'undefined' && window.self !== window.top,
   )
@@ -734,6 +732,7 @@ export function FloatingChatModal({
         subCategory: selectedSubCategory,
         message: finalMessage,
         entityId: selectedItem?.id ?? null,
+        fromFloater: !isFullPage,
       })
     } else if (view === 'tickets' && selectedTicketId) {
       replyMutation.mutate({
@@ -875,8 +874,7 @@ export function FloatingChatModal({
           selectedItemTitle={selectedItem?.title ?? null}
           selectedTicket={selectedTicket}
           onBack={handleBack}
-          onClose={isEmbedded ? undefined : onClose}
-          showCloseButton={isFullPage}
+          onClose={isFullPage || isEmbedded ? undefined : onClose}
         />
 
         <div className="flex-1 overflow-hidden flex flex-col p-[16px_18px_8px] gap-2.5">

@@ -133,6 +133,8 @@ export async function createSupportTicket(input: {
   questionId?: number | null
   /** Lecture / assignment / resource id when raised from a detail page. */
   entityId?: number | null
+  /** When true, the server records floater origin in `tickets.info.log`. */
+  fromFloater?: boolean
 }): Promise<{ id: number }> {
   return fetchJson(SUPPORT_API.ticketCreate, jsonPost(input))
 }
