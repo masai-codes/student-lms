@@ -11,7 +11,7 @@
  * fan them out in parallel.
  */
 
-import { and, desc, eq, inArray, isNull } from 'drizzle-orm'
+import { and, eq, inArray, isNull } from 'drizzle-orm'
 import type {
   OneOnOneBatchGroup,
   OneOnOneSection,
@@ -21,40 +21,21 @@ import type {
 } from '@/server/api/support/support.types'
 import { db } from '@/db'
 import { batches, profiles, sectionUser, sections, users } from '@/db/schema'
+import { getBatchIdsForEnrolledUser } from '@/server/batches/getBatchIdsForEnrolledUser'
 
 /**
- * The student's batches — **derived from their section enrollments**, exactly
- * like the legacy `getUserBatchesWithShowBatchDetails`: every batch the user has
- * a `section_user` row for, de-duplicated, ordered by latest enrollment
- * (`section_user.id` desc). No `active`/`isActive` filtering — that's what the
- * original does, and filtering it down was hiding batches.
- *
- * The first returned batch is the default support scope. `oneOnOneEnabled` reads
+ * The student's batches for support — scoped via {@link getBatchIdsForEnrolledUser}
+ * (section enrollment, portal-scoped, cancelled enrolments excluded). The first
+ * returned batch is the default support scope. `oneOnOneEnabled` reads
  * `batches.settings.show_pp`.
  */
 export async function getUserSupportBatches(
   userId: number,
 ): Promise<Array<SupportBatch>> {
-  // 1) The user's sections → batch ids, newest enrollment first.
-  const enrollments = await db
-    .select({ batchId: sections.batchId })
-    .from(sectionUser)
-    .innerJoin(sections, eq(sections.id, sectionUser.sectionId))
-    .where(eq(sectionUser.userId, userId))
-    .orderBy(desc(sectionUser.id))
-
-  // 2) Unique, order-preserving list of batch ids.
-  const orderedBatchIds: Array<number> = []
-  const seen = new Set<number>()
-  for (const e of enrollments) {
-    if (!seen.has(e.batchId)) {
-      seen.add(e.batchId)
-      orderedBatchIds.push(e.batchId)
-    }
-  }
+  const orderedBatchIds = await getBatchIdsForEnrolledUser(userId)
   if (orderedBatchIds.length === 0) return []
 
-  // 3) Fetch batch details and return them in enrollment order.
+  // Fetch batch details and return them in enrollment order.
   const rows = await db
     .select({ id: batches.id, name: batches.name, settings: batches.settings })
     .from(batches)

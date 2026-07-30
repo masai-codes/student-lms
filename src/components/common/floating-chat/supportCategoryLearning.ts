@@ -104,6 +104,13 @@ export function supportAssignmentPriorityChipClassName(
   return 'text-[#b54708] bg-[#fffaeb]'
 }
 
+/** Compact schedule line for support floater list + detail cards (client-side). */
+export function formatSupportItemScheduleDate(
+  schedule: string | null | undefined,
+): string {
+  return schedule ? formatSocialPostTime(schedule) : 'No schedule'
+}
+
 export function mapLearningItemToSupportItem(item: LearningItem): Item {
   const isAssignmentLike = item.learningType === 'assignment'
   const isLecture = item.learningType === 'lecture'
@@ -119,9 +126,7 @@ export function mapLearningItemToSupportItem(item: LearningItem): Item {
         ? categoryMeta || 'Uncategorized'
         : moduleMeta,
     moduleName: isAssignmentLike && moduleMeta ? moduleMeta : undefined,
-    date: item.scheduleDate
-      ? formatSocialPostTime(item.scheduleDate)
-      : 'No schedule',
+    date: formatSupportItemScheduleDate(item.scheduleDate),
     type: isLecture ? toSupportLectureDisplayType(item.type) : undefined,
     startTime: item.scheduleDate ?? undefined,
     isOptional:

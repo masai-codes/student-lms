@@ -37,8 +37,18 @@ function AssigneeDivider({ name }: { name: string }) {
   )
 }
 
-/** Where to insert "Chat with …" dividers in the message list. */
-function assigneeDividerPlacements(
+/**
+ * Where to insert "Chat with …" dividers in the message list.
+ *
+ * The reopen/escalate divider marks the boundary between messages that
+ * existed *before* the reopen and whatever comes *after* it. When every
+ * message currently in the thread already has a timestamp at/after
+ * `reopenedAt` (e.g. the student's escalation reason + its auto-reply were
+ * just created as part of the reopen itself, with no older messages to
+ * separate from), there is nothing to place the divider *before* — so it
+ * goes after all current messages instead of above the very first one.
+ */
+export function assigneeDividerPlacements(
   messages: Message[],
   assigneeName: string | undefined,
   reopenedAt: string | null | undefined,
@@ -61,7 +71,9 @@ function assigneeDividerPlacements(
     )
   }
 
-  if (reopenIdx >= 0) {
+  // Only split before an existing message when older messages actually
+  // precede it; otherwise fall through to placing the divider at the end.
+  if (reopenIdx > 0) {
     if (reopenIdx !== firstAgentIdx) placements.set(reopenIdx, assigneeName)
   } else {
     placements.set(messages.length, assigneeName)
