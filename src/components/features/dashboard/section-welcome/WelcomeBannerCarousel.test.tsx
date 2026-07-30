@@ -30,26 +30,26 @@ const banner = (over: Partial<DashboardBanner> = {}): DashboardBanner => ({
 })
 
 describe('WelcomeBannerCarousel', () => {
-  // The pinned Masai Live promo is temporarily hidden (SHOW_MASAI_LIVE_PROMO =
-  // false in WelcomeBannerCarousel.tsx); slides are the DB banners alone. The
-  // two skipped specs below cover the promo and should be re-enabled when the
-  // flag is flipped back on.
-  it('renders nothing to page through with no banners (promo hidden)', () => {
+  it('always renders the pinned Masai Live promo, even with no banners', () => {
     render(<WelcomeBannerCarousel banners={[]} />)
-    expect(screen.queryByTestId('dashboard-masai-live-promo')).toBeNull()
+    expect(screen.getByTestId('dashboard-masai-live-promo')).toBeTruthy()
+    expect(screen.getByText('Build Your Second AI Brain')).toBeTruthy()
+    // Promo alone is a single slide → no controls.
     expect(screen.queryByTestId('dashboard-welcome-banner-prev')).toBeNull()
     expect(screen.queryByTestId('dashboard-welcome-banner-dot')).toBeNull()
   })
 
-  it('shows no controls with a single banner (one slide)', () => {
+  it('shows controls with one banner (promo + banner = two slides)', () => {
     render(<WelcomeBannerCarousel banners={[banner()]} />)
     expect(screen.getByText('Refer a friend')).toBeTruthy()
     expect(screen.getByText('Earn rewards')).toBeTruthy()
-    expect(screen.queryByTestId('dashboard-welcome-banner-prev')).toBeNull()
-    expect(screen.queryByTestId('dashboard-welcome-banner-dot')).toBeNull()
+    expect(screen.getByTestId('dashboard-welcome-banner-prev')).toBeTruthy()
+    expect(screen.getAllByTestId('dashboard-welcome-banner-dot')).toHaveLength(
+      2,
+    )
   })
 
-  it('renders arrows + one dot per banner when there are multiple', () => {
+  it('renders arrows + one dot per slide (promo + banners) when there are multiple', () => {
     render(
       <WelcomeBannerCarousel
         banners={[banner({ id: 1 }), banner({ id: 2, title: 'Second' })]}
@@ -57,21 +57,13 @@ describe('WelcomeBannerCarousel', () => {
     )
     expect(screen.getByTestId('dashboard-welcome-banner-prev')).toBeTruthy()
     expect(screen.getByTestId('dashboard-welcome-banner-next')).toBeTruthy()
-    // 2 banners, promo hidden = 2 slides.
+    // 2 banners + the pinned promo = 3 slides.
     expect(screen.getAllByTestId('dashboard-welcome-banner-dot')).toHaveLength(
-      2,
+      3,
     )
   })
 
-  it.skip('always renders the pinned Masai Live promo, even with no banners', () => {
-    render(<WelcomeBannerCarousel banners={[]} />)
-    expect(screen.getByTestId('dashboard-masai-live-promo')).toBeTruthy()
-    expect(screen.getByText('Build Your Second AI Brain')).toBeTruthy()
-    expect(screen.queryByTestId('dashboard-welcome-banner-prev')).toBeNull()
-    expect(screen.queryByTestId('dashboard-welcome-banner-dot')).toBeNull()
-  })
-
-  it.skip('pushes a GTM event on a (non-drag) promo click', () => {
+  it('pushes a GTM event on a (non-drag) promo click', () => {
     const dataLayer: Array<Record<string, unknown>> = []
     ;(window as unknown as { dataLayer: typeof dataLayer }).dataLayer =
       dataLayer
