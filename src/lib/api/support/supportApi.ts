@@ -11,7 +11,11 @@
  */
 
 import type {
+  AssignmentSupportSnapshot,
   FaqVote,
+  FloatingChatInbox,
+  LectureSupportSnapshot,
+  SupportEntityContext,
   SupportFaq,
   SupportOverview,
   TicketListItem,
@@ -20,6 +24,7 @@ import type {
   TicketThread,
 } from '@/server/api/support/support.types'
 import { fetchJson } from '@/lib/api/fetchJson'
+import { uploadFileViaPresignedPost } from '@/lib/api/uploads/presignedS3Upload'
 import { SUPPORT_API } from '@/lib/api/support/supportPaths'
 
 const jsonPost = (body: unknown): RequestInit => ({
@@ -34,6 +39,39 @@ export async function fetchSupportOverview(
 ): Promise<SupportOverview> {
   const qs = batchId ? `?batchId=${batchId}` : ''
   return fetchJson<SupportOverview>(`${SUPPORT_API.overview}${qs}`)
+}
+
+/** GET the floating support modal inbox payload. */
+export async function fetchFloatingChatInbox(): Promise<FloatingChatInbox> {
+  return fetchJson<FloatingChatInbox>(SUPPORT_API.floatingChatInbox)
+}
+
+/** GET batch + item card for launching the floater from a learn detail page. */
+export async function fetchSupportEntityContext(input: {
+  category: string
+  entityId: number
+}): Promise<SupportEntityContext> {
+  return fetchJson<SupportEntityContext>(
+    SUPPORT_API.floatingChatEntityContext(input.category, input.entityId),
+  )
+}
+
+/** GET lecture recording / duration / AI summary / attendance for support modal. */
+export async function fetchLectureSupportSnapshot(
+  lectureId: number,
+): Promise<LectureSupportSnapshot> {
+  return fetchJson<LectureSupportSnapshot>(
+    SUPPORT_API.floatingChatLectureSnapshot(lectureId),
+  )
+}
+
+/** GET assignment/evaluation type, status, and score for support modal. */
+export async function fetchAssignmentSupportSnapshot(
+  assignmentId: number,
+): Promise<AssignmentSupportSnapshot> {
+  return fetchJson<AssignmentSupportSnapshot>(
+    SUPPORT_API.floatingChatAssignmentSnapshot(assignmentId),
+  )
 }
 
 /** GET a page of FAQs for a batch (live search). */
@@ -138,11 +176,9 @@ export async function createSupportCallback(input: {
   return fetchJson(SUPPORT_API.callbackCreate, jsonPost(input))
 }
 
-/** Upload one ticket attachment (multipart); returns its public URL + name. */
+/** Upload one ticket attachment via presigned POST; returns its public URL + name. */
 export async function uploadSupportAttachment(
   file: File,
 ): Promise<{ url: string; name: string }> {
-  const body = new FormData()
-  body.append('file', file)
-  return fetchJson(SUPPORT_API.upload, { method: 'POST', body })
+  return uploadFileViaPresignedPost(file, { scope: 'tickets' })
 }

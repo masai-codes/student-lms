@@ -5,7 +5,7 @@ import {
   useRouterState,
 } from '@tanstack/react-router'
 import { useEffect } from 'react'
-import { AppLoading } from '@/components/common'
+import { AppLoading, FloatingChatProvider } from '@/components/common'
 import {
   AppMobileHeader,
   AppMobileTabBar,
@@ -31,15 +31,22 @@ import {
 import { isMigratedRoute } from '@/utils/migratedRoutes'
 import { initClarity, setCurrentUserForTracking } from '@/utils/tracking'
 
+/** Hardcoded kill-switch for the new floating support chat. Flip to `false` to fall back to the old /support button. */
+const ENABLE_SUPPORT_FLOATER = true
+
+/** Paths served by this app when legacy redirect is enabled (everything else → old LMS). */
 /**
  * Paths served by this app when legacy redirect is enabled (everything else →
  * old LMS). Deliberately minimal: only the 5 migrated pages (flag-gated,
- * handled separately) plus `masaiverse` stay on the new LMS. Everything else —
- * announcements, messages, bookmarks, whats-new, profile, my-courses, course,
- * support, etc. — redirects to the old LMS.
+ * handled separately) plus `masaiverse` and `support` stay on the new LMS.
+ * Everything else — announcements, messages, bookmarks, whats-new, profile,
+ * my-courses, course, etc. — redirects to the old LMS.
  */
 function isNewStudentExperienceRoute(pathname: string): boolean {
   if (pathname.startsWith('/masaiverse')) return true
+  if (pathname === '/support' || pathname.startsWith('/support/')) {
+    return true
+  }
   return false
 }
 
@@ -177,35 +184,50 @@ function RouteComponent() {
     setCurrentUserForTracking(user)
   }, [user])
 
+  if (isSupportRoute) {
+    return (
+      <ModalProvider>
+        <Outlet />
+      </ModalProvider>
+    )
+  }
+
+  const showFloatingChat =
+    ENABLE_SUPPORT_FLOATER && !isMasaiverseRoute && !isSupportRoute
+
+  // `data-app-shell`: hook target for the lecture page viewport lock (styles.css).
+  const layout = (
+    <div data-app-shell className={LAYOUT_APP_SHELL_CLASSES}>
+      <TryNewTour hasSeen={user.hasSeenTryNewTour} />
+      <AppNavbar />
+      {pathname === '/' && !isApp ? <AppMobileHeader /> : null}
+      <main
+        className={`${mainClasses} ${isApp && !isMasaiverseRoute ? 'pb-0' : 'pb-[calc(4.5rem+env(safe-area-inset-bottom))]'} md:pb-0`}
+      >
+        <Outlet />
+      </main>
+      {isMasaiverseRoute ? (
+        <MasaiverseMobileTabBar />
+      ) : !isApp ? (
+        <AppMobileTabBar />
+      ) : null}
+      {!ENABLE_SUPPORT_FLOATER &&
+      pathname === '/' &&
+      !isMasaiverseRoute &&
+      !isSupportRoute ? (
+        <SupportChatButton />
+      ) : null}
+      <AnnouncementModalController />
+    </div>
+  )
+
   return (
     <ModalProvider>
-      {/* `data-app-shell`: the hook target for the lecture page's viewport lock
-          (styles.css) — that page pins this shell to the viewport so its two
-          columns can scroll independently. */}
-      <div data-app-shell className={LAYOUT_APP_SHELL_CLASSES}>
-        <TryNewTour hasSeen={user.hasSeenTryNewTour} />
-        <AppNavbar />
-        {/* Mobile-only greeting header for the dashboard home; the desktop
-            navbar (with the same announcements + onboarding actions) is hidden
-            on mobile. */}
-        {pathname === '/' && !isApp ? <AppMobileHeader /> : null}
-        <main
-          className={`${mainClasses} ${isApp && !isMasaiverseRoute ? 'pb-0' : 'pb-[calc(4.5rem+env(safe-area-inset-bottom))]'} md:pb-0`}
-        >
-          <Outlet />
-        </main>
-        {isMasaiverseRoute ? (
-          <MasaiverseMobileTabBar />
-        ) : !isApp ? (
-          <AppMobileTabBar />
-        ) : null}
-        {/* Floating support entry — shown only on the dashboard home for now. */}
-        {pathname === '/' && !isMasaiverseRoute && !isSupportRoute ? (
-          <SupportChatButton />
-        ) : null}
-        {/* Central modal system — announcement popups check on every page. */}
-        <AnnouncementModalController />
-      </div>
+      {showFloatingChat ? (
+        <FloatingChatProvider>{layout}</FloatingChatProvider>
+      ) : (
+        layout
+      )}
     </ModalProvider>
   )
 }

@@ -26,12 +26,64 @@ function computeDisplayName(input: {
   if (input.showAdminName) return (input.adminName ?? '').trim()
   if (input.isAssignmentCategory) return ASSIGNMENT_TITLE_L1
   const titles = input.batchSettings.opsRoleTitles as
-    Record<string, string> | undefined
+    | Record<string, string>
+    | undefined
   const fromBatch = titles?.l1
   if (fromBatch != null && String(fromBatch).trim() !== '') {
     return String(fromBatch).trim()
   }
   return NON_ASSIGNMENT_FALLBACK_L1
+}
+
+async function loadBatchSettings(
+  batchId: number | null,
+): Promise<Record<string, unknown>> {
+  if (!batchId) return {}
+  const rows = await db
+    .select({ settings: batches.settings })
+    .from(batches)
+    .where(eq(batches.id, batchId))
+  return (rows[0]?.settings as Record<string, unknown> | null) ?? {}
+}
+
+async function resolveDisplayName(input: {
+  batchSettings: Record<string, unknown>
+  category: string
+  assigneeId: number
+}): Promise<string> {
+  const isAssignmentCategory =
+    trackForCategory(input.category) === 'discussionPC'
+
+  const showAdminName = input.batchSettings.showAdminNameInTicketReply === true
+  let adminName: string | null = null
+  if (showAdminName) {
+    const rows = await db
+      .select({ name: users.name })
+      .from(users)
+      .where(eq(users.id, input.assigneeId))
+    adminName = rows[0]?.name ?? null
+  }
+
+  return computeDisplayName({
+    showAdminName,
+    adminName,
+    isAssignmentCategory,
+    batchSettings: input.batchSettings,
+  })
+}
+
+/** Legacy L1 display name for the ticket owner (divider + first-reply signature). */
+export async function resolveAssigneeDisplayName(input: {
+  batchId: number | null
+  category: string
+  assigneeId: number
+}): Promise<string> {
+  const batchSettings = await loadBatchSettings(input.batchId)
+  return resolveDisplayName({
+    batchSettings,
+    category: input.category,
+    assigneeId: input.assigneeId,
+  })
 }
 
 function computePhoneNumber(input: {
@@ -40,7 +92,8 @@ function computePhoneNumber(input: {
 }): string {
   if (input.isAssignmentCategory) return ''
   const phNumbers = input.batchSettings.phNumbers as
-    Record<string, string | null> | undefined
+    | Record<string, string | null>
+    | undefined
   const raw = phNumbers?.ph_l1
   if (raw == null || String(raw).trim() === '') return ''
   return String(raw).trim()
@@ -61,45 +114,30 @@ export async function buildFirstTemplateResponse(input: {
   const isAssignmentCategory =
     trackForCategory(input.category) === 'discussionPC'
 
-  let batchSettings: Record<string, unknown> = {}
-  if (input.batchId) {
-    const rows = await db
-      .select({ settings: batches.settings })
-      .from(batches)
-      .where(eq(batches.id, input.batchId))
-    batchSettings = (rows[0]?.settings as Record<string, unknown> | null) ?? {}
-  }
-
-  const showAdminName = batchSettings.showAdminNameInTicketReply === true
-  let adminName: string | null = null
-  if (showAdminName) {
-    const rows = await db
-      .select({ name: users.name })
-      .from(users)
-      .where(eq(users.id, input.assigneeId))
-    adminName = rows[0]?.name ?? null
-  }
-
-  const displayName = computeDisplayName({
-    showAdminName,
-    adminName,
-    isAssignmentCategory,
+  const batchSettings = await loadBatchSettings(input.batchId)
+  const displayName = await resolveDisplayName({
     batchSettings,
+    category: input.category,
+    assigneeId: input.assigneeId,
   })
   const phoneNumber = computePhoneNumber({
     isAssignmentCategory,
     batchSettings,
   })
 
-  const signatureLines = ['', 'Regards,', displayName]
-  if (phoneNumber) signatureLines.push(phoneNumber)
-  signatureLines.push('Student Experience Team')
-  const signature = `<br/><br/>${signatureLines.filter(Boolean).join('<br/>')}`
+  const signatureParts = ['Regards,', displayName]
+  if (phoneNumber) signatureParts.push(phoneNumber)
+  signatureParts.push('Student Experience Team')
 
-  const message = `Dear Student,<br/><br/>
-Thank you for reaching out. You're at the heart of everything we do, and we're here to help.<br/><br/>
-Our team will get back to you within 48 hours. We appreciate your patience — your query and your time both matter to us.<br/>
-${signature}`
+  // Join blocks with a single `<br/><br/>` and keep the message on one logical
+  // line — source newlines after `<br/>` would otherwise become an *extra*
+  // break once `remark-breaks` runs in SupportMarkdown.
+  const message = [
+    'Dear Student,',
+    "Thank you for reaching out. You're at the heart of everything we do, and we're here to help.",
+    'Our team will get back to you within 48 hours. We appreciate your patience — your query and your time both matter to us.',
+    signatureParts.join('<br/>'),
+  ].join('<br/><br/>')
 
   return { message, displayName }
 }

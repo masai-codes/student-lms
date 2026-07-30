@@ -142,7 +142,37 @@ describe('buildLectureDetailPayload', () => {
     })
   })
 
-  it('does not expose an adaptive recording link before a SAL lecture ends', () => {
+  it('does not expose an adaptive recording link before concludes + 30 min for SAL', () => {
+    const concludesMs = new Date(concludes).getTime()
+    const payload = buildLectureDetailPayload(
+      core,
+      {
+        type: 'live',
+        schedule,
+        concludes,
+        zoomLink:
+          'https://experience-api.masaischool.com/api/adaptive-lecture/abc123/join',
+        videos: null,
+        vimeoDownloadLinks: null,
+        vimeoPlayerEmbedUrl: null,
+        settings: null,
+        hostAvatarUrl: null,
+        notes: null,
+      },
+      // Past conclude but still inside the 30-min grace window.
+      concludesMs + 10 * 60 * 1000,
+      emptyTabs,
+      null,
+      null,
+      null,
+      { mode: 'legacy', rating: null, text: null, tags: [] },
+    )
+
+    expect(payload.livePhase).toBe('during')
+    expect(payload.adaptiveRecordingUrl).toBeNull()
+  })
+
+  it('does not expose an adaptive recording link while a SAL lecture is live', () => {
     const scheduleMs = new Date(schedule).getTime()
     const payload = buildLectureDetailPayload(
       core,
