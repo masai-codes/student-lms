@@ -19,9 +19,9 @@ const FALLBACK_ICON =
   'https://masai-website-images.s3.ap-south-1.amazonaws.com/Group_f647b8c854.svg'
 const CHANGEMAKERS_ROUTE = '/changemakers-circle'
 
-// Temporarily hide the pinned Masai Live promo slide without removing its code.
-// Flip back to `true` to restore it as the always-first slide.
-const SHOW_MASAI_LIVE_PROMO = false
+// Controls the pinned Masai Live promo slide. Flip to `false` to hide it
+// without removing its code (e.g. for a white-labelled demo).
+const SHOW_MASAI_LIVE_PROMO = true
 
 // Light-blue promo carousel beside the welcome greeting. Uses embla for smooth
 // mouse/touch drag-to-swipe. Arrows are bounded (no wraparound); dots mark the

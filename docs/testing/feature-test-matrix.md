@@ -317,9 +317,9 @@ Last updated: 2026-07-02
 ## Admissions webhooks (create / cancel enrolment + batch events)
 
 - Area: `POST /api/webhooks/admissions/{create-enrolment,cancel-enrolment,events}` (`src/server/api/webhooks/admissions/**`). Each service runs its writes in one transaction, then invalidates the student's cached enrolment sets (`invalidatePortalEnrollmentCache` → `enrolledBatchIds:{userId}:{portal}`, `enrolledSectionIds:{userId}:{portal}` and the old LMS's `allowedBatchIds:{userId}:{portal}`) so pause/unpause/cancel/enrol take effect on the next request — in both this app and experience-ui — instead of after the 1h Redis TTL.
-- Status: Covered (all three services incl. cache invalidation + skip-on-failure, key builders, per-event appliers, handlers, schemas, batch_user lookup, section validation)
-- Test files: `src/server/api/webhooks/admissions/__tests__/{createEnrolment.service,cancelEnrolment.service,events.service,createEnrolment.schema,cancelEnrolment.schema,events.schema}.test.ts`, `src/server/api/webhooks/admissions/steps/__tests__/{applyTransferEvent,applyAdmissionDataEvent,findBatchUserByEnrolmentId,resolveValidSections}.test.ts`, `src/server/api/webhooks/admissions/handlers/__tests__/*.test.ts`, `src/server/batches/__tests__/portalEnrollmentCache.test.ts`
-- Notes: See `docs/testing/features/admissions-webhooks.md`
+- Status: Covered (all three services incl. cache invalidation + skip-on-failure, key builders, per-event appliers, handlers, schemas, batch_user lookup, section validation, iitj new-LMS-only meta defaults)
+- Test files: `src/server/api/webhooks/admissions/__tests__/{createEnrolment.service,cancelEnrolment.service,events.service,createEnrolment.schema,cancelEnrolment.schema,events.schema}.test.ts`, `src/server/api/webhooks/admissions/steps/__tests__/{applyTransferEvent,applyAdmissionDataEvent,applyPortalNewLmsDefaults,findBatchUserByEnrolmentId,resolveValidSections}.test.ts`, `src/server/api/webhooks/admissions/handlers/__tests__/*.test.ts`, `src/server/api/profile/__tests__/newLmsPreference.service.test.ts`, `src/server/batches/__tests__/portalEnrollmentCache.test.ts`
+- Notes: iitj enrolments default `users.meta.new_lms_pages_enabled` + `hide_switch_option` to true, hiding the old↔new switch in both LMSes. See `docs/testing/features/admissions-webhooks.md`
 
 ## Status Meaning
 
