@@ -575,7 +575,7 @@ export default function AppNavbar() {
         }
         trailingActions={trailingActions}
         actionsSlot={
-          showTryNew && isMigratedRoute(pathname) ? (
+          showTryNew && !user.hideSwitchOption && isMigratedRoute(pathname) ? (
             <TryNewToggle initialEnabled={user.newLmsPagesEnabled} />
           ) : undefined
         }
