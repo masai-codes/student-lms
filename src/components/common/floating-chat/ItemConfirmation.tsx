@@ -29,6 +29,7 @@ import {
   supportAssignmentPriorityChipClassName,
   supportLectureTypeChipClassName,
 } from './supportCategoryLearning'
+import type { SupportReviewItemInput } from './supportReviewItem'
 import type { Category, Item } from './types'
 import type {
   AssignmentSupportSnapshot,
@@ -44,11 +45,7 @@ interface ItemConfirmationProps {
   itemObj: Item
   onConfirm: () => void
   onDirectQuery?: (query: string) => void
-  onReviewItem?: (input: {
-    href: string
-    categoryLabel: string
-    itemTitle: string
-  }) => void
+  onReviewItem?: (input: SupportReviewItemInput) => void
 }
 
 /** Deep-link to the exact learn item (matches LearnContentCard routes). */
@@ -498,6 +495,8 @@ export function ItemConfirmation({
               onClick={() =>
                 onReviewItem?.({
                   href: reviewHref,
+                  category: categoryObj.id,
+                  entityId: itemObj.id!,
                   categoryLabel: categoryObj.label,
                   itemTitle: itemObj.title,
                 })
