@@ -77,6 +77,8 @@ export async function createTicket(input: {
   questionId?: number | null
   /** Lecture / assignment / resource the ticket was raised from, if any. */
   entityId?: number | null
+  /** When true, records in `info.log` that the ticket came from the support floater. */
+  fromFloater?: boolean
 }): Promise<{ id: number }> {
   if (!input.message.trim()) throw new Error('SUPPORT_MESSAGE_REQUIRED')
 
@@ -104,6 +106,9 @@ export async function createTicket(input: {
 
   const { assigneeId, info, logstamps } = assignment
   appendCreateTicketSectionInfo({ info, activeSections, duration })
+  if (input.fromFloater) {
+    info.log += 'Ticket raised from support floater.\n'
+  }
 
   const { title, source: titleSource } = await resolveTicketTitle({
     message: input.message.trim(),

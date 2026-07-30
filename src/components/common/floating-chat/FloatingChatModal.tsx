@@ -732,6 +732,7 @@ export function FloatingChatModal({
         subCategory: selectedSubCategory,
         message: finalMessage,
         entityId: selectedItem?.id ?? null,
+        fromFloater: !isFullPage,
       })
     } else if (view === 'tickets' && selectedTicketId) {
       replyMutation.mutate({
