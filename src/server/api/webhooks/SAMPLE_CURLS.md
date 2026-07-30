@@ -115,16 +115,16 @@ stored in the batch_user audit trail. Returns `{ event, batchUserId }`.
 
 Supported `type` values:
 
-| `type` | Effect |
-|---|---|
-| `lms.batch.paid` | Marks `full_fees_paid = true` on admission data (no payload flag needed). 404 `ADMISSION_DATA_NOT_FOUND` if that row is missing. |
-| `lms.batch.transfer.considered` | `batch_transfer_id = data.to_batch_id`, status `considered` |
-| `lms.batch.transfer.rejected` | …status `rejected` |
-| `lms.batch.transfer.completed` | …status `completed` |
-| `lms.batch.pause` | Sets `batchPaused` / `batchPausedDate` in meta |
-| `lms.batch.unpause` | Removes `batchPaused` / `batchPausedDate` from meta |
-| `lms.invoice.generated` | Sets `full_fees_paid_invoice` on admission data (needs `data.full_fees_paid_invoice`). 404 if that row is missing |
-| `lms.fee.deadline.updated` | Sets `course_fee_deadline` on admission data (needs `data.course_fee_deadline`). 404 if that row is missing |
+| `type`                          | Effect                                                                                                                           |
+| ------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| `lms.batch.paid`                | Marks `full_fees_paid = true` on admission data (no payload flag needed). 404 `ADMISSION_DATA_NOT_FOUND` if that row is missing. |
+| `lms.batch.transfer.considered` | `batch_transfer_id = data.to_batch_id`, status `considered`                                                                      |
+| `lms.batch.transfer.rejected`   | …status `rejected`                                                                                                               |
+| `lms.batch.transfer.completed`  | …status `completed`                                                                                                              |
+| `lms.batch.pause`               | Sets `batchPaused` / `batchPausedDate` in meta                                                                                   |
+| `lms.batch.unpause`             | Removes `batchPaused` / `batchPausedDate` from meta                                                                              |
+| `lms.invoice.generated`         | Sets `full_fees_paid_invoice` on admission data (needs `data.full_fees_paid_invoice`). 404 if that row is missing                |
+| `lms.fee.deadline.updated`      | Sets `course_fee_deadline` on admission data (needs `data.course_fee_deadline`). 404 if that row is missing                      |
 
 Only `type` + `data.enrolment_id` are needed (transfer events also need
 `data.to_batch_id`). Optionally send `data.lms_batch_user_id` — when one

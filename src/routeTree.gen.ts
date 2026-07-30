@@ -9,8 +9,10 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as NotesPreviewV2RouteImport } from './routes/notes-preview-v2'
 import { Route as ApiServerTimeRouteImport } from './routes/api/server-time'
 import { Route as ApiSecretLoginRouteImport } from './routes/api/secret-login'
+import { Route as ApiNotesPreviewRouteImport } from './routes/api/notes-preview'
 import { Route as ApiMeRouteImport } from './routes/api/me'
 import { Route as ApiHealthRouteImport } from './routes/api/health'
 import { Route as ApiAssessmentCallbackRouteRouteImport } from './routes/api/assessment-callback/route'
@@ -193,6 +195,11 @@ import { Route as ApiCacheTranscriptBatchIdSectionIdLectureIdRouteImport } from 
 import { Route as protectedLayoutMasaiverseClubClubIdGalleryRouteImport } from './routes/(protected)/_layout/masaiverse/club.$clubId_.gallery'
 import { Route as protectedLayoutAssignmentsAssignmentIdProblemsProblemIdRouteRouteImport } from './routes/(protected)/_layout/assignments_/$assignmentId/problems/$problemId/route'
 
+const NotesPreviewV2Route = NotesPreviewV2RouteImport.update({
+  id: '/notes-preview-v2',
+  path: '/notes-preview-v2',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiServerTimeRoute = ApiServerTimeRouteImport.update({
   id: '/api/server-time',
   path: '/api/server-time',
@@ -201,6 +208,11 @@ const ApiServerTimeRoute = ApiServerTimeRouteImport.update({
 const ApiSecretLoginRoute = ApiSecretLoginRouteImport.update({
   id: '/api/secret-login',
   path: '/api/secret-login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiNotesPreviewRoute = ApiNotesPreviewRouteImport.update({
+  id: '/api/notes-preview',
+  path: '/api/notes-preview',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiMeRoute = ApiMeRouteImport.update({
@@ -1237,10 +1249,12 @@ const protectedLayoutAssignmentsAssignmentIdProblemsProblemIdRouteRoute =
   )
 
 export interface FileRoutesByFullPath {
+  '/notes-preview-v2': typeof NotesPreviewV2Route
   '/api/assess-nps-callback': typeof ApiAssessNpsCallbackRouteRoute
   '/api/assessment-callback': typeof ApiAssessmentCallbackRouteRouteWithChildren
   '/api/health': typeof ApiHealthRoute
   '/api/me': typeof ApiMeRoute
+  '/api/notes-preview': typeof ApiNotesPreviewRoute
   '/api/secret-login': typeof ApiSecretLoginRoute
   '/api/server-time': typeof ApiServerTimeRoute
   '/masaiverse': typeof protectedLayoutMasaiverseRouteRouteWithChildren
@@ -1421,10 +1435,12 @@ export interface FileRoutesByFullPath {
   '/api/learn/assignments/$assignmentId/problems/$problemId': typeof ApiLearnAssignmentsAssignmentIdProblemsProblemIdRoute
 }
 export interface FileRoutesByTo {
+  '/notes-preview-v2': typeof NotesPreviewV2Route
   '/api/assess-nps-callback': typeof ApiAssessNpsCallbackRouteRoute
   '/api/assessment-callback': typeof ApiAssessmentCallbackRouteRouteWithChildren
   '/api/health': typeof ApiHealthRoute
   '/api/me': typeof ApiMeRoute
+  '/api/notes-preview': typeof ApiNotesPreviewRoute
   '/api/secret-login': typeof ApiSecretLoginRoute
   '/api/server-time': typeof ApiServerTimeRoute
   '/v2/forgot-password': typeof authV2ForgotPasswordRoute
@@ -1605,11 +1621,13 @@ export interface FileRoutesByTo {
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
+  '/notes-preview-v2': typeof NotesPreviewV2Route
   '/(protected)/_layout': typeof protectedLayoutRouteRouteWithChildren
   '/api/assess-nps-callback': typeof ApiAssessNpsCallbackRouteRoute
   '/api/assessment-callback': typeof ApiAssessmentCallbackRouteRouteWithChildren
   '/api/health': typeof ApiHealthRoute
   '/api/me': typeof ApiMeRoute
+  '/api/notes-preview': typeof ApiNotesPreviewRoute
   '/api/secret-login': typeof ApiSecretLoginRoute
   '/api/server-time': typeof ApiServerTimeRoute
   '/(protected)/_layout/masaiverse': typeof protectedLayoutMasaiverseRouteRouteWithChildren
@@ -1792,10 +1810,12 @@ export interface FileRoutesById {
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
+    | '/notes-preview-v2'
     | '/api/assess-nps-callback'
     | '/api/assessment-callback'
     | '/api/health'
     | '/api/me'
+    | '/api/notes-preview'
     | '/api/secret-login'
     | '/api/server-time'
     | '/masaiverse'
@@ -1976,10 +1996,12 @@ export interface FileRouteTypes {
     | '/api/learn/assignments/$assignmentId/problems/$problemId'
   fileRoutesByTo: FileRoutesByTo
   to:
+    | '/notes-preview-v2'
     | '/api/assess-nps-callback'
     | '/api/assessment-callback'
     | '/api/health'
     | '/api/me'
+    | '/api/notes-preview'
     | '/api/secret-login'
     | '/api/server-time'
     | '/v2/forgot-password'
@@ -2159,11 +2181,13 @@ export interface FileRouteTypes {
     | '/api/learn/assignments/$assignmentId/problems/$problemId'
   id:
     | '__root__'
+    | '/notes-preview-v2'
     | '/(protected)/_layout'
     | '/api/assess-nps-callback'
     | '/api/assessment-callback'
     | '/api/health'
     | '/api/me'
+    | '/api/notes-preview'
     | '/api/secret-login'
     | '/api/server-time'
     | '/(protected)/_layout/masaiverse'
@@ -2345,11 +2369,13 @@ export interface FileRouteTypes {
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
+  NotesPreviewV2Route: typeof NotesPreviewV2Route
   protectedLayoutRouteRoute: typeof protectedLayoutRouteRouteWithChildren
   ApiAssessNpsCallbackRouteRoute: typeof ApiAssessNpsCallbackRouteRoute
   ApiAssessmentCallbackRouteRoute: typeof ApiAssessmentCallbackRouteRouteWithChildren
   ApiHealthRoute: typeof ApiHealthRoute
   ApiMeRoute: typeof ApiMeRoute
+  ApiNotesPreviewRoute: typeof ApiNotesPreviewRoute
   ApiSecretLoginRoute: typeof ApiSecretLoginRoute
   ApiServerTimeRoute: typeof ApiServerTimeRoute
   authV2ForgotPasswordRoute: typeof authV2ForgotPasswordRoute
@@ -2473,6 +2499,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/notes-preview-v2': {
+      id: '/notes-preview-v2'
+      path: '/notes-preview-v2'
+      fullPath: '/notes-preview-v2'
+      preLoaderRoute: typeof NotesPreviewV2RouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/server-time': {
       id: '/api/server-time'
       path: '/api/server-time'
@@ -2485,6 +2518,13 @@ declare module '@tanstack/react-router' {
       path: '/api/secret-login'
       fullPath: '/api/secret-login'
       preLoaderRoute: typeof ApiSecretLoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/notes-preview': {
+      id: '/api/notes-preview'
+      path: '/api/notes-preview'
+      fullPath: '/api/notes-preview'
+      preLoaderRoute: typeof ApiNotesPreviewRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/me': {
@@ -4068,11 +4108,13 @@ const ApiLearnSubmissionsSubmissionIdRouteWithChildren =
   )
 
 const rootRouteChildren: RootRouteChildren = {
+  NotesPreviewV2Route: NotesPreviewV2Route,
   protectedLayoutRouteRoute: protectedLayoutRouteRouteWithChildren,
   ApiAssessNpsCallbackRouteRoute: ApiAssessNpsCallbackRouteRoute,
   ApiAssessmentCallbackRouteRoute: ApiAssessmentCallbackRouteRouteWithChildren,
   ApiHealthRoute: ApiHealthRoute,
   ApiMeRoute: ApiMeRoute,
+  ApiNotesPreviewRoute: ApiNotesPreviewRoute,
   ApiSecretLoginRoute: ApiSecretLoginRoute,
   ApiServerTimeRoute: ApiServerTimeRoute,
   authV2ForgotPasswordRoute: authV2ForgotPasswordRoute,
