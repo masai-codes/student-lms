@@ -69,7 +69,7 @@ function mapToLegacyPath(pathname: string): string {
 
 /** Lecture, assignment, and resource detail pages use in-header Raise Ticket instead. */
 function isLearnDetailRoute(pathname: string): boolean {
-  return /^\/(lectures|assignments|resources)\/[^/]+/.test(pathname)
+  return /^\/learn\/(lectures|assignments|resources)\/[^/]+/.test(pathname)
 }
 
 export const Route = createFileRoute('/(protected)/_layout')({
@@ -182,7 +182,7 @@ function RouteComponent() {
   const isSupportRoute = pathname.startsWith('/support')
   // Lecture detail spans the full viewport width (no centered container), so
   // every hero state is edge-to-edge like the recording video.
-  const isLectureDetail = /^\/lectures\/[^/]+/.test(renderedPathname)
+  const isLectureDetail = /^\/learn\/lectures\/[^/]+/.test(renderedPathname)
   // Chat is a single full-bleed iframe (connect.masaischool.com) — it wants
   // the full viewport width/height, same as Masaiverse and lecture detail.
   const isChatRoute = renderedPathname.startsWith('/chat')
