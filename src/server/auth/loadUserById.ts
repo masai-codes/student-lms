@@ -40,22 +40,10 @@ type UserRow = {
   profileImage: string | null
   newLmsPagesEnabled: number | boolean | string | null
   tryNewTourSeen: number | boolean | string | null
+  hideSwitchOption: number | boolean | string | null
 }
 
 /**
-<<<<<<< HEAD
- * JSON_EXTRACT of a boolean can surface as true/1/"true" depending on the
- * driver; treat any of those truthy encodings as set. Anything else (including
- * an absent key → null) is false.
- */
-function isMetaFlagTrue(value: number | boolean | string | null): boolean {
-  return value === true || value === 1 || value === 'true'
-}
-
-/**
- * Loads the LMS user profile for a known user id (session already resolved).
- * Profile image: latest `profiles.meta.profile_pic`, then `users.meta.profile_pic`, then `users.profile_photo_path`.
-=======
  * Loads the LMS user profile for a known user id, plus `users.status` for
  * callers that gate on deactivation.
  *
@@ -68,7 +56,6 @@ function isMetaFlagTrue(value: number | boolean | string | null): boolean {
  *
  * The club membership probe runs concurrently, so this is one round-trip of
  * latency rather than two.
->>>>>>> 0486f66a (optimize me api)
  *
  * Server-only: touches `@/db` (mysql2). Import it exclusively from inside
  * server-fn handlers / API services so it never reaches the client bundle.
@@ -113,6 +100,7 @@ export async function loadUserWithStatusById(userId: number) {
     profileImageUrl: pickProfileImageUrl(row.profileImage),
     newLmsPagesEnabled: isJsonTrue(row.newLmsPagesEnabled),
     hasSeenTryNewTour: isJsonTrue(row.tryNewTourSeen),
+    hideSwitchOption: isJsonTrue(row.hideSwitchOption),
   }
 }
 

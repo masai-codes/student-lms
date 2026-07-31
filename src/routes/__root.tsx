@@ -78,6 +78,10 @@ function RootDocument({ children }: { children: React.ReactNode }) {
   // integration wraps the tree with the provider. It is still one stable client
   // per browser tab / per SSR request, so cached queries and optimistic writes
   // (e.g. a club's `isJoined` / `memberCount` after Join) survive re-renders.
+  const pathname = useRouterState({
+    select: (state) => state.location.pathname,
+  })
+  const analyticsEnabled = !ANALYTICS_EXCLUDED_PATHS.has(pathname)
   return (
     <html lang="en">
       <head>

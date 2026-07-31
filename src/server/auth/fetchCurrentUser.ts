@@ -4,15 +4,6 @@ import { loadUserWithStatusById } from '@/server/auth/loadUserById'
 import { isUserDeactivated } from '@/server/restrictions/deactivatedUser'
 
 /**
- * JSON_EXTRACT of a boolean can surface as true/1/"true" depending on the
- * driver; treat any of those truthy encodings as set. Anything else (including
- * an absent key → null) is false.
- */
-function isMetaFlagTrue(value: number | boolean | string | null): boolean {
-  return value === true || value === 1 || value === 'true'
-}
-
-/**
  * Current session user for layouts and client calls.
  *
  * Client callers must go through the cached `meQuery` (`src/query/me/meQuery.ts`)

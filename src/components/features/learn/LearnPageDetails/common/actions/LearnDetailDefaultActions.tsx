@@ -1,6 +1,5 @@
 'use client'
 
-import { useState } from 'react'
 import { Bookmark, CircleQuestionMark } from 'lucide-react'
 
 import { MasaiButton } from '@/components/ui/masai-button'
