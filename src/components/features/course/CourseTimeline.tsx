@@ -37,7 +37,7 @@ export function CourseTimeline({ items }: Props) {
   return (
     <div className="flex flex-col gap-4">
       <h2 className="font-semibold text-xl leading-8 text-foreground">
-        Course Timeline
+        Program Timeline
       </h2>
 
       <div className="rounded-2xl border border-border bg-surface px-6 py-6 overflow-x-auto">

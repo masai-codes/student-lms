@@ -6,7 +6,7 @@ import type {
 import type { LearningEntityRow } from '@/server/learn/utils/learningDataMappers'
 
 const hoisted = vi.hoisted(() => ({
-  getSectionIds: vi.fn(),
+  getEnrolledSections: vi.fn(),
   fetchFacets: vi.fn(),
   fetchLecturePage: vi.fn(),
   fetchAssignmentPage: vi.fn(),
@@ -14,7 +14,7 @@ const hoisted = vi.hoisted(() => ({
 }))
 
 vi.mock('@/server/batches/getSectionIdsForUserInBatch', () => ({
-  getSectionIdsForUserInBatch: hoisted.getSectionIds,
+  getEnrolledSectionsForUserInBatch: hoisted.getEnrolledSections,
 }))
 vi.mock('@/server/restrictions/getUserBatchRestrictions', () => ({
   getUserBatchRestrictions: vi.fn(async () => new Map()),
@@ -72,7 +72,9 @@ function lectureRow(
 describe('getBatchLearningData service (orchestration)', () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    hoisted.getSectionIds.mockResolvedValue([9])
+    hoisted.getEnrolledSections.mockResolvedValue([
+      { sectionId: 9, name: 'Section A' },
+    ])
     hoisted.fetchFacets.mockResolvedValue(FACETS)
     hoisted.fetchAttendance.mockResolvedValue(new Map())
     vi.useFakeTimers()
@@ -195,6 +197,102 @@ describe('getBatchLearningData service (orchestration)', () => {
 
     expect(hoisted.fetchLecturePage).toHaveBeenCalledWith(
       expect.objectContaining({ page: 1, pageSize: 15 }),
+    )
+  })
+
+  it('returns the enrolled sections and spans all of them by default', async () => {
+    const { getBatchLearningData } =
+      await import('../services/getBatchLearningData.service')
+    hoisted.getEnrolledSections.mockResolvedValueOnce([
+      { sectionId: 9, name: 'Section A' },
+      { sectionId: 12, name: 'Section B' },
+    ])
+    hoisted.fetchLecturePage.mockResolvedValueOnce({
+      rows: [],
+      pagination: PAGINATION,
+    })
+
+    const result = await getBatchLearningData(
+      { batchId: 10, learningType: 'lecture' },
+      7,
+    )
+
+    expect(result.sections).toEqual([
+      { sectionId: 9, name: 'Section A' },
+      { sectionId: 12, name: 'Section B' },
+    ])
+    expect(hoisted.fetchLecturePage).toHaveBeenCalledWith(
+      expect.objectContaining({ sectionIds: [9, 12] }),
+    )
+    expect(hoisted.fetchFacets).toHaveBeenCalledWith(
+      'lecture',
+      [9, 12],
+      expect.any(Number),
+      undefined,
+    )
+  })
+
+  it('narrows to a single section when the user is enrolled in it', async () => {
+    const { getBatchLearningData } =
+      await import('../services/getBatchLearningData.service')
+    hoisted.getEnrolledSections.mockResolvedValueOnce([
+      { sectionId: 9, name: 'Section A' },
+      { sectionId: 12, name: 'Section B' },
+    ])
+    hoisted.fetchLecturePage.mockResolvedValueOnce({
+      rows: [],
+      pagination: PAGINATION,
+    })
+
+    await getBatchLearningData(
+      { batchId: 10, learningType: 'lecture', sectionId: 12 },
+      7,
+    )
+
+    expect(hoisted.fetchLecturePage).toHaveBeenCalledWith(
+      expect.objectContaining({ sectionIds: [12] }),
+    )
+  })
+
+  it('ignores a section the user is not enrolled in', async () => {
+    const { getBatchLearningData } =
+      await import('../services/getBatchLearningData.service')
+    hoisted.getEnrolledSections.mockResolvedValueOnce([
+      { sectionId: 9, name: 'Section A' },
+    ])
+    hoisted.fetchLecturePage.mockResolvedValueOnce({
+      rows: [],
+      pagination: PAGINATION,
+    })
+
+    await getBatchLearningData(
+      { batchId: 10, learningType: 'lecture', sectionId: 999 },
+      7,
+    )
+
+    expect(hoisted.fetchLecturePage).toHaveBeenCalledWith(
+      expect.objectContaining({ sectionIds: [9] }),
+    )
+  })
+
+  it('threads the schedule horizon into the page + facet queries', async () => {
+    const { getBatchLearningData } =
+      await import('../services/getBatchLearningData.service')
+    hoisted.fetchLecturePage.mockResolvedValueOnce({
+      rows: [],
+      pagination: PAGINATION,
+    })
+
+    await getBatchLearningData(
+      { batchId: 10, learningType: 'lecture', scheduleHorizonDays: 30 },
+      7,
+    )
+
+    expect(hoisted.fetchFacets).toHaveBeenCalledWith(
+      'lecture',
+      [9],
+      expect.any(Number),
+      30,
     )
   })
 

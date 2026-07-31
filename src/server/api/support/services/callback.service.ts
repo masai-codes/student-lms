@@ -15,6 +15,7 @@ import type {
 } from '@/server/api/support/support.types'
 import { db } from '@/db'
 import { menus, userCallbackTickets } from '@/db/schema'
+import { supportNow } from '@/server/api/support/services/supportTime'
 
 /** Coerce a `db.execute` result into a flat array of rows (driver-agnostic). */
 function rowsOf<T>(result: unknown): Array<T> {
@@ -30,6 +31,28 @@ function rowsOf<T>(result: unknown): Array<T> {
   return []
 }
 
+/** Admission flags shared by overview + floating-chat callback flows. */
+export async function getCallbackAdmissionFlags(userId: number): Promise<{
+  isNewUserJourney: boolean
+  fullFeesPaidBatchIds: Array<number>
+}> {
+  const result = await db.execute(sql`
+    SELECT batch_id, full_fees_paid
+    FROM user_batch_admission_data
+    WHERE user_id = ${userId}
+  `)
+  const rows = rowsOf<{ batch_id: number; full_fees_paid: number | boolean }>(
+    result,
+  )
+
+  return {
+    isNewUserJourney: rows.length > 0,
+    fullFeesPaidBatchIds: rows
+      .filter((r) => Boolean(r.full_fees_paid))
+      .map((r) => Number(r.batch_id)),
+  }
+}
+
 /**
  * Callback eligibility — mirrors the legacy gate for the "Request a Callback"
  * CTA, which only shows for students on the **new user journey** (i.e. with a
@@ -43,20 +66,11 @@ export async function getCallbackEligibility(input: {
   userId: number
   batchId: number
 }): Promise<{ isNewUserJourney: boolean; hasFullFees: boolean }> {
-  const result = await db.execute(sql`
-    SELECT batch_id, full_fees_paid
-    FROM user_batch_admission_data
-    WHERE user_id = ${input.userId}
-  `)
-  const rows = rowsOf<{ batch_id: number; full_fees_paid: number | boolean }>(
-    result,
-  )
-
-  const isNewUserJourney = rows.length > 0
-  const hasFullFees = rows.some(
-    (r) => Number(r.batch_id) === input.batchId && Boolean(r.full_fees_paid),
-  )
-  return { isNewUserJourney, hasFullFees }
+  const flags = await getCallbackAdmissionFlags(input.userId)
+  return {
+    isNewUserJourney: flags.isNewUserJourney,
+    hasFullFees: flags.fullFeesPaidBatchIds.includes(input.batchId),
+  }
 }
 
 /** `menus.category` value holding callback *reasons*. */
@@ -80,6 +94,7 @@ export async function listCallbacks(
   const rows = await db
     .select({
       id: userCallbackTickets.id,
+      batchId: userCallbackTickets.batchId,
       category: userCallbackTickets.category,
       status: userCallbackTickets.status,
       preferredTimeSlot: userCallbackTickets.preferredTimeSlot,
@@ -92,6 +107,7 @@ export async function listCallbacks(
 
   return rows.map((r) => ({
     id: r.id,
+    batchId: r.batchId,
     category: r.category,
     status: r.status,
     preferredTimeSlot: r.preferredTimeSlot ?? null,
@@ -141,7 +157,7 @@ export async function createCallback(input: {
 
   if (existing.length > 0) throw new Error('SUPPORT_CALLBACK_DUPLICATE')
 
-  const now = new Date().toISOString()
+  const now = supportNow()
   const [result] = await db.insert(userCallbackTickets).values({
     userId: input.userId,
     batchId: input.batchId,

@@ -23,6 +23,7 @@ function makeSummary(
     videoAttendanceStatus: 0,
     includeVideoAttendance: true,
     videoCountsForAttendance: true,
+    markAbsentIfLate: false,
     ...overrides,
   }
 }

@@ -12,6 +12,7 @@ import { LectureVideoSection } from './video'
 import type { DiscussionListItem, LearningPriority } from '@/server/learn/types'
 import type { LectureAttendanceSummary } from '@/server/attendance/types'
 import type {
+  InLecturePopupQuiz,
   LectureDetailTabContent,
   LectureFeedbackState,
   LectureVideoAttendanceState,
@@ -39,6 +40,7 @@ type LectureRecordingExperienceProps = {
   isLiveLecture: boolean
   isBookmarked: boolean
   feedback: LectureFeedbackState
+  inLecturePopupQuiz: Array<InLecturePopupQuiz>
 }
 
 const heroRowFullBleedClasses =
@@ -63,6 +65,7 @@ export function LectureRecordingExperience({
   isLiveLecture,
   isBookmarked,
   feedback,
+  inLecturePopupQuiz,
 }: LectureRecordingExperienceProps) {
   // The video simply takes the height it needs for its aspect ratio (real once
   // metadata loads, 16:9 until then); the rest of the page flows below and the
@@ -80,7 +83,8 @@ export function LectureRecordingExperience({
       lectureId={entityId}
       videoUrl={videoUrl}
       initialAttendance={videoAttendance}
-      transcriptSegments={tabs.transcriptSegments}
+      transcript={tabs.transcript}
+      inLecturePopupQuiz={inLecturePopupQuiz}
       className="min-h-0 flex-1"
       fullBleed={false}
       onVideoAspectRatioChange={setVideoAspectRatio}

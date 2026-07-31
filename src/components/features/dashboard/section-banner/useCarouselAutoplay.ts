@@ -11,6 +11,7 @@ export const BANNER_AUTOPLAY_MS = 5000
 export const ONBOARDING_AUTOPLAY_MS = 4000
 export const FEE_PAYMENT_AUTOPLAY_MS = 5000
 export const BATCH_START_AUTOPLAY_MS = 6000
+export const BATCH_TRANSFER_AUTOPLAY_MS = 7000
 
 export interface CarouselAutoplayHandlers {
   /** Spread onto the carousel root so hovering pauses auto-advance. */

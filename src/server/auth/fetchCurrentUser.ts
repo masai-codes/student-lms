@@ -30,6 +30,15 @@ function pickProfileImageUrl(value: unknown): string | null {
 }
 
 /**
+ * JSON_EXTRACT of a boolean can surface as true/1/"true" depending on the
+ * driver; treat any of those truthy encodings as set. Anything else (including
+ * an absent key → null) is false.
+ */
+function isMetaFlagTrue(value: number | boolean | string | null): boolean {
+  return value === true || value === 1 || value === 'true'
+}
+
+/**
  * Current session user for layouts and client calls.
  */
 export const fetchCurrentUser = createServerFn({ method: 'GET' }).handler(
@@ -47,6 +56,7 @@ export const fetchCurrentUser = createServerFn({ method: 'GET' }).handler(
       profileImage: string | null
       newLmsPagesEnabled: number | boolean | string | null
       tryNewTourSeen: number | boolean | string | null
+      hideSwitchOption: number | boolean | string | null
     }>(
       await db.execute(sql`
       SELECT
@@ -58,6 +68,7 @@ export const fetchCurrentUser = createServerFn({ method: 'GET' }).handler(
         u.status,
         JSON_EXTRACT(u.meta, '$.new_lms_pages_enabled') AS newLmsPagesEnabled,
         JSON_EXTRACT(u.meta, '$.new_lms_try_new_tour_seen') AS tryNewTourSeen,
+        JSON_EXTRACT(u.meta, '$.hide_switch_option') AS hideSwitchOption,
         COALESCE(
           JSON_UNQUOTE(JSON_EXTRACT(pr.meta, '$.profile_pic')),
           JSON_UNQUOTE(JSON_EXTRACT(u.meta, '$.profile_pic')),
@@ -99,16 +110,11 @@ export const fetchCurrentUser = createServerFn({ method: 'GET' }).handler(
       mobile: row.mobile,
       role: row.role,
       profileImageUrl: pickProfileImageUrl(row.profileImage),
-      // JSON_EXTRACT of a boolean can surface as true/1/"true" depending on the
-      // driver; treat any of those truthy encodings as enabled.
-      newLmsPagesEnabled:
-        row.newLmsPagesEnabled === true ||
-        row.newLmsPagesEnabled === 1 ||
-        row.newLmsPagesEnabled === 'true',
-      hasSeenTryNewTour:
-        row.tryNewTourSeen === true ||
-        row.tryNewTourSeen === 1 ||
-        row.tryNewTourSeen === 'true',
+      newLmsPagesEnabled: isMetaFlagTrue(row.newLmsPagesEnabled),
+      hasSeenTryNewTour: isMetaFlagTrue(row.tryNewTourSeen),
+      // Hides the old↔new switch CTA everywhere (iitj students — see
+      // HIDE_SWITCH_OPTION_META_KEY).
+      hideSwitchOption: isMetaFlagTrue(row.hideSwitchOption),
       joinedClubId:
         membershipRows[0]?.clubId != null
           ? String(membershipRows[0].clubId)

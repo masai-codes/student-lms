@@ -1,19 +1,21 @@
 import * as React from 'react'
 
 import { cn } from '@/lib/utils'
+import { Link } from '@tanstack/react-router'
 
 export type NavbarAnchorProps = Omit<
   React.AnchorHTMLAttributes<HTMLAnchorElement>,
   'href'
 > & {
-  href: string
+  href?: string
   openInNewTab?: boolean
 }
 
-function resolveOpenInNewTab(href: string, openInNewTab?: boolean) {
+function resolveOpenInNewTab(href?: string, openInNewTab?: boolean) {
   if (typeof openInNewTab === 'boolean') {
     return openInNewTab
   }
+  if (!href) return false
 
   return /^https?:\/\//i.test(href)
 }
@@ -27,7 +29,7 @@ export const NavbarAnchor = React.forwardRef<
 ) {
   const external = resolveOpenInNewTab(href, openInNewTab)
 
-  return (
+  return external ? (
     <a
       ref={ref}
       href={href}
@@ -38,6 +40,16 @@ export const NavbarAnchor = React.forwardRef<
     >
       {children}
     </a>
+  ) : (
+    <Link
+      ref={ref}
+      className={cn(className)}
+      to={href}
+      {...rest}
+      suppressHydrationWarning
+    >
+      {children}
+    </Link>
   )
 })
 

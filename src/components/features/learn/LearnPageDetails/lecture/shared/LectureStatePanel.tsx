@@ -31,6 +31,7 @@ export function LectureStatePanel({
 
   return (
     <div
+      data-testid="lecture-state-panel"
       data-theme={dark ? 'midnight' : undefined}
       className={cn(
         'flex min-h-[min(52vh,420px)] w-full flex-col items-center justify-center gap-4 px-6 py-12 text-center',

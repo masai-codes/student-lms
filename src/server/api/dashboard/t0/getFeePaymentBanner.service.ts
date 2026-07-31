@@ -3,6 +3,7 @@ import { computeFeePaymentBanner } from './feePaymentBanner'
 import type { FeePaymentBannerState } from './feePaymentBanner'
 import { resolveCourseTitle } from '../courseTitle'
 import { db } from '@/db'
+import { getBatchIdsForEnrolledUser } from '@/server/batches/getBatchIdsForEnrolledUser'
 
 /** A fee-payment banner for one batch (state + which course it's for). */
 export type FeePaymentBanner = FeePaymentBannerState & {
@@ -65,11 +66,19 @@ interface AdmissionFeeRow {
  * `course_fee_deadline`, overdue after), each tagged with the course name — the
  * dashboard renders these as a swipable carousel. Full-fee / non-T0 users have
  * no matching rows → `[]`. Sorted most-urgent first (overdue, then soonest timer).
+ *
+ * Only batches the user is actively enrolled in are shown: banners are filtered
+ * against {@link getBatchIdsForEnrolledUser}, which excludes cancelled (and
+ * soft-deleted / other-portal) enrolments — so a cancelled batch never shows a
+ * "payment due" banner.
  */
 export async function getFeePaymentBanners(
   userId: number,
   now: Date = new Date(),
 ): Promise<Array<FeePaymentBanner>> {
+  const enrolledBatchIds = new Set(await getBatchIdsForEnrolledUser(userId))
+  if (enrolledBatchIds.size === 0) return []
+
   const rows = normalizeRows<AdmissionFeeRow>(
     await db.execute(sql`
       SELECT uba.batch_id, uba.full_fees_paid, uba.course_fee_deadline, uba.payment_url,
@@ -83,6 +92,9 @@ export async function getFeePaymentBanners(
   const banners: Array<FeePaymentBanner> = []
   for (const row of rows) {
     if (row.full_fees_paid) continue
+    const batchId = Number(row.batch_id)
+    // Cancelled / non-enrolled batches must not show a payment-due banner.
+    if (!enrolledBatchIds.has(batchId)) continue
     const state = computeFeePaymentBanner({
       fullFeesPaid: false,
       courseFeeDeadline: parseIstDatetime(row.course_fee_deadline),
@@ -90,7 +102,6 @@ export async function getFeePaymentBanners(
       now,
     })
     if (!state) continue
-    const batchId = Number(row.batch_id)
     banners.push({
       ...state,
       batchId,

@@ -28,6 +28,7 @@ export async function fetchScheduleAssignments(
       sectionId: assignments.sectionId,
       week: assignments.week,
       module: assignments.module,
+      settings: assignments.settings,
       hostName: users.name,
       sectionName: sections.name,
       batchName: batches.name,

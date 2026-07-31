@@ -1,6 +1,12 @@
 'use client'
 
-import { useEffect, useRef, useState, type MouseEvent } from 'react'
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  type MouseEvent,
+} from 'react'
 import ReactPlayer from 'react-player/lazy'
 import { CaretDown, Check } from '@phosphor-icons/react'
 
@@ -26,14 +32,17 @@ import { useIsElementFullscreen } from './hooks/useLectureVideoFullscreen'
 import { VideoPlaybackOverlays } from './VideoPlaybackOverlays'
 import { LectureVideoCaptionOverlay } from './LectureVideoCaptionOverlay'
 import { LectureVideoGestureLayer } from './LectureVideoGestureLayer'
+import { InLectureQuizModal, useInLectureQuiz } from './in-lecture-quiz'
 import type { LectureChromePlayerRef } from './controls/lectureVideoChrome.utils'
 
 import './lectureReactPlayer.css'
 
 import type {
-  LectureTranscriptSegment,
+  InLecturePopupQuiz,
+  LectureTranscriptSource,
   LectureVideoAttendanceState,
 } from '@/server/learn/lectureDetailTypes'
+import { useLectureTranscript } from '../hooks/useLectureTranscript'
 import { LectureChatSidePanel } from '../components/LectureChatSidePanel'
 import { useChatPanelReveal } from '../hooks/useChatPanelReveal'
 import { useLectureChatWidth } from '../hooks/useLectureChatWidth'
@@ -44,7 +53,9 @@ type LectureReactPlayerProps = {
   lectureId: number
   src: string
   initialAttendance: LectureVideoAttendanceState | null
-  transcriptSegments?: Array<LectureTranscriptSegment>
+  /** Pointer to the transcript; the text is fetched only once CC is switched on. */
+  transcript?: LectureTranscriptSource
+  inLecturePopupQuiz?: Array<InLecturePopupQuiz>
   className?: string
   /** Reports the intrinsic video aspect ratio (w/h) once metadata loads. */
   onVideoAspectRatioChange?: (ratio: number) => void
@@ -54,7 +65,8 @@ export function LectureReactPlayer({
   lectureId,
   src,
   initialAttendance,
-  transcriptSegments,
+  transcript,
+  inLecturePopupQuiz,
   className,
   onVideoAspectRatioChange,
 }: LectureReactPlayerProps) {
@@ -65,11 +77,16 @@ export function LectureReactPlayer({
   // In fullscreen the chat becomes a resizable right-side split (same as inline)
   // rendered inside the fullscreen root so it's visible over the video.
   const chatWidth = useLectureChatWidth(fullscreenContainerRef)
-  const chatReveal = useChatPanelReveal(Boolean(splitChat?.isOpen) && isFullscreen)
+  const chatReveal = useChatPanelReveal(
+    Boolean(splitChat?.isOpen) && isFullscreen,
+  )
 
-  const segments = transcriptSegments ?? []
-  const hasTranscript = segments.length > 0
+  const transcriptSource = transcript ?? { available: false, url: null }
+  const hasTranscript = transcriptSource.available
   const [captionsOn, setCaptionsOn] = useState(false)
+  // Nothing is fetched until the viewer actually turns captions on; once loaded
+  // it stays cached, so toggling CC off and back on is free.
+  const { segments } = useLectureTranscript(transcriptSource, captionsOn)
   // Intrinsic w/h ratio of the loaded video — lets overlays anchor to the
   // visible (object-fit: contain) frame instead of the wrapper edges.
   const [videoAspectRatio, setVideoAspectRatio] = useState<number | null>(null)
@@ -84,6 +101,23 @@ export function LectureReactPlayer({
     videoRef,
     initialAttendance,
   })
+
+  const quiz = useInLectureQuiz({
+    lectureId,
+    quizzes: inLecturePopupQuiz ?? [],
+    progressSeconds: attendance.progress,
+    totalDuration: attendance.totalDuration,
+    seekSignal: attendance.seekNonce,
+    onSeekToSeconds: (seconds) => {
+      attendance.handleSeek(seconds)
+      seekPlayerToSeconds(videoRef, seconds)
+    },
+  })
+
+  // While a quiz card is open, suspend the global player keyboard shortcuts so
+  // arrow-key seeks / space-to-pause can't fire from the quiz UI.
+  const isQuizActiveRef = useRef(false)
+  isQuizActiveRef.current = quiz.activeQuiz !== null
 
   // Surface the real video dimensions so mobile can size the player to the
   // actual aspect ratio instead of a fixed viewport slice.
@@ -205,7 +239,9 @@ export function LectureReactPlayer({
       if (!container) return
       const video = getHtmlVideoFromPlayer(videoRef)
       const isLandscapeVideo =
-        !video || video.videoWidth === 0 || video.videoWidth >= video.videoHeight
+        !video ||
+        video.videoWidth === 0 ||
+        video.videoWidth >= video.videoHeight
       const shouldRotate =
         getFullscreenElement() === container &&
         portraitQuery.matches &&
@@ -230,6 +266,9 @@ export function LectureReactPlayer({
 
   useEffect(() => {
     const onWindowKey = (event: KeyboardEvent) => {
+      // While a popup quiz card is open the player's global shortcuts are
+      // suspended — the quiz owns the keyboard.
+      if (isQuizActiveRef.current) return
       // TWO player instances are mounted at once (mobile/desktop rows swapped
       // via display:none at the md breakpoint) and each registers this window
       // listener. Only the VISIBLE instance may handle shortcuts — otherwise
@@ -299,6 +338,15 @@ export function LectureReactPlayer({
     return () => window.clearTimeout(timeoutId)
   }, [isFullscreen])
 
+  const handleCaptionsToggle = useCallback(() => {
+    const next = !captionsOn
+    pushLearnEvent('l_learn_lecture_captions_toggle', {
+      lectureId,
+      enabled: next,
+    })
+    setCaptionsOn(next)
+  }, [captionsOn, lectureId])
+
   // Custom glass dropdown for the top-right quality shortcut (a native
   // <select> would open the OS-styled picker, breaking the glass chrome).
   const [qualityMenuOpen, setQualityMenuOpen] = useState(false)
@@ -325,7 +373,9 @@ export function LectureReactPlayer({
         // Split the area into video | chat when the chat is open (inline via the
         // flex row here; in fullscreen the `fs-split` class flips the injected
         // :fullscreen column rule to a row — see lectureVideoChrome.constants).
-        isFullscreen && chatReveal.isRendered && 'flex-row lecture-video-fs-split',
+        isFullscreen &&
+          chatReveal.isRendered &&
+          'flex-row lecture-video-fs-split',
         className,
       )}
     >
@@ -390,6 +440,16 @@ export function LectureReactPlayer({
             visible={captionsOn && hasTranscript}
             liftForControls={controlsChromeVisible}
           />
+          {quiz.activeQuiz ? (
+            <InLectureQuizModal
+              lectureId={lectureId}
+              quiz={quiz.activeQuiz}
+              progressSeconds={attendance.progress}
+              isFullscreen={isFullscreen}
+              onResolve={quiz.resolveQuiz}
+              onSkipToLecture={quiz.closeQuiz}
+            />
+          ) : null}
           {attendance.qualityLevels.length > 0 ? (
             // Fully custom glass dropdown (no native <select> — the OS picker
             // would break the glass chrome). A <span>, NOT a <div>:
@@ -482,7 +542,7 @@ export function LectureReactPlayer({
           onQualityChange={attendance.changeQuality}
           transcriptAvailable={hasTranscript}
           captionsOn={captionsOn}
-          onCaptionsToggle={() => setCaptionsOn((value) => !value)}
+          onCaptionsToggle={handleCaptionsToggle}
           onOpenAiChat={
             splitChat
               ? () => {

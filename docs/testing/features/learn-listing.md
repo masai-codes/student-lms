@@ -24,6 +24,11 @@ behavior restored.
   derived from the filtered subset.
 - Assignment progress status is computed in app code (derived from time +
   submission state) and applied to the SQL-narrowed set, then paginated.
+- **Section ("Course") filter is opt-in per batch:** `mapEnrolledBatchRow` reads
+  `batches.meta.showSectionDropdown` into `EnrolledBatch.showSectionDropdown`;
+  `LearnHeaderSection` renders the section dropdown only for the selected batch when
+  that flag is `true`, and `LearnLayout` clears any lingering `sectionId` (URL or
+  localStorage) while the flag is off so a hidden control can't narrow the listing.
 - **Join Live CTA (live/scrum cards):** `buildLearnListingCardCtas` resolves
   `joinLive`/`joinZoomLink`/`isNewZoomRedirection` plus **`enableZoomWebView`**
   (from `sections.settings` via the `sections` join in `fetchLectureListingPage`).
@@ -38,21 +43,23 @@ behavior restored.
 
 ## Test files
 
-| Area                                                        | File                                                                       |
-| ----------------------------------------------------------- | -------------------------------------------------------------------------- |
-| Schedule window (visibility cap, date cap, IST cutoff)      | `src/server/learn/utils/__tests__/buildLearnScheduleWindow.test.ts`        |
-| Module label → SQL predicate (week fallback)                | `src/server/learn/utils/__tests__/buildModuleFilterCondition.test.ts`      |
-| WHERE condition builders (lectures/resources + assignments) | `src/server/learn/utils/__tests__/buildLearnListingConditions.test.ts`     |
-| Pagination envelope + clamping                              | `src/server/learn/utils/__tests__/resolveListingPagination.test.ts`        |
-| Lecture/resource paginated query                            | `src/server/learn/queries/__tests__/fetchLectureListingPage.test.ts`       |
-| Assignment query (progress compute + filter + paginate)     | `src/server/learn/queries/__tests__/fetchAssignmentListingPage.test.ts`    |
-| Facet queries (distinct, sorted, week/unknown fallbacks)    | `src/server/learn/queries/__tests__/fetchLearnListingFacets.test.ts`       |
-| Service orchestration (lecture/assignment/resource mapping) | `src/server/learn/__tests__/getBatchLearningData.service.test.ts`          |
-| Card CTA resolver (join state + Zoom Web View gate)          | `src/server/learn/utils/__tests__/buildLearnListingCardCtas.test.ts`       |
-| Join Live CTA component (ZEF / Web View / raw / fallback)    | `src/components/features/learn/section-three/content-card/__tests__/LearnListingJoinLiveCta.test.tsx` |
-| Combined page service (batches + selected batch + listing)  | `src/server/learn/__tests__/getLearnPageData.service.test.ts`              |
-| Page query parser (optional batchId)                        | `src/server/api/learn/utils/__tests__/parseLearnPageQuery.test.ts`         |
-| Page endpoint handler                                       | `src/server/api/learn/handlers/__tests__/getLearnPageData.handler.test.ts` |
+| Area                                                        | File                                                                                                  |
+| ----------------------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
+| Schedule window (visibility cap, date cap, IST cutoff)      | `src/server/learn/utils/__tests__/buildLearnScheduleWindow.test.ts`                                   |
+| Module label → SQL predicate (week fallback)                | `src/server/learn/utils/__tests__/buildModuleFilterCondition.test.ts`                                 |
+| WHERE condition builders (lectures/resources + assignments) | `src/server/learn/utils/__tests__/buildLearnListingConditions.test.ts`                                |
+| Pagination envelope + clamping                              | `src/server/learn/utils/__tests__/resolveListingPagination.test.ts`                                   |
+| Lecture/resource paginated query                            | `src/server/learn/queries/__tests__/fetchLectureListingPage.test.ts`                                  |
+| Assignment query (progress compute + filter + paginate)     | `src/server/learn/queries/__tests__/fetchAssignmentListingPage.test.ts`                               |
+| Facet queries (distinct, sorted, week/unknown fallbacks)    | `src/server/learn/queries/__tests__/fetchLearnListingFacets.test.ts`                                  |
+| Service orchestration (lecture/assignment/resource mapping) | `src/server/learn/__tests__/getBatchLearningData.service.test.ts`                                     |
+| Card CTA resolver (join state + Zoom Web View gate)         | `src/server/learn/utils/__tests__/buildLearnListingCardCtas.test.ts`                                  |
+| Join Live CTA component (ZEF / Web View / raw / fallback)   | `src/components/features/learn/section-three/content-card/__tests__/LearnListingJoinLiveCta.test.tsx` |
+| Combined page service (batches + selected batch + listing)  | `src/server/learn/__tests__/getLearnPageData.service.test.ts`                                         |
+| Batch flags incl. `meta.showSectionDropdown`                | `src/server/learn/__tests__/getEnrolledBatches.service.test.ts`                                       |
+| Header section-filter visibility gate                       | `src/components/features/learn/section-one/__tests__/LearnHeaderSection.test.tsx`                     |
+| Page query parser (optional batchId)                        | `src/server/api/learn/utils/__tests__/parseLearnPageQuery.test.ts`                                    |
+| Page endpoint handler                                       | `src/server/api/learn/handlers/__tests__/getLearnPageData.handler.test.ts`                            |
 
 ## Commands
 

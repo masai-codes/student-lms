@@ -19,6 +19,10 @@ const FALLBACK_ICON =
   'https://masai-website-images.s3.ap-south-1.amazonaws.com/Group_f647b8c854.svg'
 const CHANGEMAKERS_ROUTE = '/changemakers-circle'
 
+// Controls the pinned Masai Live promo slide. Flip to `false` to hide it
+// without removing its code (e.g. for a white-labelled demo).
+const SHOW_MASAI_LIVE_PROMO = true
+
 // Light-blue promo carousel beside the welcome greeting. Uses embla for smooth
 // mouse/touch drag-to-swipe. Arrows are bounded (no wraparound); dots mark the
 // current banner. The hardcoded Masai Live promo is pinned as the always-first
@@ -42,9 +46,12 @@ export function WelcomeBannerCarousel({ banners }: WelcomeBannerCarouselProps) {
       setSelected(index)
       setCanScrollPrev(api.canScrollPrev())
       setCanScrollNext(api.canScrollNext())
-      // Index 0 is the promo (no DB id); 1..n map to banners[0..n-1].
-      if (index >= 1 && index - 1 < banners.length)
-        rememberBannerId(banners[index - 1].id)
+      // With the promo shown, index 0 is the promo (no DB id) and 1..n map to
+      // banners[0..n-1]; with it hidden, banners map directly from index 0.
+      const promoOffset = SHOW_MASAI_LIVE_PROMO ? 1 : 0
+      const bannerIndex = index - promoOffset
+      if (bannerIndex >= 0 && bannerIndex < banners.length)
+        rememberBannerId(banners[bannerIndex].id)
     },
     [banners],
   )
@@ -73,9 +80,9 @@ export function WelcomeBannerCarousel({ banners }: WelcomeBannerCarouselProps) {
   }, [emblaApi, onSelect])
 
   const wasDragged = () => draggedRef.current
-  // Total slides = the pinned promo + the DB banners. Controls show only when
-  // there is more than the promo to page through.
-  const slideCount = banners.length + 1
+  // Total slides = the pinned promo (when shown) + the DB banners. Controls
+  // show only when there is more than one slide to page through.
+  const slideCount = banners.length + (SHOW_MASAI_LIVE_PROMO ? 1 : 0)
   const hasMultiple = slideCount > 1
 
   return (
@@ -85,9 +92,11 @@ export function WelcomeBannerCarousel({ banners }: WelcomeBannerCarouselProps) {
     >
       <div className="overflow-hidden rounded-2xl" ref={emblaRef}>
         <div className="flex">
-          <div className="min-w-0 flex-[0_0_100%]">
-            <MasaiLivePromoCard wasDragged={wasDragged} />
-          </div>
+          {SHOW_MASAI_LIVE_PROMO && (
+            <div className="min-w-0 flex-[0_0_100%]">
+              <MasaiLivePromoCard wasDragged={wasDragged} />
+            </div>
+          )}
           {banners.map((banner) => (
             <div key={banner.id} className="min-w-0 flex-[0_0_100%]">
               <BannerCard banner={banner} wasDragged={wasDragged} />

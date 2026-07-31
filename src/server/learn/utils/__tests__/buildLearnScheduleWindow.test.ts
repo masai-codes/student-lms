@@ -136,6 +136,62 @@ describe('buildLearnScheduleWindow', () => {
       })
     })
 
+    describe('scheduleHorizonDays (future window)', () => {
+      it('extends the default upper bound by the horizon', () => {
+        expect(
+          buildLearnScheduleWindow({
+            learningType: 'lecture',
+            scheduleHorizonDays: 7,
+            nowMs: NOW_MS,
+          }),
+        ).toEqual({ gte: null, lt: '2026-06-30 00:00:00' })
+      })
+
+      it('extends the upcoming upper bound by the horizon', () => {
+        expect(
+          buildLearnScheduleWindow({
+            learningType: 'lecture',
+            schedulePhase: 'upcoming',
+            scheduleHorizonDays: 30,
+            nowMs: NOW_MS,
+          }),
+        ).toEqual({ gte: LEGACY_NOW, lt: '2026-07-23 00:00:00' })
+      })
+
+      it('never pushes the past upper bound into the future', () => {
+        expect(
+          buildLearnScheduleWindow({
+            learningType: 'lecture',
+            schedulePhase: 'past',
+            scheduleHorizonDays: 30,
+            nowMs: NOW_MS,
+          }),
+        ).toEqual({ gte: null, lt: LEGACY_NOW })
+      })
+
+      it('lifts the date-range end cap up to the horizon', () => {
+        expect(
+          buildLearnScheduleWindow({
+            learningType: 'lecture',
+            scheduleStartDate: '2026-06-01',
+            scheduleEndDate: '2026-12-31',
+            scheduleHorizonDays: 7,
+            nowMs: NOW_MS,
+          }),
+        ).toEqual({ gte: '2026-06-01 00:00:00', lt: '2026-06-30 00:00:00' })
+      })
+
+      it('ignores a non-positive / non-finite horizon', () => {
+        expect(
+          buildLearnScheduleWindow({
+            learningType: 'lecture',
+            scheduleHorizonDays: -5,
+            nowMs: NOW_MS,
+          }),
+        ).toEqual({ gte: null, lt: END_OF_TODAY_UTC })
+      })
+    })
+
     it('ignores a malformed start date and falls back to the phase window', () => {
       expect(
         buildLearnScheduleWindow({
@@ -198,6 +254,16 @@ describe('buildLearnScheduleWindow', () => {
           nowMs: NOW_MS,
         }),
       ).toEqual({ gte: null, lt: ASSIGNMENT_CUTOFF })
+    })
+
+    it('extends the cutoff by the horizon', () => {
+      expect(
+        buildLearnScheduleWindow({
+          learningType: 'assignment',
+          scheduleHorizonDays: 7,
+          nowMs: NOW_MS,
+        }),
+      ).toEqual({ gte: null, lt: '2026-06-30 00:00:00' })
     })
   })
 })

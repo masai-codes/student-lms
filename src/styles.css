@@ -1061,3 +1061,49 @@ code {
     display: none;
   }
 }
+
+/* ---------------------------------------------------------------------------
+ * Viewport lock — pages whose columns own their own scrolling.
+ *
+ * The lecture detail page is a split layout: the page column and the AI chat
+ * rail each scroll themselves, side by side, filling the height the navbar
+ * leaves. That needs a *definite* height at the top of the chain — the app
+ * shell's `min-h-dvh` leaves it indefinite, so a `flex-1` `<main>` keeps growing
+ * to its content: the row stretches to the whole page height, the window scrolls
+ * instead of the columns, and the chat rail (sized `h-full` against an
+ * indefinite parent) can't stand viewport-tall.
+ *
+ * `overflow: hidden` on `<html>`/`<body>` is the part that kills the trailing
+ * whitespace outright: the document itself becomes unscrollable, so nothing —
+ * not a stray portal, not scroll chaining out of either column, not a rounding
+ * error — can drag the page up into blank space below it.
+ *
+ * Applied only while `useViewportScrollLock` marks `<html>` (so it lifts the
+ * moment you navigate away or drop below `lg`, where the page goes back to
+ * natural window scrolling with the bottom-drawer chat). Plain CSS on purpose:
+ * no utility-scanner or `:has()` support to depend on, and it's greppable in the
+ * served stylesheet.
+ * ------------------------------------------------------------------------- */
+@media (width >= 64rem) {
+  html[data-viewport-locked] {
+    height: 100%;
+    overflow: hidden;
+  }
+
+  /* `position: relative` so an absolutely-positioned body-level child (a portal
+     that isn't `fixed`) is clipped by the body box instead of resolving against
+     the initial containing block, where it would still stretch the document's
+     scrollable height. Body sits at the document origin with no margin, so this
+     changes nothing visually. */
+  html[data-viewport-locked] > body {
+    position: relative;
+    height: 100%;
+    overflow: hidden;
+  }
+
+  html[data-viewport-locked] [data-app-shell] {
+    height: 100dvh;
+    min-height: 0;
+    overflow: hidden;
+  }
+}

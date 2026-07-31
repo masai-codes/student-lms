@@ -1,7 +1,12 @@
 import { getRouteApi } from '@tanstack/react-router'
 import { useCallback, useEffect, useMemo, useRef } from 'react'
 
-import type { LearnModalFiltersState, LearnTab } from '../shared/types'
+import type {
+  LearnModalFiltersState,
+  LearnScheduleHorizon,
+  LearnTab,
+} from '../shared/types'
+import { parseLearnScheduleHorizon } from '../shared/types'
 import {
   buildLearnNavigateSearch,
   clearLearnFilterSearch,
@@ -52,6 +57,10 @@ export function useLearnPageState() {
   const activeTab = search.tab ?? 'lectures'
   const currentPage = search.page ?? 1
   const searchValue = search.search ?? ''
+  const sectionId = search.sectionId
+  const horizon: LearnScheduleHorizon = parseLearnScheduleHorizon(
+    search.horizon,
+  )
   const modalFilters = useMemo(
     () => learnModalFiltersFromSearch(search, activeTab),
     [search, activeTab],
@@ -143,6 +152,36 @@ export function useLearnPageState() {
     [activeTab, modalFilters, pushSearch, searchValue],
   )
 
+  // Section + horizon are top-level (not per-tab modal) params, so they navigate
+  // directly and survive tab/filter changes via `mergeLearnSearch`'s base carry-over.
+  const setSectionId = useCallback(
+    (nextSectionId: number | null) => {
+      navigate({
+        search: (prev) => ({
+          ...prev,
+          sectionId: nextSectionId ?? undefined,
+          page: 1,
+        }),
+        replace: true,
+      })
+    },
+    [navigate],
+  )
+
+  const setHorizon = useCallback(
+    (nextHorizon: LearnScheduleHorizon) => {
+      navigate({
+        search: (prev) => ({
+          ...prev,
+          horizon: nextHorizon === 'today' ? undefined : nextHorizon,
+          page: 1,
+        }),
+        replace: true,
+      })
+    },
+    [navigate],
+  )
+
   const setModalFilters = useCallback(
     (next: LearnModalFiltersState) => {
       pushSearch(
@@ -175,9 +214,13 @@ export function useLearnPageState() {
     filterCount,
     apiFilters,
     batchId: search.batchId,
+    sectionId,
+    horizon,
     setActiveTab,
     setSearchValue,
     setCurrentPage,
+    setSectionId,
+    setHorizon,
     setModalFilters,
     setModules,
     clearAllFilters: () => {

@@ -41,8 +41,7 @@ export function AnnouncementFiltersPanel({
   onApply,
 }: AnnouncementFiltersPanelProps) {
   const [draft, setDraft] = useState<AnnouncementFilters>(selectedFilters)
-  const [activeNav, setActiveNav] =
-    useState<AnnouncementFilterSection>('type')
+  const [activeNav, setActiveNav] = useState<AnnouncementFilterSection>('type')
 
   // Re-sync the draft from committed filters each time the drawer opens.
   useEffect(() => {

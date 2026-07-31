@@ -1,7 +1,10 @@
 import type { LectureAttendanceSummary } from '@/server/attendance/types'
 import type { LearnHubDetailPayload, LearningItem } from '@/server/learn/types'
 import type { JoinLiveButtonState } from '@/server/learn/utils/resolveJoinLiveButtonState'
+import type { InLecturePopupQuiz } from '@/server/learn/utils/parseLectureSettings'
 import type { WatchIntervalSegment } from '@/server/video-attendance/types'
+
+export type { InLecturePopupQuiz }
 
 export type LectureKind = 'live' | 'video'
 
@@ -23,6 +26,34 @@ export type LectureTranscriptSegment = {
   text: string
 }
 
+/**
+ * Where to fetch a lecture's transcript, instead of the transcript itself.
+ *
+ * Transcripts for long lectures run into megabytes, and shipping them inside the
+ * lecture-detail payload made the whole page wait on them (#353). The payload now
+ * carries only this descriptor: `available` is enough to decide whether the CC
+ * button and the Transcript tab have anything to offer, and `url` is fetched
+ * lazily — when captions are switched on, or when the Transcript tab is opened.
+ */
+export type LectureTranscriptSource = {
+  /** True when `lectures_ai` holds a non-empty transcript or segment list. */
+  available: boolean
+  /**
+   * Cookie-free, CloudFront-cacheable path (`/api/cache/...`). Null when there is
+   * no transcript, or when the lecture isn't scoped to a batch + section (the
+   * cache path is keyed on both so a batch or section can be invalidated by prefix).
+   */
+  url: string | null
+}
+
+/** Response body of the cacheable transcript endpoint. */
+export type LectureTranscriptPayload = {
+  lectureId: number
+  segments: Array<LectureTranscriptSegment>
+  /** Plain-text fallback, used when no structured segments exist. */
+  text: string | null
+}
+
 export type LectureFeedbackState = {
   /** Whether the feedback form is open for submission (show_feedback + within window). */
   canSubmit: boolean
@@ -36,10 +67,11 @@ export type LectureDetailTabContent = {
   /** Rendered under the single "Description" tab (legacy LMS used `lectures.notes`). */
   notes: string | null
   aiSummary: string | null
-  /** Plain-text fallback (used when no segments are available). */
-  transcript: string | null
-  /** Structured transcript segments preferred for timestamp rendering. */
-  transcriptSegments: Array<LectureTranscriptSegment>
+  /**
+   * Pointer to the transcript, never the transcript text — see
+   * `LectureTranscriptSource`. Fetched on demand by `useLectureTranscript`.
+   */
+  transcript: LectureTranscriptSource
   associatedItems: Array<LearningItem>
 }
 
@@ -90,4 +122,9 @@ export type LectureDetailPayload = LearnHubDetailPayload & {
   enableZoomWebView: boolean
   /** Lecture feedback window + the user's existing rating/text. */
   feedback: LectureFeedbackState
+  /**
+   * Timestamped popup quizzes to surface while the recording plays, from
+   * `lectures.settings.inLecturePopupQuiz`. Empty when none are configured.
+   */
+  inLecturePopupQuiz: Array<InLecturePopupQuiz>
 }

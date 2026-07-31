@@ -1,13 +1,19 @@
 import type {
   LearnModalFiltersState,
+  LearnScheduleHorizon,
   LearnTab,
 } from '@/components/features/learn/shared/types'
 import type { BatchLearningFiltersInput } from '@/server/learn/types'
 import type { AssignmentProgressStatus } from '@/server/learn/utils/calculateAssignmentProgressStatus'
-import { createEmptyLearnModalFilters } from '@/components/features/learn/shared/types'
+import {
+  createEmptyLearnModalFilters,
+  parseLearnScheduleHorizon,
+} from '@/components/features/learn/shared/types'
 
 export type LearnPageSearchParams = {
   batchId?: number
+  sectionId?: number
+  horizon?: LearnScheduleHorizon
   tab?: LearnTab
   page?: number
   search?: string
@@ -79,6 +85,8 @@ export function parseLearnPageSearch(
   search: Record<string, unknown>,
 ): LearnPageSearchParams {
   const batchId = parsePositiveInt(search.batchId)
+  const sectionId = parsePositiveInt(search.sectionId)
+  const horizon = parseLearnScheduleHorizon(search.horizon)
   const tab = parseTab(search.tab)
   const page = parsePositiveInt(search.page)
   const searchText =
@@ -92,6 +100,9 @@ export function parseLearnPageSearch(
 
   return {
     batchId,
+    sectionId,
+    // Only surface a non-default horizon so the URL stays clean for "Upto Today".
+    horizon: horizon === 'today' ? undefined : horizon,
     tab,
     page,
     search: searchText?.trim() || undefined,

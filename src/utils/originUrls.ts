@@ -53,6 +53,14 @@ const ORIGIN_ENV: Record<
       newStudentUi: 'https://students-v2.masaischool.com',
     },
   },
+  iitj: {
+    oldStudentUiKey: 'VITE_OLD_STUDENT_UI_URL_IITJ',
+    newStudentUiKey: 'VITE_NEW_STUDENT_UI_URL_IITJ',
+    fallback: {
+      oldStudentUi: 'https://students.masaischool.com',
+      newStudentUi: 'https://students-v2.masaischool.com',
+    },
+  },
 }
 
 function resolveOriginUrls({
@@ -74,4 +82,5 @@ function resolveOriginUrls({
 export const ORIGIN_URLS: Record<AppOrigin, OriginUrls> = {
   masai: resolveOriginUrls(ORIGIN_ENV.masai),
   ihub: resolveOriginUrls(ORIGIN_ENV.ihub),
+  iitj: resolveOriginUrls(ORIGIN_ENV.iitj),
 }

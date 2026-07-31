@@ -12,27 +12,33 @@
  * All routing/escalation logic is delegated to `resolveAssignees.ts`.
  */
 
+import { randomUUID } from 'node:crypto'
 import { and, eq } from 'drizzle-orm'
 import type { TicketRating } from '@/server/api/support/support.types'
 import { db } from '@/db'
-import { batches, comments, tickets } from '@/db/schema'
+import { batches, comments, tickets, users } from '@/db/schema'
 import {
+  appendCreateTicketSectionInfo,
+  getBatchDurationOfUser,
+  resolveCreateTicketAssignment,
+} from '@/server/api/support/services/createTicketAudit.service'
+import { getActiveSectionNames } from '@/server/api/support/services/directory.service'
+import {
+  currentLevel,
   hasHigherLevel,
   ladderFromBatchSettings,
   nextEscalation,
 } from '@/server/api/support/services/resolveAssignees'
+import {
+  patchEscalationAudit,
+  patchReopenAudit,
+} from '@/server/api/support/services/ticketInfo.service'
+import { resolveTicketTitle } from '@/server/api/support/services/generateTicketTitle.service'
+import { fetchEntityTitleForTicket } from '@/server/api/support/services/fetchEntityTitleForTicket.service'
 import { buildFirstTemplateResponse } from '@/server/api/support/services/ticketReplyTemplate'
 import { normalizeStatus } from '@/server/api/support/services/serialize'
+import { supportNow } from '@/server/api/support/services/supportTime'
 import { getTicketCapabilities } from '@/server/api/support/ticketCapabilities'
-
-/**
- * Fallback assignee when a batch has no escalation ladder configured. The
- * `tickets.assignee_id` column is NOT NULL, so a ticket must always have an
- * owner; ops can reassign from the admin tools. Override via env if needed.
- */
-const FALLBACK_ASSIGNEE_ID = Number(
-  process.env.SUPPORT_FALLBACK_ASSIGNEE_ID ?? 1,
-)
 
 /** Load a ticket the student owns, or throw `*_NOT_FOUND`. */
 async function loadOwnedTicket(userId: number, ticketId: number) {
@@ -44,27 +50,21 @@ async function loadOwnedTicket(userId: number, ticketId: number) {
   return rows[0]
 }
 
-/** Resolve the starting (L1) owner for a new ticket from its batch settings. */
-async function resolveInitialAssignee(
-  batchId: number | null,
-  category: string,
-): Promise<number> {
-  if (!batchId) return FALLBACK_ASSIGNEE_ID
-  const batchRows = await db
-    .select({ settings: batches.settings })
-    .from(batches)
-    .where(eq(batches.id, batchId))
-  if (batchRows.length === 0) return FALLBACK_ASSIGNEE_ID
-  const ladder = ladderFromBatchSettings(batchRows[0].settings, category)
-  return ladder.l1 ?? FALLBACK_ASSIGNEE_ID
-}
-
 /**
  * Raise a new ticket.
  *
- * Stores `batch_id`, `subCategory` and the originating FAQ (`question_id`) in
- * `tickets.data`, sets `status='open'`, and auto-assigns the L1 owner. The title
- * is derived from category + subcategory (the legacy system auto-titles too).
+ * Stores `batch_id`, `subCategory`, the originating FAQ (`question_id`) and —
+ * for tickets raised from a lecture / assignment / resource detail page — the
+ * originating entity (`entity_id`) in `tickets.data`, sets `status='open'`, and
+ * auto-assigns the L1 owner. The title is derived from category + subcategory
+ * (the legacy system auto-titles too).
+ *
+ * The `data` keys mirror the legacy web payload exactly — see the comment on
+ * the insert below.
+ *
+ * `created_at` / `updated_at` are written explicitly: the columns are
+ * `TIMESTAMP(0) NULL` with **no DB default**, so omitting them stores NULL.
+ * wall-clock; {@link supportNow} matches that.
  *
  * @returns the new ticket id (the client then navigates into its conversation).
  */
@@ -75,31 +75,88 @@ export async function createTicket(input: {
   subCategory?: string | null
   message: string
   questionId?: number | null
+  /** Lecture / assignment / resource the ticket was raised from, if any. */
+  entityId?: number | null
+  /** When true, records in `info.log` that the ticket came from the support floater. */
+  fromFloater?: boolean
 }): Promise<{ id: number }> {
   if (!input.message.trim()) throw new Error('SUPPORT_MESSAGE_REQUIRED')
 
-  const assigneeId = await resolveInitialAssignee(input.batchId, input.category)
-  const title = [input.category, input.subCategory]
-    .filter(Boolean)
-    .map((s) => String(s).replace(/[-_]/g, ' '))
-    .join(' – ')
+  const now = supportNow()
+
+  const [activeSections, entityTitle, duration, assignment] = await Promise.all(
+    [
+      getActiveSectionNames(input.userId, input.batchId),
+      input.entityId != null
+        ? fetchEntityTitleForTicket({
+            userId: input.userId,
+            category: input.category,
+            entityId: input.entityId,
+          })
+        : Promise.resolve(null),
+      getBatchDurationOfUser(input.userId),
+      resolveCreateTicketAssignment({
+        batchId: input.batchId,
+        category: input.category,
+        questionId: input.questionId,
+        timestamp: now,
+      }),
+    ],
+  )
+
+  const { assigneeId, info, logstamps } = assignment
+  appendCreateTicketSectionInfo({ info, activeSections, duration })
+  if (input.fromFloater) {
+    info.log += 'Ticket raised from support floater.\n'
+  }
+
+  const { title, source: titleSource } = await resolveTicketTitle({
+    message: input.message.trim(),
+    category: input.category,
+    subCategory: input.subCategory,
+    entityTitle,
+  })
+
+  // `entity_id` — the key the web flow this replaces writes. The old LMS's
+  // AssignmentCreateTicketModal (lecture / assignment detail → GraphQL
+  // `createTicketV2`) puts `entity_id: lectureId || assignmentId` into `data`.
+  // Note the REST `createTicketV2` (`ticket.controller.ts`, the mobile-app
+  // path) stores the same value as `entity_ID` instead — a pre-existing
+  // inconsistency in the legacy system. We follow the web spelling.
+  const entityId =
+    input.entityId != null &&
+    Number.isFinite(input.entityId) &&
+    input.entityId > 0
+      ? Number(input.entityId)
+      : null
 
   const [result] = await db.insert(tickets).values({
     userId: input.userId,
-    title: title || input.category,
+    title,
     message: input.message.trim(),
     category: input.category,
     status: 'open',
     assigneeId,
     rating: 0,
     isClosed: 0,
+    // Key names and shapes are held identical to the legacy payload: the admin
+    // ticket list filters on `$.subCategory` and `$.batch_id` (a *string*, per
+    // `CreateTicketV2Input.batch_id: String!`), and `question_id` is only ever
+    // present when the ticket came from a FAQ.
+    info,
     data: {
       batch_id: String(input.batchId),
-      subCategory: input.subCategory ?? null,
-      question_id: input.questionId ?? null,
+      subCategory: input.subCategory ?? '',
       help_faq_question: true,
+      ...(input.questionId != null ? { question_id: input.questionId } : {}),
+      ...(entityId !== null ? { entity_id: entityId } : {}),
+      'active-sections': activeSections,
+      workflow_id: `ticket-${randomUUID()}`,
+      title_source: titleSource,
     },
-    logstamps: { L1_assigned_at: new Date().toISOString() },
+    logstamps,
+    createdAt: now,
+    updatedAt: now,
   })
 
   const ticketId = Number(result.insertId)
@@ -108,12 +165,11 @@ export async function createTicket(input: {
   // like the legacy flow. Best-effort: a failure here must not fail ticket
   // creation (the ticket already exists and is owned by an assignee).
   try {
-    const { message } = await buildFirstTemplateResponse({
+    const { message, displayName } = await buildFirstTemplateResponse({
       batchId: input.batchId,
       category: input.category,
       assigneeId,
     })
-    const now = new Date().toISOString()
     await db.insert(comments).values({
       ticketId,
       userId: assigneeId,
@@ -121,7 +177,11 @@ export async function createTicket(input: {
       public: 1,
       createdAt: now,
       updatedAt: now,
-      data: { firstTemplateResponse: true, ticket_level: 'l1' },
+      data: {
+        firstTemplateResponse: true,
+        ticket_level: 'l1',
+        displayName,
+      },
     })
   } catch (error) {
     console.error(
@@ -153,7 +213,7 @@ export async function addReply(input: {
   )
   if (!caps.canReply) throw new Error('SUPPORT_REPLY_NOT_ALLOWED')
 
-  const now = new Date().toISOString()
+  const now = supportNow()
   const [result] = await db.insert(comments).values({
     ticketId: input.ticketId,
     userId: input.userId,
@@ -191,7 +251,7 @@ export async function rateTicket(input: {
 
   await db
     .update(tickets)
-    .set({ rating: input.rating, updatedAt: new Date().toISOString() })
+    .set({ rating: input.rating, updatedAt: supportNow() })
     .where(eq(tickets.id, input.ticketId))
 
   return { rating: input.rating }
@@ -210,12 +270,25 @@ export async function reopenTicket(input: {
   )
   if (!caps.canReopen) throw new Error('SUPPORT_REOPEN_NOT_ALLOWED')
 
+  const now = supportNow()
+  const audit = patchReopenAudit({
+    info: ticket.info,
+    logstamps: ticket.logstamps,
+    meta: ticket.meta,
+    now,
+    status: normalizeStatus(ticket.status),
+    assigneeId: ticket.assigneeId,
+  })
+
   await db
     .update(tickets)
     .set({
       status: 're-opened',
       isClosed: 0,
-      updatedAt: new Date().toISOString(),
+      updatedAt: now,
+      info: audit.info,
+      logstamps: audit.logstamps,
+      meta: audit.meta,
     })
     .where(eq(tickets.id, input.ticketId))
 
@@ -258,9 +331,27 @@ export async function escalateTicket(input: {
   const next = nextEscalation(ladder, ticket.assigneeId)
   if (!next) throw new Error('SUPPORT_ESCALATE_NOT_ALLOWED')
 
-  const now = new Date().toISOString()
-  const meta = ticket.meta ?? {}
-  const logstamps = ticket.logstamps ?? {}
+  const now = supportNow()
+  const fromLevel = currentLevel(ladder, ticket.assigneeId) ?? 'l1'
+  const [assigneeRow] = await db
+    .select({ email: users.email, id: users.id, name: users.name })
+    .from(users)
+    .where(eq(users.id, next.userId))
+    .limit(1)
+  const nextAssigneeLabel = assigneeRow
+    ? `${assigneeRow.email} (${assigneeRow.id}) - ${assigneeRow.name}`
+    : null
+  const audit = patchEscalationAudit({
+    info: ticket.info,
+    logstamps: ticket.logstamps,
+    meta: ticket.meta,
+    now,
+    fromLevel,
+    toLevel: next.level,
+    currentAssigneeId: ticket.assigneeId,
+    nextAssigneeId: next.userId,
+    nextAssigneeLabel,
+  })
 
   await db
     .update(tickets)
@@ -269,8 +360,9 @@ export async function escalateTicket(input: {
       status: 're-opened',
       isClosed: 0,
       updatedAt: now,
-      meta: { ...meta, escalation_count: (meta.escalation_count ?? 0) + 1 },
-      logstamps: { ...logstamps, [`escalated_to_${next.level}_at`]: now },
+      info: audit.info,
+      logstamps: audit.logstamps,
+      meta: audit.meta,
     })
     .where(eq(tickets.id, input.ticketId))
 

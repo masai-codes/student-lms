@@ -34,6 +34,7 @@ function learningItem(
     attendance: null,
     optionalAttendance: null,
     assignmentProgressStatus: null,
+    assignmentWeightage: null,
     resourcePhase: null,
     listingCtas: {
       joinLive: 'hidden',

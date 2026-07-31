@@ -224,6 +224,20 @@ export function mapThrownErrorToResponse(error: unknown): Response {
         return jsonError(403, error.message)
       case 'ZOOM_REDIRECT_FAILED':
         return jsonError(503, error.message)
+      case 'WEBHOOK_UNAUTHORIZED':
+        return jsonError(401, error.message)
+      case 'WEBHOOK_NOT_ENABLED':
+        return jsonError(503, error.message)
+      case 'INVALID_ENROLMENT_PAYLOAD':
+        return jsonError(400, error.message)
+      case 'BATCH_NOT_FOUND':
+        return jsonError(404, error.message)
+      case 'ENROLMENT_NOT_FOUND':
+        return jsonError(404, error.message)
+      case 'ADMISSION_DATA_NOT_FOUND':
+        return jsonError(404, error.message)
+      case 'NO_VALID_SECTIONS':
+        return jsonError(422, error.message)
       default:
         break
     }

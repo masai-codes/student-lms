@@ -47,7 +47,10 @@ export function AnnouncementsPage() {
   }
 
   const { data, isLoading, isFetching } = useQuery({
-    queryKey: ['announcements', { page, q: q ?? '', message: messagesOnly, filterSearch }],
+    queryKey: [
+      'announcements',
+      { page, q: q ?? '', message: messagesOnly, filterSearch },
+    ],
     queryFn: () =>
       fetchAnnouncements({
         page,
