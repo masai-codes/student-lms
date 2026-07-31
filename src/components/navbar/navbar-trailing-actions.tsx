@@ -1,9 +1,32 @@
 'use client'
 
+import type { ReactNode } from 'react'
 import { NavbarAnchor } from './navbar-anchor'
 import type { NavbarActionItem } from './types'
 
 import { cn } from '@/lib/utils'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/ui/tooltip'
+
+/** Wraps an icon-only trigger with the shared Radix tooltip when one is given. */
+function WithTooltip({
+  tooltip,
+  children,
+}: {
+  tooltip?: string
+  children: ReactNode
+}) {
+  if (!tooltip) return <>{children}</>
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>{children}</TooltipTrigger>
+      <TooltipContent>{tooltip}</TooltipContent>
+    </Tooltip>
+  )
+}
 
 type NavbarTrailingActionsProps = {
   items: Array<NavbarActionItem>
@@ -130,24 +153,24 @@ export function NavbarTrailingActions({
             : 'h-6 w-auto object-contain'
 
           return (
-            <NavbarAnchor
-              key={key}
-              href={item.href}
-              openInNewTab={item.openInNewTab}
-              onClick={item.onClick}
-              title={item.tooltip}
-              data-testid={testId}
-              className="inline-flex h-8 cursor-pointer items-center justify-center rounded-full px-1 text-foreground-muted shadow-none transition-colors hover:text-brand focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-0"
-            >
-              <img
-                src={item.src}
-                alt={item.alt}
-                className={imageClassName}
-                loading="lazy"
-                decoding="async"
-                suppressHydrationWarning
-              />
-            </NavbarAnchor>
+            <WithTooltip key={key} tooltip={item.tooltip}>
+              <NavbarAnchor
+                href={item.href}
+                openInNewTab={item.openInNewTab}
+                onClick={item.onClick}
+                data-testid={testId}
+                className="inline-flex h-8 cursor-pointer items-center justify-center rounded-full px-1 text-foreground-muted shadow-none transition-colors hover:text-brand focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-0"
+              >
+                <img
+                  src={item.src}
+                  alt={item.alt}
+                  className={imageClassName}
+                  loading="lazy"
+                  decoding="async"
+                  suppressHydrationWarning
+                />
+              </NavbarAnchor>
+            </WithTooltip>
           )
         }
 
@@ -167,23 +190,23 @@ export function NavbarTrailingActions({
           ) : null
 
         return (
-          <NavbarAnchor
-            key={key}
-            href={item.href}
-            openInNewTab={item.openInNewTab}
-            onClick={item.onClick}
-            aria-label={item.ariaLabel}
-            aria-current={item.isActive ? 'page' : undefined}
-            title={item.tooltip}
-            data-testid={testId}
-            className={cn(
-              ICON_BUTTON_CLASSES,
-              item.isActive && 'bg-surface-muted text-brand',
-            )}
-          >
-            {item.icon}
-            {badge}
-          </NavbarAnchor>
+          <WithTooltip key={key} tooltip={item.tooltip}>
+            <NavbarAnchor
+              href={item.href}
+              openInNewTab={item.openInNewTab}
+              onClick={item.onClick}
+              aria-label={item.ariaLabel}
+              aria-current={item.isActive ? 'page' : undefined}
+              data-testid={testId}
+              className={cn(
+                ICON_BUTTON_CLASSES,
+                item.isActive && 'bg-surface-muted text-brand',
+              )}
+            >
+              {item.icon}
+              {badge}
+            </NavbarAnchor>
+          </WithTooltip>
         )
       })}
     </div>

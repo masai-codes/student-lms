@@ -32,6 +32,8 @@ export type NavbarActivation =
 export type NavbarLinkItem = {
   id?: string
   label: string
+  /** Optional leading icon (Tier 1 left-side items — Home, Learn, Chat, MasaiVerse, Interviews). */
+  icon?: ReactNode
   /**
    * Mark the current route (or logical section). Renders accent color and an underline;
    * set from the consuming app (e.g. compare `pathname` to `href`).

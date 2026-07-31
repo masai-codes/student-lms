@@ -41,12 +41,20 @@ export function NavbarNavItems({ items, className }: NavbarNavItemsProps) {
             >
               <span
                 className={cn(
-                  'subpixel-antialiased cursor-pointer whitespace-nowrap font-poppins text-[14px] leading-5 transition-colors',
+                  'inline-flex items-center gap-1.5 subpixel-antialiased cursor-pointer whitespace-nowrap font-poppins text-[14px] leading-5 transition-colors',
                   item.isActive
                     ? 'font-semibold text-brand'
                     : 'font-medium text-foreground-muted hover:text-brand',
                 )}
               >
+                {item.icon ? (
+                  <span
+                    className="flex shrink-0 items-center justify-center [&_svg]:size-4"
+                    aria-hidden
+                  >
+                    {item.icon}
+                  </span>
+                ) : null}
                 {item.label}
               </span>
               {/* Active indicator sits on the row's baseline (rather than
