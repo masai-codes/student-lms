@@ -131,12 +131,20 @@ export type MasaiverseAccessEntities = {
   enrollment: typeof sectionUser.$inferSelect
 }
 
+export type MultiProgramStudentEntities = LiveLecturePhasesEntities & {
+  secondBatch: typeof batches.$inferSelect
+  secondSection: typeof sections.$inferSelect
+  secondEnrollment: typeof sectionUser.$inferSelect
+  secondBatchLecture: typeof lectures.$inferSelect
+}
+
 export type SeedFlowEntities =
   | LoginAndJoinLectureEntities
   | LiveLecturePhasesEntities
   | OnboardingEntities
   | DashboardHomeEntities
   | MasaiverseAccessEntities
+  | MultiProgramStudentEntities
 
 export type SeedFlowResult = {
   flowId: string
@@ -166,6 +174,12 @@ export function isOnboardingEntities(
   entities: SeedFlowEntities,
 ): entities is OnboardingEntities {
   return 'sections' in entities
+}
+
+export function isMultiProgramStudentEntities(
+  entities: SeedFlowEntities,
+): entities is MultiProgramStudentEntities {
+  return 'secondBatch' in entities && 'secondEnrollment' in entities
 }
 
 export function isDashboardHomeEntities(

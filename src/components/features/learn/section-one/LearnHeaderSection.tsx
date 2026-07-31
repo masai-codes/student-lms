@@ -62,9 +62,27 @@ export function LearnHeaderSection({
   const courseDetailsHref = selectedBatchOption?.showBatchDetails
     ? getOldStudentUiUrlForPath(`/new-courses/${selectedBatch}`)
     : undefined
-  const discussionsHref = getOldStudentUiUrlForPath(
-    OLD_STUDENT_UI_NAV_PATHS.discussions,
-  )
+
+  const renderProgramDetailsLink = (className?: string) =>
+    courseDetailsHref ? (
+      <a
+        href={courseDetailsHref}
+        target="_blank"
+        rel="noopener noreferrer"
+        onClick={() =>
+          pushLearnEvent('l_learn_course_details_click_id_' + selectedBatch, {
+            batch_id: selectedBatch,
+          })
+        }
+        className={`type-b1-md group flex shrink-0 items-center gap-1 self-start text-primary-500 transition-colors hover:text-primary-600 hover:underline md:self-auto${className ? ` ${className}` : ''}`}
+      >
+        <span>Program Details</span>
+        <ExternalLink
+          className="size-4 transition-transform duration-200 group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
+          aria-hidden
+        />
+      </a>
+    ) : null
 
   return (
     <section className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
@@ -82,27 +100,19 @@ export function LearnHeaderSection({
             onBatchChange={onBatchChange}
             compact
           />
-          {discussionsHref ? (
-            <a
-              href={discussionsHref}
-              aria-label="Discussions"
-              title="Discussions"
-              className="flex size-8 shrink-0 items-center justify-center rounded-full text-foreground-muted transition-colors hover:bg-surface-muted hover:text-brand focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring [&_svg]:size-[17px]"
-            >
-              <MessagesSquare aria-hidden />
-            </a>
-          ) : null}
         </div>
-        {batches.length > 1 ? (
-          <SlotPortal slotId={LEARN_TIER2_PROGRAM_SLOT_ID}>
+
+        <SlotPortal slotId={LEARN_TIER2_PROGRAM_SLOT_ID}>
+          <div className="flex items-center gap-3">
             <LearnBatchSwitcher
               selectedBatch={selectedBatch}
               batches={batches}
               onBatchChange={onBatchChange}
               compact
             />
-          </SlotPortal>
-        ) : null}
+            {renderProgramDetailsLink()}
+          </div>
+        </SlotPortal>
 
         {/* Section filter — scopes the listing to one enrolled section of the batch.
             Only rendered for batches that opt in via `meta.showSectionDropdown`. */}
@@ -129,25 +139,10 @@ export function LearnHeaderSection({
         ) : null}
       </div>
 
-      {courseDetailsHref ? (
-        <a
-          href={courseDetailsHref}
-          target="_blank"
-          rel="noopener noreferrer"
-          onClick={() =>
-            pushLearnEvent('l_learn_course_details_click_id_' + selectedBatch, {
-              batch_id: selectedBatch,
-            })
-          }
-          className="type-b1-md group flex shrink-0 items-center gap-1 self-start text-primary-500 transition-colors hover:text-primary-600 hover:underline md:self-auto"
-        >
-          <span>Program Details</span>
-          <ExternalLink
-            className="size-4 transition-transform duration-200 group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
-            aria-hidden
-          />
-        </a>
-      ) : null}
+      {/* On desktop (lg+) with more than one program, this same link is
+          portaled into the navbar's Tier 2 program slot next to the
+          switcher, so this copy only needs to cover mobile there. */}
+      {renderProgramDetailsLink(undefined)}
     </section>
   )
 }

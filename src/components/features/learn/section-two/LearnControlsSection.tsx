@@ -175,7 +175,7 @@ export function LearnControlsSection({
         />
 
         <MasaiSelectDropdown
-          triggerLabel="Timeframe"
+          triggerLabel=""
           menuLabel="Select timeframe"
           aria-label="Filter by timeframe"
           options={LEARN_SCHEDULE_HORIZON_OPTIONS}

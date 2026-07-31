@@ -43,6 +43,7 @@ Compose every flow in one database — each flow uses **its own users, batch, se
 | Flow ID                    | Starting UI state                                                                                                                           |
 | -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
 | `login-and-join-lecture`   | Student can log in and join a live lecture                                                                                                  |
+| `multi-program-student`    | Student enrolled in two programs/batches (live-lecture-phases SDE batch + a Data Science batch) — exercises the `/learn` batch switcher     |
 | `dashboard-home`           | Dashboard: My Schedule, Pending Tasks, Announcements, Product Updates (edge cases)                                                          |
 | `onboarding-legacy-user`   | No T0 UI (no admission row)                                                                                                                 |
 | `onboarding-welcome-modal` | Welcome modal on first login                                                                                                                |

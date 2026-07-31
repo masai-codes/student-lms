@@ -85,28 +85,36 @@ export function Navbar({
         </div>
 
         <div className="flex shrink-0 items-center gap-2 xl:gap-3">
-          <NavbarTrailingActions items={trailingActions ?? []} />
-          {hasSecondaryLinks && hasIconCluster ? <RowDivider /> : null}
           <NavbarTrailingActions items={secondaryRowLinks ?? []} />
           {primaryRowActions?.length ? (
             <NavbarTrailingActions items={primaryRowActions} />
           ) : null}
           {actionsSlot ?? null}
+          {hasSecondaryLinks && hasIconCluster ? <RowDivider /> : null}
+          <NavbarTrailingActions items={trailingActions ?? []} />
           {/* <ThemeSwitcher /> */}
           <NavbarProfileMenu profile={profile} />
         </div>
       </div>
 
-      {/* Row 2 (Tier 2): omitted entirely when the active module has none. */}
+      {/* Row 2 (Tier 2): omitted entirely when the active module has none.
+          The border-top lives on this full-width wrapper (not the max-w
+          inner row) so the hairline spans the whole header, matching the
+          tier 1 bottom border. An invisible logo mirrors tier 1's logo
+          column so tier 2 content lines up with the tier 1 nav items. */}
       {tier2 ? (
-        <div
-          data-testid="navbar-row-tier2"
-          className={cn(
-            LAYOUT_NAVBAR_INNER_CLASSES,
-            'h-11 items-stretch justify-between gap-3 border-t border-border',
-          )}
-        >
-          {tier2}
+        <div className="w-full border-t border-border">
+          <div
+            data-testid="navbar-row-tier2"
+            className={cn(LAYOUT_NAVBAR_INNER_CLASSES, 'h-11 items-stretch')}
+          >
+            <div className="flex min-w-0 flex-1 items-stretch gap-4 xl:gap-8 2xl:gap-12">
+              <NavbarLogo logo={logo} decorative />
+              <div className="flex min-w-0 flex-1 items-stretch justify-between gap-3">
+                {tier2}
+              </div>
+            </div>
+          </div>
         </div>
       ) : null}
     </header>

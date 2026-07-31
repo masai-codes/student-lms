@@ -24,7 +24,6 @@ import {
   LIVE_LECTURE_PHASES_FLOW_ID,
   LIVE_LECTURE_PHASES_TIMING,
   LIVE_LECTURE_RECORDING_HLS_URL,
-  type LiveLecturePhasesFlowId,
 } from './config'
 import { seedTranscriptLectures } from './seedTranscriptLectures'
 import type { TranscriptLectureSeeds } from './seedTranscriptLectures'
@@ -55,7 +54,7 @@ export type LiveLecturePhaseKey =
   | 'transcriptPlainText'
 
 export type LiveLecturePhasesWorld = {
-  flowId: LiveLecturePhasesFlowId
+  flowId: string
   admin: Awaited<ReturnType<typeof createUser>>
   student: Awaited<ReturnType<typeof createUser>>
   batch: Awaited<ReturnType<typeof createBatch>>
@@ -185,7 +184,7 @@ function baseDescription(flowId: string, phaseLabel: string): string {
 }
 
 export async function buildLiveLecturePhasesWorld(
-  flowId: LiveLecturePhasesFlowId = LIVE_LECTURE_PHASES_FLOW_ID,
+  flowId: string = LIVE_LECTURE_PHASES_FLOW_ID,
 ): Promise<LiveLecturePhasesWorld> {
   const admin = await createUser({
     name: `Instructor Aditya [${flowId}]`,
