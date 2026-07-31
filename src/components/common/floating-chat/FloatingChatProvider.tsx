@@ -3,25 +3,17 @@ import {
   useCallback,
   useContext,
   useEffect,
-  useRef,
   useState,
   type ReactNode,
 } from 'react'
 import { cn } from '@/lib/utils'
 import { useQuery } from '@tanstack/react-query'
-import { useNavigate, useRouterState } from '@tanstack/react-router'
+import { useNavigate } from '@tanstack/react-router'
 import { X } from '@phosphor-icons/react'
 import { floatingChatInboxQuery } from '@/query/support/supportQueries'
 import { FloatingChatModal } from './FloatingChatModal'
-import { FloatingChatRaiseReminder } from './FloatingChatRaiseReminder'
 import { navigateSupportReviewHref } from './navigateSupportReviewHref'
 import type { FloatingChatEntityLaunchIntent } from './floatingChatLaunchIntent'
-
-interface RaiseReminderState {
-  categoryLabel: string
-  itemTitle: string
-  reviewPathname: string
-}
 
 interface FloatingChatContextValue {
   open: () => void
@@ -41,7 +33,7 @@ export function useFloatingChat(): FloatingChatContextValue {
 
 interface FloatingChatProviderProps {
   children: ReactNode
-  /** When false, only exposes context — no sphere (e.g. `/support` routes). */
+  /** When false, only exposes context — no sphere (e.g. learn detail pages). */
   showSphere?: boolean
   className?: string
 }
@@ -52,36 +44,15 @@ export function FloatingChatProvider({
   className,
 }: FloatingChatProviderProps) {
   const navigate = useNavigate()
-  const pathname = useRouterState({
-    select: (state) => state.location.pathname,
-  })
 
   const [isOpen, setIsOpen] = useState(false)
   const [hasOpenedOnce, setHasOpenedOnce] = useState(false)
   const [entityLaunchIntent, setEntityLaunchIntent] =
     useState<FloatingChatEntityLaunchIntent | null>(null)
-  const [raiseReminder, setRaiseReminder] = useState<RaiseReminderState | null>(
-    null,
-  )
-  const hasReachedReviewPageRef = useRef(false)
 
   useEffect(() => {
     if (isOpen) setHasOpenedOnce(true)
   }, [isOpen])
-
-  useEffect(() => {
-    if (!raiseReminder) {
-      hasReachedReviewPageRef.current = false
-      return
-    }
-    if (pathname === raiseReminder.reviewPathname) {
-      hasReachedReviewPageRef.current = true
-      return
-    }
-    if (hasReachedReviewPageRef.current) {
-      setRaiseReminder(null)
-    }
-  }, [pathname, raiseReminder])
 
   const inboxQuery = useQuery({
     ...floatingChatInboxQuery(),
@@ -90,13 +61,11 @@ export function FloatingChatProvider({
 
   const open = useCallback(() => {
     setEntityLaunchIntent(null)
-    setRaiseReminder(null)
     setIsOpen(true)
   }, [])
 
   const openWithEntity = useCallback(
     (intent: FloatingChatEntityLaunchIntent) => {
-      setRaiseReminder(null)
       setEntityLaunchIntent(intent)
       setIsOpen(true)
     },
@@ -108,16 +77,7 @@ export function FloatingChatProvider({
     setEntityLaunchIntent(null)
   }, [])
 
-  const handleReviewItem = (input: {
-    href: string
-    categoryLabel: string
-    itemTitle: string
-  }) => {
-    setRaiseReminder({
-      categoryLabel: input.categoryLabel,
-      itemTitle: input.itemTitle,
-      reviewPathname: input.href,
-    })
+  const handleReviewItem = (input: { href: string }) => {
     setIsOpen(false)
     navigateSupportReviewHref(navigate, input.href)
   }
@@ -129,8 +89,6 @@ export function FloatingChatProvider({
     }
     open()
   }
-
-  const showRaiseReminder = raiseReminder != null && !isOpen
 
   return (
     <FloatingChatContext.Provider value={{ open, openWithEntity, close }}>
@@ -148,16 +106,6 @@ export function FloatingChatProvider({
         onEntityLaunchComplete={() => setEntityLaunchIntent(null)}
         onEntityLaunchFailed={() => setEntityLaunchIntent(null)}
       />
-
-      {showRaiseReminder && (
-        <FloatingChatRaiseReminder
-          className={cn(
-            'fixed z-[219]',
-            'bottom-[calc(4.5rem+env(safe-area-inset-bottom)+5rem)] right-3',
-            'lg:bottom-[5.5rem] lg:right-[5rem]',
-          )}
-        />
-      )}
 
       {showSphere ? (
         <button

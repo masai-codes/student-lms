@@ -1,9 +1,8 @@
 import { cn } from '@/lib/utils'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
-import { useNavigate, useRouterState } from '@tanstack/react-router'
+import { useNavigate } from '@tanstack/react-router'
 import { FloatingChatModal } from './FloatingChatModal'
-import { FloatingChatRaiseReminder } from './FloatingChatRaiseReminder'
 import { navigateSupportReviewHref } from './navigateSupportReviewHref'
 import { X } from '@phosphor-icons/react'
 import { floatingChatInboxQuery } from '@/query/support/supportQueries'
@@ -13,72 +12,33 @@ interface FloatingChatSphereProps {
   className?: string
 }
 
-interface RaiseReminderState {
-  categoryLabel: string
-  itemTitle: string
-  reviewPathname: string
-}
-
 export function FloatingChatSphere({
   onClick,
   className,
 }: FloatingChatSphereProps) {
   const navigate = useNavigate()
-  const pathname = useRouterState({
-    select: (state) => state.location.pathname,
-  })
 
   const [isOpen, setIsOpen] = useState(false)
   const [hasOpenedOnce, setHasOpenedOnce] = useState(false)
-  const [raiseReminder, setRaiseReminder] = useState<RaiseReminderState | null>(
-    null,
-  )
-  const hasReachedReviewPageRef = useRef(false)
 
   useEffect(() => {
     if (isOpen) setHasOpenedOnce(true)
   }, [isOpen])
-
-  useEffect(() => {
-    if (!raiseReminder) {
-      hasReachedReviewPageRef.current = false
-      return
-    }
-    if (pathname === raiseReminder.reviewPathname) {
-      hasReachedReviewPageRef.current = true
-      return
-    }
-    if (hasReachedReviewPageRef.current) {
-      setRaiseReminder(null)
-    }
-  }, [pathname, raiseReminder])
 
   const inboxQuery = useQuery({
     ...floatingChatInboxQuery(),
     enabled: hasOpenedOnce,
   })
 
-  const handleReviewItem = (input: {
-    href: string
-    categoryLabel: string
-    itemTitle: string
-  }) => {
-    setRaiseReminder({
-      categoryLabel: input.categoryLabel,
-      itemTitle: input.itemTitle,
-      reviewPathname: input.href,
-    })
+  const handleReviewItem = (input: { href: string }) => {
     setIsOpen(false)
     navigateSupportReviewHref(navigate, input.href)
   }
 
   const handleSphereClick = () => {
-    setRaiseReminder(null)
     setIsOpen((open) => !open)
     onClick?.()
   }
-
-  const showRaiseReminder = raiseReminder != null && !isOpen
 
   return (
     <>
@@ -91,16 +51,6 @@ export function FloatingChatSphere({
         onInboxRetry={() => void inboxQuery.refetch()}
         onReviewItem={handleReviewItem}
       />
-
-      {showRaiseReminder && (
-        <FloatingChatRaiseReminder
-          className={cn(
-            'fixed z-[219]',
-            'bottom-[calc(4.5rem+env(safe-area-inset-bottom)+5rem)] right-3',
-            'lg:bottom-[5.5rem] lg:right-[5rem]',
-          )}
-        />
-      )}
 
       <button
         onClick={handleSphereClick}
