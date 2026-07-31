@@ -66,6 +66,11 @@ function mapToLegacyPath(pathname: string): string {
   return pathname
 }
 
+/** Lecture, assignment, and resource detail pages use in-header Raise Ticket instead. */
+function isLearnDetailRoute(pathname: string): boolean {
+  return /^\/(lectures|assignments|resources)\/[^/]+/.test(pathname)
+}
+
 export const Route = createFileRoute('/(protected)/_layout')({
   beforeLoad: async ({ location }) => {
     const shouldRedirectToLegacy = isLegacyStudentRedirectEnabled()
@@ -194,6 +199,8 @@ function RouteComponent() {
 
   const showFloatingChat =
     ENABLE_SUPPORT_FLOATER && !isMasaiverseRoute && !isSupportRoute
+  const showFloatingChatSphere =
+    showFloatingChat && !isLearnDetailRoute(renderedPathname)
 
   // `data-app-shell`: hook target for the lecture page viewport lock (styles.css).
   const layout = (
@@ -224,7 +231,9 @@ function RouteComponent() {
   return (
     <ModalProvider>
       {showFloatingChat ? (
-        <FloatingChatProvider>{layout}</FloatingChatProvider>
+        <FloatingChatProvider showSphere={showFloatingChatSphere}>
+          {layout}
+        </FloatingChatProvider>
       ) : (
         layout
       )}
