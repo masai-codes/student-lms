@@ -130,6 +130,8 @@ export type NavbarActionItem =
   | NavbarTextAction
   | NavbarIconAction
   | NavbarImageAction
+  | NavbarIconTextAction
+  | NavbarDividerAction
 
 export type NavbarProps = {
   logo: NavbarLogo
